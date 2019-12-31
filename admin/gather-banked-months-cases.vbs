@@ -50,9 +50,14 @@ call changelog_update("06/20/2019", "Initial version.", "Ilse Ferris, Hennepin C
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'----------------------------------------------------------------------------------------------------DIALOG
-'The dialog is defined in the loop as it can change as buttons are pressed 
-BeginDialog , 0, 0, 266, 115, "Gather Banked months"
+'----------------------------------------------------------------------------------------------------The script
+'CONNECTS TO BlueZone
+EMConnect ""
+
+file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\SNAP\Banked months data\Ongoing banked months list.xlsx"
+
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 266, 115, "Gather Banked months"
   ButtonGroup ButtonPressed
     PushButton 200, 50, 50, 15, "Browse...", select_a_file_button
     OkButton 150, 95, 50, 15
@@ -62,19 +67,12 @@ BeginDialog , 0, 0, 266, 115, "Gather Banked months"
   Text 15, 70, 230, 15, "Select the Excel file that contains your information by selecting the 'Browse' button, and finding the file."
   GroupBox 10, 5, 250, 85, "Using this script:"
 EndDialog
-
-'----------------------------------------------------------------------------------------------------The script
-'CONNECTS TO BlueZone
-EMConnect ""
-
-file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\SNAP\Banked months data\Ongoing banked months list.xlsx"
-
 Do
     err_msg = ""
-	dialog
-	cancel_without_confirmation 
+	dialog Dialog1
+	cancel_without_confirmation
 	If ButtonPressed = select_a_file_button then call file_selection_system_dialog(file_selection_path, ".xlsx")
-    If trim(file_selection_path) = "" then err_msg = err_msg & vbcr & "* Select a file to continue." 
+    If trim(file_selection_path) = "" then err_msg = err_msg & vbcr & "* Select a file to continue."
     If err_msg <> "" Then MsgBox err_msg
 Loop until err_msg = ""
 If objExcel = "" Then call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
@@ -88,27 +86,28 @@ ReDim ongoing_array(2,0)
 const case_number   = 0
 const memb_number   = 1
 
-Do 
+Do
 	MAXIS_case_number = ObjExcel.Cells(excel_row, 1).Value
 	MAXIS_case_number = trim(MAXIS_case_number)
-    If MAXIS_case_number = "" then exit do 
+    If MAXIS_case_number = "" then exit do
     member_number = ObjExcel.Cells(excel_row, 2).Value
     member_number = right("0" & member_number, 2)
-    
+
     ReDim Preserve ongoing_array(2, entry_record)	'This resizes the array based on the number of rows in the Excel File'
-    ongoing_array(case_number,	entry_record) = MAXIS_case_number		
-    ongoing_array(memb_number, 	entry_record) = member_number				
-    
+    ongoing_array(case_number,	entry_record) = MAXIS_case_number
+    ongoing_array(memb_number, 	entry_record) = member_number
+
     entry_record = entry_record + 1			'This increments to the next entry in the array'
     excel_row = excel_row + 1
 LOOP
 
-objExcel.Quit   'Closes the initial spreadsheet 
+objExcel.Quit   'Closes the initial spreadsheet
 objExcel = ""
 
-'----------------------------------------------------------------------------------------------------GATHERING THE LIST OF ALL BANKED MONTHS CASES 
-'dialog and dialog DO...Loop	
-BeginDialog , 0, 0, 266, 115, "Current Month Banked Months List"
+'----------------------------------------------------------------------------------------------------GATHERING THE LIST OF ALL BANKED MONTHS CASES
+'dialog and dialog DO...Loop
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 266, 115, "Current Month Banked Months List"
   ButtonGroup ButtonPressed
     PushButton 200, 50, 50, 15, "Browse...", select_file_button
     OkButton 150, 95, 50, 15
@@ -123,15 +122,15 @@ file_selection = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REP
 
 Do
     err_msg = ""
-	dialog
-	cancel_without_confirmation 
+	dialog Dialog1
+	cancel_without_confirmation
 	If ButtonPressed = select_file_button then call file_selection_system_dialog(file_selection, ".xlsx")
-    If trim(file_selection) = "" then err_msg = err_msg & vbcr & "* Select a file to continue." 
+    If trim(file_selection) = "" then err_msg = err_msg & vbcr & "* Select a file to continue."
     If err_msg <> "" Then MsgBox err_msg
 Loop until err_msg = ""
 If objExcel = "" Then call excel_open(file_selection, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
-    
-'----------------------------------------------------------------------------------------------------FILTERING THE ARRAY 
+
+'----------------------------------------------------------------------------------------------------FILTERING THE ARRAY
 Dim new_cases_array
 ReDim new_cases_array(3,0)
 new_cases = 0
@@ -142,43 +141,43 @@ const client_name_const     = 2
 
 excel_row = 2
 
-DO 
+DO
     MAXIS_case_number = ObjExcel.Cells(excel_row, 1).Value
     MAXIS_case_number = trim(MAXIS_case_number)
-    If MAXIS_case_number = "" then exit do 
+    If MAXIS_case_number = "" then exit do
     member_number = ObjExcel.Cells(excel_row, 2).Value
     member_number = right("0" & member_number, 2)
     client_name = ObjExcel.Cells(excel_row, 3).Value
     client_name = trim(client_name)
-    
+
     For item = 0 to UBound(ongoing_array, 2)
-        banked_month_case_number = ongoing_array(case_number, item)  
+        banked_month_case_number = ongoing_array(case_number, item)
         banked_months_member = ongoing_array(memb_number, item)
-        
-        If banked_month_case_number = MAXIS_case_number then 
-            if banked_months_member = member_number then 
-                match_found = True 
-            else 
-                match_found = False 
-            end if 
-        Else 
-            match_found = False 
-        End if 
+
+        If banked_month_case_number = MAXIS_case_number then
+            if banked_months_member = member_number then
+                match_found = True
+            else
+                match_found = False
+            end if
+        Else
+            match_found = False
+        End if
         if match_found = true then exit for
     Next
-    
-    If match_found = false then 
-        ReDim Preserve new_cases_array(3,   new_cases)	'This resizes the array based on the number of rows in the Excel File'
-        new_cases_array(case_number_const,	 new_cases) = MAXIS_case_number		
-        new_cases_array(member_number_const, new_cases) = member_number				
-        new_cases_array(client_name_const, 	 new_cases) = trim(client_name)	
-        new_cases = new_cases + 1			'This increments to the next entry in the array'
-    End if 
-    
-    excel_row = excel_row + 1
-Loop 
 
-'----------------------------------------------------------------------------------------------------EXPORTING NEW BANKED MONTHS LIST 
+    If match_found = false then
+        ReDim Preserve new_cases_array(3,   new_cases)	'This resizes the array based on the number of rows in the Excel File'
+        new_cases_array(case_number_const,	 new_cases) = MAXIS_case_number
+        new_cases_array(member_number_const, new_cases) = member_number
+        new_cases_array(client_name_const, 	 new_cases) = trim(client_name)
+        new_cases = new_cases + 1			'This increments to the next entry in the array'
+    End if
+
+    excel_row = excel_row + 1
+Loop
+
+'----------------------------------------------------------------------------------------------------EXPORTING NEW BANKED MONTHS LIST
 ObjExcel.Worksheets.Add().Name = "New Banked Months Cases"
 
 'adding column header information to the Excel list
@@ -196,9 +195,9 @@ NEXT
 
 excel_row = 2
 For item = 0 to UBound(new_cases_array, 2)
-	objExcel.Cells(excel_row, 1).Value = new_cases_array(case_number_const, item)	
-	objExcel.Cells(excel_row, 2).Value = new_cases_array(member_number_const, item)	
-	objExcel.Cells(excel_row, 3).Value = new_cases_array(client_name_const, item)	
+	objExcel.Cells(excel_row, 1).Value = new_cases_array(case_number_const, item)
+	objExcel.Cells(excel_row, 2).Value = new_cases_array(member_number_const, item)
+	objExcel.Cells(excel_row, 3).Value = new_cases_array(client_name_const, item)
 	excel_row = excel_row + 1
 Next
 
@@ -206,6 +205,6 @@ Next
 FOR i = 1 to 4
 	objExcel.Columns(i).AutoFit()				'sizing the columns
 NEXT
-    
+
 STATS_counter = STATS_counter - 1 'since we start with 1
 script_end_procedure("Success! Please review your Banked months list.")
