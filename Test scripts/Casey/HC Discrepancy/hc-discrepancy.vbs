@@ -130,7 +130,7 @@ function navigate_to_spec_MMIS_region(group_security_selection)
 		EMReadScreen password_prompt, 38, 2, 23
 		IF password_prompt = "ACF2/CICS PASSWORD VERIFICATION PROMPT" then
 			Do
-
+                Dialog1 = ""
                 BeginDialog Dialog1, 0, 0, 81, 25, "Dialog"
                   Text 10, 10, 65, 10, "Need Password"
                 EndDialog
@@ -291,38 +291,6 @@ function keep_MMIS_passworded_in()
     End If
 end function
 
-'DIALOGS----------------------------------------------------------------------
-' BeginDialog find_spenddowns_month_spec_dialog, 0, 0, 221, 180, "Pull REPT data into Excel dialog"
-'   EditBox 85, 20, 130, 15, worker_number
-'   DropListBox 125, 85, 80, 45, "ALL"+chr(9)+"January"+chr(9)+"February"+chr(9)+"March"+chr(9)+"April"+chr(9)+"May"+chr(9)+"June"+chr(9)+"July"+chr(9)+"August"+chr(9)+"September"+chr(9)+"October"+chr(9)+"November"+chr(9)+"December", revw_month_list
-'   CheckBox 5, 105, 150, 10, "Check here to have the script check MMIS", MMIS_checkbox
-'   CheckBox 5, 120, 150, 10, "Check here to run this query county-wide.", all_workers_check
-'   ButtonGroup ButtonPressed
-'     OkButton 110, 160, 50, 15
-'     CancelButton 165, 160, 50, 15
-'   Text 50, 5, 125, 10, "*** REPT ON MAXIS SPENDDOW ***"
-'   Text 5, 25, 65, 10, "Worker(s) to check:"
-'   Text 5, 40, 210, 20, "Enter 7 digits of your workers' x1 numbers (ex: x######), separated by a comma."
-'   Text 5, 60, 210, 25, "** If a supervisor 'x1 number' is entered, the script will add the 'x1 numbers' of all workers listed in MAXIS under that supervisor number."
-'   Text 5, 90, 120, 10, "Only pull cases with next review in:"
-'   Text 5, 135, 210, 20, "NOTE: running queries county-wide can take a significant amount of time and resources. This should be done after hours."
-' EndDialog
-
-BeginDialog find_spenddowns_month_spec_dialog, 0, 0, 221, 155, "Pull REPT data into Excel dialog"
-  EditBox 85, 20, 130, 15, worker_number
-  EditBox 5, 110, 210, 15, hc_cases_excel_file_path
-  ButtonGroup ButtonPressed
-    PushButton 165, 90, 50, 15, "Browse...", select_a_file_button
-    OkButton 110, 135, 50, 15
-    CancelButton 165, 135, 50, 15
-  Text 50, 5, 125, 10, "*** REPT ON MAXIS SPENDDOW ***"
-  Text 5, 25, 65, 10, "Worker(s) to check:"
-  Text 5, 40, 210, 20, "Enter 7 digits of your workers' x1 numbers (ex: x######), separated by a comma."
-  Text 5, 60, 210, 25, "** If a supervisor 'x1 number' is entered, the script will add the 'x1 numbers' of all workers listed in MAXIS under that supervisor number."
-  Text 100, 85, 15, 10, "OR"
-  Text 5, 95, 135, 10, "Select an Excel file of MAXIS MA cases:"
-EndDialog
-
 
 'THE SCRIPT-------------------------------------------------------------------------
 'Determining specific county for multicounty agencies...
@@ -386,13 +354,29 @@ MAXIS_footer_year = right("00" & datepart("yyyy", date), 2)
 'Setting the initial path for the excel file to be found at - so we don't have to clickity click a bunch to get to the right file.
 hc_cases_excel_file_path = ""
 
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 221, 155, "Pull REPT data into Excel dialog"
+  EditBox 85, 20, 130, 15, worker_number
+  EditBox 5, 110, 210, 15, hc_cases_excel_file_path
+  ButtonGroup ButtonPressed
+    PushButton 165, 90, 50, 15, "Browse...", select_a_file_button
+    OkButton 110, 135, 50, 15
+    CancelButton 165, 135, 50, 15
+  Text 50, 5, 125, 10, "*** REPT ON MAXIS SPENDDOW ***"
+  Text 5, 25, 65, 10, "Worker(s) to check:"
+  Text 5, 40, 210, 20, "Enter 7 digits of your workers' x1 numbers (ex: x######), separated by a comma."
+  Text 5, 60, 210, 25, "** If a supervisor 'x1 number' is entered, the script will add the 'x1 numbers' of all workers listed in MAXIS under that supervisor number."
+  Text 100, 85, 15, 10, "OR"
+  Text 5, 95, 135, 10, "Select an Excel file of MAXIS MA cases:"
+EndDialog
+
 'Initial Dialog to determine the excel file to use, column with case numbers, and which process should be run
 'Show initial dialog
 Do
     Do
         err_msg = ""
 
-    	Dialog find_spenddowns_month_spec_dialog
+    	Dialog Dialog1
     	If ButtonPressed = cancel then stopscript
     	If ButtonPressed = select_a_file_button then
             call file_selection_system_dialog(hc_cases_excel_file_path, ".xlsx")
@@ -615,6 +599,7 @@ Else
     excel_row_to_start = "5"    'presetting this before the dialog since BOBI case information starts on row 5
 
     'This is the dialog to limit the script run as the BOBI is in the tens of thousands
+    Dialog1 = ""
     BeginDialog Dialog1, 0, 0, 171, 115, "How long to run?"
       EditBox 25, 30, 30, 15, stop_time
       EditBox 65, 75, 30, 15, excel_row_to_start
