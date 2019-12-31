@@ -183,34 +183,39 @@ End function
 FUNCTION create_dialog(training_case_creator_excel_file_path, scenario_list, scenario_dropdown, approve_case_dropdown, how_many_cases_to_make, XFER_check, workers_to_XFER_cases_to, reload_excel_file_button, ButtonPressed)
 	'DIALOGS-----------------------------------------------------------------------------------------------------------
 	'NOTE: droplistbox for scenario list must be: ["select one..." & scenario_list] in order to be dynamic
-	BeginDialog Dialog1, 0, 0, 446, 125, "Training case creator dialog"
-	EditBox 85, 5, 295, 15, training_case_creator_excel_file_path
-	DropListBox 60, 40, 140, 15, "select one..." & scenario_list, scenario_dropdown
-	DropListBox 275, 40, 165, 15, "yes, approve all cases"+chr(9)+"no, but enter all STAT panels needed to approve"+chr(9)+"no, but do TYPE/PROG/REVW"+chr(9)+"no, just APPL all cases", approve_case_dropdown
-	EditBox 125, 60, 40, 15, how_many_cases_to_make
-	CheckBox 205, 65, 210, 10, "Check here to XFER cases, and enter worker numbers below.", XFER_check
-	EditBox 130, 80, 310, 15, workers_to_XFER_cases_to
-	ButtonGroup ButtonPressed
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 446, 125, "Training case creator dialog"
+	  EditBox 85, 5, 295, 15, training_case_creator_excel_file_path
+	  DropListBox 60, 40, 140, 15, "select one..." & scenario_list, scenario_dropdown
+	  DropListBox 275, 40, 165, 15, "yes, approve all cases"+chr(9)+"no, but enter all STAT panels needed to approve"+chr(9)+"no, but do TYPE/PROG/REVW"+chr(9)+"no, just APPL all cases", approve_case_dropdown
+	  EditBox 125, 60, 40, 15, how_many_cases_to_make
+	  CheckBox 205, 65, 210, 10, "Check here to XFER cases, and enter worker numbers below.", XFER_check
+	  EditBox 130, 80, 310, 15, workers_to_XFER_cases_to
+	  ButtonGroup ButtonPressed
 		OkButton 335, 105, 50, 15
 		CancelButton 390, 105, 50, 15
 		PushButton 385, 5, 55, 15, "Reload details", reload_excel_file_button
-	Text 5, 10, 75, 10, "File path of Excel file:"
-	Text 130, 25, 310, 10, "Note: only reload values if you've changed the values on the spreadsheet since opening."
-	Text 5, 45, 55, 10, "Scenario to run:"
-	Text 210, 45, 65, 10, "App/XFER cases?:"
-	Text 5, 65, 120, 10, "How many cases are you creating?:"
-	Text 5, 85, 125, 10, "Workers to XFER cases to (x1#####):"
-	Text 5, 100, 325, 20, "Please note: if you just wrote a scenario on the spreadsheet, it is recommended that you ''test'' it first by running a single case through. DHS staff cannot triage issues with agency-written scenarios."
+	  Text 5, 10, 75, 10, "File path of Excel file:"
+	  Text 130, 25, 310, 10, "Note: only reload values if you've changed the values on the spreadsheet since opening."
+	  Text 5, 45, 55, 10, "Scenario to run:"
+	  Text 210, 45, 65, 10, "App/XFER cases?:"
+	  Text 5, 65, 120, 10, "How many cases are you creating?:"
+	  Text 5, 85, 125, 10, "Workers to XFER cases to (x1#####):"
+	  Text 5, 100, 325, 20, "Please note: if you just wrote a scenario on the spreadsheet, it is recommended that you ''test'' it first by running a single case through. DHS staff cannot triage issues with agency-written scenarios."
 	EndDialog
 
     Do
-	   DIALOG
+	   DIALOG Dialog1
        CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
     Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 END FUNCTION
 
-'DIALOGS------------------------------------------------------------------------------------------------------------------
+'VARIABLES TO DECLARE-----------------------------------------------------------------------
+how_many_cases_to_make = "1"		'Defaults to 1, but users can modify this.
+
+'--------------------------------------- Project Krabappel ---------------------------------------
+Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 381, 125, "Training case creator"
   Text 10, 10, 350, 20, "Hello! Thanks for clicking the training case creator! This script will create training cases in the training region for testing purposes. This script uses an Excel template with already built scenarions. "
   Text 10, 35, 350, 20, "NOTE: Due to system limitations MSA/SNAP cases may not have MSA budgeted into the SNAP budget for the initial month."
@@ -223,16 +228,11 @@ BeginDialog Dialog1, 0, 0, 381, 125, "Training case creator"
     CancelButton 325, 105, 50, 15
 EndDialog
 
-'VARIABLES TO DECLARE-----------------------------------------------------------------------
-how_many_cases_to_make = "1"		'Defaults to 1, but users can modify this.
-
-'--------------------------------------- Project Krabappel ---------------------------------------
-
 'Show initial dialog
 Do
     Do
-    	Dialog
-    	If ButtonPressed = cancel then stopscript
+    	Dialog Dialog1
+    	cancel_without_confirmation
     	If ButtonPressed = select_a_file_button then call file_selection_system_dialog(training_case_creator_excel_file_path, ".xlsx")
     Loop until ButtonPressed = OK and training_case_creator_excel_file_path <> ""
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -499,7 +499,7 @@ For cases_to_make = 1 to how_many_cases_to_make
 		EMWriteScreen "N", 14, 78		'Always defualting to no for residence verification
 		transmit
 	Next
-    
+
 	transmit 'This next transmit gets to the ADDR screen
 
 	'Gets ADDR info from spreadsheet, gets from column 3 because it's case based
