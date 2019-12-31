@@ -56,6 +56,7 @@ EMConnect ""            'connect to MAXIS
 CALL MAXIS_case_number_finder(MAXIS_case_number)                    'autofilling MAXIS case number and footer month/year
 CALL MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
+Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 126, 80, "Case Number Dialog"            'The dialog
   EditBox 60, 10, 60, 15, MAXIS_case_number
   EditBox 85, 30, 15, 15, MAXIS_footer_month
@@ -71,23 +72,17 @@ EndDialog
 Do
     Do
         err_msg = ""
-
         dialog Dialog1
-
         cancel_without_confirmation                         'power the cancel button
         CALL validate_MAXIS_case_number(err_msg, "*")       'making sure the case number is present and valid
         MAXIS_footer_month = trim(MAXIS_footer_month)       'validating the footer month and year
         MAXIS_footer_year = trim(MAXIS_footer_year)
-
         If IsNumeric(MAXIS_footer_month) = False Then err_msg = err_msg & vbNewLine & "* Enter a valid footer month."
         If IsNumeric(MAXIS_footer_year) = False Then err_msg = err_msg & vbNewLine & "* Enter a valid footer year."
-
         If err_msg <> "" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg      'showing the error message
-
     Loop until err_msg = ""
     CALL check_for_password(are_we_passworded_out)          'password handling
 Loop until are_we_passworded_out = FALSE
-
 
 CALL back_to_SELF           'getting out of the case to make sure we go to the right place
 Do                          'making sure we are in STAT
