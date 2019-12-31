@@ -111,22 +111,7 @@ const case_notes    = 32
 'ARRAY
 Dim ALL_HC_REVS_ARRAY()
 ReDim ALL_HC_REVS_ARRAY(case_notes, 0)
-
 '----------------------------------------------------------------------------------------------------------
-'DIALOG----------------------------------------------------------------------------------------------------
-BeginDialog paperless_IR_dialog, 0, 0, 241, 130, "PAPERLESS IR"
-  EditBox 70, 10, 50, 15, worker_number
-  EditBox 190, 10, 15, 15, MAXIS_footer_month
-  EditBox 210, 10, 15, 15, MAXIS_footer_year
-  CheckBox 10, 30, 145, 10, "Check here to run for the entire agency", whole_county_check
-  ButtonGroup ButtonPressed
-    OkButton 120, 110, 50, 15
-    CancelButton 175, 110, 50, 15
-  Text 5, 15, 60, 10, "Worker number(s):"
-  Text 125, 15, 65, 10, "Footer month/year:"
-  GroupBox 5, 50, 220, 55, "About the Paperless IR script:"
-  Text 10, 65, 205, 35, "This script will update REVW for each starred IR, after checking JOBS/BUSI/RBIC for discrepancies. It skips cases that are also reviewing for SNAP. You will have to manually check ELIG/HC for each case and approve the results/case note."
-EndDialog
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 EMConnect ""
@@ -144,11 +129,25 @@ If on_revw_panel = "REVW" Then
     worker_number = trim(basket_number)
 End If
 
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 241, 130, "PAPERLESS IR"
+  EditBox 70, 10, 50, 15, worker_number
+  EditBox 190, 10, 15, 15, MAXIS_footer_month
+  EditBox 210, 10, 15, 15, MAXIS_footer_year
+  CheckBox 10, 30, 145, 10, "Check here to run for the entire agency", whole_county_check
+  ButtonGroup ButtonPressed
+    OkButton 120, 110, 50, 15
+    CancelButton 175, 110, 50, 15
+  Text 5, 15, 60, 10, "Worker number(s):"
+  Text 125, 15, 65, 10, "Footer month/year:"
+  GroupBox 5, 50, 220, 55, "About the Paperless IR script:"
+  Text 10, 65, 205, 35, "This script will update REVW for each starred IR, after checking JOBS/BUSI/RBIC for discrepancies. It skips cases that are also reviewing for SNAP. You will have to manually check ELIG/HC for each case and approve the results/case note."
+EndDialog
 DO
 	DO
 		err_msg = ""
-		Dialog paperless_IR_dialog
-		If buttonpressed = 0 then stopscript
+		Dialog Dialog1
+		cancel_without_confirmation
 		If IsNumeric(MAXIS_footer_month) = False or len(MAXIS_footer_month) > 2 or len(MAXIS_footer_month) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer month."
 		If IsNumeric(MAXIS_footer_year) = False or len(MAXIS_footer_year) > 2 or len(MAXIS_footer_year) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer year."
 		'If trim(worker_number) <> "" AND Len(worker_number) <> 7 then err_msg = err_msg & vbNewLine & "* You must enter a valid 7 DIGIT worker number."
