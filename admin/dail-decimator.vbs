@@ -87,19 +87,6 @@ End Function
 
 'END CHANGELOG BLOCK =======================================================================================================
 
-BeginDialog dail_dialog, 0, 0, 266, 110, "Dail Decimator dialog"
-  DropListBox 80, 50, 60, 15, "Select one..."+chr(9)+"ALL"+chr(9)+"COLA"+chr(9)+"CSES"+chr(9)+"ELIG"+chr(9)+"INFO"+chr(9)+"PEPR", dail_to_decimate
-  EditBox 80, 70, 180, 15, worker_number
-  CheckBox 15, 95, 135, 10, "Check here to process for all workers.", all_workers_check
-  ButtonGroup ButtonPressed
-    OkButton 155, 90, 50, 15
-    CancelButton 210, 90, 50, 15
-  Text 15, 75, 60, 10, "Worker number(s):"
-  GroupBox 10, 5, 250, 40, "Using the DAIL Decimator script"
-  Text 20, 20, 235, 20, "This script should be used to remove DAIL messages that have been determined by Quality Improvement staff do not require action."
-  Text 40, 55, 35, 10, "Dail type:"
-EndDialog
-
 '----------------------------------------------------------------------------------------------------THE SCRIPT
 EMConnect ""
 dail_to_decimate = "ALL"
@@ -114,10 +101,23 @@ month_folder = "DAIL " & CM_mo & "-" & DatePart("yyyy", date) & ""
 decimator_folder = replace(this_month, " ", "-") & " DAIL Decimator"
 report_date = replace(date, "/", "-")
 
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 266, 110, "Dail Decimator dialog"
+  DropListBox 80, 50, 60, 15, "Select one..."+chr(9)+"ALL"+chr(9)+"COLA"+chr(9)+"CSES"+chr(9)+"ELIG"+chr(9)+"INFO"+chr(9)+"PEPR", dail_to_decimate
+  EditBox 80, 70, 180, 15, worker_number
+  CheckBox 15, 95, 135, 10, "Check here to process for all workers.", all_workers_check
+  ButtonGroup ButtonPressed
+    OkButton 155, 90, 50, 15
+    CancelButton 210, 90, 50, 15
+  Text 15, 75, 60, 10, "Worker number(s):"
+  GroupBox 10, 5, 250, 40, "Using the DAIL Decimator script"
+  Text 20, 20, 235, 20, "This script should be used to remove DAIL messages that have been determined by Quality Improvement staff do not require action."
+  Text 40, 55, 35, 10, "Dail type:"
+EndDialog
 Do
 	Do
   		err_msg = ""
-  		dialog dail_dialog
+  		dialog Dialog1
   		If ButtonPressed = 0 then StopScript
   		If dail_to_decimate = "Select one..." then err_msg = err_msg & vbNewLine & "* Select the type of DAIL message to decimate!"
   		If trim(worker_number) = "" and all_workers_check = 0 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases."
@@ -237,10 +237,10 @@ For each worker in worker_array
 
             EMReadScreen dail_month, 8, dail_row, 11
             dail_month = trim(dail_month)
-    
+
             stats_counter = stats_counter + 1   'I increment thee
-            Call non_actionable_dails   'Function to evaluate the DAIL messages 
-            
+            Call non_actionable_dails   'Function to evaluate the DAIL messages
+
             IF add_to_excel = True then
 				'--------------------------------------------------------------------...and put that in Excel.
 				objExcel.Cells(excel_row, 1).Value = worker
