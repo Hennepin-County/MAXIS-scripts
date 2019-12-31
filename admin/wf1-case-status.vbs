@@ -53,15 +53,16 @@ changelog_display
 
 'THE SCRIPT-------------------------------------------------------------------------------------------------------------------------
 'Connects to BlueZone and establishing county name
-EMConnect ""	
+EMConnect ""
 'Checks for county info from global variables, or asks if it is not already defined.
 get_county_code
 
-'dialog and dialog DO...Loop	
+'dialog and dialog DO...Loop
 Do
 	Do
-			'The dialog is defined in the loop as it can change as buttons are pressed 
-			BeginDialog CBO_referral_dialog, 0, 0, 266, 110, "WF1 Case Status"
+			'The dialog is defined in the loop as it can change as buttons are pressed
+            Dialog1 = ""
+			BeginDialog Dialog1, 0, 0, 266, 110, "WF1 Case Status"
   				ButtonGroup ButtonPressed
     			PushButton 200, 45, 50, 15, "Browse...", select_a_file_button
     			OkButton 145, 90, 50, 15
@@ -71,8 +72,10 @@ Do
   				Text 20, 20, 235, 20, "This script should be used when E and T provides you with a list of recipeints that require a status update."
   				Text 15, 65, 230, 15, "Select the Excel file that contains the WF1 information by selecting the 'Browse' button, and finding the file."
 			EndDialog
+
 			err_msg = ""
-			Dialog CBO_referral_dialog
+
+			Dialog Dialog1
 			cancel_confirmation
 			If ButtonPressed = select_a_file_button then
 				If file_selection_path <> "" then 'This is handling for if the BROWSE button is pushed more than once'
@@ -110,13 +113,13 @@ entry_record = 0
 
 Do                                                            'Loops until there are no more cases in the Excel list
 	Client_last_name = objExcel.cells(excel_row, 1).Value 'uses client last name since either case number or SSN can be provided
-	If trim(Client_last_name) = "" then exit do 
-	
+	If trim(Client_last_name) = "" then exit do
+
 	MAXIS_case_number = objExcel.cells(excel_row, 3).Value
 	MAXIS_case_number = trim(MAXIS_case_number)
-	client_SSN  = objExcel.cells(excel_row, 4).Value		'Pulls the client's known information 
+	client_SSN  = objExcel.cells(excel_row, 4).Value		'Pulls the client's known information
 	client_SSN = replace(client_SSN, "-", "")
-	
+
 	'Adding client information to the array
 	ReDim Preserve CBO_array(8, entry_record)	'This resizes the array based on if the client is in the selected county
 	CBO_array (clt_SSN,     	entry_record) = client_SSN		'The client information is added to the array
@@ -129,7 +132,7 @@ Do                                                            'Loops until there
 	CBO_array (ABAWD_status, 	entry_record) = ""
 	entry_record = entry_record + 1			'This increments to the next entry in the array
 	excel_row = excel_row + 1
-	
+
 	'blanking out variables
 	client_SSN = ""
 	MAXIS_case_number = ""
@@ -141,72 +144,72 @@ back_to_self
 
 'Gathering info from MAXIS, and making the referrals and case notes if cases are found and active----------------------------------------------------------------------------------------------------
 For item = 0 to UBound(CBO_array, 2)
-	MAXIS_case_number = CBO_array(case_number, item)			
+	MAXIS_case_number = CBO_array(case_number, item)
 	client_SSN = CBO_array(clt_SSN, item)
-	
-	If client_SSN <> "" then 
+
+	If client_SSN <> "" then
 		CBO_array(make_referral, item) = False
 		call navigate_to_MAXIS_screen("pers", "____")
-		
+
 		'changing the formating of the SSN from 123456789 to 123 45 6789 for STAT/MEMB
 		If len(client_SSN) < 9 then
 			CBO_array(make_referral, item) = False
 			CBO_array(case_status, item) = "Error"
 			CBO_array(error_reason, item) = "SSN not valid."		'Explanation for the rejected report'
-		Elseif len(client_SSN) = 9 then 
+		Elseif len(client_SSN) = 9 then
 			left_SSN = Left(client_SSN, 3)
 			mid_SSN = mid(client_SSN, 4, 2)
 			right_SSN = Right(client_SSN, 4)
 			client_SSN = left_SSN & " " & mid_SSN & " " & right_SSN
-		END IF 
-		
-		IF CBO_array(case_status, item) = True then 
+		END IF
+
+		IF CBO_array(case_status, item) = True then
 		    EMWriteScreen left_SSN, 14, 36
 		    EMWriteScreen mid_SSN, 14, 40
 		    EMWriteScreen right_SSN, 14, 43
 		    Transmit
-		    
+
 		    EMReadscreen DSPL_confirmation, 4, 2, 51
-		    If DSPL_confirmation <> "DSPL" then 
+		    If DSPL_confirmation <> "DSPL" then
 		    	CBO_array(make_referral, item) = False
 		    	CBO_array(case_status, item) = "Error"
 		    	CBO_array(error_reason, item) = "Unable to find person in SSN search or more than one PMI exists. Process manually."		'Explanation for the rejected report'
-		    Else 	
-		    	
-		    	EMWriteScreen "FS", 7, 22	'Selects FS as the program	
+		    Else
+
+		    	EMWriteScreen "FS", 7, 22	'Selects FS as the program
 		    	Transmit
 		    	'chekcing for an active case
 		    	MAXIS_row = 10
-		    	Do 
+		    	Do
 		    		EMReadscreen current_case, 7, MAXIS_row, 35
 		    		If current_case = "Current" then
 		    			EMReadscreen MAXIS_case_number, 8, MAXIS_row, 6
-		    			MAXIS_case_number = trim(MAXIS_case_number) 
+		    			MAXIS_case_number = trim(MAXIS_case_number)
 		    			CBO_array(case_number, item) = MAXIS_case_number
 		    			CBO_array(make_referral, item) = true
 		    			Exit do
-		    		Else 
+		    		Else
 		    			MAXIS_row = MAXIS_row + 1
-		    			If MAXIS_row = 20 then 
+		    			If MAXIS_row = 20 then
 		    				PF8
 		    				MAXIS_row = 10
 		    			END IF
-		    			EMReadScreen last_page_check, 21, 24, 2 
-		    		END IF 
+		    			EMReadScreen last_page_check, 21, 24, 2
+		    		END IF
 		    	LOOP until last_page_check = "THIS IS THE LAST PAGE" or last_page_check = "THIS IS THE ONLY PAGE"
 		    	If CBO_array(make_referral, item) = False then
 		    		CBO_array(make_referral, item) = False
-		    		CBO_array(case_status, item) = "SNAP Inactive" 
-				END IF 
+		    		CBO_array(case_status, item) = "SNAP Inactive"
+				END IF
 		    END IF
-		END IF 
-	Else 
+		END IF
+	Else
 	 	CBO_array(make_referral, item) = True
 		needs_PMI = true
 	End if
-	
-	If CBO_array(make_referral, item) = True then 
-	    'Checking the SNAP status 
+
+	If CBO_array(make_referral, item) = True then
+	    'Checking the SNAP status
 	    Call navigate_to_MAXIS_screen("STAT", "PROG")
 		'Checking for PRIV cases
 		EMReadScreen priv_check, 6, 24, 14 			'If it can't get into the case needs to skip
@@ -220,39 +223,39 @@ For item = 0 to UBound(CBO_array, 2)
 		ELse
 			EMReadscreen county_code, 2, 21, 23
 		    If county_code <> right(worker_county_code, 2) then CBO_array(error_reason, item) = "Out of county case. County code is: " & county_code	'Explanation for the rejected report'
-		     
+
 	        EMReadscreen SNAP_active, 4, 10, 74
-	        If SNAP_active = "ACTV" then 
+	        If SNAP_active = "ACTV" then
 	           	CBO_array(case_status, item) = "Active"
-		    Elseif SNAP_active = "REIN" then 
+		    Elseif SNAP_active = "REIN" then
 		    	CBO_array(case_status, item) = "Reinstatement"
-		    Elseif SNAP_active = "PEND" then 
+		    Elseif SNAP_active = "PEND" then
 		    	CBO_array(case_status, item) = "Pending"
-		    Else 
+		    Else
 		    	CBO_array(case_status, item) = trim(SNAP_active)
-		    End if 
-		    
+		    End if
+
 	        Call navigate_to_MAXIS_screen("STAT", "MEMB")
-		    if needs_PMI = true then 
+		    if needs_PMI = true then
 		    	row = 5
 		    	HH_count = 0
-		    	Do 
+		    	Do
 		    		EMReadScreen member_number, 2, row, 3
 		    		HH_count = HH_count + 1
 		    		transmit
 		    		EMReadScreen MEMB_error, 5, 24, 2
 		    	Loop until MEMB_error = "ENTER"
-				
-		    	If HH_count = 1 then 
+
+		    	If HH_count = 1 then
 		    		CBO_array(memb_number, item) = member_number
 		    		CBO_array(make_referral, item) = True
 		    	Else
 		    		CBO_array(make_referral, item) = False
 		    		CBO_array(case_status, item) = "Error"
 		    		CBO_array(error_reason, item) = "Process manually, more than one person in HH & SSN not provided."	'Explanation for the rejected report'
-		    	End if 
-		    Else 	
-	            Do 
+		    	End if
+		    Else
+	            Do
 	            	EMReadscreen member_SSN, 11, 7, 42
 		        	member_SSN = replace(member_SSN, " ", "")
 	            	If member_SSN = CBO_array(clt_SSN, item) then
@@ -260,35 +263,35 @@ For item = 0 to UBound(CBO_array, 2)
 	            		CBO_array(memb_number, item) = member_number
 	            		CBO_array(make_referral, item) = True
 	            		exit do
-	            	Else 
+	            	Else
 	            		transmit
 		  	    		CBO_array(make_referral, item) = False
 						EMReadScreen MEMB_error, 5, 24, 2
 		        	END IF
 	            Loop until member_SSN = CBO_array(clt_SSN, item) or MEMB_error = "ENTER"
-		    End if 
-	           	
-		    IF CBO_array(make_referral, item) = True then 
+		    End if
+
+		    IF CBO_array(make_referral, item) = True then
 		        'STAT WREG PORTION
 		        Call navigate_to_MAXIS_screen("STAT", "WREG")
 		        EMWriteScreen member_number, 20, 76				'enters member number
 		        transmit
 		        EMReadScreen fset_code, 2, 8, 50
-		        EMReadScreen abawd_code, 2, 13, 50			
+		        EMReadScreen abawd_code, 2, 13, 50
 		        WREG_codes = fset_code & "-" & abawd_code
-		        If WREG_codes = "30-11" then 
+		        If WREG_codes = "30-11" then
 		    		CBO_array(ABAWD_status, item) = "Volunatary"
-		        Elseif WREG_codes = "30-10" then 
+		        Elseif WREG_codes = "30-10" then
 		        	CBO_array(ABAWD_status, item) = "Mandatory - ABAWD"
-		        Elseif WREG_codes = "30-13" then 	
+		        Elseif WREG_codes = "30-13" then
 		        	CBO_array(ABAWD_status, item) = "Mandatory - Banked Months"
-		        Else 
+		        Else
 		        	CBO_array(ABAWD_status, item) = "Exempt"
 		        End if
-		    End if 
-		End if 
+		    End if
+		End if
 	END IF
-Next 
+Next
 
 'Updating the Excel spreadsheet based on what's happening in MAXIS----------------------------------------------------------------------------------------------------
 For item = 0 to UBound(CBO_array, 2)
@@ -297,12 +300,12 @@ For item = 0 to UBound(CBO_array, 2)
 	objExcel.cells(excel_row, 5).Value = CBO_array(case_status, 	item)
 	objExcel.cells(excel_row, 6).Value = CBO_array(ABAWD_status, 	item)
 	objExcel.cells(excel_row, 7).Value = CBO_array(error_reason, 	item)
-Next 
+Next
 
 'Formatting the column width.
 FOR i = 1 to 7
 	objExcel.Columns(i).AutoFit()
 NEXT
-	
+
 STATS_counter = STATS_counter - 1 'removes one from the count since 1 is counted at the beginning (because counting :p)
 script_end_procedure("Success! Review the spreadsheet for accuracy.")
