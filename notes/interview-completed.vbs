@@ -54,8 +54,9 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-BeginDialog case_number_dialog, 0, 0, 181, 120, "Case number dialog"
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 181, 120, "Case number dialog"
   EditBox 80, 5, 60, 15, MAXIS_case_number
   EditBox 95, 25, 20, 15, MAXIS_footer_month
   EditBox 120, 25, 20, 15, MAXIS_footer_year
@@ -71,41 +72,6 @@ BeginDialog case_number_dialog, 0, 0, 181, 120, "Case number dialog"
   Text 30, 30, 65, 10, "Footer month/year:"
   GroupBox 5, 45, 170, 30, "Programs applied for"
   Text 30, 85, 35, 10, "CAF type:"
-EndDialog
-
-BeginDialog interview_dialog, 0, 0, 451, 280, "Interview Dialog"
-  EditBox 65, 5, 75, 15, caf_datestamp
-  EditBox 205, 5, 75, 15, interview_date
-  ComboBox 345, 5, 100, 15, "Office"+chr(9)+"Phone", interview_type
-  EditBox 45, 25, 400, 15, HH_comp
-  EditBox 60, 45, 385, 15, earned_income
-  EditBox 75, 65, 370, 15, unearned_income
-  EditBox 45, 85, 400, 15, expenses
-  EditBox 35, 105, 410, 15, assets
-  CheckBox 15, 140, 135, 10, "Check here if this case is expedited.", expedited_checkbox
-  EditBox 140, 155, 300, 15, why_xfs
-  EditBox 185, 175, 255, 15, reason_expedited_wasnt_processed
-  EditBox 50, 200, 395, 15, other_notes
-  EditBox 60, 220, 385, 15, verifs_needed
-  EditBox 230, 240, 105, 15, worker_signature
-  CheckBox 10, 260, 425, 10, "Check here to set an Outlook reminder to update STAT/REVW after 1st of the next month (if client completes the recert interview).", outlook_check
-  ButtonGroup ButtonPressed
-    OkButton 340, 240, 50, 15
-    CancelButton 395, 240, 50, 15
-  Text 150, 10, 50, 10, "Interview Date:"
-  Text 290, 10, 50, 10, "Interview Type:"
-  Text 5, 30, 35, 10, "HH Comp:"
-  Text 5, 50, 55, 10, "Earned Income:"
-  Text 5, 70, 60, 10, "Unearned Income:"
-  Text 5, 90, 35, 10, "Expenses:"
-  Text 5, 110, 25, 10, "Assets:"
-  GroupBox 5, 125, 440, 70, "Expedited SNAP"
-  Text 15, 160, 125, 10, "Explain why case is expedited or not:"
-  Text 15, 180, 165, 10, "Reason expedited wasn't processed (if applicable) "
-  Text 5, 205, 45, 10, "Other Notes:"
-  Text 170, 245, 60, 10, "Worker Signature"
-  Text 5, 225, 50, 10, "Verifs Needed:"
-  Text 5, 10, 55, 10, "CAF Datestamp:"
 EndDialog
 
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -127,7 +93,7 @@ Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 Do
 	Do
 		err_msg = ""
-  		Dialog case_number_dialog 'Runs the first dialog that gathers program information and case number
+  		Dialog Dialog1 'Runs the first dialog that gathers program information and case number
   		cancel_confirmation
   		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine &  "* You need to type a valid case number."
 		If IsNumeric(MAXIS_footer_month) = False or len(MAXIS_footer_month) > 2 or len(MAXIS_footer_month) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer month."
@@ -188,11 +154,46 @@ if right(programs_applied_for, 1) = "," then programs_applied_for = left(program
 
 interview_date = date & ""		'Defaults the date of the interview to today's date.
 
-'CASE NOTE DIALOG--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 451, 280, "Interview Dialog"
+  EditBox 65, 5, 75, 15, caf_datestamp
+  EditBox 205, 5, 75, 15, interview_date
+  ComboBox 345, 5, 100, 15, "Office"+chr(9)+"Phone", interview_type
+  EditBox 45, 25, 400, 15, HH_comp
+  EditBox 60, 45, 385, 15, earned_income
+  EditBox 75, 65, 370, 15, unearned_income
+  EditBox 45, 85, 400, 15, expenses
+  EditBox 35, 105, 410, 15, assets
+  CheckBox 15, 140, 135, 10, "Check here if this case is expedited.", expedited_checkbox
+  EditBox 140, 155, 300, 15, why_xfs
+  EditBox 185, 175, 255, 15, reason_expedited_wasnt_processed
+  EditBox 50, 200, 395, 15, other_notes
+  EditBox 60, 220, 385, 15, verifs_needed
+  EditBox 230, 240, 105, 15, worker_signature
+  CheckBox 10, 260, 425, 10, "Check here to set an Outlook reminder to update STAT/REVW after 1st of the next month (if client completes the recert interview).", outlook_check
+  ButtonGroup ButtonPressed
+    OkButton 340, 240, 50, 15
+    CancelButton 395, 240, 50, 15
+  Text 150, 10, 50, 10, "Interview Date:"
+  Text 290, 10, 50, 10, "Interview Type:"
+  Text 5, 30, 35, 10, "HH Comp:"
+  Text 5, 50, 55, 10, "Earned Income:"
+  Text 5, 70, 60, 10, "Unearned Income:"
+  Text 5, 90, 35, 10, "Expenses:"
+  Text 5, 110, 25, 10, "Assets:"
+  GroupBox 5, 125, 440, 70, "Expedited SNAP"
+  Text 15, 160, 125, 10, "Explain why case is expedited or not:"
+  Text 15, 180, 165, 10, "Reason expedited wasn't processed (if applicable) "
+  Text 5, 205, 45, 10, "Other Notes:"
+  Text 170, 245, 60, 10, "Worker Signature"
+  Text 5, 225, 50, 10, "Verifs Needed:"
+  Text 5, 10, 55, 10, "CAF Datestamp:"
+EndDialog
 DO
 	Do
 		err_msg = ""
-		Dialog interview_dialog			'Displays the Interview Dialog
+		Dialog Dialog1			'Displays the Interview Dialog
 		cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.
 		If CAF_datestamp = "" or isDate(CAF_datestamp) = False THEN err_msg = err_msg & vbcr & "* Enter a valid application datestamp."
         If interview_date = "" or isDate(interview_date) = False THEN err_msg = err_msg & vbcr & "* Enter a valid interview date."
@@ -238,8 +239,9 @@ If CAF_type <> "Recertification" AND CAF_type <> "Addendum" Then        'Intervi
             If SNAP_checkbox = checked Then prog_update_SNAP_checkbox = checked     'Auto checking based on the programs the script is being run for.
             If cash_checkbox = checked Then prog_update_cash_checkbox = checked
 
-            'Dialog code
-            BeginDialog CAF_dialog_03, 0, 0, 231, 130, "Update PROG?"
+			'-------------------------------------------------------------------------------------------------DIALOG
+			Dialog1 = "" 'Blanking out previous dialog detail
+            BeginDialog Dialog1, 0, 0, 231, 130, "Update PROG?"
               OptionGroup RadioGroup1
                 RadioButton 10, 10, 155, 10, "YES! Update PROG with the Interview Date", confirm_update_prog
                 RadioButton 10, 60, 90, 10, "No, do not update PROG", do_not_update_prog
@@ -252,16 +254,17 @@ If CAF_type <> "Recertification" AND CAF_type <> "Addendum" Then        'Intervi
                 OkButton 175, 110, 50, 15
             EndDialog
 
-            'Running the dialog
-            Do
-                err_msg = ""
-                Dialog CAF_dialog_03
-                'Requiring a reason for not updating PROG and making sure if confirm is updated that a program is selected.
-                If do_not_update_prog = 1 AND no_update_reason = "" Then err_msg = err_msg & vbNewLine & "* If PROG is not to be updated, please explain why PROG should not be updated."
-                IF confirm_update_prog = 1 AND prog_update_SNAP_checkbox = unchecked AND prog_update_cash_checkbox = unchecked Then err_msg = err_msg & vbNewLine & "* Select either CASH or SNAP to have updated on PROG."
-
-                If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
-            Loop until err_msg = ""
+            DO    'Running the dialog
+                Do
+                    err_msg = ""
+                    Dialog Dialog1
+                    'Requiring a reason for not updating PROG and making sure if confirm is updated that a program is selected.
+                    If do_not_update_prog = 1 AND no_update_reason = "" Then err_msg = err_msg & vbNewLine & "* If PROG is not to be updated, please explain why PROG should not be updated."
+                    IF confirm_update_prog = 1 AND prog_update_SNAP_checkbox = unchecked AND prog_update_cash_checkbox = unchecked Then err_msg = err_msg & vbNewLine & "* Select either CASH or SNAP to have updated on PROG."
+		    		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+		    	LOOP UNTIL err_msg = ""
+		    	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+		    Loop until are_we_passworded_out = false					'loops until user passwords back in
 
             If confirm_update_prog = 1 Then     'If the dialog selects to have PROG updated
                 CALL back_to_SELF               'Need to do this because we need to go to the footer month of the application and we may be in a different month

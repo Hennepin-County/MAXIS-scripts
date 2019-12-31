@@ -50,8 +50,9 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'Dialog---------------------------------------------------------------------------------------------------------------------------
-BeginDialog Fraud_Dialog, 0, 0, 211, 275, "Fraud Info"
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 211, 275, "Fraud Info"
   EditBox 65, 10, 90, 15, MAXIS_case_number
   EditBox 75, 30, 115, 15, referral_date
   EditBox 10, 65, 195, 15, referral_reason
@@ -81,7 +82,7 @@ CALL MAXIS_case_number_finder(MAXIS_case_number)
 'calling the dialog---------------------------------------------------------------------------------------------------------------
 DO
 	err_msg = ""
-	Dialog fraud_dialog
+	Dialog Dialog1
 	cancel_confirmation
 	IF MAXIS_case_number = "" THEN err_msg = "You must have a case number to continue!"
 	IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "You must enter a worker signature."

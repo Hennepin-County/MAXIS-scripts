@@ -53,7 +53,8 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'THE MAIN DIALOG--------------------------------------------------------------------------------------------------
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 391, 325, "Client contact"
   ComboBox 20, 65, 65, 15, "Select or Type"+chr(9)+"Phone call"+chr(9)+"Voicemail"+chr(9)+"Email"+chr(9)+"Fax"+chr(9)+"Office visit"+chr(9)+"Letter", contact_type
   DropListBox 90, 65, 45, 10, "from"+chr(9)+"to", contact_direction
@@ -116,11 +117,11 @@ EMConnect ""
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 when_contact_was_made = date & ", " & time 'updates the "when contact was made" variable to show the current date & time
 
-Do 
-    Do 
+Do
+    Do
         err_msg = ""
         Do
-		    Dialog Dialog1
+		    DIALOG Dialog1
 		    cancel_confirmation
             MAXIS_dialog_navigation
         Loop until ButtonPressed = -1
@@ -169,7 +170,7 @@ IF TIKL_check = checked THEN CALL navigate_to_MAXIS_screen("dail", "writ")
 'If case requires followup, it will create a MsgBox (via script_end_procedure) explaining that followup is needed. This MsgBox gets inserted into the statistics database for counties using that function. This will allow counties to "pull statistics" on follow-up, including case numbers, which can be used to track outcomes.
 If follow_up_needed_checkbox = checked then
 	script_end_procedure("Success! Follow-up is needed for case number: " & MAXIS_case_number)
-elseif Opt_out_checkbox = checked then 
+elseif Opt_out_checkbox = checked then
     script_end_procedure("The case has been updated to OPT OUT of recert text notifications. #" & MAXIS_case_number)
 Else
 	script_end_procedure("")

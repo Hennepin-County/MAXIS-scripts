@@ -53,9 +53,10 @@ changelog_display
 
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
-
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
 'intial dialog for user to select a SMRT action
-BeginDialog , 0, 0, 186, 65, "SMRT initial dialog"
+BeginDialog Dialog1 , 0, 0, 186, 65, "SMRT initial dialog"
   EditBox 85, 5, 60, 15, maxis_case_number
   DropListBox 85, 25, 95, 15, "Select one..."+chr(9)+"Initial request"+chr(9)+"ISDS referral completed"+chr(9)+"Determination received", SMRT_actions
   ButtonGroup ButtonPressed
@@ -68,8 +69,8 @@ EndDialog
 Do
 	Do
 		err_msg = ""
-		Dialog
-		if ButtonPressed = 0 then StopScript
+		Dialog Dialog1
+		cancel_without_confirmation
 		if IsNumeric(maxis_case_number) = false or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 		If SMRT_actions = "Select one..." THEN err_msg = err_msg & vbNewLine & "* Select a SMRT action."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
@@ -77,9 +78,10 @@ Do
  Call check_for_password(are_we_passworded_out)
 LOOP UNTIL check_for_password(are_we_passworded_out) = False
 
-'Initial request action coding----------------------------------------------------------------------------------------------------
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
 If SMRT_actions = "Initial request" then
-    BeginDialog , 0, 0, 326, 180, "Initial SMRT referral dialog"
+    BeginDialog Dialog1 , 0, 0, 326, 180, "Initial SMRT referral dialog"
       EditBox 80, 10, 75, 15, SMRT_member
       EditBox 270, 10, 50, 15, referral_date
       DropListBox 80, 35, 60, 15, "Select one..."+chr(9)+"Yes"+chr(9)+"No", referred_exp
@@ -107,8 +109,8 @@ If SMRT_actions = "Initial request" then
     Do
     	Do
     		err_msg = ""
-    		Dialog
-    		cancel_confirmation
+    		Dialog Dialog1
+    		cancel_without_confirmation
     		If SMRT_member = "" THEN err_msg = err_msg & vbNewLine & "* Enter the member info the SMRT referral."
     		If isdate(referral_date) = False THEN err_msg = err_msg & vbNewLine & "* Enter a valid referral date."
 			If referred_exp = "Select one..." THEN err_msg = err_msg & vbNewLine & "* Is the referral expedited?"
@@ -137,9 +139,10 @@ If SMRT_actions = "Initial request" then
 	call write_variable_in_CASE_NOTE(worker_signature)
 END If
 
-'ISDS referral completed & inputted action coding----------------------------------------------------------------------------------------------------
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
 If SMRT_actions = "ISDS referral completed" then
-    BeginDialog , 0, 0, 326, 130, "ISDS referral completed for SMRT"
+    BeginDialog Dialog1, 0, 0, 326, 130, "ISDS referral completed for SMRT"
       EditBox 80, 10, 75, 15, SMRT_member
       EditBox 225, 10, 50, 15, referral_date
       EditBox 80, 35, 75, 15, prog_requested
@@ -161,8 +164,8 @@ If SMRT_actions = "ISDS referral completed" then
     Do
     	Do
     		err_msg = ""
-    		Dialog
-    		cancel_confirmation
+    		Dialog Dialog1
+    		cancel_without_confirmation
     		If SMRT_member = "" THEN err_msg = err_msg & vbNewLine & "* Enter the member info the SMRT referral."
     		If isdate(referral_date) = False THEN err_msg = err_msg & vbNewLine & "* Enter a valid referral date."
     		If trim(prog_requested) = "" THEN err_msg = err_msg & vbNewLine & "* Enter the program requested by the client."
@@ -187,9 +190,10 @@ If SMRT_actions = "ISDS referral completed" then
     call write_variable_in_CASE_NOTE(worker_signature)
 END If
 
-'Determination received action coding----------------------------------------------------------------------------------------------------
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
 If SMRT_actions = "Determination received" then
-    BeginDialog , 0, 0, 326, 140, "SMRT determination received"
+    BeginDialog Dialog1, 0, 0, 326, 140, "SMRT determination received"
       EditBox 80, 10, 75, 15, SMRT_member
       DropListBox 240, 10, 55, 15, "Select one..."+chr(9)+"Approved"+chr(9)+"Denied", SMRT_determination
       EditBox 80, 35, 75, 15, appd_progs
@@ -213,8 +217,8 @@ If SMRT_actions = "Determination received" then
     Do
     	Do
     		err_msg = ""
-    		Dialog
-    		cancel_confirmation
+    		Dialog Dialog1
+    		cancel_without_confirmation
     		If SMRT_member = "" THEN err_msg = err_msg & vbNewLine & "* Enter the member info the SMRT referral."
     		If SMRT_determination = "Select one..." THEN err_msg = err_msg & vbNewLine & "* Select the determination status."
     		If trim(appd_progs) = "" THEN err_msg = err_msg & vbNewLine & "* Enter the approved programs."

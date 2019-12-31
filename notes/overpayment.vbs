@@ -206,7 +206,6 @@ changelog = array()
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
 
 call changelog_update("08/05/2019", "Updated the term claim referral to use the action taken on MISC as well as to read for active programs.", "MiKayla Handley")
-
 CALL changelog_update("04/15/2019", "Updated script to copy case note to CCOL.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("07/23/2018", "Updated script to correct version and added case note to email for HC matches.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("04/02/2018", "Updates to fraud referral for the case note.", "MiKayla Handley, Hennepin County")
@@ -220,7 +219,9 @@ EMConnect ""
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 memb_number = "01"
 discovery_date = date & ""
-BeginDialog overpayment_dialog, 0, 0, 361, 280, "Overpayment Claim Entered"
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 361, 280, "Overpayment Claim Entered"
   EditBox 55, 5, 40, 15, MAXIS_case_number
   EditBox 230, 5, 20, 15, memb_number
   'EditBox 230, 5, 20, 15, OT_resp_memb
@@ -306,7 +307,7 @@ EndDialog
 Do
     Do
     	err_msg = ""
-    	dialog overpayment_dialog
+    	dialog Dialog1
     	cancel_confirmation
     	IF MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* Enter a valid case number."
     	IF fraud_referral = "Select:" THEN err_msg = err_msg & vbnewline & "* You must select a fraud referral entry."

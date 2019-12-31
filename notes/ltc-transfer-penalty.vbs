@@ -52,8 +52,9 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog case_number_dialog, 0, 0, 146, 70, "Case number dialog"
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 146, 70, "Case number dialog"
   EditBox 80, 5, 60, 15, MAXIS_case_number
   EditBox 80, 25, 25, 15, MAXIS_footer_month
   EditBox 115, 25, 25, 15, MAXIS_footer_year
@@ -62,44 +63,6 @@ BeginDialog case_number_dialog, 0, 0, 146, 70, "Case number dialog"
     CancelButton 90, 45, 50, 15
   Text 10, 30, 65, 10, "Footer month/year:"
   Text 10, 10, 45, 10, "Case number: "
-EndDialog
-
-BeginDialog LTC_transfer_penalty_dialog, 0, 0, 316, 295, "Dialog"
-  EditBox 60, 5, 60, 15, baseline_date
-  DropListBox 190, 5, 120, 15, "Select one..."+chr(9)+"Annuity"+chr(9)+"Life Estate"+chr(9)+"Uncompensated Transfer"+chr(9)+"Other", type_of_transfer_list
-  EditBox 60, 25, 60, 15, transfer_date
-  EditBox 250, 25, 60, 15, date_of_application
-  EditBox 60, 45, 60, 15, transfer_amount
-  EditBox 250, 45, 60, 15, date_client_was_otherwise_eligible
-  EditBox 120, 65, 60, 15, period_begins
-  EditBox 120, 85, 60, 15, last_full_month_of_period
-  EditBox 120, 105, 60, 15, partial_penalty_amount
-  CheckBox 210, 100, 100, 10, "Hardship waiver requested", harship_waiver_requested_check
-  CheckBox 210, 115, 95, 10, "Hardship waiver approved", hardship_waiver_approved_check
-  EditBox 85, 130, 225, 15, harship_waiver_details
-  EditBox 85, 150, 225, 15, other_information
-  EditBox 85, 170, 225, 15, case_action
-  EditBox 120, 195, 80, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 205, 195, 50, 15
-    CancelButton 260, 195, 50, 15
-  Text 5, 30, 45, 10, "Transfer date:"
-  Text 5, 50, 55, 10, "Transfer amount:"
-  Text 130, 30, 115, 10, "Date of application or LTC request:"
-  Text 5, 10, 50, 10, "Baseline date:"
-  Text 130, 50, 115, 10, "Date client was otherwise eligible:"
-  Text 5, 70, 80, 10, "Transfer period begins:"
-  Text 5, 90, 110, 10, "Last full month of transfer period:"
-  Text 5, 110, 80, 10, "Partial penalty amount:"
-  Text 5, 155, 65, 10, "Other transfer info:"
-  Text 5, 135, 80, 10, "Hardship waiver details:"
-  Text 5, 175, 50, 10, "Actions taken:"
-  Text 55, 200, 60, 10, "Worker signature:"
-  Text 10, 240, 295, 30, "1. A person is residing in an LTCF or, for a person requesting services through a home and community-based waiver program, the date a screening occurred that indicated a need for services provided through a home and community-based services waiver program AND"
-  Text 10, 225, 270, 10, "The BASELINE DATE is the date in which both of the following conditions are met: "
-  Text 10, 275, 295, 10, "2. The person's initial request month for MA payment of LTC services"
-  GroupBox 0, 215, 310, 75, "Per HCPM 19.40.15:"
-  Text 130, 10, 55, 10, "Type of transfer: "
 EndDialog
 
 'SCRIPT BODY----------------------------------------------------------------------------------------------------
@@ -111,10 +74,14 @@ Call check_for_MAXIS(True)
 
 'calls up dialog for worker to enter case number and applicable month and year.
 DO
-	Dialog case_number_dialog
-	IF buttonPressed = 0 then StopScript
-	IF MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = FALSE THEN MsgBox "You must enter a valid case number."
-LOOP UNTIL MAXIS_case_number <> "" OR IsNumeric(MAXIS_case_number) = True
+  Do
+		err_msg = ""
+		Dialog Dialog1
+		cancel_confirmation
+		If err_msg <> "" Then MsgBox "Please resolve the following to conitune:" & vbNewLine & err_msg
+  Loop until err_msg = ""
+  CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back inn
 
 'information gathering to auto-populate LTC_transfer_penalty_dialog
 'grabbing app date from STAT/PROG
@@ -172,6 +139,45 @@ If penalty_end_month <> "" and penalty_end_year <> "" Then last_full_month_of_pe
 IF transfer_amount <> "" THEN transfer_amount = "$" & transfer_amount
 IF partial_penalty_amount <> "" THEN partial_penalty_amount = "$" & partial_penalty_amount
 
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 316, 295, "Dialog"
+  EditBox 60, 5, 60, 15, baseline_date
+  DropListBox 190, 5, 120, 15, "Select one..."+chr(9)+"Annuity"+chr(9)+"Life Estate"+chr(9)+"Uncompensated Transfer"+chr(9)+"Other", type_of_transfer_list
+  EditBox 60, 25, 60, 15, transfer_date
+  EditBox 250, 25, 60, 15, date_of_application
+  EditBox 60, 45, 60, 15, transfer_amount
+  EditBox 250, 45, 60, 15, date_client_was_otherwise_eligible
+  EditBox 120, 65, 60, 15, period_begins
+  EditBox 120, 85, 60, 15, last_full_month_of_period
+  EditBox 120, 105, 60, 15, partial_penalty_amount
+  CheckBox 210, 100, 100, 10, "Hardship waiver requested", harship_waiver_requested_check
+  CheckBox 210, 115, 95, 10, "Hardship waiver approved", hardship_waiver_approved_check
+  EditBox 85, 130, 225, 15, harship_waiver_details
+  EditBox 85, 150, 225, 15, other_information
+  EditBox 85, 170, 225, 15, case_action
+  EditBox 120, 195, 80, 15, worker_signature
+  ButtonGroup ButtonPressed
+    OkButton 205, 195, 50, 15
+    CancelButton 260, 195, 50, 15
+  Text 5, 30, 45, 10, "Transfer date:"
+  Text 5, 50, 55, 10, "Transfer amount:"
+  Text 130, 30, 115, 10, "Date of application or LTC request:"
+  Text 5, 10, 50, 10, "Baseline date:"
+  Text 130, 50, 115, 10, "Date client was otherwise eligible:"
+  Text 5, 70, 80, 10, "Transfer period begins:"
+  Text 5, 90, 110, 10, "Last full month of transfer period:"
+  Text 5, 110, 80, 10, "Partial penalty amount:"
+  Text 5, 155, 65, 10, "Other transfer info:"
+  Text 5, 135, 80, 10, "Hardship waiver details:"
+  Text 5, 175, 50, 10, "Actions taken:"
+  Text 55, 200, 60, 10, "Worker signature:"
+  Text 10, 240, 295, 30, "1. A person is residing in an LTCF or, for a person requesting services through a home and community-based waiver program, the date a screening occurred that indicated a need for services provided through a home and community-based services waiver program AND"
+  Text 10, 225, 270, 10, "The BASELINE DATE is the date in which both of the following conditions are met: "
+  Text 10, 275, 295, 10, "2. The person's initial request month for MA payment of LTC services"
+  GroupBox 0, 215, 310, 75, "Per HCPM 19.40.15:"
+  Text 130, 10, 55, 10, "Type of transfer: "
+EndDialog
 'The main transfer dialog----------------------------------------------------------------------------------------------------
 DO
 	DO
@@ -185,7 +191,7 @@ DO
 									DO
 										DO
 											DO
-												Dialog LTC_transfer_penalty_dialog
+												Dialog Dialog1
 												cancel_confirmation 	'asks user if they really want to cancel.  If yes, then script stops.  If no, loops back to dialog.
 												IF (len(baseline_date) < 8 or IsDate(baseline_date) = FALSE) THEN Msgbox "You must enter a valid baseline date in the MM/DD/YYYY format.  See policy reference at the bottom of the dialog box if you are unsure of how to determined the baseline date."
 											LOOP UNTIL len(baseline_date) >= 8 or IsDate(baseline_date) = TRUE

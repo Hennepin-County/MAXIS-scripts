@@ -55,21 +55,9 @@ CALL changelog_update("05/17/2017", "Initial version.", "MiKayla Handley, Hennep
 'Actually displays the changelog. This function uses a text file located in the My documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-'---------------------------------------------------------------------dialog
-BeginDialog notice_action_dialog, 0, 0, 166, 85, "SEND DIFFERENCE NOTICE?"
-  CheckBox 25, 35, 105, 10, "YES - Send Difference Notice", send_notice_checkbox
-  CheckBox 25, 50, 130, 10, "NO - Continue Match Action to Clear", clear_action_checkbox
-  ButtonGroup ButtonPressed
-    OkButton 60, 65, 45, 15
-    CancelButton 110, 65, 45, 15
-  Text 10, 10, 145, 20, "A difference notice has not been sent, would you like to send the difference notice now?"
-EndDialog
-
 '---------------------------------------------------------------------THE SCRIPT
 EMConnect ""
-
-'warning_box = MsgBox("You do not appear to be in MAXIS. You may be passworded out. Please check your MAXIS screen and try again, or press ""cancel"" to exit the script.", vbOKCancel)
-'If warning_box = vbCancel THEN stopscript
+CALL MAXIS_case_number_finder (MAXIS_case_number)
 
 EMReadscreen dail_check, 4, 2, 48
 IF dail_check <> "DAIL" THEN script_end_procedure("You are not in your dail. This script will stop.")
@@ -245,11 +233,21 @@ DO
 LOOP UNTIL last_page_check = "THIS IS THE LAST PAGE"
 
 IF notice_sent = "N" THEN
-    DO
+    '-------------------------------------------------------------------------------------------------DIALOG
+    Dialog1 = "" 'Blanking out previous dialog detail
+    BeginDialog Dialog1, 0, 0, 166, 85, "SEND DIFFERENCE NOTICE?"
+      CheckBox 25, 35, 105, 10, "YES - Send Difference Notice", send_notice_checkbox
+      CheckBox 25, 50, 130, 10, "NO - Continue Match Action to Clear", clear_action_checkbox
+      ButtonGroup ButtonPressed
+        OkButton 60, 65, 45, 15
+        CancelButton 110, 65, 45, 15
+      Text 10, 10, 145, 20, "A difference notice has not been sent, would you like to send the difference notice now?"
+    EndDialog
+	DO
     	DO
     		err_msg = ""
-    		Dialog notice_action_dialog
-    		IF ButtonPressed = 0 THEN StopScript
+    		Dialog Dialog1
+    		cancel_without_confirmation
     		IF send_notice_checkbox = UNCHECKED AND clear_action_checkbox = UNCHECKED THEN err_msg = err_msg & vbNewLine & "* Please select an answer to continue."
     		IF send_notice_checkbox = CHECKED AND clear_action_checkbox = CHECKED THEN err_msg = err_msg & vbNewLine & "* Please select only one answer to continue."
     		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
@@ -263,8 +261,9 @@ IF send_notice_checkbox = CHECKED THEN
     diff_notice_CHECKBOX = 1
     shelter_verf_CHECKBOX = 1
     proof_residency_CHECKBOX = 1
-
-    BeginDialog SEND_PARIS_DIFF_NOTICE_dialog, 0, 0, 376, 235, "SEND PARIS MATCH DIFFERENCE NOTICE"
+	'-------------------------------------------------------------------------------------------------DIALOG
+	Dialog1 = "" 'Blanking out previous dialog detail
+    BeginDialog Dialog1, 0, 0, 376, 235, "SEND PARIS MATCH DIFFERENCE NOTICE"
     	Text 10, 15, 130, 10, "Case number: "   & MAXIS_case_number
     	Text 165, 15, 175, 10, "Client Name: "  & Client_Name
     	Text 10, 35, 110, 10, "Match month: "   & Match_Month
@@ -304,8 +303,8 @@ IF send_notice_checkbox = CHECKED THEN
     	DO
     		DO
     			err_msg = ""
-    			Dialog SEND_PARIS_DIFF_NOTICE_dialog
-    			IF ButtonPressed = 0 THEN StopScript
+    			Dialog Dialog1
+    			cancel_without_confirmation
     			IF bene_other_state = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Is the client accessing benefits in other state?"
     			IF contact_other_state = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Did you contact the other state?"
 				IF fraud_referral = "Select One:" THEN err_msg = err_msg & vbnewline & "* You must select a fraud referral entry."
@@ -367,7 +366,9 @@ IF send_notice_checkbox = CHECKED THEN
 
 ELSEIF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	IF sent_date <> "" then MsgBox("A difference notice was sent on " & sent_date & ". The script will now navigate to clear the PARIS match.")
-	BeginDialog PARIS_MATCH_CLEARED_dialog, 0, 0, 376, 260, "PARIS MATCH CLEARED"
+	'-------------------------------------------------------------------------------------------------DIALOG
+	Dialog1 = "" 'Blanking out previous dialog detail
+	BeginDialog Dialog1, 0, 0, 376, 260, "PARIS MATCH CLEARED"
      Text 10, 15, 130, 10, "Case number: "   & MAXIS_case_number
      Text 165, 15, 175, 10, "Client Name: "  & Client_Name
      Text 10, 35, 110, 10, "Match month: "   & Match_Month
@@ -402,8 +403,8 @@ ELSEIF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
     DO
     	DO
     		err_msg = ""
-    		Dialog PARIS_MATCH_CLEARED_dialog
-    		IF ButtonPressed = 0 THEN StopScript
+    		Dialog Dialog1
+    		cancel_without_confirmation
     		IF bene_other_state = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Is the client accessing benefits in other state?"
     		IF contact_other_state = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Did you contact the other state?"
 			IF resolution_status = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please select a resolution status to continue."
@@ -455,8 +456,6 @@ ELSEIF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	END IF
 	PF3
     PF3
-	'CALL MAXIS_case_number
-
     '----------------------------------------------------------------the case match note
     start_a_blank_CASE_NOTE
     CALL write_variable_in_CASE_NOTE ("-----" & Match_month & " PARIS MATCH " & "(" & first_name &  ") CLEARED " & rez_status & "-----")
@@ -482,4 +481,4 @@ ELSEIF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
     CALL write_variable_in_CASE_NOTE ("DEBT ESTABLISHMENT UNIT 612-348-4290 EXT 1-1-1")
 END IF
 
-script_end_procedure("Success PARIS match updated and copied to case note.")
+script_end_procedure_with_error_report("Success PARIS match updated and copied to case note.")

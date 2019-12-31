@@ -62,7 +62,9 @@ EMConnect ""
 Do
 	Do
 		'The dialog is defined in the loop as it can change as buttons are pressed
-			BeginDialog IEVS_match_dialog, 0, 0, 266, 140, "BULK IEVS Match"
+		'-------------------------------------------------------------------------------------------------DIALOG
+		Dialog1 = "" 'Blanking out previous dialog detail
+			BeginDialog Dialog1, 0, 0, 266, 140, "BULK IEVS Match"
   				DropListBox 200, 50, 50, 15, "Select One:"+chr(9)+"BEER"+chr(9)+"WAGE", IEVS_type
            		ButtonGroup ButtonPressed
             	PushButton 200, 70, 50, 15, "Browse:", select_a_file_button
@@ -75,7 +77,7 @@ Do
            		GroupBox 10, 10, 250, 100, "Using the IEVS match script"
          	EndDialog
 			err_msg = ""
-			Dialog IEVS_match_dialog
+			Dialog Dialog1
 			cancel_confirmation
 			If ButtonPressed = select_a_file_button then
 				If IEVS_match_path <> "" then 'This is handling for if the BROWSE button is pushed more than once'

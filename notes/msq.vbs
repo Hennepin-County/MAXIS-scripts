@@ -50,8 +50,14 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'THE DIALOG----------------------------------------------------------------------------------------------------------
-BeginDialog msq_dialog, 0, 0, 321, 125, "MSQ"
+'THE SCRIPT--------------------------------------------------------------------------------------------------------------
+'Connects to BLUEZONE
+EMConnect ""
+'Grabs the MAXIS case number
+CALL MAXIS_case_number_finder(MAXIS_case_number)
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 321, 125, "MSQ"
   EditBox 80, 5, 70, 15, MAXIS_case_number
   EditBox 75, 30, 70, 15, member_injured
   EditBox 205, 30, 70, 15, injury_date
@@ -68,25 +74,18 @@ BeginDialog msq_dialog, 0, 0, 321, 125, "MSQ"
   Text 75, 45, 40, 10, "(Ex: 01, 02)"
   Text 205, 45, 70, 10, "(Ex: MM/DD/YY)"
 EndDialog
-
-
-'THE SCRIPT--------------------------------------------------------------------------------------------------------------
-
-'Connects to BLUEZONE
-EMConnect ""
-
-'Grabs the MAXIS case number
-CALL MAXIS_case_number_finder(MAXIS_case_number)
-
 'Shows dialog
 DO
-	err_msg = ""
-	Dialog msq_dialog
-		IF ButtonPressed = 0 THEN StopScript
-		IF IsNumeric(MAXIS_case_number) = FALSE THEN err_msg = err_msg & vbCr & "* You must type a valid numeric case number."
-		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* You must sign your case note!"
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-LOOP UNTIL err_msg = ""
+	DO
+	    err_msg = ""
+	    Dialog Dialog1
+	    IF ButtonPressed = 0 THEN StopScript
+	    IF IsNumeric(MAXIS_case_number) = FALSE THEN err_msg = err_msg & vbCr & "* You must type a valid numeric case number."
+	    IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* You must sign your case note!"
+	    IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+ 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'Checks Maxis for password prompt
 CALL check_for_MAXIS(True)

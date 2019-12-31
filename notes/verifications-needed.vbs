@@ -68,8 +68,9 @@ If LTC_case = vbYes then 									'Shows dialog if LTC
 	DO
 		Do
 			Do
-				'Dialog for LTC cases is defined here - not named
-				BeginDialog , 0, 0, 351, 435, "Verifs needed (LTC) dialog"
+				'-------------------------------------------------------------------------------------------------DIALOG
+				Dialog1 = "" 'Blanking out previous dialog detail
+				BeginDialog Dialog1, 0, 0, 351, 435, "Verifs needed (LTC) dialog"
 				  EditBox 55, 5, 70, 15, MAXIS_case_number
 				  EditBox 250, 5, 60, 15, verif_due_date
 				  ButtonGroup ButtonPressed
@@ -122,7 +123,7 @@ If LTC_case = vbYes then 									'Shows dialog if LTC
 				  Text 5, 10, 50, 10, "Case number:"
 				  Text 5, 325, 45, 10, "Veteran info:"
 				EndDialog
-				DIALOG 					'Calling a dialog without a assigned variable will call the most recently defined dialog
+				DIALOG Dialog1					'Calling a dialog without a assigned variable will call the most recently defined dialog
 				cancel_confirmation													'quits if cancel is pressed
 				If buttonpressed = CD_plus_10_button then verif_due_date = dateadd("d", 10, date) & ""		'Fills in current date + 10 if you press the button.
 			Loop until buttonpressed = OK																	'Loops until you press OK
@@ -134,8 +135,9 @@ ELSEIF LTC_case = vbNo then							'Shows dialog if not LTC
 	DO
 		Do
 			Do
-				'Dialog for all other cases is defined here
-				BeginDialog , 0, 0, 351, 360, "Verifs needed"
+				'-------------------------------------------------------------------------------------------------DIALOG
+				Dialog1 = "" 'Blanking out previous dialog detail
+				BeginDialog Dialog1, 0, 0, 351, 360, "Verifs needed"
 				  EditBox 55, 5, 70, 15, MAXIS_case_number
 				  EditBox 250, 5, 60, 15, verif_due_date
 				  EditBox 30, 35, 315, 15, ADDR
@@ -176,7 +178,7 @@ ELSEIF LTC_case = vbNo then							'Shows dialog if not LTC
 				  Text 5, 240, 45, 10, "Other proofs:"
 				  Text 215, 320, 70, 10, "Sign your case note:"
 				 EndDialog
-				DIALOG 					'Calling a dialog without a assigned variable will call the most recently defined dialog
+				DIALOG Dialog1					'Calling a dialog without a assigned variable will call the most recently defined dialog
 				cancel_confirmation													'quits if cancel is pressed
 				If buttonpressed = CD_plus_10_button then verif_due_date = dateadd("d", 10, date) & ""		'Fills in current date + 10 if you press the button.
 			Loop until buttonpressed = OK																	'Loops until you press OK
@@ -188,7 +190,6 @@ END IF
 
 'checking for an active MAXIS session
 Call check_for_MAXIS(False)
-
 
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
 'Writes a new line, then writes each additional line if there's data in the dialog's edit box (uses if/then statement to decide).

@@ -51,10 +51,9 @@ call changelog_update("07/26/2019", "Initial version.", "Ilse Ferris, Hennepin C
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-
-'--------------------------------------------------------------------------------------------------------------------Dialog
-'----------------------------------------------------------------------------------------------------Initial dialog 
-BeginDialog Initial_dialog, 0, 0, 146, 90, "METS Retro Health Care"
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 146, 90, "METS Retro Health Care"
   EditBox 60, 10, 55, 15, MAXIS_case_number
   EditBox 60, 30, 55, 15, METS_case_number
   DropListBox 60, 50, 80, 15, "Select"+chr(9)+"Initial Request"+chr(9)+"Proofs Received"+chr(9)+"Retro Determination", initial_option
@@ -69,13 +68,13 @@ EndDialog
 '-------------------------------------------------------------------------------------------------------script
 EMConnect ""
 CALL MAXIS_case_number_finder(MAXIS_case_number)
-'email_checkbox = checked 'defaulting to checked 
+'email_checkbox = checked 'defaulting to checked
 
 'Main dialog: user will input case number and member number
 DO
 	DO
 		err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
-		dialog initial_dialog				    
+		dialog Dialog1
 		cancel_without_confirmation              'new function that will cancel, collect stats, but not give user option to confirm ending script.
 		call validate_MAXIS_case_number(err_msg, "*")
         If IsNumeric(METS_case_number) = False or len(METS_case_number) <> 8 then err_msg = err_msg & vbNewLine & "* Enter a valid METS case number."
@@ -120,7 +119,9 @@ FOR x = 0 to total_clients				'using a dummy array to build in the autofilled ch
     all_clients_array(x, 1) = 1    '1 = checked
 NEXT
 
-BEGINDIALOG HH_memb_dialog, 0, 0, 241, (35 + (total_clients * 15)), "HH Member Dialog"   'Creates the dynamic dialog. The height will change based on the number of clients it finds.
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BEGINDIALOG Dialog1, 0, 0, 241, (35 + (total_clients * 15)), "HH Member Dialog"   'Creates the dynamic dialog. The height will change based on the number of clients it finds.
     Text 10, 5, 105, 10, "Household members to look at:"
     FOR i = 0 to total_clients											'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
         IF all_clients_array(i, 0) <> "" THEN checkbox 10, (20 + (i * 15)), 160, 10, all_clients_array(i, 0), all_clients_array(i, 1)  'Ignores and blank scanned in persons/strings to avoid a blank checkbox
@@ -130,12 +131,12 @@ BEGINDIALOG HH_memb_dialog, 0, 0, 241, (35 + (total_clients * 15)), "HH Member D
     CancelButton 185, 30, 50, 15
 ENDDIALOG
 
-Do     
-    Dialog HH_memb_dialog       'runs the dialog that has been dynamically created. Streamlined with new functions.
+Do
+    Dialog Dialog1       'runs the dialog that has been dynamically created. Streamlined with new functions.
     cancel_without_confirmation
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-Loop until are_we_passworded_out = false					'loops until user passwords back in  
-    
+Loop until are_we_passworded_out = false					'loops until user passwords back in
+
 check_for_maxis(False)
 
 HC_membs = -1
@@ -143,7 +144,7 @@ Dim HC_array()
 ReDim HC_array(6, 0)
 
 const member_number_const   = 0
-const member_name_const     = 1  
+const member_name_const     = 1
 const retro_months_const    = 2
 const retro_scenario_const  = 3
 const retro_status_const    = 4
@@ -162,12 +163,13 @@ FOR i = 0 to total_clients
     END IF
 NEXT
 
-If initial_option = "Initial Request" then 
+If initial_option = "Initial Request" then
     due_date = dateadd("d", 10, date) & ""
     case_note_header = "METS Initial Retro Request"
-    
-    'Initial request dialog 
-    BeginDialog retro_request_dialog, 0, 0, 311, (190 + (HC_membs * 15)), "Initial Retro Request for #" & MAXIS_case_number
+
+    ''-------------------------------------------------------------------------------------------------DIALOG
+	Dialog1 = "" 'Blanking out previous dialog detail
+    BeginDialog Dialog1, 0, 0, 311, (190 + (HC_membs * 15)), "Initial Retro Request for #" & MAXIS_case_number
     Text 5, 15, 80, 10, "METS Application Date:"
     EditBox 85, 10, 50, 15, application_date
     Text 180, 15, 70, 10, "Verification Due Date:"
@@ -184,14 +186,14 @@ If initial_option = "Initial Request" then
    PushButton 10, 125, 50, 10, "Scenario", scenario_button
     x = 0
     For item = 0 to Ubound(HC_array, 2)
-        If HC_array(member_name_const, item) <> "" then 
+        If HC_array(member_name_const, item) <> "" then
             DropListBox 10, (140 + (x * 15)), 50, 15, "Select"+chr(9)+"A"+chr(9)+"B"+chr(9)+"C"+chr(9)+"D"+chr(9)+"E", HC_array(retro_scenario_const, item)
             DropListBox 65, (140 + (x * 15)), 50, 15, "Select"+chr(9)+"1 Month"+chr(9)+"2 Months"+chr(9)+"3 Months", HC_array(retro_months_const, item)
             Text 130, (145 + (x * 15)), 165, 10, HC_array(member_name_const, item)
             x = x + 1
-        End if 
-    Next 
-    GroupBox 5, 110 , 300, (50 + (x * 15)), "For each applicant, enter the retro months and scenario:"      
+        End if
+    Next
+    GroupBox 5, 110 , 300, (50 + (x * 15)), "For each applicant, enter the retro months and scenario:"
     Text 10, (175 + (x * 15)), 60, 10, "Worker Signature:"
     EditBox 75, (170 + (x * 15)), 130, 15, worker_signature
     ButtonGroup ButtonPressed
@@ -200,27 +202,27 @@ If initial_option = "Initial Request" then
     Text 70, 125, 45, 10, "Retro months"
     Text 135, 125, 60, 10, "Applicant's Name"
     EndDialog
-    
+
     'Main dialog: user will input case number and member number
     DO
         DO
             Do 						'establishing value of variable, this is necessary for the Do...LOOP
                 err_msg = ""
-                Dialog retro_request_dialog				    
+                Dialog Dialog1
                 cancel_without_confirmation              'new function that will cancel, collect stats, but not give user option to confirm ending script.
                 If ButtonPressed = scenario_button then CreateObject("WScript.Shell").Run("https://dept.hennepin.us/hsphd/manuals/hsrm/MNsure%20Documents/Hennepin%20Retro%20Instructions%20for%20MAXIS%20Processing.docx.pdf")
             Loop until ButtonPressed = -1
             If isdate(application_date) = false  then err_msg = err_msg & vbcr & "* Enter a valid application date."
-            If forms_needed <> "Client verbally attested - No changes" then 
+            If forms_needed <> "Client verbally attested - No changes" then
                 If isdate(due_date) = false then err_msg = err_msg & vbcr & "* Enter a valid verificaiton due date."
-            End if 
+            End if
             IF trim(forms_needed) = "SELECT OR TYPE" then err_msg = err_msg & vbcr & "* Enter or select the verifications and/or forms needed."
             'retro scenario
-            For item = 0 to ubound(HC_array, 2)	
+            For item = 0 to ubound(HC_array, 2)
             	If (HC_array(retro_scenario_const, item)) = "Select" and hc_array(member_name_const, item) <> "" then err_msg = err_msg & vbCr & "* Select a retro scenario for " & hc_array(member_name_const, item)
             Next
             'amt of retro months
-            For item = 0 to ubound(HC_array, 2)	    
+            For item = 0 to ubound(HC_array, 2)
                 If (HC_array(retro_months_const, item)) = "Select" and hc_array(member_name_const, item) <> "" then err_msg = err_msg & vbCr & "* Select amount of retro months requested for " & hc_array(member_name_const, item)
             NEXT
             IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "* Please enter your worker signature."
@@ -228,21 +230,23 @@ If initial_option = "Initial Request" then
         LOOP UNTIL err_msg = ""									'loops until all errors are resolved
         CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
     Loop until are_we_passworded_out = false					'loops until user passwords back in
-End if 
+End if
 
-If initial_option = "Proofs Received" then 
+If initial_option = "Proofs Received" then
     case_note_header = "METS retro proofs rec'd"
-    BeginDialog retro_recd_dialog, 0, 0, 296, (135 + (HC_membs * 15)), "Retro Proofs Received for #" & MAXIS_case_number
+	'-------------------------------------------------------------------------------------------------DIALOG
+	Dialog1 = "" 'Blanking out previous dialog detail
+    BeginDialog Dialog1, 0, 0, 296, (135 + (HC_membs * 15)), "Retro Proofs Received for #" & MAXIS_case_number
     ButtonGroup ButtonPressed
     PushButton 10, 20, 50, 10, "Scenario", scenario_button
     x = 0
     For item = 0 to Ubound(HC_array, 2)
-        If HC_array(member_name_const, item) <> "" then 
+        If HC_array(member_name_const, item) <> "" then
             DropListBox 10, (35 + (x * 15)), 50, 15, "Select"+chr(9)+"A"+chr(9)+"B"+chr(9)+"C"+chr(9)+"D"+chr(9)+"E", HC_array(retro_scenario_const, item)
             Text 75, (35 + (x * 15)), 200, 10, HC_array(member_name_const, item)
             x = x + 1
         End if
-    Next 
+    Next
     GroupBox 5, 5, 285, (50 + (x * 15)), "For each applicant, enter the retro scenario:"
     Text 25, (65+ (x * 15)), 45, 10, "Other Notes:"
     EditBox 70, (60 + (x * 15)), 220, 15, other_notes
@@ -256,18 +260,18 @@ If initial_option = "Proofs Received" then
     CancelButton 250, (115 + (x * 15)), 40, 15
     Text 75, 20, 60, 10, "Applicant's Name"
     EndDialog
-    
+
     'Main dialog: user will input case number and member number
     DO
         DO
-            Do  
+            Do
                 err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
-                Dialog retro_recd_dialog				    
+                Dialog Dialog1
                 cancel_without_confirmation              'new function that will cancel, collect stats, but not give user option to confirm ending script.
                 If ButtonPressed = scenario_button then CreateObject("WScript.Shell").Run("https://dept.hennepin.us/hsphd/manuals/hsrm/MNsure%20Documents/Hennepin%20Retro%20Instructions%20for%20MAXIS%20Processing.docx.pdf")
             Loop until ButtonPressed = -1
-            'retro scenario 
-            For item = 0 to Ubound(HC_array, 2)	
+            'retro scenario
+            For item = 0 to Ubound(HC_array, 2)
                 If (HC_array(retro_scenario_const, item)) = "Select" and hc_array(member_name_const, item) <> "" then err_msg = err_msg & vbCr & "* Select a retro scenario for " & hc_array(member_name_const, item)
             NEXT
             If verifs_checkbox = 0 then err_msg = err_msg & vbNewLine & "* All verifications and forms must be receieved."
@@ -276,20 +280,22 @@ If initial_option = "Proofs Received" then
         LOOP UNTIL err_msg = ""									'loops until all errors are resolved
         CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
     Loop until are_we_passworded_out = false					'loops until user passwords back in
-End if 
+End if
 
-If initial_option = "Retro Determination" then 
+If initial_option = "Retro Determination" then
     case_note_header = "METS Retro Determination"
-    BeginDialog retro_determination_dialog, 0, 0, 411, (115 + (HC_membs * 15)), "Retro Determination"
+	'-------------------------------------------------------------------------------------------------DIALOG
+	Dialog1 = "" 'Blanking out previous dialog detail
+    BeginDialog Dialog1, 0, 0, 411, (115 + (HC_membs * 15)), "Retro Determination"
     x = 0
     For item = 0 to Ubound(HC_array, 2)
-        If HC_array(member_name_const, item) <> "" then 
+        If HC_array(member_name_const, item) <> "" then
             DropListBox 10, (30 + (x * 15)), 50, 15, "Select"+chr(9)+"Approved"+chr(9)+"Denied", HC_array(retro_status_const, item)
             Editbox 75, (30 + (x * 15)), 180, 15, HC_array(retro_reason_const, item)
             Text 270, (35 + (x * 15)), 130, 10, HC_array(member_name_const, item)
             x = x + 1
         End if
-    Next 
+    Next
     GroupBox 5, 5, 400, (50 + (x * 15)), "For each applicant, enter the retro determination:"
     Text 30, (65 + (x * 15)), 45, 10, "Other Notes:"
     EditBox 75, (60 + (x * 15)), 220, 15, other_notes
@@ -309,30 +315,30 @@ If initial_option = "Retro Determination" then
     DO
         DO
             err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
-            Dialog retro_determination_dialog			    
+            Dialog Dialog1
             cancel_without_confirmation              'new function that will cancel, collect stats, but not give user option to confirm ending script.
             'retro determination
-            For item = 0 to ubound(HC_array, 2)	
+            For item = 0 to ubound(HC_array, 2)
                 If (HC_array(retro_status_const, item)) = "Select" and hc_array(member_name_const, item) <> "" then err_msg = err_msg & vbCr & "* Select a retro determination for " & hc_array(member_name_const, item)
             NEXT
-            'approved months or denial reason 
-            For item = 0 to ubound(HC_array, 2)	
+            'approved months or denial reason
+            For item = 0 to ubound(HC_array, 2)
                 If trim((HC_array(retro_reason_const, item))) = "" and hc_array(member_name_const, item) <> "" then err_msg = err_msg & vbCr & "* Enter approved months or denial reason(s) for " & hc_array(member_name_const, item)
-            NEXT 
+            NEXT
             IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "* Please enter your worker signature."
             IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
         LOOP UNTIL err_msg = ""									'loops until all errors are resolved
         CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
     Loop until are_we_passworded_out = false					'loops until user passwords back in
-End if 
+End if
 
-'Creating the member numbers output 
+'Creating the member numbers output
 member_numbers = ""
 For i = 0 to ubound(hc_array, 2)
     IF hc_array(member_name_const, i) <> "" then
-        member_numbers = member_numbers & hc_array(member_number_const, i) & ", "   
-    End if 
-Next 
+        member_numbers = member_numbers & hc_array(member_number_const, i) & ", "
+    End if
+Next
 
 'Entering member numbers in the header of case note
 member_numbers = trim(member_numbers) 'trims excess spaces of member_numbers
@@ -340,40 +346,40 @@ If right(member_numbers, 1) = "," THEN member_numbers = left(member_numbers, len
 
 memb_info = " for Memb " & member_numbers ' for the case note
 
-'----------------------------------------------------------------------------------------------------Outlook's time to shine 
+'----------------------------------------------------------------------------------------------------Outlook's time to shine
 email_content = ""
 
-If DOA_checkbox = checked then 
-    send_email = True 
-    email_content = "* METS DOA (Date of Application) was 11 months prior to today." & vbcr & vbcr 
+If DOA_checkbox = checked then
+    send_email = True
+    email_content = "* METS DOA (Date of Application) was 11 months prior to today." & vbcr & vbcr
     team_email = "601"
-elseif initial_option = "Retro Determination" then 
+elseif initial_option = "Retro Determination" then
     send_email = False
-    team_email = "" 
-else 
-    If HC_array(retro_scenario_const, 0) = "C" or HC_array(retro_scenario_const, 0) = "D" or HC_array(retro_scenario_const, 0) = "E" then 
-        send_email = True 
+    team_email = ""
+else
+    If HC_array(retro_scenario_const, 0) = "C" or HC_array(retro_scenario_const, 0) = "D" or HC_array(retro_scenario_const, 0) = "E" then
+        send_email = True
         team_email = "601"
-    Elseif HC_array(retro_scenario_const, 0) = "A" then 
-        send_email = False 
+    Elseif HC_array(retro_scenario_const, 0) = "A" then
+        send_email = False
         team_email = ""
-    Elseif HC_array(retro_scenario_const, 0) = "B" then 
-        send_email = True 
+    Elseif HC_array(retro_scenario_const, 0) = "B" then
+        send_email = True
         team_email = "603"
-    End if     
-End if 
+    End if
+End if
 
 For i = 0 to ubound(HC_array, 2)
-    If HC_array(member_name_const, i) <> "" then 
-        If initial_option = "Initial Request" then 
+    If HC_array(member_name_const, i) <> "" then
+        If initial_option = "Initial Request" then
             household_info = household_info & vbcr & " - " & HC_array(member_name_const, i) & ": Scenario " & HC_array(retro_scenario_const, i) & ". Requested " & HC_array(retro_months_const, i) & " retro coverage."
-        Elseif initial_option = "Proofs Received" then 
+        Elseif initial_option = "Proofs Received" then
             household_info = household_info & vbcr & " - " & HC_array(member_name_const, i) & ": Scenario " & HC_array(retro_scenario_const, i)
-        elseif initial_option = "Retro Determination" then 
+        elseif initial_option = "Retro Determination" then
             household_info = household_info & vbcr & " - " & HC_array(member_name_const, i) & ": Retro coverage " & HC_array(retro_status_const, i) & "--" & HC_array(retro_reason_const, i)
-        End if    
-    End if 
-Next 
+        End if
+    End if
+Next
 
 additional_content = ""
 If trim(other_notes) <> "" then additional_content = additional_content & vbcr & "Other Notes: " & other_notes
@@ -386,30 +392,30 @@ body_of_email = email_content & "---Health Care Member Information---" & househo
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
 IF send_email = True THEN CALL create_outlook_email("HSPH.EWS.Team." & team_email, "", email_header, body_of_email, "", TRUE)
 
-'------------------------------------------------------------------------------------Case Note					
+'------------------------------------------------------------------------------------Case Note
 start_a_blank_CASE_NOTE
-Call write_variable_in_CASE_NOTE(case_note_header & memb_info) 
+Call write_variable_in_CASE_NOTE(case_note_header & memb_info)
 Call write_bullet_and_variable_in_CASE_NOTE("METS Case Number", METS_case_number)
 Call write_bullet_and_variable_in_CASE_NOTE("Date of Application", application_date)
-'doesn't add due date if no changes are reported. This case can be worked on now. 
+'doesn't add due date if no changes are reported. This case can be worked on now.
 If forms_needed <> "Client verbally attested - No changes" and trim(due_date) <> "" then Call write_bullet_and_variable_in_CASE_NOTE("Verfication Due Date", due_date)
 Call write_bullet_and_variable_in_CASE_NOTE("Verifs/Froms Requested", forms_needed)
-Call write_variable_in_CASE_NOTE("---Health Care Member Information---") 
-'HH member array output 
+Call write_variable_in_CASE_NOTE("---Health Care Member Information---")
+'HH member array output
 For i = 0 to ubound(HC_array, 2)
-    If HC_array(member_name_const, i) <> "" then 
-        If initial_option = "Initial Request" then 
+    If HC_array(member_name_const, i) <> "" then
+        If initial_option = "Initial Request" then
             Call write_variable_in_CASE_NOTE(" - " & HC_array(member_name_const, i) & ": Scenario " & HC_array(retro_scenario_const, i) & ". Requested " & HC_array(retro_months_const, i) & " retro coverage.")
-        Elseif initial_option = "Proofs Received" then 
+        Elseif initial_option = "Proofs Received" then
             Call write_variable_in_CASE_NOTE(" - " & HC_array(member_name_const, i) & ": Scenario " & HC_array(retro_scenario_const, i))
-        elseif initial_option = "Retro Determination" then 
+        elseif initial_option = "Retro Determination" then
             Call write_variable_in_CASE_NOTE(" - " & HC_array(member_name_const, i) & ": Retro coverage " & HC_array(retro_status_const, i) & "--" & HC_array(retro_reason_const, i))
-        End if    
-    End if 
-Next 
+        End if
+    End if
+Next
 
 IF DOA_checkbox = 1 then Call write_variable_in_case_note("* Team 601 emailed re: DOA over 11 months prior to current date.")
-IF useform_checkbox = 1 then CALL write_variable_in_case_note("* Request to APPL use form created and sent.")     
+IF useform_checkbox = 1 then CALL write_variable_in_case_note("* Request to APPL use form created and sent.")
 If task_checkbox = 1 then Call write_variable_in_case_note("* Task created in METS for retro request.")
 If verifs_checkbox = 1 then Call write_variable_in_case_note("* All verification and/or forms received for retro determination.")
 If send_email = True then Call write_variable_in_case_note("* Email notification sent to " & team_email & ".")
@@ -417,14 +423,14 @@ CALL write_bullet_and_variable_in_case_note("Other notes", other_notes)
 CALL write_variable_in_case_note("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
 
-If initial_option = "Initial Request" then 
+If initial_option = "Initial Request" then
     navigate_decision = Msgbox("Do you want to open a Request to APPL useform?", vbQuestion + vbYesNo, "Navigate to Useform?")
     If navigate_decision = vbYes then CreateObject("WScript.Shell").Run("http://aem.hennepin.us/rest/services/HennepinCounty/Processes/ServletRenderForm:1.0?formName=HSPH5004_1-0.xdp&interactive=1")
-    If navigate_decision = vbNo then navigate_to_form = False 
-End if 
+    If navigate_decision = vbNo then navigate_to_form = False
+End if
 
-If send_email = True then 
+If send_email = True then
     script_end_procedure_with_error_report("An email notification was sent to " & team_email & ". Thank you!")
-else 
+else
     script_end_procedure_with_error_report("Success, your case note has been created.")
-End if 
+End if

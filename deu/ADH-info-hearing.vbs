@@ -53,14 +53,14 @@ CALL changelog_update("7/07/2017", "Initial version.", "MiKayla Handley, Hennepi
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-
 '----------------------------------------------------------------------------------------------------The script
 EMCONNECT ""
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 memb_number = "01"
 
-'------------------------------------------------------------------------------------------------------------Initial dialog
-BeginDialog , 0, 0, 166, 75, "ADH INFORMATION"
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1 , 0, 0, 166, 75, "ADH INFORMATION"
   EditBox 55, 5, 45, 15, MAXIS_case_number
   EditBox 135, 5, 25, 15, memb_number
   DropListBox 80, 30, 80, 15, "Select One:"+chr(9)+"ADH waiver signed"+chr(9)+"Hearing Held", ADH_option
@@ -75,7 +75,7 @@ EndDialog
 Do
 	Do
         err_msg = ""
-		Dialog
+		Dialog Dialog1
 		IF ButtonPressed = 0 THEN StopScript
 		IF IsNumeric(maxis_case_number) = false or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
 		IF IsNumeric(memb_number) = false or len(memb_number) <> 2 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid two-digit member number."
@@ -96,12 +96,10 @@ If MEMB_panel_check <> "MEMB" THEN script_end_procedure ("Could not access MEMB.
 EMReadscreen memb_name, 12, 6, 63
 memb_name = replace(memb_name, "_", "")
 
-'EMReadScreen edit_error, 2, 24, 2
-'edit_error = trim(edit_error)
-'IF edit_error <> "" THEN script_end_procedure("No Memb # matches and/ or could not access MEMB.")
-
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
 IF ADH_option = "ADH waiver signed" THEN
-    BeginDialog adh_dialog, 0, 0, 326, 100, "ADH waiver signed"
+    BeginDialog Dialog1, 0, 0, 326, 100, "ADH waiver signed"
       EditBox 100, 5, 40, 15, date_waiver_signed
       DropListBox 250, 5, 65, 15, "Select One:"+chr(9)+"CASH"+chr(9)+"SNAP"+chr(9)+"CASH & SNAP", Program_droplist
       EditBox 30, 35, 40, 15, start_date
@@ -129,7 +127,7 @@ IF ADH_option = "ADH waiver signed" THEN
     DO
     	Do
     		err_msg = ""
-    		Dialog adh_dialog
+    		Dialog Dialog1
     		cancel_confirmation
     		IF isdate(date_waiver_signed) = false THEN err_msg = err_msg & vbNewLine & "* Please enter date waiver was signed."
     		IF program_droplist = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Please select the program."
@@ -178,7 +176,9 @@ IF ADH_option = "ADH waiver signed" THEN
 END IF
 
 IF ADH_option = "Hearing Held" THEN
-    BeginDialog hearing_dialog, 0, 0, 326, 120, "Hearing Held"
+    '-------------------------------------------------------------------------------------------------DIALOG
+    Dialog1 = "" 'Blanking out previous dialog detail
+    BeginDialog Dialog1, 0, 0, 326, 120, "Hearing Held"
       EditBox 100, 5, 40, 15, hearing_date
       EditBox 100, 25, 40, 15, date_order_signed
       DropListBox 250, 5, 65, 15, "Select One:"+chr(9)+"CASH"+chr(9)+"SNAP"+chr(9)+"CASH & SNAP", Program_droplist
@@ -208,7 +208,7 @@ IF ADH_option = "Hearing Held" THEN
 	DO
 		Do
 			err_msg = ""
-			Dialog
+			Dialog Dialog1
 			cancel_confirmation
 			IF isdate(hearing_date) = false THEN err_msg = err_msg & vbNewLine & "* Please enter the hearing date."
 			IF program_droplist = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Please select the program."

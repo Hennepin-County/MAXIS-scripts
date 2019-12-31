@@ -59,9 +59,10 @@ changelog_display
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
-
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
 'Showing the case number - defining the dialog for the case number
-BeginDialog , 0, 0, 161, 65, "Case number and footer month"
+BeginDialog Dialog1 , 0, 0, 161, 65, "Case number and footer month"
   Text 5, 10, 85, 10, "Enter your case number:"
   EditBox 95, 5, 60, 15, MAXIS_case_number
   Text 15, 30, 50, 10, "Footer month:"
@@ -73,7 +74,7 @@ BeginDialog , 0, 0, 161, 65, "Case number and footer month"
 	CancelButton 85, 45, 50, 15
 EndDialog
 Do
-	Dialog 					'Calling a dialog without a assigned variable will call the most recently defined dialog
+	Dialog Dialog1					'Calling a dialog without a assigned variable will call the most recently defined dialog
 	cancel_confirmation
 	If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then MsgBox "You need to type a valid case number."
 Loop until MAXIS_case_number <> "" and IsNumeric(MAXIS_case_number) = True and len(MAXIS_case_number) <= 8
@@ -87,8 +88,10 @@ Do
 	Do
 		Do
 			Do
+				'-------------------------------------------------------------------------------------------------DIALOG
+				Dialog1 = "" 'Blanking out previous dialog detail
 				'The successive dialogs for this script need to be defined in the loop just before being called
-				BeginDialog , 0, 0, 361, 305, "5181 Dialog 1"
+				BeginDialog Dialog1 , 0, 0, 361, 305, "5181 Dialog 1"
 				  EditBox 55, 5, 55, 15, date_5181_editbox
 				  EditBox 170, 5, 55, 15, date_received_editbox
 				  EditBox 280, 5, 70, 15, lead_agency_editbox
@@ -146,7 +149,7 @@ Do
 				  Text 185, 215, 45, 15, "County code:"
 				  Text 185, 140, 165, 15, "**Script will default to sending the SWKR notices**"
 				EndDialog
-				Dialog 							'Displays the first dialog - defined just above.
+				Dialog Dialog1						'Displays the first dialog - defined just above.
 				cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.
 				MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
 			Loop until ButtonPressed = next_to_page_02_button
@@ -157,8 +160,9 @@ Do
 		Do
 			Do
 				Do
-					'The successive dialogs for this script need to be defined in the loop just before being called
-                    BeginDialog , 0, 0, 361, 385, "5181 Dialog 2: INITIAL REQUESTS (check all that apply):"
+					''-------------------------------------------------------------------------------------------------DIALOG
+					Dialog1 = "" 'Blanking out previous dialog detailThe successive dialogs for this script need to be defined in the loop just before being called
+                    BeginDialog Dialog1, 0, 0, 361, 385, "5181 Dialog 2: INITIAL REQUESTS (check all that apply):"
                     EditBox 75, 15, 45, 15, waiver_assessment_date_editbox
                     EditBox 275, 30, 45, 15, estimated_effective_date_editbox
                     EditBox 120, 50, 45, 15, estimated_monthly_waiver_costs_editbox
@@ -204,8 +208,7 @@ Do
                     Text 10, 325, 225, 10, "Client no longer meets LOC - Effective date should be no sooner than:"
                     Text 5, 345, 100, 10, "Waiver program change from:"
                     EndDialog
-
-					Dialog 							'Displays the second dialog - defined just above.
+					Dialog Dialog1							'Displays the second dialog - defined just above.
 					cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.
 					MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
 				Loop until ButtonPressed = next_to_page_03_button or ButtonPressed = previous_to_page_01_button
@@ -216,8 +219,10 @@ Do
 		If ButtonPressed = previous_to_page_01_button then exit do
 		Do
 			Do
+				'-------------------------------------------------------------------------------------------------DIALOG
+				Dialog1 = "" 'Blanking out previous dialog detail
 				'The successive dialogs for this script need to be defined in the loop just before being called
-                 BeginDialog , 0, 0, 366, 345, "5181 Dialog 3"
+                 BeginDialog Dialog1 , 0, 0, 366, 345, "5181 Dialog 3"
                  CheckBox 10, 20, 130, 10, "Exited waiver program effective date: ", exited_waiver_program_check
                  EditBox 150, 15, 40, 15, exit_waiver_end_date_editbox
                  CheckBox 15, 40, 60, 10, "Client's choice", client_choice_check
@@ -274,7 +279,7 @@ Do
                  GroupBox 5, 5, 355, 260, "**CHANGES** (check all that apply):"
                EndDialog
 			    err_msg = ""
-				Dialog 								'Displays the third dialog - defined just above.
+				Dialog Dialog1							'Displays the third dialog - defined just above.
 				cancel_confirmation					'Asks if you're sure you want to cancel, and cancels if you select that.
 				MAXIS_dialog_navigation				'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
 				IF case_action_editbox = "" THEN err_msg = err_msg & vBcr & "Complete case actions section."

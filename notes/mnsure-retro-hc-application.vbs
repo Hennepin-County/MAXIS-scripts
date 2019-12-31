@@ -51,8 +51,13 @@ call changelog_update("08/08/17", "Initial version.", "Ilse Ferris, Hennepin Cou
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'--------------------------------------------------------------------------------------------------------------------Dialog
-BeginDialog MNSure_HC_Appl_dialog, 0, 0, 326, 230, "MNsure Retro HC App, Retro Elig Determination Requested"
+'-------------------------------------------------------------------------------------------------------script
+EMConnect ""
+EMFocus
+CALL MAXIS_case_number_finder(MAXIS_case_number)
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 326, 230, "MNsure Retro HC App, Retro Elig Determination Requested"
   EditBox 85, 5, 75, 15, curam_case_number
   EditBox 85, 25, 75, 15, MAXIS_case_number
   EditBox 85, 45, 75, 15, HH_members_requesting
@@ -85,19 +90,14 @@ BeginDialog MNSure_HC_Appl_dialog, 0, 0, 326, 230, "MNsure Retro HC App, Retro E
   Text 10, 70, 70, 10, "Verifications Needed:"
 EndDialog
 
-'-------------------------------------------------------------------------------------------------------script
-EMConnect ""
-EMFocus
-CALL MAXIS_case_number_finder(MAXIS_case_number)
-
 DO
 	DO
 		DO
 			DO
-				Dialog MNSure_HC_Appl_dialog
+				Dialog Dialog1
 				cancel_confirmation
 				IF worker_signature = "" THEN MsgBox "Please sign your case note."
-				IF IsNumeric(MAXIS_case_number) = FALSE THEN MsgBox "You must type a valid numeric case number." 
+				IF IsNumeric(MAXIS_case_number) = FALSE THEN MsgBox "You must type a valid numeric case number."
 				IF retro_coverage_months = "Select One..." THEN MsgBox "Please select how many retro months are requested"
 				IF len(curam_case_number)<> 8 THEN MsgBox "Please enter an 8 digit Curam case number"
 			Loop until len(curam_case_number) = 8
@@ -109,7 +109,7 @@ Loop until retro_scenario_dropbox <> "Select One..."
 
 date_due = dateadd("d", +10, date)
 
-'------------------------------------------------------------------------------------Case Note					
+'------------------------------------------------------------------------------------Case Note
 call start_a_blank_CASE_NOTE
 CALL write_variable_in_CASE_NOTE("---MNsure Retro HC Application, Retro Eligibility Determination Requested---")
 Call write_bullet_and_variable_in_CASE_NOTE("METS Case Number", curam_case_number)
@@ -125,24 +125,21 @@ Call write_bullet_and_variable_in_CASE_NOTE("Action Taken", action_done_taken)
 CALL write_bullet_and_variable_in_case_note("Comments/Notes", other_notes)
 IF mmis_checkbox = checked THEN CALL write_variable_in_case_note("* Updated MMIS")
 IF STAT_added_checkbox = checked THEN CALL write_variable_in_case_note("* STAT Panel(s) To Be Added Sent")
-IF forms_sent_checkbox = checked THEN CALL write_variable_in_case_note("* Case Correction and Transfer Use Form Sent")                   
-IF EMAIL_603_B_checkbox = checked THEN CALL write_variable_in_case_note("* Other Actions: Email sent to Team 603")   
+IF forms_sent_checkbox = checked THEN CALL write_variable_in_case_note("* Case Correction and Transfer Use Form Sent")
+IF EMAIL_603_B_checkbox = checked THEN CALL write_variable_in_case_note("* Other Actions: Email sent to Team 603")
 IF (EMAIL_601_EC_checkbox = checked and retro_scenario_dropbox = "E") THEN CALL write_variable_in_case_note("* Other Actions: Case requires REIN, Email sent to Team 601 for processing")
-IF (EMAIL_601_EC_checkbox = checked and retro_scenario_dropbox = "C" or retro_scenario_dropbox ="D") THEN CALL write_variable_in_case_note("* Other Actions: Items listed have been received, Email sent to Team 601 for follow up") 
-
+IF (EMAIL_601_EC_checkbox = checked and retro_scenario_dropbox = "C" or retro_scenario_dropbox ="D") THEN CALL write_variable_in_case_note("* Other Actions: Items listed have been received, Email sent to Team 601 for follow up")
 CALL write_variable_in_case_note("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
-
 '--------------------------------------------------------------------------------------------EMAIL
 IF EMAIL_603_B_checkbox = checked THEN CALL create_outlook_email("HSPH.EWS.Team.603", "", "* STAT panel(s) needed, please follow up", "MAXIS case #" & MAXIS_case_number & vbcr & "Case name: " & HH_members_requesting, "", TRUE)
 IF (EMAIL_601_EC_checkbox = checked and retro_scenario_dropbox = "E") THEN CALL create_outlook_email("HSPH.EWS.Team.601", "", "* Case requires REIN, please follow up.", "MAXIS case #" & MAXIS_case_number & vbcr & "Case name: " & HH_members_requesting, "", TRUE)
 IF (EMAIL_601_EC_checkbox = checked and retro_scenario_dropbox = "C") THEN CALL create_outlook_email("HSPH.EWS.Team.601", "", "* Items listed have been received, please follow up.", "MAXIS case #" & MAXIS_case_number & vbcr & "Case name: " & HH_members_requesting, "", TRUE)
-
 '--------------------------------------------------------------------------------------------TIKL
 IF tikl_checkbox = 1 THEN
 	CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
 	CALL create_maxis_friendly_date(date, 10, 5, 18)
 	EMSetCursor 9, 3
-END IF	
+END IF
 
 script_end_procedure ("")

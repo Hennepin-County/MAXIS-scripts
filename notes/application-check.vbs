@@ -53,7 +53,7 @@ call changelog_update("06/14/2018", "Updated dialog and case note to address req
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-
+Dialog1 = ""
 '---------------------------------------------------------------------------------------The script
 'Grabs the case number
 EMConnect ""
@@ -95,18 +95,18 @@ LOOP until PND2_check = "PND2"
 EMReadScreen not_pending_check, 5, 24, 2
 If not_pending_check = "CASE " THEN script_end_procedure_with_error_report("There is not a pending program on this case, or case is not in PND2 status." & vbNewLine & vbNewLine & "Please make sure you have the right case number, and/or check your case notes to ensure that this application has been completed.")
 
-'Because inquiry and training region are stupid, when you nav to REPT/PND2 the cursor resets to row 20, col 13 or the REPT field. Just to ruin my life. 
-'Now code will work in all regions - production, inquiry and training. 
+'Because inquiry and training region are stupid, when you nav to REPT/PND2 the cursor resets to row 20, col 13 or the REPT field. Just to ruin my life.
+'Now code will work in all regions - production, inquiry and training.
 MAXIS_row = 7
-Do 
+Do
     EmReadscreen pending_case_num, 8, MAXIS_row, 6
-    If trim(pending_case_num) = trim(MAXIS_case_number) then 
-        found_case = True 
-        exit do 
-    Else     
+    If trim(pending_case_num) = trim(MAXIS_case_number) then
+        found_case = True
+        exit do
+    Else
         MAXIS_row = MAXIS_row + 1
         found_case = False
-    End if  
+    End if
 
 LOOP until row = 19
 If found_case = False then script_end_procedure_with_error_report("There is not a pending program on this case, or case is not in PND2 status." & vbNewLine & vbNewLine & "Please make sure you have the right case number, and/or check your case notes to ensure that this application has been completed.")
@@ -350,7 +350,7 @@ Elseif DateDiff("d", application_date, date) > 60 then
 	reminder_text = "Post day 60"
 END IF
 '----------------------------------------------------------------------------------------------------dialogs
-dialog1 = "" 'Blanking out previous dialog detail
+Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog dialog1, 0, 0, 386, 185, "Application Check: "  & application_check
   DropListBox 75, 15, 80, 15, "Select One:"+chr(9)+"ApplyMN"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Pop"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer", app_type
   EditBox 175, 20, 50, 15, application_date
@@ -435,11 +435,11 @@ If Outlook_reminder_checkbox = CHECKED THEN
 	CALL create_outlook_appointment(reminder_date, "08:00 AM", "08:00 AM", "Application check: " & reminder_text & " for " & MAXIS_case_number, "", "", TRUE, 5, "")
 End if
 
-If application_status_droplist <> "Case is ready to approve or deny" then 
+If application_status_droplist <> "Case is ready to approve or deny" then
    Call navigate_to_MAXIS_screen("DAIL", "WRIT")
    CALL create_MAXIS_friendly_date(reminder_date, 0, 5, 18)   'The following will generate a TIKL formatted date for 10 days from now, and add it to the TIKL
    CALL write_variable_in_TIKL("Application check: " & reminder_text & ". Review case and ECF including verification requests, and take appropriate action.")
    PF3		'Exits and saves TIKL
-End if 
+End if
 
 script_end_procedure_with_error_report("Application check completed, a case note made, and a TIKL has been set.")

@@ -52,7 +52,9 @@ changelog_display
 
 'DIALOGS----------------------------------------------------------------------------------------------------
 'Dialog to gather the case number and footer month and year
-BeginDialog case_number_dialog, 0, 0, 156, 70, "Case number dialog"
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 156, 70, "Case number dialog"
   EditBox 60, 5, 90, 15, MAXIS_case_number
   EditBox 60, 25, 30, 15, MAXIS_footer_month
   EditBox 120, 25, 30, 15, MAXIS_footer_year
@@ -167,8 +169,11 @@ If IsDate(date_of_death) = TRUE Then hospice_exit_date = date_of_death
 
 Call Generate_Client_List(HH_Memb_DropDown, "Select")         'filling the dropdown with ALL of the household members
 
+
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
 'Next dialog - here so that the dropdown can be filled with case information
-BeginDialog hospice_info_dlg, 0, 0, 291, 240, "Hospice Form Received"
+BeginDialog Dialog1, 0, 0, 291, 240, "Hospice Form Received"
   DropListBox 80, 25, 160, 45, HH_Memb_DropDown, client_in_hospice
   EditBox 80, 45, 205, 15, hospice_name
   EditBox 80, 65, 80, 15, npi_number
@@ -222,22 +227,21 @@ EndDialog
 ' EndDialog
 
 'showing the dialog
-Do
-    err_msg = ""
-
-    Dialog hospice_info_dlg
-    cancel_confirmation
-
-    If client_in_hospice = "Select" Then err_msg = err_msg & vbNewLine & "* Select the client that is in hospice."
-    If trim(hospice_name) = "" Then err_msg = err_msg & vbNewLine & "* Enter the name of the Hospice the client entered."       'hospice name required
-    If IsDate(hospice_entry_date) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter a valide date for the Hospice Entry."   'entry date also required
-
-    If err_msg <> "" Then MsgBox "Please resolve the following to conitune:" & vbNewLine & err_msg
-Loop until err_msg = ""
+DO
+	Do
+        err_msg = ""
+        Dialog Dialog1
+        cancel_confirmation
+        If client_in_hospice = "Select" Then err_msg = err_msg & vbNewLine & "* Select the client that is in hospice."
+        If trim(hospice_name) = "" Then err_msg = err_msg & vbNewLine & "* Enter the name of the Hospice the client entered."       'hospice name required
+        If IsDate(hospice_entry_date) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter a valide date for the Hospice Entry."   'entry date also required
+        If err_msg <> "" Then MsgBox "Please resolve the following to conitune:" & vbNewLine & err_msg
+	Loop until err_msg = ""
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'case noting the information from the dialog.
 Call start_a_blank_CASE_NOTE
-
 Call write_variable_in_CASE_NOTE("*** HOSPICE TRANSACTION FORM RECEIVED ***")
 Call write_bullet_and_variable_in_CASE_NOTE("Client", client_in_hospice)
 Call write_bullet_and_variable_in_CASE_NOTE("Hospice Name", hospice_name)

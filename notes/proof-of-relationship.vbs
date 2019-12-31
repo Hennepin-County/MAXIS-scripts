@@ -51,29 +51,30 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'THE SCRIPT---------------------------------------------------------------------------------------------------------------------------------------------
-'Dialog Box for Case Number.
-BeginDialog Case_Number_Dialog, 0, 0, 130, 55, "Case Number"
+'THE SCRIPT------------------------------------------------------------------------------------------------------
+'Connects to BLUEZONE
+EMConnect ""
+'Grabs the MAXIS case number
+CALL MAXIS_case_number_finder(MAXIS_case_number)
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 130, 55, "Case Number"
   EditBox 60, 5, 60, 15, MAXIS_case_number
   ButtonGroup ButtonPressed
     OkButton 15, 30, 50, 15
     CancelButton 70, 30, 50, 15
   Text 10, 10, 50, 10, "Case Number: "
 EndDialog
-
-'Connecting to BlueZone.
-EMConnect ""
-EMFocus
-call Check_for_MAXIS(True)
-
-Call MAXIS_case_number_finder (MAXIS_case_number)
-Do
-	err_msg = ""
-	Dialog Case_Number_Dialog											'Running the case number dialog
-	If buttonpressed = cancel Then stopscript							'Cancels the script if cancel button is pressed
-	If MAXIS_case_number = "" Then err_msg = "Please enter a case number."	'Case number must be entered or script will error out
-	If err_msg <> "" Then MsgBox err_msg								'Tells worker to enter a case number
-Loop until err_msg = ""
+DO
+	Do
+    	err_msg = ""
+    	Dialog Dialog1											'Running the case number dialog
+    	If buttonpressed = cancel Then stopscript							'Cancels the script if cancel button is pressed
+    	If MAXIS_case_number = "" Then err_msg = "Please enter a case number."	'Case number must be entered or script will error out
+    	If err_msg <> "" Then MsgBox err_msg								'Tells worker to enter a case number
+    Loop until err_msg = ""
+	CALL check_for_password(are_we_passworded_out)
+Loop until are_we_passworded_out = False
 
 'Drop down list for available household members to put into the drop down list.
 Call HH_member_custom_dialog(HH_Member_Array)
@@ -203,69 +204,70 @@ Next
 ' array_item = array_item + 1
 array_item = UBound(Pare_Line_Array, 2)
 
-'The main dialog will now run. It will error check
-Do
-	err_msg = ""
-    'Dialog Box to list members and documentation received.
-    'This dialog is here instead of the beginning because the dynamic thing only works if the array items are set before the dialog is defined
-    BeginDialog Proof_of_Relationship_Dialog, 0, 0, 570, (95 + (20 * array_item)), "Proof of Relationship"
-      For pare_item = 0 to UBound(Pare_Line_Array, 2)
-    	  DropListBox 5, (20 + (pare_item * 20)), 70, 15, hh_member_dropdown, Pare_Line_Array(received_for, pare_item)
-    	  DropListBox 85, (20 + (pare_item * 20)), 110, 15, "Select one..."+chr(9)+"Is Another Relative of"+chr(9)+"Is the Child of"+chr(9)+"Is the Foster Child of"+chr(9)+"Is the Grandchild of"+chr(9)+"Is the Guardian of"+chr(9)+"Is the Nephew of"+chr(9)+"Is the Niece of"+chr(9)+"Is the Parent of"+chr(9)+"Is the Sibling of"+chr(9)+"Is the Spouse of"+chr(9)+"Is the Step Child of"+chr(9)+"Is Unrelated to"+chr(9)+"Other", Pare_Line_Array(relationship_type, pare_item)
-    	  EditBox 205, (20 + (pare_item * 20)), 85, 15, Pare_Line_Array(other_relationship_list, pare_item)
-    	  DropListBox 295, (20 + (pare_item * 20)), 70, 15, hh_member_dropdown, Pare_Line_Array(relationship_to, pare_item)
-    	  EditBox 375, (20 + (pare_item * 20)), 105, 15, Pare_Line_Array(documents_received, pare_item)
-    	  CheckBox 490, (25 + (pare_item * 20)), 75, 10, "New/Updated Proof", Pare_Line_Array(new_checkbox, pare_item)
-      Next
-      ButtonGroup ButtonPressed
-        PushButton 365, (40 + array_item * 20), 200, 10, "Click Here to add another Relationship Line", add_another_button
-      EditBox 90, (55 + (array_item * 20)), 170, 15, other_verifs_needed
-      EditBox 310, (55 + (array_item * 20)), 235, 15, other_notes
-      CheckBox 70, (80 + (array_item * 20)), 30, 10, "PARE", pare_checkbox
-      CheckBox 105, (80 + (array_item * 20)), 35, 10, "MEMB", memb_checkbox
-      CheckBox 145, (80 + (array_item * 20)), 30, 10, "ABPS", abps_checkbox
-      CheckBox 180, (80 + (array_item * 20)), 25, 10, "SIBL", sibl_checkbox
-      CheckBox 210, (80 + (array_item * 20)), 30, 10, "Other:", other_checkbox
-      EditBox 245, (75 + (array_item * 20)), 30, 15, other_option
-      EditBox 340, (75 + (array_item * 20)), 105, 15, worker_signature
-      ButtonGroup ButtonPressed
-        OkButton 455, (75 + (array_item * 20)), 50, 15
-        CancelButton 510, (75 + (array_item * 20)), 50, 15
-      Text 5, 10, 75, 10, "Member received for: "
-      Text 85, 10, 50, 10, "Relationship: "
-      Text 205, 10, 90, 10, "If Other, list relationship:"
-      Text 295, 10, 50, 10, "Related to:"
-      Text 375, 10, 75, 10, "Document(s) received: "
-      Text 5, (60 + (array_item * 20)), 80, 10, "Other verifs still needed:"
-      Text 265, (60 + (array_item * 20)), 45, 10, "Other Notes:"
-      Text 5, (80 + (array_item * 20)), 60, 10, "Panel(s) updated: "
-      Text 280, (80 + (array_item * 20)), 60, 10, "Worker signature:"
-      ' Text 5, (35 + (array_item * 20)), 575, 10, "  * This last line is available for entry of relationship proof that was not documented in STAT. If the Relationship is left as 'SELECT ONE...' this line will not case note."
-    EndDialog
-
-
-	Dialog Proof_of_relationship_dialog
-	cancel_confirmation
-	For relationship = 0 to UBound (Pare_Line_Array,2)
-        If Pare_Line_Array(relationship_type, relationship) = "Select one..." Then err_msg = err_msg & vbNewLine & "* Type of relationship between " & Pare_Line_Array(received_for, relationship) & " and " & Pare_Line_Array(relationship_to, relationship) & " must be explained."
-		If Pare_Line_Array(relationship_type, relationship) = "Other" AND Pare_Line_Array (other_relationship_list, relationship) = "" Then err_msg = err_msg & vbCr & _
-		  "You must define the *other* relationship between Memb " & Pare_Line_Array(received_for, relationship) & " and Memb " & Pare_Line_Array(relationship_to, relationship)			'Requires other relationship to be explained
-        If Pare_Line_Array(relationship_type, relationship) = "Is Another Relative of" AND Pare_Line_Array (other_relationship_list, relationship) = "" Then err_msg = err_msg & vbCr & _
-		  "You must define the *other* relationship between Memb " & Pare_Line_Array(received_for, relationship) & " and Memb " & Pare_Line_Array(relationship_to, relationship)			'Requires other relationship to be explained
-        If Pare_Line_Array(received_for, relationship) = Pare_Line_Array(relationship_to, relationship) Then err_msg = err_msg & vbNewLine & "* The 'Member Received For' and 'Related to' are the same member, you do not need to indicate a relationship to self. For Memb " & Pare_Line_Array(received_for, relationship) & "."
-        If Pare_Line_Array(new_checkbox,relationship) = checked Then new_proof_exists = TRUE
-        If Pare_Line_Array(new_checkbox,relationship) = unchecked Then old_proof_exists = TRUE
-	Next
-	IF other_checkbox = 1 AND other_option = "" THEN err_msg = err_msg & vbCr & "You must list a panel if Other is selected."			'Requires Other panel to be specified
-	IF worker_signature = "" THEN err_msg = err_msg & vbCr & "You must enter a worker signature."										'Requires worker signgnature
-    If ButtonPressed = add_another_button Then
-        err_msg = "LOOP" & err_msg
-        array_item = array_item + 1
-        ReDim Preserve Pare_Line_Array(5, array_item)
-    End If
-
-    If err_msg <> "" AND left(err_msg, 4) <> "LOOP" Then MsgBox "Please resolve to continue" & vbCr & vbCr & err_msg													'Displays the error message to the worker
-Loop until err_msg = ""
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 570, (95 + (20 * array_item)), "Proof of Relationship"
+  For pare_item = 0 to UBound(Pare_Line_Array, 2)
+	  DropListBox 5, (20 + (pare_item * 20)), 70, 15, hh_member_dropdown, Pare_Line_Array(received_for, pare_item)
+	  DropListBox 85, (20 + (pare_item * 20)), 110, 15, "Select one..."+chr(9)+"Is Another Relative of"+chr(9)+"Is the Child of"+chr(9)+"Is the Foster Child of"+chr(9)+"Is the Grandchild of"+chr(9)+"Is the Guardian of"+chr(9)+"Is the Nephew of"+chr(9)+"Is the Niece of"+chr(9)+"Is the Parent of"+chr(9)+"Is the Sibling of"+chr(9)+"Is the Spouse of"+chr(9)+"Is the Step Child of"+chr(9)+"Is Unrelated to"+chr(9)+"Other", Pare_Line_Array(relationship_type, pare_item)
+	  EditBox 205, (20 + (pare_item * 20)), 85, 15, Pare_Line_Array(other_relationship_list, pare_item)
+	  DropListBox 295, (20 + (pare_item * 20)), 70, 15, hh_member_dropdown, Pare_Line_Array(relationship_to, pare_item)
+	  EditBox 375, (20 + (pare_item * 20)), 105, 15, Pare_Line_Array(documents_received, pare_item)
+	  CheckBox 490, (25 + (pare_item * 20)), 75, 10, "New/Updated Proof", Pare_Line_Array(new_checkbox, pare_item)
+  Next
+  ButtonGroup ButtonPressed
+	PushButton 365, (40 + array_item * 20), 200, 10, "Click Here to add another Relationship Line", add_another_button
+  EditBox 90, (55 + (array_item * 20)), 170, 15, other_verifs_needed
+  EditBox 310, (55 + (array_item * 20)), 235, 15, other_notes
+  CheckBox 70, (80 + (array_item * 20)), 30, 10, "PARE", pare_checkbox
+  CheckBox 105, (80 + (array_item * 20)), 35, 10, "MEMB", memb_checkbox
+  CheckBox 145, (80 + (array_item * 20)), 30, 10, "ABPS", abps_checkbox
+  CheckBox 180, (80 + (array_item * 20)), 25, 10, "SIBL", sibl_checkbox
+  CheckBox 210, (80 + (array_item * 20)), 30, 10, "Other:", other_checkbox
+  EditBox 245, (75 + (array_item * 20)), 30, 15, other_option
+  EditBox 340, (75 + (array_item * 20)), 105, 15, worker_signature
+  ButtonGroup ButtonPressed
+	OkButton 455, (75 + (array_item * 20)), 50, 15
+	CancelButton 510, (75 + (array_item * 20)), 50, 15
+  Text 5, 10, 75, 10, "Member received for: "
+  Text 85, 10, 50, 10, "Relationship: "
+  Text 205, 10, 90, 10, "If Other, list relationship:"
+  Text 295, 10, 50, 10, "Related to:"
+  Text 375, 10, 75, 10, "Document(s) received: "
+  Text 5, (60 + (array_item * 20)), 80, 10, "Other verifs still needed:"
+  Text 265, (60 + (array_item * 20)), 45, 10, "Other Notes:"
+  Text 5, (80 + (array_item * 20)), 60, 10, "Panel(s) updated: "
+  Text 280, (80 + (array_item * 20)), 60, 10, "Worker signature:"
+  ' Text 5, (35 + (array_item * 20)), 575, 10, "  * This last line is available for entry of relationship proof that was not documented in STAT. If the Relationship is left as 'SELECT ONE...' this line will not case note."
+EndDialog
+DO
+    Do
+    	err_msg = ""
+        'Dialog Box to list members and documentation received.
+        'This dialog is here instead of the beginning because the dynamic thing only works if the array items are set before the dialog is defined
+    	Dialog Dialog1
+    	cancel_without_confirmation
+    	For relationship = 0 to UBound (Pare_Line_Array,2)
+            If Pare_Line_Array(relationship_type, relationship) = "Select one..." Then err_msg = err_msg & vbNewLine & "* Type of relationship between " & Pare_Line_Array(received_for, relationship) & " and " & Pare_Line_Array(relationship_to, relationship) & " must be explained."
+    		If Pare_Line_Array(relationship_type, relationship) = "Other" AND Pare_Line_Array (other_relationship_list, relationship) = "" Then err_msg = err_msg & vbCr & _
+    		  "You must define the *other* relationship between Memb " & Pare_Line_Array(received_for, relationship) & " and Memb " & Pare_Line_Array(relationship_to, relationship)			'Requires other relationship to be explained
+            If Pare_Line_Array(relationship_type, relationship) = "Is Another Relative of" AND Pare_Line_Array (other_relationship_list, relationship) = "" Then err_msg = err_msg & vbCr & _
+    		  "You must define the *other* relationship between Memb " & Pare_Line_Array(received_for, relationship) & " and Memb " & Pare_Line_Array(relationship_to, relationship)			'Requires other relationship to be explained
+            If Pare_Line_Array(received_for, relationship) = Pare_Line_Array(relationship_to, relationship) Then err_msg = err_msg & vbNewLine & "* The 'Member Received For' and 'Related to' are the same member, you do not need to indicate a relationship to self. For Memb " & Pare_Line_Array(received_for, relationship) & "."
+            If Pare_Line_Array(new_checkbox,relationship) = checked Then new_proof_exists = TRUE
+            If Pare_Line_Array(new_checkbox,relationship) = unchecked Then old_proof_exists = TRUE
+    	Next
+    	IF other_checkbox = 1 AND other_option = "" THEN err_msg = err_msg & vbCr & "You must list a panel if Other is selected."			'Requires Other panel to be specified
+    	IF worker_signature = "" THEN err_msg = err_msg & vbCr & "You must enter a worker signature."										'Requires worker signgnature
+        If ButtonPressed = add_another_button Then
+            err_msg = "LOOP" & err_msg
+            array_item = array_item + 1
+            ReDim Preserve Pare_Line_Array(5, array_item)
+        End If
+        If err_msg <> "" AND left(err_msg, 4) <> "LOOP" Then MsgBox "Please resolve to continue" & vbCr & vbCr & err_msg													'Displays the error message to the worker
+    Loop until err_msg = ""
+CALL check_for_password(are_we_passworded_out)
+Loop until are_we_passworded_out = False
 
 'Statements needed for the check boxes for panels updated, defined further in case notes below.
 IF memb_checkbox =  1 THEN memb  = "MEMB/"

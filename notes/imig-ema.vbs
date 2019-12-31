@@ -50,8 +50,9 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog EMA_dialog, 0, 0, 311, 305, "EMMA"
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 311, 305, "EMMA"
   EditBox 85, 5, 75, 15, MAXIS_case_number
   EditBox 110, 30, 95, 15, date_received
   EditBox 55, 50, 45, 15, HH_COMP
@@ -77,10 +78,7 @@ BeginDialog EMA_dialog, 0, 0, 311, 305, "EMMA"
   Text 5, 35, 100, 10, "EMA MNSURE App Received: "
 EndDialog
 
-
-
 'script code-----------------------------------------------------------------------------------------------
-
 'Connect to Bluezone
 EMConnect ""
 
@@ -91,21 +89,18 @@ CALL MAXIS_case_number_finder(MAXIS_case_number)
 DO
 	DO
 
-		Dialog EMA_DIALOG
+		Dialog Dialog1
 		IF ButtonPressed = 0 THEN StopScript
 		IF worker_signature = "" THEN MsgBox "You must sign your case note!"
-		LOOP UNTIL worker_signature <> ""
-	IF IsNumeric(MAXIS_case_number) = FALSE THEN MsgBox "You must type a valid numeric case number."
-LOOP UNTIL IsNumeric(MAXIS_case_number) = TRUE
-
+		If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & VbCr & err_msg & VbCr		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+    LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'Checks Maxis for password prompt
 CALL check_for_MAXIS(True)
-
-
 'Navigates to case note
 CALL navigate_to_MAXIS_screen("CASE", "NOTE")
-
 'Sends a PF9
 PF9
 
@@ -122,4 +117,4 @@ IF ACTION_TAKEN <> "Select One:" THEN CALL write_bullet_and_variable_in_case_not
 CALL write_variable_in_case_note ("---")
 CALL write_variable_in_case_note (worker_signature)
 
-CALL script_end_procedure("")
+CALL script_end_procedure_with_error_report("")

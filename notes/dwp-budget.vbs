@@ -49,9 +49,10 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
 'This is the dialog box information/code
-BeginDialog DWP_budget_dialog, 0, 0, 426, 165, "DWP Budget Dialog"
+BeginDialog Dialog1, 0, 0, 426, 165, "DWP Budget Dialog"
   EditBox 60, 5, 45, 15, MAXIS_case_number
   EditBox 195, 5, 45, 15, ES_appointment_date
   EditBox 370, 5, 45, 15, ES_deadline_date
@@ -86,7 +87,7 @@ CALL MAXIS_case_number_finder(MAXIS_case_number)
 'Displays the dialog
 DO
 	err_msg = ""
-	Dialog DWP_budget_dialog
+	Dialog Dialog1
 	cancel_confirmation
 	IF MAXIS_case_number = "" OR (MAXIS_case_number <> "" AND IsNumeric(MAXIS_case_number) = False) THEN err_msg = err_msg & vbNewLine & "*Please enter a valid case number"
 	If personal_needs = "" THEN err_msg = err_msg & vbNewLine & "*You must enter the number of DWP household members"

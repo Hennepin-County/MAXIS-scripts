@@ -60,7 +60,8 @@ EMConnect ""
 'Grabbing case number & footer month/year
 Call MAXIS_case_number_finder(MAXIS_case_number)
 If MAXIS_footer_month = "" AND MAXIS_footer_year = "" Then Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
-
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 161, 61, "Case number"
   Text 5, 5, 85, 10, "Enter your case number:"
   EditBox 95, 0, 60, 15, MAXIS_case_number
@@ -74,8 +75,15 @@ BeginDialog Dialog1, 0, 0, 161, 61, "Case number"
 EndDialog
 
 'Shows case number dialog
-Dialog Dialog1
-cancel_confirmation
+DO
+	Do
+        err_msg = ""
+        Dialog Dialog1
+        cancel_confirmation
+        If err_msg <> "" Then MsgBox "Please resolve the following to conitune:" & vbNewLine & err_msg
+	Loop until err_msg = ""
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'Sends transmit to check for MAXIS
 Call check_for_MAXIS(FALSE)
@@ -204,6 +212,8 @@ If EBUD_check = "EBUD" then
   other = "MA-EPD premium is $" & trim(MA_EPD_premium) & "/mo."
 End if
 
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 191, 76, "BBUD"
   Text 5, 10, 180, 10, "This is a method B budget. What would you like to do?"
   ButtonGroup ButtonPressed
@@ -217,8 +227,15 @@ EMReadScreen BBUD_check, 4, 3, 47
 If BBUD_check = "BBUD" then
   EMReadScreen income, 10, 12, 32
   income = "$" & trim(income)
-  Dialog Dialog1
-  cancel_confirmation
+  DO
+  	Do
+          err_msg = ""
+          Dialog Dialog1
+          cancel_confirmation
+     	  If err_msg <> "" Then MsgBox "Please resolve the following to conitune:" & vbNewLine & err_msg
+  	Loop until err_msg = ""
+  	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+  Loop until are_we_passworded_out = false					'loops until user passwords back inn
   If ButtonPressed = 4 then
     PF3
     Call check_for_MAXIS(False)

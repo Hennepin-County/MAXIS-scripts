@@ -51,9 +51,10 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'DIALOG BLOCK===============================================================================================================
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
 'First Dialog that asks for case number and footer month.
-BeginDialog PostPay_Non_HRF_dialog, 0, 0, 311, 100, "PostPay Non-HRF"
+BeginDialog Dialog1, 0, 0, 311, 100, "PostPay Non-HRF"
   EditBox 90, 5, 65, 15, MAXIS_case_number
   EditBox 105, 30, 20, 15, MAXIS_footer_month
   EditBox 135, 30, 20, 15, MAXIS_footer_year
@@ -74,53 +75,6 @@ BeginDialog PostPay_Non_HRF_dialog, 0, 0, 311, 100, "PostPay Non-HRF"
   Text 240, 50, 25, 10, "* PBEN"
   Text 240, 60, 50, 10, "* VNDS"
   GroupBox 170, 5, 135, 70, "Description:"
-EndDialog
-
-'Second Dialog when all info has been grab from case will be called into fields/variants to be reviewed by worker
-BeginDialog GRH_case_note_dialog, 0, 0, 456, 275, "GRH NON-HRF CASE NOTE dialog"
-  EditBox 80, 5, 365, 15, addr_faci_vnds_status
-  EditBox 80, 60, 245, 15, IAA_status
-  EditBox 80, 80, 245, 15, earnincome_status
-  EditBox 80, 100, 365, 15, unea_status
-  EditBox 80, 120, 365, 15, other_notes
-  EditBox 80, 140, 365, 15, changes
-  EditBox 80, 160, 365, 15, verifs_needed
-  EditBox 80, 180, 365, 15, actions_taken
-  EditBox 10, 210, 290, 15, Postpay_results
-  EditBox 375, 230, 70, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 340, 255, 50, 15
-    CancelButton 395, 255, 50, 15
-    PushButton 80, 35, 25, 10, "VNDS", VNDS_button
-    PushButton 105, 35, 25, 10, "FACI", FACI_button
-    PushButton 130, 35, 25, 10, "ADDR", ADDR_button
-    PushButton 275, 35, 25, 10, "BUSI", BUSI_button
-    PushButton 300, 35, 25, 10, "JOBS", JOBS_button
-    PushButton 325, 35, 25, 10, "UNEA", UNEA_button
-    PushButton 365, 35, 45, 10, "prev. panel", prev_panel_button
-    PushButton 365, 45, 45, 10, "next panel", next_panel_button
-    PushButton 340, 75, 25, 10, "MEMB", MEMB_button
-    PushButton 365, 75, 25, 10, "MEMI", MEMI_button
-    PushButton 390, 75, 25, 10, "REVW", REVW_button
-    PushButton 415, 75, 25, 10, "PBEN", PBEN_button
-    PushButton 10, 230, 290, 15, "Send case to BGTX", CASE_BGTX
-    PushButton 315, 210, 20, 10, "GRH", ELIG_GRH_button
-    PushButton 335, 210, 20, 10, "HC", ELIG_HC_button
-  Text 35, 65, 40, 10, "IAA Status:"
-  Text 30, 125, 40, 10, "Other notes:"
-  Text 35, 145, 35, 10, "Changes?:"
-  Text 25, 165, 50, 10, "Verifs needed:"
-  Text 25, 185, 50, 10, "Actions taken:"
-  GroupBox 5, 200, 300, 50, "Post Payment Results"
-  Text 310, 235, 60, 10, "Worker Signature:"
-  GroupBox 310, 200, 50, 25, "ELIG panels:"
-  Text 10, 105, 70, 10, "Active Disa/UNEA?:"
-  Text 5, 85, 70, 10, "Earn Income Status:"
-  Text 5, 10, 75, 10, "Recent(PostPay)Faci: "
-  GroupBox 270, 25, 85, 25, "Income panels"
-  GroupBox 75, 25, 85, 25, "Locations"
-  GroupBox 360, 25, 85, 35, "STAT-based navigation:"
-  GroupBox 335, 65, 110, 25, "other STAT panels:"
 EndDialog
 
 'END of dialog block===================================================================================================================
@@ -290,7 +244,7 @@ Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 'First Dialog. Showing case number, postpay month & year...checking for valid entries of these info.  It'll loop until workers enter the right condition.
 Do
 	err_msg = ""
-	Dialog PostPay_Non_HRF_dialog
+	Dialog Dialog1
 	cancel_confirmation
 	If MAXIS_case_number = "" then err_msg = err_msg & vbCr & "You must have a case number to continue."
 	If len(MAXIS_case_number) > 8 then err_msg = err_msg & vbCr & "Your case number need to be 8 digits or less."
@@ -501,13 +455,63 @@ If unea_pnls = "0" then
 	End If
 End If
 
+
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+'Second Dialog when all info has been grab from case will be called into fields/variants to be reviewed by worker
+BeginDialog Dialog1, 0, 0, 456, 275, "GRH NON-HRF CASE NOTE dialog"
+  EditBox 80, 5, 365, 15, addr_faci_vnds_status
+  EditBox 80, 60, 245, 15, IAA_status
+  EditBox 80, 80, 245, 15, earnincome_status
+  EditBox 80, 100, 365, 15, unea_status
+  EditBox 80, 120, 365, 15, other_notes
+  EditBox 80, 140, 365, 15, changes
+  EditBox 80, 160, 365, 15, verifs_needed
+  EditBox 80, 180, 365, 15, actions_taken
+  EditBox 10, 210, 290, 15, Postpay_results
+  EditBox 375, 230, 70, 15, worker_signature
+  ButtonGroup ButtonPressed
+    OkButton 340, 255, 50, 15
+    CancelButton 395, 255, 50, 15
+    PushButton 80, 35, 25, 10, "VNDS", VNDS_button
+    PushButton 105, 35, 25, 10, "FACI", FACI_button
+    PushButton 130, 35, 25, 10, "ADDR", ADDR_button
+    PushButton 275, 35, 25, 10, "BUSI", BUSI_button
+    PushButton 300, 35, 25, 10, "JOBS", JOBS_button
+    PushButton 325, 35, 25, 10, "UNEA", UNEA_button
+    PushButton 365, 35, 45, 10, "prev. panel", prev_panel_button
+    PushButton 365, 45, 45, 10, "next panel", next_panel_button
+    PushButton 340, 75, 25, 10, "MEMB", MEMB_button
+    PushButton 365, 75, 25, 10, "MEMI", MEMI_button
+    PushButton 390, 75, 25, 10, "REVW", REVW_button
+    PushButton 415, 75, 25, 10, "PBEN", PBEN_button
+    PushButton 10, 230, 290, 15, "Send case to BGTX", CASE_BGTX
+    PushButton 315, 210, 20, 10, "GRH", ELIG_GRH_button
+    PushButton 335, 210, 20, 10, "HC", ELIG_HC_button
+  Text 35, 65, 40, 10, "IAA Status:"
+  Text 30, 125, 40, 10, "Other notes:"
+  Text 35, 145, 35, 10, "Changes?:"
+  Text 25, 165, 50, 10, "Verifs needed:"
+  Text 25, 185, 50, 10, "Actions taken:"
+  GroupBox 5, 200, 300, 50, "Post Payment Results"
+  Text 310, 235, 60, 10, "Worker Signature:"
+  GroupBox 310, 200, 50, 25, "ELIG panels:"
+  Text 10, 105, 70, 10, "Active Disa/UNEA?:"
+  Text 5, 85, 70, 10, "Earn Income Status:"
+  Text 5, 10, 75, 10, "Recent(PostPay)Faci: "
+  GroupBox 270, 25, 85, 25, "Income panels"
+  GroupBox 75, 25, 85, 25, "Locations"
+  GroupBox 360, 25, 85, 35, "STAT-based navigation:"
+  GroupBox 335, 65, 110, 25, "other STAT panels:"
+EndDialog
+
 'Initiates last dialog: GRH_case_note_dialog
 DO
 	DO
 		DO
 			DO
 				DO
-					Dialog GRH_case_note_dialog
+					Dialog Dialog1
 					cancel_confirmation
 				LOOP UNTIL ButtonPressed <> no_cancel_button
 				MAXIS_dialog_navigation2

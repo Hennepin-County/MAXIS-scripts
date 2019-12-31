@@ -246,7 +246,9 @@ END IF
 IF dail_check <> "DAIL" or IEVS_type <> "WAGE" or IEVS_type <> "BEER" or IEVS_type <> "UBEN" or IEVS_type <> "UNVI" THEN
  	CALL MAXIS_case_number_finder (MAXIS_case_number)
     'MEMB_number = "01"
-    BeginDialog case_number_dialog, 0, 0, 131, 65, "Case Number to clear match"
+	'-------------------------------------------------------------------------------------------------DIALOG
+	Dialog1 = "" 'Blanking out previous dialog detail
+    BeginDialog Dialog1, 0, 0, 131, 65, "Case Number to clear match"
       EditBox 60, 5, 65, 15, MAXIS_case_number
       EditBox 60, 25, 30, 15, MEMB_number
       ButtonGroup ButtonPressed
@@ -259,10 +261,10 @@ IF dail_check <> "DAIL" or IEVS_type <> "WAGE" or IEVS_type <> "BEER" or IEVS_ty
 	DO
 	    DO
         	err_msg = ""
-        	Dialog case_number_dialog
-        	IF ButtonPressed = 0 THEN StopScript
-         		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
-         		If IsNumeric(MEMB_number) = False or len(MEMB_number) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2 digit member number."
+        	Dialog Dialog1
+        	cancel_without_confirmation
+         	If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+         	If IsNumeric(MEMB_number) = False or len(MEMB_number) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2 digit member number."
         	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
         LOOP UNTIL err_msg = ""
 		CALL check_for_password_without_transmit(are_we_passworded_out)
@@ -280,7 +282,6 @@ IF dail_check <> "DAIL" or IEVS_type <> "WAGE" or IEVS_type <> "BEER" or IEVS_ty
 	EMReadScreen error_check, 75, 24, 2
 	error_check = TRIM(error_check)
 	IF error_check <> "" THEN script_end_procedure(error_check & vbcr & "An error occurred, please process manually.") '-------option to read from REPT need to checking for error msg'
-
 END IF
 '----------------------------------------------------------------------------------------------------selecting the correct wage match
 Row = 7
@@ -396,7 +397,9 @@ IF IEVS_type = "WAGE" or IEVS_type = "BEER" THEN
     END IF
 END IF
 discovery_date = date
-BeginDialog overpayment_dialog, 0, 0, 361, 280, "Match Cleared CC Claim Entered"
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 361, 280, "Match Cleared CC Claim Entered"
  EditBox 60, 5, 40, 15, MAXIS_case_number
  EditBox 140, 5, 20, 15, memb_number
   EditBox 230, 5, 20, 15, OT_resp_memb
@@ -489,8 +492,8 @@ EndDialog
 Do
     Do
     	err_msg = ""
-    	dialog overpayment_dialog
-    	cancel_confirmation
+    	dialog Dialog1
+    	cancel_without_confirmation
     	IF MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* Enter a valid case number."
     	IF select_quarter = "Select:" THEN err_msg = err_msg & vbnewline & "* You must select a match period entry-select other for UBEN."
     	IF fraud_referral = "Select:" THEN err_msg = err_msg & vbnewline & "* You must select a fraud referral entry."

@@ -49,9 +49,15 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
+'Connects to MAXIS
+EMConnect ""
 
-'DIALOG=============================================================================
-BeginDialog bulk_paris_report_dialog, 0, 0, 361, 160, "Bulk DAIL report dialog"
+'Looks up an existing user for autofilling the next dialog
+CALL find_variable("User: ", x_number_editbox, 7)
+
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 361, 160, "Bulk DAIL report dialog"
   EditBox 10, 35, 345, 15, x_number_editbox
   DropListBox 230, 70, 120, 45, "AL - All"+chr(9)+"UR - Unresolved"+chr(9)+"AR - All Resolved Matches"+chr(9)+"PR - Person Removed"+chr(9)+"HM - Household Moved"+chr(9)+"RV - MN Residency Verified"+chr(9)+"FR - Failed Residency Verificaion"+chr(9)+"PC - Person Closed NOT PARIS"+chr(9)+"CC - Case Closed NOT PARIS", res_status_list
   EditBox 85, 90, 15, 15, start_month
@@ -71,20 +77,11 @@ BeginDialog bulk_paris_report_dialog, 0, 0, 361, 160, "Bulk DAIL report dialog"
   Text 20, 110, 190, 10, "NOTE: Leave dates blank to default to the past 12 months"
   Text 20, 140, 210, 20, "NOTE: running queries county-wide can take a significant amount of time and resources. This should be done after hours."
 EndDialog
-
-'=================================================================================
-'Connects to MAXIS
-EMConnect ""
-
-'Looks up an existing user for autofilling the next dialog
-CALL find_variable("User: ", x_number_editbox, 7)
-
-'Shows the dialog.
 DO
 	Do
 		err_msg = ""
-		dialog bulk_paris_report_dialog
-		cancel_confirmation
+		dialog Dialog1
+		cancel_without_confirmation
 		If start_month <> "" AND isnumeric(start_month) = false then err_msg = err_msg & vbNewLine & "Please enter a number in the start month field."
 		If start_year <> "" AND isnumeric(start_year) = false then err_msg = err_msg & vbNewLine & "Please enter a number in the start year field."
 		If end_month <> "" AND isnumeric(end_month) = false then err_msg = err_msg & vbNewLine & "Please enter a number in the end month field."

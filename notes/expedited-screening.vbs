@@ -53,8 +53,9 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog exp_screening_dialog, 0, 0, 186, 195, "Expedited Screening Dialog"
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 186, 195, "Expedited Screening Dialog"
   EditBox 40, 10, 50, 15, MAXIS_case_number
   EditBox 130, 10, 50, 15, application_date
   EditBox 105, 35, 50, 15, income
@@ -101,8 +102,8 @@ End If
 Do
 	Do
         err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
-        dialog exp_screening_dialog				'main dialog
-        If buttonpressed = 0 THEN stopscript	'script ends if cancel is selected
+        dialog Dialog1							'main dialog
+        cancel_without_confirmation	'script ends if cancel is selected
         IF len(MAXIS_case_number) > 8 or isnumeric(MAXIS_case_number) = false then err_msg = err_msg & vbCr & "* Enter a valid case number."		'mandatory field
         If isdate(application_date) = False then err_msg = err_msg & vbCr & "* Enter a valid applcation date."
         If (trim(income) <> "" and isnumeric(income) = false) then err_msg = err_msg & vbCr & "* The income fields must be numeric only. Do not put letters or symbols in these sections."

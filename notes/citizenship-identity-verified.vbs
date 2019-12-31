@@ -50,9 +50,9 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-
-'DIALOG-------------------------------------------------------------------
-BeginDialog cit_ID_dialog, 0, 0, 346, 222, "CIT-ID dialog"
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 346, 222, "CIT-ID dialog"
   Text 5, 10, 50, 10, "Case number:"
   EditBox 60, 5, 75, 15, MAXIS_case_number
   Text 20, 25, 45, 10, "HH member"
@@ -105,7 +105,7 @@ call MAXIS_case_number_finder(MAXIS_case_number)
 
 'Show the dialog, determine if it's filled out correctly (at least one line must be filled out)
 Do
-	Dialog cit_ID_dialog
+	Dialog Dialog1
 	If buttonpressed = 0 then stopscript
 	If (HH_memb_01 <> "" and (exempt_reason_01 = "(select or type here)" and (cit_proof_01 = "(select or type here)" or ID_proof_01 = "(select or type here)"))) or _
 	   (HH_memb_02 <> "" and (exempt_reason_02 = "(select or type here)" and (cit_proof_02 = "(select or type here)" or ID_proof_02 = "(select or type here)"))) or _

@@ -65,7 +65,6 @@ changelog_display
 'FUNCTIONS =================================================================================================================
 function HH_comp_dialog(HH_member_array)
 	CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
-
     member_count = 0
     adult_cash_count = 0
     child_cash_count = 0

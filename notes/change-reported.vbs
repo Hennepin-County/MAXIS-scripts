@@ -56,8 +56,9 @@ EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number) 'Finds the case number
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
-'Initial Dialog Box
-BeginDialog change_reported_dialog, 0, 0, 161, 150, "Change Reported"
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 161, 150, "Change Reported"
   EditBox 90, 55, 35, 15, MAXIS_case_number
   EditBox 90, 75, 15, 15, MAXIS_footer_month
   EditBox 110, 75, 15, 15, MAXIS_footer_year
@@ -72,33 +73,11 @@ BeginDialog change_reported_dialog, 0, 0, 161, 150, "Change Reported"
   GroupBox 5, 5, 145, 45, "Change Reported script information"
 EndDialog
 
-BeginDialog HH_Comp_Change_Dialog, 0, 0, 161, 200, "Household Comp Change"
-  EditBox 80, 5, 20, 15, HH_member
-  EditBox 80, 25, 50, 15, date_reported
-  EditBox 80, 45, 50, 15, effective_date
-  CheckBox 15, 75, 90, 10, "Verifications sent to ECF", Verif_checkbox
-  CheckBox 15, 85, 80, 10, "Updated STAT panels", STAT_checkbox
-  CheckBox 15, 95, 80, 10, "Approved new results", APP_checkbox
-  CheckBox 15, 105, 80, 10, "Notified other agency", notify_checkbox
-  EditBox 50, 125, 100, 15, other_notes
-  EditBox 50, 145, 100, 15, worker_signature
-  CheckBox 5, 165, 125, 10, "Check if the change is temporary", temporary_change_checkbox
-  ButtonGroup ButtonPressed
-    OkButton 65, 180, 40, 15
-    CancelButton 110, 180, 40, 15
-  Text 5, 10, 75, 10, "Member # HH change:"
-  Text 25, 50, 50, 10, "Effective date:"
-  Text 5, 130, 45, 10, "Other Notes:"
-  GroupBox 5, 65, 145, 55, "Action Taken"
-  Text 25, 30, 50, 10, "Date reported:"
-  Text 5, 150, 40, 10, "Worker Sig:"
-EndDialog
-
 'Info to the user of what this script currently covers
-Do 
+Do
     Do
 	    err_msg = ""
-	    DIALOG change_reported_dialog
+	    DIALOG Dialog1
 	    IF ButtonPressed = 0 THEN stopscript
 	    IF MAXIS_case_number = "" OR (MAXIS_case_number <> "" AND len(MAXIS_case_number) > 8) OR (MAXIS_case_number <> "" AND IsNumeric(MAXIS_case_number) = False) THEN err_msg = err_msg & vbCr & "* Please enter a valid case number."
 	    IF nature_change = "Select One:" THEN err_msg = err_msg & vbCr & "* Please select the type of change reported."
@@ -147,9 +126,11 @@ NEXT
 
 'removes all of the first 'chr(9)'
 HH_member_array_dialog = Right(HH_member_array, len(HH_member_array) - total_clients)
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
 
 'Baby_born Dialog needs to begin here to accept 'HH_member_array_dialog into dropdown list: mothers_name
-BeginDialog baby_born_dialog, 0, 0, 186, 265, "BABY BORN"
+BeginDialog Dialog1, 0, 0, 186, 265, "BABY BORN"
   EditBox 55, 5, 115, 15, babys_name
   EditBox 55, 25, 40, 15, date_of_birth
   DropListBox 130, 25, 40, 15, "Select One:"+chr(9)+"Male"+chr(9)+"Female", baby_gender
@@ -185,7 +166,7 @@ IF nature_change = "Baby Born" THEN
     DO
     	DO
     		err_msg = ""
-    		DIALOG Baby_Born_Dialog
+    		DIALOG Dialog1
     		cancel_confirmation
     		IF mothers_name = "Select One:" THEN err_msg = err_msg & vbNewLine & "You must choose newborn's mother"
     		IF babys_name = "" THEN err_msg = err_msg & vbNewLine &  "You must enter the babys name"
@@ -199,11 +180,36 @@ IF nature_change = "Baby Born" THEN
 END IF
 
 IF nature_change = "HH Comp Change" THEN
-    'Do loop for HH Comp Change Dialogbox
+    '-------------------------------------------------------------------------------------------------DIALOG
+    Dialog1 = "" 'Blanking out previous dialog detail
+	BeginDialog Dialog1, 0, 0, 161, 200, "Household Comp Change"
+      EditBox 80, 5, 20, 15, HH_member
+      EditBox 80, 25, 50, 15, date_reported
+      EditBox 80, 45, 50, 15, effective_date
+      CheckBox 15, 75, 90, 10, "Verifications sent to ECF", Verif_checkbox
+      CheckBox 15, 85, 80, 10, "Updated STAT panels", STAT_checkbox
+      CheckBox 15, 95, 80, 10, "Approved new results", APP_checkbox
+      CheckBox 15, 105, 80, 10, "Notified other agency", notify_checkbox
+      EditBox 50, 125, 100, 15, other_notes
+      EditBox 50, 145, 100, 15, worker_signature
+      CheckBox 5, 165, 125, 10, "Check if the change is temporary", temporary_change_checkbox
+      ButtonGroup ButtonPressed
+        OkButton 65, 180, 40, 15
+        CancelButton 110, 180, 40, 15
+      Text 5, 10, 75, 10, "Member # HH change:"
+      Text 25, 50, 50, 10, "Effective date:"
+      Text 5, 130, 45, 10, "Other Notes:"
+      GroupBox 5, 65, 145, 55, "Action Taken"
+      Text 25, 30, 50, 10, "Date reported:"
+      Text 5, 150, 40, 10, "Worker Sig:"
+    EndDialog
+
+	'Do loop for HH Comp Change Dialogbox
+	
     DO
     	DO
     		err_msg = ""
-    		DIALOG HH_Comp_Change_Dialog
+    		DIALOG Dialog1
     		cancel_confirmation
     		IF HH_Member = "" THEN err_msg = err_msg & vbNewLine & "You must enter a HH Member"
     		IF date_reported = "" THEN err_msg = err_msg & vbNewLine & "You must enter date reported"

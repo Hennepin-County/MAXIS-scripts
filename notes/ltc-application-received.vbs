@@ -51,8 +51,9 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog case_number_dialog, 0, 0, 156, 70, "Case number dialog"
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 156, 70, "Case number dialog"
   EditBox 60, 5, 90, 15, MAXIS_case_number
   EditBox 60, 25, 30, 15, MAXIS_footer_month
   EditBox 120, 25, 30, 15, MAXIS_footer_year
@@ -64,7 +65,53 @@ BeginDialog case_number_dialog, 0, 0, 156, 70, "Case number dialog"
   Text 95, 30, 20, 10, "Year:"
 EndDialog
 
-BeginDialog LTC_app_recd_dialog, 0, 0, 361, 410, "LTC application received dialog"
+'VARIABLES TO DECLARE----------------------------------------------------------------------------------------------------
+HH_memb_row = 05
+
+
+'THE SCRIPT----------------------------------------------------------------------------------------------------
+'Connecting to BlueZone
+EMConnect ""
+
+'Searching for case number.
+Call MAXIS_case_number_finder(MAXIS_case_number)
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+
+'Showing the case number dialog
+Do
+  Dialog case_number_dialog
+  cancel_confirmation
+  If MAXIS_case_number = "" then MsgBox "You must type a case number!"
+Loop until MAXIS_case_number <> ""
+
+'Now it checks to make sure MAXIS is running on this screen.
+Call check_for_MAXIS(False)
+
+'Navigating to STAT/HCRE so we can grab the app date
+call navigate_to_MAXIS_screen("stat", "hcre")
+
+'Creating a custom dialog for determining who the HH members are
+call HH_member_custom_dialog(HH_member_array)
+
+'Grabs autofill info from STAT
+call autofill_editbox_from_MAXIS(HH_member_array, "HCRE-retro", retro_request)
+call autofill_editbox_from_MAXIS(HH_member_array, "HCRE", appl_date)
+call autofill_editbox_from_MAXIS(HH_member_array, "AREP", AREP)
+call autofill_editbox_from_MAXIS(HH_member_array, "FACI", FACI)
+call autofill_editbox_from_MAXIS(HH_member_array, "INSA", INSA)
+call autofill_editbox_from_MAXIS(HH_member_array, "MEDI", MEDI)
+call autofill_editbox_from_MAXIS(HH_member_array, "MEMB", HH_comp)
+call autofill_editbox_from_MAXIS(HH_member_array, "SWKR", SWKR)
+
+'Now, because INSA and MEDI will go on the same variable, we're going to add INSA to MEDI. To separate them in the case note, we have to add a semicolon (assuming both have data).
+If INSA <> "" and MEDI <> "" then
+  INSA = INSA & "; " & MEDI
+Else
+  INSA = INSA & MEDI
+End if
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 361, 410, "LTC application received dialog"
   EditBox 75, 5, 65, 15, appl_date
   EditBox 75, 25, 65, 15, appl_type
   CheckBox 150, 15, 105, 10, "A transfer has been reported", transfer_reported_check
@@ -125,109 +172,11 @@ BeginDialog LTC_app_recd_dialog, 0, 0, 361, 410, "LTC application received dialo
   GroupBox 0, 330, 285, 55, "Actions"
   Text 5, 395, 60, 10, "Worker signature:"
 EndDialog
-
-
-BeginDialog ltc_detail_dialog, 0, 0, 446, 300, "LTC Application Detail"
-  EditBox 45, 25, 225, 15, cit_id
-  EditBox 45, 45, 395, 15, accounts
-  EditBox 45, 65, 395, 15, securities
-  EditBox 45, 85, 395, 15, other_asset
-  EditBox 45, 105, 395, 15, vehicles
-  EditBox 50, 125, 390, 15, real_estate
-  EditBox 60, 145, 380, 15, earned_income
-  EditBox 70, 165, 370, 15, unearned_income
-  EditBox 35, 185, 245, 15, STWK
-  EditBox 350, 185, 90, 15, COEX_DCEX
-  EditBox 70, 205, 370, 15, notes_on_income
-  EditBox 155, 225, 285, 15, is_any_work_temporary
-  EditBox 55, 255, 385, 15, verifs_needed
-  ButtonGroup ButtonPressed
-    PushButton 335, 15, 45, 10, "prev. panel", prev_panel_button
-    PushButton 395, 15, 45, 10, "prev. memb", prev_memb_button
-    PushButton 335, 25, 45, 10, "next panel", next_panel_button
-    PushButton 395, 25, 45, 10, "next memb", next_memb_button
-    PushButton 5, 190, 25, 10, "STWK:", STWK_button
-    PushButton 295, 190, 25, 10, "COEX/", COEX_button
-    PushButton 320, 190, 25, 10, "DCEX:", DCEX_button
-    PushButton 5, 210, 60, 10, "Notes on Income", notes_on_income_button
-    PushButton 10, 285, 25, 10, "BUSI", BUSI_button
-    PushButton 35, 285, 25, 10, "JOBS", JOBS_button
-    PushButton 60, 285, 25, 10, "RBIC", RBIC_button
-    PushButton 85, 285, 25, 10, "UNEA", UNEA_button
-    PushButton 125, 285, 25, 10, "ACCT", ACCT_button
-    PushButton 150, 285, 25, 10, "SECU", SECU_button
-    PushButton 175, 285, 25, 10, "CARS", CARS_button
-    PushButton 200, 285, 25, 10, "REST", REST_button
-    PushButton 250, 285, 35, 10, "ELIG/HC", ELIG_HC_button
-  Text 45, 10, 260, 10, "Information as entered in STAT - this may change as verifications are received."
-  GroupBox 330, 5, 115, 35, "STAT-based navigation"
-  Text 5, 30, 40, 10, "Cit/ID/imig:"
-  Text 5, 50, 35, 10, "Accounts:"
-  Text 5, 70, 35, 10, "Securities:"
-  Text 5, 90, 25, 10, "Other:"
-  Text 5, 110, 35, 10, "Vehicles:"
-  Text 5, 130, 40, 10, "Real Estate:"
-  Text 5, 150, 55, 10, "Earned income:"
-  Text 5, 170, 65, 10, "Unearned income:"
-  Text 5, 230, 150, 10, "Is any work temporary? If so, explain details:"
-  Text 5, 260, 50, 10, "Verifs needed:"
-  GroupBox 5, 275, 110, 25, "Income panels"
-  GroupBox 120, 275, 115, 25, "Asset panels"
-  ButtonGroup ButtonPressed
-    OkButton 335, 280, 50, 15
-    CancelButton 390, 280, 50, 15
-EndDialog
-
-'VARIABLES TO DECLARE----------------------------------------------------------------------------------------------------
-HH_memb_row = 05
-
-
-'THE SCRIPT----------------------------------------------------------------------------------------------------
-'Connecting to BlueZone
-EMConnect ""
-
-'Searching for case number.
-Call MAXIS_case_number_finder(MAXIS_case_number)
-Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
-
-'Showing the case number dialog
-Do
-  Dialog case_number_dialog
-  cancel_confirmation
-  If MAXIS_case_number = "" then MsgBox "You must type a case number!"
-Loop until MAXIS_case_number <> ""
-
-'Now it checks to make sure MAXIS is running on this screen.
-Call check_for_MAXIS(False)
-
-'Navigating to STAT/HCRE so we can grab the app date
-call navigate_to_MAXIS_screen("stat", "hcre")
-
-'Creating a custom dialog for determining who the HH members are
-call HH_member_custom_dialog(HH_member_array)
-
-'Grabs autofill info from STAT
-call autofill_editbox_from_MAXIS(HH_member_array, "HCRE-retro", retro_request)
-call autofill_editbox_from_MAXIS(HH_member_array, "HCRE", appl_date)
-call autofill_editbox_from_MAXIS(HH_member_array, "AREP", AREP)
-call autofill_editbox_from_MAXIS(HH_member_array, "FACI", FACI)
-call autofill_editbox_from_MAXIS(HH_member_array, "INSA", INSA)
-call autofill_editbox_from_MAXIS(HH_member_array, "MEDI", MEDI)
-call autofill_editbox_from_MAXIS(HH_member_array, "MEMB", HH_comp)
-call autofill_editbox_from_MAXIS(HH_member_array, "SWKR", SWKR)
-
-'Now, because INSA and MEDI will go on the same variable, we're going to add INSA to MEDI. To separate them in the case note, we have to add a semicolon (assuming both have data).
-If INSA <> "" and MEDI <> "" then
-  INSA = INSA & "; " & MEDI
-Else
-  INSA = INSA & MEDI
-End if
-
 'The main dialog
 Do
     Do
     	err_msg = ""
-    	Dialog LTC_app_recd_dialog
+    	Dialog Dialog1
     		cancel_confirmation
     		If buttonpressed <> -1 and buttonpressed <> 0 then Call MAXIS_dialog_navigation
     	IF appl_date = "" AND ButtonPressed = -1 THEN err_msg = err_msg & vbCr & "* Please enter an application date."
@@ -244,7 +193,6 @@ LOOP UNTIL are_we_passworded_out = false
 Call check_for_MAXIS(False)
 
 If add_detail_from_app_checkbox = checked Then
-
     call autofill_editbox_from_MAXIS(HH_member_array, "ACCT", accounts)
     call autofill_editbox_from_MAXIS(HH_member_array, "BUSI", earned_income)
     call autofill_editbox_from_MAXIS(HH_member_array, "CASH", accounts)
@@ -260,18 +208,67 @@ If add_detail_from_app_checkbox = checked Then
     call autofill_editbox_from_MAXIS(HH_member_array, "STWK", STWK)
     call autofill_editbox_from_MAXIS(HH_member_array, "UNEA", unearned_income)
 
-    'The main dialog
+	'-------------------------------------------------------------------------------------------------DIALOG
+	Dialog1 = "" 'Blanking out previous dialog detail
+	BeginDialog Dialog1, 0, 0, 446, 300, "LTC Application Detail"
+	  EditBox 45, 25, 225, 15, cit_id
+	  EditBox 45, 45, 395, 15, accounts
+	  EditBox 45, 65, 395, 15, securities
+	  EditBox 45, 85, 395, 15, other_asset
+	  EditBox 45, 105, 395, 15, vehicles
+	  EditBox 50, 125, 390, 15, real_estate
+	  EditBox 60, 145, 380, 15, earned_income
+	  EditBox 70, 165, 370, 15, unearned_income
+	  EditBox 35, 185, 245, 15, STWK
+	  EditBox 350, 185, 90, 15, COEX_DCEX
+	  EditBox 70, 205, 370, 15, notes_on_income
+	  EditBox 155, 225, 285, 15, is_any_work_temporary
+	  EditBox 55, 255, 385, 15, verifs_needed
+	  ButtonGroup ButtonPressed
+	    PushButton 335, 15, 45, 10, "prev. panel", prev_panel_button
+	    PushButton 395, 15, 45, 10, "prev. memb", prev_memb_button
+	    PushButton 335, 25, 45, 10, "next panel", next_panel_button
+	    PushButton 395, 25, 45, 10, "next memb", next_memb_button
+	    PushButton 5, 190, 25, 10, "STWK:", STWK_button
+	    PushButton 295, 190, 25, 10, "COEX/", COEX_button
+	    PushButton 320, 190, 25, 10, "DCEX:", DCEX_button
+	    PushButton 5, 210, 60, 10, "Notes on Income", notes_on_income_button
+	    PushButton 10, 285, 25, 10, "BUSI", BUSI_button
+	    PushButton 35, 285, 25, 10, "JOBS", JOBS_button
+	    PushButton 60, 285, 25, 10, "RBIC", RBIC_button
+	    PushButton 85, 285, 25, 10, "UNEA", UNEA_button
+	    PushButton 125, 285, 25, 10, "ACCT", ACCT_button
+	    PushButton 150, 285, 25, 10, "SECU", SECU_button
+	    PushButton 175, 285, 25, 10, "CARS", CARS_button
+	    PushButton 200, 285, 25, 10, "REST", REST_button
+	    PushButton 250, 285, 35, 10, "ELIG/HC", ELIG_HC_button
+	  Text 45, 10, 260, 10, "Information as entered in STAT - this may change as verifications are received."
+	  GroupBox 330, 5, 115, 35, "STAT-based navigation"
+	  Text 5, 30, 40, 10, "Cit/ID/imig:"
+	  Text 5, 50, 35, 10, "Accounts:"
+	  Text 5, 70, 35, 10, "Securities:"
+	  Text 5, 90, 25, 10, "Other:"
+	  Text 5, 110, 35, 10, "Vehicles:"
+	  Text 5, 130, 40, 10, "Real Estate:"
+	  Text 5, 150, 55, 10, "Earned income:"
+	  Text 5, 170, 65, 10, "Unearned income:"
+	  Text 5, 230, 150, 10, "Is any work temporary? If so, explain details:"
+	  Text 5, 260, 50, 10, "Verifs needed:"
+	  GroupBox 5, 275, 110, 25, "Income panels"
+	  GroupBox 120, 275, 115, 25, "Asset panels"
+	  ButtonGroup ButtonPressed
+	    OkButton 335, 280, 50, 15
+	    CancelButton 390, 280, 50, 15
+	EndDialog
     Do
         Do
         	err_msg = ""
-        	Dialog ltc_detail_dialog
+        	Dialog Dialog1
         		cancel_confirmation
         		If buttonpressed <> -1 then Call MAXIS_dialog_navigation
-
         Loop UNTIL err_msg = "" AND ButtonPressed = -1
         call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
     LOOP UNTIL are_we_passworded_out = false
-
 End If
 
 'UPDATING PND2----------------------------------------------------------------------------------------------------

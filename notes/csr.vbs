@@ -64,8 +64,9 @@ changelog_display
 MAXIS_footer_month = CM_plus_1_mo
 MAXIS_footer_year = CM_plus_1_yr
 
-'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-BeginDialog case_number_dialog, 0, 0, 171, 220, "Case number dialog"
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 171, 220, "Case number"
   EditBox 70, 5, 65, 15, MAXIS_case_number
   EditBox 70, 25, 30, 15, MAXIS_footer_month
   EditBox 105, 25, 30, 15, MAXIS_footer_year
@@ -84,129 +85,6 @@ BeginDialog case_number_dialog, 0, 0, 171, 220, "Case number dialog"
   Text 15, 155, 145, 25, "If you select ''Is this an exempt IR'', the case note will only provide detail and information about the HC approval."
   Text 15, 190, 140, 20, " If you are processing a CSR with SNAP, you should NOT check that option."
   Text 20, 10, 45, 10, "Case number:"
-EndDialog
-
-BeginDialog CSR_dialog01, 0, 0, 451, 225, "CSR dialog"
-  EditBox 65, 15, 50, 15, CSR_datestamp
-  DropListBox 170, 15, 75, 15, "select one..."+chr(9)+"complete"+chr(9)+"incomplete", CSR_status
-  EditBox 40, 35, 280, 15, HH_comp
-  EditBox 65, 55, 380, 15, earned_income
-  EditBox 70, 75, 375, 15, unearned_income
-  ButtonGroup ButtonPressed
-    PushButton 5, 100, 60, 10, "Notes on Income:", income_notes_button
-  EditBox 70, 95, 375, 15, notes_on_income
-  EditBox 65, 115, 380, 15, notes_on_abawd
-  EditBox 40, 135, 405, 15, assets
-  EditBox 60, 155, 95, 15, SHEL_HEST
-  EditBox 225, 155, 95, 15, COEX_DCEX
-  ButtonGroup ButtonPressed
-    PushButton 340, 205, 50, 15, "Next", next_button
-    CancelButton 395, 205, 50, 15
-    PushButton 260, 15, 20, 10, "FS", ELIG_FS_button
-    PushButton 280, 15, 20, 10, "HC", ELIG_HC_button
-    PushButton 300, 15, 25, 10, "GRH", ELIG_GRH_button
-    PushButton 335, 15, 45, 10, "prev. panel", prev_panel_button
-    PushButton 395, 15, 45, 10, "prev. memb", prev_memb_button
-    PushButton 335, 25, 45, 10, "next panel", next_panel_button
-    PushButton 395, 25, 45, 10, "next memb", next_memb_button
-    PushButton 5, 160, 25, 10, "SHEL/", SHEL_button
-    PushButton 30, 160, 25, 10, "HEST:", HEST_button
-    PushButton 160, 160, 30, 10, "COEX/", COEX_button
-    PushButton 190, 160, 30, 10, "DCEX:", DCEX_button
-    PushButton 10, 190, 25, 10, "BUSI", BUSI_button
-    PushButton 35, 190, 25, 10, "JOBS", JOBS_button
-    PushButton 75, 190, 25, 10, "ACCT", ACCT_button
-    PushButton 100, 190, 25, 10, "CARS", CARS_button
-    PushButton 125, 190, 25, 10, "CASH", CASH_button
-    PushButton 150, 190, 25, 10, "OTHR", OTHR_button
-    PushButton 190, 190, 25, 10, "MEMB", MEMB_button
-    PushButton 215, 190, 25, 10, "MEMI", MEMI_button
-    PushButton 240, 190, 25, 10, "REVW", REVW_button
-    PushButton 35, 200, 25, 10, "UNEA", UNEA_button
-    PushButton 75, 200, 25, 10, "REST", REST_button
-    PushButton 100, 200, 25, 10, "SECU", SECU_button
-    PushButton 125, 200, 25, 10, "TRAN", TRAN_button
-  GroupBox 330, 5, 115, 35, "STAT-based navigation:"
-  Text 5, 20, 55, 10, "CSR datestamp:"
-  Text 125, 20, 40, 10, "CSR status:"
-  Text 5, 40, 35, 10, "HH comp:"
-  Text 5, 60, 55, 10, "Earned income:"
-  Text 5, 80, 60, 10, "Unearned income:"
-  Text 5, 120, 60, 10, "Notes on WREG:"
-  Text 5, 140, 30, 10, "Assets:"
-  GroupBox 5, 180, 175, 35, "Income and asset panels"
-  GroupBox 185, 180, 85, 25, "other STAT panels:"
-  GroupBox 255, 5, 75, 25, "ELIG panels:"
-EndDialog
-
-BeginDialog CSR_dialog02, 0, 0, 451, 240, "CSR dialog"
-  EditBox 100, 25, 150, 15, FIAT_reasons
-  EditBox 50, 45, 395, 15, other_notes
-  EditBox 45, 65, 400, 15, changes
-  EditBox 60, 85, 385, 15, verifs_needed
-  EditBox 60, 105, 385, 15, actions_taken
-  CheckBox 190, 155, 110, 10, "Send forms to AREP?", sent_arep_checkbox
-  CheckBox 190, 170, 175, 10, "Check here to case note grant info from ELIG/FS.", grab_FS_info_checkbox
-  CheckBox 190, 185, 210, 10, "Check here if CSR and cash supplement were used as a HRF.", HRF_checkbox
-  CheckBox 190, 200, 120, 10, "Check here if an eDRS was sent.", eDRS_sent_checkbox
-  ButtonGroup ButtonPressed
-    PushButton 275, 225, 60, 10, "Previous", previous_button
-    OkButton 340, 220, 50, 15
-    CancelButton 395, 220, 50, 15
-    PushButton 260, 15, 20, 10, "FS", ELIG_FS_button
-    PushButton 280, 15, 20, 10, "HC", ELIG_HC_button
-    PushButton 300, 15, 25, 10, "GRH", ELIG_GRH_button
-    PushButton 335, 15, 45, 10, "prev. panel", prev_panel_button
-    PushButton 395, 15, 45, 10, "prev. memb", prev_memb_button
-    PushButton 335, 25, 45, 10, "next panel", next_panel_button
-    PushButton 395, 25, 45, 10, "next memb", next_memb_button
-    PushButton 10, 140, 25, 10, "BUSI", BUSI_button
-    PushButton 35, 140, 25, 10, "JOBS", JOBS_button
-    PushButton 75, 140, 25, 10, "ACCT", ACCT_button
-    PushButton 100, 140, 25, 10, "CARS", CARS_button
-    PushButton 125, 140, 25, 10, "CASH", CASH_button
-    PushButton 150, 140, 25, 10, "OTHR", OTHR_button
-    PushButton 190, 140, 25, 10, "MEMB", MEMB_button
-    PushButton 215, 140, 25, 10, "MEMI", MEMI_button
-    PushButton 240, 140, 25, 10, "REVW", REVW_button
-    PushButton 35, 150, 25, 10, "UNEA", UNEA_button
-    PushButton 75, 150, 25, 10, "REST", REST_button
-    PushButton 100, 150, 25, 10, "SECU", SECU_button
-    PushButton 125, 150, 25, 10, "TRAN", TRAN_button
-  EditBox 60, 180, 90, 15, MAEPD_premium
-  ButtonGroup ButtonPressed
-    PushButton 80, 200, 65, 10, "SIR mail", SIR_mail_button
-  Text 5, 30, 95, 10, "FIAT reasons (if applicable):"
-  Text 5, 50, 40, 10, "Other notes:"
-  Text 5, 70, 35, 10, "Changes?:"
-  Text 5, 90, 50, 10, "Verifs needed:"
-  Text 5, 110, 50, 10, "Actions taken:"
-  GroupBox 5, 130, 175, 35, "Income and asset panels"
-  GroupBox 185, 130, 85, 25, "other STAT panels:"
-  GroupBox 5, 170, 150, 45, "If MA-EPD..."
-  Text 10, 185, 50, 10, "New premium:"
-  GroupBox 255, 5, 75, 25, "ELIG panels:"
-  GroupBox 330, 5, 115, 35, "STAT-based navigation:"
-  CheckBox 10, 200, 65, 10, "Emailed MADE?", MADE_checkbox
-EndDialog
-
-BeginDialog income_notes_dialog, 0, 0, 351, 215, "Explanation of Income"
-  CheckBox 10, 30, 325, 10, "JOBS - Income detail on previous note(s)", see_other_note_checkbox
-  CheckBox 10, 45, 325, 10, "JOBS - Income has not been verified and detail will be entered when received.", not_verified_checkbox
-  CheckBox 10, 60, 325, 10, "JOBS - Client has confirmed that JOBS income is expected to continue at this rate and hours.", jobs_anticipated_checkbox
-  CheckBox 10, 75, 330, 10, "JOBS - This is a new job and actual check stubs are not available, advised client that if actual pay", new_jobs_checkbox
-  CheckBox 10, 100, 325, 10, "BUSI - Client has confirmed that BUSI income is expected to continue at this rate and hours.", busi_anticipated_checkbox
-  CheckBox 10, 115, 250, 10, "BUSI - Client has agreed to the self-employment budgeting method used.", busi_method_agree_checkbox
-  CheckBox 10, 130, 325, 10, "RBIC - Client has confirmed that RBIC income is expected to continue at this rate and hours.", rbic_anticipated_checkbox
-  CheckBox 10, 145, 325, 10, "UNEA - Client has confirmed that UNEA income is expected to continue at this rate and hours.", unea_anticipated_checkbox
-  CheckBox 10, 160, 315, 10, "UNEA - Client has applied for unemployment benefits but no determination made at this time.", ui_pending_checkbox
-  CheckBox 45, 170, 225, 10, "Check here to have the script set a TIKL to check UI in two weeks.", tikl_for_ui
-  CheckBox 10, 185, 150, 10, "NONE - This case has no income reported.", no_income_checkbox
-  ButtonGroup ButtonPressed
-    PushButton 240, 195, 50, 15, "Insert", add_to_notes_button
-    CancelButton 295, 195, 50, 15
-  Text 5, 10, 180, 10, "Check as many explanations of income that apply to this case."
-  Text 45, 85, 315, 10, "varies significantly, client should provide proof of this difference to have benefits adjusted."
 EndDialog
 
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -280,19 +158,94 @@ if right(programs_recertifying, 1) = "," then programs_recertifying = left(progr
 'Determining the CSR month for header
 CSR_month = MAXIS_footer_month & "/" & MAXIS_footer_year
 
-'Showing the case note dialog
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 451, 225, "CSR"
+  EditBox 65, 15, 50, 15, CSR_datestamp
+  DropListBox 170, 15, 75, 15, "Select one..."+chr(9)+"complete"+chr(9)+"incomplete", CSR_status
+  EditBox 40, 35, 280, 15, HH_comp
+  EditBox 65, 55, 380, 15, earned_income
+  EditBox 70, 75, 375, 15, unearned_income
+  ButtonGroup ButtonPressed
+    PushButton 5, 100, 60, 10, "Notes on Income:", income_notes_button
+  EditBox 70, 95, 375, 15, notes_on_income
+  EditBox 65, 115, 380, 15, notes_on_abawd
+  EditBox 40, 135, 405, 15, assets
+  EditBox 60, 155, 95, 15, SHEL_HEST
+  EditBox 225, 155, 95, 15, COEX_DCEX
+  ButtonGroup ButtonPressed
+    PushButton 340, 205, 50, 15, "Next", next_button
+    CancelButton 395, 205, 50, 15
+    PushButton 260, 15, 20, 10, "FS", ELIG_FS_button
+    PushButton 280, 15, 20, 10, "HC", ELIG_HC_button
+    PushButton 300, 15, 25, 10, "GRH", ELIG_GRH_button
+    PushButton 335, 15, 45, 10, "prev. panel", prev_panel_button
+    PushButton 395, 15, 45, 10, "prev. memb", prev_memb_button
+    PushButton 335, 25, 45, 10, "next panel", next_panel_button
+    PushButton 395, 25, 45, 10, "next memb", next_memb_button
+    PushButton 5, 160, 25, 10, "SHEL/", SHEL_button
+    PushButton 30, 160, 25, 10, "HEST:", HEST_button
+    PushButton 160, 160, 30, 10, "COEX/", COEX_button
+    PushButton 190, 160, 30, 10, "DCEX:", DCEX_button
+    PushButton 10, 190, 25, 10, "BUSI", BUSI_button
+    PushButton 35, 190, 25, 10, "JOBS", JOBS_button
+    PushButton 75, 190, 25, 10, "ACCT", ACCT_button
+    PushButton 100, 190, 25, 10, "CARS", CARS_button
+    PushButton 125, 190, 25, 10, "CASH", CASH_button
+    PushButton 150, 190, 25, 10, "OTHR", OTHR_button
+    PushButton 190, 190, 25, 10, "MEMB", MEMB_button
+    PushButton 215, 190, 25, 10, "MEMI", MEMI_button
+    PushButton 240, 190, 25, 10, "REVW", REVW_button
+    PushButton 35, 200, 25, 10, "UNEA", UNEA_button
+    PushButton 75, 200, 25, 10, "REST", REST_button
+    PushButton 100, 200, 25, 10, "SECU", SECU_button
+    PushButton 125, 200, 25, 10, "TRAN", TRAN_button
+  GroupBox 330, 5, 115, 35, "STAT-based navigation:"
+  Text 5, 20, 55, 10, "CSR datestamp:"
+  Text 125, 20, 40, 10, "CSR status:"
+  Text 5, 40, 35, 10, "HH comp:"
+  Text 5, 60, 55, 10, "Earned income:"
+  Text 5, 80, 60, 10, "Unearned income:"
+  Text 5, 120, 60, 10, "Notes on WREG:"
+  Text 5, 140, 30, 10, "Assets:"
+  GroupBox 5, 180, 175, 35, "Income and asset panels"
+  GroupBox 185, 180, 85, 25, "other STAT panels:"
+  GroupBox 255, 5, 75, 25, "ELIG panels:"
+EndDialog
+
+
 DO
 	DO
 		Do
 			err_msg = ""
 			Do
 				Do
-					Dialog CSR_dialog01
+					DIALOG Dialog1
 					cancel_confirmation
 					If ButtonPressed = SIR_mail_button then run "C:\Program Files\Internet Explorer\iexplore.exe https://www.dhssir.cty.dhs.state.mn.us/Pages/Default.aspx"
 					'If next_button = pressed THEN msgbox next_button
 					If ButtonPressed = income_notes_button Then
-						Dialog income_notes_dialog
+					    '-------------------------------------------------------------------------------------------------DIALOG
+					    Dialog1 = "" 'Blanking out previous dialog detail
+					    BeginDialog Dialog1, 0, 0, 351, 215, "Explanation of Income"
+					      CheckBox 10, 30, 325, 10, "JOBS - Income detail on previous note(s)", see_other_note_checkbox
+					      CheckBox 10, 45, 325, 10, "JOBS - Income has not been verified and detail will be entered when received.", not_verified_checkbox
+					      CheckBox 10, 60, 325, 10, "JOBS - Client has confirmed that JOBS income is expected to continue at this rate and hours.", jobs_anticipated_checkbox
+					      CheckBox 10, 75, 330, 10, "JOBS - This is a new job and actual check stubs are not available, advised client that if actual pay", new_jobs_checkbox
+					      CheckBox 10, 100, 325, 10, "BUSI - Client has confirmed that BUSI income is expected to continue at this rate and hours.", busi_anticipated_checkbox
+					      CheckBox 10, 115, 250, 10, "BUSI - Client has agreed to the self-employment budgeting method used.", busi_method_agree_checkbox
+					      CheckBox 10, 130, 325, 10, "RBIC - Client has confirmed that RBIC income is expected to continue at this rate and hours.", rbic_anticipated_checkbox
+					      CheckBox 10, 145, 325, 10, "UNEA - Client has confirmed that UNEA income is expected to continue at this rate and hours.", unea_anticipated_checkbox
+					      CheckBox 10, 160, 315, 10, "UNEA - Client has applied for unemployment benefits but no determination made at this time.", ui_pending_checkbox
+					      CheckBox 45, 170, 225, 10, "Check here to have the script set a TIKL to check UI in two weeks.", tikl_for_ui
+					      CheckBox 10, 185, 150, 10, "NONE - This case has no income reported.", no_income_checkbox
+					      ButtonGroup ButtonPressed
+					    	PushButton 240, 195, 50, 15, "Insert", add_to_notes_button
+					    	CancelButton 295, 195, 50, 15
+					      Text 5, 10, 180, 10, "Check as many explanations of income that apply to this case."
+					      Text 45, 85, 315, 10, "varies significantly, client should provide proof of this difference to have benefits adjusted."
+					    EndDialog
+						Dialog Dialog1
 						If ButtonPressed = add_to_notes_button Then
                             If see_other_note_checkbox Then notes_on_income = notes_on_income & "; Full detail about income can be found in previous note(s)."
                             If not_verified_checkbox Then notes_on_income = notes_on_income & "; This income has not been fully verified and information about income for budget will be noted when the verification is received."
@@ -317,10 +270,64 @@ DO
 			IF (earned_income <> "" AND notes_on_income = "") OR (unearned_income <> "" AND notes_on_income = "") THEN 					err_msg = err_msg & vbCr & "* You must provide some information about income. Please complete the 'Notes on Income' field."
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 		Loop until err_msg = ""
+
+		'-------------------------------------------------------------------------------------------------DIALOG
+		Dialog1 = "" 'Blanking out previous dialog detail
+		BeginDialog Dialog1, 0, 0, 451, 240, "CSR (cont)"
+		  EditBox 100, 25, 150, 15, FIAT_reasons
+		  EditBox 50, 45, 395, 15, other_notes
+		  EditBox 45, 65, 400, 15, changes
+		  EditBox 60, 85, 385, 15, verifs_needed
+		  EditBox 60, 105, 385, 15, actions_taken
+		  CheckBox 190, 155, 110, 10, "Send forms to AREP?", sent_arep_checkbox
+		  CheckBox 190, 170, 175, 10, "Check here to case note grant info from ELIG/FS.", grab_FS_info_checkbox
+		  CheckBox 190, 185, 210, 10, "Check here if CSR and cash supplement were used as a HRF.", HRF_checkbox
+		  CheckBox 190, 200, 120, 10, "Check here if an eDRS was sent.", eDRS_sent_checkbox
+		  ButtonGroup ButtonPressed
+		    PushButton 275, 225, 60, 10, "Previous", previous_button
+		    OkButton 340, 220, 50, 15
+		    CancelButton 395, 220, 50, 15
+		    PushButton 260, 15, 20, 10, "FS", ELIG_FS_button
+		    PushButton 280, 15, 20, 10, "HC", ELIG_HC_button
+		    PushButton 300, 15, 25, 10, "GRH", ELIG_GRH_button
+		    PushButton 335, 15, 45, 10, "prev. panel", prev_panel_button
+		    PushButton 395, 15, 45, 10, "prev. memb", prev_memb_button
+		    PushButton 335, 25, 45, 10, "next panel", next_panel_button
+		    PushButton 395, 25, 45, 10, "next memb", next_memb_button
+		    PushButton 10, 140, 25, 10, "BUSI", BUSI_button
+		    PushButton 35, 140, 25, 10, "JOBS", JOBS_button
+		    PushButton 75, 140, 25, 10, "ACCT", ACCT_button
+		    PushButton 100, 140, 25, 10, "CARS", CARS_button
+		    PushButton 125, 140, 25, 10, "CASH", CASH_button
+		    PushButton 150, 140, 25, 10, "OTHR", OTHR_button
+		    PushButton 190, 140, 25, 10, "MEMB", MEMB_button
+		    PushButton 215, 140, 25, 10, "MEMI", MEMI_button
+		    PushButton 240, 140, 25, 10, "REVW", REVW_button
+		    PushButton 35, 150, 25, 10, "UNEA", UNEA_button
+		    PushButton 75, 150, 25, 10, "REST", REST_button
+		    PushButton 100, 150, 25, 10, "SECU", SECU_button
+		    PushButton 125, 150, 25, 10, "TRAN", TRAN_button
+		  EditBox 60, 180, 90, 15, MAEPD_premium
+		  ButtonGroup ButtonPressed
+		    PushButton 80, 200, 65, 10, "SIR mail", SIR_mail_button
+		  Text 5, 30, 95, 10, "FIAT reasons (if applicable):"
+		  Text 5, 50, 40, 10, "Other notes:"
+		  Text 5, 70, 35, 10, "Changes?:"
+		  Text 5, 90, 50, 10, "Verifs needed:"
+		  Text 5, 110, 50, 10, "Actions taken:"
+		  GroupBox 5, 130, 175, 35, "Income and asset panels"
+		  GroupBox 185, 130, 85, 25, "other STAT panels:"
+		  GroupBox 5, 170, 150, 45, "If MA-EPD..."
+		  Text 10, 185, 50, 10, "New premium:"
+		  GroupBox 255, 5, 75, 25, "ELIG panels:"
+		  GroupBox 330, 5, 115, 35, "STAT-based navigation:"
+		  CheckBox 10, 200, 65, 10, "Emailed MADE?", MADE_checkbox
+		EndDialog
+
 		DO
 			DO
 				DO
-					Dialog CSR_dialog02
+					Dialog Dialog1
 					cancel_confirmation
 					IF ButtonPressed = SIR_mail_button THEN run "C:\Program Files\Internet Explorer\iexplore.exe https://www.dhssir.cty.dhs.state.mn.us/Pages/Default.aspx"
 				LOOP UNTIL ButtonPressed <> no_cancel_button

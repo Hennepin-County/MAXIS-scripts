@@ -199,7 +199,6 @@ state_list = state_list+chr(9)+"VI Virgin Islands"
 
 state_array = split(state_list, chr(9))
 
-
 Dim new_member_to_note, new_memb_ref_numb, new_memb_first_name, new_memb_middle_name, new_memb_last_name, new_memb_suffix, new_memb_sex, new_memb_dob, new_memb_marital_status, new_memb_ssn, new_memb_race_n
 Dim new_memb_race_a, new_memb_race_b, new_memb_race_p, new_memb_race_w, new_memb_hispanic, new_memb_move_to_MN, new_memb_last_grade, new_memb_app_snap, new_memb_app_cash, new_memb_app_emer, new_memb_app_none
 Dim new_memb_p_p_tog, new_memb_relationship, citizen_yn, disa_yn, unable_to_work_yn, school_yn, assets_yn, unea_yn, earned_yn, expenses_yn, us_entry_date, nationality, immig_status_dropdown, imig_verif_checkbox
@@ -231,6 +230,8 @@ If MAXIS_case_number <> "" Then
 End If
 how_many_new_members = "1"
 
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 266, 130, "Case Number Dialog"
   EditBox 60, 35, 50, 15, MAXIS_case_number
   EditBox 180, 35, 50, 15, addendum_date
@@ -250,16 +251,12 @@ EndDialog
 Do
     Do
         err_msg = ""
-
         dialog Dialog1
         cancel_without_confirmation
-
         Call validate_MAXIS_case_number(err_msg, "*")
         If IsDate(addendum_date) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter a valid date for the date the Addendum Form was received."
         If IsNumeric(how_many_new_members) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter the number of new household members listed on the CAF Addendum."
-
         If err_msg <> "" Then MsgBox("Please resolve to continue:" & vbNewLine & err_msg)
-
     Loop until err_msg = ""
     Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = FALSE
@@ -276,7 +273,8 @@ client_array = split(full_clients_list, chr(9))
 
 For the_member = 1 to how_many_new_members
     reset_variables
-
+	'-------------------------------------------------------------------------------------------------DIALOG
+	Dialog1 = "" 'Blanking out previous dialog detail
     'Dialog to ask if there is a member number already added for this member.'
     BeginDialog Dialog1, 0, 0, 191, 85, "Select New HH Member"
       DropListBox 10, 45, 155, 45, all_clients_list, new_member_to_note
@@ -288,7 +286,6 @@ For the_member = 1 to how_many_new_members
     Do
         dialog Dialog1
         cancel_confirmation
-
         Call check_for_password(are_we_passworded_out)
     Loop until are_we_passworded_out = FALSE
 
@@ -297,7 +294,6 @@ For the_member = 1 to how_many_new_members
         Call navigate_to_MAXIS_screen("STAT", "MEMB")
         EMWriteScreen new_memb_ref_numb, 20, 76
         transmit
-
         EMReadScreen new_memb_first_name, 12, 6, 63
         EMReadScreen new_memb_middle_name, 1, 6, 79
         EMReadScreen new_memb_last_name, 25, 6, 30
@@ -307,7 +303,6 @@ For the_member = 1 to how_many_new_members
         EMReadScreen new_memb_race_entry, 35, 17, 42
         EMReadScreen new_memb_hispanic, 1, 16, 68
         EMReadScreen new_memb_relationship, 2, 10, 42
-
         new_memb_first_name = replace(new_memb_first_name, "_", "")
         new_memb_middle_name = replace(new_memb_middle_name, "_", "")
         new_memb_last_name = replace(new_memb_last_name, "_", "")
@@ -344,13 +339,11 @@ For the_member = 1 to how_many_new_members
         If new_memb_relationship = "27" Then new_memb_relationship = "27 - Unknown/Not Indc"
 
         If new_memb_race_entry = "" Then
-
         End If
 
         Call navigate_to_MAXIS_screen("STAT", "MEMI")
         EMWriteScreen new_memb_ref_numb, 20, 76
         transmit
-
         EMReadScreen new_memb_marital_status, 1, 7, 40
         EMReadScreen new_memb_move_to_MN, 8, 15, 49
         EMReadScreen new_memb_last_grade, 2, 10, 49
@@ -380,9 +373,10 @@ For the_member = 1 to how_many_new_members
         If new_memb_last_grade = "14" Then new_memb_last_grade = "14 HS + certificate"
         If new_memb_last_grade = "15" Then new_memb_last_grade = "15 Four Yr Degree"
         If new_memb_last_grade = "16" Then new_memb_last_grade = "16 Grad Degree"
-
     End If
 
+	'-------------------------------------------------------------------------------------------------DIALOG
+	Dialog1 = "" 'Blanking out previous dialog detail
     ' If new_memb_ref_numb = "" Then info_dlg_title = "CAF Addendum New Member"
     ' If new_memb_ref_numb <> "" Then info_dlg_title = "CAF Addendum New Member - Memb " & new_memb_ref_numb
     If new_memb_ref_numb = "" Then BeginDialog Dialog1, 0, 0, 541, 295, "CAF Addendum New Member"
@@ -417,13 +411,11 @@ For the_member = 1 to how_many_new_members
       DropListBox 165, 225, 30, 45, "No"+chr(9)+"Yes", unea_yn
       DropListBox 170, 245, 30, 45, "No"+chr(9)+"Yes", earned_yn
       DropListBox 140, 265, 30, 45, "No"+chr(9)+"Yes", expenses_yn
-
       DropListBox 490, 125, 30, 45, "No"+chr(9)+"Yes", qual_question_one
       DropListBox 490, 165, 30, 45, "No"+chr(9)+"Yes", qual_question_two
       DropListBox 490, 195, 30, 45, "No"+chr(9)+"Yes", qual_question_three
       DropListBox 490, 225, 30, 45, "No"+chr(9)+"Yes", qual_question_four
       DropListBox 490, 245, 30, 45, "No"+chr(9)+"Yes", qual_question_five
-
       ButtonGroup ButtonPressed
         OkButton 430, 275, 50, 15
         CancelButton 485, 275, 50, 15
@@ -479,7 +471,6 @@ For the_member = 1 to how_many_new_members
             If new_memb_ssn <> "" Then
                 If len(new_memb_ssn) <> 9 AND len(new_memb_ssn) <> 11 Then err_msg = err_msg & vbNewLine & "* Enter only the SSN in the SSN field if provided. Any detail about the case of SSN should be added in 'Other Notes'."
             End If
-
             If err_msg <> "" Then MsgBox "Please Resolve to Continue:" & vbNewLine & err_msg
         Loop until err_msg = ""
         Call check_for_password(are_we_passworded_out)
@@ -509,7 +500,6 @@ For the_member = 1 to how_many_new_members
         If new_memb_race_p = checked Then new_memb_race = new_memb_race & "Pacific Islander, "
         If new_memb_race_n = checked Then new_memb_race = new_memb_race & "American Indian, "
         If new_memb_race_w = checked Then new_memb_race = new_memb_race & "White, "
-
         new_memb_race = left(new_memb_race, len(new_memb_race) - 2)
         new_memb_race = new_memb_race & ")"
     Else
@@ -533,13 +523,11 @@ For the_member = 1 to how_many_new_members
             Call navigate_to_MAXIS_screen("STAT", "IMIG")
             EMWriteScreen new_memb_ref_numb, 20, 76
             transmit
-
             EMReadScreen versions, 1, 2, 78
             If versions <> "0" Then
                 EMReadScreen us_entry_date, 10, 7, 45
                 EMReadScreen nationality, 2, 10, 45
                 EMReadScreen immig_status_dropdown, 30, 6, 45
-
                 us_entry_date = replace(us_entry_date, " ", "/")
                 If us_entry_date = "__/__/____" Then us_entry_date = ""
                 If nationality = "AF" Then nationality = "Afghanistan"
@@ -583,7 +571,6 @@ For the_member = 1 to how_many_new_members
             Call navigate_to_MAXIS_screen("STAT", "SPON")
             EMWriteScreen new_memb_ref_numb, 20, 76
             transmit
-
             EMReadScreen versions, 1, 2, 78
             If versions <> "0" Then
                 EMReadScreen sponsor_name, 20, 8, 38
@@ -608,11 +595,9 @@ For the_member = 1 to how_many_new_members
             Call navigate_to_MAXIS_screen("STAT", "MEMI")
             EMWriteScreen new_memb_ref_numb, 20, 76
             transmit
-
             EMReadScreen versions, 1, 2, 78
             If versions <> "0" Then
                 EMReadScreen former_state, 2, 15, 78
-
                 for each listed_state in state_array
                     If left(listed_state, 2) = former_state Then state_moved_from = listed_state
                 Next
@@ -632,14 +617,12 @@ For the_member = 1 to how_many_new_members
         dlg_one_len = dlg_one_len + 70
         If new_memb_ref_numb <> "" Then
             Call navigate_to_MAXIS_screen("STAT", "PARE")
-
             stat_row = 5
             Do
                 EMReadScreen the_ref_numb, 2, stat_row, 3
                 If the_ref_numb <> "  " Then
                     EMWriteScreen the_ref_numb, 20, 76
                     transmit
-
                     EMReadScreen pare_versions, 1, 2, 78
                     If pare_versions = "1" Then
                         pare_row = 8
@@ -657,9 +640,7 @@ For the_member = 1 to how_many_new_members
                                     parent_two_name = this_person
                                     parent_absent_or_not_two = "This parent lives in this home."
                                 End If
-
                             End If
-
                             pare_row = pare_row + 1
                         Loop until child_ref_numb = "__"
                     End If
@@ -678,7 +659,6 @@ For the_member = 1 to how_many_new_members
                         If child_ref_numb = new_memb_ref_numb Then
                             EMReadScreen abps_first_name, 12, 10, 63
                             EMReadScreen abps_last_name, 24, 10, 30
-
                             abps_first_name = replace(abps_first_name, "_", "")
                             abps_last_name = replace(abps_last_name, "_", "")
                             If abps_last_name <> "" Then
@@ -713,14 +693,12 @@ For the_member = 1 to how_many_new_members
             Call navigate_to_MAXIS_screen("STAT", "ACCT")
             EMWriteScreen new_memb_ref_numb, 20, 76
             transmit
-
             EMReadScreen versions, 1, 2, 78
             If versions <> "0" Then
                 Do
                     EMReadScreen acct_pnl_type, 2, 6, 44
                     EMReadScreen acct_pnl_loc, 20, 8, 44
                     EMReadScreen acct_pnl_value, 8, 10, 46
-
                     If acct_pnl_type = "SV" Then acct_pnl_type = "Savings Acct"
                     If acct_pnl_type = "CK" Then acct_pnl_type = "Checking Acct"
                     If acct_pnl_type = "CE" Then acct_pnl_type = "Certificate of Deposit"
@@ -744,7 +722,6 @@ For the_member = 1 to how_many_new_members
                         asset_type_two = acct_pnl_type
                         asset_value_two = acct_pnl_value
                     End If
-
                     transmit
                     EMReadScreen last_panel, 7, 24, 2
                 Loop until last_panel = "ENTER A"
@@ -753,7 +730,6 @@ For the_member = 1 to how_many_new_members
             Call navigate_to_MAXIS_screen("STAT", "CARS")
             EMWriteScreen new_memb_ref_numb, 20, 76
             transmit
-
             EMReadScreen versions, 1, 2, 78
             If versions <> "0" Then
                 Do
@@ -771,9 +747,7 @@ For the_member = 1 to how_many_new_members
                         cars_pnl_value = trim(cars_pnl_value)
                     End If
                     cars_pnl_owed = trim(cars_pnl_owed)
-
                     cars_info = cars_year & " " & cars_make & " " & cars_model
-
                     If asset_type_one = "" Then
                         asset_type_one = cars_info
                         asset_value_one = cars_pnl_value
@@ -783,24 +757,20 @@ For the_member = 1 to how_many_new_members
                         asset_value_two = cars_pnl_value
                         asset_owed_two = cars_pnl_owed
                     End If
-
                     transmit
                     EMReadScreen last_panel, 7, 24, 2
                 Loop until last_panel = "ENTER A"
-
             End If
 
             Call navigate_to_MAXIS_screen("STAT", "SECU")
             EMWriteScreen new_memb_ref_numb, 20, 76
             transmit
-
             EMReadScreen versions, 1, 2, 78
             If versions <> "0" Then
                 Do
                     EMReadscreen secu_pnl_type, 2, 6, 50
                     EMReadScreen secu_pnl_loc, 20, 8, 50
                     EMReadScreen secu_pnl_value, 8, 10, 52
-
                     If secu_pnl_type = "LI" Then secu_pnl_type = "Life Insurance"
                     If secu_pnl_type = "ST" Then secu_pnl_type = "Stocks"
                     If secu_pnl_type = "BO" Then secu_pnl_type = "Bonds"
@@ -811,8 +781,6 @@ For the_member = 1 to how_many_new_members
                     secu_pnl_value = trim(secu_pnl_value)
                     secu_pnl_loc = replace(secu_pnl_loc, "_", "")
                     if secu_pnl_type <> "" AND secu_pnl_loc <> "" Then secu_pnl_type = secu_pnl_type & " at " & secu_pnl_loc
-
-
                     If asset_type_one = "" Then
                         asset_type_one = secu_pnl_type
                         asset_value_one = secu_pnl_value
@@ -820,11 +788,9 @@ For the_member = 1 to how_many_new_members
                         asset_type_two = secu_pnl_type
                         asset_value_two = secu_pnl_value
                     End If
-
                     transmit
                     EMReadScreen last_panel, 7, 24, 2
                 Loop until last_panel = "ENTER A"
-
             End If
 
             Call navigate_to_MAXIS_screen("STAT", "REST")
@@ -834,11 +800,9 @@ For the_member = 1 to how_many_new_members
                 EMReadScreen rest_type, 15, 6, 41
                 EMReadScreen rest_value, 10, 8, 41
                 EMReadScreen rest_owed, 10, 9, 41
-
                 rest_type = trim(rest_type)
                 rest_value = trim(rest_value)
                 rest_owed = trim(rest_owed)
-
                 If asset_type_one = "" Then
                     asset_type_one = rest_type
                     asset_value_one = rest_value
@@ -848,14 +812,11 @@ For the_member = 1 to how_many_new_members
                     asset_value_two = rest_value
                     asset_owed_two = rest_owed
                 End If
-
                 transmit
                 EMReadScreen last_panel, 7, 24, 2
             Loop until last_panel = "ENTER A"
-
             EMReadScreen versions, 1, 2, 78
             If versions <> "0" Then
-
             End If
         End If
     End If
@@ -866,16 +827,13 @@ For the_member = 1 to how_many_new_members
             Call navigate_to_MAXIS_screen("STAT", "UNEA")
             EMWriteScreen new_memb_ref_numb, 20, 76
             transmit
-
             EMReadScreen versions, 1, 2, 78
             If versions <> "0" Then
                 Do
                     EMReadScreen unea_pnl_type, 20, 5, 40
                     EMReadScreen unea_pnl_total, 8, 18, 68
-
                     unea_pnl_type = trim(unea_pnl_type)
                     unea_pnl_total = trim(unea_pnl_total)
-
                     If unea_type = "" Then
                         unea_type = unea_pnl_type
                         unea_amount = unea_pnl_total
@@ -894,7 +852,6 @@ For the_member = 1 to how_many_new_members
             Call navigate_to_MAXIS_screen("STAT", "JOBS")
             EMWriteScreen new_memb_ref_numb, 20, 76
             transmit
-
             EMReadScreen versions, 1, 2, 78
             If versions <> "0" Then
                 Do
@@ -902,7 +859,6 @@ For the_member = 1 to how_many_new_members
                     EMReadScreen jobs_pnl_freq, 1, 18, 35
                     EMReadScreen jobs_pnl_hrs, 3, 18, 72
                     EMReadscreen jobs_pnl_total, 8, 17, 67
-
                     EMReadScreen jobs_chk_one, 2, 12, 54
                     EMReadScreen jobs_chk_two, 2, 13, 54
                     EMReadScreen jobs_chk_three, 2, 14, 54
@@ -913,7 +869,6 @@ For the_member = 1 to how_many_new_members
                     If jobs_chk_three <> "__" then number_of_checks = 3
                     If jobs_chk_four <> "__" then number_of_checks = 4
                     If jobs_chk_five <> "__" then number_of_checks = 5
-
                     jobs_pnl_name = replace(jobs_pnl_name, "_", "")
                     weekly_hours = ""
                     If jobs_pnl_freq = "4" Then
@@ -939,7 +894,6 @@ For the_member = 1 to how_many_new_members
                     If jobs_pnl_freq = "2" Then jobs_pnl_freq = "Semi-Monthly"
                     If jobs_pnl_freq = "3" Then jobs_pnl_freq = "Biweekly"
                     If jobs_pnl_freq = "4" Then jobs_pnl_freq = "Weekly"
-
                     If employer_name_one = "" Then
                         employer_name_one = jobs_pnl_name
                         hrs_per_wk_one = weekly_hours
@@ -951,17 +905,14 @@ For the_member = 1 to how_many_new_members
                         employer_amount_two = jobs_pnl_pay
                         employer_frequency_two = jobs_pnl_freq
                     End If
-
                     transmit
                     EMReadScreen last_panel, 7, 24, 2
                 Loop until last_panel = "ENTER A"
-
             End If
 
             Call navigate_to_MAXIS_screen("STAT", "BUSI")
             EMWriteScreen new_memb_ref_numb, 20, 76
             transmit
-
             EMReadScreen versions, 1, 2, 78
             If versions <> "0" Then
                 Do
@@ -969,7 +920,6 @@ For the_member = 1 to how_many_new_members
                     EMReadScreen busi_cash_total, 8, 8, 69
                     EMReadScreen busi_snap_total, 8, 10, 69
                     EMReadScreen busi_pnl_hrs, 3, 13, 74
-
                     If busi_pnl_type = "01" Then busi_pnl_type = "Farming"
                     If busi_pnl_type = "02" Then busi_pnl_type = "Real Estate"
                     If busi_pnl_type = "03" Then busi_pnl_type = "Home Product Sales"
@@ -982,7 +932,6 @@ For the_member = 1 to how_many_new_members
                     busi_pnl_hrs = busi_pnl_hrs/4.3
                     busi_pnl_hrs = int(busi_pnl_hrs)
                     busi_pnl_hrs = busi_pnl_hrs & ""
-
                     busi_cash_total = trim(busi_cash_total)
                     busi_snap_total = trim(busi_snap_total)
                     If busi_cash_total <> "0.00" Then
@@ -990,7 +939,6 @@ For the_member = 1 to how_many_new_members
                     ElseIf busi_snap_total <> "0.00" Then
                         busi_pnl_total = busi_snap_total
                     End If
-
                     If employer_name_one = "" Then
                         employer_name_one = "Self-Emp in " & busi_pnl_type
                         hrs_per_wk_one = busi_pnl_hrs
@@ -1002,11 +950,9 @@ For the_member = 1 to how_many_new_members
                         employer_amount_two = busi_pnl_total
                         employer_frequency_two = "Monthly"
                     End If
-
                     transmit
                     EMReadScreen last_panel, 7, 24, 2
                 Loop until last_panel = "ENTER A"
-
             End If
         End If
     End If
@@ -1017,28 +963,22 @@ For the_member = 1 to how_many_new_members
             Call navigate_to_MAXIS_screen("STAT", "DCEX")
             EMWriteScreen new_memb_ref_numb, 20, 76
             transmit
-
             EMReadScreen versions, 1, 2, 78
             If versions <> "0" Then
-
             End If
 
             Call navigate_to_MAXIS_screen("STAT", "COEX")
             EMWriteScreen new_memb_ref_numb, 20, 76
             transmit
-
             EMReadScreen versions, 1, 2, 78
             If versions <> "0" Then
-
             End If
 
             Call navigate_to_MAXIS_screen("STAT", "SHEL")
             EMWriteScreen new_memb_ref_numb, 20, 76
             transmit
-
             EMReadScreen versions, 1, 2, 78
             If versions <> "0" Then
-
             End If
         End If
     End If
@@ -1057,7 +997,6 @@ For the_member = 1 to how_many_new_members
     If show_detail_dialog_one = TRUE Then
         Do
             Do
-
                 y_pos = 5
                 If new_memb_ref_numb = "" Then dialog_title = "CAF Addendum Question Detail"
                 If new_memb_ref_numb <> "" Then dialog_title = "CAF Addendum Question Detail for Memb " & new_memb_ref_numb

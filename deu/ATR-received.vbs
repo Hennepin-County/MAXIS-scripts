@@ -87,7 +87,9 @@ END IF
 IF dail_check <> "DAIL" or match_found = FALSE THEN
     CALL MAXIS_case_number_finder (MAXIS_case_number)
     MEMB_number = "01"
-    BeginDialog case_number_dialog, 0, 0, 131, 65, "Case Number to clear match"
+	'-------------------------------------------------------------------------------------------------DIALOG
+	Dialog1 = "" 'Blanking out previous dialog detail
+    BeginDialog Dialog1, 0, 0, 131, 65, "Case Number to clear match"
       EditBox 60, 5, 65, 15, MAXIS_case_number
       EditBox 60, 25, 30, 15, MEMB_number
       ButtonGroup ButtonPressed
@@ -99,8 +101,8 @@ IF dail_check <> "DAIL" or match_found = FALSE THEN
     DO
     	DO
     		err_msg = ""
-    		Dialog case_number_dialog
-    		IF ButtonPressed = 0 THEN StopScript
+    		Dialog Dialog1
+    		cancel_without_confirmation
       		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
       		If IsNumeric(MEMB_number) = False or len(MEMB_number) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2 digit member number."
     		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
@@ -253,7 +255,9 @@ sent_date = trim(sent_date)
 IF sent_date <> "" THEN sent_date = replace(sent_date, " ", "/")
 
 '-----------------------------------------------------------------------------------------Initial dialog and do...loop
-BeginDialog ATR_action_dialog, 0, 0, 181, 240, "ATR Received"
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 181, 240, "ATR Received"
   EditBox 55, 5, 55, 15, MAXIS_case_number
   EditBox 155, 5, 20, 15, MEMB_Number
   EditBox 55, 25, 55, 15, date_received
@@ -284,8 +288,8 @@ EndDialog
 DO
     DO
         err_msg = ""
-    	Dialog ATR_action_dialog
-    	IF ButtonPressed = 0 THEN StopScript
+    	Dialog Dialog1
+    	cancel_without_confirmation
     	IF IsNumeric(maxis_case_number) = false or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
     	IF select_quarter = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please select a quarter for the match"
     	IF match_type = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please select a match type"

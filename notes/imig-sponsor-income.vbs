@@ -53,8 +53,9 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'DIALOGS--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-BeginDialog sponsor_income_calculation_dialog, 0, 0, 216, 165, "Sponsor income calculation dialog"
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 216, 165, "Sponsor income calculation dialog"
   EditBox 65, 10, 70, 15, MAXIS_case_number
   EditBox 40, 45, 55, 15, primary_sponsor_earned_income
   EditBox 150, 45, 55, 15, spousal_sponsor_earned_income
@@ -87,7 +88,7 @@ Call MAXIS_case_number_finder(MAXIS_case_number)
 Do
 	Do
 		err_msg = ""
-		Dialog sponsor_income_calculation_dialog
+		Dialog Dialog1
 		If ButtonPressed = 0 then stopscript
 		If isnumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 THEN err_msg = err_msg & vbCr & "* You must enter a valid case number."
 		If isnumeric(primary_sponsor_earned_income) = False and isnumeric(spousal_sponsor_earned_income) = False and isnumeric(primary_sponsor_unearned_income) = False and isnumeric(spousal_sponsor_unearned_income) = False THEN err_msg = err_msg & vbCr & "* You must enter some income. You can enter a ''0'' if that is accurate."
@@ -102,8 +103,8 @@ LOOP UNTIL are_we_passworded_out = false
 'Determines the income limits
 ' >> Income limits from CM 19.06 - MAXIS Gross Income 130% FPG (Updated effective 10/01/19)
 If date >= cdate("10/01/2019") then
-    If sponsor_HH_size = 1 then income_limit = 1354					
-    If sponsor_HH_size = 2 then income_limit = 1832								
+    If sponsor_HH_size = 1 then income_limit = 1354
+    If sponsor_HH_size = 2 then income_limit = 1832
     If sponsor_HH_size = 3 then income_limit = 2311
     If sponsor_HH_size = 4 then income_limit = 2790
     If sponsor_HH_size = 5 then income_limit = 3269
@@ -111,9 +112,9 @@ If date >= cdate("10/01/2019") then
     If sponsor_HH_size = 7 then income_limit = 4227
     If sponsor_HH_size = 8 then income_limit = 4705
     If sponsor_HH_size > 8 then income_limit = 4705 + (479 * (sponsor_HH_size - 8))
-else 
-    If sponsor_HH_size = 1 then income_limit = 1316					
-    If sponsor_HH_size = 2 then income_limit = 1784								
+else
+    If sponsor_HH_size = 1 then income_limit = 1316
+    If sponsor_HH_size = 2 then income_limit = 1784
     If sponsor_HH_size = 3 then income_limit = 2252
     If sponsor_HH_size = 4 then income_limit = 2720
     If sponsor_HH_size = 5 then income_limit = 3188
@@ -121,7 +122,7 @@ else
     If sponsor_HH_size = 7 then income_limit = 4124
     If sponsor_HH_size = 8 then income_limit = 4592
     If sponsor_HH_size > 8 then income_limit = 4592 + (468 * (sponsor_HH_size - 8))
-End if 
+End if
 
 'If any income variables are not numeric, the script will convert them to a "0" for calculating
 If IsNumeric(primary_sponsor_earned_income) = False then primary_sponsor_earned_income = 0

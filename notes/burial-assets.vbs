@@ -49,9 +49,9 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-
-'SECTION 01 -- Dialogs
-BeginDialog opening_dialog_01, 0, 0, 311, 420, "Burial Assets"
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 311, 420, "Burial Assets"
   EditBox 95, 25, 60, 15, MAXIS_case_number
   EditBox 225, 25, 30, 15, hh_member
   DropListBox 165, 45, 90, 15, "Select one..."+chr(9)+"GA"+chr(9)+"Health Care"+chr(9)+"MFIP/DWP"+chr(9)+"MSA/GRH", programs
@@ -93,34 +93,6 @@ BeginDialog opening_dialog_01, 0, 0, 311, 420, "Burial Assets"
   Text 25, 350, 260, 20, "Please refer to CM 0015.21 (burial funds) and CM 0015.24 (burial contracts) for information on how to evaluate burial assets for each program."
   GroupBox 5, 335, 300, 65, "Each program evaluates burial assets differently"
 EndDialog
-
-'Burial Agreement Dialogs----------------------------------------------------------------------------------------------------
-BeginDialog burial_assets_dialog_01, 0, 0, 301, 210, "Burial assets dialog (01)"
-  CheckBox 5, 25, 160, 10, "Applied $1500 of burial services to BFE?", applied_BFE_check
-  ComboBox 95, 70, 65, 15, "Select One..."+chr(9)+"None"+chr(9)+"AFB"+chr(9)+"CSA"+chr(9)+"IBA"+chr(9)+"IFB"+chr(9)+"RBA", type_of_burial_agreement
-  EditBox 220, 70, 65, 15, purchase_date
-  EditBox 60, 90, 125, 15, issuer_name
-  EditBox 230, 90, 55, 15, policy_number
-  EditBox 60, 110, 55, 15, face_value
-  EditBox 170, 110, 115, 15, funeral_home
-  CheckBox 10, 130, 280, 10, "Primary beneficiary is : Any funeral provider whose interest may appear irrevocably", Primary_benficiary_check
-  CheckBox 10, 145, 175, 10, "Contingent Beneficiary is: The estate of the insured ", Contingent_benficiary_check
-  CheckBox 10, 160, 215, 10, "Policy's CSV is irrevocably designated to the funeral provider", policy_CSV_check
-  ButtonGroup ButtonPressed
-    PushButton 95, 185, 50, 15, "Next", next_to_02_button
-    CancelButton 155, 185, 50, 15
-  Text 10, 75, 85, 10, "Type of burial agreement:"
-  Text 165, 75, 50, 10, "Purchase date:"
-  Text 10, 95, 50, 10, "Issuer name:"
-  Text 200, 95, 30, 10, "Policy #:"
-  Text 10, 115, 40, 10, "Face value:"
-  Text 120, 115, 50, 10, "Funeral home:"
-  GroupBox 0, 5, 290, 170, "Burial agreements"
-  Text 35, 40, 205, 25, "NOTE: You can mark specific items/services as applied to the BFE on the following panels. These will be calculated and case noted"
-EndDialog
-
-
-
 
 'SECTION 2: Functions/dimming array----------------------------------------------------------------------------------------------------
 function new_BS_BSI_heading
@@ -321,9 +293,10 @@ FUNCTION build_dynamic_burial_dialog(calc_array, BFE_total, BS_BSI_total, final_
 			row_height = 0
 			'defining err_msg as blank
 			err_msg = ""
-
+			'-------------------------------------------------------------------------------------------------DIALOG
+			Dialog1 = "" 'Blanking out previous dialog detail
 			'dialog to be build dynamically
-			BeginDialog Dialog1, 0, 0, 306, 410, "Dialog"
+			BeginDialog Dialog1, 0, 0, 306, 410, "Information"
 			Text 10, 5, 60, 10, "BFE Total: "												'here the running totals will be displayed for the end user to keep track.
 			Text 100, 5, 60, 10, FormatCurrency(running_total)
 			Text 10, 15, 60, 10, "Counted Total: "
@@ -337,9 +310,9 @@ FUNCTION build_dynamic_burial_dialog(calc_array, BFE_total, BS_BSI_total, final_
 				PushButton 120, 390, 50, 15, "CAI", CAI_button
 				OkButton 195, 390, 50, 15
 				CancelButton 250, 390, 50, 15
-			IF current_dialog = "services" THEN Text 25, 35, 240, 10, "BURIAL SERVICES                       VALUE                          STATUS"
+			IF current_dialog = "services" THEN Text 25, 35, 240, 10, "BURIAL SERVICES              VALUE                          STATUS"
 			IF current_dialog = "bsi" THEN Text 25, 35, 240, 10, "BURIAL SPACE ITEMS                VALUE                            STATUS"
-			IF current_dialog = "cai" THEN Text 25, 35, 240, 10, "CASH ADVANCE ITEMS                  VALUE                            STATUS"
+			IF current_dialog = "cai" THEN Text 25, 35, 240, 10, "CASH ADVANCE ITEMS                VALUE                            STATUS"
 			'Here is where the dialog differs, if a certain dialog is clicked on the asset fields will be generated based on the calc_array
 			IF current_dialog = "services" THEN							'values 0-16 are the services assets
 				FOR i = 0 TO 16
@@ -562,10 +535,36 @@ DO
 	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 LOOP until ButtonPressed = open_dialog_next_button AND err_msg = ""
 
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 301, 210, "Burial assets dialog (01)"
+  CheckBox 5, 25, 160, 10, "Applied $1500 of burial services to BFE?", applied_BFE_check
+  ComboBox 95, 70, 65, 15, "Select One..."+chr(9)+"None"+chr(9)+"AFB"+chr(9)+"CSA"+chr(9)+"IBA"+chr(9)+"IFB"+chr(9)+"RBA", type_of_burial_agreement
+  EditBox 220, 70, 65, 15, purchase_date
+  EditBox 60, 90, 125, 15, issuer_name
+  EditBox 230, 90, 55, 15, policy_number
+  EditBox 60, 110, 55, 15, face_value
+  EditBox 170, 110, 115, 15, funeral_home
+  CheckBox 10, 130, 280, 10, "Primary beneficiary is : Any funeral provider whose interest may appear irrevocably", Primary_benficiary_check
+  CheckBox 10, 145, 175, 10, "Contingent Beneficiary is: The estate of the insured ", Contingent_benficiary_check
+  CheckBox 10, 160, 215, 10, "Policy's CSV is irrevocably designated to the funeral provider", policy_CSV_check
+  ButtonGroup ButtonPressed
+    PushButton 95, 185, 50, 15, "Next", next_to_02_button
+    CancelButton 155, 185, 50, 15
+  Text 10, 75, 85, 10, "Type of burial agreement:"
+  Text 165, 75, 50, 10, "Purchase date:"
+  Text 10, 95, 50, 10, "Issuer name:"
+  Text 200, 95, 30, 10, "Policy #:"
+  Text 10, 115, 40, 10, "Face value:"
+  Text 120, 115, 50, 10, "Funeral home:"
+  GroupBox 0, 5, 290, 170, "Burial agreements"
+  Text 35, 40, 205, 25, "NOTE: You can mark specific items/services as applied to the BFE on the following panels. These will be calculated and case noted"
+EndDialog
+
 Do
 	Do
 		err_msg = ""
-		Dialog burial_assets_dialog_01
+		Dialog Dialog1
 		cancel_confirmation
 		If type_of_burial_agreement = "Select One..." Then err_msg = err_msg & vbNewLine & "You must select a type of burial agreement. Select none if n/a."
 		If type_of_burial_agreement <> "None" THEN
@@ -686,13 +685,11 @@ IF type_of_burial_agreement <> "None" THEN						'if the type of burial agreement
 			call write_three_columns_in_case_note(3, (calc_array(i, 0) & ":"), 44, "$" & calc_array(i, 1), 54, calc_array(i, 2))
 		End if
 	NEXT
-
 	CALL write_variable_in_case_note( "---------------------------------------------------------------------------")
 	IF BFE_total <> "" THEN CALL write_variable_in_case_note( "* Total services/items applied to BFE: $" & BFE_total)
 	CALL write_variable_in_case_note( "* Total BS/BSI excluded amount: $" & BS_BSI_total)
 	CALL write_variable_in_case_note( "* Total unavailable CAI: $" & final_unavailable_total)
 END IF
-
 
 CALL write_variable_in_case_note( "---------------------------------------------------------------------------")
 CALL write_variable_in_case_note( "* Total counted amount: $" & final_counted_total)

@@ -208,71 +208,50 @@ CALL changelog_update("12/11/2017", "Initial version.", "MiKayla Handley, Hennep
 'Actually displays the changelog. This function uses a text file located in the My DOcuments folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-
 '---------------------------------------------------------------------THE SCRIPT
-'Connecting to MAXIS
 EMConnect ""
-
+CALL MAXIS_case_number_finder (MAXIS_case_number)
+memb_number = "01"
 MAXIS_footer_month = CM_mo
 MAXIS_footer_year = CM_yr
-'----------------------------------------------------------------------------------------------------DAIL
-EMReadscreen dail_check, 4, 2, 48 'changed from DAIL to view to ensure we are in DAIL/DAIL'
-'msgbox dail_check
-'IF dail_check = "DAIL" THEN
-'	EMReadScreen IEVS_type, 4, 6, 6 'read the DAIL msg'
-'	IF IEVS_type = "PARI" THEN
-'		EMSendKey "t"
-'		match_found = TRUE
-'		EMReadScreen MAXIS_case_number, 8, 5, 73
-'		MAXIS_case_number= TRIM(MAXIS_case_number)
-'		'----------------------------------------------------------------------------------------------------IEVP
-'	   'Navigating deeper into the match interface
-'	   CALL write_value_and_transmit("I", 6, 3)   		'navigates to INFC
-'	   CALL write_value_and_transmit("INTM", 20, 71)   'navigates to IEVP
-'	   TRANSMIT
-'    END IF
-'
-'
-'ELSE
- 	CALL MAXIS_case_number_finder (MAXIS_case_number)
-    MEMB_number = "01"
-    BeginDialog case_number_dialog, 0, 0, 131, 65, "Case Number to clear match"
-      EditBox 60, 5, 65, 15, MAXIS_case_number
-      EditBox 60, 25, 30, 15, MEMB_number
-      ButtonGroup ButtonPressed
-        OkButton 20, 45, 50, 15
-        CancelButton 75, 45, 50, 15
-      Text 5, 30, 55, 10, "MEMB Number:"
-      Text 5, 10, 50, 10, "Case Number:"
-    EndDialog
-	DO
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 131, 65, "Case Number to clear match"
+  EditBox 60, 5, 65, 15, MAXIS_case_number
+  EditBox 60, 25, 30, 15, MEMB_number
+  ButtonGroup ButtonPressed
+    OkButton 20, 45, 50, 15
+    CancelButton 75, 45, 50, 15
+  Text 5, 30, 55, 10, "MEMB Number:"
+  Text 5, 10, 50, 10, "Case Number:"
+EndDialog
+DO
 	    DO
-		err_msg = ""
-		Dialog case_number_dialog
-		IF ButtonPressed = 0 THEN StopScript
-			If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
-			If IsNumeric(MEMB_number) = False or len(MEMB_number) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2 digit member number."
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-	LOOP UNTIL err_msg = ""
+        	err_msg = ""
+        	Dialog Dialog1
+        	cancel_without_confirmation
+         	If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+         	If IsNumeric(MEMB_number) = False or len(MEMB_number) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2 digit member number."
+        	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+        LOOP UNTIL err_msg = ""
 		CALL check_for_password_without_transmit(are_we_passworded_out)
 	Loop until are_we_passworded_out = false
-'----------------------------------------------------------------------------------------------------STAT
-	CALL navigate_to_MAXIS_screen("STAT", "MEMB")
-	EMwritescreen MEMB_number, 20, 76
-	TRANSMIT
-	EMReadscreen SSN_number_read, 11, 7, 42
-	SSN_number_read = replace(SSN_number_read, " ", "")
-	CALL navigate_to_MAXIS_screen("INFC" , "____")
-	CALL write_value_and_transmit("INTM", 20, 71)
-	CALL write_value_and_transmit(SSN_number_read, 3, 63)
-	'NO IEVS MATCHES FOUND FOR SSN'
-	EMReadScreen error_check, 75, 24, 2
-	error_check = TRIM(error_check)
-	IF error_check <> "" THEN script_end_procedure(error_check & vbcr & "An error occurred, please process manually.") '-------option to read from REPT need to checking for error msg'
 
-'EMReadScreen err_msg, 7, 24, 2
-'IF err_msg = "NO IEVS" THEN script_end_procedure_with_error_report("An error occurred in IEVP, please process manually.")'checking for error msg'
-
+''----------------------------------------------------------------------------------------------------STAT
+CALL navigate_to_MAXIS_screen("STAT", "MEMB")
+EMwritescreen MEMB_number, 20, 76
+TRANSMIT
+EMReadscreen SSN_number_read, 11, 7, 42
+SSN_number_read = replace(SSN_number_read, " ", "")
+CALL navigate_to_MAXIS_screen("INFC" , "____")
+CALL write_value_and_transmit("INTM", 20, 71)
+CALL write_value_and_transmit(SSN_number_read, 3, 63)
+'NO IEVS MATCHES FOUND FOR SSN'
+EMReadScreen error_check, 75, 24, 2
+error_check = TRIM(error_check)
+IF error_check <> "" THEN script_end_procedure(error_check & vbcr & "An error occurred, please process manually.") '-------option to read from REPT need to checking for error msg'
+EMReadScreen err_msg, 7, 24, 2
+IF err_msg = "NO IEVS" THEN script_end_procedure_with_error_report("An error occurred in IEVP, please process manually.")'checking for error msg'
 '----------------------------------------------------------------------------------------------------selecting the correct wage match
 Row = 8
 	DO
@@ -446,8 +425,9 @@ Row = 8
 
 	'--------------------------------------------------------------------Dialog
 	discovery_date = date
-
-	BeginDialog overpayment_dialog, 0, 0, 361, 290, "PARIS Match Claim Entered"
+	'-------------------------------------------------------------------------------------------------DIALOG
+	Dialog1 = "" 'Blanking out previous dialog detail
+	BeginDialog Dialog1, 0, 0, 361, 290, "PARIS Match Claim Entered"
 	  EditBox 60, 5, 40, 15, MAXIS_case_number
 	  EditBox 200, 5, 20, 15, memb_number
 	  DropListBox 315, 5, 40, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", fraud_referral
@@ -538,8 +518,8 @@ Row = 8
 	EndDialog
 	Do
 		err_msg = ""
-		dialog overpayment_dialog
-		cancel_confirmation
+		dialog Dialog1
+		cancel_without_confirmation
 		IF MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* Enter a valid case number."
 		IF fraud_referral = "Select:" THEN err_msg = err_msg & vbnewline & "* You must select a fraud referral entry."
 		IF trim(Reason_OP) = "" or len(Reason_OP) < 8 THEN err_msg = err_msg & vbnewline & "* You must enter a reason for the overpayment please provide as much detail as possible (min 8)."
@@ -724,4 +704,4 @@ Row = 8
 	CALL write_variable_in_CCOL_note_test("----- ----- ----- ----- ----- ----- -----")
 	CALL write_variable_in_CCOL_note_test("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
 	PF3 'exit the case note'
-script_end_procedure_with_error_report("Success PARIS match overpayment case note entered and copied to CCOL please review case note to ensure accuracy.")
+	script_end_procedure_with_error_report("Success PARIS match overpayment case note entered and copied to CCOL please review case note to ensure accuracy.")

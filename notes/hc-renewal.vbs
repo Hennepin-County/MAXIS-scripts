@@ -64,7 +64,8 @@ EMConnect ""
 'Grabbing the case number
 call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
-
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 161, 65, "HC Renewal Script Case number"
   Text 5, 10, 85, 10, "Enter your case number:"
   EditBox 95, 5, 60, 15, MAXIS_case_number
@@ -81,10 +82,8 @@ EndDialog
 Do
 	Do
         err_msg = ""
-
   		Dialog Dialog1    'initial dialog
   		cancel_without_confirmation
-
     	If IsNumeric(MAXIS_footer_month) = False or len(MAXIS_footer_month) > 2 or len(MAXIS_footer_month) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer month."
     	If IsNumeric(MAXIS_footer_year) = False or len(MAXIS_footer_year) > 2 or len(MAXIS_footer_year) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer year."
     	If IsNumeric(MAXIS_case_number) = False or Len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* You must enter a valid case number."
@@ -118,7 +117,8 @@ CALL autofill_editbox_from_MAXIS(HH_member_array, "UNEA", unearned_income)
 
 'Creating variable for recert_month
 recert_month = MAXIS_footer_month & "/" & MAXIS_footer_year
-
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 456, 315, "HC ER dialog"
   EditBox 75, 50, 50, 15, recert_datestamp
   DropListBox 185, 50, 75, 15, "(select one...)"+chr(9)+"complete"+chr(9)+"incomplete", recert_status
@@ -191,7 +191,7 @@ DO
 		Do
 			err_msg = ""
 			Dialog Dialog1				'Displays the dialog
-			cancel_confirmation				'Asks if we are sure we want to cancel if the cancel button is pressed
+			cancel_without_confirmation				'Asks if we are sure we want to cancel if the cancel button is pressed
 			MAXIS_dialog_navigation			'Custom function which contains all of the MAXIS dialog navigation possibilities
 			If ButtonPressed = SIR_mail_button then run "C:\Program Files\Internet Explorer\iexplore.exe https://owa.dhssir.cty.dhs.state.mn.us/csedforms/ccforms/HCBillingMADERequest.aspx"		'Goes to SIR if button is pressed
 		Loop until ButtonPressed = -1 		'Loops until OK is selected

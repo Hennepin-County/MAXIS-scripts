@@ -50,8 +50,9 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'DIALOG-------------------------------------------------------------------
-BeginDialog edrs_disq_dialog, 0, 0, 296, 415, "eDRS DISQ dialog"
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 296, 415, "eDRS DISQ dialog"
   EditBox 55, 25, 50, 15, MAXIS_case_number
   EditBox 110, 45, 170, 15, HH_memb
   EditBox 110, 65, 170, 15, contact_info
@@ -101,7 +102,7 @@ contact_time = time & ""
 
 Do			'edrs status dialog
 	err_msg = ""			'establishes a blank variable for the DO LOOP
-	dialog edrs_disq_dialog
+	DIALOG Dialog1
 	cancel_confirmation
 	If HH_memb = "" 																					then err_msg = err_msg & vbNewLine & "* You must enter the disqualified HH member(s)."
 	If contact_info = ""																			then err_msg = err_msg & vbNewLine & "* You must enter the contact name and phone number."

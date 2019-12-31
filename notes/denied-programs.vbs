@@ -186,9 +186,11 @@ Function check_pnd2_for_denial(coded_denial, SNAP_pnd2_code, cash_pnd2_code, grh
 	END IF
 End function
 
-'THE DIALOG----------------------------------------------------------------------------------------------------
-'This dialog uses a dialog_shrink_amt variable, along with an if...then which is decided by the global variable case_noting_intake_dates.
-BeginDialog denied_dialog, 0, 0, 401, 375 - dialog_shrink_amt, "Denied progs dialog"
+''This dialog uses a dialog_shrink_amt variable, along with an if...then which is decided by the global variable case_noting_intake_dates.
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+
+BeginDialog Dialog1, 0, 0, 401, 375 - dialog_shrink_amt, "Denied progs"
   EditBox 65, 5, 55, 15, MAXIS_case_number
   EditBox 185, 5, 55, 15, application_date
   CheckBox 60, 25, 35, 10, "SNAP", SNAP_check
@@ -274,7 +276,7 @@ Do
         cash_pnd2_code = ""
         emer_pnd2_code = ""
         grh_pnd2_code = ""
-    	Dialog denied_dialog
+    	DIALOG Dialog1
     	cancel_confirmation
     	If buttonpressed = SPEC_WCOM_button then
             call navigate_to_MAXIS_screen("spec", "wcom")

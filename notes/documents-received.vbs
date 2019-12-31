@@ -333,6 +333,8 @@ DO
         err_msg = ""
 
 		If LTC_case = vbNo then
+			'-------------------------------------------------------------------------------------------------DIALOG
+			Dialog1 = "" 'Blanking out previous dialog detail
             BeginDialog Dialog1, 0, 0, 416, 375, "Documents received"       'This is the regular (NON LTC) dialog
               EditBox 80, 5, 330, 15, docs_rec
               EditBox 35, 50, 315, 15, ADDR
@@ -383,6 +385,8 @@ DO
             EndDialog
 
         ElseIf LTC_case = vbYes then
+			'-------------------------------------------------------------------------------------------------DIALOG
+			Dialog1 = "" 'Blanking out previous dialog detail
             BeginDialog Dialog1, 0, 0, 416, 405, "Documents received LTC"           'This is the LTC Dialog
               EditBox 80, 5, 330, 15, docs_rec
               EditBox 35, 45, 315, 15, FACI
@@ -481,7 +485,8 @@ End If
 If evf_form_received_checkbox = checked Then
     EVF_TIKL_checkbox = checked 'defaulting the TIKL checkbox to be checked initially in the dialog.
     evf_date_recvd = doc_date_stamp
-
+	'-------------------------------------------------------------------------------------------------DIALOG
+	Dialog1 = "" 'Blanking out previous dialog detail
     BeginDialog Dialog1, 0, 0, 291, 205, "Employment Verification Form Received"
       Text 70, 10, 60, 10, MAXIS_case_number
       EditBox 220, 5, 60, 15, evf_date_recvd
@@ -558,7 +563,8 @@ End If
 
 If mof_form_checkbox = checked Then
     mof_date_recd = doc_date_stamp
-
+	'-------------------------------------------------------------------------------------------------DIALOG
+	Dialog1 = "" 'Blanking out previous dialog detail
     BeginDialog Dialog1, 0, 0, 226, 255, "Medical Opinion Form Received for Case # " & MAXIS_case_number
       EditBox 55, 5, 50, 15, mof_date_recd
       CheckBox 125, 10, 85, 10, "Client signed release?", mof_clt_release_checkbox
@@ -930,6 +936,8 @@ If asset_form_checkbox = checked Then
         dlg_len = dlg_len + (10 * cars_panels)
         'MsgBox dlg_len
 
+		'-------------------------------------------------------------------------------------------------DIALOG
+		Dialog1 = "" 'Blanking out previous dialog detail
         y_pos = 60
         BeginDialog Dialog1, 0, 0, 390, dlg_len, "Signed Personal Statement about Assest for Case #" & MAXIS_case_number
           Text 10, 10, 265, 10, "Assets for SNAP/Cash are self attested and are reported on this form (DHS 6054)."
@@ -1014,30 +1022,20 @@ If asset_form_checkbox = checked Then
         Do
             Do
                 err_msg = ""
-
                 dialog Dialog1
-
                 Call cancel_continue_confirmation(skip_asset)
-
                 IF actions_taken = "" THEN err_msg = err_msg & vbCr & "* You must enter your actions taken."		'checks that notes were entered
                 If ButtonPressed = 0 then err_msg = "LOOP" & err_msg
                 If skip_asset= TRUE Then
                     err_msg = ""
                     asset_form_checkbox = unchecked
                 End If
-
                 If err_msg <> ""  AND left(err_msg,4) <> "LOOP" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
-
             Loop Until err_msg = ""
             Call check_for_password(are_we_passworded_out)
         Loop until are_we_passworded_out = FALSE
-
-
     Else
-
-
         asset_form_doc_date = doc_date_stamp
-
         current_asset_panel = FALSE
         acct_panels = 0
         secu_panels = 0
@@ -1085,6 +1083,8 @@ If asset_form_checkbox = checked Then
         'MsgBox dlg_len
         If acct_panels = 0 AND secu_panels = 0 AND  cars_panels = 0 Then run_updater_checkbox = checked
 
+		'-------------------------------------------------------------------------------------------------DIALOG
+		Dialog1 = "" 'Blanking out previous dialog detail
         y_pos = 55
         BeginDialog Dialog1, 0, 0, 390, dlg_len, "Asset Verification Detail for Case #" & MAXIS_case_number
           ' Text 10, 15, 95, 10, "Date the form was received:"
@@ -1152,24 +1152,18 @@ If asset_form_checkbox = checked Then
         Do
             Do
                 err_msg = ""
-
                 dialog Dialog1
-
                 Call cancel_continue_confirmation(skip_asset)
-
                 IF actions_taken = "" AND run_updater_checkbox = unchecked THEN err_msg = err_msg & vbCr & "* You must enter your actions taken."		'checks that notes were entered
                 If ButtonPressed = 0 then err_msg = "LOOP" & err_msg
                 If skip_asset= TRUE Then
                     err_msg = ""
                     asset_form_checkbox = unchecked
                 End If
-
                 If err_msg <> ""  AND left(err_msg,4) <> "LOOP" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
-
             Loop Until err_msg = ""
             Call check_for_password(are_we_passworded_out)
         Loop until are_we_passworded_out = FALSE
-
         For the_asset = 0 to Ubound(ASSETS_ARRAY, 2)
             If ASSETS_ARRAY(ast_verif_date, the_asset) <> "" Then ASSETS_ARRAY(cnote_panel, the_asset) = checked
         Next
@@ -1194,6 +1188,8 @@ If asset_form_checkbox = checked Then
             panel_found = FALSE
             update_panel_type = "NONE - I'm all done"
             snap_is_yes = FALSE
+			'-------------------------------------------------------------------------------------------------DIALOG
+			Dialog1 = "" 'Blanking out previous dialog detail
             'Dialog to chose the panel type'
             BeginDialog Dialog1, 0, 0, 176, 85, "Type of panel to update"
               DropListBox 15, 25, 155, 45, "NONE - I'm all done"+chr(9)+"Existing ACCT"+chr(9)+"New ACCT"+chr(9)+"Existing SECU"+chr(9)+"New SECU"+chr(9)+"Existing CARS"+chr(9)+"New CARS", update_panel_type
@@ -1208,14 +1204,11 @@ If asset_form_checkbox = checked Then
             Do
                 Do
                     err_msg = ""
-
                     dialog Dialog1
                     cancel_confirmation
-
                     If update_panel_type = "Existing ACCT" AND acct_panels = 0 Then err_msg = err_msg & vbNewLine & "* There are no known ACCT panels, cannot update an 'Existing ACCT' panel."
                     If update_panel_type = "Existing SECU" AND secu_panels = 0 Then err_msg = err_msg & vbNewLine & "* There are no known SECU panels, cannot update an 'Existing SECU' panel."
                     If update_panel_type = "Existing CARS" AND cars_panels = 0 Then err_msg = err_msg & vbNewLine & "* There are no known CARS panels, cannot update an 'Existing CARS' panel."
-
                     If Err_msg <> "" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
                 Loop until err_msg = ""
                 Call check_for_password(are_we_passworded_out)
@@ -1281,6 +1274,8 @@ If asset_form_checkbox = checked Then
                 If LTC_case = vbNo AND ASSETS_ARRAY(ast_verif, asset_counter) = "" Then ASSETS_ARRAY(ast_verif, asset_counter) = "6 - Personal Statement"
 
                 ASSETS_ARRAY(ast_verif_date, asset_counter) = doc_date_stamp
+				'-------------------------------------------------------------------------------------------------DIALOG
+				Dialog1 = "" 'Blanking out previous dialog detail
                 'Dialog to fill the ACCT panel
                 BeginDialog Dialog1, 0, 0, 271, 235, "New ACCT panel for Case #" & MAXIS_case_number
                   DropListBox 75, 10, 135, 45, client_dropdown, ASSETS_ARRAY(ast_owner, asset_counter)
@@ -1329,17 +1324,14 @@ If asset_form_checkbox = checked Then
                 Do
                     Do
                         err_msg = ""
-
                         dialog Dialog1
                         Call cancel_continue_confirmation(skip_this_panel)
-
                         ASSETS_ARRAY(ast_wdrw_penlty, asset_counter) = trim(ASSETS_ARRAY(ast_wdrw_penlty, asset_counter))
                         ASSETS_ARRAY(ast_number, asset_counter) = trim(ASSETS_ARRAY(ast_number, asset_counter))
                         ASSETS_ARRAY(ast_location, asset_counter) = trim(ASSETS_ARRAY(ast_location, asset_counter))
                         ASSETS_ARRAY(ast_next_inrst_date, asset_counter) = trim(ASSETS_ARRAY(ast_next_inrst_date, asset_counter))
                         share_ratio_num = trim(share_ratio_num)
                         share_ratio_denom = trim(share_ratio_denom)
-
                         If ASSETS_ARRAY(ast_owner, asset_counter) = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select the owner of the bank account. The person must be listed in the household to have a new ACCT panel added."
                         If ASSETS_ARRAY(ast_type, asset_counter) = "Select ..." Then err_msg = err_msg & vbNewLine & "* Indicate the type of account this is."
                         If ASSETS_ARRAY(ast_verif, asset_counter) = "Select..." Then err_msg = err_msg & vbNewLine & "* Select the verification source for this account."
@@ -1370,22 +1362,18 @@ If asset_form_checkbox = checked Then
                             err_msg = ""
                             If update_panel_type = "New ACCT" Then ReDim Preserve ASSETS_ARRAY(update_panel, asset_counter - 1)
                         End If
-
                         If err_msg <> ""  AND left(err_msg,4) <> "LOOP" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
-
                     Loop until err_msg = ""
                     Call check_for_password(are_we_passworded_out)
                 Loop until are_we_passworded_out = FALSE
 
                 If skip_this_panel = FALSE Then
                     ASSETS_ARRAY(ast_ref_nbr, asset_counter) = left(ASSETS_ARRAY(ast_owner, asset_counter), 2)
-
                     If count_cash_checkbox = checked Then ASSETS_ARRAY(apply_to_CASH, asset_counter) = "Y"
                     If count_snap_checkbox = checked Then ASSETS_ARRAY(apply_to_SNAP, asset_counter) = "Y"
                     If count_hc_checkbox = checked Then ASSETS_ARRAY(apply_to_HC, asset_counter) = "Y"
                     If count_grh_checkbox = checked Then ASSETS_ARRAY(apply_to_GRH, asset_counter) = "Y"
                     If count_ive_checkbox = checked Then ASSETS_ARRAY(apply_to_IVE, asset_counter) = "Y"
-
                     If ASSETS_ARRAY(ast_othr_ownr_one, asset_counter) = "Type or Select" Then ASSETS_ARRAY(ast_othr_ownr_one, asset_counter) = ""
                     If ASSETS_ARRAY(ast_othr_ownr_two, asset_counter) = "Type or Select" Then ASSETS_ARRAY(ast_othr_ownr_two, asset_counter) = ""
                     If ASSETS_ARRAY(ast_othr_ownr_thr, asset_counter) = "Type or Select" Then ASSETS_ARRAY(ast_othr_ownr_thr, asset_counter) = ""
@@ -1397,7 +1385,6 @@ If asset_form_checkbox = checked Then
                     End If
                     ASSETS_ARRAY(ast_own_ratio, asset_counter) = share_ratio_num & "/" & share_ratio_denom
                     If ASSETS_ARRAY(ast_wthdr_verif, asset_counter) = "Select..." Then ASSETS_ARRAY(ast_wthdr_verif, asset_counter) = ""
-
                     Do
                         Call navigate_to_MAXIS_screen("STAT", "ACCT")
                         EMReadScreen navigate_check, 4, 2, 44
@@ -1410,21 +1397,15 @@ If asset_form_checkbox = checked Then
                         transmit
                     End If
                     If update_panel_type = "Existing ACCT" Then PF9
-
                     ASSETS_ARRAY(cnote_panel, asset_counter) = checked
                     ASSETS_ARRAY(ast_panel, asset_counter) = "ACCT"
-
                     Call update_ACCT_panel_from_dialog
-
                     actions_taken =  actions_taken & "Updated ACCT " & ASSETS_ARRAY(ast_ref_nbr, asset_counter) & " " & ASSETS_ARRAY(ast_instance, asset_counter) & ", "
-
-
                     If update_panel_type = "New ACCT" Then
                         EMReadScreen the_instance, 1, 2, 73
                         ASSETS_ARRAY(ast_instance, asset_counter) = "0" & the_instance
                     End If
                     transmit
-
                     If IsNumeric(left(ASSETS_ARRAY(ast_othr_ownr_one, asset_counter), 2)) = True Then
                         ASSETS_ARRAY(ast_share_note, asset_counter) = ASSETS_ARRAY(ast_share_note, asset_counter) & " Also owned by M" & left(ASSETS_ARRAY(ast_othr_ownr_one, asset_counter), 2)
                         EMWriteScreen left(ASSETS_ARRAY(ast_othr_ownr_one, asset_counter), 2), 20, 76
@@ -1441,10 +1422,8 @@ If asset_form_checkbox = checked Then
                                 EMReadScreen this_account_type, 2, 6, 44
                                 EMReadScreen this_account_number, 20, 7, 44
                                 EMReadScreen this_account_location, 20, 8, 44
-
                                 this_account_number = replace(this_account_number, "_", "")
                                 this_account_location = replace(this_account_location, "_", "")
-
                                 If this_account_type = left(ASSETS_ARRAY(ast_type, asset_counter), 2) AND this_account_number = ASSETS_ARRAY(ast_number, asset_counter) AND this_account_location = ASSETS_ARRAY(ast_location, asset_counter) Then
                                     PF9
                                     panel_found = TRUE
@@ -1459,18 +1438,14 @@ If asset_form_checkbox = checked Then
                             transmit
                         End If
                         panel_found = ""
-
                         IF ASSETS_ARRAY(apply_to_SNAP, asset_counter) = "Y" Then
                             snap_is_yes = TRUE
                             ASSETS_ARRAY(apply_to_SNAP, asset_counter) = "N"
                         End If
-
                         Call update_ACCT_panel_from_dialog
                         transmit
-
                         If snap_is_yes = TRUE Then ASSETS_ARRAY(apply_to_SNAP, asset_counter) = "Y"
                     End If
-
                     If IsNumeric(left(ASSETS_ARRAY(ast_othr_ownr_two, asset_counter), 2)) = True Then
                         ASSETS_ARRAY(ast_share_note, asset_counter) = ASSETS_ARRAY(ast_share_note, asset_counter) & " Also owned by M" & left(ASSETS_ARRAY(ast_othr_ownr_two, asset_counter), 2)
                         EMWriteScreen left(ASSETS_ARRAY(ast_othr_ownr_two, asset_counter), 2), 20, 76
@@ -1487,10 +1462,8 @@ If asset_form_checkbox = checked Then
                                 EMReadScreen this_account_type, 2, 6, 44
                                 EMReadScreen this_account_number, 20, 7, 44
                                 EMReadScreen this_account_location, 20, 8, 44
-
                                 this_account_number = replace(this_account_number, "_", "")
                                 this_account_location = replace(this_account_location, "_", "")
-
                                 If this_account_type = left(ASSETS_ARRAY(ast_type, asset_counter), 2) AND this_account_number = ASSETS_ARRAY(ast_number, asset_counter) AND this_account_location = ASSETS_ARRAY(ast_location, asset_counter) Then
                                     PF9
                                     panel_found = TRUE
@@ -1533,10 +1506,8 @@ If asset_form_checkbox = checked Then
                                 EMReadScreen this_account_type, 2, 6, 44
                                 EMReadScreen this_account_number, 20, 7, 44
                                 EMReadScreen this_account_location, 20, 8, 44
-
                                 this_account_number = replace(this_account_number, "_", "")
                                 this_account_location = replace(this_account_location, "_", "")
-
                                 If this_account_type = left(ASSETS_ARRAY(ast_type, asset_counter), 2) AND this_account_number = ASSETS_ARRAY(ast_number, asset_counter) AND this_account_location = ASSETS_ARRAY(ast_location, asset_counter) Then
                                     PF9
                                     panel_found = TRUE
@@ -1551,18 +1522,14 @@ If asset_form_checkbox = checked Then
                             transmit
                         End If
                         panel_found = ""
-
                         IF ASSETS_ARRAY(apply_to_SNAP, asset_counter) = "Y" Then
                             snap_is_yes = TRUE
                             ASSETS_ARRAY(apply_to_SNAP, asset_counter) = "N"
                         End If
-
                         Call update_ACCT_panel_from_dialog
                         transmit
-
                         If snap_is_yes = TRUE Then ASSETS_ARRAY(apply_to_SNAP, asset_counter) = "Y"
                     End If
-
                 End If
                 if update_panel_type = "New ACCT" Then asset_counter = asset_counter + 1
                 if update_panel_type = "Existing ACCT" Then asset_counter = highest_asset
@@ -1574,16 +1541,13 @@ If asset_form_checkbox = checked Then
                     Loop until navigate_check = "SECU"
                     For each member in HH_member_array
                         Call write_value_and_transmit(member, 20, 76)
-
                         EMReadScreen secu_versions, 1, 2, 78
                         If secu_versions <> "0" Then
                             EMWriteScreen "01", 20, 79
                             transmit
                             Do
                                 is_this_the_panel = MsgBox("Is this the panel you wish to update?", vbQuestion + vbYesNo, "Update this panel?")
-
                                 If is_this_the_panel = vbYes Then found_the_panel = TRUE
-
                                 If found_the_panel = TRUE then
                                     current_member = member
                                     Exit Do
@@ -1617,15 +1581,15 @@ If asset_form_checkbox = checked Then
                 Else update_panel_type = "New SECU"
                     ReDim Preserve ASSETS_ARRAY(update_panel, asset_counter)
                 End If
-
                 If share_ratio_num = "" Then share_ratio_num = "1"
                 If share_ratio_denom = "" Then share_ratio_denom = "1"
                 If LTC_case = vbNo AND ASSETS_ARRAY(ast_verif, asset_counter) = "" Then ASSETS_ARRAY(ast_verif, asset_counter) = "6 - Personal Statement"
                 ASSETS_ARRAY(ast_verif_date, asset_counter) = doc_date_stamp
 
+				'-------------------------------------------------------------------------------------------------DIALOG
+				Dialog1 = "" 'Blanking out previous dialog detail
                 ' MsgBox ASSETS_ARRAY(ast_type, asset_counter)
                 'Dialog to fill the SECU panel
-
                 BeginDialog Dialog1, 0, 0, 271, 235, "New SECU panel for Case #" & MAXIS_case_number
                   DropListBox 75, 10, 135, 45, client_dropdown, ASSETS_ARRAY(ast_owner, asset_counter)
                   DropListBox 75, 30, 135, 45, "Select ..."+chr(9)+"LI - Life Insurance"+chr(9)+"ST - Stocks"+chr(9)+"BO - Bonds"+chr(9)+"CD - Ctrct For Deed"+chr(9)+"MO - Mortgage Note"+chr(9)+"AN - Annuity"+chr(9)+"OT - Other", ASSETS_ARRAY(ast_type, asset_counter)
@@ -1673,18 +1637,14 @@ If asset_form_checkbox = checked Then
                 Do
                     Do
                         err_msg = ""
-
                         dialog Dialog1
                         Call cancel_continue_confirmation(skip_this_panel)
-
                         ASSETS_ARRAY(ast_wdrw_penlty, asset_counter) = trim(ASSETS_ARRAY(ast_wdrw_penlty, asset_counter))
                         ASSETS_ARRAY(ast_number, asset_counter) = trim(ASSETS_ARRAY(ast_number, asset_counter))
                         ASSETS_ARRAY(ast_location, asset_counter) = trim(ASSETS_ARRAY(ast_location, asset_counter))
                         ASSETS_ARRAY(ast_face_value, asset_counter) = trim(ASSETS_ARRAY(ast_face_value, asset_counter))
                         share_ratio_num = trim(share_ratio_num)
                         share_ratio_denom = trim(share_ratio_denom)
-
-
                         If ASSETS_ARRAY(ast_owner, asset_counter) = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select the owner of the security. The person must be listed in the household to have a new SECU panel added."
                         If ASSETS_ARRAY(ast_type, asset_counter) = "Select ..." Then err_msg = err_msg & vbNewLine & "* Indicate the type of security this is."
                         If ASSETS_ARRAY(ast_verif, asset_counter) = "Select..." Then err_msg = err_msg & vbNewLine & "* Select the verification source for this account."
@@ -1710,7 +1670,6 @@ If asset_form_checkbox = checked Then
                         ElseIf share_ratio_denom > 9 Then
                             err_msg = err_msg & vbNewLine & "* The Share Ratio bottom number must be 9 or lower"
                         End If
-
                         If ASSETS_ARRAY(ast_wdrw_penlty, asset_counter) = "0.00" OR ASSETS_ARRAY(ast_wdrw_penlty, asset_counter) = "0" OR ASSETS_ARRAY(ast_wdrw_penlty, asset_counter) = "" Then
                             ASSETS_ARRAY(ast_wthdr_YN, asset_counter) = "N"
                         Else
@@ -1722,22 +1681,18 @@ If asset_form_checkbox = checked Then
                             err_msg = ""
                             If update_panel_type = "New SECU" Then ReDim Preserve ASSETS_ARRAY(update_panel, asset_counter - 1)
                         End If
-
                         If err_msg <> ""  AND left(err_msg,4) <> "LOOP" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
-
                     Loop until err_msg = ""
                     Call check_for_password(are_we_passworded_out)
                 Loop until are_we_passworded_out = FALSE
 
                 If skip_this_panel = FALSE Then
                     ASSETS_ARRAY(ast_ref_nbr, asset_counter) = left(ASSETS_ARRAY(ast_owner, asset_counter), 2)
-
                     If count_cash_checkbox = checked Then ASSETS_ARRAY(apply_to_CASH, asset_counter) = "Y"
                     If count_snap_checkbox = checked Then ASSETS_ARRAY(apply_to_SNAP, asset_counter) = "Y"
                     If count_hc_checkbox = checked Then ASSETS_ARRAY(apply_to_HC, asset_counter) = "Y"
                     If count_grh_checkbox = checked Then ASSETS_ARRAY(apply_to_GRH, asset_counter) = "Y"
                     If count_ive_checkbox = checked Then ASSETS_ARRAY(apply_to_IVE, asset_counter) = "Y"
-
                     If ASSETS_ARRAY(ast_othr_ownr_one, asset_counter) = "Type or Select" Then ASSETS_ARRAY(ast_othr_ownr_one, asset_counter) = ""
                     If ASSETS_ARRAY(ast_othr_ownr_two, asset_counter) = "Type or Select" Then ASSETS_ARRAY(ast_othr_ownr_two, asset_counter) = ""
                     If ASSETS_ARRAY(ast_othr_ownr_thr, asset_counter) = "Type or Select" Then ASSETS_ARRAY(ast_othr_ownr_thr, asset_counter) = ""
@@ -1749,7 +1704,6 @@ If asset_form_checkbox = checked Then
                     End If
                     ASSETS_ARRAY(ast_own_ratio, asset_counter) = share_ratio_num & "/" & share_ratio_denom
                     If ASSETS_ARRAY(ast_wthdr_verif, asset_counter) = "Select..." Then ASSETS_ARRAY(ast_wthdr_verif, asset_counter) = ""
-
                     Do
                         Call navigate_to_MAXIS_screen("STAT", "SECU")
                         EMReadScreen navigate_check, 4, 2, 45
@@ -1762,21 +1716,16 @@ If asset_form_checkbox = checked Then
                         transmit
                     End If
                     If update_panel_type = "Existing SECU" Then PF9
-
                     ASSETS_ARRAY(cnote_panel, asset_counter) = checked
                     ASSETS_ARRAY(ast_panel, asset_counter) = "SECU"
-
                     Call update_SECU_panel_from_dialog
-
                     actions_taken =  actions_taken & "Updated SECU " & ASSETS_ARRAY(ast_ref_nbr, asset_counter) & " " & ASSETS_ARRAY(ast_instance, asset_counter) & ", "
-
 
                     If update_panel_type = "New SECU" Then
                         EMReadScreen the_instance, 1, 2, 73
                         ASSETS_ARRAY(ast_instance, asset_counter) = "0" & the_instance
                     End If
                     transmit
-
 
                     If IsNumeric(left(ASSETS_ARRAY(ast_othr_ownr_one, asset_counter), 2)) = True Then
                         ASSETS_ARRAY(ast_share_note, asset_counter) = ASSETS_ARRAY(ast_share_note, asset_counter) & " Also owned by M" & left(ASSETS_ARRAY(ast_othr_ownr_one, asset_counter), 2)
@@ -1886,7 +1835,6 @@ If asset_form_checkbox = checked Then
                                 EMReadScreen this_account_type, 2, 6, 44
                                 EMReadScreen this_account_number, 20, 7, 44
                                 EMReadScreen this_account_location, 20, 8, 44
-
                                 this_account_number = replace(this_account_number, "_", "")
                                 this_account_location = replace(this_account_location, "_", "")
 
@@ -1972,6 +1920,8 @@ If asset_form_checkbox = checked Then
                 If LTC_case = vbNo AND ASSETS_ARRAY(ast_verif, asset_counter) = "" Then ASSETS_ARRAY(ast_verif, asset_counter) = "5 - Other Document"
                 ASSETS_ARRAY(ast_verif_date, asset_counter) = doc_date_stamp
 
+				'-------------------------------------------------------------------------------------------------DIALOG
+				Dialog1 = "" 'Blanking out previous dialog detail
                 'Dialog to fill the CARS panel.
                 BeginDialog Dialog1, 0, 0, 270, 255, "New CARS panel for Case # & MAXIS_case_number" & MAXIS_case_number
                   DropListBox 75, 10, 135, 45, client_dropdown, ASSETS_ARRAY(ast_owner, asset_counter)
@@ -2018,18 +1968,14 @@ If asset_form_checkbox = checked Then
                 Do
                     Do
                         err_msg = ""
-
                         dialog Dialog1
                         Call cancel_continue_confirmation(skip_this_panel)
-
                         ASSETS_ARRAY(ast_year, asset_counter) = trim(ASSETS_ARRAY(ast_year, asset_counter))
                         ASSETS_ARRAY(ast_make, asset_counter) = trim(ASSETS_ARRAY(ast_make, asset_counter))
                         ASSETS_ARRAY(ast_model, asset_counter) = trim(ASSETS_ARRAY(ast_model, asset_counter))
                         ASSETS_ARRAY(ast_trd_in, asset_counter) = trim(ASSETS_ARRAY(ast_trd_in, asset_counter))
                         share_ratio_num = trim(share_ratio_num)
                         share_ratio_denom = trim(share_ratio_denom)
-
-
                         If ASSETS_ARRAY(ast_owner, asset_counter) = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select the owner of the vehicle. The person must be listed in the household to have a new SECU panel added."
                         If ASSETS_ARRAY(ast_type, asset_counter) = "Select ..." Then err_msg = err_msg & vbNewLine & "* Indicate the type of vehicle this is."
                         If ASSETS_ARRAY(ast_year, asset_counter) = "" Then err_msg = err_msg & vbNewLine & "* Enter the year of the vehicle."
@@ -2070,7 +2016,6 @@ If asset_form_checkbox = checked Then
                         End If
 
                         If err_msg <> ""  AND left(err_msg,4) <> "LOOP" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
-
                     Loop until err_msg = ""
                     Call check_for_password(are_we_passworded_out)
                 Loop until are_we_passworded_out = FALSE
@@ -2183,7 +2128,8 @@ If arep_form_checkbox = checked Then
 
         update_AREP_panel_checkbox = unchecked
     End If
-
+	'-------------------------------------------------------------------------------------------------DIALOG
+	Dialog1 = "" 'Blanking out previous dialog detail
     BeginDialog Dialog1, 0, 0, 396, 210, "AREP for Case #  & MAXIS_case_number"
       EditBox 40, 20, 215, 15, arep_name
       EditBox 40, 40, 215, 15, arep_street
@@ -2242,7 +2188,6 @@ If arep_form_checkbox = checked Then
         	dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
         	cancel_confirmation
             cancel_continue_confirmation(skip_arep)
-
             If trim(arep_name) = "" Then err_msg = err_msg & vbNewLine & "* Enter the AREP's name."
             If update_AREP_panel_checkbox = checked Then
                 If trim(arep_street) = "" OR trim(arep_city) = "" OR trim(arep_zip) = "" Then err_msg = err_msg & vbNewLine & "* Enter the street address of the AREP."
@@ -2277,7 +2222,6 @@ If arep_form_checkbox = checked Then
                 err_msg = ""
                 arep_form_checkbox = unchecked
             End If
-
         	IF err_msg <> ""  AND left(err_msg,4) <> "LOOP" THEN MsgBox "Plese resolve the following to continue:" & vbNewLine & err_msg
         Loop until err_msg = ""
         call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
@@ -2409,11 +2353,11 @@ End If
 
 If mtaf_form_checkbox = checked Then
     MTAF_date = doc_date_stamp
-
+	'-------------------------------------------------------------------------------------------------DIALOG
+	Dialog1 = "" 'Blanking out previous dialog detail
     Do
         Do
-
-            BeginDialog Dialog1, 0, 0, 186, 265, "MTAF dialog"
+	      BeginDialog Dialog1, 0, 0, 186, 265, "MTAF dialog"
               EditBox 55, 5, 60, 15, MTAF_date
               DropListBox 55, 25, 60, 15, "Select one..."+chr(9)+"complete"+chr(9)+"incomplete", MTAF_status_dropdown
               EditBox 55, 45, 60, 15, MFIP_elig_date
@@ -2437,9 +2381,8 @@ If mtaf_form_checkbox = checked Then
 
             err_msg = ""
 
-            dialog Dialog1
+			DIALOG Dialog1
             cancel_continue_confirmation(skip_mtaf)
-
             If IsDate(MTAF_date) = False Then err_msg = err_msg & vbNewLine & "* Enter the date the MTAF was received."
             If MTAF_status_dropdown = "Select one..." Then err_msg = err_msg & vbNewLine & "* Indicate the status of the MTAF."
             'If  Then err_msg = err_msg & vbNewLine & "* "
@@ -2450,13 +2393,13 @@ If mtaf_form_checkbox = checked Then
             End If
 
             If err_msg <> ""  AND left(err_msg,4) <> "LOOP" Then MsgBox ("Please resolve to continue:" & vbNewLine & err_msg)
-
         Loop until err_msg = ""
         Call check_for_password(are_we_passworded_out)
     Loop until are_we_passworded_out = FALSE
 End If
 
-
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
 If mtaf_form_checkbox = checked Then
     BeginDialog Dialog1, 0, 0, 345, 350, "MTAF dialog"
       CheckBox 10, 10, 225, 10, "Check here if all other docs rec'vd are associated with this MTAF.", MTAF_note_only_checkbox
@@ -2498,35 +2441,25 @@ If mtaf_form_checkbox = checked Then
     Do
         Do
             err_msg = ""
-
             dialog Dialog1
             cancel_continue_confirmation(skip_mtaf)
-
             If sub_housing_droplist = "Select one..." Then err_msg = err_msg & vbNewLine & "* Indicate if housind is subsidized or not."
-
             If ButtonPressed = 0 then err_msg = "LOOP" & err_msg
             If skip_mtaf = TRUE Then
                 err_msg = ""
                 mtaf_form_checkbox = unchecked
             End If
-
             If err_msg <> ""  AND left(err_msg,4) <> "LOOP" Then MsgBox ("Please resolve to continue:" & vbNewLine & err_msg)
-
         Loop until err_msg = ""
         Call check_for_password(are_we_passworded_out)
     Loop until are_we_passworded_out = FALSE
-
-
 End If
 
 If mtaf_form_checkbox = checked Then
     end_msg = end_msg & vbNewLine & "MTAF Information entered."
-
     If MTAF_note_only_checkbox = checked Then
         need_final_note = FALSE
     End If
-
-
     'Takes script to a blank case note.
     Call start_a_blank_case_note
 
@@ -2694,14 +2627,12 @@ If mtaf_form_checkbox = checked Then
     End If
     CALL write_variable_in_CASE_NOTE ("---")
     CALL write_variable_in_CASE_NOTE (worker_signature)
-
-
 End If
-
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
 If ltc_1503_form_checkbox = checked Then
     faci_footer_month = MAXIS_footer_month
     faci_footer_year = MAXIS_footer_year
-
     BeginDialog Dialog1, 0, 0, 365, 305, "1503 Dialog"
       EditBox 55, 5, 135, 15, FACI_1503
       DropListBox 255, 5, 95, 15, "30 days or less"+chr(9)+"31 to 90 days"+chr(9)+"91 to 180 days"+chr(9)+"over 180 days", length_of_stay
@@ -2749,7 +2680,6 @@ If ltc_1503_form_checkbox = checked Then
     Do
     	Do
             err_msg = ""
-
     		dialog Dialog1  					'Calling a dialog without a assigned variable will call the most recently defined dialog
     		Call cancel_continue_confirmation(skip_1503)
             If ButtonPressed = 0 then err_msg = "LOOP" & err_msg
@@ -2757,7 +2687,6 @@ If ltc_1503_form_checkbox = checked Then
                 err_msg = ""
                 ltc_1503_form_checkbox = unchecked
             End If
-
     	LOOP UNTIL err_msg = ""        'currently there are no elements to review or mandate
     	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
     Loop until are_we_passworded_out = false					'loops until user passwords back in
@@ -2765,15 +2694,11 @@ End If
 
 If ltc_1503_form_checkbox = checked Then
     end_msg = end_msg & vbNewLine & "LTC 1503 Form information entered."
-
     Original_footer_month = MAXIS_footer_month
     Original_footer_year = MAXIS_footer_year
-
     MAXIS_footer_month = faci_footer_month
     MAXIS_footer_year = faci_footer_year
-
     'LTC 1503 gets it's own case note
-
     'navigating the script to the correct footer month
     back_to_self
     EMWriteScreen MAXIS_footer_month, 20, 43
@@ -2810,7 +2735,6 @@ If ltc_1503_form_checkbox = checked Then
     End If
     If FACI_update_checkbox = checked then
         updated_FACI_checkbox = checked
-
     	EMWriteScreen FACI_1503, 6, 43
     	If level_of_care = "NF" then EMWriteScreen "42", 7, 43
     	If level_of_care = "RTC" THEN EMWriteScreen "47", 7, 43
@@ -2860,7 +2784,6 @@ If ltc_1503_form_checkbox = checked Then
 
     'The CASE NOTE----------------------------------------------------------------------------------------------------
     Call start_a_blank_CASE_NOTE
-
     If processed_1503_checkbox = checked then
       	call write_variable_in_CASE_NOTE("***Processed 1503 from " & FACI_1503 & "***")
     Else
@@ -2892,8 +2815,6 @@ If ltc_1503_form_checkbox = checked Then
     Call write_bullet_and_variable_in_case_note("Notes", notes)
     Call write_variable_in_case_note("---")
     Call write_variable_in_case_note(worker_signature)
-
-
     MAXIS_footer_month = Original_footer_month
     MAXIS_footer_year = Original_footer_year
 End If
@@ -2906,6 +2827,8 @@ If need_final_note = FALSE Then
     script_end_procedure_with_error_report("The script run is complete, but no detail about documents has been added and the final case note will not be entered as it would be blank.")
 End If
 
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
 If actions_taken = "" Then
     BeginDialog Dialog1, 0, 0, 251, 70, "Actions Taken Dialog"
       ButtonGroup ButtonPressed
@@ -2917,15 +2840,11 @@ If actions_taken = "" Then
     Do
         Do
             err_msg = ""
-
             dialog Dialog1
             cancel_confirmation
-
             actions_taken = trim(actions_taken)
             If actions_taken = "" Then err_msg = err_msg & vbNewLine & "* Enter the actions taken."
-
             If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
-
         Loop until err_msg = ""
         Call check_for_password(are_we_passworded_out)
     Loop until are_we_passworded_out = FALSE
@@ -2971,7 +2890,6 @@ If mof_form_checkbox = checked Then
     CALL write_variable_in_CASE_NOTE("  - Condition will last: " & mof_time_condition_will_last)
     CALL write_variable_in_CASE_NOTE("  - Ability to work: " & ability_to_work)
     CALL write_variable_in_CASE_NOTE("  - Other notes: " & mof_other_notes)
-
     If SSA_application_indicated_checkbox = checked Then Call write_variable_in_CASE_NOTE("  * The MOF indicates the client needs to apply for SSA.")
     If TTL_to_update_checkbox = checked Then Call write_variable_in_CASE_NOTE("  * Specialized TTL team will review MOF and update the DISA panel as needed.")
     If TTL_email_checkbox = checked Then Call write_variable_in_CASE_NOTE("  * An email regarding this MOF was sent to the TTL/FSSDataTeam for review on " & TTL_email_date & " by " & worker_signature & ".")

@@ -56,10 +56,10 @@ call maxis_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 memb_number = "01"
 
-'------------------------------------------------------------------------------------------------------------Initial dialog
-
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
 'DHS-2116-ENG Notice to Apply for Other Maintenance Benefits
-BeginDialog other_bene_dialog, 0, 0, 311, 205, "Other Maintenance Benefits"
+BeginDialog Dialog1, 0, 0, 311, 205, "Other Maintenance Benefits"
   EditBox 60, 5, 45, 15, maxis_case_number
   EditBox 175, 5, 15, 15, memb_number
   EditBox 260, 5, 45, 15, other_elig_date
@@ -97,7 +97,7 @@ EndDialog
 Do
     Do
         err_msg = ""
-		Dialog other_bene_dialog
+		Dialog Dialog1
 		cancel_confirmation
 		IF IsNumeric(maxis_case_number) = false or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
 		If (isnumeric(memb_number) = False and len(MAXIS_case_number) > 2) then err_msg = err_msg & vbcr & "* Please enter a valid member number."
@@ -110,8 +110,9 @@ Do
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-
-BeginDialog SSI_bene_dialog, 0, 0, 406, 130, "SSI Benefits Reminder"
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 406, 130, "SSI Benefits Reminder"
   ButtonGroup ButtonPressed
     OkButton 295, 110, 50, 15
     CancelButton 350, 110, 50, 15
@@ -125,13 +126,12 @@ IF SSI_checkbox = CHECKED THEN
     Do
         Do
             err_msg = ""
-    		Dialog SSI_bene_dialog
+    		Dialog Dialog1
     		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
     	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
     	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
     Loop until are_we_passworded_out = false					'loops until user passwords back in
 END IF
-
 
 start_a_blank_case_note
 IF medi_checkbox <> CHECKED and ELIG_year = "" THEN

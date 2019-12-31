@@ -50,8 +50,9 @@ call changelog_update("10/20/2017", "Initial version.", "Ilse Ferris, Hennepin C
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog ga_basis_dialog, 0, 0, 321, 125, "GA Basis of Eligibility"
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 321, 125, "GA Basis of Eligibility"
   EditBox 55, 5, 50, 15, MAXIS_case_number
   EditBox 145, 5, 20, 15, member_number
   EditBox 255, 5, 55, 15, elig_date
@@ -83,35 +84,35 @@ member_number = "01"
 Do
 	Do
   		err_msg = ""
-		Do 
+		Do
   			Dialog ga_basis_dialog
 			Cancel_confirmation
 			If ButtonPressed = GA_CM_button then CreateObject("WScript.Shell").Run("http://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_001315")
-  		Loop until ButtonPressed <> GA_CM_button	
+  		Loop until ButtonPressed <> GA_CM_button
   		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
   		If IsNumeric(member_number) = False or len(member_number) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid member number."
 		If isDate(elig_date) = False then err_msg = err_msg & vbNewLine & "* Enter a valid GA basis of eligibilty date."
-		If basis_elig = "Select one..." then err_msg = err_msg & vbNewLine & "* Select the member's GA basis of eligibility." 
-		If trim(verif_basis) = "" then err_msg = err_msg & vbNewLine & "* Enter the verification of the GA basis." 
-		If trim(worker_signature) = "" then err_msg = err_msg & vbNewLine & "* Enter your worker signature." 
+		If basis_elig = "Select one..." then err_msg = err_msg & vbNewLine & "* Select the member's GA basis of eligibility."
+		If trim(verif_basis) = "" then err_msg = err_msg & vbNewLine & "* Enter the verification of the GA basis."
+		If trim(worker_signature) = "" then err_msg = err_msg & vbNewLine & "* Enter your worker signature."
   		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-Loop until are_we_passworded_out = false					'loops until user passwords back in		
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'specific text for case note based on the basis of eligibility
 If basis_elig = "Permanent illness" then basis_text = "A person meets this basis if they have a medically certified permanent illness or incapacity which prevents them from getting and keeping suitable employment."
-If basis_elig = "Temporary illness" then basis_text = "A person meets this basis if they have a medically certified temporary illness, injury, or incapacity which is expected to continue for more than 45 days and which prevents them from getting and keeping suitable employment." 
-If basis_elig = "Needed in the home" then basis_text = "A person meets this basis if they must be home to care for a household member on a continuous basis because of age or due to a medically certified illness, injury, or disability. Medical statements must say that people requiring care are unable to care for themselves, and they must verify that no other household member is able to provide the care." 
+If basis_elig = "Temporary illness" then basis_text = "A person meets this basis if they have a medically certified temporary illness, injury, or incapacity which is expected to continue for more than 45 days and which prevents them from getting and keeping suitable employment."
+If basis_elig = "Needed in the home" then basis_text = "A person meets this basis if they must be home to care for a household member on a continuous basis because of age or due to a medically certified illness, injury, or disability. Medical statements must say that people requiring care are unable to care for themselves, and they must verify that no other household member is able to provide the care."
 If basis_elig = "Placement in a Facility" then basis_text = "A person meets this basis if they have been placed in, and is residing in, a licensed or certified facility for purposes of physical or mental health or rehabilitation, or in an approved chemical dependency domiciliary facility, meets a GA basis of eligibility and is eligible for a personal needs allowance if: " & _
-"The placement is based on illness or incapacity, and is according to a plan developed or approved by the county agency through its director or designated representative, AND Personal needs are not already provided for in the facility per diem rates or funding package, AND The client is otherwise eligible for GA." 
-If basis_elig = "Unemployable" then basis_text = "A person meets this basis if they have been assessed by a vocational specialist and, in consultation with the county agency, have been determined to be unemployable." 
-If basis_elig = "Medically certified as having DISA" then basis_text = "A person meets this basis when diagnosed or certified by a qualified professional as being developmentally disabled or as having mental illness, and their condition prevents them from getting or keeping suitable employment." 
-If basis_elig = "Appl/appeal pending for RSDI or SSI" then basis_text = "A person meets this basis if they have an application pending for, or are appealing termination or denial of, Social Security Disability (through RSDI) or Supplemental Security Income (SSI) AND have a professionally certified permanent or temporary illness, injury, or incapacity which is expected to last for more than 30 days AND which prevents them from obtaining or keeping employment." 
-If basis_elig = "Advanced age" then basis_text = "A person meets this basis if they cannot get or keep suitable employment because they are age 55 or older and their work history shows a marked deterioration compared to their work history before age 55 as indicated by decreased occupational status, reduced hours of employment, or decreased periods of employment." 
-If basis_elig = "FT Student elig displaced homemaker serv" then basis_text = "A person meets this basis if they are eligible for displaced homemaker services and are full-time students." 
-If basis_elig = "Performing court-ordered services" then basis_text = "A person meets this basis if they are involved with protective or court-ordered services which prevent them from working at least 4 hours per day." 
-If basis_elig = "Learning disabled" then basis_text = "A person meets this basis if if they have a condition that qualifies under Minnesota's special education rules as a specific learning disability and are following a rehabilitation plan the county agency has developed or provided for them. Learning disabled under Minnesota's special education rules means a disorder in 1 or more of the psychological processes involved in perceiving, understanding, or using concepts through verbal language or non-verbal means." 
+"The placement is based on illness or incapacity, and is according to a plan developed or approved by the county agency through its director or designated representative, AND Personal needs are not already provided for in the facility per diem rates or funding package, AND The client is otherwise eligible for GA."
+If basis_elig = "Unemployable" then basis_text = "A person meets this basis if they have been assessed by a vocational specialist and, in consultation with the county agency, have been determined to be unemployable."
+If basis_elig = "Medically certified as having DISA" then basis_text = "A person meets this basis when diagnosed or certified by a qualified professional as being developmentally disabled or as having mental illness, and their condition prevents them from getting or keeping suitable employment."
+If basis_elig = "Appl/appeal pending for RSDI or SSI" then basis_text = "A person meets this basis if they have an application pending for, or are appealing termination or denial of, Social Security Disability (through RSDI) or Supplemental Security Income (SSI) AND have a professionally certified permanent or temporary illness, injury, or incapacity which is expected to last for more than 30 days AND which prevents them from obtaining or keeping employment."
+If basis_elig = "Advanced age" then basis_text = "A person meets this basis if they cannot get or keep suitable employment because they are age 55 or older and their work history shows a marked deterioration compared to their work history before age 55 as indicated by decreased occupational status, reduced hours of employment, or decreased periods of employment."
+If basis_elig = "FT Student elig displaced homemaker serv" then basis_text = "A person meets this basis if they are eligible for displaced homemaker services and are full-time students."
+If basis_elig = "Performing court-ordered services" then basis_text = "A person meets this basis if they are involved with protective or court-ordered services which prevent them from working at least 4 hours per day."
+If basis_elig = "Learning disabled" then basis_text = "A person meets this basis if if they have a condition that qualifies under Minnesota's special education rules as a specific learning disability and are following a rehabilitation plan the county agency has developed or provided for them. Learning disabled under Minnesota's special education rules means a disorder in 1 or more of the psychological processes involved in perceiving, understanding, or using concepts through verbal language or non-verbal means."
 If basis_elig = "H.S. students age 18 and older (LES)" then basis_text = "A person meets this basis if they age 18 and older whose primary language is not English and who are attending high school at least half-time, as recognized by the Minnesota Department of Education, are eligible for GA."
 If basis_elig = "Drug/alcohol addiction" then basis_text = "A person meets this basis if drug or alcohol addiction have a basis of eligibility for GA when addiction is a material factor that prevents them from getting and keeping suitable employment. It must be verified through a physician's certification that the client's disability is the result of continued drug or alcohol addiction." & _
 "GA benefits issued for clients with drug or alcohol addiction are subject to vendor payment for shelter and utility costs."

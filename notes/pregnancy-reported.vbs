@@ -50,49 +50,45 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'THIS SCRIPT IS BEING USED IN A WORKFLOW SO DIALOGS ARE NOT NAMED
-'DIALOGS MAY NOT BE DEFINED AT THE BEGINNING OF THE SCRIPT BUT WITHIN THE SCRIPT FILE
-
-'THE DIALOG--------------------------------------------------------------------------------------------------
-'This script currently only runs one dialog, so it can be defined at the beginning
-BeginDialog , 0, 0, 351, 185, "Pregnancy Reported"
-  EditBox 95, 5, 80, 15, maxis_case_number
-  EditBox 95, 25, 80, 15, member_preg
-  EditBox 260, 25, 70, 15, due_date
-  DropListBox 95, 60, 95, 15, "Select One..."+chr(9)+"Self Attestation"+chr(9)+"Change Report Form"+chr(9)+"Pregnancy Verification Form"+chr(9)+"Renewal Form"+chr(9)+"Other", report_method
-  EditBox 95, 80, 235, 15, other_notes
-  CheckBox 35, 120, 25, 15, "MA", ma_checkbox
-  CheckBox 85, 120, 35, 15, "CASH", cash_checkbox
-  CheckBox 190, 110, 70, 10, "Updated in MMIS", mmis_checkbox
-  CheckBox 190, 130, 125, 10, "Verification Request sent for CASH", verification_checkbox
-  EditBox 90, 155, 120, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 240, 155, 50, 15
-    CancelButton 295, 155, 50, 15
-  Text 15, 85, 80, 10, "Other Comments/Notes:"
-  Text 15, 30, 75, 10, "HH Member Pregnant:"
-  Text 20, 10, 70, 10, "Maxis Case Number:"
-  Text 10, 60, 85, 15, "Pregnancy Reported Via:"
-  Text 265, 40, 75, 10, "Example:  MM/DD/YY"
-  GroupBox 10, 105, 130, 40, "Program Pregnancy Reported For:"
-  Text 20, 160, 70, 10, "Sign your Case Note:"
-  Text 185, 30, 70, 10, "Pregnancy Due Date:"
-  Text 100, 40, 60, 10, "Example: 01, 03"
-EndDialog
-
 'THE SCRIPT------------------------------------------------------------------------------------------------------
 'Connects to BLUEZONE
 EMConnect ""
-
 'Grabs the MAXIS case number
 CALL MAXIS_case_number_finder(MAXIS_case_number)
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 296, 140, "Pregnancy Reported"
+  EditBox 60, 5, 55, 15, maxis_case_number
+  EditBox 165, 5, 20, 15, MEMB_number
+  CheckBox 200, 20, 20, 10, "CA", cash_checkbox
+  CheckBox 230, 20, 25, 10, "FS", FS_CHECKBOX
+  CheckBox 260, 20, 25, 10, "MA", ma_checkbox
+  CheckBox 200, 40, 70, 10, "Updated in MMIS", mmis_checkbox
+  EditBox 60, 25, 55, 15, due_date
+  DropListBox 60, 45, 95, 15, "Select One:"+chr(9)+"Self Attestation"+chr(9)+"Change Report Form"+chr(9)+"Pregnancy Verification Form"+chr(9)+"Renewal Form"+chr(9)+"Other", report_method
+  EditBox 60, 65, 230, 15, verif_requested
+  CheckBox 60, 85, 125, 10, "Verification Request sent for CASH", verification_checkbox
+  EditBox 60, 100, 230, 15, other_notes
+  EditBox 60, 120, 125, 15, worker_signature
+  ButtonGroup ButtonPressed
+    OkButton 195, 120, 45, 15
+    CancelButton 245, 120, 45, 15
+  Text 120, 10, 45, 10, "HH MEMB#:"
+  Text 5, 10, 50, 10, "Case Number:"
+  Text 5, 50, 45, 10, "Reported Via:"
+  GroupBox 195, 5, 95, 30, "Active Programs:"
+  Text 5, 125, 40, 10, "Worker Sig:"
+  Text 5, 30, 35, 10, "Due Date:"
+  Text 5, 105, 45, 10, "Other Notes:"
+  Text 5, 70, 55, 10, "Verif Requested:"
+EndDialog
 
 'Shows dialog
 DO
 	err_msg = ""
-	Dialog 					'Calling a dialog without a assigned variable will call the most recently defined dialog
+	Dialog Dialog1				'Calling a dialog without a assigned variable will call the most recently defined dialog
 		IF ButtonPressed = 0 THEN StopScript
-		IF report_method = "Select One..." THEN err_msg = err_msg & vbCr & "* You must select how the pregnancy was reported!"
+		IF report_method = "Select One:" THEN err_msg = err_msg & vbCr & "* You must select how the pregnancy was reported!"
 		IF IsNumeric(MAXIS_case_number) = FALSE THEN err_msg = err_msg & vbCr & "* You must type a valid numeric case number."
 		IF due_date = "" OR (due_date <> "" AND IsDate(due_date) = False) THEN err_msg = err_msg & vbCr & "* You must enter a due date in a MM/DD/YY format."
 		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* You must sign your case note!"
@@ -107,7 +103,7 @@ conception_date = DateAdd("d", -280, due_date)
 
 'The script reads what member number was manually entered, and navigates to that member's stat/preg panel
 CALL navigate_to_MAXIS_screen("STAT", "PREG")
-EMWriteScreen member_preg, 20, 76
+EMWriteScreen MEMB_number, 20, 76
 EMWriteScreen "nn", 20, 79
 transmit
 
@@ -122,23 +118,27 @@ IF ma_checkbox = checked and cash_checkbox = checked THEN EMWritescreen "Y", 6, 
 
 'If under Program Pregnancy applied for, FW has checked CASH then script will write N in the Verified field on stat/preg
 IF cash_checkbox = checked THEN EMWritescreen "N", 6, 75
-transmit
-
+TRANSMIT 'to save the updates'
+'formatting for casenote'
+IF cash_checkbox = CHECKED THEN programs = "CA,"
+IF FS_CHECKBOX = CHECKED THEN programs = "FS,"
+IF ma_checkbox = CHECKED THEN programs = "MA,"
+'trims excess spaces of programs
+programs = trim(programs)
+'takes the last comma off of programs when autofilled into dialog
+IF right(programs, 1) = "," THEN programs = left(programs, len(programs) - 1)
 'Opens new case note
 start_a_blank_case_note
-
-'Writes the Case Note
 CALL write_variable_in_case_note ("---Pregnancy Reported---")
-CALL write_bullet_and_variable_in_case_note("Household Member Pregnant", member_preg)
+CALL write_bullet_and_variable_in_case_note("Household Member", MEMB_number)
 CALL write_bullet_and_variable_in_case_note("Conception Date", conception_date)
 CALL write_bullet_and_variable_in_case_note("Pregnancy Due Date", due_date)
 CALL write_bullet_and_variable_in_case_note("Pregnancy Reported Via", report_method)
-IF ma_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Program Pregnancy Reported for: MA")         'HAVING TROUBLES STARTING HERE....
-IF cash_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Program Pregnancy Reported for: CASH")
-IF ma_checkbox and cash_checkbox = checked THEN CALL write_variable_in_case_note("* Programs Pregnancy Reported for: MA & CASH")
+CALL write_variable_in_CASE_NOTE("Active Programs", programs)
 IF mmis_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Updated in MMIS")
 IF verification_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Sent verification request for CASH")
-CALL write_bullet_and_variable_in_CASE_NOTE("Other Comments/Notes", other_notes)
+CALL write_bullet_and_variable_in_CASE_NOTE("Verifications Requested", verif_requested)
+CALL write_bullet_and_variable_in_CASE_NOTE("Other Notes", other_notes)
 CALL write_variable_in_case_note("---")
 CALL write_variable_in_case_note(worker_signature)
 

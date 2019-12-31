@@ -56,6 +56,8 @@ CALL MAXIS_case_number_finder (MAXIS_case_number)
 'MEMB_number = "01"
 date_due = dateadd("d", 10, date)
 
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog EBT_dialog, 0, 0, 281, 85, "EBT OUT OF STATE "
   EditBox 60, 5, 40, 15, maxis_case_number
   EditBox 190, 5, 50, 15, bene_date
@@ -74,62 +76,6 @@ BeginDialog EBT_dialog, 0, 0, 281, 85, "EBT OUT OF STATE "
   Text 5, 30, 50, 10, "MEMB number:"
 EndDialog
 
-
-BeginDialog intial_review_dialog, 0, 0, 196, 115, "EBT Out of State Initial Review"
-  EditBox 40, 5, 40, 15, date_due
-  DropListBox 140, 5, 50, 15, "Select One:"+chr(9)+"1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"5"+chr(9)+"6"+chr(9)+"7"+chr(9)+"8"+chr(9)+"9"+chr(9)+"10"+chr(9)+"11"+chr(9)+"12"+chr(9)+"OVER 12", months_used
-  CheckBox 10, 35, 75, 10, "Request for contact", request_contact_checkbox
-  CheckBox 105, 35, 70, 10, "Shelter verification", shel_verf_checkbox
-  CheckBox 10, 45, 90, 10, "Authorization to release", ATR_Verf_CheckBox
-  CheckBox 105, 45, 80, 10, "Other (please specify)", other_checkbox
-  EditBox 50, 65, 140, 15, other_notes
-  CheckBox 5, 85, 90, 10, "Contacted other state(s)", other_state_contact_checkbox
-  ButtonGroup ButtonPressed
-    OkButton 105, 95, 40, 15
-    CancelButton 150, 95, 40, 15
-  Text 85, 10, 50, 10, "# Months used: "
-  GroupBox 5, 25, 185, 35, "Verification Requested: "
-  Text 5, 70, 45, 10, "Other notes: "
-  Text 5, 10, 35, 10, "Date due:"
-EndDialog
-
-BeginDialog response_dialog, 0, 0, 196, 105, "Client Response"
-  EditBox 55, 5, 40, 15, date_received
-  DropListBox 155, 5, 35, 15, "Select One:"+chr(9)+"0"+chr(9)+"1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"5"+chr(9)+"6"+chr(9)+"7"+chr(9)+"8"+chr(9)+"9"+chr(9)+"10"+chr(9)+"11"+chr(9)+"12"+chr(9)+"OVER 12", months_used
-  CheckBox 10, 35, 75, 10, "Request for contact", request_contact_checkbox
-  CheckBox 10, 45, 90, 10, "Authorization to release", ATR_Verf_CheckBox
-  CheckBox 105, 35, 70, 10, "Shelter verification", shel_verf_checkbox
-  CheckBox 105, 45, 80, 10, "Other (please specify)", other_checkbox
-  EditBox 50, 65, 140, 15, other_notes
-  ButtonGroup ButtonPressed
-    OkButton 105, 85, 40, 15
-    CancelButton 150, 85, 40, 15
-  Text 5, 10, 50, 10, "Date recieved:"
-  Text 100, 10, 55, 10, "# Months used: "
-  GroupBox 5, 25, 185, 35, "Verification received: "
-  Text 5, 70, 45, 10, "Other notes: "
-EndDialog
-
-BeginDialog no_repsonse_dialog, 0, 0, 196, 125, "No response received"
-  EditBox 50, 5, 40, 15, date_closed
-  DropListBox 150, 5, 40, 15, "Select One:"+chr(9)+"1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"5"+chr(9)+"6"+chr(9)+"7"+chr(9)+"8"+chr(9)+"9"+chr(9)+"10"+chr(9)+"11"+chr(9)+"12"+chr(9)+"YEAR plus", months_used
-  CheckBox 10, 35, 75, 10, "Request for contact", request_contact_checkbox
-  CheckBox 105, 35, 70, 10, "Shelter verification", shel_verf_checkbox
-  CheckBox 10, 45, 90, 10, "Authorization to release", ATR_Verf_CheckBox
-  CheckBox 105, 45, 80, 10, "Other (please specify)", other_checkbox
-  EditBox 65, 65, 125, 15, reason_closed
-  CheckBox 5, 85, 180, 10, "Overpayment possible to be reviewed at a later date", overpayment_checkbox
-  CheckBox 5, 100, 90, 10, "Contacted other state(s)", other_state_contact_checkbox
-  ButtonGroup ButtonPressed
-    OkButton 105, 105, 40, 15
-    CancelButton 150, 105, 40, 15
-  Text 95, 10, 50, 10, "# Months used: "
-  GroupBox 5, 25, 185, 35, "Verification Requested: "
-  Text 5, 70, 55, 10, "Closure reason:"
-  Text 5, 10, 45, 10, "Date closed:"
-EndDialog
-
-
 DO
 	DO
 		err_msg = ""
@@ -143,11 +89,30 @@ DO
 LOOP UNTIL are_we_passworded_out = false
 
 IF action_taken = "Initial review" THEN
+    '-------------------------------------------------------------------------------------------------DIALOG
+    Dialog1 = "" 'Blanking out previous dialog detail
+    BeginDialog Dialog1, 0, 0, 196, 115, "EBT Out of State Initial Review"
+      EditBox 40, 5, 40, 15, date_due
+      DropListBox 140, 5, 50, 15, "Select One:"+chr(9)+"1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"5"+chr(9)+"6"+chr(9)+"7"+chr(9)+"8"+chr(9)+"9"+chr(9)+"10"+chr(9)+"11"+chr(9)+"12"+chr(9)+"OVER 12", months_used
+      CheckBox 10, 35, 75, 10, "Request for contact", request_contact_checkbox
+      CheckBox 105, 35, 70, 10, "Shelter verification", shel_verf_checkbox
+      CheckBox 10, 45, 90, 10, "Authorization to release", ATR_Verf_CheckBox
+      CheckBox 105, 45, 80, 10, "Other (please specify)", other_checkbox
+      EditBox 50, 65, 140, 15, other_notes
+      CheckBox 5, 85, 90, 10, "Contacted other state(s)", other_state_contact_checkbox
+      ButtonGroup ButtonPressed
+    	OkButton 105, 95, 40, 15
+    	CancelButton 150, 95, 40, 15
+      Text 85, 10, 50, 10, "# Months used: "
+      GroupBox 5, 25, 185, 35, "Verification Requested: "
+      Text 5, 70, 45, 10, "Other notes: "
+      Text 5, 10, 35, 10, "Date due:"
+    EndDialog
     Do
     	Do
             err_msg = ""
-    		Dialog intial_review_dialog
-    		cancel_confirmation
+    		Dialog Dialog1
+    		cancel_without_confirmation
     		IF Isdate(date_due) = false THEN err_msg = err_msg & vbNewLine & "* Please enter the due date."
     		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
         Loop until err_msg = ""
@@ -156,11 +121,29 @@ IF action_taken = "Initial review" THEN
 END IF
 
 IF action_taken = "Client responds to request" THEN
-    Do
+    '-------------------------------------------------------------------------------------------------DIALOG
+    Dialog1 = "" 'Blanking out previous dialog detail
+    BeginDialog Dialog1, 0, 0, 196, 105, "Client Response"
+      EditBox 55, 5, 40, 15, date_received
+      DropListBox 155, 5, 35, 15, "Select One:"+chr(9)+"0"+chr(9)+"1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"5"+chr(9)+"6"+chr(9)+"7"+chr(9)+"8"+chr(9)+"9"+chr(9)+"10"+chr(9)+"11"+chr(9)+"12"+chr(9)+"OVER 12", months_used
+      CheckBox 10, 35, 75, 10, "Request for contact", request_contact_checkbox
+      CheckBox 10, 45, 90, 10, "Authorization to release", ATR_Verf_CheckBox
+      CheckBox 105, 35, 70, 10, "Shelter verification", shel_verf_checkbox
+      CheckBox 105, 45, 80, 10, "Other (please specify)", other_checkbox
+      EditBox 50, 65, 140, 15, other_notes
+      ButtonGroup ButtonPressed
+    	OkButton 105, 85, 40, 15
+    	CancelButton 150, 85, 40, 15
+      Text 5, 10, 50, 10, "Date recieved:"
+      Text 100, 10, 55, 10, "# Months used: "
+      GroupBox 5, 25, 185, 35, "Verification received: "
+      Text 5, 70, 45, 10, "Other notes: "
+    EndDialog
+	Do
     	Do
             err_msg = ""
-    		Dialog response_dialog
-    		cancel_confirmation
+    		Dialog Dialog1
+    		cancel_without_confirmation
     		IF Isdate(date_received) = false THEN err_msg = err_msg & vbNewLine & "* Please enter the date received."
     		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
         Loop until err_msg = ""
@@ -169,11 +152,31 @@ IF action_taken = "Client responds to request" THEN
 END IF
 
 IF action_taken = "No response received" or action_taken = "Other" THEN
+    '-------------------------------------------------------------------------------------------------DIALOG
+    Dialog1 = "" 'Blanking out previous dialog detail
+    BeginDialog Dialog1, 0, 0, 196, 125, "No response received"
+      EditBox 50, 5, 40, 15, date_closed
+      DropListBox 150, 5, 40, 15, "Select One:"+chr(9)+"1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"5"+chr(9)+"6"+chr(9)+"7"+chr(9)+"8"+chr(9)+"9"+chr(9)+"10"+chr(9)+"11"+chr(9)+"12"+chr(9)+"YEAR plus", months_used
+      CheckBox 10, 35, 75, 10, "Request for contact", request_contact_checkbox
+      CheckBox 105, 35, 70, 10, "Shelter verification", shel_verf_checkbox
+      CheckBox 10, 45, 90, 10, "Authorization to release", ATR_Verf_CheckBox
+      CheckBox 105, 45, 80, 10, "Other (please specify)", other_checkbox
+      EditBox 65, 65, 125, 15, reason_closed
+      CheckBox 5, 85, 180, 10, "Overpayment possible to be reviewed at a later date", overpayment_checkbox
+      CheckBox 5, 100, 90, 10, "Contacted other state(s)", other_state_contact_checkbox
+      ButtonGroup ButtonPressed
+        OkButton 105, 105, 40, 15
+        CancelButton 150, 105, 40, 15
+      Text 95, 10, 50, 10, "# Months used: "
+      GroupBox 5, 25, 185, 35, "Verification Requested: "
+      Text 5, 70, 55, 10, "Closure reason:"
+      Text 5, 10, 45, 10, "Date closed:"
+    EndDialog
     Do
     	Do
             err_msg = ""
-    		Dialog no_repsonse_dialog
-    		cancel_confirmation
+    		Dialog Dialog1
+    		cancel_without_confirmation
     		IF Isdate(date_closed) = false THEN err_msg = err_msg & vbNewLine & "* Please enter the closed date."
 			IF reason_closed = "" THEN err_msg = err_msg & vbNewLine & "* Please enter the closure reason."
     		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine

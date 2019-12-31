@@ -120,8 +120,9 @@ END IF
 
 'IF CASH_STATUS = FALSE or FS_STATUS = FALSE THEN
 
-'-----------------------------------------------------------------------------------------------------------------------DIALOG
-BeginDialog IMIG_dialog, 0, 0, 366, 300, "Immigration Status"
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 366, 300, "Immigration Status"
  EditBox 60, 5, 40, 15, MAXIS_case_number
  EditBox 140, 5, 20, 15, MEMB_number
  EditBox 210, 5, 40, 15, actual_date
@@ -176,45 +177,12 @@ BeginDialog IMIG_dialog, 0, 0, 366, 300, "Immigration Status"
   CheckBox 245, 255, 110, 10, "Check here if case is INACTIVE", case_note_only_checkbox
 EndDialog
 
-BeginDialog addimig_dialog, 0, 0, 370, 240, "Additional Information for IMIG"
-  DropListBox 115, 15, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", ss_credits
-  DropListBox 300, 15, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", ss_credits_verf
-  DropListBox 115, 30, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", battered_spouse 'mandatory for undoc'
-  DropListBox 300, 30, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", battered_spouse_verf
-  DropListBox 115, 45, 80, 15, "Select One:"+chr(9)+"Veteran"+chr(9)+"Active Duty"+chr(9)+"Spouse of 1 or 2"+chr(9)+"Child of 1 or 2"+chr(9)+"No Military Stat or Other", military_status
-  DropListBox 300, 45, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", military_status_verf
-  DropListBox 115, 60, 135, 15, "Select One:"+chr(9)+"Hmong During Vietnam War"+chr(9)+"Highland Lao During Vietnam"+chr(9)+"Spouse/Widow of 1 Or 2"+chr(9)+"Dep Child of 1 Or 2"+chr(9)+"Native Amer Born Can/Mex"+chr(9)+"N/A", nation_vietnam
-  DropListBox 115, 75, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", ESL_ctzn 'mandatory for GA'
-  DropListBox 300, 75, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", ESL_ctzn_verf
-  DropListBox 115, 90, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", ESL_skills
-  ButtonGroup ButtonPressed
-    OkButton 260, 100, 45, 15
-    CancelButton 310, 100, 45, 15
-  GroupBox 5, 5, 360, 115, "IMIG fields"
-  Text 20, 20, 90, 10, "40 Social Security Credits:"
-  Text 260, 20, 35, 10, "Verified?:"
-  Text 30, 35, 75, 10, "Battered Spouse/Child:"
-  Text 260, 35, 35, 10, "Verified?:"
-  Text 55, 50, 50, 10, "Military Status:"
-  Text 10, 170, 345, 15, "* Military Status: If the client is an active duty member or veteran of the US armed forces (or a spouse or unmarried minor child) of an active duty member or veteran."
-  Text 30, 80, 80, 10, "St Prog ESL/Ctzn Coop:"
-  Text 260, 50, 35, 10, "Verified?:"
-  Text 260, 80, 35, 10, "Verified?:"
-  GroupBox 5, 120, 360, 120, "Information: Please see instructions for additional information"
-  Text 10, 145, 350, 15, "* Battered Spouse/Child: Mandatory field only for those LPRs not otherwise eligible for federal funding. HSR records whether the person has 40 Social Security work credits."
-  Text 30, 95, 80, 10, "FSS ESL/Skills Training:"
-  Text 10, 195, 345, 20, "* Hmong, Lao, Native American: If the non-citizen client is Hmong, Lao, or Native American born in Canada, please PF12 on the line for more information."
-  Text 10, 220, 345, 15, "* St Prog ESL/Ctzn Coop: This field needs to be completed for all LPRs age 18 through 69 in the GA or state-funded MFIP unit."
-  Text 10, 65, 100, 10, "Hmong, Lao, Native American:"
-  Text 10, 130, 350, 10, "* 40 Social Security Credits: Mandatory field only for those LPRs not otherwise eligible for federal funding. "
-EndDialog
-
 '-----------------------------------------------------------------------------------------------------------THE SCRIPT
 Do
 	Do
 		err_msg = ""
 		Do
-			dialog IMIG_dialog
+			dialog Dialog1
 			cancel_confirmation
 			If ButtonPressed = Noncitzn_button then CreateObject("WScript.Shell").Run("https://dept.hennepin.us/hsphd/manuals/hsrm/Pages/Immigration_and_Non-Citizens.aspx")
 		Loop until ButtonPressed = -1
@@ -254,11 +222,43 @@ Do
 LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
 IF case_note_only_checkbox <> CHECKED THEN
+    BeginDialog Dialog1, 0, 0, 370, 240, "Additional Information for IMIG"
+      DropListBox 115, 15, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", ss_credits
+      DropListBox 300, 15, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", ss_credits_verf
+      DropListBox 115, 30, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", battered_spouse 'mandatory for undoc'
+      DropListBox 300, 30, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", battered_spouse_verf
+      DropListBox 115, 45, 80, 15, "Select One:"+chr(9)+"Veteran"+chr(9)+"Active Duty"+chr(9)+"Spouse of 1 or 2"+chr(9)+"Child of 1 or 2"+chr(9)+"No Military Stat or Other", military_status
+      DropListBox 300, 45, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", military_status_verf
+      DropListBox 115, 60, 135, 15, "Select One:"+chr(9)+"Hmong During Vietnam War"+chr(9)+"Highland Lao During Vietnam"+chr(9)+"Spouse/Widow of 1 Or 2"+chr(9)+"Dep Child of 1 Or 2"+chr(9)+"Native Amer Born Can/Mex"+chr(9)+"N/A", nation_vietnam
+      DropListBox 115, 75, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", ESL_ctzn 'mandatory for GA'
+      DropListBox 300, 75, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", ESL_ctzn_verf
+      DropListBox 115, 90, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", ESL_skills
+      ButtonGroup ButtonPressed
+    	OkButton 260, 100, 45, 15
+    	CancelButton 310, 100, 45, 15
+      GroupBox 5, 5, 360, 115, "IMIG fields"
+      Text 20, 20, 90, 10, "40 Social Security Credits:"
+      Text 260, 20, 35, 10, "Verified?:"
+      Text 30, 35, 75, 10, "Battered Spouse/Child:"
+      Text 260, 35, 35, 10, "Verified?:"
+      Text 55, 50, 50, 10, "Military Status:"
+      Text 10, 170, 345, 15, "* Military Status: If the client is an active duty member or veteran of the US armed forces (or a spouse or unmarried minor child) of an active duty member or veteran."
+      Text 30, 80, 80, 10, "St Prog ESL/Ctzn Coop:"
+      Text 260, 50, 35, 10, "Verified?:"
+      Text 260, 80, 35, 10, "Verified?:"
+      GroupBox 5, 120, 360, 120, "Information: Please see instructions for additional information"
+      Text 10, 145, 350, 15, "* Battered Spouse/Child: Mandatory field only for those LPRs not otherwise eligible for federal funding. HSR records whether the person has 40 Social Security work credits."
+      Text 30, 95, 80, 10, "FSS ESL/Skills Training:"
+      Text 10, 195, 345, 20, "* Hmong, Lao, Native American: If the non-citizen client is Hmong, Lao, or Native American born in Canada, please PF12 on the line for more information."
+      Text 10, 220, 345, 15, "* St Prog ESL/Ctzn Coop: This field needs to be completed for all LPRs age 18 through 69 in the GA or state-funded MFIP unit."
+      Text 10, 65, 100, 10, "Hmong, Lao, Native American:"
+      Text 10, 130, 350, 10, "* 40 Social Security Credits: Mandatory field only for those LPRs not otherwise eligible for federal funding. "
+    EndDialog
     IF immig_status_dropdown <> "US Citizen" Then
     	Do
     		Do
     			err_msg = ""
-    			dialog addimig_dialog
+    			dialog Dialog1
     			cancel_confirmation
     			IF battered_spouse = "Select One:" THEN
     			 	IF immig_status_dropdown = "28 Undocumented" or immig_status_dropdown = "27 Non-immigrant" or immig_status_dropdown = "50 Other Lawfully Residing" THEN err_msg = err_msg & vbNewLine & "* Please advise if battered spouse or child is applicable."

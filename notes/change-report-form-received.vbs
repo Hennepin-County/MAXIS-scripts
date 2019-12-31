@@ -51,8 +51,9 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'THE DIALOG--------------------------------------------------------------------------------------------------------------
-BeginDialog crf_received_dialog, 0, 0, 376, 280, "Change Report Form Received"
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 376, 280, "Change Report Form Received"
   EditBox 60, 5, 40, 15, MAXIS_case_number
   EditBox 160, 5, 45, 15, date_received
   EditBox 320, 5, 45, 15, effective_date
@@ -101,7 +102,7 @@ DO
 	DO
 		DO
 			DO
-				Dialog crf_received_dialog
+				Dialog Dialog1
 				cancel_confirmation
 				IF worker_signature = "" THEN MsgBox "You must sign your case note!"
 			LOOP UNTIL worker_signature <> ""

@@ -52,8 +52,9 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'----------------------------------------------------------------------------------------------Dialog
-BeginDialog stats_dialog, 0, 0, 266, 85, "REPT/IEVC"
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 266, 85, "REPT/IEVC"
   ButtonGroup ButtonPressed
     OkButton 150, 65, 50, 15
     CancelButton 205, 65, 50, 15
@@ -65,12 +66,15 @@ EndDialog
 'Connects to MAXIS
 EMConnect ""
 
-Do
-	dialog stats_dialog
-    cancel_confirmation
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-Loop until are_we_passworded_out = false					'loops until user passwords back in
-
+DO
+	    DO
+        	err_msg = ""
+        	Dialog Dialog1
+        	cancel_without_confirmation
+        	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+        LOOP UNTIL err_msg = ""
+		CALL check_for_password_without_transmit(are_we_passworded_out)
+	Loop until are_we_passworded_out = false
 'Starting the query start time (for the query runtime at the end)
 query_start_time = timer
 Call check_for_MAXIS(False)

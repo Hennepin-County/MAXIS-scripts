@@ -51,7 +51,8 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'DIALOGS--------------------------------------------------------------------------------------------------------------------
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
 
 BeginDialog Case_Number_Dialog, 0, 0, 171, 85, "Case Information"
   EditBox 80, 5, 60, 15, MAXIS_case_number
@@ -66,20 +67,6 @@ BeginDialog Case_Number_Dialog, 0, 0, 171, 85, "Case Information"
   Text 20, 30, 55, 10, "Elig month/year:"
 EndDialog
 
-BeginDialog timeliness_dialog, 0, 0, 196, 120, "Expedited Timeliness"
-  EditBox 80, 5, 110, 15, date_of_application
-  EditBox 80, 25, 110, 15, interview_date
-  EditBox 80, 45, 110, 15, approval_date
-  EditBox 10, 80, 180, 15, delay_explanation
-  ButtonGroup ButtonPressed
-    OkButton 85, 100, 50, 15
-    CancelButton 140, 100, 50, 15
-  Text 10, 50, 60, 10, "Date of Approval"
-  Text 10, 10, 65, 10, "Date of Application"
-  Text 10, 65, 85, 10, "Explain any delays here"
-  Text 10, 30, 50, 10, "Interview Date"
-EndDialog
-
 'THE SCRIPT-----------------------------------------------------------------------------------------------------------------
 'connecting to MAXIS & searches for the case number
 EMConnect ""
@@ -88,7 +75,7 @@ call MAXIS_case_number_finder(MAXIS_case_number)
 'dialog to gather the Case Number and such
 Do
 	Do
-		Dialog Case_Number_Dialog
+		Dialog Dialog1
 		cancel_confirmation
 		err_msg = ""
 		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "You must sign your worker signature"
@@ -132,9 +119,6 @@ IF XFS_Screening_CNote = TRUE THEN
     xfs_screening = trim(xfs_screening)
 	xfs_screening = UCase(xfs_screening)
 	xfs_screening_display = xfs_screening & ""
-
-
-
 	row = 1
 	col = 1
 	EMSearch "CAF 1 income", row, col
@@ -283,8 +267,10 @@ determined_assets = asset_amount & ""
 determined_shel = elig_shel & ""
 determined_utilities = elig_util & ""
 
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
 'THIS DIALOG IS DEFINED HERE BECAUSE OTHERWISE THE SCRIPT DOES NOT AUTOFILL THE TEXT FIELDS THAT ARE VAIRABLES
-BeginDialog Expedited_Detail_Dialog, 0, 0, 401, 325, "Expedited Determination"
+BeginDialog Dialog1, 0, 0, 401, 325, "Expedited Determination"
   EditBox 265, 50, 120, 15, determined_income
   EditBox 240, 70, 145, 15, determined_assets
   EditBox 275, 90, 110, 15, determined_shel
@@ -327,7 +313,7 @@ EndDialog
 'Running the Dialog asking for all the detail and explanations
 DO
 	Do
-		Dialog Expedited_Detail_Dialog
+		Dialog Dialog1
 		cancel_confirmation
 		err_msg = ""
 		IF is_elig_XFS = "FALSE" AND out_of_state_explanation = "" AND previous_xfs_explanation = "" AND other_explanation = "" AND abawd_explanation = "" THEN err_msg = err_msg & vbCr & "You have determined this case to NOT be Expedited but have provided no detail explanation" & vbCr & "Please complete at least one of the explanation boxes."
@@ -355,12 +341,27 @@ determined_utilities = FormatCurrency(determined_utilities)
 IF is_elig_XFS = "TRUE" Then is_elig_XFS = TRUE
 IF is_elig_XFS = "FALSE" Then is_elig_XFS = FALSE
 
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 196, 120, "Expedited Timeliness"
+  EditBox 80, 5, 110, 15, date_of_application
+  EditBox 80, 25, 110, 15, interview_date
+  EditBox 80, 45, 110, 15, approval_date
+  EditBox 10, 80, 180, 15, delay_explanation
+  ButtonGroup ButtonPressed
+    OkButton 85, 100, 50, 15
+    CancelButton 140, 100, 50, 15
+  Text 10, 50, 60, 10, "Date of Approval"
+  Text 10, 10, 65, 10, "Date of Application"
+  Text 10, 65, 85, 10, "Explain any delays here"
+  Text 10, 30, 50, 10, "Interview Date"
+EndDialog
 'Dialog about timeliness will run if case is determined to be expedited
 IF is_elig_XFS = TRUE Then
 	Do
 		Do
 			Do
-				Dialog timeliness_dialog
+				Dialog Dialog1
 				cancel_confirmation
 				err_msg = ""
 				IF date_of_application = "" OR IsDate(date_of_application) = FALSE Then err_msg = err_msg & vbCr & "Please enter a valid date of application."

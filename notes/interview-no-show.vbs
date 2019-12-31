@@ -52,7 +52,9 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-BeginDialog case_number_dialog, 0, 0, 141, 50, "Enter the Case Number"
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 141, 50, "Enter the Case Number"
   EditBox 65, 10, 70, 15, MAXIS_case_number
   ButtonGroup ButtonPressed
     OkButton 65, 30, 35, 15
@@ -70,23 +72,23 @@ Call check_for_MAXIS(true)
 
 'Pulls case number from MAXIS if worker has already selected a case
 Call MAXIS_case_number_finder(MAXIS_case_number)
+DO
+    Do
+        err_msg = ""
+        Dialog Dialog1
+        If ButtonPressed = 0 Then script_end_procedure("")
+        MAXIS_case_number = trim(MAXIS_case_number)
+        If MAXIS_case_number = "" Then err_msg = err_msg & vbNewLine & "* Enter a case number."
+        If len(MAXIS_case_number) > 7 Then err_msg = err_msg & vbNewLine & "* The case number is too long, review"
+        If IsNumeric(MAXIS_case_number) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter a valid MAXIS case number."
+        If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
+    Loop Until err_msg = ""
+Call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+LOOP UNTIL are_we_passworded_out = false
 
-Do
-    err_msg = ""
-
-    Dialog case_number_dialog
-    If ButtonPressed = 0 Then script_end_procedure("")
-
-    MAXIS_case_number = trim(MAXIS_case_number)
-    If MAXIS_case_number = "" Then err_msg = err_msg & vbNewLine & "* Enter a case number."
-    If len(MAXIS_case_number) > 7 Then err_msg = err_msg & vbNewLine & "* The case number is too long, review"
-    If IsNumeric(MAXIS_case_number) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter a valid MAXIS case number."
-
-    If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
-
-Loop Until err_msg = ""
-
-BeginDialog same_day_dialog, 0, 0, 191, 315, "Enter No Show Information"
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 191, 315, "Enter No Show Information"
   Text 70, 25, 60, 15, MAXIS_case_number
   EditBox 70, 75, 90, 15, interview_date
   EditBox 70, 95, 90, 15, first_page
@@ -187,7 +189,7 @@ Do
 	Do
 		Do
 			err_msg = ""
-			Dialog same_day_dialog
+			Dialog Dialog1
 			cancel_confirmation
 			IF MAXIS_case_number = "" THEN err_msg = err_msg & vbNewLine & "*Please enter a valid case number"
 			IF interview_date = "" THEN err_msg = err_msg & vbNewLine & "*Please enter an Interview Date"
@@ -266,7 +268,9 @@ If send_appt_notice_checkbox = checked Then
     application_date = application_date & ""
     interview_date = interview_date & ""
 
-    BeginDialog appt_dialog, 0, 0, 121, 75, "APPOINTMENT LETTER"
+	'-------------------------------------------------------------------------------------------------DIALOG
+	Dialog1 = "" 'Blanking out previous dialog detail
+    BeginDialog Dialog1, 0, 0, 121, 75, "APPOINTMENT LETTER"
       EditBox 65, 5, 50, 15, application_date
       EditBox 65, 25, 50, 15, interview_date
       ButtonGroup ButtonPressed
@@ -283,9 +287,8 @@ If send_appt_notice_checkbox = checked Then
     Do
     	Do
     		err_msg = ""
-    		dialog appt_dialog
+    		dialog Dialog1
     		cancel_confirmation
-
             If isdate(application_date) = False then err_msg = err_msg & vbnewline & "* Enter a valid application date."
     		If isdate(interview_date) = False then err_msg = err_msg & vbnewline & "* Enter a valid interview date."
     		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
@@ -317,7 +320,7 @@ If send_appt_notice_checkbox = checked Then
     Loop until SELF_check <> "SELF"
 
     'Navigating to SPEC/MEMO
-    call start_a_new_spec_memo                                                   'Transmits to start the memo writing process
+    call start_a_new_spec_memo                                                'Transmits to start the memo writing process
 
     Call write_variable_in_SPEC_MEMO("You applied for assistance in Hennepin County on " & application_date & "")
     Call write_variable_in_SPEC_MEMO("and an interview is required to process your application.")
@@ -359,7 +362,6 @@ If send_appt_notice_checkbox = checked Then
 End If
 'Starts a Case Note
 Call start_a_blank_case_note
-
 call write_variable_in_CASE_NOTE("*** Attempted to Page Client in Lobby for Interview - No Show ***")
 call write_bullet_and_variable_in_CASE_NOTE("Date of application", application_date)
 call write_bullet_and_variable_in_CASE_NOTE("Client walked in to office for interview", interview_date)

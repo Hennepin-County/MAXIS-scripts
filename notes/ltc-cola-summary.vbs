@@ -52,8 +52,9 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-BeginDialog COLA_income_dialog, 0, 0, 391, 200, "COLA income dialog"
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 391, 200, "COLA income dialog"
   EditBox 30, 15, 350, 15, unearned_income
   EditBox 30, 35, 350, 15, earned_income
   EditBox 80, 55, 300, 15, medicare_part_B
@@ -73,14 +74,6 @@ BeginDialog COLA_income_dialog, 0, 0, 391, 200, "COLA income dialog"
   Text 15, 125, 15, 10, "EI:"
   Text 5, 160, 45, 10, "Other notes:"
   Text 135, 175, 60, 15, "Worker signature:"
-EndDialog
-
-BeginDialog BBUD_Dialog, 0, 0, 191, 76, "BBUD"
-  Text 5, 10, 180, 10, "This is a method B budget. What would you like to do?"
-  ButtonGroup ButtonPressed
-    PushButton 20, 25, 70, 15, "Jump to STAT/BILS", BILS_button
-    PushButton 100, 25, 70, 15, "Stay in ELIG/HC", ELIG_button
-    CancelButton 135, 55, 50, 15
 EndDialog
 
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -251,8 +244,17 @@ Function approval_summary
       PF3
       EMReadScreen check_for_MAXIS(True), 5, 1, 39
       If check_for_MAXIS(True) <> "MAXIS" then
+	  	'-------------------------------------------------------------------------------------------------DIALOG
+		Dialog1 = "" 'Blanking out previous dialog detail
+	  	BeginDialog Dialog1, 0, 0, 191, 76, "BBUD"
+	      Text 5, 10, 180, 10, "This is a method B budget. What would you like to do?"
+	      ButtonGroup ButtonPressed
+	      	PushButton 20, 25, 70, 15, "Jump to STAT/BILS", BILS_button
+	      	PushButton 100, 25, 70, 15, "Stay in ELIG/HC", ELIG_button
+	      	CancelButton 135, 55, 50, 15
+	  	EndDialog
         Do
-          Dialog BBUD_Dialog
+          Dialog Dialog1
           cancel_confirmation
         Loop until check_for_MAXIS(True) = "MAXIS"
       End if
@@ -272,8 +274,10 @@ Function approval_summary
       ma_epd_premium_amt = trim(ma_epd_premium_amt)
   End If
 
+  	'-------------------------------------------------------------------------------------------------DIALOG
+	Dialog1 = "" 'Blanking out previous dialog detail
     '---Dialog is dynamically created and needs results from BBUD to be created therefore needs to be seperate from other dialogs.
-    BeginDialog COLA_dialog, 0, 0, 376, 165, "COLA"
+    BeginDialog Dialog1, 0, 0, 376, 165, "COLA"
       DropListBox 45, 5, 30, 15, "EX"+chr(9)+"DX"+chr(9)+"DP", elig_type
       DropListBox 135, 5, 30, 15, "L"+chr(9)+"S"+chr(9)+"B"+chr(9)+"E", budget_type
       EditBox 285, 5, 85, 15, recipient_amt
@@ -309,7 +313,7 @@ Function approval_summary
 
 
    Do
-	      Dialog COLA_dialog
+	      Dialog Dialog1
 	      If buttonpressed = 0 then stopscript
 		If buttonpressed = BBUD_button then
 			Call check_for_MAXIS(False)
@@ -371,10 +375,7 @@ end function
 
 ' Function for script--------------------------------------------------------------------------------------------------------
 function income_summary
-
 	EMConnect ""
-
-
 	back_to_self
 	EMWriteScreen MAXIS_footer_month, 20, 43
 	EMWriteScreen MAXIS_footer_year, 20, 46
@@ -429,7 +430,9 @@ function income_summary
 	If HH_member_13 <> "                  " then client_13_check = 1
 	If HH_member_14 <> "                  " then client_14_check = 1
 	If HH_member_15 <> "                  " then client_15_check = 1
-	BeginDialog HH_memb_dialog, 0, 0, 191, dialog_size_variable, "HH member dialog"
+	'-------------------------------------------------------------------------------------------------DIALOG
+	Dialog1 = "" 'Blanking out previous dialog detail
+	BeginDialog Dialog1, 0, 0, 191, dialog_size_variable, "HH member dialog"
 	ButtonGroup ButtonPressed
 		OkButton 135, 10, 50, 15
 		CancelButton 135, 30, 50, 15
@@ -452,7 +455,7 @@ function income_summary
 	EndDialog
 
 	'NOW IT SHOWS THE DIALOG FROM THE LAST SCREEN
-	Dialog HH_memb_dialog
+	Dialog Dialog1
 	cancel_confirmation
 	Call check_for_MAXIS(False)
 
@@ -632,7 +635,9 @@ Call MAXIS_case_number_finder(MAXIS_case_number)
 MAXIS_footer_month = CM_plus_1_mo
 MAXIS_footer_year = CM_plus_1_yr
 
-BeginDialog COLA_case_number_dialog, 0, 0, 171, 125, "COLA case number dialog"
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 171, 125, "COLA case number dialog"
   EditBox 100, 10, 60, 15, MAXIS_case_number
   EditBox 115, 30, 20, 15, MAXIS_footer_month
   EditBox 140, 30, 20, 15, MAXIS_footer_year
@@ -648,7 +653,7 @@ EndDialog
 
 	DO
 		err_msg = ""
-		Dialog COLA_case_number_dialog
+		Dialog Dialog1
 		cancel_confirmation
 		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & "* You need to type a valid case number." & vBCr
 		If len(MAXIS_footer_month) <> 2 THEN err_msg = err_msg & "* Enter the Approval month in MM format (include leading zero if needed)" & vBCr

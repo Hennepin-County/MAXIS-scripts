@@ -54,8 +54,9 @@ changelog_display
 EMConnect ""
 Call MAXIS_case_number_finder(maxis_case_number)
 
-'Initial dialog and do...loop
-BeginDialog , 0, 0, 276, 90, "Appeal Summary Completed"
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 276, 90, "Appeal Summary Completed"
   EditBox 60, 5, 60, 15, maxis_case_number
   EditBox 210, 5, 60, 15, date_appeal_rcvd
   EditBox 60, 25, 60, 15, claim_number
@@ -74,7 +75,7 @@ EndDialog
 Do
 	Do
         err_msg = ""
-		Dialog
+		Dialog Dialog1
 		cancel_confirmation
 		IF IsNumeric(maxis_case_number) = false or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
 		IF Isdate(date_appeal_rcvd) = false THEN err_msg = err_msg & vbNewLine & "* Please enter a date for the appeal."
@@ -86,14 +87,14 @@ Do
  	Call check_for_password(are_we_passworded_out)
 LOOP UNTIL check_for_password(are_we_passworded_out) = False
 
-	start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
-	Call write_variable_in_CASE_NOTE("-----APPEAL SUMMARY COMPLETED-----")
-	Call write_bullet_and_variable_in_CASE_NOTE("Claim number:", claim_number)
-	Call write_bullet_and_variable_in_CASE_NOTE("Date appeal request received:", date_appeal_rcvd)
-	Call write_bullet_and_variable_in_CASE_NOTE("Effective date of action being appealed:", effective_date)
-	Call write_bullet_and_variable_in_CASE_NOTE("Action client is appealing:", action_client_is_appealing)
-	Call write_bullet_and_variable_in_CASE_NOTE("Emailed Appeals", send_email)
-	Call write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
-	Call write_variable_in_CASE_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
+start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
+Call write_variable_in_CASE_NOTE("-----APPEAL SUMMARY COMPLETED-----")
+Call write_bullet_and_variable_in_CASE_NOTE("Claim number:", claim_number)
+Call write_bullet_and_variable_in_CASE_NOTE("Date appeal request received:", date_appeal_rcvd)
+Call write_bullet_and_variable_in_CASE_NOTE("Effective date of action being appealed:", effective_date)
+Call write_bullet_and_variable_in_CASE_NOTE("Action client is appealing:", action_client_is_appealing)
+Call write_bullet_and_variable_in_CASE_NOTE("Emailed Appeals", send_email)
+Call write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
+Call write_variable_in_CASE_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
 
 script_end_procedure_with_error_report("Appeal Summary case note complete.")

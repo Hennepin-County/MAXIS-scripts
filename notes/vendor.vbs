@@ -66,7 +66,6 @@ ReDim VENDOR_INFO_ARRAY(vnds_amount, 0)
 
 'The script ----------------------------------------------------------------------------------------------------
 EMConnect ""                    'Connect to MAXIS
-
 Call MAXIS_case_number_finder(MAXIS_case_number)            'Pulling the case number from MAXIS if it can be found
 
 Do
@@ -75,6 +74,8 @@ Do
 
         'Case number and Vendor Number Dialog - finding the information needed to autofill
         'This has to be defined within the loop because there is another dialog in this loop - the search function
+		'-------------------------------------------------------------------------------------------------DIALOG
+		Dialog1 = "" 'Blanking out previous dialog detail
         BeginDialog Dialog1, 0, 0, 331, 105, "Vendor Numbers to NOTE"
           EditBox 275, 15, 50, 15, MAXIS_case_number
           EditBox 110, 35, 215, 15, vendor_number_list
@@ -89,12 +90,19 @@ Do
           Text 10, 75, 140, 25, "There will be a place to add vendor information for a vendor that does not yet have a vendor number in the next dialog."
         EndDialog
 
-        dialog Dialog1                  'showing the dialog
-        cancel_without_confirmation     'pressing cancel
+		DO
+		    DO
+		    	err_msg = ""
+		    	DIALOG Dialog1
+		    		cancel_without_confirmation
+		    		IF MAXIS_case_number = "" OR (MAXIS_case_number <> "" AND len(MAXIS_case_number) > 8) OR (MAXIS_case_number <> "" AND IsNumeric(MAXIS_case_number) = False) THEN err_msg = err_msg & vbCr & "* Please enter a valid case number."
+					IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+		    	LOOP UNTIL err_msg = ""
+		    	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+			LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
+		CALL check_for_MAXIS(False)
 
-        Call validate_MAXIS_case_number(err_msg, "*")       'error message for the case number
-
-        'If the search button is pressed, the functionality for searching vendors here will start
+                'If the search button is pressed, the functionality for searching vendors here will start
         If ButtonPressed = vendor_search_button Then
             err_msg = "LOOP" & err_msg              'this makes sure we loop back to the first dialog
             vendor_search_county = "27 Hennepin"    'defaulting the parameters of the search
@@ -114,12 +122,16 @@ Do
               Text 15, 70, 50, 10, "Vendor County:"
             EndDialog
 
-
-            Do
-                dialog Dialog1      'showing the search dialog
-
-                Call check_for_password(are_we_passworded_out)      'password handling
-            Loop until are_we_passworded_out = False
+			DO
+				DO
+					err_msg = ""
+					DIALOG Dialog1
+						cancel_without_confirmation
+						IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+					LOOP UNTIL err_msg = ""
+					CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+				LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
+			CALL check_for_MAXIS(False)
 
             Call navigate_to_MAXIS_screen("MONY", "VNDS")           'going to vendor search in MAXIS
 
@@ -127,10 +139,8 @@ Do
             If vendor_search_status <> "Any" Then EMWriteScreen left(vendor_search_status, 1), 5, 21
             If vendor_search_county <> "Any" Then EMWriteScreen vendor_search_county, 5, 10
             EMWriteScreen "        ", 4, 59                         'blanking the vendor number
-            transmit                                                'submitting the search
-
+            transmit                                              'submitting the search
         End If
-
         If err_msg <> "" AND left(err_msg, 4) <> "LOOP" Then MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg       'showing the error message if anything is missing from the initial dialog
 	Loop until err_msg = ""
     Call check_for_password(are_we_passworded_out)                  'password handling
@@ -149,13 +159,10 @@ For each vendor_number in vendor_array                  'cycling through the arr
     vendor_number = trim(vendor_number)                 'getting rid of spaces
     If vendor_number <> "" Then                         'making sure we don't have a blank in the array
         ReDim Preserve VENDOR_INFO_ARRAY(vnds_amount, vendor_counter)       'resizing the large array of vendor detail information
-
         VENDOR_INFO_ARRAY(vnds_nbr, vendor_counter) = vendor_number         'setting the vendor number into the large array
         Call navigate_to_MAXIS_screen("MONY", "VNDS")                       'going to look for more vendor detail in MAXIS
-
         EMWriteScreen vendor_number, 4, 59                                  'enter the vendor number into VNDS
         transmit
-
         EMReadScreen check_for_vndm, 4, 2, 54                               'making sure we got to the vendor file maintenance - VNDM
         If check_for_vndm = "VNDM" Then
             EMReadScreen vndm_name, 30, 3, 15                               'reading all the information from VNDM
@@ -167,20 +174,16 @@ For each vendor_number in vendor_array                  'cycling through the arr
             EMReadScreen vndm_zip, 5, 7, 46
             EMReadScreen vndm_phone, 18, 6, 52
             EMReadScreen vndm_status, 1, 16, 15
-
             VENDOR_INFO_ARRAY(vnds_name, vendor_counter) = replace(vndm_name, "_", "")      'fromatting the name of the vendor and save it to the large array
-
             vndm_phone = replace(vndm_phone, " )  ", ")")                       'formatting the phone number and adding it to the large array
             vndm_phone = replace(vndm_phone, "  ", "-")
             vndm_phone = replace(vndm_phone, " ", "")
             If vndm_phone = "(___)___-____" Then vndm_phone = ""
             VENDOR_INFO_ARRAY(vnds_phone, vendor_counter) = vndm_phone
-
             vndm_street_one = replace(vndm_street_one, "_", "")                 'formatting the address and compiling the pieces and adding it to the large array
             vndm_street_two = replace(vndm_street_two, "_", "")
             vndm_city = replace(vndm_city, "_", "")
             VENDOR_INFO_ARRAY(vnds_address, vendor_counter) = vndm_street_one & " " & vndm_street_two & " " & vndm_city & ", " & vndm_state & " " & vndm_zip
-
             VENDOR_INFO_ARRAY(vnds_grh, vendor_counter) = vndm_grh_yn           'saving the grh information to the large array
             If vndm_status = "A" Then VENDOR_INFO_ARRAY(vnds_stat, vendor_counter) = "Active"           'Setting the vendor status in the large array with actual words
             If vndm_status = "P" Then VENDOR_INFO_ARRAY(vnds_stat, vendor_counter) = "Pending"
@@ -189,7 +192,6 @@ For each vendor_number in vendor_array                  'cycling through the arr
         End If
 
         Call back_to_SELF       'after gathering the vendor information, go back to self to reset all the things
-
         vendor_counter = vendor_counter + 1     'incrementing the counter for the next vendor number
     End If
 Next
@@ -200,7 +202,8 @@ Do
         y_pos = 45              'variables for height of dialog as this is dynamic
         dlg_len = 65 + ( 25 * (UBound(VENDOR_INFO_ARRAY, 2) + 1))
 
-        'This is the main information dialog
+		'-------------------------------------------------------------------------------------------------DIALOG
+		Dialog1 = "" 'Blanking out previous dialog detail
         BeginDialog Dialog1, 0, 0, 680, dlg_len, "Vendor Detail Information"
           ButtonGroup ButtonPressed
             PushButton 565, 10, 105, 10, "ADD ANOTHER VENDOR", add_another_button
@@ -248,9 +251,7 @@ Do
             If trim(VENDOR_INFO_ARRAY(vnds_name, each_vendor)) = "" Then err_msg = err_msg & vbNewLine & "* Enter the name of the vendor."          'VENDOR NAME
             If trim(VENDOR_INFO_ARRAY(vnds_type, each_vendor)) = "" OR trim(VENDOR_INFO_ARRAY(vnds_type, each_vendor)) = "Select or Type" Then err_msg = err_msg & vbNewLine & "* Enter the type of vendor"     'VENDOR TYPE
         Next
-
         If err_msg <> "" AND left(err_msg, 4) <> "LOOP" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg     'Showing the error message
-
     Loop until err_msg = ""
     Call check_for_password(are_we_passworded_out)          'password handling
 Loop until are_we_passworded_out = False

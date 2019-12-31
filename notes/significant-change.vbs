@@ -51,8 +51,13 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'DIALOGS---------------------------------
-BeginDialog SigChange_Dialog, 0, 0, 291, 260, "Significant Change"
+'THE SCRIPT------------------------------------------------------------------------------------------------------------------
+EMConnect "" 'Connects to Bluezone
+call check_for_MAXIS(True) 'Password Check- Script will shut down if passworded out
+call MAXIS_case_number_finder(MAXIS_case_number) 'Searches for case number
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 291, 260, "Significant Change"
   EditBox 75, 5, 60, 15, MAXIS_case_number
   DropListBox 75, 25, 65, 15, "Select one..."+chr(9)+"Requested"+chr(9)+"Pending"+chr(9)+"Approved"+chr(9)+"Denied", Sig_change_status_dropdown
   DropListBox 75, 45, 215, 15, "Select one..."+chr(9)+"Income did not decrease enough to qualify."+chr(9)+"Income change was due to an extra paycheck in the budget month."+chr(9)+"The decrease in income is due to a unit member on strike."+chr(9)+"Self Employment Income does not apply to Significant Change."+chr(9)+"Significant Change was used twice in last 12 months.", Denial_reason_dropdown
@@ -84,19 +89,10 @@ BeginDialog SigChange_Dialog, 0, 0, 291, 260, "Significant Change"
   Text 190, 80, 70, 10, "*Enter 4 digit year"
 EndDialog
 
-
-'THE SCRIPT------------------------------------------------------------------------------------------------------------------
-EMConnect "" 'Connects to Bluezone
-EMFocus 'Brings Bluezone to foreground
-
-call check_for_MAXIS(True) 'Password Check- Script will shut down if passworded out
-
-call MAXIS_case_number_finder(MAXIS_case_number) 'Searches for case number
-
 'This is the new Do Loop process that makes mandatory fields in the dialog box
 Do
 	err_msg = ""
-	Dialog SigChange_Dialog
+	Dialog Dialog1
 	cancel_confirmation 'Are you sure you want to quit? message
 	call check_for_MAXIS (False) 'Password check- If passworded out, dialog box wont close
 	IF MAXIS_case_number = "" OR (MAXIS_case_number <> "" AND IsNumeric(MAXIS_case_number) = FALSE) THEN err_msg = err_msg & vbNewLine & "*Please enter a valid case number" 'Makes sure there is a numeric case number
@@ -126,7 +122,6 @@ END If
 
 If Sig_change_status_dropdown = "Denied" THEN
 	call start_a_new_spec_memo
-
 	'Writes the MEMO.
 	call write_variable_in_SPEC_MEMO("************************************************************")
 	call write_variable_in_SPEC_MEMO("Your request for Significant Change for the month of " & Month_requested_dropdown & " " & Month_requested_year & " has been received.")
@@ -141,7 +136,6 @@ END If
 
 'Starts the case note
 call start_a_blank_case_note
-
 'Writes the case note
 call write_bullet_and_variable_in_CASE_NOTE ("Significant Change", Sig_change_status_dropdown)
 IF Sig_change_status_dropdown = "Denied" THEN call write_bullet_and_variable_in_CASE_NOTE ("Denial Reason", Denial_reason_dropdown)
@@ -155,4 +149,4 @@ IF Tikl_future_month_checkbox = "1" THEN write_variable_in_case_note ("* Tikl se
 IF Sig_change_status_dropdown = "Denied" THEN write_variable_in_case_note ("* Denial letter sent via Spec/Memo")
 call write_variable_in_CASE_NOTE (Worker_signature)
 
-script_end_procedure("Success!")
+script_end_procedure_with_error_report("Success!")

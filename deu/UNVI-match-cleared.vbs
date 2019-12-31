@@ -124,7 +124,9 @@ IF dail_check = "View" THEN
 	ELSE
 	    summary_source = summary_source
 	END IF
-	BeginDialog unvi_info_dialog, 0, 0, 216, 135, "NON-WAGE MATCH"
+	'-------------------------------------------------------------------------------------------------DIALOG
+	Dialog1 = "" 'Blanking out previous dialog detail
+	BeginDialog Dialog1, 0, 0, 216, 135, "NON-WAGE MATCH"
 	  GroupBox 5, 5, 205, 85, "NON-WAGE MATCH CASE NUMBER "  & MAXIS_case_number
 	  Text 10, 20, 165, 10, "Client name: "  & client_name
 	  Text 10, 65, 165, 15, "Income source: "   & summary_source
@@ -135,9 +137,16 @@ IF dail_check = "View" THEN
 	    OkButton 110, 115, 45, 15
 	    CancelButton 165, 115, 45, 15
 	EndDialog
-	Dialog unvi_info_dialog
-	IF ButtonPressed = 0 THEN StopScript
-	CALL check_for_password_without_transmit(are_we_passworded_out)
+	DO
+	    DO
+        	err_msg = ""
+        	Dialog Dialog1
+        	cancel_without_confirmation
+         	If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+         	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+        LOOP UNTIL err_msg = ""
+		CALL check_for_password_without_transmit(are_we_passworded_out)
+	Loop until are_we_passworded_out = false
 	PF3
 	PF3'back to dail
 	'----------------------------------------------------------------------------------------------------IEVP
@@ -148,7 +157,9 @@ IF dail_check = "View" THEN
 ElseIF dail_check <> "View" THEN
     CALL MAXIS_case_number_finder (MAXIS_case_number)
     MEMB_number = "01"
-    BeginDialog case_number_dialog, 0, 0, 131, 65, "Case Number to clear match"
+	'-------------------------------------------------------------------------------------------------DIALOG
+	Dialog1 = "" 'Blanking out previous dialog detail
+    BeginDialog Dialog1, 0, 0, 131, 65, "Case Number to clear match"
       EditBox 60, 5, 65, 15, MAXIS_case_number
       EditBox 60, 25, 30, 15, MEMB_number
       ButtonGroup ButtonPressed
@@ -157,23 +168,22 @@ ElseIF dail_check <> "View" THEN
       Text 5, 30, 55, 10, "MEMB Number:"
       Text 5, 10, 50, 10, "Case Number:"
     EndDialog
-    DO
-    	DO
-    		err_msg = ""
-    		Dialog case_number_dialog
-    		IF ButtonPressed = 0 THEN StopScript
-      		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
-      		If IsNumeric(MEMB_number) = False or len(MEMB_number) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2 digit member number."
-    		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-    	LOOP UNTIL err_msg = ""
-    	CALL check_for_password(are_we_passworded_out)
-    LOOP UNTIL are_we_passworded_out = false
+	DO
+	    DO
+	       	err_msg = ""
+	       	Dialog Dialog1
+	       	cancel_without_confirmation
+	        If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+	        If IsNumeric(MEMB_number) = False or len(MEMB_number) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2 digit member number."
+	       	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+	        LOOP UNTIL err_msg = ""
+			CALL check_for_password_without_transmit(are_we_passworded_out)
+		Loop until are_we_passworded_out = false
     CALL navigate_to_MAXIS_screen("STAT", "MEMB")
     EMwritescreen MEMB_number, 20, 76
     TRANSMIT
     EMReadscreen SSN_number_read, 11, 7, 42
     SSN_number_read = replace(SSN_number_read, " ", "")
-
 	CALL navigate_to_MAXIS_screen("INFC" , "____")
 	EMWritescreen SSN_number_read, 3, 63
 	CALL write_value_and_transmit("IEVP", 20, 71)
@@ -246,10 +256,6 @@ ELSE
 END IF
 
 '--------------------------------------------------------------------Client name
-
-
-
-
 EMReadScreen client_name, 26, 5, 24
 client_name = trim(client_name)                         'trimming the client name
 IF instr(client_name, ",") THEN    						'Most cases have both last name and 1st name. This seperates the two names
@@ -260,7 +266,6 @@ IF instr(client_name, ",") THEN    						'Most cases have both last name and 1st
 ELSE                                'In cases where the last name takes up the entire space, THEN the client name becomes the last name
 	first_name = ""
 	last_name = client_name
-
 END IF
 IF instr(first_name, " ") THEN   						'If there is a middle initial in the first name, THEN it removes it
 	length = len(first_name)                        	'trimming the 1st name
@@ -271,7 +276,6 @@ END IF
 '----------------------------------------------------------------------------------------------------ACTIVE PROGRAMS
 EMReadScreen Active_Programs, 13, 6, 68
 Active_Programs = trim(Active_Programs)
-
 programs = ""
 IF instr(Active_Programs, "D") THEN programs = programs & "DWP, "
 IF instr(Active_Programs, "F") THEN programs = programs & "Food Support, "
@@ -289,59 +293,65 @@ EMReadScreen sent_date, 8, 14, 68
 sent_date = trim(sent_date)
 IF sent_date <> "" THEN sent_date = replace(sent_date, " ", "/")
 
-'----------------------------------------------------------------------------dialogs
-BeginDialog notice_action_dialog, 0, 0, 166, 90, "SEND DIFFERENCE NOTICE?"
-  CheckBox 25, 35, 105, 10, "YES - Send Difference Notice", send_notice_checkbox
-  CheckBox 25, 50, 130, 10, "NO - Continue Match Action to Clear", clear_action_checkbox
-  Text 10, 10, 145, 20, "A difference notice has not been sent, would you like to send the difference notice now?"
-  ButtonGroup ButtonPressed
-    OkButton 60, 70, 45, 15
-    CancelButton 110, 70, 45, 15
-EndDialog
-
-BeginDialog send_notice_dialog, 0, 0, 296, 160, "NON-WAGE MATCH SEND DIFFERENCE NOTICE"
-   CheckBox 10, 80, 70, 10, "Difference Notice", Diff_Notice_Checkbox
-   CheckBox 110, 80, 80, 10, "Lottery/Gaming Form", lottery_verf_checkbox
-   CheckBox 10, 95, 90, 10, "Authorization to Release", ATR_Verf_CheckBox
-   CheckBox 110, 95, 80, 10, "Rental Income Form", rental_checkbox
-   Text 5, 125, 40, 10, "Other notes: "
-   EditBox 50, 120, 240, 15, other_notes
-   ButtonGroup ButtonPressed
-     OkButton 195, 140, 45, 15
-     CancelButton 245, 140, 45, 15
-    GroupBox 5, 5, 285, 55, "NON-WAGE MATCH"
-    GroupBox 5, 65, 190, 50, "Verification Requested: "
-    Text 10, 20, 110, 10, "Case number: " & MAXIS_case_number
-    Text 10, 40, 105, 10, "Active Programs: " & programs
-    Text 120, 20, 165, 10, "Client name: " & client_name
-    Text 120, 40, 165, 15, "Income source: "  & income_source
-    CheckBox 5, 145, 180, 10, "Check to add claim referral tracking(SNAP and MF)", claim_referral_tracking_checkbox
-EndDialog
-
 IF notice_sent = "N" THEN
+    '-------------------------------------------------------------------------------------------------DIALOG
+    Dialog1 = "" 'Blanking out previous dialog detail
+    BeginDialog Dialog1, 0, 0, 166, 90, "SEND DIFFERENCE NOTICE?"
+      CheckBox 25, 35, 105, 10, "YES - Send Difference Notice", send_notice_checkbox
+      CheckBox 25, 50, 130, 10, "NO - Continue Match Action to Clear", clear_action_checkbox
+      Text 10, 10, 145, 20, "A difference notice has not been sent, would you like to send the difference notice now?"
+      ButtonGroup ButtonPressed
+    	OkButton 60, 70, 45, 15
+    	CancelButton 110, 70, 45, 15
+    EndDialog
 	DO
-    	err_msg = ""
-    	Dialog notice_action_dialog
-		IF ButtonPressed = 0 THEN StopScript
-		IF (send_notice_checkbox = UNCHECKED AND clear_action_checkbox = UNCHECKED) THEN err_msg = err_msg & vbNewLine & "* Please select an answer to continue."
-		IF (send_notice_checkbox = CHECKED AND clear_action_checkbox = CHECKED) THEN err_msg = err_msg & vbNewLine & "* Please select only one answer to continue."
-    	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-	LOOP UNTIL err_msg = ""
+	    DO
+        	err_msg = ""
+        	Dialog Dialog1
+	    	cancel_without_confirmation
+	    	IF (send_notice_checkbox = UNCHECKED AND clear_action_checkbox = UNCHECKED) THEN err_msg = err_msg & vbNewLine & "* Please select an answer to continue."
+	    	IF (send_notice_checkbox = CHECKED AND clear_action_checkbox = CHECKED) THEN err_msg = err_msg & vbNewLine & "* Please select only one answer to continue."
+        	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+	    LOOP UNTIL err_msg = ""
+	Loop until are_we_passworded_out = false
 END IF
-CALL check_for_password_without_transmit(are_we_passworded_out)
 
 IF send_notice_checkbox = CHECKED THEN
-'----------------------------------------------------------------Defaulting checkboxes to being checked (per DEU instruction)
+    '-------------------------------------------------------------------------------------------------DIALOG
+    Dialog1 = "" 'Blanking out previous dialog detail
+    BeginDialog Dialog1, 0, 0, 296, 160, "NON-WAGE MATCH SEND DIFFERENCE NOTICE"
+       CheckBox 10, 80, 70, 10, "Difference Notice", Diff_Notice_Checkbox
+       CheckBox 110, 80, 80, 10, "Lottery/Gaming Form", lottery_verf_checkbox
+       CheckBox 10, 95, 90, 10, "Authorization to Release", ATR_Verf_CheckBox
+       CheckBox 110, 95, 80, 10, "Rental Income Form", rental_checkbox
+       Text 5, 125, 40, 10, "Other notes: "
+       EditBox 50, 120, 240, 15, other_notes
+       ButtonGroup ButtonPressed
+    	 OkButton 195, 140, 45, 15
+    	 CancelButton 245, 140, 45, 15
+    	GroupBox 5, 5, 285, 55, "NON-WAGE MATCH"
+    	GroupBox 5, 65, 190, 50, "Verification Requested: "
+    	Text 10, 20, 110, 10, "Case number: " & MAXIS_case_number
+    	Text 10, 40, 105, 10, "Active Programs: " & programs
+    	Text 120, 20, 165, 10, "Client name: " & client_name
+    	Text 120, 40, 165, 15, "Income source: "  & income_source
+    	CheckBox 5, 145, 180, 10, "Check to add claim referral tracking(SNAP and MF)", claim_referral_tracking_checkbox
+    EndDialog
+	'---------------------------------------------------------------Defaulting checkboxes to being checked (per DEU instruction)
     Diff_Notice_Checkbox = CHECKED
     ATR_Verf_CheckBox = CHECKED
     '---------------------------------------------------------------------send notice dialog and dialog DO...loop
 	DO
-    	err_msg = ""
-    	Dialog send_notice_dialog
-    	cancel_confirmation
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-	LOOP UNTIL err_msg = ""
-	CALL check_for_password_without_transmit(are_we_passworded_out)
+	    DO
+	       	err_msg = ""
+	       	Dialog Dialog1
+	       	cancel_without_confirmation
+	        	If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+	        	If IsNumeric(MEMB_number) = False or len(MEMB_number) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2 digit member number."
+	       	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+	       LOOP UNTIL err_msg = ""
+		CALL check_for_password_without_transmit(are_we_passworded_out)
+	Loop until are_we_passworded_out = false
 
 	'--------------------------------------------------------------------sending the notice in IULA
 	EMwritescreen "005", 12, 46 'writing the resolve time to read for later
@@ -448,7 +458,9 @@ END IF
 
 IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 IF sent_date <> "" THEN MsgBox("A difference notice was sent on " & sent_date & "." & vbNewLine & "The script will now navigate to clear the Non-wage match.")
-   BeginDialog cleared_match_dialog, 0, 0, 311, 200, "NON-WAGE MATCH CLEARED"
+	'-------------------------------------------------------------------------------------------------DIALOG
+	Dialog1 = "" 'Blanking out previous dialog detail
+   BeginDialog Dialog1, 0, 0, 311, 200, "NON-WAGE MATCH CLEARED"
      GroupBox 5, 5, 300, 55, "NON-WAGE MATCH"
      Text 10, 20, 110, 10, "Case number: " & MAXIS_case_number
      Text 120, 20, 165, 10, "Client name: "  & client_name
@@ -475,20 +487,22 @@ IF sent_date <> "" THEN MsgBox("A difference notice was sent on " & sent_date & 
      CheckBox 10, 165, 265, 10, "Check to update claim referral tracking(SNAP and MF) No Overpayment Exists", no_overpayment_checkbox
    EndDialog
 
-   	Do
-   		err_msg = ""
-		Dialog cleared_match_dialog
-		IF ButtonPressed = 0 THEN StopScript
-		IF IsNumeric(resolve_time) = false or len(resolve_time) > 3 THEN err_msg = err_msg & vbNewLine & "* Enter a valid numeric resolved time."
-		IF resolve_time = "" THEN err_msg = err_msg & vbNewLine & "Please complete resolve time."
-		IF change_response = "Select One:" THEN err_msg = err_msg & vbNewLine & "Did the client respond to Difference Notice?"
-		IF resolution_status = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please select a resolution status to continue."
-		IF Active_Programs = "H" and resolution_status = "CC - Claim Entered" THEN err_msg = err_msg & vbNewLine & "CC cannot be used - ACTION CODE FOR ACTH IS INVALID"
-		IF Active_Programs = "M" and resolution_status = "CC - Claim Entered" THEN err_msg = err_msg & vbNewLine & "CC cannot be used - ACTION CODE FOR ACTM IS INVALID"
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-	Loop until err_msg = ""
+   	DO
+		Do
+   		    err_msg = ""
+		    Dialog Dialog1
+		    IF ButtonPressed = 0 THEN StopScript
+		    IF IsNumeric(resolve_time) = false or len(resolve_time) > 3 THEN err_msg = err_msg & vbNewLine & "* Enter a valid numeric resolved time."
+		    IF resolve_time = "" THEN err_msg = err_msg & vbNewLine & "Please complete resolve time."
+		    IF change_response = "Select One:" THEN err_msg = err_msg & vbNewLine & "Did the client respond to Difference Notice?"
+		    IF resolution_status = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please select a resolution status to continue."
+		    IF Active_Programs = "H" and resolution_status = "CC - Claim Entered" THEN err_msg = err_msg & vbNewLine & "CC cannot be used - ACTION CODE FOR ACTH IS INVALID"
+		    IF Active_Programs = "M" and resolution_status = "CC - Claim Entered" THEN err_msg = err_msg & vbNewLine & "CC cannot be used - ACTION CODE FOR ACTM IS INVALID"
+		    IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+		Loop until err_msg = ""
+		CALL check_for_password_without_transmit(are_we_passworded_out)
+	Loop until are_we_passworded_out = false
 
-	CALL check_for_password_without_transmit(are_we_passworded_out)
 
 	'----------------------------------------------------------------------------------------------------RESOLVING THE MATCH
 	EMWriteScreen resolve_time, 12, 46

@@ -55,8 +55,9 @@ changelog_display
 'Checks for county info from global variables, or asks if it is not already defined.
 get_county_code
 
-'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog benefits_approved, 0, 0, 316, 235, "Benefits Approved"
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 316, 235, "Benefits Approved"
   CheckBox 80, 5, 30, 10, "SNAP", snap_approved_check
   CheckBox 115, 5, 30, 10, "Cash", cash_approved_check
   CheckBox 150, 5, 50, 10, "Health Care", hc_approved_check
@@ -90,7 +91,6 @@ BeginDialog benefits_approved, 0, 0, 316, 235, "Benefits Approved"
   Text 5, 25, 50, 10, "Case Number:"
   Text 200, 195, 75, 10, "BANKED footer month: "
 EndDialog
-
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 'connecting to MAXIS
@@ -135,7 +135,7 @@ Do
 	Do
 		'Adding err_msg handling
 		err_msg = ""
-		Dialog benefits_approved
+		Dialog Dialog1
 		cancel_confirmation
 			'Enforcing mandatory fields
 			If MAXIS_case_number = "" then err_msg = err_msg & vbCr & "* Please enter a case number."

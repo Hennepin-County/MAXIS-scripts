@@ -50,9 +50,9 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-
-'Dialogs----------------------------------------------------------------------------------------------------
-BeginDialog case_discrepancy_dialog, 0, 0, 336, 245, "Case discrepancy"
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 336, 245, "Case discrepancy"
   EditBox 90, 10, 70, 15, MAXIS_case_number
   DropListBox 90, 35, 70, 15, "Select one..."+chr(9)+"found/pending"+chr(9)+"resolved ", discrepancy_status
   EditBox 90, 55, 70, 15, MNsure_case_number

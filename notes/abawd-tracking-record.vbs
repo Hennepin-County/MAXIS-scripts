@@ -50,8 +50,9 @@ call changelog_update("07/17/2017", "Initial version.", "Ilse Ferris, Hennepin C
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog case_number_dialog, 0, 0, 141, 95, "Enter the case number & footer month/year"
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 141, 95, "Enter the case number & footer month/year"
   EditBox 75, 5, 45, 15, MAXIS_case_number
   EditBox 75, 25, 20, 15, MAXIS_footer_month
   EditBox 100, 25, 20, 15, MAXIS_footer_year
@@ -75,7 +76,7 @@ member_number = "01"
 Do
 	Do
   		err_msg = ""
-  		Dialog case_number_dialog
+  		Dialog Dialog1
   		If ButtonPressed = 0 then stopscript
   		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
   		If IsNumeric(MAXIS_footer_month) = False or len(MAXIS_footer_month) > 2 or len(MAXIS_footer_month) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer month."
@@ -83,13 +84,13 @@ Do
 		If IsNumeric(member_number) = False or len(member_number) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer year."
   		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-Loop until are_we_passworded_out = false					'loops until user passwords back in		
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 MAXIS_background_check
 MAXIS_footer_month_confirmation
 Call navigate_to_MAXIS_screen("STAT", "WREG")
-Do 
+Do
 	EMReadScreen WREG_panel, 4, 2, 48
 	If WREG_panel <> "WREG" then Call navigate_to_MAXIS_screen("STAT", "WREG")
 Loop until WREG_panel = "WREG"
@@ -137,8 +138,8 @@ Do
 		If trim(worker_signature) = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
   		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-Loop until are_we_passworded_out = false					'loops until user passwords back in	
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 PF3 'Exiting the ABAWD tracking record
 '----------------------------------------------------------------------------------------------------The case note

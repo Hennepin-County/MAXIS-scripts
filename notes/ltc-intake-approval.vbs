@@ -58,8 +58,9 @@ If len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_mont
 MAXIS_footer_year = datepart("yyyy", next_month)
 MAXIS_footer_year = "" & MAXIS_footer_year - 2000
 
-'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-BeginDialog case_number_dialog, 0, 0, 181, 72, "Case number dialog"
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 181, 72, "Case number dialog"
   EditBox 80, 5, 70, 15, MAXIS_case_number
   EditBox 65, 25, 30, 15, MAXIS_footer_month
   EditBox 140, 25, 30, 15, MAXIS_footer_year
@@ -69,108 +70,6 @@ BeginDialog case_number_dialog, 0, 0, 181, 72, "Case number dialog"
   Text 25, 10, 50, 10, "Case number:"
   Text 10, 30, 50, 10, "Footer month:"
   Text 110, 30, 25, 10, "Year:"
-EndDialog
-
-BeginDialog intake_approval_dialog, 0, 0, 386, 435, "Intake Approval Dialog"
-  EditBox 65, 5, 55, 15, application_date
-  CheckBox 140, 5, 155, 15, "Check here if this client is in the community.", community_check
-  DropListBox 45, 25, 30, 15, "EX"+chr(9)+"DX"+chr(9)+"DP", elig_type
-  DropListBox 135, 25, 30, 15, "L"+chr(9)+"S"+chr(9)+"B", budget_type
-  EditBox 305, 25, 70, 15, recipient_amt
-  CheckBox 5, 50, 140, 10, "LTCC? If so, check here and enter date:", LTCC_check
-  EditBox 150, 45, 45, 15, LTCC_date
-  CheckBox 210, 50, 75, 10, "DHS-5181 on file?", DHS_5181_on_file_check
-  CheckBox 305, 50, 75, 10, "DHS-1503 on file?", DHS_1503_on_file_check
-  EditBox 65, 65, 55, 15, retro_months
-  EditBox 185, 65, 45, 15, month_MA_starts
-  EditBox 330, 65, 45, 15, month_MA_LTC_starts
-  EditBox 65, 85, 55, 15, baseline_date
-  EditBox 250, 85, 125, 15, AREP_SWKR
-  EditBox 75, 105, 205, 15, FACI
-  EditBox 330, 105, 45, 15, CFR
-  EditBox 60, 125, 315, 15, income
-  EditBox 40, 145, 335, 15, assets
-  EditBox 90, 165, 65, 15, total_countable_assets
-  EditBox 235, 165, 140, 15, other_asset_notes
-  EditBox 60, 185, 150, 15, MEDI_INSA
-  CheckBox 240, 190, 140, 10, "Check here if INSA was loaded into TPL.", INSA_loaded_into_TPL_check
-  CheckBox 5, 205, 230, 10, "LTC partnership? If so, check here and enter a separate case note.", LTC_partnership_check
-  CheckBox 240, 205, 105, 10, "Managed care referral sent?", managed_care_referral_sent_check
-  EditBox 70, 225, 305, 15, annuity_LTC_PRB
-  DropListBox 70, 245, 75, 15, "N/A"+chr(9)+"Within limit"+chr(9)+"Beyond limit", home_equity_limit
-  EditBox 190, 245, 185, 15, transfer
-  EditBox 70, 265, 305, 15, deductions
-  EditBox 50, 285, 325, 15, other_notes
-  EditBox 55, 305, 320, 15, actions_taken
-  CheckBox 10, 325, 85, 10, "Sent DHS-3050/1503?", DHS_3050_1503_check
-  CheckBox 135, 325, 95, 10, "Sent DHS-3203/lien doc?", DHS_3203_lien_doc_check
-  CheckBox 275, 325, 95, 10, "Asset transfer memo sent?", asset_transfer_letter_sent_check
-  EditBox 185, 405, 80, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 270, 405, 50, 15
-    CancelButton 325, 405, 50, 15
-    PushButton 340, 5, 35, 10, "ELIG/HC", ELIG_HC_button
-    PushButton 190, 90, 25, 10, "AREP/", AREP_button
-    PushButton 215, 90, 30, 10, "SWKR:", SWKR_button
-    PushButton 5, 110, 65, 10, "FACI (if applicable):", FACI_button
-    PushButton 5, 130, 50, 10, "UNEA/income:", UNEA_button
-    PushButton 5, 190, 25, 10, "MEDI/", MEDI_button
-    PushButton 30, 190, 25, 10, "INSA:", INSA_button
-    PushButton 5, 270, 60, 10, "BILS/deductions:", BILS_button
-  Text 5, 10, 55, 10, "Application date:"
-  Text 5, 30, 35, 10, "Elig type:"
-  Text 85, 30, 45, 10, "Budget type:"
-  Text 195, 30, 110, 10, "Waiver obilgation/recipient amt:"
-  Text 5, 70, 50, 10, "Retro months?:"
-  Text 125, 70, 55, 10, "Month MA starts:"
-  Text 255, 70, 75, 10, "Month MA-LTC starts:"
-  Text 305, 110, 20, 10, "CFR:"
-  Text 5, 150, 30, 10, "Assets:"
-  Text 5, 170, 80, 10, "Total countable assets:"
-  Text 165, 170, 65, 10, "Other asset notes:"
-  Text 5, 90, 60, 10, "Baseline date*: "
-  Text 5, 230, 65, 10, "Annuity (LTC) PRB:"
-  Text 5, 250, 60, 10, "Home equity limit:"
-  Text 155, 250, 35, 10, "Transfer:"
-  Text 5, 290, 40, 10, "Other notes:"
-  Text 5, 310, 50, 10, "Actions taken:"
-  Text 125, 410, 60, 10, "Worker signature:"
-  Text 15, 355, 345, 40, "The baseline date is the date in which both of the following conditions are met:  1. A person is residing in an LTCF or, for a person requesting services through a home and community-based waiver program, the date a screening occurred that indicated a need for services provided through a home and community-based services waiver program AND 2. The person’s initial request month for MA payment of LTC services."
-  GroupBox 5, 345, 365, 55, "*Per HCPM 19.40.15: "
-EndDialog
-
-BeginDialog type_std_dialog, 0, 0, 206, 172, "Type-Std dialog"
-  EditBox 10, 25, 50, 15, elig_date_01
-  EditBox 75, 25, 40, 15, elig_type_std_01
-  EditBox 135, 25, 15, 15, elig_method_01
-  EditBox 175, 25, 15, 15, elig_waiver_type_01
-  EditBox 10, 45, 50, 15, elig_date_02
-  EditBox 75, 45, 40, 15, elig_type_std_02
-  EditBox 135, 45, 15, 15, elig_method_02
-  EditBox 175, 45, 15, 15, elig_waiver_type_02
-  EditBox 10, 65, 50, 15, elig_date_03
-  EditBox 75, 65, 40, 15, elig_type_std_03
-  EditBox 135, 65, 15, 15, elig_method_03
-  EditBox 175, 65, 15, 15, elig_waiver_type_03
-  EditBox 10, 85, 50, 15, elig_date_04
-  EditBox 75, 85, 40, 15, elig_type_std_04
-  EditBox 135, 85, 15, 15, elig_method_04
-  EditBox 175, 85, 15, 15, elig_waiver_type_04
-  EditBox 10, 105, 50, 15, elig_date_05
-  EditBox 75, 105, 40, 15, elig_type_std_05
-  EditBox 135, 105, 15, 15, elig_method_05
-  EditBox 175, 105, 15, 15, elig_waiver_type_05
-  EditBox 10, 125, 50, 15, elig_date_06
-  EditBox 75, 125, 40, 15, elig_type_std_06
-  EditBox 135, 125, 15, 15, elig_method_06
-  EditBox 175, 125, 15, 15, elig_waiver_type_06
-  ButtonGroup ButtonPressed
-    OkButton 50, 150, 50, 15
-    CancelButton 110, 150, 50, 15
-  Text 15, 10, 40, 10, "Elig months"
-  Text 75, 10, 45, 10, "Elig type/Std"
-  Text 130, 10, 30, 10, "Method"
-  Text 170, 10, 25, 10, "Waiver"
 EndDialog
 
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -189,12 +88,14 @@ Call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 'Showing the case number dialog
-Do
-  Dialog case_number_dialog
-  cancel_confirmation
-  If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then MsgBox "You need to type a valid case number."
-Loop until MAXIS_case_number <> "" and IsNumeric(MAXIS_case_number) = True and len(MAXIS_case_number) <= 8
-
+DO
+	DO
+		Dialog Dialog1
+		cancel_confirmation
+		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then MsgBox "You need to type a valid case number."
+		Loop until err_msg = ""
+		Call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+LOOP UNTIL are_we_passworded_out = false							'Loops until we affirm that we're ready to case note.
 'Checking for MAXIS, NAV to HCRE
 Call check_for_MAXIS(FALSE)
 Call navigate_to_MAXIS_screen("stat", "hcre")
@@ -376,9 +277,49 @@ For i = 1 to 6 'Does it several times to make sure the job gets done completely.
   End if
 Next
 
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 206, 172, "Type-Std dialog"
+  EditBox 10, 25, 50, 15, elig_date_01
+  EditBox 75, 25, 40, 15, elig_type_std_01
+  EditBox 135, 25, 15, 15, elig_method_01
+  EditBox 175, 25, 15, 15, elig_waiver_type_01
+  EditBox 10, 45, 50, 15, elig_date_02
+  EditBox 75, 45, 40, 15, elig_type_std_02
+  EditBox 135, 45, 15, 15, elig_method_02
+  EditBox 175, 45, 15, 15, elig_waiver_type_02
+  EditBox 10, 65, 50, 15, elig_date_03
+  EditBox 75, 65, 40, 15, elig_type_std_03
+  EditBox 135, 65, 15, 15, elig_method_03
+  EditBox 175, 65, 15, 15, elig_waiver_type_03
+  EditBox 10, 85, 50, 15, elig_date_04
+  EditBox 75, 85, 40, 15, elig_type_std_04
+  EditBox 135, 85, 15, 15, elig_method_04
+  EditBox 175, 85, 15, 15, elig_waiver_type_04
+  EditBox 10, 105, 50, 15, elig_date_05
+  EditBox 75, 105, 40, 15, elig_type_std_05
+  EditBox 135, 105, 15, 15, elig_method_05
+  EditBox 175, 105, 15, 15, elig_waiver_type_05
+  EditBox 10, 125, 50, 15, elig_date_06
+  EditBox 75, 125, 40, 15, elig_type_std_06
+  EditBox 135, 125, 15, 15, elig_method_06
+  EditBox 175, 125, 15, 15, elig_waiver_type_06
+  ButtonGroup ButtonPressed
+    OkButton 50, 150, 50, 15
+    CancelButton 110, 150, 50, 15
+  Text 15, 10, 40, 10, "Elig months"
+  Text 75, 10, 45, 10, "Elig type/Std"
+  Text 130, 10, 30, 10, "Method"
+  Text 170, 10, 25, 10, "Waiver"
+EndDialog
 'DISPLAYS THE TYPE/STD DIALOG AFTER GATHERING THE INFO
-Dialog type_std_dialog
-cancel_confirmation
+DO
+	DO
+		Dialog Dialog1
+		cancel_confirmation
+		Loop until err_msg = ""
+		Call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+LOOP UNTIL are_we_passworded_out = false							'Loops until we affirm that we're ready to case note.
 
 'READS THE FOOTER MONTH ELIG TYPE AND STANDARD
 EMReadScreen elig_type, 2, 12, col - 1
@@ -444,8 +385,10 @@ If SBUD_check = "SBUD" then
   If other_deductions <> "__________" then deductions = deductions & "Other deductions ($" & replace(other_deductions, "_", "") & "). "
 End if
 
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
 'CHECKS IF THE SCREEN HAS AN B BUDGET. IF IT DOES, IT ASKS THE WORKER WHAT TO DO.
-BeginDialog BBUD_Dialog, 0, 0, 191, 76, "BBUD"
+BeginDialog Dialog1, 0, 0, 191, 76, "BBUD"
   Text 5, 10, 180, 10, "This is a method B budget. What would you like to do?"
   ButtonGroup ButtonPressed
     PushButton 20, 25, 70, 15, "Jump to STAT/BILS", BILS_button
@@ -455,28 +398,105 @@ EndDialog
 
 EMReadScreen BBUD_check, 4, 3, 47
 If BBUD_check = "BBUD" then
-  Dialog BBUD_dialog
-  cancel_confirmation
-  If ButtonPressed = BILS_button then
-    PF3
-    Call check_for_MAXIS(False)
-    Dialog BBUD_Dialog
-    cancel_confirmation
-    Call check_for_MAXIS(False)
-    back_to_SELF
-    EMWriteScreen "stat", 16, 43
-    EMWriteScreen "bils", 21, 70
-    transmit
-    EMReadScreen BILS_check, 4, 2, 54
-    If BILS_check <> "BILS" then transmit
-  End if
+    DO
+       DO
+    	   Dialog Dialog1
+    	   cancel_confirmation
+    	   Loop until err_msg = ""
+    	   Call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+    LOOP UNTIL are_we_passworded_out = false							'Loops until we affirm that we're ready to case note.
+  	If ButtonPressed = BILS_button then
+    	PF3
+    	Call check_for_MAXIS(False)
+		DO
+	       DO
+	    	   Dialog Dialog1
+	    	   cancel_confirmation
+	    	   Loop until err_msg = ""
+	    	   Call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+	    LOOP UNTIL are_we_passworded_out = false							'Loops until we affirm that we're ready to case note.)
+    	back_to_SELF
+    	EMWriteScreen "stat", 16, 43
+    	EMWriteScreen "bils", 21, 70
+    	transmit
+    	EMReadScreen BILS_check, 4, 2, 54
+    	If BILS_check <> "BILS" then transmit
+  	End if
 End if
 
-'DIALOG--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 386, 435, "Intake Approval Dialog"
+  EditBox 65, 5, 55, 15, application_date
+  CheckBox 140, 5, 155, 15, "Check here if this client is in the community.", community_check
+  DropListBox 45, 25, 30, 15, "EX"+chr(9)+"DX"+chr(9)+"DP", elig_type
+  DropListBox 135, 25, 30, 15, "L"+chr(9)+"S"+chr(9)+"B", budget_type
+  EditBox 305, 25, 70, 15, recipient_amt
+  CheckBox 5, 50, 140, 10, "LTCC? If so, check here and enter date:", LTCC_check
+  EditBox 150, 45, 45, 15, LTCC_date
+  CheckBox 210, 50, 75, 10, "DHS-5181 on file?", DHS_5181_on_file_check
+  CheckBox 305, 50, 75, 10, "DHS-1503 on file?", DHS_1503_on_file_check
+  EditBox 65, 65, 55, 15, retro_months
+  EditBox 185, 65, 45, 15, month_MA_starts
+  EditBox 330, 65, 45, 15, month_MA_LTC_starts
+  EditBox 65, 85, 55, 15, baseline_date
+  EditBox 250, 85, 125, 15, AREP_SWKR
+  EditBox 75, 105, 205, 15, FACI
+  EditBox 330, 105, 45, 15, CFR
+  EditBox 60, 125, 315, 15, income
+  EditBox 40, 145, 335, 15, assets
+  EditBox 90, 165, 65, 15, total_countable_assets
+  EditBox 235, 165, 140, 15, other_asset_notes
+  EditBox 60, 185, 150, 15, MEDI_INSA
+  CheckBox 240, 190, 140, 10, "Check here if INSA was loaded into TPL.", INSA_loaded_into_TPL_check
+  CheckBox 5, 205, 230, 10, "LTC partnership? If so, check here and enter a separate case note.", LTC_partnership_check
+  CheckBox 240, 205, 105, 10, "Managed care referral sent?", managed_care_referral_sent_check
+  EditBox 70, 225, 305, 15, annuity_LTC_PRB
+  DropListBox 70, 245, 75, 15, "N/A"+chr(9)+"Within limit"+chr(9)+"Beyond limit", home_equity_limit
+  EditBox 190, 245, 185, 15, transfer
+  EditBox 70, 265, 305, 15, deductions
+  EditBox 50, 285, 325, 15, other_notes
+  EditBox 55, 305, 320, 15, actions_taken
+  CheckBox 10, 325, 85, 10, "Sent DHS-3050/1503?", DHS_3050_1503_check
+  CheckBox 135, 325, 95, 10, "Sent DHS-3203/lien doc?", DHS_3203_lien_doc_check
+  CheckBox 275, 325, 95, 10, "Asset transfer memo sent?", asset_transfer_letter_sent_check
+  EditBox 185, 405, 80, 15, worker_signature
+  ButtonGroup ButtonPressed
+    OkButton 270, 405, 50, 15
+    CancelButton 325, 405, 50, 15
+    PushButton 340, 5, 35, 10, "ELIG/HC", ELIG_HC_button
+    PushButton 190, 90, 25, 10, "AREP/", AREP_button
+    PushButton 215, 90, 30, 10, "SWKR:", SWKR_button
+    PushButton 5, 110, 65, 10, "FACI (if applicable):", FACI_button
+    PushButton 5, 130, 50, 10, "UNEA/income:", UNEA_button
+    PushButton 5, 190, 25, 10, "MEDI/", MEDI_button
+    PushButton 30, 190, 25, 10, "INSA:", INSA_button
+    PushButton 5, 270, 60, 10, "BILS/deductions:", BILS_button
+  Text 5, 10, 55, 10, "Application date:"
+  Text 5, 30, 35, 10, "Elig type:"
+  Text 85, 30, 45, 10, "Budget type:"
+  Text 195, 30, 110, 10, "Waiver obilgation/recipient amt:"
+  Text 5, 70, 50, 10, "Retro months?:"
+  Text 125, 70, 55, 10, "Month MA starts:"
+  Text 255, 70, 75, 10, "Month MA-LTC starts:"
+  Text 305, 110, 20, 10, "CFR:"
+  Text 5, 150, 30, 10, "Assets:"
+  Text 5, 170, 80, 10, "Total countable assets:"
+  Text 165, 170, 65, 10, "Other asset notes:"
+  Text 5, 90, 60, 10, "Baseline date*: "
+  Text 5, 230, 65, 10, "Annuity (LTC) PRB:"
+  Text 5, 250, 60, 10, "Home equity limit:"
+  Text 155, 250, 35, 10, "Transfer:"
+  Text 5, 290, 40, 10, "Other notes:"
+  Text 5, 310, 50, 10, "Actions taken:"
+  Text 125, 410, 60, 10, "Worker signature:"
+  Text 15, 355, 345, 40, "The baseline date is the date in which both of the following conditions are met:  1. A person is residing in an LTCF or, for a person requesting services through a home and community-based waiver program, the date a screening occurred that indicated a need for services provided through a home and community-based services waiver program AND 2. The person’s initial request month for MA payment of LTC services."
+  GroupBox 5, 345, 365, 55, "*Per HCPM 19.40.15: "
+EndDialog
 Do
 	Do
 		Do
-			Dialog intake_approval_dialog
+			Dialog Dialog1
             cancel_confirmation
 			MAXIS_dialog_navigation
 			'ensures that baseline date is in full date format so that the 'lookback period' is calculated correctly

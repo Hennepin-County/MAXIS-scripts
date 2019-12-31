@@ -54,7 +54,10 @@ changelog_display
 'DIALOGS MAY NOT BE DEFINED AT THE BEGINNING OF THE SCRIPT BUT WITHIN THE SCRIPT FILE
 
 'There is only one dialog in this script and so it can be defined in the beginning, but still is unnamed
-BeginDialog , 0, 0, 206, 190, "Deceased Client Summary"
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+
+BeginDialog Dialog1, 0, 0, 206, 190, "Deceased Client Summary"
   Text 5, 10, 50, 10, "Case Number"
   EditBox 65, 5, 50, 15, MAXIS_case_number
   Text 5, 30, 50, 10, "Date of Death"
@@ -90,16 +93,14 @@ call MAXIS_case_number_finder(MAXIS_case_number)
 'Do loop for Deceased Client Summary Shows dialog and creates and displays an error message if worker completes things incorrectly.
  DO
 	err_msg = ""
-	dialog  					'Calling a dialog without a assigned variable will call the most recently defined dialog
+	DIALOG Dialog1					'Calling a dialog without a assigned variable will call the most recently defined dialog
 	cancel_confirmation
-
 	'case number required for case note
 	IF isnumeric  (MAXIS_case_number) = false THEN err_msg = err_msg & "Please enter a case number." & VBnewline
 	'valid date required
 	IF isDate (date_of_death)=false then err_msg=err_msg & "Please enter a valid date." & VBNewline
 	'worker signature required
 	IF worker_signature = "" THEN err_msg = err_msg & "Please enter your worker signature." & VBNewline
-
 	IF err_msg <> "" THEN msgbox err_msg
 Loop until err_msg = ""		'keeps looping until there are no error messages
 
@@ -108,27 +109,22 @@ CALL check_for_MAXIS(false)
 
 'Navigates to case note
 start_a_blank_CASE_NOTE
-
 'writes case note for deceased client summary
 CALL write_variable_in_Case_Note("--Deceased Client Summary--")
 CALL write_bullet_and_variable_in_Case_Note("Date of Death", date_of_death)
 CALL write_bullet_and_variable_in_Case_Note("Place of Death", place_of_death)
-
 IF surviving_spouse_Checkbox = 1 THEN CALL write_variable_in_Case_Note("* There is a surviving spouse.")
 IF MA_lien_on_file_checkbox = 1 THEN CALL write_variable_in_Case_Note("* MA lien on file.")
 IF servicing_county_Checkbox = 1 THEN CALL write_variable_in_Case_Note("* Servicing county is also CFR.")
 IF transfer_to_CFR_Checkbox = 1 THEN CALL write_variable_in_Case_Note("* Transfer case to CFR.")
 IF collection_Checkbox = 1 THEN CALL write_variable_in_Case_Note("* Refer file for possible estate collection.")
-
 CALL write_bullet_and_variable_in_Case_Note("Other Info", other_info)
 CALL write_bullet_and_variable_in_Case_Note("Actions Taken", actions_taken)
-
-'signs case note
 CALL write_variable_in_Case_Note("---")
 CALL write_variable_in_Case_Note(worker_signature)
 
 'transmit to save case note
-Transmit
+PF3
 
 'Script ends & reminds worker to update STAT MEMB if need be
 script_end_procedure("Success! Case note has been added. Make sure date of death is entered on STAT MEMB and proceed as needed.")

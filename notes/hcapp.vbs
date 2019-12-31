@@ -55,8 +55,23 @@ MAXIS_footer_month = datepart("m", date)
 If len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_month
 MAXIS_footer_year = right(datepart("yyyy", date), 2)
 
-'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-BeginDialog case_number_and_footer_month_dialog, 0, 0, 161, 65, "Case number and footer month"
+'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+HH_memb_row = 5
+Dim row
+Dim col
+HC_check = 1 'This is so the functions will work without having to select a program. It uses the same dialogs as the CSR, which can look in multiple places. This is HC only, so it doesn't need those.
+application_signed_check = 1 'The script should default to having the application signed.
+
+'THE SCRIPT------------------------------------------------------------------------------------------------------------------------------------------------
+'Connecting to MAXIS
+EMConnect ""
+
+'Grabbing the case number
+call MAXIS_case_number_finder(MAXIS_case_number)
+CALL MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 161, 65, "Case number and footer month"
   Text 5, 10, 85, 10, "Enter your case number:"
   EditBox 95, 5, 60, 15, MAXIS_case_number
   Text 15, 30, 50, 10, "Footer month:"
@@ -67,8 +82,58 @@ BeginDialog case_number_and_footer_month_dialog, 0, 0, 161, 65, "Case number and
     OkButton 25, 45, 50, 15
     CancelButton 85, 45, 50, 15
 EndDialog
+'Showing the case number
+Do
+	Dialog Dialog1
+	If ButtonPressed = 0 then stopscript
+	If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then MsgBox "You need to type a valid case number."
+Loop until MAXIS_case_number <> "" and IsNumeric(MAXIS_case_number) = True and len(MAXIS_case_number) <= 8
+transmit
 
-BeginDialog HCAPP_dialog_01, 0, 0, 446, 300, "HCAPP dialog part 1"
+'Checking to see that we're in MAXIS
+call check_for_MAXIS(True)
+
+'Navigating to STAT, grabbing the HH members
+call navigate_to_MAXIS_screen("stat", "hcre")
+EMReadScreen STAT_check, 4, 20, 21
+If STAT_check <> "STAT" then call script_end_procedure("Can't get in to STAT. This case may be in background. Wait a few seconds and try again. If the case is not in background contact a Support Team member.")
+
+'Creating a custom dialog for determining who the HH members are
+call HH_member_custom_dialog(HH_member_array)
+
+'Autofilling case info
+call autofill_editbox_from_MAXIS(HH_member_array, "HCRE-retro", retro_request)
+call autofill_editbox_from_MAXIS(HH_member_array, "HCRE", HCAPP_datestamp)
+call autofill_editbox_from_MAXIS(HH_member_array, "ABPS", ABPS)
+call autofill_editbox_from_MAXIS(HH_member_array, "ACCI", ACCI)
+call autofill_editbox_from_MAXIS(HH_member_array, "ACCT", assets)
+call autofill_editbox_from_MAXIS(HH_member_array, "AREP", AREP)
+call autofill_editbox_from_MAXIS(HH_member_array, "BUSI", earned_income)
+call autofill_editbox_from_MAXIS(HH_member_array, "CASH", assets)
+call autofill_editbox_from_MAXIS(HH_member_array, "CARS", assets)
+call autofill_editbox_from_MAXIS(HH_member_array, "BILS", BILS)
+call autofill_editbox_from_MAXIS(HH_member_array, "COEX", COEX_DCEX)
+call autofill_editbox_from_MAXIS(HH_member_array, "DCEX", COEX_DCEX)
+call autofill_editbox_from_MAXIS(HH_member_array, "DISA", DISA)
+call autofill_editbox_from_MAXIS(HH_member_array, "FACI", FACI)
+call autofill_editbox_from_MAXIS(HH_member_array, "INSA", INSA)
+call autofill_editbox_from_MAXIS(HH_member_array, "JOBS", earned_income)
+call autofill_editbox_from_MAXIS(HH_member_array, "MEDI", INSA)
+call autofill_editbox_from_MAXIS(HH_member_array, "MEMB", HH_comp)
+call autofill_editbox_from_MAXIS(HH_member_array, "MEMI", cit_id)
+call autofill_editbox_from_MAXIS(HH_member_array, "OTHR", assets)
+call autofill_editbox_from_MAXIS(HH_member_array, "PREG", PREG)
+call autofill_editbox_from_MAXIS(HH_member_array, "RBIC", earned_income)
+call autofill_editbox_from_MAXIS(HH_member_array, "REST", assets)
+call autofill_editbox_from_MAXIS(HH_member_array, "SCHL", SCHL)
+call autofill_editbox_from_MAXIS(HH_member_array, "SECU", assets)
+call autofill_editbox_from_MAXIS(HH_member_array, "STWK", STWK)
+call autofill_editbox_from_MAXIS(HH_member_array, "UNEA", unearned_income)
+
+'SECTION 07: CASE NOTE DIALOG--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 446, 300, "HCAPP dialog part 1"
   EditBox 75, 5, 50, 15, HCAPP_datestamp
   ComboBox 190, 5, 60, 45, "Select one..."+chr(9)+"DHS-3876"+chr(9)+"DHS-6696", HCAPP_type
   EditBox 45, 25, 250, 15, HH_comp
@@ -127,166 +192,78 @@ BeginDialog HCAPP_dialog_01, 0, 0, 446, 300, "HCAPP dialog part 1"
   GroupBox 120, 275, 85, 25, "other STAT panels:"
   Text 140, 10, 45, 10, "HCAPP Type:"
 EndDialog
-
-
-BeginDialog HCAPP_dialog_02, 0, 0, 451, 325, "HCAPP dialog part 2"
-  EditBox 35, 50, 410, 15, assets
-  EditBox 60, 80, 385, 15, INSA
-  EditBox 35, 100, 410, 15, ACCI
-  EditBox 35, 120, 410, 15, BILS
-  EditBox 125, 140, 125, 15, FACI
-  CheckBox 255, 145, 80, 10, "Application signed?", application_signed_check
-  CheckBox 350, 145, 65, 10, "MMIS updated?", MMIS_updated_check
-  CheckBox 20, 160, 115, 10, "Sent forms to AREP?", sent_arep_checkbox
-  CheckBox 20, 175, 290, 10, "Check here to have the script update PND2 to show client delay (pending cases only).", client_delay_check
-  CheckBox 20, 190, 245, 10, "Check here to have the script create a TIKL to deny at the 45 day mark.", TIKL_check
-  EditBox 100, 205, 345, 15, FIAT_reasons
-  EditBox 55, 225, 215, 15, other_notes
-  DropListBox 330, 225, 115, 15, "Select one..."+chr(9)+"incomplete"+chr(9)+"approved"+chr(9)+"denied", HCAPP_status
-  EditBox 55, 245, 390, 15, verifs_needed
-  EditBox 55, 265, 390, 15, actions_taken
-  EditBox 395, 285, 50, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 340, 305, 50, 15
-    CancelButton 395, 305, 50, 15
-    PushButton 10, 15, 25, 10, "ACCT", ACCT_button
-    PushButton 35, 15, 25, 10, "CARS", CARS_button
-    PushButton 60, 15, 25, 10, "CASH", CASH_button
-    PushButton 85, 15, 25, 10, "OTHR", OTHR_button
-    PushButton 10, 25, 25, 10, "REST", REST_button
-    PushButton 35, 25, 25, 10, "SECU", SECU_button
-    PushButton 60, 25, 25, 10, "TRAN", TRAN_button
-    PushButton 335, 15, 45, 10, "prev. panel", prev_panel_button
-    PushButton 335, 25, 45, 10, "next panel", next_panel_button
-    PushButton 395, 15, 45, 10, "prev. memb", prev_memb_button
-    PushButton 395, 25, 45, 10, "next memb", next_memb_button
-    PushButton 5, 85, 25, 10, "INSA/", INSA_button
-    PushButton 30, 85, 25, 10, "MEDI:", MEDI_button
-    PushButton 5, 105, 25, 10, "ACCI:", ACCI_button
-    PushButton 5, 125, 25, 10, "BILS:", BILS_button
-    PushButton 5, 145, 25, 10, "FACI/", FACI_button
-    PushButton 10, 295, 25, 10, "MEMB", MEMB_button
-    PushButton 35, 295, 25, 10, "MEMI", MEMI_button
-    PushButton 60, 295, 25, 10, "REVW", REVW_button
-    PushButton 95, 295, 35, 10, "ELIG/HC", ELIG_HC_button
-    PushButton 225, 310, 75, 10, "previous page", previous_page_button
-  GroupBox 5, 5, 110, 35, "Asset panels"
-  GroupBox 330, 5, 115, 35, "STAT-based navigation"
-  Text 5, 55, 30, 10, "Assets:"
-  Text 35, 145, 90, 10, "residency/miscellaneous:"
-  Text 5, 210, 95, 10, "FIAT reasons (if applicable):"
-  Text 5, 230, 45, 10, "Other notes:"
-  Text 280, 230, 50, 10, "HCAPP status:"
-  Text 5, 250, 50, 10, "Verifs needed:"
-  Text 5, 270, 50, 10, "Actions taken:"
-  GroupBox 5, 285, 85, 25, "other STAT panels:"
-  Text 330, 290, 65, 10, "Worker signature:"
-EndDialog
-
-BeginDialog case_note_dialog, 0, 0, 136, 51, "Case note dialog"
-  ButtonGroup ButtonPressed
-    PushButton 15, 20, 105, 10, "Yes, take me to case note.", yes_case_note_button
-    PushButton 5, 35, 125, 10, "No, take me back to the script dialog.", no_case_note_button
-  Text 10, 5, 125, 10, "Are you sure you want to case note?"
-EndDialog
-
-BeginDialog cancel_dialog, 0, 0, 141, 51, "Cancel dialog"
-  Text 5, 5, 135, 10, "Are you sure you want to end this script?"
-  ButtonGroup ButtonPressed
-    PushButton 10, 20, 125, 10, "No, take me back to the script dialog.", no_cancel_button
-    PushButton 20, 35, 105, 10, "Yes, close this script.", yes_cancel_button
-EndDialog
-
-'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-HH_memb_row = 5
-Dim row
-Dim col
-HC_check = 1 'This is so the functions will work without having to select a program. It uses the same dialogs as the CSR, which can look in multiple places. This is HC only, so it doesn't need those.
-application_signed_check = 1 'The script should default to having the application signed.
-
-'THE SCRIPT------------------------------------------------------------------------------------------------------------------------------------------------
-'Connecting to MAXIS
-EMConnect ""
-
-'Grabbing the case number
-call MAXIS_case_number_finder(MAXIS_case_number)
-
-'Grabbing the footer month/year
-call find_variable("Month: ", MAXIS_footer_month, 2)
-If row <> 0 then
-	MAXIS_footer_month = MAXIS_footer_month
-	call find_variable("Month: " & MAXIS_footer_month & " ", MAXIS_footer_year, 2)
-	If row <> 0 then MAXIS_footer_year = MAXIS_footer_year
-End if
-
-MAXIS_footer_month = CStr(MAXIS_footer_month)
-
-'Showing the case number
-Do
-	Dialog case_number_and_footer_month_dialog
-	If ButtonPressed = 0 then stopscript
-	If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then MsgBox "You need to type a valid case number."
-Loop until MAXIS_case_number <> "" and IsNumeric(MAXIS_case_number) = True and len(MAXIS_case_number) <= 8
-transmit
-
-'Checking to see that we're in MAXIS
-call check_for_MAXIS(True)
-
-'Navigating to STAT, grabbing the HH members
-call navigate_to_MAXIS_screen("stat", "hcre")
-EMReadScreen STAT_check, 4, 20, 21
-If STAT_check <> "STAT" then call script_end_procedure("Can't get in to STAT. This case may be in background. Wait a few seconds and try again. If the case is not in background contact a Support Team member.")
-
-'Creating a custom dialog for determining who the HH members are
-call HH_member_custom_dialog(HH_member_array)
-
-'Autofilling case info
-call autofill_editbox_from_MAXIS(HH_member_array, "HCRE-retro", retro_request)
-call autofill_editbox_from_MAXIS(HH_member_array, "HCRE", HCAPP_datestamp)
-call autofill_editbox_from_MAXIS(HH_member_array, "ABPS", ABPS)
-call autofill_editbox_from_MAXIS(HH_member_array, "ACCI", ACCI)
-call autofill_editbox_from_MAXIS(HH_member_array, "ACCT", assets)
-call autofill_editbox_from_MAXIS(HH_member_array, "AREP", AREP)
-call autofill_editbox_from_MAXIS(HH_member_array, "BUSI", earned_income)
-call autofill_editbox_from_MAXIS(HH_member_array, "CASH", assets)
-call autofill_editbox_from_MAXIS(HH_member_array, "CARS", assets)
-call autofill_editbox_from_MAXIS(HH_member_array, "BILS", BILS)
-call autofill_editbox_from_MAXIS(HH_member_array, "COEX", COEX_DCEX)
-call autofill_editbox_from_MAXIS(HH_member_array, "DCEX", COEX_DCEX)
-call autofill_editbox_from_MAXIS(HH_member_array, "DISA", DISA)
-call autofill_editbox_from_MAXIS(HH_member_array, "FACI", FACI)
-call autofill_editbox_from_MAXIS(HH_member_array, "INSA", INSA)
-call autofill_editbox_from_MAXIS(HH_member_array, "JOBS", earned_income)
-call autofill_editbox_from_MAXIS(HH_member_array, "MEDI", INSA)
-call autofill_editbox_from_MAXIS(HH_member_array, "MEMB", HH_comp)
-call autofill_editbox_from_MAXIS(HH_member_array, "MEMI", cit_id)
-call autofill_editbox_from_MAXIS(HH_member_array, "OTHR", assets)
-call autofill_editbox_from_MAXIS(HH_member_array, "PREG", PREG)
-call autofill_editbox_from_MAXIS(HH_member_array, "RBIC", earned_income)
-call autofill_editbox_from_MAXIS(HH_member_array, "REST", assets)
-call autofill_editbox_from_MAXIS(HH_member_array, "SCHL", SCHL)
-call autofill_editbox_from_MAXIS(HH_member_array, "SECU", assets)
-call autofill_editbox_from_MAXIS(HH_member_array, "STWK", STWK)
-call autofill_editbox_from_MAXIS(HH_member_array, "UNEA", unearned_income)
-
-'SECTION 07: CASE NOTE DIALOG--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 DO
 	Do
 		Do
 			Do
 				Do
 					err_msg = ""
-					Dialog HCAPP_dialog_01
+					Dialog Dialog1
 					cancel_confirmation
 					If HCAPP_datestamp = "" or len(HCAPP_datestamp) > 10 THEN err_msg = "Please enter a valid application datestamp."  'creating err_msg if required items are missing
 					If err_msg <> "" THEN Msgbox err_msg
 				Loop until ButtonPressed <> no_cancel_button and err_msg = ""
 				MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
 			Loop until ButtonPressed = next_page_button
+			'-------------------------------------------------------------------------------------------------DIALOG
+			Dialog1 = "" 'Blanking out previous dialog detail
+			BeginDialog Dialog1, 0, 0, 451, 325, "HCAPP (CONT)"
+			  EditBox 35, 50, 410, 15, assets
+			  EditBox 60, 80, 385, 15, INSA
+			  EditBox 35, 100, 410, 15, ACCI
+			  EditBox 35, 120, 410, 15, BILS
+			  EditBox 125, 140, 125, 15, FACI
+			  CheckBox 255, 145, 80, 10, "Application signed?", application_signed_check
+			  CheckBox 350, 145, 65, 10, "MMIS updated?", MMIS_updated_check
+			  CheckBox 20, 160, 115, 10, "Sent forms to AREP?", sent_arep_checkbox
+			  CheckBox 20, 175, 290, 10, "Check here to have the script update PND2 to show client delay (pending cases only).", client_delay_check
+			  CheckBox 20, 190, 245, 10, "Check here to have the script create a TIKL to deny at the 45 day mark.", TIKL_check
+			  EditBox 100, 205, 345, 15, FIAT_reasons
+			  EditBox 55, 225, 215, 15, other_notes
+			  DropListBox 330, 225, 115, 15, "Select one..."+chr(9)+"incomplete"+chr(9)+"approved"+chr(9)+"denied", HCAPP_status
+			  EditBox 55, 245, 390, 15, verifs_needed
+			  EditBox 55, 265, 390, 15, actions_taken
+			  EditBox 395, 285, 50, 15, worker_signature
+			  ButtonGroup ButtonPressed
+			    OkButton 340, 305, 50, 15
+			    CancelButton 395, 305, 50, 15
+			    PushButton 10, 15, 25, 10, "ACCT", ACCT_button
+			    PushButton 35, 15, 25, 10, "CARS", CARS_button
+			    PushButton 60, 15, 25, 10, "CASH", CASH_button
+			    PushButton 85, 15, 25, 10, "OTHR", OTHR_button
+			    PushButton 10, 25, 25, 10, "REST", REST_button
+			    PushButton 35, 25, 25, 10, "SECU", SECU_button
+			    PushButton 60, 25, 25, 10, "TRAN", TRAN_button
+			    PushButton 335, 15, 45, 10, "prev. panel", prev_panel_button
+			    PushButton 335, 25, 45, 10, "next panel", next_panel_button
+			    PushButton 395, 15, 45, 10, "prev. memb", prev_memb_button
+			    PushButton 395, 25, 45, 10, "next memb", next_memb_button
+			    PushButton 5, 85, 25, 10, "INSA/", INSA_button
+			    PushButton 30, 85, 25, 10, "MEDI:", MEDI_button
+			    PushButton 5, 105, 25, 10, "ACCI:", ACCI_button
+			    PushButton 5, 125, 25, 10, "BILS:", BILS_button
+			    PushButton 5, 145, 25, 10, "FACI/", FACI_button
+			    PushButton 10, 295, 25, 10, "MEMB", MEMB_button
+			    PushButton 35, 295, 25, 10, "MEMI", MEMI_button
+			    PushButton 60, 295, 25, 10, "REVW", REVW_button
+			    PushButton 95, 295, 35, 10, "ELIG/HC", ELIG_HC_button
+			    PushButton 225, 310, 75, 10, "previous page", previous_page_button
+			  GroupBox 5, 5, 110, 35, "Asset panels"
+			  GroupBox 330, 5, 115, 35, "STAT-based navigation"
+			  Text 5, 55, 30, 10, "Assets:"
+			  Text 35, 145, 90, 10, "residency/miscellaneous:"
+			  Text 5, 210, 95, 10, "FIAT reasons (if applicable):"
+			  Text 5, 230, 45, 10, "Other notes:"
+			  Text 280, 230, 50, 10, "HCAPP status:"
+			  Text 5, 250, 50, 10, "Verifs needed:"
+			  Text 5, 270, 50, 10, "Actions taken:"
+			  GroupBox 5, 285, 85, 25, "other STAT panels:"
+			  Text 330, 290, 65, 10, "Worker signature:"
+			EndDialog
 			Do
 				Do
 					err_msg = ""
-					Dialog HCAPP_dialog_02
+					Dialog Dialog1
 					cancel_confirmation
 					If actions_taken = "" THEN err_msg = err_msg & vbCr & "Please complete actions taken section."    'creating err_msg if required items are missing
 					If worker_signature = "" THEN err_msg = err_msg & vbCr & "Please enter a worker signature."
@@ -297,7 +274,16 @@ DO
 			Loop until ButtonPressed = -1 or ButtonPressed = previous_page_button
 			If ButtonPressed = previous_page_button then exit do
 		Loop until err_msg = ""
-		If ButtonPressed = -1 then dialog case_note_dialog
+		'-------------------------------------------------------------------------------------------------DIALOG
+		Dialog1 = "" 'Blanking out previous dialog detail
+		BeginDialog Dialog1, 0, 0, 136, 51, "Case note dialog"
+		  ButtonGroup ButtonPressed
+		    PushButton 15, 20, 105, 10, "Yes, take me to case note.", yes_case_note_button
+		    PushButton 5, 35, 125, 10, "No, take me back to the script dialog.", no_case_note_button
+		  Text 10, 5, 125, 10, "Are you sure you want to case note?"
+		EndDialog
+		If ButtonPressed = -1 then dialog Dialog1
+
 		If buttonpressed = yes_case_note_button then exit do
 	Loop until case_note_check = "Case Notes (NOTE)" and mode_check = "A"
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'

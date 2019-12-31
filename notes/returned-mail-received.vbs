@@ -49,13 +49,16 @@ call changelog_update("06/06/2019", "Initial version. Rewitten per POLI/TEMP.", 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-'------------------------------------------------------------------------------------------------------------------------------THE SCRIPT
-'Connecting to BlueZone, grabbing case number
-EMConnect ""
-CALL MAXIS_case_number_finder(MAXIS_case_number)
 
+'THE SCRIPT------------------------------------------------------------------------------------------------------
+'Connects to BLUEZONE
+EMConnect ""
+'Grabs the MAXIS case number
+CALL MAXIS_case_number_finder(MAXIS_case_number)
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
 'Running the initial dialog
-BeginDialog case_number_dlg, 0, 0, 211, 85, "Returned Mail"
+BeginDialog Dialog1, 0, 0, 211, 85, "Returned Mail"
   EditBox 55, 5, 40, 15, maxis_case_number
   EditBox 165, 5, 40, 15, date_received
   DropListBox 90, 25, 115, 15, "Select:"+chr(9)+"Forwarding address in MN"+chr(9)+"Forwarding address outside MN"+chr(9)+"No forwarding address provided"+chr(9)+"Client has not responded to request", ADDR_actions
@@ -72,8 +75,8 @@ EndDialog
 DO
     DO
     	err_msg = ""
-    	DIALOG case_number_dlg
-    		IF ButtonPressed = 0 THEN stopscript
+    	DIALOG Dialog1
+    		cancel_without_confirmation
     		IF MAXIS_case_number = "" OR (MAXIS_case_number <> "" AND len(MAXIS_case_number) > 8) OR (MAXIS_case_number <> "" AND IsNumeric(MAXIS_case_number) = False) THEN err_msg = err_msg & vbCr & "* Please enter a valid case number."
 			If isdate(date_received) = FALSE and Cdate(date_received) > cdate(date) = TRUE THEN  err_msg = err_msg & vbnewline & "* You must enter an actual date that is not in the future and is in the footer month that you are working in."
 			'If isdate(date_received) = FALSE then err_msg = err_msg & vbnewline & "* Please enter a date (--/--/--) in the footer month that you are working in."
@@ -85,17 +88,9 @@ DO
 	LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 CALL check_for_MAXIS(False)
 
-
 'MAXIS_footer_month = right("00" & DatePart("m", date_received), 2)
 MAXIS_footer_month = DatePart("m", date_received)
 MAXIS_footer_month = right("00" & MAXIS_footer_month, 2)
-
-'MAXIS_footer_year = right(DatePart("yyyy", date_received), 2)
-MAXIS_footer_year = DatePart("yyyy", date_received)
-MAXIS_footer_year = right("yyyy" & MAXIS_footer_year, 2)
-
-msgbox MAXIS_footer_year
-
 
 CALL navigate_to_MAXIS_screen("STAT", "SELF")		'Goes to STAT/PROG
 EMReadScreen SELF_check, 4, 2, 50
@@ -192,9 +187,10 @@ IF mailing_addr_line_one <> "" THEN
 ELSE
     maxis_addr = resi_addr_line_one & " " & resi_addr_line_two & " " & resi_addr_city & " " & resi_addr_state & " " & resi_addr_zip
 END IF
-
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
 IF ADDR_actions = "No forwarding address provided" THEN
-    BeginDialog no_forward_addr, 0, 0, 186, 215, "No forwarding address provided"
+    BeginDialog Dialog1, 0, 0, 186, 215, "No forwarding address provided"
       CheckBox 10, 95, 165, 10, "Verif Request (DHS-2919A)-Request for Contact ", verifA_sent_checkbox
       CheckBox 10, 105, 100, 10, "Change Report (DHS-2402)", CRF_sent_checkbox
       CheckBox 10, 115, 70, 10, "SVF (DHS-2952)", SHEL_form_sent_checkbox
@@ -217,8 +213,8 @@ IF ADDR_actions = "No forwarding address provided" THEN
 	DO
 	    DO
 	    	err_msg = ""
-	    	DIALOG no_forward_addr
-	    		IF ButtonPressed = 0 THEN stopscript
+	    	DIALOG Dialog1
+	    		cancel_without_confirmation
 				IF verifA_sent_checkbox = UNCHECKED and CRF_sent_checkbox = UNCHECKED and SHEL_form_sent_checkbox= UNCHECKED THEN err_msg = err_msg & vbCr & "Please select the verifcation requested and ensure forms are sent in ECF."
 	    		IF mets_addr_correspondence = "YES" THEN
 					IF METS_case_number = "" OR (METS_case_number <> "" AND len(METS_case_number) > 10) OR (METS_case_number <> "" AND IsNumeric(METS_case_number) = False) THEN err_msg = err_msg & vbCr & "* Please enter a valid case number."
@@ -233,9 +229,10 @@ END IF
 
 IF ADDR_actions = "Forwarding address outside MN" THEN county_code = "Out of State"
 IF ADDR_actions = "Forwarding address in MN"  then new_addr_state = "MN"
-
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
 IF ADDR_actions = "Forwarding address in MN" or ADDR_actions = "Forwarding address outside MN" THEN
-    BeginDialog returned_mail_update_addr, 0, 0, 206, 305, "Mail has been returned with forwarding address"
+    BeginDialog Dialog1, 0, 0, 206, 305, "Mail has been returned with forwarding address"
       Text 10, 15, 185, 10, maxis_addr
 	  CheckBox 10, 35, 100, 10, "Verif Request (DHS-2919A)", verifA_sent_checkbox
    	  CheckBox 120, 35, 70, 10, "SVF (DHS-2952)", SHEL_form_sent_checkbox
@@ -277,8 +274,8 @@ IF ADDR_actions = "Forwarding address in MN" or ADDR_actions = "Forwarding addre
     DO
     	DO
     		err_msg = ""
-    		DIALOG returned_mail_update_addr
-    			IF ButtonPressed = 0 THEN stopscript
+    		DIALOG Dialog1
+    			cancel_without_confirmation
 				IF new_addr_line_one = "" THEN err_msg = err_msg & vbCr & "Please complete the street address the client in now living at."
 				IF new_addr_city = "" THEN err_msg = err_msg & vbCr & "Please complete the city in which the client in now living."
 				IF new_addr_state = "" THEN err_msg = err_msg & vbCr & "Please complete the state in which the client in now living."
@@ -505,9 +502,10 @@ IF ADDR_actions = "Forwarding address in MN" or ADDR_actions = "Forwarding addre
 		END IF
 	END IF
 END IF
-
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
 IF ADDR_actions = "Client has not responded to request" THEN
-    BeginDialog date_rcvd_dialog, 0, 0, 151, 100, "Client has not responded to request"
+    BeginDialog Dialog1, 0, 0, 151, 100, "Client has not responded to request"
       EditBox 100, 5, 45, 15, date_requested
       CheckBox 20, 25, 110, 10, "ECF reviewed for verifications", ECF_review_checkbox
       EditBox 50, 60, 95, 15, other_notes
@@ -522,8 +520,8 @@ IF ADDR_actions = "Client has not responded to request" THEN
     DO
     	DO
     		err_msg = ""
-    		DIALOG date_rcvd_dialog
-    			IF ButtonPressed = 0 THEN stopscript
+    		DIALOG Dialog1
+    			cancel_without_confirmation
     			If isdate(date_requested) = FALSE and Cdate(date_requested) > cdate(date) = TRUE THEN  err_msg = err_msg & vbnewline & "* Please enter the date verifcations were requested."
     			IF ECF_review_checkbox <> CHECKED THEN  err_msg = err_msg & vbnewline & "* Please review ECF to ensure the requested verifications are not on file."
     			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."

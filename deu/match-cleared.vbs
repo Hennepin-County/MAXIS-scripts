@@ -66,8 +66,9 @@ changelog_display
 '---------------------------------------------------------------------THE SCRIPT
 EMConnect ""
 CALL MAXIS_case_number_finder (MAXIS_case_number)
-
-BeginDialog case_number_dialog, 0, 0, 131, 65, "Case Number to clear match"
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 131, 65, "Case Number to clear match"
   EditBox 60, 5, 65, 15, MAXIS_case_number
   EditBox 60, 25, 30, 15, MEMB_number
   ButtonGroup ButtonPressed
@@ -80,8 +81,8 @@ EndDialog
 DO
 	DO
 		err_msg = ""
-		Dialog case_number_dialog
-		IF ButtonPressed = 0 THEN StopScript
+		Dialog Dialog1
+		cancel_without_confirmation
   		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
   		If IsNumeric(MEMB_number) = False or len(MEMB_number) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2 digit member number."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
@@ -225,16 +226,8 @@ sent_date = trim(sent_date)
 'IF sent_date = "" THEN sent_date = replace(sent_date, " ", "/")
 IF sent_date <> "" THEN sent_date = replace(sent_date, " ", "/")
 
-'----------------------------------------------------------------------------dialogs
-BeginDialog notice_action_dialog, 0, 0, 166, 90, "SEND DIFFERENCE NOTICE?"
-	CheckBox 25, 35, 105, 10, "YES - Send Difference Notice", send_notice_checkbox
-	CheckBox 25, 50, 130, 10, "NO - Continue Match Action to Clear", clear_action_checkbox
-  Text 10, 10, 145, 20, "A difference notice has not been sent, would you like to send the difference notice now?"
-  ButtonGroup ButtonPressed
-    OkButton 60, 70, 45, 15
-    CancelButton 110, 70, 45, 15
-EndDialog
-
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog send_notice_dialog, 0, 0, 296, 160, "WAGE MATCH SEND DIFFERENCE NOTICE"
   CheckBox 10, 80, 70, 10, "Difference Notice", Diff_Notice_Checkbox
   CheckBox 110, 80, 90, 10, "Employment Verification", empl_verf_checkbox
@@ -255,9 +248,19 @@ BeginDialog send_notice_dialog, 0, 0, 296, 160, "WAGE MATCH SEND DIFFERENCE NOTI
 EndDialog
 
 IF notice_sent = "N" THEN
+    '-------------------------------------------------------------------------------------------------DIALOG
+    Dialog1 = "" 'Blanking out previous dialog detail
+    BeginDialog Dialog1, 0, 0, 166, 90, "SEND DIFFERENCE NOTICE?"
+    	CheckBox 25, 35, 105, 10, "YES - Send Difference Notice", send_notice_checkbox
+    	CheckBox 25, 50, 130, 10, "NO - Continue Match Action to Clear", clear_action_checkbox
+      Text 10, 10, 145, 20, "A difference notice has not been sent, would you like to send the difference notice now?"
+      ButtonGroup ButtonPressed
+    	OkButton 60, 70, 45, 15
+    	CancelButton 110, 70, 45, 15
+    EndDialog
 	DO
     	err_msg = ""
-    	Dialog notice_action_dialog
+    	Dialog Dialog1
     	IF ButtonPressed = 0 THEN StopScript
     	IF send_notice_checkbox = UNCHECKED AND clear_action_checkbox = UNCHECKED THEN err_msg = err_msg & vbNewLine & "* Please select an answer to continue."
     	IF send_notice_checkbox = CHECKED AND clear_action_checkbox = CHECKED THEN err_msg = err_msg & vbNewLine & "* Please select only one answer to continue."
@@ -391,7 +394,9 @@ END IF
 IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	IF sent_date <> "" THEN MsgBox("A difference notice was sent on " & sent_date & "." & vbNewLine & "The script will now navigate to clear the match.")
 	'date_received = date & ""
-    BeginDialog cleared_match_dialog, 0, 0, 316, 205, "MATCH CLEARED"
+	'-------------------------------------------------------------------------------------------------DIALOG
+	Dialog1 = "" 'Blanking out previous dialog detail
+    BeginDialog Dialog1, 0, 0, 316, 205, "MATCH CLEARED"
       EditBox 55, 5, 40, 15, MAXIS_case_number
       EditBox 165, 5, 20, 15, MEMB_number
       DropListBox 250, 5, 60, 15, "Select One:"+chr(9)+"BEER"+chr(9)+"BNDX"+chr(9)+"SDXS/SDXI"+chr(9)+"UNVI"+chr(9)+"UBEN"+chr(9)+"WAGE", match_type
@@ -430,7 +435,7 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 
 	DO
 		err_msg = ""
-		Dialog cleared_match_dialog
+		Dialog Dialog1
 		cancel_confirmation
 		IF IsNumeric(resolve_time) = false or len(resolve_time) > 3 THEN err_msg = err_msg & vbNewLine & "Please enter a valid numeric resolved time, ie 005."
 		'IF resolution_status = "CB-Ovrpmt And Future Save" or resolution_status = "CC-Overpayment Only" or resolution_status = "CF-Future Save" or resolution_status = "CA-Excess Assets" or resolution_status = "CI-Benefit Increase" or resolution_status = "CP-Applicant Only Savings" or resolution_status = "BC-Case Closed" or resolution_status = "BE-No Change" or resolution_status = "BE-NC-Non-collectible" or resolution_status = "BN-Already Known-No Savings" or resolution_status ="BP-Wrong Person" or resolution_status = "BO-Other" and date_received = "" THEN err_msg = err_msg & vbNewLine & "Please advise of date verification was recieved in ECF."
@@ -445,7 +450,9 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	CALL check_for_password_without_transmit(are_we_passworded_out)
 
 	IF resolution_status = "CF-Future Save" THEN
-    	BeginDialog CF_future_savings_dialog, 0, 0, 161, 130, "Cleared CF Future Savings"
+	    '-------------------------------------------------------------------------------------------------DIALOG
+	    Dialog1 = "" 'Blanking out previous dialog detail
+    	BeginDialog Dialog1, 0, 0, 161, 130, "Cleared CF Future Savings"
     	  DropListBox 65, 5, 90, 15, "Select One:"+chr(9)+"Case Became Ineligible"+chr(9)+"Person Removed"+chr(9)+"Benefit Increased"+chr(9)+"Benefit Decreased", IULB_result_dropdown
     	  DropListBox 65, 25, 90, 15, "One Time Only"+chr(9)+"Per Month For Nbr of Months", IULB_method_dropdown
     	  EditBox 65, 45, 40, 15, IULB_savings_amount
@@ -466,8 +473,8 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 
 	    DO
 	    	err_msg = ""
-	    	Dialog CF_future_savings_dialog
-	    	cancel_confirmation
+	    	Dialog Dialog1
+	    	cancel_without_confirmation
 	    	IF IsNumeric(IULB_savings_amount) = false THEN err_msg = err_msg & vbNewLine & "* Please enter a valid numeric amount no decimal."
 	    	IF IULB_result = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please enter the IULB result."
 	    	IF IULB_method = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please enter the IULB method."
