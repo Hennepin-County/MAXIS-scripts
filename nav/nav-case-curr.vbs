@@ -51,29 +51,24 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 EMConnect ""
-
-call MAXIS_case_number_finder(MAXIS_case_number)
-
-BeginDialog case_number_dialog, 0, 0, 161, 42, "Case number"
-  EditBox 95, 0, 60, 15, MAXIS_case_number
-  ButtonGroup ButtonPressed
-    OkButton 25, 20, 50, 15
-    CancelButton 85, 20, 50, 15
-  Text 5, 5, 85, 10, "Enter your case number:"
-EndDialog
+Call MAXIS_case_number_finder(MAXIS_case_number)
 
 If MAXIS_case_number = "" then
-	Dialog case_number_dialog
-	If ButtonPressed = 0 then stopscript
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 161, 42, "Case number"
+       EditBox 95, 0, 60, 15, MAXIS_case_number
+       ButtonGroup ButtonPressed
+         OkButton 25, 20, 50, 15
+         CancelButton 85, 20, 50, 15
+       Text 5, 5, 85, 10, "Enter your case number:"
+    EndDialog
+    
+	Dialog Dialog1
+	Cancel_without_confirmation
 END IF
 
 'It sends an enter to force the screen to refresh, in order to check for a password prompt.
 transmit
-
-'Checks for an active MAXIS session
-Call check_for_MAXIS(True)
-
-'Navigates to CASE/CURR
-call navigate_to_MAXIS_screen("CASE", "CURR")
-
+Call check_for_MAXIS(True) 'Checks for an active MAXIS session
+Call navigate_to_MAXIS_screen("CASE", "CURR") 'Navigates to CASE/CURR
 script_end_procedure("")

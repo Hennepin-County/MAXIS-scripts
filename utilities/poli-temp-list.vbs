@@ -50,7 +50,12 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-BeginDialog info_dialog, 0, 0, 176, 85, "UTILITIES - POLI TEMP"
+'THE SCRIPT-------------------------------------------------------------------------------------------------------------------------
+EMConnect ""				'Connects to BlueZone
+	
+'The main dialog
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 176, 85, "UTILITIES - POLI TEMP"
   OkButton 65, 65, 50, 15
   CancelButton 120, 65, 50, 15
   ButtonGroup ButtonPressed
@@ -58,13 +63,9 @@ BeginDialog info_dialog, 0, 0, 176, 85, "UTILITIES - POLI TEMP"
   Text 15, 20, 150, 35, "This script gathers a list of all POLI TEMP topics, reference numbers and revised dates, and exprorts them to an Excel worksheet. This makes POLI TEMP easier to search."
 EndDialog
 
-'THE SCRIPT-------------------------------------------------------------------------------------------------------------------------
-EMConnect ""				'Connects to BlueZone
-	
-'The main dialog
 Do
-	dialog info_dialog
-    If ButtonPressed = 0 then StopScript										
+	dialog Dialog1
+    Cancel_without_confirmation										
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
 Loop until are_we_passworded_out = false					'loops until user passwords back in		
 
@@ -124,5 +125,4 @@ FOR i = 1 to 3									'formatting the cells
  NEXT
 
 STATS_counter = STATS_counter - 1 'removes one from the count since 1 is counted at the beginning (because counting :p)
-
 script_end_procedure("Success! The list of current POLI/TEMP topics is now complete.")

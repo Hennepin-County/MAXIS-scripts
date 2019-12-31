@@ -52,19 +52,6 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'DIALOGS----------------------------------------------------
-'This is a dialog asking if the job is known to the agency.
-BeginDialog job_known_to_agency_dialog, 0, 0, 276, 65, "Job known?"
-  CheckBox 5, 10, 160, 10, "Check here if this job is known to the agency.", job_known_check
-  EditBox 90, 25, 180, 15, employer
-  EditBox 70, 45, 90, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 165, 45, 50, 15
-    CancelButton 220, 45, 50, 15
-  Text 5, 30, 85, 10, "Job on DAIL is listed as:"
-  Text 5, 50, 60, 10, "Worker signature:"
-EndDialog
-
 'Connects to BlueZone
 EMConnect ""
 
@@ -133,15 +120,28 @@ If HH_memb_check = "REFERENCE NUMBER IS INVALID    " then script_end_procedure("
 If HH_memb_check = "MEMBER " & HH_memb & " IS NOT IN THE HOUSEHO" then script_end_procedure("That member number is invalid. The script will now stop. Try again from DAIL. If this keeps happening, send the case number to the script administrator.")
 If HH_memb_check = "OCCURRENCE NUMBER IS INVALID   " then script_end_procedure("That member number is invalid. The script will now stop. Try again from DAIL. If this keeps happening, send the case number to the script administrator.")
 
+'DIALOGS----------------------------------------------------
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 276, 65, "Job known?"
+  CheckBox 5, 10, 160, 10, "Check here if this job is known to the agency.", job_known_check
+  EditBox 90, 25, 180, 15, employer
+  EditBox 70, 45, 90, 15, worker_signature
+  ButtonGroup ButtonPressed
+    OkButton 165, 45, 50, 15
+    CancelButton 220, 45, 50, 15
+  Text 5, 30, 85, 10, "Job on DAIL is listed as:"
+  Text 5, 50, 60, 10, "Worker signature:"
+EndDialog
+
 'Show dialog, exit if cancel is pressed
-Dialog job_known_to_agency_dialog
-If ButtonPressed = cancel then stopscript
+Do 
+    Dialog Dialog1
+    Cancel_without_confirmation
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'If worker selects that the job is known, script will exit.
-If job_known_check = checked then
-	MsgBox "The script will stop, this job is known."
-	script_end_procedure("")
-End if
+If job_known_check = checked then script_end_procedure("The script will stop, this job is known.")
 
 'Cuts the string length down to the first 30 characters, so it will fit on the line.
 employer = left(employer, 30)
@@ -165,7 +165,6 @@ EMReadScreen MAXIS_footer_year, 2, 20, 58
 'Default info (wage income, no verification)
 EMWriteScreen "w", 5, 34				'Wage income is the type
 EMWriteScreen "n", 6, 34				'No proof has been provided
-
 
 'Writing the first day of the footer month as the prospective paydate, and 0 for both wage and hours
 EMWriteScreen MAXIS_footer_month, 12, 54
@@ -205,17 +204,11 @@ PF3
 
 'Opening a blank TIKL
 CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
-
 'The following will generate a TIKL formatted date for 10 days from now.
 call create_MAXIS_friendly_date(date, 10, 5, 18)
-
 'Writing TIKL
 call write_variable_in_TIKL("Verification of " & employer & " job (via CS message) should have returned by now. If not received and processed, take appropriate action. (TIKL auto-generated from script)." )
 transmit
 PF3
 
-'Success box
-MsgBox "MAXIS updated for new employer message, a case note made, and a TIKL has been sent for 10 days from now. An EV should now be sent. The job is at " & employer & "."
-
-'End
-script_end_procedure("")
+script_end_procedure("MAXIS updated for new employer message, a case note made, and a TIKL has been sent for 10 days from now. An EV should now be sent. The job is at " & employer & ".")

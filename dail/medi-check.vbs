@@ -60,7 +60,8 @@ PF9 'Starts a blank case note
 EMReadScreen case_note_mode_check, 7, 20, 3
 If case_note_mode_check <> "Mode: A" then script_end_procedure("You are not in a case note on edit mode. You might be in inquiry. Try the script again in production.")
 
-BeginDialog medi_dialog, 0, 0, 266, 130, DAIL_type & " MESSAGE PROCESSED"
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 266, 130, DAIL_type & " MESSAGE PROCESSED"
   EditBox 60, 35, 15, 15, memb_number
   CheckBox 185, 35, 75, 10, "Referral sent in ECF", ECF_sent_checkbox
   CheckBox 5, 55, 140, 10, "Client is eligible for the Medicare buy-in", medi_checkbox
@@ -80,11 +81,10 @@ BeginDialog medi_dialog, 0, 0, 266, 130, DAIL_type & " MESSAGE PROCESSED"
   Text 5, 40, 50, 10, "Memb number:"
 EndDialog
 
-
-Do
+Do 
     Do
         err_msg = ""
-		Dialog medi_dialog
+		Dialog Dialog1
 		cancel_confirmation
 		IF medi_checkbox = CHECKED THEN IF isdate(ELIG_date) = False then err_msg = err_msg & vbnewline & "* Enter a valid date of eligibility."
         If (isnumeric(memb_number) = False and len(memb_number) > 2) then err_msg = err_msg & vbcr & "* Enter a valid member number."
@@ -134,7 +134,6 @@ CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
 PF3
 
-
 'TIKLING
 IF medi_checkbox = CHECKED and ELIG_date <> "" THEN
 	CALL navigate_to_MAXIS_screen("DAIL","WRIT")
@@ -150,6 +149,5 @@ IF ELIG_year <> "" THEN
 	CALL write_variable_in_TIKL("Reminder to mail the Medicare Referral for November 20" & ELIG_year & ".")
 	PF3
 END IF
-
 
 script_end_procedure_with_error_report("DAIL has been case noted. Please remember to send forms out of ECF and delete the PEPR.")

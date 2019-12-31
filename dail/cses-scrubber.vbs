@@ -76,17 +76,6 @@ END FUNCTION
 
 'END FUNCTIONS=============================================================================================================
 
-'DIALOGS===================================================================================================================
-BeginDialog CSES_initial_dialog, 0, 0, 296, 40, "CSES Dialog"
-  'CheckBox 5, 5, 290, 10, "Check here if you would like to see an Excel sheet of the CSES scrubber calculations.", excel_visible_checkbox
-  EditBox 70, 20, 90, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 185, 20, 50, 15
-    CancelButton 240, 20, 50, 15
-  Text 5, 25, 65, 10, "Worker signature:"
-EndDialog
-'END DIALOGS===============================================================================================================
-
 'VARIABLES AND CONSTANTS WE WANT TO USE====================================================================================
 const excel_center = -4108		'This apparently means "centered" in Excel's VBA
 
@@ -242,9 +231,6 @@ For MAXIS_row = 6 to 19			'<<<<<CHECK THIS AGAINST A FULL, ACTUAL FACTUAL DAIL
 	'ADDS ONE TO THE MESSAGE NUMBER SO WE CAN KEEP A GOOD COUNT
 	message_number = message_number + 1
 Next
-
-
-
 
 '===================================================================================================================================DETERMINING WHAT PROGRAMS ARE OPEN
 'Navigates to CASE/CURR directly (the DAIL doesn't easily go back to the case-in-question when we use the custom function)
@@ -411,7 +397,8 @@ Do
 		Do
 			err_msg = ""
 			'Dialog defined here because it needs to come after the dropdown creation.
-			BeginDialog cses_memb_missing_dialog, 0, 0, 285, 105, "Missing HH Member"
+            Dialog1 = ""
+			BeginDialog Dialog1, 0, 0, 285, 105, "Missing HH Member"
 			  OptionGroup RadioGroup1
 				RadioButton 20, 35, 50, 10, "Yes", radio_yes
 				RadioButton 20, 50, 50, 10, "No", radio_no
@@ -425,8 +412,8 @@ Do
 			  Text 10, 85, 70, 10, "Household member"
 			EndDialog
 
-			Dialog cses_memb_missing_dialog
-			If ButtonPressed = cancel Then StopScript
+			Dialog Dialog1
+			Cancel_without_confirmation
 
 			If memb_w_unea = "Select One..." AND radio_yes = 1 Then err_msg = err_msg & vbNewLine & "Please pick a client who should have the UNEA panel for this income."
 			If err_msg <> "" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
@@ -878,7 +865,8 @@ IF SNAP_active = TRUE AND MFIP_active = FALSE THen 	'IF SNAP - NO MFIP
 	If Exceed_130 = True OR CS_Change = TRUE Then UNEA_review_checkbox = checked 	'Defaults to have the worker review each panel if income exceeds 130% OR if CS amount is different
 
 	'Dialog defined for if it is a SNAP case.
-	BeginDialog CSES_initial_dialog, 0, 0, 296, 140, "CSES Dialog"
+    Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 296, 140, "CSES Dialog"
 	  CheckBox 20, 60, 265, 10, "Check here to review CS UNEA panels for possible adjustments to the budget.", UNEA_review_checkbox
 	  EditBox 40, 80, 245, 15, other_notes
 	  CheckBox 5, 105, 290, 10, "Check here to have the Excel sheet close at the end of the script run.", close_excel_checkbox
@@ -896,9 +884,9 @@ IF SNAP_active = TRUE AND MFIP_active = FALSE THen 	'IF SNAP - NO MFIP
 	EndDialog
 
 ElseIf MFIP_active = TRUE Then
-
 	'Dialog specific to MFIP cases
-	BeginDialog CSES_initial_dialog, 0, 0, 296, 120, "CSES Dialog"
+    Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 296, 120, "CSES Dialog"
 	  EditBox 40, 60, 245, 15, other_notes
 	  CheckBox 5, 85, 290, 10, "Check here to have the Excel sheet close at the end of the script run.", close_excel_checkbox
 	  EditBox 70, 100, 90, 15, worker_signature
@@ -913,13 +901,12 @@ ElseIf MFIP_active = TRUE Then
 	  Text 10, 65, 25, 10, "Notes"
 	  Text 5, 105, 65, 10, "Worker signature:"
 	EndDialog
-
 End IF
 
 'Runs the dialog from above
 Do
 	err_msg = ""
-	Dialog CSES_initial_dialog
+	Dialog Dialog1
 	cancel_confirmation
 	If worker_signature = "" Then err_msg = err_msg & "Please sign your case note"
 	If err_msg <> "" Then MsgBox (err_msg)
@@ -995,7 +982,8 @@ If SNAP_active = true AND UNEA_review_checkbox = checked then
 		x = 0
 
 		'Dynamic Dialog that will mimmick the PIC and ask for worker Input
-		BeginDialog pic_review_dialog, 0, 0, 346, 170, "REVIEW THE PIC"
+        Dialog1 = ""
+		BeginDialog Dialog1, 0, 0, 346, 170, "REVIEW THE PIC"
 		  Text 170, 5, 50, 10, UNEA_panel
 		  GroupBox 5, 15, 225, 130, "PIC"
 		  Text 10, 25, 65, 10, "Date of Calculation:"
@@ -1040,7 +1028,7 @@ If SNAP_active = true AND UNEA_review_checkbox = checked then
 		EndDialog
 
 		'The only options on this dialog are Yes or No
-		Dialog pic_review_dialog
+		Dialog Dialog1
 		If ButtonPressed = yes_button Then 			'If worker clicks 'yes' then the income needs to be rebudgeted and is 'out of the realm'
 			UNEA_panel_array(counter) = UNEA_panel_array(counter) & " YES"
 			Outside_the_realm = TRUE
@@ -1051,7 +1039,6 @@ If SNAP_active = true AND UNEA_review_checkbox = checked then
 		EMReadScreen PIC_check, 35, 3, 28
 		If PIC_check = "SNAP Prospective Income Calculation" Then PF3
 	Next
-
 End If
 
 '~~~~~~~~~~~~~~~~~~~~Decision: Is MFIP/DWP open? IF YES...

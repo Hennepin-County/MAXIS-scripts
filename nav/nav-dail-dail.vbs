@@ -50,17 +50,7 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'DIALOGS-----------------------------------------------------------------------------------
-BeginDialog worker_dialog, 0, 0, 171, 45, "Worker dialog"
-  Text 5, 10, 130, 10, "Enter the worker number (last 3 digits):"
-  EditBox 135, 5, 30, 15, worker_number
-  ButtonGroup ButtonPressed
-    OkButton 30, 25, 50, 15
-    CancelButton 90, 25, 50, 15
-EndDialog
-
 'THE SCRIPT------------------------------------------------------------------------------------------------------
-
 'Determines if user needs the "select-a-worker" version of this nav script, based on the global variables file.
 result = filter(users_using_select_a_user, ucase(windows_user_ID))
 IF ubound(result) >= 0 OR all_users_select_a_worker = TRUE THEN
@@ -71,24 +61,23 @@ END IF
 
 'If we have to select a worker, it shows the dialog for it.
 IF select_a_worker = TRUE THEN
-	Dialog worker_dialog
-	IF ButtonPressed = cancel THEN StopScript
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 171, 45, "Worker dialog"
+      Text 5, 10, 130, 10, "Enter the worker number (last 3 digits):"
+      EditBox 135, 5, 30, 15, worker_number
+      ButtonGroup ButtonPressed
+        OkButton 30, 25, 50, 15
+        CancelButton 90, 25, 50, 15
+    EndDialog
+	Dialog Dialog1
+	Cancel
 END IF
 
-'Determines the county code (a custom function involving multicounty agencies being given a proxy access as a specific county).
-get_county_code
-
-'Connects to BlueZone
-EMConnect ""
-
-'This checks to maks sure we're in MAXIS.
-call check_for_MAXIS(True)
-
-'Finds a MAXIS case number (if applicable).
-call MAXIS_case_number_finder(MAXIS_case_number)
-
-'Navigates to DAIL/DAIL
-call navigate_to_MAXIS_screen("DAIL", "DAIL")
+get_county_code 'Determines the county code (a custom function involving multicounty agencies being given a proxy access as a specific county).
+EMConnect "" 'Connects to BlueZone
+Call check_for_MAXIS(True)  'This checks to maks sure we're in MAXIS.
+Call MAXIS_case_number_finder(MAXIS_case_number) 'Finds a MAXIS case number (if applicable).
+Call navigate_to_MAXIS_screen("DAIL", "DAIL") 'Navigates to DAIL/DAIL
 
 'Inputs worker_number variable to the DAIL screen, which only comes up for users with the "select-a-worker" option.
 IF worker_number <> "" THEN

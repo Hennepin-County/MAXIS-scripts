@@ -53,11 +53,6 @@ changelog_display
 'CONNECTING TO MAXIS, STOPPING THE CASE NUMBER FROM CARRYING THROUGH
 EMConnect ""
 MAXIS_case_number = ""
-
-'NAVIGATING TO THE SCREEN---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-'checking for active MAXIS session
-call check_for_MAXIS(True)
-
-call navigate_to_MAXIS_screen("pers", "____")
-
+Call check_for_MAXIS(True)  'checking for active MAXIS session
+Call navigate_to_MAXIS_screen("pers", "____")
 script_end_procedure("")

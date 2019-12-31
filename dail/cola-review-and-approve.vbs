@@ -49,7 +49,6 @@ call changelog_update("05/31/2019", "Initial version.", "Casey Love, Hennepin Co
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-
 'SCRIPT======================================================================================================================
 'EMConnect ""
 approval_exists = TRUE
@@ -67,7 +66,6 @@ Else
 End If
 
 'possibly add dialog to get footer month and year.
-
 EMWriteScreen "E", 6, 3                         'Navigates to ELIG/HC - maintaining tie to the DAIL for ease of processin
 transmit
 EMWriteScreen "HC", 20, 71
@@ -211,7 +209,8 @@ If approval_exists = TRUE Then
     Next
 
     'Dialog is defined here as it is dynamic
-    BeginDialog dialog1, 0, 0, 286, 135 + (15 * UBound(Elig_Info_array)), "Approval dialog"
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 286, 135 + (15 * UBound(Elig_Info_array)), "Approval dialog"
       For each elig_approval in Elig_Info_array
         CheckBox 10, 40 + (15 * array_counter), 265, 10, elig_approval, elig_checkbox_array(array_counter)
     	array_counter = array_counter + 1
@@ -235,7 +234,7 @@ If approval_exists = TRUE Then
 
     Do
         err_msg = ""
-        Dialog dialog1
+        Dialog Dialog1
         cancel_confirmation
         If cola_notes = "" Then err_msg = err_msg & vbNewLine & "* Indicate information about the COLA processing completed."
         If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note"

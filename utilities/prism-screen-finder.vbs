@@ -50,7 +50,12 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'DIALOGS----------------------------------------------------------------------------------------------------
+'THE SCRIPT----------------------------------------------------------------------------------------------------
+'Connect to BlueZone
+EMConnect ""
+CALL check_for_PRISM(FALSE)
+
+Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 261, 135, "PRISM screen finder"
   ButtonGroup ButtonPressed
     CancelButton 210, 120, 50, 15
@@ -66,15 +71,9 @@ BeginDialog Dialog1, 0, 0, 261, 135, "PRISM screen finder"
   Text 35, 115, 65, 10, "Person search:"
   Text 10, 0, 250, 25, "Press a button below to navigate to PRISM screens.  Then press F1 in the case number or MCI number field to select the participant or case information you are looking for."
 EndDialog
-
-'THE SCRIPT----------------------------------------------------------------------------------------------------
-'Connect to BlueZone
-EMConnect ""
-CALL check_for_PRISM(FALSE)
-
 Do 
     DO
-	    Dialog  'Now it'll navigate to any of the screens chosen
+	    Dialog Dialog1  'Now it'll navigate to any of the screens chosen
 	    If buttonpressed = DDPL_button then call navigate_to_PRISM_screen("DDPL")
 	    If buttonpressed = CAAD_button then call navigate_to_PRISM_screen("CAAD")
 	    If buttonpressed = CAFS_button then call navigate_to_PRISM_screen("CAFS")

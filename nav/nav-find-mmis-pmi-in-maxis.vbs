@@ -52,14 +52,11 @@ changelog_display
 
 EMConnect ""
 
-
 EMReadScreen PMI_number, 8, 2, 2
 PMI_number = replace(PMI_number, " ", "")
 If len(PMI_number) <> 8 then
-  MsgBox "A PMI number could not be found on this screen!"
-  stopscript
+  script_end_procedure("A PMI number could not be found on this screen.")
 End if
-
 
 'Now it checks to make sure MAXIS production (or training) is running on this screen. If both are running the script will stop.
 EMSendKey "<attn>"
@@ -75,10 +72,10 @@ If production_check = "RUNNING" then EMSendKey "1" + "<enter>"
 
 'This Do...loop gets back to SELF
 do
-  PF3
-  EMReadScreen password_prompt, 38, 2, 23
-  IF password_prompt = "ACF2/CICS PASSWORD VERIFICATION PROMPT" then stopscript
-  EMReadScreen SELF_check, 27, 2, 28
+    PF3
+    EMReadScreen password_prompt, 38, 2, 23
+    IF password_prompt = "ACF2/CICS PASSWORD VERIFICATION PROMPT" then script_end_procedure("")
+    EMReadScreen SELF_check, 27, 2, 28
 loop until SELF_check = "Select Function Menu (SELF)"
 
 EMWaitReady 1, 1
