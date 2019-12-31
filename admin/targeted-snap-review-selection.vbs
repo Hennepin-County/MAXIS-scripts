@@ -111,8 +111,16 @@ END Class
 
 case_percentage = "10" 'Setting the percent of cases to select to 10% by default, can be changed in dialog'
 
-'DIALOGS----------------------------------------------------------------------
-BeginDialog targeted_snap_review_dialog, 0, 0, 286, 150, "Targeted SNAP Review Selection"
+'THE SCRIPT-------------------------------------------------------------------------
+
+'Determining specific county for multicounty agencies...
+get_county_code
+
+'Connects to BlueZone
+EMConnect ""
+
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 286, 150, "Targeted SNAP Review Selection"
   EditBox 150, 20, 130, 15, worker_number
   CheckBox 70, 65, 150, 10, "Check here to run this query county-wide.", all_workers_check
   CheckBox 10, 20, 40, 10, "PAR", Active_check
@@ -129,35 +137,9 @@ BeginDialog targeted_snap_review_dialog, 0, 0, 286, 150, "Targeted SNAP Review S
 	Text 20, 35, 35, 15, "(Active)"
 EndDialog
 
-BeginDialog cases_to_select_dialog, 0, 0, 176, 125, "Cases to Select"
-  ButtonGroup ButtonPressed
-    OkButton 30, 105, 50, 15
-    CancelButton 85, 105, 50, 15
-  Text 15, 10, 160, 20, "Cases to audit based on the total number of cases meeting selection criteria:  "
-  EditBox 85, 35, 20, 15, cases_to_select
-  EditBox 85, 55, 20, 15, caper_cases_to_select
-  Text 50, 35, 30, 15, "Active:"
-  Text 45, 55, 35, 20, "CAPER (Inactive):"
-  Text 15, 80, 150, 20, "Note: reducing these numbers will reduce the overall accuracy of your case audit."
-EndDialog
-
-
-
-
-'DECLARE VARIABLES
-
-'THE SCRIPT-------------------------------------------------------------------------
-
-'Determining specific county for multicounty agencies...
-get_county_code
-
-'Connects to BlueZone
-EMConnect ""
-
 'Shows dialog
-Dialog targeted_snap_review_dialog
-If buttonpressed = cancel then stopscript
-
+Dialog Dialog1
+cancel_without_confirmation
 
 'Starting the query start time (for the query runtime at the end)
 query_start_time = timer
@@ -549,8 +531,21 @@ IF caper_check = checked Then
 	caper_cases_to_select = cstr(caper_cases_to_select) 'change to a string so it displays in dialog
 END IF
 
-Dialog cases_to_select_dialog
-IF buttonpressed = cancel then stopscript
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 176, 125, "Cases to Select"
+  ButtonGroup ButtonPressed
+    OkButton 30, 105, 50, 15
+    CancelButton 85, 105, 50, 15
+  Text 15, 10, 160, 20, "Cases to audit based on the total number of cases meeting selection criteria:  "
+  EditBox 85, 35, 20, 15, cases_to_select
+  EditBox 85, 55, 20, 15, caper_cases_to_select
+  Text 50, 35, 30, 15, "Active:"
+  Text 45, 55, 35, 20, "CAPER (Inactive):"
+  Text 15, 80, 150, 20, "Note: reducing these numbers will reduce the overall accuracy of your case audit."
+EndDialog
+
+Dialog Dialog1
+cancel_without_confirmation
 
 audit_row = 2 'reset the row for the audit sheet
 'Selecting random cases and pasting into the new worksheet
