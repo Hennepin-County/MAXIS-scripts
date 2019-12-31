@@ -185,7 +185,8 @@ ELSEIF number_of_scripts >= 120 AND number_of_scripts <= 159 THEN
 END IF
 
 '>>> Building the dialog
-BeginDialog fav_dlg, 0, 0, dia_width, 440, "Select your favorites"
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, dia_width, 440, "Select your favorites"
 	ButtonGroup ButtonPressed
 		OkButton 5, 5, 50, 15
 		CancelButton 55, 5, 50, 15
@@ -228,7 +229,7 @@ EndDialog
 DO
 	DO
 		'>>> Running the dialog
-		Dialog fav_dlg
+		Dialog Dialog1
 			'>>> Cancel confirmation
 			IF ButtonPressed = 0 THEN
 				confirm_cancel = MsgBox("Are you sure you want to cancel? Press YES to cancel the script. Press NO to return to the script.", vbYesNo)
