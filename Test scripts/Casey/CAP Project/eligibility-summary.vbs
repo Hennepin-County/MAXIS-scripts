@@ -129,7 +129,7 @@ Call MAXIS_footer_finder(initial_footer_month, initial_footer_year)
 'Dialog to confirm case number AND the first footer month/year of approval.
 'IF multiple programs with different approval months then enter the very first of all of them.
 'Approval month means month in which an APP was done.
-
+Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 131, 105, "Case Number Dialog"
   EditBox 75, 10, 50, 15, MAXIS_case_number
   EditBox 90, 30, 15, 15, initial_footer_month
