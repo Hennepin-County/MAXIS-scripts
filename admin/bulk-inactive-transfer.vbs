@@ -51,6 +51,7 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 '------------------------------------------------------------------------THE SCRIPT
 EMConnect ""
+Dialog1 = ""
 BeginDialog dialog1, 0, 0, 316, 65, "Select the source file"
   EditBox 5, 25, 260, 15, file_selection_path
   ButtonGroup ButtonPressed
@@ -64,7 +65,7 @@ Do
     'Show initial dialog
     Do
 		Dialog dialog1
-		If ButtonPressed = cancel then stopscript
+		cancel_without_confirmation
 		If ButtonPressed = select_a_file_button then call file_selection_system_dialog(file_selection_path, ".xlsx")
 	Loop until ButtonPressed = OK and file_selection_path <> ""
 	If objExcel = "" Then call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
