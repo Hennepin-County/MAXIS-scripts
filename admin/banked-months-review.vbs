@@ -739,6 +739,7 @@ function find_three_ABAWD_months(all_counted_months)
             objABAWDExcel.Columns(i).AutoFit()				'sizing the columns
         NEXT
 
+        Dialog1 = ""
         BeginDialog Dialog1, 0, 0, 141, 90, "Confirm Counted ABAWD Months"
           EditBox 30, 30, 30, 15, counted_month_one
           EditBox 30, 50, 30, 15, counted_month_two
@@ -1015,6 +1016,7 @@ EmReadscreen MX_region, 10, 22, 48
 MX_region = trim(MX_region)
 
 'This dialog selects which option needs to be run.
+Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 181, 80, "Banked Months Process"
   DropListBox 15, 35, 160, 45, "Ongoing Banked Months Cases"+chr(9)+"Find ABAWD Months"+chr(9)+"Return Banked Months to Active", process_option
   ButtonGroup ButtonPressed
@@ -1058,6 +1060,7 @@ If process_option = "Ongoing Banked Months Cases" Then
     ' working_excel_file_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\SNAP\Banked months data\Copy of Ongoing banked months list.xlsx"  'use for tesing.'
 
     'Here the file path can be changed, can be reselected so that the list can be copied and worked on by multiple people.
+    Dialog1 = ""
     BeginDialog Dialog1, 0, 0, 386, 85, "Review Ongoing Banked Months"
       EditBox 130, 40, 200, 15, working_excel_file_path
       ButtonGroup ButtonPressed
@@ -1105,6 +1108,7 @@ End If
 
 'This dialog allows the user to control the work done since this list is so large.
 'The rows to look at can be determined or a time limit can be selected
+Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 176, 140, "Dialog"
   EditBox 25, 55, 30, 15, stop_time
   EditBox 65, 100, 30, 15, excel_row_to_start
@@ -1551,7 +1555,7 @@ If process_option = "Ongoing Banked Months Cases" Then
                     transmit
 
                     'ObjExcel.Range(ObjExcel.Cells(list_row, 1), ObjExcel.Cells(list_row, 17)).Interior.ColorIndex = 6
-
+                    Dialog1 = ""
                     BeginDialog Dialog1, 0, 0, 216, 135, "Dialog"
                       CheckBox 10, 60, 180, 10, "Check here if client is active SNAP on another case.", new_case_checkbox
                       EditBox 95, 75, 65, 15, new_case_number
@@ -1876,6 +1880,7 @@ If process_option = "Ongoing Banked Months Cases" Then
                                 update_abawd_status = abawd_status
                                 yes_abawd_exempt_checkbox = checked
 
+                                Dialog1 = ""
                                 BeginDialog Dialog1, 0, 0, 201, 85, "Review ABAWD Exemption"
                                   CheckBox 10, 50, 170, 10, "Check here if client meets an ABAWD exemption.", yes_abawd_exempt_checkbox
                                   DropListBox 90, 65, 35, 45, "01"+chr(9)+"02"+chr(9)+"03"+chr(9)+"04"+chr(9)+"05"+chr(9)+"06"+chr(9)+"07"+chr(9)+"08"+chr(9)+"10"+chr(9)+"11"+chr(9)+"12"+chr(9)+"13", update_abawd_status
@@ -1926,6 +1931,7 @@ If process_option = "Ongoing Banked Months Cases" Then
                                     'ObjExcel.Range(ObjExcel.Cells(list_row, 1), ObjExcel.Cells(list_row, 17)).Interior.ColorIndex = 6
 
                                     'This dialog will list all of the exemptions the function found
+                                    Dialog1 = ""
                                     BeginDialog Dialog1, 0, 0, 346, dlg_len, "Possible ABAWD/FSET Exemption"
                                     'BeginDialog Dialog1, 0, 0, 346, 135, "Possible ABAWD/FSET Exemption"
                                       GroupBox 15, 10, 325, 55, "Case Review"
@@ -2084,7 +2090,7 @@ If process_option = "Ongoing Banked Months Cases" Then
                                 If update_abawd_status <> abawd_status Then new_abawd_status = update_abawd_status
 
                                 'ObjExcel.Range(ObjExcel.Cells(list_row, 1), ObjExcel.Cells(list_row, 17)).Interior.ColorIndex = 6
-
+                                Dialog1 = ""
                                 BeginDialog Dialog1, 0, 0, 111, 90, "FSET ABAWD Status"
                                   EditBox 80, 30, 20, 15, new_fset_wreg_status
                                   EditBox 80, 50, 20, 15, new_abawd_status
@@ -2218,6 +2224,7 @@ If process_option = "Ongoing Banked Months Cases" Then
                         '             ObjExcel.Range(ObjExcel.Cells(list_row, 1), ObjExcel.Cells(list_row, 17)).Interior.ColorIndex = 6
                         '
                         '             'This dialog will list all of the exemptions the function found
+                        '             Dialog1 = ""
                         '             BeginDialog Dialog1, 0, 0, 346, dlg_len, "Possible ABAWD/FSET Exemption"
                         '             'BeginDialog Dialog1, 0, 0, 346, 135, "Possible ABAWD/FSET Exemption"
                         '               GroupBox 15, 10, 325, 55, "Case Review"
@@ -2307,6 +2314,7 @@ If process_option = "Ongoing Banked Months Cases" Then
                             ' MsgBox other_notes
 
                             'This dialog is to assist in the noting of the approval
+                            Dialog1 = ""
                             BeginDialog Dialog1, 0, 0, 236, 110, "Noting the Approval"
                               EditBox 95, 30, 15, 15, start_month
                               EditBox 115, 30, 15, 15, start_year
@@ -2461,6 +2469,7 @@ If process_option = "Ongoing Banked Months Cases" Then
                                         MsgBox case_note_to_display
                                     Else
                                         'MsgBox "Detail - " & other_notes
+                                        Dialog1 = ""
                                         BeginDialog Dialog1, 0, 0, 441, 195, "Dialog"
                                           EditBox 60, 45, 370, 15, other_notes
                                           ButtonGroup ButtonPressed
@@ -2501,6 +2510,7 @@ If process_option = "Ongoing Banked Months Cases" Then
                         If month_tracked = TRUE Then
 
                             'This dialog will allow the worker to determine if this should not be tracked as a banked month '
+                            Dialog1 = ""
                             BeginDialog Dialog1, 0, 0, 191, 110, "Dialog"
                               ButtonGroup ButtonPressed
                                 PushButton 15, 75, 160, 15, "Yes - remove the month from the Master List", yes_remove_month_btn
@@ -2538,6 +2548,7 @@ If process_option = "Ongoing Banked Months Cases" Then
                         MsgBox case_note_to_display
                     Else
                         'MsgBox "Detail - " & other_notes
+                        Dialog1 = ""
                         BeginDialog Dialog1, 0, 0, 441, 195, "Dialog"
                           EditBox 60, 45, 370, 15, other_notes
                           ButtonGroup ButtonPressed
@@ -2641,6 +2652,7 @@ If process_option = "Ongoing Banked Months Cases" Then
                     ReDim month_notes(top_months)
                     y_pos = 55
 
+                    Dialog1 = ""
                     BeginDialog Dialog1, 0, 0, 340, 140 + (Ubound(months_in_gap) * 20), "Gap Months"
                       Text 10, 10, 325, 20, "There are months between the last banked month and Current Month + 1. The script will assess CM + 1 for ABAWD or exemptions. Review the months listed to add information to a case note here."
                       Text 10, 35, 85, 10, Month_nine_mo & "/" & Month_nine_yr & " - 9th Banked Month"
@@ -2727,6 +2739,7 @@ If process_option = "Ongoing Banked Months Cases" Then
                         'ObjExcel.Range(ObjExcel.Cells(list_row, 1), ObjExcel.Cells(list_row, 17)).Interior.ColorIndex = 6
 
                         'This dialog will list all of the exemptions the function found
+                        Dialog1 = ""
                         BeginDialog Dialog1, 0, 0, 346, dlg_len, "Possible ABAWD/FSET Exemption"
                         'BeginDialog Dialog1, 0, 0, 346, 135, "Possible ABAWD/FSET Exemption"
                           GroupBox 15, 10, 325, 55, "Case Review"
@@ -2901,6 +2914,7 @@ If process_option = "Ongoing Banked Months Cases" Then
 
                         'ObjExcel.Range(ObjExcel.Cells(list_row, 1), ObjExcel.Cells(list_row, 17)).Interior.ColorIndex = 6
 
+                        Dialog1 = ""
                         BeginDialog Dialog1, 0, 0, 111, 90, "FSET ABAWD Status"
                           EditBox 80, 30, 20, 15, new_fset_wreg_status
                           EditBox 80, 50, 20, 15, new_abawd_status
@@ -3118,7 +3132,7 @@ If process_option = "Ongoing Banked Months Cases" Then
 
 
                         If person_test_correct = FALSE OR case_test_correct = FALSE Then
-
+                            Dialog1 = ""
                             BeginDialog Dialog1, 0, 0, 211, 200, "Eligibility Corrections"
                               ButtonGroup ButtonPressed
                                 PushButton 40, 155, 135, 15, "Case and Person Eligibility is Correct", elig_correct_btn
@@ -3146,6 +3160,7 @@ If process_option = "Ongoing Banked Months Cases" Then
                         End If
 
                         If continue_approval = TRUE  Then
+                            Dialog1 = ""
                             BeginDialog Dialog1, 0, 0, 236, 120, "Noting the Approval"
                               EditBox 60, 60, 170, 15, other_notes
                               EditBox 75, 80, 155, 15, worker_signature
@@ -3345,6 +3360,7 @@ If process_option = "Ongoing Banked Months Cases" Then
                                     MsgBox case_note_to_display
                                 Else
                                     'MsgBox "Detail - " & other_notes
+                                    Dialog1 = ""
                                     BeginDialog Dialog1, 0, 0, 441, 195, "Dialog"
                                       EditBox 60, 45, 370, 15, other_notes
                                       ButtonGroup ButtonPressed
@@ -3377,6 +3393,7 @@ If process_option = "Ongoing Banked Months Cases" Then
 
 
                         'This dialog is to assist in the noting of the approval
+                        Dialog1 = ""
                         BeginDialog Dialog1, 0, 0, 236, 95, "Noting the Approval"
                           EditBox 60, 35, 170, 15, other_notes
                           EditBox 75, 55, 155, 15, worker_signature
@@ -3512,6 +3529,7 @@ If process_option = "Ongoing Banked Months Cases" Then
                                 MsgBox case_note_to_display
                             Else
                                 'MsgBox "Detail - " & other_notes
+                                Dialog1 = ""
                                 BeginDialog Dialog1, 0, 0, 441, 195, "Dialog"
                                   EditBox 60, 45, 370, 15, other_notes
                                   ButtonGroup ButtonPressed
