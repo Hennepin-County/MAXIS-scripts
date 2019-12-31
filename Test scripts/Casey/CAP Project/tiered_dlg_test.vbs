@@ -293,6 +293,7 @@ Do
                     Do
                         Do
                             If show_one = true Then
+                                Dialog1 = ""
                                 BeginDialog Dialog1, 0, 0, 466, 310, "Dialog 1 - Personal"
                                   ButtonGroup ButtonPressed
                                     CancelButton 410, 290, 50, 15
@@ -313,6 +314,7 @@ Do
                             End If
                         Loop Until pass_one = TRUE
                         If show_two = true Then
+                            Dialog1 = ""
                             BeginDialog Dialog1, 0, 0, 466, 310, "Dialog 2 - JOBS"
                               ButtonGroup ButtonPressed
                                 CancelButton 410, 290, 50, 15
@@ -333,6 +335,7 @@ Do
                         End If
                     Loop Until pass_two = true
                     If show_three = true Then
+                        Dialog1 = ""
                         BeginDialog Dialog1, 0, 0, 466, 310, "Dialog 3 - BUSI"
                           ButtonGroup ButtonPressed
                             CancelButton 410, 290, 50, 15
@@ -353,6 +356,7 @@ Do
                     End If
                 Loop Until pass_three = true
                 If show_four = true Then
+                    Dialog1 = ""
                     BeginDialog Dialog1, 0, 0, 466, 310, "Dialog 4 - CSES"
                       ButtonGroup ButtonPressed
                         CancelButton 410, 290, 50, 15
@@ -373,6 +377,7 @@ Do
                 End If
             Loop Until pass_four = true
             If show_five = true Then
+                Dialog1 = ""
                 BeginDialog Dialog1, 0, 0, 466, 310, "Dialog 5 - UNEA"
                   ButtonGroup ButtonPressed
                     CancelButton 410, 290, 50, 15
@@ -393,6 +398,7 @@ Do
             End If
         Loop Until pass_five = true
         If show_six = true Then
+            Dialog1 = ""
             BeginDialog Dialog1, 0, 0, 466, 310, "Dialog 6 - Other"
               ButtonGroup ButtonPressed
                 CancelButton 410, 290, 50, 15
@@ -413,6 +419,7 @@ Do
         End If
     Loop Until pass_six = true
     If show_seven = true Then
+        Dialog1 = ""
         BeginDialog Dialog1, 0, 0, 466, 310, "Dialog 7 - Interview"
           ButtonGroup ButtonPressed
             CancelButton 410, 290, 50, 15
