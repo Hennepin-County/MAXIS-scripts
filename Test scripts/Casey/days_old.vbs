@@ -1,5 +1,6 @@
 EMConnect ""
 
+Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 141, 100, "Dialog"
   EditBox 40, 30, 90, 15, child_name
   EditBox 45, 50, 85, 15, child_b_day
