@@ -109,8 +109,16 @@ function navigate_to_MAXIS_test(maxis_mode)
     END IF
 end function
 
-'----------------------------------------------------------------------------------------------------DIALOG
-BeginDialog case_number_dialog, 0, 0, 216, 170, "Add GRH Rate 2 to MMIS"
+'----------------------------------------------------------------------------------------------------The script
+'CONNECTS TO BlueZone
+EMConnect ""
+Call check_for_MAXIS(true)
+get_county_code
+Call MAXIS_case_number_finder(MAXIS_case_number)
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 216, 170, "Add GRH Rate 2 to MMIS"
   EditBox 110, 10, 50, 15, MAXIS_case_number
   EditBox 110, 30, 20, 15, MAXIS_footer_month
   EditBox 140, 30, 20, 15, MAXIS_footer_year
@@ -123,20 +131,11 @@ BeginDialog case_number_dialog, 0, 0, 216, 170, "Add GRH Rate 2 to MMIS"
   Text 45, 35, 60, 10, "Initial month/year:"
   GroupBox 5, 80, 205, 85, "Add GRH Rate 2 to MMIS script:"
 EndDialog
-
-'----------------------------------------------------------------------------------------------------The script
-'CONNECTS TO BlueZone
-EMConnect ""
-Call check_for_MAXIS(true)
-get_county_code
-Call MAXIS_case_number_finder(MAXIS_case_number)
-Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
-
 'Main dialog: user will input case number and initial month/year will default to current month - 1 and member 01 as member number
 DO
 	DO
 		err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
-		dialog case_number_dialog				'main dialog
+		dialog Dialog1				            'main dialog
 		If buttonpressed = 0 THEN stopscript	'script ends if cancel is selected
 		IF len(MAXIS_case_number) > 8 or isnumeric(MAXIS_case_number) = false THEN err_msg = err_msg & vbCr & "Enter a valid case number."		'mandatory field
 		If IsNumeric(MAXIS_footer_month) = False or len(MAXIS_footer_month) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2-digit MAXIS footer month."
@@ -157,7 +156,7 @@ If grh_status <> "ACTV" then
     confirmation_needed = MsgBox("GRH is currently not active. Press YES if you have confirmed GRH was open during the SSR dates. Press NO to stop the script.", vbYesNo, "Please confirm GRH active date.")
     'If confirmation_needed = vbYes then grh_actv = True
     If confirmation_needed = vbNo then script_end_procedure("GRH case status is " & grh_status & ". The script will now end.")
-    Do 
+    Do
         CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
     Loop until are_we_passworded_out = false					'loops until user passwords back in
 End if
@@ -443,14 +442,14 @@ End if
 
 Call Navigate_to_MAXIS_screen("ELIG", "GRH ")
 EMReadScreen no_grh, 10, 24, 2		'NO GRH version means no conversion to MMIS will take place
-If no_grh = "NO VERSION" then 
+If no_grh = "NO VERSION" then
     confirmation_needed = MsgBox("GRH elig results do not exist. Press YES if you have confirmed GRH was open during the SSR dates. Press NO to stop the script.", vbYesNo, "Please confirm GRH active date.")
     'If confirmation_needed = vbYes then grh_actv = True
     If confirmation_needed = vbNo then script_end_procedure("GRH case status is " & grh_status & ". The script will now end.")
-    Do 
+    Do
         CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
     Loop until are_we_passworded_out = false					'loops until user passwords back in
-else 
+else
 
     Call write_value_and_transmit("99", 20, 79)
     'This brings up the FS versions of eligibility results to search for approved versions
@@ -465,9 +464,9 @@ else
     		exit do
      	End if
     Loop until app_status = "APPROVED" or trim(app_status) = ""
-    
+
     If app_status <> "APPROVED" then script_end_procedure("There are no approved GRH eligibility results for " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". The script will now end.")
-    
+
     '----------------------------------------------------------------------------------------------------ELIG/GRFB
     Call write_value_and_transmit("GRFB", 20, 71)
     Call write_value_and_transmit("x", 11, 3)
@@ -482,18 +481,19 @@ else
             row = row + 1
         End if
     Loop until row = 20
-    
-    If rate_two_check = "" then 
+
+    If rate_two_check = "" then
         continue_msg = msgbox("GRH eligibility doesn't reflect Rate 2 vendor information, or the SSRT vendor number did not match ELIG/GRFB vendor number. Do you wish to continue loading the agreement into MMIS?", vbYesNo, "Please confirm adding the SSR to MMIS.")
         If continue_msg = vbNo then script_end_procedure("The script has ended.")
         If continue_msg = vbYes then update_case = True
-    End if 
-    
+    End if
+
     PF3' out of ELIG/GRFB
-End if 
+End if
 
 '----------------------------------------------------------------------------------------------------Main selection dialog
-BeginDialog date_dialog, 0, 0, 281, 170, "Select the SSR start and end dates for "  & SSRT_vendor_name
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 281, 170, "Select the SSR start and end dates for "  & SSRT_vendor_name
   CheckBox 60, 25, 65, 10, DISA_start, disa_start_checkbox
   CheckBox 150, 25, 65, 10, DISA_end, disa_end_checkbox
   CheckBox 60, 45, 65, 10, revw_start, revw_start_checkbox
@@ -529,7 +529,7 @@ EndDialog
 DO
     DO
         DO
-            dialog date_dialog				'main dialog
+            dialog Dialog1				'main dialog
             cancel_confirmation
             'Navigation button handling
             MAXIS_dialog_navigation
@@ -559,14 +559,14 @@ DO
                 end_date = end_date & custom_end
                 custom_date = true
             End if
-            
+
             total_units = datediff("d", start_date, end_date) + 1   'Determining the total units to enter into MMIS.
         Loop until ButtonPressed = -1
 
         err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
         If trim(start_date) = "" or IsDate(start_date) = false THEN err_msg = err_msg & vbCr & "Select/enter one valid start date."		'mandatory field
         IF trim(end_date) = "" or IsDate(end_date) = false THEN err_msg = err_msg & vbCr & "Select/enter one valid end date."		'mandatory field
-        If total_units > 365 THEN err_msg = err_msg & vbCr & "You cannot enter an agreement for more than 365 days. Select a new start and/or end dates."   ' Cannot be over 365 days. 
+        If total_units > 365 THEN err_msg = err_msg & vbCr & "You cannot enter an agreement for more than 365 days. Select a new start and/or end dates."   ' Cannot be over 365 days.
         If (custom_date = True and trim(custom_dates_explained) = "") THEN err_msg = err_msg & vbCr & "Explain the reason for selecting custom dates."		'mandatory field
         If trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "Enter your worker signature."
         IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
@@ -687,7 +687,8 @@ If duplicate_agreement = False then
         '----------------------------------------------------------------------------------------------------PPOP screen handling
         EMReadScreen PPOP_check, 4, 1, 52
         If PPOP_check = "PPOP" then
-            BeginDialog PPOP_dialog, 0, 0, 180, 90, "PPOP screen - Choose Facility"
+            Dialog1 = ""
+            BeginDialog Dialog1, 0, 0, 180, 90, "PPOP screen - Choose Facility"
                 ButtonGroup ButtonPressed
                 OkButton 65, 70, 50, 15
                 CancelButton 120, 70, 50, 15
@@ -695,15 +696,15 @@ If duplicate_agreement = False then
                 Text 5, 45, 175, 20, "* Provider types for GRH must be '18/H COMM PRV' and the status must be '1 ACTIVE.'"
             EndDialog
             Do
-                dialog PPOP_dialog
+                dialog Dialog1
                 cancel_confirmation
             Loop until ButtonPressed = -1
-			EMReadScreen PPOP_check, 4, 1, 52 
+			EMReadScreen PPOP_check, 4, 1, 52
             If PPOP_check = "PPOP" then transmit     'to exit PPOP
             If PPOP_check = "SA3 " then transmit    'to navigate to ACF1 - this is the partial screen check for ASA3
             transmit ' to next available screen (does not need to be updated)
             Call write_value_and_transmit("ACF1", 1, 51)
-        End if     
+        End if
 
         '----------------------------------------------------------------------------------------------------ACF1 screen
         Call MMIS_panel_check("ACF1")		'ensuring we are on the right MMIS screen
