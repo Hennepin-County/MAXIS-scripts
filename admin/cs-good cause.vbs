@@ -60,7 +60,8 @@ Call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(original_MAXIS_footer_month, MAXIS_footer_year)
 back_to_self 'to ensure we are not in edit mode'
 
-BeginDialog case_number, 0, 0, 116, 65, "Case number"
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 116, 65, "Case number"
   EditBox 60, 5, 50, 15, MAXIS_case_number
   EditBox 65, 25, 20, 15, original_MAXIS_footer_month
   EditBox 90, 25, 20, 15, MAXIS_footer_year
@@ -74,7 +75,7 @@ EndDialog
 DO
 	DO
 	    err_msg = ""
-	    Dialog case_number
+	    Dialog Dialog1
 	    cancel_confirmation
 	    IF MAXIS_case_number = "" THEN err_msg = "Please enter a case number to continue."
 	    IF original_MAXIS_footer_month = "" THEN err_msg = "Please enter a footer month to continue."
@@ -215,20 +216,9 @@ END IF
 'reason_droplist = "Potential phys harm/child"
 
 '----------------------------------------------------------------------------------------------------DIALOGS
-BeginDialog change_exemption_dialog, 0, 0, 216, 100, "Good cause change/exemption "
-  EditBox 110, 5, 50, 15, change_reported_date
-  EditBox 110, 25, 100, 15, change_reported
-  EditBox 110, 45, 100, 15, maxis_updates
-  CheckBox 10, 70, 75, 10, " No longer claiming ", no_longer_claiming_checkbox
-  ButtonGroup ButtonPressed
-    OkButton 110, 80, 50, 15
-    CancelButton 160, 80, 50, 15
-  Text 10, 10, 80, 10, "Date of change reported:"
-  Text 10, 30, 90, 10, "What change was reported:"
-  Text 10, 50, 95, 10, "What was updated in MAXIS:"
-EndDialog
 
-BeginDialog good_cause_dialog, 0, 0, 376, 285, "Good Cause"
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 376, 285, "Good Cause"
   EditBox 70, 5, 30, 15, child_ref_number
   EditBox 70, 25, 40, 15, actual_date
   EditBox 70, 45, 40, 15, claim_date
@@ -287,7 +277,7 @@ EndDialog
 Do
 	Do
 		err_msg = ""
-		dialog good_cause_dialog
+		dialog Dialog1
 		cancel_confirmation
 		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* Enter a valid case number."
 		'If isnumeric(MAXIS_footer_month) = false then err_msg = err_msg & vbnewline & "* You must enter the footer month to begin good cause."
@@ -540,10 +530,23 @@ DO
 LOOP Until MAXIS_footer_month = CM_plus_1_mo
 
 If good_cause_droplist = "Change/exemption ending" then
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 216, 100, "Good cause change/exemption "
+      EditBox 110, 5, 50, 15, change_reported_date
+      EditBox 110, 25, 100, 15, change_reported
+      EditBox 110, 45, 100, 15, maxis_updates
+      CheckBox 10, 70, 75, 10, " No longer claiming ", no_longer_claiming_checkbox
+      ButtonGroup ButtonPressed
+        OkButton 110, 80, 50, 15
+        CancelButton 160, 80, 50, 15
+      Text 10, 10, 80, 10, "Date of change reported:"
+      Text 10, 30, 90, 10, "What change was reported:"
+      Text 10, 50, 95, 10, "What was updated in MAXIS:"
+    EndDialog
 	Do
 		Do
 			err_msg = ""
-			dialog change_exemption_dialog
+			dialog Dialog1
 			cancel_confirmation
 			If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 		LOOP UNTIL err_msg = ""									'loops until all errors are resolved
