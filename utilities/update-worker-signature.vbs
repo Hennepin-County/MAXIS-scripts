@@ -68,8 +68,9 @@ With (CreateObject("Scripting.FileSystemObject"))
 	END IF
 END WITH
 
-'----------DIALOGS----------
-BeginDialog dialog1, 0, 0, 191, 105, "Update Worker Signature"
+'----------DIALOG----------
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 191, 105, "Update Worker Signature"
   EditBox 10, 60, 175, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 45, 85, 50, 15
@@ -78,10 +79,9 @@ BeginDialog dialog1, 0, 0, 191, 105, "Update Worker Signature"
   Text 10, 25, 170, 25, "NOTE: This will be pre-loaded in every script. Once the script has started, you can still modify your signature in the appropriate editbox."
 EndDialog
 
-'----------THE SCRIPT----------
-dialog 												'Shows the dialog
-IF ButtonPressed = cancel THEN stopscript			'Handling for if cancel is pressed
-IF worker_signature = "" THEN stopscript			'If they enter nothing, it exits
+dialog Dialog1 												'Shows the dialog
+Cancel_without_confirmation
+IF worker_signature = "" THEN cancel_without_confirmation			'If they enter nothing, it exits
 
 'This creates an object which collects the username from the Windows logon. We need this to determine the correct location for the My Documents folder.
 Set objNet = CreateObject("WScript.NetWork")
