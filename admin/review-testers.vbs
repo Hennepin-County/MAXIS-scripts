@@ -38,48 +38,6 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-' dlg_len =
-' BeginDialog Dialog1, 0, 0, 776, 125, "Detailed Tester Information"
-'   Text 10, 15, 170, 10, "Select what information you want to reviw/gather."
-'   Text 190, 15, 55, 10, "Testers options:"
-'   DropListBox 260, 10, 130, 45, "Select One... "+chr(9)+"By Group"+chr(9)+"By Population"+chr(9)+"By Region"+chr(9)+"Confirmed Only"+chr(9)+"By Supervisor", testers_options
-'   Text 400, 15, 30, 10, "which is:"
-'   EditBox 440, 10, 145, 15, detail_edit
-'   Text 600, 15, 110, 10, "Testers Found:" & total_testers
-'   Text 445, 30, 95, 10, "If a list, separate by commas"
-'
-'   y_pos = 45
-'   Text 15, 45, 25, 10, "Name:"
-'   Text 120, 45, 40, 10, "Supervisor:"
-'   Text 215, 45, 40, 10, "Population:"
-'   Text 295, 45, 30, 10, "Region:"
-'   Text 365, 45, 30, 10, "Groups:"
-'   Text 535, 45, 30, 10, "Scripts:"
-'   Text 710, 45, 40, 10, "Confirmed:"
-'   y_pos = y_pos + 20
-'
-'   Text 15, 65, 85, 10, "tester.tester_full_name"
-'   Text 120, 65, 85, 10, "tester.tester_supervisor_name"
-'   Text 215, 65, 60, 10, "tester.tester_population"
-'   Text 295, 65, 55, 10, "tester.tester_region"
-'   Text 365, 65, 165, 10, "tester.tester_groups"
-'   Text 535, 65, 165, 10, "tester.tester_scripts"
-'   Text 710, 65, 50, 10, "tester.tester_confirmed"
-'   y_pos = y_pos + 15
-'   Text 15, 80, 85, 10, "tester.tester_full_name"
-'   Text 120, 80, 85, 10, "tester.tester_supervisor_name"
-'   Text 215, 80, 60, 10, "tester.tester_population"
-'   Text 295, 80, 55, 10, "tester.tester_region"
-'   Text 365, 80, 165, 10, "tester.tester_groups"
-'   Text 535, 80, 165, 10, "tester.tester_scripts"
-'   Text 710, 80, 50, 10, "tester.tester_confirmed"
-'   y_pos = y_pos + 20
-'   ButtonGroup ButtonPressed
-'     PushButton 585, 100, 70, 15, "Export to EXCEL", export_btn
-'     PushButton 660, 100, 50, 15, "Search", search_btn
-'     PushButton 715, 100, 50, 15, "DONE", done_btn
-' EndDialog
-
 script_list_URL = "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Scripts\Script Files\COMPLETE LIST OF TESTERS.vbs"        'Opening the list of testers - which is saved locally for security
 Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
 Set fso_command = run_another_script_fso.OpenTextFile(script_list_URL)
@@ -168,6 +126,7 @@ Do
     ' msgBox dlg_len
     If dlg_len > 385 Then dlg_len = 385
 
+    Dialog1 = ""
     BeginDialog Dialog1, 0, 0, 776, dlg_len, "Detailed Tester Information"
       Text 10, 15, 170, 10, "Select what information you want to reviw/gather."
       Text 190, 15, 55, 10, "Testers options:"
