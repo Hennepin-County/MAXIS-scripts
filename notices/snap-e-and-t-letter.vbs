@@ -58,21 +58,30 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 function confirm_available_dates
-    Do 
+    Do
         If WeekdayName(WeekDay(appointment_date)) = "Saturday" Then appointment_date = DateAdd("d", 2, appointment_date)
         If WeekdayName(WeekDay(appointment_date)) = "Sunday" Then appointment_date = DateAdd("d", 1, appointment_date)
         is_holiday = FALSE
         For each holiday in HOLIDAYS_ARRAY
             If holiday = appointment_date Then
                 is_holiday = TRUE
-                appointment_date = dateadd("d", 7, appointment_date)     'adding the number of days specific to the orientation   
+                appointment_date = dateadd("d", 7, appointment_date)     'adding the number of days specific to the orientation
             End If
         Next
     Loop until is_holiday = FALSE
-End function 
+End function
 
-'DIALOG----------------------------------------------------------------------------------------------------
-BeginDialog SNAPET_Hennepin_dialog, 0, 0, 456, 130, "SNAP E&T Appointment Letter"
+'THE SCRIPT----------------------------------------------------------------------------------------------------
+'Connects to BlueZone default screen & 'Searches for a case number
+EMConnect ""
+Call MAXIS_case_number_finder(MAXIS_case_number)
+
+member_number = "01"    'defaults the member_number to 01
+SNAPET_contact = "the SNAP Employment and Training Team"
+SNAPET_phone = "612-596-7411"
+
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 456, 130, "SNAP E&T Appointment Letter"
   EditBox 100, 10, 55, 15, MAXIS_case_number
   EditBox 220, 10, 75, 15, member_number
   DropListBox 100, 35, 195, 15, "Select one..."+chr(9)+"Somali-language (Sabathani, next Tuesday @ 2:00 p.m.)"+chr(9)+"Central NE (HSB, next Wednesday @ 2:00 p.m.)"+chr(9)+"North (HSB, next Wednesday @ 10:00 a.m.)"+chr(9)+"Northwest(Brookdale, next Monday @ 2:00 p.m.)"+chr(9)+"South Mpls (Sabathani, next Tuesday @ 10:00 a.m.)"+chr(9)+"South Suburban (Sabathani, next Tuesday @ 10:00 a.m.)"+chr(9)+"West (Sabathani, next Tuesday @ 10:00 a.m.)", interview_location
@@ -92,22 +101,12 @@ BeginDialog SNAPET_Hennepin_dialog, 0, 0, 456, 130, "SNAP E&T Appointment Letter
   Text 315, 25, 130, 35, "If your client is requsting a Somali-language orientation, select this option in the 'client's region of residence' field."
   Text 315, 65, 130, 55, "For all other languages, do not use this script. Contact E and T staff, and request language-specific SNAP E and T Orientation/intake. Provide client with the E and T contact information, and instruct them to contact them to schedule orientation within one week."
 EndDialog
-
-'THE SCRIPT----------------------------------------------------------------------------------------------------
-'Connects to BlueZone default screen & 'Searches for a case number
-EMConnect ""
-Call MAXIS_case_number_finder(MAXIS_case_number)
-
-member_number = "01"    'defaults the member_number to 01
-SNAPET_contact = "the SNAP Employment and Training Team"
-SNAPET_phone = "612-596-7411"
-
 'Main dialog
 DO
 	DO
 	    'establishes  that the error message is equal to blank (necessary for the DO LOOP to work)
 	    err_msg = ""
-	    Dialog SNAPET_Hennepin_dialog
+	    Dialog Dialog1
 	    'CO #27 HENNEPIN COUNTY addresses, date and times of orientations
 	    'Somali-language orientation
 	    IF interview_location = "Somali-language (Sabathani, next Tuesday @ 2:00 p.m.)" then
@@ -187,7 +186,7 @@ DO
 	    	AM_PM = "AM"
 	    	appointment_date = Date + 8 - Weekday(Date, vbTuesday)
 	    END IF
-	
+
 		'asks if they really want to cancel script
 		cancel_confirmation
 		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
@@ -201,10 +200,10 @@ DO
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-'selecting the interview date 
+'selecting the interview date
 DO
-	DO 
-        Call confirm_available_dates 
+	DO
+        Call confirm_available_dates
         orientation_date_confirmation = MsgBox("Press YES to confirm the orientation date. For the next week, press NO." & vbNewLine & vbNewLine & _
 		"                                                  " & appointment_date & " at " & appointment_time_prefix_editbox & ":" & appointment_time_post_editbox & _
 		AM_PM, vbYesNoCancel, "Please confirm the SNAP E & T orientation referral date")
@@ -218,17 +217,17 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 MAXIS_background_check
 member_array = split(member_number, ",")
 
-For each member_number in member_array 
+For each member_number in member_array
     member_number = trim(member_number)
     'Updates the WREG panel with the appointment_date
     Call navigate_to_MAXIS_screen("STAT", "WREG")
     Call write_value_and_transmit(member_number, 20, 76)
-    EMReadScreen memb_error_check, 20, 24, 15 
+    EMReadScreen memb_error_check, 20, 24, 15
     If memb_error_check = "NOT IN THE HOUSEHOLD" then script_end_procedure ("The HH member " & member_number & " is invalid. Please review your case if necessary. The script will not continue for this member.")
-    
+
     EMReadScreen client_name, 44, 4, 37
     client_name = trim(client_name)
-    
+
     if instr(client_name, ", ") then    						'Most cases have both last name and 1st name. This seperates the two names
     	length = len(client_name)                           'establishing the length of the variable
     	position = InStr(client_name, ", ")                  'sets the position at the deliminator (in this case the comma)
@@ -241,9 +240,9 @@ For each member_number in member_array
     last_name = trim(last_name)
     Call fix_case(first_name, 0)
     Call fix_case(last_name, 0)
-    
+
     Client_name = trim(first_name) & " " & trim(last_name)
-    
+
     'Ensuring that the ABAWD_status is "13" for banked months manual referral recipients
     EMReadScreen ABAWD_status, 2, 13, 50
     If manual_referral = "Banked months" then
@@ -253,11 +252,11 @@ For each member_number in member_array
     Elseif manual_referral = "ABAWD (3/36 mo.)" then
         if ABAWD_status <> "10" then script_end_procedure("Member " & member_number & " is not coded as ABAWD. The script will now end.")
     End if
-    
+
     'Ensuring that students have a FSET status of "12".
     EMReadScreen FSET_status, 2, 8, 50
     If manual_referral = "Student" and FSET_status <> "12" then script_end_procedure("Member " & member_number & " is not coded as a student. The script will now end.")
-    
+
     'Ensuring the orientation date is coding in the with the referral date scheduled
     EMReadScreen orientation_date, 8, 9, 50
     orientation_date = replace(orientation_date, " ", "/")
@@ -266,9 +265,9 @@ For each member_number in member_array
     	Call create_MAXIS_friendly_date(appointment_date, 0, 9, 50)
     	PF3
     END if
-Next 
-        
-For each member_number in member_array 
+Next
+
+For each member_number in member_array
     'The CASE/NOTE----------------------------------------------------------------------------------------------------
     start_a_blank_CASE_NOTE         'Navigates to a blank case note
     CALL write_variable_in_case_note("***SNAP E&T Appointment Letter Sent for MEMB " & member_number & " ***")
@@ -282,10 +281,10 @@ For each member_number in member_array
     CALL write_variable_in_case_note("---")
     CALL write_variable_in_case_note(worker_signature)
     PF3
-    
-    appointment_info = appointment_date & " at " & appointment_time_prefix_editbox & ":" & appointment_time_post_editbox & " " & AM_PM & "."  
+
+    appointment_info = appointment_date & " at " & appointment_time_prefix_editbox & ":" & appointment_time_post_editbox & " " & AM_PM & "."
     appointment_location = SNAPET_name & ": " & SNAPET_address_01 & ", " & SNAPET_city & " " & SNAPET_ST & " " & SNAPET_zip
-        
+
     Call start_a_new_spec_memo
     Call write_variable_in_SPEC_MEMO("                     SNAP E&T ORIENTATION")
     Call write_variable_in_SPEC_MEMO(Client_name & " has volunteered to work with SNAP Employment & Training (SNAP E & T).")
@@ -306,10 +305,10 @@ For each member_number in member_array
     Call write_variable_in_SPEC_MEMO("* Qualify for additional SNAP benefits")
     Call write_variable_in_SPEC_MEMO("")
     Call write_variable_in_SPEC_MEMO("Your benefits will not be affected if you do not participate - the choice is yours. Please contact the SNAP Employment and Training team at 612-596-7411 with any additional questions. Thank you.")
-    
-    PF4 'to save 
+
+    PF4 'to save
     PF3 'to exit
-Next 
+Next
 
 'Manual referral creation if banked months are used
 Call navigate_to_MAXIS_screen("INFC", "WF1M")			'navigates to WF1M to create the manual referral'
@@ -323,33 +322,33 @@ ELSEIF manual_referral = "Working with CBO" then
 ELSEIF manual_referral = "Other referral" then
 	EMWriteScreen other_referral_notes, 17, 6
 ELSEIF manual_referral = "ABAWD (3/36 mo.)" then
-	EMWriteScreen "ABAWD (3/36 mo.) - Voluntary", 17, 6    
+	EMWriteScreen "ABAWD (3/36 mo.) - Voluntary", 17, 6
 ELSEIF manual_referral = "ABAWD 2nd Set" then
-	EMWriteScreen "ABAWD 2nd Set - Voluntary", 17, 6  
+	EMWriteScreen "ABAWD 2nd Set - Voluntary", 17, 6
 END IF
 
 row = 8
 For each member_number in member_array
     member_number = trim(member_number)
-    EMWriteScreen member_number, row, 9		
+    EMWriteScreen member_number, row, 9
     EMWriteScreen "FS", row, 46								'enters member number
     Call create_MAXIS_friendly_date(appointment_date, 0, row, 65)			'enters the E & T referral date
     row = row + 1
-Next 
-																																
+Next
+
 row = 8
 For each member_number in member_array
     EmWriteScreen "x", row, 53 'navigates to the ES provider selection screen
     row = row + 1
 Next
 transmit
-Do 
+Do
     EMReadScreen ES_popup, 11, 2, 37
     IF ES_popup = "ES Provider" then Call write_value_and_transmit("X", 5, 9)
 Loop until ES_popup <> "ES Provider"
-    												
+
 EMWriteScreen appointment_date & ", " & appointment_time_prefix_editbox & ":" & appointment_time_post_editbox & " " & AM_PM & ", " & SNAPET_name, 18, 6		'enters the location, date and time for Hennepin Co ES providers (per request)'
-PF3			
+PF3
 Call write_value_and_transmit("Y", 11, 64)		'Y to confirm save and saves referral
 
 script_end_procedure("Your orientation letter, WF1M (manual) referral and case note have been created. Navigate to SPEC/MEMO if you want to review the notice sent to the client." & _
