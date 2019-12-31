@@ -51,23 +51,14 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'Dialogs
-'>>>>>Main dlg<<<<<
-BeginDialog main_menu, 0, 0, 201, 65, "MEMO from List"
-  DropListBox 5, 40, 80, 10, "Manual Entry"+chr(9)+"REPT/ACTV"+chr(9)+"Excel File", run_mode
-  ButtonGroup ButtonPressed
-    OkButton 90, 40, 50, 15
-    CancelButton 140, 40, 50, 15
-  Text 10, 10, 185, 25, "Please select a run mode for the script. You can either enter the case numbers manually, from REPT/ACTV, or from an Excel file..."
-EndDialog
-
 '>>>>> Function to build dlg for manual entry <<<<<
 FUNCTION build_manual_entry_dlg(case_number_array, memo_text)
 	'Array for all case numbers
 	'This was chosen over building a dlg with 50 variables
 	REDim all_cases_array(50, 0)
 
-	BeginDialog man_entry_dlg, 0, 0, 331, 310, "Enter MAXIS case numbers"
+    Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 331, 310, "Enter MAXIS case numbers"
 		Text 10, 15, 140, 10, "Enter MAXIS case numbers below..."
 		dlg_row = 30
 		dlg_col = 10
@@ -90,7 +81,7 @@ FUNCTION build_manual_entry_dlg(case_number_array, memo_text)
 	DO
 		'err_msg handling
 		err_msg = ""
-		DIALOG man_entry_dlg
+		DIALOG Dialog1
 			cancel_confirmation
 			FOR i = 1 TO 50
 				all_cases_array(i, 0) = replace(all_cases_array(i, 0), " ", "")
@@ -110,30 +101,10 @@ FUNCTION build_manual_entry_dlg(case_number_array, memo_text)
 END FUNCTION
 
 '>>>>>DLG for Excel mode<<<<<
-BeginDialog memo_from_excel_dlg, 0, 0, 256, 135, "MEMO Information"
-  EditBox 220, 10, 25, 15, excel_col
-  EditBox 65, 30, 40, 15, excel_row
-  EditBox 190, 30, 40, 15, end_row
-  EditBox 10, 70, 235, 15, memo_text
-  ButtonGroup ButtonPressed
-    OkButton 130, 115, 55, 15
-    CancelButton 190, 115, 60, 15
-  Text 10, 15, 205, 10, "Please enter the column containing the MAXIS case numbers..."
-  Text 10, 35, 50, 10, "Row to start..."
-  Text 135, 35, 50, 10, "Row to end..."
-  Text 10, 55, 230, 10, "Please enter your MEMO text. Separate new lines with semi-colons..."
-EndDialog
+
 
 '>>>>> THE DLG for REPT/ACTV mode<<<<<
-BeginDialog worker_number_dlg, 0, 0, 231, 100, "Enter worker number and memo text..."
-  EditBox 145, 10, 65, 15, worker_number
-  EditBox 10, 50, 215, 15, memo_text
-  ButtonGroup ButtonPressed
-    OkButton 65, 80, 50, 15
-    CancelButton 115, 80, 50, 15
-  Text 10, 15, 130, 10, "Please enter the 7-digit worker number:"
-  Text 10, 35, 95, 10, "Enter your memo text..."
-EndDialog
+
 
 '----------FUNCTIONS----------
 '-----This function needs to be added to the FUNCTIONS FILE-----
@@ -158,115 +129,149 @@ EMConnect ""
 CALL check_for_MAXIS(true)
 
 '>>>>> loading the main dialog <<<<<
-DIALOG main_menu
-	IF ButtonPressed = 0 THEN stopscript
-	'>>>>> the script has different ways of building case_number_array
-	IF run_mode = "Manual Entry" THEN
-		CALL build_manual_entry_dlg(case_number_array, memo_text)
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 201, 65, "MEMO from List"
+  DropListBox 5, 40, 80, 10, "Manual Entry"+chr(9)+"REPT/ACTV"+chr(9)+"Excel File", run_mode
+  ButtonGroup ButtonPressed
+    OkButton 90, 40, 50, 15
+    CancelButton 140, 40, 50, 15
+  Text 10, 10, 185, 25, "Please select a run mode for the script. You can either enter the case numbers manually, from REPT/ACTV, or from an Excel file..."
+EndDialog
 
-	ELSEIF run_mode = "REPT/ACTV" THEN
-		'script_end_procedure("This mode is not yet supported.")
-		CALL find_variable("User: ", worker_number, 7)
-		DO
-			err_msg = ""
-			DIALOG worker_number_dlg
-				cancel_confirmation
-				worker_number = trim(worker_number)
-				IF worker_number = "" THEN err_msg = err_msg & vbCr & "* You must enter a worker number."
-				IF len(worker_number) <> 7 THEN err_msg = err_msg & vbCr & "* Your worker number must be 7 characters long."
-				IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-		LOOP UNTIL err_msg = ""
+DIALOG Dialog1
+cancel_without_confirmation
 
-		CALL check_for_MAXIS(false)
+'>>>>> the script has different ways of building case_number_array
+IF run_mode = "Manual Entry" THEN
+	CALL build_manual_entry_dlg(case_number_array, memo_text)
 
-		'Checking that case number is blank so as to get a full REPT/ACTV
-		CALL find_variable("Case Nbr: ", MAXIS_case_number, 8)
-		MAXIS_case_number = replace(MAXIS_case_number, "_", " ")
+ELSEIF run_mode = "REPT/ACTV" THEN
+	'script_end_procedure("This mode is not yet supported.")
+	CALL find_variable("User: ", worker_number, 7)
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 231, 100, "Enter worker number and memo text..."
+      EditBox 145, 10, 65, 15, worker_number
+      EditBox 10, 50, 215, 15, memo_text
+      ButtonGroup ButtonPressed
+        OkButton 65, 80, 50, 15
+        CancelButton 115, 80, 50, 15
+      Text 10, 15, 130, 10, "Please enter the 7-digit worker number:"
+      Text 10, 35, 95, 10, "Enter your memo text..."
+    EndDialog
+	DO
+		err_msg = ""
+		DIALOG Dialog1
+			cancel_confirmation
+			worker_number = trim(worker_number)
+			IF worker_number = "" THEN err_msg = err_msg & vbCr & "* You must enter a worker number."
+			IF len(worker_number) <> 7 THEN err_msg = err_msg & vbCr & "* Your worker number must be 7 characters long."
+			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+	LOOP UNTIL err_msg = ""
+
+	CALL check_for_MAXIS(false)
+
+	'Checking that case number is blank so as to get a full REPT/ACTV
+	CALL find_variable("Case Nbr: ", MAXIS_case_number, 8)
+	MAXIS_case_number = replace(MAXIS_case_number, "_", " ")
+	MAXIS_case_number = trim(MAXIS_case_number)
+	IF MAXIS_case_number <> "" THEN
+		back_to_SELF
+		EMWriteScreen "________", 18, 43
+	END IF
+	'Checking that MAXIS is not already in REPT/ACTV so as to get a full REPT/ACTV
+	EMReadScreen at_REPT_ACTV, 4, 2, 48
+	IF at_REPT_ACTV = "ACTV" THEN back_to_SELF
+
+	CALL navigate_to_MAXIS_screen("REPT", "ACTV")
+	CALL write_value_and_transmit(worker_number, 21, 13)
+	'Making sure we are at the beginning of REPT/ACTV
+	DO
+		PF7
+		EMReadScreen page_one, 2, 3, 78
+		IF isnumeric(page_one) = false then page_one = page_one * 1  'this is future proofing since reading variables keep switching back from numeric and non numeric.
+	LOOP UNTIL page_one = 1
+
+	rept_row = 7
+	DO
+		EMReadScreen MAXIS_case_number, 8, rept_row, 12
 		MAXIS_case_number = trim(MAXIS_case_number)
 		IF MAXIS_case_number <> "" THEN
-			back_to_SELF
-			EMWriteScreen "________", 18, 43
+			case_number_array = case_number_array & MAXIS_case_number & "~~~"
+			rept_row = rept_row + 1
+			IF rept_row = 19 THEN
+				rept_row = 7
+				PF8
+				EMReadScreen last_page_check, 4, 24, 14			'this prevents the script from erroring out if the worker only has one completely full page of cases.
+				If last_page_check = "LAST" THEN EXIT DO
+			END IF
+		ELSE
+			EXIT DO
 		END IF
-		'Checking that MAXIS is not already in REPT/ACTV so as to get a full REPT/ACTV
-		EMReadScreen at_REPT_ACTV, 4, 2, 48
-		IF at_REPT_ACTV = "ACTV" THEN back_to_SELF
+	LOOP
 
-		CALL navigate_to_MAXIS_screen("REPT", "ACTV")
-		CALL write_value_and_transmit(worker_number, 21, 13)
-		'Making sure we are at the beginning of REPT/ACTV
-		DO
-			PF7
-			EMReadScreen page_one, 2, 3, 78
-			IF isnumeric(page_one) = false then page_one = page_one * 1  'this is future proofing since reading variables keep switching back from numeric and non numeric.
-		LOOP UNTIL page_one = 1
+ELSEIF run_mode = "Excel File" THEN
+	'Opening the Excel file
 
-		rept_row = 7
-		DO
-			EMReadScreen MAXIS_case_number, 8, rept_row, 12
-			MAXIS_case_number = trim(MAXIS_case_number)
-			IF MAXIS_case_number <> "" THEN
-				case_number_array = case_number_array & MAXIS_case_number & "~~~"
-				rept_row = rept_row + 1
-				IF rept_row = 19 THEN
-					rept_row = 7
-					PF8
-					EMReadScreen last_page_check, 4, 24, 14			'this prevents the script from erroring out if the worker only has one completely full page of cases.
-					If last_page_check = "LAST" THEN EXIT DO
-				END IF
+	DO
+		call file_selection_system_dialog(excel_file_path, ".xlsx")	'Selects an excel file, adds it to excel_file_path
+
+		Set objExcel = CreateObject("Excel.Application")
+		Set objWorkbook = objExcel.Workbooks.Open(excel_file_path)
+		objExcel.Visible = True
+		objExcel.DisplayAlerts = True
+
+		confirm_file = MsgBox("Is this the correct file? Press YES to continue. Press NO to try again. Press CANCEL to stop the script.", vbYesNoCancel)
+		IF confirm_file = vbCancel THEN
+			objWorkbook.Close
+			objExcel.Quit
+			stopscript
+		ELSEIF confirm_file = vbNo THEN
+			objWorkbook.Close
+			objExcel.Quit
+		END IF
+	LOOP UNTIL confirm_file = vbYes
+
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 256, 135, "MEMO Information"
+      EditBox 220, 10, 25, 15, excel_col
+      EditBox 65, 30, 40, 15, excel_row
+      EditBox 190, 30, 40, 15, end_row
+      EditBox 10, 70, 235, 15, memo_text
+      ButtonGroup ButtonPressed
+        OkButton 130, 115, 55, 15
+        CancelButton 190, 115, 60, 15
+      Text 10, 15, 205, 10, "Please enter the column containing the MAXIS case numbers..."
+      Text 10, 35, 50, 10, "Row to start..."
+      Text 135, 35, 50, 10, "Row to end..."
+      Text 10, 55, 230, 10, "Please enter your MEMO text. Separate new lines with semi-colons..."
+    EndDialog
+	'Gathering the information from the user about the fields in Excel to look for.
+	DO
+		err_msg = ""
+		DIALOG Dialog1
+			IF ButtonPressed = 0 THEN stopscript
+			IF isnumeric(excel_col) = FALSE AND len(excel_col) > 2 THEN
+				err_msg = err_msg & vbCr & "* Please do not use such a large column. The script cannot handle it."
 			ELSE
-				EXIT DO
-			END IF
-		LOOP
-
-	ELSEIF run_mode = "Excel File" THEN
-		'Opening the Excel file
-
-		DO
-			call file_selection_system_dialog(excel_file_path, ".xlsx")	'Selects an excel file, adds it to excel_file_path
-
-			Set objExcel = CreateObject("Excel.Application")
-			Set objWorkbook = objExcel.Workbooks.Open(excel_file_path)
-			objExcel.Visible = True
-			objExcel.DisplayAlerts = True
-
-			confirm_file = MsgBox("Is this the correct file? Press YES to continue. Press NO to try again. Press CANCEL to stop the script.", vbYesNoCancel)
-			IF confirm_file = vbCancel THEN
-				objWorkbook.Close
-				objExcel.Quit
-				stopscript
-			ELSEIF confirm_file = vbNo THEN
-				objWorkbook.Close
-				objExcel.Quit
-			END IF
-		LOOP UNTIL confirm_file = vbYes
-
-		'Gathering the information from the user about the fields in Excel to look for.
-		DO
-			err_msg = ""
-			DIALOG memo_from_excel_dlg
-				IF ButtonPressed = 0 THEN stopscript
-				IF isnumeric(excel_col) = FALSE AND len(excel_col) > 2 THEN
-					err_msg = err_msg & vbCr & "* Please do not use such a large column. The script cannot handle it."
+				IF (isnumeric(right(excel_col, 1)) = TRUE AND isnumeric(left(excel_col, 1)) = FALSE) OR (isnumeric(right(excel_col, 1)) = FALSE AND isnumeric(left(excel_col, 1)) = TRUE) THEN
+					err_msg = err_msg & vbCr & "* Please use a valid Column indicator. " & excel_col & " contains BOTH a letter and a number."
 				ELSE
-					IF (isnumeric(right(excel_col, 1)) = TRUE AND isnumeric(left(excel_col, 1)) = FALSE) OR (isnumeric(right(excel_col, 1)) = FALSE AND isnumeric(left(excel_col, 1)) = TRUE) THEN
-						err_msg = err_msg & vbCr & "* Please use a valid Column indicator. " & excel_col & " contains BOTH a letter and a number."
-					ELSE
-						call convert_excel_letter_to_excel_number(excel_col)
-						IF isnumeric(excel_row) = false or isnumeric(end_row) = false THEN err_msg = err_msg & vbCr & "* Please enter the Excel rows as numeric characters."
-						IF end_row = "" THEN err_msg = err_msg & vbCr & "* Please enter an end to the search. The script needs to know when to stop searching."
-					END IF
+					call convert_excel_letter_to_excel_number(excel_col)
+					IF isnumeric(excel_row) = false or isnumeric(end_row) = false THEN err_msg = err_msg & vbCr & "* Please enter the Excel rows as numeric characters."
+					IF end_row = "" THEN err_msg = err_msg & vbCr & "* Please enter an end to the search. The script needs to know when to stop searching."
 				END IF
-				IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-		LOOP UNTIL err_msg = ""
-
-		CALL check_for_MAXIS(false)
-		'Generating a MEMO for each case.
-		FOR i = excel_row TO end_row
-			IF objExcel.Cells(i, excel_col).Value <> "" THEN
-				case_number_array = case_number_array & objExcel.Cells(i, excel_col).Value & "~~~"
 			END IF
-		NEXT
-	END IF
+			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+	LOOP UNTIL err_msg = ""
+
+	CALL check_for_MAXIS(false)
+	'Generating a MEMO for each case.
+	FOR i = excel_row TO end_row
+		IF objExcel.Cells(i, excel_col).Value <> "" THEN
+			case_number_array = case_number_array & objExcel.Cells(i, excel_col).Value & "~~~"
+		END IF
+	NEXT
+END IF
 
 CALL check_for_MAXIS(false)
 
