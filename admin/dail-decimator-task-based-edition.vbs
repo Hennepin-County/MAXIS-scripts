@@ -60,11 +60,11 @@ changelog_display
 
 Function dail_type_selection
 	'selecting the type of DAIl message
-    If all_check = 0 then 
+    If all_check = 0 then
 	    EMWriteScreen "x", 4, 12		'transmits to the PICK screen
 	    transmit
 	    EMWriteScreen "_", 7, 39		'clears the all selection
-        
+
 	    If cola_check = 1 then EMWriteScreen "x", 8, 39
 	    If clms_check = 1 then EMWriteScreen "x", 9, 39
 	    If cses_check = 1 then EMWriteScreen "x", 10, 39
@@ -78,11 +78,24 @@ Function dail_type_selection
 	    If pepr_check = 1 then EMWriteScreen "x", 18, 39
 	    If tikl_check = 1 then EMWriteScreen "x", 19, 39
 	    If wf1_check = 1 then EMWriteScreen "x", 20, 39
-	    transmit 
-    End if 
+	    transmit
+    End if
 End Function
 
-BeginDialog dialog1, 0, 0, 251, 210, "DAIL Decimation Main Dialog"
+'----------------------------------------------------------------------------------------------------THE SCRIPT
+EMConnect ""
+
+this_month = CM_mo & " " & CM_yr
+next_month = CM_plus_1_mo & " " & CM_plus_1_yr
+CM_minus_2_mo =  right("0" & DatePart("m", DateAdd("m", -2, date)), 2)
+
+'Finding the right folder to automatically save the file
+month_folder = "DAIL " & CM_mo & "-" & DatePart("yyyy", date) & ""
+decimator_folder = replace(this_month, " ", "-") & " DAIL Decimator"
+report_date = replace(date, "/", "-")
+
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 251, 210, "DAIL Decimation Main Dialog"
   DropListBox 55, 100, 80, 15, "Select one..."+chr(9)+"ADS"+chr(9)+"Adults"+chr(9)+"Adults & ADS", dail_to_decimate
   CheckBox 10, 120, 135, 10, "OR check here to process for all workers.", all_workers_check
   CheckBox 10, 155, 25, 10, "ALL",   All_check
@@ -109,23 +122,10 @@ BeginDialog dialog1, 0, 0, 251, 210, "DAIL Decimation Main Dialog"
   Text 10, 105, 40, 10, "Population:"
   GroupBox 5, 85, 240, 50, "Step 1. Select the population"
 EndDialog
-
-'----------------------------------------------------------------------------------------------------THE SCRIPT
-EMConnect ""
-
-this_month = CM_mo & " " & CM_yr
-next_month = CM_plus_1_mo & " " & CM_plus_1_yr
-CM_minus_2_mo =  right("0" & DatePart("m", DateAdd("m", -2, date)), 2)
-
-'Finding the right folder to automatically save the file
-month_folder = "DAIL " & CM_mo & "-" & DatePart("yyyy", date) & ""
-decimator_folder = replace(this_month, " ", "-") & " DAIL Decimator"
-report_date = replace(date, "/", "-")
-
 Do
 	Do
   		err_msg = ""
-  		dialog dialog1
+  		dialog Dialog1
   		cancel_without_confirmation
   		If trim(dail_to_decimate) = "Select one..." and all_workers_check = 0 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases."
   		If trim(dail_to_decimate) <> "Select one..." and all_workers_check = 1 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases, not both options."
@@ -142,13 +142,13 @@ If all_workers_check = checked then
 Else
     If dail_to_decimate = "Adults" then
         worker_number = "X127EE1,X127EE2,X127EE3,X127EE4,X127EE5,X127EE6,X127EE7,X127EL2,X127EL3,X127EL4,X127EL5,X127EL6,X127EL7,X127EL8,X127EN1,X127EN2,X127EN3,X127EN4,X127EN5,X127EQ1,X127EQ4,X127EQ5,X127EQ8,X127EQ9,X127EL9,X127ED8,X127EH8,X127EG4"
-    Elseif dail_to_decimate = "ADS" then 
+    Elseif dail_to_decimate = "ADS" then
         worker_number = "X127EH1,X127EH2,X127EH3,X127EH6,X127EJ4,X127EJ6,X127EJ7,X127EJ8,X127EK1,X127EK2,X127EK4,X127EK5,X127EK6,X127EK9,X127EM1,X127EM7,X127EM8,X127EM9,X127EN6,X127EP3,X127EP4,X127EP5,X127EP9,X127F3F,X127FE5,X127FG3,X127FH4,X127FH5,X127FI2,X127FI7,X127EJ5"
-    Elseif dail_to_decimate = "Adults & ADS" then 
+    Elseif dail_to_decimate = "Adults & ADS" then
         worker_number = "X127EE1,X127EE2,X127EE3,X127EE4,X127EE5,X127EE6,X127EE7,X127EL2,X127EL3,X127EL4,X127EL5,X127EL6,X127EL7,X127EL8,X127EN1,X127EN2,X127EN3,X127EN4,X127EN5,X127EQ1,X127EQ4,X127EQ5,X127EQ8,X127EQ9,X127EL9,X127ED8,X127EH8,X127EG4" & _
         ",X127EH1,X127EH2,X127EH3,X127EH6,X127EJ4,X127EJ6,X127EJ7,X127EJ8,X127EK1,X127EK2,X127EK4,X127EK5,X127EK6,X127EK9,X127EM1,X127EM7,X127EM8,X127EM9,X127EN6,X127EP3,X127EP4,X127EP5,X127EP9,X127F3F,X127FE5,X127FG3,X127FH4,X127FH5,X127FI2,X127FI7,X127EJ5"
     End if
-    
+
     x1s_from_dialog = split(worker_number, ",")	'Splits the worker array based on commas
 
 	'Need to add the worker_county_code to each one
@@ -252,10 +252,10 @@ For each worker in worker_array
 
             EMReadScreen dail_month, 8, dail_row, 11
             dail_month = trim(dail_month)
-            
+
             stats_counter = stats_counter + 1   'I increment thee
-            Call non_actionable_dails   'Function to evaluate the DAIL messages 
-            
+            Call non_actionable_dails   'Function to evaluate the DAIL messages
+
             IF add_to_excel = True then
 				'--------------------------------------------------------------------...and put that in Excel.
 				objExcel.Cells(excel_row, 1).Value = worker
@@ -272,19 +272,19 @@ For each worker in worker_array
 			else
 				add_to_excel = False
 				dail_row = dail_row + 1
-                If len(dail_month) = 5 then 
+                If len(dail_month) = 5 then
                     output_year = ("20" & right(dail_month, 2))
                     output_month = left(dail_month, 2)
                     output_day = "01"
                     dail_month = output_year & "-" & output_month & "-" & output_day
-                elseif trim(dail_month) <> "" then  
-                    'Adjusting data for output to SQL 
-                    output_year     = DatePart("yyyy",dail_month)   'YYYY-MM-DD format 
+                elseif trim(dail_month) <> "" then
+                    'Adjusting data for output to SQL
+                    output_year     = DatePart("yyyy",dail_month)   'YYYY-MM-DD format
                     output_month    = right("0" & DatePart("m", dail_month), 2)
                     output_day      = DatePart("d", dail_month)
                     dail_month = output_year & "-" & output_month & "-" & output_day
-                End if 
-                 
+                End if
+
                 ReDim Preserve DAIL_array(4, DAIL_count)	'This resizes the array based on the number of rows in the Excel File'
             	DAIL_array(worker_const,	           DAIL_count) = worker
             	DAIL_array(maxis_case_number_const,    DAIL_count) = MAXIS_case_number
@@ -387,7 +387,7 @@ objExcel.ActiveWorkbook.SaveAs "T:\Eligibility Support\Restricted\QI - Quality I
 Const adOpenStatic = 3
 Const adLockOptimistic = 3
 
-''Creating objects for Database 
+''Creating objects for Database
 Set objConnection = CreateObject("ADODB.Connection")
 Set objRecordSet = CreateObject("ADODB.Recordset")
 
@@ -400,8 +400,8 @@ Set objRecordSet = CreateObject("ADODB.Recordset")
 
 objConnection.Open "Provider = SQLOLEDB.1;Data Source= HSSQLPW017;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
 
-'Deleting ALL data fom DAIL table prior to loading new DAIL messages. 
-objRecordSet.Open "DELETE FROM EWS.DAILDecimator",objConnection, adOpenStatic, adLockOptimistic    
+'Deleting ALL data fom DAIL table prior to loading new DAIL messages.
+objRecordSet.Open "DELETE FROM EWS.DAILDecimator",objConnection, adOpenStatic, adLockOptimistic
 
 'Export informaiton to Excel re: case status
 For item = 0 to UBound(DAIL_array, 2)
@@ -410,13 +410,13 @@ For item = 0 to UBound(DAIL_array, 2)
     dail_type          = DAIL_array(dail_type_const, item)
     dail_month         = DAIL_array(dail_month_const, item)
     dail_msg           = DAIL_array(dail_msg_const, item)
-    
+
     If instr(dail_msg, "'") then dail_msg = replace(dail_msg, "'", " ") 'SQL will not allow for an apostrophe
     If instr(dail_msg, "*") then dail_msg = replace(dail_msg, "*", " ") 'SQL will not allow for an apostrophe
     dail_msg = trim(dail_msg)
     'Opening Database and adding a record
     objRecordSet.Open "INSERT INTO EWS.DAILDecimator(EmpStateLogOnID, MaxisCaseNumber, DAILType, DAILMessage, DAILMonth)" & _
-    "VALUES ('" & worker & "', '" & MAXIS_case_number & "', '" & dail_type & "', '" & dail_msg & "', '" & dail_month & "')", objConnection, adOpenStatic, adLockOptimistic    
+    "VALUES ('" & worker & "', '" & MAXIS_case_number & "', '" & dail_type & "', '" & dail_msg & "', '" & dail_month & "')", objConnection, adOpenStatic, adLockOptimistic
 Next
 
 'Closing the connection
