@@ -89,7 +89,8 @@ stop_time = "4"
 Do
 	Do
 		'The dialog is defined in the loop as it can change as buttons are pressed
-        BeginDialog file_select_dialog, 0, 0, 316, 110, "Select the source file"
+        Dialog1 = ""
+        BeginDialog Dialog1, 0, 0, 316, 110, "Select the source file"
           EditBox 5, 35, 260, 15, file_selection_path
           ButtonGroup ButtonPressed
             PushButton 270, 35, 40, 15, "Browse...", select_a_file_button
@@ -104,7 +105,7 @@ Do
         EndDialog
 
 		err_msg = ""
-		Dialog file_select_dialog
+		Dialog Dialog1
 		If ButtonPressed = cancel then stopscript
 		If ButtonPressed = select_a_file_button then
 			If file_selection_path <> "" then 'This is handling for if the BROWSE button is pushed more than once'
