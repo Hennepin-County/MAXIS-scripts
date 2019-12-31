@@ -41,7 +41,8 @@ END IF
 'DIALOGS ===================================================================================================================
 
 'Initial Dialog which requests a file path for the excel file
-BeginDialog recert_list_dlg, 0, 0, 361, 105, "On Demand Recertifications"
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 361, 105, "On Demand Recertifications"
   EditBox 130, 60, 175, 15, recertification_cases_excel_file_path
   ButtonGroup ButtonPressed
     PushButton 310, 60, 45, 15, "Browse...", select_a_file_button
@@ -56,7 +57,7 @@ BeginDialog recert_list_dlg, 0, 0, 361, 105, "On Demand Recertifications"
 EndDialog
 
 Do
-	Dialog recert_list_dlg
+	Dialog Dialog1
 	If ButtonPressed = cancel then stopscript
 	If ButtonPressed = select_a_file_button then call file_selection_system_dialog(recertification_cases_excel_file_path, ".xlsx")
 Loop until ButtonPressed = OK and recertification_cases_excel_file_path <> "" and worker_signature <> ""
