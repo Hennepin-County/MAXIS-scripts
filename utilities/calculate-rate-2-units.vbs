@@ -53,7 +53,9 @@ changelog_display
 
 EMConnect ""
 
-BeginDialog calc_dialog, 0, 0, 216, 125, "CALCULATE RATE 2 UNITS"
+'Main dialog: user will input case number and initial month/year will default to current month - 1 and member 01 as member number
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 216, 125, "CALCULATE RATE 2 UNITS"
   EditBox 95, 10, 50, 15, start_date
   EditBox 95, 30, 50, 15, end_date
   ButtonGroup ButtonPressed
@@ -65,12 +67,11 @@ BeginDialog calc_dialog, 0, 0, 216, 125, "CALCULATE RATE 2 UNITS"
   Text 55, 35, 35, 10, "End date:"
 EndDialog
 
-'Main dialog: user will input case number and initial month/year will default to current month - 1 and member 01 as member number
 DO
 	DO
 		err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
-		dialog calc_dialog				'main dialog
-		If buttonpressed = 0 THEN stopscript	'script ends if cancel is selected
+		dialog Dialog1				'main dialog
+		Cancel_without_confirmation
         If isdate(start_date) = False then err_msg = err_msg & vbNewLine & "* Enter a valid start date."
         If isdate(end_date) = False then err_msg = err_msg & vbNewLine & "* Enter a valid end_day date."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
