@@ -243,7 +243,8 @@ MAXIS_footer_year = CM_plus_1_yr
 Do
 	Do
 		'The dialog is defined in the loop as it can change as buttons are pressed
-        BeginDialog file_select_dialog, 0, 0, 316, 175, "Select the source file"
+        Dialog1 = ""
+        BeginDialog Dialog1, 0, 0, 316, 175, "Select the source file"
           EditBox 5, 125, 260, 15, file_selection_path
           ButtonGroup ButtonPressed
             PushButton 270, 125, 40, 15, "Browse...", select_a_file_button
@@ -259,8 +260,8 @@ Do
         EndDialog
 
 		err_msg = ""
-		Dialog file_select_dialog
-		If ButtonPressed = cancel then stopscript
+		Dialog Dialog1
+		cancel_without_confirmation
 		If ButtonPressed = select_a_file_button then
 			If file_selection_path <> "" then 'This is handling for if the BROWSE button is pushed more than once'
 				objExcel.Quit 'Closing the Excel file that was opened on the first push'
