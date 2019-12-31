@@ -307,7 +307,8 @@ EMConnect ""
 query_start_time = timer
 
 'dialog to restrict how many baskets the script is run on AND decide if the script will be run to change or just look up information
-BeginDialog EOMC_dialog, 0, 0, 351, 75, "Workers to check EOMC"
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 351, 75, "Workers to check EOMC"
   EditBox 90, 10, 255, 15, list_of_workers
   CheckBox 10, 45, 140, 10, "Check here to have script update MMIS", change_checkbox
   CheckBox 10, 60, 130, 10, "Check here if it is after CAPITATION.", after_capitation_checkbox
@@ -320,8 +321,8 @@ EndDialog
 
 'Showing the dialog
 Do
-    Dialog EOMC_dialog
-    If ButtonPressed = 0 then script_end_procedure("~PT User pressed Cancel.")
+    Dialog Dialog1
+    cancel_without_confirmation
 
     call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
@@ -772,6 +773,7 @@ Call navigate_to_MMIS_region("CTY ELIG STAFF/UPDATE")      'Going to MMIS'
 'MsgBox "Pause"
 EMReadScreen check_in_MMIS, 18, 1, 7
 
+' Dialog1 = ""
 ' BeginDialog Dialog1, 0, 0, 131, 80, "Dialog"
 '   ButtonGroup ButtonPressed
 '     OkButton 75, 60, 50, 15
