@@ -130,28 +130,6 @@ function convert_date_to_day_first(date_to_convert, date_to_output)
     End If
 end function
 
-'DIALOGS ===================================================================================================================
-
-'Initial Dialog which requests a file path for the excel file
-BeginDialog recert_list_dlg, 0, 0, 361, 105, "On Demand Recertifications"
-  EditBox 130, 60, 175, 15, recertification_cases_excel_file_path
-  ButtonGroup ButtonPressed
-    PushButton 310, 60, 45, 15, "Browse...", select_a_file_button
-  EditBox 75, 85, 140, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 250, 85, 50, 15
-    CancelButton 305, 85, 50, 15
-  Text 10, 10, 170, 10, "Welcome to the On Demand Recertification Notifier."
-  Text 10, 25, 340, 30, "This script will send an Appointment Notice or NOMI for recertification for a list of cases in a county that currently has an On Demand Waiver in effect for interviews. If your county does not have this waiver, this script should not be used."
-  Text 10, 65, 120, 10, "Select an Excel file for recert cases:"
-  Text 10, 90, 60, 10, "Worker Signature"
-EndDialog
-
-
-'Confirmation Diaglog will require worker to afirm the appointment notices/NOMIs should actually be sent
-
-'END DIALOGS ===============================================================================================================
-
 'SCRIPT ====================================================================================================================
 'Connects to BlueZone
 EMConnect ""
@@ -174,10 +152,26 @@ query_start_time = timer
 'Setting the initial path for the excel file to be found at - so we don't have to clickity click a bunch to get to the right file.
 recertification_cases_excel_file_path = ""
 
+'Initial Dialog which requests a file path for the excel file
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 361, 105, "On Demand Recertifications"
+  EditBox 130, 60, 175, 15, recertification_cases_excel_file_path
+  ButtonGroup ButtonPressed
+    PushButton 310, 60, 45, 15, "Browse...", select_a_file_button
+  EditBox 75, 85, 140, 15, worker_signature
+  ButtonGroup ButtonPressed
+    OkButton 250, 85, 50, 15
+    CancelButton 305, 85, 50, 15
+  Text 10, 10, 170, 10, "Welcome to the On Demand Recertification Notifier."
+  Text 10, 25, 340, 30, "This script will send an Appointment Notice or NOMI for recertification for a list of cases in a county that currently has an On Demand Waiver in effect for interviews. If your county does not have this waiver, this script should not be used."
+  Text 10, 65, 120, 10, "Select an Excel file for recert cases:"
+  Text 10, 90, 60, 10, "Worker Signature"
+EndDialog
+
 'Initial Dialog to determine the excel file to use, column with case numbers, and which process should be run
 'Show initial dialog
 Do
-	Dialog recert_list_dlg
+	Dialog Dialog1
 	If ButtonPressed = cancel then stopscript
 	If ButtonPressed = select_a_file_button then call file_selection_system_dialog(recertification_cases_excel_file_path, ".xlsx")
 Loop until ButtonPressed = OK and recertification_cases_excel_file_path <> "" and worker_signature <> ""
@@ -197,7 +191,8 @@ Next
 
 'Dialog to select worksheet
 'DIALOG is defined here so that the dropdown can be populated with the above code
-BeginDialog recert_worksheet_dlg, 0, 0, 151, 75, "On Demand Recertifications"
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 151, 75, "On Demand Recertifications"
   DropListBox 5, 35, 140, 15, "Select One..." & scenario_list, scenario_dropdown
   ButtonGroup ButtonPressed
     OkButton 40, 55, 50, 15
@@ -207,7 +202,7 @@ EndDialog
 
 'Shows the dialog to select the correct worksheet
 Do
-    Dialog recert_worksheet_dlg
+    Dialog Dialog1
     If ButtonPressed = cancel then stopscript
 Loop until scenario_dropdown <> "Select One..."
 
@@ -240,7 +235,8 @@ excel_row_to_start = "2"
 
 'Next dialog determines the column the case numbers are in and the type of notification to be sent.
 'Defining the dialog here so that the list of columns can be dynamically generated
-BeginDialog recert_list_details_dlg, 0, 0, 266, 135, "On Demand Recertifications"
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 266, 135, "On Demand Recertifications"
   DropListBox 160, 70, 100, 45, column_list, case_number_column
   DropListBox 160, 90, 100, 45, "Select One..."+chr(9)+"Appointment Notice"+chr(9)+"NOMI"+chr(9)+"Data Only", notice_type
   EditBox 75, 115, 40, 15, excel_row_to_start
@@ -256,7 +252,7 @@ EndDialog
 
 'Displaying the dialog to select the correct column and type of notice.
 Do
-    Dialog recert_list_details_dlg
+    Dialog Dialog1
     If ButtonPressed = cancel then stopscript
 Loop until case_number_column <> "Select One..." AND notice_type <> "Select One..."
 
@@ -333,7 +329,8 @@ if notice_type = "Data Only" then
     worker_interview_checkbox = checked
     worker_recert_status_checkbox = unchecked
 
-    BeginDialog stats_dlg, 0, 0, 311, 110, "On Demand Recertifications"
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 311, 110, "On Demand Recertifications"
       CheckBox 15, 30, 95, 10, "Interviews completed by ", interview_deadline_checkbox
       EditBox 110, 25, 50, 15, interview_deadline
       CheckBox 15, 45, 120, 10, "Cases with appointment notices", verify_appointment_notices_checkbox
@@ -354,7 +351,7 @@ if notice_type = "Data Only" then
     EndDialog
 
 
-    Dialog stats_dlg
+    Dialog Dialog1
     If ButtonPressed = cancel then stopscript
 
     interview_deadline = DateAdd("d", 0, interview_deadline)
@@ -372,7 +369,8 @@ If developer_mode <> True and notice_type <> "Data Only" Then
         If continue_in_inquiry = vbNo Then script_end_procedure("Live script run was attempted in Inquiry and aborted.")
     End If
 
-    BeginDialog confirm_dialog, 0, 0, 196, 150, "Confirm Selections"
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 196, 150, "Confirm Selections"
       Text 10, 10, 175, 20, "You are running a BULK script that will send notices. Review the Excel Spreadsheet that opened."
       Text 10, 35, 175, 10, "Worksheet selected: " & scenario_dropdown
       Text 10, 55, 175, 10, "Case Number Column: " & case_number_column
@@ -384,7 +382,7 @@ If developer_mode <> True and notice_type <> "Data Only" Then
     EndDialog
 
     Do
-        Dialog confirm_dialog
+        Dialog Dialog1
         If ButtonPressed = cancel then stopscript
     Loop until buttonpressed = cnfrm_btn
 
