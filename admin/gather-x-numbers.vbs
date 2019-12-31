@@ -53,11 +53,12 @@ changelog_display
 EMConnect ""
 file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\X numbers.xlsx"
 
-'dialog and dialog DO...Loop	
+'dialog and dialog DO...Loop
 Do
 	Do
-			'The dialog is defined in the loop as it can change as buttons are pressed 
-			BeginDialog x_dialog, 0, 0, 266, 110, "X number dialog"
+			'The dialog is defined in the loop as it can change as buttons are pressed
+            Dialog1 = ""
+			BeginDialog Dialog1, 0, 0, 266, 110, "X number dialog"
   				ButtonGroup ButtonPressed
     			PushButton 200, 45, 50, 15, "Browse...", select_a_file_button
     			OkButton 145, 90, 50, 15
@@ -67,8 +68,10 @@ Do
   				Text 20, 20, 235, 20, "This script should be used when updating worker information to be used later in scripts or otherwise."
   				Text 15, 65, 230, 15, "Select the Excel file that contains the X number information by selecting the 'Browse' button, and finding the file."
 			EndDialog
+
 			err_msg = ""
-			Dialog x_dialog
+
+			Dialog Dialog1
 			cancel_confirmation
 			If ButtonPressed = select_a_file_button then
 				If file_selection_path <> "" then 'This is handling for if the BROWSE button is pushed more than once'
@@ -93,7 +96,7 @@ PF5													'Hitting PF5 to force sorting, which allows directly selecting a
 EMWriteScreen county_code, 21, 6					'Inserting county
 transmit
 
-excel_row = 2						
+excel_row = 2
 row = 7												'Declaring the MAXIS row
 Do
 	Do
@@ -103,30 +106,30 @@ Do
 		If trim(worker_ID) = "" then exit do		'exiting before writing to array, in the event this is a blank (end of list)
 		EMReadScreen phone_number, 12, row, 69
 		If trim(phone_number) = "" then exit do
-		
-		If instr(worker_name, "HENN CO") then 
-		 	add_to_excel = False 
-		ElseIf instr(worker_name, "HENNEPIN COUNTY") then 
-		 	add_to_excel = False 
-		elseIf instr(worker_name, "HSPH") then 
-		 	add_to_excel = False 
-		elseIf instr(worker_name, "INACTIVE") then 
-		 	add_to_excel = False 
-		elseIf instr(worker_name, "INACTV") then 
+
+		If instr(worker_name, "HENN CO") then
 		 	add_to_excel = False
-		elseIf instr(worker_name, "MAXIS") then 
-		 	add_to_excel = False  
-		ElseIf instr(worker_name, "TESTER") then 
-		 	add_to_excel = False 
-		elseIf instr(worker_name, "TESTING") then 
-		 	add_to_excel = False 
-		else 
-			add_to_excel = true 
+		ElseIf instr(worker_name, "HENNEPIN COUNTY") then
+		 	add_to_excel = False
+		elseIf instr(worker_name, "HSPH") then
+		 	add_to_excel = False
+		elseIf instr(worker_name, "INACTIVE") then
+		 	add_to_excel = False
+		elseIf instr(worker_name, "INACTV") then
+		 	add_to_excel = False
+		elseIf instr(worker_name, "MAXIS") then
+		 	add_to_excel = False
+		ElseIf instr(worker_name, "TESTER") then
+		 	add_to_excel = False
+		elseIf instr(worker_name, "TESTING") then
+		 	add_to_excel = False
+		else
+			add_to_excel = true
 			ObjExcel.Cells(excel_row, 1).Value = worker_ID
 			ObjExcel.Cells(excel_row, 2).Value = worker_name
 			excel_row = excel_row + 1
 			STATS_counter = STATS_counter + 1
-		End if 
+		End if
 		worker_ID = ""
 		worker_name = ""
 		row = row + 1
@@ -147,5 +150,3 @@ NEXT
 STATS_counter = STATS_counter - 1
 'msgbox STATS_counter
 script_end_procedure("Success, your list is complete!")
-
-
