@@ -106,8 +106,15 @@ function get_user_information(maxis_row, excel_row)
     transmit
 end function
 
-'DIALOGS----------------------------------------------------------------------
-BeginDialog pull_REPT_data_into_excel_dialog, 0, 0, 240, 135, "Pull REPT data into Excel dialog"
+'THE SCRIPT-------------------------------------------------------------------------
+'Determining specific county for multicounty agencies...
+get_county_code
+
+'Connects to BlueZone
+EMConnect ""
+
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 240, 135, "Pull REPT data into Excel dialog"
   EditBox 90, 25, 145, 15, supervisor_array
   CheckBox 10, 70, 150, 10, "Check here to run this query county-wide.", all_workers_check
   ButtonGroup ButtonPressed
@@ -119,16 +126,9 @@ BeginDialog pull_REPT_data_into_excel_dialog, 0, 0, 240, 135, "Pull REPT data in
   Text 10, 90, 210, 20, "NOTE: running queries county-wide can take a significant amount of time and resources. This should be done after hours."
 EndDialog
 
-'THE SCRIPT-------------------------------------------------------------------------
-'Determining specific county for multicounty agencies...
-get_county_code
-
-'Connects to BlueZone
-EMConnect ""
-
 Do
     'Shows dialog
-    Dialog pull_rept_data_into_Excel_dialog
+    Dialog Dialog1
     cancel_without_confirmation
     Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = FALSE
