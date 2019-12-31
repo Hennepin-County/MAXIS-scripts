@@ -41,6 +41,7 @@ EMConnect ""
 
 Call MAXIS_case_number_finder (MAXIS_case_number)
 
+Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 191, 50, "Dialog"
   DropListBox 10, 30, 100, 45, "Pick"+chr(9)+"RECERT - APPT Notice"+chr(9)+"RECERT - NOMI"+chr(9)+"RECERT - VERIFS"+chr(9)+"APPLICATION - APPT Notice"+chr(9)+"APPLICATION - NOMI", memo_to_send
   ButtonGroup ButtonPressed
