@@ -52,8 +52,24 @@ call changelog_update("01/08/2019", "Initial version.", "Casey Love, Hennepin Co
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'DIALOGS--------------------------------------------------
-BeginDialog POLI_TEMP_dialog, 0, 0, 211, 90, "POLI/TEMP dialog"
+'----------------------------------------------------------------------------------------------------THE SCRIPT
+EMConnect ""        'Connects to BlueZone
+EMReadScreen in_poli_temp, 26, 1, 29
+
+If in_poli_temp = "R E V I E W    M A N U A L" Then
+    EMReadScreen current_poli_page, 18, 3, 54
+    current_poli_page = trim(current_poli_page)
+    array_of_codes = split(current_poli_page, ".")
+
+    temp_one = array_of_codes(0)
+    temp_two = array_of_codes(1)
+    If UBOUND(array_of_codes) > 1 Then temp_three = array_of_codes(2)
+    If UBOUND(array_of_codes) > 2 Then temp_four = array_of_codes(3)
+End If
+
+'Displays dialog
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 211, 90, "POLI/TEMP dialog"
   EditBox 40, 40, 20, 15, temp_one
   EditBox 65, 40, 20, 15, temp_two
   EditBox 90, 40, 20, 15, temp_three
@@ -68,37 +84,14 @@ BeginDialog POLI_TEMP_dialog, 0, 0, 211, 90, "POLI/TEMP dialog"
   Text 60, 45, 5, 10, ""
   Text 85, 45, 5, 10, ""
 EndDialog
-
-'----------------------------------------------------------------------------------------------------THE SCRIPT
-EMConnect ""        'Connects to BlueZone
-
-EMReadScreen in_poli_temp, 26, 1, 29
-
-If in_poli_temp = "R E V I E W    M A N U A L" Then
-    EMReadScreen current_poli_page, 18, 3, 54
-    current_poli_page = trim(current_poli_page)
-    array_of_codes = split(current_poli_page, ".")
-
-    temp_one = array_of_codes(0)
-    temp_two = array_of_codes(1)
-    If UBOUND(array_of_codes) > 1 Then temp_three = array_of_codes(2)
-    If UBOUND(array_of_codes) > 2 Then temp_four = array_of_codes(3)
-End If
-
-
-'Displays dialog
 Do
     Do
         err_msg = ""
-
-        Dialog POLI_TEMP_dialog
-        If buttonpressed = cancel then stopscript
-
+        Dialog Dialog1 
+        Cancel_without_confirmation
         If trim(temp_one) <> "" AND trim(temp_two) = "" Then err_msg = err_msg & vbNewLine & "* TEMP Table Codes have at least two reference positions."
         If trim(temp_three) = "" AND trim(temp_four) <> "" Then err_msg = err_msg & vbNewLine & "* If there is a code in the 4th position, there needs to be one in the third."
-
         If err_msg <> "" Then MsgBox "**Please Resolve to Continue **" & vbNewLine & err_msg
-
     Loop Until err_msg = ""
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
@@ -167,7 +160,7 @@ If temp_one <> "" Then
         transmit
 
     Else
-        end_msg = "The POLI/TEMP table reference: " & total_code & "could not be found. Please check the reference and try again."
+        end_msg = "The POLI/TEMP table reference: " & total_code & " could not be found. Please check the reference and try again."
         script_end_procedure(end_msg)
     End If
     policy_info = policy_info & ": " & total_code
@@ -176,8 +169,6 @@ End If
 'Creates the Word doc
 Set objWord = CreateObject("Word.Application")
 objWord.Visible = True
-
-
 
 notice_length = 0
 page_nbr = 2
@@ -202,11 +193,6 @@ Do
     EMReadScreen current_page, 2, 3, 72
     current_page = trim(current_page)
     PF8
-    ' EMReadScreen notice_end, 9, 24,14
-    ' If notice_end = "LAST PAGE" Then
-    '     EMReadScreen top_of_page, 73, 3, 8
-    '     If top_of_page = first_line Then Exit Do
-    ' End If
     notice_length = notice_length + 1
 Loop until current_page = end_of_poli
 
