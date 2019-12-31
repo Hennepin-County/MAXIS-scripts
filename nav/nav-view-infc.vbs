@@ -59,7 +59,8 @@ EMSearch "Case Nbr: ", row, col
 If row <> 0 then EMReadScreen MAXIS_case_number, 8, row, col + 10
 
 'DIALOG FOR VIEWING AN INFC PANEL. DIALOG WILL ALLOW YOU TO SELECT BNDX, SDXS OR SVES/TPQY
-BeginDialog view_INFC_dialog, 0, 0, 156, 102, "View INFC"
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 156, 102, "View INFC"
   EditBox 90, 5, 60, 15, MAXIS_case_number
   EditBox 125, 25, 25, 15, member_number
   DropListBox 65, 45, 75, 15, "BNDX"+chr(9)+"SDXS"+chr(9)+"SVES/TPQY", view_panel
@@ -74,8 +75,8 @@ BeginDialog view_INFC_dialog, 0, 0, 156, 102, "View INFC"
 EndDialog
 view_panel = "SVES/TPQY" 'default setting
 
-Dialog view_INFC_dialog
-If ButtonPressed = 0 then StopScript 'Cancels if the cancel button is pressed.
+Dialog Dialog1
+Cancel_without_confirmation
 
 'CHECKING FOR MAXIS
 EMConnect "A"
@@ -123,7 +124,7 @@ End if
 'TRANSMITS TO CHECK FOR PASSWORD
 transmit
 EMReadScreen password_prompt, 38, 2, 23
-IF password_prompt = "ACF2/CICS PASSWORD VERIFICATION PROMPT" then StopScript
+IF password_prompt = "ACF2/CICS PASSWORD VERIFICATION PROMPT" then cancel_without_confirmation
 
 back_to_self
 
@@ -139,10 +140,8 @@ transmit
 EMReadScreen still_self, 27, 2, 28 'This checks to make sure we've moved passed SELF.
 If still_self = "ror Prone Edit Summary (ERR" then transmit
 EMReadScreen no_MEMB, 13, 8, 22 'If this member does not exist, this will stop the script from continuing.
-If no_MEMB = "Arrival Date:" then
-  MsgBox "This HH member does not exist."
-  StopScript
-End if
+If no_MEMB = "Arrival Date:" then script_end_procedure("This HH member does not exist.")
+
 '--------------END ERROR PROOFING--------------
 'READS THE PMI AND SSN
 EMReadScreen PMI, 8, 4, 46
