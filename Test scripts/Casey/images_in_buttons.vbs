@@ -1,5 +1,6 @@
 EMConnect ""
 
+Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 326, 215, "Dialog"
   ButtonGroup ButtonPressed
     OkButton 210, 195, 50, 15
