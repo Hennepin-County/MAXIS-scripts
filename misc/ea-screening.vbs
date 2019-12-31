@@ -38,6 +38,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'LOCAL FUNCTIONS============================================================================================================
 FUNCTION VERIF_BUTTONS
 	If ButtonPressed = MEMB_number then
 		MEMB_function
@@ -124,174 +125,166 @@ END FUNCTION
 'this function creates the hh member dynamic dialog
 FUNCTION MEMB_function
 
-BEGINDIALOG emer_dialog, 0,  0, 256, (35 + (total_clients * 15)), "HH Member Dialog"   'Creates the dynamic dialog. The height will change based on the number of clients it finds.
-	Text 10, 5, 145, 10, "Who is applying?:"
-	FOR clt_i = 0 to total_clients										'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
-		IF all_clients_array(clt_i, 0) <> "" THEN checkbox 10, (20 + (clt_i * 15)), 150, 10, all_clients_array(clt_i, 0), all_clients_array(clt_i, 1)  'Ignores and blank scanned in persons/strings to avoid a blank checkbox
-	NEXT
-	ButtonGroup ButtonPressed
-	OkButton 200, 20, 50, 15
-	'CancelButton 155, 40, 50, 15
-ENDDIALOG
-Dialog emer_dialog
+    Dialog1 = ""
+    BEGINDIALOG Dialog1, 0,  0, 256, (35 + (total_clients * 15)), "HH Member Dialog"   'Creates the dynamic dialog. The height will change based on the number of clients it finds.
+    	Text 10, 5, 145, 10, "Who is applying?:"
+    	FOR clt_i = 0 to total_clients										'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
+    		IF all_clients_array(clt_i, 0) <> "" THEN checkbox 10, (20 + (clt_i * 15)), 150, 10, all_clients_array(clt_i, 0), all_clients_array(clt_i, 1)  'Ignores and blank scanned in persons/strings to avoid a blank checkbox
+    	NEXT
+    	ButtonGroup ButtonPressed
+    	OkButton 200, 20, 50, 15
+    	'CancelButton 155, 40, 50, 15
+    ENDDIALOG
+    Dialog Dialog1
 End Function
 
 FUNCTION ei_function
-memb_gross_total = 0
-memb_net_total = 0
-f = 0
-dialog_measures = 0
-FOR clt_i = 0 to total_clients
-	IF all_clients_array(clt_i, 0) <> "" THEN
-		IF all_clients_array(clt_i, 1) = 1 THEN dialog_measures = dialog_measures + 1
-	End If
-Next
-BeginDialog emer_dialog, 0, 0, 241, (45 + (dialog_measures * 35)), "EARN INCOME for Members in HH"
-FOR clt_i = 0 to total_clients
-	IF all_clients_array(clt_i, 0) <> "" THEN
-		IF all_clients_array(clt_i, 1) = 1 THEN Editbox 40, (20 + (f * 35)), 50, 15, memb_gross(clt_i)
-		IF all_clients_array(clt_i, 1) = 1 THEN Editbox 115, (20 + (f * 35)), 50, 15, memb_net(clt_i)
-		IF all_clients_array(clt_i, 1) = 1 THEN DropListBox 170, (20 + (f * 35)), 60, 45, "Verifications?"+chr(9)+"Requested"+chr(9)+"Received", gross_income_verification(clt_i)
-		IF all_clients_array(clt_i, 1) = 1 THEN GroupBox 5, (10 + (f * 35)), 230, 30, all_clients_array(clt_i, 0)
-		IF all_clients_array(clt_i, 1) = 1 THEN Text 100, (25 + (f* 35)), 15, 10, "Net:"
-		IF all_clients_array(clt_i, 1) = 1 THEN Text 15, (25 + (f * 35)), 25, 10, "Gross:"
-		IF all_clients_array(clt_i, 1) = 1 THEN f = f + 1
-	End If
-Next
-ButtonGroup ButtonPressed
-IF total_clients <> "" THEN OkButton 95, (20 + (f * 35)), 50, 15
-EndDialog
-Dialog emer_dialog
+    memb_gross_total = 0
+    memb_net_total = 0
+    f = 0
+    dialog_measures = 0
+    FOR clt_i = 0 to total_clients
+    	IF all_clients_array(clt_i, 0) <> "" THEN
+    		IF all_clients_array(clt_i, 1) = 1 THEN dialog_measures = dialog_measures + 1
+    	End If
+    Next
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 241, (45 + (dialog_measures * 35)), "EARN INCOME for Members in HH"
+        FOR clt_i = 0 to total_clients
+        	IF all_clients_array(clt_i, 0) <> "" THEN
+        		IF all_clients_array(clt_i, 1) = 1 THEN Editbox 40, (20 + (f * 35)), 50, 15, memb_gross(clt_i)
+        		IF all_clients_array(clt_i, 1) = 1 THEN Editbox 115, (20 + (f * 35)), 50, 15, memb_net(clt_i)
+        		IF all_clients_array(clt_i, 1) = 1 THEN DropListBox 170, (20 + (f * 35)), 60, 45, "Verifications?"+chr(9)+"Requested"+chr(9)+"Received", gross_income_verification(clt_i)
+        		IF all_clients_array(clt_i, 1) = 1 THEN GroupBox 5, (10 + (f * 35)), 230, 30, all_clients_array(clt_i, 0)
+        		IF all_clients_array(clt_i, 1) = 1 THEN Text 100, (25 + (f* 35)), 15, 10, "Net:"
+        		IF all_clients_array(clt_i, 1) = 1 THEN Text 15, (25 + (f * 35)), 25, 10, "Gross:"
+        		IF all_clients_array(clt_i, 1) = 1 THEN f = f + 1
+        	End If
+        Next
+      ButtonGroup ButtonPressed
+        IF total_clients <> "" THEN OkButton 95, (20 + (f * 35)), 50, 15
+    EndDialog
+
+    Dialog Dialog1
 End Function
 
 FUNCTION unea_function
-case_memb_unea_total = 0
-f = 0
-dialog_measures = 0
-FOR clt_i = 0 to total_clients
-	IF all_clients_array(clt_i, 0) <> "" THEN
-		IF all_clients_array(clt_i, 1) = 1 THEN dialog_measures = dialog_measures + 1
-	End If
-Next
-BeginDialog emer_dialog, 0, 0, 481,(45 + (dialog_measures * 35)), "UNEARN INCOME"
-FOR clt_i = 0 to total_clients
-IF all_clients_array(clt_i, 0) <> "" THEN
-  IF all_clients_array(clt_i, 1) = 1 THEN EditBox 30, (15 + (f * 35)), 50, 15, ssi_income(clt_i)
-  IF all_clients_array(clt_i, 1) = 1 THEN EditBox 110, (15 + (f * 35)), 50, 15, rsdi_income(clt_i)
-  IF all_clients_array(clt_i, 1) = 1 THEN EditBox 215, (15 + (f * 35)), 50, 15, child_support(clt_i)
-  IF all_clients_array(clt_i, 1) = 1 THEN EditBox 420, (15 + (f * 35)), 50, 15, other_unea(clt_i)
-  IF all_clients_array(clt_i, 1) = 1 THEN Text 170, (20 + (f * 35)), 45, 10, "Child Support:"
-  IF all_clients_array(clt_i, 1) = 1 THEN Text 415, (20 + (f * 35)), 5, 10, "="
-  IF all_clients_array(clt_i, 1) = 1 THEN Text 90, (20 + (f * 35)), 20, 10, "RSDI:"
-  IF all_clients_array(clt_i, 1) = 1 THEN Text 15, (20 + (f * 35)), 15, 10, "SSI:"
-  IF all_clients_array(clt_i, 1) = 1 THEN GroupBox 5, (5 + (f * 35)), 470, 30, all_clients_array(clt_i, 0)
-  IF all_clients_array(clt_i, 1) = 1 THEN DropListBox 300, (15 + (f * 35)), 110, 15, "29 Other Countable"+chr(9)+"06 Non-MN PA"+chr(9)+"11 VA Disability Benefit"+chr(9)+"12 VA Pension"+chr(9)+"13 VA Other"+chr(9)+"38 VA Aid & Attendance"+chr(9)+"14 Unemployment Insurance"+chr(9)+"15 Worker's Comp"+chr(9)+"16 Railroad Retirement"+chr(9)+"17 Other Retirement"+chr(9)+"18 Military Allotment"+chr(9)+"19 FC Child Requesting FS"+chr(9)+"20 FC Child Not Req FS"+chr(9)+"21 FC Adult Requesting FS"+chr(9)+"22 FC Adult Not Req FS"+chr(9)+"23 Dividends"+chr(9)+"24 Interest"+chr(9)+"25 Cnt Gifts Or Prizes"+chr(9)+"26 Strike Benefit 27 Contract For Deed"+chr(9)+"28 Illegal Income"+chr(9)+"30 Infrequent <30 Not Counted"+chr(9)+"31 Other FS Only"+chr(9)+"32 Infreq <= $20 MSA Exclusion"+chr(9)+"35 Direct Spousal Support"+chr(9)+"37 Disbursed Spousal Sup"+chr(9)+"40 Disbursed Spsl Sup Arrears"+chr(9)+"43 Disbursed Excess CS"+chr(9)+"44 MSA - Excess Inc for SSI"+chr(9)+"45 County 88 Child Support"+chr(9)+"46 County 88 Gaming", other_unea_type(clt_i)
-  IF all_clients_array(clt_i, 1) = 1 THEN f = f + 1
-End If
-Next
-ButtonGroup ButtonPressed
-  IF total_clients <> "" THEN OkButton 215, (15 + (f * 35)), 50, 15
-EndDialog
-Dialog emer_dialog
+    case_memb_unea_total = 0
+    f = 0
+    dialog_measures = 0
+    FOR clt_i = 0 to total_clients
+    	IF all_clients_array(clt_i, 0) <> "" THEN
+    		IF all_clients_array(clt_i, 1) = 1 THEN dialog_measures = dialog_measures + 1
+    	End If
+    Next
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 481,(45 + (dialog_measures * 35)), "UNEARN INCOME"
+        FOR clt_i = 0 to total_clients
+            IF all_clients_array(clt_i, 0) <> "" THEN
+              IF all_clients_array(clt_i, 1) = 1 THEN EditBox 30, (15 + (f * 35)), 50, 15, ssi_income(clt_i)
+              IF all_clients_array(clt_i, 1) = 1 THEN EditBox 110, (15 + (f * 35)), 50, 15, rsdi_income(clt_i)
+              IF all_clients_array(clt_i, 1) = 1 THEN EditBox 215, (15 + (f * 35)), 50, 15, child_support(clt_i)
+              IF all_clients_array(clt_i, 1) = 1 THEN EditBox 420, (15 + (f * 35)), 50, 15, other_unea(clt_i)
+              IF all_clients_array(clt_i, 1) = 1 THEN Text 170, (20 + (f * 35)), 45, 10, "Child Support:"
+              IF all_clients_array(clt_i, 1) = 1 THEN Text 415, (20 + (f * 35)), 5, 10, "="
+              IF all_clients_array(clt_i, 1) = 1 THEN Text 90, (20 + (f * 35)), 20, 10, "RSDI:"
+              IF all_clients_array(clt_i, 1) = 1 THEN Text 15, (20 + (f * 35)), 15, 10, "SSI:"
+              IF all_clients_array(clt_i, 1) = 1 THEN GroupBox 5, (5 + (f * 35)), 470, 30, all_clients_array(clt_i, 0)
+              IF all_clients_array(clt_i, 1) = 1 THEN DropListBox 300, (15 + (f * 35)), 110, 15, "29 Other Countable"+chr(9)+"06 Non-MN PA"+chr(9)+"11 VA Disability Benefit"+chr(9)+"12 VA Pension"+chr(9)+"13 VA Other"+chr(9)+"38 VA Aid & Attendance"+chr(9)+"14 Unemployment Insurance"+chr(9)+"15 Worker's Comp"+chr(9)+"16 Railroad Retirement"+chr(9)+"17 Other Retirement"+chr(9)+"18 Military Allotment"+chr(9)+"19 FC Child Requesting FS"+chr(9)+"20 FC Child Not Req FS"+chr(9)+"21 FC Adult Requesting FS"+chr(9)+"22 FC Adult Not Req FS"+chr(9)+"23 Dividends"+chr(9)+"24 Interest"+chr(9)+"25 Cnt Gifts Or Prizes"+chr(9)+"26 Strike Benefit 27 Contract For Deed"+chr(9)+"28 Illegal Income"+chr(9)+"30 Infrequent <30 Not Counted"+chr(9)+"31 Other FS Only"+chr(9)+"32 Infreq <= $20 MSA Exclusion"+chr(9)+"35 Direct Spousal Support"+chr(9)+"37 Disbursed Spousal Sup"+chr(9)+"40 Disbursed Spsl Sup Arrears"+chr(9)+"43 Disbursed Excess CS"+chr(9)+"44 MSA - Excess Inc for SSI"+chr(9)+"45 County 88 Child Support"+chr(9)+"46 County 88 Gaming", other_unea_type(clt_i)
+              IF all_clients_array(clt_i, 1) = 1 THEN f = f + 1
+            End If
+        Next
+        ButtonGroup ButtonPressed
+          IF total_clients <> "" THEN OkButton 215, (15 + (f * 35)), 50, 15
+    EndDialog
+
+    Dialog Dialog1
 End Function
 
 Function shel_function
-BeginDialog emer_dialog, 0, 0, 211, 275, "Shelter Information Calc"
-  EditBox 85, 15, 50, 15, rent_portion
-  DropListBox 140, 15, 60, 45, "Verifications?"+chr(9)+"Requested"+chr(9)+"Received", rent_verification
-  EditBox 85, 35, 50, 15, other_fees
-  DropListBox 140, 35, 60, 45, "Verifications?"+chr(9)+"Requested"+chr(9)+"Received", Other_fees_verification
-  EditBox 85, 75, 50, 15, rent_due
-  DropListBox 140, 75, 60, 45, "Verifications?"+chr(9)+"Requested"+chr(9)+"Received", rent_due_verification
-  EditBox 85, 95, 50, 15, late_fees
-  DropListBox 140, 95, 60, 45, "Verifications?"+chr(9)+"Requested"+chr(9)+"Received", late_fees_verification
-  EditBox 85, 115, 50, 15, damage_dep
-  DropListBox 140, 115, 60, 45, "Verifications?"+chr(9)+"Requested"+chr(9)+"Received", dd_verification
-  EditBox 85, 135, 50, 15, court_fees
-  DropListBox 140, 135, 60, 45, "Verifications?"+chr(9)+"Requested"+chr(9)+"Received", court_fees_verification
-  EditBox 85, 155, 50, 15, hest_due
-  DropListBox 140, 155, 60, 45, "Verifications?"+chr(9)+"Requested"+chr(9)+"Received", utility_verification
-  DropListBox 140, 190, 60, 45, "Verifications?"+chr(9)+"Requested"+chr(9)+"Received", eviction_verification
-  DropListBox 140, 210, 60, 45, "Verifications?"+chr(9)+"Requested"+chr(9)+"Received", disconnection_verification
-  ButtonGroup ButtonPressed
-    OkButton 80, 245, 50, 15
-  Text 65, 20, 20, 10, "Rent:"
-  Text 50, 100, 35, 10, "Late fees:"
-  GroupBox 5, 65, 200, 110, "Expenses Due"
-  Text 50, 140, 35, 10, "Court fees:"
-  GroupBox 5, 5, 200, 55, "Monthly Expenses"
-  Text 65, 80, 20, 10, "Rent:"
-  Text 65, 160, 20, 10, "Utility:"
-  Text 30, 120, 55, 10, "Damage Deposit:"
-  Text 85, 195, 55, 10, "Eviciton Notice:"
-  Text 10, 40, 75, 10, "Other fees(garage,etc):"
-  Text 65, 215, 75, 10, "Disconnection Notice:"
-  GroupBox 5, 180, 200, 50, "Other Verifications"
-EndDialog
-Dialog emer_dialog
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 211, 275, "Shelter Information Calc"
+      EditBox 85, 15, 50, 15, rent_portion
+      DropListBox 140, 15, 60, 45, "Verifications?"+chr(9)+"Requested"+chr(9)+"Received", rent_verification
+      EditBox 85, 35, 50, 15, other_fees
+      DropListBox 140, 35, 60, 45, "Verifications?"+chr(9)+"Requested"+chr(9)+"Received", Other_fees_verification
+      EditBox 85, 75, 50, 15, rent_due
+      DropListBox 140, 75, 60, 45, "Verifications?"+chr(9)+"Requested"+chr(9)+"Received", rent_due_verification
+      EditBox 85, 95, 50, 15, late_fees
+      DropListBox 140, 95, 60, 45, "Verifications?"+chr(9)+"Requested"+chr(9)+"Received", late_fees_verification
+      EditBox 85, 115, 50, 15, damage_dep
+      DropListBox 140, 115, 60, 45, "Verifications?"+chr(9)+"Requested"+chr(9)+"Received", dd_verification
+      EditBox 85, 135, 50, 15, court_fees
+      DropListBox 140, 135, 60, 45, "Verifications?"+chr(9)+"Requested"+chr(9)+"Received", court_fees_verification
+      EditBox 85, 155, 50, 15, hest_due
+      DropListBox 140, 155, 60, 45, "Verifications?"+chr(9)+"Requested"+chr(9)+"Received", utility_verification
+      DropListBox 140, 190, 60, 45, "Verifications?"+chr(9)+"Requested"+chr(9)+"Received", eviction_verification
+      DropListBox 140, 210, 60, 45, "Verifications?"+chr(9)+"Requested"+chr(9)+"Received", disconnection_verification
+      ButtonGroup ButtonPressed
+        OkButton 80, 245, 50, 15
+      Text 65, 20, 20, 10, "Rent:"
+      Text 50, 100, 35, 10, "Late fees:"
+      GroupBox 5, 65, 200, 110, "Expenses Due"
+      Text 50, 140, 35, 10, "Court fees:"
+      GroupBox 5, 5, 200, 55, "Monthly Expenses"
+      Text 65, 80, 20, 10, "Rent:"
+      Text 65, 160, 20, 10, "Utility:"
+      Text 30, 120, 55, 10, "Damage Deposit:"
+      Text 85, 195, 55, 10, "Eviciton Notice:"
+      Text 10, 40, 75, 10, "Other fees(garage,etc):"
+      Text 65, 215, 75, 10, "Disconnection Notice:"
+      GroupBox 5, 180, 200, 50, "Other Verifications"
+    EndDialog
+
+    Dialog Dialog1
 End Function
 
 Function expense_function
-Do
-err_msg = ""
-fs_mf_total = Cstr(Cint(mf_fs_amt_total) + Cint(fs_amt_total))
-fs_expense = CStr(Cint(thrifty_food) - Cint(fs_mf_total))
-if fs_expense < 0 then fs_expense = "0"
-food_allotment_expense = "Food Allotment($" & thrifty_food & ") - FS/MF-FS issued ($" & fs_mf_total & ") = $" & fs_expense
+    Do
+        err_msg = ""
+        fs_mf_total = Cstr(Cint(mf_fs_amt_total) + Cint(fs_amt_total))
+        fs_expense = CStr(Cint(thrifty_food) - Cint(fs_mf_total))
+        if fs_expense < 0 then fs_expense = "0"
+        food_allotment_expense = "Food Allotment($" & thrifty_food & ") - FS/MF-FS issued ($" & fs_mf_total & ") = $" & fs_expense
 
-BeginDialog emer_dialog, 0, 0, 301, 230, "Living Expense Paid from:" & chr(9) & dateadd("d", -30, app_date) & chr(9) & " To:" & chr(9) & dateadd("d", -1, app_date) & chr(9)
-EditBox 185, 45, 50, 15, shel_paid
-EditBox 185, 65, 50, 15, hest_paid
-DropListBox 185, 85, 50, 45, "Select One"+chr(9)+"Yes"+chr(9)+"No", flat_living_expense
-DropListBox 185, 105, 50, 45, "Select One"+chr(9)+"Yes"+chr(9)+"No", flat_trans
-DropListBox 185, 125, 50, 45, "Select One"+chr(9)+"Yes"+chr(9)+"No", flat_phone
-EditBox 185, 145, 50, 15, actual_paid
-EditBox 185, 165, 50, 15, other_paid
-ButtonGroup ButtonPressed
-  OkButton 130, 200, 50, 15
-Text 100, 90, 85, 10, "Flat $500 Living Expense:"
-Text 110, 50, 75, 10, "Shelter Expense Paid:"
-ButtonGroup ButtonPressed
-  OkButton 130, 200, 50, 15
-    Text 110, 150, 75, 10, "Actual Living Expense:"
-    Text 10, 110, 175, 10, "Storage, Transportation Flat $113.50(working person):"
-    Text 145, 70, 40, 10, "Utility Paid:"
-    Text 130, 130, 55, 10, "Flat $38 Phone:"
-    Text 165, 170, 20, 10, "Other:"
-  Text 5, 30, 285, 10, chr(9) & food_allotment_expense & chr(9)
-  GroupBox 5, 10, 285, 175, "Living Expense Paid from:" & chr(9) & dateadd("d", -30, app_date) & chr(9) & " To:" & chr(9) & dateadd("d", -1, app_date) & chr(9)
-EndDialog
-Dialog emer_dialog
+        Dialog1 = ""
+        BeginDialog Dialog1, 0, 0, 301, 230, "Living Expense Paid from:" & chr(9) & dateadd("d", -30, app_date) & chr(9) & " To:" & chr(9) & dateadd("d", -1, app_date) & chr(9)
+          EditBox 185, 45, 50, 15, shel_paid
+          EditBox 185, 65, 50, 15, hest_paid
+          DropListBox 185, 85, 50, 45, "Select One"+chr(9)+"Yes"+chr(9)+"No", flat_living_expense
+          DropListBox 185, 105, 50, 45, "Select One"+chr(9)+"Yes"+chr(9)+"No", flat_trans
+          DropListBox 185, 125, 50, 45, "Select One"+chr(9)+"Yes"+chr(9)+"No", flat_phone
+          EditBox 185, 145, 50, 15, actual_paid
+          EditBox 185, 165, 50, 15, other_paid
+          ButtonGroup ButtonPressed
+            OkButton 130, 200, 50, 15
+          Text 100, 90, 85, 10, "Flat $500 Living Expense:"
+          Text 110, 50, 75, 10, "Shelter Expense Paid:"
+          ButtonGroup ButtonPressed
+            OkButton 130, 200, 50, 15
+          Text 110, 150, 75, 10, "Actual Living Expense:"
+          Text 10, 110, 175, 10, "Storage, Transportation Flat $113.50(working person):"
+          Text 145, 70, 40, 10, "Utility Paid:"
+          Text 130, 130, 55, 10, "Flat $38 Phone:"
+          Text 165, 170, 20, 10, "Other:"
+          Text 5, 30, 285, 10, chr(9) & food_allotment_expense & chr(9)
+          GroupBox 5, 10, 285, 175, "Living Expense Paid from:" & chr(9) & dateadd("d", -30, app_date) & chr(9) & " To:" & chr(9) & dateadd("d", -1, app_date) & chr(9)
+        EndDialog
 
-If shel_paid = "" then shel_paid = "0"
-If hest_paid = "" then hest_paid = "0"
-If actual_paid = "" then actual_paid = "0"
-If other_paid = "" then other_paid = "0"
+        Dialog Dialog1
 
-If actual_paid <> "0" and flat_living_expense = "Yes" then err_msg = "You selected 'Yes' for Flat $500 Living Expense, you cannot list amounts in 'Actual Living Expense field.' Please correct this."
-IF err_msg <> "" THEN msgbox "*** Notice!!! ***" & vbNewLine & err_msg
-Loop until err_msg = ""
+        If shel_paid = "" then shel_paid = "0"
+        If hest_paid = "" then hest_paid = "0"
+        If actual_paid = "" then actual_paid = "0"
+        If other_paid = "" then other_paid = "0"
+
+        If actual_paid <> "0" and flat_living_expense = "Yes" then err_msg = "You selected 'Yes' for Flat $500 Living Expense, you cannot list amounts in 'Actual Living Expense field.' Please correct this."
+        IF err_msg <> "" THEN msgbox "*** Notice!!! ***" & vbNewLine & err_msg
+    Loop until err_msg = ""
 End Function
 
-
-BeginDialog case_dialog, 0, 0, 171, 120, "EA/EGA Screening"
-  EditBox 90, 5, 75, 15, MAXIS_case_number
-  EditBox 105, 25, 60, 15, app_date
-  DropListBox 105, 45, 60, 45, "Select One"+chr(9)+"EA"+chr(9)+"EGA", prog_type_case_dialog
-  EditBox 70, 65, 95, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 35, 90, 50, 15
-    CancelButton 90, 90, 50, 15
-  Text 25, 30, 75, 10, "Date of app (xx/xx/xx):"
-  Text 5, 70, 65, 10, "Worker's Signature:"
-  Text 65, 50, 35, 10, "EA/EGA?:"
-  Text 60, 10, 25, 10, "Case #:"
-EndDialog
-
-
+'THE SCRIPT================================================================================================================================
 EMConnect ""
-
-
 
 call check_for_MAXIS(False)	'checking for an active MAXIS session
 
@@ -373,10 +366,25 @@ app_date= m & "/" & d & "/" & right(datepart("yyyy", date()), 2)
 'determines EA Eval Period'
 ea_eval_date = ea_eval_m & "/" & ea_eval_d & "/" & right(datepart("yyyy", date()-30), 2)
 
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 171, 120, "EA/EGA Screening"
+  EditBox 90, 5, 75, 15, MAXIS_case_number
+  EditBox 105, 25, 60, 15, app_date
+  DropListBox 105, 45, 60, 45, "Select One"+chr(9)+"EA"+chr(9)+"EGA", prog_type_case_dialog
+  EditBox 70, 65, 95, 15, worker_signature
+  ButtonGroup ButtonPressed
+    OkButton 35, 90, 50, 15
+    CancelButton 90, 90, 50, 15
+  Text 25, 30, 75, 10, "Date of app (xx/xx/xx):"
+  Text 5, 70, 65, 10, "Worker's Signature:"
+  Text 65, 50, 35, 10, "EA/EGA?:"
+  Text 60, 10, 25, 10, "Case #:"
+EndDialog
+
 'The Script'
 Do
 	err_msg = ""
-	Dialog case_dialog
+	Dialog Dialog1
 	cancel_confirmation
 	If MAXIS_case_number = "" then err_msg = err_msg & vbCr & "You must have a case number to continue."
 	If len(MAXIS_case_number) > 8 then err_msg = err_msg & vbCr & "Your case number need to be 8 digits or less."
@@ -974,8 +982,8 @@ If prog_type_case_dialog = "EA" then
 		End If
 
 		'living expense total'
-		
-		
+
+
 
 		If flat_living_expense = "Yes" then
 			flat_living_expense_amt = "500"
@@ -1059,7 +1067,8 @@ If prog_type_case_dialog = "EA" then
 		   test_pass6 = false
 		End If
 
-		BeginDialog emer_dialog, 0, 0, 546, 430, "Emergency Screening dialog"
+        Dialog1 = ""
+		BeginDialog Dialog1, 0, 0, 546, 430, "Emergency Screening dialog"
 		  DropListBox 50, 55, 65, 45, "Select One"+chr(9)+"Yes"+chr(9)+"No", active_case
 		  ButtonGroup ButtonPressed
 		    PushButton 10, 105, 40, 15, "HH Memb", MEMB_number
@@ -1127,33 +1136,33 @@ If prog_type_case_dialog = "EA" then
 		  GroupBox 5, 265, 350, 35, "Programs Issued from EA Eval Period"
 		  Text 10, 280, 335, 10, fs_results & mf_results & mf_hg_results & mf_fs_results
 		  GroupBox 5, 305, 155, 40, "Living Expenses Paid from EA Eval Period:"
-			  Text 60, 325, 90, 10, "$" & total_expense
-			  GroupBox 5, 350, 350, 75, ""
-			Text 370, 15, 120, 55, "Gross Earned Income:" & chr(9) & "$" & total_gross_income & vbNewLine & "Net Earned Income:" & chr(9) & "$" & total_net_income & vbNewLine & "Unearned Income:" & chr(9) & "$" & unearn_income_total_w_grants & vbNewLine & "--------------------------------------------------" & vbNewLine & "Total Net Income:" & chr(9) & "$" & total_net_income_for_test & vbNewLine & "50% of Net Income:" & chr(9) & "$" & half_total_net_income & vbNewLine & "EXPENSES TOTAL:" & chr(9) & "$" & total_expense
+		  Text 60, 325, 90, 10, "$" & total_expense
+		  GroupBox 5, 350, 350, 75, ""
+		  Text 370, 15, 120, 55, "Gross Earned Income:" & chr(9) & "$" & total_gross_income & vbNewLine & "Net Earned Income:" & chr(9) & "$" & total_net_income & vbNewLine & "Unearned Income:" & chr(9) & "$" & unearn_income_total_w_grants & vbNewLine & "--------------------------------------------------" & vbNewLine & "Total Net Income:" & chr(9) & "$" & total_net_income_for_test & vbNewLine & "50% of Net Income:" & chr(9) & "$" & half_total_net_income & vbNewLine & "EXPENSES TOTAL:" & chr(9) & "$" & total_expense
 		  'Elig Determination texts
-
-			Text 365, 85, 170, 95, month_test & vbNewLine & FPG_test & vbNewLine & percent_test & vbNewLine & cost_eff_test & vbNewLine & shel_max_test & vbNewLine & hest_due_test & vbNewLine & hh_msg
-			  If test_pass1 = true and test_pass2 = true and test_pass3 = true and test_pass4 = true and test_pass5 = true and test_pass6 = true and test_pass7 = true then
-		  Text 365, 190, 175, 45, "Potential Elig?:  ::YES::"
+		  Text 365, 85, 170, 95, month_test & vbNewLine & FPG_test & vbNewLine & percent_test & vbNewLine & cost_eff_test & vbNewLine & shel_max_test & vbNewLine & hest_due_test & vbNewLine & hh_msg
+		  If test_pass1 = true and test_pass2 = true and test_pass3 = true and test_pass4 = true and test_pass5 = true and test_pass6 = true and test_pass7 = true then
+		      Text 365, 190, 175, 45, "Potential Elig?:  ::YES::"
 		  Else
-		  Text 365, 190, 175, 45, "Potential Elig?:  ::NO::" & vbNewLine & "Please resolve the 'FAILED!' above tests to be eligible"
+		      Text 365, 190, 175, 45, "Potential Elig?:  ::NO::" & vbNewLine & "Please resolve the 'FAILED!' above tests to be eligible"
 		  End If
 		  EditBox 365, 375, 175, 15, verification_request
-  Text 365, 365, 105, 10, "Additional Verification Request:"
-  GroupBox 360, 5, 185, 420, "Eligibility Determination:"
-  ButtonGroup ButtonPressed
-    OkButton 400, 400, 50, 15
-    CancelButton 455, 400, 50, 15
-  GroupBox 5, 25, 150, 65, ""
-  Text 30, 40, 85, 10, "PROGRAM TYPE:     EA"
-  GroupBox 95, 30, 30, 20, ""
-  Text 370, 290, 170, 65, Verif_request_list
-  Text 370, 220, 170, 60, Verif_received_list
-  GroupBox 360, 210, 185, 75, "Verification Received"
-  GroupBox 360, 280, 185, 80, "Verification Requested"
-  GroupBox 360, 75, 185, 110, "EA TESTS Results"
-EndDialog
-		Dialog emer_dialog
+          Text 365, 365, 105, 10, "Additional Verification Request:"
+          GroupBox 360, 5, 185, 420, "Eligibility Determination:"
+          ButtonGroup ButtonPressed
+            OkButton 400, 400, 50, 15
+            CancelButton 455, 400, 50, 15
+          GroupBox 5, 25, 150, 65, ""
+          Text 30, 40, 85, 10, "PROGRAM TYPE:     EA"
+          GroupBox 95, 30, 30, 20, ""
+          Text 370, 290, 170, 65, Verif_request_list
+          Text 370, 220, 170, 60, Verif_received_list
+          GroupBox 360, 210, 185, 75, "Verification Received"
+          GroupBox 360, 280, 185, 80, "Verification Requested"
+          GroupBox 360, 75, 185, 110, "EA TESTS Results"
+        EndDialog
+
+        Dialog Dialog1
 		cancel_confirmation
 		VERIF_BUTTONS
 	Loop
