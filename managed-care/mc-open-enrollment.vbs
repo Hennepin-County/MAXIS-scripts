@@ -142,8 +142,15 @@ Function get_to_RKEY()
     END IF
 End Function
 '----------------------------------------------------------------------------------------------------------
-'DIALOG----------------------------------------------------------------------------------------------------
-BeginDialog case_dlg, 0, 0, 161, 270, "Enrollment Information"
+
+'SCRIPT----------------------------------------------------------------------------------------------------
+EMConnect ""
+Call MMIS_case_number_finder(MMIS_case_number)
+
+Call get_to_RKEY
+
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 161, 270, "Enrollment Information"
   EditBox 90, 25, 60, 15, MMIS_case_number
   DropListBox 70, 45, 80, 15, "Select one..."+chr(9)+"Blue Plus"+chr(9)+"Health Partners"+chr(9)+"Hennepin Health PMAP"+chr(9)+"Medica"+chr(9)+"Hennepin Health SNBC"+chr(9)+"Ucare", Health_plan
   EditBox 15, 155, 130, 15, caller_name
@@ -163,39 +170,11 @@ BeginDialog case_dlg, 0, 0, 161, 270, "Enrollment Information"
   Text 15, 225, 70, 10, "Form Received Date:"
 EndDialog
 
-BeginDialog RPPH_error_dialog, 0, 0, 236, 110, "RPPH error detected"
-  DropListBox 70, 50, 160, 15, "Select one..."+chr(9)+"First year change option"+chr(9)+"Health plan contract end"+chr(9)+"Initial enrollment"+chr(9)+"Move"+chr(9)+"Ninety Day change option"+chr(9)+"Open enrollment"+chr(9)+"PMI merge"+chr(9)+"Reenrollment", change_reason
-  DropListBox 70, 65, 160, 15, "Select one..."+chr(9)+"Eligibility ended"+chr(9)+"Exclusion"+chr(9)+"First year change option"+chr(9)+"Health plan contract end"+chr(9)+"Jail - Incarceration"+chr(9)+"Move"+chr(9)+"Loss of disability"+chr(9)+"Ninety Day change option"+chr(9)+"Open Enrollment"+chr(9)+"PMI merge"+chr(9)+"Voluntary", disenrollment_reason
-  ButtonGroup ButtonPressed
-    OkButton 125, 85, 50, 15
-    CancelButton 180, 85, 50, 15
-  Text 10, 55, 55, 10, "Change reason:"
-  Text 10, 70, 60, 10, "Disenroll reason:"
-  ButtonGroup ButtonPressed
-    OkButton 155, 330, 50, 15
-  Text 15, 20, 210, 10, "* Initial enrollment is selected, but has been enrolled previously"
-  GroupBox 5, 5, 225, 40, "An error occurred on in RPPH. Typical errors include:"
-  Text 15, 30, 210, 10, "* Exclusion code may be the same as the enrollment date"
-EndDialog
-
-BeginDialog excl_code_dialog, 0, 0, 191, 45, "Exclusion Code Error"
-  ButtonGroup ButtonPressed
-    OkButton 85, 25, 50, 15
-    CancelButton 135, 25, 50, 15
-  Text 15, 10, 155, 10, "Update the exclusion code field, then press OK."
-EndDialog
-
-'SCRIPT----------------------------------------------------------------------------------------------------
-EMConnect ""
-Call MMIS_case_number_finder(MMIS_case_number)
-
-Call get_to_RKEY
-
 'do the dialog here
 Do
     err_msg = ""
 
-	Dialog case_dlg
+	Dialog Dialog1
 	cancel_confirmation
 
 	If MMIS_case_number = "" then err_msg = err_msg & vbNewLine & "You must have a Case number to continue!"
@@ -297,8 +276,8 @@ FOR x = 0 to total_clients				'using a dummy array to build in the autofilled ch
 NEXT
 
 
-
-BEGINDIALOG HH_memb_dialog, 0, 0, 250, (35 + (total_clients * 15)), "HH Member Dialog"   'Creates the dynamic dialog. The height will change based on the number of clients it finds.
+Dialog1 = ""
+BEGINDIALOG Dialog1, 0, 0, 250, (35 + (total_clients * 15)), "HH Member Dialog"   'Creates the dynamic dialog. The height will change based on the number of clients it finds.
 	Text 10, 5, 105, 10, "Household members to look at:"
 	FOR i = 0 to total_clients										'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
 		IF all_clients_array(i, 0) <> "" THEN checkbox 10, (20 + (i * 15)), 175, 10, all_clients_array(i, 0), all_clients_array(i, 1)  'Ignores and blank scanned in persons/strings to avoid a blank checkbox
@@ -309,8 +288,8 @@ BEGINDIALOG HH_memb_dialog, 0, 0, 250, (35 + (total_clients * 15)), "HH Member D
 ENDDIALOG
 
 'runs the dialog that has been dynamically created. Streamlined with new functions.
-Dialog HH_memb_dialog
-If buttonpressed = 0 then stopscript
+Dialog Dialog1
+cancel_without_confirmation
 
 HH_member_array = ""
 
@@ -414,7 +393,8 @@ Next
 x = 0
 max = Ubound(MMIS_clients_array, 2)
 
-BeginDialog Enrollment_dlg, 0, 0, 395, (max * 20) + 60, "Enrollment Information"
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 395, (max * 20) + 60, "Enrollment Information"
   Text 5, 5, 25, 10, "Name"
   Text 100, 5, 15, 10, "PMI"
   Text 145, 5, 75, 10, "Current Plan/Exclusion"
@@ -439,7 +419,7 @@ BeginDialog Enrollment_dlg, 0, 0, 395, (max * 20) + 60, "Enrollment Information"
 EndDialog
 
 Do
-	Dialog Enrollment_dlg
+	Dialog Dialog1
 	cancel_confirmation
 Loop Until ButtonPressed = OK
 
@@ -585,14 +565,20 @@ If MNSURE_Case = TRUE Then
 			EMReadScreen RPPH_error_check, 10, 24, 2
 			If trim(RPPH_error_check) = "EXCLSN END" then
 				Do
-					Dialog excl_code_dialog
+                    Dialog1 = ""
+                    BeginDialog Dialog1, 0, 0, 191, 45, "Exclusion Code Error"
+                      ButtonGroup ButtonPressed
+                        OkButton 85, 25, 50, 15
+                        CancelButton 135, 25, 50, 15
+                      Text 15, 10, 155, 10, "Update the exclusion code field, then press OK."
+                    EndDialog
+
+					Dialog Dialog1
 					cancel_confirmation
 					transmit
 					EMReadScreen RPPH_error_check, 10, 24, 2
 				Loop until trim(RPPH_error_check) <> "EXCLSN END"
 			ELSEIF trim(RPPH_error_check) <> "" then
-				' dialog RPPH_error_dialog
-				' If buttonpressed = 0 then script_end_procedure("Error message was not resolved. Please review enrollment information before trying the script again.")
                 script_end_procedure("There is an error on RPPH that needs to be resolved.")
 				EMWriteScreen "...", 13, 5
 				EMReadScreen false_end, 8, 14, 14
@@ -807,14 +793,20 @@ Else
 			EMReadScreen RPPH_error_check, 10, 24, 2
 			If trim(RPPH_error_check) = "EXCLSN END" then
 				Do
-					Dialog excl_code_dialog
+                    Dialog1 = ""
+                    BeginDialog Dialog1, 0, 0, 191, 45, "Exclusion Code Error"
+                      ButtonGroup ButtonPressed
+                        OkButton 85, 25, 50, 15
+                        CancelButton 135, 25, 50, 15
+                      Text 15, 10, 155, 10, "Update the exclusion code field, then press OK."
+                    EndDialog
+
+					Dialog Dialog1
 					cancel_confirmation
 					transmit
 					EMReadScreen RPPH_error_check, 10, 24, 2
 				Loop until trim(RPPH_error_check) <> "EXCLSN END"
 			ELSEIF trim(RPPH_error_check) <> "" then
-                ' dialog RPPH_error_dialog
-                ' If buttonpressed = 0 then script_end_procedure("Error message was not resolved. Please review enrollment information before trying the script again.")
                 script_end_procedure("There is an error on RPPH that needs to be resolved.")
 				EMWriteScreen "...", 13, 5
 				EMReadScreen false_end, 8, 14, 14
