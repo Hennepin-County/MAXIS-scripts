@@ -52,7 +52,7 @@ call changelog_update("09/13/2018", "Initial version.", "Ilse Ferris, Hennepin C
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-Function HCRE_panel_bypass() 
+Function HCRE_panel_bypass()
 	'handling for cases that do not have a completed HCRE panel
 	PF3		'exits PROG to prommpt HCRE if HCRE insn't complete
 	Do
@@ -65,7 +65,7 @@ Function HCRE_panel_bypass()
 End Function
 
 Function MMIS_panel_check(panel_name)
-	Do 
+	Do
 		EMReadScreen panel_check, 4, 1, 52
 		If panel_check <> panel_name then Call write_value_and_transmit(panel_name, 1, 8)
 	Loop until panel_check = panel_name
@@ -97,10 +97,19 @@ Function client_age(client_DOB, output_variable)
     output_variable = Years
 End Function
 
+'----------------------------------------------------------------------------------------------------The script
+'CONNECTS TO BlueZone
+EMConnect ""
+'get_county_code
 
-'----------------------------------------------------------------------------------------------------DIALOG
-'The dialog is defined in the loop as it can change as buttons are pressed 
-BeginDialog info_dialog, 0, 0, 266, 115, "MAXIS TO METS Conversion Information"
+MAXIS_footer_month = CM_mo	'establishing footer month/year
+MAXIS_footer_year = CM_yr
+
+file_selection_path = ""
+
+'dialog and dialog DO...Loop
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 266, 115, "MAXIS TO METS Conversion Information"
   ButtonGroup ButtonPressed
     PushButton 200, 50, 50, 15, "Browse...", select_a_file_button
     OkButton 150, 95, 50, 15
@@ -110,24 +119,12 @@ BeginDialog info_dialog, 0, 0, 266, 115, "MAXIS TO METS Conversion Information"
   Text 15, 70, 230, 15, "Select the Excel file that contains your inforamtion by selecting the 'Browse' button, and finding the file."
   GroupBox 10, 5, 250, 85, "Using this script:"
 EndDialog
-
-'----------------------------------------------------------------------------------------------------The script
-'CONNECTS TO BlueZone
-EMConnect ""
-'get_county_code
-
-MAXIS_footer_month = CM_mo	'establishing footer month/year 
-MAXIS_footer_year = CM_yr 
-
-file_selection_path = ""
-
-'dialog and dialog DO...Loop	
 Do
     'Initial Dialog to determine the excel file to use, column with case numbers, and which process should be run
     'Show initial dialog
     Do
-    	Dialog info_dialog
-    	If ButtonPressed = cancel then stopscript
+    	Dialog Dialog1
+    	cancel_without_confirmation
     	If ButtonPressed = select_a_file_button then call file_selection_system_dialog(file_selection_path, ".xlsx")
     Loop until ButtonPressed = OK and file_selection_path <> ""
     If objExcel = "" Then call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
@@ -153,57 +150,57 @@ const first_type_const 	        = 11
 const first_elig_const 	       	= 12
 const second_case_number_const  = 13
 const second_type_const 	    = 14
-const second_elig_const 	  	= 15 
+const second_elig_const 	  	= 15
 const third_case_number_const   = 16
 const third_type_const      	= 17
-const third_elig_const      	= 18	
-const case_status               = 19       
-const basket_number_const       = 20  
-const rsum_PMI_const            = 21  
+const third_elig_const      	= 18
+const case_status               = 19
+const basket_number_const       = 20
+const rsum_PMI_const            = 21
 
 'Now the script adds all the clients on the excel list into an array
 excel_row = 2 're-establishing the row to start checking the members for
 entry_record = 0
-Do   
+Do
     'Loops until there are no more cases in the Excel list
-    basket_number = objExcel.cells(excel_row, 2).Value   'reading the case number from Excel   
+    basket_number = objExcel.cells(excel_row, 2).Value   'reading the case number from Excel
     basket_number = Trim(basket_number)
-    
-    MAXIS_case_number = objExcel.cells(excel_row, 3).Value   'reading the case number from Excel   
+
+    MAXIS_case_number = objExcel.cells(excel_row, 3).Value   'reading the case number from Excel
     MAXIS_case_number = Trim(MAXIS_case_number)
 
-    Client_PMI = objExcel.cells(excel_row, 4).Value          'reading the PMI from Excel 
+    Client_PMI = objExcel.cells(excel_row, 4).Value          'reading the PMI from Excel
     Client_PMI = trim(Client_PMI)
     If Client_PMI = "" then exit do
-    
-    clients_DOB = objExcel.cells(excel_row, 7).Value          'reading the PMI from Excel 
+
+    clients_DOB = objExcel.cells(excel_row, 7).Value          'reading the PMI from Excel
     clients_DOB = trim(clients_DOB)
     Call client_age(clients_DOB, clients_age)
-    
+
     ReDim Preserve case_array(21, entry_record)	'This resizes the array based on the number of rows in the Excel File'
     case_array(case_number_const,           entry_record) = MAXIS_case_number	'The client information is added to the array'
-    case_array(clt_PMI_const,               entry_record) = Client_PMI			
-    case_array(last_name_const,             entry_record) = ""             
-    case_array(first_name_const,            entry_record) = ""   
-    case_array(client_SSN_const,            entry_record) = ""   
-    case_array(client_age_const,            entry_record) = clients_age 
-    case_array(HC_status_const,             entry_record) = ""              
-    case_array(revw_date_const,             entry_record) = ""              
+    case_array(clt_PMI_const,               entry_record) = Client_PMI
+    case_array(last_name_const,             entry_record) = ""
+    case_array(first_name_const,            entry_record) = ""
+    case_array(client_SSN_const,            entry_record) = ""
+    case_array(client_age_const,            entry_record) = clients_age
+    case_array(HC_status_const,             entry_record) = ""
+    case_array(revw_date_const,             entry_record) = ""
     case_array(waiver_info_const,	        entry_record) = ""
-    case_array(medicare_info_const,         entry_record) = ""     
-    case_array(first_case_number_const,   	entry_record) = ""				
-    case_array(first_type_const, 	        entry_record) = ""				
-    case_array(first_elig_const, 	        entry_record) = ""             
-    case_array(second_case_number_const,    entry_record) = ""              
-    case_array(second_type_const, 	        entry_record) = ""              
-    case_array(second_elig_const, 	        entry_record) = ""              
+    case_array(medicare_info_const,         entry_record) = ""
+    case_array(first_case_number_const,   	entry_record) = ""
+    case_array(first_type_const, 	        entry_record) = ""
+    case_array(first_elig_const, 	        entry_record) = ""
+    case_array(second_case_number_const,    entry_record) = ""
+    case_array(second_type_const, 	        entry_record) = ""
+    case_array(second_elig_const, 	        entry_record) = ""
     case_array(third_case_number_const, 	entry_record) = ""
-    case_array(third_type_const,      	    entry_record) = ""				
-    case_array(third_elig_const,            entry_record) = ""	
-    case_array(case_status,                 entry_record) = False 	
+    case_array(third_type_const,      	    entry_record) = ""
+    case_array(third_elig_const,            entry_record) = ""
+    case_array(case_status,                 entry_record) = False
     case_array(basket_number_const,         entry_record) =	basket_number
     case_array(rsum_PMI_const,              entry_record) =	""
-    
+
 
     entry_record = entry_record + 1			'This increments to the next entry in the array'
     stats_counter = stats_counter + 1
@@ -223,7 +220,7 @@ For item = 0 to UBound(case_array, 2)
     EMReadScreen PRIV_check, 4, 24, 14					'if case is a priv case then it gets identified, and will not be updated in MMIS
 	If PRIV_check = "PRIV" then
         case_array(case_status, item) = False
-		case_array(clt_PMI_const, item) = MAXIS_case_number & " - PRIV case." 
+		case_array(clt_PMI_const, item) = MAXIS_case_number & " - PRIV case."
 		'This DO LOOP ensure that the user gets out of a PRIV case. It can be fussy, and mess the script up if the PRIV case is not cleared.
 		Do
 			back_to_self
@@ -232,7 +229,7 @@ For item = 0 to UBound(case_array, 2)
 		LOOP until SELF_screen_check = "SELF"
 		EMWriteScreen "________", 18, 43		'clears the MAXIS case number
 		transmit
-    Else 
+    Else
         row = 10
         Do
             EMReadScreen person_PMI, 8, row, 34
@@ -241,41 +238,41 @@ For item = 0 to UBound(case_array, 2)
             IF Client_PMI = person_PMI then
                 EmReadscreen last_name, 15, row, 6
                 Case_array(last_name_const, item) = trim(last_name)
-                
-                EmReadscreen first_name, 11, row, 22 
+
+                EmReadscreen first_name, 11, row, 22
                 Case_array(first_name_const, item) = trim(first_name)
-                
+
                 EmReadscreen Client_SSN, 11, row + 1, 6
                 Client_SSN = trim(Client_SSN)
                 If Client_SSN = "-  -" then Client_SSN = "" 'blanking out to use the PMI later if no SSN exists
                 Case_array(client_SSN_const, item) = replace(Client_SSN, "-", "")
-                
-                EMReadScreen HC_status, 1, row, 61      'Reading the HC status for the current month for the member 
+
+                EMReadScreen HC_status, 1, row, 61      'Reading the HC status for the current month for the member
                 Case_array(HC_status_const, item) = HC_status
                 Case_array(case_status, item) = True
                 'msgbox last_name & vbcr & first_name & vbcr & Client_SSN & vbcr & HC_status
-                exit do 
-            Else 
-                row = row + 3			'information is 3 rows apart. Will read for the next member. 
+                exit do
+            Else
+                row = row + 3			'information is 3 rows apart. Will read for the next member.
                 If row = 19 then
-                    PF8  
+                    PF8
                     row = 10					'changes MAXIS row if more than one page exists
                 END if
             END if
             EMReadScreen last_PERS_page, 21, 24, 2
         LOOP until last_PERS_page = "THIS IS THE LAST PAGE"
 
-	    Call navigate_to_MAXIS_screen("STAT", "REVW")      'Reading STAT/REVW information 
+	    Call navigate_to_MAXIS_screen("STAT", "REVW")      'Reading STAT/REVW information
         EMReadScreen next_review, 8, 9, 70
-        If next_review = "__ __ __" then 
+        If next_review = "__ __ __" then
             Case_array(revw_date_const, item) = ""
-        else 
+        else
             EmReadscreen revw_type, 2, 9, 79
             Case_array(revw_date_const, item) = replace(next_review, " ", "/") & " " & revw_type
-        End if 
+        End if
         'msgbox next_review & " " & revw_type
-    End if 
-Next 
+    End if
+Next
 
 '-------------------------------------------------------------------------------------------------------------------------------------MMIS portion of the script
 Call navigate_to_MMIS_region("CTY ELIG STAFF/UPDATE")	'function to navigate into MMIS, select the HC realm, and enters the prior autorization area
@@ -316,38 +313,38 @@ NEXT
 
 excel_row = 2
 For item = 0 to UBound(case_array, 2)
-    Client_SSN = case_array(client_SSN_const, item) 
+    Client_SSN = case_array(client_SSN_const, item)
     Client_PMI = case_array(clt_PMI_const, item)
     client_PMI = right("00000000" & client_pmi, 8)
-    
+
     If case_array(case_status, item) = True then
         'msgbox Client_SSN
-        MMIS_panel_check("RKEY") 
-        If Client_SSN = "" then 
+        MMIS_panel_check("RKEY")
+        If Client_SSN = "" then
             Call clear_line_of_text(5, 19)
             EmWriteScreen Client_PMI, 4, 19
-        else    
+        else
             Call clear_line_of_text(4, 19)
             EMWriteScreen Client_SSN, 5, 19
-        End if 
+        End if
         Call write_value_and_transmit("I", 2, 19)
         RSEL_row = 7
-        Do 
-            EmReadscreen RSEL_panel_check, 4, 1, 52  'RSEL is listed at column 52 
+        Do
+            EmReadscreen RSEL_panel_check, 4, 1, 52  'RSEL is listed at column 52
             EmReadscreen panel_check, 4, 1, 51
             If RSEL_panel_check = "RSEL" then
                 EmReadscreen RSEL_SSN, 9, RSEL_row, 48
                 If RSEL_SSN = Client_SSN then
-                    duplicate_entry = True 
+                    duplicate_entry = True
                     Call write_value_and_transmit("X", RSEL_row, 2)
                     EmReadscreen panel_check, 4, 1, 51
-                else 
+                else
                     Exit do
-                    duplicate_entry = False 
-                End if 
-            End if     
-            
-            If panel_check = "RSUM" then 
+                    duplicate_entry = False
+                End if
+            End if
+
+            If panel_check = "RSUM" then
                 'RSUM panel PMI
                 EmReadscreen RSUM_PMI, 8, 2, 2
                 Case_array(rsum_PMI_const, item) = trim(RSUM_PMI)
@@ -361,63 +358,63 @@ For item = 0 to UBound(case_array, 2)
                 medicare_info = trim(medicare_info)
                 IF medicare_info = "PART A BEG:          END:          PART B BEG:          END:" then medicare_info = ""
                 Case_array(medicare_info_const, item) = medicare_info
-                
-                '1st case type/prog/elig/case number 
+
+                '1st case type/prog/elig/case number
                 EmReadscreen first_case_number, 8, 7, 16
                 first_case_number = trim(first_case_number)
-                If first_case_number <> "" then 
+                If first_case_number <> "" then
                     case_array(first_case_number_const, item) = first_case_number
                     EmReadscreen first_program, 2, 6, 13
                     EmReadscreen first_type, 2, 6, 35
-                    If trim(first_program) <> "" then 
+                    If trim(first_program) <> "" then
                         first_elig_type = first_program & "-" & first_type
                         case_array(first_type_const, item) = first_elig_type
-                        '1st elig dates 
+                        '1st elig dates
                         EmReadscreen first_elig_start, 8, 7, 35
                         EmReadscreen first_elig_end, 8, 7, 54
                         first_elig_dates = first_elig_start &  " - " & first_elig_end
                         case_array(first_elig_const, item) = first_elig_dates
-                    ENd if    
-                End if 
-            
+                    ENd if
+                End if
+
                 EmReadscreen second_case_number, 8, 9, 16
                 second_case_number = trim(second_case_number)
-                If second_case_number <> "" then 
+                If second_case_number <> "" then
                     case_array(second_case_number_const, item) = second_case_number
                     EmReadscreen second_program, 2, 8, 13
                     EmReadscreen second_type, 2, 8, 35
-                    If trim(second_program) <> "" then 
+                    If trim(second_program) <> "" then
                         second_elig_type = second_program & "-" & second_type
                         case_array(second_type_const, item) = second_elig_type
-                        '1st elig dates 
+                        '1st elig dates
                         EmReadscreen second_elig_start, 8, 9, 35
                         EmReadscreen second_elig_end, 8, 9, 54
                         second_elig_dates = second_elig_start &  " - " & second_elig_end
                         case_array(second_elig_const, item) = second_elig_dates
-                    ENd if    
-                End if     
-                
+                    ENd if
+                End if
+
                 EmReadscreen third_case_number, 8, 11, 16
                 third_case_number = trim(third_case_number)
-                If third_case_number <> "" then 
+                If third_case_number <> "" then
                     case_array(third_case_number_const, item) = third_case_number
                     EmReadscreen third_program, 2, 10, 13
                     EmReadscreen third_type, 2, 10, 35
-                    If trim(third_program) <> "" then 
+                    If trim(third_program) <> "" then
                         third_elig_type = third_program & "-" & third_type
                         case_array(third_type_const, item) = third_elig_type
-                        '1st elig dates 
+                        '1st elig dates
                         EmReadscreen third_elig_start, 8, 11, 35
                         EmReadscreen third_elig_end, 8, 11, 54
                         third_elig_dates = third_elig_start &  " - " & third_elig_end
                         case_array(third_elig_const, item) = third_elig_dates
                     ENd if
-                        
+
                 End if
-                'outputting to Excel 
-                
-                If first_case_number <> "" then 
-                    objExcel.Cells(excel_row,  1).Value = case_array (basket_number_const,      item) 
+                'outputting to Excel
+
+                If first_case_number <> "" then
+                    objExcel.Cells(excel_row,  1).Value = case_array (basket_number_const,      item)
                     objExcel.Cells(excel_row,  2).Value = case_array (clt_PMI_const,            item)
                     objExcel.Cells(excel_row,  3).Value = case_array (rsum_PMI_const,           item)
                     objExcel.Cells(excel_row,  4).Value = case_array (last_name_const,          item)
@@ -435,100 +432,100 @@ For item = 0 to UBound(case_array, 2)
                     objExcel.Cells(excel_row, 16).Value = case_array (second_elig_const, 	    item)
                     objExcel.Cells(excel_row, 17).Value = case_array (third_case_number_const,  item)
                     objExcel.Cells(excel_row, 18).Value = case_array (third_type_const,      	item)
-                    objExcel.Cells(excel_row, 19).Value = case_array (third_elig_const,         item)   
-                    
+                    objExcel.Cells(excel_row, 19).Value = case_array (third_elig_const,         item)
+
                     'conditions for converting a case
                     convert_case = ""
-                    
-                    If left(first_case_number, 1) = "1" then 
+
+                    If left(first_case_number, 1) = "1" then
                         convert_case = False                                'Mets cases starting with 1
-                    elseif left(first_case_number, 1) = "2" then 
-                        convert_case = False                                 'Mets cases starting with 2                     
-                    elseif left(first_case_number, 1) = "S" then 
+                    elseif left(first_case_number, 1) = "2" then
+                        convert_case = False                                 'Mets cases starting with 2
+                    elseif left(first_case_number, 1) = "S" then
                         convert_case = False                                'special HC programs
-                    elseif left(first_elig_type, 2) = "IM" then 
-                        convert_case = FALSE                                'IMD cases     
-                    elseif left(first_elig_type, 2) = "NM" then 
+                    elseif left(first_elig_type, 2) = "IM" then
+                        convert_case = FALSE                                'IMD cases
+                    elseif left(first_elig_type, 2) = "NM" then
                         convert_case = FALSE                                  'EMA cases
-                    Elseif right(waiver_info, 2) = "19" then 
+                    Elseif right(waiver_info, 2) = "19" then
                         convert_case = False                                'ongoing waiver programs
-                    elseif right(medicare_info, 2) = "99" then 
-                        If first_elig_type = "MA-AA" then 
+                    elseif right(medicare_info, 2) = "99" then
+                        If first_elig_type = "MA-AA" then
                             convert_case = True                             'parent basis with Medicare open
-                        else 
+                        else
                             convert_case = False                                'current and ongoing Medicare coverage
-                        end if 
-                    elseif first_elig_type = "MA-11" then 
+                        end if
+                    elseif first_elig_type = "MA-11" then
                         convert_case = FALSE          'Auto newborn
-                    elseIf first_elig_type = "MA-PX" then 
+                    elseIf first_elig_type = "MA-PX" then
                         convert_case = FALSE          'Pregnant women
-                    elseIf first_elig_type = "MA-14" then 
+                    elseIf first_elig_type = "MA-14" then
                         convert_case = FALSE          'TYMA
-                    elseIf first_elig_type = "MA-15" then 
+                    elseIf first_elig_type = "MA-15" then
                         convert_case = FALSE          '1619 B - disa
-                    elseIf first_elig_type = "MA-25" then 
+                    elseIf first_elig_type = "MA-25" then
                         convert_case = FALSE          'Foster care
-                    elseIf first_elig_type = "MA-2A" then 
+                    elseIf first_elig_type = "MA-2A" then
                         convert_case = FALSE          'presumtive elig parent
-                    elseIf first_elig_type = "MA-2C" then 
+                    elseIf first_elig_type = "MA-2C" then
                         convert_case = FALSE          'presumtive elig child
-                    elseIf first_elig_type = "MA-BT" then 
+                    elseIf first_elig_type = "MA-BT" then
                         convert_case = FALSE          'TEFRA Blind
-                    elseIf first_elig_type = "MA-DC" then 
+                    elseIf first_elig_type = "MA-DC" then
                         convert_case = FALSE          'Disabled child
-                    elseIf first_elig_type = "MA-DP" then 
+                    elseIf first_elig_type = "MA-DP" then
                         convert_case = FALSE          'MA-EPD
-                    elseIf first_elig_type = "MA-DT" then 
+                    elseIf first_elig_type = "MA-DT" then
                         convert_case = FALSE          'TEFRA disabled child
-                    elseIf first_elig_type = "MA-EX" then 
+                    elseIf first_elig_type = "MA-EX" then
                         convert_case = FALSE          'Elderly basis
-                    elseIf first_elig_type = "MA-DX" then 
+                    elseIf first_elig_type = "MA-DX" then
                         convert_case = FALSE          'Disabled basis
-                    else 
-                        If first_elig_end = "99/99/99" then 
+                    else
+                        If first_elig_end = "99/99/99" then
                             convert_case = TRUE                             'Open MA cases in MMIS
-                        else 
+                        else
                             convert_case = False                            'Closed MA cases in MMIS
-                        End if 
-                    End if 
-                    
+                        End if
+                    End if
+
                     If convert_case = False then objExcel.Cells(excel_row, 20).Value = "No"
                     If convert_case = True then objExcel.Cells(excel_row, 20).Value = "Yes"
                     excel_row = excel_row + 1
-                End if 
-                
-                If duplicate_entry = True then 
+                End if
+
+                If duplicate_entry = True then
                     PF3
-                    EmReadscreen RSEL_panel_check, 4, 1, 52  'RSEL is listed at column 52 
+                    EmReadscreen RSEL_panel_check, 4, 1, 52  'RSEL is listed at column 52
                     If RSEL_panel_check = "RSEL" then
                         RSEL_row = 8
                         case_array(waiver_info_const,	    item) = ""
-                        case_array(medicare_info_const,     item) = ""     
-                        case_array(first_case_number_const, item) = ""				
-                        case_array(first_type_const, 	    item) = ""				
-                        case_array(first_elig_const, 	    item) = ""             
-                        case_array(second_case_number_const,item) = ""              
-                        case_array(second_type_const, 	    item) = ""              
-                        case_array(second_elig_const,       item) = ""              
+                        case_array(medicare_info_const,     item) = ""
+                        case_array(first_case_number_const, item) = ""
+                        case_array(first_type_const, 	    item) = ""
+                        case_array(first_elig_const, 	    item) = ""
+                        case_array(second_case_number_const,item) = ""
+                        case_array(second_type_const, 	    item) = ""
+                        case_array(second_elig_const,       item) = ""
                         case_array(third_case_number_const, item) = ""
-                        case_array(third_type_const,        item) = ""				
-                        case_array(third_elig_const,        item) = ""	
-                    Else 
-                        exit do 'No more cases on RSEL 
-                    end if 
+                        case_array(third_type_const,        item) = ""
+                        case_array(third_elig_const,        item) = ""
+                    Else
+                        exit do 'No more cases on RSEL
+                    end if
                 else
                     PF3
-                    exit do     'cases that did not have more than one known entry 
-                End if 
-            End if 
-        loop 
-    else 
+                    exit do     'cases that did not have more than one known entry
+                End if
+            End if
+        loop
+    else
         'msgbox "error case"
-        objExcel.Cells(excel_row,  1).Value = case_array (clt_PMI_const,            item) 
+        objExcel.Cells(excel_row,  1).Value = case_array (clt_PMI_const,            item)
         excel_row = excel_row + 1
-    End if 
-Next     
-    
+    End if
+Next
+
 FOR i = 1 to 17		'formatting the cells
 	objExcel.Columns(i).AutoFit()				'sizing the columns'
 NEXT
