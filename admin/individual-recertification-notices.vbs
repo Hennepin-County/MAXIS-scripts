@@ -94,7 +94,7 @@ today_yr = right(today_yr, 2)
 
 today_date = today_mo & "/" & today_day & "/" & today_yr
 
-
+Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 181, 85, "Select the Notice to Send"
   EditBox 60, 5, 50, 15, MAXIS_case_number
   EditBox 45, 25, 130, 15, worker_signature
@@ -113,7 +113,7 @@ Do
         err_msg = ""
 
         dialog Dialog1
-        if buttonpressed = 0 Then stopscript
+        cancel_without_confirmation
         if IsNumeric(MAXIS_case_number) = FALSE Then err_msg = err_msg & vbNewLine & "Invalid MAXIS Case Number"
         if len(MAXIS_case_number) > 8 Then err_msg = err_msg & vbNewLine & "Invalid MAXIS Case Number"
         If memo_to_send = "Select One..." Then err_msg = err_msg & vbNewLine & "Pick Notice"
@@ -177,6 +177,7 @@ If memo_to_send = "RECERT - APPT Notice" Then
     interview_end_date = interview_end_date & ""
     last_day_of_recert = last_day_of_recert & ""
 
+    Dialog1 = ""
     BeginDialog Dialog1, 0, 0, 191, 105, "Appointment Letter Details"
       EditBox 110, 10, 65, 15, interview_end_date
       EditBox 110, 35, 65, 15, last_day_of_recert
@@ -193,7 +194,7 @@ If memo_to_send = "RECERT - APPT Notice" Then
             err_msg = ""
 
             dialog Dialog1
-            if buttonpressed = 0 Then stopscript
+            cancel_without_confirmation
             if IsDate(interview_end_date) = FALSE Then err_msg = err_msg & vbNewLine & "Need a valid date for Interview Deadline"
             if IsDate(last_day_of_recert) = FALSE Then err_msg = err_msg & vbNewLine & "Need a valid date for the last day of Recert"
 
@@ -495,6 +496,7 @@ ElseIf memo_to_send = "RECERT - NOMI" Then
     date_of_app = date_of_app & ""
     last_day_of_recert = last_day_of_recert & ""
 
+    Dialog1 = ""
     BeginDialog Dialog1, 0, 0, 191, 105, "NOMI Details"
       EditBox 110, 10, 65, 15, date_of_app
       EditBox 110, 35, 65, 15, last_day_of_recert
@@ -511,7 +513,7 @@ ElseIf memo_to_send = "RECERT - NOMI" Then
             err_msg = ""
 
             dialog Dialog1
-            if buttonpressed = 0 Then stopscript
+            cancel_without_confirmation
             if IsDate(last_day_of_recert) = FALSE Then err_msg = err_msg & vbNewLine & "Need a valid date for the last day of Recert."
             If IsDate(date_of_app) = FALSE AND trim(date_of_app) <> "" Then err_msg = err_msg & vbNewLine & "Need a valid dateapp received date."
             If err_msg <> "" Then MsgBox "Fix:" & vbNewLine & err_msg
