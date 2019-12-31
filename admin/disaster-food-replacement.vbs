@@ -56,6 +56,8 @@ Call MAXIS_case_number_finder(MAXIS_case_number) 'Finds the case number
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 'Initial Dialog Box
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 331, 265, "Replacing Food Destroyed in a Disaster"
   EditBox 65, 25, 35, 15, MAXIS_case_number
   EditBox 155, 25, 45, 15, loss_date
@@ -126,13 +128,13 @@ start_a_blank_case_note
 CALL write_variable_in_Case_Note("--Food Destroyed in a Disaster Reported - " & replacement_status & "--")
 CALL write_bullet_and_variable_in_Case_Note("Type of Disaster", disaster_type)
 CALL write_bullet_and_variable_in_Case_Note("How the disaster was verified", how_verif)
-CALL write_bullet_and_variable_in_Case_Note("Date client reported the loss of food to county", date_reported)
-CALL write_bullet_and_variable_in_Case_Note("Date of Loss", effective_date)
+CALL write_bullet_and_variable_in_Case_Note("Date client reported the loss of food to county", report_date)
+CALL write_bullet_and_variable_in_Case_Note("Date of Loss", loss_date)
 CALL write_bullet_and_variable_in_Case_Note("Amount of Food Loss", amount_loss)
 CALL write_bullet_and_variable_in_Case_Note("Replace as REI", rei_replacement)
 IF TSS_BENE_sent_checkbox <> CHECKED THEN CALL write_bullet_and_variable_in_Case_Note("Stauts of Request", replacement_status)
 CALL write_bullet_and_variable_in_Case_Note("Reason for Denial", denial_reason)
-CALL write_bullet_and_variable_in_Case_Note("Verifcations Requested", verifs_requested)
+CALL write_bullet_and_variable_in_Case_Note("Verifcations Requested", verif_needed)
 IF TSS_BENE_sent_checkbox = CHECKED THEN CALL write_variable_in_Case_Note("* Submitted a TSS BENE request (webform) through SIR")
 CALL write_variable_in_Case_Note("Nonreceipt/Replacement Affidavit (DHS-1609)")
 CALL write_variable_in_Case_Note(" Date DHS-1609 was signed by the client: " & dhs1609_sig_date)
