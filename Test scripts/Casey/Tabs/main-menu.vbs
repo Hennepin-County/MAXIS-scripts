@@ -173,6 +173,7 @@ function declare_tabbed_menu(tab_selected)
         If dail_scrubber_functionality <> "" Then dail_scrubber_functionality = right(dail_scrubber_functionality, len(dail_scrubber_functionality)  - 2)
         If dlg_len < 220 Then dlg_len = 220
 
+        Dialog1 = ""
         BeginDialog Dialog1, 0, 0, 750, dlg_len, "Select Script to Run"
           GroupBox 550, 5, 185, 40, "Selected TAGS"
           Text 555, 15, 175, 25, Join(tags_array, ", ")
