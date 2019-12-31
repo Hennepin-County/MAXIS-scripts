@@ -52,9 +52,12 @@ call changelog_update("12/12/2016", "Initial version.", "Ilse Ferris, Hennepin C
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
+'THE SCRIPT-------------------------------------------------------------------------------------------------------------------------
+'Connects to BlueZone and establishing county name
+EMConnect ""
 
-'The dialog is defined in the loop as it can change as buttons are pressed 
-BeginDialog info_dialog, 0, 0, 266, 110, "CBO referral"
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 266, 110, "CBO referral"
     ButtonGroup ButtonPressed
     PushButton 200, 45, 50, 15, "Browse...", select_a_file_button
     OkButton 145, 90, 50, 15
@@ -65,17 +68,13 @@ BeginDialog info_dialog, 0, 0, 266, 110, "CBO referral"
     Text 15, 65, 230, 15, "Select the Excel file that contains the CBO information by selecting the 'Browse' button, and finding the file."
 EndDialog
 
-'THE SCRIPT-------------------------------------------------------------------------------------------------------------------------
-'Connects to BlueZone and establishing county name
-EMConnect ""	
-
-'dialog and dialog DO...Loop	
+'dialog and dialog DO...Loop
 Do
     'Initial Dialog to determine the excel file to use, column with case numbers, and which process should be run
     'Show initial dialog
     Do
-    	Dialog info_dialog
-    	If ButtonPressed = cancel then stopscript
+    	Dialog Dialog1
+    	cancel_without_confirmation
     	If ButtonPressed = select_a_file_button then call file_selection_system_dialog(file_selection_path, ".xlsx")
     Loop until ButtonPressed = OK and file_selection_path <> ""
     If objExcel = "" Then call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
@@ -103,10 +102,10 @@ excel_row = 2 're-establishing the row to start checking the members for
 entry_record = 0
 
 Do                                                            'Loops until there are no more cases in the Excel list
-	
+
 	MAXIS_case_number = objExcel.cells(excel_row, 3).Value
 	MAXIS_case_number = trim(MAXIS_case_number)
-	client_SSN  = objExcel.cells(excel_row, 4).Value		'Pulls the client's known information 
+	client_SSN  = objExcel.cells(excel_row, 4).Value		'Pulls the client's known information
 	client_SSN = replace(client_SSN, "-", "")
     client_SSN = replace(client_SSN, " ", "")
 	name_of_CBO = objExcel.cells(excel_row, 5).Value
@@ -125,7 +124,7 @@ Do                                                            'Loops until there
 	CBO_array (ABAWD_status, 	entry_record) = ""
 	entry_record = entry_record + 1			'This increments to the next entry in the array
 	excel_row = excel_row + 1
-	
+
 	'blanking out variables
 	client_SSN = ""
 	MAXIS_case_number = ""
@@ -142,102 +141,102 @@ EMWriteScreen CM_yr, 20, 46
 
 'Gathering info from MAXIS, and making the referrals and case notes if cases are found and active----------------------------------------------------------------------------------------------------
 For item = 0 to UBound(CBO_array, 2)
-	MAXIS_case_number = CBO_array(case_number, item)			
+	MAXIS_case_number = CBO_array(case_number, item)
 	client_SSN = CBO_array(clt_SSN, item)
-	
-	If client_SSN <> "" then 
+
+	If client_SSN <> "" then
 		CBO_array(make_referral, item) = False
 		call navigate_to_MAXIS_screen("pers", "____")
-		
+
 		'changing the formating of the SSN from 123456789 to 123 45 6789 for STAT/MEMB
 		If len(client_SSN) < 9 then
 			CBO_array(make_referral, item) = False
 			CBO_array(ref_status, item) = "Error"
 			CBO_array(error_reason, item) = "SSN not valid."		'Explanation for the rejected report'
-		Elseif len(client_SSN) = 9 then 
+		Elseif len(client_SSN) = 9 then
 			left_SSN = Left(client_SSN, 3)
 			mid_SSN = mid(client_SSN, 4, 2)
 			right_SSN = Right(client_SSN, 4)
 			client_SSN = left_SSN & " " & mid_SSN & " " & right_SSN
-		END IF 
-		
-		IF CBO_array(ref_status, item) = True then 
+		END IF
+
+		IF CBO_array(ref_status, item) = True then
 		    EMWriteScreen left_SSN, 14, 36
 		    EMWriteScreen mid_SSN, 14, 40
 		    EMWriteScreen right_SSN, 14, 43
 		    Transmit
 		    EMReadscreen DSPL_confirmation, 4, 2, 51
-		    If DSPL_confirmation <> "DSPL" then 
+		    If DSPL_confirmation <> "DSPL" then
 		    	CBO_array(make_referral, item) = False
 		    	CBO_array(ref_status, item) = "Error"
 		    	CBO_array(error_reason, item) = "Unable to find person in SSN search."		'Explanation for the rejected report'
-		    Else 	
-		    	EMWriteScreen "FS", 7, 22	'Selects FS as the program	
+		    Else
+		    	EMWriteScreen "FS", 7, 22	'Selects FS as the program
 		    	Transmit
 		    	'chekcing for an active case
 		    	MAXIS_row = 10
-		    	Do 
+		    	Do
 		    		EMReadscreen current_case, 7, MAXIS_row, 35
 		    		If current_case = "Current" then
 		    			EMReadscreen MAXIS_case_number, 8, MAXIS_row, 6
-		    			MAXIS_case_number = trim(MAXIS_case_number) 
+		    			MAXIS_case_number = trim(MAXIS_case_number)
 		    			CBO_array(case_number, item) = MAXIS_case_number
 		    			CBO_array(make_referral, item) = true
 		    			Exit do
-		    		Else 
+		    		Else
 		    			MAXIS_row = MAXIS_row + 1
-		    			If MAXIS_row = 20 then 
+		    			If MAXIS_row = 20 then
 		    				PF8
 		    				MAXIS_row = 10
 		    			END IF
-		    			EMReadScreen last_page_check, 21, 24, 2 
-		    		END IF 
+		    			EMReadScreen last_page_check, 21, 24, 2
+		    		END IF
 		    	LOOP until last_page_check = "THIS IS THE LAST PAGE" or last_page_check = "THIS IS THE ONLY PAGE"
 		    	If CBO_array(make_referral, item) = False then
 		    		CBO_array(make_referral, item) = False
-		    		CBO_array(ref_status, item) = "SNAP Inactive" 
-				END IF 
+		    		CBO_array(ref_status, item) = "SNAP Inactive"
+				END IF
 		    END IF
-		END IF 
-	Else 
+		END IF
+	Else
 	 	CBO_array(make_referral, item) = True
 		needs_PMI = true
 	End if
-	
-	If CBO_array(make_referral, item) = True then 
-	    'Checking the SNAP status 
+
+	If CBO_array(make_referral, item) = True then
+	    'Checking the SNAP status
 	    Call navigate_to_MAXIS_screen("STAT", "PROG")
 		EMReadscreen county_code, 2, 21, 23
-		If county_code <> "27" then 
+		If county_code <> "27" then
 			CBO_array(make_referral, item) = False
 			CBO_array(ref_status, item) = "Error"
 			CBO_array(error_reason, item) = "Not Hennepin County case, county code is: " & county_code	'Explanation for the rejected report'
-		Else 
+		Else
 	        EMReadscreen SNAP_active, 4, 10, 74
-	        If SNAP_active <> "ACTV" then 
+	        If SNAP_active <> "ACTV" then
 	        	CBO_array(make_referral, item) = False
 	        	CBO_array(ref_status, item) = "SNAP Inactive"
 	        Else
 	        	Call navigate_to_MAXIS_screen("STAT", "MEMB")
-				if needs_PMI = true then 
+				if needs_PMI = true then
 					row = 5
 					HH_count = 0
-					Do 
+					Do
 						EMReadScreen member_number, 2, row, 3
 						HH_count = HH_count + 1
 						transmit
 						EMReadScreen MEMB_error, 5, 24, 2
 					Loop until MEMB_error = "ENTER"
-					If HH_count = 1 then 
+					If HH_count = 1 then
 						CBO_array(memb_number, item) = member_number
 						CBO_array(make_referral, item) = True
 					Else
 						CBO_array(make_referral, item) = False
 						CBO_array(ref_status, item) = "Error"
 						CBO_array(error_reason, item) = "Process manually, more than one person in HH & SSN not provided."	'Explanation for the rejected report'
-					End if 
-				Else 	
-	        	    Do 
+					End if
+				Else
+	        	    Do
 	        	    	EMReadscreen member_SSN, 11, 7, 42
 		    	    	member_SSN = replace(member_SSN, " ", "")
 	        	    	If member_SSN = CBO_array(clt_SSN, item) then
@@ -245,44 +244,44 @@ For item = 0 to UBound(CBO_array, 2)
 	        	    		CBO_array(memb_number, item) = member_number
 	        	    		CBO_array(make_referral, item) = True
 	        	    		exit do
-	        	    	Else 
+	        	    	Else
 	        	    		transmit
 							CBO_array(make_referral, item) = False
 		    	    	END IF
                         EMReadScreen MEMB_error, 5, 24, 2
 	        	    Loop until member_SSN = CBO_array(clt_SSN, item) or MEMB_error = "ENTER"
-				End if 
-	        
+				End if
+
 				'STAT WREG PORTION
 				Call navigate_to_MAXIS_screen("STAT", "WREG")
 				EMWriteScreen member_number, 20, 76				'enters member number
 				transmit
 				EMReadScreen fset_code, 2, 8, 50
-				EMReadScreen abawd_code, 2, 13, 50			
+				EMReadScreen abawd_code, 2, 13, 50
 				WREG_codes = fset_code & "-" & abawd_code
-				If WREG_codes = "30-11" then 
+				If WREG_codes = "30-11" then
 					CBO_array(make_referral, item) = True
 					CBO_array(ABAWD_status, item) = "Mandatory - 2nd Set"
-				Elseif WREG_codes = "30-10" then 
+				Elseif WREG_codes = "30-10" then
 					CBO_array(make_referral, item) = True
 					CBO_array(ABAWD_status, item) = "Mandatory - ABAWD"
-				Elseif WREG_codes = "30-13" then 	
+				Elseif WREG_codes = "30-13" then
 					CBO_array(make_referral, item) = True
 					CBO_array(ABAWD_status, item) = "Mandatory - Banked Months"
-				Else 
+				Else
 					CBO_array(make_referral, item) = True
 					CBO_array(ABAWD_status, item) = "Exempt"
 				End if
 	        END IF
-		End if 
-		 
-		If CBO_array(make_referral, item) = True then 	
+		End if
+
+		If CBO_array(make_referral, item) = True then
 		    'Manual referral creation if banked months are used
 		    Call navigate_to_MAXIS_screen("INFC", "WF1M")				'navigates to WF1M to create the manual referral'
 		    EMWriteScreen "01", 4, 47									'this is the manual referral code that DHS has approved
 		    EMWriteScreen "FS", 8, 46									'this is a program for ABAWD's for SNAP is the only option for banked months
 		    EMWriteScreen CBO_array(memb_number, item), 8, 9							'enters member number
-		    EMWriteScreen "Working with CBO: " & CBO_array(CBO_name, item), 17, 6		'enters notes for E & T regarding the name of the CBO  
+		    EMWriteScreen "Working with CBO: " & CBO_array(CBO_name, item), 17, 6		'enters notes for E & T regarding the name of the CBO
 		    EMWriteScreen "x", 8, 53																				'selects the ES provider
 		    transmit																												'navigates to the ES provider selection screen
 		    EMWriteScreen "x", 5, 9									'selects the 1st option'
@@ -292,9 +291,9 @@ For item = 0 to UBound(CBO_array, 2)
 		    transmit												'confirms saving the referral
 		    CBO_array(ref_status, item) = "Referral Made"
 		    STATS_counter = STATS_counter + 1						'adds 1 count to the stats_counter
-		End if 
+		End if
 	END IF
-Next 
+Next
 
 'Updating the Excel spreadsheet based on what's happening in MAXIS----------------------------------------------------------------------------------------------------
 For item = 0 to UBound(CBO_array, 2)
@@ -303,7 +302,7 @@ For item = 0 to UBound(CBO_array, 2)
 	objExcel.cells(excel_row, 6).Value = CBO_array(ref_status, 		item)
 	objExcel.cells(excel_row, 7).Value = CBO_array(ABAWD_status, 	item)
 	objExcel.cells(excel_row, 8).Value = CBO_array(error_reason, 	item)
-Next 
-	
+Next
+
 STATS_counter = STATS_counter - 1 'removes one from the count since 1 is counted at the beginning (because counting :p)
 script_end_procedure("Success! Review the spreadsheet for accuracy. Some cases may not have had a referral made.")
