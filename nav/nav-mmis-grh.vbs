@@ -54,20 +54,20 @@ changelog_display
 EMConnect ""
 call MAXIS_case_number_finder(MAXIS_case_number)
 
-BeginDialog case_number_dialog, 0, 0, 161, 42, "Case number"
-  EditBox 95, 0, 60, 15, MAXIS_case_number
-  ButtonGroup ButtonPressed
-    OkButton 25, 20, 50, 15
-    CancelButton 85, 20, 50, 15
-  Text 5, 5, 85, 10, "Enter your case number:"
-EndDialog
-
 If MAXIS_case_number = "" then
     'Main dialog: user will input case number and initial month/year will default to current month - 1 and member 01 as member number
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 161, 42, "Case number"
+      EditBox 95, 0, 60, 15, MAXIS_case_number
+      ButtonGroup ButtonPressed
+        OkButton 25, 20, 50, 15
+        CancelButton 85, 20, 50, 15
+      Text 5, 5, 85, 10, "Enter your case number:"
+    EndDialog
     DO
         DO
             err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
-            dialog case_number_dialog				'main dialog
+            dialog Dialog1				'main dialog
             If buttonpressed = 0 THEN stopscript	'script ends if cancel is selected
             IF len(MAXIS_case_number) > 8 or isnumeric(MAXIS_case_number) = false THEN err_msg = err_msg & vbCr & "Enter a valid case number."		'mandatory field
             IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
