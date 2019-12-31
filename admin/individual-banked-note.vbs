@@ -59,6 +59,7 @@ call check_for_MAXIS(True)
 Call MAXIS_case_number_finder(MAXIS_case_number)
 CALL MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
+Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 281, 100, "Dialog"
   EditBox 70, 10, 60, 15, MAXIS_case_number
   EditBox 240, 10, 15, 15, MAXIS_footer_month
@@ -75,7 +76,6 @@ BeginDialog Dialog1, 0, 0, 281, 100, "Dialog"
   Text 120, 35, 40, 10, "Note Type:"
   Text 10, 60, 30, 10, "Details:"
 EndDialog
-
 
 Do
     err_msg = ""
