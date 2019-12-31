@@ -50,31 +50,25 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'SECTION 02: DIALOGS--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-BeginDialog case_number_dialog, 0, 0, 161, 41, "Case number"
-  EditBox 95, 0, 60, 15, MAXIS_case_number
-  ButtonGroup ButtonPressed
-    OkButton 25, 20, 50, 15
-    CancelButton 85, 20, 50, 15
-  Text 5, 5, 85, 10, "Enter your case number:"
-EndDialog
-
-'SECTION 03: FINDING THE CASE NUMBER----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
 EMConnect ""
-
-call MAXIS_case_number_finder(MAXIS_case_number)
+Call MAXIS_case_number_finder(MAXIS_case_number)
 
 If MAXIS_case_number = "" then
-	Dialog case_number_dialog
-	cancel_confirmation
-End if
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 161, 42, "Case number"
+       EditBox 95, 0, 60, 15, MAXIS_case_number
+       ButtonGroup ButtonPressed
+         OkButton 25, 20, 50, 15
+         CancelButton 85, 20, 50, 15
+       Text 5, 5, 85, 10, "Enter your case number:"
+    EndDialog
+    
+	Dialog Dialog1
+	Cancel_without_confirmation
+END IF
 
-'SECTION 04: NAVIGATING TO THE SCREEN---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-call check_for_MAXIS(true)
-
-call navigate_to_MAXIS_screen("elig", "FS__")
-
+'It sends an enter to force the screen to refresh, in order to check for a password prompt.
+transmit
+Call check_for_MAXIS(True) 'Checks for an active MAXIS session
+Call navigate_to_MAXIS_screen("ELIG", "FS  ") 'Navigates
 script_end_procedure("")
