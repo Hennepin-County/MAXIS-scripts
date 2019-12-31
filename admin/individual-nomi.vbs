@@ -61,7 +61,8 @@ last_day_for_recert = dateadd("d", -1, next_month) & "" 	'blank space added to m
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
 
-BeginDialog case_number_dlg, 0, 0, 131, 45, "Case Number"
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 131, 45, "Case Number"
   EditBox 60, 5, 65, 15, MAXIS_case_number
   ButtonGroup ButtonPressed
     OkButton 55, 25, 35, 15
@@ -72,7 +73,7 @@ EndDialog
 Do
     err_msg = ""
 
-    Dialog case_number_dlg
+    Dialog Dialog1
     If buttonpressed = Cancel Then script_end_procedure_with_error_report("")
 
     If len(MAXIS_case_number) >8 Then err_msg = err_msg & vbNewLine & "* Case numbers should not be more than 8 numbers long."
@@ -120,7 +121,8 @@ appt_date = appt_date & ""
 ' interview_date = interview_date & ""		'turns interview date into string for variable
 
 'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog NOMI_dialog, 0, 0, 126, 75, "NOMI"
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 126, 75, "NOMI"
   EditBox 70, 5, 50, 15, application_date
   EditBox 70, 25, 50, 15, appt_date
   ButtonGroup ButtonPressed
@@ -133,7 +135,7 @@ EndDialog
 Do
 	Do
 		err_msg = ""
-		dialog NOMI_dialog
+		dialog Dialog1
 		cancel_confirmation
         If IsDate(application_date) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter a valid date of application."
         If IsDate(appt_date) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter a valid missed interview date."
