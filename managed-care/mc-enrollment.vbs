@@ -323,6 +323,7 @@ If cut_off_date <> "" Then
     End If
 End If
 
+Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 161, 170, "Enrollment Information"
   EditBox 90, 25, 60, 15, MMIS_case_number
   EditBox 90, 45, 25, 15, enrollment_month
@@ -461,8 +462,7 @@ FOR x = 0 to total_clients				'using a dummy array to build in the autofilled ch
 	Loop until end_rcin = "CANNOT"
 NEXT
 
-
-
+Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 250, (35 + (total_clients * 15)), "HH Member Dialog"   'Creates the dynamic dialog. The height will change based on the number of clients it finds.
 	Text 10, 5, 105, 10, "Household members to look at:"
 	FOR i = 0 to total_clients										'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
@@ -550,6 +550,7 @@ For each member in HH_member_array
 	EMreadscreen policy_number, 1, 7, 8
     If policy_number <> " " then
 
+        Dialog1 = ""
         BeginDialog Dialog1, 0, 0, 161, 145, "RPOL Updated"
           CheckBox 20, 100, 125, 10, "RPOL ended/ ready for enrollment", rpol_ended_checkbox
           ButtonGroup ButtonPressed
@@ -643,6 +644,7 @@ For person = 0 to Ubound(MMIS_clients_array, 2)
     dlg_len = dlg_len + 20
 Next
 
+Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 750, dlg_len, "Enrollment Information"
   Text 5, 5, 25, 10, "Name"
   Text 100, 5, 15, 10, "PMI"
@@ -795,6 +797,7 @@ If MNSURE_Case = TRUE Then
 			EMreadscreen policy_number, 1, 7, 8
             If policy_number <> " " then
 
+                Dialog1 = ""
                 BeginDialog Dialog1, 0, 0, 161, 145, "RPOL Updated"
                   CheckBox 20, 100, 125, 10, "RPOL ended/ ready for enrollment", rpol_ended_checkbox
                   ButtonGroup ButtonPressed
@@ -901,6 +904,7 @@ If MNSURE_Case = TRUE Then
     			EMReadScreen RPPH_error_check, 10, 24, 2
     			If trim(RPPH_error_check) = "EXCLSN END" then
     				Do
+                        Dialog1 = ""
                         BeginDialog Dialog1, 0, 0, 191, 45, "Exclusion Code Error"
                           ButtonGroup ButtonPressed
                             OkButton 85, 25, 50, 15
@@ -917,6 +921,7 @@ If MNSURE_Case = TRUE Then
     				' transmit
     			ELSEIF trim(RPPH_error_check) <> "" then
 
+                    Dialog1 = ""
                     BeginDialog Dialog1, 0, 0, 236, 110, "RPPH error detected"
                       DropListBox 70, 50, 160, 15, "Select one..."+chr(9)+"First year change option"+chr(9)+"Health plan contract end"+chr(9)+"Initial enrollment"+chr(9)+"Move"+chr(9)+"Ninety Day change option"+chr(9)+"Open enrollment"+chr(9)+"PMI merge"+chr(9)+"Reenrollment", change_reason
                       DropListBox 70, 65, 160, 15, "Select one..."+chr(9)+"Eligibility ended"+chr(9)+"Exclusion"+chr(9)+"First year change option"+chr(9)+"Health plan contract end"+chr(9)+"Jail - Incarceration"+chr(9)+"Move"+chr(9)+"Loss of disability"+chr(9)+"Ninety Day change option"+chr(9)+"Open Enrollment"+chr(9)+"PMI merge"+chr(9)+"Voluntary", disenrollment_reason
@@ -1120,6 +1125,7 @@ Else
 			EMreadscreen policy_number, 1, 7, 8
 			If policy_number <> " " then
 
+                Dialog1 = ""
                 BeginDialog Dialog1, 0, 0, 161, 145, "RPOL Updated"
                   CheckBox 20, 100, 125, 10, "RPOL ended/ ready for enrollment", rpol_ended_checkbox
                   ButtonGroup ButtonPressed
@@ -1226,6 +1232,7 @@ Else
     			EMReadScreen RPPH_error_check, 10, 24, 2
     			If trim(RPPH_error_check) = "EXCLSN END" then
     				Do
+                        Dialog1 = ""
                         BeginDialog Dialog1, 0, 0, 191, 45, "Exclusion Code Error"
                           ButtonGroup ButtonPressed
                             OkButton 85, 25, 50, 15
@@ -1241,6 +1248,7 @@ Else
     				' Msgbox "Updated the exclusion code field, then press OK."
     				' transmit
     			ELSEIF trim(RPPH_error_check) <> "" then
+                    Dialog1 = ""
                     BeginDialog Dialog1, 0, 0, 236, 110, "RPPH error detected"
                       DropListBox 70, 50, 160, 15, "Select one..."+chr(9)+"First year change option"+chr(9)+"Health plan contract end"+chr(9)+"Initial enrollment"+chr(9)+"Move"+chr(9)+"Ninety Day change option"+chr(9)+"Open enrollment"+chr(9)+"PMI merge"+chr(9)+"Reenrollment", change_reason
                       DropListBox 70, 65, 160, 15, "Select one..."+chr(9)+"Eligibility ended"+chr(9)+"Exclusion"+chr(9)+"First year change option"+chr(9)+"Health plan contract end"+chr(9)+"Jail - Incarceration"+chr(9)+"Move"+chr(9)+"Loss of disability"+chr(9)+"Ninety Day change option"+chr(9)+"Open Enrollment"+chr(9)+"PMI merge"+chr(9)+"Voluntary", disenrollment_reason

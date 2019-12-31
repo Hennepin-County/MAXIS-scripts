@@ -63,11 +63,7 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'DIALOGS----------------------------------------------------------------------------------------------
-
 'THE SCRIPT----------------------------------------------------------------------------------------------------------
-
-'----------------------------------------------------------------------------------------------------------Script
 EMConnect ""
 'CHECKS TO MAKE SURE THE WORKER IS ON THEIR DAIL
 EMReadscreen dail_check, 4, 2, 48
@@ -75,35 +71,6 @@ If dail_check <> "DAIL" then script_end_procedure("You are not in your DAIL. Thi
 'TYPES "T" TO BRING THE SELECTED MESSAGE TO THE TOP
 EMSendKey "t"
 transmit
-'This is a dialog asking if the job is known to the agency.
-dialog1 = ""
-BeginDialog dialog1, 0, 0, 281, 195, "NEW HIRE INFORMATION"
-  EditBox 65, 5, 20, 15, HH_memb
-  EditBox 65, 25, 95, 15, employer
-  CheckBox 15, 45, 190, 10, "Check here to have the script create a new JOBS panel.", create_JOBS_checkbox
-  CheckBox 15, 55, 160, 10, "Job is known to the agency (exit the script).", job_known_checkbox
-  CheckBox 15, 80, 195, 10, "Sent a request for verifications out of ECF.", ECF_checkbox
-  CheckBox 15, 90, 190, 10, "Sent a Work Number request and submitted to ECF. ", work_number_checkbox
-  CheckBox 15, 100, 100, 10, "Requesting CEI/OHI docs.", requested_CEI_OHI_docs_checkbox
-  CheckBox 15, 110, 105, 10, "Sent a status update to CCA.", CCA_checkbox
-  CheckBox 15, 120, 100, 10, "Sent a status update to ES. ", ES_checkbox
-  CheckBox 15, 140, 135, 10, "Check to have an outlook reminder set", Outlook_reminder_checkbox
-  EditBox 65, 155, 210, 15, other_notes
-  EditBox 65, 175, 110, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 190, 175, 40, 15
-    CancelButton 235, 175, 40, 15
-    PushButton 175, 15, 45, 10, "prev. panel", prev_panel_button
-    PushButton 175, 25, 45, 10, "next panel", next_panel_button
-    PushButton 225, 15, 45, 10, "prev. memb", prev_memb_button
-    PushButton 225, 25, 45, 10, "next memb", next_memb_button
-  Text 5, 180, 60, 10, "Worker signature:"
-  GroupBox 170, 5, 105, 35, "STAT-based navigation"
-  Text 5, 30, 50, 10, "New Hire Info:"
-  Text 20, 160, 40, 10, "Other notes:"
-  Text 5, 10, 60, 10, "Member Number:"
-  GroupBox 5, 70, 270, 65, "Verification or updates"
-EndDialog
 
 'The script needs to determine what the day is in a MAXIS friendly format. The following does that.
 current_month = CM_mo
@@ -207,6 +174,37 @@ transmit
 If MFIP_case = False then create_JOBS_checkbox = checked
 'Setting the variable for the following do...loop
 HH_memb_row = 5
+
+'This is a dialog asking if the job is known to the agency.
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 281, 195, "NEW HIRE INFORMATION"
+  EditBox 65, 5, 20, 15, HH_memb
+  EditBox 65, 25, 95, 15, employer
+  CheckBox 15, 45, 190, 10, "Check here to have the script create a new JOBS panel.", create_JOBS_checkbox
+  CheckBox 15, 55, 160, 10, "Job is known to the agency (exit the script).", job_known_checkbox
+  CheckBox 15, 80, 195, 10, "Sent a request for verifications out of ECF.", ECF_checkbox
+  CheckBox 15, 90, 190, 10, "Sent a Work Number request and submitted to ECF. ", work_number_checkbox
+  CheckBox 15, 100, 100, 10, "Requesting CEI/OHI docs.", requested_CEI_OHI_docs_checkbox
+  CheckBox 15, 110, 105, 10, "Sent a status update to CCA.", CCA_checkbox
+  CheckBox 15, 120, 100, 10, "Sent a status update to ES. ", ES_checkbox
+  CheckBox 15, 140, 135, 10, "Check to have an outlook reminder set", Outlook_reminder_checkbox
+  EditBox 65, 155, 210, 15, other_notes
+  EditBox 65, 175, 110, 15, worker_signature
+  ButtonGroup ButtonPressed
+    OkButton 190, 175, 40, 15
+    CancelButton 235, 175, 40, 15
+    PushButton 175, 15, 45, 10, "prev. panel", prev_panel_button
+    PushButton 175, 25, 45, 10, "next panel", next_panel_button
+    PushButton 225, 15, 45, 10, "prev. memb", prev_memb_button
+    PushButton 225, 25, 45, 10, "next memb", next_memb_button
+  Text 5, 180, 60, 10, "Worker signature:"
+  GroupBox 170, 5, 105, 35, "STAT-based navigation"
+  Text 5, 30, 50, 10, "New Hire Info:"
+  Text 20, 160, 40, 10, "Other notes:"
+  Text 5, 10, 60, 10, "Member Number:"
+  GroupBox 5, 70, 270, 65, "Verification or updates"
+EndDialog
+
 'Show dialog
 DO
 	DO
@@ -217,9 +215,9 @@ DO
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
 
-    EMWriteScreen "jobs", 20, 71
-	EMWriteScreen HH_memb, 20, 76
-	transmit
+EMWriteScreen "jobs", 20, 71
+EMWriteScreen HH_memb, 20, 76
+transmit
 'Checking to see if 5 jobs already exist. If so worker will need to manually delete one first.
 EMReadScreen jobs_total_panel_count, 1, 2, 78
 IF create_JOBS_checkbox = checked AND jobs_total_panel_count = "5" THEN script_end_procedure_with_error_report("This client has 5 jobs panels already. Please review and delete and unneeded panels if you want the script to add a new one.")

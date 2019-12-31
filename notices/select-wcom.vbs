@@ -230,80 +230,84 @@ End If
 
 'This is the DO...LOOP for the dialog to select the WCOM to add information to
 Do
-	err_msg = ""       'resetting the err_msg variable at the beginning of each loop for handling of correct dialogs
+    Do
+    	err_msg = ""       'resetting the err_msg variable at the beginning of each loop for handling of correct dialogs
 
-    If NOTICES_ARRAY(0, 0) <> "" Then           'This is looking to see if there is information in the first element of the array (indicating the array has data)
-        For notices_listed = 0 to UBound(NOTICES_ARRAY, 2)                                          'looking at all the notices
-            EMReadScreen desc, 20, NOTICES_ARRAY(MAXIS_row, notices_listed), 30                     'reading the description of the notice
-            if desc = "ELIG Approval Notice" Then                                                   'if the notice is an elig approval - this will check to see if the notice is waiting - these will be prechecked
-                EMReadScreen print_status, 7, NOTICES_ARRAY(MAXIS_row, notices_listed), 71
-                If print_status = "Waiting" Then NOTICES_ARRAY(selected, notices_listed) = checked
-            End If
-        Next
-    End If
+        If NOTICES_ARRAY(0, 0) <> "" Then           'This is looking to see if there is information in the first element of the array (indicating the array has data)
+            For notices_listed = 0 to UBound(NOTICES_ARRAY, 2)                                          'looking at all the notices
+                EMReadScreen desc, 20, NOTICES_ARRAY(MAXIS_row, notices_listed), 30                     'reading the description of the notice
+                if desc = "ELIG Approval Notice" Then                                                   'if the notice is an elig approval - this will check to see if the notice is waiting - these will be prechecked
+                    EMReadScreen print_status, 7, NOTICES_ARRAY(MAXIS_row, notices_listed), 71
+                    If print_status = "Waiting" Then NOTICES_ARRAY(selected, notices_listed) = checked
+                End If
+            Next
+        End If
 
-	dlg_y_pos = 65     'setting some lengths and positions
-	dlg_length = 125 + (UBound(NOTICES_ARRAY, 2) * 20)
+    	dlg_y_pos = 65     'setting some lengths and positions
+    	dlg_length = 125 + (UBound(NOTICES_ARRAY, 2) * 20)
 
-	BeginDialog find_notices_dialog, 0, 0, 205, dlg_length, "Notices to add WCOM"      'This is what the dialog will look like
-	  Text 5, 10, 50, 10, "Case Number"
-	  EditBox 65, 5, 50, 15, MAXIS_case_number
-	  Text 5, 30, 120, 10, "In which month was the notice sent?"
-	  EditBox 140, 25, 20, 15, MAXIS_footer_month
-	  EditBox 165, 25, 20, 15, MAXIS_footer_year
-	  ButtonGroup ButtonPressed
-	    PushButton 60, 50, 50, 10, "Find Notices", find_notices_button
-	  If no_notices = FALSE Then
-		  For notices_listed = 0 to UBound(NOTICES_ARRAY, 2)
-		  	CheckBox 10, dlg_y_pos, 185, 10, NOTICES_ARRAY(information, notices_listed), NOTICES_ARRAY(selected, notices_listed)
-			dlg_y_pos = dlg_y_pos + 15
-		  Next
-	  Else
-	  	  Text 10, dlg_y_pos, 185, 10, "**No Notices could be found here.**"
-		  dlg_y_pos = dlg_y_pos + 15
-	  End If
-	  dlg_y_pos = dlg_y_pos + 5
-	  EditBox 75, dlg_y_pos, 125, 15, worker_signature
-	  dlg_y_pos = dlg_y_pos + 5
-	  Text 5, dlg_y_pos, 60, 10, "Worker Signature:"
-	  dlg_y_pos = dlg_y_pos + 15
-	  ButtonGroup ButtonPressed
-	    OkButton 100, dlg_y_pos, 50, 15
-	    CancelButton 150, dlg_y_pos, 50, 15
-	EndDialog
+        Dialog1 = ""
+    	BeginDialog Dialog1, 0, 0, 205, dlg_length, "Notices to add WCOM"      'This is what the dialog will look like
+    	  Text 5, 10, 50, 10, "Case Number"
+    	  EditBox 65, 5, 50, 15, MAXIS_case_number
+    	  Text 5, 30, 120, 10, "In which month was the notice sent?"
+    	  EditBox 140, 25, 20, 15, MAXIS_footer_month
+    	  EditBox 165, 25, 20, 15, MAXIS_footer_year
+    	  ButtonGroup ButtonPressed
+    	    PushButton 60, 50, 50, 10, "Find Notices", find_notices_button
+    	  If no_notices = FALSE Then
+    		  For notices_listed = 0 to UBound(NOTICES_ARRAY, 2)
+    		  	CheckBox 10, dlg_y_pos, 185, 10, NOTICES_ARRAY(information, notices_listed), NOTICES_ARRAY(selected, notices_listed)
+    			dlg_y_pos = dlg_y_pos + 15
+    		  Next
+    	  Else
+    	  	  Text 10, dlg_y_pos, 185, 10, "**No Notices could be found here.**"
+    		  dlg_y_pos = dlg_y_pos + 15
+    	  End If
+    	  dlg_y_pos = dlg_y_pos + 5
+    	  EditBox 75, dlg_y_pos, 125, 15, worker_signature
+    	  dlg_y_pos = dlg_y_pos + 5
+    	  Text 5, dlg_y_pos, 60, 10, "Worker Signature:"
+    	  dlg_y_pos = dlg_y_pos + 15
+    	  ButtonGroup ButtonPressed
+    	    OkButton 100, dlg_y_pos, 50, 15
+    	    CancelButton 150, dlg_y_pos, 50, 15
+    	EndDialog
 
-	Dialog find_notices_dialog         'display the dialog
-	cancel_confirmation
+    	Dialog Dialog1         'display the dialog
+    	cancel_confirmation
 
-	notice_selected = FALSE            'this boolean and loop will identify if no notice has been selected
-	For notice_to_print = 0 to UBound(NOTICES_ARRAY, 2)
-		If NOTICES_ARRAY(selected, notice_to_print) = checked Then notice_selected = TRUE
-	Next
+    	notice_selected = FALSE            'this boolean and loop will identify if no notice has been selected
+    	For notice_to_print = 0 to UBound(NOTICES_ARRAY, 2)
+    		If NOTICES_ARRAY(selected, notice_to_print) = checked Then notice_selected = TRUE
+    	Next
 
-    'looking for errors in the dialog entry
-	If MAXIS_case_number = "" Then err_msg = err_msg & vbNewLine & "- Enter a Case Number."
-	If MAXIS_footer_month = "" or MAXIS_footer_year = "" Then err_msg = err_msg & vbNewLine & "- Enter footer month and year."
-	If notice_selected = False Then err_msg = err_msg & vbNewLine & "- Select a notice to be copied to a Word Document."
+        'looking for errors in the dialog entry
+    	If MAXIS_case_number = "" Then err_msg = err_msg & vbNewLine & "- Enter a Case Number."
+    	If MAXIS_footer_month = "" or MAXIS_footer_year = "" Then err_msg = err_msg & vbNewLine & "- Enter footer month and year."
+    	If notice_selected = False Then err_msg = err_msg & vbNewLine & "- Select a notice to be copied to a Word Document."
 
-    'If the button is pressed to find notices, the loop will not entry - but instead navigate to the WCOM for the specified case and month/year
-	If ButtonPressed = find_notices_button then
-		If MAXIS_case_number <> "" AND MAXIS_footer_month <> "" AND MAXIS_footer_year <> "" Then  'navigation only works with case number and footer month/year
-			Call navigate_to_MAXIS_screen ("SPEC", notice_panel)            'for this script - this is always WCOM
-			EMWriteScreen MAXIS_footer_month, 3, 46
-			EMWriteScreen MAXIS_footer_year, 3, 51
+        'If the button is pressed to find notices, the loop will not entry - but instead navigate to the WCOM for the specified case and month/year
+    	If ButtonPressed = find_notices_button then
+    		If MAXIS_case_number <> "" AND MAXIS_footer_month <> "" AND MAXIS_footer_year <> "" Then  'navigation only works with case number and footer month/year
+    			Call navigate_to_MAXIS_screen ("SPEC", notice_panel)            'for this script - this is always WCOM
+    			EMWriteScreen MAXIS_footer_month, 3, 46
+    			EMWriteScreen MAXIS_footer_year, 3, 51
 
-			transmit
-			Create_List_Of_Notices           'using the funcation to create a list of notices for the dialog
-			err_msg = "LOOP"                 'this keeps the loop from exiting since err_msg will not be blank
-		Else
-			err_msg = err_msg & vbNewLine & "!!! Cannot read a list of notices without a case number entered, and footer month & year entered !!!"   'If case number or footer month/year are not specified - this will be the error
-		End If
-	End If
+    			transmit
+    			Create_List_Of_Notices           'using the funcation to create a list of notices for the dialog
+    			err_msg = "LOOP"                 'this keeps the loop from exiting since err_msg will not be blank
+    		Else
+    			err_msg = err_msg & vbNewLine & "!!! Cannot read a list of notices without a case number entered, and footer month & year entered !!!"   'If case number or footer month/year are not specified - this will be the error
+    		End If
+    	End If
 
-    'The error message will only display if it is not blank AND is not the one to keep the loop from exiting.
-	If err_msg <> "" AND left(err_msg, 4) <> "LOOP" Then MsgBox "*** Please resolve to continue ***" & vbNewLine & err_msg
+        'The error message will only display if it is not blank AND is not the one to keep the loop from exiting.
+    	If err_msg <> "" AND left(err_msg, 4) <> "LOOP" Then MsgBox "*** Please resolve to continue ***" & vbNewLine & err_msg
 
-Loop Until err_msg = ""
+    Loop Until err_msg = ""
+    call check_for_password(are_we_passworded_out)
+Loop until are_we_passworded_out = FALSE
 
 'navigating to the panel for case case and footer month/year specified.
 Call navigate_to_MAXIS_screen ("SPEC", notice_panel)
@@ -377,68 +381,8 @@ For notices_listed = 0 to UBound(NOTICES_ARRAY, 2)
     End If
 Next
 
-'DIALOG to select the WCOM to add
-'Commented out as we have a TEMP WCOM in place for COLAs'
-' BeginDialog wcom_selection_dlg, 0, 0, 241, 385, "Check the WCOM needed"
-'   CheckBox 20, 55, 195, 10, "E and T Voluntary *", voluntary_e_t_wcom_checkbox
-'   CheckBox 20, 70, 160, 10, "Homeless exemption information", abawd_homeless_wcom_checkbox
-'   CheckBox 20, 85, 190, 10, "Postponed WREG verifs for EXP SNAP *", wreg_postponed_verif_wcom_checkbox
-'   CheckBox 20, 100, 130, 10, "Temporarily disabled *", temp_disa_abawd_wcom_checkbox
-'   CheckBox 20, 115, 155, 10, "WREG coded for Child under 18 *", abawd_child_coded_wcom_checkbox
-'   CheckBox 25, 150, 140, 10, "Banked Months - E and T voluntary *", banked_mos_vol_e_t_wcom_checkbox
-'   CheckBox 25, 165, 175, 10, "Banked Months - Closing for all 9 months used", banked_mos_used_wcom_checkbox
-'   CheckBox 25, 180, 145, 10, "Banked Months -  Possibly available", banked_mos_avail_wcom_checkbox
-'   CheckBox 20, 220, 150, 10, "Closed/denied with PACT *", snap_pact_wcom_checkbox
-'   CheckBox 20, 235, 155, 10, "Closed via PACT for new HH Member *", pact_fraud_wcom_checkbox
-'   CheckBox 20, 250, 145, 10, "Closing due to Returned Mail *", snap_returned_mail_wcom_checkbox
-'   CheckBox 20, 265, 115, 10, "Closing SNAP and MFIP opening *", snap_to_mfip_wcom_checkbox
-'   CheckBox 20, 280, 185, 10, "EXP SNAP - Postponed verif of CAF page 9 Signature *", signature_postponed_verif_wcom_checkbox
-'   CheckBox 20, 315, 60, 10, "CASH Denied *", cash_denied_checkbox
-'   CheckBox 20, 330, 130, 10, "CASH closing due to Returned Mail*", mfip_returned_mail_wcom_checkbox
-'   CheckBox 20, 345, 125, 10, "MFIP Closing and SNAP opening *", mfip_to_snap_wcom_checkbox
-'   ButtonGroup ButtonPressed
-'     OkButton 135, 365, 50, 15
-'     CancelButton 185, 365, 50, 15
-'   GroupBox 5, 305, 230, 55, "Cash"
-'   GroupBox 5, 35, 230, 265, "SNAP"
-'   GroupBox 15, 45, 210, 155, "ABAWD's"
-'   GroupBox 20, 135, 195, 60, "Banked Months"
-'   GroupBox 15, 205, 215, 90, "Other SNAP"
-'   Text 20, 5, 210, 25, "Select WCOM(s) to add to the notice. Reminder: you can select more than one as required for the case, use multiple categories if necessary. "
-' EndDialog
 
-BeginDialog wcom_selection_dlg, 0, 0, 241, 405, "Check the WCOM needed"
-  CheckBox 10, 35, 220, 10, "HC - July COLA Income Change Explanation", july_cola_wcom          'this is a TEMP WCOM - need to redesign based on notice type and adding HC WCOMs.
-  CheckBox 20, 75, 195, 10, "E and T Voluntary *", voluntary_e_t_wcom_checkbox
-  CheckBox 20, 90, 160, 10, "Homeless exemption information", abawd_homeless_wcom_checkbox
-  CheckBox 20, 105, 190, 10, "Postponed WREG verifs for EXP SNAP *", wreg_postponed_verif_wcom_checkbox
-  CheckBox 20, 120, 130, 10, "Temporarily disabled *", temp_disa_abawd_wcom_checkbox
-  CheckBox 20, 135, 155, 10, "WREG coded for Child under 18 *", abawd_child_coded_wcom_checkbox
-  CheckBox 25, 170, 140, 10, "Banked Months - E and T voluntary *", banked_mos_vol_e_t_wcom_checkbox
-  CheckBox 25, 185, 175, 10, "Banked Months - Closing for all 9 months used", banked_mos_used_wcom_checkbox
-  CheckBox 25, 200, 145, 10, "Banked Months -  Possibly available", banked_mos_avail_wcom_checkbox
-  CheckBox 20, 240, 150, 10, "Closed/denied with PACT *", snap_pact_wcom_checkbox
-  CheckBox 20, 255, 155, 10, "Closed via PACT for new HH Member *", pact_fraud_wcom_checkbox
-  CheckBox 20, 270, 145, 10, "Closing due to Returned Mail *", snap_returned_mail_wcom_checkbox
-  CheckBox 20, 285, 115, 10, "Closing SNAP and MFIP opening *", snap_to_mfip_wcom_checkbox
-  CheckBox 20, 300, 185, 10, "EXP SNAP - Postponed verif of CAF page 9 Signature *", signature_postponed_verif_wcom_checkbox
-  CheckBox 20, 335, 60, 10, "CASH Denied *", cash_denied_checkbox
-  CheckBox 20, 350, 130, 10, "CASH closing due to Returned Mail*", mfip_returned_mail_wcom_checkbox
-  CheckBox 20, 365, 125, 10, "MFIP Closing and SNAP opening *", mfip_to_snap_wcom_checkbox
-  ButtonGroup ButtonPressed
-    OkButton 135, 385, 50, 15
-    CancelButton 185, 385, 50, 15
-  GroupBox 5, 325, 230, 55, "Cash"
-  GroupBox 5, 55, 230, 265, "SNAP"
-  GroupBox 15, 65, 210, 155, "ABAWD's"
-  GroupBox 20, 155, 195, 60, "Banked Months"
-  GroupBox 15, 225, 215, 90, "Other SNAP"
-  Text 20, 5, 210, 25, "Select WCOM(s) to add to the notice. Reminder: you can select more than one as required for the case, use multiple categories if necessary. "
-EndDialog
-' Dim myBtn
-'
-' myBtn = Dialog(wcom_selection_dlg)
-' MsgBox "The user pressed button " & myBtn
+
 
 'Initial declaration of arrays
 Dim array_of_msg_lines ()
@@ -448,7 +392,38 @@ Dim WCOM_TO_WRITE_ARRAY ()
 Do      'Just made this  loop - this needs sever testing.
     big_err_msg = ""            'this error message is called something different because there are other err_msg variables that happen within this loop for each WCOM
 
-    Dialog wcom_selection_dlg       'running the dialog to select which WCOMs are going to be added
+    'DIALOG to select the WCOM to add
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 241, 385, "Check the WCOM needed"
+      ' CheckBox 10, 35, 220, 10, "HC - July COLA Income Change Explanation", july_cola_wcom          'this is a TEMP WCOM - need to redesign based on notice type and adding HC WCOMs.
+      CheckBox 20, 55, 195, 10, "E and T Voluntary *", voluntary_e_t_wcom_checkbox
+      CheckBox 20, 70, 160, 10, "Homeless exemption information", abawd_homeless_wcom_checkbox
+      CheckBox 20, 85, 190, 10, "Postponed WREG verifs for EXP SNAP *", wreg_postponed_verif_wcom_checkbox
+      CheckBox 20, 100, 130, 10, "Temporarily disabled *", temp_disa_abawd_wcom_checkbox
+      CheckBox 20, 115, 155, 10, "WREG coded for Child under 18 *", abawd_child_coded_wcom_checkbox
+      CheckBox 25, 150, 140, 10, "Banked Months - E and T voluntary *", banked_mos_vol_e_t_wcom_checkbox
+      CheckBox 25, 165, 175, 10, "Banked Months - Closing for all 9 months used", banked_mos_used_wcom_checkbox
+      CheckBox 25, 180, 145, 10, "Banked Months -  Possibly available", banked_mos_avail_wcom_checkbox
+      CheckBox 20, 220, 150, 10, "Closed/denied with PACT *", snap_pact_wcom_checkbox
+      CheckBox 20, 235, 155, 10, "Closed via PACT for new HH Member *", pact_fraud_wcom_checkbox
+      CheckBox 20, 250, 145, 10, "Closing due to Returned Mail *", snap_returned_mail_wcom_checkbox
+      CheckBox 20, 265, 115, 10, "Closing SNAP and MFIP opening *", snap_to_mfip_wcom_checkbox
+      CheckBox 20, 280, 185, 10, "EXP SNAP - Postponed verif of CAF page 9 Signature *", signature_postponed_verif_wcom_checkbox
+      CheckBox 20, 315, 60, 10, "CASH Denied *", cash_denied_checkbox
+      CheckBox 20, 330, 130, 10, "CASH closing due to Returned Mail*", mfip_returned_mail_wcom_checkbox
+      CheckBox 20, 345, 125, 10, "MFIP Closing and SNAP opening *", mfip_to_snap_wcom_checkbox
+      ButtonGroup ButtonPressed
+        OkButton 135, 365, 50, 15
+        CancelButton 185, 365, 50, 15
+      GroupBox 5, 305, 230, 55, "Cash"
+      GroupBox 5, 35, 230, 265, "SNAP"
+      GroupBox 15, 45, 210, 155, "ABAWD's"
+      GroupBox 20, 135, 195, 60, "Banked Months"
+      GroupBox 15, 205, 215, 90, "Other SNAP"
+      Text 20, 5, 210, 25, "Select WCOM(s) to add to the notice. Reminder: you can select more than one as required for the case, use multiple categories if necessary. "
+    EndDialog
+
+    Dialog Dialog1       'running the dialog to select which WCOMs are going to be added
     cancel_confirmation
 
     end_of_wcom_line = 0            'setting variables to asses length of WCOM
@@ -460,7 +435,8 @@ Do      'Just made this  loop - this needs sever testing.
 
     If july_cola_wcom = checked Then
         'code for the dialog for PACT closure (this dialog has the same name in each IF to prevent the over 7 dialog error)
-        BeginDialog wcom_details_dlg, 0, 0, 206, 75, "WCOM Details"
+        Dialog1 = ""
+        BeginDialog Dialog1, 0, 0, 206, 75, "WCOM Details"
           DropListBox 125, 35, 75, 45, "Select One..."+chr(9)+"RSDI"+chr(9)+"SSI"+chr(9)+"RSDI & SSI", HC_Income_with_COLA
           ButtonGroup ButtonPressed
             OkButton 150, 55, 50, 15
@@ -471,7 +447,7 @@ Do      'Just made this  loop - this needs sever testing.
         Do                          'displaying the dialog and ensuring that all required information is entered
             err_msg = ""
 
-            Dialog wcom_details_dlg
+            Dialog Dialog1
 
             If HC_Income_with_COLA = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select which income has a COLA that is now being counted."
             If err_msg <> "" Then MsgBox "Resolve the following to continue:" & vbNewLine & err_msg
@@ -486,7 +462,8 @@ Do      'Just made this  loop - this needs sever testing.
     'Here there is an IF statement for each checkbox - each WCOM may have it's own dialog and the verbiage will be added to the array for the WCOM lines
     If snap_pact_wcom_checkbox = checked Then             'SNAP closed with PACT
         'code for the dialog for PACT closure (this dialog has the same name in each IF to prevent the over 7 dialog error)
-        BeginDialog wcom_details_dlg, 0, 0, 301, 85, "WCOM Details"
+        Dialog1 = ""
+        BeginDialog Dialog1, 0, 0, 301, 85, "WCOM Details"
           DropListBox 65, 5, 45, 45, "Select One..."+chr(9)+"CLOSED"+chr(9)+"DENIED", SNAP_close_or_deny
           EditBox 5, 40, 290, 15, pact_close_reason
           ButtonGroup ButtonPressed
@@ -499,7 +476,7 @@ Do      'Just made this  loop - this needs sever testing.
         Do                          'displaying the dialog and ensuring that all required information is entered
             err_msg = ""
 
-            Dialog wcom_details_dlg
+            Dialog Dialog1
 
             If SNAP_close_or_deny = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select if the case was closed or denied."
             If pact_close_reason = "" Then err_msg = err_msg & vbNewLine & "* Enter the reasons the SNAP was denied."
@@ -511,7 +488,8 @@ Do      'Just made this  loop - this needs sever testing.
 
     If pact_fraud_wcom_checkbox = checked Then        'FPI findings indicate another person
         'code for the dialog for closing for fpi result (this dialog has the same name in each IF to prevent the over 7 dialog error)
-        BeginDialog wcom_details_dlg, 0, 0, 281, 85, "WCOM Details"
+        Dialog1 = ""
+        BeginDialog Dialog1, 0, 0, 281, 85, "WCOM Details"
           EditBox 75, 20, 45, 15, new_hh_memb
           EditBox 215, 20, 60, 15, SNAP_close_date
           EditBox 75, 40, 200, 15, new_memb_verifs
@@ -526,7 +504,7 @@ Do      'Just made this  loop - this needs sever testing.
         Do                          'displaying the dialog and ensuring that all required information is entered
             err_msg = ""
 
-            Dialog wcom_details_dlg
+            Dialog Dialog1
 
             If trim(new_hh_memb) = "" Then err_msg = err_msg & vbNewLine & "*Enter the name of the person who has joined the household."
             If isdate(SNAP_close_date) = False Then err_msg = err_msg & vbNewLine & "*Enter a valid date on which SNAP will close."
@@ -539,7 +517,8 @@ Do      'Just made this  loop - this needs sever testing.
 
     If snap_returned_mail_wcom_checkbox = checked Then           'Returned Mail
         'code for the dialog for returned mail (this dialog has the same name in each IF to prevent the over 7 dialog error)
-        BeginDialog wcom_details_dlg, 0, 0, 126, 85, "WCOM Details"
+        Dialog1 = ""
+        BeginDialog Dialog1, 0, 0, 126, 85, "WCOM Details"
           EditBox 75, 20, 45, 15, rm_sent_date_snap
           EditBox 75, 40, 45, 15, rm_due_date_snap
           ButtonGroup ButtonPressed
@@ -552,7 +531,7 @@ Do      'Just made this  loop - this needs sever testing.
         Do                          'displaying the dialog and ensuring that all required information is entered
             err_msg = ""
 
-            Dialog wcom_details_dlg
+            Dialog Dialog1
 
             if isdate(rm_sent_date_snap) = False Then err_msg = err_msg & vbNewLine & "*Enter a valid date for when the request for address information was sent."
             if isdate(rm_due_date_snap) = False Then err_msg = err_msg & vbNewLine & "*Enter a valid date for when the response for address information was due."
@@ -568,7 +547,8 @@ Do      'Just made this  loop - this needs sever testing.
 
     If signature_postponed_verif_wcom_checkbox = checked Then       'postponed signature of CAF for XFS
 
-        BeginDialog wcom_details_dlg, 0, 0, 201, 40, "WCOM Details"
+        Dialog1 = ""
+        BeginDialog Dialog1, 0, 0, 201, 40, "WCOM Details"
           EditBox 60, 20, 55, 15, snap_closure_date_sig
           ButtonGroup ButtonPressed
             OkButton 145, 20, 50, 15
@@ -579,7 +559,7 @@ Do      'Just made this  loop - this needs sever testing.
         Do                          'displaying the dialog and ensuring that all required information is entered
             err_msg = ""
 
-            Dialog wcom_details_dlg
+            Dialog Dialog1
 
             If isdate(snap_closure_date_sig) = False Then err_msg = err_msg & vbNewLine & "* Enter a valid date for the day SNAP will close if verifications are not received."
             If err_msg <> "" Then MsgBox "Resolve the following to continue:" & vbNewLine & err_msg
@@ -590,7 +570,8 @@ Do      'Just made this  loop - this needs sever testing.
 
     If wreg_postponed_verif_wcom_checkbox = checked Then      'XFS Postponed verifs are in WREG
         'code for the dialog for postponed verifs from WREG (this dialog has the same name in each IF to prevent the over 7 dialog error)
-        BeginDialog wcom_details_dlg, 0, 0, 281, 115, "WCOM Details"
+        Dialog1 = ""
+        BeginDialog Dialog1, 0, 0, 281, 115, "WCOM Details"
           EditBox 60, 20, 135, 15, abawd_name
           EditBox 5, 55, 270, 15, wreg_verifs_needed
           EditBox 60, 75, 55, 15, wreg_verifs_due_date
@@ -607,7 +588,7 @@ Do      'Just made this  loop - this needs sever testing.
         Do                          'displaying the dialog and ensuring that all required information is entered
             err_msg = ""
 
-            Dialog wcom_details_dlg
+            Dialog Dialog1
 
             If abawd_name = "" Then err_msg = err_msg & vbNewLine & "* Enter the name of the client that has used 3 ABAWD months."
             If wreg_verifs_needed = "" Then err_msg = err_msg & vbNewLine & "* List all WREG verifications needed."
@@ -621,7 +602,8 @@ Do      'Just made this  loop - this needs sever testing.
 
     If abawd_child_coded_wcom_checkbox = checked Then         'ABAWD exemption for care of child
         'code for the dialog for ABAWD child exemption (this dialog has the same name in each IF to prevent the over 7 dialog error)
-        BeginDialog wcom_details_dlg, 0, 0, 201, 65, "WCOM Details"
+        Dialog1 = ""
+        BeginDialog Dialog1, 0, 0, 201, 65, "WCOM Details"
           EditBox 60, 20, 135, 15, exempt_abawd_name
           ButtonGroup ButtonPressed
             OkButton 145, 45, 50, 15
@@ -632,7 +614,7 @@ Do      'Just made this  loop - this needs sever testing.
         Do                          'displaying the dialog and ensuring that all required information is entered
             err_msg = ""
 
-            Dialog wcom_details_dlg
+            Dialog Dialog1
 
             If exempt_abawd_name = "" Then err_msg = err_msg & vbNewLine & "* Enter the name of the client that os using child under 18 years exemption."
             If err_msg <> "" Then MsgBox "Resolve the following to continue:" & vbNewLine & err_msg
@@ -643,7 +625,8 @@ Do      'Just made this  loop - this needs sever testing.
 
     If temp_disa_abawd_wcom_checkbox = checked Then       'Verified temporary disa for ABAWD exemption
         'code for the dialog for temporary disa for ABAWD (this dialog has the same name in each IF to prevent the over 7 dialog error)
-        BeginDialog wcom_details_dlg, 0, 0, 131, 60, "WCOM Details"
+        Dialog1 = ""
+        BeginDialog Dialog1, 0, 0, 131, 60, "WCOM Details"
           EditBox 105, 20, 20, 15, numb_disa_mos
           ButtonGroup ButtonPressed
             OkButton 75, 40, 50, 15
@@ -654,7 +637,7 @@ Do      'Just made this  loop - this needs sever testing.
         Do                          'displaying the dialog and ensuring that all required information is entered
             err_msg = ""
 
-            Dialog wcom_details_dlg
+            Dialog Dialog1
 
             If trim(numb_disa_mos) = "" Then err_msg = err_msg & vbNewLine & "*Enter the number of months the disability is expected to last from the doctor's information."
             If err_msg <> "" Then MsgBox "Resolve the following to continue:" & vbNewLine & err_msg
@@ -667,7 +650,8 @@ Do      'Just made this  loop - this needs sever testing.
 
         CALL Generate_Client_List(client_dropdown, "Select One...")
 
-        BeginDialog wcom_details_dlg, 0, 0, 171, 60, "WCOM Details"
+        Dialog1 = ""
+        BeginDialog Dialog1, 0, 0, 171, 60, "WCOM Details"
           DropListBox 30, 20, 130, 45, client_dropdown, abawd_memb_name
           ButtonGroup ButtonPressed
             OkButton 115, 40, 50, 15
@@ -678,7 +662,7 @@ Do      'Just made this  loop - this needs sever testing.
         Do                          'displaying the dialog and ensuring that all required information is entered
             err_msg = ""
 
-            Dialog wcom_details_dlg
+            Dialog Dialog1
 
             If abawd_memb_name = "Select One..." Then err_msg = err_msg & vbNewLine & "* Choose the ABAWD Client."
             If err_msg <> "" Then MsgBox "Resolve the following to continue:" & vbNewLine & err_msg
@@ -715,34 +699,10 @@ Do      'Just made this  loop - this needs sever testing.
         CALL add_words_to_message("Your SNAP is closing for using all available banked months. If you meet one of the exemptions listed above AND all other eligibility factors you may still be eligible for SNAP. Please contact your team if you have questions.")
     End If
 
-    ' If fset_fail_to_comply_wcom_checkbox = checked Then           'Fail to comply with FSET
-    '     'code for the dialog for fail to comply with FSET (this dialog has the same name in each IF to prevent the over 7 dialog error)
-    '     BeginDialog wcom_details_dlg, 0, 0, 201, 85, "WCOM Details"
-    '       EditBox 5, 40, 190, 15, fset_fail_reason
-    '       ButtonGroup ButtonPressed
-    '         OkButton 145, 65, 50, 15
-    '       Text 5, 5, 115, 10, "Client did not meet SNAP E & T rules"
-    '       Text 5, 25, 95, 10, "Reasons client failed FSET"
-    '     EndDialog
-    '
-    '     Do                          'displaying the dialog and ensuring that all required information is entered
-    '         err_msg = ""
-    '
-    '         Dialog wcom_details_dlg
-    '
-    '         If fset_fail_reason = "" Then err_msg = err_msg & vbNewLine & "* Enter the reasons the client failed E&T."
-    '         If err_msg <> "" Then MsgBox "Resolve the following to continue:" & vbNewLine & err_msg
-    '     Loop until err_msg = ""
-    '     'Adding the verbiage to the WCOM_TO_WRITE_ARRAY
-    '     ' CALL add_words_to_message("Reasons for not meeting the rules: " & fset_fail_reason & ". You can keep getting your SNAP benefits if you show you had a good reason for not meeting the SNAP E & T rules. If you had a good reason, tell us right away.;" & "What do you do next:;" &_
-    '     ' "You must meet the SNAP E & T rules by the end of the month. If you want to meet the rules, contact your county worker at 612-596-1300, or your SNAP E &T provider at 612-596-7411. You can tell us why you did not meet with the rules. If you had a good reason for not meeting the SNAP E & T rules, contact your SNAP E & T provider right away.")
-    '
-    '     CALL add_words_to_message("What to do next:; * You must meet the SNAP E&T rules by the end of the month. If you want to meet the rules, contact your team at 612-596-1300, or your SNAP E&T provider at 612-596-7411.; * You can tell us why you did not meet the rules. If you had a good reason for not meeting the SNAP E&T rules, contact your SNAP E&T provider right away.")
-    ' End If
-
     If cash_denied_checkbox = checked Then              'Information to add to CASH denial
 
-        BeginDialog wcom_details_dlg, 0, 0, 321, 105, "WCOM Details"
+        Dialog1 = ""
+        BeginDialog Dialog1, 0, 0, 321, 105, "WCOM Details"
           DropListBox 5, 25, 50, 45, "Select one..."+chr(9)+"MFIP"+chr(9)+"DWP"+chr(9)+"GA"+chr(9)+"MSA"+chr(9)+"RCA", cash_one_program
           EditBox 115, 25, 200, 15, cash_one_reason
           DropListBox 5, 65, 50, 45, "Select one..."+chr(9)+"MFIP"+chr(9)+"DWP"+chr(9)+"GA"+chr(9)+"MSA"+chr(9)+"RCA", cash_two_program
@@ -758,7 +718,7 @@ Do      'Just made this  loop - this needs sever testing.
         Do                          'displaying the dialog and ensuring that all required information is entered
             err_msg = ""
 
-            Dialog wcom_details_dlg
+            Dialog Dialog1
 
             If cash_one_program = "Select one..." Then err_msg = err_msg & vbNewLine & "* Select at least one cash program that is actually being denied."
             If trim(cash_one_reason) = "" Then err_msg = err_msg & vbNewLine & "* Explain why the first cash progam is being denied."
@@ -776,7 +736,8 @@ Do      'Just made this  loop - this needs sever testing.
 
     If mfip_returned_mail_wcom_checkbox = checked Then      'Returned mail for cash
         'code for the dialog for returned mail (this dialog has the same name in each IF to prevent the over 7 dialog error)
-        BeginDialog wcom_details_dlg, 0, 0, 126, 85, "WCOM Details"
+        Dialog1 = ""
+        BeginDialog Dialog1, 0, 0, 126, 85, "WCOM Details"
           EditBox 75, 20, 45, 15, rm_sent_date_cash
           EditBox 75, 40, 45, 15, rm_due_date_cash
           ButtonGroup ButtonPressed
@@ -789,7 +750,7 @@ Do      'Just made this  loop - this needs sever testing.
         Do                          'displaying the dialog and ensuring that all required information is entered
             err_msg = ""
 
-            Dialog wcom_details_dlg
+            Dialog Dialog1
 
             if isdate(rm_sent_date_cash) = False Then err_msg = err_msg & vbNewLine & "*Enter a valid date for when the request for address information was sent."
             if isdate(rm_due_date_cash) = False Then err_msg = err_msg & vbNewLine & "*Enter a valid date for when the response for address information was due."
@@ -802,7 +763,8 @@ Do      'Just made this  loop - this needs sever testing.
 
     If mfip_to_snap_wcom_checkbox = checked Then      'MFIP is closing and SNAP is opening
         'code for the dialog for MFIP closure reason when SNAP is reassessed (this dialog has the same name in each IF to prevent the over 7 dialog error)
-        BeginDialog wcom_details_dlg, 0, 0, 166, 80, "WCOM Details"
+        Dialog1 = ""
+        BeginDialog Dialog1, 0, 0, 166, 80, "WCOM Details"
           EditBox 5, 40, 155, 15, MFIP_closing_reason
           ButtonGroup ButtonPressed
             OkButton 110, 60, 50, 15
@@ -813,7 +775,7 @@ Do      'Just made this  loop - this needs sever testing.
         Do                          'displaying the dialog and ensuring that all required information is entered
             err_msg = ""
 
-            Dialog wcom_details_dlg
+            Dialog Dialog1
 
             If MFIP_closing_reason = "" Then err_msg = err_msg & vbNewLine & "*List all reasons why SNAP is closing."
             If err_msg <> "" Then MsgBox "Resolve the following to continue:" & vbNewLine & err_msg

@@ -198,7 +198,8 @@ End If
 y_pos = 55
 
 'Dialog is defined here so it can be dynamic
-BeginDialog FIN_ori_dialog, 0, 0, 300, dlg_height, "Financial Orientation dialog"
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 300, dlg_height, "Financial Orientation dialog"
   EditBox 65, 5, 120, 15, client_name
   EditBox 265, 5, 25, 15, ref_numb
   Text 15, 40, 265, 10, "Check one of the following to have the script update EMPS with the selected date"
@@ -235,7 +236,7 @@ EndDialog
 'Running the dialog to get user information
 Do
 	err_msg = ""
-	Dialog FIN_ori_dialog
+	Dialog Dialog1
 	cancel_confirmation
 	If worker_signature = "" Then err_msg = err_msg & vbNewLine & "Sign your case note."
 	If es_appt_checkbox = checked Then

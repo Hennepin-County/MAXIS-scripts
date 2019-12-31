@@ -51,8 +51,13 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'DIALOG
-BeginDialog case_number_dialog, 0, 0, 161, 61, "Case number"
+'THE SCRIPT----------------------------------------------------------------------------------------------------
+'grabbing case number & connecting to MAXIS
+EMConnect ""
+Call MAXIS_case_number_finder(MAXIS_case_number)
+
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 161, 61, "Case number"
   Text 5, 5, 85, 10, "Enter your case number:"
   EditBox 95, 0, 60, 15, MAXIS_case_number
   Text 5, 25, 70, 10, "Sign your case note:"
@@ -62,13 +67,8 @@ BeginDialog case_number_dialog, 0, 0, 161, 61, "Case number"
     CancelButton 85, 40, 50, 15
 EndDialog
 
-'THE SCRIPT----------------------------------------------------------------------------------------------------
-'grabbing case number & connecting to MAXIS
-EMConnect ""
-Call MAXIS_case_number_finder(MAXIS_case_number)
-
-Do 
-	dialog case_number_dialog
+Do
+	dialog Dialog1
 	If ButtonPressed = 0 then StopScript
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false

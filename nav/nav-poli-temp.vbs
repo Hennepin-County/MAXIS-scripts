@@ -51,8 +51,11 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'DIALOGS--------------------------------------------------
-BeginDialog POLI_TEMP_dialog, 0, 0, 211, 75, "POLI/TEMP dialog"
+'----------------------------------------------------------------------------------------------------THE SCRIPT
+EMConnect ""        'Connects to BlueZone
+'Displays dialog
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 211, 75, "POLI/TEMP dialog"
   DropListBox 35, 25, 55, 45, "TABLE"+chr(9)+"INDEX", Temp_table_index
   ButtonGroup ButtonPressed
     OkButton 95, 55, 50, 15
@@ -63,12 +66,9 @@ BeginDialog POLI_TEMP_dialog, 0, 0, 211, 75, "POLI/TEMP dialog"
   Text 95, 35, 115, 10, "INDEX - Search by a word or topic"
 EndDialog
 
-'----------------------------------------------------------------------------------------------------THE SCRIPT
-EMConnect ""        'Connects to BlueZone
-'Displays dialog
 Do 
-    Dialog POLI_TEMP_dialog
-    If buttonpressed = cancel then stopscript
+    Dialog Dialog1
+    Cancel_without_confirmation
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
 Loop until are_we_passworded_out = false					'loops until user passwords back in		
     
@@ -86,13 +86,9 @@ DO
 	EMReadScreen SELF_check, 4, 2, 50
 Loop until SELF_check = "SELF"
 
-'Checks to make sure we're in MAXIS
-call check_for_MAXIS(True)
-
-call navigate_to_MAXIS_screen("POLI", "____")   'Navigates to POLI (can't direct navigate to TEMP)
+Call check_for_MAXIS(True)  'Checks to make sure we're in MAXIS
+Call navigate_to_MAXIS_screen("POLI", "____")   'Navigates to POLI (can't direct navigate to TEMP)
 EMWriteScreen "TEMP", 5, 40     'Writes TEMP
-
-'Writes the panel_title selection
-Call write_value_and_transmit(panel_title, 21, 71)
+Call write_value_and_transmit(panel_title, 21, 71)  'Writes the panel_title selection
 
 script_end_procedure("")

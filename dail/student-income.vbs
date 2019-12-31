@@ -66,7 +66,8 @@ EMSendKey "STUDENT INCOME HAS ENDED - REVIEW FS AND/OR HC RESULTS/APP" + "<newli
 EMSendKey "* Sending financial aid form. TIKLed for 10-day return." + "<newline>"
 EMSendKey "---" + "<newline>"
 
-BeginDialog worker_sig_dialog, 0, 0, 191, 57, "Worker signature"
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 191, 57, "Worker signature"
   EditBox 35, 25, 50, 15, worker_sig
   ButtonGroup ButtonPressed_worker_sig_dialog
     OkButton 135, 10, 50, 15
@@ -74,8 +75,11 @@ BeginDialog worker_sig_dialog, 0, 0, 191, 57, "Worker signature"
   Text 25, 10, 75, 10, "Sign your case note."
 EndDialog
 
-Dialog worker_sig_dialog
-If ButtonPressed_worker_sig_dialog = 0 then stopscript
+Do 
+    Dialog Dialog1
+    Cancel_without_confirmation
+CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 EMSendKey worker_sig + "<PF3>"
 EMWaitReady 1, 0
@@ -83,12 +87,10 @@ EMSendKey "<PF3>"
 EMWaitReady 1, 0
 
 'Now it will TIKL out for this case.
-
 EMSendKey "w" + "<enter>"
 EMWaitReady 1, 0
 
 'The following will generate a TIKL formatted date for 10 days from now.
-
 If DatePart("d", Now + 10) = 1 then TIKL_day = "01"
 If DatePart("d", Now + 10) = 2 then TIKL_day = "02"
 If DatePart("d", Now + 10) = 3 then TIKL_day = "03"
@@ -119,6 +121,5 @@ EMSetCursor 9, 3
 EMSendKey "Financial aid form should have returned by now. If not received and processed, take appropriate action. (TIKL auto-generated from script)." + "<enter>"
 EMWaitReady 1, 0
 EMSendKey "<PF3>"
-MsgBox "MAXIS updated for student income status. A case note has been made, and a TIKL has been sent for 10 days from now. A financial aid form should be sent to the client."
 
-script_end_procedure("")
+script_end_procedure("MAXIS updated for student income status. A case note has been made, and a TIKL has been sent for 10 days from now. A financial aid form should be sent to the client.")

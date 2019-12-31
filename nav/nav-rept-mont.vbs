@@ -50,17 +50,7 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'DIALOGS-----------------------------------------------------------------------------------
-BeginDialog worker_dialog, 0, 0, 171, 45, "Worker dialog"
-  Text 5, 10, 130, 10, "Enter the worker number (last 3 digits):"
-  EditBox 135, 5, 30, 15, worker_number
-  ButtonGroup ButtonPressed
-    OkButton 30, 25, 50, 15
-    CancelButton 90, 25, 50, 15
-EndDialog
-
 'THE SCRIPT------------------------------------------------------------------------------------------------------
-
 'Determines if user needs the "select-a-worker" version of this nav script, based on the global variables file.
 result = filter(users_using_select_a_user, ucase(windows_user_ID))
 IF ubound(result) >= 0 OR all_users_select_a_worker = TRUE THEN
@@ -71,24 +61,26 @@ END IF
 
 'If we have to select a worker, it shows the dialog for it.
 IF select_a_worker = TRUE THEN
-	Dialog worker_dialog
-	IF ButtonPressed = cancel THEN StopScript
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 171, 45, "Worker dialog"
+      Text 5, 10, 130, 10, "Enter the worker number (last 3 digits):"
+      EditBox 135, 5, 30, 15, worker_number
+      ButtonGroup ButtonPressed
+        OkButton 30, 25, 50, 15
+        CancelButton 90, 25, 50, 15
+    EndDialog
+    
+	Dialog Dialog1
+	Cancel_without_confirmation
 END IF
 
-'Determines the county code (a custom function involving multicounty agencies being given a proxy access as a specific county).
-get_county_code
-
-'FINDING THE CASE NUMBER----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-EMConnect ""
-
-'NAVIGATING TO THE SCREEN---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-'checking for an active MAXIS session
-Call check_for_MAXIS(True)
-
-call navigate_to_MAXIS_screen("rept", "mont")
+get_county_code 'Determines the county code (a custom function involving multicounty agencies being given a proxy access as a specific county).
+EMConnect "" 'Connects to MAXIS
+Call check_for_MAXIS(True) 'Connects to MAXIS
+Call navigate_to_MAXIS_screen("REPT", "MONT")
 
 IF worker_number <> "" THEN
-	EMWriteScreen worker_county_code & worker_number, 21, 6
+	EMWriteScreen worker_county_code & worker_number, 21, 13
 	transmit
 END IF
 

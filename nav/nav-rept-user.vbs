@@ -50,23 +50,7 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'DIALOGS--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-BeginDialog case_number_dialog, 0, 0, 161, 41, "Case number"
-  EditBox 95, 0, 60, 15, MAXIS_case_number
-  ButtonGroup ButtonPressed
-    OkButton 25, 20, 50, 15
-    CancelButton 85, 20, 50, 15
-  Text 5, 5, 85, 10, "Enter your case number:"
-EndDialog
-
-'FINDING THE CASE NUMBER----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 EMConnect ""
-
-'NAVIGATING TO THE SCREEN---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-'checking for an active MAXIS session
-Call check_for_MAXIS(True)
-
-call navigate_to_MAXIS_screen("rept", "user")
-
+Call check_for_MAXIS(True) 'checking for an active MAXIS session
+Call navigate_to_MAXIS_screen("rept", "user")
 script_end_procedure("")

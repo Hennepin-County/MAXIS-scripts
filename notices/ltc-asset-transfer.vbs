@@ -52,7 +52,13 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-BeginDialog LTC_asset_transfer_dialog, 0, 0, 126, 110, "LTC asset transfer dialog"
+'The script------------------------
+'connecting to MAXIS
+EMConnect ""
+Call MAXIS_case_number_finder(MAXIS_case_number)
+
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 126, 110, "LTC asset transfer dialog"
   EditBox 60, 5, 60, 15, MAXIS_case_number
   EditBox 35, 30, 85, 15, client
   EditBox 35, 50, 85, 15, spouse
@@ -66,18 +72,13 @@ BeginDialog LTC_asset_transfer_dialog, 0, 0, 126, 110, "LTC asset transfer dialo
   Text 5, 10, 45, 10, "Case number:"
 EndDialog
 
-'The script------------------------
-'connecting to MAXIS
-EMConnect ""
-Call MAXIS_case_number_finder(MAXIS_case_number)
-
 Do
-  Dialog LTC_asset_transfer_dialog
-  If LTC_asset_transfer_dialog_ButtonPressed = 0 then stopscript
-  call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+    Dialog Dialog1
+    If LTC_asset_transfer_dialog_ButtonPressed = 0 then stopscript
+    call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
- 
-Call start_a_new_spec_memo	'navigates to spec/memo and opens into edit mode 
+
+Call start_a_new_spec_memo	'navigates to spec/memo and opens into edit mode
 Call write_variable_in_SPEC_MEMO("The ownership of " & client & "'s assets must be transferred to " & spouse & " to avoid having them counted in future eligibility determinations. You are encouraged to do this as soon as possible. This transfer of assets must be done before " & client & "'s first annual renewal for " & renewal_footer_month_year & ". Verification of the transfer can be provided at any time.")
 Call write_variable_in_SPEC_MEMO("At the first annual renewal in " & renewal_footer_month_year & ", the value of all assets that list " & client & " as an owner or co-owner will be applied towards the Medical Assistance Asset limit of $3,000.00. If the total value of all countable assets for " & client & " is more than $3,000.00, Medical Assistance may be closed for " & renewal_footer_month_year & ".")
 

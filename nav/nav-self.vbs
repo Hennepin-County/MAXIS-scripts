@@ -51,13 +51,6 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 EMConnect ""
-
-'Checks for MAXIS
-'checking for an active MAXIS session
-Call check_for_MAXIS(True)
-
+Call check_for_MAXIS(True)  'checking for an active MAXIS session
 back_to_self
-
-EMWriteScreen "________", 18, 43
-
 script_end_procedure("")

@@ -52,8 +52,14 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'--- DIALOG-----------------------------------------------------------------------------------------------------------------------
-BeginDialog WCOM_dlg, 0, 0, 196, 100, "MA-EPD No premium paid WCOM"
+'--- The script -----------------------------------------------------------------------------------------------------------------
+EMConnect ""
+
+check_for_maxis(true)
+Call MAXIS_case_number_finder(MAXIS_case_number)
+
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 196, 100, "MA-EPD No premium paid WCOM"
   EditBox 70, 15, 60, 15, MAXIS_case_number
   EditBox 70, 35, 30, 15, approval_month
   EditBox 160, 35, 30, 15, approval_year
@@ -66,23 +72,20 @@ BeginDialog WCOM_dlg, 0, 0, 196, 100, "MA-EPD No premium paid WCOM"
     OkButton 50, 80, 50, 15
     CancelButton 105, 80, 50, 15
 EndDialog
-'--------------------------------------------------------------------------------------------------------------------------------
 
-'--- The script -----------------------------------------------------------------------------------------------------------------
-EMConnect ""
-
-DO
-	err_msg = ""
-	dialog WCOM_dlg
-	cancel_confirmation
-	IF MAXIS_case_number = "" THEN err_msg = "Please enter a case number" & vbNewLine
-	IF len(approval_month) <> 2 THEN err_msg = err_msg & "Please enter your month in MM format." & vbNewLine
-	IF len(approval_year) <> 2 THEN err_msg = err_msg & "Please enter your year in YY format." & vbNewLine
-	IF worker_signature = "" THEN err_msg = err_msg & "Please enter your worker signature." & vbNewLine
-	IF err_msg <> "" THEN msgbox err_msg
-LOOP until err_msg = ""
-
-check_for_maxis(true)
+Do
+    DO
+    	err_msg = ""
+    	dialog Dialog1
+    	cancel_confirmation
+    	IF MAXIS_case_number = "" THEN err_msg = "Please enter a case number" & vbNewLine
+    	IF len(approval_month) <> 2 THEN err_msg = err_msg & "Please enter your month in MM format." & vbNewLine
+    	IF len(approval_year) <> 2 THEN err_msg = err_msg & "Please enter your year in YY format." & vbNewLine
+    	IF worker_signature = "" THEN err_msg = err_msg & "Please enter your worker signature." & vbNewLine
+    	IF err_msg <> "" THEN msgbox err_msg
+    LOOP until err_msg = ""
+    call check_for_password(are_we_passworded_out)
+Loop until are_we_passworded_out = FALSE
 
 CALL HH_member_custom_dialog(HH_member_array)
 
@@ -157,10 +160,9 @@ FOR each HH_member in HH_member_array
 NEXT
 
 If WCOM_count = 0 THEN
-	MSGbox "No Waiting HC elig results were found in this month for this HH members."
-	Stopscript
+	end_msg = "No Waiting HC elig results were found in this month for this HH members."
 ELSE
-	MSGbox "Success! A WCOM has been added."
+	end_msg = "Success! A WCOM has been added."
 END IF
 
-script_end_procedure("")
+script_end_procedure(end_msg)

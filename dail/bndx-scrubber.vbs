@@ -73,12 +73,7 @@ FUNCTION abended_function
 	IF case_abended = "abended" THEN transmit
 END FUNCTION
 
-BeginDialog delete_message_dialog, 0, 0, 126, 45, "Double-Check the Computer's Work..."
-  ButtonGroup ButtonPressed
-    PushButton 10, 25, 50, 15, "YES", delete_button
-    PushButton 60, 25, 50, 15, "NO", do_not_delete
-  Text 30, 10, 65, 10, "Delete the DAIL??"
-EndDialog
+
 
 '------------------THIS SCRIPT IS DESIGNED TO BE RUN FROM THE DAIL SCRUBBER.
 '------------------As such, it does NOT include protections to be ran independently.
@@ -302,7 +297,15 @@ IF error_message = "" THEN
 		IF bndx_array(i, 5) <> "" THEN compare_message = compare_message & vbCr & "  HC Inc Est Amt: " & bndx_array(i, 5)
 	NEXT
 	MSGBox compare_message
-	DIALOG delete_message_dialog
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 126, 45, "Double-Check the Computer's Work..."
+      ButtonGroup ButtonPressed
+        PushButton 10, 25, 50, 15, "YES", delete_button
+        PushButton 60, 25, 50, 15, "NO", do_not_delete
+      Text 30, 10, 65, 10, "Delete the DAIL??"
+    EndDialog
+
+	DIALOG Dialog1
 		IF ButtonPressed = delete_button THEN
 			DO
 				dail_read_row = 6

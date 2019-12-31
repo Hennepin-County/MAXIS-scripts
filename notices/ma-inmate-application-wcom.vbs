@@ -52,8 +52,14 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'--- DIALOGS-----------------------------------------------------------------------------------------------------------------------
-BeginDialog case_number_dlg, 0, 0, 196, 85, "MA Inmate Application WCOM"
+'--- The script -----------------------------------------------------------------------------------------------------------------
+EMConnect ""
+
+call MAXIS_case_number_finder(MAXIS_case_number)
+
+'1st Dialog ---------------------------------------------------------------------------------------------------------------------
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 196, 85, "MA Inmate Application WCOM"
   EditBox 70, 15, 60, 15, MAXIS_case_number
   EditBox 70, 35, 30, 15, approval_month
   EditBox 160, 35, 30, 15, approval_year
@@ -65,38 +71,19 @@ BeginDialog case_number_dlg, 0, 0, 196, 85, "MA Inmate Application WCOM"
   Text 10, 40, 55, 10, "Approval Month:"
 EndDialog
 
-BeginDialog WCOM_dlg, 0, 0, 146, 120, "MA Inmate Application WCOM"
-  EditBox 75, 15, 60, 15, HH_member
-  EditBox 75, 35, 60, 15, facility_name
-  EditBox 75, 55, 60, 15, most_recent_release_date
-  EditBox 75, 75, 60, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 15, 95, 50, 15
-    CancelButton 80, 95, 50, 15
-  Text 10, 40, 60, 10, "Facility Name:"
-  Text 10, 60, 60, 10, "MA Start Date:"
-  Text 10, 20, 60, 10, "Member Number:"
-  Text 10, 80, 60, 10, "Worker Signature:"
-EndDialog
+Do
+    DO
+    	err_msg = ""
+    	dialog Dialog1
+    	cancel_confirmation
+    	IF MAXIS_case_number = "" THEN err_msg = "Please enter a case number" & vbNewLine
+    	IF len(approval_month) <> 2 THEN err_msg = err_msg & "Please enter your month in MM format." & vbNewLine
+    	IF len(approval_year) <> 2 THEN err_msg = err_msg & "Please enter your year in YY format." & vbNewLine
+    	IF err_msg <> "" THEN msgbox err_msg
+    LOOP until err_msg = ""
+    Call check_for_password(are_we_passworded_out)
+Loop until are_we_passworded_out = FALSE
 
-'--------------------------------------------------------------------------------------------------------------------------------
-
-'--- The script -----------------------------------------------------------------------------------------------------------------
-
-EMConnect ""
-
-call MAXIS_case_number_finder(MAXIS_case_number)
-
-'1st Dialog ---------------------------------------------------------------------------------------------------------------------
-DO
-	err_msg = ""
-	dialog case_number_dlg
-	cancel_confirmation
-	IF MAXIS_case_number = "" THEN err_msg = "Please enter a case number" & vbNewLine
-	IF len(approval_month) <> 2 THEN err_msg = err_msg & "Please enter your month in MM format." & vbNewLine
-	IF len(approval_year) <> 2 THEN err_msg = err_msg & "Please enter your year in YY format." & vbNewLine
-	IF err_msg <> "" THEN msgbox err_msg
-LOOP until err_msg = ""
 
 call check_for_maxis(false)
 
@@ -157,16 +144,34 @@ END IF
 IF facility_name = "" THEN script_end_procedure("The script was unable to find a FACI panel with 68 or 69 and an end date. Please review FACI panel.")
 
 '2nd Dialog---------------------------------------------------------------------------------------------------------------------------------------------
-DO
-	err_msg = ""
-	dialog WCOM_dlg
-	cancel_confirmation
-	IF HH_member = "" THEN err_msg = err_msg & "Please enter your member number." & vbNewLine
-	IF facility_name = "" THEN err_msg = err_msg & "Please enter your facility name." & vbNewLine
-	IF isdate(most_recent_release_date) = FALSE THEN err_msg = err_msg & "Please enter a valid date." & vbNewLine
-	IF worker_signature = "" THEN err_msg = err_msg & "Please enter your worker signature" & vbNewLine
-	IF err_msg <> "" THEN msgbox err_msg
-LOOP until err_msg = ""
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 146, 120, "MA Inmate Application WCOM"
+  EditBox 75, 15, 60, 15, HH_member
+  EditBox 75, 35, 60, 15, facility_name
+  EditBox 75, 55, 60, 15, most_recent_release_date
+  EditBox 75, 75, 60, 15, worker_signature
+  ButtonGroup ButtonPressed
+    OkButton 15, 95, 50, 15
+    CancelButton 80, 95, 50, 15
+  Text 10, 40, 60, 10, "Facility Name:"
+  Text 10, 60, 60, 10, "MA Start Date:"
+  Text 10, 20, 60, 10, "Member Number:"
+  Text 10, 80, 60, 10, "Worker Signature:"
+EndDialog
+
+Do
+    DO
+    	err_msg = ""
+    	dialog Dialog1
+    	cancel_confirmation
+    	IF HH_member = "" THEN err_msg = err_msg & "Please enter your member number." & vbNewLine
+    	IF facility_name = "" THEN err_msg = err_msg & "Please enter your facility name." & vbNewLine
+    	IF isdate(most_recent_release_date) = FALSE THEN err_msg = err_msg & "Please enter a valid date." & vbNewLine
+    	IF worker_signature = "" THEN err_msg = err_msg & "Please enter your worker signature" & vbNewLine
+    	IF err_msg <> "" THEN msgbox err_msg
+    LOOP until err_msg = ""
+    Call check_for_password(are_we_passworded_out)
+Loop until are_we_passworded_out = FALSE
 'This section will check for whether forms go to AREP and SWKR
 call navigate_to_MAXIS_screen("STAT", "AREP")           'Navigates to STAT/AREP to check and see if forms go to the AREP
 EMReadscreen forms_to_arep, 1, 10, 45

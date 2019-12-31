@@ -82,8 +82,9 @@ Function HH_member_custom_dialog_cit_id_ver(HH_member_array)
 		all_clients_array(x, 0) = Interim_array(x)
 		all_clients_array(x, 1) = 0			'Defaulting to update none persons so the user has to update them thar persons
 	NEXT
-
-	BEGINDIALOG HH_memb_dialog, 0, 0, 191, (35 + (total_clients * 15)), "HH Member Dialog"   'Creates the dynamic dialog. The height will change based on the number of clients it finds.
+    
+    Dialog1 = ""
+	BEGINDIALOG Dialog1, 0, 0, 191, (35 + (total_clients * 15)), "HH Member Dialog"   'Creates the dynamic dialog. The height will change based on the number of clients it finds.
 		Text 10, 5, 105, 10, "Household members to update:"
 		FOR i = 0 to total_clients										'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
 			IF all_clients_array(i, 0) <> "" THEN checkbox 10, (20 + (i * 15)), 120, 10, all_clients_array(i, 0), all_clients_array(i, 1)  'Ignores and blank scanned in persons/strings to avoid a blank checkbox
@@ -97,8 +98,8 @@ Function HH_member_custom_dialog_cit_id_ver(HH_member_array)
 
 	'Sticking a do/loop around the dialog call to verify that the user has selected some household members.
 	DO
-		Dialog HH_memb_dialog
-		If buttonpressed = 0 then stopscript
+		Dialog Dialog1
+		Cancel_without_confirmation
 		check_for_maxis(True)
 
 		HH_member_array = ""
@@ -145,7 +146,8 @@ For Each HH_memb in HH_member_array
 Next
 
 'Dialog to get worker signature----------------------------------------------------------------------------------------------
-BeginDialog dialog1, 0, 0, 201, 50, "Dialog"
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 201, 50, "Dialog"
   EditBox 50, 10, 150, 15, worker_signature
   Text 5, 5, 40, 20, "Worker Signature:"
   ButtonGroup ButtonPressed
@@ -153,8 +155,8 @@ BeginDialog dialog1, 0, 0, 201, 50, "Dialog"
     CancelButton 140, 30, 50, 15
 EndDialog
 
-dialog dialog1 
-cancel_confirmation
+Dialog Dialog1 
+Cancel_without_confirmation
 STATS_counter = STATS_counter - 1 'Had to -1 at the end of the script because the counter starts at 1 and Veronica has reasons why we should not change it to 0.
 
 'Case note section-----------------------------------------------------------------------------------------------------------

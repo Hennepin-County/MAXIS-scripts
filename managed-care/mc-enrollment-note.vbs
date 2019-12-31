@@ -244,21 +244,6 @@ Function write_bullet_and_variable_in_MMIS_NOTE(bullet, variable)
     End if
 End Function
 
-'DIALOG----------------------------------------------------------------------------------------------------
-BeginDialog case_dlg, 0, 0, 206, 110, "Enrollment Information"
-  EditBox 90, 25, 60, 15, MMIS_case_number
-  EditBox 90, 45, 25, 15, enrollment_month
-  EditBox 120, 45, 25, 15, enrollment_year
-  DropListBox 110, 70, 90, 45, "Select One..."+chr(9)+"Phone"+chr(9)+"Paper Enrollment Form", enrollment_source
-  ButtonGroup ButtonPressed
-    OkButton 95, 90, 50, 15
-    CancelButton 150, 90, 50, 15
-  GroupBox 5, 10, 150, 55, "Leading zeros not needed"
-  Text 10, 30, 50, 10, "Case Number:"
-  Text 10, 50, 80, 10, "Enrollment Month/Year:"
-  Text 5, 70, 100, 10, "Enrollment was requested via"
-EndDialog
-
 'SCRIPT----------------------------------------------------------------------------------------------------
 EMConnect ""
 'call check_for_MMIS(True) 'Sending MMIS back to the beginning screen and checking for a password prompt
@@ -307,13 +292,26 @@ If cut_off_date <> "" Then
     End If
 End If
 
-'TODO add finding enrollment month if possible
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 206, 110, "Enrollment Information"
+  EditBox 90, 25, 60, 15, MMIS_case_number
+  EditBox 90, 45, 25, 15, enrollment_month
+  EditBox 120, 45, 25, 15, enrollment_year
+  DropListBox 110, 70, 90, 45, "Select One..."+chr(9)+"Phone"+chr(9)+"Paper Enrollment Form", enrollment_source
+  ButtonGroup ButtonPressed
+    OkButton 95, 90, 50, 15
+    CancelButton 150, 90, 50, 15
+  GroupBox 5, 10, 150, 55, "Leading zeros not needed"
+  Text 10, 30, 50, 10, "Case Number:"
+  Text 10, 50, 80, 10, "Enrollment Month/Year:"
+  Text 5, 70, 100, 10, "Enrollment was requested via"
+EndDialog
 
 'do the dialog here
 Do
     err_msg = ""
 
-	Dialog case_dlg
+	Dialog Dialog1
 	cancel_confirmation
 
 	If trim(MMIS_case_number) = "" then err_msg = err_msg & vbNewLine & "* Enter the case number."
@@ -500,8 +498,8 @@ For person = 0 to Ubound(MMIS_clients_array, 2)
     name_list = name_list & +chr(9)+MMIS_clients_array(first_name_ini, person)
 Next
 
-
-BeginDialog Enrollment_dlg, 0, 0, 476, (max * 20) + dlg_len, "Enrollment Information"
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 476, (max * 20) + dlg_len, "Enrollment Information"
 
   If enrollment_source = "Phone" Then
       GroupBox 5, 0, 460, 35, "Phone Call Information"
@@ -550,7 +548,7 @@ transmit
 Do
     err_msg = ""
 
-	Dialog Enrollment_dlg
+	Dialog Dialog1
 	cancel_confirmation
 
     member_selected = FALSE

@@ -52,12 +52,13 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-
 'PEPR UNBORN CHILD IS OVERDUE
+'THE SCRIPT------------------------------------------------------------------------------------------------------------------
+'Connects to BlueZone default screen
+EMConnect ""
 
-'DIALOG---------------------------------------------------------------------------------------------------------------------
-
-BeginDialog overdue_baby_dialog, 0, 0, 166, 155, "DAIL_type & MESSAGE PROCESSED"
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 166, 155, "DAIL_type & MESSAGE PROCESSED"
   CheckBox 5, 35, 90, 10, "ECF has been reviewed ", ECF_reviewed
   CheckBox 5, 50, 90, 10, "Updated PREG panel", update_preg_CHECKBOX
   CheckBox 5, 65, 75, 10, "Send SPEC/MEMO", spec_memo_CHECKBOX
@@ -73,16 +74,12 @@ BeginDialog overdue_baby_dialog, 0, 0, 166, 155, "DAIL_type & MESSAGE PROCESSED"
   Text 5, 120, 35, 10, "Signature:"
 EndDialog
 
-'THE SCRIPT------------------------------------------------------------------------------------------------------------------
-'Connects to BlueZone default screen
-EMConnect ""
-
 Do
 	Do
 		err_msg = ""
-        	Dialog overdue_baby_dialog
-        	If ButtonPressed = 0 then stopscript
-        	If worker_signature = "" then MsgBox "You did not sign your case note. Please try again."
+        Dialog Dialog1
+        Cancel_without_confirmation
+        If worker_signature = "" then err_msg = err_msg & "You did not sign your case note. Please try again."
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in

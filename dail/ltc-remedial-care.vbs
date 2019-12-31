@@ -58,15 +58,16 @@ EMConnect ""
 remedial_care_amt = "185.00"	'Amount that needs to be updated with current remedial care amount.
 target_date = "01/01/2020" 'This date is the 1st possible date that a span can be set at for current COLA span updates. This needs to be updated in code at each COLA (Dec for Jan & June for July.)
 
-Do
-    BeginDialog Dialog1, 0, 0, 256, 65, "LTC Remedial Care BILS Panel Updater"
-    ButtonGroup ButtonPressed
-    OkButton 165, 45, 40, 15
-    CancelButton 210, 45, 40, 15
-    Text 10, 15, 240, 20, "This script will update the STAT/BILS panel(s) if remedial care (27) entries exist The rate will update to the current deduction stanard of $" & remedial_care_amt &"."
-    GroupBox 5, 5, 245, 35, "About the Script:"
-    EndDialog
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 256, 65, "LTC Remedial Care BILS Panel Updater"
+ButtonGroup ButtonPressed
+OkButton 165, 45, 40, 15
+CancelButton 210, 45, 40, 15
+Text 10, 15, 240, 20, "This script will update the STAT/BILS panel(s) if remedial care (27) entries exist The rate will update to the current deduction stanard of $" & remedial_care_amt &"."
+GroupBox 5, 5, 245, 35, "About the Script:"
+EndDialog
 
+Do
     Dialog dialog1
     cancel_without_confirmation
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS

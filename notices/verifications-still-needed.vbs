@@ -50,9 +50,16 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'DIALOGS FOR THE SCRIPT======================================================================================================
+'THE SCRIPT==================================================================================================================
+'Connects to BlueZone
+EMConnect ""
+
+'Grabs the MAXIS case number automatically
+CALL MAXIS_case_number_finder(MAXIS_case_number)
+
 ''Still Needed Dialog
-BeginDialog Verifications_Still_Needed_Dialog, 0, 0, 341, 320, "Verifications Still Needed Dialog"
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 341, 320, "Verifications Still Needed Dialog"
   EditBox 60, 5, 120, 15, MAXIS_case_number
   EditBox 30, 40, 150, 15, address_verification
   EditBox 70, 60, 110, 15, schl_stin_stec_verification
@@ -92,24 +99,15 @@ BeginDialog Verifications_Still_Needed_Dialog, 0, 0, 341, 320, "Verifications St
   Text 200, 155, 125, 40, "*SUBSIDY:                                    Verification of housing subsidy and exceptions to counting the subsidy are mandatory verifications for MFIP."
   Text 200, 200, 130, 45, "*MANDATORY VERIFICATIONS:            For more information about mandatory verifications at application and renewal/recertification refer to CM 0010.18"
 EndDialog
-'END DIALOGS=================================================================================================================
-
-'THE SCRIPT==================================================================================================================
-
-'Connects to BlueZone
-EMConnect ""
-
-'Grabs the MAXIS case number automatically
-CALL MAXIS_case_number_finder(MAXIS_case_number)
 
 'Shows dialog (replace "sample_dialog" with the actual dialog you entered above)----------------------------------
 DO
 	err_msg = ""                                       		'Blanks this out every time the loop runs. If mandatory fields aren't entered, this variable is updated below with messages, which then display for the worker.
-	Dialog Verifications_Still_Needed_Dialog              'The Dialog command shows the dialog. Replace sample_dialog with your actual dialog pasted above.
-	IF ButtonPressed = cancel THEN StopScript          		'If the user pushes cancel, stop the script
+	Dialog Dialog1              'The Dialog command shows the dialog. Replace sample_dialog with your actual dialog pasted above.
+	cancel_without_confirmation
 
-'Handling for error messaging (in the case of mandatory fields or fields requiring a specific format)-----------------------------------
-'If a condition is met...          ...then the error message is itself, plus a new line, plus an error message...           ...Then add a comment explaining your reason it's mandatory.
+    'Handling for error messaging (in the case of mandatory fields or fields requiring a specific format)-----------------------------------
+    'If a condition is met...          ...then the error message is itself, plus a new line, plus an error message...           ...Then add a comment explaining your reason it's mandatory.
 	IF IsNumeric(MAXIS_case_number) = FALSE or len(MAXIS_case_number) > 8 	THEN err_msg = err_msg & vbNewLine & "* You must type a valid numeric case number."     'MAXIS_case_number should be mandatory in most cases. Bulk or nav scripts are likely the only exceptions
 	IF worker_signature = ""           													THEN err_msg = err_msg & vbNewLine & "* You must sign your case note!"                  'worker_signature is usually also a mandatory field
 	IF twenty_nine_nineteen_requested = unchecked 							THEN err_msg = err_msg & vbNewLine & "* If DHS-2919 (or other DHS approved form) was not used for initial verification request, take appropriate action. Do not proceed with this script. Verifications NEED to be requested using DHS-2919 or other DHS approved form."

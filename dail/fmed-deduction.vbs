@@ -54,7 +54,8 @@ changelog_display
 '<<<<<GO THROUGH THE SCRIPT AND REMOVE REDUNDANT FUNCTIONS, THANKS TO CUSTOM FUNCTIONS THEY ARE NOT REQUIRED.
 EMConnect ""
 
-BeginDialog worker_sig_dialog, 0, 0, 141, 46, "Worker signature"
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 141, 46, "Worker signature"
   EditBox 15, 25, 50, 15, worker_signature
   ButtonGroup ButtonPressed_worker_sig_dialog
     OkButton 85, 5, 50, 15
@@ -63,8 +64,8 @@ BeginDialog worker_sig_dialog, 0, 0, 141, 46, "Worker signature"
 EndDialog
 
 Do 
-	Dialog worker_sig_dialog
-	If ButtonPressed_worker_sig_dialog = 0 then stopscript
+	Dialog Dialog1
+	Cancel_without_confirmation
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
 

@@ -59,8 +59,8 @@ call MAXIS_case_number_finder(MAXIS_case_number)
 'Defaults member number to 01
 'If MEMB_number = "" then MEMB_number = "01"
 
-'DIALOGS FOR THE SCRIPT======================================================================================================
-BeginDialog client_dialog, 0, 0, 226, 255, "OUT OF STATE INQUIRY"
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 226, 255, "OUT OF STATE INQUIRY"
   EditBox 55, 5, 40, 15, MAXIS_case_number
   EditBox 130, 5, 20, 15, MEMB_number
   DropListBox 35, 35, 55, 15, "Select One:"+chr(9)+"Alabama"+chr(9)+"Alaska"+chr(9)+"Arizona"+chr(9)+"Arkansas"+chr(9)+"California"+chr(9)+"Colorado"+chr(9)+"Connecticut"+chr(9)+"Delaware"+chr(9)+"Florida"+chr(9)+"Georgia"+chr(9)+"Hawaii"+chr(9)+"Idaho"+chr(9)+"Illinois"+chr(9)+"Indiana"+chr(9)+"Iowa"+chr(9)+"Kansas"+chr(9)+"Kentucky"+chr(9)+"Louisiana"+chr(9)+"Maine"+chr(9)+"Maryland"+chr(9)+"Massachusetts"+chr(9)+"Michigan"+chr(9)+"Mississippi"+chr(9)+"Missouri"+chr(9)+"Montana"+chr(9)+"Nebraska"+chr(9)+"Nevada"+chr(9)+"New Hampshire"+chr(9)+"New Jersey"+chr(9)+"New Mexico"+chr(9)+"New York"+chr(9)+"North Carolina"+chr(9)+"North Dakota"+chr(9)+"Ohio"+chr(9)+"Oklahoma"+chr(9)+"Oregon"+chr(9)+"Pennsylvania"+chr(9)+"Rhode Island"+chr(9)+"South Carolina"+chr(9)+"South Dakota"+chr(9)+"Tennessee"+chr(9)+"Texas"+chr(9)+"Utah"+chr(9)+"Vermont"+chr(9)+"Virginia"+chr(9)+"Washington"+chr(9)+"West Virginia"+chr(9)+"Wisconsin"+chr(9)+"Wyoming", agency_state_droplist
@@ -98,15 +98,11 @@ BeginDialog client_dialog, 0, 0, 226, 255, "OUT OF STATE INQUIRY"
   Text 15, 240, 185, 10, "*** Reminder: ECF must show verification requested ***"
 EndDialog
 
-
-'END DIALOGS=================================================================================================================
-
-
 'Dialog
 DO      'Password DO loop
     DO  'Conditional handling DO loop
         DO  'External resource DO loop
-            Dialog client_dialog
+            Dialog Dialog1
             cancel_confirmation
             If ButtonPressed = outofstate_button then CreateObject("WScript.Shell").Run("https://dept.hennepin.us/hsphd/manuals/hsrm/Pages/Out_of_State_Inquiry.aspx")
         Loop until ButtonPressed = -1

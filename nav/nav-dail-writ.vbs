@@ -50,28 +50,26 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'DIALOGS----------------
-BeginDialog case_number_dialog, 0, 0, 161, 41, "Case number"
-  EditBox 95, 0, 60, 15, MAXIS_case_number
-  ButtonGroup ButtonPressed
-    OkButton 25, 20, 50, 15
-    CancelButton 85, 20, 50, 15
-  Text 5, 5, 85, 10, "Enter your case number:"
-EndDialog
-
 'THE SCRIPT
 EMConnect ""																	'Connects to MAXIS
 call MAXIS_case_number_finder(MAXIS_case_number)										'Grabs the case number
 IF MAXIS_case_number = "" THEN 														'If there's no case number it asks for one
-	Do
-		Dialog case_number_dialog												'Shows the dialog
-		cancel_confirmation								'If cancel is pressed it ends
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 161, 41, "Case number"
+      EditBox 95, 0, 60, 15, MAXIS_case_number
+      ButtonGroup ButtonPressed
+        OkButton 25, 20, 50, 15
+        CancelButton 85, 20, 50, 15
+      Text 5, 5, 85, 10, "Enter your case number:"
+    EndDialog
+    
+    Do
+		Dialog Dialog1												'Shows the dialog
+		Cancel_without_confirmation
 		If MAXIS_case_number = "" then MsgBox "You must type a case number."			'Lets the worker know if a case number wasn't entered
 	Loop until MAXIS_case_number <> ""												'Loops until a case number is entered
 END IF
-call check_for_MAXIS(True)														'Checks for MAXIS, exits if MAXIS isn't found (True parameter)
 
-call navigate_to_MAXIS_screen("DAIL", "WRIT")									'Goes to the screen
-
-
+Call check_for_MAXIS(True)														'Checks for MAXIS, exits if MAXIS isn't found (True parameter)
+Call navigate_to_MAXIS_screen("DAIL", "WRIT")									'Goes to the screen
 script_end_procedure("")														'Script ends
