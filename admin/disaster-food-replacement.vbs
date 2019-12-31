@@ -127,7 +127,7 @@ CALL write_variable_in_Case_Note("--Food Destroyed in a Disaster Reported - " & 
 CALL write_bullet_and_variable_in_Case_Note("Type of Disaster", disaster_type)
 CALL write_bullet_and_variable_in_Case_Note("How the disaster was verified", how_verif)
 CALL write_bullet_and_variable_in_Case_Note("Date client reported the loss of food to county", date_reported)
-CALL write_bullet_and_variable_in_Case_Note("Date of Loss", effective_date)
+CALL write_bullet_and_variable_in_Case_Note("Date of Loss", loss_date)
 CALL write_bullet_and_variable_in_Case_Note("Amount of Food Loss", amount_loss)
 CALL write_bullet_and_variable_in_Case_Note("Replace as REI", rei_replacement)
 IF TSS_BENE_sent_checkbox <> CHECKED THEN CALL write_bullet_and_variable_in_Case_Note("Stauts of Request", replacement_status)
