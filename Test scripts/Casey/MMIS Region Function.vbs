@@ -229,7 +229,8 @@ EMConnect ""
 'Grabs the MAXIS case number automatically
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 
-BeginDialog CN_dialog, 0, 0, 191, 50, "Case Number"
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 191, 50, "Case Number"
   ButtonGroup ButtonPressed
     OkButton 135, 10, 50, 15
     CancelButton 135, 30, 50, 15
@@ -243,7 +244,7 @@ CALL check_for_MAXIS(True)
 Do
 	err_msg = ""
 
-	Dialog CN_dialog
+	Dialog Dialog1
 
 	If MAXIS_case_number = "" Then err_msg = "Need Case number"
 
