@@ -105,6 +105,7 @@ END IF
 '
 '     If send_error_message = vbYes Then
 '         'dialog here to gather more detail
+'         Dialog1 = ""
 '         BeginDialog Dialog1, 0, 0, 401, 175, "Report Error Detail"
 '           Text 60, 35, 55, 10, MAXIS_case_number
 '           ComboBox 220, 30, 175, 45, ""+chr(9)+"BUG - somethng happened that was wrong"+chr(9)+"ENHANCEMENT - somthing could be done better"+chr(9)+"TYPO - gramatical/spelling type errors", error_type
@@ -170,6 +171,7 @@ END IF
 
 ' Call MAXIS_case_number_finder(MAXIS_case_number)
 '
+' Dialog1 = ""
 ' BeginDialog Dialog1, 0, 0, 126, 55, "Dialog"
 '   ButtonGroup ButtonPressed
 '     OkButton 70, 30, 50, 15
@@ -223,6 +225,94 @@ END IF
 ' fso_command.Close
 ' Execute text_from_the_other_script
 
-Call confirm_tester_information
+' Call confirm_tester_information
+
+'Initial Dialog which requests a file path for the excel file
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 361, 105, "On Demand Recertifications"
+  EditBox 130, 60, 175, 15, recertification_cases_excel_file_path
+  ButtonGroup ButtonPressed
+    PushButton 310, 60, 45, 15, "Browse...", select_a_file_button
+  EditBox 75, 85, 140, 15, worker_signature
+  ButtonGroup ButtonPressed
+    OkButton 250, 85, 50, 15
+    CancelButton 305, 85, 50, 15
+  Text 10, 10, 170, 10, "Welcome to the On Demand Recertification Notifier."
+  Text 10, 25, 340, 30, "This script will send an Appointment Notice or NOMI for recertification for a list of cases in a county that currently has an On Demand Waiver in effect for interviews. If your county does not have this waiver, this script should not be used."
+  Text 10, 65, 120, 10, "Select an Excel file for recert cases:"
+  Text 10, 90, 60, 10, "Worker Signature"
+EndDialog
+
+
+'Confirmation Diaglog will require worker to afirm the appointment notices/NOMIs should actually be sent
+
+'END DIALOGS ===============================================================================================================
+
+'SCRIPT ====================================================================================================================
+'Connects to BlueZone
+EMConnect ""
+
+'Initial Dialog to determine the excel file to use, column with case numbers, and which process should be run
+'Show initial dialog
+Do
+	Dialog Dialog1
+	If ButtonPressed = cancel then stopscript
+	If ButtonPressed = select_a_file_button then call file_selection_system_dialog(recertification_cases_excel_file_path, ".xlsx")
+Loop until ButtonPressed = OK and recertification_cases_excel_file_path <> "" and worker_signature <> ""
+
+'Opens Excel file here, as it needs to populate the dialog with the details from the spreadsheet.
+call excel_open(recertification_cases_excel_file_path, True, True, ObjExcel, objWorkbook)
+
+'Set objWorkSheet = objWorkbook.Worksheet
+For Each objWorkSheet In objWorkbook.Worksheets
+	If instr(objWorkSheet.Name, "Sheet") = 0 and objWorkSheet.Name <> "controls" then scenario_list = scenario_list & chr(9) & objWorkSheet.Name
+Next
+
+'Dialog to select worksheet
+'DIALOG is defined here so that the dropdown can be populated with the above code
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 151, 75, "On Demand Recertifications"
+  DropListBox 5, 35, 140, 15, "Select One..." & scenario_list, scenario_dropdown
+  ButtonGroup ButtonPressed
+    OkButton 40, 55, 50, 15
+    CancelButton 95, 55, 50, 15
+  Text 5, 10, 130, 20, "Select the correct worksheet to run for recertification interview notifications:"
+EndDialog
+
+'Shows the dialog to select the correct worksheet
+Do
+    Dialog Dialog1
+    If ButtonPressed = cancel then stopscript
+Loop until scenario_dropdown <> "Select One..."
+
+objExcel.worksheets(scenario_dropdown).Activate
+
+excel_row = 2
+leave_loop = FALSE
+Do
+    Call back_to_SELF
+    MAXIS_case_number = trim(ObjExcel.Cells(excel_row, 2).value)
+
+    If MAXIS_case_number <> "" Then
+        Call navigate_to_MAXIS_screen("STAT", "REVW")
+
+        EMReadScreen cash_revw_status, 1, 7, 40
+        EMReadScreen snap_revw_status, 1, 7, 60
+        EMReadScreen hc_revw_status, 1, 7, 73
+
+        If cash_revw_status = "U" Then leave_loop = TRUE
+        If snap_revw_status = "U" Then leave_loop = TRUE
+        If hc_revw_status = "U" Then leave_loop = TRUE
+        If cash_revw_status = "A" Then leave_loop = TRUE
+        If snap_revw_status = "A" Then leave_loop = TRUE
+        If hc_revw_status = "A" Then leave_loop = TRUE
+
+    Else
+        leave_loop = TRUE
+    End If
+    MAXIS_case_number = ""
+    excel_row = excel_row + 1
+
+Loop until leave_loop = TRUE
 
 Call script_end_procedure_with_error_report("The End")
