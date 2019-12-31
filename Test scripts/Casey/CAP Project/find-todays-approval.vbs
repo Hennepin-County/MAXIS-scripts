@@ -51,6 +51,7 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 EMConnect ""
 
+Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 186, 110, "Dialog"
   EditBox 55, 10, 125, 15, worker_editbox
   CheckBox 10, 35, 50, 10, "DWP", dwp_checkbox
