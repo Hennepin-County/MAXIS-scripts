@@ -55,7 +55,8 @@ EMConnect ""
 Call check_for_MAXIS(TRUE)
 Call MAXIS_case_number_finder (MAXIS_case_number)
 
-BeginDialog case_number_dlg, 0, 0, 131, 45, "Case Number"
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 131, 45, "Case Number"
   EditBox 60, 5, 65, 15, MAXIS_case_number
   ButtonGroup ButtonPressed
     OkButton 55, 25, 35, 15
@@ -66,8 +67,8 @@ EndDialog
 Do
     err_msg = ""
 
-    Dialog case_number_dlg
-    If buttonpressed = Cancel Then script_end_procedure_with_error_report("")
+    Dialog Dialog1
+    cancel_without_confirmation
 
     If len(MAXIS_case_number) >8 Then err_msg = err_msg & vbNewLine & "* Case numbers should not be more than 8 numbers long."
     If IsNumeric(MAXIS_case_number) = FALSE Then err_msg = err_msg & vbNewLine & "* Check the case number, it appears to be invalid."
@@ -95,7 +96,8 @@ Call change_date_to_soonest_working_day(interview_date)
 application_date = application_date & ""
 interview_date = interview_date & ""
 
-BeginDialog appt_dialog, 0, 0, 121, 75, "APPOINTMENT LETTER"
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 121, 75, "APPOINTMENT LETTER"
   EditBox 65, 5, 50, 15, application_date
   EditBox 65, 25, 50, 15, interview_date
   ButtonGroup ButtonPressed
@@ -105,14 +107,12 @@ BeginDialog appt_dialog, 0, 0, 121, 75, "APPOINTMENT LETTER"
   Text 5, 10, 55, 10, "Application date:"
 EndDialog
 
-
-
  'need to handle for if we dont need an appt letter, which would be...'
 
 Do
 	Do
 		err_msg = ""
-		dialog appt_dialog
+		dialog Dialog1
 		cancel_confirmation
 
         If isdate(application_date) = False then err_msg = err_msg & vbnewline & "* Enter a valid application date."
