@@ -37,19 +37,22 @@ END IF
 'THE SCRIPT-------------------------------------------------------------------------------------------------------------------------
 EMConnect ""		'Connects to BlueZone
 
-'dialog and dialog DO...Loop	
+'dialog and dialog DO...Loop
 Do
 	Do
-			'The dialog is defined in the loop as it can change as buttons are pressed 
-			BeginDialog file_select_dialog, 0, 0, 226, 50, "Select the file to input phone numbers."
+			'The dialog is defined in the loop as it can change as buttons are pressed
+            Dialog1 = ""
+			BeginDialog Dialog1, 0, 0, 226, 50, "Select the file to input phone numbers."
   				ButtonGroup ButtonPressed
     			PushButton 175, 10, 40, 15, "Browse...", select_a_file_button
     			OkButton 110, 30, 50, 15
     			CancelButton 165, 30, 50, 15
   				EditBox 5, 10, 165, 15, file_selection_path
 			EndDialog
+
 			err_msg = ""
-			Dialog file_select_dialog
+
+			Dialog Dialog1
 			cancel_confirmation
 			If ButtonPressed = select_a_file_button then
 				If file_selection_path <> "" then 'This is handling for if the BROWSE button is pushed more than once'
@@ -65,7 +68,7 @@ Do
 		If err_msg <> "" Then MsgBox err_msg
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
-	
+
 'DISPLAYS DIALOG
 DO
 	DO
@@ -75,8 +78,8 @@ DO
 		If month_selection = "Select one..." then err_msg = err_msg & vbNewLine & "* Please select the status month to update."
         IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP until err_msg = ""
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-Loop until are_we_passworded_out = false					'loops until user passwords back in			
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 
 'resets the case number and footer month/year back to the CM (REVS for current month plus two has is going to be a problem otherwise)
@@ -93,18 +96,18 @@ Do
 	Call navigate_to_MAXIS_screen("STAT", "ADDR")
 	'Checking for PRIV cases.
     EMReadScreen priv_check, 6, 24, 14 'If it can't get into the case needs to skip
-    IF priv_check <> "PRIVIL" THEN 'Delete priv cases from excel sheet, save to a list for later		
-		Do 
+    IF priv_check <> "PRIVIL" THEN 'Delete priv cases from excel sheet, save to a list for later
+		Do
 			EMReadScreen ADDR_panel_check, 4, 2, 44
-			If ADDR_panel_check <> "ADDR" then PF10 
-		Loop until ADDR_panel_check = "ADDR"	
+			If ADDR_panel_check <> "ADDR" then PF10
+		Loop until ADDR_panel_check = "ADDR"
 		EMReadScreen phone_number_one, 16, 17, 43	' if phone numbers are blank it doesn't add them to EXCEL
 		If phone_number_one <> "( ___ ) ___ ____" then objExcel.cells(excel_row, 2).Value = phone_number_one
 		EMReadScreen phone_number_two, 16, 18, 43
 		If phone_number_two <> "( ___ ) ___ ____" then objExcel.cells(excel_row, 3).Value = phone_number_two
 		EMReadScreen phone_number_three, 16, 19, 43
-		If phone_number_three <> "( ___ ) ___ ____" then objExcel.cells(excel_row, 4).Value = phone_number_three	
-	End if 
+		If phone_number_three <> "( ___ ) ___ ____" then objExcel.cells(excel_row, 4).Value = phone_number_three
+	End if
 	excel_row = excel_row + 1
 	STATS_counter = STATS_counter + 1
 LOOP UNTIL objExcel.Cells(excel_row, 1).value = ""	'looping until the list of cases to check for recert is complete
