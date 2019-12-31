@@ -33,8 +33,14 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
-'THE MAIN DIALOG--------------------------------------------------------------------------------------------------
-BeginDialog client_contact_dialog, 0, 0, 311, 110, " MHC client contact"
+
+'THE SCRIPT--------------------------------------------------------------------------------------------------
+EMConnect ""
+
+Date_of_call = date
+
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 311, 110, " MHC client contact"
   EditBox 60, 10, 50, 15, MAXIS_case_number
   EditBox 145, 10, 50, 15, person_pmi
   EditBox 255, 10, 50, 15, Date_of_call
@@ -53,16 +59,11 @@ BeginDialog client_contact_dialog, 0, 0, 311, 110, " MHC client contact"
   Text 5, 55, 50, 10, "Actions taken:"
 EndDialog
 
-'THE SCRIPT--------------------------------------------------------------------------------------------------
-EMConnect ""
-
-Date_of_call = date
-
 Do
 	Do
 		'Do
 			DO
-				Dialog client_contact_dialog
+				Dialog Dialog1
 				If buttonpressed = 0 then stopscript
 				IF worker_signature = "" THEN MsgBox "Please sign your note."
 				IF actions_taken = "" then MsgBox "Please enter your actions taken."
@@ -79,9 +80,9 @@ Do
 	If MMIS_row <> 1 then MsgBox "You are not in MMIS. Navigate your screen to MMIS and try again. You might be passworded out."
 	End if
 Loop until MMIS_row = 1
-	If isnumeric(MAXIS_case_number) = True then 
+	If isnumeric(MAXIS_case_number) = True then
 		If len(MAXIS_case_number) < 8 then 'This will generate an 8 digit Case Number.
-		Do 
+		Do
 			MAXIS_case_number = "0" & MAXIS_case_number
 		Loop until len(MAXIS_case_number) = 8
 	End if
@@ -94,10 +95,10 @@ Loop until MMIS_row = 1
 	EMSendKey "<enter>"
 	EMWaitReady 0, 0
 	EMSendKey "<enter>"
-	EMWaitReady 0, 0 
-	EMWriteScreen "x", 8, 3 
+	EMWaitReady 0, 0
+	EMWriteScreen "x", 8, 3
 	transmit
-	EMWriteScreen "C", 2, 19 
+	EMWriteScreen "C", 2, 19
 	EMWriteScreen MAXIS_case_number, 9, 19
 	transmit
 	transmit
@@ -111,7 +112,7 @@ Loop until MMIS_row = 1
 Else
 	If isnumeric(person_pmi) = true then
 		If len(person_pmi) < 8 then 'This will generate an 8 digit PMI.
-		Do 
+		Do
 			person_pmi = "0" & person_pmi
 		Loop until len(person_pmi) = 8
 		End If
@@ -125,8 +126,8 @@ Else
 	EMSendKey "<enter>"
 	EMWaitReady 0, 0
 	EMSendKey "<enter>"
-	EMWaitReady 0, 0 
-	EMWriteScreen "x", 8, 3 
+	EMWaitReady 0, 0
+	EMWriteScreen "x", 8, 3
 	transmit
 	EMWriteScreen "c", 2, 19
 	EMWriteScreen person_pmi, 4, 19
@@ -139,13 +140,13 @@ Else
 	If MMIS_edit_mode_check <> "'''''" then script_end_procedure("MMIS edit mode not found. Are you in inquiry? Is MMIS not functioning? Shut down this script and try again. If it continues to not work, email your script administrator the case number, and a screenshot of MMIS.")
 End if
 
-EMWriteScreen "Client Contact on " & date_of_call & " by phone", 5, 8 
-EMWriteScreen "Change reported: " & changes_reported, 6, 8 
-IF check_send_enrollment = checked THEN EMWriteScreen "Sent enrollment form to client.", 7, 8 
-IF check_send_enrollment = checked THEN 
-		EMWriteScreen worker_signature, 8, 8 
-	ELSE 
-		EMWriteScreen worker_signature, 7, 8 
+EMWriteScreen "Client Contact on " & date_of_call & " by phone", 5, 8
+EMWriteScreen "Change reported: " & changes_reported, 6, 8
+IF check_send_enrollment = checked THEN EMWriteScreen "Sent enrollment form to client.", 7, 8
+IF check_send_enrollment = checked THEN
+		EMWriteScreen worker_signature, 8, 8
+	ELSE
+		EMWriteScreen worker_signature, 7, 8
 END IF
 IF check_send_enrollment THEN MsgBox "Remember to manually send an enrollment form to client as requested."
 'logic to support the check box for worker checking off to case note that they are sending form to client.
