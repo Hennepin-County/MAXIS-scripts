@@ -1,4 +1,5 @@
 
+Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 451, 305, "CAF dialog part 2"        'SEPERATE THIS OUT MORE TO CREATE A BETTER VISUAL FLOW FOR THE DIALOG
   EditBox 65, 35, 375, 15, notes_on_wreg
   Text 65, 60, 375, 10, notes_on_abawd       'Make this a text box
@@ -136,6 +137,7 @@ county_list = county_list+chr(9)+"86 Wright"
 county_list = county_list+chr(9)+"87 Yellow Medicine"
 county_list = county_list+chr(9)+"89 Out-of-State"
 
+Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 556, 360, "CAF dialog part 2"
   ButtonGroup ButtonPressed
     PushButton 480, 30, 65, 15, "Update ABAWD", abawd_button
@@ -203,7 +205,7 @@ BeginDialog Dialog1, 0, 0, 556, 360, "CAF dialog part 2"
     PushButton 60, 300, 45, 10, "other assets", other_asset_button
 EndDialog
 
-
+Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 551, 260, "Dialog"
   GroupBox 5, 10, 540, 95, "Member 01 - Angela Burns"
   Text 15, 30, 70, 10, "FSET WREG Status:"
@@ -245,6 +247,7 @@ BeginDialog Dialog1, 0, 0, 551, 260, "Dialog"
   EditBox 220, 180, 315, 15, Edit12
 EndDialog
 
+Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 340, 240, "SHEL Detail Dialog"
   DropListBox 60, 10, 125, 45, HH_memb_list, clt_SHEL_is_for
   Text 5, 15, 55, 10, "SHEL for Memb"
@@ -301,6 +304,7 @@ BeginDialog Dialog1, 0, 0, 340, 240, "SHEL Detail Dialog"
   Text 10, 205, 30, 10, "Subsidy:"
 EndDialog
 
+' Dialog1 = ""'
 ' BeginDialog Dialog1, 0, 0, 451, 305, "CAF dialog part 2"
 '   EditBox 65, 5, 375, 15, notes_on_wreg
 '   Text 65, 30, 375, 10, "notes_on_abawd"
@@ -344,6 +348,7 @@ EndDialog
 '   Text 10, 90, 65, 10, "SHEL/HEST Notes:"
 ' EndDialog
 
+Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 376, 165, "Dialog"
   ButtonGroup ButtonPressed
     OkButton 320, 145, 50, 15
