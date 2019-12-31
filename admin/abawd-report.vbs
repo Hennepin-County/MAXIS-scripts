@@ -53,27 +53,6 @@ call changelog_update("03/30/2018", "Initial version.", "Ilse Ferris, Hennepin C
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'----------------------------------------------------------------------------------------------------DIALOG
-'The dialog is defined in the loop as it can change as buttons are pressed 
-BeginDialog info_dialog, 0, 0, 266, 115, "BULK - ABAWD REPORT"
-  ButtonGroup ButtonPressed
-    PushButton 200, 50, 50, 15, "Browse...", select_a_file_button
-    OkButton 150, 95, 50, 15
-    CancelButton 205, 95, 50, 15
-  EditBox 15, 50, 180, 15, file_selection_path
-  Text 20, 20, 235, 25, "This script should be used when a list of SNAP cases wtih member numbers are provided by BOBI to gather ABAWD, FSET and Banked Months information."
-  Text 15, 70, 230, 15, "Select the Excel file that contains your inforamtion by selecting the 'Browse' button, and finding the file."
-  GroupBox 10, 5, 250, 85, "Using this script:"
-EndDialog
-
-BeginDialog excel_row_dialog, 0, 0, 126, 50, "Select the excel row to start"
-  EditBox 75, 5, 40, 15, excel_row_to_restart
-  ButtonGroup ButtonPressed
-    OkButton 10, 25, 50, 15
-    CancelButton 65, 25, 50, 15
-  Text 10, 10, 60, 10, "Excel row to start:"
-EndDialog
-
 '----------------------------------------------------------------------------------------------------The script
 'CONNECTS TO BlueZone
 EMConnect ""
@@ -83,12 +62,23 @@ file_date = CM_mo & "-" & CM_yr
 
 file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\ABAWD\Active SNAP " & file_date & ".xlsx"
 
-'dialog and dialog DO...Loop	
+'dialog and dialog DO...Loop
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 266, 115, "BULK - ABAWD REPORT"
+  ButtonGroup ButtonPressed
+    PushButton 200, 50, 50, 15, "Browse...", select_a_file_button
+    OkButton 150, 95, 50, 15
+    CancelButton 205, 95, 50, 15
+  EditBox 15, 50, 180, 15, file_selection_path
+  Text 20, 20, 235, 25, "This script should be used when a list of SNAP cases wtih member numbers are provided by BOBI to gather ABAWD, FSET and Banked Months information."
+  Text 15, 70, 230, 15, "Select the Excel file that contains your inforamtion by selecting the 'Browse' button, and finding the file."
+  GroupBox 10, 5, 250, 85, "Using this script:"
+EndDialog
 Do
     'Initial Dialog to determine the excel file to use, column with case numbers, and which process should be run
     'Show initial dialog
     Do
-    	Dialog info_dialog
+    	Dialog Dialog1
     	If ButtonPressed = cancel then stopscript
     	If ButtonPressed = select_a_file_button then call file_selection_system_dialog(file_selection_path, ".xlsx")
     Loop until ButtonPressed = OK and file_selection_path <> ""
@@ -106,62 +96,71 @@ FOR i = 1 to 7		'formatting the cells'
 	ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
 	objExcel.Columns(i).AutoFit()				'sizing the columns'
 NEXT
- 
-do 
-    dialog excel_row_dialog
+
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 126, 50, "Select the excel row to start"
+  EditBox 75, 5, 40, 15, excel_row_to_restart
+  ButtonGroup ButtonPressed
+    OkButton 10, 25, 50, 15
+    CancelButton 65, 25, 50, 15
+  Text 10, 10, 60, 10, "Excel row to start:"
+EndDialog
+
+do
+    dialog Dialog1
     If buttonpressed = 0 then stopscript								'loops until all errors are resolved
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 excel_row = excel_row_to_restart
 
-Do 
+Do
 	MAXIS_case_number = ObjExcel.Cells(excel_row, 1).Value
 	MAXIS_case_number = trim(MAXIS_case_number)
-    If MAXIS_case_number = "" then exit do 
-    
+    If MAXIS_case_number = "" then exit do
+
     member_number = ObjExcel.Cells(excel_row, 2).Value
-    member_number = right(member_number, 2)    
-    
+    member_number = right(member_number, 2)
+
     client_name = ObjExcel.Cells(excel_row, 3).Value
     client_name = trim(client_name)
-    		
+
 	call navigate_to_MAXIS_screen("STAT", "WREG")
     EMReadScreen PRIV_check, 4, 24, 14					'if case is a priv case then it gets identified, and will not be updated in MMIS
     If PRIV_check = "PRIV" then
         ObjExcel.Cells(excel_row, 3).Value = "Privliged case"
-    Else 
+    Else
         Call write_value_and_transmit(member_number, 20, 76)
-        
+
 	    EMReadScreen FSET_code, 2, 8, 50
 	    EMReadScreen ABAWD_code, 2, 13, 50
         EMReadScreen banked_months, 1, 14, 50
         EMReadScreen defer_funds, 1, 8, 80
-        
+
         'Updated incorrectly coded Defer FSET fund cases
-        If FSET_code = "30" then 
-            If defer_funds = "Y" then 
-                If ABAWD_code = "05" then 
+        If FSET_code = "30" then
+            If defer_funds = "Y" then
+                If ABAWD_code = "05" then
                     update_needed = FALSE
-                else 
-                    update_needed = True 
+                else
+                    update_needed = True
                     'msgbox update_needed & vbcr & FSET_code & vbcr & ABAWD_code & vbcr & defer_funds
                     PF9
                     Call write_value_and_transmit("N", 8, 80)       'Coding the rest of the ABAWD's as N for Defer FSET funds. Even though voluntary, this code is still N.
                     EMReadScreen defer_funds, 1, 8, 80
-                    transmit 'passing error messages 
-                    transmit 
+                    transmit 'passing error messages
+                    transmit
                     PF3
-                End if 
+                End if
             End if
-        End if 
-	    
+        End if
+
         ObjExcel.Cells(excel_row, 2).Value = member_number                      'writing in the member number with initial 0 trimmed.
         ObjExcel.Cells(excel_row, 4).Value = replace(FSET_code, "_", "")
 	    ObjExcel.Cells(excel_row, 5).Value = replace(ABAWD_code, "_", "")
         ObjExcel.Cells(excel_row, 6).Value = replace(banked_months, "_", "")
         ObjExcel.Cells(excel_row, 7).Value = replace(defer_funds, "_", "")
-        
+
         If left(client_name, 2) = "XX" then
             Call navigate_to_MAXIS_screen("STAT", "MEMB")
             Call write_value_and_transmit(member_number, 20, 76)
@@ -171,9 +170,9 @@ Do
             first_name = replace(first_name, "_", "")
             new_client_name = last_name & "," & first_name
             ObjExcel.Cells(excel_row, 3).Value = new_client_name
-        End if     
-    End if 
-	
+        End if
+    End if
+
     STATS_counter = STATS_counter + 1
     excel_row = excel_row + 1
 Loop until ObjExcel.Cells(excel_row, 1).Value = ""
