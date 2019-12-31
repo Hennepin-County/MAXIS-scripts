@@ -73,7 +73,8 @@ function edit_hotkeys
 			"When you are finished, the script will add a hotkeys file to your My Documents folder, which will store your choices."
 
 	'A dialog
-	BeginDialog hotkey_selection_dialog, 0, 0, 116, 285, "Hotkey Selection Dialog"
+	Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 116, 285, "Hotkey Selection Dialog"
 	  Text 15, 10, 30, 10, "Hotkey:"
 	  Text 55, 5, 55, 20, "PRISM screen to navigate to:"
 	  Text 15, 30, 25, 10, "Ctrl-F1:"
@@ -106,7 +107,7 @@ function edit_hotkeys
 	EndDialog
 
 	'Show the dialog
-	Dialog hotkey_selection_dialog
+	Dialog Dialog1
 	If ButtonPressed = cancel then StopScript
 
 	'>>> If the user has already selected their hotkeys, the script will open that file and
@@ -223,7 +224,8 @@ function edit_favorites
 	'VKC - removed old functionality to determine dynamically the width. This will need to be redetermined based on the number of scripts, but I am holding off on this until I know all of the content I'll jam in here. -11/29/2016
 
 	'>>> Building the dialog
-	BeginDialog build_new_favorites_dialog, 0, 0, dia_width, 440, "Select your favorites"
+	Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, dia_width, 440, "Select your favorites"
 		ButtonGroup ButtonPressed
 			OkButton 5, 5, 50, 15
 			CancelButton 55, 5, 50, 15
@@ -437,7 +439,7 @@ function edit_favorites
 	DO
 		DO
 			'>>> Running the dialog
-			Dialog build_new_favorites_dialog
+			Dialog Dialog1
 			'>>> Cancel confirmation
 			IF ButtonPressed = 0 THEN
 				confirm_cancel = MsgBox("Are you sure you want to cancel? Press YES to cancel the script. Press NO to return to the script.", vbYesNo)
@@ -714,7 +716,8 @@ FUNCTION favorite_menu(favorites_text_file_array, script_location)
 	END IF
 
 	'>>> The dialog
-	BeginDialog favorites_dialog, 0, 0, 411, dlg_height, dlg_name & " "
+    Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 411, dlg_height, dlg_name & " "
   	  ButtonGroup ButtonPressed
 
 		'>>> User's favorites
@@ -774,7 +777,7 @@ FUNCTION favorite_menu(favorites_text_file_array, script_location)
 	EndDialog
 
 	'>>> Loading the favorites dialog
-	DIALOG favorites_dialog
+	DIALOG Dialog1
 	'>>> Cancelling the script if ButtonPressed = 0
 	IF ButtonPressed = 0 THEN stopscript
 
