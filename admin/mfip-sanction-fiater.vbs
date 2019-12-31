@@ -79,40 +79,53 @@ FUNCTION SANCTION_BUTTONS
 			IF all_clients_array(clt_i, 1) = 1 THEN dialog_measures = dialog_measures + 1
 		End If
 	Next
-	BeginDialog sanction_dialog, 0, 0, 241, (45 + (dialog_measures * 35)), "SELECT TYPE OF SANCTION"
-	FOR clt_i = 0 to total_clients
+    Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 241, (45 + (dialog_measures * 35)), "SELECT TYPE OF SANCTION"
+	  FOR clt_i = 0 to total_clients
 		IF all_clients_array(clt_i, 0) <> "" THEN
 			IF all_clients_array(clt_i, 1) = 1 THEN DropListBox 170, (20 + (g * 35)), 60, 45, "Select?"+chr(9)+"Employment"+chr(9)+"Child Support"+chr(9)+"Both", type_of_sanction(clt_i)
 			IF all_clients_array(clt_i, 1) = 1 THEN GroupBox 5, (10 + (g * 35)), 230, 30, all_clients_array(clt_i, 0)
 			IF all_clients_array(clt_i, 1) = 1 THEN Text 20, (25 + (g * 35)), 120, 10, "Please select the Sanction Type:"
 			IF all_clients_array(clt_i, 1) = 1 THEN g = g + 1
 		End If
-	Next
-	ButtonGroup ButtonPressed
-	IF total_clients <> "" THEN OkButton 95, (20 + (g * 35)), 50, 15
+	  Next
+	  ButtonGroup ButtonPressed
+	    IF total_clients <> "" THEN OkButton 95, (20 + (g * 35)), 50, 15
 	EndDialog
-	Dialog sanction_dialog + vbSystemModal
+
+	Dialog Dialog1 + vbSystemModal
 	End If
 END FUNCTION
 
 FUNCTION MEMB_function
-BEGINDIALOG sanction_dialog, 0,  0, 256, (35 + (total_clients * 15)), "HH Member Dialog"   'Creates the dynamic dialog. The height will change based on the number of clients it finds.
-	Text 10, 5, 145, 10, "Who is sanctioned"
-	FOR clt_i = 0 to total_clients
-											'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
-		IF all_clients_array(clt_i, 0) <> "" THEN checkbox 10, (20 + (clt_i * 15)), 150, 10, all_clients_array(clt_i, 0), all_clients_array(clt_i, 1)  'Ignores and blank scanned in persons/strings to avoid a blank checkbox
-	NEXT
-	ButtonGroup ButtonPressed
-	OkButton 200, 20, 50, 15
-	'CancelButton 155, 40, 50, 15
-ENDDIALOG
-Dialog sanction_dialog + vbSystemModal
+    Dialog1 = ""
+    BEGINDIALOG Dialog1, 0,  0, 256, (35 + (total_clients * 15)), "HH Member Dialog"   'Creates the dynamic dialog. The height will change based on the number of clients it finds.
+      Text 10, 5, 145, 10, "Who is sanctioned"
+      FOR clt_i = 0 to total_clients
+    ' For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
+    	IF all_clients_array(clt_i, 0) <> "" THEN checkbox 10, (20 + (clt_i * 15)), 150, 10, all_clients_array(clt_i, 0), all_clients_array(clt_i, 1)  'Ignores and blank scanned in persons/strings to avoid a blank checkbox
+      NEXT
+      ButtonGroup ButtonPressed
+    	OkButton 200, 20, 50, 15
+    	'CancelButton 155, 40, 50, 15
+    ENDDIALOG
+    Dialog Dialog1 + vbSystemModal
 End Function
 
 'end of Function block===========================================================================================================
 
+EMConnect ""
+
+Dim type_of_sanction(50)
+
+call check_for_password (are_we_passworded_out)
+'Grabbing case number and putting in the month and year entered from dialog box.
+call MAXIS_case_number_finder(MAXIS_case_number)
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+
 'first dialog'
-BeginDialog sanction_dialog_begin, 0, 0, 356, 115, "Sanction"
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 356, 115, "Sanction"
   EditBox 100, 5, 65, 15, MAXIS_case_number
   EditBox 105, 30, 20, 15, MAXIS_footer_month
   EditBox 135, 30, 20, 15, MAXIS_footer_year
@@ -128,18 +141,9 @@ BeginDialog sanction_dialog_begin, 0, 0, 356, 115, "Sanction"
   Text 215, 20, 125, 60, "Please make sure you update EMPS or ABPS panels correctly before running the FIAT SANCTION script. Cancel script if you need to update the panels."
 EndDialog
 
-EMConnect ""
-
-Dim type_of_sanction(50)
-
-call check_for_password (are_we_passworded_out)
-'Grabbing case number and putting in the month and year entered from dialog box.
-call MAXIS_case_number_finder(MAXIS_case_number)
-Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
-
 Do
 	err_msg = ""
-	Dialog sanction_dialog_begin
+	Dialog Dialog1
 	cancel_confirmation
 	If MAXIS_case_number = "" then err_msg = err_msg & vbCr & "You must have a case number to continue."
 	If len(MAXIS_case_number) > 8 then err_msg = err_msg & vbCr & "Your case number need to be 8 digits or less."
@@ -639,7 +643,8 @@ Do
 	err_msg = ""
 	dlg_ext = 0
 
-	BeginDialog sanction_type_dialog, 0, 0, 305, 75, "Sanction Detail"
+    Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 305, 75, "Sanction Detail"
 	  For entered_sanc = 0 to UBOUND(MFIP_Members_array, 2)
 	  	If MFIP_Members_array(caregiver, entered_sanc) = TRUE Then
 		  	Text 10, 25 + (20 * dlg_ext), 176, 10, MFIP_Members_array(clt_ref, entered_sanc) & " - " & MFIP_Members_array(clt_name, entered_sanc)
@@ -656,7 +661,7 @@ Do
 	  Text 10, 55, 110, 10, "Case currently has " & case_sanctions & " sanctions"
 	EndDialog
 
-	Dialog sanction_type_dialog
+	Dialog Dialog1
 	cancel_confirmation
 
 	sanction_listed = FALSE
@@ -823,7 +828,8 @@ If sanction_vendor = "Y" Then
 	If shel_prosp_room <> 0 Then use_room_expense = checked
 
 	If vendor_confirmation_needed = vbNo OR expense_exists =TRUE Then
-		BeginDialog vendor_dialog, 0, 0, 296, 130, "Confirm Vendor Amount"
+        Dialog1 = ""
+		BeginDialog Dialog1, 0, 0, 296, 130, "Confirm Vendor Amount"
 		  Text 65, 10, 50, 10, "Retrospective"
 		  Text 140, 10, 50, 10, "Prospective"
 		  Text 5, 30, 30, 10, "Rent"
@@ -857,7 +863,7 @@ If sanction_vendor = "Y" Then
 
 		Do
 			err_msg = ""
-			Dialog vendor_dialog
+			Dialog Dialog1
 			cancel_confirmation
 		Loop until err_msg = ""
 
@@ -893,8 +899,8 @@ If sanction_vendor = "Y" Then
 		If total_errors <> 0 Then
 
 			x_pos = 20
-
-			BeginDialog vendor_error_dialog, 0, 0, 345, 55 + (30 * total_errors), "Confirm Vendor Information"
+            Dialog1 = ""
+			BeginDialog Dialog1, 0, 0, 345, 55 + (30 * total_errors), "Confirm Vendor Information"
 			  Text 80, 5, 195, 10, "Please confirm before vendoring can be allocated in FIAT"
 			  If use_rent_expense = checked Then
 			  	If rent_verified = FALSE Then
@@ -978,7 +984,7 @@ If sanction_vendor = "Y" Then
 
 			Do
 				vnderr_err_msg = err_msg
-				dialog vendor_error_dialog
+				dialog Dialog1
 				cancel_confirmation
 			Loop until vnderr_err_msg = ""
 		End If
