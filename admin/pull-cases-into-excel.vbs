@@ -60,7 +60,7 @@ FUNCTION check_panels_function(x, panel_status)
 			END IF
 			EMReadScreen hest_info, 1, 2, 73
 			IF hest_info <> "0" THEN panel_status = panel_status & "HEST"
-			IF hest_info = "0" THEN 
+			IF hest_info = "0" THEN
 				EMWriteScreen "SHEL", 20, 71
 				transmit
 				IF hh_person <> "01" THEN
@@ -95,7 +95,7 @@ FUNCTION check_panels_function(x, panel_status)
 							END IF
 							EMReadScreen busi_info, 1, 2, 73
 							EMReadScreen busi_end_date, 8, 5, 71
-							IF busi_info = "0" OR busi_end_date <> "__ __ __" THEN 
+							IF busi_info = "0" OR busi_end_date <> "__ __ __" THEN
 								EMWriteScreen "UNEA", 20, 71
 								transmit
 								IF hh_person <> "01" THEN
@@ -141,7 +141,7 @@ END FUNCTION
 
 FUNCTION check_panels_for_income(pers_array, panel_status)
 	FOR EACH hh_person IN pers_array
-		IF hh_person <> "" THEN 
+		IF hh_person <> "" THEN
 			'Checking BUSI
 			CALL navigate_to_MAXIS_screen("STAT", "BUSI")
 			IF hh_person <> "01" THEN
@@ -150,7 +150,7 @@ FUNCTION check_panels_for_income(pers_array, panel_status)
 			END IF
 			EMReadScreen busi_info, 1, 2, 73
 			EMReadScreen busi_end_date, 8, 5, 71
-			IF busi_info = "0" OR busi_end_date <> "__ __ __" THEN 
+			IF busi_info = "0" OR busi_end_date <> "__ __ __" THEN
 				'Checking UNEA
 				EMWriteScreen "UNEA", 20, 71
 				transmit
@@ -190,15 +190,15 @@ FUNCTION check_panels_for_income(pers_array, panel_status)
 				END IF
 			ELSE
 				panel_status = "BUSI"
-			END IF			
+			END IF
 		END IF
 	NEXT
 END FUNCTION
 
 FUNCTION check_panels_for_hc_function(x, panel_status)
 	FOR EACH hh_person IN x
-		IF hh_person <> "" THEN 
-			' >>>>> UNEA <<<<<					
+		IF hh_person <> "" THEN
+			' >>>>> UNEA <<<<<
 			CALL navigate_to_MAXIS_screen("STAT", "UNEA")
 				IF hh_person <> "01" THEN
 					EMWriteScreen hh_person, 20, 76
@@ -216,7 +216,7 @@ FUNCTION check_panels_for_hc_function(x, panel_status)
 				END IF
 				IF (unea_info <> "0" AND unea_end_date = "__ __ __") THEN panel_status = "UNEA"
 				IF (unea_info <> "0" AND valid_command = "ENTER A VALID COMMAND") OR unea_info = "0" THEN
-			' >>>>> JOBS <<<<<		
+			' >>>>> JOBS <<<<<
 					CALL navigate_to_MAXIS_screen("STAT", "JOBS")
 					IF hh_person <> "01" THEN
 						EMWriteScreen hh_person, 20, 76
@@ -232,7 +232,7 @@ FUNCTION check_panels_for_hc_function(x, panel_status)
 							END IF
 						LOOP UNTIL valid_command = "ENTER A VALID COMMAND" OR jobs_end_date = "__ __ __"
 					END IF
-					IF (jobs_info <> "0" AND jobs_end_date = "__ __ __") THEN 
+					IF (jobs_info <> "0" AND jobs_end_date = "__ __ __") THEN
 						panel_status = "JOBS"
 					ELSE
 			' >>>>> ACCT <<<<<
@@ -243,9 +243,9 @@ FUNCTION check_panels_for_hc_function(x, panel_status)
 						IF acct_info <> "0" THEN
 							DO
 								EMReadScreen valid_command, 21, 24, 2
-								IF valid_command <> "ENTER A VALID COMMAND" THEN 
+								IF valid_command <> "ENTER A VALID COMMAND" THEN
 									EMReadScreen counted_for_hc, 1, 14, 64
-									IF counted_for_hc = "Y" THEN 
+									IF counted_for_hc = "Y" THEN
 										panel_status = "ACCT"
 										EXIT DO
 									ELSE
@@ -255,13 +255,13 @@ FUNCTION check_panels_for_hc_function(x, panel_status)
 							LOOP UNTIL valid_command = "ENTER A VALID COMMAND"
 							'IF counted_for_hc = "Y" THEN EXIT FOR
 						END IF
-						IF acct_info = "0" OR (acct_info <> "0" AND counted_for_hc <> "Y") THEN 
-			' >>>>> CASH <<<<<				
+						IF acct_info = "0" OR (acct_info <> "0" AND counted_for_hc <> "Y") THEN
+			' >>>>> CASH <<<<<
 							EMWriteScreen "CASH", 20, 71
 							IF hh_person <> "01" THEN EMWriteScreen hh_person, 20, 76
 							transmit
 							EMReadScreen cash_info, 1, 2, 73
-							IF cash_info <> "0" THEN 
+							IF cash_info <> "0" THEN
 								panel_status = "CASH"
 							ELSE
 			' >>>>> CARS <<<<<
@@ -269,7 +269,7 @@ FUNCTION check_panels_for_hc_function(x, panel_status)
 								IF hh_person <> "01" THEN EMWriteScreen hh_person, 20, 76
 								transmit
 								EMReadScreen cars_info, 1, 2, 73
-								IF cars_info <> "0" THEN 
+								IF cars_info <> "0" THEN
 									panel_status = "CARS"
 								ELSE
 			' >>>>> SECU <<<<<
@@ -277,12 +277,12 @@ FUNCTION check_panels_for_hc_function(x, panel_status)
 									IF hh_person <> "01" THEN EMWriteScreen hh_person, 20, 76
 									transmit
 									EMReadScreen secu_info, 1, 2, 73
-									IF secu_info <> "0" THEN 
+									IF secu_info <> "0" THEN
 										DO
 											EMReadScreen valid_command, 21, 24, 2
-											IF valid_command <> "ENTER A VALID COMMAND" THEN 
+											IF valid_command <> "ENTER A VALID COMMAND" THEN
 												EMReadScreen counted_for_hc, 1, 15, 64
-												IF counted_for_hc = "Y" THEN 
+												IF counted_for_hc = "Y" THEN
 													panel_status = "SECU"
 													EXIT DO
 												ELSE
@@ -292,18 +292,18 @@ FUNCTION check_panels_for_hc_function(x, panel_status)
 										LOOP UNTIL valid_command = "ENTER A VALID COMMAND"
 										'IF counted_for_hc = "Y" THEN EXIT FOR
 									END IF
-									IF secu_info = "0" OR (secu_info <> "0" AND counted_for_hc <> "Y") THEN 
+									IF secu_info = "0" OR (secu_info <> "0" AND counted_for_hc <> "Y") THEN
 			' >>>>> OTHR <<<<<
 										EMWriteScreen "OTHR", 20, 71
 										IF hh_person <> "01" THEN EMWriteScreen hh_person, 20, 76
 										transmit
 										EMReadScreen othr_info, 1, 2, 73
-										IF othr_info <> "0" THEN 
+										IF othr_info <> "0" THEN
 											DO
 												EMReadScreen valid_command, 21, 24, 2
-												IF valid_command <> "ENTER A VALID COMMAND" THEN 
+												IF valid_command <> "ENTER A VALID COMMAND" THEN
 													EMReadScreen counted_for_hc, 1, 12, 64
-													IF counted_for_hc = "Y" THEN 
+													IF counted_for_hc = "Y" THEN
 														panel_status = "OTHR"
 														EXIT DO
 													ELSE
@@ -313,18 +313,18 @@ FUNCTION check_panels_for_hc_function(x, panel_status)
 											LOOP UNTIL valid_command = "ENTER A VALID COMMAND"
 											'IF counted_for_hc = "Y" THEN EXIT FOR
 										END IF
-										IF othr_info = "0" OR (othr_info <> "0" AND counted_for_hc <> "Y") THEN 
+										IF othr_info = "0" OR (othr_info <> "0" AND counted_for_hc <> "Y") THEN
 			' >>>>> BUSI <<<<<
 											EMWriteScreen "BUSI", 20, 71
 											IF hh_person <> "01" THEN EMWriteScreen hh_person, 20, 76
 											transmit
 											EMReadScreen busi_info, 1, 2, 73
-											IF busi_info <> "0" THEN 
+											IF busi_info <> "0" THEN
 												DO
 													EMReadScreen valid_command, 21, 24, 2
-													IF valid_command <> "ENTER A VALID COMMAND" THEN 
+													IF valid_command <> "ENTER A VALID COMMAND" THEN
 														EMReadScreen BUSI_end_date, 8, 5, 72
-														IF BUSI_end_date = "__ __ __" THEN 
+														IF BUSI_end_date = "__ __ __" THEN
 															panel_status = "BUSI"
 															EXIT DO
 														ELSE
@@ -340,14 +340,14 @@ FUNCTION check_panels_for_hc_function(x, panel_status)
 												IF hh_person <> "01" THEN EMWriteScreen hh_person, 20, 76
 												transmit
 												EMReadScreen spon_info, 1, 2, 73
-												IF spon_info <> "0" THEN 
+												IF spon_info <> "0" THEN
 													EMReadScreen counted_for_hc, 30, 15, 50
 													counted_for_hc = replace(counted_for_hc, "$", "")
 													counted_for_hc = replace(counted_for_hc, " ", "")
 													counted_for_hc = replace(counted_for_hc, "_", "")
 													IF counted_for_hc <> "" THEN panel_status = "SPON"
 												END IF
-												IF spon_info = "0" OR (spon_info <> "0" AND counted_for_hc = "") THEN 
+												IF spon_info = "0" OR (spon_info <> "0" AND counted_for_hc = "") THEN
 			' >>>>> REST <<<<<
 													EMWriteScreen "REST", 20, 71
 													IF hh_person <> "01" THEN EMWriteScreen hh_person, 20, 76
@@ -356,17 +356,17 @@ FUNCTION check_panels_for_hc_function(x, panel_status)
 													IF rest_info <> "0" THEN
 														panel_status = "REST"
 													ELSE
-			' >>>>> RBIC <<<<<						
+			' >>>>> RBIC <<<<<
 														EMWriteScreen "RBIC", 20, 71
 														IF hh_person <> "01" THEN EMWriteScreen hh_person, 20, 76
 														transmit
 														EMReadScreen rbic_info, 1, 2, 73
-														IF rbic_info <> "0" THEN 
+														IF rbic_info <> "0" THEN
 															DO
 																EMReadScreen valid_command, 21, 24, 2
-																IF valid_command <> "ENTER A VALID COMMAND" THEN 
+																IF valid_command <> "ENTER A VALID COMMAND" THEN
 																	EMReadScreen RBIC_end_date, 8, 6, 68
-																	IF RBIC_end_date = "__ __ __" THEN  
+																	IF RBIC_end_date = "__ __ __" THEN
 																		panel_status = "RBIC"
 																		EXIT DO
 																	ELSE
@@ -379,7 +379,7 @@ FUNCTION check_panels_for_hc_function(x, panel_status)
 												END IF
 											END IF
 										END IF
-									END IF	
+									END IF
 								END IF
 							END IF
 						END IF
@@ -437,7 +437,7 @@ FUNCTION navigate_to_MMIS
 	row = 1
 	col = 1
 	EMSearch "C327", row, col
-	If row <> 0 then 
+	If row <> 0 then
 		If row <> 1 then 'It has to do this in case the worker only has one option (as many LTC and OSA workers don't have the option to decide between MAXIS and MCRE case access). The MMIS screen will show the text, but it's in the first row in these instances.
 			EMWriteScreen "x", row, 4
 			transmit
@@ -446,7 +446,7 @@ FUNCTION navigate_to_MMIS
 		row = 1
 		col = 1
 		EMSearch "EK01", row, col
-		If row <> 0 then 
+		If row <> 0 then
 			If row <> 1 then
 				EMWriteScreen "x", row, 4
 				transmit
@@ -455,7 +455,7 @@ FUNCTION navigate_to_MMIS
 			row = 1
 			col = 1
 			EMSearch "C427", row, col
-			If row <> 0 then 
+			If row <> 0 then
 				If row <> 1 then
 					EMWriteScreen "x", row, 4
 					transmit
@@ -464,7 +464,7 @@ FUNCTION navigate_to_MMIS
 				row = 1
 				col = 1
 				EMSearch "EKIQ", row, col
-				If row <> 0 then 
+				If row <> 0 then
 					If row <> 1 then
 						EMWriteScreen "x", row, 4
 						transmit
@@ -519,8 +519,8 @@ FUNCTION navigate_to_MAXIS(maxis_mode)
 			END IF
 		END IF
 	END IF
-	
-	IF the_little_script_that_could = True THEN 
+
+	IF the_little_script_that_could = True THEN
 		EMConnect (x)
 		IF maxis_mode = "PRODUCTION" THEN
 			EMWriteScreen "1", 2, 15
@@ -528,12 +528,12 @@ FUNCTION navigate_to_MAXIS(maxis_mode)
 		ELSEIF maxis_mode = "INQUIRY DB" THEN
 			EMWriteScreen "2", 2, 15
 			transmit
-		END IF		
+		END IF
 	END IF
 
 END FUNCTION
 
-Function HCRE_panel_bypass() 
+Function HCRE_panel_bypass()
 	'handling for cases that do not have a completed HCRE panel
 	PF3		'exits PROG to prommpt HCRE if HCRE insn't complete
 	Do
@@ -545,8 +545,12 @@ Function HCRE_panel_bypass()
 	Loop until HCRE_panel_check <> "HCRE"
 End Function
 
-'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog pull_cases_into_excel_dialog, 0, 0, 241, 185, "Pull cases into Excel dialog"
+'THE SCRIPT----------------------------------------------------------------------------------------------------
+'Connecting to BlueZone
+EMConnect ""
+
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 241, 185, "Pull cases into Excel dialog"
   DropListBox 75, 10, 95, 10, "REPT/ACTV"+chr(9)+"REPT/PND2"+chr(9)+"REPT/REVW", screen_to_use
   EditBox 75, 30, 95, 15, x_number
   CheckBox 10, 50, 230, 10, "Check here for all workers in the county (takes several hours to run)", all_workers_check
@@ -571,15 +575,11 @@ BeginDialog pull_cases_into_excel_dialog, 0, 0, 241, 185, "Pull cases into Excel
   GroupBox 10, 65, 220, 115, "Additional items to log"
 EndDialog
 
-'THE SCRIPT----------------------------------------------------------------------------------------------------
-'Connecting to BlueZone
-EMConnect ""
-
-Do 
-    Do 
+Do
+    Do
         err_msg = ""
-        dialog pull_cases_into_excel_dialog
-        If buttonpressed = 0 then stopscript
+        dialog Dialog1
+        cancel_without_confirmation
         If all_workers_check = 0 and trim(x_number) = "" then err_msg = err_msg & vbcr & "* Select a basket number(s), OR the all workers check box"
         If all_workers_check = 1 and trim(x_number) <> "" then err_msg = err_msg & vbcr & "* Select a basket number(s) OR the all workers check box, not both options."
         IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
@@ -601,13 +601,13 @@ ElseIf screen_to_use = "REPT/ACTV" then
 	If all_workers_check = 1 then name_of_script = "BULK - pull cases into Excel (ACTV all cases)"
 ElseIf screen_to_use = "REPT/REVW" then
 	name_of_script = "BULK - pull cases into Excel (REVW)"
-	If all_workers_check = 1 then name_of_script = "BULK - pull cases into Excel (REVW all cases)"	
+	If all_workers_check = 1 then name_of_script = "BULK - pull cases into Excel (REVW all cases)"
 End if
 
 'Opening the Excel file
 Set objExcel = CreateObject("Excel.Application")
 objExcel.Visible = True
-Set objWorkbook = objExcel.Workbooks.Add() 
+Set objWorkbook = objExcel.Workbooks.Add()
 objExcel.DisplayAlerts = True
 
 'Setting the first 3 col as worker, case number, and name
@@ -620,7 +620,7 @@ If screen_to_use = "REPT/PND2" then
 	ObjExcel.Cells(1, 4).Value = "APPL DATE"
 ElseIf screen_to_use = "REPT/ACTV" then
 	ObjExcel.Cells(1, 4).Value = "NEXT REVW DATE"
-ElseIf screen_to_use = "REPT/REVW" then	
+ElseIf screen_to_use = "REPT/REVW" then
 	ObjExcel.Cells(1, 4).Value = "REVW REC'D DATE"
 End if
 
@@ -643,7 +643,7 @@ If all_HH_membs_19_plus_check = 1 then
 End if
 
 '----------------------------------------------------------------------------------------------------Citizenship
-IF imig_ctzn_check = 1 THEN 
+IF imig_ctzn_check = 1 THEN
 	objExcel.Cells(1, col_to_use).Value = "Clients with Cit = Y"
 	alien_id_col = col_to_use
 	col_to_use = col_to_use + 1
@@ -663,7 +663,7 @@ IF FS_MF_review_check = 1 THEN
 END IF
 
 '----------------------------------------------------------------------------------------------------GA and MSA review
-IF ga_msa_check = 1 THEN 
+IF ga_msa_check = 1 THEN
 	objExcel.Cells(1, col_to_use).Value = "GA Cases to Review"
 	ga_revw_col = col_to_use
 	col_to_use = col_to_use + 1
@@ -680,7 +680,7 @@ IF grh_doc_amount_check = 1 THEN
 END IF
 
 '----------------------------------------------------------------------------------------------------HC cases to review
-IF HC_REVIEW_check = 1 THEN 
+IF HC_REVIEW_check = 1 THEN
 	objExcel.Cells(1, col_to_use).Value = "HC Cases to Review"
 	HC_col = col_to_use
 	col_to_use = col_to_use + 1
@@ -693,7 +693,7 @@ IF homeless_check = 1 THEN
 	col_to_use = col_to_use + 1
 END IF
 
-'----------------------------------------------------------------------------------------------------MAGI/Non-MAGI 
+'----------------------------------------------------------------------------------------------------MAGI/Non-MAGI
 IF magi_pct_check = 1 THEN
 	ObjExcel.Cells(1, col_to_use).Value = "MAGI Persons"
 	magi_pers_col = col_to_use
@@ -721,7 +721,7 @@ IF magi_pct_check = 1 THEN
 	col_to_use = col_to_use + 1
 END IF
 
-'----------------------------------------------------------------------------------------------------MA-EPD 
+'----------------------------------------------------------------------------------------------------MA-EPD
 IF maepd_check = 1 THEN
 	objExcel.Cells(1, col_to_use).Value = "MA-EPD & Part B Reimburseable"
 	maepd_col = col_to_use
@@ -742,7 +742,7 @@ IF pded_check = 1 THEN
 	col_to_use = col_to_use + 1
 END IF
 
-'----------------------------------------------------------------------------------------------------PREG 
+'----------------------------------------------------------------------------------------------------PREG
 If preg_check = 1 then
 	ObjExcel.Cells(1, col_to_use).Value = "PREG EXISTS?"
 	preg_col = col_to_use
@@ -762,9 +762,9 @@ excel_row = 2
 If all_workers_check = 1 then
 	CALL create_array_of_all_active_x_numbers_in_county(x_array, "27")
 Else
-	IF len(x_number) > 3 THEN 
+	IF len(x_number) > 3 THEN
 		x_array = split(x_number, ", ")
-	ELSE		
+	ELSE
 		x_array = split(x_number)
 	END IF
 End if
@@ -781,7 +781,7 @@ If screen_to_use = "REPT/PND2" then
 		row = 7
 		Do
 			EMReadScreen MAXIS_case_number, 8, row, 5
-			If MAXIS_case_number = "        " then 
+			If MAXIS_case_number = "        " then
 				EMReadScreen additional_app, 14, row, 17
 				IF additional_app = "              " THEN
 					EXIT DO
@@ -809,7 +809,7 @@ End if
 If screen_to_use = "REPT/ACTV" then
 	Call navigate_to_MAXIS_screen("rept", "actv")
 	IF worker <> "" THEN
-		IF len(worker) = 3 THEN 
+		IF len(worker) = 3 THEN
 			EMWriteScreen worker, 21, 17
 		ELSE
 			EMWriteScreen worker, 21, 13
@@ -848,7 +848,7 @@ If screen_to_use = "REPT/REVW" then
 	EMWriteScreen CM_plus_1_mo, 20, 55
 	EMWriteScreen CM_plus_1_yr, 20, 58
 	transmit
-	
+
 	'Grabbing each case number on screen
 	Do
 		row = 7
@@ -860,11 +860,11 @@ If screen_to_use = "REPT/REVW" then
 			ObjExcel.Cells(excel_row, 1).Value = worker
 			ObjExcel.Cells(excel_row, 2).Value = MAXIS_case_number
 			ObjExcel.Cells(excel_row, 3).Value = client_name
-			If revw_date =  "__ __ __" then 
+			If revw_date =  "__ __ __" then
 				revw_date = ""
-			Else 
+			Else
 				revw_date = replace(revw_date, " ", "/")
-			End if 
+			End if
 			ObjExcel.Cells(excel_row, 4).Value = revw_date
 			row = row + 1
 			excel_row = excel_row + 1
@@ -877,9 +877,9 @@ End if
 next
 
 'Resetting excel_row variable, now we need to start looking people up
-excel_row = 2 
+excel_row = 2
 
-Do 
+Do
 	MAXIS_case_number = ObjExcel.Cells(excel_row, 2).Value
 	If MAXIS_case_number = "" then exit do
 
@@ -887,13 +887,13 @@ Do
 	If preg_check = 1 then
 		call navigate_to_MAXIS_screen("STAT", "PREG")
 		EMReadScreen PREG_panel_check, 1, 2, 78
-		If PREG_panel_check <> "0" then 
+		If PREG_panel_check <> "0" then
 			ObjExcel.Cells(excel_row, preg_col).Value = "Y"
 		Else
 			ObjExcel.Cells(excel_row, preg_col).Value = "N"
 		End if
 	End if
-	
+
 	'Checking the GRH DOC Amount
 	IF grh_doc_amount_check = 1 THEN
 		CALL navigate_to_MAXIS_screen("STAT", "FACI")
@@ -901,9 +901,9 @@ Do
 		faci_row = 14
 		DO
 			EMReadScreen open_faci, 10, faci_row, 71
-			IF open_faci <> "__ __ ____" THEN 
+			IF open_faci <> "__ __ ____" THEN
 				faci_row = faci_row + 1
-				IF faci_row = 19 THEN 
+				IF faci_row = 19 THEN
 					transmit
 					faci_row = 14
 					EMReadScreen error_message, 15, 24, 2
@@ -927,40 +927,40 @@ Do
 			END IF
 		LOOP
 	END IF
-	
+
 	'Checking for Citizen = Y and an Alien ID Number
-	IF imig_ctzn_check = 1 THEN 
+	IF imig_ctzn_check = 1 THEN
 		CALL navigate_to_MAXIS_screen("STAT", "MEMB")
 		DO
 			EMReadScreen needs_trans, 1, 14, 68
 			EMReadScreen ref_num, 2, 4, 33
 			EMReadScreen alien_id, 10, 15, 68
 			alien_id = replace(alien_id, "_", "")
-			
+
 			objExcel.Cells(excel_row, interp_col).Value = objExcel.Cells(excel_row, interp_col).Value & needs_trans & ";"
-			 
+
 			EMWriteScreen "MEMI", 20, 71
 			EMWriteScreen ref_num, 20, 76
 			transmit
-	
+
 			EMReadScreen citizen_yn, 1, 11, 49
 			IF citizen_yn = "Y" THEN objExcel.Cells(excel_row, alien_id_col).Value = objExcel.Cells(excel_row, alien_id_col).Value & ref_num & ";"
-				
+
 			EMWriteScreen "MEMB", 20, 71
 			EMWriteScreen ref_num, 20, 76
 			transmit
-			
+
 			transmit
 			EMReadScreen error_message, 20, 24, 2
 			error_message = trim(error_message)
-		LOOP UNTIL error_message <> ""		
-		IF InStr(objExcel.Cells(excel_row, interp_col).Value, "Y") <> 0 THEN 
+		LOOP UNTIL error_message <> ""
+		IF InStr(objExcel.Cells(excel_row, interp_col).Value, "Y") <> 0 THEN
 			objExcel.Cells(excel_row, interp_col).Value = ""
 		ELSE
 			objExcel.Cells(excel_row, interp_col).Value = "N"
 		END IF
 	END IF
-	
+
 	'Now pulling age info
 	If all_HH_membs_19_plus_check = 1 then
 		call navigate_to_MAXIS_screen("STAT", "MEMB")
@@ -972,7 +972,7 @@ Do
 			If cint(MEMB_age) < 19 then has_minor_in_case = True
 			transmit
 		Loop until MEMB_panel_current = MEMB_panel_total
-		If has_minor_in_case <> True then 
+		If has_minor_in_case <> True then
 			ObjExcel.Cells(excel_row, all_HH_membs_19_plus_col).Value = "Y"
 		Else
 			ObjExcel.Cells(excel_row, all_HH_membs_19_plus_col).Value = "N"
@@ -997,17 +997,17 @@ Do
 	    call navigate_to_MAXIS_screen("STAT", "PROG")
 	    EMReadScreen snap_status, 4, 10, 74
 	    IF snap_status = "ACTV" OR snap_status = "PEND" THEN
-	    	call HCRE_panel_bypass	
+	    	call HCRE_panel_bypass
 	    	call navigate_to_MAXIS_screen("STAT", "EATS")
 	    	EMReadScreen all_eat_together, 1, 4, 72
 	    	IF all_eat_together = "_" THEN
 	    		excel_row = excel_row + 1
-	    	ELSEIF all_eat_together = "Y" THEN 
+	    	ELSEIF all_eat_together = "Y" THEN
 	    		eats_row = 5
 	    		DO
 	    			EMReadScreen eats_person, 2, eats_row, 3
 	    			eats_person = trim(eats_person)
-	    			IF eats_person <> "" THEN 
+	    			IF eats_person <> "" THEN
 	    				eats_group_members = eats_group_members & eats_person & " "
 	    				eats_row = eats_row + 1
 	    			END IF
@@ -1017,30 +1017,30 @@ Do
 	    		DO
 	    			EMReadScreen eats_group, 38, eats_row, 39
 	    			find_memb01 = InStr(eats_group, "01")
-	    			IF find_memb01 = 0 THEN 
+	    			IF find_memb01 = 0 THEN
 	    				eats_row = eats_row + 1
-	    			else 
-	    				exit do 
-	    			End if 
+	    			else
+	    				exit do
+	    			End if
 	    		LOOP UNTIL find_memb01 <> 0 OR eats_row = 18
-	    		IF eats_row <> 18 THEN 
+	    		IF eats_row <> 18 THEN
 	    			eats_col = 39
 	    			DO
 	    				EMReadScreen eats_group, 2, eats_row, eats_col
-	    				IF eats_group <> "__" THEN 
+	    				IF eats_group <> "__" THEN
 	    					eats_group_members = eats_group_members & eats_group & " "
 	    					eats_col = eats_col + 4
 	    				END IF
 	    			LOOP UNTIL eats_group = "__"
-	    		END IF 
-	    	End if 
-	    			
-	    	IF eats_row <> 18 then 
+	    		END IF
+	    	End if
+
+	    	IF eats_row <> 18 then
 	    		eats_group_members = trim(eats_group_members)
 	    		eats_group_members = split(eats_group_members)
 
 	    		call navigate_to_MAXIS_screen("STAT", "WREG")
-	    
+
 	    		FOR EACH person IN eats_group_members
 	    			EMWriteScreen person, 20, 76
 	    			transmit
@@ -1049,15 +1049,15 @@ Do
 	    		NEXT
 
 	    		ObjExcel.Cells(excel_row, 5).Value = ABAWD_status
-	    		excel_row = excel_row + 1 
-	    	ELSE 
+	    		excel_row = excel_row + 1
+	    	ELSE
 	    		objExcel.Cells(excel_row, 5).Value = "CHECK MANUALLY"
 	    		excel_row = excel_row + 1
 	    	END IF
-	    Else 
+	    Else
 	    	excel_row = excel_row + 1
-		End if 
-	End if 
+		End if
+	End if
 
 	IF pded_check = 1 THEN
 		total_pded = ""
@@ -1114,21 +1114,21 @@ Do
 			EMReadScreen elig_result, 4, hhmm_row, 41
 			EMReadScreen elig_status, 6, hhmm_row, 50
 			IF hc_information_found <> "" THEN
-				IF elig_result = "ELIG" AND elig_status = "ACTIVE" THEN 
+				IF elig_result = "ELIG" AND elig_status = "ACTIVE" THEN
 					EMReadScreen hc_requested, 1, hhmm_row, 28
 					IF hc_requested = "S" OR hc_requested = "Q" OR hc_requested = "I" THEN 			'IF the HH MEMB is MSP ONLY then they are automatically Budg Mthd B
 						IF hc_ref_num = "  " THEN
 							temp_hhmm_row = hhmm_row
 							DO
 								EMReadScreen hc_ref_num, 2, temp_hhmm_row, 3
-								IF hc_ref_num = "  " THEN 
+								IF hc_ref_num = "  " THEN
 									temp_hhmm_row = temp_hhmm_row - 1
 								ELSE
 									EXIT DO
 								END IF
 							LOOP
-						END IF					
-						IF InStr(objExcel.Cells(excel_row, nonmagi_pers_col).Value, hc_ref_num & ";") = 0 THEN 
+						END IF
+						IF InStr(objExcel.Cells(excel_row, nonmagi_pers_col).Value, hc_ref_num & ";") = 0 THEN
 							ObjExcel.Cells(excel_row, nonmagi_pers_col).Value = ObjExcel.Cells(excel_row, nonmagi_pers_col).Value & hc_ref_num & ";"
 							nonMAGI_count = nonMAGI_count + 1
 						END IF
@@ -1137,19 +1137,19 @@ Do
 						EMWriteScreen "X", hhmm_row, 26
 						transmit
 						EMReadScreen budg_mthd, 1, 13, 76
-						IF budg_mthd = "A" THEN 
+						IF budg_mthd = "A" THEN
 							IF hc_ref_num = "  " THEN
 								temp_hhmm_row = hhmm_row
 								DO
 									EMReadScreen hc_ref_num, 2, temp_hhmm_row, 3
-									IF hc_ref_num = "  " THEN 
+									IF hc_ref_num = "  " THEN
 										temp_hhmm_row = temp_hhmm_row - 1
 									ELSE
 										EXIT DO
 									END IF
 								LOOP
 							END IF
-							IF InStr(objExcel.Cells(excel_row, magi_pers_col).Value, hc_ref_num & ";") = 0 THEN 
+							IF InStr(objExcel.Cells(excel_row, magi_pers_col).Value, hc_ref_num & ";") = 0 THEN
 								objExcel.Cells(excel_row, magi_pers_col).Value = ObjExcel.Cells(excel_row, magi_pers_col).Value & hc_ref_num & ";"
 								MAGI_count = MAGI_count + 1
 							END IF
@@ -1158,14 +1158,14 @@ Do
 								temp_hhmm_row = hhmm_row
 								DO
 									EMReadScreen hc_ref_num, 2, temp_hhmm_row, 3
-									IF hc_ref_num = "  " THEN 
+									IF hc_ref_num = "  " THEN
 										temp_hhmm_row = temp_hhmm_row - 1
 									ELSE
 										EXIT DO
 									END IF
 								LOOP
 							END IF
-							IF InStr(objExcel.Cells(excel_row, nonmagi_pers_col).Value, hc_ref_num & ";") = 0 THEN 
+							IF InStr(objExcel.Cells(excel_row, nonmagi_pers_col).Value, hc_ref_num & ";") = 0 THEN
 								objExcel.Cells(excel_row, nonmagi_pers_col).Value = ObjExcel.Cells(excel_row, nonmagi_pers_col).Value & hc_ref_num & ";"
 								nonMAGI_count = nonMAGI_count + 1
 							END IF
@@ -1179,14 +1179,14 @@ Do
 					hhmm_row = hhmm_row + 1
 				END IF
 			ELSE
-				EXIT DO			
+				EXIT DO
 			END IF
 		LOOP UNTIL hhmm_row = 20 OR hc_ref_num = "  "
-		
+
 		objExcel.Cells(excel_row, magi_count_col).Value = MAGI_count
 		objExcel.Cells(excel_row, nonmagi_count_col).Value = nonMAGI_count
-		
-		'Checking if client is active on HC then going to find review dates to find MAGI cases that are missing aligned reviews. 
+
+		'Checking if client is active on HC then going to find review dates to find MAGI cases that are missing aligned reviews.
 		IF MAGI_count <> 0 THEN
 			hc_compare_renewal = ""
 			Call navigate_to_MAXIS_screen("STAT", "PROG")
@@ -1208,7 +1208,7 @@ Do
 				IF hc_income_renewal = "__ 01 __" THEN hc_compare_renewal = hc_IA_renewal
 				IF hc_IA_renewal = "__ 01 __" THEN hc_compare_renewal = hc_income_renewal
 '								If MAXIS_case_number = 302735 THEN msgbox "hc income " & hc_income_renewal & " hc asset " & hc_IA_renewal & " hc annual " & hc_annual_renewal & " compare " & hc_compare_renewal
-        
+
 				IF hc_annual_renewal = hc_compare_renewal THEN
 					objExcel.Cells(excel_row, reviews_aligned_col).Value = "Y"
 				ELSE
@@ -1217,18 +1217,18 @@ Do
 			END IF
 		END IF
 
-		IF MAGI_count <> 0 AND nonMAGI_count = 0 THEN 
+		IF MAGI_count <> 0 AND nonMAGI_count = 0 THEN
 			objExcel.Cells(excel_row, magi_hh_col).Value = "Y"
-		ELSEIF MAGI_count <> 0 AND nonMAGI_count <> 0 THEN 
+		ELSEIF MAGI_count <> 0 AND nonMAGI_count <> 0 THEN
 			objExcel.Cells(excel_row, mixed_hh_col).Value = "Y"
-		ELSEIF MAGI_count = 0 AND nonMAGI_count <> 0 THEN 
+		ELSEIF MAGI_count = 0 AND nonMAGI_count <> 0 THEN
 			objExcel.Cells(excel_row, nonmagi_hh_col).Value = "Y"
-		'ELSEIF MAGI_count = 0 AND nonMAGI_count = 0 THEN 
+		'ELSEIF MAGI_count = 0 AND nonMAGI_count = 0 THEN
 		'	SET objRange = objExcel.Cells(excel_row, 1).EntireRow
 		'	objRange.Delete
 		'	excel_row = excel_row - 1
 		END IF
-	END IF 
+	END IF
 
 	IF FS_MF_review_check = 1 OR HC_REVIEW_check = 1 OR ga_msa_check = 1 THEN
 		'resetting variables
@@ -1244,10 +1244,10 @@ Do
 		ga_status = ""
 		msa_status = ""
 		ga_check_array = ""
-		
+
 		CALL navigate_to_MAXIS_screen("STAT", "PROG")
 		hc_actv_missing_revw = ""
-		
+
 		EMReadScreen hc_status, 4, 12, 74
 		EMReadScreen snap_status, 4, 10, 74
 		EMReadScreen CASH_prog_1, 2, 6, 67
@@ -1256,12 +1256,12 @@ Do
 		EMReadScreen CASH_status_2, 4, 7, 74
 
 		IF (FS_MF_review_check = 1 AND (snap_status = "ACTV" OR (CASH_prog_1 = "MF" AND CASH_status_1 = "ACTV") OR (CASH_prog_2 = "MF" AND CASH_status_2 = "ACTV"))) OR _
-			(HC_REVIEW_check = 1 AND hc_status = "ACTV") OR _ 
+			(HC_REVIEW_check = 1 AND hc_status = "ACTV") OR _
 			(ga_msa_check = 1 AND (((CASH_prog_1 = "GA" OR CASH_prog_1 = "MS") AND CASH_status_1 = "ACTV") OR ((CASH_prog_2 = "GA" OR CASH_prog_2 = "MS") AND CASH_status_2 = "ACTV"))) THEN
 
 			Call HCRE_panel_bypass
 			CALL navigate_to_MAXIS_screen("STAT", "REVW")
-			IF FS_MF_review_check = 1 THEN 
+			IF FS_MF_review_check = 1 THEN
 				EmReadScreen cash_review_date, 8, 9, 37   'reads cash renewal date
 				EMwritescreen "X", 5, 58
 				Transmit
@@ -1270,34 +1270,34 @@ Do
 				snap_review_date = replace(snap_review_date, " ", "/")
 				PF3
 			END IF
-			IF HC_REVIEW_check = 1 THEN 
+			IF HC_REVIEW_check = 1 THEN
 				EMWriteScreen "X", 5, 71
 				transmit
 				EMReadScreen hc_review_date, 8, 9, 27
-				IF hc_review_date = "__ 01 __" AND hc_status = "ACTV" THEN   'some cases managed to be actv without a review date entered. Per Pat and PCs this is wrong and we need to catch it. 
+				IF hc_review_date = "__ 01 __" AND hc_status = "ACTV" THEN   'some cases managed to be actv without a review date entered. Per Pat and PCs this is wrong and we need to catch it.
 					hc_review_date = "01 01 00"  'prevents Cdate from erroring out
-					hc_actv_missing_revw = true					'Catches method A cases as the logic below would skip them. 
+					hc_actv_missing_revw = true					'Catches method A cases as the logic below would skip them.
 				END IF
 				hc_review_date = replace(hc_review_date, " ", "/")
 				PF3
 			END IF
-			IF ga_msa_check = 1 THEN 
+			IF ga_msa_check = 1 THEN
 				EMReadScreen cash_review_date, 8, 9, 37
 				cash_review_date = replace(cash_review_date, " ", "/")
-			END IF	
+			END IF
 			comparison_date = datepart("M", date) & "/01/" & datepart("yyyy", date)
 			past_month = dateadd("M", -1, comparison_date)				'establishes minimum range
 			future_month = dateadd("M", 1, comparison_date)				'establishes maximum range
-	
+
 			'calcuate the past current and future renewal months and years
 			review_date_1_year_past = dateadd("YYYY", 1, past_month)
 			review_date_1_year_current = dateadd("YYYY", 1, comparison_date)
 			review_date_1_year_future = dateadd("YYYY", 1, future_month)
 			review_date_2_year_past = dateadd("YYYY", 2, past_month)
-			review_date_2_year_current = dateadd("YYYY", 2, comparison_date)	
+			review_date_2_year_current = dateadd("YYYY", 2, comparison_date)
 			review_date_2_year_future = dateadd("YYYY", 2, future_month)
 
-			IF HC_REVIEW_check = 1 AND hc_status = "ACTV" THEN 
+			IF HC_REVIEW_check = 1 AND hc_status = "ACTV" THEN
 				IF (cdate(hc_review_date) = cdate(review_date_1_year_past) OR _
 					cdate(hc_review_date) = cdate(review_date_1_year_current) OR _
 					cdate(hc_review_date) = cdate(review_date_1_year_future) OR _
@@ -1316,26 +1316,26 @@ Do
 					CALL navigate_to_MAXIS_screen("ELIG", "HC")
 					HHMM_row = 8
 					hc_group = ""
-					DO		
+					DO
 						' >>>>> Grabbing the HH reference number and the HC program.
 						EMReadScreen hhmm_ref_num, 2, HHMM_row, 3
 						hhmm_ref_num = replace(hhmm_ref_num, " ", "")
 						EMReadScreen hhmm_program, 10, HHMM_row, 28
 						hhmm_program = replace(hhmm_program, " ", "")
-						IF hhmm_ref_num <> "" AND hhmm_program <> "" THEN 
-							IF hhmm_program = "SLMB" OR hhmm_program = "QI1" OR hhmm_program = "QMB" THEN 
+						IF hhmm_ref_num <> "" AND hhmm_program <> "" THEN
+							IF hhmm_program = "SLMB" OR hhmm_program = "QI1" OR hhmm_program = "QMB" THEN
 								IF InStr(hc_group, hhmm_ref_num) = 0 THEN hc_group = hc_group & hhmm_ref_num & "~~~"
-							ELSEIF (hhmm_program <> "QMB" OR hhmm_program <> "SLMB" OR hhmm_program <> "QI1") AND (hhmm_program <> "NO REQUEST" AND hhmm_program <> "NO VERSION") THEN 
+							ELSEIF (hhmm_program <> "QMB" OR hhmm_program <> "SLMB" OR hhmm_program <> "QI1") AND (hhmm_program <> "NO REQUEST" AND hhmm_program <> "NO VERSION") THEN
 								EMWriteScreen "X", HHMM_row, 26
 								transmit
 								EMReadScreen hc_budget_mthd, 1, 13, 76
-								IF hc_budget_mthd = "B" OR hc_budget_mthd = "L" OR hc_budget_mthd = "S" THEN 
+								IF hc_budget_mthd = "B" OR hc_budget_mthd = "L" OR hc_budget_mthd = "S" THEN
 									IF InStr(hc_group, hhmm_ref_num) = 0 THEN hc_group = hc_group & hhmm_ref_num & "~~~"
 								END IF
 								PF3
 							END IF
-						ELSEIF hhmm_ref_num = "" AND hhmm_program <> "" THEN 
-							IF hhmm_program = "SLMB" OR hhmm_program = "QI1" OR hhmm_program = "QMB" THEN 
+						ELSEIF hhmm_ref_num = "" AND hhmm_program <> "" THEN
+							IF hhmm_program = "SLMB" OR hhmm_program = "QI1" OR hhmm_program = "QMB" THEN
 								hhmm_row_back_up = 1
 								DO
 									EMReadScreen hh_member, 2, HHMM_row - hhmm_row_back_up, 3
@@ -1351,14 +1351,14 @@ Do
 					back_to_SELF
 					hc_group = trim(hc_group)
 					hc_group = split(hc_group, "~~~")
-					
+
 					CALL check_panels_for_hc_function(hc_group, panel_status)
 					hc_panel_status = panel_status
 					IF hc_panel_status <> "" THEN objExcel.Cells(excel_row, HC_col).Value = "REVIEW HC"
-				END IF	
+				END IF
 				IF hc_actv_missing_revw = true THEN objExcel.Cells(excel_row, HC_col).Value = "REVIEW HC (review dates missing)"   'marks the cases with HC actv and no renewal dates as needing review.
 			END IF
-			
+
 			IF FS_MF_review_check = 1 AND snap_status = "ACTV" THEN
 				IF (cdate(snap_review_date) = cdate(review_date_1_year_past) OR _
 					cdate(snap_review_date) = cdate(review_date_1_year_current) OR _
@@ -1366,18 +1366,18 @@ Do
 					cdate(snap_review_date) = cdate(review_date_2_year_past) OR _
 					cdate(snap_review_date) = cdate(review_date_2_year_current) OR _
 					cdate(snap_review_date) = cdate(review_date_2_year_future)) THEN
-	
+
 					call navigate_to_MAXIS_screen("STAT", "EATS")
 					EMReadScreen all_eat_together, 1, 4, 72
 					IF all_eat_together = "_" THEN
 						eats_group_members = "01" & " "
-					ELSEIF all_eat_together = "Y" THEN 
+					ELSEIF all_eat_together = "Y" THEN
 						eats_row = 5
 						DO
 							EMReadScreen eats_person, 2, eats_row, 3
 							eats_person = replace(eats_person, " ", "")
 							'IF instr(eats_person, "?") <> 0 THEN
-								IF eats_person <> "" THEN 
+								IF eats_person <> "" THEN
 									eats_group_members = eats_group_members & eats_person & " "
 									eats_row = eats_row + 1
 								END IF
@@ -1393,42 +1393,42 @@ Do
 						eats_col = 39
 						DO
 							EMReadScreen eats_group, 2, eats_row, eats_col
-							IF eats_group <> "__" THEN 
+							IF eats_group <> "__" THEN
 								eats_group_members = eats_group_members & eats_group & " "
 								eats_col = eats_col + 4
 							END IF
 						LOOP UNTIL eats_group = "__"
 					END IF
-	
+
 					eats_group_members = trim(eats_group_members)
 					eats_group_members = split(eats_group_members)
-			
+
 					CALL check_panels_function(eats_group_members, panel_status)
 					snap_panel_status = panel_status
 					IF snap_panel_status <> "" THEN ObjExcel.Cells(excel_row, snap_col).Value = "Review SNAP"
 				END IF
-			END IF	
-			IF FS_MF_review_check = 1 AND ((CASH_prog_1 = "MF" AND CASH_status_1 = "ACTV") OR (CASH_prog_2 = "MF" AND CASH_status_2 = "ACTV")) THEN 
+			END IF
+			IF FS_MF_review_check = 1 AND ((CASH_prog_1 = "MF" AND CASH_status_1 = "ACTV") OR (CASH_prog_2 = "MF" AND CASH_status_2 = "ACTV")) THEN
 				IF (cdate(cash_review_date) = cdate(review_date_1_year_past) OR _
 					cdate(cash_review_date) = cdate(review_date_1_year_current) OR _
 					cdate(cash_review_date) = cdate(review_date_1_year_future) OR _
 					cdate(cash_review_date) = cdate(review_date_2_year_past) OR _
 					cdate(cash_review_date) = cdate(review_date_2_year_current) OR _
 					cdate(cash_review_date) = cdate(review_date_2_year_future)) THEN
-										
+
 					panel_status = ""
-				
+
 					CALL navigate_to_MAXIS_screen("ELIG", "MFIP")
 					mfpr_row = 7
 					DO
-						IF mfpr_row = 18 THEN 
+						IF mfpr_row = 18 THEN
 							PF8
 							EMReadScreen no_more_members, 15, 24, 5
 							mfpr_row = 7
 						END IF
 						EMReadScreen is_counted, 7, mfpr_row, 41
 						is_counted = replace(is_counted, " ", "")
-						IF is_counted = "COUNTED" THEN 
+						IF is_counted = "COUNTED" THEN
 							EMReadScreen ref_num, 2, mfpr_row, 6
 							mfip_group = mfip_group & ref_num & " "
 						END IF
@@ -1436,121 +1436,121 @@ Do
 					LOOP UNTIL is_counted = "" OR no_more_members = "NO MORE MEMBERS"
 					mfip_group = trim(mfip_group)
 					mfip_group = split(mfip_group)
-		
+
 					CALL check_panels_function(mfip_group, panel_status)
 					cash_panel_status = panel_status
 					IF cash_panel_status <> "" THEN ObjExcel.Cells(excel_row, mfip_col).Value = "Review MFIP"
 				END IF
 			END IF
-			IF ga_msa_check = 1 AND (((CASH_prog_1 = "GA" OR CASH_prog_1 = "MS") AND CASH_status_1 = "ACTV") OR ((CASH_prog_2 = "GA" OR CASH_prog_2 = "MS") AND CASH_status_2 = "ACTV")) THEN 
+			IF ga_msa_check = 1 AND (((CASH_prog_1 = "GA" OR CASH_prog_1 = "MS") AND CASH_status_1 = "ACTV") OR ((CASH_prog_2 = "GA" OR CASH_prog_2 = "MS") AND CASH_status_2 = "ACTV")) THEN
 				IF (cdate(cash_review_date) = cdate(review_date_1_year_past) OR _
 					cdate(cash_review_date) = cdate(review_date_1_year_current) OR _
 					cdate(cash_review_date) = cdate(review_date_1_year_future) OR _
 					cdate(cash_review_date) = cdate(review_date_2_year_past) OR _
 					cdate(cash_review_date) = cdate(review_date_2_year_current) OR _
 					cdate(cash_review_date) = cdate(review_date_2_year_future)) THEN
-										
+
 					panel_status = ""
-					
+
 					'Finding GA folks
-					IF (CASH_prog_1 = "GA" AND CASH_status_1 = "ACTV") OR (CASH_prog_2 = "GA" AND CASH_status_2 = "ACTV") THEN 
+					IF (CASH_prog_1 = "GA" AND CASH_status_1 = "ACTV") OR (CASH_prog_2 = "GA" AND CASH_status_2 = "ACTV") THEN
 						objExcel.Cells(excel_row, ga_revw_col).Value = "REVW GA"
 						ga_panel_status = "REVW"
 						CALL navigate_to_MAXIS_screen("ELIG", "GA")
 						gapr_row = 8
 						DO
 							EMReadScreen cash_elig, 4, gapr_row, 57
-							IF cash_elig = "ELIG" THEN 
+							IF cash_elig = "ELIG" THEN
 								EMReadScreen ref_num, 2, gapr_row, 9
 								ga_check_array = ga_check_array & ref_num & ","
 							END IF
 							gapr_row = gapr_row + 1
-							IF gapr_row = 18 THEN 
+							IF gapr_row = 18 THEN
 								PF8
 								gapr_row = 8
 							END IF
 						LOOP UNTIL cash_elig = "    "
-						
+
 						ga_check_array = ga_check_array & "END"
 						ga_check_array = replace(ga_check_array, ",END", "")
 						ga_check_array = split(ga_check_array, ",")
-						
+
 						CALL check_panels_for_income(ga_check_array, panel_status)
 						IF panel_status <> "" THEN objExcel.Cells(excel_row, ga_revw_col).Interior.ColorIndex = 6
 					END IF
-					
+
 					'Finding the MSA folks
-					IF (CASH_prog_1 = "MS" AND CASH_status_1 = "ACTV") OR (CASH_prog_2 = "MS" AND CASH_status_2 = "ACTV") THEN 
+					IF (CASH_prog_1 = "MS" AND CASH_status_1 = "ACTV") OR (CASH_prog_2 = "MS" AND CASH_status_2 = "ACTV") THEN
 						objExcel.Cells(excel_row, msa_revw_col).Value = "REVW MSA"
 						msa_panel_status = "REVW"
 					END IF
 				END IF
 			END IF
-		END IF	
-		'cleaning up blank rows 
+		END IF
+		'cleaning up blank rows
 		'If revewing FS/MFIP AND HC AND GA/MSA...
-		IF FS_MF_review_check = 1 AND HC_REVIEW_check = 1 AND ga_msa_check = 1 THEN 
-			'IF hc_panel_status = "" AND snap_panel_status = "" AND cash_panel_status = "" and hc_actv_missing_revw = "" AND ga_panel_status = "" AND msa_panel_status = "" THEN 
+		IF FS_MF_review_check = 1 AND HC_REVIEW_check = 1 AND ga_msa_check = 1 THEN
+			'IF hc_panel_status = "" AND snap_panel_status = "" AND cash_panel_status = "" and hc_actv_missing_revw = "" AND ga_panel_status = "" AND msa_panel_status = "" THEN
 			'	SET objRange = objExcel.Cells(excel_row, 1).EntireRow
 			'	objRange.Delete
 			'	excel_row = excel_row - 1
 			'END IF
 		'If reviewing FS/MFIP and HC...
-		ELSEIF FS_MF_review_check = 1 AND HC_REVIEW_check = 1 AND ga_msa_check = 0 THEN 
-			'IF hc_panel_status = "" AND snap_panel_status = "" AND cash_panel_status = "" and hc_actv_missing_revw = "" THEN 
+		ELSEIF FS_MF_review_check = 1 AND HC_REVIEW_check = 1 AND ga_msa_check = 0 THEN
+			'IF hc_panel_status = "" AND snap_panel_status = "" AND cash_panel_status = "" and hc_actv_missing_revw = "" THEN
 			'	SET objRange = objExcel.Cells(excel_row, 1).EntireRow
 			'	objRange.Delete
 			'	excel_row = excel_row - 1
 			'END IF
 		'If reviewing FS/MFIP and GA/MSA...
-		ELSEIF FS_MF_review_check = 1 AND HC_REVIEW_check = 0 AND ga_msa_check = 1 THEN 
-			'IF snap_panel_status = "" AND cash_panel_status = "" AND ga_panel_status = "" AND msa_panel_status = "" THEN 
+		ELSEIF FS_MF_review_check = 1 AND HC_REVIEW_check = 0 AND ga_msa_check = 1 THEN
+			'IF snap_panel_status = "" AND cash_panel_status = "" AND ga_panel_status = "" AND msa_panel_status = "" THEN
 			'	SET objRange = objExcel.Cells(excel_row, 1).EntireRow
 			'	objRange.Delete
 			'	excel_row = excel_row - 1
 			'END IF
 		'If reviewing HC and GA/MSA...
-		ELSEIF FS_MF_review_check = 0 AND HC_REVIEW_check = 1 AND ga_msa_check = 1 THEN 
-			'IF hc_panel_status = "" AND hc_actv_missing_revw = "" AND ga_panel_status = "" AND msa_panel_status = "" THEN 
-			'	SET objRange = objExcel.Cells(excel_row, 1).EntireRow
-			'	objRange.Delete
-			'	excel_row = excel_row - 1
-			'END IF			
-		'If reviewing GA/MSA only...
-		ELSEIF FS_MF_review_check = 0 AND HC_REVIEW_check = 0 AND ga_msa_check = 1 THEN 
-			'IF ga_panel_status = "" AND msa_panel_status = "" THEN 
-			'	SET objRange = objExcel.Cells(excel_row, 1).EntireRow
-			'	objRange.Delete
-			'	excel_row = excel_row - 1
-			'END IF			
-		'If reviewing HC only...
-		ELSEIF FS_MF_review_check = 0 AND HC_REVIEW_check = 1 AND ga_msa_check = 0 THEN 
-			'IF hc_panel_status = "" AND hc_actv_missing_revw = "" THEN 
-			'	SET objRange = objExcel.Cells(excel_row, 1).EntireRow
-			'	objRange.Delete
-			'	excel_row = excel_row - 1
-			'END IF			
-		'If reviewing FS/MFIP only...
-		ELSEIF FS_MF_review_check = 1 AND HC_REVIEW_check = 0 AND ga_msa_check = 0 THEN 
-			'IF snap_panel_status = "" AND cash_panel_status = "" THEN 
+		ELSEIF FS_MF_review_check = 0 AND HC_REVIEW_check = 1 AND ga_msa_check = 1 THEN
+			'IF hc_panel_status = "" AND hc_actv_missing_revw = "" AND ga_panel_status = "" AND msa_panel_status = "" THEN
 			'	SET objRange = objExcel.Cells(excel_row, 1).EntireRow
 			'	objRange.Delete
 			'	excel_row = excel_row - 1
 			'END IF
-		END IF		
+		'If reviewing GA/MSA only...
+		ELSEIF FS_MF_review_check = 0 AND HC_REVIEW_check = 0 AND ga_msa_check = 1 THEN
+			'IF ga_panel_status = "" AND msa_panel_status = "" THEN
+			'	SET objRange = objExcel.Cells(excel_row, 1).EntireRow
+			'	objRange.Delete
+			'	excel_row = excel_row - 1
+			'END IF
+		'If reviewing HC only...
+		ELSEIF FS_MF_review_check = 0 AND HC_REVIEW_check = 1 AND ga_msa_check = 0 THEN
+			'IF hc_panel_status = "" AND hc_actv_missing_revw = "" THEN
+			'	SET objRange = objExcel.Cells(excel_row, 1).EntireRow
+			'	objRange.Delete
+			'	excel_row = excel_row - 1
+			'END IF
+		'If reviewing FS/MFIP only...
+		ELSEIF FS_MF_review_check = 1 AND HC_REVIEW_check = 0 AND ga_msa_check = 0 THEN
+			'IF snap_panel_status = "" AND cash_panel_status = "" THEN
+			'	SET objRange = objExcel.Cells(excel_row, 1).EntireRow
+			'	objRange.Delete
+			'	excel_row = excel_row - 1
+			'END IF
+		END IF
 	END IF
 
 	IF homeless_check = 1 THEN
 		CALL navigate_to_MAXIS_screen("STAT", "ADDR")
 		EMReadScreen addr_line, 16, 6, 43
 		EMReadScreen homeless_yn, 1, 10, 43
-		IF homeless_yn = "Y" OR addr_line = "GENERAL DELIVERY" THEN 
+		IF homeless_yn = "Y" OR addr_line = "GENERAL DELIVERY" THEN
 			objExcel.Cells(excel_row, homeless_col).Value = "HOMELESS"
 		'ELSEIF homeless_yn <> "Y" AND addr_line <> "GENERAL DELIVERY" THEN
 		'	SET objRange = objExcel.Cells(excel_row, 1).EntireRow
 		'	objRange.Delete
 		'	excel_row = excel_row - 1
-		END IF			
+		END IF
 	END IF
 
 	IF MAEPD_check = 1 THEN
@@ -1592,8 +1592,8 @@ Do
 						transmit
 						EMWriteScreen "RELG", 1, 8
 						transmit
-				
-						'Reading RELG to determine if the CL is active on MA-EPD		
+
+						'Reading RELG to determine if the CL is active on MA-EPD
 						EMReadScreen prog01_type, 8, 6, 13
 							EMReadScreen elig01_type, 2, 6, 33
 							EMReadScreen elig01_end, 8, 7, 36
@@ -1611,7 +1611,7 @@ Do
 							(prog02_type = "MEDICAID" AND elig02_type = "DP" AND elig02_end = "99/99/99") OR _
 							(prog03_type = "MEDICAID" AND elig03_type = "DP" AND elig03_end = "99/99/99") OR _
 							(prog04_type = "MEDICAID" AND elig04_type = "DP" AND elig04_end = "99/99/99")) THEN
-				
+
 							EMWriteScreen "RMCR", 1, 8
 							transmit
 
@@ -1622,11 +1622,11 @@ Do
 							EMReadScreen part_b_begin02, 8, 14, 4
 								part_b_begin02 = trim(part_b_begin02)
 							EMReadScreen part_b_end02, 8, 14, 15
-							
-							IF (part_b_begin01 <> "" AND part_b_end01 = "99/99/99") THEN		
+
+							IF (part_b_begin01 <> "" AND part_b_end01 = "99/99/99") THEN
 								EMWriteScreen "RBYB", 1, 8
 								transmit
-								
+
 								EMReadScreen accrete_date, 8, 5, 66
 								EMReadScreen delete_date, 8, 6, 65
 								accrete_date = replace(accrete_date, " ", "")
@@ -1666,12 +1666,12 @@ Do
 		'	SET objRange = objExcel.Cells(excel_row, 1).EntireRow
 		'	objRange.Delete
 		'	excel_row = excel_row - 1
-		'END IF				
+		'END IF
 	END IF
 	excel_row = excel_row + 1
 Loop until MAXIS_case_number = ""
 
-IF ga_msa_check = 1 THEN 
+IF ga_msa_check = 1 THEN
 	objExcel.Cells(1, col_to_use + 1).Value = "GA cases highlighted YELLOW indicate GA case with active income panel."
 	objExcel.Cells(1, col_to_use + 1).Interior.ColorIndex = 6
 	objExcel.Columns(col_to_use + 1).AutoFit()
@@ -1698,21 +1698,21 @@ NEXT
 script_end_procedure("DONE!!")
 
 '----------------------------------------------------------------------------------------------------Excess code, not being used right now
-'IF banked_month_check = 1 THEN 
+'IF banked_month_check = 1 THEN
 '	objExcel.Cells(1, col_to_use).Value = "Banked Months on MISC?"
 '	banked_col = col_to_use
 '	col_to_use = col_to_use + 1
 'END IF
 
-'IF banked_month_check = 1 THEN 
+'IF banked_month_check = 1 THEN
 '	CALL navigate_to_MAXIS_screen("STAT", "MISC")
 '	EMReadScreen num_of_MISC, 1, 2, 78
-'	IF num_of_MISC = "1" THEN 
+'	IF num_of_MISC = "1" THEN
 '		MISC_row = 6
 '		DO
 '			EMReadScreen MISC_description, 25, MISC_row, 30
 '			EMReadScreen MISC_item, 10, MISC_row, 66
-'			IF InStr(UCase(MISC_description), "BANKED") <> 0 THEN 
+'			IF InStr(UCase(MISC_description), "BANKED") <> 0 THEN
 '				MISC_description = replace(MISC_description, "_", "")
 '				MISC_item = replace(MISC_item, "_", "")
 '				objExcel.Cells(excel_row, banked_col).Value = objExcel.Cells(excel_row, banked_col).Value & MISC_description & "," & MISC_item & "; "
@@ -1720,35 +1720,35 @@ script_end_procedure("DONE!!")
 '			MISC_row = MISC_row + 1
 '		LOOP UNTIL MISC_row = 17
 '	END IF
-'	IF objExcel.Cells(excel_row, banked_col).Value = "" THEN 
+'	IF objExcel.Cells(excel_row, banked_col).Value = "" THEN
 '		SET objBankedRange = objExcel.Cells(excel_row, 1).EntireRow
 '		objBankedRange.Delete
 '		excel_row = excel_row - 1
 '	END IF
 'END IF
 
-'IF imig_ctzn_check = 1 THEN 
+'IF imig_ctzn_check = 1 THEN
 '	excel_row = 2
 '	DO
 '		back_to_SELF
 '		MAXIS_case_number = objExcel.Cells(excel_row, 2).Value
-'		IF objExcel.Cells(excel_row, interp_col).Value = "N" AND objExcel.Cells(excel_row, alien_id_col).Value <> "" THEN 
+'		IF objExcel.Cells(excel_row, interp_col).Value = "N" AND objExcel.Cells(excel_row, alien_id_col).Value <> "" THEN
 '			membs_group = objExcel.Cells(excel_row, alien_id_col).Value
 '			membs_group = split(membs_group, ";")
 '			actv_group = ""
-'			
+'
 '			FOR EACH person IN membs_group
-'				IF person <> "" THEN 
+'				IF person <> "" THEN
 '					CALL navigate_to_MAXIS_screen("CASE", "PERS")
 '					pers_row = 9
 '					DO
 '						EMReadScreen pers_pers, 2, pers_row, 3
-'						IF pers_pers = person THEN 
+'						IF pers_pers = person THEN
 '							EMReadScreen active_progs, 34, pers_row, 46
 '							IF InStr(active_progs, "A") <> 0 THEN actv_group = actv_group & person & ";"
 '						ELSE
 '							pers_row = pers_row + 1
-'							IF pers_row = 18 THEN 
+'							IF pers_row = 18 THEN
 '								PF8
 '								pers_row = 9
 '								EMReadScreen last_page, 21, 24, 2
