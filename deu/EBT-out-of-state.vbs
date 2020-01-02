@@ -58,7 +58,7 @@ date_due = dateadd("d", 10, date)
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog EBT_dialog, 0, 0, 281, 85, "EBT OUT OF STATE "
+BeginDialog Dialog1, 0, 0, 281, 85, "EBT OUT OF STATE "
   EditBox 60, 5, 40, 15, maxis_case_number
   EditBox 190, 5, 50, 15, bene_date
   EditBox 60, 25, 40, 15, MEMB_number
@@ -79,8 +79,8 @@ EndDialog
 DO
 	DO
 		err_msg = ""
-		Dialog EBT_dialog
-		IF ButtonPressed = 0 THEN StopScript
+		Dialog Dialog1
+		cancel_without_confirmation
 		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 		If out_of_state = ""  then err_msg = err_msg & vbNewLine & "* Enter the state(s) that the client has used benefits in."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine

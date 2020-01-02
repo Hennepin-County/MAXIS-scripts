@@ -81,7 +81,8 @@ CALL MAXIS_case_number_finder(MAXIS_case_number)
 back_to_SELF' added to ensure we have the time to update and send the case in the background
 
 '-------------------------------------------------------------------------------------------------DIALOG
-BeginDialog initial_dialog, 0, 0, 116, 45, "Application Received"
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 116, 45, "Application Received"
   EditBox 65, 5, 45, 15, MAXIS_case_number
   ButtonGroup ButtonPressed
     OkButton 5, 25, 50, 15
@@ -93,8 +94,8 @@ EndDialog
 Do
 	Do
 		err_msg = ""
-		Dialog initial_dialog
-		cancel_confirmation
+		Dialog Dialog1
+		cancel_without_confirmation
       	IF IsNumeric(maxis_case_number) = false or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
 	Loop until err_msg = ""
@@ -332,8 +333,9 @@ IF programs_applied_for = "" THEN
     Loop
 END IF
 
-'----------------------------------------------------------------------------------------------------dialogs
-BeginDialog appl_detail_dialog, 0, 0, 291, 195, "Application Received for: "  & programs_applied_for &  " on "  & application_date
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 291, 195, "Application Received for: "  & programs_applied_for &  " on "  & application_date
   DropListBox 85, 10, 75, 15, "Select One:"+chr(9)+"MDQ"+chr(9)+"Office"+chr(9)+"Online"+chr(9)+"Request to APPL Form", how_app_rcvd
   DropListBox 85, 30, 75, 15, "Select One:"+chr(9)+"ApplyMN"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Pop"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer"+chr(9)+"N/A", app_type
   EditBox 235, 10, 45, 15, request_date
@@ -375,8 +377,8 @@ BeginDialog appl_detail_dialog, 0, 0, 291, 195, "Application Received for: "  & 
     	Do
 			err_msg = ""
 		Do
-    		Dialog appl_detail_dialog
-    		cancel_confirmation
+    		Dialog Dialog1
+    		cancel_without_confirmation
 			If ButtonPressed = geocoder_button then CreateObject("WScript.Shell").Run("https://hcgis.hennepin.us/agsinteractivegeocoder/default.aspx")
 		Loop until ButtonPressed = -1
     	IF how_app_rcvd = "Select One:" then err_msg = err_msg & vbNewLine & "* Please enter how the application was received to the agency."
@@ -446,8 +448,10 @@ CALL write_variable_in_CASE_NOTE (worker_signature)
 PF3 ' to save Case note
 
 '----------------------------------------------------------------------------------------------------EXPEDITED SCREENING!
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
 IF snap_pends = TRUE THEN
-    BeginDialog exp_screening_dialog, 0, 0, 181, 165, "Expedited Screening"
+    BeginDialog Dialog1, 0, 0, 181, 165, "Expedited Screening"
      	EditBox 100, 5, 50, 15, MAXIS_case_number
      	EditBox 100, 25, 50, 15, income
      	EditBox 100, 45, 50, 15, assets
@@ -487,8 +491,8 @@ IF snap_pends = TRUE THEN
     Do
     	Do
     		err_msg = ""
-    		Dialog exp_screening_dialog
-    		cancel_confirmation
+    		Dialog Dialog1
+    		cancel_without_confirmation
     		If isnumeric(MAXIS_case_number) = False THEN err_msg = err_msg & vbnewline & "* You must enter a valid case number."
     		If (income <> "" and isnumeric(income) = false) or (assets <> "" and isnumeric(assets) = false) or (rent <> "" and isnumeric(rent) = false) THEN err_msg = err_msg & vbnewline & "* The income/assets/rent fields must be numeric only. Do not put letters or symbols in these sections."
     		If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
@@ -621,7 +625,9 @@ IF MA_transition_request_checkbox = CHECKED THEN CALL create_outlook_email("", "
 IF cash_pends = TRUE or cash2_pends = TRUE or SNAP_pends = TRUE or grh_pends or instr(programs_applied_for, "EGA") THEN send_appt_ltr = TRUE
 if interview_completed = TRUE Then send_appt_ltr = FALSE
 IF send_appt_ltr = TRUE THEN
-	BeginDialog Hennepin_appt_dialog, 0, 0, 266, 80, "APPOINTMENT LETTER"
+	'-------------------------------------------------------------------------------------------------DIALOG
+	Dialog1 = "" 'Blanking out previous dialog detail
+	BeginDialog Dialog1, 0, 0, 266, 80, "APPOINTMENT LETTER"
     EditBox 185, 20, 55, 15, interview_date
     ButtonGroup ButtonPressed
     	OkButton 155, 60, 50, 15
@@ -652,8 +658,8 @@ IF send_appt_ltr = TRUE THEN
 	Do
 		Do
     		err_msg = ""
-    		dialog Hennepin_appt_dialog
-    		cancel_confirmation
+    		dialog Dialog1
+    		cancel_without_confirmation
 			If isdate(application_date) = False then err_msg = err_msg & vbnewline & "* Enter a valid application date."
     		If isdate(interview_date) = False then err_msg = err_msg & vbnewline & "* Enter a valid interview date."
     		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect

@@ -226,27 +226,6 @@ sent_date = trim(sent_date)
 'IF sent_date = "" THEN sent_date = replace(sent_date, " ", "/")
 IF sent_date <> "" THEN sent_date = replace(sent_date, " ", "/")
 
-'-------------------------------------------------------------------------------------------------DIALOG
-Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog send_notice_dialog, 0, 0, 296, 160, "WAGE MATCH SEND DIFFERENCE NOTICE"
-  CheckBox 10, 80, 70, 10, "Difference Notice", Diff_Notice_Checkbox
-  CheckBox 110, 80, 90, 10, "Employment Verification", empl_verf_checkbox
-  CheckBox 10, 95, 90, 10, "Authorization to Release", ATR_Verf_CheckBox
-  CheckBox 110, 95, 80, 10, "Other (please specify)", other_checkbox
-  EditBox 50, 120, 240, 15, other_notes
-  ButtonGroup ButtonPressed
-    OkButton 195, 140, 45, 15
-    CancelButton 245, 140, 45, 15
-  GroupBox 5, 5, 285, 55, "WAGE MATCH"
-  GroupBox 5, 65, 200, 50, "Verification Requested: "
-  Text 10, 20, 110, 10, "Case number: "  & MAXIS_case_number
-  Text 120, 20, 165, 10, "Client name: "  & client_name
-  Text 10, 40, 105, 10, "Active Programs: "  & programs
-  Text 120, 40, 165, 15, "Income source: "   & income_source
-  Text 5, 125, 40, 10, "Other notes:"
-  CheckBox 5, 145, 180, 10, "Check to add claim referral tracking(SNAP and MF)", claim_referral_tracking_checkbox
-EndDialog
-
 IF notice_sent = "N" THEN
     '-------------------------------------------------------------------------------------------------DIALOG
     Dialog1 = "" 'Blanking out previous dialog detail
@@ -261,7 +240,7 @@ IF notice_sent = "N" THEN
 	DO
     	err_msg = ""
     	Dialog Dialog1
-    	IF ButtonPressed = 0 THEN StopScript
+    	cancel_without_confirmation
     	IF send_notice_checkbox = UNCHECKED AND clear_action_checkbox = UNCHECKED THEN err_msg = err_msg & vbNewLine & "* Please select an answer to continue."
     	IF send_notice_checkbox = CHECKED AND clear_action_checkbox = CHECKED THEN err_msg = err_msg & vbNewLine & "* Please select only one answer to continue."
     	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
@@ -273,11 +252,30 @@ IF send_notice_checkbox = CHECKED THEN
 '----------------------------------------------------------------Defaulting checkboxes to being checked (per DEU instruction)
     Diff_Notice_Checkbox = CHECKED
     ATR_Verf_CheckBox = CHECKED
-'---------------------------------------------------------------------send notice dialog and dialog DO...loop
+	'-------------------------------------------------------------------------------------------------DIALOG
+	Dialog1 = "" 'Blanking out previous dialog detail
+	BeginDialog Dialog1, 0, 0, 296, 160, "WAGE MATCH SEND DIFFERENCE NOTICE"
+	  CheckBox 10, 80, 70, 10, "Difference Notice", Diff_Notice_Checkbox
+	  CheckBox 110, 80, 90, 10, "Employment Verification", empl_verf_checkbox
+	  CheckBox 10, 95, 90, 10, "Authorization to Release", ATR_Verf_CheckBox
+	  CheckBox 110, 95, 80, 10, "Other (please specify)", other_checkbox
+	  EditBox 50, 120, 240, 15, other_notes
+	  ButtonGroup ButtonPressed
+	    OkButton 195, 140, 45, 15
+	    CancelButton 245, 140, 45, 15
+	  GroupBox 5, 5, 285, 55, "WAGE MATCH"
+	  GroupBox 5, 65, 200, 50, "Verification Requested: "
+	  Text 10, 20, 110, 10, "Case number: "  & MAXIS_case_number
+	  Text 120, 20, 165, 10, "Client name: "  & client_name
+	  Text 10, 40, 105, 10, "Active Programs: "  & programs
+	  Text 120, 40, 165, 15, "Income source: "   & income_source
+	  Text 5, 125, 40, 10, "Other notes:"
+	  CheckBox 5, 145, 180, 10, "Check to add claim referral tracking(SNAP and MF)", claim_referral_tracking_checkbox
+	EndDialog
 	DO
     	err_msg = ""
-    	Dialog send_notice_dialog
-    	cancel_confirmation
+    	Dialog Dialog1
+    	cancel_without_confirmation
 		IF other_checkbox = CHECKED and other_notes = "" THEN err_msg = err_msg & vbNewLine & "* Please specify what other is to continue."
     	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
@@ -436,7 +434,7 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	DO
 		err_msg = ""
 		Dialog Dialog1
-		cancel_confirmation
+		cancel_without_confirmation
 		IF IsNumeric(resolve_time) = false or len(resolve_time) > 3 THEN err_msg = err_msg & vbNewLine & "Please enter a valid numeric resolved time, ie 005."
 		'IF resolution_status = "CB-Ovrpmt And Future Save" or resolution_status = "CC-Overpayment Only" or resolution_status = "CF-Future Save" or resolution_status = "CA-Excess Assets" or resolution_status = "CI-Benefit Increase" or resolution_status = "CP-Applicant Only Savings" or resolution_status = "BC-Case Closed" or resolution_status = "BE-No Change" or resolution_status = "BE-NC-Non-collectible" or resolution_status = "BN-Already Known-No Savings" or resolution_status ="BP-Wrong Person" or resolution_status = "BO-Other" and date_received = "" THEN err_msg = err_msg & vbNewLine & "Please advise of date verification was recieved in ECF."
 		IF other_checkbox = CHECKED and other_notes = "" THEN err_msg = err_msg & vbNewLine & "Please advise what other verification was used to clear the match."
@@ -481,7 +479,6 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	    	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	    LOOP UNTIL err_msg = ""
 	    CALL check_for_password_without_transmit(are_we_passworded_out)
-
  	    IF IULB_result_dropdown = "Case Became Ineligible" THEN IULB_result = "I"
 	    IF IULB_result_dropdown = "Person Removed" THEN IULB_result = "R"
 	    IF IULB_result_dropdown = "Benefit Increased" THEN IULB_result = "P"

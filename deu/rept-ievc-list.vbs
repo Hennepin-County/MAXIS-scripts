@@ -67,14 +67,14 @@ EndDialog
 EMConnect ""
 
 DO
-	    DO
-        	err_msg = ""
-        	Dialog Dialog1
-        	cancel_without_confirmation
-        	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-        LOOP UNTIL err_msg = ""
-		CALL check_for_password_without_transmit(are_we_passworded_out)
-	Loop until are_we_passworded_out = false
+    DO
+    	err_msg = ""
+    	Dialog Dialog1
+    	cancel_without_confirmation
+    	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+    LOOP UNTIL err_msg = ""
+	CALL check_for_password_without_transmit(are_we_passworded_out)
+Loop until are_we_passworded_out = false
 'Starting the query start time (for the query runtime at the end)
 query_start_time = timer
 Call check_for_MAXIS(False)

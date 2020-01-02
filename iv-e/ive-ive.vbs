@@ -56,7 +56,8 @@ changelog_display
 EMConnect ""
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 
-'Running the initial dialog
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog dialog1, 0, 0, 181, 75, "Select a IV-E option"
   EditBox 95, 10, 60, 15, MAXIS_case_number
   DropListBox 95, 30, 75, 15, "Select one..."+chr(9)+"Approved 1"+chr(9)+"Approved 2"+chr(9)+"Closing"+chr(9)+"Denied", action_option
@@ -78,7 +79,7 @@ DO
  Call check_for_password(are_we_passworded_out)
 LOOP UNTIL check_for_password(are_we_passworded_out) = False
 
-If action_option = "Approved 1" then 
+If action_option = "Approved 1" then
     dialog1 = ""
     BeginDialog dialog1, 0, 0, 386, 310, "IV-E approved one"
       EditBox 70, 10, 55, 15, app_date
@@ -132,7 +133,7 @@ If action_option = "Approved 1" then
       Text 5, 170, 60, 10, "AFDC HH assets:"
       Text 110, 230, 125, 10, "Custody of child transferred to county:"
     EndDialog
-    
+
 	DO
 		DO
 			err_msg = ""
@@ -159,7 +160,7 @@ If action_option = "Approved 1" then
 		LOOP UNTIL err_msg = ""
  		Call check_for_password(are_we_passworded_out)
 	LOOP UNTIL check_for_password(are_we_passworded_out) = False
-    
+
 	'The case note
     start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
 	Call write_variable_in_CASE_NOTE("**IV-E approved (correction) on " & IVE_app & "**")
@@ -173,18 +174,18 @@ If action_option = "Approved 1" then
     Call write_bullet_and_variable_in_CASE_NOTE("Best interest", best_interest)
     Call write_bullet_and_variable_in_CASE_NOTE("Reasonable efforts", resonable_efforts)
     Call write_bullet_and_variable_in_CASE_NOTE("Mother's name/case #", mother_info)
-	Call write_bullet_and_variable_in_CASE_NOTE("Father's name/case #", father_info) 
+	Call write_bullet_and_variable_in_CASE_NOTE("Father's name/case #", father_info)
     Call write_variable_in_CASE_NOTE("* HH income: " & HH_income & ". Verif: " & income_verif)
     Call write_variable_in_CASE_NOTE("* HH assets: " & HH_assets & ". Verif: " & asset_verif)
     Call write_variable_in_CASE_NOTE("* HH comp: " & HH_comp & ". Verif: " & HH_verif)
-    call write_bullet_and_variable_in_CASE_NOTE("Rule 5", rule_five) 
-	Call write_bullet_and_variable_in_CASE_NOTE("Overpayments", Overpayments) 
-    Call write_bullet_and_variable_in_CASE_NOTE("Custody of child transferred to county", county_transfer)    
+    call write_bullet_and_variable_in_CASE_NOTE("Rule 5", rule_five)
+	Call write_bullet_and_variable_in_CASE_NOTE("Overpayments", Overpayments)
+    Call write_bullet_and_variable_in_CASE_NOTE("Custody of child transferred to county", county_transfer)
     Call write_bullet_and_variable_in_CASE_NOTE("Results", Results)
     If SSIS_checkbox = 1 then Call write_variable_in_CASE_NOTE("* SSIS checked.")
-END IF 
+END IF
 
-If action_option = "Approved 2" then 
+If action_option = "Approved 2" then
     dialog1 = ""
     BeginDialog dialog1, 0, 0, 386, 310, "IV-E approved two"
       EditBox 70, 10, 55, 15, app_date
@@ -238,7 +239,7 @@ If action_option = "Approved 2" then
       Text 240, 55, 85, 10, "Court order hearing date:"
       Text 240, 35, 85, 10, "Physical placement date:"
     EndDialog
-    
+
 	DO
 		DO
 			err_msg = ""
@@ -265,7 +266,7 @@ If action_option = "Approved 2" then
 		LOOP UNTIL err_msg = ""
  		Call check_for_password(are_we_passworded_out)
 	LOOP UNTIL check_for_password(are_we_passworded_out) = False
-    
+
 	'The case note
     start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
 	Call write_variable_in_CASE_NOTE("**IV-E approved (correction) on " & app_date & "**")
@@ -279,18 +280,18 @@ If action_option = "Approved 2" then
     Call write_bullet_and_variable_in_CASE_NOTE("Best interest", best_interest)
     Call write_bullet_and_variable_in_CASE_NOTE("Reasonable efforts", resonable_efforts)
     Call write_bullet_and_variable_in_CASE_NOTE("Mother's name/case #", mother_info)
-	Call write_bullet_and_variable_in_CASE_NOTE("Father's name/case #", father_info) 
+	Call write_bullet_and_variable_in_CASE_NOTE("Father's name/case #", father_info)
     Call write_variable_in_CASE_NOTE("* HH income: " & HH_income & ". Verif: " & income_verif)
     Call write_variable_in_CASE_NOTE("* HH assets: " & HH_assets & ". Verif: " & asset_verif)
     Call write_variable_in_CASE_NOTE("* HH comp: " & HH_comp & ". Verif: " & HH_verif)
-    call write_bullet_and_variable_in_CASE_NOTE("Rule 5", rule_five) 
-	Call write_bullet_and_variable_in_CASE_NOTE("Overpayments", Overpayments) 
-    Call write_bullet_and_variable_in_CASE_NOTE("Custody of child transferred to county", county_transfer)    
+    call write_bullet_and_variable_in_CASE_NOTE("Rule 5", rule_five)
+	Call write_bullet_and_variable_in_CASE_NOTE("Overpayments", Overpayments)
+    Call write_bullet_and_variable_in_CASE_NOTE("Custody of child transferred to county", county_transfer)
     Call write_bullet_and_variable_in_CASE_NOTE("Results", Results)
     If SSIS_checkbox = 1 then Call write_variable_in_CASE_NOTE("* SSIS checked.")
-END IF 
+END IF
 
-If action_option = "Closing" then 
+If action_option = "Closing" then
     dialog1 = ""
     BeginDialog dialog1, 0, 0, 341, 150, "IV-E closing"
       EditBox 115, 5, 60, 15, IVE_closure_date
@@ -329,7 +330,7 @@ If action_option = "Closing" then
 		LOOP UNTIL err_msg = ""
  	Call check_for_password(are_we_passworded_out)
 	LOOP UNTIL check_for_password(are_we_passworded_out) = False
-	
+
 	'The case note
     start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
     Call write_variable_in_CASE_NOTE("<<IV-E closing effective " & IVE_closure_date & ">>")
@@ -340,7 +341,7 @@ If action_option = "Closing" then
     Call write_bullet_and_variable_in_CASE_NOTE("Check reimbursability months", reim_months)
 END IF
 
-If action_option = "Denied" then 
+If action_option = "Denied" then
     dialog1 = ""
     BeginDialog dialog1, 0, 0, 341, 240, "IV-E denied"
       EditBox 100, 10, 55, 15, IVE_denied_date
@@ -380,7 +381,7 @@ If action_option = "Denied" then
       Text 190, 75, 85, 10, "Court order hearing date:"
       Text 30, 35, 70, 10, "Reason IV-E denied:"
     EndDialog
-    
+
 	DO
 		DO
 			err_msg = ""
@@ -410,14 +411,14 @@ If action_option = "Denied" then
     Call write_bullet_and_variable_in_CASE_NOTE("Reason(s) for closure", denial_reason)
     Call write_bullet_and_variable_in_CASE_NOTE("Elig months/6 months prior", elig_months)
     Call write_bullet_and_variable_in_CASE_NOTE("Date petition filed", date_pet_filed)
-	Call write_bullet_and_variable_in_CASE_NOTE("Court order hearing date", court_date) 
+	Call write_bullet_and_variable_in_CASE_NOTE("Court order hearing date", court_date)
 	Call write_bullet_and_variable_in_CASE_NOTE("Physical placement date", placement_date)
     Call write_variable_in_CASE_NOTE("* HH income: " & HH_income & ". Income verif: " & income_verif)
     Call write_variable_in_CASE_NOTE("* HH assets: " & HH_assets & ". Asset verif: " & asset_verif)
     Call write_variable_in_CASE_NOTE("* HH comp: " & HH_comp & ". HH comp verif: " & HH_verif)
 	Call write_bullet_and_variable_in_CASE_NOTE("Results", Results)
 	If SSIS_checkbox = 1 then Call write_variable_in_CASE_NOTE("* SSIS checked.")
-END IF 
+END IF
 
 Call write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
 Call write_variable_in_CASE_NOTE ("---")

@@ -99,7 +99,6 @@ If case_status = "CAF2 PEN" THEN active_status = TRUE
 If case_status = "CAF1 PEN" THEN active_status = TRUE
 IF case_status = "REIN" THEN active_status = TRUE
 
-
 Call MAXIS_footer_month_confirmation
 CALL navigate_to_MAXIS_screen("STAT", "PROG")		'Goes to STAT/PROG
 'Checking for PRIV cases.
@@ -278,7 +277,7 @@ Do
 	Do
 		err_msg = ""
 		dialog Dialog1
-		cancel_confirmation
+		cancel_without_confirmation
 		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* Enter a valid case number."
 		'If isnumeric(MAXIS_footer_month) = false then err_msg = err_msg & vbnewline & "* You must enter the footer month to begin good cause."
 		'If isnumeric(MAXIS_footer_year) = false then err_msg = err_msg & vbnewline & "* You must enter the footer year to begin good cause."
@@ -303,9 +302,7 @@ Do
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-
 '----------------------------------------------------------------------------------------------------ABPS panel
-
     MAXIS_background_check
     Call MAXIS_footer_month_confirmation
     'build in something to confimr claim date vs footer month'
@@ -378,7 +375,7 @@ DO
 		END IF
 	END IF
 
-	EMReadScreen parental_status, 1, 15, 53	'making sure ABPS is not unknown.
+	EMReadScreen parental_status_number, 1, 15, 53	'making sure ABPS is not unknown.
 	EMReadScreen custodial_status, 1, 15, 57
 	IF parental_status_number = "1" THEN
 		EMReadScreen first_name, 12, 10, 63

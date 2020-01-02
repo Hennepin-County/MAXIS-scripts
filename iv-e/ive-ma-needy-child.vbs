@@ -55,7 +55,8 @@ changelog_display
 'Connecting to BlueZone, grabbing case number
 EMConnect ""
 CALL MAXIS_case_number_finder(MAXIS_case_number)
-
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog dialog1, 0, 0, 181, 75, "Select a MA needy child option"
   EditBox 95, 10, 60, 15, MAXIS_case_number
   DropListBox 95, 30, 60, 10, "Select one..."+chr(9)+"Close"+chr(9)+"ER"+chr(9)+"Open", action_option
@@ -79,7 +80,7 @@ DO
  Call check_for_password(are_we_passworded_out)
 LOOP UNTIL check_for_password(are_we_passworded_out) = False
 
-If action_option = "Close" then 
+If action_option = "Close" then
     dialog1 = ""
     BeginDialog dialog1, 0, 0, 291, 195, "MA needy child closed"
       EditBox 65, 10, 70, 15, effective_date
@@ -114,27 +115,27 @@ If action_option = "Close" then
 			If isDate(effective_date) = False then err_msg = err_msg & vbNewLine & "* Enter a valid effective date."
             IF reason_close = "" then err_msg = err_msg & vbNewLine & "* Enter the reason for closure."
 			If placement_ended = "" then err_msg = err_msg & vbNewLine & "* Enter information about the placement ending."
-			If notified_by = "" then err_msg = err_msg & vbNewLine & "* Enter the 'notified by' information." 
+			If notified_by = "" then err_msg = err_msg & vbNewLine & "* Enter the 'notified by' information."
 			If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Enter your worker signature."
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 		LOOP UNTIL err_msg = ""
  	Call check_for_password(are_we_passworded_out)
 	LOOP UNTIL check_for_password(are_we_passworded_out) = False
-	
+
 	'The case note
     start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
     Call write_variable_in_CASE_NOTE("**MA Needy child closed effective " & effective_date & "**")
     Call write_bullet_and_variable_in_CASE_NOTE("Reason(s)", reason_close)
     Call write_bullet_and_variable_in_CASE_NOTE("placement ended", placement_ended)
-    Call write_bullet_and_variable_in_CASE_NOTE("Notified by", notified_by) 
+    Call write_bullet_and_variable_in_CASE_NOTE("Notified by", notified_by)
     call write_bullet_and_variable_in_CASE_NOTE("Over income", over_income)
-    Call write_bullet_and_variable_in_CASE_NOTE("Fail to provide", fail_to_provide) 
-    Call write_bullet_and_variable_in_CASE_NOTE("Other", Other) 
+    Call write_bullet_and_variable_in_CASE_NOTE("Fail to provide", fail_to_provide)
+    Call write_bullet_and_variable_in_CASE_NOTE("Other", Other)
     If closed_files_checkbox = 1 then Call write_variable_in_CASE_NOTE("* MAXIS/ECF case sent to closed files.")
     If MMIS_updated_checkbox = 1 then Call write_variable_in_CASE_NOTE("* MMIS updated.")
 END IF
 
-If action_option = "ER" then 
+If action_option = "ER" then
     dialog1 = ""
     BeginDialog dialog1, 0, 0, 286, 175, "MA needy child ER"
       EditBox 45, 10, 40, 15, ER_date
@@ -181,16 +182,16 @@ If action_option = "ER" then
 
 	'The case note
     start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
-	Call write_variable_in_CASE_NOTE("**MA Needy child ER rec'd for " & ER_date & "**") 
+	Call write_variable_in_CASE_NOTE("**MA Needy child ER rec'd for " & ER_date & "**")
 	Call write_bullet_and_variable_in_CASE_NOTE("HCAPP rec'd date", HCAPP_date)
 	Call write_bullet_and_variable_in_CASE_NOTE("Client age", child_age)
 	Call write_bullet_and_variable_in_CASE_NOTE("AREP", AREP)
     Call write_bullet_and_variable_in_CASE_NOTE("Income", income)
-    Call write_bullet_and_variable_in_CASE_NOTE("OHC", OHC) 
-    call write_bullet_and_variable_in_CASE_NOTE("Placement info", placement_info) 
-    Call write_bullet_and_variable_in_CASE_NOTE("Rule 5", Rule_five) 
+    Call write_bullet_and_variable_in_CASE_NOTE("OHC", OHC)
+    call write_bullet_and_variable_in_CASE_NOTE("Placement info", placement_info)
+    Call write_bullet_and_variable_in_CASE_NOTE("Rule 5", Rule_five)
     If MMIS_updated_checkbox = 1 then Call write_variable_in_CASE_NOTE("* MMIS updated.")
-END IF 
+END IF
 
 If action_option = "Open" then
     dialog1 = ""
@@ -239,16 +240,16 @@ If action_option = "Open" then
 			If ER_date = "" then err_msg = err_msg & vbNewLine & "* Enter the ER date."
 			IF income = "" then err_msg = err_msg & vbNewLine & "* Enter the income information."
             If MMIS = "" then err_msg = err_msg & vbNewLine & "* Enter the MMIS information."
-            If placed = "" then err_msg = err_msg & vbNewLine & "* Enter the placement information." 
-			If Results = "" then err_msg = err_msg & vbNewLine & "* Enter the results information."   
+            If placed = "" then err_msg = err_msg & vbNewLine & "* Enter the placement information."
+			If Results = "" then err_msg = err_msg & vbNewLine & "* Enter the results information."
 			If Rule_five = "" then err_msg = err_msg & vbNewLine & "* Enter the Rule 5 information."
-			If isDate(due_date) = False then err_msg = err_msg & vbNewLine & "* Enter a valid due date." 
+			If isDate(due_date) = False then err_msg = err_msg & vbNewLine & "* Enter a valid due date."
 			If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Enter your worker signature."
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 		LOOP UNTIL err_msg = ""
  		Call check_for_password(are_we_passworded_out)
 	LOOP UNTIL check_for_password(are_we_passworded_out) = False
-    
+
 	'The case note
     start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
 	Call write_variable_in_CASE_NOTE("**MA Needy child opened effective " & effective_date & "**")
@@ -256,15 +257,15 @@ If action_option = "Open" then
 	Call write_bullet_and_variable_in_CASE_NOTE("HH comp", HH_comp)
 	Call write_bullet_and_variable_in_CASE_NOTE("ER date", ER_date)
     Call write_bullet_and_variable_in_CASE_NOTE("Income", income)
-	Call write_bullet_and_variable_in_CASE_NOTE("OHC", OHC) 
+	Call write_bullet_and_variable_in_CASE_NOTE("OHC", OHC)
 	Call write_bullet_and_variable_in_CASE_NOTE("MMIS", MMIS)
     Call write_bullet_and_variable_in_CASE_NOTE("AREP", AREP)
-    call write_bullet_and_variable_in_CASE_NOTE("Placed", Placed) 
-	Call write_bullet_and_variable_in_CASE_NOTE("Results", Results) 
-    Call write_bullet_and_variable_in_CASE_NOTE("Rule 5", Rule_five) 
+    call write_bullet_and_variable_in_CASE_NOTE("Placed", Placed)
+	Call write_bullet_and_variable_in_CASE_NOTE("Results", Results)
+    Call write_bullet_and_variable_in_CASE_NOTE("Rule 5", Rule_five)
 	Call write_bullet_and_variable_in_CASE_NOTE("Due date", due_date)
     If TPL_updated = 1 then Call write_variable_in_CASE_NOTE("* TPL updated.")
-END IF 
+END IF
 
 Call write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
 Call write_variable_in_CASE_NOTE ("---")

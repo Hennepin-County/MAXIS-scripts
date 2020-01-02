@@ -55,7 +55,8 @@ changelog_display
 'Connecting to BlueZone, grabbing case number
 EMConnect ""
 CALL MAXIS_case_number_finder(MAXIS_case_number)
-
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog dialog1, 0, 0, 181, 75, "Select an Adoption Assistance option"
   EditBox 95, 10, 60, 15, MAXIS_case_number
   DropListBox 95, 30, 75, 12, "Select one..."+chr(9)+"Canceled"+chr(9)+"Child in placement"+chr(9)+"Closed"+chr(9)+"Opened", action_option
@@ -78,7 +79,7 @@ DO
  Call check_for_password(are_we_passworded_out)
 LOOP UNTIL check_for_password(are_we_passworded_out) = False
 
-If action_option = "Canceled" then 
+If action_option = "Canceled" then
     dialog1 = ""
     BeginDialog dialog1, 0, 0, 291, 85, "Adoption Assistance canceled"
       EditBox 70, 5, 215, 15, cancel_reason
@@ -94,7 +95,7 @@ If action_option = "Canceled" then
       Text 10, 70, 60, 10, "Worker signature:"
       Text 20, 30, 50, 10, "Effective date:"
     EndDialog
-    
+
 	DO
 		DO
 			err_msg = ""
@@ -107,7 +108,7 @@ If action_option = "Canceled" then
 		LOOP UNTIL err_msg = ""
  	Call check_for_password(are_we_passworded_out)
 	LOOP UNTIL check_for_password(are_we_passworded_out) = False
-	
+
 	'The case note
     start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
     Call write_variable_in_CASE_NOTE("--AA canceled effective " & effective_date & "--")
@@ -157,17 +158,17 @@ If action_option = "Child in placement" then
 
 	'The case note
     start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
-	Call write_variable_in_CASE_NOTE("--AA child in placement effective " & placement_begins & "--") 
+	Call write_variable_in_CASE_NOTE("--AA child in placement effective " & placement_begins & "--")
 	Call write_bullet_and_variable_in_CASE_NOTE("Rule 5", Rule_five)
 	Call write_bullet_and_variable_in_CASE_NOTE("AREP", AREP)
-	Call write_bullet_and_variable_in_CASE_NOTE("Placed", placed) 
+	Call write_bullet_and_variable_in_CASE_NOTE("Placed", placed)
 	Call write_bullet_and_variable_in_CASE_NOTE("MMIS", MMIS)
 	Call write_bullet_and_variable_in_CASE_NOTE("Results", Results)
     Call write_variable_in_CASE_NOTE("* When placement ends, transfer case to FG1, update AREP, ADDR and ECF.")
 	If transfer_checkbox = 1 then Call write_variable_in_CASE_NOTE("* Transferred case to EW4.")
-END IF 
+END IF
 
-If action_option = "Closed" then 
+If action_option = "Closed" then
     dialog1 = ""
     BeginDialog dialog1, 0, 0, 291, 170, "Adoption Assistance closed"
       EditBox 115, 5, 170, 15, placement_ended
@@ -202,7 +203,7 @@ If action_option = "Closed" then
 		LOOP UNTIL err_msg = ""
  		Call check_for_password(are_we_passworded_out)
 	LOOP UNTIL check_for_password(are_we_passworded_out) = False
-    
+
 	'The case note
     start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
 	Call write_variable_in_CASE_NOTE("--AA closed effective " & placement_ended & "--")
@@ -212,9 +213,9 @@ If action_option = "Closed" then
 	If deleted_panels_checkbox = 1 then Call write_variable_in_CASE_NOTE("* Deleted AREP and ADDR panels.")
 	If ECF_checkbox = 1 then Call write_variable_in_CASE_NOTE("* Updated ECF.")
     If TIKL_checkbox = 1 then Call write_variable_in_CASE_NOTE("* Set TIKL for client's 18th birthday on " & birthday_TIKL & ".")
-END IF 
+END IF
 
-If action_option = "Opened" then 
+If action_option = "Opened" then
     dialog1 = ""
     BeginDialog dialog1, 0, 0, 321, 230, "Adoption Assistance opened"
       EditBox 80, 10, 60, 15, app_date
@@ -262,13 +263,13 @@ If action_option = "Opened" then
 			If TIKL_checkbox = 1 and isdate(birthday_TIKL) = False then err_msg = err_msg & vbNewLine & "* Enter a valid 18th birthday for the client."
 			If PMI_merge = "Select one..." then err_msg = err_msg & vbNewLine & "* Has there a PMI merge?"
 			If priv_request = "Select one..." then err_msg = err_msg & vbNewLine & "* Has a priv/block request been done?"
-			If IsNumeric(AA_monies) = False then err_msg = err_msg & vbNewLine & "* Enter a valid AA amount received." 
+			If IsNumeric(AA_monies) = False then err_msg = err_msg & vbNewLine & "* Enter a valid AA amount received."
 			If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Enter your worker signature."
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 		LOOP UNTIL err_msg = ""
  		Call check_for_password(are_we_passworded_out)
 	LOOP UNTIL check_for_password(are_we_passworded_out) = False
-    
+
 	'The case note
     start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
 	Call write_variable_in_CASE_NOTE("**AA opened effective " & effective_date & "**")
@@ -277,15 +278,15 @@ If action_option = "Opened" then
 	Call write_bullet_and_variable_in_CASE_NOTE("IV-E/Non IV-E case closed", case_closed)
     Call write_bullet_and_variable_in_CASE_NOTE("09-X/10-X effective date", effective_date)
 	Call write_bullet_and_variable_in_CASE_NOTE("AREP", AREP)
-	Call write_bullet_and_variable_in_CASE_NOTE("INSA", INSA) 
+	Call write_bullet_and_variable_in_CASE_NOTE("INSA", INSA)
 	Call write_bullet_and_variable_in_CASE_NOTE("SPEC/ADPT function", spec_adpt)
 	Call write_bullet_and_variable_in_CASE_NOTE("PMI merge", PMI_merge)
-    call write_bullet_and_variable_in_CASE_NOTE("PRIV/blocked request", priv_request) 
-	Call write_bullet_and_variable_in_CASE_NOTE("Amt of AA monies rec'd per month", AA_monies) 
+    call write_bullet_and_variable_in_CASE_NOTE("PRIV/blocked request", priv_request)
+	Call write_bullet_and_variable_in_CASE_NOTE("Amt of AA monies rec'd per month", AA_monies)
     If SSN_verif_checkbox = 1 then call write_variable_in_CASE_NOTE("* Sent verification request to verify client's SSN.")
 	If OHI_checkbox = 1 then call write_variable_in_CASE_NOTE("* Sent verification request to verify other health insurance.")
     If TIKL_checkbox = 1 then Call write_variable_in_CASE_NOTE("* Set TIKL for client's 18th birthday on " & birthday_TIKL & ".")
-END IF 
+END IF
 
 Call write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
 Call write_variable_in_CASE_NOTE ("---")
@@ -295,9 +296,9 @@ Call write_variable_in_CASE_NOTE (worker_signature)
 If TIKL_checkbox = 1 then
    PF3     'to save the case note
    Call navigate_to_MAXIS_screen("DAIL", "WRIT")
-	call create_MAXIS_friendly_date(birthday_TIKL, 0, 5, 18) 
+	call create_MAXIS_friendly_date(birthday_TIKL, 0, 5, 18)
 	Call write_variable_in_TIKL("Client's 18th birthday is " & birthday_TIKL & ". Please review case for updates.")
-	transmit	
+	transmit
 	PF3
 END IF
 
