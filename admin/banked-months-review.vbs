@@ -292,6 +292,7 @@ Function review_ABAWD_FSET_exemptions(person_ref_nbr, possible_exemption, exempt
 						prosp_hrs = (4.3 * prosp_hrs)
 					END IF
 					prospective_hours = prospective_hours + prosp_hrs
+                    transmit		'to exit PIC
 				ELSE
 					jobs_end_dt = replace(jobs_end_dt, " ", "/")
 					IF DateDiff("D", date, jobs_end_dt) > 0 THEN
@@ -316,9 +317,9 @@ Function review_ABAWD_FSET_exemptions(person_ref_nbr, possible_exemption, exempt
 						END IF
 						'added seperate incremental variable to account for multiple jobs
 						prospective_hours = prospective_hours + prosp_hrs
+                        transmit		'to exit PIC
 					END IF
-				END IF
-				transmit		'to exit PIC
+				END IF				
 				EMReadScreen JOBS_panel_current, 1, 2, 73
 				'looping until all the jobs panels are calculated
 				If cint(JOBS_panel_current) < cint(num_of_JOBS) then transmit
