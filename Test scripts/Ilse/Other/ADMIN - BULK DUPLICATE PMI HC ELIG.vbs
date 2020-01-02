@@ -69,9 +69,18 @@ Function MMIS_panel_check(panel_name)
 	Loop until panel_check = panel_name
 End function
 
-'----------------------------------------------------------------------------------------------------DIALOG
+'----------------------------------------------------------------------------------------------------The script
+'CONNECTS TO BlueZone
+EMConnect ""
+'get_county_code
+
+MAXIS_footer_month = CM_mo	'establishing footer month/year 
+MAXIS_footer_year = CM_yr 
+
+
 'The dialog is defined in the loop as it can change as buttons are pressed 
-BeginDialog info_dialog, 0, 0, 266, 115, "MAXIS TO METS Conversion Information"
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 266, 115, "MAXIS TO METS Conversion Information"
   ButtonGroup ButtonPressed
     PushButton 200, 50, 50, 15, "Browse...", select_a_file_button
     OkButton 150, 95, 50, 15
@@ -82,21 +91,13 @@ BeginDialog info_dialog, 0, 0, 266, 115, "MAXIS TO METS Conversion Information"
   GroupBox 10, 5, 250, 85, "Using this script:"
 EndDialog
 
-'----------------------------------------------------------------------------------------------------The script
-'CONNECTS TO BlueZone
-EMConnect ""
-'get_county_code
-
-MAXIS_footer_month = CM_mo	'establishing footer month/year 
-MAXIS_footer_year = CM_yr 
-
 'dialog and dialog DO...Loop	
 Do
     'Initial Dialog to determine the excel file to use, column with case numbers, and which process should be run
     'Show initial dialog
     Do
-    	Dialog info_dialog
-    	If ButtonPressed = cancel then stopscript
+    	Dialog Dialog1 
+    	cancel_without_confirmation
     	If ButtonPressed = select_a_file_button then call file_selection_system_dialog(file_selection_path, ".xlsx")
     Loop until ButtonPressed = OK and file_selection_path <> ""
     If objExcel = "" Then call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
