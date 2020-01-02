@@ -53,7 +53,7 @@ changelog_display
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog case_number_dialog, 0, 0, 146, 70, "Case number dialog"
+BeginDialog Dialog1, 0, 0, 146, 70, "Case number dialog"
   EditBox 80, 5, 60, 15, MAXIS_case_number
   EditBox 80, 25, 25, 15, MAXIS_footer_month
   EditBox 115, 25, 25, 15, MAXIS_footer_year
