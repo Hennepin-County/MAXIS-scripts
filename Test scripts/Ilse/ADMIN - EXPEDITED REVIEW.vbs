@@ -49,17 +49,7 @@ CALL changelog_update("06/26/2019", "Initial version.", "Ilse Ferris, Hennepin C
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'DIALOGS-------------------------------------------------------------------------------------------------------------
-BeginDialog info_dialog, 0, 0, 266, 115, "ADMIN - EXPEDITED REVIEW"
-  ButtonGroup ButtonPressed
-    PushButton 200, 50, 50, 15, "Browse...", select_a_file_button
-    OkButton 150, 95, 50, 15
-    CancelButton 205, 95, 50, 15
-  EditBox 15, 50, 180, 15, file_selection_path
-  Text 20, 20, 235, 25, "This script should be used to review a BOBI list of pending SNAP and/or MFIP cases to ensure expedited screening and determinations are being made to ensure expedited timeliness rules are being followed."
-  Text 15, 70, 230, 15, "Select the Excel file that contains your inforamtion by selecting the 'Browse' button, and finding the file."
-  GroupBox 10, 5, 250, 85, "Using this script:"
-EndDialog
+
 
 
 'Custom function for this script only: navigates to and checks case note for EXP screening case note--appears_exp will be input into the pending array, pending_array will
@@ -107,12 +97,23 @@ EMConnect ""
 MAXIS_footer_month = CM_mo
 MAXIS_footer_year = CM_yr 
 
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 266, 115, "ADMIN - EXPEDITED REVIEW"
+  ButtonGroup ButtonPressed
+    PushButton 200, 50, 50, 15, "Browse...", select_a_file_button
+    OkButton 150, 95, 50, 15
+    CancelButton 205, 95, 50, 15
+  EditBox 15, 50, 180, 15, file_selection_path
+  Text 20, 20, 235, 25, "This script should be used to review a BOBI list of pending SNAP and/or MFIP cases to ensure expedited screening and determinations are being made to ensure expedited timeliness rules are being followed."
+  Text 15, 70, 230, 15, "Select the Excel file that contains your inforamtion by selecting the 'Browse' button, and finding the file."
+  GroupBox 10, 5, 250, 85, "Using this script:"
+EndDialog
 'dialog and dialog DO...Loop	
 Do
     'Initial Dialog to determine the excel file to use, column with case numbers, and which process should be run
     'Show initial dialog
     Do
-    	Dialog info_dialog
+    	Dialog Dialog1
     	If ButtonPressed = cancel then stopscript
     	If ButtonPressed = select_a_file_button then call file_selection_system_dialog(file_selection_path, ".xlsx")
     Loop until ButtonPressed = OK and file_selection_path <> ""
