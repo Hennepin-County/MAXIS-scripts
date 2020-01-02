@@ -54,6 +54,18 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
+'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+HH_memb_row = 5
+Dim row
+Dim col
+
+'THE SCRIPT----------------------------------------------------------------------------------------------------
+'Connecting to BlueZone
+EMConnect ""
+
+'Grabbing case number & footer month/year
+call MAXIS_case_number_finder(MAXIS_case_number)
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
@@ -75,24 +87,11 @@ BeginDialog Dialog1, 0, 0, 181, 100, "Case number"
   GroupBox 5, 45, 170, 30, "Programs recertifying"
 EndDialog
 
-'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-HH_memb_row = 5
-Dim row
-Dim col
-
-'THE SCRIPT----------------------------------------------------------------------------------------------------
-'Connecting to BlueZone
-EMConnect ""
-
-'Grabbing case number & footer month/year
-call MAXIS_case_number_finder(MAXIS_case_number)
-Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
-
 'Showing case number dialog
 Do
 	Do
   		Dialog Dialog1
-  		cancel_confirmation
+  		cancel_without_confirmation
   		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then MsgBox "You need to type a valid case number."
 	Loop until MAXIS_case_number <> "" and IsNumeric(MAXIS_case_number) = True and len(MAXIS_case_number) <= 8
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -344,78 +343,78 @@ If LTC_case = vbYes then
 	hc_deductions = right(hc_deductions, len(hc_deductions) - 2)
 	FIAT_reasons = right(FIAT_reasons, len(FIAT_reasons) - 2)
 
-	'-------------------------------------------------------------------------------------------------DIALOG
-	Dialog1 = "" 'Blanking out previous dialog detail
-	BeginDialog Dialog1, 0, 0, 451, 295, "HRF for LTC Cases"
-	  EditBox 65, 10, 85, 15, HRF_datestamp
-	  DropListBox 240, 10, 80, 15, "complete"+chr(9)+"incomplete", HRF_status
-	  EditBox 50, 30, 165, 15, facility_info
-	  EditBox 280, 30, 55, 15, admit_date
-	  CheckBox 350, 5, 80, 10, "Sent 3050 to Facility", sent_3050_checkbox
-	  CheckBox 350, 20, 85, 10, "Sent forms to AREP?", sent_arep_checkbox
-	  CheckBox 350, 35, 80, 10, "Next HRF Released", HRF_release_checkbox
-	  EditBox 65, 50, 380, 15, earned_income
-	  EditBox 70, 70, 375, 15, unearned_income
-	  EditBox 110, 90, 335, 15, notes_on_income
-	  EditBox 40, 110, 405, 15, assets
-	  EditBox 50, 130, 395, 15, hc_deductions
-	  EditBox 100, 150, 345, 15, FIAT_reasons
-	  EditBox 50, 170, 395, 15, other_notes
-	  EditBox 235, 190, 210, 15, verifs_needed
-	  EditBox 235, 210, 210, 15, actions_taken
-	  CheckBox 100, 235, 175, 10, "Check here to case note grant info from ELIG/MSA.", grab_MSA_info_check
-	  CheckBox 100, 250, 170, 10, "Check here to case note grant info from ELIG/HC. ", grab_HC_info_check
-	  EditBox 165, 275, 105, 15, worker_signature
-	  ButtonGroup ButtonPressed
-	    OkButton 340, 275, 50, 15
-	    CancelButton 390, 275, 50, 15
-	    PushButton 5, 95, 100, 10, "Notes on Income and Budget", income_notes_button
-	    PushButton 10, 205, 25, 10, "BUSI", BUSI_button
-	    PushButton 35, 205, 25, 10, "JOBS", JOBS_button
-	    PushButton 10, 215, 25, 10, "RBIC", RBIC_button
-	    PushButton 35, 215, 25, 10, "UNEA", UNEA_button
-	    PushButton 75, 205, 25, 10, "ACCT", ACCT_button
-	    PushButton 100, 205, 25, 10, "CARS", CARS_button
-	    PushButton 125, 205, 25, 10, "CASH", CASH_button
-	    PushButton 150, 205, 25, 10, "OTHR", OTHR_button
-	    PushButton 75, 215, 25, 10, "REST", REST_button
-	    PushButton 100, 215, 25, 10, "SECU", SECU_button
-	    PushButton 125, 215, 25, 10, "TRAN", TRAN_button
-	    PushButton 10, 250, 25, 10, "MEMB", MEMB_button
-	    PushButton 35, 250, 25, 10, "MEMI", MEMI_button
-	    PushButton 60, 250, 25, 10, "MONT", MONT_button
-	    PushButton 10, 260, 25, 10, "PARE", PARE_button
-	    PushButton 35, 260, 25, 10, "SANC", SANC_button
-	    PushButton 60, 260, 25, 10, "TIME", TIME_button
-	    PushButton 295, 245, 20, 10, "HC", ELIG_HC_button
-	    PushButton 295, 255, 20, 10, "MSA", ELIG_MSA_button
-	    PushButton 345, 245, 45, 10, "prev. panel", prev_panel_button
-	    PushButton 390, 245, 45, 10, "prev. memb", prev_memb_button
-	    PushButton 345, 255, 45, 10, "next panel", next_panel_button
-	    PushButton 390, 255, 45, 10, "next memb", next_memb_button
-	  Text 5, 15, 55, 10, "HRF datestamp:"
-	  Text 195, 15, 40, 10, "HRF status:"
-	  Text 5, 35, 45, 10, "Facility Info:"
-	  Text 230, 35, 50, 10, "Admit In Date:"
-	  Text 5, 55, 55, 10, "Earned income:"
-	  Text 5, 75, 60, 10, "Unearned income:"
-	  Text 5, 115, 30, 10, "Assets:"
-	  Text 5, 135, 40, 10, "Deductions:"
-	  Text 5, 155, 95, 10, "FIAT reasons (if applicable):"
-	  Text 5, 175, 45, 10, "Other notes:"
-	  GroupBox 5, 190, 60, 40, "Income panels"
-	  GroupBox 70, 190, 110, 40, "Asset panels"
-	  GroupBox 5, 235, 85, 40, "other STAT panels:"
-	  Text 185, 195, 50, 10, "Verifs needed:"
-	  Text 185, 215, 50, 10, "Actions taken:"
-	  GroupBox 280, 230, 50, 40, "ELIG panels:"
-	  GroupBox 340, 230, 100, 40, "STAT-based navigation"
-	  Text 100, 280, 60, 10, "Worker signature:"
-	EndDialog
 	'The case note dialog, complete with panel navigation, reading the ELIG/MSA or ELIG/HC screen, and navigation to case note, as well as logic for certain sections to be required.
 	DO
 		DO
 			Do
+			    '-------------------------------------------------------------------------------------------------DIALOG
+			    Dialog1 = "" 'Blanking out previous dialog detail
+			    BeginDialog Dialog1, 0, 0, 451, 295, "HRF for LTC Cases"
+			      EditBox 65, 10, 85, 15, HRF_datestamp
+			      DropListBox 240, 10, 80, 15, "complete"+chr(9)+"incomplete", HRF_status
+			      EditBox 50, 30, 165, 15, facility_info
+			      EditBox 280, 30, 55, 15, admit_date
+			      CheckBox 350, 5, 80, 10, "Sent 3050 to Facility", sent_3050_checkbox
+			      CheckBox 350, 20, 85, 10, "Sent forms to AREP?", sent_arep_checkbox
+			      CheckBox 350, 35, 80, 10, "Next HRF Released", HRF_release_checkbox
+			      EditBox 65, 50, 380, 15, earned_income
+			      EditBox 70, 70, 375, 15, unearned_income
+			      EditBox 110, 90, 335, 15, notes_on_income
+			      EditBox 40, 110, 405, 15, assets
+			      EditBox 50, 130, 395, 15, hc_deductions
+			      EditBox 100, 150, 345, 15, FIAT_reasons
+			      EditBox 50, 170, 395, 15, other_notes
+			      EditBox 235, 190, 210, 15, verifs_needed
+			      EditBox 235, 210, 210, 15, actions_taken
+			      CheckBox 100, 235, 175, 10, "Check here to case note grant info from ELIG/MSA.", grab_MSA_info_check
+			      CheckBox 100, 250, 170, 10, "Check here to case note grant info from ELIG/HC. ", grab_HC_info_check
+			      EditBox 165, 275, 105, 15, worker_signature
+			      ButtonGroup ButtonPressed
+			    	OkButton 340, 275, 50, 15
+			    	CancelButton 390, 275, 50, 15
+			    	PushButton 5, 95, 100, 10, "Notes on Income and Budget", income_notes_button
+			    	PushButton 10, 205, 25, 10, "BUSI", BUSI_button
+			    	PushButton 35, 205, 25, 10, "JOBS", JOBS_button
+			    	PushButton 10, 215, 25, 10, "RBIC", RBIC_button
+			    	PushButton 35, 215, 25, 10, "UNEA", UNEA_button
+			    	PushButton 75, 205, 25, 10, "ACCT", ACCT_button
+			    	PushButton 100, 205, 25, 10, "CARS", CARS_button
+			    	PushButton 125, 205, 25, 10, "CASH", CASH_button
+			    	PushButton 150, 205, 25, 10, "OTHR", OTHR_button
+			    	PushButton 75, 215, 25, 10, "REST", REST_button
+			    	PushButton 100, 215, 25, 10, "SECU", SECU_button
+			    	PushButton 125, 215, 25, 10, "TRAN", TRAN_button
+			    	PushButton 10, 250, 25, 10, "MEMB", MEMB_button
+			    	PushButton 35, 250, 25, 10, "MEMI", MEMI_button
+			    	PushButton 60, 250, 25, 10, "MONT", MONT_button
+			    	PushButton 10, 260, 25, 10, "PARE", PARE_button
+			    	PushButton 35, 260, 25, 10, "SANC", SANC_button
+			    	PushButton 60, 260, 25, 10, "TIME", TIME_button
+			    	PushButton 295, 245, 20, 10, "HC", ELIG_HC_button
+			    	PushButton 295, 255, 20, 10, "MSA", ELIG_MSA_button
+			    	PushButton 345, 245, 45, 10, "prev. panel", prev_panel_button
+			    	PushButton 390, 245, 45, 10, "prev. memb", prev_memb_button
+			    	PushButton 345, 255, 45, 10, "next panel", next_panel_button
+			    	PushButton 390, 255, 45, 10, "next memb", next_memb_button
+			      Text 5, 15, 55, 10, "HRF datestamp:"
+			      Text 195, 15, 40, 10, "HRF status:"
+			      Text 5, 35, 45, 10, "Facility Info:"
+			      Text 230, 35, 50, 10, "Admit In Date:"
+			      Text 5, 55, 55, 10, "Earned income:"
+			      Text 5, 75, 60, 10, "Unearned income:"
+			      Text 5, 115, 30, 10, "Assets:"
+			      Text 5, 135, 40, 10, "Deductions:"
+			      Text 5, 155, 95, 10, "FIAT reasons (if applicable):"
+			      Text 5, 175, 45, 10, "Other notes:"
+			      GroupBox 5, 190, 60, 40, "Income panels"
+			      GroupBox 70, 190, 110, 40, "Asset panels"
+			      GroupBox 5, 235, 85, 40, "other STAT panels:"
+			      Text 185, 195, 50, 10, "Verifs needed:"
+			      Text 185, 215, 50, 10, "Actions taken:"
+			      GroupBox 280, 230, 50, 40, "ELIG panels:"
+			      GroupBox 340, 230, 100, 40, "STAT-based navigation"
+			      Text 100, 280, 60, 10, "Worker signature:"
+			    EndDialog
 				err_msg = ""
 				Dialog Dialog1
 				cancel_confirmation
@@ -649,88 +648,109 @@ If LTC_case = vbYes then
 
 	end_msg = "Success! Your HRF for " & MAXIS_footer_month & "/" & MAXIS_footer_year & " on a LTC case has been case noted."
 
-
 ElseIf LTC_case = vbNo then							'Shows dialog if not LTC
-	'-------------------------------------------------------------------------------------------------DIALOG
-	Dialog1 = "" 'Blanking out previous dialog detail
-    BeginDialog Dialog1, 0, 0, 451, 285, "HRF dialog"
-      EditBox 65, 30, 50, 15, HRF_datestamp
-      DropListBox 170, 30, 75, 15, "complete"+chr(9)+"incomplete", HRF_status
-      EditBox 65, 50, 380, 15, earned_income
-      EditBox 70, 70, 375, 15, unearned_income
-      EditBox 110, 90, 335, 15, notes_on_income
-      EditBox 30, 110, 90, 15, YTD
-      EditBox 170, 110, 275, 15, changes
-      EditBox 30, 130, 415, 15, EMPS
-      EditBox 100, 150, 345, 15, FIAT_reasons
-      EditBox 50, 170, 395, 15, other_notes
-      CheckBox 190, 190, 60, 10, "10% sanction?", ten_percent_sanction_check
-      CheckBox 265, 190, 60, 10, "30% sanction?", thirty_percent_sanction_check
-      CheckBox 330, 190, 85, 10, "Sent forms to AREP?", sent_arep_checkbox
-      EditBox 235, 205, 210, 15, verifs_needed
-      EditBox 235, 225, 210, 15, actions_taken
-      CheckBox 100, 245, 175, 10, "Check here to case note grant info from ELIG/MFIP.", grab_MFIP_info_check
-      CheckBox 100, 260, 170, 10, "Check here to case note grant info from ELIG/FS. ", grab_FS_info_check
-      CheckBox 100, 275, 170, 10, "Check here to case note grant info from ELIG/GA.", grab_GA_info_check
-      EditBox 340, 245, 105, 15, worker_signature
-      ButtonGroup ButtonPressed
-        OkButton 340, 265, 50, 15
-        CancelButton 395, 265, 50, 15
-        PushButton 5, 95, 100, 10, "Notes on Income and Budget", income_notes_button
-        PushButton 260, 20, 20, 10, "FS", ELIG_FS_button
-        PushButton 280, 20, 20, 10, "HC", ELIG_HC_button
-        PushButton 300, 20, 20, 10, "MFIP", ELIG_MFIP_button
-        PushButton 260, 30, 20, 10, "GA", ELIG_GA_button
-        PushButton 335, 20, 45, 10, "prev. panel", prev_panel_button
-        PushButton 395, 20, 45, 10, "prev. memb", prev_memb_button
-        PushButton 335, 30, 45, 10, "next panel", next_panel_button
-        PushButton 395, 30, 45, 10, "next memb", next_memb_button
-        PushButton 5, 135, 25, 10, "EMPS", EMPS_button
-        PushButton 10, 205, 25, 10, "BUSI", BUSI_button
-        PushButton 35, 205, 25, 10, "JOBS", JOBS_button
-        PushButton 10, 215, 25, 10, "RBIC", RBIC_button
-        PushButton 35, 215, 25, 10, "UNEA", UNEA_button
-        PushButton 75, 205, 25, 10, "ACCT", ACCT_button
-        PushButton 100, 205, 25, 10, "CARS", CARS_button
-        PushButton 125, 205, 25, 10, "CASH", CASH_button
-        PushButton 150, 205, 25, 10, "OTHR", OTHR_button
-        PushButton 75, 215, 25, 10, "REST", REST_button
-        PushButton 100, 215, 25, 10, "SECU", SECU_button
-        PushButton 125, 215, 25, 10, "TRAN", TRAN_button
-        PushButton 10, 250, 25, 10, "MEMB", MEMB_button
-        PushButton 35, 250, 25, 10, "MEMI", MEMI_button
-        PushButton 60, 250, 25, 10, "MONT", MONT_button
-        PushButton 10, 260, 25, 10, "PARE", PARE_button
-        PushButton 35, 260, 25, 10, "SANC", SANC_button
-        PushButton 60, 260, 25, 10, "TIME", TIME_button
-      Text 5, 115, 20, 10, "YTD:"
-      Text 5, 155, 95, 10, "FIAT reasons (if applicable):"
-      Text 5, 175, 45, 10, "Other notes:"
-      GroupBox 5, 190, 60, 40, "Income panels"
-      GroupBox 70, 190, 110, 40, "Asset panels"
-      Text 280, 250, 60, 10, "Worker signature:"
-      Text 185, 230, 50, 10, "Actions taken:"
-      GroupBox 5, 235, 85, 40, "other STAT panels:"
-      Text 185, 210, 50, 10, "Verifs needed:"
-      Text 125, 35, 40, 10, "HRF status:"
-      Text 130, 115, 35, 10, "Changes?:"
-      GroupBox 330, 5, 115, 40, "STAT-based navigation"
-      Text 5, 35, 55, 10, "HRF datestamp:"
-      Text 5, 55, 55, 10, "Earned income:"
-      Text 5, 75, 60, 10, "Unearned income:"
-      GroupBox 255, 5, 70, 40, "ELIG panels:"
-    EndDialog
 	'The case note dialog, complete with panel navigation, reading the ELIG/MFIP screen, and navigation to case note, as well as logic for certain sections to be required.
 	DO
 		DO
 			Do
 				err_msg = ""
+				'-------------------------------------------------------------------------------------------------DIALOG
+				Dialog1 = "" 'Blanking out previous dialog detail
+			    BeginDialog Dialog1, 0, 0, 451, 285, "HRF dialog"
+			      EditBox 65, 30, 50, 15, HRF_datestamp
+			      DropListBox 170, 30, 75, 15, "complete"+chr(9)+"incomplete", HRF_status
+			      EditBox 65, 50, 380, 15, earned_income
+			      EditBox 70, 70, 375, 15, unearned_income
+			      EditBox 110, 90, 335, 15, notes_on_income
+			      EditBox 30, 110, 90, 15, YTD
+			      EditBox 170, 110, 275, 15, changes
+			      EditBox 30, 130, 415, 15, EMPS
+			      EditBox 100, 150, 345, 15, FIAT_reasons
+			      EditBox 50, 170, 395, 15, other_notes
+			      CheckBox 190, 190, 60, 10, "10% sanction?", ten_percent_sanction_check
+			      CheckBox 265, 190, 60, 10, "30% sanction?", thirty_percent_sanction_check
+			      CheckBox 330, 190, 85, 10, "Sent forms to AREP?", sent_arep_checkbox
+			      EditBox 235, 205, 210, 15, verifs_needed
+			      EditBox 235, 225, 210, 15, actions_taken
+			      CheckBox 100, 245, 175, 10, "Check here to case note grant info from ELIG/MFIP.", grab_MFIP_info_check
+			      CheckBox 100, 260, 170, 10, "Check here to case note grant info from ELIG/FS. ", grab_FS_info_check
+			      CheckBox 100, 275, 170, 10, "Check here to case note grant info from ELIG/GA.", grab_GA_info_check
+			      EditBox 340, 245, 105, 15, worker_signature
+			      ButtonGroup ButtonPressed
+			        OkButton 340, 265, 50, 15
+			        CancelButton 395, 265, 50, 15
+			        PushButton 5, 95, 100, 10, "Notes on Income and Budget", income_notes_button
+			        PushButton 260, 20, 20, 10, "FS", ELIG_FS_button
+			        PushButton 280, 20, 20, 10, "HC", ELIG_HC_button
+			        PushButton 300, 20, 20, 10, "MFIP", ELIG_MFIP_button
+			        PushButton 260, 30, 20, 10, "GA", ELIG_GA_button
+			        PushButton 335, 20, 45, 10, "prev. panel", prev_panel_button
+			        PushButton 395, 20, 45, 10, "prev. memb", prev_memb_button
+			        PushButton 335, 30, 45, 10, "next panel", next_panel_button
+			        PushButton 395, 30, 45, 10, "next memb", next_memb_button
+			        PushButton 5, 135, 25, 10, "EMPS", EMPS_button
+			        PushButton 10, 205, 25, 10, "BUSI", BUSI_button
+			        PushButton 35, 205, 25, 10, "JOBS", JOBS_button
+			        PushButton 10, 215, 25, 10, "RBIC", RBIC_button
+			        PushButton 35, 215, 25, 10, "UNEA", UNEA_button
+			        PushButton 75, 205, 25, 10, "ACCT", ACCT_button
+			        PushButton 100, 205, 25, 10, "CARS", CARS_button
+			        PushButton 125, 205, 25, 10, "CASH", CASH_button
+			        PushButton 150, 205, 25, 10, "OTHR", OTHR_button
+			        PushButton 75, 215, 25, 10, "REST", REST_button
+			        PushButton 100, 215, 25, 10, "SECU", SECU_button
+			        PushButton 125, 215, 25, 10, "TRAN", TRAN_button
+			        PushButton 10, 250, 25, 10, "MEMB", MEMB_button
+			        PushButton 35, 250, 25, 10, "MEMI", MEMI_button
+			        PushButton 60, 250, 25, 10, "MONT", MONT_button
+			        PushButton 10, 260, 25, 10, "PARE", PARE_button
+			        PushButton 35, 260, 25, 10, "SANC", SANC_button
+			        PushButton 60, 260, 25, 10, "TIME", TIME_button
+			      Text 5, 115, 20, 10, "YTD:"
+			      Text 5, 155, 95, 10, "FIAT reasons (if applicable):"
+			      Text 5, 175, 45, 10, "Other notes:"
+			      GroupBox 5, 190, 60, 40, "Income panels"
+			      GroupBox 70, 190, 110, 40, "Asset panels"
+			      Text 280, 250, 60, 10, "Worker signature:"
+			      Text 185, 230, 50, 10, "Actions taken:"
+			      GroupBox 5, 235, 85, 40, "other STAT panels:"
+			      Text 185, 210, 50, 10, "Verifs needed:"
+			      Text 125, 35, 40, 10, "HRF status:"
+			      Text 130, 115, 35, 10, "Changes?:"
+			      GroupBox 330, 5, 115, 40, "STAT-based navigation"
+			      Text 5, 35, 55, 10, "HRF datestamp:"
+			      Text 5, 55, 55, 10, "Earned income:"
+			      Text 5, 75, 60, 10, "Unearned income:"
+			      GroupBox 255, 5, 70, 40, "ELIG panels:"
+			    EndDialog
 				Dialog Dialog1
-				cancel_confirmation
+				cancel_without_confirmation
 				Call check_for_password(are_we_passworded_out)   'Adding functionality for MAXIS v.6 Passworded Out issue'
 				MAXIS_dialog_navigation
                 If ButtonPressed = income_notes_button Then
-                    Dialog income_notes_dialog
+				    '-------------------------------------------------------------------------------------------------DIALOG
+				    Dialog1 = "" 'Blanking out previous dialog detail
+				    BeginDialog Dialog1, 0, 0, 351, 225, "Explanation of Income"
+				      CheckBox 10, 25, 300, 10, "NO INCOME - All income previously ended, but case has not yet fallen off of the HRF run. ", no_income_checkbox
+				      CheckBox 10, 35, 225, 10, "SEE PREVIOUS NOTE - Income detail is listed on previous note(s)", see_other_note_checkbox
+				      CheckBox 10, 45, 280, 10, "NOT VERIFIED - Income has not been fully verified, detail will be entered in future.", not_verified_checkbox
+				      CheckBox 10, 70, 285, 10, "VERIFS RECEIVED - All pay verification provided for the report month and budgeted.", jobs_all_verified_checkbox
+				      CheckBox 10, 80, 260, 10, "PARTIAL MONTH - Job ended in the report month, all pay has been budgeted.", jobs_partial_month_checkbox
+				      CheckBox 10, 90, 305, 10, "YEAR TO DATE USED - Not all pay dates verified, check amount was calculated using YTD.", jobs_ytd_used_checkbox
+				      CheckBox 10, 120, 320, 10, "SELF EMP REPORT FORM - DHS 3336 submitted as proof of monthly self employment income.", busi_rept_form_checkbox
+				      CheckBox 10, 130, 310, 10, "EXPENSES - 50% - Budgeted self emp. income - allowing 50% of gross income as expenses.", busi_fifty_percent_checkbox
+				      CheckBox 10, 140, 235, 10, "TAX METHOD - Self employment income budgeted using tax method.", busi_tax_method_checkbox
+				      CheckBox 10, 175, 270, 10, "VERIFS RECEIVED - All verification of unearned income in report month received.", unea_all_verified_checkbox
+				      CheckBox 10, 185, 320, 10, "UNCHANGING - Unearned income does not vary and no change reported for this report month.", unea_unvarying_checkbox
+				      ButtonGroup ButtonPressed
+				    	PushButton 240, 205, 50, 15, "Insert", add_to_notes_button
+				    	CancelButton 295, 205, 50, 15
+				      Text 5, 10, 180, 10, "Check as many explanations of income that apply to this case."
+				      GroupBox 5, 60, 340, 45, "JOBS Income"
+				      GroupBox 5, 110, 340, 45, "BUSI Income"
+				      GroupBox 5, 160, 340, 40, "UNEA Income"
+				    EndDialog
+                    Dialog dialog1
                     If ButtonPressed = add_to_notes_button Then
                         If no_income_checkbox = checked Then notes_on_income = notes_on_income & "; All income ended prior to " & retro_month_name & " - no income budgeted."
                         If see_other_note_checkbox Then notes_on_income = notes_on_income & "; Full detail about income can be found in previous note(s)."
