@@ -101,7 +101,7 @@ Call MAXIS_case_number_finder(MAXIS_case_number)
 Do
 	DO
 		err_msg = ""
-		Dialog case_number_dialog
+		Dialog Dialog1
 		cancel_confirmation
 		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & "* You need to type a valid case number."
 		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
@@ -159,59 +159,7 @@ if right(programs_recertifying, 1) = "," then programs_recertifying = left(progr
 CSR_month = MAXIS_footer_month & "/" & MAXIS_footer_year
 
 '-------------------------------------------------------------------------------------------------DIALOG
-Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 451, 225, "CSR"
-  EditBox 65, 15, 50, 15, CSR_datestamp
-  DropListBox 170, 15, 75, 15, "Select one..."+chr(9)+"complete"+chr(9)+"incomplete", CSR_status
-  EditBox 40, 35, 280, 15, HH_comp
-  EditBox 65, 55, 380, 15, earned_income
-  EditBox 70, 75, 375, 15, unearned_income
-  ButtonGroup ButtonPressed
-    PushButton 5, 100, 60, 10, "Notes on Income:", income_notes_button
-  EditBox 70, 95, 375, 15, notes_on_income
-  EditBox 65, 115, 380, 15, notes_on_abawd
-  EditBox 40, 135, 405, 15, assets
-  EditBox 60, 155, 95, 15, SHEL_HEST
-  EditBox 225, 155, 95, 15, COEX_DCEX
-  ButtonGroup ButtonPressed
-    PushButton 340, 205, 50, 15, "Next", next_button
-    CancelButton 395, 205, 50, 15
-    PushButton 260, 15, 20, 10, "FS", ELIG_FS_button
-    PushButton 280, 15, 20, 10, "HC", ELIG_HC_button
-    PushButton 300, 15, 25, 10, "GRH", ELIG_GRH_button
-    PushButton 335, 15, 45, 10, "prev. panel", prev_panel_button
-    PushButton 395, 15, 45, 10, "prev. memb", prev_memb_button
-    PushButton 335, 25, 45, 10, "next panel", next_panel_button
-    PushButton 395, 25, 45, 10, "next memb", next_memb_button
-    PushButton 5, 160, 25, 10, "SHEL/", SHEL_button
-    PushButton 30, 160, 25, 10, "HEST:", HEST_button
-    PushButton 160, 160, 30, 10, "COEX/", COEX_button
-    PushButton 190, 160, 30, 10, "DCEX:", DCEX_button
-    PushButton 10, 190, 25, 10, "BUSI", BUSI_button
-    PushButton 35, 190, 25, 10, "JOBS", JOBS_button
-    PushButton 75, 190, 25, 10, "ACCT", ACCT_button
-    PushButton 100, 190, 25, 10, "CARS", CARS_button
-    PushButton 125, 190, 25, 10, "CASH", CASH_button
-    PushButton 150, 190, 25, 10, "OTHR", OTHR_button
-    PushButton 190, 190, 25, 10, "MEMB", MEMB_button
-    PushButton 215, 190, 25, 10, "MEMI", MEMI_button
-    PushButton 240, 190, 25, 10, "REVW", REVW_button
-    PushButton 35, 200, 25, 10, "UNEA", UNEA_button
-    PushButton 75, 200, 25, 10, "REST", REST_button
-    PushButton 100, 200, 25, 10, "SECU", SECU_button
-    PushButton 125, 200, 25, 10, "TRAN", TRAN_button
-  GroupBox 330, 5, 115, 35, "STAT-based navigation:"
-  Text 5, 20, 55, 10, "CSR datestamp:"
-  Text 125, 20, 40, 10, "CSR status:"
-  Text 5, 40, 35, 10, "HH comp:"
-  Text 5, 60, 55, 10, "Earned income:"
-  Text 5, 80, 60, 10, "Unearned income:"
-  Text 5, 120, 60, 10, "Notes on WREG:"
-  Text 5, 140, 30, 10, "Assets:"
-  GroupBox 5, 180, 175, 35, "Income and asset panels"
-  GroupBox 185, 180, 85, 25, "other STAT panels:"
-  GroupBox 255, 5, 75, 25, "ELIG panels:"
-EndDialog
+
 
 
 DO
@@ -220,6 +168,60 @@ DO
 			err_msg = ""
 			Do
 				Do
+                    Dialog1 = "" 'Blanking out previous dialog detail
+                    BeginDialog Dialog1, 0, 0, 451, 225, "CSR"
+                      EditBox 65, 15, 50, 15, CSR_datestamp
+                      DropListBox 170, 15, 75, 15, "Select one..."+chr(9)+"complete"+chr(9)+"incomplete", CSR_status
+                      EditBox 40, 35, 280, 15, HH_comp
+                      EditBox 65, 55, 380, 15, earned_income
+                      EditBox 70, 75, 375, 15, unearned_income
+                      ButtonGroup ButtonPressed
+                        PushButton 5, 100, 60, 10, "Notes on Income:", income_notes_button
+                      EditBox 70, 95, 375, 15, notes_on_income
+                      EditBox 65, 115, 380, 15, notes_on_abawd
+                      EditBox 40, 135, 405, 15, assets
+                      EditBox 60, 155, 95, 15, SHEL_HEST
+                      EditBox 225, 155, 95, 15, COEX_DCEX
+                      ButtonGroup ButtonPressed
+                        PushButton 340, 205, 50, 15, "Next", next_button
+                        CancelButton 395, 205, 50, 15
+                        PushButton 260, 15, 20, 10, "FS", ELIG_FS_button
+                        PushButton 280, 15, 20, 10, "HC", ELIG_HC_button
+                        PushButton 300, 15, 25, 10, "GRH", ELIG_GRH_button
+                        PushButton 335, 15, 45, 10, "prev. panel", prev_panel_button
+                        PushButton 395, 15, 45, 10, "prev. memb", prev_memb_button
+                        PushButton 335, 25, 45, 10, "next panel", next_panel_button
+                        PushButton 395, 25, 45, 10, "next memb", next_memb_button
+                        PushButton 5, 160, 25, 10, "SHEL/", SHEL_button
+                        PushButton 30, 160, 25, 10, "HEST:", HEST_button
+                        PushButton 160, 160, 30, 10, "COEX/", COEX_button
+                        PushButton 190, 160, 30, 10, "DCEX:", DCEX_button
+                        PushButton 10, 190, 25, 10, "BUSI", BUSI_button
+                        PushButton 35, 190, 25, 10, "JOBS", JOBS_button
+                        PushButton 75, 190, 25, 10, "ACCT", ACCT_button
+                        PushButton 100, 190, 25, 10, "CARS", CARS_button
+                        PushButton 125, 190, 25, 10, "CASH", CASH_button
+                        PushButton 150, 190, 25, 10, "OTHR", OTHR_button
+                        PushButton 190, 190, 25, 10, "MEMB", MEMB_button
+                        PushButton 215, 190, 25, 10, "MEMI", MEMI_button
+                        PushButton 240, 190, 25, 10, "REVW", REVW_button
+                        PushButton 35, 200, 25, 10, "UNEA", UNEA_button
+                        PushButton 75, 200, 25, 10, "REST", REST_button
+                        PushButton 100, 200, 25, 10, "SECU", SECU_button
+                        PushButton 125, 200, 25, 10, "TRAN", TRAN_button
+                      GroupBox 330, 5, 115, 35, "STAT-based navigation:"
+                      Text 5, 20, 55, 10, "CSR datestamp:"
+                      Text 125, 20, 40, 10, "CSR status:"
+                      Text 5, 40, 35, 10, "HH comp:"
+                      Text 5, 60, 55, 10, "Earned income:"
+                      Text 5, 80, 60, 10, "Unearned income:"
+                      Text 5, 120, 60, 10, "Notes on WREG:"
+                      Text 5, 140, 30, 10, "Assets:"
+                      GroupBox 5, 180, 175, 35, "Income and asset panels"
+                      GroupBox 185, 180, 85, 25, "other STAT panels:"
+                      GroupBox 255, 5, 75, 25, "ELIG panels:"
+                    EndDialog
+
 					DIALOG Dialog1
 					cancel_confirmation
 					If ButtonPressed = SIR_mail_button then run "C:\Program Files\Internet Explorer\iexplore.exe https://www.dhssir.cty.dhs.state.mn.us/Pages/Default.aspx"
@@ -262,7 +264,7 @@ DO
 						End If
 					End If
 				Loop until ButtonPressed <> no_cancel_button
-				MAXIS_dialog_navigation
+                MAXIS_dialog_navigation
 			LOOP until ButtonPressed = next_button
 			IF CSR_datestamp = "" THEN 					err_msg = err_msg & vbCr & "* Please enter the date the CSR was received."
 			IF CSR_status = "select one..." THEN 				err_msg = err_msg & vbCr & "* Please select the status of the CSR."
