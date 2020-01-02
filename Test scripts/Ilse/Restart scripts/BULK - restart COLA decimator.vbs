@@ -55,7 +55,8 @@ changelog_display
 EMConnect ""
 
 'The dialog is defined in the loop as it can change as buttons are pressed 
-BeginDialog info_dialog, 0, 0, 266, 115, "Restart COLA Decimator at CASE/NOTE."
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 266, 115, "Restart COLA Decimator at CASE/NOTE."
   ButtonGroup ButtonPressed
     PushButton 200, 50, 50, 15, "Browse...", select_a_file_button
     OkButton 150, 95, 50, 15
@@ -65,9 +66,22 @@ BeginDialog info_dialog, 0, 0, 266, 115, "Restart COLA Decimator at CASE/NOTE."
   Text 15, 70, 230, 15, "Select the Excel file that contains your inforamtion by selecting the 'Browse' button, and finding the file."
   GroupBox 10, 5, 250, 85, "Using this script:"
 EndDialog
+'dialog and dialog DO...Loop	
+Do
+    'Initial Dialog to determine the excel file to use, column with case numbers, and which process should be run
+    'Show initial dialog
+    Do
+    	Dialog Dialog1 
+    	cancel_without_confirmation
+    	If ButtonPressed = select_a_file_button then call file_selection_system_dialog(file_selection_path, ".xlsx")
+    Loop until ButtonPressed = OK and file_selection_path <> ""
+    If objExcel = "" Then call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
+Dialog1 = ""
 'Select Excel row dialog
-BeginDialog excel_row_dialog, 0, 0, 126, 50, "Select the excel row to restart"
+BeginDialog Dialog1, 0, 0, 126, 50, "Select the excel row to restart"
   EditBox 75, 5, 40, 15, excel_row_to_restart
   ButtonGroup ButtonPressed
     OkButton 10, 25, 50, 15
@@ -75,22 +89,9 @@ BeginDialog excel_row_dialog, 0, 0, 126, 50, "Select the excel row to restart"
   Text 10, 10, 60, 10, "Excel row to start:"
 EndDialog
 
-'dialog and dialog DO...Loop	
-Do
-    'Initial Dialog to determine the excel file to use, column with case numbers, and which process should be run
-    'Show initial dialog
-    Do
-    	Dialog info_dialog
-    	If ButtonPressed = cancel then stopscript
-    	If ButtonPressed = select_a_file_button then call file_selection_system_dialog(file_selection_path, ".xlsx")
-    Loop until ButtonPressed = OK and file_selection_path <> ""
-    If objExcel = "" Then call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
-    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-Loop until are_we_passworded_out = false					'loops until user passwords back in
-
-do 
-	dialog excel_row_dialog
-	If buttonpressed = 0 then stopscript								'loops until all errors are resolved
+Do 
+	dialog Dialog1 
+	cancel_without_confirmation
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
