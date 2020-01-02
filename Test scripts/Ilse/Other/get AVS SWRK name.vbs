@@ -1,5 +1,5 @@
 'Required for statistical purposes===============================================================================
-name_of_script = "BULK - SWKR LIST GENERATOR.vbs"
+name_of_script = "ADMIN - GET AVS SWKR NAME.vbs"
 start_time = timer
 STATS_counter = 1                          'sets the stats counter at one
 STATS_manualtime = 45                      'manual run time in seconds
@@ -58,7 +58,8 @@ EMConnect ""
 Do
 	Do
 		'The dialog is defined in the loop as it can change as buttons are pressed 
-		BeginDialog dialog1, 0, 0, 221, 50, "Select the list to pull cases into Excel file."
+		Dialog1 = ""
+        BeginDialog Dialog1, 0, 0, 221, 50, "Select the list to pull cases into Excel file."
 			ButtonGroup ButtonPressed
 			PushButton 175, 10, 40, 15, "Browse...", select_a_file_button
 			OkButton 110, 30, 50, 15
@@ -66,8 +67,8 @@ Do
 			EditBox 5, 10, 165, 15, file_selection_path
 		EndDialog
 		err_msg = ""
-		Dialog dialog1
-		cancel_confirmation
+		Dialog Dialog1
+		cancel_without_confirmation
     	If ButtonPressed = select_a_file_button then
     		If file_selection_path <> "" then 'This is handling for if the BROWSE button is pushed more than once'
     			objExcel.Quit 'Closing the Excel file that was opened on the first push'
@@ -83,8 +84,8 @@ Do
 CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-dialog1 = ""
-BeginDialog dialog1, 0, 0, 126, 50, "Select the excel row to restart"
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 126, 50, "Select the excel row to restart"
   EditBox 75, 5, 40, 15, excel_row_to_restart
   ButtonGroup ButtonPressed
     OkButton 10, 25, 50, 15
@@ -92,8 +93,8 @@ BeginDialog dialog1, 0, 0, 126, 50, "Select the excel row to restart"
   Text 10, 10, 60, 10, "Excel row to start:"
 EndDialog
 do 
-	dialog dialog1
-	If buttonpressed = 0 then stopscript								'loops until all errors are resolved
+	dialog Dialog1
+    cancel_without_confirmation
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
