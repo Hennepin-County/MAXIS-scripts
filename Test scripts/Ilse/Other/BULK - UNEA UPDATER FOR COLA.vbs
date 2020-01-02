@@ -51,23 +51,6 @@ call changelog_update("12/02/2018", "Initial version.", "Ilse Ferris, Hennepin C
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'The dialog is defined in the loop as it can change as buttons are pressed 
-BeginDialog file_select_dialog, 0, 0, 221, 50, "Select the COLA income source file"
-    ButtonGroup ButtonPressed
-    PushButton 175, 10, 40, 15, "Browse...", select_a_file_button
-    OkButton 110, 30, 50, 15
-    CancelButton 165, 30, 50, 15
-    EditBox 5, 10, 165, 15, file_selection_path
-EndDialog
-
-BeginDialog excel_row_dialog, 0, 0, 126, 50, "Select the excel row to start"
-  EditBox 75, 5, 40, 15, excel_row_to_start
-  ButtonGroup ButtonPressed
-    OkButton 10, 25, 50, 15
-    CancelButton 65, 25, 50, 15
-  Text 10, 10, 60, 10, "Excel row to start:"
-EndDialog
-
 'THE SCRIPT-------------------------------------------------------------------------------------------------------------------------
 EMConnect ""		'Connects to BlueZone
 
@@ -85,14 +68,24 @@ first_of_month = CM_mo & "/" & "1" & "/" & CM_yr
 
 file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Projects\BZ ongoing projects\COLA\COLA Increase Automation\UNEA BOBI Pull.xlsx"
 
+
+'The dialog is defined in the loop as it can change as buttons are pressed 
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 221, 50, "Select the COLA income source file"
+    ButtonGroup ButtonPressed
+    PushButton 175, 10, 40, 15, "Browse...", select_a_file_button
+    OkButton 110, 30, 50, 15
+    CancelButton 165, 30, 50, 15
+    EditBox 5, 10, 165, 15, file_selection_path
+EndDialog
 'dialog and dialog DO...Loop	
 Do
     'Initial Dialog to determine the excel file to use, column with case numbers, and which process should be run
     'Show initial dialog
     Do
         err_msg = ""
-    	Dialog file_select_dialog
-    	If ButtonPressed = cancel then stopscript
+    	Dialog Dialog1 
+    	cancel_without_confirmation
     	If ButtonPressed = select_a_file_button then call file_selection_system_dialog(file_selection_path, ".xlsx")
         If file_selection_path = "" then err_msg = err_msg & vbNewLine & "Use the Browse Button to select the file that has your client data"
         If err_msg <> "" Then MsgBox err_msg
@@ -101,9 +94,17 @@ Do
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 126, 50, "Select the excel row to start"
+  EditBox 75, 5, 40, 15, excel_row_to_start
+  ButtonGroup ButtonPressed
+    OkButton 10, 25, 50, 15
+    CancelButton 65, 25, 50, 15
+  Text 10, 10, 60, 10, "Excel row to start:"
+EndDialog
 do 
-    dialog excel_row_dialog
-    If buttonpressed = 0 then stopscript								'loops until all errors are resolved
+    dialog Dialog1 
+    cancel_without_confirmation
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
