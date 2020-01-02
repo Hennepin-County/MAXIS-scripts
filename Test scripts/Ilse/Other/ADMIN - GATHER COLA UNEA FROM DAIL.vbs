@@ -51,9 +51,18 @@ call changelog_update("12/09/2019", "Initial version.", "Ilse Ferris, Hennepin C
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'----------------------------------------------------------------------------------------------------DIALOG
+'----------------------------------------------------------------------------------------------------The script
+'CONNECTS TO BlueZone
+EMConnect ""
+MAXIS_footer_month = CM_plus_1_mo
+MAXIS_footer_year =  CM_plus_1_yr
+
+file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Projects\BZ ongoing projects\COLA\COLA Increase Automation\UNEA BOBI Pull.xlsx"
+
+
 'The dialog is defined in the loop as it can change as buttons are pressed 
-BeginDialog info_dialog, 0, 0, 266, 115, "ADMIN - GATHER UNEA INFO.vbs"
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 266, 115, "ADMIN - GATHER UNEA INFO.vbs"
   ButtonGroup ButtonPressed
     PushButton 200, 50, 50, 15, "Browse...", select_a_file_button
     OkButton 150, 95, 50, 15
@@ -63,28 +72,11 @@ BeginDialog info_dialog, 0, 0, 266, 115, "ADMIN - GATHER UNEA INFO.vbs"
   Text 15, 70, 230, 15, "Select the Excel file that contains your inforamtion by selecting the 'Browse' button, and finding the file."
   GroupBox 10, 5, 250, 85, "Using this script:"
 EndDialog
-
-BeginDialog excel_row_dialog, 0, 0, 126, 50, "Select the excel row to start"
-  EditBox 75, 5, 40, 15, excel_row_to_start
-  ButtonGroup ButtonPressed
-    OkButton 10, 25, 50, 15
-    CancelButton 65, 25, 50, 15
-  Text 10, 10, 60, 10, "Excel row to start:"
-EndDialog
-
-'----------------------------------------------------------------------------------------------------The script
-'CONNECTS TO BlueZone
-EMConnect ""
-MAXIS_footer_month = CM_plus_1_mo
-MAXIS_footer_year =  CM_plus_1_yr
-
-file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Projects\BZ ongoing projects\COLA\COLA Increase Automation\UNEA BOBI Pull.xlsx"
-
 'dialog and dialog DO...Loop	
 Do
     Do
-    	Dialog info_dialog
-    	If ButtonPressed = cancel then stopscript
+    	Dialog Dialog1 
+        cancel_without_confirmation
     	If ButtonPressed = select_a_file_button then call file_selection_system_dialog(file_selection_path, ".xlsx")
     Loop until ButtonPressed = OK and file_selection_path <> ""
     If objExcel = "" Then call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
@@ -98,10 +90,18 @@ FOR i = 1 to 7	'formatting the cells'
 	ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
 	objExcel.Columns(i).AutoFit()				'sizing the columns'
 NEXT
- 
+
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 126, 50, "Select the excel row to start"
+  EditBox 75, 5, 40, 15, excel_row_to_start
+  ButtonGroup ButtonPressed
+    OkButton 10, 25, 50, 15
+    CancelButton 65, 25, 50, 15
+  Text 10, 10, 60, 10, "Excel row to start:"
+EndDialog 
 do 
-    dialog excel_row_dialog
-    If buttonpressed = 0 then stopscript								'loops until all errors are resolved
+    dialog Dialog1
+    cancel_without_confirmation
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
