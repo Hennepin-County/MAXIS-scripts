@@ -52,18 +52,36 @@ call changelog_update("03/27/2017", "Initial version.", "Ilse Ferris, Hennepin C
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-'Connecting to MAXIS, and grabbing the case number and footer month'
-'CM_plus_1_mo =  right("0" & DatePart("m", DateAdd("m", 1, date)), 2)
-
+'THE SCRIPT------------------------------------------------------------------------------------------------------------------------------------------------
+'Connecting to MAXIS
 EMConnect ""
-Call MAXIS_case_number_finder(MAXIS_case_number)
-Call MAXIS_footer_finder(original_MAXIS_footer_month, MAXIS_footer_year)
-back_to_self 'to ensure we are not in edit mode'
+'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
+MAXIS_footer_month = datepart("m", date)
+If len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_month
+MAXIS_footer_year = right(datepart("yyyy", date), 2)
 
-Dialog1 = ""
+'Grabbing the case number
+call MAXIS_case_number_finder(MAXIS_case_number)
+CALL MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+back_to_self 'to ensure we are not in edit mode'
+EMReadScreen priv_check, 4, 24, 18 'If it can't get into the case needs to skip
+IF priv_check = "INVA" THEN script_end_procedure_with_error_report("This case is invalid for period selected. ")
+
+maxis_case_number = "286750"
+child_ref_number = "03"
+other_notes = "reason application incomplete"
+SUP_CHECKBOX = CHECKED
+actual_date = "09/01/19"
+claim_date = "09/28/19"
+gc_status = "Pending"
+good_cause_droplist = "Application Review-Incomplete"
+reason_droplist = "Potential phys harm/child"
+
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 116, 65, "Case number"
   EditBox 60, 5, 50, 15, MAXIS_case_number
-  EditBox 65, 25, 20, 15, original_MAXIS_footer_month
+  EditBox 65, 25, 20, 15, MAXIS_footer_month
   EditBox 90, 25, 20, 15, MAXIS_footer_year
   ButtonGroup ButtonPressed
     OkButton 5, 45, 50, 15
@@ -72,20 +90,17 @@ BeginDialog Dialog1, 0, 0, 116, 65, "Case number"
   Text 5, 30, 45, 10, "Footer Month:"
 EndDialog
 DO
-    DO
-    	DO
-    	    err_msg = ""
-    	    Dialog Dialog1
-    	    cancel_confirmation
-    	    IF MAXIS_case_number = "" THEN err_msg = "Please enter a case number to continue."
-    	    IF original_MAXIS_footer_month = "" THEN err_msg = "Please enter a footer month to continue."
-    	    IF MAXIS_footer_year = "" THEN err_msg = "Please enter a footer year to continue."
-    	    IF err_msg <> "" THEN msgbox "*** Error Check ***" & vbNewLine & err_msg
-    		LOOP until err_msg = ""
-    	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-    Loop until are_we_passworded_out = false					'loops until user passwords back in
-EmReadscreen
-
+	DO
+	    err_msg = ""
+	    Dialog Dialog1
+	    cancel_confirmation
+	    IF MAXIS_case_number = "" THEN err_msg = "Please enter a case number to continue."
+	    IF MAXIS_footer_month = "" THEN err_msg = "Please enter a footer month to continue."
+	    IF MAXIS_footer_year = "" THEN err_msg = "Please enter a footer year to continue."
+	    IF err_msg <> "" THEN msgbox "*** Error Check ***" & vbNewLine & err_msg
+		LOOP until err_msg = ""
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 EMWriteScreen MAXIS_case_number, 18, 43
 Call navigate_to_MAXIS_screen("CASE", "CURR")
@@ -102,6 +117,8 @@ If case_status = "CAF1 PEN" THEN active_status = TRUE
 IF case_status = "REIN" THEN active_status = TRUE
 
 Call MAXIS_footer_month_confirmation
+EmReadscreen original_MAXIS_footer_month, 2, 20, 43
+'msgbox original_MAXIS_footer_month
 CALL navigate_to_MAXIS_screen("STAT", "PROG")		'Goes to STAT/PROG
 'Checking for PRIV cases.
 EMReadScreen priv_check, 4, 24, 14 'If it can't get into the case needs to skip
@@ -206,18 +223,7 @@ IF active_status = FALSE THEN
 	END IF
 END IF
 
-'maxis_case_number = "1976494"
-'child_ref_number = "04"
-'other_notes = "reason application incomplete"
-'SUP_CHECKBOX = CHECKED
-'actual_date = "05/01/19"
-'claim_date = "05/28/19"
-'gc_status = "Pending"
-'good_cause_droplist = "Application Review-Incomplete"
-'reason_droplist = "Potential phys harm/child"
-
 '----------------------------------------------------------------------------------------------------DIALOGS
-
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 376, 285, "Good Cause"
   EditBox 70, 5, 30, 15, child_ref_number
@@ -281,8 +287,6 @@ Do
 		dialog Dialog1
 		cancel_without_confirmation
 		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* Enter a valid case number."
-		'If isnumeric(MAXIS_footer_month) = false then err_msg = err_msg & vbnewline & "* You must enter the footer month to begin good cause."
-		'If isnumeric(MAXIS_footer_year) = false then err_msg = err_msg & vbnewline & "* You must enter the footer year to begin good cause."
 		IF child_ref_number = "" THEN err_msg = err_msg & vbnewline & "* Please enter the child(s) member number."
 		If good_cause_droplist = "Select One:" then err_msg = err_msg & vbnewline & "* Select the Good Cause Application Status."
 		IF gc_status = "Select One:" THEN err_msg = err_msg & vbnewline & "* Select the Good Cause Case Status."
@@ -309,49 +313,46 @@ Do
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 '----------------------------------------------------------------------------------------------------ABPS panel
-    MAXIS_background_check
-    Call MAXIS_footer_month_confirmation
-    'build in something to confimr claim date vs footer month'
-    Call navigate_to_MAXIS_screen("STAT", "ABPS")
-    'Initial dialog giving the user the option to select the type of good cause action
+MAXIS_background_check
+Call MAXIS_footer_month_confirmation
+'build in something to confimr claim date vs footer month'
+Call navigate_to_MAXIS_screen("STAT", "ABPS")
+'Initial dialog giving the user the option to select the type of good cause action
+'Checks to make sure there are ABPS panels for this member. If none exist the script will close
+EMReadScreen total_amt_of_panels, 1, 2, 78
+If total_amt_of_panels = "0" then script_end_procedure_with_error_report("An ABPS panel does not exist. Please create the panel before running the script again.")
+EMReadScreen panel_check, 4, 2, 50
+'If panel_check = "ABPS" and current_panel_number = total_amt_of_panels then
+IF panel_check = "ABPS" THEN
+	'MsgBox panel_check
+    Do
+		EMReadScreen initial_parental_status_number, 1, 15, 53
+		IF initial_parental_status_number = "1" THEN
+			EMReadScreen ABPS_last_name, 24, 10, 30	'reading last name
+			ABPS_last_name = replace(ABPS_last_name, "_", "")
+			'MsgBox ABPS_last_name
+			EMReadScreen ABPS_first_name, 12, 10, 63	'reading first name
+			ABPS_first_name = replace(ABPS_first_name, "_", "")
+		END IF
+		EMReadScreen ABPS_parent_ID, 10, 13, 40	'making sure ABPS is not unknown.
+		ABPS_parent_ID = trim(ABPS_parent_ID)
+       	EMReadScreen current_panel_number, 1, 2, 73
+		'MsgBox current_panel_number
+       	ABPS_check = MsgBox("Is this the correct ABPS panel to update?  " & ABPS_first_name & " " & ABPS_last_name & " ID# " &  ABPS_parent_ID, vbYesNo + vbQuestion, "Initial Confirmation")
+       	If ABPS_check = vbYes then
+			ABPS_found = TRUE
+			exit do
+		END IF
+       	If ABPS_check = vbNo then
+			ABPS_found = FALSE
+			TRANSMIT
+		END IF
+		If (ABPS_check = vbNo AND current_panel_number = panel_number) then	script_end_procedure_with_error_report("Unable to find another ABPS. Please review the case, and run the script again if applicable.")
+    Loop until ABPS_found = TRUE
+END IF
 
-    'Checks to make sure there are ABPS panels for this member. If none exist the script will close
-    EMReadScreen total_amt_of_panels, 1, 2, 78
-    If total_amt_of_panels = "0" then script_end_procedure_with_error_report("An ABPS panel does not exist. Please create the panel before running the script again.")
-
-    EMReadScreen panel_check, 4, 2, 50
-    'If panel_check = "ABPS" and current_panel_number = total_amt_of_panels then
-    IF panel_check = "ABPS" THEN
-    	'MsgBox panel_check
-        Do
-			EMReadScreen initial_parental_status_number, 1, 15, 53
-			IF initial_parental_status_number = "1" THEN
-				EMReadScreen ABPS_last_name, 24, 10, 30	'reading last name
-    			ABPS_last_name = replace(ABPS_last_name, "_", "")
-    			'MsgBox ABPS_last_name
-    			EMReadScreen ABPS_first_name, 12, 10, 63	'reading first name
-    			ABPS_first_name = replace(ABPS_first_name, "_", "")
-			END IF
-    		EMReadScreen ABPS_parent_ID, 10, 13, 40	'making sure ABPS is not unknown.
-    		ABPS_parent_ID = trim(ABPS_parent_ID)
-           	EMReadScreen current_panel_number, 1, 2, 73
-    		'MsgBox current_panel_number
-           	ABPS_check = MsgBox("Is this the correct ABPS panel to update?  " & ABPS_first_name & " " & ABPS_last_name & " ID# " &  ABPS_parent_ID, vbYesNo + vbQuestion, "Initial Confirmation")
-           	If ABPS_check = vbYes then
-    			ABPS_found = TRUE
-    			exit do
-    		END IF
-           	If ABPS_check = vbNo then
-    			ABPS_found = FALSE
-    			TRANSMIT
-    		END IF
-    		If (ABPS_check = vbNo AND current_panel_number = panel_number) then	script_end_procedure_with_error_report("Unable to find another ABPS. Please review the case, and run the script again if applicable.")
-        Loop until ABPS_found = TRUE
-    END IF
-
-
-    '-------------------------------------------------------------------------Updating the ABPS panel
-	EMReadScreen MAXIS_footer_month, 2, 20, 55
+'-------------------------------------------------------------------------Updating the ABPS panel
+EMReadScreen MAXIS_footer_month, 2, 20, 55
 	'MsgBox MAXIS_footer_month
 DO
     PF9'edit mode
@@ -478,53 +479,55 @@ DO
 			CALL write_value_and_transmit("BGTX", 20, 71)
     		'msgbox "now i want to be at wrap"
     		EMReadScreen WRAP_panel_check, 4, 2, 46
-    	    IF WRAP_panel_check = "WRAP" THEN EMReadScreen MAXIS_footer_month, 2, 20, 55
-            'msgbox "Footer month: " & MAXIS_footer_month & vbcr & "CM Plus one" & CM_plus_1_mo
-            IF MAXIS_footer_month <> CM_plus_1_mo THEN
-            '    EXIT DO
-            'else
-                Call write_value_and_transmit("Y", 16, 54)
-                EMReadScreen check_PNLP, 4, 2, 53
-                'msgbox "check PNLP: " & check_PNLP
-                IF check_PNLP = "PNLP" THEN
-					CALL write_value_and_transmit("ABPS", 20, 71)
-					Do
-						DO
-                            IF parental_status = "1" THEN
-					            EMReadScreen ABPS_last_name_check, 24, 10, 30	'reading last name
-					            ABPS_last_name_check = replace(ABPS_last_name_check, "_", "")
-					            'MsgBox ABPS_last_name_check & "second run"
-					            EMReadScreen ABPS_first_name_check, 12, 10, 63	'reading first name
-					            ABPS_first_name_check = replace(ABPS_first_name_check, "_", "")
-							END IF
-					        EMReadScreen ABPS_parent_ID, 10, 13, 40	'making sure ABPS is not unknown.
-					        ABPS_parent_ID = trim(ABPS_parent_ID)
-			       	        EMReadScreen current_panel_number, 1, 2, 73
-					        'MsgBox current_panel_number
-							IF ABPS_last_name = ABPS_last_name_check and ABPS_first_name = ABPS_first_name_check THEN
-								ABPS_found = TRUE
-								'MsgBox ABPS_found
-								'exit do
-							ELSE
-								ABPS_found = FALSE
-								TRANSMIT
-								'MsgBox ABPS_found
-							END IF
-							IF ABPS_found = TRUE THEN
-								ABPS_check = MsgBox("Is this the correct ABPS panel to update? Sometimes a new ID is created for the same ABPS.  " & ABPS_first_name_check & " " & ABPS_last_name_check & " ID# " &  ABPS_parent_ID, vbYesNo + vbQuestion, "BGTX Confirmation")
-								If ABPS_check = vbYes then
-									ABPS_found_question = TRUE
-									exit do
-								END IF
-								If ABPS_check = vbNo then
-									ABPS_found_question = FALSE
-									TRANSMIT
-								END IF
-					    		If (ABPS_check = vbNo AND current_panel_number = total_amt_of_panels) THEN script_end_procedure_with_error_report("Unable to find another ABPS. Please review the case, and run the script again if applicable.")
-							END IF
-			    		Loop until ABPS_found = TRUE
-					Loop until ABPS_found_question = TRUE
-                END IF
+    	    IF WRAP_panel_check = "WRAP" THEN
+				EMReadScreen MAXIS_footer_month, 2, 20, 55
+            	'msgbox "Footer month: " & MAXIS_footer_month & vbcr & "CM Plus one" & CM_plus_1_mo
+            	IF MAXIS_footer_month <> CM_plus_1_mo THEN
+                    Call write_value_and_transmit("Y", 16, 54)
+					EmReadscreen bgtx_error, 4, 24, 15
+					IF bgtx_error = "BGTX" THEN EXIT DO
+                	EMReadScreen check_PNLP, 4, 2, 53
+                    'msgbox "check PNLP: " & check_PNLP
+                    IF check_PNLP = "PNLP" THEN
+				    	CALL write_value_and_transmit("ABPS", 20, 71)
+				    	Do
+				    		DO
+                                IF parental_status = "1" THEN
+				    	            EMReadScreen ABPS_last_name_check, 24, 10, 30	'reading last name
+				    	            ABPS_last_name_check = replace(ABPS_last_name_check, "_", "")
+				    	            'MsgBox ABPS_last_name_check & "second run"
+				    	            EMReadScreen ABPS_first_name_check, 12, 10, 63	'reading first name
+				    	            ABPS_first_name_check = replace(ABPS_first_name_check, "_", "")
+				    			END IF
+				    	        EMReadScreen ABPS_parent_ID, 10, 13, 40	'making sure ABPS is not unknown.
+				    	        ABPS_parent_ID = trim(ABPS_parent_ID)
+			           	        EMReadScreen current_panel_number, 1, 2, 73
+				    	        'MsgBox current_panel_number
+				    			IF ABPS_last_name = ABPS_last_name_check and ABPS_first_name = ABPS_first_name_check THEN
+				    				ABPS_found = TRUE
+				    				'MsgBox ABPS_found
+				    				'exit do
+				    			ELSE
+				    				ABPS_found = FALSE
+				    				TRANSMIT
+				    				'MsgBox ABPS_found
+				    			END IF
+				    			IF ABPS_found = TRUE THEN
+				    				ABPS_check = MsgBox("Is this the correct ABPS panel to update? Sometimes a new ID is created for the same ABPS.  " & ABPS_first_name_check & " " & ABPS_last_name_check & " ID# " &  ABPS_parent_ID, vbYesNo + vbQuestion, "BGTX Confirmation")
+				    				If ABPS_check = vbYes then
+				    					ABPS_found_question = TRUE
+				    					exit do
+				    				END IF
+				    				If ABPS_check = vbNo then
+				    					ABPS_found_question = FALSE
+				    					TRANSMIT
+				    				END IF
+				    	    		If (ABPS_check = vbNo AND current_panel_number = total_amt_of_panels) THEN script_end_procedure_with_error_report("Unable to find another ABPS. Please review the case, and run the script again if applicable.")
+				    			END IF
+			        		Loop until ABPS_found = TRUE
+				    	Loop until ABPS_found_question = TRUE
+                    END IF
+				END IF
 			END IF
 	    ELSE
 			MsgBox "*** NOTICE!!! ***" & vbNewLine & "Unable to complete action. " & vbNewLine
@@ -577,12 +580,16 @@ IF OTHER_CHECKBOX = CHECKED THEN incomplete_form = incomplete_form & " other (se
 incomplete_form  = trim(incomplete_form)
 If right(incomplete_form, 1) = "," THEN incomplete_form  = left(incomplete_form, len(incomplete_form) - 1)
 '-----------------------------------------------------------------------------------------------------Case note & email sending
+
+'Call MAXIS_footer_month_confirmation    'Footer month & year could get wonky and not go into case note. This prevents that from happening.
+
+'original_MAXIS_footer_month = MAXIS_footer_month
 MAXIS_footer_month = original_MAXIS_footer_month
+'MsgBox MAXIS_footer_month
+'msgbox original_MAXIS_footer_month
 
-'MsgBox original_MAXIS_footer_month
-
-Call MAXIS_footer_month_confirmation    'Footer month & year could get wonky and not go into case note. This prevents that from happening.
-CALL start_a_blank_case_note
+Call navigate_to_MAXIS_screen("CASE", "NOTE")
+PF9
 IF good_cause_droplist = "Application Review-Complete" THEN Call write_variable_in_case_note("Good Cause Application Review - Complete")
 IF good_cause_droplist = "Application Review-Incomplete" THEN Call write_variable_in_case_note("Good Cause Application Review - Incomplete")
 IF good_cause_droplist = "Change/exemption ending" THEN
