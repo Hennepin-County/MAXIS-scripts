@@ -58,7 +58,8 @@ EMConnect ""
 Do
 	Do
 			'The dialog is defined in the loop as it can change as buttons are pressed 
-			BeginDialog bulk_dialog, 0, 0, 266, 110, "GRH case case numbers"
+			Dialog1 = ""
+            BeginDialog Dialog1, 0, 0, 266, 110, "GRH case case numbers"
   				ButtonGroup ButtonPressed
     			PushButton 200, 45, 50, 15, "Browse...", select_a_file_button
     			OkButton 145, 90, 50, 15
@@ -69,8 +70,8 @@ Do
   				Text 15, 65, 230, 15, "Select the Excel file that contains the CBO information by selecting the 'Browse' button, and finding the file."
 			EndDialog
 			err_msg = ""
-			Dialog bulk_dialog
-			cancel_confirmation
+			Dialog Dialog1
+            cancel_without_confirmation
 			If ButtonPressed = select_a_file_button then
 				If file_selection_path <> "" then 'This is handling for if the BROWSE button is pushed more than once'
 					objExcel.Quit 'Closing the Excel file that was opened on the first push'
