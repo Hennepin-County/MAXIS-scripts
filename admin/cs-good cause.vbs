@@ -66,16 +66,16 @@ CALL MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 back_to_self 'to ensure we are not in edit mode'
 EMReadScreen priv_check, 4, 24, 18 'If it can't get into the case needs to skip
 IF priv_check = "INVA" THEN script_end_procedure_with_error_report("This case is invalid for period selected. ")
-
-maxis_case_number = "286750"
-child_ref_number = "03"
-other_notes = "reason application incomplete"
-SUP_CHECKBOX = CHECKED
-actual_date = "09/01/19"
-claim_date = "09/28/19"
-gc_status = "Pending"
-good_cause_droplist = "Application Review-Incomplete"
-reason_droplist = "Potential phys harm/child"
+'training case'
+'maxis_case_number = "286750"
+'child_ref_number = "03"
+'other_notes = "reason application incomplete"
+'SUP_CHECKBOX = CHECKED
+'actual_date = "09/01/19"
+'claim_date = "09/28/19"
+'gc_status = "Pending"
+'good_cause_droplist = "Application Review-Incomplete"
+'reason_droplist = "Potential phys harm/child"
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
