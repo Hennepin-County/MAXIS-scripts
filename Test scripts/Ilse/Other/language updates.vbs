@@ -50,9 +50,15 @@ call changelog_update("01/22/2018", "Initial version.", "Ilse Ferris, Hennepin C
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
+'THE SCRIPT-------------------------------------------------------------------------------------------------------------------------
+'Connects to BlueZone and establishing county name
+EMConnect ""	
+file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Projects\Completed projects\Language update\07-2018 updates.xlsx"
+
+
 'DIALOG
-'The dialog is defined in the loop as it can change as buttons are pressed 
-BeginDialog info_dialog, 0, 0, 266, 110, "Language updates script"
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 266, 110, "Language updates script"
     ButtonGroup ButtonPressed
     PushButton 200, 45, 50, 15, "Browse...", select_a_file_button
     OkButton 145, 90, 50, 15
@@ -62,19 +68,13 @@ BeginDialog info_dialog, 0, 0, 266, 110, "Language updates script"
     Text 20, 20, 235, 20, "This script should be used when a list of cases is provided that require the language code on STAT/MEMB to be updated."
     Text 15, 65, 230, 15, "Select the Excel file that contains the client's information by selecting the 'Browse' button, and finding the file."
 EndDialog
-
-'THE SCRIPT-------------------------------------------------------------------------------------------------------------------------
-'Connects to BlueZone and establishing county name
-EMConnect ""	
-file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Projects\Completed projects\Language update\07-2018 updates.xlsx"
-
 'dialog and dialog DO...Loop	
 Do
     'Initial Dialog to determine the excel file to use, column with case numbers, and which process should be run
     'Show initial dialog
     Do
-    	Dialog info_dialog
-    	If ButtonPressed = cancel then stopscript
+    	Dialog Dialog1 
+    	cancel_without_confirmation
     	If ButtonPressed = select_a_file_button then call file_selection_system_dialog(file_selection_path, ".xlsx")
     Loop until ButtonPressed = OK and file_selection_path <> ""
     If objExcel = "" Then call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
