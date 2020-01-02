@@ -5357,7 +5357,10 @@ Function non_actionable_dails
         instr(dail_msg, "SNAP: PENDING OR STAT EDITS EXIST") OR _ 
         instr(dail_msg, "SNAP: REIN STATUS - NOT AUTO-APPROVED") OR _ 
         instr(dail_msg, "CHECK FOR COLA - UNEA HAS VA") OR _ 
-        instr(dail_msg, "CHECK FOR COLA - UNEA HAS RAILROAD RETIREMENT") then 
+        instr(dail_msg, "CHECK FOR COLA - UNEA HAS RAILROAD RETIREMENT") OR _ 
+        instr(dail_msg, "CASE NOT AUTO-APPROVED HRF/SR/RECERT DUE") OR _ 
+        instr(dail_msg, "MFIP MASS CHANGE AUTO-APPROVED AN UNUSUAL INCREASE") OR _ 
+        instr(dail_msg, "MFIP MASS CHANGE AUTO-APPROVED CASE WITH SANCTION") then 
             add_to_excel = True
         '----------------------------------------------------------------------------------------------------CORRECT STAT EDITS over 5 days old
     Elseif instr(dail_msg, "CORRECT STAT EDITS") then
