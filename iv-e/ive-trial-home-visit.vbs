@@ -55,8 +55,8 @@ changelog_display
 'Connecting to BlueZone, grabbing case number
 EMConnect ""
 CALL MAXIS_case_number_finder(MAXIS_case_number)
-
-'Running the initial dialog
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog dialog1, 0, 0, 181, 75, "Select a trial home visit option"
   EditBox 95, 10, 60, 15, MAXIS_case_number
   DropListBox 95, 30, 60, 10, "Select one.."+chr(9)+"Begins"+chr(9)+"Change"+chr(9)+"Ends", THV_option
@@ -70,7 +70,7 @@ DO
 	DO
 		err_msg = ""
 		Dialog dialog1
-        cancel_confirmation
+        cancel_without_confirmation
 		IF len(MAXIS_case_number) > 8 or IsNumeric(MAXIS_case_number) = False THEN err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 		IF THV_option = "Select one..." then err_msg = err_msg & vbNewLine & "* Select a trial home visit option."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
@@ -78,7 +78,7 @@ DO
  Call check_for_password(are_we_passworded_out)
 LOOP UNTIL check_for_password(are_we_passworded_out) = False
 
-If THV_option = "Begins" then 
+If THV_option = "Begins" then
     dialog1 = ""
     BeginDialog dialog1, 0, 0, 291, 160, "Trial home visit begins"
       EditBox 65, 10, 90, 15, effective_date
@@ -107,13 +107,13 @@ If THV_option = "Begins" then
 		DO
 			err_msg = ""
 			Dialog dialog1
-			cancel_confirmation
+			cancel_without_confirmation
 			If isDate(effective_date) = False then err_msg = err_msg & vbNewLine & "* Enter a valid effective date."
             IF court_ordered = "Select one..." then err_msg = err_msg & vbNewLine & "* Was the trial home visit court ordered?"
 			If THV_verif = "" then err_msg = err_msg & vbNewLine & "* Enter the trial home visit verification."
 			If SSIS = "" then err_msg = err_msg & vbNewLine & "* Enter the SSIS information."
 			IF basic_IVE = "Select one..." then err_msg = err_msg & vbNewLine & "* Is this Basic IV-E?"
-			If isDate(reim_ended) = False then err_msg = err_msg & vbNewLine & "* Enter a valid reimbursement end date." 
+			If isDate(reim_ended) = False then err_msg = err_msg & vbNewLine & "* Enter a valid reimbursement end date."
 			If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Enter your worker signature."
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 		LOOP UNTIL err_msg = ""
@@ -124,10 +124,10 @@ If THV_option = "Begins" then
     Call write_variable_in_CASE_NOTE("~~Trial home visit begins~~")
     Call write_bullet_and_variable_in_CASE_NOTE("Effective date", effective_date)
     Call write_bullet_and_variable_in_CASE_NOTE("Court ordered", goal_two)
-    Call write_bullet_and_variable_in_CASE_NOTE("Verification", THV_verif) 
+    Call write_bullet_and_variable_in_CASE_NOTE("Verification", THV_verif)
     call write_bullet_and_variable_in_CASE_NOTE("Basic IV-E", basic_IVE)
-    Call write_bullet_and_variable_in_CASE_NOTE("SSIS", SSIS) 
-    Call write_bullet_and_variable_in_CASE_NOTE("Reimbursement ended", reim_ended) 
+    Call write_bullet_and_variable_in_CASE_NOTE("SSIS", SSIS)
+    Call write_bullet_and_variable_in_CASE_NOTE("Reimbursement ended", reim_ended)
     If MEMI_checkbox = 1 then Call write_variable_in_CASE_NOTE("* MEMI has been updated.")
     If dail_checkbox = 1 then Call write_variable_in_CASE_NOTE("* TIKL created to recheck case.")
 END IF
@@ -168,7 +168,7 @@ If THV_option = "Change" then
     Call write_bullet_and_variable_in_CASE_NOTE("Reason for change", change_reason)
     Call write_bullet_and_variable_in_CASE_NOTE("Effective date", effective_date)
     Call write_bullet_and_variable_in_CASE_NOTE("Actions taken", actions_taken)
-END IF 
+END IF
 
 If THV_option = "Ends" then
     dialog1 = ""
@@ -203,22 +203,22 @@ If THV_option = "Ends" then
 			IF court_ordered = "Select one..." then err_msg = err_msg & vbNewLine & "* Was the trial home visit court ordered?"
 			If THV_verif = "" then err_msg = err_msg & vbNewLine & "* Enter the trial home visit verification."
             If SSIS = "" then err_msg = err_msg & vbNewLine & "* Enter the SSIS information."
-            If isDate(reim_updated) = False then err_msg = err_msg & vbNewLine & "* Enter a valid reimbursement updated date."  
+            If isDate(reim_updated) = False then err_msg = err_msg & vbNewLine & "* Enter a valid reimbursement updated date."
 			If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Enter your worker signature."
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 		LOOP UNTIL err_msg = ""
  		Call check_for_password(are_we_passworded_out)
 	LOOP UNTIL check_for_password(are_we_passworded_out) = False
-    
+
     start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
     Call write_variable_in_CASE_NOTE("~~Trial home visit ends~~")
     Call write_bullet_and_variable_in_CASE_NOTE("Reason ending", reason_ending)
     Call write_bullet_and_variable_in_CASE_NOTE("Effective date", effective_date)
     Call write_bullet_and_variable_in_CASE_NOTE("Court ordered", goal_two)
-    Call write_bullet_and_variable_in_CASE_NOTE("Verification", THV_verif) 
-    Call write_bullet_and_variable_in_CASE_NOTE("SSIS", SSIS) 
-    Call write_bullet_and_variable_in_CASE_NOTE("Reimbursement updated", reim_updated) 
-END IF 
+    Call write_bullet_and_variable_in_CASE_NOTE("Verification", THV_verif)
+    Call write_bullet_and_variable_in_CASE_NOTE("SSIS", SSIS)
+    Call write_bullet_and_variable_in_CASE_NOTE("Reimbursement updated", reim_updated)
+END IF
 
 Call write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
 Call write_variable_in_CASE_NOTE ("---")

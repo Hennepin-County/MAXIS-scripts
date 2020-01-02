@@ -491,7 +491,7 @@ IF sent_date <> "" THEN MsgBox("A difference notice was sent on " & sent_date & 
 		Do
    		    err_msg = ""
 		    Dialog Dialog1
-		    IF ButtonPressed = 0 THEN StopScript
+		    cancel_without_confirmation
 		    IF IsNumeric(resolve_time) = false or len(resolve_time) > 3 THEN err_msg = err_msg & vbNewLine & "* Enter a valid numeric resolved time."
 		    IF resolve_time = "" THEN err_msg = err_msg & vbNewLine & "Please complete resolve time."
 		    IF change_response = "Select One:" THEN err_msg = err_msg & vbNewLine & "Did the client respond to Difference Notice?"

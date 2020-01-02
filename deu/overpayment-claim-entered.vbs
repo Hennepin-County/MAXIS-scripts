@@ -208,8 +208,9 @@ memb_number = "01"
 discovery_date = date & ""
 
 back_to_self
-'--------------------------------------------------------------------Dialog
-BeginDialog overpayment_dialog, 0, 0, 361, 280, "Overpayment Claim Entered"
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 361, 280, "Overpayment Claim Entered"
   EditBox 60, 5, 40, 15, MAXIS_case_number
   EditBox 140, 5, 20, 15, memb_number
   EditBox 230, 5, 20, 15, OT_resp_memb
@@ -302,8 +303,8 @@ EndDialog
 
 Do
 	err_msg = ""
-	dialog overpayment_dialog
-	cancel_confirmation
+	dialog Dialog1
+	cancel_without_confirmation
 	IF MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* Enter a valid case number."
     IF select_quarter = "Select:" THEN err_msg = err_msg & vbnewline & "* You must select a match period entry."
 	IF fraud_referral = "Select:" THEN err_msg = err_msg & vbnewline & "* You must select a fraud referral entry."

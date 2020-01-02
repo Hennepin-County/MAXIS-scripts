@@ -514,7 +514,6 @@ Row = 8
 	  Text 260, 10, 50, 10, "Fraud referral:"
 	  Text 70, 205, 30, 10, "Reason:"
 	  Text 10, 275, 65, 10, "Resolution Status:"
-
 	EndDialog
 	Do
 		err_msg = ""
@@ -581,7 +580,7 @@ Row = 8
 		EMWriteScreen "Determination-OP Entered", Row, 30
 		EMWriteScreen date, Row, 66
 		TRANSMIT
-		
+
 		start_a_blank_case_note
 		Call write_variable_in_case_note("-----Claim Referral Tracking - Claim Determination-----")
 		IF case_note_only = TRUE THEN Call write_variable_in_case_note("Maxis case is inactive unable to add or update MISC panel")

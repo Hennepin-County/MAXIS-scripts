@@ -269,8 +269,9 @@ IF current_panel_check = "DSPL" THEN
 	END IF
 	'IF current_panel_check <> "ADDR" THEN MsgBox(current_panel_check)
 END IF
-'------------------------------------------------------------------------------------------------dialog
-BeginDialog MIPPA_active_dialog, 0, 0, 376, 180, "MIPPA"
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 376, 180, "MIPPA"
   EditBox 55, 5, 35, 15, MAXIS_case_number
   ButtonGroup ButtonPressed
     PushButton 110, 5, 50, 15, "Geocoder", Geo_coder_button
@@ -304,8 +305,8 @@ EndDialog
 DO 'Password DO loop
 	DO 'Conditional handling DO loop
        DO  'External resource DO loop
-           dialog MIPPA_active_dialog
-           cancel_confirmation
+           dialog Dialog1
+           cancel_without_confirmation
            If ButtonPressed = Geo_coder_button then CreateObject("WScript.Shell").Run("https://hcgis.hennepin.us/agsinteractivegeocoder/default.aspx")
        Loop until ButtonPressed = -1
 	   err_msg = ""

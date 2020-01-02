@@ -55,7 +55,8 @@ changelog_display
 EMConnect ""
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 
-'Running the initial dialog
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 156, 105, "Permanency Review Completed"
   EditBox 100, 5, 50, 15, MAXIS_case_number
   EditBox 100, 25, 50, 15, court_order_rcvd_date
@@ -70,12 +71,11 @@ BeginDialog Dialog1, 0, 0, 156, 105, "Permanency Review Completed"
   Text 5, 70, 40, 10, "Worker Sig:"
 EndDialog
 
-
 DO
 	DO
 		err_msg = ""
 		Dialog dialog1
-        cancel_confirmation
+        cancel_without_confirmation
 		IF len(MAXIS_case_number) > 8 or IsNumeric(MAXIS_case_number) = False THEN err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 		IF court_order_rcvd_date = "" then err_msg = err_msg & vbNewLine & "Please enter thedate the court order was received."
         If panel_updated = "Select One:" then err_msg = err_msg & vbNewLine & "Has STAT/FCLD panel been updated?"

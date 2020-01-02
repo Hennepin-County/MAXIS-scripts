@@ -56,7 +56,8 @@ changelog_display
 EMConnect ""
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 
-'Running the initial dialog
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog dialog1, 0, 0, 341, 345, "IV-E eligibility review"
   EditBox 70, 10, 55, 15, MAXIS_case_number
   EditBox 70, 30, 55, 15, review_month
@@ -109,7 +110,7 @@ DO
 	DO
 		err_msg = ""
 		Dialog dialog1
-        cancel_confirmation
+        cancel_without_confirmation
 		IF len(MAXIS_case_number) > 8 or IsNumeric(MAXIS_case_number) = False THEN err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 		IF review_month = "" then err_msg = err_msg & vbNewLine & "* Enter the review month."
         If IsNumeric(child_age) = False then err_msg = err_msg & vbNewLine & "* Enter a valid age for child."
@@ -135,7 +136,7 @@ IF other_income <> "" then child_income = child_income & other_income & ", "
 'trims excess spaces of child_income
 child_income = trim(child_income)
 'takes the last comma off of child_income when autofilled into dialog if more more than one app date is found and additional app is selected
-If right(child_income, 1) = "," THEN child_income = left(child_income, len(child_income) - 1) 
+If right(child_income, 1) = "," THEN child_income = left(child_income, len(child_income) - 1)
 
 'The case note----------------------------------------------------------------------------------------------------
 start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
@@ -143,7 +144,7 @@ Call write_variable_in_CASE_NOTE("**TITLE IV-E eligibilty review for " & review_
 Call write_bullet_and_variable_in_CASE_NOTE("Age of child at end of review period", child_age)
 Call write_bullet_and_variable_in_CASE_NOTE("Child is 18, school verification", school_verif)
 Call write_bullet_and_variable_in_CASE_NOTE("In receipt of AFDC", AFDC_receipt)
-call write_bullet_and_variable_in_CASE_NOTE("Rule 5", rule_five) 
+call write_bullet_and_variable_in_CASE_NOTE("Rule 5", rule_five)
 Call write_bullet_and_variable_in_CASE_NOTE("Child's income", child_income)
 Call write_bullet_and_variable_in_CASE_NOTE("Child's assets", child_assets)
 Call write_bullet_and_variable_in_CASE_NOTE("Deprivation factor", dep_factor)
@@ -151,8 +152,8 @@ Call write_variable_in_CASE_NOTE ("---")
 Call write_bullet_and_variable_in_CASE_NOTE("Title IV-E basic elig", basic_elig)
 Call write_bullet_and_variable_in_CASE_NOTE("TITLE IV-E Reimbursable status", reimb_list)
 Call write_bullet_and_variable_in_CASE_NOTE("Permanent hearing date", perm_hearing_date)
-Call write_bullet_and_variable_in_CASE_NOTE("Non reimburseable months", non_reimb_months)    
-Call write_bullet_and_variable_in_CASE_NOTE("New date from FCLD", new_date)    
+Call write_bullet_and_variable_in_CASE_NOTE("Non reimburseable months", non_reimb_months)
+Call write_bullet_and_variable_in_CASE_NOTE("New date from FCLD", new_date)
 If MAXIS_checkbox = 1 then Call write_variable_in_CASE_NOTE("* MAXIS updated.")
 If SSIS_checkbox = 1 then Call write_variable_in_CASE_NOTE("* SSIS checked.")
 If HC_approved_checkobx = 1 then Call write_variable_in_CASE_NOTE("* MMIS approved, 25X. MMIS updated.")
