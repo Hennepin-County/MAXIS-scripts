@@ -259,7 +259,7 @@ enrollment_year = CM_plus_1_yr
 this_month = monthname(month(date))
 Select Case this_month
     Case "January"
-        cut_off_date = #01/22/19#
+        cut_off_date = #01/22/20#
     Case "February"
         cut_off_date = #2/19/19#
     Case "March"
