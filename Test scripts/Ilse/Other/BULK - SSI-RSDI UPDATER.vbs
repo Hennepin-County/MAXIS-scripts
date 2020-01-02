@@ -63,7 +63,8 @@ renewal_date = CM_plus_1_mo & "/" & CM_plus_1_yr
 Do
 	Do
 			'The dialog is defined in the loop as it can change as buttons are pressed 
-			BeginDialog info_dialog, 0, 0, 266, 135, "SSI-RSDI Updater"
+			Dialog1 = ""
+            BeginDialog Dialog1, 0, 0, 266, 135, "SSI-RSDI Updater"
 	  			ButtonGroup ButtonPressed
 	  			PushButton 200, 45, 50, 15, "Browse...", select_a_file_button
 	  			DropListBox 185, 90, 65, 15, "Select one..."+chr(9)+"Send SVES"+chr(9)+"Update Cases", action_type
@@ -78,8 +79,8 @@ Do
 			EndDialog
 
 			err_msg = ""
-			Dialog info_dialog
-			cancel_confirmation
+			Dialog Dialog1
+			cancel_without_confirmation
 			If ButtonPressed = select_a_file_button then
 				If file_selection_path <> "" then 'This is handling for if the BROWSE button is pushed more than once'
 					objExcel.Quit 'Closing the Excel file that was opened on the first push'
