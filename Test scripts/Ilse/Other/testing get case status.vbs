@@ -79,7 +79,8 @@ EMConnect ""		'Connects to BlueZone
 Do
 	Do
 			'The dialog is defined in the loop as it can change as buttons are pressed
-			BeginDialog file_select_dialog, 0, 0, 226, 50, "Select the file with the auto dialer calls."
+			Dialog1 = ""
+            BeginDialog Dialog1, 0, 0, 226, 50, "Select the file with the auto dialer calls."
 			  ButtonGroup ButtonPressed
 			    PushButton 175, 10, 40, 15, "Browse...", select_a_file_button
 			    OkButton 110, 30, 50, 15
@@ -87,8 +88,8 @@ Do
 			  EditBox 5, 10, 165, 15, file_selection_path
 			EndDialog
 			err_msg = ""
-			Dialog file_select_dialog
-			If ButtonPressed = 0 then stopscript
+			Dialog Dialog1
+			cancel_without_confirmation
 			If ButtonPressed = select_a_file_button then
 				If file_selection_path <> "" then 'This is handling for if the BROWSE button is pushed more than once'
 					objExcel.Quit 'Closing the Excel file that was opened on the first push'
