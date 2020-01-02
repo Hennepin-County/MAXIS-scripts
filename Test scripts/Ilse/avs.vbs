@@ -55,7 +55,8 @@ EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
 
 '----------------------------------------------------------------------------------------------------Initial dialog 
-BeginDialog Initial_dialog, 0, 0, 151, 75, "AVS Initial Process Dialog"
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 151, 75, "AVS Initial Process Dialog"
   EditBox 60, 10, 55, 15, MAXIS_case_number
   DropListBox 60, 35, 85, 15, "Select one..."+chr(9)+"AVS Form Processing"+chr(9)+"AVS Submission", initial_option
   ButtonGroup ButtonPressed
@@ -69,7 +70,7 @@ EndDialog
 DO
 	DO
 		err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
-		dialog initial_dialog				    
+		dialog Dialog1				    
 		cancel_without_confirmation              'new function that will cancel, collect stats, but not give user option to confirm ending script.
 		call validate_MAXIS_case_number(err_msg, "*")
         If initial_option = "Select one..." then err_msg = err_msg & vbcr & "* Select an AVS process option."
@@ -113,7 +114,8 @@ FOR x = 0 to total_clients				'using a dummy array to build in the autofilled ch
 	all_clients_array(x, 1) = 1    '1 = checked
 NEXT
 
-BEGINDIALOG HH_memb_dialog, 0, 0, 241, (35 + (total_clients * 15)), "Member Selection Dialog"   'Creates the dynamic dialog. The height will change based on the number of clients it finds.
+Dialog1 = ""
+BEGINDIALOG Dialog1, 0, 0, 241, (35 + (total_clients * 15)), "Member Selection Dialog"   'Creates the dynamic dialog. The height will change based on the number of clients it finds.
     Text 5, 5, 180, 10, "Select members who are REQUIRED to sign AVS forms:"
 	FOR i = 0 to total_clients											'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
 		IF all_clients_array(i, 0) <> "" THEN checkbox 10, (20 + (i * 15)), 160, 10, all_clients_array(i, 0), all_clients_array(i, 1)  'Ignores and blank scanned in persons/strings to avoid a blank checkbox
@@ -129,7 +131,7 @@ ENDDIALOG
 Do 
     Do 
         err_msg = ""
-        Dialog HH_memb_dialog       'runs the dialog that has been dynamically created. Streamlined with new functions.
+        Dialog Dialog1      'runs the dialog that has been dynamically created. Streamlined with new functions.
         cancel_without_confirmation
         If avs_option = "Select one..." then err_msg = err_msg & vbcr & "* Select an AVS process option."
         IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
@@ -175,7 +177,8 @@ If initial_option = "AVS Form Processing" then
         set_TIKL = True 
     End Select     
 
-    BeginDialog non_MAGI_dialog, 0, 0, 271, (150 + (avs_membs * 15)), "Non-MAGI Referral for #" & MAXIS_case_number
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 271, (150 + (avs_membs * 15)), "Non-MAGI Referral for #" & MAXIS_case_number
       Text 10, 10, 55, 10, "Date of Request:"
       EditBox 70, 5, 55, 15, request_date
       Text 140, 10, 70, 10, "METS Case Number:"
@@ -205,7 +208,7 @@ If initial_option = "AVS Form Processing" then
     DO
         DO
             err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
-            Dialog non_MAGI_dialog				    
+            Dialog Dialog1				    
             cancel_without_confirmation              'new function that will cancel, collect stats, but not give user option to confirm ending script.
             If isdate(request_date) = false or trim(request_date) = "" then err_msg = err_msg & vbcr & "* Enter a valid request date."
             If trim(METS_case_number) = "" or IsNumeric(METS_case_number) = False or len(METS_case_number) <> 8 then err_msg = err_msg & vbcr & "* Enter a valid METS case number."
@@ -220,8 +223,10 @@ If initial_option = "AVS Form Processing" then
         CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
     Loop until are_we_passworded_out = false					'loops until user passwords back in
 elseif initial_option = "AVS Submission" then 
+
     '(initial_option = "2. Request to end eligibility in METS" or "3. Eligibility ended in METS")
-    BeginDialog elig_ended_dialog, 0, 0, 271, (120 + (avs_membs * 15)), "Eligibility Ending for #" & MAXIS_case_number
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 271, (120 + (avs_membs * 15)), "Eligibility Ending for #" & MAXIS_case_number
     If initial_option = "3. Eligibility ended in METS" then 
         Text 10, 10, 70, 10, "MMIS elig end date:"
         EditBox 80, 5, 55, 15, mmis_end_date
@@ -246,7 +251,7 @@ elseif initial_option = "AVS Submission" then
     DO
         DO
             err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
-            dialog elig_ended_dialog				    
+            dialog Dialog1				    
             cancel_without_confirmation              'new function that will cancel, collect stats, but not give user option to confirm ending script.
             If (initial_option = "3. Eligibility ended in METS" AND (isdate(mmis_end_date) = false or trim(mmis_end_date) = "")) then err_msg = err_msg & vbcr & "* Enter a valid MMIS end date."
             If trim(METS_case_number) = "" or IsNumeric(METS_case_number) = False or len(METS_case_number) <> 8 then err_msg = err_msg & vbcr & "* Enter a valid METS case number."
