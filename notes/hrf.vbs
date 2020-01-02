@@ -724,7 +724,7 @@ ElseIf LTC_case = vbNo then							'Shows dialog if not LTC
 			      GroupBox 255, 5, 70, 40, "ELIG panels:"
 			    EndDialog
 				Dialog Dialog1
-				cancel_without_confirmation
+				cancel_confirmation
 				Call check_for_password(are_we_passworded_out)   'Adding functionality for MAXIS v.6 Passworded Out issue'
 				MAXIS_dialog_navigation
                 If ButtonPressed = income_notes_button Then

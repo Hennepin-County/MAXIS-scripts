@@ -51,8 +51,13 @@ CALL changelog_update("12/01/2017", "Initial version.", "Ilse Ferris, Hennepin C
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-BeginDialog mandatory_vendor_dialog, 0, 0, 306, 125, "Mandatory vendors approved"
+'--------------------------------------------------------------------------------------------------SCRIPT
+EMConnect ""
+CALL MAXIS_case_number_finder(MAXIS_case_number)
+
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 306, 125, "Mandatory vendors approved"
   EditBox 60, 10, 55, 15, MAXIS_case_number
   DropListBox 215, 10, 85, 15, "Select one..."+chr(9)+"Using ACF"+chr(9)+"Using County shelters", vendor_reason
   CheckBox 20, 35, 280, 10, "Referred client to Luther Social Services for budgeting classes at 1 (888) 577-2227.", client_referred
@@ -68,17 +73,11 @@ BeginDialog mandatory_vendor_dialog, 0, 0, 306, 125, "Mandatory vendors approved
   GroupBox 5, 55, 295, 45, "Actions:"
 EndDialog
 
-
-'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-'Connecting to BlueZone, grabbing case number
-EMConnect ""
-CALL MAXIS_case_number_finder(MAXIS_case_number)
-
 'Running the initial dialog
 DO
 	DO
 		err_msg = ""
-		Dialog mandatory_vendor_dialog
+		Dialog Dialog1
         cancel_confirmation
 		IF len(MAXIS_case_number) > 8 or IsNumeric(MAXIS_case_number) = False THEN err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 		IF vendor_reason = "Select one..." then err_msg = err_msg & vbNewLine & "* Select a vendor reason."
@@ -86,20 +85,20 @@ DO
 	LOOP UNTIL err_msg = ""
  Call check_for_password(are_we_passworded_out)
 LOOP UNTIL check_for_password(are_we_passworded_out) = False
- 
+
 back_to_SELF
 EMWriteScreen "________", 18, 43
 EMWriteScreen case_number, 18, 43
 EMWriteScreen CM_mo, 20, 43	'entering current footer month/year
 EMWriteScreen CM_yr, 20, 46
 
-IF send_MEMO_checkbox = 1 then 
+IF send_MEMO_checkbox = 1 then
 	call navigate_to_MAXIS_screen("SPEC", "MEMO")		'Navigating to SPEC/MEMO
 	'Creates a new MEMO. If it's unable the script will stop.
 	PF5
 	EMReadScreen memo_display_check, 12, 2, 33
 	If memo_display_check = "Memo Display" then script_end_procedure("You are not able to go into update mode. Did you enter in inquiry by mistake? Please try again in production.")
-	
+
 	'Checking for an AREP. If there's an AREP it'll navigate to STAT/AREP, check to see if the forms go to the AREP. If they do, it'll write X's in those fields below.
 	row = 4                             'Defining row and col for the search feature.
 	col = 1
@@ -111,7 +110,7 @@ IF send_MEMO_checkbox = 1 then
 		call navigate_to_MAXIS_screen("SPEC", "MEMO")           'Navigates back to SPEC/MEMO
 		PF5                                                     'PF5s again to initiate the new memo process
 	END IF
-		
+
 	'Checking for SWKR
 	row = 4                             'Defining row and col for the search feature.
 	col = 1
@@ -126,16 +125,16 @@ IF send_MEMO_checkbox = 1 then
 	EMWriteScreen "x", 5, 12                                        'Initiates new memo to client
 	IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 12     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
 	IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 12     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
-	transmit  
+	transmit
 	'writing the MEMO'
 	Call write_variable_in_SPEC_MEMO("************************************************************")
-	Call write_variable_in_SPEC_MEMO("Call 1 (888) 577-2227 to get more information or enroll. You will be placed on mandatory vendor because you have used shelter or have requested assistance for housing issues.")   
+	Call write_variable_in_SPEC_MEMO("Call 1 (888) 577-2227 to get more information or enroll. You will be placed on mandatory vendor because you have used shelter or have requested assistance for housing issues.")
 	Call write_variable_in_SPEC_MEMO(" ")
-	Call write_variable_in_SPEC_MEMO("You will remain on mandatory vendor for 12 months. If you move, or your rent changes you must let your team know at least 15 days before the end of the month to make this change.")                                 
+	Call write_variable_in_SPEC_MEMO("You will remain on mandatory vendor for 12 months. If you move, or your rent changes you must let your team know at least 15 days before the end of the month to make this change.")
 	Call write_variable_in_SPEC_MEMO(" ")
 	Call write_variable_in_SPEC_MEMO("Call your Human Service Representative Team at the end of this 12 month period if you want them to stop vendoring your rent at that time. Budgeting classes are free to you and available through the Lutheran Social Services. If you have any questions call the Shelter Team at (612)-348-9410.")
 	Call write_variable_in_SPEC_MEMO(" ")
-	Call write_variable_in_SPEC_MEMO("Sincerely, Shelter Team")	
+	Call write_variable_in_SPEC_MEMO("Sincerely, Shelter Team")
 	Call write_variable_in_SPEC_MEMO("************************************************************")
 	PF4
 END IF
@@ -144,9 +143,9 @@ END IF
 If set_TIKL = 1 then
     back_to_SELF
 	call navigate_to_MAXIS_screen("dail", "writ")
-	call create_MAXIS_friendly_date(date, 335, 5, 18) 
+	call create_MAXIS_friendly_date(date, 335, 5, 18)
 	Call write_variable_in_TIKL("Mandatory vendor status started 11 months ago. Please re-evaluate vendor status.")
-	transmit	
+	transmit
 	PF3
 End if
 
@@ -163,4 +162,4 @@ Call write_variable_in_CASE_NOTE ("---")
 Call write_variable_in_CASE_NOTE(worker_signature)
 Call write_variable_in_CASE_NOTE("Hennepin County Shelter Team")
 
-script_end_procedure("")	
+script_end_procedure("")

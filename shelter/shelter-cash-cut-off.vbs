@@ -51,8 +51,15 @@ call changelog_update("06/20/2017", "Initial version.", "MiKayla Handley")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
+'--------------------------------------------------------------------------------------------------THE SCRIPT
+EMConnect ""
+CALL MAXIS_case_number_finder(MAXIS_case_number)
+
+'updates the "when contact was made" variable to show the current date & time
+when_contact_was_made = date
 '-------------------------------------------------------------------------------------------------DIALOG
-BeginDialog Cash_Cut_Off_dlg, 0, 0, 186, 95, "Cash Cut-Off"
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 186, 95, "Cash Cut-Off"
   EditBox 55, 5, 65, 15, maxis_case_number
   DropListBox 120, 30, 60, 15, "Select one..."+chr(9)+"YES"+chr(9)+"NO", VNDS_dropbox
   EditBox 45, 55, 135, 15, Comments_notes
@@ -63,24 +70,17 @@ BeginDialog Cash_Cut_Off_dlg, 0, 0, 186, 95, "Cash Cut-Off"
   Text 5, 10, 50, 10, "Case Number:"
   Text 10, 35, 110, 10, "All cash vendored to shelter acct:"
 EndDialog
-
-'--------------------------------------------------------------------------------------------------THE SCRIPT
-EMConnect ""
-CALL MAXIS_case_number_finder(MAXIS_case_number)
-
-'updates the "when contact was made" variable to show the current date & time
-when_contact_was_made = date 
 DO
 	Do
 		err_msg = ""
-		Dialog Cash_Cut_Off_dlg
-		If ButtonPressed = 0 then stopscript 
+		Dialog Dialog1
+		If ButtonPressed = 0 then stopscript
 		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 		if VNDS_dropbox = "Select one..." then err_msg = err_msg & vbNewLine & "* All cash vendored to shelter account?."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the worker is not passworeded out
-Loop until are_we_passworded_out = false					'loops until user passwords back in	
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 back_to_SELF
 date_header = CM_plus_1_mo & "/" & CM_plus_1_yr

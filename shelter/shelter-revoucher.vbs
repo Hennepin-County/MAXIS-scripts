@@ -37,9 +37,17 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+'Connecting to BlueZone, grabbing case number
+EMConnect ""
+CALL MAXIS_case_number_finder(MAXIS_case_number)
 
-'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-BeginDialog revoucher_dialog, 0, 0, 146, 110, "Select a revoucher option"
+'autofilling the date to the current Date
+revoucher_date = date & ""
+
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 146, 110, "Select a revoucher option"
   EditBox 80, 10, 60, 15, MAXIS_case_number
   DropListBox 80, 30, 60, 10, "Select one..."+chr(9)+"Family"+chr(9)+"Single", revoucher_option
   EditBox 125, 50, 15, 15, goals_accomplished
@@ -53,7 +61,22 @@ BeginDialog revoucher_dialog, 0, 0, 146, 110, "Select a revoucher option"
   Text 35, 75, 90, 10, "Goals for the next voucher:"
 EndDialog
 
-BeginDialog family_revoucher_dialog, 0, 0, 336, 95, "Family revoucher"
+'Running the initial dialog
+DO
+	DO
+		err_msg = ""
+		Dialog Dialog1
+        cancel_without_confirmation
+		IF len(MAXIS_case_number) > 8 or IsNumeric(MAXIS_case_number) = False THEN err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+		IF revoucher_option = "Select one..." then err_msg = err_msg & vbNewLine & "* Select a revoucher option."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+	LOOP UNTIL err_msg = ""
+ Call check_for_password(are_we_passworded_out)
+LOOP UNTIL check_for_password(are_we_passworded_out) = False
+
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 336, 95, "Family revoucher"
   DropListBox 55, 10, 60, 15, "Select one..."+chr(9)+"ACF"+chr(9)+"EA"+chr(9)+"Self pay", voucher_type
   EditBox 195, 10, 55, 15, revoucher_date
   EditBox 305, 10, 25, 15, num_nights
@@ -74,8 +97,27 @@ BeginDialog family_revoucher_dialog, 0, 0, 336, 95, "Family revoucher"
   Text 5, 60, 85, 10, "Bus tokens/cards issued:"
   Text 265, 40, 40, 10, "# of Adults:"
 EndDialog
-
-BeginDialog single_revoucher_dialog, 0, 0, 341, 115, "Single revoucher"
+If revoucher_option = "Family" then
+	DO
+		DO
+			err_msg = ""
+			Dialog Dialog1
+			cancel_confirmation
+			IF voucher_type = "Select one..." then err_msg = err_msg & vbNewLine & "* Select a voucher type."
+			If isDate(revoucher_date) = False then err_msg = err_msg & vbNewLine & "* Enter the revoucher date."
+			If IsNumeric(num_nights) = False then err_msg = err_msg & vbNewLine & "* Enter the number of nights issued."
+			If shelter_droplist = "Select one..." then err_msg = err_msg & vbNewLine & "* Choose a shelter name."
+			If IsNumeric(children) = False then err_msg = err_msg & vbNewLine & "* Enter the number of children."
+			If IsNumeric(adults) = False then err_msg = err_msg & vbNewLine & "* Enter the number of adults."
+			If bus_issued = "" then err_msg = err_msg & vbNewLine & "* Enter information about bus cards/tokens issued."
+			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+		LOOP UNTIL err_msg = ""
+ 	Call check_for_password(are_we_passworded_out)
+	LOOP UNTIL check_for_password(are_we_passworded_out) = False
+END IF
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 341, 115, "Single revoucher"
   DropListBox 55, 10, 60, 15, "Select one..."+chr(9)+"GA/GRH"+chr(9)+"O/C", voucher_type
   EditBox 195, 10, 55, 15, revoucher_date
   EditBox 300, 10, 30, 15, num_nights
@@ -96,74 +138,34 @@ BeginDialog single_revoucher_dialog, 0, 0, 341, 115, "Single revoucher"
   Text 5, 60, 85, 10, "Bus tokens/cards issued:"
   Text 260, 15, 40, 10, "# of nights:"
 EndDialog
-
-'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-'Connecting to BlueZone, grabbing case number
-EMConnect ""
-CALL MAXIS_case_number_finder(MAXIS_case_number)
-
-'autofilling the date to the current Date
-revoucher_date = date & ""
-
-'Running the initial dialog
-DO
-	DO
-		err_msg = ""
-		Dialog revoucher_dialog
-        cancel_confirmation
-		IF len(MAXIS_case_number) > 8 or IsNumeric(MAXIS_case_number) = False THEN err_msg = err_msg & vbNewLine & "* Enter a valid case number."
-		IF revoucher_option = "Select one..." then err_msg = err_msg & vbNewLine & "* Select a revoucher option."
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-	LOOP UNTIL err_msg = ""
- Call check_for_password(are_we_passworded_out)
-LOOP UNTIL check_for_password(are_we_passworded_out) = False
-
-If revoucher_option = "Family" then 
+If revoucher_option = "Single" then
 	DO
 		DO
 			err_msg = ""
-			Dialog family_revoucher_dialog
-			cancel_confirmation
-			IF voucher_type = "Select one..." then err_msg = err_msg & vbNewLine & "* Select a voucher type."
-			If isDate(revoucher_date) = False then err_msg = err_msg & vbNewLine & "* Enter the revoucher date."
-			If IsNumeric(num_nights) = False then err_msg = err_msg & vbNewLine & "* Enter the number of nights issued."
-			If shelter_droplist = "Select one..." then err_msg = err_msg & vbNewLine & "* Choose a shelter name."
-			If IsNumeric(children) = False then err_msg = err_msg & vbNewLine & "* Enter the number of children."
-			If IsNumeric(adults) = False then err_msg = err_msg & vbNewLine & "* Enter the number of adults."
-			If bus_issued = "" then err_msg = err_msg & vbNewLine & "* Enter information about bus cards/tokens issued." 
-			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-		LOOP UNTIL err_msg = ""
- 	Call check_for_password(are_we_passworded_out)
-	LOOP UNTIL check_for_password(are_we_passworded_out) = False
-END IF 
-
-If revoucher_option = "Single" then 
-	DO
-		DO
-			err_msg = ""
-			Dialog single_revoucher_dialog
+			Dialog Dialog1
 			cancel_confirmation
 			IF voucher_type = "Select one..." then err_msg = err_msg & vbNewLine & "* Select a voucher type."
 			If isDate(revoucher_date) = False then err_msg = err_msg & vbNewLine & "* Enter the revoucher date."
 			If IsNumeric(num_nights) = False then err_msg = err_msg & vbNewLine & "* Enter the number of nights issued."
 			If shelter_type = "Select one..." then err_msg = err_msg & vbNewLine & "* Select the shelter type."
 			If shelter_dates = "" then err_msg = err_msg & vbNewLine & "* Enter the dates of the shelter stay."
-			If bus_issued = "" then err_msg = err_msg & vbNewLine & "* Enter information about bus cards/tokens issued." 
+			If bus_issued = "" then err_msg = err_msg & vbNewLine & "* Enter information about bus cards/tokens issued."
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 		LOOP UNTIL err_msg = ""
  		Call check_for_password(are_we_passworded_out)
 	LOOP UNTIL check_for_password(are_we_passworded_out) = False
-END IF 
+END IF
 
 If goals_accomplished = "0" then goals_accomplished = ""
 If next_goals = "0" then next_goals = ""
 
 'Dynamic dialog for goals accomplished and next goals----------------------------------------------------------------------------------------------------
-If goals_accomplished <> "" then 
+If goals_accomplished <> "" then
     Dim goals_accomplished_array()
     ReDim goals_accomplished_array(goals_accomplished - 1)
     goals_number = 1
-    
+	'-------------------------------------------------------------------------------------------------DIALOG
+	Dialog1 = "" 'Blanking out previous dialog detail
     BEGINDIALOG goals_dialog, 0, 0, 315, (120 + (goals_accomplished * 10)), "Goals accomplished for voucher"   'Creates the dynamic dialog. The height will change based on the number of goals it finds.
       'GroupBox 5, 5, 330, (10 + (i * 20), "Goals accomplished"
       For i = 0 to goals_accomplished - 1
@@ -175,16 +177,16 @@ If goals_accomplished <> "" then
       OkButton 200, (10 + (i * 20)), 50, 15
       CancelButton 255, (10 + (i * 20)), 50, 15
     ENDDIALOG
-    
+
     dialog goals_dialog
     If buttonpressed = 0 then stopscript
-End if 
+End if
 
-If next_goals <> "" then 
+If next_goals <> "" then
     Dim next_goals_array()
     ReDim next_goals_array(next_goals - 1)
     goals_number = 1
-    
+
     BEGINDIALOG next_goal_dialog, 0, 0, 315, (120 + (next_goals * 10)), "Goals for the next voucher"   'Creates the dynamic dialog. The height will change based on the number of goals it finds.
       'GroupBox 5, 5, 330, (10 + (i * 20), "Goals accomplished"
       For i = 0 to next_goals - 1
@@ -196,10 +198,10 @@ If next_goals <> "" then
       OkButton 200, (10 + (i * 20)), 50, 15
       CancelButton 255, (10 + (i * 20)), 50, 15
     ENDDIALOG
-    
+
     dialog next_goal_dialog
     If buttonpressed = 0 then stopscript
-End if 
+End if
 
 'Variables for the case note----------------------------------------------------------------------------------------------------
 exit_date = dateadd("d", num_nights, revoucher_date)
@@ -207,32 +209,32 @@ header_date = revoucher_date & " - " & exit_date
 
 'The case note--------------------------------------------------------------------------------------------------------------------
 start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
-IF voucher_type = "Self pay" then 
+IF voucher_type = "Self pay" then
 	Call write_variable_in_CASE_NOTE("### " & voucher_type & " for " & header_date & " at " & shelter_droplist & " for " & num_nights & " nights###")
-Else 
+Else
 	Call write_variable_in_CASE_NOTE("### " & voucher_type & " " & revoucher_option & " Voucher " & header_date & " at " & shelter_droplist & " for " & num_nights & " nights###")
-End if	
+End if
 IF revoucher_option = "Family" then Call write_variable_in_CASE_NOTE("* HH comp: " & adults & "A," & children & "C")
 Call write_bullet_and_variable_in_CASE_NOTE("Bus tokens/cards issued", bus_issued)
 
 'Dynamic information for goals and next goals
-If goals_accomplished <> "" then 
+If goals_accomplished <> "" then
     Call write_variable_in_CASE_NOTE("--Goals Accomplished--")
 	goals_number = 1
-    FOR i = 0 to goals_accomplished - 1		     
+    FOR i = 0 to goals_accomplished - 1
         call write_bullet_and_variable_in_CASE_NOTE(goals_number, goals_accomplished_array(i))
 		goals_number = goals_number + 1
     NEXT
-End if 
+End if
 
-If next_goals <> "" then 
+If next_goals <> "" then
     Call write_variable_in_CASE_NOTE("--Next Goals--")
 	goals_number = 1
-    FOR i = 0 to next_goals	- 1	     
+    FOR i = 0 to next_goals	- 1
         call write_bullet_and_variable_in_CASE_NOTE(goals_number,  next_goals_array(i))
 		goals_number = goals_number + 1
     NEXT
-End if 
+End if
 Call write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
 Call write_variable_in_CASE_NOTE("---")
 Call write_variable_in_CASE_NOTE(worker_signature)

@@ -38,8 +38,14 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-BeginDialog shelter_alternative_dialog, 0, 0, 301, 180, "Shelter Alternative"
+'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+'Connecting to BlueZone, grabbing case number
+EMConnect ""
+CALL MAXIS_case_number_finder(MAXIS_case_number)
+
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 301, 180, "Shelter Alternative"
   EditBox 55, 5, 60, 15, MAXIS_case_number
   EditBox 210, 5, 20, 15, number_of_adults_sheltered
   EditBox 255, 5, 20, 15, number_of_children_sheltered
@@ -64,28 +70,21 @@ BeginDialog shelter_alternative_dialog, 0, 0, 301, 180, "Shelter Alternative"
   Text 5, 160, 40, 10, "Comments:"
   Text 15, 130, 10, 10, "4."
 EndDialog
-
-'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-'Connecting to BlueZone, grabbing case number
-EMConnect ""
-CALL MAXIS_case_number_finder(MAXIS_case_number)
-
-'Running the initial dialog
 DO
 	DO
 		err_msg = ""
-		Dialog shelter_alternative_dialog
+		Dialog Dialog1
 		cancel_confirmation
 		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 		If IsNumeric(number_of_adults_sheltered) = False then err_msg = err_msg & vbNewLine & "* Enter the nubmer of adults sheltered"
 		If IsNumeric(number_of_children_sheltered) = False then err_msg = err_msg & vbNewLine & "* Enter the number of children sheltered"
-		If reason_not_authorized = "" then err_msg = err_msg & vbNewLine & "* Enter reason not authorized"	
+		If reason_not_authorized = "" then err_msg = err_msg & vbNewLine & "* Enter reason not authorized"
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & "(enter N/A in all fields that do not apply)" & vbNewLine & err_msg & vbNewLine
 	LOOP until err_msg = ""
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-Loop until are_we_passworded_out = false					'loops until user passwords back in					
-		
-'adding the case number 	
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+'adding the case number
 back_to_self
 EMWriteScreen "________", 18, 43
 EMWriteScreen MAXIS_case_number, 18, 43
@@ -105,6 +104,6 @@ If trim(needed_four) <>  "" then Call write_variable_in_CASE_NOTE("4. " & needed
 Call write_bullet_and_variable_in_CASE_NOTE("Comments", other_notes)
 Call write_variable_in_CASE_NOTE("---")
 Call write_variable_in_CASE_NOTE(worker_signature)
-Call write_variable_in_CASE_NOTE("Hennepin County Shelter Team") 
+Call write_variable_in_CASE_NOTE("Hennepin County Shelter Team")
 
 script_end_procedure("")

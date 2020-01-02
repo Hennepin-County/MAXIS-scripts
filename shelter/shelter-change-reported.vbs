@@ -57,9 +57,9 @@ EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
-
-'Initial Dialog Box
-BeginDialog change_reported_dialog, 0, 0, 136, 105, "Change Reported"
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 136, 105, "Change Reported"
   EditBox 70, 5, 35, 15, MAXIS_case_number
   EditBox 70, 25, 15, 15, MAXIS_footer_month
   EditBox 90, 25, 15, 15, MAXIS_footer_year
@@ -85,8 +85,8 @@ END IF
 DO
 	DO
 		err_msg = ""
-		DIALOG change_reported_dialog
-		IF ButtonPressed = 0 THEN stopscript
+		DIALOG Dialog1
+		cancel_without_confirmation
 		IF MAXIS_case_number = "" OR (MAXIS_case_number <> "" AND len(MAXIS_case_number) > 8) OR (MAXIS_case_number <> "" AND IsNumeric(MAXIS_case_number) = False) THEN err_msg = err_msg & vbCr & "* Please enter a valid case number."
 		IF nature_change = "Select:" THEN err_msg = err_msg & vbCr & "* Please select the type of change reported."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
@@ -133,46 +133,10 @@ NEXT
 'removes all of the first 'chr(9)'
 HH_member_array_dialog = Right(HH_member_array, len(HH_member_array) - total_clients)
 
-BeginDialog change_received_dialog, 0, 0, 376, 280, "Change Report Received"
-  EditBox 60, 5, 40, 15, MAXIS_case_number
-  EditBox 160, 5, 45, 15, effective_date
-  EditBox 320, 5, 45, 15, date_received
-  EditBox 50, 35, 315, 15, address_notes
-  EditBox 50, 55, 315, 15, household_notes
-  EditBox 115, 75, 250, 15, asset_notes
-  EditBox 50, 95, 315, 15, vehicles_notes
-  EditBox 50, 115, 315, 15, income_notes
-  EditBox 50, 135, 315, 15, shelter_notes
-  EditBox 50, 155, 315, 15, other_change_notes
-  EditBox 70, 180, 295, 15, actions_taken
-  EditBox 70, 200, 295, 15, other_notes
-  EditBox 70, 220, 295, 15, verifs_requested
-  CheckBox 5, 245, 115, 10, "Check if the change is temporary", temporary_change_checkbox
-  CheckBox 5, 255, 125, 10, "Check here to navigate to set a TIKL", tikl_nav_check
-  CheckBox 5, 265, 150, 10, "Create email to the team -  reporting change", send_email_checkbox
-  EditBox 280, 240, 85, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 260, 260, 50, 15
-    CancelButton 315, 260, 50, 15
-  Text 215, 245, 60, 10, "Worker Signature:"
-  Text 15, 40, 30, 10, "Address:"
-  Text 15, 60, 35, 10, "HH Comp:"
-  GroupBox 5, 25, 365, 150, "Changes Reported:"
-  Text 15, 80, 95, 10, "Assets (savings or property):"
-  Text 15, 100, 30, 10, "Vehicles:"
-  Text 15, 120, 30, 10, "Income:"
-  Text 15, 140, 25, 10, "Shelter:"
-  Text 15, 160, 20, 10, "Other:"
-  Text 20, 185, 45, 10, "Action Taken:"
-  Text 25, 205, 45, 10, "Other Notes:"
-  Text 10, 225, 60, 10, "Verifs Requested:"
-  Text 210, 10, 110, 10, "Date Change Reported/Received:"
-  Text 110, 10, 50, 10, "Effective Date:"
-  Text 5, 10, 50, 10, "Case Number:"
-EndDialog
-
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
 'Baby_born Dialog needs to begin here to accept 'HH_member_array_dialog into dropdown list: mothers_name
-BeginDialog HH_memb_dialog, 0, 0, 371, 220, "Baby born or HH Comp change"
+BeginDialog Dialog1, 0, 0, 371, 220, "Baby born or HH Comp change"
   EditBox 55, 5, 20, 15, HH_member
   EditBox 135, 5, 40, 15, date_of_birth
   EditBox 55, 25, 120, 15, babys_name
@@ -231,8 +195,8 @@ IF nature_change = "Baby Born" or nature_change = "HHLD Comp" THEN
     DO
     	DO
     		err_msg = ""
-    		DIALOG HH_memb_dialog
-    		cancel_confirmation
+    		DIALOG Dialog1
+    		cancel_without_confirmation
     		IF babys_name = "" THEN err_msg = err_msg & vbNewLine &  "You must enter the new HH member name"
 			IF date_received = "" THEN err_msg = err_msg & vbNewLine & "You must enter date reported"
 			IF effective_date = "" THEN err_msg = err_msg & vbNewLine & "You must enter effective date"
@@ -247,9 +211,48 @@ IF nature_change = "Baby Born" or nature_change = "HHLD Comp" THEN
     	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
     LOOP UNTIL are_we_passworded_out = false
 ELSE
+	'-------------------------------------------------------------------------------------------------DIALOG
+	Dialog1 = "" 'Blanking out previous dialog detail
+    BeginDialog Dialog1, 0, 0, 376, 280, "Change Report Received"
+      EditBox 60, 5, 40, 15, MAXIS_case_number
+      EditBox 160, 5, 45, 15, effective_date
+      EditBox 320, 5, 45, 15, date_received
+      EditBox 50, 35, 315, 15, address_notes
+      EditBox 50, 55, 315, 15, household_notes
+      EditBox 115, 75, 250, 15, asset_notes
+      EditBox 50, 95, 315, 15, vehicles_notes
+      EditBox 50, 115, 315, 15, income_notes
+      EditBox 50, 135, 315, 15, shelter_notes
+      EditBox 50, 155, 315, 15, other_change_notes
+      EditBox 70, 180, 295, 15, actions_taken
+      EditBox 70, 200, 295, 15, other_notes
+      EditBox 70, 220, 295, 15, verifs_requested
+      CheckBox 5, 245, 115, 10, "Check if the change is temporary", temporary_change_checkbox
+      CheckBox 5, 255, 125, 10, "Check here to navigate to set a TIKL", tikl_nav_check
+      CheckBox 5, 265, 150, 10, "Create email to the team -  reporting change", send_email_checkbox
+      EditBox 280, 240, 85, 15, worker_signature
+      ButtonGroup ButtonPressed
+    	OkButton 260, 260, 50, 15
+    	CancelButton 315, 260, 50, 15
+      Text 215, 245, 60, 10, "Worker Signature:"
+      Text 15, 40, 30, 10, "Address:"
+      Text 15, 60, 35, 10, "HH Comp:"
+      GroupBox 5, 25, 365, 150, "Changes Reported:"
+      Text 15, 80, 95, 10, "Assets (savings or property):"
+      Text 15, 100, 30, 10, "Vehicles:"
+      Text 15, 120, 30, 10, "Income:"
+      Text 15, 140, 25, 10, "Shelter:"
+      Text 15, 160, 20, 10, "Other:"
+      Text 20, 185, 45, 10, "Action Taken:"
+      Text 25, 205, 45, 10, "Other Notes:"
+      Text 10, 225, 60, 10, "Verifs Requested:"
+      Text 210, 10, 110, 10, "Date Change Reported/Received:"
+      Text 110, 10, 50, 10, "Effective Date:"
+      Text 5, 10, 50, 10, "Case Number:"
+    EndDialog
 	DO
-		DIALOG change_received_dialog
-		cancel_confirmation
+		DIALOG Dialog1
+		cancel_without_confirmation
 		IF MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* Please enter a valid case number."
 		CALL check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 	LOOP UNTIL are_we_passworded_out = false

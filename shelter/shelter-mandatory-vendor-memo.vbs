@@ -51,8 +51,14 @@ CALL changelog_update("12/01/2017", "Initial version.", "Ilse Ferris, Hennepin C
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-BeginDialog Mand_vendor_dialog, 0, 0, 306, 195, "Mandatory Vendor SPEC/MEMO"
+'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+'Connecting to BlueZone, grabbing case number
+EMConnect ""
+CALL MAXIS_case_number_finder(MAXIS_case_number)
+
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 306, 195, "Mandatory Vendor SPEC/MEMO"
   EditBox 60, 5, 55, 15, MAXIS_case_number
   ButtonGroup ButtonPressed
     OkButton 180, 175, 50, 15
@@ -66,23 +72,18 @@ BeginDialog Mand_vendor_dialog, 0, 0, 306, 195, "Mandatory Vendor SPEC/MEMO"
   Text 125, 10, 170, 10, "*NOTE: MEMO will also be sent to AREP and SWKR"
 EndDialog
 
-'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-'Connecting to BlueZone, grabbing case number
-EMConnect ""
-CALL MAXIS_case_number_finder(MAXIS_case_number)
-
 'Running the initial dialog
 DO
 	DO
 		err_msg = ""
-		Dialog Mand_vendor_dialog
+		Dialog Dialog1
         cancel_confirmation
-		IF len(case_number) > 8 or IsNumeric(case_number) = False THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."		
+		IF len(case_number) > 8 or IsNumeric(case_number) = False THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
  Call check_for_password(are_we_passworded_out)
 LOOP UNTIL check_for_password(are_we_passworded_out) = False
- 
+
 back_to_SELF
 EMWriteScreen "________", 18, 43
 EMWriteScreen case_number, 18, 43
@@ -106,7 +107,7 @@ IF row > 4 THEN                     'If it isn't 4, that means it was found.
 	call navigate_to_MAXIS_screen("SPEC", "MEMO")           'Navigates back to SPEC/MEMO
 	PF5                                                     'PF5s again to initiate the new memo process
 END IF
-	
+
 'Checking for SWKR
 row = 4                             'Defining row and col for the search feature.
 col = 1
@@ -121,17 +122,17 @@ END IF
 EMWriteScreen "x", 5, 12                                        'Initiates new memo to client
 IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 12     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
 IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 12     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
-transmit  
+transmit
 'writing the MEMO'
 Call write_variable_in_SPEC_MEMO("************************************************************")
-Call write_variable_in_SPEC_MEMO("Call 1 (888) 577-2227 to get more information or enroll. You will be placed on mandatory vendor because you have used shelter or have requested assistance for housing issues.")   
+Call write_variable_in_SPEC_MEMO("Call 1 (888) 577-2227 to get more information or enroll. You will be placed on mandatory vendor because you have used shelter or have requested assistance for housing issues.")
 Call write_variable_in_SPEC_MEMO(" ")
-Call write_variable_in_SPEC_MEMO("You will remain on mandatory vendor for 12 months. If you move, or your rent changes you must let your team know at least 15 days before the end of the month to make this change.")                                 
+Call write_variable_in_SPEC_MEMO("You will remain on mandatory vendor for 12 months. If you move, or your rent changes you must let your team know at least 15 days before the end of the month to make this change.")
 Call write_variable_in_SPEC_MEMO(" ")
 Call write_variable_in_SPEC_MEMO("Call your Human Service Representative Team at the end of this 12 month period if you want them to stop vendoring your rent at that time. Budgeting classes are free to you and available through the Lutheran Social Services. If you have any questions call the Shelter Team at (612)-348-9410.")
 Call write_variable_in_SPEC_MEMO(" ")
-Call write_variable_in_SPEC_MEMO("Sincerely, Shelter Team")	
+Call write_variable_in_SPEC_MEMO("Sincerely, Shelter Team")
 Call write_variable_in_SPEC_MEMO("************************************************************")
 PF4
 
-script_end_procedure("Success! Your MEMO has been sent.")	
+script_end_procedure("Success! Your MEMO has been sent.")

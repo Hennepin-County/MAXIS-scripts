@@ -37,9 +37,12 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
-
-'------------------------------------------------------------------------------------DIALOGS
-BeginDialog voucher_ext_dialog, 0, 0, 246, 100, "Voucher Extended"
+'--------------------------------------------------------------------------------------------------THE SCRIPT
+EMConnect ""
+CALL MAXIS_case_number_finder(MAXIS_case_number)
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 246, 100, "Voucher Extended"
   EditBox 55, 5, 65, 15, MAXIS_case_number
   EditBox 75, 30, 65, 15, extended_to
   EditBox 175, 30, 65, 15, because_why
@@ -52,14 +55,9 @@ BeginDialog voucher_ext_dialog, 0, 0, 246, 100, "Voucher Extended"
   Text 5, 60, 40, 10, "Comments:"
   Text 5, 35, 70, 10, "Voucher extended to:"
 EndDialog
-'--------------------------------------------------------------------------------------------------THE SCRIPT
-
-EMConnect ""
-CALL MAXIS_case_number_finder(MAXIS_case_number)
-
 DO
 	Do
-		Dialog voucher_ext_dialog
+		Dialog Dialog1
 		cancel_confirmation
 		If (isnumeric(MAXIS_case_number) = False and len(MAXIS_case_number) <> 8) then MsgBox "You must enter either a valid MAXIS case number."
 	Loop until (isnumeric(MAXIS_case_number) = True) or (isnumeric(MAXIS_case_number) = False and len(MAXIS_case_number) = 8)

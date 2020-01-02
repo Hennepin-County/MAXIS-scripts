@@ -55,8 +55,9 @@ CALL MAXIS_case_number_finder(MAXIS_case_number)
 'autofilling the review_date variable with the current date
 referral_date = date & ""
 
-'----------------------------------------------------------------------------------------------------------DIALOG
-BeginDialog dpr_dialog, 0, 0, 246, 85, "Diversion Program Referral"
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 246, 85, "Diversion Program Referral"
   EditBox 55, 5, 40, 15, maxis_case_number
   EditBox 195, 25, 45, 15, refferral_date
   EditBox 45, 45, 195, 15, other_notes
@@ -72,8 +73,8 @@ EndDialog
 DO
 	DO
 		err_msg = ""
-		Dialog dpr_dialog
-		cancel_confirmation
+		Dialog Dialog1
+		cancel_without_confirmation
 		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 		If Isdate(referral_date) = False then err_msg = err_msg & vbNewLine & "* Enter the date the request was sent."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & "(enter NA in all fields that do not apply)" & vbNewLine & err_msg & vbNewLine

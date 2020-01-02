@@ -49,9 +49,13 @@ call changelog_update("06/26/2017", "Initial version.", "MiKayla Handley")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
+'--------------------------------------------------------------------------------------------------THE SCRIPT
 
+EMConnect ""
+CALL MAXIS_case_number_finder(MAXIS_case_number)
 '-------------------------------------------------------------------------------------------------DIALOG
-BeginDialog pm_Return_dlg, 0, 0, 186, 85, " 2pm Return "
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 186, 85, " 2pm Return "
   EditBox 70, 5, 65, 15, maxis_case_number
   EditBox 70, 25, 110, 15, Comments_notes
   EditBox 70, 45, 110, 15, items_still_needed
@@ -62,16 +66,10 @@ BeginDialog pm_Return_dlg, 0, 0, 186, 85, " 2pm Return "
   Text 20, 10, 50, 10, "Case Number:"
   Text 5, 50, 65, 10, "Items Still Needed:"
 EndDialog
-
-'--------------------------------------------------------------------------------------------------THE SCRIPT
-
-EMConnect ""
-CALL MAXIS_case_number_finder(MAXIS_case_number)
-
 DO
 	Do
-		Dialog pm_Return_dlg
-		cancel_confirmation
+		Dialog Dialog1
+		cancel_without_confirmation
 		If (isnumeric(MAXIS_case_number) = False and len(MAXIS_case_number) <> 8) then MsgBox "You must enter either a valid MAXIS case number."
 	Loop until (isnumeric(MAXIS_case_number) = True) or (isnumeric(MAXIS_case_number) = False and len(MAXIS_case_number) = 8)
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
@@ -82,7 +80,6 @@ EMWriteScreen case_number, 18, 43
 EMWriteScreen CM_mo, 20, 43	 '------------------------------------------------------------------------------''entering current footer month/year
 EMWriteScreen CM_yr, 20, 46
 date_header = CM_mo & "/" & CM_yr
-
 '----------------------------------------------------------------------------------------------------CASENOTE
 start_a_blank_case_note
 CALL write_variable_in_CASE_NOTE("### 2pm Return ###")

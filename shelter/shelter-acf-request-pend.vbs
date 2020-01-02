@@ -38,8 +38,16 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-BeginDialog acf_dialog, 0, 0, 281, 215, "ACF Request Pending"
+'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+'Connecting to BlueZone, grabbing case number
+EMConnect ""
+CALL MAXIS_case_number_finder(MAXIS_case_number)
+
+'autofilling the review_date variable with the current date
+date_request_sent = date & ""
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 281, 215, "ACF Request Pending"
   EditBox 50, 5, 55, 15, MAXIS_case_number
   EditBox 225, 5, 50, 15, date_request_sent
   EditBox 50, 30, 55, 15, monthly_rent
@@ -71,20 +79,12 @@ BeginDialog acf_dialog, 0, 0, 281, 215, "ACF Request Pending"
   Text 5, 200, 40, 10, "Other notes:"
 EndDialog
 
-'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-'Connecting to BlueZone, grabbing case number
-EMConnect ""
-CALL MAXIS_case_number_finder(MAXIS_case_number)
-
-'autofilling the review_date variable with the current date
-date_request_sent = date & ""
-
 'Running the initial dialog
 DO
 	DO
 		err_msg = ""
-		Dialog acf_dialog
-		cancel_confirmation
+		Dialog Dialog1
+		cancel_without_confirmation
 		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 		If Isdate(date_request_sent) = False then err_msg = err_msg & vbNewLine & "* Enter the date the request was sent."
 		If monthly_rent = "" then err_msg = err_msg & vbNewLine & "* Enter the Monthly Rent amount."
@@ -92,17 +92,17 @@ DO
 		If amount_vendored = "" then err_msg = err_msg & vbNewLine & "* Enter the Vendored amount"
 		If account_balance = "" then err_msg = err_msg & vbNewLine & "* Enter the Account Balance amount"
 		If earned_income = "" then err_msg = err_msg & vbNewLine & "* Enter the Earned Income amount."
-		If unearned_income = "" then err_msg = err_msg & vbNewLine & "* Enter the Unearned Income amount."	
+		If unearned_income = "" then err_msg = err_msg & vbNewLine & "* Enter the Unearned Income amount."
 		If mfip = "" then err_msg = err_msg & vbNewLine & "* Enter the MFIP amount."
 		If dwp = "" then err_msg = err_msg & vbNewLine & "* Enter the DWP amount."
 		If income_used_for = "" then err_msg = err_msg & vbNewLine & "* Enter what the applicant income was used for."
 		If reason_for_issuance = "" then err_msg = err_msg & vbNewLine & "* Enter the reason for Issuance."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & "(enter NA in all fields that do not apply)" & vbNewLine & err_msg & vbNewLine
 	LOOP until err_msg = ""
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-Loop until are_we_passworded_out = false					'loops until user passwords back in					
-		
-'adding the case number 
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+'adding the case number
 back_to_self
 EMWriteScreen "________", 18, 43
 EMWriteScreen MAXIS_case_number, 18, 43
@@ -111,7 +111,7 @@ EMWriteScreen CM_yr, 20, 46
 
 'The case note'
 start_a_blank_CASE_NOTE
-Call write_variable_in_CASE_NOTE("### All County Funds Request Pending ###")	
+Call write_variable_in_CASE_NOTE("### All County Funds Request Pending ###")
 Call write_bullet_and_variable_in_CASE_NOTE("Request was sent to HSS JW and GLA on", date_request_sent)
 Call write_bullet_and_variable_in_CASE_NOTE("Monthly Rent Amount", monthly_rent)
 Call write_bullet_and_variable_in_CASE_NOTE("Damage Deposit", damage_deposit)

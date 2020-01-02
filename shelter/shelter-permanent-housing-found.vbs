@@ -37,8 +37,14 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
-'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-BeginDialog perm_housing_found_dialog, 0, 0, 416, 330, "Permanent Housing Found"
+
+'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+'Connecting to BlueZone, grabbing case number
+EMConnect ""
+CALL MAXIS_case_number_finder(MAXIS_case_number)
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 416, 330, "Permanent Housing Found"
   EditBox 120, 10, 55, 15, MAXIS_case_number
   EditBox 225, 10, 55, 15, move_date
   EditBox 350, 10, 55, 15, monthly_rent
@@ -104,21 +110,15 @@ BeginDialog perm_housing_found_dialog, 0, 0, 416, 330, "Permanent Housing Found"
   Text 295, 135, 55, 10, "MFIP/DWP/HG:"
 EndDialog
 
-
-'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-'Connecting to BlueZone, grabbing case number
-EMConnect ""
-CALL MAXIS_case_number_finder(MAXIS_case_number)
-
 'Running the initial dialog
 DO
 	DO
 		err_msg = ""
-		Dialog perm_housing_found_dialog
+		Dialog Dialog1
         cancel_confirmation
 		IF len(MAXIS_case_number) > 8 or IsNumeric(MAXIS_case_number) = False THEN err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 		IF IsDate(move_date) = False then err_msg = err_msg & vbNewLine & "* Enter a numeric move in date."
-		If monthly_rent = "" then err_msg = err_msg & vbNewLine & "* Enter the move in date." 
+		If monthly_rent = "" then err_msg = err_msg & vbNewLine & "* Enter the move in date."
 		If vendored_to_HCEA = "" then err_msg = err_msg & vbNewLine & "* Enter the amt vendored to HCEA shelter acct."
 		If shelter_cost = "" then err_msg = err_msg & vbNewLine & "* Enter the shelter costs."
 		If isNumeric(num_nights) = False then err_msg = err_msg & vbNewLine & "* Enter a numeric number of nights at the shelter."
@@ -143,7 +143,7 @@ DO
 	LOOP UNTIL err_msg = ""
  Call check_for_password(are_we_passworded_out)
 LOOP UNTIL check_for_password(are_we_passworded_out) = False
- 
+
 back_to_SELF
 EMWriteScreen "________", 18, 43
 EMWriteScreen case_number, 18, 43
@@ -186,4 +186,4 @@ Call write_variable_in_CASE_NOTE ("---")
 Call write_variable_in_CASE_NOTE(worker_signature)
 Call write_variable_in_CASE_NOTE("Hennepin County Shelter Team")
 
-script_end_procedure("")	
+script_end_procedure("")

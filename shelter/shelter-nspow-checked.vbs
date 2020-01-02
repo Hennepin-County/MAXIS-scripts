@@ -50,8 +50,14 @@ call changelog_update("11/20/2017", "Initial version.", "Ilse Ferris, Hennepin C
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-BeginDialog NSOPW_checked_dialog, 0, 0, 226, 90, "NSOPW CHECKED"
+'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+'Connecting to BlueZone, grabbing case number
+EMConnect ""
+CALL MAXIS_case_number_finder(MAXIS_case_number)
+
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 226, 90, "NSOPW CHECKED"
   EditBox 60, 5, 60, 15, MAXIS_case_number
   EditBox 75, 30, 45, 15, date1
   EditBox 145, 30, 75, 15, client_name
@@ -65,17 +71,11 @@ BeginDialog NSOPW_checked_dialog, 0, 0, 226, 90, "NSOPW CHECKED"
   Text 10, 55, 40, 10, "Other notes:"
 EndDialog
 
-
-'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-'Connecting to BlueZone, grabbing case number
-EMConnect ""
-CALL MAXIS_case_number_finder(MAXIS_case_number)
-
 'Running the initial dialog
 DO
 	DO
 		err_msg = ""
-		Dialog NSOPW_checked_dialog
+		Dialog Dialog1
 		cancel_confirmation
 		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 		If date1 = "" then err_msg = err_msg & vbNewLine & "* Enter a date"

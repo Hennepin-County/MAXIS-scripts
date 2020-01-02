@@ -38,8 +38,14 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-BeginDialog reimb_shel_acct, 0, 0, 296, 125, "### Reimbursement from shelter account ###"
+'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+'Connecting to BlueZone, grabbing case number
+EMConnect ""
+CALL MAXIS_case_number_finder(MAXIS_case_number)
+
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 296, 125, "### Reimbursement from shelter account ###"
   EditBox 65, 10, 55, 15, MAXIS_case_number
   EditBox 240, 10, 50, 15, amt_to_client
   EditBox 240, 30, 50, 15, amt_to_LL
@@ -57,16 +63,11 @@ BeginDialog reimb_shel_acct, 0, 0, 296, 125, "### Reimbursement from shelter acc
   Text 10, 60, 50, 10, "Refund reason:"
 EndDialog
 
-'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-'Connecting to BlueZone, grabbing case number
-EMConnect ""
-CALL MAXIS_case_number_finder(MAXIS_case_number)
-
 'Running the initial dialog
 DO
 	DO
 		err_msg = ""
-		Dialog reimb_shel_acct
+		Dialog Dialog1
 		cancel_confirmation
 		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 		If amt_to_client = "" then err_msg = err_msg & vbNewLine & "* Enter the amount released to the client."
@@ -74,10 +75,10 @@ DO
 		If refund_reason = "" then err_msg = err_msg & vbNewLine & "* Enter the refund reason."
         IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP until err_msg = ""
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-Loop until are_we_passworded_out = false					'loops until user passwords back in					
-		
-'adding the case number 
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+'adding the case number
 back_to_self
 EMWriteScreen "________", 18, 43
 EMWriteScreen MAXIS_case_number, 18, 43

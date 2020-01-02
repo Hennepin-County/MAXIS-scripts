@@ -55,8 +55,9 @@ changelog_display
 EMConnect ""
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 
-'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-BeginDialog CES_screening_appt, 0, 0, 341, 90, "CES Referral Sent"
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 341, 90, "CES Referral Sent"
   EditBox 55, 10, 55, 15, MAXIS_case_number
   EditBox 165, 10, 55, 15, appt_date
   EditBox 280, 10, 55, 15, worker_name
@@ -70,21 +71,18 @@ BeginDialog CES_screening_appt, 0, 0, 341, 90, "CES Referral Sent"
     OkButton 230, 70, 50, 15
     CancelButton 285, 70, 50, 15
 EndDialog
-
-
-
 DO
 	DO
 		err_msg = ""
-		Dialog CES_screening_appt
-        cancel_confirmation
+		Dialog Dialog1
+        cancel_without_confirmation
 		IF len(MAXIS_case_number) > 8 or IsNumeric(MAXIS_case_number) = False THEN err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 		IF worker_name = "" then err_msg = err_msg & vbNewLine & "* Enter the worker's name."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
  Call check_for_password(are_we_passworded_out)
 LOOP UNTIL check_for_password(are_we_passworded_out) = False
- 
+
 back_to_SELF
 
 'The case note---------------------------------------------------------------------------------------

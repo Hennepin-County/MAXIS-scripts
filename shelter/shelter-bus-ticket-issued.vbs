@@ -37,9 +37,14 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+'Connecting to BlueZone, grabbing case number
+EMConnect ""
+CALL MAXIS_case_number_finder(MAXIS_case_number)
 
-'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-BeginDialog bus_ticket_dialog, 0, 0, 291, 230, "Bus Ticket Issuances"
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 291, 230, "Bus Ticket Issuances"
   EditBox 60, 5, 60, 15, MAXIS_case_number
   EditBox 225, 5, 50, 15, ticket_amount
   EditBox 120, 30, 155, 15, what_city
@@ -66,33 +71,26 @@ BeginDialog bus_ticket_dialog, 0, 0, 291, 230, "Bus Ticket Issuances"
   Text 10, 10, 45, 10, "Case number:"
 EndDialog
 
-
-'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-'Connecting to BlueZone, grabbing case number
-EMConnect ""
-CALL MAXIS_case_number_finder(MAXIS_case_number)
-
-'Running the initial dialog
 DO
 	DO
 		err_msg = ""
-		Dialog bus_ticket_dialog
-		cancel_confirmation
+		Dialog Dialog1
+		cancel_without_confirmation
 		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
-		If ticket_amount = "" then err_msg = err_msg & vbNewLine & "* Enter the Ticket Amount."		
+		If ticket_amount = "" then err_msg = err_msg & vbNewLine & "* Enter the Ticket Amount."
 		If what_city = "" then err_msg = err_msg & vbNewLine & "* Enter the City of Destination"
 		If region_issued = "Select one..." then err_msg = err_msg & vbNewLine & "* Please select the region where Bus Ticket was issued."
 		If staying_with_name = "" then err_msg = err_msg & vbNewLine & "* Enter the name of person client will be staying with"
 		If staying_with_address = "" then err_msg = err_msg & vbNewLine & "* Enter the address where the client will be staying."
-		If staying_with_phone = "" then err_msg = err_msg & vbNewLine & "* Enter the phone number of the person the client will be staying with."	
+		If staying_with_phone = "" then err_msg = err_msg & vbNewLine & "* Enter the phone number of the person the client will be staying with."
 		If bag_lunches = "" then err_msg = err_msg & vbNewLine & "* Enter the number of bag lunches issued to the client."
 		If HSM_authorized = "Select one..." then err_msg = err_msg & vbNewLine & "* Was EA/ACF approved by HSM?"
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & "(enter NA in all fields that do not apply)" & vbNewLine & err_msg & vbNewLine
 	LOOP until err_msg = ""
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-Loop until are_we_passworded_out = false					'loops until user passwords back in					
-		
-'adding the case number 
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+'adding the case number
 back_to_self
 EMWriteScreen "________", 18, 43
 EMWriteScreen MAXIS_case_number, 18, 43

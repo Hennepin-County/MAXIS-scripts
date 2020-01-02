@@ -37,9 +37,15 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+'Connecting to BlueZone, grabbing case number
+EMConnect ""
+CALL MAXIS_case_number_finder(MAXIS_case_number)
 
-'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-BeginDialog Shelter_interview, 0, 0, 311, 325, "Shelter Interview: Do no release funds, family in shelter."
+
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 311, 325, "Shelter Interview: Do no release funds, family in shelter."
   EditBox 70, 10, 45, 15, MAXIS_case_number
   DropListBox 210, 10, 90, 15, "Select one..."+chr(9)+"DWP"+chr(9)+"MFIP", cash_type
   EditBox 240, 40, 60, 15, one_time_issuance
@@ -72,29 +78,23 @@ BeginDialog Shelter_interview, 0, 0, 311, 325, "Shelter Interview: Do no release
   GroupBox 10, 30, 295, 30, "If MFIP recipient:"
 EndDialog
 
-'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-'Connecting to BlueZone, grabbing case number
-EMConnect ""
-CALL MAXIS_case_number_finder(MAXIS_case_number)
-
-'Running the initial dialog
 DO
 	DO
 		err_msg = ""
-		Dialog Shelter_interview
+		Dialog Dialog1
 		cancel_confirmation
 		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
-		If cash_type = "Select one..." then err_msg = err_msg & vbNewLine & "* Select the family's cash program."      
-        If cash_type = "MFIP" and one_time_issuance = "" then err_msg = err_msg & vbNewLine & "* Enter the amount to issue as a one-time only payment."      
+		If cash_type = "Select one..." then err_msg = err_msg & vbNewLine & "* Select the family's cash program."
+        If cash_type = "MFIP" and one_time_issuance = "" then err_msg = err_msg & vbNewLine & "* Enter the amount to issue as a one-time only payment."
         If reason_homeless = "" then err_msg = err_msg & vbNewLine & "* Enter the reason for family's homelessness."
 		If barriers_housing = "" then err_msg = err_msg & vbNewLine & "* Enter the family's barrier(s) to housing."
 		If referrals_made = "" then err_msg = err_msg & vbNewLine & "* Enter referals made for the family."
         IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP until err_msg = ""
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-Loop until are_we_passworded_out = false					'loops until user passwords back in					
-		
-'adding the case number 
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+'adding the case number
 back_to_self
 EMWriteScreen "________", 18, 43
 EMWriteScreen MAXIS_case_number, 18, 43
@@ -104,12 +104,12 @@ EMWriteScreen CM_yr, 20, 46
 'The case note'
 start_a_blank_CASE_NOTE
 Call write_variable_in_CASE_NOTE(">>>DO NOT release " & cash_type & " funds, family in shelter<<<")
-Call write_variable_in_CASE_NOTE("* 100% of cash benefit to be issued to HCEA shelter account #52871.") 
-If cash_type = "DWP" then 
+Call write_variable_in_CASE_NOTE("* 100% of cash benefit to be issued to HCEA shelter account #52871.")
+If cash_type = "DWP" then
     Call write_variable_in_CASE_NOTE("* DWP families are not eligible for the one-time only personal needs and medical co-pays")
-ELSE 
+ELSE
     Call write_variable_in_CASE_NOTE(" Except $" & one_time_issuance & " to EBT for one-time only (10%) for personal needs. $20 for medical co-pays.")
-END IF 
+END IF
 Call write_variable_in_CASE_NOTE("---")
 Call write_bullet_and_variable_in_CASE_NOTE("Other income", other_income)
 Call write_bullet_and_variable_in_CASE_NOTE("Money mismanagement", money_mismanagement)
@@ -120,10 +120,10 @@ Call write_bullet_and_variable_in_CASE_NOTE("Social worker", social_worker)
 Call write_bullet_and_variable_in_CASE_NOTE("Referrals made to", referrals_made)
 Call write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
 Call write_variable_in_CASE_NOTE("---")
-Call write_variable_in_CASE_NOTE("* Explained shelter policies and client options to shelter such as bus tickets, temporary housing, private shelters, etc.") 
+Call write_variable_in_CASE_NOTE("* Explained shelter policies and client options to shelter such as bus tickets, temporary housing, private shelters, etc.")
 Call write_variable_in_CASE_NOTE("* Client given family social services number (348-4111) to discuss any family issues/barriers.")
 Call write_variable_in_CASE_NOTE("---")
 Call write_variable_in_CASE_NOTE(worker_signature)
-Call write_variable_in_CASE_NOTE("Hennepin County Shelter Team") 
+Call write_variable_in_CASE_NOTE("Hennepin County Shelter Team")
 
 script_end_procedure("")
