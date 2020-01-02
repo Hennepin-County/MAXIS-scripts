@@ -38,8 +38,17 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-BeginDialog Property_review_dialog, 0, 0, 301, 245, "311"
+'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+'Connecting to BlueZone, grabbing case number
+EMConnect ""
+CALL MAXIS_case_number_finder(MAXIS_case_number)
+
+'autofilling the review_date variable with the current date
+review_date = date & ""
+
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 301, 245, "311"
   EditBox 85, 10, 55, 15, MAXIS_case_number
   EditBox 235, 10, 55, 15, review_date
   DropListBox 195, 30, 95, 15, "Select one..."+chr(9)+"Called 311"+chr(9)+"Called city"+chr(9)+"Checked website", property_reviewed
@@ -67,21 +76,12 @@ BeginDialog Property_review_dialog, 0, 0, 301, 245, "311"
   Text 20, 80, 60, 10, "Open work orders:"
 EndDialog
 
-
-'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-'Connecting to BlueZone, grabbing case number
-EMConnect ""
-CALL MAXIS_case_number_finder(MAXIS_case_number)
-
-'autofilling the review_date variable with the current date
-review_date = date & ""
-
 'Running the initial dialog
 DO
 	DO
 		err_msg = ""
-		Dialog Property_review_dialog
-		cancel_confirmation
+		Dialog Dialog1
+		cancel_without_confirmation
 		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 		If Isdate(review_date) = False then err_msg = err_msg & vbNewLine & "* Please enter the date the property was reviewed."
 		If property_reviewed = "Select one..." then err_msg = err_msg & vbNewLine & "* Please select the source of the property review. Called 311 or web-site."
@@ -94,10 +94,10 @@ DO
 		If vendor_number = "" then err_msg = err_msg & vbNewLine & "* Enter the property's vendor #."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP until err_msg = ""
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-Loop until are_we_passworded_out = false					'loops until user passwords back in					
-		
-'adding the case number 
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+'adding the case number
 back_to_self
 EMWriteScreen "________", 18, 43
 EMWriteScreen MAXIS_case_number, 18, 43

@@ -51,11 +51,12 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 EMConnect ""
- 
+
 CALL MAXIS_case_number_finder (MAXIS_case_number)
 memb_number = "01"
-
-BeginDialog ACF_used, 0, 0, 231, 90, "ACF Used for Shelter Stay"
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 231, 90, "ACF Used for Shelter Stay"
   EditBox 110, 10, 50, 15, Shelter_stay_bgn
   EditBox 175, 10, 50, 15, Shelter_stay_end
   EditBox 75, 30, 50, 15, EA_avail_date
@@ -72,8 +73,8 @@ EndDialog
 Do
 	Do
 		err_msg = ""
-		dialog ACF_used
-		IF buttonpressed = 0 then stopscript 
+		dialog Dialog1
+		cancel_without_confirmation
 		IF MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* Enter a valid case number."
 		IF isdate(Shelter_stay_bgn) = False then err_msg = err_msg & vbnewline & "* Enter a valid date of for the start of shelter stay."
 		IF isdate(shelter_stay_end) = False then err_msg = err_msg & vbnewline & "* Enter a valid date of for the end of shelter stay."

@@ -38,8 +38,14 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-BeginDialog single_client_interview_dialog, 0, 0, 301, 245, "Single client interview"
+'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+'Connecting to BlueZone, grabbing case number
+EMConnect ""
+CALL MAXIS_case_number_finder(MAXIS_case_number)
+
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 301, 245, "Single client interview"
   EditBox 70, 10, 55, 15, MAXIS_case_number
   DropListBox 190, 10, 60, 15, "Select one..."+chr(9)+"PSP"+chr(9)+"SA-HL", shelter_type
   EditBox 70, 35, 30, 15, num_nights
@@ -65,23 +71,16 @@ BeginDialog single_client_interview_dialog, 0, 0, 301, 245, "Single client inter
   Text 20, 15, 45, 10, "Case number:"
   Text 145, 15, 45, 10, "Shelter type:"
 EndDialog
-
-'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-'Connecting to BlueZone, grabbing case number
-EMConnect ""
-CALL MAXIS_case_number_finder(MAXIS_case_number)
-
-'Running the initial dialog
 DO
 	DO
 		err_msg = ""
-		Dialog single_client_interview_dialog
+		Dialog Dialog1
         cancel_confirmation
 		IF len(MAXIS_case_number) > 8 or IsNumeric(MAXIS_case_number) = False THEN err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 		IF shelter_type = "Select one..." then err_msg = err_msg & vbNewLine & "* Select a voucher type."
 		If IsNumeric(num_nights) = False then err_msg = err_msg & vbNewLine & "* Enter the number of nights issued."
 		If shelter_dates = "" then err_msg = err_msg & vbNewLine & "* Enter the dates of the shelter stay."
-		If set_TIKL = 1 and isDate(revoucher_date) = False then err_msg = err_msg & vbNewLine & "* Please enter the revoucher date for the TIKL." 
+		If set_TIKL = 1 and isDate(revoucher_date) = False then err_msg = err_msg & vbNewLine & "* Please enter the revoucher date for the TIKL."
 		If GA_pending = "" then err_msg = err_msg & vbNewLine & "* Enter the reason GA is pending."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
@@ -97,9 +96,9 @@ EMWriteScreen CM_yr, 20, 46
 'Creates a TIKL for the revoucher date
 If set_TIKL = 1 then
 	call navigate_to_MAXIS_screen("dail", "writ")
-	call create_MAXIS_friendly_date(revoucher_date, 0, 5, 18) 
+	call create_MAXIS_friendly_date(revoucher_date, 0, 5, 18)
 	Call write_variable_in_TIKL("Revoucher date. Please review case for requested verifications and/or redetermination of benefits.")
-	transmit	
+	transmit
 	PF3
 End if
 
@@ -120,8 +119,8 @@ Call write_variable_in_CASE_NOTE ("---")
 Call write_variable_in_CASE_NOTE(worker_signature)
 Call write_variable_in_CASE_NOTE("Hennepin County Shelter Team")
 
-If set_TIKL = 1 then 
+If set_TIKL = 1 then
 	script_end_procedure("A TIKL has been set for " & revoucher_date & " to recheck case.")
-ELSE 
+ELSE
 	script_end_procedure("")
 END IF

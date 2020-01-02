@@ -50,10 +50,15 @@ call changelog_update("03/27/2017", "Initial version.", "Ilse Ferris, Hennepin C
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
+'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+'Connecting to BlueZone, grabbing case number
+EMConnect ""
+CALL MAXIS_case_number_finder(MAXIS_case_number)
 
 
-'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-BeginDialog EA_approval_dialog, 0, 0, 296, 105, "EA Approved"
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 296, 105, "EA Approved"
   EditBox 60, 5, 55, 15, MAXIS_case_number
   EditBox 155, 5, 20, 15, numb_adults
   EditBox 220, 5, 20, 15, numb_child
@@ -74,17 +79,12 @@ BeginDialog EA_approval_dialog, 0, 0, 296, 105, "EA Approved"
   Text 125, 10, 30, 10, "# Adults:"
 EndDialog
 
-'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-'Connecting to BlueZone, grabbing case number
-EMConnect ""
-CALL MAXIS_case_number_finder(MAXIS_case_number)
-
 'Running the initial dialog
 DO
 	DO
 		err_msg = ""
-		Dialog EA_approval_dialog
-    cancel_confirmation
+		Dialog Dialog1
+    	cancel_without_confirmation
 		IF len(MAXIS_case_number) > 8 or IsNumeric(MAXIS_case_number) = False THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
 		IF approval_number = "Select One:" then err_msg = err_msg & vbNewLine & "* Please select the approval number."
 		IF approval_dates = "" then err_msg = err_msg & vbNewLine & "* Please enter the EA approval dates."

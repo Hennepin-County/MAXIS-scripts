@@ -37,9 +37,14 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+'Connecting to BlueZone, grabbing case number
+EMConnect ""
+CALL MAXIS_case_number_finder(MAXIS_case_number)
 
-'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-BeginDialog grh_approval, 0, 0, 121, 105, "GRH Approval"
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 121, 105, "GRH Approval"
   EditBox 60, 5, 55, 15, MAXIS_case_number
   DropListBox 60, 25, 55, 15, "Select one..."+chr(9)+"FMF"+chr(9)+"PSP"+chr(9)+"SA-HL"+chr(9)+"St. Anne's"+chr(9)+"The Drake", shelter_droplist
   CheckBox 10, 65, 85, 10, "GRH notice cancelled", GRH_notice_checkbox
@@ -52,26 +57,21 @@ BeginDialog grh_approval, 0, 0, 121, 105, "GRH Approval"
   Text 10, 30, 50, 10, "Shelter Name:"
 EndDialog
 
-'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-'Connecting to BlueZone, grabbing case number
-EMConnect ""
-CALL MAXIS_case_number_finder(MAXIS_case_number)
-
 'Running the initial dialog
 DO
 	DO
 		err_msg = ""
-		Dialog grh_approval
-		cancel_confirmation
+		Dialog Dialog1
+		cancel_without_confirmation
 		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
-		If shelter_droplist = "Select one..." then err_msg = err_msg & vbNewLine & "* Enter shelter name."		
+		If shelter_droplist = "Select one..." then err_msg = err_msg & vbNewLine & "* Enter shelter name."
 		If ea_available_date = "" then err_msg = err_msg & vbNewLine & "* Enter EA Available date"
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & "(enter NA in all fields that do not apply)" & vbNewLine & err_msg & vbNewLine
 	LOOP until err_msg = ""
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-Loop until are_we_passworded_out = false					'loops until user passwords back in					
-		
-'adding the case number 
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+'adding the case number
 back_to_self
 EMWriteScreen "________", 18, 43
 EMWriteScreen MAXIS_case_number, 18, 43
@@ -79,7 +79,7 @@ EMWriteScreen CM_mo, 20, 43	'entering current footer month/year
 EMWriteScreen CM_yr, 20, 46
 
 'The case note'
-start_a_blank_CASE_NOTE	
+start_a_blank_CASE_NOTE
 Call write_variable_in_CASE_NOTE("### GRH Approved ###")
 Call write_bullet_and_variable_in_CASE_NOTE("Client placed in", shelter_droplist)
 Call write_bullet_and_variable_in_CASE_NOTE("EA available date", ea_available_date)

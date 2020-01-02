@@ -50,8 +50,14 @@ call changelog_update("06/19/2017", "Initial version.", "MiKayla Handley")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
+'--------------------------------------------------------------------------------------------------SCRIPT
+
+EMConnect ""
+CALL MAXIS_case_number_finder(MAXIS_case_number)
+
 '-------------------------------------------------------------------------------------------------DIALOG
-BeginDialog homelessness_verified_dialog, 0, 0, 246, 105, "Homelessness Verified"
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 246, 105, "Homelessness Verified"
   EditBox 55, 5, 65, 15, MAXIS_case_number
   EditBox 190, 5, 50, 15, when_contact_was_made
   EditBox 55, 25, 65, 15, name_verf
@@ -69,16 +75,11 @@ BeginDialog homelessness_verified_dialog, 0, 0, 246, 105, "Homelessness Verified
   Text 25, 30, 25, 10, "Name:"
 EndDialog
 
-'--------------------------------------------------------------------------------------------------SCRIPT
-
-EMConnect ""
-CALL MAXIS_case_number_finder(MAXIS_case_number)
-
 'updates the "when contact was made" variable to show the current date & time
 when_contact_was_made = date & ", " & time
 DO
 	Do
-		Dialog homelessness_verified_dialog
+		Dialog Dialog1
 		cancel_confirmation
 		If (isnumeric(MAXIS_case_number) = False and len(MAXIS_case_number) <> 8) then MsgBox "You must enter either a valid MAXIS case number."
 	Loop until (isnumeric(MAXIS_case_number) = True) or (isnumeric(MAXIS_case_number) = False and len(MAXIS_case_number) = 8)

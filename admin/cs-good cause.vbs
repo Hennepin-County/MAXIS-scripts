@@ -71,19 +71,21 @@ BeginDialog Dialog1, 0, 0, 116, 65, "Case number"
   Text 5, 10, 50, 10, "Case Number:"
   Text 5, 30, 45, 10, "Footer Month:"
 EndDialog
-
 DO
-	DO
-	    err_msg = ""
-	    Dialog Dialog1
-	    cancel_confirmation
-	    IF MAXIS_case_number = "" THEN err_msg = "Please enter a case number to continue."
-	    IF original_MAXIS_footer_month = "" THEN err_msg = "Please enter a footer month to continue."
-	    IF MAXIS_footer_year = "" THEN err_msg = "Please enter a footer year to continue."
-	    IF err_msg <> "" THEN msgbox "*** Error Check ***" & vbNewLine & err_msg
-		LOOP until err_msg = ""
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-Loop until are_we_passworded_out = false					'loops until user passwords back in
+    DO
+    	DO
+    	    err_msg = ""
+    	    Dialog Dialog1
+    	    cancel_confirmation
+    	    IF MAXIS_case_number = "" THEN err_msg = "Please enter a case number to continue."
+    	    IF original_MAXIS_footer_month = "" THEN err_msg = "Please enter a footer month to continue."
+    	    IF MAXIS_footer_year = "" THEN err_msg = "Please enter a footer year to continue."
+    	    IF err_msg <> "" THEN msgbox "*** Error Check ***" & vbNewLine & err_msg
+    		LOOP until err_msg = ""
+    	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    Loop until are_we_passworded_out = false					'loops until user passwords back in
+EmReadscreen
+
 
 EMWriteScreen MAXIS_case_number, 18, 43
 Call navigate_to_MAXIS_screen("CASE", "CURR")
@@ -290,7 +292,11 @@ Do
 		ELSEIF gc_status = "Denied" THEN
 			If denial_reason = "" then err_msg = err_msg & vbnewline & "* You must enter a denial reason."
 		END IF
-		If isdate(actual_date) = "" and cdate(actual_date) > cdate(date) = TRUE THEN  err_msg = err_msg & vbnewline & "* You must enter an actual date that is not in the future and is in the footer month that you are working in."
+		If isdate(actual_date) = FALSE THEN
+			err_msg = err_msg & vbnewline & "* You must enter a date."
+		Else
+		 	IF cdate(actual_date) > cdate(date) = TRUE THEN err_msg = err_msg & vbnewline & "* You must enter an actual date that is not in the future and is in the footer month that you are working in."
+		END IF
 		IF gc_status <> "Not Claimed" THEN
 			If isdate(claim_date) = False then err_msg = err_msg & vbnewline & "* You must enter a valid good cause claim date."
 		END IF

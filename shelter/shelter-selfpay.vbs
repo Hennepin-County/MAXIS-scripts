@@ -38,8 +38,14 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+'Connecting to BlueZone, grabbing case number
+EMConnect ""
+CALL MAXIS_case_number_finder(MAXIS_case_number)
+
+Dialog1 = "" 'Blanking out previous dialog detail
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-BeginDialog selfpay_dialog, 0, 0, 306, 130, "Self Pay"
+BeginDialog Dialog1, 0, 0, 306, 130, "Self Pay"
   EditBox 60, 5, 60, 15, MAXIS_case_number
   EditBox 205, 5, 30, 15, dollar_amount1
   EditBox 255, 5, 45, 15, date1
@@ -67,17 +73,10 @@ BeginDialog selfpay_dialog, 0, 0, 306, 130, "Self Pay"
   Text 245, 85, 10, 10, "to"
   Text 10, 110, 40, 10, "Comments:"
 EndDialog
-
-'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-'Connecting to BlueZone, grabbing case number
-EMConnect ""
-CALL MAXIS_case_number_finder(MAXIS_case_number)
-
-'Running the initial dialog
 DO
 	DO
 		err_msg = ""
-		Dialog selfpay_dialog
+		Dialog Dialog1
 		cancel_confirmation
 		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 		If isnumeric(dollar_amount1) = false then err_msg = err_msg & vbNewLine & "* Enter a numeric dollar amount."

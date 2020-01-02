@@ -37,9 +37,16 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+'Connecting to BlueZone, grabbing case number
+EMConnect ""
+CALL MAXIS_case_number_finder(MAXIS_case_number)
 
-'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-BeginDialog sheriff_forclosure, 0, 0, 286, 175, "Sheriff forclosure"
+'autofilling the review_date variable with the current date
+date_checked = date & ""
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 286, 175, "Sheriff forclosure"
   EditBox 55, 10, 55, 15, MAXIS_case_number
   EditBox 210, 10, 70, 15, date_checked
   EditBox 70, 35, 210, 15, property_address
@@ -60,36 +67,25 @@ BeginDialog sheriff_forclosure, 0, 0, 286, 175, "Sheriff forclosure"
   Text 5, 115, 85, 10, "Occupant(s) whereabouts:"
   Text 5, 15, 45, 10, "Case number:"
 EndDialog
-
-
-'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-'Connecting to BlueZone, grabbing case number
-EMConnect ""
-CALL MAXIS_case_number_finder(MAXIS_case_number)
-
-'autofilling the review_date variable with the current date
-date_checked = date & ""
-
-'Running the initial dialog
 'commented out the foreclosure_date test at reqwust of hennepin shelter Team'
 DO
 	DO
 		err_msg = ""
-		Dialog sheriff_forclosure
+		Dialog Dialog1
 		cancel_confirmation
 		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
-		If IsDate(date_checked) = False then err_msg = err_msg & vbNewLine & "* Enter the property review date."      
+		If IsDate(date_checked) = False then err_msg = err_msg & vbNewLine & "* Enter the property review date."
 		If property_address = "" then err_msg = err_msg & vbNewLine & "* Enter the property address."
 		If owner_name = "" then err_msg = err_msg & vbNewLine & "* Enter the property owner's name."
-		'If IsDate(foreclosure_date) = False then err_msg = err_msg & vbNewLine & "* Enter the property's forclosure date."      
+		'If IsDate(foreclosure_date) = False then err_msg = err_msg & vbNewLine & "* Enter the property's forclosure date."
 		If occupant_name = "" then err_msg = err_msg & vbNewLine & "* Enter the occupant's name."
 		If occupants_whereabouts = "" then err_msg = err_msg & vbNewLine & "* Enter the occupant's current whereabouts."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP until err_msg = ""
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-Loop until are_we_passworded_out = false					'loops until user passwords back in					
-		
-'adding the case number 
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+'adding the case number
 back_to_self
 EMWriteScreen "________", 18, 43
 EMWriteScreen MAXIS_case_number, 18, 43
@@ -108,6 +104,6 @@ Call write_bullet_and_variable_in_CASE_NOTE("Occupant(s) current whereabouts", o
 Call write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
 Call write_variable_in_CASE_NOTE("---")
 Call write_variable_in_CASE_NOTE(worker_signature)
-Call write_variable_in_CASE_NOTE("Hennepin County Shelter Team") 
+Call write_variable_in_CASE_NOTE("Hennepin County Shelter Team")
 
 script_end_procedure("")

@@ -49,9 +49,13 @@ call changelog_update("06/26/2017", "Initial version.", "MiKayla Handley")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
+'--------------------------------------------------------------------------------------------------THE SCRIPT
+EMConnect ""
+CALL MAXIS_case_number_finder(MAXIS_case_number)
 
 '-------------------------------------------------------------------------------------------------DIALOG
-BeginDialog money_mismanagement_dlg, 0, 0, 296, 125, " Money Mismanagement "
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 296, 125, " Money Mismanagement "
   EditBox 55, 5, 45, 15, maxis_case_number
   DropListBox 145, 5, 145, 15, "1st Instance of Money Mismanagement"+chr(9)+"2nd Instance of Money Mismanagement"+chr(9)+"Grant Management", Occurrence_droplist
   ComboBox 55, 25, 60, 15, "Phone call"+chr(9)+"Voicemail"+chr(9)+"Email"+chr(9)+"Office visit"+chr(9)+"Letter", contact_type
@@ -78,12 +82,9 @@ BeginDialog money_mismanagement_dlg, 0, 0, 296, 125, " Money Mismanagement "
   Text 165, 50, 25, 10, "Phone:"
 EndDialog
 
-'--------------------------------------------------------------------------------------------------THE SCRIPT
-EMConnect ""
-CALL MAXIS_case_number_finder(MAXIS_case_number)
 DO
 	Do
-		Dialog money_mismanagement_dlg
+		Dialog Dialog1
 		cancel_confirmation
 		If (isnumeric(MAXIS_case_number) = False and len(MAXIS_case_number) <> 8) then MsgBox "You must enter either a valid MAXIS case number."
 	Loop until (isnumeric(MAXIS_case_number) = True) or (isnumeric(MAXIS_case_number) = False and len(MAXIS_case_number) = 8)
@@ -101,8 +102,8 @@ income_checkbox = checked
 '2nd Instance of Money Mismanagement = occurrence_MM2
 'Grant Management = occurrence_MM3
 
-months_variable = CM_mo 
-IF CM_MO = "01" THEN months_variable = "January, February, March" 
+months_variable = CM_mo
+IF CM_MO = "01" THEN months_variable = "January, February, March"
 IF CM_MO = "02" THEN months_variable = "February, March, April"
 IF CM_MO = "03" THEN months_variable = "March, April, May"
 IF CM_MO = "04" THEN months_variable = "April, May, June"
@@ -124,21 +125,21 @@ CALL write_variable_in_CASE_NOTE("* Client has to self-pay for: " & number_night
 Call write_bullet_and_variable_in_CASE_NOTE("Comments", Comments_notes)
 Call write_variable_in_CASE_NOTE("---")
 IF Occurrence_droplist = "1st Instance of Money Mismanagement" THEN CALL write_variable_in_CASE_NOTE("* Reminded client about self-pay and clt understands they will need to get a payee and/or be put on grant management if MM happens again.")
-    IF Occurrence_droplist = "2nd Instance of Money Mismanagement" THEN 
+    IF Occurrence_droplist = "2nd Instance of Money Mismanagement" THEN
         CALL write_variable_in_CASE_NOTE("* Client failed to self-pay in shelter two times in the last 18 months.")
         CALL write_variable_in_CASE_NOTE("* 1st money mismanagement was XX/XX.")
         CALL write_variable_in_CASE_NOTE("* Reminded client about self-pay and clt understands they will be put on grant management if MM happens again.")
-    END IF    
+    END IF
     IF Occurrence_droplist = "Grant Management" THEN
         CALL write_variable_in_CASE_NOTE("*** GA=$97.00 FOR 3 MONTHS/Grant Management/NO MATTER WHERE CLIENT LIVES ***")
         CALL write_variable_in_CASE_NOTE("* Client failed to self-pay in shelter two times in the last 18 months.")
         CALL write_variable_in_CASE_NOTE("* 1st money mismanagement was XX/XX.")
         CALL write_variable_in_CASE_NOTE("* Second money mismanagement was XX/XX.")
         CALL write_variable_in_CASE_NOTE("* No matter where client lives the grant will be $97.00 for three months. ")
-        CALL write_variable_in_CASE_NOTE("* Grant reduced to $97.00 effective: " & months_variable) 
-    END IF    
+        CALL write_variable_in_CASE_NOTE("* Grant reduced to $97.00 effective: " & months_variable)
+    END IF
 Call write_variable_in_CASE_NOTE("---")
 Call write_variable_in_CASE_NOTE(worker_signature)
-Call write_variable_in_CASE_NOTE("Hennepin County Shelter Team") 
+Call write_variable_in_CASE_NOTE("Hennepin County Shelter Team")
 
 script_end_procedure("")

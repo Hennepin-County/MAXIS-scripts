@@ -50,8 +50,14 @@ call changelog_update("11/20/2016", "Initial version.", "Ilse Ferris, Hennepin C
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-BeginDialog ea_extension, 0, 0, 296, 95, "EA Extension"
+'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+'Connecting to BlueZone, grabbing case number
+EMConnect ""
+CALL MAXIS_case_number_finder(MAXIS_case_number)
+
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 296, 95, "EA Extension"
   EditBox 55, 10, 45, 15, MAXIS_case_number
   DropListBox 150, 10, 45, 15, "Select one..."+chr(9)+"1st"+chr(9)+"2nd", approval_number
   DropListBox 245, 10, 45, 15, "Select one..."+chr(9)+"1"+chr(9)+"2", ext_number
@@ -70,16 +76,11 @@ BeginDialog ea_extension, 0, 0, 296, 95, "EA Extension"
   Text 5, 55, 40, 10, "Other notes:"
 EndDialog
 
-'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-'Connecting to BlueZone, grabbing case number
-EMConnect ""
-CALL MAXIS_case_number_finder(MAXIS_case_number)
-
 'Running the initial dialog
 DO
 	DO
 		err_msg = ""
-		Dialog ea_extension
+		Dialog Dialog1
 		cancel_confirmation
 		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 		IF approval_number = "Select one..." then err_msg = err_msg & vbNewLine & "* Please select the approval number."

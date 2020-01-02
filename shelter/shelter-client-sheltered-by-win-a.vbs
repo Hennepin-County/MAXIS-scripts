@@ -37,9 +37,16 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+'Connecting to BlueZone, grabbing case number
+EMConnect ""
+CALL MAXIS_case_number_finder(MAXIS_case_number)
 
-'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-BeginDialog client_sheltered_window_A, 0, 0, 301, 245, "Client Sheltered Window A"
+'Running the initial dialog
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+
+BeginDialog Dialog1, 0, 0, 301, 245, "Client Sheltered Window A"
   DropListBox 200, 5, 90, 15, "Select one..."+chr(9)+"FMF"+chr(9)+"PSP"+chr(9)+"St. Anne's"+chr(9)+"The Drake", shelter_droplist
   EditBox 75, 25, 65, 15, voucher_date
   EditBox 260, 25, 30, 15, nights_housed
@@ -71,55 +78,48 @@ BeginDialog client_sheltered_window_A, 0, 0, 301, 245, "Client Sheltered Window 
   Text 5, 30, 70, 10, "Shelter voucher date:"
 EndDialog
 
-
-'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-'Connecting to BlueZone, grabbing case number
-EMConnect ""
-CALL MAXIS_case_number_finder(MAXIS_case_number)
-
-'Running the initial dialog
 DO
 	DO
 		err_msg = ""
-		Dialog client_sheltered_window_A
-		cancel_confirmation
+		Dialog Dialog1
+		cancel_without_confirmation
 		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
-		If shelter_droplist = "Select one..." then err_msg = err_msg & vbNewLine & "* Select the name of the shelter where client(s) housed"	
+		If shelter_droplist = "Select one..." then err_msg = err_msg & vbNewLine & "* Select the name of the shelter where client(s) housed"
 		If isdate(voucher_date) = false then err_msg = err_msg & vbNewLine & "* Enter a valid shelter voucher date"
 		If nights_housed = "" then err_msg = err_msg & vbNewLine & "* Enter the number of nights clients housed"
 		If isnumeric(adults_vouchered) = false then err_msg = err_msg & vbNewLine & "* Enter the number of adults vouchered"
 		If isnumeric(children_vouchered) = false then err_msg = err_msg & vbNewLine & "* Enter the number of children vouchered"
 		If reason_for_homelessness = "" then err_msg = err_msg & vbNewLine & "* Enter the reason for client's homelessness"
-		If name_of_person_verifying = "" then err_msg = err_msg & vbNewLine & "* Enter the name of the person who verified client's homelessness"	
+		If name_of_person_verifying = "" then err_msg = err_msg & vbNewLine & "* Enter the name of the person who verified client's homelessness"
 		If relationship = "" then err_msg = err_msg & vbNewLine & "* Enter the relationship to the client of the person who verified client's homelessness"
 		If phone_number = "" then err_msg = err_msg & vbNewLine & "* Enter the phone number of the person who verified client's homelessness"
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & "(enter NA in all fields that do not apply)" & vbNewLine & err_msg & vbNewLine
 	LOOP until err_msg = ""
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-Loop until are_we_passworded_out = false					'loops until user passwords back in					
-		
-'adding the case number 
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+'adding the case number
 back_to_self
 EMWriteScreen "________", 18, 43
 EMWriteScreen MAXIS_case_number, 18, 43
 EMWriteScreen CM_mo, 20, 43	'entering current footer month/year
 EMWriteScreen CM_yr, 20, 46
 
-'creating date variable to add to header 
+'creating date variable to add to header
 exit_date = dateadd("d", nights_housed, voucher_date)
 header_date = voucher_date & " - " & exit_date
 
 Household_comp = ""
-If PX_check = 1 then 
+If PX_check = 1 then
 	adults_vouchered = adults_vouchered - 1
 	Household_comp = Household_comp & "1 PX, "
-END IF 
+END IF
 If adults_vouchered <> "0" or adults_vouchered <> "" then Household_comp = Household_comp & adults_vouchered & "A, "
 If children_vouchered <> "0" or children_vouchered <> "" then Household_comp = Household_comp & children_vouchered & "C, "
 
 Household_comp = trim(Household_comp)
 'takes the last comma off of Household_comp when autofilled into dialog if more more than one app date is found and additional app is selected
-If right(Household_comp, 1) = "," THEN Household_comp = left(Household_comp, len(Household_comp) - 1) 
+If right(Household_comp, 1) = "," THEN Household_comp = left(Household_comp, len(Household_comp) - 1)
 
 'The case note'
 start_a_blank_CASE_NOTE

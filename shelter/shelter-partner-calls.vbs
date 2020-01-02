@@ -50,8 +50,13 @@ call changelog_update("06/19/2017", "Initial version.", "MiKayla Handley")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
+'--------------------------------------------------------------------------------------------------THE SCRIPT
+EMConnect ""
+CALL MAXIS_case_number_finder(MAXIS_case_number)
+
 '-------------------------------------------------------------------------------------------------DIALOG
-BeginDialog partner_calls_dialog, 0, 0, 306, 235, "Partner Calls"
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 306, 235, "Partner Calls"
   EditBox 230, 165, 65, 15, maxis_case_number
   EditBox 230, 185, 65, 15, when_contact_was_made
   EditBox 80, 20, 65, 15, ESP_Name
@@ -96,15 +101,11 @@ BeginDialog partner_calls_dialog, 0, 0, 306, 235, "Partner Calls"
   Text 15, 195, 50, 10, "Phone number: "
 EndDialog
 
-'--------------------------------------------------------------------------------------------------THE SCRIPT
-EMConnect ""
-CALL MAXIS_case_number_finder(MAXIS_case_number)
-
 'updates the "when contact was made" variable to show the current date & time
 when_contact_was_made = date & ", " & time
 DO
 	Do
-		Dialog partner_calls_dialog
+		Dialog Dialog1
 		cancel_confirmation
 		If (isnumeric(MAXIS_case_number) = False and len(MAXIS_case_number) <> 8) then MsgBox "You must enter either a valid MAXIS case number."
 	Loop until (isnumeric(MAXIS_case_number) = True) or (isnumeric(MAXIS_case_number) = False and len(MAXIS_case_number) = 8)

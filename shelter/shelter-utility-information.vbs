@@ -38,8 +38,14 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-BeginDialog utilities_info_dialog, 0, 0, 331, 200, "Utilities information"
+'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+'Connecting to BlueZone, grabbing case number
+EMConnect ""
+CALL MAXIS_case_number_finder(MAXIS_case_number)
+
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 331, 200, "Utilities information"
   EditBox 70, 5, 60, 15, MAXIS_case_number
   DropListBox 10, 60, 115, 15, "Select one..."+chr(9)+"CenterPoint Energy (VN #44)"+chr(9)+"Xcel Energy (VN #59499)"+chr(9)+"Water Company, MPLS (VN #394)"+chr(9)+"Other", vendor_type_1
   EditBox 140, 60, 60, 15, acct_number_1
@@ -70,17 +76,10 @@ BeginDialog utilities_info_dialog, 0, 0, 331, 200, "Utilities information"
   GroupBox 5, 25, 320, 150, "Complete for each of the client(s) utility:"
 EndDialog
 
-
-'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-'Connecting to BlueZone, grabbing case number
-EMConnect ""
-CALL MAXIS_case_number_finder(MAXIS_case_number)
-
-'Running the initial dialog
 DO
 	DO
 		err_msg = ""
-		Dialog utilities_info_dialog
+		Dialog Dialog1
         cancel_confirmation
 		IF len(MAXIS_case_number) > 8 or IsNumeric(MAXIS_case_number) = False THEN err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 		IF (vendor_type_1 = "Select one..." AND vendor_type_2 = "Select one..." AND vendor_type_3 = "Select one..." AND vendor_type_4 = "Select one...") THEN err_msg = err_msg & vbCr & "*At least one vendor is needed."
@@ -92,7 +91,7 @@ DO
 	LOOP UNTIL err_msg = ""
  Call check_for_password(are_we_passworded_out)
 LOOP UNTIL check_for_password(are_we_passworded_out) = False
- 
+
 back_to_SELF
 EMWriteScreen "________", 18, 43
 EMWriteScreen MAXIS_case_number, 18, 43
@@ -104,32 +103,32 @@ start_a_blank_case_note      'navigates to case/note and puts case/note into edi
 Call write_variable_in_CASE_NOTE("### Utility information ###")
 Call write_variable_in_CASE_NOTE ("Client has a bill with the following companies:")
 Call write_variable_in_CASE_NOTE ("------------------------------------------------")
-IF vendor_type_1 <> "Select one..." then 
+IF vendor_type_1 <> "Select one..." then
     Call write_variable_in_CASE_NOTE(vendor_type_1)
 	Call write_variable_in_CASE_NOTE("   * Acct #: " & acct_number_1)
     Call write_variable_in_CASE_NOTE("   * Balance: $" & balance_1 & " as of " & date_1)
     Call write_variable_in_CASE_NOTE ("-")
-END IF 
-IF vendor_type_2 <> "Select one..." then 
+END IF
+IF vendor_type_2 <> "Select one..." then
 	Call write_variable_in_CASE_NOTE(vendor_type_2)
 	Call write_variable_in_CASE_NOTE("   * Acct #: " & acct_number_2)
 	Call write_variable_in_CASE_NOTE("   * Balance: $" & balance_2 & " as of " & date_2)
 	Call write_variable_in_CASE_NOTE ("-")
 END IF
- 
-IF vendor_type_3 <> "Select one..." then 
+
+IF vendor_type_3 <> "Select one..." then
 	Call write_variable_in_CASE_NOTE(vendor_type_3)
 	Call write_variable_in_CASE_NOTE("   * Acct #: " &  acct_number_3)
 	Call write_variable_in_CASE_NOTE("   * Balance: $" & balance_3 & " as of " & date_3)
 	Call write_variable_in_CASE_NOTE ("-")
-END IF 
+END IF
 
-IF vendor_type_4 <> "Select one..." then 
+IF vendor_type_4 <> "Select one..." then
 	Call write_variable_in_CASE_NOTE(vendor_type_4)
 	Call write_variable_in_CASE_NOTE("   * Acct #: " & acct_number_4)
 	Call write_variable_in_CASE_NOTE("   * Balance: $" & balance_4 & " as of " & date_4)
 	Call write_variable_in_CASE_NOTE ("-")
-END IF 
+END IF
 
 Call write_bullet_and_variable_in_CASE_NOTE("Other Information", other_information)
 Call write_variable_in_CASE_NOTE ("---")

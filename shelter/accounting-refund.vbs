@@ -49,9 +49,9 @@ call changelog_update("06/20/2017", "Initial version.", "MiKayla Handley")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-
 '-------------------------------------------------------------------------------------------------DIALOG
-BeginDialog Shelter_refund_dlg, 0, 0, 246, 135, "Shelter Refund"
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 246, 135, "Shelter Refund"
   EditBox 65, 5, 65, 15, maxis_case_number
   EditBox 175, 5, 65, 15, when_contact_was_made
   EditBox 65, 30, 65, 15, check_number
@@ -82,16 +82,16 @@ when_contact_was_made = date & ""
 DO
 	Do
         err_msg = ""
-		Dialog Shelter_refund_dlg
-		cancel_confirmation
+		Dialog Dialog1
+		cancel_without_confirmation
 		If (isnumeric(MAXIS_case_number) = False and len(MAXIS_case_number) <> 8) then err_msg = err_msg & vbnewline & "* You must enter either a valid MAXIS case number."
-        If isDate(when_contact_was_made) = False then err_msg = err_msg & vbnewline & "* Enter a valid check date." 
+        If isDate(when_contact_was_made) = False then err_msg = err_msg & vbnewline & "* Enter a valid check date."
         If isnumeric(check_number) = False then err_msg = err_msg & vbnewline & "* Enter a valid numeric check number."
         If isnumeric(check_amount) = False then err_msg = err_msg & vbnewline & "* Enter a valid numeric check amount."
         If Check_pickup_dropbox = "Select One..." then err_msg = err_msg & vbnewline & "* Select a check pick up option."
         If worker_signature = "" then err_msg = err_msg & vbnewline & "* Enter your signature."
-        IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine		
-	Loop until err_msg = ""	
+        IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+	Loop until err_msg = ""
     call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
 
