@@ -5875,15 +5875,6 @@ function select_testing_file(selection_type, the_selection, file_path, file_bran
     Next
 end function
 
-' 'use this to email testers from within a script.
-' function send_tester_email(include_supervisor, body_text)
-'     cc_email = "HSPH.EWS.BlueZoneScripts@hennepin.us"
-'     If include_supervisor = TRUE Then cc_email = cc_email &"; " & tester.tester_supervisor_email
-'
-'     body_text = "Hello " & tester.tester_first_name & ", " & vbCr & body_text & vbCr & "Thank you for all you do for us!" & vbCr & "BlueZone Script Team"
-'     Call create_outlook_email(tester_email, cc_email, "Testing Response - " & name_of_script, body_text, "", TRUE)
-' end function
-
 function start_a_blank_CASE_NOTE()
 '--- This function navigates user to a blank case note, presses PF9, and checks to make sure you're in edit mode (keeping you from writing all of the case note on an inquiry screen).
 '===== Keywords: MAXIS, case note, navigate, edit
