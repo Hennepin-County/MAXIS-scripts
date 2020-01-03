@@ -6347,32 +6347,6 @@ function write_value_and_transmit(input_value, row, col)
 	transmit
 end function
 
-function write_variable_in_CAAD(variable)
-'--- This function writes a variable in CAAD note
-'~~~~~ variable: information to be entered into CAAD note from script/edit box
-'===== Keywords: PRISM, CAAD note
-    IF variable <> "" THEN
-        EMGetCursor row, col
-        EMReadScreen line_check, 2, 15, 2
-        If ((row = 20 and col + (len(x)) >= 78) or row = 21) and line_check = "26" then
-            MsgBox "You've run out of room in this case note. The script will now stop."
-            StopScript
-        End if
-        If (row = 20 and col + (len(x)) >= 78 + 1 ) or row = 21 then
-            EMSendKey "<PF8>"
-            EMWaitReady 0, 0
-            EMSetCursor 16, 4
-        End if
-        EMSendKey variable & "<newline>"
-        EMGetCursor row, col
-        If (row = 20 and col + (len(x)) >= 78) or (row = 21) then
-            EMSendKey "<PF8>"
-            EMWaitReady 0, 0
-            EMSetCursor 16, 4
-        End if
-    END IF
-end function
-
 function write_variable_in_CASE_NOTE(variable)
 '--- This function writes a variable in CASE note
 '~~~~~ variable: information to be entered into CASE note from script/edit box
