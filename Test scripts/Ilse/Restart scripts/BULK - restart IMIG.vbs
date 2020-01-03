@@ -64,14 +64,6 @@ Function HCRE_panel_bypass()
 	Loop until HCRE_panel_check <> "HCRE"
 End Function
 
-BeginDialog excel_row_dialog, 0, 0, 126, 50, "Select the excel row to restart"
-  EditBox 75, 5, 40, 15, excel_row_to_restart
-  ButtonGroup ButtonPressed
-    OkButton 10, 25, 50, 15
-    CancelButton 65, 25, 50, 15
-  Text 10, 10, 60, 10, "Excel row to start:"
-EndDialog
-
 'THE SCRIPT-------------------------------------------------------------------------------------------------------------------------
 EMConnect ""		'Connects to BlueZone
 MAXIS_footer_month = CM_plus_1_mo
@@ -81,7 +73,8 @@ MAXIS_footer_year = CM_plus_1_yr
 Do
 	Do
 		'The dialog is defined in the loop as it can change as buttons are pressed 
-		BeginDialog file_select_dialog, 0, 0, 221, 50, "Select the ABAWD pull cases into Excel file."
+        Dialog1 = ""
+		BeginDialog Dialog1, 0, 0, 221, 50, "Select the ABAWD pull cases into Excel file."
 			ButtonGroup ButtonPressed
 			PushButton 175, 10, 40, 15, "Browse...", select_a_file_button
 			OkButton 110, 30, 50, 15
@@ -89,8 +82,8 @@ Do
 			EditBox 5, 10, 165, 15, file_selection_path
 		EndDialog
 		err_msg = ""
-		Dialog file_select_dialog
-		If buttonPressed = 0 then stopscript
+		Dialog Dialog1
+		cancel_without_confirmation
     	If ButtonPressed = select_a_file_button then
     		If file_selection_path <> "" then 'This is handling for if the BROWSE button is pushed more than once'
     			objExcel.Quit 'Closing the Excel file that was opened on the first push'
@@ -106,9 +99,17 @@ Do
 CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 126, 50, "Select the excel row to restart"
+  EditBox 75, 5, 40, 15, excel_row_to_restart
+  ButtonGroup ButtonPressed
+    OkButton 10, 25, 50, 15
+    CancelButton 65, 25, 50, 15
+  Text 10, 10, 60, 10, "Excel row to start:"
+EndDialog
 do 
-	dialog excel_row_dialog
-	If buttonpressed = 0 then stopscript								'loops until all errors are resolved
+	dialog Dialog1 
+	cancel_without_confirmation
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
