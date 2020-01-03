@@ -4054,14 +4054,6 @@ function dynamic_calendar_dialog(selected_dates_array, month_to_use, text_prompt
 	LOOP until buttonpressed = -1								'looping until someone hits the ok button, this makes the previous and next buttons work.
 end function
 
-function end_excel_and_script()
-'--- This function might not be needed anymore.
-'===== Keywords: likely depreciated
-  objExcel.Workbooks.Close
-  objExcel.quit
-  stopscript
-end function
-
 function excel_open(file_url, visible_status, alerts_status, ObjExcel, objWorkbook)
 '--- This function opens a specific excel file.
 '~~~~~ file_url: name of the file
