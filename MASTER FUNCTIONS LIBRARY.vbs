@@ -5153,15 +5153,6 @@ function navigate_to_MMIS_region(group_security_selection)
 	End If
 end function
 
-function navigate_to_PRISM_screen(x)
-'--- This function is to be used to navigate to a specific PRISM screen
-'~~~~~ x: name of the PRISM screen
-'===== Keywords: PRISM, navigate
-  EMWriteScreen x, 21, 18
-  EMSendKey "<enter>"
-  EMWaitReady 0, 0
-end function
-
 Function non_actionable_dails 
     If instr(dail_msg, "AMT CHILD SUPP MOD/ORD") OR _
         instr(dail_msg, "AP OF CHILD REF NBR:") OR _
