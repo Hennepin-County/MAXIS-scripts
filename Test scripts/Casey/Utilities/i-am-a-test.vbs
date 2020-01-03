@@ -227,6 +227,10 @@ END IF
 
 ' Call confirm_tester_information
 
+
+employer_check = MsgBox("Do you have income verification for this job? Employer name: " & "FAMILY DOLLAR", vbYesNo + vbQuestion, "Select Income Panel")
+
+employer_ended_msg = MsgBox("This job has an income end date." & vbNewLine & vbNewLine & "The employer name: FAMILY DOLLAR" & vbNewLine & "End Date: 12/31/19" & vbNewLine & vbNewLine & "The script can update this job with information provided BUT it will remove the 'End Date' field on JOBS." & vbNewLine & vbNewLine & "Would you like to continue with the update of this job?", vbquestion + vbOkCancel, "Income Panel Ended - Cannot Update")
 'Initial Dialog which requests a file path for the excel file
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 361, 105, "On Demand Recertifications"
