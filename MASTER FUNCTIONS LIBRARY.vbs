@@ -5473,37 +5473,6 @@ function PF24()
   EMWaitReady 0, 0
 end function
 
-FUNCTION PRISM_case_number_validation(case_number_to_validate, outcome)
-'--- This function finds the PRISM case number if listed on a PRISM screen
-'~~~~~ case_number_to_validate: needs to be 'PRISM_case_number'
-'~~~~~ outcome: needs to be 'outcome'
-'===== Keywords: PRISM, case number
-case_number_to_validate = trim(case_number_to_validate)													'remove any spaces from the beginning or end of the case #
-  IF Len(case_number_to_validate) <> 13 THEN 																		'if the case # is not 13 characters, it's not a valid case #
-    outcome = False
-	ELSEIF IsNumeric(Left(case_number_to_validate, 10)) = False THEN 							'if the first 10 digits of the case # are not numeric, it's not a valid case #
-    outcome = False
-	ELSEIF IsNumeric(Right(case_number_to_validate, 2)) = False THEN 							'if the last 2 digits of the case # are not numeric, it's not a valid case #
-    outcome = False
-	ELSEIF IsNumeric(Mid(case_number_to_validate, 11, 1)) = True THEN 						'if the 11th char is a number, it's not a valid case #
-		outcome = False
-	ELSEIF IsNumeric(Mid(case_number_to_validate, 11, 1)) = False THEN 						'if the 11th char is not a number, then...
-		IF Mid(case_number_to_validate, 11, 1) = "." THEN														'if the 11th char is a period, it's a valid case #, and replace the period with a dash
-			case_number_to_validate = Replace(case_number_to_validate, ".", "-")
-			outcome = True
-		ELSEIF Mid(case_number_to_validate, 11, 1) = " " THEN												'if the 11th char is a space, it's a valid case #, and replace the space with a dash
-			case_number_to_validate = Replace(case_number_to_validate, " ", "-")
-			outcome = True
-		ELSEIF Mid(case_number_to_validate, 11, 1) = "-" THEN												'if the 11th char is a dash, it's a valid case #
-			outcome = True
-		ELSE																																				'if the 11th char is a non-numeric char but is not a period, space, or dash, it's not a valid case #
-			outcome = False
-		END IF
-	ELSE																																					'if we haven't determined if it's a valid case # or not yet, it's a valid case #
-    outcome = True
-  END IF
-END FUNCTION
-
 function proceed_confirmation(result_of_msgbox)
 '--- This function asks the user if they want to proceed.
 '~~~~~ result_of_msgbox: returns TRUE if Yes is pressed, and FALSE if No is pressed.
