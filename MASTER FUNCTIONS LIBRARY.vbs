@@ -5473,28 +5473,6 @@ function PF24()
   EMWaitReady 0, 0
 end function
 
-function PRISM_case_number_finder(variable_for_PRISM_case_number)
-'--- This function finds the PRISM case number if listed on a PRISM screen
-'~~~~~ variable_for_PRISM_case_number: this should be 'PRISM_case_number'
-'===== Keywords: PRISM, case number
-	PRISM_row = 1 'Searches for the case number.
-	PRISM_col = 1
-	EMSearch "Case: ", PRISM_row, PRISM_col
-	If PRISM_row <> 0 then
-		EMReadScreen variable_for_PRISM_case_number, 13, PRISM_row, PRISM_col + 6
-		variable_for_PRISM_case_number = replace(variable_for_PRISM_case_number, " ", "-")
-	Else	'Searches again if not found, this time for "Case/Person"
-		PRISM_row = 1
-		PRISM_col = 1
-		EMSearch "Case/Person: ", PRISM_row, PRISM_col
-		If PRISM_row <> 0 then
-			EMReadScreen variable_for_PRISM_case_number, 13, PRISM_row, PRISM_col + 13
-			variable_for_PRISM_case_number = replace(variable_for_PRISM_case_number, " ", "-")
-		End if
-	End if
-	If isnumeric(left(variable_for_PRISM_case_number, 10)) = False or isnumeric(right(variable_for_PRISM_case_number, 2)) = False then variable_for_PRISM_case_number = ""
-end function
-
 FUNCTION PRISM_case_number_validation(case_number_to_validate, outcome)
 '--- This function finds the PRISM case number if listed on a PRISM screen
 '~~~~~ case_number_to_validate: needs to be 'PRISM_case_number'
