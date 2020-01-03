@@ -4407,16 +4407,6 @@ function get_county_code()
     end if
 end function
 
-function get_to_MMIS_session_begin()
-'--- This function brings a MMIS user all the way out of MMIS by PF6'ing until the session is terminated.
-'===== Keywords: MMIS, PF6
-  Do
-    EMSendkey "<PF6>"
-    EMWaitReady 0, 0
-    EMReadScreen session_start, 18, 1, 7
-  Loop until session_start = "SESSION TERMINATED"
-end function
-
 function HH_member_custom_dialog(HH_member_array)
 '--- This function creates an array of all household members in a MAXIS case, and allows users to select which members to seek/add information to add to edit boxes in dialogs.
 '~~~~~ HH_member_array: should be HH_member_array for function to work
