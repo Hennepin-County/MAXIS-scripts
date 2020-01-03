@@ -5485,14 +5485,6 @@ function proceed_confirmation(result_of_msgbox)
 	End if
 end function
 
-function regl()
-'--- This function clears out PRISM global variables
-'===== Keywords: PRISM, REGL, global variables, clear
-	EMWriteScreen "REGL", 21, 18		'This writes REGL to the command line
-	transmit							'Sends the REGL command
-	transmit							'Transmits past the REGL screen
-end function
-
 function run_another_script(script_path)
 '--- This function runs another script from a specific file either stored locally or on the web.
 '~~~~~ script_path: path of script to run
