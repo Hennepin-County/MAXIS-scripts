@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("1/3/2020", "BUG FIX - The script could not continue if ongoing income for a job was $0. Updated functionality to better suppor an ongoing job with $0 income. This new functionality still does not support jobs that are ending.##~##", "Casey Love, Hennepin County")
 call changelog_update("12/16/2019", "BUG FIX - There was an error when completing the PIC in the month of application. This should now be resolved and the script will not get stuck on the PIC.##~##", "Casey Love, Hennepin County")
 call changelog_update("11/22/2019", "BUG FIX - The PIC does not allow for hours to have more than 2 decimal points written into MAXIS. Sometimes check stubs have 3 decimals provided. The script will change to 2 decimal points for the entry of information only, the information entered into the dialog and input on the CASE/NOTE can still be 3 decimal points.##~##", "Casey Love, Hennepin County")
 call changelog_update("11/06/2019", "BUG FIX - The script was hitting an error if a 'known pay date' was entered that is after the intital month to update. Added functionality for the script to recalculate the 'known pay date' back to the beginning of the update period. This way any known pay date will work in the script.##~##", "Casey Love, Hennepin County")
@@ -1143,6 +1144,8 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
 
                                     dlg_factor = dlg_factor - 1     'There is always one extra
                                     sm_err_msg = ""                 'blanking this out at the beginning of the loop for displaying the dialog
+                                    est_weekly_hrs = EARNED_INCOME_PANELS_ARRAY(hrs_per_wk, ei_panel) & ""
+                                    EARNED_INCOME_PANELS_ARRAY(pay_per_hr, ei_panel) = EARNED_INCOME_PANELS_ARRAY(pay_per_hr, ei_panel) & ""
 
                                     'ENTER PAY Dialog - dynamic dialog to enter job checks or anticipated amounts
                                     Dialog1 = ""
@@ -1230,6 +1233,9 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                                     End If
 
                                     first_check = ""
+                                    total_gross = 0
+                                    total_hours = 0
+                                    total_checks = 0
 
                                     actual_checks_provided = FALSE      'defaults for some logic coming up
                                     there_are_counted_checks = FALSE
@@ -1275,8 +1281,14 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                                             If IsNumeric(LIST_OF_INCOME_ARRAY(exclude_amount, all_income)) = FALSE AND trim(LIST_OF_INCOME_ARRAY(exclude_amount, all_income)) <> "" Then sm_err_msg = sm_err_msg & vbNewLine & "* Enter the amount excluded from the budget as a number."       'amounts are numbers
                                             If IsNumeric(LIST_OF_INCOME_ARRAY(exclude_amount, all_income)) = TRUE AND trim(LIST_OF_INCOME_ARRAY(reason_amt_excluded, all_income)) = "" Then sm_err_msg = sm_err_msg & vbNewLine & "* Explain why $" & LIST_OF_INCOME_ARRAY(exclude_amount, all_income) & " is excluded from the pay on " & LIST_OF_INCOME_ARRAY(pay_date, all_income) & "." 'excluded portion needs explanation
                                             LIST_OF_INCOME_ARRAY(exclude_amount, all_income) = trim(LIST_OF_INCOME_ARRAY(exclude_amount, all_income))
+                                            If IsNumeric(LIST_OF_INCOME_ARRAY(gross_amount, all_income)) = TRUE AND IsNumeric(LIST_OF_INCOME_ARRAY(hours, all_income)) = TRUE Then
+                                                total_gross = total_gross + LIST_OF_INCOME_ARRAY(gross_amount, all_income)
+                                                total_hours = total_hours + LIST_OF_INCOME_ARRAY(hours, all_income)
+                                                total_checks = total_checks + 1
+                                            End If
                                         End If
                                     Next
+
 
                                     If first_check <> "" Then
                                         end_of_month = EARNED_INCOME_PANELS_ARRAY(initial_month_mo, ei_panel) & "/1/" & EARNED_INCOME_PANELS_ARRAY(initial_month_yr, ei_panel)
@@ -1308,7 +1320,16 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                                     If anticipated_income_provided = FALSE AND actual_checks_provided = FALSE Then          'there either needs to be checks OR anticipated income
                                         sm_err_msg = sm_err_msg & vbNewLine & "* Income information needs to be provided, either in the form of actual checks or anticipated income, hours, and rate of pay."
                                     End If
-                                    If there_are_counted_checks = FALSE AND anticipated_income_provided = FALSE AND actual_checks_provided = TRUE Then sm_err_msg = sm_err_msg & vbNewLine & "* All the checks listed are excluded and no anticipated income estimate is provided. In order to udate a case and budget income there needs to be counted income."
+                                    If there_are_counted_checks = FALSE AND anticipated_income_provided = FALSE AND actual_checks_provided = TRUE Then
+                                        If total_hours <> 0 Then
+                                            pay_wage = total_gross/total_hours
+                                            EARNED_INCOME_PANELS_ARRAY(pay_per_hr, ei_panel) = pay_wage
+                                            EARNED_INCOME_PANELS_ARRAY(hrs_per_wk, ei_panel) = 0
+                                            anticipated_income_provided = TRUE
+                                        Else
+                                            sm_err_msg = sm_err_msg & vbNewLine & "* All the checks listed are excluded and no anticipated income estimate is provided. In order to udate a case and budget income there needs to be counted income."
+                                        End If
+                                    End If
                                     If known_pay_date <> "" AND IsDate(known_pay_date) = FALSE Then sm_err_msg = sm_err_msg & vbNewLine & "* A known pay date needs to be entered as a date. Check the entry."
 
                                     'the income needs to apply to at least one program
@@ -1346,6 +1367,9 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                                 Loop until sm_err_msg = ""
                                 call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
                             LOOP UNTIL are_we_passworded_out = false
+                            total_gross = 0
+                            total_hours = 0
+                            total_checks = 0
 
                             'I guess we do this again - maybe we can REMOVE CODE
                             actual_checks_provided = FALSE
@@ -1359,7 +1383,9 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                         End If
 
                         'If BOTH anticipated income AND actual checks are provided, the worker needs to chose which one should be budgeted.
-                        If actual_checks_provided = TRUE AND anticipated_income_provided = TRUE Then
+                        If there_are_counted_checks = FALSE AND actual_checks_provided = TRUE Then
+                            EARNED_INCOME_PANELS_ARRAY(pick_one, ei_panel) = use_estimate
+                        ElseIf actual_checks_provided = TRUE AND anticipated_income_provided = TRUE Then
                             'CHOOSE CORRECT METHOD Dialog - select which (actual or anticipated) income information to budget and explain
                             Dialog1 = ""
                             BeginDialog Dialog1, 0, 0, 196, 165, "Reasonably Expected to Continue"
@@ -1417,6 +1443,8 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                             If actual_checks_provided = TRUE Then EARNED_INCOME_PANELS_ARRAY(pick_one, ei_panel) = use_actual
                             If anticipated_income_provided = TRUE Then EARNED_INCOME_PANELS_ARRAY(pick_one, ei_panel) = use_estimate
                         End If
+
+                        MsgBox "There are counted checks - " & there_are_counted_checks & vbNewLine & "Actual Checks Provided - " & actual_checks_provided & vbNewLine & "Pick one is - " & EARNED_INCOME_PANELS_ARRAY(pick_one, ei_panel) & vbNewLine & "Hourly Wage - " & EARNED_INCOME_PANELS_ARRAY(hourly_wage, ei_panel) & vbNewLine & "Pay per Hour - " & EARNED_INCOME_PANELS_ARRAY(pay_per_hr, ei_panel)
 
                         If actual_checks_provided = TRUE Then       'this does not matter which is chosen - it does this if actual checks are provided even if that is not the correct budget
                             total_of_counted_income = 0             'there will be lots of counting/adding here so we need everything to start at 0 so we don't get carryover from previous loops or panels
@@ -2057,7 +2085,10 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                         EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel) = FormatNumber(EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel),2,,0)
 
                         If total_of_hours <> 0 Then EARNED_INCOME_PANELS_ARRAY(hourly_wage, ei_panel) = total_of_included_pay_checks / total_of_hours           'the $/hr
-                        If total_of_hours = 0 Then EARNED_INCOME_PANELS_ARRAY(hourly_wage, ei_panel) = 0
+                        If total_of_hours = 0 Then
+                            EARNED_INCOME_PANELS_ARRAY(hourly_wage, ei_panel) = total_of_gross_income/all_total_hours
+                            EARNED_INCOME_PANELS_ARRAY(pay_per_hr, ei_panel) = total_of_gross_income/all_total_hours
+                        End If
                         EARNED_INCOME_PANELS_ARRAY(hourly_wage, ei_panel) = FormatNumber(EARNED_INCOME_PANELS_ARRAY(hourly_wage, ei_panel),2,,0)
 
                         'determining the number of hours per week for SNAP
@@ -2084,7 +2115,10 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                             EARNED_INCOME_PANELS_ARRAY(SNAP_mo_inc, ei_panel) = pay_multiplier * EARNED_INCOME_PANELS_ARRAY(snap_ave_inc_per_pay, ei_panel)     'SNAP monthly income
 
                         End If
-                        If EARNED_INCOME_PANELS_ARRAY(SNAP_mo_inc, ei_panel) = "" OR EARNED_INCOME_PANELS_ARRAY(SNAP_mo_inc, ei_panel) = 0 THen EARNED_INCOME_PANELS_ARRAY(SNAP_mo_inc, ei_panel) = "?"
+                        ' If EARNED_INCOME_PANELS_ARRAY(SNAP_mo_inc, ei_panel) = "" OR EARNED_INCOME_PANELS_ARRAY(SNAP_mo_inc, ei_panel) = 0 THen EARNED_INCOME_PANELS_ARRAY(SNAP_mo_inc, ei_panel) = "?"
+                        If EARNED_INCOME_PANELS_ARRAY(SNAP_mo_inc, ei_panel) = "" THEN EARNED_INCOME_PANELS_ARRAY(SNAP_mo_inc, ei_panel) = 0
+                        If EARNED_INCOME_PANELS_ARRAY(SNAP_mo_inc, ei_panel) = 0 Then EARNED_INCOME_PANELS_ARRAY(pick_one, ei_panel) = use_estimate
+
                         EARNED_INCOME_PANELS_ARRAY(GRH_mo_inc, ei_panel) = pay_multiplier * EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel)       'GRH monthly income
                         EARNED_INCOME_PANELS_ARRAY(income_list_indct, ei_panel) = right(EARNED_INCOME_PANELS_ARRAY(income_list_indct, ei_panel), len(EARNED_INCOME_PANELS_ARRAY(income_list_indct, ei_panel))-1)
 
@@ -2599,10 +2633,25 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                     If hc_retro_budget_checkbox = checked Then EARNED_INCOME_PANELS_ARRAY(hc_retro, ei_panel) = TRUE
                     If hc_retro_budget_checkbox = unchecked Then EARNED_INCOME_PANELS_ARRAY(hc_retro, ei_panel) = FALSE
 
+                    If big_err_msg = "" Then
+                        If EARNED_INCOME_PANELS_ARRAY(SNAP_mo_inc, ei_panel) = 0 AND EARNED_INCOME_PANELS_ARRAY(apply_to_SNAP, ei_panel) = checked Then
+                            confirm_zero_snap_income = MsgBox("It appears this case has $0 income budgeted for SNAP." & vbNewLine & vbNewLine & "This script is not currently able to process the end of employment or STWK, but it can update the panel to have $0 countable income." & vbNewLine & vbNewLine & "Is this correct?" & vbNewLine & "Please confirm that this case should prospecively budget $0.", vbQuestion + vbYesNo, "Confirm Zero SNAP Income")
+
+                            If confirm_zero_snap_income = vbNo Then
+                                MsgBox "The script will now take you back to the dialog to enter pay information, please update the paycheck amounts, excluded checkboxes or fields, or anticipated income information to indicate the correct SNAP prospective income."
+                                big_err_msg = "LOOP"
+                                review_small_dlg = TRUE
+                            End If
+                        End If
+                    End If
+
                 Loop until big_err_msg = ""
                 call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
             LOOP UNTIL are_we_passworded_out = false
             'WE ARE OUT OF THE DIALOGS
+
+            If EARNED_INCOME_PANELS_ARRAY(SNAP_mo_inc, ei_panel) = 0 AND EARNED_INCOME_PANELS_ARRAY(apply_to_SNAP, ei_panel) = checked Then
+            End If
 
             'Setting some information and formatting and saving it fot the next functionality.
             'each and every thing has to be IN THE ARRAY to be saved
@@ -3858,6 +3907,11 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
             End If          'If EARNED_INCOME_PANELS_ARRAY(income_received, ei_panel) = TRUE Then
             EMWriteScreen "SUMM", 20, 71        'go back to SUMM'
             transmit
+            EMReadScreen no_hours, 40, 6, 16
+            If no_hours = "PROSPECTIVE EARNINGS EXIST WITH NO HOURS" Then
+                EMWriteScreen "Y", 9, 58
+                transmit
+            End If
         Next            'For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
 
         transmit        'after all of the panels have been reviewed we are going to STAT/WRAP to get to the next month without sending through background if possible
@@ -3942,6 +3996,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'each panel will
                                 End If
                             Next
                         Else                    'this is the standard wording for SNAP budget information
+                            If EARNED_INCOME_PANELS_ARRAY(SNAP_mo_inc, ei_panel) = 0 Then Call write_variable_in_CASE_NOTE("!! THIS JOB IS NOT ANTICIPATING ANY INCOME AT THIS TIME. !!")
                             Call write_bullet_and_variable_in_CASE_NOTE("Monthly budgeted income", "$" & EARNED_INCOME_PANELS_ARRAY(SNAP_mo_inc, ei_panel))
                             Call write_bullet_and_variable_in_CASE_NOTE("Average per Pay Period", "$" & EARNED_INCOME_PANELS_ARRAY(snap_ave_inc_per_pay, ei_panel))
                             Call write_bullet_and_variable_in_CASE_NOTE("Average hours per week", EARNED_INCOME_PANELS_ARRAY(snap_hrs_per_wk, ei_panel))
