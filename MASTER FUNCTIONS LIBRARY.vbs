@@ -5875,20 +5875,6 @@ function select_testing_file(selection_type, the_selection, file_path, file_bran
     Next
 end function
 
-function send_dord_doc(recipient, dord_doc)
-'--- This function adds the document.  Some user involvement (resolving required labels, hard-copy printing) may be required.
-'~~~~~ recipient: the recipient code from the DORD screen
-'~~~~~ dord_doc: document code (also from the DORD screen)
-'===== Keywords: PRISM, cso, select, caseload, BULK
-	call navigate_to_PRISM_screen("DORD")
-	EMWriteScreen "C", 3, 29
-	transmit
-	EMWriteScreen "A", 3, 29
-	EMWriteScreen dord_doc, 6, 36
-	EMWriteScreen recipient, 11, 51
-	transmit
-end function
-
 ' 'use this to email testers from within a script.
 ' function send_tester_email(include_supervisor, body_text)
 '     cc_email = "HSPH.EWS.BlueZoneScripts@hennepin.us"
