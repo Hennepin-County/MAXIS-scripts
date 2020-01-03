@@ -4492,33 +4492,6 @@ function is_date_holiday_or_weekend(date_to_review, boolean_variable)
     boolean_variable = non_working_day
 end function
 
-function log_usage_stats_without_closing()
-'--- This function allows logging usage stats but then running another script without closing, i.e. DAIL scrubber
-'===== Keywords: MAXIS, MMIS, PRISM, statistics
-	stop_time = timer
-	script_run_time = stop_time - start_time
-	If is_county_collecting_stats = True then
-		'Getting user name
-		Set objNet = CreateObject("WScript.NetWork")
-		user_ID = objNet.UserName
-
-		'Setting constants
-		Const adOpenStatic = 3
-		Const adLockOptimistic = 3
-
-		'Creating objects for Access
-		Set objConnection = CreateObject("ADODB.Connection")
-		Set objRecordSet = CreateObject("ADODB.Recordset")
-
-		'Opening DB
-		objConnection.Open "Provider = Microsoft.ACE.OLEDB.12.0; Data Source = C:\DHS-MAXIS-Scripts\Statistics\usage statistics.accdb"
-
-		'Opening usage_log and adding a record
-		objRecordSet.Open "INSERT INTO usage_log (USERNAME, SDATE, STIME, SCRIPT_NAME, SRUNTIME, CLOSING_MSGBOX)" &  _
-		"VALUES ('" & user_ID & "', '" & date & "', '" & time & "', '" & name_of_script & "', " & script_run_time & ", '" & "" & "')", objConnection, adOpenStatic, adLockOptimistic
-	End if
-end function
-
 function MAXIS_background_check()
 '--- This function checks to see if a user is in background
 '===== Keywords: MAXIS, background
