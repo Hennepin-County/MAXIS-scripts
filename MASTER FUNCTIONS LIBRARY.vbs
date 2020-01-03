@@ -3304,100 +3304,7 @@ function clear_line_of_text(row, start_column)
   EMWaitReady 0, 0
 end function
 
-function select_testing_file(selection_type, the_selection, file_path, file_branch, force_error_reporting, allow_option)
-'--- Divert the script to a testing file if run by a tester
-'~~~~~ allow_option: Boolean to select if the tester can choose the testing version or not
-'~~~~~ selection_type: this will indicate how the testers are being selected - valid options (ALL, GROUP, REGION, POPULATION, SCRIPT)
-'~~~~~ the_selection: For the selection_type selected, indicate WHICH of these options you want selected
-'~~~~~ file_path: where the testing file is located
-'~~~~~ file_branch: which branch the file is in
-'~~~~~ force_error_reporting: should the in-script error reporting automatically happen
-'===== Keywords: MAXIS, PRISM, production, clear
 
-    script_list_URL = "T:\Eligibility Support\Scripts\Script Files\COMPLETE LIST OF TESTERS.vbs"
-    Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-    Set fso_command = run_another_script_fso.OpenTextFile(script_list_URL)
-    text_from_the_other_script = fso_command.ReadAll
-    fso_command.Close
-    Execute text_from_the_other_script
-
-    Set objNet = CreateObject("WScript.NetWork")
-    windows_user_ID = objNet.UserName
-    user_ID_for_validation = ucase(windows_user_ID)
-
-    run_testing_file = FALSE
-    If Instr(the_selection, ",") <> 0 Then
-        selection_array = split(the_selection, ",")
-    Else
-        selection_array = array(the_selection)
-    End If
-    selection_type = UCase(selection_type)
-    For each tester in tester_array
-        If user_ID_for_validation = tester.tester_id_number Then
-            Select Case selection_type
-
-                Case "ALL"
-                    run_testing_file = TRUE
-                Case "GROUP" ' ADD OPTION FOR the_selection to be an array'
-                    For each group in tester.tester_groups
-                        For each selection in selection_array
-                            selection = trim(selection)
-                            If UCase(selection) = UCase(group) Then run_testing_file = TRUE
-                            selected_group = group
-                        Next
-                    Next
-                    selected_group = selection
-                Case "REGION"
-                    For each selection in selection_array
-                        selection = trim(selection)
-                        If UCase(selection) = UCase(tester.tester_region) Then run_testing_file = TRUE
-                    Next
-                Case "POPULATION"
-                    For each selection in selection_array
-                        selection = trim(selection)
-                        If UCase(selection) = UCase(tester.tester_population) Then run_testing_file = TRUE
-                    Next
-                Case "SCRIPT"
-                    For each each_script in tester.tester_scripts
-                        If name_of_script = each_script Then run_testing_file = TRUE
-                    Next
-                Case Else
-                    body_text = "The call of the function select_testing_file is using an invalid selection_type."
-                    body_text = body_text & vbCr & "On script - " & name_of_script & "."
-                    body_text = body_text & vbCr & "The selection type of - " & selection_type & " was entered into the function call"
-                    body_text = body_text & vbCr & "The only valid options are: ALL, SCRIPT, GROUP, POPULATION, or REGION"
-                    body_text = body_text & vbCr & "Review the script file particularly the call for the function select_testing_file."
-                    Call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", "FUNCTION ERROR - select_testing_file for " & name_of_script, body_text, "", TRUE)
-            End Select
-
-            If tester.tester_population = "BZ" Then
-                allow_option = TRUE
-                run_testing_file = TRUE
-                selection_type = "SCRIPTWRITER"
-            End If
-
-            If run_testing_file = TRUE and allow_option = TRUE Then
-                continue_with_testing_file = MsgBox("You have been selected to test this script - " & name_of_script & "." & vbNewLine & vbNewLine & "At this time you can select if you would like to run the testing file or the original file." & vbNewLine & vbNewLine & "** Would you like to test this script now?", vbQuestion + vbYesNo, "Use Testing File")
-                If continue_with_testing_file = vbNo Then run_testing_file = FALSE
-            End If
-
-            If run_testing_file = TRUE Then
-                tester.display_testing_message selection_type, the_selection, force_error_reporting
-                ' Call tester.display_testing_message(selection_type, the_selection, force_error_reporting)
-                If force_error_reporting = TRUE Then testing_run = TRUE
-                If run_locally = true then
-                    testing_script_url = "C:\MAXIS-scripts\" & file_path
-                Else
-                    testing_script_url = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/" & file_branch & "/" & file_path
-
-                End If
-                Call run_from_GitHub(testing_script_url)
-            End If
-
-        End If
-    Next
-
-end function
 
 function confirm_tester_information()
 '--- Ask a tester to confirm the details we have for them. THIS FUNCTION IS CALLED IN THE FUNCTIONS LIBRARY
@@ -5356,11 +5263,16 @@ Function non_actionable_dails
         instr(dail_msg, "GRH: STATUS IS REIN, PENDING OR SUSPEND - NOT AUTO") OR _ 
         instr(dail_msg, "SNAP: PENDING OR STAT EDITS EXIST") OR _ 
         instr(dail_msg, "SNAP: REIN STATUS - NOT AUTO-APPROVED") OR _ 
-        instr(dail_msg, "CHECK FOR COLA - UNEA HAS VA") OR _ 
-        instr(dail_msg, "CHECK FOR COLA - UNEA HAS RAILROAD RETIREMENT") OR _ 
         instr(dail_msg, "CASE NOT AUTO-APPROVED HRF/SR/RECERT DUE") OR _ 
         instr(dail_msg, "MFIP MASS CHANGE AUTO-APPROVED AN UNUSUAL INCREASE") OR _ 
-        instr(dail_msg, "MFIP MASS CHANGE AUTO-APPROVED CASE WITH SANCTION") then 
+        instr(dail_msg, "MFIP MASS CHANGE AUTO-APPROVED CASE WITH SANCTION") OR _ 
+        instr(dail_msg, "DWP MASS CHANGE AUTO-APPROVED AN UNUSUAL INCREASE") OR _
+        instr(dail_msg, "IV-D NAME DISCREPANCY") OR _
+        instr(dail_msg, "CHECK HAS BEEN APPROVED") OR _
+        instr(dail_msg, "SDX INFORMATION HAS BEEN STORED - CHECK INFC") OR _
+        instr(dail_msg, "BENDEX INFORMATION HAS BEEN STORED - CHECK INFC") OR _
+        instr(dail_msg, "- TRANS #") OR _ 
+        instr(dail_msg, "PERSON/S REQD SNAP NOT IN SNAP UNIT") then 
             add_to_excel = True
         '----------------------------------------------------------------------------------------------------CORRECT STAT EDITS over 5 days old
     Elseif instr(dail_msg, "CORRECT STAT EDITS") then
@@ -5978,7 +5890,6 @@ function script_end_procedure_with_error_report(closing_message)
 	If disable_StopScript = FALSE or disable_StopScript = "" then stopscript
 end function
 
-
 function select_cso_caseload(ButtonPressed, cso_id, cso_name)
 '--- This function is helpful for bulk scripts. This script is used to select the caseload by the 8 digit worker ID code entered in the dialog.
 '~~~~~ ButtonPressed: should be 'ButtonPressed
@@ -6026,6 +5937,100 @@ function select_cso_caseload(ButtonPressed, cso_id, cso_name)
 				IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 		LOOP UNTIL ButtonPressed = -1
 	LOOP UNTIL err_msg = ""
+end function
+
+function select_testing_file(selection_type, the_selection, file_path, file_branch, force_error_reporting, allow_option)
+'--- Divert the script to a testing file if run by a tester
+'~~~~~ allow_option: Boolean to select if the tester can choose the testing version or not
+'~~~~~ selection_type: this will indicate how the testers are being selected - valid options (ALL, GROUP, REGION, POPULATION, SCRIPT)
+'~~~~~ the_selection: For the selection_type selected, indicate WHICH of these options you want selected
+'~~~~~ file_path: where the testing file is located
+'~~~~~ file_branch: which branch the file is in
+'~~~~~ force_error_reporting: should the in-script error reporting automatically happen
+'===== Keywords: MAXIS, PRISM, production, clear
+
+    script_list_URL = "T:\Eligibility Support\Scripts\Script Files\COMPLETE LIST OF TESTERS.vbs"
+    Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
+    Set fso_command = run_another_script_fso.OpenTextFile(script_list_URL)
+    text_from_the_other_script = fso_command.ReadAll
+    fso_command.Close
+    Execute text_from_the_other_script
+
+    Set objNet = CreateObject("WScript.NetWork")
+    windows_user_ID = objNet.UserName
+    user_ID_for_validation = ucase(windows_user_ID)
+
+    run_testing_file = FALSE
+    If Instr(the_selection, ",") <> 0 Then
+        selection_array = split(the_selection, ",")
+    Else
+        selection_array = array(the_selection)
+    End If
+    selection_type = UCase(selection_type)
+    For each tester in tester_array
+        If user_ID_for_validation = tester.tester_id_number Then
+            Select Case selection_type
+
+                Case "ALL"
+                    run_testing_file = TRUE
+                Case "GROUP" ' ADD OPTION FOR the_selection to be an array'
+                    For each group in tester.tester_groups
+                        For each selection in selection_array
+                            selection = trim(selection)
+                            If UCase(selection) = UCase(group) Then run_testing_file = TRUE
+                            selected_group = group
+                        Next
+                    Next
+                    selected_group = selection
+                Case "REGION"
+                    For each selection in selection_array
+                        selection = trim(selection)
+                        If UCase(selection) = UCase(tester.tester_region) Then run_testing_file = TRUE
+                    Next
+                Case "POPULATION"
+                    For each selection in selection_array
+                        selection = trim(selection)
+                        If UCase(selection) = UCase(tester.tester_population) Then run_testing_file = TRUE
+                    Next
+                Case "SCRIPT"
+                    For each each_script in tester.tester_scripts
+                        If name_of_script = each_script Then run_testing_file = TRUE
+                    Next
+                Case Else
+                    body_text = "The call of the function select_testing_file is using an invalid selection_type."
+                    body_text = body_text & vbCr & "On script - " & name_of_script & "."
+                    body_text = body_text & vbCr & "The selection type of - " & selection_type & " was entered into the function call"
+                    body_text = body_text & vbCr & "The only valid options are: ALL, SCRIPT, GROUP, POPULATION, or REGION"
+                    body_text = body_text & vbCr & "Review the script file particularly the call for the function select_testing_file."
+                    Call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", "FUNCTION ERROR - select_testing_file for " & name_of_script, body_text, "", TRUE)
+            End Select
+
+            If tester.tester_population = "BZ" Then
+                allow_option = TRUE
+                run_testing_file = TRUE
+                selection_type = "SCRIPTWRITER"
+            End If
+
+            If run_testing_file = TRUE and allow_option = TRUE Then
+                continue_with_testing_file = MsgBox("You have been selected to test this script - " & name_of_script & "." & vbNewLine & vbNewLine & "At this time you can select if you would like to run the testing file or the original file." & vbNewLine & vbNewLine & "** Would you like to test this script now?", vbQuestion + vbYesNo, "Use Testing File")
+                If continue_with_testing_file = vbNo Then run_testing_file = FALSE
+            End If
+
+            If run_testing_file = TRUE Then
+                tester.display_testing_message selection_type, the_selection, force_error_reporting
+                ' Call tester.display_testing_message(selection_type, the_selection, force_error_reporting)
+                If force_error_reporting = TRUE Then testing_run = TRUE
+                If run_locally = true then
+                    testing_script_url = "C:\MAXIS-scripts\" & file_path
+                Else
+                    testing_script_url = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/" & file_branch & "/" & file_path
+
+                End If
+                Call run_from_GitHub(testing_script_url)
+            End If
+
+        End If
+    Next
 end function
 
 function send_dord_doc(recipient, dord_doc)
