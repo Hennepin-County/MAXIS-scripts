@@ -3878,17 +3878,6 @@ function date_array_generator(initial_month, initial_year, date_array)
 	date_array = split(date_list, "|")
 end function
 
-function date_converter_PALC_PAPL(date_variable)
-'--- This function creates a creates a date in MM/DD/YY format
-'~~~~~ date_variable: name of variable that holds the date info
-'===== Keywords: PRISM, date convert, PALC, PAPL
-	date_year = left (date_variable, 2)
-	date_day = right (date_variable, 2)
-	date_month = right (left (date_variable, 4), 2)
-
-	date_variable = date_month & "/" & date_day & "/" & date_year
-end function
-
 function dynamic_calendar_dialog(selected_dates_array, month_to_use, text_prompt, one_date_only, disable_weekends, disable_month_change, start_date, end_date)
 '--- This function creates a dynamic calendar that users can select dates from to be used in scheduleing. This is used in BULK - REVS SCRUBBER.
 '~~~~~ selected_dates_array:the output array it will contain dates in MM/DD/YY format
