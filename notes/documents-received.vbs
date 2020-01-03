@@ -74,6 +74,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("01/03/2020", "Added new functionality to ask about accepting documents in ECF as a reminder at the end of the script.", "Casey Love, Hennepin County")
 Call changelog_update("09/25/2019", "Bug Fix - script would error/stop if case was stuck in background. Added a number of checks to be sure case is not in background so the script run can continue.", "Casey Love, Hennepin County")
 Call changelog_update("07/29/2019", "Bug fix - script was not identifying document information as complete when only SHEL editbox was filled.", "Casey Love, Hennepin County")
 Call changelog_update("07/27/2019", "Functionality for specific forms:  Assets, MOF, AREP, LTC 1503, and MTAF. Form functionality can be accessed by checkboxes on the main dialog though all document detail can still be added in theeditboxes on the main dialog.", "Casey Love, Hennepin County")
@@ -262,6 +263,8 @@ Const ast_note          = 43
 Const update_panel      = 44
 
 Dim client_list_array
+
+script_that_handles_documents = TRUE
 
 '===========================================================================================================================
 'Specific Forms Handled For
@@ -2989,5 +2992,18 @@ IF HSR_scanner_checkbox = checked then Call write_variable_in_case_note("* Docum
 call write_bullet_and_variable_in_case_note("Verifications still needed", verifs_needed)
 call write_variable_in_case_note("---")
 call write_variable_in_case_note(worker_signature)
+
+'This fucntion will ask the worker about accepting the document in ECF. This will move to FuncLib once we have this tested and the go ahead to add to other scripts.
+'To call this, we will add the call to script_end_procedure and script_end_procedure_with_error_report
+'For a script to use this functionality the variable script_that_handles_documents and set it to TRUE in the script file.
+function confirm_docs_accepted_in_ecf(closing_msg)
+    If script_that_handles_documents = TRUE Then
+        confirm_ecf_updated = MsgBox("Since this script notes the processing of documents, this is a reminder to correctly accept the documents in ECF." & vbNewLine & vbNewLine & "As a part of holistic processing, we want to be sure all case and administrative actions are compelted. PRO TIP - accepting documents in ECF is a part of the activity report and show work completed." & vbNewLine & vbNewLine & "Did you remember to accept your documents?" & vbNewLine & "If you didn't, do it NOW and still press 'yes'.", vbQuestion + vbSystemModal + vbYesNo, "Please Accept Documents in ECF")
+
+        If confirm_ecf_updated = vbNo Then closing_msg = closing_msg & vbNewLine & "Documents were not accepted in ECF - please go accept documents you have worked on."
+        If confirm_ecf_updated = vbYes Then closing_msg = closing_msg & vbNewLine & "Thank you for accepting your documents in ECF."
+    End If
+end function
+Call confirm_docs_accepted_in_ecf(end_msg)
 
 script_end_procedure_with_error_report(end_msg)
