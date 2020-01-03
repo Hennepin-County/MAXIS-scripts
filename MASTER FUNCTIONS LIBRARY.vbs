@@ -4407,16 +4407,6 @@ function get_county_code()
     end if
 end function
 
-function get_to_MMIS_session_begin()
-'--- This function brings a MMIS user all the way out of MMIS by PF6'ing until the session is terminated.
-'===== Keywords: MMIS, PF6
-  Do
-    EMSendkey "<PF6>"
-    EMWaitReady 0, 0
-    EMReadScreen session_start, 18, 1, 7
-  Loop until session_start = "SESSION TERMINATED"
-end function
-
 function HH_member_custom_dialog(HH_member_array)
 '--- This function creates an array of all household members in a MAXIS case, and allows users to select which members to seek/add information to add to edit boxes in dialogs.
 '~~~~~ HH_member_array: should be HH_member_array for function to work
@@ -4500,33 +4490,6 @@ function is_date_holiday_or_weekend(date_to_review, boolean_variable)
         If holiday = date_to_review Then non_working_day = TRUE
     Next
     boolean_variable = non_working_day
-end function
-
-function log_usage_stats_without_closing()
-'--- This function allows logging usage stats but then running another script without closing, i.e. DAIL scrubber
-'===== Keywords: MAXIS, MMIS, PRISM, statistics
-	stop_time = timer
-	script_run_time = stop_time - start_time
-	If is_county_collecting_stats = True then
-		'Getting user name
-		Set objNet = CreateObject("WScript.NetWork")
-		user_ID = objNet.UserName
-
-		'Setting constants
-		Const adOpenStatic = 3
-		Const adLockOptimistic = 3
-
-		'Creating objects for Access
-		Set objConnection = CreateObject("ADODB.Connection")
-		Set objRecordSet = CreateObject("ADODB.Recordset")
-
-		'Opening DB
-		objConnection.Open "Provider = Microsoft.ACE.OLEDB.12.0; Data Source = C:\DHS-MAXIS-Scripts\Statistics\usage statistics.accdb"
-
-		'Opening usage_log and adding a record
-		objRecordSet.Open "INSERT INTO usage_log (USERNAME, SDATE, STIME, SCRIPT_NAME, SRUNTIME, CLOSING_MSGBOX)" &  _
-		"VALUES ('" & user_ID & "', '" & date & "', '" & time & "', '" & name_of_script & "', " & script_run_time & ", '" & "" & "')", objConnection, adOpenStatic, adLockOptimistic
-	End if
 end function
 
 function MAXIS_background_check()
@@ -4765,43 +4728,6 @@ function MMIS_RKEY_finder()
   EMWriteScreen "x", 10, 3
   EMSendKey "<enter>"
   EMWaitReady 0, 0
-end function
-
-function month_change(interval, starting_month, starting_year, result_month, result_year)
-'--- This function may be deleted soon. Waiting for feedback from scriptwriters.
-'~~~~~ interval: numeric amount of intervals
-'~~~~~ starting_month: month to start
-'~~~~~ starting_year: year to start
-'~~~~~ result_month: This should be 'result_month'...maybe
-'~~~~~ result_year: This should be 'result_year'...maybe
-'===== Keywords: MAXIS, month, year, change
-	result_month = abs(starting_month)
-	result_year = abs(starting_year)
-	valid_month = FALSE
-	IF result_month = 1 OR result_month = 2 OR result_month = 3 OR result_month = 4 OR result_month = 5 OR result_month = 6 OR result_month = 7 OR result_month = 8 OR result_month = 9 OR result_month = 10 OR result_month = 11 OR result_month = 12 Then valid_month = TRUE
-	If valid_month = FALSE Then
-		Month_Input_Error_Msg = MsgBox("The month to start from is not a number between 1 and 12, these are the only valid entries for this function. Your data will have the wrong month." & vbnewline & "The month input was: " & result_month & vbnewline & vbnewline & "Do you wish to continue?", vbYesNo + vbSystemModal, "Input Error")
-		If Month_Input_Error_Msg = VBNo Then script_end_procedure("")
-	End If
-	Do
-		If left(interval, 1) = "-" Then
-			result_month = result_month - 1
-			If result_month = 0 then
-				result_month = 12
-				result_year = result_year - 1
-			End If
-			interval = interval + 1
-		Else
-			result_month = result_month + 1
-			If result_month = 13 then
-				result_month = 1
-				result_year = result_year + 1
-			End if
-			interval = interval - 1
-		End If
-	Loop until interval = 0
-	result_month = right("00" & result_month, 2)
-	result_year = right(result_year, 2)
 end function
 
 function navigate_to_MAXIS(maxis_mode)
