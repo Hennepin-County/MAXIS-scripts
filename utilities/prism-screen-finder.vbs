@@ -43,12 +43,22 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/03/2020", "Added custom PRISM screen navigation function.", "Ilse Ferris, Hennepin County")
 call changelog_update("04/29/2019", "Added background password handling.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
+
+function navigate_to_PRISM_screen(x)
+'--- This function is to be used to navigate to a specific PRISM screen
+'~~~~~ x: name of the PRISM screen
+'===== Keywords: PRISM, navigate
+  EMWriteScreen x, 21, 18
+  EMSendKey "<enter>"
+  EMWaitReady 0, 0
+end function
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 'Connect to BlueZone
