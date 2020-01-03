@@ -310,6 +310,7 @@ ObjExcel.Cells(3, col_open_program_status).Value 				= SNAP_active
 If SNAP_active = False and MFIP_active = False then
 	update_inactive = msgbox("Neither SNAP or MFIP are open.  Do you still wish to proceed with updating this case? This may be useful if the case is closed for late/incomplete HRF.", vbyesno)
 	if update_inactive = vbno then script_end_procedure("Neither SNAP or MFIP are open. The script will now stop.")
+    if update_inactive = vbYes then MFIP_active = TRUE
 END IF
 
 
@@ -1293,8 +1294,16 @@ If developer_mode <> TRUE Then
 
 	PF9
 	EMReadScreen case_note_mode_check, 7, 20, 3
-	If case_note_mode_check <> "Mode: A" then MsgBox "You are not in a case note on edit mode. You might be in inquiry. Try the script again in production."
-	If case_note_mode_check <> "Mode: A" then end_excel_and_script
+	If case_note_mode_check <> "Mode: A" then
+        If close_excel_checkbox = checked Then
+        	'Manually closing workbooks so that the stats script can finish up
+        	objExcel.DisplayAlerts = False
+        	objExcel.Workbooks.Close
+        	objExcel.quit
+        	objExcel.DisplayAlerts = True
+        End If
+        script_end_procedure_with_error_report("You are not in a case note on edit mode. You might be in inquiry. Try the script again in production.")
+    End If
 
 	If REVW_due = TRUE Then
 		Call Write_Variable_in_CASE_NOTE (":::CSES Messages Reviewed:::: REVIEW DUE")
@@ -1317,25 +1326,25 @@ If developer_mode <> TRUE Then
 		End If
 	End If
 
-'reading from excel sheet
-IF SNAP_active = TRUE Then
-	Dim xlApp
-	Dim xlBook
-	Dim xlSheet
-	RowCN = 1
-	Set objSheet = objExcel.ActiveWorkbook.Worksheets("SNAP Budget")
-	Do
-		MEMBandTYPE = Trim(objSheet.Cells(RowCN, 1).Value)
-		Do
-			RowCN = RowCN + 1
-			rowCHECK = Trim(objSheet.Cells(RowCN, 1).Value)
-			IF rowCHECK = "Prosp Monthly Income:" then amount = Trim(objSheet.Cells(RowCN, 7).Value)
-		Loop until rowCHECK = "Prosp Monthly Income:"
-		RowCN = RowCN + 2
-		Call Write_Variable_in_Case_Note ("     " & MEMBandTYPE & " - $" & amount)
-		blankCHECK = Trim(objSheet.Cells(RowCN, 1).Value)
-	Loop Until blankCHECK = ""
-End IF
+    'reading from excel sheet
+    IF SNAP_active = TRUE Then
+    	Dim xlApp
+    	Dim xlBook
+    	Dim xlSheet
+    	RowCN = 1
+    	Set objSheet = objExcel.ActiveWorkbook.Worksheets("SNAP Budget")
+    	Do
+    		MEMBandTYPE = Trim(objSheet.Cells(RowCN, 1).Value)
+    		Do
+    			RowCN = RowCN + 1
+    			rowCHECK = Trim(objSheet.Cells(RowCN, 1).Value)
+    			IF rowCHECK = "Prosp Monthly Income:" then amount = Trim(objSheet.Cells(RowCN, 7).Value)
+    		Loop until rowCHECK = "Prosp Monthly Income:"
+    		RowCN = RowCN + 2
+    		Call Write_Variable_in_Case_Note ("     " & MEMBandTYPE & " - $" & amount)
+    		blankCHECK = Trim(objSheet.Cells(RowCN, 1).Value)
+    	Loop Until blankCHECK = ""
+    End IF
 
 	If MFIP_active <> TRUE AND SNAP_active = TRUE Then
 		If Outside_the_realm <> TRUE AND UNEA_review_checkbox = checked Then Call Write_Variable_in_CASE_NOTE ("* FS PIC reviewed, adjustments to budget not needed.")
@@ -1385,4 +1394,4 @@ If close_excel_checkbox = checked Then
 	objExcel.DisplayAlerts = True
 End If
 
-script_end_procedure("")
+script_end_procedure_with_error_report("CSES Message Review Complete.")
