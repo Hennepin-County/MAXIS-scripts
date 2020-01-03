@@ -5593,7 +5593,6 @@ function script_end_procedure(closing_message)
 	If disable_StopScript = FALSE or disable_StopScript = "" then stopscript
 end function
 
-
 function script_end_procedure_with_error_report(closing_message)
 '--- This function is how all user stats are collected when a script ends.
 '~~~~~ closing_message: message to user in a MsgBox that appears once the script is complete. Example: "Success! Your actions are complete."
@@ -5780,55 +5779,6 @@ function script_end_procedure_with_error_report(closing_message)
         End If
     End If
 	If disable_StopScript = FALSE or disable_StopScript = "" then stopscript
-end function
-
-function select_cso_caseload(ButtonPressed, cso_id, cso_name)
-'--- This function is helpful for bulk scripts. This script is used to select the caseload by the 8 digit worker ID code entered in the dialog.
-'~~~~~ ButtonPressed: should be 'ButtonPressed
-'~~~~~ cso_id: should be 'cso_id'
-'~~~~~ cso_name: should be 'cso_name'
-'===== Keywords: PRISM, cso, select, caseload, BULK
-	DO
-		DO
-			CALL navigate_to_PRISM_screen("USWT")
-			err_msg = ""
-			'Grabbing the CSO name for the intro dialog.
-			CALL find_variable("Worker Id: ", cso_id, 8)
-			EMSetCursor 20, 13
-			PF1
-			CALL write_value_and_transmit(cso_id, 20, 35)
-			EMReadScreen cso_name, 24, 13, 55
-			cso_name = trim(cso_name)
-			PF3
-
-			BeginDialog select_cso_dlg, 0, 0, 286, 145, " - Select CSO Caseload"
-			EditBox 70, 55, 65, 15, cso_id
-			Text 70, 80, 155, 10, cso_name
-			ButtonGroup ButtonPressed
-				OkButton 130, 125, 50, 15
-				PushButton 180, 125, 50, 15, "UPDATE CSO", update_cso_button
-				PushButton 230, 125, 50, 15, "STOP SCRIPT", stop_script_button
-			Text 10, 15, 265, 30, "This script will check for worklist items coded E0014 for the following Worker ID. If you wish to change the Worker ID, enter the desired Worker ID in the box and press UPDATE CSO. When you are ready to continue, press OK."
-			Text 10, 60, 50, 10, "Worker ID:"
-			Text 10, 80, 55, 10, "Worker Name:"
-
-			EndDialog
-
-			DIALOG select_cso_dlg
-				IF ButtonPressed = stop_script_button THEN script_end_procedure("The script has stopped.")
-				IF ButtonPressed = update_cso_button THEN
-					CALL navigate_to_PRISM_screen("USWT")
-					CALL write_value_and_transmit(cso_id, 20, 13)
-					EMReadScreen cso_name, 24, 13, 55
-					cso_name = trim(cso_name)
-				END IF
-				IF cso_id = "" THEN err_msg = err_msg & vbCr & "* You must enter a Worker ID."
-				IF len(cso_id) <> 8 THEN err_msg = err_msg & vbCr & "* You must enter a valid, 8-digit Worker ID."
-																																				'The additional of IF ButtonPressed = -1 to the conditional statement is needed
-																																		'to allow the worker to update the CSO's worker ID without getting a warning message.
-				IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-		LOOP UNTIL ButtonPressed = -1
-	LOOP UNTIL err_msg = ""
 end function
 
 function select_testing_file(selection_type, the_selection, file_path, file_branch, force_error_reporting, allow_option)
