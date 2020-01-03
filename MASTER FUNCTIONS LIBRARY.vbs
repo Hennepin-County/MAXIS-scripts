@@ -4062,18 +4062,6 @@ function end_excel_and_script()
   stopscript
 end function
 
-function enter_PRISM_case_number(case_number_variable, row, col)
-'--- This function enters a PRISM case number.
-'~~~~~ case_number_variable: always use <code>PRISM_case_number</code>
-'~~~~~ row: row to write case number
-'~~~~~ col: column to write case number
-'===== Keywords: PRISM, case number
-	EMSetCursor row, col
-	EMSendKey replace(case_number_variable, "-", "")                                                                                                                                       'Entering the specific case indicated
-	EMSendKey "<enter>"
-	EMWaitReady 0, 0
-end function
-
 function excel_open(file_url, visible_status, alerts_status, ObjExcel, objWorkbook)
 '--- This function opens a specific excel file.
 '~~~~~ file_url: name of the file
