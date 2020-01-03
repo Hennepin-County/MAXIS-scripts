@@ -6538,62 +6538,6 @@ function write_variable_in_CCOL_NOTE(variable)
 	End if
 end function
 
-function write_variable_in_DORD(string_to_write, recipient)
-'--- This function writes a variable in DORD document
-'~~~~~ string_to_write: information to be entered into document
-'~~~~~ recipient: recipeint of DORD document
-'===== Keywords: PRISM, DORD
-	call navigate_to_PRISM_screen("DORD")
-	EMWriteScreen "A", 3, 29
-	EMWriteScreen "F0104", 6, 36
-	EMWriteScreen recipient, 11, 51
-	transmit
-
-	'This function will add a string to DORD docs.
-	IF len(string_to_write) > 1080 THEN
-		MsgBox "*** NOTICE!!! ***" & vbCr & vbCr & _
-				"The text below is longer than the script can handle in one DORD document. The script will not add the text to the document." & vbCr & vbCr & _
-				string_to_write
-		EXIT function
-	END IF
-
-	dord_rows_of_text = Int(len(string_to_write) / 60) + 1
-
-	ReDim write_array(dord_rows_of_text)
-	'Splitting the text
-	string_to_write = split(string_to_write)
-	array_position = 1
-	FOR EACH word IN string_to_write
-		IF len(write_array(array_position)) + len(word) <= 60 THEN
-			write_array(array_position) = write_array(array_position) & word & " "
-		ELSE
-			array_position = array_position + 1
-			write_array(array_position) = write_array(array_position) & word & " "
-		END IF
-	NEXT
-
-	PF14
-
-	'Selecting the "U" label type
-	CALL write_value_and_transmit("U", 20, 14)
-
-	'Writing the values
-	dord_row = 7
-	FOR i = 1 TO dord_rows_of_text
-		CALL write_value_and_transmit("S", dord_row, 5)
-		CALL write_value_and_transmit(write_array(i), 16, 15)
-
-		dord_row = dord_row + 1
-		IF i = 12 THEN
-			PF8
-			dord_row = 7
-		END IF
-	NEXT
-	PF3
-	EMWriteScreen "M", 3, 29
-	transmit
-end function
-
 function write_variable_in_SPEC_MEMO(variable)
 '--- This function writes a variable in SPEC/MEMO
 '~~~~~ variable: information to be entered into SPEC/MEMO
