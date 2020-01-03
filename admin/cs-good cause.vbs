@@ -292,21 +292,22 @@ Do
 		IF gc_status = "Select One:" THEN err_msg = err_msg & vbnewline & "* Select the Good Cause Case Status."
 		If reason_droplist = "Select One:" then err_msg = err_msg & vbnewline & "* Select the Good Cause reason."
 		If gc_status = "Granted" THEN
-			If isdate(review_date) = False then err_msg = err_msg & vbnewline & "* You must enter a valid good cause review date."
+			If isdate(review_date) = False then err_msg = err_msg & vbnewline & "* Please enter a valid good cause review date."
 		ELSEIF gc_status = "Denied" THEN
-			If denial_reason = "" then err_msg = err_msg & vbnewline & "* You must enter a denial reason."
+			If denial_reason = "" then err_msg = err_msg & vbnewline & "* Please enter a denial reason."
 		END IF
 		If isdate(actual_date) = FALSE THEN
-			err_msg = err_msg & vbnewline & "* You must enter a date."
+			err_msg = err_msg & vbnewline & "* Please enter a date."
 		Else
-		 	IF cdate(actual_date) > cdate(date) = TRUE THEN err_msg = err_msg & vbnewline & "* You must enter an actual date that is not in the future and is in the footer month that you are working in."
+		 	IF cdate(actual_date) > cdate(date) = TRUE THEN err_msg = err_msg & vbnewline & "* Please enter an actual date that is not in the future and is in the footer month that you are working in."
 		END IF
 		IF gc_status <> "Not Claimed" THEN
-			If isdate(claim_date) = False then err_msg = err_msg & vbnewline & "* You must enter a valid good cause claim date."
+			If isdate(claim_date) = False then err_msg = err_msg & vbnewline & "* Please enter a valid good cause claim date."
 		END IF
 		If good_cause_droplist = "Application Review-Incomplete" then
-			If other_notes = "" and OTHER_CHECKBOX = CHECKED then err_msg = err_msg & vbnewline & "* You must enter a reason that application is incomplete."
+			If other_notes = "" and OTHER_CHECKBOX = CHECKED then err_msg = err_msg & vbnewline & "* Please a reason that application is incomplete."
 		END IF
+		IF METS_CHECKBOX = CHECKED and mets_info = "" THEN err_msg = err_msg & vbnewline & "* Please enter a METS case number or unknown."
 		If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -491,11 +492,11 @@ DO
                     IF check_PNLP = "PNLP" THEN
 				    	CALL write_value_and_transmit("ABPS", 20, 71)
 				    	Do
-				    		DO
+				    		'DO
                                 IF parental_status = "1" THEN
 				    	            EMReadScreen ABPS_last_name_check, 24, 10, 30	'reading last name
 				    	            ABPS_last_name_check = replace(ABPS_last_name_check, "_", "")
-				    	            'MsgBox ABPS_last_name_check & "second run"
+				    	            MsgBox ABPS_last_name_check & "second run"
 				    	            EMReadScreen ABPS_first_name_check, 12, 10, 63	'reading first name
 				    	            ABPS_first_name_check = replace(ABPS_first_name_check, "_", "")
 				    			END IF
@@ -503,16 +504,16 @@ DO
 				    	        ABPS_parent_ID = trim(ABPS_parent_ID)
 			           	        EMReadScreen current_panel_number, 1, 2, 73
 				    	        'MsgBox current_panel_number
-				    			IF ABPS_last_name = ABPS_last_name_check and ABPS_first_name = ABPS_first_name_check THEN
-				    				ABPS_found = TRUE
-				    				'MsgBox ABPS_found
-				    				'exit do
-				    			ELSE
-				    				ABPS_found = FALSE
-				    				TRANSMIT
-				    				'MsgBox ABPS_found
-				    			END IF
-				    			IF ABPS_found = TRUE THEN
+				    			'IF ABPS_last_name = ABPS_last_name_check and ABPS_first_name = ABPS_first_name_check THEN
+				    			'	ABPS_found = TRUE
+				    			'	MsgBox ABPS_found
+				    			'	'exit do
+				    			'ELSE
+				    			'	ABPS_found = FALSE
+				    			'	TRANSMIT
+				    			'	MsgBox ABPS_found
+				    			'END IF
+				    			'IF ABPS_found = TRUE THEN
 				    				ABPS_check = MsgBox("Is this the correct ABPS panel to update? Sometimes a new ID is created for the same ABPS.  " & ABPS_first_name_check & " " & ABPS_last_name_check & " ID# " &  ABPS_parent_ID, vbYesNo + vbQuestion, "BGTX Confirmation")
 				    				If ABPS_check = vbYes then
 				    					ABPS_found_question = TRUE
@@ -523,8 +524,8 @@ DO
 				    					TRANSMIT
 				    				END IF
 				    	    		If (ABPS_check = vbNo AND current_panel_number = total_amt_of_panels) THEN script_end_procedure_with_error_report("Unable to find another ABPS. Please review the case, and run the script again if applicable.")
-				    			END IF
-			        		Loop until ABPS_found = TRUE
+				    			'END IF
+			        		'Loop until ABPS_found = TRUE
 				    	Loop until ABPS_found_question = TRUE
                     END IF
 				END IF
@@ -627,9 +628,9 @@ IF DHS_3633_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Sent Goo
 Call write_variable_in_case_note("---")
 Call write_variable_in_case_note(worker_signature)
 PF3
-
-IF FS_CHECKBOX = CHECKED and CASH_CHECKBOX = UNCHECKED and CCA_CHECKBOX = UNCHECKED and DWP_CHECKBOX = UNCHECKED and MFIP_CHECKBOX = UNCHECKED and HC_CHECKBOX = UNCHECKED and METS_CHECKBOX = UNCHECKED THEN memo_started = TRUE
-
+IF mets_info = "" THEN
+	IF FS_CHECKBOX = CHECKED and CASH_CHECKBOX = UNCHECKED and CCA_CHECKBOX = UNCHECKED and DWP_CHECKBOX = UNCHECKED and MFIP_CHECKBOX = UNCHECKED and HC_CHECKBOX = UNCHECKED and METS_CHECKBOX = UNCHECKED THEN memo_started = TRUE
+END IF
 IF memo_started = TRUE THEN
 	Call start_a_new_spec_memo
 	EMsendkey("************************************************************")
