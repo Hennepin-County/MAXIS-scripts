@@ -4730,43 +4730,6 @@ function MMIS_RKEY_finder()
   EMWaitReady 0, 0
 end function
 
-function month_change(interval, starting_month, starting_year, result_month, result_year)
-'--- This function may be deleted soon. Waiting for feedback from scriptwriters.
-'~~~~~ interval: numeric amount of intervals
-'~~~~~ starting_month: month to start
-'~~~~~ starting_year: year to start
-'~~~~~ result_month: This should be 'result_month'...maybe
-'~~~~~ result_year: This should be 'result_year'...maybe
-'===== Keywords: MAXIS, month, year, change
-	result_month = abs(starting_month)
-	result_year = abs(starting_year)
-	valid_month = FALSE
-	IF result_month = 1 OR result_month = 2 OR result_month = 3 OR result_month = 4 OR result_month = 5 OR result_month = 6 OR result_month = 7 OR result_month = 8 OR result_month = 9 OR result_month = 10 OR result_month = 11 OR result_month = 12 Then valid_month = TRUE
-	If valid_month = FALSE Then
-		Month_Input_Error_Msg = MsgBox("The month to start from is not a number between 1 and 12, these are the only valid entries for this function. Your data will have the wrong month." & vbnewline & "The month input was: " & result_month & vbnewline & vbnewline & "Do you wish to continue?", vbYesNo + vbSystemModal, "Input Error")
-		If Month_Input_Error_Msg = VBNo Then script_end_procedure("")
-	End If
-	Do
-		If left(interval, 1) = "-" Then
-			result_month = result_month - 1
-			If result_month = 0 then
-				result_month = 12
-				result_year = result_year - 1
-			End If
-			interval = interval + 1
-		Else
-			result_month = result_month + 1
-			If result_month = 13 then
-				result_month = 1
-				result_year = result_year + 1
-			End if
-			interval = interval - 1
-		End If
-	Loop until interval = 0
-	result_month = right("00" & result_month, 2)
-	result_year = right(result_year, 2)
-end function
-
 function navigate_to_MAXIS(maxis_mode)
 '--- This function is to be used when navigating back to MAXIS from another function in BlueZone (MMIS, PRISM, INFOPAC, etc.)
 '~~~~~ maxis_mode: This parameter needs to be "maxis_mode"
