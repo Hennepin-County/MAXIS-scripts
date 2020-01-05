@@ -294,30 +294,29 @@ call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 'Call get_county_code()
 end_msg = ""
 
-BeginDialog Dialog1, 0, 0, 136, 95, "Case number dialog"
-  EditBox 65, 10, 65, 15, MAXIS_case_number
-  EditBox 65, 30, 30, 15, MAXIS_footer_month
-  EditBox 100, 30, 30, 15, MAXIS_footer_year
-  EditBox 85, 50, 45, 15, doc_date_stamp
-  ButtonGroup ButtonPressed
-    OkButton 25, 75, 50, 15
-    CancelButton 80, 75, 50, 15
-  Text 10, 15, 50, 10, "Case number: "
-  Text 10, 35, 50, 10, "Footer month:"
-  Text 10, 55, 75, 10, "Document date stamp:"
-  'CheckBox 10, 75, 60, 10, "OTS scanning", HSR_scanner_checkbox        'This is commented out BUT if replacing this, the dialog needs to be resized and buttons moved.'
-EndDialog
-
 Do
 	DO
+		'-------------------------------------------------------------------------------------------------DIALOG
+		Dialog1 = "" 'Blanking out previous dialog detail
+	    BeginDialog Dialog1, 0, 0, 136, 95, "Case number dialog"
+	      EditBox 65, 10, 65, 15, MAXIS_case_number
+	      EditBox 65, 30, 30, 15, MAXIS_footer_month
+	      EditBox 100, 30, 30, 15, MAXIS_footer_year
+	      EditBox 85, 50, 45, 15, doc_date_stamp
+	      ButtonGroup ButtonPressed
+	    	OkButton 25, 75, 50, 15
+	    	CancelButton 80, 75, 50, 15
+	      Text 10, 15, 50, 10, "Case number: "
+	      Text 10, 35, 50, 10, "Footer month:"
+	      Text 10, 55, 75, 10, "Document date stamp:"
+	      'CheckBox 10, 75, 60, 10, "OTS scanning", HSR_scanner_checkbox        'This is commented out BUT if replacing this, the dialog needs to be resized and buttons moved.'
+	    EndDialog
         err_msg = ""
-
 		dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
-		cancel_without_confirmation
+		cancel_confirmation
         Call validate_MAXIS_case_number(err_msg, "*")
 		IF IsNumeric(MAXIS_footer_month) = FALSE OR IsNumeric(MAXIS_footer_year) = FALSE THEN err_msg = err_msg & vbNewLine &  "* You must type a valid footer month and year."
         If IsDate(doc_date_stamp) = FALSE Then err_msg = err_msg & vbNewLine & "* Please enter a valid document date."
-
         If err_msg <> "" Then MsgBox "Please Resolve to Continue:" & vbNewLine & err_msg
 	LOOP UNTIL err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -334,7 +333,6 @@ If LTC_case = vbCancel then stopscript
 DO
 	Do
         err_msg = ""
-
 		If LTC_case = vbNo then
 			'-------------------------------------------------------------------------------------------------DIALOG
 			Dialog1 = "" 'Blanking out previous dialog detail
@@ -488,37 +486,36 @@ End If
 If evf_form_received_checkbox = checked Then
     EVF_TIKL_checkbox = checked 'defaulting the TIKL checkbox to be checked initially in the dialog.
     evf_date_recvd = doc_date_stamp
-	'-------------------------------------------------------------------------------------------------DIALOG
-	Dialog1 = "" 'Blanking out previous dialog detail
-    BeginDialog Dialog1, 0, 0, 291, 205, "Employment Verification Form Received"
-      Text 70, 10, 60, 10, MAXIS_case_number
-      EditBox 220, 5, 60, 15, evf_date_recvd
-      ComboBox 70, 30, 210, 15, "Select one..."+chr(9)+"Signed by Client & Completed by Employer"+chr(9)+"Signed by Client"+chr(9)+"Completed by Employer", EVF_status_dropdown
-      EditBox 70, 50, 210, 15, employer
-      DropListBox 70, 75, 210, 45, client_dropdown, evf_client
-      DropListBox 75, 110, 60, 15, "Select one..."+chr(9)+"yes"+chr(9)+"no", info
-      EditBox 220, 110, 60, 15, info_date
-      EditBox 75, 130, 60, 15, request_info
-      CheckBox 160, 135, 105, 10, "10 day TIKL for additional info", EVF_TIKL_checkbox
-      EditBox 70, 160, 210, 15, actions_taken
-      ButtonGroup ButtonPressed
-        OkButton 175, 180, 50, 15
-        CancelButton 230, 180, 50, 15
-      Text 10, 135, 65, 10, "Info Requested via:"
-      Text 10, 115, 60, 10, "Addt'l Info Reqstd:"
-      Text 5, 75, 60, 10, "Household Memb:"
-      Text 10, 55, 55, 10, "Employer name:"
-      Text 15, 165, 50, 10, "Actions taken:"
-      Text 25, 35, 40, 10, "EVF Status:"
-      Text 150, 10, 65, 10, "Date EVF received:"
-      Text 15, 10, 50, 10, "Case Number:"
-      Text 160, 115, 55, 10, "Date Requested:"
-      GroupBox 5, 95, 280, 60, "Is additional information needed?"
-    EndDialog
-
     'starts the EVF received case note dialog
     DO
     	Do
+		    '-------------------------------------------------------------------------------------------------DIALOG
+		    Dialog1 = "" 'Blanking out previous dialog detail
+		    BeginDialog Dialog1, 0, 0, 291, 205, "Employment Verification Form Received"
+		      Text 70, 10, 60, 10, MAXIS_case_number
+		      EditBox 220, 5, 60, 15, evf_date_recvd
+		      ComboBox 70, 30, 210, 15, "Select one..."+chr(9)+"Signed by Client & Completed by Employer"+chr(9)+"Signed by Client"+chr(9)+"Completed by Employer", EVF_status_dropdown
+		      EditBox 70, 50, 210, 15, employer
+		      DropListBox 70, 75, 210, 45, client_dropdown, evf_client
+		      DropListBox 75, 110, 60, 15, "Select one..."+chr(9)+"yes"+chr(9)+"no", info
+		      EditBox 220, 110, 60, 15, info_date
+		      EditBox 75, 130, 60, 15, request_info
+		      CheckBox 160, 135, 105, 10, "10 day TIKL for additional info", EVF_TIKL_checkbox
+		      EditBox 70, 160, 210, 15, actions_taken
+		      ButtonGroup ButtonPressed
+		    	OkButton 175, 180, 50, 15
+		    	CancelButton 230, 180, 50, 15
+		      Text 10, 135, 65, 10, "Info Requested via:"
+		      Text 10, 115, 60, 10, "Addt'l Info Reqstd:"
+		      Text 5, 75, 60, 10, "Household Memb:"
+		      Text 10, 55, 55, 10, "Employer name:"
+		      Text 15, 165, 50, 10, "Actions taken:"
+		      Text 25, 35, 40, 10, "EVF Status:"
+		      Text 150, 10, 65, 10, "Date EVF received:"
+		      Text 15, 10, 50, 10, "Case Number:"
+		      Text 160, 115, 55, 10, "Date Requested:"
+		      GroupBox 5, 95, 280, 60, "Is additional information needed?"
+		    EndDialog
     		err_msg = ""
     		Dialog Dialog1       	'starts the EVF dialog
             Call cancel_continue_confirmation(skip_evf)

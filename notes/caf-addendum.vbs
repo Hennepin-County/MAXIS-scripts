@@ -230,26 +230,26 @@ If MAXIS_case_number <> "" Then
 End If
 how_many_new_members = "1"
 
-'-------------------------------------------------------------------------------------------------DIALOG
-Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 266, 130, "Case Number Dialog"
-  EditBox 60, 35, 50, 15, MAXIS_case_number
-  EditBox 180, 35, 50, 15, addendum_date
-  EditBox 135, 55, 35, 15, how_many_new_members
-  CheckBox 20, 75, 130, 10, "Check here if client signed Addendum.", addendum_signed
-  EditBox 85, 90, 170, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 155, 110, 50, 15
-    CancelButton 210, 110, 50, 15
-  Text 10, 10, 250, 20, "A CAF Addendum (DHS-5223C) was received to add a new person to a case. This script will create a CASE/NOTE after processing the addendum."
-  Text 10, 40, 50, 10, "Case Number:"
-  Text 120, 40, 55, 10, "Addendum Date:"
-  Text 10, 60, 120, 10, "Number of New Members Reported:"
-  Text 10, 95, 70, 10, "Worker Signature:"
-EndDialog
 
 Do
     Do
+	    '-------------------------------------------------------------------------------------------------DIALOG
+	    Dialog1 = "" 'Blanking out previous dialog detail
+	    BeginDialog Dialog1, 0, 0, 266, 130, "Case Number Dialog"
+	      EditBox 60, 35, 50, 15, MAXIS_case_number
+	      EditBox 180, 35, 50, 15, addendum_date
+	      EditBox 135, 55, 35, 15, how_many_new_members
+	      CheckBox 20, 75, 130, 10, "Check here if client signed Addendum.", addendum_signed
+	      EditBox 85, 90, 170, 15, worker_signature
+	      ButtonGroup ButtonPressed
+	    	OkButton 155, 110, 50, 15
+	    	CancelButton 210, 110, 50, 15
+	      Text 10, 10, 250, 20, "A CAF Addendum (DHS-5223C) was received to add a new person to a case. This script will create a CASE/NOTE after processing the addendum."
+	      Text 10, 40, 50, 10, "Case Number:"
+	      Text 120, 40, 55, 10, "Addendum Date:"
+	      Text 10, 60, 120, 10, "Number of New Members Reported:"
+	      Text 10, 95, 70, 10, "Worker Signature:"
+	    EndDialog
         err_msg = ""
         dialog Dialog1
         cancel_without_confirmation
@@ -273,17 +273,16 @@ client_array = split(full_clients_list, chr(9))
 
 For the_member = 1 to how_many_new_members
     reset_variables
-	'-------------------------------------------------------------------------------------------------DIALOG
-	Dialog1 = "" 'Blanking out previous dialog detail
-    'Dialog to ask if there is a member number already added for this member.'
-    BeginDialog Dialog1, 0, 0, 191, 85, "Select New HH Member"
-      DropListBox 10, 45, 155, 45, all_clients_list, new_member_to_note
-      ButtonGroup ButtonPressed
-        OkButton 135, 65, 50, 15
-      Text 10, 10, 160, 25, "If the household member has already been added to MAXIS, select the member's reference number to have the script fill SOME information."
-    EndDialog
-
     Do
+	    '-------------------------------------------------------------------------------------------------DIALOG
+	    Dialog1 = "" 'Blanking out previous dialog detail
+	    'Dialog to ask if there is a member number already added for this member.'
+	    BeginDialog Dialog1, 0, 0, 191, 85, "Select New HH Member"
+	      DropListBox 10, 45, 155, 45, all_clients_list, new_member_to_note
+	      ButtonGroup ButtonPressed
+	    	OkButton 135, 65, 50, 15
+	      Text 10, 10, 160, 25, "If the household member has already been added to MAXIS, select the member's reference number to have the script fill SOME information."
+	    EndDialog
         dialog Dialog1
         cancel_confirmation
         Call check_for_password(are_we_passworded_out)
@@ -375,91 +374,88 @@ For the_member = 1 to how_many_new_members
         If new_memb_last_grade = "16" Then new_memb_last_grade = "16 Grad Degree"
     End If
 
-	'-------------------------------------------------------------------------------------------------DIALOG
-	Dialog1 = "" 'Blanking out previous dialog detail
-    ' If new_memb_ref_numb = "" Then info_dlg_title = "CAF Addendum New Member"
-    ' If new_memb_ref_numb <> "" Then info_dlg_title = "CAF Addendum New Member - Memb " & new_memb_ref_numb
-    If new_memb_ref_numb = "" Then BeginDialog Dialog1, 0, 0, 541, 295, "CAF Addendum New Member"
-    If new_memb_ref_numb <> "" Then BeginDialog Dialog1, 0, 0, 541, 295, "CAF Addendum New Member - Memb " & new_memb_ref_numb
-      EditBox 45, 30, 95, 15, new_memb_first_name
-      EditBox 185, 30, 50, 15, new_memb_middle_name
-      EditBox 280, 30, 120, 15, new_memb_last_name
-      ComboBox 450, 30, 70, 45, "Select or Type"+chr(9)+"Junior"+chr(9)+"Senior"+chr(9)+"I"+chr(9)+"II"+chr(9)+"III"+chr(9)+"IV", new_memb_suffix
-      DropListBox 45, 50, 40, 45, "Select"+chr(9)+"Male"+chr(9)+"Female", new_memb_sex
-      EditBox 125, 50, 55, 15, new_memb_dob
-      DropListBox 250, 50, 120, 45, "Select"+chr(9)+"N - Never maried"+chr(9)+"M - Married, living w/ spouse"+chr(9)+"S - Seperated (married, living apart)"+chr(9)+"L - Legally seperated"+chr(9)+"D - Divorced"+chr(9)+"W - Widowed", new_memb_marital_status
-      EditBox 410, 50, 80, 15, new_memb_ssn
-      CheckBox 50, 75, 20, 10, "N", new_memb_race_n
-      CheckBox 70, 75, 20, 10, "A", new_memb_race_a
-      CheckBox 90, 75, 20, 10, "B", new_memb_race_b
-      CheckBox 110, 75, 20, 10, "P", new_memb_race_p
-      CheckBox 130, 75, 20, 10, "W", new_memb_race_w
-      DropListBox 200, 70, 30, 45, "No"+chr(9)+"Yes", new_memb_hispanic
-      EditBox 315, 70, 40, 15, new_memb_move_to_MN
-      DropListBox 445, 70, 75, 45, "Unknown"+chr(9)+"00  Pre 1st or Never"+chr(9)+"01 Grade 1"+chr(9)+"02 Grade 2"+chr(9)+"03 Grade 3"+chr(9)+"04 Grade 4"+chr(9)+"05 Grade 5"+chr(9)+"06 Grade 6"+chr(9)+"07 Grade 7"+chr(9)+"08 Grade 8"+chr(9)+"09 Grade 9"+chr(9)+"10 Grade 10"+chr(9)+"11 Grade 11"+chr(9)+"12 HS or GED"+chr(9)+"13 Some Post Sec"+chr(9)+"14 HS + certificate"+chr(9)+"15 Four Yr Degree"+chr(9)+"16 Grad Degree", new_memb_last_grade
-      CheckBox 100, 95, 30, 10, "SNAP", new_memb_app_snap
-      CheckBox 130, 95, 30, 10, "CASH", new_memb_app_cash
-      CheckBox 165, 95, 30, 10, "EMER", new_memb_app_emer
-      CheckBox 205, 95, 30, 10, "NONE", new_memb_app_none
-      DropListBox 305, 90, 30, 45, "Yes"+chr(9)+"No", new_memb_p_p_tog
-      ComboBox 410, 90, 110, 45, "Select or Type "+chr(9)+"02 - Spouse"+chr(9)+"03 - Child"+chr(9)+"04 - Parent"+chr(9)+"05 - Sibling"+chr(9)+"06 - Step Sibling"+chr(9)+"08 - Step Child"+chr(9)+"09 - Step Parent"+chr(9)+"10 - Aunt"+chr(9)+"11 - Uncle"+chr(9)+"12 - Neice"+chr(9)+"13 - Nephew"+chr(9)+"14 - Cousin"+chr(9)+"15 - Grandparent"+chr(9)+"16 - Grandchild"+chr(9)+"17 - Other Relative"+chr(9)+"18 - Legal Guardian"+chr(9)+"24 - Not Related"+chr(9)+"25 - Live-In Attendant"+chr(9)+"27 - Unknown/Not Indc", new_memb_relationship
-      DropListBox 120, 125, 30, 45, "Yes"+chr(9)+"No", citizen_yn
-      DropListBox 180, 145, 30, 45, "No"+chr(9)+"Yes", disa_yn
-      DropListBox 230, 165, 30, 45, "No"+chr(9)+"Yes", unable_to_work_yn
-      DropListBox 105, 185, 30, 45, "No"+chr(9)+"Yes", school_yn
-      DropListBox 130, 205, 30, 45, "No"+chr(9)+"Yes", assets_yn
-      DropListBox 165, 225, 30, 45, "No"+chr(9)+"Yes", unea_yn
-      DropListBox 170, 245, 30, 45, "No"+chr(9)+"Yes", earned_yn
-      DropListBox 140, 265, 30, 45, "No"+chr(9)+"Yes", expenses_yn
-      DropListBox 490, 125, 30, 45, "No"+chr(9)+"Yes", qual_question_one
-      DropListBox 490, 165, 30, 45, "No"+chr(9)+"Yes", qual_question_two
-      DropListBox 490, 195, 30, 45, "No"+chr(9)+"Yes", qual_question_three
-      DropListBox 490, 225, 30, 45, "No"+chr(9)+"Yes", qual_question_four
-      DropListBox 490, 245, 30, 45, "No"+chr(9)+"Yes", qual_question_five
-      ButtonGroup ButtonPressed
-        OkButton 430, 275, 50, 15
-        CancelButton 485, 275, 50, 15
-      GroupBox 10, 10, 520, 100, "New Member Personal Information"
-      Text 20, 35, 20, 10, "First:"
-      Text 155, 35, 25, 10, "Middle:"
-      Text 255, 35, 20, 10, "Last:"
-      Text 20, 20, 65, 10, "New Member Name"
-      Text 415, 35, 25, 10, "Suffix:"
-      Text 20, 55, 15, 10, "Sex:"
-      Text 100, 55, 20, 10, "DOB:"
-      Text 195, 55, 50, 10, "Marital Status:"
-      Text 385, 55, 20, 10, "SSN:"
-      Text 20, 75, 25, 10, "Race:"
-      Text 165, 75, 35, 10, "Hispanic:"
-      Text 245, 75, 65, 10, "Date moved to MN:"
-      Text 370, 75, 75, 10, "Last grade completed:"
-      Text 20, 95, 80, 10, "Progams Applying For:"
-      Text 250, 95, 50, 10, "P/P Tpgether:"
-      Text 340, 95, 65, 10, "Relationship to 01:"
-      GroupBox 10, 115, 260, 175, "Addendum Questions"
-      Text 20, 130, 95, 10, "Is this person a US Citizen?"
-      Text 20, 150, 150, 10, "Is this person blind/disabled/ill/incapacitated?"
-      Text 20, 170, 205, 10, "Is this person unable to work for a reason other than diability?"
-      Text 20, 190, 80, 10, "Is this person in school?"
-      Text 20, 210, 105, 10, "Does this person have assets?"
-      Text 20, 230, 140, 10, "Does this person have unearned income?"
-      Text 20, 250, 145, 10, "Is this person employed or self-employed?"
-      Text 20, 270, 115, 10, "Does this person have expenses?"
-      GroupBox 275, 115, 255, 155, "Qualification Questions"
-      Text 285, 125, 200, 40, "Has a court or any other civil or administrative process in Minnesota or any other state found anyone in the household guilty or has anyone been disqualified from receiving public assistance for breaking any of the rules listed in the CAF?"
-      Text 285, 165, 195, 30, "Has anyone in the household been convicted of making fraudulent statements about their place of residence to get cash or SNAP benefits from more than one state?"
-      Text 285, 195, 195, 30, "Is anyone in your householdhiding or running from the law to avoid prosecution being taken into custody, or to avoid going to jail for a felony?"
-      Text 285, 225, 195, 20, "Has anyone in your household been convicted of a drug felony in the past 10 years?"
-      Text 285, 245, 195, 20, "Is anyone in your household currently violating a condition of parole, probation or supervised release?"
-    EndDialog
-
     Do
         Do
+		    '-------------------------------------------------------------------------------------------------DIALOG
+		    Dialog1 = "" 'Blanking out previous dialog detail
+		    ' If new_memb_ref_numb = "" Then info_dlg_title = "CAF Addendum New Member"
+		    ' If new_memb_ref_numb <> "" Then info_dlg_title = "CAF Addendum New Member - Memb " & new_memb_ref_numb
+		    If new_memb_ref_numb = "" Then BeginDialog Dialog1, 0, 0, 541, 295, "CAF Addendum New Member"
+		    If new_memb_ref_numb <> "" Then BeginDialog Dialog1, 0, 0, 541, 295, "CAF Addendum New Member - Memb " & new_memb_ref_numb
+		      EditBox 45, 30, 95, 15, new_memb_first_name
+		      EditBox 185, 30, 50, 15, new_memb_middle_name
+		      EditBox 280, 30, 120, 15, new_memb_last_name
+		      ComboBox 450, 30, 70, 45, "Select or Type"+chr(9)+"Junior"+chr(9)+"Senior"+chr(9)+"I"+chr(9)+"II"+chr(9)+"III"+chr(9)+"IV", new_memb_suffix
+		      DropListBox 45, 50, 40, 45, "Select"+chr(9)+"Male"+chr(9)+"Female", new_memb_sex
+		      EditBox 125, 50, 55, 15, new_memb_dob
+		      DropListBox 250, 50, 120, 45, "Select"+chr(9)+"N - Never maried"+chr(9)+"M - Married, living w/ spouse"+chr(9)+"S - Seperated (married, living apart)"+chr(9)+"L - Legally seperated"+chr(9)+"D - Divorced"+chr(9)+"W - Widowed", new_memb_marital_status
+		      EditBox 410, 50, 80, 15, new_memb_ssn
+		      CheckBox 50, 75, 20, 10, "N", new_memb_race_n
+		      CheckBox 70, 75, 20, 10, "A", new_memb_race_a
+		      CheckBox 90, 75, 20, 10, "B", new_memb_race_b
+		      CheckBox 110, 75, 20, 10, "P", new_memb_race_p
+		      CheckBox 130, 75, 20, 10, "W", new_memb_race_w
+		      DropListBox 200, 70, 30, 45, "No"+chr(9)+"Yes", new_memb_hispanic
+		      EditBox 315, 70, 40, 15, new_memb_move_to_MN
+		      DropListBox 445, 70, 75, 45, "Unknown"+chr(9)+"00  Pre 1st or Never"+chr(9)+"01 Grade 1"+chr(9)+"02 Grade 2"+chr(9)+"03 Grade 3"+chr(9)+"04 Grade 4"+chr(9)+"05 Grade 5"+chr(9)+"06 Grade 6"+chr(9)+"07 Grade 7"+chr(9)+"08 Grade 8"+chr(9)+"09 Grade 9"+chr(9)+"10 Grade 10"+chr(9)+"11 Grade 11"+chr(9)+"12 HS or GED"+chr(9)+"13 Some Post Sec"+chr(9)+"14 HS + certificate"+chr(9)+"15 Four Yr Degree"+chr(9)+"16 Grad Degree", new_memb_last_grade
+		      CheckBox 100, 95, 30, 10, "SNAP", new_memb_app_snap
+		      CheckBox 130, 95, 30, 10, "CASH", new_memb_app_cash
+		      CheckBox 165, 95, 30, 10, "EMER", new_memb_app_emer
+		      CheckBox 205, 95, 30, 10, "NONE", new_memb_app_none
+		      DropListBox 305, 90, 30, 45, "Yes"+chr(9)+"No", new_memb_p_p_tog
+		      ComboBox 410, 90, 110, 45, "Select or Type "+chr(9)+"02 - Spouse"+chr(9)+"03 - Child"+chr(9)+"04 - Parent"+chr(9)+"05 - Sibling"+chr(9)+"06 - Step Sibling"+chr(9)+"08 - Step Child"+chr(9)+"09 - Step Parent"+chr(9)+"10 - Aunt"+chr(9)+"11 - Uncle"+chr(9)+"12 - Neice"+chr(9)+"13 - Nephew"+chr(9)+"14 - Cousin"+chr(9)+"15 - Grandparent"+chr(9)+"16 - Grandchild"+chr(9)+"17 - Other Relative"+chr(9)+"18 - Legal Guardian"+chr(9)+"24 - Not Related"+chr(9)+"25 - Live-In Attendant"+chr(9)+"27 -     Unknown/Not Indc", new_memb_relationship
+		      DropListBox 120, 125, 30, 45, "Yes"+chr(9)+"No", citizen_yn
+		      DropListBox 180, 145, 30, 45, "No"+chr(9)+"Yes", disa_yn
+		      DropListBox 230, 165, 30, 45, "No"+chr(9)+"Yes", unable_to_work_yn
+		      DropListBox 105, 185, 30, 45, "No"+chr(9)+"Yes", school_yn
+		      DropListBox 130, 205, 30, 45, "No"+chr(9)+"Yes", assets_yn
+		      DropListBox 165, 225, 30, 45, "No"+chr(9)+"Yes", unea_yn
+		      DropListBox 170, 245, 30, 45, "No"+chr(9)+"Yes", earned_yn
+		      DropListBox 140, 265, 30, 45, "No"+chr(9)+"Yes", expenses_yn
+		      DropListBox 490, 125, 30, 45, "No"+chr(9)+"Yes", qual_question_one
+		      DropListBox 490, 165, 30, 45, "No"+chr(9)+"Yes", qual_question_two
+		      DropListBox 490, 195, 30, 45, "No"+chr(9)+"Yes", qual_question_three
+		      DropListBox 490, 225, 30, 45, "No"+chr(9)+"Yes", qual_question_four
+		      DropListBox 490, 245, 30, 45, "No"+chr(9)+"Yes", qual_question_five
+		      ButtonGroup ButtonPressed
+		    	OkButton 430, 275, 50, 15
+		    	CancelButton 485, 275, 50, 15
+		      GroupBox 10, 10, 520, 100, "New Member Personal Information"
+		      Text 20, 35, 20, 10, "First:"
+		      Text 155, 35, 25, 10, "Middle:"
+		      Text 255, 35, 20, 10, "Last:"
+		      Text 20, 20, 65, 10, "New Member Name"
+		      Text 415, 35, 25, 10, "Suffix:"
+		      Text 20, 55, 15, 10, "Sex:"
+		      Text 100, 55, 20, 10, "DOB:"
+		      Text 195, 55, 50, 10, "Marital Status:"
+		      Text 385, 55, 20, 10, "SSN:"
+		      Text 20, 75, 25, 10, "Race:"
+		      Text 165, 75, 35, 10, "Hispanic:"
+		      Text 245, 75, 65, 10, "Date moved to MN:"
+		      Text 370, 75, 75, 10, "Last grade completed:"
+		      Text 20, 95, 80, 10, "Progams Applying For:"
+		      Text 250, 95, 50, 10, "P/P Tpgether:"
+		      Text 340, 95, 65, 10, "Relationship to 01:"
+		      GroupBox 10, 115, 260, 175, "Addendum Questions"
+		      Text 20, 130, 95, 10, "Is this person a US Citizen?"
+		      Text 20, 150, 150, 10, "Is this person blind/disabled/ill/incapacitated?"
+		      Text 20, 170, 205, 10, "Is this person unable to work for a reason other than diability?"
+		      Text 20, 190, 80, 10, "Is this person in school?"
+		      Text 20, 210, 105, 10, "Does this person have assets?"
+		      Text 20, 230, 140, 10, "Does this person have unearned income?"
+		      Text 20, 250, 145, 10, "Is this person employed or self-employed?"
+		      Text 20, 270, 115, 10, "Does this person have expenses?"
+		      GroupBox 275, 115, 255, 155, "Qualification Questions"
+		      Text 285, 125, 200, 40, "Has a court or any other civil or administrative process in Minnesota or any other state found anyone in the household guilty or has anyone been disqualified from receiving public assistance for breaking any of the rules listed in the CAF?"
+		      Text 285, 165, 195, 30, "Has anyone in the household been convicted of making fraudulent statements about their place of residence to get cash or SNAP benefits from more than one state?"
+		      Text 285, 195, 195, 30, "Is anyone in your householdhiding or running from the law to avoid prosecution being taken into custody, or to avoid going to jail for a felony?"
+		      Text 285, 225, 195, 20, "Has anyone in your household been convicted of a drug felony in the past 10 years?"
+		      Text 285, 245, 195, 20, "Is anyone in your household currently violating a condition of parole, probation or supervised release?"
+		    EndDialog
             err_msg = ""
-
             dialog Dialog1
             cancel_confirmation
-
             If trim(new_memb_first_name) = "" Then err_msg = err_msg & vbNewLine & "* Enter the first name of the new member."
             If trim(new_memb_last_name) = "" Then err_msg = err_msg & vbNewLine & "* Enter the last name of the new member."
             If new_memb_sex = "Select" Then err_msg = err_msg & vbNewLine & "* Indicate if new member is male or female."
@@ -1120,6 +1116,8 @@ For the_member = 1 to how_many_new_members
                 y_pos = 5
                 If new_memb_ref_numb = "" Then dialog_two_titledialog_two_title = "CAF Addendum Question Detail"
                 If new_memb_ref_numb <> "" Then dialog_two_title = "CAF Addendum Question Detail for Memb " & new_memb_ref_numb
+				'-------------------------------------------------------------------------------------------------DIALOG
+				Dialog1 = "" 'Blanking out previous dialog detail
                 BeginDialog Dialog1, 0, 0, 661, dlg_two_len, dialog_two_title
                   If assets_yn = "Yes" Then
                       GroupBox 10, y_pos, 645, 55, "Addendum Question 7 - Assets - Yes"
@@ -1264,7 +1262,6 @@ For the_member = 1 to how_many_new_members
     Call write_variable_in_CASE_NOTE("* CAF Addendum received on " & addendum_date)
     If addendum_signed = checked Then Call write_variable_in_CASE_NOTE("* Addendum was signed.")
     If new_memb_ref_numb <> "" Then Call write_variable_in_CASE_NOTE("* Member added to MAXIS as Memb " & new_memb_ref_numb)
-
     Call write_variable_in_CASE_NOTE("--New Member Personal Information------")
     Call write_bullet_and_variable_in_CASE_NOTE("Name", new_memb_full_name)
     Call write_variable_in_CASE_NOTE("* Date of Birth: " & new_memb_dob & "     Age: " & new_memb_age)
@@ -1275,7 +1272,6 @@ For the_member = 1 to how_many_new_members
     If new_memb_last_grade <> "Unknown" Then Call write_variable_with_indent_in_CASE_NOTE("Last Grade Completed: " & new_memb_last_grade)
     If new_memb_relationship <> "Select or Type" AND trim(new_memb_relationship) <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Relationship to Memb 01: " & new_memb_relationship)
     Call write_variable_with_indent_in_CASE_NOTE("Purchases and Prepares food with Household: " & new_memb_p_p_tog)
-
     Call write_variable_in_CASE_NOTE("--Answeres to CAF Addendum Questions--")
     Call write_bullet_and_variable_in_CASE_NOTE("Q1. Person a US Citizen", citizen_yn)
     spon_info = ""
@@ -1467,6 +1463,8 @@ If qual_question_one = "Yes" or qual_question_two = "Yes" or qual_question_three
 
 
             y_pos = 30
+			'-------------------------------------------------------------------------------------------------DIALOG
+			Dialog1 = "" 'Blanking out previous dialog detail
             BeginDialog Dialog1, 0, 0, 416, dlg_len, "Qualification Questions Dialog"
               Text 10, 10, 395, 15, "At least one qualification question was answered with 'Yes'. Enter the Household Member that was indicated on the form. "
               If qual_question_one = "Yes" Then

@@ -49,22 +49,6 @@ call changelog_update("07/17/2017", "Initial version.", "Ilse Ferris, Hennepin C
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-
-'-------------------------------------------------------------------------------------------------DIALOG
-Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 141, 95, "Enter the case number & footer month/year"
-  EditBox 75, 5, 45, 15, MAXIS_case_number
-  EditBox 75, 25, 20, 15, MAXIS_footer_month
-  EditBox 100, 25, 20, 15, MAXIS_footer_year
-  EditBox 75, 45, 20, 15, member_number
-  ButtonGroup ButtonPressed
-    OkButton 15, 65, 50, 15
-    CancelButton 70, 65, 50, 15
-  Text 5, 30, 65, 10, "Footer month/year:"
-  Text 20, 10, 55, 10, "Case Number: "
-  Text 35, 50, 40, 10, "Member #:"
-EndDialog
-
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 'Connecting to MAXIS & case number
 EMConnect ""
@@ -72,12 +56,25 @@ call maxis_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 member_number = "01"
 
-'the dialog
 Do
 	Do
+	    '-------------------------------------------------------------------------------------------------DIALOG
+	    Dialog1 = "" 'Blanking out previous dialog detail
+	    BeginDialog Dialog1, 0, 0, 141, 95, "Enter the case number & footer month/year"
+	      EditBox 75, 5, 45, 15, MAXIS_case_number
+	      EditBox 75, 25, 20, 15, MAXIS_footer_month
+	      EditBox 100, 25, 20, 15, MAXIS_footer_year
+	      EditBox 75, 45, 20, 15, member_number
+	      ButtonGroup ButtonPressed
+	        OkButton 15, 65, 50, 15
+	        CancelButton 70, 65, 50, 15
+	      Text 5, 30, 65, 10, "Footer month/year:"
+	      Text 20, 10, 55, 10, "Case Number: "
+	      Text 35, 50, 40, 10, "Member #:"
+	    EndDialog
   		err_msg = ""
   		Dialog Dialog1
-  		If ButtonPressed = 0 then stopscript
+  		cancel_confirmation
   		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
   		If IsNumeric(MAXIS_footer_month) = False or len(MAXIS_footer_month) > 2 or len(MAXIS_footer_month) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer month."
   		If IsNumeric(MAXIS_footer_year) = False or len(MAXIS_footer_year) > 2 or len(MAXIS_footer_year) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer year."
@@ -129,9 +126,30 @@ EndDialog
 'the dialog
 Do
 	Do
-  		err_msg = ""
-  		Dialog ABAWD_tracking_record_dialog
-  		If ButtonPressed = 0 then stopscript
+		'-------------------------------------------------------------------------------------------------DIALOG
+		Dialog1 = "" 'Blanking out previous dialog detail
+  		BeginDialog Dialog1, 0, 0, 361, 155, "ABAWD Tracking Record for MEMB " & member_number
+		  EditBox 65, 20, 280, 15, ABAWD_months
+		  EditBox 65, 40, 280, 15, second_months
+		  EditBox 65, 60, 280, 15, banked_months
+		  EditBox 65, 95, 280, 15, deleted_months
+		  EditBox 65, 115, 280, 15, other_notes
+		  EditBox 65, 135, 175, 15, worker_signature
+		  ButtonGroup ButtonPressed
+		    OkButton 245, 135, 50, 15
+		    CancelButton 295, 135, 50, 15
+		  Text 25, 45, 40, 10, "Second set:"
+		  Text 10, 25, 55, 10, "ABAWD months:"
+		  Text 20, 120, 45, 10, "Other Notes:"
+		  Text 10, 65, 55, 10, "Banked months:"
+		  GroupBox 5, 5, 350, 85, "Please list all counted months, and the reason (if applicable)"
+		  Text 65, 75, 255, 10, "NOTE: Banked months for 01/16 to 09/16 were counted on the tracking record. "
+		  Text 5, 140, 60, 10, "Worker Signature:"
+		  Text 10, 100, 55, 10, "Deleted months:"
+		EndDialog
+		err_msg = ""
+  		Dialog Dialog1
+  		cancel_confirmation
   		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
   		If IsNumeric(MAXIS_footer_month) = False or len(MAXIS_footer_month) > 2 or len(MAXIS_footer_month) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer month."
   		If IsNumeric(MAXIS_footer_year) = False or len(MAXIS_footer_year) > 2 or len(MAXIS_footer_year) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer year."

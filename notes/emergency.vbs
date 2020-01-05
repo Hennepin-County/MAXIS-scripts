@@ -68,28 +68,6 @@ begin_search_month = datepart("m", begin_search_month)
 If len(begin_search_month) = 1 then begin_search_month = "0" & begin_search_month
 'End of date calculations----------------------------------------------------------------------------------------------
 
-'-------------------------------------------------------------------------------------------------DIALOG
-Dialog1 = "" 'Blanking out previous dialog detail
-
-BeginDialog Dialog1, 0, 0, 141, 115, "Case number dialog"
-  EditBox 75, 5, 55, 15, MAXIS_case_number
-  EditBox 75, 25, 25, 15, MAXIS_footer_month
-  EditBox 105, 25, 25, 15, MAXIS_footer_year
-  CheckBox 10, 60, 30, 10, "cash", cash_check
-  CheckBox 55, 60, 30, 10, "HC", HC_check
-  CheckBox 95, 60, 35, 10, "SNAP", SNAP_check
-  CheckBox 10, 80, 120, 10, "Check here if program is EGA?", EGA_screening_check
-  ButtonGroup ButtonPressed
-    OkButton 15, 95, 50, 15
-    CancelButton 75, 95, 50, 15
-  Text 10, 30, 65, 10, "Footer month/year:"
-  GroupBox 5, 45, 130, 30, "Other programs open or applied for:"
-  Text 25, 10, 45, 10, "Case number:"
-EndDialog
-
-
-
-
 'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 'Connecting to BlueZone, grabbing case number & footer month/year
 EMConnect ""
@@ -99,6 +77,24 @@ CALL MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 'Showing the case number dialog
 DO
 	Do
+	    '-------------------------------------------------------------------------------------------------DIALOG
+	    Dialog1 = "" 'Blanking out previous dialog detail
+
+	    BeginDialog Dialog1, 0, 0, 141, 115, "Case number dialog"
+	      EditBox 75, 5, 55, 15, MAXIS_case_number
+	      EditBox 75, 25, 25, 15, MAXIS_footer_month
+	      EditBox 105, 25, 25, 15, MAXIS_footer_year
+	      CheckBox 10, 60, 30, 10, "cash", cash_check
+	      CheckBox 55, 60, 30, 10, "HC", HC_check
+	      CheckBox 95, 60, 35, 10, "SNAP", SNAP_check
+	      CheckBox 10, 80, 120, 10, "Check here if program is EGA?", EGA_screening_check
+	      ButtonGroup ButtonPressed
+	    	OkButton 15, 95, 50, 15
+	    	CancelButton 75, 95, 50, 15
+	      Text 10, 30, 65, 10, "Footer month/year:"
+	      GroupBox 5, 45, 130, 30, "Other programs open or applied for:"
+	      Text 25, 10, 45, 10, "Case number:"
+	    EndDialog
         err_msg = ""
 		Dialog Dialog1
 		cancel_without_confirmation
@@ -111,48 +107,47 @@ CALL check_for_password(are_we_passworded_out)			'function that checks to ensure
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'EMER screnning code----------------------------------------------------------------------------------------------------
-'-------------------------------------------------------------------------------------------------DIALOG
-Dialog1 = "" 'Blanking out previous dialog detail
-If EGA_screening_check = 1 then
-    'EGA screening dialog
-    BeginDialog Dialog1, 0, 0, 286, 170, "Emergency Screening dialog"
-      ComboBox 255, 5, 25, 15, "1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"5"+chr(9)+"6"+chr(9)+"7"+chr(9)+"8"+chr(9)+"9"+chr(9)+"10"+chr(9)+"11"+chr(9)+"12"+chr(9)+"13"+chr(9)+"14"+chr(9)+"15"+chr(9)+"16"+chr(9)+"17"+chr(9)+"18"+chr(9)+"19"+chr(9)+"20", HH_members
-      CheckBox 15, 45, 40, 10, "Eviction", eviction_check
-      CheckBox 65, 45, 70, 10, "Utility disconnect", utility_disconnect_check
-      CheckBox 140, 45, 60, 10, "Homelessness", homelessness_check
-      CheckBox 210, 45, 65, 10, "Security deposit", security_deposit_check
-      ComboBox 230, 65, 50, 15, "Select one..."+chr(9)+"Yes"+chr(9)+"No", meets_residency
-      EditBox 230, 85, 50, 15, shelter_costs
-      EditBox 230, 105, 50, 15, net_income
-      EditBox 155, 125, 125, 15, worker_signature
-      ButtonGroup ButtonPressed
-        PushButton 85, 145, 90, 15, "HSR Manual EMER page ", EMER_HSR_manual_button
-        OkButton 180, 145, 50, 15
-        CancelButton 230, 145, 50, 15
-        PushButton 10, 95, 30, 10, "ADDR", ADDR_button
-        PushButton 40, 95, 30, 10, "BUSI", BUSI_button
-        PushButton 10, 105, 30, 10, "JOBS", JOBS_button
-        PushButton 40, 105, 30, 10, "MEMB", MEMB_button
-        PushButton 10, 115, 30, 10, "PROG", PROG_button
-        PushButton 40, 115, 30, 10, "SHEL", SHEL_button
-        PushButton 10, 125, 30, 10, "TYPE", TYPE_button
-        PushButton 40, 125, 30, 10, "UNEA", UNEA_button
-        PushButton 15, 135, 50, 10, "CASE/CURR", CURR_button
-        PushButton 15, 145, 50, 10, "MONY/INQX", MONY_button
-      Text 145, 10, 105, 10, "Number of EMER HH members:"
-      Text 100, 110, 125, 10, "What is the household's NET income?"
-      Text 10, 10, 120, 10, "Case number: " & MAXIS_case_number
-      GroupBox 5, 30, 275, 30, "Crisis (Check all that apply. If none, do not check any):"
-      Text 5, 70, 220, 10, "Has anyone in the HH been residing in MN for more than 30 days?"
-      Text 100, 90, 125, 10, "What is the household's shelter cost?"
-      Text 90, 130, 60, 10, "Worker signature:"
-      GroupBox 0, 85, 80, 75, "STAT navigation"
-    EndDialog
 
-    'Running the initial dialog
+If EGA_screening_check = 1 then
     DO
     	DO
-            err_msg = ""
+		    'EGA screening dialog
+		    '-------------------------------------------------------------------------------------------------DIALOG
+		    Dialog1 = "" 'Blanking out previous dialog detail
+		    BeginDialog Dialog1, 0, 0, 286, 170, "Emergency Screening dialog"
+		      ComboBox 255, 5, 25, 15, "1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"5"+chr(9)+"6"+chr(9)+"7"+chr(9)+"8"+chr(9)+"9"+chr(9)+"10"+chr(9)+"11"+chr(9)+"12"+chr(9)+"13"+chr(9)+"14"+chr(9)+"15"+chr(9)+"16"+chr(9)+"17"+chr(9)+"18"+chr(9)+"19"+chr(9)+"20", HH_members
+		      CheckBox 15, 45, 40, 10, "Eviction", eviction_check
+		      CheckBox 65, 45, 70, 10, "Utility disconnect", utility_disconnect_check
+		      CheckBox 140, 45, 60, 10, "Homelessness", homelessness_check
+		      CheckBox 210, 45, 65, 10, "Security deposit", security_deposit_check
+		      ComboBox 230, 65, 50, 15, "Select one..."+chr(9)+"Yes"+chr(9)+"No", meets_residency
+		      EditBox 230, 85, 50, 15, shelter_costs
+		      EditBox 230, 105, 50, 15, net_income
+		      EditBox 155, 125, 125, 15, worker_signature
+		      ButtonGroup ButtonPressed
+		    	PushButton 85, 145, 90, 15, "HSR Manual EMER page ", EMER_HSR_manual_button
+		    	OkButton 180, 145, 50, 15
+		    	CancelButton 230, 145, 50, 15
+		    	PushButton 10, 95, 30, 10, "ADDR", ADDR_button
+		    	PushButton 40, 95, 30, 10, "BUSI", BUSI_button
+		    	PushButton 10, 105, 30, 10, "JOBS", JOBS_button
+		    	PushButton 40, 105, 30, 10, "MEMB", MEMB_button
+		    	PushButton 10, 115, 30, 10, "PROG", PROG_button
+		    	PushButton 40, 115, 30, 10, "SHEL", SHEL_button
+		    	PushButton 10, 125, 30, 10, "TYPE", TYPE_button
+		    	PushButton 40, 125, 30, 10, "UNEA", UNEA_button
+		    	PushButton 15, 135, 50, 10, "CASE/CURR", CURR_button
+		    	PushButton 15, 145, 50, 10, "MONY/INQX", MONY_button
+		      Text 145, 10, 105, 10, "Number of EMER HH members:"
+		      Text 100, 110, 125, 10, "What is the household's NET income?"
+		      Text 10, 10, 120, 10, "Case number: " & MAXIS_case_number
+		      GroupBox 5, 30, 275, 30, "Crisis (Check all that apply. If none, do not check any):"
+		      Text 5, 70, 220, 10, "Has anyone in the HH been residing in MN for more than 30 days?"
+		      Text 100, 90, 125, 10, "What is the household's shelter cost?"
+		      Text 90, 130, 60, 10, "Worker signature:"
+		      GroupBox 0, 85, 80, 75, "STAT navigation"
+		    EndDialog
+			err_msg = ""
     		DO
     			Dialog Dialog1
     			cancel_without_confirmation
@@ -318,93 +313,93 @@ call autofill_editbox_from_MAXIS(HH_member_array, "SHEL", monthly_expense)
 call autofill_editbox_from_MAXIS(HH_member_array, "UNEA", income)
 call autofill_editbox_from_MAXIS(HH_member_array, "HEST", monthly_expense) 'Does this last because people like it tacked on to the end, not before. The rest are alphabetical.
 
-'-------------------------------------------------------------------------------------------------DIALOG
-Dialog1 = "" 'Blanking out previous dialog detail
-'This dialog contains a customized "percent rule" variable, as well as a customized "income days" variable. As such, it can't directly be edited in the dialog editor.
-BeginDialog Dialog1, 0, 0, 326, 395, "Emergency Dialog"
-  EditBox 60, 45, 65, 15, interview_date
-  EditBox 170, 45, 150, 15, HH_comp
-  CheckBox 25, 75, 40, 10, "Eviction", eviction_check
-  CheckBox 75, 75, 70, 10, "Utility disconnect", utility_disconnect_check
-  CheckBox 155, 75, 60, 10, "Homelessness", homelessness_check
-  CheckBox 230, 75, 65, 10, "Security deposit", security_deposit_check
-  EditBox 65, 100, 255, 15, cause_of_crisis
-  EditBox 85, 160, 235, 15, income
-  EditBox 105, 180, 215, 15, income_under_200_FPG
-  EditBox 60, 200, 260, 15, percent_rule_notes
-  EditBox 70, 220, 250, 15, monthly_expense
-  EditBox 55, 240, 265, 15, assets
-  EditBox 55, 260, 265, 15, verifs_needed
-  EditBox 80, 280, 240, 15, crisis_resolvable
-  EditBox 80, 300, 240, 15, discussion_of_crisis
-  EditBox 55, 320, 265, 15, actions_taken
-  EditBox 55, 340, 265, 15, referrals
-  CheckBox 5, 360, 90, 10, "Sent forms to AREP?", sent_arep_checkbox
-  EditBox 70, 375, 140, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 215, 375, 50, 15
-    CancelButton 270, 375, 50, 15
-    PushButton 10, 15, 25, 10, "ADDR", ADDR_button
-    PushButton 35, 15, 25, 10, "MEMB", MEMB_button
-    PushButton 60, 15, 25, 10, "MEMI", MEMI_button
-    PushButton 10, 25, 25, 10, "PROG", PROG_button
-    PushButton 35, 25, 25, 10, "TYPE", TYPE_button
-    PushButton 125, 20, 50, 10, "ELIG/EMER", ELIG_EMER_button
-    PushButton 210, 15, 45, 10, "prev. panel", prev_panel_button
-    PushButton 210, 25, 45, 10, "next panel", next_panel_button
-    PushButton 270, 15, 45, 10, "prev. memb", prev_memb_button
-    PushButton 270, 25, 45, 10, "next memb", next_memb_button
-    PushButton 75, 130, 25, 10, "BUSI", BUSI_button
-    PushButton 100, 130, 25, 10, "JOBS", JOBS_button
-    PushButton 75, 140, 25, 10, "RBIC", RBIC_button
-    PushButton 100, 140, 25, 10, "UNEA", UNEA_button
-    PushButton 150, 130, 25, 10, "ACCT", ACCT_button
-    PushButton 175, 130, 25, 10, "CARS", CARS_button
-    PushButton 200, 130, 25, 10, "CASH", CASH_button
-    PushButton 225, 130, 25, 10, "OTHR", OTHR_button
-    PushButton 150, 140, 25, 10, "REST", REST_button
-    PushButton 175, 140, 25, 10, "SECU", SECU_button
-    PushButton 200, 140, 25, 10, "TRAN", TRAN_button
-  GroupBox 5, 5, 85, 35, "other STAT panels:"
-  GroupBox 205, 5, 115, 35, "STAT-based navigation"
-  Text 5, 50, 50, 10, "Interview date:"
-  Text 130, 50, 35, 10, "HH Comp:"
-  GroupBox 20, 65, 280, 25, "Crisis (check all that apply):"
-  Text 5, 105, 55, 10, "Cause of crisis:"
-  GroupBox 70, 120, 60, 35, "Income panels"
-  GroupBox 145, 120, 110, 35, "Asset panels"
-  Text 5, 165, 75, 10, "Income (past " & emer_number_of_income_days & " days):"
-  Text 5, 185, 100, 10, "Is income under 200% FPG?:"
-  Text 5, 205, 55, 10, emer_percent_rule_amt & "% rule notes:"
-  Text 5, 225, 60, 10, "Monthly expense:"
-  Text 25, 245, 25, 10, "Assets:"
-  Text 5, 265, 50, 10, "Verifs needed:"
-  Text 5, 285, 65, 10, "Crisis resolvable?:"
-  Text 5, 305, 70, 10, "Discussion of Crisis:"
-  Text 5, 325, 50, 10, "Actions taken:"
-  Text 15, 345, 35, 10, "Referrals:"
-  Text 5, 380, 65, 10, "Worker signature:"
-EndDialog
-'Showing the case note
+
 DO
 	Do
-        err_msg = ""
+	    '-------------------------------------------------------------------------------------------------DIALOG
+	    Dialog1 = "" 'Blanking out previous dialog detail
+	    'This dialog contains a customized "percent rule" variable, as well as a customized "income days" variable. As such, it can't directly be edited in the dialog editor.
+	    BeginDialog Dialog1, 0, 0, 326, 395, "Emergency Dialog"
+	      EditBox 60, 45, 65, 15, interview_date
+	      EditBox 170, 45, 150, 15, HH_comp
+	      CheckBox 25, 75, 40, 10, "Eviction", eviction_check
+	      CheckBox 75, 75, 70, 10, "Utility disconnect", utility_disconnect_check
+	      CheckBox 155, 75, 60, 10, "Homelessness", homelessness_check
+	      CheckBox 230, 75, 65, 10, "Security deposit", security_deposit_check
+	      EditBox 65, 100, 255, 15, cause_of_crisis
+	      EditBox 85, 160, 235, 15, income
+	      EditBox 105, 180, 215, 15, income_under_200_FPG
+	      EditBox 60, 200, 260, 15, percent_rule_notes
+	      EditBox 70, 220, 250, 15, monthly_expense
+	      EditBox 55, 240, 265, 15, assets
+	      EditBox 55, 260, 265, 15, verifs_needed
+	      EditBox 80, 280, 240, 15, crisis_resolvable
+	      EditBox 80, 300, 240, 15, discussion_of_crisis
+	      EditBox 55, 320, 265, 15, actions_taken
+	      EditBox 55, 340, 265, 15, referrals
+	      CheckBox 5, 360, 90, 10, "Sent forms to AREP?", sent_arep_checkbox
+	      EditBox 70, 375, 140, 15, worker_signature
+	      ButtonGroup ButtonPressed
+	    	OkButton 215, 375, 50, 15
+	    	CancelButton 270, 375, 50, 15
+	    	PushButton 10, 15, 25, 10, "ADDR", ADDR_button
+	    	PushButton 35, 15, 25, 10, "MEMB", MEMB_button
+	    	PushButton 60, 15, 25, 10, "MEMI", MEMI_button
+	    	PushButton 10, 25, 25, 10, "PROG", PROG_button
+	    	PushButton 35, 25, 25, 10, "TYPE", TYPE_button
+	    	PushButton 125, 20, 50, 10, "ELIG/EMER", ELIG_EMER_button
+	    	PushButton 210, 15, 45, 10, "prev. panel", prev_panel_button
+	    	PushButton 210, 25, 45, 10, "next panel", next_panel_button
+	    	PushButton 270, 15, 45, 10, "prev. memb", prev_memb_button
+	    	PushButton 270, 25, 45, 10, "next memb", next_memb_button
+	    	PushButton 75, 130, 25, 10, "BUSI", BUSI_button
+	    	PushButton 100, 130, 25, 10, "JOBS", JOBS_button
+	    	PushButton 75, 140, 25, 10, "RBIC", RBIC_button
+	    	PushButton 100, 140, 25, 10, "UNEA", UNEA_button
+	    	PushButton 150, 130, 25, 10, "ACCT", ACCT_button
+	    	PushButton 175, 130, 25, 10, "CARS", CARS_button
+	    	PushButton 200, 130, 25, 10, "CASH", CASH_button
+	    	PushButton 225, 130, 25, 10, "OTHR", OTHR_button
+	    	PushButton 150, 140, 25, 10, "REST", REST_button
+	    	PushButton 175, 140, 25, 10, "SECU", SECU_button
+	    	PushButton 200, 140, 25, 10, "TRAN", TRAN_button
+	      GroupBox 5, 5, 85, 35, "other STAT panels:"
+	      GroupBox 205, 5, 115, 35, "STAT-based navigation"
+	      Text 5, 50, 50, 10, "Interview date:"
+	      Text 130, 50, 35, 10, "HH Comp:"
+	      GroupBox 20, 65, 280, 25, "Crisis (check all that apply):"
+	      Text 5, 105, 55, 10, "Cause of crisis:"
+	      GroupBox 70, 120, 60, 35, "Income panels"
+	      GroupBox 145, 120, 110, 35, "Asset panels"
+	      Text 5, 165, 75, 10, "Income (past " & emer_number_of_income_days & " days):"
+	      Text 5, 185, 100, 10, "Is income under 200% FPG?:"
+	      Text 5, 205, 55, 10, emer_percent_rule_amt & "% rule notes:"
+	      Text 5, 225, 60, 10, "Monthly expense:"
+	      Text 25, 245, 25, 10, "Assets:"
+	      Text 5, 265, 50, 10, "Verifs needed:"
+	      Text 5, 285, 65, 10, "Crisis resolvable?:"
+	      Text 5, 305, 70, 10, "Discussion of Crisis:"
+	      Text 5, 325, 50, 10, "Actions taken:"
+	      Text 15, 345, 35, 10, "Referrals:"
+	      Text 5, 380, 65, 10, "Worker signature:"
+	    EndDialog
+		err_msg = ""
 		Do
 			Dialog Dialog1
 			cancel_confirmation
 			MAXIS_dialog_navigation
 		Loop until ButtonPressed = -1
-		'-------------------------------------------------------------------------------------------------DIALOG
-		Dialog1 = "" 'Blanking out previous dialog detail
-
-		BeginDialog Dialog1, 0, 0, 136, 51, "Case note dialog"
-		  ButtonGroup ButtonPressed
-		    PushButton 15, 20, 105, 10, "Yes, take me to case note.", yes_case_note_button
-		    PushButton 5, 35, 125, 10, "No, take me back to the script dialog.", no_case_note_button
-		  Text 10, 5, 125, 10, "Are you sure you want to case note?"
-		EndDialog
-
-		If ButtonPressed = -1 then dialog case_note_dialog
+		If ButtonPressed = -1 then
+		    '-------------------------------------------------------------------------------------------------DIALOG
+		    Dialog1 = "" 'Blanking out previous dialog detail
+		    BeginDialog Dialog1, 0, 0, 136, 51, "Case note dialog"
+		      ButtonGroup ButtonPressed
+		        PushButton 15, 20, 105, 10, "Yes, take me to case note.", yes_case_note_button
+		        PushButton 5, 35, 125, 10, "No, take me back to the script dialog.", no_case_note_button
+		      Text 10, 5, 125, 10, "Are you sure you want to case note?"
+		    EndDialog
+			dialog Dialog1
+		END IF
 	    If trim(income) = "" then err_msg = err_msg & vbcr & "* Enter income information."
         If trim(actions_taken) = "" then err_msg = err_msg & vbcr & "* Enter your actions taken."
         If trim(worker_signature) = "" then err_msg = err_msg & vbcr & "* Sign your case note."

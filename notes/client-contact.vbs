@@ -53,64 +53,6 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'-------------------------------------------------------------------------------------------------DIALOG
-Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 391, 325, "Client contact"
-  ComboBox 20, 65, 65, 15, "Select or Type"+chr(9)+"Phone call"+chr(9)+"Voicemail"+chr(9)+"Email"+chr(9)+"Fax"+chr(9)+"Office visit"+chr(9)+"Letter", contact_type
-  DropListBox 90, 65, 45, 10, "from"+chr(9)+"to", contact_direction
-  ComboBox 140, 65, 85, 15, "Select or Type"+chr(9)+"Memb 01"+chr(9)+"Memb 02"+chr(9)+"AREP"+chr(9)+"SWKR", who_contacted
-  EditBox 245, 65, 135, 15, regarding
-  EditBox 75, 85, 65, 15, phone_number
-  EditBox 245, 85, 135, 15, when_contact_was_made
-  EditBox 75, 105, 65, 15, MAXIS_case_number
-  CheckBox 165, 110, 65, 10, "Used Interpreter", used_interpreter_checkbox
-  EditBox 315, 105, 65, 15, METS_IC_number
-  EditBox 75, 125, 305, 15, contact_reason
-  EditBox 70, 155, 310, 15, actions_taken
-  EditBox 60, 195, 320, 15, verifs_needed
-  EditBox 60, 215, 320, 15, case_status
-  EditBox 60, 235, 320, 15, other_notes
-  CheckBox 5, 260, 255, 10, "Check here if you want to TIKL out for this case after the case note is done.", TIKL_check
-  CheckBox 5, 275, 255, 10, "Check here if you reminded client about the importance of the CAF 1.", caf_1_check
-  CheckBox 5, 290, 260, 10, "TEXT OPT OUT - Client wishes to opt out renewal text message notifications.", Opt_out_checkbox
-  CheckBox 260, 260, 95, 10, "Forms were sent to AREP.", Sent_arep_checkbox
-  CheckBox 260, 275, 120, 10, "Follow up is needed on this case.", follow_up_needed_checkbox
-  EditBox 70, 305, 205, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 280, 305, 50, 15
-    CancelButton 335, 305, 50, 15
-  Text 20, 90, 50, 10, "Phone number: "
-  Text 170, 90, 75, 10, "Date/Time of Contact:"
-  Text 20, 110, 50, 10, "Case number: "
-  Text 10, 130, 65, 10, "Reason for contact:"
-  Text 20, 160, 50, 10, "Actions taken: "
-  GroupBox 5, 180, 380, 75, "Additional information about case (not mandatory):"
-  Text 10, 200, 50, 10, "Verifs needed: "
-  Text 15, 220, 45, 10, "Case status: "
-  Text 15, 240, 40, 10, "Other notes:"
-  Text 5, 310, 60, 10, "Worker signature:"
-  Text 255, 110, 60, 10, "METS IC number:"
-  Text 230, 70, 15, 10, "Re:"
-  GroupBox 5, 10, 135, 25, "STAT Navigation"
-  GroupBox 145, 10, 240, 25, "CASE Navigation"
-  ButtonGroup ButtonPressed
-    PushButton 10, 20, 25, 10, "ADDR", ADDR_button
-    PushButton 35, 20, 25, 10, "AREP", AREP_button
-    PushButton 60, 20, 25, 10, "MEMB", MEMB_button
-    PushButton 85, 20, 25, 10, "REVW", REVW_button
-    PushButton 110, 20, 25, 10, "SWKR", SWKR_Button
-    PushButton 150, 20, 50, 10, "CASE/CURR", CURR_button
-    PushButton 200, 20, 50, 10, "CASE/NOTE", NOTE_button
-    PushButton 250, 20, 50, 10, "ELIG/SUMM", ELIG_SUMM_button
-    PushButton 300, 20, 40, 10, "MEMO", MEMO_button
-    PushButton 340, 20, 40, 10, "WCOM", WCOM_button
-  GroupBox 5, 40, 380, 110, "Contact Information:"
-  Text 30, 55, 40, 10, "Contact type"
-  Text 100, 55, 30, 10, "From/To"
-  Text 150, 55, 65, 10, "Who was contacted"
-  Text 275, 55, 70, 10, "For case note header"
-EndDialog
-
 'THE SCRIPT--------------------------------------------------------------------------------------------------
 'CONNECTING TO MAXIS & GRABBING THE CASE NUMBER
 EMConnect ""
@@ -119,6 +61,63 @@ when_contact_was_made = date & ", " & time 'updates the "when contact was made" 
 
 Do
     Do
+	    '-------------------------------------------------------------------------------------------------DIALOG
+	    Dialog1 = "" 'Blanking out previous dialog detail
+	    BeginDialog Dialog1, 0, 0, 391, 325, "Client contact"
+	      ComboBox 20, 65, 65, 15, "Select or Type"+chr(9)+"Phone call"+chr(9)+"Voicemail"+chr(9)+"Email"+chr(9)+"Fax"+chr(9)+"Office visit"+chr(9)+"Letter", contact_type
+	      DropListBox 90, 65, 45, 10, "from"+chr(9)+"to", contact_direction
+	      ComboBox 140, 65, 85, 15, "Select or Type"+chr(9)+"Memb 01"+chr(9)+"Memb 02"+chr(9)+"AREP"+chr(9)+"SWKR", who_contacted
+	      EditBox 245, 65, 135, 15, regarding
+	      EditBox 75, 85, 65, 15, phone_number
+	      EditBox 245, 85, 135, 15, when_contact_was_made
+	      EditBox 75, 105, 65, 15, MAXIS_case_number
+	      CheckBox 165, 110, 65, 10, "Used Interpreter", used_interpreter_checkbox
+	      EditBox 315, 105, 65, 15, METS_IC_number
+	      EditBox 75, 125, 305, 15, contact_reason
+	      EditBox 70, 155, 310, 15, actions_taken
+	      EditBox 60, 195, 320, 15, verifs_needed
+	      EditBox 60, 215, 320, 15, case_status
+	      EditBox 60, 235, 320, 15, other_notes
+	      CheckBox 5, 260, 255, 10, "Check here if you want to TIKL out for this case after the case note is done.", TIKL_check
+	      CheckBox 5, 275, 255, 10, "Check here if you reminded client about the importance of the CAF 1.", caf_1_check
+	      CheckBox 5, 290, 260, 10, "TEXT OPT OUT - Client wishes to opt out renewal text message notifications.", Opt_out_checkbox
+	      CheckBox 260, 260, 95, 10, "Forms were sent to AREP.", Sent_arep_checkbox
+	      CheckBox 260, 275, 120, 10, "Follow up is needed on this case.", follow_up_needed_checkbox
+	      EditBox 70, 305, 205, 15, worker_signature
+	      ButtonGroup ButtonPressed
+	    	OkButton 280, 305, 50, 15
+	    	CancelButton 335, 305, 50, 15
+	      Text 20, 90, 50, 10, "Phone number: "
+	      Text 170, 90, 75, 10, "Date/Time of Contact:"
+	      Text 20, 110, 50, 10, "Case number: "
+	      Text 10, 130, 65, 10, "Reason for contact:"
+	      Text 20, 160, 50, 10, "Actions taken: "
+	      GroupBox 5, 180, 380, 75, "Additional information about case (not mandatory):"
+	      Text 10, 200, 50, 10, "Verifs needed: "
+	      Text 15, 220, 45, 10, "Case status: "
+	      Text 15, 240, 40, 10, "Other notes:"
+	      Text 5, 310, 60, 10, "Worker signature:"
+	      Text 255, 110, 60, 10, "METS IC number:"
+	      Text 230, 70, 15, 10, "Re:"
+	      GroupBox 5, 10, 135, 25, "STAT Navigation"
+	      GroupBox 145, 10, 240, 25, "CASE Navigation"
+	      ButtonGroup ButtonPressed
+	    	PushButton 10, 20, 25, 10, "ADDR", ADDR_button
+	    	PushButton 35, 20, 25, 10, "AREP", AREP_button
+	    	PushButton 60, 20, 25, 10, "MEMB", MEMB_button
+	    	PushButton 85, 20, 25, 10, "REVW", REVW_button
+	    	PushButton 110, 20, 25, 10, "SWKR", SWKR_Button
+	    	PushButton 150, 20, 50, 10, "CASE/CURR", CURR_button
+	    	PushButton 200, 20, 50, 10, "CASE/NOTE", NOTE_button
+	    	PushButton 250, 20, 50, 10, "ELIG/SUMM", ELIG_SUMM_button
+	    	PushButton 300, 20, 40, 10, "MEMO", MEMO_button
+	    	PushButton 340, 20, 40, 10, "WCOM", WCOM_button
+	      GroupBox 5, 40, 380, 110, "Contact Information:"
+	      Text 30, 55, 40, 10, "Contact type"
+	      Text 100, 55, 30, 10, "From/To"
+	      Text 150, 55, 65, 10, "Who was contacted"
+	      Text 275, 55, 70, 10, "For case note header"
+	    EndDialog
         err_msg = ""
         Do
 		    DIALOG Dialog1

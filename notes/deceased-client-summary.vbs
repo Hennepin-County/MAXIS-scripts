@@ -54,34 +54,6 @@ changelog_display
 'DIALOGS MAY NOT BE DEFINED AT THE BEGINNING OF THE SCRIPT BUT WITHIN THE SCRIPT FILE
 
 'There is only one dialog in this script and so it can be defined in the beginning, but still is unnamed
-'-------------------------------------------------------------------------------------------------DIALOG
-Dialog1 = "" 'Blanking out previous dialog detail
-
-BeginDialog Dialog1, 0, 0, 206, 190, "Deceased Client Summary"
-  Text 5, 10, 50, 10, "Case Number"
-  EditBox 65, 5, 50, 15, MAXIS_case_number
-  Text 5, 30, 50, 10, "Date of Death"
-  EditBox 65, 25, 50, 15, date_of_death
-  Text 5, 50, 50, 10, "Place of Death"
-  EditBox 65, 45, 100, 15, place_of_death
-  Text 5, 65, 65, 10, "Surviving Spouse?"
-  CheckBox 105, 65, 55, 10, "(check if yes)", surviving_spouse_checkbox
-  Text 5, 80, 60, 10, "MA Lien on File?"
-  CheckBox 105, 80, 55, 10, "(check if yes)", MA_lien_on_file_checkbox
-  CheckBox 5, 100, 110, 10, "Is servicing county also CFR?", servicing_county_checkbox
-  CheckBox 120, 100, 85, 10, "Transfer case to CFR?", transfer_to_CFR_checkbox
-  CheckBox 5, 115, 145, 10, "Refer file for possible estate collection?", collection_checkbox
-  Text 5, 130, 35, 10, "Other info"
-  EditBox 65, 130, 135, 15, other_info
-  Text 5, 150, 45, 10, "Actions taken"
-  EditBox 65, 150, 135, 15, actions_taken
-  Text 5, 175, 60, 10, "Worker Signature"
-  EditBox 65, 170, 50, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 120, 170, 40, 15
-    CancelButton 160, 170, 40, 15
-EndDialog
-
 'THE SCRIPT
 
 'Connects to BlueZone
@@ -91,18 +63,46 @@ call MAXIS_case_number_finder(MAXIS_case_number)
 
 
 'Do loop for Deceased Client Summary Shows dialog and creates and displays an error message if worker completes things incorrectly.
- DO
-	err_msg = ""
-	DIALOG Dialog1					'Calling a dialog without a assigned variable will call the most recently defined dialog
-	cancel_confirmation
-	'case number required for case note
-	IF isnumeric  (MAXIS_case_number) = false THEN err_msg = err_msg & "Please enter a case number." & VBnewline
-	'valid date required
-	IF isDate (date_of_death)=false then err_msg=err_msg & "Please enter a valid date." & VBNewline
-	'worker signature required
-	IF worker_signature = "" THEN err_msg = err_msg & "Please enter your worker signature." & VBNewline
-	IF err_msg <> "" THEN msgbox err_msg
-Loop until err_msg = ""		'keeps looping until there are no error messages
+DO
+     DO
+    	'-------------------------------------------------------------------------------------------------DIALOG
+    	Dialog1 = "" 'Blanking out previous dialog detail
+    	BeginDialog Dialog1, 0, 0, 206, 190, "Deceased Client Summary"
+    	  Text 5, 10, 50, 10, "Case Number"
+    	  EditBox 65, 5, 50, 15, MAXIS_case_number
+    	  Text 5, 30, 50, 10, "Date of Death"
+    	  EditBox 65, 25, 50, 15, date_of_death
+    	  Text 5, 50, 50, 10, "Place of Death"
+    	  EditBox 65, 45, 100, 15, place_of_death
+    	  Text 5, 65, 65, 10, "Surviving Spouse?"
+    	  CheckBox 105, 65, 55, 10, "(check if yes)", surviving_spouse_checkbox
+    	  Text 5, 80, 60, 10, "MA Lien on File?"
+    	  CheckBox 105, 80, 55, 10, "(check if yes)", MA_lien_on_file_checkbox
+    	  CheckBox 5, 100, 110, 10, "Is servicing county also CFR?", servicing_county_checkbox
+    	  CheckBox 120, 100, 85, 10, "Transfer case to CFR?", transfer_to_CFR_checkbox
+    	  CheckBox 5, 115, 145, 10, "Refer file for possible estate collection?", collection_checkbox
+    	  Text 5, 130, 35, 10, "Other info"
+    	  EditBox 65, 130, 135, 15, other_info
+    	  Text 5, 150, 45, 10, "Actions taken"
+    	  EditBox 65, 150, 135, 15, actions_taken
+    	  Text 5, 175, 60, 10, "Worker Signature"
+    	  EditBox 65, 170, 50, 15, worker_signature
+    	  ButtonGroup ButtonPressed
+    	    OkButton 120, 170, 40, 15
+    	    CancelButton 160, 170, 40, 15
+    	EndDialog
+    	err_msg = ""
+    	DIALOG Dialog1					'Calling a dialog without a assigned variable will call the most recently defined dialog
+    	cancel_confirmation
+    	'case number required for case note
+    	IF isnumeric  (MAXIS_case_number) = false THEN err_msg = err_msg & "Please enter a case number." & VBnewline
+    	'valid date required
+    	IF isDate (date_of_death)=false then err_msg=err_msg & "Please enter a valid date." & VBNewline
+    	'worker signature required
+    	IF worker_signature = "" THEN err_msg = err_msg & "Please enter your worker signature." & VBNewline
+    LOOP UNTIL err_msg = ""
+    call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+LOOP UNTIL are_we_passworded_out = false
 
 'Checks MAXIS for password prompt
 CALL check_for_MAXIS(false)

@@ -53,13 +53,12 @@ call changelog_update("06/14/2018", "Updated dialog and case note to address req
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-Dialog1 = ""
-'---------------------------------------------------------------------------------------The script
+
 'Grabs the case number
 EMConnect ""
 CALL MAXIS_case_number_finder (MAXIS_case_number)
-
 '-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog dialog1, 0, 0, 116, 45, "Application Check"
   EditBox 65, 5, 45, 15, MAXIS_case_number
   ButtonGroup ButtonPressed

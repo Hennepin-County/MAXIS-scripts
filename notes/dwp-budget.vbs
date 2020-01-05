@@ -49,36 +49,6 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-'-------------------------------------------------------------------------------------------------DIALOG
-Dialog1 = "" 'Blanking out previous dialog detail
-'This is the dialog box information/code
-BeginDialog Dialog1, 0, 0, 426, 165, "DWP Budget Dialog"
-  EditBox 60, 5, 45, 15, MAXIS_case_number
-  EditBox 195, 5, 45, 15, ES_appointment_date
-  EditBox 370, 5, 45, 15, ES_deadline_date
-  EditBox 55, 25, 365, 15, income_info
-  EditBox 55, 45, 365, 15, shelter_info
-  EditBox 170, 65, 15, 15, personal_needs
-  EditBox 75, 85, 160, 15, vendor_information
-  EditBox 50, 105, 230, 15, other_notes
-  EditBox 65, 125, 120, 15, months_eligible
-  EditBox 260, 125, 70, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 315, 145, 50, 15
-    CancelButton 370, 145, 50, 15
-  Text 5, 10, 50, 10, "Case Number:"
-  Text 120, 10, 75, 10, "ES Appointment Date:  "
-  Text 255, 10, 115, 10, "ES Deadline (10 Business Days):"
-  Text 5, 30, 45, 10, "Income Info:"
-  Text 5, 50, 45, 10, "Shelter Info: "
-  Text 5, 70, 165, 10, "Personal Needs (Number of DWP HH Members):"
-  Text 190, 65, 230, 20, "(This will multiply the number of eligible DWP household members by $70.00/person.)"
-  Text 5, 90, 70, 10, "Vendor Information: "
-  Text 5, 110, 45, 10, "Other Notes: "
-  Text 5, 130, 60, 10, "Months Eligible: "
-  Text 195, 130, 65, 10, "Worker Signature:"
-EndDialog
-
 'THE SCRIPT----------------------------------------------------------------------
 'Connects to BlueZone & grabbing the case number
 EMConnect ""
@@ -86,14 +56,47 @@ CALL MAXIS_case_number_finder(MAXIS_case_number)
 
 'Displays the dialog
 DO
-	err_msg = ""
-	Dialog Dialog1
-	cancel_confirmation
-	IF MAXIS_case_number = "" OR (MAXIS_case_number <> "" AND IsNumeric(MAXIS_case_number) = False) THEN err_msg = err_msg & vbNewLine & "*Please enter a valid case number"
-	If personal_needs = "" THEN err_msg = err_msg & vbNewLine & "*You must enter the number of DWP household members"
-	IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "*You must sign your case note"
-	IF err_msg <> "" THEN Msgbox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine & vbNewLine & "Please resolve for the script to continue"
-LOOP UNTIL err_msg = ""
+	DO
+    	'-------------------------------------------------------------------------------------------------DIALOG
+    	Dialog1 = "" 'Blanking out previous dialog detail
+    	'This is the dialog box information/code
+    	BeginDialog Dialog1, 0, 0, 426, 165, "DWP Budget Dialog"
+    	  EditBox 60, 5, 45, 15, MAXIS_case_number
+    	  EditBox 195, 5, 45, 15, ES_appointment_date
+    	  EditBox 370, 5, 45, 15, ES_deadline_date
+    	  EditBox 55, 25, 365, 15, income_info
+    	  EditBox 55, 45, 365, 15, shelter_info
+    	  EditBox 170, 65, 15, 15, personal_needs
+    	  EditBox 75, 85, 160, 15, vendor_information
+    	  EditBox 50, 105, 230, 15, other_notes
+    	  EditBox 65, 125, 120, 15, months_eligible
+    	  EditBox 260, 125, 70, 15, worker_signature
+    	  ButtonGroup ButtonPressed
+    		OkButton 315, 145, 50, 15
+    		CancelButton 370, 145, 50, 15
+    	  Text 5, 10, 50, 10, "Case Number:"
+    	  Text 120, 10, 75, 10, "ES Appointment Date:  "
+    	  Text 255, 10, 115, 10, "ES Deadline (10 Business Days):"
+    	  Text 5, 30, 45, 10, "Income Info:"
+    	  Text 5, 50, 45, 10, "Shelter Info: "
+    	  Text 5, 70, 165, 10, "Personal Needs (Number of DWP HH Members):"
+    	  Text 190, 65, 230, 20, "(This will multiply the number of eligible DWP household members by $70.00/person.)"
+    	  Text 5, 90, 70, 10, "Vendor Information: "
+    	  Text 5, 110, 45, 10, "Other Notes: "
+    	  Text 5, 130, 60, 10, "Months Eligible: "
+    	  Text 195, 130, 65, 10, "Worker Signature:"
+    	EndDialog
+    	err_msg = ""
+    	Dialog Dialog1
+    	cancel_confirmation
+    	IF MAXIS_case_number = "" OR (MAXIS_case_number <> "" AND IsNumeric(MAXIS_case_number) = False) THEN err_msg = err_msg & vbNewLine & "*Please enter a valid case number"
+    	If personal_needs = "" THEN err_msg = err_msg & vbNewLine & "*You must enter the number of DWP household members"
+    	IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "*You must sign your case note"
+    	IF err_msg <> "" THEN Msgbox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine & vbNewLine & "Please resolve for the script to continue"
+    LOOP UNTIL err_msg = ""
+	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+LOOP UNTIL are_we_passworded_out = false
+
 
 'Calculates personal needs info
 personal_needs = "$" & personal_needs * 70

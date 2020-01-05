@@ -59,51 +59,6 @@ get_county_code
 'VARIABLE REQUIRED TO RESIZE DIALOG BASED ON A GLOBAL VARIABLE IN FUNCTIONS FILE
 If case_noting_intake_dates = False then dialog_shrink_amt = 65
 
-'-------------------------------------------------------------------------------------------------DIALOG
-Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 481, 265, "Closed Programs"
-  EditBox 70, 5, 55, 15, MAXIS_case_number
-  CheckBox 180, 10, 30, 10, "SNAP", SNAP_check
-  CheckBox 215, 10, 30, 10, "Cash", cash_check
-  CheckBox 250, 10, 25, 10, "HC", HC_check
-  EditBox 70, 25, 55, 15, closure_date
-  EditBox 85, 45, 180, 15, reason_for_closure
-  EditBox 110, 65, 155, 15, verifs_needed
-  EditBox 110, 85, 155, 15, ABAWD_BankedMonths
-  EditBox 175, 105, 90, 15, open_progs
-  CheckBox 10, 140, 210, 10, "Case is at cash/SNAP renewal (monthy, six-month, annual)", CSR_check
-  CheckBox 10, 155, 115, 10, "Case is at HC annual renewal.", HC_ER_check
-  CheckBox 10, 170, 215, 10, "Case is entering Sanction. Enter number of Sanction months:", Sanction_checkbox
-  EditBox 230, 165, 30, 15, sanction_months
-  CheckBox 10, 185, 195, 10, "Case is closing for not providing postoned verifications.", postponed_verif_checkbox
-  CheckBox 10, 210, 190, 10, "Check here if closure is due to client death (enter date):", death_check
-  EditBox 205, 205, 60, 15, hc_close_for_death_date
-  CheckBox 15, 240, 120, 10, "Sent DHS-5181 to Case Manager", sent_5181_check
-  CheckBox 280, 205, 90, 10, "WCOM Added To Notice:", WCOM_check
-  CheckBox 280, 220, 65, 10, "Updated MMIS?", updated_MMIS_check
-  EditBox 260, 240, 105, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 370, 240, 50, 15
-    CancelButton 425, 240, 50, 15
-    PushButton 385, 175, 50, 10, "HCPM - EPM", HC_EPM_Button
-    PushButton 375, 205, 50, 10, "SPEC/WCOM", SPEC_WCOM_button
-  Text 10, 30, 55, 10, "Date Of Closure:"
-  Text 10, 50, 70, 10, "Reason For Closure:"
-  Text 10, 70, 100, 10, "Verifications/Info Still Needed:"
-  Text 10, 110, 165, 10, "Are any programs still open? If so, list them here:"
-  GroupBox 5, 125, 260, 75, "Elements That May Affect REIN Date:"
-  GroupBox 10, 230, 130, 25, "For LTC Cases"
-  GroupBox 280, 10, 200, 115, "IMPORTANT - Note for SNAP:"
-  Text 285, 75, 180, 40, "As a result, SNAP cases who turn in proofs required (or otherwise become eligible for their remaining budget period) can be REINed (with proration) up until the end of the next month. If you have questions, consult a supervisor."
-  Text 285, 25, 180, 50, "Per CM 0005.09.06, we no longer require completion of a CAF when the unit has been closed for less than one month AND the reason for closing has not changed, if the unit fully resolves the reason for the SNAP case closure given on the closing notice sent in MAXIS."
-  GroupBox 280, 130, 195, 65, "IMPORTANT - Note for HC: "
-  Text 10, 10, 50, 10, "Case Number:"
-  Text 285, 140, 180, 25, "This script does not case note REIN dates for HC, due to the ever changing nature of these programs at this time. Please refer to current policy. "
-  Text 195, 245, 60, 10, "Worker Signature: "
-  Text 285, 175, 95, 10, "For more information refer to:"
-  Text 130, 10, 50, 10, "Progs Closed:"
-  Text 10, 90, 100, 10, "ABAWD/2nd Set/Banked info: "
-EndDialog
 
 'The script----------------------------------------------------------------------------------------------------
 'Connects to BlueZone
@@ -123,6 +78,51 @@ DO
 		err_msg = ""		'establishing value of varaible, this is necessary for the Do...LOOP
 		DO
 			Do
+    			'-------------------------------------------------------------------------------------------------DIALOG
+    			Dialog1 = "" 'Blanking out previous dialog detail
+    			BeginDialog Dialog1, 0, 0, 481, 265, "Closed Programs"
+    			  EditBox 70, 5, 55, 15, MAXIS_case_number
+    			  CheckBox 180, 10, 30, 10, "SNAP", SNAP_check
+    			  CheckBox 215, 10, 30, 10, "Cash", cash_check
+    			  CheckBox 250, 10, 25, 10, "HC", HC_check
+    			  EditBox 70, 25, 55, 15, closure_date
+    			  EditBox 85, 45, 180, 15, reason_for_closure
+    			  EditBox 110, 65, 155, 15, verifs_needed
+    			  EditBox 110, 85, 155, 15, ABAWD_BankedMonths
+    			  EditBox 175, 105, 90, 15, open_progs
+    			  CheckBox 10, 140, 210, 10, "Case is at cash/SNAP renewal (monthy, six-month, annual)", CSR_check
+    			  CheckBox 10, 155, 115, 10, "Case is at HC annual renewal.", HC_ER_check
+    			  CheckBox 10, 170, 215, 10, "Case is entering Sanction. Enter number of Sanction months:", Sanction_checkbox
+    			  EditBox 230, 165, 30, 15, sanction_months
+    			  CheckBox 10, 185, 195, 10, "Case is closing for not providing postoned verifications.", postponed_verif_checkbox
+    			  CheckBox 10, 210, 190, 10, "Check here if closure is due to client death (enter date):", death_check
+    			  EditBox 205, 205, 60, 15, hc_close_for_death_date
+    			  CheckBox 15, 240, 120, 10, "Sent DHS-5181 to Case Manager", sent_5181_check
+    			  CheckBox 280, 205, 90, 10, "WCOM Added To Notice:", WCOM_check
+    			  CheckBox 280, 220, 65, 10, "Updated MMIS?", updated_MMIS_check
+    			  EditBox 260, 240, 105, 15, worker_signature
+    			  ButtonGroup ButtonPressed
+    				OkButton 370, 240, 50, 15
+    				CancelButton 425, 240, 50, 15
+    				PushButton 385, 175, 50, 10, "HCPM - EPM", HC_EPM_Button
+    				PushButton 375, 205, 50, 10, "SPEC/WCOM", SPEC_WCOM_button
+    			  Text 10, 30, 55, 10, "Date Of Closure:"
+    			  Text 10, 50, 70, 10, "Reason For Closure:"
+    			  Text 10, 70, 100, 10, "Verifications/Info Still Needed:"
+    			  Text 10, 110, 165, 10, "Are any programs still open? If so, list them here:"
+    			  GroupBox 5, 125, 260, 75, "Elements That May Affect REIN Date:"
+    			  GroupBox 10, 230, 130, 25, "For LTC Cases"
+    			  GroupBox 280, 10, 200, 115, "IMPORTANT - Note for SNAP:"
+    			  Text 285, 75, 180, 40, "As a result, SNAP cases who turn in proofs required (or otherwise become eligible for their remaining budget period) can be REINed (with proration) up until the end of the next month. If you have questions, consult a supervisor."
+    			  Text 285, 25, 180, 50, "Per CM 0005.09.06, we no longer require completion of a CAF when the unit has been closed for less than one month AND the reason for closing has not changed, if the unit fully resolves the reason for the SNAP case closure given on the closing notice sent in MAXIS."
+    			  GroupBox 280, 130, 195, 65, "IMPORTANT - Note for HC: "
+    			  Text 10, 10, 50, 10, "Case Number:"
+    			  Text 285, 140, 180, 25, "This script does not case note REIN dates for HC, due to the ever changing nature of these programs at this time. Please refer to current policy. "
+    			  Text 195, 245, 60, 10, "Worker Signature: "
+    			  Text 285, 175, 95, 10, "For more information refer to:"
+    			  Text 130, 10, 50, 10, "Progs Closed:"
+    			  Text 10, 90, 100, 10, "ABAWD/2nd Set/Banked info: "
+    			EndDialog
 				DIALOG Dialog1
 				cancel_confirmation
 				If ButtonPressed = SPEC_WCOM_button then call navigate_to_MAXIS_screen("spec", "wcom")

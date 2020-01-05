@@ -50,47 +50,6 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-'-------------------------------------------------------------------------------------------------DIALOG
-Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 336, 245, "Case discrepancy"
-  EditBox 90, 10, 70, 15, MAXIS_case_number
-  DropListBox 90, 35, 70, 15, "Select one..."+chr(9)+"found/pending"+chr(9)+"resolved ", discrepancy_status
-  EditBox 90, 55, 70, 15, MNsure_case_number
-  CheckBox 175, 20, 25, 10, "MA", MA_checkbox
-  CheckBox 210, 20, 30, 10, "MSP", MSP_checkbox
-  CheckBox 250, 20, 35, 10, "MNsure", MNsure_checkbox
-  CheckBox 290, 20, 30, 10, "SNAP", SNAP_checkbox
-  CheckBox 175, 35, 30, 10, "DWP", DWP_checkbox
-  CheckBox 210, 35, 30, 10, "MFIP", MFIP_checkbox
-  CheckBox 250, 35, 30, 10, "MSA", MSA_checkbox
-  CheckBox 290, 35, 25, 10, "GA", GA_checkbox
-  CheckBox 175, 50, 30, 10, "GRH", GRH_checkbox
-  CheckBox 210, 50, 30, 10, "RCA", RCA_checkbox
-  CheckBox 250, 50, 35, 10, "EMER", EMER_checkbox
-  EditBox 90, 75, 240, 15, MEMB_PMI
-  EditBox 90, 100, 240, 15, describe_discrepancy
-  EditBox 90, 125, 240, 15, verifs_needed
-  EditBox 90, 150, 240, 15, other_notes
-  EditBox 90, 175, 240, 15, actions_taken
-  CheckBox 25, 200, 60, 10, "MAXIS updated", MAXIS_updated
-  CheckBox 95, 200, 60, 10, "MMIS updated", MMIS_updated
-  CheckBox 160, 200, 170, 10, "Set TIKL for 10 day return of verifcations needed", TIKL_checkbox
-  EditBox 90, 220, 130, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 225, 220, 50, 15
-    CancelButton 280, 220, 50, 15
-  Text 40, 15, 45, 10, "Case number:"
-  Text 20, 130, 70, 10, "Verifications needed: "
-  Text 20, 80, 65, 10, "HH memb/PMI #(s):"
-  Text 10, 180, 80, 10, "Resolution/Action taken:"
-  Text 20, 40, 65, 10, "Discrepancy status:"
-  GroupBox 165, 5, 165, 65, "Programs effected by the discrepancy:"
-  Text 30, 225, 60, 10, "Worker signature:"
-  Text 45, 155, 40, 10, "Other notes:"
-  Text 5, 105, 85, 10, "Describe the discrepancy:"
-  Text 35, 60, 55, 10, "MNsure case #:"
-EndDialog
-
 'The script----------------------------------------------------------------------------------------------------
 'Connecing to MAXIS, establishing the county code, and grabbing the case number
 EMConnect ""
@@ -98,9 +57,49 @@ call MAXIS_case_number_finder(MAXIS_case_number)
 
 DO
 	DO
+	    '-------------------------------------------------------------------------------------------------DIALOG
+	    Dialog1 = "" 'Blanking out previous dialog detail
+	    BeginDialog Dialog1, 0, 0, 336, 245, "Case discrepancy"
+	      EditBox 90, 10, 70, 15, MAXIS_case_number
+	      DropListBox 90, 35, 70, 15, "Select one..."+chr(9)+"found/pending"+chr(9)+"resolved ", discrepancy_status
+	      EditBox 90, 55, 70, 15, MNsure_case_number
+	      CheckBox 175, 20, 25, 10, "MA", MA_checkbox
+	      CheckBox 210, 20, 30, 10, "MSP", MSP_checkbox
+	      CheckBox 250, 20, 35, 10, "MNsure", MNsure_checkbox
+	      CheckBox 290, 20, 30, 10, "SNAP", SNAP_checkbox
+	      CheckBox 175, 35, 30, 10, "DWP", DWP_checkbox
+	      CheckBox 210, 35, 30, 10, "MFIP", MFIP_checkbox
+	      CheckBox 250, 35, 30, 10, "MSA", MSA_checkbox
+	      CheckBox 290, 35, 25, 10, "GA", GA_checkbox
+	      CheckBox 175, 50, 30, 10, "GRH", GRH_checkbox
+	      CheckBox 210, 50, 30, 10, "RCA", RCA_checkbox
+	      CheckBox 250, 50, 35, 10, "EMER", EMER_checkbox
+	      EditBox 90, 75, 240, 15, MEMB_PMI
+	      EditBox 90, 100, 240, 15, describe_discrepancy
+	      EditBox 90, 125, 240, 15, verifs_needed
+	      EditBox 90, 150, 240, 15, other_notes
+	      EditBox 90, 175, 240, 15, actions_taken
+	      CheckBox 25, 200, 60, 10, "MAXIS updated", MAXIS_updated
+	      CheckBox 95, 200, 60, 10, "MMIS updated", MMIS_updated
+	      CheckBox 160, 200, 170, 10, "Set TIKL for 10 day return of verifcations needed", TIKL_checkbox
+	      EditBox 90, 220, 130, 15, worker_signature
+	      ButtonGroup ButtonPressed
+	    	OkButton 225, 220, 50, 15
+	    	CancelButton 280, 220, 50, 15
+	      Text 40, 15, 45, 10, "Case number:"
+	      Text 20, 130, 70, 10, "Verifications needed: "
+	      Text 20, 80, 65, 10, "HH memb/PMI #(s):"
+	      Text 10, 180, 80, 10, "Resolution/Action taken:"
+	      Text 20, 40, 65, 10, "Discrepancy status:"
+	      GroupBox 165, 5, 165, 65, "Programs effected by the discrepancy:"
+	      Text 30, 225, 60, 10, "Worker signature:"
+	      Text 45, 155, 40, 10, "Other notes:"
+	      Text 5, 105, 85, 10, "Describe the discrepancy:"
+	      Text 35, 60, 55, 10, "MNsure case #:"
+	    EndDialog
 		err_msg = ""								'establishing value of varaible, this is necessary for the Do...LOOP
-		dialog case_discrepancy_dialog				'initial dialog
-		If buttonpressed = 0 THEN stopscript		'script ends if cancel is selected
+		dialog Dialog1				'initial dialog
+		cancel_confirmation		'script ends if cancel is selected
 		IF len(MAXIS_case_number) > 8 or isnumeric(MAXIS_case_number) = false THEN err_msg = err_msg & vbNewline & "* Enter a valid case number."	'mandatory field
 		If discrepancy_status = "Select one..." then err_msg = err_msg & vbnewline & "* Select a discrepancy status."
 		If (MNsure_checkbox <> 1 and DWP_checkbox <> 1 and EMER_checkbox <> 1 and GA_checkbox <> 1 and GRH_checkbox <> 1 and MA_checkbox <> 1 and MFIP_checkbox <> 1 and MSA_checkbox <> 1 and MSP_checkbox <> 1 and RCA_checkbox <> 1 and SNAP_checkbox <> 1) then err_msg = err_msg & vbnewline & "* You must enter at least one program."

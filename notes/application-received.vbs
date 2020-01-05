@@ -470,8 +470,9 @@ PF3 ' to save Case note
 
 '----------------------------------------------------------------------------------------------------EXPEDITED SCREENING!
 
-Dialog1 = "" 'Blanking out previous dialog detail
 IF snap_pends = TRUE THEN
+    '-------------------------------------------------------------------------------------------------DIALOG
+    Dialog1 = "" 'Blanking out previous dialog detail
     BeginDialog Dialog1, 0, 0, 181, 165, "Expedited Screening"
     	EditBox 100, 5, 50, 15, MAXIS_case_number
     	EditBox 100, 25, 50, 15, income
@@ -643,9 +644,10 @@ IF send_email = True THEN CALL create_outlook_email("HSPH.EWS.Triagers@hennepin.
 '----------------------------------------------------------------------------------------------------NOTICE APPT LETTER Dialog
 IF cash_pends = TRUE or cash2_pends = TRUE or SNAP_pends = TRUE or grh_pends or instr(programs_applied_for, "EGA") THEN send_appt_ltr = TRUE
 if interview_completed = TRUE Then send_appt_ltr = FALSE
-'-------------------------------------------------------------------------------------------------DIALOG
-Dialog1 = "" 'Blanking out previous dialog detail
+
 IF send_appt_ltr = TRUE THEN
+    '-------------------------------------------------------------------------------------------------DIALOG
+    Dialog1 = "" 'Blanking out previous dialog detail
 	BeginDialog Dialog1, 0, 0, 266, 80, "APPOINTMENT LETTER"
     EditBox 185, 20, 55, 15, interview_date
     ButtonGroup ButtonPressed

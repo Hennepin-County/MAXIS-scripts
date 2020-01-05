@@ -50,46 +50,6 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'-------------------------------------------------------------------------------------------------DIALOG
-Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 296, 415, "eDRS DISQ dialog"
-  EditBox 55, 25, 50, 15, MAXIS_case_number
-  EditBox 110, 45, 170, 15, HH_memb
-  EditBox 110, 65, 170, 15, contact_info
-  EditBox 50, 85, 25, 15, DISQ_state
-  EditBox 125, 85, 50, 15, contact_date
-  EditBox 230, 85, 50, 15, contact_time
-  EditBox 65, 105, 215, 15, DISQ_reason
-  EditBox 65, 125, 50, 15, DISQ_begin
-  EditBox 230, 125, 50, 15, DISQ_end
-  CheckBox 5, 150, 255, 10, "Verbal confirmation of DISQ rec'd from DISQ state. SNAP will not be issued.", DISQ_confirmation
-  CheckBox 5, 165, 265, 10, "IPV (Intentional Program Violation) documentation requested from DISQ state.", IPV_requested
-  CheckBox 5, 180, 155, 10, "STAT/DISQ panel has been added/updated.", STAT_DISQ
-  CheckBox 5, 225, 120, 10, "Set 20 day TIKL for return of IPV.", IPV_TIKL
-  EditBox 70, 200, 95, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 175, 200, 50, 15
-    CancelButton 230, 200, 50, 15
-  Text 5, 130, 60, 10, "DISQ begin date: "
-  Text 180, 90, 45, 10, "Contact time:"
-  Text 5, 110, 60, 10, "Reason for DISQ:"
-  Text 130, 130, 100, 10, "DISQ end date (if applicable):"
-  GroupBox 0, 10, 290, 185, "Details of contact with DISQ state:"
-  GroupBox 0, 245, 290, 165, "Since a match was found several steps need to be taken."
-  Text 10, 265, 265, 10, "1. Approve SNAP benefits for other eligible SNAP unit members."
-  Text 10, 280, 275, 20, "2. Determine if overpayments for the time period that benefits were paid and disqualified from the SNAP programs."
-  Text 10, 305, 275, 20, "3. Check Question 1 in the 'Penalty warnings and qualifications questions' section of all CAFs the client has completed since the disqualification began."
-  Text 10, 330, 275, 20, "4. Consider making a fraud referral if the client received food support SNAP or MFIP benefits in Minnesota while disqualified in another state."
-  Text 10, 360, 275, 45, "NOTE: If the case has been closed, these steps still need to be completed so the client will not receive any benefits they are not eligible for in the future. If you are unable to update the STAT/DISQ panel because the case has been closed, submit a PF11 with the disqualification screen information and the HelpDesk will enter the information."
-  Text 5, 70, 105, 10, "Name/phone of contact person:"
-  Text 5, 50, 100, 10, "DISQ household memeber(s):"
-  Text 5, 90, 40, 10, "DISQ state:"
-  Text 5, 30, 45, 10, "Case number:"
-  Text 120, 25, 160, 10, "** Procedure for eDRS DISQ per TE02.08.127**"
-  Text 80, 90, 45, 10, "Contact date:"
-  Text 5, 205, 60, 10, "Worker signature:"
-EndDialog
-
 'THE SCRIPT------------------------------------------------------------------------------------------
 'Connecting to BlueZone & finding case number
 EMConnect ""
@@ -101,21 +61,64 @@ contact_date = date & ""
 contact_time = time & ""
 
 Do			'edrs status dialog
-	err_msg = ""			'establishes a blank variable for the DO LOOP
-	DIALOG Dialog1
-	cancel_confirmation
-	If HH_memb = "" 																					then err_msg = err_msg & vbNewLine & "* You must enter the disqualified HH member(s)."
-	If contact_info = ""																			then err_msg = err_msg & vbNewLine & "* You must enter the contact name and phone number."
-	IF DISQ_state	= "" 																				then err_msg = err_msg & vbNewLine & "* You must enter the state of disqualification."
-	If IsDate(contact_date) = False 													then err_msg = err_msg & vbNewLine & "* You must enter a the contact date."
-	If contact_time = ""																			then err_msg = err_msg & vbNewLine & "* You must enter a the contact time."
-	If DISQ_reason = "" 																			then err_msg = err_msg & vbNewLine & "* You must enter the disqualification reason."
-	If DISQ_begin = "" or IsDate(DISQ_begin) = FALSE 					then err_msg = err_msg & vbNewLine & "* You must enter a valid date for the DISQ begin date."
-	If DISQ_end <> "" And IsDate(DISQ_end) = FALSE 						then err_msg = err_msg & vbNewLine & "* You must enter a valid date for the DISQ end date."
-	If IsNumeric(MAXIS_case_number) = False or Len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* You must enter a valid case number."
-	If worker_signature = "" 																	then err_msg = err_msg & vbNewLine & "* You must sign the case note."
-	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-Loop until err_msg = ""
+	DO
+       '-------------------------------------------------------------------------------------------------DIALOG
+       Dialog1 = "" 'Blanking out previous dialog detail
+       BeginDialog Dialog1, 0, 0, 296, 415, "eDRS DISQ dialog"
+         EditBox 55, 25, 50, 15, MAXIS_case_number
+         EditBox 110, 45, 170, 15, HH_memb
+         EditBox 110, 65, 170, 15, contact_info
+         EditBox 50, 85, 25, 15, DISQ_state
+         EditBox 125, 85, 50, 15, contact_date
+         EditBox 230, 85, 50, 15, contact_time
+         EditBox 65, 105, 215, 15, DISQ_reason
+         EditBox 65, 125, 50, 15, DISQ_begin
+         EditBox 230, 125, 50, 15, DISQ_end
+         CheckBox 5, 150, 255, 10, "Verbal confirmation of DISQ rec'd from DISQ state. SNAP will not be issued.", DISQ_confirmation
+         CheckBox 5, 165, 265, 10, "IPV (Intentional Program Violation) documentation requested from DISQ state.", IPV_requested
+         CheckBox 5, 180, 155, 10, "STAT/DISQ panel has been added/updated.", STAT_DISQ
+         CheckBox 5, 225, 120, 10, "Set 20 day TIKL for return of IPV.", IPV_TIKL
+         EditBox 70, 200, 95, 15, worker_signature
+         ButtonGroup ButtonPressed
+       	OkButton 175, 200, 50, 15
+       	CancelButton 230, 200, 50, 15
+         Text 5, 130, 60, 10, "DISQ begin date: "
+         Text 180, 90, 45, 10, "Contact time:"
+         Text 5, 110, 60, 10, "Reason for DISQ:"
+         Text 130, 130, 100, 10, "DISQ end date (if applicable):"
+         GroupBox 0, 10, 290, 185, "Details of contact with DISQ state:"
+         GroupBox 0, 245, 290, 165, "Since a match was found several steps need to be taken."
+         Text 10, 265, 265, 10, "1. Approve SNAP benefits for other eligible SNAP unit members."
+         Text 10, 280, 275, 20, "2. Determine if overpayments for the time period that benefits were paid and disqualified from the SNAP programs."
+         Text 10, 305, 275, 20, "3. Check Question 1 in the 'Penalty warnings and qualifications questions' section of all CAFs the client has completed since the disqualification began."
+         Text 10, 330, 275, 20, "4. Consider making a fraud referral if the client received food support SNAP or MFIP benefits in Minnesota while disqualified in another state."
+         Text 10, 360, 275, 45, "NOTE: If the case has been closed, these steps still need to be completed so the client will not receive any benefits they are not eligible for in the future. If you are unable to update the STAT/DISQ panel because the case has been closed, submit a PF11 with the disqualification screen information and the HelpDesk will enter the information."
+         Text 5, 70, 105, 10, "Name/phone of contact person:"
+         Text 5, 50, 100, 10, "DISQ household memeber(s):"
+         Text 5, 90, 40, 10, "DISQ state:"
+         Text 5, 30, 45, 10, "Case number:"
+         Text 120, 25, 160, 10, "** Procedure for eDRS DISQ per TE02.08.127**"
+         Text 80, 90, 45, 10, "Contact date:"
+         Text 5, 205, 60, 10, "Worker signature:"
+       EndDialog
+   	err_msg = ""			'establishes a blank variable for the DO LOOP
+   	DIALOG Dialog1
+   	cancel_confirmation
+   	If HH_memb = "" 																					then err_msg = err_msg & vbNewLine & "* You must enter the disqualified HH member(s)."
+   	If contact_info = ""																			then err_msg = err_msg & vbNewLine & "* You must enter the contact name and phone number."
+   	IF DISQ_state	= "" 																				then err_msg = err_msg & vbNewLine & "* You must enter the state of disqualification."
+   	If IsDate(contact_date) = False 													then err_msg = err_msg & vbNewLine & "* You must enter a the contact date."
+   	If contact_time = ""																			then err_msg = err_msg & vbNewLine & "* You must enter a the contact time."
+   	If DISQ_reason = "" 																			then err_msg = err_msg & vbNewLine & "* You must enter the disqualification reason."
+   	If DISQ_begin = "" or IsDate(DISQ_begin) = FALSE 					then err_msg = err_msg & vbNewLine & "* You must enter a valid date for the DISQ begin date."
+   	If DISQ_end <> "" And IsDate(DISQ_end) = FALSE 						then err_msg = err_msg & vbNewLine & "* You must enter a valid date for the DISQ end date."
+   	If IsNumeric(MAXIS_case_number) = False or Len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* You must enter a valid case number."
+   	If worker_signature = "" 																	then err_msg = err_msg & vbNewLine & "* You must sign the case note."
+   	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+   Loop until err_msg = ""
+call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+LOOP UNTIL are_we_passworded_out = false
+
 
 'checking for active MAXIS session
 Call check_for_MAXIS(False)

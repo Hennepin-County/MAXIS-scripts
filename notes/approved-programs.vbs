@@ -51,10 +51,46 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
+'-------------------------------FUNCTIONS WE INVENTED THAT WILL SOON BE ADDED TO FUNCLIB
+FUNCTION date_array_generator(initial_month, initial_year, date_array)
+	'defines an intial date from the initial_month and initial_year parameters
+	initial_date = initial_month & "/1/" & initial_year
+	'defines a date_list, which starts with just the initial date
+	date_list = initial_date
+	'This loop creates a list of dates
+	Do
+		If datediff("m", date, initial_date) = 1 then exit do		'if initial date is the current month plus one then it exits the do as to not loop for eternity'
+		working_date = dateadd("m", 1, right(date_list, len(date_list) - InStrRev(date_list,"|")))	'the working_date is the last-added date + 1 month. We use dateadd, then grab the rightmost characters after the "|" delimiter, which we determine the location of using InStrRev
+		date_list = date_list & "|" & working_date	'Adds the working_date to the date_list
+	Loop until datediff("m", date, working_date) = 1	'Loops until we're at current month plus one
+
+	'Splits this into an array
+	date_array = split(date_list, "|")
+End function
 
 'Checks for county info from global variables, or asks if it is not already defined.
 get_county_code
+'THE SCRIPT----------------------------------------------------------------------------------------------------
+'connecting to MAXIS
+EMConnect ""
+'Finds the case number
+call MAXIS_case_number_finder(MAXIS_case_number)
+'Finds the benefit month
+EMReadScreen on_SELF, 4, 2, 50
+IF on_SELF = "SELF" THEN
+	CALL find_variable("Benefit Period (MM YY): ", bene_month, 2)
+	IF bene_month <> "" THEN CALL find_variable("Benefit Period (MM YY): " & bene_month & " ", bene_year, 2)
+ELSE
+	CALL find_variable("Month: ", bene_month, 2)
+	IF bene_month <> "" THEN CALL find_variable("Month: " & bene_month & " ", bene_year, 2)
+END IF
 
+'Converts the variables in the dialog into the variables "bene_month" and "bene_year" to autofill the edit boxes.
+start_mo = bene_month
+start_yr = bene_year
+autofill_check = checked
+'TODO Identify a Banked Months Case
+'Displays the dialog and navigates to case note
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 316, 235, "Benefits Approved"
@@ -92,45 +128,6 @@ BeginDialog Dialog1, 0, 0, 316, 235, "Benefits Approved"
   Text 200, 195, 75, 10, "BANKED footer month: "
 EndDialog
 
-'THE SCRIPT----------------------------------------------------------------------------------------------------
-'connecting to MAXIS
-EMConnect ""
-'Finds the case number
-call MAXIS_case_number_finder(MAXIS_case_number)
-
-'-------------------------------FUNCTIONS WE INVENTED THAT WILL SOON BE ADDED TO FUNCLIB
-FUNCTION date_array_generator(initial_month, initial_year, date_array)
-	'defines an intial date from the initial_month and initial_year parameters
-	initial_date = initial_month & "/1/" & initial_year
-	'defines a date_list, which starts with just the initial date
-	date_list = initial_date
-	'This loop creates a list of dates
-	Do
-		If datediff("m", date, initial_date) = 1 then exit do		'if initial date is the current month plus one then it exits the do as to not loop for eternity'
-		working_date = dateadd("m", 1, right(date_list, len(date_list) - InStrRev(date_list,"|")))	'the working_date is the last-added date + 1 month. We use dateadd, then grab the rightmost characters after the "|" delimiter, which we determine the location of using InStrRev
-		date_list = date_list & "|" & working_date	'Adds the working_date to the date_list
-	Loop until datediff("m", date, working_date) = 1	'Loops until we're at current month plus one
-
-	'Splits this into an array
-	date_array = split(date_list, "|")
-End function
-
-'Finds the benefit month
-EMReadScreen on_SELF, 4, 2, 50
-IF on_SELF = "SELF" THEN
-	CALL find_variable("Benefit Period (MM YY): ", bene_month, 2)
-	IF bene_month <> "" THEN CALL find_variable("Benefit Period (MM YY): " & bene_month & " ", bene_year, 2)
-ELSE
-	CALL find_variable("Month: ", bene_month, 2)
-	IF bene_month <> "" THEN CALL find_variable("Month: " & bene_month & " ", bene_year, 2)
-END IF
-
-'Converts the variables in the dialog into the variables "bene_month" and "bene_year" to autofill the edit boxes.
-start_mo = bene_month
-start_yr = bene_year
-autofill_check = checked
-'TODO Identify a Banked Months Case
-'Displays the dialog and navigates to case note
 Do
 	Do
 		'Adding err_msg handling

@@ -64,29 +64,6 @@ changelog_display
 MAXIS_footer_month = CM_plus_1_mo
 MAXIS_footer_year = CM_plus_1_yr
 
-'-------------------------------------------------------------------------------------------------DIALOG
-Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 171, 220, "Case number"
-  EditBox 70, 5, 65, 15, MAXIS_case_number
-  EditBox 70, 25, 30, 15, MAXIS_footer_month
-  EditBox 105, 25, 30, 15, MAXIS_footer_year
-  CheckBox 30, 60, 35, 10, "SNAP", SNAP_checkbox
-  CheckBox 80, 60, 30, 10, "GRH", GRH_checkbox
-  CheckBox 130, 60, 25, 10, "HC", HC_checkbox
-  CheckBox 10, 80, 90, 10, "Is this an exempt (*) IR?", paperless_checkbox
-  EditBox 70, 95, 95, 15, Worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 60, 115, 50, 15
-    CancelButton 115, 115, 50, 15
-  Text 5, 30, 65, 10, "Footer month/year:"
-  GroupBox 10, 45, 155, 30, "Programs recertifying"
-  Text 10, 100, 60, 10, "Worker Signature"
-  GroupBox 10, 140, 155, 75, "Exempt IR checkbox warning:"
-  Text 15, 155, 145, 25, "If you select ''Is this an exempt IR'', the case note will only provide detail and information about the HC approval."
-  Text 15, 190, 140, 20, " If you are processing a CSR with SNAP, you should NOT check that option."
-  Text 20, 10, 45, 10, "Case number:"
-EndDialog
-
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 HH_memb_row = 5
 Dim row
@@ -100,6 +77,29 @@ Call MAXIS_case_number_finder(MAXIS_case_number)
 'Showing the case number dialog
 Do
 	DO
+    	'-------------------------------------------------------------------------------------------------DIALOG
+    	Dialog1 = "" 'Blanking out previous dialog detail
+    	BeginDialog Dialog1, 0, 0, 171, 220, "Case number"
+    	  EditBox 70, 5, 65, 15, MAXIS_case_number
+    	  EditBox 70, 25, 30, 15, MAXIS_footer_month
+    	  EditBox 105, 25, 30, 15, MAXIS_footer_year
+    	  CheckBox 30, 60, 35, 10, "SNAP", SNAP_checkbox
+    	  CheckBox 80, 60, 30, 10, "GRH", GRH_checkbox
+    	  CheckBox 130, 60, 25, 10, "HC", HC_checkbox
+    	  CheckBox 10, 80, 90, 10, "Is this an exempt (*) IR?", paperless_checkbox
+    	  EditBox 70, 95, 95, 15, Worker_signature
+    	  ButtonGroup ButtonPressed
+    		OkButton 60, 115, 50, 15
+    		CancelButton 115, 115, 50, 15
+    	  Text 5, 30, 65, 10, "Footer month/year:"
+    	  GroupBox 10, 45, 155, 30, "Programs recertifying"
+    	  Text 10, 100, 60, 10, "Worker Signature"
+    	  GroupBox 10, 140, 155, 75, "Exempt IR checkbox warning:"
+    	  Text 15, 155, 145, 25, "If you select ''Is this an exempt IR'', the case note will only provide detail and information about the HC approval."
+    	  Text 15, 190, 140, 20, " If you are processing a CSR with SNAP, you should NOT check that option."
+    	  Text 20, 10, 45, 10, "Case number:"
+    	EndDialog
+
 		err_msg = ""
 		Dialog Dialog1
 		cancel_confirmation
@@ -273,62 +273,61 @@ DO
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 		Loop until err_msg = ""
 
-		'-------------------------------------------------------------------------------------------------DIALOG
-		Dialog1 = "" 'Blanking out previous dialog detail
-		BeginDialog Dialog1, 0, 0, 451, 240, "CSR (cont)"
-		  EditBox 100, 25, 150, 15, FIAT_reasons
-		  EditBox 50, 45, 395, 15, other_notes
-		  EditBox 45, 65, 400, 15, changes
-		  EditBox 60, 85, 385, 15, verifs_needed
-		  EditBox 60, 105, 385, 15, actions_taken
-		  CheckBox 190, 155, 110, 10, "Send forms to AREP?", sent_arep_checkbox
-		  CheckBox 190, 170, 175, 10, "Check here to case note grant info from ELIG/FS.", grab_FS_info_checkbox
-		  CheckBox 190, 185, 210, 10, "Check here if CSR and cash supplement were used as a HRF.", HRF_checkbox
-		  CheckBox 190, 200, 120, 10, "Check here if an eDRS was sent.", eDRS_sent_checkbox
-		  ButtonGroup ButtonPressed
-		    PushButton 275, 225, 60, 10, "Previous", previous_button
-		    OkButton 340, 220, 50, 15
-		    CancelButton 395, 220, 50, 15
-		    PushButton 260, 15, 20, 10, "FS", ELIG_FS_button
-		    PushButton 280, 15, 20, 10, "HC", ELIG_HC_button
-		    PushButton 300, 15, 25, 10, "GRH", ELIG_GRH_button
-		    PushButton 335, 15, 45, 10, "prev. panel", prev_panel_button
-		    PushButton 395, 15, 45, 10, "prev. memb", prev_memb_button
-		    PushButton 335, 25, 45, 10, "next panel", next_panel_button
-		    PushButton 395, 25, 45, 10, "next memb", next_memb_button
-		    PushButton 10, 140, 25, 10, "BUSI", BUSI_button
-		    PushButton 35, 140, 25, 10, "JOBS", JOBS_button
-		    PushButton 75, 140, 25, 10, "ACCT", ACCT_button
-		    PushButton 100, 140, 25, 10, "CARS", CARS_button
-		    PushButton 125, 140, 25, 10, "CASH", CASH_button
-		    PushButton 150, 140, 25, 10, "OTHR", OTHR_button
-		    PushButton 190, 140, 25, 10, "MEMB", MEMB_button
-		    PushButton 215, 140, 25, 10, "MEMI", MEMI_button
-		    PushButton 240, 140, 25, 10, "REVW", REVW_button
-		    PushButton 35, 150, 25, 10, "UNEA", UNEA_button
-		    PushButton 75, 150, 25, 10, "REST", REST_button
-		    PushButton 100, 150, 25, 10, "SECU", SECU_button
-		    PushButton 125, 150, 25, 10, "TRAN", TRAN_button
-		  EditBox 60, 180, 90, 15, MAEPD_premium
-		  ButtonGroup ButtonPressed
-		    PushButton 80, 200, 65, 10, "SIR mail", SIR_mail_button
-		  Text 5, 30, 95, 10, "FIAT reasons (if applicable):"
-		  Text 5, 50, 40, 10, "Other notes:"
-		  Text 5, 70, 35, 10, "Changes?:"
-		  Text 5, 90, 50, 10, "Verifs needed:"
-		  Text 5, 110, 50, 10, "Actions taken:"
-		  GroupBox 5, 130, 175, 35, "Income and asset panels"
-		  GroupBox 185, 130, 85, 25, "other STAT panels:"
-		  GroupBox 5, 170, 150, 45, "If MA-EPD..."
-		  Text 10, 185, 50, 10, "New premium:"
-		  GroupBox 255, 5, 75, 25, "ELIG panels:"
-		  GroupBox 330, 5, 115, 35, "STAT-based navigation:"
-		  CheckBox 10, 200, 65, 10, "Emailed MADE?", MADE_checkbox
-		EndDialog
-
 		DO
 			DO
 				DO
+				    '-------------------------------------------------------------------------------------------------DIALOG
+				    Dialog1 = "" 'Blanking out previous dialog detail
+				    BeginDialog Dialog1, 0, 0, 451, 240, "CSR (cont)"
+				      EditBox 100, 25, 150, 15, FIAT_reasons
+				      EditBox 50, 45, 395, 15, other_notes
+				      EditBox 45, 65, 400, 15, changes
+				      EditBox 60, 85, 385, 15, verifs_needed
+				      EditBox 60, 105, 385, 15, actions_taken
+				      CheckBox 190, 155, 110, 10, "Send forms to AREP?", sent_arep_checkbox
+				      CheckBox 190, 170, 175, 10, "Check here to case note grant info from ELIG/FS.", grab_FS_info_checkbox
+				      CheckBox 190, 185, 210, 10, "Check here if CSR and cash supplement were used as a HRF.", HRF_checkbox
+				      CheckBox 190, 200, 120, 10, "Check here if an eDRS was sent.", eDRS_sent_checkbox
+				      ButtonGroup ButtonPressed
+				    	PushButton 275, 225, 60, 10, "Previous", previous_button
+				    	OkButton 340, 220, 50, 15
+				    	CancelButton 395, 220, 50, 15
+				    	PushButton 260, 15, 20, 10, "FS", ELIG_FS_button
+				    	PushButton 280, 15, 20, 10, "HC", ELIG_HC_button
+				    	PushButton 300, 15, 25, 10, "GRH", ELIG_GRH_button
+				    	PushButton 335, 15, 45, 10, "prev. panel", prev_panel_button
+				    	PushButton 395, 15, 45, 10, "prev. memb", prev_memb_button
+				    	PushButton 335, 25, 45, 10, "next panel", next_panel_button
+				    	PushButton 395, 25, 45, 10, "next memb", next_memb_button
+				    	PushButton 10, 140, 25, 10, "BUSI", BUSI_button
+				    	PushButton 35, 140, 25, 10, "JOBS", JOBS_button
+				    	PushButton 75, 140, 25, 10, "ACCT", ACCT_button
+				    	PushButton 100, 140, 25, 10, "CARS", CARS_button
+				    	PushButton 125, 140, 25, 10, "CASH", CASH_button
+				    	PushButton 150, 140, 25, 10, "OTHR", OTHR_button
+				    	PushButton 190, 140, 25, 10, "MEMB", MEMB_button
+				    	PushButton 215, 140, 25, 10, "MEMI", MEMI_button
+				    	PushButton 240, 140, 25, 10, "REVW", REVW_button
+				    	PushButton 35, 150, 25, 10, "UNEA", UNEA_button
+				    	PushButton 75, 150, 25, 10, "REST", REST_button
+				    	PushButton 100, 150, 25, 10, "SECU", SECU_button
+				    	PushButton 125, 150, 25, 10, "TRAN", TRAN_button
+				      EditBox 60, 180, 90, 15, MAEPD_premium
+				      ButtonGroup ButtonPressed
+				    	PushButton 80, 200, 65, 10, "SIR mail", SIR_mail_button
+				      Text 5, 30, 95, 10, "FIAT reasons (if applicable):"
+				      Text 5, 50, 40, 10, "Other notes:"
+				      Text 5, 70, 35, 10, "Changes?:"
+				      Text 5, 90, 50, 10, "Verifs needed:"
+				      Text 5, 110, 50, 10, "Actions taken:"
+				      GroupBox 5, 130, 175, 35, "Income and asset panels"
+				      GroupBox 185, 130, 85, 25, "other STAT panels:"
+				      GroupBox 5, 170, 150, 45, "If MA-EPD..."
+				      Text 10, 185, 50, 10, "New premium:"
+				      GroupBox 255, 5, 75, 25, "ELIG panels:"
+				      GroupBox 330, 5, 115, 35, "STAT-based navigation:"
+				      CheckBox 10, 200, 65, 10, "Emailed MADE?", MADE_checkbox
+				    EndDialog
 					Dialog Dialog1
 					cancel_confirmation
 					IF ButtonPressed = SIR_mail_button THEN run "C:\Program Files\Internet Explorer\iexplore.exe https://www.dhssir.cty.dhs.state.mn.us/Pages/Default.aspx"
