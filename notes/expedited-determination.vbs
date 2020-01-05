@@ -71,7 +71,6 @@ EndDialog
 'connecting to MAXIS & searches for the case number
 EMConnect ""
 call MAXIS_case_number_finder(MAXIS_case_number)
-
 'dialog to gather the Case Number and such
 Do
 	Do

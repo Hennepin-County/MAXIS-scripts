@@ -378,7 +378,7 @@ BeginDialog Dialog1, 0, 0, 291, 195, "Application Received for: "  & programs_ap
 			err_msg = ""
 		Do
     		Dialog Dialog1
-    		cancel_without_confirmation
+    		cancel_confirmation
 			If ButtonPressed = geocoder_button then CreateObject("WScript.Shell").Run("https://hcgis.hennepin.us/agsinteractivegeocoder/default.aspx")
 		Loop until ButtonPressed = -1
     	IF how_app_rcvd = "Select One:" then err_msg = err_msg & vbNewLine & "* Please enter how the application was received to the agency."
@@ -448,10 +448,27 @@ CALL write_variable_in_CASE_NOTE (worker_signature)
 PF3 ' to save Case note
 
 '----------------------------------------------------------------------------------------------------EXPEDITED SCREENING!
-'-------------------------------------------------------------------------------------------------DIALOG
-Dialog1 = "" 'Blanking out previous dialog detail
 IF snap_pends = TRUE THEN
-    BeginDialog Dialog1, 0, 0, 181, 165, "Expedited Screening"
+    'DATE BASED LOGIC FOR UTILITY AMOUNTS------------------------------------------------------------------------------------------
+    If application_date >= cdate("10/01/2019") then     'these variables need to change every October
+        heat_AC_amt = 490
+        electric_amt = 143
+        phone_amt = 49
+    ElseIf application_date >= cdate("10/01/2018") then
+        heat_AC_amt = 493
+        electric_amt = 126
+        phone_amt = 47
+    else
+        heat_AC_amt = 556
+        electric_amt = 172
+        phone_amt = 41
+    End if
+
+    'Ensuring case number carries thru
+    CALL MAXIS_case_number_finder(MAXIS_case_number)
+	'-------------------------------------------------------------------------------------------------DIALOG
+	Dialog1 = "" 'Blanking out previous dialog detail
+	BeginDialog Dialog1, 0, 0, 181, 165, "Expedited Screening"
      	EditBox 100, 5, 50, 15, MAXIS_case_number
      	EditBox 100, 25, 50, 15, income
      	EditBox 100, 45, 50, 15, assets
@@ -470,24 +487,6 @@ IF snap_pends = TRUE THEN
      	Text 50, 10, 50, 10, "Case number: "
      	GroupBox 0, 130, 175, 30, "**IMPORTANT**"
     EndDialog
-
-    'DATE BASED LOGIC FOR UTILITY AMOUNTS------------------------------------------------------------------------------------------
-    If application_date >= cdate("10/01/2019") then     'these variables need to change every October
-        heat_AC_amt = 490
-        electric_amt = 143
-        phone_amt = 49
-    ElseIf application_date >= cdate("10/01/2018") then
-        heat_AC_amt = 493
-        electric_amt = 126
-        phone_amt = 47
-    else
-        heat_AC_amt = 556
-        electric_amt = 172
-        phone_amt = 41
-    End if
-
-    '----------------------------------------------------------------------------------------------------THE SCRIPT
-    CALL MAXIS_case_number_finder(MAXIS_case_number)
     Do
     	Do
     		err_msg = ""
@@ -625,21 +624,7 @@ IF MA_transition_request_checkbox = CHECKED THEN CALL create_outlook_email("", "
 IF cash_pends = TRUE or cash2_pends = TRUE or SNAP_pends = TRUE or grh_pends or instr(programs_applied_for, "EGA") THEN send_appt_ltr = TRUE
 if interview_completed = TRUE Then send_appt_ltr = FALSE
 IF send_appt_ltr = TRUE THEN
-	'-------------------------------------------------------------------------------------------------DIALOG
-	Dialog1 = "" 'Blanking out previous dialog detail
-	BeginDialog Dialog1, 0, 0, 266, 80, "APPOINTMENT LETTER"
-    EditBox 185, 20, 55, 15, interview_date
-    ButtonGroup ButtonPressed
-    	OkButton 155, 60, 50, 15
-    	CancelButton 210, 60, 50, 15
-    EditBox 50, 20, 55, 15, application_date
-    Text 120, 25, 60, 10, "Appointment date:"
-    GroupBox 5, 5, 255, 35, "Enter a new appointment date only if it's a date county offices are not open."
-    Text 15, 25, 35, 10, "CAF date:"
-    Text 25, 45, 205, 10, "If same-day interview is being offered please use today's date"
-  EndDialog
-
-    IF expedited_status = "Client Appears Expedited" THEN
+	IF expedited_status = "Client Appears Expedited" THEN
         'creates interview date for 7 calendar days from the CAF date
     	interview_date = dateadd("d", 7, application_date)
     	If interview_date <= date then interview_date = dateadd("d", 7, date)
@@ -654,6 +639,19 @@ IF send_appt_ltr = TRUE THEN
     application_date = application_date & ""
     interview_date = interview_date & ""		'turns interview date into string for variable
  	'need to handle for if we dont need an appt letter, which would be...'
+	'-------------------------------------------------------------------------------------------------DIALOG
+	Dialog1 = "" 'Blanking out previous dialog detail
+	BeginDialog Dialog1, 0, 0, 266, 80, "APPOINTMENT LETTER"
+	EditBox 185, 20, 55, 15, interview_date
+	ButtonGroup ButtonPressed
+		OkButton 155, 60, 50, 15
+		CancelButton 210, 60, 50, 15
+	EditBox 50, 20, 55, 15, application_date
+	Text 120, 25, 60, 10, "Appointment date:"
+	GroupBox 5, 5, 255, 35, "Enter a new appointment date only if it's a date county offices are not open."
+	Text 15, 25, 35, 10, "CAF date:"
+	Text 25, 45, 205, 10, "If same-day interview is being offered please use today's date"
+	EndDialog
 
 	Do
 		Do

@@ -69,7 +69,7 @@ DO
 	Do
     	err_msg = ""
     	Dialog Dialog1											'Running the case number dialog
-    	If buttonpressed = cancel Then stopscript							'Cancels the script if cancel button is pressed
+    	cancel_confirmation							'Cancels the script if cancel button is pressed
     	If MAXIS_case_number = "" Then err_msg = "Please enter a case number."	'Case number must be entered or script will error out
     	If err_msg <> "" Then MsgBox err_msg								'Tells worker to enter a case number
     Loop until err_msg = ""
@@ -246,7 +246,7 @@ DO
         'Dialog Box to list members and documentation received.
         'This dialog is here instead of the beginning because the dynamic thing only works if the array items are set before the dialog is defined
     	Dialog Dialog1
-    	cancel_without_confirmation
+    	cancel_confirmation
     	For relationship = 0 to UBound (Pare_Line_Array,2)
             If Pare_Line_Array(relationship_type, relationship) = "Select one..." Then err_msg = err_msg & vbNewLine & "* Type of relationship between " & Pare_Line_Array(received_for, relationship) & " and " & Pare_Line_Array(relationship_to, relationship) & " must be explained."
     		If Pare_Line_Array(relationship_type, relationship) = "Other" AND Pare_Line_Array (other_relationship_list, relationship) = "" Then err_msg = err_msg & vbCr & _

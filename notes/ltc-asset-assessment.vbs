@@ -101,6 +101,13 @@ Function write_new_line_in_person_note(x)
     EMWaitReady 0, 0
   End if
 End function
+'THE SCRIPT----------------------------------------------------------------------------------------------------
+'Connecting to BlueZone
+EMConnect ""
+
+'Searching for case number.
+Call MAXIS_case_number_finder(MAXIS_case_number)
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 BeginDialog Dialog1, 0, 0, 201, 120, "Case and PMI number dialog"
   EditBox 105, 5, 60, 15, LTC_spouse_PMI
@@ -116,17 +123,12 @@ BeginDialog Dialog1, 0, 0, 201, 120, "Case and PMI number dialog"
   Text 25, 70, 80, 10, "Choose an AA option:"
   Text 45, 10, 60, 10, "LTC spouse PMI:"
 EndDialog
-
-'THE SCRIPT----------------------------------------------------------------------------------------------------
-'Connecting and checking for an active MAXIS section
-EMConnect ""
-
 'initial dialog for case number and PMI
 Do
 	Do
 		err_msg = ""
 		Dialog Dialog1
-		If ButtonPressed = 0 then stopscript
+		cancel_confirmation
 		If IsNumeric(LTC_spouse_PMI) = False THEN err_msg = err_msg & vbNewLine & "* Enter a valid LTC spouse PMI."
 		If IsNumeric(community_spouse_PMI) = False THEN err_msg = err_msg & vbNewLine & "* Enter a valid Community spouse PMI."
 		If AA_option = "Select one..." THEN err_msg = err_msg & vbNewLine & "* Select an Asset Assessment option."

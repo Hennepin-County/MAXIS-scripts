@@ -55,20 +55,19 @@ Dialog1 = ""
 'connecting to BlueZone and grabbing the case number
 EMConnect ""
 Call MAXIS_case_number_finder(maxis_case_number)
-
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 201, 70, "Appeal initial dialog"
+  EditBox 135, 5, 60, 15, maxis_case_number
+  DropListBox 105, 25, 90, 15, "Select one..."+chr(9)+"Appeal Summary Completed"+chr(9)+"Appeal Hearing Info"+chr(9)+"Appeal Decision Received"+chr(9)+"Appeal Resolution", appeal_actions
+  ButtonGroup ButtonPressed
+    OkButton 90, 45, 50, 15
+    CancelButton 145, 45, 50, 15
+  Text 5, 30, 80, 10, "Select an appeal action:"
+  Text 10, 10, 45, 10, "Case number:"
+EndDialog
 Do
 	Do
-        '-------------------------------------------------------------------------------------------------DIALOG
-        Dialog1 = "" 'Blanking out previous dialog detail
-        BeginDialog Dialog1, 0, 0, 201, 70, "Appeal initial dialog"
-          EditBox 135, 5, 60, 15, maxis_case_number
-          DropListBox 105, 25, 90, 15, "Select one..."+chr(9)+"Appeal Summary Completed"+chr(9)+"Appeal Hearing Info"+chr(9)+"Appeal Decision Received"+chr(9)+"Appeal Resolution", appeal_actions
-          ButtonGroup ButtonPressed
-            OkButton 90, 45, 50, 15
-            CancelButton 145, 45, 50, 15
-          Text 5, 30, 80, 10, "Select an appeal action:"
-          Text 10, 10, 45, 10, "Case number:"
-        EndDialog
         err_msg = ""
 		Dialog Dialog1
 		cancel_confirmation
@@ -83,34 +82,34 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 Dialog1 = "" 'Blanking out previous dialog detail
 If appeal_actions = "Appeal Summary Completed" then
 	'Shows dialog and creates and displays an error message if worker completes things incorrectly.
+    BeginDialog Dialog1, 0, 0, 351, 195, "Appeal Summary Completed"
+      EditBox 105, 10, 50, 15, date_appeal_received
+      EditBox 295, 10, 50, 15, effective_date
+      EditBox 95, 35, 250, 15, action_client_is_appealing
+      CheckBox 100, 60, 30, 10, "CASH", cash_check
+      CheckBox 135, 60, 30, 10, "SNAP", snap_check
+      CheckBox 170, 60, 30, 10, "HC", hc_check
+      DropListBox 160, 75, 55, 15, "Select one..."+chr(9)+"Yes"+chr(9)+"No", benefits_continuing
+      EditBox 80, 95, 265, 15, proofs_attachments
+      EditBox 80, 120, 265, 15, other_notes
+      EditBox 80, 145, 265, 15, action_taken
+      EditBox 145, 170, 85, 15, worker_signature
+      ButtonGroup ButtonPressed
+        OkButton 240, 170, 50, 15
+        CancelButton 295, 170, 50, 15
+      Text 5, 40, 85, 10, "Action client is appealing:"
+      Text 75, 175, 65, 10, "Worker Signature:"
+      Text 5, 15, 100, 10, "Date appeal request received:"
+      Text 5, 125, 45, 10, "Other notes:"
+      Text 5, 80, 150, 10, "Benefits continuing at pre-appeal level (Y/N):"
+      Text 5, 150, 50, 10, " Actions taken:"
+      Text 5, 60, 90, 10, "Programs client appealing:"
+      Text 165, 15, 130, 10, "Effective date of action being appealed:"
+      Text 5, 100, 70, 10, "Proofs/attachments:"
+    EndDialog
 	DO
 		Do
-            BeginDialog Dialog1, 0, 0, 351, 195, "Appeal Summary Completed"
-              EditBox 105, 10, 50, 15, date_appeal_received
-              EditBox 295, 10, 50, 15, effective_date
-              EditBox 95, 35, 250, 15, action_client_is_appealing
-              CheckBox 100, 60, 30, 10, "CASH", cash_check
-              CheckBox 135, 60, 30, 10, "SNAP", snap_check
-              CheckBox 170, 60, 30, 10, "HC", hc_check
-              DropListBox 160, 75, 55, 15, "Select one..."+chr(9)+"Yes"+chr(9)+"No", benefits_continuing
-              EditBox 80, 95, 265, 15, proofs_attachments
-              EditBox 80, 120, 265, 15, other_notes
-              EditBox 80, 145, 265, 15, action_taken
-              EditBox 145, 170, 85, 15, worker_signature
-              ButtonGroup ButtonPressed
-            	OkButton 240, 170, 50, 15
-            	CancelButton 295, 170, 50, 15
-              Text 5, 40, 85, 10, "Action client is appealing:"
-              Text 75, 175, 65, 10, "Worker Signature:"
-              Text 5, 15, 100, 10, "Date appeal request received:"
-              Text 5, 125, 45, 10, "Other notes:"
-              Text 5, 80, 150, 10, "Benefits continuing at pre-appeal level (Y/N):"
-              Text 5, 150, 50, 10, " Actions taken:"
-              Text 5, 60, 90, 10, "Programs client appealing:"
-              Text 165, 15, 130, 10, "Effective date of action being appealed:"
-              Text 5, 100, 70, 10, "Proofs/attachments:"
-            EndDialog
-			err_msg = ""
+            err_msg = ""
 			Dialog Dialog1
 			cancel_confirmation
 			IF isdate(date_appeal_received) = false THEN err_msg = err_msg & vbNewLine & "* Please complete Date Appeal Request Received"
@@ -149,28 +148,28 @@ END If
 
 If appeal_actions = "Appeal Hearing Info" then
     'Shows dialog and creates and displays an error message if worker completes things incorrectly.
-	DO
+    '-------------------------------------------------------------------------------------------------DIALOG
+    Dialog1 = "" 'Blanking out previous dialog detail
+    BeginDialog Dialog1, 0, 0, 346, 140, "Appeal Hearing Info"
+      EditBox 65, 5, 55, 15, hearing_date
+      DropListBox 190, 5, 60, 15, "Select one..."+chr(9)+"Yes, in person"+chr(9)+"Yes, by phone"+chr(9)+"Did not attend", appeal_attendence
+      EditBox 65, 30, 265, 15, hearing_details
+      EditBox 65, 50, 265, 15, other_notes
+      EditBox 105, 80, 55, 15, anticipated_date_result
+      EditBox 105, 105, 115, 15, worker_signature
+      ButtonGroup ButtonPressed
+        OkButton 225, 105, 50, 15
+        CancelButton 280, 105, 50, 15
+      Text 5, 10, 60, 10, "Date Of Hearing:"
+      Text 15, 85, 85, 10, "Anticipated decision date:"
+      Text 135, 10, 55, 10, "Client attended:"
+      Text 5, 35, 55, 10, "Hearing Details:"
+      Text 45, 110, 60, 10, "Worker Signature:"
+      Text 20, 55, 40, 10, "Other notes:"
+    EndDialog
+    DO
 		Do
-            '-------------------------------------------------------------------------------------------------DIALOG
-            Dialog1 = "" 'Blanking out previous dialog detail
-            BeginDialog Dialog1, 0, 0, 346, 140, "Appeal Hearing Info"
-              EditBox 65, 5, 55, 15, hearing_date
-              DropListBox 190, 5, 60, 15, "Select one..."+chr(9)+"Yes, in person"+chr(9)+"Yes, by phone"+chr(9)+"Did not attend", appeal_attendence
-              EditBox 65, 30, 265, 15, hearing_details
-              EditBox 65, 50, 265, 15, other_notes
-              EditBox 105, 80, 55, 15, anticipated_date_result
-              EditBox 105, 105, 115, 15, worker_signature
-              ButtonGroup ButtonPressed
-                OkButton 225, 105, 50, 15
-                CancelButton 280, 105, 50, 15
-              Text 5, 10, 60, 10, "Date Of Hearing:"
-              Text 15, 85, 85, 10, "Anticipated decision date:"
-              Text 135, 10, 55, 10, "Client attended:"
-              Text 5, 35, 55, 10, "Hearing Details:"
-              Text 45, 110, 60, 10, "Worker Signature:"
-              Text 20, 55, 40, 10, "Other notes:"
-            EndDialog
-			err_msg = ""
+            err_msg = ""
 			Dialog Dialog1
 			cancel_confirmation
 			IF isdate(hearing_date) = false THEN err_msg = err_msg & vbNewLine & "* Please complete date of hearing."
@@ -196,27 +195,27 @@ End If
 
 
 If appeal_actions = "Appeal Decision Received" then
-'Shows dialog and creates and displays an error message if worker completes things incorrectly.
+    '-------------------------------------------------------------------------------------------------DIALOG
+    Dialog1 = "" 'Blanking out previous dialog detail
+    BeginDialog Dialog1, 0, 0, 346, 120, "Appeal decision received"
+      EditBox 85, 10, 245, 15, disposition_of_appeal
+      EditBox 85, 35, 245, 15, actions_needed
+      EditBox 85, 60, 60, 15, date_signed_by_judge
+      DropListBox 275, 60, 55, 15, "Select one..."+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"NA", compliance_form_needed
+      EditBox 85, 90, 135, 15, worker_signature
+      ButtonGroup ButtonPressed
+        OkButton 225, 90, 50, 15
+        CancelButton 280, 90, 50, 15
+      Text 20, 95, 60, 10, "Worker Signature:"
+      Text 5, 15, 75, 10, "Disposition of appeal:"
+      Text 10, 65, 75, 10, "Date signed by judge:"
+      Text 155, 65, 115, 10, "SNAP compliance form completed:"
+      Text 25, 40, 55, 10, "Actions needed:"
+    EndDialog
+    'Shows dialog and creates and displays an error message if worker completes things incorrectly.
 	Do
 		Do
-            '-------------------------------------------------------------------------------------------------DIALOG
-            Dialog1 = "" 'Blanking out previous dialog detail
-            BeginDialog Dialog1, 0, 0, 346, 120, "Appeal decision received"
-              EditBox 85, 10, 245, 15, disposition_of_appeal
-              EditBox 85, 35, 245, 15, actions_needed
-              EditBox 85, 60, 60, 15, date_signed_by_judge
-              DropListBox 275, 60, 55, 15, "Select one..."+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"NA", compliance_form_needed
-              EditBox 85, 90, 135, 15, worker_signature
-              ButtonGroup ButtonPressed
-                OkButton 225, 90, 50, 15
-                CancelButton 280, 90, 50, 15
-              Text 20, 95, 60, 10, "Worker Signature:"
-              Text 5, 15, 75, 10, "Disposition of appeal:"
-              Text 10, 65, 75, 10, "Date signed by judge:"
-              Text 155, 65, 115, 10, "SNAP compliance form completed:"
-              Text 25, 40, 55, 10, "Actions needed:"
-            EndDialog
-			err_msg = ""
+            err_msg = ""
 			Dialog Dialog1
 			cancel_confirmation
 			IF disposition_of_appeal = "" THEN err_msg = err_msg & vbNewLine & "* Please enter the disposition of the appeal"
@@ -241,23 +240,23 @@ End If
 
 
 If appeal_actions = "Appeal Resolution" then
+    '-------------------------------------------------------------------------------------------------DIALOG
+    Dialog1 = "" 'Blanking out previous dialog detail
+    BeginDialog Dialog1, 0, 0, 241, 130, "Appeal resolution"
+      DropListBox 125, 5, 55, 15, "Select one..."+chr(9)+"Yes"+chr(9)+"No", actions_needed
+      DropListBox 125, 25, 55, 20, "Select one..."+chr(9)+"Yes"+chr(9)+"No", op_needed
+      EditBox 125, 45, 85, 15, overpayment_amount
+      EditBox 125, 70, 85, 15, worker_signature
+      ButtonGroup ButtonPressed
+        OkButton 105, 95, 50, 15
+        CancelButton 160, 95, 50, 15
+      Text 10, 10, 115, 10, "Is action needed?"
+      Text 10, 30, 115, 10, "Overpayments required?"
+      Text 10, 50, 105, 10, "Overpayment Amount, if any:"
+      Text 10, 75, 65, 10, "Worker Signature:"
+    EndDialog
 	Do
 		DO
-            '-------------------------------------------------------------------------------------------------DIALOG
-            Dialog1 = "" 'Blanking out previous dialog detail
-            BeginDialog Dialog1, 0, 0, 241, 130, "Appeal resolution"
-              DropListBox 125, 5, 55, 15, "Select one..."+chr(9)+"Yes"+chr(9)+"No", actions_needed
-              DropListBox 125, 25, 55, 20, "Select one..."+chr(9)+"Yes"+chr(9)+"No", op_needed
-              EditBox 125, 45, 85, 15, overpayment_amount
-              EditBox 125, 70, 85, 15, worker_signature
-              ButtonGroup ButtonPressed
-                OkButton 105, 95, 50, 15
-                CancelButton 160, 95, 50, 15
-              Text 10, 10, 115, 10, "Is action needed?"
-              Text 10, 30, 115, 10, "Overpayments required?"
-              Text 10, 50, 105, 10, "Overpayment Amount, if any:"
-              Text 10, 75, 65, 10, "Worker Signature:"
-            EndDialog
 			err_msg = ""
 			Dialog Dialog1
 			cancel_confirmation

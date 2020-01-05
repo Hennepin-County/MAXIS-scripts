@@ -73,34 +73,32 @@ Dim col
 'Connecting to MAXIS & grabbing the case number
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
-
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 171, 220, "Case number"
+  EditBox 70, 5, 65, 15, MAXIS_case_number
+  EditBox 70, 25, 30, 15, MAXIS_footer_month
+  EditBox 105, 25, 30, 15, MAXIS_footer_year
+  CheckBox 30, 60, 35, 10, "SNAP", SNAP_checkbox
+  CheckBox 80, 60, 30, 10, "GRH", GRH_checkbox
+  CheckBox 130, 60, 25, 10, "HC", HC_checkbox
+  CheckBox 10, 80, 90, 10, "Is this an exempt (*) IR?", paperless_checkbox
+  EditBox 70, 95, 95, 15, Worker_signature
+  ButtonGroup ButtonPressed
+	OkButton 60, 115, 50, 15
+	CancelButton 115, 115, 50, 15
+  Text 5, 30, 65, 10, "Footer month/year:"
+  GroupBox 10, 45, 155, 30, "Programs recertifying"
+  Text 10, 100, 60, 10, "Worker Signature"
+  GroupBox 10, 140, 155, 75, "Exempt IR checkbox warning:"
+  Text 15, 155, 145, 25, "If you select ''Is this an exempt IR'', the case note will only provide detail and information about the HC approval."
+  Text 15, 190, 140, 20, " If you are processing a CSR with SNAP, you should NOT check that option."
+  Text 20, 10, 45, 10, "Case number:"
+EndDialog
 'Showing the case number dialog
 Do
 	DO
-    	'-------------------------------------------------------------------------------------------------DIALOG
-    	Dialog1 = "" 'Blanking out previous dialog detail
-    	BeginDialog Dialog1, 0, 0, 171, 220, "Case number"
-    	  EditBox 70, 5, 65, 15, MAXIS_case_number
-    	  EditBox 70, 25, 30, 15, MAXIS_footer_month
-    	  EditBox 105, 25, 30, 15, MAXIS_footer_year
-    	  CheckBox 30, 60, 35, 10, "SNAP", SNAP_checkbox
-    	  CheckBox 80, 60, 30, 10, "GRH", GRH_checkbox
-    	  CheckBox 130, 60, 25, 10, "HC", HC_checkbox
-    	  CheckBox 10, 80, 90, 10, "Is this an exempt (*) IR?", paperless_checkbox
-    	  EditBox 70, 95, 95, 15, Worker_signature
-    	  ButtonGroup ButtonPressed
-    		OkButton 60, 115, 50, 15
-    		CancelButton 115, 115, 50, 15
-    	  Text 5, 30, 65, 10, "Footer month/year:"
-    	  GroupBox 10, 45, 155, 30, "Programs recertifying"
-    	  Text 10, 100, 60, 10, "Worker Signature"
-    	  GroupBox 10, 140, 155, 75, "Exempt IR checkbox warning:"
-    	  Text 15, 155, 145, 25, "If you select ''Is this an exempt IR'', the case note will only provide detail and information about the HC approval."
-    	  Text 15, 190, 140, 20, " If you are processing a CSR with SNAP, you should NOT check that option."
-    	  Text 20, 10, 45, 10, "Case number:"
-    	EndDialog
-
-		err_msg = ""
+    	err_msg = ""
 		Dialog Dialog1
 		cancel_confirmation
 		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & "* You need to type a valid case number."
@@ -159,8 +157,6 @@ if right(programs_recertifying, 1) = "," then programs_recertifying = left(progr
 CSR_month = MAXIS_footer_month & "/" & MAXIS_footer_year
 
 '-------------------------------------------------------------------------------------------------DIALOG
-
-
 
 DO
 	DO

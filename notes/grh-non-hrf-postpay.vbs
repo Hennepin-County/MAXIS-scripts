@@ -50,35 +50,6 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-
-'-------------------------------------------------------------------------------------------------DIALOG
-Dialog1 = "" 'Blanking out previous dialog detail
-'First Dialog that asks for case number and footer month.
-BeginDialog Dialog1, 0, 0, 311, 100, "PostPay Non-HRF"
-  EditBox 90, 5, 65, 15, MAXIS_case_number
-  EditBox 105, 30, 20, 15, MAXIS_footer_month
-  EditBox 135, 30, 20, 15, MAXIS_footer_year
-  EditBox 70, 60, 95, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 105, 80, 50, 15
-    CancelButton 160, 80, 50, 15
-  Text 60, 10, 25, 10, "Case #:"
-  Text 130, 35, 5, 10, "/"
-  Text 15, 35, 80, 10, "PostPay month (mm/yy):"
-  Text 5, 65, 65, 10, "Worker's Signature:"
-  Text 175, 15, 120, 10, "This script is for NON-HRF PostPay."
-  Text 175, 25, 125, 10, "It will go through the following panels:"
-  Text 185, 40, 20, 10, "* FACI"
-  Text 185, 50, 30, 10, "* ADDR"
-  Text 185, 60, 25, 10, "* JOBS"
-  Text 240, 40, 25, 10, "* UNEA"
-  Text 240, 50, 25, 10, "* PBEN"
-  Text 240, 60, 50, 10, "* VNDS"
-  GroupBox 170, 5, 135, 70, "Description:"
-EndDialog
-
-'END of dialog block===================================================================================================================
-
 'FUNCTION edition Block. Need to added this customized navigation FUNCTION=============================================================
 
 FUNCTION MAXIS_dialog_navigation2
@@ -240,19 +211,45 @@ objExcel.Cells(7,1) = "=MAX(A6:E6)" 		'this cell holds the earliest discharge da
 'Grabbing case number and putting in the month and year entered from dialog box.
 call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
-
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+'First Dialog that asks for case number and footer month.
+BeginDialog Dialog1, 0, 0, 311, 100, "PostPay Non-HRF"
+  EditBox 90, 5, 65, 15, MAXIS_case_number
+  EditBox 105, 30, 20, 15, MAXIS_footer_month
+  EditBox 135, 30, 20, 15, MAXIS_footer_year
+  EditBox 70, 60, 95, 15, worker_signature
+  ButtonGroup ButtonPressed
+	OkButton 105, 80, 50, 15
+	CancelButton 160, 80, 50, 15
+  Text 60, 10, 25, 10, "Case #:"
+  Text 130, 35, 5, 10, "/"
+  Text 15, 35, 80, 10, "PostPay month (mm/yy):"
+  Text 5, 65, 65, 10, "Worker's Signature:"
+  Text 175, 15, 120, 10, "This script is for NON-HRF PostPay."
+  Text 175, 25, 125, 10, "It will go through the following panels:"
+  Text 185, 40, 20, 10, "* FACI"
+  Text 185, 50, 30, 10, "* ADDR"
+  Text 185, 60, 25, 10, "* JOBS"
+  Text 240, 40, 25, 10, "* UNEA"
+  Text 240, 50, 25, 10, "* PBEN"
+  Text 240, 60, 50, 10, "* VNDS"
+  GroupBox 170, 5, 135, 70, "Description:"
+EndDialog
 'First Dialog. Showing case number, postpay month & year...checking for valid entries of these info.  It'll loop until workers enter the right condition.
 Do
-	err_msg = ""
-	Dialog Dialog1
-	cancel_confirmation
-	If MAXIS_case_number = "" then err_msg = err_msg & vbCr & "You must have a case number to continue."
-	If len(MAXIS_case_number) > 8 then err_msg = err_msg & vbCr & "Your case number need to be 8 digits or less."
-	If MAXIS_footer_month = "" OR len(MAXIS_footer_month) <> 2 then err_msg = err_msg & vbCr & "You must enter a valid month value of: MM"
-	If MAXIS_footer_year = "" OR len(MAXIS_footer_year) <> 2 then err_msg = err_msg & vbCr & "You must enter a valid year value of: YY"
-	If err_msg <> "" then Msgbox err_msg
-	call check_for_password (are_we_passworded_out) 'adding functionality for MAXIS v.6 Password Out issue'
-Loop until err_msg = ""
+	DO
+	     err_msg = ""
+	    Dialog Dialog1
+	    cancel_confirmation
+	    If MAXIS_case_number = "" then err_msg = err_msg & vbCr & "You must have a case number to continue."
+	    If len(MAXIS_case_number) > 8 then err_msg = err_msg & vbCr & "Your case number need to be 8 digits or less."
+	    If MAXIS_footer_month = "" OR len(MAXIS_footer_month) <> 2 then err_msg = err_msg & vbCr & "You must enter a valid month value of: MM"
+	    If MAXIS_footer_year = "" OR len(MAXIS_footer_year) <> 2 then err_msg = err_msg & vbCr & "You must enter a valid year value of: YY"
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+    LOOP UNTIL err_msg = ""
+	CALL check_for_password_without_transmit(are_we_passworded_out)
+LOOP UNTIL are_we_passworded_out = false
 
 'Delcares the variable GRH_process_date = footer month/01/year. this is needed to check if FACI outdates for postpay are in the processing footer month/year. If end dates matches processing footer month/year, workers may need to process post pay for that footer month/year.
 GRH_process_date = Maxis_footer_month & "/" & "01" & "/" & MAXIS_footer_year
@@ -455,7 +452,6 @@ If unea_pnls = "0" then
 	End If
 End If
 
-
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
 'Second Dialog when all info has been grab from case will be called into fields/variants to be reviewed by worker
@@ -471,23 +467,23 @@ BeginDialog Dialog1, 0, 0, 456, 275, "GRH NON-HRF CASE NOTE dialog"
   EditBox 10, 210, 290, 15, Postpay_results
   EditBox 375, 230, 70, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 340, 255, 50, 15
-    CancelButton 395, 255, 50, 15
-    PushButton 80, 35, 25, 10, "VNDS", VNDS_button
-    PushButton 105, 35, 25, 10, "FACI", FACI_button
-    PushButton 130, 35, 25, 10, "ADDR", ADDR_button
-    PushButton 275, 35, 25, 10, "BUSI", BUSI_button
-    PushButton 300, 35, 25, 10, "JOBS", JOBS_button
-    PushButton 325, 35, 25, 10, "UNEA", UNEA_button
-    PushButton 365, 35, 45, 10, "prev. panel", prev_panel_button
-    PushButton 365, 45, 45, 10, "next panel", next_panel_button
-    PushButton 340, 75, 25, 10, "MEMB", MEMB_button
-    PushButton 365, 75, 25, 10, "MEMI", MEMI_button
-    PushButton 390, 75, 25, 10, "REVW", REVW_button
-    PushButton 415, 75, 25, 10, "PBEN", PBEN_button
-    PushButton 10, 230, 290, 15, "Send case to BGTX", CASE_BGTX
-    PushButton 315, 210, 20, 10, "GRH", ELIG_GRH_button
-    PushButton 335, 210, 20, 10, "HC", ELIG_HC_button
+	OkButton 340, 255, 50, 15
+	CancelButton 395, 255, 50, 15
+	PushButton 80, 35, 25, 10, "VNDS", VNDS_button
+	PushButton 105, 35, 25, 10, "FACI", FACI_button
+	PushButton 130, 35, 25, 10, "ADDR", ADDR_button
+	PushButton 275, 35, 25, 10, "BUSI", BUSI_button
+	PushButton 300, 35, 25, 10, "JOBS", JOBS_button
+	PushButton 325, 35, 25, 10, "UNEA", UNEA_button
+	PushButton 365, 35, 45, 10, "prev. panel", prev_panel_button
+	PushButton 365, 45, 45, 10, "next panel", next_panel_button
+	PushButton 340, 75, 25, 10, "MEMB", MEMB_button
+	PushButton 365, 75, 25, 10, "MEMI", MEMI_button
+	PushButton 390, 75, 25, 10, "REVW", REVW_button
+	PushButton 415, 75, 25, 10, "PBEN", PBEN_button
+	PushButton 10, 230, 290, 15, "Send case to BGTX", CASE_BGTX
+	PushButton 315, 210, 20, 10, "GRH", ELIG_GRH_button
+	PushButton 335, 210, 20, 10, "HC", ELIG_HC_button
   Text 35, 65, 40, 10, "IAA Status:"
   Text 30, 125, 40, 10, "Other notes:"
   Text 35, 145, 35, 10, "Changes?:"
@@ -511,7 +507,7 @@ DO
 		DO
 			DO
 				DO
-					Dialog Dialog1
+				 	Dialog Dialog1
 					cancel_confirmation
 				LOOP UNTIL ButtonPressed <> no_cancel_button
 				MAXIS_dialog_navigation2

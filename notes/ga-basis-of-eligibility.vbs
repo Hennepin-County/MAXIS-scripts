@@ -50,21 +50,26 @@ call changelog_update("10/20/2017", "Initial version.", "Ilse Ferris, Hennepin C
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
+'THE SCRIPT----------------------------------------------------------------------------------------------------
+'Connecting to MAXIS & case number
+EMConnect ""
+call maxis_case_number_finder(MAXIS_case_number)
+member_number = "01"
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 321, 125, "GA Basis of Eligibility"
   EditBox 55, 5, 50, 15, MAXIS_case_number
   EditBox 145, 5, 20, 15, member_number
   EditBox 255, 5, 55, 15, elig_date
-  DropListBox 80, 30, 150, 12, "Select one..."+chr(9)+"Permanent illness"+chr(9)+"Temporary illness"+chr(9)+"Needed in the home"+chr(9)+"Placement in a Facility"+chr(9)+"Unemployable"+chr(9)+"Medically certified as having DISA"+chr(9)+"Appl/appeal pending for RSDI or SSI"+chr(9)+"Advanced age"+chr(9)+"FT Student elig displaced homemaker serv"+chr(9)+"Performing court-ordered services"+chr(9)+"Learning disabled"+chr(9)+"H.S. students age 18 and older (LES)"+chr(9)+"Drug/alcohol addiction", basis_elig
+  DropListBox 80, 30, 150, 12, "Select one..."+chr(9)+"Permanent illness"+chr(9)+"Temporary illness"+chr(9)+"Needed in the home"+chr(9)+"Placement in a Facility"+chr(9)+"Unemployable"+chr(9)+"Medically certified as having DISA"+chr(9)+"Appl/appeal pending for RSDI or SSI"+chr(9)+"Advanced age"+chr(9)+"FT Student elig displaced homemaker serv"+chr(9)+"Performing court-ordered services"+chr(9)+"Learning disabled"+chr(9)+"H.S. students age 18 and older (LES)"+chr(9)+"Drug/alcohol addiction",     basis_elig
   ButtonGroup ButtonPressed
-    PushButton 240, 30, 75, 10, "Combined Manual", GA_CM_button
+	PushButton 240, 30, 75, 10, "Combined Manual", GA_CM_button
   EditBox 80, 50, 235, 15, verif_basis
   EditBox 80, 75, 235, 15, other_notes
   EditBox 80, 100, 130, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 215, 100, 50, 15
-    CancelButton 265, 100, 50, 15
+	OkButton 215, 100, 50, 15
+	CancelButton 265, 100, 50, 15
   Text 5, 10, 45, 10, "Case number:"
   Text 10, 55, 70, 10, "Verification of basis:"
   Text 175, 10, 80, 10, "Date client meets basis:"
@@ -73,17 +78,10 @@ BeginDialog Dialog1, 0, 0, 321, 125, "GA Basis of Eligibility"
   Text 5, 35, 75, 10, "GA basis of eligibility:"
   Text 35, 80, 40, 10, "Other notes:"
 EndDialog
-
-'THE SCRIPT----------------------------------------------------------------------------------------------------
-'Connecting to MAXIS & case number
-EMConnect ""
-call maxis_case_number_finder(MAXIS_case_number)
-member_number = "01"
-
 'the dialog
 Do
 	Do
-  		err_msg = ""
+	    err_msg = ""
 		Do
   			Dialog ga_basis_dialog
 			Cancel_confirmation

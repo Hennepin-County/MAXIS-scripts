@@ -90,20 +90,21 @@ BeginDialog Dialog1, 0, 0, 291, 260, "Significant Change"
 EndDialog
 
 'This is the new Do Loop process that makes mandatory fields in the dialog box
-Do
-	err_msg = ""
-	Dialog Dialog1
-	cancel_confirmation 'Are you sure you want to quit? message
-	call check_for_MAXIS (False) 'Password check- If passworded out, dialog box wont close
-	IF MAXIS_case_number = "" OR (MAXIS_case_number <> "" AND IsNumeric(MAXIS_case_number) = FALSE) THEN err_msg = err_msg & vbNewLine & "*Please enter a valid case number" 'Makes sure there is a numeric case number
-	IF Sig_change_status_dropdown = "Select one..." THEN err_msg = err_msg & vbNewLine & "*You must select a Significant Change status type" 'Selecting the status of the sig change request is a mandatory field
-	IF Sig_change_status_dropdown = "Denied" AND Denial_reason_dropdown = "Select one..." THEN err_msg = err_msg & vbNewLine & "*You have selected Denied, you must select a denial reason" 'If your status is Denied then you have to select a denial reason (this will pull into the spec/Memo denial letter)
-	IF Sig_change_status_dropdown = "Denied" AND Denial_reason_dropdown <> "Select one..." AND Month_requested_dropdown = "Select one..." THEN err_msg = err_msg & vbNewLine & "*You must enter a month requested" 'I made the month requested a mandatory field only if it is denied because it pulls into the Spec/Memo, also clients do not always state the month they are requesting
-	IF Month_requested_dropdown <> "Select one..." AND (Month_requested_year = "" OR IsNumeric(Month_Requested_Year) = FALSE) THEN err_msg = err_msg & vbNewLine & "*You must enter a valid year" 'This just makes you put in a numeric year if you select a month requested. Basicallly if you know the month then you should know the year
-	IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "*You must sign your case note" 'Mandatory field
-	IF err_msg <> "" THEN Msgbox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine & vbNewLine & "Please resolve for the script to continue" 'Msgbox starts out with Notice!!! then makes new line (this should give it a space it before the error messages because each message starts out with new line) and then adds a couple lines to space after the error messages before the saying that "Please resolve for script to continue" "
-LOOP UNTIL err_msg = ""
-
+DO
+    Do
+    	err_msg = ""
+    	Dialog Dialog1
+    	cancel_confirmation 'Are you sure you want to quit? message
+    	call check_for_MAXIS (False) 'Password check- If passworded out, dialog box wont close
+    	IF MAXIS_case_number = "" OR (MAXIS_case_number <> "" AND IsNumeric(MAXIS_case_number) = FALSE) THEN err_msg = err_msg & vbNewLine & "*Please enter a valid case number" 'Makes sure there is a numeric case number
+    	IF Sig_change_status_dropdown = "Select one..." THEN err_msg = err_msg & vbNewLine & "*You must select a Significant Change status type" 'Selecting the status of the sig change request is a mandatory field
+    	IF Sig_change_status_dropdown = "Denied" AND Denial_reason_dropdown = "Select one..." THEN err_msg = err_msg & vbNewLine & "*You have selected Denied, you must select a denial reason" 'If your status is Denied then you have to select a denial reason (this will pull into the spec/Memo denial letter)
+    	IF Sig_change_status_dropdown = "Denied" AND Denial_reason_dropdown <> "Select one..." AND Month_requested_dropdown = "Select one..." THEN err_msg = err_msg & vbNewLine & "*You must enter a month requested" 'I made the month requested a mandatory field only if it is denied because it pulls into the Spec/Memo, also clients do not always state the month they are requesting
+    	IF Month_requested_dropdown <> "Select one..." AND (Month_requested_year = "" OR IsNumeric(Month_Requested_Year) = FALSE) THEN err_msg = err_msg & vbNewLine & "*You must enter a valid year" 'This just makes you put in a numeric year if you select a month requested. Basicallly if you know the month then you should know the year
+    	IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "*You must sign your case note" 'Mandatory field
+    	IF err_msg <> "" THEN Msgbox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine & vbNewLine & "Please resolve for the script to continue" 'Msgbox starts out with Notice!!! then makes new line (this should give it a space it before the error messages because each message starts out with new line) and then adds a couple lines to space after the error messages before the saying that "Please resolve for script to continue" "
+    LOOP UNTIL err_msg = ""
+LOOP UNTIL are_we_passworded_out = false
 'TIKL to review/process sig change request for future month (check box selected)
 If TIKL_future_month_checkbox = checked THEN
 	'navigates to DAIL/WRIT

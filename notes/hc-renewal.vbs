@@ -64,6 +64,7 @@ EMConnect ""
 'Grabbing the case number
 call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+'Showing the case number dialog
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 161, 65, "HC Renewal Script Case number"
@@ -74,14 +75,12 @@ BeginDialog Dialog1, 0, 0, 161, 65, "HC Renewal Script Case number"
   Text 95, 30, 20, 10, "Year:"
   EditBox 120, 25, 25, 15, MAXIS_footer_year
   ButtonGroup ButtonPressed
-    OkButton 25, 45, 50, 15
-    CancelButton 85, 45, 50, 15
+	OkButton 25, 45, 50, 15
+	CancelButton 85, 45, 50, 15
 EndDialog
-
-'Showing the case number dialog
 Do
 	Do
-        err_msg = ""
+	    err_msg = ""
   		Dialog Dialog1    'initial dialog
   		cancel_without_confirmation
     	If IsNumeric(MAXIS_footer_month) = False or len(MAXIS_footer_month) > 2 or len(MAXIS_footer_month) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer month."

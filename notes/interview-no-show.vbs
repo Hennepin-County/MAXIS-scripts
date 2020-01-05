@@ -52,6 +52,14 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
+'THE SCRIPT--------------------------------------------------------------------------------------------------
+
+'Connects to BlueZone default screen
+EMConnect ""
+EMFocus
+Call check_for_MAXIS(true)
+'Pulls case number from MAXIS if worker has already selected a case
+Call MAXIS_case_number_finder(MAXIS_case_number)
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 141, 50, "Enter the Case Number"
@@ -62,21 +70,11 @@ BeginDialog Dialog1, 0, 0, 141, 50, "Enter the Case Number"
   Text 10, 15, 50, 10, "Case Number:"
 EndDialog
 
-'THE SCRIPT--------------------------------------------------------------------------------------------------
-
-'Connects to BlueZone default screen
-EMConnect ""
-EMFocus
-
-Call check_for_MAXIS(true)
-
-'Pulls case number from MAXIS if worker has already selected a case
-Call MAXIS_case_number_finder(MAXIS_case_number)
 DO
     Do
         err_msg = ""
         Dialog Dialog1
-        If ButtonPressed = 0 Then script_end_procedure("")
+        cancel_confirmation
         MAXIS_case_number = trim(MAXIS_case_number)
         If MAXIS_case_number = "" Then err_msg = err_msg & vbNewLine & "* Enter a case number."
         If len(MAXIS_case_number) > 7 Then err_msg = err_msg & vbNewLine & "* The case number is too long, review"
@@ -85,37 +83,6 @@ DO
     Loop Until err_msg = ""
 Call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
-
-'-------------------------------------------------------------------------------------------------DIALOG
-Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 191, 315, "Enter No Show Information"
-  Text 70, 25, 60, 15, MAXIS_case_number
-  EditBox 70, 75, 90, 15, interview_date
-  EditBox 70, 95, 90, 15, first_page
-  EditBox 70, 115, 90, 15, second_page
-  CheckBox 20, 150, 155, 20, "Attempted phone call to client - No Answer", pc_attempted
-  EditBox 75, 170, 95, 15, time_called
-  EditBox 75, 190, 95, 15, phone_number
-  CheckBox 75, 210, 90, 15, "Left Message for Client", left_vm
-  CheckBox 10, 235, 135, 15, "Check here if case is Potentially XFS", potential_xfs
-  CheckBox 10, 255, 140, 10, "Check here to send an Interview Notice", send_appt_notice_checkbox
-  EditBox 70, 275, 115, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 105, 295, 40, 15
-    CancelButton 145, 295, 40, 15
-  Text 10, 5, 170, 10, "Client did not respond to page for in-office interview"
-  Text 15, 25, 45, 10, "Case Number"
-  GroupBox 5, 60, 175, 75, "Client was Paged in the Lobby"
-  Text 15, 80, 50, 10, "Interview Date:"
-  Text 15, 100, 50, 10, "1st Page time:"
-  Text 15, 120, 50, 10, "2nd Page time:"
-  GroupBox 5, 140, 175, 90, "Phone Call to Client"
-  Text 35, 175, 35, 10, "Called at:"
-  Text 15, 195, 50, 15, "Phone Number"
-  Text 10, 280, 60, 10, "Worker Signature"
-  Text 5, 45, 60, 10, "Application Date:"
-  EditBox 70, 40, 90, 15, application_date
-EndDialog
 
 'Defaults the Interview Date to today's date
 interview_date = date & ""
@@ -126,7 +93,6 @@ EMReadScreen phone_01, 3, 17, 45
 EMReadScreen phone_02, 3, 17, 51
 EMReadScreen phone_03, 4, 17, 55
 phone_number = phone_01 & "-" & phone_02 & "-" & phone_03 & ""
-
 
 'Determines which programs are currently pending in the month of application
 call navigate_to_MAXIS_screen("STAT","PROG")
@@ -183,6 +149,36 @@ Else
 End if
 
 If app_date <> "" AND app_date <> "__ __ __" Then application_date = replace(app_date, " ", "/")
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 191, 315, "Enter No Show Information"
+  Text 70, 25, 60, 15, MAXIS_case_number
+  EditBox 70, 75, 90, 15, interview_date
+  EditBox 70, 95, 90, 15, first_page
+  EditBox 70, 115, 90, 15, second_page
+  CheckBox 20, 150, 155, 20, "Attempted phone call to client - No Answer", pc_attempted
+  EditBox 75, 170, 95, 15, time_called
+  EditBox 75, 190, 95, 15, phone_number
+  CheckBox 75, 210, 90, 15, "Left Message for Client", left_vm
+  CheckBox 10, 235, 135, 15, "Check here if case is Potentially XFS", potential_xfs
+  CheckBox 10, 255, 140, 10, "Check here to send an Interview Notice", send_appt_notice_checkbox
+  EditBox 70, 275, 115, 15, worker_signature
+  ButtonGroup ButtonPressed
+    OkButton 105, 295, 40, 15
+    CancelButton 145, 295, 40, 15
+  Text 10, 5, 170, 10, "Client did not respond to page for in-office interview"
+  Text 15, 25, 45, 10, "Case Number"
+  GroupBox 5, 60, 175, 75, "Client was Paged in the Lobby"
+  Text 15, 80, 50, 10, "Interview Date:"
+  Text 15, 100, 50, 10, "1st Page time:"
+  Text 15, 120, 50, 10, "2nd Page time:"
+  GroupBox 5, 140, 175, 90, "Phone Call to Client"
+  Text 35, 175, 35, 10, "Called at:"
+  Text 15, 195, 50, 15, "Phone Number"
+  Text 10, 280, 60, 10, "Worker Signature"
+  Text 5, 45, 60, 10, "Application Date:"
+  EditBox 70, 40, 90, 15, application_date
+EndDialog
 
 'Display's the Dialog Box to imput variable information - includes safeguards for mandatory fields
 Do
@@ -279,11 +275,7 @@ If send_appt_notice_checkbox = checked Then
       Text 10, 30, 50, 10, "Interview date:"
       Text 5, 10, 55, 10, "Application date:"
     EndDialog
-
-
-
      'need to handle for if we dont need an appt letter, which would be...'
-
     Do
     	Do
     		err_msg = ""

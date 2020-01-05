@@ -49,7 +49,11 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-
+'script code-----------------------------------------------------------------------------------------------
+'Connect to Bluezone
+EMConnect ""
+'Grabs Maxis Case number
+CALL MAXIS_case_number_finder(MAXIS_case_number)
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 311, 305, "EMMA"
@@ -78,19 +82,12 @@ BeginDialog Dialog1, 0, 0, 311, 305, "EMMA"
   Text 5, 35, 100, 10, "EMA MNSURE App Received: "
 EndDialog
 
-'script code-----------------------------------------------------------------------------------------------
-'Connect to Bluezone
-EMConnect ""
-
-'Grabs Maxis Case number
-CALL MAXIS_case_number_finder(MAXIS_case_number)
-
 'Shows dialog
 DO
 	DO
 
 		Dialog Dialog1
-		IF ButtonPressed = 0 THEN StopScript
+		cancel_confirmation
 		IF worker_signature = "" THEN MsgBox "You must sign your case note!"
 		If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & VbCr & err_msg & VbCr		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
     LOOP UNTIL err_msg = ""									'loops until all errors are resolved

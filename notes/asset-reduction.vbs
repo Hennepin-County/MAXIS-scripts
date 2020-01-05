@@ -81,66 +81,66 @@ LOOP UNTIL check_for_password(are_we_passworded_out) = False
 call check_for_MAXIS(False)	'checking for an active MAXIS session
 'Asset reduction required coding----------------------------------------------------------------------------------------------------
 If reduction_status = "Required" then
-	Do
+    '-------------------------------------------------------------------------------------------------DIALOG
+    Dialog1 = "" 'Blanking out previous dialog detail
+    BeginDialog Dialog1, 0, 0, 306, 285, "Asset reduction required/pending"
+      EditBox 90, 45, 60, 15, due_date
+      EditBox 240, 45, 60, 15, asset_limit
+      CheckBox 10, 85, 30, 10, "DWP", DWP_checkbox
+      CheckBox 50, 85, 35, 10, "EMER", EMER_checkbox
+      CheckBox 90, 85, 25, 10, "GA", GA_checkbox
+      CheckBox 125, 85, 30, 10, "GRH", GRH_checkbox
+      CheckBox 160, 85, 25, 10, "MA", MA_checkbox
+      CheckBox 195, 85, 30, 10, "MFIP", MFIP_checkbox
+      CheckBox 235, 85, 30, 10, "MSP", MSP_checkbox
+      CheckBox 270, 85, 30, 10, "MSA", MSA_checkbox
+      EditBox 65, 105, 235, 15, income
+      EditBox 65, 135, 235, 15, assets
+      EditBox 65, 155, 60, 15, current_asset_total
+      EditBox 235, 155, 65, 15, amt_to_reduce
+      EditBox 65, 180, 235, 15, other_notes
+      EditBox 65, 200, 235, 15, actions_taken
+      CheckBox 65, 220, 175, 10, "Sent DHS-3341 Asset reduction worksheet to client", client_3341_checkbox
+      CheckBox 65, 235, 175, 10, "Sent DHS-3341 Asset reduction worksheet to AREP", AREP_3341_checkbox
+      CheckBox 65, 250, 145, 10, "Set TIKL for the asset reduction due date", TIKL_checkbox
+      EditBox 65, 265, 125, 15, worker_signature
+      ButtonGroup ButtonPressed
+        OkButton 195, 265, 50, 15
+        CancelButton 250, 265, 50, 15
+        PushButton 10, 15, 25, 10, "BUSI", BUSI_button
+        PushButton 35, 15, 25, 10, "JOBS", JOBS_button
+        PushButton 10, 25, 25, 10, "RBIC", RBIC_button
+        PushButton 35, 25, 25, 10, "UNEA", UNEA_button
+        PushButton 80, 15, 25, 10, "ACCT", ACCT_button
+        PushButton 105, 15, 25, 10, "CARS", CARS_button
+        PushButton 130, 15, 25, 10, "CASH", CASH_button
+        PushButton 155, 15, 25, 10, "OTHR", OTHR_button
+        PushButton 80, 25, 25, 10, "REST", REST_button
+        PushButton 105, 25, 25, 10, "SECU", SECU_button
+        PushButton 130, 25, 25, 10, "TRAN", TRAN_button
+        PushButton 155, 25, 25, 10, "HCMI", HCMI_button
+        PushButton 200, 15, 45, 10, "prev. panel", prev_panel_button
+        PushButton 250, 15, 45, 10, "prev. memb", prev_memb_button
+        PushButton 200, 25, 45, 10, "next panel", next_panel_button
+        PushButton 250, 25, 45, 10, "next memb", next_memb_button
+      Text 70, 120, 230, 10, "(Income in the month received is counted as income, not as an asset)"
+      GroupBox 5, 5, 60, 35, "Income panels"
+      Text 35, 140, 25, 10, "Assets:"
+      GroupBox 75, 5, 110, 35, "Asset panels"
+      Text 5, 110, 55, 10, "Monthly income:"
+      Text 15, 160, 50, 10, "Total assets: $"
+      GroupBox 195, 5, 105, 35, "STAT-based navigation"
+      Text 160, 50, 80, 10, "Prog(s) Asset limit(s): $"
+      Text 5, 50, 85, 10, "Asset reduction due date:"
+      Text 20, 185, 40, 10, "Other notes:"
+      Text 15, 205, 50, 10, "Actions taken:"
+      Text 5, 270, 60, 10, "Worker signature:"
+      Text 150, 160, 80, 10, "Amount to be reduced: $"
+      GroupBox 5, 70, 295, 30, "Asset reduction needed for the following programs:"
+    EndDialog
+    Do
 		Do
-            '-------------------------------------------------------------------------------------------------DIALOG
-            Dialog1 = "" 'Blanking out previous dialog detail
-            BeginDialog Dialog1, 0, 0, 306, 285, "Asset reduction required/pending"
-              EditBox 90, 45, 60, 15, due_date
-              EditBox 240, 45, 60, 15, asset_limit
-              CheckBox 10, 85, 30, 10, "DWP", DWP_checkbox
-              CheckBox 50, 85, 35, 10, "EMER", EMER_checkbox
-              CheckBox 90, 85, 25, 10, "GA", GA_checkbox
-              CheckBox 125, 85, 30, 10, "GRH", GRH_checkbox
-              CheckBox 160, 85, 25, 10, "MA", MA_checkbox
-              CheckBox 195, 85, 30, 10, "MFIP", MFIP_checkbox
-              CheckBox 235, 85, 30, 10, "MSP", MSP_checkbox
-              CheckBox 270, 85, 30, 10, "MSA", MSA_checkbox
-              EditBox 65, 105, 235, 15, income
-              EditBox 65, 135, 235, 15, assets
-              EditBox 65, 155, 60, 15, current_asset_total
-              EditBox 235, 155, 65, 15, amt_to_reduce
-              EditBox 65, 180, 235, 15, other_notes
-              EditBox 65, 200, 235, 15, actions_taken
-              CheckBox 65, 220, 175, 10, "Sent DHS-3341 Asset reduction worksheet to client", client_3341_checkbox
-              CheckBox 65, 235, 175, 10, "Sent DHS-3341 Asset reduction worksheet to AREP", AREP_3341_checkbox
-              CheckBox 65, 250, 145, 10, "Set TIKL for the asset reduction due date", TIKL_checkbox
-              EditBox 65, 265, 125, 15, worker_signature
-              ButtonGroup ButtonPressed
-                OkButton 195, 265, 50, 15
-                CancelButton 250, 265, 50, 15
-                PushButton 10, 15, 25, 10, "BUSI", BUSI_button
-                PushButton 35, 15, 25, 10, "JOBS", JOBS_button
-                PushButton 10, 25, 25, 10, "RBIC", RBIC_button
-                PushButton 35, 25, 25, 10, "UNEA", UNEA_button
-                PushButton 80, 15, 25, 10, "ACCT", ACCT_button
-                PushButton 105, 15, 25, 10, "CARS", CARS_button
-                PushButton 130, 15, 25, 10, "CASH", CASH_button
-                PushButton 155, 15, 25, 10, "OTHR", OTHR_button
-                PushButton 80, 25, 25, 10, "REST", REST_button
-                PushButton 105, 25, 25, 10, "SECU", SECU_button
-                PushButton 130, 25, 25, 10, "TRAN", TRAN_button
-                PushButton 155, 25, 25, 10, "HCMI", HCMI_button
-                PushButton 200, 15, 45, 10, "prev. panel", prev_panel_button
-                PushButton 250, 15, 45, 10, "prev. memb", prev_memb_button
-                PushButton 200, 25, 45, 10, "next panel", next_panel_button
-                PushButton 250, 25, 45, 10, "next memb", next_memb_button
-              Text 70, 120, 230, 10, "(Income in the month received is counted as income, not as an asset)"
-              GroupBox 5, 5, 60, 35, "Income panels"
-              Text 35, 140, 25, 10, "Assets:"
-              GroupBox 75, 5, 110, 35, "Asset panels"
-              Text 5, 110, 55, 10, "Monthly income:"
-              Text 15, 160, 50, 10, "Total assets: $"
-              GroupBox 195, 5, 105, 35, "STAT-based navigation"
-              Text 160, 50, 80, 10, "Prog(s) Asset limit(s): $"
-              Text 5, 50, 85, 10, "Asset reduction due date:"
-              Text 20, 185, 40, 10, "Other notes:"
-              Text 15, 205, 50, 10, "Actions taken:"
-              Text 5, 270, 60, 10, "Worker signature:"
-              Text 150, 160, 80, 10, "Amount to be reduced: $"
-              GroupBox 5, 70, 295, 30, "Asset reduction needed for the following programs:"
-            EndDialog
-    		err_msg = ""
+            err_msg = ""
         	DIALOG Dialog1
         	cancel_confirmation
 			MAXIS_dialog_navigation
@@ -158,64 +158,63 @@ If reduction_status = "Required" then
     	Call check_for_password(are_we_passworded_out)
     LOOP UNTIL check_for_password(are_we_passworded_out) = False
 END IF
-'-------------------------------------------------------------------------------------------------DIALOG
-Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 306, 255, "Asset reduction complete"
-  EditBox 90, 50, 60, 15, within_limit_date
-  EditBox 240, 50, 60, 15, asset_limit
-  CheckBox 10, 80, 30, 10, "DWP", DWP_checkbox
-  CheckBox 50, 80, 35, 10, "EMER", EMER_checkbox
-  CheckBox 90, 80, 25, 10, "GA", GA_checkbox
-  CheckBox 125, 80, 30, 10, "GRH", GRH_checkbox
-  CheckBox 160, 80, 25, 10, "MA", MA_checkbox
-  CheckBox 195, 80, 30, 10, "MFIP", MFIP_checkbox
-  CheckBox 235, 80, 30, 10, "MSP", MSP_checkbox
-  CheckBox 270, 80, 30, 10, "MSA", MSA_checkbox
-  EditBox 60, 100, 240, 15, income
-  EditBox 60, 130, 240, 15, assets
-  EditBox 60, 150, 60, 15, current_asset_total
-  EditBox 95, 170, 205, 15, how_assets_reduced
-  EditBox 65, 195, 235, 15, other_assets_notes
-  EditBox 65, 215, 235, 15, actions_taken
-  EditBox 65, 235, 125, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 195, 235, 50, 15
-    CancelButton 250, 235, 50, 15
-    PushButton 10, 15, 25, 10, "BUSI", BUSI_button
-    PushButton 35, 15, 25, 10, "JOBS", JOBS_button
-    PushButton 10, 25, 25, 10, "RBIC", RBIC_button
-    PushButton 35, 25, 25, 10, "UNEA", UNEA_button
-    PushButton 80, 15, 25, 10, "ACCT", ACCT_button
-    PushButton 105, 15, 25, 10, "CARS", CARS_button
-    PushButton 130, 15, 25, 10, "CASH", CASH_button
-    PushButton 155, 15, 25, 10, "OTHR", OTHR_button
-    PushButton 80, 25, 25, 10, "REST", REST_button
-    PushButton 105, 25, 25, 10, "SECU", SECU_button
-    PushButton 130, 25, 25, 10, "TRAN", TRAN_button
-    PushButton 155, 25, 25, 10, "HCMI", HCMI_button
-    PushButton 200, 15, 45, 10, "prev. panel", prev_panel_button
-    PushButton 250, 15, 45, 10, "prev. memb", prev_memb_button
-    PushButton 200, 25, 45, 10, "next panel", next_panel_button
-    PushButton 250, 25, 45, 10, "next memb", next_memb_button
-  GroupBox 5, 5, 60, 35, "Income panels"
-  Text 30, 135, 25, 10, "Assets:"
-  GroupBox 75, 5, 110, 35, "Asset panels"
-  Text 5, 105, 55, 10, "Monthly income:"
-  Text 5, 155, 50, 10, "Total assets $:"
-  GroupBox 195, 5, 105, 35, "STAT-based navigation"
-  Text 165, 55, 75, 10, "Prog(s) Asset limit(s): $"
-  Text 10, 55, 80, 10, "Date assets within limit:"
-  Text 20, 200, 40, 10, "Other notes:"
-  Text 15, 220, 50, 10, "Actions taken:"
-  Text 5, 240, 60, 10, "Worker signature:"
-  Text 70, 115, 230, 10, "(Income in the month received is counted as income, not as an asset)"
-  Text 5, 175, 90, 10, "How were assets reduced:"
-  Text 125, 155, 180, 10, "For HC processing steps: see POLI TEMP TE02.07.246"
-  GroupBox 5, 70, 295, 25, "Within asset limit for following programs:"
-EndDialog
-
 'Asset reduction completed coding----------------------------------------------------------------------------------------------------
 If reduction_status = "Completed" then
+    '-------------------------------------------------------------------------------------------------DIALOG
+    Dialog1 = "" 'Blanking out previous dialog detail
+    BeginDialog Dialog1, 0, 0, 306, 255, "Asset reduction complete"
+      EditBox 90, 50, 60, 15, within_limit_date
+      EditBox 240, 50, 60, 15, asset_limit
+      CheckBox 10, 80, 30, 10, "DWP", DWP_checkbox
+      CheckBox 50, 80, 35, 10, "EMER", EMER_checkbox
+      CheckBox 90, 80, 25, 10, "GA", GA_checkbox
+      CheckBox 125, 80, 30, 10, "GRH", GRH_checkbox
+      CheckBox 160, 80, 25, 10, "MA", MA_checkbox
+      CheckBox 195, 80, 30, 10, "MFIP", MFIP_checkbox
+      CheckBox 235, 80, 30, 10, "MSP", MSP_checkbox
+      CheckBox 270, 80, 30, 10, "MSA", MSA_checkbox
+      EditBox 60, 100, 240, 15, income
+      EditBox 60, 130, 240, 15, assets
+      EditBox 60, 150, 60, 15, current_asset_total
+      EditBox 95, 170, 205, 15, how_assets_reduced
+      EditBox 65, 195, 235, 15, other_assets_notes
+      EditBox 65, 215, 235, 15, actions_taken
+      EditBox 65, 235, 125, 15, worker_signature
+      ButtonGroup ButtonPressed
+        OkButton 195, 235, 50, 15
+        CancelButton 250, 235, 50, 15
+        PushButton 10, 15, 25, 10, "BUSI", BUSI_button
+        PushButton 35, 15, 25, 10, "JOBS", JOBS_button
+        PushButton 10, 25, 25, 10, "RBIC", RBIC_button
+        PushButton 35, 25, 25, 10, "UNEA", UNEA_button
+        PushButton 80, 15, 25, 10, "ACCT", ACCT_button
+        PushButton 105, 15, 25, 10, "CARS", CARS_button
+        PushButton 130, 15, 25, 10, "CASH", CASH_button
+        PushButton 155, 15, 25, 10, "OTHR", OTHR_button
+        PushButton 80, 25, 25, 10, "REST", REST_button
+        PushButton 105, 25, 25, 10, "SECU", SECU_button
+        PushButton 130, 25, 25, 10, "TRAN", TRAN_button
+        PushButton 155, 25, 25, 10, "HCMI", HCMI_button
+        PushButton 200, 15, 45, 10, "prev. panel", prev_panel_button
+        PushButton 250, 15, 45, 10, "prev. memb", prev_memb_button
+        PushButton 200, 25, 45, 10, "next panel", next_panel_button
+        PushButton 250, 25, 45, 10, "next memb", next_memb_button
+      GroupBox 5, 5, 60, 35, "Income panels"
+      Text 30, 135, 25, 10, "Assets:"
+      GroupBox 75, 5, 110, 35, "Asset panels"
+      Text 5, 105, 55, 10, "Monthly income:"
+      Text 5, 155, 50, 10, "Total assets $:"
+      GroupBox 195, 5, 105, 35, "STAT-based navigation"
+      Text 165, 55, 75, 10, "Prog(s) Asset limit(s): $"
+      Text 10, 55, 80, 10, "Date assets within limit:"
+      Text 20, 200, 40, 10, "Other notes:"
+      Text 15, 220, 50, 10, "Actions taken:"
+      Text 5, 240, 60, 10, "Worker signature:"
+      Text 70, 115, 230, 10, "(Income in the month received is counted as income, not as an asset)"
+      Text 5, 175, 90, 10, "How were assets reduced:"
+      Text 125, 155, 180, 10, "For HC processing steps: see POLI TEMP TE02.07.246"
+      GroupBox 5, 70, 295, 25, "Within asset limit for following programs:"
+    EndDialog
     Do
     	Do
     		err_msg = ""

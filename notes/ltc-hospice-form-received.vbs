@@ -49,7 +49,12 @@ call changelog_update("06/14/2018", "Initial version.", "Casey Love, Hennepin Co
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-
+'THE SCRIPT----------------------------------------------------------------------------------------------------
+'Connecting to BlueZone
+EMConnect ""
+'Searching for case number.
+Call MAXIS_case_number_finder(MAXIS_case_number)
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 'DIALOGS----------------------------------------------------------------------------------------------------
 'Dialog to gather the case number and footer month and year
 '-------------------------------------------------------------------------------------------------DIALOG
@@ -65,28 +70,20 @@ BeginDialog Dialog1, 0, 0, 156, 70, "Case number dialog"
   Text 10, 30, 50, 10, "Footer month:"
   Text 95, 30, 20, 10, "Year:"
 EndDialog
-
-'THE SCRIPT----------------------------------------------------------------------------------------------------
-'Connecting to BlueZone
-EMConnect ""
-
-'Searching for case number.
-Call MAXIS_case_number_finder(MAXIS_case_number)
-Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
-
 'Showing the case number dialog
-Do
-    Dialog case_number_dialog
-    cancel_confirmation
-    If MAXIS_case_number = "" then MsgBox "You must type a case number!"
-Loop until MAXIS_case_number <> ""
-
-'Now it checks to make sure MAXIS is running on this screen.
-Call check_for_MAXIS(True)
+DO
+    DO
+       	err_msg = ""
+       	Dialog Dialog1
+       	cancel_without_confirmation
+        If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+        IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+       LOOP UNTIL err_msg = ""
+	CALL check_for_password_without_transmit(are_we_passworded_out)
+LOOP UNTIL are_we_passworded_out = false
 
 'Looking for a previous case note to autofill some information as this script may be run twice on the same case.
 Call navigate_to_MAXIS_screen("CASE", "NOTE")
-
 note_row = 5                                'beginning of listed case notes
 one_year_ago = DateAdd("yyyy", -1, date)    'we will look back 1 year
 Do
@@ -169,35 +166,6 @@ If IsDate(date_of_death) = TRUE Then hospice_exit_date = date_of_death
 
 Call Generate_Client_List(HH_Memb_DropDown, "Select")         'filling the dropdown with ALL of the household members
 
-
-'-------------------------------------------------------------------------------------------------DIALOG
-Dialog1 = "" 'Blanking out previous dialog detail
-'Next dialog - here so that the dropdown can be filled with case information
-BeginDialog Dialog1, 0, 0, 291, 240, "Hospice Form Received"
-  DropListBox 80, 25, 160, 45, HH_Memb_DropDown, client_in_hospice
-  EditBox 80, 45, 205, 15, hospice_name
-  EditBox 80, 65, 80, 15, npi_number
-  EditBox 80, 85, 50, 15, hospice_entry_date
-  EditBox 185, 85, 50, 15, hospice_exit_date
-  EditBox 80, 105, 50, 15, mmis_updated_date
-  EditBox 10, 140, 275, 15, reason_not_updated
-  EditBox 10, 170, 275, 15, other_notes
-  EditBox 80, 190, 205, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 180, 215, 50, 15
-    CancelButton 235, 215, 50, 15
-  Text 15, 10, 140, 10, "Enter information from the Hospice Form"
-  Text 30, 30, 45, 10, "Client Name:"
-  Text 15, 50, 60, 10, "Name of Hospice:"
-  Text 35, 70, 40, 10, "NPI Numbe:"
-  Text 35, 90, 40, 10, "Entry Date:"
-  Text 150, 90, 35, 10, "Exit Date:"
-  Text 10, 110, 70, 10, "MMIS Updated as of "
-  Text 10, 130, 165, 10, "If MMIS has not yet been updated, explain reason:"
-  Text 10, 160, 50, 10, "Other Notes:"
-  Text 10, 195, 60, 10, "Worker Signature:"
-EndDialog
-
 'DIALOG with a field for reason for exit - this may be added later
 ' BeginDialog hospice_info_dlg, 0, 0, 291, 255, "Hospice Form Received"
 '   DropListBox 80, 25, 160, 45, "HH_Memb_DropDown", client_in_hospice
@@ -225,7 +193,33 @@ EndDialog
 '   Text 10, 215, 60, 10, "Worker Signature:"
 '   Text 150, 90, 35, 10, "Exit Date:"
 ' EndDialog
-
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+'Next dialog - here so that the dropdown can be filled with case information
+BeginDialog Dialog1, 0, 0, 291, 240, "Hospice Form Received"
+  DropListBox 80, 25, 160, 45, HH_Memb_DropDown, client_in_hospice
+  EditBox 80, 45, 205, 15, hospice_name
+  EditBox 80, 65, 80, 15, npi_number
+  EditBox 80, 85, 50, 15, hospice_entry_date
+  EditBox 185, 85, 50, 15, hospice_exit_date
+  EditBox 80, 105, 50, 15, mmis_updated_date
+  EditBox 10, 140, 275, 15, reason_not_updated
+  EditBox 10, 170, 275, 15, other_notes
+  EditBox 80, 190, 205, 15, worker_signature
+  ButtonGroup ButtonPressed
+    OkButton 180, 215, 50, 15
+    CancelButton 235, 215, 50, 15
+  Text 15, 10, 140, 10, "Enter information from the Hospice Form"
+  Text 30, 30, 45, 10, "Client Name:"
+  Text 15, 50, 60, 10, "Name of Hospice:"
+  Text 35, 70, 40, 10, "NPI Numbe:"
+  Text 35, 90, 40, 10, "Entry Date:"
+  Text 150, 90, 35, 10, "Exit Date:"
+  Text 10, 110, 70, 10, "MMIS Updated as of "
+  Text 10, 130, 165, 10, "If MMIS has not yet been updated, explain reason:"
+  Text 10, 160, 50, 10, "Other Notes:"
+  Text 10, 195, 60, 10, "Worker Signature:"
+EndDialog
 'showing the dialog
 DO
 	Do

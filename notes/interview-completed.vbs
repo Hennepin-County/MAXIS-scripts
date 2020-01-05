@@ -53,7 +53,21 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
+'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+HH_memb_row = 5 'This helps the navigation buttons work!
+Dim row
+Dim col
+application_signed_checkbox = checked 'The script should default to having the application signed.
 
+'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
+MAXIS_footer_month = datepart("m", date)
+If len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_month
+MAXIS_footer_year = "" & datepart("yyyy", date) - 2000
+
+'GRABBING THE CASE NUMBER, THE MEMB NUMBERS, AND THE FOOTER MONTH------------------------------------------------------------------------------------------------------------------------------------------------
+EMConnect ""
+call maxis_case_number_finder(MAXIS_case_number)
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 181, 120, "Case number dialog"
@@ -73,22 +87,6 @@ BeginDialog Dialog1, 0, 0, 181, 120, "Case number dialog"
   GroupBox 5, 45, 170, 30, "Programs applied for"
   Text 30, 85, 35, 10, "CAF type:"
 EndDialog
-
-'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-HH_memb_row = 5 'This helps the navigation buttons work!
-Dim row
-Dim col
-application_signed_checkbox = checked 'The script should default to having the application signed.
-
-'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
-MAXIS_footer_month = datepart("m", date)
-If len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_month
-MAXIS_footer_year = "" & datepart("yyyy", date) - 2000
-
-'GRABBING THE CASE NUMBER, THE MEMB NUMBERS, AND THE FOOTER MONTH------------------------------------------------------------------------------------------------------------------------------------------------
-EMConnect ""
-call maxis_case_number_finder(MAXIS_case_number)
-Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 Do
 	Do
@@ -356,7 +354,6 @@ CALL write_bullet_and_variable_in_CASE_NOTE("Earned Income", earned_income)
 CALL write_bullet_and_variable_in_CASE_NOTE("Unearned Income", unearned_income)
 CALL write_bullet_and_variable_in_CASE_NOTE("Expenses", expenses)
 CALL write_bullet_and_variable_in_CASE_NOTE("Assets", assets)
-
 IF expedited_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Expedited SNAP.")
 IF (expedited_checkbox = unchecked) AND (SNAP_checkbox = checked) THEN CALL write_variable_in_CASE_NOTE ("* NOT Expedited SNAP")
 CALL write_bullet_and_variable_in_CASE_NOTE ("Explanation of Expedited Determination", why_xfs)		'Worker can detail how they arrived at if client is expedited or not - particularly useful if different from screening
@@ -366,7 +363,6 @@ If Outlook_remider = True then call write_bullet_and_variable_in_CASE_NOTE("Outl
 IF move_verifs_needed = False THEN CALL write_bullet_and_variable_in_CASE_NOTE("Verifs needed", verifs_needed)			'IF global variable move_verifs_needed = False (on FUNCTIONS FILE), it'll case note at the bottom.
 CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
-
 end_msg = "Success! Interview has been successfully noted. Once processing is completed remember to run the CAF Script for detailed case note."
 If do_not_update_prog = 1 Then end_msg = end_msg & vbNewLine & vbNewLine & "It was selected that PROG would NOT be updated because " & no_update_reason
 script_end_procedure(end_msg)

@@ -56,6 +56,20 @@ next_month = dateadd("m", + 1, date)
 MAXIS_footer_month = datepart("m", next_month)
 If len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_month
 MAXIS_footer_year = datepart("yyyy", next_month)
+'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+HH_memb_row = 5
+Dim row
+Dim col
+HC_check = 1 'This is so the functions will work without having to select a program. It uses the same dialogs as the CSR, which can look in multiple places. This is HC only, so it doesn't need those.
+application_signed_check = 1 'The script should default to having the application signed.
+
+'THE SCRIPT------------------------------------------------------------------------------------------------------------------------------------------------
+'Connecting to BlueZone
+EMConnect ""
+
+'Grabbing the case number & the footer month/year
+Call MAXIS_case_number_finder(MAXIS_case_number)
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 MAXIS_footer_year = "" & MAXIS_footer_year - 2000
 
 '-------------------------------------------------------------------------------------------------DIALOG
@@ -71,21 +85,6 @@ BeginDialog Dialog1, 0, 0, 181, 72, "Case number dialog"
   Text 10, 30, 50, 10, "Footer month:"
   Text 110, 30, 25, 10, "Year:"
 EndDialog
-
-'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-HH_memb_row = 5
-Dim row
-Dim col
-HC_check = 1 'This is so the functions will work without having to select a program. It uses the same dialogs as the CSR, which can look in multiple places. This is HC only, so it doesn't need those.
-application_signed_check = 1 'The script should default to having the application signed.
-
-'THE SCRIPT------------------------------------------------------------------------------------------------------------------------------------------------
-'Connecting to BlueZone
-EMConnect ""
-
-'Grabbing the case number & the footer month/year
-Call MAXIS_case_number_finder(MAXIS_case_number)
-Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 'Showing the case number dialog
 DO

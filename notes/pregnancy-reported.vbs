@@ -85,15 +85,17 @@ EndDialog
 
 'Shows dialog
 DO
-	err_msg = ""
-	Dialog Dialog1				'Calling a dialog without a assigned variable will call the most recently defined dialog
-		IF ButtonPressed = 0 THEN StopScript
-		IF report_method = "Select One:" THEN err_msg = err_msg & vbCr & "* You must select how the pregnancy was reported!"
-		IF IsNumeric(MAXIS_case_number) = FALSE THEN err_msg = err_msg & vbCr & "* You must type a valid numeric case number."
-		IF due_date = "" OR (due_date <> "" AND IsDate(due_date) = False) THEN err_msg = err_msg & vbCr & "* You must enter a due date in a MM/DD/YY format."
-		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* You must sign your case note!"
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-LOOP UNTIL err_msg = ""
+    DO
+    	err_msg = ""
+    	Dialog Dialog1				'Calling a dialog without a assigned variable will call the most recently defined dialog
+    	cancel_confirmation
+    	IF report_method = "Select One:" THEN err_msg = err_msg & vbCr & "* You must select how the pregnancy was reported!"
+    	IF IsNumeric(MAXIS_case_number) = FALSE THEN err_msg = err_msg & vbCr & "* You must type a valid numeric case number."
+    	IF due_date = "" OR (due_date <> "" AND IsDate(due_date) = False) THEN err_msg = err_msg & vbCr & "* You must enter a due date in a MM/DD/YY format."
+    	IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* You must sign your case note!"
+    	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+    LOOP UNTIL err_msg = ""
+LOOP UNTIL are_we_passworded_out = false
 
 'Checks Maxis for password prompt
 CALL check_for_MAXIS(True)

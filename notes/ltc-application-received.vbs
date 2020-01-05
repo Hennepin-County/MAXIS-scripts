@@ -51,6 +51,16 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
+'VARIABLES TO DECLARE----------------------------------------------------------------------------------------------------
+HH_memb_row = 05
+'THE SCRIPT----------------------------------------------------------------------------------------------------
+'Connecting to BlueZone
+EMConnect ""
+
+'Searching for case number.
+Call MAXIS_case_number_finder(MAXIS_case_number)
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 156, 70, "Case number dialog"
@@ -64,25 +74,17 @@ BeginDialog Dialog1, 0, 0, 156, 70, "Case number dialog"
   Text 10, 30, 50, 10, "Footer month:"
   Text 95, 30, 20, 10, "Year:"
 EndDialog
-
-'VARIABLES TO DECLARE----------------------------------------------------------------------------------------------------
-HH_memb_row = 05
-
-
-'THE SCRIPT----------------------------------------------------------------------------------------------------
-'Connecting to BlueZone
-EMConnect ""
-
-'Searching for case number.
-Call MAXIS_case_number_finder(MAXIS_case_number)
-Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
-
 'Showing the case number dialog
-Do
-  Dialog case_number_dialog
-  cancel_confirmation
-  If MAXIS_case_number = "" then MsgBox "You must type a case number!"
-Loop until MAXIS_case_number <> ""
+DO
+    DO
+       	err_msg = ""
+       	Dialog Dialog1
+       	cancel_without_confirmation
+        If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+        IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+       LOOP UNTIL err_msg = ""
+	CALL check_for_password_without_transmit(are_we_passworded_out)
+LOOP UNTIL are_we_passworded_out = false
 
 'Now it checks to make sure MAXIS is running on this screen.
 Call check_for_MAXIS(False)
@@ -177,8 +179,8 @@ Do
     Do
     	err_msg = ""
     	Dialog Dialog1
-    		cancel_confirmation
-    		If buttonpressed <> -1 and buttonpressed <> 0 then Call MAXIS_dialog_navigation
+    	cancel_confirmation
+    	If buttonpressed <> -1 and buttonpressed <> 0 then Call MAXIS_dialog_navigation
     	IF appl_date = "" AND ButtonPressed = -1 THEN err_msg = err_msg & vbCr & "* Please enter an application date."
     	IF basis_of_elig_droplist = "Select one..." AND ButtonPressed = -1 THEN err_msg = err_msg & vbCr & "* Please select an MA basis of eligibility."
     	IF actions_taken = "" AND ButtonPressed = -1 THEN err_msg = err_msg & vbCr & "* Please discuss the actions taken."
@@ -264,8 +266,8 @@ If add_detail_from_app_checkbox = checked Then
         Do
         	err_msg = ""
         	Dialog Dialog1
-        		cancel_confirmation
-        		If buttonpressed <> -1 then Call MAXIS_dialog_navigation
+        	cancel_confirmation
+        	If buttonpressed <> -1 then Call MAXIS_dialog_navigation
         Loop UNTIL err_msg = "" AND ButtonPressed = -1
         call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
     LOOP UNTIL are_we_passworded_out = false

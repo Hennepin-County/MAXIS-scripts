@@ -57,6 +57,10 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 DIM Resolution_date 'DIM this so that the "IF's" date calculation below to return a value and for case noting to have a variable place holder.
+'THE SCRIPT----------------------------------------------------------------------------------------------------
+'Connects to BlueZone & grabs case number
+EMConnect ""
+CALL MAXIS_case_number_finder(MAXIS_case_number)
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 171, 70, "Case number"
@@ -69,17 +73,12 @@ BeginDialog Dialog1, 0, 0, 171, 70, "Case number"
   Text 5, 30, 70, 10, "Select an action type:"
 EndDialog
 
-'THE SCRIPT----------------------------------------------------------------------------------------------------
-'Connects to BlueZone & grabs case number
-EMConnect ""
-CALL MAXIS_case_number_finder(MAXIS_case_number)
-
 'Main dialog: user will input case number and initial month/year if not already auto-filled
 DO
 	DO
 		err_msg = ""							'establishing value of varaible, this is necessary for the Do...LOOP
-		dialog Dialog1				
-		If buttonpressed = 0 THEN stopscript	'script ends if cancel is selected'
+		dialog Dialog1
+		cancel_confirmation	'script ends if cancel is selected'
 		IF len(MAXIS_case_number) > 8 or isnumeric(MAXIS_case_number) = false THEN err_msg = err_msg & vbCr & "* You must enter a valid case number."		'mandatory field
 		If action_type = "Select one..." THEN err_msg = err_msg & vbCr & "* You must select an action type."									'mandatory field
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
@@ -362,7 +361,6 @@ If action_type = "Cure santion/disq." then
       Text 10, 45, 75, 10, "Month Sanction Lifted:"
       Text 240, 110, 100, 10, "Transfer case to (X127 last 3):"
     EndDialog
-
 	DO
 		DO
 			DO

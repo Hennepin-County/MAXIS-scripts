@@ -73,7 +73,7 @@ DO
 	DO
 		err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
 		dialog Dialog1
-		cancel_without_confirmation              'new function that will cancel, collect stats, but not give user option to confirm ending script.
+		cancel_confirmation              'new function that will cancel, collect stats, but not give user option to confirm ending script.
 		call validate_MAXIS_case_number(err_msg, "*")
         If service_requested = "Select one..." then err_msg = err_msg & vbcr & "* Select a service requested by the client."
         If initial_option = "Select one..." then err_msg = err_msg & vbcr & "* Select a transition process."
@@ -129,7 +129,7 @@ ENDDIALOG
 
 Do
     Dialog Dialog1       'runs the dialog that has been dynamically created. Streamlined with new functions.
-    cancel_without_confirmation
+    cancel_confirmation
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
@@ -173,7 +173,7 @@ If initial_option = "MAXIS to METS Migration" then
     	DO
     		err_msg = ""					'establishing value of variable, this is necessary for the Do...LOOP
     		dialog Dialog1		'main dialog
-    		cancel_without_confirmation
+    		cancel_confirmation
             If affliated_case_checkbox = 1 then
                 If IsNumeric(METS_case_number) = False or len(METS_case_number) <> 8 then err_msg = err_msg & vbNewLine & "* Enter a valid METS case number."
             End if
@@ -185,8 +185,8 @@ If initial_option = "MAXIS to METS Migration" then
     Loop until are_we_passworded_out = false					'loops until user passwords back in
 '----------------------------------------------------------------------------------------------------Used for option 1. Non-MAGI referral
 Elseif initial_option = "1. Non-MAGI referral" then
-'-------------------------------------------------------------------------------------------------DIALOG
-Dialog1 = "" 'Blanking out previous dialog detail
+	'-------------------------------------------------------------------------------------------------DIALOG
+	Dialog1 = "" 'Blanking out previous dialog detail
     BeginDialog Dialog1, 0, 0, 271, (150 + (transition_membs * 15)), "Non-MAGI Referral for #" & MAXIS_case_number
       Text 10, 10, 55, 10, "Date of Request:"
       EditBox 70, 5, 55, 15, request_date
@@ -219,7 +219,7 @@ Dialog1 = "" 'Blanking out previous dialog detail
         DO
             err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
             Dialog Dialog1
-            cancel_without_confirmation              'new function that will cancel, collect stats, but not give user option to confirm ending script.
+            cancel_confirmation              'new function that will cancel, collect stats, but not give user option to confirm ending script.
             If isdate(request_date) = false or trim(request_date) = "" then err_msg = err_msg & vbcr & "* Enter a valid request date."
             If trim(METS_case_number) = "" or IsNumeric(METS_case_number) = False or len(METS_case_number) <> 8 then err_msg = err_msg & vbcr & "* Enter a valid METS case number."
             IF service_requested = "Select one..." then err_msg = err_msg & vbcr & "* Enter the service request reason."
@@ -263,7 +263,7 @@ else
         DO
             err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
             dialog Dialog1
-            cancel_without_confirmation              'new function that will cancel, collect stats, but not give user option to confirm ending script.
+            cancel_confirmation              'new function that will cancel, collect stats, but not give user option to confirm ending script.
             If (initial_option = "3. Eligibility ended in METS" AND (isdate(mmis_end_date) = false or trim(mmis_end_date) = "")) then err_msg = err_msg & vbcr & "* Enter a valid MMIS end date."
             If trim(METS_case_number) = "" or IsNumeric(METS_case_number) = False or len(METS_case_number) <> 8 then err_msg = err_msg & vbcr & "* Enter a valid METS case number."
             IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "* Please enter your worker signature."

@@ -239,6 +239,70 @@ current_dialog = "services"
 'function to create dynamic dialog for counting/listing assets. This contains the calculations to build totals
 'vairiables to pull through are: the calculation array, the total applied to the BFE, the total of BS/BSI items, the counted asset total, the unavailable asset total
 FUNCTION build_dynamic_burial_dialog(calc_array, BFE_total, BS_BSI_total, final_counted_total, final_unavailable_total)
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+'dialog to be build dynamically
+BeginDialog Dialog1, 0, 0, 306, 410, "Information"
+Text 10, 5, 60, 10, "BFE Total: "												'here the running totals will be displayed for the end user to keep track.
+Text 100, 5, 60, 10, FormatCurrency(running_total)
+Text 10, 15, 60, 10, "Counted Total: "
+Text 100, 15, 60, 10, FormatCurrency(counted_total)
+Text 10, 25, 60, 10, "Unavailable Total: "
+Text 100, 25, 60, 10, FormatCurrency(unavailable_total)
+ButtonGroup ButtonPressed														'the buttons for calculating, and navigating between the other dialogs
+	PushButton 215, 10, 50, 15, "Calculate", calc_button
+	PushButton 10, 390, 50, 15, "Services", service_button
+	PushButton 65, 390, 50, 15, "BS/BSI", BSI_button
+	PushButton 120, 390, 50, 15, "CAI", CAI_button
+	OkButton 195, 390, 50, 15
+	CancelButton 250, 390, 50, 15
+IF current_dialog = "services" THEN Text 25, 35, 240, 10, "BURIAL SERVICES              VALUE                          STATUS"
+IF current_dialog = "bsi" THEN Text 25, 35, 240, 10, "BURIAL SPACE ITEMS                VALUE                            STATUS"
+IF current_dialog = "cai" THEN Text 25, 35, 240, 10, "CASH ADVANCE ITEMS                VALUE                            STATUS"
+'Here is where the dialog differs, if a certain dialog is clicked on the asset fields will be generated based on the calc_array
+IF current_dialog = "services" THEN							'values 0-16 are the services assets
+	FOR i = 0 TO 16
+		Text 10, 50 + (20 * row_height), 110, 10, calc_array(i, 0)
+		EditBox 120, 50 + (20 * row_height), 60, 15, calc_array(i, 1)
+		DropListBox 195, 50 + (20 * row_height), 95, 15, ""+chr(9)+"counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE"+chr(9)+"applied to BFE/counted"+chr(9)+"applied to BFE/unavailable", calc_array(i, 2)
+		row_height = row_height + 1
+	NEXT
+END IF
+IF current_dialog = "bsi" THEN								'values 17-28 are the Burial space/burial space items assets
+	FOR i = 17 TO 28
+		Text 10, 50 + (20 * row_height), 110, 10, calc_array(i, 0)
+		EditBox 120, 50 + (20 * row_height), 60, 15, calc_array(i, 1)
+		DropListBox 195, 50 + (20 * row_height), 95, 15, ""+chr(9)+"counted"+chr(9)+"excluded", calc_array(i, 2)
+		row_height = row_height + 1
+	NEXT
+END IF
+IF current_dialog = "cai" THEN								'values 29-40 are the cash advance items assets
+	FOR i = 29 TO 40
+		Text 10, 50 + (20 * row_height), 110, 10, calc_array(i, 0)
+		EditBox 120, 50 + (20 * row_height), 60, 15, calc_array(i, 1)
+		DropListBox 195, 50 + (20 * row_height), 95, 15, ""+chr(9)+"counted"+chr(9)+"unavailable", calc_array(i, 2)
+		row_height = row_height + 1
+	NEXT
+	FOR i = 41 TO 41										'this is the extra spot to allow users to enter their own asset, value, and type.
+		Text 10, 50 + (20 * row_height), 40, 10, "Other 1:"
+		DropListBox 50, 50 + (20 * row_height), 55, 15, "Select Type"+chr(9)+"Services"+chr(9)+"BS/BSI"+chr(9)+"CAI", calc_array(i, 3)
+		EditBox 120, 50 + (20 * row_height), 60, 15, calc_array(i, 1)
+		DropListBox 195, 50 + (20 * row_height), 95, 15, ""+chr(9)+"counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE"+chr(9)+"applied to BFE/counted"+chr(9)+"applied to BFE/unavailable", calc_array(i, 2)
+		row_height = row_height + 1
+		Text 15, 50 + (20 * row_height), 40, 10, "This is a:"
+		EditBox 55, 50 + (20 * row_height), 60, 15, calc_array(i, 0)
+	NEXT
+	FOR i = 42 to 42										'this is the extra spot to allow users to enter their own asset, value, and type.
+		Text 10, 70 + (20 * row_height), 40, 10, "Other 2:"
+		DropListBox 50, 70 + (20 * row_height), 55, 15, "Select Type"+chr(9)+"Services"+chr(9)+"BS/BSI"+chr(9)+"CAI", calc_array(i, 3)
+		EditBox 120, 70 + (20 * row_height), 60, 15, calc_array(i, 1)
+		DropListBox 195, 70 + (20 * row_height), 95, 15, ""+chr(9)+"counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE"+chr(9)+"applied to BFE/counted"+chr(9)+"applied to BFE/unavailable", calc_array(i, 2)
+		row_height = row_height + 1
+		Text 15, 70 + (20 * row_height), 40, 10, "This is a:"
+		EditBox 55, 70 + (20 * row_height), 60, 15, calc_array(i, 0)
+	NEXT
+END IF
+EndDialog
 	DO
 		DO
 			FOR i = 0 TO 42											'defining each value as blank to make sure calculations work properly.
@@ -249,71 +313,6 @@ FUNCTION build_dynamic_burial_dialog(calc_array, BFE_total, BS_BSI_total, final_
 			row_height = 0
 			'defining err_msg as blank
 			err_msg = ""
-			'-------------------------------------------------------------------------------------------------DIALOG
-			Dialog1 = "" 'Blanking out previous dialog detail
-			'dialog to be build dynamically
-			BeginDialog Dialog1, 0, 0, 306, 410, "Information"
-			Text 10, 5, 60, 10, "BFE Total: "												'here the running totals will be displayed for the end user to keep track.
-			Text 100, 5, 60, 10, FormatCurrency(running_total)
-			Text 10, 15, 60, 10, "Counted Total: "
-			Text 100, 15, 60, 10, FormatCurrency(counted_total)
-			Text 10, 25, 60, 10, "Unavailable Total: "
-			Text 100, 25, 60, 10, FormatCurrency(unavailable_total)
-			ButtonGroup ButtonPressed														'the buttons for calculating, and navigating between the other dialogs
-				PushButton 215, 10, 50, 15, "Calculate", calc_button
-				PushButton 10, 390, 50, 15, "Services", service_button
-				PushButton 65, 390, 50, 15, "BS/BSI", BSI_button
-				PushButton 120, 390, 50, 15, "CAI", CAI_button
-				OkButton 195, 390, 50, 15
-				CancelButton 250, 390, 50, 15
-			IF current_dialog = "services" THEN Text 25, 35, 240, 10, "BURIAL SERVICES              VALUE                          STATUS"
-			IF current_dialog = "bsi" THEN Text 25, 35, 240, 10, "BURIAL SPACE ITEMS                VALUE                            STATUS"
-			IF current_dialog = "cai" THEN Text 25, 35, 240, 10, "CASH ADVANCE ITEMS                VALUE                            STATUS"
-			'Here is where the dialog differs, if a certain dialog is clicked on the asset fields will be generated based on the calc_array
-			IF current_dialog = "services" THEN							'values 0-16 are the services assets
-				FOR i = 0 TO 16
-					Text 10, 50 + (20 * row_height), 110, 10, calc_array(i, 0)
-					EditBox 120, 50 + (20 * row_height), 60, 15, calc_array(i, 1)
-					DropListBox 195, 50 + (20 * row_height), 95, 15, ""+chr(9)+"counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE"+chr(9)+"applied to BFE/counted"+chr(9)+"applied to BFE/unavailable", calc_array(i, 2)
-					row_height = row_height + 1
-				NEXT
-			END IF
-			IF current_dialog = "bsi" THEN								'values 17-28 are the Burial space/burial space items assets
-				FOR i = 17 TO 28
-					Text 10, 50 + (20 * row_height), 110, 10, calc_array(i, 0)
-					EditBox 120, 50 + (20 * row_height), 60, 15, calc_array(i, 1)
-					DropListBox 195, 50 + (20 * row_height), 95, 15, ""+chr(9)+"counted"+chr(9)+"excluded", calc_array(i, 2)
-					row_height = row_height + 1
-				NEXT
-			END IF
-			IF current_dialog = "cai" THEN								'values 29-40 are the cash advance items assets
-				FOR i = 29 TO 40
-					Text 10, 50 + (20 * row_height), 110, 10, calc_array(i, 0)
-					EditBox 120, 50 + (20 * row_height), 60, 15, calc_array(i, 1)
-					DropListBox 195, 50 + (20 * row_height), 95, 15, ""+chr(9)+"counted"+chr(9)+"unavailable", calc_array(i, 2)
-					row_height = row_height + 1
-				NEXT
-				FOR i = 41 TO 41										'this is the extra spot to allow users to enter their own asset, value, and type.
-					Text 10, 50 + (20 * row_height), 40, 10, "Other 1:"
-					DropListBox 50, 50 + (20 * row_height), 55, 15, "Select Type"+chr(9)+"Services"+chr(9)+"BS/BSI"+chr(9)+"CAI", calc_array(i, 3)
-					EditBox 120, 50 + (20 * row_height), 60, 15, calc_array(i, 1)
-					DropListBox 195, 50 + (20 * row_height), 95, 15, ""+chr(9)+"counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE"+chr(9)+"applied to BFE/counted"+chr(9)+"applied to BFE/unavailable", calc_array(i, 2)
-					row_height = row_height + 1
-					Text 15, 50 + (20 * row_height), 40, 10, "This is a:"
-					EditBox 55, 50 + (20 * row_height), 60, 15, calc_array(i, 0)
-				NEXT
-				FOR i = 42 to 42										'this is the extra spot to allow users to enter their own asset, value, and type.
-					Text 10, 70 + (20 * row_height), 40, 10, "Other 2:"
-					DropListBox 50, 70 + (20 * row_height), 55, 15, "Select Type"+chr(9)+"Services"+chr(9)+"BS/BSI"+chr(9)+"CAI", calc_array(i, 3)
-					EditBox 120, 70 + (20 * row_height), 60, 15, calc_array(i, 1)
-					DropListBox 195, 70 + (20 * row_height), 95, 15, ""+chr(9)+"counted"+chr(9)+"excluded"+chr(9)+"unavailable"+chr(9)+"applied to BFE"+chr(9)+"applied to BFE/counted"+chr(9)+"applied to BFE/unavailable", calc_array(i, 2)
-					row_height = row_height + 1
-					Text 15, 70 + (20 * row_height), 40, 10, "This is a:"
-					EditBox 55, 70 + (20 * row_height), 60, 15, calc_array(i, 0)
-				NEXT
-			END IF
-			EndDialog
-
 			'calling the dynamic dialog
 			Dialog Dialog1
 			cancel_confirmation
@@ -475,52 +474,52 @@ Call MAXIS_case_number_finder(MAXIS_case_number)	'grabbing the case number
 insurance_policy_number = "none"			'establishing value of the variable
 
 'calling the initial dialog
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 311, 420, "Burial Assets"
+  EditBox 95, 25, 60, 15, MAXIS_case_number
+  EditBox 225, 25, 30, 15, hh_member
+  DropListBox 165, 45, 90, 15, "Select one..."+chr(9)+"GA"+chr(9)+"Health Care"+chr(9)+"MFIP/DWP"+chr(9)+"MSA/GRH", programs
+  EditBox 135, 65, 120, 15, worker_signature
+  DropListBox 110, 105, 60, 15, "None"+chr(9)+"CD"+chr(9)+"Money Market"+chr(9)+"Stock"+chr(9)+"Bond", type_of_designated_account
+  EditBox 240, 105, 60, 15, account_identifier
+  EditBox 180, 130, 120, 15, why_not_seperated
+  EditBox 90, 155, 65, 15, account_create_date
+  EditBox 225, 155, 75, 15, counted_value_designated
+  EditBox 70, 180, 230, 15, BFE_information_designated
+  EditBox 65, 230, 80, 15, insurance_policy_number
+  EditBox 220, 230, 80, 15, insurance_create_date
+  EditBox 80, 255, 220, 15, insurance_company
+  EditBox 105, 280, 60, 15, insurance_csv
+  EditBox 235, 280, 65, 15, insurance_counted_value
+  EditBox 75, 305, 225, 15, insurance_BFE_steps_info
+  ButtonGroup ButtonPressed
+	PushButton 195, 375, 50, 15, "Next", open_dialog_next_button
+	CancelButton 250, 375, 50, 15
+  Text 40, 30, 50, 10, "Case Number:"
+  Text 175, 30, 45, 10, "HH Member:"
+  Text 40, 70, 95, 10, "Please sign your case note:"
+  GroupBox 5, 90, 300, 110, "Designated Account Information"
+  Text 10, 110, 95, 10, "Type of designated account:"
+  Text 180, 110, 60, 10, "Account Identifier:"
+  Text 10, 135, 170, 10, "Reason funds could not be separated as applicable:"
+  Text 10, 160, 75, 10, "Date Account Created:"
+  Text 170, 160, 50, 10, "Counted value:"
+  Text 10, 185, 55, 10, "BFE information:"
+  GroupBox 5, 215, 300, 110, "Non-Term Life Insurance Information"
+  Text 10, 235, 50, 10, "Policy Number:"
+  Text 10, 260, 70, 10, "Insurance Company:"
+  Text 150, 235, 70, 10, "Date Policy Created:"
+  Text 10, 285, 90, 10, "CSV/FV Designated to BFE:"
+  Text 180, 285, 50, 10, "Counted Value:"
+  Text 10, 310, 65, 10, "Info/Steps on BFE:"
+  Text 40, 50, 125, 10, "Program asset is being evaluated for"
+  GroupBox 35, 5, 230, 80, "Case and Worker Information"
+  Text 25, 350, 260, 20, "Please refer to CM 0015.21 (burial funds) and CM 0015.24 (burial contracts) for information on how to evaluate burial assets for each program."
+  GroupBox 5, 335, 300, 65, "Each program evaluates burial assets differently"
+EndDialog
 DO
-    '-------------------------------------------------------------------------------------------------DIALOG
-    Dialog1 = "" 'Blanking out previous dialog detail
-    BeginDialog Dialog1, 0, 0, 311, 420, "Burial Assets"
-      EditBox 95, 25, 60, 15, MAXIS_case_number
-      EditBox 225, 25, 30, 15, hh_member
-      DropListBox 165, 45, 90, 15, "Select one..."+chr(9)+"GA"+chr(9)+"Health Care"+chr(9)+"MFIP/DWP"+chr(9)+"MSA/GRH", programs
-      EditBox 135, 65, 120, 15, worker_signature
-      DropListBox 110, 105, 60, 15, "None"+chr(9)+"CD"+chr(9)+"Money Market"+chr(9)+"Stock"+chr(9)+"Bond", type_of_designated_account
-      EditBox 240, 105, 60, 15, account_identifier
-      EditBox 180, 130, 120, 15, why_not_seperated
-      EditBox 90, 155, 65, 15, account_create_date
-      EditBox 225, 155, 75, 15, counted_value_designated
-      EditBox 70, 180, 230, 15, BFE_information_designated
-      EditBox 65, 230, 80, 15, insurance_policy_number
-      EditBox 220, 230, 80, 15, insurance_create_date
-      EditBox 80, 255, 220, 15, insurance_company
-      EditBox 105, 280, 60, 15, insurance_csv
-      EditBox 235, 280, 65, 15, insurance_counted_value
-      EditBox 75, 305, 225, 15, insurance_BFE_steps_info
-      ButtonGroup ButtonPressed
-        PushButton 195, 375, 50, 15, "Next", open_dialog_next_button
-        CancelButton 250, 375, 50, 15
-      Text 40, 30, 50, 10, "Case Number:"
-      Text 175, 30, 45, 10, "HH Member:"
-      Text 40, 70, 95, 10, "Please sign your case note:"
-      GroupBox 5, 90, 300, 110, "Designated Account Information"
-      Text 10, 110, 95, 10, "Type of designated account:"
-      Text 180, 110, 60, 10, "Account Identifier:"
-      Text 10, 135, 170, 10, "Reason funds could not be separated as applicable:"
-      Text 10, 160, 75, 10, "Date Account Created:"
-      Text 170, 160, 50, 10, "Counted value:"
-      Text 10, 185, 55, 10, "BFE information:"
-      GroupBox 5, 215, 300, 110, "Non-Term Life Insurance Information"
-      Text 10, 235, 50, 10, "Policy Number:"
-      Text 10, 260, 70, 10, "Insurance Company:"
-      Text 150, 235, 70, 10, "Date Policy Created:"
-      Text 10, 285, 90, 10, "CSV/FV Designated to BFE:"
-      Text 180, 285, 50, 10, "Counted Value:"
-      Text 10, 310, 65, 10, "Info/Steps on BFE:"
-      Text 40, 50, 125, 10, "Program asset is being evaluated for"
-      GroupBox 35, 5, 230, 80, "Case and Worker Information"
-      Text 25, 350, 260, 20, "Please refer to CM 0015.21 (burial funds) and CM 0015.24 (burial contracts) for information on how to evaluate burial assets for each program."
-      GroupBox 5, 335, 300, 65, "Each program evaluates burial assets differently"
-    EndDialog
-	err_msg = "" 					'established the perimeter that err_msg = ""
+    err_msg = "" 					'established the perimeter that err_msg = ""
 	Dialog Dialog1		'calls the initial dialog
 	cancel_confirmation				'if cancel is pressed, this function gives the user the option to proceed or back out of the cancel request
 	IF type_of_designated_account <> "None" AND isnumeric(counted_value_designated) = FALSE THEN err_msg = err_msg & vbNewLine & _
@@ -533,35 +532,34 @@ DO
 	If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
 	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 LOOP until ButtonPressed = open_dialog_next_button AND err_msg = ""
-
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 301, 210, "Burial assets dialog (01)"
+  CheckBox 5, 25, 160, 10, "Applied $1500 of burial services to BFE?", applied_BFE_check
+  ComboBox 95, 70, 65, 15, "Select One..."+chr(9)+"None"+chr(9)+"AFB"+chr(9)+"CSA"+chr(9)+"IBA"+chr(9)+"IFB"+chr(9)+"RBA", type_of_burial_agreement
+  EditBox 220, 70, 65, 15, purchase_date
+  EditBox 60, 90, 125, 15, issuer_name
+  EditBox 230, 90, 55, 15, policy_number
+  EditBox 60, 110, 55, 15, face_value
+  EditBox 170, 110, 115, 15, funeral_home
+  CheckBox 10, 130, 280, 10, "Primary beneficiary is : Any funeral provider whose interest may appear irrevocably", Primary_benficiary_check
+  CheckBox 10, 145, 175, 10, "Contingent Beneficiary is: The estate of the insured ", Contingent_benficiary_check
+  CheckBox 10, 160, 215, 10, "Policy's CSV is irrevocably designated to the funeral provider", policy_CSV_check
+  ButtonGroup ButtonPressed
+	PushButton 95, 185, 50, 15, "Next", next_to_02_button
+	CancelButton 155, 185, 50, 15
+  Text 10, 75, 85, 10, "Type of burial agreement:"
+  Text 165, 75, 50, 10, "Purchase date:"
+  Text 10, 95, 50, 10, "Issuer name:"
+  Text 200, 95, 30, 10, "Policy #:"
+  Text 10, 115, 40, 10, "Face value:"
+  Text 120, 115, 50, 10, "Funeral home:"
+  GroupBox 0, 5, 290, 170, "Burial agreements"
+  Text 35, 40, 205, 25, "NOTE: You can mark specific items/services as applied to the BFE on the following panels. These will be calculated and case noted"
+EndDialog
 Do
 	Do
-	    '-------------------------------------------------------------------------------------------------DIALOG
-	    Dialog1 = "" 'Blanking out previous dialog detail
-	    BeginDialog Dialog1, 0, 0, 301, 210, "Burial assets dialog (01)"
-	      CheckBox 5, 25, 160, 10, "Applied $1500 of burial services to BFE?", applied_BFE_check
-	      ComboBox 95, 70, 65, 15, "Select One..."+chr(9)+"None"+chr(9)+"AFB"+chr(9)+"CSA"+chr(9)+"IBA"+chr(9)+"IFB"+chr(9)+"RBA", type_of_burial_agreement
-	      EditBox 220, 70, 65, 15, purchase_date
-	      EditBox 60, 90, 125, 15, issuer_name
-	      EditBox 230, 90, 55, 15, policy_number
-	      EditBox 60, 110, 55, 15, face_value
-	      EditBox 170, 110, 115, 15, funeral_home
-	      CheckBox 10, 130, 280, 10, "Primary beneficiary is : Any funeral provider whose interest may appear irrevocably", Primary_benficiary_check
-	      CheckBox 10, 145, 175, 10, "Contingent Beneficiary is: The estate of the insured ", Contingent_benficiary_check
-	      CheckBox 10, 160, 215, 10, "Policy's CSV is irrevocably designated to the funeral provider", policy_CSV_check
-	      ButtonGroup ButtonPressed
-	        PushButton 95, 185, 50, 15, "Next", next_to_02_button
-	        CancelButton 155, 185, 50, 15
-	      Text 10, 75, 85, 10, "Type of burial agreement:"
-	      Text 165, 75, 50, 10, "Purchase date:"
-	      Text 10, 95, 50, 10, "Issuer name:"
-	      Text 200, 95, 30, 10, "Policy #:"
-	      Text 10, 115, 40, 10, "Face value:"
-	      Text 120, 115, 50, 10, "Funeral home:"
-	      GroupBox 0, 5, 290, 170, "Burial agreements"
-	      Text 35, 40, 205, 25, "NOTE: You can mark specific items/services as applied to the BFE on the following panels. These will be calculated and case noted"
-	    EndDialog
-		err_msg = ""
+	    err_msg = ""
 		Dialog Dialog1
 		cancel_confirmation
 		If type_of_burial_agreement = "Select One..." Then err_msg = err_msg & vbNewLine & "You must select a type of burial agreement. Select none if n/a."

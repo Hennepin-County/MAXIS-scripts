@@ -394,7 +394,6 @@ BeginDialog dialog1, 0, 0, 386, 185, "Application Check: "  & application_check
   Text 275, 90, 100, 20, "**A TIKL to review the case will be created by the script"
   Text 285, 75, 90, 10, " been reviewed"
 EndDialog
-
 'main dialog
 Do
 	Do

@@ -51,6 +51,10 @@ call changelog_update("07/26/2019", "Initial version.", "Ilse Ferris, Hennepin C
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
+'-------------------------------------------------------------------------------------------------------script
+EMConnect ""
+CALL MAXIS_case_number_finder(MAXIS_case_number)
+'email_checkbox = checked 'defaulting to checked
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 146, 90, "METS Retro Health Care"
@@ -64,11 +68,6 @@ BeginDialog Dialog1, 0, 0, 146, 90, "METS Retro Health Care"
   Text 10, 15, 50, 10, "MAXIS Case #:"
   Text 10, 35, 50, 10, "METS case #:"
 EndDialog
-
-'-------------------------------------------------------------------------------------------------------script
-EMConnect ""
-CALL MAXIS_case_number_finder(MAXIS_case_number)
-'email_checkbox = checked 'defaulting to checked
 
 'Main dialog: user will input case number and member number
 DO

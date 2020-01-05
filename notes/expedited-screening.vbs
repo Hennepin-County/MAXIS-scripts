@@ -53,33 +53,6 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'-------------------------------------------------------------------------------------------------DIALOG
-Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 186, 195, "Expedited Screening Dialog"
-  EditBox 40, 10, 50, 15, MAXIS_case_number
-  EditBox 130, 10, 50, 15, application_date
-  EditBox 105, 35, 50, 15, income
-  EditBox 105, 55, 50, 15, assets
-  EditBox 105, 75, 50, 15, rent
-  CheckBox 20, 105, 55, 10, "Heat (or AC)", heat_AC_check
-  CheckBox 80, 105, 45, 10, "Electricity", electric_check
-  CheckBox 135, 105, 35, 10, "Phone", phone_check
-  EditBox 75, 125, 105, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 75, 145, 50, 15
-    CancelButton 130, 145, 50, 15
-  Text 10, 40, 95, 10, "Income received this month:"
-  Text 10, 60, 95, 10, "Cash, checking, or savings: "
-  Text 10, 80, 90, 10, "AMT paid for rent/mortgage:"
-  GroupBox 10, 95, 170, 25, "Utilities claimed (check below):"
-  Text 10, 130, 60, 10, "Worker signature:"
-  Text 10, 15, 25, 10, "Case #: "
-  GroupBox 5, 160, 175, 30, "**IMPORTANT**"
-  Text 15, 170, 160, 15, "The income, assets and shelter costs fields will default to $0 if left blank. "
-  Text 95, 15, 35, 10, "App Date:"
-  GroupBox 5, 0, 180, 30, ""
-EndDialog
-
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 EMConnect ""    'Connecting to BlueZone
 call MAXIS_case_number_finder(MAXIS_case_number) 'It will search for a case number.
@@ -98,10 +71,36 @@ If MAXIS_case_number <> "" Then
     End If
 End If
 
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 186, 195, "Expedited Screening Dialog"
+  EditBox 40, 10, 50, 15, MAXIS_case_number
+  EditBox 130, 10, 50, 15, application_date
+  EditBox 105, 35, 50, 15, income
+  EditBox 105, 55, 50, 15, assets
+  EditBox 105, 75, 50, 15, rent
+  CheckBox 20, 105, 55, 10, "Heat (or AC)", heat_AC_check
+  CheckBox 80, 105, 45, 10, "Electricity", electric_check
+  CheckBox 135, 105, 35, 10, "Phone", phone_check
+  EditBox 75, 125, 105, 15, worker_signature
+  ButtonGroup ButtonPressed
+	OkButton 75, 145, 50, 15
+	CancelButton 130, 145, 50, 15
+  Text 10, 40, 95, 10, "Income received this month:"
+  Text 10, 60, 95, 10, "Cash, checking, or savings: "
+  Text 10, 80, 90, 10, "AMT paid for rent/mortgage:"
+  GroupBox 10, 95, 170, 25, "Utilities claimed (check below):"
+  Text 10, 130, 60, 10, "Worker signature:"
+  Text 10, 15, 25, 10, "Case #: "
+  GroupBox 5, 160, 175, 30, "**IMPORTANT**"
+  Text 15, 170, 160, 15, "The income, assets and shelter costs fields will default to $0 if left blank. "
+  Text 95, 15, 35, 10, "App Date:"
+  GroupBox 5, 0, 180, 30, ""
+EndDialog
 'Shows the dialog
 Do
 	Do
-        err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
+	    err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
         dialog Dialog1							'main dialog
         cancel_without_confirmation	'script ends if cancel is selected
         IF len(MAXIS_case_number) > 8 or isnumeric(MAXIS_case_number) = false then err_msg = err_msg & vbCr & "* Enter a valid case number."		'mandatory field

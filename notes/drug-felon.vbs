@@ -106,22 +106,21 @@ If MAXIS_case_number <> "" Then
 End If
 
 'Running the initial dialog to confirm what type of DFLN note is needed and the specifics about the case
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 186, 100, "Case Number and Information"
+  EditBox 75, 5, 70, 15, MAXIS_case_number
+  DropListBox 75, 30, 105, 45, "Select one..."+chr(9)+"Active Family Cash"+chr(9)+"Active Adult Cash"+chr(9)+"Active but NO Cash"+chr(9)+"Closed", case_status_dropdown
+  DropListBox 75, 55, 105, 45, "Select one..."+chr(9)+"Initial Information Received"+chr(9)+"Initial Information Not Received"+chr(9)+"Testing Follow Up", action_dropdown
+  ButtonGroup ButtonPressed
+	OkButton 75, 80, 50, 15
+	CancelButton 130, 80, 50, 15
+  Text 10, 10, 50, 10, "Case Number:"
+  Text 10, 35, 45, 10, "Case Status:"
+  Text 10, 60, 60, 10, "Action to Process:"
+EndDialog
 DO
     Do
-
-        '-------------------------------------------------------------------------------------------------DIALOG
-        Dialog1 = "" 'Blanking out previous dialog detail
-        BeginDialog Dialog1, 0, 0, 186, 100, "Case Number and Information"
-          EditBox 75, 5, 70, 15, MAXIS_case_number
-          DropListBox 75, 30, 105, 45, "Select one..."+chr(9)+"Active Family Cash"+chr(9)+"Active Adult Cash"+chr(9)+"Active but NO Cash"+chr(9)+"Closed", case_status_dropdown
-          DropListBox 75, 55, 105, 45, "Select one..."+chr(9)+"Initial Information Received"+chr(9)+"Initial Information Not Received"+chr(9)+"Testing Follow Up", action_dropdown
-          ButtonGroup ButtonPressed
-        	OkButton 75, 80, 50, 15
-        	CancelButton 130, 80, 50, 15
-          Text 10, 10, 50, 10, "Case Number:"
-          Text 10, 35, 45, 10, "Case Status:"
-          Text 10, 60, 60, 10, "Action to Process:"
-        EndDialog
     	err_msg = ""
     	Dialog Dialog1
     	cancel_confirmation
@@ -147,26 +146,25 @@ Select Case action_dropdown
 
 'This is for when a client has submitted the proofs needed after a DFLN match has been identified
 Case "Initial Information Received"
-
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+'Dialog is defined here as the HH dropdown needs to be defined before the dialog is
+BeginDialog Dialog1, 0, 0, 191, 105, "Update FSS Information from the Status Update"
+  DropListBox 80, 5, 105, 45, HH_Memb_DropDown, clt_to_update
+  ComboBox 85, 25, 100, 45, ""+chr(9)+"Assesed as not needing drug treatment."+chr(9)+"Currently in drug treatment."+chr(9)+"Successful completion of drug treatment.", docs_dropdown
+  EditBox 75, 45, 110, 15, more_notes
+  EditBox 75, 65, 110, 15, worker_signature
+  ButtonGroup ButtonPressed
+	OkButton 115, 85, 35, 15
+	CancelButton 155, 85, 30, 15
+  Text 5, 10, 70, 10, "Household member:"
+  Text 5, 30, 75, 10, "Information Received:"
+  Text 5, 50, 55, 10, "Additional Notes:"
+  Text 5, 70, 60, 10, "Worker Signature:"
+EndDialog
 'Runs the dialog
 	Do
-	    '-------------------------------------------------------------------------------------------------DIALOG
-	    Dialog1 = "" 'Blanking out previous dialog detail
-	    'Dialog is defined here as the HH dropdown needs to be defined before the dialog is
-	    BeginDialog Dialog1, 0, 0, 191, 105, "Update FSS Information from the Status Update"
-	      DropListBox 80, 5, 105, 45, HH_Memb_DropDown, clt_to_update
-	      ComboBox 85, 25, 100, 45, ""+chr(9)+"Assesed as not needing drug treatment."+chr(9)+"Currently in drug treatment."+chr(9)+"Successful completion of drug treatment.", docs_dropdown
-	      EditBox 75, 45, 110, 15, more_notes
-	      EditBox 75, 65, 110, 15, worker_signature
-	      ButtonGroup ButtonPressed
-	    	OkButton 115, 85, 35, 15
-	    	CancelButton 155, 85, 30, 15
-	      Text 5, 10, 70, 10, "Household member:"
-	      Text 5, 30, 75, 10, "Information Received:"
-	      Text 5, 50, 55, 10, "Additional Notes:"
-	      Text 5, 70, 60, 10, "Worker Signature:"
-	    EndDialog
-		err_msg = ""
+	   	err_msg = ""
 		Dialog Dialog1
 		cancel_confirmation
 		If clt_to_update = "Select One..." Then err_msg = err_msg & vbNewLine & "Please pick the client you are processing DFLN information for."
@@ -216,25 +214,24 @@ Case "Initial Information Received"
 'This is for when documentation about follow up has been requested but client failed to provide it within 10 days
 'This has no actions associated with it as no process was provided at this time. This is a great place for an enhancement
 Case "Initial Information Not Received"
-	'Running the dialog
+    '-------------------------------------------------------------------------------------------------DIALOG
+    Dialog1 = "" 'Blanking out previous dialog detail
+    'Dialog is defined here as the HH dropdown needs to be defined before the dialog is
+    BeginDialog Dialog1, 0, 0, 191, 105, "Update FSS Information from the Status Update"
+      DropListBox 80, 5, 105, 45, HH_Memb_DropDown, clt_to_update
+      EditBox 75, 25, 110, 15, action_taken
+      EditBox 75, 45, 110, 15, more_notes
+      EditBox 75, 65, 110, 15, worker_signature
+      ButtonGroup ButtonPressed
+    	OkButton 115, 85, 35, 15
+    	CancelButton 155, 85, 30, 15
+      Text 5, 10, 70, 10, "Household member:"
+      Text 5, 30, 55, 10, "Action Taken"
+      Text 5, 50, 55, 10, "Additional Notes:"
+      Text 5, 70, 60, 10, "Worker Signature:"
+    EndDialog'Running the dialog
 	Do
-	    '-------------------------------------------------------------------------------------------------DIALOG
-	    Dialog1 = "" 'Blanking out previous dialog detail
-	    'Dialog is defined here as the HH dropdown needs to be defined before the dialog is
-	    BeginDialog Dialog1, 0, 0, 191, 105, "Update FSS Information from the Status Update"
-	      DropListBox 80, 5, 105, 45, HH_Memb_DropDown, clt_to_update
-	      EditBox 75, 25, 110, 15, action_taken
-	      EditBox 75, 45, 110, 15, more_notes
-	      EditBox 75, 65, 110, 15, worker_signature
-	      ButtonGroup ButtonPressed
-	    	OkButton 115, 85, 35, 15
-	    	CancelButton 155, 85, 30, 15
-	      Text 5, 10, 70, 10, "Household member:"
-	      Text 5, 30, 55, 10, "Action Taken"
-	      Text 5, 50, 55, 10, "Additional Notes:"
-	      Text 5, 70, 60, 10, "Worker Signature:"
-	    EndDialog
-		err_msg = ""
+	    err_msg = ""
 		Dialog Dialog1
 		cancel_confirmation
 		If clt_to_update = "Select One..." Then err_msg = err_msg & vbNewLine & "Please pick the client you are processing DFLN information for."
@@ -261,32 +258,32 @@ Case "Testing Follow Up"
 		convc_dt = replace(convc_dt, " ", "/")
 		conviction_date = convc_dt
 	End If
+	'-------------------------------------------------------------------------------------------------DIALOG
+	Dialog1 = "" 'Blanking out previous dialog detail
+	BeginDialog Dialog1, 0, 0, 271, 175, "Drug Felon Testing"
+	EditBox 65, 5, 60, 15, conviction_date
+	EditBox 65, 25, 135, 15, probation_officer
+	CheckBox 10, 45, 145, 10, "Check here if the authorization is on file:", authorization_on_file_check
+	CheckBox 10, 60, 130, 10, "Check here if client complied with UA:", complied_with_UA_check
+	EditBox 40, 75, 45, 15, UA_date
+	DropListBox 145, 75, 65, 15, "select one..."+chr(9)+"Positive"+chr(9)+"Negative"+chr(9)+"Refused", UA_results
+	EditBox 75, 95, 55, 15, date_of_1st_offense
+	EditBox 210, 95, 55, 15, date_of_2nd_offense
+	EditBox 60, 115, 205, 15, actions_taken
+	EditBox 80, 135, 185, 15, worker_signature
+	ButtonGroup ButtonPressed
+		OkButton 160, 155, 50, 15
+		CancelButton 215, 155, 50, 15
+	Text 140, 100, 70, 10, "Date of 2nd Offense:"
+	Text 5, 10, 55, 10, "Conviction Date:"
+	Text 5, 120, 50, 10, "Actions Taken:"
+	Text 100, 80, 40, 10, "UA Results:"
+	Text 5, 140, 70, 15, "Sign your Case Note:"
+	Text 5, 100, 65, 10, "Date of 1st Offense:"
+	Text 5, 30, 60, 10, "Probation Officer:"
+	Text 5, 80, 30, 10, "UA Date:"
+	EndDialog
 	DO
-		'-------------------------------------------------------------------------------------------------DIALOG
-		Dialog1 = "" 'Blanking out previous dialog detail
-		BeginDialog Dialog1, 0, 0, 271, 175, "Drug Felon Testing"
-	  	EditBox 65, 5, 60, 15, conviction_date
-	  	EditBox 65, 25, 135, 15, probation_officer
-	  	CheckBox 10, 45, 145, 10, "Check here if the authorization is on file:", authorization_on_file_check
-	  	CheckBox 10, 60, 130, 10, "Check here if client complied with UA:", complied_with_UA_check
-	  	EditBox 40, 75, 45, 15, UA_date
-	  	DropListBox 145, 75, 65, 15, "select one..."+chr(9)+"Positive"+chr(9)+"Negative"+chr(9)+"Refused", UA_results
-	  	EditBox 75, 95, 55, 15, date_of_1st_offense
-	  	EditBox 210, 95, 55, 15, date_of_2nd_offense
-	  	EditBox 60, 115, 205, 15, actions_taken
-	  	EditBox 80, 135, 185, 15, worker_signature
-	  	ButtonGroup ButtonPressed
-			OkButton 160, 155, 50, 15
-			CancelButton 215, 155, 50, 15
-	  	Text 140, 100, 70, 10, "Date of 2nd Offense:"
-	  	Text 5, 10, 55, 10, "Conviction Date:"
-	  	Text 5, 120, 50, 10, "Actions Taken:"
-	  	Text 100, 80, 40, 10, "UA Results:"
-	  	Text 5, 140, 70, 15, "Sign your Case Note:"
-	  	Text 5, 100, 65, 10, "Date of 1st Offense:"
-	  	Text 5, 30, 60, 10, "Probation Officer:"
-	  	Text 5, 80, 30, 10, "UA Date:"
-		EndDialog
 		err_msg = ""
 		Dialog Dialog1
 		cancel_confirmation

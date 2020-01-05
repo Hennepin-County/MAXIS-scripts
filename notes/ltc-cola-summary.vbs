@@ -51,31 +51,6 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-
-'-------------------------------------------------------------------------------------------------DIALOG
-Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 391, 200, "COLA income dialog"
-  EditBox 30, 15, 350, 15, unearned_income
-  EditBox 30, 35, 350, 15, earned_income
-  EditBox 80, 55, 300, 15, medicare_part_B
-  EditBox 30, 100, 350, 15, unearned_income_spouse
-  EditBox 30, 120, 350, 15, earned_income_spouse
-  EditBox 50, 155, 335, 15, other_notes
-  EditBox 200, 175, 65, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 275, 175, 50, 15
-    CancelButton 330, 175, 50, 15
-  GroupBox 5, 5, 380, 75, "Member 01"
-  Text 15, 20, 15, 10, "UI:"
-  Text 15, 40, 15, 10, "EI:"
-  Text 15, 60, 60, 10, "Medicare Part B:"
-  GroupBox 5, 90, 380, 55, "Spouse"
-  Text 15, 105, 15, 10, "UI:"
-  Text 15, 125, 15, 10, "EI:"
-  Text 5, 160, 45, 10, "Other notes:"
-  Text 135, 175, 60, 15, "Worker signature:"
-EndDialog
-
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 HH_memb_row = 5
 HC_check = 1
@@ -238,13 +213,36 @@ Function approval_summary
   If BBUD_check = "BBUD" then
     EMReadScreen income, 10, 12, 32
     income = "$" & trim(income)
-    Dialog BBUD_dialog
+	'-------------------------------------------------------------------------------------------------DIALOG
+	Dialog1 = "" 'Blanking out previous dialog detail
+	BeginDialog Dialog1, 0, 0, 391, 200, "COLA income dialog"
+	  EditBox 30, 15, 350, 15, unearned_income
+	  EditBox 30, 35, 350, 15, earned_income
+	  EditBox 80, 55, 300, 15, medicare_part_B
+	  EditBox 30, 100, 350, 15, unearned_income_spouse
+	  EditBox 30, 120, 350, 15, earned_income_spouse
+	  EditBox 50, 155, 335, 15, other_notes
+	  EditBox 200, 175, 65, 15, worker_signature
+	  ButtonGroup ButtonPressed
+	    OkButton 275, 175, 50, 15
+	    CancelButton 330, 175, 50, 15
+	  GroupBox 5, 5, 380, 75, "Member 01"
+	  Text 15, 20, 15, 10, "UI:"
+	  Text 15, 40, 15, 10, "EI:"
+	  Text 15, 60, 60, 10, "Medicare Part B:"
+	  GroupBox 5, 90, 380, 55, "Spouse"
+	  Text 15, 105, 15, 10, "UI:"
+	  Text 15, 125, 15, 10, "EI:"
+	  Text 5, 160, 45, 10, "Other notes:"
+	  Text 135, 175, 60, 15, "Worker signature:"
+	EndDialog
+    Dialog dialog1
     cancel_confirmation
     If ButtonPressed = BILS_button then
       PF3
       EMReadScreen check_for_MAXIS(True), 5, 1, 39
       If check_for_MAXIS(True) <> "MAXIS" then
-	  	'-------------------------------------------------------------------------------------------------DIALOG
+	  	  	'-------------------------------------------------------------------------------------------------DIALOG
 		Dialog1 = "" 'Blanking out previous dialog detail
 	  	BeginDialog Dialog1, 0, 0, 191, 76, "BBUD"
 	      Text 5, 10, 180, 10, "This is a method B budget. What would you like to do?"
@@ -310,33 +308,31 @@ Function approval_summary
       Text 5, 130, 65, 10, "Other (if applicable):"
       Text 5, 150, 70, 10, "Sign your case note:"
     EndDialog
-
-
    Do
-	      Dialog Dialog1
-	      If buttonpressed = 0 then stopscript
-		If buttonpressed = BBUD_button then
-			Call check_for_MAXIS(False)
-			back_to_self
-			Call navigate_to_MAXIS_screen("ELIG", "HC")
- 			 EMReadScreen person_check, 2, 8, 31
- 			 If person_check = "NO" then
- 			   MsgBox "Person 01 does not have HC on this case. The script will attempt to execute this on person 02. Please check this for errors before approving any results."
-  			   EMWriteScreen "x", 9, 26
-		       End if
-			 If person_check <> "NO" then EMWriteScreen "x", 8, 26
-  			 transmit
-			 row = 3
-  			 col = 1
-  			 EMSearch MAXIS_footer_month & "/" & MAXIS_footer_year, row, col
- 			 If row = 0 then
- 			   MsgBox "A " & MAXIS_footer_month & "/" & MAXIS_footer_year & " span could not be found. Try this again. You may need to run the case through background."
- 			   stopscript
-			  End if
-			  EMReadScreen elig_type, 2, 12, col - 2
-			  EMReadScreen budget_type, 1, 13, col + 2
-			  EMWriteScreen "x", 9, col + 2
-			  transmit
+    	Dialog Dialog1
+	    cancel_confirmation
+	If buttonpressed = BBUD_button then
+		Call check_for_MAXIS(False)
+		back_to_self
+		Call navigate_to_MAXIS_screen("ELIG", "HC")
+		EMReadScreen person_check, 2, 8, 31
+		If person_check = "NO" then
+		   MsgBox "Person 01 does not have HC on this case. The script will attempt to execute this on person 02. Please check this for errors before approving any results."
+ 		   EMWriteScreen "x", 9, 26
+	    End if
+		If person_check <> "NO" then EMWriteScreen "x", 8, 26
+ 		 	transmit
+		 	row = 3
+ 			col = 1
+ 			EMSearch MAXIS_footer_month & "/" & MAXIS_footer_year, row, col
+			If row = 0 then
+			  MsgBox "A " & MAXIS_footer_month & "/" & MAXIS_footer_year & " span could not be found. Try this again. You may need to run the case through background."
+			  stopscript
+		  	End if
+		  	EMReadScreen elig_type, 2, 12, col - 2
+		  	EMReadScreen budget_type, 1, 13, col + 2
+		  	EMWriteScreen "x", 9, col + 2
+		  	transmit
 		End if
 		If buttonpressed = BILS_button_COLADLG then
 			call check_for_MAXIS(False)
@@ -348,29 +344,27 @@ Function approval_summary
   Loop until buttonpressed = OK
   back_to_self
   EMWriteScreen MAXIS_case_number, 18, 43
-
-  Call start_a_blank_CASE_NOTE
-
-  If ma_epd_premium_amt <> "" Then
-    Call write_variable_in_CASE_NOTE("Approved COLA updates " & MAXIS_footer_month & "/" & MAXIS_footer_year & ": " & elig_type & "-" & budget_type & " - EPD Premium $" & ma_epd_premium_amt)
-  else
-    Call write_variable_in_CASE_NOTE("Approved COLA updates " & MAXIS_footer_month & "/" & MAXIS_footer_year & ": " & elig_type & "-" & budget_type & " " & recipient_amt)
-  end if
-  If budget_type = "L" then EMSendKey " LTC SD**"
-  If budget_type = "S" then EMSendKey " SISEW waiver obl**"
-  If budget_type = "B" then EMSendKey " Recip amt.**"
-  Call write_bullet_and_variable_in_CASE_NOTE("Income", income)
-  Call write_bullet_and_variable_in_CASE_NOTE("Deductions", deductions)
-  call write_bullet_and_variable_in_CASE_NOTE("Designated Provider", designated_provider)
-  Call write_variable_in_CASE_NOTE("---")
-  If updated_RSPL_check = 1 then call write_variable_in_CASE_NOTE ("* Updated RSPL in MMIS.")
-  If designated_provider_check = 1 then write_variable_in_CASE_NOTE("* Client has designated provider.")
-  If made_email_checkbox = 1 then write_variable_in_CASE_NOTE("* MADE emailed")
-  If approved_check = 1 then call write_variable_in_CASE_NOTE("* Approved new MAXIS results.")
-  If DHS_3050_check = 1 then call write_variable_in_CASE_NOTE ("* Sent DHS-3050 LTC communication form to facility.")
-  call write_bullet_and_variable_in_CASE_NOTE("Other", other)
-  Call write_variable_in_CASE_NOTE("---")
-  Call write_variable_in_CASE_NOTE(worker_signature)
+Call start_a_blank_CASE_NOTE
+If ma_epd_premium_amt <> "" Then
+	Call write_variable_in_CASE_NOTE("Approved COLA updates " & MAXIS_footer_month & "/" & MAXIS_footer_year & ": " & elig_type & "-" & budget_type & " - EPD Premium $" & ma_epd_premium_amt)
+else
+	Call write_variable_in_CASE_NOTE("Approved COLA updates " & MAXIS_footer_month & "/" & MAXIS_footer_year & ": " & elig_type & "-" & budget_type & " " & recipient_amt)
+end if
+If budget_type = "L" then EMSendKey " LTC SD**"
+If budget_type = "S" then EMSendKey " SISEW waiver obl**"
+If budget_type = "B" then EMSendKey " Recip amt.**"
+Call write_bullet_and_variable_in_CASE_NOTE("Income", income)
+Call write_bullet_and_variable_in_CASE_NOTE("Deductions", deductions)
+call write_bullet_and_variable_in_CASE_NOTE("Designated Provider", designated_provider)
+Call write_variable_in_CASE_NOTE("---")
+If updated_RSPL_check = 1 then call write_variable_in_CASE_NOTE ("* Updated RSPL in MMIS.")
+If designated_provider_check = 1 then write_variable_in_CASE_NOTE("* Client has designated provider.")
+If made_email_checkbox = 1 then write_variable_in_CASE_NOTE("* MADE emailed")
+If approved_check = 1 then call write_variable_in_CASE_NOTE("* Approved new MAXIS results.")
+If DHS_3050_check = 1 then call write_variable_in_CASE_NOTE ("* Sent DHS-3050 LTC communication form to facility.")
+call write_bullet_and_variable_in_CASE_NOTE("Other", other)
+Call write_variable_in_CASE_NOTE("---")
+Call write_variable_in_CASE_NOTE(worker_signature)
 end function
 
 ' Function for script--------------------------------------------------------------------------------------------------------
@@ -630,7 +624,6 @@ End function
 
 'CONNECTS TO MAXIS--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 EMConnect ""
-
 Call MAXIS_case_number_finder(MAXIS_case_number)
 MAXIS_footer_month = CM_plus_1_mo
 MAXIS_footer_year = CM_plus_1_yr
@@ -660,8 +653,6 @@ EndDialog
 		If len(MAXIS_footer_year) <> 2 THEN err_msg = err_msg & "* Enter the Approval year in YY format (include leading zero if needed)" & vBCr
 		IF err_msg <> "" THEN msgbox err_msg
 	LOOP until err_msg = ""
-
 	If approval_summary_check = 1 then call approval_summary
 	If income_summary_check = 1 then call income_summary
-
 script_end_procedure("")

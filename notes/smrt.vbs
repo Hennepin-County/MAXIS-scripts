@@ -78,9 +78,9 @@ Do
  Call check_for_password(are_we_passworded_out)
 LOOP UNTIL check_for_password(are_we_passworded_out) = False
 
-'-------------------------------------------------------------------------------------------------DIALOG
-Dialog1 = "" 'Blanking out previous dialog detail
 If SMRT_actions = "Initial request" then
+    '-------------------------------------------------------------------------------------------------DIALOG
+    Dialog1 = "" 'Blanking out previous dialog detail
     BeginDialog Dialog1 , 0, 0, 326, 180, "Initial SMRT referral dialog"
       EditBox 80, 10, 75, 15, SMRT_member
       EditBox 270, 10, 50, 15, referral_date
@@ -139,9 +139,9 @@ If SMRT_actions = "Initial request" then
 	call write_variable_in_CASE_NOTE(worker_signature)
 END If
 
-'-------------------------------------------------------------------------------------------------DIALOG
-Dialog1 = "" 'Blanking out previous dialog detail
 If SMRT_actions = "ISDS referral completed" then
+    '-------------------------------------------------------------------------------------------------DIALOG
+    Dialog1 = "" 'Blanking out previous dialog detail
     BeginDialog Dialog1, 0, 0, 326, 130, "ISDS referral completed for SMRT"
       EditBox 80, 10, 75, 15, SMRT_member
       EditBox 225, 10, 50, 15, referral_date
@@ -190,9 +190,9 @@ If SMRT_actions = "ISDS referral completed" then
     call write_variable_in_CASE_NOTE(worker_signature)
 END If
 
-'-------------------------------------------------------------------------------------------------DIALOG
-Dialog1 = "" 'Blanking out previous dialog detail
 If SMRT_actions = "Determination received" then
+    '-------------------------------------------------------------------------------------------------DIALOG
+    Dialog1 = "" 'Blanking out previous dialog detail
     BeginDialog Dialog1, 0, 0, 326, 140, "SMRT determination received"
       EditBox 80, 10, 75, 15, SMRT_member
       DropListBox 240, 10, 55, 15, "Select one..."+chr(9)+"Approved"+chr(9)+"Denied", SMRT_determination

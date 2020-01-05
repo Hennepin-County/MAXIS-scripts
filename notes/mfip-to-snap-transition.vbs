@@ -65,20 +65,20 @@ BeginDialog Dialog1, 0, 0, 151, 75, "MFIP To SNAP Transition Note"
   Text 5, 10, 60, 10, "Case Number:"
   Text 5, 30, 55, 20, "Date MFIP closes:"
 EndDialog
-
-''pulls up case number dialog
+'pulls up case number dialog
 DO
-	err_msg = ""
-	Dialog Dialog1
-	IF MAXIS_case_number = "" THEN err_msg = err_msg & vbCr & "Please enter a case number"
-	IF isdate(closure_date) = false THEN err_msg = err_msg & vbCr & "You must enter a valid MFIP closure date."
-	IF isdate(closure_date) = true THEN
-		IF datepart("d", dateadd("d", 1, closure_date)) <> 1 THEN err_msg = err_msg & vbCr & "The MFIP closure date should equal the last day of the month."
-	END IF
-	IF buttonpressed = 0 then stopscript
-	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-LOOP Until err_msg = ""
-
+    DO
+    	err_msg = ""
+    	Dialog Dialog1
+    	IF MAXIS_case_number = "" THEN err_msg = err_msg & vbCr & "Please enter a case number"
+    	IF isdate(closure_date) = false THEN err_msg = err_msg & vbCr & "You must enter a valid MFIP closure date."
+    	IF isdate(closure_date) = true THEN
+    		IF datepart("d", dateadd("d", 1, closure_date)) <> 1 THEN err_msg = err_msg & vbCr & "The MFIP closure date should equal the last day of the month."
+    	END IF
+    	IF buttonpressed = 0 then stopscript
+    	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+    LOOP Until err_msg = ""
+LOOP UNTIL are_we_passworded_out = false
 'Setting the correct footer month and year (so snap budget is pulled from month snap is approved in)
 MAXIS_footer_month = datepart("m", dateadd("d", 1, closure_date))
 if len(MAXIS_footer_month) = 1 THEN MAXIS_footer_month = "0" & MAXIS_footer_month

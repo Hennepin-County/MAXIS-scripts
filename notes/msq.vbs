@@ -79,7 +79,7 @@ DO
 	DO
 	    err_msg = ""
 	    Dialog Dialog1
-	    IF ButtonPressed = 0 THEN StopScript
+	    cancel_confirmation
 	    IF IsNumeric(MAXIS_case_number) = FALSE THEN err_msg = err_msg & vbCr & "* You must type a valid numeric case number."
 	    IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* You must sign your case note!"
 	    IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
