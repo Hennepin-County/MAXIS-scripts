@@ -108,7 +108,8 @@ Do
     If datediff("d", target_date, BILS_line(1)) => 0 and BILS_line(2) = 27 and BILS_line(5) <> remedial_care_amt then
         EMWriteScreen remedial_care_amt, bils_row, 48
         EMWriteScreen "C", bils_row, 24
-        updates_made = updates_made + 1        
+        updates_made = updates_made + 1  
+        stats_counter = stats_counter + 1      
     End if 
 
     bils_row = bils_row + 1
@@ -125,6 +126,7 @@ Loop until cint(current_page) = cint(total_pages)
 
 PF3
 PF3
+stats_counter = stats_counter - 1 'get get true count of stats 
 
 If updates_made <> 0 then 
     script_end_procedure_with_error_report("Success! Updates made: " & updates_made & ".")
