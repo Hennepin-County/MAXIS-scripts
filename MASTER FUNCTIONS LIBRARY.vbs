@@ -4054,18 +4054,6 @@ function excel_open(file_url, visible_status, alerts_status, ObjExcel, objWorkbo
 	objExcel.DisplayAlerts = alerts_status
 end function
 
-function find_variable(opening_string, variable_name, length_of_variable)
-'--- This function finds a string on a page in BlueZone
-'~~~~~ opening_string: string to search for
-'~~~~~ variable_name: variable name of the string
-'~~~~~ length_of_variable: length of the string
-'===== Keywords: MAXIS, MMIS, PRISM, find
-  row = 1
-  col = 1
-  EMSearch opening_string, row, col
-  If row <> 0 then EMReadScreen variable_name, length_of_variable, row, col + len(opening_string)
-end function
-
 function file_selection_system_dialog(file_selected, file_extension_restriction)
 '--- This function allows a user to select a file to be opened in a script
 '~~~~~ file_selected: variable for the name of the file
@@ -4088,6 +4076,18 @@ function file_selection_system_dialog(file_selected, file_extension_restriction)
 		'If the rightmost characters of the file selected don't match what was in the file_extension_restriction argument, it'll tell the user. Otherwise the loop (and function) ends.
 		If right(file_selected, len(file_extension_restriction)) <> file_extension_restriction then MsgBox "You've entered an incorrect file type. The allowable file type is: " & file_extension_restriction & "."
 	Loop until right(file_selected, len(file_extension_restriction)) = file_extension_restriction
+end function
+
+function find_variable(opening_string, variable_name, length_of_variable)
+'--- This function finds a string on a page in BlueZone
+'~~~~~ opening_string: string to search for
+'~~~~~ variable_name: variable name of the string
+'~~~~~ length_of_variable: length of the string
+'===== Keywords: MAXIS, MMIS, PRISM, find
+  row = 1
+  col = 1
+  EMSearch opening_string, row, col
+  If row <> 0 then EMReadScreen variable_name, length_of_variable, row, col + len(opening_string)
 end function
 
 function find_MAXIS_worker_number(x_number)
