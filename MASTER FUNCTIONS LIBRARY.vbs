@@ -5967,6 +5967,41 @@ function word_doc_update_field(field_name, variable_for_field, objDoc)
 	objDoc.FormFields(field_name).Result = variable_for_field	'Simply enters the Word document field based on these three criteria
 end function
 
+Function write_editbox_in_person_note(x, y) 'x is the header, y is the variable for the edit box which will be put in the case note, z is the length of spaces for the indent.
+  variable_array = split(y, " ")
+  EMSendKey "* " & x & ": "
+  For each x in variable_array
+    EMGetCursor row, col
+    If (row = 18 and col + (len(x)) >= 80) or (row = 5 and col = 3) then
+      EMSendKey "<PF8>"
+      EMWaitReady 0, 0
+    End if
+    EMReadScreen max_check, 51, 24, 2
+    If max_check = "A MAXIMUM OF 4 PAGES ARE ALLOWED FOR EACH CASE NOTE" then exit for
+    EMGetCursor row, col
+    If (row < 18 and col + (len(x)) >= 80) then EMSendKey "<newline>" & space(5)
+    If (row = 5 and col = 3) then EMSendKey space(5)
+    EMSendKey x & " "
+    If right(x, 1) = ";" then
+      EMSendKey "<backspace>" & "<backspace>"
+      EMGetCursor row, col
+      If row = 18 then
+        EMSendKey "<PF8>"
+        EMWaitReady 0, 0
+        EMSendKey space(5)
+      Else
+        EMSendKey "<newline>" & space(5)
+      End if
+    End if
+  Next
+  EMSendKey "<newline>"
+  EMGetCursor row, col
+  If (row = 18 and col + (len(x)) >= 80) or (row = 5 and col = 3) then
+    EMSendKey "<PF8>"
+    EMWaitReady 0, 0
+  End if
+End function
+
 function write_bullet_and_variable_in_CASE_NOTE(bullet, variable)
 '--- This function creates an asterisk, a bullet, a colon then a variable to style CASE notes
 '~~~~~ bullet: name of the field to update. Put bullet in "".
