@@ -51,56 +51,6 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'SPECIAL FUNCTIONS JUST FOR THIS SCRIPT----------------------------------------------------------------------------------------------------
-Function write_editbox_in_person_note(x, y) 'x is the header, y is the variable for the edit box which will be put in the case note, z is the length of spaces for the indent.
-  variable_array = split(y, " ")
-  EMSendKey "* " & x & ": "
-  For each x in variable_array
-    EMGetCursor row, col
-    If (row = 18 and col + (len(x)) >= 80) or (row = 5 and col = 3) then
-      EMSendKey "<PF8>"
-      EMWaitReady 0, 0
-    End if
-    EMReadScreen max_check, 51, 24, 2
-    If max_check = "A MAXIMUM OF 4 PAGES ARE ALLOWED FOR EACH CASE NOTE" then exit for
-    EMGetCursor row, col
-    If (row < 18 and col + (len(x)) >= 80) then EMSendKey "<newline>" & space(5)
-    If (row = 5 and col = 3) then EMSendKey space(5)
-    EMSendKey x & " "
-    If right(x, 1) = ";" then
-      EMSendKey "<backspace>" & "<backspace>"
-      EMGetCursor row, col
-      If row = 18 then
-        EMSendKey "<PF8>"
-        EMWaitReady 0, 0
-        EMSendKey space(5)
-      Else
-        EMSendKey "<newline>" & space(5)
-      End if
-    End if
-  Next
-  EMSendKey "<newline>"
-  EMGetCursor row, col
-  If (row = 18 and col + (len(x)) >= 80) or (row = 5 and col = 3) then
-    EMSendKey "<PF8>"
-    EMWaitReady 0, 0
-  End if
-End function
-
-Function write_new_line_in_person_note(x)
-  EMGetCursor row, col
-  If (row = 18 and col + (len(x)) >= 80 + 1 ) or (row = 5 and col = 3) then
-    EMSendKey "<PF8>"
-    EMWaitReady 0, 0
-  End if
-  EMReadScreen max_check, 51, 24, 2
-  EMSendKey x & "<newline>"
-  EMGetCursor row, col
-  If (row = 18 and col + (len(x)) >= 80) or (row = 5 and col = 3) then
-    EMSendKey "<PF8>"
-    EMWaitReady 0, 0
-  End if
-End function
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 'Connecting to BlueZone
 EMConnect ""

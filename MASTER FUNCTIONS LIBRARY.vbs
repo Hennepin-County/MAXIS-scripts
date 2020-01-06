@@ -6318,6 +6318,21 @@ function write_date(date_variable, date_format_variable, screen_row, screen_col)
     If year_position <> 0 Then EMWriteScreen var_year, screen_row, screen_col + year_position - 1
 end function
 
+Function write_new_line_in_person_note(x)
+  EMGetCursor row, col
+  If (row = 18 and col + (len(x)) >= 80 + 1 ) or (row = 5 and col = 3) then
+    EMSendKey "<PF8>"
+    EMWaitReady 0, 0
+  End if
+  EMReadScreen max_check, 51, 24, 2
+  EMSendKey x & "<newline>"
+  EMGetCursor row, col
+  If (row = 18 and col + (len(x)) >= 80) or (row = 5 and col = 3) then
+    EMSendKey "<PF8>"
+    EMWaitReady 0, 0
+  End if
+End function
+
 function write_three_columns_in_CASE_NOTE(col_01_start_point, col_01_variable, col_02_start_point, col_02_variable, col_03_start_point, col_03_variable)
 '--- This function writes variables into three seperate columns into case notes
 '~~~~~ col_01_start_point: column where to write the 1st variable
