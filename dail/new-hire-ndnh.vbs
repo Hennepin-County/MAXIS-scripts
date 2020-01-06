@@ -46,6 +46,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/06/2020", "Updated TIKL functionality for TIKL'ing after 10 day cut off.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/17/2019", "Updated navigation to case note from DAIL.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/26/2019", "Updated message box regarding children under 19, added policy reference for SNAP/CASH programs.", "Ilse Ferris, Hennepin County")
 call changelog_update("08/05/2019", "Updated the term claim referral to use the action taken on MISC and added error reporting..", "MiKayla Handley")
@@ -490,7 +491,7 @@ IF match_answer_droplist = "YES-INFC clear match" THEN
 		CALL write_variable_in_case_note(worker_signature)
 		PF3
 		PF3
-		IF tenday_checkbox = CHECKED THEN CALL write_variable_in_TIKL("Unable to close due to 10 day cutoff. Verification of job via NEW HIRE should have returned by now. If not received and processed, take appropriate action.")
 	END IF
+    IF tenday_checkbox = 1 THEN Call create_TIKL("Unable to close due to 10 day cutoff. Verification of job via NEW HIRE should have returned by now. If not received and processed, take appropriate action.", 0, date, True)
 	script_end_procedure_with_error_report("Success! The NDNH HIRE message has been cleared. Please start overpayment process if necessary.")
 END IF
