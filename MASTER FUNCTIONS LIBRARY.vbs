@@ -3282,18 +3282,6 @@ function check_for_password_without_transmit(are_we_passworded_out)
 	End If
 end function
 
-function check_for_PRISM(end_script)
-'--- This function checks to ensure the user is in a PRISM panel
-'~~~~~ end_script: If end_script = TRUE the script will end. If end_script = FALSE, the user will be given the option to cancel the script, or manually navigate to a PRISM screen.
-'===== Keywords: PRISM, production, script_end_procedure
-	EMReadScreen PRISM_check, 5, 1, 36
-	if end_script = True then
-		If PRISM_check <> "PRISM" then script_end_procedure("You do not appear to be in PRISM. You may be passworded out. Please check your PRISM screen and try again.")
-	else
-		If PRISM_check <> "PRISM" then MsgBox "You do not appear to be in PRISM. You may be passworded out. Please enter your password before pressing OK."
-	end if
-end function
-
 function clear_line_of_text(row, start_column)
 '--- This function clears out a single line of text
 '~~~~~ row: coordinate of row to clear
@@ -3303,8 +3291,6 @@ function clear_line_of_text(row, start_column)
   EMSendKey "<EraseEof>"
   EMWaitReady 0, 0
 end function
-
-
 
 function confirm_tester_information()
 '--- Ask a tester to confirm the details we have for them. THIS FUNCTION IS CALLED IN THE FUNCTIONS LIBRARY
