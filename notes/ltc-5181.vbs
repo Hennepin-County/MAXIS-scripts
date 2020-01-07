@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/06/2020", "Updated error message handling and password handling around the dialogs.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/23/2018", "Updated dialog boxes to accommodate a laptop users.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -228,7 +229,7 @@ Do
     					MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
     				Loop until ButtonPressed = next_to_page_03_button or ButtonPressed = previous_to_page_01_button
     				If ButtonPressed = previous_to_page_01_button THEN exit do
-                    If (from_droplist = "Select one..." AND to_droplist <> "Select one...") OR (from_droplist <> "Select one..." AND to_droplist = "Select one...") then err_msg & err_msg & vbcr & "You must enter valid selections for the waiver program change 'to' and 'from'." 'Requires the user to enter a droplist item
+                    If (from_droplist = "Select one..." AND to_droplist <> "Select one...") OR (from_droplist <> "Select one..." AND to_droplist = "Select one...") then err_msg = err_msg & vbcr & "You must enter valid selections for the waiver program change 'to' and 'from'." 'Requires the user to enter a droplist item
                     IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
                 Loop until err_msg = ""
     		Loop until ButtonPressed = next_to_page_03_button or ButtonPressed = previous_to_page_01_button
@@ -299,7 +300,6 @@ Do
     				Dialog Dialog1							'Displays the third dialog - defined just above.
     				cancel_confirmation					'Asks if you're sure you want to cancel, and cancels if you select that.
     				MAXIS_dialog_navigation				'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
-    				
     				IF (exited_waiver_program_check = checked AND exit_waiver_end_date = "") THEN err_msg = err_msg & vBcr & "Complete the field next to the exited waiver checkbox that was checked."
     				IF (client_deceased_check =  checked AND date_of_death = "") THEN err_msg = err_msg & vBcr & "Complete the field next to the client deceased checkbox that was checked."
     				IF (client_moved_to_LTCF_check = checked AND client_moved_to_LTCF = "") THEN err_msg = err_msg & vBcr & "Complete the field next to the client moved to LTCF checkbox that was checked."
