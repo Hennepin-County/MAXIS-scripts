@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/06/2020", "Updated support of mandatory fields and password handling in dialogs.", "Casey Love, Hennepin County")
 call changelog_update("03/12/2018", "Fixed bug that caused the script to fail if a TIKL was set on old cases.", "Casey Love, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -74,17 +75,19 @@ BeginDialog Dialog1, 0, 0, 156, 70, "Case number dialog"
   Text 10, 30, 50, 10, "Footer month:"
   Text 95, 30, 20, 10, "Year:"
 EndDialog
-'Showing the case number dialog
+
 DO
-    DO
-       	err_msg = ""
-       	Dialog Dialog1
-       	cancel_without_confirmation
-        If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
-        IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-       LOOP UNTIL err_msg = ""
-	CALL check_for_password_without_transmit(are_we_passworded_out)
-LOOP UNTIL are_we_passworded_out = false
+	DO
+		err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
+		dialog Dialog1				'main dialog
+		cancel_without_confirmation
+		IF len(MAXIS_case_number) > 8 or isnumeric(MAXIS_case_number) = false THEN err_msg = err_msg & vbCr & "* Enter a valid case number."		'mandatory fields
+        If IsNumeric(MAXIS_footer_month) = False or len(MAXIS_footer_month) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2-digit MAXIS footer month."
+        If IsNumeric(MAXIS_footer_year) = False or len(MAXIS_footer_year) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2-digit MAXIS footer year."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'Now it checks to make sure MAXIS is running on this screen.
 Call check_for_MAXIS(False)
@@ -169,22 +172,26 @@ BeginDialog Dialog1, 0, 0, 361, 410, "LTC application received dialog"
   Text 5, 190, 20, 10, "PHN/"
   Text 5, 255, 55, 10, "Adult signatures:"
   Text 5, 275, 45, 10, "Veteran info:"
-  Text 5, 295, 35, 10, "LTCC info:"
-  Text 5, 315, 45, 10, "Actions taken:"
+  Text 10, 295, 35, 10, "LTCC info:"
+  Text 5, 315, 50, 10, "Actions taken:"
   GroupBox 0, 330, 285, 55, "Actions"
   Text 5, 395, 60, 10, "Worker signature:"
 EndDialog
+
 'The main dialog
 Do
     Do
-    	err_msg = ""
-    	Dialog Dialog1
-    	cancel_confirmation
-    	If buttonpressed <> -1 and buttonpressed <> 0 then Call MAXIS_dialog_navigation
-    	IF appl_date = "" AND ButtonPressed = -1 THEN err_msg = err_msg & vbCr & "* Please enter an application date."
-    	IF basis_of_elig_droplist = "Select one..." AND ButtonPressed = -1 THEN err_msg = err_msg & vbCr & "* Please select an MA basis of eligibility."
-    	IF actions_taken = "" AND ButtonPressed = -1 THEN err_msg = err_msg & vbCr & "* Please discuss the actions taken."
-    	IF worker_signature = "" AND ButtonPressed = -1 THEN err_msg = err_msg & vbCr & "* Please sign your case note."
+        err_msg = ""
+        Do 
+    	    Dialog Dialog1
+    	    cancel_confirmation
+            MAXIS_dialog_navigation
+        Loop until ButtonPressed = -1
+    	IF trim(appl_date) = "" or isdate(appl_date) = False THEN err_msg = err_msg & vbCr & "* Please enter an application date."
+    	IF basis_of_elig_droplist = "Select one..." THEN err_msg = err_msg & vbCr & "* Please select an MA basis of eligibility."
+        If trim(adult_signatures) = "" THEN err_msg = err_msg & vbCr & "* Enter who signed the LTC application."
+    	IF trim(actions_taken) = "" THEN err_msg = err_msg & vbCr & "* Please discuss the actions taken."
+    	IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
     	IF (TIKL_45_day_check = 1 AND TIKL_60_day_check = 1) AND ButtonPressed = -1 THEN err_msg = err_msg & vbCr & "* You cannot TIKL for both 45 and 60 days. Please select one or neither."
     	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
     Loop UNTIL err_msg = "" AND ButtonPressed = -1
@@ -267,9 +274,9 @@ If add_detail_from_app_checkbox = checked Then
         	err_msg = ""
         	Dialog Dialog1
         	cancel_confirmation
-        	If buttonpressed <> -1 then Call MAXIS_dialog_navigation
-        Loop UNTIL err_msg = "" AND ButtonPressed = -1
-        call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+            MAXIS_dialog_navigation
+        Loop UNTIL ButtonPressed = -1
+        Call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
     LOOP UNTIL are_we_passworded_out = false
 End If
 
@@ -299,7 +306,6 @@ If update_PND2_check = 1 then
 		client_delay_check = 0
 	End if
 End if
-
 
 'THE TIKL's----------------------------------------------------------------------------------------------------
 If datediff("d", appl_date, date) > 45 then TIKL_45_day_check = 0
