@@ -40,9 +40,10 @@ END IF
 
 'THE SCRIPT-------------------------------------------------------------------------------------------------------------------------
 EMConnect ""		'Connects to BlueZone
-
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
 'The dialog is defined in the loop as it can change as buttons are pressed
-BeginDialog file_select_dialog, 0, 0, 221, 50, "Select the case list source file"
+BeginDialog Dialog1, 0, 0, 221, 50, "Select the case list source file"
     ButtonGroup ButtonPressed
     PushButton 175, 10, 40, 15, "Browse...", select_a_file_button
     OkButton 110, 30, 50, 15
@@ -56,7 +57,7 @@ Do
     'Show initial dialog
     Do
         err_msg = ""
-    	Dialog file_select_dialog
+    	Dialog Dialog1
     	If ButtonPressed = cancel then stopscript
     	If ButtonPressed = select_a_file_button then call file_selection_system_dialog(file_selection_path, ".xlsx")
         If file_selection_path = "" then err_msg = err_msg & vbNewLine & "Use the Browse Button to select the file that has your client data"

@@ -50,9 +50,12 @@ call changelog_update("12/12/2017", "Initial version.", "MiKayla Handley, Hennep
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-
-'----------------------------------------------------------------------DIALOGS
-BeginDialog EMPS_dialog, 0, 0, 266, 95, "EMPS provider update"
+'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+'Connecting to BlueZone, grabbing case number
+EMConnect ""
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 266, 95, "EMPS provider update"
 ButtonGroup ButtonPressed
 	PushButton 200, 25, 50, 15, "Browse...", select_a_file_button
 	OkButton 145, 75, 50, 15
@@ -68,7 +71,7 @@ CALL check_for_MAXIS(True)
 Do
 	Do
 		err_msg = ""
-		Dialog EMPS_dialog
+		Dialog Dialog1
 		cancel_confirmation
 		If ButtonPressed = select_a_file_button THEN
 			If file_selection_path <> "" THEN 'This is handling for if the BROWSE button is pushed more than once'

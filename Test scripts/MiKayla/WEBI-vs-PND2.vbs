@@ -49,10 +49,15 @@ call changelog_update("06/20/2019", "Initial version.", "Ilse Ferris, Hennepin C
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
+'----------------------------------------------------------------------------------------------------The script
+'CONNECTS TO BlueZone
+EMConnect ""
 
-'----------------------------------------------------------------------------------------------------DIALOG
-'The dialog is defined in the loop as it can change as buttons are pressed
-BeginDialog , 0, 0, 266, 115, "Gather Banked months"
+file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\SNAP\Banked months data\Ongoing banked months list.xlsx"
+
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 266, 115, "Gather Banked months"
   ButtonGroup ButtonPressed
     PushButton 200, 50, 50, 15, "Browse...", select_a_file_button
     OkButton 150, 95, 50, 15
@@ -63,15 +68,9 @@ BeginDialog , 0, 0, 266, 115, "Gather Banked months"
   GroupBox 10, 5, 250, 85, "Using this script:"
 EndDialog
 
-'----------------------------------------------------------------------------------------------------The script
-'CONNECTS TO BlueZone
-EMConnect ""
-
-file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\SNAP\Banked months data\Ongoing banked months list.xlsx"
-
 Do
     err_msg = ""
-	dialog
+	dialog Dialog1
 	cancel_without_confirmation
 	If ButtonPressed = select_a_file_button then call file_selection_system_dialog(file_selection_path, ".xlsx")
     If trim(file_selection_path) = "" then err_msg = err_msg & vbcr & "* Select a file to continue."

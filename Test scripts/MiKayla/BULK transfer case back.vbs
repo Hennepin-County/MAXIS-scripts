@@ -51,9 +51,10 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
 '----------------------------------------------------------------------------------------------Dialog
-BeginDialog info_dialog, 0, 0, 266, 115, "BULK - TRANSFER BACK"
+BeginDialog Dialog1, 0, 0, 266, 115, "BULK - TRANSFER BACK"
   ButtonGroup ButtonPressed
     PushButton 200, 50, 50, 15, "Browse:", select_a_file_button
     OkButton 150, 95, 50, 15
@@ -72,7 +73,7 @@ Do
     'Initial Dialog to determine the excel file to use, column with case numbers, and which process should be run
     'Show initial dialog
     Do
-    	Dialog info_dialog
+    	Dialog Dialog1
     	If ButtonPressed = cancel then stopscript
     	If ButtonPressed = select_a_file_button then call file_selection_system_dialog(file_selection_path, ".xlsx")
     Loop until ButtonPressed = OK and file_selection_path <> ""

@@ -51,9 +51,15 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-
-'DIALOGS--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-BeginDialog sponsor_income_calculation_dialog, 0, 0, 346, 290, "Sponsor income calculation"
+'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+'Connecting to BlueZone, and finding case number
+EMConnect ""
+Call MAXIS_case_number_finder(MAXIS_case_number)
+'T'ODO Multiple-Case noted
+'Dialog is presented. Requires all sections other than spousal sponsor income to be filled out.
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 346, 290, "Sponsor income calculation"
   EditBox 55, 5, 40, 15, MAXIS_case_number
   EditBox 160, 5, 20, 15, memb_number
   CheckBox 190, 5, 105, 10, "Verified via SAVE requested?", via_save
@@ -111,21 +117,12 @@ BeginDialog sponsor_income_calculation_dialog, 0, 0, 346, 290, "Sponsor income c
   GroupBox 5, 230, 335, 35, "HP. Immigration Information"
   Text 135, 250, 65, 10, "Reason for denial?"
   Text 15, 275, 45, 10, "Other Notes:"
-EndDialog
-
-
-
-'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-'Connecting to BlueZone, and finding case number
-EMConnect ""
-Call MAXIS_case_number_finder(MAXIS_case_number)
-'T'ODO Multiple-Case noted
-'Dialog is presented. Requires all sections other than spousal sponsor income to be filled out.
+ENDDIALOG
 Do
 	Do
 		err_msg = ""
-		Dialog sponsor_income_calculation_dialog
-		If ButtonPressed = 0 then stopscript
+		Dialog Dialog1
+		cancel_confirmation
 		If isnumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 THEN err_msg = err_msg & vbCr & "* You must enter a valid case number."
 		If isnumeric(primary_sponsor_earned_income) = False and isnumeric(spousal_sponsor_earned_income) = False and isnumeric(primary_sponsor_unearned_income) = False and isnumeric(spousal_sponsor_unearned_income) = False THEN err_msg = err_msg & vbCr & "* You must enter some income. You can enter a ''0'' if that is accurate."
 		If isnumeric(sponsor_HH_size) = False THEN err_msg = err_msg & vbCr & "* You must enter a sponsor HH size."
@@ -135,8 +132,6 @@ Do
 	LOOP UNTIL err_msg = ""
 call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
-
-
 'Determines the income limits
 ' >> Income limits from CM 19.06 - MAXIS Gross Income 130% FPG (Updated effective 10/01/18)
 If date >= cdate("10/01/2018") then

@@ -51,8 +51,14 @@ call changelog_update("08/25/2017", "Initial version.", "MiKayla Handley, Hennep
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'----------------------------------------------------------------------Dialog
-BeginDialog PHONE_ADDR_dialog, 0, 0, 251, 120, "Pull ADDR data into Excel"
+'---------------------------------------------------------------------------------------------SCRIPT
+EMConnect ""
+CALL check_for_MAXIS(True)
+Call find_MAXIS_worker_number(x_number)
+
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 251, 120, "Pull ADDR data into Excel"
   	EditBox 75, 40, 160, 15, worker_number
   	CheckBox 10, 70, 150, 10, "Check here to run this query county-wide.", all_workers_check
   		ButtonGroup ButtonPressed
@@ -64,22 +70,15 @@ BeginDialog PHONE_ADDR_dialog, 0, 0, 251, 120, "Pull ADDR data into Excel"
   	Text 10, 25, 100, 10, "EX: X_ _ _ _ _ _, X_ _ _ _ _ _"
   	GroupBox 5, 0, 235, 60, ""
 EndDialog
-
-'---------------------------------------------------------------------------------------------SCRIPT
-EMConnect ""
-
-CALL check_for_MAXIS(True)
-Call find_MAXIS_worker_number(x_number)
-
 'Shows dialog
 Do
 	Do
 		err_msg = ""
-		Dialog PHONE_ADDR_dialog
+		Dialog Dialog1
 		If buttonpressed = cancel then stopscript
-		If (all_workers_check = 0 AND worker_number = "") then err_msg = err_msg & vbNewLine & "* Please enter at least one worker number." 'allows user to select the all workers check, and not have worker number be ""					
-		If (all_workers_check = 1 AND trim(worker_number) <> "") then err_msg = err_msg & vbNewLine & "* Please enter x numbers OR the county-wide query." 			
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine										
+		If (all_workers_check = 0 AND worker_number = "") then err_msg = err_msg & vbNewLine & "* Please enter at least one worker number." 'allows user to select the all workers check, and not have worker number be ""
+		If (all_workers_check = 1 AND trim(worker_number) <> "") then err_msg = err_msg & vbNewLine & "* Please enter x numbers OR the county-wide query."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
   	LOOP until err_msg = ""
 	Call check_for_password(are_we_passworded_out)
 Loop until check_for_password(are_we_passworded_out) = False		'loops until user is password-ed out
@@ -133,7 +132,7 @@ FOR i = 1 to 26		'formatting the cells'
 	objExcel.Cells(1, i).Font.Bold = True		'bold font'
 	ObjExcel.columns(i).NumberFormat = "@" 	'formatting as text
 	objExcel.Columns(i).AutoFit()				'sizing the columns'
-	
+
 NEXT
 
 excel_row = 2
@@ -220,7 +219,7 @@ Do
 		mailing_city = replace(mailing_city, "_", "")
 		mailing_State = replace(mailing_State, "_", "")
 		mailing_Zip_code = replace(mailing_Zip_code, "_", "")
-		
+
 		EMReadScreen phone_home, 14, 17, 45
 		EMReadScreen phone_homeII, 14, 18, 45
 		EMReadScreen phone_homeIII, 14, 19, 45
@@ -268,7 +267,7 @@ Do
 	phone_home = ""
 	phone_homeII = ""
 	phone_homeIII = ""
-	
+
 
 	excel_row = excel_row + 1
 	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter

@@ -41,8 +41,9 @@ END IF
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
 CALL navigate_to_MAXIS_screen ("STAT", "ADDR")
-
-BeginDialog transfer_dialog, 0, 0, 171, 70, "Transfer"
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 171, 70, "Transfer"
   EditBox 55, 5, 35, 15, MAXIS_case_number
   ButtonGroup ButtonPressed
     PushButton 110, 5, 50, 15, "Geocoder", Geo_coder_button
@@ -55,11 +56,10 @@ BeginDialog transfer_dialog, 0, 0, 171, 70, "Transfer"
   Text 80, 30, 60, 10, " (last 3 digit of X#)"
 EndDialog
 
-
 '--------------------------------------------------------------------------------------------------script
 DO 'Password DO loop
     DO  'External resource DO loop
-       dialog transfer_dialog
+       dialog Dialog1
        cancel_confirmation
        If ButtonPressed = Geo_coder_button then CreateObject("WScript.Shell").Run("https://hcgis.hennepin.us/agsinteractivegeocoder/default.aspx")
     Loop until ButtonPressed = -1

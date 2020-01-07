@@ -74,7 +74,7 @@ DO
 	Do
 		err_msg = ""
 		Dialog Dialog1
-		If ButtonPressed = 0 then stopscript
+		cancel_confirmation
 		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 		if VNDS_dropbox = "Select one..." then err_msg = err_msg & vbNewLine & "* All cash vendored to shelter account?."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine

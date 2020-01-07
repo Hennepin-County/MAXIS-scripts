@@ -37,8 +37,11 @@ STATS_denomination = "C"        'C is for each case
  	END IF
  END IF
  'END FUNCTIONS LIBRARY BLOCK================================================================================================
-
-BeginDialog select_state_dialog, 0, 0, 146, 50, "Out-of-state contact information"
+'The script----------------------------------------------------------------------------------------------------
+EMCONNECT ""
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 146, 50, "Out-of-state contact information"
   DropListBox 60, 10, 80, 15, "Select one..."+chr(9)+"Alabama"+chr(9)+"Alaska"+chr(9)+"Arizona"+chr(9)+"Arkansas"+chr(9)+"California"+chr(9)+"Colorado"+chr(9)+"Connecticut"+chr(9)+"Delaware"+chr(9)+"District of Columbia"+chr(9)+ _
   "Florida"+chr(9)+"Georga"+chr(9)+"Guam"+chr(9)+"Hawaii"+chr(9)+"Idaho"+chr(9)+"Illinois"+chr(9)+"Indiana"+chr(9)+"Iowa"+chr(9)+"Kansas"+chr(9)+"Kentucky"+chr(9)+"Louisana"+chr(9)+ _
   "Maine"+chr(9)+"Maryland"+chr(9)+"Massachusetts"+chr(9)+"Michigan"+chr(9)+"Mississippi"+chr(9)+"Missouri"+chr(9)+"Montana"+chr(9)+"Nebraska"+chr(9)+"Nevada"+chr(9)+"New Hampshire"+chr(9)+"New Jersey"+chr(9)+ _
@@ -49,15 +52,11 @@ BeginDialog select_state_dialog, 0, 0, 146, 50, "Out-of-state contact informatio
   CancelButton 90, 30, 50, 15
   Text 10, 15, 50, 10, "Select a state:"
 EndDialog
-
-'The script----------------------------------------------------------------------------------------------------
-EMCONNECT ""
-
 Do
 	Do
 		err_msg = ""
-		Dialog select_state_dialog
-		If ButtonPressed = 0 then StopScript
+		Dialog Dialog1
+		cancel_confirmation
 		If state_list = "Select one..." then err_msg = err_msg & vbNewLine & "* You must select a state."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP until err_msg = ""

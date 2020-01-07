@@ -50,8 +50,13 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
+EMConnect ""
+call MAXIS_case_number_finder(MAXIS_case_number)
+WCOM_check = checked 'setting checkbox default
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
 'Dialogs
-BeginDialog case_number_dialog, 0, 0, 136, 65, "MFIP To SNAP Transition Note"
+BeginDialog Dialog1, 0, 0, 136, 65, "MFIP To SNAP Transition Note"
   EditBox 80, 5, 50, 15, MAXIS_case_number
   EditBox 80, 25, 50, 15, closure_date
   ButtonGroup ButtonPressed
@@ -60,60 +65,6 @@ BeginDialog case_number_dialog, 0, 0, 136, 65, "MFIP To SNAP Transition Note"
   Text 25, 10, 50, 10, "Case Number:"
   Text 5, 30, 75, 10, "Date of MFIP closure:"
 EndDialog
-
-
-BeginDialog SNAP_transition_dialog, 0, 0, 451, 310, "CAF dialog part 2"
-  EditBox 70, 40, 375, 15, HH_comp
-  EditBox 70, 60, 375, 15, earned_income
-  EditBox 70, 80, 375, 15, unearned_income
-  EditBox 105, 100, 340, 15, notes_on_income
-  EditBox 65, 125, 380, 15, SHEL_HEST
-  EditBox 65, 145, 380, 15, COEX_DCEX
-  EditBox 65, 165, 380, 15, MFIP_closure_reason
-  EditBox 65, 185, 380, 15, other_notes
-  EditBox 65, 205, 380, 15, Actions_taken
-  CheckBox 5, 225, 130, 15, "Add WCOM to SNAP approval notice.", WCOM_check
-  CheckBox 145, 225, 155, 15, "All verifs and forms needed for MFIP on file.", verifs_check
-  EditBox 335, 260, 105, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 335, 290, 50, 15
-    CancelButton 390, 290, 50, 15
-    PushButton 10, 15, 15, 10, "FS", ELIG_FS_button
-    PushButton 30, 15, 20, 10, "MFIP", ELIG_MFIP_button
-    PushButton 150, 15, 25, 10, "BUSI", BUSI_button
-    PushButton 175, 15, 25, 10, "JOBS", JOBS_button
-    PushButton 200, 15, 25, 10, "PBEN", PBEN_button
-    PushButton 225, 15, 25, 10, "RBIC", RBIC_button
-    PushButton 250, 15, 25, 10, "UNEA", UNEA_button
-    PushButton 335, 15, 45, 10, "prev. panel", prev_panel_button
-    PushButton 395, 15, 45, 10, "prev. memb", prev_memb_button
-    PushButton 335, 25, 45, 10, "next panel", next_panel_button
-    PushButton 395, 25, 45, 10, "next memb", next_memb_button
-    PushButton 5, 130, 25, 10, "SHEL/", SHEL_button
-    PushButton 30, 130, 25, 10, "HEST:", HEST_button
-    PushButton 5, 145, 25, 10, "COEX/", COEX_button
-    PushButton 30, 145, 25, 10, "DCEX:", DCEX_button
-  Text 5, 190, 50, 10, "Other Notes:"
-  Text 5, 65, 55, 10, "Earned income:"
-  Text 5, 210, 50, 10, "Actions Taken:"
-  GroupBox 330, 5, 115, 35, "STAT-based navigation"
-  Text 5, 45, 45, 10, "HH Comp:"
-  Text 5, 85, 65, 10, "Unearned income:"
-  Text 5, 105, 95, 10, "Notes on income and budget:"
-  Text 255, 260, 70, 10, "Worker Signature:"
-  GroupBox 145, 5, 135, 25, "Income panels"
-  Text 5, 165, 55, 20, "MFIP closure reason:"
-  GroupBox 5, 5, 55, 25, "ELIG panels:"
-EndDialog
-'Need to add MFIP closure date (and use this to enter SNAP open date)
-
-
-'================END DIALOG SECTION
-EMConnect ""
-
-call MAXIS_case_number_finder(MAXIS_case_number)
-
-WCOM_check = checked 'setting checkbox default
 
 'pulls up case number dialog
 DO
@@ -183,13 +134,59 @@ call autofill_editbox_from_MAXIS(HH_member_array, "JOBS", earned_income)
 call autofill_editbox_from_MAXIS(HH_member_array, "RBIC", earned_income)
 call autofill_editbox_from_MAXIS(HH_member_array, "UNEA", unearned_income)
 
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 451, 310, "CAF dialog part 2"
+  EditBox 70, 40, 375, 15, HH_comp
+  EditBox 70, 60, 375, 15, earned_income
+  EditBox 70, 80, 375, 15, unearned_income
+  EditBox 105, 100, 340, 15, notes_on_income
+  EditBox 65, 125, 380, 15, SHEL_HEST
+  EditBox 65, 145, 380, 15, COEX_DCEX
+  EditBox 65, 165, 380, 15, MFIP_closure_reason
+  EditBox 65, 185, 380, 15, other_notes
+  EditBox 65, 205, 380, 15, Actions_taken
+  CheckBox 5, 225, 130, 15, "Add WCOM to SNAP approval notice.", WCOM_check
+  CheckBox 145, 225, 155, 15, "All verifs and forms needed for MFIP on file.", verifs_check
+  EditBox 335, 260, 105, 15, worker_signature
+  ButtonGroup ButtonPressed
+    OkButton 335, 290, 50, 15
+    CancelButton 390, 290, 50, 15
+    PushButton 10, 15, 15, 10, "FS", ELIG_FS_button
+    PushButton 30, 15, 20, 10, "MFIP", ELIG_MFIP_button
+    PushButton 150, 15, 25, 10, "BUSI", BUSI_button
+    PushButton 175, 15, 25, 10, "JOBS", JOBS_button
+    PushButton 200, 15, 25, 10, "PBEN", PBEN_button
+    PushButton 225, 15, 25, 10, "RBIC", RBIC_button
+    PushButton 250, 15, 25, 10, "UNEA", UNEA_button
+    PushButton 335, 15, 45, 10, "prev. panel", prev_panel_button
+    PushButton 395, 15, 45, 10, "prev. memb", prev_memb_button
+    PushButton 335, 25, 45, 10, "next panel", next_panel_button
+    PushButton 395, 25, 45, 10, "next memb", next_memb_button
+    PushButton 5, 130, 25, 10, "SHEL/", SHEL_button
+    PushButton 30, 130, 25, 10, "HEST:", HEST_button
+    PushButton 5, 145, 25, 10, "COEX/", COEX_button
+    PushButton 30, 145, 25, 10, "DCEX:", DCEX_button
+  Text 5, 190, 50, 10, "Other Notes:"
+  Text 5, 65, 55, 10, "Earned income:"
+  Text 5, 210, 50, 10, "Actions Taken:"
+  GroupBox 330, 5, 115, 35, "STAT-based navigation"
+  Text 5, 45, 45, 10, "HH Comp:"
+  Text 5, 85, 65, 10, "Unearned income:"
+  Text 5, 105, 95, 10, "Notes on income and budget:"
+  Text 255, 260, 70, 10, "Worker Signature:"
+  GroupBox 145, 5, 135, 25, "Income panels"
+  Text 5, 165, 55, 20, "MFIP closure reason:"
+  GroupBox 5, 5, 55, 25, "ELIG panels:"
+EndDialog
+'Need to add MFIP closure date (and use this to enter SNAP open date)
 
 
 'Calling the main dialog
 DO
 	DO
 		err_msg = ""
-		Dialog snap_transition_dialog
+		Dialog Dialog1
 		cancel_confirmation
 		IF actions_taken = "" THEN err_msg = err_msg & vbCr & "You must complete the actions taken field."
 		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "You must sign your case note."

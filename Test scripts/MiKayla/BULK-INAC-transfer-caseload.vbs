@@ -56,8 +56,10 @@ current_worker = ""
 new_worker = "x127CCL"
 MAXIS_case_number = "2335052"
 
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
 
-BeginDialog xfer_dialog, 0, 0, 131, 85, "BULK INACTIVE"
+BeginDialog Dialog1, 0, 0, 131, 85, "BULK INACTIVE"
   EditBox 60, 5, 65, 15, MAXIS_case_number
   EditBox 60, 25, 65, 15, current_worker
   EditBox 60, 45, 65, 15, new_worker
@@ -71,7 +73,7 @@ EndDialog
 
 
 
-DIALOG xfer_dialog
+DIALOG Dialog1
 cancel_confirmation
 
 CALL navigate_to_MAXIS_screen ("SPEC", "XFER")
