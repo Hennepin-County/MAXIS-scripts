@@ -2152,7 +2152,7 @@ Next
 'Saving the Daily List
 objWorkbook.Save
 
-statistics_excel_file_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\Applications Statistics\2019 Statistics Tracking.xlsx"
+statistics_excel_file_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\Applications Statistics\2020 Statistics Tracking.xlsx"
 call excel_open(statistics_excel_file_path, False,  False, ObjStatsExcel, objStatsWorkbook)
 
 'Now we need to open the right worksheet
@@ -2160,29 +2160,29 @@ call excel_open(statistics_excel_file_path, False,  False, ObjStatsExcel, objSta
 Select Case MonthName(Month(date))
 
     Case "January"
-        sheet_selection = "January 2019"
+        sheet_selection = "January 2020"
     Case "February"
-        sheet_selection = "February 2019"
+        sheet_selection = "February 2020"
     Case "March"
-        sheet_selection = "March 2019"
+        sheet_selection = "March 2020"
     Case "April"
-        sheet_selection = "April 2019"
+        sheet_selection = "April 2020"
     Case "May"
-        sheet_selection = "May 2019"
+        sheet_selection = "May 2020"
     Case "June"
-        sheet_selection = "June 2019"
+        sheet_selection = "June 2020"
     Case "July"
-        sheet_selection = "July 2019"
+        sheet_selection = "July 2020"
     Case "August"
-        sheet_selection = "August 2019"
+        sheet_selection = "August 2020"
     Case "September"
-        sheet_selection = "September 2019"
+        sheet_selection = "September 2020"
     Case "October"
-        sheet_selection = "October 2019"
+        sheet_selection = "October 2020"
     Case "November"
-        sheet_selection = "November 2019"
+        sheet_selection = "November 2020"
     Case "December"
-        sheet_selection = "December 2019"
+        sheet_selection = "December 2020"
 
 End Select
 'Activates worksheet based on user selection
