@@ -1444,7 +1444,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                             If anticipated_income_provided = TRUE Then EARNED_INCOME_PANELS_ARRAY(pick_one, ei_panel) = use_estimate
                         End If
 
-                        MsgBox "There are counted checks - " & there_are_counted_checks & vbNewLine & "Actual Checks Provided - " & actual_checks_provided & vbNewLine & "Pick one is - " & EARNED_INCOME_PANELS_ARRAY(pick_one, ei_panel) & vbNewLine & "Hourly Wage - " & EARNED_INCOME_PANELS_ARRAY(hourly_wage, ei_panel) & vbNewLine & "Pay per Hour - " & EARNED_INCOME_PANELS_ARRAY(pay_per_hr, ei_panel)
+                        ' MsgBox "There are counted checks - " & there_are_counted_checks & vbNewLine & "Actual Checks Provided - " & actual_checks_provided & vbNewLine & "Pick one is - " & EARNED_INCOME_PANELS_ARRAY(pick_one, ei_panel) & vbNewLine & "Hourly Wage - " & EARNED_INCOME_PANELS_ARRAY(hourly_wage, ei_panel) & vbNewLine & "Pay per Hour - " & EARNED_INCOME_PANELS_ARRAY(pay_per_hr, ei_panel)
 
                         If actual_checks_provided = TRUE Then       'this does not matter which is chosen - it does this if actual checks are provided even if that is not the correct budget
                             total_of_counted_income = 0             'there will be lots of counting/adding here so we need everything to start at 0 so we don't get carryover from previous loops or panels
@@ -3340,6 +3340,7 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
                                 End If
                                 ' MsgBox "Ave inc - " & EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel) & vbNewLine & "Ave hrs - " & EARNED_INCOME_PANELS_ARRAY(ave_hrs_per_pay, ei_panel)
                                 For each this_date in this_month_checks_array           'this array was set at the begining of this month's loop - it will get us all our pay dates
+                                    this_date = DateValue(this_date)
                                     If DateDiff("d", this_date, EARNED_INCOME_PANELS_ARRAY(income_start_dt, ei_panel)) < 1 Then     'if the pay date we are looking at is on or after the income start date we will add it in to the lump
 
                                         date_found = FALSE      'default for before we look at the checks
@@ -3475,6 +3476,7 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
                             updates_to_display = updates_to_display & "-- Main JOBS panel --"
 
                             For each this_date in this_month_checks_array       'now using the list we made of all the checks for THIS month
+                                this_date = DateValue(this_date)
                                 If DateDiff("d", this_date, EARNED_INCOME_PANELS_ARRAY(income_start_dt, ei_panel)) < 1 Then     'checking to make sure the paydate is not before the income start date - that causes a red line
 
                                     date_found = FALSE          'default for each loop
@@ -3603,6 +3605,7 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
 
                             For each this_date in this_month_checks_array           'entering each date for this month
                                 date_found = FALSE
+                                this_date = DateValue(this_date)
                                 For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)   'then loop through all of the income information
                                     'conditional if it is the right panel AND the order matches - then do the thing you need to do
                                     If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel AND LIST_OF_INCOME_ARRAY(pay_date, all_income) <> "" Then
@@ -3674,6 +3677,7 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
 
                             For each this_date in this_month_checks_array       'looking at each check in the list of expected pay dates
                                 date_found = FALSE
+                                this_date = DateValue(this_date)
                                 For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)   'then loop through all of the income information
                                     'conditional if it is the right panel AND the order matches - then do the thing you need to do
                                     If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel AND LIST_OF_INCOME_ARRAY(pay_date, all_income) <> "" Then
@@ -3762,6 +3766,7 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
                             income_items_used = "~"
                             updates_to_display = updates_to_display & vbNewLine & "--- RETRO ---"
                             For each this_date in retro_month_checks_array          'there is a seperate list of retro pay dates
+                                this_date = DateValue(this_date)
                                 If this_date <> "" Then
                                     date_found = FALSE      'default for the start of each loop
                                     For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)   'then loop through all of the income information
@@ -3837,6 +3842,7 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
 
                             For each this_date in this_month_checks_array           'now we are looking at the same list of checks all the other programs used'
                                 date_found = FALSE
+                                this_date = DateValue(this_date)
                                 For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)   'then loop through all of the income information
                                     'conditional if it is the right panel AND the order matches - then do the thing you need to do
                                     If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel AND LIST_OF_INCOME_ARRAY(pay_date, all_income) <> "" Then
