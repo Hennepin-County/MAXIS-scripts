@@ -91,7 +91,7 @@ ELSEIF CM_mo = "10" AND CM_yr = "20" THEN
 ELSEIF CM_mo = "11" AND CM_yr = "20" THEN
     ten_day_cutoff_date = #11/19/2020#
 ELSEIF CM_mo = "12" AND CM_yr = "20" THEN
-    ten_day_cutoff_date = #12/21/2020#    
+    ten_day_cutoff_date = #12/21/2020#
 ELSEIF CM_mo = "12" AND CM_yr = "19" THEN
     ten_day_cutoff_date = #12/19/2019#                                'last month of current year
 ELSE
@@ -566,7 +566,7 @@ Function ABAWD_FSET_exemption_finder()
     			 	EMReadScreen jobs_end_dt, 8, 9, 49
     				EMReadScreen cont_end_dt, 8, 9, 73
     				IF jobs_end_dt = "__ __ __" THEN
-    					CALL write_value_and_transmit("X", 19, 38)     'Entering the PIC 
+    					CALL write_value_and_transmit("X", 19, 38)     'Entering the PIC
     					EMReadScreen prosp_monthly, 8, 18, 56
     					prosp_monthly = trim(prosp_monthly)
     					IF prosp_monthly = "" THEN prosp_monthly = 0
@@ -590,7 +590,7 @@ Function ABAWD_FSET_exemption_finder()
     					jobs_end_dt = replace(jobs_end_dt, " ", "/")
     					IF DateDiff("D", date, jobs_end_dt) > 0 THEN
     						'Going into the PIC for a job with an end date in the future
-    						CALL write_value_and_transmit("X", 19, 38)        'Entering the PIC 
+    						CALL write_value_and_transmit("X", 19, 38)        'Entering the PIC
     						EMReadScreen prosp_monthly, 8, 18, 56
     						prosp_monthly = trim(prosp_monthly)
     						IF prosp_monthly = "" THEN prosp_monthly = 0
@@ -613,7 +613,7 @@ Function ABAWD_FSET_exemption_finder()
     						prospective_hours = prospective_hours + prosp_hrs
     					END IF
     				END IF
-    				
+
     				EMReadScreen JOBS_panel_current, 1, 2, 73
     				'looping until all the jobs panels are calculated
     				If cint(JOBS_panel_current) < cint(num_of_JOBS) then transmit
@@ -3292,6 +3292,20 @@ function clear_line_of_text(row, start_column)
   EMWaitReady 0, 0
 end function
 
+function confirm_docs_accepted_in_ecf(closing_msg)
+'--- This function asks the worker if they have accepted in ECF the documents processed while using a script.
+'~~~~~ closing_msg: the end message for display at the script end
+'===== Keywords: MAXIS, ECF, statistics, reminder, script_end_procedure
+    'This function will be called in script_end_procedure and script_end_procedure_with_error_report so that in can apply to any script with the script_that_handles_documents set to TRUE
+    If script_that_handles_documents = TRUE Then                'This variable should be defined in the the script to identify if the script should use this functionality
+        confirm_ecf_updated = MsgBox("Since this script notes the processing of documents, this is a reminder to correctly accept the documents in ECF." & vbNewLine & vbNewLine & "As a part of holistic processing, we want to be sure all case and administrative actions are compelted. PRO TIP - accepting documents in ECF is a part of the activity report and show work completed." & vbNewLine & vbNewLine & "Did you remember to accept your documents?" & vbNewLine & "If you didn't, do it NOW and still press 'yes'.", vbQuestion + vbSystemModal + vbYesNo, "Please Accept Documents in ECF")         'This is the the msessage shown to the script user asking if they have accepted the documents in ECF
+
+        'The function then updates the end display message used in script_end_procedure to add the information to the message to the worker and to add the information to the statistics.
+        If confirm_ecf_updated = vbNo Then closing_msg = closing_msg & vbNewLine & "Documents were not accepted in ECF - please go accept documents you have worked on."
+        If confirm_ecf_updated = vbYes Then closing_msg = closing_msg & vbNewLine & "Thank you for accepting your documents in ECF."
+    End If
+end function
+
 function confirm_tester_information()
 '--- Ask a tester to confirm the details we have for them. THIS FUNCTION IS CALLED IN THE FUNCTIONS LIBRARY
 '===== Keywords: Testing, Infrastucture
@@ -3844,21 +3858,21 @@ end function
 
 Function create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust)
     'All 10-day cutoff dates are provided in POLI/TEMP TE19.132
-    '--- This function creates and saves a TIKL message in DAIL/WRIT. 
-    '~~~~~ TIKL_text: Text that the TIKL message will say. 
-    '~~~~~ num_of_days: how many days the TIKL should be set for. Must be a numeric or a numeric value. 
-    '~~~~~ date_to_start: this determines which date to start counting the number of days to TIKL out from. Ex: date to use today's date, or Application_date to use within the CAF. 
+    '--- This function creates and saves a TIKL message in DAIL/WRIT.
+    '~~~~~ TIKL_text: Text that the TIKL message will say.
+    '~~~~~ num_of_days: how many days the TIKL should be set for. Must be a numeric or a numeric value.
+    '~~~~~ date_to_start: this determines which date to start counting the number of days to TIKL out from. Ex: date to use today's date, or Application_date to use within the CAF.
     '~~~~~ ten_day_adjust: True or False. True to adjust the TIKL date to the 1st day of the next month if after 10 day cutoff, False to NOT adjust to 10 day cutoff.
     '===== Keywords: MAXIS, TIKL
-    
-    TIKL_date = DateAdd("D", num_of_days, date_to_start)    'Creates the TIKL date based on the number of days and date to start chosen by the user    
+
+    TIKL_date = DateAdd("D", num_of_days, date_to_start)    'Creates the TIKL date based on the number of days and date to start chosen by the user
     If cdate(TIKL_date) < date then
         msgbox "Unable to create TIKL, the TIKL date is a past date. Please manually track this case and action."   'fail-safe in case the TIKL date created is in the past. DAIL/WRIN does not allow past dates.
-    Else 
-        If ten_day_adjust = True then 
-            TIKL_mo = right("0" & DatePart("m",    TIKL_date), 2) 'Creating new month and year variables to determine which ten day cut off date to use  
-            TIKL_yr = right(      DatePart("yyyy", TIKL_date), 2) 
-            
+    Else
+        If ten_day_adjust = True then
+            TIKL_mo = right("0" & DatePart("m",    TIKL_date), 2) 'Creating new month and year variables to determine which ten day cut off date to use
+            TIKL_yr = right(      DatePart("yyyy", TIKL_date), 2)
+
             IF TIKL_mo = "01" AND TIKL_yr = "20" THEN
                 ten_day_cutoff = #01/21/2020#
             ELSEIF TIKL_mo = "02" AND TIKL_yr = "20" THEN
@@ -3882,30 +3896,30 @@ Function create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust)
             ELSEIF TIKL_mo = "11" AND TIKL_yr = "20" THEN
                 ten_day_cutoff = #11/19/2020#
             ELSEIF TIKL_mo = "12" AND TIKL_yr = "20" THEN
-                ten_day_cutoff = #12/21/2020#    
+                ten_day_cutoff = #12/21/2020#
             ELSEIF TIKL_mo = "12" AND TIKL_yr = "19" THEN
                 ten_day_cutoff = #12/19/2019#
-            Else 
-                missing_date = True 'in case TIKL time spans exceed 10 day cut off calendar. 
+            Else
+                missing_date = True 'in case TIKL time spans exceed 10 day cut off calendar.
             End if
-            
-            If missing_date = True then 
-                TIKL_date = TIKL_date 'defaults to the date set by the user 
-            Else 
-                'Determining the TIKL date based on if past 10 day cut off or not. 
+
+            If missing_date = True then
+                TIKL_date = TIKL_date 'defaults to the date set by the user
+            Else
+                'Determining the TIKL date based on if past 10 day cut off or not.
                 If cdate(TIKL_date) > cdate(ten_day_cutoff) then
                     'Date of the 1st of the next month where negative action can be taken is determined & becomes the TIKL_date
                     new_TIKL_mo = right(DatePart("m",    DateAdd("m", 1, TIKL_date)), 2)
                     new_TIKL_yr = right(DatePart("yyyy", DateAdd("m", 1, TIKL_date)), 2)
                     TIKL_date = new_TIKL_mo & "/01/" & new_TIKL_yr
                 End if
-            End if 
-        End if 
-        'Creating the TIKL message 
-        Call navigate_to_MAXIS_screen("DAIL", "WRIT")           
-        call create_MAXIS_friendly_date(TIKL_date, 0, 5, 18)    '0 is the date as all the adjustments are already determined. 
+            End if
+        End if
+        'Creating the TIKL message
+        Call navigate_to_MAXIS_screen("DAIL", "WRIT")
+        call create_MAXIS_friendly_date(TIKL_date, 0, 5, 18)    '0 is the date as all the adjustments are already determined.
         Call write_variable_in_TIKL(TIKL_text)
-        PF3 'to save & exit 
+        PF3 'to save & exit
     End if
 End Function
 
@@ -5139,7 +5153,7 @@ function navigate_to_MMIS_region(group_security_selection)
 	End If
 end function
 
-Function non_actionable_dails 
+Function non_actionable_dails
     If instr(dail_msg, "AMT CHILD SUPP MOD/ORD") OR _
         instr(dail_msg, "AP OF CHILD REF NBR:") OR _
         instr(dail_msg, "ADDRESS DIFFERS W/ CS RECORDS:") OR _
@@ -5191,7 +5205,7 @@ Function non_actionable_dails
         instr(dail_msg, "~*~*~CLIENT WAS SENT AN APPT LETTER") OR _
         instr(dail_msg, "IF CLIENT HAS NOT COMPLETED RECERT, APPL CAF FOR") OR _
         instr(dail_msg, "UPDATE PND2 FOR CLIENT DELAY IF APPROPRIATE") OR _
-        instr(dail_msg, "PERSON HAS A RENEWAL OR HRF DUE. STAT UPDATES") OR _ 
+        instr(dail_msg, "PERSON HAS A RENEWAL OR HRF DUE. STAT UPDATES") OR _
         instr(dail_msg, "PERSON HAS HC RENEWAL OR HRF DUE") OR _
         instr(dail_msg, "GA: REVIEW DUE FOR JANUARY - NOT AUTO") OR _
         instr(dail_msg, "GRH: REVIEW DUE - NOT AUTO") or _
@@ -5199,19 +5213,19 @@ Function non_actionable_dails
         instr(dail_msg, "MSA RECERT DUE - NOT AUTO") or _
         instr(dail_msg, "MSA IN PENDING STATUS - NOT AUTO") or _
         instr(dail_msg, "SNAP: RECERT/SR DUE FOR JANUARY - NOT AUTO") or _
-        instr(dail_msg, "GRH: STATUS IS REIN, PENDING OR SUSPEND - NOT AUTO") OR _ 
-        instr(dail_msg, "SNAP: PENDING OR STAT EDITS EXIST") OR _ 
-        instr(dail_msg, "SNAP: REIN STATUS - NOT AUTO-APPROVED") OR _ 
-        instr(dail_msg, "CASE NOT AUTO-APPROVED HRF/SR/RECERT DUE") OR _ 
-        instr(dail_msg, "MFIP MASS CHANGE AUTO-APPROVED AN UNUSUAL INCREASE") OR _ 
-        instr(dail_msg, "MFIP MASS CHANGE AUTO-APPROVED CASE WITH SANCTION") OR _ 
+        instr(dail_msg, "GRH: STATUS IS REIN, PENDING OR SUSPEND - NOT AUTO") OR _
+        instr(dail_msg, "SNAP: PENDING OR STAT EDITS EXIST") OR _
+        instr(dail_msg, "SNAP: REIN STATUS - NOT AUTO-APPROVED") OR _
+        instr(dail_msg, "CASE NOT AUTO-APPROVED HRF/SR/RECERT DUE") OR _
+        instr(dail_msg, "MFIP MASS CHANGE AUTO-APPROVED AN UNUSUAL INCREASE") OR _
+        instr(dail_msg, "MFIP MASS CHANGE AUTO-APPROVED CASE WITH SANCTION") OR _
         instr(dail_msg, "DWP MASS CHANGE AUTO-APPROVED AN UNUSUAL INCREASE") OR _
         instr(dail_msg, "IV-D NAME DISCREPANCY") OR _
         instr(dail_msg, "CHECK HAS BEEN APPROVED") OR _
         instr(dail_msg, "SDX INFORMATION HAS BEEN STORED - CHECK INFC") OR _
         instr(dail_msg, "BENDEX INFORMATION HAS BEEN STORED - CHECK INFC") OR _
-        instr(dail_msg, "- TRANS #") OR _ 
-        instr(dail_msg, "PERSON/S REQD SNAP NOT IN SNAP UNIT") then 
+        instr(dail_msg, "- TRANS #") OR _
+        instr(dail_msg, "PERSON/S REQD SNAP NOT IN SNAP UNIT") then
             add_to_excel = True
         '----------------------------------------------------------------------------------------------------CORRECT STAT EDITS over 5 days old
     Elseif instr(dail_msg, "CORRECT STAT EDITS") then
@@ -5270,7 +5284,7 @@ Function non_actionable_dails
     Else
         add_to_excel = False
     End if
-End Function 
+End Function
 
 function ONLY_create_MAXIS_friendly_date(date_variable)
 '--- This function creates a MM DD YY date.

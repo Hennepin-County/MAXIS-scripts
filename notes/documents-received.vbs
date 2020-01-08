@@ -2989,17 +2989,6 @@ call write_bullet_and_variable_in_case_note("Verifications still needed", verifs
 call write_variable_in_case_note("---")
 call write_variable_in_case_note(worker_signature)
 
-'This fucntion will ask the worker about accepting the document in ECF. This will move to FuncLib once we have this tested and the go ahead to add to other scripts.
-'To call this, we will add the call to script_end_procedure and script_end_procedure_with_error_report
-'For a script to use this functionality the variable script_that_handles_documents and set it to TRUE in the script file.
-function confirm_docs_accepted_in_ecf(closing_msg)
-    If script_that_handles_documents = TRUE Then
-        confirm_ecf_updated = MsgBox("Since this script notes the processing of documents, this is a reminder to correctly accept the documents in ECF." & vbNewLine & vbNewLine & "As a part of holistic processing, we want to be sure all case and administrative actions are compelted. PRO TIP - accepting documents in ECF is a part of the activity report and show work completed." & vbNewLine & vbNewLine & "Did you remember to accept your documents?" & vbNewLine & "If you didn't, do it NOW and still press 'yes'.", vbQuestion + vbSystemModal + vbYesNo, "Please Accept Documents in ECF")
-
-        If confirm_ecf_updated = vbNo Then closing_msg = closing_msg & vbNewLine & "Documents were not accepted in ECF - please go accept documents you have worked on."
-        If confirm_ecf_updated = vbYes Then closing_msg = closing_msg & vbNewLine & "Thank you for accepting your documents in ECF."
-    End If
-end function
-Call confirm_docs_accepted_in_ecf(end_msg)
+Call confirm_docs_accepted_in_ecf(end_msg)      'function that asks if ECF documents have been accepted
 
 script_end_procedure_with_error_report(end_msg)
