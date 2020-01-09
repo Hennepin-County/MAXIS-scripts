@@ -46,13 +46,19 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/09/2020", "Updated dialog err messaging to include all errors in single message box.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'-------------------------------------------------------------------------------------------------DIALOG
+'SCRIPT BODY----------------------------------------------------------------------------------------------------
+EMConnect ""														'Connecting to Bluezone
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)		'function autofills the footer month and footer year
+call MAXIS_case_number_finder(MAXIS_case_number)							'function autofills case number that worker already has on MAXIS screen
+Call check_for_MAXIS(False) 'checking for an active MAXIS session
+
 Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 146, 70, "Case number dialog"
   EditBox 80, 5, 60, 15, MAXIS_case_number
@@ -65,23 +71,18 @@ BeginDialog Dialog1, 0, 0, 146, 70, "Case number dialog"
   Text 10, 10, 45, 10, "Case number: "
 EndDialog
 
-'SCRIPT BODY----------------------------------------------------------------------------------------------------
-EMConnect ""														'Connecting to Bluezone
-Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)		'function autofills the footer month and footer year
-call MAXIS_case_number_finder(MAXIS_case_number)							'function autofills case number that worker already has on MAXIS screen
-'checking for an active MAXIS session
-Call check_for_MAXIS(True)
-
-'calls up dialog for worker to enter case number and applicable month and year.
 DO
-  Do
-		err_msg = ""
-		Dialog Dialog1
-		cancel_confirmation
-		If err_msg <> "" Then MsgBox "Please resolve the following to conitune:" & vbNewLine & err_msg
-  Loop until err_msg = ""
-  CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-Loop until are_we_passworded_out = false					'loops until user passwords back inn
+	DO
+		err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
+		dialog Dialog1				'main dialog
+		cancel_without_confirmation
+		IF len(MAXIS_case_number) > 8 or isnumeric(MAXIS_case_number) = false THEN err_msg = err_msg & vbCr & "* Enter a valid case number."		'mandatory fields
+        If IsNumeric(MAXIS_footer_month) = False or len(MAXIS_footer_month) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2-digit MAXIS footer month."
+        If IsNumeric(MAXIS_footer_year) = False or len(MAXIS_footer_year) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2-digit MAXIS footer year."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'information gathering to auto-populate LTC_transfer_penalty_dialog
 'grabbing app date from STAT/PROG
@@ -134,7 +135,6 @@ EMReadScreen penalty_end_month, 2, 12, 46
 EMReadScreen penalty_end_year, 2, 12, 49
 If penalty_end_month <> "" and penalty_end_year <> "" Then last_full_month_of_period = penalty_end_month & "/" & penalty_end_year
 
-
 'Dollar bill symbol will be added to numeric variables----------------------------------------------------------------------------------------------------
 IF transfer_amount <> "" THEN transfer_amount = "$" & transfer_amount
 IF partial_penalty_amount <> "" THEN partial_penalty_amount = "$" & partial_penalty_amount
@@ -181,42 +181,25 @@ EndDialog
 'The main transfer dialog----------------------------------------------------------------------------------------------------
 DO
 	DO
-		DO
-			DO
-				DO
-					DO
-						DO
-							DO
-								DO
-									DO
-										DO
-											DO
-												Dialog Dialog1
-												cancel_confirmation 	'asks user if they really want to cancel.  If yes, then script stops.  If no, loops back to dialog.
-												IF (len(baseline_date) < 8 or IsDate(baseline_date) = FALSE) THEN Msgbox "You must enter a valid baseline date in the MM/DD/YYYY format.  See policy reference at the bottom of the dialog box if you are unsure of how to determined the baseline date."
-											LOOP UNTIL len(baseline_date) >= 8 or IsDate(baseline_date) = TRUE
-											IF worker_signature = "" THEN MsgBox "You must sign your case note!"
-										LOOP UNTIL worker_signature <> ""
-										If type_of_transfer_list = "Select one..." then MsgBox "You must select the type of transfer."
-									LOOP UNTIL type_of_transfer_list <> "Select one..."
-									if (type_of_transfer_list = "Other" AND other_information = "") Then MsgBox "You have selected ""Other"" as your transfer reason.  You must complete the 'other transfer info' field."
-								LOOP until (type_of_transfer_list = "Other" AND other_information <> "") OR type_of_transfer_list <> "Other"
-								If (transfer_date = "" or IsDate(transfer_date) = FALSE) then MsgBox "You must enter a valid transfer date."
-							LOOP UNTIL transfer_date <> "" OR IsDate(transfer_date) = True
-							If (date_of_application = "" or IsDate(date_of_application) = FALSE) then MsgBox "You must enter a valid application date."
-						LOOP UNTIL date_of_application <> "" OR IsDate(date_of_application) = TRUE
-						If (transfer_amount = "" or IsNumeric(transfer_amount) = FALSE) then MsgBox "You must enter a valid transfer penalty amount."
-					LOOP UNTIL transfer_amount <> "" or IsNumeric(transfer_amount) = TRUE
-					If (date_client_was_otherwise_eligible = "" or IsDate(date_client_was_otherwise_eligible) = FALSE) then MsgBox "You must enter a valid date that the client was otherwise eligible for MA."
-				LOOP UNTIL date_client_was_otherwise_eligible <> "" or IsDate(date_client_was_otherwise_eligible) = TRUE
-				If period_begins = "" then MsgBox "You must enter the start date of the transfer penalty."
-			LOOP UNTIL period_begins <> ""
-			IF last_full_month_of_period = "" then MsgBox "You must enter the last full month of the transfer penalty."
-		LOOP UNTIL last_full_month_of_period <> ""
-		IF (partial_penalty_amount = "" or IsNumeric(partial_penalty_amount) = False) then MsgBox "You must enter the partial penalty amount, even if the amount is 0."
-	LOOP UNTIL partial_penalty_amount <> "" or IsNumeric(partial_penalty_amount) = TRUE
-	If case_action = "" then MsgBox "You must case note the case action."
-LOOP Until case_action <> ""
+		err_msg = ""
+		Dialog Dialog1
+		cancel_confirmation 	'asks user if they really want to cancel.  If yes, then script stops.  If no, loops back to dialog.
+		If (len(baseline_date) < 8 or IsDate(baseline_date) = FALSE) then err_msg = err_msg & vbNewLine & "You must enter a valid baseline date in the MM/DD/YYYY format.  See policy reference at the bottom of the dialog box if you are unsure of how to determined the baseline date."
+		If worker_signature = "" then err_msg = err_msg & vbNewLine & "You must sign your case note!"
+		If type_of_transfer_list = "Select one..." then err_msg = err_msg & vbNewLine & "You must select the type of transfer."
+		If (type_of_transfer_list = "Other" AND other_information = "") then err_msg = err_msg & vbNewLine & "You have selected ""Other"" as your transfer reason.  You must complete the 'other transfer info' field."
+		If (transfer_date = "" or IsDate(transfer_date) = FALSE) then err_msg = err_msg & vbNewLine & "You must enter a valid transfer date."
+		If (date_of_application = "" or IsDate(date_of_application) = FALSE) then err_msg = err_msg & vbNewLine & "You must enter a valid application date."
+		If (transfer_amount = "" or IsNumeric(transfer_amount) = FALSE) then err_msg = err_msg & vbNewLine & "You must enter a valid transfer penalty amount."
+		If (date_client_was_otherwise_eligible = "" or IsDate(date_client_was_otherwise_eligible) = FALSE) then err_msg = err_msg & vbNewLine & "You must enter a valid date that the client was otherwise eligible for MA."
+		If period_begins = "" then err_msg = err_msg & vbNewLine & "You must enter the start date of the transfer penalty."
+		If last_full_month_of_period = "" then err_msg = err_msg & vbNewLine & "You must enter the last full month of the transfer penalty."
+		If (partial_penalty_amount = "" or IsNumeric(partial_penalty_amount) = False) then err_msg = err_msg & vbNewLine & "You must enter the partial penalty amount, even if the amount is 0."
+	    If case_action = "" then err_msg = err_msg & vbNewLine & "You must case note the case action."
+        If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+    LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'ensures that worker has not "passworded" out of MAXIS
 Call check_for_MAXIS(false)
