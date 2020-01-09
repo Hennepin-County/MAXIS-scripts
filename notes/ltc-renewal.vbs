@@ -44,25 +44,13 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/09/2020", "Updated backend processing and added mandatory fields to main dialog.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/14/2019", "Added field to note the date the 1503 attachment is sent to the facility. Additionally added checkboxes to indicate MMIS updates/review.", "Casey Love, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-
-'-------------------------------------------------------------------------------------------------DIALOG
-Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 146, 70, "Case number dialog"
-  EditBox 80, 5, 60, 15, MAXIS_case_number
-  EditBox 80, 25, 25, 15, MAXIS_footer_month
-  EditBox 115, 25, 25, 15, MAXIS_footer_year
-  ButtonGroup ButtonPressed
-    OkButton 35, 45, 50, 15
-    CancelButton 90, 45, 50, 15
-  Text 10, 30, 65, 10, "Footer month/year:"
-  Text 10, 10, 45, 10, "Case number: "
-EndDialog
 
 'VARIABLES WHICH NEED DECLARING----------------------------------------------------------------------------------------------------
 HH_memb_row = 5
@@ -78,25 +66,32 @@ EMConnect ""
 call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 146, 70, "Case number dialog"
+  EditBox 80, 5, 60, 15, MAXIS_case_number
+  EditBox 80, 25, 25, 15, MAXIS_footer_month
+  EditBox 115, 25, 25, 15, MAXIS_footer_year
+  ButtonGroup ButtonPressed
+    OkButton 35, 45, 50, 15
+    CancelButton 90, 45, 50, 15
+  Text 10, 30, 65, 10, "Footer month/year:"
+  Text 10, 10, 45, 10, "Case number: "
+EndDialog
 
-'Showing the case number dialog
-Do
-    Do
-        err_msg = ""
-        Dialog Dialog1
-        cancel_without_confirmation
-        Call validate_MAXIS_case_number(err_msg, "*")
-        If IsNumeric(MAXIS_footer_month) = False OR IsNumeric(MAXIS_footer_year) = False Then err_msg = err_msg & vbNewLine & "* Enter a valid footer month and year."
-        If err_msg <> "" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
-    Loop until err_msg = ""
-    Call check_for_password(are_we_passworded_out)
-Loop until are_we_passworded_out = False
+DO
+	DO
+		err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
+		dialog Dialog1				'main dialog
+		cancel_without_confirmation
+		IF len(MAXIS_case_number) > 8 or isnumeric(MAXIS_case_number) = false THEN err_msg = err_msg & vbCr & "* Enter a valid case number."		'mandatory fields
+        If IsNumeric(MAXIS_footer_month) = False or len(MAXIS_footer_month) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2-digit MAXIS footer month."
+        If IsNumeric(MAXIS_footer_year) = False or len(MAXIS_footer_year) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2-digit MAXIS footer year."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-MAXIS_footer_month = right("00" & MAXIS_footer_month, 2)
-MAXIS_footer_year = right("00" & MAXIS_footer_year, 2)
-
-'checking for an active MAXIS session
-Call check_for_MAXIS (FALSE)
+Call MAXIS_footer_month_confirmation
 
 'This grabs the HH comp in greater detail than the shared function as of 07/11/2013. This includes age/gender/marital status of client.
 call navigate_to_MAXIS_screen("stat", "memb")
@@ -131,9 +126,8 @@ call autofill_editbox_from_MAXIS(HH_member_array, "REST", assets)
 call autofill_editbox_from_MAXIS(HH_member_array, "SECU", assets)
 call autofill_editbox_from_MAXIS(HH_member_array, "UNEA", income)
 
-'Determining the resert month by combining footer month and year, elig/HC searching will need this
+'Determining the recert month by combining footer month and year, elig/HC searching will need this
 recert_month = MAXIS_footer_month & "/" & MAXIS_footer_year
-
 
 'Checking to see if person 01 has HC. If not it tries person 02
 call navigate_to_MAXIS_screen("elig", "hc")
@@ -145,7 +139,6 @@ Else
     EMWriteScreen "x", 8, 26
 End if
 
-
 'Scans for possible secondary programs (QMB/SLMB/QI1)
 EMReadScreen second_program_elig_result, 4, 9, 41
 If second_program_elig_result = "ELIG" then
@@ -153,8 +146,7 @@ If second_program_elig_result = "ELIG" then
     If trim(QMB_SLMB_check) = "QMB" or trim(QMB_SLMB_check) = "SLMB" or trim(QMB_SLMB_check) = "QI1" then MEDI_reimbursement_prog = trim(QMB_SLMB_check)
 End if
 
-'Jumps into the ELIG/HC screen for MA
-transmit
+transmit 'Jumps into the ELIG/HC screen for MA
 
 'Searching for the footer month/year
 row = 4 'because the first several rows can contain other "MM/YY" data which can interfere with the search
@@ -318,12 +310,17 @@ EndDialog
 Do
 	DO
         err_msg = ""
-		Dialog Dialog1
-		cancel_confirmation
-		MAXIS_dialog_navigation
-        If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Please sign your case note."
-        If ButtonPressed <> -1 Then err_msg = "LOOP" & err_msg
-        If err_msg <> "" AND left(err_msg, 4) <> "LOOP" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
+        Do 
+		    Dialog Dialog1
+		    cancel_confirmation
+		    MAXIS_dialog_navigation
+        Loop until ButtonPressed = -1
+        If trim(recipient_amt) = "" then err_msg = err_msg & vbcr & "* Enter recipient amount, even if amount is 0."
+        If trim(assets) = "" then err_msg = err_msg & vbcr & "* Enter asset total, even if amount is 0."
+        If trim(income) = "" then err_msg = err_msg & vbcr & "* Enter income information, even if amount is 0."
+        If trim(deductions) = "" then err_msg = err_msg & vbcr & "* Enter deductions, even if amount is 0."
+        If trim(worker_signature) = "" then err_msg = err_msg & vbcr & "* Sign your case note."
+        If err_msg <> "" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
     Loop until err_msg = ""
     Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = False
@@ -331,7 +328,6 @@ Loop until are_we_passworded_out = False
 'Functions to confirm an active MAXIS session
 Call check_for_MAXIS(False)
 sent_date_of_1503 = trim(sent_date_of_1503)
-
 
 'Logic to fix the naming in the "recipient amt" variable (not everyone likes calling it "recipient amt"
 If budget_type = "L" then recipient_amt_name = "spenddown: "
@@ -341,10 +337,9 @@ If budget_type = "B" then recipient_amt_name = "recipient amt: "
 'Logic to add a slash to the MEDI reimbursement variable if it isn't blank
 If MEDI_reimbursement_prog <> "" then MEDI_reimbursement_prog = "/" & MEDI_reimbursement_prog
 
-
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
 start_a_blank_CASE_NOTE
-Call write_variable_in_case_note("***" & recert_month & " ER " & review_status & ": " & MA_type & MEDI_reimbursement_prog & ", " & recipient_amt_name & recipient_amt & "***")
+Call write_variable_in_case_note("**" & recert_month & " ER " & review_status & ": " & MA_type & MEDI_reimbursement_prog & ", " & recipient_amt_name & "$" & recipient_amt & "**")
 call write_bullet_and_variable_in_case_note("HH comp", HH_comp)
 call write_bullet_and_variable_in_case_note("Citizenship", US_citizen)
 call write_bullet_and_variable_in_case_note("AREP", AREP)
