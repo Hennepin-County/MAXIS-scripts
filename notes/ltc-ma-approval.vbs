@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/09/2020", "Added additional mandatory fields in dialogs, and updated back end handling.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/11/2019", "Added COLA as an option in the special header droplist", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -51,15 +52,11 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'>>>>NOTE: these were added as a batch process. Check below for any 'StopScript' functions and convert manually to the script_end_procedure("") function
-
 'THE SCRIPT----------------------------------------------------------------------------------------------------
-'Connects to BlueZone
-EMConnect ""
+EMConnect ""    'Connects to BlueZone
+Call MAXIS_case_number_finder(MAXIS_case_number) 'Grabbing case number & footer month/year
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
-'Grabbing case number & footer month/year
-Call MAXIS_case_number_finder(MAXIS_case_number)
-If MAXIS_footer_month = "" AND MAXIS_footer_year = "" Then Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 161, 61, "Case number"
@@ -74,29 +71,23 @@ BeginDialog Dialog1, 0, 0, 161, 61, "Case number"
     CancelButton 85, 40, 50, 15
 EndDialog
 
-'Shows case number dialog
 DO
-	Do
-        err_msg = ""
-        Dialog Dialog1
-        cancel_confirmation
-        If err_msg <> "" Then MsgBox "Please resolve the following to conitune:" & vbNewLine & err_msg
-	Loop until err_msg = ""
+	DO
+		err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
+		dialog Dialog1				'main dialog
+		cancel_without_confirmation
+		IF len(MAXIS_case_number) > 8 or isnumeric(MAXIS_case_number) = false THEN err_msg = err_msg & vbCr & "* Enter a valid case number."		'mandatory fields
+        If IsNumeric(MAXIS_footer_month) = False or len(MAXIS_footer_month) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2-digit MAXIS footer month."
+        If IsNumeric(MAXIS_footer_year) = False or len(MAXIS_footer_year) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2-digit MAXIS footer year."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'Sends transmit to check for MAXIS
 Call check_for_MAXIS(FALSE)
-
-'Going to ELIG/HC for the correct footer month
-back_to_self
-EMWriteScreen "elig", 16, 43
-EMWriteScreen "________", 18, 43
-EMWriteScreen MAXIS_case_number, 18, 43
-EMWriteScreen MAXIS_footer_month, 20, 43
-EMWriteScreen MAXIS_footer_year, 20, 46
-EMWriteScreen "hc", 21, 70
-transmit
+Call MAXIS_footer_month_confirmation
+Call navigate_to_MAXIS_screen("ELIG", "HC  ")
 
 'Checks to make sure it's in HCMI, due to error prone cases
 call navigate_to_MAXIS_screen("STAT", "HCMI")
@@ -225,28 +216,33 @@ EndDialog
 'Now it checks to see if this is a BBUD. If so, it'll read the info, then offer the worker the chance to navigate to BILS
 EMReadScreen BBUD_check, 4, 3, 47
 If BBUD_check = "BBUD" then
-  EMReadScreen income, 10, 12, 32
-  income = "$" & trim(income)
-  DO
-  	Do
-          err_msg = ""
-          Dialog Dialog1
-          cancel_confirmation
-     	  If err_msg <> "" Then MsgBox "Please resolve the following to conitune:" & vbNewLine & err_msg
-  	Loop until err_msg = ""
-  	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-  Loop until are_we_passworded_out = false					'loops until user passwords back inn
-  If ButtonPressed = 4 then
-    PF3
-    Call check_for_MAXIS(False)
-      Do
+    EMReadScreen income, 10, 12, 32
+    income = "$" & trim(income)
+    Do
         Dialog Dialog1
-        cancel_confirmation
-      Loop until MAXIS_check = "MAXIS"
-    End if
-    Call navigate_to_MAXIS_screen("STAT", "BILS")
-    EMReadScreen BILS_check, 4, 2, 54
-    If BILS_check <> "BILS" then transmit
+        If ButtonPressed = ELIG_button then exit do
+        If ButtonPressed = BILS_Button then 
+            PF3
+            Call navigate_to_MAXIS_screen("STAT", "BILS")
+            EMReadScreen BILS_check, 4, 2, 54
+            If BILS_check <> "BILS" then transmit
+            exit do
+        End if 
+  	    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    Loop until are_we_passworded_out = false					'loops until user passwords back inn
+    
+    'If ButtonPressed = 4 then
+    '    'BILS_button navigation 
+    '    PF3
+    ''    Do
+    ''        Dialog Dialog1
+    ''        cancel_confirmation
+    ''        CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    ''    Loop until are_we_passworded_out = false					'loops until user passwords back inn
+    ''End if
+    'Call navigate_to_MAXIS_screen("STAT", "BILS")
+    'EMReadScreen BILS_check, 4, 2, 54
+    'If BILS_check <> "BILS" then transmit
 End if
 
 'auto-fills and cleans up information to entered into the approval_dialog
@@ -288,20 +284,21 @@ BeginDialog Dialog1, 0, 0, 376, 165, "Approval dialog"
   Text 130, 150, 60, 10, "Worker signature:"
 EndDialog
 
-
 'Shows the MA approval dialog, checks for MAXIS and allows navigation buttons
 Do
-	err_msg = ""
-	Dialog Dialog1
-	cancel_confirmation
-	MAXIS_dialog_navigation
-	If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
-	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-LOOP until err_msg = ""
-
-
-'checking for an active MAXIS session
-Call check_for_MAXIS (FALSE)
+    Do
+    	err_msg = ""
+    	Dialog Dialog1
+    	cancel_confirmation
+    	MAXIS_dialog_navigation
+        If trim(recipient_amt) = "" then err_msg = err_msg & "Enter recipient amount, even if amount is 0."
+        If trim(income) = "" then err_msg = err_msg & "Enter income information, even if amount is 0."
+        If trim(deductions) = "" then err_msg = err_msg & "Enter deductions, even if amount is 0."
+    	If trim(worker_signature) = "" then err_msg = err_msg & vbNewLine & "Sign your case note."
+    	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+    LOOP until err_msg = ""
+CALL check_for_password_without_transmit(are_we_passworded_out)
+LOOP UNTIL are_we_passworded_out = false
 
 'Variables for the case note
 If special_header_droplist = "None" then note_header = " for "
@@ -312,7 +309,6 @@ If special_header_droplist = "Paperless IR" then note_header = " for paperless I
 If budget_type = "L" then SD_type = " LTC SD**"
 If budget_type = "S" then SD_type = " SISEW waiver obl**"
 If budget_type = "B" then SD_type = " recip amt**"
-
 
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
 start_a_blank_CASE_NOTE
