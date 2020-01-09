@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("01/08/2020", "The script cannot be used on a JOBS panel with an income end date at this time. The script now reads if an end date exists and prevents information from being entered for a panel that cannot be updated. ##~##", "Casey Love, Hennepin County")
 call changelog_update("1/3/2020", "BUG FIX - The script could not continue if ongoing income for a job was $0. Updated functionality to better suppor an ongoing job with $0 income. This new functionality still does not support jobs that are ending.##~##", "Casey Love, Hennepin County")
 call changelog_update("12/16/2019", "BUG FIX - There was an error when completing the PIC in the month of application. This should now be resolved and the script will not get stuck on the PIC.##~##", "Casey Love, Hennepin County")
 call changelog_update("11/22/2019", "BUG FIX - The PIC does not allow for hours to have more than 2 decimal points written into MAXIS. Sometimes check stubs have 3 decimals provided. The script will change to 2 decimal points for the entry of information only, the information entered into the dialog and input on the CASE/NOTE can still be 3 decimal points.##~##", "Casey Love, Hennepin County")
@@ -1079,12 +1080,19 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
         EMWriteScreen EARNED_INCOME_PANELS_ARRAY(panel_instance, ei_panel), 20, 79
         transmit
 
-        'This is where the worker indicates if they have income information to budget for this panel.
-        'If they click 'No' here, there is no way to go back to this question for that panel.
-        employer_check = MsgBox("Do you have income verification for this job? Employer name: " & EARNED_INCOME_PANELS_ARRAY(employer, ei_panel), vbYesNo + vbQuestion, "Select Income Panel")
-        If employer_check = vbYes Then script_run_lowdown = script_run_lowdown & vbCr & "Income received for - " & EARNED_INCOME_PANELS_ARRAY(employer, ei_panel) & " button pressed - YES"
-        If employer_check = vbNo Then script_run_lowdown = script_run_lowdown & vbCr & "Income received for - " & EARNED_INCOME_PANELS_ARRAY(employer, ei_panel) & " button pressed - NO"
-
+        'The script can only update JOBS panels if there is no income end date.
+        If EARNED_INCOME_PANELS_ARRAY(income_end_dt, ei_panel) = "" Then
+            'This is where the worker indicates if they have income information to budget for this panel.
+            'If they click 'No' here, there is no way to go back to this question for that panel.
+            employer_check = MsgBox("Do you have income verification for this job? Employer name: " & EARNED_INCOME_PANELS_ARRAY(employer, ei_panel), vbYesNo + vbQuestion, "Select Income Panel")
+            If employer_check = vbYes Then script_run_lowdown = script_run_lowdown & vbCr & "Income received for - " & EARNED_INCOME_PANELS_ARRAY(employer, ei_panel) & " button pressed - YES"
+            If employer_check = vbNo Then script_run_lowdown = script_run_lowdown & vbCr & "Income received for - " & EARNED_INCOME_PANELS_ARRAY(employer, ei_panel) & " button pressed - NO"
+        Else
+            'If there is already an end date the script will need to force that it cannot be updated.
+            MsgBox "This job appears to be ended." & vbNewLine & vbNewLine & "The employer name: " & EARNED_INCOME_PANELS_ARRAY(employer, ei_panel) & vbNewLine & "End Date: " & EARNED_INCOME_PANELS_ARRAY(income_end_dt, ei_panel) & vbNewLine & vbNewLine & "This script connot accomodate the update of this panel at this time. This should be processed manually." & vbNewLine & "If this job has not ended, once this script run is completed, remove the income end date and rerun the script for this job."
+            script_run_lowdown = script_run_lowdown & vbCr & "Emploeyr - " & EARNED_INCOME_PANELS_ARRAY(employer, ei_panel) & " has an income end date of " & EARNED_INCOME_PANELS_ARRAY(income_end_dt, ei_panel) & " and cannot be updated by the script at this time."
+            employer_check = vbNo
+        End If
         'Some panels will have this defaulted  already but if not, this will defalt to the footer month and year inidicated in the initial dialog
         If EARNED_INCOME_PANELS_ARRAY(initial_month_mo, ei_panel) = "" Then EARNED_INCOME_PANELS_ARRAY(initial_month_mo, ei_panel) = MAXIS_footer_month
         If EARNED_INCOME_PANELS_ARRAY(initial_month_yr, ei_panel) = "" Then EARNED_INCOME_PANELS_ARRAY(initial_month_yr, ei_panel) = MAXIS_footer_year
