@@ -70,7 +70,6 @@ EMConnect ""
 'Grabbing the case number & the footer month/year
 Call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
-MAXIS_footer_year = "" & MAXIS_footer_year - 2000
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
@@ -86,15 +85,19 @@ BeginDialog Dialog1, 0, 0, 181, 72, "Case number dialog"
   Text 110, 30, 25, 10, "Year:"
 EndDialog
 
-'Showing the case number dialog
 DO
 	DO
-		Dialog Dialog1
-		cancel_confirmation
-		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then MsgBox "You need to type a valid case number."
-		Loop until err_msg = ""
-		Call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
-LOOP UNTIL are_we_passworded_out = false							'Loops until we affirm that we're ready to case note.
+		err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
+		dialog Dialog1				'main dialog
+		cancel_without_confirmation
+		IF len(MAXIS_case_number) > 8 or isnumeric(MAXIS_case_number) = false THEN err_msg = err_msg & vbCr & "* Enter a valid case number."		'mandatory fields
+        If IsNumeric(MAXIS_footer_month) = False or len(MAXIS_footer_month) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2-digit MAXIS footer month."
+        If IsNumeric(MAXIS_footer_year) = False or len(MAXIS_footer_year) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2-digit MAXIS footer year."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
+
 'Checking for MAXIS, NAV to HCRE
 Call check_for_MAXIS(FALSE)
 Call navigate_to_MAXIS_screen("stat", "hcre")
@@ -311,13 +314,12 @@ BeginDialog Dialog1, 0, 0, 206, 172, "Type-Std dialog"
   Text 130, 10, 30, 10, "Method"
   Text 170, 10, 25, 10, "Waiver"
 EndDialog
+
 'DISPLAYS THE TYPE/STD DIALOG AFTER GATHERING THE INFO
 DO
-	DO
-		Dialog Dialog1
-		cancel_confirmation
-		Loop until err_msg = ""
-		Call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+	Dialog Dialog1
+	cancel_confirmation	
+	Call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false							'Loops until we affirm that we're ready to case note.
 
 'READS THE FOOTER MONTH ELIG TYPE AND STANDARD
