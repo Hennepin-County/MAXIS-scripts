@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("01/10/2020", "This script may force an error report at the end of the script run.##~## ##~##We have and ongoing script error that is happening around dates and the updating of the panel. We have added a workaround to the script but if this error happens, it should be sending us and error report so we can try to discover the nature of the issue in real time. ##~## The script should be working well and this is just an alert that the error reporting may happen automatically. ", "Casey Love, Hennepin County")
 Call changelog_update("01/08/2020", "The script cannot be used on a JOBS panel with an income end date at this time. The script now reads if an end date exists and prevents information from being entered for a panel that cannot be updated. ##~##", "Casey Love, Hennepin County")
 call changelog_update("1/3/2020", "BUG FIX - The script could not continue if ongoing income for a job was $0. Updated functionality to better suppor an ongoing job with $0 income. This new functionality still does not support jobs that are ending.##~##", "Casey Love, Hennepin County")
 call changelog_update("12/16/2019", "BUG FIX - There was an error when completing the PIC in the month of application. This should now be resolved and the script will not get stuck on the PIC.##~##", "Casey Love, Hennepin County")
@@ -3348,30 +3349,39 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
                                 End If
                                 ' MsgBox "Ave inc - " & EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel) & vbNewLine & "Ave hrs - " & EARNED_INCOME_PANELS_ARRAY(ave_hrs_per_pay, ei_panel)
                                 For each this_date in this_month_checks_array           'this array was set at the begining of this month's loop - it will get us all our pay dates
-                                    this_date = DateValue(this_date)
-                                    If DateDiff("d", this_date, EARNED_INCOME_PANELS_ARRAY(income_start_dt, ei_panel)) < 1 Then     'if the pay date we are looking at is on or after the income start date we will add it in to the lump
+                                    If IsDate(this_date) = TRUE Then
+                                        If DateDiff("d", this_date, EARNED_INCOME_PANELS_ARRAY(income_start_dt, ei_panel)) < 1 Then     'if the pay date we are looking at is on or after the income start date we will add it in to the lump
 
-                                        date_found = FALSE      'default for before we look at the checks
-                                        For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)   'then loop through all of the income information
-                                            If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel AND LIST_OF_INCOME_ARRAY(pay_date, all_income) <> "" Then
-                                                If DateDiff("d", LIST_OF_INCOME_ARRAY(pay_date, all_income), this_date) = 0 Then            'if the pay date (this is NOT the view_pay_date) then we use the amount provided on ENTER PAY
-                                                    date_found = TRUE
+                                            date_found = FALSE      'default for before we look at the checks
+                                            For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)   'then loop through all of the income information
+                                                If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel AND LIST_OF_INCOME_ARRAY(pay_date, all_income) <> "" Then
+                                                    If DateDiff("d", LIST_OF_INCOME_ARRAY(pay_date, all_income), this_date) = 0 Then            'if the pay date (this is NOT the view_pay_date) then we use the amount provided on ENTER PAY
+                                                        date_found = TRUE
 
-                                                    appl_month_gross = appl_month_gross + LIST_OF_INCOME_ARRAY(gross_amount, all_income)
-                                                    appl_month_hours = appl_month_hours + LIST_OF_INCOME_ARRAY(hours, all_income)
-                                                    checks_lumped = checks_lumped & LIST_OF_INCOME_ARRAY(view_pay_date, all_income) & " - $" & LIST_OF_INCOME_ARRAY(gross_amount, all_income) & " - " & LIST_OF_INCOME_ARRAY(hours, all_income) & "hrs.; "      'saving a list of the checks used
-                                                    income_items_used = income_items_used & all_income & "~"
+                                                        appl_month_gross = appl_month_gross + LIST_OF_INCOME_ARRAY(gross_amount, all_income)
+                                                        appl_month_hours = appl_month_hours + LIST_OF_INCOME_ARRAY(hours, all_income)
+                                                        checks_lumped = checks_lumped & LIST_OF_INCOME_ARRAY(view_pay_date, all_income) & " - $" & LIST_OF_INCOME_ARRAY(gross_amount, all_income) & " - " & LIST_OF_INCOME_ARRAY(hours, all_income) & "hrs.; "      'saving a list of the checks used
+                                                        income_items_used = income_items_used & all_income & "~"
+                                                    End If
+
                                                 End If
+                                            Next
 
+                                            If date_found = FALSE Then          'if the date was not provided on ENTER PAY, we are going to use an averate
+                                                appl_month_gross = appl_month_gross + EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel)
+                                                appl_month_hours = appl_month_hours + EARNED_INCOME_PANELS_ARRAY(ave_hrs_per_pay, ei_panel)
+
+                                                expected_pay_lumped = expected_pay_lumped & this_date & " - anticipated $" &EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel) & " - " & EARNED_INCOME_PANELS_ARRAY(ave_hrs_per_pay, ei_panel) & "hrs.; "        'saving a list of the pay estimates used
                                             End If
-                                        Next
-
-                                        If date_found = FALSE Then          'if the date was not provided on ENTER PAY, we are going to use an averate
-                                            appl_month_gross = appl_month_gross + EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel)
-                                            appl_month_hours = appl_month_hours + EARNED_INCOME_PANELS_ARRAY(ave_hrs_per_pay, ei_panel)
-
-                                            expected_pay_lumped = expected_pay_lumped & this_date & " - anticipated $" &EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel) & " - " & EARNED_INCOME_PANELS_ARRAY(ave_hrs_per_pay, ei_panel) & "hrs.; "        'saving a list of the pay estimates used
                                         End If
+                                    Else
+                                        testing_run = TRUE
+                                        script_run_lowdown = script_run_lowdown & vbCR & vbCR & "******* THIS_DATE IS NOT A DATE ********"
+                                        script_run_lowdown = script_run_lowdown & vbCR & "'this_date' variable is: ~" & this_date & "~"
+                                        script_run_lowdown = script_run_lowdown & vbCR & "'this_month_checks_array is':"
+                                        For each dumb_thing in this_month_checks_array
+                                            script_run_lowdown = script_run_lowdown & vbCR & "~" & dumb_thing & "~"
+                                        Next
                                     End If
                                 Next
                                 For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)
@@ -3484,34 +3494,43 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
                             updates_to_display = updates_to_display & "-- Main JOBS panel --"
 
                             For each this_date in this_month_checks_array       'now using the list we made of all the checks for THIS month
-                                this_date = DateValue(this_date)
-                                If DateDiff("d", this_date, EARNED_INCOME_PANELS_ARRAY(income_start_dt, ei_panel)) < 1 Then     'checking to make sure the paydate is not before the income start date - that causes a red line
+                                If IsDate(this_date) = TRUE Then
+                                    If DateDiff("d", this_date, EARNED_INCOME_PANELS_ARRAY(income_start_dt, ei_panel)) < 1 Then     'checking to make sure the paydate is not before the income start date - that causes a red line
 
-                                    date_found = FALSE          'default for each loop
-                                    For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)   'then loop through all of the income information
-                                        'conditional if it is the right panel AND the order matches - then do the thing you need to do
-                                        If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel AND LIST_OF_INCOME_ARRAY(pay_date, all_income) <> "" Then
-                                            If DateDiff("d", LIST_OF_INCOME_ARRAY(pay_date, all_income), this_date) = 0 Then            'if the pay day matches the date in the list, we add the information to the panel
-                                                date_found = TRUE               'saving this so that the information is not over written
-                                                Call create_MAXIS_friendly_date(LIST_OF_INCOME_ARRAY(view_pay_date, all_income), 0, jobs_row, 54)       'pay date
-                                                LIST_OF_INCOME_ARRAY(gross_amount, all_income) = FormatNumber(LIST_OF_INCOME_ARRAY(gross_amount, all_income), 2, -1, 0, 0)
-                                                EMWriteScreen LIST_OF_INCOME_ARRAY(gross_amount, all_income), jobs_row, 67              'gross pay - not using the excluded amount on the main panel
-                                                total_hours = total_hours + LIST_OF_INCOME_ARRAY(hours, all_income)             'running total of this
-                                                updates_to_display = updates_to_display & vbNewLine & "Date - " & LIST_OF_INCOME_ARRAY(view_pay_date, all_income) & " - $" & LIST_OF_INCOME_ARRAY(gross_amount, all_income)
-                                                jobs_row = jobs_row + 1         'moving to the next row
-                                                income_items_used = income_items_used & all_income & "~"
+                                        date_found = FALSE          'default for each loop
+                                        For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)   'then loop through all of the income information
+                                            'conditional if it is the right panel AND the order matches - then do the thing you need to do
+                                            If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel AND LIST_OF_INCOME_ARRAY(pay_date, all_income) <> "" Then
+                                                If DateDiff("d", LIST_OF_INCOME_ARRAY(pay_date, all_income), this_date) = 0 Then            'if the pay day matches the date in the list, we add the information to the panel
+                                                    date_found = TRUE               'saving this so that the information is not over written
+                                                    Call create_MAXIS_friendly_date(LIST_OF_INCOME_ARRAY(view_pay_date, all_income), 0, jobs_row, 54)       'pay date
+                                                    LIST_OF_INCOME_ARRAY(gross_amount, all_income) = FormatNumber(LIST_OF_INCOME_ARRAY(gross_amount, all_income), 2, -1, 0, 0)
+                                                    EMWriteScreen LIST_OF_INCOME_ARRAY(gross_amount, all_income), jobs_row, 67              'gross pay - not using the excluded amount on the main panel
+                                                    total_hours = total_hours + LIST_OF_INCOME_ARRAY(hours, all_income)             'running total of this
+                                                    updates_to_display = updates_to_display & vbNewLine & "Date - " & LIST_OF_INCOME_ARRAY(view_pay_date, all_income) & " - $" & LIST_OF_INCOME_ARRAY(gross_amount, all_income)
+                                                    jobs_row = jobs_row + 1         'moving to the next row
+                                                    income_items_used = income_items_used & all_income & "~"
+                                                End If
                                             End If
-                                        End If
-                                    Next
+                                        Next
 
-                                    If date_found = FALSE Then                  'if the date was not found in the LIST_OF_INCOME_ARRAY - we will use an average
-                                        Call create_MAXIS_friendly_date(this_date, 0, jobs_row, 54)         'entering the date
-                                        EARNED_INCOME_PANELS_ARRAY(snap_ave_inc_per_pay, ei_panel) = FormatNumber(EARNED_INCOME_PANELS_ARRAY(snap_ave_inc_per_pay, ei_panel), 2, -1, 0, 0)
-                                        EMWriteScreen EARNED_INCOME_PANELS_ARRAY(snap_ave_inc_per_pay, ei_panel), jobs_row, 67          'entering the average
-                                        total_hours = total_hours + EARNED_INCOME_PANELS_ARRAY(ave_hrs_per_pay, ei_panel)               'totalling hours
-                                        updates_to_display = updates_to_display & vbNewLine & "Date - " & this_date & " - $" & EARNED_INCOME_PANELS_ARRAY(snap_ave_inc_per_pay, ei_panel)
-                                        jobs_row = jobs_row + 1         'moving to the next row
+                                        If date_found = FALSE Then                  'if the date was not found in the LIST_OF_INCOME_ARRAY - we will use an average
+                                            Call create_MAXIS_friendly_date(this_date, 0, jobs_row, 54)         'entering the date
+                                            EARNED_INCOME_PANELS_ARRAY(snap_ave_inc_per_pay, ei_panel) = FormatNumber(EARNED_INCOME_PANELS_ARRAY(snap_ave_inc_per_pay, ei_panel), 2, -1, 0, 0)
+                                            EMWriteScreen EARNED_INCOME_PANELS_ARRAY(snap_ave_inc_per_pay, ei_panel), jobs_row, 67          'entering the average
+                                            total_hours = total_hours + EARNED_INCOME_PANELS_ARRAY(ave_hrs_per_pay, ei_panel)               'totalling hours
+                                            updates_to_display = updates_to_display & vbNewLine & "Date - " & this_date & " - $" & EARNED_INCOME_PANELS_ARRAY(snap_ave_inc_per_pay, ei_panel)
+                                            jobs_row = jobs_row + 1         'moving to the next row
+                                        End If
                                     End If
+                                Else
+                                    testing_run = TRUE
+                                    script_run_lowdown = script_run_lowdown & vbCR & vbCR & "******* THIS_DATE IS NOT A DATE ********"
+                                    script_run_lowdown = script_run_lowdown & vbCR & "'this_date' variable is: ~" & this_date & "~"
+                                    script_run_lowdown = script_run_lowdown & vbCR & "'this_month_checks_array is':"
+                                    For each dumb_thing in this_month_checks_array
+                                        script_run_lowdown = script_run_lowdown & vbCR & "~" & dumb_thing & "~"
+                                    Next
                                 End If
                             Next
                             For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)
@@ -3613,30 +3632,39 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
 
                             For each this_date in this_month_checks_array           'entering each date for this month
                                 date_found = FALSE
-                                this_date = DateValue(this_date)
-                                For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)   'then loop through all of the income information
-                                    'conditional if it is the right panel AND the order matches - then do the thing you need to do
-                                    If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel AND LIST_OF_INCOME_ARRAY(pay_date, all_income) <> "" Then
-                                        If DateDiff("d", LIST_OF_INCOME_ARRAY(pay_date, all_income), this_date) = 0 Then            'if the pay date in the array matches the one we are looking at
-                                            date_found = TRUE
-                                            Call create_MAXIS_friendly_date(LIST_OF_INCOME_ARRAY(view_pay_date, all_income), 0, jobs_row, 54)           'write the date
-                                            LIST_OF_INCOME_ARRAY(gross_amount, all_income) = FormatNumber(LIST_OF_INCOME_ARRAY(gross_amount, all_income), 2, -1, 0, 0)
-                                            EMWriteScreen LIST_OF_INCOME_ARRAY(gross_amount, all_income), jobs_row, 67              'write the amount
-                                            total_hours = total_hours + LIST_OF_INCOME_ARRAY(hours, all_income)                     'running total of the hours
-                                            updates_to_display = updates_to_display & vbNewLine & "Date - " & LIST_OF_INCOME_ARRAY(view_pay_date, all_income) & " - $" & LIST_OF_INCOME_ARRAY(gross_amount, all_income)
-                                            jobs_row = jobs_row + 1     'next line on the JOBS panel
-                                            income_items_used = income_items_used & all_income & "~"
+                                If IsDate(this_date) = TRUE Then
+                                    For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)   'then loop through all of the income information
+                                        'conditional if it is the right panel AND the order matches - then do the thing you need to do
+                                        If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel AND LIST_OF_INCOME_ARRAY(pay_date, all_income) <> "" Then
+                                            If DateDiff("d", LIST_OF_INCOME_ARRAY(pay_date, all_income), this_date) = 0 Then            'if the pay date in the array matches the one we are looking at
+                                                date_found = TRUE
+                                                Call create_MAXIS_friendly_date(LIST_OF_INCOME_ARRAY(view_pay_date, all_income), 0, jobs_row, 54)           'write the date
+                                                LIST_OF_INCOME_ARRAY(gross_amount, all_income) = FormatNumber(LIST_OF_INCOME_ARRAY(gross_amount, all_income), 2, -1, 0, 0)
+                                                EMWriteScreen LIST_OF_INCOME_ARRAY(gross_amount, all_income), jobs_row, 67              'write the amount
+                                                total_hours = total_hours + LIST_OF_INCOME_ARRAY(hours, all_income)                     'running total of the hours
+                                                updates_to_display = updates_to_display & vbNewLine & "Date - " & LIST_OF_INCOME_ARRAY(view_pay_date, all_income) & " - $" & LIST_OF_INCOME_ARRAY(gross_amount, all_income)
+                                                jobs_row = jobs_row + 1     'next line on the JOBS panel
+                                                income_items_used = income_items_used & all_income & "~"
+                                            End If
                                         End If
-                                    End If
-                                Next
+                                    Next
 
-                                If date_found = FALSE Then                  'if the date was not found we will enter an average for the pay amount
-                                    Call create_MAXIS_friendly_date(this_date, 0, jobs_row, 54)             'write the date
-                                    EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel) = FormatNumber(EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel), 2, -1, 0, 0)
-                                    EMWriteScreen EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel), jobs_row, 67           'write the average check amount
-                                    total_hours = total_hours + EARNED_INCOME_PANELS_ARRAY(ave_hrs_per_pay, ei_panel)           'running total of hours - using average hours per check
-                                    updates_to_display = updates_to_display & vbNewLine & "Date - " & this_date & " - $" & EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel)
-                                    jobs_row = jobs_row + 1     'next line on the JOBS panel
+                                    If date_found = FALSE Then                  'if the date was not found we will enter an average for the pay amount
+                                        Call create_MAXIS_friendly_date(this_date, 0, jobs_row, 54)             'write the date
+                                        EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel) = FormatNumber(EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel), 2, -1, 0, 0)
+                                        EMWriteScreen EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel), jobs_row, 67           'write the average check amount
+                                        total_hours = total_hours + EARNED_INCOME_PANELS_ARRAY(ave_hrs_per_pay, ei_panel)           'running total of hours - using average hours per check
+                                        updates_to_display = updates_to_display & vbNewLine & "Date - " & this_date & " - $" & EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel)
+                                        jobs_row = jobs_row + 1     'next line on the JOBS panel
+                                    End If
+                                Else
+                                    testing_run = TRUE
+                                    script_run_lowdown = script_run_lowdown & vbCR & vbCR & "******* THIS_DATE IS NOT A DATE ********"
+                                    script_run_lowdown = script_run_lowdown & vbCR & "'this_date' variable is: ~" & this_date & "~"
+                                    script_run_lowdown = script_run_lowdown & vbCR & "'this_month_checks_array is':"
+                                    For each dumb_thing in this_month_checks_array
+                                        script_run_lowdown = script_run_lowdown & vbCR & "~" & dumb_thing & "~"
+                                    Next
                                 End If
                             Next
                             For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)
@@ -3685,31 +3713,40 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
 
                             For each this_date in this_month_checks_array       'looking at each check in the list of expected pay dates
                                 date_found = FALSE
-                                this_date = DateValue(this_date)
-                                For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)   'then loop through all of the income information
-                                    'conditional if it is the right panel AND the order matches - then do the thing you need to do
-                                    If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel AND LIST_OF_INCOME_ARRAY(pay_date, all_income) <> "" Then
-                                        If DateDiff("d", LIST_OF_INCOME_ARRAY(pay_date, all_income), this_date) = 0 Then        'if the date from LIST_OF_INCOME_ARRAY matches
-                                            date_found = TRUE
-                                            Call create_MAXIS_friendly_date(LIST_OF_INCOME_ARRAY(view_pay_date, all_income), 0, jobs_row, 54)       'enter the pay date
-                                            LIST_OF_INCOME_ARRAY(gross_amount, all_income) = FormatNumber(LIST_OF_INCOME_ARRAY(gross_amount, all_income), 2, -1, 0, 0)
-                                            EMWriteScreen LIST_OF_INCOME_ARRAY(gross_amount, all_income), jobs_row, 67      'enter the gross amount
-                                            total_hours = total_hours + LIST_OF_INCOME_ARRAY(hours, all_income)             'total the hours
-                                            updates_to_display = updates_to_display & vbNewLine & "Date - " & LIST_OF_INCOME_ARRAY(view_pay_date, all_income) & " - $" & LIST_OF_INCOME_ARRAY(gross_amount, all_income)
-                                            jobs_row = jobs_row + 1     'next line on the JOBS panel
-                                            income_items_used = income_items_used & all_income & "~"
+                                If IsDate(this_date) = TRUE Then
+                                    For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)   'then loop through all of the income information
+                                        'conditional if it is the right panel AND the order matches - then do the thing you need to do
+                                        If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel AND LIST_OF_INCOME_ARRAY(pay_date, all_income) <> "" Then
+                                            If DateDiff("d", LIST_OF_INCOME_ARRAY(pay_date, all_income), this_date) = 0 Then        'if the date from LIST_OF_INCOME_ARRAY matches
+                                                date_found = TRUE
+                                                Call create_MAXIS_friendly_date(LIST_OF_INCOME_ARRAY(view_pay_date, all_income), 0, jobs_row, 54)       'enter the pay date
+                                                LIST_OF_INCOME_ARRAY(gross_amount, all_income) = FormatNumber(LIST_OF_INCOME_ARRAY(gross_amount, all_income), 2, -1, 0, 0)
+                                                EMWriteScreen LIST_OF_INCOME_ARRAY(gross_amount, all_income), jobs_row, 67      'enter the gross amount
+                                                total_hours = total_hours + LIST_OF_INCOME_ARRAY(hours, all_income)             'total the hours
+                                                updates_to_display = updates_to_display & vbNewLine & "Date - " & LIST_OF_INCOME_ARRAY(view_pay_date, all_income) & " - $" & LIST_OF_INCOME_ARRAY(gross_amount, all_income)
+                                                jobs_row = jobs_row + 1     'next line on the JOBS panel
+                                                income_items_used = income_items_used & all_income & "~"
 
+                                            End If
                                         End If
-                                    End If
-                                Next
+                                    Next
 
-                                If date_found = FALSE Then                      'if the date was not found - we use averages
-                                    Call create_MAXIS_friendly_date(this_date, 0, jobs_row, 54)         'enter the pay date
-                                    EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel) = FormatNumber(EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel), 2, -1, 0, 0)
-                                    EMWriteScreen EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel), jobs_row, 67       'enter the average per pay
-                                    total_hours = total_hours + EARNED_INCOME_PANELS_ARRAY(ave_hrs_per_pay, ei_panel)       'running total of hours
-                                    updates_to_display = updates_to_display & vbNewLine & "Date - " & this_date & " - $" & EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel)
-                                    jobs_row = jobs_row + 1     'next line on the JOBS panel
+                                    If date_found = FALSE Then                      'if the date was not found - we use averages
+                                        Call create_MAXIS_friendly_date(this_date, 0, jobs_row, 54)         'enter the pay date
+                                        EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel) = FormatNumber(EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel), 2, -1, 0, 0)
+                                        EMWriteScreen EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel), jobs_row, 67       'enter the average per pay
+                                        total_hours = total_hours + EARNED_INCOME_PANELS_ARRAY(ave_hrs_per_pay, ei_panel)       'running total of hours
+                                        updates_to_display = updates_to_display & vbNewLine & "Date - " & this_date & " - $" & EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel)
+                                        jobs_row = jobs_row + 1     'next line on the JOBS panel
+                                    End If
+                                Else
+                                    testing_run = TRUE
+                                    script_run_lowdown = script_run_lowdown & vbCR & vbCR & "******* THIS_DATE IS NOT A DATE ********"
+                                    script_run_lowdown = script_run_lowdown & vbCR & "'this_date' variable is: ~" & this_date & "~"
+                                    script_run_lowdown = script_run_lowdown & vbCR & "'this_month_checks_array is':"
+                                    For each dumb_thing in this_month_checks_array
+                                        script_run_lowdown = script_run_lowdown & vbCR & "~" & dumb_thing & "~"
+                                    Next
                                 End If
                             Next
                             For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)
@@ -3774,8 +3811,7 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
                             income_items_used = "~"
                             updates_to_display = updates_to_display & vbNewLine & "--- RETRO ---"
                             For each this_date in retro_month_checks_array          'there is a seperate list of retro pay dates
-                                this_date = DateValue(this_date)
-                                If this_date <> "" Then
+                                If IsDate(this_date) = TRUE Then
                                     date_found = FALSE      'default for the start of each loop
                                     For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)   'then loop through all of the income information
                                         'conditional if it is the right panel AND the order matches - then do the thing you need to do
@@ -3796,7 +3832,14 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
                                         End If
                                     Next
                                     'there is no functionality for if pay was not found as we don't use averages on the retro side
-
+                                Else
+                                    testing_run = TRUE
+                                    script_run_lowdown = script_run_lowdown & vbCR & vbCR & "******* THIS_DATE IS NOT A DATE ********"
+                                    script_run_lowdown = script_run_lowdown & vbCR & "'this_date' variable is: ~" & this_date & "~"
+                                    script_run_lowdown = script_run_lowdown & vbCR & "'retro_month_checks_array is':"
+                                    For each dumb_thing in retro_month_checks_array
+                                        script_run_lowdown = script_run_lowdown & vbCR & "~" & dumb_thing & "~"
+                                    Next
                                 End If
                             Next
                             For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)
@@ -3850,40 +3893,49 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
 
                             For each this_date in this_month_checks_array           'now we are looking at the same list of checks all the other programs used'
                                 date_found = FALSE
-                                this_date = DateValue(this_date)
-                                For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)   'then loop through all of the income information
-                                    'conditional if it is the right panel AND the order matches - then do the thing you need to do
-                                    If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel AND LIST_OF_INCOME_ARRAY(pay_date, all_income) <> "" Then
-                                        If DateDiff("d", LIST_OF_INCOME_ARRAY(pay_date, all_income), this_date) = 0 Then        'if the date is found in the LIST_OF_INCOME_ARRAY'
-                                            date_found = TRUE
-                                            Call create_MAXIS_friendly_date(LIST_OF_INCOME_ARRAY(view_pay_date, all_income), 0, jobs_row, 54)       'enter the date
-                                            LIST_OF_INCOME_ARRAY(gross_amount, all_income) = FormatNumber(LIST_OF_INCOME_ARRAY(gross_amount, all_income), 2, -1, 0, 0)
-                                            EMWriteScreen LIST_OF_INCOME_ARRAY(gross_amount, all_income), jobs_row, 67          'enter the pay
-                                            total_hours = total_hours + LIST_OF_INCOME_ARRAY(hours, all_income)                 'running total of the hours
-                                            CASH_MONTHS_ARRAY(mo_prosp_pay, next_cash_month) = CASH_MONTHS_ARRAY(mo_prosp_pay, next_cash_month) + LIST_OF_INCOME_ARRAY(gross_amount, all_income)        'saving information for the array
-                                            updates_to_display = updates_to_display & vbNewLine & "Date - " & LIST_OF_INCOME_ARRAY(view_pay_date, all_income) & " - $" & LIST_OF_INCOME_ARRAY(gross_amount, all_income)
-                                            income_items_used = income_items_used & all_income & "~"
-                                            jobs_row = jobs_row + 1     'next line on the JOBS panel
+                                If IsDate(this_date) = TRUE Then
+                                    For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)   'then loop through all of the income information
+                                        'conditional if it is the right panel AND the order matches - then do the thing you need to do
+                                        If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel AND LIST_OF_INCOME_ARRAY(pay_date, all_income) <> "" Then
+                                            If DateDiff("d", LIST_OF_INCOME_ARRAY(pay_date, all_income), this_date) = 0 Then        'if the date is found in the LIST_OF_INCOME_ARRAY'
+                                                date_found = TRUE
+                                                Call create_MAXIS_friendly_date(LIST_OF_INCOME_ARRAY(view_pay_date, all_income), 0, jobs_row, 54)       'enter the date
+                                                LIST_OF_INCOME_ARRAY(gross_amount, all_income) = FormatNumber(LIST_OF_INCOME_ARRAY(gross_amount, all_income), 2, -1, 0, 0)
+                                                EMWriteScreen LIST_OF_INCOME_ARRAY(gross_amount, all_income), jobs_row, 67          'enter the pay
+                                                total_hours = total_hours + LIST_OF_INCOME_ARRAY(hours, all_income)                 'running total of the hours
+                                                CASH_MONTHS_ARRAY(mo_prosp_pay, next_cash_month) = CASH_MONTHS_ARRAY(mo_prosp_pay, next_cash_month) + LIST_OF_INCOME_ARRAY(gross_amount, all_income)        'saving information for the array
+                                                updates_to_display = updates_to_display & vbNewLine & "Date - " & LIST_OF_INCOME_ARRAY(view_pay_date, all_income) & " - $" & LIST_OF_INCOME_ARRAY(gross_amount, all_income)
+                                                income_items_used = income_items_used & all_income & "~"
+                                                jobs_row = jobs_row + 1     'next line on the JOBS panel
+                                            End If
                                         End If
-                                    End If
-                                Next
+                                    Next
 
-                                If date_found = FALSE Then              'if there was no date in LIST_OF_INCOME_ARRAY on the prospective side we will enter an average
-                                    Call create_MAXIS_friendly_date(this_date, 0, jobs_row, 54)     'enter the pay date
-                                    If count_checks <> 0 Then           'if there were retro checks for this month, we enter the average of the retro checks only
-                                        this_month_ave_pay = FormatNumber(this_month_ave_pay, 2, -1, 0, 0)
-                                        EMWriteScreen this_month_ave_pay, jobs_row, 67          'enter the pay
-                                        total_hours = total_hours + this_month_ave_hours        'total the hours
-                                        CASH_MONTHS_ARRAY(mo_prosp_pay, next_cash_month) = CASH_MONTHS_ARRAY(mo_prosp_pay, next_cash_month) + this_month_ave_pay        'save information to the array
-                                        updates_to_display = updates_to_display & vbNewLine & "Date - " & this_date & " - $" & this_month_ave_pay
-                                    Else                'if there was no retro checks provided, we use the average of all checks provided (or determined by pay rate and hours)
-                                        EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel) = FormatNumber(EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel), 2, -1, 0, 0)
-                                        EMWriteScreen EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel), jobs_row, 67       'enter the average pay
-                                        total_hours = total_hours + EARNED_INCOME_PANELS_ARRAY(ave_hrs_per_pay, ei_panel)       'running total of hours
-                                        CASH_MONTHS_ARRAY(mo_prosp_pay, next_cash_month) = CASH_MONTHS_ARRAY(mo_prosp_pay, next_cash_month) + EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel)     'saving information to hours
-                                        updates_to_display = updates_to_display & vbNewLine & "Date - " & this_date & " - $" & EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel)
+                                    If date_found = FALSE Then              'if there was no date in LIST_OF_INCOME_ARRAY on the prospective side we will enter an average
+                                        Call create_MAXIS_friendly_date(this_date, 0, jobs_row, 54)     'enter the pay date
+                                        If count_checks <> 0 Then           'if there were retro checks for this month, we enter the average of the retro checks only
+                                            this_month_ave_pay = FormatNumber(this_month_ave_pay, 2, -1, 0, 0)
+                                            EMWriteScreen this_month_ave_pay, jobs_row, 67          'enter the pay
+                                            total_hours = total_hours + this_month_ave_hours        'total the hours
+                                            CASH_MONTHS_ARRAY(mo_prosp_pay, next_cash_month) = CASH_MONTHS_ARRAY(mo_prosp_pay, next_cash_month) + this_month_ave_pay        'save information to the array
+                                            updates_to_display = updates_to_display & vbNewLine & "Date - " & this_date & " - $" & this_month_ave_pay
+                                        Else                'if there was no retro checks provided, we use the average of all checks provided (or determined by pay rate and hours)
+                                            EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel) = FormatNumber(EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel), 2, -1, 0, 0)
+                                            EMWriteScreen EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel), jobs_row, 67       'enter the average pay
+                                            total_hours = total_hours + EARNED_INCOME_PANELS_ARRAY(ave_hrs_per_pay, ei_panel)       'running total of hours
+                                            CASH_MONTHS_ARRAY(mo_prosp_pay, next_cash_month) = CASH_MONTHS_ARRAY(mo_prosp_pay, next_cash_month) + EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel)     'saving information to hours
+                                            updates_to_display = updates_to_display & vbNewLine & "Date - " & this_date & " - $" & EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel)
+                                        End If
+                                        jobs_row = jobs_row + 1     'next line on the JOBS panel
                                     End If
-                                    jobs_row = jobs_row + 1     'next line on the JOBS panel
+                                Else
+                                    testing_run = TRUE
+                                    script_run_lowdown = script_run_lowdown & vbCR & vbCR & "******* THIS_DATE IS NOT A DATE ********"
+                                    script_run_lowdown = script_run_lowdown & vbCR & "'this_date' variable is: ~" & this_date & "~"
+                                    script_run_lowdown = script_run_lowdown & vbCR & "'this_month_checks_array is':"
+                                    For each dumb_thing in this_month_checks_array
+                                        script_run_lowdown = script_run_lowdown & vbCR & "~" & dumb_thing & "~"
+                                    Next
                                 End If
                             Next
                             For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)
