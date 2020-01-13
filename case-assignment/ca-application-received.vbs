@@ -44,7 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County
-call changelog_update("11/04/2019", "New version pulled to support the request for APPL process.", "MiKayla Handley, Hennepin County")
+call changelog_update("01/13/2020", "Updated requesting worker for the Request to APPL form process.", "MiKayla Handley, Hennepin County")call changelog_update("11/04/2019", "New version pulled to support the request for APPL process.", "MiKayla Handley, Hennepin County")
 call changelog_update("10/01/2019", "Updated the utility standards for SNAP.", "Casey Love, Hennepin County")
 call changelog_update("08/27/2019", "Added handling to push the case into background to ensure pending programs are read.", "MiKayla Handley, Hennepin County")
 call changelog_update("08/27/2019", "Added GRH to appointment letter handling for future enhancements.", "MiKayla Handley, Hennepin County")
@@ -419,12 +419,14 @@ IF METS_retro_checkbox = CHECKED THEN
 	'~ Application Received (METS Retro) via Request to APPL form on 7/16/2019 ~
 	IF MEMB_number <> "" THEN CALL write_variable_in_CASE_NOTE("* Requesting HC for " &  "M" & MEMB_number)
 	CALL write_variable_in_CASE_NOTE("* Request to APPL Form received on " & request_date & "")
+	CALL write_variable_in_CASE_NOTE("* Emailed worker " & request_worker_number & " to let them know the request was processed.")
 END IF
 IF MA_transition_request_checkbox = CHECKED THEN
 	CALL write_variable_in_CASE_NOTE ("~ Application Received(MA Transition)via " & how_app_rcvd & " for " & application_date & " ~")
 	''~ Application Received (MA Transition) via Request to APPL form on 7/16/2019 ~
 	IF MEMB_number <> "" THEN CALL write_variable_in_CASE_NOTE("* Requesting HC for " &  "M" & MEMB_number)
 	CALL write_variable_in_CASE_NOTE("* Request to APPL Form received on " & request_date & "")
+	CALL write_variable_in_CASE_NOTE("* Emailed worker " & request_worker_number & " to let them know the request was processed.")
 END IF
 IF confirmation_number <> "" THEN CALL write_bullet_and_variable_in_CASE_NOTE ("Confirmation # ", confirmation_number)
 IF app_type = "6696" THEN write_variable_in_CASE_NOTE ("* Form Received: METS Application for Health Coverage and Help Paying Costs (DHS-6696) ")
@@ -436,7 +438,7 @@ CALL write_bullet_and_variable_in_CASE_NOTE ("Application Requesting", programs_
 CALL write_bullet_and_variable_in_CASE_NOTE ("Pended on", pended_date)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Other Pending Programs", additional_programs_applied_for)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Active Programs", active_programs)
-If transfer_to_worker <> "" THEN CALL write_variable_in_CASE_NOTE ("Application assigned to X127" & transfer_to_worker)
+If transfer_to_worker <> "" THEN CALL write_variable_in_CASE_NOTE ("* Application assigned to X127" & transfer_to_worker)
 'CALL write_bullet_and_variable_in_CASE_NOTE ("Reason for APPL Request", request_reason)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Other Notes", other_notes)
 'IF how_app_rcvd = "Request to APPL Form" THEN CALL write_variable_in_CASE_NOTE("* Emailed worker to let them know the request to APPL has been completed.")
