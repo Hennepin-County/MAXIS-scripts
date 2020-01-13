@@ -107,148 +107,84 @@ Const trans_conf	    	= 7
 excel_row = 2 're-establishing the row to start checking the members for
 'entry_record = 0
 transfer_case_action = TRUE
-'EMWriteScreen "2335052", 18, 43 'MAXIS_case_number'
+Do
+    previous_worker_number = objExcel.cells(excel_row, 1).Value          're-establishing the worker number for functions to use
+    If previous_worker_number = "" then exit do
+    previous_worker_number = trim(previous_worker_number)
 
-Do                                                            'Loops until there are no more cases in the Excel list
-	previous_worker_number = objExcel.cells(excel_row, 1).Value          're-establishing the worker number for functions to use
-	If previous_worker_number = "" then exit do
-	previous_worker_number = trim(previous_worker_number)
 
-	'msgbox "First: " & previous_worker_number & " " & transfer_case_action
-	IF worker_number = "X127CCL"  THEN transfer_case_action  = FALSE
-	IF worker_number = "P927079X" THEN transfer_case_action  = FALSE
-	IF worker_number = "P927091X" THEN transfer_case_action  = FALSE
-	IF worker_number = "P927152X" THEN transfer_case_action  = FALSE
-	IF worker_number = "P927161X" THEN transfer_case_action  = FALSE
-	IF worker_number = "P927252X" THEN transfer_case_action  = FALSE
-	IF worker_number = "PW35DI01" THEN transfer_case_action  = FALSE
-	IF worker_number = "PWAT072" THEN transfer_case_action = FALSE
-	IF worker_number = "PWAT075" THEN transfer_case_action = FALSE
-	IF worker_number = "PWAT231" THEN transfer_case_action = FALSE
-	IF worker_number = "PWAT352" THEN transfer_case_action = FALSE
-	IF worker_number = "PWPCT01" THEN transfer_case_action = FALSE
-	IF worker_number = "PWPCT02" THEN transfer_case_action = FALSE
-	IF worker_number = "PWPCT03" THEN transfer_case_action = FALSE
-	IF worker_number = "PWTST40" THEN transfer_case_action = FALSE
-	IF worker_number = "PWTST41" THEN transfer_case_action = FALSE
-	IF worker_number = "PWTST49" THEN transfer_case_action = FALSE
-	IF worker_number = "PWTST58" THEN transfer_case_action = FALSE
-	IF worker_number = "PWTST64" THEN transfer_case_action = FALSE
-	IF worker_number = "PWTST92" THEN transfer_case_action = FALSE
-	IF worker_number = "X1274EC" THEN transfer_case_action = FALSE
-	IF worker_number = "X127966" THEN transfer_case_action = FALSE
-	IF worker_number = "X127AP7" THEN transfer_case_action = FALSE
-	IF worker_number = "X127CSS" THEN transfer_case_action = FALSE
-	IF worker_number = "X127EF8" THEN transfer_case_action = FALSE
-	IF worker_number = "X127EF9" THEN transfer_case_action = FALSE
-	IF worker_number = "X127EH9" THEN transfer_case_action = FALSE
-	IF worker_number = "X127EM2" THEN transfer_case_action = FALSE
-	IF worker_number = "X127EM3" THEN transfer_case_action = FALSE
-	IF worker_number = "X127EM4" THEN transfer_case_action = FALSE
-	IF worker_number = "X127EN6" THEN transfer_case_action = FALSE
-	IF worker_number = "X127EN8" THEN transfer_case_action = FALSE
-	IF worker_number = "X127EN9" THEN transfer_case_action = FALSE
-	IF worker_number = "X127EP1" THEN transfer_case_action = FALSE
-	IF worker_number = "X127EP2" THEN transfer_case_action = FALSE
-	IF worker_number = "X127EQ6" THEN transfer_case_action = FALSE
-	IF worker_number = "X127EQ7" THEN transfer_case_action = FALSE
-	IF worker_number = "X127EW4" THEN transfer_case_action = FALSE
-	IF worker_number = "X127EW6" THEN transfer_case_action = FALSE
-	IF worker_number = "X127EW7" THEN transfer_case_action = FALSE
-	IF worker_number = "X127EW8" THEN transfer_case_action = FALSE
-	IF worker_number = "X127EX4" THEN transfer_case_action = FALSE
-	IF worker_number = "X127EX5" THEN transfer_case_action = FALSE
-	IF worker_number = "X127F3E" THEN transfer_case_action = FALSE
-	IF worker_number = "X127F3F" THEN transfer_case_action = FALSE
-	IF worker_number = "X127F3J" THEN transfer_case_action = FALSE
-	IF worker_number = "X127F3K" THEN transfer_case_action = FALSE
-	IF worker_number = "X127F3N" THEN transfer_case_action = FALSE
-	IF worker_number = "X127F3P" THEN transfer_case_action = FALSE
-	IF worker_number = "X127F4A" THEN transfer_case_action = FALSE
-	IF worker_number = "X127F4B" THEN transfer_case_action = FALSE
-	IF worker_number = "X127FE2" THEN transfer_case_action = FALSE
-	IF worker_number = "X127FE3" THEN transfer_case_action = FALSE
-	IF worker_number = "X127FE6" THEN transfer_case_action = FALSE
-	IF worker_number = "X127FF1" THEN transfer_case_action = FALSE
-	IF worker_number = "X127FF2" THEN transfer_case_action = FALSE
-	IF worker_number = "X127FG1" THEN transfer_case_action = FALSE
-	IF worker_number = "X127FG2" THEN transfer_case_action = FALSE
-	IF worker_number = "X127FG5" THEN transfer_case_action = FALSE
-	IF worker_number = "X127FG9" THEN transfer_case_action = FALSE
-	IF worker_number = "X127FH3" THEN transfer_case_action = FALSE
-	IF worker_number = "X127FI1" THEN transfer_case_action = FALSE
-	IF worker_number = "X127FI3" THEN transfer_case_action = FALSE
-	IF worker_number = "X127FI6" THEN transfer_case_action = FALSE
-	IF worker_number = "X127FJ2" THEN transfer_case_action = FALSE
-	IF worker_number = "X127GF5" THEN transfer_case_action = FALSE
-	IF worker_number = "X127Q95" THEN transfer_case_action = FALSE
-	IF worker_number = "X127Y86" THEN transfer_case_action = FALSE
-
-	MAXIS_case_number 	 = objExcel.cells(excel_row, 2).Value          're-establishing the case numbers for functions to use
-	If MAXIS_case_number = "" then exit do
-	MAXIS_case_number	 = trim(MAXIS_case_number)
-
-	case_name  			= objExcel.cells(excel_row,  3).value	'(col I) establishes
-	case_name	 		= trim(case_name)
-
-	application_date 	= objExcel.cells(excel_row, 4).value	'(col K) establishes claim number from MAXIS
-	application_date 	= trim(application_date)
-
-    inactive_date 		= objExcel.cells(excel_row, 5).value	'(col P) establishes
-	inactive_date   	= trim(inactive_date)
-
-	transfer_case 		= objExcel.cells(excel_row, 6).value	'(col Q) establishes grant amount for each case
-	transfer_case		= trim(transfer_case)
-
-	transfer_confirmed 	= objExcel.cells(excel_row, 7).value	'(col R) establishes
-	transfer_confirmed		= trim(transfer_confirmed)
-
-	EMWriteScreen MAXIS_case_number, 18, 43
-    CALL navigate_to_MAXIS_screen ("SPEC", "XFER")
-	EMWriteScreen maxis_case_number, 18, 43 'MAXIS_case_number'
-	TRANSMIT
-	Call write_value_and_transmit("x", 7, 16) 'This should have us in SPEC/XWKR'
-	EMReadScreen panel_check, 4, 2, 55
-	'MsgBox panel_check
-	EMReadScreen prev_worker, 7, 18, 28
-	'MsgBox prev_wor
-	IF prev_worker = previous_worker_number THEN
-		transfer_case_action = FALSE
-		action_completed = False
+	IF previous_worker_number = "X127CCL" OR previous_worker_number = "X1274EC" or previous_worker_number = "X127966" or previous_worker_number = "X127AP7" or previous_worker_number = "X127CSS" or previous_worker_number = "X127EF8" or previous_worker_number = "X127EF9" or previous_worker_number = "X127EH9" or previous_worker_number = "X127EJ1" or previous_worker_number = "X127EM2" or previous_worker_number = "X127EM3" or previous_worker_number = "X127EM4" or previous_worker_number = "X127EN6" or previous_worker_number = "X127EN8" or previous_worker_number = "X127EN9" or previous_worker_number = "X127EP1" or previous_worker_number = "X127EP2" or previous_worker_number = "X127EQ6" or previous_worker_number = "X127EQ7" or previous_worker_number = "X127EW4" or previous_worker_number = "X127EW6" or previous_worker_number = "X127EW7" or previous_worker_number = "X127EW8" or previous_worker_number = "X127EX4" or previous_worker_number = "X127EX5" or previous_worker_number = "X127F3E" or previous_worker_number = "X127F3F" or previous_worker_number = "X127F3J" or previous_worker_number = "X127F3K" or previous_worker_number = "X127F3N" or previous_worker_number = "X127F3P" or previous_worker_number = "X127F4A" or previous_worker_number = "X127F4B" or previous_worker_number = "X127FE2" or previous_worker_number = "X127FE3" or previous_worker_number = "X127FE6" or previous_worker_number = "X127FF1" or previous_worker_number = "X127FF2" or previous_worker_number = "X127FG1" or previous_worker_number = "X127FG2" or previous_worker_number = "X127FG5" or previous_worker_number = "X127FG9" or previous_worker_number = "X127FH3" or previous_worker_number = "X127FI1" or previous_worker_number = "X127FI3" or previous_worker_number = "X127FI6" or previous_worker_number = "X127FJ2" or previous_worker_number = "X127GF5" or previous_worker_number = "X127Q95" or previous_worker_number = "X127Y86" THEN
+		transfer_case_action  = FALSE
+		action_completed = FALSE
 	ELSE
-		IF transfer_case_action = TRUE THEN
-	    	msgbox  transfer_case_action
-	    	'Sets variable for all of the Excel stuff
-			MsgBox "PF9"
-	    	PF9
-	    	MsgBox "writing"
-	    	EMWriteScreen "X127CCL", 18, 61
-	    		CALL clear_line_of_text(18, 74)
-	    	MsgBox "Transmit"
-	    	TRANSMIT
-	    	'msgbox "where am I"
-	    	EMReadScreen worker_check, 9, 24, 2
-	    	IF worker_check = "SERVICING" or worker_check = "LAST" THEN
-	      		action_completed = False
-	       		PF10
-	    	END IF
-	       	EMReadScreen transfer_confirmation, 16, 24, 2
-	       	IF transfer_confirmation = "CASE XFER'D FROM" then
-	       		action_completed = True
-	       	Else
-	       		action_completed = False
-	       	End if
-	       	PF3
-		    'excel_row = excel_row + 1	'increments the excel row so we don't overwrite our data
-		END IF
-		'excel_row = excel_row + 1	'increments the excel row so we don't overwrite our data
+		transfer_case_action = True
 	END IF
-	excel_row = excel_row + 1	'increments the excel row so we don't overwrite our data
+	'msgbox "First: " & previous_worker_number & " " & transfer_case_action
+	MAXIS_case_number 	 = objExcel.cells(excel_row, 2).Value          're-establishing the case numbers for functions to use
+    If MAXIS_case_number = "" then exit do
+    MAXIS_case_number	 = trim(MAXIS_case_number)
+	'msgbox previous_worker_number & " / " & transfer_case_action
+    IF transfer_case_action = TRUE THEN
+		CALL navigate_to_MAXIS_screen ("SPEC", "XFER")
+		EMWriteScreen MAXIS_case_number, 18, 43
+		TRANSMIT
+		EMReadScreen PRIV_check, 4, 24, 14					'if case is a priv case then it gets added to priv case list
+		If PRIV_check = "PRIV" then
+			transfer_case_action = FALSE
+			action_completed = FALSE	'row gets deleted since it will get added to the priv case list at end of script
+			IF excel_row = 2 then
+				excel_row = excel_row
+			Else
+				excel_row = excel_row - 1
+			End if
+			'This DO LOOP ensure that the user gets out of a PRIV case. It can be fussy, and mess the script up if the PRIV case is not cleared.
+			Do
+				back_to_self
+				EMReadScreen SELF_screen_check, 4, 2, 50	'DO LOOP makes sure that we're back in SELF menu
+				If SELF_screen_check <> "SELF" then PF3
+			LOOP until SELF_screen_check = "SELF"
+			EMWriteScreen "________", 18, 43		'clears the case number
+			transmit
+			msgbox PRIV                                                           'Loops until there are no more cases in the Excel list
+		ELSE
+			'CALL navigate_to_MAXIS_screen ("SPEC", "XFER")
+        	Call write_value_and_transmit("x", 7, 16) 'This should have us in SPEC/XWKR'
+        	EMReadScreen panel_check, 4, 2, 55
+        	IF panel_check <> "XWKR" THEN MsgBox panel_check
+        	EMReadScreen prev_worker, 7, 18, 28
+        	'MsgBox prev_worker & " / " & previous_worker_number & " / " & transfer_case_action
+        	'If prev_worker = previous_worker_number THEN transfer_case_action = FALSE
+        	PF9
+        	'MsgBox "writing"
+        	EMWriteScreen "X127CCL", 18, 61
+        	CALL clear_line_of_text(18, 74)
+        	'MsgBox "Transmit"
+        	TRANSMIT
+        	'msgbox "where am I"
+        	EMReadScreen worker_check, 9, 24, 2
+        	IF worker_check = "SERVICING" or worker_check = "LAST" THEN
+          		action_completed = False
+           		PF10
+        	END IF
+           	EMReadScreen transfer_confirmation, 16, 24, 2
+           	IF transfer_confirmation = "CASE XFER'D FROM" then
+           		action_completed = True
+           	Else
+           		action_completed = False
+           	End if
+           	PF3
+            'excel_row = excel_row + 1	'increments the excel row so we don't overwrite our data
+        END IF
+    ELSE
+        transfer_case_action = FALSE
+        action_completed = FALSE
+	    'excel_row = excel_row + 1	'increments the excel row so we don't overwrite our data
+        'END IF
+	END IF
 	'Export data to Excel
 		ObjExcel.Cells(excel_row, 6).Value = trim(transfer_case_action)
 		objExcel.cells(excel_row, 7).Value = trim(action_completed)
-	   '' Excel_row = Excel_row + 1
+		excel_row = excel_row + 1	'increments the excel row so we don't overwrite our data
 LOOP UNTIL previous_worker_number = ""
-
 
 script_end_procedure("Success! The list is complete. Please review the cases that appear to be in error.")
