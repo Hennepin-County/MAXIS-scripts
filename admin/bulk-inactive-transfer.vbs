@@ -49,8 +49,8 @@ call changelog_update("02/14/2019", "Initial version.", "MiKayla Handley")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-'------------------------------------------------------------------------THE SCRIPT
 EMConnect ""
+'------------------------------------------------------------------------THE SCRIPT
 Dialog1 = ""
 BeginDialog dialog1, 0, 0, 316, 65, "Select the source file"
   EditBox 5, 25, 260, 15, file_selection_path
@@ -90,18 +90,6 @@ NEXT
 ObjExcel.ActiveSheet.Range("A2").Select
 objExcel.ActiveWindow.FreezePanes = True
 
-'Sets up the array to store all the information for each client'
-Dim INAC_array()
-ReDim INAC_array (7, 0)
-
-'Sets constants for the array to make the script easier to read (and easier to code)'
-Const worker_number    		= 1			'Each of the case numbers will be stored at this position'
-Const case_number      		= 2
-Const case_member_name		= 3
-Const appl_date			  	= 4
-Const inac_date				= 5
-Const trans_status	 	  	= 6
-Const trans_conf	    	= 7
 
 'Now the script adds all the clients on the excel list into an array
 excel_row = 2 're-establishing the row to start checking the members for
