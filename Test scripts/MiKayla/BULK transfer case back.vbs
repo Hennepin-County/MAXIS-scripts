@@ -1,10 +1,10 @@
-'Required for statistical purposes===============================================================================
-name_of_script = "BULK - TRANSFER CASE BACK.vbs"
+'Required for statistical purposes==========================================================================================
+name_of_script = "BULK - INACTIVE TRANSFER BACK.vbs"
 start_time = timer
-STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 300                               'manual run time, per line, in seconds
-STATS_denomination = "I"       'I is for each ITEM
-'END OF stats block==============================================================================================
+STATS_counter = 1                     	'sets the stats counter at one
+STATS_manualtime = 229                	'manual run time in seconds
+STATS_denomination = "C"       		'C is for each CASE
+'END OF stats block=========================================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
@@ -28,7 +28,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
             StopScript
 		END IF
 	ELSE
-		FuncLib_URL = "C:\MAXIS-scripts\MASTER FUNCTIONS LIBRARY.vbs"
+		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
 		Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
 		Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
 		text_from_the_other_script = fso_command.ReadAll
@@ -36,7 +36,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		Execute text_from_the_other_script
 	END IF
 END IF
-'END FUNCTIONS LIBRARY BLOCK================================================================================================
+'END FUNCTIONS LIBRARY BLOCK=================================================================================================
 
 'CHANGELOG BLOCK ===========================================================================================================
 'Starts by defining a changelog array
@@ -44,68 +44,43 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-CALL changelog_update("06/21/2018", "Updated with requested enhancements.", "MiKayla Handley, Hennepin County")
-CALL changelog_update("05/18/2018", "Updated coordinates for writing stats in excel.", "MiKayla Handley, Hennepin County")
-call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+call changelog_update("02/14/2019", "Initial version.", "MiKayla Handley")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-'-------------------------------------------------------------------------------------------------DIALOG
-Dialog1 = "" 'Blanking out previous dialog detail
-'----------------------------------------------------------------------------------------------Dialog
-BeginDialog Dialog1, 0, 0, 266, 115, "BULK - TRANSFER BACK"
-  ButtonGroup ButtonPressed
-    PushButton 200, 50, 50, 15, "Browse:", select_a_file_button
-    OkButton 150, 95, 50, 15
-    CancelButton 205, 95, 50, 15
-  EditBox 15, 50, 180, 15, file_selection_path
-  Text 15, 70, 230, 15, "Select the Excel file that contains your information by selecting the 'Browse' button, and finding the file."
-  GroupBox 10, 5, 250, 85, "Using this script:"
-EndDialog
-'Connects to MAXIS
 EMConnect ""
-back_to_self
-EMWriteScreen "________", 18, 43
-
-'dialog and dialog DO...Loop
+'------------------------------------------------------------------------THE SCRIPT
+Dialog1 = ""
+BeginDialog dialog1, 0, 0, 316, 65, "Select the source file"
+  EditBox 5, 25, 260, 15, file_selection_path
+  ButtonGroup ButtonPressed
+  PushButton 270, 25, 40, 15, "Browse:", select_a_file_button
+  OkButton 205, 45, 50, 15
+  CancelButton 260, 45, 50, 15
+  Text 5, 5, 295, 15, "Click the BROWSE button and select the INAC report for today. Once selected, click 'OK'. There will be no additional input needed until the script run is complete."
+EndDialog
 Do
-    'Initial Dialog to determine the excel file to use, column with case numbers, and which process should be run
+'Initial Dialog to determine the excel file to use, column with case numbers, and which process should be run
     'Show initial dialog
     Do
-    	Dialog Dialog1
-    	If ButtonPressed = cancel then stopscript
-    	If ButtonPressed = select_a_file_button then call file_selection_system_dialog(file_selection_path, ".xlsx")
-    Loop until ButtonPressed = OK and file_selection_path <> ""
-    If objExcel = "" Then call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
-    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+		Dialog dialog1
+		cancel_without_confirmation
+		If ButtonPressed = select_a_file_button then call file_selection_system_dialog(file_selection_path, ".xlsx")
+	Loop until ButtonPressed = OK and file_selection_path <> ""
+	If objExcel = "" Then call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
+ObjExcel.Cells(1, 1).Value = "WORKER"
+ObjExcel.Cells(1, 2).Value = "CASE NUMBER"
+ObjExcel.Cells(1, 3).Value = "CASE NAME"
+ObjExcel.Cells(1, 4).Value = "APPL DATE"
+ObjExcel.Cells(1, 5).Value = "INAC DATE"
+ObjExcel.Cells(1, 6).Value = "TRANSFERED"
+ObjExcel.Cells(1, 7).Value = "CONFRIM"
 
-'Call check_for_MAXIS(False)
-'back_to_SELF
-'Call navigate_to_MAXIS_screen("SPEC", "XFER")
-
-''Opening the Excel file
-'Set objExcel = CreateObject("Excel.Application")
-'objExcel.Visible = True
-'Set objWorkbook = objExcel.Workbooks.Add()
-'objExcel.DisplayAlerts = True
-'
-''Name for the current sheet'
-'ObjExcel.ActiveSheet.Name = "Case information"
-
-'Excel headers and formatting the columns
-'------------------------------------------------------IEVC'
-
-objExcel.Cells(1, 1).Value     = "CASE NUMBER" 'maxis_case_number
-objExcel.Cells(1, 2).Value     = "CLIENT NAME" 'client_name
-objExcel.Cells(1, 3).Value     = "APPL DATE" 'appl_date
-objExcel.Cells(1, 4).Value     = "INAC DATE" 'inac_date
-objExcel.Cells(1, 5).Value     = "TRANSFERED TO"  'spec_xfer_worker
-objExcel.Cells(1, 6).Value     = "ACTION COMPLETED"
-objExcel.Cells(1, 7).Value     = "PRIV"
-FOR i = 1 to 8		'formatting the cells'
+FOR i = 1 to 7		'formatting the cells'
 	objExcel.Cells(1, i).Font.Bold = True		'bold font'
 	'ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
 	objExcel.Columns(i).AutoFit()				'sizing the columns'
@@ -115,72 +90,89 @@ NEXT
 ObjExcel.ActiveSheet.Range("A2").Select
 objExcel.ActiveWindow.FreezePanes = True
 
-'excluded_array = array(""X127CCL", "P927079X", "P927091X", "P927152X", "P927161X", "P927252X", "PW35DI01", "PWAT072", "PWAT075", "PWAT231", "PWAT352", "PWPCT01", "PWPCT02", "PWPCT03", "PWTST40", "PWTST41", "PWTST49", "PWTST58", "PWTST64", "PWTST92", "X1274EC", "X127966", "X127AP7", "X127CSS", "X127EF8", "X127EF9", "X127EH9", "X127EM2", "X127EM3", "X127EM4", "X127EN6", "X127EN8", "X127EN9", "X127EP1", "X127EP2", "X127EQ6", "X127EQ7", "X127EW4", "X127EW6", "X127EW7", "X127EW8", "X127EX4", "X127EX5", "X127F3E", "X127F3F", "X127F3J", "X127F3K", "X127F3N", "X127F3P", "X127F4A", "X127F4B", "X127FE2", "X127FE3", "X127FE6", "X127FF1", "X127FF2", "X127FG1", "X127FG2", "X127FG5", "X127FG9", "X127FH3", "X127FI1", "X127FI3", "X127FI6", "X127FJ2", "X127GF5", "X127Q95", )
-'Workers = Join(excluded_array, ",")
 
-'Sets variable for all of the Excel stuff
-excel_row = 2
+'Now the script adds all the clients on the excel list into an array
+excel_row = 2 're-establishing the row to start checking the members for
+'entry_record = 0
+transfer_case_action = TRUE
+Do
+    previous_worker_number = objExcel.cells(excel_row, 1).Value          're-establishing the worker number for functions to use
+    If previous_worker_number = "" then exit do
+    previous_worker_number = trim(previous_worker_number)
 
-DO
-	MAXIS_case_number = ObjExcel.Cells(excel_row, 1).Value
-	MAXIS_case_number = trim(MAXIS_case_number)
-	IF MAXIS_case_number = "" THEN EXIT DO
 
-    CALL navigate_to_MAXIS_screen ("SPEC", "XFER")
-	EMWriteScreen maxis_case_number, 18, 43 'MAXIS_case_number'
-	TRANSMIT
-	EMReadScreen PRIV_check, 4, 24, 14					'if case is a priv case then it gets identified, and will not be updated in MMIS
-	If PRIV_check = "PRIV" then
-		ObjExcel.Cells(excel_row, 7).Value = "PRIV"
-	Else
-   		Call write_value_and_transmit("x", 7, 16)
-		'This should have us in SPEC/XWKR'
-		EMReadScreen panel_check, 4, 2, 55
-		'MsgBox panel_check
-
-       	EMReadScreen spec_xfer_worker, 7, 18, 28
-		'MsgBox spec_xfer_worker
-		'If instr(workers, spec_xfer_worker) then
-			'worker = ObjExcel.Cells(excel_row, 5).Value
-			'MsgBox spec_xfer_worker & worker
-		PF9
-			'MsgBox "PF9"
-		EMWriteScreen spec_xfer_worker, 18, 61
-			'MsgBox "writing"
-		TRANSMIT
-			'msgbox "where am I"
-
-		'ELSE
-		IF spec_xfer_worker = "X127CCL" THEN
-			MsgBox spec_xfer_worker & " where to go"
-			spec_xfer_worker = ObjExcel.Cells(excel_row, 5).Value
-			spec_xfer_worker = trim(spec_xfer_worker)
-		END IF
-		    EMReadScreen worker_check, 9, 24, 2
-		    IF worker_check = "SERVICING" or worker_check = "LAST" THEN
-		    	action_completed = False
-		    	PF10
-		    END IF
-       	    EMReadScreen transfer_confirmation, 16, 24, 2
-       	    IF transfer_confirmation = "CASE XFER'D FROM" then
-       	    	action_completed = True
-       	    Else
-       	    	action_completed = False
-       	    End if
-       	    PF3
+	IF previous_worker_number = "X127CCL" OR previous_worker_number = "X1274EC" or previous_worker_number = "X127966" or previous_worker_number = "X127AP7" or previous_worker_number = "X127CSS" or previous_worker_number = "X127EF8" or previous_worker_number = "X127EF9" or previous_worker_number = "X127EH9" or previous_worker_number = "X127EJ1" or previous_worker_number = "X127EM2" or previous_worker_number = "X127EM3" or previous_worker_number = "X127EM4" or previous_worker_number = "X127EN6" or previous_worker_number = "X127EN8" or previous_worker_number = "X127EN9" or previous_worker_number = "X127EP1" or previous_worker_number = "X127EP2" or previous_worker_number = "X127EQ6" or previous_worker_number = "X127EQ7" or previous_worker_number = "X127EW4" or previous_worker_number = "X127EW6" or previous_worker_number = "X127EW7" or previous_worker_number = "X127EW8" or previous_worker_number = "X127EX4" or previous_worker_number = "X127EX5" or previous_worker_number = "X127F3E" or previous_worker_number = "X127F3F" or previous_worker_number = "X127F3J" or previous_worker_number = "X127F3K" or previous_worker_number = "X127F3N" or previous_worker_number = "X127F3P" or previous_worker_number = "X127F4A" or previous_worker_number = "X127F4B" or previous_worker_number = "X127FE2" or previous_worker_number = "X127FE3" or previous_worker_number = "X127FE6" or previous_worker_number = "X127FF1" or previous_worker_number = "X127FF2" or previous_worker_number = "X127FG1" or previous_worker_number = "X127FG2" or previous_worker_number = "X127FG5" or previous_worker_number = "X127FG9" or previous_worker_number = "X127FH3" or previous_worker_number = "X127FI1" or previous_worker_number = "X127FI3" or previous_worker_number = "X127FI6" or previous_worker_number = "X127FJ2" or previous_worker_number = "X127GF5" or previous_worker_number = "X127Q95" or previous_worker_number = "X127Y86" THEN
+		transfer_case_action  = TRUE
+		action_completed = TRUE
+	ELSE
+		transfer_case_action = FALSE
 	END IF
-	If PRIV_check = "PRIV" then action_completed = FALSE
-	objExcel.Cells(excel_row, 5).Value = spec_xfer_worker	'Adds worker number to Excel
-	objExcel.Cells(excel_row, 6).Value = action_completed	'Adds worker number to Excel
+	'msgbox "First: " & previous_worker_number & " " & transfer_case_action
+	MAXIS_case_number 	 = objExcel.cells(excel_row, 2).Value          're-establishing the case numbers for functions to use
+    If MAXIS_case_number = "" then exit do
+    MAXIS_case_number	 = trim(MAXIS_case_number)
+	'msgbox previous_worker_number & " / " & transfer_case_action
+    IF transfer_case_action = TRUE THEN
+		CALL navigate_to_MAXIS_screen ("SPEC", "XFER")
+		EMWriteScreen MAXIS_case_number, 18, 43
+		TRANSMIT
+		EMReadScreen PRIV_check, 4, 24, 14					'if case is a priv case then it gets added to priv case list
+		If PRIV_check = "PRIV" then
+			transfer_case_action = FALSE
+			action_completed = FALSE	'row gets deleted since it will get added to the priv case list at end of script
+			IF excel_row = 2 then
+				excel_row = excel_row
+			Else
+				excel_row = excel_row - 1
+			End if
+			'This DO LOOP ensure that the user gets out of a PRIV case. It can be fussy, and mess the script up if the PRIV case is not cleared.
+			Do
+				back_to_self
+				EMReadScreen SELF_screen_check, 4, 2, 50	'DO LOOP makes sure that we're back in SELF menu
+				If SELF_screen_check <> "SELF" then PF3
+			LOOP until SELF_screen_check = "SELF"
+			EMWriteScreen "________", 18, 43		'clears the case number
+			transmit
+			msgbox PRIV                                                           'Loops until there are no more cases in the Excel list
+		ELSE
+			'CALL navigate_to_MAXIS_screen ("SPEC", "XFER")
+        	Call write_value_and_transmit("x", 7, 16) 'This should have us in SPEC/XWKR'
+        	EMReadScreen panel_check, 4, 2, 55
+        	IF panel_check <> "XWKR" THEN MsgBox panel_check
+        	EMReadScreen prev_worker, 7, 18, 28
+        	'MsgBox prev_worker & " / " & previous_worker_number & " / " & transfer_case_action
+        	'If prev_worker = previous_worker_number THEN transfer_case_action = FALSE
+        	PF9
+        	'MsgBox "writing"
+        	EMWriteScreen previous_worker_number, 18, 61
+        	CALL clear_line_of_text(18, 74)
+        	'MsgBox "Transmit"
+        	TRANSMIT
+        	'msgbox "where am I"
+        	EMReadScreen worker_check, 9, 24, 2
+        	IF worker_check = "SERVICING" or worker_check = "LAST" THEN
+          		action_completed = False
+           		PF10
+        	END IF
+           	EMReadScreen transfer_confirmation, 16, 24, 2
+           	IF transfer_confirmation = "CASE XFER'D FROM" then
+           		action_completed = True
+           	Else
+           		action_completed = False
+           	End if
+           	PF3
+            'excel_row = excel_row + 1	'increments the excel row so we don't overwrite our data
+        END IF
+    ELSE
+        transfer_case_action = FALSE
+        action_completed = FALSE
+	    'excel_row = excel_row + 1	'increments the excel row so we don't overwrite our data
+        'END IF
+	END IF
+	'Export data to Excel
+		ObjExcel.Cells(excel_row, 6).Value = trim(transfer_case_action)
+		objExcel.cells(excel_row, 7).Value = trim(action_completed)
+		excel_row = excel_row + 1	'increments the excel row so we don't overwrite our data
+LOOP UNTIL previous_worker_number = ""
 
-	excel_row = excel_row + 1	'increments the excel row so we don't overwrite our data
-
-	'blanking out variables
-	'maxis_case_number = "" TRANSFERRING AND SERVICING WORKERS MUST BE FROM SAME COUNTY
-Loop until 	maxis_case_number = ""
-'Formatting the column width.
-FOR i = 1 to 9
-	objExcel.Columns(i).AutoFit()
-NEXT
-
-script_end_procedure("Success! The spreadsheet has all requested information.")
+script_end_procedure("Success! The list is complete. Please review the cases that appear to be in error.")
