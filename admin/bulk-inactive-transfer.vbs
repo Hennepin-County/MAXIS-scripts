@@ -120,22 +120,24 @@ Do
 		If PRIV_check = "PRIV" then
 			transfer_case_action = FALSE
 			action_completed = FALSE	'row gets deleted since it will get added to the priv case list at end of script
-			IF excel_row = 2 then
-				excel_row = excel_row
-			Else
-				excel_row = excel_row - 1
-			End if
-			'This DO LOOP ensure that the user gets out of a PRIV case. It can be fussy, and mess the script up if the PRIV case is not cleared.
-			Do
-				back_to_self
-				EMReadScreen SELF_screen_check, 4, 2, 50	'DO LOOP makes sure that we're back in SELF menu
-				If SELF_screen_check <> "SELF" then PF3
-			LOOP until SELF_screen_check = "SELF"
-			EMWriteScreen "________", 18, 43		'clears the case number
-			transmit
-			msgbox PRIV                                                           'Loops until there are no more cases in the Excel list
+			'IF excel_row = 2 then
+			'	excel_row = excel_row
+			'Else
+			'	excel_row = excel_row - 1
+			'End if
+			''This DO LOOP ensure that the user gets out of a PRIV case. It can be fussy, and mess the script up if the PRIV case is not cleared.
+			'Do
+			'	back_to_self
+			'	EMReadScreen SELF_screen_check, 4, 2, 50	'DO LOOP makes sure that we're back in SELF menu
+			'	If SELF_screen_check <> "SELF" then PF3
+			'LOOP until SELF_screen_check = "SELF"
+			'EMWriteScreen "________", 18, 43		'clears the case number
+			'transmit
+			'msgbox "PRIV"                                                           'Loops until there are no more cases in the Excel list
 		ELSE
-			'CALL navigate_to_MAXIS_screen ("SPEC", "XFER")
+		    'CALL navigate_to_MAXIS_screen ("SPEC", "XFER")
+		    'EMWriteScreen MAXIS_case_number, 18, 43
+		    'TRANSMIT
         	Call write_value_and_transmit("x", 7, 16) 'This should have us in SPEC/XWKR'
         	EMReadScreen panel_check, 4, 2, 55
         	IF panel_check <> "XWKR" THEN MsgBox panel_check
