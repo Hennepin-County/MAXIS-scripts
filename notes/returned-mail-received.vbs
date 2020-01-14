@@ -92,13 +92,10 @@ CALL check_for_MAXIS(False)
 MAXIS_footer_month = DatePart("m", date_received)
 MAXIS_footer_month = right("00" & MAXIS_footer_month, 2)
 
-CALL navigate_to_MAXIS_screen("STAT", "SELF")		'Goes to STAT/PROG
-EMReadScreen SELF_check, 4, 2, 50
-If SELF_check = "SELF" THEN
-	EmWriteScreen MAXIS_footer_month, 04, 43
-	EmWriteScreen MAXIS_footer_year, 04, 49
-	TRANSMIT
-END IF
+MAXIS_footer_year = DatePart("yyyy", date_received) 
+MAXIS_footer_year = right(MAXIS_footer_year, 2)
+
+CALL back_to_SELF
 
 CALL navigate_to_MAXIS_screen("STAT", "PROG")		'Goes to STAT/PROG
 EMReadScreen err_msg, 7, 24, 02
