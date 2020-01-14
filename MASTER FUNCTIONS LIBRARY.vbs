@@ -4659,9 +4659,12 @@ function MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
     ELSEIF casenote_check = "NOTE" then
     	EMReadScreen MAXIS_footer_month, 2, 20, 54
         EMReadScreen MAXIS_footer_year, 2, 20, 57
-	ELSEIF MAXIS_function = "STAT" or MAXIS_function = "REPT" then
+	ELSEIF MAXIS_function = "STAT" then
 		EMReadScreen MAXIS_footer_month, 2, 20, 55
         EMReadScreen MAXIS_footer_year, 2, 20, 58
+    ELSEIF MAXIS_function = "REPT" then
+    		EMReadScreen MAXIS_footer_month, 2, 20, 54
+            EMReadScreen MAXIS_footer_year, 2, 20, 57
     Else
         MAXIS_footer_month = ""
         MAXIS_footer_year = ""
