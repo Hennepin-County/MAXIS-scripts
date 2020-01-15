@@ -3796,84 +3796,89 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
                             CASH_MONTHS_ARRAY(cash_mo_yr, next_cash_month) = MAXIS_footer_month & "/" & MAXIS_footer_year       'save which month we are looking at
                             CASH_MONTHS_ARRAY(retro_mo_yr, next_cash_month) = RETRO_footer_month & "/" & RETRO_footer_year
 
-                            'RETROSPECTIVE SIDE' first we worry about what is on the retro side - this may be blank in the end
-                            For jobs_row = 12 to 16                 'blanking out the retro side of the panel
-                                EMWriteScreen "  ", jobs_row, 25
-                                EMWriteScreen "  ", jobs_row, 28
-                                EMWriteScreen "  ", jobs_row, 31
-                                EMWriteScreen "        ", jobs_row, 38
-                            Next
+                            If retro_month_checks_array(0) <> "" Then
+                                'RETROSPECTIVE SIDE' first we worry about what is on the retro side - this may be blank in the end
+                                For jobs_row = 12 to 16                 'blanking out the retro side of the panel
+                                    EMWriteScreen "  ", jobs_row, 25
+                                    EMWriteScreen "  ", jobs_row, 28
+                                    EMWriteScreen "  ", jobs_row, 31
+                                    EMWriteScreen "        ", jobs_row, 38
+                                Next
 
-                            jobs_row = 12           'set for the loop
-                            total_hours = 0
-                            total_pay = 0
-                            count_checks = 0
-                            income_items_used = "~"
-                            updates_to_display = updates_to_display & vbNewLine & "--- RETRO ---"
-                            For each this_date in retro_month_checks_array          'there is a seperate list of retro pay dates
-                                If IsDate(this_date) = TRUE Then
-                                    date_found = FALSE      'default for the start of each loop
-                                    For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)   'then loop through all of the income information
-                                        'conditional if it is the right panel AND the order matches - then do the thing you need to do
-                                        If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel AND LIST_OF_INCOME_ARRAY(pay_date, all_income) <> "" Then
-                                            If DateDiff("d", LIST_OF_INCOME_ARRAY(pay_date, all_income), this_date) = 0 Then        'if the date was in the array, we use it
-                                                date_found = TRUE
-                                                CASH_MONTHS_ARRAY(retro_updtd, next_cash_month) = TRUE      'setting this to know there was retro information added
-                                                Call create_MAXIS_friendly_date(LIST_OF_INCOME_ARRAY(view_pay_date, all_income), 0, jobs_row, 25)
-                                                LIST_OF_INCOME_ARRAY(gross_amount, all_income) = FormatNumber(LIST_OF_INCOME_ARRAY(gross_amount, all_income), 2, -1, 0, 0)
-                                                EMWriteScreen LIST_OF_INCOME_ARRAY(gross_amount, all_income), jobs_row, 38      'entering the pay information
-                                                total_hours = total_hours + LIST_OF_INCOME_ARRAY(hours, all_income)             'running total of hours
-                                                total_pay = total_pay + LIST_OF_INCOME_ARRAY(gross_amount, all_income)          'running total of pay for RETRO month only
-                                                count_checks = count_checks + 1                 'need to track the number of checks that we used
-                                                updates_to_display = updates_to_display & vbNewLine & "Date - " & LIST_OF_INCOME_ARRAY(view_pay_date, all_income) & " - $" & LIST_OF_INCOME_ARRAY(gross_amount, all_income)
-                                                jobs_row = jobs_row + 1
-                                                income_items_used = income_items_used & all_income & "~"
+                                jobs_row = 12           'set for the loop
+                                total_hours = 0
+                                total_pay = 0
+                                count_checks = 0
+                                income_items_used = "~"
+                                updates_to_display = updates_to_display & vbNewLine & "--- RETRO ---"
+                                For each this_date in retro_month_checks_array          'there is a seperate list of retro pay dates
+                                    If IsDate(this_date) = TRUE Then
+                                        date_found = FALSE      'default for the start of each loop
+                                        For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)   'then loop through all of the income information
+                                            'conditional if it is the right panel AND the order matches - then do the thing you need to do
+                                            If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel AND LIST_OF_INCOME_ARRAY(pay_date, all_income) <> "" Then
+                                                If DateDiff("d", LIST_OF_INCOME_ARRAY(pay_date, all_income), this_date) = 0 Then        'if the date was in the array, we use it
+                                                    date_found = TRUE
+                                                    CASH_MONTHS_ARRAY(retro_updtd, next_cash_month) = TRUE      'setting this to know there was retro information added
+                                                    Call create_MAXIS_friendly_date(LIST_OF_INCOME_ARRAY(view_pay_date, all_income), 0, jobs_row, 25)
+                                                    LIST_OF_INCOME_ARRAY(gross_amount, all_income) = FormatNumber(LIST_OF_INCOME_ARRAY(gross_amount, all_income), 2, -1, 0, 0)
+                                                    EMWriteScreen LIST_OF_INCOME_ARRAY(gross_amount, all_income), jobs_row, 38      'entering the pay information
+                                                    total_hours = total_hours + LIST_OF_INCOME_ARRAY(hours, all_income)             'running total of hours
+                                                    total_pay = total_pay + LIST_OF_INCOME_ARRAY(gross_amount, all_income)          'running total of pay for RETRO month only
+                                                    count_checks = count_checks + 1                 'need to track the number of checks that we used
+                                                    updates_to_display = updates_to_display & vbNewLine & "Date - " & LIST_OF_INCOME_ARRAY(view_pay_date, all_income) & " - $" & LIST_OF_INCOME_ARRAY(gross_amount, all_income)
+                                                    jobs_row = jobs_row + 1
+                                                    income_items_used = income_items_used & all_income & "~"
+                                                End If
                                             End If
-                                        End If
-                                    Next
-                                    'there is no functionality for if pay was not found as we don't use averages on the retro side
-                                Else
-                                    testing_run = TRUE
-                                    script_run_lowdown = script_run_lowdown & vbCR & vbCR & "******* THIS_DATE IS NOT A DATE ********"
-                                    script_run_lowdown = script_run_lowdown & vbCR & "'this_date' variable is: ~" & this_date & "~"
-                                    script_run_lowdown = script_run_lowdown & vbCR & "'retro_month_checks_array is':"
-                                    For each dumb_thing in retro_month_checks_array
-                                        script_run_lowdown = script_run_lowdown & vbCR & "~" & dumb_thing & "~"
-                                    Next
-                                End If
-                            Next
-                            For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)
-                                If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel AND LIST_OF_INCOME_ARRAY(pay_date, all_income) <> "" Then
-                                    If retro_month_checks_array(0) <> "" Then
-                                        If DatePart("m", LIST_OF_INCOME_ARRAY(view_pay_date, all_income)) = DatePart("m", retro_month_checks_array(0)) Then
-                                            If InStr(income_items_used, "~" & all_income & "~") = 0 Then
-                                                CASH_MONTHS_ARRAY(retro_updtd, next_cash_month) = TRUE      'setting this to know there was retro information added
-                                                Call create_MAXIS_friendly_date(LIST_OF_INCOME_ARRAY(view_pay_date, all_income), 0, jobs_row, 25)
-                                                LIST_OF_INCOME_ARRAY(gross_amount, all_income) = FormatNumber(LIST_OF_INCOME_ARRAY(gross_amount, all_income), 2, -1, 0, 0)
-                                                EMWriteScreen LIST_OF_INCOME_ARRAY(gross_amount, all_income), jobs_row, 38      'entering the pay information
-                                                total_hours = total_hours + LIST_OF_INCOME_ARRAY(hours, all_income)             'running total of hours
-                                                total_pay = total_pay + LIST_OF_INCOME_ARRAY(gross_amount, all_income)          'running total of pay for RETRO month only
-                                                count_checks = count_checks + 1                 'need to track the number of checks that we used
-                                                updates_to_display = updates_to_display & vbNewLine & "Date - " & LIST_OF_INCOME_ARRAY(view_pay_date, all_income) & " - $" & LIST_OF_INCOME_ARRAY(gross_amount, all_income)
-                                                jobs_row = jobs_row + 1
-                                                income_items_used = income_items_used & all_income & "~"
+                                        Next
+                                        'there is no functionality for if pay was not found as we don't use averages on the retro side
+                                    Else
+                                        testing_run = TRUE
+                                        script_run_lowdown = script_run_lowdown & vbCR & vbCR & "******* THIS_DATE IS NOT A DATE ********"
+                                        script_run_lowdown = script_run_lowdown & vbCR & "'this_date' variable is: ~" & this_date & "~"
+                                        script_run_lowdown = script_run_lowdown & vbCR & "'retro_month_checks_array is':"
+                                        For each dumb_thing in retro_month_checks_array
+                                            script_run_lowdown = script_run_lowdown & vbCR & "~" & dumb_thing & "~"
+                                        Next
+                                    End If
+                                Next
+                                For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)
+                                    If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel AND LIST_OF_INCOME_ARRAY(pay_date, all_income) <> "" Then
+                                        If retro_month_checks_array(0) <> "" Then
+                                            If DatePart("m", LIST_OF_INCOME_ARRAY(view_pay_date, all_income)) = DatePart("m", retro_month_checks_array(0)) Then
+                                                If InStr(income_items_used, "~" & all_income & "~") = 0 Then
+                                                    CASH_MONTHS_ARRAY(retro_updtd, next_cash_month) = TRUE      'setting this to know there was retro information added
+                                                    Call create_MAXIS_friendly_date(LIST_OF_INCOME_ARRAY(view_pay_date, all_income), 0, jobs_row, 25)
+                                                    LIST_OF_INCOME_ARRAY(gross_amount, all_income) = FormatNumber(LIST_OF_INCOME_ARRAY(gross_amount, all_income), 2, -1, 0, 0)
+                                                    EMWriteScreen LIST_OF_INCOME_ARRAY(gross_amount, all_income), jobs_row, 38      'entering the pay information
+                                                    total_hours = total_hours + LIST_OF_INCOME_ARRAY(hours, all_income)             'running total of hours
+                                                    total_pay = total_pay + LIST_OF_INCOME_ARRAY(gross_amount, all_income)          'running total of pay for RETRO month only
+                                                    count_checks = count_checks + 1                 'need to track the number of checks that we used
+                                                    updates_to_display = updates_to_display & vbNewLine & "Date - " & LIST_OF_INCOME_ARRAY(view_pay_date, all_income) & " - $" & LIST_OF_INCOME_ARRAY(gross_amount, all_income)
+                                                    jobs_row = jobs_row + 1
+                                                    income_items_used = income_items_used & all_income & "~"
+                                                End If
                                             End If
                                         End If
                                     End If
+                                Next
+                                total_hours = Round(total_hours)        'entering retro hours on the retro side
+                                EMWriteScreen "   ", 18, 43
+
+                                If count_checks <> 0 Then           'if there we check found we make an average of pay and hours for the RETRO side only
+                                    EMWriteScreen total_hours, 18, 43
+                                    this_month_ave_pay = total_pay/count_checks
+                                    this_month_ave_pay = FormatNumber(this_month_ave_pay, 2,,0)
+                                    this_month_ave_hours = total_hours/count_checks
+
+                                    CASH_MONTHS_ARRAY(mo_retro_pay, next_cash_month) = FormatNumber(total_pay, 2,,0)        'save the total hours and pay to the array for CNote
+                                    CASH_MONTHS_ARRAY(mo_retro_hrs, next_cash_month) = total_hours
+                                    updates_to_display = updates_to_display & vbNewLine & "        Total Hours: " & total_hours
                                 End If
-                            Next
-                            total_hours = Round(total_hours)        'entering retro hours on the retro side
-                            EMWriteScreen "   ", 18, 43
-
-                            If count_checks <> 0 Then           'if there we check found we make an average of pay and hours for the RETRO side only
-                                EMWriteScreen total_hours, 18, 43
-                                this_month_ave_pay = total_pay/count_checks
-                                this_month_ave_pay = FormatNumber(this_month_ave_pay, 2,,0)
-                                this_month_ave_hours = total_hours/count_checks
-
-                                CASH_MONTHS_ARRAY(mo_retro_pay, next_cash_month) = FormatNumber(total_pay, 2,,0)        'save the total hours and pay to the array for CNote
-                                CASH_MONTHS_ARRAY(mo_retro_hrs, next_cash_month) = total_hours
-                                updates_to_display = updates_to_display & vbNewLine & "        Total Hours: " & total_hours
+                            Else
+                                updates_to_display = updates_to_display & vbNewLine & " - No retro paydates to update. - "
+                                script_run_lowdown = script_run_lowdown & vbNewLine & "--- RETRO ARRAY WAS EMPTY ---"
                             End If
 
                             'PROSPECTIVE SIDE'
