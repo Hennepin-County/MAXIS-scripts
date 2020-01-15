@@ -56,14 +56,31 @@ call changelog_update("08/21/2017", "Initial version.", "MiKayla Handley, Hennep
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 '=======================================================================================================END CHANGELOG BLOCK
-
 '---------------------------------------------------------------script
-
 EMConnect ""
 'Navigates to MIPPA Lis Application-Medicare Improvement for Patients and Providers (MIPPA)
+
 CALL navigate_to_MAXIS_screen("REPT", "MLAR")
-EMReadscreen current_panel_check, 4, 2, 51
-IF current_panel_check = "MLAR" THEN script_end_procedure_with_error_report ("You are not on a MIPPA message. This script will stop")
+EMReadscreen current_panel_check, 4, 2, 54
+IF current_panel_check <> "MLAR" THEN
+    'script_end_procedure_with_error_report ("You are not on a MIPPA message. This script will stop")
+    '-------------------------------------------------------------------------------------------------DIALOG
+    Dialog1 = "" 'Blanking out previous dialog detail
+    BeginDialog Dialog1, 0, 0, 176, 85, "REPT - MIPPA"
+      OkButton 65, 65, 50, 15
+      CancelButton 120, 65, 50, 15
+      ButtonGroup ButtonPressed
+      GroupBox 10, 5, 160, 55, "About this script:"
+      Text 15, 20, 150, 35, "This script navigates to REPT/MLAR and guides you through the MIPPA process. This dialog will ensure if you are passworded out."
+    EndDialog
+
+    Do
+    	dialog Dialog1
+    	Cancel_without_confirmation
+    	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    Loop until are_we_passworded_out = false					'loops until user passwords back in
+END IF
+
 EMReadscreen appl_status, 2, 5, 17
 IF appl_status <> "NO" THEN
  EMWriteScreen "NO", 5, 17
@@ -354,7 +371,7 @@ IF select_answer = "NO - APPL (Known to MAXIS)" THEN CALL write_variable_in_case
 IF select_answer = "NO - APPL (Not known to MAXIS)" THEN CALL write_variable_in_case_note("* APPL'd case using the MIPPA record and case information applicant is not known to MAXIS.")
 IF select_answer = "NO - ADD A PROGRAM" THEN
 	CALL write_variable_in_case_note("* APPL'd case using the MIPPA record and case information applicant is known to MAXIS and may be active on other programs.")
-	CALL write_variable_in_case_note ("* HC Ended on: " & end_date)
+	IF end_date <> "" THEN CALL write_variable_in_case_note ("* HC Ended on: " & end_date)
 END IF
 CALL write_variable_in_case_note ("* REPT/MLAR APPL Date: " & appl_date)
 IF select_answer <> "YES - Update MLAD" THEN
