@@ -55,8 +55,9 @@ changelog_display
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 EMConnect ""    'Connects to BlueZone
 Call MAXIS_case_number_finder(MAXIS_case_number) 'Grabbing case number & footer month/year
-Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
-
+If MAXIS_footer_month = "" AND MAXIS_footer_year = "" Then Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+'This only calls the footer month finder if it not already known because sometimes this script is called from another script (DAIL Paperless IR)
+'If we reuse footer finder it blanks out the already established footer month and year.
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 161, 61, "Case number"
@@ -221,18 +222,18 @@ If BBUD_check = "BBUD" then
     Do
         Dialog Dialog1
         If ButtonPressed = ELIG_button then exit do
-        If ButtonPressed = BILS_Button then 
+        If ButtonPressed = BILS_Button then
             PF3
             Call navigate_to_MAXIS_screen("STAT", "BILS")
             EMReadScreen BILS_check, 4, 2, 54
             If BILS_check <> "BILS" then transmit
             exit do
-        End if 
+        End if
   	    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
     Loop until are_we_passworded_out = false					'loops until user passwords back inn
-    
+
     'If ButtonPressed = 4 then
-    '    'BILS_button navigation 
+    '    'BILS_button navigation
     '    PF3
     ''    Do
     ''        Dialog Dialog1
