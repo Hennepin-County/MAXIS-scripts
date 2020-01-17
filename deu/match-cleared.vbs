@@ -254,24 +254,30 @@ IF send_notice_checkbox = CHECKED THEN
     ATR_Verf_CheckBox = CHECKED
 	'-------------------------------------------------------------------------------------------------DIALOG
 	Dialog1 = "" 'Blanking out previous dialog detail
-	BeginDialog Dialog1, 0, 0, 296, 160, "WAGE MATCH SEND DIFFERENCE NOTICE"
+	BeginDialog Dialog1, 0, 0, 296, 160, "MATCH SEND DIFFERENCE NOTICE"
 	  CheckBox 10, 80, 70, 10, "Difference Notice", Diff_Notice_Checkbox
-	  CheckBox 110, 80, 90, 10, "Employment Verification", empl_verf_checkbox
 	  CheckBox 10, 95, 90, 10, "Authorization to Release", ATR_Verf_CheckBox
-	  CheckBox 110, 95, 80, 10, "Other (please specify)", other_checkbox
+	  CheckBox 110, 80, 80, 10, "Lottery/Gaming Form", lottery_verf_checkbox
+	  CheckBox 110, 95, 80, 10, "Rental Income Form", rental_checkbox
+	  CheckBox 200, 80, 90, 10, "Employment Verification", empl_verf_checkbox
+	  CheckBox 200, 95, 80, 10, "Other (please specify)", other_checkbox
 	  EditBox 50, 120, 240, 15, other_notes
+	  CheckBox 5, 145, 180, 10, "Check to add claim referral tracking(SNAP and MF)", claim_referral_tracking_checkbox
 	  ButtonGroup ButtonPressed
 	    OkButton 195, 140, 45, 15
 	    CancelButton 245, 140, 45, 15
-	  GroupBox 5, 5, 285, 55, "WAGE MATCH"
-	  GroupBox 5, 65, 200, 50, "Verification Requested: "
-	  Text 10, 20, 110, 10, "Case number: "  & MAXIS_case_number
+	  Text 10, 20, 110, 10, "Case number: "   & MAXIS_case_number
 	  Text 120, 20, 165, 10, "Client name: "  & client_name
 	  Text 10, 40, 105, 10, "Active Programs: "  & programs
 	  Text 120, 40, 165, 15, "Income source: "   & income_source
+	  GroupBox 5, 65, 285, 50, "Verification Requested: "
 	  Text 5, 125, 40, 10, "Other notes:"
-	  CheckBox 5, 145, 180, 10, "Check to add claim referral tracking(SNAP and MF)", claim_referral_tracking_checkbox
+	  GroupBox 5, 5, 285, 55, "WAGE MATCH"
 	EndDialog
+	'---------------------------------------------------------------Defaulting checkboxes to being checked (per DEU instruction)
+    Diff_Notice_Checkbox = CHECKED
+    ATR_Verf_CheckBox = CHECKED
+    '---------------------------------------------------------------------send notice dialog and dialog DO...loop
 	DO
     	err_msg = ""
     	Dialog Dialog1
@@ -292,6 +298,7 @@ IF send_notice_checkbox = CHECKED THEN
 
     '-----------------------------------------------------------------Going to the MISC panel
 	IF claim_referral_tracking_checkbox = CHECKED THEN
+		'Going to the MISC panel to add claim referral tracking information
 	    Call navigate_to_MAXIS_screen ("STAT", "MISC")
 	    Row = 6
 	    EmReadScreen panel_number, 1, 02, 73
@@ -350,10 +357,12 @@ IF send_notice_checkbox = CHECKED THEN
   	IF Diff_Notice_Checkbox = CHECKED THEN pending_verifs = pending_verifs & "Difference Notice, "
 	IF empl_verf_checkbox = CHECKED THEN pending_verifs = pending_verifs & "EVF, "
 	IF ATR_Verf_CheckBox = CHECKED THEN pending_verifs = pending_verifs & "ATR, "
+	IF lottery_verf_checkbox = CHECKED THEN pending_verifs = pending_verifs & "Lottery/Gaming Form, "
+	IF rental_checkbox =  CHECKED THEN pending_verifs = pending_verifs & "Rental Income Form, "
 	IF other_checkbox = CHECKED THEN pending_verifs = pending_verifs & "Other, "
 
     '-------------------------------------------------------------------trims excess spaces of pending_verifs
-  	pending_verifs = trim(pending_verifs) 	'takes the last comma off of pending_verifs when autofilled into dialog if more than one app date is found and additional app is selected
+    pending_verifs = trim(pending_verifs) 	'takes the last comma off of pending_verifs when autofilled into dialog if more more than one app date is found and additional app is selected
 	IF right(pending_verifs, 1) = "," THEN pending_verifs = left(pending_verifs, len(pending_verifs) - 1)
 	IF match_type = "WAGE" THEN
 		IF select_quarter = 1 THEN IEVS_quarter = "1ST"
@@ -394,42 +403,42 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	'date_received = date & ""
 	'-------------------------------------------------------------------------------------------------DIALOG
 	Dialog1 = "" 'Blanking out previous dialog detail
-    BeginDialog Dialog1, 0, 0, 316, 205, "MATCH CLEARED"
-      EditBox 55, 5, 40, 15, MAXIS_case_number
-      EditBox 165, 5, 20, 15, MEMB_number
-      DropListBox 250, 5, 60, 15, "Select One:"+chr(9)+"BEER"+chr(9)+"BNDX"+chr(9)+"SDXS/SDXI"+chr(9)+"UNVI"+chr(9)+"UBEN"+chr(9)+"WAGE", match_type
-      DropListBox 55, 25, 40, 15, "Select One:"+chr(9)+"1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"YEAR"+chr(9)+"N/A", select_quarter
-      EditBox 165, 25, 20, 15, resolve_time
-      CheckBox 205, 35, 90, 10, "Authorization to release", ATR_Verf_CheckBox
-      CheckBox 205, 45, 70, 10, "Difference notice", Diff_Notice_Checkbox
-      CheckBox 205, 55, 90, 10, "Employment verification", empl_verf_checkbox
-      CheckBox 205, 65, 70, 10, "School verification", school_verf_checkbox
-      CheckBox 205, 75, 80, 10, "Other (please specify)", other_checkbox
-      DropListBox 70, 45, 115, 15, "Select One:"+chr(9)+"CB-Ovrpmt And Future Save"+chr(9)+"CC-Overpayment Only"+chr(9)+"CF-Future Save"+chr(9)+"CA-Excess Assets"+chr(9)+"CI-Benefit Increase"+chr(9)+"CP-Applicant Only Savings"+chr(9)+"BC-Case Closed"+chr(9)+"BE-Child"+chr(9)+"BE-No Change"+chr(9)+"BE-NC-Non-collectible"+chr(9)+"BE-Overpayment Entered"+chr(9)+"BN-Already Known-No Savings"+chr(9)+"BI-Interface Prob"+chr(9)+"BP-Wrong Person"+chr(9)+"BU-Unable To Verify"+chr(9)+"BO-Other"+chr(9)+"NC-Non Cooperation", resolution_status
-      DropListBox 120, 65, 65, 15, "Select One:"+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"N/A", change_response
-      DropListBox 120, 85, 65, 15, "Select One:"+chr(9)+"DISQ Added"+chr(9)+"DISQ Deleted"+chr(9)+"Pending Verif"+chr(9)+"No"+chr(9)+"N/A", DISQ_action
-      EditBox 270, 95, 40, 15, date_received
-      EditBox 270, 115, 40, 15, exp_grad_date
-      EditBox 55, 135, 255, 15, other_notes
-      ButtonGroup ButtonPressed
-        OkButton 215, 185, 45, 15
-        CancelButton 265, 185, 45, 15
-      CheckBox 10, 110, 115, 10, "Check here if 10 day has passed", TIKL_checkbox
-      Text 5, 10, 50, 10, "Case number: "
-      Text 110, 10, 50, 10, "MEMB number:"
-      Text 200, 10, 40, 10, "Match Type: "
-      Text 5, 30, 50, 10, "Match period: "
-      Text 100, 30, 65, 10, "Resolve time (min): "
-      Text 5, 50, 60, 10, "Resolution status: "
-      Text 5, 70, 105, 10, "Responded to difference notice: "
-      GroupBox 195, 25, 115, 65, "Verification Used to Clear: "
-      Text 190, 100, 75, 10, "Date verif rcvd/on file:"
-      Text 200, 120, 65, 10, "Expected grad date:"
-      Text 10, 140, 40, 10, "Other notes: "
-      Text 35, 90, 75, 10, "DISQ panel addressed:"
-      CheckBox 10, 155, 255, 10, "Check to update claim referral tracking(SNAP and MF) Overpayment Exists", overpayment_exists_checkbox
-      CheckBox 10, 170, 265, 10, "Check to update claim referral tracking(SNAP and MF) No Overpayment Exists",  no_overpayment_checkbox
-    EndDialog
+	BeginDialog Dialog1, 0, 0, 321, 185, "MATCH CLEARED - CASE NUMBER: " & MAXIS_case_number
+	  DropListBox 55, 5, 50, 15, "Select One:"+chr(9)+"BEER"+chr(9)+"BNDX"+chr(9)+"SDXS/SDXI"+chr(9)+"UNVI"+chr(9)+"UBEN"+chr(9)+"WAGE", match_type
+	  EditBox 170, 5, 15, 15, MEMB_number
+	  DropListBox 55, 25, 40, 15, "Select One:"+chr(9)+"1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"YEAR"+chr(9)+"N/A", select_quarter
+	  EditBox 170, 25, 15, 15, resolve_time
+	  DropListBox 70, 45, 110, 15, "Select One:"+chr(9)+"CB-Ovrpmt And Future Save"+chr(9)+"CC-Overpayment Only"+chr(9)+"CF-Future Save"+chr(9)+"CA-Excess Assets"+chr(9)+"CI-Benefit Increase"+chr(9)+"CP-Applicant Only Savings"+chr(9)+"BC-Case Closed"+chr(9)+"BE-Child"+chr(9)+"BE-No Change"+chr(9)+"BE-NC-Non-collectible"+chr(9)+"BE-Overpayment Entered"+chr(9)+"BN-Already Known-No Savings"+chr(9)+"BI-Interface Prob"+chr(9)+"BP-Wrong Person"+chr(9)+"BU-Unable To Verify"+chr(9)+"BO-Other"+chr(9)+"NC-Non Cooperation", resolution_status
+	  DropListBox 120, 65, 60, 15, "Select One:"+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"N/A", change_response
+	  DropListBox 120, 85, 60, 15, "Select One:"+chr(9)+"DISQ Added"+chr(9)+"DISQ Deleted"+chr(9)+"Pending Verif"+chr(9)+"No"+chr(9)+"N/A", DISQ_action
+	  EditBox 270, 15, 40, 15, date_received
+	  CheckBox 195, 35, 70, 10, "Difference Notice", Diff_Notice_Checkbox
+	  CheckBox 195, 45, 90, 10, "Authorization to Release", ATR_Verf_CheckBox
+	  CheckBox 195, 55, 90, 10, "Employment verification", EVF_checkbox
+	  CheckBox 195, 65, 80, 10, "Lottery/Gaming Form", lottery_verf_checkbox
+	  CheckBox 195, 75, 80, 10, "Rental Income Form", rental_checkbox
+	  CheckBox 195, 85, 80, 10, "Other (please specify)", other_checkbox
+	  EditBox 270, 100, 40, 15, exp_grad_date
+	  CheckBox 5, 110, 115, 10, "Check here if 10 day cutoff has passed - TIKL will be set for following month", tenday_checkbox
+	  CheckBox 5, 120, 255, 10, "Check to update claim referral tracking(SNAP and MF) Overpayment Exists", overpayment_exists_checkbox
+	  CheckBox 5, 130, 265, 10, "Check to update claim referral tracking(SNAP and MF) No Overpayment Exists", no_overpayment_checkbox
+	  EditBox 50, 145, 265, 15, other_notes
+	  ButtonGroup ButtonPressed
+	    OkButton 220, 165, 45, 15
+	    CancelButton 270, 165, 45, 15
+	  Text 5, 10, 40, 10, "Match Type: "
+	  Text 5, 30, 45, 10, "Match Period: "
+	  Text 105, 30, 65, 10, "Resolve time (min): "
+	  GroupBox 190, 5, 125, 115, "Verification Used to Clear: "
+	  Text 5, 50, 60, 10, "Resolution Status: "
+	  Text 5, 70, 110, 10, "Responded to Difference Notice: "
+	  Text 40, 90, 75, 10, "DISQ panel addressed:"
+	  Text 5, 150, 40, 10, "Other notes: "
+	  Text 195, 20, 75, 10, "Date verif rcvd/on file:"
+	  Text 110, 10, 55, 10, "MEMB Number:"
+	  Text 195, 105, 65, 10, "Expected grad date:"
+	EndDialog
+
 
 	DO
 		err_msg = ""
@@ -685,18 +694,8 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 		CALL write_variable_in_case_note("----- ----- ----- ----- -----")
 		CALL write_variable_in_case_note ("DEBT ESTABLISHMENT UNIT 612-348-4290 EXT 1-1-1")
 		PF3
-
-		''-------------------------------The following will generate a TIKL formatted date for 10 days from now, and add it to the TIKL
-		IF TIKL_checkbox = CHECKED THEN
-		    Call navigate_to_MAXIS_screen("DAIL", "WRIT")
-	  	    CALL create_MAXIS_friendly_date(date, 10, 5, 18)
-	 	    IF resolution_status = "NC-Non Cooperation" THEN CALL write_variable_in_TIKL("CLOSE FOR NON-COOP, CREATE DISQ(S) FOR " & first_name)
-			'ELSE
-			'	CALL write_variable_in_TIKL("CLOSE FOR NON-COOP, CREATE DISQ(S) FOR " & first_name)
-			'END IF
-	 	    PF3		'Exits and saves TIKL
-			script_end_procedure_with_error_report("Success! Updated match, and a TIKL created.")
-		END IF
 	END IF
+	'-------------------------------The following will generate a TIKL formatted date for 10 days from now, and add it to the TIKL
+	IF tenday_checkbox = 1 THEN Call create_TIKL("Unable to close due to 10 day cutoff. Verification of match should have returned by now. If not received and processed, take appropriate action.", 0, date, True)
 	script_end_procedure_with_error_report("Match has been acted on. Please take any additional action needed for your case.")
 END IF
