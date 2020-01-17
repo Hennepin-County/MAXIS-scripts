@@ -138,7 +138,7 @@ ReDim Preserve script_array_DEU_main(script_num)		'Resets the array to add one m
 Set script_array_DEU_main(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_DEU_main(script_num).script_name			= "Match Cleared"
 script_array_DEU_main(script_num).file_name 			= "match-cleared.vbs"
-script_array_DEU_main(script_num).description			= "Action script that assists in clearing wage matches, including sending the Diff Notice."
+script_array_DEU_main(script_num).description			= "Action script that assists in clearing matches, including sending the Diff Notice."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_DEU_main(script_num)		'Resets the array to add one more element to it
@@ -146,13 +146,6 @@ Set script_array_DEU_main(script_num) = new script		'Set this array element to b
 script_array_DEU_main(script_num).script_name			= "Match Cleared-CC Claim Entered"
 script_array_DEU_main(script_num).file_name				= "match-cleared-CC-claim-entered.vbs"
 script_array_DEU_main(script_num).description			= "Action script that assists in clearing a match when a claim has been entered."
-
-'script_num = script_num + 1								'Increment by one
-'ReDim Preserve script_array_DEU_main(script_num)		'Resets the array to add one more element to it
-'Set script_array_DEU_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-'script_array_DEU_main(script_num).script_name			= "Non-Wage Match Cleared"
-'script_array_DEU_main(script_num).file_name			= "non-wage-match-cleared.vbs"
-'script_array_DEU_main(script_num).description			= "Action script that assists in clearing UBEN and BEER matches."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_DEU_main(script_num)		'Resets the array to add one more element to it
@@ -182,20 +175,12 @@ script_array_DEU_main(script_num).script_name 		    = "REPT - IEVC"
 script_array_DEU_main(script_num).file_name			    = "rept-ievc-list.vbs"
 script_array_DEU_main(script_num).description 		    = "Pulls a list of cases in REPT/IEVC into an Excel spreadsheet."
 
-script_num = script_num + 1							    		'Increment by one
-ReDim Preserve script_array_DEU_main(script_num)	    	'Resets the array to add one more element to it
+script_num = script_num + 1							    'Increment by one
+ReDim Preserve script_array_DEU_main(script_num)	    'Resets the array to add one more element to it
 Set script_array_DEU_main(script_num) = new script	    'Set this array element to be a new script. Script details below...
 script_array_DEU_main(script_num).script_name 		    = "REPT - INTR"
 script_array_DEU_main(script_num).file_name			    = "rept-intr-list.vbs"
 script_array_DEU_main(script_num).description 		    = "Pulls a list of cases in REPT/INTR into an Excel spreadsheet."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_DEU_main(script_num)		'Resets the array to add one more element to it
-Set script_array_DEU_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_DEU_main(script_num).script_name			= "UNVI Match Cleared"
-script_array_DEU_main(script_num).file_name				= "UNVI-match-cleared.vbs"
-script_array_DEU_main(script_num).description			= "Action script that assists in clearing UNVI matches."
-
 
 
 'Starting these with a very high number, higher than the normal possible amount of buttons.
