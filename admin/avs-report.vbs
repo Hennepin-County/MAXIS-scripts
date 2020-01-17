@@ -52,23 +52,8 @@ call changelog_update("09/23/2019", "Initial version.", "Ilse Ferris, Hennepin C
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-Function write_new_line_in_person_note(x)
-  EMGetCursor row, col
-  If (row = 18 and col + (len(x)) >= 80 + 1 ) or (row = 5 and col = 3) then
-    EMSendKey "<PF8>"
-    EMWaitReady 0, 0
-  End if
-  EMReadScreen max_check, 51, 24, 2
-  EMSendKey x & "<newline>"
-  EMGetCursor row, col
-  If (row = 18 and col + (len(x)) >= 80) or (row = 5 and col = 3) then
-    EMSendKey "<PF8>"
-    EMWaitReady 0, 0
-  End if
-End function
-
 Function MMIS_panel_check(panel_name)
-	Do
+	Do 
 		EMReadScreen panel_check, 4, 1, 52
 		If panel_check <> panel_name then Call write_value_and_transmit(panel_name, 1, 8)
 	Loop until panel_check = panel_name
@@ -113,13 +98,135 @@ function start_a_new_spec_memo_and_continue(success_var)
 	transmit                                                        'Transmits to start the memo writing process
 end function
 
+''----------------------------------------------------------------------------------------------------Gathering ALL AVS FORMS information
+Function AVS_sync()
+    msgbox "Starting AVS Sync"    
+    objExcel.worksheets("All AVS Forms").Activate 'Activates worksheet based on user selection
+    
+    DIM master_array()
+    ReDim master_array(6, 0)
+    
+    const SMI_AAF_const          = 0
+    const scan_date_AAF_const    = 1
+    const case_number_AAF_const  = 2
+    const PMI_AAF_const          = 3
+    const client_name_AAF_const  = 4
+    const note_created_AAF_const = 5    
+    const case_note_const        = 6    
+    
+    excel_row = 2
+    master_record = 0
+    
+    Do 
+        SMI_AAF = ObjExcel.Cells(excel_row, 1).Value
+        SMI_AAF  = trim(SMI_AAF)
+        If SMI_AAF = "" then exit do 
+        
+        scan_date_AAF       = ObjExcel.Cells(excel_row, 2).Value        
+        MAXIS_case_number   = ObjExcel.Cells(excel_row, 3).Value
+        PMI_AAF             = ObjExcel.Cells(excel_row, 4).Value
+        client_name_AAF     = ObjExcel.Cells(excel_row, 5).Value
+        note_confirm_AAF    = ObjExcel.Cells(excel_row, 6).Value
+        
+        ReDim Preserve master_array(6, master_record)	'This resizes the array based on the number of rows in the Excel File'
+        master_array(SMI_AAF_const,         master_record) = SMI_AAF
+        master_array(scan_date_AAF_const,   master_record) = trim(scan_date_AAF)
+        master_array(case_number_AAF_const, master_record) = trim(MAXIS_case_number)
+        master_array(PMI_AAF_const,         master_record) = trim(PMI_AAF)
+        master_array(client_name_AAF_const, master_record) = trim(client_name_AAF)
+        master_array(case_note_const,       master_record) = trim(note_confirm_AAF)
+        
+        master_record = master_record + 1			'This increments to the next entry in the array'
+        STATS_counter = STATS_counter + 1
+        excel_row = excel_row + 1
+    LOOP
+    'msgbox master_record
+    
+    ''----------------------------------------------------------------------------------------------------Gathering monthly information & exporting ALL AVS FORMS information
+    For Each objWorkSheet In objWorkbook.Worksheets
+        If instr(objWorkSheet.Name, "Sheet") = 0 and objWorkSheet.Name <> "All AVS Forms" then months_list = months_list & objWorkSheet.Name & ","
+    Next
+    months_list = trim(months_list)  'trims excess spaces of months_list
+    If right(months_list, 1) = "," THEN months_list = left(months_list, len(months_list) - 1) 'trimming off last comma
+    array_of_months = split(months_list, ",")   'Creating new array
+    
+    master_count = 0
+    
+    For each month_sheet in array_of_months
+        'msgbox month_sheet
+        objExcel.worksheets(month_sheet).Activate 'Activates worksheet based on user selection
+        excel_row = 2
+        
+        DO 
+            month_SMI_number = ObjExcel.Cells(excel_row, SMI_col).Value
+            month_SMI_number = trim(month_SMI_number)
+            If month_SMI_number = "" then exit do 
+            
+            month_case_note = ObjExcel.Cells(excel_row, note_col).Value
+            month_scan_date = ObjExcel.Cells(excel_row, forms_col).Value
+            month_case_number = objExcel.Cells(excel_row, cn_col).Value 
+            month_PMI = objExcel.Cells(excel_row, pmi_col).Value
+            month_client_name = ObjExcel.Cells(excel_row, client_name_col).Value 
+            
+            For item = 0 to UBound(master_array, 2)
+                SMI_AAF = master_array(SMI_ECF_const, item)  
+                
+                If SMI_AAF = month_SMI_number then
+                    'msgbox "excel row: " & excel_row & vbcr & objExcel.Cells(excel_row, forms_col).Value & vbcr & objExcel.Cells(excel_row, cn_col).Value
+                    'master_array(scan_date_AAF_const, item) = objExcel.Cells(excel_row, forms_col).Value    'outputting form date 
+                    'master_array(case_note_const,     item) = objExcel.Cells(excel_row, note_col).Value    'outputting case note date
+                    
+                    If master_array(scan_date_AAF_const, item) = "" then 
+                        master_array(scan_date_AAF_const, item) = trim(month_scan_date)'revaluing case note  
+                    Elseif trim(month_scan_date) = "" then 
+                        ObjExcel.Cells(excel_row, forms_col).Value = master_array(scan_date_AAF_const, item)
+                    End if 
+                    
+                    If master_array(case_note_const, item) = "" then 
+                        master_array(case_note_const, item) =  trim(month_case_note) 'revaluing case note  
+                    Elseif trim(month_case_note) = "" then 
+                        ObjExcel.Cells(excel_row, note_col).Value = master_array(case_note_const, item)
+                    End if 
+                    
+                    master_array(case_number_AAF_const, item) = trim(month_case_number)  'revaluing case number 
+                    master_array(PMI_AAF_const, item) = trim(month_PMI)    'revaluing PMI number 
+                    master_array(client_name_AAF_const, item) = trim(month_client_name) 'revaluing client name 
+                    
+                    objExcel.Cells(excel_row, 19).Interior.ColorIndex = 3	'Fills the row with red    
+                    
+                    master_count = master_count + 1
+                    exit for 
+                End if  
+            Next
+            excel_row = excel_row + 1
+            month_SMI_number = ""
+            SMI_AAF = "" 
+        Loop 
+    Next 
+    ''----------------------------------------------------------------------------------------------------Filling in any missing ALL AVS FORMS information
+    objExcel.worksheets("All AVS Forms").Activate 'Activates worksheet based on user selection
+    
+    excel_row = 2
+    For item = 0 to UBound(master_array, 2)
+        ObjExcel.Cells(excel_row, 3).Value = master_array(case_number_AAF_const, item)
+        ObjExcel.Cells(excel_row, 4).Value = master_array(PMI_AAF_const,         item)
+        ObjExcel.Cells(excel_row, 5).Value = master_array(client_name_AAF_const, item)
+        ObjExcel.Cells(excel_row, 6).Value = master_array(case_note_const,       item)
+        objExcel.Cells(excel_row, 3).Interior.ColorIndex = 3	'Fills the row with red     
+        excel_row = excel_row + 1
+    Next
+    
+    FOR i = 1 to 6		'formatting the cells
+        objExcel.Columns(i).AutoFit()				'sizing the columns'
+    NEXT
+End function
 '----------------------------------------------------------------------------------------------------The script
 'CONNECTS TO BlueZone
 EMConnect ""
-MAXIS_footer_month = CM_mo	'establishing footer month/year
-MAXIS_footer_year = CM_yr
+MAXIS_footer_month = CM_mo	'establishing footer month/year 
+MAXIS_footer_year = CM_yr 
 
-'column numbers
+'column numbers 
 cn_col          = 4
 PMI_col         = 5
 client_name_col = 6
@@ -141,10 +248,10 @@ one_memo_col    = 21
 two_memo_col    = 22
 
 '----------------------------------------------------------------------------------------------------INITIAL DIALOG
-'The dialog is defined in the loop as it can change as buttons are pressed
+'The dialog is defined in the loop as it can change as buttons are pressed 
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 246, 95, "AVS Processing Selection"
-  DropListBox 120, 50, 115, 15, "Select one..."+chr(9)+"Initial Monthly Upload"+chr(9)+"ECF Forms Received"+chr(9)+"Person and Case Noting Forms"+chr(9)+"Initial Memo"+chr(9)+"Secondary Memo", AVS_option
+  DropListBox 120, 50, 115, 15, "Select one..."+chr(9)+"Case & Person Noting"+chr(9)+"ECF Forms Received"+chr(9)+"Initial Monthly Upload"+chr(9)+"New Person Information"+chr(9)+"Output Waiver Lists"+chr(9)+"Run Sync", AVS_option
   ButtonGroup ButtonPressed
     OkButton 140, 75, 45, 15
     CancelButton 190, 75, 45, 15
@@ -153,11 +260,11 @@ BeginDialog Dialog1, 0, 0, 246, 95, "AVS Processing Selection"
   GroupBox 10, 5, 230, 65, "Using this script:"
 EndDialog
 
-Do
+Do     
     Do
         err_msg = ""
         dialog Dialog1
-        cancel_without_confirmation
+        cancel_without_confirmation 
         If AVS_option = "Select one..." then err_msg = "Select the AVS process to complete."
         If err_msg <> "" Then MsgBox err_msg
     Loop until err_msg = ""
@@ -165,9 +272,10 @@ CALL check_for_password(are_we_passworded_out)			'function that checks to ensure
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 '----------------------------------------------------------------------------------------------------------------------------------------------------ECF FORMS RECEIVED
-If AVS_option = "ECF Forms Received" then
-    'The dialog is defined in the loop as it can change as buttons are pressed
-    Dialog1 = ""
+If AVS_option = "ECF Forms Received" then 
+    dialog1 = ""
+    'The dialog is defined in the loop as it can change as buttons are pressed 
+   Dialog1 = ""
     BeginDialog Dialog1, 0, 0, 266, 115, "AVS Forms Procesing"
       ButtonGroup ButtonPressed
         PushButton 200, 50, 50, 15, "Browse...", select_a_file_button
@@ -178,101 +286,110 @@ If AVS_option = "ECF Forms Received" then
       Text 15, 70, 230, 15, "Select the Excel file that contains the ECF info by selecting the 'Browse' button, and finding the file."
       GroupBox 10, 5, 250, 85, "Using this script:"
     EndDialog
-
+    
     Do
         err_msg = ""
         dialog Dialog1
-        cancel_without_confirmation
+        cancel_without_confirmation 
         If ButtonPressed = select_a_file_button then call file_selection_system_dialog(file_selection_path, ".xlsx")
-        If trim(file_selection_path) = "" then err_msg = err_msg & vbcr & "* Select a file to continue."
+        If trim(file_selection_path) = "" then err_msg = err_msg & vbcr & "* Select a file to continue." 
         If err_msg <> "" Then MsgBox err_msg
     Loop until err_msg = ""
     If objExcel = "" Then call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
 
     excel_row = 2
     entry_record = 0
-
-    DIM master_array()
-    ReDim master_array(2, 0)
-
-    const SMI_ECF_const   = 0
-    const scan_date_const = 1
-
-    Do
+    
+    DIM upload_array()
+    ReDim upload_array(2, 0)
+    
+    const SMI_ECF_const      = 0
+    const scan_date_const    = 1
+    const SMI_found_const    = 2
+    
+          
+    Do 
     	SMI_ECF_number  = ObjExcel.Cells(excel_row, 1).Value
     	SMI_ECF_number  = trim(SMI_ECF_number)
-        If SMI_ECF_number = "" then exit do
-
+        If SMI_ECF_number = "" then exit do 
+        
         scan_date = ObjExcel.Cells(excel_row, 2).Value
         scan_date = trim(scan_date)
-
-        ReDim Preserve master_array(2, entry_record)	'This resizes the array based on the number of rows in the Excel File'
-        master_array(SMI_ECF_const,	entry_record) = SMI_ECF_number
-        master_array(scan_date_const, 	entry_record) = scan_date
-
+        
+        ReDim Preserve upload_array(2, entry_record)	'This resizes the array based on the number of rows in the Excel File'
+        upload_array(SMI_ECF_const,	        entry_record) = SMI_ECF_number 		
+        upload_array(scan_date_const, 	    entry_record) = scan_date 	
+        upload_array(SMI_found_const, 	    entry_record) = FALSE 	
+        
         entry_record = entry_record + 1			'This increments to the next entry in the array'
         STATS_counter = STATS_counter + 1
         excel_row = excel_row + 1
     LOOP
-
-    objExcel.Quit   'Closes the initial spreadsheet
+    
+    objExcel.Quit   'Closes the initial spreadsheet 
     objExcel = ""
+    
+    file_selection = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\AVS\AVS Forms Distribution Master List.xlsx"
+    Call excel_open(file_selection, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
+    
+    objExcel.worksheets("All AVS Forms").Activate 'Activates worksheet based on user selection
+    
+    '----------------------------------------------------------------------------------------------------FILTERING THE ARRAY 
+    form_count = 0
+    excel_row = 2
+    
+    DO 
+        SMI_number = ObjExcel.Cells(excel_row, 1).Value
+        SMI_number = trim(SMI_number)
+        If SMI_number = "" then exit do 
+        
+        For item = 0 to UBound(upload_array, 2)
+            SMI_ECF_number = upload_array(SMI_ECF_const, item)  
+            scan_date = upload_array(scan_date_const, item)
+            
+            If trim(SMI_ECF_number) = trim(SMI_number) then
+                'Adding inforamtion to the array that will then update the monthly lists 
+                upload_array(SMI_found_const, item) = True 
+                'objExcel.Cells(excel_row, 1).Value = SMI_ECF_number
+                objExcel.Cells(excel_row, 2).Value = scan_date
+                objExcel.Cells(excel_row, 2).Interior.ColorIndex = 3	'Fills the row with red                
+                form_count = form_count + 1
+                exit for
+            else 
+                match_found = False 
+            end if
+        Next
+        excel_row = excel_row + 1
+        SMI_number = "" 
+    Loop
+
+    For item = 0 to UBound(upload_array, 2)
+        SMI_ECF_number = upload_array(SMI_ECF_const, item)  
+        scan_date = upload_array(scan_date_const, item)
+        
+        If upload_array(SMI_found_const, item) = False then  
+            'Adding inforamtion to the array that will then update the monthly lists 
+            objExcel.Cells(excel_row, 1).Value = SMI_ECF_number
+            objExcel.Cells(excel_row, 2).Value = scan_date 
+            objExcel.Cells(excel_row, 2).Interior.ColorIndex = 3	'Fills the row with red                
+            form_count = form_count + 1
+            excel_row = excel_row + 1
+        end if 
+    Next
+    'Syncing the resident lists with the All AVS forms list
+    Call AVS_sync 
+End if     
+
+'----------------------------------------------------------------------------------------------------
+If AVS_option = "Initial Monthly Upload" then 
 
     file_selection = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\AVS\AVS Forms Distribution Master List.xlsx"
     Call excel_open(file_selection, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
-
-    'Set objWorkSheet = objWorkbook.Worksheet
-    For Each objWorkSheet In objWorkbook.Worksheets
-    	If instr(objWorkSheet.Name, "Sheet") = 0 and objWorkSheet.Name <> "All AVS Forms" then months_list = months_list & objWorkSheet.Name & ","
-    Next
-    months_list = trim(months_list)  'trims excess spaces of months_list
-    If right(months_list, 1) = "," THEN months_list = left(months_list, len(months_list) - 1) 'trimming off last comma
-    array_of_months = split(months_list, ",")   'Creating new array
-
-    '----------------------------------------------------------------------------------------------------FILTERING THE ARRAY
-
-    For each month_sheet in array_of_months
-        form_count = 0
-        objExcel.worksheets(month_sheet).Activate 'Activates worksheet based on user selection
-        excel_row = 2
-
-        DO
-            SMI_number = ObjExcel.Cells(excel_row, SMI_col).Value
-            SMI_number = trim(SMI_number)
-            If SMI_number = "" then exit do
-
-            For item = 0 to UBound(master_array, 2)
-                SMI_ECF_number = master_array(SMI_ECF_const, item)
-                scan_date = master_array(scan_date_const, item)
-
-                If SMI_ECF_number = SMI_number then
-                    match_found = True
-                    objExcel.Cells(excel_row, forms_col).Value = scan_date
-                    objExcel.Cells(excel_row, forms_col).Interior.ColorIndex = 3	'Fills the row with red
-                    form_count = form_count + 1
-                    exit for
-                else
-                    match_found = False
-                end if
-            Next
-            excel_row = excel_row + 1
-        Loop
-        msgbox "Month: " & month_sheet & vbcr & "Form count: " & form_count
-    Next
-    msgbox "Total number of forms reviewed:" & entry_record
-    STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
-    script_end_procedure("Success!")
-End if
-
-file_selection = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\AVS\AVS Forms Distribution Master List.xlsx"
-Call excel_open(file_selection, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
-
-'----------------------------------------------------------------------------------------------------
-If AVS_option = "Initial Monthly Upload" then
+    
     'adding column header information to the Excel list
-    ObjExcel.Cells(1,  7).Value = "SMI"
-    ObjExcel.Cells(1,  8).Value = "Waiver start"
-    ObjExcel.Cells(1,  9).Value = "Waiver end"
+    ObjExcel.Cells(1, 7).Value = "SMI"
+    ObjExcel.Cells(1, 8).Value = "Waiver start"
+    ObjExcel.Cells(1, 9).Value = "Waiver end"
     ObjExcel.Cells(1, 10).Value = "Medicare"
     ObjExcel.Cells(1, 11).Value = "1st case"
     ObjExcel.Cells(1, 12).Value = "1st type/prog"
@@ -286,19 +403,19 @@ If AVS_option = "Initial Monthly Upload" then
     ObjExcel.Cells(1, 20).Value = "P/C Note Created"
     ObjExcel.Cells(1, 21).Value = "Initial Memo"
     ObjExcel.Cells(1, 22).Value = "Second Memo"
-
+    
     FOR i = 1 to 22 	'formatting the cells'
     	objExcel.Cells(1, i).Font.Bold = True		'bold font'
     	ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
     	objExcel.Columns(i).AutoFit()				'sizing the columns'
     NEXT
-
+    
     ObjExcel.columns(8).NumberFormat = "mm/dd/yy" 		'formatting waiver start date as a date
     ObjExcel.columns(9).NumberFormat = "mm/dd/yy" 		'formatting waiver end date as a date
-
+    
     DIM case_array()
-    ReDim case_array(16, 0)
-
+    ReDim case_array(17, 0)
+    
     'constants for array
     const case_number_const     	= 0
     const clt_PMI_const 	        = 1
@@ -317,58 +434,62 @@ If AVS_option = "Initial Monthly Upload" then
     const third_elig_const          = 14
     const case_status               = 15
     const rlva_coding_const         = 16
-
+    const name_const                = 17 
+    
     'Now the script adds all the clients on the excel list into an array
     excel_row = 2 're-establishing the row to start checking the members for
     entry_record = 0
-    Do
+    Do   
         'Loops until there are no more cases in the Excel list
-
-        MAXIS_case_number = objExcel.cells(excel_row, cn_col).Value   'reading the case number from Excel
+        
+        MAXIS_case_number = objExcel.cells(excel_row, cn_col).Value   'reading the case number from Excel   
         MAXIS_case_number = Trim(MAXIS_case_number)
-
-        Client_PMI = objExcel.cells(excel_row, PMI_col).Value          'reading the PMI from Excel
-        Do
+    
+        Client_PMI = objExcel.cells(excel_row, PMI_col).Value          'reading the PMI from Excel 
+        Do 
             If left(Client_PMI, 1) = "0" then client_PMI = right(client_PMI, len(client_PMI) -1)
         Loop until left(Client_PMI, 1) <> "0"
-
-        Client_PMI = trim(Client_PMI)
+        
+        Client_PMI = trim(Client_PMI)        
         If Client_PMI = "" then exit do
-
-        ReDim Preserve case_array(16, entry_record)	'This resizes the array based on the number of rows in the Excel File'
+        
+        name_of_client = objExcel.cells(excel_row, client_name_col).Value   'reading the case number from Excel   
+            
+        ReDim Preserve case_array(17, entry_record)	'This resizes the array based on the number of rows in the Excel File'
         case_array(case_number_const,           entry_record) = MAXIS_case_number	'The client information is added to the array'
-        case_array(clt_PMI_const,               entry_record) = Client_PMI
-        case_array(SMI_num_const,               entry_record) = ""
+        case_array(clt_PMI_const,               entry_record) = Client_PMI			
+        case_array(SMI_num_const,               entry_record) = ""                       
         case_array(waiver_start_const,	        entry_record) = ""
         case_array(waiver_end_const,	        entry_record) = ""
-        case_array(medicare_info_const,         entry_record) = ""
-        case_array(first_case_number_const,   	entry_record) = ""
-        case_array(first_type_const, 	        entry_record) = ""
-        case_array(first_elig_const, 	        entry_record) = ""
-        case_array(second_case_number_const,    entry_record) = ""
-        case_array(second_type_const, 	        entry_record) = ""
-        case_array(second_elig_const, 	        entry_record) = ""
-        case_array(case_status,                 entry_record) = False
+        case_array(medicare_info_const,         entry_record) = ""     
+        case_array(first_case_number_const,   	entry_record) = ""				
+        case_array(first_type_const, 	        entry_record) = ""				
+        case_array(first_elig_const, 	        entry_record) = ""             
+        case_array(second_case_number_const,    entry_record) = ""              
+        case_array(second_type_const, 	        entry_record) = ""              
+        case_array(second_elig_const, 	        entry_record) = ""              
+        case_array(case_status,                 entry_record) = False 	
         case_array(rlva_coding_const,           entry_record) =	""
-
+        case_array(name_const,                  entry_record) = trim(name_of_client)
+        
         entry_record = entry_record + 1			'This increments to the next entry in the array'
         stats_counter = stats_counter + 1
         excel_row = excel_row + 1
     Loop
-
+    
     back_to_self
     call MAXIS_footer_month_confirmation	'ensuring we are in the correct footer month/year
-
+    
     excel_row = 2
     For item = 0 to UBound(case_array, 2)
     	MAXIS_case_number = case_array(case_number_const, item)	'Case number is set for each loop as it is used in the FuncLib functions'
         Client_PMI = case_array(clt_PMI_const, item)
-
+    
         Call navigate_to_MAXIS_screen("CASE", "PERS")
         EMReadScreen PRIV_check, 4, 24, 14					'if case is a priv case then it gets identified, and will not be updated in MMIS
     	If PRIV_check = "PRIV" then
             case_array(case_status, item) = False
-    		case_array(SMI_num_const, item) = MAXIS_case_number & " - PRIV case."
+    		case_array(SMI_num_const, item) = MAXIS_case_number & " - PRIV case." 
     		'This DO LOOP ensure that the user gets out of a PRIV case. It can be fussy, and mess the script up if the PRIV case is not cleared.
     		Do
     			back_to_self
@@ -377,7 +498,7 @@ If AVS_option = "Initial Monthly Upload" then
     		LOOP until SELF_screen_check = "SELF"
     		EMWriteScreen "________", 18, 43		'clears the MAXIS case number
     		transmit
-        Else
+        Else 
             row = 10
             Do
                 EMReadScreen person_PMI, 8, row, 34
@@ -385,119 +506,119 @@ If AVS_option = "Initial Monthly Upload" then
                 IF person_PMI = "" then exit do
                 IF Client_PMI = person_PMI then
                     Call write_value_and_transmit("X", row, 59)
-                    'Helath care program display pop up
-                    EMReadScreen SMI_num, 9, 7, 50      'Reading the SMI number
+                    'Helath care program display pop up 
+                    EMReadScreen SMI_num, 9, 7, 50      'Reading the SMI number 
                     Case_array(SMI_num_const, item) = SMI_num
                     Case_array(case_status, item) = True
                     objExcel.Cells(excel_row,  SMI_col).Value = case_array (SMI_num_const, item)
                     SMI_num = ""
                     excel_row = excel_row + 1
-                    exit do
-                Else
-                    row = row + 3			'information is 3 rows apart. Will read for the next member.
+                    exit do 
+                Else 
+                    row = row + 3			'information is 3 rows apart. Will read for the next member. 
                     If row = 19 then
-                        PF8
+                        PF8  
                         row = 10					'changes MAXIS row if more than one page exists
                     END if
                 END if
                 EMReadScreen last_PERS_page, 21, 24, 2
             LOOP until last_PERS_page = "THIS IS THE LAST PAGE"
-        End if
-    Next
-
+        End if 
+    Next 
+    
     '-------------------------------------------------------------------------------------------------------------------------------------MMIS portion of the script
     Call navigate_to_MMIS_region("CTY ELIG STAFF/UPDATE")	'function to navigate into MMIS, select the HC realm, and enters the prior autorization area
-
+    
     excel_row = 2
     For item = 0 to UBound(case_array, 2)
         Client_PMI = case_array(clt_PMI_const, item)
         client_PMI = right("00000000" & client_pmi, 8)
-
+        
         If case_array(case_status, item) = True then
-            MMIS_panel_check("RKEY")
+            MMIS_panel_check("RKEY") 
             Call clear_line_of_text(5, 19)
             EmWriteScreen Client_PMI, 4, 19
             Call write_value_and_transmit("I", 2, 19)
-
+            
             RSEL_row = 7
-            Do
-                EmReadscreen RSEL_panel_check, 4, 1, 52  'RSEL is listed at column 52
+            Do 
+                EmReadscreen RSEL_panel_check, 4, 1, 52  'RSEL is listed at column 52 
                 EmReadscreen panel_check, 4, 1, 51
                 If RSEL_panel_check = "RSEL" then
                     EmReadscreen RSEL_SSN, 9, RSEL_row, 48
                     If RSEL_SSN = Client_SSN then
-                        duplicate_entry = True
+                        duplicate_entry = True 
                         Call write_value_and_transmit("X", RSEL_row, 2)
                         EmReadscreen panel_check, 4, 1, 51
-                    else
+                    else 
                         Exit do
-                        duplicate_entry = False
-                    End if
-                End if
-
-                If panel_check = "RSUM" then
+                        duplicate_entry = False 
+                    End if 
+                End if     
+                
+                If panel_check = "RSUM" then 
                     'Waiver info
                     EmReadscreen waiver_info, 39, 15, 15
                     waiver_info = trim(waiver_info)
-                    If waiver_info = "BEG DT:          THROUGH DT:" then
+                    If waiver_info = "BEG DT:          THROUGH DT:" then 
                         waiver_info = ""
                         Case_array(waiver_start_const, item) = ""
                         Case_array(waiver_end_const, item) = ""
-                    Else
+                    Else 
                         EMReadscreen waiver_start_date, 8, 15, 25
                         EmReadscreen waiver_end_date, 8, 15, 46
                         Case_array(waiver_start_const, item) = waiver_start_date
                         Case_array(waiver_end_const, item) = waiver_end_date
-                    End if
-
+                    End if 
+                    
                     'Medicare info
                     EmReadscreen medicare_info, 69, 21, 10
                     medicare_info = trim(medicare_info)
                     IF medicare_info = "PART A BEG:          END:          PART B BEG:          END:" then medicare_info = ""
                     Case_array(medicare_info_const, item) = medicare_info
-
-                    '1st case type/prog/elig/case number
+                    
+                    '1st case type/prog/elig/case number 
                     EmReadscreen first_case_number, 8, 7, 16
                     first_case_number = trim(first_case_number)
-                    If first_case_number <> "" then
+                    If first_case_number <> "" then 
                         case_array(first_case_number_const, item) = first_case_number
                         EmReadscreen first_program, 2, 6, 13
                         EmReadscreen first_type, 2, 6, 35
-                        If trim(first_program) <> "" then
+                        If trim(first_program) <> "" then 
                             first_elig_type = first_program & "-" & first_type
                             case_array(first_type_const, item) = first_elig_type
-                            '1st elig dates
+                            '1st elig dates 
                             EmReadscreen first_elig_start, 8, 7, 35
                             EmReadscreen first_elig_end, 8, 7, 54
                             first_elig_dates = first_elig_start &  " - " & first_elig_end
                             case_array(first_elig_const, item) = first_elig_dates
-                        ENd if
-                    End if
-
+                        ENd if    
+                    End if 
+                
                     EmReadscreen second_case_number, 8, 9, 16
                     second_case_number = trim(second_case_number)
-                    If second_case_number <> "" then
+                    If second_case_number <> "" then 
                         case_array(second_case_number_const, item) = second_case_number
                         EmReadscreen second_program, 2, 8, 13
                         EmReadscreen second_type, 2, 8, 35
-                        If trim(second_program) <> "" then
+                        If trim(second_program) <> "" then 
                             second_elig_type = second_program & "-" & second_type
                             case_array(second_type_const, item) = second_elig_type
-                            '1st elig dates
+                            '1st elig dates 
                             EmReadscreen second_elig_start, 8, 9, 35
                             EmReadscreen second_elig_end, 8, 9, 54
                             second_elig_dates = second_elig_start &  " - " & second_elig_end
                             case_array(second_elig_const, item) = second_elig_dates
-                        ENd if
-                    End if
-
-                    'RLVA
+                        ENd if    
+                    End if     
+                    
+                    'RLVA 
                     Call write_value_and_transmit("RLVA", 1, 8)
                     Call MMIS_panel_check("RLVA")
-                    EmReadscreen rlva_coding, 12, 14, 42 'most recent living arrangement
+                    EmReadscreen rlva_coding, 12, 14, 42 'most recent living arrangement 
                     case_array(rlva_coding_const, item) = rlva_coding
-
-                    'outputting to Excel
+                    
+                    'outputting to Excel 
                     objExcel.Cells(excel_row, SMI_col).Value = case_array (SMI_num_const,                  item)
                     objExcel.Cells(excel_row, wstart_col).Value = case_array (waiver_start_const,	       item)
                     objExcel.Cells(excel_row, wend_col).Value = case_array (waiver_end_const,	           item)
@@ -508,108 +629,141 @@ If AVS_option = "Initial Monthly Upload" then
                     objExcel.Cells(excel_row, two_case_col).Value = case_array (second_case_number_const,  item)
                     objExcel.Cells(excel_row, two_type_col).Value = case_array (second_type_const, 	       item)
                     objExcel.Cells(excel_row, two_elig_col).Value = case_array (second_elig_const, 	       item)
-                    objExcel.Cells(excel_row, rlva_col).Value = case_array (rlva_coding_const,             item)
-
+                    objExcel.Cells(excel_row, rlva_col).Value = case_array (rlva_coding_const,             item)                     
+                    
                     If duplicate_entry = True then objExcel.Cells(excel_row, dupe_col).Value = "True"
                     PF3
-                    exit do
-                End if
-            loop
-        else
-            objExcel.Cells(excel_row, dupe_col).Value = "Error case"
+                    exit do 
+                End if 
+            loop 
+        else 
+            objExcel.Cells(excel_row, dupe_col).Value = "Error case" 
         End if
+        excel_row = excel_row + 1 
+    Next
+    
+    '----------------------------------------------------------------------------------------------------Adding known residents from new monthly list to ALL AVS List    
+    objExcel.worksheets("All AVS Forms").Activate 'Activates worksheet based on user selection
+    excel_row = 2
+    
+    DO 
+        master_SMI_num = ObjExcel.Cells(excel_row, 1).Value  'from All AVS forms list
+        master_SMI_num = trim(master_SMI_num)
+        If master_SMI_num = "" then exit do 
+        
+        For item = 0 to UBound(case_array, 2)
+            list_SMI_number = case_array(SMI_num_const, item)
+            If list_SMI_number = master_SMI_num then 
+                match_found = True
+                ObjExcel.Cells(excel_row, 3).Value = case_array(case_number_const, item)
+                ObjExcel.Cells(excel_row, 4).Value = case_array(PMI_const, item)
+                ObjExcel.Cells(excel_row, 5).Value = case_array(name_const, item)
+                objExcel.Cells(excel_row, 1).Interior.ColorIndex = 3	'Fills the row with red
+                objExcel.Cells(excel_row, 2).Interior.ColorIndex = 3	'Fills the row with red
+        
+                exit for  
+            else 
+                match_found = False 
+            End if 
+        Next
         excel_row = excel_row + 1
-    Next
-End if
-
-If AVS_option = "Person and Case Noting Forms" then
-    For Each objWorkSheet In objWorkbook.Worksheets
-        If instr(objWorkSheet.Name, "Sheet") = 0 and objWorkSheet.Name <> "All AVS Forms" then months_list = months_list & objWorkSheet.Name & ","
-    Next
-    months_list = trim(months_list)  'trims excess spaces of months_list
-    If right(months_list, 1) = "," THEN months_list = left(months_list, len(months_list) - 1) 'trimming off last comma
-    array_of_months = split(months_list, ",")   'Creating new array
-
+    Loop 
+    
+    For item = 0 to UBound(case_array, 2)
+        If case_array(add_record_const, item) = "" then 
+            ObjExcel.Cells(excel_row, 1).Value = case_array(SMI_ECF_const, item)
+            ObjExcel.Cells(excel_row, 2).Value = case_array(scan_date_const, item)
+            objExcel.Cells(excel_row, 1).Interior.ColorIndex = 3	'Fills the row with red
+            objExcel.Cells(excel_row, 2).Interior.ColorIndex = 3	'Fills the row with red
+            excel_row = excel_row + 1
+        End if 
+    Next 
+    FOR i = 1 to 22		'formatting the cells
+    	objExcel.Columns(i).AutoFit()				'sizing the columns'
+    NEXT
+End if     
+    
+If AVS_option = "Case & Person Noting" then 
+    file_selection = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\AVS\AVS Forms Distribution Master List.xlsx"
+    Call excel_open(file_selection, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
+    objExcel.worksheets("All AVS Forms").Activate 'Activates worksheet based on user selection
+    
+    'Setting up MAXIS to be ready for case noting 
     back_to_self
     call MAXIS_footer_month_confirmation	'ensuring we are in the correct footer month/year
-
-    For each month_sheet in array_of_months
-        form_count = 0
-        objExcel.worksheets(month_sheet).Activate 'Activates worksheet based on user selection
-        'Now the script adds all the clients on the excel list into an array
-        excel_row = 2 're-establishing the row to start checking the members for
-        entry_record = 0
-        case_note_total = 0
-        Do
-            'Loops until there are no more cases in the Excel list
-            MAXIS_case_number = objExcel.cells(excel_row, cn_col).Value   'reading the case number from Excel
-            MAXIS_case_number = Trim(MAXIS_case_number)
-
-            client_PMI = objExcel.cells(excel_row, PMI_col).Value
-            client_PMI = trim(client_PMI)
-
-            client_name = objExcel.cells(excel_row, client_name_col).Value
-            client_name = trim(client_name)
-            Call fix_case(client_name, 2)
-            client_name = trim(client_name)
-
-            form_date = objExcel.cells(excel_row, forms_col).Value
-            form_date = trim(form_date)
-
-            note_date = objExcel.cells(excel_row, note_col).Value
-            note_date = trim(note_date)
-
-            If client_PMI = "" then exit do
-            stats_counter = stats_counter + 1
-
-            'Skipping cases that do not have a form date already listed or already have a case/person note.
-            If trim(form_date) <> "" then
-                If trim(note_date) = "" then
-                    Call navigate_to_MAXIS_screen("STAT", "MEMB")
-                    EMReadScreen PRIV_check, 4, 24, 14					'if case is a priv case then it gets identified, and will not be updated in MMIS
-                    If PRIV_check = "PRIV" then
-                         objExcel.cells(excel_row, note_col).Value = "PRIVILEGED"
-                        'This DO LOOP ensure that the user gets out of a PRIV case. It can be fussy, and mess the script up if the PRIV case is not cleared.
-                        Do
-                            back_to_self
-                            EMReadScreen SELF_screen_check, 4, 2, 50	'DO LOOP makes sure that we're back in SELF menu
-                            If SELF_screen_check <> "SELF" then PF3
-                        LOOP until SELF_screen_check = "SELF"
-                        EMWriteScreen "________", 18, 43		'clears the MAXIS case number
-                        transmit
+    
+    excel_row = 16805
+    case_note_total = 0
+    
+    Do   
+        'Loops until there are no more cases in the Excel list
+        MAXIS_case_number = objExcel.cells(excel_row, 3).Value   'reading the case number from Excel   
+        MAXIS_case_number = Trim(MAXIS_case_number)
+        If MAXIS_case_number = "" then exit do
+        
+        client_PMI = objExcel.cells(excel_row, 4).Value
+        client_PMI = trim(client_PMI) 
+        
+        client_name = objExcel.cells(excel_row, 5).Value
+        client_name = trim(client_name)
+        Call fix_case(client_name, 2)
+        client_name = trim(client_name)
+        
+        form_date = objExcel.cells(excel_row, 2).Value
+        form_date = trim(form_date)
+        
+        note_date = objExcel.cells(excel_row, 6).Value
+        note_date = trim(note_date)
+        
+        stats_counter = stats_counter + 1
+    
+        'Skipping cases that do not have a form date already listed or already have a case/person note.
+        If trim(form_date) <> "" then
+            If trim(note_date) = "" then
+                Call navigate_to_MAXIS_screen("STAT", "MEMB")
+                EMReadScreen PRIV_check, 4, 24, 14					'if case is a priv case then it gets identified, and will not be updated in MMIS
+                If PRIV_check = "PRIV" then
+                    objExcel.cells(excel_row, 6).Value = "PRIVILEGED"
+                    'This DO LOOP ensure that the user gets out of a PRIV case. It can be fussy, and mess the script up if the PRIV case is not cleared.
+                    Do
+                        back_to_self
+                        EMReadScreen SELF_screen_check, 4, 2, 50	'DO LOOP makes sure that we're back in SELF menu
+                        If SELF_screen_check <> "SELF" then PF3
+                    LOOP until SELF_screen_check = "SELF"
+                    EMWriteScreen "________", 18, 43		'clears the MAXIS case number
+                    transmit
+                Else
+                    EmReadscreen county_check, 4, 21, 21
+                    If county_check <> "X127" then
+                        objExcel.cells(excel_row, 6).Value = "OUT OF COUNTY"
                     Else
-                        EmReadscreen county_check, 4, 21, 21
-                        If county_check <> "X127" then
-                            objExcel.cells(excel_row, note_col).Value = "OUT OF COUNTY"
-                        Else
-                            Do
-                                EMReadScreen member_PMI, 7, 4, 46
-                                If trim(member_PMI) = Client_PMI then
-                                    Found_member = True
-                                    exit do
-                                Else
-                                    Found_member = False
-                                    transmit
-                                    EMReadScreen MEMB_error, 5, 24, 2
-                                End if
-                            Loop until MEMB_error = "ENTER"
-
-                            If Found_member = True then
-                                case_note_total = case_note_total + 1
-                                note_header = "AVS Auth Form Rec'd " & form_date & " - " & client_name
-                                note_body = "The DHS-7823 form (Authorization to Obtain Financial Information from the Account Validation Service - AVS) has not been reviewed for accuracy for this recipient. Review of the AVS form will be completed by HSR's at a later date."
-                                '---------------------------------------------------------------Creating the PERSON Note
-                                PF5
-                                EMReadScreen PNOTE_check, 4, 2, 46
-                                If PNOTE_check <> "SCRN" then
-                                     objExcel.cells(excel_row, note_col).Value = "PERS note issue"
-                                ELSE
-                                    EMreadscreen edit_mode_required_check, 6, 5, 3		'if not person not exists, person note goes directly into edit mode
-                                    If edit_mode_required_check <> "      " then PF9
-                                    write_new_line_in_person_note(note_header)
-                                    write_new_line_in_person_note("--")
-                                    write_new_line_in_person_note(note_body)
-                                END IF
+                        Do
+                            EMReadScreen member_PMI, 7, 4, 46
+                            If trim(member_PMI) = Client_PMI then
+                                Found_member = True
+                                exit do
+                            Else
+                                Found_member = False
+                                transmit
+                                EMReadScreen MEMB_error, 5, 24, 2
+                            End if
+                        Loop until MEMB_error = "ENTER"
+                        If Found_member = True then
+                            case_note_total = case_note_total + 1
+                            note_header = "AVS Auth Form Rec'd " & form_date & " - " & client_name
+                            note_body = "The DHS-7823 form (Authorization to Obtain Financial Information from the Account Validation Service - AVS) has not been reviewed for accuracy for this recipient. Review of the AVS form will be completed by HSR's at a later date."
+                            '---------------------------------------------------------------Creating the PERSON Note
+                            PF5
+                            EMReadScreen PNOTE_check, 4, 2, 46
+                            If PNOTE_check <> "SCRN" then
+                                 objExcel.cells(excel_row, 6).Value = "PERS note issue"
+                            ELSE
+                                EMreadscreen edit_mode_required_check, 6, 5, 3		'if not person not exists, person note goes directly into edit mode
+                                If edit_mode_required_check <> "      " then PF9
+                                write_new_line_in_person_note(note_header)
+                                write_new_line_in_person_note("--")
+                                write_new_line_in_person_note(note_body)
+                            
                                 PF3 'to save and exit person notes
                                 '---------------------------------------------------------------Creating the CASE note
                                 start_a_blank_CASE_NOTE
@@ -617,73 +771,256 @@ If AVS_option = "Person and Case Noting Forms" then
                                 Call write_variable_in_CASE_NOTE("--")
                                 Call write_variable_in_CASE_NOTE(note_body)
                                 PF3 'to save and exit case notes
-                                objExcel.cells(excel_row, note_col).Value = date
-                                objExcel.Cells(excel_row, note_col).Interior.ColorIndex = 3	'Fills the row with red
-                            End if
+                                objExcel.cells(excel_row, 6).Value = date
+                                objExcel.Cells(excel_row, 6).Interior.ColorIndex = 3	'Fills the row with red
+                            End if 
                         End if
                     End if
                 End if
             End if
-            excel_row = excel_row + 1
-            MAXIS_case_number = ""
-            client_PMI = ""
-            client_name = ""
-            form_date = ""
-            note_date = ""
-        Loop
-        msgbox "Month: " & month_sheet & vbcr & "Case note total: " & case_note_total
-    Next
-End if
+        End if 
+        excel_row = excel_row + 1
+        MAXIS_case_number = "" 
+        client_PMI = ""
+        client_name = ""
+        form_date = ""
+        note_date = ""
+    Loop 
+    msgbox "Case note total: " & case_note_total
+    
+   FOR i = 1 to 6		'formatting the cells
+       objExcel.Columns(i).AutoFit()				'sizing the columns'
+   NEXT
+   'Syncing the resident lists with the All AVS forms list
+   'Call AVS_sync 
+End if 
 
-If instr(AVS_option, "Memo") then
-    msgbox "Untested Coded. Waiting for AVS work group for go ahead."
-'    Do
-'        'Establishing values for each case in the array of cases
-'        MAXIS_case_number = objExcel.cells(excel_row, cn_col).Value   'reading the case number from Excel
+IF AVS_option = "New Person Information" then 
+   file_selection = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\AVS\AVS Forms Distribution Master List.xlsx"
+   Call excel_open(file_selection, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
+   objExcel.worksheets("All AVS Forms").Activate 'Activates worksheet based on user selection
+   
+   excel_row = 2    'starting point
+    
+    DO
+        master_SMI_number = ObjExcel.Cells(excel_row, 1).Value  'from All AVS forms list
+        master_SMI_number = trim(master_SMI_number)
+        If master_SMI_number = "" then exit do 
+        
+        'Loops until there are no more cases in the Excel list
+        MAXIS_case_number = objExcel.cells(excel_row, 3).Value   'reading the case number from Excel   
+        MAXIS_case_number = Trim(MAXIS_case_number)
+        
+        If MAXIS_case_number = "" then     
+            Call navigate_to_MAXIS_screen("PERS", "    ")
+            Call write_value_and_transmit(master_SMI_number, 17, 36)
+            EmReadscreen match_screen, 4, 2, 51
+            If match_screen = "MTCH" then 
+                EmReadscreen dupe_matches, 11, 9, 7
+                If trim(dupe_matches) <> "" then 
+                    objExcel.cells(excel_row, 6).Value = "Duplicate exists. Add manually."
+                Else 
+                    'if only one match exists then 
+                    Call write_value_and_transmit("X", 8, 5)
+                    'read client name
+                    EmReadscreen client_name, 39, 4, 8
+                    client_name = trim(client_name)
+                    objExcel.cells(excel_row, 5).Value = UCASE(client_name)
+                    'read PMI
+                    EmReadscreen DSPL_PMI, 8, 5, 44
+                    objExcel.cells(excel_row, 4).Value = DSPL_PMI
+                    'Read case number after finding HC case 
+                    Call write_value_and_transmit("MA", 7, 22)
+                    EmReadscreen DSPL_case_number, 8, 10, 6
+                    If trim(DSPL_case_number) = "" then 
+                        Call write_value_and_transmit("AP", 7, 22)
+                        EmReadscreen DSPL_case_number, 8, 10, 6
+                    End if 
+                    objExcel.cells(excel_row, 3).Value = trim(DSPL_case_number)
+                End if
+            Else 
+                objExcel.cells(excel_row, 6).Value = "Match error. Add manually." 
+            End if  
+        End if 
+        excel_row = excel_row + 1
+        master_SMI_number = ""
+        SMI_ECF_number = "" 
+    Loop 
+    
+    FOR i = 1 to 6		'formatting the cells
+       objExcel.Columns(i).AutoFit()				'sizing the columns'
+    NEXT
+    
+End if  
+
+If AVS_option = "Output Waiver Lists" then 
+    'Setting up the array 
+    DIM output_array()
+    ReDim output_array(5, 0)
+    
+    const output_PMI_const          = 0
+    const output_name_const         = 1
+    const output_SMI_const          = 2
+    const output_waiver_start_const = 3
+    const output_waiver_end_const   = 4
+    
+    entry_record = 0
+    
+    file_selection = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\AVS\AVS Forms Distribution Master List.xlsx"
+    Call excel_open(file_selection, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
+    
+    For Each objWorkSheet In objWorkbook.Worksheets
+        If instr(objWorkSheet.Name, "Sheet") = 0 and objWorkSheet.Name <> "All AVS Forms" then months_list = months_list & objWorkSheet.Name & ","
+    Next
+    months_list = trim(months_list)  'trims excess spaces of months_list
+    If right(months_list, 1) = "," THEN months_list = left(months_list, len(months_list) - 1) 'trimming off last comma
+    array_of_months = split(months_list, ",")   'Creating new array
+    
+    For each month_sheet in array_of_months
+        objExcel.worksheets(month_sheet).Activate 'Activates worksheet based on user selection
+        excel_row = 2
+            
+        Do 
+            output_PMI          = ObjExcel.Cells(excel_row, PMI_col).Value
+            output_PMI = trim(output_PMI)
+            If output_PMI = "" then exit do             
+            output_name         = ObjExcel.Cells(excel_row, client_name_col).Value
+            output_SMI          = ObjExcel.Cells(excel_row, SMI_col).Value
+            output_waiver_start = ObjExcel.Cells(excel_row, wstart_col).Value
+            output_waiver_end   = ObjExcel.Cells(excel_row, wend_col).Value
+            output_form_date    = ObjExcel.Cells(excel_row, forms_col).Value
+            'msgbox output_form_date & vbcr & excel_row & forms_col
+            
+            If trim(output_form_date) = "" then
+                If trim(output_waiver_end) <> "" then 
+                    'msgbox "Form date: " & output_form_date & vbcr & "Excel row:" & excel_row & vbcr & "date diff: " & datediff("d", output_waiver_end, date)
+                    If datediff("d", output_waiver_end, date) =< 0 then
+                        'msgbox output_waiver_end & vbcr & excel_row & datediff("d", output_waiver_end, date) =< 0 
+                        ReDim Preserve output_array(5, entry_record)	'This resizes the array based on the number of rows in the Excel File'
+                        output_array(output_PMI_const,          entry_record) = trim(output_PMI)
+                        output_array(output_name_const,         entry_record) = trim(output_name)
+                        output_array(output_SMI_const,          entry_record) = trim(output_SMI)
+                        output_array(output_waiver_start_const, entry_record) = trim(output_waiver_start)
+                        output_array(output_waiver_end_const,   entry_record) = trim(output_waiver_end)
+                        entry_record = entry_record + 1			'This increments to the next entry in the array'
+                    End if 
+                End if 
+            End if 
+            
+            STATS_counter = STATS_counter + 1
+            excel_row = excel_row + 1
+            'blanking out the variables 
+            output_PMI          = ""
+            output_name         = ""
+            output_SMI          = ""
+            output_waiver_start = ""
+            output_waiver_end   = ""
+            output_form_date    = ""
+        LOOP
+        'msgbox output_count & vbcr & month_sheet
+    Next
+    
+    'Opening the Excel file
+    Set objExcel = CreateObject("Excel.Application")
+    objExcel.Visible = True
+    Set objWorkbook = objExcel.Workbooks.Add()
+    objExcel.DisplayAlerts = True
+    
+    'Changes name of Excel sheet to "Case information"
+    ObjExcel.ActiveSheet.Name = "Outstanding AVS Forms"
+    
+    'adding column header information to the Excel list
+    ObjExcel.Cells(1, 1).Value = "PMI"
+    ObjExcel.Cells(1, 2).Value = "Client name"
+    ObjExcel.Cells(1, 3).Value = "SMI"
+    ObjExcel.Cells(1, 4).Value = "Waiver Start Date"
+    objExcel.Columns(4).NumberFormat = "mm/dd/yy"	'formats the date column as MM/DD/YY
+    ObjExcel.Cells(1, 5).Value = "Waiver End Date"
+    ObjExcel.Columns(5).NumberFormat = "mm/dd/yy"	'formats the date column as MM/DD/YY
+    
+    'formatting the cells
+    FOR i = 1 to 5
+    	objExcel.Cells(1, i).Font.Bold = True		'bold font
+    	objExcel.Columns(i).AutoFit()				'sizing the columns
+    NEXT
+    
+    'Addded the potentially EXP SNAP cases to Excel starting at row 2
+    excel_row = 2
+    
+    For i = 0 to Ubound(output_array, 2)
+        objExcel.Cells(excel_row, 1).Value = output_array(output_PMI_const,          i)
+        objExcel.Cells(excel_row, 2).Value = output_array(output_name_const,         i)
+        objExcel.Cells(excel_row, 3).Value = output_array(output_SMI_const,          i)
+        objExcel.Cells(excel_row, 4).Value = output_array(output_waiver_start_const, i)
+        objExcel.Cells(excel_row, 5).Value = output_array(output_waiver_end_const,   i)
+        excel_row = excel_row + 1
+    Next 
+    
+    FOR i = 1 to 5		'formatting the cells
+    	objExcel.Columns(i).AutoFit()				'sizing the columns'
+    NEXT
+    'Saves and closes the most recent Excel workbook with the Task based cases to process.
+    objExcel.ActiveWorkbook.SaveAs "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\AVS\Wavier Recipient with Outstanding AVS Forms.xlsx"  
+End if  
+    
+If AVS_option = "Run Sync" then 
+    file_selection = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\AVS\AVS Forms Distribution Master List.xlsx"
+    Call excel_open(file_selection, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
+    call AVS_sync      'Teating the AVS Sync
+End if 
+    
+STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
+script_end_procedure("Success! AVS list is complete.")
+
+'If instr(AVS_option, "Memo") then 
+'    msgbox "Untested Coded. Waiting for AVS work group for go ahead."
+'    Do  
+'        'Establishing values for each case in the array of cases 
+'        MAXIS_case_number = objExcel.cells(excel_row, cn_col).Value   'reading the case number from Excel   
 '        MAXIS_case_number = Trim(MAXIS_case_number)
-'
+'        
 '        client_name = objExcel.cells(excel_row, client_name_col).Value
 '        client_name = trim(client_name)
 '        Call fix_case(client_name, 2)
 '        client_name = trim(client_name)
-'
+'        
 '        If instr(client_name, " ") then    						'Most cases have both last name and 1st name. This seperates the two names
 '            length = len(client_name)                           'establishing the length of the variable
-'            position = InStr(client_name, " ")                  'sets the position at the deliminator (in this case the comma)
+'            position = InStr(client_name, " ")                  'sets the position at the deliminator (in this case the comma)    
 '            first_name = left(client_name, length-position)    'establishes client first name as after before the deliminator
 '        END IF
-'        'adding first name to name list
+'        'adding first name to name list 
 '        first_name = trim(first_name)
 '        'Call fix_case(first_name, 0)
-'        msgbox first_name
-'
+'        msgbox first_name 
+'        
 '        form_date = objExcel.cells(excel_row, forms_col).Value
 '        form_date = trim(form_date)
-'
+'        
 '        If AVS_option = "Initial Memo" then
 '            excel_col = one_memo_col
 '            first_line = client_name & " will soon receive a letter from the Department of Human Services with a form called Authorization to Obtain Financial Information from the AVS (Asset Validation System)."
 '            second_line = "AVS will provide Hennepin County with information on your accounts, such as checking, savings accounts, and money market accounts. If you are married or a non-citizen with a sponsor, then it will provide information on your spouse’s, sponsor(s)’, and sponsor(s)’ spouse(s) accounts."
 '            third_line = "You will receive this letter because we need your permission to access account information through the AVS for your Medical Assistance eligibility. We also may need permission to access account information for your spouse, sponsor(s), or sponsor(s)’ spouse(s). (If you are a US citizen, you do not have a sponsor)."
-'        elseif AVS_option = "Secondary Memo" then
+'        elseif AVS_option = "Secondary Memo" then 
 '            excel_col = two_memo_col
 '            first_line =  client_name & " received a letter from the Department of Human Services with a form called Authorization to Obtain Financial Information from the AVS (Asset Validation System) in the mail."
 '            second_line = "AVS will provide Hennepin County information on your account, such as checking, savings, and money market accounts."
 '            third_line = "You received this letter because we need your permission to access account information through the AVS for your Medical Assistance eligibility. We also may need permission to access account information for your spouse, sponsor(s), or sponsor(s)’ spouse(s). (If you are a US citizen, you do not have a sponsor)."
 '        End if
-'
+'        
 '        memo_date = objExcel.cells(excel_row, excel_col).Value
 '        memo_date = trim(memo_date)
-'
-'        If MAXIS_case_number = "" then exit do
-'        If form_date = "" then
-'            If memo_date = "" then
+'                
+'        If MAXIS_case_number = "" then exit do 
+'        If form_date = "" then 
+'            If memo_date = "" then     
 '                Call start_a_new_spec_memo_and_continue
-'                If success_var = False then
+'                If success_var = False then 
 '                    objExcel.cells(excel_row, excel_col).Value = "FALSE"
-'                Else
+'                Else 
 '                    '----------------------------------------------------------------------------------------------------THE SPEC/MEMO
-'                    Call start_a_new_spec_memo
+'                    Call start_a_new_spec_memo            
 '                    'Writes the MEMO.
 '                    call write_variable_in_SPEC_MEMO(first_line)
 '                    Call write_variable_in_SPEC_MEMO("")
@@ -692,7 +1029,7 @@ If instr(AVS_option, "Memo") then
 '                    Call write_variable_in_SPEC_MEMO(third_line)
 '                    Call write_variable_in_SPEC_MEMO("")
 '                    Call write_variable_in_SPEC_MEMO("You must return the signed form for us to determine your eligibility for certain health care programs. If you do not return the form by the due date on the letter from the Department of Human Services, your Medical Assistance and/or Medicare Savings Program may close.")
-'                    Call write_variable_in_SPEC_MEMO("")
+'                    Call write_variable_in_SPEC_MEMO("")	
 '                    Call write_variable_in_SPEC_MEMO("Who must sign the form?")
 '                    Call write_variable_in_SPEC_MEMO("-	" & first_name & " or Authorized Representative")
 '                    Call write_variable_in_SPEC_MEMO("-	If you are married, your spouse must also sign the form")
@@ -711,36 +1048,29 @@ If instr(AVS_option, "Memo") then
 '                    Call write_variable_in_SPEC_MEMO("- Northwest Suburban: 7051 Brooklyn Blvd Brooklyn Center 55429")
 '                    Call write_variable_in_SPEC_MEMO("- South Minneapolis: 2215 East Lake Street Minneapolis 55407")
 '                    Call write_variable_in_SPEC_MEMO("- South Suburban: 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30")
-'                    Call write_variable_in_SPEC_MEMO("- West Suburban: 1011 1st St S Hopkins 55343")
+'                    Call write_variable_in_SPEC_MEMO("- West Suburban: 1011 1st St S Hopkins 55343")   
 '                    PF4			'Exits the MEMO
 '                    EMReadScreen memo_sent, 8, 24, 2
-'                    If memo_sent <> "NEW MEMO" then
+'                    If memo_sent <> "NEW MEMO" then 
 '                        objExcel.cells(excel_row, excel_col).Value = "DID NOT CREATE MEMO"
-'                        created_memo = False
-'                    Else
-'                        objExcel.cells(excel_row, excel_col).Value = date
-'                        created_memo = true
+'                        created_memo = False 
+'                    Else 
+'                        objExcel.cells(excel_row, excel_col).Value = date 
+'                        created_memo = true 
 '                        back_to_self
 '                        ''----------------------------------------------------------------------------------------------------THE CASE NOTE
 '                        'start_a_blank_CASE_NOTE
 '                        'Call write_variable_in_CASE_NOTE("Sent SPEC/MEMO re: COLA income/deduction verifs needed")
-'                        'Call write_variable_in_CASE_NOTE("Set TIKL for " & tikl_date & " to review case.")
+'                        'Call write_variable_in_CASE_NOTE("Set TIKL for " & tikl_date & " to review case.") 
 '                        'Call write_variable_in_CASE_NOTE("If verifications have not been provided, a verification request in ECF will need to be sent.")
 '                        'call write_variable_in_case_note("---")
 '                        'call write_variable_in_case_note(worker_signature)
 '                        'PF3
-'                    End if
-'                End if
-'            End if
-'        End if
+'                    End if  
+'                End if 
+'            End if 
+'        End if 
 '        Excel_row = excel_row + 1
-'        stats_counter = stats_counter + 1
-'    Loop
-End if
-
-FOR i = 1 to 22		'formatting the cells
-	objExcel.Columns(i).AutoFit()				'sizing the columns'
-NEXT
-
-STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
-script_end_procedure("Success! Your list has been created. Please review for cases that need to be processed manually.")
+'        stats_counter = stats_counter + 1	
+'    Loop 
+'End if 
