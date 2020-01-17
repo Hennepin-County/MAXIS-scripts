@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/17/2020", "Updates to Child Support DAIL Scrubber:##~## ##~##- Script will not work on a case with more than one month of DAIL messages, these cases will need to be processed manually at this time. ##~##- Removed verbiage from the case note about the change to MFIP benefits.##~##- Removed verbiage from after the worker signature indicating the note was created using a script.##~##", "Casey Love, Hennepin County")
 call changelog_update("07/02/2018", "Instructions for DAIL Scrubber have been updated to explain why cases may need to be processed manually. Please review the instructions on SharePoint.", "BlueZone Script Team, Hennepin County")
 call changelog_update("01/19/2017", "Added ability to update cases without open MFIP or SNAP", "David Courtright, Saint Louis County")
 call changelog_update("01/10/2017", "Bug fix to make sure that the impact on the MFIP benefit is read from the corrct footer month. Handling for cases that are in pending status - these should be processed manually.", "Casey Love, Ramsey County")
@@ -163,13 +164,23 @@ Next
 excel_row = 3 		'What row should Excel be on? Let's start with this one.
 message_number = 1	'We want to count how many messages we process in here
 
-
-
+EMReadScreen message_month_to_revw, 2, 6, 11            'Reading the month and year from the first message.
+EMReadScreen message_year_to_revw, 2, 6, 14
 '===================================================================================================================================READS EACH MESSAGE!
 For MAXIS_row = 6 to 19			'<<<<<CHECK THIS AGAINST A FULL, ACTUAL FACTUAL DAIL
 	EMReadScreen message_type_check, 4, MAXIS_row, 6				'Makes sure it's the right type of message
+    EMReadScreen message_month_check, 2, MAXIS_row, 11
+    EMReadScreen message_year_check, 2, MAXIS_row, 14
 	If message_type_check <> message_type_code then exit for 		'This was determined above based on TIKL vs actual CSES messages. If we aren't on the right message, it will exit
-	EMWriteScreen "x", MAXIS_row, 3									'Puts an 'X' on the DAIL message
+    'If the message month and year do not match, ending the script
+    If message_month_check <> message_month_to_revw OR message_year_check <> message_year_to_revw Then
+        objExcel.DisplayAlerts = False          'Closing the Excel
+        objExcel.Workbooks.Close
+        objExcel.quit
+        objExcel.DisplayAlerts = True
+        script_end_procedure("This case has Child Support messages from two different months. At this time, these must be processed manually.")
+    End If
+    EMWriteScreen "x", MAXIS_row, 3									'Puts an 'X' on the DAIL message
 	transmit														'Transmits
 
 	'READS THE TYPE
@@ -1315,7 +1326,7 @@ If developer_mode <> TRUE Then
 	Call Write_Variable_in_CASE_NOTE ("* Income reported from PRISM Interface - details are listed in previous case notes.")
 	If MFIP_active = TRUE Then
 		Call Write_Variable_in_CASE_NOTE ("* Updated retro/prospective income amounts.")
-		Call Write_Bullet_and_Variable_in_Case_Note("Change to MFIP Benefit", impact_on_benefit)
+		' Call Write_Bullet_and_Variable_in_Case_Note("Change to MFIP Benefit", impact_on_benefit)
 	End If
 	If MFIP_active <> TRUE AND SNAP_active = TRUE Then
 		If Exceed_130 = TRUE Then Call Write_Variable_in_CASE_NOTE ("* With this CS Income, it appears case income may exceed 130% FPG.")
@@ -1355,7 +1366,7 @@ If developer_mode <> TRUE Then
 	Call Write_Bullet_and_Variable_in_Case_Note ("Notes", other_notes)
 
 	Call Write_Variable_in_CASE_NOTE("---")
-	Call Write_Variable_in_CASE_NOTE(worker_signature & ", using automated script")
+	Call Write_Variable_in_CASE_NOTE(worker_signature)
 Else
 'Developer mode shows a message box of the case note
 	Case_Note_Message = ""
@@ -1381,7 +1392,7 @@ Else
 	Case_Note_Message = Case_Note_Message & vbNewLine & "Notes:" & other_notes
 
 	Case_Note_Message = Case_Note_Message & vbNewLine & "---"
-	Case_Note_Message = Case_Note_Message & vbNewLine & worker_signature & ", using automated script"
+	Case_Note_Message = Case_Note_Message & vbNewLine & worker_signature
 
 	MsgBox Case_Note_Message
 End If
