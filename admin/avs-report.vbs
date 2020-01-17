@@ -692,7 +692,7 @@ If AVS_option = "Case & Person Noting" then
     back_to_self
     call MAXIS_footer_month_confirmation	'ensuring we are in the correct footer month/year
     
-    excel_row = 16805
+    excel_row = 2
     case_note_total = 0
     
     Do   
