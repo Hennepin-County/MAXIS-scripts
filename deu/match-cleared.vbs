@@ -68,13 +68,13 @@ EMConnect ""
 CALL MAXIS_case_number_finder (MAXIS_case_number)
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 131, 65, "Case Number to clear match"
-  EditBox 60, 5, 65, 15, MAXIS_case_number
-  EditBox 60, 25, 30, 15, MEMB_number
+BeginDialog Dialog1, 0, 0, 131, 65, "Case Number"
+  EditBox 65, 5, 60, 15, MAXIS_case_number
+  EditBox 65, 25, 20, 15, MEMB_number
   ButtonGroup ButtonPressed
-    OkButton 20, 45, 50, 15
-    CancelButton 75, 45, 50, 15
-  Text 5, 30, 55, 10, "MEMB Number:"
+    OkButton 30, 45, 45, 15
+    CancelButton 80, 45, 45, 15
+  Text 5, 30, 60, 10, "Member Number:"
   Text 5, 10, 50, 10, "Case Number:"
 EndDialog
 
@@ -370,10 +370,6 @@ IF send_notice_checkbox = CHECKED THEN
 		IF select_quarter = 3 THEN IEVS_quarter = "3RD"
 		IF select_quarter = 4 THEN IEVS_quarter = "4TH"
 	END IF
-	'------------------------------------------setting up case note header'
-	IF match_type = "BEER" THEN match_type_letter = "B"
-	IF match_type = "UBEN" THEN match_type_letter = "U"
-	IF match_type = "UNVI" THEN match_type_letter = "U"
 
 	IEVS_period = trim(IEVS_period)
 	IF match_type <> "UBEN" THEN IEVS_period = replace(IEVS_period, "/", " to ")
@@ -383,8 +379,9 @@ IF send_notice_checkbox = CHECKED THEN
 	'---------------------------------------------------------------------DIFF NOTC case note
   	start_a_blank_case_note
 	IF match_type = "WAGE" THEN CALL write_variable_in_case_note("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH (" & first_name & ") DIFF NOTICE SENT-----")
-	IF match_type = "BEER" or match_type = "UNVI" THEN CALL write_variable_in_case_note("-----20" & IEVS_year & " NON-WAGE MATCH (" & first_name & ") " & "(" & match_type_letter & ") DIFF NOTICE SENT-----")
-	IF match_type = "UBEN" THEN CALL write_variable_in_case_note("-----" & IEVS_period & " NON-WAGE MATCH (" & first_name & ") " & "(" & match_type_letter & ") DIFF NOTICE SENT-----")
+	IF match_type = "BEER" THEN CALL write_variable_in_case_note("-----20" & IEVS_year & " NON-WAGE MATCH (" & first_name & ") (B) DIFF NOTICE SENT-----")
+	IF match_type = "UNVI" THEN CALL write_variable_in_case_note("-----20" & IEVS_year & " NON-WAGE MATCH (" & first_name & ") (U) DIFF NOTICE SENT-----")
+	IF match_type = "UBEN" THEN CALL write_variable_in_case_note("-----" & IEVS_period & " NON-WAGE MATCH (" & first_name & ") (U) DIFF NOTICE SENT-----")
 	CALL write_bullet_and_variable_in_case_note("Client Name", client_name)
 	CALL write_bullet_and_variable_in_case_note("Period", IEVS_period)
   	CALL write_bullet_and_variable_in_case_note("Active Programs", programs)
@@ -419,7 +416,7 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	  CheckBox 195, 75, 80, 10, "Rental Income Form", rental_checkbox
 	  CheckBox 195, 85, 80, 10, "Other (please specify)", other_checkbox
 	  EditBox 270, 100, 40, 15, exp_grad_date
-	  CheckBox 5, 110, 115, 10, "Check here if 10 day cutoff has passed - TIKL will be set for following month", tenday_checkbox
+	  CheckBox 5, 110, 175, 10, "Check here if 10 day has passed - TIKL will be set ", TIKL_checkbox
 	  CheckBox 5, 120, 255, 10, "Check to update claim referral tracking(SNAP and MF) Overpayment Exists", overpayment_exists_checkbox
 	  CheckBox 5, 130, 265, 10, "Check to update claim referral tracking(SNAP and MF) No Overpayment Exists", no_overpayment_checkbox
 	  EditBox 50, 145, 265, 15, other_notes
@@ -438,7 +435,6 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	  Text 110, 10, 55, 10, "MEMB Number:"
 	  Text 195, 105, 65, 10, "Expected grad date:"
 	EndDialog
-
 
 	DO
 		err_msg = ""
@@ -570,19 +566,21 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	ELSE
 	  match_cleared = TRUE
 	END IF
-	'Updated IEVS_period to write into case note
-  	IF match_type = "WAGE" THEN
-  		IF select_quarter = 1 THEN IEVS_quarter = "1ST"
-  		IF select_quarter = 2 THEN IEVS_quarter = "2ND"
-  		IF select_quarter = 3 THEN IEVS_quarter = "3RD"
-  		IF select_quarter = 4 THEN IEVS_quarter = "4TH"
-  	END IF
+	pending_verifs = trim(pending_verifs) 	'takes the last comma off of pending_verifs when autofilled into dialog if more more than one app date is found and additional app is selected
+	IF right(pending_verifs, 1) = "," THEN pending_verifs = left(pending_verifs, len(pending_verifs) - 1)
+	IF match_type = "WAGE" THEN
+		IF select_quarter = 1 THEN IEVS_quarter = "1ST"
+		IF select_quarter = 2 THEN IEVS_quarter = "2ND"
+		IF select_quarter = 3 THEN IEVS_quarter = "3RD"
+		IF select_quarter = 4 THEN IEVS_quarter = "4TH"
+	END IF
+	'------------------------------------------setting up case note header'
 
 	IEVS_period = trim(IEVS_period)
 	IF match_type <> "UBEN" THEN IEVS_period = replace(IEVS_period, "/", " to ")
 	IF match_type = "UBEN" THEN IEVS_period = replace(IEVS_period, "-", "/")
-	Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days requested for HEADER of casenote'
-	PF3 'back to the DAIL'
+	Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days
+
 '------------------------------------------------------------------STAT/MISC for claim referral tracking
 	IF no_overpayment_checkbox = CHECKED or overpayment_exists_checkbox = CHECKED THEN
 	    'Going to the MISC panel to add claim referral tracking information
@@ -645,8 +643,9 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	start_a_blank_case_note
 	IF resolution_status <> "NC-Non Cooperation" THEN
 		IF match_type = "WAGE" THEN CALL write_variable_in_case_note("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH (" & first_name & ") CLEARED " & IULA_res_status & "-----")
-		IF match_type = "BEER" or match_type = "UNVI" THEN CALL write_variable_in_case_note("-----20" & IEVS_year & " NON-WAGE MATCH (" & first_name & ") " & "(" & match_type_letter & ") CLEARED " & IULA_res_status & "-----")
-		IF match_type = "UBEN" THEN CALL write_variable_in_case_note("-----" & IEVS_period & " NON-WAGE MATCH (" & first_name & ") " & "(" & match_type_letter & ") CLEARED " & IULA_res_status & "-----")
+		IF match_type = "BEER" THEN CALL write_variable_in_case_note("-----20" & IEVS_year & " NON-WAGE MATCH (" & first_name & ") (B) CLEARED " & IULA_res_status & "-----")
+		IF match_type = "UNVI" THEN CALL write_variable_in_case_note("-----20" & IEVS_year & " NON-WAGE MATCH (" & first_name & ") (U) CLEARED " & IULA_res_status & "-----")
+		IF match_type = "UBEN" THEN CALL write_variable_in_case_note("-----" & IEVS_period & " NON-WAGE MATCH (" & first_name & ") (U) CLEARED " & IULA_res_status & "-----")
 		CALL write_bullet_and_variable_in_case_note("Period", IEVS_period)
 		CALL write_bullet_and_variable_in_case_note("Active Programs", programs)
 		CALL write_bullet_and_variable_in_case_note("Source of income", income_source)
@@ -678,8 +677,9 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 		PF3
 	ELSEIF resolution_status = "NC-Non Cooperation" THEN   'Navigates to TIKL
 		IF match_type = "WAGE" THEN CALL write_variable_in_case_note("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH (" & first_name & ") NON-COOPERATION-----")
-		IF match_type = "BEER" or match_type = "UNVI" THEN CALL write_variable_in_case_note("-----20" & IEVS_year & " NON-WAGE MATCH (" & first_name & ") " & "(" & match_type_letter & ") NON-COOPERATION-----")
-		IF match_type = "UBEN" THEN CALL write_variable_in_case_note("-----" & IEVS_period & " NON-WAGE MATCH (" & first_name & ") " & "(" & match_type_letter & ") NON-COOPERATION-----")
+		IF match_type = "BEER" THEN CALL write_variable_in_case_note("-----20" & IEVS_year & " NON-WAGE MATCH (" & first_name & ") (B) NON-COOPERATION-----")
+		IF match_type = "UNVI" THEN CALL write_variable_in_case_note("-----20" & IEVS_year & " NON-WAGE MATCH (" & first_name & ") (U) NON-COOPERATION-----")
+		IF match_type = "UBEN" THEN CALL write_variable_in_case_note("-----" & IEVS_period & " NON-WAGE MATCH (" & first_name & ") (U) NON-COOPERATION-----")
 		CALL write_bullet_and_variable_in_case_note("Period", IEVS_period)
 		CALL write_bullet_and_variable_in_case_note("Active Programs", programs)
 		CALL write_bullet_and_variable_in_case_note("Source of income", income_source)
