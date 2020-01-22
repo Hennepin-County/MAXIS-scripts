@@ -52,6 +52,12 @@ class script_bowie
     public testing_category         'idetify what we are using to determine WHO is testing - use ONLY ALL, GROUP, REGION, POPULATION, or SCRIPT
     public testing_criteria         'ARRAY list which of the category is being used
 
+    ' public stats_denomination_type 
+    ' public stats_manual_time_listed
+    ' public stats_increments
+    ' public region_available
+    ' public last_update_date
+
     'Details the menus will figure out (does not need to be explicitly declared)
     public button_plus_increment	'Workflow scripts use a special increment for buttons (adding or subtracting from total times to run). This is the add button.
 	public button_minus_increment	'Workflow scripts use a special increment for buttons (adding or subtracting from total times to run). This is the minus button.
