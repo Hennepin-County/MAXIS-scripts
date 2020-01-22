@@ -1332,7 +1332,7 @@ Do
 
     Dialog1 = ""
     BeginDialog Dialog1, 0, 0, dlg_width, dlg_len, "Detailed Script Information"
-      Text 10, 15, 170, 10, "Select what information you want to reviw/gather."
+      Text 10, 15, 170, 10, "Select what information you want to review/gather."
       Text 190, 15, 55, 10, "Script Selection:"
       DropListBox 260, 10, 130, 45, "Select One..."+chr(9)+"All"+chr(9)+"All in Testing"+chr(9)+"Tags"+chr(9)+"Key Codes"+chr(9)+"Category"+chr(9)+"Subcategory"+chr(9)+"Release Before"+chr(9)+"Release After", script_selection
       Text 400, 15, 30, 10, "which is:"

@@ -128,7 +128,7 @@ Do
 
     Dialog1 = ""
     BeginDialog Dialog1, 0, 0, 776, dlg_len, "Detailed Tester Information"
-      Text 10, 15, 170, 10, "Select what information you want to reviw/gather."
+      Text 10, 15, 170, 10, "Select what information you want to review/gather."
       Text 190, 15, 55, 10, "Testers options:"
       DropListBox 260, 10, 130, 45, "Select One... "+chr(9)+"All"+chr(9)+"By Group"+chr(9)+"By Population"+chr(9)+"By Region"+chr(9)+"Confirmed Only"+chr(9)+"By Supervisor"+chr(9)+"By Script", testers_options
       Text 400, 15, 30, 10, "which is:"

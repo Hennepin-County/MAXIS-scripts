@@ -44,10 +44,13 @@ class script_bowie
     public dlg_keys                 'codes'
     public subcategory				'An array of all subcategories a script might exist in, such as "LTC" or "A-F"
 	public release_date				'This allows the user to indicate when the script goes live (controls NEW!!! messaging)
-    public show_script
-    public keywords
-    public hot_topic_date
-    public retirement_date
+    public show_script              'This property is defined during the script run - it determines if the script meets the criteria for the selected tab
+    public keywords                 'Future enhancemnt that will allow us to search for scripts by keyword
+    public hot_topic_date           'If a script is in HOT TOPICS, adding a date here will be used to feature in favorites and resources
+    public retirement_date          'Adding a date here indicates the script should not be shown because it has been retired. We must leave it in the list for favorites
+    public in_testing               'This can be set to TRUE if we have a new script that is in testing
+    public testing_category         'idetify what we are using to determine WHO is testing - use ONLY ALL, GROUP, REGION, POPULATION, or SCRIPT
+    public testing_criteria         'ARRAY list which of the category is being used
 
     'Details the menus will figure out (does not need to be explicitly declared)
     public button_plus_increment	'Workflow scripts use a special increment for buttons (adding or subtracting from total times to run). This is the add button.
@@ -89,6 +92,49 @@ class script_bowie
             If script_in_favorites = "" Then script_in_favorites = FALSE
         end if
     end Property
+
+    public sub show_button(see_the_button)
+        see_the_button = FALSE
+        If in_testing = TRUE Then
+            For each tester in tester_array
+                If user_ID_for_validation = tester.tester_id_number Then
+                    Select Case testing_category
+                        Case "ALL"
+                            see_the_button = TRUE
+                        Case "GROUP" ' ADD OPTION FOR the_selection to be an array'
+                            For each group in tester.tester_groups
+                                For each selection in testing_criteria
+                                    selection = trim(selection)
+                                    If UCase(selection) = UCase(group) Then see_the_button = TRUE
+                                    ' MsgBox "Group - " & group & vbNewLine & "Selection - " & selection & vbNewLine & "see the button - " & see_the_button
+                                    selected_group = group
+                                Next
+                            Next
+                            selected_group = selection
+                        Case "REGION"
+                            For each selection in testing_criteria
+                                selection = trim(selection)
+                                If UCase(selection) = UCase(tester.tester_region) Then see_the_button = TRUE
+                            Next
+                        Case "POPULATION"
+                            For each selection in testing_criteria
+                                selection = trim(selection)
+                                If UCase(selection) = UCase(tester.tester_population) Then see_the_button = TRUE
+                            Next
+                        Case "SCRIPT"
+                            For each each_script in tester.tester_scripts
+                                script_file_name = script_name & ".vbs"
+                                If script_file_name = each_script Then see_the_button = TRUE
+                            Next
+                    End Select
+                    If tester.tester_population = "BZ" Then see_the_button = TRUE
+                End If
+            Next
+        Else
+            see_the_button = TRUE
+        End If
+
+    end sub
 end class
 
 favorites_text_file_location = user_myDocs_folder & "\scripts-favorites.txt"
@@ -126,6 +172,7 @@ script_array(script_num).workflows              = ""
 script_array(script_num).tags                   = array("")
 script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
+script_array(script_num).keywords               = array("")
 script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
@@ -283,6 +330,23 @@ script_array(script_num).tags                   = array("Communication", "MFIP",
 script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #11/03/2016#
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name			= "Interview"
+script_array(script_num).description			= "Workflow for Interview process."
+script_array(script_num).category               = "ACTIONS"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("Communication", "Application", "Reviews")
+script_array(script_num).dlg_keys               = array("U", "N")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #11/20/2019#
+script_array(script_num).hot_topic_date         = ""
+script_array(script_num).retirement_date        = ""
+script_array(script_num).in_testing             = TRUE
+script_array(script_num).testing_category       = "ALL"
+script_array(script_num).testing_criteria       = array("")
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
