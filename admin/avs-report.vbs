@@ -142,7 +142,7 @@ Function AVS_sync()
     LOOP
     'msgbox master_record
     
-    ''----------------------------------------------------------------------------------------------------Gathering monthly information & exporting ALL AVS FORMS information
+    '----------------------------------------------------------------------------------------------------Gathering monthly information & exporting ALL AVS FORMS information
     For Each objWorkSheet In objWorkbook.Worksheets
         If instr(objWorkSheet.Name, "Sheet") = 0 and objWorkSheet.Name <> "All AVS Forms" then months_list = months_list & objWorkSheet.Name & ","
     Next
@@ -176,15 +176,17 @@ Function AVS_sync()
                     'master_array(scan_date_AAF_const, item) = objExcel.Cells(excel_row, forms_col).Value    'outputting form date 
                     'master_array(case_note_const,     item) = objExcel.Cells(excel_row, note_col).Value    'outputting case note date
                     
+                    'scan date or form date 
                     If master_array(scan_date_AAF_const, item) = "" then 
                         master_array(scan_date_AAF_const, item) = trim(month_scan_date)'revaluing case note  
                     Elseif trim(month_scan_date) = "" then 
                         ObjExcel.Cells(excel_row, forms_col).Value = master_array(scan_date_AAF_const, item)
                     End if 
                     
+                    'case note dates: Some statuses will be text vs date for tracking. This replaces them once they are case noted. 
                     If master_array(case_note_const, item) = "" then 
-                        master_array(case_note_const, item) =  trim(month_case_note) 'revaluing case note  
-                    Elseif trim(month_case_note) = "" then 
+                        master_array(case_note_const, item) = trim(month_case_note) 'revaluing case note  
+                    Elseif trim(month_case_note) = "" or isdate(month_case_note) = False then 
                         ObjExcel.Cells(excel_row, note_col).Value = master_array(case_note_const, item)
                     End if 
                     
@@ -792,7 +794,7 @@ If AVS_option = "Case & Person Noting" then
        objExcel.Columns(i).AutoFit()				'sizing the columns'
    NEXT
    'Syncing the resident lists with the All AVS forms list
-   'Call AVS_sync 
+   Call AVS_sync 
 End if 
 
 IF AVS_option = "New Person Information" then 
@@ -811,35 +813,50 @@ IF AVS_option = "New Person Information" then
         MAXIS_case_number = objExcel.cells(excel_row, 3).Value   'reading the case number from Excel   
         MAXIS_case_number = Trim(MAXIS_case_number)
         
-        If MAXIS_case_number = "" then     
+        If MAXIS_case_number = "" then   
+            back_to_self
             Call navigate_to_MAXIS_screen("PERS", "    ")
             Call write_value_and_transmit(master_SMI_number, 17, 36)
-            EmReadscreen match_screen, 4, 2, 51
-            If match_screen = "MTCH" then 
-                EmReadscreen dupe_matches, 11, 9, 7
-                If trim(dupe_matches) <> "" then 
-                    objExcel.cells(excel_row, 6).Value = "Duplicate exists. Add manually."
-                Else 
-                    'if only one match exists then 
-                    Call write_value_and_transmit("X", 8, 5)
-                    'read client name
-                    EmReadscreen client_name, 39, 4, 8
-                    client_name = trim(client_name)
-                    objExcel.cells(excel_row, 5).Value = UCASE(client_name)
-                    'read PMI
-                    EmReadscreen DSPL_PMI, 8, 5, 44
-                    objExcel.cells(excel_row, 4).Value = DSPL_PMI
-                    'Read case number after finding HC case 
-                    Call write_value_and_transmit("MA", 7, 22)
-                    EmReadscreen DSPL_case_number, 8, 10, 6
-                    If trim(DSPL_case_number) = "" then 
-                        Call write_value_and_transmit("AP", 7, 22)
-                        EmReadscreen DSPL_case_number, 8, 10, 6
+            EmReadscreen PERS_screen_check, 4, 2, 47
+            If PERS_screen_check = "PERS" then 
+                EmReadscreen PERS_err, 75, 24, 2
+                objExcel.cells(excel_row, 6).Value = trim(PERS_err)
+            Elseif PERS_screen_check <> "PERS" then
+                EmReadscreen match_screen, 4, 2, 51
+                If match_screen = "MTCH" then 
+                    EmReadscreen dupe_matches, 11, 9, 7
+                    If trim(dupe_matches) <> "" then 
+                        objExcel.cells(excel_row, 6).Value = "Duplicate exists. Add manually."
+                    Else 
+                        'if only one match exists then 
+                        Call write_value_and_transmit("X", 8, 5)
+                        EmReadscreen no_case_error, 75, 24, 2
+                        If trim(no_case_error) = "PMI NBR ASSIGNED THRU SMI OR PMIN - NO MAXIS CASE EXISTS" then
+                            'EmReadscreen mtch_PMI, 8, 8, 71
+                            'objExcel.cells(excel_row, 4).Value = trim(mtch_PMI)
+                            objExcel.cells(excel_row, 6).Value = "NO MAXIS CASE EXISTS"
+                        Else     
+                            'read client name
+                            EmReadscreen client_name, 39, 4, 8
+                            client_name = trim(client_name)
+                            objExcel.cells(excel_row, 5).Value = UCASE(client_name)
+                            'read PMI
+                            EmReadscreen DSPL_PMI, 8, 5, 44
+                            objExcel.cells(excel_row, 4).Value = DSPL_PMI
+                            'Read case number after finding HC case 
+                            Call write_value_and_transmit("MA", 7, 22)
+                            EmReadscreen DSPL_case_number, 8, 10, 6
+                            If trim(DSPL_case_number) = "" then 
+                                Call write_value_and_transmit("AP", 7, 22)
+                                EmReadscreen DSPL_case_number, 8, 10, 6
+                            End if 
+                            objExcel.cells(excel_row, 3).Value = trim(DSPL_case_number)
+                            objExcel.cells(excel_row, 6).Value = ""
+                        End if 
                     End if 
-                    objExcel.cells(excel_row, 3).Value = trim(DSPL_case_number)
                 End if
             Else 
-                objExcel.cells(excel_row, 6).Value = "Match error. Add manually." 
+                objExcel.cells(excel_row, 6).Value = "Z - Match Error" 
             End if  
         End if 
         excel_row = excel_row + 1
