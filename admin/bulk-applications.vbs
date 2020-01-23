@@ -1675,6 +1675,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                         Row = 1
                         Col = 1
                         EMSearch MAXIS_case_number, row, col
+                        'TODO add handling to read for an additional app line so that we are sure we are reading the correct line for days pending and cash program
 
                         If row <> 24 Then
                             EMReadScreen nbr_days_pending, 3, row, 50
