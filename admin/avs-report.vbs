@@ -100,7 +100,7 @@ end function
 
 ''----------------------------------------------------------------------------------------------------Gathering ALL AVS FORMS information
 Function AVS_sync()
-    msgbox "Starting AVS Sync"    
+    'msgbox "Starting AVS Sync"    
     objExcel.worksheets("All AVS Forms").Activate 'Activates worksheet based on user selection
     
     DIM master_array()
@@ -788,7 +788,7 @@ If AVS_option = "Case & Person Noting" then
         form_date = ""
         note_date = ""
     Loop 
-    msgbox "Case note total: " & case_note_total
+    'msgbox "Case note total: " & case_note_total
     
    FOR i = 1 to 6		'formatting the cells
        objExcel.Columns(i).AutoFit()				'sizing the columns'
