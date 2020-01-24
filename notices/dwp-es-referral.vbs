@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/24/2019", "Updated HIRED in Brooklyn Park phone number per their request.", "MiKayla Handley, Hennepin County")
 call changelog_update("03/25/2019", "Updated EMERGE South MPLS orientation dates/times per their request.", "MiKayla Handley, Hennepin County")
 call changelog_update("02/06/2019", "Updated EMERGE North MPLS orientation dates/times per their request.", "Ilse Ferris, Hennepin County")
 call changelog_update("02/06/2019", "Added HIRED and EMERGE ES providers. Also updated the ES provider droplist to follow the order of orientation locations on the DWP ES CHOICE SHEET.", "Ilse Ferris, Hennepin County")
@@ -290,7 +291,7 @@ ElseIf interview_location = "Hired: Brooklyn Park (Mon 1PM)" THEN
    provider_city = "Brooklyn Park"
    provider_ST = "MN"
    provider_zip = "55428"
-   provider_phone = "763-210-6210"
+   provider_phone = "763-210-6215"
    'Date and time
    appointment_time = "1:00 PM"
    appointment_date = Date + 8 - Weekday(Date, vbMonday)
@@ -303,7 +304,7 @@ ElseIf interview_location = "Hired: Brooklyn Park (Wed 9AM)" THEN
    provider_city = "Brooklyn Park"
    provider_ST = "MN"
    provider_zip = "55428"
-   provider_phone = "763-210-6210"
+   provider_phone = "763-210-6215"
    'Date and time
    appointment_time = "9:00 AM"
    appointment_date = Date + 8 - Weekday(Date, vbWednesday)
