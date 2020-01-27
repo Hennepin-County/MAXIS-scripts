@@ -339,7 +339,7 @@ running_stopwatch = timer               'setting the running timer so we log in 
 make_changes = FALSE                    'setting this at the start
 If change_checkbox = checked Then make_changes = TRUE   'if the dialog has indicated that changes should be changed reset this to true
 If after_capitation_checkbox = checked Then mmis_last_day_date = mmis_last_day_after_cap
-MsgBox "MMIS last day to update to - " & mmis_last_day_date
+' MsgBox "MMIS last day to update to - " & mmis_last_day_date
 
 list_of_workers = trim(list_of_workers)
 If list_of_workers = "" Then            'if this is blank then we are going to search the entire county
