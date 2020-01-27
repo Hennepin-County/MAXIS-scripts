@@ -16,10 +16,18 @@ start_time = timer
 'Hannah	    WFQ898
 'Jacob      JAAR001
 'Jessica	WFK093
+'Keith      KESE001
+'Kerry      WFC041
 'Louise	    WF1875
+'Laurie     Possibly Laurie.Hennen
 'Mandora	WFM207
 'Melissa F.	WFG492
 'Molly  	WFX490
+'Tanya      TAPA002
+
+'List of staff in a string - making it easier to add 
+BZST_staff = "WFX901,WFU851,ILFE001,WFS395,CALO001"
+QI_staff = "WFI021,WFU161,WFP106,WFQ898,JAAR001,WFK093,KESE001,WFC041,WF1875,WFM207,WFG492,WFX490,TAPA002"
 
 'The following code looks to find the user name of the user running the script---------------------------------------------------------------------------------------------
 'This is used in arrays that specify functionality to specific workers
@@ -65,6 +73,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/27/2020", "Added new HSR's to the QI script access menu. Welcome Keith, Kerry & Tanya!", "Ilse Ferris, Hennepin County")
 call changelog_update("12/09/2019", "Added Jacob to the QI script access menu. Welcome Jacob!", "Ilse Ferris, Hennepin County")
 call changelog_update("10/05/2019", "Remove CA Application Received.", "MiKayla Handley, Hennepin County")
 call changelog_update("08/06/2019", "Added a new script to create an Excel List of MAXIS User detail.", "Casey Love, Hennepin County")
@@ -482,15 +491,15 @@ show_tasks_button = False
 'Displays the dialog
 Do
     'BZST scripts menu authorization
-    If user_ID_for_validation = "ILFE001" OR user_ID_for_validation = "WFS395" OR user_ID_for_validation = "CALO001" OR user_ID_for_validation = "WFX901" OR user_ID_for_validation = "WFU851" then
+    If instr(BZST_staff, user_ID_for_validation) then 
         show_BZ_button = True
         show_QI_button = True
         show_tasks_button = True
     End if
+    
     'QI scripts menu authorization
-    If user_ID_for_validation = "WFI021" OR user_ID_for_validation = "WFU161" OR user_ID_for_validation = "WFP106" OR user_ID_for_validation = "WFQ898" OR user_ID_for_validation = "WFK093" OR _
-    user_ID_for_validation = "WF1875" OR user_ID_for_validation = "WFM207" OR user_ID_for_validation = "WFG492" OR user_ID_for_validation = "WFX490" OR user_ID_for_validation = "JAAR001" then show_QI_button = TRUE
-
+    If instr(QI_staff, user_ID_for_validation) then show_QI_button = TRUE
+    
 	If ButtonPressed = "" or ButtonPressed = admin_main_button then
         declare_admin_menu_dialog(script_array_admin_main)
 	elseif ButtonPressed = QI_button then
