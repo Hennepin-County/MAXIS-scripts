@@ -47,6 +47,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("01/27/2020", "Updated the handling for CCL.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("05/07/2018", "Updated the characters to pull for the client's name.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("01/12/2018", "Entering a supervisor X-Number in the Workers to Check will pull all X-Numbers listed under that supervisor in MAXIS. Addiional bug fix where script was missing cases.", "Casey Love, Hennepin County")
 Call changelog_update("12/10/2016", "Added IV-E, Child Care and FIATed case statuses to script. Also added closing message informing user that script has ended sucessfully.", "Ilse Ferris, Hennepin County")
@@ -94,36 +95,41 @@ END FUNCTION
 
 'THE SCRIPT-------------------------------------------------------------------------
 'Determining specific county for multicounty agencies...
-get_county_code
-
+'get_county_code
 'Connects to BlueZone
 EMConnect ""
-
-Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 286, 150, "Pull REPT data into Excel dialog"
-  EditBox 135, 25, 145, 15, worker_number
-  CheckBox 70, 70, 150, 10, "Check here to run this query county-wide.", all_workers_check
-  CheckBox 70, 85, 150, 10, "Identity FIATed cases on the spreadsheet", FIAT_check
-  CheckBox 10, 25, 40, 10, "SNAP?", SNAP_check
-  CheckBox 10, 40, 40, 10, "Cash?", cash_check
-  CheckBox 10, 55, 40, 10, "HC?", HC_check
-  CheckBox 10, 70, 40, 10, "EA?", EA_check
-  CheckBox 10, 85, 40, 10, "GRH?", GRH_check
-  CheckBox 10, 100, 40, 10, "IV-E?", IVE_check
-  CheckBox 10, 115, 50, 10, "Child Care?", CC_check
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 286, 130, "Pull REPT data into Excel dialog"
+  EditBox 135, 20, 145, 15, worker_number
+  CheckBox 70, 60, 150, 10, "Check here to run this query county-wide.", all_workers_check
+  CheckBox 70, 70, 150, 10, "Identity FIATed cases on the spreadsheet", FIAT_check
+  CheckBox 10, 15, 40, 10, "All Active", all_programs
+  CheckBox 10, 30, 40, 10, "SNAP", SNAP_check
+  CheckBox 10, 40, 40, 10, "CASH", cash_check
+  CheckBox 10, 50, 40, 10, "HC", HC_check
+  CheckBox 10, 60, 40, 10, "EA", EA_check
+  CheckBox 10, 70, 40, 10, "GRH", GRH_check
+  CheckBox 10, 80, 40, 10, "IV-E", IVE_check
+  CheckBox 10, 90, 50, 10, "CCA", CCA_check
   ButtonGroup ButtonPressed
-    OkButton 175, 125, 50, 15
-    CancelButton 230, 125, 50, 15
-  Text 95, 5, 125, 10, "***PULL REPT DATA INTO EXCEL***"
-  Text 70, 45, 210, 20, "Enter 7 digits of your workers' x1 numbers (ex: x######), separated by a comma."
-  GroupBox 5, 10, 60, 120, "Progs to scan"
-  Text 70, 30, 65, 10, "Worker(s) to check:"
-  Text 70, 100, 210, 20, "NOTE: running queries county-wide can take a significant amount of time and resources. This should be done after hours."
+    OkButton 185, 110, 45, 15
+    CancelButton 235, 110, 45, 15
+  Text 70, 40, 210, 20, "Enter 7 digits of your workers' x1 numbers (ex: x######), separated by a comma."
+  Text 70, 85, 210, 20, "NOTE: running queries county-wide can take a significant amount of time and resources. This should be done after hours."
+  Text 110, 5, 125, 10, "***PULL REPT DATA INTO EXCEL***"
+  GroupBox 5, 5, 55, 100, "Progs to scan"
+  Text 70, 25, 65, 10, "Worker(s) to check:"
 EndDialog
 
-'Shows dialog
-Dialog Dialog1
-cancel_without_confirmation
+Do
+	Do
+		Dialog dialog1
+		cancel_without_confirmation
+		If (all_workers_check = 0 AND worker_number = "") then MsgBox "Please enter at least one worker number." 'allows user to select the all workers check, and not have worker number be ""
+	LOOP until all_workers_check = 1 or worker_number <> ""
+	Call check_for_password(are_we_passworded_out)
+Loop until check_for_password(are_we_passworded_out) = False		'loops until user is password-ed out
 
 'Asks to grab COLA related stats (will occur below main info collection)
 COLA_stats = MsgBox("Seek COLA income-related info from ACTV cases?", vbYesNo)
@@ -144,69 +150,76 @@ objExcel.DisplayAlerts = True
 
 'Setting the first 4 col as worker, case number, name, and APPL date
 ObjExcel.Cells(1, 1).Value = "WORKER"
-objExcel.Cells(1, 1).Font.Bold = TRUE
 ObjExcel.Cells(1, 2).Value = "CASE NUMBER"
-objExcel.Cells(1, 2).Font.Bold = TRUE
 ObjExcel.Cells(1, 3).Value = "NAME"
-objExcel.Cells(1, 3).Font.Bold = TRUE
 ObjExcel.Cells(1, 4).Value = "NEXT REVW DATE"
-objExcel.Cells(1, 4).Font.Bold = TRUE
+FOR i = 1 to 4		'formatting the cells'
+	objExcel.Cells(1, i).Font.Bold = True		'bold font'
+NEXT
 
 'Figuring out what to put in each Excel col. To add future variables to this, add the checkbox variables below and copy/paste the same code!
-'	Below, use the "[blank]_col" variable to recall which col you set for which option.
+'Below, use the "[blank]_col" variable to recall which col you set for which option.
 col_to_use = 5 'Starting with 5 because cols 1-4 are already used
-
+If all_programs = checked then
+	SNAP_check = checked
+	cash_check = checked
+	HC_check = checked
+	EA_check = checked
+	GRH_check = checked
+	IVE_check = checked
+	CCA_check = checked
+END IF
 If SNAP_check = checked then
-	ObjExcel.Cells(1, col_to_use).Value = "SNAP?"
+	ObjExcel.Cells(1, col_to_use).Value = "SNAP"
 	objExcel.Cells(1, col_to_use).Font.Bold = TRUE
 	snap_actv_col = col_to_use
 	col_to_use = col_to_use + 1
 	SNAP_letter_col = convert_digit_to_excel_column(snap_actv_col)
 End if
 If cash_check = checked then
-	ObjExcel.Cells(1, col_to_use).Value = "CASH?"
+	ObjExcel.Cells(1, col_to_use).Value = "CASH"
 	objExcel.Cells(1, col_to_use).Font.Bold = TRUE
 	cash_actv_col = col_to_use
 	col_to_use = col_to_use + 1
 	cash_letter_col = convert_digit_to_excel_column(cash_actv_col)
 End if
 If HC_check = checked then
-	ObjExcel.Cells(1, col_to_use).Value = "HC?"
+	ObjExcel.Cells(1, col_to_use).Value = "HC"
 	objExcel.Cells(1, col_to_use).Font.Bold = TRUE
 	HC_actv_col = col_to_use
 	col_to_use = col_to_use + 1
 	HC_letter_col = convert_digit_to_excel_column(HC_actv_col)
 End if
 If EA_check = checked then
-	ObjExcel.Cells(1, col_to_use).Value = "EA?"
+	ObjExcel.Cells(1, col_to_use).Value = "EA"
 	objExcel.Cells(1, col_to_use).Font.Bold = TRUE
 	EA_actv_col = col_to_use
 	col_to_use = col_to_use + 1
 	EA_letter_col = convert_digit_to_excel_column(EA_actv_col)
 End if
 If GRH_check = checked then
-	ObjExcel.Cells(1, col_to_use).Value = "GRH?"
+	ObjExcel.Cells(1, col_to_use).Value = "GRH"
 	objExcel.Cells(1, col_to_use).Font.Bold = TRUE
 	GRH_actv_col = col_to_use
 	col_to_use = col_to_use + 1
 	GRH_letter_col = convert_digit_to_excel_column(GRH_actv_col)
 End if
 If IVE_check = checked then
-	ObjExcel.Cells(1, col_to_use).Value = "IV-E?"
+	ObjExcel.Cells(1, col_to_use).Value = "IV-E"
 	objExcel.Cells(1, col_to_use).Font.Bold = TRUE
 	IVE_actv_col = col_to_use
 	col_to_use = col_to_use + 1
 	IVE_letter_col = convert_digit_to_excel_column(IVE_actv_col)
 End if
-If CC_check = checked then
-	ObjExcel.Cells(1, col_to_use).Value = "CC?"
+If CCA_check = checked then
+	ObjExcel.Cells(1, col_to_use).Value = "CC"
 	objExcel.Cells(1, col_to_use).Font.Bold = TRUE
 	CC_actv_col = col_to_use
 	col_to_use = col_to_use + 1
 	CC_letter_col = convert_digit_to_excel_column(CC_actv_col)
 End if
 If FIAT_check = checked then
-	ObjExcel.Cells(1, col_to_use).Value = "FIAT?"
+	ObjExcel.Cells(1, col_to_use).Value = "FIAT"
 	objExcel.Cells(1, col_to_use).Font.Bold = TRUE
 	FIAT_actv_col = col_to_use
 	col_to_use = col_to_use + 1
@@ -265,25 +278,36 @@ excel_row = 2
 all_case_numbers_array = "*"
 
 For each worker in worker_array
+	worker = trim(ucase(worker))					'Formatting the worker so there are no errors
 	back_to_self	'Does this to prevent "ghosting" where the old info shows up on the new screen for some reason
 	Call navigate_to_MAXIS_screen("rept", "actv")
 	EMWriteScreen worker, 21, 13
-	transmit
+	TRANSMIT
 	EMReadScreen user_worker, 7, 21, 71		'
 	EMReadScreen p_worker, 7, 21, 13
 	IF user_worker = p_worker THEN PF7		'If the user is checking their own REPT/ACTV, the script will back up to page 1 of the REPT/ACTV
 
+	'msgbox "worker " & worker
+
+	IF worker_number = "X127CCL" or worker = "127CCL" THEN
+		DO
+			EmReadScreen worker_confirmation, 20, 3, 11 'looking for CENTURY PLAZA CLOSED
+			EMWaitReady 0, 0
+			'MsgBox "Are we waiting?"
+		LOOP UNTIL worker_confirmation = "CENTURY PLAZA CLOSED"
+	END IF
+
 	'Skips workers with no info
 	EMReadScreen has_content_check, 1, 7, 8
 	If has_content_check <> " " then
-
 		'Grabbing each case number on screen
 		Do
-			'Set variable for next do...loop
+		    'Set variable for next do...loop
 			MAXIS_row = 7
-
 			'Checking for the last page of cases.
 			EMReadScreen last_page_check, 21, 24, 2	'because on REPT/ACTV it displays right away, instead of when the second F8 is sent
+			EMReadscreen number_of_pages, 4, 3, 76 'getting page number because to ensure it doesnt fail'
+			number_of_pages = trim(number_of_pages)
 			Do
 				EMReadScreen MAXIS_case_number, 8, MAXIS_row, 12	'Reading case number
 				EMReadScreen client_name, 21, MAXIS_row, 21			'Reading client name
@@ -310,7 +334,7 @@ For each worker in worker_array
 				If EA_status <> " " and EA_status <> "I" and EA_check = checked then add_case_info_to_Excel = True
 				If GRH_status <> " " and GRH_status <> "I" and GRH_check = checked then add_case_info_to_Excel = True
 				If IVE_status <> " " and IVE_status <> "I" and IVE_check = checked then add_case_info_to_Excel = True
-				If CC_status <> " " and CC_status <> "I" and CC_check = checked then add_case_info_to_Excel = True
+				If CC_status <> " " and CC_status <> "I" and CCA_check = checked then add_case_info_to_Excel = True
 				If FIAT_status <> " " and FIAT_status <> "I" and FIAT_check = checked then add_case_info_to_Excel = True
 
 				'Cash requires different handling due to containing multiple program types in one column
@@ -320,7 +344,7 @@ For each worker in worker_array
 					ObjExcel.Cells(excel_row, 1).Value = worker
 					ObjExcel.Cells(excel_row, 2).Value = MAXIS_case_number
 					ObjExcel.Cells(excel_row, 3).Value = client_name
-					ObjExcel.Cells(excel_row, 4).Value = replace(next_revw_date, " ", "/")
+					IF next_revw_date <> "        " THEN ObjExcel.Cells(excel_row, 4).Value = replace(next_revw_date, " ", "/")
 					ObjExcel.Cells(excel_row, 5).Value = abs(days_pending)
 					If SNAP_check = checked then ObjExcel.Cells(excel_row, snap_actv_col).Value = SNAP_status
 					If cash_check = checked then ObjExcel.Cells(excel_row, cash_actv_col).Value = cash_status
@@ -328,7 +352,7 @@ For each worker in worker_array
 					If EA_check = checked then ObjExcel.Cells(excel_row, EA_actv_col).Value = EA_status
 					If GRH_check = checked then ObjExcel.Cells(excel_row, GRH_actv_col).Value = GRH_status
 					If IVE_check = checked then ObjExcel.Cells(excel_row, IVE_actv_col).Value = IVE_status
-					If CC_check = checked then ObjExcel.Cells(excel_row, CC_actv_col).Value = CC_status
+					If CCA_check = checked then ObjExcel.Cells(excel_row, CC_actv_col).Value = CC_status
 					If FIAT_check = checked then ObjExcel.Cells(excel_row, FIAT_actv_col).Value = FIAT_status
 					excel_row = excel_row + 1
 				End if
@@ -338,9 +362,10 @@ For each worker in worker_array
 				STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 			Loop until MAXIS_row = 19
 			PF8
-
 		Loop until last_page_check = "THIS IS THE LAST PAGE"
-	End if
+	ELSE
+		script_end_procedure("Your REPT/ACTV list has been created, no active cases are listed. ")
+	END IF
 next
 
 If collect_COLA_stats = True then
@@ -351,13 +376,10 @@ If collect_COLA_stats = True then
 	Do
 		'Assign case number from Excel
 		MAXIS_case_number = ObjExcel.Cells(excel_row, 2)
-
 		'Exiting if the case number is blank
 		If MAXIS_case_number = "" then exit do
-
 		'Navigate to STAT/UNEA for said case number
 		call navigate_to_MAXIS_screen("STAT", "UNEA")
-
 		'Reading list of household members, dumping into array
 		MAXIS_row = 6		'Second row with a HH member number, first row is always "01"
 		HH_member_array = "01"	'Setting this now as the loop won't check the first row
@@ -411,7 +433,8 @@ ObjExcel.Cells(1, col_to_use - 1).Value = "Query date and time:"	'Goes back one,
 ObjExcel.Cells(1, col_to_use).Value = now
 ObjExcel.Cells(2, col_to_use - 1).Value = "Query runtime (in seconds):"	'Goes back one, as this is on the next row
 ObjExcel.Cells(2, col_to_use).Value = timer - query_start_time
-
+ObjExcel.Cells(3, col_to_use - 1).Value = "Number of pages found"	'Goes back one, as this is on the next row
+ObjExcel.Cells(3, col_to_use).Value = number_of_pages
 'Autofitting columns
 For col_to_autofit = 1 to col_to_use
 	ObjExcel.columns(col_to_autofit).AutoFit()
@@ -419,4 +442,5 @@ Next
 
 'Logging usage stats
 STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
+
 script_end_procedure("Success! Your REPT/ACTV list has been created.")

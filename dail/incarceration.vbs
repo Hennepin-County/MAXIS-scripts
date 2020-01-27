@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/27/2020", "Removed handling for the DAIL deletion.", "MiKayla Handley, Hennepin County")
 call changelog_update("04/24/2019", "Update to run on DAIL.", "MiKayla Handley, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -100,7 +101,6 @@ IF dail_check = "DAIL" THEN
 		    EMReadScreen fifth_line, 61, row + 7, col - 40'new hire name'
 		    	fifth_line = trim(fifth_line)
 			EmReadScreen client_name, 15, 9, 46
-
 			client_name = trim(client_name)
 			EmReadScreen SSN_number, 11, 9, 34
 			EmReadScreen confinement_start_date, 10, 10, 22
@@ -112,8 +112,6 @@ IF dail_check = "DAIL" THEN
 			TRANSMIT 'exits the additonal information'
 		END IF
 
-		
-        
         'THE MAIN DIALOG--------------------------------------------------------------------------------------------------
         Dialog1 = ""
 		BeginDialog Dialog1, 0, 0, 371, 185, "Incarceration"
@@ -143,7 +141,7 @@ IF dail_check = "DAIL" THEN
 		  Text 5, 130, 75, 10, "Verification(s) Needed:"
 		  Text 5, 150, 45, 10, "Other Notes:"
 		EndDialog
-        
+
         when_contact_was_made = date & ", " & time
 
 		Do
@@ -160,7 +158,6 @@ IF dail_check = "DAIL" THEN
 			LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 			CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 		Loop until are_we_passworded_out = false					'loops until user passwords back in
-
     	Call check_for_MAXIS(False)
     END IF
 
@@ -195,41 +192,6 @@ IF dail_check = "DAIL" THEN
     	CALL create_MAXIS_friendly_date(date, 10, 5, 18)
     	EMSetCursor 9, 3
     	EMSendKey "Check status of HH member " & hh_member & "'s incarceration at " & facility_contact & ". Incarceration Start Date was " & confinement_start_date & "."
-    END IF
-    
-    DIALOG1 = ""
-    BeginDialog Dialog1, 0, 0, 126, 45, "Double-Check the Computer's Work..."
-      ButtonGroup ButtonPressed
-        PushButton 10, 25, 50, 15, "YES", delete_button
-        PushButton 60, 25, 50, 15, "NO", do_not_delete
-      Text 30, 10, 65, 10, "Delete the DAIL??"
-    EndDialog
-    
-    DIALOG Dialog1
-    IF ButtonPressed = delete_button THEN
-    	PF3 ' only need one for TIKL'
-    	IF tikl_checkbox = UNCHECKED THEN PF3
-    	DO
-    		dail_read_row = 6
-    		DO
-    			EMReadScreen double_check, 59, dail_read_row, 20
-				double_check = trim(double_check)
-    			IF double_check = full_message THEN
-                    EMWriteScreen "T", dail_read_row, 3
-					TRANSMIT
-                    EMReadScreen dail_case_number, 8, 5, 73
-                    dail_case_number = trim(dail_case_number)
-                    If dail_case_number = MAXIS_case_number Then EMWriteScreen "D", 6, 3
-    				TRANSMIT
-    				EXIT DO
-    			ELSE
-    				dail_read_row = dail_read_row + 1
-    			END IF
-    			IF dail_read_row = 19 THEN PF8
-    		LOOP UNTIL dail_read_row = 19
-    		EMReadScreen others_dail, 13, 24, 2
-    		If others_dail = "** WARNING **" Then transmit
-    	LOOP UNTIL double_check = full_message
     END IF
 END IF
 
