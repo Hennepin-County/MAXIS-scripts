@@ -399,7 +399,7 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             PushButton 70, dlg_vert, 10, 10, "7", page_seven_btn
             PushButton 80, dlg_vert, 10, 10, "8", page_eight_btn
             PushButton 90, dlg_vert, 10, 10, "9", page_nine_btn
-            PushButton 100, dlg_vert, 10, 10, "10", page_ten_btn
+            PushButton 100, dlg_vert, 12, 10, "10", page_ten_btn
         ElseIf page = 2 Then
             PushButton 10, dlg_vert, 10, 10, "1", page_one_btn
             Text 22, dlg_vert + 2, 10, 10, "2"
@@ -410,7 +410,7 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             PushButton 70, dlg_vert, 10, 10, "7", page_seven_btn
             PushButton 80, dlg_vert, 10, 10, "8", page_eight_btn
             PushButton 90, dlg_vert, 10, 10, "9", page_nine_btn
-            PushButton 100, dlg_vert, 10, 10, "10", page_ten_btn
+            PushButton 100, dlg_vert, 12, 10, "10", page_ten_btn
         ElseIf page = 3 Then
             PushButton 10, dlg_vert, 10, 10, "1", page_one_btn
             PushButton 20, dlg_vert, 10, 10, "2", page_two_btn
@@ -421,7 +421,7 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             PushButton 70, dlg_vert, 10, 10, "7", page_seven_btn
             PushButton 80, dlg_vert, 10, 10, "8", page_eight_btn
             PushButton 90, dlg_vert, 10, 10, "9", page_nine_btn
-            PushButton 100, dlg_vert, 10, 10, "10", page_ten_btn
+            PushButton 100, dlg_vert, 12, 10, "10", page_ten_btn
         ElseIf page = 4 Then
             PushButton 10, dlg_vert, 10, 10, "1", page_one_btn
             PushButton 20, dlg_vert, 10, 10, "2", page_two_btn
@@ -432,7 +432,7 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             PushButton 70, dlg_vert, 10, 10, "7", page_seven_btn
             PushButton 80, dlg_vert, 10, 10, "8", page_eight_btn
             PushButton 90, dlg_vert, 10, 10, "9", page_nine_btn
-            PushButton 100, dlg_vert, 10, 10, "10", page_ten_btn
+            PushButton 100, dlg_vert, 12, 10, "10", page_ten_btn
         ElseIf page = 5 Then
             PushButton 10, dlg_vert, 10, 10, "1", page_one_btn
             PushButton 20, dlg_vert, 10, 10, "2", page_two_btn
@@ -443,7 +443,7 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             PushButton 70, dlg_vert, 10, 10, "7", page_seven_btn
             PushButton 80, dlg_vert, 10, 10, "8", page_eight_btn
             PushButton 90, dlg_vert, 10, 10, "9", page_nine_btn
-            PushButton 100, dlg_vert, 10, 10, "10", page_ten_btn
+            PushButton 100, dlg_vert, 12, 10, "10", page_ten_btn
         ElseIf page = 6 Then
             PushButton 10, dlg_vert, 10, 10, "1", page_one_btn
             PushButton 20, dlg_vert, 10, 10, "2", page_two_btn
@@ -454,7 +454,7 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             PushButton 70, dlg_vert, 10, 10, "7", page_seven_btn
             PushButton 80, dlg_vert, 10, 10, "8", page_eight_btn
             PushButton 90, dlg_vert, 10, 10, "9", page_nine_btn
-            PushButton 100, dlg_vert, 10, 10, "10", page_ten_btn
+            PushButton 100, dlg_vert, 12, 10, "10", page_ten_btn
         ElseIf page = 7 Then
             PushButton 10, dlg_vert, 10, 10, "1", page_one_btn
             PushButton 20, dlg_vert, 10, 10, "2", page_two_btn
@@ -465,7 +465,7 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             Text 72, dlg_vert + 2, 10, 10, "7"
             PushButton 80, dlg_vert, 10, 10, "8", page_eight_btn
             PushButton 90, dlg_vert, 10, 10, "9", page_nine_btn
-            PushButton 100, dlg_vert, 10, 10, "10", page_ten_btn
+            PushButton 100, dlg_vert, 12, 10, "10", page_ten_btn
         ElseIf page = 8 Then
             PushButton 10, dlg_vert, 10, 10, "1", page_one_btn
             PushButton 20, dlg_vert, 10, 10, "2", page_two_btn
@@ -476,7 +476,7 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             PushButton 70, dlg_vert, 10, 10, "7", page_seven_btn
             Text 82, dlg_vert + 2, 10, 10, "8"
             PushButton 90, dlg_vert, 10, 10, "9", page_nine_btn
-            PushButton 100, dlg_vert, 10, 10, "10", page_ten_btn
+            PushButton 100, dlg_vert, 12, 10, "10", page_ten_btn
         ElseIf page = 9 Then
             PushButton 10, dlg_vert, 10, 10, "1", page_one_btn
             PushButton 20, dlg_vert, 10, 10, "2", page_two_btn
@@ -487,7 +487,7 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             PushButton 70, dlg_vert, 10, 10, "7", page_seven_btn
             PushButton 80, dlg_vert, 10, 10, "8", page_eight_btn
             Text 92, dlg_vert + 2, 10, 10, "9"
-            PushButton 100, dlg_vert, 10, 10, "10", page_ten_btn
+            PushButton 100, dlg_vert, 12, 10, "10", page_ten_btn
         ElseIf page = 10 Then
             PushButton 10, dlg_vert, 10, 10, "1", page_one_btn
             PushButton 20, dlg_vert, 10, 10, "2", page_two_btn
@@ -511,8 +511,8 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             PushButton 70, dlg_vert, 10, 10, "7", page_seven_btn
             PushButton 80, dlg_vert, 10, 10, "8", page_eight_btn
             PushButton 90, dlg_vert, 10, 10, "9", page_nine_btn
-            PushButton 100, dlg_vert, 10, 10, "10", page_ten_btn
-            PushButton 110, dlg_vert, 10, 10, "11", page_eleven_btn
+            PushButton 100, dlg_vert, 12, 10, "10", page_ten_btn
+            PushButton 112, dlg_vert, 12, 10, "11", page_eleven_btn
         ElseIf page = 2 Then
             PushButton 10, dlg_vert, 10, 10, "1", page_one_btn
             Text 22, dlg_vert + 2, 10, 10, "2"
@@ -523,8 +523,8 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             PushButton 70, dlg_vert, 10, 10, "7", page_seven_btn
             PushButton 80, dlg_vert, 10, 10, "8", page_eight_btn
             PushButton 90, dlg_vert, 10, 10, "9", page_nine_btn
-            PushButton 100, dlg_vert, 10, 10, "10", page_ten_btn
-            PushButton 110, dlg_vert, 10, 10, "11", page_eleven_btn
+            PushButton 100, dlg_vert, 12, 10, "10", page_ten_btn
+            PushButton 112, dlg_vert, 12, 10, "11", page_eleven_btn
         ElseIf page = 3 Then
             PushButton 10, dlg_vert, 10, 10, "1", page_one_btn
             PushButton 20, dlg_vert, 10, 10, "2", page_two_btn
@@ -535,8 +535,8 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             PushButton 70, dlg_vert, 10, 10, "7", page_seven_btn
             PushButton 80, dlg_vert, 10, 10, "8", page_eight_btn
             PushButton 90, dlg_vert, 10, 10, "9", page_nine_btn
-            PushButton 100, dlg_vert, 10, 10, "10", page_ten_btn
-            PushButton 110, dlg_vert, 10, 10, "11", page_eleven_btn
+            PushButton 100, dlg_vert, 12, 10, "10", page_ten_btn
+            PushButton 112, dlg_vert, 12, 10, "11", page_eleven_btn
         ElseIf page = 4 Then
             PushButton 10, dlg_vert, 10, 10, "1", page_one_btn
             PushButton 20, dlg_vert, 10, 10, "2", page_two_btn
@@ -547,8 +547,8 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             PushButton 70, dlg_vert, 10, 10, "7", page_seven_btn
             PushButton 80, dlg_vert, 10, 10, "8", page_eight_btn
             PushButton 90, dlg_vert, 10, 10, "9", page_nine_btn
-            PushButton 100, dlg_vert, 10, 10, "10", page_ten_btn
-            PushButton 110, dlg_vert, 10, 10, "11", page_eleven_btn
+            PushButton 100, dlg_vert, 12, 10, "10", page_ten_btn
+            PushButton 112, dlg_vert, 12, 10, "11", page_eleven_btn
         ElseIf page = 5 Then
             PushButton 10, dlg_vert, 10, 10, "1", page_one_btn
             PushButton 20, dlg_vert, 10, 10, "2", page_two_btn
@@ -559,8 +559,8 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             PushButton 70, dlg_vert, 10, 10, "7", page_seven_btn
             PushButton 80, dlg_vert, 10, 10, "8", page_eight_btn
             PushButton 90, dlg_vert, 10, 10, "9", page_nine_btn
-            PushButton 100, dlg_vert, 10, 10, "10", page_ten_btn
-            PushButton 110, dlg_vert, 10, 10, "11", page_eleven_btn
+            PushButton 100, dlg_vert, 12, 10, "10", page_ten_btn
+            PushButton 112, dlg_vert, 12, 10, "11", page_eleven_btn
         ElseIf page = 6 Then
             PushButton 10, dlg_vert, 10, 10, "1", page_one_btn
             PushButton 20, dlg_vert, 10, 10, "2", page_two_btn
@@ -571,8 +571,8 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             PushButton 70, dlg_vert, 10, 10, "7", page_seven_btn
             PushButton 80, dlg_vert, 10, 10, "8", page_eight_btn
             PushButton 90, dlg_vert, 10, 10, "9", page_nine_btn
-            PushButton 100, dlg_vert, 10, 10, "10", page_ten_btn
-            PushButton 110, dlg_vert, 10, 10, "11", page_eleven_btn
+            PushButton 100, dlg_vert, 12, 10, "10", page_ten_btn
+            PushButton 112, dlg_vert, 12, 10, "11", page_eleven_btn
         ElseIf page = 7 Then
             PushButton 10, dlg_vert, 10, 10, "1", page_one_btn
             PushButton 20, dlg_vert, 10, 10, "2", page_two_btn
@@ -583,8 +583,8 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             Text 72, dlg_vert + 2, 10, 10, "7"
             PushButton 80, dlg_vert, 10, 10, "8", page_eight_btn
             PushButton 90, dlg_vert, 10, 10, "9", page_nine_btn
-            PushButton 100, dlg_vert, 10, 10, "10", page_ten_btn
-            PushButton 110, dlg_vert, 10, 10, "11", page_eleven_btn
+            PushButton 100, dlg_vert, 12, 10, "10", page_ten_btn
+            PushButton 112, dlg_vert, 12, 10, "11", page_eleven_btn
         ElseIf page = 8 Then
             PushButton 10, dlg_vert, 10, 10, "1", page_one_btn
             PushButton 20, dlg_vert, 10, 10, "2", page_two_btn
@@ -595,8 +595,8 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             PushButton 70, dlg_vert, 10, 10, "7", page_seven_btn
             Text 82, dlg_vert + 2, 10, 10, "8"
             PushButton 90, dlg_vert, 10, 10, "9", page_nine_btn
-            PushButton 100, dlg_vert, 10, 10, "10", page_ten_btn
-            PushButton 110, dlg_vert, 10, 10, "11", page_eleven_btn
+            PushButton 100, dlg_vert, 12, 10, "10", page_ten_btn
+            PushButton 112, dlg_vert, 12, 10, "11", page_eleven_btn
         ElseIf page = 9 Then
             PushButton 10, dlg_vert, 10, 10, "1", page_one_btn
             PushButton 20, dlg_vert, 10, 10, "2", page_two_btn
@@ -607,8 +607,8 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             PushButton 70, dlg_vert, 10, 10, "7", page_seven_btn
             PushButton 80, dlg_vert, 10, 10, "8", page_eight_btn
             Text 92, dlg_vert + 2, 10, 10, "9"
-            PushButton 100, dlg_vert, 10, 10, "10", page_ten_btn
-            PushButton 110, dlg_vert, 10, 10, "11", page_eleven_btn
+            PushButton 100, dlg_vert, 12, 10, "10", page_ten_btn
+            PushButton 112, dlg_vert, 12, 10, "11", page_eleven_btn
         ElseIf page = 10 Then
             PushButton 10, dlg_vert, 10, 10, "1", page_one_btn
             PushButton 20, dlg_vert, 10, 10, "2", page_two_btn
@@ -620,7 +620,7 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             PushButton 80, dlg_vert, 10, 10, "8", page_eight_btn
             PushButton 90, dlg_vert, 10, 10, "9", page_nine_btn
             Text 102, dlg_vert + 2, 10, 10, "10"
-            PushButton 110, dlg_vert, 10, 10, "11", page_eleven_btn
+            PushButton 112, dlg_vert, 12, 10, "11", page_eleven_btn
         ElseIf page = 11 Then
             PushButton 10, dlg_vert, 10, 10, "1", page_one_btn
             PushButton 20, dlg_vert, 10, 10, "2", page_two_btn
@@ -631,8 +631,8 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             PushButton 70, dlg_vert, 10, 10, "7", page_seven_btn
             PushButton 80, dlg_vert, 10, 10, "8", page_eight_btn
             PushButton 90, dlg_vert, 10, 10, "9", page_nine_btn
-            PushButton 100, dlg_vert, 10, 10, "10", page_ten_btn
-            Text 112, dlg_vert + 2, 10, 10, "11"
+            PushButton 100, dlg_vert, 12, 10, "10", page_ten_btn
+            Text 114, dlg_vert + 2, 10, 10, "11"
         End If
     ElseIf total_items > items_per_page*11 AND total_items < items_per_page*12+1 Then      'TWELVE Buttons
         If page = 1 Then
@@ -645,9 +645,9 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             PushButton 70, dlg_vert, 10, 10, "7", page_seven_btn
             PushButton 80, dlg_vert, 10, 10, "8", page_eight_btn
             PushButton 90, dlg_vert, 10, 10, "9", page_nine_btn
-            PushButton 100, dlg_vert, 10, 10, "10", page_ten_btn
-            PushButton 110, dlg_vert, 10, 10, "11", page_eleven_btn
-            PushButton 120, dlg_vert, 10, 10, "12", page_twelve_btn
+            PushButton 100, dlg_vert, 12, 10, "10", page_ten_btn
+            PushButton 112, dlg_vert, 12, 10, "11", page_eleven_btn
+            PushButton 124, dlg_vert, 12, 10, "12", page_twelve_btn
         ElseIf page = 2 Then
             PushButton 10, dlg_vert, 10, 10, "1", page_one_btn
             Text 22, dlg_vert + 2, 10, 10, "2"
@@ -658,9 +658,9 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             PushButton 70, dlg_vert, 10, 10, "7", page_seven_btn
             PushButton 80, dlg_vert, 10, 10, "8", page_eight_btn
             PushButton 90, dlg_vert, 10, 10, "9", page_nine_btn
-            PushButton 100, dlg_vert, 10, 10, "10", page_ten_btn
-            PushButton 110, dlg_vert, 10, 10, "11", page_eleven_btn
-            PushButton 120, dlg_vert, 10, 10, "12", page_twelve_btn
+            PushButton 100, dlg_vert, 12, 10, "10", page_ten_btn
+            PushButton 112, dlg_vert, 12, 10, "11", page_eleven_btn
+            PushButton 124, dlg_vert, 12, 10, "12", page_twelve_btn
         ElseIf page = 3 Then
             PushButton 10, dlg_vert, 10, 10, "1", page_one_btn
             PushButton 20, dlg_vert, 10, 10, "2", page_two_btn
@@ -671,9 +671,9 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             PushButton 70, dlg_vert, 10, 10, "7", page_seven_btn
             PushButton 80, dlg_vert, 10, 10, "8", page_eight_btn
             PushButton 90, dlg_vert, 10, 10, "9", page_nine_btn
-            PushButton 100, dlg_vert, 10, 10, "10", page_ten_btn
-            PushButton 110, dlg_vert, 10, 10, "11", page_eleven_btn
-            PushButton 120, dlg_vert, 10, 10, "12", page_twelve_btn
+            PushButton 100, dlg_vert, 12, 10, "10", page_ten_btn
+            PushButton 112, dlg_vert, 12, 10, "11", page_eleven_btn
+            PushButton 124, dlg_vert, 12, 10, "12", page_twelve_btn
         ElseIf page = 4 Then
             PushButton 10, dlg_vert, 10, 10, "1", page_one_btn
             PushButton 20, dlg_vert, 10, 10, "2", page_two_btn
@@ -684,9 +684,9 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             PushButton 70, dlg_vert, 10, 10, "7", page_seven_btn
             PushButton 80, dlg_vert, 10, 10, "8", page_eight_btn
             PushButton 90, dlg_vert, 10, 10, "9", page_nine_btn
-            PushButton 100, dlg_vert, 10, 10, "10", page_ten_btn
-            PushButton 110, dlg_vert, 10, 10, "11", page_eleven_btn
-            PushButton 120, dlg_vert, 10, 10, "12", page_twelve_btn
+            PushButton 100, dlg_vert, 12, 10, "10", page_ten_btn
+            PushButton 112, dlg_vert, 12, 10, "11", page_eleven_btn
+            PushButton 124, dlg_vert, 12, 10, "12", page_twelve_btn
         ElseIf page = 5 Then
             PushButton 10, dlg_vert, 10, 10, "1", page_one_btn
             PushButton 20, dlg_vert, 10, 10, "2", page_two_btn
@@ -697,9 +697,9 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             PushButton 70, dlg_vert, 10, 10, "7", page_seven_btn
             PushButton 80, dlg_vert, 10, 10, "8", page_eight_btn
             PushButton 90, dlg_vert, 10, 10, "9", page_nine_btn
-            PushButton 100, dlg_vert, 10, 10, "10", page_ten_btn
-            PushButton 110, dlg_vert, 10, 10, "11", page_eleven_btn
-            PushButton 120, dlg_vert, 10, 10, "12", page_twelve_btn
+            PushButton 100, dlg_vert, 12, 10, "10", page_ten_btn
+            PushButton 112, dlg_vert, 12, 10, "11", page_eleven_btn
+            PushButton 124, dlg_vert, 12, 10, "12", page_twelve_btn
         ElseIf page = 6 Then
             PushButton 10, dlg_vert, 10, 10, "1", page_one_btn
             PushButton 20, dlg_vert, 10, 10, "2", page_two_btn
@@ -710,9 +710,9 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             PushButton 70, dlg_vert, 10, 10, "7", page_seven_btn
             PushButton 80, dlg_vert, 10, 10, "8", page_eight_btn
             PushButton 90, dlg_vert, 10, 10, "9", page_nine_btn
-            PushButton 100, dlg_vert, 10, 10, "10", page_ten_btn
-            PushButton 110, dlg_vert, 10, 10, "11", page_eleven_btn
-            PushButton 120, dlg_vert, 10, 10, "12", page_twelve_btn
+            PushButton 100, dlg_vert, 12, 10, "10", page_ten_btn
+            PushButton 112, dlg_vert, 12, 10, "11", page_eleven_btn
+            PushButton 124, dlg_vert, 12, 10, "12", page_twelve_btn
         ElseIf page = 7 Then
             PushButton 10, dlg_vert, 10, 10, "1", page_one_btn
             PushButton 20, dlg_vert, 10, 10, "2", page_two_btn
@@ -723,9 +723,9 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             Text 72, dlg_vert + 2, 10, 10, "7"
             PushButton 80, dlg_vert, 10, 10, "8", page_eight_btn
             PushButton 90, dlg_vert, 10, 10, "9", page_nine_btn
-            PushButton 100, dlg_vert, 10, 10, "10", page_ten_btn
-            PushButton 110, dlg_vert, 10, 10, "11", page_eleven_btn
-            PushButton 120, dlg_vert, 10, 10, "12", page_twelve_btn
+            PushButton 100, dlg_vert, 12, 10, "10", page_ten_btn
+            PushButton 112, dlg_vert, 12, 10, "11", page_eleven_btn
+            PushButton 124, dlg_vert, 12, 10, "12", page_twelve_btn
         ElseIf page = 8 Then
             PushButton 10, dlg_vert, 10, 10, "1", page_one_btn
             PushButton 20, dlg_vert, 10, 10, "2", page_two_btn
@@ -736,9 +736,9 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             PushButton 70, dlg_vert, 10, 10, "7", page_seven_btn
             Text 82, dlg_vert + 2, 10, 10, "8"
             PushButton 90, dlg_vert, 10, 10, "9", page_nine_btn
-            PushButton 100, dlg_vert, 10, 10, "10", page_ten_btn
-            PushButton 110, dlg_vert, 10, 10, "11", page_eleven_btn
-            PushButton 120, dlg_vert, 10, 10, "12", page_twelve_btn
+            PushButton 100, dlg_vert, 12, 10, "10", page_ten_btn
+            PushButton 112, dlg_vert, 12, 10, "11", page_eleven_btn
+            PushButton 124, dlg_vert, 12, 10, "12", page_twelve_btn
         ElseIf page = 9 Then
             PushButton 10, dlg_vert, 10, 10, "1", page_one_btn
             PushButton 20, dlg_vert, 10, 10, "2", page_two_btn
@@ -749,9 +749,9 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             PushButton 70, dlg_vert, 10, 10, "7", page_seven_btn
             PushButton 80, dlg_vert, 10, 10, "8", page_eight_btn
             Text 92, dlg_vert + 2, 10, 10, "9"
-            PushButton 100, dlg_vert, 10, 10, "10", page_ten_btn
-            PushButton 110, dlg_vert, 10, 10, "11", page_eleven_btn
-            PushButton 120, dlg_vert, 10, 10, "12", page_twelve_btn
+            PushButton 100, dlg_vert, 12, 10, "10", page_ten_btn
+            PushButton 112, dlg_vert, 12, 10, "11", page_eleven_btn
+            PushButton 124, dlg_vert, 12, 10, "12", page_twelve_btn
         ElseIf page = 10 Then
             PushButton 10, dlg_vert, 10, 10, "1", page_one_btn
             PushButton 20, dlg_vert, 10, 10, "2", page_two_btn
@@ -763,8 +763,8 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             PushButton 80, dlg_vert, 10, 10, "8", page_eight_btn
             PushButton 90, dlg_vert, 10, 10, "9", page_nine_btn
             Text 102, dlg_vert + 2, 10, 10, "10"
-            PushButton 110, dlg_vert, 10, 10, "11", page_eleven_btn
-            PushButton 120, dlg_vert, 10, 10, "12", page_twelve_btn
+            PushButton 112, dlg_vert, 12, 10, "11", page_eleven_btn
+            PushButton 124, dlg_vert, 12, 10, "12", page_twelve_btn
         ElseIf page = 11 Then
             PushButton 10, dlg_vert, 10, 10, "1", page_one_btn
             PushButton 20, dlg_vert, 10, 10, "2", page_two_btn
@@ -775,9 +775,9 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             PushButton 70, dlg_vert, 10, 10, "7", page_seven_btn
             PushButton 80, dlg_vert, 10, 10, "8", page_eight_btn
             PushButton 90, dlg_vert, 10, 10, "9", page_nine_btn
-            PushButton 100, dlg_vert, 10, 10, "10", page_ten_btn
-            Text 112, dlg_vert + 2, 10, 10, "11"
-            PushButton 120, dlg_vert, 10, 10, "12", page_twelve_btn
+            PushButton 100, dlg_vert, 12, 10, "10", page_ten_btn
+            Text 114, dlg_vert + 2, 10, 10, "11"
+            PushButton 124, dlg_vert, 12, 10, "12", page_twelve_btn
         ElseIf page = 12 Then
             PushButton 10, dlg_vert, 10, 10, "1", page_one_btn
             PushButton 20, dlg_vert, 10, 10, "2", page_two_btn
@@ -788,9 +788,9 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             PushButton 70, dlg_vert, 10, 10, "7", page_seven_btn
             PushButton 80, dlg_vert, 10, 10, "8", page_eight_btn
             PushButton 90, dlg_vert, 10, 10, "9", page_nine_btn
-            PushButton 100, dlg_vert, 10, 10, "10", page_ten_btn
-            PushButton 110, dlg_vert, 10, 10, "11", page_eleven_btn
-            Text 122, dlg_vert + 2, 10, 10, "12"
+            PushButton 100, dlg_vert, 12, 10, "10", page_ten_btn
+            PushButton 112, dlg_vert, 12, 10, "11", page_eleven_btn
+            Text 126, dlg_vert + 2, 10, 10, "12"
         End If
     ElseIf total_items > items_per_page*12 AND total_items < items_per_page*13+1 Then      'THIRTEEN Buttons
         If page = 1 Then
@@ -803,10 +803,10 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             PushButton 70, dlg_vert, 10, 10, "7", page_seven_btn
             PushButton 80, dlg_vert, 10, 10, "8", page_eight_btn
             PushButton 90, dlg_vert, 10, 10, "9", page_nine_btn
-            PushButton 100, dlg_vert, 10, 10, "10", page_ten_btn
-            PushButton 110, dlg_vert, 10, 10, "11", page_eleven_btn
-            PushButton 120, dlg_vert, 10, 10, "12", page_twelve_btn
-            PushButton 130, dlg_vert, 10, 10, "13", page_thirteen_btn
+            PushButton 100, dlg_vert, 12, 10, "10", page_ten_btn
+            PushButton 112, dlg_vert, 12, 10, "11", page_eleven_btn
+            PushButton 124, dlg_vert, 12, 10, "12", page_twelve_btn
+            PushButton 136, dlg_vert, 12, 10, "13", page_thirteen_btn
         ElseIf page = 2 Then
             PushButton 10, dlg_vert, 10, 10, "1", page_one_btn
             Text 22, dlg_vert + 2, 10, 10, "2"
@@ -817,10 +817,10 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             PushButton 70, dlg_vert, 10, 10, "7", page_seven_btn
             PushButton 80, dlg_vert, 10, 10, "8", page_eight_btn
             PushButton 90, dlg_vert, 10, 10, "9", page_nine_btn
-            PushButton 100, dlg_vert, 10, 10, "10", page_ten_btn
-            PushButton 110, dlg_vert, 10, 10, "11", page_eleven_btn
-            PushButton 120, dlg_vert, 10, 10, "12", page_twelve_btn
-            PushButton 130, dlg_vert, 10, 10, "13", page_thirteen_btn
+            PushButton 100, dlg_vert, 12, 10, "10", page_ten_btn
+            PushButton 112, dlg_vert, 12, 10, "11", page_eleven_btn
+            PushButton 124, dlg_vert, 12, 10, "12", page_twelve_btn
+            PushButton 136, dlg_vert, 12, 10, "13", page_thirteen_btn
         ElseIf page = 3 Then
             PushButton 10, dlg_vert, 10, 10, "1", page_one_btn
             PushButton 20, dlg_vert, 10, 10, "2", page_two_btn
@@ -831,10 +831,10 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             PushButton 70, dlg_vert, 10, 10, "7", page_seven_btn
             PushButton 80, dlg_vert, 10, 10, "8", page_eight_btn
             PushButton 90, dlg_vert, 10, 10, "9", page_nine_btn
-            PushButton 100, dlg_vert, 10, 10, "10", page_ten_btn
-            PushButton 110, dlg_vert, 10, 10, "11", page_eleven_btn
-            PushButton 120, dlg_vert, 10, 10, "12", page_twelve_btn
-            PushButton 130, dlg_vert, 10, 10, "13", page_thirteen_btn
+            PushButton 100, dlg_vert, 12, 10, "10", page_ten_btn
+            PushButton 112, dlg_vert, 12, 10, "11", page_eleven_btn
+            PushButton 124, dlg_vert, 12, 10, "12", page_twelve_btn
+            PushButton 136, dlg_vert, 12, 10, "13", page_thirteen_btn
         ElseIf page = 4 Then
             PushButton 10, dlg_vert, 10, 10, "1", page_one_btn
             PushButton 20, dlg_vert, 10, 10, "2", page_two_btn
@@ -845,10 +845,10 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             PushButton 70, dlg_vert, 10, 10, "7", page_seven_btn
             PushButton 80, dlg_vert, 10, 10, "8", page_eight_btn
             PushButton 90, dlg_vert, 10, 10, "9", page_nine_btn
-            PushButton 100, dlg_vert, 10, 10, "10", page_ten_btn
-            PushButton 110, dlg_vert, 10, 10, "11", page_eleven_btn
-            PushButton 120, dlg_vert, 10, 10, "12", page_twelve_btn
-            PushButton 130, dlg_vert, 10, 10, "13", page_thirteen_btn
+            PushButton 100, dlg_vert, 12, 10, "10", page_ten_btn
+            PushButton 112, dlg_vert, 12, 10, "11", page_eleven_btn
+            PushButton 124, dlg_vert, 12, 10, "12", page_twelve_btn
+            PushButton 136, dlg_vert, 12, 10, "13", page_thirteen_btn
         ElseIf page = 5 Then
             PushButton 10, dlg_vert, 10, 10, "1", page_one_btn
             PushButton 20, dlg_vert, 10, 10, "2", page_two_btn
@@ -859,10 +859,10 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             PushButton 70, dlg_vert, 10, 10, "7", page_seven_btn
             PushButton 80, dlg_vert, 10, 10, "8", page_eight_btn
             PushButton 90, dlg_vert, 10, 10, "9", page_nine_btn
-            PushButton 100, dlg_vert, 10, 10, "10", page_ten_btn
-            PushButton 110, dlg_vert, 10, 10, "11", page_eleven_btn
-            PushButton 120, dlg_vert, 10, 10, "12", page_twelve_btn
-            PushButton 130, dlg_vert, 10, 10, "13", page_thirteen_btn
+            PushButton 100, dlg_vert, 12, 10, "10", page_ten_btn
+            PushButton 112, dlg_vert, 12, 10, "11", page_eleven_btn
+            PushButton 124, dlg_vert, 12, 10, "12", page_twelve_btn
+            PushButton 136, dlg_vert, 12, 10, "13", page_thirteen_btn
         ElseIf page = 6 Then
             PushButton 10, dlg_vert, 10, 10, "1", page_one_btn
             PushButton 20, dlg_vert, 10, 10, "2", page_two_btn
@@ -873,10 +873,10 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             PushButton 70, dlg_vert, 10, 10, "7", page_seven_btn
             PushButton 80, dlg_vert, 10, 10, "8", page_eight_btn
             PushButton 90, dlg_vert, 10, 10, "9", page_nine_btn
-            PushButton 100, dlg_vert, 10, 10, "10", page_ten_btn
-            PushButton 110, dlg_vert, 10, 10, "11", page_eleven_btn
-            PushButton 120, dlg_vert, 10, 10, "12", page_twelve_btn
-            PushButton 130, dlg_vert, 10, 10, "13", page_thirteen_btn
+            PushButton 100, dlg_vert, 12, 10, "10", page_ten_btn
+            PushButton 112, dlg_vert, 12, 10, "11", page_eleven_btn
+            PushButton 124, dlg_vert, 12, 10, "12", page_twelve_btn
+            PushButton 136, dlg_vert, 12, 10, "13", page_thirteen_btn
         ElseIf page = 7 Then
             PushButton 10, dlg_vert, 10, 10, "1", page_one_btn
             PushButton 20, dlg_vert, 10, 10, "2", page_two_btn
@@ -887,10 +887,10 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             Text 72, dlg_vert + 2, 10, 10, "7"
             PushButton 80, dlg_vert, 10, 10, "8", page_eight_btn
             PushButton 90, dlg_vert, 10, 10, "9", page_nine_btn
-            PushButton 100, dlg_vert, 10, 10, "10", page_ten_btn
-            PushButton 110, dlg_vert, 10, 10, "11", page_eleven_btn
-            PushButton 120, dlg_vert, 10, 10, "12", page_twelve_btn
-            PushButton 130, dlg_vert, 10, 10, "13", page_thirteen_btn
+            PushButton 100, dlg_vert, 12, 10, "10", page_ten_btn
+            PushButton 112, dlg_vert, 12, 10, "11", page_eleven_btn
+            PushButton 124, dlg_vert, 12, 10, "12", page_twelve_btn
+            PushButton 136, dlg_vert, 12, 10, "13", page_thirteen_btn
         ElseIf page = 8 Then
             PushButton 10, dlg_vert, 10, 10, "1", page_one_btn
             PushButton 20, dlg_vert, 10, 10, "2", page_two_btn
@@ -901,10 +901,10 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             PushButton 70, dlg_vert, 10, 10, "7", page_seven_btn
             Text 82, dlg_vert + 2, 10, 10, "8"
             PushButton 90, dlg_vert, 10, 10, "9", page_nine_btn
-            PushButton 100, dlg_vert, 10, 10, "10", page_ten_btn
-            PushButton 110, dlg_vert, 10, 10, "11", page_eleven_btn
-            PushButton 120, dlg_vert, 10, 10, "12", page_twelve_btn
-            PushButton 130, dlg_vert, 10, 10, "13", page_thirteen_btn
+            PushButton 100, dlg_vert, 12, 10, "10", page_ten_btn
+            PushButton 112, dlg_vert, 12, 10, "11", page_eleven_btn
+            PushButton 124, dlg_vert, 12, 10, "12", page_twelve_btn
+            PushButton 136, dlg_vert, 12, 10, "13", page_thirteen_btn
         ElseIf page = 9 Then
             PushButton 10, dlg_vert, 10, 10, "1", page_one_btn
             PushButton 20, dlg_vert, 10, 10, "2", page_two_btn
@@ -915,10 +915,10 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             PushButton 70, dlg_vert, 10, 10, "7", page_seven_btn
             PushButton 80, dlg_vert, 10, 10, "8", page_eight_btn
             Text 92, dlg_vert + 2, 10, 10, "9"
-            PushButton 100, dlg_vert, 10, 10, "10", page_ten_btn
-            PushButton 110, dlg_vert, 10, 10, "11", page_eleven_btn
-            PushButton 120, dlg_vert, 10, 10, "12", page_twelve_btn
-            PushButton 130, dlg_vert, 10, 10, "13", page_thirteen_btn
+            PushButton 100, dlg_vert, 12, 10, "10", page_ten_btn
+            PushButton 112, dlg_vert, 12, 10, "11", page_eleven_btn
+            PushButton 124, dlg_vert, 12, 10, "12", page_twelve_btn
+            PushButton 136, dlg_vert, 12, 10, "13", page_thirteen_btn
         ElseIf page = 10 Then
             PushButton 10, dlg_vert, 10, 10, "1", page_one_btn
             PushButton 20, dlg_vert, 10, 10, "2", page_two_btn
@@ -930,9 +930,9 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             PushButton 80, dlg_vert, 10, 10, "8", page_eight_btn
             PushButton 90, dlg_vert, 10, 10, "9", page_nine_btn
             Text 102, dlg_vert + 2, 10, 10, "10"
-            PushButton 110, dlg_vert, 10, 10, "11", page_eleven_btn
-            PushButton 120, dlg_vert, 10, 10, "12", page_twelve_btn
-            PushButton 130, dlg_vert, 10, 10, "13", page_thirteen_btn
+            PushButton 112, dlg_vert, 12, 10, "11", page_eleven_btn
+            PushButton 124, dlg_vert, 12, 10, "12", page_twelve_btn
+            PushButton 136, dlg_vert, 12, 10, "13", page_thirteen_btn
         ElseIf page = 11 Then
             PushButton 10, dlg_vert, 10, 10, "1", page_one_btn
             PushButton 20, dlg_vert, 10, 10, "2", page_two_btn
@@ -943,10 +943,10 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             PushButton 70, dlg_vert, 10, 10, "7", page_seven_btn
             PushButton 80, dlg_vert, 10, 10, "8", page_eight_btn
             PushButton 90, dlg_vert, 10, 10, "9", page_nine_btn
-            PushButton 100, dlg_vert, 10, 10, "10", page_ten_btn
-            Text 112, dlg_vert + 2, 10, 10, "11"
-            PushButton 120, dlg_vert, 10, 10, "12", page_twelve_btn
-            PushButton 130, dlg_vert, 10, 10, "13", page_thirteen_btn
+            PushButton 100, dlg_vert, 12, 10, "10", page_ten_btn
+            Text 114, dlg_vert + 2, 10, 10, "11"
+            PushButton 124, dlg_vert, 12, 10, "12", page_twelve_btn
+            PushButton 136, dlg_vert, 12, 10, "13", page_thirteen_btn
         ElseIf page = 12 Then
             PushButton 10, dlg_vert, 10, 10, "1", page_one_btn
             PushButton 20, dlg_vert, 10, 10, "2", page_two_btn
@@ -957,10 +957,10 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             PushButton 70, dlg_vert, 10, 10, "7", page_seven_btn
             PushButton 80, dlg_vert, 10, 10, "8", page_eight_btn
             PushButton 90, dlg_vert, 10, 10, "9", page_nine_btn
-            PushButton 100, dlg_vert, 10, 10, "10", page_ten_btn
-            PushButton 110, dlg_vert, 10, 10, "11", page_eleven_btn
-            Text 122, dlg_vert + 2, 10, 10, "12"
-            PushButton 130, dlg_vert, 10, 10, "13", page_thirteen_btn
+            PushButton 100, dlg_vert, 12, 10, "10", page_ten_btn
+            PushButton 112, dlg_vert, 12, 10, "11", page_eleven_btn
+            Text 126, dlg_vert + 2, 10, 10, "12"
+            PushButton 136, dlg_vert, 12, 10, "13", page_thirteen_btn
         ElseIf page = 13 Then
             PushButton 10, dlg_vert, 10, 10, "1", page_one_btn
             PushButton 20, dlg_vert, 10, 10, "2", page_two_btn
@@ -971,10 +971,10 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             PushButton 70, dlg_vert, 10, 10, "7", page_seven_btn
             PushButton 80, dlg_vert, 10, 10, "8", page_eight_btn
             PushButton 90, dlg_vert, 10, 10, "9", page_nine_btn
-            PushButton 100, dlg_vert, 10, 10, "10", page_ten_btn
-            PushButton 110, dlg_vert, 10, 10, "11", page_eleven_btn
-            PushButton 120, dlg_vert, 10, 10, "12", page_twelve_btn
-            Text 132, dlg_vert + 2, 10, 10, "13"
+            PushButton 100, dlg_vert, 12, 10, "10", page_ten_btn
+            PushButton 112, dlg_vert, 12, 10, "11", page_eleven_btn
+            PushButton 124, dlg_vert, 12, 10, "12", page_twelve_btn
+            Text 138, dlg_vert + 2, 10, 10, "13"
         End If
     ElseIf total_items > items_per_page*13 Then                             'FOURTEEN Buttons
         If page = 1 Then
@@ -987,11 +987,11 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             PushButton 70, dlg_vert, 10, 10, "7", page_seven_btn
             PushButton 80, dlg_vert, 10, 10, "8", page_eight_btn
             PushButton 90, dlg_vert, 10, 10, "9", page_nine_btn
-            PushButton 100, dlg_vert, 10, 10, "10", page_ten_btn
-            PushButton 110, dlg_vert, 10, 10, "11", page_eleven_btn
-            PushButton 120, dlg_vert, 10, 10, "12", page_twelve_btn
-            PushButton 130, dlg_vert, 10, 10, "13", page_thirteen_btn
-            PushButton 140, dlg_vert, 10, 10, "14", page_fourteen_btn
+            PushButton 100, dlg_vert, 12, 10, "10", page_ten_btn
+            PushButton 112, dlg_vert, 12, 10, "11", page_eleven_btn
+            PushButton 124, dlg_vert, 12, 10, "12", page_twelve_btn
+            PushButton 136, dlg_vert, 12, 10, "13", page_thirteen_btn
+            PushButton 148, dlg_vert, 12, 10, "14", page_fourteen_btn
         ElseIf page = 2 Then
             PushButton 10, dlg_vert, 10, 10, "1", page_one_btn
             Text 22, dlg_vert + 2, 10, 10, "2"
@@ -1002,11 +1002,11 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             PushButton 70, dlg_vert, 10, 10, "7", page_seven_btn
             PushButton 80, dlg_vert, 10, 10, "8", page_eight_btn
             PushButton 90, dlg_vert, 10, 10, "9", page_nine_btn
-            PushButton 100, dlg_vert, 10, 10, "10", page_ten_btn
-            PushButton 110, dlg_vert, 10, 10, "11", page_eleven_btn
-            PushButton 120, dlg_vert, 10, 10, "12", page_twelve_btn
-            PushButton 130, dlg_vert, 10, 10, "13", page_thirteen_btn
-            PushButton 140, dlg_vert, 10, 10, "14", page_fourteen_btn
+            PushButton 100, dlg_vert, 12, 10, "10", page_ten_btn
+            PushButton 112, dlg_vert, 12, 10, "11", page_eleven_btn
+            PushButton 124, dlg_vert, 12, 10, "12", page_twelve_btn
+            PushButton 136, dlg_vert, 12, 10, "13", page_thirteen_btn
+            PushButton 148, dlg_vert, 12, 10, "14", page_fourteen_btn
         ElseIf page = 3 Then
             PushButton 10, dlg_vert, 10, 10, "1", page_one_btn
             PushButton 20, dlg_vert, 10, 10, "2", page_two_btn
@@ -1017,11 +1017,11 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             PushButton 70, dlg_vert, 10, 10, "7", page_seven_btn
             PushButton 80, dlg_vert, 10, 10, "8", page_eight_btn
             PushButton 90, dlg_vert, 10, 10, "9", page_nine_btn
-            PushButton 100, dlg_vert, 10, 10, "10", page_ten_btn
-            PushButton 110, dlg_vert, 10, 10, "11", page_eleven_btn
-            PushButton 120, dlg_vert, 10, 10, "12", page_twelve_btn
-            PushButton 130, dlg_vert, 10, 10, "13", page_thirteen_btn
-            PushButton 140, dlg_vert, 10, 10, "14", page_fourteen_btn
+            PushButton 100, dlg_vert, 12, 10, "10", page_ten_btn
+            PushButton 112, dlg_vert, 12, 10, "11", page_eleven_btn
+            PushButton 124, dlg_vert, 12, 10, "12", page_twelve_btn
+            PushButton 136, dlg_vert, 12, 10, "13", page_thirteen_btn
+            PushButton 148, dlg_vert, 12, 10, "14", page_fourteen_btn
         ElseIf page = 4 Then
             PushButton 10, dlg_vert, 10, 10, "1", page_one_btn
             PushButton 20, dlg_vert, 10, 10, "2", page_two_btn
@@ -1032,11 +1032,11 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             PushButton 70, dlg_vert, 10, 10, "7", page_seven_btn
             PushButton 80, dlg_vert, 10, 10, "8", page_eight_btn
             PushButton 90, dlg_vert, 10, 10, "9", page_nine_btn
-            PushButton 100, dlg_vert, 10, 10, "10", page_ten_btn
-            PushButton 110, dlg_vert, 10, 10, "11", page_eleven_btn
-            PushButton 120, dlg_vert, 10, 10, "12", page_twelve_btn
-            PushButton 130, dlg_vert, 10, 10, "13", page_thirteen_btn
-            PushButton 140, dlg_vert, 10, 10, "14", page_fourteen_btn
+            PushButton 100, dlg_vert, 12, 10, "10", page_ten_btn
+            PushButton 112, dlg_vert, 12, 10, "11", page_eleven_btn
+            PushButton 124, dlg_vert, 12, 10, "12", page_twelve_btn
+            PushButton 136, dlg_vert, 12, 10, "13", page_thirteen_btn
+            PushButton 148, dlg_vert, 12, 10, "14", page_fourteen_btn
         ElseIf page = 5 Then
             PushButton 10, dlg_vert, 10, 10, "1", page_one_btn
             PushButton 20, dlg_vert, 10, 10, "2", page_two_btn
@@ -1047,11 +1047,11 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             PushButton 70, dlg_vert, 10, 10, "7", page_seven_btn
             PushButton 80, dlg_vert, 10, 10, "8", page_eight_btn
             PushButton 90, dlg_vert, 10, 10, "9", page_nine_btn
-            PushButton 100, dlg_vert, 10, 10, "10", page_ten_btn
-            PushButton 110, dlg_vert, 10, 10, "11", page_eleven_btn
-            PushButton 120, dlg_vert, 10, 10, "12", page_twelve_btn
-            PushButton 130, dlg_vert, 10, 10, "13", page_thirteen_btn
-            PushButton 140, dlg_vert, 10, 10, "14", page_fourteen_btn
+            PushButton 100, dlg_vert, 12, 10, "10", page_ten_btn
+            PushButton 112, dlg_vert, 12, 10, "11", page_eleven_btn
+            PushButton 124, dlg_vert, 12, 10, "12", page_twelve_btn
+            PushButton 136, dlg_vert, 12, 10, "13", page_thirteen_btn
+            PushButton 148, dlg_vert, 12, 10, "14", page_fourteen_btn
         ElseIf page = 6 Then
             PushButton 10, dlg_vert, 10, 10, "1", page_one_btn
             PushButton 20, dlg_vert, 10, 10, "2", page_two_btn
@@ -1062,11 +1062,11 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             PushButton 70, dlg_vert, 10, 10, "7", page_seven_btn
             PushButton 80, dlg_vert, 10, 10, "8", page_eight_btn
             PushButton 90, dlg_vert, 10, 10, "9", page_nine_btn
-            PushButton 100, dlg_vert, 10, 10, "10", page_ten_btn
-            PushButton 110, dlg_vert, 10, 10, "11", page_eleven_btn
-            PushButton 120, dlg_vert, 10, 10, "12", page_twelve_btn
-            PushButton 130, dlg_vert, 10, 10, "13", page_thirteen_btn
-            PushButton 140, dlg_vert, 10, 10, "14", page_fourteen_btn
+            PushButton 100, dlg_vert, 12, 10, "10", page_ten_btn
+            PushButton 112, dlg_vert, 12, 10, "11", page_eleven_btn
+            PushButton 124, dlg_vert, 12, 10, "12", page_twelve_btn
+            PushButton 136, dlg_vert, 12, 10, "13", page_thirteen_btn
+            PushButton 148, dlg_vert, 12, 10, "14", page_fourteen_btn
         ElseIf page = 7 Then
             PushButton 10, dlg_vert, 10, 10, "1", page_one_btn
             PushButton 20, dlg_vert, 10, 10, "2", page_two_btn
@@ -1077,11 +1077,11 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             Text 72, dlg_vert + 2, 10, 10, "7"
             PushButton 80, dlg_vert, 10, 10, "8", page_eight_btn
             PushButton 90, dlg_vert, 10, 10, "9", page_nine_btn
-            PushButton 100, dlg_vert, 10, 10, "10", page_ten_btn
-            PushButton 110, dlg_vert, 10, 10, "11", page_eleven_btn
-            PushButton 120, dlg_vert, 10, 10, "12", page_twelve_btn
-            PushButton 130, dlg_vert, 10, 10, "13", page_thirteen_btn
-            PushButton 140, dlg_vert, 10, 10, "14", page_fourteen_btn
+            PushButton 100, dlg_vert, 12, 10, "10", page_ten_btn
+            PushButton 112, dlg_vert, 12, 10, "11", page_eleven_btn
+            PushButton 124, dlg_vert, 12, 10, "12", page_twelve_btn
+            PushButton 136, dlg_vert, 12, 10, "13", page_thirteen_btn
+            PushButton 148, dlg_vert, 12, 10, "14", page_fourteen_btn
         ElseIf page = 8 Then
             PushButton 10, dlg_vert, 10, 10, "1", page_one_btn
             PushButton 20, dlg_vert, 10, 10, "2", page_two_btn
@@ -1092,11 +1092,11 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             PushButton 70, dlg_vert, 10, 10, "7", page_seven_btn
             Text 82, dlg_vert + 2, 10, 10, "8"
             PushButton 90, dlg_vert, 10, 10, "9", page_nine_btn
-            PushButton 100, dlg_vert, 10, 10, "10", page_ten_btn
-            PushButton 110, dlg_vert, 10, 10, "11", page_eleven_btn
-            PushButton 120, dlg_vert, 10, 10, "12", page_twelve_btn
-            PushButton 130, dlg_vert, 10, 10, "13", page_thirteen_btn
-            PushButton 140, dlg_vert, 10, 10, "14", page_fourteen_btn
+            PushButton 100, dlg_vert, 12, 10, "10", page_ten_btn
+            PushButton 112, dlg_vert, 12, 10, "11", page_eleven_btn
+            PushButton 124, dlg_vert, 12, 10, "12", page_twelve_btn
+            PushButton 136, dlg_vert, 12, 10, "13", page_thirteen_btn
+            PushButton 148, dlg_vert, 12, 10, "14", page_fourteen_btn
         ElseIf page = 9 Then
             PushButton 10, dlg_vert, 10, 10, "1", page_one_btn
             PushButton 20, dlg_vert, 10, 10, "2", page_two_btn
@@ -1107,11 +1107,11 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             PushButton 70, dlg_vert, 10, 10, "7", page_seven_btn
             PushButton 80, dlg_vert, 10, 10, "8", page_eight_btn
             Text 92, dlg_vert + 2, 10, 10, "9"
-            PushButton 100, dlg_vert, 10, 10, "10", page_ten_btn
-            PushButton 110, dlg_vert, 10, 10, "11", page_eleven_btn
-            PushButton 120, dlg_vert, 10, 10, "12", page_twelve_btn
-            PushButton 130, dlg_vert, 10, 10, "13", page_thirteen_btn
-            PushButton 140, dlg_vert, 10, 10, "14", page_fourteen_btn
+            PushButton 100, dlg_vert, 12, 10, "10", page_ten_btn
+            PushButton 112, dlg_vert, 12, 10, "11", page_eleven_btn
+            PushButton 124, dlg_vert, 12, 10, "12", page_twelve_btn
+            PushButton 136, dlg_vert, 12, 10, "13", page_thirteen_btn
+            PushButton 148, dlg_vert, 12, 10, "14", page_fourteen_btn
         ElseIf page = 10 Then
             PushButton 10, dlg_vert, 10, 10, "1", page_one_btn
             PushButton 20, dlg_vert, 10, 10, "2", page_two_btn
@@ -1123,10 +1123,10 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             PushButton 80, dlg_vert, 10, 10, "8", page_eight_btn
             PushButton 90, dlg_vert, 10, 10, "9", page_nine_btn
             Text 102, dlg_vert + 2, 10, 10, "10"
-            PushButton 110, dlg_vert, 10, 10, "11", page_eleven_btn
-            PushButton 120, dlg_vert, 10, 10, "12", page_twelve_btn
-            PushButton 130, dlg_vert, 10, 10, "13", page_thirteen_btn
-            PushButton 140, dlg_vert, 10, 10, "14", page_fourteen_btn
+            PushButton 112, dlg_vert, 12, 10, "11", page_eleven_btn
+            PushButton 124, dlg_vert, 12, 10, "12", page_twelve_btn
+            PushButton 136, dlg_vert, 12, 10, "13", page_thirteen_btn
+            PushButton 148, dlg_vert, 12, 10, "14", page_fourteen_btn
         ElseIf page = 11 Then
             PushButton 10, dlg_vert, 10, 10, "1", page_one_btn
             PushButton 20, dlg_vert, 10, 10, "2", page_two_btn
@@ -1137,11 +1137,11 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             PushButton 70, dlg_vert, 10, 10, "7", page_seven_btn
             PushButton 80, dlg_vert, 10, 10, "8", page_eight_btn
             PushButton 90, dlg_vert, 10, 10, "9", page_nine_btn
-            PushButton 100, dlg_vert, 10, 10, "10", page_ten_btn
-            Text 112, dlg_vert + 2, 10, 10, "11"
-            PushButton 120, dlg_vert, 10, 10, "12", page_twelve_btn
-            PushButton 130, dlg_vert, 10, 10, "13", page_thirteen_btn
-            PushButton 140, dlg_vert, 10, 10, "14", page_fourteen_btn
+            PushButton 100, dlg_vert, 12, 10, "10", page_ten_btn
+            Text 114, dlg_vert + 2, 10, 10, "11"
+            PushButton 124, dlg_vert, 12, 10, "12", page_twelve_btn
+            PushButton 136, dlg_vert, 12, 10, "13", page_thirteen_btn
+            PushButton 148, dlg_vert, 12, 10, "14", page_fourteen_btn
         ElseIf page = 12 Then
             PushButton 10, dlg_vert, 10, 10, "1", page_one_btn
             PushButton 20, dlg_vert, 10, 10, "2", page_two_btn
@@ -1152,11 +1152,11 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             PushButton 70, dlg_vert, 10, 10, "7", page_seven_btn
             PushButton 80, dlg_vert, 10, 10, "8", page_eight_btn
             PushButton 90, dlg_vert, 10, 10, "9", page_nine_btn
-            PushButton 100, dlg_vert, 10, 10, "10", page_ten_btn
-            PushButton 110, dlg_vert, 10, 10, "11", page_eleven_btn
-            Text 122, dlg_vert + 2, 10, 10, "12"
-            PushButton 130, dlg_vert, 10, 10, "13", page_thirteen_btn
-            PushButton 140, dlg_vert, 10, 10, "14", page_fourteen_btn
+            PushButton 100, dlg_vert, 12, 10, "10", page_ten_btn
+            PushButton 112, dlg_vert, 12, 10, "11", page_eleven_btn
+            Text 126, dlg_vert + 2, 10, 10, "12"
+            PushButton 136, dlg_vert, 12, 10, "13", page_thirteen_btn
+            PushButton 148, dlg_vert, 12, 10, "14", page_fourteen_btn
         ElseIf page = 13 Then
             PushButton 10, dlg_vert, 10, 10, "1", page_one_btn
             PushButton 20, dlg_vert, 10, 10, "2", page_two_btn
@@ -1167,11 +1167,11 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             PushButton 70, dlg_vert, 10, 10, "7", page_seven_btn
             PushButton 80, dlg_vert, 10, 10, "8", page_eight_btn
             PushButton 90, dlg_vert, 10, 10, "9", page_nine_btn
-            PushButton 100, dlg_vert, 10, 10, "10", page_ten_btn
-            PushButton 110, dlg_vert, 10, 10, "11", page_eleven_btn
-            PushButton 120, dlg_vert, 10, 10, "12", page_twelve_btn
-            Text 132, dlg_vert + 2, 10, 10, "13"
-            PushButton 140, dlg_vert, 10, 10, "14", page_fourteen_btn
+            PushButton 100, dlg_vert, 12, 10, "10", page_ten_btn
+            PushButton 112, dlg_vert, 12, 10, "11", page_eleven_btn
+            PushButton 124, dlg_vert, 12, 10, "12", page_twelve_btn
+            Text 138, dlg_vert + 2, 10, 10, "13"
+            PushButton 148, dlg_vert, 12, 10, "14", page_fourteen_btn
         ElseIf page = 14 Then
             PushButton 10, dlg_vert, 10, 10, "1", page_one_btn
             PushButton 20, dlg_vert, 10, 10, "2", page_two_btn
@@ -1182,11 +1182,11 @@ function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, 
             PushButton 70, dlg_vert, 10, 10, "7", page_seven_btn
             PushButton 80, dlg_vert, 10, 10, "8", page_eight_btn
             PushButton 90, dlg_vert, 10, 10, "9", page_nine_btn
-            PushButton 100, dlg_vert, 10, 10, "10", page_ten_btn
-            PushButton 110, dlg_vert, 10, 10, "11", page_eleven_btn
-            PushButton 120, dlg_vert, 10, 10, "12", page_twelve_btn
-            PushButton 130, dlg_vert, 10, 10, "13", page_thirteen_btn
-            Text 142, dlg_vert + 2, 10, 10, "14"
+            PushButton 100, dlg_vert, 12, 10, "10", page_ten_btn
+            PushButton 112, dlg_vert, 12, 10, "11", page_eleven_btn
+            PushButton 124, dlg_vert, 12, 10, "12", page_twelve_btn
+            PushButton 136, dlg_vert, 12, 10, "13", page_thirteen_btn
+            Text 150, dlg_vert + 2, 10, 10, "14"
         End If
     End If
 end function
