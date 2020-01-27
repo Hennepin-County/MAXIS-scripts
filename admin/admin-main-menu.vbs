@@ -9,7 +9,7 @@ start_time = timer
 '======BZST=========
 'MiKayla	WFS395
 'Casey	    CALO001
-'======BZST=========
+'======QI Team=========
 'Brenda	    WFI021
 'Brooke	    WFU161
 'Deb	    WFP106
@@ -18,8 +18,8 @@ start_time = timer
 'Jessica	WFK093
 'Keith      KESE001
 'Kerry      WFC041
+'Laurie     LAHE006
 'Louise	    WF1875
-'Laurie     Possibly Laurie.Hennen
 'Mandora	WFM207
 'Melissa F.	WFG492
 'Molly  	WFX490
@@ -27,7 +27,7 @@ start_time = timer
 
 'List of staff in a string - making it easier to add 
 BZST_staff = "WFX901,WFU851,ILFE001,WFS395,CALO001"
-QI_staff = "WFI021,WFU161,WFP106,WFQ898,JAAR001,WFK093,KESE001,WFC041,WF1875,WFM207,WFG492,WFX490,TAPA002"
+QI_staff = "WFI021,WFU161,WFP106,WFQ898,JAAR001,WFK093,KESE001,WFC041,LAHE006,WF1875,WFM207,WFG492,WFX490,TAPA002"
 
 'The following code looks to find the user name of the user running the script---------------------------------------------------------------------------------------------
 'This is used in arrays that specify functionality to specific workers
