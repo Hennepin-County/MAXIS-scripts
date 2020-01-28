@@ -1,4 +1,4 @@
-''GATHERING STATS===========================================================================================
+match_type''GATHERING STATS===========================================================================================
 name_of_script = "ACTIONS - DEU-MATCH CLEARED CC.vbs"
 start_time = timer
 STATS_counter = 1
@@ -224,9 +224,9 @@ MAXIS_footer_year = CM_yr
 EMReadscreen dail_check, 4, 2, 48 'changed from DAIL to view to ensure we are in DAIL/DAIL'
 IF dail_check = "DAIL" THEN
 	EMSendKey "t"
-	EMReadScreen IEVS_type, 4, 6, 6 'read the DAIL msg'
-    'msgbox IEVS_type
-    IF IEVS_type = "WAGE" or IEVS_type = "BEER" or IEVS_type = "UBEN" or IEVS_type = "UNVI" THEN
+	EMReadScreen match_type, 4, 6, 6 'read the DAIL msg'
+    'msgbox match_type
+    IF match_type = "WAGE" or match_type = "BEER" or match_type = "UBEN" or match_type = "UNVI" THEN
     	match_found = TRUE
     ELSE
     	script_end_procedure_with_error_report("This is not an supported match currently. Please select a WAGE match DAIL, and run the script again.")
@@ -243,7 +243,7 @@ IF dail_check = "DAIL" THEN
 	    IF err_msg = "NO IEVS" THEN script_end_procedure_with_error_report("An error occurred in IEVP, please process manually.")'checking for error msg'
 	END IF
 END IF
-IF dail_check <> "DAIL" or IEVS_type <> "WAGE" or IEVS_type <> "BEER" or IEVS_type <> "UBEN" or IEVS_type <> "UNVI" THEN
+IF dail_check <> "DAIL" or match_type <> "WAGE" or match_type <> "BEER" or match_type <> "UBEN" or match_type <> "UNVI" THEN
  	CALL MAXIS_case_number_finder (MAXIS_case_number)
     'MEMB_number = "01"
 	'-------------------------------------------------------------------------------------------------DIALOG
@@ -317,27 +317,27 @@ EMReadScreen OutOfCounty_error, 12, 24, 2
 IF OutOfCounty_error = "MATCH IS NOT" then
 	script_end_procedure_with_error_report("Out-of-county case. Cannot update.")
 Else
-	IF IEVS_type = "WAGE" then
+	IF match_type = "WAGE" then
 		EMReadScreen select_quarter, 1, 8, 14
 		EMReadScreen IEVS_year, 4, 8, 22
-	ELSEIF IEVS_type = "UBEN" THEN
+	ELSEIF match_type = "UBEN" THEN
 		EMReadScreen IEVS_month, 2, 5, 68
 		EMReadScreen IEVS_year, 4, 8, 71
-	ELSEIF IEVS_type = "BEER" THEN
+	ELSEIF match_type = "BEER" THEN
 		EMReadScreen IEVS_year, 2, 8, 15
 		IEVS_year = "20" & IEVS_year
-	ELSEIF IEVS_type = "UNVI" THEN
+	ELSEIF match_type = "UNVI" THEN
 		EMReadScreen IEVS_year, 4, 8, 15
 	END IF
 END IF
 
 EMReadScreen number_IEVS_type, 3, 7, 12 'read the DAIL msg'
-IF number_IEVS_type = "A30" THEN IEVS_type = "BNDX"
-IF number_IEVS_type = "A40" THEN IEVS_type = "SDXS/I"
-IF number_IEVS_type = "A70" THEN IEVS_type = "BEER"
-IF number_IEVS_type = "A80" THEN IEVS_type = "UNVI"
-IF number_IEVS_type = "A60" THEN IEVS_type = "UBEN"
-IF number_IEVS_type = "A50" or number_IEVS_type = "A51"  THEN IEVS_type = "WAGE"
+IF number_IEVS_type = "A30" THEN match_type = "BNDX"
+IF number_IEVS_type = "A40" THEN match_type = "SDXS/I"
+IF number_IEVS_type = "A70" THEN match_type = "BEER"
+IF number_IEVS_type = "A80" THEN match_type = "UNVI"
+IF number_IEVS_type = "A60" THEN match_type = "UBEN"
+IF number_IEVS_type = "A50" or number_IEVS_type = "A51"  THEN match_type = "WAGE"
 
 '--------------------------------------------------------------------Client name
 EmReadScreen panel_name, 4, 02, 52
@@ -379,9 +379,9 @@ programs = trim(programs)
 'takes the last comma off of programs when autofilled into dialog
 IF right(programs, 1) = "," THEN programs = left(programs, len(programs) - 1)
 '----------------------------------------------------------------------------------------------------Employer info & difference notice info
-IF IEVS_type = "UBEN" THEN income_source = "Unemployment"
-IF IEVS_type = "UNVI" THEN income_source = "NON-WAGE"
-IF IEVS_type = "WAGE" or IEVS_type = "BEER" THEN
+IF match_type = "UBEN" THEN income_source = "Unemployment"
+IF match_type = "UNVI" THEN income_source = "NON-WAGE"
+IF match_type = "WAGE" or match_type = "BEER" THEN
 	EMReadScreen income_source, 75, 8, 37
     income_source = trim(income_source)
     length = len(income_source)		'establishing the length of the variable
@@ -405,7 +405,7 @@ BeginDialog Dialog1, 0, 0, 361, 280, "Match Cleared CC Claim Entered"
   EditBox 230, 5, 20, 15, OT_resp_memb
   DropListBox 310, 5, 45, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", fraud_referral
   EditBox 60, 25, 40, 15, discovery_date
-  DropListBox 210, 25, 40, 15, "Select:"+chr(9)+"BEER"+chr(9)+"NONE"+chr(9)+"UNVI"+chr(9)+"UBEN"+chr(9)+"WAGE", IEVS_type
+  DropListBox 210, 25, 40, 15, "Select:"+chr(9)+"BEER"+chr(9)+"NONE"+chr(9)+"UNVI"+chr(9)+"UBEN"+chr(9)+"WAGE", match_type
   DropListBox 310, 25, 45, 15, "Select:"+chr(9)+"1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"YEAR"+chr(9)+"LAST YEAR"+chr(9)+"OTHER", select_quarter
   DropListBox 50, 65, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS", OP_program
   EditBox 130, 65, 30, 15, OP_from
@@ -519,7 +519,7 @@ Do
     		IF HC_to = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the month and year overpayment ended."
     		IF HC_claim_amount = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the amount of claim."
     	END IF
-    	IF IEVS_type = "Select:" THEN err_msg = err_msg & vbnewline & "* You must select a match type entry."
+    	IF match_type = "Select:" THEN err_msg = err_msg & vbnewline & "* You must select a match type entry."
     	IF EVF_used = "" then err_msg = err_msg & vbNewLine & "* Please enter verication used for the income recieved. If no verification was received enter N/A."
     	IF isdate(income_rcvd_date) = False or income_rcvd_date = "" then err_msg = err_msg & vbNewLine & "* Please enter a valid date for the income recieved."
     	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
@@ -596,7 +596,7 @@ Loop until are_we_passworded_out = false
 		END IF
 	End If
 
-    IF IEVS_type = "WAGE" THEN
+    IF match_type = "WAGE" THEN
     	IF select_quarter = 1 THEN IEVS_quarter = "1ST"
     	IF select_quarter = 2 THEN IEVS_quarter = "2ND"
      	IF select_quarter = 3 THEN IEVS_quarter = "3RD"
@@ -663,14 +663,15 @@ Loop until are_we_passworded_out = false
 
 	IF ATR_needed_checkbox= CHECKED THEN header_note = "ATR/EVF STILL REQUIRED"
 	'------------------------------------------setting up case note header'
-	IF IEVS_type = "BEER" THEN match_type_letter = "B"
-	IF IEVS_type = "UBEN" THEN match_type_letter = "U"
-	IF IEVS_type = "UNVI" THEN match_type_letter = "U"
+	IF match_type = "BEER" THEN match_type_letter = "B"
+	IF match_type = "UBEN" THEN match_type_letter = "U"
+	IF match_type = "UNVI" THEN match_type_letter = "U"
 '-----------------------------------------------------------------------------------------CASENOTE
     start_a_blank_case_note
-    IF IEVS_type = "WAGE" THEN CALL write_variable_in_case_note("-----" & IEVS_quarter & " QTR " & IEVS_year & "WAGE MATCH"  & " (" & first_name & ") CLEARED CC-CLAIM ENTERED " & header_note & "-----")
-    IF IEVS_type = "BEER" or IEVS_type = "UNVI" THEN CALL write_variable_in_case_note("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type_letter & ") " & " (" & first_name & ") CLEARED CC-CLAIM ENTERED " & header_note & "-----")
-    IF IEVS_type = "UBEN" THEN CALL write_variable_in_case_note("-----" & IEVS_period & " NON-WAGE MATCH(" & match_type_letter & ") " & " (" & first_name & ") CLEARED CC-CLAIM ENTERED " & header_note & "-----")
+    IF match_type = "WAGE" THEN CALL write_variable_in_case_note("-----" & IEVS_quarter & " QTR " & IEVS_year & "WAGE MATCH"  & " (" & first_name & ") CLEARED CC-CLAIM ENTERED " & header_note & "-----")
+    IF match_type = "BEER" THEN CALL write_variable_in_case_note("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type_letter & ") " & " (" & first_name & ") CLEARED CC-CLAIM ENTERED " & header_note & "-----")
+	IF match_type = "UNVI" THEN CALL write_variable_in_case_note("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type_letter & ") " & " (" & first_name & ") CLEARED CC-CLAIM ENTERED " & header_note & "-----")
+    IF match_type = "UBEN" THEN CALL write_variable_in_case_note("-----" & IEVS_period & " NON-WAGE MATCH(" & match_type_letter & ") " & " (" & first_name & ") CLEARED CC-CLAIM ENTERED " & header_note & "-----")
 	CALL write_bullet_and_variable_in_case_note("Discovery date", discovery_date)
 	CALL write_bullet_and_variable_in_case_note("Period", IEVS_period)
 	CALL write_bullet_and_variable_in_case_note("Active Programs", programs)
@@ -736,9 +737,9 @@ Loop until are_we_passworded_out = false
 		PF9
 	END IF
 
-	IF IEVS_type = "WAGE" THEN CALL write_variable_in_CCOL_note_test("-----" & IEVS_quarter & " QTR " & IEVS_year & "WAGE MATCH"  & " (" & first_name & ") CLEARED CC-CLAIM ENTERED " & header_note & "-----")
-    IF IEVS_type = "BEER" or IEVS_type = "UNVI" THEN CALL write_variable_in_CCOL_note_test("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type_letter & ") " & " (" & first_name & ") CLEARED CC-CLAIM ENTERED " & header_note & "-----")
-    IF IEVS_type = "UBEN" THEN CALL write_variable_in_CCOL_note_test("-----" & IEVS_period & " NON-WAGE MATCH(" & match_type_letter & ") " & " (" & first_name & ") CLEARED CC-CLAIM ENTERED " & header_note & "-----")
+	IF match_type = "WAGE" THEN CALL write_variable_in_CCOL_note_test("-----" & IEVS_quarter & " QTR " & IEVS_year & "WAGE MATCH"  & " (" & first_name & ") CLEARED CC-CLAIM ENTERED " & header_note & "-----")
+    IF match_type = "BEER" or match_type = "UNVI" THEN CALL write_variable_in_CCOL_note_test("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type_letter & ") " & " (" & first_name & ") CLEARED CC-CLAIM ENTERED " & header_note & "-----")
+    IF match_type = "UBEN" THEN CALL write_variable_in_CCOL_note_test("-----" & IEVS_period & " NON-WAGE MATCH(" & match_type_letter & ") " & " (" & first_name & ") CLEARED CC-CLAIM ENTERED " & header_note & "-----")
 	CALL write_bullet_and_variable_in_CCOL_NOTE_test("Discovery date", discovery_date)
 	CALL write_bullet_and_variable_in_CCOL_NOTE_test("Period", IEVS_period)
 	CALL write_bullet_and_variable_in_CCOL_NOTE_test("Active Programs", programs)
