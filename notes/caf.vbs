@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("01/29/2020", "When entering a expedited approval date or denial date on Dialog 8, the script will evaluate to be sure this date is not in the future. The script was requiring delay explanation when dates in the future were entered by accident, this additional handling will provide greater clarity of the updates needed.", "Casey Love, Hennepin County")
 Call changelog_update("01/08/2020", "BUG FIX - When selecting CASH and SNAP for an MFIP Recertification, the script would error out and could not continue due to not being able to find the SNAP ER date on REVW. Updated the script to ignore that blank recert date.##~##", "Casey Love, Hennepin County")
 Call changelog_update("11/27/2019", "Added handling to support 10 or more children on STAT/PARE panels.", "Ilse Ferris, Hennepin County")
 Call changelog_update("11/22/2019", "Added a checkbox on the verifications dialog pop-up. This checkbox will add detail to the verifications case note that there are verifications that have been postponed.##~##", "Casey Love, Hennepin County")
@@ -4744,6 +4745,8 @@ Do
                     If the_process_for_snap = "Application" AND exp_det_case_note_found = FALSE Then
                         If trim(snap_denial_date) <> "" AND IsDate(snap_denial_date) = FALSE Then
                             full_err_msg = full_err_msg & "~!~8^* SNAP DENIAL DATE ##~##   - This is a a SNAP case at application. You entered something in the SNAP denial date but it does not appear to be a date. Please list the date that SNAP will be denied if SNAP is being denied."
+                        ElseIf IsDate(snap_denial_date) = TRUE Then
+                            If DateDiff("d", date, snap_denial_date) > 0 Then full_err_msg = full_err_msg & "~!~8^* SNAP DENIAL DATE ##~##   - The denial date is listed as a future date. Review the date entered in the SNAP denial date field."
                         ElseIf trim(snap_denial_date) = "" Then
                             If snap_exp_yn = "?" Then
                                 full_err_msg = full_err_msg & "~!~8^* IS THIS SNAP APPLICATION EXPEDITED ##~##   - This is a a SNAP case at application. Indicate if this case has been determined to be expedited SNAP or not."
@@ -4772,7 +4775,11 @@ Do
                                 End If
                                 If snap_exp_yn = "Yes" Then
                                     If IsDate(exp_snap_approval_date) = TRUE Then
-                                        If DateDiff("d", CAF_datestamp, exp_snap_approval_date) > 7 AND trim(exp_snap_delays) = "" Then full_err_msg = full_err_msg & "~!~8^* EXPLAIN DELAYS ##~##   - Since Expedited SNAP is not approved within 7 days of the date of application, pease explain the reason for the delay."
+                                        If DateDiff("d", date, exp_snap_approval_date) > 0 Then
+                                            full_err_msg = full_err_msg & "~!~8^* EXP APPROVAL DATE ##~##   - The date listed in the expedited approval date is a future date. Please review the date listed and reenter if necessary."
+                                        ElseIf DateDiff("d", CAF_datestamp, exp_snap_approval_date) > 7 AND trim(exp_snap_delays) = "" Then
+                                            full_err_msg = full_err_msg & "~!~8^* EXPLAIN DELAYS ##~##   - Since Expedited SNAP is not approved within 7 days of the date of application, pease explain the reason for the delay."
+                                        End If
                                     Else
                                         If trim(exp_snap_delays) = "" Then full_err_msg = full_err_msg & "~!~8^* EXPLAIN DELAYS ##~##   - Since the Expedited SNAP does not have an approval date yet, either explain the reason for the delay or indicate the date of Expedited SNAP Approval."
                                     End If
