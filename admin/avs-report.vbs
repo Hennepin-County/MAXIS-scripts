@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/30/2020", "Added excel row selection for certain processes to speed up report time.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/06/2019", "Added ability to run all spreadsheets in a process concurrently.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/17/2019", "Added updated SPEC/MEMO verbiage.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/23/2019", "Initial version.", "Ilse Ferris, Hennepin County")
@@ -172,10 +173,6 @@ Function AVS_sync()
                 SMI_AAF = master_array(SMI_ECF_const, item)  
                 
                 If SMI_AAF = month_SMI_number then
-                    'msgbox "excel row: " & excel_row & vbcr & objExcel.Cells(excel_row, forms_col).Value & vbcr & objExcel.Cells(excel_row, cn_col).Value
-                    'master_array(scan_date_AAF_const, item) = objExcel.Cells(excel_row, forms_col).Value    'outputting form date 
-                    'master_array(case_note_const,     item) = objExcel.Cells(excel_row, note_col).Value    'outputting case note date
-                    
                     'scan date or form date 
                     If master_array(scan_date_AAF_const, item) = "" then 
                         master_array(scan_date_AAF_const, item) = trim(month_scan_date)'revaluing case note  
@@ -221,6 +218,7 @@ Function AVS_sync()
     FOR i = 1 to 6		'formatting the cells
         objExcel.Columns(i).AutoFit()				'sizing the columns'
     NEXT
+    msgbox "Sync Complete"
 End function
 '----------------------------------------------------------------------------------------------------The script
 'CONNECTS TO BlueZone
@@ -252,14 +250,17 @@ two_memo_col    = 22
 '----------------------------------------------------------------------------------------------------INITIAL DIALOG
 'The dialog is defined in the loop as it can change as buttons are pressed 
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 246, 95, "AVS Processing Selection"
+BeginDialog Dialog1, 0, 0, 246, 110, "AVS Processing Selection"
   DropListBox 120, 50, 115, 15, "Select one..."+chr(9)+"Case & Person Noting"+chr(9)+"ECF Forms Received"+chr(9)+"Initial Monthly Upload"+chr(9)+"New Person Information"+chr(9)+"Output Waiver Lists"+chr(9)+"Run Sync", AVS_option
+  EditBox 85, 75, 45, 15, excel_row_to_start
   ButtonGroup ButtonPressed
     OkButton 140, 75, 45, 15
     CancelButton 190, 75, 45, 15
-  Text 20, 20, 210, 20, "This script should be used when a list of AVS cases are provided by the METS team or DHS."
   Text 20, 50, 95, 10, "Select the processing option:"
   GroupBox 10, 5, 230, 65, "Using this script:"
+  Text 10, 80, 70, 10, "**Excel row to start:"
+  Text 20, 20, 210, 20, "This script should be used when a list of AVS cases are provided by the METS team or DHS."
+  Text 10, 95, 225, 10, "** For Case & Person Noting OR New Person Information Option Only"
 EndDialog
 
 Do     
@@ -268,6 +269,9 @@ Do
         dialog Dialog1
         cancel_without_confirmation 
         If AVS_option = "Select one..." then err_msg = "Select the AVS process to complete."
+        If AVS_option = "Case & Person Noting" or AVS_option = "New Person Information" then
+            If excel_row_to_start = "" then err_msg = "Enter the Excel Row to Start."
+        End if
         If err_msg <> "" Then MsgBox err_msg
     Loop until err_msg = ""
 CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -694,7 +698,8 @@ If AVS_option = "Case & Person Noting" then
     back_to_self
     call MAXIS_footer_month_confirmation	'ensuring we are in the correct footer month/year
     
-    excel_row = 2
+    msgbox excel_row_to_start
+    excel_row = excel_row_to_start
     case_note_total = 0
     
     Do   
@@ -802,7 +807,8 @@ IF AVS_option = "New Person Information" then
    Call excel_open(file_selection, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
    objExcel.worksheets("All AVS Forms").Activate 'Activates worksheet based on user selection
    
-   excel_row = 2    'starting point
+   msgbox excel_row_to_start
+   excel_row = excel_row_to_start    'starting point
     
     DO
         master_SMI_number = ObjExcel.Cells(excel_row, 1).Value  'from All AVS forms list
