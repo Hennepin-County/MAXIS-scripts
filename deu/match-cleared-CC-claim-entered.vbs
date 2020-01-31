@@ -1,4 +1,4 @@
-match_type''GATHERING STATS===========================================================================================
+'GATHERING STATS===========================================================================================
 name_of_script = "ACTIONS - DEU-MATCH CLEARED CC.vbs"
 start_time = timer
 STATS_counter = 1
@@ -215,9 +215,7 @@ CALL changelog_update("11/14/2017", "Initial version.", "MiKayla Handley, Hennep
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-
 EMConnect ""
-
 MAXIS_footer_month = CM_mo
 MAXIS_footer_year = CM_yr
 '----------------------------------------------------------------------------------------------------DAIL
@@ -234,7 +232,7 @@ IF dail_check = "DAIL" THEN
 	IF match_found = TRUE THEN
     	EMReadScreen MAXIS_case_number, 8, 5, 73
 		MAXIS_case_number= TRIM(MAXIS_case_number)
-		 '----------------------------------------------------------------------------------------------------IEVP
+'----------------------------------------------------------------------------------------------------IEVP
 		'Navigating deeper into the match interface
 		CALL write_value_and_transmit("I", 6, 3)   		'navigates to INFC
 		CALL write_value_and_transmit("IEVP", 20, 71)   'navigates to IEVP
