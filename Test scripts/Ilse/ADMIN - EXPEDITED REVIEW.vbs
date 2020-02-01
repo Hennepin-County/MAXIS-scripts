@@ -143,7 +143,6 @@ If notes_checkbox = checked then
             master_notes = ObjExcel.Cells(excel_row, 8).Value        
         
             If trim(master_notes) <> "" then 
-                msgbox master_notes
                 ReDim Preserve master_array(2, master_record)	'This resizes the array based on the number of rows in the Excel File'
                 master_array(master_case_number_const,  master_record) = master_case_number
                 master_array(master_notes_const,        master_record) = trim(master_notes)
@@ -154,7 +153,6 @@ If notes_checkbox = checked then
             excel_row = excel_row + 1
         LOOP
     Next 
-    'msgbox master_record
     
     objExcel.ActiveWorkbook.Close
     objExcel.Application.Quit
@@ -217,14 +215,15 @@ Do
         expedited_array(case_status_const,      entry_record) = ""
         expedited_array(appears_exp_const,      entry_record) = ""
         expedited_array(prev_notes_const,       entry_record) = ""
-        
-        For i = 0 to Ubound(master_array, 2)
-            If master_array(master_case_number_const, i) = MAXIS_case_number then 
-                msgbox "match found!"
-                expedited_array(prev_notes_const, entry_record) = master_array(master_notes_const, i)
-                exit for 
-            End if      
-        Next 
+        If notes_checkbox = checked then
+            For i = 0 to Ubound(master_array, 2)
+                If master_array(master_case_number_const, i) = MAXIS_case_number then 
+                    'msgbox "match found!"
+                    expedited_array(prev_notes_const, entry_record) = master_array(master_notes_const, i)
+                    exit for 
+                End if      
+            Next 
+        End if 
 
         entry_record = entry_record + 1			'This increments to the next entry in the array'
         stats_counter = stats_counter + 1
@@ -407,6 +406,7 @@ For item = 0 to UBound(expedited_array, 2)
         objExcel.Cells(excel_row, 5).Value = expedited_array(application_date_const, item)
         objExcel.Cells(excel_row, 6).Value = expedited_array(interview_date_const,   item)
         objExcel.Cells(excel_row, 7).Value = expedited_array(case_status_const,      item)
+        objExcel.Cells(excel_row, 8).Value = expedited_array(prev_notes_const,       item)
         excel_row = excel_row + 1
     End if 
 Next 
@@ -442,6 +442,7 @@ For item = 0 to UBound(expedited_array, 2)
         objExcel.Cells(excel_row, 5).Value = expedited_array(application_date_const, item)
         objExcel.Cells(excel_row, 6).Value = expedited_array(interview_date_const,   item)
         objExcel.Cells(excel_row, 7).Value = expedited_array(case_status_const,      item)
+        objExcel.Cells(excel_row, 8).Value = expedited_array(prev_notes_const,       item)
         excel_row = excel_row + 1
     End if 
 Next 
@@ -477,6 +478,7 @@ For item = 0 to UBound(expedited_array, 2)
         objExcel.Cells(excel_row, 5).Value = expedited_array(application_date_const, item)
         objExcel.Cells(excel_row, 6).Value = expedited_array(interview_date_const,   item)
         objExcel.Cells(excel_row, 7).Value = expedited_array(case_status_const,      item)
+        objExcel.Cells(excel_row, 8).Value = expedited_array(prev_notes_const,       item)
         excel_row = excel_row + 1
     End if 
 Next 
@@ -512,6 +514,7 @@ For item = 0 to UBound(expedited_array, 2)
         objExcel.Cells(excel_row, 5).Value = expedited_array(application_date_const, item)
         objExcel.Cells(excel_row, 6).Value = expedited_array(interview_date_const,   item)
         objExcel.Cells(excel_row, 7).Value = expedited_array(case_status_const,      item)
+        objExcel.Cells(excel_row, 8).Value = expedited_array(prev_notes_const,       item)
         excel_row = excel_row + 1
     End if 
 Next 
@@ -520,15 +523,6 @@ FOR i = 1 to 8		'formatting the cells
 	objExcel.Cells(1, i).Font.Bold = True		'bold font'
 	objExcel.Columns(i).AutoFit()				'sizing the columns'
 NEXT
-
-'previous_notes = msgbox "Do you want to add the previous business day's review to your notes?", "Add QI Review Notes?", vbQuestion + vbYesNo
-'If previous_notes = vbNo then 
-'    STATS_counter = STATS_counter - 1  'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
-'    script_end_procedure_with_error_report("Success! Please review the worksheets for expedited processing needs without the previous day's notes added.")
-'End if 
-'
-'If previous_notes = vbYes then
-
     
 'logging usage stats
 STATS_counter = STATS_counter - 1  'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
