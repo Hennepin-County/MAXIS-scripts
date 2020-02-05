@@ -55,15 +55,17 @@ changelog_display
 EMConnect ""
 
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 141, 46, "Worker signature"
-  EditBox 15, 25, 50, 15, worker_signature
-  ButtonGroup ButtonPressed_worker_sig_dialog
-    OkButton 85, 5, 50, 15
-    CancelButton 85, 25, 50, 15
-  Text 5, 10, 75, 10, "Sign your case note."
+BeginDialog Dialog1, 0, 0, 281, 45, "Worker signature"
+  EditBox 60, 5, 70, 15, MAXIS_case_number
+  EditBox 80, 25, 135, 15, worker_signature
+  ButtonGroup ButtonPressed
+    OkButton 225, 5, 50, 15
+    CancelButton 225, 25, 50, 15
+  Text 5, 10, 50, 10, "Case Number:"
+  Text 5, 30, 70, 10, "Sign your case note:"
 EndDialog
 
-Do 
+Do
 	Dialog Dialog1
 	Cancel_without_confirmation
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
