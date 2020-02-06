@@ -5228,7 +5228,9 @@ Function non_actionable_dails
         instr(dail_msg, "SDX INFORMATION HAS BEEN STORED - CHECK INFC") OR _
         instr(dail_msg, "BENDEX INFORMATION HAS BEEN STORED - CHECK INFC") OR _
         instr(dail_msg, "- TRANS #") OR _
-        instr(dail_msg, "PERSON/S REQD SNAP NOT IN SNAP UNIT") then
+        instr(dail_msg, "PERSON/S REQD SNAP NOT IN SNAP UNIT") OR _ 
+        instr(dail_msg, "RSDI UPDATED - (REF") OR _
+        instr(dail_msg, "SSI UPDATED - (REF") then  
             add_to_excel = True
         '----------------------------------------------------------------------------------------------------CORRECT STAT EDITS over 5 days old
     Elseif instr(dail_msg, "CORRECT STAT EDITS") then
