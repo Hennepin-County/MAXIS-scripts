@@ -218,7 +218,7 @@ changelog_display
 EMConnect ""
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 memb_number = "01"
-discovery_date = date & ""
+'discovery_date = date & ""
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 361, 280, "Overpayment Claim Entered"
