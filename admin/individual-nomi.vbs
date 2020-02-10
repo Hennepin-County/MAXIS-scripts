@@ -178,12 +178,12 @@ PF4
 PF3
 'Writes the case note for the NOMI
 start_a_blank_CASE_NOTE
-Call write_variable_in_CASE_NOTE("~ Client has not completed application interview, NOMI sent via script ~ ")
+Call write_variable_in_CASE_NOTE("~ Client has not completed application interview, NOMI sent ~ ")
 Call write_variable_in_CASE_NOTE("A notice was previously sent to client with detail about completing an interview. ")
 Call write_variable_in_CASE_NOTE("Households failing to complete the interview within 30 days of the date they file an application will receive a denial notice")
 Call write_variable_in_CASE_NOTE("A link to the domestic violence brochure sent to client in SPEC/MEMO as a part of interview notice.")
 Call write_variable_in_CASE_NOTE("---")
-Call write_variable_in_CASE_NOTE(worker_signature & " via bulk on demand waiver script")
+Call write_variable_in_CASE_NOTE(worker_signature)
 PF3
 
 statistics_excel_file_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\Applications Statistics\2019 Statistics Tracking.xlsx"

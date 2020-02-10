@@ -182,7 +182,7 @@ Call write_variable_in_CASE_NOTE("A notice has been sent via SPEC/MEMO informing
 Call write_variable_in_CASE_NOTE("Households failing to complete the interview within 30 days of the date they file an application will receive a denial notice")
 Call write_variable_in_CASE_NOTE("A link to the domestic violence brochure sent to client in SPEC/MEMO as a part of interview notice.")
 Call write_variable_in_CASE_NOTE("---")
-Call write_variable_in_CASE_NOTE(worker_signature & " via bulk on demand waiver script")
+Call write_variable_in_CASE_NOTE(worker_signature)
 PF3
 script_end_procedure_with_error_report("Success! The Appointment Letter has been sent.")
 'IF action_completed = False then 'build handling'
