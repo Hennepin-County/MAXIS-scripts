@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("02/11/2020", "Added waiver code and case mgr NPI to initial monthly upload option. Removed testing msgboxes.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/30/2020", "Added excel row selection for certain processes to speed up report time.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/06/2019", "Added ability to run all spreadsheets in a process concurrently.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/17/2019", "Added updated SPEC/MEMO verbiage.", "Ilse Ferris, Hennepin County")
@@ -53,9 +54,9 @@ call changelog_update("09/23/2019", "Initial version.", "Ilse Ferris, Hennepin C
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-Function MMIS_panel_check(panel_name)
+Function MMIS_panel_check(panel_name, col)
 	Do 
-		EMReadScreen panel_check, 4, 1, 52
+		EMReadScreen panel_check, 4, 1, col
 		If panel_check <> panel_name then Call write_value_and_transmit(panel_name, 1, 8)
 	Loop until panel_check = panel_name
 End function
@@ -100,8 +101,7 @@ function start_a_new_spec_memo_and_continue(success_var)
 end function
 
 ''----------------------------------------------------------------------------------------------------Gathering ALL AVS FORMS information
-Function AVS_sync()
-    'msgbox "Starting AVS Sync"    
+Function AVS_sync()   
     objExcel.worksheets("All AVS Forms").Activate 'Activates worksheet based on user selection
     
     DIM master_array()
@@ -141,7 +141,6 @@ Function AVS_sync()
         STATS_counter = STATS_counter + 1
         excel_row = excel_row + 1
     LOOP
-    'msgbox master_record
     
     '----------------------------------------------------------------------------------------------------Gathering monthly information & exporting ALL AVS FORMS information
     For Each objWorkSheet In objWorkbook.Worksheets
@@ -154,7 +153,6 @@ Function AVS_sync()
     master_count = 0
     
     For each month_sheet in array_of_months
-        'msgbox month_sheet
         objExcel.worksheets(month_sheet).Activate 'Activates worksheet based on user selection
         excel_row = 2
         
@@ -227,10 +225,11 @@ MAXIS_footer_month = CM_mo	'establishing footer month/year
 MAXIS_footer_year = CM_yr 
 
 'column numbers 
-cn_col          = 4
-PMI_col         = 5
-client_name_col = 6
-SMI_col         = 7
+cn_col          = 3
+PMI_col         = 4
+client_name_col = 5
+SMI_col         = 6
+waiver_col      = 7
 wstart_col      = 8
 wend_col        = 9
 medi_col        = 10
@@ -244,8 +243,9 @@ rlva_col        = 17
 dupe_col        = 18
 forms_col       = 19
 note_col        = 20
-one_memo_col    = 21
-two_memo_col    = 22
+NPI_col         = 21
+one_memo_col    = 22
+two_memo_col    = 23
 
 '----------------------------------------------------------------------------------------------------INITIAL DIALOG
 'The dialog is defined in the loop as it can change as buttons are pressed 
@@ -393,7 +393,8 @@ If AVS_option = "Initial Monthly Upload" then
     Call excel_open(file_selection, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
     
     'adding column header information to the Excel list
-    ObjExcel.Cells(1, 7).Value = "SMI"
+    ObjExcel.Cells(1, 6).Value = "SMI"
+    ObjExcel.Cells(1, 7).Value = "Waiver Type"
     ObjExcel.Cells(1, 8).Value = "Waiver start"
     ObjExcel.Cells(1, 9).Value = "Waiver end"
     ObjExcel.Cells(1, 10).Value = "Medicare"
@@ -407,10 +408,11 @@ If AVS_option = "Initial Monthly Upload" then
     ObjExcel.Cells(1, 18).Value = "Duplicate PMI?"
     ObjExcel.Cells(1, 19).Value = "Forms Rec'd in ECF"
     ObjExcel.Cells(1, 20).Value = "P/C Note Created"
-    ObjExcel.Cells(1, 21).Value = "Initial Memo"
-    ObjExcel.Cells(1, 22).Value = "Second Memo"
+    ObjExcel.Cells(1, 21).Value = "Case Mgr NPI"
+    ObjExcel.Cells(1, 22).Value = "Initial Memo"
+    ObjExcel.Cells(1, 23).Value = "Second Memo"
     
-    FOR i = 1 to 22 	'formatting the cells'
+    FOR i = 1 to 23 	'formatting the cells'
     	objExcel.Cells(1, i).Font.Bold = True		'bold font'
     	ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
     	objExcel.Columns(i).AutoFit()				'sizing the columns'
@@ -420,27 +422,29 @@ If AVS_option = "Initial Monthly Upload" then
     ObjExcel.columns(9).NumberFormat = "mm/dd/yy" 		'formatting waiver end date as a date
     
     DIM case_array()
-    ReDim case_array(17, 0)
+    ReDim case_array(19, 0)
     
     'constants for array
     const case_number_const     	= 0
     const clt_PMI_const 	        = 1
     const SMI_num_const             = 2
-    const waiver_start_const	    = 3
-    const waiver_end_const          = 4
-    const medicare_info_const       = 5
-    const first_case_number_const   = 6
-    const first_type_const 	        = 7
-    const first_elig_const 	        = 8
-    const second_case_number_const  = 9
-    const second_type_const         = 10
-    const second_elig_const         = 11
-    const third_case_number_const   = 12
-    const third_type_const     	    = 13
-    const third_elig_const          = 14
-    const case_status               = 15
-    const rlva_coding_const         = 16
-    const name_const                = 17 
+    const waiver_type_const         = 3
+    const waiver_start_const	    = 4
+    const waiver_end_const          = 5
+    const medicare_info_const       = 6
+    const first_case_number_const   = 7
+    const first_type_const 	        = 8
+    const first_elig_const 	        = 9
+    const second_case_number_const  = 10
+    const second_type_const         = 11
+    const second_elig_const         = 12
+    const third_case_number_const   = 13
+    const third_type_const     	    = 14
+    const third_elig_const          = 15
+    const case_status               = 16
+    const rlva_coding_const         = 17 
+    const name_const                = 18   
+    const NPI_const                 = 19        
     
     'Now the script adds all the clients on the excel list into an array
     excel_row = 2 're-establishing the row to start checking the members for
@@ -461,10 +465,11 @@ If AVS_option = "Initial Monthly Upload" then
         
         name_of_client = objExcel.cells(excel_row, client_name_col).Value   'reading the case number from Excel   
             
-        ReDim Preserve case_array(17, entry_record)	'This resizes the array based on the number of rows in the Excel File'
+        ReDim Preserve case_array(19, entry_record)	'This resizes the array based on the number of rows in the Excel File'
         case_array(case_number_const,           entry_record) = MAXIS_case_number	'The client information is added to the array'
         case_array(clt_PMI_const,               entry_record) = Client_PMI			
-        case_array(SMI_num_const,               entry_record) = ""                       
+        case_array(SMI_num_const,               entry_record) = "" 
+        case_array(waiver_type_const,	        entry_record) = ""                      
         case_array(waiver_start_const,	        entry_record) = ""
         case_array(waiver_end_const,	        entry_record) = ""
         case_array(medicare_info_const,         entry_record) = ""     
@@ -477,6 +482,7 @@ If AVS_option = "Initial Monthly Upload" then
         case_array(case_status,                 entry_record) = False 	
         case_array(rlva_coding_const,           entry_record) =	""
         case_array(name_const,                  entry_record) = trim(name_of_client)
+        case_array (NPI_const,                  entry_record) = ""
         
         entry_record = entry_record + 1			'This increments to the next entry in the array'
         stats_counter = stats_counter + 1
@@ -541,7 +547,7 @@ If AVS_option = "Initial Monthly Upload" then
         client_PMI = right("00000000" & client_pmi, 8)
         
         If case_array(case_status, item) = True then
-            MMIS_panel_check("RKEY") 
+            Call MMIS_panel_check("RKEY", 52) 
             Call clear_line_of_text(5, 19)
             EmWriteScreen Client_PMI, 4, 19
             Call write_value_and_transmit("I", 2, 19)
@@ -568,11 +574,14 @@ If AVS_option = "Initial Monthly Upload" then
                     waiver_info = trim(waiver_info)
                     If waiver_info = "BEG DT:          THROUGH DT:" then 
                         waiver_info = ""
+                        Case_array(waiver_type_const, item) = ""
                         Case_array(waiver_start_const, item) = ""
                         Case_array(waiver_end_const, item) = ""
                     Else 
+                        EmReadscreen waiver_type, 1, 15, 15
                         EMReadscreen waiver_start_date, 8, 15, 25
                         EmReadscreen waiver_end_date, 8, 15, 46
+                        Case_array(waiver_type_const, item) = trim(waiver_type)
                         Case_array(waiver_start_const, item) = waiver_start_date
                         Case_array(waiver_end_const, item) = waiver_end_date
                     End if 
@@ -620,12 +629,23 @@ If AVS_option = "Initial Monthly Upload" then
                     
                     'RLVA 
                     Call write_value_and_transmit("RLVA", 1, 8)
-                    Call MMIS_panel_check("RLVA")
+                    Call MMIS_panel_check("RLVA", 52)
                     EmReadscreen rlva_coding, 12, 14, 42 'most recent living arrangement 
                     case_array(rlva_coding_const, item) = rlva_coding
                     
+                    If waiver_info <> "" then 
+                        'RMGR
+                        Call write_value_and_transmit("RMGR", 1, 8)
+                        Call MMIS_panel_check("RMGR", 51)
+                        EmReadscreen NPI_number, 10, 7, 60
+                        case_array (NPI_const, item) = trim(NPI_number)
+                    Else
+                        case_array (NPI_const, item) = ""
+                    End if 
+                        
                     'outputting to Excel 
                     objExcel.Cells(excel_row, SMI_col).Value = case_array (SMI_num_const,                  item)
+                    objExcel.Cells(excel_row, waiver_col).Value = case_array (waiver_type_const,	       item)
                     objExcel.Cells(excel_row, wstart_col).Value = case_array (waiver_start_const,	       item)
                     objExcel.Cells(excel_row, wend_col).Value = case_array (waiver_end_const,	           item)
                     objExcel.Cells(excel_row, medi_col).Value = case_array (medicare_info_const,           item)
@@ -635,7 +655,8 @@ If AVS_option = "Initial Monthly Upload" then
                     objExcel.Cells(excel_row, two_case_col).Value = case_array (second_case_number_const,  item)
                     objExcel.Cells(excel_row, two_type_col).Value = case_array (second_type_const, 	       item)
                     objExcel.Cells(excel_row, two_elig_col).Value = case_array (second_elig_const, 	       item)
-                    objExcel.Cells(excel_row, rlva_col).Value = case_array (rlva_coding_const,             item)                     
+                    objExcel.Cells(excel_row, rlva_col).Value = case_array (rlva_coding_const,             item)
+                    objExcel.Cells(excel_row, NPI_col).Value = case_array (NPI_const,                      item)                        
                     
                     If duplicate_entry = True then objExcel.Cells(excel_row, dupe_col).Value = "True"
                     PF3
@@ -698,7 +719,6 @@ If AVS_option = "Case & Person Noting" then
     back_to_self
     call MAXIS_footer_month_confirmation	'ensuring we are in the correct footer month/year
     
-    msgbox excel_row_to_start
     excel_row = excel_row_to_start
     case_note_total = 0
     
@@ -793,8 +813,7 @@ If AVS_option = "Case & Person Noting" then
         form_date = ""
         note_date = ""
     Loop 
-    'msgbox "Case note total: " & case_note_total
-    
+
    FOR i = 1 to 6		'formatting the cells
        objExcel.Columns(i).AutoFit()				'sizing the columns'
    NEXT
@@ -807,7 +826,6 @@ IF AVS_option = "New Person Information" then
    Call excel_open(file_selection, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
    objExcel.worksheets("All AVS Forms").Activate 'Activates worksheet based on user selection
    
-   msgbox excel_row_to_start
    excel_row = excel_row_to_start    'starting point
     
     DO
@@ -912,13 +930,10 @@ If AVS_option = "Output Waiver Lists" then
             output_waiver_start = ObjExcel.Cells(excel_row, wstart_col).Value
             output_waiver_end   = ObjExcel.Cells(excel_row, wend_col).Value
             output_form_date    = ObjExcel.Cells(excel_row, forms_col).Value
-            'msgbox output_form_date & vbcr & excel_row & forms_col
             
             If trim(output_form_date) = "" then
                 If trim(output_waiver_end) <> "" then 
-                    'msgbox "Form date: " & output_form_date & vbcr & "Excel row:" & excel_row & vbcr & "date diff: " & datediff("d", output_waiver_end, date)
                     If datediff("d", output_waiver_end, date) =< 0 then
-                        'msgbox output_waiver_end & vbcr & excel_row & datediff("d", output_waiver_end, date) =< 0 
                         ReDim Preserve output_array(5, entry_record)	'This resizes the array based on the number of rows in the Excel File'
                         output_array(output_PMI_const,          entry_record) = trim(output_PMI)
                         output_array(output_name_const,         entry_record) = trim(output_name)
@@ -940,7 +955,6 @@ If AVS_option = "Output Waiver Lists" then
             output_waiver_end   = ""
             output_form_date    = ""
         LOOP
-        'msgbox output_count & vbcr & month_sheet
     Next
     
     'Opening the Excel file
