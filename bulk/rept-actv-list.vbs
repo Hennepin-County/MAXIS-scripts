@@ -363,8 +363,6 @@ For each worker in worker_array
 			Loop until MAXIS_row = 19
 			PF8
 		Loop until last_page_check = "THIS IS THE LAST PAGE"
-	ELSE
-		script_end_procedure("Your REPT/ACTV list has been created, no active cases are listed. ")
 	END IF
 next
 
