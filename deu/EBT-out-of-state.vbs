@@ -186,7 +186,7 @@ IF action_taken = "No response received" or action_taken = "Other" THEN
 END IF
 
 IF request_contact_checkbox = CHECKED THEN pending_verifs = pending_verifs & "Contact Request, "
-IF shel_verf_checkbox = CHECKED THEN pending_verifs = pending_verifs & "SVF, "
+IF shel_verf_checkbox = CHECKED THEN pending_verifs = pending_verifs & "Shelter Verification, "
 IF ATR_Verf_CheckBox = CHECKED THEN pending_verifs = pending_verifs & "ATR, "
 IF other_checkbox = CHECKED THEN pending_verifs = pending_verifs & "Other, "
 '-------------------------------------------------------------------trims excess spaces of pending_verifs
@@ -200,7 +200,7 @@ start_a_blank_case_note      'navigates to case/note and puts case/note into edi
     Call write_bullet_and_variable_in_CASE_NOTE("Client has been accessing benefits out of state since", bene_date)
 	Call write_bullet_and_variable_in_CASE_NOTE("State(s)", out_of_state)
 	IF case_status = "Inactive" THEN
-		Call write_variable_in_CASE_NOTE("* Client will need to verify residence when reapplying.")
+		Call write_variable_in_CASE_NOTE("* Client will need to verify MN residence when reapplying and a written statement explain why accessing benefits out of state.")
 		Call write_variable_in_CASE_NOTE("* Agency will need to verify benefits received in the other state prior to reopening case")
 	END IF
 	IF other_state_contact_checkbox = CHECKED THEN Call write_variable_in_CASE_NOTE("* Other state(s) have been contacted")
