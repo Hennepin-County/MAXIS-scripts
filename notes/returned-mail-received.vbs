@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("02/13/2020", "Updated the zip code to only allow for 5 characters.", "MiKayla Handley, Hennepin County")
 call changelog_update("06/06/2019", "Initial version. Rewitten per POLI/TEMP.", "MiKayla Handley, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -79,20 +80,17 @@ DO
     	cancel_confirmation
     	IF MAXIS_case_number = "" OR (MAXIS_case_number <> "" AND len(MAXIS_case_number) > 8) OR (MAXIS_case_number <> "" AND IsNumeric(MAXIS_case_number) = False) THEN err_msg = err_msg & vbCr & "* Please enter a valid case number."
 		If isdate(date_received) = FALSE and Cdate(date_received) > cdate(date) = TRUE THEN  err_msg = err_msg & vbnewline & "* You must enter an actual date that is not in the future and is in the footer month that you are working in."
-		'If isdate(date_received) = FALSE then err_msg = err_msg & vbnewline & "* Please enter a date (--/--/--) in the footer month that you are working in."
 		IF ADDR_actions = "Select:" THEN err_msg = err_msg & vbCr & "Please chose an action for the returned mail."
     	IF worker_signature = "" THEN err_msg = err_msg & vbCr & "Please sign your case note."
     	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
     LOOP UNTIL err_msg = ""
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
-CALL check_for_MAXIS(False)
 
 'MAXIS_footer_month = right("00" & DatePart("m", date_received), 2)
 MAXIS_footer_month = DatePart("m", date_received)
 MAXIS_footer_month = right("00" & MAXIS_footer_month, 2)
-
-MAXIS_footer_year = DatePart("yyyy", date_received) 
+MAXIS_footer_year = DatePart("yyyy", date_received)
 MAXIS_footer_year = right(MAXIS_footer_year, 2)
 
 CALL back_to_SELF
@@ -211,17 +209,16 @@ IF ADDR_actions = "No forwarding address provided" THEN
 	    DO
 	    	err_msg = ""
 	    	DIALOG Dialog1
-	    		cancel_without_confirmation
-				IF verifA_sent_checkbox = UNCHECKED and CRF_sent_checkbox = UNCHECKED and SHEL_form_sent_checkbox= UNCHECKED THEN err_msg = err_msg & vbCr & "Please select the verifcation requested and ensure forms are sent in ECF."
-	    		IF mets_addr_correspondence = "YES" THEN
-					IF METS_case_number = "" OR (METS_case_number <> "" AND len(METS_case_number) > 10) OR (METS_case_number <> "" AND IsNumeric(METS_case_number) = False) THEN err_msg = err_msg & vbCr & "* Please enter a valid case number."
-				END IF
-				IF mets_addr_correspondence = "Select:" THEN err_msg = err_msg & vbCr & "Please select if correspondence has been sent to METS."
-	    		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-	    	LOOP UNTIL err_msg = ""
-	    	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-		LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
-	CALL check_for_MAXIS(False)
+	    	cancel_without_confirmation
+			IF verifA_sent_checkbox = UNCHECKED and CRF_sent_checkbox = UNCHECKED and SHEL_form_sent_checkbox= UNCHECKED THEN err_msg = err_msg & vbCr & "Please select the verifcation requested and ensure forms are sent in ECF."
+	    	IF mets_addr_correspondence = "YES" THEN
+				IF METS_case_number = "" OR (METS_case_number <> "" AND len(METS_case_number) > 10) OR (METS_case_number <> "" AND IsNumeric(METS_case_number) = False) THEN err_msg = err_msg & vbCr & "* Please enter a valid case number."
+			END IF
+			IF mets_addr_correspondence = "Select:" THEN err_msg = err_msg & vbCr & "Please select if correspondence has been sent to METS."
+	    	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+	    LOOP UNTIL err_msg = ""
+	    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+	LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 END IF
 
 IF ADDR_actions = "Forwarding address outside MN" THEN county_code = "Out of State"
@@ -272,26 +269,25 @@ IF ADDR_actions = "Forwarding address in MN" or ADDR_actions = "Forwarding addre
     	DO
     		err_msg = ""
     		DIALOG Dialog1
-    			cancel_without_confirmation
-				IF new_addr_line_one = "" THEN err_msg = err_msg & vbCr & "Please complete the street address the client in now living at."
-				IF new_addr_city = "" THEN err_msg = err_msg & vbCr & "Please complete the city in which the client in now living."
-				IF new_addr_state = "" THEN err_msg = err_msg & vbCr & "Please complete the state in which the client in now living."
-				IF new_addr_zip = "" THEN err_msg = err_msg & vbCr & "Please complete the city in which the client in now living."
-				IF homeless_addr = "Select:" THEN err_msg = err_msg & vbCr & "Please advise whether the client has reported homlessness."
-			 	IF living_situation = "Select:" THEN err_msg = err_msg & vbCr & "Please select the client's living situation - Unknown should not be selected as this should be covered in the interview."
-			 	IF reservation_addr = "Select:" THEN err_msg = err_msg & vbCr & "Please select if client is living on the reservation."
-				IF reservation_addr = "YES" THEN
-					IF reservation_name = "Select:" THEN err_msg = err_msg & vbCr & "Please select the name of the reservation the client is living on."
-				END IF
-      			IF mets_addr_correspondence = "Select:" THEN err_msg = err_msg & vbCr & "Please select if correspondence has been sent to METS."
-				IF mets_addr_correspondence = "YES" THEN
-					IF METS_case_number = "" OR (METS_case_number <> "" AND len(METS_case_number) > 10) OR (METS_case_number <> "" AND IsNumeric(METS_case_number) = False) THEN err_msg = err_msg & vbCr & "* Please enter a valid case number."
-				END IF
-				IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-    		LOOP UNTIL err_msg = ""
-    		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-    	LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
-    CALL check_for_MAXIS(False)
+    		cancel_without_confirmation
+			IF new_addr_line_one = "" THEN err_msg = err_msg & vbCr & "Please complete the street address the client in now living at."
+			IF new_addr_city = "" THEN err_msg = err_msg & vbCr & "Please complete the city in which the client in now living."
+			IF new_addr_state = "" THEN err_msg = err_msg & vbCr & "Please complete the state in which the client in now living."
+			IF new_addr_zip = "" OR (new_addr_zip <> "" AND len(new_addr_zip) > 5) THEN err_msg = err_msg & vbNewLine & "*Please only enter a 5 digit zip code." 'Makes sure there is a numeric zip
+			IF homeless_addr = "Select:" THEN err_msg = err_msg & vbCr & "Please advise whether the client has reported homlessness."
+			IF living_situation = "Select:" THEN err_msg = err_msg & vbCr & "Please select the client's living situation - Unknown should not be selected as this should be covered in the interview."
+			IF reservation_addr = "Select:" THEN err_msg = err_msg & vbCr & "Please select if client is living on the reservation."
+			IF reservation_addr = "YES" THEN
+				IF reservation_name = "Select:" THEN err_msg = err_msg & vbCr & "Please select the name of the reservation the client is living on."
+			END IF
+      		IF mets_addr_correspondence = "Select:" THEN err_msg = err_msg & vbCr & "Please select if correspondence has been sent to METS."
+			IF mets_addr_correspondence = "YES" THEN
+				IF METS_case_number = "" OR (METS_case_number <> "" AND len(METS_case_number) > 10) OR (METS_case_number <> "" AND IsNumeric(METS_case_number) = False) THEN err_msg = err_msg & vbCr & "* Please enter a valid case number."
+			END IF
+			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+    	LOOP UNTIL err_msg = ""
+    	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 END IF
 
 IF homeless_addr = "YES" THEN homeless_addr_code = "Y"
@@ -489,7 +485,11 @@ IF ADDR_actions = "Forwarding address in MN" or ADDR_actions = "Forwarding addre
 	'Errors on the PACT'
 	'CASH II IS INACTIVE'
 	'CASE IS PENDING, USE '1' OR '3' TO DENY '
+
+	' *** WARNING ***  1, 26'
+	'RESIDENCE ADDRESS IS STANDARDIZED  3, 6
 	TRANSMIT
+'TODO - sending a PF11 for clarification on living situation 02-13-2020
 	EMReadScreen error_msg, 75, 24, 2
 	error_msg = TRIM(error_msg)
 	IF error_msg <> "" THEN
@@ -518,14 +518,14 @@ IF ADDR_actions = "Client has not responded to request" THEN
     	DO
     		err_msg = ""
     		DIALOG Dialog1
-    			cancel_without_confirmation
-    			If isdate(date_requested) = FALSE and Cdate(date_requested) > cdate(date) = TRUE THEN  err_msg = err_msg & vbnewline & "* Please enter the date verifcations were requested."
-    			IF ECF_review_checkbox <> CHECKED THEN  err_msg = err_msg & vbnewline & "* Please review ECF to ensure the requested verifications are not on file."
-    			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-    		LOOP UNTIL err_msg = ""
-    		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-    	LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
-    CALL check_for_MAXIS(False)
+    		cancel_without_confirmation
+    		If isdate(date_requested) = FALSE and Cdate(date_requested) > cdate(date) = TRUE THEN  err_msg = err_msg & vbnewline & "* Please enter the date verifcations were requested."
+    		IF ECF_review_checkbox <> CHECKED THEN  err_msg = err_msg & vbnewline & "* Please review ECF to ensure the requested verifications are not on file."
+    		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+    	LOOP UNTIL err_msg = ""
+    	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
+
 
     'per POLI/TEMP this only pretains to active cash and snap '
 	IF cash_active  = TRUE or cash2_active = TRUE or SNAP_active  = TRUE THEN
@@ -594,14 +594,13 @@ IF return_mail_checkbox = CHECKED THEN pending_verifs = pending_verifs & "Return
 pending_verifs = trim(pending_verifs) 	'takes the last comma off of pending_verifs when autofilled into dialog if more than one app date is found and additional app is selected
 IF right(pending_verifs, 1) = "," THEN pending_verifs = left(pending_verifs, len(pending_verifs) - 1)
 'checks that the worker is in MAXIS - allows them to get in MAXIS without ending the script
-Call check_for_MAXIS(False)
 
-'checking to make sure case is out of background & gets to STAT/BUDG
+'checking to make sure case is out of background
 Call MAXIS_background_check
 
 'starts a blank case note
 call start_a_blank_case_note
-call write_variable_in_CASE_NOTE("Returned mail received-" & ADDR_actions & " for " & active_programs & "")
+call write_variable_in_CASE_NOTE("Returned mail rcv'd-" & ADDR_actions & " for " & active_programs & "")
 IF ADDR_actions <> "Client has not responded to request" THEN CALL write_bullet_and_variable_in_CASE_NOTE("Received on", date_received)
 IF ADDR_actions = "Forwarding address in MN" or ADDR_actions = "Forwarding address outside MN" THEN
     CALL write_bullet_and_variable_in_CASE_NOTE("Living situation", living_situation)
@@ -610,7 +609,7 @@ IF ADDR_actions = "Forwarding address in MN" or ADDR_actions = "Forwarding addre
     CALL write_variable_in_CASE_NOTE("* Mailing address updated:  " & new_addr_line_one)
     CALL write_variable_in_CASE_NOTE("                            " & new_addr_line_two & new_addr_city & ", " & new_addr_state & " " & new_addr_zip)
     CALL write_variable_in_CASE_NOTE("                            " & county_code & " COUNTY.")
-	IF reservation_name <> "Select:" or reservation_name <> "N/A" THEN CALL write_variable_in_CASE_NOTE("* Reservation " & reservation_name)
+	IF reservation_addr = "YES" THEN CALL write_variable_in_CASE_NOTE("* Reservation " & reservation_name)
     'CALL write_variable_in_CASE_NOTE("---")
 ELSE
 	CALL write_bullet_and_variable_in_case_note("Verification(s) requested", pending_verifs)
