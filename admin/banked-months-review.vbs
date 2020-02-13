@@ -319,7 +319,7 @@ Function review_ABAWD_FSET_exemptions(person_ref_nbr, possible_exemption, exempt
 						prospective_hours = prospective_hours + prosp_hrs
                         transmit		'to exit PIC
 					END IF
-				END IF				
+				END IF
 				EMReadScreen JOBS_panel_current, 1, 2, 73
 				'looping until all the jobs panels are calculated
 				If cint(JOBS_panel_current) < cint(num_of_JOBS) then transmit
@@ -1019,7 +1019,7 @@ MX_region = trim(MX_region)
 'This dialog selects which option needs to be run.
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 181, 80, "Banked Months Process"
-  DropListBox 15, 35, 160, 45, "Ongoing Banked Months Cases"+chr(9)+"Find ABAWD Months"+chr(9)+"Return Banked Months to Active", process_option
+  DropListBox 15, 35, 160, 45, "Ongoing Banked Months Cases"+chr(9)+"Find ABAWD Months"+chr(9)+"Return Banked Months to Active"+chr(9)+"Resolve Formatting", process_option
   ButtonGroup ButtonPressed
     OkButton 70, 60, 50, 15
     CancelButton 125, 60, 50, 15
@@ -1095,6 +1095,13 @@ ElseIf process_option = "Return Banked Months to Active" Then
     working_excel_file_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\SNAP\Banked months data\Ongoing banked months list.xlsx"     'THIS IS THE REAL ONE
     call excel_open(working_excel_file_path, True, False, ObjExcel, objWorkbook)
     ObjExcel.Worksheets("Ongoing banked months").Activate
+
+ElseIf process_option = "Resolve Formatting" Then
+
+    working_excel_file_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\SNAP\Banked months data\Ongoing banked months list.xlsx"     'THIS IS THE REAL ONE
+    call excel_open(working_excel_file_path, True, False, ObjExcel, objWorkbook)
+    ObjExcel.Worksheets("Ongoing banked months").Activate
+
 End If
 
 If process_option = "Ongoing Banked Months Cases" Then      'On the spreadsheet there is a counter that tracks which line was last updated
@@ -1110,7 +1117,7 @@ End If
 'This dialog allows the user to control the work done since this list is so large.
 'The rows to look at can be determined or a time limit can be selected
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 176, 140, "Dialog"
+BeginDialog Dialog1, 0, 0, 176, 140, "Script Run Parameters"
   EditBox 25, 55, 30, 15, stop_time
   EditBox 65, 100, 30, 15, excel_row_to_start
   EditBox 65, 120, 30, 15, excel_row_to_end
@@ -1353,7 +1360,7 @@ If process_option = "Ongoing Banked Months Cases" Then
         list_row = BANKED_MONTHS_CASES_ARRAY(clt_excel_row, the_case)       'setting the excel row to what was found in the array
         MAXIS_case_number = BANKED_MONTHS_CASES_ARRAY(case_nbr, the_case)   'setting the case number to this variable for nav functions to work
         BANKED_MONTHS_CASES_ARRAY(memb_ref_nbr, the_case) = Right("00"&BANKED_MONTHS_CASES_ARRAY(memb_ref_nbr, the_case), 2)    'formatting the member number to be 2 digit
-        ObjExcel.Cells(list_row, memb_nrb_col) = BANKED_MONTHS_CASES_ARRAY(memb_ref_nbr, the_case)                              'adding the formatted number to the excel sheet because I am tired of crazy looking excel files
+        ObjExcel.Cells(list_row, memb_nrb_col).Value = BANKED_MONTHS_CASES_ARRAY(memb_ref_nbr, the_case)                              'adding the formatted number to the excel sheet because I am tired of crazy looking excel files
         HH_memb = BANKED_MONTHS_CASES_ARRAY(memb_ref_nbr, the_case)
         'list_of_exemption = ""
         start_month = ""    'blanking out these variables for each loop through the array
@@ -1362,6 +1369,137 @@ If process_option = "Ongoing Banked Months Cases" Then
         case_note_done = FALSE
 
         ObjExcel.Range(ObjExcel.Cells(list_row, 1), ObjExcel.Cells(list_row, 18)).Interior.ColorIndex = 6
+
+        If BANKED_MONTHS_CASES_ARRAY(clt_mo_one, the_case) <> "" Then
+            If len(BANKED_MONTHS_CASES_ARRAY(clt_mo_one, the_case)) <> 5 Then
+                If IsDate(BANKED_MONTHS_CASES_ARRAY(clt_mo_one, the_case)) = TRUE Then
+                    date_mo = DatePart("m", BANKED_MONTHS_CASES_ARRAY(clt_mo_one, the_case))
+                    date_mo = right("00" & date_mo, 2)
+                    date_yr = DatePart("yyyy", BANKED_MONTHS_CASES_ARRAY(clt_mo_one, the_case))
+                    date_yr = right(date_yr, 2)
+                    month_and_year = date_mo & "/" & date_yr
+                    ObjExcel.Cells(list_row, first_mo_col).NumberFormat = "@"
+                    ObjExcel.Cells(list_row, first_mo_col).Value = month_and_year
+                End If
+            End If
+        End If
+        ' MsgBox "Pause"
+
+        If BANKED_MONTHS_CASES_ARRAY(clt_mo_two, the_case) <> "" Then
+            If len(BANKED_MONTHS_CASES_ARRAY(clt_mo_two, the_case)) <> 5 Then
+                If IsDate(BANKED_MONTHS_CASES_ARRAY(clt_mo_two, the_case)) = TRUE Then
+                    date_mo = DatePart("m", BANKED_MONTHS_CASES_ARRAY(clt_mo_two, the_case))
+                    date_mo = right("00" & date_mo, 2)
+                    date_yr = DatePart("yyyy", BANKED_MONTHS_CASES_ARRAY(clt_mo_two, the_case))
+                    date_yr = right(date_yr, 2)
+                    month_and_year = date_mo & "/" & date_yr
+                    ObjExcel.Cells(list_row, scnd_mo_col).NumberFormat = "@"
+                    ObjExcel.Cells(list_row, scnd_mo_col).Value = month_and_year
+                End If
+            End If
+        End If
+
+        If BANKED_MONTHS_CASES_ARRAY(clt_mo_three, the_case) <> "" Then
+            If len(BANKED_MONTHS_CASES_ARRAY(clt_mo_three, the_case)) <> 5 Then
+                If IsDate(BANKED_MONTHS_CASES_ARRAY(clt_mo_three, the_case)) = TRUE Then
+                    date_mo = DatePart("m", BANKED_MONTHS_CASES_ARRAY(clt_mo_three, the_case))
+                    date_mo = right("00" & date_mo, 2)
+                    date_yr = DatePart("yyyy", BANKED_MONTHS_CASES_ARRAY(clt_mo_three, the_case))
+                    date_yr = right(date_yr, 2)
+                    month_and_year = date_mo & "/" & date_yr
+                    ObjExcel.Cells(list_row, third_mo_col).NumberFormat = "@"
+                    ObjExcel.Cells(list_row, third_mo_col).Value = month_and_year
+                End If
+            End If
+        End If
+
+        If BANKED_MONTHS_CASES_ARRAY(clt_mo_four, the_case) <> "" Then
+            If len(BANKED_MONTHS_CASES_ARRAY(clt_mo_four, the_case)) <> 5 Then
+                If IsDate(BANKED_MONTHS_CASES_ARRAY(clt_mo_four, the_case)) = TRUE Then
+                    date_mo = DatePart("m", BANKED_MONTHS_CASES_ARRAY(clt_mo_four, the_case))
+                    date_mo = right("00" & date_mo, 2)
+                    date_yr = DatePart("yyyy", BANKED_MONTHS_CASES_ARRAY(clt_mo_four, the_case))
+                    date_yr = right(date_yr, 2)
+                    month_and_year = date_mo & "/" & date_yr
+                    ObjExcel.Cells(list_row, fourth_mo_col).NumberFormat = "@"
+                    ObjExcel.Cells(list_row, fourth_mo_col).Value = month_and_year
+                End If
+            End If
+        End If
+
+        If BANKED_MONTHS_CASES_ARRAY(clt_mo_five, the_case) <> "" Then
+            If len(BANKED_MONTHS_CASES_ARRAY(clt_mo_five, the_case)) <> 5 Then
+                If IsDate(BANKED_MONTHS_CASES_ARRAY(clt_mo_five, the_case)) = TRUE Then
+                    date_mo = DatePart("m", BANKED_MONTHS_CASES_ARRAY(clt_mo_five, the_case))
+                    date_mo = right("00" & date_mo, 2)
+                    date_yr = DatePart("yyyy", BANKED_MONTHS_CASES_ARRAY(clt_mo_five, the_case))
+                    date_yr = right(date_yr, 2)
+                    month_and_year = date_mo & "/" & date_yr
+                    ObjExcel.Cells(list_row, fifth_mo_col).NumberFormat = "@"
+                    ObjExcel.Cells(list_row, fifth_mo_col).Value = month_and_year
+                End If
+            End If
+        End If
+
+        If BANKED_MONTHS_CASES_ARRAY(clt_mo_six, the_case) <> "" Then
+            If len(BANKED_MONTHS_CASES_ARRAY(clt_mo_six, the_case)) <> 5 Then
+                If IsDate(BANKED_MONTHS_CASES_ARRAY(clt_mo_six, the_case)) = TRUE Then
+                    date_mo = DatePart("m", BANKED_MONTHS_CASES_ARRAY(clt_mo_six, the_case))
+                    date_mo = right("00" & date_mo, 2)
+                    date_yr = DatePart("yyyy", BANKED_MONTHS_CASES_ARRAY(clt_mo_six, the_case))
+                    date_yr = right(date_yr, 2)
+                    month_and_year = date_mo & "/" & date_yr
+                    ObjExcel.Cells(list_row, sixth_mo_col).NumberFormat = "@"
+                    ObjExcel.Cells(list_row, sixth_mo_col).Value = month_and_year
+                End If
+            End If
+        End If
+
+        If BANKED_MONTHS_CASES_ARRAY(clt_mo_svn, the_case) <> "" Then
+            If len(BANKED_MONTHS_CASES_ARRAY(clt_mo_svn, the_case)) <> 5 Then
+                If IsDate(BANKED_MONTHS_CASES_ARRAY(clt_mo_svn, the_case)) = TRUE Then
+                    date_mo = DatePart("m", BANKED_MONTHS_CASES_ARRAY(clt_mo_svn, the_case))
+                    date_mo = right("00" & date_mo, 2)
+                    date_yr = DatePart("yyyy", BANKED_MONTHS_CASES_ARRAY(clt_mo_svn, the_case))
+                    date_yr = right(date_yr, 2)
+                    month_and_year = date_mo & "/" & date_yr
+                    ObjExcel.Cells(list_row, svnth_mo_col).NumberFormat = "@"
+                    ObjExcel.Cells(list_row, svnth_mo_col).Value = month_and_year
+                End If
+            End If
+        End If
+
+        If BANKED_MONTHS_CASES_ARRAY(clt_mo_eight, the_case) <> "" Then
+            If len(BANKED_MONTHS_CASES_ARRAY(clt_mo_eight, the_case)) <> 5 Then
+                If IsDate(BANKED_MONTHS_CASES_ARRAY(clt_mo_eight, the_case)) = TRUE Then
+                    date_mo = DatePart("m", BANKED_MONTHS_CASES_ARRAY(clt_mo_eight, the_case))
+                    date_mo = right("00" & date_mo, 2)
+                    date_yr = DatePart("yyyy", BANKED_MONTHS_CASES_ARRAY(clt_mo_eight, the_case))
+                    date_yr = right(date_yr, 2)
+                    month_and_year = date_mo & "/" & date_yr
+                    ObjExcel.Cells(list_row, eighth_mo_col).NumberFormat = "@"
+                    ObjExcel.Cells(list_row, eighth_mo_col).Value = month_and_year
+                End If
+            End If
+        End If
+
+        If BANKED_MONTHS_CASES_ARRAY(clt_mo_nine, the_case) <> "" Then
+            If len(BANKED_MONTHS_CASES_ARRAY(clt_mo_nine, the_case)) <> 5 Then
+                If IsDate(BANKED_MONTHS_CASES_ARRAY(clt_mo_nine, the_case)) = TRUE Then
+                    date_mo = DatePart("m", BANKED_MONTHS_CASES_ARRAY(clt_mo_nine, the_case))
+                    date_mo = right("00" & date_mo, 2)
+                    date_yr = DatePart("yyyy", BANKED_MONTHS_CASES_ARRAY(clt_mo_nine, the_case))
+                    date_yr = right(date_yr, 2)
+                    month_and_year = date_mo & "/" & date_yr
+                    ObjExcel.Cells(list_row, ninth_mo_col).NumberFormat = "@"
+                    ObjExcel.Cells(list_row, ninth_mo_col).Value = month_and_year
+                End If
+            End If
+        End If
+
+        date_mo = ""
+        date_yr = ""
+        month_and_year = ""
 
         ' If ObjExcel.Cells(list_row, NOT_BANKED_col).Value = "TRUE" Then
         '     MAXIS_footer_month = CM_mo
@@ -1630,7 +1768,7 @@ If process_option = "Ongoing Banked Months Cases" Then
 
                         BANKED_MONTHS_CASES_ARRAY(memb_ref_nbr, the_case) = ref_nbr                                                             'resetting this reference number to the one on the new case
                         HH_memb = ref_nbr
-                        ObjExcel.Cells(list_row, memb_nrb_col) = BANKED_MONTHS_CASES_ARRAY(memb_ref_nbr, the_case)                              'adding the formatted number to the excel sheet because I am tired of crazy looking excel files
+                        ObjExcel.Cells(list_row, memb_nrb_col).Value = BANKED_MONTHS_CASES_ARRAY(memb_ref_nbr, the_case)                              'adding the formatted number to the excel sheet because I am tired of crazy looking excel files
 
                     End If
                 End If
@@ -1669,6 +1807,8 @@ If process_option = "Ongoing Banked Months Cases" Then
                         If BANKED_MONTHS_CASES_ARRAY(used_ABAWD_mos, the_case) <> "" THen
                             If InStr(BANKED_MONTHS_CASES_ARRAY(used_ABAWD_mos, the_case), "~") <> 0 Then
                                 ABAWD_MONTHS_ARRAY = Split(BANKED_MONTHS_CASES_ARRAY(used_ABAWD_mos, the_case), "~")
+                            Else
+                                ABAWD_MONTHS_ARRAY = Array(BANKED_MONTHS_CASES_ARRAY(used_ABAWD_mos, the_case))
                             End If
 
                             If Ubound(ABAWD_MONTHS_ARRAY) <> 2 Then
@@ -3954,6 +4094,189 @@ If process_option = "Return Banked Months to Active" Then
     run_time = timer - start_time
     objSelection.TypeText "Script run time - " & run_time
 
+End If
+
+If process_option = "Resolve Formatting" Then
+    ' MsgBox excel_row_to_start
+    list_row = excel_row_to_start           'script will allow the user to set where the script will start in taking case information from the excel row
+    the_case = 0                            'setting the incrementer for adding to the array
+    Do
+        ReDim Preserve BANKED_MONTHS_CASES_ARRAY(months_to_approve, the_case)
+        BANKED_MONTHS_CASES_ARRAY(case_nbr, the_case)           = trim(ObjExcel.Cells(list_row, case_nbr_col).Value)
+        BANKED_MONTHS_CASES_ARRAY(clt_excel_row, the_case)      = list_row
+        BANKED_MONTHS_CASES_ARRAY(memb_ref_nbr, the_case)       = trim(ObjExcel.Cells(list_row, memb_nrb_col).Value)
+
+        BANKED_MONTHS_CASES_ARRAY(clt_last_name, the_case)      = trim(ObjExcel.Cells(list_row, last_name_col).Value)
+        BANKED_MONTHS_CASES_ARRAY(clt_first_name, the_case)     = trim(ObjExcel.Cells(list_row, first_name_col).Value)
+        BANKED_MONTHS_CASES_ARRAY(clt_notes, the_case)          = trim(ObjExcel.Cells(list_row, notes_col).Value)
+        BANKED_MONTHS_CASES_ARRAY(clt_mo_one, the_case)         = trim(ObjExcel.Cells(list_row, first_mo_col).Value)
+        BANKED_MONTHS_CASES_ARRAY(clt_mo_two, the_case)         = trim(ObjExcel.Cells(list_row, scnd_mo_col).Value)
+        BANKED_MONTHS_CASES_ARRAY(clt_mo_three, the_case)       = trim(ObjExcel.Cells(list_row, third_mo_col).Value)
+        BANKED_MONTHS_CASES_ARRAY(clt_mo_four, the_case)        = trim(ObjExcel.Cells(list_row, fourth_mo_col).Value)
+        BANKED_MONTHS_CASES_ARRAY(clt_mo_five, the_case)        = trim(ObjExcel.Cells(list_row, fifth_mo_col).Value)
+        BANKED_MONTHS_CASES_ARRAY(clt_mo_six, the_case)         = trim(ObjExcel.Cells(list_row, sixth_mo_col).Value)
+        BANKED_MONTHS_CASES_ARRAY(clt_mo_svn, the_case)         = trim(ObjExcel.Cells(list_row, svnth_mo_col).Value)
+        BANKED_MONTHS_CASES_ARRAY(clt_mo_eight, the_case)       = trim(ObjExcel.Cells(list_row, eighth_mo_col).Value)
+        BANKED_MONTHS_CASES_ARRAY(clt_mo_nine, the_case)        = trim(ObjExcel.Cells(list_row, ninth_mo_col).Value)
+        BANKED_MONTHS_CASES_ARRAY(clt_curr_mo_stat, the_case)   = trim(ObjExcel.Cells(list_row, curr_mo_stat_col).Value)
+        BANKED_MONTHS_CASES_ARRAY(remove_case, the_case)        = trim(ObjExcel.Cells(list_row, NOT_BANKED_col).Value)
+        BANKED_MONTHS_CASES_ARRAY(months_to_approve, the_case)  = ""    'set this to zero at every run as it should be handled prior to the script run
+
+        If excel_row_to_end = list_row Then Exit DO
+
+        list_row = list_row + 1     'incrementing the excel row and the array
+        the_case = the_case + 1
+
+    Loop Until trim(ObjExcel.Cells(list_row, case_nbr_col).Value) = ""  'end of the list has case number as blank
+
+
+    'Loop through each item in the array to review the case.
+    For the_case = 0 to UBOUND(BANKED_MONTHS_CASES_ARRAY, 2)
+        list_row = BANKED_MONTHS_CASES_ARRAY(clt_excel_row, the_case)       'setting the excel row to what was found in the array
+        ' MsgBox list_row
+        ObjExcel.Range(ObjExcel.Cells(list_row, 1), ObjExcel.Cells(list_row, 18)).Interior.ColorIndex = 6
+
+        BANKED_MONTHS_CASES_ARRAY(memb_ref_nbr, the_case) = Right("00"&BANKED_MONTHS_CASES_ARRAY(memb_ref_nbr, the_case), 2)    'formatting the member number to be 2 digit
+        ObjExcel.Cells(list_row, memb_nrb_col).NumberFormat = "@"
+        ObjExcel.Cells(list_row, memb_nrb_col).Value = BANKED_MONTHS_CASES_ARRAY(memb_ref_nbr, the_case)                              'adding the formatted number to the excel sheet because I am tired of crazy looking excel files
+
+        If BANKED_MONTHS_CASES_ARRAY(clt_mo_one, the_case) <> "" Then
+            If len(BANKED_MONTHS_CASES_ARRAY(clt_mo_one, the_case)) <> 5 Then
+                If IsDate(BANKED_MONTHS_CASES_ARRAY(clt_mo_one, the_case)) = TRUE Then
+                    date_mo = DatePart("m", BANKED_MONTHS_CASES_ARRAY(clt_mo_one, the_case))
+                    date_mo = right("00" & date_mo, 2)
+                    date_yr = DatePart("yyyy", BANKED_MONTHS_CASES_ARRAY(clt_mo_one, the_case))
+                    date_yr = right(date_yr, 2)
+                    month_and_year = date_mo & "/" & date_yr
+                    ObjExcel.Cells(list_row, first_mo_col).NumberFormat = "@"
+                    ObjExcel.Cells(list_row, first_mo_col).Value = month_and_year
+                End If
+            End If
+        End If
+        ' MsgBox "Pause"
+
+        If BANKED_MONTHS_CASES_ARRAY(clt_mo_two, the_case) <> "" Then
+            If len(BANKED_MONTHS_CASES_ARRAY(clt_mo_two, the_case)) <> 5 Then
+                If IsDate(BANKED_MONTHS_CASES_ARRAY(clt_mo_two, the_case)) = TRUE Then
+                    date_mo = DatePart("m", BANKED_MONTHS_CASES_ARRAY(clt_mo_two, the_case))
+                    date_mo = right("00" & date_mo, 2)
+                    date_yr = DatePart("yyyy", BANKED_MONTHS_CASES_ARRAY(clt_mo_two, the_case))
+                    date_yr = right(date_yr, 2)
+                    month_and_year = date_mo & "/" & date_yr
+                    ObjExcel.Cells(list_row, scnd_mo_col).NumberFormat = "@"
+                    ObjExcel.Cells(list_row, scnd_mo_col).Value = month_and_year
+                End If
+            End If
+        End If
+
+        If BANKED_MONTHS_CASES_ARRAY(clt_mo_three, the_case) <> "" Then
+            If len(BANKED_MONTHS_CASES_ARRAY(clt_mo_three, the_case)) <> 5 Then
+                If IsDate(BANKED_MONTHS_CASES_ARRAY(clt_mo_three, the_case)) = TRUE Then
+                    date_mo = DatePart("m", BANKED_MONTHS_CASES_ARRAY(clt_mo_three, the_case))
+                    date_mo = right("00" & date_mo, 2)
+                    date_yr = DatePart("yyyy", BANKED_MONTHS_CASES_ARRAY(clt_mo_three, the_case))
+                    date_yr = right(date_yr, 2)
+                    month_and_year = date_mo & "/" & date_yr
+                    ObjExcel.Cells(list_row, third_mo_col).NumberFormat = "@"
+                    ObjExcel.Cells(list_row, third_mo_col).Value = month_and_year
+                End If
+            End If
+        End If
+
+        If BANKED_MONTHS_CASES_ARRAY(clt_mo_four, the_case) <> "" Then
+            If len(BANKED_MONTHS_CASES_ARRAY(clt_mo_four, the_case)) <> 5 Then
+                If IsDate(BANKED_MONTHS_CASES_ARRAY(clt_mo_four, the_case)) = TRUE Then
+                    date_mo = DatePart("m", BANKED_MONTHS_CASES_ARRAY(clt_mo_four, the_case))
+                    date_mo = right("00" & date_mo, 2)
+                    date_yr = DatePart("yyyy", BANKED_MONTHS_CASES_ARRAY(clt_mo_four, the_case))
+                    date_yr = right(date_yr, 2)
+                    month_and_year = date_mo & "/" & date_yr
+                    ObjExcel.Cells(list_row, fourth_mo_col).NumberFormat = "@"
+                    ObjExcel.Cells(list_row, fourth_mo_col).Value = month_and_year
+                End If
+            End If
+        End If
+
+        If BANKED_MONTHS_CASES_ARRAY(clt_mo_five, the_case) <> "" Then
+            If len(BANKED_MONTHS_CASES_ARRAY(clt_mo_five, the_case)) <> 5 Then
+                If IsDate(BANKED_MONTHS_CASES_ARRAY(clt_mo_five, the_case)) = TRUE Then
+                    date_mo = DatePart("m", BANKED_MONTHS_CASES_ARRAY(clt_mo_five, the_case))
+                    date_mo = right("00" & date_mo, 2)
+                    date_yr = DatePart("yyyy", BANKED_MONTHS_CASES_ARRAY(clt_mo_five, the_case))
+                    date_yr = right(date_yr, 2)
+                    month_and_year = date_mo & "/" & date_yr
+                    ObjExcel.Cells(list_row, fifth_mo_col).NumberFormat = "@"
+                    ObjExcel.Cells(list_row, fifth_mo_col).Value = month_and_year
+                End If
+            End If
+        End If
+
+        If BANKED_MONTHS_CASES_ARRAY(clt_mo_six, the_case) <> "" Then
+            If len(BANKED_MONTHS_CASES_ARRAY(clt_mo_six, the_case)) <> 5 Then
+                If IsDate(BANKED_MONTHS_CASES_ARRAY(clt_mo_six, the_case)) = TRUE Then
+                    date_mo = DatePart("m", BANKED_MONTHS_CASES_ARRAY(clt_mo_six, the_case))
+                    date_mo = right("00" & date_mo, 2)
+                    date_yr = DatePart("yyyy", BANKED_MONTHS_CASES_ARRAY(clt_mo_six, the_case))
+                    date_yr = right(date_yr, 2)
+                    month_and_year = date_mo & "/" & date_yr
+                    ObjExcel.Cells(list_row, sixth_mo_col).NumberFormat = "@"
+                    ObjExcel.Cells(list_row, sixth_mo_col).Value = month_and_year
+                End If
+            End If
+        End If
+
+        If BANKED_MONTHS_CASES_ARRAY(clt_mo_svn, the_case) <> "" Then
+            If len(BANKED_MONTHS_CASES_ARRAY(clt_mo_svn, the_case)) <> 5 Then
+                If IsDate(BANKED_MONTHS_CASES_ARRAY(clt_mo_svn, the_case)) = TRUE Then
+                    date_mo = DatePart("m", BANKED_MONTHS_CASES_ARRAY(clt_mo_svn, the_case))
+                    date_mo = right("00" & date_mo, 2)
+                    date_yr = DatePart("yyyy", BANKED_MONTHS_CASES_ARRAY(clt_mo_svn, the_case))
+                    date_yr = right(date_yr, 2)
+                    month_and_year = date_mo & "/" & date_yr
+                    ObjExcel.Cells(list_row, svnth_mo_col).NumberFormat = "@"
+                    ObjExcel.Cells(list_row, svnth_mo_col).Value = month_and_year
+                End If
+            End If
+        End If
+
+        If BANKED_MONTHS_CASES_ARRAY(clt_mo_eight, the_case) <> "" Then
+            If len(BANKED_MONTHS_CASES_ARRAY(clt_mo_eight, the_case)) <> 5 Then
+                If IsDate(BANKED_MONTHS_CASES_ARRAY(clt_mo_eight, the_case)) = TRUE Then
+                    date_mo = DatePart("m", BANKED_MONTHS_CASES_ARRAY(clt_mo_eight, the_case))
+                    date_mo = right("00" & date_mo, 2)
+                    date_yr = DatePart("yyyy", BANKED_MONTHS_CASES_ARRAY(clt_mo_eight, the_case))
+                    date_yr = right(date_yr, 2)
+                    month_and_year = date_mo & "/" & date_yr
+                    ObjExcel.Cells(list_row, eighth_mo_col).NumberFormat = "@"
+                    ObjExcel.Cells(list_row, eighth_mo_col).Value = month_and_year
+                End If
+            End If
+        End If
+
+        If BANKED_MONTHS_CASES_ARRAY(clt_mo_nine, the_case) <> "" Then
+            If len(BANKED_MONTHS_CASES_ARRAY(clt_mo_nine, the_case)) <> 5 Then
+                If IsDate(BANKED_MONTHS_CASES_ARRAY(clt_mo_nine, the_case)) = TRUE Then
+                    date_mo = DatePart("m", BANKED_MONTHS_CASES_ARRAY(clt_mo_nine, the_case))
+                    date_mo = right("00" & date_mo, 2)
+                    date_yr = DatePart("yyyy", BANKED_MONTHS_CASES_ARRAY(clt_mo_nine, the_case))
+                    date_yr = right(date_yr, 2)
+                    month_and_year = date_mo & "/" & date_yr
+                    ObjExcel.Cells(list_row, ninth_mo_col).NumberFormat = "@"
+                    ObjExcel.Cells(list_row, ninth_mo_col).Value = month_and_year
+                End If
+            End If
+        End If
+
+        date_mo = ""
+        date_yr = ""
+        month_and_year = ""
+
+        If BANKED_MONTHS_CASES_ARRAY(remove_case, the_case) = "TRUE" Then
+            ObjExcel.Range(ObjExcel.Cells(list_row, 1), ObjExcel.Cells(list_row, 18)).Interior.ColorIndex = 16
+        Else
+            ObjExcel.Range(ObjExcel.Cells(list_row, 1), ObjExcel.Cells(list_row, 18)).Interior.ColorIndex = 0
+        End If
+    Next
 End If
 
 'NEED another spreadsheet for all cases that WERE banked months cases but are no longer - so that we can save the case information
