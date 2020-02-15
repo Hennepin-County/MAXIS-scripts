@@ -2883,7 +2883,7 @@ function autofill_editbox_from_MAXIS(HH_member_array, panel_read_from, variable_
   		  	EMReadScreen is_counted_month, 1, bene_yr_row, bene_mo_col
 			'counting and checking for counted ABAWD months
 			IF is_counted_month = "X" or is_counted_month = "M" THEN
-				EMReadScreen counted_date_year, 2, bene_yr_row, 14			'reading counted year date
+				EMReadScreen counted_date_year, 2, bene_yr_row, 15			'reading counted year date
 				abawd_counted_months_string = counted_date_month & "/" & counted_date_year
 				abawd_info_list = abawd_info_list & ", " & abawd_counted_months_string			'adding variable to list to add to array
 				abawd_counted_months = abawd_counted_months + 1				'adding counted months
@@ -2895,7 +2895,7 @@ function autofill_editbox_from_MAXIS(HH_member_array, panel_read_from, variable_
 
 			'counting and checking for second set of ABAWD months
 			IF is_counted_month = "Y" or is_counted_month = "N" THEN
-				EMReadScreen counted_date_year, 2, bene_yr_row, 14			'reading counted year date
+				EMReadScreen counted_date_year, 2, bene_yr_row, 15			'reading counted year date
 				second_abawd_period = second_abawd_period + 1				'adding counted months
 				second_counted_months_string = counted_date_month & "/" & counted_date_year			'creating new variable for array
 				second_set_info_list = second_set_info_list & ", " & second_counted_months_string	'adding variable to list to add to array
@@ -5228,9 +5228,9 @@ Function non_actionable_dails
         instr(dail_msg, "SDX INFORMATION HAS BEEN STORED - CHECK INFC") OR _
         instr(dail_msg, "BENDEX INFORMATION HAS BEEN STORED - CHECK INFC") OR _
         instr(dail_msg, "- TRANS #") OR _
-        instr(dail_msg, "PERSON/S REQD SNAP NOT IN SNAP UNIT") OR _ 
+        instr(dail_msg, "PERSON/S REQD SNAP NOT IN SNAP UNIT") OR _
         instr(dail_msg, "RSDI UPDATED - (REF") OR _
-        instr(dail_msg, "SSI UPDATED - (REF") then  
+        instr(dail_msg, "SSI UPDATED - (REF") then
             add_to_excel = True
         '----------------------------------------------------------------------------------------------------CORRECT STAT EDITS over 5 days old
     Elseif instr(dail_msg, "CORRECT STAT EDITS") then
