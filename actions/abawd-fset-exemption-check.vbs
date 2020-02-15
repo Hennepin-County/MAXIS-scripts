@@ -89,7 +89,7 @@ If are_we_at_ABAWD_tracking_record = "ABAWD Tracking Record" Then
         MAXIS_footer_month = "12"
     End If
 
-    If MAXIS_footer_month <> "" Then EMReadScreen MAXIS_footer_year, 2, tracker_row, 14
+    If MAXIS_footer_month <> "" Then EMReadScreen MAXIS_footer_year, 2, tracker_row, 15
 
     MX_mo = MAXIS_footer_month * 1
     MX_yr = MAXIS_footer_year * 1
