@@ -3856,15 +3856,17 @@ function create_panel_if_nonexistent()
 	End If
 end function
 
-Function create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust)
+Function create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
     'All 10-day cutoff dates are provided in POLI/TEMP TE19.132
     '--- This function creates and saves a TIKL message in DAIL/WRIT.
     '~~~~~ TIKL_text: Text that the TIKL message will say.
     '~~~~~ num_of_days: how many days the TIKL should be set for. Must be a numeric or a numeric value.
     '~~~~~ date_to_start: this determines which date to start counting the number of days to TIKL out from. Ex: date to use today's date, or Application_date to use within the CAF.
     '~~~~~ ten_day_adjust: True or False. True to adjust the TIKL date to the 1st day of the next month if after 10 day cutoff, False to NOT adjust to 10 day cutoff.
+    '~~~~~ TIKL_note_text: This varible is determnined by the TIKL date and is to be used in the case note. Leave as 'TIKL_note_text' in the parameter.
     '===== Keywords: MAXIS, TIKL
 
+    adjusted_date = False 
     TIKL_date = DateAdd("D", num_of_days, date_to_start)    'Creates the TIKL date based on the number of days and date to start chosen by the user
     If cdate(TIKL_date) < date then
         msgbox "Unable to create TIKL, the TIKL date is a past date. Please manually track this case and action."   'fail-safe in case the TIKL date created is in the past. DAIL/WRIN does not allow past dates.
@@ -3912,6 +3914,7 @@ Function create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust)
                     new_TIKL_mo = right(DatePart("m",    DateAdd("m", 1, TIKL_date)), 2)
                     new_TIKL_yr = right(DatePart("yyyy", DateAdd("m", 1, TIKL_date)), 2)
                     TIKL_date = new_TIKL_mo & "/01/" & new_TIKL_yr
+                    adjusted_date = True 
                 End if
             End if
         End if
@@ -3920,7 +3923,13 @@ Function create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust)
         call create_MAXIS_friendly_date(TIKL_date, 0, 5, 18)    '0 is the date as all the adjustments are already determined.
         Call write_variable_in_TIKL(TIKL_text)
         PF3 'to save & exit
-    End if
+    
+        If adjusted_date = True then 
+            TIKL_note_text = "* TIKL created for " & TIKL_date & ", the 1st day negative action could occur."
+        Else
+            TIKL_note_text = "* TIKL created for " & TIKL_date & ", " & num_of_days & " day return." 
+        End if
+    End if 
 End Function
 
 function date_array_generator(initial_month, initial_year, date_array)
