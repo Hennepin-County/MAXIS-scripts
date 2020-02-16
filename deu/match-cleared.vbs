@@ -698,6 +698,6 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 		PF3
 	END IF
 	'-------------------------------The following will generate a TIKL formatted date for 10 days from now, and add it to the TIKL
-	IF tenday_checkbox = 1 THEN Call create_TIKL("Unable to close due to 10 day cutoff. Verification of match should have returned by now. If not received and processed, take appropriate action.", 0, date, True)
+	IF tenday_checkbox = 1 THEN Call create_TIKL("Unable to close due to 10 day cutoff. Verification of match should have returned by now. If not received and processed, take appropriate action.", 0, date, True, TIKL_note_text)
 	script_end_procedure_with_error_report("Match has been acted on. Please take any additional action needed for your case.")
 END IF
