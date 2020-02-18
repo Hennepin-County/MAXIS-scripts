@@ -26,8 +26,8 @@ start_time = timer
 'Tanya      TAPA002
 
 'List of staff in a string - making it easier to add 
-BZST_staff = "WFX901,WFU851,ILFE001,WFS395,CALO001"
-QI_staff = "WFI021,WFU161,WFP106,WFQ898,JAAR001,WFK093,KESE001,WFC041,LAHE006,WF1875,WFM207,WFG492,WFX490,TAPA002"
+BZST_staff = "WFX901,WFU851,ILFE001,WFS395,CALO001,LAHE006"
+QI_staff = "WFI021,WFU161,WFP106,WFQ898,JAAR001,WFK093,KESE001,WFC041,WF1875,WFM207,WFG492,WFX490,TAPA002"
 
 'The following code looks to find the user name of the user running the script---------------------------------------------------------------------------------------------
 'This is used in arrays that specify functionality to specific workers

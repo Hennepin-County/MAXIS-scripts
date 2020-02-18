@@ -568,8 +568,6 @@ function find_three_ABAWD_months(all_counted_months)
 
     excel_row = 2
 
-
-
     EmWriteScreen "x", 13, 57		'Pulls up the WREG tracker'
     transmit
     EMREADScreen tracking_record_check, 15, 4, 40  		'adds cases to the rejection list if the ABAWD tracking record cannot be accessed.
@@ -591,13 +589,7 @@ function find_three_ABAWD_months(all_counted_months)
         If bene_mo_col = "59" then counted_date_month = "11"
         If bene_mo_col = "63" then counted_date_month = "12"
 
-        'counted date year: this is found on rows 7-11. Row 11 is current year plus one, so this will be exclude this list.
-        If bene_yr_row = "10" then counted_date_year = right(DatePart("yyyy", date), 2)
-        If bene_yr_row = "9"  then counted_date_year = right(DatePart("yyyy", DateAdd("yyyy", -1, date)), 2)
-        If bene_yr_row = "8"  then counted_date_year = right(DatePart("yyyy", DateAdd("yyyy", -2, date)), 2)
-        If bene_yr_row = "7"  then counted_date_year = right(DatePart("yyyy", DateAdd("yyyy", -3, date)), 2)
-
-        EMReadScreen counted_date_year, 2, bene_yr_row, 14								'reading counted year date
+        EMReadScreen counted_date_year, 2, bene_yr_row, 15								'reading counted year date
         abawd_counted_months_string = counted_date_month & "/" & counted_date_year		'creating new date variable
 
         objABAWDExcel.Cells(excel_row, 1).Value = abawd_counted_months_string

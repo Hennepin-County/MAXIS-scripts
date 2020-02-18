@@ -100,7 +100,6 @@ EMReadScreen ATR_line_one, 52, 7, 12
 EMReadScreen ATR_line_two, 52, 8, 12
 EMReadScreen ATR_line_three, 52, 9, 12
 EMReadScreen ATR_line_four, 52, 10, 12
-EMReadScreen ATR_line_five, 52, 11, 12
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
@@ -148,7 +147,6 @@ call write_variable_in_CASE_NOTE(ATR_line_one)
 call write_variable_in_CASE_NOTE(ATR_line_two)
 call write_variable_in_CASE_NOTE(ATR_line_three)
 call write_variable_in_CASE_NOTE(ATR_line_four)
-call write_variable_in_CASE_NOTE(ATR_line_five)
 call write_bullet_and_variable_in_CASE_NOTE("ABAWD months", ABAWD_months)
 call write_bullet_and_variable_in_CASE_NOTE("2nd set ABAWD months", Second_months)
 call write_bullet_and_variable_in_CASE_NOTE("Banked months", Banked_months)

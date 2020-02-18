@@ -1465,7 +1465,7 @@ function read_WREG_panel()
                     EMReadScreen is_counted_month, 1, bene_yr_row, bene_mo_col
                     'counting and checking for counted ABAWD months
                     IF is_counted_month = "X" or is_counted_month = "M" THEN
-                        EMReadScreen counted_date_year, 2, bene_yr_row, 14			'reading counted year date
+                        EMReadScreen counted_date_year, 2, bene_yr_row, 15			'reading counted year date
                         abawd_counted_months_string = counted_date_month & "/" & counted_date_year
                         abawd_info_list = abawd_info_list & ", " & abawd_counted_months_string			'adding variable to list to add to array
                         abawd_counted_months = abawd_counted_months + 1				'adding counted months
@@ -1477,7 +1477,7 @@ function read_WREG_panel()
 
                     'counting and checking for second set of ABAWD months
                     IF is_counted_month = "Y" or is_counted_month = "N" THEN
-                        EMReadScreen counted_date_year, 2, bene_yr_row, 14			'reading counted year date
+                        EMReadScreen counted_date_year, 2, bene_yr_row, 15			'reading counted year date
                         second_abawd_period = second_abawd_period + 1				'adding counted months
                         second_counted_months_string = counted_date_month & "/" & counted_date_year			'creating new variable for array
                         second_set_info_list = second_set_info_list & ", " & second_counted_months_string	'adding variable to list to add to array

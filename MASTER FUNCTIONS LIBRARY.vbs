@@ -2883,7 +2883,7 @@ function autofill_editbox_from_MAXIS(HH_member_array, panel_read_from, variable_
   		  	EMReadScreen is_counted_month, 1, bene_yr_row, bene_mo_col
 			'counting and checking for counted ABAWD months
 			IF is_counted_month = "X" or is_counted_month = "M" THEN
-				EMReadScreen counted_date_year, 2, bene_yr_row, 14			'reading counted year date
+				EMReadScreen counted_date_year, 2, bene_yr_row, 15			'reading counted year date
 				abawd_counted_months_string = counted_date_month & "/" & counted_date_year
 				abawd_info_list = abawd_info_list & ", " & abawd_counted_months_string			'adding variable to list to add to array
 				abawd_counted_months = abawd_counted_months + 1				'adding counted months
@@ -2895,7 +2895,7 @@ function autofill_editbox_from_MAXIS(HH_member_array, panel_read_from, variable_
 
 			'counting and checking for second set of ABAWD months
 			IF is_counted_month = "Y" or is_counted_month = "N" THEN
-				EMReadScreen counted_date_year, 2, bene_yr_row, 14			'reading counted year date
+				EMReadScreen counted_date_year, 2, bene_yr_row, 15			'reading counted year date
 				second_abawd_period = second_abawd_period + 1				'adding counted months
 				second_counted_months_string = counted_date_month & "/" & counted_date_year			'creating new variable for array
 				second_set_info_list = second_set_info_list & ", " & second_counted_months_string	'adding variable to list to add to array
@@ -3856,15 +3856,17 @@ function create_panel_if_nonexistent()
 	End If
 end function
 
-Function create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust)
+Function create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
     'All 10-day cutoff dates are provided in POLI/TEMP TE19.132
     '--- This function creates and saves a TIKL message in DAIL/WRIT.
     '~~~~~ TIKL_text: Text that the TIKL message will say.
     '~~~~~ num_of_days: how many days the TIKL should be set for. Must be a numeric or a numeric value.
     '~~~~~ date_to_start: this determines which date to start counting the number of days to TIKL out from. Ex: date to use today's date, or Application_date to use within the CAF.
     '~~~~~ ten_day_adjust: True or False. True to adjust the TIKL date to the 1st day of the next month if after 10 day cutoff, False to NOT adjust to 10 day cutoff.
+    '~~~~~ TIKL_note_text: This varible is determnined by the TIKL date and is to be used in the case note. Leave as 'TIKL_note_text' in the parameter.
     '===== Keywords: MAXIS, TIKL
 
+    adjusted_date = False 
     TIKL_date = DateAdd("D", num_of_days, date_to_start)    'Creates the TIKL date based on the number of days and date to start chosen by the user
     If cdate(TIKL_date) < date then
         msgbox "Unable to create TIKL, the TIKL date is a past date. Please manually track this case and action."   'fail-safe in case the TIKL date created is in the past. DAIL/WRIN does not allow past dates.
@@ -3912,6 +3914,7 @@ Function create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust)
                     new_TIKL_mo = right(DatePart("m",    DateAdd("m", 1, TIKL_date)), 2)
                     new_TIKL_yr = right(DatePart("yyyy", DateAdd("m", 1, TIKL_date)), 2)
                     TIKL_date = new_TIKL_mo & "/01/" & new_TIKL_yr
+                    adjusted_date = True 
                 End if
             End if
         End if
@@ -3920,7 +3923,13 @@ Function create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust)
         call create_MAXIS_friendly_date(TIKL_date, 0, 5, 18)    '0 is the date as all the adjustments are already determined.
         Call write_variable_in_TIKL(TIKL_text)
         PF3 'to save & exit
-    End if
+    
+        If adjusted_date = True then 
+            TIKL_note_text = "* TIKL created for " & TIKL_date & ", the 1st day negative action could occur."
+        Else
+            TIKL_note_text = "* TIKL created for " & TIKL_date & ", " & num_of_days & " day return." 
+        End if
+    End if 
 End Function
 
 function date_array_generator(initial_month, initial_year, date_array)
@@ -5228,9 +5237,9 @@ Function non_actionable_dails
         instr(dail_msg, "SDX INFORMATION HAS BEEN STORED - CHECK INFC") OR _
         instr(dail_msg, "BENDEX INFORMATION HAS BEEN STORED - CHECK INFC") OR _
         instr(dail_msg, "- TRANS #") OR _
-        instr(dail_msg, "PERSON/S REQD SNAP NOT IN SNAP UNIT") OR _ 
+        instr(dail_msg, "PERSON/S REQD SNAP NOT IN SNAP UNIT") OR _
         instr(dail_msg, "RSDI UPDATED - (REF") OR _
-        instr(dail_msg, "SSI UPDATED - (REF") then  
+        instr(dail_msg, "SSI UPDATED - (REF") then
             add_to_excel = True
         '----------------------------------------------------------------------------------------------------CORRECT STAT EDITS over 5 days old
     Elseif instr(dail_msg, "CORRECT STAT EDITS") then
