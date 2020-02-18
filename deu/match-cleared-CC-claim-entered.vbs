@@ -315,6 +315,7 @@ EMReadScreen OutOfCounty_error, 12, 24, 2
 IF OutOfCounty_error = "MATCH IS NOT" then
 	script_end_procedure_with_error_report("Out-of-county case. Cannot update.")
 Else
+	IEVS_year = ""
 	IF match_type = "WAGE" then
 		EMReadScreen select_quarter, 1, 8, 14
 		EMReadScreen IEVS_year, 4, 8, 22
