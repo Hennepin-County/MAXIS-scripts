@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("02/19/2020", "Temporary update allowing user to select Banked months priority work lists.", "Ilse Ferris, Hennepin County")
 call changelog_update("08/28/2019", "Added cell formatting for month fields when running Find ABAWD Months option.", "Casey Love, Hennepin County")
 call changelog_update("07/26/2019", "Enhanced 'Find ABAWD Months' option to highlight the current row and reduce input required.", "Casey Love, Hennepin County")
 call changelog_update("07/11/2018", "Initial version.", "Casey Love, Hennepin County")
@@ -1049,7 +1050,7 @@ LOOP UNTIL are_we_passworded_out = false
 
 If process_option = "Ongoing Banked Months Cases" Then
     'This is the master Banked Months List
-    working_excel_file_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\SNAP\Banked months data\Ongoing banked months list.xlsx"     'THIS IS THE REAL ONE
+    'working_excel_file_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\SNAP\Banked months data\Ongoing banked months list.xlsx"     'THIS IS THE REAL ONE
     ' working_excel_file_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\SNAP\Banked months data\Copy of Ongoing banked months list.xlsx"  'use for tesing.'
 
     'Here the file path can be changed, can be reselected so that the list can be copied and worked on by multiple people.
@@ -1074,7 +1075,7 @@ If process_option = "Ongoing Banked Months Cases" Then
     'Opens Excel file here, as it needs to populate the dialog with the details from the spreadsheet.
     call excel_open_pw(working_excel_file_path, True, False, ObjExcel, objWorkbook, "BM")
 
-    ObjExcel.Worksheets("Ongoing banked months").Activate           'Chosing the correct sheet in the Excel File
+    'ObjExcel.Worksheets("Ongoing banked months").Activate           'Chosing the correct sheet in the Excel File
 
 ElseIf process_option = "Find ABAWD Months" Then
     working_excel_file_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\SNAP\Banked months data\Ongoing banked months list.xlsx"     'THIS IS THE REAL ONE
