@@ -155,6 +155,13 @@ script_array_admin_main(script_num).description 		= "ACTION script adds GRH Rate
 script_num = script_num + 1							   'Increment by one
 ReDim Preserve script_array_admin_main(script_num)	    'Resets the array to add one more element to it
 Set script_array_admin_main(script_num) = new script    'Set this array element to be a new script. Script details below...
+script_array_admin_main(script_num).script_name		    = "AVS Submitted"
+script_array_admin_main(script_num).file_name			= "avs-submitted.vbs"
+script_array_admin_main(script_num).description		    = "Creates a case note and sets a 10-day TIKL to check status of AVS submission."
+
+script_num = script_num + 1							   'Increment by one
+ReDim Preserve script_array_admin_main(script_num)	    'Resets the array to add one more element to it
+Set script_array_admin_main(script_num) = new script    'Set this array element to be a new script. Script details below...
 script_array_admin_main(script_num).script_name		    = "BULK - REPT USER List"
 script_array_admin_main(script_num).file_name			= "bulk-rept-user-list.vbs"
 script_array_admin_main(script_num).description		    = "Report to pull MAXIS USER detail into an Excel Spreadsheet."
