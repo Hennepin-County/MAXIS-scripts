@@ -246,12 +246,7 @@ If SDX_check = "SDX INFORMATION HAS BEEN STORED - CHECK INFC" then
     match_found = TRUE
 	call run_from_GitHub(script_repository & "dail/sdx-info-has-been-stored.vbs")
 END IF
-'Student income is ending (loads STUDENT INCOME)
-EMReadScreen SCHL_check, 24, 6, 20
-If SCHL_check = "STUDENT INCOME HAS ENDED" then
-    match_found = TRUE
-	call run_from_GitHub(script_repository & "dail/student-income.vbs")
-END IF
+
 'SSA info received by agency (loads TPQY RESPONSE)
 EMReadScreen TPQY_check, 31, 6, 30
 If TPQY_check = "TPQY RESPONSE RECEIVED FROM SSA" then
