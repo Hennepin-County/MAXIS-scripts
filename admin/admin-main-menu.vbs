@@ -323,49 +323,57 @@ script_array_BZ_list(script_num).script_name		= "AVS Report"													'Script
 script_array_BZ_list(script_num).file_name			= "avs-report.vbs"												'Script URL
 script_array_BZ_list(script_num).description		= "BULK script that supports the AVS processing needs for active MA recipients."
 
-script_num = script_num + 1								'Increment by one
+script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array_BZ_list(script_num)		'Resets the array to add one more element to it
 Set script_array_BZ_list(script_num) = new script	'Set this array element to be a new script. Script details below...
 script_array_BZ_list(script_num).script_name		= "COLA Decimator"													'Script name
 script_array_BZ_list(script_num).file_name			= "cola-decimator.vbs"												'Script URL
 script_array_BZ_list(script_num).description		= "BULK script that deletes and case notes auto-approval COLA messages."
 
-script_num = script_num + 1								'Increment by one
+script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array_BZ_list(script_num)		'Resets the array to add one more element to it
 Set script_array_BZ_list(script_num) = new script	'Set this array element to be a new script. Script details below...
 script_array_BZ_list(script_num).script_name		= "DAIL CCD"													'Script name
 script_array_BZ_list(script_num).file_name			= "dail-case-note-capture.vbs"												'Script URL
 script_array_BZ_list(script_num).description		= "BULK script that captures, case notes and deletes specific DAILS based on content, and collects them into an Excel spreadsheet."
 
-script_num = script_num + 1								'Increment by one
+script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array_BZ_list(script_num)		'Resets the array to add one more element to it
 Set script_array_BZ_list(script_num) = new script	'Set this array element to be a new script. Script details below...
 script_array_BZ_list(script_num).script_name		= "DAIL Decimator"													'Script name
 script_array_BZ_list(script_num).file_name			= "dail-decimator.vbs"												'Script URL
 script_array_BZ_list(script_num).description		= "BULK script that deletes specific DAILS based on content, and collects them into an Excel spreadsheet."
 
-script_num = script_num + 1								'Increment by one
+script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array_BZ_list(script_num)		'Resets the array to add one more element to it
 Set script_array_BZ_list(script_num) = new script	'Set this array element to be a new script. Script details below...
 script_array_BZ_list(script_num).script_name		= "DAIL Decimator - TB Edition"													'Script name
 script_array_BZ_list(script_num).file_name			= "dail-decimator-task-based-edition.vbs"												'Script URL
 script_array_BZ_list(script_num).description		= "BULK script that deletes specific DAILS for identified populations, and outputs them into a SQL Database."
 
-script_num = script_num + 1								'Increment by one
+script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array_BZ_list(script_num)		'Resets the array to add one more element to it
 Set script_array_BZ_list(script_num) = new script	'Set this array element to be a new script. Script details below...
 script_array_BZ_list(script_num).script_name		= "DAIL FAD Task Based Assignments"													'Script name
 script_array_BZ_list(script_num).file_name			= "dail-task-based-assignments.vbs"												'Script URL
 script_array_BZ_list(script_num).description		= "BULK script completed DAIL DECIMATOR funtionality for families-population baskets and specific DAIL types for assignment."
 
-script_num = script_num + 1								'Increment by one
+script_num = script_num + 1							'Increment by one
+ReDim Preserve script_array_BZ_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BZ_list(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_BZ_list(script_num).script_name		= "Expedited Review"													'Script name
+script_array_BZ_list(script_num).file_name			= "expedited-review.vbs"												'Script URL
+script_array_BZ_list(script_num).description		= "BULK script to support reviewing and categorizing expedited SNAP cases in Hennepin County."
+
+
+script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array_BZ_list(script_num)		'Resets the array to add one more element to it
 Set script_array_BZ_list(script_num) = new script	'Set this array element to be a new script. Script details below...
 script_array_BZ_list(script_num).script_name		= "FUBU Script"													'Script name
 script_array_BZ_list(script_num).file_name			= "fubu.vbs"												'Script URL
 script_array_BZ_list(script_num).description		= "Get a sortable list of all of the scripts from the COMPLETE LIST OF SCRIPTS - the new one."
 
-script_num = script_num + 1								'Increment by one
+script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array_BZ_list(script_num)		'Resets the array to add one more element to it
 Set script_array_BZ_list(script_num) = new script	'Set this array element to be a new script. Script details below...
 script_array_BZ_list(script_num).script_name		= "Get basket number"													'Script name
