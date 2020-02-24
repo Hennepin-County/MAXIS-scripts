@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("02/24/2020", "Updated code to reflect changes in reading single and multi-page assets.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/19/2017", "Added 'New AA received' option, and updated functionality of script to include enhanced password handling, and handling for all 8 pages of total marital assets.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -170,7 +171,7 @@ IF AA_option = "New AA received" then
 	PF5 	'navigates to person note
 	PF9		'puts person note into edit mode
 
-	EMSendKey "***" & asset_assessment_type & " ASSET ASSESSMENT RECEIVED***" & "<newline>"
+	call write_new_line_in_person_note("***" & asset_assessment_type & " ASSET ASSESSMENT RECEIVED***")
 	call write_editbox_in_person_note("Effective date", effective_date) 'x is the header, y is the variable for the edit box which will be put in the case note, z is the length of spaces for the indent.
 	call write_editbox_in_person_note("MA-LTC first month of documented need", MA_LTC_first_month_of_documented_need)
 	call write_editbox_in_person_note("Month MA-LTC rules applied", month_MA_LTC_rules_applied)
@@ -240,19 +241,22 @@ ELse
     asset_list = ""
     Do
     	EMReadScreen asset_check, 20, MAXIS_row, 27				'chekcing to make sure the asset line is not an underscore line
-    	If asset_check <> "____________________" then
-    		EMReadScreen listed_asset, 53, MAXIS_row, 25		'reads the assets
-    		listed_asset = replace(listed_asset, "_", " ")		'relaces the underscores
-    		MAXIS_row = MAXIS_row + 1
-    		asset_list = asset_list & listed_asset & ", "		'increments the asset_list variable by the listed_asset variable
-    		EMReadScreen last_page_check, 7, 23, 4		'checking to make sure that no more assets need to be copied for the case note
-    		If last_page_check = "NO MORE" then exit do
-    		If MAXIS_row = 16 then
-    			PF8
-    			MAXIS_row = 6							'accounts for more than one page
-    		END If
+    	If asset_check <> "____________________" then 
+            If trim(asset_check) <> "" then
+    		    EMReadScreen listed_asset, 53, MAXIS_row, 25		'reads the assets
+    		    listed_asset = replace(listed_asset, "_", " ")		'relaces the underscores
+                listed_asset = trim(listed_asset)
+    		    MAXIS_row = MAXIS_row + 1
+    		    asset_list = asset_list & listed_asset & ", "		'increments the asset_list variable by the listed_asset variable
+    		    EMReadScreen last_page_check, 14, 19, 17	'checking to make sure that no more assets need to be copied for the case note
+    		    If last_page_check = "NO MORE ASSETS" then exit do
+    		    If MAXIS_row = 17 then
+    		    	PF8
+    		    	MAXIS_row = 6							'accounts for more than one page
+    		    END If
+            End if 
     	END IF
-    LOOP UNTIL asset_check = "____________________"		'loops until all the assets are accounted for
+    LOOP UNTIL asset_check = "____________________" or trim(asset_check) = ""	'loops until all the assets are accounted for
     PF3			'goes back into
 
     'declaring & splitting the array
