@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/01/2020", "Updated TIKL functionality and TIKL text in the case note.", "Ilse Ferris")
 call changelog_update("01/06/2020", "Updated support of mandatory fields and password handling in dialogs.", "Casey Love, Hennepin County")
 call changelog_update("03/12/2018", "Fixed bug that caused the script to fail if a TIKL was set on old cases.", "Casey Love, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
@@ -308,26 +309,9 @@ If update_PND2_check = 1 then
 End if
 
 'THE TIKL's----------------------------------------------------------------------------------------------------
-If datediff("d", appl_date, date) > 45 then TIKL_45_day_check = 0
-If TIKL_45_day_check = 1 then
-	call navigate_to_MAXIS_screen("dail", "writ")
-	call create_MAXIS_friendly_date(appl_date, 45, 5, 18)
-	EMSetCursor 9, 3
-	Call write_variable_in_TIKL("HC pending 45 days. Evaluate for possible denial. If any members are elderly/disabled, allow an additional 15 days and reTIKL out.")
-	transmit
-	PF3
-End if
-
-If datediff("d", appl_date, date) > 60 then TIKL_60_day_check = 0
-If TIKL_60_day_check = 1 then
-	call navigate_to_MAXIS_screen("dail", "writ")
-	call create_MAXIS_friendly_date(appl_date, 60, 5, 18)
-	EMSetCursor 9, 3
-	Call write_variable_in_TIKL("HC pending 60 days. Evaluate for possible denial. If any members are elderly/disabled, allow an additional 15 days and reTIKL out.")
-	transmit
-	PF3
-End if
-
+'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
+If TIKL_45_day_check = 1 then Call create_TIKL("HC pending 45 days. Evaluate for possible denial. If any members are elderly/disabled, allow an additional 15 days and reTIKL out.", 45, appl_date, False, TIKL_note_text)
+If TIKL_60_day_check = 1 then Call create_TIKL("HC pending 60 days. Evaluate for possible denial. If any members are elderly/disabled, allow an additional 10 days and reTIKL out.", 60, appl_date, False, TIKL_note_text)
 
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
 start_a_blank_CASE_NOTE
@@ -353,8 +337,8 @@ call write_bullet_and_variable_in_CASE_NOTE("Actions taken", actions_taken)
 If transfer_reported_check = 1 THEN call write_variable_in_CASE_NOTE("* A transfer has been reported.")
 IF spousal_allocation_check = 1 THEN Call write_variable_in_CASE_NOTE("* Spousal allocation has been requested.")
 If update_PND2_check = 1 THEN Call write_variable_in_CASE_NOTE("* PND2 updated to show client delay.")
-IF TIKL_45_day_check = 1 Then call write_variable_in_CASE_NOTE("* Set TIKL for 45 days to recheck case.")
-IF TIKL_60_day_check = 1 Then call write_variable_in_CASE_NOTE("* Set TIKL for 60 days to recheck case.")
+IF TIKL_45_day_check = 1 Then call write_variable_in_CASE_NOTE(TIKL_note_text)
+IF TIKL_60_day_check = 1 Then call write_variable_in_CASE_NOTE(TIKL_note_text)
 If add_detail_from_app_checkbox = checked Then
     IF move_verifs_needed = True THEN CALL write_bullet_and_variable_in_CASE_NOTE("Verifs needed", verifs_needed)
     CALL write_bullet_and_variable_in_CASE_NOTE("Cit/ID", cit_id)
