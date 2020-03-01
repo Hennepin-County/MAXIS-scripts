@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/01/2020", "Updated TIKL functionality and updated functionality to create SPEC/MEMO.", "Ilse Ferris")
 CALL changelog_update("12/29/2017", "Coordinates for sending MEMO's has changed in SPEC/MEMO. Updated script to support change.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("12/01/2017", "Initial version.", "Ilse Ferris, Hennepin County")
 
@@ -86,47 +87,8 @@ DO
  Call check_for_password(are_we_passworded_out)
 LOOP UNTIL check_for_password(are_we_passworded_out) = False
 
-back_to_SELF
-EMWriteScreen "________", 18, 43
-EMWriteScreen case_number, 18, 43
-EMWriteScreen CM_mo, 20, 43	'entering current footer month/year
-EMWriteScreen CM_yr, 20, 46
-
 IF send_MEMO_checkbox = 1 then
-	call navigate_to_MAXIS_screen("SPEC", "MEMO")		'Navigating to SPEC/MEMO
-	'Creates a new MEMO. If it's unable the script will stop.
-	PF5
-	EMReadScreen memo_display_check, 12, 2, 33
-	If memo_display_check = "Memo Display" then script_end_procedure("You are not able to go into update mode. Did you enter in inquiry by mistake? Please try again in production.")
-
-	'Checking for an AREP. If there's an AREP it'll navigate to STAT/AREP, check to see if the forms go to the AREP. If they do, it'll write X's in those fields below.
-	row = 4                             'Defining row and col for the search feature.
-	col = 1
-	EMSearch "ALTREP", row, col         'Row and col are variables which change from their above declarations if "ALTREP" string is found.
-	IF row > 4 THEN                     'If it isn't 4, that means it was found.
-		arep_row = row                                          'Logs the row it found the ALTREP string as arep_row
-		call navigate_to_MAXIS_screen("STAT", "AREP")           'Navigates to STAT/AREP to check and see if forms go to the AREP
-		EMReadscreen forms_to_arep, 1, 10, 45                   'Reads for the "Forms to AREP?" Y/N response on the panel.
-		call navigate_to_MAXIS_screen("SPEC", "MEMO")           'Navigates back to SPEC/MEMO
-		PF5                                                     'PF5s again to initiate the new memo process
-	END IF
-
-	'Checking for SWKR
-	row = 4                             'Defining row and col for the search feature.
-	col = 1
-	EMSearch "SOCWKR", row, col         'Row and col are variables which change from their above declarations if "SOCWKR" string is found.
-	IF row > 4 THEN                     'If it isn't 4, that means it was found.
-		swkr_row = row                                          'Logs the row it found the SOCWKR string as swkr_row
-		call navigate_to_MAXIS_screen("STAT", "SWKR")         'Navigates to STAT/SWKR to check and see if forms go to the SWKR
-		EMReadscreen forms_to_swkr, 1, 15, 63                'Reads for the "Forms to SWKR?" Y/N response on the panel.
-		call navigate_to_MAXIS_screen("SPEC", "MEMO")         'Navigates back to SPEC/MEMO
-		PF5                                           'PF5s again to initiate the new memo process
-	END IF
-	EMWriteScreen "x", 5, 12                                        'Initiates new memo to client
-	IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 12     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
-	IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 12     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
-	transmit
-	'writing the MEMO'
+    Call start_a_new_spec_memo
 	Call write_variable_in_SPEC_MEMO("************************************************************")
 	Call write_variable_in_SPEC_MEMO("Call 1 (888) 577-2227 to get more information or enroll. You will be placed on mandatory vendor because you have used shelter or have requested assistance for housing issues.")
 	Call write_variable_in_SPEC_MEMO(" ")
@@ -139,15 +101,9 @@ IF send_MEMO_checkbox = 1 then
 	PF4
 END IF
 
-'Creates a TIKL for the revoucher date
-If set_TIKL = 1 then
-    back_to_SELF
-	call navigate_to_MAXIS_screen("dail", "writ")
-	call create_MAXIS_friendly_date(date, 335, 5, 18)
-	Call write_variable_in_TIKL("Mandatory vendor status started 11 months ago. Please re-evaluate vendor status.")
-	transmit
-	PF3
-End if
+'----------------------------------------------------------------------------------------------------Creates a TIKL for the revoucher date
+'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
+If set_TIKL = 1 then Call create_TIKL("Mandatory vendor status started 11 months ago. Please re-evaluate vendor status.", 335, date, False, TIKL_note_text)
 
 'The case note---------------------------------------------------------------------------------------
 start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
