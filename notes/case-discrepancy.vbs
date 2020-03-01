@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/01/2020", "Updated TIKL functionality and TIKL text in the case note.", "Ilse Ferris")
 call changelog_update("07/10/2018", "The ACTIONS TAKEN field is no longer a mandatory field.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -130,13 +131,8 @@ progs_effect = trim(progs_effect)
 If right(progs_effect, 1) = "," THEN progs_effect = left(progs_effect, len(progs_effect) - 1)
 
 'TIKL coding
-if TIKL_checkbox = 1 then
-	call navigate_to_MAXIS_screen("dail", "writ")
-	call create_MAXIS_friendly_date(date, 10, 5, 18)
-	Call write_variable_in_TIKL("The following verifications were requested 10 days ago for a case discrepancy: " & verifs_needed)
-	transmit
-	PF3
-End if
+'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
+If TIKL_checkbox = 1 then Call create_TIKL("The following verifications were requested 10 days ago for a case discrepancy: " & verifs_needed, 10, date, True, TIKL_note_text)
 
 'The case notes----------------------------------------------------------------------------------------------------
 start_a_blank_case_note
@@ -147,6 +143,7 @@ Call write_bullet_and_variable_in_CASE_NOTE("HH member/PMI #'s", MEMB_PMI)
 Call write_bullet_and_variable_in_CASE_NOTE("Description of the discrepancy", describe_discrepancy)
 Call write_bullet_and_variable_in_CASE_NOTE("Verifications needed", verifs_needed)
 If TIKL_checkbox = 1 then Call write_variable_in_CASE_NOTE("* TIKL'd out for 10 day return of requested verifications.")
+Call write_variable_in_CASE_NOTE(TIKL_note_text)
 Call write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
 Call write_bullet_and_variable_in_CASE_NOTE("Resolution/actions taken", actions_taken)
 Call write_variable_in_CASE_NOTE("---")
