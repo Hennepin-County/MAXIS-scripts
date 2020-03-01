@@ -38,6 +38,19 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/01/2020", "Updated functionality to create SPEC/MEMO.", "Ilse Ferris")
+CALL changelog_update("12/01/2017", "Initial version.", "Ilse Ferris, Hennepin County")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 'Connecting to BlueZone, grabbing case number
 EMConnect ""
@@ -71,6 +84,7 @@ BeginDialog Dialog1, 0, 0, 301, 245, "Single client interview"
   Text 20, 15, 45, 10, "Case number:"
   Text 145, 15, 45, 10, "Shelter type:"
 EndDialog
+
 DO
 	DO
 		err_msg = ""
@@ -87,20 +101,9 @@ DO
  Call check_for_password(are_we_passworded_out)
 LOOP UNTIL check_for_password(are_we_passworded_out) = False
 
-back_to_SELF
-EMWriteScreen "________", 18, 43
-EMWriteScreen case_number, 18, 43
-EMWriteScreen CM_mo, 20, 43	'entering current footer month/year
-EMWriteScreen CM_yr, 20, 46
-
-'Creates a TIKL for the revoucher date
-If set_TIKL = 1 then
-	call navigate_to_MAXIS_screen("dail", "writ")
-	call create_MAXIS_friendly_date(revoucher_date, 0, 5, 18)
-	Call write_variable_in_TIKL("Revoucher date. Please review case for requested verifications and/or redetermination of benefits.")
-	transmit
-	PF3
-End if
+'----------------------------------------------------------------------------------------------------Creates a TIKL for the revoucher date
+'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
+If set_TIKL = 1 then Call create_TIKL("Revoucher date. Please review case for requested verifications and/or redetermination of benefits.", 0, revoucher_date, False, TIKL_note_text)
 
 'The case note---------------------------------------------------------------------------------------
 start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
