@@ -74,6 +74,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/01/2020", "Updated TIKL functionality and TIKL text in the case note.", "Ilse Ferris")
 Call changelog_update("01/03/2020", "Added new functionality to ask about accepting documents in ECF as a reminder at the end of the script.", "Casey Love, Hennepin County")
 Call changelog_update("09/25/2019", "Bug Fix - script would error/stop if case was stuck in background. Added a number of checks to be sure case is not in background so the script run can continue.", "Casey Love, Hennepin County")
 Call changelog_update("07/29/2019", "Bug fix - script was not identifying document information as complete when only SHEL editbox was filled.", "Casey Love, Hennepin County")
@@ -499,7 +500,7 @@ If evf_form_received_checkbox = checked Then
 		      DropListBox 75, 110, 60, 15, "Select one..."+chr(9)+"yes"+chr(9)+"no", info
 		      EditBox 220, 110, 60, 15, info_date
 		      EditBox 75, 130, 60, 15, request_info
-		      CheckBox 160, 135, 105, 10, "10 day TIKL for additional info", EVF_TIKL_checkbox
+		      CheckBox 160, 135, 105, 10, "Create TIKL for additional info", EVF_TIKL_checkbox
 		      EditBox 70, 160, 210, 15, actions_taken
 		      ButtonGroup ButtonPressed
 		    	OkButton 175, 180, 50, 15
@@ -547,12 +548,9 @@ if evf_form_received_checkbox = checked Then
     docs_rec = docs_rec & ", EVF for M" & evf_ref_numb
 
     'Checks if additional info is yes and the TIKL is checked, sets a TIKL for the return of the info
-    If EVF_TIKL_checkbox = checked Then
-    	call navigate_to_MAXIS_screen("dail", "writ")
-    	call create_MAXIS_friendly_date(date, 10, 5, 18)		'The following will generate a TIKL formatted date for 10 days from now.
-    	call write_variable_in_TIKL("Additional info requested after an EVF being rec'd should have returned by now. If not received, take appropriate action. (TIKL auto-generated from script)." )
-    	transmit
-    	PF3
+    If EVF_TIKL_checkbox = checked Then 
+        'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
+        Call create_TIKL("Additional info requested after an EVF being rec'd should have returned by now. If not received, take appropriate action.", 10, date, True, TIKL_note_text)
     	'Success message
     	end_msg = end_msg & vbNewLine & "Additional detail added about EVF." & vbNewLine & "TIKL has been sent for 10 days from now for the additional information requested."
     Else
@@ -2330,12 +2328,8 @@ If arep_form_checkbox = checked Then
 
     End If
 
-    If TIKL_check = checked then
-    	call navigate_to_MAXIS_screen("dail", "writ")
-    	call create_MAXIS_friendly_date(dateadd("m", 12, arep_signature_date), 0, 5, 18)
-    	call write_variable_in_TIKL("Client's AREP release for HC is now 12 months old and no longer valid. Take appropriate action.")
-    End If
-
+    'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
+    If TIKL_check = checked then Call create_TIKL("Client's AREP release for HC is now 12 months old and no longer valid. Take appropriate action.", 365, arep_signature_date, False, TIKL_note_text)
 End If
 
 If LTC_case = vbNo Then
@@ -2538,7 +2532,6 @@ If mtaf_form_checkbox = checked Then
             'for additional information needed
             IF info = "yes" then
                 Call write_variable_in_CASE_NOTE("  - Additional Info requested: " & info & " on " & info_date & " by " & request_info)
-            	If EVF_TIKL_checkbox = checked then call write_variable_in_CASE_NOTE ("  ***TIKLed for 10 day return.***")
             Else
                 Call write_variable_in_CASE_NOTE("  - No additional information is needed/requested.")
             END IF
@@ -2704,20 +2697,6 @@ If ltc_1503_form_checkbox = checked Then
     EMWriteScreen MAXIS_footer_year, 20, 46
     call navigate_to_MAXIS_screen("STAT", "FACI")
 
-    'THE TIKL----------------------------------------------------------------------------------------------------
-    If TIKL_checkbox = checked then
-      If length_of_stay = "30 days or less" then TIKL_multiplier = 30
-      If length_of_stay = "31 to 90 days" then TIKL_multiplier = 90
-      If length_of_stay = "91 to 180 days" then TIKL_multiplier = 180
-      TIKL_date = dateadd("d", TIKL_multiplier, admit_date)
-      TIKL_date_DD = datepart("d", TIKL_date)
-      If len(TIKL_date_DD) = 1 then TIKL_date_DD = "0" & TIKL_date_DD
-      TIKL_date_MM = datepart("m", TIKL_date)
-      If len(TIKL_date_MM) = 1 then TIKL_date_MM = "0" & TIKL_date_MM
-      TIKL_date_YY = datepart("yyyy", TIKL_date)
-      If len(TIKL_date_YY) = 4 then TIKL_date_YY = TIKL_date_YY - 2000
-    End if
-
     'UPDATING MAXIS PANELS----------------------------------------------------------------------------------------------------
     'FACI
     If FACI_update_checkbox = checked then
@@ -2770,17 +2749,12 @@ If ltc_1503_form_checkbox = checked Then
     END IF
 
     'THE TIKL----------------------------------------------------------------------------------------------------
-    If TIKL_checkbox = checked then
-    	call navigate_to_MAXIS_screen("dail", "writ")
-    	EMWriteScreen TIKL_date_MM, 5, 18
-    	EMWriteScreen TIKL_date_DD, 5, 21
-    	EMWriteScreen TIKL_date_YY, 5, 24
-    	EMSetCursor 9, 3
-    	write_variable_in_TIKL("Have " & worker_signature & " call " & FACI & " re: length of stay. " & TIKL_multiplier & " days expired.")
-    	transmit
-    	PF3
-    End if
-
+    If length_of_stay = "30 days or less"   then TIKL_multiplier = 30
+    If length_of_stay = "31 to 90 days"     then TIKL_multiplier = 90
+    If length_of_stay = "91 to 180 days"    then TIKL_multiplier = 180
+    'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
+    If TIKL_checkbox = checked then Call create_TIKL("Have " & worker_signature & " call " & FACI & " re: length of stay. " & TIKL_multiplier & " days expired.", TIKL_multiplier, admit_date, False, TIKL_note_text)
+    
     'The CASE NOTE----------------------------------------------------------------------------------------------------
     Call start_a_blank_CASE_NOTE
     If processed_1503_checkbox = checked then
@@ -2809,7 +2783,6 @@ If ltc_1503_form_checkbox = checked Then
     Call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)
     If sent_verif_request_checkbox = checked then Call write_variable_in_case_note("* Sent verif request to " & sent_request_to)
     If processed_1503_checkbox = checked then Call write_variable_in_case_note("* Completed & Returned 1503 to LTCF.")
-    If TIKL_checkbox = checked then Call write_variable_in_case_note("* TIKLed to recheck length of stay on " & TIKL_date & ".")
     Call write_bullet_and_variable_in_CASE_NOTE("METS Case Number", mets_case_number)
     Call write_bullet_and_variable_in_case_note("Notes", notes)
     Call write_variable_in_case_note("---")
@@ -2901,7 +2874,6 @@ If evf_form_received_checkbox = checked Then
     'for additional information needed
     IF info = "yes" then
         Call write_variable_in_CASE_NOTE("  - Additional Info requested: " & info & " on " & info_date & " by " & request_info)
-    	If EVF_TIKL_checkbox = checked then call write_variable_in_CASE_NOTE ("  ***TIKLed for 10 day return.***")
     Else
         Call write_variable_in_CASE_NOTE("  - No additional information is needed/requested.")
     END IF
