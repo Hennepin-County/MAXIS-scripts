@@ -176,6 +176,7 @@ If action_type = "Apply sanction/disq."	then
 	If TIKL_next_month = checked THEN
 		next_mo_TIKL = dateadd("m", 1, date)		'Creates a next_mo_TIKL variable with the current date + 1 month (to determine what the month will be next month)
 		next_mo_TIKL = datepart("m", next_mo_TIKL) & "/01/" & datepart("yyyy", next_mo_TIKL)		'Modifies the next_mo_TIKL variable to reflect the month, the string "/01/", and the year from next_mo_TIKL, which creates a TIKL date on the first of next month.
+		Call create_TIKL("A pending sanction was determined last month. Please review case, and resolve or impose the sanction.", 0, next_mo_TIKL, False, TIKL_note_text)
 	END If
     
 	IF worker_number <> "" THEN
