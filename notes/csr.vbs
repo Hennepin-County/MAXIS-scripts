@@ -48,6 +48,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/01/2020", "Updated TIKL functionality and TIKL text in the case note.", "Ilse Ferris")
 call changelog_update("12/21/2019", "Updated the script to carry the Footer Month and Year to the MA Approval case note when 'Processing Paperless IR' is checked for an LTC case.", "Casey Love, Hennepin County")
 Call changelog_update("03/06/2019", "Added 2 new options to the Notes on Income button to support referencing CASE/NOTE made by Earned Income Budgeting.", "Casey Love, Hennepin County")
 call changelog_update("12/22/2018", "Added closing message reminder about accepting all ECF work items for CSR's at the time of processing.", "Ilse Ferris, Hennepin County")
@@ -353,13 +354,8 @@ IF grab_FS_info_checkbox = 1 THEN
 	End if
 END IF
 
-IF tikl_for_ui THEN
-	Call navigate_to_MAXIS_screen ("DAIL", "WRIT")
-	two_weeks_from_now = DateAdd("d", 14, date)
-	call create_MAXIS_friendly_date(two_weeks_from_now, 10, 5, 18)
-	call write_variable_in_TIKL ("Review client's application for Unemployment and request an update if needed.")
-	PF3
-END IF
+'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
+IF tikl_for_ui THEN Call create_TIKL("Review client's application for Unemployment and request an update if needed.", 14, date, False, TIKL_note_text)
 
 'Writing the case note to MAXIS----------------------------------------------------------------------------------------------------
 start_a_blank_CASE_NOTE
@@ -385,6 +381,7 @@ call write_bullet_and_variable_in_case_note("Actions taken", actions_taken)
 call write_bullet_and_variable_in_case_note("MA-EPD premium", MAEPD_premium)
 If MADE_checkbox = checked then call write_variable_in_case_note("* Emailed MADE through DHS-SIR.")
 IF move_verifs_needed = False THEN CALL write_bullet_and_variable_in_CASE_NOTE("Verifs needed", verifs_needed)			'IF global variable move_verifs_needed = False (on FUNCTIONS FILE), it'll case note at the bottom.
+If tikl_for_ui = 1 then call write_variable_in_CASE_NOTE(TIKL_note_text)
 call write_variable_in_case_note("---")
 If grab_FS_info_checkbox = 1 AND FSPR_check = "FSPR" then
 	call write_variable_in_case_note("   " & FSSM_line_01)
