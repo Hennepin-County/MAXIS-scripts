@@ -44,24 +44,21 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/01/2020", "Updated TIKL functionality and TIKL text in the case note.", "Ilse Ferris")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'THIS SCRIPT IS BEING USED IN A WORKFLOW SO DIALOGS ARE NOT NAMED
-'DIALOGS MAY NOT BE DEFINED AT THE BEGINNING OF THE SCRIPT BUT WITHIN THE SCRIPT FILE
-
 'THE SCRIPT--------------------------------------------------------------------------------------------------
 'Asks if this is a LTC case or not. LTC has a different dialog. The if...then logic will be put in the do...loop.
 LTC_case = MsgBox("Is this a Long Term Care case? LTC cases have a few more options on their dialog.", vbYesNoCancel)
-If LTC_case = vbCancel then stopscript
+If LTC_case = vbCancel then script_end_procedure("The script will now end.")
 
 'Connects to BlueZone
 EMConnect ""
-'Calls a MAXIS case number
-call MAXIS_case_number_finder(MAXIS_case_number)
+call MAXIS_case_number_finder(MAXIS_case_number) 'Calls a MAXIS case number
 
 'Shows dialog. Requires a case number, checks for an active MAXIS session, and checks that it can add/update a case note before proceeding.
 If LTC_case = vbYes then 									'Shows dialog if LTC
@@ -188,8 +185,11 @@ ELSEIF LTC_case = vbNo then							'Shows dialog if not LTC
 	LOOP UNTIL are_we_passworded_out = false
 END IF
 
-'checking for an active MAXIS session
+'checking for an active MAXIS session 
 Call check_for_MAXIS(False)
+
+'THE TIKL----------------------------------------------------------------------------------------------------
+'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
 
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
 'Writes a new line, then writes each additional line if there's data in the dialog's edit box (uses if/then statement to decide).
@@ -231,15 +231,4 @@ IF signature_page_needed_check = checked THEN write_variable_in_CASE_NOTE("* Sig
 Call write_variable_in_case_note("---")
 call write_variable_in_CASE_NOTE(worker_signature)
 
-'THE TIKL----------------------------------------------------------------------------------------------------
-'If TIKL_check isn't checked this is the end
-If TIKL_check = unchecked then script_end_procedure("")
-
-'Navigating to DAIL/WRIT
-call navigate_to_MAXIS_screen("dail", "writ")
-
-'If the date in Verif due date is a date, it'll fill that date in on the TIKL.
-If IsDate(verif_due_date) = True then call create_MAXIS_friendly_date(verif_due_date, 0, 5, 18)
-
-'Script ends
-script_end_procedure("Success! Case note made. You may TIKL when ready. If you filled in a verif due date, it should be autofilled in this TIKL.")
+script_end_procedure("")
