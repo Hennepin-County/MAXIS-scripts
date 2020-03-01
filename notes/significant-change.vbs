@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/01/2020", "Updated TIKL functionality and TIKL text in the case note.", "Ilse Ferris")
 CALL changelog_update("12/29/2017", "Coordinates for sending MEMO's has changed in SPEC/MEMO. Updated script to support change.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -55,6 +56,7 @@ changelog_display
 EMConnect "" 'Connects to Bluezone
 call check_for_MAXIS(True) 'Password Check- Script will shut down if passworded out
 call MAXIS_case_number_finder(MAXIS_case_number) 'Searches for case number
+
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 291, 260, "Significant Change"
@@ -105,39 +107,28 @@ DO
     	IF err_msg <> "" THEN Msgbox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine & vbNewLine & "Please resolve for the script to continue" 'Msgbox starts out with Notice!!! then makes new line (this should give it a space it before the error messages because each message starts out with new line) and then adds a couple lines to space after the error messages before the saying that "Please resolve for script to continue" "
     LOOP UNTIL err_msg = ""
 LOOP UNTIL are_we_passworded_out = false
+
 'TIKL to review/process sig change request for future month (check box selected)
 If TIKL_future_month_checkbox = checked THEN
-	'navigates to DAIL/WRIT
-	Call navigate_to_MAXIS_screen ("DAIL", "WRIT")
-
-	TIKL_date = dateadd("m", 1, date)		'Creates a TIKL_date variable with the current date + 1 month (to determine what the month will be next month)
-	TIKL_date = datepart("m", TIKL_date) & "/01/" & datepart("yyyy", TIKL_date)		'Modifies the TIKL_date variable to reflect the month, the string "/01/", and the year from TIKL_date, which creates a TIKL date on the first of next month.
-
-	Call create_MAXIS_friendly_date(TIKL_date, 0, 5, 18) 'updates to first day of the next available month dateadd(m, 1)
-	'Writes TIKL to worker
-	Call write_variable_in_TIKL("A Significant Change was requested for this month. Please review and process")
-	'Saves TIKL and enters out of TIKL function
-	transmit
-	PF3
+	next_TIKL = dateadd("m", 1, date)		'Creates a next_TIKL variable with the current date + 1 month (to determine what the month will be next month)
+	next_TIKL = datepart("m", next_TIKL) & "/01/" & datepart("yyyy", next_TIKL)		'Modifies the next_TIKL variable to reflect the month, the string "/01/", and the year from next_TIKL, which creates a TIKL date on the first of next month.
+    'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
+    Call create_TIKL("A Significant Change was requested for this month. Please review and process", 0, next_TIKL, False, TIKL_note_text)
 END If
 
 If Sig_change_status_dropdown = "Denied" THEN
 	call start_a_new_spec_memo
-	'Writes the MEMO.
 	call write_variable_in_SPEC_MEMO("************************************************************")
 	call write_variable_in_SPEC_MEMO("Your request for Significant Change for the month of " & Month_requested_dropdown & " " & Month_requested_year & " has been received.")
 	call write_variable_in_SPEC_MEMO("Your household is not eligible to receive a significant change supplement for the month requested.")
 	call write_variable_in_SPEC_MEMO("This is because " & Denial_reason_dropdown)
 	call write_variable_in_SPEC_MEMO("Please contact your worker if you have any questions")
 	call write_variable_in_SPEC_MEMO("************************************************************")
-
-	'Exits the MEMO
-	PF4
+	PF4    'Exits the MEMO
 END If
 
 'Starts the case note
 call start_a_blank_case_note
-'Writes the case note
 call write_bullet_and_variable_in_CASE_NOTE ("Significant Change", Sig_change_status_dropdown)
 IF Sig_change_status_dropdown = "Denied" THEN call write_bullet_and_variable_in_CASE_NOTE ("Denial Reason", Denial_reason_dropdown)
 IF Month_requested_dropdown <> "Select one..." THEN call write_bullet_and_variable_in_CASE_NOTE ("Month Requested", Month_requested_dropdown & " " & Month_requested_year)
@@ -146,7 +137,7 @@ call write_bullet_and_variable_in_CASE_NOTE ("What Income has decreased?", Incom
 call write_bullet_and_variable_in_CASE_NOTE ("Income Change Verified?", Income_verified)
 call write_bullet_and_variable_in_CASE_NOTE ("Verifications Needed", Verifs_needed)
 call write_bullet_and_variable_in_CASE_NOTE ("Action Taken", Action_taken)
-IF Tikl_future_month_checkbox = "1" THEN write_variable_in_case_note ("* Tikl set to review Significant Change for future month")
+IF Tikl_future_month_checkbox = "1" THEN write_variable_in_case_note ("* Tikl set to review Significant Change for future month, " & next_TIKL)
 IF Sig_change_status_dropdown = "Denied" THEN write_variable_in_case_note ("* Denial letter sent via Spec/Memo")
 call write_variable_in_CASE_NOTE (Worker_signature)
 
