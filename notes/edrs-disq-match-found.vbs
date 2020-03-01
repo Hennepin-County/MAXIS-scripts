@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/01/2020", "Updated TIKL functionality and TIKL text in the case note.", "Ilse Ferris")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -98,39 +99,30 @@ BeginDialog Dialog1, 0, 0, 296, 415, "eDRS DISQ dialog"
   Text 80, 90, 45, 10, "Contact date:"
   Text 5, 205, 60, 10, "Worker signature:"
 EndDialog
+
 Do			'edrs status dialog
 	DO
    	    err_msg = ""			'establishes a blank variable for the DO LOOP
    	    DIALOG Dialog1
    	    cancel_confirmation
-   	    If HH_memb = "" 																					then err_msg = err_msg & vbNewLine & "* You must enter the disqualified HH member(s)."
-   	    If contact_info = ""																			then err_msg = err_msg & vbNewLine & "* You must enter the contact name and phone number."
-   	    IF DISQ_state	= "" 																				then err_msg = err_msg & vbNewLine & "* You must enter the state of disqualification."
-   	    If IsDate(contact_date) = False 													then err_msg = err_msg & vbNewLine & "* You must enter a the contact date."
-   	    If contact_time = ""																			then err_msg = err_msg & vbNewLine & "* You must enter a the contact time."
-   	    If DISQ_reason = "" 																			then err_msg = err_msg & vbNewLine & "* You must enter the disqualification reason."
-   	    If DISQ_begin = "" or IsDate(DISQ_begin) = FALSE 					then err_msg = err_msg & vbNewLine & "* You must enter a valid date for the DISQ begin date."
-   	    If DISQ_end <> "" And IsDate(DISQ_end) = FALSE 						then err_msg = err_msg & vbNewLine & "* You must enter a valid date for the DISQ end date."
+   	    If HH_memb = "" then err_msg = err_msg & vbNewLine & "* You must enter the disqualified HH member(s)."
+   	    If contact_info = "" then err_msg = err_msg & vbNewLine & "* You must enter the contact name and phone number."
+   	    IF DISQ_state	= "" then err_msg = err_msg & vbNewLine & "* You must enter the state of disqualification."
+   	    If IsDate(contact_date) = False then err_msg = err_msg & vbNewLine & "* You must enter a the contact date."
+   	    If contact_time = "" then err_msg = err_msg & vbNewLine & "* You must enter a the contact time."
+   	    If DISQ_reason = "" then err_msg = err_msg & vbNewLine & "* You must enter the disqualification reason."
+   	    If DISQ_begin = "" or IsDate(DISQ_begin) = FALSE then err_msg = err_msg & vbNewLine & "* You must enter a valid date for the DISQ begin date."
+   	    If DISQ_end <> "" And IsDate(DISQ_end) = FALSE then err_msg = err_msg & vbNewLine & "* You must enter a valid date for the DISQ end date."
    	    If IsNumeric(MAXIS_case_number) = False or Len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* You must enter a valid case number."
-   	    If worker_signature = "" 																	then err_msg = err_msg & vbNewLine & "* You must sign the case note."
+   	    If worker_signature = "" then err_msg = err_msg & vbNewLine & "* You must sign the case note."
    	    IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
     Loop until err_msg = ""
     call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
 
-
-'checking for active MAXIS session
-Call check_for_MAXIS(False)
-
 'TIKL for return of IPV if option is selected by user
-If IPV_TIKL = 1 then
-	call navigate_to_MAXIS_screen("dail", "writ")
-	call create_MAXIS_friendly_date(contact_date, 20, 5, 18)
-	EMSetCursor 9, 3
-	Call write_variable_in_TIKL("Has IPV from " & (DISQ_state) & " been received?  If not, contact " & (DISQ_state) & " again and case note. Refer to TE02.08.127 for procedural information.")
-	transmit
-	PF3
-End if
+'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
+If IPV_TIKL = 1 then Call create_TIKL("Has IPV from " & (DISQ_state) & " been received?  If not, contact " & (DISQ_state) & " again and case note. Refer to TE02.08.127 for procedural information.", 20, contact_date, False, TIKL_note_text)
 
 'Case noting & navigating to a new case note
 Call start_a_blank_CASE_NOTE
@@ -147,7 +139,7 @@ Call write_variable_in_CASE_NOTE("---")
 If DISQ_confirmation = 1 then call write_variable_in_CASE_NOTE("* Verbal confirmation of DISQ rec'd from " & DISQ_state & ". SNAP will not be issued.")
 IF IPV_requested = 1 then call write_variable_in_CASE_NOTE("* IPV (Intentional Program Violation) documentation requested from " & DISQ_state & ".")
 IF STAT_DISQ = 1 then Call write_variable_in_CASE_NOTE("* STAT/DISQ panel has been added/updated.")
-IF IPV_TIKL = 1 then Call write_variable_in_CASE_NOTE("* A TIKL has been set for 20 days for the return of IPV.")
+IF IPV_TIKL = 1 then Call write_variable_in_CASE_NOTE(TIKL_note_text)
 call write_variable_in_CASE_NOTE("---")
 Call write_variable_in_CASE_NOTE(worker_signature)
 
