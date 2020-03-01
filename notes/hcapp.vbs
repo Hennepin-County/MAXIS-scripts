@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/01/2020", "Updated TIKL functionality and TIKL text in the case note.", "Ilse Ferris")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -308,14 +309,8 @@ If client_delay_check = 1 then 'UPDATES PND2 FOR CLIENT DELAY IF CHECKED
 	End if
 End if
 'Tikl portion-----------------------------------------------------------------------------------------------------------------------------
-If TIKL_check = 1 then
-	call navigate_to_MAXIS_screen("dail", "writ")
-	call create_MAXIS_friendly_date(HCAPP_datestamp, 45, 5, 18)
-	EMSetCursor 9, 3
-	EMSendKey "HC pending 45 days. Evaluate for possible denial. If any members are elderly/disabled, allow an additional 15 days and reTIKL out."
-	transmit
-	PF3
-End if
+'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
+If TIKL_check = 1 then Call create_TIKL("HC pending 45 days. Evaluate for possible denial. If any members are elderly/disabled, allow an additional 15 days and set another TIKL reminder.", 45, HCAPP_datestamp, False, TIKL_note_text)
 
 'SECTION 08: THE CASE NOTE-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 start_a_blank_CASE_NOTE
@@ -353,6 +348,7 @@ CALL write_bullet_and_variable_in_CASE_NOTE("FIAT reasons", FIAT_reasons)
 CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
 IF move_verifs_needed = False THEN CALL write_bullet_and_variable_in_CASE_NOTE("Verifs needed", verifs_needed)			'IF global variable move_verifs_needed = False (on FUNCTIONS FILE), it'll case note at the bottom.
 CALL write_bullet_and_variable_in_CASE_NOTE("Actions taken", actions_taken)
+If TIKL_check = 1 then Call write_variable_in_case_note(TIKL_note_text)
 IF MMIS_updated_check = checked then call write_variable_in_case_note("* MMIS updated.")
 CALL write_variable_in_case_note("---")
 CALL write_variable_in_case_note(worker_signature)
