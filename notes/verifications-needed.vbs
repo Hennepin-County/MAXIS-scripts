@@ -190,6 +190,7 @@ Call check_for_MAXIS(False)
 
 'THE TIKL----------------------------------------------------------------------------------------------------
 'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
+IF TIKL_check = 1 and IsDate(verif_due_date) = True then Call create_TIKL("Verifications requested for this case. Please review case note & case file.", 0, verif_due_date, False, TIKL_note_text)
 
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
 'Writes a new line, then writes each additional line if there's data in the dialog's edit box (uses if/then statement to decide).
