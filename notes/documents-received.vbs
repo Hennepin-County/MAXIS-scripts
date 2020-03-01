@@ -2532,6 +2532,7 @@ If mtaf_form_checkbox = checked Then
             'for additional information needed
             IF info = "yes" then
                 Call write_variable_in_CASE_NOTE("  - Additional Info requested: " & info & " on " & info_date & " by " & request_info)
+            	If EVF_TIKL_checkbox = checked then call write_variable_in_CASE_NOTE("* TIKL'd for 10 day return.")
             Else
                 Call write_variable_in_CASE_NOTE("  - No additional information is needed/requested.")
             END IF
@@ -2783,6 +2784,7 @@ If ltc_1503_form_checkbox = checked Then
     Call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)
     If sent_verif_request_checkbox = checked then Call write_variable_in_case_note("* Sent verif request to " & sent_request_to)
     If processed_1503_checkbox = checked then Call write_variable_in_case_note("* Completed & Returned 1503 to LTCF.")
+    If TIKL_checkbox = checked then Call write_variable_in_case_note("TIKL'd for " & TIKL_multiplier & " days to check length of stay.")
     Call write_bullet_and_variable_in_CASE_NOTE("METS Case Number", mets_case_number)
     Call write_bullet_and_variable_in_case_note("Notes", notes)
     Call write_variable_in_case_note("---")
@@ -2874,6 +2876,7 @@ If evf_form_received_checkbox = checked Then
     'for additional information needed
     IF info = "yes" then
         Call write_variable_in_CASE_NOTE("  - Additional Info requested: " & info & " on " & info_date & " by " & request_info)
+    	If EVF_TIKL_checkbox = checked then call write_variable_in_CASE_NOTE("* TIKL'd for 10 day return.")
     Else
         Call write_variable_in_CASE_NOTE("  - No additional information is needed/requested.")
     END IF
