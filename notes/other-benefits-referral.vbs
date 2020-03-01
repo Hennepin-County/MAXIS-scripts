@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/01/2020", "Updated TIKL functionality and TIKL text in the case note.", "Ilse Ferris")
 call changelog_update("05/01/2019", "Initial version.", "MiKayla Handley, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -133,6 +134,15 @@ IF SSI_checkbox = CHECKED THEN
     Loop until are_we_passworded_out = false					'loops until user passwords back in
 END IF
 
+'TIKLING
+'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
+IF medi_checkbox = CHECKED and ELIG_date <> "" THEN Call create_TIKL("Referral made for medicare, please check on proof of application filed. Due " & due_date & ".", 30, date, False, TIKL_note_text)
+	
+IF trim(ELIG_year) <> "" THEN 
+    next_TIKL = "11/01/" & ELIG_year
+    Call create_TIKL("Reminder to mail the Medicare Referral for November 20" & ELIG_year & ".", 0, next_TIKL, False, TIKL_note_text)
+END IF
+
 start_a_blank_case_note
 IF medi_checkbox <> CHECKED and ELIG_year = "" THEN
 	CALL write_variable_in_CASE_NOTE("Sent Notice to M" & memb_number & " to apply for Other Maintenance Benefits")
@@ -155,7 +165,7 @@ IF medi_checkbox = CHECKED and ELIG_date <> "" THEN
 	Call write_variable_in_case_note("* Client is eligible for the Medicare buy-in as of " & ELIG_date & ".")
 	Call write_variable_in_case_note("* Proof due by " & due_date & " to apply.")
 	Call write_variable_in_case_note("* Mailed DHS-3439-ENG MHCP Medicare Buy-In Referral Letter.")
-	Call write_variable_in_case_note("* TIKL set to follow up.")
+	Call write_variable_in_case_note(TIKL_note_text)
 ELSEIF ELIG_year <> "" THEN
 	Call write_variable_in_case_note("** Medicare Referral for M" & memb_number & " **")
 	Call write_variable_in_case_note("* Client is not eligible for the Medicare buy-in. Enrollment is not until January 20" & ELIG_year & ", unable to apply until the enrollment time.")
@@ -167,22 +177,5 @@ CALL write_bullet_and_variable_in_case_note("Other Notes", other_notes)
 CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
 PF3
-
-'TIKLING
-IF medi_checkbox = CHECKED and ELIG_date <> "" THEN
-	CALL navigate_to_MAXIS_screen("DAIL","WRIT")
-	call create_MAXIS_friendly_date(Due_date, 10, 5, 18)
-	CALL write_variable_in_TIKL("Referral made for medicare, please check on proof of application filed. Due " & due_date & ".")
-	PF3
-END IF
-IF ELIG_year <> "" THEN
-	CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
-	EMWriteScreen "11", 5, 18
-	EMWriteScreen "01", 5, 21
-	EMWriteScreen ELIG_year, 5, 24
-	CALL write_variable_in_TIKL("Reminder to mail the Medicare Referral for November 20" & ELIG_year & ".")
-	PF3
-END IF
-
 
 script_end_procedure_with_error_report("Case has been noted. Please remember to send forms out of ECF.")
