@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/01/2020", "Updated TIKL functionality and TIKL text in the case note.", "Ilse Ferris")
 call changelog_update("01/27/2020", "Removed handling for the DAIL deletion.", "MiKayla Handley, Hennepin County")
 call changelog_update("04/24/2019", "Update to run on DAIL.", "MiKayla Handley, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
@@ -160,7 +161,10 @@ IF dail_check = "DAIL" THEN
 		Loop until are_we_passworded_out = false					'loops until user passwords back in
     	Call check_for_MAXIS(False)
     END IF
-
+    
+    'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
+    IF tikl_checkbox = CHECKED THEN Call create_TIKL("Check status of HH member " & hh_member & "'s incarceration at " & facility_contact & ". Incarceration Start Date was " & confinement_start_date & ".", 0, date_out, False, TIKL_note_text)
+    
     'THE CASENOTE----------------------------------------------------------------------------------------------------
     Call navigate_to_MAXIS_screen("CASE", "NOTE")
     PF9 'edit mode
@@ -182,17 +186,9 @@ IF dail_check = "DAIL" THEN
 	CALL write_bullet_and_variable_in_case_note("Action taken on", when_contact_was_made)
     CALL write_bullet_and_variable_in_case_note("Verifications needed", verifs_needed)
     CALL write_bullet_and_variable_in_case_note("Other notes", other_notes)
-    IF tikl_checkbox = CHECKED THEN CALL write_variable_in_case_note("* TIKL'd to check for release date")
+    IF tikl_checkbox = CHECKED THEN CALL write_variable_in_case_note("* TIKL created for anticipated release date.")
     CALL write_variable_in_CASE_NOTE("---")
     CALL write_variable_in_CASE_NOTE(worker_signature)
-
-    'TIKLING
-    IF tikl_checkbox = CHECKED THEN
-    	CALL navigate_to_MAXIS_screen("DAIL","WRIT")
-    	CALL create_MAXIS_friendly_date(date, 10, 5, 18)
-    	EMSetCursor 9, 3
-    	EMSendKey "Check status of HH member " & hh_member & "'s incarceration at " & facility_contact & ". Incarceration Start Date was " & confinement_start_date & "."
-    END IF
 END IF
 
 script_end_procedure_with_error_report(DAIL_type & vbcr &  first_line & vbcr & " DAIL has been case noted")
