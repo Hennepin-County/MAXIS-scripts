@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/01/2020", "Updated TIKL functionality and TIKL text in the case note.", "Ilse Ferris")
 CALL changelog_update("04/26/2019", "Updated for DAIL function.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("12/29/2017", "Coordinates for sending MEMO's has changed in SPEC function. Updated script to support change.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
@@ -70,7 +71,7 @@ BeginDialog Dialog1, 0, 0, 166, 155, "DAIL_type & MESSAGE PROCESSED"
     CancelButton 120, 135, 40, 15
   Text 5, 100, 40, 10, "Other notes:"
   Text 10, 15, 160, 10, full_message
-  GroupBox 5, 5, 155, 25, "DAIL for case #  &  MAXIS_case_number"
+  GroupBox 5, 5, 155, 25, "DAIL for case # " & MAXIS_case_number
   Text 5, 120, 35, 10, "Signature:"
 EndDialog
 
@@ -84,24 +85,8 @@ Do
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-'Navigates to blank case note
-Call navigate_to_MAXIS_screen("CASE", "NOTE")
-PF9 'edit mode
-call write_variable_in_CASE_NOTE("=== OVERDUE BABY DAIL PROCESSED ===")
-IF update_preg_CHECKBOX = CHECKED THEN CALL write_variable_in_CASE_NOTE("* Updated PREG panel, child has been added to case. No further action taken.")
-IF spec_memo_CHECKBOX = CHECKED THEN CALL write_variable_in_CASE_NOTE("* SPEC/MEMO sent informing client that they need to report information regarding the birth of their child, and/or pregnancy end date, within 10 days or their case may close.")
-CALL write_bullet_and_variable_in_case_note("Other Notes", other_notes)
-CALL write_variable_in_CASE_NOTE("---")
-CALL write_variable_in_CASE_NOTE(worker_signature)
-
-'Navigates to TIKL (if selected)
-If tikl_checkbox = CHECKED then
-	CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
-	CALL create_MAXIS_friendly_date(date, 10, 5, 18)
-	CALL write_variable_in_TIKL("Has information on new baby/end of pregnancy been received? If not, consider case closure/take appropriate action.")
-	TRANSMIT
-	PF3
-End If
+'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
+If tikl_checkbox = CHECKED then Call create_TIKL("Has information on new baby/end of pregnancy been received? If not, consider case closure/take appropriate action.", 10, date, False, TIKL_note_text)
 
 IF spec_memo_CHECKBOX = CHECKED THEN
 	CALL start_a_new_spec_memo
@@ -116,8 +101,18 @@ IF spec_memo_CHECKBOX = CHECKED THEN
     CALL write_variable_in_SPEC_MEMO("  (If so, what is the source of income?)")
     CALL write_variable_in_SPEC_MEMO("* Is there other health insurance available through any       household member's employer, or privately?")
     CALL write_variable_in_SPEC_MEMO("")
-    CALL write_variable_in_SPEC_MEMO("Thank you,")
+    CALL write_variable_in_SPEC_MEMO("Thank you.")
     PF4
 END IF
+
+'Navigates to blank case note
+Call navigate_to_MAXIS_screen("CASE", "NOTE")
+PF9 'edit mode
+call write_variable_in_CASE_NOTE("=== OVERDUE BABY DAIL PROCESSED ===")
+IF update_preg_CHECKBOX = CHECKED THEN CALL write_variable_in_CASE_NOTE("* Updated PREG panel, child has been added to case. No further action taken.")
+IF spec_memo_CHECKBOX = CHECKED THEN CALL write_variable_in_CASE_NOTE("* SPEC/MEMO sent informing client that they need to report information regarding the birth of their child, and/or pregnancy end date, within 10 days or their case may close.")
+CALL write_bullet_and_variable_in_case_note("Other Notes", other_notes)
+CALL write_variable_in_CASE_NOTE("---")
+CALL write_variable_in_CASE_NOTE(worker_signature)
 
 script_end_procedure_with_error_report("Success! The script has case noted the overdue baby info.")
