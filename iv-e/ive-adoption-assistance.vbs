@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/01/2020", "Updated TIKL functionality and TIKL text in the case note.", "Ilse Ferris")
 call changelog_update("11/25/2019", "Updated backend functionality, changlog, and removed cancel confirmation option.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/25/2019", "Initial version.", "Ilse Ferris, Hennepin County")
 
@@ -203,6 +204,10 @@ If action_option = "Closed" then
 		LOOP UNTIL err_msg = ""
  		Call check_for_password(are_we_passworded_out)
 	LOOP UNTIL check_for_password(are_we_passworded_out) = False
+    
+    'writing the TIKL for the client's 18th birthday
+    'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
+    If TIKL_checkbox = 1 then Call create_TIKL("Client's 18th birthday is " & birthday_TIKL & ". Please review case for updates.", 0, birthday_TIKL, False, TIKL_note_text)
 
 	'The case note
     start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
@@ -269,7 +274,11 @@ If action_option = "Opened" then
 		LOOP UNTIL err_msg = ""
  		Call check_for_password(are_we_passworded_out)
 	LOOP UNTIL check_for_password(are_we_passworded_out) = False
-
+    
+    'writing the TIKL for the client's 18th birthday
+    'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
+    If TIKL_checkbox = 1 then Call create_TIKL("Client's 18th birthday is " & birthday_TIKL & ". Please review case for updates.", 0, birthday_TIKL, False, TIKL_note_text)
+        
 	'The case note
     start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
 	Call write_variable_in_CASE_NOTE("**AA opened effective " & effective_date & "**")
@@ -291,15 +300,5 @@ END IF
 Call write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
 Call write_variable_in_CASE_NOTE ("---")
 Call write_variable_in_CASE_NOTE (worker_signature)
-
-'writing the TIKL for the client's 18th birthday
-If TIKL_checkbox = 1 then
-   PF3     'to save the case note
-   Call navigate_to_MAXIS_screen("DAIL", "WRIT")
-	call create_MAXIS_friendly_date(birthday_TIKL, 0, 5, 18)
-	Call write_variable_in_TIKL("Client's 18th birthday is " & birthday_TIKL & ". Please review case for updates.")
-	transmit
-	PF3
-END IF
 
 script_end_procedure("")
