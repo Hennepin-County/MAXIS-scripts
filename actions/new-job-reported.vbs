@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/01/2020", "Updated TIKL functionality and TIKL text in the case note.", "Ilse Ferris")
 call changelog_update("01/05/2018", "Updated coordinates in STAT/JOBS for income type and verification codes.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -214,15 +215,8 @@ If create_JOBS_checkbox = checked then
 	Loop until edit_mode_check = "D"
 End if
 
-If TIKL_checkbox = 1 then
-	call navigate_to_MAXIS_screen("dail", "writ")
-	'The following will generate a TIKL formatted date for 10 days from now.
-	call create_MAXIS_friendly_date(date, 10, 5, 18)
-	'Writing in the rest of the TIKL.
-	call write_variable_in_TIKL("Verification of " & employer & " job change should have returned by now. If not received and processed, take appropriate action. (TIKL auto-generated from script)." )
-	transmit
-	PF3
-End if
+'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
+If TIKL_checkbox = 1 then Call create_TIKL("Verification of " & employer & " job change should have returned by now. If not received and processed, take appropriate action. (TIKL auto-generated from script).", 10, date, True, TIKL_note_text)
 
 'Now the script will case note what's happened.
 start_a_blank_CASE_NOTE
@@ -236,14 +230,14 @@ if CCA_checkbox = 1 then call write_variable_in_case_note("* Sent status update 
 if ES_checkbox = 1 then call write_variable_in_case_note("* Sent status update to ES.")
 if work_number_checkbox = 1 then call write_variable_in_case_note("* Sent Work Number request.")
 If requested_CEI_OHI_docs_checkbox = checked then call write_variable_in_case_note("* Requested CEI/OHI docs.")
-If TIKL_checkbox = checked then call write_variable_in_case_note("* TIKLed for 10-day return.")
+If TIKL_checkbox = checked then call write_variable_in_case_note(TIKL_note_text)
 call write_bullet_and_variable_in_case_note("Notes", notes)
 call write_variable_in_case_note("---")
 call write_variable_in_case_note(worker_signature)
 
 'Navigating to DAIL/WRIT
 If TIKL_checkbox = 1 then
-	script_end_procedure("Success! MAXIS updated for job change, a case note made, and a TIKL has been sent for 10 days from now. An EV should now be sent. The job is at: " & employer & ".")
+	script_end_procedure("Success! MAXIS updated for job change, a case note made, and a TIKL has been set. An EV should now be sent. The job is at: " & employer & ".")
 Else
 	script_end_procedure("Success! MAXIS updated for job change, and a case note has been made. An EV should now be sent. The job is at: " & employer & ".")
 END IF
