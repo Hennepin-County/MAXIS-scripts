@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/01/2020", "Updated TIKL functionality and TIKL text in the case note.", "Ilse Ferris")
 call changelog_update("11/01/2019", "BUG FIX - resolved error where script was missing the case notes. Script should now case note every time the script is run to completion.", "Casey Love, Hennepin County")
 call changelog_update("09/04/2019", "Reworded the TIKL.", "MiKayla Handley, Hennepin County")
 call changelog_update("05/01/2019", "Removed the automated DAIL deletion. Workers must go back and delete manually once the DAIL has been acted on.", "MiKayla Handley, Hennepin County")
@@ -126,14 +127,11 @@ ElseIf are_we_at_dail <> "DAIL" Then
     EMWriteScreen MAXIS_case_number, 18, 43
     Call navigate_to_MAXIS_screen("DAIL", "DAIL")
 End If
-'----------------------------------------------------------------------------------------------------THE CASENOTE
-EMWriteScreen "N", 6, 3         'Goes to Case Note - maintains tie with DAIL
-TRANSMIT
 
-PF9 'Starts a blank case note
-EMReadScreen case_note_mode_check, 7, 20, 3
-If case_note_mode_check <> "Mode: A" then script_end_procedure("You are not in a case note on edit mode. You might be in inquiry. Try the script again in production.")
+'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
+IF TIKL_checkbox = 1 then Call create_TIKL("Review case for requested verifications or actions needed: " & verifs_needed & ".", 10, date, False, TIKL_note_text)
 
+Call start_a_blank_CASE_NOTE
 CALL write_variable_in_CASE_NOTE("=== " & DAIL_type & " - MESSAGE PROCESSED FOR M" & memb_number & " ===")
 IF first_line = "" THEN CALL write_variable_in_case_note("* " & full_message)
 CALL write_variable_in_case_note(first_line)
@@ -147,19 +145,8 @@ CALL write_bullet_and_variable_in_case_note("Actions taken", actions_taken)
 CALL write_bullet_and_variable_in_case_note("Action taken on", when_contact_was_made)
 CALL write_bullet_and_variable_in_case_note("Verifications needed", verifs_needed)
 CALL write_bullet_and_variable_in_case_note("Other notes", other_notes)
-IF TIKL_checkbox = CHECKED THEN CALL write_variable_in_case_note("* TIKL'd to check for requested verifications or case review.")
+IF TIKL_checkbox = CHECKED THEN CALL write_variable_in_case_note(TIKL_date_text)
 CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
-PF3
-
-'TIKLING
-IF TIKL_checkbox = checked THEN CALL navigate_to_MAXIS_screen("dail", "writ")
-'If worker checked to TIKL out, it goes to DAIL WRIT
-IF TIKL_checkbox = checked THEN
-	CALL navigate_to_MAXIS_screen("DAIL","WRIT")
-	CALL create_MAXIS_friendly_date(date, 10, 5, 18)
-	EMSetCursor 9, 3
-	EMSendKey "Review case for requested verifications or actions needed: " & verifs_needed & "."
-END IF
 
 script_end_procedure_with_error_report(DAIL_type & vbcr &  first_line & vbcr & " DAIL has been case noted")
