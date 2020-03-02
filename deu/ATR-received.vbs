@@ -158,15 +158,19 @@ ELSE
     IF number_IEVS_type = "A60" THEN match_type = "UBEN"
     IF number_IEVS_type = "A50" or number_IEVS_type = "A51"  THEN match_type = "WAGE"
 
+	IEVS_year = ""
 	IF match_type = "WAGE" then
 		EMReadScreen select_quarter, 1, 8, 14
 		EMReadScreen IEVS_year, 4, 8, 22
 	'ELSEIF match_type = "UBEN" THEN
 	'	EMReadScreen IEVS_month, 2, 5, 68
 	'	EMReadScreen IEVS_year, 4, 8, 71
-	ELSEIF match_type = "BEER" or match_type = "UNVI" THEN
+	ELSEIF match_type = "BEER" THEN
 		EMReadScreen IEVS_year, 2, 8, 15
 		IEVS_year = "20" & IEVS_year
+	ELSEIF match_type = "UNVI" THEN
+		EMReadScreen IEVS_year, 4, 8, 15
+		'msgbox IEVS_year
 		select_quarter = "YEAR"
 	END IF
 END IF

@@ -54,7 +54,7 @@ changelog_display
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
 
-BeginDialog Case_Number_Dialog, 0, 0, 171, 85, "Case Information"
+BeginDialog Dialog1, 0, 0, 171, 85, "Case Information"
   EditBox 80, 5, 60, 15, MAXIS_case_number
   EditBox 80, 25, 25, 15, elig_month
   EditBox 115, 25, 25, 15, elig_year

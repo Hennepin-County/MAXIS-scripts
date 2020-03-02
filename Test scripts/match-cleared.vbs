@@ -406,7 +406,7 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	  CheckBox 195, 75, 80, 10, "Rental Income Form", rental_checkbox
 	  CheckBox 195, 85, 80, 10, "Other (please specify)", other_checkbox
 	  EditBox 270, 100, 40, 15, exp_grad_date
-	  CheckBox 5, 110, 175, 10, "Check here if 10 day has passed - TIKL will be set ", TIKL_checkbox
+	  CheckBox 5, 110, 175, 10, "Check here if 10 day has passed - TIKL will be set ", tenday_checkbox
 	  CheckBox 5, 120, 255, 10, "Check to update claim referral tracking(SNAP and MF) Overpayment Exists", overpayment_exists_checkbox
 	  CheckBox 5, 130, 265, 10, "Check to update claim referral tracking(SNAP and MF) No Overpayment Exists", no_overpayment_checkbox
 	  EditBox 50, 145, 265, 15, other_notes

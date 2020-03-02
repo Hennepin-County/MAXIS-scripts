@@ -97,8 +97,8 @@ MAXIS_footer_year = right(MAXIS_footer_year, 2)
 CALL back_to_SELF
 
 CALL navigate_to_MAXIS_screen("STAT", "PROG")		'Goes to STAT/PROG
-EMReadScreen err_msg, 7, 24, 02
-IF err_msg = "BENEFIT" THEN	script_end_procedure_with_error_report ("Case must be in PEND II status for script to run, please update MAXIS panels TYPE & PROG (HCRE for HC) and run the script again.")
+'EMReadScreen err_msg, 7, 24, 02
+'IF err_msg = "BENEFIT" THEN	script_end_procedure_with_error_report ("Case must be in PEND II status for script to run, please update MAXIS panels TYPE & PROG (HCRE for HC) and run the script again.")
 
 'Reading the program status
 EMReadScreen cash1_status_check, 4, 6, 74

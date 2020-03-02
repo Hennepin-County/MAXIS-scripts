@@ -222,6 +222,7 @@ Do
 LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
 IF case_note_only_checkbox <> CHECKED THEN
+	Dialog1 = "" 'Blanking out previous dialog detail
     BeginDialog Dialog1, 0, 0, 370, 240, "Additional Information for IMIG"
       DropListBox 115, 15, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", ss_credits
       DropListBox 300, 15, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", ss_credits_verf
