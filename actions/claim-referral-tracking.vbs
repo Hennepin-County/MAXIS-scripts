@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/01/2020", "Updated TIKL functionality and TIKL text in the case note.", "Ilse Ferris")
 call changelog_update("08/05/2019", "Updated the term claim referral to use the action taken on MISC as well as to read for active programs.", "MiKayla Handley")
 call changelog_update("07/30/2019", "Reverted the term claim referral to use the action taken on MISC as well as to read for active programs.", "MiKayla Handley")
 call changelog_update("10/15/2018", "Updated claim referral dialog to read for active programs.", "MiKayla Handley")
@@ -204,32 +205,30 @@ IF SNAP_STATUS = TRUE or CASH_STATUS = TRUE THEN
     EMWriteScreen date, Row, 66
     TRANSMIT
     'PF3
+    
+    'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
+    IF action_taken = "Sent Request for Additional Info" THEN 
+        Call create_TIKL("Potential overpayment exists on case. Please review case for receipt of additional requested information.", 10, date, False, TIKL_note_text)
+    End if 
 
-    due_date = dateadd("d", 10, date)
     'The case note-------------------------------------------------------------------------------------------------
     start_a_blank_CASE_NOTE
     Call write_variable_in_case_note("***Claim Referral Tracking-" & action_taken & "***")
     Call write_bullet_and_variable_in_case_note("Action Date", action_date)
     Call write_bullet_and_variable_in_case_note("Active Program(s)", programs)
     IF action_taken = "Sent Request for Additional Info" THEN Call write_bullet_and_variable_in_case_note("Action taken", MISC_action_taken)
-    IF action_taken = "Sent Request for Additional Info" THEN CALL write_variable_in_case_note("* Additional verifications requested, TIKL set for 10 day return.")
-    If action_taken = "Sent Request for Additional Info" THEN  Call write_bullet_and_variable_in_case_note("Verification requested", verif_requested)
+    IF action_taken = "Sent Request for Additional Info" THEN CALL write_variable_in_case_note(TIKL_note_text)
+    If action_taken = "Sent Request for Additional Info" THEN Call write_bullet_and_variable_in_case_note("Verification requested", verif_requested)
     If action_taken = "Overpayment Exists" THEN Call write_variable_in_case_note("* Overpayment exists, claims procedure to follow.")
     IF action_taken = "No Overpayment Exists" THEN Call write_variable_in_case_note("* No overpayment exists, maxis has been updated with reported changes.")
     Call write_bullet_and_variable_in_case_note("Other Notes", other_notes)
     Call write_variable_in_case_note("* Entries for these potential claims must be retained until further notice.")
     Call write_variable_in_case_note("---")
     Call write_variable_in_case_note(worker_signature)
-    PF3
 
-    IF action_taken = "Sent Request for Additional Info" THEN
-    'set TIKL------------------------------------------------------------------------------------------------------
-        Call navigate_to_MAXIS_screen("DAIL", "WRIT")
-        call create_MAXIS_friendly_date(due_date, 10, 5, 18)
-        Call write_variable_in_TIKL("Potential overpayment exists on case. Please review case for receipt of additional requested information.")
-        PF3
-    	script_end_procedure("You have indicated that you sent a request for additional information. Please follow the agency's procedure(s) for claim entry once received.")
-    Else
+    IF action_taken = "Sent Request for Additional Info" THEN 
+        script_end_procedure("You have indicated that you sent a request for additional information. Please follow the agency's procedure(s) for claim entry once received.")
+    Else 
     	script_end_procedure("You have indicated that an overpayment exists. Please follow the agency's procedure(s) for claim entry.")
     End if
 ELSE
@@ -252,7 +251,7 @@ ELSE
          Call write_bullet_and_variable_in_case_note("Action Date", action_date)
          Call write_bullet_and_variable_in_case_note("Active Program(s)", programs)
          IF action_taken = "Sent Request for Additional Info" THEN Call write_bullet_and_variable_in_case_note("Action taken", MISC_action_taken)
-         IF action_taken = "Sent Request for Additional Info" THEN CALL write_variable_in_case_note("* Additional verifications requested, TIKL set for 10 day return.")
+         IF action_taken = "Sent Request for Additional Info" THEN CALL write_variable_in_case_note(TIKL_note_text)
          If action_taken = "Sent Request for Additional Info" THEN  Call write_bullet_and_variable_in_case_note("Verification requested", verif_requested)
          If action_taken = "Overpayment Exists" THEN Call write_variable_in_case_note("* Overpayment exists, claims procedure to follow.")
          IF action_taken = "No Overpayment Exists" THEN Call write_variable_in_case_note("* No overpayment exists, maxis has been updated with reported changes.")
