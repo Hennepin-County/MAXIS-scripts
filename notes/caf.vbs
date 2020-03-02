@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/01/2020", "Updated TIKL functionality.", "Ilse Ferris")
 Call changelog_update("01/29/2020", "When entering a expedited approval date or denial date on Dialog 8, the script will evaluate to be sure this date is not in the future. The script was requiring delay explanation when dates in the future were entered by accident, this additional handling will provide greater clarity of the updates needed.", "Casey Love, Hennepin County")
 Call changelog_update("01/08/2020", "BUG FIX - When selecting CASH and SNAP for an MFIP Recertification, the script would error out and could not continue due to not being able to find the SNAP ER date on REVW. Updated the script to ignore that blank recert date.##~##", "Casey Love, Hennepin County")
 Call changelog_update("11/27/2019", "Added handling to support 10 or more children on STAT/PARE panels.", "Ilse Ferris, Hennepin County")
@@ -5117,34 +5118,28 @@ If TIKL_checkbox = checked and CAF_type <> "Recertification" then
 		MsgBox "Cannot set TIKL as CAF Date is over 30 days old and TIKL would be in the past. You must manually track."
         TIKL_checkbox = unchecked
 	Else
-		call navigate_to_MAXIS_screen("dail", "writ")
-		call create_MAXIS_friendly_date(CAF_datestamp, 30, 5, 18)
-		If cash_checkbox = checked then TIKL_msg_one = TIKL_msg_one & "Cash/"
-		If SNAP_checkbox = checked then TIKL_msg_one = TIKL_msg_one & "SNAP/"
-		If EMER_checkbox = checked then TIKL_msg_one = TIKL_msg_one & "EMER/"
-		TIKL_msg_one = Left(TIKL_msg_one, (len(TIKL_msg_one) - 1))
-		TIKL_msg_one = TIKL_msg_one & " has been pending for 30 days. Evaluate for possible denial."
-		Call write_variable_in_TIKL (TIKL_msg_one)
-		PF3
+        If cash_checkbox = checked then TIKL_msg_one = TIKL_msg_one & "Cash/"
+        If SNAP_checkbox = checked then TIKL_msg_one = TIKL_msg_one & "SNAP/"
+        If EMER_checkbox = checked then TIKL_msg_one = TIKL_msg_one & "EMER/"
+        TIKL_msg_one = Left(TIKL_msg_one, (len(TIKL_msg_one) - 1))
+        TIKL_msg_one = TIKL_msg_one & " has been pending for 30 days. Evaluate for possible denial."
+		'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
+        Call create_TIKL(TIKL_msg_one, 30, CAF_datestamp, False, TIKL_note_text)
 	End If
 ElseIf TIKL_checkbox = checked and CAF_type = "Recertification" then
     TIKL_checkbox = unchecked
 End if
 If client_delay_TIKL_checkbox = checked then
-	call navigate_to_MAXIS_screen("dail", "writ")
-	call create_MAXIS_friendly_date(date, 10, 5, 18)
-	Call write_variable_in_TIKL (">>>UPDATE PND2 FOR CLIENT DELAY IF APPROPRIATE<<<")
-	PF3
+    'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
+    Call create_TIKL(">>>UPDATE PND2 FOR CLIENT DELAY IF APPROPRIATE<<<", 10, date, False, TIKL_note_text)
 End if
 
 For each_unea_memb = 0 to UBound(UNEA_INCOME_ARRAY, 2)
     If UNEA_INCOME_ARRAY(UC_exists, each_unea_memb) = TRUE Then
         If IsDate(UNEA_INCOME_ARRAY(UNEA_UC_tikl_date, each_unea_memb)) = TRUE Then
-            Call navigate_to_MAXIS_screen ("DAIL", "WRIT")
-        	call create_MAXIS_friendly_date(UNEA_INCOME_ARRAY(UNEA_UC_tikl_date, each_unea_memb), 10, 5, 18)
-            tikl_msg = "Review UC Income for Member " & UNEA_INCOME_ARRAY(memb_numb, each_unea_memb) & " as it may have ended or be near ending."
-        	call write_variable_in_TIKL (tikl_msg)
-        	PF3
+            'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
+            tikl_msg = "Review UC Income for Member " & UNEA_INCOME_ARRAY(memb_numb, each_unea_memb) & " as it may have ended or be near ending."    
+            Call create_TIKL(TIKL_msg, 10, UNEA_INCOME_ARRAY(UNEA_UC_tikl_date, each_unea_memb), False, TIKL_note_text)
         End If
     End If
 Next
@@ -5228,12 +5223,8 @@ If HC_checkbox = checked Then
             MsgBox "Cannot set TIKL as HC Form Date is over 45 days old and TIKL would be in the past. You must manually track."
             hc_tikl_checkbox = unchecked
         Else
-            call navigate_to_MAXIS_screen("dail", "writ")
-        	call create_MAXIS_friendly_date(HC_datestamp, 45, 5, 18)
-        	EMSetCursor 9, 3
-        	EMSendKey "HC pending 45 days. Evaluate for possible denial. If any members are elderly/disabled, allow an additional 15 days and reTIKL out."
-        	transmit
-        	PF3
+            'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
+            Call create_TIKL("HC pending 45 days. Evaluate for possible denial. If any members are elderly/disabled, allow an additional 15 days and reTIKL out.", 45, HC_datestamp, False, TIKL_note_text)
         End If
     End If
 End If
@@ -6237,9 +6228,8 @@ CALL write_variable_in_CASE_NOTE(worker_signature)
 IF SNAP_recert_is_likely_24_months = TRUE THEN					'if we determined on stat/revw that the next SNAP recert date isn't 12 months beyond the entered footer month/year
 	TIKL_for_24_month = msgbox("Your SNAP recertification date is listed as " & SNAP_recert_date & " on STAT/REVW. Do you want set a TIKL on " & dateadd("m", "-1", SNAP_recert_compare_date) & " for 12 month contact?" & vbCR & vbCR & "NOTE: Clicking yes will navigate away from CASE/NOTE saving your case note.", VBYesNo)
 	IF TIKL_for_24_month = vbYes THEN 												'if the select YES then we TIKL using our custom functions.
-		CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
-		CALL create_MAXIS_friendly_date(dateadd("m", "-1", SNAP_recert_compare_date), 0, 5, 18)
-		CALL write_variable_in_TIKL("If SNAP is open, review to see if 12 month contact letter is needed. DAIL scrubber can send 12 Month Contact Letter if used on this TIKL.")
+		'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
+        Call create_TIKL("If SNAP is open, review to see if 12 month contact letter is needed. DAIL scrubber can send 12 Month Contact Letter if used on this TIKL.", 0, dateadd("m", "-1", SNAP_recert_compare_date), False, TIKL_note_text)
 	END IF
 END IF
 
