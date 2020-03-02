@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/01/2020", "Updated TIKL functionality and TIKL text in the case note.", "Ilse Ferris")
 call changelog_update("05/01/2019", "Initial version.", "MiKayla Handley, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -54,11 +55,7 @@ EMConnect ""
 
 EMWriteScreen "N", 6, 3         'Goes to Case Note - maintains tie with DAIL
 TRANSMIT
-
-PF9 'Starts a blank case note
-
-EMReadScreen case_note_mode_check, 7, 20, 3
-If case_note_mode_check <> "Mode: A" then script_end_procedure("You are not in a case note on edit mode. You might be in inquiry. Try the script again in production.")
+Call MAXIS_case_number_finder(MAXIS_case_number)
 
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 266, 130, DAIL_type & " MESSAGE PROCESSED"
@@ -115,9 +112,24 @@ DO
 	END IF
 LOOP UNTIL case_note_confirmation = vbYes
 
+
+'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
+due_date = dateadd("d", 30, date)
+IF medi_checkbox = CHECKED and ELIG_date <> "" THEN Call create_TIKL("Referral made for medicare, please check on proof of application filed. Due " & due_date & ".", 30, date, True, TIKL_note_text)
+
+IF ELIG_year <> "" THEN 
+    nov_date = "11/01/" & ELIG_year
+    'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
+    Call create_TIKL("Reminder to mail the Medicare Referral for November 20" & ELIG_year & ".", 0, nov_date, False, TIKL_note_text)
+END IF
+
 '----------------------------------------------------------------------------the casenote
+Call navigate_to_MAXIS_screen("CASE", "NOTE")
+PF9
+EMReadScreen case_note_mode_check, 7, 20, 3
+If case_note_mode_check <> "Mode: A" then script_end_procedure("You are not in a case note on edit mode. You might be in inquiry. Try the script again in production.")
+
 IF medi_checkbox = CHECKED and ELIG_date <> "" THEN
-	due_date = dateadd("d", 30, date)
 	Call write_variable_in_case_note("** Medicare Buy-in Referral mailed for M" & memb_number & " **")
 	Call write_variable_in_case_note("* Client is eligible for the Medicare buy-in as of " & ELIG_date & ".")
 	Call write_variable_in_case_note("* Proof due by " & due_date & " to apply.")
@@ -132,22 +144,5 @@ IF ECF_sent_checkbox = CHECKED THEN CALL write_variable_in_case_note("* ECF revi
 CALL write_bullet_and_variable_in_case_note("Other notes", other_notes)
 CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
-PF3
-
-'TIKLING
-IF medi_checkbox = CHECKED and ELIG_date <> "" THEN
-	CALL navigate_to_MAXIS_screen("DAIL","WRIT")
-	call create_MAXIS_friendly_date(Due_date, 10, 5, 18)
-	CALL write_variable_in_TIKL("Referral made for medicare, please check on proof of application filed. Due " & due_date & ".")
-	PF3
-END IF
-IF ELIG_year <> "" THEN
-	CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
-	EMWriteScreen "11", 5, 18
-	EMWriteScreen "01", 5, 21
-	EMWriteScreen ELIG_year, 5, 24
-	CALL write_variable_in_TIKL("Reminder to mail the Medicare Referral for November 20" & ELIG_year & ".")
-	PF3
-END IF
 
 script_end_procedure_with_error_report("DAIL has been case noted. Please remember to send forms out of ECF and delete the PEPR.")
