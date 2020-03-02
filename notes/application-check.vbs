@@ -43,6 +43,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/01/2020", "Updated TIKL functionality and TIKL text in the case note.", "Ilse Ferris")
 call changelog_update("12/17/2019", "Enhanced PND2 case pending case search.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/03/2019", "Updated TIKL functionality to suppress when the case is identified to either approve or deny.", "Ilse Ferris")
 call changelog_update("09/06/2019", "Updated TIKL veribage", "Ilse Ferris")
@@ -411,6 +412,14 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 If other_app_notes <> "" Then application_status_droplist = application_status_droplist & ", " & other_app_notes
 
+If Outlook_reminder_checkbox = CHECKED THEN
+	'Call create_outlook_appointment(appt_date, appt_start_time, appt_end_time, appt_subject, appt_body, appt_location, appt_reminder, appt_category)
+	CALL create_outlook_appointment(reminder_date, "08:00 AM", "08:00 AM", "Application check: " & reminder_text & " for " & MAXIS_case_number, "", "", TRUE, 5, "")
+End if
+
+'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
+If application_status_droplist <> "Case is ready to approve or deny" then Call create_TIKL("Application check: " & reminder_text & ". Review case and ECF including verification requests, and take appropriate action.", 0, reminder_date, False, TIKL_note_text)
+
 'THE CASENOTE----------------------------------------------------------------------------------------------------
 start_a_blank_CASE_NOTE
 CALL write_variable_in_CASE_NOTE("-------------------------" & application_check & " Application Check")
@@ -427,17 +436,5 @@ CALL write_bullet_and_variable_in_CASE_NOTE("Actions Taken", actions_taken)
 CALL write_bullet_and_variable_in_CASE_NOTE("Other Notes", other_notes)
 CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE (worker_signature)
-
-If Outlook_reminder_checkbox = CHECKED THEN
-	'Call create_outlook_appointment(appt_date, appt_start_time, appt_end_time, appt_subject, appt_body, appt_location, appt_reminder, appt_category)
-	CALL create_outlook_appointment(reminder_date, "08:00 AM", "08:00 AM", "Application check: " & reminder_text & " for " & MAXIS_case_number, "", "", TRUE, 5, "")
-End if
-
-If application_status_droplist <> "Case is ready to approve or deny" then
-   Call navigate_to_MAXIS_screen("DAIL", "WRIT")
-   CALL create_MAXIS_friendly_date(reminder_date, 0, 5, 18)   'The following will generate a TIKL formatted date for 10 days from now, and add it to the TIKL
-   CALL write_variable_in_TIKL("Application check: " & reminder_text & ". Review case and ECF including verification requests, and take appropriate action.")
-   PF3		'Exits and saves TIKL
-End if
 
 script_end_procedure_with_error_report("Application check completed, a case note made, and a TIKL has been set.")
