@@ -254,29 +254,6 @@ If TPQY_check = "TPQY RESPONSE RECEIVED FROM SSA" then
     call run_from_GitHub(script_repository & "dail/tpqy-response.vbs")
 END IF
 
-'TYMA scrubber for agencies TIKLING TYMA as you go (loads TYMA Scrubber)
-EMReadScreen TYMA_check, 23, 6, 20
-IF TYMA_check = "~*~CONSIDER SENDING 1ST" THEN
-    match_found = TRUE
-    call run_from_GitHub(script_repository & "dail/tyma-scrubber.vbs")
-END IF
-IF TYMA_check = "~*~CONSIDER SENDING 2ND" THEN
-    match_found = TRUE
-    Call run_from_GitHub(script_repository & "dail/tyma-scrubber.vbs")
-END IF
-IF TYMA_check = "~*~2ND QUARTERLY REPORT" THEN
-    match_found = TRUE
-    call run_from_GitHub(script_repository & "dail/tyma-scrubber.vbs")
-END IF
-IF TYMA_check = "~*~CONSIDER SENDING 3RD" THEN
-    match_found = TRUE
-    call run_from_GitHub(script_repository & "dail/tyma-scrubber.vbs")
-END IF
-IF TYMA_check = "~*~3RD QUARTERLY REPORT" THEN
-    match_found = TRUE
-    call run_from_GitHub(script_repository & "dail/tyma-scrubber.vbs")
-END IF
-
 'FS Eligibility Ending for ABAWD
 EMReadScreen ABAWD_elig_end, 32, 6, 20
 IF ABAWD_elig_end = "SNAP ABAWD ELIGIBILITY HAS EXPIR" THEN
@@ -305,5 +282,6 @@ IF match_found = FALSE THEN
     	If CSES_DISB_check = "DISB" then call run_from_GitHub(script_repository & "dail/cses-scrubber.vbs") 'If it's a disbursement message...
     END IF
 END IF
+
 'NOW IF NO SCRIPT HAS BEEN WRITTEN FOR IT, THE DAIL SCRUBBER STOPS AND GENERATES A MESSAGE TO THE WORKER.----------------------------------------------------------------------------------------------------
 script_end_procedure_with_error_report("You are not on a supported DAIL message. The script will now stop. " & vbNewLine & vbNewLine & "The message reads: " & full_message & vbNewLine & "Please send an error report if you would you like this DAIL to be supported.")
