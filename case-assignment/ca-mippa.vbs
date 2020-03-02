@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")CALL changelog_update("04/16/2019", "Added requested language for denial dates and extra help.", "MiKayla Handley, Hennepin County")
+call changelog_update("03/01/2020", "Updated TIKL functionality and TIKL text in the case note.", "Ilse Ferris")
 CALL changelog_update("08/02/2019", "Removed error reporting, due to system limitations.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("04/16/2019", "Added requested language for denial dates and extra help.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("03/19/2019", "Added an error reporting option at the end of the script run.", "Casey Love, Hennepin County")
@@ -360,6 +361,14 @@ IF spec_xfer_worker <> "" THEN
 END IF
 
 denial_date = DateAdd("d", 45, date)
+
+'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
+IF select_answer = "YES - Update MLAD" or select_answer = "NO - ADD A PROGRAM" THEN
+    Call create_TIKL("~ Client submitted intent to apply for MA/MSP on " & appl_date & " Certain Populations App mailed on " & date & " If client has not responded, HC request should be denied. If client is disabled, give an additional 15 days.", 0, denial_date, False, TIKL_note_text)
+Else
+    Call create_TIKL("~ Client submitted intent to apply for MA/MSP. Case is pending or active on HC. Ensure the Date of Application is " & appl_date & " or according to the HC app on file, whichever is oldest.", 0, denial_date, False, TIKL_note_text)
+End if 
+
 '----------------------------------------------------------------------------------case note
 start_a_blank_case_note
 'Client submitted intent to apply for MA/MSP. Case is already pending or active on Health Care in MAXIS. Please ensure that the Date of Application is 1/22/2019 or according to the Health Care Application on file, whichever is oldest.
@@ -383,22 +392,8 @@ IF spec_xfer_worker <> "" THEN CALL write_variable_in_case_note ("* Case transfe
 CALL write_variable_in_case_note ("* MIPPA rcvd and acted on per: TE 02.07.459")
 CALL write_variable_in_case_note ("---")
 CALL write_variable_in_case_note (worker_signature)
-
-'writing the TIKL'
-CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
-CALL create_MAXIS_friendly_date(denial_date, 0, 5, 18)
-IF select_answer = "YES - Update MLAD" or select_answer = "NO - ADD A PROGRAM" THEN
-	'Client submitted intent to apply for MA/MSP on 1/22/2019 via MIPPA.  Certain Pops App mailed on 1/24/2019.  If client has not responded, HC should be denied.  If client is disabled, give an additional 15 days.  '
-	CALL write_variable_in_TIKL("~ Client submitted intent to apply for MA/MSP on " & appl_date & " Certain Populations App mailed on " & date & " If client has not responded, HC request should be denied. If client is disabled, give an additional 15 days.")
-ELSE
-	'Client submitted intent to apply for MA/MSP on 1/22/2019 via MIPPA. Certain Populations App mailed on 1/24/2019. If client has not responded, HC request should be denied. If client is
-	'Client submitted intent to apply for MA/MSP.  Case is pending or active on HC. Ensure the Date of Application is 1/22/2019 or according to the HC app on file, whichever is oldest.
-	'Client submitted intent to apply for MA/MSP. Case is already pending or active on Health Care in MAXIS. Please ensure that the Date of Application is 1/22/2019 or according to the Health Care Application on file, whichever is oldest.
-	CALL write_variable_in_TIKL("~ Client submitted intent to apply for MA/MSP.  Case is pending or active on HC. Ensure the Date of Application is " & appl_date & " or according to the HC app on file, whichever is oldest.  .")
-END IF
-TRANSMIT
 PF3
-'MsgBox "checking for where i end after TILK"
+
 '------------------------------------------------------------------------Naviagetes to REPT/MLAR'
 'Navigates back to MIPPA to clear the match
 CALL navigate_to_MAXIS_screen("REPT", "MLAR")
