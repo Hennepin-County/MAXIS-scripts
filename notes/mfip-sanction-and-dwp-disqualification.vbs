@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/01/2020", "Updated TIKL functionality and TIKL text in the case note.", "Ilse Ferris")
 CALL changelog_update("08/03/2018", "Fixed a bug in which the case is not being transferred.", "Casey Love, Hennepin County")
 CALL changelog_update("07/20/2018", "Updated transfer case in dialog.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("06/19/2018", "Updated verbiage in SPEC/WCOM for readibility.", "Ilse Ferris, Hennepin County")
@@ -171,20 +172,13 @@ If action_type = "Apply sanction/disq."	then
 	Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 	'TIKL to change sanction status (check box selected)
+    'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
 	If TIKL_next_month = checked THEN
-	'navigates to DAIL/WRIT
-		Call navigate_to_MAXIS_screen ("DAIL", "WRIT")
-		TIKL_date = dateadd("m", 1, date)		'Creates a TIKL_date variable with the current date + 1 month (to determine what the month will be next month)
-		TIKL_date = datepart("m", TIKL_date) & "/01/" & datepart("yyyy", TIKL_date)		'Modifies the TIKL_date variable to reflect the month, the string "/01/", and the year from TIKL_date, which creates a TIKL date on the first of next month.
-		'The following will generate a TIKL formatted date for 10 days from now.
-		Call create_MAXIS_friendly_date(TIKL_date, 0, 5, 18) 'updates to first day of the next available month dateadd(m, 1)
-		'Writes TIKL to worker
-		Call write_variable_in_TIKL("A pending sanction was determined last month.  Please review case, and resolve or impose the sanction.")
-		'Saves TIKL and enters out of TIKL function
-		transmit
-		PF3
+		next_mo_TIKL = dateadd("m", 1, date)		'Creates a next_mo_TIKL variable with the current date + 1 month (to determine what the month will be next month)
+		next_mo_TIKL = datepart("m", next_mo_TIKL) & "/01/" & datepart("yyyy", next_mo_TIKL)		'Modifies the next_mo_TIKL variable to reflect the month, the string "/01/", and the year from next_mo_TIKL, which creates a TIKL date on the first of next month.
+		Call create_TIKL("A pending sanction was determined last month. Please review case, and resolve or impose the sanction.", 0, next_mo_TIKL, False, TIKL_note_text)
 	END If
-    'MsgBox worker_number
+    
 	IF worker_number <> "" THEN
 		transfer_case = True
 		CALL navigate_to_MAXIS_screen ("SPEC", "XFER")
@@ -383,38 +377,16 @@ If action_type = "Cure santion/disq." then
 	Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 	'TIKL to re-evaluate mandatory vendoring in 6 months today's date
-	If vendor_TIKL_checkbox = checked THEN
-	'navigates to DAIL/WRIT
-		Call navigate_to_MAXIS_screen ("DAIL", "WRIT")
-
-		TIKL_date = dateadd("m", 6, date)		'Creates a TIKL_date variable with the current date + 6 month (to determine what the month will be next month)
-		TIKL_date = datepart("m", TIKL_date) & "/01/" & datepart("yyyy", TIKL_date)		'Modifies the TIKL_date variable to reflect the month, the string "/01/", and the year from TIKL_date, which creates a TIKL date on the first of month.
-
-		'The following will generate a TIKL formatted date for 10 days from now.
-		Call create_MAXIS_friendly_date(TIKL_date, 0, 5, 18) 'updates to first day of the next available month dateadd(m, 1)
-		'Writes TIKL to worker
-		Call write_variable_in_TIKL("Re-evaluate mandatory vendoring. Sanction was lifted: " & sanction_lifted_month & ".")
-		'Saves TIKL and enters out of TIKL function
-		transmit
-		PF3
-	END If
+    'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
+	If vendor_TIKL_checkbox = checked THEN Call create_TIKL("Re-evaluate mandatory vendoring. Sanction was lifted: " & sanction_lifted_month & ".", 180, date, False, TIKL_note_text)
 
 	'Seeting a monthly TIKL for next 6 months to FIAT mandatory vendor inforamtion into ELIG results
 	If monthly_TIKL_checkbox = 1 then
 		month_increment = 1	'setting the dateadd variable- will start by adding one month
 		Do
-			'navigates to DAIL/WRIT
-			Call navigate_to_MAXIS_screen ("DAIL", "WRIT")
-
-			TIKL_date = dateadd("m", month_increment, date)		'Creates a TIKL_date variable with the current date + 6 month (to determine what the month will be next month)
-			TIKL_date = datepart("m", TIKL_date) & "/01/" & datepart("yyyy", TIKL_date)		'Modifies the TIKL_date variable to reflect the month, the string "/01/", and the year from TIKL_date, which creates a TIKL date on the first of month.
-
-			Call create_MAXIS_friendly_date(TIKL_date, 0, 5, 18) 'updates to first day of the next available month dateadd(m, 1)
-			'Writes TIKL to worker
-			Call write_variable_in_TIKL("!!Mandatory vendor in place due to sanction. FIAT into new elig results!!")
-			'Saves TIKL and enters out of TIKL function
-			transmit
-			PF3
+			next_TIKL = dateadd("m", month_increment, date)		'Creates a next_mo_TIKL variable with the current date + 6 month (to determine what the month will be next month)
+			next_TIKL = datepart("m", next_TIKL) & "/01/" & datepart("yyyy", next_TIKL)		'Modifies the next_mo_TIKL variable to reflect the month, the string "/01/", and the year from next_mo_TIKL, which creates a TIKL date on the first of month.
+            Call create_TIKL("!!Mandatory vendor in place due to sanction. FIAT into new elig results!!", 0, next_TIKL, False, TIKL_note_text)
 			month_increment = month_increment + 1	'adding one to variable to increase the amt to increase the month portion of the dateadd function
 		Loop until month_increment = 6
 	END If

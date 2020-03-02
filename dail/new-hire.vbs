@@ -47,6 +47,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/01/2020", "Updated TIKL functionality and TIKL text in the case note.", "Ilse Ferris")
 call changelog_update("12/17/2019", "Updated navigation to case note from DAIL.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/26/2019", "Updated message box regarding children under 19, added policy reference for SNAP/CASH programs.", "Ilse Ferris, Hennepin County")
 call changelog_update("08/29/2019", "Added an outlook reminder option.", "MiKayla Handley, Hennepin County")
@@ -270,7 +271,15 @@ If create_JOBS_checkbox = checked then
 	If expired_check = "EXPIRE" THEN Msgbox "Check next footer month to make sure the JOBS panel carried over"
 END IF
 PF3 'back to DAIL
-'transmit
+
+'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
+Call create_TIKL("Verification of " & employer & "job via NEW HIRE should have returned by now. If not received and processed, take appropriate action. For all federal matches INFC/HIRE must be cleared please see HSR manual.", 10, date, True, TIKL_note_text)
+
+reminder_date = dateadd("d", 10, date)  'Setting out for 10 days reminder
+If Outlook_reminder_checkbox = CHECKED THEN
+	'Call create_outlook_appointment(appt_date, appt_start_time, appt_end_time, appt_subject, appt_body, appt_location, appt_reminder, appt_category)
+	CALL create_outlook_appointment(reminder_date, "08:00 AM", "08:00 AM", "New Hire recieved " & " for " & MAXIS_case_number, "", "", TRUE, 5, "")
+End if
 
 '-----------------------------------------------------------------------------------------CASENOTE
 Call navigate_to_MAXIS_screen("CASE", "NOTE")
@@ -281,29 +290,15 @@ CALL write_variable_in_case_note("EMPLOYER: " & employer)
 CALL write_variable_in_case_note(new_hire_third_line)
 CALL write_variable_in_case_note(new_hire_fourth_line)
 CALL write_variable_in_case_note("---")
-IF ECF_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Sent employment verification and DHS-2919 (Verif Request Form B) from ECF & TIKLed for 10-day return.")
+IF ECF_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Sent employment verification and DHS-2919 (Verif Request Form B) from ECF.")
 IF create_JOBS_checkbox = CHECKED THEN CALL write_variable_in_case_note("* STAT/JOBS updated with new hire information from DAIL.")
 IF CCA_checkbox = CHECKED  THEN CALL write_variable_in_case_note("* Sent status update to CCA.")
 IF ES_checkbox = CHECKED  THEN CALL write_variable_in_case_note("* Sent status update to ES.")
 IF work_number_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Sent request for Work Number after confirming client authorization.")
     IF CEI_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Requested CEI/OHI docs.")
+Call write_variable_in_case_note(TIKL_note_text)
 CALL write_bullet_and_variable_in_case_note("Other notes", other_notes)
 CALL write_variable_in_case_note("---")
 CALL write_variable_in_case_note(worker_signature)
-PF3
 
-reminder_date = dateadd("d", 10, date)  'Setting out for 10 days reminder
-
-If Outlook_reminder_checkbox = CHECKED THEN
-'and application_status_droplist <> "Case is ready to approve or deny" THEN
-	'Outlook appointment is created in prior to the case note being created
-	'Call create_outlook_appointment(appt_date, appt_start_time, appt_end_time, appt_subject, appt_body, appt_location, appt_reminder, appt_category)
-	CALL create_outlook_appointment(reminder_date, "08:00 AM", "08:00 AM", "New Hire recieved " & " for " & MAXIS_case_number, "", "", TRUE, 5, "")
-End if
-
-Call navigate_to_MAXIS_screen("DAIL", "WRIT")
-CALL create_MAXIS_friendly_date(date, 10, 5, 18)   'The following will generate a TIKL formatted date for 10 days from now, and add it to the TIKL
-CALL write_variable_in_TIKL("Verification of " & employer & "job via NEW HIRE should have returned by now. If not received and processed, take appropriate action. For all federal matches INFC/HIRE must be cleared please see HSR manual.")
-PF3		'Exits and saves TIKL
-
-script_end_procedure_with_error_report("Success! MAXIS updated for new HIRE message, a case note made, and 10 day reminders have been set. An Employment Verification and Verification request form should now be sent. The job is at " & employer & ".")
+script_end_procedure_with_error_report("Success! MAXIS updated for new HIRE message, a case note made, and TIKL has been set. An Employment Verification and Verification request form should now be sent. The job is at " & employer & ".")

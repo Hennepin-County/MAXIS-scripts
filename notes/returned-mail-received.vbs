@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/01/2020", "Updated TIKL functionality and TIKL text in the case note.", "Ilse Ferris")
 call changelog_update("02/13/2020", "Updated the zip code to only allow for 5 characters.", "MiKayla Handley, Hennepin County")
 call changelog_update("06/06/2019", "Initial version. Rewitten per POLI/TEMP.", "MiKayla Handley, Hennepin County")
 
@@ -425,7 +426,7 @@ IF ADDR_actions = "Forwarding address in MN" or ADDR_actions = "Forwarding addre
 	EmWriteScreen "01", 04, 46
 	EmWriteScreen MAXIS_footer_month, 04, 43
 	EmWriteScreen MAXIS_footer_year, 04, 49
-	'MsgBox MAXIS_footer_month & " " & MAXIS_footer_year
+	
 	EMReadScreen error_check, 2, 24, 2	'making sure we can actually update this case.
 	error_check = trim(error_check)
 	If error_check <> "" then script_end_procedure("Unable to update this case. Please review case, and run the script again if applicable.")
@@ -441,7 +442,6 @@ IF ADDR_actions = "Forwarding address in MN" or ADDR_actions = "Forwarding addre
 	    EMwritescreen new_addr_city, 8, 43 'Residence City'
 	    EMwritescreen new_addr_state, 8, 66	'Defaults to MN for all cases at this time
 	    EMwritescreen new_addr_zip, 9, 43
-	'MsgBox " Residence -how did we do"
 	END IF
 
 	IF ADDR_actions = "Forwarding address in MN" and ADDR_county = "89" THEN' the reason we are changing ADDR here is because we get an inhibiting message  COUNTY OF RESIDENCE MUST BE 89 WHEN STATE IS NOT MN
@@ -455,7 +455,6 @@ IF ADDR_actions = "Forwarding address in MN" or ADDR_actions = "Forwarding addre
 		EMwritescreen new_addr_city, 8, 43 'Residence City'
 		EMwritescreen new_addr_state, 8, 66	'Defaults to MN for all cases at this time
 		EMwritescreen new_addr_zip, 9, 43
-	'MsgBox " Residence -how did we do"
 	END IF
 
 	Call clear_line_of_text(13, 43)'Mailing Street'
@@ -526,7 +525,6 @@ IF ADDR_actions = "Client has not responded to request" THEN
     	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
     LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
-
     'per POLI/TEMP this only pretains to active cash and snap '
 	IF cash_active  = TRUE or cash2_active = TRUE or SNAP_active  = TRUE THEN
 		CALL MAXIS_background_check
@@ -551,7 +549,6 @@ IF ADDR_actions = "Client has not responded to request" THEN
     		END IF
 		ELSE
 			PF9
-			'MsgBox "did we edit PACT"
 		    EmReadScreen open_cash1, 2, 6, 43
 		    EmReadScreen open_cash2, 2, 8, 43
 		    EmReadScreen open_grh, 2, 10, 43
@@ -583,7 +580,6 @@ IF ADDR_actions = "Client has not responded to request" THEN
     	'END IF
     END IF
 END IF
-'msgbox"what did we do?"
 
 pending_verifs = ""
 IF verifA_sent_checkbox = CHECKED THEN pending_verifs = pending_verifs & "Verification Request, "
@@ -595,8 +591,11 @@ pending_verifs = trim(pending_verifs) 	'takes the last comma off of pending_veri
 IF right(pending_verifs, 1) = "," THEN pending_verifs = left(pending_verifs, len(pending_verifs) - 1)
 'checks that the worker is in MAXIS - allows them to get in MAXIS without ending the script
 
-'checking to make sure case is out of background
-Call MAXIS_background_check
+Call MAXIS_background_check 'checking to make sure case is out of background
+
+'----------------------------------------------------------------------------------------------------TIKL
+'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
+IF ADDR_actions <> "Client has not responded to request" THEN Call create_TIKL("Returned mail rec'd contact from the client should have occured regarding address change. If no response-verbal or written, please take appropriate action.", 10, date, True, TIKL_note_text)
 
 'starts a blank case note
 call start_a_blank_case_note
@@ -610,12 +609,11 @@ IF ADDR_actions = "Forwarding address in MN" or ADDR_actions = "Forwarding addre
     CALL write_variable_in_CASE_NOTE("                            " & new_addr_line_two & new_addr_city & ", " & new_addr_state & " " & new_addr_zip)
     CALL write_variable_in_CASE_NOTE("                            " & county_code & " COUNTY.")
 	IF reservation_addr = "YES" THEN CALL write_variable_in_CASE_NOTE("* Reservation " & reservation_name)
-    'CALL write_variable_in_CASE_NOTE("---")
 ELSE
 	CALL write_bullet_and_variable_in_case_note("Verification(s) requested", pending_verifs)
 END IF
 CALL write_variable_in_CASE_NOTE ("---")
-'IF mailing_addr_line_one <> "" THEN CALL write_variable_in_CASE_NOTE("* No mailing address entered in Maxis")
+
 IF mailing_addr_line_one <> "" THEN
 	CALL write_variable_in_CASE_NOTE("* Previous mailing address: " & mailing_addr_line_one)
 	CALL write_variable_in_CASE_NOTE("                           " & mailing_addr_line_two & " " & mailing_addr_city & " " & mailing_addr_state & " " & mailing_addr_zip)
@@ -637,16 +635,5 @@ CALL write_variable_in_CASE_NOTE(worker_signature)
 'Checks if this is a MNsure case and pops up a message box with instructions if the ADDR is incorrect.
 IF METS_case_number <> "" and mets_addr_correspondence = "NO" THEN MsgBox "Please update the MNsure ADDR if you are able to. If unable, please forward the new ADDR information to the correct area (i.e. Change In Circumstance)"
 
-'Checks if a DHS2919A mailed and sets a TIKL for the return of the info.
-IF ADDR_actions <> "Client has not responded to request" THEN
-	call navigate_to_MAXIS_screen("dail", "writ")
-	'The following will generate a TIKL formatted date for 10 days from now.
-	call create_MAXIS_friendly_date(date, 10, 5, 18)
-	'Writing in the rest of the TIKL.
-	call write_variable_in_TIKL("Returned mail rec'd contact from the client should have occured regarding address change. If no response-verbal or written, please take appropriate action." )
-	TRANSMIT
-	PF3
-End if
-
-IF ADDR_actions <> "Client has not responded to request" THEN script_end_procedure_with_error_report("Success! TIKL has been set for 10 days for the ADDR verification requested. Reminder:  When a change reporting unit reports a change over the telephone or in person, the unit is not required to also report the change on a Change Report from. ")
+IF ADDR_actions <> "Client has not responded to request" THEN script_end_procedure_with_error_report("Success! TIKL has been set for the ADDR verification requested. Reminder:  When a change reporting unit reports a change over the telephone or in person, the unit is not required to also report the change on a Change Report from. ")
 IF ADDR_actions = "Client has not responded to request" THEN script_end_procedure_with_error_report("Success! The PACT panel and case note have been entered, please approve ineligible results in ELIG & enter a worker comment in SPEC/WCOM.")

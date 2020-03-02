@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/01/2020", "Updated TIKL functionality and TIKL text in the case note.", "Ilse Ferris")
 call changelog_update("01/19/2017", "Initial version.", "Ilse Ferris, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -54,6 +55,7 @@ changelog_display
 'connecting to BlueZone and grabbing the case number & footer month/year
 EMConnect ""
 Call MAXIS_case_number_finder(maxis_case_number)
+call check_for_MAXIS(False)	'checking for an active MAXIS session
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
@@ -70,7 +72,7 @@ Do
 	Do
 		err_msg = ""
 		DIALOG Dialog1
-		cancel_confirmation
+		cancel_without_confirmation
 		if IsNumeric(MAXIS_case_number) = false or len(MAXIS_case_number) > 8 THEN err_msg = err_msg & vbCr & "* Enter a valid case number."
 		If reduction_status = "Select one..."THEN err_msg = err_msg & vbCr & "* Select an asset reduction status."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
@@ -78,7 +80,6 @@ Do
  	Call check_for_password(are_we_passworded_out)
 LOOP UNTIL check_for_password(are_we_passworded_out) = False
 
-call check_for_MAXIS(False)	'checking for an active MAXIS session
 'Asset reduction required coding----------------------------------------------------------------------------------------------------
 If reduction_status = "Required" then
     '-------------------------------------------------------------------------------------------------DIALOG
@@ -158,6 +159,7 @@ If reduction_status = "Required" then
     	Call check_for_password(are_we_passworded_out)
     LOOP UNTIL check_for_password(are_we_passworded_out) = False
 END IF
+
 'Asset reduction completed coding----------------------------------------------------------------------------------------------------
 If reduction_status = "Completed" then
     '-------------------------------------------------------------------------------------------------DIALOG
@@ -237,13 +239,8 @@ If reduction_status = "Completed" then
 END IF
 
 'Sets TIKL for the pending/reduction option
-IF TIKL_checkbox = 1 then
-	call navigate_to_MAXIS_screen("DAIL", "WRIT")
-	call create_MAXIS_friendly_date(due_date, 0, 5, 18)	'sets the due date from the dialog
-	Call write_variable_in_TIKL("Asset reduction verification is due. Please review case and case documents.")
-	transmit
-	PF3
-END IF
+'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
+IF TIKL_checkbox = 1 then Call create_TIKL("Asset reduction verification is due. Please review case and case documents.", 0, due_date, False, TIKL_note_text)
 
 'turns program checkboxes into a variable for the case note
 reduction_progs = ""	'establishing variable as ""

@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/01/2020", "Updated TIKL functionality and TIKL text in the case note.", "Ilse Ferris")
 call changelog_update("01/05/2018", "Updated coordinates in STAT/JOBS for income type and verification codes.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/08/2016", "Bug Fix so that the income type and verification code if creating a new panel is in the correct place.", "Casey Love, Ramsey County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
@@ -141,7 +142,7 @@ Do
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'If worker selects that the job is known, script will exit.
-If job_known_check = checked then script_end_procedure("The script will stop, this job is known.")
+If job_known_check = checked then script_end_procedure("This job is known. The script will now end.")
 
 'Cuts the string length down to the first 30 characters, so it will fit on the line.
 employer = left(employer, 30)
@@ -154,9 +155,7 @@ If jobs_check <> "JOBS" or jobs_memb_check <> HH_memb then script_end_procedure(
 'Now it will create a new JOBS panel for this case.
 EMWriteScreen "nn", 20, 79
 transmit
-
-'Adding employer info
-EMWriteScreen employer, 7, 42
+EMWriteScreen employer, 7, 42 'Adding employer info
 
 'Reading footer month/year, to be used in the prospective column
 EMReadScreen MAXIS_footer_month, 2, 20, 55
@@ -188,27 +187,19 @@ If SNAP_active = True then
 	transmit
 End if
 
-'Gets out of case
-transmit
+transmit 'Gets out of case
+
+'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
+Call create_TIKL("Verification of " & employer & " job (via CS message) should have returned by now. If not received and processed, take appropriate action.", 10, date, True, TIKL_note_text)
 
 'Navigating to case note and creating a new case note
 Call navigate_to_MAXIS_screen("CASE", "NOTE")
 PF9 'edit mode
-EMSendKey "CS REPORTED: NEW EMPLOYER FOR CAREGIVER REF NBR: " & HH_memb & " " & employer & "<newline>"
-EMSendKey "---" & "<newline>"
-EMSendKey "* Job unreported to the agency. Sending employment verification. TIKLed for 10-day return." & "<newline>"
-EMSendKey "---" & "<newline>"
-EMSendKey worker_signature & ", using automated script."
-PF3
-PF3
-
-'Opening a blank TIKL
-CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
-'The following will generate a TIKL formatted date for 10 days from now.
-call create_MAXIS_friendly_date(date, 10, 5, 18)
-'Writing TIKL
-call write_variable_in_TIKL("Verification of " & employer & " job (via CS message) should have returned by now. If not received and processed, take appropriate action. (TIKL auto-generated from script)." )
-transmit
-PF3
+Call write_variable_in_CASE_NOTE("CS REPORTED: NEW EMPLOYER FOR CAREGIVER REF NBR: " & HH_memb & " " & employer)
+Call write_variable_in_CASE_NOTE("--")
+Call write_variable_in_CASE_NOTE("* Job unreported to the agency. Sending employment verification.")
+Call write_variable_in_CASE_NOTE(TIKL_note_text)
+Call write_variable_in_CASE_NOTE("--")
+Call write_variable_in_CASE_NOTE(worker_signature)
 
 script_end_procedure("MAXIS updated for new employer message, a case note made, and a TIKL has been sent for 10 days from now. An EV should now be sent. The job is at " & employer & ".")

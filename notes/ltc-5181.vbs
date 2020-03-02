@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/01/2020", "Removed TIKL option to identify that 5181 has been rec'd.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/06/2020", "Updated error message handling and password handling around the dialogs.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/23/2018", "Updated dialog boxes to accommodate a laptop users.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
@@ -272,8 +273,7 @@ Do
                          CheckBox 15, 250, 115, 10, "Have script update ADDR panel", update_addr_new_ADDR_checkbox
                          EditBox 65, 270, 285, 15, case_action
                          EditBox 65, 290, 285, 15, other_notes
-                         CheckBox 20, 310, 120, 10, "Inform worker of 5181 via TIKL?", write_TIKL_for_worker_check
-                         CheckBox 145, 310, 125, 10, "Sent 5181 back to Case Manager?", sent_5181_to_caseworker_check
+                         CheckBox 20, 310, 125, 10, "Sent 5181 back to Case Manager?", sent_5181_to_caseworker_check
                          EditBox 70, 325, 120, 15, worker_signature
                          ButtonGroup ButtonPressed
                            PushButton 195, 325, 50, 15, "Previous", previous_to_page_02_button
@@ -323,17 +323,6 @@ IF estimated_monthly_waiver_costs <> "" THEN estimated_monthly_waiver_costs = "$
 call check_for_MAXIS(False)
 
 'ACTIONS----------------------------------------------------------------------------------------------------
-
-'Inform worker of 5181 via TIKL (check box selected)
-IF write_TIKL_for_worker_check = 1 THEN
-	'Go to DAIL/WRIT
-	Call navigate_to_MAXIS_screen ("DAIL", "WRIT")
-	'Writes TIKL to worker
-	call write_variable_in_TIKL("A DHS 5181 has been received for this case.  Please review the case and case notes.")
-	transmit
-	PF3
-END If
-
 'Updates STAT MEMB with client's date of death (client_deceased_check)
 IF client_deceased_check = 1 THEN  	'Goes to STAT MEMB
 	'Creates a new variable with MAXIS_footer_month and MAXIS_footer_year concatenated into a single date starting on the 1st of the month.
