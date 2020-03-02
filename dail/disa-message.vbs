@@ -44,89 +44,64 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/01/2020", "Updated TIKL functionality and TIKL text in the case note. Updated background navigation coding.", "Ilse Ferris")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-
 '------------------THIS SCRIPT IS DESIGNED TO BE RUN FROM THE DAIL SCRUBBER.
 '------------------As such, it does NOT include protections to be ran independently.
 
-
 EMConnect ""
-
 EMSendKey "s"
 transmit
-
 EMSendKey "disa"
 transmit
 
+Call MAXIS_case_number_finder(MAXIS_case_number)
+
 'HH member dialog to select who's job this is.
-Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 191, 52, "HH member"
+BeginDialog Dialog1, 0, 0, 191, 70, "HH member"
   EditBox 50, 25, 25, 15, HH_memb
   ButtonGroup ButtonPressed
-    OkButton 135, 10, 50, 15
-    CancelButton 135, 30, 50, 15
+    OkButton 145, 10, 40, 15
+    CancelButton 145, 30, 40, 15
+  EditBox 65, 50, 120, 15, worker_signature
   Text 5, 10, 125, 15, "Which HH member is this for? (ex: 01)"
+  Text 0, 55, 60, 10, "Worker Signature:"
 EndDialog
+
 HH_memb = "01"
 
-dialog Dialog1
-Cancel_without_confirmation
+Do 
+    Do 
+        err_msg = ""
+        Dialog Dialog1
+        Cancel_without_confirmation
+        If (isnumeric(HH_memb) = False and len(HH_memb) > 2) then err_msg = err_msg & vbcr & "* Please Enter a valid member number."
+    	If trim(worker_signature) = "" then err_msg = err_msg & vbcr & "* Please ensure your case note is signed."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 EMWriteScreen HH_memb, 20, 76
 transmit
 
 EMReadScreen cash_disa_status, 1, 11, 69
-If cash_disa_status <> "1" then
-  MsgBox "This type of DISA status is not yet supported. It could be a SMRT or some other type of verif needed. Process manually at this time."
-  stopscript
-End if
+If cash_disa_status <> "1" then script_end_procedure("This type of DISA status is not yet supported. It could be a SMRT or some other type of verif needed. Process manually at this time.")
 
-PF4
+'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
+Call create_TIKL("Medical Opinion Form sent 30 days ago. Please review case, and send another request/MOF if applicable.", 30, date, False, TIKL_note_text)
 
+Call navigate_to_MAXIS_screen("CASE", "NOTE")
 PF9
+Call write_variable_in_CASE_NOTE("DISABILITY IS ENDING IN 60 DAYS - REVIEW DISABILITY STATUS")
+If cash_disa_status = 1 then Call write_variable_in_CASE_NOTE("* Client needs a new Medical Opinion Form. Created using " & EDMS_choice & " and sent to client.")
+Call write_variable_in_CASE_NOTE(TIKL_note_text)
+Call write_variable_in_CASE_NOTE("---")
+Call write_variable_in_CASE_NOTE(worker_signature)
 
-EMSendKey "<home>" + "DISABILITY IS ENDING IN 60 DAYS - REVIEW DISABILITY STATUS" + "<newline>"
-If cash_disa_status = 1 then EMSendKey "* Client needs a new Medical Opinion Form. Created using " & EDMS_choice & " and sent to client. TIKLed for 30-day return." & "<newline>"
-EMSendKey "---" + "<newline>"
-
-Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 191, 57, "Worker signature"
-  EditBox 35, 25, 50, 15, worker_sig
-  ButtonGroup ButtonPressed_worker_sig_dialog
-    OkButton 135, 10, 50, 15
-    CancelButton 135, 30, 50, 15
-  Text 25, 10, 75, 10, "Sign your case note."
-EndDialog
-
-dialog Dialog1
-Cancel_without_confirmation
-
-EMSendKey worker_sig
-PF3
-PF3
-PF3
-
-EMSendKey "w"
-transmit
-
-'The following will generate a TIKL formatted date for 30 days from now.
-TIKL_month = datepart("m", dateadd("d", 30, date))
-If len(TIKL_month) = 1 then TIKL_month = "0" & TIKL_month
-TIKL_day = datepart("d", dateadd("d", 30, date))
-If len(TIKL_day) = 1 then TIKL_day = "0" & TIKL_day
-TIKL_year = datepart("yyyy", dateadd("d", 30, date))
-TIKL_year = TIKL_year - 2000
-
-EMSetCursor 5, 18
-EMSendKey TIKL_month & TIKL_day & TIKL_year
-EMSetCursor 9, 3
-EMSendKey "Medical Opinion Form sent 30 days ago. If not responded to, send another, and TIKL to close in 30 additional days."
-transmit
-PF3
-
-script_end_procedure("Case note and TIKL made. Send a Medical Opinion Form using " & EDMS_choice & ".")
+script_end_procedure("Case note and TIKL made. Send a Medical Opinion Form and verification request form using " & EDMS_choice & ".")
