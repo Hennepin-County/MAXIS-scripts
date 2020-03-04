@@ -204,7 +204,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-
+call changelog_update("03/04/2020", "Removed agency error OP worksheet as the form is now obsolete.", "MiKayla Handley")
 call changelog_update("08/05/2019", "Updated the term claim referral to use the action taken on MISC as well as to read for active programs.", "MiKayla Handley")
 CALL changelog_update("04/15/2019", "Updated script to copy case note to CCOL.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("07/23/2018", "Updated script to correct version and added case note to email for HC matches.", "MiKayla Handley, Hennepin County")
@@ -227,7 +227,7 @@ BeginDialog Dialog1, 0, 0, 361, 280, "Overpayment Claim Entered"
   'EditBox 230, 5, 20, 15, OT_resp_memb
   DropListBox 305, 5, 45, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", fraud_referral
   EditBox 155, 5, 40, 15, discovery_date
-  CheckBox 5, 25, 275, 20, "DHS 2776E Cash (agency) Error Overpayment Worksheet form completed in ECF", ECF_checkbox
+  'CheckBox 5, 25, 275, 20, "DHS 2776E Cash (agency) Error Overpayment Worksheet form completed in ECF", ECF_checkbox
   DropListBox 50, 65, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS", OP_program
   EditBox 130, 65, 30, 15, OP_from
   EditBox 180, 65, 30, 15, OP_to
