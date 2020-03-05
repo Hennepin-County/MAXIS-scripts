@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/05/2020", "Added enhanced handling for the month the script will use to look at information. The best informaiton is provided in the month of application.", "Casey Love, Hennepin County")
 call changelog_update("05/28/2019", "Updates to read the Expedited Screening case note.", "Casey Love, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -51,37 +52,57 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'-------------------------------------------------------------------------------------------------DIALOG
-Dialog1 = "" 'Blanking out previous dialog detail
-
-BeginDialog Dialog1, 0, 0, 171, 85, "Case Information"
-  EditBox 80, 5, 60, 15, MAXIS_case_number
-  EditBox 80, 25, 25, 15, elig_month
-  EditBox 115, 25, 25, 15, elig_year
-  EditBox 80, 45, 85, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 60, 65, 50, 15
-    CancelButton 115, 65, 50, 15
-  Text 25, 10, 50, 10, "Case Number:"
-  Text 5, 50, 70, 10, "Sign your case note:"
-  Text 20, 30, 55, 10, "Elig month/year:"
-EndDialog
-
 'THE SCRIPT-----------------------------------------------------------------------------------------------------------------
 'connecting to MAXIS & searches for the case number
 EMConnect ""
 call MAXIS_case_number_finder(MAXIS_case_number)
+If MAXIS_case_number <> "" Then
+    MAXIS_footer_month = CM_mo
+    MAXIS_footer_year = CM_yr
+
+    Call navigate_to_MAXIS_screen("STAT", "PROG")
+
+    EMReadScreen fs_appl_date, 8, 10, 33
+    fs_appl_date = replace(fs_appl_date, " ", "/")
+
+    If IsDate(fs_appl_date) = TRUE Then
+        MAXIS_footer_month = DatePart("m", fs_appl_date)
+        MAXIS_footer_month = right("0"&MAXIS_footer_month, 2)
+
+        MAXIS_footer_year = right(DatePart("yyyy", fs_appl_date), 2)
+    Else
+        MAXIS_footer_month = ""
+        MAXIS_footer_year = ""
+    End If
+
+End If
+
 'dialog to gather the Case Number and such
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 176, 85, "Case Information"
+  EditBox 85, 5, 60, 15, MAXIS_case_number
+  EditBox 85, 25, 25, 15, MAXIS_footer_month
+  EditBox 120, 25, 25, 15, MAXIS_footer_year
+  EditBox 85, 45, 85, 15, worker_signature
+  ButtonGroup ButtonPressed
+    OkButton 65, 65, 50, 15
+    CancelButton 120, 65, 50, 15
+  Text 30, 10, 50, 10, "Case Number:"
+  Text 10, 50, 70, 10, "Sign your case note:"
+  Text 5, 30, 80, 10, "Application month/year:"
+EndDialog
+
 Do
 	Do
 		Dialog Dialog1
-		cancel_confirmation
+		cancel_without_confirmation
 		err_msg = ""
-		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "You must sign your worker signature"
-		IF MAXIS_case_number = "" THEN err_msg = err_msg & vbCr & "Please enter the case number"
+		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* You must sign your worker signature"
+		Call validate_MAXIS_case_number(err_msg, "*")
+        If MAXIS_footer_month = "" OR MAXIS_footer_year = "" Then err_msg = err_msg & vbNewLine & "* Enter a footer month and year for the month of application to get correct information gathered."
 		IF err_msg <> "" THEN MsgBox err_msg & vbCr & vbCr & "Please resolve this to continue"
 	Loop until err_msg = ""
-CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false				'loops until user passwords back in
 
 'Script is going to find information that was writen in an Expedited Screening case note using scripts
