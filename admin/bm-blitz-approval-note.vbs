@@ -227,28 +227,28 @@ For each member in member_array
 
             'counting and checking for second set of ABAWD months
             IF is_counted_month = "Y" or is_counted_month = "N" THEN
-                EMReadScreen counted_date_year, 2, bene_yr_row, 14			'reading counted year date
+                EMReadScreen counted_date_year, 2, bene_yr_row, 15			'reading counted year date
                 second_abawd_period = second_abawd_period + 1				'adding counted months
                 second_counted_months_string = counted_date_month & "/" & counted_date_year			'creating new variable for array
                 second_set_info_list = second_set_info_list & ", " & second_counted_months_string	'adding variable to list to add to array
             END IF
 
             If is_counted_month = "E" or is_counted_month = "F" Then
-                EMReadScreen counted_date_year, 2, bene_yr_row, 14			'reading counted year date
+                EMReadScreen counted_date_year, 2, bene_yr_row, 15			'reading counted year date
                 exemption_months = exemption_months + 1				'adding counted months
                 exemption_months_string = counted_date_month & "/" & counted_date_year			'creating new variable for array
                 exemption_months_list = exemption_months_list & ", " & exemption_months_string	'adding variable to list to add to array
             End If
 
             If is_counted_month = "B" or is_counted_month = "C" Then
-                EMReadScreen counted_date_year, 2, bene_yr_row, 14			'reading counted year date
+                EMReadScreen counted_date_year, 2, bene_yr_row, 15			'reading counted year date
                 banked_months_count = banked_months_count + 1				'adding counted months
                 banked_month_string = counted_date_month & "/" & counted_date_year			'creating new variable for array
                 banked_months_list = banked_months_list & ", " & banked_month_string	'adding variable to list to add to array
             End If
 
             If is_counted_month = "W" or is_counted_month = "V" Then
-                EMReadScreen counted_date_year, 2, bene_yr_row, 14			'reading counted year date
+                EMReadScreen counted_date_year, 2, bene_yr_row, 15			'reading counted year date
                 meets_work_req_count = meets_work_req_count + 1				'adding counted months
                 meets_work_req_string = counted_date_month & "/" & counted_date_year			'creating new variable for array
                 meets_work_req_list = meets_work_req_list & ", " & meets_work_req_string	'adding variable to list to add to array
