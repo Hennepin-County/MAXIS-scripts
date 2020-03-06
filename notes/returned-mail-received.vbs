@@ -147,27 +147,29 @@ If right(active_programs, 1) = "," THEN active_programs = left(active_programs, 
 CALL navigate_to_MAXIS_screen("STAT", "ADDR")
 'EMReadScreen MAXIS_footer_month, 2, 20, 55
 'EMReadScreen MAXIS_footer_year, 2, 20, 58
-EMreadscreen resi_addr_line_one, 20, 6, 43
+EMreadscreen resi_addr_line_one, 22, 6, 43
 resi_addr_line_one = replace(resi_addr_line_one, "_", "")
-EMreadscreen resi_addr_line_two, 20, 7, 43
+EMreadscreen resi_addr_line_two, 22, 7, 43
 resi_addr_line_two = replace(resi_addr_line_two, "_", "")
 EMreadscreen resi_addr_city, 15, 8, 43
 resi_addr_city = replace(resi_addr_city, "_", "")
 EMreadscreen resi_addr_state, 2, 8, 66
-EMreadscreen resi_addr_zip, 5, 9, 43
+resi_addr_state = replace(resi_addr_state, "_", "")
+EMreadscreen resi_addr_zip, 7, 9, 43
 resi_addr_zip = replace(resi_addr_zip, "_", "")
 EMreadscreen addr_county, 2, 9, 66
 EMreadscreen addr_verif, 2, 9, 74
 EMreadscreen addr_homeless, 1, 10, 43
 'EMreadscreen ADDR_reservation, 1, 10, 74
-EMreadscreen mailing_addr_line_one, 20, 13, 43
+EMreadscreen mailing_addr_line_one, 22, 13, 43
 mailing_addr_line_one = replace(mailing_addr_line_one, "_", "")
-EMreadscreen mailing_addr_line_two, 20, 14, 43
+EMreadscreen mailing_addr_line_two, 22, 14, 43
 mailing_addr_line_two = replace(mailing_addr_line_two, "_", "")
 EMreadscreen mailing_addr_city, 15, 15, 43
 mailing_addr_city = replace(mailing_addr_city, "_", "")
 EmReadScreen mailing_addr_state, 2, 16, 43
-EMreadscreen mailing_addr_zip, 5, 16, 52
+mailing_addr_state = replace(mailing_addr_state, "_", "")
+EMreadscreen mailing_addr_zip, 7, 16, 52
 mailing_addr_zip = replace(mailing_addr_zip, "_", "")
 EMreadscreen ADDR_phone_1A, 3, 17, 45						'Has to split phone numbers up into three parts each
 EMreadscreen ADDR_phone_2B, 3, 17, 51
@@ -426,7 +428,7 @@ IF ADDR_actions = "Forwarding address in MN" or ADDR_actions = "Forwarding addre
 	EmWriteScreen "01", 04, 46
 	EmWriteScreen MAXIS_footer_month, 04, 43
 	EmWriteScreen MAXIS_footer_year, 04, 49
-	
+
 	EMReadScreen error_check, 2, 24, 2	'making sure we can actually update this case.
 	error_check = trim(error_check)
 	If error_check <> "" then script_end_procedure("Unable to update this case. Please review case, and run the script again if applicable.")

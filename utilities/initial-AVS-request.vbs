@@ -52,7 +52,7 @@ changelog_display
 'Connecting to BlueZone
 EMConnect ""
 '----------------------------------------------------------------------------------------------------ABPS panel
-
+'TO DO PRIV handling and check on hh size'
 CALL MAXIS_case_number_finder (MAXIS_case_number)
 MEMB_number = "01"
 '-------------------------------------------------------------------------------------------------DIALOG
@@ -62,7 +62,7 @@ BeginDialog Dialog1, 0, 0, 186, 130, "AVS Request"
   EditBox 65, 25, 20, 15, MEMB_number
   EditBox 160, 5, 20, 15, HH_size
   DropListBox 65, 45, 115, 15, "Select One:"+chr(9)+"Applicant"+chr(9)+"Spouse", applicant_type
-  DropListBox 65, 60, 115, 15, "Select One:"+chr(9)+"Application"+chr(9)+"Renewal", appl_type
+  DropListBox 65, 60, 115, 15, "Select One:"+chr(9)+"Application"+chr(9)+"Change of basis", appl_type
   DropListBox 65, 75, 115, 15, "Select One:"+chr(9)+"BI-Brain Injury Waiver"+chr(9)+"BX-Blind"+chr(9)+"CA-Community Alt. Care"+chr(9)+"DD-Developmental Disa Waiver"+chr(9)+"DP-MA for Employed Pers w/ Disa"+chr(9)+"DX-Disability"+chr(9)+"EH-Emergency Medical Assistance"+chr(9)+"EW-Elderly Waiver"+chr(9)+"EX-65 and Older"+chr(9)+"LC-Long Term Care"+chr(9)+"MP-QMB SLMB Only"+chr(9)+"QI-QI"+chr(9)+"QW-QWD", MA_type
   DropListBox 65, 90, 115, 15, "Select One:"+chr(9)+"NA-No Spouse"+chr(9)+"YES"+chr(9)+"NO", spouse_deeming
   ButtonGroup ButtonPressed
@@ -90,9 +90,15 @@ DO
     LOOP UNTIL err_msg = ""
     CALL check_for_password_without_transmit(are_we_passworded_out)
 Loop until are_we_passworded_out = false
+
+
 CALL navigate_to_MAXIS_screen("STAT", "PROG")		'Goes to STAT/PROG
 EMReadScreen err_msg, 7, 24, 02
 'build error handling'
+'Checking for PRIV cases.
+EMReadScreen priv_check, 4, 24, 14 'If it can't get into the case needs to skip
+IF priv_check = "PRIV" THEN MsgBox "*** Privilege Case ***" & vbNewLine & "This case is privileged please request access." & vbNewLine
+
 EMReadScreen application_date, 8, 12, 33 'Reading the app date from PROG
 application_date = replace(application_date, " ", "/")
 
@@ -114,55 +120,64 @@ IF spouse_deeming = "YES" THEN
 	CALL navigate_to_MAXIS_screen("STAT", "MEMI")
 	EmReadScreen marital_status, 1, 7, 40
 	EmReadScreen spouse_ref_nbr, 02, 09, 49
-
-	CALL navigate_to_MAXIS_screen("STAT", "MEMB")
-	EMwritescreen spouse_ref_nbr, 20, 76
-	EMReadScreen spouse_first_name, 12, 6, 63
-	spouse_first_name = replace(spouse_first_name, "_", "")
-	spouse_first_name = trim(spouse_first_name)
-	EMReadScreen spouse_last_name, 25, 6, 30
-	spouse_last_name = replace(spouse_last_name, "_", "")
-	spouse_last_name = trim(spouse_last_name)
-	EMReadscreen spouse_SSN_number_read, 11, 7, 42
-	spouse_SSN_number_read = replace(spouse_SSN_number_read, " ", "")
-	EmReadScreen spouse_DOB, 10, 8, 42
-	spouse_DOB = replace(spouse_DOB, " ", "/")
-	EmReadScreen spouse_gender, 1, 9, 42
+	IF spouse_ref_nbr = "__" THEN
+		MsgBox "*** No Spouse Listed on MEMI ***" & vbNewLine & "Please ensure the correct information is listed as no spouse was found on MEMI." & vbNewLine
+	ELSE
+		CALL navigate_to_MAXIS_screen("STAT", "MEMB")
+	    EMwritescreen spouse_ref_nbr, 20, 76
+	    EMReadScreen spouse_first_name, 12, 6, 63
+	    spouse_first_name = replace(spouse_first_name, "_", "")
+	    spouse_first_name = trim(spouse_first_name)
+	    EMReadScreen spouse_last_name, 25, 6, 30
+	    spouse_last_name = replace(spouse_last_name, "_", "")
+	    spouse_last_name = trim(spouse_last_name)
+	    EMReadscreen spouse_SSN_number_read, 11, 7, 42
+	    spouse_SSN_number_read = replace(spouse_SSN_number_read, " ", "")
+	    EmReadScreen spouse_DOB, 10, 8, 42
+	    spouse_DOB = replace(spouse_DOB, " ", "/")
+	    EmReadScreen spouse_gender, 1, 9, 42
+	END IF
 END IF
 
 CALL navigate_to_MAXIS_screen("STAT", "ADDR")
 'EMReadScreen MAXIS_footer_month, 2, 20, 55
 'EMReadScreen MAXIS_footer_year, 2, 20, 58
-EMreadscreen resi_addr_line_one, 20, 6, 43
+EMreadscreen resi_addr_line_one, 22, 6, 43
 resi_addr_line_one = replace(resi_addr_line_one, "_", "")
-EMreadscreen resi_addr_line_two, 20, 7, 43
+EMreadscreen resi_addr_line_two, 22, 7, 43
 resi_addr_line_two = replace(resi_addr_line_two, "_", "")
 EMreadscreen resi_addr_city, 15, 8, 43
 resi_addr_city = replace(resi_addr_city, "_", "")
 EMreadscreen resi_addr_state, 2, 8, 66
-EMreadscreen resi_addr_zip, 5, 9, 43
+EMreadscreen resi_addr_zip, 7, 9, 43
 resi_addr_zip = replace(resi_addr_zip, "_", "")
 EMreadscreen addr_county, 2, 9, 66
 
-EMreadscreen mailing_addr_line_one, 20, 13, 43
+EMreadscreen mailing_addr_line_one, 22, 13, 43
 mailing_addr_line_one = replace(mailing_addr_line_one, "_", "")
-EMreadscreen mailing_addr_line_two, 20, 14, 43
+EMreadscreen mailing_addr_line_two, 22, 14, 43
 mailing_addr_line_two = replace(mailing_addr_line_two, "_", "")
 EMreadscreen mailing_addr_city, 15, 15, 43
 mailing_addr_city = replace(mailing_addr_city, "_", "")
 EmReadScreen mailing_addr_state, 2, 16, 43
-EMreadscreen mailing_addr_zip, 5, 16, 52
+mailing_addr_state = replace(mailing_addr_state, "_", "")
+EMreadscreen mailing_addr_zip, 7, 16, 52
 mailing_addr_zip = replace(mailing_addr_zip, "_", "")
 
-IF mailing_addr_line_one <> "" THEN
-	maxis_addr = mailing_addr_line_one & " " & mailing_addr_line_two & " " & mailing_addr_city & " " & mailing_addr_state & " " & mailing_addr_zip
-ELSE
-    maxis_addr = resi_addr_line_one & " " & resi_addr_line_two & " " & resi_addr_city & " " & resi_addr_state & " " & resi_addr_zip
-END IF
+'string for MAXIS address
+maxis_addr = resi_addr_line_one & " " & resi_addr_line_two & " " & resi_addr_city & " " & resi_addr_state & " " & resi_addr_zip
+'string for mailing address
+mail_MAXIS_addr = mailing_addr_line_one & " " & mailing_addr_line_two & " " & mailing_addr_city & " " & mailing_addr_state & " " & mailing_addr_zip
 
-'IF mailing_addr_line_one <> "" THEN mailing_addr_line_one & mailing_addr_line_two & " " & mailing_addr_city & " " & mailing_addr_state & " " & mailing_addr_zip
+'msgbox MAXIS_addr & vbcr & mail_MAXIS_addr
+
+body_of_email = "First Name: " & client_first_name & vbcr & "Last Name: " & client_last_name & vbcr & "Social Security Number: " & client_SSN_number_read & vbcr & "Gender: " & client_gender & vbcr & "Date of birth: " & client_DOB & vbcr & "Application date: " & application_date & vbcr & "Address: " & resi_addr_line_one & resi_addr_line_two & " " & resi_addr_city & " " & resi_addr_state & " " & resi_addr_zip & vbcr
+
+If trim(mail_MAXIS_addr) <> "" then body_of_email = body_of_email & "Mailing address: " & mailing_addr_line_one & mailing_addr_line_two & " " & mailing_addr_city & " " & mailing_addr_state & " " & mailing_addr_zip & vbcr
+body_of_email = body_of_email & "MA type: " & MA_type & vbcr & "HH size: " & HH_size & vbcr & "Applicant Type: " & applicant_type & vbcr & "Application Type: " & appl_type & vbcr
+If spouse_deeming = "YES" then body_of_email = body_of_email & "Spouse: " & spouse_deeming & vbcr & "Spouse Member # " & spouse_ref_nbr & vbcr & "Spouse First Name: " & spouse_first_name & vbcr & "Spouse Last Name: " & spouse_last_name & vbcr & "Spouse Social Security Number: " & spouse_SSN_number_read & vbcr & "Spouse Gender: " & spouse_gender & vbcr & "Spouse Date of birth: " & spouse_DOB
 
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-CALL create_outlook_email("HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us", "", "AVS initial run requests  #" &  MAXIS_case_number & " Member # " & memb_number, "First Name: " & client_first_name & vbcr & "Last Name: " & client_last_name & vbcr & "Social Security Number: " & client_SSN_number_read & vbcr & "Gender: " & client_gender & vbcr & "Date of birth: " & client_DOB & vbcr & "Application date: " & application_date & vbcr & "Address: " & resi_addr_line_one & resi_addr_line_two & " " & resi_addr_city & " " & resi_addr_state & " " & resi_addr_zip & vbcr & "Mailing address: " & mailing_addr_line_one & mailing_addr_line_two & " " & mailing_addr_city & " " & mailing_addr_state & " " & mailing_addr_zip & vbcr & "MA type: " & MA_type & vbcr & "HH size: " & HH_size & vbcr & "Applicant Type: " & applicant_type & vbcr & "Application Type: " & appl_type & vbcr & "Spouse: " & spouse_deeming & vbcr & "Spouse Member # " & spouse_ref_nbr & vbcr & "Spouse First Name: " & spouse_first_name & vbcr & "Spouse Last Name: " & spouse_last_name & vbcr & "Spouse Social Security Number: " & spouse_SSN_number_read & vbcr & "Spouse Gender: " & spouse_gender & vbcr & "Spouse Date of birth: " & spouse_DOB,"", False)
+CALL create_outlook_email("HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us", "", "AVS initial run requests  #" &  MAXIS_case_number & " Member # " & memb_number, body_of_email, "", False)
 
-script_end_procedure_with_error_report("The email has been created please be review to ensure accurancy.")
+script_end_procedure_with_error_report("The email has been created please be review to ensure accuracy.")
