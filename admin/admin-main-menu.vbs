@@ -25,7 +25,7 @@ start_time = timer
 'Molly  	WFX490
 'Tanya      TAPA002
 
-'List of staff in a string - making it easier to add 
+'List of staff in a string - making it easier to add
 BZST_staff = "WFX901,WFU851,ILFE001,WFS395,CALO001,LAHE006"
 QI_staff = "WFI021,WFU161,WFP106,WFQ898,JAAR001,WFK093,KESE001,WFC041,WF1875,WFM207,WFG492,WFX490,TAPA002"
 
@@ -269,6 +269,13 @@ script_array_QI_list(script_num).description		= "Script to enter case notes in l
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_QI_list(script_num)
 Set script_array_QI_list(script_num) = new script
+script_array_QI_list(script_num).script_name 		= "BM Blitz Approval NOTE"											'Script name
+script_array_QI_list(script_num).file_name 			= "bm-blitz-approval-note.vbs"										'Script URL
+script_array_QI_list(script_num).description 		= "NOTE Script to case note approval of a case with a person with Banked Month for the BLITZ processing (04/2020 - 08/2020)."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_QI_list(script_num)
+Set script_array_QI_list(script_num) = new script
 script_array_QI_list(script_num).script_name 		= "Budget Estimator"											'Script name
 script_array_QI_list(script_num).file_name 			= "budget-estimator.vbs"										'Script URL
 script_array_QI_list(script_num).description 		= "UTILITIES script that can be used to calculate an expected budget outside of MAXIS."
@@ -506,15 +513,15 @@ show_tasks_button = False
 'Displays the dialog
 Do
     'BZST scripts menu authorization
-    If instr(BZST_staff, user_ID_for_validation) then 
+    If instr(BZST_staff, user_ID_for_validation) then
         show_BZ_button = True
         show_QI_button = True
         show_tasks_button = True
     End if
-    
+
     'QI scripts menu authorization
     If instr(QI_staff, user_ID_for_validation) then show_QI_button = TRUE
-    
+
 	If ButtonPressed = "" or ButtonPressed = admin_main_button then
         declare_admin_menu_dialog(script_array_admin_main)
 	elseif ButtonPressed = QI_button then
