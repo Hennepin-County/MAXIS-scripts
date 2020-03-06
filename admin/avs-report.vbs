@@ -669,42 +669,6 @@ If AVS_option = "Initial Monthly Upload" then
         excel_row = excel_row + 1 
     Next
     
-    ''----------------------------------------------------------------------------------------------------Adding known residents from new monthly list to ALL AVS List    
-    'objExcel.worksheets("All AVS Forms").Activate 'Activates worksheet based on user selection
-    'excel_row = 2
-    '
-    'DO 
-    '    master_SMI_num = ObjExcel.Cells(excel_row, 1).Value  'from All AVS forms list
-    '    master_SMI_num = trim(master_SMI_num)
-    '    If master_SMI_num = "" then exit do 
-    '    
-    '    For item = 0 to UBound(case_array, 2)
-    '        list_SMI_number = case_array(SMI_num_const, item)
-    '        If list_SMI_number = master_SMI_num then 
-    '            match_found = True
-    '            ObjExcel.Cells(excel_row, 3).Value = case_array(case_number_const, item)
-    '            ObjExcel.Cells(excel_row, 4).Value = case_array(PMI_const, item)
-    '            ObjExcel.Cells(excel_row, 5).Value = case_array(name_const, item)
-    '            objExcel.Cells(excel_row, 1).Interior.ColorIndex = 3	'Fills the row with red
-    '            objExcel.Cells(excel_row, 2).Interior.ColorIndex = 3	'Fills the row with red
-    '    
-    '            exit for  
-    '        else 
-    '            match_found = False 
-    '        End if 
-    '    Next
-    '    excel_row = excel_row + 1
-    'Loop 
-    '
-    'For item = 0 to UBound(case_array, 2)
-    '    If case_array(add_record_const, item) = "" then 
-    '        ObjExcel.Cells(excel_row, 1).Value = case_array(SMI_ECF_const, item)
-    '        ObjExcel.Cells(excel_row, 2).Value = case_array(scan_date_const, item)
-    '        objExcel.Cells(excel_row, 1).Interior.ColorIndex = 3	'Fills the row with red
-    '        objExcel.Cells(excel_row, 2).Interior.ColorIndex = 3	'Fills the row with red
-    '        excel_row = excel_row + 1
-    '    End if 
-    'Next 
     FOR i = 1 to 23		'formatting the cells
     	objExcel.Columns(i).AutoFit()				'sizing the columns'
     NEXT

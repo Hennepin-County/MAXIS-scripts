@@ -163,13 +163,6 @@ If instr(full_message, "REVIEW SVES RESPONSE") then
     call run_from_GitHub(script_repository & "dail/cola-sves-response.vbs")
 END IF
 
-'CS reports a new employer to the worker (loads CS REPORTED NEW EMPLOYER)
-EMReadScreen CS_new_emp_check, 25, 6, 20
-If CS_new_emp_check = "CS REPORTED: NEW EMPLOYER" then
-    match_found = TRUE
-    call run_from_GitHub(script_repository & "dail/cs-reported-new-employer.vbs")
-END IF
-
 'Disability certification ends in 60 days (loads DISA MESSAGE)
 EMReadScreen DISA_check, 58, 6, 20
 If DISA_check = "DISABILITY IS ENDING IN 60 DAYS - REVIEW DISABILITY STATUS" then
