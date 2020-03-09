@@ -139,6 +139,7 @@ Call Back_to_SELF
 Call navigate_to_MAXIS_screen("STAT", "EATS")
 EMReadScreen eats_all_together, 1, 4, 72
 all_the_eats_ref = ""
+' MsgBox eats_all_together
 If eats_all_together = "N" Then
     eats_col = 39
     Do
@@ -151,10 +152,12 @@ Else
     stat_row = 5
     Do
         EMReadScreen person_ref, 2, stat_row, 3
-        If person_ref = "  " Then all_the_eats_ref = all_the_eats_ref & "~" & person_ref
+        ' MsgBox person_ref
+        If person_ref <> "  " Then all_the_eats_ref = all_the_eats_ref & "~" & person_ref
         stat_row = stat_row + 1
     Loop until person_ref = "  "
 End If
+' MsgBox all_the_eats_ref
 If left(all_the_eats_ref, 1) = "~" Then all_the_eats_ref = right(all_the_eats_ref, len(all_the_eats_ref) - 1)
 If InStr(all_the_eats_ref, "~") <> 0 Then
     member_array = split(all_the_eats_ref, "~")
@@ -170,6 +173,7 @@ all_members_wreg_info = ""
 banked_month_on_case = FALSE
 Call navigate_to_MAXIS_screen("STAT", "WREG")
 For each member in member_array
+    ' MsgBox member
     Call write_value_and_transmit(member, 20, 76)
 
     EMReadScreen wreg_exists, 14, 24, 13
@@ -471,11 +475,11 @@ Do
           y_pos = y_pos + 10
           y_pos_over = y_pos
           For each member in elig_membs_array
-              Text 10, y_pos, 115, 10, member
+              Text 10, y_pos, 200, 10, member
               y_pos = y_pos + 10
           Next
           For each member in inelig_membs_array
-              Text 235, y_pos_over, 115, 10, member
+              Text 235, y_pos_over, 200, 10, member
               y_pos_over = y_pos_over + 10
           Next
           If y_pos_over > y_pos Then y_pos = y_pos_over
@@ -503,17 +507,22 @@ Do
 
         cancel_confirmation
 
+        ' Dim new_wreg_array ()
+        ' ReDim new_wreg_array(0)
+        ' array_counter = 0
+        ' new_wreg_notes = ""
+        ' the_top = UBound(all_membs_wreg_array)
         If ButtonPressed = edit_wreg_detail_btn Then
             wreg_dlg_hgt = 90 + UBound(all_membs_wreg_array) * 20
             Dialog1 = ""
             BeginDialog Dialog1, 0, 0, 371, wreg_dlg_hgt, "WREG Detail"
               Text 10, 10, 260, 10, "Add detail to WREG information as needed."
               y_pos = 30
-              For each member in all_membs_wreg_array
-                  EditBox 10, y_pos, 355, 15, member
+              For the_thing = 0 to UBound(all_membs_wreg_array)
+                  EditBox 10, y_pos, 355, 15, all_membs_wreg_array(the_thing)
                   y_pos = y_pos + 20
+
               Next
-              ' EditBox 10, 50, 355, 15, Edit2
               Text 10, y_pos + 5, 50, 10, "Remember:"
               Text 10, y_pos + 15, 290, 10, "Changing the spaces at the beginning of text fields will change case case note format."
               Text 10, y_pos + 25, 290, 10, "Use '; ' for a new line in a case note"
@@ -531,18 +540,16 @@ Do
               Text 10, 10, 260, 10, "Add detial about member eligbility as needed"
               Text 10, 25, 50, 10, "ELIGIBLE"
               y_pos = 35
-              For each member in elig_membs_array
-                  EditBox 10, y_pos, 355, 15, member
+              For the_thing = 0 to UBound(elig_membs_array)
+                  EditBox 10, y_pos, 355, 15, elig_membs_array(the_thing)
                   y_pos = y_pos + 20
               Next
               Text 10, y_pos, 50, 10, "INELIGIBLE"
               y_pos = y_pos + 10
-              For each member in inelig_membs_array
-                  EditBox 10, y_pos, 355, 15, member
+              For the_thing = 0 to UBound(inelig_membs_array)
+                  EditBox 10, y_pos, 355, 15, inelig_membs_array(the_thing)
                   y_pos = y_pos + 20
               Next
-              ' EditBox 10, 55, 355, 15, Edit2
-              ' EditBox 10, 105, 355, 15, Edit4
               Text 10, y_pos, 50, 10, "Remember:"
               Text 10, y_pos + 10, 290, 10, "Changing the spaces at the beginning of text fields will change case case note format."
               Text 10, y_pos + 20, 290, 10, "Use '; ' for a new line in a case note"
