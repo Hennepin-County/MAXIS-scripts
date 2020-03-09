@@ -219,7 +219,7 @@ For each member in member_array
 
             'counting and checking for counted ABAWD months
             IF is_counted_month = "X" or is_counted_month = "M" THEN
-                EMReadScreen counted_date_year, 2, bene_yr_row, 14			'reading counted year date
+                EMReadScreen counted_date_year, 2, bene_yr_row, 15			'reading counted year date
                 abawd_counted_months_string = counted_date_month & "/" & counted_date_year
                 abawd_info_list = abawd_info_list & ", " & abawd_counted_months_string			'adding variable to list to add to array
                 abawd_counted_months = abawd_counted_months + 1				'adding counted months
