@@ -38,9 +38,8 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-' test_reason = "Change to the CSR script to match the form and the method of processing the form. We want the script to follow the process and not just take a snapshot of the case details AFTER processing is done."
-' array_of_choices = "adults, families"
-' Call select_testing_file("population", array_of_choices, "notes/csr-testing.vbs", "master", TRUE, TRUE)
+test_reason = "Change to the CSR script to match the form and the method of processing the form. We want the script to follow the process and not just take a snapshot of the case details AFTER processing is done."
+Call select_testing_file("ALL", "", "notes/csr-testing.vbs", "master", TRUE, TRUE)
 
 'CHANGELOG BLOCK ===========================================================================================================
 'Starts by defining a changelog array
