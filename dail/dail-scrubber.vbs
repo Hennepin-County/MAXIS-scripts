@@ -50,6 +50,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("06/13/2019", "Added support for the following COLA message: CLAIM NUMBER XXXXXXXXXX NOT MATCHED - REVIEW CLAIM NUMBER AND CORRECT UNEA", "Ilse Ferris, Hennepin County")
 Call changelog_update("06/13/2019", "Added DAIL messages for JULY COLA to run the COLA Review and Approve option. See instructions for full detail of messages now handled.", "Casey Love, Hennepin County")
 call changelog_update("5/31/2019", "The DAIL message for COLA Review and Approve now has specific handling to either review or approve Health Care eligibility. (Additional programs to be added at a later date.)", "Casey Love, Hennepin County")
 call changelog_update("4/26/2019", "The DAIL messages for Over Due Baby, Incarceration, and additional enhancements to handle for other messages has been added.", "MiKayla Handley, Hennepin County")
@@ -158,7 +159,7 @@ If review_and_approve_from_COLA = TRUE Then
 End If
 
 'COLA SVES RESPONSE
-If instr(full_message, "REVIEW SVES RESPONSE") then
+If instr(full_message, "REVIEW SVES RESPONSE") or instr(full_message, "REVIEW CLAIM NUMBER ") then
     match_found = TRUE
     call run_from_GitHub(script_repository & "dail/cola-sves-response.vbs")
 END IF
