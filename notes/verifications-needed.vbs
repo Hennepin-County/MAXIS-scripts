@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/10/2020", "Updated TIKL coding. Script will auto-check to set a TIKL.", "Ilse Ferris")
 call changelog_update("03/01/2020", "Updated TIKL functionality and TIKL text in the case note.", "Ilse Ferris")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -59,11 +60,13 @@ If LTC_case = vbCancel then script_end_procedure("The script will now end.")
 'Connects to BlueZone
 EMConnect ""
 call MAXIS_case_number_finder(MAXIS_case_number) 'Calls a MAXIS case number
+TIKL_check = 1 'checked
 
 'Shows dialog. Requires a case number, checks for an active MAXIS session, and checks that it can add/update a case note before proceeding.
 If LTC_case = vbYes then 									'Shows dialog if LTC
-	DO
+	Do
 		Do
+            err_msg = ""
 			Do
 				'-------------------------------------------------------------------------------------------------DIALOG
 				Dialog1 = "" 'Blanking out previous dialog detail
@@ -124,13 +127,17 @@ If LTC_case = vbYes then 									'Shows dialog if LTC
 				cancel_confirmation													'quits if cancel is pressed
 				If buttonpressed = CD_plus_10_button then verif_due_date = dateadd("d", 10, date) & ""		'Fills in current date + 10 if you press the button.
 			Loop until buttonpressed = OK																	'Loops until you press OK
-			If MAXIS_case_number = "" then MsgBox "You must have a case number to continue!"		'Yells at you if you don't have a case number
-		Loop until MAXIS_case_number <> ""														'Loops until that case number exists
-		call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+			If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+            If trim(verif_due_date) = "" or isdate(verif_due_date) = False then err_msg = err_msg & vbNewLine & "* Enter a valid verification due date."
+            If trim(worker_signature) = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
+            IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+    	LOOP UNTIL err_msg = ""											  
+		Call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 	LOOP UNTIL are_we_passworded_out = false														'Loops until that case number exists
 ELSEIF LTC_case = vbNo then							'Shows dialog if not LTC
 	DO
 		Do
+            err_msg = ""
 			Do
 				'-------------------------------------------------------------------------------------------------DIALOG
 				Dialog1 = "" 'Blanking out previous dialog detail
@@ -175,22 +182,22 @@ ELSEIF LTC_case = vbNo then							'Shows dialog if not LTC
 				  Text 5, 240, 45, 10, "Other proofs:"
 				  Text 215, 320, 70, 10, "Sign your case note:"
 				 EndDialog
-				DIALOG Dialog1					'Calling a dialog without a assigned variable will call the most recently defined dialog
-				cancel_confirmation													'quits if cancel is pressed
-				If buttonpressed = CD_plus_10_button then verif_due_date = dateadd("d", 10, date) & ""		'Fills in current date + 10 if you press the button.
-			Loop until buttonpressed = OK																	'Loops until you press OK
-			If MAXIS_case_number = "" then MsgBox "You must have a case number to continue!"		'Yells at you if you don't have a case number
-		Loop until MAXIS_case_number <> ""														'Loops until that case number exists
-		call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
-	LOOP UNTIL are_we_passworded_out = false
+                 DIALOG Dialog1					'Calling a dialog without a assigned variable will call the most recently defined dialog
+ 				cancel_confirmation													'quits if cancel is pressed
+ 				If buttonpressed = CD_plus_10_button then verif_due_date = dateadd("d", 10, date) & ""		'Fills in current date + 10 if you press the button.
+ 			Loop until buttonpressed = OK																	'Loops until you press OK
+ 			If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+            If (TIKL_check = 1 and trim(verif_due_date) = "" or isdate(verif_due_date) = False) then err_msg = err_msg & vbNewLine & "* Enter a valid verification due date."
+            If trim(worker_signature) = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
+            IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+     	LOOP UNTIL err_msg = ""											  
+ 		Call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+ 	LOOP UNTIL are_we_passworded_out = false	
 END IF
-
-'checking for an active MAXIS session 
-Call check_for_MAXIS(False)
 
 'THE TIKL----------------------------------------------------------------------------------------------------
 'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
-IF TIKL_check = 1 and IsDate(verif_due_date) = True then Call create_TIKL("Verifications requested for this case. Please review case note & case file.", 0, verif_due_date, False, TIKL_note_text)
+IF TIKL_check = 1 then Call create_TIKL("Verifications requested for this case. Please review case note & case file.", 0, verif_due_date, False, TIKL_note_text)
 
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
 'Writes a new line, then writes each additional line if there's data in the dialog's edit box (uses if/then statement to decide).
@@ -201,6 +208,7 @@ ELSE
 	call write_variable_in_case_note(">>>Verifications Requested<<<")
 END IF
 call write_bullet_and_variable_in_case_note("Verif due date", verif_due_date)
+IF TIKL_check = 1 then call write_variable_in_CASE_NOTE("* TIKL created for verif due date.")
 call write_bullet_and_variable_in_case_note("ADDR", ADDR)
 call write_bullet_and_variable_in_case_note("FACI", FACI)
 call write_bullet_and_variable_in_case_note("SCHL/STIN/STEC", SCHL)
