@@ -1,5 +1,5 @@
 'Required for statistical purposes==========================================================================================
-name_of_script = "UTILITIES - INITIAL AVS REQUEST.vbs"
+name_of_script = "UTILITIES - QI AVS REQUEST.vbs"
 start_time = timer
 STATS_counter = 1                     	'sets the stats counter at one
 STATS_manualtime = 150                	'manual run time in seconds - INCLUDES A POLICY LOOKUP
