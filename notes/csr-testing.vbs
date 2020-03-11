@@ -4675,15 +4675,16 @@ If functionality_wrong_checkbox = checked Then
 
     Call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", "NOTES - CSR Completion Functionality Issues", email_msg, "", TRUE)
 
-    If form_questions_complete = TRUE Then email_msg = email_msg & "Form itself is COMPLETE" & vbCr
-    If form_questions_complete = FALSE Then email_msg = email_msg & "Form itself is INCOMPLETE" & vbCr
-    If snap_questions_complete = TRUE Then email_msg = email_msg & "SNAP portion of the form is COMPLETE" & vbCr
-    If snap_questions_complete = FALSE Then email_msg = email_msg & "SNAP portion of the form is INCOMPLETE" & vbCr
-    If SNAP_active = FALSE Then email_msg = email_msg & "SNAP is INACTIVE" & vbCr
-    If ma_questions_complete = TRUE Then email_msg = email_msg & "HC portion of the form is COMPLETE" & vbCr
-    If ma_questions_complete = FALSE Then email_msg = email_msg & "HC portion of the form is INCOMPLETE" & vbCr
-    If HC_active = FALSE Then email_msg = email_msg & "HC is INACTIVE" & vbCr & vbCR
+    If form_completion_status = "Complete" Then form_questions_complete = TRUE
+    If form_completion_status = "Incomplete" Then form_questions_complete = FALSE
 
+    If snap_completion_status = "Complete" Then snap_questions_complete = TRUE
+    If snap_completion_status = "Incomplete" Then snap_questions_complete = FALSE
+    If snap_completion_status = "SNAP not relevant" Then SNAP_active = FALSE
+
+    If hc_completion_status = "Complete" Then ma_questions_complete = TRUE
+    If hc_completion_status = "Incomplete" Then ma_questions_complete = FALSE
+    If hc_completion_status = "HC note relevant" Then HC_active = FALSE
 
 End If
 
@@ -8024,7 +8025,7 @@ Do
                 If full_verif_note <> "" Then PushButton 430, 345, 95, 15, "Verification CASE/NOTE", verif_note_btn
           End If
           If note_to_show = verif_note Then
-              form_note_reviewed = TRUE
+              verif_note_reviewed = TRUE
               Text 375, 10, 300, 10, "Verification CASE NOTE"
               Text 10, 20, 555, 275, full_verif_note
               Text 435, 348, 97, 10, "Verification CASE/NOTE"
