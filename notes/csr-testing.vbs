@@ -8024,7 +8024,7 @@ Do
                 If full_verif_note <> "" Then PushButton 430, 345, 95, 15, "Verification CASE/NOTE", verif_note_btn
           End If
           If note_to_show = verif_note Then
-              form_note_reviewed = TRUE
+              verif_note_reviewed = TRUE
               Text 375, 10, 300, 10, "Verification CASE NOTE"
               Text 10, 20, 555, 275, full_verif_note
               Text 435, 348, 97, 10, "Verification CASE/NOTE"
