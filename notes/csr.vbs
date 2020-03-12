@@ -40,11 +40,10 @@ END IF
 Set objNet = CreateObject("WScript.NetWork")
 windows_user_ID = objNet.UserName
 user_ID_for_validation = ucase(windows_user_ID)
-If user_ID_for_validation = "JOVA008" Then MsgBox "CSR opened and loaded"
-If user_ID_for_validation = "CALO001" Then MsgBox "CSR opened and loaded"
-test_reason = "Change to the CSR script to match the form and the method of processing the form. We want the script to follow the process and not just take a snapshot of the case details AFTER processing is done."
-Call select_testing_file("ALL", "", "notes/csr-testing.vbs", "master", TRUE, TRUE)
-
+If user_ID_for_validation <> "JOVA008" Then 
+    test_reason = "Change to the CSR script to match the form and the method of processing the form. We want the script to follow the process and not just take a snapshot of the case details AFTER processing is done."
+    Call select_testing_file("ALL", "", "notes/csr-testing.vbs", "master", TRUE, TRUE)
+ENd If
 'CHANGELOG BLOCK ===========================================================================================================
 'Starts by defining a changelog array
 changelog = array()
