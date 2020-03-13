@@ -135,13 +135,6 @@ script_array_BULK_enhanced_list(script_num).description 	= "Compares the amount 
 script_num = script_num + 1									'Increment by one
 ReDim Preserve script_array_BULK_enhanced_list(script_num)	'Resets the array to add one more element to it
 Set script_array_BULK_enhanced_list(script_num) = new script'Set this array element to be a new script. Script details below...
-script_array_BULK_enhanced_list(script_num).script_name 	= " EXP SNAP Review "
-script_array_BULK_enhanced_list(script_num).file_name		= "exp-snap-review.vbs"
-script_array_BULK_enhanced_list(script_num).description 	= "Creates a list of PND1/PND2 cases that need to reviewed for EXP SNAP criteria."
-
-script_num = script_num + 1									'Increment by one
-ReDim Preserve script_array_BULK_enhanced_list(script_num)	'Resets the array to add one more element to it
-Set script_array_BULK_enhanced_list(script_num) = new script'Set this array element to be a new script. Script details below...
 script_array_BULK_enhanced_list(script_num).script_name 	= "Find Updated Panels"
 script_array_BULK_enhanced_list(script_num).file_name		= "find-panel-update-date.vbs"
 script_array_BULK_enhanced_list(script_num).description 	= "Creates a list of cases from a caseload(s) showing when selected panels have been updated."
@@ -287,6 +280,13 @@ Set script_array_BULK_stat_list(script_num) = new script	'Set this array element
 script_array_BULK_stat_list(script_num).script_name			= " REVS "													'needs spaces to generate button width properly.
 script_array_BULK_stat_list(script_num).file_name			= "rept-revs-list.vbs"
 script_array_BULK_stat_list(script_num).description 		= "Pulls a list of cases in REPT/REVS into an Excel spreadsheet."
+
+script_num = script_num + 1									'Increment by one
+ReDim Preserve script_array_BULK_stat_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BULK_stat_list(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_BULK_stat_list(script_num).script_name 		= " REVW "													'needs spaces to generate button width properly.
+script_array_BULK_stat_list(script_num).file_name			= "rept-revw-list.vbs"
+script_array_BULK_stat_list(script_num).description 		= "Pulls a list of cases in REPT/REVW into an Excel spreadsheet."
 
 script_num = script_num + 1									'Increment by one
 ReDim Preserve script_array_BULK_stat_list(script_num)		'Resets the array to add one more element to it
