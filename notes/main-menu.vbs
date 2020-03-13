@@ -583,14 +583,7 @@ Loop until 	ButtonPressed <> Instructions_button and _
 
 'Runs through each script in the array... if the selected script (buttonpressed) is in the array, it'll run_from_GitHub
 For i = 0 to ubound(script_array_0_to_C)
-	If ButtonPressed = script_array_0_to_C(i).button then
-        Set objNet = CreateObject("WScript.NetWork")
-        windows_user_ID = objNet.UserName
-        user_ID_for_validation = ucase(windows_user_ID)
-        If user_ID_for_validation = "JOVA008" Then MsgBox "Button pressed - " & ButtonPressed & vbNewLine & "File - " & script_repository & "notes/" & script_array_0_to_C(i).file_name
-        If user_ID_for_validation = "CALO001" Then MsgBox "Button pressed - " & ButtonPressed & vbNewLine & "File - " & script_repository & "notes/" & script_array_0_to_C(i).file_name
-        call run_from_GitHub(script_repository & "notes/" & script_array_0_to_C(i).file_name)
-    End If
+	If ButtonPressed = script_array_0_to_C(i).button then call run_from_GitHub(script_repository & "notes/" & script_array_0_to_C(i).file_name)
 Next
 
 For i = 0 to ubound(script_array_D_to_F)
