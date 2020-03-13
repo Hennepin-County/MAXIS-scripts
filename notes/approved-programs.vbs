@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/12/2020", "Removed coding specific to Banked Months that was preventing the script from continuing.", "Casey Love, Hennepin County")
 call changelog_update("01/25/2019", "Removed enhanced Banked Months case noting as this is tracked by QI staff, Banked Months indicator is still within the approval note for reflecing a SNAP Banked Months case.", "Casey Love, Hennepin County")
 call changelog_update("05/19/2018", "Added 'Verifs Needed' as a mandatory field for cases identified as expedited SNAP.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
@@ -262,12 +263,12 @@ For all_elig_results = 0 to UBound (BENE_AMOUNT_ARRAY,2)
 			EMReadScreen snap_reporter, 10, 8, 31
 			EMReadScreen partial_bene, 8, 9, 44
 			If partial_bene = "Prorated" then
-                If banked_month_case = TRUE and banked_month_counter <> "" Then
-                    end_message = "This is a Banked Months SNAP case." & vbNewLine & BENE_AMOUNT_ARRAY(benefit_month, all_elig_results) & "/" & BENE_AMOUNT_ARRAY(benefit_year, all_elig_results) & " is a prorated month." &_
-                    vbNewLine & "WREG has Banked Month counted to be - " & banked_month_counter & " in this footer month." &_
-                    vbNewLine & "A Banked Month should not be counted in a prorated month."
-                    script_end_procedure(end_message)
-                End If
+                ' If banked_month_case = TRUE and banked_month_counter <> "" Then
+                '     end_message = "This is a Banked Months SNAP case." & vbNewLine & BENE_AMOUNT_ARRAY(benefit_month, all_elig_results) & "/" & BENE_AMOUNT_ARRAY(benefit_year, all_elig_results) & " is a prorated month." &_
+                '     vbNewLine & "WREG has Banked Month counted to be - " & banked_month_counter & " in this footer month." &_
+                '     vbNewLine & "A Banked Month should not be counted in a prorated month."
+                '     script_end_procedure(end_message)
+                ' End If
                 EMReadScreen prorated_date, 8, 9, 58
 				BENE_AMOUNT_ARRAY(case_prorated_date, all_elig_results) = prorated_date
                 day_of_proration = DatePart("d", prorated_date)
