@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/04/2019", "Per project request - Removed checkbox for DOA and scenario pushbuttons.", "MiKayla Handley, Hennepin County")
 call changelog_update("11/04/2019", "Updated link in SharePoint to Request to APPL useform.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/04/2019", "Updated link to Useform and changed name of form to 'Request to APPL'.", "Ilse Ferris, Hennepin County")
 call changelog_update("07/26/2019", "Initial version.", "Ilse Ferris, Hennepin County")
@@ -54,13 +55,13 @@ changelog_display
 '-------------------------------------------------------------------------------------------------------script
 EMConnect ""
 CALL MAXIS_case_number_finder(MAXIS_case_number)
-'email_checkbox = checked 'defaulting to checked
+
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 146, 90, "METS Retro Health Care"
   EditBox 60, 10, 55, 15, MAXIS_case_number
   EditBox 60, 30, 55, 15, METS_case_number
-  DropListBox 60, 50, 80, 15, "Select"+chr(9)+"Initial Request"+chr(9)+"Proofs Received"+chr(9)+"Retro Determination", initial_option
+  DropListBox 60, 50, 80, 15, "Select One:"+chr(9)+"Initial Request"+chr(9)+"Proofs Received"+chr(9)+"Retro Determination", initial_option
   ButtonGroup ButtonPressed
     OkButton 60, 70, 40, 15
     CancelButton 100, 70, 40, 15
@@ -77,7 +78,7 @@ DO
 		cancel_without_confirmation              'new function that will cancel, collect stats, but not give user option to confirm ending script.
 		call validate_MAXIS_case_number(err_msg, "*")
         If IsNumeric(METS_case_number) = False or len(METS_case_number) <> 8 then err_msg = err_msg & vbNewLine & "* Enter a valid METS case number."
-        If initial_option = "Select" then err_msg = err_msg & vbcr & "* Select a retro process."
+        If initial_option = "Select One:" then err_msg = err_msg & vbcr & "* Select a retro process."
         IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -182,12 +183,12 @@ If initial_option = "Initial Request" then
     CheckBox 10, 95, 185, 10, "Request to APPL use form created/sent.", useform_checkbox
     CheckBox 195, 95, 110, 10, "Task created for retro request.", task_checkbox
     ButtonGroup ButtonPressed
-   PushButton 10, 125, 50, 10, "Scenario", scenario_button
+    Text 10, 125, 35, 10, "Scenario"
     x = 0
     For item = 0 to Ubound(HC_array, 2)
         If HC_array(member_name_const, item) <> "" then
-            DropListBox 10, (140 + (x * 15)), 50, 15, "Select"+chr(9)+"A"+chr(9)+"B"+chr(9)+"C"+chr(9)+"D"+chr(9)+"E", HC_array(retro_scenario_const, item)
-            DropListBox 65, (140 + (x * 15)), 50, 15, "Select"+chr(9)+"1 Month"+chr(9)+"2 Months"+chr(9)+"3 Months", HC_array(retro_months_const, item)
+            DropListBox 10, (140 + (x * 15)), 50, 15, "Select:"+chr(9)+"A"+chr(9)+"B"+chr(9)+"C"+chr(9)+"D"+chr(9)+"E", HC_array(retro_scenario_const, item)
+            DropListBox 65, (140 + (x * 15)), 50, 15, "Select:"+chr(9)+"1 Month"+chr(9)+"2 Months"+chr(9)+"3 Months", HC_array(retro_months_const, item)
             Text 130, (145 + (x * 15)), 165, 10, HC_array(member_name_const, item)
             x = x + 1
         End if
@@ -205,12 +206,10 @@ If initial_option = "Initial Request" then
     'Main dialog: user will input case number and member number
     DO
         DO
-            Do 						'establishing value of variable, this is necessary for the Do...LOOP
-                err_msg = ""
-                Dialog Dialog1
-                cancel_without_confirmation              'new function that will cancel, collect stats, but not give user option to confirm ending script.
-                If ButtonPressed = scenario_button then CreateObject("WScript.Shell").Run("https://dept.hennepin.us/hsphd/manuals/hsrm/MNsure%20Documents/Hennepin%20Retro%20Instructions%20for%20MAXIS%20Processing.docx.pdf")
-            Loop until ButtonPressed = -1
+            'establishing value of variable, this is necessary for the Do...LOOP
+            err_msg = ""
+            Dialog Dialog1
+            cancel_without_confirmation              'new function that will cancel, collect stats, but not give user option to confirm ending script.
             If isdate(application_date) = false  then err_msg = err_msg & vbcr & "* Enter a valid application date."
             If forms_needed <> "Client verbally attested - No changes" then
                 If isdate(due_date) = false then err_msg = err_msg & vbcr & "* Enter a valid verificaiton due date."
@@ -218,11 +217,11 @@ If initial_option = "Initial Request" then
             IF trim(forms_needed) = "SELECT OR TYPE" then err_msg = err_msg & vbcr & "* Enter or select the verifications and/or forms needed."
             'retro scenario
             For item = 0 to ubound(HC_array, 2)
-            	If (HC_array(retro_scenario_const, item)) = "Select" and hc_array(member_name_const, item) <> "" then err_msg = err_msg & vbCr & "* Select a retro scenario for " & hc_array(member_name_const, item)
+            	If (HC_array(retro_scenario_const, item)) = "Select:" and hc_array(member_name_const, item) <> "" then err_msg = err_msg & vbCr & "* Select a retro scenario for " & hc_array(member_name_const, item)
             Next
             'amt of retro months
             For item = 0 to ubound(HC_array, 2)
-                If (HC_array(retro_months_const, item)) = "Select" and hc_array(member_name_const, item) <> "" then err_msg = err_msg & vbCr & "* Select amount of retro months requested for " & hc_array(member_name_const, item)
+                If (HC_array(retro_months_const, item)) = "Select:" and hc_array(member_name_const, item) <> "" then err_msg = err_msg & vbCr & "* Select amount of retro months requested for " & hc_array(member_name_const, item)
             NEXT
             IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "* Please enter your worker signature."
             IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
@@ -241,7 +240,7 @@ If initial_option = "Proofs Received" then
     x = 0
     For item = 0 to Ubound(HC_array, 2)
         If HC_array(member_name_const, item) <> "" then
-            DropListBox 10, (35 + (x * 15)), 50, 15, "Select"+chr(9)+"A"+chr(9)+"B"+chr(9)+"C"+chr(9)+"D"+chr(9)+"E", HC_array(retro_scenario_const, item)
+            DropListBox 10, (35 + (x * 15)), 50, 15, "Select:"+chr(9)+"A"+chr(9)+"B"+chr(9)+"C"+chr(9)+"D"+chr(9)+"E", HC_array(retro_scenario_const, item)
             Text 75, (35 + (x * 15)), 200, 10, HC_array(member_name_const, item)
             x = x + 1
         End if
@@ -249,7 +248,7 @@ If initial_option = "Proofs Received" then
     GroupBox 5, 5, 285, (50 + (x * 15)), "For each applicant, enter the retro scenario:"
     Text 25, (65+ (x * 15)), 45, 10, "Other Notes:"
     EditBox 70, (60 + (x * 15)), 220, 15, other_notes
-    CheckBox 5, (85 + (x * 15)), 140, 10, "METS DOA is 11 months prior to today.", DOA_checkbox
+    'CheckBox 5, (85 + (x * 15)), 140, 10, "METS DOA is 11 months prior to today.", DOA_checkbox
     CheckBox 5, (100 + (x * 15)), 140, 10, "All verifications and/or forms received.", verifs_checkbox
     'CheckBox 175, (85 + (x * 15)), 115, 10, "Check here to email METS team.", email_checkbox
     Text 5, (120 + (x * 15)), 60, 10, "Worker Signature:"
@@ -271,7 +270,7 @@ If initial_option = "Proofs Received" then
             Loop until ButtonPressed = -1
             'retro scenario
             For item = 0 to Ubound(HC_array, 2)
-                If (HC_array(retro_scenario_const, item)) = "Select" and hc_array(member_name_const, item) <> "" then err_msg = err_msg & vbCr & "* Select a retro scenario for " & hc_array(member_name_const, item)
+                If (HC_array(retro_scenario_const, item)) = "Select:" and hc_array(member_name_const, item) <> "" then err_msg = err_msg & vbCr & "* Select a retro scenario for " & hc_array(member_name_const, item)
             NEXT
             If verifs_checkbox = 0 then err_msg = err_msg & vbNewLine & "* All verifications and forms must be receieved."
             IF worker_signature = "" then err_msg = err_msg & vbNewLine & "* Please enter your worker signature."
@@ -289,7 +288,7 @@ If initial_option = "Retro Determination" then
     x = 0
     For item = 0 to Ubound(HC_array, 2)
         If HC_array(member_name_const, item) <> "" then
-            DropListBox 10, (30 + (x * 15)), 50, 15, "Select"+chr(9)+"Approved"+chr(9)+"Denied", HC_array(retro_status_const, item)
+            DropListBox 10, (30 + (x * 15)), 50, 15, "Select:"+chr(9)+"Approved"+chr(9)+"Denied", HC_array(retro_status_const, item)
             Editbox 75, (30 + (x * 15)), 180, 15, HC_array(retro_reason_const, item)
             Text 270, (35 + (x * 15)), 130, 10, HC_array(member_name_const, item)
             x = x + 1
@@ -298,7 +297,7 @@ If initial_option = "Retro Determination" then
     GroupBox 5, 5, 400, (50 + (x * 15)), "For each applicant, enter the retro determination:"
     Text 30, (65 + (x * 15)), 45, 10, "Other Notes:"
     EditBox 75, (60 + (x * 15)), 220, 15, other_notes
-    CheckBox 10, (80 + (x * 15)), 140, 10, "METS DOA is 11 months prior to today.", DOA_checkbox
+    'CheckBox 10, (80 + (x * 15)), 140, 10, "METS DOA is 11 months prior to today.", DOA_checkbox
     'CheckBox 160, (80 + (x * 15)), 115, 10, "Check here to email METS team.", email_checkbox
     Text 5, (100 + (x * 15)), 60, 10, "Worker Signature:"
     EditBox 70, (95 + (x * 15)), 130, 15, worker_signature
@@ -318,7 +317,7 @@ If initial_option = "Retro Determination" then
             cancel_without_confirmation              'new function that will cancel, collect stats, but not give user option to confirm ending script.
             'retro determination
             For item = 0 to ubound(HC_array, 2)
-                If (HC_array(retro_status_const, item)) = "Select" and hc_array(member_name_const, item) <> "" then err_msg = err_msg & vbCr & "* Select a retro determination for " & hc_array(member_name_const, item)
+                If (HC_array(retro_status_const, item)) = "Select:" and hc_array(member_name_const, item) <> "" then err_msg = err_msg & vbCr & "* Select a retro determination for " & hc_array(member_name_const, item)
             NEXT
             'approved months or denial reason
             For item = 0 to ubound(HC_array, 2)
