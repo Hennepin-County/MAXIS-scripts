@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County
+call changelog_update("03/09/2020", "Per project request- Updated checkbox for the METS Retro Request to team 601.", "MiKayla Handley, Hennepin County")
 call changelog_update("01/13/2020", "Updated requesting worker for the Request to APPL form process.", "MiKayla Handley, Hennepin County")
 call changelog_update("11/04/2019", "New version pulled to support the request for APPL process.", "MiKayla Handley, Hennepin County")
 call changelog_update("10/01/2019", "Updated the utility standards for SNAP.", "Casey Love, Hennepin County")
@@ -61,7 +62,7 @@ CALL changelog_update("10/25/2018", "Updated script to add handling for case cor
 CALL changelog_update("10/17/2018", "Updated appointment letter to address EGA programs.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("09/01/2018", "Updated Utility standards that go into effect for 10/01/2018.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("07/20/2018", "Changed wording of the Appointment Notice and changed default interview date to 10 days from application for non-expedidted cases.", "Casey Love, Hennepin County")
-CALL changelog_update("07/16/2018", "BUg Fix that was preventing notices from being sent.", "Casey Love, Hennepin County")
+CALL changelog_update("07/16/2018", "Bug Fix that was preventing notices from being sent.", "Casey Love, Hennepin County")
 CALL changelog_update("03/28/2018", "Updated appt letter case note for bulk script process.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("02/21/2018", "Added on demand waiver handling.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("02/16/2018", "Added case transfer confirmation coding.", "Ilse Ferris, Hennepin County")
@@ -79,7 +80,7 @@ changelog_display
 'Grabs the case number
 EMConnect ""
 CALL MAXIS_case_number_finder(MAXIS_case_number)
-back_to_SELF' added to ensure we have the time to update and send the case in the background
+back_to_self' added to ensure we have the time to update and send the case in the background
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
@@ -105,78 +106,98 @@ LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
 '----------------------------------------------------------------------------------------------------'pending & active programs information
 'information gathering to auto-populate the application date
-back_to_self
+
 EMWriteScreen MAXIS_case_number, 18, 43
-Call navigate_to_MAXIS_screen("REPT", "PND2")
-
 limit_reached = FALSE
-row = 1
-col = 1
-EMSearch "The REPT:PND2 Display Limit Has Been Reached.", row, col
-If row <> 0 Then
-    transmit
-    limit_reached = TRUE
-End If
+Call navigate_to_MAXIS_screen("REPT", "PND2")
+EmReadScreen limit_reached, 8, 6, 21
+IF limit_reached = "The REPT" THEN
+    limit_reached_confirmation = MsgBox("Press YES to confirm this case has been pended."  & vbNewLine & " ", vbYesNoCancel, "The REPT:PND2 Display Limit Has Been Reached.")
+    IF limit_reached_confirmation = vbNo THEN
+    	limit_reached = TRUE
+        script_end_procedure_with_error_report("Limit reached in basket. Please pend the case and run the script again.")
+    END IF
+    IF limit_reached_confirmation = vbCancel THEN script_end_procedure_with_error_report ("The script has ended. The application has not been acted on.")
+    IF limit_reached_confirmation = vbYes THEN
+       	limit_reached = FALSE
+	    transmit
+	    PF3
+	    EMWriteScreen MAXIS_case_number, 18, 43
+    END IF
+ELSEIF limit_reached <> "The REPT" THEN
+    'Ensuring that the user is in REPT/PND2
+    Do
+    	EMReadScreen PND2_check, 4, 2, 52
+    	If PND2_check <> "PND2" then
+    		back_to_SELF
+    		Call navigate_to_MAXIS_screen("REPT", "PND2")
+    	End if
+    LOOP until PND2_check = "PND2"
 
-'Ensuring that the user is in REPT/PND2
-Do
-	EMReadScreen PND2_check, 4, 2, 52
-	If PND2_check <> "PND2" then
-		back_to_SELF
-		Call navigate_to_MAXIS_screen("REPT", "PND2")
-	End if
-LOOP until PND2_check = "PND2"
-
-'checking the case to make sure there is a pending case.  If not script will end & inform the user no pending case exists in PND2
-EMReadScreen not_pending_check, 5, 24, 2
-If not_pending_check = "CASE " THEN script_end_procedure_with_error_report("There is not a pending program on this case, or case is not in PND2 status." & vbNewLine & vbNewLine & "Please make sure you have the right case number, and/or check your case notes to ensure that this application has been completed.")
-
-'grabs row and col number that the cursor is at
-EMGetCursor MAXIS_row, MAXIS_col
-EMReadScreen app_month, 2, MAXIS_row, 38
-EMReadScreen app_day, 2, MAXIS_row, 41
-EMReadScreen app_year, 2, MAXIS_row, 44
-EMReadScreen days_pending, 3, MAXIS_row, 50
-EMReadScreen additional_application_check, 14, MAXIS_row + 1, 17
-EMReadScreen add_app_month, 2, MAXIS_row + 1, 38
-EMReadScreen add_app_day, 2, MAXIS_row + 1, 41
-EMReadScreen add_app_year, 2, MAXIS_row + 1, 44
-
-'Creating new variable for application check date and additional application date.
-application_date = app_month & "/" & app_day & "/" & app_year
-additional_application_date = add_app_month & "/" & add_app_day & "/" & add_app_year
-
-'checking for multiple application dates.  Creates message boxes giving the user an option of which app date to choose
-If additional_application_check = "ADDITIONAL APP" THEN multiple_apps = MsgBox("Do you want this application date: " & application_date, VbYesNoCancel)
-If multiple_apps = vbCancel then stopscript
-If multiple_apps = vbYes then application_date = application_date
-IF multiple_apps = vbNo then
-	additional_apps = Msgbox("Per CM 0005.09.06 - if a case is pending and a new app is received you should use the original application date." & vbcr & "Do you want this application date: " & additional_application_date, VbYesNoCancel)
-	application_date = ""
-	If additional_apps = vbCancel then stopscript
-	If additional_apps = vbNo then script_end_procedure_with_error_report("No more application dates exist. Please review the case, and start the script again if applicable.")
-	If additional_apps = vbYes then
-		additional_date_found = TRUE
-		application_date = additional_application_date
-		MAXIS_row = MAXIS_row + 1
-	END IF
-End if
-
-EMReadScreen PEND_CASH_check,	1, MAXIS_row, 54
-EMReadScreen PEND_SNAP_check, 1, MAXIS_row, 62
-EMReadScreen PEND_HC_check, 1, MAXIS_row, 65
-EMReadScreen PEND_EMER_check,	1, MAXIS_row, 68
-EMReadScreen PEND_GRH_check, 1, MAXIS_row, 72
-
-MAXIS_footer_month = right("00" & DatePart("m", application_date), 2)
-MAXIS_footer_year = right(DatePart("yyyy", application_date), 2)
+    'checking the case to make sure there is a pending case.  If not script will end & inform the user no pending case exists in PND2
+    EMReadScreen not_pending_check, 4, 24, 2
+    If not_pending_check = "CASE" THEN script_end_procedure_with_error_report("There is not a pending program on this case, or case is not in PND2 status." & vbNewLine & vbNewLine & "Please make sure you have the right case number, and/or check your case notes to ensure that this application has been completed.")
+    'grabs row and col number that the cursor is at
+    EMGetCursor MAXIS_row, MAXIS_col
+    EMReadScreen app_month, 2, MAXIS_row, 38
+    EMReadScreen app_day, 2, MAXIS_row, 41
+    EMReadScreen app_year, 2, MAXIS_row, 44
+    EMReadScreen days_pending, 3, MAXIS_row, 50
+    EMReadScreen additional_application_check, 14, MAXIS_row + 1, 17
+    EMReadScreen add_app_month, 2, MAXIS_row + 1, 38
+    EMReadScreen add_app_day, 2, MAXIS_row + 1, 41
+    EMReadScreen add_app_year, 2, MAXIS_row + 1, 44
+    'Creating new variable for application check date and additional application date.
+    application_date = app_month & "/" & app_day & "/" & app_year
+	'MsgBox application_date
+    additional_application_date = add_app_month & "/" & add_app_day & "/" & add_app_year
+    'checking for multiple application dates.  Creates message boxes giving the user an option of which app date to choose
+    If additional_application_check = "ADDITIONAL APP" THEN multiple_apps = MsgBox("Do you want this application date: " & application_date, VbYesNoCancel)
+    If multiple_apps = vbCancel then stopscript
+    If multiple_apps = vbYes then application_date = application_date
+    IF multiple_apps = vbNo then
+    	additional_apps = Msgbox("Per CM 0005.09.06 - if a case is pending and a new app is received you should use the original application date." & vbcr & "Do you want this application date: " & additional_application_date, VbYesNoCancel)
+    	application_date = ""
+    	If additional_apps = vbCancel then stopscript
+    	If additional_apps = vbNo then script_end_procedure_with_error_report("No more application dates exist. Please review the case, and start the script again if applicable.")
+    	If additional_apps = vbYes then
+    		additional_date_found = TRUE
+    		application_date = additional_application_date
+    		MAXIS_row = MAXIS_row + 1
+    	END IF
+    End if
+    EMReadScreen PEND_CASH_check,	1, MAXIS_row, 54
+    EMReadScreen PEND_SNAP_check, 1, MAXIS_row, 62
+    EMReadScreen PEND_HC_check, 1, MAXIS_row, 65
+    EMReadScreen PEND_EMER_check,	1, MAXIS_row, 68
+    EMReadScreen PEND_GRH_check, 1, MAXIS_row, 72
+    MAXIS_footer_month = right("00" & DatePart("m", application_date), 2)
+    MAXIS_footer_year = right(DatePart("yyyy", application_date), 2)
+END IF 'this will ensire if the basket limit is reached a worker can still use the script'
 
 CALL navigate_to_MAXIS_screen("STAT", "PROG")		'Goes to STAT/PROG
-'EMReadScreen application_date, 8, 6, 33
-
-EMReadScreen err_msg, 7, 24, 02
-IF err_msg = "BENEFIT" THEN	script_end_procedure_with_error_report ("Case must be in PEND II status for script to run, please update MAXIS panels TYPE & PROG (HCRE for HC) and run the script again.")
-
+IF application_date = "" THEN 'if the rept/pnd2 is full this will allow the use to get to PROG '
+	Row = 6
+	DO
+		EMReadScreen application_date, 8, row, 33
+		IF application_date = "" THEN script_end_procedure_with_error_report("A application for the selected period could not be found. The script will now end.")
+		application_date_confirmation = MsgBox("Press YES to confirm this is the application you wish to act on." & vbNewLine & "For the next application, press NO." & vbNewLine & vbNewLine & _
+		" " & "Application date: " & application_date, vbYesNoCancel, "Please confirm this application")
+		IF application_date_confirmation = vbNo THEN
+			row = row + 1
+			IF row = 17 THEN
+				PF8
+				row = 7
+				EMReadScreen application_date, 11, row, 47
+			END IF
+		END IF
+		IF application_date_confirmation = vbCancel THEN script_end_procedure_with_error_report ("The script has ended. The application has not been acted on.")
+		IF application_date_confirmation = vbYes THEN 	EXIT DO
+	LOOP UNTIL application_date_confirmation = vbYes
+	application_date = replace(application_date, " ", "/")
+	EMReadScreen err_msg, 7, 24, 02
+    IF err_msg = "BENEFIT" THEN	script_end_procedure_with_error_report ("Case must be in PEND II status for script to run, please update MAXIS panels TYPE & PROG (HCRE for HC) and run the script again.")
+END IF
 'Reading the app date from PROG
 EMReadScreen cash1_app_date, 8, 6, 33
 cash1_app_date = replace(cash1_app_date, " ", "/")
@@ -204,7 +225,6 @@ EMReadScreen snap_status_check, 4, 10, 74
 EMReadScreen ive_status_check, 4, 11, 74
 EMReadScreen hc_status_check, 4, 12, 74
 EMReadScreen cca_status_check, 4, 14, 74
-
 '----------------------------------------------------------------------------------------------------ACTIVE program coding
 EMReadScreen cash1_prog_check, 2, 6, 67     'Reading cash 1
 EMReadScreen cash2_prog_check, 2, 7, 67     'Reading cash 2
@@ -346,7 +366,7 @@ BeginDialog Dialog1, 0, 0, 291, 195, "Application Received for: "  & programs_ap
   EditBox 225, 60, 20, 15, MEMB_number
   CheckBox 170, 75, 55, 10, "MA Transition", MA_transition_request_checkbox
   CheckBox 170, 85, 85, 10, "METS Retro Coverage", METS_retro_checkbox
-  CheckBox 185, 95, 85, 10, "Team 603 will process", team_603_email_checkbox
+  CheckBox 185, 95, 85, 10, "Team 601 will process", team_601_email_checkbox
   CheckBox 10, 120, 155, 10, "Check if the case does not require a transfer ", no_transfer_checkbox
   EditBox 50, 130, 20, 15, transfer_to_worker
   ButtonGroup ButtonPressed
@@ -443,8 +463,8 @@ If transfer_to_worker <> "" THEN CALL write_variable_in_CASE_NOTE ("* Applicatio
 'CALL write_bullet_and_variable_in_CASE_NOTE ("Reason for APPL Request", request_reason)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Other Notes", other_notes)
 'IF how_app_rcvd = "Request to APPL Form" THEN CALL write_variable_in_CASE_NOTE("* Emailed worker to let them know the request to APPL has been completed.")
-IF METS_retro_checkbox = CHECKED and team_603_email_checkbox = CHECKED  THEN CALL write_variable_in_CASE_NOTE("* Emailed team 603 to let them know the retro request is ready to be processed.")
-IF METS_retro_checkbox = CHECKED and team_603_email_checkbox = UNCHECKED THEN CALL write_variable_in_CASE_NOTE("* Emailed METS worker to let them know the retro request is ready to be processed.")
+IF METS_retro_checkbox = CHECKED and team_601_email_checkbox = CHECKED  THEN CALL write_variable_in_CASE_NOTE("* Emailed team 601 to let them know the retro request is ready to be processed.")
+IF METS_retro_checkbox = CHECKED and team_601_email_checkbox = UNCHECKED THEN CALL write_variable_in_CASE_NOTE("* Emailed METS worker to let them know the retro request is ready to be processed.")
 IF MA_transition_request_checkbox = CHECKED  THEN CALL write_variable_in_CASE_NOTE("* Emailed worker to let them know the transition request is ready to be processed.")
 CALL write_variable_in_CASE_NOTE ("---")
 CALL write_variable_in_CASE_NOTE (worker_signature)
@@ -618,10 +638,10 @@ END IF
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
 'If run_locally = TRUE Then send_email = FALSE
 IF send_email = True THEN CALL create_outlook_email("HSPH.EWS.Triagers@hennepin.us", "", "Case #" & maxis_case_number & " Expedited case to be assigned, transferred to team. " & worker_number & "  EOM.", "", "", TRUE)
-IF how_app_rcvd = "Request to APPL Form" and METS_retro_checkbox = UNCHECKED and team_603_email_checkbox = UNCHECKED and MA_transition_request_checkbox = UNCHECKED THEN CALL create_outlook_email("", "", "MAXIS case #" & maxis_case_number & " Request to APPL form received-APPL'd in MAXIS-ACTION REQUIRED.", "", "", FALSE)
+IF how_app_rcvd = "Request to APPL Form" and METS_retro_checkbox = UNCHECKED and team_601_email_checkbox = UNCHECKED and MA_transition_request_checkbox = UNCHECKED THEN CALL create_outlook_email("", "", "MAXIS case #" & maxis_case_number & " Request to APPL form received-APPL'd in MAXIS-ACTION REQUIRED.", "", "", FALSE)
 'IF how_app_rcvd = "Request to APPL Form" and METS_case_number = "" THEN CALL create_outlook_email("", "", "MAXIS case number #" & maxis_case_number & " Request to APPL form received-APPL'd in MAXIS-ACTION REQUIRED.", "", "", FALSE)
-IF METS_retro_checkbox = CHECKED and team_603_email_checkbox = UNCHECKED THEN CALL create_outlook_email("", "", "MAXIS case #" & maxis_case_number & "/METS IC #" & METS_case_number & " Retro Request APPL'd in MAXIS-ACTION REQUIRED.", "", "", FALSE)
-IF METS_retro_checkbox = CHECKED and team_603_email_checkbox = CHECKED THEN CALL create_outlook_email("HSPH.EWS.TEAM.603@hennepin.us", "", "MAXIS case #" & maxis_case_number & "/METS IC #" & METS_case_number & " Retro Request APPL'd in MAXIS-ACTION REQUIRED.", "", "", FALSE)
+IF METS_retro_checkbox = CHECKED and team_601_email_checkbox = UNCHECKED THEN CALL create_outlook_email("", "", "MAXIS case #" & maxis_case_number & "/METS IC #" & METS_case_number & " Retro Request APPL'd in MAXIS-ACTION REQUIRED.", "", "", FALSE)
+IF METS_retro_checkbox = CHECKED and team_601_email_checkbox = CHECKED THEN CALL create_outlook_email("HSPH.EWS.TEAM.601@hennepin.us", "", "MAXIS case #" & maxis_case_number & "/METS IC #" & METS_case_number & " Retro Request APPL'd in MAXIS-ACTION REQUIRED.", "", "", FALSE)
 IF MA_transition_request_checkbox = CHECKED THEN CALL create_outlook_email("", "", "MAXIS case #" & maxis_case_number & "/METS IC #" & METS_case_number & " MA Transition Request APPL'd in MAXIS-ACTION REQUIRED.", "", "", FALSE)
 '----------------------------------------------------------------------------------------------------NOTICE APPT LETTER Dialog
 IF cash_pends = TRUE or cash2_pends = TRUE or SNAP_pends = TRUE or grh_pends or instr(programs_applied_for, "EGA") THEN send_appt_ltr = TRUE

@@ -179,7 +179,6 @@ If initial_option = "Initial Request" then
     Text 40, 60, 45, 10, "Other Notes:"
     EditBox 85, 55, 220, 15, other_notes
     CheckBox 10, 80, 140, 10, "METS DOA is 11 months prior to today.", DOA_checkbox
-    'CheckBox 195, 80, 115, 10, "Check here to email METS team.", email_checkbox
     CheckBox 10, 95, 185, 10, "Request to APPL use form created/sent.", useform_checkbox
     CheckBox 195, 95, 110, 10, "Task created for retro request.", task_checkbox
     ButtonGroup ButtonPressed
@@ -231,12 +230,11 @@ If initial_option = "Initial Request" then
 End if
 
 If initial_option = "Proofs Received" then
-    case_note_header = "METS retro proofs rec'd"
+    case_note_header = "METS Retro Proofs Received"
 	'-------------------------------------------------------------------------------------------------DIALOG
 	Dialog1 = "" 'Blanking out previous dialog detail
     BeginDialog Dialog1, 0, 0, 296, (135 + (HC_membs * 15)), "Retro Proofs Received for #" & MAXIS_case_number
-    ButtonGroup ButtonPressed
-    PushButton 10, 20, 50, 10, "Scenario", scenario_button
+    Text 10, 20, 55, 10, "Scenario"
     x = 0
     For item = 0 to Ubound(HC_array, 2)
         If HC_array(member_name_const, item) <> "" then
@@ -248,9 +246,7 @@ If initial_option = "Proofs Received" then
     GroupBox 5, 5, 285, (50 + (x * 15)), "For each applicant, enter the retro scenario:"
     Text 25, (65+ (x * 15)), 45, 10, "Other Notes:"
     EditBox 70, (60 + (x * 15)), 220, 15, other_notes
-    'CheckBox 5, (85 + (x * 15)), 140, 10, "METS DOA is 11 months prior to today.", DOA_checkbox
     CheckBox 5, (100 + (x * 15)), 140, 10, "All verifications and/or forms received.", verifs_checkbox
-    'CheckBox 175, (85 + (x * 15)), 115, 10, "Check here to email METS team.", email_checkbox
     Text 5, (120 + (x * 15)), 60, 10, "Worker Signature:"
     EditBox 70, (115 + (x * 15)), 130, 15, worker_signature
     ButtonGroup ButtonPressed
@@ -262,13 +258,9 @@ If initial_option = "Proofs Received" then
     'Main dialog: user will input case number and member number
     DO
         DO
-            Do
-                err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
-                Dialog Dialog1
-                cancel_without_confirmation              'new function that will cancel, collect stats, but not give user option to confirm ending script.
-                If ButtonPressed = scenario_button then CreateObject("WScript.Shell").Run("https://dept.hennepin.us/hsphd/manuals/hsrm/MNsure%20Documents/Hennepin%20Retro%20Instructions%20for%20MAXIS%20Processing.docx.pdf")
-            Loop until ButtonPressed = -1
-            'retro scenario
+            err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
+            Dialog Dialog1
+            cancel_without_confirmation              'new function that will cancel, collect stats, but not give user option to confirm ending script.
             For item = 0 to Ubound(HC_array, 2)
                 If (HC_array(retro_scenario_const, item)) = "Select:" and hc_array(member_name_const, item) <> "" then err_msg = err_msg & vbCr & "* Select a retro scenario for " & hc_array(member_name_const, item)
             NEXT
@@ -297,8 +289,6 @@ If initial_option = "Retro Determination" then
     GroupBox 5, 5, 400, (50 + (x * 15)), "For each applicant, enter the retro determination:"
     Text 30, (65 + (x * 15)), 45, 10, "Other Notes:"
     EditBox 75, (60 + (x * 15)), 220, 15, other_notes
-    'CheckBox 10, (80 + (x * 15)), 140, 10, "METS DOA is 11 months prior to today.", DOA_checkbox
-    'CheckBox 160, (80 + (x * 15)), 115, 10, "Check here to email METS team.", email_checkbox
     Text 5, (100 + (x * 15)), 60, 10, "Worker Signature:"
     EditBox 70, (95 + (x * 15)), 130, 15, worker_signature
     ButtonGroup ButtonPressed
@@ -384,7 +374,7 @@ If trim(other_notes) <> "" then additional_content = additional_content & vbcr &
 If trim(forms_needed) <> "" then additional_content = additional_content & vbcr & "Verifs/forms needed: " & forms_needed
 If verifs_checkbox = 1 then additional_content = additional_content & vbcr & "* All verifications and/or forms received."
 
-email_header = initial_option & " for " & MAXIS_CASE_NUMBER & " - Action Required"
+email_header = initial_option & " for " & MAXIS_case_number & " - Action Required"
 body_of_email = email_content & "---Health Care Member Information---" & household_info & vbcr & additional_content
 
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
