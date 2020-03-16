@@ -159,7 +159,7 @@ If review_and_approve_from_COLA = TRUE Then
 End If
 
 'COLA SVES RESPONSE
-If instr(full_message, "REVIEW SVES RESPONSE") or instr(full_message, "REVIEW CLAIM NUMBER ") then
+If instr(full_message, "REVIEW SVES RESPONSE") or instr(full_message, "REVIEW CLAIM NUMBER") then
     match_found = TRUE
     call run_from_GitHub(script_repository & "dail/cola-sves-response.vbs")
 END IF
