@@ -258,13 +258,6 @@ script_array_D_to_F(script_num).description 			= "Template for noting drug felon
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_D_to_F(script_num)			'Resets the array to add one more element to it
 Set script_array_D_to_F(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_D_to_F(script_num).script_name 			= "DWP budget"
-script_array_D_to_F(script_num).file_name				= "dwp-budget.vbs"
-script_array_D_to_F(script_num).description 			= "Template for noting DWP budgets."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_D_to_F(script_num)			'Resets the array to add one more element to it
-Set script_array_D_to_F(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_D_to_F(script_num).script_name 			= "EDRS DISQ match found"
 script_array_D_to_F(script_num).file_name				= "edrs-disq-match-found.vbs"
 script_array_D_to_F(script_num).description 			= "Template for noting the action steps when a SNAP recipient has an eDRS DISQ per TE02.08.127."
