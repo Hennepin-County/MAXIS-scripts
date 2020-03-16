@@ -233,8 +233,8 @@ If initial_option = "Proofs Received" then
     case_note_header = "METS Retro Proofs Received"
 	'-------------------------------------------------------------------------------------------------DIALOG
 	Dialog1 = "" 'Blanking out previous dialog detail
-    BeginDialog Dialog1, 0, 0, 296, (135 + (HC_membs * 15)), "Retro Proofs Received for #" & MAXIS_case_number
-    Text 10, 20, 55, 10, "Scenario"
+    BeginDialog Dialog1, 0, 0, 296, (125 + (HC_membs * 15)), "Retro Proofs Received for #" & MAXIS_case_number
+    Text 10, 20, 30, 10, "Scenario"
     x = 0
     For item = 0 to Ubound(HC_array, 2)
         If HC_array(member_name_const, item) <> "" then
@@ -243,15 +243,15 @@ If initial_option = "Proofs Received" then
             x = x + 1
         End if
     Next
-    GroupBox 5, 5, 285, (50 + (x * 15)), "For each applicant, enter the retro scenario:"
-    Text 25, (65+ (x * 15)), 45, 10, "Other Notes:"
-    EditBox 70, (60 + (x * 15)), 220, 15, other_notes
-    CheckBox 5, (100 + (x * 15)), 140, 10, "All verifications and/or forms received.", verifs_checkbox
-    Text 5, (120 + (x * 15)), 60, 10, "Worker Signature:"
-    EditBox 70, (115 + (x * 15)), 130, 15, worker_signature
+    GroupBox 5, 5, 285, (50 + (x * 15)), "Enter the retro scenario for each applicant:"
+    Text 5, (85+ (x * 15)), 45, 10, "Other Notes:"
+    EditBox 55, (80 + (x * 15)), 235, 15, other_notes
+    CheckBox 05, (60 + (x * 15)), 140, 10, "All verifications and/or forms received.", verifs_checkbox
+    Text 5, (110 + (x * 15)), 60, 10, "Worker Signature:"
+    EditBox 70, (105 + (x * 15)), 130, 15, worker_signature
     ButtonGroup ButtonPressed
-    OkButton 205, (115 + (x * 15)), 40, 15
-    CancelButton 250, (115 + (x * 15)), 40, 15
+    OkButton 205, (105 + (x * 15)), 40, 15
+    CancelButton 250, (105 + (x * 15)), 40, 15
     Text 75, 20, 60, 10, "Applicant's Name"
     EndDialog
 
@@ -276,7 +276,7 @@ If initial_option = "Retro Determination" then
     case_note_header = "METS Retro Determination"
 	'-------------------------------------------------------------------------------------------------DIALOG
 	Dialog1 = "" 'Blanking out previous dialog detail
-    BeginDialog Dialog1, 0, 0, 411, (115 + (HC_membs * 15)), "Retro Determination"
+    BeginDialog Dialog1, 0, 0, 356, (100 + (HC_membs * 15)), "Retro Determination for #" & MAXIS_case_number
     x = 0
     For item = 0 to Ubound(HC_array, 2)
         If HC_array(member_name_const, item) <> "" then
@@ -286,14 +286,14 @@ If initial_option = "Retro Determination" then
             x = x + 1
         End if
     Next
-    GroupBox 5, 5, 400, (50 + (x * 15)), "For each applicant, enter the retro determination:"
-    Text 30, (65 + (x * 15)), 45, 10, "Other Notes:"
-    EditBox 75, (60 + (x * 15)), 220, 15, other_notes
-    Text 5, (100 + (x * 15)), 60, 10, "Worker Signature:"
-    EditBox 70, (95 + (x * 15)), 130, 15, worker_signature
+    GroupBox 5, 5, 345, (50 + (x * 15)), "For each applicant, enter the retro determination:"
+    Text 10, (65 + (x * 15)), 45, 10, "Other Notes:"
+    EditBox 70, (60 + (x * 15)), 280, 15, other_notes
+    Text 5, (85 + (x * 15)), 60, 10, "Worker Signature:"
+    EditBox 70, (80 + (x * 15)), 130, 15, worker_signature
     ButtonGroup ButtonPressed
-    OkButton 205, (95 + (x * 15)), 40, 15
-    CancelButton 250, (95 + (x * 15)), 40, 15
+    OkButton 265, (80 + (x * 15)), 40, 15
+    CancelButton 310, (80 + (x * 15)), 40, 15
     Text 75, 20, 105, 10, "App'd months or Denial Reason"
     Text 15, 20, 45, 10, "Determination"
     Text 270, 20, 60, 10, "Applicant's Name"
@@ -345,15 +345,12 @@ elseif initial_option = "Retro Determination" then
     send_email = False
     team_email = ""
 else
-    If HC_array(retro_scenario_const, 0) = "C" or HC_array(retro_scenario_const, 0) = "D" or HC_array(retro_scenario_const, 0) = "E" then
+    If HC_array(retro_scenario_const, 0) = "B"  or HC_array(retro_scenario_const, 0) = "C" or HC_array(retro_scenario_const, 0) = "D" or HC_array(retro_scenario_const, 0) = "E" then
         send_email = True
         team_email = "601"
     Elseif HC_array(retro_scenario_const, 0) = "A" then
         send_email = False
         team_email = ""
-    Elseif HC_array(retro_scenario_const, 0) = "B" then
-        send_email = True
-        team_email = "603"
     End if
 End if
 
