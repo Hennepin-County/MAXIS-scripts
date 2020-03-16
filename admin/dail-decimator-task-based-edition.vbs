@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/16/2020", "Added FAD option for task-based assginment.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/17/2019", "Added function to evaluate DAIL messages.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/12/2019", "Added DAIL type selection to dialog box.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/02/2019", "Updated Adults basket numbers per Faughn's request.", "Ilse Ferris, Hennepin County")
@@ -71,7 +72,7 @@ Function dail_type_selection
 	    If elig_check = 1 then EMWriteScreen "x", 11, 39
 	    If ievs_check = 1 then EMWriteScreen "x", 12, 39
 	    If info_check = 1 then EMWriteScreen "x", 13, 39
-	    If iv3_check = 1 then EMWriteScreen "x", 14, 39
+	    If ive_check = 1 then EMWriteScreen "x", 14, 39
 	    If ma_check = 1 then EMWriteScreen "x", 15, 39
  	    If mec2_check = 1 then EMWriteScreen "x", 16, 39
 	    If pari_chck = 1 then EMWriteScreen "x", 17, 39
@@ -96,16 +97,19 @@ report_date = replace(date, "/", "-")
 
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 251, 210, "DAIL Decimation Main Dialog"
-  DropListBox 55, 100, 80, 15, "Select one..."+chr(9)+"ADS"+chr(9)+"Adults"+chr(9)+"Adults & ADS", dail_to_decimate
+  CheckBox 55, 105, 85, 10, "All Population Baskets", all_baskets_checkbox
+  CheckBox 140, 105, 30, 10, "ADAD", ADAD_checkbox
+  CheckBox 175, 105, 30, 10, "ADS", ADS_checkbox
+  CheckBox 205, 105, 30, 10, "FAD", FAD_checkbox
   CheckBox 10, 120, 135, 10, "OR check here to process for all workers.", all_workers_check
-  CheckBox 10, 155, 25, 10, "ALL",   All_check
+  CheckBox 10, 155, 25, 10, "ALL",   all_check
   CheckBox 40, 155, 30, 10, "COLA",  cola_check
   CheckBox 75, 155, 30, 10, "CLMS",  clms_check
   CheckBox 110, 155, 30, 10, "CSES", cses_check
   CheckBox 145, 155, 30, 10, "ELIG", elig_check
   CheckBox 180, 155, 30, 10, "IEVS", ievs_check
   CheckBox 210, 155, 30, 10, "INFO", info_check
-  CheckBox 10, 170, 25, 10, "IV-E",  iv3_check
+  CheckBox 10, 170, 25, 10, "IV-E",  ive_check
   CheckBox 40, 170, 25, 10, "MA",    ma_check
   CheckBox 75, 170, 30, 10, "MEC2",  mec2_check
   CheckBox 110, 170, 35, 10, "PARI", pari_chck
@@ -115,22 +119,29 @@ BeginDialog Dialog1, 0, 0, 251, 210, "DAIL Decimation Main Dialog"
   ButtonGroup ButtonPressed
     OkButton 155, 190, 40, 15
     CancelButton 200, 190, 40, 15
+  Text 10, 105, 40, 10, "Population:"
+  GroupBox 5, 85, 240, 50, "Step 1. Select the population"
+  Text 65, 5, 135, 10, "---DAIL Decimator:Task-Based Edition---"
   Text 10, 35, 220, 40, "This script will delete DAIL messages from the DAIL type and population selected below, and capture the actionable DAIL messages. The final step once the DAIL messages have been evaluated will be to out put all actionable DAIL messages to a SQL Database which feeds the Big Scoop Report."
   GroupBox 5, 20, 240, 60, "Using the DAIL Decimator script"
   GroupBox 5, 140, 240, 45, "Step 2. Select the type(s) of DAIL message to add to the report:"
-  Text 65, 5, 135, 10, "---DAIL Decimator:Task-Based Edition---"
-  Text 10, 105, 40, 10, "Population:"
-  GroupBox 5, 85, 240, 50, "Step 1. Select the population"
 EndDialog
+
 Do
-	Do
-  		err_msg = ""
-  		dialog Dialog1
-  		cancel_without_confirmation
-  		If trim(dail_to_decimate) = "Select one..." and all_workers_check = 0 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases."
-  		If trim(dail_to_decimate) <> "Select one..." and all_workers_check = 1 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases, not both options."
-  	  	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-  	LOOP until err_msg = ""
+    Do 
+        err_msg = ""
+  	    dialog Dialog1
+  	    cancel_without_confirmation 
+        If all_baskets_checkbox = 1 then 
+            If ADAD_checkbox = 1 or ADS_checkbox = 1 or FAD_checkbox = 1 then err_msg = err_msg & vbcr & "* You cannot select a population and all populations."
+        End if 
+        If all_workers_check = 1 then 
+            If ADAD_checkbox = 1 or ADS_checkbox = 1 or FAD_checkbox = 1 or all_baskets_checkbox = 1 then err_msg = err_msg & vbcr & "* You cannot select a population(s) and all workers."
+        End if 
+        If (all_baskets_checkbox = 0 and all_workers_check = 0 and ADAD_checkbox = 0 and ADS_checkbox = 0 and FAD_checkbox = 0 and all_baskets_checkbox = 0) then err_msg = err_msg & vbcr & "* You must select at least one population option."
+        If (all_check = 0 and cola_check = 0 and clms_check = 0 and cses_check  = 0 and elig_check  = 0 and ievs_check = 0 and info_check = 0 and ive_check = 0 and ma_check = 0 and mec2_check = 0 and pari_chck = 0 and pepr_check = 0 and tikl_check = 0 and wf1_check = 0) then err_msg = err_msg & vbcr & "* You must select at least one DAIL type."
+        IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+    Loop Until err_msg = ""     
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
@@ -140,16 +151,17 @@ back_to_SELF 'navigates back to self in case the worker is working within the DA
 If all_workers_check = checked then
 	call create_array_of_all_active_x_numbers_in_county(worker_array, two_digit_county_code)
 Else
-    If dail_to_decimate = "Adults" then
-        worker_number = "X127EE1,X127EE2,X127EE3,X127EE4,X127EE5,X127EE6,X127EE7,X127EL2,X127EL3,X127EL4,X127EL5,X127EL6,X127EL7,X127EL8,X127EN1,X127EN2,X127EN3,X127EN4,X127EN5,X127EQ1,X127EQ4,X127EQ5,X127EQ8,X127EQ9,X127EL9,X127ED8,X127EH8,X127EG4"
-    Elseif dail_to_decimate = "ADS" then
-        worker_number = "X127EH1,X127EH2,X127EH3,X127EH6,X127EJ4,X127EJ6,X127EJ7,X127EJ8,X127EK1,X127EK2,X127EK4,X127EK5,X127EK6,X127EK9,X127EM1,X127EM7,X127EM8,X127EM9,X127EN6,X127EP3,X127EP4,X127EP5,X127EP9,X127F3F,X127FE5,X127FG3,X127FH4,X127FH5,X127FI2,X127FI7,X127EJ5"
-    Elseif dail_to_decimate = "Adults & ADS" then
-        worker_number = "X127EE1,X127EE2,X127EE3,X127EE4,X127EE5,X127EE6,X127EE7,X127EL2,X127EL3,X127EL4,X127EL5,X127EL6,X127EL7,X127EL8,X127EN1,X127EN2,X127EN3,X127EN4,X127EN5,X127EQ1,X127EQ4,X127EQ5,X127EQ8,X127EQ9,X127EL9,X127ED8,X127EH8,X127EG4" & _
-        ",X127EH1,X127EH2,X127EH3,X127EH6,X127EJ4,X127EJ6,X127EJ7,X127EJ8,X127EK1,X127EK2,X127EK4,X127EK5,X127EK6,X127EK9,X127EM1,X127EM7,X127EM8,X127EM9,X127EN6,X127EP3,X127EP4,X127EP5,X127EP9,X127F3F,X127FE5,X127FG3,X127FH4,X127FH5,X127FI2,X127FI7,X127EJ5"
-    End if
-
-    x1s_from_dialog = split(worker_number, ",")	'Splits the worker array based on commas
+    ADAD_baskets = "X127EE1,X127EE2,X127EE3,X127EE4,X127EE5,X127EE6,X127EE7,X127EL2,X127EL3,X127EL4,X127EL5,X127EL6,X127EL7,X127EL8,X127EN1,X127EN2,X127EN3,X127EN4,X127EN5,X127EQ1,X127EQ4,X127EQ5,X127EQ8,X127EQ9,X127EL9,X127ED8,X127EH8,X127EG4"
+    ADS_baskets = "X127EH1,X127EH2,X127EH3,X127EH6,X127EJ4,X127EJ6,X127EJ7,X127EJ8,X127EK1,X127EK2,X127EK4,X127EK5,X127EK6,X127EK9,X127EM1,X127EM7,X127EM8,X127EM9,X127EN6,X127EP3,X127EP4,X127EP5,X127EP9,X127F3F,X127FE5,X127FG3,X127FH4,X127FH5,X127FI2,X127FI7,X127EJ5"
+    FAD_baskets = "X127ES1,X127ES2,X127ES3,X127ES4,X127ES5,X127ES6,X127ES7,X127ES8,X127ES9,X127ET1,X127ET2,X127ET3,X127ET4,X127ET5,X127ET6,X127ET7,X127ET8,X127ET9"
+    
+    worker_numbers = ""     'Creating and valuing incrementor variable 
+    If ADAD_checkbox        = 1 then worker_numbers = worker_numbers & ADAD_baskets
+    If ADS_checkbox         = 1 then worker_numbers = worker_numbers & ADS_baskets
+    If FAD_checkbox         = 1 then worker_numbers = worker_numbers & FAD_baskets
+    If all_baskets_checkbox = 1 then worker_numbers = ADAD_baskets & "," & ADS_baskets & "," & FAD_baskets  'conditional logic in do loop doesn't allow for populations and baskets to be selcted. Not incremented variable.
+    
+    x1s_from_dialog = split(worker_numbers, ",")	'Splits the worker array based on commas
 
 	'Need to add the worker_county_code to each one
 	For each x1_number in x1s_from_dialog
