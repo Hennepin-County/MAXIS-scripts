@@ -52,9 +52,12 @@ changelog_display
 'Connecting to BlueZone
 EMConnect ""
 '----------------------------------------------------------------------------------------------------ABPS panel
+
+Call check_for_MAXIS(False)
 'TO DO PRIV handling and check on hh size'
 CALL MAXIS_case_number_finder (MAXIS_case_number)
 MEMB_number = "01"
+'checking for an active MAXIS session
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 191, 125, "AVS Request"
@@ -125,7 +128,41 @@ IF spouse_deeming = "YES" THEN
 	EmReadScreen marital_status, 1, 7, 40
 	EmReadScreen spouse_ref_nbr, 02, 09, 49
 	IF spouse_ref_nbr = "__" THEN
-		MsgBox "*** No Spouse Listed on MEMI ***" & vbNewLine & "Please ensure the correct information is listed as no spouse was found on MEMI." & vbNewLine
+	    Dialog1 = "" 'Blanking out previous dialog detail
+		BeginDialog Dialog1, 0, 0, 176, 155, "Spouse, not found on MEMB"
+  		EditBox 55, 5, 115, 15, spouse_first_name
+  		EditBox 55, 25, 115, 15, spouse_last_name
+  		EditBox 55, 45, 70, 15, spouse_SSN_number
+  		EditBox 55, 65, 55, 15, spouse_DOB
+  		DropListBox 55, 85, 55, 15, "Select One:"+chr(9)+"Female"+chr(9)+"Male"+chr(9)+"Unknown"+chr(9)+"Undetermined", spouse_gender_dropdown
+  		EditBox 5, 115, 165, 15, other_notes
+  		ButtonGroup ButtonPressed
+    		OkButton 85, 135, 40, 15
+    		CancelButton 130, 135, 40, 15
+  		Text 5, 10, 40, 10, "First Name:"
+  		Text 5, 50, 20, 10, "SSN: "
+  		Text 5, 70, 45, 10, "Date of birth: "
+  		Text 5, 105, 160, 10, "Please explain why they are not listed in maxis: "
+  		Text 5, 90, 30, 10, "Gender: "
+  		Text 5, 30, 40, 10, "Last Name: "
+		EndDialog
+
+	    DO
+	    	DO
+	    		err_msg = ""
+	    		Dialog Dialog1
+	    		cancel_without_confirmation
+	    		If spouse_first_name = "" then err_msg = err_msg & vbNewLine & "Please enter the spouse's first name."
+				If spouse_last_name = "" then err_msg = err_msg & vbNewLine & "Please enter the spouse's last name."
+				If spouse_SSN_number = "" then err_msg = err_msg & vbNewLine & "Please enter the spouse's social security number."
+				If spouse_DOB = "" then err_msg = err_msg & vbNewLine & "Please enter the spouse's date of birth."
+				If spouse_gender_dropdown = "Select One:" then err_msg = err_msg & vbNewLine & "Please select the spouse's gender."
+				If other_notes = "" then err_msg = err_msg & vbNewLine & "Please enter the reason this client is not listed in MAXIS."
+	    		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+	    	LOOP UNTIL err_msg = ""
+	    	CALL check_for_password_without_transmit(are_we_passworded_out)
+	    Loop until are_we_passworded_out = false
+		
 	ELSE
 		CALL navigate_to_MAXIS_screen("STAT", "MEMB")
 	    EMwritescreen spouse_ref_nbr, 20, 76
