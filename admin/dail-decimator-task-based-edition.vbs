@@ -150,17 +150,39 @@ back_to_SELF 'navigates back to self in case the worker is working within the DA
 'If all workers are selected, the script will go to REPT/USER, and load all of the workers into an array. Otherwise it'll create a single-object "array" just for simplicity of code.
 If all_workers_check = checked then
 	call create_array_of_all_active_x_numbers_in_county(worker_array, two_digit_county_code)
+    dail_to_decimate = "ALL"
 Else
     ADAD_baskets = "X127EE1,X127EE2,X127EE3,X127EE4,X127EE5,X127EE6,X127EE7,X127EL2,X127EL3,X127EL4,X127EL5,X127EL6,X127EL7,X127EL8,X127EN1,X127EN2,X127EN3,X127EN4,X127EN5,X127EQ1,X127EQ4,X127EQ5,X127EQ8,X127EQ9,X127EL9,X127ED8,X127EH8,X127EG4"
     ADS_baskets = "X127EH1,X127EH2,X127EH3,X127EH6,X127EJ4,X127EJ6,X127EJ7,X127EJ8,X127EK1,X127EK2,X127EK4,X127EK5,X127EK6,X127EK9,X127EM1,X127EM7,X127EM8,X127EM9,X127EN6,X127EP3,X127EP4,X127EP5,X127EP9,X127F3F,X127FE5,X127FG3,X127FH4,X127FH5,X127FI2,X127FI7,X127EJ5"
     FAD_baskets = "X127ES1,X127ES2,X127ES3,X127ES4,X127ES5,X127ES6,X127ES7,X127ES8,X127ES9,X127ET1,X127ET2,X127ET3,X127ET4,X127ET5,X127ET6,X127ET7,X127ET8,X127ET9"
     
-    worker_numbers = ""     'Creating and valuing incrementor variable 
-    If ADAD_checkbox        = 1 then worker_numbers = worker_numbers & ADAD_baskets
-    If ADS_checkbox         = 1 then worker_numbers = worker_numbers & ADS_baskets
-    If FAD_checkbox         = 1 then worker_numbers = worker_numbers & FAD_baskets
-    If all_baskets_checkbox = 1 then worker_numbers = ADAD_baskets & "," & ADS_baskets & "," & FAD_baskets  'conditional logic in do loop doesn't allow for populations and baskets to be selcted. Not incremented variable.
+    worker_numbers = ""     'Creating and valuing incrementor variables
+    dail_to_decimate = ""
     
+    If ADAD_checkbox = 1 then 
+        worker_numbers = worker_numbers & ADAD_baskets
+        dail_to_decimate = dail_to_decimate & "ADAD,"
+    End if 
+    
+    If ADS_checkbox = 1 then 
+        worker_numbers = worker_numbers & ADS_baskets
+        dail_to_decimate = dail_to_decimate & "ADS,"
+    End if 
+    
+    If FAD_checkbox = 1 then 
+        worker_numbers = worker_numbers & FAD_baskets
+        dail_to_decimate = dail_to_decimate & "FAD"
+    End if 
+    
+    If all_baskets_checkbox = 1 then 
+        worker_numbers = ADAD_baskets & "," & ADS_baskets & "," & FAD_baskets  'conditional logic in do loop doesn't allow for populations and baskets to be selcted. Not incremented variable.
+        dail_to_decimate = "All Baskets"
+    End if 
+    
+    dail_to_decimate = trim(dail_to_decimate)  'trims excess spaces of dail_to_decimate
+    If right(dail_to_decimate, 1) = "," THEN dail_to_decimate = left(dail_to_decimate, len(dail_to_decimate) - 1)
+    dail_to_decimate = dail_to_decimate & " TB"
+        
     x1s_from_dialog = split(worker_numbers, ",")	'Splits the worker array based on commas
 
 	'Need to add the worker_county_code to each one
