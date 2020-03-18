@@ -45,7 +45,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("03/16/2020", "Added checkbox to automatically send an email to triage regarding the contact.", "Ilse Ferris, Hennepin County")
+call changelog_update("03/17/2020", "Added checkbox to automatically send an email to Managed Health Care regarding the contact.", "Ilse Ferris, Hennepin County")
 call changelog_update("06/19/2018", "Added TEXT OPT OUT checkbox to be used for cases that wish to opt out of receiving text messages recertification reminders.", "Ilse Ferris, Hennepin County")
 call changelog_update("06/19/2018", "Added FAX to contact type, changed MNSURE IC # to METS IC #, updated look of dialog and back end mandatory field handling. Also removed message box prior to navigating to DAIL/WRIT.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/28/2017", "Removed call center information from bottom of dialog.", "Ilse Ferris, Hennepin County")
@@ -82,7 +82,7 @@ BeginDialog Dialog1, 0, 0, 391, 325, "Client contact"
   CheckBox 5, 290, 255, 10, "TEXT OPT OUT: Client wishes to opt out renewal text message notifications.", Opt_out_checkbox
   CheckBox 260, 260, 95, 10, "Forms were sent to AREP.", Sent_arep_checkbox
   CheckBox 260, 275, 120, 10, "Follow up is needed on this case.", follow_up_needed_checkbox
-  CheckBox 260, 290, 105, 10, "Send email to Triager's", triage_checkbox
+  CheckBox 260, 290, 105, 10, "Send email to Managed Care.", email_checkbox
   EditBox 70, 305, 205, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 280, 305, 50, 15
@@ -164,23 +164,22 @@ CALL write_variable_in_CASE_NOTE(worker_signature)
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
 If Opt_out_checkbox = checked then Call create_outlook_email("xlab@maxwell.syr.edu","","Renewal text message opt out for case #" & MAXIS_case_number,"","",true)
 
-'Email portion for triage 
-If triage_checkbox = 1 then
+'----------------------------------------------------------------------------------------------------Email portion
+If email_checkbox = 1 then
     'Adding case detail to the body of the email 
     email_info = contact_type & " " & contact_direction & " " & who_contacted & " re: " & regarding & vbcr & vbcr & "* Reason for Contact: " & contact_reason & vbcr
-    If trim(verifs_needed) <> "" then email_info = email_info & "* Verifs needed: " & verifs_needed & vbcr
+    If trim(phone_number) <> "" then email_info = email_info & "* Phone Number: " & phone_number & vbcr
     If trim(other_notes) <> "" then email_info = email_info & "* Other Notes: " & other_notes & vbcr
     
     'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-    Call create_outlook_email("HSPH.EWS.Triagers@hennepin.us", "" ,"Client contact assistance required for case #" & MAXIS_case_number, email_info, "", True)
+    Call create_outlook_email("HSPH.MHC.Advocates", "" ,"Client contact assistance required for case #" & MAXIS_case_number, email_info, "", True)
 End if 
 
 IF TIKL_check = checked THEN CALL navigate_to_MAXIS_screen("dail", "writ")      'Navigating to TIKL only 
-
 end_msg = ""
 'If case requires followup, it will create a MsgBox (via script_end_procedure) explaining that followup is needed. This MsgBox gets inserted into the statistics database for counties using that function. This will allow counties to "pull statistics" on follow-up, including case numbers, which can be used to track outcomes.
 If follow_up_needed_checkbox = checked then end_msg = end_msg & "Success! Follow-up is needed for case number: " & MAXIS_case_number & vbcr
 If Opt_out_checkbox = checked then end_msg = end_msg & "The case has been updated to OPT OUT of recert text notifications. #" & MAXIS_case_number & vbcr
-If triage_checkbox = checked then end_msg = end_msg & "An email has been sent to triage with details of the contact." & vbcr
+If email_checkbox = checked then end_msg = end_msg & "An email has been sent to Managed Health Care with details of the contact for follow-up." & vbcr
 
 script_end_procedure(end_msg)
