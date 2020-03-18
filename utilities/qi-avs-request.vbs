@@ -162,7 +162,7 @@ IF spouse_deeming = "YES" THEN
 	    	LOOP UNTIL err_msg = ""
 	    	CALL check_for_password_without_transmit(are_we_passworded_out)
 	    Loop until are_we_passworded_out = false
-		
+
 	ELSE
 		CALL navigate_to_MAXIS_screen("STAT", "MEMB")
 	    EMwritescreen spouse_ref_nbr, 20, 76
@@ -212,7 +212,7 @@ mail_MAXIS_addr = mailing_addr_line_one & " " & mailing_addr_line_two & " " & ma
 
 'msgbox MAXIS_addr & vbcr & mail_MAXIS_addr
 
-body_of_email = "A signed AVS form was recieved for: " & "First Name: " & client_first_name & vbcr & "Last Name: " & client_last_name & vbcr & "Social Security Number: " & client_SSN_number_read & vbcr & "Gender: " & client_gender & vbcr & "Date of birth: " & client_DOB & vbcr & "Application date: " & application_date & vbcr & "Address: " & resi_addr_line_one & resi_addr_line_two & " " & resi_addr_city & " " & resi_addr_state & " " & resi_addr_zip & vbcr
+body_of_email = "A signed AVS form was recieved for: " & vbcr & "First Name: " & client_first_name & vbcr & "Last Name: " & client_last_name & vbcr & "Social Security Number: " & client_SSN_number_read & vbcr & "Gender: " & client_gender & vbcr & "Date of birth: " & client_DOB & vbcr & "Application date: " & application_date & vbcr & "Address: " & resi_addr_line_one & resi_addr_line_two & " " & resi_addr_city & " " & resi_addr_state & " " & resi_addr_zip & vbcr
 
 If trim(mail_MAXIS_addr) <> "" then body_of_email = body_of_email & "Mailing address: " & mailing_addr_line_one & mailing_addr_line_two & " " & mailing_addr_city & " " & mailing_addr_state & " " & mailing_addr_zip & vbcr
 body_of_email = body_of_email & "MA type: " & MA_type & vbcr & "HH size: " & HH_size & vbcr & "Applicant Type: " & applicant_type & vbcr & "Application Type: " & appl_type & vbcr
