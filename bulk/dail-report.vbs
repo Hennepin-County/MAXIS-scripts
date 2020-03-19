@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/19/2020", "Added Client Contact Follow Up Only option to support assignments for follow up generic phones work. Also updated how DAIL's are read and captured.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/28/2019", "Added functionality to remove '=' from any TIKL messages. The equal sign is not able to be written into Excel.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/28/2019", "Removed text in spreadsheet that indicates if there is no DAIL for a particular x number. Stats will still relfect the number of DAILS found.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/13/2018", "Updated option selection handling, and other background functionality.", "Ilse Ferris, Hennepin County")
@@ -60,7 +61,8 @@ all_check = 1
 all_workers_check = 1
 
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 361, 140, "Bulk DAIL report dialog"
+BeginDialog Dialog1, 0, 0, 361, 155, "Bulk DAIL report dialog"
+  EditBox 10, 35, 345, 15, worker_number
   CheckBox 40, 85, 25, 10, "ALL", All_check
   CheckBox 80, 85, 30, 10, "COLA", cola_check
   CheckBox 125, 85, 30, 10, "CLMS", clms_check
@@ -75,16 +77,17 @@ BeginDialog Dialog1, 0, 0, 361, 140, "Bulk DAIL report dialog"
   CheckBox 215, 100, 30, 10, "PEPR", pepr_check
   CheckBox 260, 100, 30, 10, "TIKL", tikl_check
   CheckBox 300, 100, 30, 10, "WF1", wf1_check
-  EditBox 10, 35, 345, 15, worker_number
-  CheckBox 20, 125, 135, 10, "Check here to process for all workers.", all_workers_check
+  CheckBox 40, 115, 180, 10, "Check here for Client Contact Follow up TIKL's only.", TIKL_FollowUp_checkbox
+  CheckBox 10, 140, 135, 10, "Check here to process for all workers.", all_workers_check
   ButtonGroup ButtonPressed
-    OkButton 250, 120, 50, 15
-    CancelButton 305, 120, 50, 15
-  Text 10, 20, 350, 10, "Please enter the x1 numbers of the caseloads you wish to check, separated by commas (if more than one):"
+    OkButton 250, 135, 50, 15
+    CancelButton 305, 135, 50, 15
   Text 10, 55, 290, 10, "Note: please enter the entire 7-digit number x1 number. (Example: ''x100abc, x100abc'')"
-  GroupBox 5, 70, 350, 45, "Select the type(s) of DAIL message to add to the report:"
+  GroupBox 5, 70, 350, 60, "Select the type(s) of DAIL message to add to the report:"
   Text 145, 5, 90, 10, "---BULK DAIL REPORT---"
+  Text 10, 20, 350, 10, "Please enter the x1 numbers of the caseloads you wish to check, separated by commas (if more than one):"
 EndDialog
+
 'Shows the dialog. Doesn't need to loop since we already looked at MAXIS.
 DO
 	Do
@@ -147,10 +150,18 @@ CALL navigate_to_MAXIS_screen("DAIL", "DAIL")
 
 'This for...next contains each worker indicated above
 For each worker in worker_array
+	DO
+		EMReadScreen dail_check, 4, 2, 48
+		If next_dail_check <> "DAIL" then
+			MAXIS_case_number = ""
+			CALL navigate_to_MAXIS_screen("DAIL", "DAIL")
+		End if
+	Loop until dail_check = "DAIL"
+
 	EMWriteScreen worker, 21, 6
 	transmit
 	transmit 'transmit past 'not your dail message'
-
+    
 	'selecting the type of DAIl message
 	EMWriteScreen "x", 4, 12		'transmits to the PICK screen
 	transmit
@@ -168,88 +179,91 @@ For each worker in worker_array
 	If pari_chck = 1 then EMWriteScreen "x", 17, 39
 	If pepr_check = 1 then EMWriteScreen "x", 18, 39
 	If tikl_check = 1 then EMWriteScreen "x", 19, 39
+    If TIKL_FollowUp_checkbox = 1 then EMWriteScreen "x", 19, 39
 	If wf1_check = 1 then EMWriteScreen "x", 20, 39
 	transmit
-	EMReadScreen number_of_dails, 1, 3, 67		'Reads where the count of DAILs is listed
+    
+    EMReadScreen number_of_dails, 1, 3, 67		'Reads where the count of DAILs is listed
+
 	DO
-		If number_of_dails = " " Then exit do 			'if this space is blank the rest of the DAIL reading is skipped
+		If number_of_dails = " " Then exit do		'if this space is blank the rest of the DAIL reading is skipped
 
-		'Reading and trimming the MAXIS case number and dumping it in Excel
-		EMReadScreen maxis_case_number, 8, 5, 73
-		maxis_case_number = trim(maxis_case_number)
-		objExcel.Cells(excel_row, 2).Value = maxis_case_number
-
-		'This bit of code grabs the client name. The do/loop expands the search area until the value for
-		'next_two equals "--" ... at which time the script determines that the cl name has ended
-		dail_col = 6
-		name_len = 1
+		dail_row = 6			'Because the script brings each new case to the top of the page, dail_row starts at 6.
 		DO
-			EMReadScreen client_name, name_len, 5, 5
-			EMReadScreen next_two, 2, 5, dail_col
-			IF next_two <> "--" THEN
-				name_len = name_len + 1
-				dail_col = dail_col + 1
-			END IF
-		LOOP UNTIL next_two = "--"
-		'Dumping the client name in Excel
-		objExcel.Cells(excel_row, 3).Value = client_name
+			dail_type = ""
+			dail_msg = ""
 
-		'This is where the script starts reading the DAIL messages.
-		'Because the script brings each new case to the top of the page, dail_row starts at 6.
-		dail_row = 6
-		DO
-			'Determining if there is a new case number...
-			EMReadScreen new_case, 8, dail_row, 63
-			new_case = trim(new_case)
-			IF new_case <> "CASE NBR" THEN
-				'...if there is NOT a new case number, the script will read the DAIL type, month, year, and message...
-				EMReadScreen dail_type,  4, dail_row, 6
-				EMReadScreen dail_month, 8, dail_row, 11
-				dail_month = trim(dail_month)
-				dail_month = replace(dail_month, " ", "/1/")
-				EMReadScreen dail_msg, 	61, dail_row, 20
-                dail_msg = replace(dail_msg, "=", "")       'This is an Excel no-no
-                dail_msg = trim(dail_msg)
-
-				IF trim(dail_msg) <> "" AND dail_type <> "    " and trim(dail_month) <> "" THEN
-					'...and put that in Excel.
-					objExcel.Cells(excel_row, 1).Value = worker
-					objExcel.Cells(excel_row, 2).Value = maxis_case_number
-					objExcel.Cells(excel_row, 3).Value = client_name
-					objExcel.Cells(excel_row, 4).Value = dail_type
-					objExcel.Cells(excel_row, 5).Value = trim(dail_month)
-					objExcel.Cells(excel_row, 6).Value = trim(dail_msg)
-					excel_row = excel_row + 1			'only does this if there's data there (if no data has been entered, it means we're at the end of a DAIL list of some type somehow)
-					STATS_counter = STATS_counter + 1 	'adds one instance to the stats counter
-				END IF
-
-				'...going to the next ding dang row...
-				dail_row = dail_row + 1
-
-				'...going to the next page if necessary
-				EMReadScreen next_dail_check, 4, dail_row, 4
-				If trim(next_dail_check) = "" then
-					PF8
-					EMReadScreen last_page_check, 21, 24, 2
-					If last_page_check = "THIS IS THE LAST PAGE" then
-						all_done = true
-						exit do
-					Else
-						dail_row = 6
-					End if
-				End if
+		    'Determining if there is a new case number...
+		    EMReadScreen new_case, 8, dail_row, 63
+		    new_case = trim(new_case)
+		    IF new_case <> "CASE NBR" THEN '...if there is NOT a new case number, the script will read the DAIL type, month, year, and message...
+				Call write_value_and_transmit("T", dail_row, 3)
+				dail_row = 6
 			ELSEIF new_case = "CASE NBR" THEN
-				'...if the script does find that there is a new case number (indicated by the presence
-				'   of "CASE NBR", it will write a "T" in the next row and transmit, bringing that
-				'   case number to the top of your DAIL
-				EMWriteScreen "T", dail_row + 1, 3
-				transmit
-			END IF
-		LOOP UNTIL new_case = "CASE NBR" OR (dail_type = "    " AND dail_month = "" AND trim(dail_msg = ""))
-		IF all_done = true THEN exit do
-	LOOP
+			    '...if the script does find that there is a new case number (indicated by "CASE NBR"), it will write a "T" in the next row and transmit, bringing that case number to the top of your DAIL
+			    Call write_value_and_transmit("T", dail_row + 1, 3)
+				dail_row = 6
+			End if
 
-	if worker <> worker_array(ubound(worker_array)) then all_done = false
+            EMReadScreen maxis_case_number, 8, dail_row - 1, 73
+            EMReadScreen dail_month, 8, dail_row, 11
+			EMReadScreen dail_type, 4, dail_row, 6
+			EMReadScreen dail_msg, 61, dail_row, 20
+            dail_msg = trim(dail_msg)
+            If right(dail_msg, 1) = "*" THEN dail_msg = left(dail_msg, len(dail_msg) - 1)
+            dail_msg = trim(dail_msg)
+			
+			IF trim(dail_msg) <> "" AND dail_type <> "    " and trim(dail_month) <> "" THEN
+                If TIKL_FollowUp_checkbox = 1 then 
+                    If instr(dail_msg, "!!PHONE CONTACT FOLLOW UP REQUIRED!!") then 
+                        capture_msg = True 
+                    else 
+                        capture_msg = False 
+                    end if 
+                Else 
+                    capture_msg = true
+                End if 
+                
+                If capture_msg = True then  
+				    '...and put that in Excel.
+				    objExcel.Cells(excel_row, 1).Value = worker
+				    objExcel.Cells(excel_row, 2).Value = maxis_case_number
+				    objExcel.Cells(excel_row, 3).Value = client_name
+				    objExcel.Cells(excel_row, 4).Value = dail_type
+				    objExcel.Cells(excel_row, 5).Value = trim(dail_month)
+				    objExcel.Cells(excel_row, 6).Value = trim(dail_msg)
+				    excel_row = excel_row + 1			'only does this if there's data there (if no data has been entered, it means we're at the end of a DAIL list of some type somehow)
+				    STATS_counter = STATS_counter + 1 	'adds one instance to the stats counter
+                End if 
+			END IF
+
+			'...going to the next ding dang row...
+			dail_row = dail_row + 1
+            
+            EMReadScreen message_error, 11, 24, 2		'Cases can also NAT out for whatever reason if the no messages instruction comes up.
+            If message_error = "NO MESSAGES" then
+                CALL navigate_to_MAXIS_screen("DAIL", "DAIL")
+                Call write_value_and_transmit(worker, 21, 6)
+                transmit   'transmit past 'not your dail message'
+                Call dail_selection
+                exit do
+            End if
+            
+            '...going to the next page if necessary
+            EMReadScreen next_dail_check, 4, dail_row, 4
+            If trim(next_dail_check) = "" then
+                PF8
+                EMReadScreen last_page_check, 21, 24, 2
+                If last_page_check = "THIS IS THE LAST PAGE" then
+                    all_done = true
+                    exit do
+                Else
+                    dail_row = 6
+                End if
+            End if
+        LOOP
+        IF all_done = true THEN exit do
+    LOOP
 Next
 
 STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
