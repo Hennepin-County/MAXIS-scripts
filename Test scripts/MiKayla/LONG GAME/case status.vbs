@@ -1,6 +1,6 @@
 
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "ADMIN - GET MEMB NUMBER.vbs"
+name_of_script = "ADMIN - GET CASE STATUS.vbs"
 start_time = timer
 STATS_counter = 0                     'sets the stats counter at one
 STATS_manualtime = 25                 'manual run time in seconds
@@ -50,6 +50,7 @@ FUNCTION get_case_status
 	EMReadScreen case_status, 8, 8, 9
 	case_status = trim(case_status)
 	ObjExcel.Cells(excel_row, 6).Value = case_status
+	IF case_status = " - Syste" THEN case_status = "PRIV" 'doesnt access the screen'
 	MAXIS_case_number = ""
 	excel_row = excel_row + 1
 	'using new variable count to calculate percentages
@@ -66,32 +67,7 @@ FUNCTION get_case_status
 	STATS_counter = STATS_counter + 1
 END FUNCTION
 'End of function----------------------------------------------------------------------------------------------------
-FUNCTION get_member_number
-	back_to_self
-	EMWriteScreen MAXIS_case_number, 18, 43
 
-	Call navigate_to_MAXIS_screen("CASE", "CURR")
-	EMReadScreen CURR_panel_check, 4, 2, 55
-	If CURR_panel_check <> "CURR" then ObjExcel.Cells(excel_row, 5).Value = ""
-
-	EMReadScreen case_status, 8, 8, 9
-	case_status = trim(case_status)
-	ObjExcel.Cells(excel_row, 6).Value = case_status
-	MAXIS_case_number = ""
-	excel_row = excel_row + 1
-	'using new variable count to calculate percentages
-	IF case_status = "ACTIVE" then active_status = active_status + 1
-	IF case_status = "APP OPEN" then active_status = active_status + 1
-
-	IF case_status = "APP CLOS" then inactive_status = inactive_status + 1
-	IF case_status = "INACTIVE" then inactive_status = inactive_status + 1
-
-	If case_status = "CAF2 PEN" then pending_status = pending_status + 1
-	If case_status = "CAF1 PEN" then pending_status = pending_status + 1
-
-	IF case_status = "REIN" then rein_status = rein_status + 1
-	STATS_counter = STATS_counter + 1
-END FUNCTION
 'THE SCRIPT-------------------------------------------------------------------------------------------------------------------------
 EMConnect ""		'Connects to BlueZone
 
@@ -100,13 +76,13 @@ Do
 	Do
 			'The dialog is defined in the loop as it can change as buttons are pressed
 			'-------------------------------------------------------------------------------------------------DIALOG
-			Dialog1 = "" 'Blanking out previous dialog detail
-			BeginDialog Dialog1, 0, 0, 226, 50, "Select the file with the auto dialer calls."
-			  ButtonGroup ButtonPressed
-			    PushButton 175, 10, 40, 15, "Browse...", select_a_file_button
-			    OkButton 110, 30, 50, 15
-			    CancelButton 165, 30, 50, 15
-			  EditBox 5, 10, 165, 15, file_selection_path
+			BeginDialog Dialog1, 0, 0, 181, 45, "Select the file to check case status"
+  			ButtonGroup ButtonPressed
+    		PushButton 0, 5, 40, 15, "Browse:", select_a_file_button
+  			EditBox 45, 5, 130, 15, file_selection_path
+  			ButtonGroup ButtonPressed
+    		OkButton 105, 25, 35, 15
+    		CancelButton 140, 25, 35, 15
 			EndDialog
 			err_msg = ""
 			Dialog Dialog1
@@ -127,6 +103,23 @@ Do
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
+'Excel headers and formatting the columns
+objExcel.Cells(1, 1).Value = "X1 NUMBER"
+objExcel.Cells(1, 2).Value = "CASE NBR"
+objExcel.Cells(1, 3).Value = "CLIENT NAME"
+objExcel.Cells(1, 4).Value = "DAIL TYPE"
+objExcel.Cells(1, 5).Value = "DAIL MONTH"
+objExcel.Cells(1, 6).Value = "DAIL MESSAGE"
+objExcel.Cells(1, 7).Value = "STATUS"
+
+FOR i = 1 to 6		'formatting the cells'
+	objExcel.Cells(1, i).Font.Bold = True		'bold font'
+	ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
+	objExcel.Columns(i).AutoFit()				'sizing the columns'
+NEXT
+
+'Sets variable for all of the Excel stuff
+excel_row = 2
 'resets the case number and footer month/year back to the CM (REVS for current month plus two has is going to be a problem otherwise)
 back_to_self
 EMWriteScreen CM_mo, 20, 43
@@ -143,12 +136,10 @@ rein_status = 0
 excel_row = 2
 Do
 	'Grabs the case number
-	MAXIS_case_number = objExcel.cells(excel_row, 1).value
+	MAXIS_case_number = objExcel.cells(excel_row, 2).value
 	If MAXIS_case_number = "" then exit do
 	get_case_status
-	EMReadScreen county_code, 4, 21, 14
-	IF county_code <> "X127" THEN  objExcel.cells(excel_row, 1).value
-LOOP UNTIL objExcel.Cells(excel_row, 1).value = ""	'looping until the list of cases to check for recert is complete
+LOOP UNTIL objExcel.Cells(excel_row, 2).value = ""	'looping until the list of cases to check for recert is complete
 
 STATS_counter = STATS_counter - 1 'removes one from the count since 1 is counted at the beginning
 
