@@ -300,8 +300,8 @@ If in_county_checkbox = CHECKED THEN
     	action_completed = False
     End if
     PF3
-    IF action_completed = TRUE THEN script_end_procedure("Case has been transferred, and a case note created.")
-    IF action_completed = FALSE THEN script_end_procedure_with_error_report("Case did not transfer, a memo sent, and a case note created.")
+    IF action_completed = TRUE THEN script_end_procedure("Case has been transferred and a case note created.")
+    IF action_completed = FALSE THEN script_end_procedure_with_error_report("Case did not transfer, please review for where the error occured.")
 END If	'END OF IN COUNTY TRANSFER-------------------------------------------------------------------------------------------------------------------------------------
 
 IF out_of_county_checkbox = CHECKED THEN 'BEGINNING OF OUT OF COUNTY TRANSFER----------------------------------------------------------------------------------------------------
