@@ -112,7 +112,7 @@ script_array_CA_main(script_num).description 			= "Processes MIPPA applications 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_CA_main(script_num)			'Resets the array to add one more element to it
 Set script_array_CA_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_CA_main(script_num).script_name			= "Out of County Transfer"				'needs spaces to generate button width properly.'Script name
+script_array_CA_main(script_num).script_name			= "Case Transfer"				'needs spaces to generate button width properly.'Script name
 script_array_CA_main(script_num).file_name				= "ca-out-of-county-transfer.vbs"														'Script URL
 script_array_CA_main(script_num).description			= "Transfers cases out of county specific to Case Assignment's procedure."
 
