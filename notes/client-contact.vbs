@@ -132,7 +132,7 @@ Do
         If trim(contact_type) = "" or contact_type = "Select or Type" then err_msg = err_msg & vbcr & "* Enter the contact type."
         If trim(who_contacted) = "" or who_contacted = "Select or Type" then err_msg = err_msg & vbcr & "* Enter who was contacted."
         If trim(contact_reason) = "" then err_msg = err_msg & vbcr & "* Enter the reason for contact."
-        If trim(phone_number) = "" then err_msg = err_msg & vbcr & "* Enter the phone number."
+        If trim(contact_type) = "Phone call" and trim(phone_number) = "" then err_msg = err_msg & vbcr & "* Enter the phone number."
 		If trim(when_contact_was_made) = "" then err_msg = err_msg & vbcr & "* Enter the date and time of contact."
         If trim(worker_signature) = "" then err_msg = err_msg & vbcr & "* Sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
