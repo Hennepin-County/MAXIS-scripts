@@ -204,7 +204,21 @@ For each worker in worker_array
 			    Call write_value_and_transmit("T", dail_row + 1, 3)
 				dail_row = 6
 			End if
-
+            
+		    '----------------------------------------------------------------------------------------------------CLIENT NAME
+            'This bit of code grabs the client name. The do/loop expands the search area until the value for
+		    'next_two equals "--" ... at which time the script determines that the cl name has ended
+		    dail_col = 6
+		    name_len = 1
+		    DO
+		    	EMReadScreen client_name, name_len, 5, 5
+		    	EMReadScreen next_two, 2, 5, dail_col
+		    	IF next_two <> "--" THEN
+		    		name_len = name_len + 1
+		    		dail_col = dail_col + 1
+		    	END IF
+		    LOOP UNTIL next_two = "--"
+		  
             EMReadScreen maxis_case_number, 8, dail_row - 1, 73
             EMReadScreen dail_month, 8, dail_row, 11
 			EMReadScreen dail_type, 4, dail_row, 6
