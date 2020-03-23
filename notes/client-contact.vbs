@@ -45,6 +45,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/23/2020", "Updated follow up support to have case noting contain more information. Please note: EGA APPROVERS follow up is ONLY to have EGA approvers review eligiblity and/or if more verifications are needed.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/19/2020", "Added checkboxes to support follow up calls and/or actions needed. Email automation for DWP, YET and EGA Approvers support and TIKLs for all other baskets.", "Ilse Ferris, Hennepin County")
 call changelog_update("06/19/2018", "Added TEXT OPT OUT checkbox to be used for cases that wish to opt out of receiving text messages recertification reminders.", "Ilse Ferris, Hennepin County")
 call changelog_update("06/19/2018", "Added FAX to contact type, changed MNSURE IC # to METS IC #, updated look of dialog and back end mandatory field handling. Also removed message box prior to navigating to DAIL/WRIT.", "Ilse Ferris, Hennepin County")
@@ -146,9 +147,10 @@ Call check_for_MAXIS(False)
 Call navigate_to_MAXIS_screen("CASE", "NOTE")
 EmReadscreen basket_number, 7, 21, 14    'Reading basket number to determine if email or TIKL needs to be created.
 
+email_address = ""
 'Determining if emails or TIKLS are creted and if emails are true, who are they going to.
 If email_checkbox = 1 then 
-    email_address = "HSPH.EWS.EGA.Approvers@hennepin.us"
+    email_address = email_address & "HSPH.EWS.EGA.Approvers@hennepin.us;"
     follow_up_type = "Email"
 End if 
 'DWP
@@ -157,7 +159,7 @@ If follow_up_needed_checkbox = 1 then
         basket_number = "X127FE8" OR _
         basket_number = "X127FE9" then 
         email_team = True 
-        email_address = "HSPH.ES.TEAM.470@hennepin.us"
+        email_address = email_address & "HSPH.ES.TEAM.470@hennepin.us;"
         follow_up_type = "Email"
         'YET baskets 
     elseif basket_number = "X127FA5" OR _
@@ -166,7 +168,7 @@ If follow_up_needed_checkbox = 1 then
         basket_number = "X127FA8" OR _
         basket_number = "X127FA9" then 
         email_team = True
-        email_address = "HSPH.ES.TEAM.4651@hennepin.us"
+        email_address = email_address & "HSPH.ES.TEAM.4651@hennepin.us;"
         follow_up_type = "Email"
     else 
         email_team = False 
@@ -198,7 +200,8 @@ CALL write_bullet_and_variable_in_CASE_NOTE("Other Notes", other_notes)
 IF caf_1_check = checked THEN CALL write_variable_in_CASE_NOTE("* Reminded client about the importance of submitting the CAF 1.")
 IF Sent_arep_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Sent form(s) to AREP.")
 IF Opt_out_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Case has opted out of recert text message notifications.")
-IF follow_up_needed_checkbox = checked or email_checkbox = 1 THEN CALL write_variable_in_CASE_NOTE("* Follow up phone call or processing is required. " & follow_up_type & " created for follow up.")
+IF follow_up_needed_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Follow up phone call or processing is required. " & follow_up_type & " created for follow up.")
+If email_checkbox = 1 THEN CALL write_variable_in_CASE_NOTE("* Email sent to EGA Approvers for eligibility review.")
 CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
 
@@ -211,6 +214,7 @@ If email_checkbox = 1 or email_team = True then
     email_info = contact_type & " " & contact_direction & " " & who_contacted & " re: " & regarding & vbcr & vbcr & "* Reason for Contact: " & contact_reason & vbcr
     If trim(phone_number) <> "" then email_info = email_info & "* Phone Number: " & phone_number & vbcr
     If trim(other_notes) <> "" then email_info = email_info & "* Other Notes: " & other_notes & vbcr
+    If send_dail = True then email_info = email_info & vbcr & "* A TIKL has been created for team follow up."
     'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
     Call create_outlook_email(email_address, "" ,"Phone call follow up and/or processing required for case #" & MAXIS_case_number, email_info, "", True)
 End if 
@@ -222,7 +226,7 @@ end_msg = ""
 If follow_up_needed_checkbox = checked then end_msg = end_msg & "Success! Follow-up is needed for case number: " & MAXIS_case_number & vbcr
 If Opt_out_checkbox = checked then end_msg = end_msg & "The case has been updated to OPT OUT of recert text notifications. #" & MAXIS_case_number & vbcr
 If email_checkbox = checked then end_msg = end_msg & "An email has been sent to the EGA approvers with details of the contact for follow-up." & vbcr
-If email_team = true then end_msg = end_msg & "An email has been sent to " & email_address & " with details of the contact for follow-up." & vbcr
+If email_team = true then end_msg = end_msg & "An email has been sent to: " & email_address & " with details of the contact for follow-up." & vbcr
 If send_dail = True then end_msg = end_msg & "A TIKL has been created for team follow up."
 
 script_end_procedure(end_msg)
