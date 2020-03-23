@@ -60,7 +60,7 @@ BeginDialog Dialog1, 0, 0, 216, 90, "Postponed Actions Required"
     CancelButton 115, 70, 40, 15
   Text 30, 55, 80, 10, "Enter the Case Number:"
   GroupBox 5, 5, 210, 40, "When to use this script:"
-  Text 10, 15, 200, 25, "Use this script if verifications and/or actions are required, but are postponed temporarily due to CONVID - 19 Emergency Executive Orders."
+  Text 10, 15, 200, 25, "Use this script if verifications and/or actions are required, but are postponed temporarily due to COVID - 19 Emergency Executive Orders."
 EndDialog
     
 Do
