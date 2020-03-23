@@ -37,6 +37,9 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK=================================================================================================
+'select_testing_file(selection_type, the_selection, file_path, file_branch, force_error_reporting, allow_option)
+ test_reason = "Change to the transfer case script to match the process and add helpful reminders. We want the script to follow the process and not just take a snapshot of the case details AFTER processing is done."
+ Call select_testing_file("ALL", "", "case-assignment\ca-out-of-county-transfer.vbs", "master", TRUE, TRUE)
 
 'CHANGELOG BLOCK ===========================================================================================================
 'Starts by defining a changelog array
