@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/19/2020", "Added functionality to remove duplicate messages from the remaining DAIL count.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/16/2020", "Added FAD option for task-based assginment.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/17/2019", "Added function to evaluate DAIL messages.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/12/2019", "Added DAIL type selection to dialog box.", "Ilse Ferris, Hennepin County")
@@ -152,9 +153,9 @@ If all_workers_check = checked then
 	call create_array_of_all_active_x_numbers_in_county(worker_array, two_digit_county_code)
     dail_to_decimate = "ALL"
 Else
-    ADAD_baskets = "X127EE1,X127EE2,X127EE3,X127EE4,X127EE5,X127EE6,X127EE7,X127EL2,X127EL3,X127EL4,X127EL5,X127EL6,X127EL7,X127EL8,X127EN1,X127EN2,X127EN3,X127EN4,X127EN5,X127EQ1,X127EQ4,X127EQ5,X127EQ8,X127EQ9,X127EL9,X127ED8,X127EH8,X127EG4"
-    ADS_baskets = "X127EH1,X127EH2,X127EH3,X127EH6,X127EJ4,X127EJ6,X127EJ7,X127EJ8,X127EK1,X127EK2,X127EK4,X127EK5,X127EK6,X127EK9,X127EM1,X127EM7,X127EM8,X127EM9,X127EN6,X127EP3,X127EP4,X127EP5,X127EP9,X127F3F,X127FE5,X127FG3,X127FH4,X127FH5,X127FI2,X127FI7,X127EJ5"
-    FAD_baskets = "X127ES1,X127ES2,X127ES3,X127ES4,X127ES5,X127ES6,X127ES7,X127ES8,X127ES9,X127ET1,X127ET2,X127ET3,X127ET4,X127ET5,X127ET6,X127ET7,X127ET8,X127ET9"
+    ADAD_baskets = "X127EE1,X127EE2,X127EE3,X127EE4,X127EE5,X127EE6,X127EE7,X127EL2,X127EL3,X127EL4,X127EL5,X127EL6,X127EL7,X127EL8,X127EN1,X127EN2,X127EN3,X127EN4,X127EN5,X127EQ1,X127EQ4,X127EQ5,X127EQ8,X127EQ9,X127EL9,X127ED8,X127EH8,X127EG4,"
+    ADS_baskets = "X127EH1,X127EH2,X127EH3,X127EH6,X127EJ4,X127EJ6,X127EJ7,X127EJ8,X127EK1,X127EK2,X127EK4,X127EK5,X127EK6,X127EK9,X127EM1,X127EM7,X127EM8,X127EM9,X127EN6,X127EP3,X127EP4,X127EP5,X127EP9,X127F3F,X127FE5,X127FG3,X127FH4,X127FH5,X127FI2,X127FI7,X127EJ5,"
+    FAD_baskets = "X127ES1,X127ES2,X127ES3,X127ES4,X127ES5,X127ES6,X127ES7,X127ES8,X127ES9,X127ET1,X127ET2,X127ET3,X127ET4,X127ET5,X127ET6,X127ET7,X127ET8,X127ET9,"
     
     worker_numbers = ""     'Creating and valuing incrementor variables
     dail_to_decimate = ""
@@ -222,6 +223,8 @@ NEXT
 DIM DAIL_array()
 ReDim DAIL_array(4, 0)
 Dail_count = 0              'Incremental for the array
+all_dail_array = "*"    'setting up string to find duplicate DAIL messages. At times there is a glitch in the DAIL, and messages are reviewed a second time.
+false_count = 0
 
 'constants for array
 const worker_const	            = 0
@@ -318,14 +321,33 @@ For each worker in worker_array
                     output_day      = DatePart("d", dail_month)
                     dail_month = output_year & "-" & output_month & "-" & output_day
                 End if
-
-                ReDim Preserve DAIL_array(4, DAIL_count)	'This resizes the array based on the number of rows in the Excel File'
-            	DAIL_array(worker_const,	           DAIL_count) = worker
-            	DAIL_array(maxis_case_number_const,    DAIL_count) = MAXIS_case_number
-            	DAIL_array(dail_type_const, 	       DAIL_count) = dail_type
-            	DAIL_array(dail_month_const, 		   DAIL_count) = dail_month
-            	DAIL_array(dail_msg_const, 		       DAIL_count) = dail_msg
-                Dail_count = DAIL_count + 1
+                
+                dail_string = worker & " " & MAXIS_case_number & " " & dail_type & " " & dail_month & " " & dail_msg
+                'If the case number is found in the string of case numbers, it's not added again. 
+                If instr(all_dail_array, "*" & dail_string & "*") then
+                    If dail_type = "HIRE" then
+                        add_to_array = True 
+                    Else 
+                        add_to_array = False
+                    End if 
+                    'msgbox "Duplicate Found: " & dail_string & vbcr & add_to_array
+                else 
+                    add_to_array = True 
+                End if 
+                
+                If add_to_array = True then          
+                    ReDim Preserve DAIL_array(4, DAIL_count)	'This resizes the array based on the number of rows in the Excel File'
+            	    DAIL_array(worker_const,	           DAIL_count) = worker
+            	    DAIL_array(maxis_case_number_const,    DAIL_count) = MAXIS_case_number
+            	    DAIL_array(dail_type_const, 	       DAIL_count) = dail_type
+            	    DAIL_array(dail_month_const, 		   DAIL_count) = dail_month
+            	    DAIL_array(dail_msg_const, 		       DAIL_count) = dail_msg
+                    Dail_count = DAIL_count + 1
+                    all_dail_array = trim(all_dail_array & dail_string & "*") 'Adding MAXIS case number to case number string
+                    dail_string = ""
+                else
+                    false_count = false_count + 1
+                End if 
 			End if
 
 			EMReadScreen message_error, 11, 24, 2		'Cases can also NAT out for whatever reason if the no messages instruction comes up.
@@ -456,4 +478,4 @@ Next
 'Closing the connection
 objConnection.Close
 
-script_end_procedure("Success! Please review the list created for accuracy.")
+script_end_procedure("Success! Please review the list created for accuracy. False count is: " & false_count)
