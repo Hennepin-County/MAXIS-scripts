@@ -236,7 +236,7 @@ END WITH
 Set objNet = CreateObject("WScript.NetWork")
 windows_user_ID = objNet.UserName
 
-'----------------------------------------------------------------------------------------------------Email addresses for the teams 
+'----------------------------------------------------------------------------------------------------Email addresses for the teams
 IF current_worker_number =	"X127F3P" 	THEN email_address = "HSPH.ES.MA.EPD.Adult@hennepin.us"
 IF current_worker_number =	"X127F3K" 	THEN email_address = "HSPH.ES.MA.EPD.FAM@hennepin.us"
 IF current_worker_number =	"X127F3F"	THEN email_address = "HSPH.ES.MA.EPD.ADS@hennepin.us"
@@ -4150,7 +4150,7 @@ Function create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL
     '~~~~~ TIKL_note_text: This varible is determnined by the TIKL date and is to be used in the case note. Leave as 'TIKL_note_text' in the parameter.
     '===== Keywords: MAXIS, TIKL
 
-    adjusted_date = False 
+    adjusted_date = False
     TIKL_date = DateAdd("D", num_of_days, date_to_start)    'Creates the TIKL date based on the number of days and date to start chosen by the user
     If cdate(TIKL_date) < date then
         msgbox "Unable to create TIKL, the TIKL date is a past date. Please manually track this case and action."   'fail-safe in case the TIKL date created is in the past. DAIL/WRIN does not allow past dates.
@@ -4198,7 +4198,7 @@ Function create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL
                     new_TIKL_mo = right(DatePart("m",    DateAdd("m", 1, TIKL_date)), 2)
                     new_TIKL_yr = right(DatePart("yyyy", DateAdd("m", 1, TIKL_date)), 2)
                     TIKL_date = new_TIKL_mo & "/01/" & new_TIKL_yr
-                    adjusted_date = True 
+                    adjusted_date = True
                 End if
             End if
         End if
@@ -4207,13 +4207,13 @@ Function create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL
         call create_MAXIS_friendly_date(TIKL_date, 0, 5, 18)    '0 is the date as all the adjustments are already determined.
         Call write_variable_in_TIKL(TIKL_text)
         PF3 'to save & exit
-    
-        If adjusted_date = True then 
+
+        If adjusted_date = True then
             TIKL_note_text = "* TIKL created for " & TIKL_date & ", the 1st day negative action could occur."
         Else
-            TIKL_note_text = "* TIKL created for " & TIKL_date & ", " & num_of_days & " day return." 
+            TIKL_note_text = "* TIKL created for " & TIKL_date & ", " & num_of_days & " day return."
         End if
-    End if 
+    End if
 End Function
 
 function date_array_generator(initial_month, initial_year, date_array)
@@ -6089,7 +6089,7 @@ function select_testing_file(selection_type, the_selection, file_path, file_bran
 '~~~~~ force_error_reporting: should the in-script error reporting automatically happen
 '===== Keywords: MAXIS, PRISM, production, clear
 
-    script_list_URL = "T:\Eligibility Support\Scripts\Script Files\COMPLETE LIST OF TESTERS.vbs"
+    script_list_URL = "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Scripts\Script Files\COMPLETE LIST OF TESTERS.vbs"        'Opening the list of testers - which is saved locally for security
     Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
     Set fso_command = run_another_script_fso.OpenTextFile(script_list_URL)
     text_from_the_other_script = fso_command.ReadAll
