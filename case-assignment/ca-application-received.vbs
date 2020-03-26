@@ -97,7 +97,7 @@ Do
 	Do
 		err_msg = ""
 		Dialog Dialog1
-		cancel_without_confirmation
+		cancel_confirmation
       	IF IsNumeric(maxis_case_number) = false or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
 	Loop until err_msg = ""
@@ -514,7 +514,7 @@ IF snap_pends = TRUE THEN
     	Do
     		err_msg = ""
     		Dialog Dialog1
-    		cancel_without_confirmation
+    		cancel_confirmation
     		If isnumeric(MAXIS_case_number) = False THEN err_msg = err_msg & vbnewline & "* You must enter a valid case number."
     		If (income <> "" and isnumeric(income) = false) or (assets <> "" and isnumeric(assets) = false) or (rent <> "" and isnumeric(rent) = false) THEN err_msg = err_msg & vbnewline & "* The income/assets/rent fields must be numeric only. Do not put letters or symbols in these sections."
     		If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
@@ -680,7 +680,7 @@ IF send_appt_ltr = TRUE THEN
 		Do
     		err_msg = ""
     		dialog Dialog1
-    		cancel_without_confirmation
+    		cancel_confirmation
 			If isdate(application_date) = False then err_msg = err_msg & vbnewline & "* Enter a valid application date."
     		If isdate(interview_date) = False then err_msg = err_msg & vbnewline & "* Enter a valid interview date."
     		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
