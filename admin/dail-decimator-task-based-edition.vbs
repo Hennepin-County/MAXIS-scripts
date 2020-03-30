@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/30/2020", "Update to exclude certain ADAD baskets.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/27/2020", "Added newly added ADAD and FAD baskets.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/19/2020", "Added functionality to remove duplicate messages from the remaining DAIL count.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/16/2020", "Added FAD option for task-based assginment.", "Ilse Ferris, Hennepin County")
@@ -154,9 +155,9 @@ If all_workers_check = checked then
 	call create_array_of_all_active_x_numbers_in_county(worker_array, two_digit_county_code)
     dail_to_decimate = "ALL"
 Else
-    ADAD_baskets = "X127EE1,X127EE2,X127EE3,X127EE4,X127EE5,X127EE6,X127EE7,X127EL2,X127EL3,X127EL4,X127EL5,X127EL6,X127EL7,X127EL8,X127EN1,X127EN2,X127EN3,X127EN4,X127EN5,X127EQ1,X127EQ4,X127EQ5,X127EQ8,X127EQ9,X127EL9,X127ED8,X127EH8,X127EG4,X127EQ3,X127EQ2,X127EG5,X127EJ1,X127EH9,X127EM2,X127FE6,X127F3D,"
+    ADAD_baskets = "X127EE1,X127EE2,X127EE3,X127EE4,X127EE5,X127EE6,X127EE7,X127EL2,X127EL3,X127EL4,X127EL5,X127EL6,X127EL7,X127EL8,X127EN1,X127EN2,X127EN3,X127EN4,X127EN5,X127EQ1,X127EQ4,X127EQ5,X127EQ8,X127EQ9,X127EL9,X127ED8,X127EH8,X127EG4,X127EQ3,X127EQ2,"
     ADS_baskets = "X127EH1,X127EH2,X127EH3,X127EH6,X127EJ4,X127EJ6,X127EJ7,X127EJ8,X127EK1,X127EK2,X127EK4,X127EK5,X127EK6,X127EK9,X127EM1,X127EM7,X127EM8,X127EM9,X127EN6,X127EP3,X127EP4,X127EP5,X127EP9,X127F3F,X127FE5,X127FG3,X127FH4,X127FH5,X127FI2,X127FI7,X127EJ5,"
-    
+    FAD_baskets = "X127ES1,X127ES2,X127ES3,X127ES4,X127ES5,X127ES6,X127ES7,X127ES8,X127ES9,X127ET1,X127ET2,X127ET3,X127ET4,X127ET5,X127ET6,X127ET7,X127ET8,X127ET9,"
     worker_numbers = ""     'Creating and valuing incrementor variables
     dail_to_decimate = ""
     
