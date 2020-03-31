@@ -291,9 +291,9 @@ script_array_BULK_stat_list(script_num).description 		= "Pulls a list of cases i
 script_num = script_num + 1									'Increment by one
 ReDim Preserve script_array_BULK_stat_list(script_num)		'Resets the array to add one more element to it
 Set script_array_BULK_stat_list(script_num) = new script	'Set this array element to be a new script. Script details below...
-script_array_BULK_stat_list(script_num).script_name 		= " REVW "													'needs spaces to generate button width properly.
-script_array_BULK_stat_list(script_num).file_name			= "rept-revw-list.vbs"
-script_array_BULK_stat_list(script_num).description 		= "Pulls a list of cases in REPT/REVW into an Excel spreadsheet."
+script_array_BULK_stat_list(script_num).script_name 		= " USER "													'needs spaces to generate button width properly.
+script_array_BULK_stat_list(script_num).file_name			= "rept-user-list.vbs"
+script_array_BULK_stat_list(script_num).description 		= "Pulls a list of cases in REPT/USER into an Excel spreadsheet."
 
 
 'Starting these with a very high number, higher than the normal possible amount of buttons.
