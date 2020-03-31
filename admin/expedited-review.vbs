@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("03/31/2020", "Removed email funtionality when report is finished running.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("02/24/2020", "Added to ADMIN Main Menu - BZ menu.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("02/20/2020", "Final testing version.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("02/12/2020", "Added email and auto-save funcationlity.", "Ilse Ferris, Hennepin County")
@@ -423,7 +424,7 @@ objWorkbook.Save()  'saves existing workbook as same name
 objExcel.Quit
 
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-Call create_outlook_email("Deborah.Lechner@Hennepin.us; Jessica.Hall@Hennepin.us; Tanya.Payne@hennepin.us", "Ilse.Ferris@hennepin.us", "Today's EXP SNAP report is ready.", "Path to folder: T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project", "", True)
+'Call create_outlook_email("Deborah.Lechner@Hennepin.us; Jessica.Hall@Hennepin.us; Tanya.Payne@hennepin.us", "Ilse.Ferris@hennepin.us", "Today's EXP SNAP report is ready.", "Path to folder: T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project", "", True)
 
 'logging usage stats
 STATS_counter = STATS_counter - 1  'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
