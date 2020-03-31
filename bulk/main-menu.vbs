@@ -53,7 +53,7 @@ changelog_display
 
 'CUSTOM FUNCTIONS===========================================================================================================
 Function declare_BULK_menu_dialog(script_array)
-	BeginDialog BULK_dialog, 0, 0, 545, 300, "BULK Scripts"
+	BeginDialog BULK_dialog, 0, 0, 545, 310, "BULK Scripts"
 	 	Text 5, 5, 435, 10, "Bulk scripts main menu: select the script to run from the choices below."
 	  	ButtonGroup ButtonPressed
 		 	PushButton 015, 35, 60, 15, "BULK ACTIONS", 		BULK_main_button
@@ -76,7 +76,7 @@ Function declare_BULK_menu_dialog(script_array)
 			button_placeholder = button_placeholder + 1
 		next
 
-		CancelButton 480, 280, 50, 15
+		CancelButton 480, 290, 50, 15
 		GroupBox 5, 20, 205, 35, "BULK Sub-Menus"
 	EndDialog
 End function
