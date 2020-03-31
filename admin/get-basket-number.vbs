@@ -270,12 +270,12 @@ DO
     If basket = "X127F3N" then population_type = "METS"
     
     '-----------------------------------------------------------------------------------------------------SHELTER/EA
-    If basket = "X127LE1" the population_type = "Shelter/EA"
-    If basket = "X127SH1" the population_type = "Shelter/EA"
-    If basket = "X127AN1" the population_type = "Shelter/EA"
-    If basket = "X127EHD" the population_type = "Shelter/EA"
-    If basket = "X127EA0" the population_type = "Shelter/EA"
-    If basket = "X127EAK" the population_type = "Shelter/EA"
+    If basket = "X127LE1" then population_type = "Shelter/EA"
+    If basket = "X127SH1" then population_type = "Shelter/EA"
+    If basket = "X127AN1" then population_type = "Shelter/EA"
+    If basket = "X127EHD" then population_type = "Shelter/EA"
+    If basket = "X127EA0" then population_type = "Shelter/EA"
+    If basket = "X127EAK" then population_type = "Shelter/EA"
 
     '----------------------------------------------------------------------------------------------------Speciality HC
     If basket = "X127FF6" then population_type = "Speciality HC"    'HCMC, MHC, North Memorial
