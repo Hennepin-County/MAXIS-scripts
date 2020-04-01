@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("04/01/2020", "Hi Laurie, I updated the columns.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/27/2020", "Updated basket numbers to reflect current baskets.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/12/2019", "Initial version.", "Ilse Ferris, Hennepin County")
 
@@ -101,8 +102,8 @@ EMWriteScreen CM_mo, 20, 43
 EMWriteScreen CM_yr, 20, 46
 
 pop_col = 1
-case_num_col = 2
-basket_col = 3
+basket_col = 2
+case_num_col = 3 
 
 DO
     'Grabs the case number
