@@ -457,7 +457,6 @@ PF3
     Call write_bullet_and_variable_in_CASE_NOTE("Active programs", active_programs)
     Call write_bullet_and_variable_in_CASE_NOTE("Pending programs", pend_programs)
     Call write_bullet_and_variable_in_CASE_NOTE("Reason case was transferred", transfer_reason)
-	Call write_bullet_and_variable_in_CASE_NOTE("Transferred to",  servicing_worker)
 	Call write_bullet_and_variable_in_CASE_NOTE("Actions taken", action_taken)
 	Call write_bullet_and_variable_in_CASE_NOTE("Requested verifications", requested_verifs)
 	Call write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
@@ -484,7 +483,7 @@ PF3
 	IF hc_status_check = "ACTV" THEN
 		CALL write_bullet_and_variable_in_case_note("HC County of Financial Responsibility", hc_cfr)
 		IF hc_cfr_no_change_checkbox = 0 THEN
-			CALL write_bullet_and_variable_in_case_note("HC CFR Change Date", (hc_cfr_month & "/" & hc_cfr_year))
+			CALL write_bullet_and_variable_in_case_note("HC CFR Change Date", (cfr_month & "/" & cfr_year))
 		ELSE
 			CALL write_bullet_and_variable_in_case_note("HC CFR", "Not changing")
 		END IF
@@ -594,6 +593,6 @@ PF3
 	If navigate_decision = vbYes then CreateObject("WScript.Shell").Run("https://aem.hennepin.us/DocumentManager/docm1584469129579/6ca26bb6f346dc9de4c39bc3b69206e4?type=YXBwbGljYXRpb24vcGRm")
 	If navigate_decision = vbNo then navigate_to_form = False
 
-	IF action_completed = TRUE THEN script_end_procedure_with_error_report("Case has been transferred, a memo sent, and a case note created.")
-	IF action_completed = FALSE THEN script_end_procedure_with_error_report("Case did not transfer, a memo sent, and a case note created. Please review the information on SPEC/XFER, send the case file to the next county." & vbcr& "UPDATE MMIS IF NEEDED.")
+	script_end_procedure_with_error_report("Please review to ensure case has been transferred, a memo sent, and a case note created.")
+	'IF action_completed = FALSE THEN script_end_procedure_with_error_report("Case did not transfer, a memo sent, and a case note created. Please review the information on SPEC/XFER, send the case file to the next county." & vbcr& "UPDATE MMIS IF NEEDED.")
 END IF
