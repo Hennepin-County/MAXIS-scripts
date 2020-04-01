@@ -44,7 +44,6 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("04/01/2020", "Hi Laurie, I updated the columns.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/27/2020", "Updated basket numbers to reflect current baskets.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/12/2019", "Initial version.", "Ilse Ferris, Hennepin County")
 
@@ -97,7 +96,6 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 excel_row = excel_row_to_start
 
 back_to_self
-EMwritescreen "________", 18, 43
 EMWriteScreen CM_mo, 20, 43
 EMWriteScreen CM_yr, 20, 46
 
@@ -109,13 +107,10 @@ DO
     'Grabs the case number
 	MAXIS_case_number = objExcel.cells(excel_row, case_num_col).value
     If MAXIS_case_number = "" then exit do
-	back_to_self
-	EMWriteScreen "________", 18, 43
-	EMWriteScreen MAXIS_case_number, 18, 43
-
+	
     Call navigate_to_MAXIS_screen("CASE", "CURR")
     EMReadScreen CURR_panel_check, 4, 2, 55
-	If CURR_panel_check <> "CURR" then ObjExcel.Cells(excel_row, basket_col).Value = ""
+	'If CURR_panel_check <> "CURR" then ObjExcel.Cells(excel_row, basket_col).Value = ""
 
     EMReadScreen basket, 7, 21, 14
 	ObjExcel.Cells(excel_row, basket_col).Value = basket
