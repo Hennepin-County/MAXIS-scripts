@@ -100,9 +100,9 @@ EMwritescreen "________", 18, 43
 EMWriteScreen CM_mo, 20, 43
 EMWriteScreen CM_yr, 20, 46
 
-case_num_col = 3
-basket_col = 2
 pop_col = 1
+case_num_col = 2
+basket_col = 3
 
 DO
     'Grabs the case number
