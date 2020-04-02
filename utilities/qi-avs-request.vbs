@@ -56,7 +56,7 @@ EMConnect ""
 Call check_for_MAXIS(False)
 'TO DO PRIV handling and check on hh size'
 CALL MAXIS_case_number_finder (MAXIS_case_number)
-MEMB_number = "01"
+'MEMB_number = "01"
 'checking for an active MAXIS session
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
@@ -108,6 +108,7 @@ IF priv_check = "PRIV" THEN MsgBox "*** Privilege Case ***" & vbNewLine & "This 
 
 EMReadScreen application_date, 8, 12, 33 'Reading the app date from PROG
 application_date = replace(application_date, " ", "/")
+IF application_date = "__/__/__" THEN MsgBox "*** No application date ***" & vbNewLine & "Need to have pending or active HC care to request AVS." & vbNewLine
 
 CALL navigate_to_MAXIS_screen("STAT", "MEMB")
 EMwritescreen memb_number, 20, 76
@@ -127,6 +128,7 @@ IF spouse_deeming = "YES" THEN
 	CALL navigate_to_MAXIS_screen("STAT", "MEMI")
 	EmReadScreen marital_status, 1, 7, 40
 	EmReadScreen spouse_ref_nbr, 02, 09, 49
+
 	IF spouse_ref_nbr = "__" THEN
 	    Dialog1 = "" 'Blanking out previous dialog detail
 		BeginDialog Dialog1, 0, 0, 176, 155, "Spouse, not found on MEMB"
@@ -166,6 +168,7 @@ IF spouse_deeming = "YES" THEN
 	ELSE
 		CALL navigate_to_MAXIS_screen("STAT", "MEMB")
 	    EMwritescreen spouse_ref_nbr, 20, 76
+		TRANSMIT
 	    EMReadScreen spouse_first_name, 12, 6, 63
 	    spouse_first_name = replace(spouse_first_name, "_", "")
 	    spouse_first_name = trim(spouse_first_name)
@@ -181,8 +184,6 @@ IF spouse_deeming = "YES" THEN
 END IF
 
 CALL navigate_to_MAXIS_screen("STAT", "ADDR")
-'EMReadScreen MAXIS_footer_month, 2, 20, 55
-'EMReadScreen MAXIS_footer_year, 2, 20, 58
 EMreadscreen resi_addr_line_one, 22, 6, 43
 resi_addr_line_one = replace(resi_addr_line_one, "_", "")
 EMreadscreen resi_addr_line_two, 22, 7, 43
@@ -210,8 +211,6 @@ maxis_addr = resi_addr_line_one & " " & resi_addr_line_two & " " & resi_addr_cit
 'string for mailing address
 mail_MAXIS_addr = mailing_addr_line_one & " " & mailing_addr_line_two & " " & mailing_addr_city & " " & mailing_addr_state & " " & mailing_addr_zip
 
-'msgbox MAXIS_addr & vbcr & mail_MAXIS_addr
-
 body_of_email = "A signed AVS form was recieved for: " & vbcr & "First Name: " & client_first_name & vbcr & "Last Name: " & client_last_name & vbcr & "Social Security Number: " & client_SSN_number_read & vbcr & "Gender: " & client_gender & vbcr & "Date of birth: " & client_DOB & vbcr & "Application date: " & application_date & vbcr & "Address: " & resi_addr_line_one & resi_addr_line_two & " " & resi_addr_city & " " & resi_addr_state & " " & resi_addr_zip & vbcr
 
 If trim(mail_MAXIS_addr) <> "" then body_of_email = body_of_email & "Mailing address: " & mailing_addr_line_one & mailing_addr_line_two & " " & mailing_addr_city & " " & mailing_addr_state & " " & mailing_addr_zip & vbcr
@@ -219,6 +218,6 @@ body_of_email = body_of_email & "MA type: " & MA_type & vbcr & "HH size: " & HH_
 If spouse_deeming = "YES" then body_of_email = body_of_email & "Spouse: " & spouse_deeming & vbcr & "Spouse Member # " & spouse_ref_nbr & vbcr & "Spouse First Name: " & spouse_first_name & vbcr & "Spouse Last Name: " & spouse_last_name & vbcr & "Spouse Social Security Number: " & spouse_SSN_number_read & vbcr & "Spouse Gender: " & spouse_gender & vbcr & "Spouse Date of birth: " & spouse_DOB
 
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-CALL create_outlook_email("HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us", "", "AVS initial run requests  #" &  MAXIS_case_number & " Member # " & memb_number, body_of_email, "", TRUE)
+CALL create_outlook_email("HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us", "", "AVS initial run requests  #" &  MAXIS_case_number & " Member # " & memb_number, body_of_email, "", FALSE)
 
 script_end_procedure_with_error_report("The email has been created please be review to ensure accuracy.")
