@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("04/02/2020", "BUG FIX - The 'notes on child support' detail was not always pulling into the case note. Updated to ensure the information entered in this field will be entered in the NOTE.##~##", "Casey Love, Hennepin County")
 call changelog_update("03/01/2020", "Updated TIKL functionality.", "Ilse Ferris")
 Call changelog_update("01/29/2020", "When entering a expedited approval date or denial date on Dialog 8, the script will evaluate to be sure this date is not in the future. The script was requiring delay explanation when dates in the future were entered by accident, this additional handling will provide greater clarity of the updates needed.", "Casey Love, Hennepin County")
 Call changelog_update("01/08/2020", "BUG FIX - When selecting CASH and SNAP for an MFIP Recertification, the script would error out and could not continue due to not being able to find the SNAP ER date on REVW. Updated the script to ignore that blank recert date.##~##", "Casey Love, Hennepin County")
@@ -5138,7 +5139,7 @@ For each_unea_memb = 0 to UBound(UNEA_INCOME_ARRAY, 2)
     If UNEA_INCOME_ARRAY(UC_exists, each_unea_memb) = TRUE Then
         If IsDate(UNEA_INCOME_ARRAY(UNEA_UC_tikl_date, each_unea_memb)) = TRUE Then
             'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
-            tikl_msg = "Review UC Income for Member " & UNEA_INCOME_ARRAY(memb_numb, each_unea_memb) & " as it may have ended or be near ending."    
+            tikl_msg = "Review UC Income for Member " & UNEA_INCOME_ARRAY(memb_numb, each_unea_memb) & " as it may have ended or be near ending."
             Call create_TIKL(TIKL_msg, 10, UNEA_INCOME_ARRAY(UNEA_UC_tikl_date, each_unea_memb), False, TIKL_note_text)
         End If
     End If
@@ -5536,7 +5537,7 @@ If HC_checkbox = checked Then
             End If
         Next
     End If
-    Call write_bullet_and_variable_in_CASE_NOTE("Other Child Support Income", noites_on_cses)
+    Call write_bullet_and_variable_in_CASE_NOTE("Other Child Support Income", notes_on_cses)
 
     'UNEA
     For each_unea_memb = 0 to UBound(UNEA_INCOME_ARRAY, 2)
@@ -6064,7 +6065,7 @@ If show_cses_detail = TRUE Then
         End If
     Next
 End If
-Call write_bullet_and_variable_in_CASE_NOTE("Other Child Support Income", noites_on_cses)
+Call write_bullet_and_variable_in_CASE_NOTE("Other Child Support Income", notes_on_cses)
 
 'UNEA
 For each_unea_memb = 0 to UBound(UNEA_INCOME_ARRAY, 2)
