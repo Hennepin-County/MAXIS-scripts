@@ -401,6 +401,13 @@ script_array_BZ_list(script_num).script_name		= "Send CBO Manual Referrals"					
 script_array_BZ_list(script_num).file_name			= "send-cbo-manual-referrals.vbs"									'Script URL
 script_array_BZ_list(script_num).description		= "Sends manual referrals for a list of cases provided by Employment and Training."
 
+script_num = script_num + 1							'Increment by one
+ReDim Preserve script_array_BZ_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BZ_list(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_BZ_list(script_num).script_name		= "Work Assignment from Excel"										'Script name
+script_array_BZ_list(script_num).file_name			= "work-assignment-from-excel.vbs"									'Script URL
+script_array_BZ_list(script_num).description		= "Takes work listed on a spreadsheet and splits it into assignment excel sheets for any number of workers."
+
 'MONTHLY TASKS scripts----------------------------------------------------------------------------------------------------
 script_num = 0
 ReDim Preserve script_array_task_list(script_num)   'Resets the array to add one more element to it
