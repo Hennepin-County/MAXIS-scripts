@@ -659,6 +659,7 @@ ElseIf worker_selection = "Excel List" Then
     EndDialog
 
     dialog Dialog1
+    cancel_without_confirmation
 
 ElseIf worker_selection = "Manual Entry" Then
     new_lists_needed = TRUE
