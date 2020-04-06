@@ -155,6 +155,13 @@ script_array_admin_main(script_num).description 		= "ACTION script adds GRH Rate
 script_num = script_num + 1							   'Increment by one
 ReDim Preserve script_array_admin_main(script_num)	    'Resets the array to add one more element to it
 Set script_array_admin_main(script_num) = new script    'Set this array element to be a new script. Script details below...
+script_array_admin_main(script_num).script_name		    = " ABAWD Waived Approval "
+script_array_admin_main(script_num).file_name			= "abawd-waived-approval.vbs"
+script_array_admin_main(script_num).description		    = "Creates a CASE NOTE for a SNAP approval when a participant has been coded as 'Resides in a Waivered Area'."
+
+script_num = script_num + 1							   'Increment by one
+ReDim Preserve script_array_admin_main(script_num)	    'Resets the array to add one more element to it
+Set script_array_admin_main(script_num) = new script    'Set this array element to be a new script. Script details below...
 script_array_admin_main(script_num).script_name		    = "AVS Submitted"
 script_array_admin_main(script_num).file_name			= "avs-submitted.vbs"
 script_array_admin_main(script_num).description		    = "Creates a case note and sets a 10-day TIKL to check status of AVS submission."
@@ -265,13 +272,6 @@ Set script_array_QI_list(script_num) = new script	'Set this array element to be 
 script_array_QI_list(script_num).script_name		= "Banked Months Individual Case Notes"													'Script name
 script_array_QI_list(script_num).file_name			= "individual-banked-note.vbs"												'Script URL
 script_array_QI_list(script_num).description		= "Script to enter case notes in line with BULK Processing script."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_QI_list(script_num)
-Set script_array_QI_list(script_num) = new script
-script_array_QI_list(script_num).script_name 		= "BM Blitz Approval NOTE"											'Script name
-script_array_QI_list(script_num).file_name 			= "bm-blitz-approval-note.vbs"										'Script URL
-script_array_QI_list(script_num).description 		= "NOTE Script to case note approval of a case with a person with Banked Month for the BLITZ processing (04/2020 - 08/2020)."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_QI_list(script_num)
