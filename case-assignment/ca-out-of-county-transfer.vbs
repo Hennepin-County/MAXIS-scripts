@@ -589,7 +589,7 @@ PF3
 
 	PF3
 
-	navigate_decision = Msgbox("Do you want to open a Request to APPL useform?" & vbcr & "If you are using Chrome you will be asked to open in Adobe.", vbQuestion + vbYesNo, "Navigate to Useform?")
+	navigate_decision = Msgbox("Do you want to open a the case transfer useform?" & vbcr & "If you are using Chrome you will be asked to open in Adobe.", vbQuestion + vbYesNo, "Navigate to Useform?")
 	If navigate_decision = vbYes then CreateObject("WScript.Shell").Run("https://aem.hennepin.us/DocumentManager/docm1584469129579/6ca26bb6f346dc9de4c39bc3b69206e4?type=YXBwbGljYXRpb24vcGRm")
 	If navigate_decision = vbNo then navigate_to_form = False
 
