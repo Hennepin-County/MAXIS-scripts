@@ -1,4 +1,4 @@
-'Required for statistical purposes==========================================================================================
+received 'Required for statistical purposes==========================================================================================
 name_of_script = "UTILITIES - QI AVS REQUEST.vbs"
 start_time = timer
 STATS_counter = 1                     	'sets the stats counter at one
@@ -211,7 +211,7 @@ maxis_addr = resi_addr_line_one & " " & resi_addr_line_two & " " & resi_addr_cit
 'string for mailing address
 mail_MAXIS_addr = mailing_addr_line_one & " " & mailing_addr_line_two & " " & mailing_addr_city & " " & mailing_addr_state & " " & mailing_addr_zip
 
-body_of_email = "A signed AVS form was recieved for: " & vbcr & "First Name: " & client_first_name & vbcr & "Last Name: " & client_last_name & vbcr & "Social Security Number: " & client_SSN_number_read & vbcr & "Gender: " & client_gender & vbcr & "Date of birth: " & client_DOB & vbcr & "Application date: " & application_date & vbcr & "Address: " & resi_addr_line_one & resi_addr_line_two & " " & resi_addr_city & " " & resi_addr_state & " " & resi_addr_zip & vbcr
+body_of_email = "A signed AVS form was received for-" & vbcr & "First name: " & client_first_name & vbcr & "Last name: " & client_last_name & vbcr & "Social Security Number: " & client_SSN_number_read & vbcr & "Gender: " & client_gender & vbcr & "Date of birth: " & client_DOB & vbcr & "Application date: " & application_date & vbcr & "Address: " & resi_addr_line_one & resi_addr_line_two & " " & resi_addr_city & " " & resi_addr_state & " " & resi_addr_zip & vbcr
 
 If trim(mail_MAXIS_addr) <> "" then body_of_email = body_of_email & "Mailing address: " & mailing_addr_line_one & mailing_addr_line_two & " " & mailing_addr_city & " " & mailing_addr_state & " " & mailing_addr_zip & vbcr
 body_of_email = body_of_email & "MA type: " & MA_type & vbcr & "HH size: " & HH_size & vbcr & "Applicant Type: " & applicant_type & vbcr & "Application Type: " & appl_type & vbcr
