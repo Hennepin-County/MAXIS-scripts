@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("04/07/2020", "BUG FIX - sometimes the script couldn't read the dates from MAXIS correctly. Added handling to adjust date formats to match exactly.##~##", "Casey Love, Hennepin County")
 call changelog_update("03/03/2020", "Initial version.", "Casey Love, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -92,12 +93,19 @@ transmit
 
 EMReadScreen versions_exist, 1, 17, 40
 EMReadScreen version_date, 8, 17, 48
+today_month = DatePart("m", date)
+today_month = right("0" & today_month, 2)
+today_day = DatePart("d", date)
+today_day = right("0" & today_day, 2)
+today_year = DatePart("yyyy", date)
+today_year = right(today_year, 2)
+todays_date = today_month & "/" & today_day & "/" & today_year
 
 If versions_exist = " " Then
     end_msg = "It does not appear there are any Approved versions of SNAP for " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". This scrpit requires a version of SNAP approved today to run accurately. "
     call script_end_procedure_with_error_report(end_msg)
 End if
-If cdate(version_date) = date Then
+If version_date = todays_date Then
     version_to_note = "0" & versions_exist
 Else
     end_msg = "The most recent version of SNAP Eligibility was created on " & version_date & " and in order to correctly note the approval, it should be noted on the day of the approval. Review ELIG/SNAP and complete a new approval and rerun the script."
@@ -118,7 +126,7 @@ If version_status <> "APPROVED" Then
         EMReadScreen approval_status, 10, list_row, 50
         approval_status = trim(approval_status)
         If approval_status = "APPROVED" Then
-            If cdate(process_date) = date Then
+            If process_date = todays_date Then
                 version_to_note = "0" & version_number
                 exit do
             End If
@@ -600,7 +608,7 @@ If abawd_waived_wcom_checkbox = checked OR homeless_wcom_checkbox = checked Then
         EMReadScreen print_status, 7, spec_row, 71
         ' MsgBox approval_date
         ' approval_date = DateAdd("d", 0, approval_date)
-        If cdate(approval_date) = date AND prog_type = "FS" AND notice_doc = "ELIG Approval Notice" AND print_status = "Waiting" Then
+        If approval_date = todays_date AND prog_type = "FS" AND notice_doc = "ELIG Approval Notice" AND print_status = "Waiting" Then
         'Open the Notice
             EmWriteScreen "X", spec_row, 13
             transmit
