@@ -5531,12 +5531,22 @@ Function non_actionable_dails
         '----------------------------------------------------------------------------------------------------CORRECT STAT EDITS over 5 days old
     Elseif dail_type = "STAT" or instr(dail_msg, "NEW FIAT RESULTS EXIST") then
         EmReadscreen stat_date, 8, dail_row, 39
-        five_days_ago = DateAdd("d", -5, date)
-        If cdate(five_days_ago) => cdate(stat_date) then
-            add_to_excel = True
-        Else
+        If isdate(stat_date) = False then 
+            EmReadscreen alt_stat_date, 8, dail_row, 49
+            If isdate(alt_stat_date) = True then 
+                stat_date = alt_stat_date
+            End if 
+        End if  
+        If isdate(stat_date) = True then 
+            five_days_ago = DateAdd("d", -5, date)
+            If cdate(five_days_ago) => cdate(stat_date) then
+                add_to_excel = True
+            Else
+                add_to_excel = False
+            End if
+        else 
             add_to_excel = False
-        End if
+        End if 
     '----------------------------------------------------------------------------------------------------REMOVING PEPR messages not CM or CM + 1
     Elseif dail_type = "PEPR" then
         if dail_month = this_month or dail_month = next_month then
