@@ -333,7 +333,10 @@ For each member in member_array
 
     End If
 Next
-If waiver_ABAWD_on_case = FALSE Then script_end_procedure_with_error_report("There does not appear to be a member whose ABAWD is waived on this case. This script is made to accomodate processing for the ABAWD emergency order waivered status. Please use 'Approved Programs' for any other kind of case.")
+If waiver_ABAWD_on_case = FALSE Then
+    MsgBox "There does not appear to be a member whose ABAWD is waived on this case. This script is made to accomodate processing for the ABAWD emergency order waivered status. " & vbNewLine & vbNewLine & "The script will now run NOTES - Approved Programs."
+    Call run_from_GitHub(script_repository & "notes/approved-programs.vbs")
+End If
 
 Call navigate_to_MAXIS_screen("ELIG", "FS  ")
 EMWriteScreen version_to_note, 19, 78

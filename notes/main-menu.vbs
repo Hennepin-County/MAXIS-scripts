@@ -123,6 +123,13 @@ script_array_0_to_C(script_num).description 			= "Template for documenting detai
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_0_to_C(script_num)			'Resets the array to add one more element to it
 Set script_array_0_to_C(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_0_to_C(script_num).script_name 			= " ABAWD Waived Approval "																'Script name
+script_array_0_to_C(script_num).file_name 				= "abawd-waived-approval.vbs"															'Script URL
+script_array_0_to_C(script_num).description 			= "Documenting approval of SNAP for a case with ABAWD Waived during the pandemic."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_0_to_C(script_num)			'Resets the array to add one more element to it
+Set script_array_0_to_C(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_0_to_C(script_num).script_name 			= "Appeals"																		'Script name
 script_array_0_to_C(script_num).file_name 				= "appeals.vbs"																	'Script URL
 script_array_0_to_C(script_num).description 			= "Template for documenting details about an appeal, and the appeal process."
