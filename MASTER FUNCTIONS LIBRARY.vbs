@@ -5453,6 +5453,8 @@ Function non_actionable_dails
     If instr(dail_msg, "AMT CHILD SUPP MOD/ORD") OR _
         instr(dail_msg, "AP OF CHILD REF NBR:") OR _
         instr(dail_msg, "ADDRESS DIFFERS W/ CS RECORDS:") OR _
+        instr(dail_msg, "AMOUNT AS UNEARNED INCOME IN LBUD IN THE MONTH") OR _
+        instr(dail_msg, "AMOUNT AS UNEARNED INCOME IN SBUD IN THE MONTH") OR _
         instr(dail_msg, "CHILD SUPP PAYMT FREQUENCY IS MONTHLY FOR CHILD REF NBR") OR _
         instr(dail_msg, "CHILD SUPP PAYMT FREQUENCY IS MONTHLY FOR CHILD REF NBR") OR _
         instr(dail_msg, "CHILD SUPP PAYMTS PD THRU THE COURT/AGENCY FOR CHILD") OR _
@@ -5523,13 +5525,14 @@ Function non_actionable_dails
         instr(dail_msg, "- TRANS #") OR _
         instr(dail_msg, "PERSON/S REQD SNAP NOT IN SNAP UNIT") OR _
         instr(dail_msg, "RSDI UPDATED - (REF") OR _
-        instr(dail_msg, "SSI UPDATED - (REF") then
+        instr(dail_msg, "SSI UPDATED - (REF") OR _ 
+        instr(dail_msg, "SNAP ABAWD ELIGIBILITY HAS EXPIRED, APPROVE NEW ELIG RESULTS") then
             add_to_excel = True
         '----------------------------------------------------------------------------------------------------CORRECT STAT EDITS over 5 days old
-    Elseif instr(dail_msg, "CORRECT STAT EDITS") then
+    Elseif dail_type = "STAT" or instr(dail_msg, "NEW FIAT RESULTS EXIST") then
         EmReadscreen stat_date, 8, dail_row, 39
-        ten_days_ago = DateAdd("d", -5, date)
-        If cdate(ten_days_ago) => cdate(stat_date) then
+        five_days_ago = DateAdd("d", -5, date)
+        If cdate(five_days_ago) => cdate(stat_date) then
             add_to_excel = True
         Else
             add_to_excel = False
@@ -5542,7 +5545,21 @@ Function non_actionable_dails
             add_to_excel = True ' delete the old messages
         End if
     '----------------------------------------------------------------------------------------------------clearing elig messages older than CM
-    Elseif instr(dail_msg, "OVERPAYMENT POSSIBLE") or InStr(dail_msg, "DISBURSE EXPEDITED SERVICE") then
+    Elseif instr(dail_msg, "OVERPAYMENT POSSIBLE") or inStr(dail_msg, "DISBURSE EXPEDITED SERVICE") or instr(dail_msg, "NEW FIAT RESULTS EXIST") or instr(dail_msg, "NEW FS VERSION MUST BE APPROVED") or instr(dail_msg, "APPROVE NEW ELIG RESULTS RECOUPMENT HAS INCREASED") or instr(dail_msg, "PERSON/S REQD FS NOT IN FS UNIT") then
+        if dail_month = this_month or dail_month = next_month then
+            add_to_excel = False
+        Else
+            add_to_excel = True ' delete the old messages
+        End if
+    '----------------------------------------------------------------------------------------------------SSN messages older than CM or CM +1
+    Elseif instr(dail_msg, "SSN UNMATCHED DATA EXISTS") then
+        if dail_month = this_month or dail_month = next_month then
+            add_to_excel = False
+        Else
+            add_to_excel = True ' delete the old messages
+        End if
+    '----------------------------------------------------------------------------------------------------DISB CS messages older than CM or CM +1
+    Elseif instr(dail_msg, "DISB CS") then
         if dail_month = this_month or dail_month = next_month then
             add_to_excel = False
         Else
