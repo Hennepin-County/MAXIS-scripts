@@ -58,14 +58,16 @@ Call MAXIS_case_number_finder(MAXIS_case_number)
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 196, 75, "Health Care Transition"
-  EditBox 60, 10, 55, 15, MAXIS_case_number
-  DropListBox 60, 35, 130, 15, "Select one..."+chr(9)+"1. Non-MAGI referral"+chr(9)+"2. Request to end eligibility in METS"+chr(9)+"3. Eligibility ended in METS"+chr(9)+"MAXIS to METS Migration", initial_option
+BeginDialog Dialog1, 0, 0, 186, 85, "METS Retro Health Care"
+  EditBox 60, 10, 45, 15, MAXIS_case_number
+  EditBox 60, 30, 45, 15, METS_case_number
+  DropListBox 60, 50, 120, 15, "Select One:"+chr(9)+"1. Non-MAGI referral"+chr(9)+"2. Request to end eligibility in METS"+chr(9)+"3. Eligibility ended in METS"+chr(9)+"MAXIS to METS Migration", initial_option
   ButtonGroup ButtonPressed
-    OkButton 95, 55, 45, 15
-    CancelButton 145, 55, 45, 15
-  Text 10, 15, 45, 10, "Case number:"
-  Text 5, 40, 50, 10, "Select process:"
+    OkButton 85, 65, 45, 15
+    CancelButton 135, 65, 45, 15
+  Text 5, 55, 50, 10, "Select process:"
+  Text 5, 15, 50, 10, "MAXIS case #:"
+  Text 5, 35, 50, 10, "METS case #:"
 EndDialog
 
 'Main dialog: user will input case number and member number
@@ -75,8 +77,8 @@ DO
 		dialog Dialog1
 		cancel_confirmation              'new function that will cancel, collect stats, but not give user option to confirm ending script.
 		call validate_MAXIS_case_number(err_msg, "*")
-        If service_requested = "Select one..." then err_msg = err_msg & vbcr & "* Select a service requested by the client."
-        If initial_option = "Select one..." then err_msg = err_msg & vbcr & "* Select a transition process."
+        If service_requested = "Select One:" then err_msg = err_msg & vbcr & "* Select a service requested by the client."
+        If initial_option = "Select One:" then err_msg = err_msg & vbcr & "* Select a transition process."
 		If service_requested = "Other" and trim(other_notes) = "" then err_msg = err_msg & vbcr & "* Enter a description of the service requested in the other notes field."
         IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
@@ -156,30 +158,24 @@ NEXT
 If initial_option = "MAXIS to METS Migration" then
 	'-------------------------------------------------------------------------------------------------DIALOG
 	Dialog1 = "" 'Blanking out previous dialog detail
-    BeginDialog Dialog1, 0, 0, 211, 135, "MAXIS to METS Migration"
-    CheckBox 20, 80, 120, 10, "Has affliated METS case? Case #:", affliated_case_checkbox
-    EditBox 145, 75, 60, 15, METS_case_number
-    Text 5, 100, 60, 10, "Worker Signature:"
-    EditBox 70, 95, 135, 15, worker_signature
-    ButtonGroup ButtonPressed
-    OkButton 100, 115, 50, 15
-    CancelButton 155, 115, 50, 15
-    Text 15, 20, 185, 25, "This script will case note and send a SPEC/MEMO to the selected member with specific verbiage about how to get continued health care coverage."
-    Text 40, 60, 130, 10, "Case Number: " & MAXIS_case_number
-    GroupBox 10, 5, 195, 45, "Using this script:"
-    EndDialog
+	BeginDialog Dialog1, 0, 0, 211, 70, "MAXIS to METS Migration"
+	  ButtonGroup ButtonPressed
+	    OkButton 115, 50, 40, 15
+	    CancelButton 160, 50, 40, 15
+	  Text 10, 15, 185, 25, "This script will case note and send a SPEC/MEMO to the selected member with specific verbiage about how to get continued health care coverage."
+	  GroupBox 5, 5, 195, 40, "Using this script:"
+	EndDialog
 
     DO
     	DO
     		err_msg = ""					'establishing value of variable, this is necessary for the Do...LOOP
     		dialog Dialog1		'main dialog
     		cancel_confirmation
-            If affliated_case_checkbox = 1 then
-                If IsNumeric(METS_case_number) = False or len(METS_case_number) <> 8 then err_msg = err_msg & vbNewLine & "* Enter a valid METS case number."
-            End if
-            If affliated_case_checkbox = 0 and trim(METS_case_number) <> "" then err_msg = err_msg & vbNewLine & "*If case has an affliated METS case, check the checkbox and enter the METS case number."
-            IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "* Please enter your worker signature."
-    		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+            'If affliated_case_checkbox = 1 then
+            '    If IsNumeric(METS_case_number) = False or len(METS_case_number) <> 8 then err_msg = err_msg & vbNewLine & "* Enter a valid METS case number."
+            'End if
+            'If affliated_case_checkbox = 0 and trim(METS_case_number) <> "" then err_msg = err_msg & vbNewLine & "*If case has an affliated METS case, check the checkbox and enter the METS case number."
+            IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
     	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
     	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
     Loop until are_we_passworded_out = false					'loops until user passwords back in
@@ -190,10 +186,9 @@ Elseif initial_option = "1. Non-MAGI referral" then
     BeginDialog Dialog1, 0, 0, 271, (150 + (transition_membs * 15)), "Non-MAGI Referral for #" & MAXIS_case_number
       Text 10, 10, 55, 10, "Date of Request:"
       EditBox 70, 5, 55, 15, request_date
-      Text 140, 10, 70, 10, "METS Case Number:"
-      EditBox 210, 5, 55, 15, METS_case_number
+      Text 140, 10, 120, 10, "METS Case Number: " & METS_case_number
       Text 5, 30, 65, 10, "Service requested:"
-      DropListBox 70, 25, 195, 15, "Select one..."+chr(9)+"21+ years, no dependents and Medicare or SSI"+chr(9)+"65 years old, no dependents"+chr(9)+"Certified disabled, applying for MA-EPD"+chr(9)+"Certified disabled, Requesting waiver"+chr(9)+"Certified disabled, Requesting TEFRA"+chr(9)+"Child in Foster Care"+chr(9)+"Only Medicare Savings Programs requested"+chr(9)+"Other", service_requested
+      DropListBox 70, 25, 195, 15, "Select One:"+chr(9)+"21+ years, no dependents and Medicare or SSI"+chr(9)+"65 years old, no dependents"+chr(9)+"Certified disabled, applying for MA-EPD"+chr(9)+"Certified disabled, Requesting waiver"+chr(9)+"Certified disabled, Requesting TEFRA"+chr(9)+"Child in Foster Care"+chr(9)+"Only Medicare Savings Programs requested"+chr(9)+"Other", service_requested
       CheckBox 5, 45, 70, 10, "SMRT approved.", SMRT_approved
       CheckBox 100, 45, 70, 10, "SMRT pending.", SMRT_pending
       CheckBox 170, 45, 95, 10, "Sent Request to APPL.", useform_checkbox
@@ -203,7 +198,7 @@ Elseif initial_option = "1. Non-MAGI referral" then
       x = 0
       FOR item = 0 to ubound(transition_array, 2)							'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
           Text 10, (110 + (x * 15)), 140, 10, transition_array(member_name_const, item)
-          If transition_array(member_name_const, item) <> "" then DropListBox 160, (110 + (x * 15)), 50, 15, "Select one..."+chr(9)+"MA"+chr(9)+"MCRE"+chr(9)+"IA"+chr(9)+"QHP", transition_array(hc_type_const, item)
+          If transition_array(member_name_const, item) <> "" then DropListBox 160, (110 + (x * 15)), 50, 15, "Select One:"+chr(9)+"MA"+chr(9)+"MCRE"+chr(9)+"IA"+chr(9)+"QHP", transition_array(hc_type_const, item)
           x = x + 1
       NEXT
       GroupBox 5, 95, 260, (20 + (x * 12)), "Client Information and current METS coverage:"
@@ -222,10 +217,10 @@ Elseif initial_option = "1. Non-MAGI referral" then
             cancel_confirmation              'new function that will cancel, collect stats, but not give user option to confirm ending script.
             If isdate(request_date) = false or trim(request_date) = "" then err_msg = err_msg & vbcr & "* Enter a valid request date."
             If trim(METS_case_number) = "" or IsNumeric(METS_case_number) = False or len(METS_case_number) <> 8 then err_msg = err_msg & vbcr & "* Enter a valid METS case number."
-            IF service_requested = "Select one..." then err_msg = err_msg & vbcr & "* Enter the service request reason."
+            IF service_requested = "Select One:" then err_msg = err_msg & vbcr & "* Enter the service request reason."
             'HC_type
             For item = 0 to ubound(transition_array, 2)
-            	If (transition_array(hc_type_const, item)) = "Select one..."then err_msg = err_msg & vbCr & "* Select a health care type for each member."
+            	If (transition_array(hc_type_const, item)) = "Select One:"then err_msg = err_msg & vbCr & "* Select a health care type for each member."
             NEXT
             IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "* Please enter your worker signature."
             IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
@@ -241,9 +236,8 @@ else
         Text 10, 10, 70, 10, "MMIS elig end date:"
         EditBox 80, 5, 55, 15, mmis_end_date
     End if
-      Text 140, 10, 70, 10, "METS Case Number:"
-      EditBox 210, 5, 55, 15, METS_case_number
-      x = 0
+       Text 140, 10, 120, 10, "METS Case Number: " & METS_case_number
+      	x = 0
       FOR item = 0 to ubound(transition_array, 2)							'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
           Text 10, (40 + (x * 15)), 100, 10, transition_array(member_name_const, item)
           x = x + 1
@@ -265,7 +259,7 @@ else
             dialog Dialog1
             cancel_confirmation              'new function that will cancel, collect stats, but not give user option to confirm ending script.
             If (initial_option = "3. Eligibility ended in METS" AND (isdate(mmis_end_date) = false or trim(mmis_end_date) = "")) then err_msg = err_msg & vbcr & "* Enter a valid MMIS end date."
-            If trim(METS_case_number) = "" or IsNumeric(METS_case_number) = False or len(METS_case_number) <> 8 then err_msg = err_msg & vbcr & "* Enter a valid METS case number."
+            'If trim(METS_case_number) = "" or IsNumeric(METS_case_number) = False or len(METS_case_number) <> 8 then err_msg = err_msg & vbcr & "* Enter a valid METS case number."
             IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "* Please enter your worker signature."
             IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
         LOOP UNTIL err_msg = ""									'loops until all errors are resolved
@@ -373,9 +367,14 @@ If initial_option = "MAXIS to METS Migration" then
         Call write_variable_in_CASE_NOTE("* Informational notice generated via SPEC/MEMO to client. The METS team will contact the client if any additional information is needed to make a determination.")
     End if
 End if
-
 Call write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
 Call write_variable_in_CASE_NOTE("---")
 Call write_variable_in_CASE_NOTE(worker_signature)
 
-script_end_procedure("")
+If initial_option = "1. Non-MAGI referral" then
+    navigate_decision = Msgbox("Do you want to open a Request to APPL useform?", vbQuestion + vbYesNo, "Navigate to Useform?")
+    If navigate_decision = vbYes then CreateObject("WScript.Shell").Run("http://aem.hennepin.us/rest/services/HennepinCounty/Processes/ServletRenderForm:1.0?formName=HSPH5004_1-0.xdp&interactive=1")
+    If navigate_decision = vbNo then navigate_to_form = False
+End if
+
+script_end_procedure_with_error_report("Success, your case note has been created.")

@@ -66,7 +66,7 @@ BeginDialog Dialog1, 0, 0, 146, 90, "METS Retro Health Care"
     OkButton 60, 70, 40, 15
     CancelButton 100, 70, 40, 15
   Text 5, 55, 50, 10, "Select process:"
-  Text 10, 15, 50, 10, "MAXIS Case #:"
+  Text 10, 15, 50, 10, "MAXIS case #:"
   Text 10, 35, 50, 10, "METS case #:"
 EndDialog
 
