@@ -888,9 +888,9 @@ IF SNAP_active = TRUE AND MFIP_active = FALSE THen 	'IF SNAP - NO MFIP
 	    CancelButton 240, 120, 50, 15
 	  GroupBox 5, 5, 290, 95, "SNAP Case"
 	  Text 190, 15, 95, 10, "SNAP is active on this case"
-	  If Exceed_130 = True Then Text 10, 25, 205, 10, "It appears that the income for this case may exceed 130% FPG."
+	  If Exceed_130 = True Then Text 10, 25, 275, 10, "It appears that the income for this case may exceed 130% FPG."
 	  IF CS_Change = TRUE Then Text 10, 35, 275, 10, "It appears there is a difference between the budgeted CS Income and DAIL Message Income."
-	  If REVW_due = TRUE Then Text 10, 45, 200, 10, "There is a review due that has not been recevied/processed."
+	  If REVW_due = TRUE Then Text 10, 45, 275, 10, "There is a review due that has not been recevied/processed."
 	  Text 10, 85, 25, 10, "Notes"
 	  Text 5, 125, 65, 10, "Worker signature:"
 	EndDialog
@@ -907,9 +907,9 @@ ElseIf MFIP_active = TRUE Then
 	    CancelButton 240, 100, 50, 15
 	  GroupBox 5, 5, 285, 75, "MFIP Case"
 	  Text 190, 15, 95, 10, "MFIP is active on this case."
-	  If HRF_due = TRUE Then Text 10, 25, 195, 10, "Case has a HRF Due that has not been received/processed."
-	  If REVW_due = TRUE Then Text 10, 35, 205, 10, "Case has a Review due that has not been received/processed."
-	  Text 10, 45, 220, 10, "Script will review case for UNEA to be update with CS Income from DAILs."
+	  If HRF_due = TRUE Then Text 10, 25, 275, 10, "Case has a HRF Due that has not been received/processed."
+	  If REVW_due = TRUE Then Text 10, 35, 275, 10, "Case has a Review due that has not been received/processed."
+	  Text 10, 45, 275, 10, "Script will review case for UNEA to be update with CS Income from DAILs."
 	  Text 10, 65, 25, 10, "Notes"
 	  Text 5, 105, 65, 10, "Worker signature:"
 	EndDialog
