@@ -257,7 +257,7 @@ Loop until 	ButtonPressed <> Instructions_button and _
 'MsgBox buttonpressed = script_array_NOTICES_main(0).button
 
 'Runs through each script in the array... if the selected script (buttonpressed) is in the array, it'll run_from_GitHub
-If ButtonPressed = ADD_WCOM_button then call run_from_GitHub(script_repository & "notices/select-wcom.vbs")
+If ButtonPressed = ADD_WCOM_button then call run_from_GitHub(script_repository & "notices/add-wcom.vbs")
 For i = 0 to ubound(script_array_NOTICES_main)
 	If ButtonPressed = script_array_NOTICES_main(i).button then call run_from_GitHub(script_repository & "notices/" & script_array_NOTICES_main(i).file_name)
 Next
