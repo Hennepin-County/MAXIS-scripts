@@ -58,7 +58,7 @@ Call MAXIS_case_number_finder(MAXIS_case_number)
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 186, 85, "METS Retro Health Care"
+BeginDialog Dialog1, 0, 0, 186, 85, "Health Care Transition"
   EditBox 60, 10, 45, 15, MAXIS_case_number
   EditBox 60, 30, 45, 15, METS_case_number
   DropListBox 60, 50, 120, 15, "Select One:"+chr(9)+"1. Non-MAGI referral"+chr(9)+"2. Request to end eligibility in METS"+chr(9)+"3. Eligibility ended in METS"+chr(9)+"MAXIS to METS Migration", initial_option
