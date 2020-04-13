@@ -590,7 +590,7 @@ PF3
 	PF3
 
 	navigate_decision = Msgbox("Do you want to open a the case transfer useform?" & vbcr & "If you are using Chrome you will be asked to open in Adobe.", vbQuestion + vbYesNo, "Navigate to Useform?")
-	If navigate_decision = vbYes then CreateObject("WScript.Shell").Run("https://aem.hennepin.us/DocumentManager/docm1586545781120/0f41dc31e9034ed61bef4dafe9988b30?type=YXBwbGljYXRpb24vcGRm")
+	If navigate_decision = vbYes then run "C:\Program Files\Internet Explorer\iexplore.exe https://aem.hennepin.us/DocumentManager/docm1586788429879/ffd8e414845d5005fe0017525ac174ae?type=YXBwbGljYXRpb24vcGRm")
 	If navigate_decision = vbNo then navigate_to_form = False
 
 	script_end_procedure_with_error_report("Please review to ensure case has been transferred, a memo sent, and a case note created.")
