@@ -1,4 +1,3 @@
-received 'Required for statistical purposes==========================================================================================
 name_of_script = "UTILITIES - QI AVS REQUEST.vbs"
 start_time = timer
 STATS_counter = 1                     	'sets the stats counter at one
