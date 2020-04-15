@@ -589,8 +589,8 @@ PF3
 
 	PF3
 
-	navigate_decision = Msgbox("Do you want to open a the case transfer useform?" & vbcr & "If you are using Chrome you will be asked to open in Adobe.", vbQuestion + vbYesNo, "Navigate to Useform?")
-	If navigate_decision = vbYes then run "C:\Program Files\Internet Explorer\iexplore.exe https://aem.hennepin.us/DocumentManager/docm1586788429879/5e3caa702554cd0130b4324dcd03c7e8?type=YXBwbGljYXRpb24vcGRm"
+	navigate_decision = Msgbox("Do you want to navigate to open a the case transfer useform?" & vbcr & "If you are using Chrome you will be asked to open in Adobe.", vbQuestion + vbYesNo, "Navigate to Useform?")
+	If navigate_decision = vbYes then run "C:\Program Files\Internet Explorer\iexplore.exe https://dept.hennepin.us/hsphd/sa/ews/Lists/afeuseforms/By%20Topic.aspx"
 	If navigate_decision = vbNo then navigate_to_form = False
 
 	script_end_procedure_with_error_report("Please review to ensure case has been transferred, a memo sent, and a case note created.")
