@@ -395,6 +395,8 @@ For each reviews_total in REVS_array
 Next
 
 '----------------------------------------------------------------------------------------------------EXCEL INPUT
+Msgbox "Output to Excel Starting."      'warning message to whomever is running the script 
+
 'Opening the Excel file, (now that the dialog is done)
 Set objExcel = CreateObject("Excel.Application")
 objExcel.Visible = True
