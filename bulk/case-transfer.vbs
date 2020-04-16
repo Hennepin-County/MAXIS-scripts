@@ -45,6 +45,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("04/16/2020", "Updated BULK Case Transfer to accomodate pending cases better.", "Casey Love, Hennepin County")
 CALL changelog_update("10/04/2019", "Added functionality to read cases from PND2 as well.##~## ##~## As this is new functionality and testing ability is limited, please report any issues are errors to the BlueZone Script Team.##~##", "Casey Love, Hennepin County")
 CALL changelog_update("01/24/2019", "BUG fixed that caused an error if there are no MFIP eligibility results.", "Casey Love, Hennepin County")
 CALL changelog_update("01/12/2018", "Entering a supervisor X-Number in the Workers to Check will pull all X-Numbers listed under that supervisor in MAXIS. Addiional bug fix where script was missing cases.", "Casey Love, Hennepin County")
@@ -94,70 +95,69 @@ END FUNCTION
 'THE SCRIPT-------------------------------------------------------------------------
 'Determining specific county for multicounty agencies...
 get_county_code
-
 'Connects to BlueZone
 EMConnect ""
 
 'Shows dialogDialog pull_rept_data_into_Excel_dialog
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 376, 390, "Select Parameters for Cases to Transfer"
-  EditBox 75, 20, 130, 15, worker_number
-  CheckBox 5, 60, 240, 10, "Check here to have the script query all the cases listed on REPT/ACTV.", query_all_check
-  CheckBox 5, 110, 170, 10, "Exclude all cases with any Pending Program", exclude_pending_check
-  CheckBox 5, 125, 120, 10, "Exclude all cases with IEVS DAILs", exclude_ievs_check
-  CheckBox 140, 125, 120, 10, "Exclude all cases with PARIS DAILs", exclude_paris_check
-  CheckBox 5, 140, 40, 10, "SNAP", SNAP_check
-  CheckBox 90, 140, 90, 10, "Exclude all SNAP cases", exclude_snap_check
-  CheckBox 190, 140, 75, 10, "SNAP ONLY cases", SNAP_Only_check
-  CheckBox 15, 165, 60, 10, "ABAWD cases", SNAP_ABAWD_check
-  CheckBox 90, 165, 90, 10, "Uncle Harry SNAP", SNAP_UH_check
-  CheckBox 5, 185, 25, 10, "GA", ga_check
-  CheckBox 40, 185, 30, 10, "MSA", msa_check
-  CheckBox 90, 185, 100, 10, "Exclude all GA/MSA cases", exclude_ga_msa_check
-  CheckBox 5, 200, 25, 10, "RCA", rca_check
-  CheckBox 90, 200, 90, 10, "Exclude all RCA cases", exclude_RCA_check
-  CheckBox 5, 215, 30, 10, "MFIP", mfip_check
-  CheckBox 40, 215, 30, 10, "DWP", DWP_check
-  CheckBox 90, 215, 95, 10, "Exclude all MFIP/DWP", exclude_mfip_dwp_check
-  CheckBox 190, 215, 70, 10, "MFIP ONLY cases", MFIP_Only_check
-  CheckBox 15, 245, 90, 10, "MFIP cases with at least", MFIP_tanf_check
-  EditBox 105, 240, 20, 15, tanf_months
-  CheckBox 15, 260, 85, 10, "Child Only MFIP cases", child_only_mfip_check
-  CheckBox 105, 260, 90, 10, "Only monthly reporters", mont_rept_check
-  CheckBox 5, 280, 50, 10, "Child Care", ccap_check
-  CheckBox 90, 280, 95, 10, "Exclude Child Care cases", exclude_ccap_check
-  CheckBox 5, 295, 40, 10, "GRH", GRH_check
-  CheckBox 90, 295, 75, 10, "Exclude GRH cases", exclude_grh_check
-  CheckBox 190, 295, 75, 10, "GRH ONLY cases", GRH_Only_check
-  CheckBox 5, 310, 65, 10, "EA/EGA Pending", EA_check
-  CheckBox 90, 310, 95, 10, "Exclude EA/EGA Pending", exclude_ea_check
-  CheckBox 5, 325, 40, 10, "HC", HC_check
-  CheckBox 90, 325, 75, 10, "Exclude HC cases", exclude_HC_check
-  CheckBox 190, 325, 75, 10, "HC ONLY cases", HC_Only_check
-  CheckBox 15, 345, 120, 10, "Medicare Savings Program Active", HC_msp_check
-  CheckBox 15, 360, 40, 10, "Adult MA", adult_hc_check
-  CheckBox 90, 360, 45, 10, "Family MA", family_hc_check
-  CheckBox 15, 375, 40, 10, "LTC HC", ltc_HC_check
-  CheckBox 90, 375, 50, 10, "Waiver HC", waiver_HC_check
-  EditBox 345, 345, 25, 15, case_found_limit
+BeginDialog Dialog1, 0, 0, 781, 240, "Select Parameters for Cases to Transfer"
+  EditBox 75, 20, 165, 15, worker_number
+  CheckBox 450, 20, 240, 10, "Check here to have the script query all the cases listed on REPT/ACTV.", query_all_actv_check
+  CheckBox 80, 90, 40, 10, "SNAP", SNAP_check
+  CheckBox 80, 105, 90, 10, "Exclude all SNAP cases", exclude_snap_check
+  CheckBox 80, 115, 75, 10, "SNAP ONLY cases", SNAP_Only_check
+  CheckBox 85, 145, 60, 10, "ABAWD cases", SNAP_ABAWD_check
+  CheckBox 85, 155, 90, 10, "Uncle Harry SNAP", SNAP_UH_check
+  CheckBox 185, 90, 75, 10, "Any/All Cash", all_cash_check
+  CheckBox 185, 105, 25, 10, "GA", ga_check
+  CheckBox 230, 105, 30, 10, "MSA", msa_check
+  CheckBox 185, 115, 95, 10, "Exclude all GA/MSA cases", exclude_ga_msa_check
+  CheckBox 185, 130, 25, 10, "RCA", rca_check
+  CheckBox 185, 140, 90, 10, "Exclude all RCA cases", exclude_RCA_check
+  CheckBox 295, 105, 30, 10, "MFIP", mfip_check
+  CheckBox 340, 105, 30, 10, "DWP", DWP_check
+  CheckBox 295, 115, 95, 10, "Exclude all MFIP/DWP", exclude_mfip_dwp_check
+  CheckBox 295, 125, 70, 10, "MFIP ONLY cases", MFIP_Only_check
+  CheckBox 295, 150, 85, 10, "Child Only MFIP cases", child_only_mfip_check
+  CheckBox 295, 160, 90, 10, "Only monthly reporters", mont_rept_check
+  CheckBox 295, 170, 90, 10, "MFIP cases with at least", MFIP_tanf_check
+  EditBox 385, 165, 20, 15, tanf_months
+  CheckBox 400, 90, 50, 10, "Child Care", ccap_check
+  CheckBox 400, 105, 95, 10, "Exclude Child Care cases", exclude_ccap_check
+  CheckBox 505, 90, 40, 10, "GRH", GRH_check
+  CheckBox 505, 105, 75, 10, "Exclude GRH cases", exclude_grh_check
+  CheckBox 505, 115, 75, 10, "GRH ONLY cases", GRH_Only_check
+  CheckBox 600, 90, 40, 10, "HC", HC_check
+  CheckBox 600, 105, 75, 10, "Exclude HC cases", exclude_HC_check
+  CheckBox 600, 115, 75, 10, "HC ONLY cases", HC_Only_check
+  CheckBox 605, 140, 50, 10, "MSP Active", HC_msp_check
+  CheckBox 605, 150, 40, 10, "Adult MA", adult_hc_check
+  CheckBox 605, 160, 45, 10, "Family MA", family_hc_check
+  CheckBox 605, 170, 50, 10, "Waiver HC", waiver_HC_check
+  CheckBox 605, 180, 40, 10, "LTC HC", ltc_HC_check
+  CheckBox 680, 90, 75, 10, "EA/EGA Pending", EA_check
+  CheckBox 680, 105, 95, 10, "Exclude EA/EGA Pending", exclude_ea_check
+  CheckBox 10, 195, 170, 10, "Exclude all cases with any Pending Program", exclude_pending_check
+  CheckBox 10, 205, 170, 10, "Include ONLY cases with Pending Programs", include_only_pending_check
+  CheckBox 10, 215, 120, 10, "Exclude all cases with IEVS DAILs", exclude_ievs_check
+  CheckBox 10, 225, 120, 10, "Exclude all cases with PARIS DAILs", exclude_paris_check
+  EditBox 750, 195, 25, 15, case_found_limit
   ButtonGroup ButtonPressed
-    OkButton 270, 370, 50, 15
-    CancelButton 325, 370, 50, 15
-  GroupBox 10, 230, 190, 45, "MFIP Details"
-  GroupBox 10, 335, 190, 55, "HC Details"
-  Text 215, 10, 155, 40, "Select the criteria you want the script to sort by. The script will then generate an Excel Spreadsheet of all the cases in the indicated worker number(s) that meet your selected criteria."
-  Text 260, 55, 100, 35, "Another Pop Up will allow you select your transfer options before actually transferring cases."
-  Text 130, 245, 65, 10, "TANF Months used."
-  GroupBox 275, 105, 95, 230, "Hints"
-  Text 280, 120, 85, 25, "Use 'Tab' to move between check boxes without your mouse."
-  Text 280, 150, 85, 25, "Use the Spacebar to check and uncheck boxes without your mouse"
+    OkButton 670, 220, 50, 15
+    CancelButton 725, 220, 50, 15
+  GroupBox 290, 140, 190, 45, "MFIP Details"
+  GroupBox 600, 130, 60, 65, "HC Details"
+  Text 290, 65, 315, 20, "Select the criteria you want the script to sort by. The script will then generate an Excel Spreadsheet of all the cases in the indicated worker number(s) that meet your selected criteria."
+  Text 240, 210, 330, 30, "After the script searches all of the Workers to Check to find the cases that meet the inidcated criteria, it will have a complete spreadsheet to review. DO NOT MAKE CHANGES TO THIS SPREADSHEET. Another dialog will allow you enter the information for transfer before any transfers start."
+  Text 410, 170, 65, 10, "TANF Months used."
   Text 5, 25, 65, 10, "Worker(s) to check:"
-  Text 5, 75, 235, 10, " This will not give a transfer option but will look for all possible criteria."
-  Text 5, 40, 210, 20, "Note: please enter the entire 7-digit number x1 number (x100abc), separated by a comma."
-  Text 5, 95, 235, 10, "Check all that apply - What type of cases do you want to transfer?"
-  Text 65, 5, 100, 10, "***Case Parameters to Pull***"
-  Text 210, 350, 130, 10, "Limit the number of cases available to:"
-  GroupBox 10, 150, 190, 30, "SNAP Details"
+  Text 455, 30, 235, 10, " This will not give a transfer option but will look for all possible criteria."
+  Text 250, 20, 180, 20, "Note: please enter the entire 7-digit number x1 number (x100abc), separated by a comma."
+  Text 330, 50, 220, 10, "Check all that apply - What type of cases do you want to transfer?"
+  Text 250, 5, 100, 10, "***Case Parameters to Pull***"
+  Text 615, 200, 130, 10, "Limit the number of cases available to:"
+  GroupBox 80, 130, 80, 40, "SNAP Details"
+  Text 5, 90, 75, 10, "Programs to Include:"
 EndDialog
 Do
 	Do
@@ -165,7 +165,7 @@ Do
 		cancel_without_confirmation
 		err_msg = ""
 		IF worker_number = "" then err_msg = err_msg & vbCr & "You must Select an X-Number to pull cases from."
-		IF query_all_check = unchecked AND snap_check = unchecked AND mfip_check = unchecked AND DWP_check = unchecked AND EA_check = unchecked AND HC_check = unchecked AND ga_check = unchecked AND msa_check = unchecked AND GRH_check = unchecked Then err_msg = err_msg & _
+		IF query_all_actv_check = unchecked AND snap_check = unchecked AND mfip_check = unchecked AND DWP_check = unchecked AND EA_check = unchecked AND HC_check = unchecked AND ga_check = unchecked AND msa_check = unchecked AND GRH_check = unchecked Then err_msg = err_msg & _
 		  vbCr & "You must select a type of program for the cases you want to transfer, please pick one - SNAP, MFIP, DWP, EA, HC, GA, MSA, or GRH"
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 	Loop until err_msg = ""
@@ -199,7 +199,7 @@ query_start_time = timer
 Call check_for_MAXIS(False)
 
 'In order to make the code a little cleaner, this sets all the option check boxes to checked when the Query All option exists.
-IF query_all_check = checked THEN
+IF query_all_actv_check = checked THEN
 	SNAP_ABAWD_check = checked
 	SNAP_UH_check = checked
 	MFIP_tanf_check = checked
@@ -389,7 +389,7 @@ If exclude_paris_check = checked then
 	paris_letter_col = convert_digit_to_excel_column(paris_col)
 End If
 
-IF query_all_check = unchecked THEN
+IF query_all_actv_check = unchecked THEN
 	ObjExcel.Cells(1, col_to_use).Value = "Transferred?"
 	ObjExcel.Cells(1, col_to_use).Font.Bold = TRUE
 	xfered_col = col_to_use
@@ -397,7 +397,7 @@ IF query_all_check = unchecked THEN
 	xfered_letter_col = convert_digit_to_excel_column(xfered_col)
 End If
 
-IF query_all_check = unchecked THEN
+IF query_all_actv_check = unchecked THEN
 	ObjExcel.Cells(1, col_to_use).Value = "New Worker"
 	ObjExcel.Cells(1, col_to_use).Font.Bold = TRUE
 	new_worker_col = col_to_use
@@ -474,85 +474,97 @@ m = 0
 
 For each worker in worker_array
 	back_to_self	'Does this to prevent "ghosting" where the old info shows up on the new screen for some reason
-	Call navigate_to_MAXIS_screen("rept", "actv")
-	EMWriteScreen worker, 21, 13
-	transmit
-	EMReadScreen user_worker, 7, 21, 71		'
-	EMReadScreen p_worker, 7, 21, 13
-	IF user_worker = p_worker THEN PF7		'If the user is checking their own REPT/ACTV, the script will back up to page 1 of the REPT/ACTV
+    If include_only_pending_check = unchecked Then
+    	Call navigate_to_MAXIS_screen("rept", "actv")
+    	EMWriteScreen worker, 21, 13
+    	transmit
+    	EMReadScreen user_worker, 7, 21, 71		'
+    	EMReadScreen p_worker, 7, 21, 13
+    	IF user_worker = p_worker THEN PF7		'If the user is checking their own REPT/ACTV, the script will back up to page 1 of the REPT/ACTV
 
-	PF5 'Changes to case number sort for a better variety of cases.
-	'Skips workers with no info
-	EMReadScreen has_content_check, 1, 7, 8
-	If has_content_check <> " " then
-		'Grabbing each case number on screen
-		Do
-			'Set variable for next do...loop
-			MAXIS_row = 7
+    	PF5 'Changes to case number sort for a better variety of cases.
+    	'Skips workers with no info
+    	EMReadScreen has_content_check, 1, 7, 8
+    	If has_content_check <> " " then
+    		'Grabbing each case number on screen
+    		Do
+    			'Set variable for next do...loop
+    			MAXIS_row = 7
 
-			'Checking for the last page of cases.
-			EMReadScreen last_page_check, 21, 24, 2	'because on REPT/ACTV it displays right away, instead of when the second F8 is sent
+    			'Checking for the last page of cases.
+    			EMReadScreen last_page_check, 21, 24, 2	'because on REPT/ACTV it displays right away, instead of when the second F8 is sent
 
-			Do
-                Redim Preserve Full_case_list_array (Ubound(Full_case_list_array,1), m)
+    			Do
+                    Redim Preserve Full_case_list_array (Ubound(Full_case_list_array,1), m)
 
-				cash_one_type = ""
-				cash_two_type = ""
+    				cash_one_type = ""
+    				cash_two_type = ""
 
-				EMReadScreen MAXIS_case_number, 8, MAXIS_row, 12		'Reading case number
-				EMReadScreen client_name, 21, MAXIS_row, 21		'Reading client name
-				EMReadScreen next_revw_date, 8, MAXIS_row, 42		'Reading application date
-				EMReadScreen cash_one_status, 1, MAXIS_row, 54		'Reading cash status
-					IF cash_one_status = "A" or cash_one_status = "P" then EMReadScreen cash_one_type, 2, MAXIS_row, 51
-				EMReadScreen cash_two_status, 1, MAXIS_row, 59
-					IF cash_two_status = "A" or cash_two_status = "P" then EMReadScreen cash_two_type, 2, MAXIS_row, 56
-				EMReadScreen SNAP_status, 1, MAXIS_row, 61		'Reading SNAP status
-				EMReadScreen HC_status, 1, MAXIS_row, 64			'Reading HC status
-				EMReadScreen EA_status, 1, MAXIS_row, 67			'Reading EA status
-				EMReadScreen GRH_status, 1, MAXIS_row, 70			'Reading GRH status
-				EMReadScreen CCAP_status, 1, MAXIS_row, 80 			'Reading CCAP Status
+    				EMReadScreen MAXIS_case_number, 8, MAXIS_row, 12		'Reading case number
+    				EMReadScreen client_name, 21, MAXIS_row, 21		'Reading client name
+    				EMReadScreen next_revw_date, 8, MAXIS_row, 42		'Reading application date
+    				EMReadScreen cash_one_status, 1, MAXIS_row, 54		'Reading cash status
+    					IF cash_one_status = "A" or cash_one_status = "P" then EMReadScreen cash_one_type, 2, MAXIS_row, 51
+    				EMReadScreen cash_two_status, 1, MAXIS_row, 59
+    					IF cash_two_status = "A" or cash_two_status = "P" then EMReadScreen cash_two_type, 2, MAXIS_row, 56
+    				EMReadScreen SNAP_status, 1, MAXIS_row, 61		'Reading SNAP status
+    				EMReadScreen HC_status, 1, MAXIS_row, 64			'Reading HC status
+    				EMReadScreen EA_status, 1, MAXIS_row, 67			'Reading EA status
+    				EMReadScreen GRH_status, 1, MAXIS_row, 70			'Reading GRH status
+    				EMReadScreen CCAP_status, 1, MAXIS_row, 80 			'Reading CCAP Status
 
-				If MAXIS_case_number = "        " then exit do			'Exits do if we reach the end
-                next_revw_date = trim(next_revw_date)
+    				If MAXIS_case_number = "        " then exit do			'Exits do if we reach the end
+                    next_revw_date = trim(next_revw_date)
 
-				Full_case_list_array(0,m) = MAXIS_case_number
-				Full_case_list_array(1,m) = client_name
-				Full_case_list_array(2,m) = replace(next_revw_date, " ", "/")
-				Full_case_list_array(3,m) = cash_one_type
-				Full_case_list_array(4,m) = cash_one_status
-				Full_case_list_array(5,m) = cash_two_type
-				Full_case_list_array(6,m) = cash_two_status
-				Full_case_list_array(7,m) = SNAP_status
-				Full_case_list_array(8,m) = HC_status
-				Full_case_list_array(9,m) = EA_status
-				Full_case_list_array(10,m) = GRH_status
-				Full_case_list_array(11,m) = worker
-				Full_case_list_array(12,m) = CCAP_status
+    				Full_case_list_array(0,m) = MAXIS_case_number
+    				Full_case_list_array(1,m) = client_name
+    				Full_case_list_array(2,m) = replace(next_revw_date, " ", "/")
+    				Full_case_list_array(3,m) = cash_one_type
+    				Full_case_list_array(4,m) = cash_one_status
+    				Full_case_list_array(5,m) = cash_two_type
+    				Full_case_list_array(6,m) = cash_two_status
+    				Full_case_list_array(7,m) = SNAP_status
+    				Full_case_list_array(8,m) = HC_status
+    				Full_case_list_array(9,m) = EA_status
+    				Full_case_list_array(10,m) = GRH_status
+    				Full_case_list_array(11,m) = worker
+    				Full_case_list_array(12,m) = CCAP_status
 
-				' Redim Preserve Full_case_list_array (Ubound(Full_case_list_array,1), Ubound(Full_case_list_array,2)+1) 'Resize the array for the next case
+    				' Redim Preserve Full_case_list_array (Ubound(Full_case_list_array,1), Ubound(Full_case_list_array,2)+1) 'Resize the array for the next case
 
-				'Doing this because sometimes BlueZone registers a "ghost" of previous data when the script runs. This checks against an array and stops if we've seen this one before.
-				MAXIS_case_number = trim(MAXIS_case_number)
-				If MAXIS_case_number <> "" and instr(all_case_numbers_array, "*" & MAXIS_case_number & "*") <> 0 then exit do
-				all_case_numbers_array = trim(all_case_numbers_array & MAXIS_case_number & "*")
+    				'Doing this because sometimes BlueZone registers a "ghost" of previous data when the script runs. This checks against an array and stops if we've seen this one before.
+    				MAXIS_case_number = trim(MAXIS_case_number)
+    				If MAXIS_case_number <> "" and instr(all_case_numbers_array, "*" & MAXIS_case_number & "*") <> 0 then exit do
+    				all_case_numbers_array = trim(all_case_numbers_array & MAXIS_case_number & "*")
 
-				MAXIS_row = MAXIS_row + 1
-				MAXIS_case_number = ""			'Blanking out variable
-				m = m + 1
-			Loop until MAXIS_row = 19
-			PF8
-		Loop until last_page_check = "THIS IS THE LAST PAGE"
-	End if
+    				MAXIS_row = MAXIS_row + 1
+    				MAXIS_case_number = ""			'Blanking out variable
+    				m = m + 1
+    			Loop until MAXIS_row = 19
+    			PF8
+    		Loop until last_page_check = "THIS IS THE LAST PAGE"
+    	End if
+    End If
 
     back_to_self	'Does this to prevent "ghosting" where the old info shows up on the new screen for some reason
     Call navigate_to_MAXIS_screen("rept", "pnd2")
     EMWriteScreen worker, 21, 13
     transmit
+
+    row = 1
+    col = 1
+    EMSearch "The REPT:PND2 Display Limit Has Been Reached.", row, col
+    If row <> 0 Then transmit
+
     EMReadScreen user_worker, 7, 21, 71		'
     EMReadScreen p_worker, 7, 21, 13
     IF user_worker = p_worker THEN PF7		'If the user is checking their own REPT/ACTV, the script will back up to page 1 of the REPT/ACTV
 
     PF5 'Changes to case number sort for a better variety of cases.
+    row = 1
+    col = 1
+    EMSearch "The REPT:PND2 Display Limit Has Been Reached.", row, col
+    If row <> 0 Then transmit
     'Skips workers with no info
     EMReadScreen has_content_check, 1, 7, 12
     If has_content_check <> " " then
@@ -560,9 +572,6 @@ For each worker in worker_array
         Do
             'Set variable for next do...loop
             MAXIS_row = 7
-
-            'Checking for the last page of cases.
-            EMReadScreen last_page_check, 21, 24, 2	'because on REPT/ACTV it displays right away, instead of when the second F8 is sent
 
             Do
                 EMReadScreen MAXIS_case_number, 8, MAXIS_row, 5		'Reading case number
@@ -627,6 +636,8 @@ For each worker in worker_array
                 m = m + 1
             Loop until MAXIS_row = 19
             PF8
+            'Checking for the last page of cases.
+            EMReadScreen last_page_check, 21, 24, 2	'because on REPT/PND2 it displays after trying to PF8, instead of when the second F8 is sent
         Loop until last_page_check = "THIS IS THE LAST PAGE"
     End if
 next
@@ -961,10 +972,13 @@ For n = 0 to Ubound(Full_case_list_array,2)	'This will check all the cases from 
 	'If Save_case_for_transfer is True once this Do Loop completes then the case information is saved for the transfer part in another array
 	'This also determines which cases will be added to Excel
 	Do	'The do loop is only here to be able to skip logic futher down in the list - it should never actually loop
-		IF query_all_check = checked Then
+		IF query_all_actv_check = checked Then
 			Save_case_for_transfer = TRUE
 			Exit Do 'IF the Query option is checked ALL cases get added to the list so none should have a FALSE
 		End IF
+        If all_cash_check = checked Then
+            IF Full_case_list_array(3,n) = "CA" OR Full_case_list_array(5,n) = "CA" then Save_case_for_transfer = TRUE
+        End If
 		IF SNAP_check = checked then
 			IF Full_case_list_array(7,n) = "P" OR Full_case_list_array(7,n) = "A" then Save_case_for_transfer = TRUE
 		End If
@@ -1204,7 +1218,7 @@ cases_found = abs(UBound(All_case_information_array,2))
 cases_to_xfer_numb = cases_found
 
 'Stops the script before transfer when the query option is selected.
-IF query_all_check = checked THEN
+IF query_all_actv_check = checked THEN
 	'Adding the number of cases count and formatting the speadsheet
 	objExcel.Cells(4, col_to_use - 1).Font.Bold = TRUE
 	ObjExcel.Cells(4, col_to_use - 1).Value = "Number of cases that meet selected criteria:"	'Goes back one, as this is on the next row
@@ -1245,7 +1259,7 @@ EndDialog
 'Running the dialog to get transfer information
 Do
 	Do
-		Dialog Dialog1 
+		Dialog Dialog1
 		cancel_confirmation
 		err_msg = ""
 		If cases_to_xfer_numb = "" THEN cases_to_xfer_numb = 0
