@@ -89,7 +89,7 @@ changelog_display
 
 'CUSTOM FUNCTIONS===========================================================================================================
 Function declare_admin_menu_dialog(script_array)
-    BeginDialog admin_dialog, 0, 0, 516, 320, "Admin Scripts"
+    BeginDialog admin_dialog, 0, 0, 516, 330, "Admin Scripts"
     Text 5, 5, 516, 300, "Admin scripts main menu: select the script to run from the choices below."
     ButtonGroup ButtonPressed
 		 	PushButton 015, 35, 30, 15, "ADMIN", 			admin_main_button
@@ -111,7 +111,7 @@ Function declare_admin_menu_dialog(script_array)
 			button_placeholder = button_placeholder + 1
 		next
 
-		CancelButton 455, 300, 50, 15
+		CancelButton 455, 310, 50, 15
         If show_BZ_button = TRUE Then
 		    GroupBox 5, 20, 155, 35, "Admin Sub-Menus"
         Else
@@ -165,6 +165,13 @@ Set script_array_admin_main(script_num) = new script    'Set this array element 
 script_array_admin_main(script_num).script_name		    = "AVS Submitted"
 script_array_admin_main(script_num).file_name			= "avs-submitted.vbs"
 script_array_admin_main(script_num).description		    = "Creates a case note and sets a 10-day TIKL to check status of AVS submission."
+
+' script_num = script_num + 1							   'Increment by one
+' ReDim Preserve script_array_admin_main(script_num)	    'Resets the array to add one more element to it
+' Set script_array_admin_main(script_num) = new script    'Set this array element to be a new script. Script details below...
+' script_array_admin_main(script_num).script_name		    = "Basket Review"
+' script_array_admin_main(script_num).file_name			= "basket-review.vbs"
+' script_array_admin_main(script_num).description		    = "A script that creates a report of cases and pages pending on a list of baskets."
 
 script_num = script_num + 1							   'Increment by one
 ReDim Preserve script_array_admin_main(script_num)	    'Resets the array to add one more element to it
