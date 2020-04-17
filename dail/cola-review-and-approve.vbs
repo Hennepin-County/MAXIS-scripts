@@ -266,6 +266,27 @@ If approval_exists = TRUE Then
 End If
 
 If approval_exists = FALSE Then
+
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 206, 120, "Program Approved other than HC"
+      DropListBox 35, 70, 120, 40, "No other program 'APP'ed"+chr(9)+"Run Approved Programs"+chr(9)+"Run Closed Programs", forward_progress
+      ButtonGroup ButtonPressed
+        OkButton 150, 100, 50, 15
+      Text 10, 10, 165, 25, "This case does not appear to have an approved version of Health Care Eligibility. This script is built for handling Health Care cases. "
+      Text 10, 45, 170, 20, "If you have approved a different program, the script can run Approved Programs or Closed Programs."
+      Text 10, 90, 135, 25, "Approved Programs or Closed Programs is built to work when a program has been APPed on the same day."
+    EndDialog
+
+    Do
+        dialog Dialog1
+        cancel_confirmation
+
+        Call check_for_password(are_we_passworded_out)
+    Loop until are_we_passworded_out = FALSE
+
+    If forward_progress = "Run Approved Programs" Then Call run_from_GitHub(script_repository & "/notes/approved-programs.vbs")
+    If forward_progress = "Run Closed Programs" Then Call run_from_GitHub(script_repository & "/notes/closed-programs.vbs")
+
     dail_row = 5
     msg_found = FALSE
     Do
