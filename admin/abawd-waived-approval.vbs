@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("04/17/2020", "Added verbiage to the CASE:NOTE header for Current Month plus 1 to indicate the benefit information in the note is approved for ongoing.", "Casey Love, Hennepin County")
 call changelog_update("04/08/2020", "Updated functionality to add a separate note for each month of approval completed. Enter the initial month of approval and the script will loop through the entire information gathering, WCOMs, and CASE:NOTE for each month from the initial to current month plus one.##~##", "Casey Love, Hennepin County")
 call changelog_update("04/07/2020", "BUG FIX - sometimes the script couldn't read the dates from MAXIS correctly. Added handling to adjust date formats to match exactly.##~##", "Casey Love, Hennepin County")
 call changelog_update("03/03/2020", "Initial version.", "Casey Love, Hennepin County")
@@ -667,7 +668,11 @@ Do
 
     Call start_a_blank_CASE_NOTE
 
-    Call write_variable_in_CASE_NOTE("SNAP eff " & MAXIS_footer_month & "/" & MAXIS_footer_year & " APP with WAIVERED ABAWD")
+    If MAXIS_footer_month = CM_plus_1_mo AND MAXIS_footer_year = CM_plus_1_yr Then
+        Call write_variable_in_CASE_NOTE("SNAP eff " & MAXIS_footer_month & "/" & MAXIS_footer_year & " and Ongoing APP with WAIVERED ABAWD")
+    Else
+        Call write_variable_in_CASE_NOTE("SNAP eff " & MAXIS_footer_month & "/" & MAXIS_footer_year & " APP with WAIVERED ABAWD")
+    End If
     Call write_variable_in_CASE_NOTE("* * * SNAP Benefit : $" & trim(benefit_amount) & " * * *")
     Call write_variable_in_CASE_NOTE("Approval completed on " & date)
     Call write_variable_in_CASE_NOTE("=== Benefit Calculation ===")
