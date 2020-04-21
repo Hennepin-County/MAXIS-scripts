@@ -298,24 +298,24 @@ EMConnect ""
 Call pause_at_certificate_of_understanding
 MsgBox "Moving On"
 
-employer_check = MsgBox("Do you have income verification for this job? Employer name: " & "FAMILY DOLLAR", vbYesNo + vbQuestion, "Select Income Panel")
-
-employer_ended_msg = MsgBox("This job has an income end date." & vbNewLine & vbNewLine & "The employer name: FAMILY DOLLAR" & vbNewLine & "End Date: 12/31/19" & vbNewLine & vbNewLine & "The script can update this job with information provided BUT it will remove the 'End Date' field on JOBS." & vbNewLine & vbNewLine & "Would you like to continue with the update of this job?", vbquestion + vbOkCancel, "Income Panel Ended - Cannot Update")
-'Initial Dialog which requests a file path for the excel file
-Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 361, 105, "On Demand Recertifications"
-  EditBox 130, 60, 175, 15, recertification_cases_excel_file_path
-  ButtonGroup ButtonPressed
-    PushButton 310, 60, 45, 15, "Browse...", select_a_file_button
-  EditBox 75, 85, 140, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 250, 85, 50, 15
-    CancelButton 305, 85, 50, 15
-  Text 10, 10, 170, 10, "Welcome to the On Demand Recertification Notifier."
-  Text 10, 25, 340, 30, "This script will send an Appointment Notice or NOMI for recertification for a list of cases in a county that currently has an On Demand Waiver in effect for interviews. If your county does not have this waiver, this script should not be used."
-  Text 10, 65, 120, 10, "Select an Excel file for recert cases:"
-  Text 10, 90, 60, 10, "Worker Signature"
-EndDialog
+' employer_check = MsgBox("Do you have income verification for this job? Employer name: " & "FAMILY DOLLAR", vbYesNo + vbQuestion, "Select Income Panel")
+'
+' employer_ended_msg = MsgBox("This job has an income end date." & vbNewLine & vbNewLine & "The employer name: FAMILY DOLLAR" & vbNewLine & "End Date: 12/31/19" & vbNewLine & vbNewLine & "The script can update this job with information provided BUT it will remove the 'End Date' field on JOBS." & vbNewLine & vbNewLine & "Would you like to continue with the update of this job?", vbquestion + vbOkCancel, "Income Panel Ended - Cannot Update")
+' 'Initial Dialog which requests a file path for the excel file
+' Dialog1 = ""
+' BeginDialog Dialog1, 0, 0, 361, 105, "On Demand Recertifications"
+'   EditBox 130, 60, 175, 15, recertification_cases_excel_file_path
+'   ButtonGroup ButtonPressed
+'     PushButton 310, 60, 45, 15, "Browse...", select_a_file_button
+'   EditBox 75, 85, 140, 15, worker_signature
+'   ButtonGroup ButtonPressed
+'     OkButton 250, 85, 50, 15
+'     CancelButton 305, 85, 50, 15
+'   Text 10, 10, 170, 10, "Welcome to the On Demand Recertification Notifier."
+'   Text 10, 25, 340, 30, "This script will send an Appointment Notice or NOMI for recertification for a list of cases in a county that currently has an On Demand Waiver in effect for interviews. If your county does not have this waiver, this script should not be used."
+'   Text 10, 65, 120, 10, "Select an Excel file for recert cases:"
+'   Text 10, 90, 60, 10, "Worker Signature"
+' EndDialog
 
 
 'Confirmation Diaglog will require worker to afirm the appointment notices/NOMIs should actually be sent
@@ -326,6 +326,11 @@ EndDialog
 'Connects to BlueZone
 EMConnect ""
 
+Call MAXIS_case_number_finder(MAXIS_case_number)
+Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, unknown_cash_pending)
+Call script_end_procedure("Case Information" & vbNewLine & vbNewLine & "Case Active - " & case_active & vbNewLine & "Case Pending - " & case_pending & vbNewLine & "Family Cash - " & family_cash_case & vbNewLine &_
+       "MFIP - " & mfip_case & vbNewLine & "DWP - " & dwp_case & vbNewLine & "Adult Cash - " & adult_cash_case & vbNewLine & "GA - " & ga_case & vbNewLine & "MSA - " & msa_case & vbNewLine & "GRH - " & grh_case & vbNewLine &_
+       "SNAP - " & snap_case & vbNewLine & "MA - " & ma_case & vbNewLine & "MSP - " & msp_case & vbNewLine & "CASH Pend - " & unknown_cash_pending)
 'Initial Dialog to determine the excel file to use, column with case numbers, and which process should be run
 'Show initial dialog
 Do
