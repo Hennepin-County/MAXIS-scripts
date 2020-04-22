@@ -94,6 +94,7 @@ IF PRIV_check = "PRIV" THEN script_end_procedure("PRIV case, cannot access/updat
 '----------------------------------------------------------------------------------------------------Gathering the member information
 CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
 
+
 DO								'reads the reference number, last name, first name, and then puts it into a single string then into the array
 EMReadscreen ref_nbr, 3, 4, 33
 EMReadScreen access_denied_check, 13, 24, 2
@@ -129,28 +130,27 @@ End If
 LOOP until edit_check = "ENTER A"			'the script will continue to transmit through memb until it reaches the last page and finds the ENTER A edit on the bottom row.
  MsgBox client_array
 client_array = TRIM(client_array)
-test_array = split(client_array, "|")
+client_selection = split(client_array, "|")
 'total_clients = Ubound(test_array)			'setting the upper bound for how many spaces to use from the array
 'msgbox total_clients
 'DIM all_client_array()
 'ReDim all_clients_array(total_clients, 1)
 'Call HH_member_custom_dialog(HH_Member_Array)
-Call convert_array_to_droplist_items(test_array, hh_member_dropdown)
+Call convert_array_to_droplist_items(client_selection, hh_member_dropdown)
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 266, 45, "Dialog"
   ButtonGroup ButtonPressed
     OkButton 180, 10, 50, 15
     CancelButton 180, 25, 50, 15
-  DropListBox 5, 10, 160, 12, hh_member_dropdown, test_array
+  DropListBox 5, 10, 160, 12, hh_member_dropdown, ievs_member
 EndDialog
 
 Dialog Dialog1
 
-hh_member_dropdown = trim(hh_member_dropdown)
-MsgBOx hh_member_dropdown
-msgbox test_array
-IEVS_ssn = right(test_array, 10)
+ievs_member = trim(ievs_member)
+MsgBOx ievs_member
+IEVS_ssn = right(ievs_member, 9)
 MsgBox IEVS_ssn
 CALL navigate_to_MAXIS_screen("INFC" , "____")
 CALL write_value_and_transmit("IEVP", 20, 71)
