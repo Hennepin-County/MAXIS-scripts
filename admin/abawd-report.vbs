@@ -113,6 +113,7 @@ do
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 excel_row = excel_row_to_restart
+update_count = 0
 
 Do
 	MAXIS_case_number = ObjExcel.Cells(excel_row, 1).Value
@@ -120,7 +121,7 @@ Do
     If MAXIS_case_number = "" then exit do
 
     member_number = ObjExcel.Cells(excel_row, 2).Value
-    member_number = right(member_number, 2)
+    member_number = right("0" & member_number, 2)
 
     client_name = ObjExcel.Cells(excel_row, 3).Value
     client_name = trim(client_name)
@@ -139,14 +140,15 @@ Do
 
         'Updated incorrectly coded Defer FSET fund cases
         If FSET_code = "30" then
-            If defer_funds = "Y" then
-                If ABAWD_code = "05" then
+            If ABAWD_code = "05" or ABAWD_code = "09" then
+                If defer_funds = "Y" then
                     update_needed = FALSE
                 else
                     update_needed = True
+                    update_count = update_count + 1
                     'msgbox update_needed & vbcr & FSET_code & vbcr & ABAWD_code & vbcr & defer_funds
                     PF9
-                    Call write_value_and_transmit("N", 8, 80)       'Coding the rest of the ABAWD's as N for Defer FSET funds. Even though voluntary, this code is still N.
+                    Call write_value_and_transmit("Y", 8, 80)       'Coding the rest of the ABAWD's as N for Defer FSET funds. Even though voluntary, this code is still N.
                     EMReadScreen defer_funds, 1, 8, 80
                     transmit 'passing error messages
                     transmit
@@ -178,4 +180,4 @@ Do
 Loop until ObjExcel.Cells(excel_row, 1).Value = ""
 
 STATS_counter = STATS_counter - 1 'since we start with 1
-script_end_procedure("Success! Please review your ABAWD list.")
+script_end_procedure("Success! Please review your ABAWD list. Update count: " & update_count)
