@@ -94,6 +94,7 @@ IF PRIV_check = "PRIV" THEN script_end_procedure("PRIV case, cannot access/updat
 '----------------------------------------------------------------------------------------------------Gathering the member information
 CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
 
+client_array = "Select One..." & "|"
 
 DO								'reads the reference number, last name, first name, and then puts it into a single string then into the array
 EMReadscreen ref_nbr, 3, 4, 33
