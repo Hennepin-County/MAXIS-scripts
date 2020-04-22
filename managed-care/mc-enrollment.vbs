@@ -946,6 +946,10 @@ If MNSURE_Case = TRUE Then
     					If double_check = "??" Then EMWriteScreen "...", 14, 5
     				End If
     			END IF
+            ELSE
+                'REFM screen
+                EMWriteScreen "refm", 1, 8
+                transmit
             End If
 
 	        'blanking out varibles if the other option is selected
@@ -1268,6 +1272,10 @@ Else
     				If buttonpressed = 0 then script_end_procedure_with_error_report("Error message was not resolved. Please review enrollment information before trying the script again.")
     				EMWriteScreen "...", 13, 5
     			END IF
+            ELSE
+                'REFM screen
+                EMWriteScreen "refm", 1, 8
+                transmit
             End If
 
 			'blanking out varibles if the other option is selected

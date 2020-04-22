@@ -4238,6 +4238,212 @@ function date_array_generator(initial_month, initial_year, date_array)
 	date_array = split(date_list, "|")
 end function
 
+function determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, unknown_cash_pending)
+'--- Function used to return booleans on case and program status based on CASE CURR information. There is no input informat but MAXIS_case_number needs to be defined.
+'~~~~~ case_active: Outputs BOOLEAN of if the case is active in any MAXIS program
+'~~~~~ case_pending: Outputs BOOLEAN of if the case is pending for any MAXIS Program
+'~~~~~ family_cash_case: Outputs BOOLEAN of if the case is active or pending for any family cash program (MFIP or DWP)
+'~~~~~ mfip_case: Outputs BOOLEAN of if the case is active or pending MFIP
+'~~~~~ dwp_case: Outputs BOOLEAN of if the case is active or pending DWP
+'~~~~~ adult_cash_case: Outputs BOOLEAN of if the case is active or pending any adult cash program (GA or MSA)
+'~~~~~ ga_case: Outputs BOOLEAN of if the case is active or pending GA
+'~~~~~ msa_case: Outputs BOOLEAN of if the case is active or pending MSA
+'~~~~~ grh_case: Outputs BOOLEAN of if the case is active or pending GRH
+'~~~~~ snap_case: Outputs BOOLEAN of if the case is active or pending SNAP
+'~~~~~ ma_case: Outputs BOOLEAN of if the case is active or pending MA
+'~~~~~ msp_case: Outputs BOOLEAN of if the case is active or pending any MSP
+'~~~~~ unknown_cash_pending: BOOLEAN of if the case has a general 'CASH' program pending but it has not been defined
+'===== Keywords: MAXIS, case status, output, status
+    Call navigate_to_MAXIS_screen("CASE", "CURR")           'First the function will navigate to CASE/CURR so the inofrmation discovered is based on current status
+    family_cash_case = FALSE                                'defaulting all of the booleans
+    adult_cash_case = FALSE
+    ga_case = FALSE
+    msa_case = FALSE
+    mfip_case = FALSE
+    dwp_case = FALSE
+    grh_case = FALSE
+    snap_case = FALSE
+    ma_case = FALSE
+    msp_case = FALSE
+    case_active = FALSE
+    case_pending = FALSE
+    unknown_cash_pending = FALSE
+    'The function will use the same functionality for each program and search CASE:CURR to find the program deader for detail about the status.
+    'If 'ACTIVE', 'APP CLOSE', 'APP OPEN', or 'PENDING' is listed after the header the function will mark the boolean for that program as 'TRUE'
+    'If 'ACTIVE', 'APP CLOSE', or 'APP OPEN' is listed, the function will mark case_active as TRUE
+    'If 'PENDING' is listed, the function wil mark case_pending as TRUE
+    row = 1                                                 'First we will look for SNAP
+    col = 1
+    EMSearch "FS:", row, col
+    If row <> 0 Then
+        EMReadScreen fs_status, 9, row, col + 4
+        fs_status = trim(fs_status)
+        If fs_status = "ACTIVE" or fs_status = "APP CLOSE" or fs_status = "APP OPEN" Then
+            snap_case = TRUE
+            case_active = TRUE
+        End If
+        If fs_status = "PENDING" Then
+            snap_case = TRUE
+            case_pending = TRUE
+        ENd If
+    End If
+    row = 1                                             'Looking for GRH information
+    col = 1
+    EMSearch "GRH:", row, col
+    If row <> 0 Then
+        EMReadScreen grh_status, 9, row, col + 5
+        grh_status = trim(grh_status)
+        If grh_status = "ACTIVE" or grh_status = "APP CLOSE" or grh_status = "APP OPEN" Then
+            grh_case = TRUE
+            case_active = TRUE
+        End If
+        If grh_status = "PENDING" Then
+            grh_case = TRUE
+            case_pending = TRUE
+        ENd If
+    End If
+    row = 1                                             'Looking for MSA information
+    col = 1
+    EMSearch "MSA:", row, col
+    If row <> 0 Then
+        EMReadScreen ms_status, 9, row, col + 5
+        ms_status = trim(ms_status)
+        If ms_status = "ACTIVE" or ms_status = "APP CLOSE" or ms_status = "APP OPEN" Then
+            msa_case = TRUE
+            adult_cash_case = TRUE
+            case_active = TRUE
+        End If
+        If ms_status = "PENDING" Then
+            msa_case = TRUE
+            adult_cash_case = TRUE
+            case_pending = TRUE
+        ENd If
+    End If
+    row = 1                                             'Looking for GA information
+    col = 1
+    EMSearch "GA:", row, col
+    If row <> 0 Then
+        EMReadScreen ga_status, 9, row, col + 4
+        ga_status = trim(ga_status)
+        If ga_status = "ACTIVE" or ga_status = "APP CLOSE" or ga_status = "APP OPEN" Then
+            ga_case = TRUE
+            adult_cash_case = TRUE
+            case_active = TRUE
+        End If
+        If ga_status = "PENDING" Then
+            ga_case = TRUE
+            adult_cash_case = TRUE
+            case_pending = TRUE
+        ENd If
+    End If
+    row = 1                                             'Looking for DWP information
+    col = 1
+    EMSearch "DWP:", row, col
+    If row <> 0 Then
+        EMReadScreen dw_status, 9, row, col + 4
+        dw_status = trim(dw_status)
+        If dw_status = "ACTIVE" or dw_status = "APP CLOSE" or dw_status = "APP OPEN" Then
+            dwp_case = TRUE
+            family_cash_case = TRUE
+            case_active = TRUE
+        End If
+        If dw_status = "PENDING" Then
+            dwp_case = TRUE
+            family_cash_case = TRUE
+            case_pending = TRUE
+        ENd If
+    End If
+    row = 1                                             'Looking for MFIP information
+    col = 1
+    EMSearch "MFIP:", row, col
+    If row <> 0 Then
+        EMReadScreen mf_status, 9, row, col + 6
+        mf_status = trim(mf_status)
+        If mf_status = "ACTIVE" or mf_status = "APP CLOSE" or mf_status = "APP OPEN" Then
+            mfip_case = TRUE
+            family_cash_case = TRUE
+            case_active = TRUE
+        End If
+        If mf_status = "PENDING" Then
+            mfip_case = TRUE
+            family_cash_case = TRUE
+            case_pending = TRUE
+        ENd If
+    End If
+    row = 1                                                 'Looking for a general 'Cash' header which means any kind of cash could be pending
+    col = 1
+    EMSearch "Cash:", row, col
+    If row <> 0 Then
+        EMReadScreen cash_status, 9, row, col + 6
+        cash_status = trim(cash_status)
+        If cash_status = "PENDING" Then
+            unknown_cash_pending = TRUE
+            case_pending = TRUE
+        ENd If
+    End If
+    row = 1                                             'Looking for MA information
+    col = 1
+    EMSearch "MA:", row, col
+    If row <> 0 Then
+        EMReadScreen ma_status, 9, row, col + 4
+        ma_status = trim(ma_status)
+        If ma_status = "ACTIVE" or ma_status = "APP CLOSE" or ma_status = "APP OPEN" Then
+            ma_case = TRUE
+            case_active = TRUE
+        End If
+        If ma_status = "PENDING" Then
+            ma_case = TRUE
+            case_pending = TRUE
+        ENd If
+    End If
+    'MSA programs have different headers so we need to search for them all seperately'
+    row = 1                                             'Looking for QMB information for MSA programs
+    col = 1
+    EMSearch "QMB:", row, col
+    If row <> 0 Then
+        EMReadScreen qm_status, 9, row, col + 5
+        qm_status = trim(qm_status)
+        If qm_status = "ACTIVE" or qm_status = "APP CLOSE" or qm_status = "APP OPEN" Then
+            msp_case = TRUE
+            case_active = TRUE
+        End If
+        If qm_status = "PENDING" Then
+            msp_case = TRUE
+            case_pending = TRUE
+        ENd If
+    End If
+    row = 1                                             'Looking for SLMB information for MSA programs
+    col = 1
+    EMSearch "SLMB:", row, col
+    If row <> 0 Then
+        EMReadScreen sl_status, 9, row, col + 6
+        sl_status = trim(sl_status)
+        If sl_status = "ACTIVE" or sl_status = "APP CLOSE" or sl_status = "APP OPEN" Then
+            msp_case = TRUE
+            case_active = TRUE
+        End If
+        If sl_status = "PENDING" Then
+            msp_case = TRUE
+            case_pending = TRUE
+        ENd If
+    End If
+    row = 1                                             'Looking for QI information for MSA programs
+    col = 1
+    EMSearch "QI:", row, col
+    If row <> 0 Then
+        EMReadScreen qm_status, 9, row, col + 5
+        qm_status = trim(qm_status)
+        If qm_status = "ACTIVE" or qm_status = "APP CLOSE" or qm_status = "APP OPEN" Then
+            msp_case = TRUE
+            case_active = TRUE
+        End If
+        If qm_status = "PENDING" Then
+            msp_case = TRUE
+            case_pending = TRUE
+        ENd If
+    End If
+End Function
+
 function dynamic_calendar_dialog(selected_dates_array, month_to_use, text_prompt, one_date_only, disable_weekends, disable_month_change, start_date, end_date)
 '--- This function creates a dynamic calendar that users can select dates from to be used in scheduleing. This is used in BULK - REVS SCRUBBER.
 '~~~~~ selected_dates_array:the output array it will contain dates in MM/DD/YY format
@@ -5525,28 +5731,28 @@ Function non_actionable_dails
         instr(dail_msg, "- TRANS #") OR _
         instr(dail_msg, "PERSON/S REQD SNAP NOT IN SNAP UNIT") OR _
         instr(dail_msg, "RSDI UPDATED - (REF") OR _
-        instr(dail_msg, "SSI UPDATED - (REF") OR _ 
+        instr(dail_msg, "SSI UPDATED - (REF") OR _
         instr(dail_msg, "SNAP ABAWD ELIGIBILITY HAS EXPIRED, APPROVE NEW ELIG RESULTS") then
             add_to_excel = True
         '----------------------------------------------------------------------------------------------------CORRECT STAT EDITS over 5 days old
     Elseif dail_type = "STAT" or instr(dail_msg, "NEW FIAT RESULTS EXIST") then
         EmReadscreen stat_date, 8, dail_row, 39
-        If isdate(stat_date) = False then 
+        If isdate(stat_date) = False then
             EmReadscreen alt_stat_date, 8, dail_row, 49
-            If isdate(alt_stat_date) = True then 
+            If isdate(alt_stat_date) = True then
                 stat_date = alt_stat_date
-            End if 
-        End if  
-        If isdate(stat_date) = True then 
+            End if
+        End if
+        If isdate(stat_date) = True then
             five_days_ago = DateAdd("d", -5, date)
             If cdate(five_days_ago) => cdate(stat_date) then
                 add_to_excel = True
             Else
                 add_to_excel = False
             End if
-        else 
+        else
             add_to_excel = False
-        End if 
+        End if
     '----------------------------------------------------------------------------------------------------REMOVING PEPR messages not CM or CM + 1
     Elseif dail_type = "PEPR" then
         if dail_month = this_month or dail_month = next_month then

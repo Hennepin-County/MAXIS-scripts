@@ -69,6 +69,11 @@ check_for_MAXIS(TRUE)
 get_county_code
 
 basket_list = "X127EE1~X127EE2~X127EE3~X127EE4~X127EE5~X127EE6~X127EE7~X127EL2~X127EL3~X127EL4~X127EL5~X127EL6~X127EL7~X127EL8~X127EL9~X127EN1~X127EN2~X127EN3~X127EN4~X127EQ1~X127EQ4~X127EQ5~X127EQ8~X127EQ9~X127EN5~X127EG4~X127ED8~X127EH8~X127EQ3~X127EQ2~X127EG5~X127EJ1~X127EH9~X127EM2~X127FE6~X127F3D~X127ES1~X127ES2~X127ES4~X127ES5~X127ES6~X127ES7~X127ES9~X127ET1~X127ET2~X127ET3~X127ET4~X127ET5~X127ET6~X127ET7~X127ET9~X127ET8~X127ES8~X127ES3~X127F3H~X127F4E~X127EZ2~X127EZ7~X127FB7~X127EZ5~X127EZ6~X127EZ9~X127EZ4~X127EZ3~X127EZ1~X127EZ8~X127EJ6~X127FE5~X127EK1~X127EK2~X127EJ7~X127EJ8~X127EK3~X127EH6~X127EM1~X127FI7~X127EK4~X127EK5~X127FH5~X127EN7~X127EK6~X127EK9~X127FI2~X127FG3~X127EM8~X127EM9~X127EJ4~X127EJ5~X127EF8~X127EF9~X127EG9~X127EG0~X127EH1~X127EH7~X127EH2~X127EH3~X127EN6~X127FH4~X127EP3~X127EP4~X127EP5~X127EP9~X127F3U~X127F3V~X127FE7~X127FE8~X127FE9~X127CCR~X127CCA~X127FA5~X127FA6~X127FA7~X127FA8~X127FB1~X127F3S~X127FA9~X127F4A~X127F4B~X127FI1~X127FI3~X127EX4~X127EX5~X127FF1~X127FF2~X127FH3~X127FI6~X127EN8~X127EN9~X127EQ6~X127EQ7~X127EP1~X127EP2~X127FE2~X127FE3~X127FG5~X127FG9~X127F3E~X127F3J~X127F3N~X127LE1~X127SH1~X127AN1~X127EHD~X127EA0~X127EAK~X127FF6~X127FF7~X127ER7~X127FF8~X127FF9~X127FG6~X127FG7~X127EM3~X127EM4~X127EW7~X127EW8~X127NP0~X127NPC~X127FF4~X127FF5~X127FG1~X127EW6~X1274EC~X127FG2~X127EW4~X127F3F~X127F3K~X127F3P~X127EH4~X127EH5~X127EK7~X127EK8~X127EP6~X127EP7~X127EP8~X127EX2~X127FJ2~X127FF3~X127EX3~X127EM5~X127EM6~X127EX1~X127FD4~X127FD5~X127FH6~X127FD6~X127FD7~X127EZ0~X127EU5~X127EX7~X127EU6~X127EY1~X127FJ5~X127EY2~X127F3W~X127FA1~X127EU8~X127FA4~X127F3T~X127F3X~X127FA2~X127EU7~X127F3R~X127EX8~X127EX9~X127F3Z~X127EV1~X127FC2~X127EL1~X127EV2~X127EV4~X127EV3~X127FB8~X127ER8~X127F3B~X127FB4~X127F3A~X127F4C~X127F4F~X127F4D~X127FB3~X127ER9~X127EW2~X127EW3~X127EU1~X127EU3~X127EU2~X127EY8~X127EY9"
+' basket_list = "X127EE2~X127EN5~X127EG4~X127ED8~X127EH8~X127EQ3~X127EQ2"
+' basket_list = "X127EQ3~X127EQ2"
+' basket_list = "X127ET9~X127ET8~X127ES8~X127ES3"
+basket_list = "X127EE2~X127EN5~X127EG4~X127ED8~X127EH8~X127EQ3~X127EQ2~X127ET9~X127ET8~X127ES8~X127ES3"
+
 
 basket_array = split(basket_list, "~")
 
@@ -160,25 +165,37 @@ For each basket in basket_array
     Do
         EMReadScreen case_nbr, 8, pnd2_row, 5
         EMReadScreen case_name, 10, pnd2_row, 16
-        case_nbr = trim(case_nbr)
         case_name = trim(case_name)
+        ' MsgBox "Before - Case Number: ~" & case_nbr & "~" & vbNewLine & "Count: " & pnd2_count
+        If case_nbr <> prev_case_nbr Then pnd2_count = pnd2_count + 1
+        ' MsgBox "Case Number: ~" & case_nbr & "~" & vbNewLine & "Count: " & pnd2_count
 
-        If case_nbr <> "" Then pnd2_count = pnd2_count + 1
-
+        If case_name = "" Then
+            PF8
+            EMReadScreen end_of_list, 9, 24, 14
+            If end_of_list = "         " Then
+                case_name = "something"
+            Else
+                PF7
+            End If
+        End If
         pnd2_row = pnd2_row + 1
         If pnd2_row = 19 Then
+            ' MsgBox pnd2_count
             PF8
             EMReadScreen end_of_list, 9, 24, 14
             If end_of_list = "LAST PAGE" Then Exit Do
             pnd2_row = 7
         End If
+        prev_case_nbr = case_nbr
     Loop until case_name = ""
 
     ObjExcel.Cells(excel_row, 1).Value = basket
     ObjExcel.Cells(excel_row, 2).Value = trim(basket_name)
     ObjExcel.Cells(excel_row, 3).Value = basket_total_pages
     If basket_total_pages > 29 Then ObjExcel.Range(ObjExcel.Cells(excel_row, 1), ObjExcel.Cells(excel_row, 5)).Interior.ColorIndex = 6
-    If basket_total_pages > 34 Then ObjExcel.Range(ObjExcel.Cells(excel_row, 1), ObjExcel.Cells(excel_row, 5)).Interior.ColorIndex = 3
+    If basket_total_pages > 34 Then ObjExcel.Range(ObjExcel.Cells(excel_row, 1), ObjExcel.Cells(excel_row, 5)).Interior.ColorIndex = 45
+    If basket_total_pages > 39 Then ObjExcel.Range(ObjExcel.Cells(excel_row, 1), ObjExcel.Cells(excel_row, 5)).Interior.ColorIndex = 3
     ObjExcel.Cells(excel_row, 4).Value = pnd2_count
 
     Call navigate_to_MAXIS_screen("REPT", "PND1")
