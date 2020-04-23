@@ -63,6 +63,20 @@ CALL MAXIS_case_number_finder(MAXIS_case_number)
 when_contact_was_made = date & ", " & time 'updates the "when contact was made" variable to show the current date & time]
 email_team = False 'defaulting to false for most populations 
 
+If trim(MAXIS_case_number) <> "" then
+    'Gathering the phone numbers
+    call navigate_to_MAXIS_screen("STAT", "ADDR")
+    phone_number_list = "Select or Type|"
+    EMReadScreen phone_number_one, 16, 17, 43	' if phone numbers are blank it doesn't add them to EXCEL
+    If phone_number_one <> "( ___ ) ___ ____" then phone_number_list = phone_number_list & phone_number_one & "|"
+    EMReadScreen phone_number_two, 16, 18, 43
+    If phone_number_two <> "( ___ ) ___ ____" then phone_number_list = phone_number_list & phone_number_two & "|"
+    EMReadScreen phone_number_three, 16, 19, 43
+    If phone_number_three <> "( ___ ) ___ ____" then phone_number_list = phone_number_list & phone_number_three
+    'msgbox phone_number_list
+    phone_number_array = split(phone_number_list, "|")                
+    Call convert_array_to_droplist_items(phone_number_array, phone_numbers)   
+End if 
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
@@ -73,7 +87,7 @@ BeginDialog Dialog1, 0, 0, 391, 325, "Client contact"
   EditBox 245, 65, 135, 15, regarding
   ButtonGroup ButtonPressed
   PushButton 15, 85, 55, 15, "Phone Number:", phone_button
-  ComboBox 75, 85, 65, 15, phone_number, phone_number_array
+  DropListBox 75, 85, 65, 15, phone_numbers, phone_number
   EditBox 245, 85, 135, 15, when_contact_was_made
   EditBox 75, 105, 65, 15, MAXIS_case_number
   CheckBox 165, 110, 65, 10, "Used Interpreter", used_interpreter_checkbox
@@ -178,6 +192,7 @@ EndDialog
 '  Text 230, 70, 15, 10, "Re:"
 '  GroupBox 145, 10, 240, 25, "CASE Navigation"
 '  DropListBox 75, 85, 60, 15, phone_number, phone_number_array
+  
 'EndDialog
 
 Do
@@ -290,6 +305,7 @@ If email_checkbox = 1 or email_team = True then
     email_info = contact_type & " " & contact_direction & " " & who_contacted & " re: " & regarding & vbcr & vbcr & "* Reason for Contact: " & contact_reason & vbcr
     If trim(phone_number) <> "" then email_info = email_info & "* Phone Number: " & phone_number & vbcr
     If trim(other_notes) <> "" then email_info = email_info & "* Other Notes: " & other_notes & vbcr
+    If Used_interpreter_checkbox = checked then email_info = email_info & "An interpreter was used during this phone call." & vbcr
     If send_dail = True then email_info = email_info & vbcr & "* A TIKL has been created for team follow up."
     'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
     Call create_outlook_email(email_address, "" ,"Phone call follow up and/or processing required for case #" & MAXIS_case_number, email_info, "", True)
