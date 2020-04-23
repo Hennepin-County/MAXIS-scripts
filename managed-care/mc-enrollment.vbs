@@ -362,6 +362,7 @@ Do
 
     If err_msg <> "" Then MsgBOx "Please resolve to continue: " & vbNewLine & err_msg
 Loop until err_msg = ""
+MAXIS_case_number = MMIS_case_number
 
 If Insurance_yes = checked then
 	insurance_yn = "Y"
