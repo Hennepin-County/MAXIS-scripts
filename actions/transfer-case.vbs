@@ -96,6 +96,7 @@ DO
 		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 	LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 		'----------Checks that the worker or agency is valid---------- 'must find user information before transferring to account for privileged cases.
+	servicing_worker = ucase(servicing_worker)
 	call navigate_to_MAXIS_screen("REPT", "USER")
 	EMWriteScreen servicing_worker, 21, 12
 	TRANSMIT
@@ -126,8 +127,7 @@ EMReadScreen mail_addr_line_four, 43, 12, 27
 	mail_addr_line_four = trim(mail_addr_line_four)
 EMReadScreen worker_agency_phone, 14, 13, 27
 EMReadScreen worker_county_code, 2, 15, 32
-'msgbox worker_agency_name &  mail_addr_line_one & mail_addr_line_two & mail_addr_line_three & mail_addr_line_four & worker_agency_phone
-'Reading the app date from PROG
+
 CALL navigate_to_MAXIS_screen("STAT", "PROG")		'Goes to STAT/PROG
 EMReadScreen cash1_app_date, 8, 6, 33
 cash1_app_date = replace(cash1_app_date, " ", "/")
@@ -267,6 +267,9 @@ If right(programs_applied_for, 1) = "," THEN programs_applied_for = left(program
 additional_programs_applied_for = trim(additional_programs_applied_for)       'trims excess spaces of programs_applied_for
 If right(additional_programs_applied_for, 1) = "," THEN additional_programs_applied_for = left(additional_programs_applied_for, len(additional_programs_applied_for) - 1)
 
+EMReadScreen previous_servicing_worker, 7, 21, 21
+IF previous_servicing_worker = servicing_worker THEN script_end_procedure_with_error_report("This case is already in this worker's number, the case will not transfer." & vbcr & "Current worker: " & vbcr & previous_servicing_worker & vbcr & "Requested worker: " & vbcr & servicing_worker )
+
 'goes to MEMO and create a new memo to be send out
 If in_county_checkbox = CHECKED THEN
     start_a_blank_CASE_NOTE
@@ -351,30 +354,28 @@ DO
                 PushButton 10, 15, 85, 15, "NAV to SPEC/XFER", nav_to_xfer_button
               Text 135, 55, 60, 10, "*See CM 0006.06"
             EndDialog
+
 	    	IF ButtonPressed = nav_to_xfer_button THEN
 				CALL navigate_to_MAXIS_screen("SPEC", "XFER")
 				EMWriteScreen "X", 9, 16
 				TRANSMIT
 			END IF
+
 			err_msg = ""
 			dialog Dialog1
 			cancel_confirmation
-			'MFIP, DWP, MSA, GA, GRH:
-			'' "Per CM 0006.06 - The county of financial responsibility at the time of the move remains responsible until the participant unit lives in non-excluded time status in the new county for 2 full calendar months."
 			IF excluded_time = "Yes" AND isdate(excluded_date) = FALSE THEN MsgBox "Please enter a valid date for the start of excluded time or double check that the client's absense is due to excluded time."
 			IF isdate(move_date) = FALSE THEN MsgBox "Please enter a valid date for client move."
 			IF ucase(left(servicing_worker, 4)) = ucase(transferring_worker_county_code) THEN MsgBox "You must use the ''Within the Agency'' script to transfer the case within the agency. The Worker/Agency you have selected indicates you are trying to transfer within your agency."
 			IF (hc_status_check = "ACTV" AND excluded_time = "") THEN MsgBox "Please select whether the client is on excluded time."
-			'IF len(servicing_worker) <> 7 THEN MsgBox "Please select a valid worker or agency to receive the case (proper format = x######)."
-			'IF manual_cfr_hc_checkbox = CHECKED THEN MsgBox ("You indicated you wish to manually determine the Health Care County of Financial Responsibility and CFR Change Date. There is an error because you either:" & vbCr & vbCr & "1. Did not enter a County of Financial Responsibility, and/or" & vbCr & "2. Your County of Financial Responsibility is not in the correct 2-digit format, and/or" & vbCr & "3. You did not enter a date for the CFR to change, and/or" & vbCr & "4. You did not orrectly format the month and/or year for the change." & vbCr & vbCr & "Please review your input and try again.")
 			IF manual_cfr_cash_checkbox = CHECKED AND cash_cfr_no_change_checkbox = CHECKED THEN MsgBox ("Please select whether the CFR for CASH is changing or not. Review input.")
-			'IF manual_cfr_cash_checkbox = CHECKED THEN MsgBox ("You indicated you wish to manually determine the CASH County of Financial Responsibility and CFR Change Date. There is an error because you either:" & vbCr & vbCr & "1. Did not enter a County of Financial Responsibility, and/or" & vbCr & "2. Your County of Financial Responsibility is not in the correct 2-digit format, and/or" & vbCr & "3. You did not enter a date for the CFR to change, and/or" & vbCr & "4. You did not correctly ormat the month and/or year for the change." & vbCr & vbCr & "Please review your input and try again.")
 			IF manual_cfr_hc_checkbox = CHECKED AND hc_cfr_no_change_checkbox = CHECKED THEN MsgBOx ("Please select whether the CFR for HC is changing or not. Review input.")
 			If mets_active_checkbox = CHECKED and METS_case_number = "" then err_msg = err_msg & vbNewLine & "* Please enter a METS case number."
 			If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 		LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-	Loop until are_we_passworded_out = false					'loops until user passwords back in
+	Loop until are_we_passworded_out = false
+						'loops until user passwords back in
 		IF closure_date_checkbox = CHECKED THEN
 			closure_date = dateadd("m", 1, date)
 			closure_date = datepart("M", closure_date) & "/01/" & datepart("YYYY", closure_date)
@@ -390,7 +391,6 @@ DO
 LOOP UNTIL write_access <> "READ ONLY"
 
 PF3
-
 	'----------Sending the Client a SPEC/MEMO notifying them of the details of the transfer----------
 	If SPEC_MEMO_checkbox = CHECKED then
 	    Call start_a_new_spec_memo		'Writes the appt letter into the MEMO.
@@ -435,12 +435,11 @@ PF3
 		EMWriteScreen "x", 5, 10                                        'Initiates new memo to client
 		IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
 		IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
-		TRANSMIT                                                        'TRANSMITs to start the memo writing process
-
+		TRANSMIT                                       'TRANSMITs to start the memo writing process
 		PF4'save and exit
 	End if
 
-	IF ucase(servicing_worker) = "X120ICT" OR ucase(servicing_worker) = "X181ICT" THEN servicing_worker = "X174ICT"
+	IF servicing_worker = "X120ICT" OR servicing_worker = "X181ICT" THEN servicing_worker = "X174ICT"
 'Using move date to determine CRF change date.
 	cfr_date = dateadd("M", 1, move_date)
 	cfr_date = datepart("M", cfr_date) & "/01/" & datepart("YYYY", cfr_date)
@@ -450,11 +449,9 @@ PF3
 	cfr_year = datepart("YYYY", cfr_date)
 	cfr_year = right(cfr_year, 2)
 
-
-
 	'----------The case note of the reason for the XFER----------
     start_a_blank_CASE_NOTE
-    Call write_variable_in_CASE_NOTE("~ Case transferred to " & ucase(servicing_worker) & " ~")
+    Call write_variable_in_CASE_NOTE("~ Case transferred to " & servicing_worker & " ~")
     Call write_bullet_and_variable_in_CASE_NOTE("Active programs", active_programs)
     Call write_bullet_and_variable_in_CASE_NOTE("Pending programs", pend_programs)
     Call write_bullet_and_variable_in_CASE_NOTE("Reason case was transferred", transfer_reason)
@@ -551,49 +548,38 @@ PF3
 		EMWriteScreen cfr_year, 12, 59
 	END IF
 
-
 	EMReadScreen primary_worker, 7, 21, 16
 	EMWriteScreen primary_worker, 18, 28
 	EMWriteScreen servicing_worker, 18, 61
-
 	TRANSMIT
-	EMReadScreen worker_check, 9, 24, 2
+	IF MAXIS_error_message <> "" THEN
+		EMReadScreen MAXIS_error_message, 75, 24, 02
+		MAXIS_error_message = trim(MAXIS_error_message)
 
-	IF worker_check = "SERVICING" THEN
-		action_completed = False
-		PF10
+		Dialog1 = "" 'Blanking out previous dialog detail
+		BeginDialog Dialog1, 0, 0, 231, 95, "Maxis Message, please screen shot"
+			ButtonGroup ButtonPressed
+			OkButton 135, 75, 45, 15
+			CancelButton 180, 75, 45, 15
+			GroupBox 5, 0, 220, 50, "You can update maxis if there is an error, THEN hit ok to continue."
+			Text 15, 10, 190, 35, MAXIS_error_message
+			EditBox 50, 55, 175, 15, email_BZST
+			Text 5, 60, 45, 10, "Email BZST:"
+		EndDialog
+
+		'Showing case number dialog
+		Do
+		  Dialog Dialog1
+		  cancel_without_confirmation
+		  CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+		Loop until are_we_passworded_out = false					'loops until user passwords back in
+		IF email_BZST <> "" THEN CALL create_outlook_email("Mikayla.Handley@hennepin.us", "", "Case #" & maxis_case_number & " Error message: " & MAXIS_error_message & "  EOM.", "", "", TRUE)
 	END IF
-	EMReadScreen transfer_confirmation, 16, 24, 2
-	'LAST XFER ACTION WAS DONE AT 09:00 ON 03/17/20 BY X127D5X'
-	IF transfer_confirmation = "CASE XFER'D FROM" then
-		action_completed = True
-	Else
-		action_completed = False
-		EMReadScreen err_msg, 75, 24, 02
-		err_msg = trim(err_msg)
-    	Dialog1 = "" 'Blanking out previous dialog detail
-    	BeginDialog Dialog1, 0, 0, 181, 75, "Maxis Message"
-    	  ButtonGroup ButtonPressed
-    	    OkButton 80, 55, 45, 15
-    	    CancelButton 130, 55, 45, 15
-    	  GroupBox 5, 0, 170, 50, "You can update maxis, then hit ok to continue."
-    	  Text 20, 10, 150, 35, err_msg
-    	EndDialog
-
-    	'Showing case number dialog
-    	Do
-    		Dialog Dialog1
-    	  	cancel_without_confirmation
-    	  	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-    	Loop until are_we_passworded_out = false					'loops until user passwords back in
-	End if
 
 	PF3
 
 	navigate_decision = Msgbox("Do you want to navigate to open a the case transfer useform?" & vbcr & "If you are using Chrome you will be asked to open in Adobe.", vbQuestion + vbYesNo, "Navigate to Useform?")
 	If navigate_decision = vbYes then run "C:\Program Files\Internet Explorer\iexplore.exe https://dept.hennepin.us/hsphd/sa/ews/Lists/afeuseforms/By%20Topic.aspx"
 	If navigate_decision = vbNo then navigate_to_form = False
-
 	script_end_procedure_with_error_report("Please review to ensure case has been transferred, a memo sent, and a case note created.")
-	'IF action_completed = FALSE THEN script_end_procedure_with_error_report("Case did not transfer, a memo sent, and a case note created. Please review the information on SPEC/XFER, send the case file to the next county." & vbcr& "UPDATE MMIS IF NEEDED.")
 END IF
