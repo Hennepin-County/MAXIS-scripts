@@ -285,14 +285,6 @@ END IF
 Row = 7
 DO
 	EMReadScreen IEVS_period, 11, row, 47
-	'UR Unresolved, System Entered Only
-	'PR Person Removed From Household
-	'HM Household Moved Out Of State
-	'RV Residency Verified, Person in MN
-	'FR Failed Residency Verification Request
-	'PC Person Closed, Not PARIS Interstate
-	'CC Case Closed, Not PARIS Interstate
-
 	IF trim(IEVS_period) = "" THEN script_end_procedure_with_error_report("A match for the selected period could not be found. The script will now end.")
 	ievp_info_confirmation = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
 	"   " & IEVS_period, vbYesNoCancel, "Please confirm this match")

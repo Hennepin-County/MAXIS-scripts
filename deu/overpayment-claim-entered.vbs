@@ -469,8 +469,27 @@ IEVS_period = replace(IEVS_period, "/", " to ")
 Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days requested for HEADER of casenote'
 PF3 'back to the DAIL'
 IF OP_program = "FS" or OP_program_II = "FS" or OP_program_III = "FS" or OP_program_IV = "FS" or OP_program = "MF" or OP_program_II = "MF" or OP_program_III = "MF" or OP_program_IV = "MF" THEN
-	'Going to the MISC panel to add claim referral tracking information
-	Call navigate_to_MAXIS_screen ("STAT", "MISC")
+
+    Dialog1 = "" 'Blanking out previous dialog detail
+    BeginDialog Dialog1, 0, 0, 276, 60, "Claim Referral Tracking"
+      ButtonGroup ButtonPressed
+        OkButton 175, 40, 45, 15
+        CancelButton 225, 40, 45, 15
+      GroupBox 5, 5, 265, 30, "SNAP or MFIP Federal Food only"
+      DropListBox 140, 15, 125, 15, "Select One:"+chr(9)+"Overpayment Exists"+chr(9)+"OP Non-Collectible (please provide notes)"+chr(9)+"No Savings/Overpayment"+chr(9)+"N/A-STAT/MISC will not be updated", claim_referral_tracking_dropdown
+      Text 10, 20, 130, 10, "Claim Referral Tracking on STAT/MISC:"
+    EndDialog
+    'Showing case number dialog
+    Do
+    	Dialog Dialog1
+    	cancel_without_confirmation
+    	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+
+
+    'Going to the MISC panel to add claim referral tracking information
+    Call navigate_to_MAXIS_screen ("STAT", "MISC")
 	Row = 6
 	EmReadScreen panel_number, 1, 02, 73
 	If panel_number = "0" then
@@ -506,11 +525,15 @@ IF OP_program = "FS" or OP_program_II = "FS" or OP_program_III = "FS" or OP_prog
 
 	'writing in the action taken and date to the MISC panel
 	PF9
-	EMWriteScreen "Determination-OP Entered", Row, 30
+	IF claim_referral_tracking_dropdown =  "OP Non-Collectible (please specify)" THEN MISC_action_taken = "Determination-Non-Collect"
+	IF claim_referral_tracking_dropdown =  "No Savings/Overpayment" THEN MISC_action_taken = "Determination-No Savings"
+	IF claim_referral_tracking_dropdown =  "Overpayment Exists" THEN MISC_action_taken =  "Determination-OP Entered" '"Claim Determination 25 character available
+
+	EMWriteScreen MISC_action_taken, Row, 30
 	EMWriteScreen date, Row, 66
 	TRANSMIT
 	start_a_blank_case_note
-	Call write_variable_in_case_note("-----Claim Referral Tracking - Claim Determination-----")
+	Call write_variable_in_case_note("-----Claim Referral Tracking - " & MISC_action_taken & "-----")
 	IF case_note_only = TRUE THEN Call write_variable_in_case_note("Maxis case is inactive unable to add or update MISC panel")
 	Call write_bullet_and_variable_in_case_note("Action Date", date)
 	Call write_bullet_and_variable_in_case_note("Program(s)", programs)

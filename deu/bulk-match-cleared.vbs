@@ -65,7 +65,7 @@ Do
 		'-------------------------------------------------------------------------------------------------DIALOG
 		Dialog1 = "" 'Blanking out previous dialog detail
 			BeginDialog Dialog1, 0, 0, 266, 140, "BULK IEVS Match"
-  				DropListBox 200, 50, 50, 15, "Select One:"+chr(9)+"BEER"+chr(9)+"WAGE", IEVS_type
+  				DropListBox 200, 50, 50, 15, "Select One:"+chr(9)+"BEER"+chr(9)+"BNDX"+chr(9)+"SDXS/SDXI"+chr(9)+"UNVI"+chr(9)+"UBEN"+chr(9)+"WAGE", match_type
            		ButtonGroup ButtonPressed
             	PushButton 200, 70, 50, 15, "Browse:", select_a_file_button
             	OkButton 145, 115, 50, 15
@@ -86,7 +86,7 @@ Do
 				End If
 				call file_selection_system_dialog(IEVS_match_path, ".xlsx") 'allows the user to select the file'
 			End If
-			If IEVS_type = "Select One:" then err_msg = err_msg & vbNewLine & "* Select type of match you are processing."
+			If match_type = "Select One:" then err_msg = err_msg & vbNewLine & "* Select type of match you are processing."
 			If IEVS_match_path = "" then err_msg = err_msg & vbNewLine & "* Use the Browse Button to select the file that has your client data"
 			If err_msg <> "" Then MsgBox err_msg
 		Loop until err_msg = ""
@@ -127,8 +127,8 @@ DO
 	    row = 6    'establishing 1st row to search
 	    Do
 		    EMReadScreen IEVS_message, 4, row, 6
-		    'msgbox IEVS_message & vbcr & IEVS_type
-		    If IEVS_message <> IEVS_type then
+		    'msgbox IEVS_message & vbcr & match_type
+		    If IEVS_message <> match_type then
 				match_found = False
 				row = row + 1
 		    	EMReadScreen new_case, 9, row, 63
@@ -193,10 +193,10 @@ DO
 						case_note_actions = False
 		    		else
 						month_difference = abs(end_month) - abs(start_month)
-					    If (IEVS_type = "WAGE" and month_difference = 2) then 'ensuring if it is a wage the match is a quater'
+					    If (match_type = "WAGE" and month_difference = 2) then 'ensuring if it is a wage the match is a quater'
 					    	case_note_actions = true
 					    	exit do
-					    Elseif (IEVS_type = "BEER" and month_difference = 11) then  'ensuring that if it a beer that the match is a year'
+					    Elseif (match_type = "BEER" and month_difference = 11) then  'ensuring that if it a beer that the match is a year'
 					    	case_note_actions = True
 					    	exit do
 					    End if
@@ -206,107 +206,155 @@ DO
 			Loop until row = 17
 
 			If case_note_actions <> True then
-				If IEVS_type = "WAGE" then
+				If match_type = "WAGE" then
 			    	objExcel.cells(excel_row, 9).value = "This WAGE match is not for a quarter. Please process manually."
-			    Elseif IEVS_type = "BEER" then
+			    Elseif match_type = "BEER" then
 					objExcel.cells(excel_row, 9).value = "This BEER match is not for a year. Please process manually."
 				END if
 				case_note_actions = False
 			Else
-		        CALL write_value_and_transmit("U", row, 3)   'navigates to IULA
-                'Reading the IEVS period to be autofilled into the cleared_match_dialog
+			'---------------------------------------------------------------------Reading potential errors for out-of-county cases
+			CALL write_value_and_transmit("U", row, 3)   'navigates to IULA
+			EMReadScreen OutOfCounty_error, 12, 24, 2
+			IF OutOfCounty_error = "MATCH IS NOT" then
+				script_end_procedure_with_error_report("Out-of-county case. Cannot update.")
+			ELSE
+				EMReadScreen number_IEVS_type, 3, 7, 12 'read the DAIL msg'
+				IF number_IEVS_type = "A30" THEN match_type = "BNDX"
+				'IF number_IEVS_type = "A40" THEN match_type = "SDXS/I"
+				IF number_IEVS_type = "A70" THEN match_type = "BEER"
+				IF number_IEVS_type = "A80" THEN match_type = "UNVI"
+				IF number_IEVS_type = "A60" THEN match_type = "UBEN"
+				IF number_IEVS_type = "A50" or number_IEVS_type = "A51"  THEN match_type = "WAGE"
 
-				'Reading potential errors for out-of-county cases
-				EMReadScreen OutOfCounty_error, 12, 24, 2
-				IF OutOfCounty_error = "MATCH IS NOT"  then
-					objExcel.cells(excel_row, 9).value = "Out-of-county case. Cannot update."
-					case_note_actions = False
-				else
-                    IF IEVS_type = "WAGE" then
-				    	EMReadScreen quarter, 1, 8, 14
-                    	EMReadScreen IEVS_year, 4, 8, 22
-				    Elseif IEVS_type = "BEER" then
-				    	EMReadScreen IEVS_year, 2, 8, 15
-				    	IEVS_year = "20" & IEVS_year
-				    End if
+				IEVS_year = ""
+				IF match_type = "WAGE" then
+					EMReadScreen select_quarter, 1, 8, 14
+					EMReadScreen IEVS_year, 4, 8, 22
+				ELSEIF match_type = "UBEN" THEN
+					EMReadScreen IEVS_month, 2, 5, 68
+					EMReadScreen IEVS_year, 4, 8, 71
+				ELSEIF match_type = "BEER" THEN
+					EMReadScreen IEVS_year, 2, 8, 15
+					IEVS_year = "20" & IEVS_year
+				ELSEIF match_type = "UNVI" THEN
+					EMReadScreen IEVS_year, 4, 8, 15
+					'msgbox IEVS_year
+					select_quarter = "YEAR"
+				END IF
+			END IF
 
-                    EMReadScreen client_name, 35, 5, 24
-                    'Formatting the client name for the spreadsheet
-                    client_name = trim(client_name)                         'trimming the client name
-                    if instr(client_name, ",") then    						'Most cases have both last name and 1st name. This seperates the two names
-                        length = len(client_name)                           'establishing the length of the variable
-                        position = InStr(client_name, ",")                  'sets the position at the deliminator (in this case the comma)
-                        last_name = Left(client_name, position-1)           'establishes client last name as being before the deliminator
-                        first_name = Right(client_name, length-position)    'establishes client first name as after before the deliminator
-                    Else                                'In cases where the last name takes up the entire space, then the client name becomes the last name
-                        first_name = ""
-                        last_name = client_name
-                    END IF
-                    if instr(first_name, " ") then   						'If there is a middle initial in the first name, then it removes it
-                        length = len(first_name)                        	'trimming the 1st name
-                        position = InStr(first_name, " ")               	'establishing the length of the variable
-                        first_name = Left(first_name, position-1)       	'trims the middle initial off of the first name
-                    End if
+			EMReadScreen number_IEVS_type, 3, 7, 12 'read the DAIL msg'
+			IF number_IEVS_type = "A30" THEN match_type = "BNDX"
+			IF number_IEVS_type = "A40" THEN match_type = "SDXS/I"
+			IF number_IEVS_type = "A70" THEN match_type = "BEER"
+			IF number_IEVS_type = "A80" THEN match_type = "UNVI"
+			IF number_IEVS_type = "A60" THEN match_type = "UBEN"
+			IF number_IEVS_type = "A50" or number_IEVS_type = "A51"  THEN match_type = "WAGE"
 
-                    EMReadScreen diff_date, 10, 14, 68
-	                diff_date = trim(diff_date)
-		            If diff_date <> "" then
-			        	diff_date = replace(diff_date, " ", "/") 'replace spaces with format to date'
-                        objExcel.cells(excel_row, 7).value = diff_date
-                    END IF
+			'--------------------------------------------------------------------Client name
+			EmReadScreen panel_name, 4, 02, 52
+			IF panel_name <> "IULA" THEN script_end_procedure_with_error_report("Script did not find IULA.")
+			EMReadScreen client_name, 35, 5, 24
+			client_name = trim(client_name)                         'trimming the client name
+			IF instr(client_name, ",") THEN    						'Most cases have both last name and 1st name. This separates the two names
+				length = len(client_name)                           'establishing the length of the variable
+				position = InStr(client_name, ",")                  'sets the position at the deliminator (in this case the comma)
+				last_name = Left(client_name, position-1)           'establishes client last name as being before the deliminator
+				first_name = Right(client_name, length-position)    'establishes client first name as after before the deliminator
+			ELSEIF instr(first_name, " ") THEN   						'If there is a middle initial in the first name, THEN it removes it
+				length = len(first_name)                        	'trimming the 1st name
+				position = InStr(first_name, " ")               	'establishing the length of the variable
+				first_name = Left(first_name, position-1)       	'trims the middle initial off of the first name
+			ELSE                                'In cases where the last name takes up the entire space, THEN the client name becomes the last name
+				first_name = ""
+				last_name = client_name
+			END IF
+			first_name = trim(first_name)
+			IF instr(first_name, " ") THEN   						'If there is a middle initial in the first name, THEN it removes it
+				length = len(first_name)                        	'trimming the 1st name
+				position = InStr(first_name, " ")               	'establishing the length of the variable
+				first_name = Left(first_name, position-1)       	'trims the middle initial off of the first name
+			END IF
 
-					EMReadScreen Active_Programs, 13, 6, 68
-					Active_Programs =trim(Active_Programs)
-					objExcel.cells(excel_row, 4).value = Active_Programs
+			'----------------------------------------------------------------------------------------------------ACTIVE PROGRAMS
+			EMReadScreen Active_Programs, 13, 6, 68
+			Active_Programs = trim(Active_Programs)
+			programs = ""
+			IF instr(Active_Programs, "D") THEN programs = programs & "DWP, "
+			IF instr(Active_Programs, "F") THEN programs = programs & "Food Support, "
+			IF instr(Active_Programs, "H") THEN programs = programs & "Health Care, "
+			IF instr(Active_Programs, "M") THEN programs = programs & "Medical Assistance, "
+			IF instr(Active_Programs, "S") THEN programs = programs & "MFIP, "
+			'trims excess spaces of programs
+			programs = trim(programs)
+			'takes the last comma off of programs when autofilled into dialog
+			IF right(programs, 1) = "," THEN programs = left(programs, len(programs) - 1)
+			'----------------------------------------------------------------------------------------------------Employer info & difference notice info
+			IF match_type = "UBEN" THEN income_source = "Unemployment"
+			IF match_type = "UNVI" THEN income_source = "NON-WAGE"
+			IF match_type = "WAGE" THEN
+				EMReadScreen income_source, 50, 8, 37 'was 37' should be to the right of emplyer and the left of amount
+				income_source = trim(income_source)
+				length = len(income_source)		'establishing the length of the variable
+				'should be to the right of employer and the left of amount '
+				IF instr(income_source, " AMOUNT: $") THEN
+					position = InStr(income_source, " AMOUNT: $")    		      'sets the position at the deliminator
+					income_source = Left(income_source, position)  'establishes employer as being before the deliminator
+				Elseif instr(income_source, " AMT: $") THEN 					  'establishing the length of the variable
+					position = InStr(income_source, " AMT: $")    		      'sets the position at the deliminator
+					income_source = Left(income_source, position)  'establishes employer as being before the deliminator
+				END IF
+			END IF
+			IF match_type = "BEER" THEN
+				EMReadScreen income_source, 50, 8, 28 'was 37' should be to the right of emplyer and the left of amount
+				income_source = trim(income_source)
+				length = len(income_source)		'establishing the length of the variable
+				'should be to the right of employer and the left of amount '
+				IF instr(income_source, " AMOUNT: $") THEN
+					position = InStr(income_source, " AMOUNT: $")    		      'sets the position at the deliminator
+					income_source = Left(income_source, position)  'establishes employer as being before the deliminator
+				Elseif instr(income_source, " AMT: $") THEN 					  'establishing the length of the variable
+					position = InStr(income_source, " AMT: $")    		      'sets the position at the deliminator
+					income_source = Left(income_source, position)  'establishes employer as being before the deliminator
+				END IF
+			END IF
+							programs_array = split(programs, ",")
+				For each program in programs_array
+					program = trim(program)
+					IF program = "DWP" then cleared_header = "ACTD"
+					IF program = "Food Support" then cleared_header = "ACTF"
+					IF program = "Health Care" then cleared_header = "ACTH"
+					IF program = "Medical Assistance" then cleared_header = "ACTM"
+					IF program = "MFIP" then cleared_header = "ACTS"
+					row = 11
+					col = 57
+					EMSearch cleared_header, row, col
+					EMReadScreen cleared_field, 2, row + 1, col + 1
+					If cleared_field <> "__" then
+						objExcel.cells(excel_row, 9).value = "Unable to update cleared status on IULA."
+						case_note_actions = False
+					Else
+						EMWriteScreen Cleared_status, row + 1, col + 1
+					End if
+				Next
 
-					programs = ""
-					IF instr(Active_Programs, "D") then programs = programs & "DWP, "
-					IF instr(Active_Programs, "F") then programs = programs & "Food Support, "
-					IF instr(Active_Programs, "H") then programs = programs & "Health Care, "
-					IF instr(Active_Programs, "M") then programs = programs & "Medical Assistance, "
-					IF instr(Active_Programs, "S") then programs = programs & "MFIP, "
-					'trims excess spaces of programs
-					programs = trim(programs)
-					'takes the last comma off of programs when autofilled into dialog
-					If right(programs, 1) = "," THEN programs = left(programs, len(programs) - 1)
+                CALL write_value_and_transmit("10", 12, 46)   'navigates to IULB
 
-					'clearing all programs on IULA
-					programs_array = split(programs, ",")
-					For each program in programs_array
-						program = trim(program)
-						IF program = "DWP" then cleared_header = "ACTD"
-						IF program = "Food Support" then cleared_header = "ACTF"
-						IF program = "Health Care" then cleared_header = "ACTH"
-						IF program = "Medical Assistance" then cleared_header = "ACTM"
-						IF program = "MFIP" then cleared_header = "ACTS"
-						row = 11
-						col = 57
-						EMSearch cleared_header, row, col
-						EMReadScreen cleared_field, 2, row + 1, col + 1
-						If cleared_field <> "__" then
-							objExcel.cells(excel_row, 9).value = "Unable to update cleared status on IULA."
-							case_note_actions = False
-						Else
-							EMWriteScreen Cleared_status, row + 1, col + 1
-						End if
-					Next
-
-                    CALL write_value_and_transmit("10", 12, 46)   'navigates to IULB
-
-				    'resolved notes depending on the Cleared_status
-				    If Cleared_status = "BC" then CALL write_value_and_transmit("Case closed.", 8, 6)   'BC
-                    If Cleared_status = "BE" then CALL write_value_and_transmit("No change.", 8, 6)   'BE
-				    If Cleared_status = "BN" then CALL write_value_and_transmit("Already known - No savings.", 8, 6)   'BN
-				    If Cleared_status = "CC" then CALL write_value_and_transmit("Claim entered.", 8, 6)   'CC
-					objExcel.cells(excel_row, 9).value = "IEVS match cleared"
-                    case_note_actions = True
+			    'resolved notes depending on the Cleared_status
+			    If Cleared_status = "BC" then CALL write_value_and_transmit("Case closed.", 8, 6)   'BC
+                If Cleared_status = "BE" then CALL write_value_and_transmit("No change.", 8, 6)   'BE
+			    If Cleared_status = "BN" then CALL write_value_and_transmit("Already known - No savings.", 8, 6)   'BN
+			    If Cleared_status = "CC" then CALL write_value_and_transmit("Claim entered.", 8, 6)   'CC
+				objExcel.cells(excel_row, 9).value = "IEVS match cleared"
+                case_note_actions = True
 				End if
 			End if
 		End if
-	End if
+	'End if
 
     If case_note_actions = True then		'Formatting for the case note
-	    If IEVS_type = "WAGE" then
+	    If match_type = "WAGE" then
 	    	'Updated IEVS_period to write into case note
 	    	If quarter = 1 then IEVS_quarter = "1ST"
 	    	If quarter = 2 then IEVS_quarter = "2ND"
@@ -322,8 +370,8 @@ DO
 
 		'Case noting the actions taken
         start_a_blank_CASE_NOTE
-        If IEVS_type = "WAGE" then Call write_variable_in_CASE_NOTE("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH" & cleared_header_info & "-----")
-		If IEVS_type = "BEER" then Call write_variable_in_CASE_NOTE("-----" & IEVS_year & "  NON-WAGE MATCH (B)" & cleared_header_info & "-----")
+        If match_type = "WAGE" then Call write_variable_in_CASE_NOTE("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH" & cleared_header_info & "-----")
+		If match_type = "BEER" then Call write_variable_in_CASE_NOTE("-----" & IEVS_year & "  NON-WAGE MATCH (B)" & cleared_header_info & "-----")
 		Call write_bullet_and_variable_in_CASE_NOTE("Period", IEVS_period)
 		Call write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
         Call write_bullet_and_variable_in_CASE_NOTE("Source of income", income_source)

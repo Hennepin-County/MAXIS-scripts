@@ -190,7 +190,7 @@ IF match_answer_droplist = "NO-RUN NEW HIRE" THEN 'CHECKING CASE CURR. MFIP AND 
 	If MFIP_case = False then create_JOBS_checkbox = checked
 	'Setting the variable for the following do...loop
 	HH_memb_row = 5
-    
+
     'This is a dialog asking if the job is known to the agency.
     Dialog1 = ""
     BeginDialog Dialog1, 0, 0, 281, 195, "NEW HIRE INFORMATION"
@@ -220,7 +220,7 @@ IF match_answer_droplist = "NO-RUN NEW HIRE" THEN 'CHECKING CASE CURR. MFIP AND 
       Text 5, 10, 60, 10, "Member Number:"
       GroupBox 5, 70, 270, 65, "Verification or updates"
     EndDialog
-    
+
 'Show dialog
 	DO
 	    DO
@@ -314,7 +314,7 @@ IF match_answer_droplist = "NO-RUN NEW HIRE" THEN 'CHECKING CASE CURR. MFIP AND 
 
     reminder_date = dateadd("d", 10, date)  'Setting out for 10 days reminder
     If Outlook_reminder_checkbox = CHECKED THEN CALL create_outlook_appointment(reminder_date, "08:00 AM", "08:00 AM", "New Hire recieved " & " for " & MAXIS_case_number, "", "", TRUE, 5, "")
-    
+
     script_end_procedure_with_error_report("Success! MAXIS updated for new HIRE message, a case note made, and a TIKL has been sent for 10 days from now. An Employment Verification and Verif Req Form should now be sent. The job is at " & employer & ".")
 END IF
 
@@ -357,7 +357,7 @@ IF match_answer_droplist = "YES-INFC clear match" THEN
 		END IF
 	LOOP UNTIL case_number = ""
 	IF hire_match <> TRUE THEN script_end_procedure("No pending HIRE match found. Please review NEW HIRE.")
-    
+
     'This is a dialog asking if the job is known to the agency.
         Dialog1 = ""
         BeginDialog Dialog1, 0, 0, 281, 190, "NDNH Match Resolution Information"
@@ -367,7 +367,7 @@ IF match_answer_droplist = "YES-INFC clear match" THEN
           EditBox 220, 75, 45, 15, cost_savings
           EditBox 55, 95, 210, 15, other_notes
           CheckBox 10, 125, 260, 10, "Check here if 10 day cutoff has passed - TIKL will be set for following month", tenday_checkbox
-          CheckBox 10, 150, 185, 10, "Check to update claim referral tracking(SNAP and MF)", claim_referral_tracking_checkbox
+		  CheckBox 10, 150, 260, 10, "SNAP or MFIP Federal Food only - add Claim Referral Tracking on STAT/MISC", claim_referral_tracking_checkbox
           ButtonGroup ButtonPressed
             OkButton 170, 170, 50, 15
             CancelButton 225, 170, 50, 15
@@ -471,7 +471,7 @@ IF match_answer_droplist = "YES-INFC clear match" THEN
 		CALL write_bullet_and_variable_in_case_note("Other notes", other_notes)
 		CALL write_variable_in_case_note("---")
 		CALL write_variable_in_case_note(worker_signature)
-        
+
 	ELSEIF Emp_known_droplist = "NO-See Next Question" THEN
 		CALL write_variable_in_case_note("-NDNH JOB DETAILS FOR (M" & HH_memb & ") INFC cleared unreported to agency-")
 		'CALL write_variable_in_case_note("-NDNH " & new_hire_first_line & " INFC cleared unreported to agency-")
