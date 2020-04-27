@@ -474,6 +474,7 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
 		  Text 15, 70, 30, 10, "Program:"
 	      Text 15, 110, 30, 10, "Program:"
 	      Text 15, 90, 30, 10, "Program:"
+		  Text 15, 130, 30, 10, "Program:"
 		  Text 105, 70, 20, 10, "From:"
 		  Text 105, 90, 20, 10, "From:"
 		  Text 105, 110, 20, 10, "From:"
@@ -490,7 +491,6 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
 		  Text 285, 90, 20, 10, "AMT:"
 		  Text 285, 110, 20, 10, "AMT:"
 	      Text 285, 130, 20, 10, "AMT:"
-
 		EndDialog
 	    Do
 	        Do
