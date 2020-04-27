@@ -286,7 +286,7 @@ Do
         'looking for errors in the dialog entry
     	If MAXIS_case_number = "" Then err_msg = err_msg & vbNewLine & "- Enter a Case Number."
     	If MAXIS_footer_month = "" or MAXIS_footer_year = "" Then err_msg = err_msg & vbNewLine & "- Enter footer month and year."
-    	If notice_selected = False Then err_msg = err_msg & vbNewLine & "- Select a notice to be copied to a Word Document."
+    	If notice_selected = False Then err_msg = err_msg & vbNewLine & "- Select a notice that needs a WCOM added."
 
         'If the button is pressed to find notices, the loop will not entry - but instead navigate to the WCOM for the specified case and month/year
     	If ButtonPressed = find_notices_button then
