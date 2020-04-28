@@ -134,7 +134,7 @@ IF action_taken = "Client responds to request" THEN
       ButtonGroup ButtonPressed
     	OkButton 105, 85, 40, 15
     	CancelButton 150, 85, 40, 15
-      Text 5, 10, 50, 10, "Date recieved:"
+      Text 5, 10, 50, 10, "Date received:"
       Text 100, 10, 55, 10, "# Months used: "
       GroupBox 5, 25, 185, 35, "Verification received: "
       Text 5, 70, 45, 10, "Other notes: "
