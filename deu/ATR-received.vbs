@@ -251,13 +251,6 @@ IF match_type = "BEER" THEN
 END IF
 
 
-'----------------------------------------------------------------------------------------------------notice sent
-EMReadScreen notice_sent, 1, 14, 37
-EMReadScreen sent_date, 8, 14, 68
-sent_date = trim(sent_date)
-'IF sent_date = "" THEN sent_date = replace(sent_date, " ", "/")
-IF sent_date <> "" THEN sent_date = replace(sent_date, " ", "/")
-
 '-----------------------------------------------------------------------------------------Initial dialog and do...loop
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
@@ -304,10 +297,22 @@ DO
     CALL check_for_password_without_transmit(are_we_passworded_out)
 LOOP UNTIL are_we_passworded_out = false
 
-'--------------------------------------------------------------------sending the notice in IULA
+'----------------------------------------------------------------------------------------------------notice sent
+EMReadScreen notice_sent, 1, 14, 37
+EMReadScreen sent_date, 8, 14, 68
+sent_date = trim(sent_date)
+'IF sent_date = "" THEN sent_date = replace(sent_date, " ", "/")
+IF sent_date <> "" THEN sent_date = replace(sent_date, " ", "/")
+EMReadScreen clear_code, 2, 12, 58
 EMwritescreen "005", 12, 46 'writing the resolve time to read for later
-EMwritescreen "Y", 15, 37 'send Notice
-transmit 'this will take us to IULB'\
+
+IF notice_sent = "Y" THEN
+	EMwritescreen "Y", 15, 37 'Responded to diff notice
+ELSE
+	EMwritescreen "N", 15, 37 'Responded to diff notice
+END IF
+
+TRANSMIT 'this will take us to IULB'\
 ROW = 8
 EMReadScreen IULB_first_line, 1, row, 6
 IF IULB_first_line = "" THEN
