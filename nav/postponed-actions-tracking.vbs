@@ -49,7 +49,7 @@ call changelog_update("03/23/2020", "Initial version.", "Ilse Ferris, Hennepin C
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-
+'THIS SCRIPT IS NOT BEING ACCESSED FROM GITHUB - there is a LOCAL FILE - use that for updates/action.'
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
 
@@ -62,13 +62,13 @@ BeginDialog Dialog1, 0, 0, 216, 90, "Postponed Actions Required"
   GroupBox 5, 5, 210, 40, "When to use this script:"
   Text 10, 15, 200, 25, "Use this script if verifications and/or actions are required, but are postponed temporarily due to COVID - 19 Emergency Executive Orders."
 EndDialog
-    
+
 Do
 	err_msg = ""
     Dialog Dialog1
 	Cancel_without_confirmation
     Call validate_MAXIS_case_number(err_msg, "*")
     IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
-LOOP UNTIL err_msg = ""	
+LOOP UNTIL err_msg = ""
 
 script_end_procedure("Success! Your case number, " & MAXIS_case_number & ", has been captured for future follow up.")
