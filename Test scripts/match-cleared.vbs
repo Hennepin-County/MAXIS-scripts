@@ -833,10 +833,14 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
 	END IF
 	'------------------------------------------setting up case note header'
 	IF ATR_needed_checkbox= CHECKED THEN header_note = "ATR/EVF STILL REQUIRED"
-	IF resolution_status = "CC-Overpayment Only" THEN cleared_header = "CLEARED CC-CLAIM ENTERED "
-	IF resolution_status = "NC-Non Cooperation" THEN cleared_header = "NON-COOPERATION "
-	IF resolution_status <> "NC-Non Cooperation" OR resolution_status <> "CC-Overpayment Only" THEN cleared_header = " CLEARED" & IULA_res_status
 	IF difference_notice_action_dropdown = "YES" THEN cleared_header = " DIFF NOTICE SENT"
+	IF resolution_status = "CC-Overpayment Only" THEN
+		cleared_header = "CLEARED CLAIM ENTERED "
+	ELSEIF resolution_status = "NC-Non Cooperation" THEN
+			cleared_header = "NON-COOPERATION "
+	ELSEIF resolution_status <> "CC-Overpayment Only" OR resolution_status <> "NC-Non Cooperation" THEN
+		cleared_header = " CLEARED " & IULA_res_status
+	END IF
 
 	IF match_type = "BEER" THEN match_type_letter = "B"
 	IF match_type = "UBEN" THEN match_type_letter = "U"

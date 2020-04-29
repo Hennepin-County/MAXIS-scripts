@@ -171,23 +171,42 @@ Row = 7
 DO
 	EMReadScreen IEVS_period, 11, row, 47
 	EMReadScreen number_IEVS_type, 3, row, 41
-	IF IEVS_period = "" THEN script_end_procedure_with_error_report("A match for the selected period could not be found. The script will now end.")
 	IF trim(IEVS_period) = "" THEN script_end_procedure_with_error_report("A match for the selected period could not be found. The script will now end.")
-	ievp_info_confirmation = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
-	" " & "Period: " & IEVS_period & " Type: " & number_IEVS_type, vbYesNoCancel, "Please confirm this match")
-	'msgbox IEVS_period
-	IF ievp_info_confirmation = vbNo THEN
-		row = row + 1
-	'msgbox "row: " & row
-		IF row = 17 THEN
-			PF8
-			row = 7
-			EMReadScreen IEVS_period, 11, row, 47
-		END IF
-	END IF
-	IF ievp_info_confirmation = vbCancel THEN script_end_procedure_with_error_report ("The script has ended. The match has not been acted on.")
-	IF ievp_info_confirmation = vbYes THEN EXIT DO
-LOOP UNTIL ievp_info_confirmation = vbYes
+	BeginDialog Dialog1, 0, 0, 171, 95, "CASE NUMBER: "  & MAXIS_case_number
+  	 Text 5, 10, 100, 10, "Navigate to the correct match:"
+  	 Text 5, 25, 150, 10, "Match Type: " & number_IEVS_type
+  	 Text 5, 40, 150, 10, "Match Period: "  & IEVS_period
+  	 ButtonGroup ButtonPressed
+     PushButton 5, 60, 50, 15, "Confirm Match", match_confimation
+     PushButton 60, 60, 50, 15, "Next Match", next_match
+     PushButton 115, 60, 50, 15, "Next Page", next_page
+    CancelButton 60, 80, 50, 15
+	EndDialog
+	DO
+	    DO
+	       	err_msg = ""
+	       	Dialog Dialog1
+			cancel_confirmation
+			IF ButtonPressed = next_match THEN
+				row = row + 1
+				'msgbox "row: " & row
+				IF row = 17 THEN
+					PF8
+					row = 7
+					EMReadScreen IEVS_period, 11, row, 47
+				END IF
+			END IF
+			IF ButtonPressed = next_page THEN
+				PF8
+				row = 7
+				EMReadScreen IEVS_period, 11, row, 47
+			END IF
+			IF ButtonPressed = match_confimation THEN EXIT DO
+	        IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+	       LOOP UNTIL err_msg = ""
+		CALL check_for_password_without_transmit(are_we_passworded_out)
+	LOOP UNTIL are_we_passworded_out = false
+LOOP UNTIL ButtonPressed = match_confimation
 '---------------------------------------------------------------------Reading potential errors for out-of-county cases
 CALL write_value_and_transmit("U", row, 3)   'navigates to IULA
 EMReadScreen OutOfCounty_error, 12, 24, 2
@@ -299,14 +318,15 @@ END IF
 EMReadScreen notice_sent, 1, 14, 37
 EMReadScreen sent_date, 8, 14, 68
 sent_date = trim(sent_date)
-'IF sent_date = "" THEN sent_date = replace(sent_date, " ", "/")
+
+IF sent_date = "" THEN sent_date = "N/A"
 IF sent_date <> "" THEN sent_date = replace(sent_date, " ", "/")
+
 EMReadScreen clear_code, 2, 12, 58
 
-'IF sent_date <> "" THEN MsgBox("A difference notice was sent on " & sent_date & "." & vbNewLine & "The script will now navigate to clear the match.")
 '----------------------------------------------------------------Defaulting checkboxes to being checked (per DEU instruction)
 
-IF notice_sent = "N" THEN
+IF notice_sent = "N" or clear_code = "__" THEN
     '-------------------------------------------------------------------------------------------------DIALOG
     Dialog1 = "" 'Blanking out previous dialog detail
 	BeginDialog Dialog1, 0, 0, 271, 185, "DIFFERENCE NOTICE NOT SENT FOR: " & MAXIS_case_number
@@ -813,10 +833,14 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
 	END IF
 	'------------------------------------------setting up case note header'
 	IF ATR_needed_checkbox= CHECKED THEN header_note = "ATR/EVF STILL REQUIRED"
-	IF resolution_status = "CC-Overpayment Only" THEN cleared_header = "CLEARED CC-CLAIM ENTERED "
-	IF resolution_status = "NC-Non Cooperation" THEN cleared_header = "NON-COOPERATION "
-	IF resolution_status <> "NC-Non Cooperation" OR resolution_status <> "CC-Overpayment Only" THEN cleared_header = " CLEARED" & IULA_res_status
 	IF difference_notice_action_dropdown = "YES" THEN cleared_header = " DIFF NOTICE SENT"
+	IF resolution_status = "CC-Overpayment Only" THEN
+		cleared_header = "CLEARED CLAIM ENTERED "
+	ELSEIF resolution_status = "NC-Non Cooperation" THEN
+			cleared_header = "NON-COOPERATION "
+	ELSEIF resolution_status <> "CC-Overpayment Only" OR resolution_status <> "NC-Non Cooperation" THEN
+		cleared_header = " CLEARED " & IULA_res_status
+	END IF
 
 	IF match_type = "BEER" THEN match_type_letter = "B"
 	IF match_type = "UBEN" THEN match_type_letter = "U"
@@ -860,6 +884,7 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
 	CALL write_bullet_and_variable_in_case_note("Source of income", income_source)
 	CALL write_variable_in_case_note("----- ----- ----- ----- ----- ----- -----")
 	CALL write_bullet_and_variable_in_case_note("Date Diff notice sent", sent_date)
+	CALL write_bullet_and_variable_in_case_note("Verifications Received", pending_verifs)
 	IF change_response <> "N/A" THEN CALL write_bullet_and_variable_in_case_note("Responded to Difference Notice", change_response)
 	IF DISQ_action <> "Select One:" THEN CALL write_bullet_and_variable_in_case_note("STAT/DISQ addressed for each program", DISQ_action)
 	CALL write_variable_in_case_note ("----- ----- -----")
