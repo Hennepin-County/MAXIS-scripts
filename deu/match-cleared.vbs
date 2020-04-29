@@ -306,7 +306,7 @@ EMReadScreen clear_code, 2, 12, 58
 'IF sent_date <> "" THEN MsgBox("A difference notice was sent on " & sent_date & "." & vbNewLine & "The script will now navigate to clear the match.")
 '----------------------------------------------------------------Defaulting checkboxes to being checked (per DEU instruction)
 
-IF notice_sent = "N" or clear_code = "__" THEN
+IF notice_sent = "N" THEN
     '-------------------------------------------------------------------------------------------------DIALOG
     Dialog1 = "" 'Blanking out previous dialog detail
 	BeginDialog Dialog1, 0, 0, 271, 185, "DIFFERENCE NOTICE NOT SENT FOR: " & MAXIS_case_number
