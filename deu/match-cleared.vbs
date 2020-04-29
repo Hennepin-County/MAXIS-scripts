@@ -38,6 +38,205 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'GATHERING STATS===========================================================================================
+name_of_script = "ACTIONS - DEU-MATCH CLEARED CC.vbs"
+start_time = timer
+STATS_counter = 1
+STATS_manualtime = 300
+STATS_denominatinon = "C"
+'END OF STATS BLOCK===========================================================================================
+'run_locally = TRUE
+'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
+IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+			FuncLib_URL = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+		Else											'Everyone else should use the release branch.
+			FuncLib_URL = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+		End if
+		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
+		req.open "GET", FuncLib_URL, FALSE							'Attempts to open the FuncLib_URL
+		req.send													'Sends request
+		IF req.Status = 200 THEN									'200 means great success
+			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
+			Execute req.responseText								'Executes the script code
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+            StopScript
+		END IF
+	ELSE
+		FuncLib_URL = "C:\MAXIS-scripts\MASTER FUNCTIONS LIBRARY.vbs"
+		Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
+		Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
+		text_from_the_other_script = fso_command.ReadAll
+		fso_command.Close
+		Execute text_from_the_other_script
+	END IF
+END IF
+'FUNCTIONS LIBRARY BLOCK================================================================================================
+FUNCTION write_variable_in_CCOL_note_test(variable)
+    ''--- This function writes a variable in CCOL note
+    '~~~~~ variable: information to be entered into CASE note from script/edit box
+    '===== Keywords: MAXIS, CASE note
+    If trim(variable) <> "" THEN
+    	EMGetCursor noting_row, noting_col						'Needs to get the row and col to start. Doesn't need to get it in the array function because that uses EMWriteScreen.
+    	'msgbox varible & vbcr & "noting_row " & noting_row
+        noting_col = 3											'The noting col should always be 3 at this point, because it's the beginning. But, this will be dynamically recreated each time.
+    	'The following figures out if we need a new page, or if we need a new case note entirely as well.
+    	Do
+    		EMReadScreen character_test, 40, noting_row, noting_col 	'Reads a single character at the noting row/col. If there's a character there, it needs to go down a row, and look again until there's nothing. It also needs to trigger these events if it's at or above row 18 (which means we're beyond case note range).
+    		character_test = trim(character_test)
+    		If character_test <> "" or noting_row >= 19 then
+                noting_row = noting_row + 1
+    		    'If we get to row 19 (which can't be read here), it will go to the next panel (PF8).
+    			If noting_row >= 19 then
+    				PF8
+                    'msgbox "sent PF8"
+    				EMReadScreen next_page_confirmation, 4, 19, 3
+                    'msgbox "next_page_confirmation " & next_page_confirmation
+    				IF next_page_confirmation = "More" THEN
+    					next_page = TRUE
+                        noting_row = 5
+    				Else
+						next_page = FALSE
+    				End If
+                    'msgbox "next_page " & next_page
+    			Else
+    				noting_row = noting_row + 1
+    			End if
+    		End if
+    	Loop until character_test = ""
+
+    	'Splits the contents of the variable into an array of words
+    	variable_array = split(variable, " ")
+
+        For each word in variable_array
+            'If the length of the word would go past col 80 (you can't write to col 80), it will kick it to the next line and indent the length of the bullet
+            If len(word) + noting_col > 80 then
+                noting_row = noting_row + 1
+                noting_col = 3
+            End if
+
+            'If the next line is row 18 (you can't write to row 18), it will PF8 to get to the next page
+            If noting_row >= 19 then
+                PF8
+                noting_row = 5
+                'Msgbox "what's Happening? Noting row: " & noting_row
+            End if
+
+            'Adds spaces (indent) if we're on col 3 since it's the beginning of a line. We also have to increase the noting col in these instances (so it doesn't overwrite the indent).
+            If noting_col = 3 then
+                EMWriteScreen space(indent_length), noting_row, noting_col
+                noting_col = noting_col + indent_length
+            End if
+
+            'Writes the word and a space using EMWriteScreen
+            EMWriteScreen replace(word, ";", "") & " ", noting_row, noting_col
+
+            'If a semicolon is seen (we use this to mean "go down a row", it will kick the noting row down by one and add more indent again.
+            If right(word, 1) = ";" then
+                noting_row = noting_row + 1
+                noting_col = 3
+                EMWriteScreen space(indent_length), noting_row, noting_col
+                noting_col = noting_col + indent_length
+            End if
+            'Increases noting_col the length of the word + 1 (for the space)
+            noting_col = noting_col + (len(word) + 1)
+        Next
+        'After the array is processed, set the cursor on the following row, in col 3, so that the user can enter in information here (just like writing by hand). If you're on row 18 (which isn't writeable), hit a PF8. If the panel is at the very end (page 5), it will back out and go into another case note, as we did above.
+    	EMSetCursor noting_row + 1, 3
+    End if
+END FUNCTION
+
+function write_bullet_and_variable_in_CCOL_note_test(bullet, variable)
+'--- This function creates an asterisk, a bullet, a colon then a variable to style CCOL notes
+'~~~~~ bullet: name of the field to update. Put bullet in "".
+'~~~~~ variable: variable from script to be written into CCOL note
+'===== Keywords: MAXIS, bullet, CCOL note
+    If trim(variable) <> "" THEN
+        EMGetCursor noting_row, noting_col						'Needs to get the row and col to start. Doesn't need to get it in the array function because that uses EMWriteScreen.
+        'msgbox varible & vbcr & "noting_row " & noting_row
+        noting_col = 3											'The noting col should always be 3 at this point, because it's the beginning. But, this will be dynamically recreated each time.
+        'The following figures out if we need a new page, or if we need a new case note entirely as well.
+        Do
+            EMReadScreen character_test, 40, noting_row, noting_col 	'Reads a single character at the noting row/col. If there's a character there, it needs to go down a row, and look again until there's nothing. It also needs to trigger these events if it's at or above row 18 (which means we're beyond case note range).
+            character_test = trim(character_test)
+            If character_test <> "" or noting_row >= 19 then
+                noting_row = noting_row + 1
+                'If we get to row 19 (which can't be read here), it will go to the next panel (PF8).
+                If noting_row >= 19 then
+                    PF8
+                    'msgbox "sent PF8"
+                    EMReadScreen next_page_confirmation, 4, 19, 3
+                    'msgbox "next_page_confirmation " & next_page_confirmation
+                    IF next_page_confirmation = "More" THEN
+                        next_page = TRUE
+                        noting_row = 5
+                    Else
+                        next_page = FALSE
+                    End If
+                    'msgbox "next_page " & next_page
+                Else
+                    noting_row = noting_row + 1
+                End if
+            End if
+        Loop until character_test = ""
+
+        'Looks at the length of the bullet. This determines the indent for the rest of the info. Going with a maximum indent of 18.
+        If len(bullet) >= 14 then
+            indent_length = 18	'It's four more than the bullet text to account for the asterisk, the colon, and the spaces.
+        Else
+            indent_length = len(bullet) + 4 'It's four more for the reason explained above.
+        End if
+
+        'Writes the bullet
+        EMWriteScreen "* " & bullet & ": ", noting_row, noting_col
+        'Determines new noting_col based on length of the bullet length (bullet + 4 to account for asterisk, colon, and spaces).
+        noting_col = noting_col + (len(bullet) + 4)
+        'Splits the contents of the variable into an array of words
+        variable_array = split(variable, " ")
+
+        For each word in variable_array
+            'If the length of the word would go past col 80 (you can't write to col 80), it will kick it to the next line and indent the length of the bullet
+            If len(word) + noting_col > 80 then
+                noting_row = noting_row + 1
+                noting_col = 3
+            End if
+
+            'If the next line is row 18 (you can't write to row 18), it will PF8 to get to the next page
+            If noting_row >= 19 then
+                PF8
+                noting_row = 5
+                'Msgbox "what's Happening? Noting row: " & noting_row
+            End if
+
+            'Adds spaces (indent) if we're on col 3 since it's the beginning of a line. We also have to increase the noting col in these instances (so it doesn't overwrite the indent).
+            If noting_col = 3 then
+                EMWriteScreen space(indent_length), noting_row, noting_col
+                noting_col = noting_col + indent_length
+            End if
+
+            'Writes the word and a space using EMWriteScreen
+            EMWriteScreen replace(word, ";", "") & " ", noting_row, noting_col
+
+            'If a semicolon is seen (we use this to mean "go down a row", it will kick the noting row down by one and add more indent again.
+            If right(word, 1) = ";" then
+                noting_row = noting_row + 1
+                noting_col = 3
+                EMWriteScreen space(indent_length), noting_row, noting_col
+                noting_col = noting_col + indent_length
+            End if
+            'Increases noting_col the length of the word + 1 (for the space)
+            noting_col = noting_col + (len(word) + 1)
+        Next
+        'After the array is processed, set the cursor on the following row, in col 3, so that the user can enter in information here (just like writing by hand). If you're on row 18 (which isn't writeable), hit a PF8. If the panel is at the very end (page 5), it will back out and go into another case note, as we did above.
+    	EMSetCursor noting_row + 1, 3
+    End if
+end function
+'END FUNCTIONS LIBRARY BLOCK================================================================================================
 'CHANGELOG BLOCK ===========================================================================================================
 'Starts by defining a changelog array
 changelog = array()
@@ -63,6 +262,7 @@ CALL changelog_update("11/14/2017", "Initial version.", "MiKayla Handley, Hennep
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
+
 '---------------------------------------------------------------------THE SCRIPT
 testing_run = TRUE
 EMConnect ""
@@ -517,7 +717,6 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
 	        	err_msg = ""
 	        	dialog Dialog1
 	        	cancel_confirmation
-	        	IF MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 THEN err_msg = err_msg & vbnewline & "* Enter a valid case number."
 	        	IF select_quarter = "Select:" THEN err_msg = err_msg & vbnewline & "* You must select a match period entry-select other for UBEN."
 	        	IF fraud_referral = "Select:" THEN err_msg = err_msg & vbnewline & "* You must select a fraud referral entry."
 	        	IF trim(Reason_OP) = "" or len(Reason_OP) < 5 THEN err_msg = err_msg & vbnewline & "* You must enter a reason for the overpayment please provide as much detail as possible (min 5)."
@@ -542,7 +741,7 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
 	        		IF HC_claim_amount = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the amount of claim."
 	        	END IF
 	        	IF EVF_used = "" THEN err_msg = err_msg & vbNewLine & "* Please enter verification used for the income received. If no verification was received enter N/A."
-	        	IF isdate(income_rcvd_date) = False or income_rcvd_date = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a valid date for the income received."
+	        	'IF isdate(income_rcvd_date) = False or income_rcvd_date = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a valid date for the income received."
 	        	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	        LOOP UNTIL err_msg = ""
 	        CALL check_for_password_without_transmit(are_we_passworded_out)
