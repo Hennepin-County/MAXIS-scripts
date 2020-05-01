@@ -66,16 +66,6 @@ CALL MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 back_to_self 'to ensure we are not in edit mode'
 EMReadScreen priv_check, 4, 24, 18 'If it can't get into the case needs to skip
 IF priv_check = "INVA" THEN script_end_procedure_with_error_report("This case is invalid for period selected. ")
-'training case'
-'maxis_case_number = "286750"
-'child_ref_number = "03"
-'other_notes = "reason application incomplete"
-'SUP_CHECKBOX = CHECKED
-'actual_date = "09/01/19"
-'claim_date = "09/28/19"
-'gc_status = "Pending"
-'good_cause_droplist = "Application Review-Incomplete"
-'reason_droplist = "Potential phys harm/child"
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
@@ -354,7 +344,7 @@ END IF
 
 '-------------------------------------------------------------------------Updating the ABPS panel
 EMReadScreen MAXIS_footer_month, 2, 20, 55
-	'MsgBox MAXIS_footer_month
+'MsgBox MAXIS_footer_month
 DO
     PF9'edit mode
 	DO
@@ -367,24 +357,10 @@ DO
 		END IF
 	Loop Until edit_mode_check = "D"
 
-	EMReadScreen MAXIS_footer_month, 2, 20, 55
-	EmReadscreen error_check, 74, 24, 02
-	IF trim(error_check) = "" THEN
-        case_note_only = FALSE
-	else
-		maxis_error_check = MsgBox("*** NOTICE!!!***" & vbNewLine & "Continue to case note only? This will bypass updating this panel." & vbNewLine & error_check & vbNewLine, vbYesNo + vbQuestion, "Message handling")
-		IF maxis_error_check = vbYes THEN
-			case_note_only = FALSE 'this will case note only'
-			'EXIT DO
-		END IF
-		IF maxis_error_check= vbNo THEN
-			case_note_only = TRUE'this will update the panels and case note'
-			EXIT DO
-		END IF
-	END IF
-
 	EMReadScreen parental_status_number, 1, 15, 53	'making sure ABPS is not unknown.
-	EMReadScreen custodial_status, 1, 15, 57
+	'MsgBox parental_status_number
+	EMReadScreen custodial_status, 1, 15, 67
+	'MsgBox custodial_status
 	IF parental_status_number = "1" THEN
 		EMReadScreen first_name, 12, 10, 63
 		EMReadScreen last_name, 24, 10, 30
@@ -393,12 +369,12 @@ DO
 	    first_name = replace(first_name, "_", "")
 	    last_name = replace(last_name, "_", "")
 	    client_name = first_name & " " & last_name
-	    Call fix_case_for_name(client_name)
-	    'IF client_name = "" THEN client_name = replace(client_name, "", "Unknown")
 	END IF
 	EMReadScreen ABPS_gender, 1, 11, 80	'reading the ssn
 	EMReadScreen ABPS_SSN, 11, 11, 30	'reading the ssn
+	ABPS_SSN = replace(ABPS_SSN, " ", "-")
 	EMReadScreen ABPS_DOB, 10, 11, 60	'reading the DOB
+	ABPS_DOB = replace(ABPS_DOB, " ", "-")
 	EMReadScreen HC_ins_order, 1, 12, 44	'making sure ABPS is not unknown.
 	EMReadScreen HC_ins_compliance, 1, 12, 80
 
@@ -411,9 +387,9 @@ DO
     IF parental_status_number = "7" THEN parental_status = "Appl/HC child no order sup"
 
 	'MsgBox "Case Note Only: " & case_note_only
-	IF case_note_only = FALSE and edit_mode_check = "E" THEN
-	   'msgbox "what are we doing"
-	    EMWriteScreen "Y", 4, 73			'Support Coop Y/N field
+	IF edit_mode_check = "E" THEN  'msgbox "what are we doing"
+		case_note_only = FALSE
+		EMWriteScreen "Y", 4, 73			'Support Coop Y/N field
 		'msgbox "should be writing"
 	    IF gc_status = "Pending" THEN
 	    	'Msgbox gc_status
@@ -627,7 +603,7 @@ IF Recert_CHECKBOX   = CHECKED THEN Call write_variable_in_case_note("* Sent Goo
 IF DHS_3633_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Sent Good Cause Redetermination Approval (DHS 3633)")
 Call write_variable_in_case_note("---")
 Call write_variable_in_case_note(worker_signature)
-PF3
+'PF3
 IF mets_info = "" THEN
 	IF FS_CHECKBOX = CHECKED and CASH_CHECKBOX = UNCHECKED and CCA_CHECKBOX = UNCHECKED and DWP_CHECKBOX = UNCHECKED and MFIP_CHECKBOX = UNCHECKED and HC_CHECKBOX = UNCHECKED and METS_CHECKBOX = UNCHECKED THEN memo_started = TRUE
 END IF
