@@ -9,7 +9,14 @@ STATS_denomination = "C"        'C is for each case
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+    IF on_the_desert_island = TRUE Then
+        FuncLib_URL = "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Scripts\Script Files\desert-island\MASTER FUNCTIONS LIBRARY.vbs"
+        Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
+        Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
+        text_from_the_other_script = fso_command.ReadAll
+        fso_command.Close
+        Execute text_from_the_other_script
+    ELSEIF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
 		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		Else											'Everyone else should use the release branch.
@@ -61,7 +68,7 @@ changelog_display
 EMConnect ""
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 when_contact_was_made = date & ", " & time 'updates the "when contact was made" variable to show the current date & time]
-email_team = False 'defaulting to false for most populations 
+email_team = False 'defaulting to false for most populations
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
@@ -149,35 +156,35 @@ EmReadscreen basket_number, 7, 21, 14    'Reading basket number to determine if 
 
 email_address = ""
 'Determining if emails or TIKLS are creted and if emails are true, who are they going to.
-If email_checkbox = 1 then 
+If email_checkbox = 1 then
     email_address = email_address & "HSPH.EWS.EGA.Approvers@hennepin.us;"
     follow_up_type = "Email"
-End if 
+End if
 'DWP
-If follow_up_needed_checkbox = 1 then 
+If follow_up_needed_checkbox = 1 then
     If  basket_number = "X127FE7" OR _
         basket_number = "X127FE8" OR _
-        basket_number = "X127FE9" then 
-        email_team = True 
+        basket_number = "X127FE9" then
+        email_team = True
         email_address = email_address & "HSPH.ES.TEAM.470@hennepin.us;"
         follow_up_type = "Email"
-        'YET baskets 
+        'YET baskets
     elseif basket_number = "X127FA5" OR _
         basket_number = "X127FA6" OR _
         basket_number = "X127FA7" OR _
         basket_number = "X127FA8" OR _
-        basket_number = "X127FA9" then 
+        basket_number = "X127FA9" then
         email_team = True
         email_address = email_address & "HSPH.ES.TEAM.4651@hennepin.us;"
         follow_up_type = "Email"
-    else 
-        email_team = False 
-        send_dail = True 
+    else
+        email_team = False
+        send_dail = True
         follow_up_type = "TIKL"
-    End if 
-End if 
+    End if
+End if
 
-'----------------------------------------------------------------------------------------------------TIKL Time! 
+'----------------------------------------------------------------------------------------------------TIKL Time!
 'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
 If send_dail = true then Call create_TIKL("!!PHONE CONTACT FOLLOW UP REQUIRED!! " & when_contact_was_made, 0, date, False, TIKL_note_text)
 
@@ -209,17 +216,17 @@ CALL write_variable_in_CASE_NOTE(worker_signature)
 If Opt_out_checkbox = checked then Call create_outlook_email("xlab@maxwell.syr.edu","","Renewal text message opt out for case #" & MAXIS_case_number,"","",true)
 
 '----------------------------------------------------------------------------------------------------Email portion
-If email_checkbox = 1 or email_team = True then 
-    'Adding case detail to the body of the email 
+If email_checkbox = 1 or email_team = True then
+    'Adding case detail to the body of the email
     email_info = contact_type & " " & contact_direction & " " & who_contacted & " re: " & regarding & vbcr & vbcr & "* Reason for Contact: " & contact_reason & vbcr
     If trim(phone_number) <> "" then email_info = email_info & "* Phone Number: " & phone_number & vbcr
     If trim(other_notes) <> "" then email_info = email_info & "* Other Notes: " & other_notes & vbcr
     If send_dail = True then email_info = email_info & vbcr & "* A TIKL has been created for team follow up."
     'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
     Call create_outlook_email(email_address, "" ,"Phone call follow up and/or processing required for case #" & MAXIS_case_number, email_info, "", True)
-End if 
+End if
 
-IF TIKL_check = checked THEN CALL navigate_to_MAXIS_screen("dail", "writ")      'Navigating to TIKL only 
+IF TIKL_check = checked THEN CALL navigate_to_MAXIS_screen("dail", "writ")      'Navigating to TIKL only
 
 end_msg = ""
 'If case requires followup, it will create a MsgBox (via script_end_procedure) explaining that followup is needed. This MsgBox gets inserted into the statistics database for counties using that function. This will allow counties to "pull statistics" on follow-up, including case numbers, which can be used to track outcomes.
