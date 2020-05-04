@@ -8,7 +8,14 @@ STATS_denomination = "C"  'C is for case
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+    IF on_the_desert_island = TRUE Then
+        FuncLib_URL = "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Scripts\Script Files\desert-island\MASTER FUNCTIONS LIBRARY.vbs"
+        Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
+        Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
+        text_from_the_other_script = fso_command.ReadAll
+        fso_command.Close
+        Execute text_from_the_other_script
+    ELSEIF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
 		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		Else											'Everyone else should use the release branch.
@@ -131,7 +138,7 @@ If LTC_case = vbYes then 									'Shows dialog if LTC
             If trim(verif_due_date) = "" or isdate(verif_due_date) = False then err_msg = err_msg & vbNewLine & "* Enter a valid verification due date."
             If trim(worker_signature) = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
             IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-    	LOOP UNTIL err_msg = ""											  
+    	LOOP UNTIL err_msg = ""
 		Call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 	LOOP UNTIL are_we_passworded_out = false														'Loops until that case number exists
 ELSEIF LTC_case = vbNo then							'Shows dialog if not LTC
@@ -190,9 +197,9 @@ ELSEIF LTC_case = vbNo then							'Shows dialog if not LTC
             If (TIKL_check = 1 and trim(verif_due_date) = "" or isdate(verif_due_date) = False) then err_msg = err_msg & vbNewLine & "* Enter a valid verification due date."
             If trim(worker_signature) = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
             IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-     	LOOP UNTIL err_msg = ""											  
+     	LOOP UNTIL err_msg = ""
  		Call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
- 	LOOP UNTIL are_we_passworded_out = false	
+ 	LOOP UNTIL are_we_passworded_out = false
 END IF
 
 'THE TIKL----------------------------------------------------------------------------------------------------
