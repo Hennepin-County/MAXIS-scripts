@@ -526,7 +526,7 @@ EMReadScreen clear_code, 2, 12, 58
 
 '----------------------------------------------------------------Defaulting checkboxes to being checked (per DEU instruction)
 
-IF notice_sent = "N" or clear_code = "__" THEN
+IF notice_sent = "N" THEN
     '-------------------------------------------------------------------------------------------------DIALOG
     Dialog1 = "" 'Blanking out previous dialog detail
 	BeginDialog Dialog1, 0, 0, 271, 185, "DIFFERENCE NOTICE NOT SENT FOR: " & MAXIS_case_number
@@ -1038,7 +1038,7 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
 	ELSEIF resolution_status = "NC-Non Cooperation" THEN
 			cleared_header = "NON-COOPERATION "
 	ELSEIF resolution_status <> "CC-Overpayment Only" OR resolution_status <> "NC-Non Cooperation" THEN
-		cleared_header = " CLEARED " & IULA_res_status
+		cleared_header = "CLEARED " & IULA_res_status
 	END IF
 
 	IF match_type = "BEER" THEN match_type_letter = "B"
@@ -1086,7 +1086,6 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
 	CALL write_bullet_and_variable_in_case_note("Verifications Received", pending_verifs)
 	IF change_response <> "N/A" THEN CALL write_bullet_and_variable_in_case_note("Responded to Difference Notice", change_response)
 	IF DISQ_action <> "Select One:" THEN CALL write_bullet_and_variable_in_case_note("STAT/DISQ addressed for each program", DISQ_action)
-	CALL write_variable_in_case_note ("----- ----- -----")
 	CALL write_bullet_and_variable_in_case_note("Date verification received in ECF", date_received)
 	IF resolution_status = "CB-Ovrpmt And Future Save" THEN CALL write_variable_in_case_note("* OP Claim entered and future savings.")
 	IF resolution_status = "CF-Future Save" THEN CALL write_variable_in_case_note("* Future Savings.")
