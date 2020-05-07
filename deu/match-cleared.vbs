@@ -619,7 +619,6 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
 		Dialog Dialog1
 		cancel_without_confirmation
 		IF IsNumeric(resolve_time) = false or len(resolve_time) > 3 THEN err_msg = err_msg & vbNewLine & "Please enter a valid numeric resolved time, ie 005."
-		'IF resolution_status = "CB-Ovrpmt And Future Save" or resolution_status = "CC-Overpayment Only" or resolution_status = "CF-Future Save" or resolution_status = "CA-Excess Assets" or resolution_status = "CI-Benefit Increase" or resolution_status = "CP-Applicant Only Savings" or resolution_status = "BC-Case Closed" or resolution_status = "BE-No Change" or resolution_status = "BE-NC-Non-collectible" or resolution_status = "BN-Already Known-No Savings" or resolution_status ="BP-Wrong Person" or resolution_status = "BO-Other" and date_received = "" THEN err_msg = err_msg & vbNewLine & "Please advise of date verification was received in ECF."
 		IF other_checkbox = CHECKED and other_notes = "" THEN err_msg = err_msg & vbNewLine & "Please advise what other verification was used to clear the match."
 		IF change_response = "Select One:" THEN err_msg = err_msg & vbNewLine & "Did the client respond to Difference Notice?"
 		IF resolution_status = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please select a resolution status to continue."
@@ -717,7 +716,6 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
 	        	err_msg = ""
 	        	dialog Dialog1
 	        	cancel_confirmation
-	        	'IF select_quarter = "Select:" THEN err_msg = err_msg & vbnewline & "* You must select a match period entry-select other for UBEN."
 	        	IF fraud_referral = "Select:" THEN err_msg = err_msg & vbnewline & "* You must select a fraud referral entry."
 	        	IF trim(Reason_OP) = "" or len(Reason_OP) < 5 THEN err_msg = err_msg & vbnewline & "* You must enter a reason for the overpayment please provide as much detail as possible (min 5)."
 	           	IF OP_program_II <> "Select:" THEN
@@ -741,7 +739,6 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
 	        		IF HC_claim_amount = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the amount of claim."
 	        	END IF
 	        	IF EVF_used = "" THEN err_msg = err_msg & vbNewLine & "* Please enter verification used for the income received. If no verification was received enter N/A."
-	        	'IF isdate(income_rcvd_date) = False or income_rcvd_date = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a valid date for the income received."
 	        	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	        LOOP UNTIL err_msg = ""
 	        CALL check_for_password_without_transmit(are_we_passworded_out)
@@ -1062,7 +1059,7 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
 	'-------------------------------------------------------------------------------------------------The case note
 	IF claim_referral_tracking_dropdown <> "Select One:" THEN
 	    start_a_blank_case_note
-	    CALL write_variable_in_case_note("-----Claim Referral Tracking -" & MISC_action_taken & "-----")
+	    CALL write_variable_in_case_note("Claim Referral Tracking - " & MISC_action_taken)
 	    CALL write_bullet_and_variable_in_case_note("Action Date", action_date)
 	    CALL write_bullet_and_variable_in_case_note("Active Program(s)", programs)
 	    CALL write_bullet_and_variable_in_case_note("Other Notes", other_notes)
