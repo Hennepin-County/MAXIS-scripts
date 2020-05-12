@@ -40,6 +40,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("05/12/2020", "Temporary removal of NOTES - INTERVIEW NO SHOW script. This script supports in-person application/recertification process.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/02/2019", "Removed the script Combined AR. This process is covered in HC Renewal for HC only cases or CAF for cases with any cash or SNAP.", "Casey Love, Hennepin County")
 call changelog_update("07/31/2019", "Removed the following scripts: AREP Form Received, Medical Opinion Form, MTAF, and LTC-1503. The functionality from this script has been added to NOTES - Docs Received.", "Casey Love, Hennepin County")
 call changelog_update("04/30/2019", "Added Other Maintanence Benefit case note.", "MiKayla Handley, Hennepin County")
@@ -369,12 +370,12 @@ script_array_G_to_L(script_num).script_name 			= "Interview Completed"
 script_array_G_to_L(script_num).file_name				= "interview-completed.vbs"
 script_array_G_to_L(script_num).description				= "Template to case note an interview being completed but no stat panels updated."
 
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_G_to_L(script_num)			'Resets the array to add one more element to it
-Set script_array_G_to_L(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_G_to_L(script_num).script_name 			= "Interview No Show"
-script_array_G_to_L(script_num).file_name				= "interview-no-show.vbs"
-script_array_G_to_L(script_num).description				= "Template for case noting a client's no-showing their in-office or phone appointment."
+'script_num = script_num + 1								'Increment by one
+'ReDim Preserve script_array_G_to_L(script_num)			'Resets the array to add one more element to it
+'Set script_array_G_to_L(script_num) = new script		'Set this array element to be a new script. Script details below...
+'script_array_G_to_L(script_num).script_name 			= "Interview No Show"
+'script_array_G_to_L(script_num).file_name				= "interview-no-show.vbs"
+'script_array_G_to_L(script_num).description				= "Template for case noting a client's no-showing their in-office or phone appointment."
 
 '-------------------------------------------------------------------------------------------------------------------------M through Q
 'Resetting the variable
