@@ -2062,6 +2062,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                                     cash_checks = cash_checks + 1
                                 End If
 
+                                LIST_OF_INCOME_ARRAY(budget_in_SNAP_yes, all_income) = unchecked
                                 If LIST_OF_INCOME_ARRAY(budget_in_SNAP_no, all_income) = unchecked Then LIST_OF_INCOME_ARRAY(budget_in_SNAP_yes, all_income) = checked      'there used to be radio buttons and so I had to make some connections
                                 If LIST_OF_INCOME_ARRAY(future_check, all_income) = TRUE Then LIST_OF_INCOME_ARRAY(budget_in_SNAP_yes, all_income) = unchecked              'future checks are not used to make averages/budget
                                 If LIST_OF_INCOME_ARRAY(budget_in_SNAP_yes, all_income) = checked Then          'if thise is counted for the SNAP budget
