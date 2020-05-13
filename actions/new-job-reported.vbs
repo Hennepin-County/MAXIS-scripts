@@ -37,7 +37,9 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
-
+'Here we look for testers as we have a new version of this script in testing.
+test_reason = "New functionality to capture information about not only a new job reported, but also a change in an existing job or the end of a job being reported. "
+Call select_testing_file("ALL", "", "actions/job-change-reported.vbs", "master", TRUE, TRUE)
 'CHANGELOG BLOCK ===========================================================================================================
 'Starts by defining a changelog array
 changelog = array()
@@ -192,7 +194,7 @@ If create_JOBS_checkbox = checked then
 	EMWriteScreen left(income_type_dropdown, 1), 5, 34
 	If subsidized_income_type_dropdown <> "not applicable" then EMWriteScreen left(subsidized_income_type_dropdown, 2), 5, 74
 	EMWriteScreen "n", 6, 34
-	
+
 	EMWriteScreen employer, 7, 42
 	If income_start_date <> "" then call create_MAXIS_friendly_date(income_start_date, 0, 9, 35)
 	If contract_through_date <> "" then call create_MAXIS_friendly_date(contract_through_date, 0, 9, 73)
