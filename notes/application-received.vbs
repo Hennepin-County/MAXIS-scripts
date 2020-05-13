@@ -349,21 +349,20 @@ BeginDialog Dialog1, 0, 0, 296, 145, "Application Received for: " & programs_app
   DropListBox 85, 10, 65, 15, "Select One:"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Office"+chr(9)+"Online"+chr(9)+"Verbal Request", how_app_rcvd
   DropListBox 85, 30, 65, 15, "Select One:"+chr(9)+"ApplyMN"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Pop"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer"+chr(9)+"Verbal Request", app_type
   EditBox 215, 30, 45, 15, confirmation_number
-  EditBox 55, 70, 20, 15, transfer_to_worker
-  CheckBox 85, 85, 140, 10, "Check if case does not require a transfer ", no_transfer_checkbox
-  EditBox 60, 105, 230, 15, other_notes
-  EditBox 80, 125, 100, 15, worker_signature
+  EditBox 50, 65, 20, 15, transfer_to_worker
+  CheckBox 10, 85, 140, 10, "Check if case does not require a transfer", no_transfer_checkbox
+  EditBox 55, 105, 235, 15, other_notes
+  EditBox 75, 125, 105, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 185, 125, 50, 15
     CancelButton 240, 125, 50, 15
-    PushButton 235, 70, 45, 15, "GeoCoder", geocoder_button
-  Text 160, 15, 125, 10, "Date of Application: " & application_date
-  Text 15, 30, 65, 10, "Type of Application:"
+  Text 160, 15, 125, 10, "Date of Application: "  & application_date
+  Text 15, 35, 65, 10, "Type of Application:"
   Text 160, 35, 50, 10, "Confirmation #:"
-  Text 10, 75, 40, 10, "Transfer to:"
-  Text 90, 70, 135, 10, "(last 3 digit of X#) transfer case to basket"
-  Text 15, 110, 45, 10, "Other Notes:"
-  Text 15, 130, 60, 10, "Worker Signature:"
+  Text 10, 70, 40, 10, "Transfer to:"
+  Text 75, 70, 135, 10, "(last 3 digit of X#) transfer case to basket"
+  Text 10, 110, 45, 10, "Other Notes:"
+  Text 10, 130, 60, 10, "Worker Signature:"
   GroupBox 5, 55, 285, 45, "Transfer Information"
   Text 10, 15, 70, 10, "Application Received:"
   GroupBox 5, 0, 285, 50, "Application Information"
@@ -373,11 +372,8 @@ EndDialog
 Do
 	Do
 		err_msg = ""
-		Do
-			Dialog Dialog1
-			cancel_confirmation
-			If ButtonPressed = geocoder_button then CreateObject("WScript.Shell").Run("https://hcgis.hennepin.us/agsinteractivegeocoder/default.aspx")
-		Loop until ButtonPressed = -1
+		Dialog Dialog1
+		cancel_confirmation
 		IF how_app_rcvd = "Select One:" then err_msg = err_msg & vbNewLine & "* Please enter how the application was received to the agency."
 		IF how_app_rcvd = "Online" and app_type <> "ApplyMN" then err_msg = err_msg & vbNewLine & "* You selected that the application was received online please select ApplyMN from the drop down."
 		IF app_type = "Select One:" then err_msg = err_msg & vbNewLine & "* Please enter the type of application received."
@@ -400,9 +396,9 @@ pended_date = date
 
 IF app_type = "6696" or app_type = "HCAPP" or app_type = "HC-Certain Pop" or app_type = "LTC" or app_type = "MHCP B/C Cancer"  THEN HC_applied_for = TRUE
 
-IF how_app_rcvd = "Office" and HC_applied_for = FALSE THEN
+IF how_app_rcvd = "Office" or how_app_rcvd = "Verbal Request" and HC_applied_for = FALSE THEN
 	same_day_confirmation = MsgBox("Press YES to confirm a same-day interview was completed?." & vbNewLine & "If no interview was offered, press NO." & vbNewLine & vbNewLine & _
-	"Application was received in " & how_app_rcvd, vbYesNoCancel, "Application received - same-day interview completed?")
+	"Application was received via " & how_app_rcvd, vbYesNoCancel, "Application received - same-day interview completed?")
 	IF same_day_confirmation = vbNo THEN interview_completed = FALSE
 	IF same_day_confirmation = vbYes THEN interview_completed = TRUE
 	IF same_day_confirmation = vbCancel THEN script_end_procedure_with_error_report("The script has ended.")
@@ -446,11 +442,11 @@ If interview_completed = TRUE Then
 End If
 '--------------------------------------------------------------------------------initial case note
 start_a_blank_case_note
-If app_type = "Verbal Request" then 
+If app_type = "Verbal Request" then
     CALL write_variable_in_CASE_NOTE ("~ Application Received via " & how_app_rcvd & " on " & application_date & " ~")
-Else 
+Else
     CALL write_variable_in_CASE_NOTE ("~ Application Received (" & app_type & ") via " & how_app_rcvd & " on " & application_date & " ~")
-End if 
+End if
 IF confirmation_number <> "" THEN CALL write_bullet_and_variable_in_CASE_NOTE ("Confirmation # ", confirmation_number)
 IF app_type = "6696" THEN write_variable_in_CASE_NOTE ("* Form Received: METS Application for Health Coverage and Help Paying Costs (DHS-6696) ")
 IF app_type = "HCAPP" THEN write_variable_in_CASE_NOTE ("* Form Received: Health Care Application (HCAPP) (DHS-3417) ")
