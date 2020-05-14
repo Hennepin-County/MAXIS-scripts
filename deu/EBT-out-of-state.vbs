@@ -211,11 +211,13 @@ start_a_blank_case_note      'navigates to case/note and puts case/note into edi
 	Call write_bullet_and_variable_in_CASE_NOTE("Date case was closed", date_closed)
 	Call write_bullet_and_variable_in_CASE_NOTE("Explanation of action to close the case", reason_closed)
 	Call write_variable_in_CASE_NOTE("* DEU will review for possible overpayment regarding out of state usage at a later date.")
-	CALL write_variable_in_CASE_NOTE ("----- ----- -----")
 	IF action_taken = "Client responds to request" THEN Call write_bullet_and_variable_in_CASE_NOTE("Verification received", pending_verifs)
 	IF action_taken <> "Client responds to request" THEN CALL write_bullet_and_variable_in_CASE_NOTE("Verification requested", pending_verifs)
-	Call write_bullet_and_variable_in_CASE_NOTE("Verification due", date_due)
-	CALL write_variable_in_CASE_NOTE ("* Client must be provided 10 days to return requested verifications.")
+	IF action_taken = "Initial review" THEN
+		CALL write_variable_in_CASE_NOTE ("----- ----- -----")
+		Call write_bullet_and_variable_in_CASE_NOTE("Verification due", date_due)
+		CALL write_variable_in_CASE_NOTE ("* Client must be provided 10 days to return requested verifications.")
+	END IF
 	CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
 	CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
 	Call write_variable_in_CASE_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
