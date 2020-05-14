@@ -172,6 +172,7 @@ If job_panel_exists = checked Then
 
         Call Navigate_to_MAXIS_screen("STAT", "JOBS")                       'Go to JOBS
         EMWriteScreen clt_number, 20, 76                                    'Enter the reference for the clients in turn to check each.
+        EMWriteScreen "01", 20, 79
         transmit
 
         EMReadScreen total_jobs, 1, 2, 78                                   'look for how many JOBS panels there are so we can loop through them all
