@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("05/14/2020", "Added case number for the Output Waiver Lists option.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/11/2020", "Added case mgr name and agency info from MMIS for the Output Waiver Lists option.", "Ilse Ferris, Hennepin County")
 call changelog_update("02/11/2020", "Added waiver code and case mgr NPI to initial monthly upload option. Removed testing msgboxes.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/30/2020", "Added excel row selection for certain processes to speed up report time.", "Ilse Ferris, Hennepin County")
@@ -862,17 +863,18 @@ End if
 If AVS_option = "Output Waiver Lists" then 
     'Setting up the array 
     DIM output_array()
-    ReDim output_array(8, 0)
+    ReDim output_array(9, 0)
     
     const output_PMI_const          = 0
     const output_name_const         = 1
     const output_SMI_const          = 2
-    const waiver_const              = 3
-    const output_waiver_start_const = 4
-    const output_waiver_end_const   = 5
-    const case_mgr_PMI_const        = 6
-    const case_mgr_name_const       = 7
-    const case_agency_const         = 8     
+    const output_case_number_const  = 3
+    const waiver_const              = 4
+    const output_waiver_start_const = 5
+    const output_waiver_end_const   = 6
+    const case_mgr_PMI_const        = 7
+    const case_mgr_name_const       = 8
+    const case_agency_const         = 9     
     
     entry_record = 0
     
@@ -896,6 +898,7 @@ If AVS_option = "Output Waiver Lists" then
             If output_PMI = "" then exit do             
             output_name         = ObjExcel.Cells(excel_row, client_name_col).Value
             output_SMI          = ObjExcel.Cells(excel_row, SMI_col).Value
+            output_case_number  = ObjExcel.Cells(excel_row, cn_col).Value
             waiver_type         = ObjExcel.Cells(excel_row, waiver_col).Value
             output_waiver_start = ObjExcel.Cells(excel_row, wstart_col).Value
             output_waiver_end   = ObjExcel.Cells(excel_row, wend_col).Value
@@ -905,10 +908,11 @@ If AVS_option = "Output Waiver Lists" then
             If trim(output_form_date) = "" then
                 If trim(output_waiver_end) <> "" then 
                     If datediff("d", output_waiver_end, date) =< 0 then
-                        ReDim Preserve output_array(8, entry_record)	'This resizes the array based on the number of rows in the Excel File'
+                        ReDim Preserve output_array(9, entry_record)	'This resizes the array based on the number of rows in the Excel File'
                         output_array(output_PMI_const,          entry_record) = trim(output_PMI)
                         output_array(output_name_const,         entry_record) = trim(output_name)
                         output_array(output_SMI_const,          entry_record) = trim(output_SMI)
+                        output_array(output_case_number_const,  entry_record) = trim(output_case_number)
                         output_array(waiver_const,              entry_record) = trim(waiver_type)
                         output_array(output_waiver_start_const, entry_record) = trim(output_waiver_start)
                         output_array(output_waiver_end_const,   entry_record) = trim(output_waiver_end)
@@ -947,16 +951,17 @@ If AVS_option = "Output Waiver Lists" then
     ObjExcel.Cells(1, 1).Value = "PMI"
     ObjExcel.Cells(1, 2).Value = "Client name"
     ObjExcel.Cells(1, 3).Value = "SMI"
-    ObjExcel.Cells(1, 4).Value = "Waiver Type"
-    ObjExcel.Cells(1, 5).Value = "Waiver Start Date"
-    objExcel.Columns(5).NumberFormat = "mm/dd/yy"	'formats the date column as MM/DD/YY
-    ObjExcel.Cells(1, 6).Value = "Waiver End Date"
-    ObjExcel.Columns(6).NumberFormat = "mm/dd/yy"	'formats the date column as MM/DD/YY
-    ObjExcel.Cells(1, 7).Value = "Case Mgr Name"
-    ObjExcel.Cells(1, 8).Value = "Agency Name"
+    ObjExcel.Cells(1, 4).Value = "Case Number"
+    ObjExcel.Cells(1, 5).Value = "Waiver Type"
+    ObjExcel.Cells(1, 6).Value = "Waiver Start Date"
+    objExcel.Columns(6).NumberFormat = "mm/dd/yy"	'formats the date column as MM/DD/YY
+    ObjExcel.Cells(1, 7).Value = "Waiver End Date"
+    ObjExcel.Columns(7).NumberFormat = "mm/dd/yy"	'formats the date column as MM/DD/YY
+    ObjExcel.Cells(1, 8).Value = "Case Mgr Name"
+    ObjExcel.Cells(1, 9).Value = "Agency Name"
     
     'formatting the cells
-    FOR i = 1 to 8
+    FOR i = 1 to 9
     	objExcel.Cells(1, i).Font.Bold = True		'bold font
     	objExcel.Columns(i).AutoFit()				'sizing the columns
     NEXT
@@ -1007,15 +1012,16 @@ If AVS_option = "Output Waiver Lists" then
         objExcel.Cells(excel_row, 1).Value = output_array(output_PMI_const,          item)
         objExcel.Cells(excel_row, 2).Value = output_array(output_name_const,         item)
         objExcel.Cells(excel_row, 3).Value = output_array(output_SMI_const,          item)
-        objExcel.Cells(excel_row, 4).Value = output_array(waiver_const,              item)
-        objExcel.Cells(excel_row, 5).Value = output_array(output_waiver_start_const, item)
-        objExcel.Cells(excel_row, 6).Value = output_array(output_waiver_end_const,   item)
-        objExcel.Cells(excel_row, 7).Value = output_array(case_mgr_name_const,       item)
-        objExcel.Cells(excel_row, 8).Value = output_array(case_agency_const,         item)
+        objExcel.Cells(excel_row, 4).Value = output_array(output_case_number_const,  item)
+        objExcel.Cells(excel_row, 5).Value = output_array(waiver_const,              item)
+        objExcel.Cells(excel_row, 6).Value = output_array(output_waiver_start_const, item)
+        objExcel.Cells(excel_row, 7).Value = output_array(output_waiver_end_const,   item)
+        objExcel.Cells(excel_row, 8).Value = output_array(case_mgr_name_const,       item)
+        objExcel.Cells(excel_row, 9).Value = output_array(case_agency_const,         item)
         excel_row = excel_row + 1
     Next 
     
-    FOR i = 1 to 8		'formatting the cells
+    FOR i = 1 to 9		'formatting the cells
     	objExcel.Columns(i).AutoFit()				'sizing the columns'
     NEXT
     'Saves and closes the most recent Excel workbook with the Task based cases to process.
