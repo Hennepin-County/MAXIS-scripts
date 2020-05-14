@@ -659,13 +659,26 @@ If developer_mode = FALSE Then                      'If we are in developer mode
             EMWriteScreen job_instance, 20, 79
             transmit
 
-            EMReadScreen this_panel_job, 30, 7, 42          'reading the name of job
+            EMReadScreen panel_exists, 14, 24, 13
+            If panel_exists = "DOES NOT EXIST" Then
+                EMWriteScreen "JOBS", 20, 71                                        'go to JOBS
+                ref_nbr = left(job_employee, 2)
+                EMWriteScreen ref_nbr, 20, 76                                       'go to the right member
+                EMWriteScreen "NN", 20, 79                                          'create new JOBS panel
+                transmit
 
-            If this_panel_job <> original_full_jobs_name Then       'if the panel name isn't what we read earlier then we have a problem
-                MsgBox "They don't match!" & vbNewLine & "THIS PANEL-" & this_panel_job & "-" & vbNewLine & "ORIGINAL-" & original_full_jobs_name & "-"
+                EMReadScreen this_instance, 1, 2, 73                                'Reading the instance because we need it on the next loop
+                job_instance = "0" & this_instance
             Else
+                EMReadScreen this_panel_job, 30, 7, 42          'reading the name of job
+
+                If this_panel_job <> original_full_jobs_name Then       'if the panel name isn't what we read earlier then we have a problem
+                MsgBox "They don't match!" & vbNewLine & "THIS PANEL-" & this_panel_job & "-" & vbNewLine & "ORIGINAL-" & original_full_jobs_name & "-"
+                Else
                 PF9         'If they match - put it in edit mode
+                End If
             End If
+
 
         ElseIf script_update_stat = "Yes - Update an existing JOBS Panel" Then          'if we are in the first loop then the action is going to change based on the the update detail
             ' MsgBox "Update - " & script_update_stat & " - 1"
