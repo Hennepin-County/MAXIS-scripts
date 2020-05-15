@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("05/15/2020", "Removed email for follow up to DWP baskets.", "Ilse Ferris, Hennepin County")
 call changelog_update("05/12/2020", "Added phone number support into phone number field. If MAXIS Case Number can be found at the start of the script, the phone number(s) will be autofilled. Also added support in combo boxes when options are written in, and there is an error messages to resolve.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/23/2020", "Updated follow up support to have case noting contain more information. Please note: EGA APPROVERS follow up is ONLY to have EGA approvers review eligiblity and/or if more verifications are needed.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/19/2020", "Added checkboxes to support follow up calls and/or actions needed. Email automation for DWP, YET and EGA Approvers support and TIKLs for all other baskets.", "Ilse Ferris, Hennepin County")
@@ -176,16 +177,10 @@ If email_checkbox = 1 then
     email_address = email_address & "HSPH.EWS.EGA.Approvers@hennepin.us;"
     follow_up_type = "Email"
 End if 
-'DWP
+
+'YET baskests
 If follow_up_needed_checkbox = 1 then 
-    If  basket_number = "X127FE7" OR _
-        basket_number = "X127FE8" OR _
-        basket_number = "X127FE9" then 
-        email_team = True 
-        email_address = email_address & "HSPH.ES.TEAM.470@hennepin.us;"
-        follow_up_type = "Email"
-        'YET baskets 
-    elseif basket_number = "X127FA5" OR _
+    if basket_number = "X127FA5" OR _
         basket_number = "X127FA6" OR _
         basket_number = "X127FA7" OR _
         basket_number = "X127FA8" OR _
