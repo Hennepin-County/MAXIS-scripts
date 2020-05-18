@@ -49,6 +49,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("05/18/2020", "Additional handling to be sure when saving the interview date to PROG the script does not get stuck.", "Casey Love, Hennepin County")
 call changelog_update("04/02/2020", "BUG FIX - The 'notes on child support' detail was not always pulling into the case note. Updated to ensure the information entered in this field will be entered in the NOTE.##~##", "Casey Love, Hennepin County")
 call changelog_update("03/01/2020", "Updated TIKL functionality.", "Ilse Ferris")
 Call changelog_update("01/29/2020", "When entering a expedited approval date or denial date on Dialog 8, the script will evaluate to be sure this date is not in the future. The script was requiring delay explanation when dates in the future were entered by accident, this additional handling will provide greater clarity of the updates needed.", "Casey Love, Hennepin County")
@@ -124,6 +125,18 @@ function display_errors(the_err_msg, execute_nav)
             Call assess_button_pressed          'this is where the navigation happens
         End If
     End If
+End Function
+
+Function HCRE_panel_bypass()
+    'handling for cases that do not have a completed HCRE panel
+    PF3		'exits PROG to prommpt HCRE if HCRE insn't complete
+    Do
+        EMReadscreen HCRE_panel_check, 4, 2, 50
+        If HCRE_panel_check = "HCRE" then
+            PF10	'exists edit mode in cases where HCRE isn't complete for a member
+            PF3
+        END IF
+    Loop until HCRE_panel_check <> "HCRE"
 End Function
 
 'This function calls the dialog to determine and assess the household Composition
@@ -4999,6 +5012,10 @@ If CAF_type = "Application" Then        'Interview date is not on PROG for recer
                 End If
 
                 transmit                                    'Saving the panel
+
+                Call HCRE_panel_bypass
+                Call back_to_SELF
+                Call MAXIS_background_check
 
                 MAXIS_footer_month = keep_footer_month      'resetting the footer month and year so the rest of the script uses the worker identified footer month and year.
                 MAXIS_footer_year = keep_footer_year
