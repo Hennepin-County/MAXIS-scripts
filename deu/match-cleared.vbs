@@ -538,7 +538,7 @@ IF notice_sent = "N" THEN
 	  CheckBox 175, 55, 80, 10, "Rental Income Form", rental_checkbox
 	  CheckBox 175, 65, 80, 10, "Other (please specify)", other_checkbox
 	  CheckBox 10, 170, 115, 10, "Set a TIKL due to 10 day cutoff", tenday_checkbox
-	  DropListBox 145, 120, 115, 15, "Select One:"+chr(9)+"Overpayment Exists"+chr(9)+"OP Non-Collectible (please specify)"+chr(9)+"No Savings/Overpayment", claim_referral_tracking_dropdown
+	  DropListBox 145, 120, 115, 15, "Select One:"+chr(9)+"Initial"+chr(9)+"Overpayment Exists"+chr(9)+"OP Non-Collectible (please specify)"+chr(9)+"No Savings/Overpayment", claim_referral_tracking_dropdown
 	  EditBox 50, 145, 215, 15, other_notes
 	  Text 5, 10, 165, 10, "Client name: "   & client_name
 	  Text 5, 55, 160, 10, "Active Programs: "  & programs
@@ -595,7 +595,7 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
       EditBox 275, 95, 40, 15, exp_grad_date
       CheckBox 5, 85, 115, 10, "Set a TIKL due to 10 day cutoff", tenday_checkbox
       CheckBox 5, 100, 130, 10, "Overpayment (other programs)", HC_OP_checkbox
-      DropListBox 140, 125, 175, 15, "Select One:"+chr(9)+"Overpayment Exists"+chr(9)+"OP Non-Collectible (please specify)"+chr(9)+"No Savings/Overpayment", claim_referral_tracking_dropdown
+      DropListBox 140, 125, 175, 15, "Select One:"+chr(9)+"Initial"+chr(9)+"Overpayment Exists"+chr(9)+"OP Non-Collectible (please specify)"+chr(9)+"No Savings/Overpayment", claim_referral_tracking_dropdown
       EditBox 50, 150, 180, 15, other_notes
       ButtonGroup ButtonPressed
         OkButton 235, 150, 40, 15
@@ -785,6 +785,7 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
 		IF IULB_method_dropdown = "One Time Only" THEN IULB_method = "O"
 		IF IULB_method_dropdown = "Per Month For Nbr of Months" THEN IULB_method = "O"
 	END IF
+END IF
 '----------------------------------------------------------------------------------------------------RESOLVING THE MATCH
 	EMReadScreen panel_name, 4, 02, 52
 	IF panel_name <> "IULA" THEN
@@ -939,7 +940,7 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
 	days_pending = trim(days_pending)
 	match_cleared = TRUE
 	IF IsNumeric(days_pending) = TRUE THEN match_cleared = FALSE
-	If match_cleared = FALSE Then
+	If match_cleared = FALSE and sent_date <> date THEN 
 	   	confirm_cleared = MsgBox ("The script cannot identify that this match has cleared." & vbNewLine & vbNewLine & "Review IEVP and find the match that is being cleared with this run." &vbNewLine & " ** HAS THE MATCH BEEN CLEARED? **", vbQuestion + vbYesNo, "Confirm Match Cleared")
 	   	IF confirm_cleared = vbYes Then match_cleared = TRUE
 		IF confirm_cleared = vbno Then
@@ -980,7 +981,7 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
 		IF email_BZST <> "" THEN CALL create_outlook_email("Mikayla.Handley@hennepin.us", "", "Case #" & maxis_case_number & " Error message: " & MAXIS_error_message & "  EOM.", "", "", TRUE)
 	END IF
 '------------------------------------------------------------------STAT/MISC for claim referral tracking
-	IF claim_referral_tracking_dropdown <> "Select One:" THEN
+	Cleared_status
 	    'Going to the MISC panel to add claim referral tracking information
 		CALL navigate_to_MAXIS_screen ("STAT", "MISC")
 		Row = 6
@@ -1019,6 +1020,7 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
 		'writing in the action taken and date to the MISC panel
 		PF9
 		'_________________________ 25 characters to write on MISC
+		IF claim_referral_tracking_dropdown =  "Initial" THEN MISC_action_taken = "Claim Referral Initial"
 		IF claim_referral_tracking_dropdown =  "OP Non-Collectible (please specify)" THEN MISC_action_taken = "Determination-Non-Collect"
 		IF claim_referral_tracking_dropdown =  "No Savings/Overpayment" THEN MISC_action_taken = "Determination-No Savings"
 		IF claim_referral_tracking_dropdown =  "Overpayment Exists" THEN MISC_action_taken =  "Determination-OP Entered" '"Claim Determination 25 character available
@@ -1028,9 +1030,12 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
         TRANSMIT
 	END IF
 	'------------------------------------------setting up case note header'
-	IF ATR_needed_checkbox= CHECKED THEN header_note = "ATR/EVF STILL REQUIRED"
-	IF difference_notice_action_dropdown = "YES" THEN cleared_header = " DIFF NOTICE SENT"
-	IF resolution_status = "CC-Overpayment Only" THEN
+	IF ATR_needed_checkbox = CHECKED THEN
+		header_note = "ATR/EVF STILL REQUIRED"
+	ELSEIF difference_notice_action_dropdown = "YES" THEN
+		cleared_header = "DIFF NOTICE SENT"
+		sent_date = date
+	ELSEIF resolution_status = "CC-Overpayment Only" THEN
 		cleared_header = "CLEARED CLAIM ENTERED "
 	ELSEIF resolution_status = "NC-Non Cooperation" THEN
 			cleared_header = "NON-COOPERATION "
@@ -1059,7 +1064,11 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
 	'-------------------------------------------------------------------------------------------------The case note
 	IF claim_referral_tracking_dropdown <> "Select One:" THEN
 	    start_a_blank_case_note
-	    CALL write_variable_in_case_note("Claim Referral Tracking - " & MISC_action_taken)
+	    IF claim_referral_tracking_dropdown =  "Initial" THEN
+			CALL write_variable_in_case_note("Claim Referral Tracking - Initial")
+		ELSE
+			CALL write_variable_in_case_note("Claim Referral Tracking - " & MISC_action_taken)
+		END IF
 	    CALL write_bullet_and_variable_in_case_note("Action Date", action_date)
 	    CALL write_bullet_and_variable_in_case_note("Active Program(s)", programs)
 	    CALL write_bullet_and_variable_in_case_note("Other Notes", other_notes)
@@ -1080,7 +1089,11 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
 	CALL write_bullet_and_variable_in_case_note("Source of income", income_source)
 	CALL write_variable_in_case_note("----- ----- ----- ----- ----- ----- -----")
 	CALL write_bullet_and_variable_in_case_note("Date Diff notice sent", sent_date)
-	CALL write_bullet_and_variable_in_case_note("Verifications Received", pending_verifs)
+	IF claim_referral_tracking_dropdown = "YES" THEN
+		CALL write_bullet_and_variable_in_case_note("Verifications Requested", pending_verifs)
+	ELSE
+		CALL write_bullet_and_variable_in_case_note("Verifications Received", pending_verifs)
+	END IF
 	IF change_response <> "N/A" THEN CALL write_bullet_and_variable_in_case_note("Responded to Difference Notice", change_response)
 	IF DISQ_action <> "Select One:" THEN CALL write_bullet_and_variable_in_case_note("STAT/DISQ addressed for each program", DISQ_action)
 	CALL write_bullet_and_variable_in_case_note("Date verification received in ECF", date_received)
@@ -1223,4 +1236,4 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
 		IF tenday_checkbox = CHECKED THEN CALL create_TIKL("Unable to close due to 10 day cutoff. Verification of match should have returned by now. If not received and processed, take appropriate action.", 0, date, True, TIKL_note_text)
 		script_end_procedure_with_error_report("Match has been acted on. Please take any additional action needed for your case.")
 	END IF
-END IF
+'END IF
