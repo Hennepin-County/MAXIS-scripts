@@ -940,7 +940,7 @@ END IF
 	days_pending = trim(days_pending)
 	match_cleared = TRUE
 	IF IsNumeric(days_pending) = TRUE THEN match_cleared = FALSE
-	If match_cleared = FALSE and sent_date <> date THEN 
+	If match_cleared = FALSE and sent_date <> date THEN
 	   	confirm_cleared = MsgBox ("The script cannot identify that this match has cleared." & vbNewLine & vbNewLine & "Review IEVP and find the match that is being cleared with this run." &vbNewLine & " ** HAS THE MATCH BEEN CLEARED? **", vbQuestion + vbYesNo, "Confirm Match Cleared")
 	   	IF confirm_cleared = vbYes Then match_cleared = TRUE
 		IF confirm_cleared = vbno Then
@@ -1091,6 +1091,7 @@ END IF
 	CALL write_bullet_and_variable_in_case_note("Date Diff notice sent", sent_date)
 	IF claim_referral_tracking_dropdown = "YES" THEN
 		CALL write_bullet_and_variable_in_case_note("Verifications Requested", pending_verifs)
+		CALL write_variable_in_case_note("* Client must be provided 10 days to return requested verifications")
 	ELSE
 		CALL write_bullet_and_variable_in_case_note("Verifications Received", pending_verifs)
 	END IF
