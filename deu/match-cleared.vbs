@@ -1089,7 +1089,7 @@ END IF
 	CALL write_bullet_and_variable_in_case_note("Source of income", income_source)
 	CALL write_variable_in_case_note("----- ----- ----- ----- ----- ----- -----")
 	CALL write_bullet_and_variable_in_case_note("Date Diff notice sent", sent_date)
-	IF claim_referral_tracking_dropdown = "YES" THEN
+	IF sent_date = date THEN
 		CALL write_bullet_and_variable_in_case_note("Verifications Requested", verifcation_needed)
 		CALL write_variable_in_case_note("* Client must be provided 10 days to return requested verifications")
 	ELSE
