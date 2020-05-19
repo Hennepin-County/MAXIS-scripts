@@ -936,18 +936,18 @@ END IF
 
 	'------------------------------------------------------------------back on the IEVP menu, making sure that the match cleared
 
-	EMReadScreen days_pending, 5, row, 72
-	days_pending = trim(days_pending)
-	match_cleared = TRUE
-	IF IsNumeric(days_pending) = TRUE THEN match_cleared = FALSE
-	If match_cleared = FALSE and sent_date <> date THEN
-	   	confirm_cleared = MsgBox ("The script cannot identify that this match has cleared." & vbNewLine & vbNewLine & "Review IEVP and find the match that is being cleared with this run." &vbNewLine & " ** HAS THE MATCH BEEN CLEARED? **", vbQuestion + vbYesNo, "Confirm Match Cleared")
-	   	IF confirm_cleared = vbYes Then match_cleared = TRUE
-		IF confirm_cleared = vbno Then
-			match_cleared = FALSE
-			script_end_procedure_with_error_report("This match did not clear in IEVP, please advise what may have happened.")
-		END IF
-	End If
+	'EMReadScreen days_pending, 5, row, 72
+	'days_pending = trim(days_pending)
+	'match_cleared = TRUE
+	'IF IsNumeric(days_pending) = TRUE THEN match_cleared = FALSE
+	'If match_cleared = FALSE and sent_date <> date THEN
+	'   	confirm_cleared = MsgBox ("The script cannot identify that this match has cleared." & vbNewLine & vbNewLine & "Review IEVP and find the match that is being cleared with this run." &vbNewLine & " ** HAS THE MATCH BEEN CLEARED? **", vbQuestion + vbYesNo, "Confirm Match Cleared")
+	'   	IF confirm_cleared = vbYes Then match_cleared = TRUE
+	'	IF confirm_cleared = vbno Then
+	'		match_cleared = FALSE
+	'		script_end_procedure_with_error_report("This match did not clear in IEVP, please advise what may have happened.")
+	'	END IF
+	'End If
 	'--------------------------------------------------------------------The case note & case note related code
 	verifcation_needed = ""
   	IF Diff_Notice_Checkbox = CHECKED THEN verifcation_needed = verifcation_needed & "Difference Notice, "
