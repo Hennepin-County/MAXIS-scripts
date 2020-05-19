@@ -951,7 +951,7 @@ END IF
 	'--------------------------------------------------------------------The case note & case note related code
 	verifcation_needed = ""
   	IF Diff_Notice_Checkbox = CHECKED THEN verifcation_needed = verifcation_needed & "Difference Notice, "
-	IF empl_verf_checkbox = CHECKED THEN verifcation_needed = verifcation_needed & "EVF, "
+	IF EVF_checkbox = CHECKED THEN verifcation_needed = verifcation_needed & "EVF, "
 	IF ATR_Verf_CheckBox = CHECKED THEN verifcation_needed = verifcation_needed & "ATR, "
 	IF lottery_verf_checkbox = CHECKED THEN verifcation_needed = verifcation_needed & "Lottery/Gaming Form, "
 	IF rental_checkbox =  CHECKED THEN verifcation_needed = verifcation_needed & "Rental Income Form, "
@@ -1089,7 +1089,7 @@ END IF
 	CALL write_bullet_and_variable_in_case_note("Source of income", income_source)
 	CALL write_variable_in_case_note("----- ----- ----- ----- ----- ----- -----")
 	CALL write_bullet_and_variable_in_case_note("Date Diff notice sent", sent_date)
-	IF sent_date = date THEN
+	IF claim_referral_tracking_dropdown =  "Initial" THEN
 		CALL write_bullet_and_variable_in_case_note("Verifications Requested", verifcation_needed)
 		CALL write_variable_in_case_note("* Client must be provided 10 days to return requested verifications")
 	ELSE
