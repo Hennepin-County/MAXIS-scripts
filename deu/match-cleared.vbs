@@ -949,13 +949,13 @@ END IF
 		END IF
 	End If
 	'--------------------------------------------------------------------The case note & case note related code
-	pending_verifs = ""
-  	IF Diff_Notice_Checkbox = CHECKED THEN pending_verifs = pending_verifs & "Difference Notice, "
-	IF empl_verf_checkbox = CHECKED THEN pending_verifs = pending_verifs & "EVF, "
-	IF ATR_Verf_CheckBox = CHECKED THEN pending_verifs = pending_verifs & "ATR, "
-	IF lottery_verf_checkbox = CHECKED THEN pending_verifs = pending_verifs & "Lottery/Gaming Form, "
-	IF rental_checkbox =  CHECKED THEN pending_verifs = pending_verifs & "Rental Income Form, "
-	IF other_checkbox = CHECKED THEN pending_verifs = pending_verifs & "Other, "
+	verifcation_needed = ""
+  	IF Diff_Notice_Checkbox = CHECKED THEN verifcation_needed = verifcation_needed & "Difference Notice, "
+	IF empl_verf_checkbox = CHECKED THEN verifcation_needed = verifcation_needed & "EVF, "
+	IF ATR_Verf_CheckBox = CHECKED THEN verifcation_needed = verifcation_needed & "ATR, "
+	IF lottery_verf_checkbox = CHECKED THEN verifcation_needed = verifcation_needed & "Lottery/Gaming Form, "
+	IF rental_checkbox =  CHECKED THEN verifcation_needed = verifcation_needed & "Rental Income Form, "
+	IF other_checkbox = CHECKED THEN verifcation_needed = verifcation_needed & "Other, "
 
 	IF MAXIS_error_message <> "" THEN
 		EMReadScreen MAXIS_error_message, 75, 24, 02
@@ -981,7 +981,7 @@ END IF
 		IF email_BZST <> "" THEN CALL create_outlook_email("Mikayla.Handley@hennepin.us", "", "Case #" & maxis_case_number & " Error message: " & MAXIS_error_message & "  EOM.", "", "", TRUE)
 	END IF
 '------------------------------------------------------------------STAT/MISC for claim referral tracking
-	Cleared_status
+	IF claim_referral_tracking_dropdown <> "Select One:" THEN
 	    'Going to the MISC panel to add claim referral tracking information
 		CALL navigate_to_MAXIS_screen ("STAT", "MISC")
 		Row = 6
@@ -1047,8 +1047,8 @@ END IF
 	IF match_type = "UBEN" THEN match_type_letter = "U"
 	IF match_type = "UNVI" THEN match_type_letter = "U"
 
-	pending_verifs = trim(pending_verifs) 	'takes the last comma off of pending_verifs when autofilled into dialog if more more than one app date is found and additional app is selected
-	IF right(pending_verifs, 1) = "," THEN pending_verifs = left(pending_verifs, len(pending_verifs) - 1)
+	verifcation_needed = trim(verifcation_needed) 	'takes the last comma off of verifcation_needed when autofilled into dialog if more more than one app date is found and additional app is selected
+	IF right(verifcation_needed, 1) = "," THEN verifcation_needed = left(verifcation_needed, len(verifcation_needed) - 1)
 	IF match_type = "WAGE" THEN
 		IF select_quarter = 1 THEN IEVS_quarter = "1ST"
 		IF select_quarter = 2 THEN IEVS_quarter = "2ND"
@@ -1090,10 +1090,10 @@ END IF
 	CALL write_variable_in_case_note("----- ----- ----- ----- ----- ----- -----")
 	CALL write_bullet_and_variable_in_case_note("Date Diff notice sent", sent_date)
 	IF claim_referral_tracking_dropdown = "YES" THEN
-		CALL write_bullet_and_variable_in_case_note("Verifications Requested", pending_verifs)
+		CALL write_bullet_and_variable_in_case_note("Verifications Requested", verifcation_needed)
 		CALL write_variable_in_case_note("* Client must be provided 10 days to return requested verifications")
 	ELSE
-		CALL write_bullet_and_variable_in_case_note("Verifications Received", pending_verifs)
+		CALL write_bullet_and_variable_in_case_note("Verifications Received", verifcation_needed)
 	END IF
 	IF change_response <> "N/A" THEN CALL write_bullet_and_variable_in_case_note("Responded to Difference Notice", change_response)
 	IF DISQ_action <> "Select One:" THEN CALL write_bullet_and_variable_in_case_note("STAT/DISQ addressed for each program", DISQ_action)
