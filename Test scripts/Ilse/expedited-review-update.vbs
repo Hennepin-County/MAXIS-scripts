@@ -126,7 +126,6 @@ Do
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-
 'Finding and opening the previous day's file. 
 previous_date = dateadd("d", -1, date)
 Call change_date_to_soonest_working_day(previous_date)       'finds the most recent previous working day for the fin
@@ -239,14 +238,13 @@ Do
         expedited_array(case_status_const,      entry_record) = ""              'making space in the array for these variables, but valuing them as "" for now
         expedited_array(appears_exp_const,      entry_record) = ""
         expedited_array(prev_notes_const,       entry_record) = ""
-        If notes_checkbox = checked then
-            For i = 0 to Ubound(master_array, 2)                                                            'If notes were selected to be added, array is looped thru for matching case number
-                If master_array(master_case_number_const, i) = MAXIS_case_number then 
-                    expedited_array(prev_notes_const, entry_record) = master_array(master_notes_const, i)   'If case number is found, prevoius list notes are added to the array 
-                    exit for 
-                End if      
-            Next 
-        End if 
+        
+        For i = 0 to Ubound(master_array, 2)                                                            'If notes were selected to be added, array is looped thru for matching case number
+            If master_array(master_case_number_const, i) = MAXIS_case_number then 
+                expedited_array(prev_notes_const, entry_record) = master_array(master_notes_const, i)   'If case number is found, prevoius list notes are added to the array 
+                exit for 
+            End if      
+        Next 
 
         entry_record = entry_record + 1			'This increments to the next entry in the array
         stats_counter = stats_counter + 1       'Increment for stats counter 
@@ -445,17 +443,16 @@ ObjExcel.Cells(1, 7).Value = "Notes"
 ObjExcel.Cells(1, 8).Value = "QI Review Notes"
  
 Excel_row = 2
-
-
-If expedited_array(case_status_const, item) = "SNAP Application Denied" or expedited_array(case_status_const, item) = "OUT OF COUNTY CASE" then 
-    assign_case = False
-elseif expedited_array(case_status_const, item) = "SNAP ACTIVE" and expedited_array(program_ID_const, item) = "FS" then 
-    assign_case = False 
-else 
-    assign_case = True
-End if 
  
 For item = 0 to UBound(expedited_array, 2)
+    If expedited_array(case_status_const, item) = "SNAP Application Denied" or expedited_array(case_status_const, item) = "OUT OF COUNTY CASE" then 
+        assign_case = False
+    elseif expedited_array(case_status_const, item) = "SNAP ACTIVE" and expedited_array(program_ID_const, item) = "FS" then 
+        assign_case = False 
+    else 
+        assign_case = True
+    End if 
+    
     If assign_case = True then 
         If expedited_array(days_pending_const, item) => 30 then 
             objExcel.Cells(excel_row, 1).Value = expedited_array(worker_number_const,    item)
@@ -646,7 +643,7 @@ NEXT
 objExcel.ActiveWorkbook.SaveAs "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP SNAP " & report_date & ".xlsx"
 objExcel.ActiveWorkbook.Close
 
-'Call create_outlook_email("Mary.McGuinness@Hennepin.us", "Faughn.Ramisch-Church@hennepin.us; Ilse.Ferris@hennepin.us", "EXP SNAP Report without Interviews is Ready. EOM.", "", "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP SNAP " & report_date & ".xlsx", True)
+'Call create_outlook_email("Mary.McGuinness@Hennepin.us; Mohamed.Ahmed@hennepin.us", "Faughn.Ramisch-Church@hennepin.us; Ilse.Ferris@hennepin.us", "EXP SNAP Report without Interviews is Ready. EOM.", "", "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP SNAP " & report_date & ".xlsx", True)
 Call create_outlook_email("Ilse.Ferris@hennepin.us", "", "EXP SNAP Report without Interviews is Ready. EOM.", "", "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP SNAP " & report_date & ".xlsx", True)
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
 'Call create_outlook_email("HSPH.EWS.Unit.Frey@hennepin.us", "Ilse.Ferris@hennepin.us", "Today's EXP SNAP reports are ready.", "Path to folder - T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\Daily Assignments", "", True)
