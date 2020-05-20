@@ -1033,7 +1033,7 @@ END IF
 			cleared_header = "NON-COOPERATION "
 	ELSEIF resolution_status <> "CC-Overpayment Only" OR resolution_status <> "NC-Non Cooperation" THEN
 		cleared_header = "CLEARED " & IULA_res_status
-	IF resolution_status = "BE-NC-Non-collectible" THEN
+	ELSEIF resolution_status = "BE-NC-Non-collectible" THEN
 		cleared_header = "CLEARED " & IULA_res_status & "Non-Collectible"
 	END IF
 
