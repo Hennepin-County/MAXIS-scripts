@@ -413,9 +413,9 @@ EMReadScreen OutOfCounty_error, 12, 24, 2
 IF OutOfCounty_error = "MATCH IS NOT" THEN
 	script_end_procedure_with_error_report("Out-of-county case. Cannot update.")
 ELSE
-    EMReadScreen number_IEVS_type, 3, 7, 12 'read the DAIL msg'
+    EMReadScreen number_IEVS_type, 3, 7, 12 'read the match type'
     IF number_IEVS_type = "A30" THEN match_type = "BNDX"
-    'IF number_IEVS_type = "A40" THEN match_type = "SDXS/I"
+    IF number_IEVS_type = "A40" THEN match_type = "SDXS/I"
     IF number_IEVS_type = "A70" THEN match_type = "BEER"
     IF number_IEVS_type = "A80" THEN match_type = "UNVI"
     IF number_IEVS_type = "A60" THEN match_type = "UBEN"
@@ -437,14 +437,6 @@ ELSE
 		select_quarter = "YEAR"
 	END IF
 END IF
-
-EMReadScreen number_IEVS_type, 3, 7, 12 'read the DAIL msg'
-IF number_IEVS_type = "A30" THEN match_type = "BNDX"
-IF number_IEVS_type = "A40" THEN match_type = "SDXS/I"
-IF number_IEVS_type = "A70" THEN match_type = "BEER"
-IF number_IEVS_type = "A80" THEN match_type = "UNVI"
-IF number_IEVS_type = "A60" THEN match_type = "UBEN"
-IF number_IEVS_type = "A50" or number_IEVS_type = "A51"  THEN match_type = "WAGE"
 
 '--------------------------------------------------------------------Client name
 EMReadScreen panel_name, 4, 02, 52
@@ -1041,6 +1033,8 @@ END IF
 			cleared_header = "NON-COOPERATION "
 	ELSEIF resolution_status <> "CC-Overpayment Only" OR resolution_status <> "NC-Non Cooperation" THEN
 		cleared_header = "CLEARED " & IULA_res_status
+	ELSEIF resolution_status = "BE-NC-Non-collectible" THEN
+		cleared_header = "CLEARED " & IULA_res_status & "Non-Collectible"
 	END IF
 
 	IF match_type = "BEER" THEN match_type_letter = "B"
@@ -1140,6 +1134,7 @@ END IF
 	    CALL write_bullet_and_variable_in_case_note("Reason for overpayment", Reason_OP)
 	    CALL write_bullet_and_variable_in_case_note("Other responsible member(s)", OT_resp_memb)
 	END IF
+	CALL write_bullet_and_variable_in_case_note("Other Notes", other_notes)
 	CALL write_variable_in_case_note("----- ----- ----- ----- ----- ----- -----")
 	CALL write_variable_in_case_note("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
 	PF3 'to save casenote'
