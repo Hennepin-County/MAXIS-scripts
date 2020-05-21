@@ -1056,7 +1056,7 @@ END IF
 	Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days
 
 	'-------------------------------------------------------------------------------------------------The case note
-	IF claim_referral_tracking_dropdown <> "Select One:" THEN
+	IF claim_referral_tracking_dropdown <> "Not Needed" THEN
 	    start_a_blank_case_note
 	    IF claim_referral_tracking_dropdown =  "Initial" THEN
 			CALL write_variable_in_case_note("Claim Referral Tracking - Initial")
