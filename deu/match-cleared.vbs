@@ -530,7 +530,7 @@ IF notice_sent = "N" THEN
 	  CheckBox 175, 55, 80, 10, "Rental Income Form", rental_checkbox
 	  CheckBox 175, 65, 80, 10, "Other (please specify)", other_checkbox
 	  CheckBox 10, 170, 115, 10, "Set a TIKL due to 10 day cutoff", tenday_checkbox
-	  DropListBox 145, 120, 115, 15, "Select One:"+chr(9)+"Initial"+chr(9)+"Overpayment Exists"+chr(9)+"OP Non-Collectible (please specify)"+chr(9)+"No Savings/Overpayment", claim_referral_tracking_dropdown
+	  DropListBox 145, 120, 115, 15, "Not Needed"+chr(9)+"Initial"+chr(9)+"Overpayment Exists"+chr(9)+"OP Non-Collectible (please specify)"+chr(9)+"No Savings/Overpayment", claim_referral_tracking_dropdown
 	  EditBox 50, 145, 215, 15, other_notes
 	  Text 5, 10, 165, 10, "Client name: "   & client_name
 	  Text 5, 55, 160, 10, "Active Programs: "  & programs
@@ -552,7 +552,7 @@ IF notice_sent = "N" THEN
     	Dialog Dialog1
     	cancel_without_confirmation
     	IF difference_notice_action_dropdown = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Please select an answer to continue."
-    	IF claim_referral_tracking_dropdown =  "Select One:" and difference_notice_action_dropdown =  "YES" THEN err_msg = err_msg & vbNewLine & "* Please select if the claim referral tracking needs to be updated."
+    	'IF claim_referral_tracking_dropdown =  "Select One:" and difference_notice_action_dropdown =  "YES" THEN err_msg = err_msg & vbNewLine & "* Please select if the claim referral tracking needs to be updated."
 		IF other_checkbox = CHECKED and other_notes = "" THEN err_msg = err_msg & vbNewLine & "* Please ensure you are completing other notes"
     	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
