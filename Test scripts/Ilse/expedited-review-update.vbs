@@ -253,6 +253,12 @@ Do
     excel_row = excel_row + 1   
 Loop
 
+'Setting up counts for data tracking
+screening_count = 0
+expedited_count = 0
+priv_count = 0
+not_exp_count = 0
+
 'Loading of cases is complete. Reviewing the cases in the array. 
 For item = 0 to UBound(expedited_array, 2)
     worker_number       = expedited_array(worker_number_const,    item)     're-valuding array variables 
@@ -340,10 +346,7 @@ For item = 0 to UBound(expedited_array, 2)
         IF MFIP_ACTIVE = TRUE and SNAP_PENDING = TRUE then 
             expedited_array(case_status_const, item) = "MFIP ACTIVE"
             expedited_array(appears_exp_const, item) = "Not Expedited"    
-        Elseif MFIP_ACTIVE = TRUE then
-            expedited_array(case_status_const, item) = "MFIP ACTIVE"
-            expedited_array(appears_exp_const, item) = "Not Expedited"
-        End if 
+        End if  
                
         'Determining if case notes need to be reviewed or not     
         If SNAP_PENDING = True or MFIP_PENDING = True then 
@@ -538,58 +541,6 @@ objExcel.ActiveWorkbook.SaveAs "T:\Eligibility Support\Restricted\QI - Quality I
 objExcel.ActiveWorkbook.Close
 
 '------------------------------------------------------------------------------------------------------------------------------------------------------------'Needs Interview Cases
-'----------------------------------------------------------------------------------------------------Appears Expedited 
-'Opening the Excel file
-Set objExcel = CreateObject("Excel.Application")
-objExcel.Visible = True
-Set objWorkbook = objExcel.Workbooks.Add()
-objExcel.DisplayAlerts = True
-
-'Changes name of Excel sheet
-ObjExcel.ActiveSheet.Name = "Appears Expedited"
-
-'adding information to the Excel list from PND2
-ObjExcel.Cells(1, 1).Value = "Worker #"
-ObjExcel.Cells(1, 2).Value = "Case number"
-ObjExcel.Cells(1, 3).Value = "Prog ID"
-ObjExcel.Cells(1, 4).Value = "Days Pending"
-ObjExcel.Cells(1, 5).Value = "APPL Date"
-objExcel.Columns(5).NumberFormat = "mm/dd/yy"					'formats the date column as MM/DD/YY
-ObjExcel.Cells(1, 6).Value = "Interview Date"
-objExcel.Columns(6).NumberFormat = "mm/dd/yy"					'formats the date column as MM/DD/YY
-ObjExcel.Cells(1, 7).Value = "Notes"
- 
-Excel_row = 2
- 
-For item = 0 to UBound(expedited_array, 2)
-    If expedited_array(appears_exp_const, item) = "Exp Screening Req" and expedited_array(interview_date_const, item) = "" then 
-        assign_case = True 
-    ElseIf expedited_array(appears_exp_const, item) = "Req Exp Processing" and expedited_array(interview_date_const, item) = "" then 
-        assign_case = True 
-    Else 
-        assign_case = False 
-    End if 
-    
-    If assign_case = True then 
-        'only assigning cases that haven't exceeded Day 30 - Those are their own assignments 
-        If expedited_array(days_pending_const, item) < 30 then 
-            objExcel.Cells(excel_row, 1).Value = expedited_array(worker_number_const,    item)
-            objExcel.Cells(excel_row, 2).Value = expedited_array(case_number_const,      item)
-            objExcel.Cells(excel_row, 3).Value = expedited_array(program_ID_const,       item)
-            objExcel.Cells(excel_row, 4).Value = expedited_array(days_pending_const,     item)
-            objExcel.Cells(excel_row, 5).Value = expedited_array(application_date_const, item)
-            objExcel.Cells(excel_row, 6).Value = expedited_array(interview_date_const,   item)
-            objExcel.Cells(excel_row, 7).Value = expedited_array(case_status_const,      item)
-            excel_row = excel_row + 1
-        End if 
-    End if 
-Next 
- 
-FOR i = 1 to 8		'formatting the cells
-    objExcel.Cells(1, i).Font.Bold = True		'bold font'
-    objExcel.Columns(i).AutoFit()				'sizing the columns'
-NEXT
-
 '----------------------------------------------------------------------------------------------------NOT EXPEDITED 
 ObjExcel.Worksheets.Add().Name = "Not Expedited"
 
@@ -639,14 +590,71 @@ FOR i = 1 to 7		'formatting the cells
     objExcel.Columns(i).AutoFit()				'sizing the columns'
 NEXT
 
+'----------------------------------------------------------------------------------------------------Appears Expedited 
+'Opening the Excel file
+Set objExcel = CreateObject("Excel.Application")
+objExcel.Visible = True
+Set objWorkbook = objExcel.Workbooks.Add()
+objExcel.DisplayAlerts = True
+
+'Changes name of Excel sheet
+ObjExcel.ActiveSheet.Name = "Appears Expedited"
+
+'adding information to the Excel list from PND2
+ObjExcel.Cells(1, 1).Value = "Worker #"
+ObjExcel.Cells(1, 2).Value = "Case number"
+ObjExcel.Cells(1, 3).Value = "Prog ID"
+ObjExcel.Cells(1, 4).Value = "Days Pending"
+ObjExcel.Cells(1, 5).Value = "APPL Date"
+objExcel.Columns(5).NumberFormat = "mm/dd/yy"					'formats the date column as MM/DD/YY
+ObjExcel.Cells(1, 6).Value = "Interview Date"
+objExcel.Columns(6).NumberFormat = "mm/dd/yy"					'formats the date column as MM/DD/YY
+ObjExcel.Cells(1, 7).Value = "Notes"
+ 
+Excel_row = 2
+ 
+For item = 0 to UBound(expedited_array, 2)
+    If expedited_array(appears_exp_const, item) = "Exp Screening Req" and expedited_array(interview_date_const, item) = "" then 
+        assign_case = True 
+    ElseIf expedited_array(appears_exp_const, item) = "Req Exp Processing" and expedited_array(interview_date_const, item) = "" then 
+        assign_case = True 
+    Else 
+        assign_case = False 
+    End if 
+    
+    If assign_case = True then 
+        'only assigning cases that haven't exceeded Day 30 - Those are their own assignments 
+        If expedited_array(days_pending_const, item) < 30 then 
+            objExcel.Cells(excel_row, 1).Value = expedited_array(worker_number_const,    item)
+            objExcel.Cells(excel_row, 2).Value = expedited_array(case_number_const,      item)
+            objExcel.Cells(excel_row, 3).Value = expedited_array(program_ID_const,       item)
+            objExcel.Cells(excel_row, 4).Value = expedited_array(days_pending_const,     item)
+            objExcel.Cells(excel_row, 5).Value = expedited_array(application_date_const, item)
+            objExcel.Cells(excel_row, 6).Value = expedited_array(interview_date_const,   item)
+            objExcel.Cells(excel_row, 7).Value = expedited_array(case_status_const,      item)
+            excel_row = excel_row + 1
+        End if 
+    End if 
+Next 
+ 
+FOR i = 1 to 7		'formatting the cells
+    objExcel.Cells(1, i).Font.Bold = True		'bold font'
+    objExcel.Columns(i).AutoFit()				'sizing the columns'
+NEXT
+
 'Saves and closes the most recent Excel workbook
 objExcel.ActiveWorkbook.SaveAs "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP SNAP " & report_date & ".xlsx"
 objExcel.ActiveWorkbook.Close
 
-'Call create_outlook_email("Mary.McGuinness@Hennepin.us; Mohamed.Ahmed@hennepin.us", "Faughn.Ramisch-Church@hennepin.us; Ilse.Ferris@hennepin.us", "EXP SNAP Report without Interviews is Ready. EOM.", "", "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP SNAP " & report_date & ".xlsx", True)
-Call create_outlook_email("Ilse.Ferris@hennepin.us", "", "EXP SNAP Report without Interviews is Ready. EOM.", "", "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP SNAP " & report_date & ".xlsx", True)
+stats_report = "Screening Count: " & screening_count & vbcr & _
+"Expedited Processing Count: " & expedited_count & vbcr & _
+"PRIV Case Count: " & priv_count & vbcr & _
+"Not Expedited Count: " & not_exp_count
+
+Call create_outlook_email("Mary.McGuinness@Hennepin.us; Mohamed.Ahmed@hennepin.us", "Faughn.Ramisch-Church@hennepin.us; Ilse.Ferris@hennepin.us", "EXP SNAP Report without Interviews is Ready. EOM.", "", "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP SNAP " & report_date & ".xlsx", True)
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-'Call create_outlook_email("HSPH.EWS.Unit.Frey@hennepin.us", "Ilse.Ferris@hennepin.us", "Today's EXP SNAP reports are ready.", "Path to folder - T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\Daily Assignments", "", True)
+'Call create_outlook_email("HSPH.EWS.Unit.Frey@hennepin.us", "Ilse.Ferris@hennepin.us", "Today's EXP SNAP reports are ready.", "Path to folder - T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project", "", True)
+Call create_outlook_email("Ilse.Ferris@hennepin.us","","Expedited SNAP Daily statistics for " & date, stats_report, "", True)
 
 'logging usage stats
 STATS_counter = STATS_counter - 1  'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
