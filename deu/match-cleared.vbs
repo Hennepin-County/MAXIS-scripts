@@ -587,7 +587,7 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
       EditBox 275, 95, 40, 15, exp_grad_date
       CheckBox 5, 85, 115, 10, "Set a TIKL due to 10 day cutoff", tenday_checkbox
       CheckBox 5, 100, 130, 10, "Overpayment (other programs)", HC_OP_checkbox
-      DropListBox 140, 125, 175, 15, "Select One:"+chr(9)+"Initial"+chr(9)+"Overpayment Exists"+chr(9)+"OP Non-Collectible (please specify)"+chr(9)+"No Savings/Overpayment", claim_referral_tracking_dropdown
+      DropListBox 140, 125, 175, 15, "Not Needed"+chr(9)+"Initial"+chr(9)+"Overpayment Exists"+chr(9)+"OP Non-Collectible (please specify)"+chr(9)+"No Savings/Overpayment", claim_referral_tracking_dropdown
       EditBox 50, 150, 180, 15, other_notes
       ButtonGroup ButtonPressed
         OkButton 235, 150, 40, 15
@@ -861,7 +861,7 @@ END IF
     '----------------------------------------------------------------------------------------writing the note on IULB
 
 	IF resolution_status = "CB-Ovrpmt And Future Save" THEN EMWriteScreen "OP Claim entered and future savings." & other_notes, 8, 6
-	IF resolution_status = "CC-Overpayment Only" THEN
+	IF resolution_status = "CC-Overpayment Only" Or HC_OP_checkbox = CHECKED THEN
 		EMWriteScreen "OP Claim entered." & other_notes, 8, 6
 		CALL clear_line_of_text(8, 6)
 		EMWriteScreen "Claim entered. See Case Note. ", 8, 6
@@ -973,7 +973,7 @@ END IF
 		IF email_BZST <> "" THEN CALL create_outlook_email("Mikayla.Handley@hennepin.us", "", "Case #" & maxis_case_number & " Error message: " & MAXIS_error_message & "  EOM.", "", "", TRUE)
 	END IF
 '------------------------------------------------------------------STAT/MISC for claim referral tracking
-	IF claim_referral_tracking_dropdown <> "Select One:" THEN
+	IF claim_referral_tracking_dropdown <> "Not Needed" THEN
 	    'Going to the MISC panel to add claim referral tracking information
 		CALL navigate_to_MAXIS_screen ("STAT", "MISC")
 		Row = 6
@@ -1027,7 +1027,7 @@ END IF
 	ELSEIF difference_notice_action_dropdown = "YES" THEN
 		cleared_header = "DIFF NOTICE SENT"
 		sent_date = date
-	ELSEIF resolution_status = "CC-Overpayment Only" THEN
+	ELSEIF resolution_status = "CC-Overpayment Only" or HC_OP_checkbox = CHECKED THEN
 		cleared_header = "CLEARED CLAIM ENTERED "
 	ELSEIF resolution_status = "NC-Non Cooperation" THEN
 			cleared_header = "NON-COOPERATION "
@@ -1115,7 +1115,7 @@ END IF
 		CALL write_variable_in_case_note("* Case approved to close.")
 		CALL write_variable_in_case_note("* Client needs to provide: ATR, Income Verification, Difference Notice.")
 	END IF
-	IF resolution_status = "CC-Overpayment Only" THEN
+	IF resolution_status = "CC-Overpayment Only" or HC_OP_checkbox = CHECKED THEN
 	    CALL write_variable_in_case_note(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
 	    IF OP_program_II <> "Select:" THEN CALL write_variable_in_case_note(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim #" & Claim_number_II & " Amt $" & Claim_amount_II)
 	    IF OP_program_III <> "Select:" THEN CALL write_variable_in_case_note(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim #" & Claim_number_III & " Amt $" & Claim_amount_III)
@@ -1139,7 +1139,7 @@ END IF
 	CALL write_variable_in_case_note("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
 	PF3 'to save casenote'
 
-   	IF resolution_status = "CC-Overpayment Only" THEN '-----------------------------------------------------------------------------------------OP CASENOTE
+   	IF resolution_status = "CC-Overpayment Only" or HC_OP_checkbox = CHECKED THEN '-----------------------------------------------------------------------------------------OP CASENOTE
 	    IF HC_claim_number <> "" THEN
 	    	EMWriteScreen "x", 5, 3
 	    	TRANSMIT
