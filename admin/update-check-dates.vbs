@@ -53,6 +53,7 @@ changelog_display
 'SCRIPT ====================================================================================================================
 EMConnect ""
 Call check_for_MAXIS(true)
+testing_run = TRUE
 
 'Autofilling information
 call MAXIS_case_number_finder(MAXIS_case_number)
