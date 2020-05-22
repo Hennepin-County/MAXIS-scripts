@@ -4467,6 +4467,7 @@ function dynamic_calendar_dialog(selected_dates_array, month_to_use, text_prompt
 
 
 		'Actually displays the dialog
+        dialog1 = ""
 		BeginDialog dialog1, 0, 0, 280, 190, "Select Date(s)"
 			Text 5, 10, 265, 50, text_prompt
 			'This next part`creates a line showing the month displayed"
@@ -6215,6 +6216,7 @@ function script_end_procedure_with_error_report(closing_message)
                 document_checkbox = unchecked
                 missing_spot_checkbox = unchecked
 
+                Dialog1 = ""
                 BeginDialog Dialog1, 0, 0, 401, 175, "Report Error Detail"
                   Text 60, 35, 55, 10, MAXIS_case_number
                   ComboBox 220, 30, 175, 45, error_type+chr(9)+"BUG - something happened that was wrong"+chr(9)+"ENHANCEMENT - something could be done better"+chr(9)+"TYPO - grammatical/spelling type errors"+chr(9)+"DAIL - add support for this DAIL message.", error_type

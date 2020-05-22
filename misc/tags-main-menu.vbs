@@ -71,12 +71,40 @@ END IF
 '
 ' End If
 
-tags_coming_soon = MsgBox("***            Coming soon!            ***" & vbNewLine & vbNewLine & "We are updating how we engage with the script tools. One of these ways is with a new system of tagging." & vbNewLine & "This button will have functionality to preview the new menu using these tags. It is not available just yet as we develop and test the functionality." & vbNewLine & vbNewLine & "Come back later to try this new functionality.", vbOk, "New Tags Menu Coming Soon.")
-script_end_procedure("")
+' tags_coming_soon = MsgBox("***            Coming soon!            ***" & vbNewLine & vbNewLine & "We are updating how we engage with the script tools. One of these ways is with a new system of tagging." & vbNewLine & "This button will have functionality to preview the new menu using these tags. It is not available just yet as we develop and test the functionality." & vbNewLine & vbNewLine & "Come back later to try this new functionality.", vbOk, "New Tags Menu Coming Soon.")
+' script_end_procedure("")
 
 
 ' script_repository = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/"
-script_list_URL = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/COMPLETE%20LIST%20OF%20SCRIPTS.vbs"
+' script_list_URL = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/COMPLETE%20LIST%20OF%20SCRIPTS.vbs"
+' script_list_URL = "C:\MAXIS-scripts\COMPLETE LIST OF SCRIPTS.vbs"
+
+
+testers_script_list_URL = "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Scripts\Script Files\COMPLETE LIST OF TESTERS.vbs"        'Opening the list of testers - which is saved locally for security
+Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
+Set fso_command = run_another_script_fso.OpenTextFile(testers_script_list_URL)
+text_from_the_other_script = fso_command.ReadAll
+fso_command.Close
+Execute text_from_the_other_script
+
+Set objNet = CreateObject("WScript.NetWork")
+windows_user_ID = objNet.UserName
+user_ID_for_validation = ucase(windows_user_ID)
+
+tester_found = FALSE
+For each tester in tester_array
+    If user_ID_for_validation = tester.tester_id_number Then
+        tester_found = TRUE
+    End If
+Next
+
+If tester_found = FALSE Then
+    tags_coming_soon = MsgBox("***            Coming soon!            ***" & vbNewLine & vbNewLine & "We are updating how we engage with the script tools. One of these ways is with a new system of tagging." & vbNewLine & "This button will have functionality to preview the new menu using these tags. It is not available just yet as we develop and test the functionality." & vbNewLine & vbNewLine & "Come back later to try this new functionality.", vbOk, "New Tags Menu Coming Soon.")
+    stopscript
+End If
+
+If script_repository = "" Then script_repository = "C:\MAXIS-scripts\"
+script_list_URL = script_repository & "/COMPLETE LIST OF SCRIPTS.vbs"
 Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
 Set fso_command = run_another_script_fso.OpenTextFile(script_list_URL)
 text_from_the_other_script = fso_command.ReadAll
@@ -119,6 +147,7 @@ function declare_tabbed_menu(tab_selected)
                 If script_array(current_script).show_script = TRUE Then
                     For each selected_tag in tags_array
                         If selected_tag <> "" Then
+                            ' MsgBox script_array(current_script).script_name & vbNewLine' & script_array(current_script).tags
                             For each listed_tag in script_array(current_script).tags
                                 If listed_tag <> "" Then
                                     tag_matched = FALSE
@@ -142,9 +171,16 @@ function declare_tabbed_menu(tab_selected)
                         End If
                     Next
                 End If
+                If script_array(current_script).show_script = TRUE Then
+                    Call script_array(current_script).show_button(use_this_button)
+                    If use_this_button = FALSE Then script_array(current_script).show_script = FALSE
+                    If script_array(current_script).in_testing = TRUE Then script_array(current_script).description = "IN TESTING - " & script_array(current_script).description
+                    ' MsgBox script_array(current_script).script_name & vbNewLine & "Use this button - " & use_this_button & vbNewLine & "show script - " & script_array(current_script).show_script
+                End If
             Else
                 script_array(current_script).show_script = FALSE
             End If
+
             If script_array(current_script).show_script = TRUE Then
                 dlg_len = dlg_len + 15
                 scripts_included = scripts_included + 1
@@ -183,8 +219,9 @@ function declare_tabbed_menu(tab_selected)
         If show_dail_scrubber = TRUE then dlg_len = dlg_len + 10
         dail_scrubber_functionality = trim(dail_scrubber_functionality)
         If dail_scrubber_functionality <> "" Then dail_scrubber_functionality = right(dail_scrubber_functionality, len(dail_scrubber_functionality)  - 2)
-        If dlg_len < 220 Then dlg_len = 220
+        If dlg_len < 240 Then dlg_len = 240
 
+        Dialog1 = ""
         BeginDialog Dialog1, 0, 0, 750, dlg_len, "Select Script to Run"
           GroupBox 550, 5, 185, 40, "Selected TAGS"
           Text 555, 15, 175, 25, Join(tags_array, ", ")
@@ -214,6 +251,12 @@ function declare_tabbed_menu(tab_selected)
           Text 635, 160, 20, 10, "Wrd - "
           Text 655, 160, 70, 10, "Word"
 
+          GroupBox 630, 175, 105, 40, "Button Functions"
+          ' Text 635, 185, 20, 10, "?"
+          Text 655, 190, 70, 10, "View Instructions"
+          ' Text 635, 195, 20, 10, "+"
+          Text 655, 200, 70, 10, "Add to Favorites"
+
           ButtonGroup ButtonPressed
             PushButton 5, 10, 60, 15, "SNAP", snap_btn
             PushButton 65, 10, 60, 15, "MFIP", mfip_btn
@@ -235,6 +278,9 @@ function declare_tabbed_menu(tab_selected)
             PushButton 485, 25, 60, 15, "Resources", resources_btn
             ' PushButton 15, 60, 10, 10, "?", instructions_btn
             ' PushButton 30, 60, 95, 10, "script name", name_btn
+            PushButton 640, 190, 10, 10, "?", explain_questionmark_btn
+            PushButton 640, 200, 10, 10, "+", explain_plus_btn
+
 
             vert_button_position = 50
             list_counter = 0
@@ -259,9 +305,9 @@ function declare_tabbed_menu(tab_selected)
                                     'FUNCTION		HORIZ. ITEM POSITION	VERT. ITEM POSITION		ITEM WIDTH	ITEM HEIGHT		ITEM TEXT/LABEL										BUTTON VARIABLE
                                     PushButton 		5, 						vert_button_position, 	10, 		10, 			"?", 												SIR_button_placeholder
                                     PushButton 		18,						vert_button_position, 	120, 		10, 			script_array(current_script).script_name, 			button_placeholder
-                                    Text 			143, 				    vert_button_position, 	40, 		10, 			"-- " & script_keys_combine & " --"
-                                    PushButton      175,                    vert_button_position,   10,         10,             "+",                                                add_to_favorites_button_placeholder
-                                    Text            185,                    vert_button_position,   450,        10,             script_array(current_script).description
+                                    PushButton      140,                    vert_button_position,   10,         10,             "+",                                                add_to_favorites_button_placeholder
+                                    Text 			150, 				    vert_button_position, 	65, 		10, 			"-- " & script_keys_combine & " --"
+                                    Text            210,                    vert_button_position,   425,        10,             script_array(current_script).description
                                     '----------
                                     vert_button_position = vert_button_position + 15	'Needs to increment the vert_button_position by 15px (used by both the text and buttons)
                                     '----------
@@ -302,14 +348,20 @@ function declare_tabbed_menu(tab_selected)
                     Text 565, vert_button_position + 5, 5, 10, "3"
                 End If
             End If
-            If vert_button_position < 200 Then vert_button_position = 200
-            PushButton 10, vert_button_position, 100, 15, "Clear TAG Selection", clear_selection_btn
-            CancelButton 690, vert_button_position, 50, 15
-          ' Text 120, vert_button_position, 380, 15, "C - Case Notes ... E - Excel ... EXP - Expedited SNAP ... F - FIATs ... OA - Outlook Appointment ... OE - Outlook Email ... SM - SPEC/MEMO ... SW - SPEC/WCOM ... T - TIKL ... U - Updates Panel ... W - Word"
-          Text 120, vert_button_position + 5, 40, 10, "Keywords:"
-          EditBox 165, vert_button_position, 200, 15, search_keywords
+          '   If vert_button_position < 200 Then vert_button_position = 200
+          '   PushButton 10, vert_button_position, 100, 15, "Clear TAG Selection", clear_selection_btn
+          '   CancelButton 690, vert_button_position, 50, 15
+          ' ' Text 120, vert_button_position, 380, 15, "C - Case Notes ... E - Excel ... EXP - Expedited SNAP ... F - FIATs ... OA - Outlook Appointment ... OE - Outlook Email ... SM - SPEC/MEMO ... SW - SPEC/WCOM ... T - TIKL ... U - Updates Panel ... W - Word"
+          ' Text 120, vert_button_position + 5, 40, 10, "Keywords:"
+          ' EditBox 165, vert_button_position, 200, 15, search_keywords
           ' Text 130, 60, 30, 10, "- KEYS -"
           ' Text 170, 60, 170, 10, "Description"p
+
+            PushButton 10, dlg_len - 20, 100, 15, "Clear TAG Selection", clear_selection_btn
+            CancelButton 690, dlg_len - 20, 50, 15
+            ' Text 120, vert_button_position, 380, 15, "C - Case Notes ... E - Excel ... EXP - Expedited SNAP ... F - FIATs ... OA - Outlook Appointment ... OE - Outlook Email ... SM - SPEC/MEMO ... SW - SPEC/WCOM ... T - TIKL ... U - Updates Panel ... W - Word"
+          ' Text 120, dlg_len - 15, 40, 10, "Keywords:"                 'commented out because we don't have keywordds
+          ' EditBox 165, dlg_len - 20, 200, 15, search_keywords
         EndDialog
 
 
@@ -339,6 +391,14 @@ Do
     dialog Dialog1
 
     cancel_without_confirmation
+
+    If ButtonPressed = explain_questionmark_btn Then
+        explain_questionmark_msg = MsgBox("See all the Question Mark Buttons?" & vbCr & vbCr & "Look to the left of the script name button. Each script has a button with a question mark - ? - next to it." & vbCr & vbCr & "Press this button and the instructions for that script will be opened. This is an easy way to see how a script functions, or when to use it.", vbQuestion, "What's with the Question Marks?")
+    End If
+    If ButtonPressed = explain_plus_btn Then
+        explain_plus_msg = MsgBox("What are these plus buttons?" & vbCr & vbCr & "Just to the right of the script name button is a button with a plus sign (+)." & vbCr & vbCr & "This button will add this script to your list of favorite scripts for access inthe favorites menu.", vbQuestion, "What are the Plus Signs for?")
+    End If
+
 
     If ButtonPressed = clear_selection_btn Then
         leave_loop = FALSE
@@ -428,40 +488,6 @@ Do
         script_to_run = script_array(0).script_URL
     End If
 Loop Until leave_loop = TRUE
-'Displays the dialog
-' Do
-'
-' 	'Creates the dialog
-' 	call declare_main_menu_dialog("Actions")
-'
-' 	'At the beginning of the loop, we are not ready to exit it. Conditions later on will impact this.
-' 	ready_to_exit_loop = false
-'
-' 	'Displays dialog, if cancel is pressed then stopscript
-' 	dialog
-' 	If ButtonPressed = 0 then stopscript
-'
-' 	'Determines the subcategory if a subcategory button was selected.
-' 	For i = 0 to ubound(subcategory_array)
-' 		If ButtonPressed = subcategory_array(i).subcat_button then subcategory_selected = subcategory_array(i).subcat_name
-' 	Next
-'
-' 	'Runs through each script in the array... if the user selected script instructions (via ButtonPressed) it'll open_URL_in_browser to those instructions
-' 	For i = 0 to ubound(script_array)
-' 		If ButtonPressed = script_array(i).SIR_instructions_button then call open_URL_in_browser(script_array(i).SIR_instructions_URL)
-' 	Next
-'
-' 	'Runs through each script in the array... if the user selected the actual script (via ButtonPressed), it'll run_from_GitHub
-' 	For i = 0 to ubound(script_array)
-' 		If ButtonPressed = script_array(i).button then
-' 			ready_to_exit_loop = true		'Doing this just in case a stopscript or script_end_procedure is missing from the script in question
-' 			script_to_run = script_array(i).script_URL
-' 			Exit for
-' 		End if
-' 	Next
-'
-'
-' Loop until ready_to_exit_loop = true
 
 call run_from_GitHub(script_to_run)
 
