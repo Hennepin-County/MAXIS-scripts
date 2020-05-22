@@ -104,7 +104,7 @@ If tester_found = FALSE Then
 End If
 
 If script_repository = "" Then script_repository = "C:\MAXIS-scripts\"
-script_list_URL = script_repository & "/COMPLETE LIST OF SCRIPTS.vbs"
+script_list_URL = script_repository & "COMPLETE LIST OF SCRIPTS.vbs"
 Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
 Set fso_command = run_another_script_fso.OpenTextFile(script_list_URL)
 text_from_the_other_script = fso_command.ReadAll
