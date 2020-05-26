@@ -121,7 +121,7 @@ DO
 	MAXIS_case_number 	= objExcel.cells(excel_row, 1).value	'establishes MAXIS case number
 	client_SSN 			= objExcel.cells(excel_row, 3).value	'establishes client SSN
 	'income_source		= objExcel.cells(excel_row, 6).value	'establishes employer name
-	cleared_status	    = objExcel.cells(excel_row, 6).value	'establishes cleared status for the match
+	cleared_status	    = objExcel.cells(excel_row, 8).value	'establishes cleared status for the match
 	'cleaned up
 	MAXIS_case_number 	= trim(MAXIS_case_number) 'remove extra spaces'
 	client_SSN 			= trim(client_SSN)
@@ -145,46 +145,45 @@ DO
 			case_note_actions = FALSE
 		End if
 	Else
-	    row = 6    'establishing 1st row to search
-	    Do
-			EMReadScreen IEVS_message, 4, row, 6
-			msgbox IEVS_message & vbcr & match_type
-			If IEVS_message <> match_type then
+	row = 6    'establishing 1st row to search
+	Do
+		EMReadScreen IEVS_message, 4, row, 6
+		'msgbox IEVS_message & vbcr & match_type
+		If IEVS_message <> match_type then
+			match_found = False
+			row = row + 1
+			EMReadScreen new_case, 9, row, 63
+			If new_case = "CASE NBR:" then
+				EMreadscreen case_number, 7, row, 73
+				If trim(case_number) = MAXIS_case_number then
+					row = row + 1
+				Else
+					exit do
+				End if
+			Else
+				'msgbox "1." & MAXIS_case_number & vbcr & "new_case" & new_case & vbcr & "row: " & row & vbcr & "match found: " & match_found
+			End if
+			If row = 19 then
+				PF8
+				row = 6
+			End if
+		Else
+			EMReadScreen client_social, 9, row, 20
+			If client_social <> Client_SSN then
 				match_found = False
 				row = row + 1
+				'msgbox "2." & MAXIS_case_number & vbcr & "row: " & row & vbcr & "match found: " & match_found
 			Else
-			   	EMReadScreen client_social, 9, row, 20
-			   	If client_social <> Client_SSN then
-			   		match_found = False
-			   		row = row + 1
-					'msgbox "2." & MAXIS_case_number & vbcr & "row: " & row & vbcr & "match found: " & match_found
-			   	Else
-			   		match_found = true
-					'msgbox "3." & MAXIS_case_number & vbcr & "row: " & row & vbcr & "match found: " & match_found
-			   		exit do
-			   	End if
-
-		    	EMReadScreen new_case, 9, row, 63
-		    	If new_case = "CASE NBR:" then
-		    		EMreadscreen case_number, 7, row, 73
-		    		If trim(case_number) = MAXIS_case_number then
-		    			row = row + 1
-					Else
-						exit do
-					End if
-				Else
-					'msgbox "1." & MAXIS_case_number & vbcr & "new_case" & new_case & vbcr & "row: " & row & vbcr & "match found: " & match_found
-				End if
-				If row = 19 then
-					PF8
-					row = 6
-				End if
-		     End if
-		Loop until match_found = true
-		If match_found = False then
-			case_note_actions = False 'no case note'
-			objExcel.cells(excel_row, 9).value = "A IEVS match wasn't found on DAIL/DAIL or SSN did not match."
+				match_found = true
+				'msgbox "3." & MAXIS_case_number & vbcr & "row: " & row & vbcr & "match found: " & match_found
+				exit do
+			End if
 		End if
+	Loop until match_found = true
+	If match_found = False then
+		case_note_actions = False 'no case note'
+		objExcel.cells(excel_row, 9).value = "A IEVS match wasn't found on DAIL/DAIL or SSN did not match."
+	End if
 	End if
 
 	'----------------------------------------------------------------------------------------------------IEVS
@@ -352,13 +351,24 @@ DO
 	End if
 
     If case_note_actions = True then		'Formatting for the case note
-	    If match_type = "WAGE" then
-	    	'Updated IEVS_period to write into case note
-	    	If quarter = 1 then IEVS_quarter = "1ST"
-	    	If quarter = 2 then IEVS_quarter = "2ND"
-	    	If quarter = 3 then IEVS_quarter = "3RD"
-	    	If quarter = 4 then IEVS_quarter = "4TH"
-	    End if
+
+	    IF match_type = "BEER" THEN match_type_letter = "B"
+	    IF match_type = "UBEN" THEN match_type_letter = "U"
+	    IF match_type = "UNVI" THEN match_type_letter = "U"
+
+	    verifcation_needed = trim(verifcation_needed) 	'takes the last comma off of verifcation_needed when autofilled into dialog if more more than one app date is found and additional app is selected
+	    IF right(verifcation_needed, 1) = "," THEN verifcation_needed = left(verifcation_needed, len(verifcation_needed) - 1)
+	    IF match_type = "WAGE" THEN
+	    	IF select_quarter = 1 THEN IEVS_quarter = "1ST"
+	    	IF select_quarter = 2 THEN IEVS_quarter = "2ND"
+	    	IF select_quarter = 3 THEN IEVS_quarter = "3RD"
+	    	IF select_quarter = 4 THEN IEVS_quarter = "4TH"
+	    END IF
+
+	    IEVS_period = trim(IEVS_period)
+	    IF match_type <> "UBEN" THEN IEVS_period = replace(IEVS_period, "/", " to ")
+	    IF match_type = "UBEN" THEN IEVS_period = replace(IEVS_period, "-", "/")
+	    Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days
 
 	    'adding specific wording for case note header for each cleared status
 	    If cleared_status = "BC" then cleared_header_info = " (" & first_name & ") CLEARED BC-CASE CLOSED"
