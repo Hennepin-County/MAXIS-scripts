@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("05/22/2020", "Added functionality so the script can FIAT income from Unemployment as well as JOBS income. As UI income is received weekly, it can cause the premium to vary from month to month. This income also requires a FIAT to be balanced across the budget.##~## ##~## The functionality for UNEA panels coded with UI income works at the same time and in the same manner as the JOBS functionality.", "Casey Love, Hennepin County")
 call changelog_update("11/27/2018", "Changed the case options to 'Initial' and 'Update' for the type of approval being made.", "Casey Love, Hennepin County")
 call changelog_update("08/24/2018", "Fixed script to accommodate a $0 income job.", "Casey Love, Hennepin County")
 call changelog_update("05/16/2018", "Added a place to input the footer month and year for the start of MA EPD.", "Casey Love, Hennepin County")
@@ -122,8 +123,11 @@ function get_average_pay(job_frequency, job_income)
           Text 5, 65, 190, 10, "These amounts are both average per pay period amounts."
         EndDialog
 
-        Dialog Dialog1      'Running the dialog to ask for worker input on the correct income.
-        Cancel_confirmation
+        Do
+            Dialog Dialog1      'Running the dialog to ask for worker input on the correct income.
+            Cancel_confirmation
+            Call check_for_password(are_we_passworded_out)
+        Loop until are_we_passworded_out = FALSE
 
         'This will set the average income for the job based on what the worker indicates
         If use_anticipated_inc_radio = 1 Then job_income = anticipated_average
@@ -192,19 +196,22 @@ BeginDialog Dialog1, 0, 0, 161, 85, "Case number"
 EndDialog
 'Running a dialog to get case number, member number and if the case is at Initial or Update.'
 Do
-    err_msg = ""
+    Do
+        err_msg = ""
 
-    Dialog Dialog1
-    Cancel_confirmation
+        Dialog Dialog1
+        Cancel_confirmation
 
-    If MAXIS_case_number = "" Then                                             err_msg = err_msg & vbNewLine & "* Enter a case number to continue."
-    If IsNumeric(MAXIS_case_number) = FALSE or len(MAXIS_case_number) > 8 Then err_msg = err_msg & vbNewLine & "* Case number appears to be invalid. Check the case number and fix."
-    If memb_number = "" Then                                                   err_msg = err_msg & vbNewLine & "* Enter a reference number for the member on MA-EPD."
-    If case_status = "Select One..." Then                                      err_msg = err_msg & vbNewLine & "* Identify if approval is update or initial."
-    'If MAXIS_footer_month = "" OR MAXIS_footer_year = "" Then                  err_msg = err_msg & vbNewLine & "* Enter the MAXIS footer month and year that has the best income information in it."
+        If MAXIS_case_number = "" Then                                             err_msg = err_msg & vbNewLine & "* Enter a case number to continue."
+        If IsNumeric(MAXIS_case_number) = FALSE or len(MAXIS_case_number) > 8 Then err_msg = err_msg & vbNewLine & "* Case number appears to be invalid. Check the case number and fix."
+        If memb_number = "" Then                                                   err_msg = err_msg & vbNewLine & "* Enter a reference number for the member on MA-EPD."
+        If case_status = "Select One..." Then                                      err_msg = err_msg & vbNewLine & "* Identify if approval is update or initial."
+        'If MAXIS_footer_month = "" OR MAXIS_footer_year = "" Then                  err_msg = err_msg & vbNewLine & "* Enter the MAXIS footer month and year that has the best income information in it."
 
-    If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
-Loop until err_msg = ""
+        If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
+    Loop until err_msg = ""
+    Call check_for_password(are_we_passworded_out)
+Loop until are_we_passworded_out = FALSE
 
 'Setting constants for the array of JOB information
 const instance          = 0
@@ -224,15 +231,18 @@ const pay_weekday       = 13
 const six_month_total   = 14
 const average_monthly_inc   = 15
 const employer          = 16
+const unea_type         = 16
 const est_pop_up        = 17
 const verif_code        = 18
 
 Dim JOBS_ARRAY()                    'setting up the array
 ReDim JOBS_ARRAY(verif_code, 0)
 
+Dim UNEA_ARRAY()
+ReDim UNEA_ARRAY(verif_code, 0)
+
 'Cases at Update have a different information to look at
 If case_status = "Update" Then
-
     Call Navigate_to_MAXIS_screen("STAT", "REVW")       'Going to find the REVW month as that this the relevant JOBS information
 
     EMReadScreen hc_revw, 8, 9, 70                      'Reading the current REVW date
@@ -255,16 +265,56 @@ If case_status = "Update" Then
     End If
 
     Call back_to_SELF       'Getting out of STAT so that we can switch months if needed
+End If
 
-    Dialog1 = ""
-    BeginDialog Dialog1, 0, 0, 191, 50, "Dialog"
-      EditBox 140, 5, 15, 15, MAXIS_footer_month
-      EditBox 160, 5, 15, 15, MAXIS_footer_year
-      ButtonGroup ButtonPressed
-        OkButton 130, 30, 50, 15
-      Text 5, 15, 120, 10, "Beginning month of MA-EPD budget"
-    EndDialog
+'For Initials, there are months with pay already put in it.
+If case_status = "Initial" Then
+    Call Navigate_to_MAXIS_screen("STAT", "HCRE")   'Going to HCRE to get information about when to start the FIATing
 
+    hcre_row = 10       'Setting the row to find the correct member to read the application date and possible retro months
+    Do
+        EMReadScreen hcre_ref_numb, 2, hcre_row, 24     'reading the reference number
+        If hcre_ref_numb = memb_number Then Exit Do     'Once the member number has been matched, this will exit to do because the row is set already and we will use the same row variable.
+
+        hcre_row = hcre_row + 1         'Incrementing the row
+        If hcre_row = 18 Then           'Scrolling through the list if needed
+            PF20
+            hcre_row = 10
+        End If
+        EMReadScreen next_client, 2, hcre_row, 24   'Finding the end of the list
+    Loop until next_client = "  "
+
+    EMReadScreen application_date, 8, hcre_row, 51      'reading the application date using the row found previously
+    EMReadScreen coverage_date, 5, hcre_row, 64         'reading the coverage date to look for retro requests
+
+    application_date = replace(application_date, " ", "/")      'making this variable actually a date
+
+    MAXIS_footer_month = DatePart("m", application_date)        'Setting the footer month and year as 2 digit variables
+    MAXIS_footer_month = right("00" & MAXIS_footer_month, 2)
+
+    MAXIS_footer_year = DatePart("yyyy", application_date)
+    MAXIS_footer_year = right(MAXIS_footer_year, 2)
+
+    'if there is a retro request, a quick reminder that retro months have different budgeting processing.
+    If left(coverage_date, 2) <> MAXIS_footer_month OR right(coverage_date, 2) <> MAXIS_footer_year Then
+        coverage_date = replace(coverage_date, " ", "/")
+        MsgBox "This case appears to have a retro request back to " & coverage_date & "." & vbNewLine & vbNewLine & "Retro months should not be FIATed to even the income out. The premium in these months are based on actual income and will be different."
+    End If
+
+    Call back_to_SELF       'Going out of STAT to switch months
+End If
+
+'Getting the footer month
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 191, 50, "Dialog"
+  EditBox 140, 5, 15, 15, MAXIS_footer_month
+  EditBox 160, 5, 15, 15, MAXIS_footer_year
+  ButtonGroup ButtonPressed
+    OkButton 130, 30, 50, 15
+  Text 5, 10, 120, 10, "Beginning month of MA-EPD budget"
+EndDialog
+
+Do
     Do
         err_msg = ""
         Dialog Dialog1
@@ -272,22 +322,59 @@ If case_status = "Update" Then
         If trim(MAXIS_footer_month) = "" or trim(MAXIS_footer_year) = "" Then err_msg = err_msg & vbNewLine & "* Enter the footer month and year."
         If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
     Loop until err_msg = ""
+    Call check_for_password(are_we_passworded_out)
+Loop until are_we_passworded_out = FALSE
 
-    MAXIS_footer_month = right("00"&MAXIS_footer_month, 2)
-    MAXIS_footer_year = right("00"&MAXIS_footer_year, 2)
+MAXIS_footer_month = right("00"&MAXIS_footer_month, 2)
+MAXIS_footer_year = right("00"&MAXIS_footer_year, 2)
 
-    Call Navigate_to_MAXIS_screen("STAT", "JOBS")       'Going to look at jobs
-    EmWriteScreen memb_number, 20, 76
-    EmWriteScreen "01", 20, 79
+Call Navigate_to_MAXIS_screen("STAT", "JOBS")       'Going to look at jobs
+EMWriteScreen memb_number, 20, 76
+EMWriteScreen "01", 20, 79
+transmit
+
+EMReadScreen number_of_jobs, 1, 2, 78               'Reading the number of JOBS panels for this client.
+number_of_jobs = number_of_jobs * 1
+
+Call Navigate_to_MAXIS_screen("STAT", "UNEA")       'Going to look at jobs
+EMWriteScreen memb_number, 20, 76
+EMWriteScreen "01", 20, 79
+transmit
+
+EMReadScreen number_of_unea, 1, 2, 78               'Reading the number of JOBS panels for this client.
+number_of_unea = number_of_unea * 1
+
+list_of_unea_income_to_fiat = ""
+For each_unea = 1 to number_of_unea
+    each_unea = "0" & each_unea                     'Navigate to each of the UNEA panels to see if they are Unemployment
+    EMWriteScreen each_unea, 20, 79
     transmit
 
-    EMReadScreen number_of_jobs, 1, 2, 78           'Reading the number of JOBS panels for this client.
-    number_of_jobs = number_of_jobs * 1
+    EMReadScreen income_type, 2, 5, 37              'Reading the income type
+    'Only used for Unemployment Income
+    If income_type = "14" Then list_of_unea_income_to_fiat = list_of_unea_income_to_fiat & "~" & each_unea     'saving the panel instance in a list if paid weekly or biweekly
+Next
 
-    'If no jobs, there is no income to FIAT and script will end.
-    end_msg = "Household Member " & member_number & " on this case does not have a JOBS panel entered. Please check the case, update JOBS if required and run the script again."
-    If number_of_jobs = 0 Then script_end_procedure(end_msg)
+'If no jobs, there is no income to FIAT and script will end.
+If number_of_jobs = 0 AND list_of_unea_income_to_fiat = "" Then
+    end_msg = "Household Member " & member_number & " on this case has no JOBS panel and no UNEA panel. Please check the case, update JOBS if required and run the script again."
+    script_end_procedure(end_msg)
+End If
 
+If list_of_unea_income_to_fiat <> "" Then           'If there was a panel of unemployment income
+    If left(list_of_unea_income_to_fiat, 1) = "~" Then list_of_unea_income_to_fiat = right(list_of_unea_income_to_fiat, len(list_of_unea_income_to_fiat) - 1)
+    If InStr(list_of_unea_income_to_fiat, "~") = 0 Then
+        unea_panels_array = ARRAY(list_of_unea_income_to_fiat)
+    Else
+        unea_panels_array = split(list_of_unea_income_to_fiat, "~")
+    End If
+End If
+
+If case_status = "Update" Then
+    Call Navigate_to_MAXIS_screen("STAT", "JOBS")       'Going back to look at jobs
+    EMWriteScreen memb_number, 20, 76
+    EMWriteScreen "01", 20, 79
+    transmit
     For each_job = 1 to number_of_jobs              'This will loop through each of the jobs
         EMReadScreen job_verification, 1, 6, 34     'reading information that should be updated for the reveiw to be processed
         EMReadScreen first_check_month, 2, 12, 54
@@ -335,74 +422,59 @@ If case_status = "Update" Then
 
         transmit    'Going to the next JOBS panel
     Next
+
+    Call Navigate_to_MAXIS_screen("STAT", "UNEA")       'Going back to UNEA
+    EMWriteScreen memb_number, 20, 76
+    transmit
+    counter = 0
+    For each each_unea in unea_panels_array
+        EMWriteScreen each_unea, 20, 79
+        transmit
+
+        EMReadScreen unea_verification, 1, 5, 65     'reading information that should be updated for the reveiw to be processed
+        EMReadScreen first_check_month, 2, 13, 54
+
+        'If these have not been updated then the script will end because STAT needs to be updated first
+        end_msg = "It does not appear this UNEA panel has been updated with income information for the review." & vbNewLine & vbNewLine & "If this unea has ended and has no income in this month, the information should be noted and the panel deleted." & vbNewLine & vbNewLine & "Cases should be fully processed prior to fiating eligibility results."
+        If unea_verification = "?" OR first_check_month <> MAXIS_footer_month Then script_end_procedure(end_msg)
+
+        reDim Preserve UNEA_ARRAY(verif_code, counter)   'Updating the array with JOB information
+
+        'Gathering data and adding it to the array
+        EMReadScreen verification, 16, 5, 65
+        EMReadScreen income_source, 2, 5, 37
+
+        UNEA_ARRAY(verif_code, counter) = trim(verification)
+        UNEA_ARRAY(instance, counter) = right("00"&each_unea, 2)
+        UNEA_ARRAY(unea_type, counter) = "Unemployment Insurance"
+
+        UNEA_ARRAY(six_month_total, counter) = 0     'setting this as 0 because it will be added to later
+        EMReadScreen pay_date, 8, 13, 54
+        pay_date = replace(pay_date, " ", "/")
+
+        'Looking at the pop-up for income information
+        EMWriteScreen "x", 6, 56
+        transmit
+        EMReadScreen hc_inc_est, 8, 9, 65
+        hc_inc_est = trim(replace(hc_inc_est, "_", ""))
+        transmit
+
+        if hc_inc_est = "" Then hc_inc_est = 0
+        hc_inc_est = FormatNumber(hc_inc_est, 2)        'This formats the number with 2 decimal places
+
+        UNEA_ARRAY(est_pop_up, counter) = hc_inc_est
+        UNEA_ARRAY(job_frequency, counter) = "4"
+        'Setting the pay day
+        If UNEA_ARRAY(job_frequency, counter) = "3" OR UNEA_ARRAY(job_frequency, counter) = "4" Then UNEA_ARRAY(pay_weekday, counter) = WeekDayName(WeekDay(pay_date))
+        counter = counter + 1
+    Next
 End If
 
-'For Initials, there are months with pay already put in it.
 If case_status = "Initial" Then
-
-    Call Navigate_to_MAXIS_screen("STAT", "HCRE")   'Going to HCRE to get information about when to start the FIATing
-
-    hcre_row = 10       'Setting the row to find the correct member to read the application date and possible retro months
-    Do
-        EMReadScreen hcre_ref_numb, 2, hcre_row, 24     'reading the reference number
-        If hcre_ref_numb = memb_number Then Exit Do     'Once the member number has been matched, this will exit to do because the row is set already and we will use the same row variable.
-
-        hcre_row = hcre_row + 1         'Incrementing the row
-        If hcre_row = 18 Then           'Scrolling through the list if needed
-            PF20
-            hcre_row = 10
-        End If
-        EMReadScreen next_client, 2, hcre_row, 24   'Finding the end of the list
-    Loop until next_client = "  "
-
-    EMReadScreen application_date, 8, hcre_row, 51      'reading the application date using the row found previously
-    EMReadScreen coverage_date, 5, hcre_row, 64         'reading the coverage date to look for retro requests
-
-    application_date = replace(application_date, " ", "/")      'making this variable actually a date
-
-    MAXIS_footer_month = DatePart("m", application_date)        'Setting the footer month and year as 2 digit variables
-    MAXIS_footer_month = right("00" & MAXIS_footer_month, 2)
-
-    MAXIS_footer_year = DatePart("yyyy", application_date)
-    MAXIS_footer_year = right(MAXIS_footer_year, 2)
-
-    'if there is a retro request, a quick reminder that retro months have different budgeting processing.
-    If left(coverage_date, 2) <> MAXIS_footer_month OR right(coverage_date, 2) <> MAXIS_footer_year Then
-        coverage_date = replace(coverage_date, " ", "/")
-        MsgBox "This case appears to have a retro request back to " & coverage_date & "." & vbNewLine & vbNewLine & "Retro months should not be FIATed to even the income out. The premium in these months are based on actual income and will be different."
-    End If
-
-    Call back_to_SELF       'Going out of STAT to switch months
-
-    Dialog1 = ""
-    BeginDialog Dialog1, 0, 0, 191, 50, "Dialog"
-      EditBox 140, 5, 15, 15, MAXIS_footer_month
-      EditBox 160, 5, 15, 15, MAXIS_footer_year
-      ButtonGroup ButtonPressed
-        OkButton 130, 30, 50, 15
-      Text 5, 15, 120, 10, "Beginning month of MA-EPD budget"
-    EndDialog
-
-    Do
-        err_msg = ""
-        Dialog Dialog1
-
-        If trim(MAXIS_footer_month) = "" or trim(MAXIS_footer_year) = "" Then err_msg = err_msg & vbNewLine & "* Enter the footer month and year."
-        If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
-    Loop until err_msg = ""
-
-    Call Navigate_to_MAXIS_screen("STAT", "JOBS")   'going to JOBS for the correct member
-    EmWriteScreen memb_number, 20, 76
-    EmWriteScreen "01", 20, 79
+    Call Navigate_to_MAXIS_screen("STAT", "JOBS")       'Going back to look at jobs
+    EMWriteScreen memb_number, 20, 76
+    EMWriteScreen "01", 20, 79
     transmit
-
-    EMReadScreen number_of_jobs, 1, 2, 78       'reading the number of jobs for this client
-    number_of_jobs = number_of_jobs * 1
-
-    'If there are no JOBS for this member, the script will end because there is no earned income to FIAT
-    end_msg = "Household Member " & member_number & " on this case does not have a JOBS panel entered. Please check the case, update JOBS if required and run the script again."
-    If number_of_jobs = 0 Then script_end_procedure(end_msg)
-
     'reading each JOBS panel and adding the information to the array
     For each_job = 1 to number_of_jobs
         reDim Preserve JOBS_ARRAY(verif_code, each_job-1)       'resizing the array
@@ -463,8 +535,8 @@ If case_status = "Initial" Then
         JOBS_ARRAY(pay_average, each_job-1) = total_pay / divider       'Finding the average of all of the paychecks listed
         JOBS_ARRAY(six_month_total, each_job-1) = 0                     'setting this equal to 0 as we will be adding to it later
         'MsgBox "Average - " & JOBS_ARRAY(pay_average, each_job-1)
+        day_validation_needed = FALSE       'default for this variable
         If JOBS_ARRAY(job_frequency, each_job-1) = "3" OR JOBS_ARRAY(job_frequency, each_job-1) = "4" Then  'if this JOB is paid weekly or biweekly
-            day_validation_needed = FALSE       'default for this variable
             JOBS_ARRAY(pay_weekday, each_job-1) = WeekDayName(WeekDay(JOBS_ARRAY(check_date_one, each_job-1)))  'finding the day of the week of the first paycheck
             If JOBS_ARRAY(check_date_two, each_job-1) <> "" Then        'if this paycheck was found, it will find the day of the week paycheck and compare it to the first, if they do not match - validation is needed
                 If WeekDayName(WeekDay(JOBS_ARRAY(check_date_two, each_job-1))) <> JOBS_ARRAY(pay_weekday, each_job-1) Then day_validation_needed = TRUE
@@ -491,7 +563,10 @@ If case_status = "Initial" Then
               Text 5, 10, 150, 35, "This job is paid either weekly or biweekly, but has different weekdays indicated for pay dates. Please select the weekday that the client is paid."
             EndDialog
 
-            Dialog Dialog1
+            Do
+                Dialog Dialog1
+                Call check_for_password(are_we_passworded_out)
+            Loop until are_we_passworded_out = FALSE
 
             JOBS_ARRAY(pay_weekday, each_job-1) = selected_weekday
 
@@ -522,6 +597,127 @@ If case_status = "Initial" Then
 
         transmit    'Giong to the next JOBS panel
     Next
+
+    Call Navigate_to_MAXIS_screen("STAT", "UNEA")       'Going back to UNEA
+    EMWriteScreen memb_number, 20, 76
+    transmit
+    counter = 0
+    If IsArray(unea_panels_array) = TRUE Then
+        For each each_unea in unea_panels_array
+            EMWriteScreen each_unea, 20, 79
+            transmit
+
+            reDim Preserve UNEA_ARRAY(verif_code, counter)   'Updating the array with JOB information
+
+            'Gathering data and adding it to the array
+            EMReadScreen verification, 16, 5, 65
+            EMReadScreen income_source, 2, 5, 37
+
+            UNEA_ARRAY(verif_code, counter) = trim(verification)
+            UNEA_ARRAY(instance, counter) = right("00"&each_unea, 2)
+            UNEA_ARRAY(unea_type, counter) = "Unemployment Insurance"
+
+            'Looking at the pop-up for income information
+            EMWriteScreen "x", 6, 56
+            transmit
+            EMReadScreen hc_inc_est, 8, 9, 65
+            hc_inc_est = trim(replace(hc_inc_est, "_", ""))
+            transmit
+
+            if hc_inc_est = "" Then hc_inc_est = 0
+            hc_inc_est = FormatNumber(hc_inc_est, 2)        'This formats the number with 2 decimal places
+
+            UNEA_ARRAY(est_pop_up, counter) = hc_inc_est
+            UNEA_ARRAY(job_frequency, counter) = "4"
+
+            unea_row = 13
+            divider = 0
+            Do
+                EMReadScreen pay_date, 8, unea_row, 54      'reading the date
+                If pay_date <> "__ __ __" Then              'if the date is not blank then gathering all the information
+                                                            'this will read each already stored information in the array and will find the first empty position within the array
+                    divider = divider + 1                                                       'increase the count of checks listed
+                    If UNEA_ARRAY(check_date_one, counter) = "" Then                         'this reads if this position in the array already has data
+                        UNEA_ARRAY(check_date_one, counter) = replace(pay_date, " ", "/")    'formatting the date
+                        EMReadScreen pay_amt, 8, unea_row, 68                                   'reading the pay amount and then formats it
+                        UNEA_ARRAY(check_amt_one, counter) = trim(pay_amt) * 1
+
+                    ElseIf UNEA_ARRAY(check_date_two, counter) = "" Then                         'this reads if this position in the array already has data
+                        UNEA_ARRAY(check_date_two, counter) = replace(pay_date, " ", "/")        'formatting the date
+                        EMReadScreen pay_amt, 8, unea_row, 68                                       'reading the pay amount and then formats it
+                        UNEA_ARRAY(check_amt_two, counter) = trim(pay_amt) * 1
+
+                    ElseIf UNEA_ARRAY(check_date_three, counter) = "" Then                       'this reads if this position in the array already has data
+                        UNEA_ARRAY(check_date_three, counter) = replace(pay_date, " ", "/")      'formatting the date
+                        EMReadScreen pay_amt, 8, unea_row, 68                                       'reading the pay amount and then formats it
+                        total_prosp = total_prosp + trim(pay_amt) * 1
+                        UNEA_ARRAY(check_amt_three, counter) = trim(pay_amt) * 1
+
+                    ElseIf UNEA_ARRAY(check_date_four, counter) = "" Then                        'this reads if this position in the array already has data
+                        UNEA_ARRAY(check_date_four, counter) = replace(pay_date, " ", "/")       'formatting the date
+                        EMReadScreen pay_amt, 8, unea_row, 68                                       'reading the pay amount and then formats it
+                        UNEA_ARRAY(check_amt_four, counter) = trim(pay_amt) * 1
+
+                    ElseIf UNEA_ARRAY(check_date_five, counter) = "" Then                        'this reads if this position in the array already has data
+                        UNEA_ARRAY(check_date_five, counter) = replace(pay_date, " ", "/")       'formatting the date
+                        EMReadScreen pay_amt, 8, unea_row, 68                                       'reading the pay amount and then formats it
+                        UNEA_ARRAY(check_amt_five, counter) = trim(pay_amt) * 1
+                    End If
+                End If
+
+                unea_row = unea_row + 1         'going to the next row in the list of paychecks
+            Loop until unea_row = 18
+
+            EMReadScreen total_pay, 8, 18, 68   'reading the total of the pay listed in the prospective side of the JOBS panel and formatting
+            total_pay = trim(total_pay)
+            If total_pay = "" Then total_pay = 0
+            total_pay = total_pay * 1
+
+            UNEA_ARRAY(pay_average, counter) = total_pay / divider       'Finding the average of all of the paychecks listed
+            UNEA_ARRAY(six_month_total, counter) = 0                     'setting this equal to 0 as we will be adding to it later
+            'MsgBox "Average - " & UNEA_ARRAY(pay_average, counter)
+            day_validation_needed = FALSE       'default for this variable
+            If UNEA_ARRAY(job_frequency, counter) = "3" OR UNEA_ARRAY(job_frequency, counter) = "4" Then  'if this JOB is paid weekly or biweekly
+                UNEA_ARRAY(pay_weekday, counter) = WeekDayName(WeekDay(UNEA_ARRAY(check_date_one, counter)))  'finding the day of the week of the first paycheck
+                If UNEA_ARRAY(check_date_two, counter) <> "" Then        'if this paycheck was found, it will find the day of the week paycheck and compare it to the first, if they do not match - validation is needed
+                    If WeekDayName(WeekDay(UNEA_ARRAY(check_date_two, counter))) <> UNEA_ARRAY(pay_weekday, counter) Then day_validation_needed = TRUE
+                End If
+                If UNEA_ARRAY(check_date_three, counter) <> "" Then        'if this paycheck was found, it will find the day of the week paycheck and compare it to the first, if they do not match - validation is needed
+                    If WeekDayName(WeekDay(UNEA_ARRAY(check_date_three, counter))) <> UNEA_ARRAY(pay_weekday, counter) Then day_validation_needed = TRUE
+                End If
+                If UNEA_ARRAY(check_date_four, counter) <> "" Then        'if this paycheck was found, it will find the day of the week paycheck and compare it to the first, if they do not match - validation is needed
+                    If WeekDayName(WeekDay(UNEA_ARRAY(check_date_four, counter))) <> UNEA_ARRAY(pay_weekday, counter) Then day_validation_needed = TRUE
+                End If
+                If UNEA_ARRAY(check_date_five, counter) <> "" Then        'if this paycheck was found, it will find the day of the week paycheck and compare it to the first, if they do not match - validation is needed
+                    If WeekDayName(WeekDay(UNEA_ARRAY(check_date_five, counter))) <> UNEA_ARRAY(pay_weekday, counter) Then day_validation_needed = TRUE
+                End If
+            End If
+
+            If day_validation_needed = TRUE Then        'If any of the paychecks listed do not match the first, then worker needs to identify the correct pay day
+                selected_weekday = UNEA_ARRAY(pay_weekday, counter)
+
+                Dialog1 = ""
+                BeginDialog Dialog1, 0, 0, 161, 80, "Weekday"
+                  DropListBox 15, 55, 60, 45, "Sunday"+chr(9)+"Monday"+chr(9)+"Tuesday"+chr(9)+"Wednesday"+chr(9)+"Thursday"+chr(9)+"Friday"+chr(9)+"Saturday", selected_weekday
+                  ButtonGroup ButtonPressed
+                    OkButton 105, 55, 50, 15
+                  Text 5, 10, 150, 35, "This unearned income is paid either weekly or biweekly, but has different weekdays indicated for pay dates. Please select the weekday that the client is paid."
+                EndDialog
+
+                Do
+                    Dialog Dialog1
+                    Call check_for_password(are_we_passworded_out)
+                Loop until are_we_passworded_out = FALSE
+
+                UNEA_ARRAY(pay_weekday, counter) = selected_weekday
+
+            End If
+
+            total_pay = FormatNumber(total_pay, 2)
+            UNEA_ARRAY(est_pop_up, counter) = total_pay
+            counter = counter + 1
+        Next
+    End If
 
     app_month = MAXIS_footer_month      'saving the footer month in a seperate variable because we need to navigate to other months
     app_year = MAXIS_footer_year
@@ -581,7 +777,7 @@ If case_status = "Initial" Then
 
                             'This message will have the worker confirm that the JOBS panel has the correct pay dates.
                             'In some instances there is a reason why a check date does not align with the rest of the pay dates, but if the check dates have not been properly updated in each month, the messagebox comes up for EVERY MONTH - encouraging correction
-                            confirm_off_schedule_pay = MsgBox("The pay listed on theis JOBS panel does note match the day of the week pay was received in the initial month of applicaton." & vbNewLine & vbNewLine &_
+                            confirm_off_schedule_pay = MsgBox("The pay listed on this JOBS panel does not match the day of the week pay was received in the initial month of applicaton." & vbNewLine & vbNewLine &_
                              "Pay date of " & pay_date & " listed is on a " & day_of_pay & "." & vbNewLine & "This job appears to have a regular pay date of " & JOBS_ARRAY(pay_weekday, this_job) & "." & vbNewLine & vbNewLine &_
                              "Health care budget requires any income entered on JOBS be the actual pay dates expected, even if the income is calculated by average pay. Review the case and make sure that check dates have been updated in every month." & vbNewLine & vbNewLine &_
                              "Has the budget been correctly determined, using actual pay dates for each month that can be updated?", vbYesNo + vbImportant, "Confirm paycheck budgeting")
@@ -591,6 +787,39 @@ If case_status = "Initial" Then
                     End If
                     jobs_row = jobs_row + 1 'looking at the next check
                 Loop until jobs_row = 17
+            End If
+        Next
+
+        Call Navigate_to_MAXIS_screen("STAT", "UNEA")   'going to JOBS in that month for the member
+        EmWriteScreen member_number, 20, 76
+        transmit
+
+        For the_unea = 0 to UBOUND(UNEA_ARRAY, 2)        'Now this is going to each of the JOBS previously found
+            If UNEA_ARRAY(job_frequency, the_unea) = "3" OR UNEA_ARRAY(job_frequency, the_unea) = "4" Then    'If the pay is weekly or biweekly
+                EmWriteScreen UNEA_ARRAY(instance, the_unea), 20, 79     'navigating to the right instance of the JOB
+                transmit
+
+                unea_row = 13       'Setting this to the beginning of the list of paychecks
+                Do
+                    EMReadScreen pay_date, 8, unea_row, 54          'read the pay date and make it a date if not blank
+                    If pay_date <> "__ __ __" Then
+                        pay_date = replace(pay_date, " ", "/")
+                        day_of_pay = WeekDayName(Weekday(pay_date))     'finding the weekday of this pay check
+
+                        If day_of_pay <> UNEA_ARRAY(pay_weekday, the_unea) Then      'the weekday paid should match the weekday already determined when reading the JOBS panel
+
+                            'This message will have the worker confirm that the JOBS panel has the correct pay dates.
+                            'In some instances there is a reason why a check date does not align with the rest of the pay dates, but if the check dates have not been properly updated in each month, the messagebox comes up for EVERY MONTH - encouraging correction
+                            confirm_off_schedule_pay = MsgBox("The pay listed on this UNEA panel does not match the day of the week pay was received in the initial month of applicaton." & vbNewLine & vbNewLine &_
+                             "Pay date of " & pay_date & " listed is on a " & day_of_pay & "." & vbNewLine & "This income appears to have a regular pay date of " & UNEA_ARRAY(pay_weekday, the_unea) & "." & vbNewLine & vbNewLine &_
+                             "Health care budget requires any income entered on UNEA be the actual pay dates expected, even if the income is calculated by average pay. Review the case and make sure that check dates have been updated in every month." & vbNewLine & vbNewLine &_
+                             "Has the budget been correctly determined, using actual pay dates for each month that can be updated?", vbYesNo + vbImportant, "Confirm paycheck budgeting")
+
+                            if confirm_off_schedule_pay = vbNo Then script_end_procedure("Update STAT/JOBS with all actual pay dates to get a correct HC budget.")  'If the paychecks or not complete the script will end
+                        End If
+                    End If
+                    unea_row = unea_row + 1 'looking at the next check
+                Loop until unea_row = 18
             End If
         Next
     Next
@@ -624,7 +853,7 @@ EMReadScreen elig_type_check_fifth_month, 2, 12, 61
 EMReadScreen elig_type_check_sixth_month, 2, 12, 72
 
 'Script will end if not DP
-If elig_type_check_first_month <> "DP" and elig_type_check_second_month <> "DP" and elig_type_check_third_month <> "DP" and elig_type_check_fourth_month <> "DP" and elig_type_check_fifth_month <> "DP" and elig_type_check_sixth_month <> "DP" then script_end_procedure("Not all of the months of this case are MA-EPD. Process manually.")
+If elig_type_check_first_month <> "DP" or elig_type_check_second_month <> "DP" or elig_type_check_third_month <> "DP" or elig_type_check_fourth_month <> "DP" or elig_type_check_fifth_month <> "DP" or elig_type_check_sixth_month <> "DP" then script_end_procedure("Not all of the months of this case are MA-EPD. Process manually.")
 
 'Looking for the first month to FIAT
 row = 6
@@ -645,7 +874,6 @@ Do
     this_job = 0                        'setting to loop through the rows and jobs
     budg_row = 8
     Do
-
         EMReadScreen inc_type, 2, budg_row, 8           'looking for wage information
         If inc_type = "__" Then Exit Do
         'MsgBox "The job identifier is " & this_job & vbNewLine & "Budget Row: " & budg_row & vbNewLine & "Income Type is: " & inc_type
@@ -665,11 +893,37 @@ Do
             this_job = this_job + 1     'going to the next job in the array
         End If
     Loop until this_job > UBOUND(JOBS_ARRAY, 2)
+    transmit
+
+    EMWriteScreen "x", 9, 03           'opening the unearned income pop-up
+    transmit
+
+    this_unea = 0                        'setting to loop through the rows and jobs
+    budg_row  = 8
+    Do
+        EMReadScreen inc_type, 2, budg_row, 8           'looking for wage information
+        If inc_type = "__" Then Exit Do
+        If UNEA_ARRAY(est_pop_up, this_unea) <> 0.00 Then    ''
+            If inc_type = "12" Then
+                EMReadScreen month_total, 11, budg_row, 43      'finding the income in that row of wages and formatting the amount
+                month_total = replace(month_total, "_", "")
+                month_total = trim(month_total)
+                'MsgBox JOBS_ARRAY(employer, this_unea) & vbNewLine & "Month Total $" & month_total
+                month_total = month_total * 1
+                UNEA_ARRAY(six_month_total, this_unea) = UNEA_ARRAY(six_month_total, this_unea) + month_total     'adding this amount to the array - to create a sum of all the income listed for the job
+                this_unea = this_unea + 1     'going to the next job in the array
+            End If
+            budg_row = budg_row + 1     'looking at the next budget row
+        Else
+            this_unea = this_unea + 1     'going to the next job in the array
+        End If
+    Loop until this_unea > UBOUND(UNEA_ARRAY, 2)
+    transmit
 
     number_of_months = number_of_months + 1
     col = col + 11
     transmit
-    transmit
+    ' transmit
 loop until col > 76
 
 ' For the_job = 0 to UBOUND(JOBS_ARRAY, 2)
@@ -685,49 +939,85 @@ Next
 'Dynamic dialog to have the worker confirm the average income
 Dialog1 = ""
 y_pos = 60
-BeginDialog Dialog1, 0, 0, 480, 105 + (UBOUND(JOBS_ARRAY, 2) *20), "Average Monthly JOBS Income"
+BeginDialog Dialog1, 0, 0, 490, 140 + (UBOUND(JOBS_ARRAY, 2)*20) + (UBOUND(UNEA_ARRAY, 2)*20), "Average Monthly JOBS Income"
   Text 10, 10, 95, 10, "This case is at " & case_status     'identify if at Initial or Update
   If case_status = "Initial" Then Text 10, 25, 210, 10, "The date of application is " & application_date & " and the first month to FIAT is"
   If case_status = "Update" Then Text 10, 25, 210, 10, "The ongoing case is for " & MAXIS_footer_month & "/" & MAXIS_footer_year & " and the first month to FIAT is"
   EditBox 225, 20, 15, 15, MAXIS_footer_month
   EditBox 245, 20, 15, 15, MAXIS_footer_year
   Text 10, 45, 125, 10, "The script found the following  job(s):"
-  For the_job = 0 to UBOUND(JOBS_ARRAY, 2)
-      If JOBS_ARRAY(job_frequency, the_job) = "1" then JOBS_ARRAY(job_frequency, the_job) = "monthly"
-      If JOBS_ARRAY(job_frequency, the_job) = "2" then JOBS_ARRAY(job_frequency, the_job) = "semi-monthly"
-      If JOBS_ARRAY(job_frequency, the_job) = "3" then JOBS_ARRAY(job_frequency, the_job) = "biweekly"
-      If JOBS_ARRAY(job_frequency, the_job) = "4" then JOBS_ARRAY(job_frequency, the_job) = "weekly"
-      If JOBS_ARRAY(job_frequency, the_job) = "5" then JOBS_ARRAY(job_frequency, the_job) = "other"
-    'setting the average monthly income by taking the total of the income listed in the budget on ELIG, then dividing it by the number of months
-    'then using format number to make this a number with 2 decimel points and then removing the commas from the number because ELIG/HC doesn't like commas
-    JOBS_ARRAY(average_monthly_inc, the_job) = FormatNumber(JOBS_ARRAY(six_month_total, the_job)/number_of_months, 2,,,0) & ""
-    Text 20, y_pos + 5, 395, 10, JOBS_ARRAY(employer, the_job) & " - paid " & JOBS_ARRAY(job_frequency, the_job) & " on " & JOBS_ARRAY(pay_weekday, the_job) & " - total income for six-month budget period - $" & JOBS_ARRAY(six_month_total, the_job) & " - Average monthly income $"
-    EditBox 415, y_pos, 55, 15, JOBS_ARRAY(average_monthly_inc, the_job)
-    y_pos = y_pos + 20
-  Next
+  If JOBS_ARRAY(employer, 0) <> "" Then
+      For the_job = 0 to UBOUND(JOBS_ARRAY, 2)
+          If JOBS_ARRAY(job_frequency, the_job) = "1" then JOBS_ARRAY(job_frequency, the_job) = "monthly"
+          If JOBS_ARRAY(job_frequency, the_job) = "2" then JOBS_ARRAY(job_frequency, the_job) = "semi-monthly"
+          If JOBS_ARRAY(job_frequency, the_job) = "3" then JOBS_ARRAY(job_frequency, the_job) = "biweekly"
+          If JOBS_ARRAY(job_frequency, the_job) = "4" then JOBS_ARRAY(job_frequency, the_job) = "weekly"
+          If JOBS_ARRAY(job_frequency, the_job) = "5" then JOBS_ARRAY(job_frequency, the_job) = "other"
+        'setting the average monthly income by taking the total of the income listed in the budget on ELIG, then dividing it by the number of months
+        'then using format number to make this a number with 2 decimel points and then removing the commas from the number because ELIG/HC doesn't like commas
+        JOBS_ARRAY(average_monthly_inc, the_job) = FormatNumber(JOBS_ARRAY(six_month_total, the_job)/number_of_months, 2,,,0) & ""
+        Text 20, y_pos + 5, 395, 10, JOBS_ARRAY(employer, the_job) & " - paid " & JOBS_ARRAY(job_frequency, the_job) & " on " & JOBS_ARRAY(pay_weekday, the_job) & " - total income for six-month budget period - $" & JOBS_ARRAY(six_month_total, the_job) & " - Average monthly income $"
+        EditBox 415, y_pos, 55, 15, JOBS_ARRAY(average_monthly_inc, the_job)
+        y_pos = y_pos + 20
+      Next
+  Else
+      Text 20, y_pos, 300, 10, "No JOBS found."
+      y_pos = y_pos + 20
+  End If
+  Text 10, y_pos, 125, 10, "The script found the following unemployment income:"
+  y_pos = y_pos + 15
+  If UNEA_ARRAY(unea_type, 0) <> "" Then
+      For the_unea = 0 to UBOUND(UNEA_ARRAY, 2)
+          If UNEA_ARRAY(job_frequency, the_unea) = "1" then UNEA_ARRAY(job_frequency, the_unea) = "monthly"
+          If UNEA_ARRAY(job_frequency, the_unea) = "2" then UNEA_ARRAY(job_frequency, the_unea) = "semi-monthly"
+          If UNEA_ARRAY(job_frequency, the_unea) = "3" then UNEA_ARRAY(job_frequency, the_unea) = "biweekly"
+          If UNEA_ARRAY(job_frequency, the_unea) = "4" then UNEA_ARRAY(job_frequency, the_unea) = "weekly"
+          If UNEA_ARRAY(job_frequency, the_unea) = "5" then UNEA_ARRAY(job_frequency, the_unea) = "other"
+        'setting the average monthly income by taking the total of the income listed in the budget on ELIG, then dividing it by the number of months
+        'then using format number to make this a number with 2 decimel points and then removing the commas from the number because ELIG/HC doesn't like commas
+        UNEA_ARRAY(average_monthly_inc, the_unea) = FormatNumber(UNEA_ARRAY(six_month_total, the_unea)/number_of_months, 2,,,0) & ""
+        Text 20, y_pos + 5, 405, 10, UNEA_ARRAY(unea_type, the_unea) & " - paid " & UNEA_ARRAY(job_frequency, the_unea) & " on " & UNEA_ARRAY(pay_weekday, the_unea) & " - total income for six-month budget period - $" & UNEA_ARRAY(six_month_total, the_unea) & " - Average monthly income $"
+        EditBox 425, y_pos, 55, 15, UNEA_ARRAY(average_monthly_inc, the_unea)
+        y_pos = y_pos + 20
+      Next
+  Else
+      Text 20, y_pos, 300, 10, "No UNEA found."
+      y_pos = y_pos + 20
+  End If
   ButtonGroup ButtonPressed
     OkButton 370, y_pos + 5, 50, 15
     CancelButton 425, y_pos + 5, 50, 15
 EndDialog
 
 Do
-    'showing the dialog that workers will indicate the monthly income to be used.
-    err_msg = ""
-    Dialog Dialog1
-    cancel_confirmation
+    Do
+        'showing the dialog that workers will indicate the monthly income to be used.
+        err_msg = ""
+        Dialog Dialog1
+        cancel_confirmation
 
-    If trim(MAXIS_footer_month) = "" or trim(MAXIS_footer_year) = "" Then
-        err_msg = err_msg & vbNewLine & "* Enter the footer month and year in which the FIATing should start."
-        If case_status = "Initial" Then err_msg = err_msg & vbNewLine & "  - This case is at application and most cases at application should be FIATed starting in the month of application."
-        If case_status = "Update" Then err_msg = err_msg & vbNewLine & "  - This case is ongoing and most ongoing cases should be FIATed starting the first month of the next budget period."
-    End If
+        If trim(MAXIS_footer_month) = "" or trim(MAXIS_footer_year) = "" Then
+            err_msg = err_msg & vbNewLine & "* Enter the footer month and year in which the FIATing should start."
+            If case_status = "Initial" Then err_msg = err_msg & vbNewLine & "  - This case is at application and most cases at application should be FIATed starting in the month of application."
+            If case_status = "Update" Then err_msg = err_msg & vbNewLine & "  - This case is ongoing and most ongoing cases should be FIATed starting the first month of the next budget period."
+        End If
 
-    For the_job = 0 to UBOUND(JOBS_ARRAY, 2)
-        If JOBS_ARRAY(average_monthly_inc, the_job) = "" Then err_msg = err_msg & vbNewLine & "* Enter the average monthly income for " & JOBS_ARRAY(employer, the_job) & "."
-    Next
+        If JOBS_ARRAY(employer, 0) <> "" Then
+            For the_job = 0 to UBOUND(JOBS_ARRAY, 2)
+                If JOBS_ARRAY(average_monthly_inc, the_job) = "" Then err_msg = err_msg & vbNewLine & "* Enter the average monthly income for " & JOBS_ARRAY(employer, the_job) & "."
+            Next
+        End If
 
-    If err_msg <> "" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
-Loop until err_msg = ""
+        If UNEA_ARRAY(unea_type, 0) <> "" Then
+            For the_unea = 0 to UBOUND(UNEA_ARRAY, 2)
+                If UNEA_ARRAY(average_monthly_inc, the_unea) = "" Then err_msg = err_msg & vbNewLine & "* Enter the average monthly income for " & UNEA_ARRAY(unea_type, the_unea) & "."
+            Next
+        End If
+
+        If err_msg <> "" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
+    Loop until err_msg = ""
+    Call check_for_password(are_we_passworded_out)
+Loop until are_we_passworded_out = FALSE
 
 Call back_to_SELF           'going back to SELF because footer month may had been changed
 
@@ -755,8 +1045,8 @@ If col = 0 Then script_end_procedure(end_msg)
 PF9
 EMReadScreen FIAT_check, 4, 24, 45
 If FIAT_check <> "FIAT" then
-  EMSendKey "05"
-  transmit
+    EMSendKey "05"
+    transmit
 End if
 
 Do
@@ -766,20 +1056,47 @@ Do
     transmit
 
     budg_row = 8                        'reading each row to enter the information for each job
+    update_made = FALSE
     For the_job = 0 to UBOUND(JOBS_ARRAY, 2)
-
         JOBS_ARRAY(average_monthly_inc, the_job) = FormatNumber(JOBS_ARRAY(average_monthly_inc, the_job), 2,,,0)    'making sure the number is formatted correctly, 2 decimal places and no commas
         If JOBS_ARRAY(average_monthly_inc, the_job) <> 0.00 Then
             EmWriteScreen "___________", budg_row, 43       'blanking out the current income amount
             EmWriteScreen JOBS_ARRAY(average_monthly_inc, the_job), budg_row, 43        'writing in the new averaged amount
             budg_row = budg_row + 1
+            update_made = TRUE
         End If
     Next
-    'MsgBox ("Budget updated.")
-    col = col + 11      'going to next month
-    transmit            'saving the earned income amount
+    If update_made = TRUE Then transmit            'saving the earned income amount
     transmit            'closing the earned income pop-up
+
+    EMWriteScreen "x", 9, 03           'opening the unearned income pop-up
+    transmit
+
+    budg_row  = 8
+    update_made = FALSE
+    For the_unea = 0 to UBOUND(UNEA_ARRAY, 2)
+        Do
+            EMReadScreen inc_type, 2, budg_row, 8           'looking for wage information
+            If inc_type = "12" Then
+                UNEA_ARRAY(average_monthly_inc, the_unea) = FormatNumber(UNEA_ARRAY(average_monthly_inc, the_unea), 2,,,0)    'making sure the number is formatted correctly, 2 decimal places and no commas
+                If UNEA_ARRAY(average_monthly_inc, the_unea) <> 0.00 Then
+                    EmWriteScreen "__________", budg_row, 43       'blanking out the current income amount
+                    EmWriteScreen UNEA_ARRAY(average_monthly_inc, the_unea), budg_row, 43        'writing in the new averaged amount
+                    budg_row = budg_row + 1
+                    update_made = TRUE
+                    ' MsgBox "Updated the line"
+                End If
+            Else
+                budg_row = budg_row + 1
+            End If
+        Loop until inc_type = "__"
+    Next
+    If update_made = TRUE Then transmit            'saving the earned income amount
+    transmit            'closing the earned income pop-up
+
+    ' MsgBox ("Budget updated.")
+    col = col + 11      'going to next month
     transmit            'closing the budget pop-up
 loop until col > 76
 
-script_end_procedure("Success! Please make sure to check eligibility for any Medicare savings programs such as QMB or SLMB.")
+script_end_procedure_with_error_report("Success! Please make sure to check eligibility for any Medicare savings programs such as QMB or SLMB.")

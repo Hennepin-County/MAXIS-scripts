@@ -258,6 +258,13 @@ script_array_admin_main(script_num).script_name		    = "Training Case Creator"
 script_array_admin_main(script_num).file_name			= "training-case-creator.vbs"
 script_array_admin_main(script_num).description		    = "Creates training case scenarios en masse and XFERs them to workers."
 
+script_num = script_num + 1							   'Increment by one
+ReDim Preserve script_array_admin_main(script_num)	    'Resets the array to add one more element to it
+Set script_array_admin_main(script_num) = new script    'Set this array element to be a new script. Script details below...
+script_array_admin_main(script_num).script_name		    = "Update Check Dates"
+script_array_admin_main(script_num).file_name			= "update-check-dates.vbs"
+script_array_admin_main(script_num).description		    = "Updates the dates on JOBS and UNEA to the correct dates for the footer month."
+
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_admin_main(script_num)		'Resets the array to add one more element to it
 Set script_array_admin_main(script_num) = new script	'Set this array element to be a new script. Script details below...

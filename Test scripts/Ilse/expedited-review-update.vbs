@@ -270,6 +270,7 @@ For item = 0 to UBound(expedited_array, 2)
     If left(worker_number, 4) <> "X127" then                                    'Out of county cases from initial upload
         expedited_array(case_status_const, item) = "OUT OF COUNTY CASE"
         expedited_array(appears_exp_const, item) = "Not Expedited"
+        not_exp_count = not_exp_count + 1
     Else 
         Call navigate_to_MAXIS_screen("STAT", "PROG")
         EMReadScreen priv_check, 4, 24, 14 'If it can't get into the case needs to skip - checking in PROD and INQUIRY 
@@ -277,11 +278,13 @@ For item = 0 to UBound(expedited_array, 2)
             EmReadscreen priv_worker, 26, 24, 46
             expedited_array(case_status_const, item) = trim(priv_worker)
             expedited_array(appears_exp_const, item) = "Privileged Cases"
+            priv_count = priv_count + 1
         else 
             EMReadScreen county_code, 4, 21, 21                                 'Out of county cases from STAT 
             If county_code <> "X127" then
                 expedited_array(case_status_const, item) = "OUT OF COUNTY CASE"
                 expedited_array(appears_exp_const, item) = "Not Expedited"
+                not_exp_count = not_exp_count + 1
             End if 
         End if 
     End if 
@@ -307,11 +310,13 @@ For item = 0 to UBound(expedited_array, 2)
             SNAP_PENDING = FALSE
             expedited_array(case_status_const, item) = "SNAP ACTIVE"
             expedited_array(appears_exp_const, item) = "Not Expedited"
+            not_exp_count = not_exp_count + 1
         ElseIF SNAP_status_check = "PEND" then 
             SNAP_PENDING = TRUE 
         ElseIF program_ID = "FS" and SNAP_status_check = "DENY" then 
             expedited_array(case_status_const, item) = "SNAP Application Denied"
             expedited_array(appears_exp_const, item) = "Not Expedited"
+            not_exp_count = not_exp_count + 1
         Else    
             'MFIP determination of pending or active 
             SNAP_PENDING = FALSE
@@ -345,7 +350,8 @@ For item = 0 to UBound(expedited_array, 2)
         
         IF MFIP_ACTIVE = TRUE and SNAP_PENDING = TRUE then 
             expedited_array(case_status_const, item) = "MFIP ACTIVE"
-            expedited_array(appears_exp_const, item) = "Not Expedited"    
+            expedited_array(appears_exp_const, item) = "Not Expedited"
+            not_exp_count = not_exp_count + 1    
         End if  
                
         'Determining if case notes need to be reviewed or not     
@@ -375,6 +381,7 @@ For item = 0 to UBound(expedited_array, 2)
                     case_note_found = True 
                     expedited_array(case_status_const, item) = "Case Notes Do Not Exist"
                     expedited_array(appears_exp_const, item) = "Exp Screening Req"
+                    screening_count = screening_count + 1
                     exit do
                 Else
                     EMReadScreen case_note_date, 8, MAXIS_row, 6    'incremented row - reading the case note date
@@ -388,11 +395,13 @@ For item = 0 to UBound(expedited_array, 2)
                         case_note_found = True 
                         expedited_array(case_status_const, item) = "Appears Expedited"
                         expedited_array(appears_exp_const, item) = "Req Exp Processing"
+                        expedited_count = expedited_count + 1
                         exit do
                     Elseif instr(case_note_header, "does not appear") or instr(case_note_header, "appears not expedited") then
                         case_note_found = True 
                         expedited_array(case_status_const, item) = "Screened, Not EXP"
                         expedited_array(appears_exp_const, item) = "Not Expedited"
+                        not_exp_count = not_exp_count + 1
                         exit do
                     Else
                         case_note_found = False         'defaulting to false if not able to find an expedited care note
@@ -407,6 +416,7 @@ For item = 0 to UBound(expedited_array, 2)
             If case_note_found = False then 
                 expedited_array(case_status_const, item) = "Screening Not Found"
                 expedited_array(appears_exp_const, item) = "Exp Screening Req"
+                screening_count = screening_count + 1
             End if 
         End if 
     End if 
@@ -542,7 +552,14 @@ objExcel.ActiveWorkbook.Close
 
 '------------------------------------------------------------------------------------------------------------------------------------------------------------'Needs Interview Cases
 '----------------------------------------------------------------------------------------------------NOT EXPEDITED 
-ObjExcel.Worksheets.Add().Name = "Not Expedited"
+'Opening the Excel file
+Set objExcel = CreateObject("Excel.Application")
+objExcel.Visible = True
+Set objWorkbook = objExcel.Workbooks.Add()
+objExcel.DisplayAlerts = True
+
+'Changes name of Excel sheet
+ObjExcel.ActiveSheet.Name = "Not Expedited"
 
 'adding information to the Excel list from PND2
 ObjExcel.Cells(1, 1).Value = "Worker #"
@@ -591,14 +608,7 @@ FOR i = 1 to 7		'formatting the cells
 NEXT
 
 '----------------------------------------------------------------------------------------------------Appears Expedited 
-'Opening the Excel file
-Set objExcel = CreateObject("Excel.Application")
-objExcel.Visible = True
-Set objWorkbook = objExcel.Workbooks.Add()
-objExcel.DisplayAlerts = True
-
-'Changes name of Excel sheet
-ObjExcel.ActiveSheet.Name = "Appears Expedited"
+ObjExcel.Worksheets.Add().Name = "Appears Expedited"
 
 'adding information to the Excel list from PND2
 ObjExcel.Cells(1, 1).Value = "Worker #"
