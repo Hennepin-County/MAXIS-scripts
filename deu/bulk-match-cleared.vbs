@@ -57,25 +57,33 @@ changelog_display
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 'Connecting to MAXIS
 EMConnect ""
-
+'other_notes = "* This income was known and budgeted prior to the pandemic."
+'select_match_type = "WAGE"
 'dialog and dialog DO...Loop
 Do
 	Do
 		'The dialog is defined in the loop as it can change as buttons are pressed
 		'-------------------------------------------------------------------------------------------------DIALOG
 		Dialog1 = "" 'Blanking out previous dialog detail
-			BeginDialog Dialog1, 0, 0, 266, 140, "BULK IEVS Match"
-  				DropListBox 200, 50, 50, 15, "Select One:"+chr(9)+"BEER"+chr(9)+"BNDX"+chr(9)+"SDXS/SDXI"+chr(9)+"UNVI"+chr(9)+"UBEN"+chr(9)+"WAGE", match_type
-           		ButtonGroup ButtonPressed
-            	PushButton 200, 70, 50, 15, "Browse:", select_a_file_button
-            	OkButton 145, 115, 50, 15
-            	CancelButton 200, 115, 50, 15
-           		EditBox 15, 70, 180, 15, IEVS_match_path
-           		Text 20, 30, 235, 20, "This script should be used when IEVS matches have been researched and ready to be cleared. "
-           		Text 20, 90, 230, 15, "Select the Excel file that contains the case information by selecting the 'Browse' button, and finding the file."
-           		Text 55, 55, 135, 10, "Select the type of IEVS match to process:"
-           		GroupBox 10, 10, 250, 100, "Using the IEVS match script"
-         	EndDialog
+		BeginDialog Dialog1, 0, 0, 271, 180, "BULK-Match Cleared"
+		  DropListBox 140, 15, 55, 15, "Select One:"+chr(9)+"BEER"+chr(9)+"BNDX"+chr(9)+"SDXS/SDXI"+chr(9)+"UNVI"+chr(9)+"UBEN"+chr(9)+"WAGE", select_match_type
+		  'DropListBox 140, 30, 120, 15, "Not Needed"+chr(9)+"Initial"+chr(9)+"Overpayment Exists"+chr(9)+"OP Non-Collectible (please specify)"+chr(9)+"No Savings/Overpayment", claim_referral_tracking_dropdown
+		  EditBox 65, 50, 195, 15, other_notes
+		  ButtonGroup ButtonPressed
+		    PushButton 10, 105, 50, 15, "Browse:", select_a_file_button
+		  EditBox 65, 105, 195, 15, IEVS_match_path
+		  ButtonGroup ButtonPressed
+		    OkButton 170, 160, 45, 15
+		    CancelButton 220, 160, 45, 15
+		  Text 10, 20, 120, 10, "Select the type of match to process:"
+		  'Text 10, 35, 130, 10, "Claim Referral Tracking on STAT/MISC:"
+		  Text 10, 55, 45, 10, "Other Notes:"
+		  GroupBox 5, 75, 260, 80, "Using the script:"
+		  Text 10, 85, 250, 15, "Select the Excel file that contains the case information by selecting the 'Browse' button and locating the file."
+		  Text 15, 130, 245, 15, "This script should be used when matches have been researched and ready to be cleared. "
+		  GroupBox 5, 5, 260, 65, "Complete prior to browsing the script:"
+		EndDialog
+
 			err_msg = ""
 			Dialog Dialog1
 			cancel_confirmation
@@ -86,7 +94,7 @@ Do
 				End If
 				call file_selection_system_dialog(IEVS_match_path, ".xlsx") 'allows the user to select the file'
 			End If
-			If match_type = "Select One:" then err_msg = err_msg & vbNewLine & "* Select type of match you are processing."
+			If select_match_type = "Select One:" then err_msg = err_msg & vbNewLine & "* Select type of match you are processing."
 			If IEVS_match_path = "" then err_msg = err_msg & vbNewLine & "* Use the Browse Button to select the file that has your client data"
 			If err_msg <> "" Then MsgBox err_msg
 		Loop until err_msg = ""
@@ -127,8 +135,8 @@ DO
 	    row = 6    'establishing 1st row to search
 	    Do
 		    EMReadScreen IEVS_message, 4, row, 6
-		    'msgbox IEVS_message & vbcr & match_type
-		    If IEVS_message <> match_type then
+		    'msgbox IEVS_message & vbcr & select_match_type
+		    If trim(IEVS_message) <> trim(select_match_type) then
 				match_found = False
 				row = row + 1
 		    	EMReadScreen new_case, 9, row, 63
@@ -161,7 +169,7 @@ DO
 		Loop until match_found = true
 		If match_found = False then
 			case_note_actions = False 'no case note'
-			objExcel.cells(excel_row, 9).value = "A IEVS match wasn't found on DAIL/DAIL or SSN did not match."
+			objExcel.cells(excel_row, 10).value = "A IEVS match wasn't found on DAIL/DAIL or SSN did not match."
 		End if
 	End if
 
@@ -172,7 +180,7 @@ DO
 	    CALL write_value_and_transmit("IEVP", 20, 71)   'navigates to IEVP
 		EMReadScreen error_msg, 7, 24, 2
 		If error_msg = "NO IEVS" then 'checking for error msg'
-			objExcel.cells(excel_row, 9).value = "No IEVS matches found for SSN " & Client_SSN & "/Could not access IEVP."
+			objExcel.cells(excel_row, 10).value = "No IEVS matches found for SSN " & Client_SSN & "/Could not access IEVP."
 			case_note_actions = False
 		Else
 			row = 7
@@ -181,39 +189,46 @@ DO
 				EMReadScreen days_pending, 5, row, 72
 		    	days_pending = trim(days_pending)
 		    	If IsNumeric(days_pending) = false then
-					objExcel.cells(excel_row, 9).value = "No pending IEVS match found. Please review IEVP."
+					objExcel.cells(excel_row, 10).value = "No pending IEVS match found. Please review IEVP."
 					case_note_actions = False
 					exit do
 		    	ELSE
-	            	'Entering the IEVS match & reading the difference notice to ensure this has been sent
-                	EMReadScreen IEVS_period, 11, row, 47
-		    		EMReadScreen start_month, 2, row, 47
-		    		EMReadScreen end_month, 2, row, 53
-					If trim(start_month) = "" or trim(end_month) = "" then
-						case_note_actions = False
-		    		else
-						month_difference = abs(end_month) - abs(start_month)
-					    If (match_type = "WAGE" and month_difference = 2) then 'ensuring if it is a wage the match is a quater'
-					    	case_note_actions = true
-					    	exit do
-					    Elseif (match_type = "BEER" and month_difference = 11) then  'ensuring that if it a beer that the match is a year'
-					    	case_note_actions = True
-					    	exit do
-					    End if
+					If IsNumeric(days_pending) = TRUE then
+					'objExcel.cells(excel_row, 10).value = "No pending IEVS match found. Please review IEVP."
+					case_note_actions = TRUE
+					exit do
+
+					''Entering the IEVS match & reading the difference notice to ensure this has been sent
+
+                	'EMReadScreen IEVS_period, 11, row, 47
+		    		'EMReadScreen start_month, 2, row, 47
+		    		'EMReadScreen end_month, 2, row, 53
+					'If trim(start_month) = "" or trim(end_month) = "" then
+					'	case_note_actions = False
+		    		'else
+					'	month_difference = abs(end_month) - abs(start_month)
+					'    If (match_type = "WAGE" and month_difference = 2) then 'ensuring if it is a wage the match is a quater'
+					'    	case_note_actions = true
+					'    	exit do
+					'    Elseif (match_type = "BEER" and month_difference = 11) then  'ensuring that if it a beer that the match is a year'
+					'    	case_note_actions = True
+					'    	exit do
+					'    End if
 					End if
 					row = row + 1
 				END IF
 			Loop until row = 17
 
-			If case_note_actions <> True then
-				If match_type = "WAGE" then
-			    	objExcel.cells(excel_row, 9).value = "This WAGE match is not for a quarter. Please process manually."
-			    Elseif match_type = "BEER" then
-					objExcel.cells(excel_row, 9).value = "This BEER match is not for a year. Please process manually."
-				END if
-				case_note_actions = False
-			Else
+			'If case_note_actions <> True then
+			'	If select_match_type = "WAGE" then
+			'    	objExcel.cells(excel_row, 9).value = "This WAGE match is not for a quarter. Please process manually."
+			'    Elseif select_match_type = "BEER" then
+			'		objExcel.cells(excel_row, 9).value = "This BEER match is not for a year. Please process manually."
+			'	END if
+			'	case_note_actions = False
+			'Else
 			'---------------------------------------------------------------------Reading potential errors for out-of-county cases
+			'MsgBox "where are you"
 			CALL write_value_and_transmit("U", row, 3)   'navigates to IULA
 			EMReadScreen OutOfCounty_error, 12, 24, 2
 			IF OutOfCounty_error = "MATCH IS NOT" then
@@ -338,35 +353,45 @@ DO
 						EMWriteScreen Cleared_status, row + 1, col + 1
 					End if
 				Next
-
+				'msgbox "did we clear anything?"
                 CALL write_value_and_transmit("10", 12, 46)   'navigates to IULB
-
-			    'resolved notes depending on the Cleared_status
-			    If Cleared_status = "BC" then CALL write_value_and_transmit("Case closed.", 8, 6)   'BC
-                If Cleared_status = "BE" then CALL write_value_and_transmit("No change.", 8, 6)   'BE
-			    If Cleared_status = "BN" then CALL write_value_and_transmit("Already known - No savings.", 8, 6)   'BN
-			    If Cleared_status = "CC" then CALL write_value_and_transmit("Claim entered.", 8, 6)   'CC
+				'resolved notes depending on the Cleared_status
+			    If Cleared_status = "BC" then CALL write_value_and_transmit("Case closed " & other_notes , 8, 6)   'BC
+                If Cleared_status = "BE" then CALL write_value_and_transmit("No change " & other_notes , 8, 6)   'BE
+			    If Cleared_status = "BN" then CALL write_value_and_transmit("Already known - No savings " & other_notes , 8, 6)   'BN
+			    If Cleared_status = "CC" then CALL write_value_and_transmit("Claim entered", 8, 6)   'CC
 				objExcel.cells(excel_row, 9).value = "IEVS match cleared"
                 case_note_actions = True
+
 				End if
 			End if
-		End if
+		'End if
 	'End if
-
+	'msgbox case_note_actions
     If case_note_actions = True then		'Formatting for the case note
-	    If match_type = "WAGE" then
-	    	'Updated IEVS_period to write into case note
-	    	If quarter = 1 then IEVS_quarter = "1ST"
-	    	If quarter = 2 then IEVS_quarter = "2ND"
-	    	If quarter = 3 then IEVS_quarter = "3RD"
-	    	If quarter = 4 then IEVS_quarter = "4TH"
-	    End if
+	IF match_type = "BEER" THEN match_type_letter = "B"
+   IF match_type = "UBEN" THEN match_type_letter = "U"
+   IF match_type = "UNVI" THEN match_type_letter = "U"
 
-	    'adding specific wording for case note header for each cleared status
-	    If Cleared_status = "BC" then cleared_header_info = " (" & first_name & ") CLEARED BC-CASE CLOSED"
-	    If Cleared_status = "BE" then cleared_header_info = " (" & first_name & ") CLEARED BE-NO CHANGE"
-	    If Cleared_status = "BN" then cleared_header_info = " (" & first_name & ") CLEARED BN-KNOWN"
-	    If Cleared_status = "CC" then cleared_header_info = " (" & first_name & ") CLEARED CC-CLAIM ENTERED"
+   verifcation_needed = trim(verifcation_needed) 	'takes the last comma off of verifcation_needed when autofilled into dialog if more more than one app date is found and additional app is selected
+   IF right(verifcation_needed, 1) = "," THEN verifcation_needed = left(verifcation_needed, len(verifcation_needed) - 1)
+   IF match_type = "WAGE" THEN
+	   IF select_quarter = 1 THEN IEVS_quarter = "1ST"
+	   IF select_quarter = 2 THEN IEVS_quarter = "2ND"
+	   IF select_quarter = 3 THEN IEVS_quarter = "3RD"
+	   IF select_quarter = 4 THEN IEVS_quarter = "4TH"
+   END IF
+
+   IEVS_period = trim(IEVS_period)
+   IF match_type <> "UBEN" THEN IEVS_period = replace(IEVS_period, "/", " to ")
+   IF match_type = "UBEN" THEN IEVS_period = replace(IEVS_period, "-", "/")
+   Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days
+
+   'adding specific wording for case note header for each cleared status
+   If cleared_status = "BC" then cleared_header_info = " (" & first_name & ") CLEARED BC-CASE CLOSED"
+   If cleared_status = "BE" then cleared_header_info = " (" & first_name & ") CLEARED BE-NO CHANGE"
+   If cleared_status = "BN" then cleared_header_info = " (" & first_name & ") CLEARED BN-KNOWN"
+   If cleared_status = "CC" then cleared_header_info = " (" & first_name & ") CLEARED CC-CLAIM ENTERED"
 
 		'Case noting the actions taken
         start_a_blank_CASE_NOTE
@@ -376,8 +401,9 @@ DO
 		Call write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
         Call write_bullet_and_variable_in_CASE_NOTE("Source of income", income_source)
         call write_variable_in_CASE_NOTE("------ ----- -----")
-        If Cleared_status = "BN" or Cleared_status = "BE" then Call write_variable_in_CASE_NOTE("* Client reported income. Correct income is in JOBS/BUSI and budgeted.")
-        If Cleared_status <> "CC" then Call write_variable_in_CASE_NOTE("* No collectible overpayments or savings were found related to this match.")
+        If cleared_status = "BN" or cleared_status = "BE" then Call write_variable_in_CASE_NOTE("* Client reported income. Correct income is in JOBS/BUSI and budgeted")
+        If cleared_status <> "CC" then Call write_variable_in_CASE_NOTE("* No collectible overpayments or savings were found related to this match.")
+		Call write_bullet_and_variable_in_CASE_NOTE("Other Notes", other_notes)
         call write_variable_in_CASE_NOTE("------ ----- ----- ----- -----")
         Call write_variable_in_CASE_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
     End if
@@ -398,8 +424,31 @@ objExcel.Columns(6).HorizontalAlignment = -4131
 objExcel.Columns(7).HorizontalAlignment = -4131
 objExcel.Columns(8).HorizontalAlignment = -4131
 
+'Excel headers and formatting the columns
+objExcel.Cells(1, 1).Value     = "CASE NUMBER"
+objExcel.Cells(1, 1).Font.Bold = TRUE
+objExcel.Cells(1, 2).Value     = "APPLICANT NAME"
+objExcel.Cells(1, 2).Font.Bold = TRUE
+objExcel.Cells(1, 3).Value     = "SSN"
+objExcel.Cells(1, 3).Font.Bold = TRUE
+objExcel.Cells(1, 4).Value     = "PROGRAM(S)"
+objExcel.Cells(1, 4).Font.Bold = TRUE
+objExcel.Cells(1, 5).Value     = "AMOUNT"
+objExcel.Cells(1, 5).Font.Bold = TRUE
+objExcel.Cells(1, 6).Value     = "INCOME"
+objExcel.Cells(1, 6).Font.Bold = TRUE
+objExcel.Cells(1, 7).Value     = "NOTICE DATE"
+objExcel.Cells(1, 7).Font.Bold = TRUE
+objExcel.Cells(1, 8).Value     = "RESOLUTION"
+objExcel.Cells(1, 8).Font.Bold = TRUE
+objExcel.Cells(1, 9).Value     = "DATE CLEARED"
+objExcel.Cells(1, 9).Font.Bold = TRUE
+objExcel.Cells(1, 10).Value     = "NOTES"
+objExcel.Cells(1, 10).Font.Bold = TRUE
+
+
 'Formatting the column width.
-FOR i = 1 to 9
+FOR i = 1 to 10
 	objExcel.Columns(i).AutoFit()
 NEXT
 'add pf3 at the end of the run and error handling for blank cleared status'
