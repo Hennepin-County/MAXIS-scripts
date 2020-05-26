@@ -44,7 +44,6 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-CALL changelog_update("05/23/2020", "Added previous day assignment note capture.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("05/19/2020", "Updated to create assignments based on the current phase of the project.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("03/31/2020", "Removed email funtionality when report is finished running.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("02/24/2020", "Added to ADMIN Main Menu - BZ menu.", "Ilse Ferris, Hennepin County")
@@ -93,188 +92,47 @@ Function add_pages(exp_status)
     NEXT
 END FUNCTION
 
+
+
 'THE SCRIPT-----------------------------------------------------------------------------------------------------------
 EMConnect ""
 MAXIS_footer_month = CM_mo
 MAXIS_footer_year = CM_yr 
 
-'Determining the previous date for automated file selection 
-previous_date = dateadd("d", -1, date)
-file_date = replace(previous_date, "/", "-")   'Changing the format of the date to use as file path selection default
-
-Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 261, 65, "ADMIN - EXPEDITED REVIEW NOTES GATHERING"
-  ButtonGroup ButtonPressed
-    OkButton 150, 45, 50, 15
-    CancelButton 205, 45, 50, 15
-  Text 20, 20, 220, 20, "This script should be used to pull in assignment notes from QI team before running the current day's report for EXP SNAP."
-  GroupBox 10, 5, 250, 35, "Using this script:"
-EndDialog
-
-dialog Dialog1
-cancel_without_confirmation 
-
-'Establshing array     
-DIM QI_notes_array()          'Declaring the array
-ReDim QI_notes_array(2, 0)    'Resizing the array 
-    
-'Creating constants to value the array elements
-const master_cn_const = 0  
-const master_n_const = 1
-    
-notes_record = 0    'incrementer for the array 
-
-'array_of_assigments = array("Expedited Review","Pending Over 30 Days")
-array_of_assigments = array("EXP Processing - Interview Completed","EXP Screening Required and PRIV","Pending Over 30 Days")
-
-For each assignment in array_of_assigments
-    assignment = replace(assignment, """","")
-    file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\Daily Assignments\" & assignment & ".xlsx"
-    'file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\" & assignment & " " & file_date & ".xlsx"
-    If objExcel = "" Then Call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
-    
-    excel_row = 2
-    Do 
-        master_cn = ObjExcel.Cells(excel_row, 2).Value 'reading case number
-        master_cn = trim(master_cn)
-        If master_cn = "" then exit do 
-        
-        master_n = ObjExcel.Cells(excel_row, 8).Value       'reading worker entered notes       
-    
-        If trim(master_n) <> "" then 
-            ReDim Preserve QI_notes_array(2, notes_record)	'This resizes the array based on if master notes were found or not
-            QI_notes_array(master_cn_const,  notes_record) = master_cn
-            QI_notes_array(master_n_const,   notes_record) = trim(master_n)
-            
-            notes_record = notes_record + 1			'This increments to the next entry in the array'
-        End if 
-        excel_row = excel_row + 1                       'Excel row incrementor
-    LOOP
-        
-    'Closing workbook and quiting Excel application
-    objExcel.ActiveWorkbook.Close                           
-    objExcel.Application.Quit
-    objExcel.Quit
-    objExcel = ""
-Next     
-
-'Finding and opening the previous day's file. 
-'previous_date = dateadd("d", -1, date)
-Call change_date_to_soonest_working_day(previous_date)       'finds the most recent previous working day for the fin
-'file_date = replace(previous_date, "/", "-")   'Changing the format of the date to use as file path selection default
-previous_file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\" & file_date & ".xlsx"
-
-If objExcel = "" Then Call excel_open(previous_file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
-
-For Each objWorkSheet In objWorkbook.Worksheets 'Creating an array of worksheets that are not the intitial report - "Report 1"
-    If instr(objWorkSheet.Name, "Sheet") = 0 and objWorkSheet.Name <> "Report 1" then sheet_list = sheet_list & objWorkSheet.Name & ","
-Next
-    
-sheet_list = trim(sheet_list)  'trims excess spaces of sheet_list
-If right(sheet_list, 1) = "," THEN sheet_list = left(sheet_list, len(sheet_list) - 1) 'trimming off last comma
-array_of_sheets = split(sheet_list, ",")   'Creating new array
-    
-For each excel_sheet in array_of_sheets
-    objExcel.worksheets(excel_sheet).Activate 'Activates the applicable worksheet 
-    excel_row = 2
-    
-    Do 
-        MAXIS_case_number = ObjExcel.Cells(excel_row, 2).Value  'reading case number
-        MAXIS_case_number = trim(MAXIS_case_number)
-        If MAXIS_case_number = "" then exit do 
-            
-        For i = 0 to Ubound(QI_notes_array, 2)                                                            'If notes were selected to be added, array is looped thru for matching case number
-            master_case_number = QI_notes_array(master_cn_const, i)
-            If master_case_number = MAXIS_case_number then 
-                ObjExcel.Cells(excel_row, 8).Value = QI_notes_array(master_n_const, i)   'If case number is found, prevoius list notes are added to the array 
-                exit for 
-            End if      
-        Next 
-          
-        excel_row = excel_row + 1                       'Excel row incrementor
-    LOOP
-Next 
-
-objExcel.ActiveWorkbook.Save    'saving today's list 
-msgbox "Check to see if notes were entered."
-
-''Closing workbook and quiting Excel application
-'objExcel.ActiveWorkbook.Close                           
-'objExcel.Application.Quit
-'objExcel.Quit
-'objExcel = ""
-'
-''Finding and opening the previous day's file. 
-'Call change_date_to_soonest_working_day(previous_date)       'finds the most recent previous working day for the fin
-'previous_file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\" & file_date & ".xlsx"
-'
-'If objExcel = "" Then Call excel_open(previous_file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
-'
-'For Each objWorkSheet In objWorkbook.Worksheets 'Creating an array of worksheets that are not the intitial report - "Report 1"
-'    If instr(objWorkSheet.Name, "Sheet") = 0 and objWorkSheet.Name <> "Report 1" then sheet_list = sheet_list & objWorkSheet.Name & ","
-'Next
-'    
-'sheet_list = trim(sheet_list)  'trims excess spaces of sheet_list
-'If right(sheet_list, 1) = "," THEN sheet_list = left(sheet_list, len(sheet_list) - 1) 'trimming off last comma
-'array_of_sheets = split(sheet_list, ",")   'Creating new array
-'    
-'For each excel_sheet in array_of_sheets
-'    objExcel.worksheets(excel_sheet).Activate 'Activates the applicable worksheet 
-'    excel_row = 2
-'    
-'    Do 
-'        MAXIS_case_number = ObjExcel.Cells(excel_row, 2).Value  'reading case number
-'        MAXIS_case_number = trim(MAXIS_case_number)
-'        If MAXIS_case_number = "" then exit do 
-'            
-'        For i = 0 to Ubound(master_array, 2)                                                            'If notes were selected to be added, array is looped thru for matching case number
-'            master_case_number = master_array(master_case_number_const, i)
-'            If master_case_number = MAXIS_case_number then 
-'                ObjExcel.Cells(excel_row, 8).Value = master_array(master_notes_const, i)   'If case number is found, prevoius list notes are added to the array 
-'                exit for 
-'            End if      
-'        Next 
-'          
-'        excel_row = excel_row + 1                       'Excel row incrementor
-'    LOOP
-'Next 
-'
-'objExcel.ActiveWorkbook.Save    'saving today's list 
-
 report_date = replace(date, "/", "-")   'Changing the format of the date to use as file path selection default
 file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\" & report_date & ".xlsx"
 
-'BeginDialog Dialog1, 0, 0, 266, 115, "ADMIN - EXPEDITED REVIEW"
-'  ButtonGroup ButtonPressed
-'    PushButton 200, 50, 50, 15, "Browse...", select_a_file_button
-'    OkButton 150, 95, 50, 15
-'    CancelButton 205, 95, 50, 15
-'  EditBox 15, 50, 180, 15, file_selection_path
-'  Text 20, 20, 235, 25, "This script should be used to review a BOBI list of pending SNAP and/or MFIP cases to ensure expedited screening and determinations are being made to ensure expedited timeliness rules are being followed."
-'  Text 15, 70, 230, 15, "Select the Excel file that contains your inforamtion by selecting the 'Browse' button, and finding the file."
-'  GroupBox 10, 5, 250, 85, "Using this script:"
-'EndDialog
-'
-''dialog and dialog DO...Loop	
-'Do 
-'    Do
-'        err_msg = ""
-'        dialog Dialog1
-'        cancel_without_confirmation 
-'        If ButtonPressed = select_a_file_button then call file_selection_system_dialog(file_selection_path, ".xlsx")
-'        If trim(file_selection_path) = "" then err_msg = err_msg & vbcr & "* Select a file to continue." 
-'        If err_msg <> "" Then MsgBox err_msg
-'    Loop until err_msg = ""
-'    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-'Loop until are_we_passworded_out = false					'loops until user passwords back in
+BeginDialog Dialog1, 0, 0, 266, 115, "ADMIN - EXPEDITED REVIEW"
+  ButtonGroup ButtonPressed
+    PushButton 200, 50, 50, 15, "Browse...", select_a_file_button
+    OkButton 150, 95, 50, 15
+    CancelButton 205, 95, 50, 15
+  EditBox 15, 50, 180, 15, file_selection_path
+  Text 20, 20, 235, 25, "This script should be used to review a BOBI list of pending SNAP and/or MFIP cases to ensure expedited screening and determinations are being made to ensure expedited timeliness rules are being followed."
+  Text 15, 70, 230, 15, "Select the Excel file that contains your inforamtion by selecting the 'Browse' button, and finding the file."
+  GroupBox 10, 5, 250, 85, "Using this script:"
+EndDialog
 
-''Finding and opening the previous day's file. 
-'previous_date = dateadd("d", -1, date)
-'Call change_date_to_soonest_working_day(previous_date)       'finds the most recent previous working day for the fin
-'file_date = replace(previous_date, "/", "-")   'Changing the format of the date to use as file path selection default
-'previous_file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\" & file_date & ".xlsx"
-'
-'If objExcel = "" Then Call excel_open(previous_file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
+'dialog and dialog DO...Loop	
+Do 
+    Do
+        err_msg = ""
+        dialog Dialog1
+        cancel_without_confirmation 
+        If ButtonPressed = select_a_file_button then call file_selection_system_dialog(file_selection_path, ".xlsx")
+        If trim(file_selection_path) = "" then err_msg = err_msg & vbcr & "* Select a file to continue." 
+        If err_msg <> "" Then MsgBox err_msg
+    Loop until err_msg = ""
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+'Finding and opening the previous day's file. 
+previous_date = dateadd("d", -1, date)
+Call change_date_to_soonest_working_day(previous_date)       'finds the most recent previous working day for the fin
+file_date = replace(previous_date, "/", "-")   'Changing the format of the date to use as file path selection default
+previous_file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\" & file_date & ".xlsx"
+
+If objExcel = "" Then Call excel_open(previous_file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
 
 For Each objWorkSheet In objWorkbook.Worksheets 'Creating an array of worksheets that are not the intitial report - "Report 1"
     If instr(objWorkSheet.Name, "Sheet") = 0 and objWorkSheet.Name <> "Report 1" then sheet_list = sheet_list & objWorkSheet.Name & ","
