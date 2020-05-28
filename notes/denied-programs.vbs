@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("05/28/2020", "Update to the notice wording, added virtual drop box information.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("12/21/2019", "Added functionality to allow the script to read GRH PND2 when selecting CASH denial so that GRH denials can be noted with the same functionality as the other programs.", "Casey Love, Hennepin County")
 CALL changelog_update("10/14/2019", "Removed NOMI and TIKL for case transfer checkboxes and associated functionailty.", "Ilse Ferris, Hennepin County")
 Call changelog_update("07/10/2019", "Bug Fix - script would complete if the SPEC/WCOM navigation button was used, preventing the full dialog from being cmompleted.", "Casey Love, Hennepin County")
@@ -489,6 +490,7 @@ IF edit_notice_check = 1 THEN
 				call write_variable_in_spec_memo("The following verifications were not provided: ")
 				call write_variable_in_spec_memo("")
 				call write_variable_in_spec_memo(verifs_needed)
+                CALL write_variable_in_SPEC_MEMO("You now have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. To obtain information about your case please contact your worker. EMAIL: hhsews@hennepin.us ")
 				notice_edited = true 'Setting this true lets us know that we successfully edited the notice
 				pf4
 				pf3

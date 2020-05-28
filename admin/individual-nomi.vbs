@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("05/28/2020", "Update to the notice wording, added virtual drop box information.", "MiKayla Handley, Hennepin County")
 call changelog_update("05/13/2020", "Update to the notice wording. Information and direction for in-person interview option removed. County offices are not currently open due to the COVID-19 Peacetime Emergency.", "Casey Love, Hennepin County")
 call changelog_update("01/30/2019", "Added statistics tracking.", "Casey Love, Hennepin County")
 call changelog_update("07/20/2018", "Updated verbiage of notice.", "Casey Love, Hennepin County")
@@ -170,6 +171,7 @@ Call write_variable_in_SPEC_MEMO("* You may be able to have SNAP benefits issued
 Call write_variable_in_SPEC_MEMO(" ")
 Call write_variable_in_SPEC_MEMO("  ** If we do not hear from you by " & last_contact_day & " **")
 Call write_variable_in_SPEC_MEMO("  **    your application will be denied.     **") 'add 30 days
+CALL write_variable_in_SPEC_MEMO("You now have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. To obtain information about your case please contact your worker. EMAIL: hhsews@hennepin.us ")
 ' Call write_variable_in_SPEC_MEMO("If you are applying for a cash program for pregnant women or minor children, you may need a face-to-face interview.")
 Call write_variable_in_SPEC_MEMO(" ")
 Call write_variable_in_SPEC_MEMO("Domestic violence brochures are available at https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG.")

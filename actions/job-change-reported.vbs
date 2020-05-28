@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("05/28/2020", "Added virtual drop box information to SPEC/MEMO.", "MiKayla Handley, Hennepin County")
 call changelog_update("04/24/2020", "Initial version.", "Casey Love, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -1288,12 +1289,12 @@ If IsDate(verif_form_date) = TRUE and developer_mode = FALSE Then
     Call MAXIS_background_check
     CALL start_a_new_spec_memo
 
-    CALL write_variable_in_SPEC_MEMO("--- Verification Needed of Job Change for " & employee_name_only & " ---")
+    CALL write_variable_in_SPEC_MEMO("---Verification Needed of Job Change for " & employee_name_only & "---")
     CALL write_variable_in_SPEC_MEMO("")
     CALL write_variable_in_SPEC_MEMO("You reported that " & employee_name_only & " has had a change in employment detail. Type - " & job_change_type)
     CALL write_variable_in_SPEC_MEMO("Job that changed: " & job_employer_name & ".")
     CALL write_variable_in_SPEC_MEMO("Verification needed for the time period: " & verif_time_frame & ". This means we need all income or work hours verification during this time.")
-    CALL write_variable_in_SPEC_MEMO("")
+	CALL write_variable_in_SPEC_MEMO("")
     Select Case job_change_type
         Case "New Job Reported"
             CALL write_variable_in_SPEC_MEMO("Since a new job has started, we need verification of any pay you have received so far. If this income covers a 30 day span from the first pay to the most recent, and provides income that reflects the amount you anticipate being paid, this verification should be sufficient. Otherwise, provide verification of the anticipated rate of pay and hours scheduled per week.")
@@ -1305,7 +1306,7 @@ If IsDate(verif_form_date) = TRUE and developer_mode = FALSE Then
     End Select
     CALL write_variable_in_SPEC_MEMO("")
     CALL write_variable_in_SPEC_MEMO("If you have questions about verifications needed, or if your job change requires explanation, please call as much of the clarification can be provided verbally and is our best means to correctly budget your income.")
-
+	CALL write_variable_in_SPEC_MEMO("You now have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. To obtain information about your case please contact your worker.")
     PF4
     Call back_to_SELF
 End If
