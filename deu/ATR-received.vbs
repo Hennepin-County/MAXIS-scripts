@@ -331,7 +331,7 @@ BeginDialog Dialog1, 0, 0, 271, 240, "ATR RECEIVED FOR: "  & MAXIS_case_number
   EditBox 55, 125, 95, 15, source_address
   EditBox 55, 145, 45, 15, source_phone
   CheckBox 150, 150, 115, 10, "Set a TIKL due to 10 day cutoff", tenday_checkbox
-  DropListBox 140, 175, 115, 15, "Select One:"+chr(9)+"Overpayment Exists"+chr(9)+"OP Non-Collectible (please specify)"+chr(9)+"No Savings/Overpayment", claim_referral_tracking_dropdown
+  DropListBox 140, 175, 115, 15, "Not Needed"+chr(9)+"Initial"+chr(9)+"Overpayment Exists"+chr(9)+"OP Non-Collectible (please specify)"+chr(9)+"No Savings/Overpayment", claim_referral_tracking_dropdown
   EditBox 50, 200, 215, 15, other_notes
   ButtonGroup ButtonPressed
     OkButton 175, 220, 45, 15
@@ -444,7 +444,7 @@ IF MAXIS_error_message <> "" THEN
 	IF email_BZST <> "" THEN CALL create_outlook_email("Mikayla.Handley@hennepin.us", "", "Case #" & maxis_case_number & " Error message: " & MAXIS_error_message & "  EOM.", "", "", TRUE)
 END IF
 '------------------------------------------------------------------STAT/MISC for claim referral tracking
-IF claim_referral_tracking_dropdown <> "Select One:" THEN
+IF claim_referral_tracking_dropdown <> "Not Needed" THEN
 	'Going to the MISC panel to add claim referral tracking information
 	CALL navigate_to_MAXIS_screen ("STAT", "MISC")
 	Row = 6
@@ -483,10 +483,10 @@ IF claim_referral_tracking_dropdown <> "Select One:" THEN
 	'writing in the action taken and date to the MISC panel
 	PF9
 	'_________________________ 25 characters to write on MISC
+	IF claim_referral_tracking_dropdown =  "Initial" THEN MISC_action_taken = "Claim Referral Initial"
 	IF claim_referral_tracking_dropdown =  "OP Non-Collectible (please specify)" THEN MISC_action_taken = "Determination-Non-Collect"
 	IF claim_referral_tracking_dropdown =  "No Savings/Overpayment" THEN MISC_action_taken = "Determination-No Savings"
 	IF claim_referral_tracking_dropdown =  "Overpayment Exists" THEN MISC_action_taken =  "Determination-OP Entered" '"Claim Determination 25 character available
-
 	EMWriteScreen MISC_action_taken, Row, 30
 	EMWriteScreen date, Row, 66
 	TRANSMIT
@@ -511,9 +511,13 @@ IF match_type = "UBEN" THEN IEVS_period = replace(IEVS_period, "-", "/")
 Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days
 
 '-------------------------------------------------------------------------------------------------The case note
-IF claim_referral_tracking_dropdown <> "Select One:" THEN
+IF claim_referral_tracking_dropdown <> "Not Needed" THEN
 	start_a_blank_case_note
-	CALL write_variable_in_case_note("-----Claim Referral Tracking -" & MISC_action_taken & "-----")
+	IF claim_referral_tracking_dropdown =  "Initial" THEN
+		CALL write_variable_in_case_note("Claim Referral Tracking - Initial")
+	ELSE
+		CALL write_variable_in_case_note("Claim Referral Tracking - " & MISC_action_taken)
+	END IF
 	CALL write_bullet_and_variable_in_case_note("Action Date", action_date)
 	CALL write_bullet_and_variable_in_case_note("Active Program(s)", programs)
 	CALL write_bullet_and_variable_in_case_note("Other Notes", other_notes)

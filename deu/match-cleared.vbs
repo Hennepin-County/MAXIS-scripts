@@ -1016,7 +1016,6 @@ END IF
 		IF claim_referral_tracking_dropdown =  "OP Non-Collectible (please specify)" THEN MISC_action_taken = "Determination-Non-Collect"
 		IF claim_referral_tracking_dropdown =  "No Savings/Overpayment" THEN MISC_action_taken = "Determination-No Savings"
 		IF claim_referral_tracking_dropdown =  "Overpayment Exists" THEN MISC_action_taken =  "Determination-OP Entered" '"Claim Determination 25 character available
-
 		EMWriteScreen MISC_action_taken, Row, 30
 		EMWriteScreen date, Row, 66
         TRANSMIT
