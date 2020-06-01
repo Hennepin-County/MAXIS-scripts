@@ -40,6 +40,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("06/01/2020", "Added NOTES Disaster Food Replacement.", "MiKayla Handley, Hennepin County")
 call changelog_update("05/12/2020", "Temporary removal of NOTES - INTERVIEW NO SHOW script. This script supports in-person application/recertification process.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/02/2019", "Removed the script Combined AR. This process is covered in HC Renewal for HC only cases or CAF for cases with any cash or SNAP.", "Casey Love, Hennepin County")
 call changelog_update("07/31/2019", "Removed the following scripts: AREP Form Received, Medical Opinion Form, MTAF, and LTC-1503. The functionality from this script has been added to NOTES - Docs Received.", "Casey Love, Hennepin County")
@@ -248,6 +249,13 @@ Set script_array_D_to_F(script_num) = new script		'Set this array element to be 
 script_array_D_to_F(script_num).script_name 			= "Denied programs"																		'Script name
 script_array_D_to_F(script_num).file_name				= "denied-programs.vbs"
 script_array_D_to_F(script_num).description 			= "Template for indicating which programs you've denied, and when. Also case notes intake/REIN dates based on various selections."
+
+script_num = script_num + 1							   'Increment by one
+ReDim Preserve script_array_admin_main(script_num)	    'Resets the array to add one more element to it
+Set script_array_admin_main(script_num) = new script    'Set this array element to be a new script. Script details below...
+script_array_admin_main(script_num).script_name		    = "Food Destroyed in a Disaster"
+script_array_admin_main(script_num).file_name			= "disaster-food-replacement.vbs"
+script_array_admin_main(script_num).description		    = "Case note to help with replacing food destroyed in a disaster"
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_D_to_F(script_num)			'Resets the array to add one more element to it
