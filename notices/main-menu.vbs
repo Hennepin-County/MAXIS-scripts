@@ -40,6 +40,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("06/01/2020", "Temporary removal of DWP ES REFERRAL script. DWP referrals are currently not being offered.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/26/2019", "Retired 'NOTICES - MNSURE MEMO'. Verbiage has been updated and added to the 'NOTES - METS to MAXIS TRANSITION' script.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/30/2018", "Consolidated WCOMs to one script. New submenus of script categories.", "Casey Love, Hennepin County")
 call changelog_update("03/01/2018", "Removed NOTICES scripts APPOINTMENT LETTER and NOMI. This process has been automated through the On Demand Waiver process.", "Ilse Ferris, Hennepin County")
@@ -115,13 +116,13 @@ script_array_NOTICES_main(script_num).file_name 			= "12-month-contact.vbs"					
 script_array_NOTICES_main(script_num).description 			= "Sends a MEMO to the client of their reporting responsibilities (required for SNAP 2-yr certifications, per POLI/TEMP TE02.08.165)."
 script_array_NOTICES_main(script_num).subcategory           = "SNAP"
 
-script_num = script_num + 1									'Increment by one
-ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
-Set script_array_NOTICES_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_NOTICES_main(script_num).script_name 			= "DWP ES Referral"															'Script name
-script_array_NOTICES_main(script_num).file_name 			= "dwp-es-referral.vbs"														'Script URL
-script_array_NOTICES_main(script_num).description 			= "Creates a case note, a manual referral in INFC/WF1M and sends a SPEC/MEMO to the client."
-script_array_NOTICES_main(script_num).subcategory           = "CASH"
+'script_num = script_num + 1									'Increment by one
+'ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
+'Set script_array_NOTICES_main(script_num) = new script		'Set this array element to be a new script. Script details below...
+'script_array_NOTICES_main(script_num).script_name 			= "DWP ES Referral"															'Script name
+'script_array_NOTICES_main(script_num).file_name 			= "dwp-es-referral.vbs"														'Script URL
+'script_array_NOTICES_main(script_num).description 			= "Creates a case note, a manual referral in INFC/WF1M and sends a SPEC/MEMO to the client."
+'script_array_NOTICES_main(script_num).subcategory           = "CASH"
 
 script_num = script_num + 1									'Increment by one
 ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
