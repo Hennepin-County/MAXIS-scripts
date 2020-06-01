@@ -250,12 +250,12 @@ script_array_D_to_F(script_num).script_name 			= "Denied programs"														
 script_array_D_to_F(script_num).file_name				= "denied-programs.vbs"
 script_array_D_to_F(script_num).description 			= "Template for indicating which programs you've denied, and when. Also case notes intake/REIN dates based on various selections."
 
-'script_num = script_num + 1								'Increment by one
-'ReDim Preserve script_array_D_to_F(script_num)			'Resets the array to add one more element to it
-'Set script_array_D_to_F(script_num) = new script		'Set this array element to be a new script. Script details below...
-'script_array_D_to_F(script_num).script_name 			= "Disaster food replacement"
-'script_array_D_to_F(script_num).file_name				= "disaster-food-replacement.vbs"
-'script_array_D_to_F(script_num).description 			= "Case note to help with replacing food destroyed in a disaster"
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_D_to_F(script_num)			'Resets the array to add one more element to it
+Set script_array_D_to_F(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_D_to_F(script_num).script_name 			= "Disaster food replacement"
+script_array_D_to_F(script_num).file_name				= "disaster-food-replacement.vbs"
+script_array_D_to_F(script_num).description 			= "Case note to help with replacing food destroyed in a disaster"
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_D_to_F(script_num)			'Resets the array to add one more element to it
