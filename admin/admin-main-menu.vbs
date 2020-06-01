@@ -219,7 +219,7 @@ script_array_admin_main(script_num).description 		= "Assists with determination 
 script_num = script_num + 1							   'Increment by one
 ReDim Preserve script_array_admin_main(script_num)	    'Resets the array to add one more element to it
 Set script_array_admin_main(script_num) = new script    'Set this array element to be a new script. Script details below...
-script_array_admin_main(script_num).script_name		    = "Food Destroyed in a Disaster"
+script_array_admin_main(script_num).script_name		    = "Disaster food replacement"
 script_array_admin_main(script_num).file_name			= "disaster-food-replacement.vbs"
 script_array_admin_main(script_num).description		    = "Case note to help with replacing food destroyed in a disaster"
 
