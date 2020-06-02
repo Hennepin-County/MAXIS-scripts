@@ -205,6 +205,7 @@ For view_panel = 0 to UBound(PANELS_ARRAY, 2)
         EMReadScreen amount_five,  8, 16, 67
         EMReadScreen prosp_hours,  3, 18, 72
         If prosp_hours = "___" then prosp_hours = 0
+        If prosp_hours = "?__" then prosp_hours = 0
         prosp_hours = prosp_hours * 1
 
         If amount_five <> "________" Then
