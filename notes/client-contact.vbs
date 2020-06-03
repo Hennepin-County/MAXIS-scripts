@@ -81,18 +81,18 @@ If trim(MAXIS_case_number) <> "" then
     If phone_number_two <> "( ___ ) ___ ____" then phone_number_list = phone_number_list & phone_number_two & "|"
     EMReadScreen phone_number_three, 16, 19, 43
     If phone_number_three <> "( ___ ) ___ ____" then phone_number_list = phone_number_list & phone_number_three
-    phone_number_array = split(phone_number_list, "|")                
-    Call convert_array_to_droplist_items(phone_number_array, phone_numbers)   
-End if 
+    phone_number_array = split(phone_number_list, "|")
+    Call convert_array_to_droplist_items(phone_number_array, phone_numbers)
+End if
 
-'----------------------------------------------------------------------------------------------------Adding suggested Q-Flow Ticketing population for follow up work. 
-EmReadscreen basket_number, 7, 21, 21    'Reading basket number 
-suggested_population = ""                'Blanking this out. Will default to no suggestions if x number is not in this this. 
+'----------------------------------------------------------------------------------------------------Adding suggested Q-Flow Ticketing population for follow up work.
+EmReadscreen basket_number, 7, 21, 21    'Reading basket number
+suggested_population = ""                'Blanking this out. Will default to no suggestions if x number is not in this this.
 
-If bakset_number = "X127EF8" then suggested_population = "1800"
-If bakset_number = "X127EF9" then suggested_population = "1800"
-If bakset_number = "X127EG9" then suggested_population = "1800"
-If bakset_number = "X127EG0" then suggested_population = "1800"
+If basket_number = "X127EF8" then suggested_population = "1800"
+If basket_number = "X127EF9" then suggested_population = "1800"
+If basket_number = "X127EG9" then suggested_population = "1800"
+If basket_number = "X127EG0" then suggested_population = "1800"
 
 If basket_number = "X127EH2" then suggested_population = "ADS"
 If basket_number = "X127EH3" then suggested_population = "ADS"
@@ -122,9 +122,9 @@ If basket_number = "X127FI7" then suggested_population = "ADS"
 If basket_number = "X127F3U" then suggested_population = "ADS"
 If basket_number = "X127F3V" then suggested_population = "ADS"
 
-'Contacted Case Mgt 
+'Contacted Case Mgt
 If basket_number = "X127FG6" then suggested_population = "ADS"           '"Kristen Kasem"
-If basket_number = "X127FG7" then suggested_population = "ADS"           '"Kristen Kasem" 
+If basket_number = "X127FG7" then suggested_population = "ADS"           '"Kristen Kasem"
 If basket_number = "X127EM3" then suggested_population = "ADS"           '"True L. or Gina G."
 If basket_number = "X127EM4" then suggested_population = "ADS"            '"True L. or Gina G."
 If basket_number = "X127EW7" then suggested_population = "ADS"            '"Kimberly Hill"
@@ -132,48 +132,48 @@ If basket_number = "X127EW8" then suggested_population = "ADS"            '"Kimb
 If basket_number = "X127FF4" then suggested_population = "ADS"            '"Alyssa Taylor"
 If basket_number = "X127FF5" then suggested_population = "ADS"            '"Alyssa Taylor"
 
-If bakset_number = "X127ED8" then suggested_population = "Adults"
-If bakset_number = "X127EE1" then suggested_population = "Adults"
-If bakset_number = "X127EE2" then suggested_population = "Adults"
-If bakset_number = "X127EE3" then suggested_population = "Adults"
-If bakset_number = "X127EE4" then suggested_population = "Adults"
-If bakset_number = "X127EE5" then suggested_population = "Adults"
-If bakset_number = "X127EE6" then suggested_population = "Adults"
-If bakset_number = "X127EE7" then suggested_population = "Adults"
-If bakset_number = "X127EG4" then suggested_population = "Adults"
-If bakset_number = "X127EG5" then suggested_population = "Adults"
-If bakset_number = "X127EH8" then suggested_population = "Adults"
-If bakset_number = "X127EH9" then suggested_population = "Adults"
-If bakset_number = "X127EJ1" then suggested_population = "Adults"
-If bakset_number = "X127EL2" then suggested_population = "Adults"
-If bakset_number = "X127EL3" then suggested_population = "Adults"
-If bakset_number = "X127EL4" then suggested_population = "Adults"
-If bakset_number = "X127EL5" then suggested_population = "Adults"
-If bakset_number = "X127EL6" then suggested_population = "Adults"
-If bakset_number = "X127EL7" then suggested_population = "Adults"
-If bakset_number = "X127EL8" then suggested_population = "Adults"
-If bakset_number = "X127EL9" then suggested_population = "Adults"
-If bakset_number = "X127EN1" then suggested_population = "Adults"
-If bakset_number = "X127EN2" then suggested_population = "Adults" 
-If bakset_number = "X127EN3" then suggested_population = "Adults"
-If bakset_number = "X127EN4" then suggested_population = "Adults"
-If bakset_number = "X127EN5" then suggested_population = "Adults"
-If bakset_number = "X127EP6" then suggested_population = "Adults"
-If bakset_number = "X127EP7" then suggested_population = "Adults"
-If bakset_number = "X127EP8" then suggested_population = "Adults"
-If bakset_number = "X127EQ1" then suggested_population = "Adults"
-If bakset_number = "X127EQ2" then suggested_population = "Adults"
-If bakset_number = "X127EQ3" then suggested_population = "Adults"
-If bakset_number = "X127EQ4" then suggested_population = "Adults"
-If bakset_number = "X127EQ8" then suggested_population = "Adults"
-If bakset_number = "X127EQ9" then suggested_population = "Adults"
-If bakset_number = "X127EX1" then suggested_population = "Adults"
-If bakset_number = "X127EX2" then suggested_population = "Adults"
-If bakset_number = "X127EX3" then suggested_population = "Adults"
-If bakset_number = "X127EX7" then suggested_population = "Adults"
-If bakset_number = "X127EX8" then suggested_population = "Adults"
-If bakset_number = "X127EX9" then suggested_population = "Adults"
-If bakset_number = "X127F3D" then suggested_population = "Adults"
+If basket_number = "X127ED8" then suggested_population = "Adults"
+If basket_number = "X127EE1" then suggested_population = "Adults"
+If basket_number = "X127EE2" then suggested_population = "Adults"
+If basket_number = "X127EE3" then suggested_population = "Adults"
+If basket_number = "X127EE4" then suggested_population = "Adults"
+If basket_number = "X127EE5" then suggested_population = "Adults"
+If basket_number = "X127EE6" then suggested_population = "Adults"
+If basket_number = "X127EE7" then suggested_population = "Adults"
+If basket_number = "X127EG4" then suggested_population = "Adults"
+If basket_number = "X127EG5" then suggested_population = "Adults"
+If basket_number = "X127EH8" then suggested_population = "Adults"
+If basket_number = "X127EH9" then suggested_population = "Adults"
+If basket_number = "X127EJ1" then suggested_population = "Adults"
+If basket_number = "X127EL2" then suggested_population = "Adults"
+If basket_number = "X127EL3" then suggested_population = "Adults"
+If basket_number = "X127EL4" then suggested_population = "Adults"
+If basket_number = "X127EL5" then suggested_population = "Adults"
+If basket_number = "X127EL6" then suggested_population = "Adults"
+If basket_number = "X127EL7" then suggested_population = "Adults"
+If basket_number = "X127EL8" then suggested_population = "Adults"
+If basket_number = "X127EL9" then suggested_population = "Adults"
+If basket_number = "X127EN1" then suggested_population = "Adults"
+If basket_number = "X127EN2" then suggested_population = "Adults"
+If basket_number = "X127EN3" then suggested_population = "Adults"
+If basket_number = "X127EN4" then suggested_population = "Adults"
+If basket_number = "X127EN5" then suggested_population = "Adults"
+If basket_number = "X127EP6" then suggested_population = "Adults"
+If basket_number = "X127EP7" then suggested_population = "Adults"
+If basket_number = "X127EP8" then suggested_population = "Adults"
+If basket_number = "X127EQ1" then suggested_population = "Adults"
+If basket_number = "X127EQ2" then suggested_population = "Adults"
+If basket_number = "X127EQ3" then suggested_population = "Adults"
+If basket_number = "X127EQ4" then suggested_population = "Adults"
+If basket_number = "X127EQ8" then suggested_population = "Adults"
+If basket_number = "X127EQ9" then suggested_population = "Adults"
+If basket_number = "X127EX1" then suggested_population = "Adults"
+If basket_number = "X127EX2" then suggested_population = "Adults"
+If basket_number = "X127EX3" then suggested_population = "Adults"
+If basket_number = "X127EX7" then suggested_population = "Adults"
+If basket_number = "X127EX8" then suggested_population = "Adults"
+If basket_number = "X127EX9" then suggested_population = "Adults"
+If basket_number = "X127F3D" then suggested_population = "Adults"
 
 If basket_number = "X127ES1" then suggested_population = "FAD"
 If basket_number = "X127ES2" then suggested_population = "FAD"
@@ -281,7 +281,7 @@ Do
             Text 170, 90, 75, 10, "Date/Time of Contact:"
             Text 255, 110, 60, 10, "METS IC number:"
             EndDialog
-    
+
 		    DIALOG Dialog1
 		    cancel_confirmation
             MAXIS_dialog_navigation
@@ -290,9 +290,9 @@ Do
         If trim(contact_type) = "" or contact_type = "Select or Type" then err_msg = err_msg & vbcr & "* Enter the contact type."
         If trim(who_contacted) = "" or who_contacted = "Select or Type" then err_msg = err_msg & vbcr & "* Enter who was contacted."
         If trim(contact_reason) = "" then err_msg = err_msg & vbcr & "* Enter the reason for contact."
-        If trim(contact_type) = "Phone call" then 
+        If trim(contact_type) = "Phone call" then
             If trim(phone_number) = "" or trim(phone_number) = "Select or Type" then err_msg = err_msg & vbcr & "* Enter the phone number."
-        End if 
+        End if
 		If trim(when_contact_was_made) = "" then err_msg = err_msg & vbcr & "* Enter the date and time of contact."
         If follow_up_needed_checkbox = 1 and trim(ticket_number) = "" then err_msg = err_msg & vbcr & "* Enter the Q-Flow ticket number."
         If follow_up_needed_checkbox = 0 and trim(ticket_number) <> "" then err_msg = err_msg & vbcr & "* Check the follow up box or clear the Q-flow ticket field if follow up is not needed."
@@ -332,7 +332,7 @@ CALL write_variable_in_CASE_NOTE(worker_signature)
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
 If Opt_out_checkbox = checked then Call create_outlook_email("xlab@maxwell.syr.edu","","Renewal text message opt out for case #" & MAXIS_case_number,"","",true)
 
-IF TIKL_check = checked THEN CALL navigate_to_MAXIS_screen("dail", "writ")      'Navigating to TIKL only 
+IF TIKL_check = checked THEN CALL navigate_to_MAXIS_screen("dail", "writ")      'Navigating to TIKL only
 
 end_msg = ""
 'If case requires followup, it will create a MsgBox (via script_end_procedure) explaining that followup is needed. This MsgBox gets inserted into the statistics database for counties using that function. This will allow counties to "pull statistics" on follow-up, including case numbers, which can be used to track outcomes.
