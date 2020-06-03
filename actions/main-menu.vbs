@@ -71,6 +71,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("06/03/2020", "Removed the script 'ABAWD FIATer' as there is currently an ABAWD waiver in effect due to the Coronavirus Response Act. Processing cases as ABAWDs, and so FIATing is unnecessary.", "Casey Love, Hennepin County")
 call changelog_update("07/31/2019", "Removed the script ACCT Panel Updater. This functionality is now available in the script NOTES - Docs Received.", "Casey Love, Hennepin County")
 call changelog_update("03/13/2019", "Removed Paystubs Received. Use EARNED INCOME BUDGETING instead to update a case with paystubs received.", "Casey Love, Hennepin County")
 call changelog_update("03/05/2019", "Added EARNED INCOME BUDGETING Script.", "Casey Love, Hennepin County")
@@ -117,6 +118,7 @@ Function declare_main_menu_dialog(script_category)
 		subcategory_array(i).subcat_name = subcategory_list(i)
 	Next
 
+    dialog1 = ""
 	BeginDialog dialog1, 0, 0, 600, 400, script_category & " scripts main menu dialog"
 	 	Text 5, 5, 435, 10, script_category & " scripts main menu: select the script to run from the choices below."
 	  	ButtonGroup ButtonPressed
@@ -154,11 +156,15 @@ Function declare_main_menu_dialog(script_category)
 				'Accounts for scripts without subcategories
 				If subcategory_string = "" then subcategory_string = "MAIN"		'<<<THIS COULD BE A PROPERTY OF THE CLASS
 
+                use_script = FALSE
 				'If the selected subcategory is in the subcategory string, it will display those scripts
-				If InStr(subcategory_string, subcategory_selected) <> 0 then
+				If InStr(subcategory_string, subcategory_selected) <> 0 then use_script = TRUE
 
+                If IsDate(script_array(current_script).retirement_date) = TRUE Then
+                    If DateDiff("d", date, script_array(current_script).retirement_date) =< 0 Then use_script = FALSE
+                End If
 
-
+                If use_script = TRUE Then
 
 					SIR_button_placeholder = button_placeholder + 1	'We always want this to be one more than the button_placeholder
 
