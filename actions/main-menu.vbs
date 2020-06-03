@@ -118,8 +118,32 @@ Function declare_main_menu_dialog(script_category)
 		subcategory_array(i).subcat_name = subcategory_list(i)
 	Next
 
+    dlg_len = 60
+    For current_script = 0 to ubound(script_array)
+        script_array(current_script).show_script = FALSE
+        If ucase(script_array(current_script).category) = ucase(script_category) then
+
+            '<<<<<<RIGHT HERE IT SHOULD ITERATE THROUGH SUBCATEGORIES AND BUTTONS PRESSED TO DETERMINE WHAT THE CURRENTLY DISPLAYED SUBCATEGORY SHOULD BE, THEN ONLY DISPLAY SCRIPTS THAT MATCH THAT CRITERIA
+            'Joins all subcategories together
+            subcategory_string = ucase(join(script_array(current_script).subcategory))
+
+            'Accounts for scripts without subcategories
+            If subcategory_string = "" then subcategory_string = "MAIN"		'<<<THIS COULD BE A PROPERTY OF THE CLASS
+
+
+            'If the selected subcategory is in the subcategory string, it will display those scripts
+            If InStr(subcategory_string, subcategory_selected) <> 0 then script_array(current_script).show_script = TRUE
+
+            If IsDate(script_array(current_script).retirement_date) = TRUE Then
+                If DateDiff("d", date, script_array(current_script).retirement_date) =< 0 Then script_array(current_script).show_script = FALSE
+            End If
+
+            If script_array(current_script).show_script = TRUE Then dlg_len = dlg_len + 15
+        End if
+    next
+
     dialog1 = ""
-	BeginDialog dialog1, 0, 0, 600, 400, script_category & " scripts main menu dialog"
+	BeginDialog dialog1, 0, 0, 600, dlg_len, script_category & " scripts main menu dialog"
 	 	Text 5, 5, 435, 10, script_category & " scripts main menu: select the script to run from the choices below."
 	  	ButtonGroup ButtonPressed
 
@@ -147,43 +171,28 @@ Function declare_main_menu_dialog(script_category)
 		vert_button_position = 50
 
 		For current_script = 0 to ubound(script_array)
-			If ucase(script_array(current_script).category) = ucase(script_category) then
 
-				'<<<<<<RIGHT HERE IT SHOULD ITERATE THROUGH SUBCATEGORIES AND BUTTONS PRESSED TO DETERMINE WHAT THE CURRENTLY DISPLAYED SUBCATEGORY SHOULD BE, THEN ONLY DISPLAY SCRIPTS THAT MATCH THAT CRITERIA
-				'Joins all subcategories together
-				subcategory_string = ucase(join(script_array(current_script).subcategory))
 
-				'Accounts for scripts without subcategories
-				If subcategory_string = "" then subcategory_string = "MAIN"		'<<<THIS COULD BE A PROPERTY OF THE CLASS
+            If script_array(current_script).show_script = TRUE Then
 
-                use_script = FALSE
-				'If the selected subcategory is in the subcategory string, it will display those scripts
-				If InStr(subcategory_string, subcategory_selected) <> 0 then use_script = TRUE
+				SIR_button_placeholder = button_placeholder + 1	'We always want this to be one more than the button_placeholder
 
-                If IsDate(script_array(current_script).retirement_date) = TRUE Then
-                    If DateDiff("d", date, script_array(current_script).retirement_date) =< 0 Then use_script = FALSE
-                End If
-
-                If use_script = TRUE Then
-
-					SIR_button_placeholder = button_placeholder + 1	'We always want this to be one more than the button_placeholder
-
-					'Displays the button and text description-----------------------------------------------------------------------------------------------------------------------------
-					'FUNCTION		HORIZ. ITEM POSITION	VERT. ITEM POSITION		ITEM WIDTH	ITEM HEIGHT		ITEM TEXT/LABEL										BUTTON VARIABLE
-					PushButton 		5, 						vert_button_position, 	10, 		10, 			"?", 												SIR_button_placeholder
-					PushButton 		18,						vert_button_position, 	120, 		10, 			script_array(current_script).script_name, 			button_placeholder
-					Text 			120 + 23, 				vert_button_position, 	500, 		10, 			"--- " & script_array(current_script).description
-					'----------
-					vert_button_position = vert_button_position + 15	'Needs to increment the vert_button_position by 15px (used by both the text and buttons)
-					'----------
-					script_array(current_script).button = button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
-					script_array(current_script).SIR_instructions_button = SIR_button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
-					button_placeholder = button_placeholder + 2
-				End if
+				'Displays the button and text description-----------------------------------------------------------------------------------------------------------------------------
+				'FUNCTION		HORIZ. ITEM POSITION	VERT. ITEM POSITION		ITEM WIDTH	ITEM HEIGHT		ITEM TEXT/LABEL										BUTTON VARIABLE
+				PushButton 		5, 						vert_button_position, 	10, 		10, 			"?", 												SIR_button_placeholder
+				PushButton 		18,						vert_button_position, 	120, 		10, 			script_array(current_script).script_name, 			button_placeholder
+				Text 			120 + 23, 				vert_button_position, 	500, 		10, 			"--- " & script_array(current_script).description
+				'----------
+				vert_button_position = vert_button_position + 15	'Needs to increment the vert_button_position by 15px (used by both the text and buttons)
+				'----------
+				script_array(current_script).button = button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
+				script_array(current_script).SIR_instructions_button = SIR_button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
+				button_placeholder = button_placeholder + 2
 			End if
+
 		next
 
-		CancelButton 540, 380, 50, 15
+		CancelButton 540, dlg_len - 20, 50, 15
 	EndDialog
 End function
 
