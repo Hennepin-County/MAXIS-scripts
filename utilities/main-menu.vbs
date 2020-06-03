@@ -81,6 +81,11 @@ ELSE
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+class subcat
+	public subcat_name
+	public subcat_button
+End class
+
 Function declare_main_menu_dialog(script_category)
 
 	'Runs through each script in the array and generates a list of subcategories based on the category located in the function. Also modifies the script description if it's from the last two months, to include a "NEW!!!" notification.
@@ -100,17 +105,43 @@ Function declare_main_menu_dialog(script_category)
 	Next
 
 	subcategory_list = split(subcategory_list, "|")
-	total_number_of_subcategories = ubound(subcategory_list)
-	ReDim subcategory_array(total_number_of_subcategories, 1)
+	' total_number_of_subcategories = ubound(subcategory_list)
+	' ReDim subcategory_array(total_number_of_subcategories, 1)
 
 	For i = 0 to ubound(subcategory_list)
-
-		'set subcategory_array(i) = new subcat
-		If subcategory_list(i) = "" then subcategory_list(i) = "MAIN"
-		subcategory_array(i, 0) = subcategory_list(i)
+        ReDim Preserve subcategory_array(i)
+		set subcategory_array(i) = new subcat
+		If subcategory_list(i) = "" then subcategory_list(i) = "ALL"
+		subcategory_array(i).subcat_name = subcategory_list(i)
 	Next
 
-	BeginDialog dialog1, 0, 0, 600, 400, script_category & " scripts main menu dialog"
+    dlg_len = 60
+    For current_script = 0 to ubound(script_array)
+        script_array(current_script).show_script = FALSE
+        If ucase(script_array(current_script).category) = ucase(script_category) then
+
+            '<<<<<<RIGHT HERE IT SHOULD ITERATE THROUGH SUBCATEGORIES AND BUTTONS PRESSED TO DETERMINE WHAT THE CURRENTLY DISPLAYED SUBCATEGORY SHOULD BE, THEN ONLY DISPLAY SCRIPTS THAT MATCH THAT CRITERIA
+            'Joins all subcategories together
+            subcategory_string = ucase(join(script_array(current_script).subcategory))
+
+            'Accounts for scripts without subcategories
+            If subcategory_string = "" then subcategory_string = "ALL"		'<<<THIS COULD BE A PROPERTY OF THE CLASS
+
+
+            'If the selected subcategory is in the subcategory string, it will display those scripts
+            If InStr(subcategory_string, subcategory_selected) <> 0 then script_array(current_script).show_script = TRUE
+            If subcategory_selected = "ALL" Then script_array(current_script).show_script = TRUE
+
+            If IsDate(script_array(current_script).retirement_date) = TRUE Then
+                If DateDiff("d", date, script_array(current_script).retirement_date) =< 0 Then script_array(current_script).show_script = FALSE
+            End If
+
+            If script_array(current_script).show_script = TRUE Then dlg_len = dlg_len + 15
+        End if
+    next
+
+    dialog1 = ""
+	BeginDialog dialog1, 0, 0, 600, dlg_len, script_category & " scripts main menu dialog"
 	 	Text 5, 5, 435, 10, script_category & " scripts main menu: select the script to run from the choices below."
 	  	ButtonGroup ButtonPressed
 
@@ -121,9 +152,9 @@ Function declare_main_menu_dialog(script_category)
 
 			'Displays the button and text description-----------------------------------------------------------------------------------------------------------------------------
 			'FUNCTION		HORIZ. ITEM POSITION	VERT. ITEM POSITION		ITEM WIDTH	ITEM HEIGHT		ITEM TEXT/LABEL				BUTTON VARIABLE
-			PushButton 		subcat_button_position, 20, 					50, 		15, 			subcategory_array(i, 0), 	subcat_button_placeholder
+            PushButton 		subcat_button_position, 20, 					50, 		15, 			subcategory_array(i).subcat_name, 					subcat_button_placeholder
 
-			subcategory_array(i, 1) = subcat_button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
+			subcategory_array(i).subcat_button = subcat_button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
 			subcat_button_position = subcat_button_position + 50
 			subcat_button_placeholder = subcat_button_placeholder + 1
 		Next
@@ -137,35 +168,28 @@ Function declare_main_menu_dialog(script_category)
 		vert_button_position = 50
 
 
-		For current_script = 0 to ubound(script_array)
-			If ucase(script_array(current_script).category) = ucase(script_category) then
+        For current_script = 0 to ubound(script_array)
 
-				'Joins all subcategories together
-				subcategory_string = ucase(join(script_array(current_script).subcategory))
 
-				'Accounts for scripts without subcategories
-				If subcategory_string = "" then subcategory_string = "MAIN"		'<<<THIS COULD BE A PROPERTY OF THE CLASS
+            If script_array(current_script).show_script = TRUE Then
 
-				'If the selected subcategory is in the subcategory string, it will display those scripts
-				If InStr(subcategory_string, subcategory_selected) <> 0 then
+				SIR_button_placeholder = button_placeholder + 1	'We always want this to be one more than the button_placeholder
 
-					SIR_button_placeholder = button_placeholder + 1	'We always want this to be one more than the button_placeholder
-
-					'Displays the button and text description-----------------------------------------------------------------------------------------------------------------------------
-					'FUNCTION		HORIZ. ITEM POSITION	VERT. ITEM POSITION		ITEM WIDTH	ITEM HEIGHT		ITEM TEXT/LABEL										BUTTON VARIABLE
-					PushButton 		5, 						vert_button_position, 	10, 		10, 			"?", 												SIR_button_placeholder
-					PushButton 		18,						vert_button_position, 	120, 		10, 			script_array(current_script).script_name, 			button_placeholder
-					Text 			120 + 23, 				vert_button_position, 	500, 		10, 			"--- " & script_array(current_script).description
-					'----------
-					vert_button_position = vert_button_position + 15	'Needs to increment the vert_button_position by 15px (used by both the text and buttons)
-					'----------
-					script_array(current_script).button = button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
-					script_array(current_script).SIR_instructions_button = SIR_button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
-					button_placeholder = button_placeholder + 2
-				End if
+				'Displays the button and text description-----------------------------------------------------------------------------------------------------------------------------
+				'FUNCTION		HORIZ. ITEM POSITION	VERT. ITEM POSITION		ITEM WIDTH	ITEM HEIGHT		ITEM TEXT/LABEL										BUTTON VARIABLE
+				PushButton 		5, 						vert_button_position, 	10, 		10, 			"?", 												SIR_button_placeholder
+				PushButton 		18,						vert_button_position, 	120, 		10, 			script_array(current_script).script_name, 			button_placeholder
+				Text 			120 + 23, 				vert_button_position, 	500, 		10, 			"--- " & script_array(current_script).description
+				'----------
+				vert_button_position = vert_button_position + 15	'Needs to increment the vert_button_position by 15px (used by both the text and buttons)
+				'----------
+				script_array(current_script).button = button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
+				script_array(current_script).SIR_instructions_button = SIR_button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
+				button_placeholder = button_placeholder + 2
 			End if
+
 		next
-		CancelButton 540, 380, 50, 15
+		CancelButton 540, dlg_len - 20, 50, 15
 	EndDialog
 End function
 
@@ -181,7 +205,7 @@ subcat_button_placeholder 	= 1701
 'Other pre-loop and pre-function declarations
 Dim subcategory_array : subcategory_array = Array()
 subcategory_string = ""
-subcategory_selected = "MAIN"
+subcategory_selected = "ALL"
 
 'Defining dialog1 as 1000. Assigning a numeric value seems to work to preserve a high amount of buttons for our scripts.
 dialog1 = 1000
@@ -200,8 +224,8 @@ Do
 	If ButtonPressed = 0 then stopscript
 
 	'Determines the subcategory if a subcategory button was selected.
-	For i = 0 to ubound(subcategory_array)
-		If ButtonPressed = subcategory_array(i, 1) then subcategory_selected = subcategory_array(i, 0)
+    For i = 0 to ubound(subcategory_array)
+		If ButtonPressed = subcategory_array(i).subcat_button then subcategory_selected = subcategory_array(i).subcat_name
 	Next
 
 	'Runs through each script in the array... if the user selected script instructions (via ButtonPressed) it'll open_URL_in_browser to those instructions
@@ -221,8 +245,8 @@ Do
 
 Loop until ready_to_exit_loop = true
 
-'Updating dialog1 to be a separate numeric value. This might not be necessary but it's currently working so I am not changing it.
-dialog1 = dialog1 + 1
+' 'Updating dialog1 to be a separate numeric value. This might not be necessary but it's currently working so I am not changing it.
+' dialog1 = dialog1 + 1
 
 call run_from_GitHub(script_to_run)
 
