@@ -591,7 +591,11 @@ Do
                 End Select
                 ' MsgBox check_date
             Loop until DatePart("m", check_date) = next_month_mo AND DatePart("yyyy", check_date) = next_month_yr
-            If PANELS_ARRAY(panel_type_const, view_panel) = "JOBS" Then EMWriteScreen total_hours, 18, 72
+            If PANELS_ARRAY(panel_type_const, view_panel) = "JOBS" Then
+                total_hours = FormatNumber(total_hours, 0)
+                EMWriteScreen "   ", 18, 72
+                EMWriteScreen total_hours, 18, 72
+            End If
             Do
                 transmit            'save the panel'
                 EMReadScreen look_for_warning, 7, 24, 2
