@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("06/04/2020", "BUG FIX - Script was failing with the new functionality trying to correctly navigate to UNEA panels. It was causing an error on some cases that prevented the script from continuing. Bug should now be resolved.##~##", "Casey Love, Hennepin County")
 call changelog_update("05/22/2020", "Added functionality so the script can FIAT income from Unemployment as well as JOBS income. As UI income is received weekly, it can cause the premium to vary from month to month. This income also requires a FIAT to be balanced across the budget.##~## ##~## The functionality for UNEA panels coded with UI income works at the same time and in the same manner as the JOBS functionality.", "Casey Love, Hennepin County")
 call changelog_update("11/27/2018", "Changed the case options to 'Initial' and 'Update' for the type of approval being made.", "Casey Love, Hennepin County")
 call changelog_update("08/24/2018", "Fixed script to accommodate a $0 income job.", "Casey Love, Hennepin County")
@@ -368,6 +369,8 @@ If list_of_unea_income_to_fiat <> "" Then           'If there was a panel of une
     Else
         unea_panels_array = split(list_of_unea_income_to_fiat, "~")
     End If
+Else
+    unea_panels_array = ARRAY("")
 End If
 
 If case_status = "Update" Then
@@ -428,45 +431,47 @@ If case_status = "Update" Then
     transmit
     counter = 0
     For each each_unea in unea_panels_array
-        EMWriteScreen each_unea, 20, 79
-        transmit
+        If each_unea <> "" Then
+            EMWriteScreen each_unea, 20, 79
+            transmit
 
-        EMReadScreen unea_verification, 1, 5, 65     'reading information that should be updated for the reveiw to be processed
-        EMReadScreen first_check_month, 2, 13, 54
+            EMReadScreen unea_verification, 1, 5, 65     'reading information that should be updated for the reveiw to be processed
+            EMReadScreen first_check_month, 2, 13, 54
 
-        'If these have not been updated then the script will end because STAT needs to be updated first
-        end_msg = "It does not appear this UNEA panel has been updated with income information for the review." & vbNewLine & vbNewLine & "If this unea has ended and has no income in this month, the information should be noted and the panel deleted." & vbNewLine & vbNewLine & "Cases should be fully processed prior to fiating eligibility results."
-        If unea_verification = "?" OR first_check_month <> MAXIS_footer_month Then script_end_procedure(end_msg)
+            'If these have not been updated then the script will end because STAT needs to be updated first
+            end_msg = "It does not appear this UNEA panel has been updated with income information for the review." & vbNewLine & vbNewLine & "If this unea has ended and has no income in this month, the information should be noted and the panel deleted." & vbNewLine & vbNewLine & "Cases should be fully processed prior to fiating eligibility results."
+            If unea_verification = "?" OR first_check_month <> MAXIS_footer_month Then script_end_procedure(end_msg)
 
-        reDim Preserve UNEA_ARRAY(verif_code, counter)   'Updating the array with JOB information
+            reDim Preserve UNEA_ARRAY(verif_code, counter)   'Updating the array with JOB information
 
-        'Gathering data and adding it to the array
-        EMReadScreen verification, 16, 5, 65
-        EMReadScreen income_source, 2, 5, 37
+            'Gathering data and adding it to the array
+            EMReadScreen verification, 16, 5, 65
+            EMReadScreen income_source, 2, 5, 37
 
-        UNEA_ARRAY(verif_code, counter) = trim(verification)
-        UNEA_ARRAY(instance, counter) = right("00"&each_unea, 2)
-        UNEA_ARRAY(unea_type, counter) = "Unemployment Insurance"
+            UNEA_ARRAY(verif_code, counter) = trim(verification)
+            UNEA_ARRAY(instance, counter) = right("00"&each_unea, 2)
+            UNEA_ARRAY(unea_type, counter) = "Unemployment Insurance"
 
-        UNEA_ARRAY(six_month_total, counter) = 0     'setting this as 0 because it will be added to later
-        EMReadScreen pay_date, 8, 13, 54
-        pay_date = replace(pay_date, " ", "/")
+            UNEA_ARRAY(six_month_total, counter) = 0     'setting this as 0 because it will be added to later
+            EMReadScreen pay_date, 8, 13, 54
+            pay_date = replace(pay_date, " ", "/")
 
-        'Looking at the pop-up for income information
-        EMWriteScreen "x", 6, 56
-        transmit
-        EMReadScreen hc_inc_est, 8, 9, 65
-        hc_inc_est = trim(replace(hc_inc_est, "_", ""))
-        transmit
+            'Looking at the pop-up for income information
+            EMWriteScreen "x", 6, 56
+            transmit
+            EMReadScreen hc_inc_est, 8, 9, 65
+            hc_inc_est = trim(replace(hc_inc_est, "_", ""))
+            transmit
 
-        if hc_inc_est = "" Then hc_inc_est = 0
-        hc_inc_est = FormatNumber(hc_inc_est, 2)        'This formats the number with 2 decimal places
+            if hc_inc_est = "" Then hc_inc_est = 0
+            hc_inc_est = FormatNumber(hc_inc_est, 2)        'This formats the number with 2 decimal places
 
-        UNEA_ARRAY(est_pop_up, counter) = hc_inc_est
-        UNEA_ARRAY(job_frequency, counter) = "4"
-        'Setting the pay day
-        If UNEA_ARRAY(job_frequency, counter) = "3" OR UNEA_ARRAY(job_frequency, counter) = "4" Then UNEA_ARRAY(pay_weekday, counter) = WeekDayName(WeekDay(pay_date))
-        counter = counter + 1
+            UNEA_ARRAY(est_pop_up, counter) = hc_inc_est
+            UNEA_ARRAY(job_frequency, counter) = "4"
+            'Setting the pay day
+            If UNEA_ARRAY(job_frequency, counter) = "3" OR UNEA_ARRAY(job_frequency, counter) = "4" Then UNEA_ARRAY(pay_weekday, counter) = WeekDayName(WeekDay(pay_date))
+            counter = counter + 1
+        End If
     Next
 End If
 
