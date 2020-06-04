@@ -34,37 +34,6 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'----------------------------------------------------------------------------------------------------This is the list of scripts that are held locally
-IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
-	IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
-		script_list_URL = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/COMPLETE%20LIST%20OF%20SCRIPTS.vbs"
-	Else											'Everyone else should use the release branch.
-		script_list_URL = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/COMPLETE%20LIST%20OF%20SCRIPTS.vbs"
-	End if
-
-	SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a script_list_URL
-	req.open "GET", script_list_URL, FALSE							'Attempts to open the script_list_URL
-	req.send													'Sends request
-	IF req.Status = 200 THEN									'200 means great success
-		Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
-		Execute req.responseText								'Executes the script code
-	ELSE														'Error message
-		critical_error_msgbox = MsgBox ("Something has gone wrong. The script list code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
-                                        "Script list URL: " & script_list_URL & vbNewLine & vbNewLine &_
-                                        "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
-                                        vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
-        StopScript
-	END IF
-ELSE
-	script_list_URL = "C:\MAXIS-scripts\COMPLETE LIST OF SCRIPTS.vbs"
-	Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-	Set fso_command = run_another_script_fso.OpenTextFile(script_list_URL)
-	text_from_the_other_script = fso_command.ReadAll
-	fso_command.Close
-	Execute text_from_the_other_script
-End if
-'END FUNCTIONS LIBRARY BLOCK================================================================================================
-
 'CHANGELOG BLOCK ===========================================================================================================
 'Starts by defining a changelog array
 changelog = array()
@@ -179,9 +148,9 @@ Function declare_main_menu_dialog(script_category)
 
 				'Displays the button and text description-----------------------------------------------------------------------------------------------------------------------------
 				'FUNCTION		HORIZ. ITEM POSITION	VERT. ITEM POSITION		ITEM WIDTH	ITEM HEIGHT		ITEM TEXT/LABEL										BUTTON VARIABLE
-				PushButton 		5, 						vert_button_position, 	10, 		10, 			"?", 												SIR_button_placeholder
-				PushButton 		18,						vert_button_position, 	120, 		10, 			script_array(current_script).script_name, 			button_placeholder
-				Text 			120 + 23, 				vert_button_position, 	500, 		10, 			"--- " & script_array(current_script).description
+				PushButton 		5, 						vert_button_position, 	10, 		12, 			"?", 												SIR_button_placeholder
+				PushButton 		18,						vert_button_position, 	120, 		12, 			script_array(current_script).script_name, 			button_placeholder
+				Text 			120 + 23, 				vert_button_position+1, 500, 		14, 			"--- " & script_array(current_script).description
 				'----------
 				vert_button_position = vert_button_position + 15	'Needs to increment the vert_button_position by 15px (used by both the text and buttons)
 				'----------
