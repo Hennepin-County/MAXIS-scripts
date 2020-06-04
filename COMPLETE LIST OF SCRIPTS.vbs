@@ -92,7 +92,7 @@ class script_bowie
 
     public property get SharePoint_instructions_URL 'The instructions URL in SIR
         ' SharePoint_instructions_URL = "https://www.dhssir.cty.dhs.state.mn.us/MAXIS/blzn/Script%20Instructions%20Wiki/" & replace(ucase(script_name) & ".aspx", " ", "%20")
-        If left(script_name, 3) = "LTC" Then
+        If category = "NOTES" AND left(script_name, 3) = "LTC" Then
             SharePoint_instructions_URL = "https://dept.hennepin.us/hsphd/sa/ews/BlueZone_Script_Instructions/" & UCase(category) & "/LTC%20scripts/" & UCase(category) & "%20-%20" & replace(replace(ucase(script_name) & ".docx", " - ", "%20"), " ", "%20")
         Else
             SharePoint_instructions_URL = "https://dept.hennepin.us/hsphd/sa/ews/BlueZone_Script_Instructions/" & UCase(category) & "/" & UCase(category) & "%20-%20" & replace(ucase(script_name) & ".docx", " ", "%20")
@@ -3140,7 +3140,7 @@ script_array(script_num).category               = "NOTICES"
 script_array(script_num).workflows              = ""
 script_array(script_num).tags                   = array("Communication", "Reviews", "SNAP")
 script_array(script_num).dlg_keys               = array("Cn", "Sm")
-script_array(script_num).subcategory            = array("")
+script_array(script_num).subcategory            = array("SNAP")
 script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
@@ -3148,7 +3148,7 @@ ReDim Preserve script_array(script_num)			'Resets the array to add one more elem
 Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name 			= "Add WCOM"																		'Script name
 script_array(script_num).description 			= "All-in-one WCOM selection menu."
-script_array(script_num).category               = "NOTICES"
+script_array(script_num).category               = ""
 script_array(script_num).workflows              = ""
 script_array(script_num).tags                   = array("ABAWD", "Appilcation", "Assets", "Communication", "Deductions", "Health Care", "LTC", "Reviews", "SNAP")
 script_array(script_num).dlg_keys               = array("Cn", "Exp", "Sw")
@@ -3178,6 +3178,7 @@ script_array(script_num).tags                   = array("Application", "Communic
 script_array(script_num).dlg_keys               = array("Cn", "Sm", "Up")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
+script_array(script_num).retirement_date        = #06/04/2020#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -3188,7 +3189,7 @@ script_array(script_num).category               = "NOTICES"
 script_array(script_num).workflows              = ""
 script_array(script_num).tags                   = array("Adult CASH", "Communication", "DWP", "EMER", "Health Care", "HS/GRH", "LTC", "MFIP", "SNAP")
 script_array(script_num).dlg_keys               = array("Cn", "Sm")
-script_array(script_num).subcategory            = array("")
+script_array(script_num).subcategory            = array("HEALTH CARE", "SNAP", "CASH")
 script_array(script_num).release_date           = #10/01/2000#
 
 ' script_num = script_num + 1						'Increment by one
@@ -3206,13 +3207,13 @@ script_array(script_num).release_date           = #10/01/2000#
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
-script_array(script_num).script_name			= "LTC - Asset Transfer"
+script_array(script_num).script_name			= "LTC Asset Transfer"
 script_array(script_num).description			= "Sends a MEMO to a LTC client regarding asset transfers. "
 script_array(script_num).category               = "NOTICES"
 script_array(script_num).workflows              = ""
 script_array(script_num).tags                   = array("Application", "Assets", "Communication", "LTC", "Reviews")
 script_array(script_num).dlg_keys               = array("Sm")
-script_array(script_num).subcategory            = array("")
+script_array(script_num).subcategory            = array("HEALTH CARE")
 script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
@@ -3224,7 +3225,7 @@ script_array(script_num).category               = "NOTICES"
 script_array(script_num).workflows              = ""
 script_array(script_num).tags                   = array("Application", "Communication", "Health Care")
 script_array(script_num).dlg_keys               = array("Cn", "Sm")
-script_array(script_num).subcategory            = array("")
+script_array(script_num).subcategory            = array("HEALTH CARE")
 script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
@@ -3236,7 +3237,7 @@ script_array(script_num).category               = "NOTICES"
 script_array(script_num).workflows              = ""
 script_array(script_num).tags                   = array("Application", "Communication", "Health Care", "Reviews")
 script_array(script_num).dlg_keys               = array("Sw")
-script_array(script_num).subcategory            = array("")
+script_array(script_num).subcategory            = array("HEALTH CARE")
 script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
@@ -3248,7 +3249,7 @@ script_array(script_num).category               = "NOTICES"
 script_array(script_num).workflows              = ""
 script_array(script_num).tags                   = array("Adult Cash", "Communication", "DWP", "EMER", "HS/GRH", "MFIP", "LTC", "SNAP")
 script_array(script_num).dlg_keys               = array("Sm", "Wrd")
-script_array(script_num).subcategory            = array("")
+script_array(script_num).subcategory            = array("WORD DOCS")
 script_array(script_num).release_date           = #02/21/2018#
 
 script_num = script_num + 1						'Increment by one
@@ -3260,7 +3261,7 @@ script_array(script_num).category               = "NOTICES"
 script_array(script_num).workflows              = ""
 script_array(script_num).tags                   = array("Application, Communication, Deductions, Health Care, Income, LTC, Reviews")
 script_array(script_num).dlg_keys               = array("Sw")
-script_array(script_num).subcategory            = array("")
+script_array(script_num).subcategory            = array("HEALTH CARE")
 script_array(script_num).release_date           = #10/01/2000#
 
 ' script_num = script_num + 1						'Increment by one
@@ -3296,7 +3297,7 @@ script_array(script_num).category               = "NOTICES"
 script_array(script_num).workflows              = ""
 script_array(script_num).tags                   = array("Adult Cash", "Communication", "DWP", "EMER", "HS/GRH", "MFIP", "LTC", "SNAP")
 script_array(script_num).dlg_keys               = array("Cn", "Wrd")
-script_array(script_num).subcategory            = array("")
+script_array(script_num).subcategory            = array("WORD DOCS")
 script_array(script_num).release_date           = #10/01/2000#
 
 ' script_num = script_num + 1						'Increment by one
@@ -3320,7 +3321,7 @@ script_array(script_num).category               = "NOTICES"
 script_array(script_num).workflows              = ""
 script_array(script_num).tags                   = array("Adult Cash", "Communication", "DWP", "EMER", "HS/GRH", "MFIP", "LTC", "SNAP")
 script_array(script_num).dlg_keys               = array("Cn", "Wrd")
-script_array(script_num).subcategory            = array("")
+script_array(script_num).subcategory            = array("WORD DOCS")
 script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
@@ -3332,7 +3333,7 @@ script_array(script_num).category               = "NOTICES"
 script_array(script_num).workflows              = ""
 script_array(script_num).tags                   = array("Case notes", "MEMO", "Utility")
 script_array(script_num).dlg_keys               = array("Cn", "Sm", "Wrd")
-script_array(script_num).subcategory            = array("")
+script_array(script_num).subcategory            = array("HEALTH CARE", "SNAP", "CASH")
 script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
@@ -3344,7 +3345,7 @@ script_array(script_num).category               = "NOTICES"
 script_array(script_num).workflows              = ""
 script_array(script_num).tags                   = array("ABAWD", "Application", "Communication", "Reviews", "SNAP")
 script_array(script_num).dlg_keys               = array("Cn", "Sm", "Up")
-script_array(script_num).subcategory            = array("")
+script_array(script_num).subcategory            = array("SNAP")
 script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
@@ -3356,7 +3357,7 @@ script_array(script_num).category               = "NOTICES"
 script_array(script_num).workflows              = ""
 script_array(script_num).tags                   = array("Adult Cash", "Communication", "DWP", "EMER", "HS/GRH", "MFIP", "LTC", "SNAP")
 script_array(script_num).dlg_keys               = array("Cn", "Wrd")
-script_array(script_num).subcategory            = array("")
+script_array(script_num).subcategory            = array("WORD DOCS")
 script_array(script_num).release_date			= #04/25/2016#
 
 
