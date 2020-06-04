@@ -51,166 +51,119 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'CUSTOM FUNCTIONS===========================================================================================================
-Function declare_NOTICES_menu_dialog(script_array, sub_menu)
-	BeginDialog NOTICES_dialog, 0, 0, 516, 340, "NOTICES Scripts"
-	 	Text 5, 5, 435, 10, "Notices scripts main menu: select the script to run from the choices below."
-	  	ButtonGroup ButtonPressed
-		 	PushButton 015, 35, 40, 15, "NOTICES", 				NOTICES_main_button
-            PushButton 055, 35, 60, 15, "HEALTH CARE",          HEALTH_CARE_button
-            PushButton 115, 35, 35, 15, "SNAP",                 SNAP_button
-            PushButton 150, 35, 35, 15, "CASH",                 CASH_button
-            PushButton 185, 35, 55, 15, "WORD DOCS",            WORD_DOCS_button
-            PushButton 260, 35, 70, 15, "ADD WCOM",             ADD_WCOM_button
-		 	'PushButton 055, 55, 60, 15, "SNAP WCOMS", 			SNAP_WCOMS_button
-		 	PushButton 445, 10, 65, 10, "Instructions", 		Instructions_button
 
+class subcat
+	public subcat_name
+	public subcat_button
+End class
+
+Function declare_main_menu_dialog(script_category)
+
+	'Runs through each script in the array and generates a list of subcategories based on the category located in the function. Also modifies the script description if it's from the last two months, to include a "NEW!!!" notification.
+	For current_script = 0 to ubound(script_array)
+		'Subcategory handling (creating a second list as a string which gets converted later to an array)
+		If ucase(script_array(current_script).category) = ucase(script_category) then																								'If the script in the array is of the correct category (ACTIONS/NOTES/ETC)...
+			For each listed_subcategory in script_array(current_script).subcategory																									'...then iterate through each listed subcategory, and...
+				If listed_subcategory <> "" and InStr(subcategory_list, ucase(listed_subcategory)) = 0 then subcategory_list = subcategory_list & "|" & ucase(listed_subcategory)	'...if the listed subcategory isn't blank and isn't already in the list, then add it to our handy-dandy list.
+			Next
+		End if
+		'Adds a "NEW!!!" notification to the description if the script is from the last two months.
+		If DateDiff("m", script_array(current_script).release_date, DateAdd("m", -2, date)) <= 0 then
+			script_array(current_script).description = "NEW " & script_array(current_script).release_date & "!!! --- " & script_array(current_script).description
+			script_array(current_script).release_date = "12/12/1999" 'backs this out and makes it really old so it doesn't repeat each time the dialog loops. This prevents NEW!!!... from showing multiple times in the description.
+		End if
+
+	Next
+
+	subcategory_list = split(subcategory_list, "|")
+
+	For i = 0 to ubound(subcategory_list)
+		ReDim Preserve subcategory_array(i)
+		set subcategory_array(i) = new subcat
+		If subcategory_list(i) = "" then subcategory_list(i) = "ALL"
+		subcategory_array(i).subcat_name = subcategory_list(i)
+	Next
+
+    dlg_len = 60
+    For current_script = 0 to ubound(script_array)
+        script_array(current_script).show_script = FALSE
+        If ucase(script_array(current_script).category) = ucase(script_category) then
+
+            '<<<<<<RIGHT HERE IT SHOULD ITERATE THROUGH SUBCATEGORIES AND BUTTONS PRESSED TO DETERMINE WHAT THE CURRENTLY DISPLAYED SUBCATEGORY SHOULD BE, THEN ONLY DISPLAY SCRIPTS THAT MATCH THAT CRITERIA
+            'Joins all subcategories together
+            subcategory_string = ucase(join(script_array(current_script).subcategory))
+
+            'Accounts for scripts without subcategories
+            If subcategory_string = "" then subcategory_string = "ALL"		'<<<THIS COULD BE A PROPERTY OF THE CLASS
+
+            'If the selected subcategory is in the subcategory string, it will display those scripts
+            If InStr(subcategory_string, subcategory_selected) <> 0 then script_array(current_script).show_script = TRUE
+            If subcategory_selected = "ALL" Then script_array(current_script).show_script = TRUE
+
+            If IsDate(script_array(current_script).retirement_date) = TRUE Then
+                If DateDiff("d", date, script_array(current_script).retirement_date) =< 0 Then script_array(current_script).show_script = FALSE
+            End If
+
+            If script_array(current_script).show_script = TRUE Then dlg_len = dlg_len + 15
+        End if
+    next
+
+    dialog1 = ""
+	BeginDialog dialog1, 0, 0, 600, dlg_len, script_category & " scripts main menu dialog"
+	 	Text 5, 5, 435, 10, script_category & " scripts main menu: select the script to run from the choices below."
+	  	ButtonGroup ButtonPressed
+
+
+		'SUBCATEGORY HANDLING--------------------------------------------
+
+		subcat_button_position = 5
+
+		For i = 0 to ubound(subcategory_array)
+
+			'Displays the button and text description-----------------------------------------------------------------------------------------------------------------------------
+			'FUNCTION		HORIZ. ITEM POSITION	VERT. ITEM POSITION		ITEM WIDTH	ITEM HEIGHT		ITEM TEXT/LABEL										BUTTON VARIABLE
+			PushButton 		subcat_button_position, 20, 					65, 		15, 			subcategory_array(i).subcat_name, 					subcat_button_placeholder
+
+			subcategory_array(i).subcat_button = subcat_button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
+			subcat_button_position = subcat_button_position + 65
+			subcat_button_placeholder = subcat_button_placeholder + 1
+		Next
+
+        PushButton      520,    10,     70,     15,     "ADD WCOM",             add_wcom_button
+        PushButton      520,    25,     70,     10,     "WCOM Instructions",    add_wcom_instructions_button
+
+
+		'SCRIPT LIST HANDLING--------------------------------------------
+
+		'' 	PushButton 445, 10, 65, 10, "SIR instructions", 	SIR_instructions_button
 		'This starts here, but it shouldn't end here :)
-		vert_button_position = 70
+		vert_button_position = 50
 
 		For current_script = 0 to ubound(script_array)
-            If InStr(script_array(current_script).subcategory, sub_menu) <> 0 Then
-    			'Displays the button and text description-----------------------------------------------------------------------------------------------------------------------------
-    			'FUNCTION		HORIZ. ITEM POSITION								VERT. ITEM POSITION		ITEM WIDTH									ITEM HEIGHT		ITEM TEXT/LABEL										BUTTON VARIABLE
-    			PushButton 		5, 													vert_button_position, 	script_array(current_script).button_size, 	10, 			script_array(current_script).script_name, 			button_placeholder
-    			Text 			script_array(current_script).button_size + 10, 		vert_button_position, 	500, 										10, 			"--- " & script_array(current_script).description
-    			'----------
-    			vert_button_position = vert_button_position + 15	'Needs to increment the vert_button_position by 15px (used by both the text and buttons)
-    			'----------
-    			script_array(current_script).button = button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
-    			button_placeholder = button_placeholder + 1
-            End If
+
+
+            If script_array(current_script).show_script = TRUE Then
+
+				SIR_button_placeholder = button_placeholder + 1	'We always want this to be one more than the button_placeholder
+
+				'Displays the button and text description-----------------------------------------------------------------------------------------------------------------------------
+				'FUNCTION		HORIZ. ITEM POSITION	VERT. ITEM POSITION		ITEM WIDTH	ITEM HEIGHT		ITEM TEXT/LABEL										BUTTON VARIABLE
+				PushButton 		5, 						vert_button_position, 	10, 		12, 			"?", 												SIR_button_placeholder
+				PushButton 		18,						vert_button_position, 	120, 		12, 			script_array(current_script).script_name, 			button_placeholder
+				Text 			120 + 23, 				vert_button_position+1, 500, 		14, 			"--- " & script_array(current_script).description
+				'----------
+				vert_button_position = vert_button_position + 15	'Needs to increment the vert_button_position by 15px (used by both the text and buttons)
+				'----------
+				script_array(current_script).button = button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
+				script_array(current_script).SIR_instructions_button = SIR_button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
+				button_placeholder = button_placeholder + 2
+			End if
+
 		next
 
-		CancelButton 460, 320, 50, 15
-		GroupBox 5, 20, 240, 35, "NOTICES Sub-Menus"
+		CancelButton 540, dlg_len - 20, 50, 15
 	EndDialog
 End function
-'END CUSTOM FUNCTIONS=======================================================================================================
-
-'VARIABLES TO DECLARE=======================================================================================================
-
-'Declaring the variable names to cut down on the number of arguments that need to be passed through the function.
-DIM ButtonPressed
-DIM Instructions_button
-dim NOTICES_dialog
-
-script_array_NOTICES_main = array()
-script_array_NOTICES_list = array()
-
-
-'END VARIABLES TO DECLARE===================================================================================================
-
-'LIST OF SCRIPTS================================================================================================================
-
-'INSTRUCTIONS: simply add your new script below. Scripts are listed in alphabetical order. Copy a block of code from above and paste your script info in. The function does the rest.
-
-'-------------------------------------------------------------------------------------------------------------------------NOTICES MAIN MENU
-
-'Resetting the variable
-script_num = 0												'establishes value of scripts at 0
-ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
-Set script_array_NOTICES_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_NOTICES_main(script_num).script_name 			= "12 Month Contact"																'Script name
-script_array_NOTICES_main(script_num).file_name 			= "12-month-contact.vbs"															'Script URL
-script_array_NOTICES_main(script_num).description 			= "Sends a MEMO to the client of their reporting responsibilities (required for SNAP 2-yr certifications, per POLI/TEMP TE02.08.165)."
-script_array_NOTICES_main(script_num).subcategory           = "SNAP"
-
-'script_num = script_num + 1									'Increment by one
-'ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
-'Set script_array_NOTICES_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-'script_array_NOTICES_main(script_num).script_name 			= "DWP ES Referral"															'Script name
-'script_array_NOTICES_main(script_num).file_name 			= "dwp-es-referral.vbs"														'Script URL
-'script_array_NOTICES_main(script_num).description 			= "Creates a case note, a manual referral in INFC/WF1M and sends a SPEC/MEMO to the client."
-'script_array_NOTICES_main(script_num).subcategory           = "CASH"
-
-script_num = script_num + 1									'Increment by one
-ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
-Set script_array_NOTICES_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_NOTICES_main(script_num).script_name 			= "Eligibility Notifier"															'Script name
-script_array_NOTICES_main(script_num).file_name 			= "eligibility-notifier.vbs"														'Script URL
-script_array_NOTICES_main(script_num).description 			= "Sends a MEMO informing client of possible program eligibility for SNAP, MA, MSP, MNsure or CASH."
-script_array_NOTICES_main(script_num).subcategory           = "SNAP~HC~CASH"
-
-script_num = script_num + 1									'Increment by one
-ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
-Set script_array_NOTICES_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_NOTICES_main(script_num).script_name			= "LTC Asset Transfer"
-script_array_NOTICES_main(script_num).file_name				= "ltc-asset-transfer.vbs"
-script_array_NOTICES_main(script_num).description			= "Sends a MEMO to a LTC client regarding asset transfers. "
-script_array_NOTICES_main(script_num).subcategory           = "HC"
-
-script_num = script_num + 1									'Increment by one
-ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
-Set script_array_NOTICES_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_NOTICES_main(script_num).script_name			= "MA Inmate Application WCOM"
-script_array_NOTICES_main(script_num).file_name				= "ma-inmate-application-wcom.vbs"
-script_array_NOTICES_main(script_num).description			= "Sends a WCOM on a MA notice for Inmate Applications"
-script_array_NOTICES_main(script_num).subcategory           = "HC"
-
-script_num = script_num + 1									'Increment by one
-ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
-Set script_array_NOTICES_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_NOTICES_main(script_num).script_name			= "MA-EPD No Initial Premium Paid"
-script_array_NOTICES_main(script_num).file_name				= "ma-epd-no-initial-premium.vbs"
-script_array_NOTICES_main(script_num).description			= "Sends a WCOM on a denial for no initial MA-EPD premium."
-script_array_NOTICES_main(script_num).subcategory           = "HC"
-
-script_num = script_num + 1									'Increment by one
-ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
-Set script_array_NOTICES_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_NOTICES_main(script_num).script_name 			= " MEMO to Word "
-script_array_NOTICES_main(script_num).file_name				= "memo-to-word.vbs"
-script_array_NOTICES_main(script_num).description 			= "Copies a MEMO or WCOM from MAXIS and formats it in a Word Document."
-script_array_NOTICES_main(script_num).subcategory           = "WORD"
-
-script_num = script_num + 1									'Increment by one
-ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
-Set script_array_NOTICES_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_NOTICES_main(script_num).script_name			= " Method B WCOM "													'needs spaces to generate button width properly.
-script_array_NOTICES_main(script_num).file_name				= "method-b-wcom.vbs"
-script_array_NOTICES_main(script_num).description			= "Makes detailed WCOM regarding spenddown vs. recipient amount for method B HC cases."
-script_array_NOTICES_main(script_num).subcategory           = "HC"
-
-script_num = script_num + 1									'Increment by one
-ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
-Set script_array_NOTICES_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_NOTICES_main(script_num).script_name			= "Out Of State"
-script_array_NOTICES_main(script_num).file_name				= "out-of-state.vbs"
-script_array_NOTICES_main(script_num).description			= "Generates out of state inquiry-Microsoft word document notice that can be use to fax."
-script_array_NOTICES_main(script_num).subcategory           = "WORD"
-
-script_num = script_num + 1									'Increment by one
-ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
-Set script_array_NOTICES_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_NOTICES_main(script_num).script_name			= "PA Verif Request"
-script_array_NOTICES_main(script_num).file_name				= "pa-verif-request.vbs"
-script_array_NOTICES_main(script_num).description			= "Creates a Word document with PA benefit totals for other agencies to determine client benefits."
-script_array_NOTICES_main(script_num).subcategory           = "WORD"
-
-script_num = script_num + 1									'Increment by one
-ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
-Set script_array_NOTICES_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_NOTICES_main(script_num).script_name 			= "Resources Notifier"															'Script name
-script_array_NOTICES_main(script_num).file_name 			= "resources-notifier.vbs"														'Script URL
-script_array_NOTICES_main(script_num).description 			= "Sends a MEMO informing client of some possible outside resources."
-script_array_NOTICES_main(script_num).subcategory           = "SNAP~HC~CASH~WORD"
-
-script_num = script_num + 1									'Increment by one
-ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
-Set script_array_NOTICES_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_NOTICES_main(script_num).script_name			= "SNAP E and T Letter"
-script_array_NOTICES_main(script_num).file_name				= "snap-e-and-t-letter.vbs"
-script_array_NOTICES_main(script_num).description			= "Sends a SPEC/LETR informing client that they have an Employment and Training appointment."
-script_array_NOTICES_main(script_num).subcategory           = "SNAP"
-
-script_num = script_num + 1									'Increment by one
-ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
-Set script_array_NOTICES_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_NOTICES_main(script_num).script_name			= "Verifications Still Needed"
-script_array_NOTICES_main(script_num).file_name				= "verifications-still-needed.vbs"
-script_array_NOTICES_main(script_num).description			= "Creates a Word document informing client of a list of verifications that are still required."
-script_array_NOTICES_main(script_num).subcategory           = "WORD"
 
 'Starting these with a very high number, higher than the normal possible amount of buttons.
 '	We're doing this because we want to assign a value to each button pressed, and we want
@@ -218,53 +171,61 @@ script_array_NOTICES_main(script_num).subcategory           = "WORD"
 '	property for each script item. This allows it to both escape the Function and resize
 '	near infinitely. We use dummy numbers for the other selector buttons for much the same reason,
 '	to force the value of ButtonPressed to hold in near infinite iterations.
-button_placeholder 	= 24601
-NOTICES_main_button		= 1000
-'SNAP_WCOMS_button		= 2000
-HEALTH_CARE_button      = 2000
-SNAP_button             = 3000
-CASH_button             = 4000
-WORD_DOCS_button        = 5000
-ADD_WCOM_button         = 6000
+button_placeholder 			    = 24601
+subcat_button_placeholder 	    = 1701
+add_wcom_button                 = 500
+add_wcom_instructions_button    = 501
+
+'Other pre-loop and pre-function declarations
+subcategory_array = array()
+subcategory_string = ""
+subcategory_selected = "ALL"
 
 'Displays the dialog
 Do
-	If ButtonPressed = "" or ButtonPressed = NOTICES_main_button then
-		Call declare_NOTICES_menu_dialog(script_array_NOTICES_main, "")
-	' ElseIf ButtonPressed = SNAP_WCOMS_button then
-	' 	declare_NOTICES_menu_dialog(script_array_NOTICES_list)
-    ElseIf ButtonPressed = HEALTH_CARE_button then
-        Call declare_NOTICES_menu_dialog(script_array_NOTICES_main, "HC")
-    ElseIf ButtonPressed = SNAP_button then
-        Call declare_NOTICES_menu_dialog(script_array_NOTICES_main, "SNAP")
-    ElseIf ButtonPressed = CASH_button then
-        Call declare_NOTICES_menu_dialog(script_array_NOTICES_main, "CASH")
-    ElseIf ButtonPressed = WORD_DOCS_button then
-        Call declare_NOTICES_menu_dialog(script_array_NOTICES_main, "WORD")
-	End if
 
-	dialog NOTICES_dialog
+	'Creates the dialog
+	call declare_main_menu_dialog("Notices")
 
+	'At the beginning of the loop, we are not ready to exit it. Conditions later on will impact this.
+	ready_to_exit_loop = false
+
+	'Displays dialog, if cancel is pressed then stopscript
+	dialog
 	If ButtonPressed = 0 then stopscript
-    'Opening the Instructions
-	IF buttonpressed = Instructions_button then CreateObject("WScript.Shell").Run("https://dept.hennepin.us/hsphd/sa/ews/BlueZone_Script_Instructions/Forms/AllItems.aspx?RootFolder=%2Fhsphd%2Fsa%2Fews%2FBlueZone%5FScript%5FInstructions%2FNOTICES&FolderCTID=0x012000A05B86818A1703428050D2E34B3E8EA1&View=%7BFFD55BF9%2D6CDF%2D4B5C%2DB47B%2D3701445A9B34%7D")
-Loop until 	ButtonPressed <> Instructions_button and _
-			ButtonPressed <> NOTICES_main_button and _
-            ButtonPressed <> HEALTH_CARE_button and _
-            ButtonPressed <> SNAP_button and _
-            ButtonPressed <> CASH_button and _
-            ButtonPressed <> WORD_DOCS_button
 
-'MsgBox buttonpressed = script_array_NOTICES_main(0).button
+    If ButtonPressed = add_wcom_instructions_button Then call open_URL_in_browser("https://dept.hennepin.us/hsphd/sa/ews/BlueZone_Script_Instructions/NOTICES/NOTICES%20-%20ADD%20WCOM.docx")
 
-'Runs through each script in the array... if the selected script (buttonpressed) is in the array, it'll run_from_GitHub
-If ButtonPressed = ADD_WCOM_button then call run_from_GitHub(script_repository & "notices/add-wcom.vbs")
-For i = 0 to ubound(script_array_NOTICES_main)
-	If ButtonPressed = script_array_NOTICES_main(i).button then call run_from_GitHub(script_repository & "notices/" & script_array_NOTICES_main(i).file_name)
-Next
+    If ButtonPressed = add_wcom_button Then
+        ready_to_exit_loop = true		'Doing this just in case a stopscript or script_end_procedure is missing from the script in question
+        script_to_run = script_repository & "notices\add-wcom.vbs"
+    End If
 
-' For i = 0 to ubound(script_array_NOTICES_list)
-' 	If ButtonPressed = script_array_NOTICES_list(i).button then call run_from_GitHub(script_repository & "notices/" & script_array_NOTICES_list(i).file_name)
-' Next
+	'Determines the subcategory if a subcategory button was selected.
+	For i = 0 to ubound(subcategory_array)
+		If ButtonPressed = subcategory_array(i).subcat_button then subcategory_selected = subcategory_array(i).subcat_name
+	Next
+
+	'Runs through each script in the array... if the user selected script instructions (via ButtonPressed) it'll open_URL_in_browser to those instructions
+	For i = 0 to ubound(script_array)
+		If ButtonPressed = script_array(i).SIR_instructions_button then
+            ' MsgBox script_array(i).SharePoint_instructions_URL
+            call open_URL_in_browser(script_array(i).SharePoint_instructions_URL)
+        End If
+	Next
+
+	'Runs through each script in the array... if the user selected the actual script (via ButtonPressed), it'll run_from_GitHub
+	For i = 0 to ubound(script_array)
+		If ButtonPressed = script_array(i).button then
+			ready_to_exit_loop = true		'Doing this just in case a stopscript or script_end_procedure is missing from the script in question
+			script_to_run = script_array(i).script_URL
+			Exit for
+		End if
+	Next
+
+    ' MsgBox script_to_run
+Loop until ready_to_exit_loop = true
+
+call run_from_GitHub(script_to_run)
 
 stopscript
