@@ -83,7 +83,7 @@ Do
 	Do
 	    err_msg = ""
 		Do
-  			Dialog ga_basis_dialog
+  			Dialog Dialog1
 			Cancel_confirmation
 			If ButtonPressed = GA_CM_button then CreateObject("WScript.Shell").Run("http://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_001315")
   		Loop until ButtonPressed <> GA_CM_button
