@@ -175,7 +175,6 @@ BeginDialog Dialog1, 0, 0, 371, 190, "All MAXIS panels dialog"
   Checkbox 60, 160, 35, 10, "RESI", RESI_check
   Checkbox 110, 160, 35, 10, "TIME", TIME_check
   Checkbox 160, 160, 35, 10, "EMMA", EMMA_check
-  Text 65, 65, 65, 65, "65...spooky!"
   Checkbox 210, 160, 35, 10, "BILS", BILS_check
   Checkbox 260, 160, 35, 10, "HCMI", HCMI_check
   Checkbox 10, 175, 35, 10, "BUDG", BUDG_check
