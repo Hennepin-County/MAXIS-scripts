@@ -253,14 +253,21 @@ End if
 
 For each worker in worker_array
 	back_to_self	'Does this to prevent "ghosting" where the old info shows up on the new screen for some reason
-	Call navigate_to_MAXIS_screen("rept", "pnd2")
+	Call navigate_to_MAXIS_screen("REPT", "PND2")       'looking at PND2 to confirm day 30 AND look for MSA cases - which get 60 days
 	EMWriteScreen worker, 21, 13
 	transmit
-
+	'This code is for bypassing a warning box if the basket has too many cases
+	row = 1
+	col = 1
+	EMSearch "The REPT:PND2 Display Limit Has Been Reached.", row, col
+	If row <> 24 and row <> 0 THEN
+	row = 1
+	col = 1
+	EMSearch MAXIS_case_number, row, col
+	'TODO add handling to read for an additional app line so that we are sure we are reading the correct line for days pending and cash program
 	'Skips workers with no info
 	EMReadScreen has_content_check, 6, 3, 74
 	If has_content_check <> "0 Of 0" then
-
 		'Grabbing each case number on screen
 		Do
 			MAXIS_row = 7

@@ -102,7 +102,7 @@ script_num = 0
 ReDim Preserve script_array_DEU_main(script_num)
 Set script_array_DEU_main(script_num) = new script
 script_array_DEU_main(script_num).script_name 			= "ADH Info and Hearing"																'Script name
-script_array_DEU_main(script_num).file_name 			= "ADH-info-hearing.vbs"													'Script URL
+script_array_DEU_main(script_num).file_name 			= "adh-info-and-hearing.vbs"													'Script URL
 script_array_DEU_main(script_num).description 			= "Case note template the Administrative Disqualification Hearing process."
 
 script_num = script_num + 1								'Increment by one
@@ -116,13 +116,13 @@ script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_DEU_main(script_num)		'Resets the array to add one more element to it
 Set script_array_DEU_main(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_DEU_main(script_num).script_name 			= "ATR Received"																'Script name
-script_array_DEU_main(script_num).file_name 			= "ATR-received.vbs"												'Script URL
+script_array_DEU_main(script_num).file_name 			= "atr-received.vbs"												'Script URL
 script_array_DEU_main(script_num).description 			= "Case note template for documenting the ATR received. Also updates IULB."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_DEU_main(script_num)		'Resets the array to add one more element to it
 Set script_array_DEU_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_DEU_main(script_num).script_name 			= "BULK Cleared Match"																'Script name
+script_array_DEU_main(script_num).script_name 			= "BULK Match Cleared"																'Script name
 script_array_DEU_main(script_num).file_name 			= "bulk-match-cleared.vbs"														'Script URL
 script_array_DEU_main(script_num).description 			= "BULK script to clear multiple matches after being reviewed, and ready for INFC updates."
 
@@ -130,7 +130,7 @@ script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_DEU_main(script_num)		'Resets the array to add one more element to it
 Set script_array_DEU_main(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_DEU_main(script_num).script_name 			= "EBT out of state"																'Script name
-script_array_DEU_main(script_num).file_name 			= "EBT-out-of-state.vbs"														'Script URL
+script_array_DEU_main(script_num).file_name 			= "ebt-out-of-state.vbs"														'Script URL
 script_array_DEU_main(script_num).description 			= "Script to case note out of state matches after being reviewed."
 
 script_num = script_num + 1								'Increment by one
@@ -151,27 +151,27 @@ script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_DEU_main(script_num)		'Resets the array to add one more element to it
 Set script_array_DEU_main(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_DEU_main(script_num).script_name			= "PARIS Match Cleared"
-script_array_DEU_main(script_num).file_name				= "PARIS-match-cleared.vbs"
+script_array_DEU_main(script_num).file_name				= "paris-match-cleared.vbs"
 script_array_DEU_main(script_num).description			= "Action script that assists in clearing PARIS matches."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_DEU_main(script_num)		'Resets the array to add one more element to it
 Set script_array_DEU_main(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_DEU_main(script_num).script_name			= "PARIS Match Cleared-CC Claim Entered"
-script_array_DEU_main(script_num).file_name				= "PARIS-match-cleared-CC-claim-entered.vbs"
+script_array_DEU_main(script_num).file_name				= "paris-match-cleared-CC-claim-entered.vbs"
 script_array_DEU_main(script_num).description			= "Notes script that assists in entering a case note for claims entered on PARIS matches."
 
 script_num = script_num + 1									'Increment by one
 ReDim Preserve script_array_DEU_main(script_num)		'Resets the array to add one more element to it
 Set script_array_DEU_main(script_num) = new script	    'Set this array element to be a new script. Script details below...
-script_array_DEU_main(script_num).script_name 		    = "REPT - IEVC"
+script_array_DEU_main(script_num).script_name 		    = "REPT IEVC List"
 script_array_DEU_main(script_num).file_name			    = "rept-ievc-list.vbs"
 script_array_DEU_main(script_num).description 		    = "Pulls a list of cases in REPT/IEVC into an Excel spreadsheet."
 
 script_num = script_num + 1							    'Increment by one
 ReDim Preserve script_array_DEU_main(script_num)	    'Resets the array to add one more element to it
 Set script_array_DEU_main(script_num) = new script	    'Set this array element to be a new script. Script details below...
-script_array_DEU_main(script_num).script_name 		    = "REPT - INTR"
+script_array_DEU_main(script_num).script_name 		    = "REPT INTR List"
 script_array_DEU_main(script_num).file_name			    = "rept-intr-list.vbs"
 script_array_DEU_main(script_num).description 		    = "Pulls a list of cases in REPT/INTR into an Excel spreadsheet."
 
