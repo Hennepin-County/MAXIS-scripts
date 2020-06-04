@@ -1197,15 +1197,6 @@ Dim page_one_btn, page_two_btn, page_three_btn, page_four_btn, page_five_btn, pa
 
 excel_created = FALSE           'setting this boolean at the beginning - this will later determine if an excel workbook is already open if exporting more than once
 
-'Accessing the COMPLETE LIST OF SCRIPTS to define the array of all of the scripts.
-script_repository = "C:\MAXIS-Scripts\"         'TODO - change this to not look in my test scripts when we move the COMPLETE LIST OF SCRIPTS to it's FINAL HOME.
-script_list_URL = script_repository & "Test scripts\Casey\Tabs\COMPLETE LIST OF SCRIPTS.vbs"        'This is where the complete list of scripts live.
-Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")                             'Reading the script and saving the information
-Set fso_command = run_another_script_fso.OpenTextFile(script_list_URL)
-text_from_the_other_script = fso_command.ReadAll
-fso_command.Close
-Execute text_from_the_other_script
-
 script_selection = "Select One..."          'Defaulting the script selection for the first run of the dialog
 
 page = 1            'defining the page we are starting on so everything actually works
