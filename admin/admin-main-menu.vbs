@@ -131,13 +131,17 @@ Function declare_main_menu_dialog(script_category)
                 ' MsgBox script_array(current_script).script_name & vbNewLine & group
                 If ButtonPressed = menu_admin_button Then
                     If group = "" Then script_array(current_script).show_script = TRUE
+                    show_question_mark = TRUE
                 ElseIf ButtonPressed = menu_QI_button Then
                     If group = "QI" Then script_array(current_script).show_script = TRUE
+                    show_question_mark = FALSE
                 ElseIf ButtonPressed = menu_BZ_button Then
                     If group = "BZ" Then script_array(current_script).show_script = TRUE
                     If group = "Monthly Tasks" Then script_array(current_script).show_script = FALSE
+                    show_question_mark = FALSE
                 ElseIf ButtonPressed = menu_monthly_tasks_button Then
                     If group = "Monthly Tasks" Then script_array(current_script).show_script = TRUE
+                    show_question_mark = FALSE
                 End If
                 ' MsgBox script_array(current_script).show_script
             Next
@@ -187,7 +191,7 @@ Function declare_main_menu_dialog(script_category)
 
 				'Displays the button and text description-----------------------------------------------------------------------------------------------------------------------------
 				'FUNCTION		HORIZ. ITEM POSITION	VERT. ITEM POSITION		ITEM WIDTH	ITEM HEIGHT		ITEM TEXT/LABEL										BUTTON VARIABLE
-				If ButtonPressed = menu_admin_button Then
+				If show_question_mark = TRUE Then
                 PushButton 		5, 						vert_button_position, 	10, 		12, 			"?", 												SIR_button_placeholder
                 End If
                 PushButton 		18,						vert_button_position, 	120, 		12, 			script_array(current_script).script_name, 			button_placeholder
@@ -220,6 +224,7 @@ menu_BZ_button              = 130
 menu_monthly_tasks_button   = 140
 
 ButtonPressed = menu_admin_button
+show_question_mark = TRUE
 
 dialog1 = ""
 'Displays the dialog
