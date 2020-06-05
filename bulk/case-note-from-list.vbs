@@ -56,9 +56,8 @@ FUNCTION build_manual_entry_dlg(case_number_array, case_note_header, case_note_b
 	'This was chosen over building a dlg with 50 variables
 	REDim all_cases_array(50, 0)
 
-	case_note_header = "***Recertification Accuracy Update***"
-    case_note_body = "This client receives a special diet allotment. The Special Diet form was mailed to the client to allow time for a physician to complete the form before the 06/20 recertification is due. If the special diet form is not returned, the MSA will be approved without the special diet allotment. ---
-	CM 23.12 Special Diets need to be verified at recertification even if the special diet form says lifelong or ongoing.--- "
+	'case_note_header = "***Recertification Accuracy Update***"
+    'case_note_body = "This client receives a special diet allotment. The Special Diet form was mailed to the client to allow time for a physician to complete the form before the 06/20 recertification is due. If the special diet form is not returned, the MSA will be approved without the special diet allotment. ---CM 23.12 Special Diets need to be verified at recertification even if the special diet form says lifelong or ongoing.--- "
     Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 331, 330, "Enter MAXIS case numbers"
 		Text 10, 15, 140, 10, "Enter MAXIS case numbers below..."
