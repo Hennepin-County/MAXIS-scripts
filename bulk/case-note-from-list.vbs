@@ -82,7 +82,7 @@ FUNCTION build_manual_entry_dlg(case_number_array, case_note_header, case_note_b
 			OkButton 220, 310, 50, 15
 			CancelButton 270, 310, 50, 15
 	EndDialog
-
+ 'TODO add exclamtion point and explain
 	'Calling the dlg within the function
 	DO
 		'err_msg handling
