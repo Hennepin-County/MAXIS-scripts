@@ -44,7 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-
+call changelog_update("04/11/2018", "Removed the option to add a WCOM to snap approval.", "MiKayla Handley, Hennepin County")
 call changelog_update("04/11/2018", "Updated the 'Notes on Income' field to a mandatory field.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -144,7 +144,7 @@ BeginDialog Dialog1, 0, 0, 451, 310, "CAF dialog part 2"
   EditBox 65, 165, 380, 15, MFIP_closure_reason
   EditBox 65, 185, 380, 15, other_notes
   EditBox 65, 205, 380, 15, Actions_taken
-  CheckBox 5, 225, 130, 15, "Add WCOM to SNAP approval notice.", WCOM_check
+  'CheckBox 5, 225, 130, 15, "Add WCOM to SNAP approval notice.", WCOM_check
   CheckBox 145, 225, 155, 15, "All verifs and forms needed for MFIP on file.", verifs_check
   EditBox 335, 260, 105, 15, worker_signature
   ButtonGroup ButtonPressed
@@ -193,72 +193,6 @@ DO
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
 
-'Editing the notice if requested
-IF WCOM_check = checked THEN
-	'navigating to WCOM and finding the pending SNAP notice
-	call navigate_to_MAXIS_screen("SPEC", "WCOM")
-	notice_month = DatePart("m", date) 'Entering the benefit month to find notices
-	IF len(notice_month) = 1 THEN notice_month = "0" & notice_month
-	EMWritescreen notice_month, 3, 46
-	EMWriteScreen right(DatePart("yyyy", date), 2), 3, 51
-	transmit
-	row = 6 'setting the variables for EMSearch
-	col = 1
-	'This loop looks for any waiting notices to edit, and edits them
-	DO
-	EMSearch "Waiting", row, col
-	IF row > 6 THEN 'Found a waiting notice, Checking for a match to our denied programs
-		EMReadScreen prg_typ, 2, row, 26
-		IF prg_typ = "FS" THEN
-			EMWriteScreen "X", row, 13
-			Transmit
-			'Making sure the notice is actually a SNAP approval
-			document_end = "" 'resetting the variable
-			DO
-				notice_row = 1
-				notice_col = 1
-				EMSearch "certified", notice_row, notice_col 'looking for an approval notice
-				IF notice_row = 0 THEN 'It didn't spot the word certified, checking the next page
-					PF8
-					EMReadScreen document_end, 3, 24, 13
-					IF document_end <> "   " then EXIT DO
-				END IF
-			LOOP UNTIL notice_row > 1 OR document_end <> "   "
-			IF notice_row > 1 THEN	'This means the word "certified" is contained in the notice, and it should be edited
-				PF9
-				Call write_variable_in_SPEC_MEMO("If you would like to decline SNAP benefits, please contact our office.")
-				PF4
-				PF3
-				notice_edited = true
-				WCOM_check = 1 'This makes sure to case note that the notice was edited, even if user doesn't check the box.
-			ELSE
-				pf3
-			END IF
-		END IF
-		row = row + 1 'THis makes the next search start at current line +1
-	END IF
-	IF row = 0 THEN
-		EMReadScreen second_page_check, 1, 18, 77 'looking for a 2nd page of notices
-		IF second_page_check = "+" THEN
-			PF8
-			row = 6 'resetting search variables
-			col = 1
-		ELSE
-			PF8 'this changes to the next benefit month to look for more notices
-			row = 6 'resetting search variables
-			col = 1
-			EMReadScreen last_month_check, 3, 24, 2
-			IF last_month_check = "NOT" THEN EXIT DO 'the last month has been reached, exit the loop.
-		END IF
-	END IF
-	LOOP UNTIL row = 18 or last_month_check = "NOT"
-	IF notice_edited <> true THEN 'If the script couldn't find a SNAP notice to edit, something is wrong here.
-		msgbox "WARNING: You asked the script to edit the SNAP approval notice, but there are no waiting approval notices for the current month. " & vbCr _
-		& "Please check your results and try again."
-		script_end_procedure("The script will now stop.")
-	END IF
-END IF
-
 'Writing the case note
 call start_a_blank_CASE_NOTE
 call write_variable_in_CASE_NOTE("*MFIP CLOSING " & closure_date & ", SNAP APPROVED " & dateadd("d", 1, closure_date))
@@ -271,9 +205,7 @@ CALL write_bullet_and_variable_in_CASE_NOTE("COEX/DCEX", COEX_DCEX)
 CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
 CALL write_bullet_and_variable_in_CASE_NOTE("Actions Taken", Actions_taken)
 IF verifs_check = checked THEN call write_variable_in_CASE_NOTE("* All required verifications and documents needed for MFIP provided.")
-IF WCOM_check = checked THEN call write_variable_in_CASE_NOTE("* WCOM added to notice.")
 CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
-
 
 script_end_procedure("")
