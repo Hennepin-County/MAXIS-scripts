@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County
+CALL changelog_update("06/10/2020", "Email functionality removed for Triagers.", "MiKayla Handley, Hennepin County")
 call changelog_update("05/28/2020", "Update to the notice wording, added virtual drop box information.", "MiKayla Handley, Hennepin County")
 call changelog_update("05/13/2020", "Update to the notice wording. Information and direction for in-person interview option removed. County offices are not currently open due to the COVID-19 Peacetime Emergency.", "Casey Love, Hennepin County")
 call changelog_update("03/09/2020", "Per project request- Updated checkbox for the METS Retro Request to team 601.", "MiKayla Handley, Hennepin County")
@@ -578,7 +579,7 @@ IF snap_pends = TRUE THEN
         End If
   		'MsgBox "This Client Appears EXPEDITED. A same-day interview needs to be offered."
 		'same_day_interview = TRUE
-		Send_email = TRUE
+		'Send_email = TRUE
     END IF
 	IF expedited_status = "Client Does Not Appear Expedited" THEN MsgBox "This client does NOT appear expedited. A same-day interview does not need to be offered."
     '-----------------------------------------------------------------------------------------------EXPCASENOTE
@@ -646,7 +647,7 @@ END IF
 'IF METS_case_number = "" then METS_case_number = "N/A "
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
 'If run_locally = TRUE Then send_email = FALSE
-IF send_email = True THEN CALL create_outlook_email("HSPH.EWS.Triagers@hennepin.us", "", "Case #" & maxis_case_number & " Expedited case to be assigned, transferred to team. " & worker_number & "  EOM.", "", "", TRUE)
+'IF send_email = True THEN CALL create_outlook_email("HSPH.EWS.Triagers@hennepin.us", "", "Case #" & maxis_case_number & " Expedited case to be assigned, transferred to team. " & worker_number & "  EOM.", "", "", TRUE)
 IF how_app_rcvd = "Request to APPL Form" and METS_retro_checkbox = UNCHECKED and team_601_email_checkbox = UNCHECKED and MA_transition_request_checkbox = UNCHECKED THEN CALL create_outlook_email("", "", "MAXIS case #" & maxis_case_number & " Request to APPL form received-APPL'd in MAXIS-ACTION REQUIRED.", "", "", FALSE)
 'IF how_app_rcvd = "Request to APPL Form" and METS_case_number = "" THEN CALL create_outlook_email("", "", "MAXIS case number #" & maxis_case_number & " Request to APPL form received-APPL'd in MAXIS-ACTION REQUIRED.", "", "", FALSE)
 IF METS_retro_checkbox = CHECKED and team_601_email_checkbox = UNCHECKED THEN CALL create_outlook_email("", "", "MAXIS case #" & maxis_case_number & "/METS IC #" & METS_case_number & " Retro Request APPL'd in MAXIS-ACTION REQUIRED.", "", "", FALSE)
