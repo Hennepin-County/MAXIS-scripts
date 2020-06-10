@@ -92,9 +92,11 @@ class script_bowie
 
     public property get SharePoint_instructions_URL 'The instructions URL in SIR
         ' SharePoint_instructions_URL = "https://www.dhssir.cty.dhs.state.mn.us/MAXIS/blzn/Script%20Instructions%20Wiki/" & replace(ucase(script_name) & ".aspx", " ", "%20")
-        If category = "NOTES" AND left(script_name, 3) = "LTC" Then
+        If category = "NOTES" AND left(script_name, 5) = "LTC -" Then
             SharePoint_instructions_URL = "https://dept.hennepin.us/hsphd/sa/ews/BlueZone_Script_Instructions/" & UCase(category) & "/LTC%20scripts/" & UCase(category) & "%20-%20" & replace(replace(ucase(script_name) & ".docx", " - ", "%20"), " ", "%20")
-        Else
+		ElseIf left(script_name, 4) = "REPT" OR script_name = "Address Report" OR script_name = "DAIL Report" OR script_name = "EMPS" OR script_name = "LTC-GRH List Generator" Then
+			SharePoint_instructions_URL = "https://dept.hennepin.us/hsphd/sa/ews/BlueZone_Script_Instructions/BULK/BULK%20-%20REPT%20LISTS.docx"
+		Else
             SharePoint_instructions_URL = "https://dept.hennepin.us/hsphd/sa/ews/BlueZone_Script_Instructions/" & UCase(category) & "/" & UCase(category) & "%20-%20" & replace(ucase(script_name) & ".docx", " ", "%20")
         End If
     end property
@@ -1105,13 +1107,13 @@ script_array(script_num).release_date           = #10/01/2000#
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)
 Set script_array(script_num) = new script_bowie
-script_array(script_num).script_name 			= "7th Sanction Identifer"																		'Script name
+script_array(script_num).script_name 			= "7th Sanction Identifier"																		'Script name
 script_array(script_num).description 			= "Pulls a list of active MFIP cases that may meet 7th sanction criteria into an Excel spreadsheet."
 script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).tags                   = array("MFIP", "Reports")
 script_array(script_num).dlg_keys               = array("Ex")
-script_array(script_num).subcategory            = array("REPORTS")
+script_array(script_num).subcategory            = array("ENHANCED LISTS")
 script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
@@ -1123,7 +1125,7 @@ script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).tags                   = array("Reports")
 script_array(script_num).dlg_keys               = array("Ex")
-script_array(script_num).subcategory            = array("REPORTS")
+script_array(script_num).subcategory            = array("BULK LISTS")
 script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
@@ -1135,7 +1137,7 @@ script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).tags                   = array("Reports", "Utility")
 script_array(script_num).dlg_keys               = array("Cn", "Ex")
-script_array(script_num).subcategory            = array("")
+script_array(script_num).subcategory            = array("BULK ACTIONS")
 script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
@@ -1147,7 +1149,7 @@ script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).tags                   = array("Reports", "Utility")
 script_array(script_num).dlg_keys               = array("Ex", "Up")
-script_array(script_num).subcategory            = array("")
+script_array(script_num).subcategory            = array("BULK ACTIONS")
 script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
@@ -1159,7 +1161,7 @@ script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).tags                   = array("Adult Cash", "Income", "Reports", "SNAP")
 script_array(script_num).dlg_keys               = array("Ex")
-script_array(script_num).subcategory            = array("REPORTS")
+script_array(script_num).subcategory            = array("ENHANCED LISTS")
 script_array(script_num).release_date           = #10/01/2000#
 
 ' script_num = script_num + 1						'Increment by one
@@ -1183,7 +1185,7 @@ script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).tags                   = array("Reports")
 script_array(script_num).dlg_keys               = array("Ex")
-script_array(script_num).subcategory            = array("REPORTS")
+script_array(script_num).subcategory            = array("BULK LISTS")
 script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
@@ -1195,20 +1197,20 @@ script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).tags                   = array("DWP", "MFIP", "Reports")
 script_array(script_num).dlg_keys               = array("Ex")
-script_array(script_num).subcategory            = array("REPORTS")
+script_array(script_num).subcategory            = array("BULK LISTS")
 script_array(script_num).release_date           = #10/01/2000#
 
-script_num = script_num + 1						'Increment by one
-ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
-Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
-script_array(script_num).script_name 			= "EXP SNAP Review"
-script_array(script_num).description 			= "Creates a list of PND1/PND2 cases that need to reviewed for EXP SNAP criteria."
-script_array(script_num).category               = "BULK"
-script_array(script_num).workflows              = ""
-script_array(script_num).tags                   = array("Reports", "SNAP")
-script_array(script_num).dlg_keys               = array("Ex", "Exp")
-script_array(script_num).subcategory            = array("REPORTS")
-script_array(script_num).release_date           = #09/26/2016#
+' script_num = script_num + 1						'Increment by one
+' ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+' Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
+' script_array(script_num).script_name 			= "EXP SNAP Review"
+' script_array(script_num).description 			= "Creates a list of PND1/PND2 cases that need to reviewed for EXP SNAP criteria."
+' script_array(script_num).category               = "BULK"
+' script_array(script_num).workflows              = ""
+' script_array(script_num).tags                   = array("Reports", "SNAP")
+' script_array(script_num).dlg_keys               = array("Ex", "Exp")
+' script_array(script_num).subcategory            = array("")
+' script_array(script_num).release_date           = #09/26/2016#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1219,7 +1221,7 @@ script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).tags                   = array("Health Care", "Reports")
 script_array(script_num).dlg_keys               = array("Ex")
-script_array(script_num).subcategory            = array("REPORTS")
+script_array(script_num).subcategory            = array("ENHANCED LISTS")
 script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
@@ -1231,7 +1233,7 @@ script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).tags                   = array("Reports", "Utility")
 script_array(script_num).dlg_keys               = array("Ex")
-script_array(script_num).subcategory            = array("REPORTS")
+script_array(script_num).subcategory            = array("ENHANCED LISTS")
 script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
@@ -1243,7 +1245,7 @@ script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).tags                   = array("MFIP", "Reports")
 script_array(script_num).dlg_keys               = array("Ex")
-script_array(script_num).subcategory            = array("REPORTS")
+script_array(script_num).subcategory            = array("ENHANCED LISTS")
 script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
@@ -1255,7 +1257,7 @@ script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).tags                   = array("Adult Cash", "Income", "Reports", "SNAP")
 script_array(script_num).dlg_keys               = array("Ex")
-script_array(script_num).subcategory            = array("REPORTS")
+script_array(script_num).subcategory            = array("ENHANCED LISTS")
 script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
@@ -1267,7 +1269,7 @@ script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).tags                   = array("HS/GRH", "Reports")
 script_array(script_num).dlg_keys               = array("Ex")
-script_array(script_num).subcategory            = array("REPORTS")
+script_array(script_num).subcategory            = array("ENHANCED LISTS")
 script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
@@ -1279,7 +1281,7 @@ script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).tags                   = array("Reports")
 script_array(script_num).dlg_keys               = array("Ex")
-script_array(script_num).subcategory            = array("REPORTS")
+script_array(script_num).subcategory            = array("ENHANCED LISTS")
 script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
@@ -1291,7 +1293,7 @@ script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).tags                   = array("HS/GRH", "Health Care", "LTC", "Reports")
 script_array(script_num).dlg_keys               = array("Ex")
-script_array(script_num).subcategory            = array("REPORTS")
+script_array(script_num).subcategory            = array("BULK LISTS")
 script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
@@ -1303,7 +1305,7 @@ script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).tags                   = array("MFIP", "Reports")
 script_array(script_num).dlg_keys               = array("Ex")
-script_array(script_num).subcategory            = array("REPORTS")
+script_array(script_num).subcategory            = array("ENHANCED LISTS")
 script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
@@ -1315,7 +1317,7 @@ script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).tags                   = array("Reports")
 script_array(script_num).dlg_keys               = array("Ex")
-script_array(script_num).subcategory            = array("REPORTS")
+script_array(script_num).subcategory            = array("BULK LISTS")
 script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
@@ -1327,7 +1329,7 @@ script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).tags                   = array("Reports")
 script_array(script_num).dlg_keys               = array("Ex")
-script_array(script_num).subcategory            = array("REPORTS")
+script_array(script_num).subcategory            = array("BULK LISTS")
 script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
@@ -1339,7 +1341,7 @@ script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).tags                   = array("Reports")
 script_array(script_num).dlg_keys               = array("Ex")
-script_array(script_num).subcategory            = array("REPORTS")
+script_array(script_num).subcategory            = array("BULK LISTS")
 script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
@@ -1351,7 +1353,7 @@ script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).tags                   = array("Reports")
 script_array(script_num).dlg_keys               = array("Ex")
-script_array(script_num).subcategory            = array("REPORTS")
+script_array(script_num).subcategory            = array("BULK LISTS")
 script_array(script_num).release_date           = #06/27/2016#
 
 script_num = script_num + 1						'Increment by one
@@ -1363,7 +1365,7 @@ script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).tags                   = array("Reports")
 script_array(script_num).dlg_keys               = array("Ex")
-script_array(script_num).subcategory            = array("REPORTS")
+script_array(script_num).subcategory            = array("BULK LISTS")
 script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
@@ -1375,7 +1377,7 @@ script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).tags                   = array("Reports")
 script_array(script_num).dlg_keys               = array("Ex")
-script_array(script_num).subcategory            = array("REPORTS")
+script_array(script_num).subcategory            = array("BULK LISTS")
 script_array(script_num).release_date           = #06/27/2016#
 
 script_num = script_num + 1						'Increment by one
@@ -1387,7 +1389,7 @@ script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).tags                   = array("Reports")
 script_array(script_num).dlg_keys               = array("Ex")
-script_array(script_num).subcategory            = array("REPORTS")
+script_array(script_num).subcategory            = array("BULK LISTS")
 script_array(script_num).release_date           = #06/27/2016#
 
 script_num = script_num + 1						'Increment by one
@@ -1399,7 +1401,7 @@ script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).tags                   = array("Reports")
 script_array(script_num).dlg_keys               = array("Ex")
-script_array(script_num).subcategory            = array("REPORTS")
+script_array(script_num).subcategory            = array("BULK LISTS")
 script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
@@ -1411,7 +1413,7 @@ script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).tags                   = array("Reports")
 script_array(script_num).dlg_keys               = array("Ex")
-script_array(script_num).subcategory            = array("REPORTS")
+script_array(script_num).subcategory            = array("BULK LISTS")
 script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
@@ -1423,7 +1425,7 @@ script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).tags                   = array("Reports")
 script_array(script_num).dlg_keys               = array("Ex")
-script_array(script_num).subcategory            = array("REPORTS")
+script_array(script_num).subcategory            = array("BULK LISTS")
 script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
@@ -1435,7 +1437,7 @@ script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).tags                   = array("Reports")
 script_array(script_num).dlg_keys               = array("Ex")
-script_array(script_num).subcategory            = array("REPORTS")
+script_array(script_num).subcategory            = array("BULK LISTS")
 script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
@@ -1447,7 +1449,7 @@ script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).tags                   = array("REPORTS")
 script_array(script_num).dlg_keys               = array("Ex")
-script_array(script_num).subcategory            = array("REPORTS")
+script_array(script_num).subcategory            = array("BULK LISTS")
 script_array(script_num).release_date           = #10/01/2000#
 
 
@@ -2935,6 +2937,7 @@ script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name 			= "SMRT"
+script_array(script_num).description			= "Template for case noting the SMRT process and information."
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).tags                   = array("Adult Cash", "Application", "Communication", "Health Care", "MFIP", "Reviews")
