@@ -69,14 +69,14 @@ EndDialog
 DO
 	DO
 		err_msg = ""
-		Dialog Dialog1 
+		Dialog Dialog1
 		Cancel_without_confirmation
 		If worker_number = "" and all_workers_check = 0 then err_msg = err_msg & vbNewLine & "* Enter a valid worker number."
-		if worker_number <> "" and all_workers_check = 1 then err_msg = err_msg & vbNewLine & "* Enter a worker number OR select the entire agency, not both." 
+		if worker_number <> "" and all_workers_check = 1 then err_msg = err_msg & vbNewLine & "* Enter a worker number OR select the entire agency, not both."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP until err_msg = ""
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-Loop until are_we_passworded_out = false					'loops until user passwords back in		
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'Starting the query start time (for the query runtime at the end)
 query_start_time = timer
@@ -120,22 +120,22 @@ For each worker in worker_array
 				'Cash requires different handling due to containing multiple program types in one column
 				EMReadScreen cash_status, 9, row, 51
 				cash_status = trim(cash_status)
-				
+
 				EMReadScreen snap_status, 1, row, 61
-				
-				If snap_status = "A" then 
+
+				If snap_status = "A" then
 					add_to_array = True
-				Elseif instr(cash_status, "MF A") then 
+				Elseif instr(cash_status, "MF A") then
 					add_to_array = True
-				Else 
-					add_to_array = False 
-				End if 
-				
-				If add_to_array = True then 
+				Else
+					add_to_array = False
+				End if
+
+				If add_to_array = True then
 					'Doing this because sometimes BlueZone registers a "ghost" of previous data when the script runs. This checks against an array and 	stops if we've seen this one before.
 					If MAXIS_case_number <> "" and instr(all_case_numbers_array, MAXIS_case_number) <> 0 then exit do
 					all_case_numbers_array = trim(all_case_numbers_array & MAXIS_case_number & ",")
-				End if 
+				End if
 				row = row + 1
 				MAXIS_case_number = ""			'Blanking out variable
 			Loop until row = 19
@@ -149,7 +149,7 @@ If right(all_case_numbers_array, 1) = "," then all_case_numbers_array = left(all
 case_number_array = split(all_case_numbers_array, ",")
 
 discrep_amt = 0
-DIM cases_array 
+DIM cases_array
 ReDim cases_array(10, 0)
 
 'constants for the array
@@ -167,8 +167,8 @@ const addr_ZIP		= 10
 
 'msgbox case_number_list
 For each MAXIS_case_number in case_number_array
-    IF MAXIS_case_number = "" then exit for 
-    Call navigate_to_MAXIS_screen ("STAT", "ADDR") 
+    IF MAXIS_case_number = "" then exit for
+    Call navigate_to_MAXIS_screen ("STAT", "ADDR")
     EMReadScreen priv_check, 4, 2, 50
     If priv_check = "SELF" then
     	add_to_array = False
@@ -188,25 +188,25 @@ For each MAXIS_case_number in case_number_array
     	'Reading homeless code
     	EMReadScreen homeless_code, 1, 10, 43
 		homeless_code = replace(homeless_code, "_", "")
-    	EMReadScreen living_sit, 2, 11, 43 
+    	EMReadScreen living_sit, 2, 11, 43
 		living_sit = replace(living_sit, "_", "")
-    End if 
-	
-	'Addding applicable cases to the array 
-	If homeless_code = "Y" then 
+    End if
+
+	'Addding applicable cases to the array
+	If homeless_code = "Y" then
 		add_to_array = True
 	elseif living_sit = "07" or living_sit = "08" or living_sit = "09" or living_sit = "10" then
- 		add_to_array = True 
+ 		add_to_array = True
 	Elseif instr(addr_line_1, "GENERAL DELIVERY") or instr(addr_line_1, "GEN DELIVERY") or instr(addr_line_1, "330 12TH AVENUE S") then
 		add_to_array = True
-	Else 
-		add_to_array = False 
-	End if 
+	Else
+		add_to_array = False
+	End if
 
 	IF add_to_array = True then
 		Redim Preserve cases_array(10,  discrep_amt)
-		cases_array (work_num, 			discrep_amt) = worker	
-		cases_array (case_num, 			discrep_amt) = MAXIS_case_number 	
+		cases_array (work_num, 			discrep_amt) = worker
+		cases_array (case_num, 			discrep_amt) = MAXIS_case_number
 		cases_array (homeless, 			discrep_amt) = homeless_code
 		cases_array (live_sit, 			discrep_amt) = living_sit
 		cases_array (addr_one, 			discrep_amt) = addr_line_1
@@ -214,10 +214,10 @@ For each MAXIS_case_number in case_number_array
 		cases_array (addr_city, 		discrep_amt) = city
 		cases_array (addr_STATE, 		discrep_amt) = state
 		cases_array (addr_ZIP, 			discrep_amt) = zip_code
-		
+
 		Call navigate_to_MAXIS_screen("STAT", "HEST")		'<<<<< Navigates to STAT/HEST
 		EMReadScreen HEST_heat, 6, 13, 75 					'<<<<< Pulls information from the prospective side of HEAT/AC standard allowance
-		
+
 		IF trim(HEST_heat) <> "" then						'<<<<< If there is an amount on the hest line then the electric and phone allowances are not used
 			Hest_costs = "Heat $" & HEST_heat & ","
 		Else
@@ -227,43 +227,43 @@ For each MAXIS_case_number in case_number_array
 			If trim(HEST_phone) <> "" then Hest_costs = Hest_costs & "Phone $" & HEST_phone & ","
 		End If
 		'takes the last comma off of Hest_costs when autofilled into dialog if more more than one app date is found and additional app is selected
-		If right(Hest_costs, 1) = "," THEN Hest_costs = left(Hest_costs, len(Hest_costs) - 1) 
+		If right(Hest_costs, 1) = "," THEN Hest_costs = left(Hest_costs, len(Hest_costs) - 1)
 		cases_array (HEST, discrep_amt) = HEST_costs
-		
+
 		Call navigate_to_MAXIS_screen("STAT", "SHEL")		'<<<<< Goes to SHEL for this person
 		EMReadScreen rent_verif, 2, 11, 67
 		If rent_verif <> "__" and rent_verif <> "NO" and rent_verif <> "?_" then EMReadScreen rent, 8, 11, 56
 		If rent_verif = "__" or rent_verif = "NO" or rent_verif = "?_" then rent = "0"		'<<<<< Gets rent amount
 		EMReadScreen lot_rent_verif, 2, 12, 67
-		
+
 		If lot_rent_verif <> "__" and lot_rent_verif <> "NO" and lot_rent_verif <> "?_" then EMReadScreen lot_rent, 8, 12, 56
 		If lot_rent_verif = "__" or lot_rent_verif = "NO" or lot_rent_verif = "?_" then lot_rent = "0"		'<<<<< gets Lot Rent amount
 		EMReadScreen mortgage_verif, 2, 13, 67
-		
+
 		If mortgage_verif <> "__" and mortgage_verif <> "NO" and mortgage_verif <> "?_" then EMReadScreen mortgage, 8, 13, 56
 		If mortgage_verif = "__" or mortgage_verif = "NO" or mortgage_verif = "?_" then mortgage = "0"		'<<<<<< gets Mortgage amount
 		EMReadScreen insurance_verif, 2, 14, 67
-		
+
 		If insurance_verif <> "__" and insurance_verif <> "NO" and insurance_verif <> "?_" then EMReadScreen insurance, 8, 14, 56
 		If insurance_verif = "__" or insurance_verif = "NO" or insurance_verif = "?_" then insurance = "0"	'<<<<<< gets insurance amount and adds it to the class property
 		EMReadScreen taxes_verif, 2, 15, 67
-		
+
 		If taxes_verif <> "__" and taxes_verif <> "NO" and taxes_verif <> "?_" then EMReadScreen taxes, 8, 15, 56
 		If taxes_verif = "__" or taxes_verif = "NO" or taxes_verif = "?_" then taxes = "0"				'<<<<<<< gets taxes amount and adds it to the class property
 		EMReadScreen room_verif, 2, 16, 67
-		
+
 		If room_verif <> "__" and room_verif <> "NO" and room_verif <> "?_" then EMReadScreen room, 8, 16, 56
 		If room_verif = "__" or room_verif = "NO" or room_verif = "?_" then room = "0"						'<<<<<<< gets room/board amount
 		EMReadScreen garage_verif, 2, 17, 67
-		
+
 		If garage_verif <> "__" and garage_verif <> "NO" and garage_verif <> "?_" then EMReadScreen garage, 8, 17, 56
 		If garage_verif = "__" or garage_verif = "NO" or garage_verif = "?_" then garage = "0"				'<<<<<<< gets garage amount
-		
-		shel_costs = abs(rent) + abs(lot_rent) + abs(mortgage) + abs(insurance) + abs(taxes) + abs(room) + abs(garage) 
+
+		shel_costs = abs(rent) + abs(lot_rent) + abs(mortgage) + abs(insurance) + abs(taxes) + abs(room) + abs(garage)
 		shel_costs = "$" & shel_costs
 		'adding shel costs to the array
 		cases_array (SHEL, discrep_amt) = shel_costs
-		
+
 		discrep_amt = discrep_amt + 1
 		STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 		'blanking out variables
@@ -277,7 +277,7 @@ For each MAXIS_case_number in case_number_array
 		taxes = ""
 		room = ""
 		garage = ""
-	END If 
+	END If
 next
 
 'Opening the Excel file
@@ -308,18 +308,18 @@ excel_row = 2
 
 For i = 0 to Ubound(cases_array, 2)
 	objExcel.Cells(excel_row,  1).Value = cases_array(work_num,		i)
-	objExcel.Cells(excel_row,  2).Value = cases_array(case_num, 	i)  
-	objExcel.Cells(excel_row,  3).Value = cases_array(homeless, 	i)  
-	objExcel.Cells(excel_row,  4).Value = cases_array(live_sit,		i)   
-	objExcel.Cells(excel_row,  5).Value = cases_array(HEST,			i)   
-	objExcel.Cells(excel_row,  6).Value = cases_array(SHEL, 		i)  	
-	objExcel.Cells(excel_row,  7).Value = cases_array(addr_one,		i)  
-	objExcel.Cells(excel_row,  8).Value = cases_array(addr_two,		i)  	
-	objExcel.Cells(excel_row,  9).Value = cases_array(addr_city,	i)  
-	objExcel.Cells(excel_row, 10).Value = cases_array(addr_STATE,	i)  
-	objExcel.Cells(excel_row, 11).Value = cases_array(addr_ZIP,		i)  	
+	objExcel.Cells(excel_row,  2).Value = cases_array(case_num, 	i)
+	objExcel.Cells(excel_row,  3).Value = cases_array(homeless, 	i)
+	objExcel.Cells(excel_row,  4).Value = cases_array(live_sit,		i)
+	objExcel.Cells(excel_row,  5).Value = cases_array(HEST,			i)
+	objExcel.Cells(excel_row,  6).Value = cases_array(SHEL, 		i)
+	objExcel.Cells(excel_row,  7).Value = cases_array(addr_one,		i)
+	objExcel.Cells(excel_row,  8).Value = cases_array(addr_two,		i)
+	objExcel.Cells(excel_row,  9).Value = cases_array(addr_city,	i)
+	objExcel.Cells(excel_row, 10).Value = cases_array(addr_STATE,	i)
+	objExcel.Cells(excel_row, 11).Value = cases_array(addr_ZIP,		i)
 	excel_row = excel_row + 1
-NEXT 
+NEXT
 
 'Query date/time/runtime info
 objExcel.Cells(1, 12).Font.Bold = TRUE
