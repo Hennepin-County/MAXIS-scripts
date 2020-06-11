@@ -1263,6 +1263,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                         Call write_variable_in_SPEC_MEMO("** Wareysiga waa in la dhammaystiro ka hor " & need_intv_date & " **")
                         Call write_variable_in_SPEC_MEMO("Si loo dhammaystiro wareysiga telefoonka, wac laynka taleefanka EZ 612-596-1300 inta u dhaxaysa 9:00 aroornimo ilaa 4:00 galabnimo Isniina ilaa Jimcaha.")
                         Call write_variable_in_SPEC_MEMO("* Waxaa dhici karta in lagu siiyo gargaarka SNAP 24 saac gudahood wareysiga kaddib.")
+						'removal of in person verbiage during the COVID-19 PEACETIME STATE OF EMERGENCY
                         ' Call write_variable_in_SPEC_MEMO("Haddii aad rabto inaad samaysato ballan wareysi, wac 612-596-1300. Waxa kale oo aad iman kartaa mid ka mid ah lixda xafiis ee hoos ku qoran si loo sameeyo wareysi gof ahaaneed inta u dhexeeya 8 ilaa 4:30, Isniinta ilaa jmcaha.")
                         ' Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
                         ' Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
@@ -1290,6 +1291,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                         Call write_variable_in_SPEC_MEMO("**La entrevista debe ser completada para el " & day_first_intv_date & ".**")
                         Call write_variable_in_SPEC_MEMO("Para completar una entrevista telefonica, llame a la linea de informacion EZ al 612-596-1300 entre las 9:00 a.m. y las 4:00 p.m. de lunes a viernes.")
                         Call write_variable_in_SPEC_MEMO("*Puede recibir los beneficios de SNAP dentro de las 24 horas de realizada la entrevista.")
+						'removal of in person verbiage during the COVID-19 PEACETIME STATE OF EMERGENCY
                         ' Call write_variable_in_SPEC_MEMO("Si desea programar una entrevista, llame al 612-596-1300. Tambien puede acercarse a cualquiera de las seis oficinas mencionadas debajo para tener una entrevista personal entre las 8 y las 4:30 de lunes a viernes.")
                         ' Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
                         ' Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
@@ -1314,6 +1316,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                         Call write_variable_in_SPEC_MEMO("** Txoj kev xam phaj mas yuav tsum tshwm sim ua ntej lub " & need_intv_date & ". **")
                         Call write_variable_in_SPEC_MEMO("Yog xam phaj hauv xov tooj, hu rau EZ Info Line ntawm 612-596-1300 thaum 9:00am thib 4:00pm hnub Mon txog Fri.")
                         Call write_variable_in_SPEC_MEMO("* Koj yuav tsim nyob tau cov kev pab SNAP uas siv tau 24 teev tom qab kev xam phaj.")
+						'removal of in person verbiage during the COVID-19 PEACETIME STATE OF EMERGENCY
                         ' Call write_variable_in_SPEC_MEMO(" Yog hais tias koj xav teem tuaj xam phaj, hu 612-596-1300 Koj kuj tuaj tau rau ib lub ntawm rau lub hoob kas nyob hauv qab no tuaj xam phaj tim ntej muag thaum 8 thiab 4:30, hnub Monday txog Friday.")
                         ' Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
                         ' Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
@@ -1369,7 +1372,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                         Call write_variable_in_SPEC_MEMO("612-596-1300 between 9:00am and 4:00pm Monday thru Friday.")
                         Call write_variable_in_SPEC_MEMO(" ")
                         Call write_variable_in_SPEC_MEMO("* You may be able to have SNAP benefits issued within 24 hours of the interview.")
-                        ' Call write_variable_in_SPEC_MEMO(" ")
+                        ' Call write_variable_in_SPEC_MEMO(" ")					'removal of in person verbiage during the COVID-19 PEACETIME STATE OF EMERGENCY
                         ' Call write_variable_in_SPEC_MEMO("If you wish to schedule an interview, call 612-596-1300. You may also come to any of the six offices below for an in-person interview between 8 and 4:30, Monday thru Friday.")
                         ' Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
                         ' Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
@@ -1482,6 +1485,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                         Call write_variable_in_SPEC_MEMO("Si aad u dhamaystirto wareysiga telefoonka, wac laynka taleefanka EZ 612-596-1300 inta u dhaxaysa 9:00 subaxnimo ilaa 4:00 galabnimo Isniinta ilaa Jimcaha.")
                         Call write_variable_in_SPEC_MEMO("* Waxaa dhici karta in lagu siiyo gargaarka SNAP 24 saac gudahood wareysiga kaddib.")
                         Call write_variable_in_SPEC_MEMO(" ")
+						'removal of in person verbiage during the COVID-19 PEACETIME STATE OF EMERGENCY
                         ' Call write_variable_in_SPEC_MEMO("Haddii aad rabto inaad samaysato ballan wareysi, wac 612-596-1300. Waxa kale oo aad iman kartaa mid ka mid ah lixda xafiis ee hoos ku qoran si loo sameeyo wareysi gof ahaaneed inta u dhexeeya 8 ilaa 4:30, Isniinta ilaa jmcaha.")
                         ' Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
                         ' Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
@@ -1513,6 +1517,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                         Call write_variable_in_SPEC_MEMO("Para completar una entrevista telefonica, llame a la linea de informacion EZ al 612-596-1300 entre las 9:00 a.m. y las 4:00 p.m. de lunes a viernes.")
                         Call write_variable_in_SPEC_MEMO("*Puede recibir los beneficios de SNAP dentro de las 24 horas de realizada la entrevista.")
                         Call write_variable_in_SPEC_MEMO(" ")
+						'removal of in person verbiage during the COVID-19 PEACETIME STATE OF EMERGENCY
                         ' Call write_variable_in_SPEC_MEMO("Si desea programar una entrevista, llame al 612-596-1300. Tambien puede acercarse a cualquiera de las seis oficinas mencionadas debajo para tener una entrevista personal entre las 8 y las 4:30 de lunes a viernes.")
                         ' Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
                         ' Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
@@ -1537,6 +1542,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                         Call write_variable_in_SPEC_MEMO("  Yog xam phaj hauv xov tooj, hu rau EZ Info Line ntawm 612-596-1300 thaum 9:00am thib 4:00pm hnub Mon txog Fri.")
                         Call write_variable_in_SPEC_MEMO("* Koj yuav tsim nyob tau cov kev pab SNAP uas siv tau 24 teev tom qab kev xam phaj.")
                         Call write_variable_in_SPEC_MEMO(" ")
+						'removal of in person verbiage during the COVID-19 PEACETIME STATE OF EMERGENCY
                         ' Call write_variable_in_SPEC_MEMO(" Yog hais tias koj xav teem tuaj xam phaj, hu 612-596-1300 Koj kuj tuaj tau rau ib lub ntawm rau lub hoob kas nyob hauv qab no tuaj xam phaj tim ntej muag thaum 8 thiab 4:30, hnub Monday txog Friday.")
                         ' Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
                         ' Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
@@ -1593,6 +1599,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                         Call write_variable_in_SPEC_MEMO(" ")
                         Call write_variable_in_SPEC_MEMO("* You may be able to have SNAP benefits issued within 24 hours of the interview.")
                         Call write_variable_in_SPEC_MEMO(" ")
+						'removal of in person verbiage during the COVID-19 PEACETIME STATE OF EMERGENCY
                         ' Call write_variable_in_SPEC_MEMO("If you wish to schedule an interview, call 612-596-1300. You may also come to any of the six offices below for an in-person interview between 8 and 4:30, Monday thru Friday.")
                         ' Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
                         ' Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
