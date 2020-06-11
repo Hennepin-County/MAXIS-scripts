@@ -395,38 +395,40 @@ Do
 
         'DIALOG to select the WCOM to add
         Dialog1 = ""
-        BeginDialog Dialog1, 0, 0, 241, 380, "Check the WCOM needed"
+        BeginDialog Dialog1, 0, 0, 241, 395, "Check the WCOM needed"
           ' CheckBox 10, 35, 220, 10, "HC - July COLA Income Change Explanation", july_cola_wcom          'this is a TEMP WCOM - need to redesign based on notice type and adding HC WCOMs.
-          CheckBox 20, 55, 195, 10, "E and T Voluntary *", voluntary_e_t_wcom_checkbox
-          CheckBox 20, 70, 195, 10, "Homeless exemption information", abawd_homeless_wcom_checkbox
-          CheckBox 20, 85, 195, 10, "Postponed WREG verifs for EXP SNAP *", wreg_postponed_verif_wcom_checkbox
-          CheckBox 20, 100, 195, 10, "WREG Exemption coded - Temporarily disabled *", temp_disa_abawd_wcom_checkbox
-          CheckBox 20, 115, 195, 10, "WREG Exemption coded - Care of Child under 18 *", abawd_child_18_coded_wcom_checkbox
-          CheckBox 20, 130, 195, 10, "WREG Exemption coded - Care of Child under 6 *", abawd_child_6_coded_wcom_checkbox
-          CheckBox 20, 145, 195, 10, "Voluntary Quit WCOM - non-PWE", voluntary_quit_wcom_checkbox
+		  CheckBox 10, 35, 195, 10, "Information about Client Virtual DropBox", clt_virtual_dropbox_checkbox
+
+          CheckBox 20, 70, 195, 10, "E and T Voluntary *", voluntary_e_t_wcom_checkbox
+          CheckBox 20, 85, 195, 10, "Homeless exemption information", abawd_homeless_wcom_checkbox
+          CheckBox 20, 100, 195, 10, "Postponed WREG verifs for EXP SNAP *", wreg_postponed_verif_wcom_checkbox
+          CheckBox 20, 115, 195, 10, "WREG Exemption coded - Temporarily disabled *", temp_disa_abawd_wcom_checkbox
+          CheckBox 20, 130, 195, 10, "WREG Exemption coded - Care of Child under 18 *", abawd_child_18_coded_wcom_checkbox
+          CheckBox 20, 145, 195, 10, "WREG Exemption coded - Care of Child under 6 *", abawd_child_6_coded_wcom_checkbox
+          CheckBox 20, 160, 195, 10, "Voluntary Quit WCOM - non-PWE", voluntary_quit_wcom_checkbox
           ' CheckBox 25, 150, 140, 10, "Banked Months - E and T voluntary *", banked_mos_vol_e_t_wcom_checkbox
           ' CheckBox 25, 165, 175, 10, "Banked Months - Closing for all 9 months used", banked_mos_used_wcom_checkbox
           ' CheckBox 25, 180, 145, 10, "Banked Months -  Possibly available", banked_mos_avail_wcom_checkbox
-          CheckBox 20, 175, 195, 10, "No Eligible Members and verifs missing or unclear *", additional_verif_wcom_checkbox
-          CheckBox 20, 190, 195, 10, "Closed/denied with PACT *", snap_pact_wcom_checkbox
-          CheckBox 20, 205, 195, 10, "Closed via PACT for new HH Member *", pact_fraud_wcom_checkbox
-          CheckBox 20, 220, 195, 10, "Closing due to Returned Mail *", snap_returned_mail_wcom_checkbox
-          CheckBox 20, 235, 195, 10, "Closing SNAP and MFIP opening *", snap_to_mfip_wcom_checkbox
-          CheckBox 20, 250, 195, 10, "EXP SNAP - Postponed verif of CAF page 9 Signature *", signature_postponed_verif_wcom_checkbox
-          CheckBox 20, 265, 195, 10, "Ineligible Student WCOMs", inelig_student_wcoms_checkbox
-          CheckBox 20, 280, 195, 10, "Future Eligibility Begin Date WCOM", future_elig_wcom_checkbox
+          CheckBox 20, 190, 195, 10, "No Eligible Members and verifs missing or unclear *", additional_verif_wcom_checkbox
+          CheckBox 20, 205, 195, 10, "Closed/denied with PACT *", snap_pact_wcom_checkbox
+          CheckBox 20, 220, 195, 10, "Closed via PACT for new HH Member *", pact_fraud_wcom_checkbox
+          CheckBox 20, 235, 195, 10, "Closing due to Returned Mail *", snap_returned_mail_wcom_checkbox
+          CheckBox 20, 250, 195, 10, "Closing SNAP and MFIP opening *", snap_to_mfip_wcom_checkbox
+          CheckBox 20, 265, 195, 10, "EXP SNAP - Postponed verif of CAF page 9 Signature *", signature_postponed_verif_wcom_checkbox
+          CheckBox 20, 280, 195, 10, "Ineligible Student WCOMs", inelig_student_wcoms_checkbox
+          CheckBox 20, 295, 195, 10, "Future Eligibility Begin Date WCOM", future_elig_wcom_checkbox
 
-          CheckBox 20, 310, 60, 10, "CASH Denied *", cash_denied_checkbox
-          CheckBox 20, 325, 130, 10, "CASH closing due to Returned Mail*", mfip_returned_mail_wcom_checkbox
-          CheckBox 20, 340, 125, 10, "MFIP Closing and SNAP opening *", mfip_to_snap_wcom_checkbox
+          CheckBox 20, 325, 60, 10, "CASH Denied *", cash_denied_checkbox
+          CheckBox 20, 340, 130, 10, "CASH closing due to Returned Mail*", mfip_returned_mail_wcom_checkbox
+          CheckBox 20, 355, 125, 10, "MFIP Closing and SNAP opening *", mfip_to_snap_wcom_checkbox
           ButtonGroup ButtonPressed
-            OkButton 135, 360, 50, 15
-            CancelButton 185, 360, 50, 15
-          GroupBox 5, 35, 230, 265, "SNAP"
-          GroupBox 15, 45, 215, 115, "ABAWD's"
+            OkButton 135, 375, 50, 15
+            CancelButton 185, 375, 50, 15
+          GroupBox 5, 50, 230, 265, "SNAP"
+          GroupBox 15, 60, 215, 115, "ABAWD's"
           ' GroupBox 20, 135, 195, 60, "Banked Months"
-          GroupBox 15, 165, 215, 130, "Other SNAP"
-          GroupBox 5, 300, 230, 55, "Cash"
+          GroupBox 15, 180, 215, 130, "Other SNAP"
+          GroupBox 5, 315, 230, 55, "Cash"
           Text 20, 5, 210, 25, "Select WCOM(s) to add to the notice. Reminder: you can select more than one as required for the case, use multiple categories if necessary. "
         EndDialog
 
@@ -439,6 +441,10 @@ Do
         'setting the arrays to blank for each loop - they will be refilled once the checkboxes are selected again
         ReDim array_of_msg_lines(0)
         ReDim WCOM_TO_WRITE_ARRAY (0)
+
+		If clt_virtual_dropbox_checkbox = checked Then
+			CALL add_words_to_message("You have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure.")
+		End If
 
         If july_cola_wcom = checked Then
             'code for the dialog for PACT closure (this dialog has the same name in each IF to prevent the over 7 dialog error)
