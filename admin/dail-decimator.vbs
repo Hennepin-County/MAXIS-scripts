@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("06/10/2020", "Added TIKL DAIL selection.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/17/2019", "Added function to evaluate DAIL messages.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/09/2019", "Added 01/20 COLA messages to removal list.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/02/2019", "Added 07/19 COLA messages to removal list.", "Ilse Ferris, Hennepin County")
@@ -81,7 +82,8 @@ Function dail_selection
 	IF dail_to_decimate = "ELIG" then selection_row = 11
 	IF dail_to_decimate = "INFO" then selection_row = 13
     IF dail_to_decimate = "PEPR" then selection_row = 18
-
+    IF dail_to_decimate = "TIKL" then selection_row = 19
+    
 	Call write_value_and_transmit("x", selection_row, 39)
 End Function
 
@@ -103,7 +105,7 @@ report_date = replace(date, "/", "-")
 
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 266, 110, "Dail Decimator dialog"
-  DropListBox 80, 50, 60, 15, "Select one..."+chr(9)+"ALL"+chr(9)+"COLA"+chr(9)+"CSES"+chr(9)+"ELIG"+chr(9)+"INFO"+chr(9)+"PEPR", dail_to_decimate
+  DropListBox 80, 50, 60, 15, "Select one..."+chr(9)+"ALL"+chr(9)+"COLA"+chr(9)+"CSES"+chr(9)+"ELIG"+chr(9)+"INFO"+chr(9)+"PEPR"+chr(9)+"TIKL", dail_to_decimate
   EditBox 80, 70, 180, 15, worker_number
   CheckBox 15, 95, 135, 10, "Check here to process for all workers.", all_workers_check
   ButtonGroup ButtonPressed
