@@ -239,7 +239,7 @@ script_array(script_num).tags                   = array("ABAWD", "Application", 
 script_array(script_num).dlg_keys               = array("Fi", "Up")
 script_array(script_num).subcategory            = array("ABAWD")
 script_array(script_num).release_date           = #01/17/2017#
-script_array(script_num).retirement_date        = #06/03/2020#
+script_array(script_num).retirement_date        = #06/03/2020#					'Script removed during the COVID-19 PEACETIME STATE OF EMERGENCY
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -501,6 +501,7 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 
+'script added during the COVID-19 PEACETIME STATE OF EMERGENCY
 script_num = script_num + 1
 ReDim Preserve script_array(script_num)
 Set script_array(script_num) = new script_bowie
@@ -2321,6 +2322,7 @@ script_array(script_num).dlg_keys               = array("Cn")
 script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
 script_array(script_num).release_date           = #09/25/2017#
 
+'script added during the COVID-19 PEACETIME STATE OF EMERGENCY
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
@@ -2789,7 +2791,7 @@ script_array(script_num).tags                   = array("Adult CASH", "Applicati
 script_array(script_num).dlg_keys               = array("Cn", "Exp")
 script_array(script_num).subcategory            = array("E-L")
 script_array(script_num).release_date           = #10/01/2000#
-script_array(script_num).retirement_date        = #05/12/2020#
+script_array(script_num).retirement_date        = #05/12/2020#					'script removed during the COVID-19 PEACETIME STATE OF EMERGENCY
 
 ' script_num = script_num + 1						'Increment by one
 ' ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -3218,7 +3220,7 @@ script_array(script_num).tags                   = array("Application", "Communic
 script_array(script_num).dlg_keys               = array("Cn", "Sm", "Up")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
-script_array(script_num).retirement_date        = #06/04/2020#
+script_array(script_num).retirement_date        = #06/04/2020#					'script removed during the COVID-19 PEACETIME STATE OF EMERGENCY
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
