@@ -83,7 +83,7 @@ Do
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
-Call create_TIKL("AVS 10-day follow up is required. If you do not have access to the AVS system, consult your supervisor.", 10, date, False, TIKL_note_text)
+Call create_TIKL("AVS 10-day follow up is required. If you do not have access to the AVS system, QI can assist you with the results. Contact your supervisor about your AVS access.", 10, date, False, TIKL_note_text)
 
 start_a_blank_case_note
 Call write_variable_in_case_note("***AVS Request Submitted - 10 day follow-up needed***")
