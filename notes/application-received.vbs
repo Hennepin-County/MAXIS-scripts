@@ -724,7 +724,7 @@ IF send_appt_ltr = TRUE THEN
     Call write_variable_in_SPEC_MEMO("612-596-1300 between 9:00am and 4:00pm Monday thru Friday.")
     Call write_variable_in_SPEC_MEMO(" ")
     Call write_variable_in_SPEC_MEMO("* You may be able to have SNAP benefits issued within 24 hours of the interview.")
-    ' Call write_variable_in_SPEC_MEMO(" ")
+    ' Call write_variable_in_SPEC_MEMO(" ")										'removal of in person verbiage during the COVID-19 PEACETIME STATE OF EMERGENCY
     ' Call write_variable_in_SPEC_MEMO("If you wish to schedule an interview, call 612-596-1300. You may also come to any of the six offices below for an in-person interview between 8 and 4:30, Monday thru Friday.")
     ' Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
     ' Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")

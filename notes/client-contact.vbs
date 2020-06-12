@@ -85,7 +85,7 @@ If trim(MAXIS_case_number) <> "" then
     Call convert_array_to_droplist_items(phone_number_array, phone_numbers)
 End if
 
-'----------------------------------------------------------------------------------------------------Adding suggested Q-Flow Ticketing population for follow up work.
+'----------------------------------------------------------------------------------------------------Adding suggested Q-Flow Ticketing population for follow up work. needed during the COVID-19 PEACETIME STATE OF EMERGENCY
 EmReadscreen basket_number, 7, 21, 21    'Reading basket number
 suggested_population = ""                'Blanking this out. Will default to no suggestions if x number is not in this this.
 
@@ -243,7 +243,7 @@ Do
             CheckBox 5, 290, 255, 10, "TEXT OPT OUT: Client wishes to opt out renewal text message notifications.", Opt_out_checkbox
             CheckBox 5, 305, 95, 10, "Forms were sent to AREP.", Sent_arep_checkbox
             CheckBox 270, 260, 125, 10, "Needs follow up/hand off.", follow_up_needed_checkbox
-            EditBox 340, 275, 40, 15, ticket_number
+            EditBox 340, 275, 40, 15, ticket_number                             'needed during the COVID-19 PEACETIME STATE OF EMERGENCY
             EditBox 70, 325, 205, 15, worker_signature
             ButtonGroup ButtonPressed
             OkButton 280, 325, 50, 15
@@ -275,9 +275,9 @@ Do
             GroupBox 145, 10, 240, 25, "CASE Navigation"
             Text 15, 90, 50, 10, "Phone Number:"
             Text 20, 245, 40, 10, "Other notes:"
-            GroupBox 260, 295, 125, 25, "Suggested Q-Flow Population:"
-            Text 280, 305, 100, 10, suggested_population
-            Text 285, 280, 55, 10, "Q-Flow Ticket #:"
+            GroupBox 260, 295, 125, 25, "Suggested Q-Flow Population:"          'needed during the COVID-19 PEACETIME STATE OF EMERGENCY
+            Text 280, 305, 100, 10, suggested_population                        'needed during the COVID-19 PEACETIME STATE OF EMERGENCY
+            Text 285, 280, 55, 10, "Q-Flow Ticket #:"                           'needed during the COVID-19 PEACETIME STATE OF EMERGENCY
             Text 170, 90, 75, 10, "Date/Time of Contact:"
             Text 255, 110, 60, 10, "METS IC number:"
             EndDialog
@@ -325,7 +325,7 @@ CALL write_bullet_and_variable_in_CASE_NOTE("Other Notes", other_notes)
 IF caf_1_check = checked THEN CALL write_variable_in_CASE_NOTE("* Reminded client about the importance of submitting the CAF 1.")
 IF Sent_arep_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Sent form(s) to AREP.")
 IF Opt_out_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Case has opted out of recert text message notifications.")
-IF follow_up_needed_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Follow up/hand off is required. Q-Flow ticket #" & ticket_number & " created.")
+IF follow_up_needed_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Follow up/hand off is required. Q-Flow ticket #" & ticket_number & " created.")         'needed during the COVID-19 PEACETIME STATE OF EMERGENCY
 CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
 

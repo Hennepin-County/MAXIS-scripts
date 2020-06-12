@@ -59,28 +59,31 @@ EMConnect ""
 call MAXIS_case_number_finder(MAXIS_case_number)
 
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 206, 240, "Resources MEMO"
+BeginDialog Dialog1, 0, 0, 206, 255, "Resources MEMO"
   EditBox 60, 5, 50, 15, MAXIS_case_number
   ButtonGroup ButtonPressed
     PushButton 150, 5, 50, 10, "Check All", check_all_button
-    OkButton 95, 220, 50, 15
-    CancelButton 150, 220, 50, 15
-  CheckBox 15, 45, 140, 10, "Community Action Partnership - CAP", cap_checkbox
-  CheckBox 15, 60, 115, 10, "DHS MMIS Recipient HelpDesk", MMIS_helpdesk_checkbox
-  CheckBox 15, 75, 180, 10, "DHS MNSure Helpdesk   * NOT FOR MA CLIENTS", MNSURE_helpdesk_checkbox
-  CheckBox 15, 90, 145, 10, "Disability Hub (Disability Linkage Line)", disability_hub_checkbox
-  CheckBox 15, 105, 125, 10, "Emergency Mental Health Services", emer_mental_health_checkbox
-  CheckBox 15, 120, 175, 10, "Emergency Food Shelf Network (The Food Group)", emer_food_network_checkbox
-  CheckBox 15, 135, 50, 10, "Front Door", front_door_checkbox
-  CheckBox 15, 150, 75, 10, "Senior Linkage Line", sr_linkage_line_checkbox
-  CheckBox 15, 165, 130, 10, "United Way First Call for Help (211)", united_way_checkbox
-  CheckBox 15, 180, 60, 10, "Xcel Energy", xcel_checkbox
-  EditBox 80, 200, 120, 15, worker_signature
-  Text 10, 30, 195, 10, "Check any to send detail about the service to a client:"
-  Text 10, 205, 65, 10, "Worker signature:"
+  CheckBox 15, 45, 145, 10, "Client Email Submission/Virtual Dropbox", client_virtual_dropox_checkbox
+  CheckBox 15, 60, 140, 10, "Community Action Partnership - CAP", cap_checkbox
+  CheckBox 15, 75, 115, 10, "DHS MMIS Recipient HelpDesk", MMIS_helpdesk_checkbox
+  CheckBox 15, 90, 180, 10, "DHS MNSure Helpdesk   * NOT FOR MA CLIENTS", MNSURE_helpdesk_checkbox
+  CheckBox 15, 105, 145, 10, "Disability Hub (Disability Linkage Line)", disability_hub_checkbox
+  CheckBox 15, 120, 125, 10, "Emergency Mental Health Services", emer_mental_health_checkbox
+  CheckBox 15, 135, 175, 10, "Emergency Food Shelf Network (The Food Group)", emer_food_network_checkbox
+  CheckBox 15, 150, 50, 10, "Front Door", front_door_checkbox
+  CheckBox 15, 165, 75, 10, "Senior Linkage Line", sr_linkage_line_checkbox
+  CheckBox 15, 180, 130, 10, "United Way First Call for Help (211)", united_way_checkbox
+  CheckBox 15, 195, 60, 10, "Xcel Energy", xcel_checkbox
+  EditBox 80, 210, 120, 15, worker_signature
+  ButtonGroup ButtonPressed
+    OkButton 95, 230, 50, 15
+    CancelButton 150, 230, 50, 15
   Text 10, 10, 50, 10, "Case number:"
+  Text 10, 30, 195, 10, "Check any to send detail about the service to a client:"
+  Text 10, 215, 65, 10, "Worker signature:"
 EndDialog
 'This Do...loop shows the appointment letter dialog, and contains logic to require most fields.
+
 DO
 	Do
 		err_msg = ""
@@ -92,6 +95,7 @@ DO
         If ButtonPressed = check_all_button Then
             err_msg = "LOOP" & err_msg
 
+			client_virtual_dropox_checkbox = checked
             cap_checkbox = checked
             MMIS_helpdesk_checkbox = checked
             MNSURE_helpdesk_checkbox = checked
@@ -110,6 +114,15 @@ LOOP UNTIL are_we_passworded_out = false
 
 script_to_say = "Resource detail:" & vbNewLine
 
+If client_virtual_dropox_checkbox = checked Then
+	script_to_say = script_to_say & vbNewLine & "You have an option to use an email to return documents" & vbNewLine &_
+		"to Hennepin County. Write the case number and full name" & vbNewLine &_
+		"associated with the case in the body of the email." & vbNewLine &_
+		"Only the following types are accepted PNG, JPG, TIFF," & vbNewLine &_
+		"DOC, PDF, and HTML.          EMAIL: hhsews@hennepin.us " & vbNewLine &_
+		"You will not receive confirmation of receipt or failure." & vbNewLine &_
+        "--   --   --   --   --   --   --   --   --   --   --"
+End If
 If cap_checkbox = checked Then
     script_to_say = script_to_say & vbNewLine & "CAP - Community Action Partnership (Includes Energy Assist)" & vbNewLine &_
         "Hours: Mon-Fri 8:00AM - 4:30PM Website: www.caphennepin.org" & vbNewLine &_
@@ -150,10 +163,10 @@ If front_door_checkbox = checked Then
 End If
 If sr_linkage_line_checkbox = checked Then
     script_to_say = script_to_say & vbNewLine & "Senior Linkage Line" & vbNewLine &_
-        "Phone: 1-800-333-2433  - Hours: Mon - Fri 8:00 AM - 4:30 PM" & vbNewLine &_
-        "   Currently has extended hours Mon - Thur 4:30 PM - 6:30 PM" & vbNewLine &_
-        "Website: metroaging.org" & vbNewLine &_
-        "--   --   --   --   --   --   --   --   --   --   --"
+        "Phone: 1-800-333-2433  - Hours: Mon - Fri 8:00 AM - 4:30 PM      Website: metroaging.org" & vbNewLine &_
+		"--   --   --   --   --   --   --   --   --   --   --"
+        ' "   Currently has extended hours Mon - Thur 4:30 PM - 6:30 PM" & vbNewLine &_
+        ' "Website: metroaging.org" & vbNewLine &_
 End If
 If united_way_checkbox = checked Then
     script_to_say = script_to_say & vbNewLine & "United Way First Call for Help (211)" & vbNewLine &_
@@ -191,6 +204,16 @@ If resource_method = "SPEC/MEMO" Then
     need_divider = FALSE
     'Writes the MEMO.
     call write_variable_in_SPEC_MEMO("  ----Outside Resources - current as of " & date & "----")
+	If client_virtual_dropox_checkbox = checked Then
+		If need_divider = TRUE Then call write_variable_in_SPEC_MEMO("     --   --   --   --   --   --   --   --   --   --")
+		call write_variable_in_SPEC_MEMO("* You have an option to use an email to return documents")
+		call write_variable_in_SPEC_MEMO("  to Hennepin County. Write the case number and full name")
+		call write_variable_in_SPEC_MEMO("  associated with the case in the body of the email.")
+		call write_variable_in_SPEC_MEMO("  Only the following types are accepted PNG, JPG, TIFF,")
+		call write_variable_in_SPEC_MEMO("  DOC, PDF, and HTML.        EMAIL: hhsews@hennepin.us ")
+		call write_variable_in_SPEC_MEMO("  You will not receive confirmation of receipt or failure.")
+		need_divider = FALSE
+	End If
     If cap_checkbox = checked Then
         If need_divider = TRUE Then call write_variable_in_SPEC_MEMO("     --   --   --   --   --   --   --   --   --   --")
         call write_variable_in_SPEC_MEMO("* CAP - Community Action Partnership (Inc. Energy Assist)")
@@ -206,13 +229,13 @@ If resource_method = "SPEC/MEMO" Then
     If MMIS_helpdesk_checkbox = checked Then
         If need_divider = TRUE Then call write_variable_in_SPEC_MEMO("     --   --   --   --   --   --   --   --   --   --")
         call write_variable_in_SPEC_MEMO("* MN Health Care Recipient Help Desk - 651-431-2670")
-        need_divider = TRUE
+        need_divider = FALSE
         'call write_variable_in_SPEC_MEMO("--   --   --   --   --   --   --   --   --   --   --")
     End If
     If MNSURE_helpdesk_checkbox = checked Then
         If need_divider = TRUE Then call write_variable_in_SPEC_MEMO("     --   --   --   --   --   --   --   --   --   --")
         call write_variable_in_SPEC_MEMO("* MNSure Helpdesk - 1-855-366-7873 (1-855-3MNSURE)")
-        need_divider = TRUE
+        need_divider = FALSE
         'call write_variable_in_SPEC_MEMO("--   --   --   --   --   --   --   --   --   --   --")
     End If
     If disability_hub_checkbox = checked Then
@@ -240,15 +263,15 @@ If resource_method = "SPEC/MEMO" Then
     If front_door_checkbox = checked Then
         If need_divider = TRUE Then call write_variable_in_SPEC_MEMO("     --   --   --   --   --   --   --   --   --   --")
         call write_variable_in_SPEC_MEMO("* Hennepin County FRONT DOOR - 612-348-4111")
-        need_divider = TRUE
+        need_divider = FALSE
         'call write_variable_in_SPEC_MEMO("--   --   --   --   --   --   --   --   --   --   --")
     End If
     If sr_linkage_line_checkbox = checked Then
         If need_divider = TRUE Then call write_variable_in_SPEC_MEMO("     --   --   --   --   --   --   --   --   --   --")
         call write_variable_in_SPEC_MEMO("* Senior Linkage Line - Hours: Mon - Fri 8:00AM - 4:30PM")
-        call write_variable_in_SPEC_MEMO("   Phone: 1-800-333-2433")
-        call write_variable_in_SPEC_MEMO("   Currently has extended hours Mon - Thur 4:30PM - 6:30PM")
-        call write_variable_in_SPEC_MEMO("   Website: metroaging.org")
+        call write_variable_in_SPEC_MEMO("   Phone: 1-800-333-2433          Website: metroaging.org")
+        ' call write_variable_in_SPEC_MEMO("   Currently has extended hours Mon - Thur 4:30PM - 6:30PM")
+        ' call write_variable_in_SPEC_MEMO("   Website: metroaging.org")
         need_divider = FALSE
         'call write_variable_in_SPEC_MEMO("--   --   --   --   --   --   --   --   --   --   --")
     End If
@@ -265,7 +288,6 @@ If resource_method = "SPEC/MEMO" Then
         call write_variable_in_SPEC_MEMO("* Xcel Energy - 1-800-331-5262")
         'call write_variable_in_SPEC_MEMO("--   --   --   --   --   --   --   --   --   --   --")
     End If
-
     'Exits the MEMO
     PF4
 End If
@@ -300,6 +322,15 @@ If resource_method = "Word Document" Then
 
     objSelection.Font.Size = "12"
     objSelection.Font.Bold = FALSE
+	If client_virtual_dropox_checkbox = checked Then
+		objSelection.TypeText "* You have an option to use an email to return documents" & vbCr
+		objSelection.TypeText "  to Hennepin County. Write the case number and full name" & vbCr
+		objSelection.TypeText "  associated with the case in the body of the email." & vbCr
+		objSelection.TypeText "  Only the following types are accepted PNG, JPG, TIFF," & vbCr
+		objSelection.TypeText "  DOC, PDF, and HTML.    EMAIL: hhsews@hennepin.us " & vbCr
+		objSelection.TypeText "  You will not receive confirmation of receipt or failure." & vbCr
+		objSelection.TypeParagraph()
+	End If
     If cap_checkbox = checked Then
         objSelection.TypeText "* CAP - Community Action Partnership (Inc. Energy Assist)" & vbCr
         objSelection.TypeText "  Hours: Mon-Fri 8:00AM - 4:30PM Website: www.caphennepin.org" & vbCr
@@ -376,6 +407,7 @@ call write_variable_in_CASE_NOTE("Outside resource information sent to client")
 If resource_method = "SPEC/MEMO" Then Call write_variable_in_CASE_NOTE("* Information added to SPEC/MEMO to send in overnight batch.")
 If resource_method = "Word Document" Then Call write_variable_in_CASE_NOTE("* Information added to Word Document for printing locally.")
 
+If client_virtual_dropox_checkbox = checked Then Call write_variable_in_CASE_NOTE("* Client Virtual Dropbox.")
 IF cap_checkbox = checked Then Call write_variable_in_CASE_NOTE("* Compunity Action Partnership - CAP (Energy Assistance)")
 IF MMIS_helpdesk_checkbox = checked Then Call write_variable_in_CASE_NOTE("* DHS MHCP Recipient HelpDesk")
 IF MNSURE_helpdesk_checkbox = checked Then Call write_variable_in_CASE_NOTE("* DHS MNSure HelpDesk")
