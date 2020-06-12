@@ -119,7 +119,7 @@ If client_virtual_dropox_checkbox = checked Then
 		"to Hennepin County. Write the case number and full name" & vbNewLine &_
 		"associated with the case in the body of the email." & vbNewLine &_
 		"Only the following types are accepted PNG, JPG, TIFF," & vbNewLine &_
-		"DOC, PDF, and HTML." & vbNewLine &_
+		"DOC, PDF, and HTML.          EMAIL: hhsews@hennepin.us " & vbNewLine &_
 		"You will not receive confirmation of receipt or failure." & vbNewLine &_
         "--   --   --   --   --   --   --   --   --   --   --"
 End If
@@ -210,7 +210,7 @@ If resource_method = "SPEC/MEMO" Then
 		call write_variable_in_SPEC_MEMO("  to Hennepin County. Write the case number and full name")
 		call write_variable_in_SPEC_MEMO("  associated with the case in the body of the email.")
 		call write_variable_in_SPEC_MEMO("  Only the following types are accepted PNG, JPG, TIFF,")
-		call write_variable_in_SPEC_MEMO("  DOC, PDF, and HTML.")
+		call write_variable_in_SPEC_MEMO("  DOC, PDF, and HTML.        EMAIL: hhsews@hennepin.us ")
 		call write_variable_in_SPEC_MEMO("  You will not receive confirmation of receipt or failure.")
 		need_divider = FALSE
 	End If
@@ -288,7 +288,6 @@ If resource_method = "SPEC/MEMO" Then
         call write_variable_in_SPEC_MEMO("* Xcel Energy - 1-800-331-5262")
         'call write_variable_in_SPEC_MEMO("--   --   --   --   --   --   --   --   --   --   --")
     End If
-	MsgBox "PAUSE"
     'Exits the MEMO
     PF4
 End If
@@ -328,7 +327,7 @@ If resource_method = "Word Document" Then
 		objSelection.TypeText "  to Hennepin County. Write the case number and full name" & vbCr
 		objSelection.TypeText "  associated with the case in the body of the email." & vbCr
 		objSelection.TypeText "  Only the following types are accepted PNG, JPG, TIFF," & vbCr
-		objSelection.TypeText "  DOC, PDF, and HTML." & vbCr
+		objSelection.TypeText "  DOC, PDF, and HTML.    EMAIL: hhsews@hennepin.us " & vbCr
 		objSelection.TypeText "  You will not receive confirmation of receipt or failure." & vbCr
 		objSelection.TypeParagraph()
 	End If
