@@ -1306,7 +1306,7 @@ If IsDate(verif_form_date) = TRUE and developer_mode = FALSE Then
     End Select
     CALL write_variable_in_SPEC_MEMO("")
     CALL write_variable_in_SPEC_MEMO("If you have questions about verifications needed, or if your job change requires explanation, please call as much of the clarification can be provided verbally and is our best means to correctly budget your income.")
-	CALL write_variable_in_SPEC_MEMO("You now have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. To obtain information about your case please contact your worker.")
+	CALL write_variable_in_SPEC_MEMO("You now have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. To obtain information about your case please contact your worker. EMAIL: hhsews@hennepin.us")
     PF4
     Call back_to_SELF
 End If
