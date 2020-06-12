@@ -661,7 +661,7 @@ stats_report = "Screening Count: " & screening_count & vbcr & _
 "PRIV Case Count: " & priv_count & vbcr & _
 "Not Expedited Count: " & not_exp_count
 
-Call create_outlook_email("Mary.McGuinness@Hennepin.us; Mohamed.Ahmed@hennepin.us", "Faughn.Ramisch-Church@hennepin.us; Ilse.Ferris@hennepin.us", "EXP SNAP Report without Interviews is Ready. EOM.", "", "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP SNAP " & report_date & ".xlsx", True)
+Call create_outlook_email("HSPH.EWS.Triagers@hennepin.us"; "Adonna.Swift@hennepin.us", "Ilse.Ferris@hennepin.us", "EXP SNAP Report without Interviews is Ready. EOM.", "", "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP SNAP " & report_date & ".xlsx", True)
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
 'Call create_outlook_email("HSPH.EWS.Unit.Frey@hennepin.us", "Ilse.Ferris@hennepin.us", "Today's EXP SNAP reports are ready.", "Path to folder - T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project", "", True)
 Call create_outlook_email("Ilse.Ferris@hennepin.us","","Expedited SNAP Daily statistics for " & date, stats_report, "", True)
