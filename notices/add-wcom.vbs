@@ -443,7 +443,7 @@ Do
         ReDim WCOM_TO_WRITE_ARRAY (0)
 
 		If clt_virtual_dropbox_checkbox = checked Then
-			CALL add_words_to_message("You have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure.")
+			CALL add_words_to_message("You have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. EMAIL: hhsews@hennepin.us ")
 		End If
 
         If july_cola_wcom = checked Then
@@ -1086,6 +1086,7 @@ Next
 CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE("Detail added to each notice:")
 
+If clt_virtual_dropbox_checkbox Then CALL write_variable_in_CASE_NOTE("* Information about Virtual Dropbox.")
 If july_cola_wcom = checked Then CALL write_variable_in_CASE_NOTE("* HC income budgeted increase as COLA disregards has ended for " & HC_Income_with_COLA & ".")
 If snap_pact_wcom_checkbox Then CALL write_variable_in_CASE_NOTE("* SNAP case was " & SNAP_close_or_deny & " because " & pact_close_reason & ".")
 If pact_fraud_wcom_checkbox Then CALL write_variable_in_CASE_NOTE("* Request to add: " & new_hh_memb & ". Verification needed: " & new_memb_verifs & ". Verification not received causing closure.")
