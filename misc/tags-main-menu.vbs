@@ -430,8 +430,8 @@ function declare_tabbed_menu(tab_selected)
                 vert_button_position = vert_button_position + 20
 
                 PushButton 15, vert_button_position, 75, 15, "Script Error Report", script_error_report_btn
-                PushButton 85, vert_button_position, 100, 15, "Script Idea or Enhancement", script_idea_report_btn
-                PushButton 185, vert_button_position, 95, 15, "Sign up for a Script Demo", script_demo_btn
+                ' PushButton 85, vert_button_position, 100, 15, "Script Idea or Enhancement", script_idea_report_btn						'Removing these for now because we don't have functionality for this
+                ' PushButton 185, vert_button_position, 95, 15, "Sign up for a Script Demo", script_demo_btn
                 PushButton 450, vert_button_position, 75, 15, "Email BZST", email_bzst_btn
                 PushButton 525, vert_button_position, 75, 15, "Email QI", email_qi_btn
                 vert_button_position = vert_button_position + 25
@@ -446,7 +446,7 @@ function declare_tabbed_menu(tab_selected)
 								show_this_one = FALSE
 								For each review_group in script_array(current_script).tags
 									If bz_staff = TRUE AND review_group = "BZ" Then show_this_one = TRUE
-									If qi_staff = TRUE AND review_group = "QI" Then show_this_one = TRUE							
+									If qi_staff = TRUE AND review_group = "QI" Then show_this_one = TRUE
 								Next
 							End If
 							If show_this_one = TRUE Then
@@ -531,6 +531,115 @@ function declare_tabbed_menu(tab_selected)
 
 end function
 
+function send_script_error()
+	Do
+		confirm_err = ""
+
+		case_note_checkbox = unchecked
+		stat_update_checkbox = unchecked
+		date_checkbox = unchecked
+		math_checkbox = unchecked
+		tikl_checkbox = unchecked
+		memo_wcom_checkbox = unchecked
+		document_checkbox = unchecked
+		missing_spot_checkbox = unchecked
+
+		Dialog1 = ""
+		BeginDialog Dialog1, 0, 0, 401, 185, "Report Error Detail"
+		  EditBox 60, 25, 55, 15, MAXIS_case_number
+		  ComboBox 220, 25, 175, 45, error_type+chr(9)+"BUG - something happened that was wrong"+chr(9)+"ENHANCEMENT - something could be done better"+chr(9)+"TYPO - grammatical/spelling type errors"+chr(9)+"DAIL - add support for this DAIL message.", error_type
+		  EditBox 85, 45, 310, 15, script_names
+		  EditBox 65, 65, 330, 15, error_detail
+		  CheckBox 20, 115, 65, 10, "CASE/NOTE", case_note_checkbox
+		  CheckBox 95, 115, 65, 10, "Update in STAT", stat_update_checkbox
+		  CheckBox 170, 115, 75, 10, "Problems with Dates", date_checkbox
+		  CheckBox 265, 115, 65, 10, "Math is incorrect", math_checkbox
+		  CheckBox 20, 130, 65, 10, "TIKL is incorrect", tikl_checkbox
+		  CheckBox 95, 130, 65, 10, "MEMO or WCOM", memo_wcom_checkbox
+		  CheckBox 170, 130, 75, 10, "Created Document", document_checkbox
+		  CheckBox 265, 130, 115, 10, "Missing a place for Information", missing_spot_checkbox
+		  EditBox 60, 155, 165, 15, email_signature
+		  ButtonGroup ButtonPressed
+		    OkButton 290, 155, 50, 15
+		    CancelButton 345, 155, 50, 15
+		  Text 10, 10, 300, 10, "Information is needed about the error for our scriptwriters to review and resolve the issue. "
+		  Text 5, 30, 50, 10, "Case Number:"
+		  Text 125, 30, 95, 10, "What type of error occured?"
+		  Text 5, 50, 75, 10, "Script(s) with an Error:"
+		  Text 5, 70, 60, 10, "Explain in detail:"
+		  GroupBox 10, 90, 380, 60, "Common areas of issue"
+		  Text 20, 100, 200, 10, "Check any that were impacted by the error you are reporting."
+		  Text 10, 160, 50, 10, "Worker Name:"
+		  Text 25, 175, 335, 10, "*** Remember to leave the case as is if possible. We can resolve error better when in a live case. ***"
+		EndDialog
+
+		Dialog Dialog1
+
+		If ButtonPressed = 0 Then
+			cancel_confirm_msg = MsgBox("An Error Report will NOT be sent as you pressed 'Cancel'." & vbNewLine & vbNewLine & "Is this what you would like to do?", vbQuestion + vbYesNo, "Confirm Cancel")
+			If cancel_confirm_msg = vbYes Then confirm_err = ""
+			If cancel_confirm_msg = vbNo Then confirm_err = "LOOP" & vbNewLine & confirm_err
+		End If
+
+		If ButtonPressed = -1 Then
+			full_text = "Error occurred on " & date & " at " & time
+			full_text = full_text & vbCr & "Error type - " & error_type
+			full_text = full_text & vbCr & "Script name - " & script_names & " was run on Case #" & MAXIS_case_number & " with a runtime of " & script_run_time & " seconds."
+			full_text = full_text & vbCr & "Information: " & error_detail
+			If case_note_checkbox = checked OR stat_update_checkbox = checked OR date_checkbox = checked OR math_checkbox = checked OR tikl_checkbox = checked OR memo_wcom_checkbox = checked OR document_checkbox = checked OR missing_spot_checkbox = checked Then full_text = full_text & vbCr & vbCr & "Script has issues/concerns in the following areas:"
+
+			If case_note_checkbox = checked Then full_text = full_text & vbCr & " - CASE/NOTE"
+			If stat_update_checkbox = checked Then full_text = full_text & vbCr & " - Update in STAT"
+			If date_checkbox = checked Then full_text = full_text & vbCr & " - Dates are incorrect"
+			If math_checkbox = checked Then full_text = full_text & vbCr & " - Math is incorrect"
+			If tikl_checkbox = checked Then full_text = full_text & vbCr & " - TIKL"
+			If memo_wcom_checkbox = checked Then full_text = full_text & vbCr & " - NOTICES (WCOM/MEMO)"
+			If document_checkbox = checked Then full_text = full_text & vbCr & " - The Excel or Word Document"
+			If missing_spot_checkbox = checked Then full_text = full_text & vbCr & " - There is no space to enter particular information"
+
+			full_text = full_text & vbCr & "Closing message: " & closing_message
+			full_text = full_text & vbCr & vbCr & "Sent by: " & worker_signature
+
+			send_confirm_msg = MsgBox("** This is what will be sent as an email to the BlueZone Script team:" & vbNewLine & vbNewLine & full_text & vbNewLine & vbNewLine & "*** Is this what you want to send? ***", vbQuestion + vbYesNo, "Confirm Error Report")
+
+			If send_confirm_msg = vbYes Then confirm_err = ""
+			If send_confirm_msg = vbNo Then confirm_err = "LOOP" & vbNewLine & confirm_err
+		End If
+	Loop until confirm_err = ""
+
+	full_text = ""
+	If ButtonPressed = -1 Then
+		bzt_email = "HSPH.EWS.BlueZoneScripts@hennepin.us"
+		subject_of_email = "Script Error -- " & script_names & " (Automated Report)"
+
+		full_text = "Error reported from TAGS Menu on " & date & " at " & time
+		full_text = full_text & vbCr & "Error type - " & error_type
+		full_text = full_text & vbCr & "Script name - " & script_names & " was run on Case #" & MAXIS_case_number & " with a runtime of " & script_run_time & " seconds."
+		full_text = full_text & vbCr & "Information: " & error_detail
+		If case_note_checkbox = checked OR stat_update_checkbox = checked OR date_checkbox = checked OR math_checkbox = checked OR tikl_checkbox = checked OR memo_wcom_checkbox = checked OR document_checkbox = checked OR missing_spot_checkbox = checked Then full_text = full_text & vbCr & vbCr & "Script has issues/concerns in the following areas:"
+
+		If case_note_checkbox = checked Then full_text = full_text & vbCr & " - CASE/NOTE"
+		If stat_update_checkbox = checked Then full_text = full_text & vbCr & " - Update in STAT"
+		If date_checkbox = checked Then full_text = full_text & vbCr & " - Dates are incorrect"
+		If math_checkbox = checked Then full_text = full_text & vbCr & " - Math is incorrect"
+		If tikl_checkbox = checked Then full_text = full_text & vbCr & " - TIKL"
+		If memo_wcom_checkbox = checked Then full_text = full_text & vbCr & " - NOTICES (WCOM/MEMO)"
+		If document_checkbox = checked Then full_text = full_text & vbCr & " - The Excel or Word Document"
+		If missing_spot_checkbox = checked Then full_text = full_text & vbCr & " - There is no space to enter particular information"
+
+		full_text = full_text & vbCr & "Closing message: " & closing_message
+		full_text = full_text & vbCr & vbCr & "Sent by: " & worker_signature
+
+		If script_run_lowdown <> "" Then full_text = full_text & vbCr & vbCr & "All Script Run Details:" & vbCr & script_run_lowdown
+
+		Call create_outlook_email(bzt_email, "", subject_of_email, full_text, "", true)
+
+		MsgBox "Error Report completed!" & vbNewLine & vbNewLine & "Thank you for working with us for Continuous Improvement."
+	Else
+		MsgBox "Your error report has been cancelled and has NOT been sent to the BlueZone Script Team"
+	End If
+end function
+
 'Starting these with a very high number, higher than the normal possible amount of buttons.
 '	We're doing this because we want to assign a value to each button pressed, and we want
 '	that value to change with each button. The button_placeholder will be placed in the .button
@@ -544,6 +653,7 @@ subcategory_array = array()
 subcategory_string = ""
 subcategory_selected = "MAIN"
 select_tab = ""
+email_signature = worker_signature
 
 ' Dim snap_btn, mfip_btn, dwp_btn, hc_btn, grh_btn, ga_btn, emer_btn, ltc_btn, abawd_btn, income_btn, asset_btn, deductions_btn, application_btn, review_btn, communication_btn, utility_btn, reports_btn, resources_btn, clear_selection_btn
 ' Dim page_one_btn, page_two_btn, page_three_btn, current_page, hot_topics_btn, script_error_report_btn, script_idea_report_btn, script_demo_btn, email_bzst_btn, email_qi_btn
@@ -706,11 +816,145 @@ Do
     End If
     If ButtonPressed = hot_topics_btn OR ButtonPressed = script_error_report_btn OR ButtonPressed = script_idea_report_btn OR ButtonPressed = script_demo_btn OR ButtonPressed = email_bzst_btn OR ButtonPressed = email_qi_btn Then
         If ButtonPressed = hot_topics_btn Then Call open_URL_in_browser("https://dept.hennepin.us/hsphd/sa/ews/afepages/Adults%20and%20Families%20Eligibility.aspx")
-        ' If ButtonPressed = script_error_report_btn Then
+        If ButtonPressed = script_error_report_btn Then Call send_script_error
         ' If ButtonPressed = script_idea_report_btn Then
         ' If ButtonPressed = script_demo_btn Then
-        ' If ButtonPressed = email_bzst_btn Then
-        ' If ButtonPressed = email_qi_btn Then
+        If ButtonPressed = email_bzst_btn Then
+			Dialog1 = ""
+			BeginDialog Dialog1, 0, 0, 431, 265, "Email to BZST"
+			  EditBox 25, 20, 150, 15, email_subject_line
+			  CheckBox 60, 50, 125, 10, "Check here if this email is Urgent.", urgent_email_checkbox
+			  EditBox 10, 65, 415, 15, email_body_line_one
+			  EditBox 10, 85, 415, 15, email_body_line_two
+			  EditBox 10, 105, 415, 15, email_body_line_three
+			  EditBox 10, 125, 415, 15, email_body_line_four
+			  EditBox 10, 145, 415, 15, email_body_line_five
+			  EditBox 10, 165, 415, 15, email_body_line_six
+			  EditBox 10, 205, 415, 15, url_line
+			  EditBox 225, 225, 200, 15, email_signature
+			  CheckBox 15, 250, 215, 10, "Check here if you would like an email response from the BZST.", response_needed_checkbox
+			  ButtonGroup ButtonPressed
+			    OkButton 325, 245, 50, 15
+			    CancelButton 375, 245, 50, 15
+			  Text 5, 10, 50, 10, "Subject Line"
+			  Text 10, 25, 15, 10, "RE:"
+			  Text 10, 50, 50, 10, "Email Body"
+			  Text 10, 190, 195, 10, "Any policy/procedure to reference? Copy and paste it here:"
+			  Text 170, 230, 55, 10, "Sign your Email:"
+			  Text 275, 10, 145, 40, "This functionality will automate an email to the BlueZone Script Team at HSPS.EWS.BlueZoneScripts@hennepin.us."
+			EndDialog
+
+			Do
+				err_msg = ""
+
+				dialog Dialog1
+
+				email_subject_line = trim(email_subject_line)
+  			  	email_body_line_one = trim(email_body_line_one)
+  			  	email_body_line_two = trim(email_body_line_two)
+  			  	email_body_line_three = trim(email_body_line_three)
+  			  	email_body_line_four = trim(email_body_line_four)
+  			  	email_body_line_five = trim(email_body_line_five)
+  			  	email_body_line_six = trim(email_body_line_six)
+				url_line = trim(url_line)
+				email_signature = trim(email_signature)
+
+				If email_subject_line = "" Then err_msg = err_msg & vbNewLine & "* Enter something in the subject header line."
+  			  	If email_body_line_one = "" AND email_body_line_two = "" AND email_body_line_three = "" AND email_body_line_four = "" AND email_body_line_five = "" AND email_body_line_six = "" Then err_msg = err_msg & vbNewLine & "* Enter information in at least one line of the email body."
+				If email_signature = "" Then err_msg = err_msg & vbNewLine & "* Enter your name/signature for the email."
+
+				If ButtonPressed = 0 Then err_msg = ""
+
+				If err_msg <> "" Then MsgBox "*** Please Resolve to Continue:" & vbNewLine & err_msg
+			Loop until err_msg = ""
+			If ButtonPressed = -1 Then
+
+				If urgent_email_checkbox = checked Then email_subject_line = "URGENT!  " & email_subject_line
+				If email_body_line_one <> "" Then   email_body_lines = email_body_lines & email_body_line_one & vbCr & vbCr
+				If email_body_line_two <> "" Then   email_body_lines = email_body_lines & email_body_line_two & vbCr & vbCr
+				If email_body_line_three <> "" Then email_body_lines = email_body_lines & email_body_line_three & vbCr & vbCr
+				If email_body_line_four <> "" Then  email_body_lines = email_body_lines & email_body_line_four & vbCr & vbCr
+				If email_body_line_five <> "" Then  email_body_lines = email_body_lines & email_body_line_five & vbCr & vbCr
+				If email_body_line_six <> "" Then   email_body_lines = email_body_lines & email_body_line_six & vbCr & vbCr
+				If response_needed_checkbox = checked Then email_body_lines = "RESPONSE REQUESTED" & vbCr & vbCr & email_body_lines
+				If url_line <> "" Then email_body_lines = email_body_lines & vbCr & vbCr & "Referenced Link: " & url_line
+				email_body_lines = email_body_lines & vbCr & vbCr & "---" & vbCr & email_signature
+
+				Call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", email_subject_line, email_body_lines, "", TRUE)
+
+				MsgBox "Email Sent to BZST" & vbNewLine & "----------------------------" & vbNewLine & "Subject: " & email_subject_line & vbNewLine & vbNewLine & email_body_lines
+			Else
+				MsgBox "Email to BZST has been cancelled."
+			End If
+		End If
+        If ButtonPressed = email_qi_btn Then
+			Dialog1 = ""
+			BeginDialog Dialog1, 0, 0, 431, 265, "Email to QI"
+			  EditBox 25, 20, 150, 15, email_subject_line
+			  CheckBox 60, 50, 125, 10, "Check here if this email is Urgent.", urgent_email_checkbox
+			  EditBox 10, 65, 415, 15, email_body_line_one
+			  EditBox 10, 85, 415, 15, email_body_line_two
+			  EditBox 10, 105, 415, 15, email_body_line_three
+			  EditBox 10, 125, 415, 15, email_body_line_four
+			  EditBox 10, 145, 415, 15, email_body_line_five
+			  EditBox 10, 165, 415, 15, email_body_line_six
+			  EditBox 10, 205, 415, 15, url_line
+			  EditBox 225, 225, 200, 15, email_signature
+			  CheckBox 15, 250, 215, 10, "Check here if you would like an email response from the QI Team.", response_needed_checkbox
+			  ButtonGroup ButtonPressed
+				OkButton 325, 245, 50, 15
+				CancelButton 375, 245, 50, 15
+			  Text 5, 10, 50, 10, "Subject Line"
+			  Text 10, 25, 15, 10, "RE:"
+			  Text 10, 50, 50, 10, "Email Body"
+			  Text 10, 190, 195, 10, "Any policy/procedure to reference? Copy and paste it here:"
+			  Text 170, 230, 55, 10, "Sign your Email:"
+			  Text 275, 10, 145, 40, "This functionality will automate an email to the BlueZone Script Team at HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us."
+			EndDialog
+
+			Do
+				err_msg = ""
+
+				dialog Dialog1
+
+				email_subject_line = trim(email_subject_line)
+				email_body_line_one = trim(email_body_line_one)
+				email_body_line_two = trim(email_body_line_two)
+				email_body_line_three = trim(email_body_line_three)
+				email_body_line_four = trim(email_body_line_four)
+				email_body_line_five = trim(email_body_line_five)
+				email_body_line_six = trim(email_body_line_six)
+				url_line = trim(url_line)
+				email_signature = trim(email_signature)
+
+				If email_subject_line = "" Then err_msg = err_msg & vbNewLine & "* Enter something in the subject header line."
+				If email_body_line_one = "" AND email_body_line_two = "" AND email_body_line_three = "" AND email_body_line_four = "" AND email_body_line_five = "" AND email_body_line_six = "" Then err_msg = err_msg & vbNewLine & "* Enter information in at least one line of the email body."
+				If email_signature = "" Then err_msg = err_msg & vbNewLine & "* Enter your name/signature for the email."
+
+				If ButtonPressed = 0 Then err_msg = ""
+
+				If err_msg <> "" Then MsgBox "*** Please Resolve to Continue:" & vbNewLine & err_msg
+			Loop until err_msg = ""
+			If ButtonPressed = -1 Then
+
+				If urgent_email_checkbox = checked Then email_subject_line = "URGENT!  " & email_subject_line
+				If email_body_line_one <> "" Then   email_body_lines = email_body_lines & email_body_line_one & vbCr & vbCr
+				If email_body_line_two <> "" Then   email_body_lines = email_body_lines & email_body_line_two & vbCr & vbCr
+				If email_body_line_three <> "" Then email_body_lines = email_body_lines & email_body_line_three & vbCr & vbCr
+				If email_body_line_four <> "" Then  email_body_lines = email_body_lines & email_body_line_four & vbCr & vbCr
+				If email_body_line_five <> "" Then  email_body_lines = email_body_lines & email_body_line_five & vbCr & vbCr
+				If email_body_line_six <> "" Then   email_body_lines = email_body_lines & email_body_line_six & vbCr & vbCr
+				If response_needed_checkbox = checked Then email_body_lines = "RESPONSE REQUESTED" & vbCr & vbCr & email_body_lines
+				If url_line <> "" Then email_body_lines = email_body_lines & vbCr & vbCr & "Referenced Link: " & url_line
+				email_body_lines = email_body_lines & vbCr & vbCr & "---" & vbCr & email_signature
+
+				Call create_outlook_email("HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us", "", email_subject_line, email_body_lines, "", TRUE)
+
+				MsgBox "Email Sent to Quality Improvement Team" & vbNewLine & "----------------------------" & vbNewLine & "Subject: " & email_subject_line & vbNewLine & vbNewLine & email_body_lines
+			Else
+				MsgBox "Email to Quality Improvement Team has been cancelled."
+			End If
+		End If
         ' leave_loop = FALSE
         ButtonPressed = resources_btn
     End If
