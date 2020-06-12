@@ -165,6 +165,10 @@ class script_bowie
     end sub
 end class
 
+'Needs to determine MyDocs directory before proceeding.
+Set wshshell = CreateObject("WScript.Shell")
+user_myDocs_folder = wshShell.SpecialFolders("MyDocuments") & "\"
+
 favorites_text_file_location = user_myDocs_folder & "\scripts-favorites.txt"
 hotkeys_text_file_location = user_myDocs_folder & "\scripts-hotkeys.txt"
 'Opening the favorites text
