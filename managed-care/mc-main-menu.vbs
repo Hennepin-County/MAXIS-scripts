@@ -48,7 +48,7 @@ changelog_display
 
 'CUSTOM FUNCTIONS===========================================================================================================
 Function declare_MC_menu_dialog(script_array)
-	BeginDialog MC_dialog, 0, 0, 516, 90, "MMIS Scripts"
+	BeginDialog MC_dialog, 0, 0, 516, 100, "MMIS Scripts"
 	 	Text 5, 5, 435, 10, "MMIS scripts main menu: select the script to run from the choices below."
 	  	ButtonGroup ButtonPressed
 		 	'PushButton 015, 35, 40, 15, "CA", 				MC_main_button
@@ -59,9 +59,9 @@ Function declare_MC_menu_dialog(script_array)
 
 		For current_script = 0 to ubound(script_array)
 			'Displays the button and text description-----------------------------------------------------------------------------------------------------------------------------
-			'FUNCTION		HORIZ. ITEM POSITION								VERT. ITEM POSITION		ITEM WIDTH									ITEM HEIGHT		ITEM TEXT/LABEL										BUTTON VARIABLE
-			PushButton 		5, 													vert_button_position, 	script_array(current_script).button_size, 	10, 			script_array(current_script).script_name, 			button_placeholder
-			Text 			script_array(current_script).button_size + 10, 		vert_button_position, 	500, 										10, 			"--- " & script_array(current_script).description
+			'FUNCTION		HORIZ. ITEM POSITION		VERT. ITEM POSITION		ITEM WIDTH			ITEM HEIGHT		ITEM TEXT/LABEL										BUTTON VARIABLE
+			PushButton 		5, 							vert_button_position, 	120, 				10, 			script_array(current_script).script_name, 			button_placeholder
+			Text 			130, 						vert_button_position, 	500, 				10, 			"--- " & script_array(current_script).description
 			'----------
 			vert_button_position = vert_button_position + 15	'Needs to increment the vert_button_position by 15px (used by both the text and buttons)
 			'----------
@@ -69,7 +69,7 @@ Function declare_MC_menu_dialog(script_array)
 			button_placeholder = button_placeholder + 1
 		next
 
-		CancelButton 455, 70, 50, 15
+		CancelButton 455, 80, 50, 15
 		'GroupBox 5, 20, 205, 35, "MC Sub-Menus"
 	EndDialog
 End function
@@ -122,6 +122,13 @@ Set script_array_MC_main(script_num) = new script		'Set this array element to be
 script_array_MC_main(script_num).script_name 			= "Open Enrollment"																		'Script name
 script_array_MC_main(script_num).file_name 				= "mc-open-enrollment.vbs"															'Script URL
 script_array_MC_main(script_num).description 			= "Action script that will update Enrollment in MMIS for open enrollment."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_MC_main(script_num)			'Resets the array to add one more element to it
+Set script_array_MC_main(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_MC_main(script_num).script_name 			= "SMRT"																		'Script name
+script_array_MC_main(script_num).file_name 				= "mc-smrt.vbs"															'Script URL
+script_array_MC_main(script_num).description 			= "Template for case noting the SMRT process and information."
 
 
 'Starting these with a very high number, higher than the normal possible amount of buttons.
