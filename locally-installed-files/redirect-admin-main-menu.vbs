@@ -1,9 +1,23 @@
 'LOADING GLOBAL VARIABLES
 Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-Set fso_command = run_another_script_fso.OpenTextFile("C:\MAXIS-scripts\locally-installed-files\SETTINGS - GLOBAL VARIABLES.vbs")
+Set fso_command = run_another_script_fso.OpenTextFile("\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Scripts\Script Files\SETTINGS - GLOBAL VARIABLES.vbs")
 text_from_the_other_script = fso_command.ReadAll
 fso_command.Close
 Execute text_from_the_other_script
+
+'Beginning of script code for terminating ESSO
+MsgBox "Beginning of script, checking to see if ESSO is installed on your computer..."
+ESSO_path = "C:\Program Files (x86)\Passlogix\v-GO SSO\ssoShell.exe"
+SET fso = CreateObject("Scripting.FileSystemObject")
+IF (fso.FileExists(ESSO_path)) THEN
+  using_ESSO = TRUE
+  SET objShell = CreateObject("Wscript.Shell")
+  objShell.Run "taskkill /f /im ssoShell.exe", 0, TRUE       'http://www.vbsedit.com/html/6f28899c-d653-4555-8a59-49640b0e32ea.asp
+  MsgBox "ESSO was found on your computer, ESSO has terminated. It may take 10-20 seconds for the system tray icon to go away."
+ELSE
+  using_ESSO = FALSE
+  MsgBox "ESSO was not found on your computer, so no need to try to terminate it."
+END IF
 
 'LOADING SCRIPT
 script_url = script_repository & "/admin/admin-main-menu.vbs"
@@ -15,7 +29,7 @@ IF run_locally = False THEN
 		Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 		Execute req.responseText								'Executes the script code
 	ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-		MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
+		MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_ 
 		vbCr & _
 		"Before contacting the BlueZone script team at HSPH.EWS.BlueZoneScripts@Hennepin.us, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
 		vbCr & _
@@ -24,7 +38,7 @@ IF run_locally = False THEN
 		vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
 		vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
 		vbCr & _
-		"We will work with your IT department to try and solve this issue, if needed." & vbCr &_
+		"We will work with your IT department to try and solve this issue, if needed." & vbCr &_ 
 		vbCr &_
 		"URL: " & url
 		StopScript
