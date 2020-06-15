@@ -121,6 +121,7 @@ BeginDialog Dialog1, 0, 0, 306, 110, "Work Assingment Selection"
   ButtonGroup ButtonPressed
     OkButton 195, 90, 50, 15
     CancelButton 250, 90, 50, 15
+	PushButton 5, 95, 70, 10, "INSTRUCTIONS", instructions_btn
   Text 20, 10, 125, 10, " QI Staff Member completing the work:"
   Text 10, 30, 140, 10, "Date of assignment and work completion:"
   Text 85, 50, 60, 10, "Assignment Type:"
@@ -142,7 +143,12 @@ Do
     If type_of_work_assignment = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select which work assignment you are completing for the day."
     If email_signature = "" Then err_msg = err_msg & vbNewLine & "* Enter how you want your email signed."
 
-    If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
+	If ButtonPressed = instructions_btn Then
+		Call open_URL_in_browser("https://dept.hennepin.us/hsphd/sa/ews/BlueZone_Script_Instructions/ADMIN/ADMIN%20-%20WORK%20ASSIGNMENT%20COMPLETED.docx")
+		err_msg = "LOOP" & err_msg
+    ElseIf err_msg <> "" Then
+		MsgBox "Please resolve to continue:" & vbNewLine & err_msg
+	End If
 
 Loop until err_msg = ""
 
@@ -342,7 +348,7 @@ Select Case type_of_work_assignment                                             
           Text 20, 85, 105, 10, "... you denied for other reasons:"
           Text 20, 105, 60, 10, "... you approved:"
           Text 20, 125, 80, 10, "... were acted on timely:"
-          Text 20, 145, 90, 10, "... ere acted on NOT timely:"
+          Text 20, 145, 90, 10, "... were acted on NOT timely:"
           Text 20, 165, 140, 10, "... have a future due date for verifications:"
           EditBox 405, 35, 20, 15, assignment_hours
           EditBox 455, 35, 20, 15, assignment_minutes
