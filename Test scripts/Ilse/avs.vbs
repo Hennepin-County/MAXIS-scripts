@@ -82,7 +82,7 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 EMReadScreen PRIV_check, 4, 24, 14					'if case is a priv case then it gets identified, and will not be updated in MMIS
 If PRIV_check = "PRIV" then script_end_procedure("PRIV case, cannot access/update. The script will now end.")
 
-check_for_maxis(False)
+Call check_for_maxis(False)
 
 '----------------------------------------------------------------------------------------------------Gathering the member information 
 CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
@@ -108,7 +108,7 @@ test_array = split(client_array, "|")
 total_clients = Ubound(test_array)			'setting the upper bound for how many spaces to use from the array
 
 DIM all_client_array()
-ReDim all_clients_array(total_clients, 1)
+ReDim all_clients_array(total_clients, 2)
 
 FOR x = 0 to total_clients				'using a dummy array to build in the autofilled check boxes into the array used for the dialog.
 	Interim_array = split(client_array, "|")
@@ -117,7 +117,7 @@ FOR x = 0 to total_clients				'using a dummy array to build in the autofilled ch
 NEXT
 
 If initial_option = "AVS Forms" then selection_text = "Select all members REQUIRED to sign AVS form(s):"
-If initial_option = "AVS Submission" then selection_text = ""
+If initial_option = "AVS Submission" then selection_text = "Select all members AVS is being submitted for:"
 
 Dialog1 = ""
 BEGINDIALOG Dialog1, 0, 0, 241, (50 + (total_clients * 15)), "Member Selection Dialog"   'Creates the dynamic dialog. The height will change based on the number of clients it finds.
@@ -146,6 +146,8 @@ Do
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
     
+CALL Navigate_to_MAXIS_screen("STAT", "TYPE")   'navigating to stat type to get HC application status     
+    
 avs_membs = -1
 Dim avs_members_array()
 ReDim avs_members_array(2, 0)
@@ -161,6 +163,20 @@ FOR i = 0 to total_clients
         avs_members_array(member_number_const, avs_membs) = left(all_clients_array(i, 0), 2)
         avs_members_array(member_name_const, avs_membs) = all_clients_array(i, 0)
         avs_members_array(hc_type_const, avs_membs) = ""
+        ''adding TYPE Information to be output into the dialog and case note 
+        'row = 6
+        'Do
+        '    EmReadscreen type_memb_number, 2, row, 3
+        '    EmReadscreen hc_type, 1, row, 37
+        '    If hc_type = "_" then hc_type = "N"
+        '    If type_memb_number = left(all_clients_array(i, 0), 2) then
+        '        msgbox "match"
+        '        avs_members_array(hc_type_const, avs_membs) = hc_type
+        '        exit do
+        '    Else 
+        '        row = row + 1
+        '    End if 
+        'Loop until trim(type_memb_number) = ""
 	END IF
 NEXT
 
@@ -191,8 +207,9 @@ If initial_option = "AVS Forms" then
     EditBox 60, 5, 55, 15, sent_recd_date
     Text 145, 10, 45, 10, "MA Process:"
     DropListBox 195, 5, 70, 15, "Select one..."+chr(9)+"Application"+chr(9)+"Change in Basis", ma_process
+    'DropListBox 195, 5, 70, 15, "Select one..."+chr(9)+"Application"+chr(9)+"Change in Basis"+chr(9)+"Renewal", ma_process
     Text 5, 30, 50, 10, "Request Type:"
-    DropListBox 60, 25, 205, 15, "Select One:"+chr(9)+"BI-Brain Injury Waiver"+chr(9)+"BX-Blind"+chr(9)+"CA-Community Alt. Care"+chr(9)+"DD-Developmental Disa Waiver"+chr(9)+"DP-MA for Employed Pers w/ Disa"+chr(9)+"DX-Disability"+chr(9)+"EH-Emergency Medical Assistance"+chr(9)+"EW-Elderly Waiver"+chr(9)+"EX-65 and Older"+chr(9)+"LC-Long Term Care"+chr(9)+"MP-QMB SLMB Only"+chr(9)+"QI-QI"+chr(9)+"QW-QWD", request_type
+    
     If avs_option = "Received - Incomplete" then
         Text 5, 50, 65, 10, "Reason Incomplete:"
         EditBox 75, 45, 190, 15, reason_incomplete 
@@ -200,10 +217,11 @@ If initial_option = "AVS Forms" then
       x = 0
       FOR item = 0 to ubound(avs_members_array, 2)							'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
           If avs_members_array(member_name_const, item) <> "" then Text 10, (80 + (x * 15)), 140, 10, " - " & avs_members_array(member_name_const, item)
+          If avs_members_array(hc_type_const, item) <> "" then DropListBox 60, 25, 150, 15, "Select One:"+chr(9)+"BI-Brain Injury Waiver"+chr(9)+"BX-Blind"+chr(9)+"CA-Community Alt. Care"+chr(9)+"DD-Developmental Disa Waiver"+chr(9)+"DP-MA for Employed Pers w/ Disa"+chr(9)+"DX-Disability"+chr(9)+"EH-Emergency Medical Assistance"+chr(9)+"EW-Elderly Waiver"+chr(9)+"EX-65 and Older"+chr(9)+"LC-Long Term Care"+chr(9)+"MP-QMB SLMB Only"+chr(9)+"QI-QI"+chr(9)+"QW-QWD"+chr(9)+"Not Applying", request_type
           'If avs_members_array(member_name_const, item) <> "" then DropListBox 160, (110 + (x * 15)), 50, 15, "Select one..."+chr(9)+"MA"+chr(9)+"MCRE"+chr(9)+"IA"+chr(9)+"QHP", avs_members_array(hc_type_const, item)
           x = x + 1
       NEXT
-      GroupBox 5, 65, 260, (20 + (x * 12)), "AVS DHS-7823 Signatures are Required for the following members:"
+      GroupBox 5, 30, 260, (20 + (x * 12)), "AVS DHS-7823 Signatures are Required for the following members:"
       Text 5, (100 + (x * 12)), 40, 10, "Other notes:"
       EditBox 50, (95 + (x * 12)), 215, 15, other_notes
       Text 5,  (120 + (x * 12)), 60, 10, "Worker Signature:" 
@@ -336,6 +354,12 @@ If initial_option = "AVS Forms" then
     Call write_variable_in_CASE_NOTE("---") 
     Call write_variable_in_CASE_NOTE(worker_signature) 
 End if 
+
+'Providing the option to run the avd option 
+'If avs_option = "Received - Complete" then confirm_msgbox = msgbox("Do you wish to case note submitting the AVS request?", vbQuestion + vbYesNo, "Submit the AVS Request?")
+'If confirm_msgbox = vbYes then 
+'If confirm_msgbox = vbNo then 
+    
 
 If verif_request = True then 
     'Outputting AVS verbiage to Word 
