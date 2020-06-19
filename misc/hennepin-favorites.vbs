@@ -1,7 +1,7 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "Hennepin Favorites.vbs"
 start_time = timer
-run_locally = true
+
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
@@ -889,16 +889,26 @@ ReDim new_scripts_array(1)
 '>>> Looking through the scripts array and determining all of the new ones.
 FOR i = 0 TO Ubound(script_array)
     IF DateDiff("D", script_array(i).release_date, date) < 60 THEN
-        num_of_new_scripts = num_of_new_scripts + 1
-        ReDim Preserve new_scripts_array(num_of_new_scripts)
-        SET new_scripts_array(num_of_new_scripts) = NEW script_bowie
-        new_scripts_array(num_of_new_scripts).script_name		= script_array(i).script_name
-        new_scripts_array(num_of_new_scripts).category			= script_array(i).category
-        new_scripts_array(num_of_new_scripts).description		= script_array(i).description
-        new_scripts_array(num_of_new_scripts).release_date		= script_array(i).release_date
-        new_scripts_array(num_of_new_scripts).tags		        = script_array(i).tags
-        new_scripts_array(num_of_new_scripts).dlg_keys		    = script_array(i).dlg_keys
-        new_scripts_array(num_of_new_scripts).keywords		    = script_array(i).keywords
+		show_this_one = TRUE
+		If script_array(i).category = "ADMIN" Then
+			show_this_one = FALSE
+			For each review_group in script_array(i).tags
+				If bz_staff = TRUE AND review_group = "BZ" Then show_this_one = TRUE
+				If qi_staff = TRUE AND review_group = "QI" Then show_this_one = TRUE
+			Next
+		End If
+		If show_this_one = TRUE Then
+	        num_of_new_scripts = num_of_new_scripts + 1
+	        ReDim Preserve new_scripts_array(num_of_new_scripts)
+	        SET new_scripts_array(num_of_new_scripts) = NEW script_bowie
+	        new_scripts_array(num_of_new_scripts).script_name		= script_array(i).script_name
+	        new_scripts_array(num_of_new_scripts).category			= script_array(i).category
+	        new_scripts_array(num_of_new_scripts).description		= script_array(i).description
+	        new_scripts_array(num_of_new_scripts).release_date		= script_array(i).release_date
+	        new_scripts_array(num_of_new_scripts).tags		        = script_array(i).tags
+	        new_scripts_array(num_of_new_scripts).dlg_keys		    = script_array(i).dlg_keys
+	        new_scripts_array(num_of_new_scripts).keywords		    = script_array(i).keywords
+		End If
     end if
 
     If IsDate(script_array(i).hot_topic_date) = TRUE Then

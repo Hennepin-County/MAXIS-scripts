@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("06/13/2020", "Since there are updates to the requirements for submitting a SMRT Referral in ISDS, we are reviewing the functionality of this script. ##~## If there are specific changes, fields, information, or functionality that would make your work with this script easier, pleae contact us. ##~## ##~## Email us at HSPH.EWS.BlueZoneScripts@hennepin.us or submit an 'Error Report' at the end of the script run.##~##", "Casey Love, Hennepin County")
 call changelog_update("01/19/2017", "Initial version.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/29/2017", "Update script for denials to remove start date.", "MiKayla Handley, Hennepin County")
 
@@ -137,6 +138,8 @@ If SMRT_actions = "Initial request" then
 	If ECF_workflow_checkbox = 1 then call write_variable_in_CASE_NOTE("* ECF workflow has been completed in ECF.")
 	Call write_variable_in_CASE_NOTE ("---")
 	call write_variable_in_CASE_NOTE(worker_signature)
+
+	end_msg = "SMRT Action for Initial Request noted on Case."
 END If
 
 If SMRT_actions = "ISDS referral completed" then
@@ -188,6 +191,8 @@ If SMRT_actions = "ISDS referral completed" then
     Call write_bullet_and_variable_in_CASE_NOTE("Actions taken", action_taken)
     Call write_variable_in_CASE_NOTE ("---")
     call write_variable_in_CASE_NOTE(worker_signature)
+
+	end_msg = "SMRT Action for ISDS Referral Completed noted on Case."
 END If
 
 If SMRT_actions = "Determination received" then
@@ -240,6 +245,8 @@ If SMRT_actions = "Determination received" then
 	If MMIS_checkbox = 1 then Call write_variable_in_CASE_NOTE("* MMIS updated")
     Call write_variable_in_CASE_NOTE ("---")
     call write_variable_in_CASE_NOTE(worker_signature)
+
+	end_msg = "SMRT Action for Determination Received noted on Case."
 END If
 
-script_end_procedure("")
+Call script_end_procedure_with_error_report(end_msg)
