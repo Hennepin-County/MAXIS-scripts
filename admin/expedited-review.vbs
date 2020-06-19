@@ -44,6 +44,8 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("06/19/2020", "Updated for phase 2 of Exp SNAP project including emailing Triage group for assignment.", "Ilse Ferris, Hennepin County")
+CALL changelog_update("05/19/2020", "Updated to create assignments based on the current phase of the project.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("03/31/2020", "Removed email funtionality when report is finished running.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("02/24/2020", "Added to ADMIN Main Menu - BZ menu.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("02/20/2020", "Final testing version.", "Ilse Ferris, Hennepin County")
@@ -99,8 +101,6 @@ MAXIS_footer_year = CM_yr
 report_date = replace(date, "/", "-")   'Changing the format of the date to use as file path selection default
 file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\" & report_date & ".xlsx"
 
-notes_checkbox = 1 'auto-checked as this is going to save a lot of time. 
-
 BeginDialog Dialog1, 0, 0, 266, 115, "ADMIN - EXPEDITED REVIEW"
   ButtonGroup ButtonPressed
     PushButton 200, 50, 50, 15, "Browse...", select_a_file_button
@@ -110,7 +110,6 @@ BeginDialog Dialog1, 0, 0, 266, 115, "ADMIN - EXPEDITED REVIEW"
   Text 20, 20, 235, 25, "This script should be used to review a BOBI list of pending SNAP and/or MFIP cases to ensure expedited screening and determinations are being made to ensure expedited timeliness rules are being followed."
   Text 15, 70, 230, 15, "Select the Excel file that contains your inforamtion by selecting the 'Browse' button, and finding the file."
   GroupBox 10, 5, 250, 85, "Using this script:"
-  CheckBox 30, 100, 110, 10, "Add previous QI review notes.", notes_checkbox
 EndDialog
 
 'dialog and dialog DO...Loop	
@@ -126,62 +125,60 @@ Do
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-If notes_checkbox = checked then 
-    'Finding and opening the previous day's file. 
-    previous_date = dateadd("d", -1, date)
-    Call change_date_to_soonest_working_day(previous_date)       'finds the most recent previous working day for the fin
-    file_date = replace(previous_date, "/", "-")   'Changing the format of the date to use as file path selection default
-    previous_file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\" & file_date & ".xlsx"
-    
-    If objExcel = "" Then Call excel_open(previous_file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
-    
-    For Each objWorkSheet In objWorkbook.Worksheets 'Creating an array of worksheets that are not the intitial report - "Report 1"
-        If instr(objWorkSheet.Name, "Sheet") = 0 and objWorkSheet.Name <> "Report 1" then sheet_list = sheet_list & objWorkSheet.Name & ","
-    Next
-    
-    sheet_list = trim(sheet_list)  'trims excess spaces of sheet_list
-    If right(sheet_list, 1) = "," THEN sheet_list = left(sheet_list, len(sheet_list) - 1) 'trimming off last comma
-    array_of_sheets = split(sheet_list, ",")   'Creating new array
-    
-    'Establshing array     
-    DIM master_array()          'Declaring the array
-    ReDim master_array(2, 0)    'Resizing the array 
-    
-    'Creating constants to value the array elements
-    const master_case_number_const = 0  
-    const master_notes_const       = 1
-    
-    master_count = 0    'incrementer for the array 
-    
-    For each excel_sheet in array_of_sheets 
-        objExcel.worksheets(excel_sheet).Activate 'Activates the applicable worksheet 
-        excel_row = 2
-        
-        Do 
-            master_case_number = ObjExcel.Cells(excel_row, 2).Value 'reading case number
-            master_case_number = trim(master_case_number)
-            If master_case_number = "" then exit do 
-            
-            master_notes = ObjExcel.Cells(excel_row, 8).Value       'reading worker entered notes       
-        
-            If trim(master_notes) <> "" then 
-                ReDim Preserve master_array(2, master_record)	'This resizes the array based on if master notes were found or not
-                master_array(master_case_number_const,  master_record) = master_case_number
-                master_array(master_notes_const,        master_record) = trim(master_notes)
-                
-                master_record = master_record + 1			'This increments to the next entry in the array'
-                STATS_counter = STATS_counter + 1           'stats incrementor 
-            End if 
-            excel_row = excel_row + 1                       'Excel row incrementor
-        LOOP
-    Next 
-    
-    'Closing workbook and quiting Excel application
-    objExcel.ActiveWorkbook.Close                           
-    objExcel.Application.Quit
-    objExcel.Quit
-End if 
+'Finding and opening the previous day's file. 
+previous_date = dateadd("d", -1, date)
+Call change_date_to_soonest_working_day(previous_date)       'finds the most recent previous working day for the fin
+file_date = replace(previous_date, "/", "-")   'Changing the format of the date to use as file path selection default
+previous_file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\" & file_date & ".xlsx"
 
+If objExcel = "" Then Call excel_open(previous_file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
+
+For Each objWorkSheet In objWorkbook.Worksheets 'Creating an array of worksheets that are not the intitial report - "Report 1"
+    If instr(objWorkSheet.Name, "Sheet") = 0 and objWorkSheet.Name <> "Report 1" then sheet_list = sheet_list & objWorkSheet.Name & ","
+Next
+
+sheet_list = trim(sheet_list)  'trims excess spaces of sheet_list
+If right(sheet_list, 1) = "," THEN sheet_list = left(sheet_list, len(sheet_list) - 1) 'trimming off last comma
+array_of_sheets = split(sheet_list, ",")   'Creating new array
+
+'Establshing array     
+DIM master_array()          'Declaring the array
+ReDim master_array(2, 0)    'Resizing the array 
+
+'Creating constants to value the array elements
+const master_case_number_const = 0  
+const master_notes_const       = 1
+
+master_count = 0    'incrementer for the array 
+
+For each excel_sheet in array_of_sheets 
+    objExcel.worksheets(excel_sheet).Activate 'Activates the applicable worksheet 
+    excel_row = 2
+    
+    Do 
+        master_case_number = ObjExcel.Cells(excel_row, 2).Value 'reading case number
+        master_case_number = trim(master_case_number)
+        If master_case_number = "" then exit do 
+        
+        master_notes = ObjExcel.Cells(excel_row, 8).Value       'reading worker entered notes       
+    
+        If trim(master_notes) <> "" then 
+            ReDim Preserve master_array(2, master_record)	'This resizes the array based on if master notes were found or not
+            master_array(master_case_number_const,  master_record) = master_case_number
+            master_array(master_notes_const,        master_record) = trim(master_notes)
+            
+            master_record = master_record + 1			'This increments to the next entry in the array'
+            STATS_counter = STATS_counter + 1           'stats incrementor 
+        End if 
+        excel_row = excel_row + 1                       'Excel row incrementor
+    LOOP
+Next 
+
+'Closing workbook and quiting Excel application
+objExcel.ActiveWorkbook.Close                           
+objExcel.Application.Quit
+objExcel.Quit
+ 
 back_to_self                            'resetting MAXIS back to self before getting started
 Call MAXIS_footer_month_confirmation	'ensuring we are in the correct footer month/year
 
@@ -240,14 +237,13 @@ Do
         expedited_array(case_status_const,      entry_record) = ""              'making space in the array for these variables, but valuing them as "" for now
         expedited_array(appears_exp_const,      entry_record) = ""
         expedited_array(prev_notes_const,       entry_record) = ""
-        If notes_checkbox = checked then
-            For i = 0 to Ubound(master_array, 2)                                                            'If notes were selected to be added, array is looped thru for matching case number
-                If master_array(master_case_number_const, i) = MAXIS_case_number then 
-                    expedited_array(prev_notes_const, entry_record) = master_array(master_notes_const, i)   'If case number is found, prevoius list notes are added to the array 
-                    exit for 
-                End if      
-            Next 
-        End if 
+        
+        For i = 0 to Ubound(master_array, 2)                                                            'If notes were selected to be added, array is looped thru for matching case number
+            If master_array(master_case_number_const, i) = MAXIS_case_number then 
+                expedited_array(prev_notes_const, entry_record) = master_array(master_notes_const, i)   'If case number is found, prevoius list notes are added to the array 
+                exit for 
+            End if      
+        Next 
 
         entry_record = entry_record + 1			'This increments to the next entry in the array
         stats_counter = stats_counter + 1       'Increment for stats counter 
@@ -255,6 +251,12 @@ Do
     End if 
     excel_row = excel_row + 1   
 Loop
+
+'Setting up counts for data tracking
+screening_count = 0
+expedited_count = 0
+priv_count = 0
+not_exp_count = 0
 
 'Loading of cases is complete. Reviewing the cases in the array. 
 For item = 0 to UBound(expedited_array, 2)
@@ -267,6 +269,7 @@ For item = 0 to UBound(expedited_array, 2)
     If left(worker_number, 4) <> "X127" then                                    'Out of county cases from initial upload
         expedited_array(case_status_const, item) = "OUT OF COUNTY CASE"
         expedited_array(appears_exp_const, item) = "Not Expedited"
+        not_exp_count = not_exp_count + 1
     Else 
         Call navigate_to_MAXIS_screen("STAT", "PROG")
         EMReadScreen priv_check, 4, 24, 14 'If it can't get into the case needs to skip - checking in PROD and INQUIRY 
@@ -274,11 +277,13 @@ For item = 0 to UBound(expedited_array, 2)
             EmReadscreen priv_worker, 26, 24, 46
             expedited_array(case_status_const, item) = trim(priv_worker)
             expedited_array(appears_exp_const, item) = "Privileged Cases"
+            priv_count = priv_count + 1
         else 
             EMReadScreen county_code, 4, 21, 21                                 'Out of county cases from STAT 
             If county_code <> "X127" then
                 expedited_array(case_status_const, item) = "OUT OF COUNTY CASE"
                 expedited_array(appears_exp_const, item) = "Not Expedited"
+                not_exp_count = not_exp_count + 1
             End if 
         End if 
     End if 
@@ -304,11 +309,13 @@ For item = 0 to UBound(expedited_array, 2)
             SNAP_PENDING = FALSE
             expedited_array(case_status_const, item) = "SNAP ACTIVE"
             expedited_array(appears_exp_const, item) = "Not Expedited"
+            not_exp_count = not_exp_count + 1
         ElseIF SNAP_status_check = "PEND" then 
             SNAP_PENDING = TRUE 
         ElseIF program_ID = "FS" and SNAP_status_check = "DENY" then 
             expedited_array(case_status_const, item) = "SNAP Application Denied"
             expedited_array(appears_exp_const, item) = "Not Expedited"
+            not_exp_count = not_exp_count + 1
         Else    
             'MFIP determination of pending or active 
             SNAP_PENDING = FALSE
@@ -342,11 +349,9 @@ For item = 0 to UBound(expedited_array, 2)
         
         IF MFIP_ACTIVE = TRUE and SNAP_PENDING = TRUE then 
             expedited_array(case_status_const, item) = "MFIP ACTIVE"
-            expedited_array(appears_exp_const, item) = "Not Expedited"    
-        Elseif MFIP_ACTIVE = TRUE then
-            expedited_array(case_status_const, item) = "MFIP ACTIVE"
             expedited_array(appears_exp_const, item) = "Not Expedited"
-        End if 
+            not_exp_count = not_exp_count + 1    
+        End if  
                
         'Determining if case notes need to be reviewed or not     
         If SNAP_PENDING = True or MFIP_PENDING = True then 
@@ -375,6 +380,7 @@ For item = 0 to UBound(expedited_array, 2)
                     case_note_found = True 
                     expedited_array(case_status_const, item) = "Case Notes Do Not Exist"
                     expedited_array(appears_exp_const, item) = "Exp Screening Req"
+                    screening_count = screening_count + 1
                     exit do
                 Else
                     EMReadScreen case_note_date, 8, MAXIS_row, 6    'incremented row - reading the case note date
@@ -388,11 +394,13 @@ For item = 0 to UBound(expedited_array, 2)
                         case_note_found = True 
                         expedited_array(case_status_const, item) = "Appears Expedited"
                         expedited_array(appears_exp_const, item) = "Req Exp Processing"
+                        expedited_count = expedited_count + 1
                         exit do
                     Elseif instr(case_note_header, "does not appear") or instr(case_note_header, "appears not expedited") then
                         case_note_found = True 
                         expedited_array(case_status_const, item) = "Screened, Not EXP"
                         expedited_array(appears_exp_const, item) = "Not Expedited"
+                        not_exp_count = not_exp_count + 1
                         exit do
                     Else
                         case_note_found = False         'defaulting to false if not able to find an expedited care note
@@ -407,6 +415,7 @@ For item = 0 to UBound(expedited_array, 2)
             If case_note_found = False then 
                 expedited_array(case_status_const, item) = "Screening Not Found"
                 expedited_array(appears_exp_const, item) = "Exp Screening Req"
+                screening_count = screening_count + 1
             End if 
         End if 
     End if 
@@ -423,8 +432,244 @@ Call Add_pages("Exp Screening Req")
 objWorkbook.Save()  'saves existing workbook as same name 
 objExcel.Quit
 
+'----------------------------------------------------------------------------------------------------'Pending over 30 days report 
+'Opening the Excel file
+Set objExcel = CreateObject("Excel.Application")
+objExcel.Visible = True
+Set objWorkbook = objExcel.Workbooks.Add()
+objExcel.DisplayAlerts = True
+
+'Changes name of Excel sheet
+ObjExcel.ActiveSheet.Name = "Pending Over 30 days"
+
+'adding information to the Excel list from PND2
+ObjExcel.Cells(1, 1).Value = "Worker #"
+ObjExcel.Cells(1, 2).Value = "Case number"
+ObjExcel.Cells(1, 3).Value = "Prog ID"
+ObjExcel.Cells(1, 4).Value = "Days Pending"
+ObjExcel.Cells(1, 5).Value = "APPL Date"
+objExcel.Columns(5).NumberFormat = "mm/dd/yy"					'formats the date column as MM/DD/YY
+ObjExcel.Cells(1, 6).Value = "Interview Date"
+objExcel.Columns(6).NumberFormat = "mm/dd/yy"					'formats the date column as MM/DD/YY
+ObjExcel.Cells(1, 7).Value = "Notes"
+ObjExcel.Cells(1, 8).Value = "QI Review Notes"
+ 
+Excel_row = 2
+ 
+For item = 0 to UBound(expedited_array, 2)
+    If expedited_array(case_status_const, item) = "SNAP Application Denied" or expedited_array(case_status_const, item) = "OUT OF COUNTY CASE" then 
+        assign_case = False
+    elseif expedited_array(case_status_const, item) = "SNAP ACTIVE" and expedited_array(program_ID_const, item) = "FS" then 
+        assign_case = False 
+    else 
+        assign_case = True
+    End if 
+    
+    If assign_case = True then 
+        If expedited_array(days_pending_const, item) => 30 then 
+            objExcel.Cells(excel_row, 1).Value = expedited_array(worker_number_const,    item)
+            objExcel.Cells(excel_row, 2).Value = expedited_array(case_number_const,      item)
+            objExcel.Cells(excel_row, 3).Value = expedited_array(program_ID_const,       item)
+            objExcel.Cells(excel_row, 4).Value = expedited_array(days_pending_const,     item)
+            objExcel.Cells(excel_row, 5).Value = expedited_array(application_date_const, item)
+            objExcel.Cells(excel_row, 6).Value = expedited_array(interview_date_const,   item)
+            objExcel.Cells(excel_row, 7).Value = expedited_array(case_status_const,      item)
+            objExcel.Cells(excel_row, 8).Value = expedited_array(prev_notes_const,       item)
+            excel_row = excel_row + 1
+        End if 
+    End if 
+Next 
+ 
+FOR i = 1 to 8		'formatting the cells
+    objExcel.Cells(1, i).Font.Bold = True		'bold font'
+    objExcel.Columns(i).AutoFit()				'sizing the columns'
+NEXT
+
+'Saves and closes the most recent Excel workbook
+objExcel.ActiveWorkbook.SaveAs "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\Pending Over 30 Days " & report_date & ".xlsx"
+objExcel.ActiveWorkbook.Close
+objExcel.Application.Quit
+objExcel.Quit
+
+'----------------------------------------------------------------------------------------------------'Expedited Review
+'Opening the Excel file
+Set objExcel = CreateObject("Excel.Application")
+objExcel.Visible = True
+Set objWorkbook = objExcel.Workbooks.Add()
+objExcel.DisplayAlerts = True
+
+'Changes name of Excel sheet
+ObjExcel.ActiveSheet.Name = "Expedited Review"
+
+'adding information to the Excel list from PND2
+ObjExcel.Cells(1, 1).Value = "Worker #"
+ObjExcel.Cells(1, 2).Value = "Case number"
+ObjExcel.Cells(1, 3).Value = "Prog ID"
+ObjExcel.Cells(1, 4).Value = "Days Pending"
+ObjExcel.Cells(1, 5).Value = "APPL Date"
+objExcel.Columns(5).NumberFormat = "mm/dd/yy"					'formats the date column as MM/DD/YY
+ObjExcel.Cells(1, 6).Value = "Interview Date"
+objExcel.Columns(6).NumberFormat = "mm/dd/yy"					'formats the date column as MM/DD/YY
+ObjExcel.Cells(1, 7).Value = "Notes"
+ObjExcel.Cells(1, 8).Value = "QI Review Notes"
+ 
+Excel_row = 2
+ 
+For item = 0 to UBound(expedited_array, 2)
+    If expedited_array(appears_exp_const, item) = "Exp Screening Req" then 
+        assign_case = True 
+    ElseIf expedited_array(appears_exp_const, item) = "Req Exp Processing" and expedited_array(interview_date_const, item) <> "" then 
+        assign_case = True 
+    ElseIf expedited_array(appears_exp_const, item) = "Privileged Cases" then 
+        assign_case = True 
+    Else 
+        assign_case = False 
+    End if 
+    
+    If assign_case = True then
+        'only assigning cases that haven't exceeded Day 30 - Those are their own assignments 
+        If expedited_array(days_pending_const, item) < 30 then 
+            objExcel.Cells(excel_row, 1).Value = expedited_array(worker_number_const,    item)
+            objExcel.Cells(excel_row, 2).Value = expedited_array(case_number_const,      item)
+            objExcel.Cells(excel_row, 3).Value = expedited_array(program_ID_const,       item)
+            objExcel.Cells(excel_row, 4).Value = expedited_array(days_pending_const,     item)
+            objExcel.Cells(excel_row, 5).Value = expedited_array(application_date_const, item)
+            objExcel.Cells(excel_row, 6).Value = expedited_array(interview_date_const,   item)
+            objExcel.Cells(excel_row, 7).Value = expedited_array(case_status_const,      item)
+            objExcel.Cells(excel_row, 8).Value = expedited_array(prev_notes_const,       item)
+            excel_row = excel_row + 1
+        End if 
+    End if 
+Next 
+ 
+FOR i = 1 to 8		'formatting the cells
+    objExcel.Cells(1, i).Font.Bold = True		'bold font'
+    objExcel.Columns(i).AutoFit()				'sizing the columns'
+NEXT
+
+'Saves and closes the most recent Excel workbook
+objExcel.ActiveWorkbook.SaveAs "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\Expedited Review " & report_date & ".xlsx"
+objExcel.ActiveWorkbook.Close
+objExcel.Application.Quit
+objExcel.Quit
+
+'------------------------------------------------------------------------------------------------------------------------------------------------------------'Needs Interview Cases
+'----------------------------------------------------------------------------------------------------NOT EXPEDITED 
+'Opening the Excel file
+Set objExcel = CreateObject("Excel.Application")
+objExcel.Visible = True
+Set objWorkbook = objExcel.Workbooks.Add()
+objExcel.DisplayAlerts = True
+
+'Changes name of Excel sheet
+ObjExcel.ActiveSheet.Name = "Not Expedited"
+
+'adding information to the Excel list from PND2
+ObjExcel.Cells(1, 1).Value = "Worker #"
+ObjExcel.Cells(1, 2).Value = "Case number"
+ObjExcel.Cells(1, 3).Value = "Prog ID"
+ObjExcel.Cells(1, 4).Value = "Days Pending"
+ObjExcel.Cells(1, 5).Value = "APPL Date"
+objExcel.Columns(5).NumberFormat = "mm/dd/yy"					'formats the date column as MM/DD/YY
+ObjExcel.Cells(1, 6).Value = "Interview Date"
+objExcel.Columns(6).NumberFormat = "mm/dd/yy"					'formats the date column as MM/DD/YY
+ObjExcel.Cells(1, 7).Value = "Notes"
+ 
+Excel_row = 2
+ 
+For item = 0 to UBound(expedited_array, 2)
+    If expedited_array(appears_exp_const, item) = "Not Expedited" and expedited_array(interview_date_const, item) = "" then 
+        If expedited_array(case_status_const, item) = "SNAP Application Denied" or expedited_array(case_status_const, item) = "OUT OF COUNTY CASE" then 
+            assign_case = False
+        elseif expedited_array(case_status_const, item) = "SNAP ACTIVE" and expedited_array(program_ID_const, item) = "FS" then 
+            assign_case = False 
+        else 
+            assign_case = True
+        End if 
+    Else 
+        assign_case = False 
+    End if 
+    
+    If assign_case = True then 
+        'only assigning cases that haven't exceeded Day 30 - Those are their own assignments 
+        If expedited_array(days_pending_const, item) < 30 then 
+            objExcel.Cells(excel_row, 1).Value = expedited_array(worker_number_const,    item)
+            objExcel.Cells(excel_row, 2).Value = expedited_array(case_number_const,      item)
+            objExcel.Cells(excel_row, 3).Value = expedited_array(program_ID_const,       item)
+            objExcel.Cells(excel_row, 4).Value = expedited_array(days_pending_const,     item)
+            objExcel.Cells(excel_row, 5).Value = expedited_array(application_date_const, item)
+            objExcel.Cells(excel_row, 6).Value = expedited_array(interview_date_const,   item)
+            objExcel.Cells(excel_row, 7).Value = expedited_array(case_status_const,      item)
+            excel_row = excel_row + 1
+        End if 
+    End if 
+Next 
+ 
+FOR i = 1 to 7		'formatting the cells
+    objExcel.Cells(1, i).Font.Bold = True		'bold font'
+    objExcel.Columns(i).AutoFit()				'sizing the columns'
+NEXT
+
+'----------------------------------------------------------------------------------------------------Appears Expedited 
+ObjExcel.Worksheets.Add().Name = "Appears Expedited"
+
+'adding information to the Excel list from PND2
+ObjExcel.Cells(1, 1).Value = "Worker #"
+ObjExcel.Cells(1, 2).Value = "Case number"
+ObjExcel.Cells(1, 3).Value = "Prog ID"
+ObjExcel.Cells(1, 4).Value = "Days Pending"
+ObjExcel.Cells(1, 5).Value = "APPL Date"
+objExcel.Columns(5).NumberFormat = "mm/dd/yy"					'formats the date column as MM/DD/YY
+ObjExcel.Cells(1, 6).Value = "Interview Date"
+objExcel.Columns(6).NumberFormat = "mm/dd/yy"					'formats the date column as MM/DD/YY
+ObjExcel.Cells(1, 7).Value = "Notes"
+ 
+Excel_row = 2
+ 
+For item = 0 to UBound(expedited_array, 2)
+    If expedited_array(appears_exp_const, item) = "Exp Screening Req" and expedited_array(interview_date_const, item) = "" then 
+        assign_case = True 
+    ElseIf expedited_array(appears_exp_const, item) = "Req Exp Processing" and expedited_array(interview_date_const, item) = "" then 
+        assign_case = True 
+    Else 
+        assign_case = False 
+    End if 
+    
+    If assign_case = True then 
+        'only assigning cases that haven't exceeded Day 30 - Those are their own assignments 
+        If expedited_array(days_pending_const, item) < 30 then 
+            objExcel.Cells(excel_row, 1).Value = expedited_array(worker_number_const,    item)
+            objExcel.Cells(excel_row, 2).Value = expedited_array(case_number_const,      item)
+            objExcel.Cells(excel_row, 3).Value = expedited_array(program_ID_const,       item)
+            objExcel.Cells(excel_row, 4).Value = expedited_array(days_pending_const,     item)
+            objExcel.Cells(excel_row, 5).Value = expedited_array(application_date_const, item)
+            objExcel.Cells(excel_row, 6).Value = expedited_array(interview_date_const,   item)
+            objExcel.Cells(excel_row, 7).Value = expedited_array(case_status_const,      item)
+            excel_row = excel_row + 1
+        End if 
+    End if 
+Next 
+ 
+FOR i = 1 to 7		'formatting the cells
+    objExcel.Cells(1, i).Font.Bold = True		'bold font'
+    objExcel.Columns(i).AutoFit()				'sizing the columns'
+NEXT
+
+'Saves and closes the most recent Excel workbook
+objExcel.ActiveWorkbook.SaveAs "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP SNAP " & report_date & ".xlsx"
+objExcel.ActiveWorkbook.Close
+objExcel.Application.Quit
+objExcel.Quit
+
+stats_report = "Screening Count: " & screening_count & vbcr & _
+"Expedited Processing Count: " & expedited_count & vbcr & _
+"PRIV Case Count: " & priv_count & vbcr & _
+"Not Expedited Count: " & not_exp_count
+
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-'Call create_outlook_email("Deborah.Lechner@Hennepin.us; Jessica.Hall@Hennepin.us; Tanya.Payne@hennepin.us", "Ilse.Ferris@hennepin.us", "Today's EXP SNAP report is ready.", "Path to folder: T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project", "", True)
+Call create_outlook_email("HSPH.EWS.Triagers@hennepin.us;Adonna.Swift@hennepin.us", "Ilse.Ferris@hennepin.us", "EXP SNAP Report without Interviews is Ready. EOM.", "", "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP SNAP " & report_date & ".xlsx", True)
+'Call create_outlook_email("HSPH.EWS.Unit.Frey@hennepin.us", "Ilse.Ferris@hennepin.us", "Today's EXP SNAP reports are ready.", "Path to folder - T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project", "", True)
+Call create_outlook_email("Ilse.Ferris@hennepin.us","","Expedited SNAP Daily statistics for " & date, stats_report, "", True)
 
 'logging usage stats
 STATS_counter = STATS_counter - 1  'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
