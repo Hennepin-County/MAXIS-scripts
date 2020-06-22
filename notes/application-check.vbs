@@ -104,28 +104,30 @@ If not_pending_check = "CASE " THEN script_end_procedure_with_error_report("Ther
 
 'Because inquiry and training region are stupid, when you nav to REPT/PND2 the cursor resets to row 20, col 13 or the REPT field. Just to ruin my life.
 'Now code will work in all regions - production, inquiry and training.
-MAXIS_row = 7
+row = 7
 Do
-    EmReadscreen pending_case_num, 8, MAXIS_row, 6
+    EmReadscreen pending_case_num, 8, row, 6
     If trim(pending_case_num) = trim(MAXIS_case_number) then
         found_case = True
         exit do
     Else
-        MAXIS_row = MAXIS_row + 1
+        row = row + 1
         found_case = False
     End if
 
 LOOP until row = 19
 If found_case = False then script_end_procedure_with_error_report("There is not a pending program on this case, or case is not in PND2 status." & vbNewLine & vbNewLine & "Please make sure you have the right case number, and/or check your case notes to ensure that this application has been completed.")
 
-EMReadScreen app_month, 2, MAXIS_row, 38
-EMReadScreen app_day, 2, MAXIS_row, 41
-EMReadScreen app_year, 2, MAXIS_row, 44
-EMReadScreen days_pending, 3, MAXIS_row, 50
-EMReadScreen additional_application_check, 14, MAXIS_row + 1, 17
-EMReadScreen add_app_month, 2, MAXIS_row + 1, 38
-EMReadScreen add_app_day, 2, MAXIS_row + 1, 41
-EMReadScreen add_app_year, 2, MAXIS_row + 1, 44
+HC_pending = False  'setting variable to false. This will be used to determine if HC is penfing or not to support HC screening/interview process.       
+
+EMReadScreen app_month, 2, row, 38
+EMReadScreen app_day, 2, row, 41
+EMReadScreen app_year, 2, row, 44
+EMReadScreen days_pending, 3, row, 50
+EMReadScreen additional_application_check, 14, row + 1, 17
+EMReadScreen add_app_month, 2, row + 1, 38
+EMReadScreen add_app_day, 2, row + 1, 41
+EMReadScreen add_app_year, 2, row + 1, 44
 
 'Creating new variable for application check date and additional application date.
 application_date = app_month & "/" & app_day & "/" & app_year
@@ -143,19 +145,19 @@ IF multiple_apps = vbNo then
 	If additional_apps = vbYes then
 		additional_date_found = TRUE
 		application_date = additional_application_date
-		MAXIS_row = MAXIS_row + 1
+		row = row + 1
 	END IF
 End if
 
-EMReadScreen PEND_CASH_check,	1, MAXIS_row, 54
-EMReadScreen PEND_SNAP_check, 1, MAXIS_row, 62
-EMReadScreen PEND_HC_check, 1, MAXIS_row, 65
-EMReadScreen PEND_EMER_check,	1, MAXIS_row, 68
-EMReadScreen PEND_GRH_check, 1, MAXIS_row, 72
+EMReadScreen PEND_CASH_check,	1, row, 54
+EMReadScreen PEND_SNAP_check, 1, row, 62
+EMReadScreen PEND_HC_check, 1, row, 65
+EMReadScreen PEND_EMER_check,	1, row, 68
+EMReadScreen PEND_GRH_check, 1, row, 72
+
+If PEND_HC_check = "P" then HC_pending = True   'This will search case notes to ensure that a HC Application Interview has been conducted.
 
 CALL navigate_to_MAXIS_screen("STAT", "PROG")		'Goes to STAT/PROG
-'EMReadScreen application_date, 8, 6, 33
-
 EMReadScreen err_msg, 7, 24, 02
 IF err_msg = "BENEFIT" THEN	script_end_procedure_with_error_report ("Case must be in PEND II status for script to run, please update MAXIS panels TYPE & PROG (HCRE for HC) and run the script again.")
 
@@ -356,6 +358,189 @@ Elseif DateDiff("d", application_date, date) > 60 then
 	reminder_date = dateadd("d", 10, date)
 	reminder_text = "Post day 60"
 END IF
+
+IF HC_pending = True then
+    hc_days_pending = datediff("D", hc_app_date, date) 
+    msgbox HC_pending & vbcr & hc_days_pending
+    'Checking case note to see if a HC interview has been completed to date
+    Call navigate_to_MAXIS_screen("CASE", "NOTE")
+    'starting at the 1st case note, checking the headers for the HC Interview 
+    case_note_found = False         'defaulting to false if not able to find an expedited care note
+    row = 5
+    Do
+        EMReadScreen first_case_note_date, 8, 5, 6 'static reading of the case note date to determine if no case notes acutually exist. 
+        If trim(first_case_note_date) = "" then
+            case_note_found = False  
+            exit do
+        Else
+            EMReadScreen case_note_date, 8, row, 6    'incremented row - reading the case note date
+            EMReadScreen case_note_header, 55, row, 25
+            case_note_header = lcase(trim(case_note_header))
+            
+            If trim(case_note_date) = "" then
+                case_note_found = False             'The end of the case notes has been found
+                exit do 
+            ElseIf instr(case_note_header, "Health Care Application Interview Completed") then
+                case_note_found = True 
+                exit do
+            Else
+                row = row + 1
+                IF row = 19 then 
+                    PF8                         'moving to next case note page if at the end of the page
+                    row = 5
+                End if 
+            END IF
+        END IF    
+    LOOP until cdate(case_note_date) < cdate(hc_app_date) 'repeats until the case note date is less than the HC application date        
+    
+    If case_note_found = False then 
+        'Asking the user if they wish to contact the client/arep. If yes, they will go to the interview dialog 
+        'If no - the user needs to provide a reason for not screening which then will be added to the Application check case note.
+        Dialog1 = ""
+        BeginDialog Dialog1, 0, 0, 226, 65, "Health Care Application Interview Not Found"
+            DropListBox 160, 5, 60, 15, "Select one..."+chr(9)+"Yes "+chr(9)+"No", interview_confirmation
+            EditBox 75, 25, 145, 15, no_call_reason
+            ButtonGroup ButtonPressed
+            OkButton 130, 45, 45, 15
+            CancelButton 175, 45, 45, 15
+            Text 5, 30, 70, 10, "If no, provide reason:"
+            Text 5, 10, 150, 10, "Would you like to call the resident/AREP now?"
+            Text 5, 45, 125, 10, "(Reason will be captured in case note)"
+        EndDialog
+        
+        Do
+        	DO
+        		err_msg = ""
+        		Dialog Dialog1
+        		If interview_confirmation = "Select one..." then err_msg = error_msg & ("Confirm if you will call the resident/AREP.")
+                If interview_confirmation = "No" and trim (no_call_reason) = "" then err_msg = error_msg & ("Provide a reason for not calling the resident/AREP.")
+                If interview_confirmation = "Yes" and trim (no_call_reason) <> "" then err_msg = error_msg & ("Either select Yes and clear the reason field, or select No and provide an answer about the interview.")
+                If err_msg <> "" then MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+        	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+        	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+        Loop until are_we_passworded_out = false					'loops until user passwords back in
+        
+        If interview_confirmation = "Yes" then
+            'HC Application Dialog 
+            Dialog1 = ""
+            BeginDialog Dialog1, 0, 0, 341, 325, "Health Care Contact"
+              ComboBox 10, 65, 65, 15, "Select or Type"+chr(9)+"Phone Call"+chr(9)+"Unable to Reach"+chr(9)+"Voicemail"+chr(9)+"contact_type", contact_type
+              DropListBox 80, 65, 45, 10, "from"+chr(9)+"to", contact_direction
+              ComboBox 130, 65, 85, 15, "Select or Type"+chr(9)+"Memb 01"+chr(9)+"Memb 02"+chr(9)+"AREP"+chr(9)+"SWKR"+chr(9)+"who_contacted", who_contacted
+              EditBox 260, 65, 65, 15, METS_IC_number
+              ComboBox 70, 85, 75, 15, "phone_numbers"+chr(9)+"phone_number", phone_number
+              EditBox 225, 85, 100, 15, when_contact_was_made
+              CheckBox 70, 100, 65, 10, "Used Interpreter", used_interpreter_checkbox
+              EditBox 75, 135, 250, 15, verifs_needed
+              DropListBox 265, 155, 60, 15, "Yes"+chr(9)+"No"+chr(9)+"Unsure", barrier_droplist
+              ButtonGroup ButtonPressed
+                PushButton 250, 170, 10, 15, "!", help_button
+              DropListBox 265, 170, 60, 15, "Yes"+chr(9)+"No"+chr(9)+"Unsure", reasobable_droplist
+              EditBox 75, 190, 250, 15, attested_verifs
+              DropListBox 100, 230, 30, 15, "Yes"+chr(9)+"No", verif_confirm
+              DropListBox 100, 245, 30, 15, "Yes"+chr(9)+"No", request_confirm
+              DropListBox 100, 260, 30, 15, "Yes"+chr(9)+"No", atr_confirm
+              DropListBox 195, 230, 30, 15, "Yes"+chr(9)+"No", avs_form_confirm
+              DropListBox 195, 245, 30, 15, "Yes"+chr(9)+"No", avs_confirm
+              DropListBox 195, 260, 30, 15, "Yes"+chr(9)+"No", solq_confirm
+              CheckBox 235, 230, 80, 10, "Sent Work Number", work_number_checkbox
+              CheckBox 235, 240, 50, 10, "Sent TPQY", TPQY_checkbox
+              CheckBox 235, 250, 95, 10, "Sent VA benefit request.", VA_request_checkbox
+              ButtonGroup ButtonPressed
+                PushButton 230, 265, 90, 10, "Create VA Request Email", VA_button
+              EditBox 70, 285, 255, 15, other_notes
+              EditBox 70, 305, 150, 15, worker_signature
+              ButtonGroup ButtonPressed
+                OkButton 225, 305, 50, 15
+                CancelButton 275, 305, 50, 15
+                PushButton 150, 15, 60, 15, "Application Guide", app_guide_button
+                PushButton 210, 15, 55, 15, "COVID-19 FAQ", faq_button
+                PushButton 265, 15, 65, 15, "MAXIS Information", info_button
+              GroupBox 145, 5, 190, 35, "HC Policy/ Procedural Help"
+              Text 140, 55, 65, 10, "Who was contacted"
+              Text 10, 90, 50, 10, "Phone Number:"
+              Text 10, 15, 105, 10, "HC Application Date:"
+              Text 65, 160, 195, 10, "Does the resident have a barrier to providing verifications?"
+              Text 65, 175, 185, 10, "If yes, is there a reasonable explanation for the barrier?"
+              Text 220, 70, 40, 10, "METS IC#:"
+              GroupBox 5, 5, 125, 35, "Health Care Information"
+              Text 15, 140, 60, 10, "Mandatory Verifs:"
+              GroupBox 10, 215, 325, 65, "Confirm your case actions below:"
+              Text 15, 235, 80, 10, "Reviewed Verifs on File:"
+              GroupBox 5, 45, 330, 70, "Contact Information:"
+              Text 60, 265, 35, 10, "Sent ATR:"
+              Text 25, 290, 40, 10, "Other notes:"
+              Text 30, 250, 65, 10, "Sent Verif Request:"
+              Text 20, 55, 40, 10, "Contact type"
+              Text 140, 230, 55, 10, "Sent AVS Form:"
+              Text 90, 55, 30, 10, "From/To"
+              Text 140, 245, 55, 10, "Submitted AVS:"
+              Text 150, 90, 75, 10, "Date/Time of Contact:"
+              Text 140, 260, 55, 10, "Checked SOLQ:"
+              Text 5, 310, 60, 10, "Worker signature:"
+              Text 10, 195, 65, 10, "Self-Attested Verifs:"
+              GroupBox 5, 120, 330, 90, "If you've connected with the resident/AREP review the following information:"
+              Text 10, 25, 105, 10, "Days HC is Pending:"
+            EndDialog
+            
+            Do
+                err_msg = ""
+            	Do	
+            		Dialog Dialog1
+            		cancel_confirmation
+            		If ButtonPressed = app_guide_button then CreateObject("WScript.Shell").Run("https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=ONESOURCE-COVID9")
+                    If ButtonPressed = faq_button then CreateObject("WScript.Shell").Run("https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=ONESOURCE-COVID12")
+                    If ButtonPressed = info_button then CreateObject("WScript.Shell").Run("https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=ONESOURCE-COVID7")
+                    If ButtonPressed = VA_button then Call create_outlook_email("Vetservices@Hennepin.us", "", "VA Request for Case #" & MAXIS_case_number, "", "", False)
+                    If ButtonPressed = help_button then 
+                        tips_tricks_msg = MsgBox("*** Tips and Tricks ***" & vbNewLine & "--------------------" & vbNewLine & vbNewLine & "Existing policy allows enrollees or their authorized representative to provide a written statement or verbal conversation that is documented in case notes if they have a reasonable explanation for not being able to provide proofs or a signed release of information form for the worker to obtain the proofs. For example, if a client’s workplace has been closed due to COVID-19 and they are unable to obtain verifications at this time. Reasonable explanations can include but are not limited to:" & vbNewLine & "-An employer not being available." & vbNewLine & "-The person is under quarantine." & vbNewLine & "-The person does not have access to photocopies or a fax machine.", vbInformation, "Tips and Tricks")        
+                    End if 
+                Loop until ButtonPressed = -1 
+            	'If application_status_droplist = "Select One:" then err_msg = err_msg & vbNewLine & "* You must choose the application status."
+            	'If application_status_droplist <> "Interview still needed" and actions_taken = ""  then err_msg = err_msg & vbNewLine & "* You must enter your case actions."
+            	'If application_status_droplist = "Other" AND other_app_notes = ""  then err_msg = err_msg & vbNewLine & "* You must enter more information about the 'other' application status."
+            	
+            
+                If err_msg <> "" then MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+            	LOOP UNTIL err_msg = ""
+            	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+            Loop until are_we_passworded_out = false					'loops until user passwords back in
+            
+            
+         
+    End if 
+    
+    f ButtonPressed = tips_and_tricks_button Then
+                tips_tricks_msg = MsgBox("*** Tips and Tricks ***" & vbNewLine & "--------------------" & vbNewLine & vbNewLine & "Once the script reads the case, updates in MAXIS will not be reflected in the dialogs or case notes. This is not new, but if you run the script and realize a panel is out of date, definitely update the panel while the script is running, just don't expect the script to know that it was updated. You must also change the information IN the dialog. Or you can cancel the script, update and rerun the script with the panels correct." & vbNewLine & vbNewLine &_
+                                        "Footer month/year - Use the month with the most accurate information for the CAF being processed." & vbNewLine & "Typically: " & vbNewLine & " - Recertifications use the month of recert." & vbNewLine & " - Applications use the month of application." & vbNewLine & vbNewLine &_
+                                        "CAF Form - Select the actual form that was received. If the form is CAF Addendum (DHS-5223C) the script will call special functionality to handle specifically for an addendum." & vbNewLine & vbNewLine &_
+                                        "Programs Requested - Listing anything in the boxes for other program requests will have the script assume that program is requested. Do not write anything here if that particular program has not been requested." & vbNewLine & "** An example would be a CAF with SNAP requested and in the interview a client requests CASH." & vbNewLine & vbNewLine &_
+                                        "*** REMINDER***" & vbNewLine & "This script works best when MAXIS has been updated because it creates special dialogs with details from the MAXIS STAT panels and the most detail and specifics will be captured from an updated case." & vbNewLine &_
+                                        "** Due to the complexity of this script and the noting needs, this script can take some time to complete. Use 'Interview Completed' if STAT has not been updated OR a quick note needs to be made. Run CAF once the case is updated.", vbInformation, "Tips and Tricks")
+    
+                err_msg = "LOOP" & err_msg
+            End If
+    
+    
+    
+    
+    
+END IF       
+
+'TODO list:
+
+    'If yes - insert client contact dialog updates
+        'If attempted, but could not get a hold of the resident - Case note header will be "Health Care Application Interview Attempted on" & date
+        'Nav back to STAT/PROG Enter the HC interview on STAT/PROG
+        'Create case note 
+        'Bring them to APPLICATION CHECK Dialog.
+            'Add navigation to HC policy/procedure
+            'Add information for ! box
+            'Carry variables over from HC interview. 
+            'Create VA email & update closing message  
+
+
+
 '----------------------------------------------------------------------------------------------------dialogs
 Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog dialog1, 0, 0, 386, 185, "Application Check: "  & application_check
@@ -441,6 +626,7 @@ CALL write_bullet_and_variable_in_CASE_NOTE("Verifications Recieved", verifs_rcv
 CALL write_bullet_and_variable_in_CASE_NOTE("Pending Verifications", verifs_needed)
 CALL write_bullet_and_variable_in_CASE_NOTE("Actions Taken", actions_taken)
 CALL write_bullet_and_variable_in_CASE_NOTE("Other Notes", other_notes)
+Call write_bullet_and_variable_in_case_note("Reason Health Care Interview Not Attempted", no_call_reason
 CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE (worker_signature)
 
