@@ -671,6 +671,22 @@ Call create_outlook_email("HSPH.EWS.Triagers@hennepin.us;Adonna.Swift@hennepin.u
 'Call create_outlook_email("HSPH.EWS.Unit.Frey@hennepin.us", "Ilse.Ferris@hennepin.us", "Today's EXP SNAP reports are ready.", "Path to folder - T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project", "", True)
 Call create_outlook_email("Ilse.Ferris@hennepin.us","","Expedited SNAP Daily statistics for " & date, stats_report, "", True)
 
+'----------------------------------------------------------------------------------------------------Moves yesterday's files to the archive folder for the specific month
+array_of_archive_assigments = array("Expedited Review ","Pending Over 30 Days ", "EXP SNAP ", "")
+
+previous_date = dateadd("d", -1, date)
+Call change_date_to_soonest_working_day(previous_date)       'finds the most recent previous working day for the fin
+file_date = replace(previous_date, "/", "-")   'Changing the format of the date to use as file path selection default
+archive_folder = right("0" & DatePart("m", file_date), 2) & "-" & DatePart("yyyy", file_date)
+
+archive_files = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\" & archive_folder
+
+Set objFSO = CreateObject("Scripting.FileSystemObject")
+For each assignment in array_of_archive_assigments
+    file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\" & assignment & file_date & ".xlsx"
+    objFSO.MoveFile file_selection_path , archive_files & "\" & assignment & file_date & ".xlsx"    'moving each file to the archive file
+Next 
+
 'logging usage stats
 STATS_counter = STATS_counter - 1  'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
 script_end_procedure("Success, the expedited SNAP run is complete. The workbook has been saved.")
