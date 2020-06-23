@@ -116,7 +116,7 @@ Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 306, 110, "Work Assingment Selection"
   EditBox 150, 5, 150, 15, qi_worker_full_name
   EditBox 150, 25, 150, 15, work_assignment_date
-  DropListBox 150, 45, 150, 45, "Select One..."+chr(9)+"Appears Expedited Interview Completed"+chr(9)+"Pending at Day 30 - Part of On Demand", type_of_work_assignment
+  DropListBox 150, 45, 150, 45, "Select One..."+chr(9)+"Expedited Review"+chr(9)+"Pending at Day 30 - Part of On Demand", type_of_work_assignment
   EditBox 150, 65, 150, 15, email_signature
   ButtonGroup ButtonPressed
     OkButton 195, 90, 50, 15
@@ -163,7 +163,7 @@ word_doc_file_path = ""
 
 'Dialog to gather the details/stats/counts
 Select Case type_of_work_assignment                                             'differen selections/options based on the work assignment selection
-    Case "Appears Expedited Interview Completed"
+    Case "Expedited Review"
         counts_number = 8                                                       'There are 9 counts we select so the array goes to 8
         'Setting the file locations and doc strings
         word_doc_name = qi_worker_full_name & " - EXP Processing Assignment Report for " & date_for_doc
