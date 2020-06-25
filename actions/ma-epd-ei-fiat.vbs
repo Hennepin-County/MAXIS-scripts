@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("06/25/2020", "Added handling to stop the script run if the income information is not updated fully or does not meet requiements for needing an MA-EPD FIAT.##~## If you have questions about use of the FIAT or necessary updates to JOBS and UNEA panels, please contact the BlueZone Script Team and we will direct you to the best resources.", "Casey Love, Hennepin County")
 call changelog_update("06/04/2020", "BUG FIX - Script was failing with the new functionality trying to correctly navigate to UNEA panels. It was causing an error on some cases that prevented the script from continuing. Bug should now be resolved.##~##", "Casey Love, Hennepin County")
 call changelog_update("05/22/2020", "Added functionality so the script can FIAT income from Unemployment as well as JOBS income. As UI income is received weekly, it can cause the premium to vary from month to month. This income also requires a FIAT to be balanced across the budget.##~## ##~## The functionality for UNEA panels coded with UI income works at the same time and in the same manner as the JOBS functionality.", "Casey Love, Hennepin County")
 call changelog_update("11/27/2018", "Changed the case options to 'Initial' and 'Update' for the type of approval being made.", "Casey Love, Hennepin County")
@@ -431,6 +432,7 @@ If case_status = "Update" Then
     transmit
     counter = 0
     For each each_unea in unea_panels_array
+		each_unea = trim(each_unea)
         If each_unea <> "" Then
             EMWriteScreen each_unea, 20, 79
             transmit
@@ -609,118 +611,120 @@ If case_status = "Initial" Then
     counter = 0
     If IsArray(unea_panels_array) = TRUE Then
         For each each_unea in unea_panels_array
-            EMWriteScreen each_unea, 20, 79
-            transmit
+			If each_unea <> "" Then
+	            EMWriteScreen each_unea, 20, 79
+	            transmit
 
-            reDim Preserve UNEA_ARRAY(verif_code, counter)   'Updating the array with JOB information
+	            reDim Preserve UNEA_ARRAY(verif_code, counter)   'Updating the array with JOB information
 
-            'Gathering data and adding it to the array
-            EMReadScreen verification, 16, 5, 65
-            EMReadScreen income_source, 2, 5, 37
+	            'Gathering data and adding it to the array
+	            EMReadScreen verification, 16, 5, 65
+	            EMReadScreen income_source, 2, 5, 37
 
-            UNEA_ARRAY(verif_code, counter) = trim(verification)
-            UNEA_ARRAY(instance, counter) = right("00"&each_unea, 2)
-            UNEA_ARRAY(unea_type, counter) = "Unemployment Insurance"
+	            UNEA_ARRAY(verif_code, counter) = trim(verification)
+	            UNEA_ARRAY(instance, counter) = right("00"&each_unea, 2)
+	            UNEA_ARRAY(unea_type, counter) = "Unemployment Insurance"
 
-            'Looking at the pop-up for income information
-            EMWriteScreen "x", 6, 56
-            transmit
-            EMReadScreen hc_inc_est, 8, 9, 65
-            hc_inc_est = trim(replace(hc_inc_est, "_", ""))
-            transmit
+	            'Looking at the pop-up for income information
+	            EMWriteScreen "x", 6, 56
+	            transmit
+	            EMReadScreen hc_inc_est, 8, 9, 65
+	            hc_inc_est = trim(replace(hc_inc_est, "_", ""))
+	            transmit
 
-            if hc_inc_est = "" Then hc_inc_est = 0
-            hc_inc_est = FormatNumber(hc_inc_est, 2)        'This formats the number with 2 decimal places
+	            if hc_inc_est = "" Then hc_inc_est = 0
+	            hc_inc_est = FormatNumber(hc_inc_est, 2)        'This formats the number with 2 decimal places
 
-            UNEA_ARRAY(est_pop_up, counter) = hc_inc_est
-            UNEA_ARRAY(job_frequency, counter) = "4"
+	            UNEA_ARRAY(est_pop_up, counter) = hc_inc_est
+	            UNEA_ARRAY(job_frequency, counter) = "4"
 
-            unea_row = 13
-            divider = 0
-            Do
-                EMReadScreen pay_date, 8, unea_row, 54      'reading the date
-                If pay_date <> "__ __ __" Then              'if the date is not blank then gathering all the information
-                                                            'this will read each already stored information in the array and will find the first empty position within the array
-                    divider = divider + 1                                                       'increase the count of checks listed
-                    If UNEA_ARRAY(check_date_one, counter) = "" Then                         'this reads if this position in the array already has data
-                        UNEA_ARRAY(check_date_one, counter) = replace(pay_date, " ", "/")    'formatting the date
-                        EMReadScreen pay_amt, 8, unea_row, 68                                   'reading the pay amount and then formats it
-                        UNEA_ARRAY(check_amt_one, counter) = trim(pay_amt) * 1
+	            unea_row = 13
+	            divider = 0
+	            Do
+	                EMReadScreen pay_date, 8, unea_row, 54      'reading the date
+	                If pay_date <> "__ __ __" Then              'if the date is not blank then gathering all the information
+	                                                            'this will read each already stored information in the array and will find the first empty position within the array
+	                    divider = divider + 1                                                       'increase the count of checks listed
+	                    If UNEA_ARRAY(check_date_one, counter) = "" Then                         'this reads if this position in the array already has data
+	                        UNEA_ARRAY(check_date_one, counter) = replace(pay_date, " ", "/")    'formatting the date
+	                        EMReadScreen pay_amt, 8, unea_row, 68                                   'reading the pay amount and then formats it
+	                        UNEA_ARRAY(check_amt_one, counter) = trim(pay_amt) * 1
 
-                    ElseIf UNEA_ARRAY(check_date_two, counter) = "" Then                         'this reads if this position in the array already has data
-                        UNEA_ARRAY(check_date_two, counter) = replace(pay_date, " ", "/")        'formatting the date
-                        EMReadScreen pay_amt, 8, unea_row, 68                                       'reading the pay amount and then formats it
-                        UNEA_ARRAY(check_amt_two, counter) = trim(pay_amt) * 1
+	                    ElseIf UNEA_ARRAY(check_date_two, counter) = "" Then                         'this reads if this position in the array already has data
+	                        UNEA_ARRAY(check_date_two, counter) = replace(pay_date, " ", "/")        'formatting the date
+	                        EMReadScreen pay_amt, 8, unea_row, 68                                       'reading the pay amount and then formats it
+	                        UNEA_ARRAY(check_amt_two, counter) = trim(pay_amt) * 1
 
-                    ElseIf UNEA_ARRAY(check_date_three, counter) = "" Then                       'this reads if this position in the array already has data
-                        UNEA_ARRAY(check_date_three, counter) = replace(pay_date, " ", "/")      'formatting the date
-                        EMReadScreen pay_amt, 8, unea_row, 68                                       'reading the pay amount and then formats it
-                        total_prosp = total_prosp + trim(pay_amt) * 1
-                        UNEA_ARRAY(check_amt_three, counter) = trim(pay_amt) * 1
+	                    ElseIf UNEA_ARRAY(check_date_three, counter) = "" Then                       'this reads if this position in the array already has data
+	                        UNEA_ARRAY(check_date_three, counter) = replace(pay_date, " ", "/")      'formatting the date
+	                        EMReadScreen pay_amt, 8, unea_row, 68                                       'reading the pay amount and then formats it
+	                        total_prosp = total_prosp + trim(pay_amt) * 1
+	                        UNEA_ARRAY(check_amt_three, counter) = trim(pay_amt) * 1
 
-                    ElseIf UNEA_ARRAY(check_date_four, counter) = "" Then                        'this reads if this position in the array already has data
-                        UNEA_ARRAY(check_date_four, counter) = replace(pay_date, " ", "/")       'formatting the date
-                        EMReadScreen pay_amt, 8, unea_row, 68                                       'reading the pay amount and then formats it
-                        UNEA_ARRAY(check_amt_four, counter) = trim(pay_amt) * 1
+	                    ElseIf UNEA_ARRAY(check_date_four, counter) = "" Then                        'this reads if this position in the array already has data
+	                        UNEA_ARRAY(check_date_four, counter) = replace(pay_date, " ", "/")       'formatting the date
+	                        EMReadScreen pay_amt, 8, unea_row, 68                                       'reading the pay amount and then formats it
+	                        UNEA_ARRAY(check_amt_four, counter) = trim(pay_amt) * 1
 
-                    ElseIf UNEA_ARRAY(check_date_five, counter) = "" Then                        'this reads if this position in the array already has data
-                        UNEA_ARRAY(check_date_five, counter) = replace(pay_date, " ", "/")       'formatting the date
-                        EMReadScreen pay_amt, 8, unea_row, 68                                       'reading the pay amount and then formats it
-                        UNEA_ARRAY(check_amt_five, counter) = trim(pay_amt) * 1
-                    End If
-                End If
+	                    ElseIf UNEA_ARRAY(check_date_five, counter) = "" Then                        'this reads if this position in the array already has data
+	                        UNEA_ARRAY(check_date_five, counter) = replace(pay_date, " ", "/")       'formatting the date
+	                        EMReadScreen pay_amt, 8, unea_row, 68                                       'reading the pay amount and then formats it
+	                        UNEA_ARRAY(check_amt_five, counter) = trim(pay_amt) * 1
+	                    End If
+	                End If
 
-                unea_row = unea_row + 1         'going to the next row in the list of paychecks
-            Loop until unea_row = 18
+	                unea_row = unea_row + 1         'going to the next row in the list of paychecks
+	            Loop until unea_row = 18
 
-            EMReadScreen total_pay, 8, 18, 68   'reading the total of the pay listed in the prospective side of the JOBS panel and formatting
-            total_pay = trim(total_pay)
-            If total_pay = "" Then total_pay = 0
-            total_pay = total_pay * 1
+	            EMReadScreen total_pay, 8, 18, 68   'reading the total of the pay listed in the prospective side of the JOBS panel and formatting
+	            total_pay = trim(total_pay)
+	            If total_pay = "" Then total_pay = 0
+	            total_pay = total_pay * 1
 
-            UNEA_ARRAY(pay_average, counter) = total_pay / divider       'Finding the average of all of the paychecks listed
-            UNEA_ARRAY(six_month_total, counter) = 0                     'setting this equal to 0 as we will be adding to it later
-            'MsgBox "Average - " & UNEA_ARRAY(pay_average, counter)
-            day_validation_needed = FALSE       'default for this variable
-            If UNEA_ARRAY(job_frequency, counter) = "3" OR UNEA_ARRAY(job_frequency, counter) = "4" Then  'if this JOB is paid weekly or biweekly
-                UNEA_ARRAY(pay_weekday, counter) = WeekDayName(WeekDay(UNEA_ARRAY(check_date_one, counter)))  'finding the day of the week of the first paycheck
-                If UNEA_ARRAY(check_date_two, counter) <> "" Then        'if this paycheck was found, it will find the day of the week paycheck and compare it to the first, if they do not match - validation is needed
-                    If WeekDayName(WeekDay(UNEA_ARRAY(check_date_two, counter))) <> UNEA_ARRAY(pay_weekday, counter) Then day_validation_needed = TRUE
-                End If
-                If UNEA_ARRAY(check_date_three, counter) <> "" Then        'if this paycheck was found, it will find the day of the week paycheck and compare it to the first, if they do not match - validation is needed
-                    If WeekDayName(WeekDay(UNEA_ARRAY(check_date_three, counter))) <> UNEA_ARRAY(pay_weekday, counter) Then day_validation_needed = TRUE
-                End If
-                If UNEA_ARRAY(check_date_four, counter) <> "" Then        'if this paycheck was found, it will find the day of the week paycheck and compare it to the first, if they do not match - validation is needed
-                    If WeekDayName(WeekDay(UNEA_ARRAY(check_date_four, counter))) <> UNEA_ARRAY(pay_weekday, counter) Then day_validation_needed = TRUE
-                End If
-                If UNEA_ARRAY(check_date_five, counter) <> "" Then        'if this paycheck was found, it will find the day of the week paycheck and compare it to the first, if they do not match - validation is needed
-                    If WeekDayName(WeekDay(UNEA_ARRAY(check_date_five, counter))) <> UNEA_ARRAY(pay_weekday, counter) Then day_validation_needed = TRUE
-                End If
-            End If
+	            UNEA_ARRAY(pay_average, counter) = total_pay / divider       'Finding the average of all of the paychecks listed
+	            UNEA_ARRAY(six_month_total, counter) = 0                     'setting this equal to 0 as we will be adding to it later
+	            'MsgBox "Average - " & UNEA_ARRAY(pay_average, counter)
+	            day_validation_needed = FALSE       'default for this variable
+	            If UNEA_ARRAY(job_frequency, counter) = "3" OR UNEA_ARRAY(job_frequency, counter) = "4" Then  'if this JOB is paid weekly or biweekly
+	                UNEA_ARRAY(pay_weekday, counter) = WeekDayName(WeekDay(UNEA_ARRAY(check_date_one, counter)))  'finding the day of the week of the first paycheck
+	                If UNEA_ARRAY(check_date_two, counter) <> "" Then        'if this paycheck was found, it will find the day of the week paycheck and compare it to the first, if they do not match - validation is needed
+	                    If WeekDayName(WeekDay(UNEA_ARRAY(check_date_two, counter))) <> UNEA_ARRAY(pay_weekday, counter) Then day_validation_needed = TRUE
+	                End If
+	                If UNEA_ARRAY(check_date_three, counter) <> "" Then        'if this paycheck was found, it will find the day of the week paycheck and compare it to the first, if they do not match - validation is needed
+	                    If WeekDayName(WeekDay(UNEA_ARRAY(check_date_three, counter))) <> UNEA_ARRAY(pay_weekday, counter) Then day_validation_needed = TRUE
+	                End If
+	                If UNEA_ARRAY(check_date_four, counter) <> "" Then        'if this paycheck was found, it will find the day of the week paycheck and compare it to the first, if they do not match - validation is needed
+	                    If WeekDayName(WeekDay(UNEA_ARRAY(check_date_four, counter))) <> UNEA_ARRAY(pay_weekday, counter) Then day_validation_needed = TRUE
+	                End If
+	                If UNEA_ARRAY(check_date_five, counter) <> "" Then        'if this paycheck was found, it will find the day of the week paycheck and compare it to the first, if they do not match - validation is needed
+	                    If WeekDayName(WeekDay(UNEA_ARRAY(check_date_five, counter))) <> UNEA_ARRAY(pay_weekday, counter) Then day_validation_needed = TRUE
+	                End If
+	            End If
 
-            If day_validation_needed = TRUE Then        'If any of the paychecks listed do not match the first, then worker needs to identify the correct pay day
-                selected_weekday = UNEA_ARRAY(pay_weekday, counter)
+	            If day_validation_needed = TRUE Then        'If any of the paychecks listed do not match the first, then worker needs to identify the correct pay day
+	                selected_weekday = UNEA_ARRAY(pay_weekday, counter)
 
-                Dialog1 = ""
-                BeginDialog Dialog1, 0, 0, 161, 80, "Weekday"
-                  DropListBox 15, 55, 60, 45, "Sunday"+chr(9)+"Monday"+chr(9)+"Tuesday"+chr(9)+"Wednesday"+chr(9)+"Thursday"+chr(9)+"Friday"+chr(9)+"Saturday", selected_weekday
-                  ButtonGroup ButtonPressed
-                    OkButton 105, 55, 50, 15
-                  Text 5, 10, 150, 35, "This unearned income is paid either weekly or biweekly, but has different weekdays indicated for pay dates. Please select the weekday that the client is paid."
-                EndDialog
+	                Dialog1 = ""
+	                BeginDialog Dialog1, 0, 0, 161, 80, "Weekday"
+	                  DropListBox 15, 55, 60, 45, "Sunday"+chr(9)+"Monday"+chr(9)+"Tuesday"+chr(9)+"Wednesday"+chr(9)+"Thursday"+chr(9)+"Friday"+chr(9)+"Saturday", selected_weekday
+	                  ButtonGroup ButtonPressed
+	                    OkButton 105, 55, 50, 15
+	                  Text 5, 10, 150, 35, "This unearned income is paid either weekly or biweekly, but has different weekdays indicated for pay dates. Please select the weekday that the client is paid."
+	                EndDialog
 
-                Do
-                    Dialog Dialog1
-                    Call check_for_password(are_we_passworded_out)
-                Loop until are_we_passworded_out = FALSE
+	                Do
+	                    Dialog Dialog1
+	                    Call check_for_password(are_we_passworded_out)
+	                Loop until are_we_passworded_out = FALSE
 
-                UNEA_ARRAY(pay_weekday, counter) = selected_weekday
+	                UNEA_ARRAY(pay_weekday, counter) = selected_weekday
 
-            End If
+	            End If
 
-            total_pay = FormatNumber(total_pay, 2)
-            UNEA_ARRAY(est_pop_up, counter) = total_pay
-            counter = counter + 1
+	            total_pay = FormatNumber(total_pay, 2)
+	            UNEA_ARRAY(est_pop_up, counter) = total_pay
+	            counter = counter + 1
+			End If
         Next
     End If
 
@@ -800,32 +804,34 @@ If case_status = "Initial" Then
         transmit
 
         For the_unea = 0 to UBOUND(UNEA_ARRAY, 2)        'Now this is going to each of the JOBS previously found
-            If UNEA_ARRAY(job_frequency, the_unea) = "3" OR UNEA_ARRAY(job_frequency, the_unea) = "4" Then    'If the pay is weekly or biweekly
-                EmWriteScreen UNEA_ARRAY(instance, the_unea), 20, 79     'navigating to the right instance of the JOB
-                transmit
+			If UNEA_ARRAY(unea_type, 0) <> "" Then
+	            If UNEA_ARRAY(job_frequency, the_unea) = "3" OR UNEA_ARRAY(job_frequency, the_unea) = "4" Then    'If the pay is weekly or biweekly
+	                EmWriteScreen UNEA_ARRAY(instance, the_unea), 20, 79     'navigating to the right instance of the JOB
+	                transmit
 
-                unea_row = 13       'Setting this to the beginning of the list of paychecks
-                Do
-                    EMReadScreen pay_date, 8, unea_row, 54          'read the pay date and make it a date if not blank
-                    If pay_date <> "__ __ __" Then
-                        pay_date = replace(pay_date, " ", "/")
-                        day_of_pay = WeekDayName(Weekday(pay_date))     'finding the weekday of this pay check
+	                unea_row = 13       'Setting this to the beginning of the list of paychecks
+	                Do
+	                    EMReadScreen pay_date, 8, unea_row, 54          'read the pay date and make it a date if not blank
+	                    If pay_date <> "__ __ __" Then
+	                        pay_date = replace(pay_date, " ", "/")
+	                        day_of_pay = WeekDayName(Weekday(pay_date))     'finding the weekday of this pay check
 
-                        If day_of_pay <> UNEA_ARRAY(pay_weekday, the_unea) Then      'the weekday paid should match the weekday already determined when reading the JOBS panel
+	                        If day_of_pay <> UNEA_ARRAY(pay_weekday, the_unea) Then      'the weekday paid should match the weekday already determined when reading the JOBS panel
 
-                            'This message will have the worker confirm that the JOBS panel has the correct pay dates.
-                            'In some instances there is a reason why a check date does not align with the rest of the pay dates, but if the check dates have not been properly updated in each month, the messagebox comes up for EVERY MONTH - encouraging correction
-                            confirm_off_schedule_pay = MsgBox("The pay listed on this UNEA panel does not match the day of the week pay was received in the initial month of applicaton." & vbNewLine & vbNewLine &_
-                             "Pay date of " & pay_date & " listed is on a " & day_of_pay & "." & vbNewLine & "This income appears to have a regular pay date of " & UNEA_ARRAY(pay_weekday, the_unea) & "." & vbNewLine & vbNewLine &_
-                             "Health care budget requires any income entered on UNEA be the actual pay dates expected, even if the income is calculated by average pay. Review the case and make sure that check dates have been updated in every month." & vbNewLine & vbNewLine &_
-                             "Has the budget been correctly determined, using actual pay dates for each month that can be updated?", vbYesNo + vbImportant, "Confirm paycheck budgeting")
+	                            'This message will have the worker confirm that the JOBS panel has the correct pay dates.
+	                            'In some instances there is a reason why a check date does not align with the rest of the pay dates, but if the check dates have not been properly updated in each month, the messagebox comes up for EVERY MONTH - encouraging correction
+	                            confirm_off_schedule_pay = MsgBox("The pay listed on this UNEA panel does not match the day of the week pay was received in the initial month of applicaton." & vbNewLine & vbNewLine &_
+	                             "Pay date of " & pay_date & " listed is on a " & day_of_pay & "." & vbNewLine & "This income appears to have a regular pay date of " & UNEA_ARRAY(pay_weekday, the_unea) & "." & vbNewLine & vbNewLine &_
+	                             "Health care budget requires any income entered on UNEA be the actual pay dates expected, even if the income is calculated by average pay. Review the case and make sure that check dates have been updated in every month." & vbNewLine & vbNewLine &_
+	                             "Has the budget been correctly determined, using actual pay dates for each month that can be updated?", vbYesNo + vbImportant, "Confirm paycheck budgeting")
 
-                            if confirm_off_schedule_pay = vbNo Then script_end_procedure("Update STAT/JOBS with all actual pay dates to get a correct HC budget.")  'If the paychecks or not complete the script will end
-                        End If
-                    End If
-                    unea_row = unea_row + 1 'looking at the next check
-                Loop until unea_row = 18
-            End If
+	                            if confirm_off_schedule_pay = vbNo Then script_end_procedure("Update STAT/UNEA with all actual pay dates to get a correct HC budget.")  'If the paychecks or not complete the script will end
+	                        End If
+	                    End If
+	                    unea_row = unea_row + 1 'looking at the next check
+	                Loop until unea_row = 18
+	            End If
+			End If
         Next
     Next
 
@@ -935,10 +941,41 @@ loop until col > 76
 '     MsgBox "The total income for 6 months for this job is $" & JOBS_ARRAY(six_month_total, the_job) & vbNewLine & "Number of months is " & number_of_months
 ' Next
 job_msg = ""
+continue_fiat = FALSE
+jobs_to_fiat = FALSE
+unea_to_fiat = FALSE
+fail_message = ""
 For the_job = 0 to UBOUND(JOBS_ARRAY, 2)
     job_msg = job_msg & vbNewLine & JOBS_ARRAY(employer, the_job) & " - paid " & JOBS_ARRAY(job_frequency, the_job) & " on " & JOBS_ARRAY(pay_weekday, the_job) & " - total income for six-month budget period - $" & JOBS_ARRAY(six_month_total, the_job) & " - Average monthly income $" & JOBS_ARRAY(average_monthly_inc, the_job)
+	If JOBS_ARRAY(job_frequency, the_job) = "3" then
+		continue_fiat = TRUE
+		jobs_to_fiat = TRUE
+	End If
+	If JOBS_ARRAY(job_frequency, the_job) = "4" then
+		continue_fiat = TRUE
+		jobs_to_fiat = TRUE
+	End If
 
+	If JOBS_ARRAY(job_frequency, the_job) = "2" then fail_message = fail_message & vbNewLine & "- Job: " & JOBS_ARRAY(employer, the_job) & "is paid semi-monthly and does not need a FIAT to balance the inocme."
+	If JOBS_ARRAY(job_frequency, the_job) = "1" then fail_message = fail_message & vbNewLine & "- Job: " & JOBS_ARRAY(employer, the_job) & "is paid monthly and does not need a FIAT to balance the inocme."
+
+	If UNEA_ARRAY(unea_type, 0) <> "" Then
+		continue_fiat = TRUE
+		unea_to_fiat = TRUE
+	Else
+		fail_message = fail_message & vbNewLine & "There is no Unemployment UNEA to FIAT."
+	End If
 Next
+For the_job = 0 to UBOUND(JOBS_ARRAY, 2)
+	If JOBS_ARRAY(job_frequency, the_job) = "_" then
+		continue_fiat = FALSE
+		fail_message = fail_message & vbNewLine & "- Job: " & JOBS_ARRAY(employer, the_job) & " does not have a pay frequency listed on the JOBS panel"
+	End If
+Next
+If jobs_to_fiat = FALSE AND unea_to_fiat = FALSE Then continue_fiat = FALSE
+If jobs_to_fiat = FALSE Then fail_message = fail_message & vbNewLine & "There are no JOBS to FIAT."
+fail_message = "Script ended because FIAT could not continue due to:" & vbNewLine & fail_message
+if continue_fiat = FALSE Then script_end_procedure_with_error_report(fail_message)
 'MsgBox job_msg
 
 'Dynamic dialog to have the worker confirm the average income
