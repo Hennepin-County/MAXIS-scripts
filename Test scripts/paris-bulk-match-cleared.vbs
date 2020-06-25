@@ -255,123 +255,84 @@ DO
 
 			    '--------------------------------------------------------------------PARIS match state & active programs-this will handle more than one state
 			row = 13
+			match_state_cnote_one = ""
+			match_state_cnote_two = ""
+			match_state_cnote_three = ""
+			match_state_cnote_four = ""
+			match_state_cnote_five = ""
+			match_state_cnote_six = ""
+			on_loop = 1
+
+			other_state_fs = FALSE
+			other_state_hc = FALSE
+			other_state_ssi = FALSE
+			other_state_cash = FALSE
+			other_state_cca = FALSE
+			other_state_wc = FALSE
+
 			DO
 				'-------------------------------------------------------Reading for each state active programs
 				EMReadScreen match_state, 2, row, 3
 				IF trim(match_state) = "" THEN
 					EXIT DO
 				ELSE  '-------------------------------------------------------------------Case number for match state (if exists)
-					IF match_state = excel_state_match THEN
-					   	EMReadScreen Match_State_Case_Number, 13, row, 9
-					    Match_State_Case_Number = trim(Match_State_Case_Number)
-					    IF Match_State_Case_Number = "" THEN Match_State_Case_Number = "N/A"
-						'-------------------------------------------------------------------PARIS match contact information
-						EMReadScreen phone_number, 23, row, 22
-						phone_number = TRIM(phone_number)
-						If phone_number = "Phone: (     )" then
-							phone_number = ""
-						Else
-							EMReadScreen phone_number_ext, 8, row, 51
-							phone_number_ext = trim(phone_number_ext)
-							If phone_number_ext <> "" then phone_number = phone_number & " Ext: " & phone_number_ext
-						End if
 
-						'-------------------------------------------------------------------reading and cleaning up the fax number if it exists
-						EMReadScreen fax_check, 8, row + 1, 31
-						fax_check = trim(fax_check)
-						If fax_check <> "" then
-							EMReadScreen fax_number, 21, row + 1, 24
-							fax_number = TRIM(fax_number)
-						End if
-						If fax_number = "Fax: (     )" then fax_number = ""
-						match_contact_info = phone_number & " " & fax_number
-						'-------------------------------------------------------------------trims excess spaces of match_programs
-						match_programs = "" 'sometimes blanking over information will clear the value of the variable'
-						'match_row = row           'establishing match row the same as the current state row. Needs another variables since we are only incrementing the match row in the loop. Row needs to stay the same for larger loop/next state.
-						DO
-							EMReadScreen match_state_active_programs, 22, row, 60
-							match_state_active_programs = TRIM(match_state_active_programs)
-							IF match_state_active_programs = "" THEN EXIT DO
-							IF match_state_active_programs = "FOOD SUPPORT" THEN match_programs = match_programs & "FS, "
-							IF match_state_active_programs = "HEALTH CARE" THEN match_programs = match_programs &  "HC, "
-							IF match_state_active_programs = "STATE SSI" THEN match_programs = match_programs & "SSI, "
-							IF match_state_active_programs = "NONE IDICATED" THEN match_programs = match_programs &  "NONE INDICATED"
-							IF match_state_active_programs = "CASH" THEN match_programs = match_programs &  "CASH"
-							IF match_state_active_programs = "CHILD CARE" THEN match_programs = match_programs &  "CCA"
-							IF match_state_active_programs = "STATE WORKERS COMP" THEN match_programs = match_programs &  "WORKERS COMP"
-							row = row + 1
-						LOOP
-
-						'trims excess spaces of programs
-						match_programs = trim(match_programs)
-						'takes the last comma off of programs when autofilled into dialog
-						IF right(match_programs, 1) = "," THEN match_programs = left(match_programs, len(match_programs) - 1)
-						'MsgBox match_programs
-					END IF
- 					row = row + 3
-					EMReadScreen add_match_state, 2, row, 3
-					add_match_state = trim(add_match_state)
-					MsgBox "what the h?" & row & add_match_state & second_match
-					IF trim(add_match_state) = "" THEN
-						EXIT DO
-						second_match = FALSE
-						MsgBox add_match_state & second_match
-					ELSE
-						IF add_match_state <> "" THEN
-							MsgBox add_match_state
-					   		EMReadScreen add_state_Case_Number, 13, row, 9
-					    	add_state_Case_Number = trim(add_state_Case_Number)
-					    	IF add_state_Case_Number = "" THEN add_state_Case_Number = "N/A"
-							'-------------------------------------------------------------------PARIS match contact information
-							EMReadScreen add_state_phone_number, 23, row, 22
-							add_state_phone_number = TRIM(add_state_phone_number)
-							If add_state_phone_number = "Phone: (     )" then
-								add_state_phone_number = ""
-							Else
-								EMReadScreen add_state_phone_number_ext, 8, row, 51
-								add_state_phone_number_ext = trim(add_state_phone_number_ext)
-								If add_state_phone_number_ext <> "" then add_state_phone_number = add_state_phone_number & " Ext: " & add_state_phone_number_ext
-							End if
-
-							'-------------------------------------------------------------------reading and cleaning up the fax number if it exists
-							EMReadScreen add_state_fax_check, 8, row + 1, 31
-							add_state_fax_check = trim(add_state_fax_check)
-							If add_state_fax_check <> "" then
-								EMReadScreen add_state_fax_number, 21, row + 1, 24
-								add_state_fax_number = TRIM(add_state_fax_number)
-							End if
-							If add_state_fax_number = "Fax: (     )" then add_state_fax_number = ""
-							match_contact_info = add_state_phone_number & " " & add_state_fax_number
-
-						    '-------------------------------------------------------------------trims excess spaces of match_programs
-						    DO
-						    	EMReadScreen add_match_state_active_programs, 22, row, 60
-						    	add_match_state_active_programs = TRIM(add_match_state_active_programs)
-						    	IF add_match_state_active_programs = "" THEN EXIT DO
-						    	IF add_match_state_active_programs = "FOOD SUPPORT" THEN match_programs = add_match_programs & "FS, "
-						    	IF add_match_state_active_programs = "HEALTH CARE" THEN add_match_programs = add_match_programs &  "HC, "
-						    	IF add_match_state_active_programs = "STATE SSI" THEN add_match_programs = add_match_programs & "SSI, "
-						    	IF add_match_state_active_programs = "NONE IDICATED" THEN add_match_programs = add_match_programs &  "NONE INDICATED"
-						    	IF add_match_state_active_programs = "CASH" THEN add_match_programs = add_match_programs &  "CASH"
-						    	IF add_match_state_active_programs = "CHILD CARE" THEN add_match_programs = add_match_programs &  "CCA"
-						    	IF add_match_state_active_programs = "STATE WORKERS COMP" THEN add_match_programs = add_match_programs &  "WORKERS COMP"
-						    	row = row + 1
-						    	MsgBox add_match_programs
-						    LOOP
-						    'trims excess spaces of programs
-						    add_match_programs = trim(add_match_programs)
-						    'takes the last comma off of programs when autofilled into dialog
-						    IF right(add_match_programs, 1) = "," THEN add_match_programs = left(add_match_programs, len(add_match_programs) - 1)
+					'-------------------------------------------------------------------trims excess spaces of match_programs
+					match_programs = "" 'sometimes blanking over information will clear the value of the variable'
+					'match_row = row           'establishing match row the same as the current state row. Needs another variables since we are only incrementing the match row in the loop. Row needs to stay the same for larger loop/next state.
+					DO
+						EMReadScreen match_state_active_programs, 22, row, 60
+						match_state_active_programs = TRIM(match_state_active_programs)
+						IF match_state_active_programs = "" THEN EXIT DO
+						IF match_state_active_programs = "FOOD SUPPORT" THEN
+							match_programs = match_programs & "FS, "
+							other_state_fs = TRUE
 						END IF
-					END IF
-					row = row + 1
-					IF row = 19 THEN
-						PF8
-						EMReadScreen last_page_check, 21, 24, 2
-						last_page_check = trim(last_page_check)
-						IF last_page_check = ""  THEN row = 13
-					END IF
+						IF match_state_active_programs = "HEALTH CARE" THEN
+							match_programs = match_programs &  "HC, "
+							other_state_hc = TRUE
+						END IF
+						IF match_state_active_programs = "STATE SSI" THEN
+							match_programs = match_programs & "SSI, "
+							other_state_ssi = TRUE
+						END IF
+						IF match_state_active_programs = "NONE IDICATED" THEN match_programs = match_programs &  "NONE INDICATED"
+						IF match_state_active_programs = "CASH" THEN
+							match_programs = match_programs &  "CASH, "
+							other_state_cash = TRUE
+						END IF
+						IF match_state_active_programs = "CHILD CARE" THEN
+							match_programs = match_programs &  "CCA, "
+							other_state_cca = TRUE
+						END IF
+						IF match_state_active_programs = "STATE WORKERS COMP" THEN
+							match_programs = match_programs &  "WORKERS COMP, "
+							other_state_wc = TRUE
+						END IF
+						row = row + 1
+					LOOP
+
+					'trims excess spaces of programs
+					match_programs = trim(match_programs)
+					'takes the last comma off of programs when autofilled into dialog
+					IF right(match_programs, 1) = "," THEN match_programs = left(match_programs, len(match_programs) - 1)
+
+					If on_loop = 1 Then match_state_cnote_one = "  - " & match_state & " - contact made (see ECF) - Match Progs: " & match_programs
+					If on_loop = 2 Then match_state_cnote_two = "  - " & match_state & " - contact made (see ECF) - Match Progs: " & match_programs
+					If on_loop = 3 Then match_state_cnote_three = "  - " & match_state & " - contact made (see ECF) - Match Progs: " & match_programs
+					If on_loop = 4 Then match_state_cnote_four = "  - " & match_state & " - contact made (see ECF) - Match Progs: " & match_programs
+					If on_loop = 5 Then match_state_cnote_five = "  - " & match_state & " - contact made (see ECF) - Match Progs: " & match_programs
+					If on_loop = 6 Then match_state_cnote_six = "  - " & match_state & " - contact made (see ECF) - Match Progs: " & match_programs
+
 				END IF
+				row = row + 3
+				IF row = 19 THEN
+					PF8
+					EMReadScreen last_page_check, 21, 24, 2
+					last_page_check = trim(last_page_check)
+					IF last_page_check = ""  THEN row = 13
+				END IF
+				on_loop = on_loop + 1
 			LOOP UNTIL last_page_check = "THIS IS THE LAST PAGE"
 
 			IF notice_sent = "N" and worker_entered_cleared_status = "" and case_note_actions = TRUE THEN 'sending the notice
@@ -392,13 +353,21 @@ DO
 			    CALL write_bullet_and_variable_in_CASE_NOTE("Client Name", Client_Name)
 			    CALL write_bullet_and_variable_in_CASE_NOTE("MN Active Programs", MN_active_programs)
 				CALL write_variable_in_CASE_NOTE("-----Match State: " & excel_state_match & "-----")
-			    CALL write_bullet_and_variable_in_CASE_NOTE("Match State Active Programs", match_programs)
-			    CALL write_bullet_and_variable_in_CASE_NOTE("Match State Contact Info", match_state_contact_info )
-				IF add_match_state <> "" THEN
-					CALL write_variable_in_CASE_NOTE("-----Match State: " & add_match_state & "-----")
-			    	CALL write_bullet_and_variable_in_CASE_NOTE("Match State Active Programs", add_match_programs)
-			    	CALL write_bullet_and_variable_in_CASE_NOTE("Match State Contact Info:", add_match_contact_info )
-				END IF
+			    ' CALL write_bullet_and_variable_in_CASE_NOTE("Match State Active Programs", match_programs)
+			    ' CALL write_bullet_and_variable_in_CASE_NOTE("Match State Contact Info", match_state_contact_info )
+				CALL write_variable_in_CASE_NOTE("* Match states listed in INFC:"
+				IF match_state_cnote_one <> "" Then CALL write_variable_in_CASE_NOTE(match_state_cnote_one)
+				IF match_state_cnote_two <> "" Then CALL write_variable_in_CASE_NOTE(match_state_cnote_two)
+				IF match_state_cnote_three <> "" Then CALL write_variable_in_CASE_NOTE(match_state_cnote_three)
+				IF match_state_cnote_four <> "" Then CALL write_variable_in_CASE_NOTE(match_state_cnote_four)
+				IF match_state_cnote_five <> "" Then CALL write_variable_in_CASE_NOTE(match_state_cnote_five)
+				IF match_state_cnote_six <> "" Then CALL write_variable_in_CASE_NOTE(match_state_cnote_six)
+
+				' IF add_match_state <> "" THEN
+				' 	CALL write_variable_in_CASE_NOTE("-----Match State: " & add_match_state & "-----")
+			    ' 	CALL write_bullet_and_variable_in_CASE_NOTE("Match State Active Programs", add_match_programs)
+			    ' 	CALL write_bullet_and_variable_in_CASE_NOTE("Match State Contact Info:", add_match_contact_info )
+				' END IF
 			    CALL write_variable_in_CASE_NOTE ("-----")
 			    CALL write_bullet_and_variable_in_CASE_NOTE("Contacted other state", excel_date_contact_with_other_state)
 			    CALL write_bullet_and_variable_in_CASE_NOTE("Verification Requested", pending_verifs)
@@ -439,13 +408,14 @@ DO
 				Call write_bullet_and_variable_in_case_note("Discovery date", contact_other_state)
 				Call write_bullet_and_variable_in_case_note("Period", INTM_period)
 				CALL write_variable_in_CASE_NOTE("-----Match State: " & excel_state_match & "-----")
-			    CALL write_bullet_and_variable_in_CASE_NOTE("Match State Active Programs", match_programs)
-			    CALL write_bullet_and_variable_in_CASE_NOTE("Match State Contact Info", match_state_contact_info )
-				IF add_match_state <> "" THEN
-					CALL write_variable_in_CASE_NOTE("-----Match State: " & add_match_state & "-----")
-			    	CALL write_bullet_and_variable_in_CASE_NOTE("Match State Active Programs", add_match_programs)
-			    	CALL write_bullet_and_variable_in_CASE_NOTE("Match State Contact Info", add_match_contact_info )
-				END IF
+				CALL write_variable_in_CASE_NOTE("* Match states listed in INFC:"
+				IF match_state_cnote_one <> "" Then CALL write_variable_in_CASE_NOTE(match_state_cnote_one)
+				IF match_state_cnote_two <> "" Then CALL write_variable_in_CASE_NOTE(match_state_cnote_two)
+				IF match_state_cnote_three <> "" Then CALL write_variable_in_CASE_NOTE(match_state_cnote_three)
+				IF match_state_cnote_four <> "" Then CALL write_variable_in_CASE_NOTE(match_state_cnote_four)
+				IF match_state_cnote_five <> "" Then CALL write_variable_in_CASE_NOTE(match_state_cnote_five)
+				IF match_state_cnote_six <> "" Then CALL write_variable_in_CASE_NOTE(match_state_cnote_six)
+
 			    CALL write_variable_in_CASE_NOTE ("-----")
 			    'CALL write_bullet_and_variable_in_CASE_NOTE("Client accessing benefits in other state", bene_other_state)
 			    CALL write_bullet_and_variable_in_CASE_NOTE("Contacted other state", excel_date_contact_with_other_state)
@@ -476,21 +446,21 @@ DO
 	excel_date_cleared					= ""
 
 LOOP UNTIL objExcel.Cells(excel_row, 1).value = ""	'looping until the list of cases to check for recert is complete\
-	'Centers the text for the columns with days remaining and difference notice
+'Centers the text for the columns with days remaining and difference notice
 
-	objExcel.Columns(1).HorizontalAlignment = -4131
-	objExcel.Columns(2).HorizontalAlignment = -4131
-	objExcel.Columns(3).HorizontalAlignment = -4131
-	objExcel.Columns(4).HorizontalAlignment = -4131
-	objExcel.Columns(5).HorizontalAlignment = -4131
-	objExcel.Columns(6).HorizontalAlignment = -4131
-	objExcel.Columns(7).HorizontalAlignment = -4131
-	objExcel.Columns(8).HorizontalAlignment = -4131
+objExcel.Columns(1).HorizontalAlignment = -4131
+objExcel.Columns(2).HorizontalAlignment = -4131
+objExcel.Columns(3).HorizontalAlignment = -4131
+objExcel.Columns(4).HorizontalAlignment = -4131
+objExcel.Columns(5).HorizontalAlignment = -4131
+objExcel.Columns(6).HorizontalAlignment = -4131
+objExcel.Columns(7).HorizontalAlignment = -4131
+objExcel.Columns(8).HorizontalAlignment = -4131
 
-	'Formatting the column width.
-	FOR i = 1 to 10
-		objExcel.Columns(i).AutoFit()
-	NEXT
-	'add pf3 at the end of the run and error handling for blank cleared status'
-	STATS_counter = STATS_counter - 1		'removes 1 to correct the count
-	script_end_procedure_with_error_report("Success! The IEVS match cases have now been updated. Please review the NOTES section to review the cases/follow up work to be completed.")
+'Formatting the column width.
+FOR i = 1 to 10
+	objExcel.Columns(i).AutoFit()
+NEXT
+'add pf3 at the end of the run and error handling for blank cleared status'
+STATS_counter = STATS_counter - 1		'removes 1 to correct the count
+script_end_procedure_with_error_report("Success! The IEVS match cases have now been updated. Please review the NOTES section to review the cases/follow up work to be completed.")
