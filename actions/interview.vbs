@@ -105,9 +105,31 @@ class mx_hh_member
 	public hc_disa_verif
 	public disa_waiver
 	public disa_1619
+	public disa_detail
+	public mof_file
+	public mof_detail
+	public mof_end_date
+	public iaa_file
+	public iaa_received_date
+	public iaa_complete
+	public disa_review
 
 	public fs_pwe
 	public wreg_exists
+
+	public schl_exists
+	public school_status
+	public school_grade
+	public school_name
+	public school_verif
+	public school_type
+	public school_district
+	public kinder_start_date
+	public grad_date
+	public grad_date_verif
+	public school_funding
+	public school_elig_status
+	public higher_ed
 
 	public checkbox_one
 	public checkbox_two
@@ -129,7 +151,7 @@ class mx_hh_member
 	end property
 
 	Public sub define_the_member()
-		Call navigate_to_MAXIS_screen("STAT", "MEMB")
+		Call navigate_to_MAXIS_screen("STAT", "MEMB")		'===============================================================================================
 		EMWriteScreen ref_number, 20, 76
 		transmit
 
@@ -237,7 +259,7 @@ class mx_hh_member
 		End If
 
 		If access_denied = FALSE Then
-			Call navigate_to_MAXIS_screen("STAT", "MEMI")
+			Call navigate_to_MAXIS_screen("STAT", "MEMI")		'===============================================================================================
 			EMWriteScreen ref_number, 20, 76
 			transmit
 
@@ -285,7 +307,7 @@ class mx_hh_member
 			If former_state = "__" Then former_state = ""
 
 
-			Call navigate_to_MAXIS_screen("STAT", "IMIG")
+			Call navigate_to_MAXIS_screen("STAT", "IMIG")		'===============================================================================================
 			EMWriteScreen ref_number, 20, 76
 			transmit
 
@@ -355,7 +377,7 @@ class mx_hh_member
 			End If
 
 
-			Call navigate_to_MAXIS_screen("STAT", "DISA")
+			Call navigate_to_MAXIS_screen("STAT", "DISA")		'===============================================================================================
 			EMWriteScreen ref_number, 20, 76
 			transmit
 
@@ -385,6 +407,11 @@ class mx_hh_member
 				If disa_cert_begin_date = "__/__/____" Then disa_cert_begin_date = ""
 				disa_cert_end_date = replace(disa_cert_end_date, " ", "/")
 				If disa_cert_end_date = "__/__/____" Then disa_cert_end_date = ""
+
+				If hc_disa_verif = "1" OR fs_disa_verif = "1" OR cash_disa_status = "1" Then disa_detail = "DISA based on Doctor's Statement"
+				If hc_disa_verif = "2" OR fs_disa_verif = "2" OR cash_disa_status = "2" Then disa_detail = "SMRT Certified Disability"
+				If hc_disa_verif = "3" OR fs_disa_verif = "3" OR cash_disa_status = "3" Then disa_detail = "SSA Certified Disability"
+				If cash_disa_status = "7" Then disa_detail = "Disability based on Professional Statement of Need"
 
 				If cash_disa_status = "01" Then cash_disa_status = "01 - RSDI Only Disability"
 				If cash_disa_status = "02" Then cash_disa_status = "02 - RSDI Only Blindness"
@@ -470,7 +497,7 @@ class mx_hh_member
 				If disa_1619 = "_" Then disa_1619 = ""
 			End If
 
-			Call navigate_to_MAXIS_screen("STAT", "WREG")
+			Call navigate_to_MAXIS_screen("STAT", "WREG")		'===============================================================================================
 			EMWriteScreen ref_number, 20, 76
 			transmit
 
@@ -483,6 +510,84 @@ class mx_hh_member
 
 				If wreg_pwe = "Y" Then fs_pwe = "Yes"
 				If wreg_pwe = "N" OR wreg_pwe = "_" Then fs_pwe = "No"
+			End If
+
+
+			Call navigate_to_MAXIS_screen("STAT", "SCHL")		'===============================================================================================
+			EMWriteScreen ref_number, 20, 76
+			transmit
+
+			EMreadScreen schl_version, 1, 2, 73
+			If schl_version = "0" Then schl_exists = FALSE
+			If schl_version = "1" Then schl_exists = TRUE
+
+			If schl_exists = TRUE Then
+				EMReadScreen schl_status, 1, 6, 40
+				EMReadScreen schl_verif, 2, 6, 63
+				EMReadScreen schl_type, 2, 7, 40
+				EMReadScreen school_district, 4, 8, 40
+				EMReadScreen schl_start_date, 8, 10, 63
+				EMReadScreen schl_grad_date, 5, 11, 63
+				EMReadScreen schl_grad_verif, 2, 12, 63
+				EMReadScreen schl_fund, 1, 14, 63
+				EMReadScreen schl_elig, 2, 16, 63
+				EMReadScreen schl_higher_ed_yn, 1, 18, 63
+
+				If schl_status = "F" Then school_status = "Fulltime"
+				If schl_status = "H" Then school_status = "Halftime"
+				If schl_status = "L" Then school_status = "Less than Half "
+				If schl_status = "N" Then school_status = "Not Attending"
+
+				If schl_verif = "SC" Then school_verif = "SC - School Statement"
+				If schl_verif = "OT" Then school_verif = "OT - Other Document"
+				If schl_verif = "NO" Then school_verif = "NO - No Verif Provided"
+				If schl_verif = "__" Then school_verif = "Blank"
+
+				If schl_type = "01" Then school_type = "01 - Preschool - 6"
+				If schl_type = "11" Then school_type = "11 - 7 - 8"
+				If schl_type = "02" Then school_type = "02 - 9 - 12"
+				If schl_type = "03" Then school_type = "03 - GED Or Equiv"
+				If schl_type = "06" Then school_type = "06 - Child, Not In School"
+				If schl_type = "07" Then school_type = "07 - Individual Ed Plan/IEP"
+				If schl_type = "08" Then school_type = "08 - Post-Sec Not Grad Student"
+				If schl_type = "09" Then school_type = "09 - Post-Sec Grad Student"
+				If schl_type = "10" Then school_type = "10 - Post-Sec Tech Schl"
+				If schl_type = "12" Then school_type = "11 - Adult Basic Ed (ABE)"
+				If schl_type = "13" Then school_type = "13 - English As A 2nd Language"
+
+				If school_district = "____" Then school_district = ""
+
+				kinder_start_date = replace(schl_start_date, " ", "/")
+				If kinder_start_date = "__/__/__" Then kinder_start_date = ""
+
+				grad_date = replace(schl_grad_date, " ", "/")
+				If grad_date = "__/__" Then grad_date = ""
+
+				If schl_grad_verif = "SC" Then grad_date_verif = "SC - School Statement"
+				If schl_grad_verif = "OT" Then grad_date_verif = "OT - Other Document"
+				If schl_grad_verif = "NO" Then grad_date_verif = "NO - No Verif Provided"
+				If schl_grad_verif = "__" Then grad_date_verif = "Blank"
+
+				If schl_fund = "1" Then school_funding = "1 - Not Attending in MN"
+				If schl_fund = "2" Then school_funding = "2 - Attending Pub School"
+				If schl_fund = "3" Then school_funding = "3 - Attending private/Parochial"
+				If schl_fund = "4" Then school_funding = "4 - Not in Pre-12"
+
+				If schl_elig = "01" Then school_elig_status = "01 - Under 18 or Over 50"
+				If schl_elig = "02" Then school_elig_status = "02 - Disabled"
+				If schl_elig = "03" Then school_elig_status = "03 - Not Higher Ed or < Halftime"
+				If schl_elig = "04" Then school_elig_status = "04 - Employed 20 hrs/wk"
+				If schl_elig = "05" Then school_elig_status = "05 - Work Study Program"
+				If schl_elig = "06" Then school_elig_status = "06 - Dependant under 6"
+				If schl_elig = "07" Then school_elig_status = "07 - Dep 6-11 No Child Care"
+				If schl_elig = "09" Then school_elig_status = "09 - WIA, TAA, TRA or FSET"
+				If schl_elig = "10" Then school_elig_status = "10 - Single Parent w/ Child < 12"
+				If schl_elig = "99" Then school_elig_status = "99 - Not Eligible"
+
+				If schl_higher_ed_yn = "Y" Then higher_ed = "Yes"
+				If schl_higher_ed_yn = "N" Then higher_ed = "No"
+				If schl_higher_ed_yn = "_" Then higher_ed = "Blank"
+
 			End If
 		End If
 	end sub
@@ -499,13 +604,328 @@ end class
 class client_income
 
 	'about the income
+	public member_ref
+	public member_name
 	public member
+	public access_denied
+
+	public panel_name
+	public panel_instance
+
+	public unea_or_earned
+	public income_type
+	public income_type_code
+	public income_review
+	public income_verification
+	public verif_explaination
+	public income_start_date
+	public income_end_date
+	public pay_frequency
+	public pay_weekday
+	public hc_inc_est
+	public most_recent_pay
+	public income_notes
+
+	'JOBS
+	public subsidized_income_type
+	public hourly_wage
+	public employer
+	public prosp_pay_total
+	public prosp_hours_total
+	public prosp_pay_date_one
+	public prosp_pay_wage_one
+	public prosp_pay_date_two
+	public prosp_pay_wage_two
+	public prosp_pay_date_three
+	public prosp_pay_wage_three
+	public prosp_pay_date_four
+	public prosp_pay_wage_four
+	public prosp_pay_date_five
+	public prosp_pay_wage_five
+
+	public retro_pay_total
+	public retro_hours_total
+	public retro_pay_date_one
+	public retro_pay_wage_one
+	public retro_pay_date_two
+	public retro_pay_wage_two
+	public retro_pay_date_three
+	public retro_pay_wage_three
+	public retro_pay_date_four
+	public retro_pay_wage_four
+	public retro_pay_date_five
+	public retro_pay_wage_five
+
+
+	'BUSI
+	public prosp_net_cash_earnings
+	public prosp_gross_cash_earnings
+	public cash_earnings_verif
+	public prosp_cash_expenses
+	public cash_expense_verif
+	public retro_net_cash_earnings
+	public retro_gross_cash_earnings
+	public retro_cash_expenses
+
+	public prosp_net_ive_earnings
+	public prosp_gross_ive_earnings
+	public ive_earnings_verif
+	public prosp_ive_expenses
+	public ive_expense_verif
+
+	public prosp_net_snap_earnings
+	public prosp_gross_snap_earnings
+	public snap_earnings_verif
+	public prosp_snap_expenses
+	public snap_expense_verif
+	public retro_net_snap_earnings
+	public retro_gross_snap_earnings
+	public retro_snap_expenses
+
+	public prosp_net_hc_a_earnings
+	public prosp_gross_hc_a_earnings
+	public hc_a_earnings_verif
+	public prosp_hc_a_expenses
+	public hc_a_expense_verif
+
+	public prosp_net_hc_b_earnings
+	public prosp_gross_hc_b_earnings
+	public hc_b_earnings_verif
+	public prosp_hc_b_expenses
+	public hc_b_expense_verif
+
+	public retro_reptd_hours
+	public retro_min_wage_hours
+	public prosp_reptd_hours
+	public prosp_min_wage_hours
+
+	public self_emp_method
+	public self_emp_method_date
+
+	'UNEA
+	public claim_number
+	public cola_month
+
+
+	public sub read_member_name()
+		Call navigate_to_MAXIS_screen("STAT", "MEMB")
+		EMWriteScreen member_ref, 20, 76
+		transmit
+
+		EMReadScreen access_denied_check, 13, 24, 2         'Sometimes MEMB gets this access denied issue and we have to work around it.
+		If access_denied_check = "ACCESS DENIED" Then
+			PF10
+			last_name = "UNABLE TO FIND"
+			first_name = "Access Denied"
+			access_denied = TRUE
+		Else
+			access_denied = FALSE
+			EMReadscreen last_name, 25, 6, 30
+			EMReadscreen first_name, 12, 6, 63
+		End If
+		last_name = trim(replace(last_name, "_", ""))
+		first_name = trim(replace(first_name, "_", ""))
+
+		member_name = first_name & " " & last_name
+		member = member_ref & " - " & member_name
+	end sub
+
+	Public sub read_jobs_panel()
+
+	end sub
+
+	Public sub read_busi_panel()
+
+	end sub
+
+	Public sub read_unea_panel()
+		Call navigate_to_MAXIS_screen("STAT", "UNEA")
+		EMWriteScreen member_ref, 20, 76
+		EMWriteScreen panel_instance, 20, 79
+		transmit
+
+		panel_name = "UNEA"
+		unea_or_earned = "Unearned"
+
+		EMReadScreen income_type, 2, 5, 37
+		EMReadScreen income_verification, 1, 5, 65
+		EMReadScreen income_start_date, 8, 7, 37
+		EMReadScreen income_end_date, 8, 7, 68
+
+		EmWriteScreen "X", 6, 56
+		transmit
+			EMReadScreen pay_frequency, 1, 10, 63
+			EMReadScreen hc_inc_est, 8, 9, 65
+		PF3
+
+		EMReadScreen claim_number, 15, 6, 37
+		EMReadScreen cola_month, 2, 19, 36
+
+		EMReadScreen prosp_pay_total, 8, 18, 68
+		EMReadScreen prosp_pay_date_one, 8, 13, 54
+		EMReadScreen prosp_pay_wage_one, 8, 13, 68
+		EMReadScreen prosp_pay_date_two, 8, 14, 54
+		EMReadScreen prosp_pay_wage_two, 8, 14, 68
+		EMReadScreen prosp_pay_date_three, 8, 15, 54
+		EMReadScreen prosp_pay_wage_three, 8, 15, 68
+		EMReadScreen prosp_pay_date_four, 8, 16, 54
+		EMReadScreen prosp_pay_wage_four, 8, 16, 68
+		EMReadScreen prosp_pay_date_five, 8, 17, 54
+		EMReadScreen prosp_pay_wage_five, 8, 17, 68
+
+		EMReadScreen retro_pay_total, 8, 18, 39
+		EMReadScreen retro_pay_date_one, 8, 13, 25
+		EMReadScreen retro_pay_wage_one, 8, 13, 39
+		EMReadScreen retro_pay_date_two, 8, 14, 25
+		EMReadScreen retro_pay_wage_two, 8, 14, 39
+		EMReadScreen retro_pay_date_three, 8, 15, 25
+		EMReadScreen retro_pay_wage_three, 8, 15, 39
+		EMReadScreen retro_pay_date_four, 8, 16, 25
+		EMReadScreen retro_pay_wage_four, 8, 16, 39
+		EMReadScreen retro_pay_date_five, 8, 17, 25
+		EMReadScreen retro_pay_wage_five, 8, 17, 39
+
+		income_type_code = income_type
+		If income_type = "01" Then income_type = "01 - RSDI, Disa"
+		If income_type = "02" Then income_type = "02 - RSDI, No Disa"
+		If income_type = "03" Then income_type = "03 - SSI"
+		If income_type = "06" Then income_type = "06 - Non-MN PA"
+		If income_type = "11" Then income_type = "11 - VA Disability Benefit"
+		If income_type = "12" Then income_type = "12 - VA Pension"
+		If income_type = "13" Then income_type = "13 - VA Other"
+		If income_type = "38" Then income_type = "38 - VA Aid and Attendance"
+		If income_type = "14" Then income_type = "14 - Unemployment Insurance"
+		If income_type = "15" Then income_type = "15 - Worker's Compensation"
+		If income_type = "16" Then income_type = "16 - Railroad Retirement"
+		If income_type = "17" Then income_type = "17 - Other Retirement"
+		If income_type = "18" Then income_type = "18 - Military Entitlement"
+		If income_type = "19" Then income_type = "19 - FC Child Requesting SNAP"
+		If income_type = "20" Then income_type = "20 - FC Child NOT Requesting SNAP"
+		If income_type = "21" Then income_type = "21 - FC Adult Requesting SNAP"
+		If income_type = "22" Then income_type = "22 - FC Adult NOT Requesting SNAP"
+		If income_type = "23" Then income_type = "23 - Dividends"
+		If income_type = "24" Then income_type = "24 - Interest "
+		If income_type = "25" Then income_type = "25 - Counted Gifts or Prizes"
+		If income_type = "26" Then income_type = "26 - Strike Benefit"
+		If income_type = "27" Then income_type = "27 - Contract for Deed"
+		If income_type = "28" Then income_type = "28 - Illegal Income"
+		If income_type = "29" Then income_type = "29 - Other Countable"
+		If income_type = "30" Then income_type = "30 - Not Counted - Infreq <30"
+		If income_type = "21" Then income_type = "31 - Other SNAP Only"
+		If income_type = "08" Then income_type = "08 - Direct Child Support"
+		If income_type = "35" Then income_type = "35 - Direct Spousal Support"
+		If income_type = "36" Then income_type = "36 - Disb Child Support"
+		If income_type = "37" Then income_type = "37 - Disb Spousal Support"
+		If income_type = "39" Then income_type = "39 - Disb Child Support Arrears"
+		If income_type = "40" Then income_type = "40 - Disb Spousal Support Arrears"
+		If income_type = "43" Then income_type = "43 - Disb Excess Child Support"
+		If income_type = "44" Then income_type = "44 - MSA - Excess Income for SSI"
+		If income_type = "45" Then income_type = "45 - County 88 Child Support"
+		If income_type = "46" Then income_type = "46 - County 88 Gaming"
+		If income_type = "47" Then income_type = "47 - Counted Tribal Income"
+		If income_type = "48" Then income_type = "48 - Trust Income"
+		If income_type = "49" Then income_type = "49 - Non-Recurring > $60/qtr"
+
+		If income_verification = "1" Then income_verification = "1 - Copy of Checks"
+		If income_verification = "2" Then income_verification = "2 - Award Letters"
+		If income_verification = "3" Then income_verification = "3 - System Initiated"
+		If income_verification = "4" Then income_verification = "4 - Colateral Statement"
+		If income_verification = "5" Then income_verification = "5 - Pend Out State Verif"
+		If income_verification = "6" Then income_verification = "6 - Other Document"
+		If income_verification = "7" Then income_verification = "7 - Worker Initiated"
+		If income_verification = "8" Then income_verification = "8 - RI Stubs"
+		If income_verification = "N" Then income_verification = "N - No Verif Provided"
+		MsgBox income_verification
+		income_start_date = replace(income_start_date, " ", "/")
+		If income_start_date = "__/__/__" Then income_start_date = ""
+		income_end_date = replace(income_end_date, " ", "/")
+		If income_end_date = "__/__/__" Then income_end_date = ""
+
+		If pay_frequency = "1" Then pay_frequency = "1 - Monthly"
+		If pay_frequency = "2" Then pay_frequency = "2 - Semi-monthly"
+		If pay_frequency = "3" Then pay_frequency = "3 - Biweekly"
+		If pay_frequency = "4" Then pay_frequency = "4 - Weekly"
+		If pay_frequency = "5" Then pay_frequency = "5 - Other"
+		If pay_frequency = "_" Then pay_frequency = ""
+		hc_inc_est = trim(hc_inc_est)
+
+		'pay_weekday'
+
+		claim_number = replace(claim_number, "_", "")
+
+		If cola_month = "01" Then cola_month = "January"
+		If cola_month = "02" Then cola_month = "February"
+		If cola_month = "03" Then cola_month = "March"
+		If cola_month = "04" Then cola_month = "April"
+		If cola_month = "05" Then cola_month = "May"
+		If cola_month = "06" Then cola_month = "June"
+		If cola_month = "07" Then cola_month = "July"
+		If cola_month = "08" Then cola_month = "August"
+		If cola_month = "09" Then cola_month = "September"
+		If cola_month = "10" Then cola_month = "October"
+		If cola_month = "11" Then cola_month = "November"
+		If cola_month = "12" Then cola_month = "December"
+		If cola_month = "NA" Then cola_month = "Not Applicable"
+		If cola_month = "__" Then cola_month = "Unspecified"
+
+		prosp_pay_total = trim(prosp_pay_total)
+		prosp_pay_date_one = replace(prosp_pay_date_one, " ", "/")
+		If prosp_pay_date_one = "__/__/__" Then prosp_pay_date_one = ""
+		prosp_pay_wage_one = trim(prosp_pay_wage_one)
+		If prosp_pay_wage_one = "________" Then prosp_pay_wage_one = ""
+		prosp_pay_date_two = replace(prosp_pay_date_two, " ", "/")
+		If prosp_pay_date_two = "__/__/__" Then prosp_pay_date_two = ""
+		prosp_pay_wage_two = trim(prosp_pay_wage_two)
+		If prosp_pay_wage_two = "________" Then prosp_pay_wage_two = ""
+		prosp_pay_date_three = replace(prosp_pay_date_three, " ", "/")
+		If prosp_pay_date_three = "__/__/__" Then prosp_pay_date_three = ""
+		prosp_pay_wage_three = trim(prosp_pay_wage_three)
+		If prosp_pay_wage_three = "________" Then prosp_pay_wage_three = ""
+		prosp_pay_date_four = replace(prosp_pay_date_four, " ", "/")
+		If prosp_pay_date_four = "__/__/__" Then prosp_pay_date_four = ""
+		prosp_pay_wage_four = trim(prosp_pay_wage_four)
+		If prosp_pay_wage_four = "________" Then prosp_pay_wage_four = ""
+		prosp_pay_date_five = replace(prosp_pay_date_five, " ", "/")
+		If prosp_pay_date_five = "__/__/__" Then prosp_pay_date_five = ""
+		prosp_pay_wage_five = trim(prosp_pay_wage_five)
+		If prosp_pay_wage_five = "________" Then prosp_pay_wage_five = ""
+
+		retro_pay_total = trim(retro_pay_total)
+		retro_pay_date_one = replace(retro_pay_date_one, " ", "/")
+		If retro_pay_date_one = "__/__/__" Then retro_pay_date_one = ""
+		retro_pay_wage_one = trim(retro_pay_wage_one)
+		If retro_pay_wage_one = "________" Then retro_pay_wage_one = ""
+		retro_pay_date_two = replace(retro_pay_date_two, " ", "/")
+		If retro_pay_date_two = "__/__/__" Then retro_pay_date_two = ""
+		retro_pay_wage_two = trim(retro_pay_wage_two)
+		If retro_pay_wage_two = "________" Then retro_pay_wage_two = ""
+		retro_pay_date_three = replace(retro_pay_date_three, " ", "/")
+		If retro_pay_date_three = "__/__/__" Then retro_pay_date_three = ""
+		retro_pay_wage_three = trim(retro_pay_wage_three)
+		If retro_pay_wage_three = "________" Then retro_pay_wage_three = ""
+		retro_pay_date_four = replace(retro_pay_date_four, " ", "/")
+		If retro_pay_date_four = "__/__/__" Then retro_pay_date_four = ""
+		retro_pay_wage_four = trim(retro_pay_wage_four)
+		If retro_pay_wage_four = "________" Then retro_pay_wage_four = ""
+		retro_pay_date_five = replace(retro_pay_date_five, " ", "/")
+		If retro_pay_date_five = "__/__/__" Then retro_pay_date_five = ""
+		retro_pay_wage_five = trim(retro_pay_wage_five)
+		If retro_pay_wage_five = "________" Then retro_pay_wage_five = ""
+
+
+	end sub
+
+
+
 
 end class
 
 
 Dim HH_MEMB_ARRAY()
 ReDim HH_MEMB_ARRAY(0)
+
+Dim UNEA_ARRAY()
+ReDim UNEA_ARRAY(0)
 
 const rela_clt_one_ref		= 0
 const rela_clt_two_ref 		= 1
@@ -521,14 +941,193 @@ const rela_notes 			= 9
 Dim ALL_HH_RELATIONSHIPS_ARRAY()
 ReDim ALL_HH_RELATIONSHIPS_ARRAY(rela_notes, 0)
 
+const temp_abs_person		= 0
+const temp_abs_ref			= 1
+const temp_abs_name			= 2
+const temp_abs_where		= 3
+const temp_abs_left_date	= 4
+const temp_abs_ret_date		= 5
+const temp_abs_notes		= 6
+
+Dim ALL_TEMP_ABSENCE()
+ReDim ALL_TEMP_ABSENCE(temp_abs_notes, 0)
+
+const pers_unable_to_work 		= 0
+const ref_nbr_unable_to_work 	= 1
+const name_unable_to_work 		= 2
+const unable_to_work_start_date	= 3
+const unable_to_work_verif 		= 4
+const unable_to_work_reason 	= 5
+const unable_to_work_abawd_yn	= 6
+const unable_to_work_abawd_type	= 7
+const unable_to_work_mfip_yn	= 8
+const unable_to_work_mfip_type	= 9
+const unable_to_work_notes 		= 10
+
+Dim NON_DISA_UNABLE_TO_WORK()
+ReDim NON_DISA_UNABLE_TO_WORK(unable_to_work_notes, 0)
+
 rela_type_dropdown = "Select One..."+chr(9)+"Parent"+chr(9)+"Child"+chr(9)+"Sibling"+chr(9)+"Spouse"+chr(9)+"Grandparent"+chr(9)+"Neice"+chr(9)+"Nephew"+chr(9)+"Aunt"+chr(9)+"Uncle"+chr(9)+"Grandchild"+chr(9)+"Step Parent"+chr(9)+"Step Child"+chr(9)+"Relative Caregiver"+chr(9)+"Foster Child"+chr(9)+"Foster Parent"+chr(9)+"Not Related"+chr(9)+"Legal Guardian"+chr(9)+"Other Relative"+chr(9)+"Cousin"+chr(9)+"Live-in Attendant"+chr(9)+"Unknown"
 rela_verif_dropdown = "Type or Select"+chr(9)+"BC - Birth Certificate"+chr(9)+"AR - Adoption Records"+chr(9)+"LG = Legal Guardian"+chr(9)+"RE - Religious Records"+chr(9)+"HR - Hospital Records"+chr(9)+"RP - Recognition of Parentage"+chr(9)+"OT - Other Verifciation"+chr(9)+"NO - No Verif Provided"+chr(9)
+grade_droplist = "Select One..."+chr(9)+"Kindergarten"+chr(9)+"1st Grade"+chr(9)+"2nd Grade"+chr(9)+"3rd Grade"+chr(9)+"4th Grade"+chr(9)+"5th Grade"+chr(9)+"6th Grade"+chr(9)+"7th Grade"+chr(9)+"8th Grade"+chr(9)+"9th Grade"+chr(9)+"10th Grade"+chr(9)+"11th Grade"+chr(9)+"12th Grade"
+schl_ver_droplist = "Type or Select"+chr(9)+"Not Needed"+chr(9)+"Requested"+chr(9)+"Received - "+chr(9)+"On File - "+chr(9)+"SC - School Statement"+chr(9)+"OT - Other Document"+chr(9)+"No - No Verif Provided"
+schl_status_droplist = "Select One..."+chr(9)+"Fulltime"+chr(9)+"Halftime"+chr(9)+"Less than Half"+chr(9)+"Not Attending"
+caf_answer_droplist = " "+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Blank"
+unea_verif_droplist = "Select One..."+chr(9)+"1 - Copy of Checks"+chr(9)+"2 - Award Letters"+chr(9)+"3 - System Initiated"+chr(9)+"4 - Colateral Statement"+chr(9)+"5 - Pend Out State Verif"+chr(9)+"6 - Other Document"+chr(9)+"7 - Worker Initiated"+chr(9)+"8 - RI Stubs"+chr(9)+"N - No Verif Provided"+chr(9)
 memb_droplist = ""
+
 the_pwe_for_this_case = ""
+child_on_case = FALSE
+
+function dialog_movement()
+	For i = 0 to Ubound(HH_MEMB_ARRAY, 1)
+		' MsgBox HH_MEMB_ARRAY(i).button_one
+		If ButtonPressed = HH_MEMB_ARRAY(i).button_one Then
+			' MsgBox "selected"
+			memb_selected = i
+		End If
+	Next
+	' MsgBox ButtonPressed
+	If page_display = show_pg_memb_info AND ButtonPressed = -1 Then ButtonPressed = next_memb_btn
+	If ButtonPressed = next_memb_btn Then
+		memb_selected = memb_selected + 1
+		If memb_selected > UBound(HH_MEMB_ARRAY, 1) Then ButtonPressed = next_btn
+	End If
+	If ButtonPressed = -1 Then ButtonPressed = next_btn
+	If ButtonPressed = next_btn Then
+		If page_display = show_pg_one Then ButtonPressed = caf_membs_btn
+		If page_display = show_pg_memb_list Then ButtonPressed = HH_memb_detail_review
+		If page_display = show_pg_memb_info Then ButtonPressed = caf_q_1_2_btn
+		If page_display = show_q_1_2 Then ButtonPressed = caf_q_3_btn
+		If page_display = show_q_3 Then ButtonPressed = caf_q_4_btn
+		If page_display = show_q_4 Then ButtonPressed = caf_q_5_btn
+		If page_display = show_q_5 Then ButtonPressed = caf_q_6_btn
+		If page_display = show_q_6 Then ButtonPressed = caf_q_7_btn
+		If page_display = show_q_7 Then ButtonPressed = caf_q_8_btn
+		If page_display = show_q_8 Then ButtonPressed = caf_q_9_btn
+		If page_display = show_q_9 Then ButtonPressed = caf_q_10_btn
+		If page_display = show_q_10 Then ButtonPressed = caf_q_11_btn
+		If page_display = show_q_11 Then ButtonPressed = caf_q_12_btn
+		If page_display = show_q_12 Then
+			If second_page_display = main_unea Then ButtonPressed = rsdi_btn
+			If second_page_display = rsdi_unea Then ButtonPressed = ssi_btn
+			If second_page_display = ssi_unea Then ButtonPressed = va_btn
+			If second_page_display = va_unea Then ButtonPressed = ui_btn
+			If second_page_display = ui_unea Then ButtonPressed = wc_btn
+			If second_page_display = wc_unea Then ButtonPressed = ret_btn
+			If second_page_display = ret_unea Then ButtonPressed = tribal_btn
+			If second_page_display = tribal_unea Then ButtonPressed = cs_btn
+			If second_page_display = cs_unea Then ButtonPressed = ss_btn
+			If second_page_display = ss_unea Then ButtonPressed = other_btn
+			If second_page_display = other_unea Then ButtonPressed = caf_q_13_btn
+		End If
+		If page_display = show_q_13 Then ButtonPressed = caf_q_14_15_btn
+		If page_display = show_q_14_15 Then ButtonPressed = caf_q_16_17_18_btn
+		If page_display = show_q_16_18 Then ButtonPressed = caf_q_19_btn
+		If page_display = show_q_19 Then ButtonPressed = caf_q_20_21_btn
+		If page_display = show_q_20_21 Then ButtonPressed = caf_q_22_btn
+		If page_display = show_q_22 Then ButtonPressed = caf_q_23_btn
+		If page_display = show_q_23 Then ButtonPressed = caf_q_24_btn
+		If page_display = show_q_24 Then ButtonPressed = caf_qual_q_btn
+		If page_display = show_qual Then ButtonPressed = caf_last_page_btn
+		' If page_display = show_pg_last Then ButtonPressed =
+	End If
+
+	If ButtonPressed = caf_page_one_btn Then
+		page_display = show_pg_one
+	End If
+	If ButtonPressed = caf_membs_btn Then
+		page_display = show_pg_memb_list
+	End If
+	If ButtonPressed = hh_list_btn Then
+		page_display = show_pg_memb_list
+	End If
+	If ButtonPressed = HH_memb_detail_review Then
+		page_display = show_pg_memb_info
+	End If
+	If ButtonPressed = caf_q_1_2_btn Then
+		page_display = show_q_1_2
+	End If
+	If ButtonPressed = caf_q_3_btn Then
+		page_display = show_q_3
+	End If
+	If ButtonPressed = caf_q_4_btn Then
+		page_display = show_q_4
+	End If
+	If ButtonPressed = caf_q_5_btn Then
+		page_display = show_q_5
+	End If
+	If ButtonPressed = caf_q_6_btn Then
+		page_display = show_q_6
+	End If
+	If ButtonPressed = caf_q_7_btn Then
+		page_display = show_q_7
+	End If
+	If ButtonPressed = caf_q_8_btn Then
+		page_display = show_q_8
+	End If
+	If ButtonPressed = caf_q_9_btn Then
+		page_display = show_q_9
+	End If
+	If ButtonPressed = caf_q_10_btn Then
+		page_display = show_q_10
+	End If
+	If ButtonPressed = caf_q_11_btn Then
+		page_display = show_q_11
+	End If
+	If ButtonPressed = caf_q_12_btn Then
+		page_display = show_q_12
+		second_page_display = main_unea
+	End If
+	If ButtonPressed = rsdi_btn 	Then second_page_display = rsdi_unea
+	If ButtonPressed = ssi_btn		Then second_page_display = ssi_unea
+	If ButtonPressed = va_btn		Then second_page_display = va_unea
+	If ButtonPressed = ui_btn		Then second_page_display = ui_unea
+	If ButtonPressed = wc_btn		Then second_page_display = wc_unea
+	If ButtonPressed = ret_btn		Then second_page_display = ret_unea
+	If ButtonPressed = tribal_btn	Then second_page_display = tribal_unea
+	If ButtonPressed = cs_btn		Then second_page_display = cs_unea
+	If ButtonPressed = ss_btn		Then second_page_display = ss_unea
+	If ButtonPressed = other_btn	Then second_page_display = other_unea
+	If ButtonPressed = main_btn		Then second_page_display = main_unea
+
+	If ButtonPressed = caf_q_13_btn Then
+		page_display = show_q_13
+	End If
+	If ButtonPressed = caf_q_14_15_btn Then
+		page_display = show_q_14_15
+	End If
+	If ButtonPressed = caf_q_16_17_18_btn Then
+		page_display = show_q_16_18
+	End If
+	If ButtonPressed = caf_q_19_btn Then
+		page_display = show_q_19
+	End If
+	If ButtonPressed = caf_q_20_21_btn Then
+		page_display = show_q_20_21
+	End If
+	If ButtonPressed = caf_q_22_btn Then
+		page_display = show_q_22
+	End If
+	If ButtonPressed = caf_q_23_btn Then
+		page_display = show_q_23
+	End If
+	If ButtonPressed = caf_q_24_btn Then
+		page_display = show_q_24
+	End If
+	If ButtonPressed = caf_qual_q_btn Then
+		page_display = show_qual
+	End If
+	If ButtonPressed = caf_last_page_btn Then
+		page_display = show_pg_last
+	End If
+
+	If page_display <> show_pg_memb_info Then memb_selected = ""
+end function
 
 function define_main_dialog()
 	Dialog1 = ""
-	BeginDialog Dialog1, 0, 0, 550, 385, "Dialog"
+	BeginDialog Dialog1, 0, 0, 550, 385, "Full Interview Questions"
 
 	  ButtonGroup ButtonPressed
 		If page_display = show_pg_one Then
@@ -648,13 +1247,16 @@ function define_main_dialog()
 			y_pos = y_pos + 10
 			Text 30, y_pos, 275, 10, "Ask: Do you have a social worker you want authorized to talk to us about your case?"
 			' PushButton 10, 10, 80, 15, "List of HH Members", hh_list_btn
-			Text 20, 13, 80, 15, "List of HH Members"
-			PushButton 95, 10, 125, 15, "Review HH Member Information", HH_memb_detail_review
+			Text 20, 8, 80, 15, "List of HH Members"
+			PushButton 95, 5, 125, 15, "Review HH Member Information", HH_memb_detail_review
 		End If
 		If page_display = show_pg_memb_info Then
 			Text 495, 27, 60, 13, "CAF MEMBs"
 
-			Text 15, 35, 460, 10, "^^1 - Review the personal information/detail for each household member on this case."
+			Text 15, 23, 460, 10, "^^1 - Review the personal information/detail for each household member on this case with the client. Review and add ALL household relationships."
+			Text 20, 33, 460, 10, "* Be sure to check if proof of identity is required and look in ECF or SOL-Q to ensure verification is correct."
+			Text 20, 43, 460, 10, "* Confirm name spelling, language, marital status, immigration/citizenship status."
+			Text 20, 53, 460, 10, "* If the SSN has not been validated, ask the client for the correct SSN."
 			grp_len = 195
 			For the_rela = 0 to UBound(ALL_HH_RELATIONSHIPS_ARRAY, 2)
 				If ALL_HH_RELATIONSHIPS_ARRAY(rela_clt_one_ref, the_rela) = HH_MEMB_ARRAY(memb_selected).ref_number Then grp_len = grp_len + 20
@@ -667,7 +1269,7 @@ function define_main_dialog()
 			Text 75, 90, 165, 10, "Age: " & HH_MEMB_ARRAY(memb_selected).age & "      DOB: "  & HH_MEMB_ARRAY(memb_selected).date_of_birth
 			Text 75, 100, 235, 10, "Written Language: " & HH_MEMB_ARRAY(memb_selected).written_lang & "       Spoken Language: " & HH_MEMB_ARRAY(memb_selected).spoken_lang
 			Text 75, 115, 185, 10, "Proof of Identity:" & HH_MEMB_ARRAY(memb_selected).id_verif
-			Text 275, 115, 100, 10, "Identity Proof:"
+			Text 275, 120, 100, 10, "Identity Proof:"
 			ComboBox 330, 115, 135, 45, "Select or Type"+chr(9)+"Not Needed"+chr(9)+"Requested"+chr(9)+"ECF"+chr(9)+"SMI/SOL-Q", identity_proof_found
 			CheckBox 80, 125, 140, 10, "Check Here if identity proof is required", id_required_checkbox
 			Text 75, 140, 65, 10, "SSN: " & HH_MEMB_ARRAY(memb_selected).ssn
@@ -735,216 +1337,742 @@ function define_main_dialog()
 			' PushButton 5, 110, 40, 10, "MEMB 01", Button12
 
 			' PushButton 95, 10, 125, 15, "Review HH Member Information", HH_memb_detail_review
-			Text 105, 13, 125, 15, "Review HH Member Information"
-			PushButton 10, 10, 80, 15, "List of HH Members", hh_list_btn
+			Text 105, 8, 125, 15, "Review HH Member Information"
+			PushButton 10, 5, 80, 15, "List of HH Members", hh_list_btn
 
 		End If
 		If page_display = show_q_1_2 Then
 			Text 500, 42, 60, 13, "Q. 1 and 2"
 
-			Text 15, 15, 450, 10, "Q. 1. Does everyone in your household buy, fix or eat food with you?"
-			Text 135, 35, 65, 10, "Answer on the CAF"
-			Text 265, 35, 70, 10, "Confirm CAF Answer"
-			DropListBox 200, 30, 40, 45, ""+chr(9)+"No"+chr(9)+"Yes", caf_answer
-			ComboBox 340, 30, 125, 45, "", confirm_caf_answer
+			Text 5, 10, 330, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q1 and Q2 into the 'Answer on the CAF' field."
+		    Text 5, 25, 370, 10, "^^2 - ASK - Q1 and Q2 and record the verbal answers in the 'Confirm CAF Answer' field under the question."
+		    Text 15, 40, 235, 10, "Q. 1. Does everyone in your household buy, fix or eat food with you?"
+		    Text 370, 40, 65, 10, "Answer on the CAF"
+		    DropListBox 435, 35, 40, 45, "No"+chr(9)+"Yes"+chr(9)+"Blank", q1_caf_answer
+		    Text 35, 60, 70, 10, "Confirm CAF Answer"
+		    ComboBox 110, 55, 365, 45, "", q1_confirm_caf_answer
+		    Text 15, 85, 315, 20, "Q. 2. Is anyone who is in the household, who is age 60 or over or disabled, unable to buy or fix food due to a disability?"
+		    Text 370, 85, 65, 10, "Answer on the CAF"
+		    DropListBox 435, 80, 40, 45, "No"+chr(9)+"Yes"+chr(9)+"Blank", q2_caf_answer
+		    Text 35, 110, 70, 10, "Confirm CAF Answer"
+		    ComboBox 110, 105, 365, 45, "", q2_confirm_caf_answer
+		    Text 5, 140, 285, 10, "^^3 - ASK - Is there anyone else living in the house that does NOT share food with you?"
+		    Text 20, 155, 105, 10, "Anyone else NOT sharing food?"
+		    ComboBox 130, 150, 345, 45, "", anyone_else_in_hh_confirm
+		    Text 5, 190, 255, 10, "^^4 - Using the above questions, CONFIRM the information below from MAXIS"
+		    Text 20, 205, 455, 10, "HH Members UNABLE to P and P Seperately: " & members_unable_to_fix_food
 
-			Text 15, 50, 450, 10, "Q. 2. Is anyone who is in the household, who is age 60 or over or disabled, unable to buy or fix food due to a disability?"
-			Text 135, 70, 65, 10, "Answer on the CAF"
-			Text 265, 70, 70, 10, "Confirm CAF Answer"
-			DropListBox 200, 65, 40, 45, ""+chr(9)+"No"+chr(9)+"Yes", caf_answer
-			ComboBox 340, 65, 125, 45, "", Combo2
+			y_pos = 235
+			grp_len = 45
+			If group_one_number = "__" Then
+		    	Text 30, y_pos, 440, 10, "** No seperate Groups - everyone purchases and prepares together."
+				y_pos = y_pos + 15
+			Else
+				Text 30, y_pos, 440, 10, "Group: " & group_one_number & " - " & group_one_member_list
+				y_pos = y_pos + 15
+				If group_two_number <> "__" Then
+					Text 30, y_pos, 440, 10, "Group: " & group_two_number & " - " & group_two_member_list
+					y_pos = y_pos + 15
+					grp_len = grp_len + 15
+				End If
+				If group_three_number <> "__" Then
+					Text 30, y_pos, 440, 10, "Group: " & group_three_number & " - " & group_three_member_list
+					y_pos = y_pos + 15
+					grp_len = grp_len + 15
+				End If
+				If group_four_number <> "__" Then
+					Text 30, y_pos, 440, 10, "Group: " & group_four_number & " - " & group_four_member_list
+					y_pos = y_pos + 15
+					grp_len = grp_len + 15
+				End If
+				If group_five_number <> "__" Then
+					Text 30, y_pos, 440, 10, "Group: " & group_five_number & " - " & group_five_member_list
+					y_pos = y_pos + 15
+					grp_len = grp_len + 15
+				End If
+			End If
+
+			GroupBox 20, 220, 455, grp_len, "Eating Groups (who purchases and prepares together on this case)"
+		    PushButton 405, y_pos, 65, 10, "Update Groups", update_groups_btn
+			y_pos = y_pos + 35
+		    Text 5, y_pos, 215, 10, "^^5 - Confirm information for Q1 and Q2 are complete and correct:"
+		    ComboBox 25, y_pos + 10, 450, 45, "Type or Select", q1_and_q2_confirmation
+
+
 		End If
 		If page_display = show_q_3 Then
 			Text 508, 57, 60, 13, "Q. 3"
 
-			Text 15, 15, 450, 10, "Q. 3. Is anyone in your household attending school?"
-			Text 135, 35, 65, 10, "Answer on the CAF"
-			Text 265, 35, 70, 10, "Confirm CAF Answer"
-			DropListBox 200, 30, 40, 45, ""+chr(9)+"No"+chr(9)+"Yes", caf_answer
-			ComboBox 340, 30, 125, 45, "", confirm_caf_answer
+			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q3 into the 'Answer on the CAF' field."
+			Text 15, 25, 180, 10, "Q. 3. Is anyone in your household attending school?"
+			Text 370, 25, 65, 10, "Answer on the CAF"
+			DropListBox 435, 20, 40, 45, "", caf_answer
+			Text 5, 45, 405, 10, "^^2 - ASK - 'Is anyone attending school?' and record the verbal answers in the 'Confirm CAF Answer' field under the question."
+			Text 40, 65, 70, 10, "Confirm CAF Answer"
+			ComboBox 110, 60, 365, 45, "", confirm_caf_answer
+
+
+		    Text 5, 85, 380, 10, "^^3 - If there are school-age children in the household - ASK - What grade and school district does each child attend?"
+		    Text 20, 95, 460, 10, "Child (Name and Age) --------------------------------------------------Grade ---------------------District -------Verification -----------------------------------------Status ---------------------"
+
+			y_pos = 105
+			for i = 0 to UBound(HH_MEMB_ARRAY, 1)
+				If HH_MEMB_ARRAY(i).age < 19 AND HH_MEMB_ARRAY(i).age > 4 Then
+					Text 20, y_pos + 5, 170, 10, "MEMB " & HH_MEMB_ARRAY(i).ref_number & " - " & HH_MEMB_ARRAY(i).full_name & " - Age: " & HH_MEMB_ARRAY(i).age
+					DropListBox 190, y_pos, 60, 45, grade_droplist, HH_MEMB_ARRAY(i).school_grade
+					EditBox 255, y_pos, 35, 15, HH_MEMB_ARRAY(i).school_district
+					ComboBox 295, y_pos, 115, 45, schl_ver_droplist & chr(9)+HH_MEMB_ARRAY(i).school_verif, HH_MEMB_ARRAY(i).school_verif
+					DropListBox 415, y_pos, 60, 45, schl_status_droplist, HH_MEMB_ARRAY(i).school_status
+					y_pos = y_pos + 20
+				End If
+			Next
+			If y_pos = 105 Then
+				Text 20, y_pos + 5, 200, 10, "NO Children age 5 - 18 known on this case."
+				y_pos = y_pos + 20
+			End If
+		    PushButton 385, 82, 95, 13, "Search School Districts", search_district_btn
+
+			y_pos = y_pos + 10
+			Text 5, y_pos, 230, 10, "^^4 - ASK - Is anyone attending college/university or other higher ed?"
+			y_pos = y_pos + 10
+		    ComboBox 20, y_pos, 455, 45, "", school_higher_ed_answer
+			y_pos = y_pos + 20
+		    Text 5, y_pos, 320, 10, "^^5 - If anyone is attenting hight ed, ENTER or CONFIRM information for the household members:"
+			hi_ed_btn_pos = y_pos - 3
+			y_pos = y_pos + 10
+		    Text 20, y_pos, 460, 10, "Household Member ------------------------------------------------School ---------------------------------------------Status ---------------------Verification --------------------------------------"
+			y_pos = y_pos + 10
+			start_pos = y_pos
+
+			for i = 0 to UBound(HH_MEMB_ARRAY, 1)
+				If left(HH_MEMB_ARRAY(i).school_type, 2) = "08" OR left(HH_MEMB_ARRAY(i).school_type, 2) = "09" OR left(HH_MEMB_ARRAY(i).school_type, 2) = "10" Then
+				    Text 20, y_pos + 5, 160, 10, "MEMB " & HH_MEMB_ARRAY(i).ref_number & " - " & HH_MEMB_ARRAY(i).full_name & " - Age: " & HH_MEMB_ARRAY(i).age
+				    EditBox 180, y_pos, 105, 15, HH_MEMB_ARRAY(i).school_name
+				    DropListBox 295, y_pos, 60, 45, schl_status_droplist, HH_MEMB_ARRAY(i).school_status
+				    ComboBox 360, y_pos, 115, 45, schl_ver_droplist & chr(9)+HH_MEMB_ARRAY(i).school_verif, HH_MEMB_ARRAY(i).school_verif
+					y_pos = y_pos + 20
+				End If
+			Next
+			If y_pos = start_pos Then
+				Text 20, y_pos + 5, 200, 10, "No Post Secondary students known on this case."
+				y_pos = y_pos + 20
+			End if
+			PushButton 355, hi_ed_btn_pos, 120, 13, "Add Higher Ed Student", add_higher_ed_studen
+
+			y_pos = y_pos + 5
+		    Text 5, y_pos, 235, 10, "^^6 - ASK - Is anyone attending GED/ELL (English Language Learning)?"
+			y_pos = y_pos + 10
+		    ComboBox 20, y_pos, 455, 45, "", Combo5
+			y_pos = y_pos + 20
+		    Text 5, y_pos, 305, 10, "^^7 - If anyone is in GED or ELL, ENTER or CONFRIM information for the household members:"
+			ged_ell_btn_pos = y_pos - 3
+			y_pos = y_pos + 10
+		    Text 20, y_pos, 460, 10, "Household Member ------------------------------------------------School ---------------------------------------------Status ---------------------Verification --------------------------------------"
+			y_pos = y_pos + 10
+			start_pos = y_pos
+
+			for i = 0 to UBound(HH_MEMB_ARRAY, 1)
+				If left(HH_MEMB_ARRAY(i).school_type, 2) = "03" OR left(HH_MEMB_ARRAY(i).school_type, 2) = "13" Then
+				    Text 20, y_pos + 5, 160, 10, "MEMB " & HH_MEMB_ARRAY(i).ref_number & " - " & HH_MEMB_ARRAY(i).full_name & " - Age: " & HH_MEMB_ARRAY(i).age
+				    DropListBox 180, y_pos, 110, 45, "03 - GED Or Equiv"+chr(9)+"13 - English As A 2nd Language", HH_MEMB_ARRAY(i).school_type
+				    DropListBox 295, y_pos, 60, 45, schl_status_droplist, HH_MEMB_ARRAY(i).school_status
+				    ComboBox 360, y_pos, 115, 45, schl_ver_droplist & chr(9)+HH_MEMB_ARRAY(i).school_verif, HH_MEMB_ARRAY(i).school_verif
+					y_pos = y_pos + 20
+				End If
+			next
+			If y_pos = start_pos Then
+				Text 20, y_pos + 5, 200, 10, "No GED or ELL students known on this case."
+				y_pos = y_pos + 20
+			End if
+			PushButton 355, ged_ell_btn_pos, 120, 13, "Add GED/ELL Student", add_ged_ell_student
+
+
+
 		End If
 		If page_display = show_q_4 Then
 			Text 508, 72, 60, 13, "Q. 4"
 
-			Text 15, 15, 450, 10, "Q. 4. Is anyone in your household temporarily not living in your home? (example: vacation, foster care, treatment, hospital job search)"
-			Text 135, 35, 65, 10, "Answer on the CAF"
-			Text 265, 35, 70, 10, "Confirm CAF Answer"
-			DropListBox 200, 30, 40, 45, ""+chr(9)+"No"+chr(9)+"Yes", caf_answer
-			ComboBox 340, 30, 125, 45, "", confirm_caf_answer
+			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q4 into the 'Answer on the CAF' field."
+			Text 15, 25, 335, 20, "Q. 4. Is anyone in your household temporarily not living in your home? (example: vacation, foster care, treatment, hospital job search)"
+			Text 370, 25, 65, 10, "Answer on the CAF"
+			DropListBox 435, 20, 40, 45, " "+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Blank", caf_answer
+			Text 5, 50, 35, 10, "^^2 - ASK - "
+			Text 40, 50, 405, 20, "'Is there anyone who typically lives at home and is currently living elsewhere? Common examples are someone away for vacation, job search, but could also include treatment, hospital stay, or even foster care.'"
+			Text 40, 80, 70, 10, "Confirm CAF Answer"
+			ComboBox 110, 75, 365, 45, "", confirm_caf_answer
+			Text 40, 100, 245, 10, "Based on Information Provided, Are there individuals Temporarily absent?"
+			DropListBox 285, 95, 60, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes", temp_absent_yn
+		    GroupBox 10, 120, 465, 65, "^^3 - If YES to anyone Temporary Absent - ASK - the person information, where they are, and the dates they left and were expected to return."
+		    Text 20, 135, 450, 10, "Person Absent --------------------------------------------------Where Living -------------------------------------------------------Left Date ----------------Expected Return Date"
+			y_pos = 150
+			For gone_membs = 0 to UBound(ALL_TEMP_ABSENCE, 2)
+				ComboBox 20, y_pos, 140, 45, memb_droplist, ALL_TEMP_ABSENCE(temp_abs_person, gone_membs)
+			    ComboBox 170, y_pos, 145, 45, "", ALL_TEMP_ABSENCE(temp_abs_where, gone_membs)
+			    EditBox 325, y_pos, 55, 15, ALL_TEMP_ABSENCE(temp_abs_left_date, gone_membs)
+			    EditBox 390, y_pos, 55, 15, ALL_TEMP_ABSENCE(temp_abs_ret_date, gone_membs)
+				y_pos = y_pos + 20
+			Next
+
+			PushButton 345, y_pos, 100, 13, "Add Another Absent Person", add_another_absent_pers_btn
+			y_pos = y_pos + 25
+		    Text 5, y_pos, 210, 10, "^^4 - If YES to anyone Temporary Absent - EXPLAIN TO CLIENT:"
+			y_pos = y_pos + 15
+		    Text 20, y_pos, 455, 65, "ENTER TEMP ABSENCE POLICY HERE"
 		End If
 		If page_display = show_q_5 Then
 			Text 508, 87, 60, 13, "Q. 5"
 
-			Text 15, 15, 450, 10, "Q. 5. Is anyone blind, or does anyone have a physical or mental health condition that limit the ability to work or perform daily activities?"
-			Text 135, 35, 65, 10, "Answer on the CAF"
-			Text 265, 35, 70, 10, "Confirm CAF Answer"
-			DropListBox 200, 30, 40, 45, ""+chr(9)+"No"+chr(9)+"Yes", caf_answer
-			ComboBox 340, 30, 125, 45, "", confirm_caf_answer
+			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
+		    Text 20, 25, 335, 20, "Q. 5. Is anyone blind, or does anyone have a physical or mental health condition that limit the ability to work or perform daily activities?"
+		    Text 370, 30, 65, 10, "Answer on the CAF"
+		    DropListBox 435, 25, 40, 45, "Yes"+chr(9)+"No"+chr(9)+"Blank", caf_answer
+		    Text 5, 50, 35, 10, "^^2 - ASK - "
+		    Text 40, 50, 280, 10, "'Is anyone in the household disabled or have a physical or mental health condition?"
+		    Text 40, 70, 70, 10, "Confirm CAF Answer"
+		    ComboBox 110, 65, 365, 45, "", confirm_caf_answer
+		    Text 40, 90, 230, 10, "Based on Information Provided, Is anyone in the household Disabled?"
+		    DropListBox 275, 85, 60, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes", temp_absent_yn
+		    Text 5, 110, 300, 10, "^^3 - REVIEW information from MAXIS with client about known disabilities:"
+
+			y_pos = 125
+
+			For i = 0 to UBOUND(HH_MEMB_ARRAY, 1)
+				If HH_MEMB_ARRAY(i).disa_exists = TRUE Then
+					' Text 20, y_pos, 130, 10, "MEMB " & HH_MEMB_ARRAY(i).ref_number & " - " & HH_MEMB_ARRAY(i).full_name
+					GroupBox 20, y_pos, 460, 60, "MEMB " & HH_MEMB_ARRAY(i).ref_number & " - " & HH_MEMB_ARRAY(i).full_name
+				    ' Text 200, y_pos, 95, 10, "DISA End Date: " & HH_MEMB_ARRAY(i).disa_end_date
+					Text 200, y_pos, 110, 10, "DISA: " & HH_MEMB_ARRAY(i).disa_detail
+				    Text 315, y_pos, 45, 10, "DISA Review:"
+				    DropListBox 365, y_pos - 5, 110, 45, "Select One..."+chr(9)+"DISA Ended"+chr(9)+"DISA Needs Verif"+chr(9)+"DISA Continues", HH_MEMB_ARRAY(i).disa_review
+					y_pos = y_pos + 15
+				    ' Text 35, y_pos, 110, 10, "DISA: " & HH_MEMB_ARRAY(i).disa_detail
+					Text 25, y_pos, 70, 10, "MOF: MOF On File:"
+					DropListBox 90, y_pos - 5, 85, 45, "Select One..."+chr(9)+"On File"+chr(9)+"Needed"+chr(9)+"Requested"+chr(9)+"Attached"+chr(9)+"Not Needed", HH_MEMB_ARRAY(i).mof_file
+					Text 190, y_pos, 115, 10, "if received, Certification End Date:"
+					EditBox 305, y_pos - 5, 50, 15, HH_MEMB_ARRAY(i).mof_end_date
+					y_pos = y_pos + 15
+					Text 25, y_pos, 95, 10, "DISA End Date: " & HH_MEMB_ARRAY(i).disa_end_date
+					Text 145, y_pos, 95, 10, "DISA Cert End Date: " & HH_MEMB_ARRAY(i).disa_cert_end_date
+					PushButton 335, y_pos - 3, 140, 13, "Update DISA Information for this MEMBER", HH_MEMB_ARRAY(i).button_two
+					y_pos = y_pos + 15
+				    Text 25, y_pos, 65, 10, "IAAs: IAAs On File:"
+				    DropListBox 90, y_pos - 5, 85, 45, "Select One..."+chr(9)+"On File"+chr(9)+"Needed"+chr(9)+"Requested"+chr(9)+"Attached"+chr(9)+"Not Needed", HH_MEMB_ARRAY(i).iaa_file
+				    Text 190, y_pos, 95, 10, "if received, Received Date:"
+				    EditBox 280, y_pos - 5, 50, 15, HH_MEMB_ARRAY(i).iaa_received_date
+				    CheckBox 335, y_pos, 140, 10, "Check here if IAAs are signed Correctly", HH_MEMB_ARRAY(i).iaa_complete
+					y_pos = y_pos + 20
+				End If
+			Next
+
+		    PushButton 345, y_pos, 130, 13, "Add New DISA for a Known Member", new_disa_btn
+
 		End If
 		If page_display = show_q_6 Then
 			Text 508, 102, 60, 13, "Q. 6"
 
-			Text 15, 15, 450, 10, "Q. 6. Is anyone unable to work for reasons other than illness or disability?"
-			Text 135, 35, 65, 10, "Answer on the CAF"
-			Text 265, 35, 70, 10, "Confirm CAF Answer"
-			DropListBox 200, 30, 40, 45, ""+chr(9)+"No"+chr(9)+"Yes", caf_answer
-			ComboBox 340, 30, 125, 45, "", confirm_caf_answer
+			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q6 into the 'Answer on the CAF' field."
+		    Text 20, 25, 335, 10, "Q. 6. Is anyone unable to work for reasons other than illness or disability?"
+		    Text 370, 25, 65, 10, "Answer on the CAF"
+		    DropListBox 435, 20, 40, 45, "Yes"+chr(9)+"No"+chr(9)+"Blank", caf_answer
+		    Text 5, 45, 35, 10, "^^2 - ASK - "
+		    Text 40, 45, 280, 10, "'Is anyone in the household disabled or have a physical or mental health condition?"
+		    Text 40, 65, 70, 10, "Confirm CAF Answer"
+		    ComboBox 110, 60, 365, 45, "", confirm_caf_answer
+		    Text 5, 85, 385, 10, "^^3 - If YES (based on above detail if the client indicates someone is unable to work) - ASK client to EXPLAIN in detail"
+
+			y_pos = 100
+			For each_note = 0 to UBound(NON_DISA_UNABLE_TO_WORK, 2)
+				Text 20, y_pos, 85, 10, "Member Unable to Work"
+				y_pos = y_pos + 10
+				DropListBox 20, y_pos, 150, 45, memb_droplist, NON_DISA_UNABLE_TO_WORK(pers_unable_to_work, each_note)
+				Text 185, y_pos + 5, 35, 10, "Start Date:"
+				EditBox 220, y_pos, 50, 15, NON_DISA_UNABLE_TO_WORK(unable_to_work_start_date, each_note)
+				Text 285, y_pos + 5, 40, 10, "Verification:"
+				DropListBox 330, y_pos, 145, 40, "", NON_DISA_UNABLE_TO_WORK(unable_to_work_verif, each_note)
+				y_pos = y_pos + 20
+				Text 35, y_pos + 5, 30, 10, "Reason:"
+				ComboBox 65, y_pos, 410, 45, "Select or Type"+chr(9)+"Care of a Child < 6"+chr(9)+"Care of a Child 6 or Over"+chr(9)+"Care of an Elderly Person"+chr(9)+"Care of a Disabled Person"+chr(9)+"Lack Access to facilities required for employment", NON_DISA_UNABLE_TO_WORK(unable_to_work_reason, each_note)
+				y_pos = y_pos + 20
+				Text 35, y_pos + 5, 100, 10, "Is this an ABAWD Exemption?"
+				DropListBox 135, y_pos, 40, 45, "No"+chr(9)+"Yes", NON_DISA_UNABLE_TO_WORK(unable_to_work_abawd_yn, each_note)
+				DropListBox 180, y_pos, 295, 45, "If YES - what is ABAWD Exemption this may meet?", NON_DISA_UNABLE_TO_WORK(unable_to_work_abawd_type, each_note)
+				y_pos = y_pos + 20
+				Text 35, y_pos + 5, 135, 10, "Does this meed MFIP Extention Criteria?"
+				DropListBox 175, y_pos, 40, 45, "No"+chr(9)+"Yes", NON_DISA_UNABLE_TO_WORK(unable_to_work_mfip_yn, each_note)
+				DropListBox 220, y_pos, 255, 45, "If YES - what exemption does this meet?", NON_DISA_UNABLE_TO_WORK(unable_to_work_mfip_type, each_note)
+				y_pos = y_pos + 20
+			Next
+			PushButton 365, y_pos, 110, 10, "Add MEMBER Unable to Work", add_unable_tp_work_memb_btn
+
 		End If
 		If page_display = show_q_7 Then
 			Text 508, 117, 60, 13, "Q. 7"
 
-			Text 15, 15, 450, 10, "Q. 7. In the last 60 days did anyone in the household: Stop working or quit? Refuse a job offer? Ask to work fewwer hours? Go on strike?"
-			Text 135, 35, 65, 10, "Answer on the CAF"
-			Text 265, 35, 70, 10, "Confirm CAF Answer"
-			DropListBox 200, 30, 40, 45, ""+chr(9)+"No"+chr(9)+"Yes", caf_answer
-			ComboBox 340, 30, 125, 45, "", confirm_caf_answer
+			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
+			Text 20, 25, 335, 20, "Q. 7. In the last 60 days did anyone in the household: Stop working or quit? Refuse a job offer? Ask to work fewwer hours? Go on strike?"
+			Text 370, 30, 65, 10, "Answer on the CAF"
+			DropListBox 435, 25, 40, 45, "Yes"+chr(9)+"No"+chr(9)+"Blank", caf_answer
+			Text 5, 50, 35, 10, "^^2 - ASK - "
+			Text 40, 50, 280, 10, "'Is anyone in the household disabled or have a physical or mental health condition?"
+			Text 40, 70, 70, 10, "Confirm CAF Answer"
+			ComboBox 110, 65, 365, 45, "", confirm_caf_answer
 		End If
 		If page_display = show_q_8 Then
 			Text 508, 132, 60, 13, "Q. 8"
 
-			Text 15, 15, 450, 10, "Q. 8. Has anyone in the household had a job or been self-employed in the past 12 months?"
-			Text 135, 35, 65, 10, "Answer on the CAF"
-			Text 265, 35, 70, 10, "Confirm CAF Answer"
-			DropListBox 200, 30, 40, 45, ""+chr(9)+"No"+chr(9)+"Yes", caf_answer
-			ComboBox 340, 30, 125, 45, "", confirm_caf_answer
+			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
+			Text 20, 25, 335, 20, "Q. 8. Has anyone in the household had a job or been self-employed in the past 12 months?"
+			Text 370, 30, 65, 10, "Answer on the CAF"
+			DropListBox 435, 25, 40, 45, "Yes"+chr(9)+"No"+chr(9)+"Blank", caf_answer
+			Text 5, 50, 35, 10, "^^2 - ASK - "
+			Text 40, 50, 280, 10, "'Is anyone in the household disabled or have a physical or mental health condition?"
+			Text 40, 70, 70, 10, "Confirm CAF Answer"
+			ComboBox 110, 65, 365, 45, "", confirm_caf_answer
 
-			Text 15, 50, 450, 10, "Q. 8a. FOR SNAP ONLY: Has anyone in the household had a job or been self-employed in the past 36 months?"
-			Text 135, 70, 65, 10, "Answer on the CAF"
-			Text 265, 70, 70, 10, "Confirm CAF Answer"
-			DropListBox 200, 65, 40, 45, ""+chr(9)+"No"+chr(9)+"Yes", caf_answer
-			ComboBox 340, 65, 125, 45, "", confirm_caf_answer
+
+			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
+			Text 20, 25, 335, 20, "Q. 8a. FOR SNAP ONLY: Has anyone in the household had a job or been self-employed in the past 36 months?"
+			Text 370, 30, 65, 10, "Answer on the CAF"
+			DropListBox 435, 25, 40, 45, "Yes"+chr(9)+"No"+chr(9)+"Blank", caf_answer
+			Text 5, 50, 35, 10, "^^2 - ASK - "
+			Text 40, 50, 280, 10, "'Is anyone in the household disabled or have a physical or mental health condition?"
+			Text 40, 70, 70, 10, "Confirm CAF Answer"
+			ComboBox 110, 65, 365, 45, "", confirm_caf_answer
+
+
 		End If
 		If page_display = show_q_9 Then
 			Text 508, 147, 60, 13, "Q. 9"
 
-			Text 15, 15, 450, 20, "Q. 9. Does anyone in the household have a job or expect to get income from a job this month or next month? (Include income from Work Study and paid scholarships. Include free benefits or reduced expenses received for work (shelter, food, clothing, etc.)"
-			Text 135, 40, 65, 10, "Answer on the CAF"
-			Text 265, 40, 70, 10, "Confirm CAF Answer"
-			DropListBox 200, 35, 40, 45, ""+chr(9)+"No"+chr(9)+"Yes", caf_answer
-			ComboBox 340, 35, 125, 45, "", confirm_caf_answer
+			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
+			Text 20, 25, 335, 20, "Q. 9. Does anyone in the household have a job or expect to get income from a job this month or next month? (Include income from Work Study and paid scholarships. Include free benefits or reduced expenses received for work (shelter, food, clothing, etc.)"
+			Text 370, 30, 65, 10, "Answer on the CAF"
+			DropListBox 435, 25, 40, 45, "Yes"+chr(9)+"No"+chr(9)+"Blank", caf_answer
+			Text 5, 50, 35, 10, "^^2 - ASK - "
+			Text 40, 50, 280, 10, "'Is anyone in the household disabled or have a physical or mental health condition?"
+			Text 40, 70, 70, 10, "Confirm CAF Answer"
+			ComboBox 110, 65, 365, 45, "", confirm_caf_answer
+
 		End If
 		If page_display = show_q_10 Then
 			Text 507, 162, 60, 13, "Q. 10"
 
-			Text 15, 15, 450, 10, "Q. 10. Is anyone in the household self-employed or does anyone expect to get income from self-employment this month or next month?"
-			Text 135, 35, 65, 10, "Answer on the CAF"
-			Text 265, 35, 70, 10, "Confirm CAF Answer"
-			DropListBox 200, 30, 40, 45, ""+chr(9)+"No"+chr(9)+"Yes", caf_answer
-			ComboBox 340, 30, 125, 45, "", confirm_caf_answer
+			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
+			Text 20, 25, 335, 20, "Q. 10. Is anyone in the household self-employed or does anyone expect to get income from self-employment this month or next month?"
+			Text 370, 30, 65, 10, "Answer on the CAF"
+			DropListBox 435, 25, 40, 45, "Yes"+chr(9)+"No"+chr(9)+"Blank", caf_answer
+			Text 5, 50, 35, 10, "^^2 - ASK - "
+			Text 40, 50, 280, 10, "'Is anyone in the household disabled or have a physical or mental health condition?"
+			Text 40, 70, 70, 10, "Confirm CAF Answer"
+			ComboBox 110, 65, 365, 45, "", confirm_caf_answer
+
 		End If
 		If page_display = show_q_11 Then
 			Text 507, 177, 60, 13, "Q. 11"
 
-			Text 15, 15, 450, 10, "Q. 11. Do you expect any changes in income, expenses or work hours?"
-			Text 135, 35, 65, 10, "Answer on the CAF"
-			Text 265, 35, 70, 10, "Confirm CAF Answer"
-			DropListBox 200, 30, 40, 45, ""+chr(9)+"No"+chr(9)+"Yes", caf_answer
-			ComboBox 340, 30, 125, 45, "", confirm_caf_answer
+			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
+			Text 20, 25, 335, 20, "Q. 11. Do you expect any changes in income, expenses or work hours?"
+			Text 370, 30, 65, 10, "Answer on the CAF"
+			DropListBox 435, 25, 40, 45, "Yes"+chr(9)+"No"+chr(9)+"Blank", caf_answer
+			Text 5, 50, 35, 10, "^^2 - ASK - "
+			Text 40, 50, 280, 10, "'Is anyone in the household disabled or have a physical or mental health condition?"
+			Text 40, 70, 70, 10, "Confirm CAF Answer"
+			ComboBox 110, 65, 365, 45, "", confirm_caf_answer
+
+
 		End If
 		If page_display = show_q_12 Then
+			' MsgBox second_page_display
 			Text 507, 192, 60, 13, "Q. 12"
 
-			Text 15, 15, 450, 10, "Q. 12. Has anyone in the household applied for or does anyone get any of the following types of income each month?"
-			Text 135, 35, 65, 10, "Answer on the CAF"
-			Text 265, 35, 70, 10, "Confirm CAF Answer"
-			DropListBox 200, 30, 40, 45, ""+chr(9)+"No"+chr(9)+"Yes", caf_answer
-			ComboBox 340, 30, 125, 45, "", confirm_caf_answer
+			Text 5, 10, 195, 10, "^^1 - Enter the answers listed on the actual CAF from Q12"
+			Text 25, 30, 85, 10, "Social Security (RSDI)"
+		    DropListBox 110, 25, 40, 45, caf_answer_droplist, rsdi_caf_answer
+		    Text 155, 30, 5, 10, "$"
+		    EditBox 165, 25, 40, 15, rsdi_caf_amt
+		    Text 230, 30, 120, 10, "Supplemental Security Income (SSI)"
+		    DropListBox 355, 25, 40, 45, caf_answer_droplist, ssi_caf_answer
+		    Text 400, 30, 5, 10, "$"
+		    EditBox 410, 25, 40, 15, ssi_caf_amt
+		    Text 25, 45, 85, 10, "Veteran Beneftis (VA)"
+		    DropListBox 110, 40, 40, 45, caf_answer_droplist, va_caf_answer
+		    Text 155, 45, 5, 10, "$"
+		    EditBox 165, 40, 40, 15, va_caf_amt
+		    Text 230, 45, 120, 10, "Unemployment Insurance"
+		    DropListBox 355, 40, 40, 45, caf_answer_droplist, ui_caf_answer
+		    Text 400, 45, 5, 10, "$"
+		    EditBox 410, 40, 40, 15, ui_caf_amt
+		    Text 25, 60, 85, 10, "Workers' Compensation"
+		    DropListBox 110, 55, 40, 45, caf_answer_droplist, wc_caf_answer
+		    Text 155, 60, 5, 10, "$"
+		    EditBox 165, 55, 40, 15, wc_caf_amt
+		    Text 230, 60, 120, 10, "Retirement Benefits"
+		    DropListBox 355, 55, 40, 45, caf_answer_droplist, ret_caf_answer
+		    Text 400, 60, 5, 10, "$"
+		    EditBox 410, 55, 40, 15, ret_caf_amt
+		    Text 25, 75, 85, 10, "Tribal Payments"
+		    DropListBox 110, 70, 40, 45, caf_answer_droplist, tribal_caf_answer
+		    Text 155, 75, 5, 10, "$"
+		    EditBox 165, 70, 40, 15, tribal_caf_amt
+		    Text 230, 75, 120, 10, "Child Support or Spousal Support"
+		    DropListBox 355, 70, 40, 45, caf_answer_droplist, cs_caf_answer
+		    Text 400, 75, 5, 10, "$"
+		    EditBox 410, 70, 40, 15, cs_caf_amt
+		    Text 25, 90, 85, 10, "Other Unearned Income"
+		    DropListBox 110, 85, 40, 45, caf_answer_droplist, other_unea_caf_answer
+		    Text 155, 90, 5, 10, "$"
+		    EditBox 165, 85, 40, 15, other_unea_caf_amt
+
+			If second_page_display = main_unea Then
+				Text 5, 115, 35, 10, "^^2 - ASK - "
+			    Text 40, 115, 280, 10, "'Has anyone in the household applied for or receive any ..."
+				Text 100, 135, 75, 10, "RSDI - Social Security"
+			    DropListBox 200, 135, 180, 45, "", rsdi_confirm_response
+			    Text 100, 155, 70, 10, "SSI - Social Security"
+			    DropListBox 200, 155, 180, 45, "", ssi_confirm_response
+			    Text 100, 175, 70, 10, "Veteran Benefits (VA)"
+			    DropListBox 200, 175, 180, 45, "", va_confirm_response
+			    Text 100, 195, 65, 10, "Unemployment (UI)"
+			    DropListBox 200, 195, 180, 45, "", ui_confirm_response
+			    Text 100, 215, 100, 10, "Workers' Compensation (WC)"
+			    DropListBox 200, 215, 180, 45, "", wc_confirm_response
+			    Text 100, 235, 70, 10, "Retirement Benefits"
+			    DropListBox 200, 235, 180, 45, "", ret_confirm_response
+			    Text 100, 255, 55, 10, "Tribal Payments"
+			    DropListBox 200, 255, 180, 45, "", tribal_confirm_response
+			    Text 100, 275, 45, 10, "Child Support"
+			    DropListBox 200, 275, 180, 45, "", cs_confirm_response
+			    Text 100, 295, 55, 10, "Spousal Support"
+			    DropListBox 200, 295, 180, 45, "", ss_confirm_response
+			    Text 100, 315, 45, 10, "Other UNEA"
+			    DropListBox 200, 315, 180, 45, "", other_unea_confirm_response
+
+				Text 48, 332, 70, 15, "Main"
+			End If
+
+' Text 110, 135, 45, 10, "HH Member"
+' Text 270, 135, 40, 10, "RSDI Type"
+' Text 340, 135, 50, 10, "Monthly Pay"
+' Text 400, 135, 75, 10, "Most Recent Pay Date"
+' DropListBox 110, 145, 155, 45, "", member
+' DropListBox 270, 145, 65, 45, " "+chr(9)+"Disability"+chr(9)+"Non-Disabillity", rsdi_type
+' EditBox 340, 145, 55, 15, Edit12
+' EditBox 400, 145, 70, 15, most_recent_pay
+' Text 115, 160, 50, 10, "Verification"
+' Text 215, 160, 50, 10, "Verif Info"
+' Text 380, 160, 50, 10, "Claim Number"
+' DropListBox 115, 170, 95, 45, "", verif
+' EditBox 215, 170, 160, 15, verif_detail
+' EditBox 380, 170, 90, 15, claim_number
+' Text 115, 185, 50, 10, "Start Date"
+' Text 185, 185, 35, 10, "End Date"
+' Text 250, 185, 50, 10, "Income Notes"
+' EditBox 115, 195, 60, 15, Edit15
+' EditBox 185, 195, 55, 15, end_date
+' EditBox 250, 195, 220, 15, income_notes
+' Text 115, 210, 70, 10, "Review of Income"
+' ComboBox 115, 220, 355, 45, "", income_review
+
+			If second_page_display = rsdi_unea Then
+				GroupBox 100, 125, 380, 220, "RSDI Income"
+
+				y_pos = 135
+				for i = 0 to UBound(UNEA_ARRAY, 1)
+					If UNEA_ARRAY(i).panel_name = "UNEA" Then
+						If UNEA_ARRAY(i).income_type_code = "01" OR UNEA_ARRAY(i).income_type_code = "02" Then
+							Text 110, y_pos, 45, 10, "HH Member"
+						    Text 270, y_pos, 40, 10, "RSDI Type"
+						    Text 340, y_pos, 50, 10, "Monthly Pay"
+						    Text 400, y_pos, 75, 10, "Most Recent Pay Date"
+							y_pos = y_pos + 10
+						    DropListBox 110, y_pos, 155, 45, memb_droplist, UNEA_ARRAY(i).member
+						    DropListBox 270, y_pos, 65, 45, " "+chr(9)+"01 - RSDI, Disa"+chr(9)+"02 - RSDI, No Disa", UNEA_ARRAY(i).income_type_code
+						    EditBox 340, y_pos, 55, 15, UNEA_ARRAY(i).prosp_pay_total
+						    EditBox 400, y_pos, 70, 15, UNEA_ARRAY(i).most_recent_pay
+							y_pos = y_pos + 15
+						    Text 115, y_pos, 50, 10, "Verification"
+						    Text 215, y_pos, 50, 10, "Verif Info"
+						    Text 380, y_pos, 50, 10, "Claim Number"
+							y_pos = y_pos + 10
+						    DropListBox 115, y_pos, 95, 45, unea_verif_droplist, UNEA_ARRAY(i).income_verification
+						    EditBox 215, y_pos, 160, 15, UNEA_ARRAY(i).verif_explaination
+						    EditBox 380, y_pos, 90, 15, UNEA_ARRAY(i).claim_number
+							y_pos = y_pos + 15
+						    Text 115, y_pos, 50, 10, "Start Date"
+						    Text 185, y_pos, 35, 10, "End Date"
+						    Text 250, y_pos, 50, 10, "Income Notes"
+							y_pos = y_pos + 10
+						    EditBox 115, y_pos, 60, 15, UNEA_ARRAY(i).income_start_date
+						    EditBox 185, y_pos, 55, 15, UNEA_ARRAY(i).income_end_date
+						    EditBox 250, y_pos, 220, 15, UNEA_ARRAY(i).income_notes
+							y_pos = y_pos + 15
+						    Text 115, y_pos, 70, 10, "Review of Income"
+							y_pos = y_pos + 10
+						    ComboBox 115, y_pos, 355, 45, "", UNEA_ARRAY(i).income_review
+
+							y_pos = y_pos + 20
+						End If
+					End If
+				next
+				'PAGE BUTTONS
+				PushButton 385, 347, 95, 13, "Add RSDI Information", add_another_unea_btn
+
+				Text 45, 132, 45, 15, "RSDI"
+			End If
+			If second_page_display = ssi_unea Then
+				GroupBox 100, 125, 380, 220, "SSI Income"
+
+				y_pos = 135
+				for i = 0 to UBound(UNEA_ARRAY, 1)
+					If UNEA_ARRAY(i).panel_name = "UNEA" Then
+						If UNEA_ARRAY(i).income_type_code = "03" Then
+							Text 110, y_pos, 45, 10, "HH Member"
+							' Text 270, y_pos, 40, 10, "SSI Type"
+							Text 340, y_pos, 50, 10, "Monthly Pay"
+							Text 400, y_pos, 75, 10, "Most Recent Pay Date"
+							y_pos = y_pos + 10
+							DropListBox 110, y_pos, 155, 45, memb_droplist, UNEA_ARRAY(i).member
+							' DropListBox 270, y_pos, 65, 45, " "+chr(9)+"01 - RSDI, Disa"+chr(9)+"02 - RSDI, No Disa", UNEA_ARRAY(i).income_type_code
+							EditBox 340, y_pos, 55, 15, UNEA_ARRAY(i).prosp_pay_total
+							EditBox 400, y_pos, 70, 15, UNEA_ARRAY(i).most_recent_pay
+							y_pos = y_pos + 15
+							Text 115, y_pos, 50, 10, "Verification"
+							Text 215, y_pos, 50, 10, "Verif Info"
+							Text 380, y_pos, 50, 10, "Claim Number"
+							y_pos = y_pos + 10
+							DropListBox 115, y_pos, 95, 45, unea_verif_droplist, UNEA_ARRAY(i).income_verification
+							EditBox 215, y_pos, 160, 15, UNEA_ARRAY(i).verif_explaination
+							EditBox 380, y_pos, 90, 15, UNEA_ARRAY(i).claim_number
+							y_pos = y_pos + 15
+							Text 115, y_pos, 50, 10, "Start Date"
+							Text 185, y_pos, 35, 10, "End Date"
+							Text 250, y_pos, 50, 10, "Income Notes"
+							y_pos = y_pos + 10
+							EditBox 115, y_pos, 60, 15, UNEA_ARRAY(i).income_start_date
+							EditBox 185, y_pos, 55, 15, UNEA_ARRAY(i).income_end_date
+							EditBox 250, y_pos, 220, 15, UNEA_ARRAY(i).income_notes
+							y_pos = y_pos + 15
+							Text 115, y_pos, 70, 10, "Review of Income"
+							y_pos = y_pos + 10
+							ComboBox 115, y_pos, 355, 45, "", UNEA_ARRAY(i).income_review
+
+							y_pos = y_pos + 20
+						End If
+					End If
+				next
+				'PAGE BUTTONS
+				PushButton 385, 347, 95, 13, "Add SSI Information", add_another_unea_btn
+
+				Text 48, 152, 42, 15, "SSI"
+			End If
+			If second_page_display = va_unea Then
+				GroupBox 100, 125, 380, 220, "VA Income"
+				Text 50, 172, 40, 15, "VA"
+			End If
+			If second_page_display = ui_unea Then
+				GroupBox 100, 125, 380, 220, "UI Income"
+				Text 51, 192, 18, 15, "UI"
+			End If
+			If second_page_display = wc_unea Then
+				GroupBox 100, 125, 380, 220, "WC Income"
+				Text 49, 212, 41, 15, "WC"
+			End If
+			If second_page_display = ret_unea Then
+				GroupBox 100, 125, 380, 220, "Retirement Income"
+				Text 38, 232, 52, 15, "Retirement"
+			End If
+			If second_page_display = tribal_unea Then
+				GroupBox 100, 125, 380, 220, "Tribal Income"
+				Text 47, 252, 43, 15, "Tribal"
+			End If
+			If second_page_display = cs_unea Then
+				GroupBox 100, 125, 380, 220, "Child Support Income"
+				Text 35, 272, 55, 15, "Child Support"
+			End If
+			If second_page_display = ss_unea Then
+				GroupBox 100, 125, 380, 220, "Spousal Support Income"
+				Text 27, 292, 63, 15, "Spousal Support"
+			End If
+			If second_page_display = other_unea Then
+				GroupBox 100, 125, 380, 220, "Other Unearned Income"
+				Text 47, 312, 43, 15, "Other"
+			End If
+
+
+		    Text 5, 350, 320, 10, "^^3 - For any type applied for or received - Click the button on the left to gather additional details."
+
+			If second_page_display <> rsdi_unea Then PushButton 20, 130, 70, 15, "RSDI", rsdi_btn
+		    If second_page_display <> ssi_unea Then PushButton 20, 150, 70, 15, "SSI", ssi_btn
+		    If second_page_display <> va_unea Then PushButton 20, 170, 70, 15, "VA", va_btn
+		    If second_page_display <> ui_unea Then PushButton 20, 190, 70, 15, "UI", ui_btn
+		    If second_page_display <> wc_unea Then PushButton 20, 210, 70, 15, "WC", wc_btn
+		    If second_page_display <> ret_unea Then PushButton 20, 230, 70, 15, "Retirement", ret_btn
+		    If second_page_display <> tribal_unea Then PushButton 20, 250, 70, 15, "Tribal", tribal_btn
+		    If second_page_display <> cs_unea Then PushButton 20, 270, 70, 15, "Child Support", cs_btn
+		    If second_page_display <> ss_unea Then PushButton 20, 290, 70, 15, "Spousal Support", ss_btn
+		    If second_page_display <> other_unea Then PushButton 20, 310, 70, 15, "Other", other_btn
+		    If second_page_display <> main_unea Then PushButton 20, 330, 70, 15, "Main", main_btn
+
+
+
+' Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
+' Text 20, 25, 335, 20, "Q. 12. Has anyone in the household applied for or does anyone get any of the following types of income each month?"
+' Text 370, 30, 65, 10, "Answer on the CAF"
+' DropListBox 435, 25, 40, 45, "Yes"+chr(9)+"No"+chr(9)+"Blank", caf_answer
+' Text 5, 50, 35, 10, "^^2 - ASK - "
+' Text 40, 50, 280, 10, "'Is anyone in the household disabled or have a physical or mental health condition?"
+' Text 40, 70, 70, 10, "Confirm CAF Answer"
+' ComboBox 110, 65, 365, 45, "", confirm_caf_answer
+
 		End If
 		If page_display = show_q_13 Then
 			Text 507, 207, 60, 13, "Q. 13"
 
-			Text 15, 15, 450, 10, "Q. 13. Does anyone in the household have or expect to get any loans, scholarships or grants for attending school?"
-			Text 135, 35, 65, 10, "Answer on the CAF"
-			Text 265, 35, 70, 10, "Confirm CAF Answer"
-			DropListBox 200, 30, 40, 45, ""+chr(9)+"No"+chr(9)+"Yes", caf_answer
-			ComboBox 340, 30, 125, 45, "", confirm_caf_answer
+			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
+			Text 20, 25, 335, 20, "Q. 13. Does anyone in the household have or expect to get any loans, scholarships or grants for attending school?"
+			Text 370, 30, 65, 10, "Answer on the CAF"
+			DropListBox 435, 25, 40, 45, "Yes"+chr(9)+"No"+chr(9)+"Blank", caf_answer
+			Text 5, 50, 35, 10, "^^2 - ASK - "
+			Text 40, 50, 280, 10, "'Is anyone in the household disabled or have a physical or mental health condition?"
+			Text 40, 70, 70, 10, "Confirm CAF Answer"
+			ComboBox 110, 65, 365, 45, "", confirm_caf_answer
 		End If
 		If page_display = show_q_14_15 Then
 			Text 495, 222, 60, 13, "Q. 14 and 15"
 
-			Text 15, 15, 450, 10, "Q. 14. Does your household have the following housing expenses?"
-			Text 135, 35, 65, 10, "Answer on the CAF"
-			Text 265, 35, 70, 10, "Confirm CAF Answer"
-			DropListBox 200, 30, 40, 45, ""+chr(9)+"No"+chr(9)+"Yes", caf_answer
-			ComboBox 340, 30, 125, 45, "", confirm_caf_answer
+			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
+			Text 20, 25, 335, 20, "Q. 14. Does your household have the following housing expenses?"
+			Text 370, 30, 65, 10, "Answer on the CAF"
+			DropListBox 435, 25, 40, 45, "Yes"+chr(9)+"No"+chr(9)+"Blank", caf_answer
+			Text 5, 50, 35, 10, "^^2 - ASK - "
+			Text 40, 50, 280, 10, "'Is anyone in the household disabled or have a physical or mental health condition?"
+			Text 40, 70, 70, 10, "Confirm CAF Answer"
+			ComboBox 110, 65, 365, 45, "", confirm_caf_answer
 
-			Text 15, 50, 450, 10, "Q. 15. Does your household have the following utility expenses any time during the year?"
-			Text 135, 70, 65, 10, "Answer on the CAF"
-			Text 265, 70, 70, 10, "Confirm CAF Answer"
-			DropListBox 200, 65, 40, 45, ""+chr(9)+"No"+chr(9)+"Yes", caf_answer
-			ComboBox 340, 65, 125, 45, "", confirm_caf_answer
+			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
+			Text 20, 25, 335, 20, "Q. 15. Does your household have the following utility expenses any time during the year?"
+			Text 370, 30, 65, 10, "Answer on the CAF"
+			DropListBox 435, 25, 40, 45, "Yes"+chr(9)+"No"+chr(9)+"Blank", caf_answer
+			Text 5, 50, 35, 10, "^^2 - ASK - "
+			Text 40, 50, 280, 10, "'Is anyone in the household disabled or have a physical or mental health condition?"
+			Text 40, 70, 70, 10, "Confirm CAF Answer"
+			ComboBox 110, 65, 365, 45, "", confirm_caf_answer
 		End If
 		If page_display = show_q_16_18 Then
 			Text 487, 237, 60, 13, "Q. 16, 17, and 18"
 
-			Text 15, 15, 450, 20, "Q. 16. Do you or anyone living with you have costs for care of a child(ren) because you or they are working, looking for work or going to school? The Child Care Assistance Program (CCAP) may help pay child care costs."
-			Text 135, 40, 65, 10, "Answer on the CAF"
-			Text 265, 40, 70, 10, "Confirm CAF Answer"
-			DropListBox 200, 35, 40, 45, ""+chr(9)+"No"+chr(9)+"Yes", caf_answer
-			ComboBox 340, 35, 125, 45, "", confirm_caf_answer
+			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
+			Text 20, 25, 335, 20, "Q. 16. Do you or anyone living with you have costs for care of a child(ren) because you or they are working, looking for work or going to school? The Child Care Assistance Program (CCAP) may help pay child care costs."
+			Text 370, 30, 65, 10, "Answer on the CAF"
+			DropListBox 435, 25, 40, 45, "Yes"+chr(9)+"No"+chr(9)+"Blank", caf_answer
+			Text 5, 50, 35, 10, "^^2 - ASK - "
+			Text 40, 50, 280, 10, "'Is anyone in the household disabled or have a physical or mental health condition?"
+			Text 40, 70, 70, 10, "Confirm CAF Answer"
+			ComboBox 110, 65, 365, 45, "", confirm_caf_answer
 
-			Text 15, 60, 450, 20, "Q. 17. Do you or anyone living with you have costs for care of an ill or disabled adult because you are working, looking for work or going to school?"
-			Text 135, 80, 65, 10, "Answer on the CAF"
-			Text 265, 80, 70, 10, "Confirm CAF Answer"
-			DropListBox 200, 75, 40, 45, ""+chr(9)+"No"+chr(9)+"Yes", caf_answer
-			ComboBox 340, 75, 125, 45, "", confirm_caf_answer
 
-			Text 15, 100, 450, 20, "Q. 18. Does anyone in the household pay court-ordered child support, spousal support, child care support, medical support or contribute to a tax-dependent who does not live in your home?"
-			Text 135, 120, 65, 10, "Answer on the CAF"
-			Text 265, 120, 70, 10, "Confirm CAF Answer"
-			DropListBox 200, 115, 40, 45, ""+chr(9)+"No"+chr(9)+"Yes", caf_answer
-			ComboBox 340, 115, 125, 45, "", confirm_caf_answer
+
+			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
+			Text 20, 25, 335, 20, "Q. 17. Do you or anyone living with you have costs for care of an ill or disabled adult because you are working, looking for work or going to school?"
+			Text 370, 30, 65, 10, "Answer on the CAF"
+			DropListBox 435, 25, 40, 45, "Yes"+chr(9)+"No"+chr(9)+"Blank", caf_answer
+			Text 5, 50, 35, 10, "^^2 - ASK - "
+			Text 40, 50, 280, 10, "'Is anyone in the household disabled or have a physical or mental health condition?"
+			Text 40, 70, 70, 10, "Confirm CAF Answer"
+			ComboBox 110, 65, 365, 45, "", confirm_caf_answer
+
+
+
+			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
+			Text 20, 25, 335, 20, "Q. 18. Does anyone in the household pay court-ordered child support, spousal support, child care support, medical support or contribute to a tax-dependent who does not live in your home?"
+			Text 370, 30, 65, 10, "Answer on the CAF"
+			DropListBox 435, 25, 40, 45, "Yes"+chr(9)+"No"+chr(9)+"Blank", caf_answer
+			Text 5, 50, 35, 10, "^^2 - ASK - "
+			Text 40, 50, 280, 10, "'Is anyone in the household disabled or have a physical or mental health condition?"
+			Text 40, 70, 70, 10, "Confirm CAF Answer"
+			ComboBox 110, 65, 365, 45, "", confirm_caf_answer
+
+
 		End If
 		If page_display = show_q_19 Then
 			Text 507, 252, 60, 13, "Q. 19"
 
-			Text 15, 15, 450, 10, "Q. 19. For SNAP only: Does anyone in the household have medical expenses?"
-			Text 135, 35, 65, 10, "Answer on the CAF"
-			Text 265, 35, 70, 10, "Confirm CAF Answer"
-			DropListBox 200, 30, 40, 45, ""+chr(9)+"No"+chr(9)+"Yes", caf_answer
-			ComboBox 340, 30, 125, 45, "", confirm_caf_answer
+			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
+			Text 20, 25, 335, 20, "Q. 19. For SNAP only: Does anyone in the household have medical expenses?"
+			Text 370, 30, 65, 10, "Answer on the CAF"
+			DropListBox 435, 25, 40, 45, "Yes"+chr(9)+"No"+chr(9)+"Blank", caf_answer
+			Text 5, 50, 35, 10, "^^2 - ASK - "
+			Text 40, 50, 280, 10, "'Is anyone in the household disabled or have a physical or mental health condition?"
+			Text 40, 70, 70, 10, "Confirm CAF Answer"
+			ComboBox 110, 65, 365, 45, "", confirm_caf_answer
+
+
 		End If
 		If page_display = show_q_20_21 Then
 			Text 495, 267, 60, 13, "Q. 20 and 21"
 
-			Text 15, 15, 450, 10, "Q. 20. Does anyone in the household own, or is anyone buying, any of the following?"
-			Text 135, 35, 65, 10, "Answer on the CAF"
-			Text 265, 35, 70, 10, "Confirm CAF Answer"
-			DropListBox 200, 30, 40, 45, ""+chr(9)+"No"+chr(9)+"Yes", caf_answer
-			ComboBox 340, 30, 125, 45, "", confirm_caf_answer
+			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
+			Text 20, 25, 335, 20, "Q. 20. Does anyone in the household own, or is anyone buying, any of the following?"
+			Text 370, 30, 65, 10, "Answer on the CAF"
+			DropListBox 435, 25, 40, 45, "Yes"+chr(9)+"No"+chr(9)+"Blank", caf_answer
+			Text 5, 50, 35, 10, "^^2 - ASK - "
+			Text 40, 50, 280, 10, "'Is anyone in the household disabled or have a physical or mental health condition?"
+			Text 40, 70, 70, 10, "Confirm CAF Answer"
+			ComboBox 110, 65, 365, 45, "", confirm_caf_answer
 
-			Text 15, 50, 450, 20, "Q. 21. FOR CASH PROGRAMS ONLY: Has anyone in the household given away, sold or traded anything of value in the past 12 months? (For Example: Cash, Bank Accounts, Stocks, Bonds, or Vehicles)?"
-			Text 135, 75, 65, 10, "Answer on the CAF"
-			Text 265, 75, 70, 10, "Confirm CAF Answer"
-			DropListBox 200, 70, 40, 45, ""+chr(9)+"No"+chr(9)+"Yes", caf_answer
-			ComboBox 340, 70, 125, 45, "", confirm_caf_answer
+
+
+			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
+			Text 20, 25, 335, 20, "Q. 21. FOR CASH PROGRAMS ONLY: Has anyone in the household given away, sold or traded anything of value in the past 12 months? (For Example: Cash, Bank Accounts, Stocks, Bonds, or Vehicles)?"
+			Text 370, 30, 65, 10, "Answer on the CAF"
+			DropListBox 435, 25, 40, 45, "Yes"+chr(9)+"No"+chr(9)+"Blank", caf_answer
+			Text 5, 50, 35, 10, "^^2 - ASK - "
+			Text 40, 50, 280, 10, "'Is anyone in the household disabled or have a physical or mental health condition?"
+			Text 40, 70, 70, 10, "Confirm CAF Answer"
+			ComboBox 110, 65, 365, 45, "", confirm_caf_answer
+
+
 		End If
 		If page_display = show_q_22 Then
 			Text 507, 282, 60, 13, "Q. 22"
 
-			Text 15, 15, 450, 10, "Q. 22. FOR RECERTIFICATIONS ONLY: Did anyone move in or out of your home in the past 12 months?"
-			Text 135, 35, 65, 10, "Answer on the CAF"
-			Text 265, 35, 70, 10, "Confirm CAF Answer"
-			DropListBox 200, 30, 40, 45, ""+chr(9)+"No"+chr(9)+"Yes", caf_answer
-			ComboBox 340, 30, 125, 45, "", confirm_caf_answer
+			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
+			Text 20, 25, 335, 20, "Q. 22. FOR RECERTIFICATIONS ONLY: Did anyone move in or out of your home in the past 12 months?"
+			Text 370, 30, 65, 10, "Answer on the CAF"
+			DropListBox 435, 25, 40, 45, "Yes"+chr(9)+"No"+chr(9)+"Blank", caf_answer
+			Text 5, 50, 35, 10, "^^2 - ASK - "
+			Text 40, 50, 280, 10, "'Is anyone in the household disabled or have a physical or mental health condition?"
+			Text 40, 70, 70, 10, "Confirm CAF Answer"
+			ComboBox 110, 65, 365, 45, "", confirm_caf_answer
+
+
 		End If
 		If page_display = show_q_23 Then
 			Text 507, 297, 60, 13, "Q. 23"
 
-			Text 15, 15, 450, 10, "Q. 23. For children under the age of 19, are both parents living in the home?"
-			Text 135, 35, 65, 10, "Answer on the CAF"
-			Text 265, 35, 70, 10, "Confirm CAF Answer"
-			DropListBox 200, 30, 40, 45, ""+chr(9)+"No"+chr(9)+"Yes", caf_answer
-			ComboBox 340, 30, 125, 45, "", confirm_caf_answer
+			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
+			Text 20, 25, 335, 20, "Q. 23. For children under the age of 19, are both parents living in the home?"
+			Text 370, 30, 65, 10, "Answer on the CAF"
+			DropListBox 435, 25, 40, 45, "Yes"+chr(9)+"No"+chr(9)+"Blank", caf_answer
+			Text 5, 50, 35, 10, "^^2 - ASK - "
+			Text 40, 50, 280, 10, "'Is anyone in the household disabled or have a physical or mental health condition?"
+			Text 40, 70, 70, 10, "Confirm CAF Answer"
+			ComboBox 110, 65, 365, 45, "", confirm_caf_answer
+
+
 		End If
 		If page_display = show_q_24 Then
 			Text 507, 312, 60, 13, "Q. 24"
 
-			Text 15, 15, 450, 10, "Q. 24. FOR MSA RECIPIENTS ONLY: Does anyone in the household have any of the following expenses?"
-			Text 135, 35, 65, 10, "Answer on the CAF"
-			Text 265, 35, 70, 10, "Confirm CAF Answer"
-			DropListBox 200, 30, 40, 45, ""+chr(9)+"No"+chr(9)+"Yes", caf_answer
-			ComboBox 340, 30, 125, 45, "", confirm_caf_answer
+			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
+			Text 20, 25, 335, 20, "Q. 24. FOR MSA RECIPIENTS ONLY: Does anyone in the household have any of the following expenses?"
+			Text 370, 30, 65, 10, "Answer on the CAF"
+			DropListBox 435, 25, 40, 45, "Yes"+chr(9)+"No"+chr(9)+"Blank", caf_answer
+			Text 5, 50, 35, 10, "^^2 - ASK - "
+			Text 40, 50, 280, 10, "'Is anyone in the household disabled or have a physical or mental health condition?"
+			Text 40, 70, 70, 10, "Confirm CAF Answer"
+			ComboBox 110, 65, 365, 45, "", confirm_caf_answer
+
 		End If
 		If page_display = show_qual Then
 			Text 492, 327, 60, 13, "CAF QUAL Q"
@@ -1174,7 +2302,7 @@ function read_ADDR_panel(addr_eff_date, line_one, line_two, city, state, zip, co
 	If type_one = "M" Then type_one = "Message"
 	If type_one = "T" Then type_one = "TTY/TDD"
 
-	phone_two = "(" & replace(replace(replace(phone_two, " ) ", ") "), " ", " - "), ")", ") ")
+	phone_two = "(" & replace(replace(replace(phone_two, " ) ", ")"), " ", " - "), ")", ") ")
 	If phone_two = "(___) ___ - ____" Then phone_two = ""
 	If type_two = "_" Then type_two = "Unknown"
 	If type_two = "H" Then type_two = "Home"
@@ -1183,7 +2311,7 @@ function read_ADDR_panel(addr_eff_date, line_one, line_two, city, state, zip, co
 	If type_two = "M" Then type_two = "Message"
 	If type_two = "T" Then type_two = "TTY/TDD"
 
-	phone_three = "(" & replace(replace(replace(phone_three, " ) ", ") "), " ", " - "), ")", ") ")
+	phone_three = "(" & replace(replace(replace(phone_three, " ) ", ")"), " ", " - "), ")", ") ")
 	If phone_three = "(___) ___ - ____" Then phone_three = ""
 	If type_three = "_" Then type_three = "Unknown"
 	If type_three = "H" Then type_three = "Home"
@@ -1198,8 +2326,6 @@ end function
 
 ' FUNCTION - Read all the HH Members from case, including how they are related to M01 and SIBL and PARE - get age
 function read_all_the_MEMBs()
-
-
 	CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
 
 	DO								'reads the reference number, last name, first name, and then puts it into a single string then into the array
@@ -1226,6 +2352,7 @@ function read_all_the_MEMBs()
 		HH_MEMB_ARRAY(clt_count).ref_number = hh_clt
 		HH_MEMB_ARRAY(clt_count).define_the_member
 		HH_MEMB_ARRAY(clt_count).button_one = 500 + clt_count
+		HH_MEMB_ARRAY(clt_count).button_two = 600 + clt_count
 		memb_droplist = memb_droplist+chr(9)+HH_MEMB_ARRAY(clt_count).ref_number & " - " & HH_MEMB_ARRAY(clt_count).full_name
 		If HH_MEMB_ARRAY(clt_count).fs_pwe = "Yes" Then the_pwe_for_this_case = HH_MEMB_ARRAY(clt_count).ref_number & " - " & HH_MEMB_ARRAY(clt_count).full_name
 
@@ -1421,6 +2548,98 @@ function read_all_the_MEMBs()
 
 		' MsgBox "Relationship detail:" & vbNewLine & ALL_HH_RELATIONSHIPS_ARRAY(rela_pers_one, the_rela) & " is the " & ALL_HH_RELATIONSHIPS_ARRAY(rela_type, the_rela) & " of " & ALL_HH_RELATIONSHIPS_ARRAY(rela_pers_two, the_rela)
 	Next
+end function
+
+function read_all_UNEA()
+	Call navigate_to_MAXIS_screen ("STAT", "PNLI")
+
+	pnli_row = 3
+	count = 1
+	previous_member = ""
+	panel_count = UBound(UNEA_ARRAY, 1)
+	start_count = panel_count
+	Do
+		EMReadScreen panel_name, 4, pnli_row, 5
+		MsgBox panel_name
+		IF panel_name = "UNEA" Then
+			EMReadScreen panel_memb, 2, pnli_row, 10
+			If panel_memb <> previous_member Then count = 1
+
+			ReDim Preserve UNEA_ARRAY(panel_count)
+			Set UNEA_ARRAY(panel_count) = new client_income
+			UNEA_ARRAY(panel_count).member_ref = panel_memb
+			UNEA_ARRAY(panel_count).panel_instance = "0" & count
+
+			UNEA_ARRAY(panel_count).read_member_name
+
+			panel_count = panel_count + 1
+			count = count + 1
+			previous_member = panel_memb
+			MsgBox panel_count
+
+		End If
+		pnli_row = pnli_row + 1
+		If pnli_row = 20 Then
+			transmit
+			pnli_row = 3
+		End If
+		EMReadScreen panel_summ, 4, 2, 53
+	Loop until panel_summ = "PNLE"
+	stop_count = panel_count - 1
+	If stop_count < 0 Then stop_count = 0
+
+	MsgBox start_count & vbNewLine & stop_count
+	for i = start_count to stop_count
+		MsgBox "HERE"
+		UNEA_ARRAY(i).read_unea_panel
+	next
+
+end function
+
+function read_EATS_panel(hh_membs_eat, unable_to_fix_list, grp_one, grp_one_list, grp_one_array, grp_two, grp_two_list, grp_two_array, grp_three, grp_three_list, grp_three_array, grp_four, grp_four_list, grp_four_array, grp_five, grp_five_list, grp_five_array)
+	Call navigate_to_MAXIS_screen("STAT", "EATS")
+
+	EMReadScreen eats_version, 1, 2, 73
+	If eats_version = "1" Then
+		EMReadScreen hh_membs_eat, 1, 4, 72
+		EMReadScreen unable_to_fix_list, 26, 8, 53
+		If unable_to_fix_list = "__  __  __  __  __  __  __" Then unable_to_fix_list = ""
+
+		EMReadScreen grp_one, 2, 13, 28
+		EMReadScreen grp_one_list, 38, 13, 39
+		grp_one_list = replace(grp_one_list, "__", "")
+		grp_one_list = trim(grp_one_list)
+		grp_one_array = split(grp_one_list, "  ")
+		grp_one_list = "MEMB " & replace(grp_one_list, "  ", ", MEMB ")
+
+		EMReadScreen grp_two, 2, 14, 28
+		EMReadScreen grp_two_list, 38, 14, 39
+		grp_two_list = replace(grp_two_list, "__", "")
+		grp_two_list = trim(grp_two_list)
+		grp_two_array = split(grp_two_list, "  ")
+		grp_two_list = "MEMB " & replace(grp_two_list, "  ", ", MEMB ")
+
+		EMReadScreen grp_three, 2, 15, 28
+		EMReadScreen grp_three_list, 38, 15, 39
+		grp_three_list = replace(grp_three_list, "__", "")
+		grp_three_list = trim(grp_three_list)
+		grp_three_array = split(grp_three_list, "  ")
+		grp_three_list = "MEMB " & replace(grp_three_list, "  ", ", MEMB ")
+
+		EMReadScreen grp_four, 2, 16, 28
+		EMReadScreen grp_four_list, 38, 16, 39
+		grp_four_list = replace(grp_four_list, "__", "")
+		grp_four_list = trim(grp_four_list)
+		grp_four_array = split(grp_four_list, "  ")
+		grp_four_list = "MEMB " & replace(grp_four_list, "  ", ", MEMB ")
+
+		EMReadScreen grp_five, 2, 17, 28
+		EMReadScreen grp_five_list, 38, 17, 39
+		grp_five_list = replace(grp_five_list, "__", "")
+		grp_five_list = trim(grp_five_list)
+		grp_five_array = split(grp_five_list, "  ")
+		grp_five_list = "MEMB " & replace(grp_five_list, "  ", ", MEMB ")
+	End If
 end function
 
 ' FUNCTION - have worker enter the ADDR that is on the CAF or indicate that it is blank - show in dialog and have a droplist for the worker to indicate the client verbally confirmed this address.
@@ -1680,6 +2899,11 @@ updated_phone_type_three 	= phone_type_three
 
 Call read_all_the_MEMBs
 
+Call read_all_UNEA
+
+call read_EATS_panel(all_hh_members_eat_w_applicant, members_unable_to_fix_food, group_one_number, group_one_member_list, group_one_member_array, group_two_number, group_two_member_list, group_two_member_array, group_three_number, group_three_member_list, group_three_member_array, group_four_number, group_four_member_list, group_four_member_array, group_five_number, group_five_member_list, group_five_member_array)
+
+
 For hh_memb = 0 to UBound(HH_MEMB_ARRAY, 1)
 	' MsgBox HH_MEMB_ARRAY(hh_memb).ref_number & vbNewLine & HH_MEMB_ARRAY(hh_memb).full_name
 Next
@@ -1718,7 +2942,7 @@ caf_page_one_btn	= 1000
 caf_membs_btn		= 1001
 caf_q_1_2_btn		= 1002
 caf_q_3_btn			= 1003
-af_q_4_btn 			= 1004
+caf_q_4_btn 		= 1004
 caf_q_5_btn			= 1005
 caf_q_6_btn			= 1006
 caf_q_7_btn			= 1007
@@ -1750,6 +2974,25 @@ add_relationship_btn					= 2006
 memb_info_change						= 2007
 next_memb_btn							= 2008
 hh_list_btn								= 2009
+update_groups_btn						= 2010
+search_district_btn						= 2011
+add_higher_ed_studen					= 2012
+add_ged_ell_student						= 2013
+add_another_absent_pers_btn				= 2014
+new_disa_btn							= 2015
+add_unable_tp_work_memb_btn				= 2016
+
+rsdi_btn 	= 3000
+ssi_btn		= 3001
+va_btn		= 3002
+ui_btn		= 3003
+wc_btn		= 3004
+ret_btn		= 3005
+tribal_btn	= 3006
+cs_btn		= 3007
+ss_btn		= 3008
+other_btn	= 3009
+main_btn	= 3010
 
 done_pg_one 	= FALSE
 done_pg_memb 	= FALSE
@@ -1802,6 +3045,19 @@ show_q_24			= 22
 show_qual			= 23
 show_pg_last		= 24
 
+second_page_display = 11
+rsdi_unea	= 1
+ssi_unea	= 2
+va_unea		= 3
+ui_unea		= 4
+wc_unea		= 5
+ret_unea	= 6
+tribal_unea	= 7
+cs_unea		= 8
+ss_unea		= 9
+other_unea	= 10
+main_unea	= 11
+
 ButtonPressed = caf_page_one_btn
 leave_loop = FALSE
 Do
@@ -1826,122 +3082,9 @@ Do
 		End If
 
 		' MsgBox "ButtonPressed - " & ButtonPressed
-		For i = 0 to Ubound(HH_MEMB_ARRAY, 1)
-			' MsgBox HH_MEMB_ARRAY(i).button_one
-			If ButtonPressed = HH_MEMB_ARRAY(i).button_one Then
-				' MsgBox "selected"
-				memb_selected = i
-			End If
-		Next
-		If page_display = show_pg_memb_info AND ButtonPressed = -1 Then ButtonPressed = next_memb_btn
-		If ButtonPressed = next_memb_btn Then
-			memb_selected = memb_selected + 1
-			If memb_selected > UBound(HH_MEMB_ARRAY, 1) Then ButtonPressed = next_btn
-		End If
-		If ButtonPressed = -1 Then ButtonPressed = next_btn
-		If ButtonPressed = next_btn Then
-			If page_display = show_pg_one Then ButtonPressed = caf_membs_btn
-			If page_display = show_pg_memb_list Then ButtonPressed = HH_memb_detail_review
-			If page_display = show_pg_memb_info Then ButtonPressed = caf_q_1_2_btn
-			If page_display = show_q_1_2 Then ButtonPressed = caf_q_3_btn
-			If page_display = show_q_3 Then ButtonPressed = caf_q_4_btn
-			If page_display = show_q_4 Then ButtonPressed = caf_q_5_btn
-			If page_display = show_q_5 Then ButtonPressed = caf_q_6_btn
-			If page_display = show_q_6 Then ButtonPressed = caf_q_7_btn
-			If page_display = show_q_7 Then ButtonPressed = caf_q_8_btn
-			If page_display = show_q_8 Then ButtonPressed = caf_q_9_btn
-			If page_display = show_q_9 Then ButtonPressed = caf_q_10_btn
-			If page_display = show_q_10 Then ButtonPressed = caf_q_11_btn
-			If page_display = show_q_11 Then ButtonPressed = caf_q_12_btn
-			If page_display = show_q_12 Then ButtonPressed = caf_q_13_btn
-			If page_display = show_q_13 Then ButtonPressed = caf_q_14_15_btn
-			If page_display = show_q_14_15 Then ButtonPressed = caf_q_16_17_18_btn
-			If page_display = show_q_16_18 Then ButtonPressed = caf_q_19_btn
-			If page_display = show_q_19 Then ButtonPressed = caf_q_20_21_btn
-			If page_display = show_q_20_21 Then ButtonPressed = caf_q_22_btn
-			If page_display = show_q_22 Then ButtonPressed = caf_q_23_btn
-			If page_display = show_q_23 Then ButtonPressed = caf_q_24_btn
-			If page_display = show_q_24 Then ButtonPressed = caf_qual_q_btn
-			If page_display = show_qual Then ButtonPressed = caf_last_page_btn
-			' If page_display = show_pg_last Then ButtonPressed =
 
-		End If
+		call dialog_movement
 
-		If ButtonPressed = caf_page_one_btn Then
-			page_display = show_pg_one
-		End If
-		If ButtonPressed = caf_membs_btn Then
-			page_display = show_pg_memb_list
-		End If
-		If ButtonPressed = hh_list_btn Then
-			page_display = show_pg_memb_list
-		End If
-		If ButtonPressed = HH_memb_detail_review Then
-			page_display = show_pg_memb_info
-		End If
-		If ButtonPressed = caf_q_1_2_btn Then
-			page_display = show_q_1_2
-		End If
-		If ButtonPressed = caf_q_3_btn Then
-			page_display = show_q_3
-		End If
-		If ButtonPressed = caf_q_4_btn Then
-			page_display = show_q_4
-		End If
-		If ButtonPressed = caf_q_5_btn Then
-			page_display = show_q_5
-		End If
-		If ButtonPressed = caf_q_6_btn Then
-			page_display = show_q_6
-		End If
-		If ButtonPressed = caf_q_7_btn Then
-			page_display = show_q_7
-		End If
-		If ButtonPressed = caf_q_8_btn Then
-			page_display = show_q_8
-		End If
-		If ButtonPressed = caf_q_9_btn Then
-			page_display = show_q_9
-		End If
-		If ButtonPressed = caf_q_10_btn Then
-			page_display = show_q_10
-		End If
-		If ButtonPressed = caf_q_11_btn Then
-			page_display = show_q_11
-		End If
-		If ButtonPressed = caf_q_12_btn Then
-			page_display = show_q_12
-		End If
-		If ButtonPressed = caf_q_13_btn Then
-			page_display = show_q_13
-		End If
-		If ButtonPressed = caf_q_14_15_btn Then
-			page_display = show_q_14_15
-		End If
-		If ButtonPressed = caf_q_16_17_18_btn Then
-			page_display = show_q_16_18
-		End If
-		If ButtonPressed = caf_q_19_btn Then
-			page_display = show_q_19
-		End If
-		If ButtonPressed = caf_q_20_21_btn Then
-			page_display = show_q_20_21
-		End If
-		If ButtonPressed = caf_q_22_btn Then
-			page_display = show_q_22
-		End If
-		If ButtonPressed = caf_q_23_btn Then
-			page_display = show_q_23
-		End If
-		If ButtonPressed = caf_q_24_btn Then
-			page_display = show_q_24
-		End If
-		If ButtonPressed = caf_qual_q_btn Then
-			page_display = show_qual
-		End If
-		If ButtonPressed = caf_last_page_btn Then
-			page_display = show_pg_last
-		End If
 
 	Loop until leave_loop = TRUE
 	Call check_for_password(are_we_passworded_out)
