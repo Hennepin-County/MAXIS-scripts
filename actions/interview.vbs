@@ -625,6 +625,9 @@ class client_income
 	public hc_inc_est
 	public most_recent_pay
 	public income_notes
+	public pay_gross
+	public expenses_allowed
+	public expenses_not_allowed
 
 	'JOBS
 	public subsidized_income_type
@@ -642,6 +645,7 @@ class client_income
 	public prosp_pay_wage_four
 	public prosp_pay_date_five
 	public prosp_pay_wage_five
+	public prosp_average_pay
 
 	public retro_pay_total
 	public retro_hours_total
@@ -655,7 +659,7 @@ class client_income
 	public retro_pay_wage_four
 	public retro_pay_date_five
 	public retro_pay_wage_five
-
+	public retro_average_pay
 
 	'BUSI
 	public prosp_net_cash_earnings
@@ -728,6 +732,7 @@ class client_income
 
 		member_name = first_name & " " & last_name
 		member = member_ref & " - " & member_name
+		MsgBox "~" & member & "~"
 	end sub
 
 	Public sub read_jobs_panel()
@@ -835,7 +840,7 @@ class client_income
 		If income_verification = "7" Then income_verification = "7 - Worker Initiated"
 		If income_verification = "8" Then income_verification = "8 - RI Stubs"
 		If income_verification = "N" Then income_verification = "N - No Verif Provided"
-		MsgBox income_verification
+		MsgBox "~" & income_verification & "~"
 		income_start_date = replace(income_start_date, " ", "/")
 		If income_start_date = "__/__/__" Then income_start_date = ""
 		income_end_date = replace(income_end_date, " ", "/")
@@ -889,6 +894,30 @@ class client_income
 		If prosp_pay_date_five = "__/__/__" Then prosp_pay_date_five = ""
 		prosp_pay_wage_five = trim(prosp_pay_wage_five)
 		If prosp_pay_wage_five = "________" Then prosp_pay_wage_five = ""
+		total_of_prosp_pay = 0
+		number_of_checks = 0
+		If prosp_pay_wage_one <> "" Then
+			total_of_prosp_pay = total_of_prosp_pay + prosp_pay_wage_one * 1
+			number_of_checks = number_of_checks + 1
+		End If
+		If prosp_pay_wage_two <> "" Then
+			total_of_prosp_pay = total_of_prosp_pay + prosp_pay_wage_two * 1
+			number_of_checks = number_of_checks + 1
+		End If
+		If prosp_pay_wage_three <> "" Then
+			total_of_prosp_pay = total_of_prosp_pay + prosp_pay_wage_three * 1
+			number_of_checks = number_of_checks + 1
+		End If
+		If prosp_pay_wage_four <> "" Then
+			total_of_prosp_pay = total_of_prosp_pay + prosp_pay_wage_four * 1
+			number_of_checks = number_of_checks + 1
+		End If
+		If prosp_pay_wage_five <> "" Then
+			total_of_prosp_pay = total_of_prosp_pay + prosp_pay_wage_five * 1
+			number_of_checks = number_of_checks + 1
+		End If
+		If number_of_checks <> 0 Then prosp_average_pay = total_of_prosp_pay / number_of_checks
+		prosp_average_pay = prosp_average_pay & ""
 
 		retro_pay_total = trim(retro_pay_total)
 		retro_pay_date_one = replace(retro_pay_date_one, " ", "/")
@@ -911,7 +940,45 @@ class client_income
 		If retro_pay_date_five = "__/__/__" Then retro_pay_date_five = ""
 		retro_pay_wage_five = trim(retro_pay_wage_five)
 		If retro_pay_wage_five = "________" Then retro_pay_wage_five = ""
+		total_of_retro_pay = 0
+		number_of_checks = 0
+		If retro_pay_wage_one <> "" Then
+			total_of_retro_pay = total_of_retro_pay + retro_pay_wage_one * 1
+			number_of_checks = number_of_checks + 1
+		End If
+		If retro_pay_wage_two <> "" Then
+			total_of_retro_pay = total_of_retro_pay + retro_pay_wage_two * 1
+			number_of_checks = number_of_checks + 1
+		End If
+		If retro_pay_wage_three <> "" Then
+			total_of_retro_pay = total_of_retro_pay + retro_pay_wage_three * 1
+			number_of_checks = number_of_checks + 1
+		End If
+		If retro_pay_wage_four <> "" Then
+			total_of_retro_pay = total_of_retro_pay + retro_pay_wage_four * 1
+			number_of_checks = number_of_checks + 1
+		End If
+		If retro_pay_wage_five <> "" Then
+			total_of_retro_pay = total_of_retro_pay + retro_pay_wage_five * 1
+			number_of_checks = number_of_checks + 1
+		End If
+		If number_of_checks <> 0 Then retro_average_pay = total_of_retro_pay / number_of_checks
+		retro_average_pay = retro_average_pay & ""
 
+		If pay_frequency = "3 - Biweekly" OR pay_frequency = "4 - Weekly" Then
+			If prosp_pay_date_five <> "" Then
+				pay_weekday = WeekdayName(weekday(prosp_pay_date_five))
+			ElseIf prosp_pay_date_four <> "" Then
+				pay_weekday = WeekdayName(weekday(prosp_pay_date_four))
+			ElseIf prosp_pay_date_three <> "" Then
+				pay_weekday = WeekdayName(weekday(prosp_pay_date_three))
+			ElseIf prosp_pay_date_two <> "" Then
+				pay_weekday = WeekdayName(weekday(prosp_pay_date_two))
+			ElseIf prosp_pay_date_one <> "" Then
+				pay_weekday = WeekdayName(weekday(prosp_pay_date_one))
+			End If
+
+		End If
 
 	end sub
 
@@ -974,10 +1041,22 @@ schl_ver_droplist = "Type or Select"+chr(9)+"Not Needed"+chr(9)+"Requested"+chr(
 schl_status_droplist = "Select One..."+chr(9)+"Fulltime"+chr(9)+"Halftime"+chr(9)+"Less than Half"+chr(9)+"Not Attending"
 caf_answer_droplist = " "+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Blank"
 unea_verif_droplist = "Select One..."+chr(9)+"1 - Copy of Checks"+chr(9)+"2 - Award Letters"+chr(9)+"3 - System Initiated"+chr(9)+"4 - Colateral Statement"+chr(9)+"5 - Pend Out State Verif"+chr(9)+"6 - Other Document"+chr(9)+"7 - Worker Initiated"+chr(9)+"8 - RI Stubs"+chr(9)+"N - No Verif Provided"+chr(9)
+days_of_the_week_droplist = "Select One..."+chr(9)+"Monday"+chr(9)+"Tuesday"+chr(9)+"Wednesday"+chr(9)+"Thursday"+chr(9)+"Friday"+chr(9)+"Saturday"+chr(9)+"Sunday"
 memb_droplist = ""
 
 the_pwe_for_this_case = ""
 child_on_case = FALSE
+
+rsdi_count = 0
+ssi_count = 0
+va_count = 0
+ui_count = 0
+wc_count = 0
+retirement_count = 0
+tribal_count = 0
+cs_count = 0
+ss_count = 0
+other_UNEA_count = 0
 
 function dialog_movement()
 	For i = 0 to Ubound(HH_MEMB_ARRAY, 1)
@@ -1723,6 +1802,8 @@ function define_main_dialog()
 		    Text 155, 90, 5, 10, "$"
 		    EditBox 165, 85, 40, 15, other_unea_caf_amt
 
+			' Text 25, 100, 400, 20, "Use the Buttons below to ask about details for each type of unearned income. The numbers on the buttons indicate how many panels of each type of income is known."
+
 			If second_page_display = main_unea Then
 				Text 5, 115, 35, 10, "^^2 - ASK - "
 			    Text 40, 115, 280, 10, "'Has anyone in the household applied for or receive any ..."
@@ -1776,6 +1857,7 @@ function define_main_dialog()
 			If second_page_display = rsdi_unea Then
 				GroupBox 100, 125, 380, 220, "RSDI Income"
 
+				show_count = 0
 				y_pos = 135
 				for i = 0 to UBound(UNEA_ARRAY, 1)
 					If UNEA_ARRAY(i).panel_name = "UNEA" Then
@@ -1786,7 +1868,7 @@ function define_main_dialog()
 						    Text 400, y_pos, 75, 10, "Most Recent Pay Date"
 							y_pos = y_pos + 10
 						    DropListBox 110, y_pos, 155, 45, memb_droplist, UNEA_ARRAY(i).member
-						    DropListBox 270, y_pos, 65, 45, " "+chr(9)+"01 - RSDI, Disa"+chr(9)+"02 - RSDI, No Disa", UNEA_ARRAY(i).income_type_code
+						    DropListBox 270, y_pos, 65, 45, " "+chr(9)+"01 - RSDI, Disa"+chr(9)+"02 - RSDI, No Disa", UNEA_ARRAY(i).income_type
 						    EditBox 340, y_pos, 55, 15, UNEA_ARRAY(i).prosp_pay_total
 						    EditBox 400, y_pos, 70, 15, UNEA_ARRAY(i).most_recent_pay
 							y_pos = y_pos + 15
@@ -1811,17 +1893,19 @@ function define_main_dialog()
 						    ComboBox 115, y_pos, 355, 45, "", UNEA_ARRAY(i).income_review
 
 							y_pos = y_pos + 20
+							show_count = show_count + 1
 						End If
 					End If
 				next
 				'PAGE BUTTONS
 				PushButton 385, 347, 95, 13, "Add RSDI Information", add_another_unea_btn
 
-				Text 45, 132, 45, 15, "RSDI"
+				Text 42, 132, 45, 15, "RSDI - " & rsdi_count
 			End If
 			If second_page_display = ssi_unea Then
 				GroupBox 100, 125, 380, 220, "SSI Income"
 
+				show_count = 0
 				y_pos = 135
 				for i = 0 to UBound(UNEA_ARRAY, 1)
 					If UNEA_ARRAY(i).panel_name = "UNEA" Then
@@ -1857,60 +1941,163 @@ function define_main_dialog()
 							ComboBox 115, y_pos, 355, 45, "", UNEA_ARRAY(i).income_review
 
 							y_pos = y_pos + 20
+							show_count = show_count + 1
 						End If
 					End If
 				next
 				'PAGE BUTTONS
 				PushButton 385, 347, 95, 13, "Add SSI Information", add_another_unea_btn
 
-				Text 48, 152, 42, 15, "SSI"
+				Text 45, 152, 42, 15, "SSI - " & ssi_count
 			End If
 			If second_page_display = va_unea Then
 				GroupBox 100, 125, 380, 220, "VA Income"
-				Text 50, 172, 40, 15, "VA"
+
+				show_count = 0
+				y_pos = 135
+				for i = 0 to UBound(UNEA_ARRAY, 1)
+					If UNEA_ARRAY(i).panel_name = "UNEA" Then
+						If UNEA_ARRAY(i).income_type_code = "11" OR UNEA_ARRAY(i).income_type_code = "12" OR UNEA_ARRAY(i).income_type_code = "13" OR UNEA_ARRAY(i).income_type_code = "38" Then
+							Text 110, y_pos, 45, 10, "HH Member"
+						    Text 270, y_pos, 40, 10, "VA Type"
+						    Text 340, y_pos, 50, 10, "Monthly Pay"
+						    Text 400, y_pos, 75, 10, "Most Recent Pay Date"
+							y_pos = y_pos + 10
+						    DropListBox 110, y_pos, 155, 45, memb_droplist, UNEA_ARRAY(i).member
+						    DropListBox 270, y_pos, 65, 45, " "+chr(9)+"11 - VA Disability Benefit"+chr(9)+"12 - VA Pension"+chr(9)+"13 - VA Other"+chr(9)+"38 - VA Aid and Attendance", UNEA_ARRAY(i).income_type
+						    EditBox 340, y_pos, 55, 15, UNEA_ARRAY(i).prosp_pay_total
+						    EditBox 400, y_pos, 70, 15, UNEA_ARRAY(i).most_recent_pay
+							y_pos = y_pos + 15
+						    Text 115, y_pos, 50, 10, "Verification"
+						    Text 215, y_pos, 50, 10, "Verif Info"
+						    Text 380, y_pos, 50, 10, "Claim Number"
+							y_pos = y_pos + 10
+						    DropListBox 115, y_pos, 95, 45, unea_verif_droplist, UNEA_ARRAY(i).income_verification
+						    EditBox 215, y_pos, 160, 15, UNEA_ARRAY(i).verif_explaination
+						    EditBox 380, y_pos, 90, 15, UNEA_ARRAY(i).claim_number
+							y_pos = y_pos + 15
+						    Text 115, y_pos, 50, 10, "Start Date"
+						    Text 185, y_pos, 35, 10, "End Date"
+						    Text 250, y_pos, 50, 10, "Income Notes"
+							y_pos = y_pos + 10
+						    EditBox 115, y_pos, 60, 15, UNEA_ARRAY(i).income_start_date
+						    EditBox 185, y_pos, 55, 15, UNEA_ARRAY(i).income_end_date
+						    EditBox 250, y_pos, 220, 15, UNEA_ARRAY(i).income_notes
+							y_pos = y_pos + 15
+						    Text 115, y_pos, 70, 10, "Review of Income"
+							y_pos = y_pos + 10
+						    ComboBox 115, y_pos, 355, 45, "", UNEA_ARRAY(i).income_review
+
+							y_pos = y_pos + 20
+							show_count = show_count + 1
+						End If
+					End If
+				next
+				'PAGE BUTTONS
+				PushButton 385, 347, 95, 13, "Add SSI Information", add_another_unea_btn
+
+				Text 47, 172, 40, 15, "VA - " & va_count
 			End If
 			If second_page_display = ui_unea Then
 				GroupBox 100, 125, 380, 220, "UI Income"
-				Text 51, 192, 18, 15, "UI"
+
+				show_count = 0
+				y_pos = 135
+				for i = 0 to UBound(UNEA_ARRAY, 1)
+					If UNEA_ARRAY(i).panel_name = "UNEA" Then
+						If UNEA_ARRAY(i).income_type_code = "14" Then
+							' MsgBox memb_droplist & vbNewLine & "~" & UNEA_ARRAY(i).member & "~" & vbNewLine & unea_verif_droplist & vbNewLine & "~" & UNEA_ARRAY(i).income_verification & "~" & vbNewLine & days_of_the_week_droplist & vbNewLine & "~" &  UNEA_ARRAY(i).pay_weekday & "~"
+							Text 110, y_pos, 45, 10, "HH Member"
+						    Text 275, y_pos, 40, 10, "Gross Amt"
+						    Text 325, y_pos, 40, 10, "Exp Allowed"
+						    Text 375, y_pos, 45, 10, "NOT Allowed"
+						    Text 425, y_pos, 45, 10, "Counted Amt"
+							y_pos = y_pos + 10
+						    Text 110, y_pos + 5, 155, 10, UNEA_ARRAY(i).member
+						    EditBox 275, y_pos, 45, 15, UNEA_ARRAY(i).pay_gross
+						    EditBox 325, y_pos, 45, 15, UNEA_ARRAY(i).expenses_allowed
+						    EditBox 375, y_pos, 45, 15, UNEA_ARRAY(i).expenses_not_allowed
+						    EditBox 425, y_pos, 45, 15, UNEA_ARRAY(i).prosp_average_pay
+							y_pos = y_pos + 15
+						    Text 115, y_pos, 50, 10, "Verification"
+						    Text 215, y_pos, 50, 10, "Verif Info"
+						    Text 380, y_pos, 50, 10, "Claim Number"
+							y_pos = y_pos + 10
+						    DropListBox 115, y_pos, 95, 45, unea_verif_droplist, UNEA_ARRAY(i).income_verification
+						    EditBox 215, y_pos, 160, 15, UNEA_ARRAY(i).verif_explaination
+						    EditBox 380, y_pos, 90, 15, UNEA_ARRAY(i).claim_number
+							y_pos = y_pos + 15
+							' Text 115, 185, 50, 10, "Start Date"
+						    ' Text 160, 185, 35, 10, "End Date"
+						    ' Text 205, 185, 50, 10, "Pay Weekday"
+						    ' Text 265, 185, 50, 10, "Income Notes"
+						    ' EditBox 115, 195, 40, 15, Edit15
+						    ' EditBox 160, 195, 40, 15, end_date
+						    ' DropListBox 205, 195, 55, 45, "", pay_weekday
+						    ' EditBox 265, 195, 205, 15, income_notes
+
+						    Text 115, y_pos, 50, 10, "Start Date"
+						    Text 160, y_pos, 35, 10, "End Date"
+						    Text 205, y_pos, 50, 10, "Pay Weekday"
+						    Text 265, y_pos, 50, 10, "Income Notes"
+							y_pos = y_pos + 10
+						    EditBox 115, y_pos, 40, 15, UNEA_ARRAY(i).income_start_date
+						    EditBox 160, y_pos, 40, 15, UNEA_ARRAY(i).income_end_date
+						    DropListBox 205, y_pos, 55, 45, days_of_the_week_droplist, UNEA_ARRAY(i).pay_weekday
+						    EditBox 265, y_pos, 205, 15, UNEA_ARRAY(i).income_notes
+							y_pos = y_pos + 15
+						    Text 115, y_pos, 70, 10, "Review of Income"
+							y_pos = y_pos + 10
+						    ComboBox 115, y_pos, 355, 45, "", UNEA_ARRAY(i).income_review
+							y_pos = y_pos + 20
+							show_count = show_count + 1
+						End If
+					End If
+				next
+				'PAGE BUTTONS
+				PushButton 385, 347, 95, 13, "Add UI Information", add_another_unea_btn
+
+				Text 48, 192, 18, 15, "UI - " & ui_count
 			End If
 			If second_page_display = wc_unea Then
 				GroupBox 100, 125, 380, 220, "WC Income"
-				Text 49, 212, 41, 15, "WC"
+				Text 46, 212, 41, 15, "WC - " & wc_count
 			End If
 			If second_page_display = ret_unea Then
 				GroupBox 100, 125, 380, 220, "Retirement Income"
-				Text 38, 232, 52, 15, "Retirement"
+				Text 35, 232, 52, 15, "Retirement - " & retirement_count
 			End If
 			If second_page_display = tribal_unea Then
 				GroupBox 100, 125, 380, 220, "Tribal Income"
-				Text 47, 252, 43, 15, "Tribal"
+				Text 44, 252, 43, 15, "Tribal - " & tribal_count
 			End If
 			If second_page_display = cs_unea Then
 				GroupBox 100, 125, 380, 220, "Child Support Income"
-				Text 35, 272, 55, 15, "Child Support"
+				Text 32, 272, 55, 15, "Child Support - " & cs_count
 			End If
 			If second_page_display = ss_unea Then
 				GroupBox 100, 125, 380, 220, "Spousal Support Income"
-				Text 27, 292, 63, 15, "Spousal Support"
+				Text 24, 292, 63, 15, "Spousal Support - " & ss_count
 			End If
 			If second_page_display = other_unea Then
 				GroupBox 100, 125, 380, 220, "Other Unearned Income"
-				Text 47, 312, 43, 15, "Other"
+				Text 44, 312, 43, 15, "Other - " & other_UNEA_count
 			End If
+
 
 
 		    Text 5, 350, 320, 10, "^^3 - For any type applied for or received - Click the button on the left to gather additional details."
 
-			If second_page_display <> rsdi_unea Then PushButton 20, 130, 70, 15, "RSDI", rsdi_btn
-		    If second_page_display <> ssi_unea Then PushButton 20, 150, 70, 15, "SSI", ssi_btn
-		    If second_page_display <> va_unea Then PushButton 20, 170, 70, 15, "VA", va_btn
-		    If second_page_display <> ui_unea Then PushButton 20, 190, 70, 15, "UI", ui_btn
-		    If second_page_display <> wc_unea Then PushButton 20, 210, 70, 15, "WC", wc_btn
-		    If second_page_display <> ret_unea Then PushButton 20, 230, 70, 15, "Retirement", ret_btn
-		    If second_page_display <> tribal_unea Then PushButton 20, 250, 70, 15, "Tribal", tribal_btn
-		    If second_page_display <> cs_unea Then PushButton 20, 270, 70, 15, "Child Support", cs_btn
-		    If second_page_display <> ss_unea Then PushButton 20, 290, 70, 15, "Spousal Support", ss_btn
-		    If second_page_display <> other_unea Then PushButton 20, 310, 70, 15, "Other", other_btn
+			If second_page_display <> rsdi_unea Then PushButton 20, 130, 70, 15, "RSDI - " & rsdi_count, rsdi_btn
+		    If second_page_display <> ssi_unea Then PushButton 20, 150, 70, 15, "SSI - " & ssi_count, ssi_btn
+		    If second_page_display <> va_unea Then PushButton 20, 170, 70, 15, "VA - " & va_count, va_btn
+		    If second_page_display <> ui_unea Then PushButton 20, 190, 70, 15, "UI - " & ui_count, ui_btn
+		    If second_page_display <> wc_unea Then PushButton 20, 210, 70, 15, "WC - " & wc_count, wc_btn
+		    If second_page_display <> ret_unea Then PushButton 20, 230, 70, 15, "Retirement - " & retirement_count, ret_btn
+		    If second_page_display <> tribal_unea Then PushButton 20, 250, 70, 15, "Tribal - " & tribal_count, tribal_btn
+		    If second_page_display <> cs_unea Then PushButton 20, 270, 70, 15, "Child Support - " & cs_count, cs_btn
+		    If second_page_display <> ss_unea Then PushButton 20, 290, 70, 15, "Spousal Support - " & ss_count, ss_btn
+		    If second_page_display <> other_unea Then PushButton 20, 310, 70, 15, "Other - " & other_UNEA_count, other_btn
 		    If second_page_display <> main_unea Then PushButton 20, 330, 70, 15, "Main", main_btn
 
 
@@ -2560,7 +2747,7 @@ function read_all_UNEA()
 	start_count = panel_count
 	Do
 		EMReadScreen panel_name, 4, pnli_row, 5
-		MsgBox panel_name
+		' MsgBox panel_name
 		IF panel_name = "UNEA" Then
 			EMReadScreen panel_memb, 2, pnli_row, 10
 			If panel_memb <> previous_member Then count = 1
@@ -2570,12 +2757,11 @@ function read_all_UNEA()
 			UNEA_ARRAY(panel_count).member_ref = panel_memb
 			UNEA_ARRAY(panel_count).panel_instance = "0" & count
 
-			UNEA_ARRAY(panel_count).read_member_name
 
 			panel_count = panel_count + 1
 			count = count + 1
 			previous_member = panel_memb
-			MsgBox panel_count
+			' MsgBox panel_count
 
 		End If
 		pnli_row = pnli_row + 1
@@ -2584,14 +2770,27 @@ function read_all_UNEA()
 			pnli_row = 3
 		End If
 		EMReadScreen panel_summ, 4, 2, 53
+		' MsgBox "PNLI Row - " & pnli_row & vbNewLine & "SUMM - " & panel_summ
 	Loop until panel_summ = "PNLE"
 	stop_count = panel_count - 1
 	If stop_count < 0 Then stop_count = 0
 
-	MsgBox start_count & vbNewLine & stop_count
+	' MsgBox start_count & vbNewLine & stop_count
 	for i = start_count to stop_count
-		MsgBox "HERE"
+		' MsgBox "HERE"
+		UNEA_ARRAY(i).read_member_name
 		UNEA_ARRAY(i).read_unea_panel
+
+		If UNEA_ARRAY(i).income_type_code = "01" OR UNEA_ARRAY(i).income_type_code = "02" Then rsdi_count = rsdi_count + 1
+		If UNEA_ARRAY(i).income_type_code = "03" Then ssi_count = ssi_count + 1
+		If UNEA_ARRAY(i).income_type_code = "15" Then wc_count = wc_count + 1
+		If UNEA_ARRAY(i).income_type_code = "14" Then ui_count = ui_count + 1
+		If UNEA_ARRAY(i).income_type_code = "11" OR UNEA_ARRAY(i).income_type_code = "12" OR UNEA_ARRAY(i).income_type_code = "13" OR UNEA_ARRAY(i).income_type_code = "38" Then va_count = va_count + 1
+		If UNEA_ARRAY(i).income_type_code = "16" OR UNEA_ARRAY(i).income_type_code = "17" Then retirement_count = retirement_count + 1
+		If UNEA_ARRAY(i).income_type_code = "46" OR UNEA_ARRAY(i).income_type_code = "47" Then tribal_count = tribal_count + 1
+		If UNEA_ARRAY(i).income_type_code = "08" OR UNEA_ARRAY(i).income_type_code = "36" OR UNEA_ARRAY(i).income_type_code = "39" OR UNEA_ARRAY(i).income_type_code = "43" OR UNEA_ARRAY(i).income_type_code = "45" Then cs_count = cs_count + 1
+		If UNEA_ARRAY(i).income_type_code = "35" OR UNEA_ARRAY(i).income_type_code = "37" OR UNEA_ARRAY(i).income_type_code = "40" Then ss_count = ss_count + 1
+		If UNEA_ARRAY(i).income_type_code = "06" OR UNEA_ARRAY(i).income_type_code = "18" OR UNEA_ARRAY(i).income_type_code = "19" OR UNEA_ARRAY(i).income_type_code = "20" OR UNEA_ARRAY(i).income_type_code = "21" OR UNEA_ARRAY(i).income_type_code = "22" OR UNEA_ARRAY(i).income_type_code = "23" OR UNEA_ARRAY(i).income_type_code = "24" OR UNEA_ARRAY(i).income_type_code = "25" OR UNEA_ARRAY(i).income_type_code = "26" OR UNEA_ARRAY(i).income_type_code = "27" OR UNEA_ARRAY(i).income_type_code = "28" OR UNEA_ARRAY(i).income_type_code = "29" OR UNEA_ARRAY(i).income_type_code = "30" OR UNEA_ARRAY(i).income_type_code = "31" OR UNEA_ARRAY(i).income_type_code = "44" OR UNEA_ARRAY(i).income_type_code = "48" OR UNEA_ARRAY(i).income_type_code = "49" Then other_UNEA_count = other_UNEA_count + 1
 	next
 
 end function
