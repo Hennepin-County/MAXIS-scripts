@@ -327,6 +327,17 @@ MsgBox "Moving On"
 EMConnect ""
 
 Call MAXIS_case_number_finder(MAXIS_case_number)
+
+Call navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", memb_priv)
+
+Call navigate_to_MAXIS_screen_review_PRIV("STAT", "JOBS", jobs_priv)
+
+Call navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", curr_priv)
+
+Call navigate_to_MAXIS_screen_review_PRIV("ELIG", "FS  ", fs_priv)
+
+call script_end_procedure("DONE")
+
 Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, unknown_cash_pending)
 Call script_end_procedure("Case Information" & vbNewLine & vbNewLine & "Case Active - " & case_active & vbNewLine & "Case Pending - " & case_pending & vbNewLine & "Family Cash - " & family_cash_case & vbNewLine &_
        "MFIP - " & mfip_case & vbNewLine & "DWP - " & dwp_case & vbNewLine & "Adult Cash - " & adult_cash_case & vbNewLine & "GA - " & ga_case & vbNewLine & "MSA - " & msa_case & vbNewLine & "GRH - " & grh_case & vbNewLine &_
