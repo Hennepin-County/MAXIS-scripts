@@ -659,7 +659,9 @@ FUNCTION favorite_menu(favorites_text_file_string, script_to_run)
     dlg_height = dlg_height + 15 + (12 * num_featured_scripts)
 
 	'>>> A nice decoration for the user. If they have used Update Worker Signature, then their signature is built into the dialog display.
-	IF worker_signature <> "" THEN
+	IF worker_full_name <> "" THEN
+		dlg_name = worker_full_name & "'s Favorite Scripts"
+	ELSEIF worker_signature <> "" THEN
 		dlg_name = worker_signature & "'s Favorite Scripts"
 	ELSE
 		dlg_name = "My Favorite Scripts"
@@ -668,7 +670,7 @@ FUNCTION favorite_menu(favorites_text_file_string, script_to_run)
 	'>>> The dialog
     ' MsgBox dlg_height & " - 4"
     Dialog1 = ""
-	BeginDialog Dialog1, 0, 0, 600, dlg_height, dlg_name & " "
+	BeginDialog Dialog1, 0, 0, 600, dlg_height, dlg_name & ""
   	  ButtonGroup ButtonPressed
 
 		'>>> User's favorites
