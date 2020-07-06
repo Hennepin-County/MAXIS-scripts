@@ -3352,6 +3352,8 @@ function change_date_to_soonest_working_day(date_to_change)
 '~~~~~ date_to_change: variable in the form of a date - this will change once the function is called
 '===== Keywords: MAXIS, date, change
     Do
+        If WeekdayName(WeekDay(date_to_change)) = "Saturday" Then date_to_change = DateAdd("d", -1, date_to_change)
+        If WeekdayName(WeekDay(date_to_change)) = "Sunday" Then date_to_change = DateAdd("d", -2, date_to_change)
         is_holiday = FALSE
         For each holiday in HOLIDAYS_ARRAY
             If holiday = date_to_change Then
@@ -3359,8 +3361,6 @@ function change_date_to_soonest_working_day(date_to_change)
                 date_to_change = DateAdd("d", -1, date_to_change)
             End If
         Next
-        If WeekdayName(WeekDay(date_to_change)) = "Saturday" Then date_to_change = DateAdd("d", -1, date_to_change)
-        If WeekdayName(WeekDay(date_to_change)) = "Sunday" Then date_to_change = DateAdd("d", -2, date_to_change)
     Loop until is_holiday = FALSE
 end function
 
