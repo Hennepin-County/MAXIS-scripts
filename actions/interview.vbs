@@ -37,6 +37,8 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+
+
 BeginDialog Dialog1, 0, 0, 550, 385, "Dialog"
   GroupBox 180, 5, 300, 260, "Client Conversation"
   GroupBox 10, 5, 170, 260, "Address Information listed in MAXIS"
@@ -145,6 +147,11 @@ class mx_hh_member
 	public button_two
 	public button_three
 	public button_four
+
+	public clt_has_cs_income
+	public clt_has_ss_income
+	public clt_has_BUSI
+	public clt_has_JOBS
 
 	public property get full_name
 		full_name = first_name & " " & last_name
@@ -256,6 +263,11 @@ class mx_hh_member
 
 			spoken_lang = replace(replace(spoken_lang, "_", ""), "  ", " - ")
 			written_lang = trim(replace(replace(replace(written_lang, "_", ""), "  ", " - "), "(HRF)", ""))
+
+			clt_has_cs_income = FALSE
+			clt_has_ss_income = FALSE
+			clt_has_BUSI = FALSE
+			clt_has_JOBS = FALSE
 		End If
 
 		If access_denied = FALSE Then
@@ -623,7 +635,8 @@ class client_income
 	public pay_frequency
 	public pay_weekday
 	public hc_inc_est
-	public most_recent_pay
+	public most_recent_pay_date
+	public most_recent_pay_amt
 	public income_notes
 	public pay_gross
 	public expenses_allowed
@@ -732,7 +745,7 @@ class client_income
 
 		member_name = first_name & " " & last_name
 		member = member_ref & " - " & member_name
-		MsgBox "~" & member & "~"
+		' MsgBox "~" & member & "~"
 	end sub
 
 	Public sub read_jobs_panel()
@@ -840,7 +853,7 @@ class client_income
 		If income_verification = "7" Then income_verification = "7 - Worker Initiated"
 		If income_verification = "8" Then income_verification = "8 - RI Stubs"
 		If income_verification = "N" Then income_verification = "N - No Verif Provided"
-		MsgBox "~" & income_verification & "~"
+		' MsgBox "~" & income_verification & "~"
 		income_start_date = replace(income_start_date, " ", "/")
 		If income_start_date = "__/__/__" Then income_start_date = ""
 		income_end_date = replace(income_end_date, " ", "/")
@@ -1057,13 +1070,137 @@ tribal_count = 0
 cs_count = 0
 ss_count = 0
 other_UNEA_count = 0
+memb_to_match = ""
+
+'Button Definitions
+caf_page_one_btn	= 1000
+caf_membs_btn		= 1001
+caf_q_1_2_btn		= 1002
+caf_q_3_btn			= 1003
+caf_q_4_btn 		= 1004
+caf_q_5_btn			= 1005
+caf_q_6_btn			= 1006
+caf_q_7_btn			= 1007
+caf_q_8_btn			= 1008
+caf_q_9_btn			= 1009
+caf_q_10_btn		= 1010
+caf_q_11_btn		= 1011
+caf_q_12_btn		= 1012
+caf_q_13_btn		= 1013
+caf_q_14_15_btn		= 1014
+caf_q_16_17_18_btn	= 1015
+caf_q_19_btn		= 1016
+caf_q_20_21_btn		= 1017
+caf_q_22_btn		= 1018
+caf_q_23_btn		= 1019
+caf_q_24_btn		= 1020
+caf_qual_q_btn		= 1021
+caf_last_page_btn	= 1022
+next_btn			= 1023
+finish_interview_btn= 1024
+
+client_verbal_changes_resi_address_btn	= 2000
+client_verbal_changes_mail_address_btn	= 2001
+caf_info_different_btn					= 2002
+client_verbal_changes_phone_numbers_btn	= 2003
+add_memb_to_list_btn					= 2004
+HH_memb_detail_review					= 2005
+add_relationship_btn					= 2006
+memb_info_change						= 2007
+next_memb_btn							= 2008
+hh_list_btn								= 2009
+update_groups_btn						= 2010
+search_district_btn						= 2011
+add_higher_ed_studen					= 2012
+add_ged_ell_student						= 2013
+add_another_absent_pers_btn				= 2014
+new_disa_btn							= 2015
+add_unable_tp_work_memb_btn				= 2016
+
+rsdi_btn 	= 3000
+ssi_btn		= 3001
+va_btn		= 3002
+ui_btn		= 3003
+wc_btn		= 3004
+ret_btn		= 3005
+tribal_btn	= 3006
+cs_btn		= 3007
+ss_btn		= 3008
+other_btn	= 3009
+main_btn	= 3010
+
+'PRESETS FOR QUESTIONS COMPLETIONS
+done_pg_one 	= FALSE
+done_pg_memb 	= FALSE
+done_q_1_2		= FALSE
+done_q_3		= FALSE
+done_q_4		= FALSE
+done_q_5		= FALSE
+done_q_6		= FALSE
+done_q_7		= FALSE
+done_q_8		= FALSE
+done_q_9		= FALSE
+done_q_10		= FALSE
+done_q_11		= FALSE
+done_q_12		= FALSE
+done_q_13		= FALSE
+done_q_14_15	= FALSE
+done_q_16_18	= FALSE
+done_q_19		= FALSE
+done_q_20_21 	= FALSE
+done_q_22		= FALSE
+done_q_23		= FALSE
+done_q_24		= FALSE
+done_qual		= FALSE
+done_pg_last	= FALSE
+
+'SETTINGS FOR PAGE IDETIFIERS
+show_pg_one 		= 1
+show_pg_memb_list 	= 2
+show_pg_memb_info 	= 3
+show_q_1_2			= 4
+show_q_3			= 5
+show_q_4			= 6
+show_q_5			= 7
+show_q_6			= 8
+show_q_7			= 9
+show_q_8			= 10
+show_q_9			= 11
+show_q_10			= 12
+show_q_11			= 13
+show_q_12			= 14
+show_q_13			= 15
+show_q_14_15		= 16
+show_q_16_18		= 17
+show_q_19			= 18
+show_q_20_21 		= 19
+show_q_22			= 20
+show_q_23			= 21
+show_q_24			= 22
+show_qual			= 23
+show_pg_last		= 24
+
+rsdi_unea	= 1
+ssi_unea	= 2
+va_unea		= 3
+ui_unea		= 4
+wc_unea		= 5
+ret_unea	= 6
+tribal_unea	= 7
+cs_unea		= 8
+ss_unea		= 9
+other_unea	= 10
+main_unea	= 11
+
+
 
 function dialog_movement()
 	For i = 0 to Ubound(HH_MEMB_ARRAY, 1)
 		' MsgBox HH_MEMB_ARRAY(i).button_one
 		If ButtonPressed = HH_MEMB_ARRAY(i).button_one Then
 			' MsgBox "selected"
-			memb_selected = i
+			If page_display = show_pg_memb_info Then memb_selected = i
+			If second_page_display = ssi_unea Then memb_to_match = HH_MEMB_ARRAY(i).ref_number
 		End If
 	Next
 	' MsgBox ButtonPressed
@@ -1831,256 +1968,635 @@ function define_main_dialog()
 				Text 48, 332, 70, 15, "Main"
 			End If
 
-' Text 110, 135, 45, 10, "HH Member"
-' Text 270, 135, 40, 10, "RSDI Type"
-' Text 340, 135, 50, 10, "Monthly Pay"
-' Text 400, 135, 75, 10, "Most Recent Pay Date"
-' DropListBox 110, 145, 155, 45, "", member
-' DropListBox 270, 145, 65, 45, " "+chr(9)+"Disability"+chr(9)+"Non-Disabillity", rsdi_type
-' EditBox 340, 145, 55, 15, Edit12
-' EditBox 400, 145, 70, 15, most_recent_pay
-' Text 115, 160, 50, 10, "Verification"
-' Text 215, 160, 50, 10, "Verif Info"
-' Text 380, 160, 50, 10, "Claim Number"
-' DropListBox 115, 170, 95, 45, "", verif
-' EditBox 215, 170, 160, 15, verif_detail
-' EditBox 380, 170, 90, 15, claim_number
-' Text 115, 185, 50, 10, "Start Date"
-' Text 185, 185, 35, 10, "End Date"
-' Text 250, 185, 50, 10, "Income Notes"
-' EditBox 115, 195, 60, 15, Edit15
-' EditBox 185, 195, 55, 15, end_date
-' EditBox 250, 195, 220, 15, income_notes
-' Text 115, 210, 70, 10, "Review of Income"
-' ComboBox 115, 220, 355, 45, "", income_review
-
-			If second_page_display = rsdi_unea Then
+			If second_page_display = rsdi_unea Then								'=====================================================================================   UNEA - RSDI
 				GroupBox 100, 125, 380, 220, "RSDI Income"
 
-				show_count = 0
-				y_pos = 135
+				x_pos = 110
+				first_rsdi = TRUE
 				for i = 0 to UBound(UNEA_ARRAY, 1)
 					If UNEA_ARRAY(i).panel_name = "UNEA" Then
 						If UNEA_ARRAY(i).income_type_code = "01" OR UNEA_ARRAY(i).income_type_code = "02" Then
-							Text 110, y_pos, 45, 10, "HH Member"
-						    Text 270, y_pos, 40, 10, "RSDI Type"
-						    Text 340, y_pos, 50, 10, "Monthly Pay"
-						    Text 400, y_pos, 75, 10, "Most Recent Pay Date"
-							y_pos = y_pos + 10
-						    DropListBox 110, y_pos, 155, 45, memb_droplist, UNEA_ARRAY(i).member
-						    DropListBox 270, y_pos, 65, 45, " "+chr(9)+"01 - RSDI, Disa"+chr(9)+"02 - RSDI, No Disa", UNEA_ARRAY(i).income_type
-						    EditBox 340, y_pos, 55, 15, UNEA_ARRAY(i).prosp_pay_total
-						    EditBox 400, y_pos, 70, 15, UNEA_ARRAY(i).most_recent_pay
-							y_pos = y_pos + 15
-						    Text 115, y_pos, 50, 10, "Verification"
-						    Text 215, y_pos, 50, 10, "Verif Info"
-						    Text 380, y_pos, 50, 10, "Claim Number"
-							y_pos = y_pos + 10
-						    DropListBox 115, y_pos, 95, 45, unea_verif_droplist, UNEA_ARRAY(i).income_verification
-						    EditBox 215, y_pos, 160, 15, UNEA_ARRAY(i).verif_explaination
-						    EditBox 380, y_pos, 90, 15, UNEA_ARRAY(i).claim_number
-							y_pos = y_pos + 15
-						    Text 115, y_pos, 50, 10, "Start Date"
-						    Text 185, y_pos, 35, 10, "End Date"
-						    Text 250, y_pos, 50, 10, "Income Notes"
-							y_pos = y_pos + 10
-						    EditBox 115, y_pos, 60, 15, UNEA_ARRAY(i).income_start_date
-						    EditBox 185, y_pos, 55, 15, UNEA_ARRAY(i).income_end_date
-						    EditBox 250, y_pos, 220, 15, UNEA_ARRAY(i).income_notes
-							y_pos = y_pos + 15
-						    Text 115, y_pos, 70, 10, "Review of Income"
-							y_pos = y_pos + 10
-						    ComboBox 115, y_pos, 355, 45, "", UNEA_ARRAY(i).income_review
 
-							y_pos = y_pos + 20
-							show_count = show_count + 1
+							show_rsdi = FALSE
+							for j = 0 to UBound(HH_MEMB_ARRAY, 1)
+								If HH_MEMB_ARRAY(j).ref_number = UNEA_ARRAY(i).member_ref Then
+									If first_rsdi = TRUE and memb_to_match = "" Then
+										Text x_pos + 5, 331, 35, 10, "MEMB " & HH_MEMB_ARRAY(j).ref_number
+										first_rsdi = FALSE
+										show_rsdi = TRUE
+									ElseIf memb_to_match = HH_MEMB_ARRAY(j).ref_number Then
+										Text x_pos + 5, 331, 35, 10, "MEMB " & HH_MEMB_ARRAY(j).ref_number
+										show_rsdi = TRUE
+									Else
+										PushButton x_pos, 330, 40, 10, "MEMB " & HH_MEMB_ARRAY(j).ref_number, HH_MEMB_ARRAY(j).button_one
+									End If
+									x_pos = x_pos + 40
+								End If
+							Next
+
+							If show_rsdi = TRUE Then
+								Text 110, 135, 160, 10, "HH Member: " & UNEA_ARRAY(i).member
+							    Text 280, 135, 105, 10, "Claim Number: " & UNEA_ARRAY(i).claim_number
+								Text 110, 150, 270, 10, "RSDI Income Type: " & UNEA_ARRAY(i).income_type
+								Text 110, 165, 120, 10, "Date Most Recent Income Received:"
+							    EditBox 235, 160, 45, 15, UNEA_ARRAY(i).most_recent_pay_date
+							    Text 290, 165, 130, 10, "How Much was the Most Recent Check:"
+							    EditBox 425, 160, 50, 15, UNEA_ARRAY(i).most_recent_pay_amt
+							    Text 110, 180, 110, 10, "Known Monthly Income: $" & UNEA_ARRAY(i).prosp_pay_total
+							    Text 110, 195, 355, 20, "If the known income and the most recent income received does not match, press the 'Update RSDI Information' button to clarify the income to budget and other details."
+							    Text 110, 215, 90, 10, "Start Date: " & UNEA_ARRAY(i).income_start_date
+							    Text 215, 215, 85, 10, "End Date: " & UNEA_ARRAY(i).income_end_date
+							    Text 110, 230, 50, 10, "Verification"
+							    Text 240, 230, 50, 10, "Verif Info"
+							    DropListBox 110, 240, 125, 45, unea_verif_droplist, UNEA_ARRAY(i).income_verification
+							    EditBox 240, 240, 235, 15, UNEA_ARRAY(i).verif_explaination
+							    Text 110, 260, 50, 10, "Income Notes"
+							    EditBox 110, 270, 365, 15, UNEA_ARRAY(i).income_notes
+							    Text 110, 295, 70, 10, "Review of Income"
+							    ComboBox 110, 305, 365, 45, "", UNEA_ARRAY(i).income_review
+
+							    PushButton 390, 135, 85, 15, "Update RSDI Information", update_rsdi_info_btn
+							End If
 						End If
 					End If
 				next
-				'PAGE BUTTONS
-				PushButton 385, 347, 95, 13, "Add RSDI Information", add_another_unea_btn
+				If rsdi_count = 0 Then
+					Text 110, 140, 355, 10, "There are no RSDI panels known in MAXIS and no additional RSDI Income information has been added."
+				End If
+				PushButton 385, 347, 95, 13, "Add RSDI Information", add_another_rsdi_unea_btn
 
 				Text 42, 132, 45, 15, "RSDI - " & rsdi_count
 			End If
-			If second_page_display = ssi_unea Then
+			If second_page_display = ssi_unea Then								'=====================================================================================   UNEA - SSI
 				GroupBox 100, 125, 380, 220, "SSI Income"
 
-				show_count = 0
-				y_pos = 135
+				x_pos = 110
+				first_ssi = TRUE
 				for i = 0 to UBound(UNEA_ARRAY, 1)
 					If UNEA_ARRAY(i).panel_name = "UNEA" Then
 						If UNEA_ARRAY(i).income_type_code = "03" Then
-							Text 110, y_pos, 45, 10, "HH Member"
-							' Text 270, y_pos, 40, 10, "SSI Type"
-							Text 340, y_pos, 50, 10, "Monthly Pay"
-							Text 400, y_pos, 75, 10, "Most Recent Pay Date"
-							y_pos = y_pos + 10
-							DropListBox 110, y_pos, 155, 45, memb_droplist, UNEA_ARRAY(i).member
-							' DropListBox 270, y_pos, 65, 45, " "+chr(9)+"01 - RSDI, Disa"+chr(9)+"02 - RSDI, No Disa", UNEA_ARRAY(i).income_type_code
-							EditBox 340, y_pos, 55, 15, UNEA_ARRAY(i).prosp_pay_total
-							EditBox 400, y_pos, 70, 15, UNEA_ARRAY(i).most_recent_pay
-							y_pos = y_pos + 15
-							Text 115, y_pos, 50, 10, "Verification"
-							Text 215, y_pos, 50, 10, "Verif Info"
-							Text 380, y_pos, 50, 10, "Claim Number"
-							y_pos = y_pos + 10
-							DropListBox 115, y_pos, 95, 45, unea_verif_droplist, UNEA_ARRAY(i).income_verification
-							EditBox 215, y_pos, 160, 15, UNEA_ARRAY(i).verif_explaination
-							EditBox 380, y_pos, 90, 15, UNEA_ARRAY(i).claim_number
-							y_pos = y_pos + 15
-							Text 115, y_pos, 50, 10, "Start Date"
-							Text 185, y_pos, 35, 10, "End Date"
-							Text 250, y_pos, 50, 10, "Income Notes"
-							y_pos = y_pos + 10
-							EditBox 115, y_pos, 60, 15, UNEA_ARRAY(i).income_start_date
-							EditBox 185, y_pos, 55, 15, UNEA_ARRAY(i).income_end_date
-							EditBox 250, y_pos, 220, 15, UNEA_ARRAY(i).income_notes
-							y_pos = y_pos + 15
-							Text 115, y_pos, 70, 10, "Review of Income"
-							y_pos = y_pos + 10
-							ComboBox 115, y_pos, 355, 45, "", UNEA_ARRAY(i).income_review
+							show_ssi = FALSE
+							for j = 0 to UBound(HH_MEMB_ARRAY, 1)
+								If HH_MEMB_ARRAY(j).ref_number = UNEA_ARRAY(i).member_ref Then
+									If first_ssi = TRUE and memb_to_match = "" Then
+										Text x_pos + 5, 331, 35, 10, "MEMB " & HH_MEMB_ARRAY(j).ref_number
+										first_ssi = FALSE
+										show_ssi = TRUE
+									ElseIf memb_to_match = HH_MEMB_ARRAY(j).ref_number Then
+										Text x_pos + 5, 331, 35, 10, "MEMB " & HH_MEMB_ARRAY(j).ref_number
+										show_ssi = TRUE
+									Else
+										PushButton x_pos, 330, 40, 10, "MEMB " & HH_MEMB_ARRAY(j).ref_number, HH_MEMB_ARRAY(j).button_one
+									End If
+									x_pos = x_pos + 40
+								End If
+							Next
 
-							y_pos = y_pos + 20
-							show_count = show_count + 1
+							If show_ssi = TRUE Then
+								Text 110, 140, 160, 10, "HH Member: " & UNEA_ARRAY(i).member
+							    Text 280, 140, 105, 10, "Claim Number: " & UNEA_ARRAY(i).claim_number
+								Text 110, 160, 120, 10, "Date Most Recent Income Received:"
+							    EditBox 235, 155, 45, 15, UNEA_ARRAY(i).most_recent_pay_date
+							    Text 290, 160, 130, 10, "How Much was the Most Recent Check:"
+							    EditBox 425, 155, 50, 15, UNEA_ARRAY(i).most_recent_pay_amt
+							    Text 110, 175, 110, 10, "Known Monthly Income: $" & UNEA_ARRAY(i).prosp_pay_total
+							    Text 110, 190, 355, 20, "If the known income and the most recent income received does not match, press the 'Update SSI Information' button to clarify the income to budget and other details."
+							    Text 110, 210, 90, 10, "Start Date: " & UNEA_ARRAY(i).income_start_date
+							    Text 215, 210, 85, 10, "End Date: " & UNEA_ARRAY(i).income_end_date
+							    Text 110, 230, 50, 10, "Verification"
+							    Text 240, 230, 50, 10, "Verif Info"
+							    DropListBox 110, 240, 125, 45, unea_verif_droplist, UNEA_ARRAY(i).income_verification
+							    EditBox 240, 240, 235, 15, UNEA_ARRAY(i).verif_explaination
+							    Text 110, 260, 50, 10, "Income Notes"
+							    EditBox 110, 270, 365, 15, UNEA_ARRAY(i).income_notes
+							    Text 110, 295, 70, 10, "Review of Income"
+							    ComboBox 110, 305, 365, 45, "", UNEA_ARRAY(i).income_review
+
+							    PushButton 390, 135, 85, 15, "Update SSI Information", update_ssi_info_btn
+							End If
 						End If
 					End If
 				next
-				'PAGE BUTTONS
-				PushButton 385, 347, 95, 13, "Add SSI Information", add_another_unea_btn
+				If ssi_count = 0 Then
+					Text 110, 140, 355, 10, "There are no RSDI panels known in MAXIS and no additional RSDI Income information has been added."
+				End If
+				PushButton 385, 347, 95, 13, "Add SSI Information", add_another_ssi_unea_btn
 
 				Text 45, 152, 42, 15, "SSI - " & ssi_count
 			End If
-			If second_page_display = va_unea Then
+			If second_page_display = va_unea Then								'=====================================================================================   UNEA - VETERANS INCOME
 				GroupBox 100, 125, 380, 220, "VA Income"
 
-				show_count = 0
-				y_pos = 135
+				x_pos = 110
+				first_va = TRUE
 				for i = 0 to UBound(UNEA_ARRAY, 1)
 					If UNEA_ARRAY(i).panel_name = "UNEA" Then
 						If UNEA_ARRAY(i).income_type_code = "11" OR UNEA_ARRAY(i).income_type_code = "12" OR UNEA_ARRAY(i).income_type_code = "13" OR UNEA_ARRAY(i).income_type_code = "38" Then
-							Text 110, y_pos, 45, 10, "HH Member"
-						    Text 270, y_pos, 40, 10, "VA Type"
-						    Text 340, y_pos, 50, 10, "Monthly Pay"
-						    Text 400, y_pos, 75, 10, "Most Recent Pay Date"
-							y_pos = y_pos + 10
-						    DropListBox 110, y_pos, 155, 45, memb_droplist, UNEA_ARRAY(i).member
-						    DropListBox 270, y_pos, 65, 45, " "+chr(9)+"11 - VA Disability Benefit"+chr(9)+"12 - VA Pension"+chr(9)+"13 - VA Other"+chr(9)+"38 - VA Aid and Attendance", UNEA_ARRAY(i).income_type
-						    EditBox 340, y_pos, 55, 15, UNEA_ARRAY(i).prosp_pay_total
-						    EditBox 400, y_pos, 70, 15, UNEA_ARRAY(i).most_recent_pay
-							y_pos = y_pos + 15
-						    Text 115, y_pos, 50, 10, "Verification"
-						    Text 215, y_pos, 50, 10, "Verif Info"
-						    Text 380, y_pos, 50, 10, "Claim Number"
-							y_pos = y_pos + 10
-						    DropListBox 115, y_pos, 95, 45, unea_verif_droplist, UNEA_ARRAY(i).income_verification
-						    EditBox 215, y_pos, 160, 15, UNEA_ARRAY(i).verif_explaination
-						    EditBox 380, y_pos, 90, 15, UNEA_ARRAY(i).claim_number
-							y_pos = y_pos + 15
-						    Text 115, y_pos, 50, 10, "Start Date"
-						    Text 185, y_pos, 35, 10, "End Date"
-						    Text 250, y_pos, 50, 10, "Income Notes"
-							y_pos = y_pos + 10
-						    EditBox 115, y_pos, 60, 15, UNEA_ARRAY(i).income_start_date
-						    EditBox 185, y_pos, 55, 15, UNEA_ARRAY(i).income_end_date
-						    EditBox 250, y_pos, 220, 15, UNEA_ARRAY(i).income_notes
-							y_pos = y_pos + 15
-						    Text 115, y_pos, 70, 10, "Review of Income"
-							y_pos = y_pos + 10
-						    ComboBox 115, y_pos, 355, 45, "", UNEA_ARRAY(i).income_review
 
-							y_pos = y_pos + 20
-							show_count = show_count + 1
+							show_va = FALSE
+							for j = 0 to UBound(HH_MEMB_ARRAY, 1)
+								If HH_MEMB_ARRAY(j).ref_number = UNEA_ARRAY(i).member_ref Then
+									If first_va = TRUE and memb_to_match = "" Then
+										Text x_pos + 5, 331, 35, 10, "MEMB " & HH_MEMB_ARRAY(j).ref_number
+										first_va = FALSE
+										show_va = TRUE
+									ElseIf memb_to_match = HH_MEMB_ARRAY(j).ref_number Then
+										Text x_pos + 5, 331, 35, 10, "MEMB " & HH_MEMB_ARRAY(j).ref_number
+										show_va = TRUE
+									Else
+										PushButton x_pos, 330, 40, 10, "MEMB " & HH_MEMB_ARRAY(j).ref_number, HH_MEMB_ARRAY(j).button_one
+									End If
+									x_pos = x_pos + 40
+								End If
+							Next
+							If show_va = TRUE Then
+								Text 110, 140, 160, 10, "HH Member: " "HH Member: " & UNEA_ARRAY(i).member
+							    Text 280, 140, 105, 10, "Claim Number: " & UNEA_ARRAY(i).claim_number
+							    Text 110, 160, 120, 10, "Date Most Recent Income Received:"
+							    EditBox 235, 155, 45, 15, UNEA_ARRAY(i).most_recent_pay_date
+							    Text 290, 160, 130, 10, "How Much was the Most Recent Check:"
+							    EditBox 425, 155, 50, 15, UNEA_ARRAY(i).most_recent_pay_amt
+							    Text 110, 175, 110, 10, "Known Monthly Income: $" & UNEA_ARRAY(i).prosp_pay_total
+							    Text 230, 175, 245, 10, "VA Income Type: " & UNEA_ARRAY(i).income_type
+							    Text 110, 195, 75, 10, "Gross Monthly Income:"
+							    EditBox 190, 190, 35, 15, UNEA_ARRAY(i).pay_gross
+							    Text 235, 195, 70, 10, "Allowed Exclusions:"
+							    EditBox 305, 190, 35, 15, UNEA_ARRAY(i).expenses_allowed
+							    Text 355, 195, 85, 10, "Exclusions NOT Allowed:"
+							    EditBox 440, 190, 35, 15, UNEA_ARRAY(i).expenses_not_allowed
+							    Text 110, 210, 355, 10, "If the counted income is incorrect, press the Update Income button."
+							    Text 110, 225, 90, 10, "Start Date: " & UNEA_ARRAY(i).income_start_date
+							    Text 215, 225, 85, 10, "End Date: " & UNEA_ARRAY(i).income_end_date
+							    Text 110, 240, 50, 10, "Verification"
+							    Text 240, 240, 50, 10, "Verif Info"
+							    DropListBox 110, 250, 125, 45, unea_verif_droplist, UNEA_ARRAY(i).income_verification
+							    EditBox 240, 250, 235, 15, UNEA_ARRAY(i).verif_explaination
+							    Text 110, 265, 50, 10, "Income Notes"
+							    EditBox 110, 275, 365, 15, UNEA_ARRAY(i).income_notes
+							    Text 110, 295, 70, 10, "Review of Income"
+							    ComboBox 110, 305, 365, 45, "", UNEA_ARRAY(i).income_review
+
+								PushButton 390, 135, 85, 15, "Update Income", update_va_info_btn
+							End If
 						End If
 					End If
 				next
-				'PAGE BUTTONS
-				PushButton 385, 347, 95, 13, "Add SSI Information", add_another_unea_btn
+				If va_count = 0 Then
+					Text 110, 140, 355, 10, "There are no VA panels known in MAXIS and no additional VA Income information has been added."
+				End If
+				PushButton 385, 347, 95, 13, "Add VA Information", add_another_va_unea_btn
 
 				Text 47, 172, 40, 15, "VA - " & va_count
 			End If
-			If second_page_display = ui_unea Then
+			If second_page_display = ui_unea Then								'=====================================================================================   UNEA - UNEMPLOYMENT
 				GroupBox 100, 125, 380, 220, "UI Income"
 
-				show_count = 0
-				y_pos = 135
+				x_pos = 110
+				first_ui = TRUE
 				for i = 0 to UBound(UNEA_ARRAY, 1)
 					If UNEA_ARRAY(i).panel_name = "UNEA" Then
 						If UNEA_ARRAY(i).income_type_code = "14" Then
 							' MsgBox memb_droplist & vbNewLine & "~" & UNEA_ARRAY(i).member & "~" & vbNewLine & unea_verif_droplist & vbNewLine & "~" & UNEA_ARRAY(i).income_verification & "~" & vbNewLine & days_of_the_week_droplist & vbNewLine & "~" &  UNEA_ARRAY(i).pay_weekday & "~"
-							Text 110, y_pos, 45, 10, "HH Member"
-						    Text 275, y_pos, 40, 10, "Gross Amt"
-						    Text 325, y_pos, 40, 10, "Exp Allowed"
-						    Text 375, y_pos, 45, 10, "NOT Allowed"
-						    Text 425, y_pos, 45, 10, "Counted Amt"
-							y_pos = y_pos + 10
-						    Text 110, y_pos + 5, 155, 10, UNEA_ARRAY(i).member
-						    EditBox 275, y_pos, 45, 15, UNEA_ARRAY(i).pay_gross
-						    EditBox 325, y_pos, 45, 15, UNEA_ARRAY(i).expenses_allowed
-						    EditBox 375, y_pos, 45, 15, UNEA_ARRAY(i).expenses_not_allowed
-						    EditBox 425, y_pos, 45, 15, UNEA_ARRAY(i).prosp_average_pay
-							y_pos = y_pos + 15
-						    Text 115, y_pos, 50, 10, "Verification"
-						    Text 215, y_pos, 50, 10, "Verif Info"
-						    Text 380, y_pos, 50, 10, "Claim Number"
-							y_pos = y_pos + 10
-						    DropListBox 115, y_pos, 95, 45, unea_verif_droplist, UNEA_ARRAY(i).income_verification
-						    EditBox 215, y_pos, 160, 15, UNEA_ARRAY(i).verif_explaination
-						    EditBox 380, y_pos, 90, 15, UNEA_ARRAY(i).claim_number
-							y_pos = y_pos + 15
-							' Text 115, 185, 50, 10, "Start Date"
-						    ' Text 160, 185, 35, 10, "End Date"
-						    ' Text 205, 185, 50, 10, "Pay Weekday"
-						    ' Text 265, 185, 50, 10, "Income Notes"
-						    ' EditBox 115, 195, 40, 15, Edit15
-						    ' EditBox 160, 195, 40, 15, end_date
-						    ' DropListBox 205, 195, 55, 45, "", pay_weekday
-						    ' EditBox 265, 195, 205, 15, income_notes
 
-						    Text 115, y_pos, 50, 10, "Start Date"
-						    Text 160, y_pos, 35, 10, "End Date"
-						    Text 205, y_pos, 50, 10, "Pay Weekday"
-						    Text 265, y_pos, 50, 10, "Income Notes"
-							y_pos = y_pos + 10
-						    EditBox 115, y_pos, 40, 15, UNEA_ARRAY(i).income_start_date
-						    EditBox 160, y_pos, 40, 15, UNEA_ARRAY(i).income_end_date
-						    DropListBox 205, y_pos, 55, 45, days_of_the_week_droplist, UNEA_ARRAY(i).pay_weekday
-						    EditBox 265, y_pos, 205, 15, UNEA_ARRAY(i).income_notes
-							y_pos = y_pos + 15
-						    Text 115, y_pos, 70, 10, "Review of Income"
-							y_pos = y_pos + 10
-						    ComboBox 115, y_pos, 355, 45, "", UNEA_ARRAY(i).income_review
-							y_pos = y_pos + 20
-							show_count = show_count + 1
+							show_ui = FALSE
+							for j = 0 to UBound(HH_MEMB_ARRAY, 1)
+								If HH_MEMB_ARRAY(j).ref_number = UNEA_ARRAY(i).member_ref Then
+									If first_ui = TRUE and memb_to_match = "" Then
+										Text x_pos + 5, 331, 35, 10, "MEMB " & HH_MEMB_ARRAY(j).ref_number
+										first_ui = FALSE
+										show_ui = TRUE
+									ElseIf memb_to_match = HH_MEMB_ARRAY(j).ref_number Then
+										Text x_pos + 5, 331, 35, 10, "MEMB " & HH_MEMB_ARRAY(j).ref_number
+										show_ui = TRUE
+									Else
+										PushButton x_pos, 330, 40, 10, "MEMB " & HH_MEMB_ARRAY(j).ref_number, HH_MEMB_ARRAY(j).button_one
+									End If
+									x_pos = x_pos + 40
+								End If
+							Next
+							If show_ui = TRUE Then
+								Text 110, 140, 160, 10, "HH Member: " & UNEA_ARRAY(i).member
+							    Text 280, 140, 105, 10, "Claim Number: " & UNEA_ARRAY(i).claim_number
+							    Text 110, 160, 120, 10, "Date Most Recent Income Received:"
+							    EditBox 235, 155, 45, 15, UNEA_ARRAY(i).most_recent_pay_date
+							    Text 290, 160, 130, 10, "How Much was the Most Recent Check:"
+							    EditBox 425, 155, 50, 15, UNEA_ARRAY(i).most_recent_pay_amt
+							    Text 110, 175, 110, 10, "Known Weekly Income: $" & UNEA_ARRAY(i).prosp_average_pay
+							    Text 110, 195, 75, 10, "Gross Weekly Income:"
+							    EditBox 190, 190, 35, 15, UNEA_ARRAY(i).pay_gross
+							    Text 235, 195, 70, 10, "Allowed Exclusions:"
+							    EditBox 305, 190, 35, 15, UNEA_ARRAY(i).expenses_allowed
+							    Text 355, 195, 85, 10, "Exclusions NOT Allowed:"
+							    EditBox 440, 190, 35, 15, UNEA_ARRAY(i).expenses_not_allowed
+							    Text 110, 210, 355, 10, "If the counted income is incorrect, press the Update Income button."
+							    Text 110, 225, 90, 10, "Start Date: " & UNEA_ARRAY(i).income_start_date
+							    Text 215, 225, 85, 10, "End Date: " & UNEA_ARRAY(i).income_end_date
+								Text 360, 225, 50, 10, "Pay Weekday:"
+							    DropListBox 415, 220, 60, 45, days_of_the_week_droplist, UNEA_ARRAY(i).pay_weekday
+							    Text 110, 240, 50, 10, "Verification"
+							    Text 240, 240, 50, 10, "Verif Info"
+							    DropListBox 110, 250, 125, 45, unea_verif_droplist, UNEA_ARRAY(i).income_verification
+							    EditBox 240, 250, 235, 15, UNEA_ARRAY(i).verif_explaination
+							    Text 110, 265, 50, 10, "Income Notes"
+							    EditBox 110, 275, 365, 15, UNEA_ARRAY(i).income_notes
+							    Text 110, 295, 70, 10, "Review of Income"
+							    ComboBox 110, 305, 365, 45, "", UNEA_ARRAY(i).income_review
+
+							    PushButton 390, 135, 85, 15, "Update UI Information", update_ui_info_btn
+							End If
 						End If
 					End If
 				next
-				'PAGE BUTTONS
-				PushButton 385, 347, 95, 13, "Add UI Information", add_another_unea_btn
+				If ui_count = 0 Then
+					Text 110, 140, 355, 10, "There are no UI panels known in MAXIS and no additional UI Income information has been added."
+				End If
+				PushButton 385, 347, 95, 13, "Add UI Information", add_another_ui_unea_btn
 
 				Text 48, 192, 18, 15, "UI - " & ui_count
 			End If
-			If second_page_display = wc_unea Then
+			If second_page_display = wc_unea Then								'=====================================================================================   UNEA - WORKMANS COMP
 				GroupBox 100, 125, 380, 220, "WC Income"
+
+				x_pos = 110
+				first_wc = TRUE
+				for i = 0 to UBound(UNEA_ARRAY, 1)
+					If UNEA_ARRAY(i).panel_name = "UNEA" Then
+						If UNEA_ARRAY(i).income_type_code = "15" Then
+							show_wc = FALSE
+							for j = 0 to UBound(HH_MEMB_ARRAY, 1)
+								If HH_MEMB_ARRAY(j).ref_number = UNEA_ARRAY(i).member_ref Then
+									If first_wc = TRUE and memb_to_match = "" Then
+										Text x_pos + 5, 331, 35, 10, "MEMB " & HH_MEMB_ARRAY(j).ref_number
+										first_wc = FALSE
+										show_wc = TRUE
+									ElseIf memb_to_match = HH_MEMB_ARRAY(j).ref_number Then
+										Text x_pos + 5, 331, 35, 10, "MEMB " & HH_MEMB_ARRAY(j).ref_number
+										show_wc = TRUE
+									Else
+										PushButton x_pos, 330, 40, 10, "MEMB " & HH_MEMB_ARRAY(j).ref_number, HH_MEMB_ARRAY(j).button_one
+									End If
+									x_pos = x_pos + 40
+								End If
+							Next
+							If show_wc = TRUE Then
+								Text 110, 140, 160, 10, "HH Member: " & UNEA_ARRAY(i).member
+								Text 280, 140, 105, 10, "Claim Number: " & UNEA_ARRAY(i).claim_number
+								Text 110, 160, 120, 10, "Date Most Recent Income Received:"
+								EditBox 235, 155, 45, 15, UNEA_ARRAY(i).most_recent_pay_date
+								Text 290, 160, 130, 10, "How Much was the Most Recent Check:"
+								EditBox 425, 155, 50, 15, UNEA_ARRAY(i).most_recent_pay_amt
+								Text 110, 175, 110, 10, "Known Weekly Income: $" & UNEA_ARRAY(i).prosp_average_pay
+								Text 110, 195, 75, 10, "Gross Weekly Income:"
+								EditBox 190, 190, 35, 15, UNEA_ARRAY(i).pay_gross
+								Text 235, 195, 70, 10, "Allowed Exclusions:"
+								EditBox 305, 190, 35, 15, UNEA_ARRAY(i).expenses_allowed
+								Text 355, 195, 85, 10, "Exclusions NOT Allowed:"
+								EditBox 440, 190, 35, 15, UNEA_ARRAY(i).expenses_not_allowed
+								Text 110, 210, 355, 10, "If the counted income is incorrect, press the Update Income button."
+								Text 110, 225, 90, 10, "Start Date: " & UNEA_ARRAY(i).income_start_date
+								Text 215, 225, 85, 10, "End Date: " & UNEA_ARRAY(i).income_end_date
+								Text 360, 225, 50, 10, "Pay Weekday:"
+								DropListBox 415, 220, 60, 45, days_of_the_week_droplist, UNEA_ARRAY(i).pay_weekday
+								Text 110, 240, 50, 10, "Verification"
+								Text 240, 240, 50, 10, "Verif Info"
+								DropListBox 110, 250, 125, 45, unea_verif_droplist, UNEA_ARRAY(i).income_verification
+								EditBox 240, 250, 235, 15, UNEA_ARRAY(i).verif_explaination
+								Text 110, 265, 50, 10, "Income Notes"
+								EditBox 110, 275, 365, 15, UNEA_ARRAY(i).income_notes
+								Text 110, 295, 70, 10, "Review of Income"
+								ComboBox 110, 305, 365, 45, "", UNEA_ARRAY(i).income_review
+
+								PushButton 390, 135, 85, 15, "Update WC Information", update_wc_info_btn
+							End If
+						End If
+					End If
+				next
+				If wc_count = 0 Then
+					Text 110, 140, 355, 10, "There are no WC panels known in MAXIS and no additional WC Income information has been added."
+				End If
+				PushButton 385, 347, 95, 13, "Add WC Information", add_another_wc_unea_btn
+
 				Text 46, 212, 41, 15, "WC - " & wc_count
 			End If
-			If second_page_display = ret_unea Then
+			If second_page_display = ret_unea Then								'=====================================================================================   UNEA - RETIREMENT
 				GroupBox 100, 125, 380, 220, "Retirement Income"
+
+				x_pos = 110
+				first_ri = TRUE
+				for i = 0 to UBound(UNEA_ARRAY, 1)
+					If UNEA_ARRAY(i).panel_name = "UNEA" Then
+						If UNEA_ARRAY(i).income_type_code = "16" OR UNEA_ARRAY(i).income_type_code = "17" Then
+							show_ri = FALSE
+							for j = 0 to UBound(HH_MEMB_ARRAY, 1)
+								If HH_MEMB_ARRAY(j).ref_number = UNEA_ARRAY(i).member_ref Then
+									If first_ri = TRUE and memb_to_match = "" Then
+										Text x_pos + 5, 331, 35, 10, "MEMB " & HH_MEMB_ARRAY(j).ref_number
+										first_ri = FALSE
+										show_ri = TRUE
+									ElseIf memb_to_match = HH_MEMB_ARRAY(j).ref_number Then
+										Text x_pos + 5, 331, 35, 10, "MEMB " & HH_MEMB_ARRAY(j).ref_number
+										show_ri = TRUE
+									Else
+										PushButton x_pos, 330, 40, 10, "MEMB " & HH_MEMB_ARRAY(j).ref_number, HH_MEMB_ARRAY(j).button_one
+									End If
+									x_pos = x_pos + 40
+								End If
+							Next
+							If show_ri = TRUE Then
+								Text 110, 140, 160, 10, "HH Member: " "HH Member: " & UNEA_ARRAY(i).member
+								Text 280, 140, 105, 10, "Claim Number: " & UNEA_ARRAY(i).claim_number
+								Text 110, 160, 120, 10, "Date Most Recent Income Received:"
+								EditBox 235, 155, 45, 15, UNEA_ARRAY(i).most_recent_pay_date
+								Text 290, 160, 130, 10, "How Much was the Most Recent Check:"
+								EditBox 425, 155, 50, 15, UNEA_ARRAY(i).most_recent_pay_amt
+								Text 110, 175, 110, 10, "Known Monthly Income: $" & UNEA_ARRAY(i).prosp_pay_total
+								Text 230, 175, 245, 10, "Ret Income Type: " & UNEA_ARRAY(i).income_type
+								Text 110, 195, 75, 10, "Gross Monthly Income:"
+								EditBox 190, 190, 35, 15, UNEA_ARRAY(i).pay_gross
+								Text 235, 195, 70, 10, "Allowed Exclusions:"
+								EditBox 305, 190, 35, 15, UNEA_ARRAY(i).expenses_allowed
+								Text 355, 195, 85, 10, "Exclusions NOT Allowed:"
+								EditBox 440, 190, 35, 15, UNEA_ARRAY(i).expenses_not_allowed
+								Text 110, 210, 355, 10, "If the counted income is incorrect, press the Update Income button."
+								Text 110, 225, 90, 10, "Start Date: " & UNEA_ARRAY(i).income_start_date
+								Text 215, 225, 85, 10, "End Date: " & UNEA_ARRAY(i).income_end_date
+								Text 110, 240, 50, 10, "Verification"
+								Text 240, 240, 50, 10, "Verif Info"
+								DropListBox 110, 250, 125, 45, unea_verif_droplist, UNEA_ARRAY(i).income_verification
+								EditBox 240, 250, 235, 15, UNEA_ARRAY(i).verif_explaination
+								Text 110, 265, 50, 10, "Income Notes"
+								EditBox 110, 275, 365, 15, UNEA_ARRAY(i).income_notes
+								Text 110, 295, 70, 10, "Review of Income"
+								ComboBox 110, 305, 365, 45, "", UNEA_ARRAY(i).income_review
+
+								PushButton 390, 135, 85, 15, "Update Income", update_ri_info_btn
+							End If
+						End If
+					End If
+				next
+				If retirement_count = 0 Then
+					Text 110, 140, 355, 10, "There are no Retirement panels known in MAXIS and no additional Retirement Income information has been added."
+				End If
+				PushButton 385, 347, 95, 13, "Add Retirement Information", add_another_unea_btn
+
 				Text 35, 232, 52, 15, "Retirement - " & retirement_count
 			End If
-			If second_page_display = tribal_unea Then
+			If second_page_display = tribal_unea Then								'=====================================================================================   UNEA - TRIBAL
 				GroupBox 100, 125, 380, 220, "Tribal Income"
+
+				x_pos = 110
+				first_ti = TRUE
+				for i = 0 to UBound(UNEA_ARRAY, 1)
+					If UNEA_ARRAY(i).panel_name = "UNEA" Then
+						If UNEA_ARRAY(i).income_type_code = "46" OR UNEA_ARRAY(i).income_type_code = "47" Then
+							show_ti = FALSE
+							for j = 0 to UBound(HH_MEMB_ARRAY, 1)
+								If HH_MEMB_ARRAY(j).ref_number = UNEA_ARRAY(i).member_ref Then
+									If first_ti = TRUE and memb_to_match = "" Then
+										Text x_pos + 5, 331, 35, 10, "MEMB " & HH_MEMB_ARRAY(j).ref_number
+										first_ti = FALSE
+										show_ti = TRUE
+									ElseIf memb_to_match = HH_MEMB_ARRAY(j).ref_number Then
+										Text x_pos + 5, 331, 35, 10, "MEMB " & HH_MEMB_ARRAY(j).ref_number
+										show_ti = TRUE
+									Else
+										PushButton x_pos, 330, 40, 10, "MEMB " & HH_MEMB_ARRAY(j).ref_number, HH_MEMB_ARRAY(j).button_one
+									End If
+									x_pos = x_pos + 40
+								End If
+							Next
+							If show_ti = TRUE Then
+								Text 110, 140, 160, 10, "HH Member: " "HH Member: " & UNEA_ARRAY(i).member
+								Text 280, 140, 105, 10, "Claim Number: " & UNEA_ARRAY(i).claim_number
+								Text 110, 160, 120, 10, "Date Most Recent Income Received:"
+								EditBox 235, 155, 45, 15, UNEA_ARRAY(i).most_recent_pay_date
+								Text 290, 160, 130, 10, "How Much was the Most Recent Check:"
+								EditBox 425, 155, 50, 15, UNEA_ARRAY(i).most_recent_pay_amt
+								Text 110, 175, 110, 10, "Known Monthly Income: $" & UNEA_ARRAY(i).prosp_pay_total
+								Text 110, 195, 75, 10, "Gross Monthly Income:"
+								EditBox 190, 190, 35, 15, UNEA_ARRAY(i).pay_gross
+								Text 235, 195, 70, 10, "Allowed Exclusions:"
+								EditBox 305, 190, 35, 15, UNEA_ARRAY(i).expenses_allowed
+								Text 355, 195, 85, 10, "Exclusions NOT Allowed:"
+								EditBox 440, 190, 35, 15, UNEA_ARRAY(i).expenses_not_allowed
+								Text 110, 210, 355, 10, "If the counted income is incorrect, press the Update Income button."
+								Text 110, 225, 90, 10, "Start Date: " & UNEA_ARRAY(i).income_start_date
+								Text 215, 225, 85, 10, "End Date: " & UNEA_ARRAY(i).income_end_date
+								Text 110, 240, 50, 10, "Verification"
+								Text 240, 240, 50, 10, "Verif Info"
+								DropListBox 110, 250, 125, 45, unea_verif_droplist, UNEA_ARRAY(i).income_verification
+								EditBox 240, 250, 235, 15, UNEA_ARRAY(i).verif_explaination
+								Text 110, 265, 50, 10, "Income Notes"
+								EditBox 110, 275, 365, 15, UNEA_ARRAY(i).income_notes
+								Text 110, 295, 70, 10, "Review of Income"
+								ComboBox 110, 305, 365, 45, "", UNEA_ARRAY(i).income_review
+
+								PushButton 390, 135, 85, 15, "Update Income", update_ti_info_btn
+							End If
+						End If
+					End If
+				next
+				If tribal_count = 0 Then
+					Text 110, 140, 355, 10, "There are no Tribal Income panels known in MAXIS and no additional Tribal Income information has been added."
+				End If
+				PushButton 385, 347, 95, 13, "Add Tribal Income Information", add_another_unea_btn
+
 				Text 44, 252, 43, 15, "Tribal - " & tribal_count
 			End If
-			If second_page_display = cs_unea Then
+			If second_page_display = cs_unea Then								'=====================================================================================   UNEA - CHILD SUPPORT
 				GroupBox 100, 125, 380, 220, "Child Support Income"
+
+				x_pos = 110
+				first_cs = TRUE
+				for j = 0 to UBound(HH_MEMB_ARRAY, 1)
+					If HH_MEMB_ARRAY(j).clt_has_ss_income = TRUE Then
+						If first_cs = TRUE and memb_to_match = "" Then
+							Text x_pos + 5, 331, 35, 10, "MEMB " & HH_MEMB_ARRAY(j).ref_number
+							first_cs = FALSE
+							show_cs = TRUE
+						ElseIf memb_to_match = HH_MEMB_ARRAY(j).ref_number Then
+							Text x_pos + 5, 331, 35, 10, "MEMB " & HH_MEMB_ARRAY(j).ref_number
+							show_cs = TRUE
+						Else
+							PushButton x_pos, 330, 40, 10, "MEMB " & HH_MEMB_ARRAY(j).ref_number, HH_MEMB_ARRAY(j).button_one
+						End If
+					End If
+
+					direct_added = FALSE
+					disb_added = FALSE
+					arrears_added = FALSE
+					If show_cs = TRUE Then
+						the_ref_to_use = HH_MEMB_ARRAY(j).ref_number
+
+						Text 110, 140, 260, 10, "CS Income Received For MEMBER NAME"
+						Text 110, 160, 30, 10, "Paid to:"
+					    ComboBox 140, 155, 150, 45, "", paid_to_member
+						Text 300, 160, 125, 10, "Is this Income Counted on this Case?"
+					    DropListBox 425, 155, 50, 45, "", cs_income_counted
+
+						for i = 0 to UBound(UNEA_ARRAY, 1)
+							If UNEA_ARRAY(i).member_ref = the_ref_to_use Then
+
+
+								Select Case UNEA_ARRAY(i).income_type_code
+									Case "08"
+										direct_added = TRUE
+										Text 110, 175, 115, 10, "Known Direct Monthly Amt: $444"
+									Case "36"
+										disb_added = TRUE
+										Text 110, 195, 130, 10, "Known Disbursed Monthly Amt: $444"
+										Text 250, 195, 50, 10, "Order Amount: "
+										EditBox 300, 190, 40, 15, disb_order_amount
+									Case "39"
+										arrears_added = TRUE
+										Text 110, 215, 120, 10, "Known Arrears Monthly Amt: $444"
+										Text 250, 215, 50, 10, "Order Amount: "
+										EditBox 300, 210, 40, 15, arrears_order_amount										
+									Case "43"
+									Case "45"
+								End Select
+							End If
+						next
+
+						If direct_added = FALSE Then
+						End If
+						If disb_added = FALSE Then
+						End If
+						If arrears_added = FALSE Then
+						End If
+					End If
+				next
+
+				for i = 0 to UBound(UNEA_ARRAY, 1)
+					If UNEA_ARRAY(i).panel_name = "UNEA" Then
+						If UNEA_ARRAY(i).income_type_code = "08" OR UNEA_ARRAY(i).income_type_code = "36" OR UNEA_ARRAY(i).income_type_code = "39" OR UNEA_ARRAY(i).income_type_code = "43" OR UNEA_ARRAY(i).income_type_code = "45" Then
+							show_cs = FALSE
+							for j = 0 to UBound(HH_MEMB_ARRAY, 1)
+								If HH_MEMB_ARRAY(j).ref_number = UNEA_ARRAY(i).member_ref Then
+									If first_cs = TRUE and memb_to_match = "" Then
+										Text x_pos + 5, 331, 35, 10, "MEMB " & HH_MEMB_ARRAY(j).ref_number
+										first_cs = FALSE
+										show_cs = TRUE
+									ElseIf memb_to_match = HH_MEMB_ARRAY(j).ref_number Then
+										Text x_pos + 5, 331, 35, 10, "MEMB " & HH_MEMB_ARRAY(j).ref_number
+										show_cs = TRUE
+									Else
+										PushButton x_pos, 330, 40, 10, "MEMB " & HH_MEMB_ARRAY(j).ref_number, HH_MEMB_ARRAY(j).button_one
+									End If
+									x_pos = x_pos + 40
+								End If
+							Next
+							If show_cs = TRUE Then
+
+							End If
+						End If
+					End If
+				next
+				If cs_count = 0 Then
+					Text 110, 140, 355, 10, "There are no Child Support panels known in MAXIS and no additional CS Income information has been added."
+				End If
+				PushButton 385, 347, 95, 13, "Add CS Income Information", add_another_unea_btn
+
 				Text 32, 272, 55, 15, "Child Support - " & cs_count
 			End If
-			If second_page_display = ss_unea Then
+			If second_page_display = ss_unea Then								'=====================================================================================   UNEA - SPOUSAL SUPPORT
 				GroupBox 100, 125, 380, 220, "Spousal Support Income"
+
+				x_pos = 110
+				first_ss = TRUE
+				for i = 0 to UBound(UNEA_ARRAY, 1)
+					If UNEA_ARRAY(i).panel_name = "UNEA" Then
+						If UNEA_ARRAY(i).income_type_code = "35" OR UNEA_ARRAY(i).income_type_code = "37" OR UNEA_ARRAY(i).income_type_code = "40" Then
+							show_ss = FALSE
+							for j = 0 to UBound(HH_MEMB_ARRAY, 1)
+								If HH_MEMB_ARRAY(j).ref_number = UNEA_ARRAY(i).member_ref Then
+									If first_ss = TRUE and memb_to_match = "" Then
+										Text x_pos + 5, 331, 35, 10, "MEMB " & HH_MEMB_ARRAY(j).ref_number
+										first_ss = FALSE
+										show_ss = TRUE
+									ElseIf memb_to_match = HH_MEMB_ARRAY(j).ref_number Then
+										Text x_pos + 5, 331, 35, 10, "MEMB " & HH_MEMB_ARRAY(j).ref_number
+										show_ss = TRUE
+									Else
+										PushButton x_pos, 330, 40, 10, "MEMB " & HH_MEMB_ARRAY(j).ref_number, HH_MEMB_ARRAY(j).button_one
+									End If
+									x_pos = x_pos + 40
+								End If
+							Next
+							If show_ss = TRUE Then
+
+							End If
+						End If
+					End If
+				next
+				If ss_count = 0 Then
+					Text 110, 140, 355, 10, "There are no Spousal Support panels known in MAXIS and no additional Spousal Support Income information has been added."
+				End If
+				PushButton 385, 347, 95, 13, "Add Spousal Support Income Information", add_another_unea_btn
+
 				Text 24, 292, 63, 15, "Spousal Support - " & ss_count
 			End If
-			If second_page_display = other_unea Then
+			If second_page_display = other_unea Then								'=====================================================================================   UNEA - TOTHER
 				GroupBox 100, 125, 380, 220, "Other Unearned Income"
+
+				x_pos = 110
+				first_other = TRUE
+				for i = 0 to UBound(UNEA_ARRAY, 1)
+					If UNEA_ARRAY(i).panel_name = "UNEA" Then
+						If UNEA_ARRAY(i).income_type_code = "06" OR UNEA_ARRAY(i).income_type_code = "18" OR UNEA_ARRAY(i).income_type_code = "19" OR UNEA_ARRAY(i).income_type_code = "20" OR UNEA_ARRAY(i).income_type_code = "21" OR UNEA_ARRAY(i).income_type_code = "22" OR UNEA_ARRAY(i).income_type_code = "23" OR UNEA_ARRAY(i).income_type_code = "24" OR UNEA_ARRAY(i).income_type_code = "25" OR UNEA_ARRAY(i).income_type_code = "26" OR UNEA_ARRAY(i).income_type_code = "27" OR UNEA_ARRAY(i).income_type_code = "28" OR UNEA_ARRAY(i).income_type_code = "29" OR UNEA_ARRAY(i).income_type_code = "30" OR UNEA_ARRAY(i).income_type_code = "31" OR UNEA_ARRAY(i).income_type_code = "44" OR UNEA_ARRAY(i).income_type_code = "48" OR UNEA_ARRAY(i).income_type_code = "49" Then
+							show_other = FALSE
+							for j = 0 to UBound(HH_MEMB_ARRAY, 1)
+								If HH_MEMB_ARRAY(j).ref_number = UNEA_ARRAY(i).member_ref Then
+									If first_other = TRUE and memb_to_match = "" Then
+										Text x_pos + 5, 331, 35, 10, "MEMB " & HH_MEMB_ARRAY(j).ref_number
+										first_other = FALSE
+										show_other = TRUE
+									ElseIf memb_to_match = HH_MEMB_ARRAY(j).ref_number Then
+										Text x_pos + 5, 331, 35, 10, "MEMB " & HH_MEMB_ARRAY(j).ref_number
+										show_other = TRUE
+									Else
+										PushButton x_pos, 330, 40, 10, "MEMB " & HH_MEMB_ARRAY(j).ref_number, HH_MEMB_ARRAY(j).button_one
+									End If
+									x_pos = x_pos + 40
+								End If
+							Next
+							If show_other = TRUE Then
+								Text 110, 140, 160, 10, "HH Member: " "HH Member: " & UNEA_ARRAY(i).member
+								Text 280, 140, 105, 10, "Claim Number: " & UNEA_ARRAY(i).claim_number
+								Text 110, 160, 120, 10, "Date Most Recent Income Received:"
+								EditBox 235, 155, 45, 15, UNEA_ARRAY(i).most_recent_pay_date
+								Text 290, 160, 130, 10, "How Much was the Most Recent Check:"
+								EditBox 425, 155, 50, 15, UNEA_ARRAY(i).most_recent_pay_amt
+								Text 110, 175, 110, 10, "Known Monthly Income: $" & UNEA_ARRAY(i).prosp_pay_total
+								Text 230, 175, 245, 10, "Othr Income Type: " & UNEA_ARRAY(i).income_type
+								Text 110, 195, 75, 10, "Gross Monthly Income:"
+								EditBox 190, 190, 35, 15, UNEA_ARRAY(i).pay_gross
+								Text 235, 195, 70, 10, "Allowed Exclusions:"
+								EditBox 305, 190, 35, 15, UNEA_ARRAY(i).expenses_allowed
+								Text 355, 195, 85, 10, "Exclusions NOT Allowed:"
+								EditBox 440, 190, 35, 15, UNEA_ARRAY(i).expenses_not_allowed
+								Text 110, 210, 355, 10, "If the counted income is incorrect, press the Update Income button."
+								Text 110, 225, 90, 10, "Start Date: " & UNEA_ARRAY(i).income_start_date
+								Text 215, 225, 85, 10, "End Date: " & UNEA_ARRAY(i).income_end_date
+								Text 110, 240, 50, 10, "Verification"
+								Text 240, 240, 50, 10, "Verif Info"
+								DropListBox 110, 250, 125, 45, unea_verif_droplist, UNEA_ARRAY(i).income_verification
+								EditBox 240, 250, 235, 15, UNEA_ARRAY(i).verif_explaination
+								Text 110, 265, 50, 10, "Income Notes"
+								EditBox 110, 275, 365, 15, UNEA_ARRAY(i).income_notes
+								Text 110, 295, 70, 10, "Review of Income"
+								ComboBox 110, 305, 365, 45, "", UNEA_ARRAY(i).income_review
+
+								PushButton 390, 135, 85, 15, "Update Income", update_other_info_btn
+							End If
+						End If
+					End If
+				next
+				If other_UNEA_count = 0 Then
+					Text 110, 140, 355, 10, "There are no Other UNEA panels known in MAXIS and no additional Other UNEA information has been added."
+				End If
+				PushButton 385, 347, 95, 13, "Add Other Income Information", add_another_unea_btn
+
 				Text 44, 312, 43, 15, "Other - " & other_UNEA_count
 			End If
 
@@ -2101,6 +2617,64 @@ function define_main_dialog()
 		    If second_page_display <> main_unea Then PushButton 20, 330, 70, 15, "Main", main_btn
 
 
+
+
+'DIALOG SAVING
+' BeginDialog Dialog1, 0, 0, 550, 385, "Full Interview Questions"
+'   Text 110, 135, 45, 10, "HH Member"
+'   Text 275, 135, 40, 10, "Gross Amt"
+'   Text 325, 135, 40, 10, "Exp Allowed"
+'   Text 375, 135, 45, 10, "NOT Allowed"
+'   Text 425, 135, 45, 10, "Counted Amt"
+'   DropListBox 110, 145, 155, 45, "", member
+'   EditBox 275, 145, 45, 15, gross_amt
+'   EditBox 325, 145, 45, 15, exp_allowed
+'   EditBox 375, 145, 45, 15, exp_not_allowed
+'   EditBox 425, 145, 45, 15, counted_amt
+'   Text 115, 160, 50, 10, "Verification"
+'   Text 215, 160, 50, 10, "Verif Info"
+'   Text 380, 160, 50, 10, "Claim Number"
+'   DropListBox 115, 170, 95, 45, "", verif
+'   EditBox 215, 170, 160, 15, verif_detail
+'   EditBox 380, 170, 90, 15, claim_number
+'   Text 115, 185, 50, 10, "Start Date"
+'   Text 160, 185, 35, 10, "End Date"
+'   Text 205, 185, 50, 10, "Pay Weekday"
+'   Text 265, 185, 50, 10, "Income Notes"
+'   EditBox 115, 195, 40, 15, Edit15
+'   EditBox 160, 195, 40, 15, end_date
+'   DropListBox 205, 195, 55, 45, "", pay_weekday
+'   EditBox 265, 195, 205, 15, income_notes
+'   Text 115, 210, 70, 10, "Review of Income"
+'   ComboBox 115, 220, 355, 45, "", income_review
+'   Text 115, 315, 70, 10, "Review of Income"
+'   ComboBox 115, 325, 355, 45, "", Combo3
+'   ButtonGroup ButtonPressed
+'     PushButton 20, 330, 70, 15, "Main", main_btn
+'   GroupBox 100, 125, 380, 220, "RSDI Income"
+'   Text 5, 10, 195, 10, "^^1 - Enter the answers listed on the actual CAF from Q12"
+'   ButtonGroup ButtonPressed
+'     PushButton 20, 170, 70, 15, "VA", va_btn
+'     PushButton 485, 10, 60, 15, "CAF Page 1", caf_page_one_btn
+'     PushButton 485, 135, 60, 15, "CAF Page 1", Button27
+'     PushButton 415, 365, 50, 15, "NEXT", next_btn
+'     PushButton 465, 365, 80, 15, "Complete Interview", finish_interview_btn
+'     PushButton 20, 290, 70, 15, "Spousal Support", ss_btn
+'     PushButton 20, 310, 70, 15, "Other", other_btn
+'     PushButton 385, 350, 95, 10, "Add RSDI Information", add_another_unea_btn
+'   Text 5, 115, 35, 10, "^^2 - ASK - "
+'   ButtonGroup ButtonPressed
+'     PushButton 20, 190, 70, 15, "UI", ui_btn
+'     PushButton 20, 270, 70, 15, "Child Support", cs_btn
+'   Text 5, 350, 320, 10, "^^3 - For any type applied for or received - Click the button on the left to gather additional details."
+'   Text 40, 115, 280, 10, "'Has anyone in the household applied for or receive any ..."
+'   ButtonGroup ButtonPressed
+'     PushButton 20, 210, 70, 15, "WC", wc_btn
+'     PushButton 20, 130, 70, 15, "RSDI", rsdi_btn
+'     PushButton 20, 230, 70, 15, "Retirement", ret_btn
+'     PushButton 20, 150, 70, 15, "SSI", ssi_btn
+'     PushButton 20, 250, 70, 15, "Tribal", tribal_btn
+' EndDialog
 
 ' Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
 ' Text 20, 25, 335, 20, "Q. 12. Has anyone in the household applied for or does anyone get any of the following types of income each month?"
@@ -3105,6 +3679,16 @@ call read_EATS_panel(all_hh_members_eat_w_applicant, members_unable_to_fix_food,
 
 For hh_memb = 0 to UBound(HH_MEMB_ARRAY, 1)
 	' MsgBox HH_MEMB_ARRAY(hh_memb).ref_number & vbNewLine & HH_MEMB_ARRAY(hh_memb).full_name
+	For each_income = 0 to UBound)UNEA_ARRAY, 1)
+		If UNEA_ARRAY(each_income).member_ref = HH_MEMB_ARRAY(hh_memb).ref_number Then
+			If UNEA_ARRAY(each_income).panel_name = "JOBS" Then HH_MEMB_ARRAY(hh_memb).clt_has_JOBS = TRUE
+			If UNEA_ARRAY(each_income).panel_name = "BUSI" Then HH_MEMB_ARRAY(hh_memb).clt_has_BUSI = TRUE
+			If UNEA_ARRAY(each_income).panel_name = "UNEA" Then
+				If UNEA_ARRAY(i).income_type_code = "08" OR UNEA_ARRAY(i).income_type_code = "36" OR UNEA_ARRAY(i).income_type_code = "39" OR UNEA_ARRAY(i).income_type_code = "43" OR UNEA_ARRAY(i).income_type_code = "45" Then HH_MEMB_ARRAY(hh_memb).clt_has_cs_income = TRUE
+				If UNEA_ARRAY(i).income_type_code = "35" OR UNEA_ARRAY(i).income_type_code = "37" OR UNEA_ARRAY(i).income_type_code = "40" Then HH_MEMB_ARRAY(hh_memb).clt_has_ss_income = TRUE
+			End If
+		End If
+	Next
 Next
 'Gather all of the household information
 
@@ -3136,126 +3720,9 @@ Do
 	Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = FALSE
 
-'Button Definitions
-caf_page_one_btn	= 1000
-caf_membs_btn		= 1001
-caf_q_1_2_btn		= 1002
-caf_q_3_btn			= 1003
-caf_q_4_btn 		= 1004
-caf_q_5_btn			= 1005
-caf_q_6_btn			= 1006
-caf_q_7_btn			= 1007
-caf_q_8_btn			= 1008
-caf_q_9_btn			= 1009
-caf_q_10_btn		= 1010
-caf_q_11_btn		= 1011
-caf_q_12_btn		= 1012
-caf_q_13_btn		= 1013
-caf_q_14_15_btn		= 1014
-caf_q_16_17_18_btn	= 1015
-caf_q_19_btn		= 1016
-caf_q_20_21_btn		= 1017
-caf_q_22_btn		= 1018
-caf_q_23_btn		= 1019
-caf_q_24_btn		= 1020
-caf_qual_q_btn		= 1021
-caf_last_page_btn	= 1022
-next_btn			= 1023
-finish_interview_btn= 1024
 
-client_verbal_changes_resi_address_btn	= 2000
-client_verbal_changes_mail_address_btn	= 2001
-caf_info_different_btn					= 2002
-client_verbal_changes_phone_numbers_btn	= 2003
-add_memb_to_list_btn					= 2004
-HH_memb_detail_review					= 2005
-add_relationship_btn					= 2006
-memb_info_change						= 2007
-next_memb_btn							= 2008
-hh_list_btn								= 2009
-update_groups_btn						= 2010
-search_district_btn						= 2011
-add_higher_ed_studen					= 2012
-add_ged_ell_student						= 2013
-add_another_absent_pers_btn				= 2014
-new_disa_btn							= 2015
-add_unable_tp_work_memb_btn				= 2016
-
-rsdi_btn 	= 3000
-ssi_btn		= 3001
-va_btn		= 3002
-ui_btn		= 3003
-wc_btn		= 3004
-ret_btn		= 3005
-tribal_btn	= 3006
-cs_btn		= 3007
-ss_btn		= 3008
-other_btn	= 3009
-main_btn	= 3010
-
-done_pg_one 	= FALSE
-done_pg_memb 	= FALSE
-done_q_1_2		= FALSE
-done_q_3		= FALSE
-done_q_4		= FALSE
-done_q_5		= FALSE
-done_q_6		= FALSE
-done_q_7		= FALSE
-done_q_8		= FALSE
-done_q_9		= FALSE
-done_q_10		= FALSE
-done_q_11		= FALSE
-done_q_12		= FALSE
-done_q_13		= FALSE
-done_q_14_15	= FALSE
-done_q_16_18	= FALSE
-done_q_19		= FALSE
-done_q_20_21 	= FALSE
-done_q_22		= FALSE
-done_q_23		= FALSE
-done_q_24		= FALSE
-done_qual		= FALSE
-done_pg_last	= FALSE
-
-
-page_display = 1
-show_pg_one 		= 1
-show_pg_memb_list 	= 2
-show_pg_memb_info 	= 3
-show_q_1_2			= 4
-show_q_3			= 5
-show_q_4			= 6
-show_q_5			= 7
-show_q_6			= 8
-show_q_7			= 9
-show_q_8			= 10
-show_q_9			= 11
-show_q_10			= 12
-show_q_11			= 13
-show_q_12			= 14
-show_q_13			= 15
-show_q_14_15		= 16
-show_q_16_18		= 17
-show_q_19			= 18
-show_q_20_21 		= 19
-show_q_22			= 20
-show_q_23			= 21
-show_q_24			= 22
-show_qual			= 23
-show_pg_last		= 24
-
-second_page_display = 11
-rsdi_unea	= 1
-ssi_unea	= 2
-va_unea		= 3
-ui_unea		= 4
-wc_unea		= 5
-ret_unea	= 6
-tribal_unea	= 7
-cs_unea		= 8
-ss_unea		= 9
-other_unea	= 10
-main_unea	= 11
+page_display = show_pg_one
+second_page_display = main_unea
 
 ButtonPressed = caf_page_one_btn
 leave_loop = FALSE
