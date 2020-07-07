@@ -199,7 +199,7 @@ Do
 
 	'Runs through each script in the array... if the user selected script instructions (via ButtonPressed) it'll open_URL_in_browser to those instructions
 	For i = 0 to ubound(script_array)
-		If ButtonPressed = script_array(i).SIR_instructions_button then call open_URL_in_browser(script_array(i).SIR_instructions_URL)
+		If ButtonPressed = script_array(i).SIR_instructions_button then call open_URL_in_browser(script_array(i).SharePoint_instructions_URL)
 	Next
 
 	'Runs through each script in the array... if the user selected the actual script (via ButtonPressed), it'll run_from_GitHub
