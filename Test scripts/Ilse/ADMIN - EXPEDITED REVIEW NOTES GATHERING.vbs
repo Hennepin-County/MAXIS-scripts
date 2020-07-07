@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("07/01/2020", "Phase two notes gathering from previous days' assignment updated.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("06/19/2020", "Updated code in prep for next phase", "Ilse Ferris, Hennepin County")
 CALL changelog_update("04/09/2020", "Initial version.", "Ilse Ferris, Hennepin County")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -76,16 +77,16 @@ const master_notes_const       = 1
     
 master_record = 0    'incrementer for the array 
 
-array_of_assigments = array("EXP Processing - Interview Completed","EXP Screening Required and PRIV","Pending Over 30 Days")
-'array_of_assigments = array("EXP Processing ","Pending Over 30 Days ")
+
+array_of_assigments = array("Expedited Review ","Pending Over 30 Days ")
 
 For each assignment in array_of_assigments
     assignment = replace(assignment, """","")
-    file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\Daily Assignments\" & assignment & ".xlsx"
-    'previous_date = dateadd("d", -1, date)
-    'Call change_date_to_soonest_working_day(previous_date)       'finds the most recent previous working day for the fin
-    'file_date = replace(previous_date, "/", "-")   'Changing the format of the date to use as file path selection default
-    'file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\" & assignment & file_date & ".xlsx"
+    
+    previous_date = dateadd("d", -1, date)
+    Call change_date_to_soonest_working_day(previous_date)       'finds the most recent previous working day for the file names
+    file_date = replace(previous_date, "/", "-")   'Changing the format of the date to use as file path selection default
+    file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\" & assignment & file_date & ".xlsx"
     
     If objExcel = "" Then Call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
     
