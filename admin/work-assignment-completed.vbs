@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/08/2020", "Added message reminding you to let the script work without trying to multitask. This can cause the script to error.", "Casey Love, Hennepin County")
 call changelog_update("06/01/2020", "Initial version.", "Casey Love, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -249,6 +250,8 @@ Select Case type_of_work_assignment                                             
             Call check_for_password(are_we_passworded_out)
         Loop until are_we_passworded_out = FALSE
 
+		leave_alone_msg = MsgBox("Thank you for providing all the detail." & vbNewLine & vbNewLine & "The script now needs to save all of the information, this can take a minute or two. The script needs to open Excel, Word, and send emails. This will work best if the script does not get interrupted." & vbNewLine & vbNewLine & "Do not touch the computer until the script finishes.", vbExclamation + vbSystemModal, "Let the Script Work Uninterrupted")
+
         If IsNumeric(assignment_minutes) = FALSE Then assignment_minutes = 0    'creating a time variable with ONLY minutes for the spreadsheet
         If IsNumeric(assignment_hours) = TRUE Then
             minutes_from_hours = assignment_hours * 60
@@ -396,6 +399,8 @@ Select Case type_of_work_assignment                                             
             Loop until err_msg = ""
             Call check_for_password(are_we_passworded_out)
         Loop until are_we_passworded_out = FALSE
+
+		leave_alone_msg = MsgBox("Thank you for providing all the detail." & vbNewLine & vbNewLine & "The script now needs to save all of the information, this can take a minute or two. The script needs to open Excel, Word, and send emails. This will work best if the script does not get interrupted." & vbNewLine & vbNewLine & "Do not touch the computer until the script finishes.", vbExclamation + vbSystemModal, "Let the Script Work Uninterrupted")
 
         If IsNumeric(assignment_minutes) = FALSE Then assignment_minutes = 0    'formatting the date
         If IsNumeric(assignment_hours) = TRUE Then                              'finding the time in minutes only for the spreadsheet
