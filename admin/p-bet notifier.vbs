@@ -5,7 +5,7 @@ STATS_counter = 1                          'sets the stats counter at one
 STATS_manualtime = 335                      'manual run time in seconds
 STATS_denomination = "C"       			   'C is for each CASE
 'END OF stats block==============================================================================================
-
+run_locally = TRUE
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
@@ -57,7 +57,7 @@ current_date = date
 Call ONLY_create_MAXIS_friendly_date(current_date)			'reformatting the dates to be MM/DD/YY format to measure against the case other_notes dates
 file_selection_path = ""
 
-'The dialog is defined in the loop as it can change as buttons are pressed 
+'The dialog is defined in the loop as it can change as buttons are pressed
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 221, 50, "Select the source file"
     ButtonGroup ButtonPressed
@@ -67,13 +67,13 @@ BeginDialog Dialog1, 0, 0, 221, 50, "Select the source file"
     EditBox 5, 10, 165, 15, file_selection_path
 EndDialog
 
-'dialog and dialog DO...Loop	
+'dialog and dialog DO...Loop
 Do
     'Initial Dialog to determine the excel file to use, column with case numbers, and which process should be run
     'Show initial dialog
     Do
         err_msg = ""
-    	Dialog Dialog1 
+    	Dialog Dialog1
     	cancel_without_confirmation
     	If ButtonPressed = select_a_file_button then call file_selection_system_dialog(file_selection_path, ".xlsx")
         If file_selection_path = "" then err_msg = err_msg & vbNewLine & "Use the Browse Button to select the file that has your client data"
@@ -91,8 +91,8 @@ BeginDialog Dialog1, 0, 0, 126, 50, "Select the excel row to start"
     CancelButton 65, 25, 50, 15
   Text 10, 10, 60, 10, "Excel row to start:"
 EndDialog
-do 
-    dialog Dialog1 
+do
+    dialog Dialog1
     cancel_without_confirmation
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
@@ -113,17 +113,17 @@ excel_row = excel_row_to_start 're-establishing the row to start checking the me
 entry_record = 0
 Do                                                            'Loops until there are no more cases in the Excel list
 	MAXIS_case_number = objExcel.cells(excel_row, 2).Value          're-establishing the case numbers for functions to use
-	'child_count = objExcel.cells(excel_row, 2).Value 
+	'child_count = objExcel.cells(excel_row, 2).Value
     If MAXIS_case_number = "" then exit do
 	MAXIS_case_number = trim(MAXIS_case_number)
-	    
+
 	'Adding client information to the array'
 	ReDim Preserve Cases_array(3, entry_record)	'This resizes the array based on the number of rows in the Excel File'
 	Cases_array (case_num, 	entry_record) = MAXIS_case_number		'The client information is added to the array'
     'Cases_array(child_count_const, entry_record) = trim(child_count)
-    Cases_array (send_memo, entry_record) = "" 
-	Cases_array (case_note, entry_record) = "" 
-    Cases_array (case_status, entry_record) = "" 
+    Cases_array (send_memo, entry_record) = ""
+	Cases_array (case_note, entry_record) = ""
+    Cases_array (case_status, entry_record) = ""
 
 	entry_record = entry_record + 1			'This increments to the next entry in the array'
 	Stats_counter = stats_counter + 1
@@ -136,10 +136,10 @@ EMWriteScreen CM_mo, 20, 43		'Writes in Current month
 EMWriteScreen CM_yr, 20, 46		'Writes in Current year
 
 For i = 0 to Ubound(Cases_array, 2)
-	'Establishing values for each case in the array of cases 
+	'Establishing values for each case in the array of cases
 	MAXIS_case_number	= Cases_array (case_num, i)
     'child_count         = Cases_array(child_count_const, i)
-    
+
     Call navigate_to_MAXIS_screen("SPEC", "MEMO")
     EMReadScreen PRIV_check, 4, 24, 14					'if case is a priv case then it gets added to priv case list
     If PRIV_check = "PRIV" then
@@ -155,21 +155,21 @@ For i = 0 to Ubound(Cases_array, 2)
         LOOP until SELF_screen_check = "SELF"
         EMWriteScreen "________", 18, 43		'clears the case number
         transmit
-    else 
+    else
         EMReadscreen county_code, 2, 20, 16 'coordinates at SPEC/MEMO
-        If county_code <> "27" then 
+        If county_code <> "27" then
             Cases_array(case_status, i) = "Not Hennepin County case: " & county_code	'Explanation for the rejected report
             Cases_array(send_memo, i) = False
             Cases_array(case_note, i) = False
         End if
-	End if 
-    
-    IF Cases_array(case_status, i) = "" then 
+	End if
+
+    IF Cases_array(case_status, i) = "" then
         Call MAXIS_background_check
         '----------------------------------------------------------------------------------------------------THE SPEC/MEMO
-        Call start_a_new_spec_memo            
+        Call start_a_new_spec_memo
         'Writes the MEMO.
-        
+
         Call write_variable_in_SPEC_MEMO("We have been made aware that your case has not received Pandemic (P)EBT benefits. If you have not already applied for your school-aged children, please go to this web address to apply for P-EBT: mn.p-ebt.org. This is an additional food benefit program in response to COVID-19.")
         Call write_variable_in_SPEC_MEMO("")
         Call write_variable_in_SPEC_MEMO("Complete the application by July 31, 2020.")
@@ -178,40 +178,40 @@ For i = 0 to Ubound(Cases_array, 2)
         'msgbox "Check MEMO"
         PF4			'Exits the MEMO
         EMReadScreen memo_sent, 8, 24, 2
-        If memo_sent <> "NEW MEMO" then 
+        If memo_sent <> "NEW MEMO" then
             Cases_array(case_status, i) = "Error"
             Cases_array(send_memo, i) = False	'Explanation for the rejected report'
             PF10
-        Else 
+        Else
             Cases_array(send_memo, i) = True 'Explanation for the rejected report'
-            make_case_note = True 
-        End if  
-        
+            make_case_note = True
+        End if
+
         back_to_self
-        
+
         '----------------------------------------------------------------------------------------------------THE CASE NOTE
-        If make_case_note = True then 
+        If make_case_note = True then
             start_a_blank_CASE_NOTE
-            Call write_variable_in_CASE_NOTE("*P-EBT Potnential Benefits Notice Sent*")
+            Call write_variable_in_CASE_NOTE("*P-EBT Potential Benefits Notice Sent*")
             Call write_variable_in_CASE_NOTE("--")
-            Call write_variable_in_CASE_NOTE("A SPEC/MEMO has been sent to for this case as DHS has identifed it as not getting P-EBT benefits automatically.") 
+            Call write_variable_in_CASE_NOTE("A SPEC/MEMO has been sent for this case as DHS has identifed it as not getting P-EBT benefits automatically.")
             'msgbox "check case note"
-            PF3 'ensuring that the case note saved. If not, adding it to the notes for the user to review. 
-            
+            PF3 'ensuring that the case note saved. If not, adding it to the notes for the user to review.
+
             EMReadScreen note_date, 8, 5, 6
-            If note_date <> current_date then 
-                Cases_array(case_note, i) = False 
-            Else 
-                Cases_array(case_note, i) = True 
-            End if 	
-        End if 
-    End if       
-      
-    ObjExcel.Cells(Excel_row, 3).Value = Cases_array(send_memo, i) 
-    ObjExcel.Cells(Excel_row, 4).Value = Cases_array(case_note,  i) 
+            If note_date <> current_date then
+                Cases_array(case_note, i) = False
+            Else
+                Cases_array(case_note, i) = True
+            End if
+        End if
+    End if
+
+    ObjExcel.Cells(Excel_row, 3).Value = Cases_array(send_memo, i)
+    ObjExcel.Cells(Excel_row, 4).Value = Cases_array(case_note,  i)
     ObjExcel.Cells(Excel_row, 5).Value = Cases_array(case_status,  i)
     Excel_row = Excel_row + 1
-Next 
-    
+Next
+
 Stats_counter = stats_counter + 1
 script_end_procedure("Success! The list is complete. Please review the cases that appear to be in error.")
