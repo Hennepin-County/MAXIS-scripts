@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/13/2020", "Updated following verbiage: 'client' changed to 'resident', 'worker' changed to 'team'.", "Ilse Ferris, Hennepin County")
 call changelog_update("05/28/2020", "Update to the notice wording, added virtual drop box information.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("12/29/2017", "Coordinates for sending MEMO's has changed in SPEC/MEMO. Updated script to support change.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
@@ -76,10 +77,10 @@ call start_a_new_spec_memo
 
 'Writes the info into the MEMO.
 Call write_variable_in_SPEC_MEMO("************************************************************")
-Call write_variable_in_SPEC_MEMO("You are turning 60 next month, so you may be eligible for a new deduction for SNAP. Clients who are over 60 years old may receive increased SNAP benefits if they have recurring medical bills over $35 each month.")
+Call write_variable_in_SPEC_MEMO("You are turning 60 next month, so you may be eligible for a new deduction for SNAP. Residents who are over 60 years old may receive increased SNAP benefits if they have recurring medical bills over $35 each month.")
 
-Call write_variable_in_SPEC_MEMO("If you have medical bills over $35 each month, please contact your worker to discuss adjusting your benefits. You will need to send in proof of the medical bills, such as pharmacy receipts, an explanation of benefits, or premium notices.")
-CALL write_variable_in_SPEC_MEMO("You now have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. To obtain information about your case please contact your worker. EMAIL: hhsews@hennepin.us ")
+Call write_variable_in_SPEC_MEMO("If you have medical bills over $35 each month, please contact your team to discuss adjusting your benefits. You will need to send in proof of the medical bills, such as pharmacy receipts, an explanation of benefits, or premium notices.")
+CALL write_variable_in_SPEC_MEMO("You now have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. To obtain information about your case please contact your team. EMAIL: hhsews@hennepin.us ")
 Call write_variable_in_SPEC_MEMO("************************************************************")
 PF4
 
@@ -88,6 +89,6 @@ PF9 'edit mode
 Call write_variable_in_case_note("MEMBER HAS TURNED 60 - NOTIFY ABOUT POSSIBLE FMED DEDUCTION")
 Call write_variable_in_case_note("* Sent MEMO to client about FMED deductions.")
 Call write_variable_in_case_note("---")
-Call write_variable_in_case_note(worker_signature & ", using automated script.")
+Call write_variable_in_case_note(worker_signature)
 
 script_end_procedure("The script has sent a MEMO to the client about the possible FMED deduction, and has case noted the action.")
