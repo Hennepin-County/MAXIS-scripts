@@ -104,6 +104,36 @@ DO
     worker_entered_cleared_status	    = objExcel.cells(excel_row, 13).value	'establishes cleared status for the match
     excel_date_contact_with_other_state = objExcel.cells(excel_row, 12).value	'establishes cleared status for the match
     excel_date_cleared					= objExcel.cells(excel_row, 14).value
+	excel_other_notes					= objExcel.cells(excel_row, 17).value
+
+'Conversion Table
+'A=1
+'B=2
+'C=3
+'D=4
+'E=5
+'F =6
+'G=7
+'H=8
+'I =9
+'J = 10
+'K = 11
+'L = 12
+'M = 13
+'N = 14
+'O = 15
+'P = 16
+'Q = 17
+'R = 18
+'S = 19
+'T = 20
+'U = 21
+'V = 22
+'W = 23
+'X = 24
+'Y = 25
+'Z = 26
+
 	'TODO other_notes so that workers can have a single note on a case
     'cleaned up
 	excel_state_match					= trim(excel_state_match) 'remove extra spaces'
@@ -113,8 +143,9 @@ DO
 	first_name 							= trim(first_name)
     excel_date_notice_sent 				= trim(excel_date_notice_sent)
     worker_entered_cleared_status 	  	= trim(worker_entered_cleared_status)
+	excel_date_cleared					= trim(excel_date_cleared)
+	excel_other_notes					= trim(excel_other_notes)
 
-    IF worker_entered_cleared_status <> "PR" or worker_entered_cleared_status <> "HM" or worker_entered_cleared_status <> "RV" or worker_entered_cleared_status <> "FR" or worker_entered_cleared_status <> "CC" THEN err_msg = err_msg & vbNewLine & "Please only use applicable codes when clearing a match."
     'UR Unresolved, System Entered Only
     'PR Person Removed From Household
     'HM Household Moved Out Of State
@@ -140,7 +171,7 @@ DO
 	    row = 6    'establishing 1st row to search
 	    Do
 		    EMReadScreen IEVS_message, 4, row, 6
-		    'msgbox IEVS_message & vbcr & select_match_type
+		    msgbox IEVS_message & vbcr & select_match_type
 		    If trim(IEVS_message) <> "PARI" then
 				match_found = FALSE
 				row = row + 1
@@ -153,30 +184,32 @@ DO
 						exit do
 					End if
 				Else
-					'msgbox "1." & MAXIS_case_number & vbcr & "new_case" & new_case & vbcr & "row: " & row & vbcr & "match found: " & match_found
+					msgbox "1." & MAXIS_case_number & vbcr & "new_case" & new_case & vbcr & "row: " & row & vbcr & "match found: " & match_found
 				End if
 				If row = 19 then
 					PF8
 					row = 6
 				End if
 		    Else
-		    	EMReadScreen client_social, 9, row, 20
-				'msgbox client_social & first_name & Client_SSN
+		    '	EMReadScreen client_social, 9, row, 20
+				match_found = true
+			'	msgbox client_social & vbcr & "row: " & row & vbcr & first_name & vbcr & "row: " & row & vbcr & Client_SSN
 
-		    	If client_social <> Client_SSN then
-		    		match_found = FALSE
-		    		row = row + 1
-					'msgbox "2." & MAXIS_case_number & vbcr & "row: " & row & vbcr & "match found: " & match_found
-		    	Else
-		    		match_found = true
-					'msgbox "3." & MAXIS_case_number & vbcr & "row: " & row & vbcr & "match found: " & match_found
-		    		exit do
-		    	End if
+		    '    If client_social <> Client_SSN then
+		    '    	match_found = FALSE
+		    '    	row = row + 1
+			'    	msgbox "2." & MAXIS_case_number & vbcr & "row: " & row & vbcr & "match found: " & match_found
+		    '    Else
+		    '    	match_found = true
+			'    	msgbox "3." & MAXIS_case_number & vbcr & "row: " & row & vbcr & "match found: " & match_found
+		    '    	exit do
+		    '    End if
 		    End if
 		Loop until match_found = true or row = 19
 		If match_found = FALSE then
 			case_note_actions = FALSE 'no case note'
-			objExcel.cells(excel_row, 17).value = "A match wasn't found on DAIL/DAIL or SSN did not match."
+			objExcel.cells(excel_row, 17).value = "A match wasn't found on DAIL/DAIL."
+			MsgBox "LINE 212"
 		End if
 	End if
 
@@ -185,17 +218,20 @@ DO
 	    'Navigating deeper into the match interface
 	    CALL write_value_and_transmit("I", row, 3)   'navigates to INFC
 	    CALL write_value_and_transmit("INTM", 20, 71)   'navigates to IEVP
-     	EMReadScreen error_msg, 7, 24, 2
-		If error_msg = "NO IEVS" then 'checking for error msg'
-			objExcel.cells(excel_row, 17).value = "No matches found for SSN " & Client_SSN & "/Could not access INTM."
-			case_note_actions = FALSE
+     	EMReadScreen error_msg, 75, 24, 2
+		error_msg = trim(error_msg)
+		IF error_msg <> "" then 'checking for error msg'
+				objExcel.cells(excel_row, 17).value = error_msg
+				case_note_actions = false
+				MsgBox "LINE 226"
+				EXIT DO
 		Else
 			row = 8
 		    'Ensuring that match has not already been resolved.
 		    Do
 				EMReadScreen INTM_match_status, 2, row, 73 'DO loop to check status of case before we go into insm'
 		    	INTM_match_status = trim(INTM_match_status)
-				'msgbox INTM_match_status
+				msgbox INTM_match_status & " LINE 234"
 				EMReadScreen INTM_period, 5, row, 59
 		    	If INTM_match_status = "" THEN
 					objExcel.cells(excel_row, 17).value = "No pending match found. Please review INTM."
@@ -225,16 +261,17 @@ DO
 			    If trim(notice_sent_date) <> "" then notice_sent_date= replace(notice_sent_date, " ", "/")
 			END IF
 			If notice_sent = "Y" THEN
-				objExcel.cells(excel_row, 17).value = "Notice Sent"
+				objExcel.cells(excel_row, 17).value = "Notice Sent previously"
 				objExcel.cells(excel_row, 11).value = notice_sent_date
 				case_note_actions = FALSE
-				EXIT DO
+				MsgBox "LINE 267 REMOVED EXIT"				'EXIT DO
 			END IF
 			'--------------------------------------------------------------------Client name
 			EmReadScreen panel_name, 4, 02, 55
 			IF panel_name <> "INSM" THEN
 				objExcel.cells(excel_row, 17).value = "Script did not find INSM"
-				EXIT DO
+				'EXIT DO
+				MsgBox "LINE 274"
 			ELSE'----------------------------------------------------------------------Minnesota active programs
 			    EMReadScreen MN_MN_active_programs, 15, 6, 59
 			    MN_active_programs = Trim(MN_active_programs)
@@ -279,7 +316,7 @@ DO
 
 					'-------------------------------------------------------------------trims excess spaces of match_programs
 					match_programs = "" 'sometimes blanking over information will clear the value of the variable'
-					'match_row = row           'establishing match row the same as the current state row. Needs another variables since we are only incrementing the match row in the loop. Row needs to stay the same for larger loop/next state.
+					match_row = row           'establishing match row the same as the current state row. Needs another variables since we are only incrementing the match row in the loop. Row needs to stay the same for larger loop/next state.
 					DO
 						EMReadScreen match_state_active_programs, 22, row, 60
 						match_state_active_programs = TRIM(match_state_active_programs)
@@ -336,7 +373,8 @@ DO
 			LOOP UNTIL last_page_check = "THIS IS THE LAST PAGE"
 
 			IF notice_sent = "N" and worker_entered_cleared_status = "" and case_note_actions = TRUE THEN 'sending the notice
-			    PF9	'edit mode'
+
+				PF9	'edit mode'
 				MsgBox "we want to send a notice"
 			    EMReadScreen edit_error, 2, 24, 2
 			    edit_error = trim (edit_error)
@@ -355,7 +393,7 @@ DO
 				CALL write_variable_in_CASE_NOTE("-----Match State: " & excel_state_match & "-----")
 			    ' CALL write_bullet_and_variable_in_CASE_NOTE("Match State Active Programs", match_programs)
 			    ' CALL write_bullet_and_variable_in_CASE_NOTE("Match State Contact Info", match_state_contact_info )
-				CALL write_variable_in_CASE_NOTE("* Match states listed in INFC:"
+				CALL write_variable_in_CASE_NOTE("* Match states listed in INFC:")
 				IF match_state_cnote_one <> "" Then CALL write_variable_in_CASE_NOTE(match_state_cnote_one)
 				IF match_state_cnote_two <> "" Then CALL write_variable_in_CASE_NOTE(match_state_cnote_two)
 				IF match_state_cnote_three <> "" Then CALL write_variable_in_CASE_NOTE(match_state_cnote_three)
@@ -379,22 +417,22 @@ DO
 				objExcel.cells(excel_row, 11).value = DATE
 
 			ELSEif worker_entered_cleared_status <> "" THEN
-				msgbox "We want to clear"
+				msgbox "We want to clear: " & worker_entered_cleared_status
+				IF worker_entered_cleared_status <> "PR" or worker_entered_cleared_status <> "HM" or worker_entered_cleared_status <> "RV" or worker_entered_cleared_status <> "FR" or worker_entered_cleared_status <> "CC" THEN
+					objExcel.cells(excel_row, 17).value = "Unable to clear " & worker_entered_cleared_status
+					objExcel.cells(excel_row, 14).value = "Error"
+					'EXIT DO
+					MsgBox "LINE 425"
+				END IF
 
 			    Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days
-			    'requested for HEADER of casenote'
-
-				'IF worker_entered_cleared_status = "PR" THEN rez_status = "PR-Person Removed From Household"
-				'IF worker_entered_cleared_status = "HM" THEN rez_status = "HM-Household Moved Out Of State"
-				'IF worker_entered_cleared_status = "RV" THEN rez_status = "RV-Residency Verified, Person in MN"
-				'IF worker_entered_cleared_status = "FR" THEN rez_status = "FR-Failed Residency Verification Request"
-				'IF worker_entered_cleared_status = "PC" THEN rez_status = "PC-Person Closed, Not PARIS Interstate"
-				'--------------------------------'still need to be on PARIS Interstate Match Display (INSM)'
 				PF9
 				EMwritescreen worker_entered_cleared_status, 9, 27
-				IF fraud_referral_excel = "YES" THEN
+				IF worker_entered_cleared_status = "FR" THEN
+					fraud_referral = TRUE
 					EMwritescreen "Y", 10, 27
-					ELSE
+				ELSE
+					fraud_referral = FALSE
 					TRANSMIT
 				END IF
 				MsgBox "did we clear?"
@@ -408,7 +446,7 @@ DO
 				Call write_bullet_and_variable_in_case_note("Discovery date", contact_other_state)
 				Call write_bullet_and_variable_in_case_note("Period", INTM_period)
 				CALL write_variable_in_CASE_NOTE("-----Match State: " & excel_state_match & "-----")
-				CALL write_variable_in_CASE_NOTE("* Match states listed in INFC:"
+				CALL write_variable_in_CASE_NOTE("* Match states listed in INFC:")
 				IF match_state_cnote_one <> "" Then CALL write_variable_in_CASE_NOTE(match_state_cnote_one)
 				IF match_state_cnote_two <> "" Then CALL write_variable_in_CASE_NOTE(match_state_cnote_two)
 				IF match_state_cnote_three <> "" Then CALL write_variable_in_CASE_NOTE(match_state_cnote_three)
@@ -419,12 +457,12 @@ DO
 			    CALL write_variable_in_CASE_NOTE ("-----")
 			    'CALL write_bullet_and_variable_in_CASE_NOTE("Client accessing benefits in other state", bene_other_state)
 			    CALL write_bullet_and_variable_in_CASE_NOTE("Contacted other state", excel_date_contact_with_other_state)
-			    'CALL write_bullet_and_variable_in_CASE_NOTE("Verification used to clear", pending_verifs)
-			    'CALL write_bullet_and_variable_in_CASE_NOTE("Resolution Status", resolution_status)
-				'IF worker_entered_cleared_status = "FR" THEN
-					'CALL write_variable_in_CASE_NOTE("Client has failed to cooperate with Paris Match - has not provided requested verifications showing they are living in MN. Client will need to provide this before the case is reopened ")
-				'END IF
-				'CALL write_bullet_and_variable_in_case_note("Fraud referral made", fraud_referral)
+			    CALL write_bullet_and_variable_in_CASE_NOTE("Verification used to clear", pending_verifs)
+			    'CALL write_bullet_and_variable_in_CASE_NOTE("Resolution Status", resolution_status)'
+				IF worker_entered_cleared_status = "FR" THEN
+					CALL write_variable_in_CASE_NOTE("Client has failed to cooperate with Paris Match - has not provided requested verifications showing they are living in MN. Client will need to provide this before the case is reopened ")
+				END IF
+				CALL write_bullet_and_variable_in_case_note("Fraud referral made", fraud_referral)
 			    CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
 			    CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
 			    CALL write_variable_in_CASE_NOTE ("DEBT ESTABLISHMENT UNIT 612-348-4290 EXT 1-1-1")
@@ -434,7 +472,7 @@ DO
 		END IF
 		END IF
 	END IF
-	excel_row = excel_row + 1
+
 
 	excel_state_match					= ""
 	MAXIS_case_number 					= ""
@@ -444,23 +482,16 @@ DO
 	worker_entered_cleared_status	    = ""
 	excel_date_contact_with_other_state = ""
 	excel_date_cleared					= ""
+	excel_date_cleared					= ""
+	excel_other_notes					= ""
+excel_row = excel_row + 1
 
 LOOP UNTIL objExcel.Cells(excel_row, 1).value = ""	'looping until the list of cases to check for recert is complete\
 'Centers the text for the columns with days remaining and difference notice
 
-objExcel.Columns(1).HorizontalAlignment = -4131
-objExcel.Columns(2).HorizontalAlignment = -4131
-objExcel.Columns(3).HorizontalAlignment = -4131
-objExcel.Columns(4).HorizontalAlignment = -4131
-objExcel.Columns(5).HorizontalAlignment = -4131
-objExcel.Columns(6).HorizontalAlignment = -4131
-objExcel.Columns(7).HorizontalAlignment = -4131
-objExcel.Columns(8).HorizontalAlignment = -4131
 
 'Formatting the column width.
-FOR i = 1 to 10
-	objExcel.Columns(i).AutoFit()
-NEXT
+
 'add pf3 at the end of the run and error handling for blank cleared status'
 STATS_counter = STATS_counter - 1		'removes 1 to correct the count
 script_end_procedure_with_error_report("Success! The IEVS match cases have now been updated. Please review the NOTES section to review the cases/follow up work to be completed.")
