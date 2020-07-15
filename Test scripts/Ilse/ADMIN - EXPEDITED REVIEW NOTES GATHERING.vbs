@@ -153,6 +153,9 @@ For each excel_sheet in array_of_sheets
     LOOP
 Next 
     
+objWorkbook.Save()  'saves the previous days' notes and closes Excel. 
+objExcel.Quit
+    
 'logging usage stats
 STATS_counter = STATS_counter - 1  'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
 script_end_procedure("Success, the script run is complete! Count of notes = " & master_record)
