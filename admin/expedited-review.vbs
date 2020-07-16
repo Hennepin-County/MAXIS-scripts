@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("07/16/2020", "Full phase 2 updates complete including pulling in notes from previous working day's assignments.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("06/19/2020", "Updated for phase 2 of Exp SNAP project including emailing Triage group for assignment.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("05/19/2020", "Updated to create assignments based on the current phase of the project.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("03/31/2020", "Removed email funtionality when report is finished running.", "Ilse Ferris, Hennepin County")
@@ -98,6 +99,99 @@ EMConnect ""
 MAXIS_footer_month = CM_mo
 MAXIS_footer_year = CM_yr 
 
+'----------------------------------------------------------------------------------------------------Gathering previous working days' assignment notes
+'Establshing array     
+DIM master_notes_array()          'Declaring the array
+ReDim master_notes_array(2, 0)    'Resizing the array 
+    
+'Creating constants to value the array elements
+const master_CN_const   = 0  
+const master_note_const = 1
+    
+master_note_record = 0    'incrementer for the array 
+
+array_of_assigments = array("Expedited Review ","Pending Over 30 Days ")
+
+For each assignment in array_of_assigments
+    assignment = replace(assignment, """","")
+    
+    previous_date = dateadd("d", -1, date)
+    Call change_date_to_soonest_working_day(previous_date)       'finds the most recent previous working day for the file names
+    file_date = replace(previous_date, "/", "-")   'Changing the format of the date to use as file path selection default
+    file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\" & assignment & file_date & ".xlsx"
+    
+    If objExcel = "" Then Call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
+    
+    excel_row = 2
+    Do 
+        case_number = ObjExcel.Cells(excel_row, 2).Value 'reading case number
+        case_number = trim(case_number)
+        If case_number = "" then exit do 
+        
+        master_CN = ObjExcel.Cells(excel_row, 8).Value       'reading worker entered notes       
+    
+        If trim(master_CN) <> "" then 
+            ReDim Preserve master_notes_array(2,  master_note_record)	'This resizes the array based on if master notes were found or not
+            master_notes_array(master_CN_const,   master_note_record) = case_number
+            master_notes_array(master_note_const, master_note_record) = trim(master_CN)
+            
+            master_note_record = master_note_record + 1			'This increments to the next entry in the array'
+            STATS_counter = STATS_counter + 1           'stats incrementor 
+        End if 
+        excel_row = excel_row + 1                       'Excel row incrementor
+    LOOP
+        
+    'Closing workbook and quiting Excel application
+    objExcel.ActiveWorkbook.Close                           
+    objExcel.Application.Quit
+    objExcel.Quit
+    objExcel = ""
+Next     
+
+'Finding and opening the previous day's file. 
+previous_date = dateadd("d", -1, date)
+Call change_date_to_soonest_working_day(previous_date)       'finds the most recent previous working day for the fin
+file_date = replace(previous_date, "/", "-")   'Changing the format of the date to use as file path selection default
+previous_file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\" & file_date & ".xlsx"
+
+If objExcel = "" Then Call excel_open(previous_file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
+
+For Each objWorkSheet In objWorkbook.Worksheets 'Creating an array of worksheets that are not the intitial report - "Report 1"
+    If instr(objWorkSheet.Name, "Sheet") = 0 and objWorkSheet.Name <> "Report 1" then sheet_list = sheet_list & objWorkSheet.Name & ","
+Next
+    
+sheet_list = trim(sheet_list)  'trims excess spaces of sheet_list
+If right(sheet_list, 1) = "," THEN sheet_list = left(sheet_list, len(sheet_list) - 1) 'trimming off last comma
+array_of_sheets = split(sheet_list, ",")   'Creating new array
+    
+For each excel_sheet in array_of_sheets
+    objExcel.worksheets(excel_sheet).Activate 'Activates the applicable worksheet 
+    excel_row = 2
+    
+    Do 
+        MAXIS_case_number = ObjExcel.Cells(excel_row, 2).Value  'reading case number
+        MAXIS_case_number = trim(MAXIS_case_number)
+        If MAXIS_case_number = "" then exit do 
+            
+        For i = 0 to Ubound(master_notes_array, 2)                                                            'If notes were selected to be added, array is looped thru for matching case number
+            master_CN = master_notes_array(master_CN_const, i)
+            If master_CN = MAXIS_case_number then 
+                ObjExcel.Cells(excel_row, 8).Value = master_notes_array(master_notes_const, i)   'If case number is found, prevoius list notes are added to the array 
+                exit for 
+            End if      
+        Next 
+          
+        excel_row = excel_row + 1                       'Excel row incrementor
+    LOOP
+Next 
+
+objWorkbook.Save()  'saves the previous days' notes and closes Excel. 
+objExcel.ActiveWorkbook.Close                           
+objExcel.Application.Quit
+objExcel.Quit
+objExcel = ""
+
+''----------------------------------------------------------------------------------------------------The current days' assignment 
 report_date = replace(date, "/", "-")   'Changing the format of the date to use as file path selection default
 file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\" & report_date & ".xlsx"
 
@@ -133,6 +227,7 @@ previous_file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality I
 
 If objExcel = "" Then Call excel_open(previous_file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
 
+sheet_list = ""
 For Each objWorkSheet In objWorkbook.Worksheets 'Creating an array of worksheets that are not the intitial report - "Report 1"
     If instr(objWorkSheet.Name, "Sheet") = 0 and objWorkSheet.Name <> "Report 1" then sheet_list = sheet_list & objWorkSheet.Name & ","
 Next
