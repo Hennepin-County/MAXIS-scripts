@@ -718,14 +718,18 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                     Memo_to_display = Memo_to_display & vbNewLine & ""
                     Memo_to_display = Memo_to_display & vbNewLine & "* Kiiskaaga " & programs & " wuxuu xirmi doonaa " & last_day_of_recert & " haddii *"
                     Memo_to_display = Memo_to_display & vbNewLine & "* aynan helin waraaqahaaga iyo dhamaystirka wareysiga. *"
-                    Memo_to_display = Memo_to_display & vbNewLine & "Haddii aad rabto inaad samaysato ballan wareysi, wac 612-596-1300. Waxa kale oo aad iman kartaa mid ka mid ah lixda xafiis ee hoos ku qoran si loo sameeyo wareysi gof ahaaneed inta u dhexeeya 8 ilaa 4:30, Isniinta ilaa jmcaha."
-                    Memo_to_display = Memo_to_display & vbNewLine & "- 7051 Brooklyn Blvd Brooklyn Center 55429"
-                    Memo_to_display = Memo_to_display & vbNewLine & "- 1011 1st St S Hopkins 55343"
-                    Memo_to_display = Memo_to_display & vbNewLine & "- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 "
-                    Memo_to_display = Memo_to_display & vbNewLine & "- 1001 Plymouth Ave N Minneapolis 55411"
-                    Memo_to_display = Memo_to_display & vbNewLine & "- 525 Portland Ave S Minneapolis 55415"
-                    Memo_to_display = Memo_to_display & vbNewLine & "- 2215 East Lake Street Minneapolis 55407"
-                    Memo_to_display = Memo_to_display & vbNewLine & "(Saacaduhu waa Isniinta - Jimcaha 8-4:30 haddii aan si kale loo sheegin.)"
+					'removal of in person verbiage during the COVID-19 PEACETIME STATE OF EMERGENCY
+                    ' Memo_to_display = Memo_to_display & vbNewLine & "Haddii aad rabto inaad samaysato ballan wareysi, wac 612-596-1300. Waxa kale oo aad iman kartaa mid ka mid ah lixda xafiis ee hoos ku qoran si loo sameeyo wareysi gof ahaaneed inta u dhexeeya 8 ilaa 4:30, Isniinta ilaa jmcaha."
+                    ' Memo_to_display = Memo_to_display & vbNewLine & "- 7051 Brooklyn Blvd Brooklyn Center 55429"
+                    ' Memo_to_display = Memo_to_display & vbNewLine & "- 1011 1st St S Hopkins 55343"
+                    ' Memo_to_display = Memo_to_display & vbNewLine & "- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 "
+                    ' Memo_to_display = Memo_to_display & vbNewLine & "- 1001 Plymouth Ave N Minneapolis 55411"
+                    ' Memo_to_display = Memo_to_display & vbNewLine & "- 525 Portland Ave S Minneapolis 55415"
+                    ' Memo_to_display = Memo_to_display & vbNewLine & "- 2215 East Lake Street Minneapolis 55407"
+                    ' Memo_to_display = Memo_to_display & vbNewLine & "(Saacaduhu waa Isniinta - Jimcaha 8-4:30 haddii aan si kale loo sheegin.)"
+					Memo_to_display = Memo_to_display & vbNewLine & ""
+					Memo_to_display = Memo_to_display & vbNewLine & "You now have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. To obtain information about your case please contact your worker. EMAIL: hhsews@hennepin.us "
+					Memo_to_display = Memo_to_display & vbNewLine & ""
                     Memo_to_display = Memo_to_display & vbNewLine & "Qoraallada rabshadaha qoysaska waxaad ka heli kartaa https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG. Waxaad kaloo codsan kartaa qoraalkan oo warqad ah."
 
                 Case "01"   'Spanish (3rd)
@@ -741,15 +745,18 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                     Memo_to_display = Memo_to_display & vbNewLine & ""
                     Memo_to_display = Memo_to_display & vbNewLine & "**Su caso " & programs & " será cerrado el " & day_first_last_recert & " a menos que recibamos sus papeles y realice la entrevista**"
                     Memo_to_display = Memo_to_display & vbNewLine & ""
-                    Memo_to_display = Memo_to_display & vbNewLine & "Si desea programar una entrevista, llame al 612-596-1300."
-                    Memo_to_display = Memo_to_display & vbNewLine & "También puede acercarse a cualquiera de las seis oficinas mencionadas debajo para tener una entrevista personal entre las 8 y las 4:30 de lunes a viernes."
-                    Memo_to_display = Memo_to_display & vbNewLine & "- 7051 Brooklyn Blvd Brooklyn Center 55429"
-                    Memo_to_display = Memo_to_display & vbNewLine & "- 1011 1st St S Hopkins 55343"
-                    Memo_to_display = Memo_to_display & vbNewLine & "- 9600 Aldrich Ave S Bloomington 55420 J h.: 8:30-6:30 "
-                    Memo_to_display = Memo_to_display & vbNewLine & "- 1001 Plymouth Ave N Minneapolis 55411"
-                    Memo_to_display = Memo_to_display & vbNewLine & "- 525 Portland Ave S Minneapolis 55415"
-                    Memo_to_display = Memo_to_display & vbNewLine & "- 2215 East Lake Street Minneapolis 55407"
-                    Memo_to_display = Memo_to_display & vbNewLine & "(Los horarios son de lunes a viernes de 8 a 4:30 a menos   que se remarque lo contrario)"
+					'removal of in person verbiage during the COVID-19 PEACETIME STATE OF EMERGENCY
+                    ' Memo_to_display = Memo_to_display & vbNewLine & "Si desea programar una entrevista, llame al 612-596-1300."
+                    ' Memo_to_display = Memo_to_display & vbNewLine & "También puede acercarse a cualquiera de las seis oficinas mencionadas debajo para tener una entrevista personal entre las 8 y las 4:30 de lunes a viernes."
+                    ' Memo_to_display = Memo_to_display & vbNewLine & "- 7051 Brooklyn Blvd Brooklyn Center 55429"
+                    ' Memo_to_display = Memo_to_display & vbNewLine & "- 1011 1st St S Hopkins 55343"
+                    ' Memo_to_display = Memo_to_display & vbNewLine & "- 9600 Aldrich Ave S Bloomington 55420 J h.: 8:30-6:30 "
+                    ' Memo_to_display = Memo_to_display & vbNewLine & "- 1001 Plymouth Ave N Minneapolis 55411"
+                    ' Memo_to_display = Memo_to_display & vbNewLine & "- 525 Portland Ave S Minneapolis 55415"
+                    ' Memo_to_display = Memo_to_display & vbNewLine & "- 2215 East Lake Street Minneapolis 55407"
+                    ' Memo_to_display = Memo_to_display & vbNewLine & "(Los horarios son de lunes a viernes de 8 a 4:30 a menos   que se remarque lo contrario)"
+					Memo_to_display = Memo_to_display & vbNewLine & ""
+					Memo_to_display = Memo_to_display & vbNewLine & "You now have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. To obtain information about your case please contact your worker. EMAIL: hhsews@hennepin.us "
                     Memo_to_display = Memo_to_display & vbNewLine & ""
                     Memo_to_display = Memo_to_display & vbNewLine & "Los folletos de violencia doméstica están disponibles en"
                     Memo_to_display = Memo_to_display & vbNewLine & "https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG."
@@ -764,14 +771,17 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                     Memo_to_display = Memo_to_display & vbNewLine & "** Koj cov kev pab " & programs & " yuav muab kaw thaum     **"
                     Memo_to_display = Memo_to_display & vbNewLine & "** " & last_day_of_recert & " tsis li mas peb yuav tsum tau txais koj cov**"
                     Memo_to_display = Memo_to_display & vbNewLine & "**      ntaub ntawvthiab koj txoj kev xam phaj.          **"
-                    Memo_to_display = Memo_to_display & vbNewLine & "  Yog hais tias koj xav teem tuaj xam phaj, hu 612-596-1300 Koj kuj tuaj tau rau ib lub ntawm rau lub hoob kas nyob hauv qab no tuaj xam phaj tim ntej muag thaum 8 thiab 4:30, hnub Monday txog Friday."
-                    Memo_to_display = Memo_to_display & vbNewLine & "- 7051 Brooklyn Blvd Brooklyn Center 55429"
-                    Memo_to_display = Memo_to_display & vbNewLine & "- 1011 1st St S Hopkins 55343"
-                    Memo_to_display = Memo_to_display & vbNewLine & "- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 "
-                    Memo_to_display = Memo_to_display & vbNewLine & "- 1001 Plymouth Ave N Minneapolis 55411"
-                    Memo_to_display = Memo_to_display & vbNewLine & "- 525 Portland Ave S Minneapolis 55415"
-                    Memo_to_display = Memo_to_display & vbNewLine & "- 2215 East Lake Street Minneapolis 55407"
-                    Memo_to_display = Memo_to_display & vbNewLine & " (Cov sij hawm qhib yog M - F 8-4:30 tsis li mas yuav tsum qhia ua ntej)"
+					'removal of in person verbiage during the COVID-19 PEACETIME STATE OF EMERGENCY
+                    ' Memo_to_display = Memo_to_display & vbNewLine & "  Yog hais tias koj xav teem tuaj xam phaj, hu 612-596-1300 Koj kuj tuaj tau rau ib lub ntawm rau lub hoob kas nyob hauv qab no tuaj xam phaj tim ntej muag thaum 8 thiab 4:30, hnub Monday txog Friday."
+                    ' Memo_to_display = Memo_to_display & vbNewLine & "- 7051 Brooklyn Blvd Brooklyn Center 55429"
+                    ' Memo_to_display = Memo_to_display & vbNewLine & "- 1011 1st St S Hopkins 55343"
+                    ' Memo_to_display = Memo_to_display & vbNewLine & "- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 "
+                    ' Memo_to_display = Memo_to_display & vbNewLine & "- 1001 Plymouth Ave N Minneapolis 55411"
+                    ' Memo_to_display = Memo_to_display & vbNewLine & "- 525 Portland Ave S Minneapolis 55415"
+                    ' Memo_to_display = Memo_to_display & vbNewLine & "- 2215 East Lake Street Minneapolis 55407"
+                    ' Memo_to_display = Memo_to_display & vbNewLine & " (Cov sij hawm qhib yog M - F 8-4:30 tsis li mas yuav tsum qhia ua ntej)"
+					Memo_to_display = Memo_to_display & vbNewLine & ""
+					Memo_to_display = Memo_to_display & vbNewLine & "You now have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. To obtain information about your case please contact your worker. EMAIL: hhsews@hennepin.us "
                     Memo_to_display = Memo_to_display & vbNewLine & ""
                     Memo_to_display = Memo_to_display & vbNewLine & "Cov ntaub ntawv qhia txog kev raug tsim txom los ntawm cov txheeb ze kuj muaj nyob rau ntawm"
                     Memo_to_display = Memo_to_display & vbNewLine & "https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG."
@@ -816,14 +826,17 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                     Memo_to_display = Memo_to_display & vbNewLine & "**  Your " & programs & " case will close on " & last_day_of_recert & " unless    **"
                     Memo_to_display = Memo_to_display & vbNewLine & "** we receive your paperwork and complete the interview. **"
                     Memo_to_display = Memo_to_display & vbNewLine & ""
-                    Memo_to_display = Memo_to_display & vbNewLine & "If you wish to schedule an interview, call 612-596-1300. You may also come to any of the six offices below for an in-person interview between 8 and 4:30, Monday thru Friday."
-                    Memo_to_display = Memo_to_display & vbNewLine & "- 7051 Brooklyn Blvd Brooklyn Center 55429"
-                    Memo_to_display = Memo_to_display & vbNewLine & "- 1011 1st St S Hopkins 55343"
-                    Memo_to_display = Memo_to_display & vbNewLine & "- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 "
-                    Memo_to_display = Memo_to_display & vbNewLine & "- 1001 Plymouth Ave N Minneapolis 55411"
-                    Memo_to_display = Memo_to_display & vbNewLine & "- 525 Portland Ave S Minneapolis 55415"
-                    Memo_to_display = Memo_to_display & vbNewLine & "- 2215 East Lake Street Minneapolis 55407"
-                    Memo_to_display = Memo_to_display & vbNewLine & "(Hours are M - F 8-4:30 unless otherwise noted)"
+					'removal of in person verbiage during the COVID-19 PEACETIME STATE OF EMERGENCY
+                    ' Memo_to_display = Memo_to_display & vbNewLine & "If you wish to schedule an interview, call 612-596-1300. You may also come to any of the six offices below for an in-person interview between 8 and 4:30, Monday thru Friday."
+                    ' Memo_to_display = Memo_to_display & vbNewLine & "- 7051 Brooklyn Blvd Brooklyn Center 55429"
+                    ' Memo_to_display = Memo_to_display & vbNewLine & "- 1011 1st St S Hopkins 55343"
+                    ' Memo_to_display = Memo_to_display & vbNewLine & "- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 "
+                    ' Memo_to_display = Memo_to_display & vbNewLine & "- 1001 Plymouth Ave N Minneapolis 55411"
+                    ' Memo_to_display = Memo_to_display & vbNewLine & "- 525 Portland Ave S Minneapolis 55415"
+                    ' Memo_to_display = Memo_to_display & vbNewLine & "- 2215 East Lake Street Minneapolis 55407"
+                    ' Memo_to_display = Memo_to_display & vbNewLine & "(Hours are M - F 8-4:30 unless otherwise noted)"
+					' Memo_to_display = Memo_to_display & vbNewLine & ""
+					Memo_to_display = Memo_to_display & vbNewLine & "You now have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. To obtain information about your case please contact your worker. EMAIL: hhsews@hennepin.us "
                     Memo_to_display = Memo_to_display & vbNewLine & " "
                     Memo_to_display = Memo_to_display & vbNewLine & "Domestic violence brochures are available at this website: https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG. You can also request a paper copy."
 
@@ -872,14 +885,17 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                             'CALL write_variable_in_SPEC_MEMO("")
                             CALL write_variable_in_SPEC_MEMO("* Kiiskaaga " & programs & " wuxuu xirmi doonaa " & last_day_of_recert & " haddii *")
                             CALL write_variable_in_SPEC_MEMO("* aynan helin waraaqahaaga iyo dhamaystirka wareysiga. *")
-                            CALL write_variable_in_SPEC_MEMO("Haddii aad rabto inaad samaysato ballan wareysi, wac 612-596-1300. Waxa kale oo aad iman kartaa mid ka mid ah lixda xafiis ee hoos ku qoran si loo sameeyo wareysi gof ahaaneed inta u dhexeeya 8 ilaa 4:30, Isniinta ilaa jmcaha.")
-                            Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
-                            Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
-                            Call write_variable_in_SPEC_MEMO("- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 ")
-                            Call write_variable_in_SPEC_MEMO("- 1001 Plymouth Ave N Minneapolis 55411")
-                            Call write_variable_in_SPEC_MEMO("- 525 Portland Ave S Minneapolis 55415")
-                            Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
-                            CALL write_variable_in_SPEC_MEMO("(Saacaduhu waa Isniinta - Jimcaha 8-4:30 haddii aan si kale loo sheegin.)")
+							'removal of in person verbiage during the COVID-19 PEACETIME STATE OF EMERGENCY
+                            ' CALL write_variable_in_SPEC_MEMO("Haddii aad rabto inaad samaysato ballan wareysi, wac 612-596-1300. Waxa kale oo aad iman kartaa mid ka mid ah lixda xafiis ee hoos ku qoran si loo sameeyo wareysi gof ahaaneed inta u dhexeeya 8 ilaa 4:30, Isniinta ilaa jmcaha.")
+                            ' Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
+                            ' Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
+                            ' Call write_variable_in_SPEC_MEMO("- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 ")
+                            ' Call write_variable_in_SPEC_MEMO("- 1001 Plymouth Ave N Minneapolis 55411")
+                            ' Call write_variable_in_SPEC_MEMO("- 525 Portland Ave S Minneapolis 55415")
+                            ' Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
+                            ' CALL write_variable_in_SPEC_MEMO("(Saacaduhu waa Isniinta - Jimcaha 8-4:30 haddii aan si kale loo sheegin.)")
+							CALL write_variable_in_SPEC_MEMO("You now have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. To obtain information about your case please contact your worker. EMAIL: hhsews@hennepin.us ")
+							Call write_variable_in_SPEC_MEMO(" ")
                             CALL write_variable_in_SPEC_MEMO("Qoraallada rabshadaha qoysaska waxaad ka heli kartaa https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG. Waxaad kaloo codsan kartaa qoraalkan oo warqad ah.")
 
                         Case "01"   'Spanish (3rd)
@@ -894,16 +910,19 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                             CALL write_variable_in_SPEC_MEMO("Para completar una entrevista telefonica, llame a la linea de informacion EZ al 612-596-1300 entre las 9 am y las 4 pm de lunes a viernes.")
                             CALL write_variable_in_SPEC_MEMO("**Su caso " & programs & " sera cerrado el " & day_first_last_recert & " a menos que recibamos sus papeles y realice la entrevista**")
                             CALL write_variable_in_SPEC_MEMO("")
-                            CALL write_variable_in_SPEC_MEMO("Si desea programar una entrevista, llame al 612-596-1300.")
-                            CALL write_variable_in_SPEC_MEMO("Tambien puede acercarse a cualquiera de las seis oficinas mencionadas debajo para tener una entrevista personal entre las 8 y las 4:30 de lunes a viernes.")
-                            Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
-                            Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
-                            Call write_variable_in_SPEC_MEMO("- 9600 Aldrich Ave S Bloomington 55420 J h.: 8:30-6:30 ")
-                            Call write_variable_in_SPEC_MEMO("- 1001 Plymouth Ave N Minneapolis 55411")
-                            Call write_variable_in_SPEC_MEMO("- 525 Portland Ave S Minneapolis 55415")
-                            Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
-                            CALL write_variable_in_SPEC_MEMO("(Los horarios son de lunes a viernes de 8 a 4:30 a menos   que se remarque lo contrario)")
-                            CALL write_variable_in_SPEC_MEMO("")
+							'removal of in person verbiage during the COVID-19 PEACETIME STATE OF EMERGENCY
+                            ' CALL write_variable_in_SPEC_MEMO("Si desea programar una entrevista, llame al 612-596-1300.")
+                            ' CALL write_variable_in_SPEC_MEMO("Tambien puede acercarse a cualquiera de las seis oficinas mencionadas debajo para tener una entrevista personal entre las 8 y las 4:30 de lunes a viernes.")
+                            ' Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
+                            ' Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
+                            ' Call write_variable_in_SPEC_MEMO("- 9600 Aldrich Ave S Bloomington 55420 J h.: 8:30-6:30 ")
+                            ' Call write_variable_in_SPEC_MEMO("- 1001 Plymouth Ave N Minneapolis 55411")
+                            ' Call write_variable_in_SPEC_MEMO("- 525 Portland Ave S Minneapolis 55415")
+                            ' Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
+                            ' CALL write_variable_in_SPEC_MEMO("(Los horarios son de lunes a viernes de 8 a 4:30 a menos   que se remarque lo contrario)")
+                            ' CALL write_variable_in_SPEC_MEMO("")
+							CALL write_variable_in_SPEC_MEMO("You now have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. To obtain information about your case please contact your worker. EMAIL: hhsews@hennepin.us ")
+							Call write_variable_in_SPEC_MEMO(" ")
                             CALL write_variable_in_SPEC_MEMO("Los folletos de violencia domestica estan disponibles en")
                             CALL write_variable_in_SPEC_MEMO("https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG.")
                             CALL write_variable_in_SPEC_MEMO("Tambien puede solicitar una copia en papel.")
@@ -918,15 +937,18 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                             CALL write_variable_in_SPEC_MEMO("**    Koj cov kev pab " & programs & " yuav muab kaw thaum     **")
                             CALL write_variable_in_SPEC_MEMO("** " & last_day_of_recert & " tsis li mas peb yuav tsum tau txais koj cov **")
                             CALL write_variable_in_SPEC_MEMO("**      ntaub ntawvthiab koj txoj kev xam phaj.         **")
-                            CALL write_variable_in_SPEC_MEMO("  Yog hais tias koj xav teem tuaj xam phaj, hu 612-596-1300 Koj kuj tuaj tau rau ib lub ntawm rau lub hoob kas nyob hauv qab no tuaj xam phaj tim ntej muag thaum 8 thiab 4:30, hnub Monday txog Friday.")
-                            Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
-                            Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
-                            Call write_variable_in_SPEC_MEMO("- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 ")
-                            Call write_variable_in_SPEC_MEMO("- 1001 Plymouth Ave N Minneapolis 55411")
-                            Call write_variable_in_SPEC_MEMO("- 525 Portland Ave S Minneapolis 55415")
-                            Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
-                            CALL write_variable_in_SPEC_MEMO(" (Cov sij hawm qhib yog M - F 8-4:30 tsis li mas yuav tsum qhia ua ntej)")
+							'removal of in person verbiage during the COVID-19 PEACETIME STATE OF EMERGENCY
+                            ' CALL write_variable_in_SPEC_MEMO("  Yog hais tias koj xav teem tuaj xam phaj, hu 612-596-1300 Koj kuj tuaj tau rau ib lub ntawm rau lub hoob kas nyob hauv qab no tuaj xam phaj tim ntej muag thaum 8 thiab 4:30, hnub Monday txog Friday.")
+                            ' Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
+                            ' Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
+                            ' Call write_variable_in_SPEC_MEMO("- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 ")
+                            ' Call write_variable_in_SPEC_MEMO("- 1001 Plymouth Ave N Minneapolis 55411")
+                            ' Call write_variable_in_SPEC_MEMO("- 525 Portland Ave S Minneapolis 55415")
+                            ' Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
+                            ' CALL write_variable_in_SPEC_MEMO(" (Cov sij hawm qhib yog M - F 8-4:30 tsis li mas yuav tsum qhia ua ntej)")
                             CALL write_variable_in_SPEC_MEMO("")
+							CALL write_variable_in_SPEC_MEMO("You now have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. To obtain information about your case please contact your worker. EMAIL: hhsews@hennepin.us ")
+							Call write_variable_in_SPEC_MEMO(" ")
                             CALL write_variable_in_SPEC_MEMO("Cov ntaub ntawv qhia txog kev raug tsim txom los ntawm cov txheeb ze kuj muaj nyob rau ntawm")
                             CALL write_variable_in_SPEC_MEMO("https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG.")
                             CALL write_variable_in_SPEC_MEMO("Koj kuj thov tau ib qauv thiab.")
@@ -970,15 +992,18 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                             CALL write_variable_in_SPEC_MEMO("**  Your " & programs & " case will close on " & last_day_of_recert & " unless    **")
                             CALL write_variable_in_SPEC_MEMO("** we receive your paperwork and complete the interview. **")
                             CALL write_variable_in_SPEC_MEMO("")
-                            Call write_variable_in_SPEC_MEMO("If you wish to schedule an interview, call 612-596-1300. You may also come to any of the six offices below for an in-person interview between 8 and 4:30, Monday thru Friday.")
-                            Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
-                            Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
-                            Call write_variable_in_SPEC_MEMO("- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 ")
-                            Call write_variable_in_SPEC_MEMO("- 1001 Plymouth Ave N Minneapolis 55411")
-                            Call write_variable_in_SPEC_MEMO("- 525 Portland Ave S Minneapolis 55415")
-                            Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
-                            Call write_variable_in_SPEC_MEMO("(Hours are M - F 8-4:30 unless otherwise noted)")
-                            Call write_variable_in_SPEC_MEMO(" ")
+							'removal of in person verbiage during the COVID-19 PEACETIME STATE OF EMERGENCY
+                            ' Call write_variable_in_SPEC_MEMO("If you wish to schedule an interview, call 612-596-1300. You may also come to any of the six offices below for an in-person interview between 8 and 4:30, Monday thru Friday.")
+                            ' Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
+                            ' Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
+                            ' Call write_variable_in_SPEC_MEMO("- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 ")
+                            ' Call write_variable_in_SPEC_MEMO("- 1001 Plymouth Ave N Minneapolis 55411")
+                            ' Call write_variable_in_SPEC_MEMO("- 525 Portland Ave S Minneapolis 55415")
+                            ' Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
+							' Call write_variable_in_SPEC_MEMO("(Hours are M - F 8-4:30 unless otherwise noted)")
+							' Call write_variable_in_SPEC_MEMO(" ")
+							CALL write_variable_in_SPEC_MEMO("You now have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. To obtain information about your case please contact your worker. EMAIL: hhsews@hennepin.us ")
+							Call write_variable_in_SPEC_MEMO(" ")
                             CALL write_variable_in_SPEC_MEMO("Domestic violence brochures are available at this website: https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG. You can also request a paper copy.")
 
                     End Select
@@ -1030,6 +1055,7 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                             CALL write_variable_in_SPEC_MEMO("  wax isbeddelay): wargadda daawada dhaktarka iyo biilal")
                             CALL write_variable_in_SPEC_MEMO("  caafimaad, iwm.")
                             CALL write_variable_in_SPEC_MEMO("")
+							CALL write_variable_in_SPEC_MEMO("You now have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. To obtain information about your case please contact your worker. EMAIL: hhsews@hennepin.us ")
                             CALL write_variable_in_SPEC_MEMO("Haddii aad qabto su'aalo ku saabsan nooca xaqiijinta loo baahan yahay, wac 612-596-1300 qof ayaa ku caawin doona.")
 
                         Case "01"   'Spanish (3rd)
@@ -1049,6 +1075,7 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                             CALL write_variable_in_SPEC_MEMO("* Ejemplos de pruebas de gastos medicos (si cambio):")
                             CALL write_variable_in_SPEC_MEMO("  prescripciones y cuentas medicas, etc.")
                             CALL write_variable_in_SPEC_MEMO("")
+							CALL write_variable_in_SPEC_MEMO("You now have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. To obtain information about your case please contact your worker. EMAIL: hhsews@hennepin.us ")
                             CALL write_variable_in_SPEC_MEMO("Si tiene preguntas sobre el tipo de verificacion necesaria, llame al 612-596-1300 y alguien lo/la asistira.")
                         Case "02"   'Hmong (4th)
                             'MsgBox "HMONG"
@@ -1070,6 +1097,7 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                             CALL write_variable_in_SPEC_MEMO("  hloov lawm): Ntawv yuav tshuaj thiab nqi kho mob, lwm")
                             CALL write_variable_in_SPEC_MEMO("  yam.")
                             CALL write_variable_in_SPEC_MEMO("")
+							CALL write_variable_in_SPEC_MEMO("You now have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. To obtain information about your case please contact your worker. EMAIL: hhsews@hennepin.us ")
                             CALL write_variable_in_SPEC_MEMO("Yog hais tias koj muaj lus nug txog cov yuav tsum muaj cov pov thaqwj twg, hu 612-596-1300 ces neeg mam los pab koj.")
                         '
                         ' Case "06"   'Russian (5th)
@@ -1110,6 +1138,7 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                             CALL write_variable_in_SPEC_MEMO(" * Examples of medical cost proofs(if changed):")
                             CALL write_variable_in_SPEC_MEMO("   prescription and medical bills, etc.")
                             CALL write_variable_in_SPEC_MEMO("")
+							CALL write_variable_in_SPEC_MEMO("You now have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. To obtain information about your case please contact your worker. EMAIL: hhsews@hennepin.us ")
                             CALL write_variable_in_SPEC_MEMO("If you have questions about the type of verifications needed, call 612-596-1300 and someone will assist you.")
 
                         End Select
@@ -1157,14 +1186,17 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                             Memo_to_display = Memo_to_display & vbNewLine & ""
                             Memo_to_display = Memo_to_display & vbNewLine & "Si aad u dhamaystirto wareysiga telefoonka, wac laynka taleefanka EZ 612-596-1300 inta u dhaxaysa 9:00 subaxnimo ilaa 4:00 galabnimo Isniinta ilaa Jimcaha."
                             Memo_to_display = Memo_to_display & vbNewLine & ""
-                            Memo_to_display = Memo_to_display & vbNewLine & "Haddii aad rabto inaad samaysato ballan wareysi, wac 612-596-1300. Waxa kale oo aad iman kartaa mid ka mid ah lixda xafiis ee hoos ku qoran si loo sameeyo wareysi gof ahaaneed inta u dhexeeya 8 ilaa 4:30, Isniinta ilaa jmcaha."
-                            Memo_to_display = Memo_to_display & vbNewLine & "- 7051 Brooklyn Blvd Brooklyn Center 55429"
-                            Memo_to_display = Memo_to_display & vbNewLine & "- 1011 1st St S Hopkins 55343"
-                            Memo_to_display = Memo_to_display & vbNewLine & "- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 "
-                            Memo_to_display = Memo_to_display & vbNewLine & "- 1001 Plymouth Ave N Minneapolis 55411"
-                            Memo_to_display = Memo_to_display & vbNewLine & "- 525 Portland Ave S Minneapolis 55415"
-                            Memo_to_display = Memo_to_display & vbNewLine & "- 2215 East Lake Street Minneapolis 55407"
-                            Memo_to_display = Memo_to_display & vbNewLine & "(Saacaduhu waa Isniinta - Jimcaha 8-4:30 haddii aan si kale loo sheegin.)"
+							'removal of in person verbiage during the COVID-19 PEACETIME STATE OF EMERGENCY
+                            ' Memo_to_display = Memo_to_display & vbNewLine & "Haddii aad rabto inaad samaysato ballan wareysi, wac 612-596-1300. Waxa kale oo aad iman kartaa mid ka mid ah lixda xafiis ee hoos ku qoran si loo sameeyo wareysi gof ahaaneed inta u dhexeeya 8 ilaa 4:30, Isniinta ilaa jmcaha."
+                            ' Memo_to_display = Memo_to_display & vbNewLine & "- 7051 Brooklyn Blvd Brooklyn Center 55429"
+                            ' Memo_to_display = Memo_to_display & vbNewLine & "- 1011 1st St S Hopkins 55343"
+                            ' Memo_to_display = Memo_to_display & vbNewLine & "- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 "
+                            ' Memo_to_display = Memo_to_display & vbNewLine & "- 1001 Plymouth Ave N Minneapolis 55411"
+                            ' Memo_to_display = Memo_to_display & vbNewLine & "- 525 Portland Ave S Minneapolis 55415"
+                            ' Memo_to_display = Memo_to_display & vbNewLine & "- 2215 East Lake Street Minneapolis 55407"
+                            ' Memo_to_display = Memo_to_display & vbNewLine & "(Saacaduhu waa Isniinta - Jimcaha 8-4:30 haddii aan si kale loo sheegin.)"
+							Memo_to_display = Memo_to_display & vbNewLine & ""
+							Memo_to_display = Memo_to_display & vbNewLine & "You now have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. To obtain information about your case please contact your worker. EMAIL: hhsews@hennepin.us "
                             Memo_to_display = Memo_to_display & vbNewLine & ""
                             Memo_to_display = Memo_to_display & vbNewLine & "* Haddii aynaan war kaa helin inta ka horreysa " & last_day_of_recert & " *"
                             Memo_to_display = Memo_to_display & vbNewLine & "*   Macaawinada aad hesho waxay instaageysaa " & last_day_of_recert & ". *"
@@ -1181,15 +1213,18 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                             Memo_to_display = Memo_to_display & vbNewLine & ""
                             Memo_to_display = Memo_to_display & vbNewLine & "Para completar una entrevista telefónica, llame a la línea de información EZ al 612-596-1300 entre las 9 am y las 4 pm de lunes a viernes."
                             Memo_to_display = Memo_to_display & vbNewLine & ""
-                            Memo_to_display = Memo_to_display & vbNewLine & "Si desea programar una entrevista, llame al 612-596-1300."
-                            Memo_to_display = Memo_to_display & vbNewLine & "También puede acercarse a cualquiera de las seis oficinas mencionadas debajo para tener una entrevista personal entre las 8 y las 4:30 de lunes a viernes."
-                            Memo_to_display = Memo_to_display & vbNewLine & "- 7051 Brooklyn Blvd Brooklyn Center 55429"
-                            Memo_to_display = Memo_to_display & vbNewLine & "- 1011 1st St S Hopkins 55343"
-                            Memo_to_display = Memo_to_display & vbNewLine & "- 9600 Aldrich Ave S Bloomington 55420 J h.: 8:30-6:30 "
-                            Memo_to_display = Memo_to_display & vbNewLine & "- 1001 Plymouth Ave N Minneapolis 55411"
-                            Memo_to_display = Memo_to_display & vbNewLine & "- 525 Portland Ave S Minneapolis 55415"
-                            Memo_to_display = Memo_to_display & vbNewLine & "- 2215 East Lake Street Minneapolis 55407"
-                            Memo_to_display = Memo_to_display & vbNewLine & "(Los horarios son de lunes a viernes de 8 a 4:30 a menos   que se remarque lo contrario)"
+							'removal of in person verbiage during the COVID-19 PEACETIME STATE OF EMERGENCY
+                            ' Memo_to_display = Memo_to_display & vbNewLine & "Si desea programar una entrevista, llame al 612-596-1300."
+                            ' Memo_to_display = Memo_to_display & vbNewLine & "También puede acercarse a cualquiera de las seis oficinas mencionadas debajo para tener una entrevista personal entre las 8 y las 4:30 de lunes a viernes."
+                            ' Memo_to_display = Memo_to_display & vbNewLine & "- 7051 Brooklyn Blvd Brooklyn Center 55429"
+                            ' Memo_to_display = Memo_to_display & vbNewLine & "- 1011 1st St S Hopkins 55343"
+                            ' Memo_to_display = Memo_to_display & vbNewLine & "- 9600 Aldrich Ave S Bloomington 55420 J h.: 8:30-6:30 "
+                            ' Memo_to_display = Memo_to_display & vbNewLine & "- 1001 Plymouth Ave N Minneapolis 55411"
+                            ' Memo_to_display = Memo_to_display & vbNewLine & "- 525 Portland Ave S Minneapolis 55415"
+                            ' Memo_to_display = Memo_to_display & vbNewLine & "- 2215 East Lake Street Minneapolis 55407"
+                            ' Memo_to_display = Memo_to_display & vbNewLine & "(Los horarios son de lunes a viernes de 8 a 4:30 a menos   que se remarque lo contrario)"
+							Memo_to_display = Memo_to_display & vbNewLine & ""
+							Memo_to_display = Memo_to_display & vbNewLine & "You now have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. To obtain information about your case please contact your worker. EMAIL: hhsews@hennepin.us "
                             Memo_to_display = Memo_to_display & vbNewLine & ""
                             Memo_to_display = Memo_to_display & vbNewLine & "**Si no tenemos novedades suyas para el " & day_first_last_recert & ", sus beneficios se terminarán el " & day_first_last_recert & "**"
 
@@ -1201,14 +1236,17 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                             Memo_to_display = Memo_to_display & vbNewLine & "Koj yuav tsum mus xam pphaj ua ntej " & last_day_of_recert & " los yog yuav txiav koj cov kev pab."
                             Memo_to_display = Memo_to_display & vbNewLine & ""
                             Memo_to_display = Memo_to_display & vbNewLine & "Yog xam phaj hauv xov tooj, hu rau EZ Info Line ntawm 612-596-1300 thaum 9:00am thib 4:00pm hnub Monday txog Friday."
-                            Memo_to_display = Memo_to_display & vbNewLine & "  Yog hais tias koj xav teem tuaj xam phaj, hu 612-596-1300 Koj kuj tuaj tau rau ib lub ntawm rau lub hoob kas nyob hauv qab no tuaj xam phaj tim ntej muag thaum 8 thiab 4:30, hnub Monday txog Friday."
-                            Memo_to_display = Memo_to_display & vbNewLine & "- 7051 Brooklyn Blvd Brooklyn Center 55429"
-                            Memo_to_display = Memo_to_display & vbNewLine & "- 1011 1st St S Hopkins 55343"
-                            Memo_to_display = Memo_to_display & vbNewLine & "- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 "
-                            Memo_to_display = Memo_to_display & vbNewLine & "- 1001 Plymouth Ave N Minneapolis 55411"
-                            Memo_to_display = Memo_to_display & vbNewLine & "- 525 Portland Ave S Minneapolis 55415"
-                            Memo_to_display = Memo_to_display & vbNewLine & "- 2215 East Lake Street Minneapolis 55407"
-                            Memo_to_display = Memo_to_display & vbNewLine & " (Cov sij hawm qhib yog M - F 8-4:30 tsis li mas yuav tsum qhia ua ntej)"
+							'removal of in person verbiage during the COVID-19 PEACETIME STATE OF EMERGENCY
+                            ' Memo_to_display = Memo_to_display & vbNewLine & "  Yog hais tias koj xav teem tuaj xam phaj, hu 612-596-1300 Koj kuj tuaj tau rau ib lub ntawm rau lub hoob kas nyob hauv qab no tuaj xam phaj tim ntej muag thaum 8 thiab 4:30, hnub Monday txog Friday."
+                            ' Memo_to_display = Memo_to_display & vbNewLine & "- 7051 Brooklyn Blvd Brooklyn Center 55429"
+                            ' Memo_to_display = Memo_to_display & vbNewLine & "- 1011 1st St S Hopkins 55343"
+                            ' Memo_to_display = Memo_to_display & vbNewLine & "- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 "
+                            ' Memo_to_display = Memo_to_display & vbNewLine & "- 1001 Plymouth Ave N Minneapolis 55411"
+                            ' Memo_to_display = Memo_to_display & vbNewLine & "- 525 Portland Ave S Minneapolis 55415"
+                            ' Memo_to_display = Memo_to_display & vbNewLine & "- 2215 East Lake Street Minneapolis 55407"
+                            ' Memo_to_display = Memo_to_display & vbNewLine & " (Cov sij hawm qhib yog M - F 8-4:30 tsis li mas yuav tsum qhia ua ntej)"
+							Memo_to_display = Memo_to_display & vbNewLine & ""
+							Memo_to_display = Memo_to_display & vbNewLine & "You now have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. To obtain information about your case please contact your worker. EMAIL: hhsews@hennepin.us "
                             Memo_to_display = Memo_to_display & vbNewLine & ""
                             Memo_to_display = Memo_to_display & vbNewLine & "** Yog hais tias tsis hnov koj teb ua ntej " & last_day_of_recert & "  **"
                             Memo_to_display = Memo_to_display & vbNewLine & "**   koj cov kev pab yuav raug kaw thaum " & last_day_of_recert & ".   **"
@@ -1247,14 +1285,17 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                             Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "To complete a phone interview, call the EZ Info Line at"
                             Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "612-596-1300 between 9:00am and 4:00pm Monday thru Friday."
                             Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & ""
-                            Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "If you wish to schedule an interview, call 612-596-1300. You may also come to any of the six offices below for an in-person interview between 8 and 4:30, Monday thru Friday."
-                            Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "- 7051 Brooklyn Blvd Brooklyn Center 55429"
-                            Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "- 1011 1st St S Hopkins 55343"
-                            Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 "
-                            Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "- 1001 Plymouth Ave N Minneapolis 55411"
-                            Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "- 525 Portland Ave S Minneapolis 55415"
-                            Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "- 2215 East Lake Street Minneapolis 55407"
-                            Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "(Hours are M - F 8-4:30 unless otherwise noted)"
+							'removal of in person verbiage during the COVID-19 PEACETIME STATE OF EMERGENCY
+                            ' Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "If you wish to schedule an interview, call 612-596-1300. You may also come to any of the six offices below for an in-person interview between 8 and 4:30, Monday thru Friday."
+                            ' Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "- 7051 Brooklyn Blvd Brooklyn Center 55429"
+                            ' Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "- 1011 1st St S Hopkins 55343"
+                            ' Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 "
+                            ' Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "- 1001 Plymouth Ave N Minneapolis 55411"
+                            ' Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "- 525 Portland Ave S Minneapolis 55415"
+                            ' Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "- 2215 East Lake Street Minneapolis 55407"
+                            ' Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "(Hours are M - F 8-4:30 unless otherwise noted)"
+							Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & ""
+							Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "You now have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. To obtain information about your case please contact your worker. EMAIL: hhsews@hennepin.us "
                             Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & ""
                             Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "  ** If we do not hear from you by " & last_day_of_recert & "  **"
                             Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "  **   your benefits will end on " & last_day_of_recert & ".   **"
@@ -1296,15 +1337,18 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                                     CALL write_variable_in_SPEC_MEMO("")
                                     CALL write_variable_in_SPEC_MEMO("Si aad u dhamaystirto wareysiga telefoonka, wac laynka taleefanka EZ 612-596-1300 inta u dhaxaysa 9:00 subaxnimo ilaa 4:00 galabnimo Isniinta ilaa Jimcaha.")
                                     CALL write_variable_in_SPEC_MEMO("")
-                                    CALL write_variable_in_SPEC_MEMO("Haddii aad rabto inaad samaysato ballan wareysi, wac 612-596-1300. Waxa kale oo aad iman kartaa mid ka mid ah lixda xafiis ee hoos ku qoran si loo sameeyo wareysi gof ahaaneed inta u dhexeeya 8 ilaa 4:30, Isniinta ilaa jmcaha.")
-                                    Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
-                                    Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
-                                    Call write_variable_in_SPEC_MEMO("- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 ")
-                                    Call write_variable_in_SPEC_MEMO("- 1001 Plymouth Ave N Minneapolis 55411")
-                                    Call write_variable_in_SPEC_MEMO("- 525 Portland Ave S Minneapolis 55415")
-                                    Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
-                                    CALL write_variable_in_SPEC_MEMO("(Saacaduhu waa Isniinta - Jimcaha 8-4:30 haddii aan si kale loo sheegin.)")
-                                    CALL write_variable_in_SPEC_MEMO("")
+									'removal of in person verbiage during the COVID-19 PEACETIME STATE OF EMERGENCY
+                                    ' CALL write_variable_in_SPEC_MEMO("Haddii aad rabto inaad samaysato ballan wareysi, wac 612-596-1300. Waxa kale oo aad iman kartaa mid ka mid ah lixda xafiis ee hoos ku qoran si loo sameeyo wareysi gof ahaaneed inta u dhexeeya 8 ilaa 4:30, Isniinta ilaa jmcaha.")
+                                    ' Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
+                                    ' Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
+                                    ' Call write_variable_in_SPEC_MEMO("- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 ")
+                                    ' Call write_variable_in_SPEC_MEMO("- 1001 Plymouth Ave N Minneapolis 55411")
+                                    ' Call write_variable_in_SPEC_MEMO("- 525 Portland Ave S Minneapolis 55415")
+                                    ' Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
+                                    ' CALL write_variable_in_SPEC_MEMO("(Saacaduhu waa Isniinta - Jimcaha 8-4:30 haddii aan si kale loo sheegin.)")
+									' CALL write_variable_in_SPEC_MEMO("")
+									CALL write_variable_in_SPEC_MEMO("You now have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. To obtain information about your case please contact your worker. EMAIL: hhsews@hennepin.us ")
+									Call write_variable_in_SPEC_MEMO(" ")
                                     CALL write_variable_in_SPEC_MEMO("* Haddii aynaan war kaa helin inta ka horreysa " & last_day_of_recert & " *")
                                     CALL write_variable_in_SPEC_MEMO("*   Macaawinada aad hesho waxay instaageysaa " & last_day_of_recert & ".  *")
 
@@ -1320,16 +1364,19 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                                     CALL write_variable_in_SPEC_MEMO("")
                                     CALL write_variable_in_SPEC_MEMO("Para completar una entrevista telefonica, llame a la linea de informacion EZ al 612-596-1300 entre las 9 am y las 4 pm de lunes a viernes.")
                                     CALL write_variable_in_SPEC_MEMO("")
-                                    CALL write_variable_in_SPEC_MEMO("Si desea programar una entrevista, llame al 612-596-1300.")
-                                    CALL write_variable_in_SPEC_MEMO("Tambien puede acercarse a cualquiera de las seis oficinas mencionadas debajo para tener una entrevista personal entre las 8 y las 4:30 de lunes a viernes.")
-                                    Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
-                                    Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
-                                    Call write_variable_in_SPEC_MEMO("- 9600 Aldrich Ave S Bloomington 55420 J h.: 8:30-6:30 ")
-                                    Call write_variable_in_SPEC_MEMO("- 1001 Plymouth Ave N Minneapolis 55411")
-                                    Call write_variable_in_SPEC_MEMO("- 525 Portland Ave S Minneapolis 55415")
-                                    Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
-                                    CALL write_variable_in_SPEC_MEMO("(Los horarios son de lunes a viernes de 8 a 4:30 a menos   que se remarque lo contrario)")
-                                    CALL write_variable_in_SPEC_MEMO("")
+									'removal of in person verbiage during the COVID-19 PEACETIME STATE OF EMERGENCY
+                                    ' CALL write_variable_in_SPEC_MEMO("Si desea programar una entrevista, llame al 612-596-1300.")
+                                    ' CALL write_variable_in_SPEC_MEMO("Tambien puede acercarse a cualquiera de las seis oficinas mencionadas debajo para tener una entrevista personal entre las 8 y las 4:30 de lunes a viernes.")
+                                    ' Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
+                                    ' Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
+                                    ' Call write_variable_in_SPEC_MEMO("- 9600 Aldrich Ave S Bloomington 55420 J h.: 8:30-6:30 ")
+                                    ' Call write_variable_in_SPEC_MEMO("- 1001 Plymouth Ave N Minneapolis 55411")
+                                    ' Call write_variable_in_SPEC_MEMO("- 525 Portland Ave S Minneapolis 55415")
+                                    ' Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
+                                    ' CALL write_variable_in_SPEC_MEMO("(Los horarios son de lunes a viernes de 8 a 4:30 a menos   que se remarque lo contrario)")
+                                    ' CALL write_variable_in_SPEC_MEMO("")
+									CALL write_variable_in_SPEC_MEMO("You now have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. To obtain information about your case please contact your worker. EMAIL: hhsews@hennepin.us ")
+									Call write_variable_in_SPEC_MEMO(" ")
                                     CALL write_variable_in_SPEC_MEMO("**Si no tenemos novedades suyas para el " & day_first_last_recert & ", sus beneficios se terminaran el " & day_first_last_recert & "**")
 
                                 Case "02"   'Hmong (4th)
@@ -1340,15 +1387,18 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                                     CALL write_variable_in_SPEC_MEMO("Koj yuav tsum mus xam pphaj ua ntej " & last_day_of_recert & " los yog yuav txiav koj cov kev pab.")
                                     CALL write_variable_in_SPEC_MEMO("")
                                     CALL write_variable_in_SPEC_MEMO("Yog xam phaj hauv xov tooj, hu rau EZ Info Line ntawm 612-596-1300 thaum 9:00am thib 4:00pm hnub Monday txog Friday.")
-                                    CALL write_variable_in_SPEC_MEMO("  Yog hais tias koj xav teem tuaj xam phaj, hu 612-596-1300 Koj kuj tuaj tau rau ib lub ntawm rau lub hoob kas nyob hauv qab no tuaj xam phaj tim ntej muag thaum 8 thiab 4:30, hnub Monday txog Friday.")
-                                    Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
-                                    Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
-                                    Call write_variable_in_SPEC_MEMO("- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 ")
-                                    Call write_variable_in_SPEC_MEMO("- 1001 Plymouth Ave N Minneapolis 55411")
-                                    Call write_variable_in_SPEC_MEMO("- 525 Portland Ave S Minneapolis 55415")
-                                    Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
-                                    CALL write_variable_in_SPEC_MEMO(" (Cov sij hawm qhib yog M - F 8-4:30 tsis li mas yuav tsum qhia ua ntej)")
+									'removal of in person verbiage during the COVID-19 PEACETIME STATE OF EMERGENCY
+                                    ' CALL write_variable_in_SPEC_MEMO("  Yog hais tias koj xav teem tuaj xam phaj, hu 612-596-1300 Koj kuj tuaj tau rau ib lub ntawm rau lub hoob kas nyob hauv qab no tuaj xam phaj tim ntej muag thaum 8 thiab 4:30, hnub Monday txog Friday.")
+                                    ' Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
+                                    ' Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
+                                    ' Call write_variable_in_SPEC_MEMO("- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 ")
+                                    ' Call write_variable_in_SPEC_MEMO("- 1001 Plymouth Ave N Minneapolis 55411")
+                                    ' Call write_variable_in_SPEC_MEMO("- 525 Portland Ave S Minneapolis 55415")
+                                    ' Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
+                                    ' CALL write_variable_in_SPEC_MEMO(" (Cov sij hawm qhib yog M - F 8-4:30 tsis li mas yuav tsum qhia ua ntej)")
                                     CALL write_variable_in_SPEC_MEMO("")
+									CALL write_variable_in_SPEC_MEMO("You now have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. To obtain information about your case please contact your worker. EMAIL: hhsews@hennepin.us ")
+									Call write_variable_in_SPEC_MEMO(" ")
                                     CALL write_variable_in_SPEC_MEMO("** Yog hais tias tsis hnov koj teb ua ntej " & last_day_of_recert & "  **")
                                     CALL write_variable_in_SPEC_MEMO("**   koj cov kev pab yuav raug kaw thaum " & last_day_of_recert & ".   **")
 
@@ -1387,14 +1437,16 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                                     Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at")
                                     Call write_variable_in_SPEC_MEMO("612-596-1300 between 9:00am and 4:00pm Monday thru Friday.")
                                     CALL write_variable_in_SPEC_MEMO("")
-                                    Call write_variable_in_SPEC_MEMO("If you wish to schedule an interview, call 612-596-1300. You may also come to any of the six offices below for an in-person interview between 8 and 4:30, Monday thru Friday.")
-                                    Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
-                                    Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
-                                    Call write_variable_in_SPEC_MEMO("- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 ")
-                                    Call write_variable_in_SPEC_MEMO("- 1001 Plymouth Ave N Minneapolis 55411")
-                                    Call write_variable_in_SPEC_MEMO("- 525 Portland Ave S Minneapolis 55415")
-                                    Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
-                                    Call write_variable_in_SPEC_MEMO("(Hours are M - F 8-4:30 unless otherwise noted)")
+									'removal of in person verbiage during the COVID-19 PEACETIME STATE OF EMERGENCY
+						            ' Call write_variable_in_SPEC_MEMO("If you wish to schedule an interview, call 612-596-1300. You may also come to any of the six offices below for an in-person interview between 8 and 4:30, Monday thru Friday.")
+						            ' Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
+						            ' Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
+						            ' Call write_variable_in_SPEC_MEMO("- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 ")
+						            ' Call write_variable_in_SPEC_MEMO("- 1001 Plymouth Ave N Minneapolis 55411")
+						            ' Call write_variable_in_SPEC_MEMO("- 525 Portland Ave S Minneapolis 55415")
+						            ' Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
+						            ' Call write_variable_in_SPEC_MEMO("(Hours are M - F 8-4:30 unless otherwise noted)")
+									CALL write_variable_in_SPEC_MEMO("You now have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. To obtain information about your case please contact your worker. EMAIL: hhsews@hennepin.us ")
                                     CALL write_variable_in_SPEC_MEMO("")
                                     CALL write_variable_in_SPEC_MEMO("  ** If we do not hear from you by " & last_day_of_recert & "  **")
                                     CALL write_variable_in_SPEC_MEMO("  **   your benefits will end on " & last_day_of_recert & ".   **")
