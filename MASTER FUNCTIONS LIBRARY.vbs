@@ -2085,6 +2085,10 @@ function autofill_editbox_from_MAXIS(HH_member_array, panel_read_from, variable_
           End if
         Loop until more_check <> "More: +"
         'Cleaning up the "children_for_ABPS" variable to be more readable
+		If children_for_ABPS = "" Then
+			stop_message = "The script you are running " & replace(name_of_script, ".vbs", "") & " is attempting to read information from ABPS. This ABPS panel does not have any children listed. Review the STAT panels, particularly about parental relationships (ABPS/PARE). This panel needs update, or may need to be deleted."
+			script_end_procedure(stop_message)
+		End If
         children_for_ABPS = left(children_for_ABPS, len(children_for_ABPS) - 2) 'cleaning up the end of the variable (removing the comma for single kids)
         children_for_ABPS = strreverse(children_for_ABPS)                       'flipping it around to change the last comma to an "and"
         children_for_ABPS = replace(children_for_ABPS, ",", "dna ", 1, 1)        'it's backwards, replaces just one comma with an "and"
@@ -6532,6 +6536,13 @@ function start_a_new_spec_memo()
 	call navigate_to_MAXIS_screen("SPEC", "MEMO")				'Navigating to SPEC/MEMO
 
 	PF5															'Creates a new MEMO. If it's unable the script will stop.
+	' Do		'TODO - Maybe add functionality to keep looping if MEMO is locked.'
+	' 	call navigate_to_MAXIS_screen("SPEC", "MEMO")				'Navigating to SPEC/MEMO
+	'
+	' 	PF5															'Creates a new MEMO. If it's unable the script will stop.
+	' 	EMReadScreen case_locked_check, 11, 24, 2
+	' 	If case_locked_check = "CASE LOCKED" Then Call back_to_SELF
+	' Loop until case_locked_check <> "CASE LOCKED"
 	EMReadScreen memo_display_check, 12, 2, 33
 	If memo_display_check = "Memo Display" then script_end_procedure("You are not able to go into update mode. Did you enter in inquiry by mistake? Please try again in production.")
 
