@@ -52,6 +52,8 @@ const script_hotkey     = 4
 'This VERY VERY long function contains all of the logic behind editing the favorites.
 '====================================================================================
 '====================================================================================
+' MsgBox "1 - " & dialog1
+dialog1 = "1 - " & dialog1
 function edit_favorites
 
 	'>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -669,6 +671,8 @@ FUNCTION favorite_menu(favorites_text_file_string, script_to_run)
 
 	'>>> The dialog
     ' MsgBox dlg_height & " - 4"
+	' MsgBox "2 - " & dialog1
+	dialog1 = "2 - " & dialog1
     Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 600, dlg_height, dlg_name & ""
   	  ButtonGroup ButtonPressed
@@ -769,6 +773,7 @@ FUNCTION favorite_menu(favorites_text_file_string, script_to_run)
 		PushButton 475, dlg_height - 25, 65, 15, "Update Favorites", update_favorites_button
 		CancelButton 545, dlg_height - 25, 50, 15
 	EndDialog
+
     Do
     	'>>> Loading the favorites dialog
     	DIALOG Dialog1
@@ -811,6 +816,9 @@ FUNCTION favorite_menu(favorites_text_file_string, script_to_run)
 
     Loop until script_to_run <> ""
     ' MsgBox script_URL
+	' MsgBox "3 - " & dialog1
+	dialog1 = "3 - " & dialog1
+
 END FUNCTION
 '======================================
 
@@ -1026,6 +1034,8 @@ Call open_favorites_file
 
 '>>> Calling the function that builds the favorites menu.
 CALL favorite_menu(favorites_text_file_string, script_to_run)
+' MsgBox "4 - " & dialog1
+dialog1 =  "4 - " & dialog1
 dialog1 = ""
 
 '>>> Running the script
