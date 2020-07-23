@@ -70,5 +70,5 @@ END IF
 'It sends an enter to force the screen to refresh, in order to check for a password prompt.
 transmit
 Call check_for_MAXIS(True) 'Checks for an active MAXIS session
-Call navigate_to_MAXIS_screen("SPEC", "WCOM") 'Navigates
-script_end_procedure_with_error_report("")
+Call navigate_to_MAXIS_screen("SPEC", "MEMO") 'Navigates
+script_end_procedure("")
