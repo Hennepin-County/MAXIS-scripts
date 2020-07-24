@@ -52,6 +52,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/24/2020", "Updated the script to hold the comments section each day.", "MiKayla Handley, Hennepin County")
 call changelog_update("05/28/2020", "Update to the notice wording, added virtual drop box information.", "MiKayla Handley, Hennepin County")
 call changelog_update("05/13/2020", "Update to the notice wording. Information and direction for in-person interview option removed. County offices are not currently open due to the COVID-19 Peacetime Emergency.", "Casey Love, Hennepin County")
 call changelog_update("10/07/2019", "Added HCRE panel bypass in case wonky HCRE panels exist.", "Ilse Ferris, Hennepin County")
@@ -585,7 +586,7 @@ Do
                 ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = ObjWorkExcel.Cells(row, next_action_col)
                 ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry) = ObjWorkExcel.Cells(row, quest_intvw_date_col)
                 ALL_PENDING_CASES_ARRAY(need_face_to_face, case_entry) = ObjWorkExcel.Cells(row, ftof_still_need_col)
-
+				ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = ObjWorkExcel.Cells(row, correct_need_col)
                 'ALL_PENDING_CASES_ARRAY(, case_entry) = ObjWorkExcel.Cells(row, )
 
                 'Defaulting this values at this time as we will determine them to be different as the script proceeds.
@@ -687,7 +688,8 @@ For case_entry = 0 to UBOUND(TODAYS_CASES_ARRAY, 2)     'now we are going to loo
         ALL_PENDING_CASES_ARRAY(questionable_intv, add_a_case) = ObjWorkExcel.Cells(row, quest_intvw_date_col)
         ALL_PENDING_CASES_ARRAY(need_face_to_face, add_a_case) = ObjWorkExcel.Cells(row, ftof_still_need_col)
         ALL_PENDING_CASES_ARRAY(questionable_intv, add_a_case) = trim(ALL_PENDING_CASES_ARRAY(questionable_intv, add_a_case))
-        'ALL_PENDING_CASES_ARRAY(, add_a_case) = ObjWorkExcel.Cells(row, )
+		ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = ObjWorkExcel.Cells(row, correct_need_col)
+		'ALL_PENDING_CASES_ARRAY(, add_a_case) = ObjWorkExcel.Cells(row, )
 
         'defaulting this variable as we will determine if it is true later
         ALL_PENDING_CASES_ARRAY(take_action_today, add_a_case) = FALSE
@@ -719,8 +721,9 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
         ALL_PENDING_CASES_ARRAY(priv_case, case_entry) = FALSE
 
         'These caseloads have IMD cases and it is imporatnt to note them.
-        IF ALL_PENDING_CASES_ARRAY(worker_ID, case_entry) = "X127EF8" or ALL_PENDING_CASES_ARRAY(worker_ID, case_entry) = "X127EJ1" THEN ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = ALL_PENDING_CASES_ARRAY(error_notes, case_entry) & ", IMD CASE"
-
+        IF ALL_PENDING_CASES_ARRAY(worker_ID, case_entry) = "X127EF8" or ALL_PENDING_CASES_ARRAY(worker_ID, case_entry) = "X127EJ1" THEN
+			IF InStr(ALL_PENDING_CASES_ARRAY(error_notes, case_entry), "IMD CASE") = 0 THEN ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = ALL_PENDING_CASES_ARRAY(error_notes, case_entry) & ", IMD CASE"
+		END IF
         'Some PRIV cases do not have the client name in BOBI - this will find them
         If ALL_PENDING_CASES_ARRAY(client_name, case_entry) = "XXXXX" Then
             Call navigate_to_MAXIS_screen("STAT", "MEMB")       'go to MEMB - do not need to chose a different memb number because we are looking for the case name
@@ -806,11 +809,11 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
         'first, something needs to be PENDING for this process to apply - if neither are pending - we need to get rid of it
         If ALL_PENDING_CASES_ARRAY(SNAP_status, case_entry) <> "Pending" AND ALL_PENDING_CASES_ARRAY(CASH_status, case_entry) <> "Pending" Then
             ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "REMOVE FROM LIST"            'set this variable because we can't just delete it now - the rows have all been defined to the array and everything will get messed up
-            ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = "Neither SNAP nor CASH is pending."  'explain the removal - the case will be dleted at tomorrow's run
+            ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = ALL_PENDING_CASES_ARRAY(error_notes, case_entry) & ", Neither SNAP nor CASH is pending."  'explain the removal - the case will be deleted at tomorrow's run
         Else                                                                                        'if one of these is pending
             If ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "REVIEW DENIAL" Then       'this should only be this way if the denial was for yesterday - if the denial was correctly processed then it should have been removed from the list at the beginning
                 ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "*** DENY ***"            'resetting the information to disaplay to call out that this is a problem case
-                ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = "Denial Failed"
+                ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = ALL_PENDING_CASES_ARRAY(error_notes, case_entry) & ", Denial Failed"
             End If
             If cash_pend = TRUE Then                    'for cash pending cases - there are some potential additional complications
                 If cash_interview_done = TRUE Then      'if the cash interview was done - then even if SNAP is pending - the interview should have been compelted
@@ -831,7 +834,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
                                 If ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry) = "" Then ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "SEND NOMI"
                                 IF ALL_PENDING_CASES_ARRAY(sppt_notc_sent, case_entry) = "" Then ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "SEND APPOINTMENT NOTICE"
                             End If
-                            ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = ", Cash interview incomplete."
+                            ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = ALL_PENDING_CASES_ARRAY(error_notes, case_entry) & ", Cash interview incomplete."
                         End If
                     Else
                         ALL_PENDING_CASES_ARRAY(interview_date, case_entry) = ""
@@ -1867,6 +1870,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
     ObjWorkExcel.Cells(row, next_action_col).Value = ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry)
 
     ObjWorkExcel.Cells(row, correct_need_col) = ALL_PENDING_CASES_ARRAY(error_notes, case_entry)
+	IF InStr(ALL_PENDING_CASES_ARRAY(error_notes, case_entry), "process manually") <> 0 THEN ObjWorkExcel.Rows(row).Font.ColorIndex = 3  'Red'
     'ObjWorkExcel.Cells(row, ) = ALL_PENDING_CASES_ARRAY(, case_entry)
 Next
 
