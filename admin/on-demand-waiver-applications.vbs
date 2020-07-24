@@ -688,7 +688,7 @@ For case_entry = 0 to UBOUND(TODAYS_CASES_ARRAY, 2)     'now we are going to loo
         ALL_PENDING_CASES_ARRAY(questionable_intv, add_a_case) = ObjWorkExcel.Cells(row, quest_intvw_date_col)
         ALL_PENDING_CASES_ARRAY(need_face_to_face, add_a_case) = ObjWorkExcel.Cells(row, ftof_still_need_col)
         ALL_PENDING_CASES_ARRAY(questionable_intv, add_a_case) = trim(ALL_PENDING_CASES_ARRAY(questionable_intv, add_a_case))
-		ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = ObjWorkExcel.Cells(row, correct_need_col)
+		ALL_PENDING_CASES_ARRAY(error_notes, add_a_case) = ObjWorkExcel.Cells(row, correct_need_col)
 		'ALL_PENDING_CASES_ARRAY(, add_a_case) = ObjWorkExcel.Cells(row, )
 
         'defaulting this variable as we will determine if it is true later
