@@ -47,6 +47,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/24/2020", "Removed the script 'Update Check Dates' from the ADMIN menu, it is currently available in the 'UTILITIES' Menu.", "Casey Love, Hennepin County")
 call changelog_update("01/27/2020", "Added new HSR's to the QI script access menu. Welcome Keith, Kerry & Tanya!", "Ilse Ferris, Hennepin County")
 call changelog_update("12/09/2019", "Added Jacob to the QI script access menu. Welcome Jacob!", "Ilse Ferris, Hennepin County")
 call changelog_update("10/05/2019", "Remove CA Application Received.", "MiKayla Handley, Hennepin County")
