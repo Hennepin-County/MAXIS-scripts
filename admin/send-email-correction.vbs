@@ -44,7 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("07/13/2020", "Initial version.", "Casey Love, Hennepin County")
+call changelog_update("07/29/2020", "Initial version.", "Casey Love, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
@@ -76,11 +76,11 @@ Next
 'If this did not find the user is a tester for QI the script will end as this is only for QI staff - access to the files and folders will be restricted and the script will fail
 If qi_staff = FALSE Then script_end_procedure_with_error_report("This script is for QI specific processes and only for QI staff. You are not listed as QI staff and running this script could cause errors in data reccording and QI processes. Please contact the BlueZone script team or pres 'Yes' below if you believe this to be in error.")
 
-EMConnect ""
-Call MAXIS_case_number_finder(MAXIS_case_number)
+EMConnect ""											'connecting to MAXIS
+Call MAXIS_case_number_finder(MAXIS_case_number)		'Grabbing the case number if it can find one
+'No additional action is taken in MAXIS and password/login is not checked or validated.
 
-email_subject = ""
-Dim email_body
+email_subject = ""										'setting some variables
 email_recipient = ""
 email_recipient_cc = ""
 email_signature = qi_worker_full_name
@@ -126,7 +126,7 @@ Do
     If correction_process = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select which process the correction email is regarding."
 
 	If ButtonPressed = instructions_btn Then
-		Call open_URL_in_browser("https://dept.hennepin.us/hsphd/sa/ews/BlueZone_Script_Instructions/ADMIN/ADMIN%20-%20SEND%20EMAIL%20CORRECTION.docx")
+		Call open_URL_in_browser("https://dept.hennepin.us/hsphd/sa/ews/BlueZone_Script_Instructions/ADMIN/QI%20-%20SEND%20EMAIL%20CORRECTION.docx")
 		err_msg = "LOOP" & err_msg
     ElseIf err_msg <> "" Then
 		MsgBox "Please resolve to continue:" & vbNewLine & err_msg
@@ -134,10 +134,11 @@ Do
 
 Loop until err_msg = ""
 
+'formatting the email addresses.
 If InStr(email_recipient, "@hennepin.us") = 0 Then email_recipient = email_recipient & "@hennepin.us"
 If InStr(email_recipient_cc, "@hennepin.us") = 0 Then email_recipient_cc = email_recipient_cc & "@hennepin.us"
 
-Noon = TimeValue("12:00:00 PM")
+Noon = TimeValue("12:00:00 PM")				'Setting the greeting for the correct time of day
 MidAfternoon = TimeValue("4:00:00 PM")
 time_of_day = ""
 
@@ -145,11 +146,9 @@ If time < MidAfternoon Then time_of_day = "Afternoon"
 If time < Noon Then time_of_day = "Morning"
 If time > MidAfternoon Then time_of_day = "Evening"
 
-' MsgBox time & vbNewLine & time_of_day
+email_body = "<p>" & "Good " & time_of_day & ", " & "</p>"			'start of the email boday
 
-email_body = "<p>" & "Good " & time_of_day & ", " & "</p>"
-
-action_needed = "Case has been updated already - no action needed."
+STATS_manualtime = STATS_manualtime + 45
 'Dialog of the email options
 Select Case correction_process
 	Case "Expedited Review"
@@ -180,7 +179,7 @@ Select Case correction_process
 		  CheckBox 20, 310, 185, 10, "Discrepancy between case notes and MAXIS coding.", maxis_coding_case_note_discrepancy_checkbox
 		  CheckBox 20, 325, 110, 10, "The CASE NOTE is Insufficient.", insufficient_case_note_checkbox
 		  EditBox 105, 345, 425, 15, email_notes
-		  DropListBox 15, 365, 195, 45, "Indicate if case hass been or needs to be updated."+chr(9)+"Case has been updated already - no action needed."+chr(9)+"Please update the case to resolve these issues.", action_needed
+		  DropListBox 15, 365, 195, 45, "Indicate if case has been or needs to be updated."+chr(9)+"Case has been updated already - no action needed."+chr(9)+"Please update the case to resolve these issues.", action_needed
 		  EditBox 285, 365, 125, 15, email_signature
 		  ButtonGroup ButtonPressed
 		    OkButton 430, 365, 50, 15
@@ -208,30 +207,34 @@ Select Case correction_process
 
 			'All the counts are required.
 			call validate_MAXIS_case_number(err_msg, "*")
-			If action_needed = "Indicate if case hass been or needs to be updated." Then err_msg = err_msg & vbNewLine & "* Enter if the worker needs to take action or not."
+			If action_needed = "Indicate if case has been or needs to be updated." Then err_msg = err_msg & vbNewLine & "* Enter if the worker needs to take action or not."
 			If email_signature = "" Then err_msg = err_msg & vbNewLine & "* Sign your email."
 
 			If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
 
 		Loop until err_msg = ""
 
+		'This is in two areas but has the same information. '
 		If identity_for_more_than_MEMB_01_checkbox_01 = checked OR identity_for_more_than_MEMB_01_checkbox_02 = checked Then identity_for_more_than_MEMB_01_checkbox = checked
 
-		email_subject = "EXP SNAP Correction on Case # " & MAXIS_case_number
+		email_subject = "EXP SNAP Correction on Case # " & MAXIS_case_number			'Setting the subject for the email
 
-		counter = 1
+		'NOW WE ARE CREATING THE EMAIL BODY - this is done using HTML tags as a part of the string.'
+		counter = 1					'This will add a progressing number to each correction indicated
 
+		'start of the email - it will start the same for each correction options
 		email_body = email_body & "<p>" & "Quality Improvement staff have been targeting expedited SNAP cases as part of our ongoing effort to reduce errors, improve our timeliness and standardize the application process." & "</p>"
 		email_body = email_body & "<p>" & "It appears the expedited SNAP guidelines have not been followed when you processed this case. This is not a performance measurement, our goal is to ensure that every case is able to be given the highest quality care. Please review the following areas and let us know if you have any questions about our assessment or if you feel there is something we may not be understanding. We appreciate your time and any feedback you might have." & "</p>"
 
+		'This adds verbiage to the email that indicates if action is needed or not based on the entry in the dialog.
 		If action_needed = "Case has been updated already - no action needed." Then email_body = email_body & "<p>" & "This case has already been updated with correct information and actions. No additional action is needed from you at this time." & "</p>"
 		If action_needed = "Please update the case to resolve these issues." Then email_body = email_body & "<p style=" & chr(34) & "color:red" & chr(34) & "><b><u>" & "Updates needed on this case. Please take appropriate action to correct the errors." & "</u></b></p>"
 
+		'Here starts the logic for adding the correction specific verbiage and identifying which resources are needed.
 		email_body = email_body & "<p style=" & chr(34) & "font-size:20px" & chr(34) & "><b>" & "Issues/Errors Found on Case # " & MAXIS_case_number & "</b></p>"
 
 		If not_approved_timely_checkbox = checked OR identity_for_more_than_MEMB_01_checkbox = checked OR identity_was_available_checkbox = checked OR delayed_for_other_verifs_checkbox = checked OR out_of_state_month_two_checkbox = checked Then
 			email_body = email_body & "<p><i>" & "&emsp;" & counter &  ". This case appears Expedited after completion of the interview. Processing was incorrect because:" & "</i><br>"
-			' CheckBox 20, 40, 235, 10, "Case was not approved timely. Case should have been approved on ",
 			If not_approved_timely_checkbox = checked Then
 				If trim(should_have_approved_date) = "" Then
 					email_body = email_body &  "&emsp;&ensp;" & "- Case was not approved timely." & "<br>"
@@ -239,16 +242,15 @@ Select Case correction_process
 					email_body = email_body & "&emsp;&ensp;" & "- Case was not approved timely. Case should have been approved on " & should_have_approved_date & "." & "<br>"
 				End If
 				email_body = email_body & "&emsp;&emsp;" & "* Case should have been approved immediately following the Interview if determined expedited." & "<br>"
+				STATS_manualtime = STATS_manualtime + 30
 			End If
-			' EditBox 260, 35, 50, 15,
-			' CheckBox 20, 55, 150, 10, "Identity for more than MEMB 01 requested.",
 			If identity_for_more_than_MEMB_01_checkbox = checked Then
 				email_body = email_body & "&emsp;&ensp;" & "      - Identity for more than MEMB 01 requested" & "<br>"
 				add_snap_id_doc_resource = TRUE
 				add_cm_10_18_02_resource = TRUE
 				add_script_cit_id_resource = TRUE
+				STATS_manualtime = STATS_manualtime + 30
 			End If
-			' CheckBox 20, 70, 280, 10, "MEMB 01 Identity was available for SOL-Q or on file. Identity verifcation was found ",
 			If identity_was_available_checkbox = checked Then
 				If trim(identity_verif_found) = "" Then
 					email_body = email_body & "&emsp;&ensp;" & "- Delayed due to Proof of Identity for MEMB 01. Proof of Identity was available through SOLQ-1 or on file." & "<br>"
@@ -259,18 +261,18 @@ Select Case correction_process
 				add_snap_id_doc_resource = TRUE
 				add_cm_10_18_02_resource = TRUE
 				add_script_cit_id_resource = TRUE
+				STATS_manualtime = STATS_manualtime + 30
 			End If
-			' EditBox 305, 65, 220, 15, identity_verif_found
-			' CheckBox 20, 85, 180, 10, "Delayed for verification other than proof of identity.",
 			If delayed_for_other_verifs_checkbox = checked Then
 				email_body = email_body & "&emsp;&ensp;" & "- Delayed for verifications other than proof of identity." & "<br>"
 				add_snap_id_doc_resource = TRUE
 				add_script_cit_id_resource = TRUE
+				STATS_manualtime = STATS_manualtime + 30
 			End If
-			' CheckBox 20, 100, 260, 10, "Out-of-state benefits reported closing, 2nd month eligibility not determined.",
 			If out_of_state_month_two_checkbox = checked Then
 				email_body = email_body & "&emsp;&ensp;" & "- Resident reports out-of-state benefits have closed/are closing for the end of the month, and 2nd month eligibility has not been determined." & "<br>"
 				add_temp_02_10_79_resource = TRUE
+				STATS_manualtime = STATS_manualtime + 30
 			End If
 
 			add_cm_04_04_resource = TRUE
@@ -287,8 +289,6 @@ Select Case correction_process
 			counter = counter + 1
 		End If
 
-
-		' CheckBox 20, 130, 235, 10, "The expedited determination was not created or clear in case notes.",
 		If expedited_determination_not_done_checkbox = checked Then
 			email_body = email_body & "<p><i>" & "&emsp;" & counter & ". An expedited determination was either not created or was unclear in case notes after the interview was completed. " & "</i></p>"
 			add_cm_04_04_resource = TRUE
@@ -297,8 +297,8 @@ Select Case correction_process
 			add_script_caf_resource = TRUE
 			add_script_exp_det_resource = TRUE
 			counter = counter + 1
+			STATS_manualtime = STATS_manualtime + 30
 		End If
-		' CheckBox 20, 145, 155, 10, "The expedited determination was incorrect.",
 		If expedited_determination_incorrect_checkbox = checked Then
 			email_body = email_body & "<p><i>" & "&emsp;" & counter & ". The expedited determination was incorrect in case notes after the interview was completed. " & "</i></p>"
 			add_cm_04_04_resource = TRUE
@@ -307,11 +307,11 @@ Select Case correction_process
 			add_script_caf_resource = TRUE
 			add_script_exp_det_resource = TRUE
 			counter = counter + 1
+			STATS_manualtime = STATS_manualtime + 30
 		End If
 
 		If verif_request_incomplete_checkbox = checked OR verif_request_not_needed_checkbox = checked OR verif_not_delayed_checkbox = checked OR identity_for_more_than_MEMB_01_checkbox = checked Then
 			email_body = email_body & "<p><i>" & "&emsp;" & counter & ". Verification Request issues:" & "</i><br>"
-			' CheckBox 20, 175, 305, 10, "The Verification Request is incomplete, not sent, or specific information was blank. Details:",
 			If verif_request_incomplete_checkbox = checked Then
 				If trim(verif_request_details) = "" Then
 					email_body = email_body & "&emsp;&ensp;" & "- Verification request is incomplete, not sent, or specific information was left blank." & "<br>"
@@ -319,11 +319,12 @@ Select Case correction_process
 					email_body = email_body & "&emsp;&ensp;" & "- Verification request is incomplete, not sent, or specific information was left blank. " & verif_request_details & "<br>"
 				End If
 				email_body = email_body & "&emsp;&emsp;" & "* Verification Requests must be sent to clients through ECF the same day processing is completed." & "<br>"
+				STATS_manualtime = STATS_manualtime + 30
 			End If
-			' EditBox 330, 170, 195, 15, verif_request_details
-			' CheckBox 20, 190, 150, 10, "Identity for more than MEMB 01 requested.", identity_for_more_than_MEMB_01_checkbox
-			If identity_for_more_than_MEMB_01_checkbox = checked Then email_body = email_body & "&emsp;&ensp;" & "- Identity for more than MEMB 01 requested" & "<br>"
-			' CheckBox 20, 205, 240, 10, "Verification Requested was not needed for SNAP. What was requested:",
+			If identity_for_more_than_MEMB_01_checkbox = checked Then
+				email_body = email_body & "&emsp;&ensp;" & "- Identity for more than MEMB 01 requested" & "<br>"
+				STATS_manualtime = STATS_manualtime + 30
+			End If
 			If verif_request_not_needed_checkbox = checked Then
 				If trim(what_was_requested) = "" Then
 					email_body = email_body & "&emsp;&ensp;" & "- Verification requested was not needed for SNAP program." & "<br>"
@@ -331,12 +332,12 @@ Select Case correction_process
 					email_body = email_body & "&emsp;&ensp;" & "- Verification requested was not needed for SNAP program. What was requested: " & what_was_requested & "<br>"
 				End If
 				show_imediate_app_resource = TRUE
+				STATS_manualtime = STATS_manualtime + 30
 			End If
-			' EditBox 265, 200, 260, 15, what_was_requested
-			' CheckBox 20, 220, 195, 10, "Verifications were not postponed for expedited SNAP.",
 			If verif_not_delayed_checkbox = checked Then
 				email_body = email_body & "&emsp;&ensp;" & "- Verifications not postponed for expedited SNAP case " & "<br>"
 				show_imediate_app_resource = TRUE
+				STATS_manualtime = STATS_manualtime + 30
 			End If
 			If show_imediate_app_resource = TRUE Then email_body = email_body & "&emsp;&emsp;" & "* Case should have been approved immediately following the Interview if determined expedited." & "<br>"
 
@@ -354,16 +355,16 @@ Select Case correction_process
 			counter = counter + 1
 		End If
 
-
 		If maxis_coded_incorectly_assets_checkbox = checked OR maxis_coded_incorectly_postponed_verif_checkbox = checked Then
 			email_body = email_body & "<p><i>" & "&emsp;" & counter & ". MAXIS panels in STAT were not updated correctly." & "</i><br>"
-
-			' CheckBox 160, 250, 70, 10, "assets incorrect.",
-			If maxis_coded_incorectly_assets_checkbox = checked Then email_body = email_body & "&emsp;&ensp;" & "- Asset Panels were not coded correctly" & "<br>"
-			' CheckBox 255, 250, 95, 10, "postponed verifications.",
+			If maxis_coded_incorectly_assets_checkbox = checked Then
+				email_body = email_body & "&emsp;&ensp;" & "- Asset Panels were not coded correctly" & "<br>"
+				STATS_manualtime = STATS_manualtime + 30
+			End If
 			If maxis_coded_incorectly_postponed_verif_checkbox = checked Then
 				email_body = email_body & "&emsp;&ensp;" & "- Panels for postponed verifications were not coded correctly with a '?' for the verification code." & "<br>"
 				add_temp_02_10_01_resource = TRUE
+				STATS_manualtime = STATS_manualtime + 30
 			End If
 
 			add_script_add_wcom_resource = TRUE
@@ -374,23 +375,18 @@ Select Case correction_process
 			counter = counter + 1
 		End If
 
-
 		If interview_complete_processing_not_complete_checkbox = checked OR interview_complete_case_note_missing_checkbox = checked OR insufficient_case_note_checkbox = checked Then
 			email_body = email_body & "<p><i>" & "&emsp;" & counter & ". Interview was complete but follow up processing was not." & "</i><br>"
-			' CheckBox 150, 265, 135, 10, " processing has not been completed.",
 			If interview_complete_processing_not_complete_checkbox = checked Then email_body = email_body & "&emsp;&ensp;" & "- MAXIS processing has not been completed." & "<br>"
-
-			' CheckBox 295, 265, 120, 10, "CASE NOTE has not been added.",
 			If interview_complete_case_note_missing_checkbox = checked Then
 				email_body = email_body & "&emsp;&ensp;" & "- CASE NOTE is missing." & "<br>"
 				add_hsr_case_note_guidelines_resource = TRUE
 			End If
-
-			' CheckBox 20, 325, 110, 10, "The CASE NOTE is Insufficient.",
 			If insufficient_case_note_checkbox = checked Then
 				email_body = email_body & "&emsp;&ensp;" &  "- CASE NOTE is insufficient." & "<br>"
 				add_hsr_case_note_guidelines_resource = TRUE
 			End If
+			STATS_manualtime = STATS_manualtime + 45
 
 			add_cm_04_04_resource = TRUE
 			add_cm_04_06_resource = TRUE
@@ -402,8 +398,6 @@ Select Case correction_process
 			counter = counter + 1
 		End If
 
-
-		' CheckBox 20, 280, 205, 10, "Case was pended, but expedited screening not conducted.",
 		If screening_not_done_checkbox = checked Then
 			email_body = email_body & "<p><i>" & "&emsp;" & counter & ". Case was pended, but an expedited screening was not conducted." & "</i></p>"
 			add_cm_04_06_resource = TRUE
@@ -411,60 +405,35 @@ Select Case correction_process
 			add_script_app_recvd_resource = TRUE
 			add_script_exp_screen_resource = TRUE
 			add_temp_16_09_resource = TRUE
+			STATS_manualtime = STATS_manualtime + 30
 			counter = counter + 1
 		End If
 
-
-		' CheckBox 20, 295, 305, 10, "SNAP is pending as MFIP is closing, does not appear to need any mandatory verifications.",
 		If snap_pending_after_mfip_closed_checkbox = checked Then
 			email_body = email_body & "<p><i>" & "&emsp;" & counter & ". SNAP is pending as MFIP is closing, and the case is transferring to stand-alone SNAP. SNAP does not appear to be pending for mandatory verifications per case notes." & "</i><br>"
 			email_body = email_body & "&emsp;&ensp;" & "* Same day processing should be completed if mandatory verifs are not needed." & "</p>"
 			add_script_mf_to_fs_resource = TRUE
 			add_temp_02_08_143_resource = TRUE
+			STATS_manualtime = STATS_manualtime + 30
 			counter = counter + 1
 		End If
 
-
-		' CheckBox 20, 310, 185, 10, "Discrepancy between case notes and MAXIS coding.",
 		If maxis_coding_case_note_discrepancy_checkbox = checked Then
 			email_body = email_body & "<p><i>" & "&emsp;" & counter & ". Discrepancy between case notes and MAXIS coding or case note was insufficient." & "</i></p>"
 			add_hsr_case_note_guidelines_resource = TRUE
 			add_script_caf_resource = TRUE
 			add_script_exp_det_resource = TRUE
+			STATS_manualtime = STATS_manualtime + 30
 			counter = counter + 1
 		End If
 
 		If trim(email_notes) <> "" Then
 			email_body = email_body & "<p>" & "Additional Information:" & "<br>"
 			email_body = email_body & email_notes & "</p>"
+			STATS_manualtime = STATS_manualtime + 15
 		End If
 
-
-		' add_cm_10_18_02_resource = TRUE
-		' add_cm_04_04_resource = TRUE
-		' add_cm_04_06_resource = TRUE
-		' add_cm_10_resource = TRUE
-		' add_snap_id_doc_resource = TRUE
-		' add_hsr_case_note_guidelines_resource = TRUE
-		'
-		' add_script_app_progs_resource = TRUE
-		' add_script_caf_resource = TRUE
-		' add_script_cit_id_resource = TRUE
-		' add_script_exp_det_resource = TRUE
-		' add_script_add_wcom_resource = TRUE
-		' add_script_verif_needed_resource = TRUE
-		' add_script_app_recvd_resource = TRUE
-		' add_script_exp_screen_resource = TRUE
-		' add_script_mf_to_fs_resource = TRUE
-		'
-		' add_temp_02_10_01_resource = TRUE
-		' add_temp_02_10_79_resource = TRUE
-		' add_temp_19_152_resource = TRUE
-		' add_temp_16_09_resource = TRUE
-		' add_temp_02_08_143_resource = TRUE
-
-
-
+		'here is where we actually add the resource informtation
 		email_body = email_body & "<p><b><i>" & "&ensp;" & "RESOURCES:" & "</b></i><br>"
 
 		If add_cm_10_18_02_resource = TRUE OR add_cm_04_04_resource = TRUE OR add_cm_04_06_resource = TRUE OR add_cm_10_resource = TRUE Then email_body = email_body & "<i>" & "&emsp;" & "Combined Manual:" & "</i><br>"
@@ -479,15 +448,6 @@ Select Case correction_process
 		If add_snap_id_doc_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "https://www.dhssir.cty.dhs.state.mn.us/MAXIS/Documents/SNAP Identity Verification.pdf" & chr(34) & ">" & " SNAP Identity Verification" & "</a><br>"
 		If add_hsr_case_note_guidelines_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- HSR Manual: " & "<a href=" & chr(34) & "https://dept.hennepin.us/hsphd/manuals/hsrm/Pages/Guidelines_and_Format.aspx" & chr(34) & ">" & "Case Notes Guidelines and Format" & "</a><br>"
 
-
-
-		' email_body = email_body & "&emsp;&emsp;&ensp;" & "- " & "<a href=" & chr(34) &  & chr(34) & ">" & "TEXT" & "</a><br>"
-		' email_body = email_body & "&emsp;&emsp;&ensp;" & "- " & "<a href=" & chr(34) &  & chr(34) & ">" & "TEXT" & "</a><br>"
-		' email_body = email_body & "&emsp;&emsp;&ensp;" & "- " & "<a href=" & chr(34) &  & chr(34) & ">" & "TEXT" & "</a><br>"
-		' email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) &  & chr(34) & ">" & "TEXT" & "</a>" & "Nonlinkedtext" & "<br>"
-		' email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) &  & chr(34) & ">" & "TEXT" & "</a><br>"
-		'
-		'
 		If add_temp_02_10_01_resource = TRUE OR add_temp_02_10_79_resource = TRUE OR add_temp_19_152_resource = TRUE OR add_temp_16_09_resource = TRUE OR add_temp_02_08_143_resource = TRUE Then email_body = email_body & "<i>" & "&emsp;" & "TEMP Manual:" & "</i><br>"
 
 		If add_temp_02_10_01_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- POLI TEMP - TE02.10.01 Expedited SNAP with Pending Verifications" & "<br>"
@@ -507,17 +467,9 @@ Select Case correction_process
 		If add_script_app_recvd_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "https://dept.hennepin.us/hsphd/sa/ews/BlueZone_Script_Instructions/NOTES/NOTES - APPLICATION RECEIVED.docx" & chr(34) & ">" & "NOTES - APPLICATION RECEIVED" & "</a><br>"
 		If add_script_exp_screen_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "https://dept.hennepin.us/hsphd/sa/ews/BlueZone_Script_Instructions/NOTES/NOTES - EXPEDITED SCREENING.docx" & chr(34) & ">" & "NOTES - EXPEDITED SCREENING" & "</a><br>"
 		If add_script_mf_to_fs_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "https://dept.hennepin.us/hsphd/sa/ews/BlueZone_Script_Instructions/NOTES/NOTES - MFIP TO SNAP TRANSITION.docx" & chr(34) & ">" & "NOTES - MFIP TO SNAP TRANSITION" & "</a><br>"
-		'
-
-		' email_body = email_body & "<i>" & "&emsp;" & "Combined Manual:" & "</i><br>"
-
-
-		' email_body = email_body & "&emsp;&ensp;" & "- " & "<br>"
-
 		email_body = email_body & "</p>"
 
-
-
+		'End of the message with email llinks
 		email_body = email_body & "<p>" & "Thank you for taking the time to review this information. If you have any additional questions or want additional directions and resources, please contact the QI team. For Script questions contact the BlueZone Script Team." & "<br>"
 		email_body = email_body & "<a href=" & chr(34) & "mailto:HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us?subject=SNAP%20EXP%20Questions" & chr(34) & ">" & "Email Quality Improvement" & "</a><br>"
 		email_body = email_body & "<a href=" & chr(34) & "mailto:HSPH.EWS.BlueZoneScripts@hennepin.us?subject=SNAP%20EXP%20Questions" & chr(34) & ">" & "Email the BlueZone Script Team" & "</a><br>"
@@ -526,6 +478,7 @@ Select Case correction_process
 		email_body = email_body & "<p style=" & chr(34) & "font-size:20px" & chr(34) & ">" & "From, " & email_signature & "<br>"
 		email_body = email_body & "Member of the ES Quality Improvement Team" & "</p>"
 
+		'NOW WE SEND THE EMAIL
 		'Setting up the Outlook application
 	    Set objOutlook = CreateObject("Outlook.Application")
 	    Set objMail = objOutlook.CreateItem(0)
@@ -544,7 +497,38 @@ Select Case correction_process
 	    Set objMail =   Nothing
 	    Set objOutlook = Nothing
 
+		'EXPEDITED SNAP Column CONSTANTS
+		recip_col 							= 1
+		date_col 							= 2
+		case_numb_col 						= 3
+		sup_email_col 						= 4
+		not_app_timely_col 					= 5
+		not_app_date_col 					= 6
+		id_for_more_than_01_col 			= 7
+		id_was_on_file_col 					= 8
+		id_found_location_col 				= 9
+		delayed_non_id_verif_col 			= 10
+		out_of_state_delayed_col 			= 11
+		exp_det_note_concern_col 			= 12
+		exp_det_incorrect_col 				= 13
+		verif_req_incomplete_col 			= 14
+		verif_req_incp_details_col 			= 15
+		verif_req_not_needed_col 			= 16
+		verif_req_not_needed_detail_col 	= 17
+		verif_not_postponed_col 			= 18
+		maxis_assets_wrong_col 				= 19
+		maxis_verif_codes_wrong_col 		= 20
+		maxis_not_processed_col 			= 21
+		case_note_missing_col 				= 22
+		no_exp_screening_col 				= 23
+		mf_to_FS_col 						= 24
+		case_note_maxis_mismatch_col 		= 25
+		case_note_insufficient_col 			= 26
+		other_notes_col 					= 27
+		worker_to_follow_up_col 			= 28
+		qi_worker_col 						= 29
 
+		'HERE IS THE TRAKING PART - so we can save the information about what and who we emailed for corrections
 		excel_file_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP SNAP Email Corrections Data.xlsx"
 		call excel_open(excel_file_path, False,  False, ObjExcel, objWorkbook)  'opening the Excel'
 		ObjExcel.worksheets("Data").Activate
@@ -556,39 +540,7 @@ Select Case correction_process
 			If this_entry <> "" Then excel_row = excel_row + 1
 		Loop until this_entry = ""
 
-		recip_col = 1
-		date_col = 2
-		case_numb_col = 3
-		sup_email_col = 4
-		not_app_timely_col = 5 					'Not Approved Timely
-		not_app_date_col = 6 					'DATE
-		id_for_more_than_01_col = 7				'ID for more than M01
-		id_was_on_file_col = 8 					'ID was on File
-		id_found_location_col = 9 				'WHERE
-		delayed_non_id_verif_col = 10 			'Delayed for Non-ID Verifs
-		out_of_state_delayed_col = 11			'Out of State Case Delayed
-		exp_det_note_concern_col = 12 			'EXP Det Case Note Issues
-		exp_det_incorrect_col = 13 				'EXP Det Incorrect
-		verif_req_incomplete_col = 14 			'Verif Request Incomplete
-		verif_req_incp_details_col = 15			'DETAILS
-		'ID for more than M01
-		verif_req_not_needed_col = 16 			'Verif Req not Needed
-		verif_req_not_needed_detail_col = 17	'WHAT
-		verif_not_postponed_col = 18 			'Verifs not postponed
-		maxis_assets_wrong_col = 19				'MAXIS Assets Incorrect
-		maxis_verif_codes_wrong_col = 20		'MAXIS Verif Codes
-		maxis_not_processed_col = 21			'MAXIS not processed
-		case_note_missing_col = 22				'CASE NOTE not completed
-		no_exp_screening_col = 23 				'No Screening
-		mf_to_FS_col = 24						'MFIP to SNAP transition
-		case_note_maxis_mismatch_col = 25		'CASE NOTE and MAXIS discrepancy
-		case_note_insufficient_col = 26			'Insufficient CASE NOTE
-		other_notes_col = 27					'Other Notes
-		worker_to_follow_up_col = 28			'Worker to Follow Up
-		qi_worker_col = 29						'QI Worker
-
-
-
+		'Adding all the information to the Excel
 		ObjExcel.Cells(excel_row, recip_col).Value 							= email_recipient
 		ObjExcel.Cells(excel_row, date_col).Value 							= date
 		ObjExcel.Cells(excel_row, case_numb_col).Value 						= MAXIS_case_number
@@ -620,7 +572,6 @@ Select Case correction_process
 		If action_needed = "Please update the case to resolve these issues." Then ObjExcel.Cells(excel_row, worker_to_follow_up_col).Value 			= "YES"
 		ObjExcel.Cells(excel_row, qi_worker_col).Value 						= qi_worker_full_name
 
-
 		ObjExcel.ActiveWorkbook.Save                                            'saving and closing the Excel spreadsheet
         ObjExcel.ActiveWorkbook.Close
         ObjExcel.Application.Quit
@@ -642,7 +593,7 @@ Select Case correction_process
 		  EditBox 130, 5, 50, 15, MAXIS_case_number
 		  CheckBox 20, 25, 295, 10, "The script NOTES - APPLICATION RECEIVED was not used when the case was APPL'd.", app_recvd_script_not_used_checkbox
 		  CheckBox 30, 55, 340, 10, "The interview date field was not completed on STAT:PROG though interview appears to be completed.", prog_not_updated_interview_completed_checkbox
-		  CheckBox 30, 70, 320, 10, "The client applied for Cash and SNAP, Cash needs a face to face but this is not clear in notes, cash information should be reviewed in phone interview.", cash_detail_not_covered_checkbox
+		  CheckBox 30, 70, 495, 10, "The client applied for Cash and SNAP, Cash needs a face to face but this is not clear in notes, cash information should be reviewed in phone interview.", cash_detail_not_covered_checkbox
 		  CheckBox 30, 85, 370, 10, "Cash and SNAP were applied for, Cash needs a face to face, SNAP should have had a phone interview offered.", snap_phone_interview_should_have_been_offered_checkbox
 		  CheckBox 30, 120, 260, 10, "Case was denied for no interview from PND2, QI should be doing all of these.", denied_for_no_interview_on_PND2_checkbox
 		  CheckBox 30, 135, 170, 10, "Case was denied for no interview NOT on PND2.", denied_for_no_interview_NOT_on_PND2_checkbox
@@ -650,7 +601,7 @@ Select Case correction_process
 		  CheckBox 20, 170, 360, 10, "Client contacted the agency and should have had an interview offered, even with only Page 1 of the CAF.", client_contacted_should_have_been_offered_interview_checkbox
 		  CheckBox 20, 185, 295, 10, "An interview was completed the same day after a NOMI was sent, notice not cancelled.", interview_completed_same_day_NOMI_sent_checkbox
 		  EditBox 105, 205, 425, 15, email_notes
-		  DropListBox 15, 225, 195, 45, "Indicate if case hass been or needs to be updated."+chr(9)+"Case has been updated already - no action needed."+chr(9)+"Please update the case to resolve these issues.", action_needed
+		  DropListBox 15, 225, 195, 45, "Indicate if case has been or needs to be updated."+chr(9)+"Case has been updated already - no action needed."+chr(9)+"Please update the case to resolve these issues.", action_needed
 		  EditBox 285, 225, 125, 15, email_signature
 		  ButtonGroup ButtonPressed
 		    OkButton 430, 225, 50, 15
@@ -674,22 +625,26 @@ Select Case correction_process
 
 			'All the counts are required.
 			call validate_MAXIS_case_number(err_msg, "*")
-			If action_needed = "Indicate if case hass been or needs to be updated." Then err_msg = err_msg & vbNewLine & "* Enter if the worker needs to take action or not."
+			If action_needed = "Indicate if case has been or needs to be updated." Then err_msg = err_msg & vbNewLine & "* Enter if the worker needs to take action or not."
 			If email_signature = "" Then err_msg = err_msg & vbNewLine & "* Sign your email."
 
 			If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
 
 		Loop until err_msg = ""
 
-		email_subject = "Application Process Correction on Case # " & MAXIS_case_number
+		email_subject = "Application Process Correction on Case # " & MAXIS_case_number					'Setting the subject for the email
 
-		counter = 1
+		'NOW WE ARE CREATING THE EMAIL BODY - this is done using HTML tags as a part of the string.'
+		counter = 1 				'This will add a progressing number to each correction indicated
 
+		'start of the email - it will start the same for each correction options
 		email_body = email_body & "<p>" & "Quality Improvement staff have been targeting application cases as part of our ongoing effort to reduce errors, improve our timeliness, and standardize the application process." & "</p>"
 
+		'This adds verbiage to the email that indicates if action is needed or not based on the entry in the dialog.
 		If action_needed = "Case has been updated already - no action needed." Then email_body = email_body & "<p>" & "This case has already been updated with correct information and actions. No additional action is needed from you at this time." & "</p>"
 		If action_needed = "Please update the case to resolve these issues." Then email_body = email_body & "<p style=" & chr(34) & "color:red" & chr(34) & "><b><u>" & "Updates needed on this case. Please take appropriate action to correct the errors." & "</u></b></p>"
 
+		'Here starts the logic for adding the correction specific verbiage and identifying which resources are needed.
 		email_body = email_body & "<p>" & "The reason you are getting this email is to inform you that this case was not processed within the application guidelines for the following reason(s):" & "</p>"
 		email_body = email_body & "<p style=" & chr(34) & "font-size:20px" & chr(34) & "><b>" & "Issues/Errors Found on Case # " & MAXIS_case_number & "</b></p>"
 
@@ -697,6 +652,7 @@ Select Case correction_process
 			email_body = email_body & "<p><i>" & "&emsp;" & counter &  ". The " & "<a href=" & chr(34) & "https://dept.hennepin.us/hsphd/sa/ews/BlueZone_Script_Instructions/NOTES/NOTES - APPLICATION RECEIVED.docx" & chr(34) & ">" & "NOTES - APPLICATION RECEIVED" & "</a>" & " script was not used at the time the case was APPL'd. " & "</i>" & " This script case notes details about the application, screens for expedited SNAP (if applicable), sends the appointment letter for SNAP and/or CASH cases and transfers the case (if applicable)." & "</p>"
 			add_hsr_appling_resource = TRUE
 			add_script_app_recvd_resource = TRUE
+			STATS_manualtime = STATS_manualtime + 30
 			counter = counter + 1
 		End If
 		If prog_not_updated_interview_completed_checkbox = checked Then
@@ -704,6 +660,7 @@ Select Case correction_process
 			add_hsr_interview_process_resource = TRUE
 			add_script_caf_resource = TRUE
 			add_script_interview_comp_resource = TRUE
+			STATS_manualtime = STATS_manualtime + 30
 			counter = counter + 1
 		End If
 		If cash_detail_not_covered_checkbox = checked Then
@@ -712,6 +669,7 @@ Select Case correction_process
 			add_hsr_interview_process_resource = TRUE
 			add_script_caf_resource = TRUE
 			add_script_interview_comp_resource = TRUE
+			STATS_manualtime = STATS_manualtime + 30
 			counter = counter + 1
 		End If
 		If snap_phone_interview_should_have_been_offered_checkbox = checked Then
@@ -720,16 +678,19 @@ Select Case correction_process
 			add_hsr_interview_process_resource = TRUE
 			add_script_caf_resource = TRUE
 			add_script_interview_comp_resource = TRUE
+			STATS_manualtime = STATS_manualtime + 30
 			counter = counter + 1
 		End If
 		If denied_for_no_interview_on_PND2_checkbox = checked Then
 			email_body = email_body & "<p><i>" & "&emsp;" & counter &  ". This case was denied for no interview from PND2." & "</i>" & " This process is now completed by Quality Improvement staff only as part of the On-Demand waiver process. Do not deny cases at day 30 without an interview any longer." & "</p>"
 			add_hsr_on_demand_resource = TRUE
+			STATS_manualtime = STATS_manualtime + 30
 			counter = counter + 1
 		End If
 		If denied_for_no_interview_NOT_on_PND2_checkbox = checked Then
 			email_body = email_body & "<p><i>" & "&emsp;" & counter &  ". This case was denied for no interview; however, it was not denied from PND2." & "</i>" & " This process is now completed by Quality Improvement staff as part of the On-Demand waiver process. Do not deny cases at day 30 without an interview any longer." & "</p>"
 			add_hsr_on_demand_resource = TRUE
+			STATS_manualtime = STATS_manualtime + 30
 			counter = counter + 1
 		End If
 		If caf_script_used_no_interview_checkbox = checked Then
@@ -739,6 +700,7 @@ Select Case correction_process
 			add_script_app_check_resource = TRUE
 			add_script_caf_resource = TRUE
 			add_script_interview_comp_resource = TRUE
+			STATS_manualtime = STATS_manualtime + 30
 			counter = counter + 1
 		End If
 		If client_contacted_should_have_been_offered_interview_checkbox = checked Then
@@ -746,20 +708,24 @@ Select Case correction_process
 			add_hsr_interview_process_resource = TRUE
 			add_script_caf_resource = TRUE
 			add_script_interview_comp_resource = TRUE
+			STATS_manualtime = STATS_manualtime + 30
 			counter = counter + 1
 		End If
 		If interview_completed_same_day_NOMI_sent_checkbox = checked Then
 			email_body = email_body & "<p><i>" & "&emsp;" & counter &  ". An interview was completed the same day after a NOMI was sent, but notice was not canceled." & "</i>" & " Please cancel NOMI notices in the future if the interview is completed the day the NOMI is sent to the client." & "</p>"
 			add_hsr_nomi_resource = TRUE
+			STATS_manualtime = STATS_manualtime + 30
 			counter = counter + 1
 		End If
 
 		If trim(email_notes) <> "" Then
 			email_body = email_body & "<p>" & "Additional Information:" & "<br>"
 			email_body = email_body & email_notes & "</p>"
+			STATS_manualtime = STATS_manualtime + 15
 		End If
 		add_hsr_on_demand_resource = TRUE
 
+		'here is where we actually add the resource informtation
 		email_body = email_body & "<p><b><i>" & "&ensp;" & "RESOURCES:" & "</b></i></p>"
 
 		If add_hsr_app_guide_resource = TRUE OR add_hsr_interview_process_resource = TRUE OR add_hsr_appling_resource = TRUE OR add_hsr_nomi_resource = TRUE OR add_hsr_on_demand_resource = TRUE Then email_body = email_body & "<i>" & "&emsp;" & "Internal:" & "</i><br>"
@@ -780,6 +746,7 @@ Select Case correction_process
 		If add_script_clt_contact_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "https://dept.hennepin.us/hsphd/sa/ews/BlueZone_Script_Instructions/NOTES/NOTES - CLIENT CONTACT.docx" & chr(34) & ">" & "NOTES - CLIENT CONTACT" & "</a><br>"
 		If add_script_interview_comp_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "https://dept.hennepin.us/hsphd/sa/ews/BlueZone_Script_Instructions/NOTES/NOTES - INTERVIEW COMPLETED.docx" & chr(34) & ">" & "NOTES - INTERVIEW COMPLETED" & "</a><br>"
 
+		'End of the message with email llinks
 		email_body = email_body & "<p>" & "Thank you for taking the time to review this information. If you have any additional questions or want additional directions and resources, please contact the QI team. For Script questions contact the BlueZone Script Team." & "<br>"
 		email_body = email_body & "<a href=" & chr(34) & "mailto:HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us?subject=SNAP%20EXP%20Questions" & chr(34) & ">" & "Email Quality Improvement" & "</a><br>"
 		email_body = email_body & "<a href=" & chr(34) & "mailto:HSPH.EWS.BlueZoneScripts@hennepin.us?subject=SNAP%20EXP%20Questions" & chr(34) & ">" & "Email the BlueZone Script Team" & "</a><br>"
@@ -788,6 +755,7 @@ Select Case correction_process
 		email_body = email_body & "<p style=" & chr(34) & "font-size:20px" & chr(34) & ">" & "From, " & email_signature & "<br>"
 		email_body = email_body & "Member of the ES Quality Improvement Team" & "</p>"
 
+		'NOW WE SEND THE EMAIL
 		'Setting up the Outlook application
 		Set objOutlook = CreateObject("Outlook.Application")
 		Set objMail = objOutlook.CreateItem(0)
@@ -806,18 +774,7 @@ Select Case correction_process
 		Set objMail =   Nothing
 		Set objOutlook = Nothing
 
-
-		excel_file_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\Applications Statistics\ON DEMAND Email Corrections Data.xlsx"
-		call excel_open(excel_file_path, False,  False, ObjExcel, objWorkbook)  'opening the Excel'
-		ObjExcel.worksheets("Data").Activate
-
-		excel_row = 2                                                           'finding the first empty excel row
-		Do
-			this_entry = ObjExcel.Cells(excel_row, 1).Value
-			this_entry = trim(this_entry)
-			If this_entry <> "" Then excel_row = excel_row + 1
-		Loop until this_entry = ""
-
+		'On Demand Column constants'
 		recip_col = 1
 		date_col = 2
 		case_numb_col = 3
@@ -831,10 +788,23 @@ Select Case correction_process
 		caf_script_used_no_interview_col 							= 11
 		client_contacted_should_have_been_offered_interview_col 	= 12
 		interview_completed_same_day_NOMI_sent_col 					= 13
-		other_notes_col 											= 14					'Other Notes
-		worker_to_follow_up_col										= 15			'Worker to Follow Up
-		qi_worker_col 												= 16						'QI Worker
+		other_notes_col 											= 14
+		worker_to_follow_up_col										= 15
+		qi_worker_col 												= 16
 
+		'HERE IS THE TRAKING PART - so we can save the information about what and who we emailed for corrections
+		excel_file_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\Applications Statistics\ON DEMAND Email Corrections Data.xlsx"
+		call excel_open(excel_file_path, False,  False, ObjExcel, objWorkbook)  'opening the Excel'
+		ObjExcel.worksheets("Data").Activate
+
+		excel_row = 2                                                           'finding the first empty excel row
+		Do
+			this_entry = ObjExcel.Cells(excel_row, 1).Value
+			this_entry = trim(this_entry)
+			If this_entry <> "" Then excel_row = excel_row + 1
+		Loop until this_entry = ""
+
+		'Adding all the information to the Excel
 		ObjExcel.Cells(excel_row, recip_col).Value 							= email_recipient
 		ObjExcel.Cells(excel_row, date_col).Value 							= date
 		ObjExcel.Cells(excel_row, case_numb_col).Value 						= MAXIS_case_number
@@ -859,11 +829,4 @@ Select Case correction_process
 
 End Select
 
-
-
-'Send the email
-'Add the detail to the spreadsheet
-
-
-
-Call script_end_procedure_with_error_report("All Done")
+Call script_end_procedure_with_error_report("Email sent and tracking updated. Thank you!")
