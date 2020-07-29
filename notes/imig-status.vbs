@@ -133,7 +133,7 @@ BeginDialog Dialog1, 0, 0, 366, 300, "Immigration Status"
  DropListBox 255, 75, 95, 15, "Select One:"+chr(9)+"Certificate of Naturalization"+chr(9)+"Employment Auth Card (I-776 work permit)"+chr(9)+"I-94 Travel Document"+chr(9)+"I-220 B Order of Supervision"+chr(9)+"LPR Card (I-551 green card)"+chr(9)+"SAVE"+chr(9)+"Other"+chr(9)+"No Ver Prvd", immig_doc_type
  EditBox 305, 95, 45, 15, entry_date
  EditBox 305, 115, 45, 15, status_date
- CheckBox 10, 75, 110, 10, "Emailed HP.immigration?", HP_EMAIL_CHECKBOX
+ CheckBox 10, 75, 110, 10, "Email HP.immigration?", HP_EMAIL_CHECKBOX
  CheckBox 10, 90, 90, 10, "SAVE Completed?", save_CHECKBOX
  CheckBox 10, 105, 145, 10, "Additional SAVE Information Requested?", additional_CHECKBOX
  CheckBox 15, 120, 220, 10, "check here if immig document was attached to additional SAVE?", SAVE_docs_check
@@ -190,13 +190,14 @@ Do
 			err_msg = err_msg & vbNewLine & "* This will delete IMIG, SPON, and update MEMI & MEMB for this member."
 			EXIT DO
 		ELSE
-			If LPR_status_dropdown = "50 Other Lawfully Residing" and other_notes = "" then err_msg = err_msg & vbNewLine & "*You selected that the client is Lawfully Residing please specify status in other notes."
 			IF immig_status_dropdown = "Select One:" then err_msg = err_msg & vbNewLine & "* Please advise of current immigration status."
 			IF immig_doc_type = "Select One:" then err_msg = err_msg & vbNewLine & "* Please advise of immigration document used."
 			IF (immig_doc_type = "Certificate of Naturalization" and immig_status_dropdown <> "US Citizen") THEN err_msg = err_msg & vbNewLine & "* You indicated that you have received Certificate of Naturalization immigration status should be US Citizen."
 			If isdate(actual_date) = FALSE then err_msg = err_msg & vbnewline & "* You must enter an actual date in the footer month that you are working in and not in the future."
 			If isdate(entry_date) = FALSE then err_msg = err_msg & vbnewline & "* Entry Date is required for all persons." 'with exception of Asylee, Deportation/Removal Withheld, or Undocumented statuses."
 		END IF
+		IF LPR_status_dropdown = "50 Other Lawfully Residing" and other_notes = "" THEN err_msg = err_msg & vbNewLine & "* You selected that the client is Lawfully Residing please specify status in other notes."
+		IF immig_status_dropdown = "50 Other Lawfully Residing" and other_notes = "" THEN err_msg = err_msg & vbNewLine & "* You selected that the client is Lawfully Residing please specify status in other notes."
 		IF immig_status_dropdown = "22 Asylee" or immig_status_dropdown = "23 Deport/Remove Withheld" Then
 			If isdate(status_date) = FALSE then err_msg = err_msg & vbnewline & "* Status Date is required for persons with Asylee or Deportation/Removal Withheld statuses."
 		END IF
@@ -559,13 +560,31 @@ IF ESL_skills <> "Select One:" THEN Call write_bullet_and_variable_in_case_note(
 Call write_variable_in_case_note("---")
 Call write_variable_in_case_note(worker_signature)
 PF3
-'TODO add a email to HP IMIG
-'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-IF HP_EMAIL_CHECKBOX = CHECKED THEN CALL create_outlook_email("HSPH.HPImmigration@hennepin.us", "", maxis_case_number & " Please review for IMIG accuracy. " & worker_number & "  EOM.", "", "", FALSE)
+IF HP_EMAIL_CHECKBOX = CHECKED THEN
+	EMWriteScreen "x", 5, 3
+	TRANSMIT
+	note_row = 4			'Beginning of the case notes
+	Do 						'Read each line
+		EMReadScreen note_line, 76, note_row, 3
+		note_line = trim(note_line)
+		If trim(note_line) = "" Then Exit Do		'Any blank line indicates the end of the case note because there can be no blank lines in a note
+		message_array = message_array & note_line & vbcr		'putting the lines together
+		note_row = note_row + 1
+		If note_row = 18 then 									'End of a single page of the case note
+			EMReadScreen next_page, 7, note_row, 3
+			If next_page = "More: +" Then 						'This indicates there is another page of the case note
+				PF8												'goes to the next line and resets the row to read'\
+				note_row = 4
+			End If
+		End If
+	Loop until next_page = "More:  " OR next_page = "       "	'No more pages
+	'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
+	CALL create_outlook_email("HP.Immigration@hennepin.us", "", "Please review for accuracy case #  " & MAXIS_case_number & " Member # " & memb_number , "CASE NOTE" & vbcr & message_array, "", FALSE)
+END IF
 ''create_outlook_appointment(appt_date, appt_start_time, appt_end_time, appt_subject, appt_body, appt_location, appt_reminder, reminder_in_minutes, appt_category)
 IF additional_CHECKBOX = CHECKED THEN
 	'Call create_outlook_appointment(appt_date, appt_start_time, appt_end_time, appt_subject, appt_body, appt_location, appt_reminder, appt_category)
 	Call create_outlook_appointment(reminder_date, "08:00 AM", "08:00 AM", "SAVE request check: " & reminder_text & " for " & MAXIS_case_number, "", "", TRUE, 5, "")
 	Outlook_remider = True
 End if
-script_end_procedure("Success! Please review your case notes and IMIG panel to ensure they were updated correctly.")
+script_end_procedure_with_error_report("Please review your case notes, email, and IMIG panel to ensure accuracy.")
