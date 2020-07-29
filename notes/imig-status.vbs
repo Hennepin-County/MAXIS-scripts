@@ -44,12 +44,10 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/29/2020", "Updated coding to email HPImmigration and handling for when a client is reported as Lawfully Residing.", "MiKayla Handley, Hennepin County")
 call changelog_update("08/07/2019", "Updated coding to update citizenship status and verification at new location due to MEMI panel changes associated with New Spouse Income Policy.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/25/2019", "Added a case note only option when a case is inactive.", "MiKayla Handley")
 call changelog_update("03/28/2018", "Initial version.", "MiKayla Handley")
-
-
-
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
@@ -135,7 +133,7 @@ BeginDialog Dialog1, 0, 0, 366, 300, "Immigration Status"
  DropListBox 255, 75, 95, 15, "Select One:"+chr(9)+"Certificate of Naturalization"+chr(9)+"Employment Auth Card (I-776 work permit)"+chr(9)+"I-94 Travel Document"+chr(9)+"I-220 B Order of Supervision"+chr(9)+"LPR Card (I-551 green card)"+chr(9)+"SAVE"+chr(9)+"Other"+chr(9)+"No Ver Prvd", immig_doc_type
  EditBox 305, 95, 45, 15, entry_date
  EditBox 305, 115, 45, 15, status_date
- CheckBox 10, 75, 110, 10, "Emailed HP.immigration?", emailHP_CHECKBOX
+ CheckBox 10, 75, 110, 10, "Emailed HP.immigration?", HP_EMAIL_CHECKBOX
  CheckBox 10, 90, 90, 10, "SAVE Completed?", save_CHECKBOX
  CheckBox 10, 105, 145, 10, "Additional SAVE Information Requested?", additional_CHECKBOX
  CheckBox 15, 120, 220, 10, "check here if immig document was attached to additional SAVE?", SAVE_docs_check
@@ -192,6 +190,7 @@ Do
 			err_msg = err_msg & vbNewLine & "* This will delete IMIG, SPON, and update MEMI & MEMB for this member."
 			EXIT DO
 		ELSE
+			If LPR_status_dropdown = "50 Other Lawfully Residing" and other_notes = "" then err_msg = err_msg & vbNewLine & "*You selected that the client is Lawfully Residing please specify status in other notes."
 			IF immig_status_dropdown = "Select One:" then err_msg = err_msg & vbNewLine & "* Please advise of current immigration status."
 			IF immig_doc_type = "Select One:" then err_msg = err_msg & vbNewLine & "* Please advise of immigration document used."
 			IF (immig_doc_type = "Certificate of Naturalization" and immig_status_dropdown <> "US Citizen") THEN err_msg = err_msg & vbNewLine & "* You indicated that you have received Certificate of Naturalization immigration status should be US Citizen."
@@ -525,7 +524,7 @@ IF date_of_entry <> "Select One:" THEN Call write_bullet_and_variable_in_case_no
 IF nationality_dropdown <> "Select One:" THEN Call write_bullet_and_variable_in_case_note("Nationality", nationality_dropdown)
 IF status_verification <> "Select One:" THEN Call write_bullet_and_variable_in_case_note("Status verification", status_verification)
 IF status_verification <> "Select One:" THEN Call write_bullet_and_variable_in_case_note("Immigration document received", immig_doc_type)
-IF emailHP_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Emailed HP Immigration")
+IF HP_EMAIL_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Emailed HP Immigration")
 Call write_variable_in_case_note("")
 If yes_sponsored = CHECKED then
 	Call write_variable_in_case_note("* Client is sponsored")
@@ -562,7 +561,7 @@ Call write_variable_in_case_note(worker_signature)
 PF3
 'TODO add a email to HP IMIG
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-'IF additional_CHECKBOX = CHECKED THEN CALL create_outlook_email("HSPH.HPImmigration@hennepin.us", "", MAXIS_case_name & maxis_case_number & " Expedited case to be assigned, transferred to team. " & worker_number & "  EOM.", "", "", TRUE)
+IF HP_EMAIL_CHECKBOX = CHECKED THEN CALL create_outlook_email("HSPH.HPImmigration@hennepin.us", "", maxis_case_number & " Please review for IMIG accuracy. " & worker_number & "  EOM.", "", "", FALSE)
 ''create_outlook_appointment(appt_date, appt_start_time, appt_end_time, appt_subject, appt_body, appt_location, appt_reminder, reminder_in_minutes, appt_category)
 IF additional_CHECKBOX = CHECKED THEN
 	'Call create_outlook_appointment(appt_date, appt_start_time, appt_end_time, appt_subject, appt_body, appt_location, appt_reminder, appt_category)
