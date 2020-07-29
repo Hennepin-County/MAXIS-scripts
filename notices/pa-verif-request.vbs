@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/29/2020", "Removed the 'PRINT' default of the document at the end of the script run because we are not currently in the office.", "Casey Love, Hennepin County")
 call changelog_update("07/29/2020", "Removed the option to include income information from MAXIS in the document. The official policy and process needs to be followed for this type of information. Added a button to open the HSR Manual page.", "Casey Love, Hennepin County")
 call changelog_update("01/15/2019", "Updated to accomodate benefits larger than $1,000 for SNAP, MFIP, and DWP.", "Casey Love, Hennepin County")
 call changelog_update("12/01/2016", "Checkbox added with the option to have 'Other Income' not listed on the word document.", "Casey Love, Ramsey County")
@@ -485,7 +486,8 @@ call write_variable_in_CASE_NOTE("PA verification request completed and sent to 
 call write_variable_in_CASE_NOTE("---")
 call write_variable_in_CASE_NOTE(worker_signature)
 
+'removal of print option during the COVID-19 PEACETIME STATE OF EMERGENCY
 'Starts the print dialog
-objword.dialogs(wdDialogFilePrint).Show
+' objword.dialogs(wdDialogFilePrint).Show
 
 script_end_procedure("")
