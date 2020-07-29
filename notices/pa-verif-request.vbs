@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/29/2020", "Removed the option to include income information from MAXIS in the document. The official policy and process needs to be followed for this type of information. Added a button to open the HSR Manual page.", "Casey Love, Hennepin County")
 call changelog_update("01/15/2019", "Updated to accomodate benefits larger than $1,000 for SNAP, MFIP, and DWP.", "Casey Love, Hennepin County")
 call changelog_update("12/01/2016", "Checkbox added with the option to have 'Other Income' not listed on the word document.", "Casey Love, Ramsey County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
@@ -123,17 +124,6 @@ call find_variable("Last: ", last_name, 24)
 call find_variable("First: ", first_name, 11)
 client_name = first_name & " " & last_name
 client_name = replace(client_name, "_", "")
-
-'Autofilling info for case note
-call autofill_editbox_from_MAXIS(HH_member_array, "BUSI", earned_income)
-call autofill_editbox_from_MAXIS(HH_member_array, "JOBS", earned_income)
-call autofill_editbox_from_MAXIS(HH_member_array, "RBIC", earned_income)
-call autofill_editbox_from_MAXIS(HH_member_array, "UNEA", unearned_income)
-
-'Cleaning up info for case note
-earned_income = trim(earned_income)
-if right(earned_income, 1) = ";" then earned_income = left(earned_income, len(earned_income) - 1)
-other_income = earned_income & " " & unearned_income
 
 
 'This function looks for an approved version of elig
@@ -293,10 +283,10 @@ call navigate_to_MAXIS_screen("case", "curr")
 'calling the main dialog
 
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 316, 255, "PA Verif Dialog"
+BeginDialog Dialog1, 0, 0, 316, 260, "PA Verif Dialog"
   ButtonGroup ButtonPressed
-    OkButton 200, 230, 50, 15
-    CancelButton 255, 230, 50, 15
+    OkButton 200, 240, 50, 15
+    CancelButton 255, 240, 50, 15
   EditBox 40, 15, 30, 15, snap_grant
   EditBox 105, 15, 35, 15, MFIP_food
   EditBox 145, 15, 35, 15, MFIP_cash
@@ -309,15 +299,15 @@ BeginDialog Dialog1, 0, 0, 316, 255, "PA Verif Dialog"
   EditBox 285, 55, 20, 15, household_members
   EditBox 85, 75, 220, 15, other_income
   EditBox 105, 95, 20, 15, number_of_months
-  CheckBox 15, 155, 280, 10, "Check here to have the income and HH information withheld from the word doc.", no_income_checkbox
-  EditBox 55, 180, 250, 15, other_notes
-  EditBox 55, 205, 90, 15, completed_by
-  EditBox 210, 205, 95, 15, worker_phone
-  EditBox 120, 230, 75, 15, worker_signature
+  CheckBox 15, 145, 280, 10, "Check here to have the HH information withheld from the word doc.", no_hh_info_checkbox
+  EditBox 55, 195, 250, 15, other_notes
+  EditBox 55, 220, 90, 15, completed_by
+  EditBox 210, 220, 95, 15, worker_phone
+  EditBox 120, 240, 75, 15, worker_signature
   CheckBox 10, 100, 95, 10, "Include screenshot of last", inqd_check
   Text 10, 20, 20, 10, "SNAP:"
   Text 110, 60, 20, 10, "DWP:"
-  Text 5, 185, 40, 10, "Other notes:"
+  Text 5, 200, 40, 10, "Other notes:"
   Text 10, 60, 20, 10, "GA:"
   Text 10, 40, 20, 10, "MSA:"
   Text 80, 20, 20, 10, "MFIP:"
@@ -329,11 +319,14 @@ BeginDialog Dialog1, 0, 0, 316, 255, "PA Verif Dialog"
   Text 110, 5, 25, 10, "Food:"
   Text 150, 5, 25, 10, "Cash:"
   Text 130, 100, 60, 10, "months' benefits"
-  Text 155, 210, 55, 10, "Worker phone #:"
-  Text 5, 210, 50, 10, "Completed by:"
-  Text 5, 235, 110, 10, "Worker Signature (for case note):"
-  Text 15, 130, 280, 20, "Do not share FTI with outside agencies using this form, including information from SSA such as SSI/RSDI amounts."
-  GroupBox 5, 120, 300, 50, "Warning!"
+  Text 155, 225, 55, 10, "Worker phone #:"
+  Text 5, 225, 50, 10, "Completed by:"
+  Text 5, 245, 110, 10, "Worker Signature (for case note):"
+  Text 15, 125, 280, 20, "We cannot provide information about budgeted or known income as we cannot verify anything other that Pulic Assistance Income."
+  GroupBox 5, 115, 300, 75, "Warning!"
+  Text 15, 160, 275, 20, "If a resident needs information from their file, they must request it through the ROI Team (Release of Information)."
+  ButtonGroup ButtonPressed
+	PushButton 175, 172, 120, 13, "HSR Manual - Data Privacy", data_privacy_btn
 EndDialog
 
 Do
@@ -344,7 +337,13 @@ Do
 		If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Please sign your case note."
 		If completed_by = "" then err_msg = err_msg & vbNewLine & "* Please fill out the completed by field."
 		If worker_phone = "" then err_msg = err_msg & vbNewLine & "* Please fill out the worker phone field."
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+
+		if ButtonPressed = data_privacy_btn Then
+			Call open_URL_in_browser("https://dept.hennepin.us/hsphd/manuals/hsrm/Pages/Data_Privacy.aspx")
+			err_msg = "LOOP" & err_msg
+		Else
+			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+		End If
 	LOOP until err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
@@ -392,34 +391,23 @@ objTable.Cell(7, 1).Range.Text = "DWP (Diversionary Work program) "
 objTable.Cell(7, 2).Range.Text = DWP_grant
 
 objTable.AutoFormat(16)
-If no_income_checkbox = unchecked Then 		'Only adding the detail from stat if the worker leaves the omit income unchecked
-	objSelection.EndKey end_of_doc
-	objSelection.TypeParagraph()
 
-	objSelection.TypeText "Other income known to agency: "
-	objSelection.TypeText other_income
-	objSelection.TypeParagraph()
-	objSelection.TypeText "Number of family members on cash grant: "
-	objSelection.TypeText cash_members
-	objSelection.TypeParagraph()
+objSelection.EndKey end_of_doc
+objSelection.TypeParagraph()
+
+objSelection.TypeText "Number of family members on cash grant: "
+objSelection.TypeText cash_members
+objSelection.TypeParagraph()
+
+If no_hh_info_checkbox = unchecked Then 		'Only adding the detail from stat if the worker leaves the omit income unchecked
 	objSelection.TypeText "Number of persons in household: "
 	objSelection.TypeText household_members
 	objSelection.TypeParagraph()
-	ObjSelection.TypeText "Other Notes: "
-	objSelection.TypeText other_notes
-	objSelection.TypeParagraph()
-Else 										'If worker requests income from STAT to be omitted, the script only adds the cash grant size and other notes.
-	objSelection.EndKey end_of_doc
-	objSelection.TypeParagraph()
-
-	objSelection.TypeText "Number of family members on cash grant: "
-	objSelection.TypeText cash_members
-	objSelection.TypeParagraph()
-
-	ObjSelection.TypeText "Other Notes: "
-	objSelection.TypeText other_notes
-	objSelection.TypeParagraph()
 End If
+
+ObjSelection.TypeText "Other Notes: "
+objSelection.TypeText other_notes
+objSelection.TypeParagraph()
 
 'Writing INQX to the doc if selected
 IF inqd_check = checked THEN
