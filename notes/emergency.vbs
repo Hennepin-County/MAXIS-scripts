@@ -53,6 +53,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/30/2020", "BUG Fix: The script was getting stuck and would not continue to the note if a required field was not completed.##~##Updated so that the dialog with the missing field would appear.##~##", "Casey Love, Hennepin County")
 call changelog_update("04/01/2020", "Updated 200% FPG for 2020.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/28/2019", "Updated EGA screening determination when emer has been used before, but the elig period has expired.", "Ilse Ferris, Hennepin County")
 call changelog_update("04/11/2019", "Updated backend processing.", "Ilse Ferris, Hennepin County")
@@ -320,74 +321,75 @@ call autofill_editbox_from_MAXIS(HH_member_array, "UNEA", income)
 call autofill_editbox_from_MAXIS(HH_member_array, "HEST", monthly_expense) 'Does this last because people like it tacked on to the end, not before. The rest are alphabetical.
 
 '-------------------------------------------------------------------------------------------------DIALOG
-Dialog1 = "" 'Blanking out previous dialog detail
-'This dialog contains a customized "percent rule" variable, as well as a customized "income days" variable. As such, it can't directly be edited in the dialog editor.
-BeginDialog Dialog1, 0, 0, 326, 395, "Emergency Dialog"
-  EditBox 60, 45, 65, 15, interview_date
-  EditBox 170, 45, 150, 15, HH_comp
-  CheckBox 25, 75, 40, 10, "Eviction", eviction_check
-  CheckBox 75, 75, 70, 10, "Utility disconnect", utility_disconnect_check
-  CheckBox 155, 75, 60, 10, "Homelessness", homelessness_check
-  CheckBox 230, 75, 65, 10, "Security deposit", security_deposit_check
-  EditBox 65, 100, 255, 15, cause_of_crisis
-  EditBox 85, 160, 235, 15, income
-  EditBox 105, 180, 215, 15, income_under_200_FPG
-  EditBox 60, 200, 260, 15, percent_rule_notes
-  EditBox 70, 220, 250, 15, monthly_expense
-  EditBox 55, 240, 265, 15, assets
-  EditBox 55, 260, 265, 15, verifs_needed
-  EditBox 80, 280, 240, 15, crisis_resolvable
-  EditBox 80, 300, 240, 15, discussion_of_crisis
-  EditBox 55, 320, 265, 15, actions_taken
-  EditBox 55, 340, 265, 15, referrals
-  CheckBox 5, 360, 90, 10, "Sent forms to AREP?", sent_arep_checkbox
-  EditBox 70, 375, 140, 15, worker_signature
-  ButtonGroup ButtonPressed
-	OkButton 215, 375, 50, 15
-	CancelButton 270, 375, 50, 15
-	PushButton 10, 15, 25, 10, "ADDR", ADDR_button
-	PushButton 35, 15, 25, 10, "MEMB", MEMB_button
-	PushButton 60, 15, 25, 10, "MEMI", MEMI_button
-	PushButton 10, 25, 25, 10, "PROG", PROG_button
-	PushButton 35, 25, 25, 10, "TYPE", TYPE_button
-	PushButton 125, 20, 50, 10, "ELIG/EMER", ELIG_EMER_button
-	PushButton 210, 15, 45, 10, "prev. panel", prev_panel_button
-	PushButton 210, 25, 45, 10, "next panel", next_panel_button
-	PushButton 270, 15, 45, 10, "prev. memb", prev_memb_button
-	PushButton 270, 25, 45, 10, "next memb", next_memb_button
-	PushButton 75, 130, 25, 10, "BUSI", BUSI_button
-	PushButton 100, 130, 25, 10, "JOBS", JOBS_button
-	PushButton 75, 140, 25, 10, "RBIC", RBIC_button
-	PushButton 100, 140, 25, 10, "UNEA", UNEA_button
-	PushButton 150, 130, 25, 10, "ACCT", ACCT_button
-	PushButton 175, 130, 25, 10, "CARS", CARS_button
-	PushButton 200, 130, 25, 10, "CASH", CASH_button
-	PushButton 225, 130, 25, 10, "OTHR", OTHR_button
-	PushButton 150, 140, 25, 10, "REST", REST_button
-	PushButton 175, 140, 25, 10, "SECU", SECU_button
-	PushButton 200, 140, 25, 10, "TRAN", TRAN_button
-  GroupBox 5, 5, 85, 35, "other STAT panels:"
-  GroupBox 205, 5, 115, 35, "STAT-based navigation"
-  Text 5, 50, 50, 10, "Interview date:"
-  Text 130, 50, 35, 10, "HH Comp:"
-  GroupBox 20, 65, 280, 25, "Crisis (check all that apply):"
-  Text 5, 105, 55, 10, "Cause of crisis:"
-  GroupBox 70, 120, 60, 35, "Income panels"
-  GroupBox 145, 120, 110, 35, "Asset panels"
-  Text 5, 165, 75, 10, "Income (past " & emer_number_of_income_days & " days):"
-  Text 5, 185, 100, 10, "Is income under 200% FPG?:"
-  Text 5, 205, 55, 10, emer_percent_rule_amt & "% rule notes:"
-  Text 5, 225, 60, 10, "Monthly expense:"
-  Text 25, 245, 25, 10, "Assets:"
-  Text 5, 265, 50, 10, "Verifs needed:"
-  Text 5, 285, 65, 10, "Crisis resolvable?:"
-  Text 5, 305, 70, 10, "Discussion of Crisis:"
-  Text 5, 325, 50, 10, "Actions taken:"
-  Text 15, 345, 35, 10, "Referrals:"
-  Text 5, 380, 65, 10, "Worker signature:"
-EndDialog
 DO
 	Do
+        Dialog1 = "" 'Blanking out previous dialog detail
+        'This dialog contains a customized "percent rule" variable, as well as a customized "income days" variable. As such, it can't directly be edited in the dialog editor.
+        BeginDialog Dialog1, 0, 0, 326, 395, "Emergency Dialog"
+        EditBox 60, 45, 65, 15, interview_date
+        EditBox 170, 45, 150, 15, HH_comp
+        CheckBox 25, 75, 40, 10, "Eviction", eviction_check
+        CheckBox 75, 75, 70, 10, "Utility disconnect", utility_disconnect_check
+        CheckBox 155, 75, 60, 10, "Homelessness", homelessness_check
+        CheckBox 230, 75, 65, 10, "Security deposit", security_deposit_check
+        EditBox 65, 100, 255, 15, cause_of_crisis
+        EditBox 85, 160, 235, 15, income
+        EditBox 105, 180, 215, 15, income_under_200_FPG
+        EditBox 60, 200, 260, 15, percent_rule_notes
+        EditBox 70, 220, 250, 15, monthly_expense
+        EditBox 55, 240, 265, 15, assets
+        EditBox 55, 260, 265, 15, verifs_needed
+        EditBox 80, 280, 240, 15, crisis_resolvable
+        EditBox 80, 300, 240, 15, discussion_of_crisis
+        EditBox 55, 320, 265, 15, actions_taken
+        EditBox 55, 340, 265, 15, referrals
+        CheckBox 5, 360, 90, 10, "Sent forms to AREP?", sent_arep_checkbox
+        EditBox 70, 375, 140, 15, worker_signature
+        ButtonGroup ButtonPressed
+        OkButton 215, 375, 50, 15
+        CancelButton 270, 375, 50, 15
+        PushButton 10, 15, 25, 10, "ADDR", ADDR_button
+        PushButton 35, 15, 25, 10, "MEMB", MEMB_button
+        PushButton 60, 15, 25, 10, "MEMI", MEMI_button
+        PushButton 10, 25, 25, 10, "PROG", PROG_button
+        PushButton 35, 25, 25, 10, "TYPE", TYPE_button
+        PushButton 125, 20, 50, 10, "ELIG/EMER", ELIG_EMER_button
+        PushButton 210, 15, 45, 10, "prev. panel", prev_panel_button
+        PushButton 210, 25, 45, 10, "next panel", next_panel_button
+        PushButton 270, 15, 45, 10, "prev. memb", prev_memb_button
+        PushButton 270, 25, 45, 10, "next memb", next_memb_button
+        PushButton 75, 130, 25, 10, "BUSI", BUSI_button
+        PushButton 100, 130, 25, 10, "JOBS", JOBS_button
+        PushButton 75, 140, 25, 10, "RBIC", RBIC_button
+        PushButton 100, 140, 25, 10, "UNEA", UNEA_button
+        PushButton 150, 130, 25, 10, "ACCT", ACCT_button
+        PushButton 175, 130, 25, 10, "CARS", CARS_button
+        PushButton 200, 130, 25, 10, "CASH", CASH_button
+        PushButton 225, 130, 25, 10, "OTHR", OTHR_button
+        PushButton 150, 140, 25, 10, "REST", REST_button
+        PushButton 175, 140, 25, 10, "SECU", SECU_button
+        PushButton 200, 140, 25, 10, "TRAN", TRAN_button
+        GroupBox 5, 5, 85, 35, "other STAT panels:"
+        GroupBox 205, 5, 115, 35, "STAT-based navigation"
+        Text 5, 50, 50, 10, "Interview date:"
+        Text 130, 50, 35, 10, "HH Comp:"
+        GroupBox 20, 65, 280, 25, "Crisis (check all that apply):"
+        Text 5, 105, 55, 10, "Cause of crisis:"
+        GroupBox 70, 120, 60, 35, "Income panels"
+        GroupBox 145, 120, 110, 35, "Asset panels"
+        Text 5, 165, 75, 10, "Income (past " & emer_number_of_income_days & " days):"
+        Text 5, 185, 100, 10, "Is income under 200% FPG?:"
+        Text 5, 205, 55, 10, emer_percent_rule_amt & "% rule notes:"
+        Text 5, 225, 60, 10, "Monthly expense:"
+        Text 25, 245, 25, 10, "Assets:"
+        Text 5, 265, 50, 10, "Verifs needed:"
+        Text 5, 285, 65, 10, "Crisis resolvable?:"
+        Text 5, 305, 70, 10, "Discussion of Crisis:"
+        Text 5, 325, 50, 10, "Actions taken:"
+        Text 15, 345, 35, 10, "Referrals:"
+        Text 5, 380, 65, 10, "Worker signature:"
+        EndDialog
+
 	    err_msg = ""
 		Do
 			Dialog Dialog1
