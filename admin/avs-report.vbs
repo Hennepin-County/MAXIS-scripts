@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/30/2020", "Removed MEMO coding, and cleaned up other commented out code.", "Ilse Ferris, Hennepin County")
 call changelog_update("07/30/2020", "Removed the Output Waiver Lists option. Added Output Forms List for all recipients who do not have forms.", "Ilse Ferris, Hennepin County")
 call changelog_update("05/14/2020", "Added case number for the Output Waiver Lists option.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/11/2020", "Added case mgr name and agency info from MMIS for the Output Waiver Lists option.", "Ilse Ferris, Hennepin County")
@@ -63,45 +64,6 @@ Function MMIS_panel_check(panel_name, col)
 		If panel_check <> panel_name then Call write_value_and_transmit(panel_name, 1, 8)
 	Loop until panel_check = panel_name
 End function
-
-'defining this function here because it needs to not end the script if a MEMO fails.
-function start_a_new_spec_memo_and_continue(success_var)
-'--- This function navigates user to SPEC/MEMO and starts a new SPEC/MEMO, selecting client, AREP, and SWKR if appropriate
-'===== Keywords: MAXIS, notice, navigate, edit
-    success_var = True
-	call navigate_to_MAXIS_screen("SPEC", "MEMO")				'Navigating to SPEC/MEMO
-
-	PF5															'Creates a new MEMO. If it's unable the script will stop.
-	EMReadScreen memo_display_check, 12, 2, 33
-	If memo_display_check = "Memo Display" then success_var = False
-
-	'Checking for an AREP. If there's an AREP it'll navigate to STAT/AREP, check to see if the forms go to the AREP. If they do, it'll write X's in those fields below.
-	row = 4                             'Defining row and col for the search feature.
-	col = 1
-	EMSearch "ALTREP", row, col         'Row and col are variables which change from their above declarations if "ALTREP" string is found.
-	IF row > 4 THEN                     'If it isn't 4, that means it was found.
-	    arep_row = row                                          'Logs the row it found the ALTREP string as arep_row
-	    call navigate_to_MAXIS_screen("STAT", "AREP")           'Navigates to STAT/AREP to check and see if forms go to the AREP
-	    EMReadscreen forms_to_arep, 1, 10, 45                   'Reads for the "Forms to AREP?" Y/N response on the panel.
-	    call navigate_to_MAXIS_screen("SPEC", "MEMO")           'Navigates back to SPEC/MEMO
-	    PF5                                                     'PF5s again to initiate the new memo process
-	END IF
-	'Checking for SWKR
-	row = 4                             'Defining row and col for the search feature.
-	col = 1
-	EMSearch "SOCWKR", row, col         'Row and col are variables which change from their above declarations if "SOCWKR" string is found.
-	IF row > 4 THEN                     'If it isn't 4, that means it was found.
-	    swkr_row = row                                          'Logs the row it found the SOCWKR string as swkr_row
-	    call navigate_to_MAXIS_screen("STAT", "SWKR")         'Navigates to STAT/SWKR to check and see if forms go to the SWKR
-	    EMReadscreen forms_to_swkr, 1, 15, 63                'Reads for the "Forms to SWKR?" Y/N response on the panel.
-	    call navigate_to_MAXIS_screen("SPEC", "MEMO")         'Navigates back to SPEC/MEMO
-	    PF5                                           'PF5s again to initiate the new memo process
-	END IF
-	EMWriteScreen "x", 5, 12                                        'Initiates new memo to client
-	IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 12     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
-	IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 12     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
-	transmit                                                        'Transmits to start the memo writing process
-end function
 
 ''----------------------------------------------------------------------------------------------------Gathering ALL AVS FORMS information
 Function AVS_sync()   
@@ -247,8 +209,6 @@ dupe_col        = 18
 forms_col       = 19
 note_col        = 20
 NPI_col         = 21
-one_memo_col    = 22
-two_memo_col    = 23
 
 '----------------------------------------------------------------------------------------------------INITIAL DIALOG
 'The dialog is defined in the loop as it can change as buttons are pressed 
@@ -412,10 +372,8 @@ If AVS_option = "Initial Monthly Upload" then
     ObjExcel.Cells(1, 19).Value = "Forms Rec'd in ECF"
     ObjExcel.Cells(1, 20).Value = "P/C Note Created"
     ObjExcel.Cells(1, 21).Value = "Case Mgr NPI"
-    ObjExcel.Cells(1, 22).Value = "Initial Memo"
-    ObjExcel.Cells(1, 23).Value = "Second Memo"
     
-    FOR i = 1 to 23 	'formatting the cells'
+    FOR i = 1 to 21 	'formatting the cells'
     	objExcel.Cells(1, i).Font.Bold = True		'bold font'
     	ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
     	objExcel.Columns(i).AutoFit()				'sizing the columns'
@@ -672,7 +630,7 @@ If AVS_option = "Initial Monthly Upload" then
         excel_row = excel_row + 1 
     Next
     
-    FOR i = 1 to 23		'formatting the cells
+    FOR i = 1 to 21		'formatting the cells
     	objExcel.Columns(i).AutoFit()				'sizing the columns'
     NEXT
 End if     
@@ -823,8 +781,6 @@ IF AVS_option = "New Person Information" then
                         Call write_value_and_transmit("X", 8, 5)
                         EmReadscreen no_case_error, 75, 24, 2
                         If trim(no_case_error) = "PMI NBR ASSIGNED THRU SMI OR PMIN - NO MAXIS CASE EXISTS" then
-                            'EmReadscreen mtch_PMI, 8, 8, 71
-                            'objExcel.cells(excel_row, 4).Value = trim(mtch_PMI)
                             objExcel.cells(excel_row, 6).Value = "NO MAXIS CASE EXISTS"
                         Else     
                             'read client name
@@ -961,106 +917,3 @@ End if
     
 STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
 script_end_procedure("Success! AVS list is complete.")
-
-'If instr(AVS_option, "Memo") then 
-'    msgbox "Untested Coded. Waiting for AVS work group for go ahead."
-'    Do  
-'        'Establishing values for each case in the array of cases 
-'        MAXIS_case_number = objExcel.cells(excel_row, cn_col).Value   'reading the case number from Excel   
-'        MAXIS_case_number = Trim(MAXIS_case_number)
-'        
-'        client_name = objExcel.cells(excel_row, client_name_col).Value
-'        client_name = trim(client_name)
-'        Call fix_case(client_name, 2)
-'        client_name = trim(client_name)
-'        
-'        If instr(client_name, " ") then    						'Most cases have both last name and 1st name. This seperates the two names
-'            length = len(client_name)                           'establishing the length of the variable
-'            position = InStr(client_name, " ")                  'sets the position at the deliminator (in this case the comma)    
-'            first_name = left(client_name, length-position)    'establishes client first name as after before the deliminator
-'        END IF
-'        'adding first name to name list 
-'        first_name = trim(first_name)
-'        'Call fix_case(first_name, 0)
-'        msgbox first_name 
-'        
-'        form_date = objExcel.cells(excel_row, forms_col).Value
-'        form_date = trim(form_date)
-'        
-'        If AVS_option = "Initial Memo" then
-'            excel_col = one_memo_col
-'            first_line = client_name & " will soon receive a letter from the Department of Human Services with a form called Authorization to Obtain Financial Information from the AVS (Asset Validation System)."
-'            second_line = "AVS will provide Hennepin County with information on your accounts, such as checking, savings accounts, and money market accounts. If you are married or a non-citizen with a sponsor, then it will provide information on your spouse’s, sponsor(s)’, and sponsor(s)’ spouse(s) accounts."
-'            third_line = "You will receive this letter because we need your permission to access account information through the AVS for your Medical Assistance eligibility. We also may need permission to access account information for your spouse, sponsor(s), or sponsor(s)’ spouse(s). (If you are a US citizen, you do not have a sponsor)."
-'        elseif AVS_option = "Secondary Memo" then 
-'            excel_col = two_memo_col
-'            first_line =  client_name & " received a letter from the Department of Human Services with a form called Authorization to Obtain Financial Information from the AVS (Asset Validation System) in the mail."
-'            second_line = "AVS will provide Hennepin County information on your account, such as checking, savings, and money market accounts."
-'            third_line = "You received this letter because we need your permission to access account information through the AVS for your Medical Assistance eligibility. We also may need permission to access account information for your spouse, sponsor(s), or sponsor(s)’ spouse(s). (If you are a US citizen, you do not have a sponsor)."
-'        End if
-'        
-'        memo_date = objExcel.cells(excel_row, excel_col).Value
-'        memo_date = trim(memo_date)
-'                
-'        If MAXIS_case_number = "" then exit do 
-'        If form_date = "" then 
-'            If memo_date = "" then     
-'                Call start_a_new_spec_memo_and_continue
-'                If success_var = False then 
-'                    objExcel.cells(excel_row, excel_col).Value = "FALSE"
-'                Else 
-'                    '----------------------------------------------------------------------------------------------------THE SPEC/MEMO
-'                    Call start_a_new_spec_memo            
-'                    'Writes the MEMO.
-'                    call write_variable_in_SPEC_MEMO(first_line)
-'                    Call write_variable_in_SPEC_MEMO("")
-'                    Call write_variable_in_SPEC_MEMO(second_line)
-'                    Call write_variable_in_SPEC_MEMO("")
-'                    Call write_variable_in_SPEC_MEMO(third_line)
-'                    Call write_variable_in_SPEC_MEMO("")
-'                    Call write_variable_in_SPEC_MEMO("You must return the signed form for us to determine your eligibility for certain health care programs. If you do not return the form by the due date on the letter from the Department of Human Services, your Medical Assistance and/or Medicare Savings Program may close.")
-'                    Call write_variable_in_SPEC_MEMO("")	
-'                    Call write_variable_in_SPEC_MEMO("Who must sign the form?")
-'                    Call write_variable_in_SPEC_MEMO("-	" & first_name & " or Authorized Representative")
-'                    Call write_variable_in_SPEC_MEMO("-	If you are married, your spouse must also sign the form")
-'                    Call write_variable_in_SPEC_MEMO("-	If you are a Lawful Permanent Resident sponsored under an Affidavit of Support (USCIS I-864), your sponsor(s) and sponsor(s)’s spouses must also sign")
-'                    Call write_variable_in_SPEC_MEMO("")
-'                    Call write_variable_in_SPEC_MEMO("How to return the signed form:")
-'                    Call write_variable_in_SPEC_MEMO(" ")
-'                    Call write_variable_in_SPEC_MEMO("By mail: Hennepin County Human Service Dept.")
-'                    Call write_variable_in_SPEC_MEMO("PO BOX 107 Minneapolis, MN 55440")
-'                    Call write_variable_in_SPEC_MEMO(" ")
-'                    Call write_variable_in_SPEC_MEMO("By fax: 612-288-2981")
-'                    Call write_variable_in_SPEC_MEMO(" ")
-'                    Call write_variable_in_SPEC_MEMO("In person: You can drop off the form at any of our regional offices:")
-'                    Call write_variable_in_SPEC_MEMO("- Central/Northeast Minneapolis: 525 Portland Ave S Minneapolis 55415")
-'                    Call write_variable_in_SPEC_MEMO("- North Minneapolis: 1001 Plymouth Ave N Minneapolis 55411")
-'                    Call write_variable_in_SPEC_MEMO("- Northwest Suburban: 7051 Brooklyn Blvd Brooklyn Center 55429")
-'                    Call write_variable_in_SPEC_MEMO("- South Minneapolis: 2215 East Lake Street Minneapolis 55407")
-'                    Call write_variable_in_SPEC_MEMO("- South Suburban: 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30")
-'                    Call write_variable_in_SPEC_MEMO("- West Suburban: 1011 1st St S Hopkins 55343")   
-'                    PF4			'Exits the MEMO
-'                    EMReadScreen memo_sent, 8, 24, 2
-'                    If memo_sent <> "NEW MEMO" then 
-'                        objExcel.cells(excel_row, excel_col).Value = "DID NOT CREATE MEMO"
-'                        created_memo = False 
-'                    Else 
-'                        objExcel.cells(excel_row, excel_col).Value = date 
-'                        created_memo = true 
-'                        back_to_self
-'                        ''----------------------------------------------------------------------------------------------------THE CASE NOTE
-'                        'start_a_blank_CASE_NOTE
-'                        'Call write_variable_in_CASE_NOTE("Sent SPEC/MEMO re: COLA income/deduction verifs needed")
-'                        'Call write_variable_in_CASE_NOTE("Set TIKL for " & tikl_date & " to review case.") 
-'                        'Call write_variable_in_CASE_NOTE("If verifications have not been provided, a verification request in ECF will need to be sent.")
-'                        'call write_variable_in_case_note("---")
-'                        'call write_variable_in_case_note(worker_signature)
-'                        'PF3
-'                    End if  
-'                End if 
-'            End if 
-'        End if 
-'        Excel_row = excel_row + 1
-'        stats_counter = stats_counter + 1	
-'    Loop 
-'End if 
