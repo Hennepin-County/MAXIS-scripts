@@ -196,8 +196,13 @@ Do
 			If isdate(actual_date) = FALSE then err_msg = err_msg & vbnewline & "* You must enter an actual date in the footer month that you are working in and not in the future."
 			If isdate(entry_date) = FALSE then err_msg = err_msg & vbnewline & "* Entry Date is required for all persons." 'with exception of Asylee, Deportation/Removal Withheld, or Undocumented statuses."
 		END IF
-		IF LPR_status_dropdown = "50 Other Lawfully Residing" and other_notes = "" THEN err_msg = err_msg & vbNewLine & "* You selected that the client is Lawfully Residing please specify status in other notes."
+		IF immig_status_dropdown = "27 Non-immigrant" and other_notes = "" THEN err_msg = err_msg & vbNewLine & "* You selected that the client is a Non-immigrant please specify status in other notes."
+		IF immig_status_dropdown = "28 Undocumented" and other_notes = "" THEN err_msg = err_msg & vbNewLine & "* You selected that the client is Undocumented please specify status in other notes."
 		IF immig_status_dropdown = "50 Other Lawfully Residing" and other_notes = "" THEN err_msg = err_msg & vbNewLine & "* You selected that the client is Lawfully Residing please specify status in other notes."
+		IF LPR_status_dropdown = "27 Non-immigrant" and other_notes = "" THEN err_msg = err_msg & vbNewLine & "* You selected that the client was a Non-immigrant please specify status in other notes."
+		IF LPR_status_dropdown = "28 Undocumented" and other_notes = "" THEN err_msg = err_msg & vbNewLine & "* You selected that the client was Undocumented please specify status in other notes."
+		IF LPR_status_dropdown = "50 Other Lawfully Residing" and other_notes = "" THEN err_msg = err_msg & vbNewLine & "* You selected that the client was Lawfully Residing please specify status in other notes."
+
 		IF immig_status_dropdown = "22 Asylee" or immig_status_dropdown = "23 Deport/Remove Withheld" Then
 			If isdate(status_date) = FALSE then err_msg = err_msg & vbnewline & "* Status Date is required for persons with Asylee or Deportation/Removal Withheld statuses."
 		END IF
@@ -584,7 +589,7 @@ END IF
 ''create_outlook_appointment(appt_date, appt_start_time, appt_end_time, appt_subject, appt_body, appt_location, appt_reminder, reminder_in_minutes, appt_category)
 IF additional_CHECKBOX = CHECKED THEN
 	'Call create_outlook_appointment(appt_date, appt_start_time, appt_end_time, appt_subject, appt_body, appt_location, appt_reminder, appt_category)
-	Call create_outlook_appointment(reminder_date, "08:00 AM", "08:00 AM", "SAVE request check: " & reminder_text & " for " & MAXIS_case_number, "", "", TRUE, 5, "")
+	Call create_outlook_appointment(reminder_date, "08:00 AM", "08:00 AM", "SAVE request reminder for " & MAXIS_case_number, "", "", TRUE, 5, "")
 	Outlook_remider = True
 End if
 script_end_procedure_with_error_report("Please review your case notes, email, and IMIG panel to ensure accuracy.")
