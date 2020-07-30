@@ -396,21 +396,23 @@ DO
 			cancel_confirmation
 			MAXIS_dialog_navigation
 		Loop until ButtonPressed = -1
-		If ButtonPressed = -1 then
-		    '-------------------------------------------------------------------------------------------------DIALOG
-		    Dialog1 = "" 'Blanking out previous dialog detail
-		    BeginDialog Dialog1, 0, 0, 136, 51, "Case note dialog"
-		      ButtonGroup ButtonPressed
-		        PushButton 15, 20, 105, 10, "Yes, take me to case note.", yes_case_note_button
-		        PushButton 5, 35, 125, 10, "No, take me back to the script dialog.", no_case_note_button
-		      Text 10, 5, 125, 10, "Are you sure you want to case note?"
-		    EndDialog
-			dialog Dialog1
-		END IF
 	    If trim(income) = "" then err_msg = err_msg & vbcr & "* Enter income information."
         If trim(actions_taken) = "" then err_msg = err_msg & vbcr & "* Enter your actions taken."
         If trim(worker_signature) = "" then err_msg = err_msg & vbcr & "* Sign your case note."
         IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+        If err_msg = "" then
+            '-------------------------------------------------------------------------------------------------DIALOG
+            Dialog1 = "" 'Blanking out previous dialog detail
+            BeginDialog Dialog1, 0, 0, 136, 51, "Case note dialog"
+              ButtonGroup ButtonPressed
+                PushButton 15, 20, 105, 10, "Yes, take me to case note.", yes_case_note_button
+                PushButton 5, 35, 125, 10, "No, take me back to the script dialog.", no_case_note_button
+              Text 10, 5, 125, 10, "Are you sure you want to case note?"
+            EndDialog
+            dialog Dialog1
+
+            If ButtonPressed = no_case_note_button Then err_msg = "LOOP"
+        END IF
     LOOP until err_msg = ""
     Call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
