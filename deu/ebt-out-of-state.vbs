@@ -205,7 +205,7 @@ start_a_blank_case_note      'navigates to case/note and puts case/note into edi
 	END IF
 	IF other_state_contact_checkbox = CHECKED THEN Call write_variable_in_CASE_NOTE("* Other state(s) have been contacted")
 	IF other_state_contact_checkbox = UNCHECKED THEN Call write_variable_in_CASE_NOTE("* Other state(s) have not been contacted")
-	Call write_variable_in_CASE_NOTE("* Request sent to client for explanation of benefits received in the other state and shelter request ")
+	Call write_variable_in_CASE_NOTE("* Request sent to client for explanation of benefits used in the other state and shelter request ")
 	IF action_taken = "No response received" or action_taken = "Other" THEN  Call write_variable_in_CASE_NOTE("* Client will need to verify residence when reapplying")
 	CALL write_variable_in_CASE_NOTE ("----- ----- -----")
 	Call write_bullet_and_variable_in_CASE_NOTE("Date case was closed", date_closed)
