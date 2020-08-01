@@ -649,6 +649,7 @@ End Select
 email_body = "~~This email is generated from completion of the 'Report to the BZST' Script.~~" & vbCr & vbCr & email_body
 call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", email_subject, email_body, "", TRUE)
 
+STATS_manualtime = (timer-start_time) + 90
 end_msg = "Thank you!" & vbCr & "The Script to Report to BZST is Complete." & vbCr & vbCr & "Your Report has been submitted to the BlueZone Script Team. We will respond within a week. This response may not a resolution as some requests take longer for the team to discuss, plan and schedule."
 end_msg = end_msg & vbCr & vbCr & "Content of your Email to the BZST:" & vbCr & "----------------------------------------------------------" & vbCr
 end_msg = end_msg & "Subject: " & email_subject & vbCr & vbCr
