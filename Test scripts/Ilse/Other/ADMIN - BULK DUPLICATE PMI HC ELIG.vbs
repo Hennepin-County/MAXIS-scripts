@@ -154,7 +154,7 @@ Do
     case_array(third_case_number_const, 	entry_record) = ""
     case_array(third_type_const,      	    entry_record) = ""				
     case_array(third_elig_const,            entry_record) = ""	
-    case_array(case_status,                 entry_record) = False 
+    case_array(case_status,                 entry_record) = "" 
     case_array(rsum_PMI_const,              entry_record) = ""		
 
     entry_record = entry_record + 1			'This increments to the next entry in the array'
@@ -172,8 +172,7 @@ For item = 0 to UBound(case_array, 2)
     Call navigate_to_MAXIS_screen("PERS", "____")
     EMReadScreen PRIV_check, 4, 24, 14					'if case is a priv case then it gets identified, and will not be updated in MMIS
 	If PRIV_check = "PRIV" then
-        case_array(case_status, item) = False
-		case_array(rsum_PMI_const, item) = "PRIV case." 
+        case_array(case_status, item) = "PRIV case."
 		'This DO LOOP ensure that the user gets out of a PRIV case. It can be fussy, and mess the script up if the PRIV case is not cleared.
 		Do
 			back_to_self
@@ -184,40 +183,43 @@ For item = 0 to UBound(case_array, 2)
 		transmit
     Else
         Call write_value_and_transmit(client_PMI, 15, 36)
-        EmReadscreen panel_PMI, 10, 8, 71
-        panel_PMI = trim(panel_PMI)
-        
-        If instr(Client_PMI, panel_PMI) then
-            EmReadscreen Client_SSN, 11, 8, 7
-            Client_SSN = replace(Client_SSN, "-", "")
-            Client_SSN = trim(Client_SSN)
+        EmReadscreen error_message, 80, 24, 2
+        error_message = trim(error_message)
+        If error_message <> "" then 
+            case_array(case_status, item) = error_message 
+        Else     
+            EmReadscreen panel_PMI, 10, 8, 71
+            panel_PMI = trim(panel_PMI)
             
-            EmReadscreen no_case_message, 20, 24, 38
-            If no_case_message = "NO MAXIS CASE EXISTS" then 
-                case_array(case_status, item) = False
-                case_array(rsum_PMI_const, item) = "Client does not have a MAXIS case." 
-            Elseif Client_SSN = "" then
-                case_array(case_status, item) = False 
-                case_array(rsum_PMI_const, item) = "Unable to find SSN in PERS." 
+            If instr(Client_PMI, panel_PMI) then
+                EmReadscreen Client_SSN, 11, 8, 7
+                Client_SSN = replace(Client_SSN, "-", "")
+                Client_SSN = trim(Client_SSN)
+                
+                EmReadscreen no_case_message, 20, 24, 38
+                If no_case_message = "NO MAXIS CASE EXISTS" then 
+                    case_array(case_status, item) = "Client does not have a MAXIS case." 
+                Elseif Client_SSN = "" then
+                    case_array(case_status, item) = "Unable to find SSN in PERS."
+                Else 
+                    case_array(case_status, item) = ""
+                    Case_array(client_SSN_const, item) = Client_SSN
+                End if 
+                EmReadscreen last_name, 20, 8, 21
+                Case_array(last_name_const, item) = trim(last_name)
+                
+                EmReadscreen first_name, 12, 8, 42 
+                Case_array(first_name_const, item) = trim(first_name)
+                
+                EmReadscreen client_DOB, 10, 8, 60
+                case_array(DOB_const, item) = trim(client_DOB)
+                
+                EmReadscreen gender_code, 1, 8, 58
+                case_array(gender_const, item) = gender_code
+                
             Else 
-                case_array(case_status, item) = True
-                Case_array(client_SSN_const, item) = Client_SSN
+                case_array(case_status, item) = "Unable to find PMI in PERS." 
             End if 
-            EmReadscreen last_name, 20, 8, 21
-            Case_array(last_name_const, item) = trim(last_name)
-            
-            EmReadscreen first_name, 12, 8, 42 
-            Case_array(first_name_const, item) = trim(first_name)
-            
-            EmReadscreen client_DOB, 10, 8, 60
-            case_array(DOB_const, item) = trim(client_DOB)
-            
-            EmReadscreen gender_code, 1, 8, 58
-            case_array(gender_const, item) = gender_code
-            
-        Else 
-            case_array(case_status, item) = False
-            case_array(rsum_PMI_const, item) = "Unable to find PMI in PERS." 
         End if 
     End if 
 Next 
@@ -263,7 +265,7 @@ For item = 0 to UBound(case_array, 2)
     Client_PMI = case_array(clt_PMI_const, item)
     client_PMI = right("00000000" & client_pmi, 8)
     
-    If case_array(case_status, item) = True then
+    If case_array(case_status, item) = "" then
         MMIS_panel_check("RKEY") 
         Call clear_line_of_text(4, 19)
         EMWriteScreen Client_SSN, 5, 19
@@ -290,8 +292,7 @@ For item = 0 to UBound(case_array, 2)
                 EmReadscreen first_case_number, 8, 7, 16
                 first_case_number = trim(first_case_number)
                 If first_case_number = "" then
-                    case_array(case_status, item) = False 
-                    Case_array(rsum_PMI_const, item) = "No active programs in MMIS."
+                    case_array(case_status, item) = "No active programs in MMIS under billed PMI."
                 Else     
                     case_array(first_case_number_const, item) = first_case_number
                     EmReadscreen first_program, 2, 6, 13
@@ -342,7 +343,7 @@ For item = 0 to UBound(case_array, 2)
                 End if 
                     
                 'outputting to Excel 
-                If case_array(case_status, item) = True then 
+                If case_array(case_status, item) = "" then 
                     objExcel.Cells(excel_row,  1).Value = case_array (clt_PMI_const,            item)
                     objExcel.Cells(excel_row,  2).Value = case_array (rsum_PMI_const,           item)
                     objExcel.Cells(excel_row,  3).Value = case_array (last_name_const,          item)
@@ -399,11 +400,12 @@ ObjExcel.Worksheets.Add().Name = "Error List"
 
 'formatting excel file with columns for case number and interview date/time
 objExcel.cells(1, 1).value 	= "Billed PMI"
-objExcel.cells(1, 2).value 	= "Error Reason"
-objExcel.cells(1, 3).value 	= "Last Name"
-objExcel.cells(1, 4).value 	= "First Name"
+objExcel.cells(1, 2).value 	= "RSUM PMI"
+objExcel.cells(1, 3).value 	= "Error Reason"
+objExcel.cells(1, 4).value 	= "Last Name"
+objExcel.cells(1, 5).value 	= "First Name"
 	
-FOR i = 1 to 4									'formatting the cells'
+FOR i = 1 to 5									'formatting the cells'
 	objExcel.Cells(1, i).Font.Bold = True		'bold font'
 	objExcel.Columns(i).AutoFit()				'sizing the columns'
 NEXT
@@ -411,17 +413,18 @@ NEXT
 'Adding the case information to Excel
 excel_row = 2
 For item = 0 to UBound(case_array, 2)
-    If case_array(case_status, item) = False then
+    If case_array(case_status, item) <> "" then
 	    ObjExcel.Cells(excel_row, 1).value = case_array (clt_PMI_const,    item)
 	    ObjExcel.Cells(excel_row, 2).value = case_array (rsum_PMI_const,   item)  'This outputs the reason for the error
-        objExcel.Cells(excel_row, 3).Value = case_array (last_name_const,  item)
-        objExcel.Cells(excel_row, 4).Value = case_array (first_name_const, item)
+        ObjExcel.Cells(excel_row, 3).value = case_array (case_status,      item)  'This outputs the reason for the error
+        objExcel.Cells(excel_row, 4).Value = case_array (last_name_const,  item)
+        objExcel.Cells(excel_row, 5).Value = case_array (first_name_const, item)
 	    excel_row = excel_row + 1 
     End if 
 Next
 
 'Formatting the columns to autofit after they are all finished being created.
-FOR i = 1 to 4
+FOR i = 1 to 5
 	objExcel.Columns(i).autofit()
 Next
 
