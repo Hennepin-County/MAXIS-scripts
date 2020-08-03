@@ -174,7 +174,7 @@ Do
 	  Text 20, 190, 400, 10, "Idea for a New Script  --  There is something that a script could complete or assist with that is not already in a script."
 	  Text 20, 205, 405, 20, "There is a process that needs automation  --  There is a task or set of tasks that you do regularly for which you need a script or script support."
 	  Text 20, 230, 405, 20, "Data or Lists needed  --  We have a data need or have a report to update. This may be a project we refer to another data area, such as IPA."
-	  Text 20, 255, 405, 20, "Script Instructions or Documentation Needed  --  You are looking for some information about scripts or a a script, either how it works or what it does."
+	  Text 20, 255, 405, 20, "Script Instructions or Documentation Needed  --  You are looking for some information about scripts or a specific script, either how it works or what it does."
 	EndDialog
 
 
