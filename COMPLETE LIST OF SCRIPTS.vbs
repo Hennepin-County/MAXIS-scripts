@@ -51,7 +51,8 @@ class script_bowie
     public in_testing               'This can be set to TRUE if we have a new script_bowie	that is in testing
     public testing_category         'idetify what we are using to determine WHO is testing - use ONLY ALL, GROUP, REGION, POPULATION, or SCRIPT
     public testing_criteria         'ARRAY list which of the category is being used
-
+	public script_checkbox_one
+	public script_btn_one
     ' public stats_denomination_type
     ' public stats_manual_time_listed
     ' public stats_increments
@@ -2208,6 +2209,18 @@ script_array(script_num).tags                   = array("Adult CASH", "Communica
 script_array(script_num).dlg_keys               = array("Cn", "Tk", "Up")
 script_array(script_num).subcategory            = array("M-Z")
 script_array(script_num).release_date           = #10/01/2000#
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "Report to the BZST"
+script_array(script_num).description 			= "Send an idea, error report, or other kind of request to the blueZone Script Team"
+script_array(script_num).category               = "UTILITIES"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array()
+script_array(script_num).dlg_keys               = array("")
+script_array(script_num).subcategory            = array("TOOL", "MAXIS", "POLICY")
+script_array(script_num).release_date           = #08/01/2020#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
