@@ -33,27 +33,6 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
-
-
-'DEFINING SOME VARIABLES ===================================================================================================
-button_height = 12
-button_width = 145
-dialog_margin = 5
-groupbox_margin = 5
-'END VARIABLES =============================================================================================================
-
-const fav_script_name   = 0
-const add_checkbox      = 1
-const cat_as_direct     = 2
-const proper_name       = 3
-const script_hotkey     = 4
-'====================================================================================
-'====================================================================================
-'This VERY VERY long function contains all of the logic behind editing the favorites.
-'====================================================================================
-'====================================================================================
-' MsgBox "1 - " & dialog1
-dialog1 = "1 - " & dialog1
 function edit_favorites
 
 	'>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -62,40 +41,11 @@ function edit_favorites
 	'>>> The gobbins that happen before the user sees anything. <<<
 	'>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 	'>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    '
-	' If list_of_scripts_ran <> true then
-	' 	' Looks up the script details online (or locally if you're a scriptwriter)
-	' 	If run_locally <> true then
-	' 		SET get_all_scripts = CreateObject("Msxml2.XMLHttp.6.0")				' Creating the object to the URL a la text file
-	' 		get_all_scripts.open "GET", all_scripts_repo, FALSE						' Creating an AJAX object
-	' 		get_all_scripts.send													' Opening the URL for the given main menu
-	' 		IF get_all_scripts.Status = 200 THEN									' 200 means great success
-	' 			Set filescriptobject = CreateObject("Scripting.FileSystemObject")	' Create an FSO for the script object
-	' 			Execute get_all_scripts.responseText								' Execute the script (building an array of all scripts)
-	' 		ELSE																	' If the script cannot open the URL provided...
-	' 			MsgBox 	"Something went wrong with the URL: " & all_scripts_repo	' Tell the worker
-	' 			stopscript															' Stop the script
-	' 		END IF
-	' 	ELSE																		' If it's set as run_locally...
-	' 		Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")	' Create an FSO to read the script list file
-	' 		Set fso_command = run_another_script_fso.OpenTextFile(all_scripts_repo)	' Create a command object to run the script list object
-	' 		text_from_the_other_script = fso_command.ReadAll						' Read the file
-	' 		fso_command.Close														' Close the file
-	' 		Execute text_from_the_other_script										' Execute the script (building an array of all scripts)
-	' 	END If
-	' end if
+
 
 	'Warning/instruction box
 	MsgBox  "This section will display a dialog with various scripts on it. Any script you check will be added to your favorites menu. Scripts you un-check will be removed. Once you are done making your selection hit ""OK"" and your menu will be updated. " & vbNewLine & vbNewLine &_
 			"Note: you will be unable to edit the list of new scripts."
-
-	'An array containing details about the list of scripts, including how they are displayed and stored in the favorites tag
-	'0 => The script name
-	'1 => The checked/unchecked status (based on the dialog list)
-	'2 => The script category, and a "/" so that it's presented in a URL
-	'3 => The proper script file name
-	'4 => The hotkey the user has associated with the script
-
 
 	REDIM scripts_edit_favs_array(ubound(script_array), script_hotkey)
 
@@ -130,7 +80,6 @@ function edit_favorites
 	    End if
 	NEXT
 
-
 	'>>> If the user has already selected their favorites, the script will open that file and
 	'>>> and read it, storing the contents in the variable name ''favorites_text_file_array''
 	SET oTxtFile = (CreateObject("Scripting.FileSystemObject"))
@@ -149,8 +98,6 @@ function edit_favorites
 	'>>> Determining the width of the dialog from the number of scripts that are available...
 	'the dialog starts with a width of 400
 	dia_width = 750
-
-	'VKC - removed old functionality to determine dynamically the width. This will need to be redetermined based on the number of scripts, but I am holding off on this until I know all of the content I'll jam in here. -11/29/2016
 
 	'>>> Building the dialog
     Dialog1 = ""
@@ -565,11 +512,12 @@ function edit_favorites
 	DO
 		DO
 			'>>> Running the dialog
-			Dialog Dialog1
+            DIALOG Dialog1
+
 			'>>> Cancel confirmation
 			IF ButtonPressed = 0 THEN
 				confirm_cancel = MsgBox("Are you sure you want to cancel? Press YES to cancel the script. Press NO to return to the script.", vbYesNo)
-				IF confirm_cancel = vbYes THEN script_end_procedure("~PT: Script cancelled.")
+				IF confirm_cancel = vbYes THEN StopScript
 			END IF
 			'>>> If the user selects to reset their favorites selections, the script
 			'>>> will go through the multi-dimensional array and reset all the values
@@ -593,7 +541,7 @@ function edit_favorites
 		IF ubound(double_check_array) > 24 THEN MsgBox "Your favorites menu is too large. Please limit the number of favorites to no greater than 25."
 		'>>> Exit condition is the user having fewer than 30 scripts in their favorites menu.
 	LOOP UNTIL ubound(double_check_array) <= 25
-
+    ' dialog1 = "1 - " & dialog1
 	'>>> Getting ready to write the user's selection to a text file and save it on a prescribed location on the network.
 	'>>> Building the content of the text file.
 	FOR i = 0 to number_of_scripts - 1
@@ -607,13 +555,17 @@ function edit_favorites
 		SET updated_fav_scripts_command = updated_fav_scripts_fso.CreateTextFile(favorites_text_file_location, 2)
 		updated_fav_scripts_command.Write(favorite_scripts)
 		updated_fav_scripts_command.Close
-		script_end_procedure("Success!! Your Favorites Menu has been updated. Please click your favorites list button to re-load them.")
+		MsgBox "Success!! Your Favorites Menu has been updated. Please click your favorites list button to re-load them."
+		StopScript
+		' script_end_procedure("Success!! Your Favorites Menu has been updated. Please click your favorites list button to re-load them.")
 	ELSE
 		'>>> OR...if the user has selected no scripts for their favorite, the file will be deleted to
 		'>>> prevent the Favorites Menu from erroring out.
 		'>>> Experience with worker_signature automation tells us that if the text file is blank, the favorites menu doth not work.
 		oTxtFile.DeleteFile(favorites_text_file_location)
-		script_end_procedure("You have updated your Favorites Menu, but you haven't selected any scripts. The next time you use the Favorites scripts, you will need to select your favorites.")
+		MsgBox "You have updated your Favorites Menu, but you haven't selected any scripts. The next time you use the Favorites scripts, you will need to select your favorites."
+		StopScript
+		' script_end_procedure("You have updated your Favorites Menu, but you haven't selected any scripts. The next time you use the Favorites scripts, you will need to select your favorites.")
 	END IF
 
 end function
@@ -672,7 +624,7 @@ FUNCTION favorite_menu(favorites_text_file_string, script_to_run)
 	'>>> The dialog
     ' MsgBox dlg_height & " - 4"
 	' MsgBox "2 - " & dialog1
-	dialog1 = "2 - " & dialog1
+	' dialog1 = "2 - " & dialog1
     Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 600, dlg_height, dlg_name & ""
   	  ButtonGroup ButtonPressed
@@ -777,6 +729,7 @@ FUNCTION favorite_menu(favorites_text_file_string, script_to_run)
     Do
     	'>>> Loading the favorites dialog
     	DIALOG Dialog1
+
     	'>>> Cancelling the script if ButtonPressed = 0
     	IF ButtonPressed = 0 THEN stopscript
 
@@ -817,20 +770,109 @@ FUNCTION favorite_menu(favorites_text_file_string, script_to_run)
     Loop until script_to_run <> ""
     ' MsgBox script_URL
 	' MsgBox "3 - " & dialog1
-	dialog1 = "3 - " & dialog1
+	' dialog1 = "1 - " & dialog1
 
 END FUNCTION
+
+function open_favorites_file()
+    'Needs to determine MyDocs directory before proceeding.
+    Set wshshell = CreateObject("WScript.Shell")
+    user_myDocs_folder = wshShell.SpecialFolders("MyDocuments") & "\"
+    favorites_text_file_location = user_myDocs_folder & "\scripts-favorites.txt"
+
+    Dim oTxtFile
+    With (CreateObject("Scripting.FileSystemObject"))
+    	'>>> If the file exists, we will grab the list of the user's favorite scripts and run the favorites menu.
+    	If .FileExists(favorites_text_file_location) Then
+            If .GetFile(favorites_text_file_location).size <> 0 Then
+        		Set fav_scripts = CreateObject("Scripting.FileSystemObject")
+        		Set fav_scripts_command = fav_scripts.OpenTextFile(favorites_text_file_location)
+        		fav_scripts_array = fav_scripts_command.ReadAll
+        		IF fav_scripts_array <> "" THEN favorites_text_file_array = fav_scripts_array
+        		fav_scripts_command.Close
+            End If
+    	ELSE
+    		'>>> ...otherwise, if the file does not exist, the script will require the user to select their favorite scripts.
+    		call edit_favorites
+    	END IF
+    END WITH
+
+    favorites_text_file_string = trim(favorites_text_file_array)
+    favorites_text_file_array = split(favorites_text_file_string, vbNewLine)
+
+    num_of_user_scripts = ubound(favorites_text_file_array)
+
+    review_string = "~"
+    favorites_text_file_string = replace(favorites_text_file_string, vbNewLine, "~")
+    favorites_text_file_string = "~" & favorites_text_file_string & "~"
+    count_of_favorites = 0
+    For each fav_file in favorites_text_file_array
+        fav_file = trim(fav_file)
+        If fav_file <> "" Then
+            If InStr(review_string, "~" & fav_file & "~") = 0 Then
+                review_string = review_string & fav_file & "~"
+                count_of_favorites = count_of_favorites + 1
+            End If
+        End If
+    Next
+    If count_of_favorites > 25 Then
+        MsgBox "Your favorites menu is too large. Please limit the number of favorites to no greater than 25." & vbNewLine & "The script will now run the favorites selection functionality. please choose no more than 25."
+        call edit_favorites
+    End If
+    ' MsgBox "Review String:" & vbNewLine & review_string & vbNewLine & vbNewLine & "Favorites String:" & vbNewLine & favorites_text_file_string
+    If review_string <> favorites_text_file_string Then
+        review_string = right(review_string, len(review_string) - 1)
+        review_string = left(review_string, len(review_string) - 1)
+
+        review_string = replace(review_string, "~", vbNewLine)
+
+        SET updated_fav_scripts_fso = CreateObject("Scripting.FileSystemObject")
+        SET updated_fav_scripts_command = updated_fav_scripts_fso.CreateTextFile(favorites_text_file_location, 2)
+        updated_fav_scripts_command.Write(review_string)
+        updated_fav_scripts_command.Close
+
+        favorites_text_file_string = trim(review_string)
+        favorites_text_file_array = split(favorites_text_file_string, vbNewLine)
+
+        num_of_user_scripts = ubound(favorites_text_file_array)
+
+    Else
+        review_string = right(review_string, len(review_string) - 1)
+        review_string = left(review_string, len(review_string) - 1)
+
+        review_string = replace(review_string, "~", vbNewLine)
+        favorites_text_file_string = trim(review_string)
+        favorites_text_file_array = split(favorites_text_file_string, vbNewLine)
+
+        num_of_user_scripts = ubound(favorites_text_file_array)
+    End If
+end function
+
+
+'DEFINING SOME VARIABLES ===================================================================================================
+button_height = 12
+button_width = 145
+dialog_margin = 5
+groupbox_margin = 5
+Dim favMenu
+'END VARIABLES =============================================================================================================
+
+const fav_script_name   = 0
+const add_checkbox      = 1
+const cat_as_direct     = 2
+const proper_name       = 3
+const script_hotkey     = 4
+'====================================================================================
+'====================================================================================
+'This VERY VERY long function contains all of the logic behind editing the favorites.
+'====================================================================================
+'====================================================================================
+' MsgBox "1 - " & dialog1
+' dialog1 = "1 - " & dialog1
+
 '======================================
 
 'The script starts HERE!!!-------------------------------------------------------------------------------------------------------------------------------------
-
-'This block is to lock out non-testers from using TAGS.
-testers_script_list_URL = "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Scripts\Script Files\COMPLETE LIST OF TESTERS.vbs"        'Opening the list of testers - which is saved locally for security
-Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-Set fso_command = run_another_script_fso.OpenTextFile(testers_script_list_URL)
-text_from_the_other_script = fso_command.ReadAll
-fso_command.Close
-Execute text_from_the_other_script
 
 Set objNet = CreateObject("WScript.NetWork")
 windows_user_ID = objNet.UserName
@@ -957,86 +999,21 @@ NEXT
 
 
 Dim favorites_text_file_array, num_of_user_scripts, favorites_text_file_string
-function open_favorites_file()
-    'Needs to determine MyDocs directory before proceeding.
-    Set wshshell = CreateObject("WScript.Shell")
-    user_myDocs_folder = wshShell.SpecialFolders("MyDocuments") & "\"
-    favorites_text_file_location = user_myDocs_folder & "\scripts-favorites.txt"
 
-    Dim oTxtFile
-    With (CreateObject("Scripting.FileSystemObject"))
-    	'>>> If the file exists, we will grab the list of the user's favorite scripts and run the favorites menu.
-    	If .FileExists(favorites_text_file_location) Then
-            If .GetFile(favorites_text_file_location).size <> 0 Then
-        		Set fav_scripts = CreateObject("Scripting.FileSystemObject")
-        		Set fav_scripts_command = fav_scripts.OpenTextFile(favorites_text_file_location)
-        		fav_scripts_array = fav_scripts_command.ReadAll
-        		IF fav_scripts_array <> "" THEN favorites_text_file_array = fav_scripts_array
-        		fav_scripts_command.Close
-            End If
-    	ELSE
-    		'>>> ...otherwise, if the file does not exist, the script will require the user to select their favorite scripts.
-    		call edit_favorites
-    	END IF
-    END WITH
-
-    favorites_text_file_string = trim(favorites_text_file_array)
-    favorites_text_file_array = split(favorites_text_file_string, vbNewLine)
-
-    num_of_user_scripts = ubound(favorites_text_file_array)
-
-    review_string = "~"
-    favorites_text_file_string = replace(favorites_text_file_string, vbNewLine, "~")
-    favorites_text_file_string = "~" & favorites_text_file_string & "~"
-    count_of_favorites = 0
-    For each fav_file in favorites_text_file_array
-        fav_file = trim(fav_file)
-        If fav_file <> "" Then
-            If InStr(review_string, "~" & fav_file & "~") = 0 Then
-                review_string = review_string & fav_file & "~"
-                count_of_favorites = count_of_favorites + 1
-            End If
-        End If
-    Next
-    If count_of_favorites > 25 Then
-        MsgBox "Your favorites menu is too large. Please limit the number of favorites to no greater than 25." & vbNewLine & "The script will now run the favorites selection functionality. please choose no more than 25."
-        call edit_favorites
-    End If
-    ' MsgBox "Review String:" & vbNewLine & review_string & vbNewLine & vbNewLine & "Favorites String:" & vbNewLine & favorites_text_file_string
-    If review_string <> favorites_text_file_string Then
-        review_string = right(review_string, len(review_string) - 1)
-        review_string = left(review_string, len(review_string) - 1)
-
-        review_string = replace(review_string, "~", vbNewLine)
-
-        SET updated_fav_scripts_fso = CreateObject("Scripting.FileSystemObject")
-        SET updated_fav_scripts_command = updated_fav_scripts_fso.CreateTextFile(favorites_text_file_location, 2)
-        updated_fav_scripts_command.Write(review_string)
-        updated_fav_scripts_command.Close
-
-        favorites_text_file_string = trim(review_string)
-        favorites_text_file_array = split(favorites_text_file_string, vbNewLine)
-
-        num_of_user_scripts = ubound(favorites_text_file_array)
-
-    Else
-        review_string = right(review_string, len(review_string) - 1)
-        review_string = left(review_string, len(review_string) - 1)
-
-        review_string = replace(review_string, "~", vbNewLine)
-        favorites_text_file_string = trim(review_string)
-        favorites_text_file_array = split(favorites_text_file_string, vbNewLine)
-
-        num_of_user_scripts = ubound(favorites_text_file_array)
-    End If
-end function
 Call open_favorites_file
 
 '>>> Calling the function that builds the favorites menu.
 CALL favorite_menu(favorites_text_file_string, script_to_run)
 ' MsgBox "4 - " & dialog1
-dialog1 =  "4 - " & dialog1
-dialog1 = ""
+' dialog1 =  "1 - " & dialog1
+' dialog1 = ""
+Dialog1 = ""
+ReDim scripts_edit_favs_array(0)
+ReDim script_array(0)
+ReDim fav_scripts_array(0)
+ReDIm favorite_scripts_array(0)
+ReDim featured_scripts_array(0)
+ReDim new_scripts_array(0)
 
 '>>> Running the script
 CALL run_from_GitHub(script_to_run)
