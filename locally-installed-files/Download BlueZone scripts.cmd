@@ -8,6 +8,11 @@ REM The BlueZone script configuration is et up, will display the power pad you'v
 REM ===================================================================================================
 
 REM ====================================================================================================
+REM Updated 08/04/2020 by Ilse Ferris
+REM Reason for update: Commented out coding to remove 'old scripts' or .bzs files. All users should no  
+REM		longer have these files on their C drives or network drives. 
+REM ===================================================================================================
+REM ====================================================================================================
 REM Created 11/02/2019 by Ilse Ferris
 REM Reason for update: Desktop and documents folders are being synced soon with OneDrive, which 
 REM		changes their path location. The installer will now install the files to the OneDrive-synced desktop 
@@ -90,9 +95,9 @@ REM ============================================================================
 Taskkill /IM bzmd.exe 2> NUL 
 
 REM ---Deleting the .bzs script files that may have been installed previously 
-RD /S/Q "%userprofile%\OneDrive - Hennepin County\My Documents\Documents\BlueZone\Scripts"
-RD /S/Q "%userprofile%\Documents\BlueZone\Scripts"
-RD /S/Q "C:\Bluezone_HSR_Scripts"
+REM RD /S/Q "%userprofile%\OneDrive - Hennepin County\My Documents\Documents\BlueZone\Scripts"
+REM RD /S/Q "%userprofile%\Documents\BlueZone\Scripts"
+REM RD /S/Q "C:\Bluezone_HSR_Scripts"
     
 REM Removing Hennepin session from desktop 
 IF EXIST "%userprofile%\OneDrive - Hennepin County\Desktop" (
