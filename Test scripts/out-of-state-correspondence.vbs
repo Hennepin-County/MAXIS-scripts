@@ -49,6 +49,7 @@ call changelog_update("06/28/2016", "Initial version. NATIONAL DIRECTORY OF CONT
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
+
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 
 testing_run = TRUE
@@ -60,10 +61,10 @@ Call MAXIS_case_number_finder(MAXIS_case_number)
 Call check_for_MAXIS(true)
 
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 111, 105, "Out of State Inquiry"
-  EditBox 55, 5, 50, 15, MAXIS_case_number
+BeginDialog Dialog1, 0, 0, 116, 105, "Out of State Inquiry"
+  EditBox 55, 5, 55, 15, MAXIS_case_number
   DropListBox 55, 25, 50, 15, "Select One:"+chr(9)+"Sent"+chr(9)+"Received"+chr(9)+"Unknown", out_of_state_request
-  DropListBox 55, 45, 50, 15, "Select One:"+chr(9)+"Email"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Phone", how_sent
+  DropListBox 55, 45, 50, 15,  "Select One:"+chr(9)+"Email"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Phone", how_sent
   DropListBox 55, 65, 50, 15, "Select One:"+chr(9)+"Alabama"+chr(9)+"Alaska"+chr(9)+"Arizona"+chr(9)+"Arkansas"+chr(9)+"California"+chr(9)+"Colorado"+chr(9)+"Connecticut"+chr(9)+"Delaware"+chr(9)+"Florida"+chr(9)+"Georgia"+chr(9)+"Hawaii"+chr(9)+"Idaho"+chr(9)+"Illinois"+chr(9)+"Indiana"+chr(9)+"Iowa"+chr(9)+"Kansas"+chr(9)+"Kentucky"+chr(9)+"Louisiana"+chr(9)+"Maine"+chr(9)+"Maryland"+chr(9)+"Massachusetts"+chr(9)+"Michigan"+chr(9)+"Mississippi"+chr(9)+"Missouri"+chr(9)+"Montana"+chr(9)+"Nebraska"+chr(9)+"Nevada"+chr(9)+"New Hampshire"+chr(9)+"New Jersey"+chr(9)+"New Mexico"+chr(9)+"New York"+chr(9)+"North Carolina"+chr(9)+"North Dakota"+chr(9)+"Ohio"+chr(9)+"Oklahoma"+chr(9)+"Oregon"+chr(9)+"Pennsylvania"+chr(9)+"Rhode Island"+chr(9)+"South Carolina"+chr(9)+"South Dakota"+chr(9)+"Tennessee"+chr(9)+"Texas"+chr(9)+"Utah"+chr(9)+"Vermont"+chr(9)+"Virginia"+chr(9)+"Washington"+chr(9)+"West Virginia"+chr(9)+"Wisconsin"+chr(9)+"Wyoming", state_droplist
   ButtonGroup ButtonPressed
     OkButton 10, 85, 45, 15
@@ -92,7 +93,7 @@ LOOP UNTIL are_we_passworded_out = false
 Call check_for_MAXIS(False)
 
 'Creating a custom dialog for determining who the HH members are
-call HH_member_custom_dialog(HH_member_array)
+call HH_member_dialog(HH_member_array)
 
 'Error proof functions
 Call check_for_MAXIS(False)
@@ -103,7 +104,7 @@ IF Len(MAXIS_footer_month) <> 2 THEN MAXIS_footer_month = "0" & MAXIS_footer_mon
 MAXIS_footer_year = right(datepart("YYYY", date), 2)
 
 Dim Member_Info_Array()
-Redim Member_Info_Array(UBound(HH_member_array), 5)
+Redim Member_Info_Array(UBound(HH_member_array), 6)
 
 'Navigate to stat/memb and check for ERRR message
 CALL navigate_to_MAXIS_screen("STAT", "MEMB")
@@ -134,9 +135,12 @@ For i = 0 to Ubound(HH_member_array)
 	Emreadscreen client_dob, 10, 8, 42
 	SSN_number = replace(client_dob, " ", "/")
 	Member_Info_Array(i, 5) = client_dob
+
+	Emreadscreen client_ref_number, 2, 4, 33
+	Member_Info_Array(i, 6) = client_ref_number
 Next
-client_string = ref_nbr & last_name & first_name & mid_initial & SSN_number & client_dob           'creating an array of all of the clients
-client_array = client_array & client_string & "|"
+client_string = client_ref_number & last_name & first_name & mid_initial & SSN_number & client_dob        'creating an array of all of the clients
+client_array = client_array & client_string & " | "
 'Navigate back to self
 Back_to_self
 EMWriteScreen MAXIS_case_number, 18, 43
@@ -259,7 +263,7 @@ IF	state_droplist = "Alabama" THEN
 	abbr_state = "AL"
 	IF FS_CHECKBOX = CHECKED THEN
 		other_state_fs = TRUE
-		contact_email = "fs@dhr.alabama.gov"
+		agency_email = "fs@dhr.alabama.gov"
 	END IF
 	IF CASH_CHECKBOX = CHECKED THEN
 		other_state_cash = TRUE
@@ -1075,7 +1079,7 @@ IF	state_droplist = "Wyoming"	THEN
 END IF
 
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 226, 255, "OUT OF STATE INQUIRY FOR: " & Ucase(state_droplist)
+BeginDialog Dialog1, 0, 0, 231, 260, "OUT OF STATE INQUIRY FOR: "  & Ucase(state_droplist)
   CheckBox 50, 20, 30, 10, "Cash", MN_CASH_CHECKBOX
   CheckBox 80, 20, 25, 10, "CCA", MN_CCA_CHECKBOX
   CheckBox 110, 20, 20, 10, "FS", MN_FS_CHECKBOX
@@ -1084,43 +1088,90 @@ BeginDialog Dialog1, 0, 0, 226, 255, "OUT OF STATE INQUIRY FOR: " & Ucase(state_
   CheckBox 190, 20, 25, 10, "SSI", MN_SSI_CHECKBOX
   CheckBox 50, 45, 30, 10, "Cash", CASH_CHECKBOX
   CheckBox 80, 45, 25, 10, "CCA", CCA_CHECKBOX
-  CheckBox 110, 45, 55, 10, "Commodities", COMMOD_CHECKBOX
-  CheckBox 165, 45, 20, 10, "FS", FS_CHECKBOX
-  CheckBox 190, 45, 25, 10, "HC", HC_CHECKBOX
-  CheckBox 50, 55, 25, 10, "SSI", SSI_CHECKBOX
-  DropListBox 50, 65, 55, 15, "Select One:"+chr(9)+"Active"+chr(9)+"Closed"+chr(9)+"Unknown", out_of_state_status
+  CheckBox 110, 45, 20, 10, "FS", FS_CHECKBOX
+  CheckBox 135, 45, 25, 10, "HC", HC_CHECKBOX
+  CheckBox 160, 45, 25, 10, "SSI", SSI_CHECKBOX
+  CheckBox 185, 45, 35, 10, "OTHER", OTHER_CHECKBOX
+  DropListBox 35, 65, 55, 15, "Select One:"+chr(9)+"Active"+chr(9)+"Closed"+chr(9)+"Unknown", out_of_state_status
   EditBox 165, 65, 45, 15, date_received
-  CheckBox 10, 185, 130, 10, "Different information for contact state", update_state_info_checkbox
-  CheckBox 155, 185, 60, 10, "PARIS Match", PARIS_CHECKBOX
-  EditBox 50, 205, 165, 15, other_notes
-  ButtonGroup ButtonPressed
-    PushButton 5, 225, 60, 15, "HSR MANUAL", outofstate_button
-    OkButton 130, 225, 40, 15
-    CancelButton 175, 225, 40, 15
-  Text 10, 170, 205, 10, "Email: " & agency_email
-  Text 15, 245, 185, 10, "*** Reminder: ECF must show verification requested ***"
-  Text 10, 130, 205, 20, "Address: " & agency_address
-  Text 10, 100, 205, 25, "Name: " & agency_name
-  GroupBox 5, 5, 215, 30, "Current programs applied or actv on:"
-  Text 10, 20, 40, 10, "Programs:"
-  Text 130, 155, 90, 10, "Fax: "  & agency_fax
+  Text 10, 100, 210, 25, "Name: " & Ucase(agency_name)
+  Text 10, 130, 210, 20, "Address: " & Ucase(agency_address)
   Text 10, 155, 100, 10, "Phone: " & agency_phone
-  GroupBox 5, 90, 215, 110, "Out of State Agency Contact"
+  Text 10, 170, 205, 10, "Email: " & Ucase(agency_email)
+  Text 130, 155, 90, 15, "Fax:  " & agency_fax
+  CheckBox 10, 185, 95, 10, "Verification sent to ECF", ECF_checkbox
+  CheckBox 10, 200, 130, 10, "Different information for contact state", update_state_info_checkbox
+  CheckBox 160, 200, 60, 10, "PARIS Match", PARIS_CHECKBOX
+  EditBox 50, 220, 175, 15, other_notes
+  ButtonGroup ButtonPressed
+    OkButton 130, 240, 45, 15
+    CancelButton 180, 240, 45, 15
+    PushButton 5, 240, 60, 15, "HSR MANUAL", outofstate_button
+  Text 10, 20, 40, 10, "Programs:"
+  GroupBox 5, 5, 220, 30, "Current programs applied or actv on:"
+  GroupBox 5, 90, 220, 125, "Out of State Agency Contact"
   Text 115, 70, 50, 10, "Last Received:"
   Text 10, 45, 40, 10, "Programs:"
-  Text 20, 70, 25, 10, "Status:"
-  GroupBox 5, 35, 215, 50, "Client reported they received assistance (Q5 on CAF):"
-  Text 5, 210, 45, 10, "Other Notes:"
+  Text 10, 70, 25, 10, "Status:"
+  GroupBox 5, 35, 220, 50, "Client reported they received assistance (Q5 on CAF):"
+  Text 5, 225, 45, 10, "Other Notes:"
 EndDialog
+
 DO
 	DO
+		DO  'External resource DO loop
+			Dialog Dialog1
+			cancel_confirmation
+			If ButtonPressed = outofstate_button then CreateObject("WScript.Shell").Run("https://dept.hennepin.us/hsphd/manuals/hsrm/Pages/Out_of_State_Inquiry.aspx")
+		Loop until ButtonPressed = -1
 		err_msg = ""
-		Dialog Dialog1
-		cancel_without_confirmation
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-	LOOP UNTIL err_msg = ""
-	CALL check_for_password(are_we_passworded_out)
-LOOP UNTIL are_we_passworded_out = false                                                         'loops until user passwords back in
+        If agency_state_droplist = "Select One:" then err_msg = err_msg & vbnewline & "* Select the state."
+        IF ECF_checkbox <> CHECKED THEN err_msg = err_msg & vbNewLine & "Please review ECF to ensure that the verifcations are there."
+        IF OTHER_CHECKBOX = CHECKED and other_notes = "" THEN err_msg = err_msg & vbNewLine & "Please advise what other benefits the client reported."
+        IF out_of_state_status = "Select One:" then err_msg = err_msg & vbnewline & "Please select the reported status regarding the other state's benefits."
+        IF out_of_state_status = "Active" or out_of_state_status = "Closed" AND trim(date_received) = "" then err_msg = err_msg & vbcr & "* Enter the date the client reported benefits were received."
+    	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+	LOOP until err_msg = ""
+	CALL check_for_password(are_we_passworded_out)                                 'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false
+
+
+IF update_state_info_checkbox = CHECKED THEN
+    BeginDialog Dialog1, 0, 0, 226, 180, "OUT OF STATE INQUIRY UPDATE NEEDED"
+      EditBox 50, 20, 165, 15, corrected_agency_name
+      EditBox 50, 40, 165, 15, corrected_agency_address
+      EditBox 50, 60, 165, 15, corrected_agency_email
+      EditBox 50, 80, 50, 15, corrected_agency_phone
+      EditBox 165, 80, 50, 15, corrected_agency_fax
+      DropListBox 165, 105, 55, 15, "Select One:"+chr(9)+"Email"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Phone"+chr(9)+"Other", how_information_was_received
+      EditBox 50, 125, 170, 15, corrected_other_notes
+      ButtonGroup ButtonPressed
+        OkButton 135, 145, 40, 15
+        CancelButton 180, 145, 40, 15
+      GroupBox 5, 5, 215, 95, "Out of State Agency Contact"
+      Text 15, 25, 25, 10, "Name:"
+      Text 15, 45, 30, 10, "Address:"
+      Text 15, 65, 25, 10, "Email:"
+      Text 15, 85, 25, 10, "Phone:"
+      Text 145, 85, 15, 10, "Fax:"
+      Text 40, 110, 115, 10, "How was the information received:"
+      Text 5, 130, 45, 10, "Other Notes:"
+      Text 15, 165, 185, 10, "*** Reminder: ECF must show verification received ***"
+    EndDialog
+	'Dialog
+	DO      'Password DO loop
+	    DO  'Conditional handling DO loop
+	        err_msg = ""
+			If how_information_was_received = "Select One:" then err_msg = err_msg & vbnewline & "Please advise how updated information was received."
+			If trim(corrected_agency_name) = "" then err_msg = err_msg & vbcr & "* Enter the out of state agency name."
+	        If trim(corrected_agency_address) = "" then err_msg = err_msg & vbcr & "* Enter the out of state agency address, if there is not one provided enter N/A."
+			If trim(corrected_agency_email) = "" then err_msg = err_msg & vbcr & "* Enter the out of state agency email, if there is not one provided enter N/A."
+			If trim(corrected_agency_phone) = "" then err_msg = err_msg & vbcr & "* Enter the out of state agency phone, if there is not one provided enter N/A."
+			If trim(corrected_agency_fax) = "" then err_msg = err_msg & vbcr & "* Enter the out of state agency fax, if there is not one provided enter N/A."
+	        IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+	    LOOP until err_msg = ""
+	    CALL check_for_password(are_we_passworded_out)                                 'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+	Loop until are_we_passworded_out = false
 
 'this reads current mailing address
 Call navigate_to_MAXIS_screen("STAT", "ADDR")
@@ -1153,7 +1204,58 @@ EMSetCursor 21, 21
 PF1
 EMReadScreen worker_name, 21, 19, 10
 EMReadScreen worker_phone, 12, 19, 45
-transmit
+TRANSMIT
+
+'The script will now go to STAT/MEMB to gather certain relationships of other HH members to M01
+Call navigate_to_MAXIS_screen ("STAT", "MEMB")
+For each member in HH_Member_Array
+    DO	'reads the reference number, last name, first name, and then puts it into a single string then into the array
+    	EMReadscreen ref_nbr, 3, 4, 33
+    	EMReadscreen last_name, 25, 6, 30
+    	EMReadscreen first_name, 12, 6, 63
+    	EMReadscreen mid_initial, 1, 6, 79
+    	last_name = trim(replace(last_name, "_", "")) & " "
+    	first_name = trim(replace(first_name, "_", "")) & " "
+    	mid_initial = replace(mid_initial, "_", "")
+
+    	client_string = ref_nbr & last_name & first_name & mid_initial
+    	client_array = client_array & client_string & "|"
+    	TRANSMIT
+    	Emreadscreen edit_check, 7, 24, 2
+    LOOP until edit_check = "ENTER A"			'the script will continue to transmit through memb until it reaches the last page and finds the ENTER A edit on the bottom row.
+Next
+ 'TODO need to figure out how to neatly output the selected members in the email and to word but NOT in case notes'
+
+
+'Goes to MEMB to get info
+Call navigate_to_MAXIS_screen("STAT", "MEMB")
+'Goes to the right HH member
+EMWriteScreen MEMB_number, 20, 76 'It does this to make sure that it navigates to the right HH member.
+transmit 'This transmits to STAT/MEMB for the client indicated.
+
+'If this member does not exist, this will stop the script from continuing.
+EMReadScreen no_MEMB, 13, 8, 22
+If no_MEMB = "Arrival Date:" then script_end_procedure("Error! This HH member does not exist.")
+
+'Reads the SSN pieces
+EMReadScreen SSN1, 3, 7, 42
+EMReadScreen SSN2, 2, 7, 46
+EMReadScreen SSN3, 4, 7, 49
+client_ssn = SSN1 & "-" & SSN2 & "-" & SSN3
+
+'Reads Client's DOB
+EMReadScreen DOB1, 2, 8, 42
+EMReadScreen DOB2, 2, 8, 45
+EMReadScreen DOB3, 4, 8, 48
+client_dob = DOB1 & "/" & DOB2 & "/" & DOB3
+
+'Reads clients name and coverts to a Variant
+EMReadScreen last_name, 24, 06, 30
+EMReadScreen first_name, 12, 06, 63
+last_name = replace(last_name, "_", "")
+first_name = replace(first_name, "_","")
+client_name = first_name & " " & last_name
+
 
 'Generates Word Doc Form
 Set objWord = CreateObject("Word.Application")
@@ -1203,7 +1305,7 @@ objSelection.TypeText "Fax: " & agency_fax
 objSelection.TypeParagraph
 objSelection.TypeText " "
 objSelection.TypeParagraph
-objSelection.TypeText "RE: " & client_name
+objSelection.TypeText "RE: " & client_array
 objSelection.TypeParagraph
 objSelection.TypeText "SSN: " & client_ssn & "			DOB: " & client_dob
 objSelection.TypeParagraph
@@ -1318,9 +1420,42 @@ CALL write_bullet_and_variable_in_CASE_NOTE("Email", agency_email)
 CALL write_bullet_and_variable_in_CASE_NOTE("Phone", agency_phone)
 CALL write_bullet_and_variable_in_CASE_NOTE("Fax", agency_fax)
 Call write_bullet_and_variable_in_CASE_NOTE("Other Notes", other_notes)
+
+
+
 CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
+
+
 PF3
+IF EMAIL_CHECKBOX = CHECKED THEN
+	EMWriteScreen "x", 5, 3
+	TRANSMIT
+	note_row = 4			'Beginning of the case notes
+	Do 						'Read each line
+		EMReadScreen note_line, 76, note_row, 3
+		note_line = trim(note_line)
+		If trim(note_line) = "" Then Exit Do		'Any blank line indicates the end of the case note because there can be no blank lines in a note
+		message_array = message_array & note_line & vbcr		'putting the lines together
+		note_row = note_row + 1
+		If note_row = 18 then 									'End of a single page of the case note
+			EMReadScreen next_page, 7, note_row, 3
+			If next_page = "More: +" Then 						'This indicates there is another page of the case note
+				PF8												'goes to the next line and resets the row to read'\
+				note_row = 4
+			End If
+		End If
+	Loop until next_page = "More:  " OR next_page = "       "	'No more pages
+	'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
+	CALL create_outlook_email(, "", "Please review for accuracy case #  " & MAXIS_case_number & " Member # " & memb_number , "CASE NOTE" & vbcr & message_array, "", FALSE)
+END IF
+''create_outlook_appointment(appt_date, appt_start_time, appt_end_time, appt_subject, appt_body, appt_location, appt_reminder, reminder_in_minutes, appt_category)
+IF additional_CHECKBOX = CHECKED THEN
+	'Call create_outlook_appointment(appt_date, appt_start_time, appt_end_time, appt_subject, appt_body, appt_location, appt_reminder, appt_category)
+	Call create_outlook_appointment(reminder_date, "08:00 AM", "08:00 AM", "Out of State request for " & MAXIS_case_number, "", "", TRUE, 10, "")
+	Outlook_remider = True
+End if
+
 
 IF agency_email <> "" THEN
 	EmWriteScreen "x", 5, 3
