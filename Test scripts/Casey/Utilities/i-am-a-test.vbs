@@ -227,6 +227,92 @@ END IF
 
 ' Call confirm_tester_information
 
+
+MY_STANDARD_ARRAY = Array("Chris", "Casey", "Aurelia", "Ronin")
+' all_the_people_in_my_house = all_the_people_in_my_house & "Casey" & "~"
+all_the_people_in_my_house = "Chris~Casey~Aurelia~Ronin~"
+' all_the_people_in_my_house = left(all_the_people_in_my_house, len(all_the_people_in_my_house)-1)
+MY_STANDARD_ARRAY = Split(all_the_people_in_my_house, "~")
+	' Dim CLIENT_ARRAY()
+	' ReDIm CLIENT_ARRAY(0)
+	'
+	' Dim CLIENT_ARRAY_WITH_MORE()
+	' Dim CLIENT_ARRAY_WITH_MORE(0)
+Const ref_numb_const 	= 0
+Const first_name_const 	= 1
+Const last_name_const	= 2
+Const clt_dob_const 	= 3
+Const clt_ssn_last_four_const 	= 4
+
+Dim ALL_CLT_INFO_ARRAY()
+ReDim ALL_CLT_INFO_ARRAY(clt_ssn_last_four_const, 0)
+
+the_incrementer = 0
+Do
+	EmReadscreen MEMB_first_name, 15, 6, 65
+	EMReadScreen MEMB_last_name, 25, 6, 35
+	EMReadScreen ref_numb
+	EMReadScreen dob_mo
+	EMReadScreen dob_day
+	EMReadScreen dob_yr
+	EMReadScreen ssn_last_four
+	' client_string = client_string & MEMB_first_name & " " & MEMB_last_name & "~"
+		' ReDim Preserve CLIENT_ARRAY(the_incrementer)
+		' ReDim Preserve CLIENT_ARRAY_WITH_MORE(the_incrementer)
+		' CLIENT_ARRAY(the_incrementer) = MEMB_first_name & " " & MEMB_last_name
+		' CLIENT_ARRAY_WITH_MORE(the_incrementer) = "MEMB " & ref_numb & " - " &  CLIENT_ARRAY(the_incrementer) & " DOB: " & dob_mo & "/" & dob_day & "/" & dob_yr & " SSN: xxx-xx-" & ssn_last_four
+	ReDim Preserve ALL_CLT_INFO_ARRAY(clt_ssn_last_four_const, the_incrementer)
+
+	ALL_CLT_INFO_ARRAY(0, the_incrementer) = ref_numb
+	ALL_CLT_INFO_ARRAY(first_name_const, the_incrementer) = MEMB_first_name
+	ALL_CLT_INFO_ARRAY(last_name_const, the_incrementer) = MEMB_last_name
+	ALL_CLT_INFO_ARRAY(clt_dob_const, the_incrementer) = dob_mo & "/" & dob_day & "/" & dob_yr
+	ALL_CLT_INFO_ARRAY(clt_ssn_last_four_const, the_incrementer) = ssn_last_four
+
+	the_incrementer = the_incrementer + 1
+	transmit
+	EmReadscreen memb_check, 7, 24, 2
+Loop until memb_check = "ENTER A"
+' CLIENT_ARRAY = split(client_string, "~")
+
+MsgBox Join(MY_STANDARD_ARRAY, ", ")
+For each person in MY_STANDARD_ARRAY
+	MsgBOx person
+Next
+For the_pers = 0 to UBound(MY_STANDARD_ARRAY)
+	MsgBOx the_pers
+	MsgBox MY_STANDARD_ARRAY(the_pers)
+Next
+the_pers = 0
+Do
+	MsgBox MY_STANDARD_ARRAY(the_pers)
+	the_pers = the_pers + 1
+Loop until the_pers = UBound(MY_STANDARD_ARRAY)
+
+
+
+
+
+
+
+
+
+
+
+For the_pers = 0 to UBound(ALL_CLT_INFO_ARRAY, 2)				'YOU ALWAYS INCREMENT THE 2nd Parameter of the ARRAY because that is the one that has the different information'
+	MsgBox "MEMB " & ALL_CLT_INFO_ARRAY(ref_numb_const, the_pers)
+
+	' last name, first name - dob
+	MsgBox ALL_CLT_INFO_ARRAY(last_name_const, the_pers) & ", " & ALL_CLT_INFO_ARRAY(first_name_const, the_pers) & " - DOB: " & ALL_CLT_INFO_ARRAY(clt_dob_const, the_pers)
+
+	' dob for MEMB XX - SSN: xxx-xx-____
+	MsgBox "DOB: " & ALL_CLT_INFO_ARRAY(clt_dob_const, the_pers) & " for MEMB " & ALL_CLT_INFO_ARRAY(ref_numb_const, the_pers) & "- SSN: xxx-xx-" & ALL_CLT_INFO_ARRAY(clt_ssn_last_four_const, the_pers)
+Next
+
+
+
+
+
 function pause_at_certificate_of_understanding()
     region_known = FALSE        'setting this to start
     Do
