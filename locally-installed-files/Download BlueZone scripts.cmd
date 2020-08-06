@@ -8,10 +8,16 @@ REM The BlueZone script configuration is et up, will display the power pad you'v
 REM ===================================================================================================
 
 REM ====================================================================================================
+REM Updated 08/06/2020 by Ilse Ferris
+REM Reason for update: Removed ELSE statements. Some users do not have OneDrive/C Drives fully linked.
+REM ===================================================================================================
+
+REM ====================================================================================================
 REM Updated 08/04/2020 by Ilse Ferris
 REM Reason for update: Commented out coding to remove 'old scripts' or .bzs files. All users should no  
 REM		longer have these files on their C drives or network drives. 
 REM ===================================================================================================
+
 REM ====================================================================================================
 REM Created 11/02/2019 by Ilse Ferris
 REM Reason for update: Desktop and documents folders are being synced soon with OneDrive, which 
@@ -54,31 +60,22 @@ REM ============================================================================
 @ECHO OFF
 Taskkill /IM bzmd.exe 2> NUL 
 
-REM ---Deleting the .bzs script files that may have been installed previously 
-RD /S/Q "%userprofile%\OneDrive - Hennepin County\My Documents\Documents\BlueZone\Scripts"
-RD /S/Q "%userprofile%\Documents\BlueZone\Scripts"
-RD /S/Q "C:\Bluezone_HSR_Scripts" 
+REM ------------------------------------Deleting the .bzs script files that may have been installed previously 
+REM RD /S/Q "%userprofile%\OneDrive - Hennepin County\My Documents\Documents\BlueZone\Scripts"
+REM RD /S/Q "%userprofile%\Documents\BlueZone\Scripts"
+REM RD /S/Q "C:\Bluezone_HSR_Scripts" 
 
-REM Removing Hennepin session from desktop 
-IF EXIST "%userprofile%\OneDrive - Hennepin County\Desktop" (
-    DEL /Q "%userprofile%\OneDrive - Hennepin County\Desktop\Hennepin.zmd"
-) ELSE (
-    DEL /Q "%userprofile%\Desktop\Hennepin.zmd"
-)
+REM ------------------------------------Removing Hennepin session from desktop 
+IF EXIST "%userprofile%\OneDrive - Hennepin County\Desktop" DEL /Q "%userprofile%\OneDrive - Hennepin County\Desktop\Hennepin.zmd"
+IF EXIST "%userprofile%\Desktop\Hennepin.zmd" DEL /Q "%userprofile%\Desktop\Hennepin.zmd"
 
-REM Removing Hennepin-Specialty session from desktop 
-IF EXIST "%userprofile%\OneDrive - Hennepin County\Desktop" (
-    DEL /Q "%userprofile%\OneDrive - Hennepin County\Desktop\Hennepin-Speciality.zmd"
-) ELSE (
-    DEL /Q "%userprofile%\Desktop\Hennepin-Speciality.zmd"
-)
+REM -----------------------------------Removing Hennepin-Specialty session from desktop 
+IF EXIST "%userprofile%\OneDrive - Hennepin County\Desktop" DEL /Q "%userprofile%\OneDrive - Hennepin County\Desktop\Hennepin-Speciality.zmd"
+IF EXIST "%userprofile%\Desktop\Hennepin-Speciality.zmd" DEL /Q "%userprofile%\Desktop\Hennepin-Speciality.zmd"
 
-REM If the user's desktop is synced to OneDrive, install the shortcut file to the OneDrive-synced desktop, otherwise install the shortcut file on the normal Desktop
-IF EXIST "%userprofile%\OneDrive - Hennepin County\Desktop" (
-	COPY /Y "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Scripts\Hennepin.zmd" "%userprofile%\OneDrive - Hennepin County\Desktop\Hennepin.zmd"
-) ELSE (
-	COPY /Y "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Scripts\Hennepin.zmd" "%userprofile%\Desktop\Hennepin.zmd"
-)
+REM -----------------------------------If the user's desktop is synced to OneDrive, install the shortcut file to the OneDrive-synced desktop, otherwise install the shortcut file on the normal Desktop
+IF EXIST "%userprofile%\OneDrive - Hennepin County\Desktop" COPY /Y "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Scripts\Hennepin.zmd" "%userprofile%\OneDrive - Hennepin County\Desktop\Hennepin.zmd"
+IF EXIST "%userprofile%\Desktop\Hennepin.zmd" COPY /Y "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Scripts\Hennepin.zmd" "%userprofile%\Desktop\Hennepin.zmd"
 
 CLS
 ECHO.
@@ -94,31 +91,22 @@ REM ============================================================================
 @ECHO OFF
 Taskkill /IM bzmd.exe 2> NUL 
 
-REM ---Deleting the .bzs script files that may have been installed previously 
+REM ------------------------------------Deleting the .bzs script files that may have been installed previously 
 REM RD /S/Q "%userprofile%\OneDrive - Hennepin County\My Documents\Documents\BlueZone\Scripts"
 REM RD /S/Q "%userprofile%\Documents\BlueZone\Scripts"
-REM RD /S/Q "C:\Bluezone_HSR_Scripts"
-    
-REM Removing Hennepin session from desktop 
-IF EXIST "%userprofile%\OneDrive - Hennepin County\Desktop" (
-    DEL /Q "%userprofile%\OneDrive - Hennepin County\Desktop\Hennepin.zmd"
-) ELSE (
-    DEL /Q "%userprofile%\Desktop\Hennepin.zmd"
-)
+REM RD /S/Q "C:\Bluezone_HSR_Scripts" 
 
-REM Removing Hennepin-Specialty session from desktop 
-IF EXIST "%userprofile%\OneDrive - Hennepin County\Desktop" (
-    DEL /Q "%userprofile%\OneDrive - Hennepin County\Desktop\Hennepin-Speciality.zmd"
-) ELSE (
-    DEL /Q "%userprofile%\Desktop\Hennepin-Speciality.zmd"
-)
+REM ------------------------------------Removing Hennepin session from desktop 
+IF EXIST "%userprofile%\OneDrive - Hennepin County\Desktop" DEL /Q "%userprofile%\OneDrive - Hennepin County\Desktop\Hennepin.zmd"
+IF EXIST "%userprofile%\Desktop\Hennepin.zmd" DEL /Q "%userprofile%\Desktop\Hennepin.zmd"
 
-REM If the user's desktop is synced to OneDrive, install the shortcut file to the OneDrive-synced desktop, otherwise install the shortcut file on the normal Desktop
-IF EXIST "%userprofile%\OneDrive - Hennepin County\Desktop" (
-	COPY /Y "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Scripts\Hennepin-Speciality.zmd" "%userprofile%\OneDrive - Hennepin County\Desktop\Hennepin-Speciality.zmd"
-) ELSE (
-	COPY /Y "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Scripts\Hennepin-Speciality.zmd" "%userprofile%\Desktop\Hennepin-Speciality.zmd"
-)
+REM -----------------------------------Removing Hennepin-Specialty session from desktop 
+IF EXIST "%userprofile%\OneDrive - Hennepin County\Desktop" DEL /Q "%userprofile%\OneDrive - Hennepin County\Desktop\Hennepin-Speciality.zmd"
+IF EXIST "%userprofile%\Desktop\Hennepin-Speciality.zmd" DEL /Q "%userprofile%\Desktop\Hennepin-Speciality.zmd"
+
+REM ------------------------------------If the user's desktop is synced to OneDrive, install the shortcut file to the OneDrive-synced desktop, otherwise install the shortcut file on the normal Desktop
+IF EXIST "%userprofile%\OneDrive - Hennepin County\Desktop" COPY /Y "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Scripts\Hennepin-Speciality.zmd" "%userprofile%\OneDrive - Hennepin County\Desktop\Hennepin-Speciality.zmd"
+IF EXIST "%userprofile%\Desktop\Hennepin-Speciality.zmd" COPY /Y "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Scripts\Hennepin-Speciality.zmd" "%userprofile%\Desktop\Hennepin-Speciality.zmd"
 
 CLS
 ECHO.
