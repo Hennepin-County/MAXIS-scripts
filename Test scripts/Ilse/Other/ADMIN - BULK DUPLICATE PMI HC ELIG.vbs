@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("08/06/2020", "Final release version ready for production.", "Ilse Ferris, Hennepin County")
 call changelog_update("07/16/2020", "Added gender and DOB fields to report.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/13/2018", "Initial version.", "Ilse Ferris, Hennepin County")
 
@@ -73,12 +74,8 @@ End function
 '----------------------------------------------------------------------------------------------------The script
 'CONNECTS TO BlueZone
 EMConnect ""
-'get_county_code
-
 MAXIS_footer_month = CM_mo	'establishing footer month/year 
 MAXIS_footer_year = CM_yr 
-
-file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Projects\BZ ongoing projects\SSIS - PMI\SA 2020-07.xlsx"
 
 'The dialog is defined in the loop as it can change as buttons are pressed 
 Dialog1 = ""
@@ -131,35 +128,41 @@ const rsum_PMI_const            = 16
 'Now the script adds all the clients on the excel list into an array
 excel_row = 2 're-establishing the row to start checking the members for
 entry_record = 0
+all_pmi_array = "*"    'setting up string to find duplicate case numbers 
 Do   
     'Loops until there are no more cases in the Excel list
-
     Client_PMI = objExcel.cells(excel_row, 1).Value          'reading the PMI from Excel 
     Client_PMI = trim(Client_PMI)
     If Client_PMI = "" then exit do
 
-    ReDim Preserve case_array(16, entry_record)	'This resizes the array based on the number of rows in the Excel File'
-    'The client information is added to the array'
-    case_array(clt_PMI_const,               entry_record) = Client_PMI			
-    case_array(last_name_const,             entry_record) = ""             
-    case_array(first_name_const,            entry_record) = ""   
-    case_array(client_SSN_const,            entry_record) = ""                  
-    case_array(DOB_const,                   entry_record) = ""  
-    case_array(gender_const,                entry_record) = ""
-    case_array(first_case_number_const,   	entry_record) = ""				
-    case_array(first_type_const, 	        entry_record) = ""				
-    case_array(first_elig_const, 	        entry_record) = ""             
-    case_array(second_case_number_const,    entry_record) = ""              
-    case_array(second_type_const, 	        entry_record) = ""              
-    case_array(second_elig_const, 	        entry_record) = ""              
-    case_array(third_case_number_const, 	entry_record) = ""
-    case_array(third_type_const,      	    entry_record) = ""				
-    case_array(third_elig_const,            entry_record) = ""	
-    case_array(case_status,                 entry_record) = "" 
-    case_array(rsum_PMI_const,              entry_record) = ""		
+    'If the case number is found in the string of case numbers, it's not added again. 
+    If instr(all_pmi_array, "*" & Client_PMI & "*") then 
+        add_to_array = False
+    Else 
+        ReDim Preserve case_array(16, entry_record)	'This resizes the array based on the number of rows in the Excel File'
+        'The client information is added to the array'
+        case_array(clt_PMI_const,               entry_record) = Client_PMI			
+        case_array(last_name_const,             entry_record) = ""             
+        case_array(first_name_const,            entry_record) = ""   
+        case_array(client_SSN_const,            entry_record) = ""                  
+        case_array(DOB_const,                   entry_record) = ""  
+        case_array(gender_const,                entry_record) = ""
+        case_array(first_case_number_const,   	entry_record) = ""				
+        case_array(first_type_const, 	        entry_record) = ""				
+        case_array(first_elig_const, 	        entry_record) = ""             
+        case_array(second_case_number_const,    entry_record) = ""              
+        case_array(second_type_const, 	        entry_record) = ""              
+        case_array(second_elig_const, 	        entry_record) = ""              
+        case_array(third_case_number_const, 	entry_record) = ""
+        case_array(third_type_const,      	    entry_record) = ""				
+        case_array(third_elig_const,            entry_record) = ""	
+        case_array(case_status,                 entry_record) = "" 
+        case_array(rsum_PMI_const,              entry_record) = ""		
 
-    entry_record = entry_record + 1			'This increments to the next entry in the array'
-    stats_counter = stats_counter + 1
+        entry_record = entry_record + 1			'This increments to the next entry in the array'
+        stats_counter = stats_counter + 1
+        all_pmi_array = trim(all_pmi_array & Client_PMI & "*") 'Adding MAXIS case number to case number string
+    End if 
     excel_row = excel_row + 1
 Loop
 
@@ -217,7 +220,6 @@ For item = 0 to UBound(case_array, 2)
                 
                 EmReadscreen gender_code, 1, 8, 58
                 case_array(gender_const, item) = gender_code
-                
             Else 
                 case_array(case_status, item) = "Unable to find PMI in PERS." 
             End if 
@@ -280,14 +282,12 @@ For item = 0 to UBound(case_array, 2)
                 If RSEL_SSN = Client_SSN then
                     duplicate_entry = True 
                     Call write_value_and_transmit("X", RSEL_row, 2)
-                    
                     '---------------------------------------This bit is for the rare case where you cannot select the SSN on RSEL. Those will be on the error list
                     EmReadscreen RSEL_panel_check, 4, 1, 52  'RSEL is listed at column 52 
                     EmReadscreen panel_check, 4, 1, 51
                     If RSEL_panel_check = "RSEL" then
                         EmReadscreen RSEL_error, 70, 24, 2
-                        If trim(RSEL_error) <> "" then 
-                            MsgBox RSEL_error
+                        If trim(RSEL_error) <> "" then
                             EmReadscreen RSEL_pmi, 8, RSEL_row, 4
                             case_array(rsum_PMI_const, item) = ""
                             case_array(case_status, item) = "RSEL screen error with PMI: " & RSEL_pmi & ". " & trim(RSEL_error)
@@ -322,86 +322,85 @@ For item = 0 to UBound(case_array, 2)
                         first_elig_dates = first_elig_start &  " - " & first_elig_end
                         case_array(first_elig_const, item) = first_elig_dates
                     End if    
-                End if 
-        
-                EmReadscreen second_case_number, 8, 9, 16
-                second_case_number = trim(second_case_number)
-                If second_case_number <> "" then 
-                    case_array(second_case_number_const, item) = second_case_number
-                    EmReadscreen second_program, 2, 8, 13
-                    EmReadscreen second_type, 2, 8, 35
-                    If trim(second_program) <> "" then 
-                        second_elig_type = second_program & "-" & second_type
-                        case_array(second_type_const, item) = second_elig_type
-                        '1st elig dates 
-                        EmReadscreen second_elig_start, 8, 9, 35
-                        EmReadscreen second_elig_end, 8, 9, 54
-                        second_elig_dates = second_elig_start &  " - " & second_elig_end
-                        case_array(second_elig_const, item) = second_elig_dates
-                    ENd if    
-                End if     
             
-                EmReadscreen third_case_number, 8, 11, 16
-                third_case_number = trim(third_case_number)
-                If third_case_number <> "" then 
-                    case_array(third_case_number_const, item) = third_case_number
-                    EmReadscreen third_program, 2, 10, 13
-                    EmReadscreen third_type, 2, 10, 35
-                    If trim(third_program) <> "" then 
-                        third_elig_type = third_program & "-" & third_type
-                        case_array(third_type_const, item) = third_elig_type
-                        '1st elig dates 
-                        EmReadscreen third_elig_start, 8, 11, 35
-                        EmReadscreen third_elig_end, 8, 11, 54
-                        third_elig_dates = third_elig_start &  " - " & third_elig_end
-                        case_array(third_elig_const, item) = third_elig_dates
-                    End if    
-                End if 
-                    
-                'outputting to Excel 
-                If case_array(case_status, item) = "" then 
-                    objExcel.Cells(excel_row,  1).Value = case_array (clt_PMI_const,            item)
-                    objExcel.Cells(excel_row,  2).Value = case_array (rsum_PMI_const,           item)
-                    objExcel.Cells(excel_row,  3).Value = case_array (last_name_const,          item)
-                    objExcel.Cells(excel_row,  4).Value = case_array (first_name_const,         item)
-                    objExcel.Cells(excel_row,  5).Value = case_array (DOB_const,                item)
-                    objExcel.Cells(excel_row,  6).Value = case_array (gender_const,             item)
-                    objExcel.Cells(excel_row,  7).Value = case_array (first_case_number_const,  item)
-                    objExcel.Cells(excel_row,  8).Value = case_array (first_type_const, 	    item)
-                    objExcel.Cells(excel_row,  9).Value = case_array (first_elig_const, 	    item)
-                    objExcel.Cells(excel_row, 10).Value = case_array (second_case_number_const, item)
-                    objExcel.Cells(excel_row, 11).Value = case_array (second_type_const, 	    item)
-                    objExcel.Cells(excel_row, 12).Value = case_array (second_elig_const, 	    item)
-                    objExcel.Cells(excel_row, 13).Value = case_array (third_case_number_const,  item)
-                    objExcel.Cells(excel_row, 14).Value = case_array (third_type_const,      	item)
-                    objExcel.Cells(excel_row, 15).Value = case_array (third_elig_const,         item) 
-                    excel_row = excel_row + 1
-                End if 
-                    
-                If duplicate_entry = True then 
-                    RSEL_row = RSEL_row + 1
-                    PF3
-                    EmReadscreen RSEL_panel_check, 4, 1, 52  'RSEL is listed at column 52 
-                    If RSEL_panel_check = "RSEL" then
-                        'RSEL_row = 8
-                        case_array(first_case_number_const, item) = ""
-                		case_array(rsum_PMI_const,          item) = ""		
-                        case_array(first_type_const, 	    item) = ""				
-                        case_array(first_elig_const, 	    item) = ""             
-                        case_array(second_case_number_const,item) = ""              
-                        case_array(second_type_const, 	    item) = ""              
-                        case_array(second_elig_const,       item) = ""              
-                        case_array(third_case_number_const, item) = ""
-                        case_array(third_type_const,        item) = ""				
-                        case_array(third_elig_const,        item) = ""
-                        case_array(case_status,             item) = ""	
-                    Else 
-                        exit do 'No more cases on RSEL 
-                    end if 
-                else
-                    PF3
-                    exit do     'cases that did not have more than one known entry 
-                End if 
+                    EmReadscreen second_case_number, 8, 9, 16
+                    second_case_number = trim(second_case_number)
+                    If second_case_number <> "" then 
+                        case_array(second_case_number_const, item) = second_case_number
+                        EmReadscreen second_program, 2, 8, 13
+                        EmReadscreen second_type, 2, 8, 35
+                        If trim(second_program) <> "" then 
+                            second_elig_type = second_program & "-" & second_type
+                            case_array(second_type_const, item) = second_elig_type
+                            '1st elig dates 
+                            EmReadscreen second_elig_start, 8, 9, 35
+                            EmReadscreen second_elig_end, 8, 9, 54
+                            second_elig_dates = second_elig_start &  " - " & second_elig_end
+                            case_array(second_elig_const, item) = second_elig_dates
+                        ENd if    
+                    End if     
+                
+                    EmReadscreen third_case_number, 8, 11, 16
+                    third_case_number = trim(third_case_number)
+                    If third_case_number <> "" then 
+                        case_array(third_case_number_const, item) = third_case_number
+                        EmReadscreen third_program, 2, 10, 13
+                        EmReadscreen third_type, 2, 10, 35
+                        If trim(third_program) <> "" then 
+                            third_elig_type = third_program & "-" & third_type
+                            case_array(third_type_const, item) = third_elig_type
+                            '1st elig dates 
+                            EmReadscreen third_elig_start, 8, 11, 35
+                            EmReadscreen third_elig_end, 8, 11, 54
+                            third_elig_dates = third_elig_start &  " - " & third_elig_end
+                            case_array(third_elig_const, item) = third_elig_dates
+                        End if    
+                    End if 
+             
+                    'outputting to Excel 
+                    If case_array(case_status, item) = "" then 
+                        objExcel.Cells(excel_row,  1).Value = case_array (clt_PMI_const,            item)
+                        objExcel.Cells(excel_row,  2).Value = case_array (rsum_PMI_const,           item)
+                        objExcel.Cells(excel_row,  3).Value = case_array (last_name_const,          item)
+                        objExcel.Cells(excel_row,  4).Value = case_array (first_name_const,         item)
+                        objExcel.Cells(excel_row,  5).Value = case_array (DOB_const,                item)
+                        objExcel.Cells(excel_row,  6).Value = case_array (gender_const,             item)
+                        objExcel.Cells(excel_row,  7).Value = case_array (first_case_number_const,  item)
+                        objExcel.Cells(excel_row,  8).Value = case_array (first_type_const, 	    item)
+                        objExcel.Cells(excel_row,  9).Value = case_array (first_elig_const, 	    item)
+                        objExcel.Cells(excel_row, 10).Value = case_array (second_case_number_const, item)
+                        objExcel.Cells(excel_row, 11).Value = case_array (second_type_const, 	    item)
+                        objExcel.Cells(excel_row, 12).Value = case_array (second_elig_const, 	    item)
+                        objExcel.Cells(excel_row, 13).Value = case_array (third_case_number_const,  item)
+                        objExcel.Cells(excel_row, 14).Value = case_array (third_type_const,      	item)
+                        objExcel.Cells(excel_row, 15).Value = case_array (third_elig_const,         item) 
+                        excel_row = excel_row + 1
+                    End if 
+                End if      
+            End if 
+                 
+            If duplicate_entry = True then 
+                RSEL_row = RSEL_row + 1
+                PF3
+                EmReadscreen RSEL_panel_check, 4, 1, 52  'RSEL is listed at column 52 
+                If RSEL_panel_check = "RSEL" then
+                    case_array(first_case_number_const, item) = ""
+            		case_array(rsum_PMI_const,          item) = ""		
+                    case_array(first_type_const, 	    item) = ""				
+                    case_array(first_elig_const, 	    item) = ""             
+                    case_array(second_case_number_const,item) = ""              
+                    case_array(second_type_const, 	    item) = ""              
+                    case_array(second_elig_const,       item) = ""              
+                    case_array(third_case_number_const, item) = ""
+                    case_array(third_type_const,        item) = ""				
+                    case_array(third_elig_const,        item) = ""
+                    case_array(case_status,             item) = ""	
+                Else 
+                    exit do 'No more cases on RSEL 
+                end if 
+            else
+                PF3
+                exit do     'cases that did not have more than one known entry 
             End if 
         loop 
     End if 
