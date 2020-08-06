@@ -78,6 +78,7 @@ EMConnect ""
 MAXIS_footer_month = CM_mo	'establishing footer month/year 
 MAXIS_footer_year = CM_yr 
 
+file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Projects\BZ ongoing projects\SSIS - PMI\SA 2020-07.xlsx"
 
 'The dialog is defined in the loop as it can change as buttons are pressed 
 Dialog1 = ""
@@ -279,6 +280,21 @@ For item = 0 to UBound(case_array, 2)
                 If RSEL_SSN = Client_SSN then
                     duplicate_entry = True 
                     Call write_value_and_transmit("X", RSEL_row, 2)
+                    
+                    '---------------------------------------This bit is for the rare case where you cannot select the SSN on RSEL. Those will be on the error list
+                    EmReadscreen RSEL_panel_check, 4, 1, 52  'RSEL is listed at column 52 
+                    EmReadscreen panel_check, 4, 1, 51
+                    If RSEL_panel_check = "RSEL" then
+                        EmReadscreen RSEL_error, 70, 24, 2
+                        If trim(RSEL_error) <> "" then 
+                            MsgBox RSEL_error
+                            EmReadscreen RSEL_pmi, 8, RSEL_row, 4
+                            case_array(rsum_PMI_const, item) = ""
+                            case_array(case_status, item) = "RSEL screen error with PMI: " & RSEL_pmi & ". " & trim(RSEL_error)
+                            duplicate_entry = False 'stopping the futher search for case information 
+                            Exit do 
+                        End if 
+                    End if         
                 else 
                     Exit do
                     duplicate_entry = False 
@@ -367,7 +383,7 @@ For item = 0 to UBound(case_array, 2)
                     PF3
                     EmReadscreen RSEL_panel_check, 4, 1, 52  'RSEL is listed at column 52 
                     If RSEL_panel_check = "RSEL" then
-                        RSEL_row = 8
+                        'RSEL_row = 8
                         case_array(first_case_number_const, item) = ""
                 		case_array(rsum_PMI_const,          item) = ""		
                         case_array(first_type_const, 	    item) = ""				
