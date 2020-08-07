@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("08/07/2020", "Bug Fix: Sometimes there was an error after selecting which income needs to be updated. Updated the script to not reach the error.", "Casey Love, Hennepin County")
 call changelog_update("05/19/2020", "Initial version.", "Casey Love, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -473,22 +474,24 @@ Do
 Loop until are_we_passworded_out = FALSE
 
 For view_panel = 0 to UBound(PANELS_ARRAY, 2)
-    If PANELS_ARRAY(panel_freq_const, view_panel) = "1 - Monthly" Then
-        PANELS_ARRAY(panel_known_paydate, view_panel) = MAXIS_footer_month & "/" & PANELS_ARRAY(semi_mo_pay_one, view_panel) & "/" & MAXIS_footer_year
-    End If
-    If PANELS_ARRAY(panel_freq_const, view_panel) = "2 - Semi-Monthly" Then
-        PANELS_ARRAY(panel_known_paydate, view_panel) = MAXIS_footer_month & "/" & PANELS_ARRAY(semi_mo_pay_one, view_panel) & "/" & MAXIS_footer_year
-    End If
+	If PANELS_ARRAY(panel_update_checkbox, view_panel) = checked Then
+	    If PANELS_ARRAY(panel_freq_const, view_panel) = "1 - Monthly" Then
+	        PANELS_ARRAY(panel_known_paydate, view_panel) = MAXIS_footer_month & "/" & PANELS_ARRAY(semi_mo_pay_one, view_panel) & "/" & MAXIS_footer_year
+	    End If
+	    If PANELS_ARRAY(panel_freq_const, view_panel) = "2 - Semi-Monthly" Then
+	        PANELS_ARRAY(panel_known_paydate, view_panel) = MAXIS_footer_month & "/" & PANELS_ARRAY(semi_mo_pay_one, view_panel) & "/" & MAXIS_footer_year
+	    End If
 
-    If PANELS_ARRAY(panel_freq_const, view_panel) = "4 - Weekly" Then
-        If IsDate(PANELS_ARRAY(panel_known_paydate, view_panel)) = FALSE Then
-            date_to_review = MAXIS_footer_month & "/1/" & MAXIS_footer_year
-            Do
-                If WeekDayName(WeekDay(date_to_review)) = PANELS_ARRAY(panel_weekday_const, view_panel) Then PANELS_ARRAY(panel_known_paydate, view_panel) = date_to_review
-                date_to_review = DateAdd("d", 1, date_to_review)
-            Loop until IsDate(PANELS_ARRAY(panel_known_paydate, view_panel)) = TRUE
-        End If
-    End If
+	    If PANELS_ARRAY(panel_freq_const, view_panel) = "4 - Weekly" Then
+	        If IsDate(PANELS_ARRAY(panel_known_paydate, view_panel)) = FALSE Then
+	            date_to_review = MAXIS_footer_month & "/1/" & MAXIS_footer_year
+	            Do
+	                If WeekDayName(WeekDay(date_to_review)) = PANELS_ARRAY(panel_weekday_const, view_panel) Then PANELS_ARRAY(panel_known_paydate, view_panel) = date_to_review
+	                date_to_review = DateAdd("d", 1, date_to_review)
+	            Loop until IsDate(PANELS_ARRAY(panel_known_paydate, view_panel)) = TRUE
+	        End If
+	    End If
+	End If
 Next
 
 initial_footer_month = MAXIS_footer_month
