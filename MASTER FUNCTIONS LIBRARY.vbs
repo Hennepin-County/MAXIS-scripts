@@ -6182,11 +6182,9 @@ function script_end_procedure(closing_message)
             SCRIPT_success = 0
         end if
 
-		'Determines if the value of the MAXIS case number - BULK and UTILITIES scripts will not have case number informaiton input into the database
-		IF left(name_of_script, 4) = "BULK" or left(name_of_script, 4) = "UTIL" then
-			MAXIS_CASE_NUMBER = ""
-		End if
-
+		'Determines if the value of the MAXIS case number - BULK scripts will not have case number informaiton input into the database
+		IF left(name_of_script, 4) = "BULK" then MAXIS_CASE_NUMBER = ""
+		
 		'Creating objects for Access
 		Set objConnection = CreateObject("ADODB.Connection")
 		Set objRecordSet = CreateObject("ADODB.Recordset")
@@ -6253,10 +6251,8 @@ function script_end_procedure_with_error_report(closing_message)
             SCRIPT_success = 0
         end if
 
-		'Determines if the value of the MAXIS case number - BULK and UTILITIES scripts will not have case number informaiton input into the database
-		IF left(name_of_script, 4) = "BULK" or left(name_of_script, 4) = "UTIL" then
-			MAXIS_CASE_NUMBER = ""
-		End if
+        'Determines if the value of the MAXIS case number - BULK scripts will not have case number informaiton input into the database
+		IF left(name_of_script, 4) = "BULK" then MAXIS_CASE_NUMBER = ""
 
 		'Creating objects for Access
 		Set objConnection = CreateObject("ADODB.Connection")
