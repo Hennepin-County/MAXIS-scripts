@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("08/07/2020", "Updated to review CASE/NOTE for previous PF11 request.", "MiKayla Handley, Hennepin County")
 call changelog_update("07/20/2019", "Per DHS Bulletin #18-69-02C, updated New Spouse Income handling and case note.", "MiKayla Handley, Hennepin County")
 call changelog_update("05/13/2019", "Initial version.", "MiKayla Handley, Hennepin County")
 
@@ -54,19 +55,17 @@ changelog_display
 'THE SCRIPT=================================================================================================================
 'Connecting to MAXIS, and grabbing the case number and footer month'
 EMConnect ""
+'call back_to_self
 Call check_for_maxis(FALSE) 'checking for passord out, brings up dialog'
 Call MAXIS_case_number_finder(MAXIS_case_number)
-Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
-
+CALL MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 If MAXIS_case_number <> "" Then 		'If a case number is found the script will get the list of
 	Call Generate_Client_List(HH_Memb_DropDown, "Select One:")
 End If
-
 'Running the dialog for case number and client
 Do
 	err_msg = ""
 	'intial dialog for user to select a SMRT action
-
     Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 196, 140, "PF11 Action"
 	  EditBox 55, 5, 40, 15, maxis_case_number
@@ -100,7 +99,8 @@ Do
 	IF PF11_actions <> "Non-Actionable DAIL Removal" THEN
 	 	IF clt_to_update = "Select One:" Then err_msg = err_msg & vbNewLine & "Please pick a client to update."
 	END IF
-	If trim(worker_signature) = "" THEN err_msg = err_msg & vbNewLine & "* Enter your worker signature."
+	IF PF11_actions = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please select the action you wish to take."
+	If trim(worker_signature) = "" THEN err_msg = err_msg & vbNewLine & "Enter your worker signature."
 	If err_msg <> "" AND left(err_msg, 10) <> "Start Over" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
 Loop until err_msg = ""
 
@@ -128,10 +128,10 @@ IF PF11_actions = "Non-Actionable DAIL Removal" THEN
     		err_msg = ""
     		Dialog Dialog1
     		IF ButtonPressed = 0 then StopScript
-    		IF dail_date = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a dail date."
-			IF dail_message = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a dail. This can be copy and paste."
-			IF request_reason = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a request reason."
-			IF worker_xnumber = len(worker_xnumber) > 3 then err_msg = err_msg & vbNewLine & "* Please enter the worker X127 number. Must be last 3 digits."
+    		IF dail_date = "" THEN err_msg = err_msg & vbNewLine & "Please enter a dail date."
+			IF dail_message = "" THEN err_msg = err_msg & vbNewLine & "Please enter a dail. This can be done via copy and paste."
+			IF request_reason = "" THEN err_msg = err_msg & vbNewLine & "Please enter a request reason."
+			IF worker_xnumber = len(worker_xnumber) > 3 then err_msg = err_msg & vbNewLine & "Please enter the worker X127 number. Must be last 3 digits."
     		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
     	Loop until err_msg = ""
      Call check_for_password(are_we_passworded_out)
@@ -194,8 +194,8 @@ IF PF11_actions = "Other" THEN
     		err_msg = ""
     		Dialog Dialog1
     		if ButtonPressed = 0 then StopScript
-			IF request_reason = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a request reason."
-    		IF worker_xnumber = "" or len(worker_xnumber) > 3 then err_msg = err_msg & vbNewLine & "* Please enter the worker X127 number. Must be last 3 digits."
+			IF request_reason = "" THEN err_msg = err_msg & vbNewLine & "Please enter a request reason."
+    		IF worker_xnumber = "" or len(worker_xnumber) > 3 then err_msg = err_msg & vbNewLine & "Please enter the worker X127 number. Must be last 3 digits."
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
 		Loop until err_msg = ""
      Call check_for_password(are_we_passworded_out)
@@ -203,11 +203,40 @@ IF PF11_actions = "Other" THEN
 END If
 
 If PF11_actions = "PMI Merge Request" or PF11_actions = "MFIP New Spouse Income" or PF11_actions = "New Spouse Income Determination" THEN
+	six_months_prior = DateAdd("m", -6, date) 'will set the date 6 months prior to the run date '
+	'MsgBox six_months_prior
+	'handling to prevent duplicate case notes or PF11 requests'
+	Call Navigate_to_MAXIS_screen ("CASE", "NOTE")
+	note_row = 5        'these always need to be reset when looking at Case note
+	note_date = ""
+	note_title = ""
+	Do
+		EMReadScreen note_date, 8, note_row, 6
+		EMReadScreen note_title, 55, note_row, 25
+		note_title = trim(note_title)
+		'msgbox note_title
+		IF left(note_title, 14) = "PF11 Requested" or left(note_title, 25) = "***PMI MERGE REQUESTED***" THEN
+		    DO
+		    	prog_confirmation = MsgBox("*** NOTICE!***" & vbNewLine & "a PF11 was already requested on: " & note_date & vbNewLine & "please do not send a duplicate request." & vbNewLine & "Select YES to continue NO to exit the script.", vbYesNo, "Possible Duplicate Request")
+		    	IF prog_confirmation = vbNo THEN script_end_procedure_with_error_report("The script has ended. The request has not been acted on.")
+		    	IF prog_confirmation = vbYes THEN
+		    		EXIT DO
+		    	END IF
+		    Loop
+		END IF
+		IF note_date = "        " then Exit Do
+		note_row = note_row + 1
+		IF note_row = 19 THEN
+			PF8
+			note_row = 5
+		END IF
+		EMReadScreen next_note_date, 8, note_row, 6
+		IF next_note_date = "        " then Exit Do
+	Loop until datevalue(next_note_date) < six_months_prior 'looking ahead at the next case note kicking out the dates before app'
+
 	Call Navigate_to_MAXIS_screen ("STAT", "MEMB")
 	'redefine ref_numb'
-	'MEMB_number = left(ref_numb, len(client_info) - 2)
 	MEMB_number = left(clt_to_update, 2)	'Settin the reference number
-	'msgbox MEMB_number
 	EMWriteScreen MEMB_number, 20, 76
 	TRANSMIT
 	EMReadScreen client_first_name, 12, 6, 63
@@ -222,9 +251,9 @@ If PF11_actions = "PMI Merge Request" or PF11_actions = "MFIP New Spouse Income"
 END IF
 
 If PF11_actions = "PMI Merge Request" THEN
+	EMReadScreen panel_check, 4, 2, 48
+	IF panel_check <> "MEMB" THEN MsgBox "*** NOTICE!***" & vbNewLine & "Case must be on STAT/MEMB to read the correct information, please re-run the script" & vbNewLine
 	PF2 'going to PERS'
-	EMReadScreen nav_check, 4, 2, 47
-	'msgbox nav_check
 	EMWriteScreen client_last_name, 04, 36
 	client_last_name = trim(client_last_name)
 	client_last_name = replace(client_last_name, "_", "")
@@ -237,35 +266,37 @@ If PF11_actions = "PMI Merge Request" THEN
 	EMWriteScreen client_DOB_date, 11, 56
 	EMWriteScreen client_DOB_year, 11, 59
 	TRANSMIT
-	'msgbox "where are we"
-	'' PMI NBR ASSIGNED THRU SMI OR PMIN - NO MAXIS CASE EXISTS
+
     Dialog1 = ""
-    BeginDialog Dialog1, 0, 0, 276, 125, "PMI Merge Requested"
+	BeginDialog Dialog1, 0, 0, 276, 135, "PMI Merge Requested"
 	  EditBox 80, 5, 50, 15, PMI_number
 	  EditBox 80, 25, 50, 15, PMI_number_two
 	  EditBox 220, 25, 50, 15, second_case_number
-	  DropListBox 80, 45, 190, 15, "Select One:"+chr(9)+"METS case opened"+chr(9)+"PMI number assigned thru SMI or PMIN"+chr(9)+"Incorrect information on case", reason_request_dropdown
+	  DropListBox 80, 45, 190, 15, "Select One:"+chr(9)+"METS case opened"+chr(9)+"PMI number assigned thru SMI or PMIN"+chr(9)+"Incorrect information on case"+chr(9)+"Other", reason_request_dropdown
 	  EditBox 80, 65, 190, 15, action_taken
 	  EditBox 80, 85, 190, 15, other_notes
 	  ButtonGroup ButtonPressed
-	    OkButton 165, 105, 50, 15
-	    CancelButton 220, 105, 50, 15
+	    OkButton 165, 115, 50, 15
+	    CancelButton 220, 115, 50, 15
 	  Text 5, 70, 50, 10, " Actions taken:"
 	  Text 5, 10, 65, 10, "PMI on this case:"
-	  Text 5, 110, 160, 10, "**If additional PMI(s) are found add to other notes"
+	  Text 150, 5, 115, 15, "If additional PMI(s) are found add to other notes"
 	  Text 5, 90, 45, 10, "Other notes:"
 	  Text 5, 30, 60, 10, "Duplicate PMI(s):"
 	  Text 5, 50, 65, 10, "Reason for request:"
 	  Text 150, 30, 65, 10, "Other case number:"
+	  Text 5, 105, 260, 10, "Review CASE/NOTE to ensure a request has not been made previously"
 	EndDialog
+
 	Do
 		Do
 			err_msg = ""
 			Dialog Dialog1
 			cancel_confirmation
-			If PMI_number = "" THEN err_msg = err_msg & vbNewLine & "* Enter the PMI on this case."
-			If trim(second_case_number) = "" THEN err_msg = err_msg & vbNewLine & "* Please enter the second case number, if none enter N/A."
-			'If trim(action_taken) = "" THEN err_msg = err_msg & vbNewLine & "* Enter the actions taken."
+			If PMI_number = "" THEN err_msg = err_msg & vbNewLine & "Please enter the PMI on this case."
+			If trim(second_case_number) = "" and reason_request_dropdown <> "PMI number assigned thru SMI or PMIN" THEN err_msg = err_msg & vbNewLine & "Please enter the second case number, if none enter N/A."
+			If reason_request_dropdown = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please enter the request reason."
+			If reason_request_dropdown = "Other" and other_notes = "" THEN err_msg = err_msg & vbNewLine & "Please enter the request reason in other notes."
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
 		Loop until err_msg = ""
 		Call check_for_password(are_we_passworded_out)
@@ -273,7 +304,6 @@ If PF11_actions = "PMI Merge Request" THEN
 END IF
 
 IF PF11_actions = "MFIP New Spouse Income" then
-
     Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 346, 140, "Designated Spouse"
   	  ButtonGroup ButtonPressed
