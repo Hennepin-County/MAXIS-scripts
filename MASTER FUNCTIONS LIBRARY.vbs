@@ -4655,6 +4655,16 @@ function find_MAXIS_worker_number(x_number)
 	END if
 end function
 
+function find_user_name(the_person_running_the_script)
+'--- This function finds the outlook name of the person using the script
+'~~~~~ the_person_running_the_script:the variable for the person's name to output
+'===== Keywords: MAXIS, worker name, email signature
+	Set objOutlook = CreateObject("Outlook.Application")
+	Set the_person_running_the_script = objOutlook.GetNamespace("MAPI").CurrentUser
+	the_person_running_the_script = the_person_running_the_script & ""
+	Set objOutlook = Nothing
+end function
+
 'This function fixes the case for a phrase. For example, "ROBERT P. ROBERTSON" becomes "Robert P. Robertson".
 '	It capitalizes the first letter of each word.
 function fix_case(phrase_to_split, smallest_length_to_skip)										'Ex: fix_case(client_name, 3), where 3 means skip words that are 3 characters or shorter
@@ -6184,7 +6194,7 @@ function script_end_procedure(closing_message)
 
 		'Determines if the value of the MAXIS case number - BULK scripts will not have case number informaiton input into the database
 		IF left(name_of_script, 4) = "BULK" then MAXIS_CASE_NUMBER = ""
-		
+
 		'Creating objects for Access
 		Set objConnection = CreateObject("ADODB.Connection")
 		Set objRecordSet = CreateObject("ADODB.Recordset")
