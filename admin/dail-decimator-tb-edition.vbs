@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("08/10/2020", "Added email confirmation at the end of the script run.", "Ilse Ferris, Hennepin County")
 call changelog_update("04/29/2020", "Added new ADULTS pending baskets X127EP6-X127EP8", "Ilse Ferris, Hennepin County")
 call changelog_update("04/01/2020", "Added DWP baskets to FAD baskets.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/30/2020", "Update to exclude certain ADAD baskets.", "Ilse Ferris, Hennepin County")
@@ -481,5 +482,8 @@ Next
 
 'Closing the connection
 objConnection.Close
+
+'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
+Call create_outlook_email("Laurie.Hennen@hennepin.us;Todd.Bennington@hennepin.us", "Ilse.Ferris@hennepin.us", "DAIL Decimator: Task-Based Edition complete. EOM.", "", "", True)
 
 script_end_procedure("Success! Please review the list created for accuracy. False count is: " & false_count)
