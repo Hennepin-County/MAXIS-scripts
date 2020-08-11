@@ -148,39 +148,6 @@ function script_search(name_of_the_scripts)
 	ButtonPressed = search_btn
 
 end function
-' class script_bowie
-'
-'     'Stuff the user indicates
-' 	public script_name             	'The familiar name of the script (file name without file extension or category, and using familiar case)
-' 	public description             	'The description of the script
-' 	public button                  	'A variable to store the actual results of ButtonPressed (used by much of the script functionality)
-' 	public SIR_instructions_button	'A variable to store the actual results of ButtonPressed (used by much of the script functionality)
-'     public category               	'The script category (ACTIONS/BULK/etc)
-' 	public workflows               	'The script workflows associated with this script (Changes Reported, Applications, etc)
-'     public subcategory				'An array of all subcategories a script might exist in, such as "LTC" or "A-F"
-' 	public release_date				'This allows the user to indicate when the script goes live (controls NEW!!! messaging)
-'
-'     'Details the menus will figure out (does not need to be explicitly declared)
-'     public button_plus_increment	'Workflow scripts use a special increment for buttons (adding or subtracting from total times to run). This is the add button.
-' 	public button_minus_increment	'Workflow scripts use a special increment for buttons (adding or subtracting from total times to run). This is the minus button.
-' 	public total_times_to_run		'A variable for the total times the script should run
-'
-'     'Details the class itself figures out
-' 	public property get script_URL
-' 		If run_locally = true then
-' 			script_repository = "C:\MAXIS-Scripts\"
-' 			script_URL = script_repository & lcase(category) & "\" & lcase(replace(script_name, " ", "-") & ".vbs")
-' 		Else
-'         	If script_repository = "" then script_repository = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/"    'Assumes we're scriptwriters
-'         	script_URL = script_repository & lcase(category) & "/" & replace(lcase(script_name) & ".vbs", " ", "-")
-' 		End if
-'     end property
-'
-'     'public property get SIR_instructions_URL 'The instructions URL in SIR
-'     '    SIR_instructions_URL = "https://www.dhssir.cty.dhs.state.mn.us/MAXIS/blzn/Script%20Instructions%20Wiki/" & replace(ucase(script_name) & ".aspx", " ", "%20")
-'     'end property
-'
-' end class
 '
 class script_demo
 
@@ -279,35 +246,8 @@ SCRIPT_DEMO_ARRAY(script_num).demo_url 		= ARRAY("www.google.com/one", "www.goog
 ' SCRIPT_DEMO_ARRAY(script_num).group_len     = 0
 ' SCRIPT_DEMO_ARRAY(script_num).demo_url 		= ARRAY("www.google.com/one", "www.google.com/two", "www.google.com/three")
 
-'Find who is running - might use this in the future for tester specific demos or other things.
-Set objNet = CreateObject("WScript.NetWork")                                    'getting the users windows ID
-windows_user_ID = objNet.UserName
-user_ID_for_validation = ucase(windows_user_ID)
-
-For each tester in tester_array                                                 'Loop through all the testers in the array to see if the user is in the list of testers.
-    If user_ID_for_validation = tester.tester_id_number Then
-        worker_full_name            = tester.tester_full_name
-        worker_first_name           = tester.tester_first_name
-        worker_last_name            = tester.tester_last_name
-        worker_email                = tester.tester_email
-        worker_id_number            = tester.tester_id_number
-        worker_x_number             = tester.tester_x_number
-        worker_supervisor           = tester.tester_supervisor_name
-        worker_supervisor_email     = tester.tester_supervisor_email
-        worker_test_groups          = tester.tester_groups
-        qi_staff = FALSE
-        For each group in worker_test_groups                                 'looking at all of the groups this tester is a part of to see if QI or BZ
-            If group = "QI" Then qi_staff = TRUE
-            If group = "BZ" Then qi_staff = TRUE
-        Next
-    End If
-Next
-'If this did not find the user is a tester for QI the script will end as this is only for QI staff - access to the files and folders will be restricted and the script will fail
-' If qi_staff = FALSE Then scsript_end_procedure_with_error_report("This script is for QI specific processes and only for QI staff. You are not listed as QI staff and running this script could cause errors in data reccording and QI processes. Please contact the BlueZone script team or pres 'Yes' below if you believe this to be in error.")
 bzt_email = "HSPH.EWS.BlueZoneScripts@hennepin.us"
-worker_name = worker_full_name
-EMConnect ""
-
+Call find_user_name(worker_name)
 unique_scripts = 0
 total_dates = 0
 
@@ -366,17 +306,7 @@ Do
 		      Next
 		      If scheduled_script.future_dates = TRUE Then y_pos = y_pos + 10
 		  Next
-		  'y_pos = y_pos + 10
 
-
-		  ' GroupBox 10, 175, 375, 60, "ACTIONS - Earned Income Budgeting"
-		  ' CheckBox 25, 190, 345, 10, "Wednesday July 10th at 3:00 PM - Earned Income Budgeting (45 minutes)", checkBoxOne
-		  ' CheckBox 25, 205, 345, 10, "Tuesday July 16th at 8:30 AM - Earned Income Budgeting (45 minutes)", Check2
-		  ' CheckBox 25, 220, 345, 10, "Thursday July 25th at 10:00 AM - Earned Income Budgeting (45 minutes)", Check3
-		  ' GroupBox 5, 245, 375, 60, "NOTES - CAF"
-		  ' CheckBox 25, 260, 345, 10, "Wednesday August 7th at 3:00 PM - CAF Script (45 minutes)", Check4
-		  ' CheckBox 25, 275, 345, 10, "Tuesday August 13th at 8:30 AM - CAF Script (45 minutes)", Check5
-		  ' CheckBox 25, 290, 345, 10, "Thursday August 22nd at 10:00 AM - CAF Script (45 minutes)", Check6
 		  If y_pos <> 155 Then
 			  Text 140, 120, 85, 10, "Upcoming Script Demos"
 			  ' Text 25, 130, 400, 20, "Check the box by any session to enroll in that Demo. This will schedule it in your Outlook and give us a notice that you will be joining."
@@ -440,8 +370,6 @@ For each scheduled_script in SCRIPT_DEMO_ARRAY
 
 				strLinktwo = scheduled_script.instructions
 				strLinkTexttwo = "SCRIPT Instructions"
-
-
 
 				'Assigning needed numbers as variables for readability
 				olAppointmentItem = 1
