@@ -98,17 +98,19 @@ Call change_date_to_soonest_working_day(interview_date)
 application_date = application_date & ""
 interview_date = interview_date & ""
 
-Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 121, 75, "APPOINTMENT LETTER"
-  EditBox 65, 5, 50, 15, application_date
-  EditBox 65, 25, 50, 15, interview_date
-  ButtonGroup ButtonPressed
-    OkButton 10, 50, 50, 15
-    CancelButton 65, 50, 50, 15
-  Text 10, 30, 50, 10, "Interview date:"
-  Text 5, 10, 55, 10, "Application date:"
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 266, 80, "APPOINTMENT LETTER"
+EditBox 185, 20, 55, 15, interview_date
+ButtonGroup ButtonPressed
+	OkButton 155, 60, 50, 15
+	CancelButton 210, 60, 50, 15
+EditBox 50, 20, 55, 15, application_date
+Text 120, 25, 60, 10, "Appointment date:"
+GroupBox 5, 5, 255, 35, "Enter a new appointment date only if it's a date county offices are not open."
+Text 15, 25, 35, 10, "CAF date:"
+Text 25, 45, 205, 10, "If same-day interview is being offered please use today's date"
 EndDialog
-
  'need to handle for if we dont need an appt letter, which would be...'
 
 Do
@@ -116,7 +118,6 @@ Do
 		err_msg = ""
 		dialog Dialog1
 		cancel_confirmation
-
         If isdate(application_date) = False then err_msg = err_msg & vbnewline & "* Enter a valid application date."
 		If isdate(interview_date) = False then err_msg = err_msg & vbnewline & "* Enter a valid interview date."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
