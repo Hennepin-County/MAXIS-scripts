@@ -58,10 +58,10 @@ EMConnect ""
 'Grabs the MAXIS case number automatically
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 
-''Still Needed Dialog
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 341, 320, "Verifications Still Needed Dialog"
-  EditBox 60, 5, 120, 15, MAXIS_case_number
+BeginDialog Dialog1, 0, 0, 366, 290, "Verifications Still Needed"
+  EditBox 55, 5, 40, 15, MAXIS_case_number
+  CheckBox 15, 20, 320, 15, "Check here to case note that 2919 A/B or other DHS approved form was used for initial request.", twentynine_nineteen_requested_CHECKBOX
   EditBox 30, 40, 150, 15, address_verification
   EditBox 70, 60, 110, 15, schl_stin_stec_verification
   EditBox 30, 80, 150, 15, disa_verification
@@ -74,65 +74,166 @@ BeginDialog Dialog1, 0, 0, 341, 320, "Verifications Still Needed Dialog"
   EditBox 45, 220, 135, 15, subsidy_verification
   EditBox 30, 240, 150, 15, insa_verification
   EditBox 55, 260, 125, 15, other_proof_verification
-  CheckBox 5, 280, 325, 15, "Check here to case note that 2919 A/B, or other DHS approved form, was used for initial request.", twenty_nine_nineteen_requested
-  EditBox 70, 300, 110, 15, worker_signature
+  Text 5, 10, 50, 10, "Case Number:"
+  Text 200, 50, 150, 45, "*2919 IS MANDATORY:                               This script is NOT a replacement for the DHS-2919 (Verification Request Form A/B or other DHS approved request form) which must be used to initially request verifications. "
+  Text 200, 100, 160, 35, "*REMEMBER:                                                    We cannot require a client to provide a specific form of verification. We must accept any form of verification that meets policy requirements."
+  Text 200, 175, 155, 35, "*SUBSIDY:                                               Verification of housing subsidy and exceptions to counting the subsidy are mandatory verifications for MFIP."
+  Text 200, 220, 155, 35, "*MANDATORY VERIFICATIONS:                             For more information about mandatory verifications at application and renewal/recertification refer to CM 0010.18"
+  Text 105, 10, 245, 10, "This script creates a word document for you to send to the client and ECF."
+  Text 5, 45, 25, 10, "ADDR:"
+  Text 5, 65, 65, 10, "SCHL/STIN/STEC:"
+  Text 5, 85, 25, 10, "DISA:"
+  Text 5, 105, 25, 10, "JOBS:"
+  Text 5, 125, 25, 10, "BUSI:"
+  Text 5, 145, 25, 10, "UNEA:"
+  Text 5, 165, 25, 10, "ACCT:"
+  Text 5, 185, 50, 10, "Other Assets:"
+  Text 5, 205, 25, 10, "SHEL:"
+  Text 5, 225, 40, 10, "*SUBSIDY:"
+  Text 5, 245, 20, 10, "INSA:"
+  Text 5, 265, 45, 10, "Other Proofs:"
+  GroupBox 190, 35, 170, 230, "IMPORTANT REMINDERS:"
   ButtonGroup ButtonPressed
-    OkButton 240, 300, 50, 15
-    CancelButton 290, 300, 50, 15
-  Text 5, 5, 50, 15, "Case Number:"
-  Text 5, 25, 260, 10, "This script will ultimately put all information entered in to a WORD document. "
-  Text 5, 40, 25, 15, "ADDR:"
-  Text 5, 60, 65, 15, "SCHL/STIN/STEC:"
-  Text 5, 80, 25, 15, "DISA:"
-  Text 5, 100, 25, 15, "JOBS:"
-  Text 5, 120, 25, 15, "BUSI:"
-  Text 5, 140, 25, 15, "UNEA:"
-  Text 5, 160, 25, 15, "ACCT:"
-  Text 5, 180, 50, 15, "Other Assets:"
-  Text 5, 200, 25, 15, "SHEL:"
-  Text 5, 220, 40, 15, "*SUBSIDY:"
-  Text 5, 240, 20, 15, "INSA:"
-  Text 5, 260, 45, 15, "Other Proofs:"
-  Text 5, 300, 60, 15, "Worker Signature:"
-  GroupBox 190, 35, 145, 215, "NOTES:"
-  Text 200, 50, 130, 50, "*2919 IS MANDATORY:                           This script IS NOT a replacement for the DHS-2919 (Verification Request Form A/B, or other DHS approved request form), which must be used to initially request verifications. "
-  Text 200, 105, 130, 45, "*REMEMBER:                                       We cannot require a client to provide a specific form of verification. We must accept any form of verification that meets policy requirements."
-  Text 200, 155, 125, 40, "*SUBSIDY:                                    Verification of housing subsidy and exceptions to counting the subsidy are mandatory verifications for MFIP."
-  Text 200, 200, 130, 45, "*MANDATORY VERIFICATIONS:            For more information about mandatory verifications at application and renewal/recertification refer to CM 0010.18"
+    OkButton 255, 270, 50, 15
+    CancelButton 310, 270, 50, 15
 EndDialog
 
-'Shows dialog (replace "sample_dialog" with the actual dialog you entered above)----------------------------------
-DO
-	err_msg = ""                                       		'Blanks this out every time the loop runs. If mandatory fields aren't entered, this variable is updated below with messages, which then display for the worker.
-	Dialog Dialog1              'The Dialog command shows the dialog. Replace sample_dialog with your actual dialog pasted above.
-	cancel_without_confirmation
-
-    'Handling for error messaging (in the case of mandatory fields or fields requiring a specific format)-----------------------------------
-    'If a condition is met...          ...then the error message is itself, plus a new line, plus an error message...           ...Then add a comment explaining your reason it's mandatory.
-	IF IsNumeric(MAXIS_case_number) = FALSE or len(MAXIS_case_number) > 8 	THEN err_msg = err_msg & vbNewLine & "* You must type a valid numeric case number."     'MAXIS_case_number should be mandatory in most cases. Bulk or nav scripts are likely the only exceptions
-	IF worker_signature = ""           													THEN err_msg = err_msg & vbNewLine & "* You must sign your case note!"                  'worker_signature is usually also a mandatory field
-	IF twenty_nine_nineteen_requested = unchecked 							THEN err_msg = err_msg & vbNewLine & "* If DHS-2919 (or other DHS approved form) was not used for initial verification request, take appropriate action. Do not proceed with this script. Verifications NEED to be requested using DHS-2919 or other DHS approved form."
-    '<<Follow the above template to add more mandatory fields!!>>
-		call check_for_MAXIS(FALSE)											'Makes sure the user isn't passworded out
-		call navigate_to_MAXIS_screen("STAT", "SUMM")		'Navigates to STAT/SUMM
-		EMReadScreen summ_check, 4, 2, 46						'Reads to see that you are on STAT/SUMM
-	IF summ_check <> "SUMM" THEN err_msg = err_msg & vbNewLine & "* Your case number appears to be invalid. It may be privileged." 'If unable to get to STAT/SUMM gives error message.
-
-'If the error message isn't blank, it'll pop up a message telling you what to do!
-	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine & vbNewLine & "Please resolve for the script to continue."     '
-LOOP UNTIL err_msg = ""     'It only exits the loop when all mandatory fields are resolved!
-'End dialog section-----------------------------------------------------------------------------------------------
-
+'Dialog
+DO      'Password DO loop
+	DO  'Conditional handling DO loop
+		err_msg = ""
+		Dialog Dialog1
+		cancel_confirmation
+		IF IsNumeric(MAXIS_case_number) = FALSE or len(MAXIS_case_number) > 8 	THEN err_msg = err_msg & vbNewLine & "* You must type a valid numeric case number."     'MAXIS_case_number should be mandatory in most cases. Bulk or nav scripts are likely the only exceptions
+		IF twentynine_nineteen_requested_CHECKBOX = unchecked THEN err_msg = err_msg & vbNewLine & "* If DHS-2919 (or other DHS approved form) was not used for initial verification request, take appropriate action. Do not proceed with this script. Verifications NEED to be requested using DHS-2919 or other DHS approved form."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+	LOOP until err_msg = ""
+	CALL check_for_password(are_we_passworded_out)                                 'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false
 'Checks Maxis for password prompt
 CALL check_for_MAXIS(FALSE)
 
-'Now it navigates to a blank case note
-start_a_blank_case_note
+'this reads clients current mailing address
+Call navigate_to_MAXIS_screen("STAT", "ADDR")
+EMReadScreen mail_address, 1, 13, 64
+If mail_address = "_" then
+     EMReadScreen client_1staddress, 21, 06, 43
+     EMReadScreen client_2ndaddress, 21, 07, 43
+     EMReadScreen client_city, 14, 08, 43
+     EMReadScreen client_state, 2, 08, 66
+     EMReadScreen client_zip, 7, 09, 43
+Else
+     EMReadScreen client_1staddress, 21, 13, 43
+     EMReadScreen client_2ndaddress, 21, 14, 43
+     EMReadScreen client_city, 14, 15, 43
+     EMReadScreen client_state, 2, 16, 43
+     EMReadScreen client_zip, 7, 16, 52
+End If
+client_address = replace(client_1staddress, "_","") & " " & replace(client_2ndaddress, "_","") & " " & replace(client_city, "_","") & ", " & replace(client_state, "_","") & " " & replace(client_zip, "_","")
+
+'Collecting and formatting client name for Word doc
+Call navigate_to_MAXIS_screen("STAT", "MEMB")
+call find_variable("Last: ", last_name, 24)
+call find_variable("First: ", first_name, 11)
+client_name = first_name & " " & last_name
+client_name = replace(client_name, "_", "")
+
+'Generates Word Doc Form
+Set objWord = CreateObject("Word.Application")
+objWord.Caption = "Verifications Still Needed"
+objWord.Visible = True
+
+Set objDoc = objWord.Documents.Add()
+Set objSelection = objWord.Selection
+objSelection.ParagraphFormat.Alignment = 0
+objSelection.ParagraphFormat.LineSpacing = 12
+objSelection.ParagraphFormat.SpaceBefore = 0
+objSelection.ParagraphFormat.SpaceAfter = 0
+objSelection.Font.Name = "Calibri"
+objSelection.Font.Size = "12"
+objSelection.TypeParagraph
+objSelection.Font.Bold = True
+objSelection.TypeText "Verifications Still Needed"
+objSelection.TypeParagraph
+objSelection.TypeParagraph
+objSelection.TypeText "Hennepin County Human Services & Public Health Department"
+objSelection.TypeParagraph
+objSelection.TypeText "PO Box 107, Minneapolis, MN 55440-0107"
+objSelection.TypeParagraph
+objSelection.TypeText "FAX: 612-288-2981"
+objSelection.TypeParagraph
+objSelection.TypeText "Phone: 612-596-1300"
+objSelection.TypeParagraph
+objSelection.TypeText "Email: HHSEWS@hennepin.us"
+objSelection.TypeParagraph
+
+objSelection.ParagraphFormat.Alignment = 2
+objSelection.ParagraphFormat.LineSpacing = 12
+objSelection.ParagraphFormat.SpaceBefore = 0
+objSelection.ParagraphFormat.SpaceAfter = 0
+objSelection.Font.Name = "Calibri"
+objSelection.Font.Size = "11"
+objSelection.TypeText "DATE: " & date()
+
+objSelection.TypeParagraph
+objSelection.ParagraphFormat.Alignment = 0
+objSelection.Font.Size = "10"
+objSelection.Font.Bold = True
+objSelection.TypeText client_name									'Enters the name collected/formatted above
+objSelection.TypeParagraph
+objSelection.TypeText client_address
+objSelection.TypeParagraph()									'Enters the address collected/formatted above
+objSelection.TypeParagraph()
+objSelection.TypeParagraph()
+objSelection.Font.Bold = FALSE
+objSelection.TypeText("We recently received and processed some of your required verifications. Unfortunately, there is some information that is still needed. Failure to return this information may result in the closure and/or denial of your case.")
+objSelection.TypeParagraph()
+	objSelection.TypeText("You now have an option to use an email to return documents to Hennepin County.")
+objSelection.TypeParagraph()
+	objSelection.TypeText("Email: HHSEWS@hennepin.us")
+objSelection.TypeParagraph()
+	objSelection.TypeText("Be sure to write the case number and full name associated with the case in the body of the email.")
+objSelection.TypeParagraph()
+	objSelection.TypeText("Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure.")
+objSelection.TypeParagraph()
+	objSelection.TypeText("To obtain information about your case please contact Hennepin County.")
+objSelection.TypeParagraph()
+	objSelection.TypeText("Please provide the following information at your earliest possible convenience:")
+objSelection.TypeParagraph()
+objSelection.Font.Bold = True										'These are the same as return or line down
+IF address_verification <> "" THEN objSelection.TypeText "Address: " & address_verification
+objSelection.TypeParagraph()
+IF schl_stin_stec_verification <> "" THEN objSelection.TypeText "Financial Aid/Expenses/Student Status: " & schl_stin_stec_verification
+objSelection.TypeParagraph()
+IF disa_verification <> "" THEN objSelection.TypeText "Disability: " & disa_verification
+objSelection.TypeParagraph()
+IF jobs_verification <> "" THEN objSelection.TypeText "Earned Income: " & jobs_verification
+objSelection.TypeParagraph()
+IF busi_verification <> "" THEN objSelection.TypeText "Self-Employment: " & busi_verification
+objSelection.TypeParagraph()
+IF unea_verification <> "" THEN objSelection.TypeText "Unearned Income: " & unea_verification
+objSelection.TypeParagraph
+IF acct_verification <> "" THEN objSelection.TypeText "Accounts: " & acct_verification
+objSelection.TypeParagraph()
+IF other_assets_verification <> "" THEN objSelection.TypeText "Other Assets: " & other_assets_verification
+objSelection.TypeParagraph
+IF shel_verification <> "" THEN objSelection.TypeText "Shelter Costs: " & shel_verification
+objSelection.TypeParagraph()
+IF subsidy_verification <> "" THEN objSelection.TypeText  "Housing Subsidy: " & subsidy_verification
+objSelection.TypeParagraph
+IF insa_verification <> "" THEN objSelection.TypeText "Other Health Insurance: " & insa_verification
+objSelection.TypeParagraph()
+IF other_proof_verification <> "" THEN objSelection.TypeText "Other Proofs/Verifications: " & other_proof_verification
+objSelection.TypeParagraph()
+objSelection.TypeText "If you have any questions about this request, please contact Hennepin County at 612-596-1300"
+'objSelection.EndKey end_of_doc
+
+'Starts the print dialog
+'objword.dialogs(wdDialogFilePrint).Show got an error "the requested member of the collection does not exist"
 
 '...and enters a title
+CALL start_a_blank_case_note
 CALL write_variable_in_case_note("***Verifications Still Needed***")
-
-'...some editboxes or droplistboxes
 CALL write_bullet_and_variable_in_case_note( "ADDR", address_verification)
 CALL write_bullet_and_variable_in_case_note( "SCHL/STIN/STEC", schl_stin_stec_verification)
 CALL write_bullet_and_variable_in_case_note( "DISA", disa_verification)
@@ -145,110 +246,12 @@ CALL write_bullet_and_variable_in_case_note( "SHEL", shel_verification)
 CALL write_bullet_and_variable_in_case_note( "Subsidy", subsidy_verification)
 CALL write_bullet_and_variable_in_case_note( "INSA", insa_verification)
 CALL write_bullet_and_variable_in_case_note( "Other Proofs", other_proof_verification)
-
 '...checkbox responses
-If twenty_nine_nineteen_requested = checked THEN CALL write_variable_in_case_note( "* DHS-2919, or other DHS approved form, was used for initial verification request.")
-
+If twentynine_nineteen_requested_CHECKBOX = checked THEN CALL write_variable_in_case_note( "* DHS-2919 or other DHS approved form was used for initial verification request.")
 '...and a worker signature.
-CALL write_variable_in_case_note("---")
-CALL write_variable_in_case_note(worker_signature)
-
-'Jumping to STAT
-call navigate_to_MAXIS_screen("stat", "memb")
-
-'Pulling household and worker info for the letter
-call navigate_to_MAXIS_screen("stat", "addr") 														'Navigates to STAT/ADDR
-
-EMReadScreen mailing_address_line1, 22, 13, 43																							'Reads first line of mailing address
-IF mailing_address_line1 = "______________________" THEN          													'If nothing on first line of mailing address, uses physical address
-		EMReadScreen addr_line1, 21, 6, 43																											'Reads first line of physical address
-		EMReadScreen addr_line2, 21, 7, 43																											'Reads second line of physical address
-		EMReadScreen addr_city, 14, 8, 43																												'Reads city of physical address
-		EMReadScreen addr_state, 2, 8, 66																												'Reads state of physical address
-		EMReadScreen addr_zip, 5, 9, 43																													'Reads zip of physical address
-		hh_address = addr_line1 & " " & addr_line2 																							'Combines first and second lines of physical address in to new variable
-		hh_address_line2 = addr_city & " " & addr_state & " " & addr_zip												'Combines city, state, and zip of physical address in to new variable
-		hh_address = replace(hh_address, "_", "") & vbCrLf & replace(hh_address_line2, "_", "")	'Cleans up the new variables, makes them pretty for the Word doc
-ELSE
-		EMReadScreen mailing_address_line1, 21, 13, 43																					'If there is text on the first line of the mailing address then the next few lines do the same as above, only it uses the mailing address info insted.
-		EMReadScreen mailing_address_line2, 21, 14, 43
-		EMReadScreen mailing_address_city, 15, 15, 43
-		EMReadScreen mailing_address_state, 2, 16, 43
-		EMReadScreen mailing_address_zip, 5, 16, 52
-		hh_address = mailing_address_line1 & " " & mailing_address_line2
-		hh_address_line2 = mailing_address_city & " " & mailing_address_state & " " & mailing_address_zip
-		hh_address = replace(hh_address, "_", "") & vbCrLf & replace(hh_address_line2, "_", "")
-END IF
-
-
-'Collecting and formatting client name for Word doc
-call navigate_to_MAXIS_screen("stat", "memb")
-call find_variable("Last: ", last_name, 24)
-call find_variable("First: ", first_name, 11)
-client_name = first_name & " " & last_name
-client_name = replace(client_name, "_", "")
-
-
-'Writing the Word Doc
-Set objWord = CreateObject("Word.Application")			'Creates new/blank Word doc
-Const wdDialogFilePrint = 88
-Const end_of_doc = 6
-objWord.Caption = "Verifications Still Needed"
-objWord.Visible = True
-
-Set objDoc = objWord.Documents.Add()
-Set objSelection = objWord.Selection
-
-objSelection.Font.Name = "Arial"									'Sets the font
-objSelection.Font.Size = "14"											'Sets the font size
-objSelection.TypeParagraph()
-objSelection.TypeText client_name									'Enters the name collected/formatted above
-objSelection.TypeParagraph()
-objSelection.TypeText hh_address									'Enters the address collected/formatted above
-objSelection.TypeParagraph()											'These are the same as return or line down
-objSelection.TypeParagraph()
-
-objSelection.TypeText "We recently received and processed several of your requested verifications. Unfortunately, there is some information that is still needed/outstanding. Failure to return this information may result in the closure and/or denial of your case. You now have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. To obtain information about your case please contact your worker.Please provide the following information at your earliest possible convenience: "
-objSelection.TypeParagraph()
-objSelection.TypeParagraph()
-
-Set objRange = objSelection.Range
-objDoc.Tables.Add objRange, 12, 2									'Creates a table that is twelve rows, and two columns
-set objTable = objDoc.Tables(1)
-
-'Fills in the table with the information from the dialog box
-objTable.Cell(1, 1).Range.Text =	"Address/Residency: "
-objTable.Cell(1, 2).Range.Text = 	address_verification
-objTable.Cell(2, 1).Range.Text = 	"Financial Aid/Expenses/Student Status: "
-objTable.Cell(2, 2).Range.Text = 	schl_stin_stec_verification
-objTable.Cell(3, 1).Range.Text = 	"Disability: "
-objTable.Cell(3, 2).Range.Text = 	disa_verification
-objTable.Cell(4, 1).Range.Text = 	"Earned Income:"
-objTable.Cell(4, 2).Range.Text = 	jobs_verification
-objTable.Cell(5, 1).Range.Text = 	"Self-Employment:"
-objTable.Cell(5, 2).Range.Text = 	busi_verification
-objTable.Cell(6, 1).Range.Text = 	"Unearned Income:"
-objTable.Cell(6, 2).Range.Text = 	unea_verification
-objTable.Cell(7, 1).Range.Text =	"Accounts:"
-objTable.Cell(7, 2).Range.Text = 	acct_verification
-objTable.Cell(8, 1).Range.Text = 	"Other Assets:"
-objTable.Cell(8, 2).Range.Text = 	other_assets_verification
-objTable.Cell(9, 1).Range.Text = 	"Shelter Costs:"
-objTable.Cell(9, 2).Range.Text = 	shel_verification
-objTable.Cell(10, 1).Range.Text = "Housing Subsidy:"
-objTable.Cell(10, 2).Range.Text = subsidy_verification
-objTable.Cell(11, 1).Range.Text = "Other Health Insurance:"
-objTable.Cell(11, 2).Range.Text = insa_verification
-objTable.Cell(12, 1).Range.Text = "Other Proofs/Verifications:"
-objTable.Cell(12, 2).Range.Text = other_proof_verification
-
-objTable.AutoFormat(16)
-
-objSelection.EndKey end_of_doc
-objSelection.TypeParagraph()
-
-'Starts the print dialog
-objword.dialogs(wdDialogFilePrint).Show
+CALL write_variable_in_CASE_NOTE("---")
+CALL write_variable_in_CASE_NOTE(worker_signature)
+PF3
 
 'End the script. Put any success messages in between the quotes, *always* starting with the word "Success!"
-script_end_procedure("")
+script_end_procedure("Success! Your Request for Verification has been generated, please follow up with the next steps to ensure the request is received timely. The verification request must be reflected in ECF.")
