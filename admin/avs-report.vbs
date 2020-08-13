@@ -346,7 +346,7 @@ If AVS_option = "ECF Forms Received" then
         end if 
     Next
     'Syncing the resident lists with the All AVS forms list
-    Call AVS_sync 
+    'Call AVS_sync 
 End if     
 
 '----------------------------------------------------------------------------------------------------
@@ -743,7 +743,7 @@ If AVS_option = "Case & Person Noting" then
        objExcel.Columns(i).AutoFit()				'sizing the columns'
    NEXT
    'Syncing the resident lists with the All AVS forms list
-   Call AVS_sync 
+   'Call AVS_sync 
 End if 
 
 IF AVS_option = "New Person Information" then 
