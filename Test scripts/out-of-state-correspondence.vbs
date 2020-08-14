@@ -61,19 +61,19 @@ Call MAXIS_case_number_finder(MAXIS_case_number)
 Call check_for_MAXIS(true)
 
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 116, 105, "Out of State Inquiry"
-  EditBox 55, 5, 55, 15, MAXIS_case_number
-  DropListBox 55, 25, 50, 15, "Select One:"+chr(9)+"Sent"+chr(9)+"Received"+chr(9)+"Unknown", out_of_state_request
-  DropListBox 55, 45, 50, 15,  "Select One:"+chr(9)+"Email"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Phone", how_sent
-  DropListBox 55, 65, 50, 15, "Select One:"+chr(9)+"Alabama"+chr(9)+"Alaska"+chr(9)+"Arizona"+chr(9)+"Arkansas"+chr(9)+"California"+chr(9)+"Colorado"+chr(9)+"Connecticut"+chr(9)+"Delaware"+chr(9)+"Florida"+chr(9)+"Georgia"+chr(9)+"Hawaii"+chr(9)+"Idaho"+chr(9)+"Illinois"+chr(9)+"Indiana"+chr(9)+"Iowa"+chr(9)+"Kansas"+chr(9)+"Kentucky"+chr(9)+"Louisiana"+chr(9)+"Maine"+chr(9)+"Maryland"+chr(9)+"Massachusetts"+chr(9)+"Michigan"+chr(9)+"Mississippi"+chr(9)+"Missouri"+chr(9)+"Montana"+chr(9)+"Nebraska"+chr(9)+"Nevada"+chr(9)+"New Hampshire"+chr(9)+"New Jersey"+chr(9)+"New Mexico"+chr(9)+"New York"+chr(9)+"North Carolina"+chr(9)+"North Dakota"+chr(9)+"Ohio"+chr(9)+"Oklahoma"+chr(9)+"Oregon"+chr(9)+"Pennsylvania"+chr(9)+"Rhode Island"+chr(9)+"South Carolina"+chr(9)+"South Dakota"+chr(9)+"Tennessee"+chr(9)+"Texas"+chr(9)+"Utah"+chr(9)+"Vermont"+chr(9)+"Virginia"+chr(9)+"Washington"+chr(9)+"West Virginia"+chr(9)+"Wisconsin"+chr(9)+"Wyoming", state_droplist
+BEGINDIALOG Dialog1, 0, 0, 116, 105, "Out of State Inquiry"
+ EditBox 55, 5, 55, 15, MAXIS_case_number
+ DropListBox 55, 25, 55, 15, "Select One:"+chr(9)+"Sent/Send"+chr(9)+"Received"+chr(9)+"Unknown", out_of_state_request
+ DropListBox 55, 45, 55, 15, "Select One:"+chr(9)+"Email"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Phone", how_sent
+ DropListBox 55, 65, 55, 15, "Select One:"+chr(9)+"Alabama"+chr(9)+"Alaska"+chr(9)+"Arizona"+chr(9)+"Arkansas"+chr(9)+"California"+chr(9)+"Colorado"+chr(9)+"Connecticut"+chr(9)+"Delaware"+chr(9)+"Florida"+chr(9)+"Georgia"+chr(9)+"Hawaii"+chr(9)+"Idaho"+chr(9)+"Illinois"+chr(9)+"Indiana"+chr(9)+"Iowa"+chr(9)+"Kansas"+chr(9)+"Kentucky"+chr(9)+"Louisiana"+chr(9)+"Maine"+chr(9)+"Maryland"+chr(9)+"Massachusetts"+chr(9)+"Michigan"+chr(9)+"Mississippi"+chr(9)+"Missouri"+chr(9)+"Montana"+chr(9)+"Nebraska"+chr(9)+"Nevada"+chr(9)+"New Hampshire"+chr(9)+"New Jersey"+chr(9)+"New Mexico"+chr(9)+"New York"+chr(9)+"North Carolina"+chr(9)+"North Dakota"+chr(9)+"Ohio"+chr(9)+"Oklahoma"+chr(9)+"Oregon"+chr(9)+"Pennsylvania"+chr(9)+"Rhode Island"+chr(9)+"South Carolina"+chr(9)+"South Dakota"+chr(9)+"Tennessee"+chr(9)+"Texas"+chr(9)+"Utah"+chr(9)+"Vermont"+chr(9)+"Virginia"+chr(9)+"Washington"+chr(9)+"West Virginia"+chr(9)+"Wisconsin"+chr(9)+"Wyoming", state_droplist
   ButtonGroup ButtonPressed
-    OkButton 10, 85, 45, 15
-    CancelButton 60, 85, 45, 15
-  Text 5, 10, 50, 10, "Case Number:"
-  Text 20, 30, 30, 10, "Request:"
-  Text 20, 50, 30, 10, "Via(How):"
-  Text 30, 70, 20, 10, "State:"
-EndDialog
+     OkButton 15, 85, 45, 15
+     CancelButton 65, 85, 45, 15
+   Text 5, 10, 50, 10, "Case Number:"
+   Text 20, 30, 30, 10, "Request:"
+   Text 20, 50, 30, 10, "Via(How):"
+   Text 30, 70, 20, 10, "State:"
+ENDDIALOG
 
 DO
 	DO
@@ -1040,7 +1040,7 @@ Const last_name_const			= 2
 Const clt_middle_const 			= 3
 Const clt_dob_const 			= 4
 Const client_selection_checkbox_const = 5
-Const clt_ssn_const 	= 6
+Const clt_ssn_const 			= 6
 
 
 Dim ALL_CLT_INFO_ARRAY()
@@ -1089,317 +1089,332 @@ DO								'reads the reference number, last name, first name, and then puts it i
 	transmit
 	Emreadscreen edit_check, 7, 24, 2
 LOOP until edit_check = "ENTER A"			'the script will continue to transmit through memb until it reaches the last page and finds the ENTER A edit on the bottom row.
+'For each path the script takes a different Route'
+IF out_of_state_request = "Sent/Send" THEN
+    Dialog1 = "" 'runs the dialog that has been dynamically created. Streamlined with new functions.
+    BEGINDIALOG Dialog1, 0, 0, 241, (35 + (Ubound(ALL_CLT_INFO_ARRAY, 2) * 15)), "Household Member(s) "   'Creates the dynamic dialog. The height will change based on the number of clients it finds.
+    	Text 10, 5, 130, 10, "Select household members to request:"
+    	FOR the_pers = 0 to Ubound(ALL_CLT_INFO_ARRAY, 2)
+    		checkbox 10, (20 + (the_pers * 15)), 160, 10, ALL_CLT_INFO_ARRAY(ref_numb_const, the_pers) & " " & ALL_CLT_INFO_ARRAY(first_name_const, the_pers) & " " & ALL_CLT_INFO_ARRAY(last_name_const, the_pers) & " " & ALL_CLT_INFO_ARRAY(clt_ssn_const, the_pers), ALL_CLT_INFO_ARRAY(client_selection_checkbox_const, the_pers)
+    	NEXT
+    	ButtonGroup ButtonPressed
+    	OkButton 185, 10, 50, 15
+    	CancelButton 185, 30, 50, 15
+    ENDDIALOG
 
-Dialog1 = "" 'runs the dialog that has been dynamically created. Streamlined with new functions.
-BEGINDIALOG Dialog1, 0, 0, 241, (35 + (Ubound(ALL_CLT_INFO_ARRAY, 2) * 15)), "Household Member(s) "   'Creates the dynamic dialog. The height will change based on the number of clients it finds.
-	Text 10, 5, 105, 10, "Select household members to look at:"
-	FOR the_pers = 0 to Ubound(ALL_CLT_INFO_ARRAY, 2)
-		checkbox 10, (20 + (the_pers * 15)), 160, 10, ALL_CLT_INFO_ARRAY(ref_numb_const, the_pers) & " " & ALL_CLT_INFO_ARRAY(first_name_const, the_pers) & " " & ALL_CLT_INFO_ARRAY(last_name_const, the_pers) & " " & ALL_CLT_INFO_ARRAY(clt_ssn_const, the_pers), ALL_CLT_INFO_ARRAY(client_selection_checkbox_const, the_pers)
+    DO
+    	DO
+    		err_msg = ""
+    		Dialog Dialog1
+    		cancel_confirmation
+    	LOOP until err_msg = ""
+    	CALL check_for_password(are_we_passworded_out)     'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    Loop until are_we_passworded_out = false
+
+    Dialog1 = ""
+    BEGINDIALOG Dialog1, 0, 0, 231, 260, "OUT OF STATE INQUIRY FOR: "  & Ucase(state_droplist)
+      CheckBox 50, 20, 30, 10, "Cash", MN_CASH_CHECKBOX
+      CheckBox 80, 20, 25, 10, "CCA", MN_CCA_CHECKBOX
+      CheckBox 110, 20, 20, 10, "FS", MN_FS_CHECKBOX
+      CheckBox 135, 20, 25, 10, "HC", MN_HC_CHECKBOX
+      CheckBox 160, 20, 25, 10, "GRH", MN_GRH_CHECKBOX
+      CheckBox 190, 20, 25, 10, "SSI", MN_SSI_CHECKBOX
+      CheckBox 50, 45, 30, 10, "Cash", CASH_CHECKBOX
+      CheckBox 80, 45, 25, 10, "CCA", CCA_CHECKBOX
+      CheckBox 110, 45, 20, 10, "FS", FS_CHECKBOX
+      CheckBox 135, 45, 25, 10, "HC", HC_CHECKBOX
+      CheckBox 160, 45, 25, 10, "SSI", SSI_CHECKBOX
+      CheckBox 185, 45, 35, 10, "OTHER", OTHER_CHECKBOX
+      DropListBox 35, 65, 55, 15, "Select One:"+chr(9)+"Active"+chr(9)+"Closed"+chr(9)+"Unknown", out_of_state_status
+      EditBox 165, 65, 45, 15, date_received
+      Text 10, 100, 210, 25, "Name: " & Ucase(agency_name)
+      Text 10, 130, 210, 20, "Address: " & Ucase(agency_address)
+      Text 10, 155, 100, 10, "Phone: " & agency_phone
+      Text 10, 170, 205, 10, "Email: " & Ucase(agency_email)
+      Text 130, 155, 90, 15, "Fax:  " & agency_fax
+      CheckBox 10, 185, 95, 10, "Verification sent to ECF", ECF_checkbox
+      CheckBox 10, 200, 130, 10, "Different information for contact state", update_state_info_checkbox
+      CheckBox 160, 200, 60, 10, "PARIS Match", PARIS_CHECKBOX
+      EditBox 50, 220, 175, 15, other_notes
+      ButtonGroup ButtonPressed
+        OkButton 130, 240, 45, 15
+        CancelButton 180, 240, 45, 15
+        PushButton 5, 240, 60, 15, "HSR MANUAL", outofstate_button
+      Text 10, 20, 40, 10, "Programs:"
+      GroupBox 5, 5, 220, 30, "Current programs applied or actv on:"
+      GroupBox 5, 90, 220, 125, "Out of State Agency Contact"
+      Text 115, 70, 50, 10, "Last Received:"
+      Text 10, 45, 40, 10, "Programs:"
+      Text 10, 70, 25, 10, "Status:"
+      GroupBox 5, 35, 220, 50, "Client reported they received assistance (Q5 on CAF):"
+      Text 5, 225, 45, 10, "Other Notes:"
+    ENDDIALOG
+
+    DO
+    	DO
+    		DO  'External resource DO loop
+    			Dialog Dialog1
+    			cancel_confirmation
+    			If ButtonPressed = outofstate_button then CreateObject("WScript.Shell").Run("https://dept.hennepin.us/hsphd/manuals/hsrm/Pages/Out_of_State_Inquiry.aspx")
+    		Loop until ButtonPressed = -1
+    		err_msg = ""
+            If agency_state_droplist = "Select One:" then err_msg = err_msg & vbnewline & "* Select the state."
+            IF ECF_checkbox <> CHECKED THEN err_msg = err_msg & vbNewLine & "Please review ECF to ensure that the verifcations are there."
+            IF OTHER_CHECKBOX = CHECKED and other_notes = "" THEN err_msg = err_msg & vbNewLine & "Please advise what other benefits the client reported."
+            IF out_of_state_status = "Select One:" then err_msg = err_msg & vbnewline & "Please select the reported status regarding the other state's benefits."
+            IF out_of_state_status = "Active" AND trim(date_received) = "" then err_msg = err_msg & vbcr & "* Enter the date the client reported benefits were last received."
+    		IF out_of_state_status = "Closed" AND trim(date_received) = "" then err_msg = err_msg & vbcr & "* Enter the date the client reported benefits were last received."
+    		IF out_of_state_status = "Unknown" AND other_notes = "" then err_msg = err_msg & vbcr & "* Please advise why the status of previous benefits is unknown."
+    		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+    	LOOP until err_msg = ""
+    	CALL check_for_password(are_we_passworded_out)                                 'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    Loop until are_we_passworded_out = false
+
+
+
+    'IF update_state_info_checkbox = CHECKED THEN
+    '    BEGINDIALOG Dialog1, 0, 0, 226, 180, "OUT OF STATE INQUIRY UPDATE NEEDED"
+    '      EditBox 50, 20, 165, 15, corrected_agency_name
+    '      EditBox 50, 40, 165, 15, corrected_agency_address
+    '      EditBox 50, 60, 165, 15, corrected_agency_email
+    '      EditBox 50, 80, 50, 15, corrected_agency_phone
+    '      EditBox 165, 80, 50, 15, corrected_agency_fax
+    '      DropListBox 165, 105, 55, 15, "Select One:"+chr(9)+"Email"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Phone"+chr(9)+"Other", how_information_was_received
+    '      EditBox 50, 125, 170, 15, corrected_other_notes
+    '      ButtonGroup ButtonPressed
+    '        OkButton 135, 145, 40, 15
+    '        CancelButton 180, 145, 40, 15
+    '      GroupBox 5, 5, 215, 95, "Out of State Agency Contact"
+    '      Text 15, 25, 25, 10, "Name:"
+    '      Text 15, 45, 30, 10, "Address:"
+    '      Text 15, 65, 25, 10, "Email:"
+    '      Text 15, 85, 25, 10, "Phone:"
+    '      Text 145, 85, 15, 10, "Fax:"
+    '      Text 40, 110, 115, 10, "How was the information received:"
+    '      Text 5, 130, 45, 10, "Other Notes:"
+    '      Text 15, 165, 185, 10, "*** Reminder: ECF must show verification received ***"
+    '    ENDDIALOG
+    '	'Dialog
+    '	DO      'Password DO loop
+    '	    DO  'Conditional handling DO loop
+    '	        err_msg = ""
+    '			If how_information_was_received = "Select One:" then err_msg = err_msg & vbnewline & "Please advise how updated information was received."
+    '			If trim(corrected_agency_name) = "" then err_msg = err_msg & vbcr & "* Enter the out of state agency name."
+    '	        If trim(corrected_agency_address) = "" then err_msg = err_msg & vbcr & "* Enter the out of state agency address, if there is not one provided enter N/A."
+    '			If trim(corrected_agency_email) = "" then err_msg = err_msg & vbcr & "* Enter the out of state agency email, if there is not one provided enter N/A."
+    '			If trim(corrected_agency_phone) = "" then err_msg = err_msg & vbcr & "* Enter the out of state agency phone, if there is not one provided enter N/A."
+    '			If trim(corrected_agency_fax) = "" then err_msg = err_msg & vbcr & "* Enter the out of state agency fax, if there is not one provided enter N/A."
+    '	        IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+    '	    LOOP until err_msg = ""
+    '	    CALL check_for_password(are_we_passworded_out)                                 'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    '	Loop until are_we_passworded_out = false
+    'END IF
+    'this reads clients current mailing address
+
+    Call navigate_to_MAXIS_screen("STAT", "ADDR")
+    EMReadScreen mail_address, 1, 13, 64
+    If mail_address = "_" then
+         EMReadScreen client_1staddress, 21, 06, 43
+         EMReadScreen client_2ndaddress, 21, 07, 43
+         EMReadScreen client_city, 14, 08, 43
+         EMReadScreen client_state, 2, 08, 66
+         EMReadScreen client_zip, 7, 09, 43
+    Else
+         EMReadScreen client_1staddress, 21, 13, 43
+         EMReadScreen client_2ndaddress, 21, 14, 43
+         EMReadScreen client_city, 14, 15, 43
+         EMReadScreen client_state, 2, 16, 43
+         EMReadScreen client_zip, 7, 16, 52
+    End If
+    client_address = replace(client_1staddress, "_","") & " " & replace(client_2ndaddress, "_","") & " " & replace(client_city, "_","") & ", " & replace(client_state, "_","") & " " & replace(client_zip, "_","")
+
+    'reads county info.'
+    EMReadScreen worker_county, 4, 21, 21
+    If worker_county = "X127" then
+    	hennepin_county = true
+    Else
+    	hennepin_county = false
+    End If
+
+    'reads assigned worker info
+    EMSetCursor 21, 21
+    PF1
+    EMReadScreen worker_name, 21, 19, 10
+    EMReadScreen worker_phone, 12, 19, 45
+    TRANSMIT
+    'TODO need to figure out how to neatly output the selected members in the email and to word but NOT in case notes'
+
+    'Generates Word Doc Form
+    Set objWord = CreateObject("Word.Application")
+    objWord.Caption = "OUT OF STATE INQUIRY"
+    objWord.Visible = True
+
+    Set objDoc = objWord.Documents.Add()
+    Set objSelection = objWord.Selection
+    objSelection.ParagraphFormat.Alignment = 0
+    objSelection.ParagraphFormat.LineSpacing = 12
+    objSelection.ParagraphFormat.SpaceBefore = 0
+    objSelection.ParagraphFormat.SpaceAfter = 0
+    objSelection.Font.Name = "Calibri"
+    objSelection.Font.Size = "12"
+    objSelection.TypeText "OUT OF STATE INQUIRY"
+    objSelection.TypeParagraph
+    objSelection.TypeText "Hennepin County Human Services & Public Health Department"
+    objSelection.TypeParagraph
+    objSelection.TypeText "PO Box 107, Minneapolis, MN 55440-0107"
+    objSelection.TypeParagraph
+    objSelection.TypeText "FAX: 612-288-2981"
+    objSelection.TypeParagraph
+    objSelection.TypeText "Phone: 612-596-8500"
+    objSelection.TypeParagraph
+    objSelection.TypeText "Email: HHSEWS@hennepin.us"
+    objSelection.TypeParagraph
+    objSelection.ParagraphFormat.Alignment = 2
+    objSelection.ParagraphFormat.LineSpacing = 12
+    objSelection.ParagraphFormat.SpaceBefore = 0
+    objSelection.ParagraphFormat.SpaceAfter = 0
+    objSelection.Font.Name = "Calibri"
+    objSelection.Font.Size = "11"
+    objSelection.TypeText "DATE: " & date()
+    objSelection.TypeParagraph
+    objSelection.ParagraphFormat.Alignment = 0
+    objSelection.Font.Size = "10"
+    'objSelection.Font.Bold = True
+    objSelection.TypeText "To: " & agency_name
+    objSelection.TypeParagraph
+    objSelection.TypeText "Address: " & agency_address
+    objSelection.TypeParagraph
+    objSelection.TypeText "Email: " & agency_email
+    objSelection.TypeParagraph
+    objSelection.TypeText "Phone: " & agency_phone
+    objSelection.TypeParagraph
+    objSelection.TypeText "Fax: " & agency_fax
+    objSelection.TypeParagraph
+    objSelection.TypeText " "
+    objSelection.TypeParagraph
+    objSelection.TypeText "RE: "
+    For the_pers = 0 to UBound(ALL_CLT_INFO_ARRAY, 2)
+		objSelection.TypeParagraph
+    	objSelection.TypeText ALL_CLT_INFO_ARRAY(first_name_const, the_pers) & " " & ALL_CLT_INFO_ARRAY(last_name_const, the_pers)
+		objSelection.TypeParagraph
+		objSelection.TypeText "  SSN: "  & ALL_CLT_INFO_ARRAY(clt_ssn_const, the_pers) & "  DOB: " & ALL_CLT_INFO_ARRAY(clt_dob_const, the_pers)
+		objSelection.TypeParagraph
+    NEXT
+    objSelection.TypeParagraph
+    objSelection.TypeText "Current Address: " & client_address
+    objSelection.TypeParagraph
+    objSelection.TypeParagraph
+    objSelection.TypeText "Our records indicate that the above individual(s) received or receives assistance from your state.  We need to verify the number of months of Federally-funded TANF cash assistance issued by your state that count towards the 60 month lifetime limit.  In addition, we need to know the number of months of TANF assistance from other states that your agency has verified.  "
+    objSelection.TypeText "Please indicate if the client is open on SNAP or Medical Assistance in your state OR the date these programs most recently closed.  Thank you."
+    objSelection.TypeParagraph
+    objSelection.TypeParagraph
+    objSelection.TypeText "Is CASH currently closed?   YES	 NO		Date of closure: "
+    objSelection.TypeParagraph
+    objSelection.TypeText "Is SNAP currently closed?   YES	 NO		Date of closure: "
+    'objSelection.TypeParagraph
+    'objSelection.TypeText "Total ABAWD months used:"
+    objSelection.TypeParagraph
+    objSelection.TypeText "Please list the month(s)/year(s) of ABAWD months used: "
+    objSelection.TypeParagraph
+    objSelection.TypeParagraph
+    objSelection.TypeText "Please complete the following:"
+    objSelection.TypeParagraph
+    objSelection.TypeText "Circle the month(s)/year(s) the person received federally funded TANF cash assistance: "
+    objSelection.TypeParagraph
+    objSelection.TypeParagraph
+    objSelection.TypeText Year(date)-20 & ":   Jan  Feb  Mar  Apr  May  Jun  Jul  Aug  Sep  Oct  Nov  Dec"
+    objSelection.TypeParagraph
+    objSelection.TypeText Year(date)-19 & ":   Jan  Feb  Mar  Apr  May  Jun  Jul  Aug  Sep  Oct  Nov  Dec"
+    objSelection.TypeParagraph
+    objSelection.TypeText Year(date)-18 & ":   Jan  Feb  Mar  Apr  May  Jun  Jul  Aug  Sep  Oct  Nov  Dec"
+    objSelection.TypeParagraph
+    objSelection.TypeText Year(date)-17 & ":   Jan  Feb  Mar  Apr  May  Jun  Jul  Aug  Sep  Oct  Nov  Dec"
+    objSelection.TypeParagraph
+    objSelection.TypeText Year(date)-16 & ":   Jan  Feb  Mar  Apr  May  Jun  Jul  Aug  Sep  Oct  Nov  Dec"
+    objSelection.TypeParagraph
+    objSelection.TypeText Year(date)-15 & ":   Jan  Feb  Mar  Apr  May  Jun  Jul  Aug  Sep  Oct  Nov  Dec"
+    objSelection.TypeParagraph
+    objSelection.TypeText Year(date)-14 & ":   Jan  Feb  Mar  Apr  May  Jun  Jul  Aug  Sep  Oct  Nov  Dec"
+    objSelection.TypeParagraph
+    objSelection.TypeText Year(date)-13 & ":   Jan  Feb  Mar  Apr  May  Jun  Jul  Aug  Sep  Oct  Nov  Dec"
+    objSelection.TypeParagraph
+    objSelection.TypeText Year(date)-12 & ":   Jan  Feb  Mar  Apr  May  Jun  Jul  Aug  Sep  Oct  Nov  Dec"
+    objSelection.TypeParagraph
+    objSelection.TypeText Year(date)-11 & ":   Jan  Feb  Mar  Apr  May  Jun  Jul  Aug  Sep  Oct  Nov  Dec"
+    objSelection.TypeParagraph
+    objSelection.TypeText Year(date)-10 & ":   Jan  Feb  Mar  Apr  May  Jun  Jul  Aug  Sep  Oct  Nov  Dec"
+    objSelection.TypeParagraph
+    objSelection.TypeText Year(date)-9 & ":   Jan  Feb  Mar  Apr  May  Jun  Jul  Aug  Sep  Oct  Nov  Dec"
+    objSelection.TypeParagraph
+    objSelection.TypeText Year(date)-8 & ":   Jan  Feb  Mar  Apr  May  Jun  Jul  Aug  Sep  Oct  Nov  Dec"
+    objSelection.TypeParagraph
+    objSelection.TypeText Year(date)-7 & ":   Jan  Feb  Mar  Apr  May  Jun  Jul  Aug  Sep  Oct  Nov  Dec"
+    objSelection.TypeParagraph
+    objSelection.TypeText Year(date)-6 & ":   Jan  Feb  Mar  Apr  May  Jun  Jul  Aug  Sep  Oct  Nov  Dec"
+    objSelection.TypeParagraph
+    objSelection.TypeText Year(date)-5 & ":   Jan  Feb  Mar  Apr  May  Jun  Jul  Aug  Sep  Oct  Nov  Dec"
+    objSelection.TypeParagraph
+    objSelection.TypeText Year(date)-4 & ":   Jan  Feb  Mar  Apr  May  Jun  Jul  Aug  Sep  Oct  Nov  Dec"
+    objSelection.TypeParagraph
+    objSelection.TypeText Year(date)-3 & ":   Jan  Feb  Mar  Apr  May  Jun  Jul  Aug  Sep  Oct  Nov  Dec"
+    objSelection.TypeParagraph
+    objSelection.TypeText Year(date)-2 & ":   Jan  Feb  Mar  Apr  May  Jun  Jul  Aug  Sep  Oct  Nov  Dec"
+    objSelection.TypeParagraph
+    objSelection.TypeText Year(date)-1 & ":   Jan  Feb  Mar  Apr  May  Jun  Jul  Aug  Sep  Oct  Nov  Dec"
+    objSelection.TypeParagraph
+    objSelection.TypeText Year(date) & ":   Jan  Feb  Mar  Apr  May  Jun  Jul  Aug  Sep  Oct  Nov  Dec"
+    objSelection.TypeParagraph
+    objSelection.TypeParagraph
+    objSelection.TypeText "Is Medical Assistance closed?   YES	NO		Date of closure: "
+    objSelection.TypeParagraph
+    objSelection.TypeText "Name of Person verifying information: "
+    objSelection.TypeParagraph
+    objSelection.TypeText "Contact Information: "
+    objSelection.TypeParagraph
+    objSelection.TypeParagraph
+    objSelection.TypeText "Please email or fax your response to: " & worker_name & " Hennepin County Human Services and Public Health Services."
+    objSelection.TypeParagraph
+    objSelection.TypeText "If you have any questions about this request, you may contact me at: " & worker_phone
+    objSelection.TypeParagraph
+    objSelection.TypeParagraph
+    objSelection.TypeParagraph
+    objSelection.TypeParagraph
+    objSelection.TypeParagraph
+    objSelection.TypeText "Form generated on: " & Date() & " " & time()
+
+    start_a_blank_case_note
+    Call write_variable_in_CASE_NOTE("---Out of State Inquiry sent via " & how_sent & " to " & abbr_state & "---")
+    CALL write_variable_in_CASE_NOTE("* Client reported they received " & out_of_state_programs & " on " & date_received & " the case is currently: " & out_of_state_status)
+    CALL write_bullet_and_variable_in_CASE_NOTE("Name", agency_name)
+    CALL write_bullet_and_variable_in_CASE_NOTE("Address", agency_address)
+    CALL write_bullet_and_variable_in_CASE_NOTE("Email", agency_email)
+    CALL write_bullet_and_variable_in_CASE_NOTE("Phone", agency_phone)
+    CALL write_bullet_and_variable_in_CASE_NOTE("Fax", agency_fax)
+    Call write_bullet_and_variable_in_CASE_NOTE("Other Notes", other_notes)
+    CALL write_variable_in_CASE_NOTE("---")
+    CALL write_variable_in_CASE_NOTE(worker_signature)
+    PF3
+    CALL find_user_name(the_person_running_the_script)
+
+	For the_pers = 0 to UBound(ALL_CLT_INFO_ARRAY, 2)
+	    ALL_CLT_INFO_ARRAY(first_name_const, the_pers) & " " & ALL_CLT_INFO_ARRAY(last_name_const, the_pers) & vbcr &
+	    "  SSN: "  & ALL_CLT_INFO_ARRAY(clt_ssn_const, the_pers) & "  DOB: " & ALL_CLT_INFO_ARRAY(clt_dob_const, the_pers)
 	NEXT
-	ButtonGroup ButtonPressed
-	OkButton 185, 10, 50, 15
-	CancelButton 185, 30, 50, 15
-ENDDIALOG
 
-DO
-	DO
-		err_msg = ""
-		Dialog Dialog1
-		cancel_confirmation
-	LOOP until err_msg = ""
-	CALL check_for_password(are_we_passworded_out)     'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-Loop until are_we_passworded_out = false
+	
+	message_array = ("FROM: Hennepin County Human Services & Public Health Department" & vbcr & "PO Box 107, Minneapolis, MN 55440-0107" & vbcr & "FAX: 612-288-2981" & vbcr & "Phone: 612-596-8500" & vbcr & "Email: HHSEWS@hennepin.us" & vbcr & "DATE: " & date & vbcr & "To: " & agency_name & vbcr & "Address: " & agency_address & vbcr & "Email: " & agency_email & vbcr & "Phone: " & agency_phone & vbcr & "Fax: " & agency_fax & vbcr &  "RE: " & vbcr & "Current Address: " & client_address & vbcr & "Our records indicate that the above individual(s) received or receives assistance from your state.  We need to verify the number of months of Federally-funded TANF cash assistance issued by your state that count towards the 60 month lifetime limit.  In addition, we need to know the number of months of TANF assistance from other states that your agency has verified.  " & "Please indicate if the client is open on SNAP or Medical Assistance in your state OR the date these programs most recently closed.  Thank you." & vbcr & "Is CASH/TANF currently closed?   YES	 NO		Date of closure: " & vbcr & "Is SNAP currently closed?   YES	 NO		Date of closure: " & vbcr & "Please list the month(s)/year(s) the person received federally funded TANF cash assistance: " & vbcr & "Is Medical Assistance closed?   YES	NO		Date of closure: " & vbcr & "Name of Person verifying information: " & vbcr & "Contact Information:" & vbcr & " Please email or fax your response to: " & worker_name & vbcr & " Hennepin County Human Services and Public Health Services." & vbcr & "If you have any questions about this request, you may contact me at: " & worker_phone)
 
+    'create_outlook_appointment(appt_date, appt_start_time, appt_end_time, appt_subject, appt_body, appt_location, appt_reminder, reminder_in_minutes, appt_category)
+    IF additional_CHECKBOX = CHECKED THEN
+    	'Call create_outlook_appointment(appt_date, appt_start_time, appt_end_time, appt_subject, appt_body, appt_location, appt_reminder, appt_category)
+    	Call create_outlook_appointment(reminder_date, "08:00 AM", "08:00 AM", "Out of State request for " & MAXIS_case_number, "", "", TRUE, 10, "")
+    	Outlook_remider = True
+    End if
 
-Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 231, 260, "OUT OF STATE INQUIRY FOR: "  & Ucase(state_droplist)
-  CheckBox 50, 20, 30, 10, "Cash", MN_CASH_CHECKBOX
-  CheckBox 80, 20, 25, 10, "CCA", MN_CCA_CHECKBOX
-  CheckBox 110, 20, 20, 10, "FS", MN_FS_CHECKBOX
-  CheckBox 135, 20, 25, 10, "HC", MN_HC_CHECKBOX
-  CheckBox 160, 20, 25, 10, "GRH", MN_GRH_CHECKBOX
-  CheckBox 190, 20, 25, 10, "SSI", MN_SSI_CHECKBOX
-  CheckBox 50, 45, 30, 10, "Cash", CASH_CHECKBOX
-  CheckBox 80, 45, 25, 10, "CCA", CCA_CHECKBOX
-  CheckBox 110, 45, 20, 10, "FS", FS_CHECKBOX
-  CheckBox 135, 45, 25, 10, "HC", HC_CHECKBOX
-  CheckBox 160, 45, 25, 10, "SSI", SSI_CHECKBOX
-  CheckBox 185, 45, 35, 10, "OTHER", OTHER_CHECKBOX
-  DropListBox 35, 65, 55, 15, "Select One:"+chr(9)+"Active"+chr(9)+"Closed"+chr(9)+"Unknown", out_of_state_status
-  EditBox 165, 65, 45, 15, date_received
-  Text 10, 100, 210, 25, "Name: " & Ucase(agency_name)
-  Text 10, 130, 210, 20, "Address: " & Ucase(agency_address)
-  Text 10, 155, 100, 10, "Phone: " & agency_phone
-  Text 10, 170, 205, 10, "Email: " & Ucase(agency_email)
-  Text 130, 155, 90, 15, "Fax:  " & agency_fax
-  CheckBox 10, 185, 95, 10, "Verification sent to ECF", ECF_checkbox
-  CheckBox 10, 200, 130, 10, "Different information for contact state", update_state_info_checkbox
-  CheckBox 160, 200, 60, 10, "PARIS Match", PARIS_CHECKBOX
-  EditBox 50, 220, 175, 15, other_notes
-  ButtonGroup ButtonPressed
-    OkButton 130, 240, 45, 15
-    CancelButton 180, 240, 45, 15
-    PushButton 5, 240, 60, 15, "HSR MANUAL", outofstate_button
-  Text 10, 20, 40, 10, "Programs:"
-  GroupBox 5, 5, 220, 30, "Current programs applied or actv on:"
-  GroupBox 5, 90, 220, 125, "Out of State Agency Contact"
-  Text 115, 70, 50, 10, "Last Received:"
-  Text 10, 45, 40, 10, "Programs:"
-  Text 10, 70, 25, 10, "Status:"
-  GroupBox 5, 35, 220, 50, "Client reported they received assistance (Q5 on CAF):"
-  Text 5, 225, 45, 10, "Other Notes:"
-EndDialog
+    IF agency_email <> "" THEN
+    	'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
+    	CALL create_outlook_email(agency_email, "","Out of State Inquiry for case #" &  MAXIS_case_number & " [ENCRYPT]", "Out of State Inquiry" & vbcr & message_array,"", False)
+    END IF
+END IF 'If for sent/send'
 
-DO
-	DO
-		DO  'External resource DO loop
-			Dialog Dialog1
-			cancel_confirmation
-			If ButtonPressed = outofstate_button then CreateObject("WScript.Shell").Run("https://dept.hennepin.us/hsphd/manuals/hsrm/Pages/Out_of_State_Inquiry.aspx")
-		Loop until ButtonPressed = -1
-		err_msg = ""
-        If agency_state_droplist = "Select One:" then err_msg = err_msg & vbnewline & "* Select the state."
-        IF ECF_checkbox <> CHECKED THEN err_msg = err_msg & vbNewLine & "Please review ECF to ensure that the verifcations are there."
-        IF OTHER_CHECKBOX = CHECKED and other_notes = "" THEN err_msg = err_msg & vbNewLine & "Please advise what other benefits the client reported."
-        IF out_of_state_status = "Select One:" then err_msg = err_msg & vbnewline & "Please select the reported status regarding the other state's benefits."
-        IF out_of_state_status = "Active" or out_of_state_status = "Closed" AND trim(date_received) = "" then err_msg = err_msg & vbcr & "* Enter the date the client reported benefits were received."
-    	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-	LOOP until err_msg = ""
-	CALL check_for_password(are_we_passworded_out)                                 'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-Loop until are_we_passworded_out = false
-
-
-'IF update_state_info_checkbox = CHECKED THEN
-'    BeginDialog Dialog1, 0, 0, 226, 180, "OUT OF STATE INQUIRY UPDATE NEEDED"
-'      EditBox 50, 20, 165, 15, corrected_agency_name
-'      EditBox 50, 40, 165, 15, corrected_agency_address
-'      EditBox 50, 60, 165, 15, corrected_agency_email
-'      EditBox 50, 80, 50, 15, corrected_agency_phone
-'      EditBox 165, 80, 50, 15, corrected_agency_fax
-'      DropListBox 165, 105, 55, 15, "Select One:"+chr(9)+"Email"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Phone"+chr(9)+"Other", how_information_was_received
-'      EditBox 50, 125, 170, 15, corrected_other_notes
-'      ButtonGroup ButtonPressed
-'        OkButton 135, 145, 40, 15
-'        CancelButton 180, 145, 40, 15
-'      GroupBox 5, 5, 215, 95, "Out of State Agency Contact"
-'      Text 15, 25, 25, 10, "Name:"
-'      Text 15, 45, 30, 10, "Address:"
-'      Text 15, 65, 25, 10, "Email:"
-'      Text 15, 85, 25, 10, "Phone:"
-'      Text 145, 85, 15, 10, "Fax:"
-'      Text 40, 110, 115, 10, "How was the information received:"
-'      Text 5, 130, 45, 10, "Other Notes:"
-'      Text 15, 165, 185, 10, "*** Reminder: ECF must show verification received ***"
-'    EndDialog
-'	'Dialog
-'	DO      'Password DO loop
-'	    DO  'Conditional handling DO loop
-'	        err_msg = ""
-'			If how_information_was_received = "Select One:" then err_msg = err_msg & vbnewline & "Please advise how updated information was received."
-'			If trim(corrected_agency_name) = "" then err_msg = err_msg & vbcr & "* Enter the out of state agency name."
-'	        If trim(corrected_agency_address) = "" then err_msg = err_msg & vbcr & "* Enter the out of state agency address, if there is not one provided enter N/A."
-'			If trim(corrected_agency_email) = "" then err_msg = err_msg & vbcr & "* Enter the out of state agency email, if there is not one provided enter N/A."
-'			If trim(corrected_agency_phone) = "" then err_msg = err_msg & vbcr & "* Enter the out of state agency phone, if there is not one provided enter N/A."
-'			If trim(corrected_agency_fax) = "" then err_msg = err_msg & vbcr & "* Enter the out of state agency fax, if there is not one provided enter N/A."
-'	        IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-'	    LOOP until err_msg = ""
-'	    CALL check_for_password(are_we_passworded_out)                                 'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-'	Loop until are_we_passworded_out = false
-'END IF
-'this reads clients current mailing address
-Call navigate_to_MAXIS_screen("STAT", "ADDR")
-EMReadScreen mail_address, 1, 13, 64
-If mail_address = "_" then
-     EMReadScreen client_1staddress, 21, 06, 43
-     EMReadScreen client_2ndaddress, 21, 07, 43
-     EMReadScreen client_city, 14, 08, 43
-     EMReadScreen client_state, 2, 08, 66
-     EMReadScreen client_zip, 7, 09, 43
-Else
-     EMReadScreen client_1staddress, 21, 13, 43
-     EMReadScreen client_2ndaddress, 21, 14, 43
-     EMReadScreen client_city, 14, 15, 43
-     EMReadScreen client_state, 2, 16, 43
-     EMReadScreen client_zip, 7, 16, 52
-End If
-client_address = replace(client_1staddress, "_","") & " " & replace(client_2ndaddress, "_","") & " " & replace(client_city, "_","") & ", " & replace(client_state, "_","") & " " & replace(client_zip, "_","")
-
-'reads county info.'
-EMReadScreen worker_county, 4, 21, 21
-If worker_county = "X127" then
-	hennepin_county = true
-Else
-	hennepin_county = false
-End If
-
-'reads assigned worker info
-EMSetCursor 21, 21
-PF1
-EMReadScreen worker_name, 21, 19, 10
-EMReadScreen worker_phone, 12, 19, 45
-TRANSMIT
-'TODO need to figure out how to neatly output the selected members in the email and to word but NOT in case notes'
-
-'Generates Word Doc Form
-Set objWord = CreateObject("Word.Application")
-objWord.Caption = "OUT OF STATE INQUIRY"
-objWord.Visible = True
-
-Set objDoc = objWord.Documents.Add()
-Set objSelection = objWord.Selection
-objSelection.ParagraphFormat.Alignment = 0
-objSelection.ParagraphFormat.LineSpacing = 12
-objSelection.ParagraphFormat.SpaceBefore = 0
-objSelection.ParagraphFormat.SpaceAfter = 0
-objSelection.Font.Name = "Calibri"
-objSelection.Font.Size = "12"
-objSelection.TypeText "OUT OF STATE INQUIRY"
-objSelection.TypeParagraph
-objSelection.TypeText "Hennepin County Human Services & Public Health Department"
-objSelection.TypeParagraph
-objSelection.TypeText "PO Box 107, Minneapolis, MN 55440-0107"
-objSelection.TypeParagraph
-objSelection.TypeText "FAX: 612-288-2981"
-objSelection.TypeParagraph
-objSelection.TypeText "Phone: 612-596-8500"
-objSelection.TypeParagraph
-objSelection.TypeText "Email: HHSEWS@hennepin.us"
-objSelection.TypeParagraph
-
-objSelection.ParagraphFormat.Alignment = 2
-objSelection.ParagraphFormat.LineSpacing = 12
-objSelection.ParagraphFormat.SpaceBefore = 0
-objSelection.ParagraphFormat.SpaceAfter = 0
-objSelection.Font.Name = "Calibri"
-objSelection.Font.Size = "11"
-objSelection.TypeText "DATE: " & date()
-
-
-objSelection.TypeParagraph
-objSelection.ParagraphFormat.Alignment = 0
-objSelection.Font.Size = "10"
-'objSelection.Font.Bold = True
-objSelection.TypeText "To: " & agency_name
-objSelection.TypeParagraph
-objSelection.TypeText "Address: " & agency_address
-objSelection.TypeParagraph
-objSelection.TypeText "Email: " & agency_email
-objSelection.TypeParagraph
-objSelection.TypeText "Phone: " & agency_phone
-objSelection.TypeParagraph
-objSelection.TypeText "Fax: " & agency_fax
-objSelection.TypeParagraph
-objSelection.TypeText " "
-objSelection.TypeParagraph
-objSelection.TypeText "RE: "
-For the_pers = 0 to UBound(ALL_CLT_INFO_ARRAY, 2)
-	objSelection.TypeText ALL_CLT_INFO_ARRAY(first_name_const, the_pers) & " " & ALL_CLT_INFO_ARRAY(last_name_const, the_pers)
-	objSelection.TypeText " SSN: "  & ALL_CLT_INFO_ARRAY(clt_ssn_const, the_pers) & "  DOB:  " & ALL_CLT_INFO_ARRAY(clt_dob_const, the_pers)
-NEXT
-objSelection.TypeParagraph
-objSelection.TypeText "Current Address: " & client_address
-objSelection.TypeParagraph
-objSelection.TypeParagraph
-objSelection.TypeText "Our records indicate that the above individual(s) received or receives assistance from your state.  We need to verify the number of months of Federally-funded TANF cash assistance issued by your state that count towards the 60 month lifetime limit.  In addition, we need to know the number of months of TANF assistance from other states that your agency has verified.  "
-objSelection.TypeText "Please indicate if the client is open on SNAP or Medical Assistance in your state OR the date these programs most recently closed.  Thank you."
-objSelection.TypeParagraph
-objSelection.TypeParagraph
-objSelection.TypeText "Is CASH currently closed?   YES	 NO		Date of closure: "
-objSelection.TypeParagraph
-objSelection.TypeText "Is SNAP currently closed?   YES	 NO		Date of closure: "
-'objSelection.TypeParagraph
-'objSelection.TypeText "Total ABAWD months used:"
-objSelection.TypeParagraph
-objSelection.TypeText "Please list the month(s)/year(s) of ABAWD months used: "
-objSelection.TypeParagraph
-objSelection.TypeParagraph
-objSelection.TypeText "Please complete the following:"
-objSelection.TypeParagraph
-objSelection.TypeText "Circle the month(s)/year(s) the person received federally funded TANF cash assistance: "
-objSelection.TypeParagraph
-objSelection.TypeParagraph
-objSelection.TypeText Year(date)-20 & ":   Jan  Feb  Mar  Apr  May  Jun  Jul  Aug  Sep  Oct  Nov  Dec"
-objSelection.TypeParagraph
-objSelection.TypeText Year(date)-19 & ":   Jan  Feb  Mar  Apr  May  Jun  Jul  Aug  Sep  Oct  Nov  Dec"
-objSelection.TypeParagraph
-objSelection.TypeText Year(date)-18 & ":   Jan  Feb  Mar  Apr  May  Jun  Jul  Aug  Sep  Oct  Nov  Dec"
-objSelection.TypeParagraph
-objSelection.TypeText Year(date)-17 & ":   Jan  Feb  Mar  Apr  May  Jun  Jul  Aug  Sep  Oct  Nov  Dec"
-objSelection.TypeParagraph
-objSelection.TypeText Year(date)-16 & ":   Jan  Feb  Mar  Apr  May  Jun  Jul  Aug  Sep  Oct  Nov  Dec"
-objSelection.TypeParagraph
-objSelection.TypeText Year(date)-15 & ":   Jan  Feb  Mar  Apr  May  Jun  Jul  Aug  Sep  Oct  Nov  Dec"
-objSelection.TypeParagraph
-objSelection.TypeText Year(date)-14 & ":   Jan  Feb  Mar  Apr  May  Jun  Jul  Aug  Sep  Oct  Nov  Dec"
-objSelection.TypeParagraph
-objSelection.TypeText Year(date)-13 & ":   Jan  Feb  Mar  Apr  May  Jun  Jul  Aug  Sep  Oct  Nov  Dec"
-objSelection.TypeParagraph
-objSelection.TypeText Year(date)-12 & ":   Jan  Feb  Mar  Apr  May  Jun  Jul  Aug  Sep  Oct  Nov  Dec"
-objSelection.TypeParagraph
-objSelection.TypeText Year(date)-11 & ":   Jan  Feb  Mar  Apr  May  Jun  Jul  Aug  Sep  Oct  Nov  Dec"
-objSelection.TypeParagraph
-objSelection.TypeText Year(date)-10 & ":   Jan  Feb  Mar  Apr  May  Jun  Jul  Aug  Sep  Oct  Nov  Dec"
-objSelection.TypeParagraph
-objSelection.TypeText Year(date)-9 & ":   Jan  Feb  Mar  Apr  May  Jun  Jul  Aug  Sep  Oct  Nov  Dec"
-objSelection.TypeParagraph
-objSelection.TypeText Year(date)-8 & ":   Jan  Feb  Mar  Apr  May  Jun  Jul  Aug  Sep  Oct  Nov  Dec"
-objSelection.TypeParagraph
-objSelection.TypeText Year(date)-7 & ":   Jan  Feb  Mar  Apr  May  Jun  Jul  Aug  Sep  Oct  Nov  Dec"
-objSelection.TypeParagraph
-objSelection.TypeText Year(date)-6 & ":   Jan  Feb  Mar  Apr  May  Jun  Jul  Aug  Sep  Oct  Nov  Dec"
-objSelection.TypeParagraph
-objSelection.TypeText Year(date)-5 & ":   Jan  Feb  Mar  Apr  May  Jun  Jul  Aug  Sep  Oct  Nov  Dec"
-objSelection.TypeParagraph
-objSelection.TypeText Year(date)-4 & ":   Jan  Feb  Mar  Apr  May  Jun  Jul  Aug  Sep  Oct  Nov  Dec"
-objSelection.TypeParagraph
-objSelection.TypeText Year(date)-3 & ":   Jan  Feb  Mar  Apr  May  Jun  Jul  Aug  Sep  Oct  Nov  Dec"
-objSelection.TypeParagraph
-objSelection.TypeText Year(date)-2 & ":   Jan  Feb  Mar  Apr  May  Jun  Jul  Aug  Sep  Oct  Nov  Dec"
-objSelection.TypeParagraph
-objSelection.TypeText Year(date)-1 & ":   Jan  Feb  Mar  Apr  May  Jun  Jul  Aug  Sep  Oct  Nov  Dec"
-objSelection.TypeParagraph
-objSelection.TypeText Year(date) & ":   Jan  Feb  Mar  Apr  May  Jun  Jul  Aug  Sep  Oct  Nov  Dec"
-objSelection.TypeParagraph
-objSelection.TypeParagraph
-objSelection.TypeText "Is Medical Assistance closed?   YES	NO		Date of closure: "
-objSelection.TypeParagraph
-objSelection.TypeText "Name of Person verifying information: "
-objSelection.TypeParagraph
-objSelection.TypeText "Contact Information: "
-objSelection.TypeParagraph
-objSelection.TypeParagraph
-objSelection.TypeText "Please email or fax your response to: " & worker_name & " Hennepin County Human Services and Public Health Services."
-objSelection.TypeParagraph
-objSelection.TypeText "If you have any questions about this request, you may contact me at: " & worker_phone
-objSelection.TypeParagraph
-objSelection.TypeParagraph
-objSelection.TypeParagraph
-objSelection.TypeParagraph
-objSelection.TypeParagraph
-objSelection.TypeText "Form generated on: " & Date() & " " & time()
-
-start_a_blank_case_note
-Call write_variable_in_CASE_NOTE("---Out of State Inquiry sent via " & how_sent & " to " & abbr_state & "---")
-CALL write_variable_in_CASE_NOTE("* Client reported they received " & out_of_state_programs & " on " & date_received & " the case is currently: " & out_of_state_status)
-CALL write_bullet_and_variable_in_CASE_NOTE("Name", agency_name)
-CALL write_bullet_and_variable_in_CASE_NOTE("Address", agency_address)
-CALL write_bullet_and_variable_in_CASE_NOTE("Email", agency_email)
-CALL write_bullet_and_variable_in_CASE_NOTE("Phone", agency_phone)
-CALL write_bullet_and_variable_in_CASE_NOTE("Fax", agency_fax)
-Call write_bullet_and_variable_in_CASE_NOTE("Other Notes", other_notes)
-CALL write_variable_in_CASE_NOTE("---")
-CALL write_variable_in_CASE_NOTE(worker_signature)
-PF3
-CALL find_user_name(the_person_running_the_script)
-'create_outlook_appointment(appt_date, appt_start_time, appt_end_time, appt_subject, appt_body, appt_location, appt_reminder, reminder_in_minutes, appt_category)
-IF additional_CHECKBOX = CHECKED THEN
-	'Call create_outlook_appointment(appt_date, appt_start_time, appt_end_time, appt_subject, appt_body, appt_location, appt_reminder, appt_category)
-	Call create_outlook_appointment(reminder_date, "08:00 AM", "08:00 AM", "Out of State request for " & MAXIS_case_number, "", "", TRUE, 10, "")
-	Outlook_remider = True
-End if
-
-IF agency_email <> "" THEN
-	'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-	CALL create_outlook_email(agency_email, "","Out of State Inquiry for case #" &  MAXIS_case_number, "Out of State Inquiry" & vbcr & message_array,"", False)
-END IF
 script_end_procedure("Success! Your Out of State Inquiry has been generated, please follow up with the next steps to ensure the request is received timely. The verification request must be reflected in ECF.")
