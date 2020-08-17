@@ -199,7 +199,7 @@ function HH_comp_dialog(HH_member_array)
         If id_verif_code = "DR" Then ALL_MEMBERS_ARRAY(clt_id_verif, member_count) = "DR - Doctor Stmt"
         If id_verif_code = "PV" Then ALL_MEMBERS_ARRAY(clt_id_verif, member_count) = "PV - Passport/Visa"
         If id_verif_code = "OT" Then ALL_MEMBERS_ARRAY(clt_id_verif, member_count) = "OT - Other Document"
-        If id_verif_code = "NO" Then ALL_MEMBERS_ARRAY(clt_id_verif, member_count) = "NO - No Veer Prvd"
+        If id_verif_code = "NO" Then ALL_MEMBERS_ARRAY(clt_id_verif, member_count) = "NO - No Verif Prvd"
 
         If cash_checkbox = checked Then             'If Cash is selected
             ALL_MEMBERS_ARRAY(include_cash_checkbox, member_count) = checked    'default to having the counted boxes checked for SNAP
@@ -2969,7 +2969,7 @@ Do
                                                     If ALL_MEMBERS_ARRAY(clt_age, the_member) > 17 OR ALL_MEMBERS_ARRAY(memb_numb, the_member) = "01" Then
                                                         If ALL_MEMBERS_ARRAY(memb_numb, the_member) = "01" Then ALL_MEMBERS_ARRAY(id_required, the_member) = checked
                                                         Text 5, y_pos, 85, 10, ALL_MEMBERS_ARRAY(clt_name, the_member)
-                                                        ComboBox 100, y_pos - 5, 80, 15, "Type or Select"+chr(9)+"BC - Birth Certificate"+chr(9)+"RE - Religious Record"+chr(9)+"DL - Drivers License/ST ID"+chr(9)+"DV - Divorce Decree"+chr(9)+"AL - Alien Card"+chr(9)+"AD - Arrival//Depart"+chr(9)+"DR - Doctor Stmt"+chr(9)+"PV - Passport/Visa"+chr(9)+"OT - Other Document"+chr(9)+"NO - No Veer Prvd", ALL_MEMBERS_ARRAY(clt_id_verif, the_member)
+                                                        ComboBox 100, y_pos - 5, 80, 15, "Type or Select"+chr(9)+"BC - Birth Certificate"+chr(9)+"RE - Religious Record"+chr(9)+"DL - Drivers License/ST ID"+chr(9)+"DV - Divorce Decree"+chr(9)+"AL - Alien Card"+chr(9)+"AD - Arrival//Depart"+chr(9)+"DR - Doctor Stmt"+chr(9)+"PV - Passport/Visa"+chr(9)+"OT - Other Document"+chr(9)+"NO - No Verif Prvd", ALL_MEMBERS_ARRAY(clt_id_verif, the_member)
                                                         EditBox 185, y_pos - 5, 180, 15, ALL_MEMBERS_ARRAY(id_detail, the_member)
                                                         CheckBox 370, y_pos, 90, 10, "ID Verification Required", ALL_MEMBERS_ARRAY(id_required, the_member)
                                                         y_pos = y_pos + 20
@@ -3058,7 +3058,7 @@ Do
                                             MAXIS_dialog_navigation
 
                                             For the_member = 0 to UBound(ALL_MEMBERS_ARRAY, 2)
-                                                If ALL_MEMBERS_ARRAY(id_required, the_member) = checked AND ALL_MEMBERS_ARRAY(clt_id_verif, the_member) = "NO - No Veer Prvd" Then
+                                                If ALL_MEMBERS_ARRAY(id_required, the_member) = checked AND ALL_MEMBERS_ARRAY(clt_id_verif, the_member) = "NO - No Verif Prvd" Then
                                                     verif_text = "Identity for Memb " & ALL_MEMBERS_ARRAY(memb_numb, the_member)
                                                     If InStr(verifs_needed, verif_text) = 0 Then verifs_needed = verifs_needed & "Identity for Memb " & ALL_MEMBERS_ARRAY(memb_numb, the_member) & ".; "
                                                 End If
