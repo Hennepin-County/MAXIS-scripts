@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("08/17/2020", "Updated file name of QI assignment from Expedited Review to QI Expedited Review.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("07/16/2020", "Full phase 2 updates complete including pulling in notes from previous working day's assignments.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("06/19/2020", "Updated for phase 2 of Exp SNAP project including emailing Triage group for assignment.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("05/19/2020", "Updated to create assignments based on the current phase of the project.", "Ilse Ferris, Hennepin County")
@@ -110,7 +111,7 @@ const master_note_const = 1
     
 master_note_record = 0    'incrementer for the array 
 
-array_of_assigments = array("Expedited Review ","Pending Over 30 Days ")
+array_of_assigments = array("QI Expedited Review ","Pending Over 30 Days ")
 
 For each assignment in array_of_assigments
     assignment = replace(assignment, """","")
@@ -594,7 +595,7 @@ Set objWorkbook = objExcel.Workbooks.Add()
 objExcel.DisplayAlerts = True
 
 'Changes name of Excel sheet
-ObjExcel.ActiveSheet.Name = "Expedited Review"
+ObjExcel.ActiveSheet.Name = "QI Expedited Review"
 
 'adding information to the Excel list from PND2
 ObjExcel.Cells(1, 1).Value = "Worker #"
@@ -643,7 +644,7 @@ FOR i = 1 to 8		'formatting the cells
 NEXT
 
 'Saves and closes the most recent Excel workbook
-objExcel.ActiveWorkbook.SaveAs "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\Expedited Review " & report_date & ".xlsx"
+objExcel.ActiveWorkbook.SaveAs "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\QI Expedited Review " & report_date & ".xlsx"
 objExcel.ActiveWorkbook.Close
 objExcel.Application.Quit
 objExcel.Quit
@@ -767,7 +768,7 @@ Call create_outlook_email("HSPH.EWS.Unit.Frey@hennepin.us", "Ilse.Ferris@hennepi
 Call create_outlook_email("Ilse.Ferris@hennepin.us;Laurie.Hennen@hennepin.us","","Expedited SNAP Daily statistics for " & date, stats_report, "", True)
 
 '----------------------------------------------------------------------------------------------------Moves yesterday's files to the archive folder for the specific month
-array_of_archive_assigments = array("Expedited Review ","Pending Over 30 Days ", "EXP SNAP ", "")
+array_of_archive_assigments = array("QI Expedited Review ","Pending Over 30 Days ", "EXP SNAP ", "")
 
 previous_date = dateadd("d", -1, date)
 Call change_date_to_soonest_working_day(previous_date)       'finds the most recent previous working day for the fin
