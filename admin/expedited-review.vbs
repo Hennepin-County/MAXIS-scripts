@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("08/18/2020", "Added WFM email to assignment email at end of script run.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("08/17/2020", "Updated file name of QI assignment from Expedited Review to QI Expedited Review.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("07/16/2020", "Full phase 2 updates complete including pulling in notes from previous working day's assignments.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("06/19/2020", "Updated for phase 2 of Exp SNAP project including emailing Triage group for assignment.", "Ilse Ferris, Hennepin County")
@@ -763,8 +764,8 @@ stats_report = "Screening Count: " & screening_count & vbcr & _
 "Not Expedited Count: " & not_exp_count
 
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-Call create_outlook_email("HSPH.EWS.Triagers@hennepin.us;Adonna.Swift@hennepin.us", "Laurie.Hennen@hennepin.us", "EXP SNAP Report without Interviews is Ready. EOM.", "", "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP SNAP " & report_date & ".xlsx", True)
-Call create_outlook_email("HSPH.EWS.Unit.Frey@hennepin.us", "Ilse.Ferris@hennepin.us", "Today's EXP SNAP reports are ready.", "Path to folder - T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project", "", True)
+Call create_outlook_email("HSPH.EWS.Triagers@hennepin.us;Adonna.Swift@hennepin.us;WFMTeam@hennepin.us", "Laurie.Hennen@hennepin.us", "EXP SNAP Report without Interviews is Ready. EOM.", "", "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP SNAP " & report_date & ".xlsx", True)
+Call create_outlook_email("HSPH.EWS.Unit.Frey@hennepin.us", "", "Today's EXP SNAP reports are ready.", "Path to folder - T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project", "", True)
 Call create_outlook_email("Ilse.Ferris@hennepin.us;Laurie.Hennen@hennepin.us","","Expedited SNAP Daily statistics for " & date, stats_report, "", True)
 
 '----------------------------------------------------------------------------------------------------Moves yesterday's files to the archive folder for the specific month
