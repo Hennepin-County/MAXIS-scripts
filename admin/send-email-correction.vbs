@@ -123,7 +123,7 @@ Do
 	ElseIf InStr(email_recipient_cc, ".") = 0 Then
 		err_msg = err_msg & vbNewLine & "* The email address of the supervisor entered does not appear to be a valid email address."
 	End If
-    If correction_process = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select which process the correction email is regarding."
+    If correction_process = "Select One ..." Then err_msg = err_msg & vbNewLine & "* Select which process the correction email is regarding."
 
 	If ButtonPressed = instructions_btn Then
 		Call open_URL_in_browser("https://dept.hennepin.us/hsphd/sa/ews/BlueZone_Script_Instructions/ADMIN/QI%20-%20SEND%20EMAIL%20CORRECTION.docx")
@@ -152,6 +152,7 @@ STATS_manualtime = STATS_manualtime + 45
 'Dialog of the email options
 Select Case correction_process
 	Case "Expedited Review"
+		end_msg = "Expedited Review Correction Email sent and tracking updated. Thank you!"
 
 		BeginDialog Dialog1, 0, 0, 536, 385, "Expedited Corrections"
 		  EditBox 130, 5, 50, 15, MAXIS_case_number
@@ -577,6 +578,8 @@ Select Case correction_process
         ObjExcel.Application.Quit
 
 	Case "On Demand Applications"
+		end_msg = "On Demand Application Correction Email sent and tracking updated. Thank you!"
+
 		add_hsr_appling_resource = FALSE
 		add_hsr_app_guide_resource = FALSE
 		add_hsr_interview_process_resource = FALSE
@@ -829,4 +832,4 @@ Select Case correction_process
 
 End Select
 
-Call script_end_procedure_with_error_report("Email sent and tracking updated. Thank you!")
+Call script_end_procedure_with_error_report(end_msg)
