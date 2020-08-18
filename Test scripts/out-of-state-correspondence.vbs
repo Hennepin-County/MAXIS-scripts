@@ -61,14 +61,14 @@ Call MAXIS_case_number_finder(MAXIS_case_number)
 Call check_for_MAXIS(true)
 
 Dialog1 = ""
-BEGINDIALOG Dialog1, 0, 0, 116, 105, "Out of State Inquiry"
+BEGINDIALOG Dialog1, 0, 0, 146, 105, "Out of State Inquiry"
  EditBox 55, 5, 55, 15, MAXIS_case_number
- DropListBox 55, 25, 55, 15, "Select One:"+chr(9)+"Sent/Send"+chr(9)+"Received"+chr(9)+"Unknown", out_of_state_request
- DropListBox 55, 45, 55, 15, "Select One:"+chr(9)+"Email"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Phone", how_sent
- DropListBox 55, 65, 55, 15, "Select One:"+chr(9)+"Alabama"+chr(9)+"Alaska"+chr(9)+"Arizona"+chr(9)+"Arkansas"+chr(9)+"California"+chr(9)+"Colorado"+chr(9)+"Connecticut"+chr(9)+"Delaware"+chr(9)+"Florida"+chr(9)+"Georgia"+chr(9)+"Hawaii"+chr(9)+"Idaho"+chr(9)+"Illinois"+chr(9)+"Indiana"+chr(9)+"Iowa"+chr(9)+"Kansas"+chr(9)+"Kentucky"+chr(9)+"Louisiana"+chr(9)+"Maine"+chr(9)+"Maryland"+chr(9)+"Massachusetts"+chr(9)+"Michigan"+chr(9)+"Mississippi"+chr(9)+"Missouri"+chr(9)+"Montana"+chr(9)+"Nebraska"+chr(9)+"Nevada"+chr(9)+"New Hampshire"+chr(9)+"New Jersey"+chr(9)+"New Mexico"+chr(9)+"New York"+chr(9)+"North Carolina"+chr(9)+"North Dakota"+chr(9)+"Ohio"+chr(9)+"Oklahoma"+chr(9)+"Oregon"+chr(9)+"Pennsylvania"+chr(9)+"Rhode Island"+chr(9)+"South Carolina"+chr(9)+"South Dakota"+chr(9)+"Tennessee"+chr(9)+"Texas"+chr(9)+"Utah"+chr(9)+"Vermont"+chr(9)+"Virginia"+chr(9)+"Washington"+chr(9)+"West Virginia"+chr(9)+"Wisconsin"+chr(9)+"Wyoming", state_droplist
-  ButtonGroup ButtonPressed
-     OkButton 15, 85, 45, 15
-     CancelButton 65, 85, 45, 15
+ DropListBox 55, 25, 85, 15, "Select One:"+chr(9)+"Sent/Send"+chr(9)+"Received"+chr(9)+"Unknown/No Response", out_of_state_request
+ DropListBox 55, 45, 85, 15, "Select One:"+chr(9)+"Email"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Phone", how_sent
+ DropListBox 55, 65, 85, 15, "Select One:"+chr(9)+"Alabama"+chr(9)+"Alaska"+chr(9)+"Arizona"+chr(9)+"Arkansas"+chr(9)+"California"+chr(9)+"Colorado"+chr(9)+"Connecticut"+chr(9)+"Delaware"+chr(9)+"Florida"+chr(9)+"Georgia"+chr(9)+"Hawaii"+chr(9)+"Idaho"+chr(9)+"Illinois"+chr(9)+"Indiana"+chr(9)+"Iowa"+chr(9)+"Kansas"+chr(9)+"Kentucky"+chr(9)+"Louisiana"+chr(9)+"Maine"+chr(9)+"Maryland"+chr(9)+"Massachusetts"+chr(9)+"Michigan"+chr(9)+"Mississippi"+chr(9)+"Missouri"+chr(9)+"Montana"+chr(9)+"Nebraska"+chr(9)+"Nevada"+chr(9)+"New Hampshire"+chr(9)+"New Jersey"+chr(9)+"New Mexico"+chr(9)+"New York"+chr(9)+"North Carolina"+chr(9)+"North Dakota"+chr(9)+"Ohio"+chr(9)+"Oklahoma"+chr(9)+"Oregon"+chr(9)+"Pennsylvania"+chr(9)+"Rhode Island"+chr(9)+"South Carolina"+chr(9)+"South Dakota"+chr(9)+"Tennessee"+chr(9)+"Texas"+chr(9)+"Utah"+chr(9)+"Vermont"+chr(9)+"Virginia"+chr(9)+"Washington"+chr(9)+"West Virginia"+chr(9)+"Wisconsin"+chr(9)+"Wyoming", state_droplist
+ ButtonGroup ButtonPressed
+   OkButton 55, 85, 40, 15
+   CancelButton 100, 85, 40, 15
    Text 5, 10, 50, 10, "Case Number:"
    Text 20, 30, 30, 10, "Request:"
    Text 20, 50, 30, 10, "Via(How):"
@@ -83,11 +83,11 @@ DO
 		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 		If state_droplist = "Select One:" then err_msg = err_msg & vbnewline & "* Select the state."
 		If how_sent = "Select One:" then err_msg = err_msg & vbnewline & "* Select how the request was sent."
-	LOOP UNTIL are_we_passworded_out = false
 		If out_of_state_request = "Select One:" then err_msg = err_msg & vbNewLine & "Please select the status of the out of state inquiry."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-LOOP UNTIL err_msg = ""
-CALL check_for_password(are_we_passworded_out)
+	LOOP until err_msg = ""
+    CALL check_for_password(are_we_passworded_out)                                 'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false
 
 'Error proof functions
 Call check_for_MAXIS(False)
@@ -539,14 +539,14 @@ IF	state_droplist = "Louisiana"	THEN
 END IF
 IF	state_droplist = "Maine" THEN
 	abbr_state = "ME"
-	MsgBox "A signed release is required to obtain the verification Out-of-State Inquiries"
+	MsgBox "The State of Maine requires a signed release is to obtain the verification Out-of-State Inquiries, please attach to the email."
 	IF FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
 	IF CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
 	IF CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
 	IF COMMOD_CHECKBOX = CHECKED THEN other_state_program = TRUE
 	IF HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
 	IF PARIS_CHECKBOX = CHECKED THEN other_state_paris = TRUE
-	agency_name = "ACES Help Desk – Eligibility Specialists Department of Health and Human Services Office for Family Independence"
+	agency_name = "ACES Help Desk Eligibility Specialists Department of Health and Human Services Office for Family Independence"
 	agency_address = "109 Capital Street, SHS#11 Augusta, ME 04333"
 	agency_phone = "207-624-4130"
 	agency_fax = "207-287-3455"
@@ -1090,7 +1090,7 @@ DO								'reads the reference number, last name, first name, and then puts it i
 	Emreadscreen edit_check, 7, 24, 2
 LOOP until edit_check = "ENTER A"			'the script will continue to transmit through memb until it reaches the last page and finds the ENTER A edit on the bottom row.
 'For each path the script takes a different Route'
-IF out_of_state_request = "Sent/Send" THEN
+
     Dialog1 = "" 'runs the dialog that has been dynamically created. Streamlined with new functions.
     BEGINDIALOG Dialog1, 0, 0, 241, (35 + (Ubound(ALL_CLT_INFO_ARRAY, 2) * 15)), "Household Member(s) "   'Creates the dynamic dialog. The height will change based on the number of clients it finds.
     	Text 10, 5, 130, 10, "Select household members to request:"
@@ -1111,44 +1111,48 @@ IF out_of_state_request = "Sent/Send" THEN
     	CALL check_for_password(are_we_passworded_out)     'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
     Loop until are_we_passworded_out = false
 
+IF out_of_state_request = "Sent/Send" THEN
     Dialog1 = ""
-    BEGINDIALOG Dialog1, 0, 0, 231, 260, "OUT OF STATE INQUIRY FOR: "  & Ucase(state_droplist)
-      CheckBox 50, 20, 30, 10, "Cash", MN_CASH_CHECKBOX
-      CheckBox 80, 20, 25, 10, "CCA", MN_CCA_CHECKBOX
-      CheckBox 110, 20, 20, 10, "FS", MN_FS_CHECKBOX
-      CheckBox 135, 20, 25, 10, "HC", MN_HC_CHECKBOX
-      CheckBox 160, 20, 25, 10, "GRH", MN_GRH_CHECKBOX
-      CheckBox 190, 20, 25, 10, "SSI", MN_SSI_CHECKBOX
-      CheckBox 50, 45, 30, 10, "Cash", CASH_CHECKBOX
-      CheckBox 80, 45, 25, 10, "CCA", CCA_CHECKBOX
-      CheckBox 110, 45, 20, 10, "FS", FS_CHECKBOX
-      CheckBox 135, 45, 25, 10, "HC", HC_CHECKBOX
-      CheckBox 160, 45, 25, 10, "SSI", SSI_CHECKBOX
-      CheckBox 185, 45, 35, 10, "OTHER", OTHER_CHECKBOX
-      DropListBox 35, 65, 55, 15, "Select One:"+chr(9)+"Active"+chr(9)+"Closed"+chr(9)+"Unknown", out_of_state_status
-      EditBox 165, 65, 45, 15, date_received
-      Text 10, 100, 210, 25, "Name: " & Ucase(agency_name)
-      Text 10, 130, 210, 20, "Address: " & Ucase(agency_address)
-      Text 10, 155, 100, 10, "Phone: " & agency_phone
-      Text 10, 170, 205, 10, "Email: " & Ucase(agency_email)
-      Text 130, 155, 90, 15, "Fax:  " & agency_fax
-      CheckBox 10, 185, 95, 10, "Verification sent to ECF", ECF_checkbox
-      CheckBox 10, 200, 130, 10, "Different information for contact state", update_state_info_checkbox
-      CheckBox 160, 200, 60, 10, "PARIS Match", PARIS_CHECKBOX
-      EditBox 50, 220, 175, 15, other_notes
-      ButtonGroup ButtonPressed
-        OkButton 130, 240, 45, 15
-        CancelButton 180, 240, 45, 15
-        PushButton 5, 240, 60, 15, "HSR MANUAL", outofstate_button
-      Text 10, 20, 40, 10, "Programs:"
-      GroupBox 5, 5, 220, 30, "Current programs applied or actv on:"
-      GroupBox 5, 90, 220, 125, "Out of State Agency Contact"
-      Text 115, 70, 50, 10, "Last Received:"
-      Text 10, 45, 40, 10, "Programs:"
-      Text 10, 70, 25, 10, "Status:"
-      GroupBox 5, 35, 220, 50, "Client reported they received assistance (Q5 on CAF):"
-      Text 5, 225, 45, 10, "Other Notes:"
-    ENDDIALOG
+	BeginDialog Dialog1, 0, 0, 231, 270, "OUT OF STATE INQUIRY FOR: "   & Ucase(state_droplist)
+	  CheckBox 50, 20, 30, 10, "Cash", MN_CASH_CHECKBOX
+	  CheckBox 80, 20, 25, 10, "CCA", MN_CCA_CHECKBOX
+	  CheckBox 110, 20, 20, 10, "FS", MN_FS_CHECKBOX
+	  CheckBox 135, 20, 25, 10, "HC", MN_HC_CHECKBOX
+	  CheckBox 160, 20, 25, 10, "GRH", MN_GRH_CHECKBOX
+	  CheckBox 190, 20, 25, 10, "SSI", MN_SSI_CHECKBOX
+	  CheckBox 50, 45, 30, 10, "Cash", CASH_CHECKBOX
+	  CheckBox 80, 45, 25, 10, "CCA", CCA_CHECKBOX
+	  CheckBox 110, 45, 20, 10, "FS", FS_CHECKBOX
+	  CheckBox 135, 45, 25, 10, "HC", HC_CHECKBOX
+	  CheckBox 160, 45, 25, 10, "SSI", SSI_CHECKBOX
+	  CheckBox 185, 45, 40, 10, "OTHER", OTHER_CHECKBOX
+	  DropListBox 35, 60, 55, 15, "Select One:"+chr(9)+"Active"+chr(9)+"Closed"+chr(9)+"Unknown", out_of_state_status
+	  EditBox 175, 60, 45, 15, date_received
+	  Text 10, 95, 210, 25, "Name: " & Ucase(agency_name)
+	  Text 10, 125, 210, 20, "Address: "  & Ucase(agency_address)
+	  Text 10, 150, 100, 10, "Phone: " & agency_phone
+	  Text 130, 150, 90, 15, "Fax:  " & agency_fax
+	  Text 10, 165, 205, 15, "Email: " & agency_email
+	  CheckBox 10, 200, 150, 10, "Different information for contact state found", update_state_info_checkbox
+	  CheckBox 170, 185, 60, 10, "PARIS Match", PARIS_CHECKBOX
+	  CheckBox 10, 185, 130, 10, "Set an Outlook reminder to follow up ", outlook_remider_CHECKBOX
+	  CheckBox 10, 215, 215, 10, "Please confirm that the verification or request was sent to ECF", ECF_checkbox
+	  EditBox 50, 230, 175, 15, other_notes
+	  ButtonGroup ButtonPressed
+	    PushButton 5, 250, 60, 15, "HSR MANUAL", outofstate_button
+	    OkButton 130, 250, 45, 15
+	    CancelButton 180, 250, 45, 15
+	  Text 10, 20, 40, 10, "Programs:"
+	  GroupBox 5, 5, 220, 30, "Current programs applied or actv on:"
+	  GroupBox 5, 85, 220, 95, "Out of State Agency Contact"
+	  Text 120, 65, 50, 10, "Last Received:"
+	  Text 10, 45, 40, 10, "Programs:"
+	  Text 10, 65, 25, 10, "Status:"
+	  GroupBox 5, 35, 220, 45, "Client reported they received assistance (Q5 on CAF):"
+	  Text 5, 235, 45, 10, "Other Notes:"
+
+	EndDialog
+
 
     DO
     	DO
@@ -1170,45 +1174,6 @@ IF out_of_state_request = "Sent/Send" THEN
     	CALL check_for_password(are_we_passworded_out)                                 'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
     Loop until are_we_passworded_out = false
 
-
-
-    'IF update_state_info_checkbox = CHECKED THEN
-    '    BEGINDIALOG Dialog1, 0, 0, 226, 180, "OUT OF STATE INQUIRY UPDATE NEEDED"
-    '      EditBox 50, 20, 165, 15, corrected_agency_name
-    '      EditBox 50, 40, 165, 15, corrected_agency_address
-    '      EditBox 50, 60, 165, 15, corrected_agency_email
-    '      EditBox 50, 80, 50, 15, corrected_agency_phone
-    '      EditBox 165, 80, 50, 15, corrected_agency_fax
-    '      DropListBox 165, 105, 55, 15, "Select One:"+chr(9)+"Email"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Phone"+chr(9)+"Other", how_information_was_received
-    '      EditBox 50, 125, 170, 15, corrected_other_notes
-    '      ButtonGroup ButtonPressed
-    '        OkButton 135, 145, 40, 15
-    '        CancelButton 180, 145, 40, 15
-    '      GroupBox 5, 5, 215, 95, "Out of State Agency Contact"
-    '      Text 15, 25, 25, 10, "Name:"
-    '      Text 15, 45, 30, 10, "Address:"
-    '      Text 15, 65, 25, 10, "Email:"
-    '      Text 15, 85, 25, 10, "Phone:"
-    '      Text 145, 85, 15, 10, "Fax:"
-    '      Text 40, 110, 115, 10, "How was the information received:"
-    '      Text 5, 130, 45, 10, "Other Notes:"
-    '      Text 15, 165, 185, 10, "*** Reminder: ECF must show verification received ***"
-    '    ENDDIALOG
-    '	'Dialog
-    '	DO      'Password DO loop
-    '	    DO  'Conditional handling DO loop
-    '	        err_msg = ""
-    '			If how_information_was_received = "Select One:" then err_msg = err_msg & vbnewline & "Please advise how updated information was received."
-    '			If trim(corrected_agency_name) = "" then err_msg = err_msg & vbcr & "* Enter the out of state agency name."
-    '	        If trim(corrected_agency_address) = "" then err_msg = err_msg & vbcr & "* Enter the out of state agency address, if there is not one provided enter N/A."
-    '			If trim(corrected_agency_email) = "" then err_msg = err_msg & vbcr & "* Enter the out of state agency email, if there is not one provided enter N/A."
-    '			If trim(corrected_agency_phone) = "" then err_msg = err_msg & vbcr & "* Enter the out of state agency phone, if there is not one provided enter N/A."
-    '			If trim(corrected_agency_fax) = "" then err_msg = err_msg & vbcr & "* Enter the out of state agency fax, if there is not one provided enter N/A."
-    '	        IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-    '	    LOOP until err_msg = ""
-    '	    CALL check_for_password(are_we_passworded_out)                                 'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-    '	Loop until are_we_passworded_out = false
-    'END IF
     'this reads clients current mailing address
 
     Call navigate_to_MAXIS_screen("STAT", "ADDR")
@@ -1242,7 +1207,7 @@ IF out_of_state_request = "Sent/Send" THEN
     EMReadScreen worker_name, 21, 19, 10
     EMReadScreen worker_phone, 12, 19, 45
     TRANSMIT
-    'TODO need to figure out how to neatly output the selected members in the email and to word but NOT in case notes'
+
 
     'Generates Word Doc Form
     Set objWord = CreateObject("Word.Application")
@@ -1382,33 +1347,31 @@ IF out_of_state_request = "Sent/Send" THEN
     objSelection.TypeParagraph
     objSelection.TypeText "Form generated on: " & Date() & " " & time()
 
-    start_a_blank_case_note
-    Call write_variable_in_CASE_NOTE("---Out of State Inquiry sent via " & how_sent & " to " & abbr_state & "---")
-    CALL write_variable_in_CASE_NOTE("* Client reported they received " & out_of_state_programs & " on " & date_received & " the case is currently: " & out_of_state_status)
-    CALL write_bullet_and_variable_in_CASE_NOTE("Name", agency_name)
-    CALL write_bullet_and_variable_in_CASE_NOTE("Address", agency_address)
-    CALL write_bullet_and_variable_in_CASE_NOTE("Email", agency_email)
-    CALL write_bullet_and_variable_in_CASE_NOTE("Phone", agency_phone)
-    CALL write_bullet_and_variable_in_CASE_NOTE("Fax", agency_fax)
-    Call write_bullet_and_variable_in_CASE_NOTE("Other Notes", other_notes)
-    CALL write_variable_in_CASE_NOTE("---")
-    CALL write_variable_in_CASE_NOTE(worker_signature)
-    PF3
-    CALL find_user_name(the_person_running_the_script)
+	start_a_blank_case_note
+	Call write_variable_in_CASE_NOTE("---Out of State Inquiry sent via " & how_sent & " to " & abbr_state & "---")
+	CALL write_variable_in_CASE_NOTE("* Client reported they received " & out_of_state_programs & " on " & date_received & " the case is currently: " & out_of_state_status)
+	CALL write_bullet_and_variable_in_CASE_NOTE("Name", agency_name)
+	CALL write_bullet_and_variable_in_CASE_NOTE("Address", agency_address)
+	CALL write_bullet_and_variable_in_CASE_NOTE("Email", agency_email)
+	CALL write_bullet_and_variable_in_CASE_NOTE("Phone", agency_phone)
+	CALL write_bullet_and_variable_in_CASE_NOTE("Fax", agency_fax)
+	Call write_bullet_and_variable_in_CASE_NOTE("Other Notes", other_notes)
+	CALL write_variable_in_CASE_NOTE("---")
+	CALL write_variable_in_CASE_NOTE(worker_signature)
+	PF3
+
+	CALL find_user_name(the_person_running_the_script)
 
 	For the_pers = 0 to UBound(ALL_CLT_INFO_ARRAY, 2)
-	    ALL_CLT_INFO_ARRAY(first_name_const, the_pers) & " " & ALL_CLT_INFO_ARRAY(last_name_const, the_pers) & vbcr &
-	    "  SSN: "  & ALL_CLT_INFO_ARRAY(clt_ssn_const, the_pers) & "  DOB: " & ALL_CLT_INFO_ARRAY(clt_dob_const, the_pers)
+	    HH_member_array = "RE:" & vbcr & ALL_CLT_INFO_ARRAY(first_name_const, the_pers) & " " & ALL_CLT_INFO_ARRAY(last_name_const, the_pers) & vbcr & "  SSN: "  & ALL_CLT_INFO_ARRAY(clt_ssn_const, the_pers) & "  DOB: " & ALL_CLT_INFO_ARRAY(clt_dob_const, the_pers) & HH_member_array
 	NEXT
 
-	
-	message_array = ("FROM: Hennepin County Human Services & Public Health Department" & vbcr & "PO Box 107, Minneapolis, MN 55440-0107" & vbcr & "FAX: 612-288-2981" & vbcr & "Phone: 612-596-8500" & vbcr & "Email: HHSEWS@hennepin.us" & vbcr & "DATE: " & date & vbcr & "To: " & agency_name & vbcr & "Address: " & agency_address & vbcr & "Email: " & agency_email & vbcr & "Phone: " & agency_phone & vbcr & "Fax: " & agency_fax & vbcr &  "RE: " & vbcr & "Current Address: " & client_address & vbcr & "Our records indicate that the above individual(s) received or receives assistance from your state.  We need to verify the number of months of Federally-funded TANF cash assistance issued by your state that count towards the 60 month lifetime limit.  In addition, we need to know the number of months of TANF assistance from other states that your agency has verified.  " & "Please indicate if the client is open on SNAP or Medical Assistance in your state OR the date these programs most recently closed.  Thank you." & vbcr & "Is CASH/TANF currently closed?   YES	 NO		Date of closure: " & vbcr & "Is SNAP currently closed?   YES	 NO		Date of closure: " & vbcr & "Please list the month(s)/year(s) the person received federally funded TANF cash assistance: " & vbcr & "Is Medical Assistance closed?   YES	NO		Date of closure: " & vbcr & "Name of Person verifying information: " & vbcr & "Contact Information:" & vbcr & " Please email or fax your response to: " & worker_name & vbcr & " Hennepin County Human Services and Public Health Services." & vbcr & "If you have any questions about this request, you may contact me at: " & worker_phone)
+	message_array = ("FROM: Hennepin County Human Services & Public Health Department" & vbcr & "PO Box 107, Minneapolis, MN 55440-0107" & vbcr & "FAX: 612-288-2981" & vbcr & "Phone: 612-596-8500" & vbcr & "Email: HHSEWS@hennepin.us" & vbcr & "DATE: " & date & vbcr & "To: " & agency_name & vbcr & "Address: " & agency_address & vbcr & "Email: " & agency_email & vbcr & "Phone: " & agency_phone & vbcr & "Fax: " & agency_fax & vbcr & HH_member_array & vbcr & "Current Address: " & client_address & vbcr & "Our records indicate that the above individual(s) received or receives assistance from your state.  We need to verify the number of months of Federally-funded TANF cash assistance issued by your state that count towards the 60 month lifetime limit.  In addition, we need to know the number of months of TANF assistance from other states that your agency has verified.  " & "Please indicate if the client is open on SNAP or Medical Assistance in your state OR the date these programs most recently closed.  Thank you." & vbcr & "Is CASH/TANF currently closed?   YES	 NO		Date of closure: " & vbcr & "Is SNAP currently closed?   YES	 NO		Date of closure: " & vbcr & "Please list the month(s)/year(s) the person received federally funded TANF cash assistance: " & vbcr & "Is Medical Assistance closed?   YES	NO		Date of closure: " & vbcr & "Name of Person verifying information: " & vbcr & "Contact Information:" & vbcr & " Please email or fax your response to: " & worker_name & vbcr & " Hennepin County Human Services and Public Health Services." & vbcr & "If you have any questions about this request, you may contact me at: " & worker_phone)
 
     'create_outlook_appointment(appt_date, appt_start_time, appt_end_time, appt_subject, appt_body, appt_location, appt_reminder, reminder_in_minutes, appt_category)
-    IF additional_CHECKBOX = CHECKED THEN
+    IF outlook_reminder_CHECKBOX = CHECKED THEN
     	'Call create_outlook_appointment(appt_date, appt_start_time, appt_end_time, appt_subject, appt_body, appt_location, appt_reminder, appt_category)
     	Call create_outlook_appointment(reminder_date, "08:00 AM", "08:00 AM", "Out of State request for " & MAXIS_case_number, "", "", TRUE, 10, "")
-    	Outlook_remider = True
     End if
 
     IF agency_email <> "" THEN
@@ -1417,4 +1380,132 @@ IF out_of_state_request = "Sent/Send" THEN
     END IF
 END IF 'If for sent/send'
 
+IF out_of_state_request = "Received" THEN
+	Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 231, 230, "OUT OF STATE INQUIRY RECEIVED FROM: "  & Ucase(state_droplist)
+    CheckBox 50, 20, 30, 10, "Cash", MN_CASH_CHECKBOX
+    CheckBox 80, 20, 25, 10, "CCA", MN_CCA_CHECKBOX
+    CheckBox 110, 20, 20, 10, "FS", MN_FS_CHECKBOX
+    CheckBox 135, 20, 25, 10, "HC", MN_HC_CHECKBOX
+    CheckBox 160, 20, 25, 10, "GRH", MN_GRH_CHECKBOX
+    CheckBox 190, 20, 25, 10, "SSI", MN_SSI_CHECKBOX
+    CheckBox 50, 45, 30, 10, "Cash", CASH_CHECKBOX
+    CheckBox 80, 45, 25, 10, "CCA", CCA_CHECKBOX
+    CheckBox 110, 45, 20, 10, "FS", FS_CHECKBOX
+    CheckBox 135, 45, 25, 10, "HC", HC_CHECKBOX
+    CheckBox 160, 45, 25, 10, "SSI", SSI_CHECKBOX
+    CheckBox 185, 45, 40, 10, "OTHER", OTHER_CHECKBOX
+    DropListBox 35, 60, 55, 15, "Select One:"+chr(9)+"Active"+chr(9)+"Closed"+chr(9)+"Set to Close"+chr(9)+"Client not known "+chr(9)+"Other", out_of_state_status
+    EditBox 175, 60, 45, 15, date_received
+    Text 10, 95, 210, 25, "Name: " & Ucase(agency_name)
+    Text 10, 120, 100, 10, "Phone: " & agency_phone
+    Text 135, 120, 90, 15, "Fax: "  & agency_fax
+    Text 10, 135, 205, 15, "Email: " & agency_email
+    CheckBox 10, 150, 160, 10, "Different information for contact state received", update_state_info_checkbox
+    CheckBox 10, 165, 170, 10, "Please confirm that the inquiry was sent to ECF", ECF_checkbox
+    EditBox 50, 190, 175, 15, other_notes
+    ButtonGroup ButtonPressed
+    OkButton 130, 210, 45, 15
+    CancelButton 180, 210, 45, 15
+    Text 10, 20, 40, 10, "Programs:"
+    GroupBox 5, 5, 220, 30, "Current programs applied or actv on:"
+    GroupBox 5, 85, 220, 100, "Out of State Agency Contact"
+    Text 120, 65, 50, 10, "Last Received:"
+    Text 10, 45, 40, 10, "Programs:"
+    Text 10, 65, 25, 10, "Status:"
+    GroupBox 5, 35, 220, 45, "State reported client received(s):"
+    Text 5, 195, 45, 10, "Other Notes:"
+    EndDialog
+	DO      'Password DO loop
+	    DO  'Conditional handling DO loop
+			Dialog Dialog1
+			cancel_without_confirmation
+		    err_msg = ""
+			IF ECF_checkbox <> CHECKED THEN err_msg = err_msg & vbNewLine & "Please review ECF to ensure that the verifcations are there."
+			IF OTHER_CHECKBOX = CHECKED and other_notes = "" THEN err_msg = err_msg & vbNewLine & "Please advise what other benefits the client reported."
+			IF out_of_state_status = "Select One:" then err_msg = err_msg & vbnewline & "Please select the reported status regarding the other state's benefits."
+			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+	    LOOP until err_msg = ""
+	    CALL check_for_password(are_we_passworded_out)                                 'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+	Loop until are_we_passworded_out = false
+
+	start_a_blank_case_note
+	Call write_variable_in_CASE_NOTE("---Out of State Inquiry received via " & how_sent & " from " & abbr_state & "---")
+	CALL write_variable_in_CASE_NOTE("* " & abbr_state & " reported client received " & out_of_state_programs & " on " & date_received & " the case is currently: " & out_of_state_status)
+	CALL write_bullet_and_variable_in_CASE_NOTE("Name", agency_name)
+	CALL write_bullet_and_variable_in_CASE_NOTE("Address", agency_address)
+	CALL write_bullet_and_variable_in_CASE_NOTE("Email", agency_email)
+	CALL write_bullet_and_variable_in_CASE_NOTE("Phone", agency_phone)
+	CALL write_bullet_and_variable_in_CASE_NOTE("Fax", agency_fax)
+	Call write_bullet_and_variable_in_CASE_NOTE("Other Notes", other_notes)
+	CALL write_variable_in_CASE_NOTE("* Updated MAXIS to reflect this")
+	CALL write_variable_in_CASE_NOTE("---")
+	CALL write_variable_in_CASE_NOTE(worker_signature)
+	PF3
+
+
+
+END IF
+
+IF out_of_state_request = "Unknown/No Response" THEN
+    '-------------------------------------------------------------------------------------------------DIALOG
+    Dialog1 = "" 'Blanking out previous dialog detail
+	BeginDialog Dialog1, 0, 0, 196, 125, "OUT OF STATE INQUIRY NO RESPONSE"
+	  EditBox 50, 5, 40, 15, date_closed
+	  CheckBox 10, 35, 85, 10, "Out of State Inquiry", Out_of_State_Inquiry_CHECKBOX
+	  CheckBox 10, 45, 90, 10, "Authorization to release", ATR_Verf_CheckBox
+	  CheckBox 105, 35, 70, 10, "Shelter verification", shel_verf_checkbox
+	  CheckBox 105, 45, 80, 10, "Other (please specify)", other_checkbox
+	  EditBox 65, 65, 125, 15, reason_closed
+	  CheckBox 5, 85, 180, 10, "Overpayment possible to be reviewed at a later date", overpayment_checkbox
+	  CheckBox 5, 100, 90, 10, "Contacted other state(s)", other_state_contact_checkbox
+	  ButtonGroup ButtonPressed
+	    OkButton 105, 105, 40, 15
+	    CancelButton 150, 105, 40, 15
+	  GroupBox 5, 25, 185, 35, "Verification Requested: "
+	  Text 5, 70, 55, 10, "Closure reason:"
+	  Text 5, 10, 45, 10, "Date closed:"
+	EndDialog
+    Do
+    	Do
+            err_msg = ""
+    		Dialog Dialog1
+    		cancel_without_confirmation
+    		IF Isdate(date_closed) = false THEN err_msg = err_msg & vbNewLine & "* Please enter the closed date."
+			IF reason_closed = "" THEN err_msg = err_msg & vbNewLine & "* Please enter the closure reason."
+    		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+        Loop until err_msg = ""
+     	Call check_for_password(are_we_passworded_out)
+    LOOP UNTIL check_for_password(are_we_passworded_out) = False
+
+    IF Out_of_State_Inquiry_CHECKBOX = CHECKED THEN pending_verifs = pending_verifs & "Out of State Inquiry, "
+    IF shel_verf_checkbox = CHECKED THEN pending_verifs = pending_verifs & "Shelter Verification, "
+    IF ATR_Verf_CheckBox = CHECKED THEN pending_verifs = pending_verifs & "ATR, "
+    IF other_checkbox = CHECKED THEN pending_verifs = pending_verifs & "Other, "
+    '-------------------------------------------------------------------trims excess spaces of pending_verifs
+    pending_verifs = trim(pending_verifs) 	'takes the last comma off of pending_verifs when autofilled into dialog if more than one app date is found and additional app is selected
+    IF right(pending_verifs, 1) = "," THEN pending_verifs = left(pending_verifs, len(pending_verifs) - 1)
+
+	start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
+	Call write_variable_in_CASE_NOTE("---Out of State Inquiry no response received---")
+
+	Call write_bullet_and_variable_in_CASE_NOTE("State(s)", out_of_state)
+	IF case_status = "INACTIVE" THEN
+		Call write_variable_in_CASE_NOTE("* Client will need to verify MN residence when reapplying and a written statement explain why accessing benefits out of state.")
+		Call write_variable_in_CASE_NOTE("* Agency will need to verify benefits received in the other state prior to reopening case")
+	END IF
+	IF other_state_contact_checkbox = CHECKED THEN Call write_variable_in_CASE_NOTE("* Other state(s) have been contacted")
+	IF other_state_contact_checkbox = UNCHECKED THEN Call write_variable_in_CASE_NOTE("* Other state(s) have not been contacted")
+	Call write_variable_in_CASE_NOTE("* Request sent to client for explanation of benefits used in the other state and shelter request ")
+	CALL write_variable_in_CASE_NOTE ("----- ----- -----")
+	Call write_bullet_and_variable_in_CASE_NOTE("Date case was closed", date_closed)
+	Call write_bullet_and_variable_in_CASE_NOTE("Explanation of action to close the case", reason_closed)
+	CALL write_bullet_and_variable_in_CASE_NOTE("Verification requested", pending_verifs)
+	CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
+	CALL write_variable_in_CASE_NOTE("---")
+	CALL write_variable_in_CASE_NOTE(worker_signature)
+	PF3
+END IF 'if non received'
+
+'TODO If an area is blank do not write it in the request
 script_end_procedure("Success! Your Out of State Inquiry has been generated, please follow up with the next steps to ensure the request is received timely. The verification request must be reflected in ECF.")
