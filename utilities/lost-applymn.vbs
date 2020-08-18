@@ -112,21 +112,21 @@ DO
 		BeginDialog Dialog1, 0, 0, 296, 195, "Dialog"
 		  EditBox 140, 40, 80, 15, MAXIS_case_number
 		  CheckBox 25, 60, 225, 10, "Check here if this is for a NEW request with no Case Number yet.", no_case_number_checkbox
-		  EditBox 80, 90, 50, 15, date_of_app
-		  EditBox 210, 90, 75, 15, applymn_confirmation_number
-		  EditBox 80, 110, 205, 15, name_of_applicant
+		  EditBox 80, 105, 50, 15, date_of_app
+		  EditBox 210, 105, 75, 15, applymn_confirmation_number
+		  EditBox 80, 125, 205, 15, name_of_applicant
 		  EditBox 65, 175, 115, 15, worker_name
 		  ButtonGroup ButtonPressed
-		    PushButton 150, 150, 135, 15, "Read ApplyMN Info from CASE:NOTE", collect_from_case_note_btn
+		    PushButton 150, 85, 135, 15, "Read ApplyMN Info from CASE:NOTE", collect_from_case_note_btn
 		    OkButton 185, 175, 50, 15
 		    CancelButton 240, 175, 50, 15
 		  Text 10, 10, 265, 25, "If a client is reporting they have submitted an ApplyMN application, and there is no coresponding application in ECF, this script can assist in sending the request to QI to find the ApplyMN."
 		  Text 15, 45, 120, 10, "Case Number with the lost ApplyMN:"
-		  GroupBox 10, 80, 280, 90, "ApplyMN Detail"
-		  Text 15, 95, 65, 10, "Date of Application:"
-		  Text 135, 95, 75, 10, "Confirmation Number:"
-		  Text 25, 115, 55, 10, "Applicant Name: "
-		  Text 15, 130, 265, 20, "If the ApplyMN was pended and a case note exists, the script can read the application date and confirmation number from Application Received Case Note."
+		  GroupBox 10, 75, 280, 90, "ApplyMN Detail"
+		  Text 15, 110, 65, 10, "Date of Application:"
+		  Text 135, 110, 75, 10, "Confirmation Number:"
+		  Text 25, 130, 55, 10, "Applicant Name: "
+		  Text 20, 145, 265, 20, "If the ApplyMN was pended and a case note exists, the script can read the application date and confirmation number from Application Received Case Note."
 		  Text 10, 180, 55, 10, "Sign your Email"
 		EndDialog
 
