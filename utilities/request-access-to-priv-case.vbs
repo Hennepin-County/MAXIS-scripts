@@ -92,6 +92,7 @@ DO
 		If len(x_number) <> 7 Then err_msg = err_msg & vbNewLine & "* Review the worker number entered, it is not the right length"
 		If ucase(left(x_number, 4)) <> "X127" Then err_msg = err_msg & vbNewLine & "* Review the worker number entered, it does not start with 'x127'."
 
+		If err_msg <> "" Then MsgBox "*** NOTICE ***" & vbNewLine & "Please resolve to continue:" & vbNewLine & err_msg
 	Loop until err_msg = ""
 
 	email_subject = "PRIV Case Access Request"
@@ -113,7 +114,7 @@ Loop until message_confirmed = vbYes
 
 
 email_body = "~~This email is generated from completion of the 'Request Access to PRIV Case' Script.~~" & vbCr & vbCr & email_body
-call create_outlook_email("HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us", "", email_subject, email_body, "", FALSE)
+call create_outlook_email("HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us", "", email_subject, email_body, "", TRUE)
 
 STATS_manualtime = STATS_manualtime + (timer - start_time)
 end_msg = "Thank you!" & vbCr & "Your request for access has been sent to QI Knowledge Now." & vbCr & vbCr
