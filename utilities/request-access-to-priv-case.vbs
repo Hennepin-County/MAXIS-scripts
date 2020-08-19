@@ -56,7 +56,11 @@ EMConnect ""
 Call find_user_name(worker_name)						'defaulting the name of the suer running the script
 ' Call check_for_MAXIS(True)								'make sure we are in MAXIS
 CALL MAXIS_case_number_finder (MAXIS_case_number)		'try to find the case number
-x_number = "x127"
+EMReadScreen SELF_check, 4, 2, 50		'Does this to check to see if we're on SELF screen
+IF SELF_check = "SELF" THEN				'if on the self screen then x # is read from coordinates
+	EMReadScreen x_number, 7, 22, 8
+End If
+If x_number = "" Then x_number = "x127"
 
 'One and only dialog for this script
 DO
