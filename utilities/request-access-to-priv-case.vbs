@@ -78,7 +78,7 @@ DO
 		  ButtonGroup ButtonPressed
 		    OkButton 200, 90, 50, 15
 		    CancelButton 255, 90, 50, 15
-		  Text 10, 10, 280, 10, "Request Knowledge Now to update MAXIS to allow you access to a privleged case."
+		  Text 10, 10, 280, 10, "Request Knowledge Now to update MAXIS to allow you access to a privileged case."
 		  Text 10, 30, 70, 10, "PRIV Case Number:"
 		  Text 20, 50, 55, 10, "Your X-Number:"
 		  Text 15, 70, 60, 10, "Information/Notes:"
@@ -104,7 +104,7 @@ DO
 	notes = trim(notes)
 	worker_name = trim(worker_name)
 
-	email_body = "Please update MAXIS to allow acces to this privleged case." & vbCr & vbCr
+	email_body = "Please update MAXIS to allow acces to this privileged case." & vbCr & vbCr
 
 	email_body = email_body & "Case Number: " & MAXIS_case_number & vbCr
 	email_body = email_body & "Worker Number for transfer: " & x_number & vbCr & vbCr
