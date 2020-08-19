@@ -109,7 +109,7 @@ DO
         err_msg = ""
 
 		Dialog1 = "" 'Blanking out previous dialog detail
-		BeginDialog Dialog1, 0, 0, 296, 195, "Dialog"
+		BeginDialog Dialog1, 0, 0, 296, 195, "ApplyMN not Found"
 		  EditBox 140, 40, 80, 15, MAXIS_case_number
 		  CheckBox 25, 60, 225, 10, "Check here if this is for a NEW request with no Case Number yet.", no_case_number_checkbox
 		  EditBox 80, 105, 50, 15, date_of_app
