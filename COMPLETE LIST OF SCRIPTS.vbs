@@ -813,6 +813,18 @@ script_array(script_num).release_date           = #10/01/2000#
 script_num = script_num + 1							   'Increment by one
 ReDim Preserve script_array(script_num)	    'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie	   'Set this array element to be a new script. Script details below...
+script_array(script_num).script_name		    = "Contact Knowledge Now"
+script_array(script_num).description		    = "Used to submit an email to the QI Knowledge Now team."
+script_array(script_num).category               = "UTILITIES"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("")
+script_array(script_num).dlg_keys               = array("")
+script_array(script_num).subcategory            = array("TOOL", "POLICY")
+script_array(script_num).release_date           = #08/19/2020#
+
+script_num = script_num + 1							   'Increment by one
+ReDim Preserve script_array(script_num)	    'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	   'Set this array element to be a new script. Script details below...
 script_array(script_num).script_name		    = "Copy Case Data for Training"
 script_array(script_num).description		    = "Copies data from a case to a spreadsheet to be run on the Training Case Generator."
 script_array(script_num).category               = "ADMIN"
