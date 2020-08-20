@@ -161,38 +161,40 @@ subject_list = "Type or Select"+chr(9)+"SNAP - Policy Question"+chr(9)+"MFIP - P
 
 'One and only dialog for this script
 DO
-    email_body = ""
-	email_subject = ""
+	Do
+	    email_body = ""
+		email_subject = ""
 
-	Dialog1 = "" 'Blanking out previous dialog detail
-	BeginDialog Dialog1, 0, 0, 646, 240, "Knowledge Now Question"
-	  EditBox 10, 35, 630, 15, kn_question_info
-	  EditBox 10, 75, 80, 15, MAXIS_case_number
-	  ComboBox 10, 110, 290, 45, subject_list+chr(9)+kn_subject, kn_subject
-	  EditBox 10, 160, 290, 15, kn_script_name
-	  EditBox 415, 220, 115, 15, worker_name
-	  ButtonGroup ButtonPressed
-	    PushButton 305, 165, 95, 10, "SEARCH for a script name", search_btn
-	    OkButton 535, 220, 50, 15
-	    CancelButton 590, 220, 50, 15
-	  Text 10, 10, 215, 10, "Tell us your question and a Knowledge Now staff will contact you."
-	  Text 10, 25, 100, 10, "Question for Knowledge Now:"
-	  Text 15, 50, 300, 10, "(To change lines in the email type a semi-colon followed by a space '; ' in the field above.)"
-	  Text 10, 65, 50, 10, "Case Number:"
-	  Text 95, 80, 295, 10, "(Providing a case number can help us provide the quickest and most thorough response.)"
-	  Text 10, 100, 90, 10, "General Type of Question:"
-	  Text 15, 125, 260, 20, "(This is for the subject line of the email and can help us find a SME, you can select one of the options we have provided or type whatever fits best.)"
-	  Text 10, 150, 160, 10, "If a script is a part of your question enter it here:"
-	  Text 5, 190, 290, 30, "This information will be sent to the Quality Improvement email for a response by one of the QI team members assigned to  Knowledge Now. We usually try to provide a response to the email through Teams and you can provide any additional detail."
-	  Text 5, 225, 330, 10, "Nothing is required but the more information you provide, the more detail we can get to you quickly."
-	  Text 355, 225, 55, 10, "Sign your Email"
-	EndDialog
+		Dialog1 = "" 'Blanking out previous dialog detail
+		BeginDialog Dialog1, 0, 0, 646, 240, "Knowledge Now Question"
+		  EditBox 10, 35, 630, 15, kn_question_info
+		  EditBox 10, 75, 80, 15, MAXIS_case_number
+		  ComboBox 10, 110, 290, 45, subject_list+chr(9)+kn_subject, kn_subject
+		  EditBox 10, 160, 290, 15, kn_script_name
+		  EditBox 415, 220, 115, 15, worker_name
+		  ButtonGroup ButtonPressed
+		    PushButton 305, 165, 95, 10, "SEARCH for a script name", search_btn
+		    OkButton 535, 220, 50, 15
+		    CancelButton 590, 220, 50, 15
+		  Text 10, 10, 215, 10, "Tell us your question and a Knowledge Now staff will contact you."
+		  Text 10, 25, 100, 10, "Question for Knowledge Now:"
+		  Text 15, 50, 300, 10, "(To change lines in the email type a semi-colon followed by a space '; ' in the field above.)"
+		  Text 10, 65, 50, 10, "Case Number:"
+		  Text 95, 80, 295, 10, "(Providing a case number can help us provide the quickest and most thorough response.)"
+		  Text 10, 100, 90, 10, "General Type of Question:"
+		  Text 15, 125, 260, 20, "(This is for the subject line of the email and can help us find a SME, you can select one of the options we have provided or type whatever fits best.)"
+		  Text 10, 150, 160, 10, "If a script is a part of your question enter it here:"
+		  Text 5, 190, 290, 30, "This information will be sent to the Quality Improvement email for a response by one of the QI team members assigned to  Knowledge Now. We usually try to provide a response to the email through Teams and you can provide any additional detail."
+		  Text 5, 225, 330, 10, "Nothing is required but the more information you provide, the more detail we can get to you quickly."
+		  Text 355, 225, 55, 10, "Sign your Email"
+		EndDialog
 
 
-    Dialog Dialog1
-    cancel_without_confirmation
+	    Dialog Dialog1
+	    cancel_without_confirmation
 
-	If ButtonPressed = search_btn Then call script_search(kn_script_name)
+		If ButtonPressed = search_btn Then call script_search(kn_script_name)
+	Loop until ButtonPressed = -1
 
 	email_subject = "Knowledge Now Question"
 	kn_subject = trim(kn_subject)
