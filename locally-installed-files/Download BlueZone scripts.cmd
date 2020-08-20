@@ -79,9 +79,9 @@ IF EXIST "%userprofile%\Desktop\Hennepin.zmd" COPY /Y "\\hcgg.fr.co.hennepin.mn.
 
 CLS
 ECHO.
-ECHO Installation successful!
+ECHO Installation complete. 
 ECHO.
-ECHO A the new Hennepin icon has been added to your desktop.
+ECHO If your Hennepin BlueZone session is not on your desktop, please contact the BZST at: HSPH.EWS.BlueZoneScripts@Hennepin.us.
 GOTO END
 
 REM ===================================================================================================
@@ -110,9 +110,9 @@ IF EXIST "%userprofile%\Desktop\Hennepin-Speciality.zmd" COPY /Y "\\hcgg.fr.co.h
 
 CLS
 ECHO.
-ECHO Installation successful!
+ECHO Installation complete. 
 ECHO.
-ECHO A the new Hennepin-Specialty icon has been added to your desktop.
+ECHO If your Hennepin Specialty BlueZone session is not on your desktop, please contact the BZST at: HSPH.EWS.BlueZoneScripts@Hennepin.us.
 GOTO END
 
 :END
