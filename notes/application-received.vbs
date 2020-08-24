@@ -368,8 +368,8 @@ END IF
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 306, 195, "Application Received for: "  & programs_applied_for &   " on "   & application_date
-  DropListBox 85, 10, 85, 15, "Select One:"+chr(9)+"Mystery Doc Queue"+chr(9)+"Office (In person)"+chr(9)+"Online (Apply MN)"+chr(9)+"Request to APPL Form"+chr(9)+"SHIBA"+chr(9)+"Verbal Request", how_app_rcvd
-  DropListBox 85, 30, 85, 15, "Select One:"+chr(9)+"ApplyMN"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Populations"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer"+chr(9)+"N/A"+chr(9)+"Securely Hosted Integrated Benefits App"+chr(9)+"Verbal Request", app_type
+  DropListBox 85, 10, 95, 15, "Select One:"+chr(9)+"Mystery Doc Queue"+chr(9)+"Office (In person)"+chr(9)+"Online (Apply MN/SHIBA)"+chr(9)+"Request to APPL Form"+chr(9)+"Verbal Request (Phone)", how_app_rcvd
+  DropListBox 85, 30, 95, 15, "Select One:"+chr(9)+"ApplyMN"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Populations"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer"+chr(9)+"N/A"+chr(9)+"SHIBA"+chr(9)+"Verbal Request", app_type
   EditBox 250, 10, 45, 15, request_date
   EditBox 250, 30, 45, 15, confirmation_number
   EditBox 95, 60, 55, 15, request_worker_number
@@ -383,8 +383,8 @@ BeginDialog Dialog1, 0, 0, 306, 195, "Application Received for: "  & programs_ap
   EditBox 55, 155, 245, 15, other_notes
   EditBox 70, 175, 120, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 210, 175, 45, 15
-    CancelButton 255, 175, 45, 15
+    OkButton 195, 175, 50, 15
+    CancelButton 250, 175, 50, 15
   Text 185, 35, 50, 10, "Confirmation #:"
   Text 5, 180, 60, 10, "Worker Signature:"
   Text 10, 85, 85, 10, "METS Integrated Case #:"
