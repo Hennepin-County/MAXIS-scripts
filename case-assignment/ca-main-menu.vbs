@@ -40,6 +40,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("08/24/2020", "Redirect.", "MiKayla Handley, Hennepin County")
 call changelog_update("09/22/2017", "Initial version.", "Ilse Ferris, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -99,14 +100,14 @@ script_num = 0
 ReDim Preserve script_array_CA_main(script_num)
 Set script_array_CA_main(script_num) = new script
 script_array_CA_main(script_num).script_name 			= "Application Received"																'Script name
-script_array_CA_main(script_num).file_name 				= "ca-application-received.vbs"															'Script URL
+script_array_CA_main(script_num).file_name 				= "application-received.vbs"															'Script URL
 script_array_CA_main(script_num).description 			= "Case notes an application, screens for expedited SNAP, sends the appointment letter and transfers case (if applicable)."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_CA_main(script_num)			'Resets the array to add one more element to it
 Set script_array_CA_main(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_CA_main(script_num).script_name			= "Case Transfer"				'needs spaces to generate button width properly.'Script name
-script_array_CA_main(script_num).file_name				= "ca-out-of-county-transfer.vbs"														'Script URL
+script_array_CA_main(script_num).file_name				= "transfer-case.vbs"														'Script URL
 script_array_CA_main(script_num).description			= "Transfers cases both in and out of county."
 
 script_num = script_num + 1								'Increment by one
