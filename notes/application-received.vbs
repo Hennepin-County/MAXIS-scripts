@@ -8,7 +8,14 @@ STATS_denomination = "C"                   'C is for each CASE
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+    IF on_the_desert_island = TRUE Then
+        FuncLib_URL = "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Scripts\Script Files\desert-island\MASTER FUNCTIONS LIBRARY.vbs"
+        Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
+        Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
+        text_from_the_other_script = fso_command.ReadAll
+        fso_command.Close
+        Execute text_from_the_other_script
+    ELSEIF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
 		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		Else											'Everyone else should use the release branch.
@@ -44,25 +51,30 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County
+CALL changelog_update("08/24/2020", "Added SHIBA application and combined CA and NOTES scripts.", "MiKayla Handley, Hennepin County")
+CALL changelog_update("06/10/2020", "Email functionality removed for Triagers.", "MiKayla Handley, Hennepin County")
 call changelog_update("05/28/2020", "Update to the notice wording, added virtual drop box information.", "MiKayla Handley, Hennepin County")
 call changelog_update("05/13/2020", "Update to the notice wording. Information and direction for in-person interview option removed. County offices are not currently open due to the COVID-19 Peacetime Emergency.", "Casey Love, Hennepin County")
-call changelog_update("05/11/2020", "Added VERBAL REQUEST as a 'TYPE OF APPLICATION' and 'APPLICATION RECEIVED' options to support COVID-19 waivers.", "Ilse Ferris, Hennepin County")
+call changelog_update("03/09/2020", "Per project request- Updated checkbox for the METS Retro Request to team 601.", "MiKayla Handley, Hennepin County")
+call changelog_update("01/13/2020", "Updated requesting worker for the Request to APPL form process.", "MiKayla Handley, Hennepin County")
+call changelog_update("11/04/2019", "New version pulled to support the request for APPL process.", "MiKayla Handley, Hennepin County")
 call changelog_update("10/01/2019", "Updated the utility standards for SNAP.", "Casey Love, Hennepin County")
 call changelog_update("08/27/2019", "Added handling to push the case into background to ensure pending programs are read.", "MiKayla Handley, Hennepin County")
 call changelog_update("08/27/2019", "Added GRH to appointment letter handling for future enhancements.", "MiKayla Handley, Hennepin County")
 call changelog_update("08/20/2019", "Bug on the script when a large PND2 list is accessed.", "MiKayla Handley, Hennepin County")
-CALL changelog_update("04/15/2019", "Added an error reporting option at the end of the script run.", "MiKayla Handley, Hennepin County")
-CALL changelog_update("11/15/2018", "Enhanced functionality for Same-Day interview cases.", "Casey Love, Hennepin County")
+CALL changelog_update("07/26/2019", "Reverted the script to not email Team 603 for METS cases. CA workers will need to manually complete the email to: field.", "MiKayla Handley, Hennepin County")
+CALL changelog_update("07/24/2019", "Removed Mail & Fax option and added MDQ per request.", "MiKayla Handley, Hennepin County")
+CALL changelog_update("07/22/2019", "Updated the script to automatically email Team 603 for METS cases.", "MiKayla Handley, Hennepin County")
+CALL changelog_update("03/19/2019", "Added an error reporting option at the end of the script run.", "Casey Love, Hennepin County")
+CALL changelog_update("02/05/2019", "Updated case correction handling.", "Casey Love, Hennepin County")
+CALL changelog_update("11/15/2018", "Enhanced functionality for SameDay interview cases.", "Casey Love, Hennepin County")
 CALL changelog_update("11/06/2018", "Updated handling for HC only applications.", "MiKayla Handley, Hennepin County")
+CALL changelog_update("10/25/2018", "Updated script to add handling for case correction.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("10/17/2018", "Updated appointment letter to address EGA programs.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("09/01/2018", "Updated Utility standards that go into effect for 10/01/2018.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("07/20/2018", "Changed wording of the Appointment Notice and changed default interview date to 10 days from application for non-expedidted cases.", "Casey Love, Hennepin County")
-CALL changelog_update("07/16/2018", "BUg Fix that was preventing notices from being sent.", "Casey Love, Hennepin County")
-CALL changelog_update("04/10/2018", "Updated appt letter handling to ensure the appointment letter is sent correctly.", "MiKayla Handley, Hennepin County")
+CALL changelog_update("07/16/2018", "Bug Fix that was preventing notices from being sent.", "Casey Love, Hennepin County")
 CALL changelog_update("03/28/2018", "Updated appt letter case note for bulk script process.", "MiKayla Handley, Hennepin County")
-CALL changelog_update("03/13/2018", "Removed team number.", "MiKayla Handley, Hennepin County")
-CALL changelog_update("03/13/2018", "Added same-day interview option.", "MiKayla Handley, Hennepin County")
-CALL changelog_update("03/12/2018", "Added on demand waiver verbiage and an in office option.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("02/21/2018", "Added on demand waiver handling.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("02/16/2018", "Added case transfer confirmation coding.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("12/29/2017", "Coordinates for sending MEMO's has changed in SPEC/MEMO. Updated script to support change.", "Ilse Ferris, Hennepin County")
@@ -79,7 +91,7 @@ changelog_display
 'Grabs the case number
 EMConnect ""
 CALL MAXIS_case_number_finder(MAXIS_case_number)
-back_to_SELF' added to ensure we have the time to update and send the case in the background
+back_to_self' added to ensure we have the time to update and send the case in the background
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
@@ -100,94 +112,103 @@ Do
       	IF IsNumeric(maxis_case_number) = false or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
 	Loop until err_msg = ""
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
 '----------------------------------------------------------------------------------------------------'pending & active programs information
 'information gathering to auto-populate the application date
-back_to_self
+
 EMWriteScreen MAXIS_case_number, 18, 43
-Call navigate_to_MAXIS_screen("REPT", "PND2")
-
 limit_reached = FALSE
-row = 1
-col = 1
-EMSearch "The REPT:PND2 Display Limit Has Been Reached.", row, col
-If row <> 0 Then
-    transmit
-    limit_reached = TRUE
-End If
-
-'Ensuring that the user is in REPT/PND2
-Do
-	EMReadScreen PND2_check, 4, 2, 52
-	If PND2_check <> "PND2" then
-		back_to_SELF
-		Call navigate_to_MAXIS_screen("REPT", "PND2")
-	End if
-LOOP until PND2_check = "PND2"
-
-'checking the case to make sure there is a pending case.  If not script will end & inform the user no pending case exists in PND2 this does not tell you if it is active or pnd1
-EMReadScreen not_pending_check, 5, 24, 2
-If not_pending_check = "CASE " THEN script_end_procedure_with_error_report("There is not a pending program on this case, or case is not in PND2 status." & vbNewLine & vbNewLine & "Please make sure you have the right case number, and/or check your case notes to ensure that this application has been completed.")
-
-If limit_reached = TRUE Then
-    MAXIS_row = 7
+Call navigate_to_MAXIS_screen("REPT", "PND2")
+EmReadScreen limit_reached, 8, 6, 21
+IF limit_reached = "The REPT" THEN
+    limit_reached_confirmation = MsgBox("Press YES to confirm this case has been pended."  & vbNewLine & " ", vbYesNoCancel, "The REPT:PND2 Display Limit Has Been Reached.")
+    IF limit_reached_confirmation = vbNo THEN
+    	limit_reached = TRUE
+        script_end_procedure_with_error_report("Limit reached in basket. Please pend the case and run the script again.")
+    END IF
+    IF limit_reached_confirmation = vbCancel THEN script_end_procedure_with_error_report ("The script has ended. The application has not been acted on.")
+    IF limit_reached_confirmation = vbYes THEN
+       	limit_reached = FALSE
+	    transmit
+	    PF3
+	    EMWriteScreen MAXIS_case_number, 18, 43
+    END IF
+ELSEIF limit_reached <> "The REPT" THEN
+    'Ensuring that the user is in REPT/PND2
     Do
-        EMReadScreen PND2_case_number, 8, MAXIS_row, 5
-        if trim(PND2_case_number) = MAXIS_case_number Then Exit Do
-        MAXIS_row = MAXIS_row + 1
-    Loop until MAXIS_row = 19
-Else
+    	EMReadScreen PND2_check, 4, 2, 52
+    	If PND2_check <> "PND2" then
+    		back_to_SELF
+    		Call navigate_to_MAXIS_screen("REPT", "PND2")
+    	End if
+    LOOP until PND2_check = "PND2"
+
+    'checking the case to make sure there is a pending case.  If not script will end & inform the user no pending case exists in PND2
+    EMReadScreen not_pending_check, 4, 24, 2
+    If not_pending_check = "CASE" THEN script_end_procedure_with_error_report("There is not a pending program on this case, or case is not in PND2 status." & vbNewLine & vbNewLine & "Please make sure you have the right case number, and/or check your case notes to ensure that this application has been completed.")
+    'grabs row and col number that the cursor is at
     EMGetCursor MAXIS_row, MAXIS_col
-End If
-If MAXIS_row > 18 Then script_end_procedure("There is not a pending program on this case, or case is not in PND2 status." & vbNewLine & vbNewLine & "Please make sure you have the right case number, and/or check your case notes to ensure that this application has been completed.")
-
-'grabs row and col number that the cursor is at this is where the application date comes in
-EMReadScreen app_month, 2, MAXIS_row, 38
-EMReadScreen app_day, 2, MAXIS_row, 41
-EMReadScreen app_year, 2, MAXIS_row, 44
-EMReadScreen days_pending, 3, MAXIS_row, 50
-EMReadScreen additional_application_check, 14, MAXIS_row + 1, 17
-EMReadScreen add_app_month, 2, MAXIS_row + 1, 38
-EMReadScreen add_app_day, 2, MAXIS_row + 1, 41
-EMReadScreen add_app_year, 2, MAXIS_row + 1, 44
-
-'Creating new variable for application check date and additional application date.
-application_date = app_month & "/" & app_day & "/" & app_year
-additional_application_date = add_app_month & "/" & add_app_day & "/" & add_app_year
-
-'checking for multiple application dates.  Creates message boxes giving the user an option of which app date to choose
-If additional_application_check = "ADDITIONAL APP" THEN multiple_apps = MsgBox("Do you want this application date: " & application_date, VbYesNoCancel)
-If multiple_apps = vbCancel then stopscript
-If multiple_apps = vbYes then application_date = application_date
-IF multiple_apps = vbNo then
-	additional_apps = Msgbox("Per CM 0005.09.06 - if a case is pending and a new app is received you should use the original application date." & vbcr & "Do you want this application date: " & additional_application_date, VbYesNoCancel)
-	application_date = ""
-	If additional_apps = vbCancel then stopscript
-	If additional_apps = vbNo then script_end_procedure_with_error_report("No more application dates exist. Please review the case, and start the script again if applicable.")
-	If additional_apps = vbYes then
-		additional_date_found = TRUE
-		application_date = additional_application_date
-		MAXIS_row = MAXIS_row + 1
-	END IF
-End if
-
-EMReadScreen PEND_CASH_check,	1, MAXIS_row, 54
-EMReadScreen PEND_SNAP_check, 1, MAXIS_row, 62
-EMReadScreen PEND_HC_check, 1, MAXIS_row, 65
-EMReadScreen PEND_EMER_check,	1, MAXIS_row, 68
-EMReadScreen PEND_GRH_check, 1, MAXIS_row, 72
-
-MAXIS_footer_month = right("00" & DatePart("m", application_date), 2)
-MAXIS_footer_year = right(DatePart("yyyy", application_date), 2)
+    EMReadScreen app_month, 2, MAXIS_row, 38
+    EMReadScreen app_day, 2, MAXIS_row, 41
+    EMReadScreen app_year, 2, MAXIS_row, 44
+    EMReadScreen days_pending, 3, MAXIS_row, 50
+    EMReadScreen additional_application_check, 14, MAXIS_row + 1, 17
+    EMReadScreen add_app_month, 2, MAXIS_row + 1, 38
+    EMReadScreen add_app_day, 2, MAXIS_row + 1, 41
+    EMReadScreen add_app_year, 2, MAXIS_row + 1, 44
+    'Creating new variable for application check date and additional application date.
+    application_date = app_month & "/" & app_day & "/" & app_year
+	'MsgBox application_date
+    additional_application_date = add_app_month & "/" & add_app_day & "/" & add_app_year
+    'checking for multiple application dates.  Creates message boxes giving the user an option of which app date to choose
+    If additional_application_check = "ADDITIONAL APP" THEN multiple_apps = MsgBox("Do you want this application date: " & application_date, VbYesNoCancel)
+    If multiple_apps = vbCancel then stopscript
+    If multiple_apps = vbYes then application_date = application_date
+    IF multiple_apps = vbNo then
+    	additional_apps = Msgbox("Per CM 0005.09.06 - if a case is pending and a new app is received you should use the original application date." & vbcr & "Do you want this application date: " & additional_application_date, VbYesNoCancel)
+    	application_date = ""
+    	If additional_apps = vbCancel then stopscript
+    	If additional_apps = vbNo then script_end_procedure_with_error_report("No more application dates exist. Please review the case, and start the script again if applicable.")
+    	If additional_apps = vbYes then
+    		additional_date_found = TRUE
+    		application_date = additional_application_date
+    		MAXIS_row = MAXIS_row + 1
+    	END IF
+    End if
+    EMReadScreen PEND_CASH_check,	1, MAXIS_row, 54
+    EMReadScreen PEND_SNAP_check, 1, MAXIS_row, 62
+    EMReadScreen PEND_HC_check, 1, MAXIS_row, 65
+    EMReadScreen PEND_EMER_check,	1, MAXIS_row, 68
+    EMReadScreen PEND_GRH_check, 1, MAXIS_row, 72
+    MAXIS_footer_month = right("00" & DatePart("m", application_date), 2)
+    MAXIS_footer_year = right(DatePart("yyyy", application_date), 2)
+END IF 'this will ensire if the basket limit is reached a worker can still use the script'
 
 CALL navigate_to_MAXIS_screen("STAT", "PROG")		'Goes to STAT/PROG
-'EMReadScreen application_date, 8, 6, 33
-
-EMReadScreen err_msg, 7, 24, 02
-IF err_msg = "BENEFIT" THEN	script_end_procedure_with_error_report ("Case must be in PEND II status for script to run, please update MAXIS panels TYPE & PROG (HCRE for HC) and run the script again.")
-
+IF application_date = "" THEN 'if the rept/pnd2 is full this will allow the use to get to PROG '
+	Row = 6
+	DO
+		EMReadScreen application_date, 8, row, 33
+		IF application_date = "" THEN script_end_procedure_with_error_report("A application for the selected period could not be found. The script will now end.")
+		application_date_confirmation = MsgBox("Press YES to confirm this is the application you wish to act on." & vbNewLine & "For the next application, press NO." & vbNewLine & vbNewLine & _
+		" " & "Application date: " & application_date, vbYesNoCancel, "Please confirm this application")
+		IF application_date_confirmation = vbNo THEN
+			row = row + 1
+			IF row = 17 THEN
+				PF8
+				row = 7
+				EMReadScreen application_date, 11, row, 47
+			END IF
+		END IF
+		IF application_date_confirmation = vbCancel THEN script_end_procedure_with_error_report ("The script has ended. The application has not been acted on.")
+		IF application_date_confirmation = vbYes THEN 	EXIT DO
+	LOOP UNTIL application_date_confirmation = vbYes
+	application_date = replace(application_date, " ", "/")
+	EMReadScreen err_msg, 7, 24, 02
+    IF err_msg = "BENEFIT" THEN	script_end_procedure_with_error_report ("Case must be in PEND II status for script to run, please update MAXIS panels TYPE & PROG (HCRE for HC) and run the script again.")
+END IF
 'Reading the app date from PROG
 EMReadScreen cash1_app_date, 8, 6, 33
 cash1_app_date = replace(cash1_app_date, " ", "/")
@@ -215,7 +236,6 @@ EMReadScreen snap_status_check, 4, 10, 74
 EMReadScreen ive_status_check, 4, 11, 74
 EMReadScreen hc_status_check, 4, 12, 74
 EMReadScreen cca_status_check, 4, 14, 74
-
 '----------------------------------------------------------------------------------------------------ACTIVE program coding
 EMReadScreen cash1_prog_check, 2, 6, 67     'Reading cash 1
 EMReadScreen cash2_prog_check, 2, 7, 67     'Reading cash 2
@@ -336,54 +356,70 @@ additional_programs_applied_for = trim(additional_programs_applied_for)       't
 If right(additional_programs_applied_for, 1) = "," THEN additional_programs_applied_for = left(additional_programs_applied_for, len(additional_programs_applied_for) - 1)
 
 IF programs_applied_for = "" THEN
-DO
-	prog_confirmation = MsgBox("Press YES to confirm this application is PND1 and has no programs selected. If this is not the case select NO and run the script again.", vbYesNo, "Program confirmation")
-	IF prog_confirmation = vbNo THEN script_end_procedure_with_error_report("The script has ended. The application has not been acted on.")
-	IF prog_confirmation = vbYes THEN
-		EXIT DO
-	END IF
-Loop
+    DO
+    	prog_confirmation = MsgBox("Press YES to confirm this application is PND1 and has no progams selected. If this is not the case select NO and run the script again.", vbYesNo, "Program confirmation")
+    	IF prog_confirmation = vbNo THEN script_end_procedure_with_error_report("The script has ended. The application has not been acted on.")
+    	IF prog_confirmation = vbYes THEN
+    		EXIT DO
+    	END IF
+    Loop
 END IF
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 296, 145, "Application Received for: " & programs_applied_for
-  DropListBox 85, 10, 65, 15, "Select One:"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Office"+chr(9)+"Online"+chr(9)+"Verbal Request", how_app_rcvd
-  DropListBox 85, 30, 65, 15, "Select One:"+chr(9)+"ApplyMN"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Pop"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer"+chr(9)+"Verbal Request", app_type
-  EditBox 215, 30, 45, 15, confirmation_number
-  EditBox 50, 65, 20, 15, transfer_to_worker
-  CheckBox 10, 85, 140, 10, "Check if case does not require a transfer", no_transfer_checkbox
-  EditBox 55, 105, 235, 15, other_notes
-  EditBox 75, 125, 105, 15, worker_signature
+BeginDialog Dialog1, 0, 0, 306, 195, "Application Received for: "  & programs_applied_for &   " on "   & application_date
+  DropListBox 85, 10, 85, 15, "Select One:"+chr(9)+"Mystery Doc Queue"+chr(9)+"Office (In person)"+chr(9)+"Online (Apply MN)"+chr(9)+"Request to APPL Form"+chr(9)+"SHIBA"+chr(9)+"Verbal Request", how_app_rcvd
+  DropListBox 85, 30, 85, 15, "Select One:"+chr(9)+"ApplyMN"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Populations"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer"+chr(9)+"N/A"+chr(9)+"Securely Hosted Integrated Benefits App"+chr(9)+"Verbal Request", app_type
+  EditBox 250, 10, 45, 15, request_date
+  EditBox 250, 30, 45, 15, confirmation_number
+  EditBox 95, 60, 55, 15, request_worker_number
+  EditBox 95, 80, 55, 15, METS_case_number
+  EditBox 250, 60, 20, 15, MEMB_number
+  CheckBox 190, 75, 55, 10, "MA Transition", MA_transition_request_checkbox
+  CheckBox 190, 85, 85, 10, "METS Retro Coverage", METS_retro_checkbox
+  CheckBox 200, 95, 85, 10, "Team 601 will process", team_601_email_checkbox
+  EditBox 50, 120, 20, 15, transfer_to_worker
+  CheckBox 10, 135, 155, 10, "Check if the case does not require a transfer ", no_transfer_checkbox
+  EditBox 55, 155, 245, 15, other_notes
+  EditBox 70, 175, 120, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 185, 125, 50, 15
-    CancelButton 240, 125, 50, 15
-  Text 160, 15, 125, 10, "Date of Application: "  & application_date
-  Text 15, 35, 65, 10, "Type of Application:"
-  Text 160, 35, 50, 10, "Confirmation #:"
-  Text 10, 70, 40, 10, "Transfer to:"
-  Text 75, 70, 135, 10, "(last 3 digit of X#) transfer case to basket"
-  Text 10, 110, 45, 10, "Other Notes:"
-  Text 10, 130, 60, 10, "Worker Signature:"
-  GroupBox 5, 55, 285, 45, "Transfer Information"
+    OkButton 210, 175, 45, 15
+    CancelButton 255, 175, 45, 15
+  Text 185, 35, 50, 10, "Confirmation #:"
+  Text 5, 180, 60, 10, "Worker Signature:"
+  Text 10, 85, 85, 10, "METS Integrated Case #:"
+  GroupBox 5, 50, 295, 60, "Request to Appl Information"
+  GroupBox 5, 110, 295, 40, "Transfer Information"
+  Text 5, 160, 45, 10, "Other Notes:"
+  Text 10, 125, 40, 10, "Transfer to:"
+  Text 75, 125, 60, 10, "(last 3 digit of X#)"
   Text 10, 15, 70, 10, "Application Received:"
-  GroupBox 5, 0, 285, 50, "Application Information"
+  Text 10, 35, 65, 10, "Type of Application:"
+  GroupBox 5, 0, 295, 50, "Application Information"
+  Text 185, 10, 60, 20, "Request to APPL Submission Date:"
+  Text 190, 65, 55, 10, "MEMB # for HC:"
+  Text 10, 65, 60, 10, "Requested By X#:"
 EndDialog
 
 '------------------------------------------------------------------------------------DIALOG APPL
 Do
 	Do
-		err_msg = ""
-		Dialog Dialog1
-		cancel_confirmation
-		IF how_app_rcvd = "Select One:" then err_msg = err_msg & vbNewLine & "* Please enter how the application was received to the agency."
-		IF how_app_rcvd = "Online" and app_type <> "ApplyMN" then err_msg = err_msg & vbNewLine & "* You selected that the application was received online please select ApplyMN from the drop down."
-		IF app_type = "Select One:" then err_msg = err_msg & vbNewLine & "* Please enter the type of application received."
-		IF no_transfer_checkbox = UNCHECKED AND transfer_to_worker = "" then err_msg = err_msg & vbNewLine & "* You must enter the basket number the case to be transfered by the script or check that no transfer is needed."
-		IF no_transfer_checkbox = CHECKED and transfer_to_worker <> "" then err_msg = err_msg & vbNewLine & "* You have checked that no transfer is needed, please remove basket number from transfer field."
-		IF no_transfer_checkbox = UNCHECKED AND len(transfer_to_worker) > 3 AND isnumeric(transfer_to_worker) = FALSE then err_msg = err_msg & vbNewLine & "* Please enter the last 3 digits of the worker number for transfer."
-		IF app_type = "ApplyMN" AND isnumeric(confirmation_number) = FALSE THEN err_msg = err_msg & vbNewLine & "If an ApplyMN was received, you must enter the confirmation number and time received"
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+        err_msg = ""
+        Dialog Dialog1
+        cancel_confirmation
+	    IF how_app_rcvd = "Select One:" then err_msg = err_msg & vbNewLine & "* Please enter how the application was received to the agency."
+	    IF how_app_rcvd <> "Request to APPL Form" and request_date <> "" THEN err_msg = err_msg & vbNewLine & "* The APPL form request date does not need to be completed if this is not a request to APPL form."
+	    'IF how_app_rcvd = "Online" and app_type <> "ApplyMN" then err_msg = err_msg & vbNewLine & "* You selected that the application was received online please select ApplyMN from the drop down."
+	    IF app_type = "Select One:" then err_msg = err_msg & vbNewLine & "* Please enter the type of application received."
+	    IF request_date = "" AND how_app_rcvd = "Request to APPL Form"  THEN err_msg = err_msg & vbNewLine & "* If a request to APPL was received, you must enter the date the form was submitted."
+	    IF no_transfer_checkbox = UNCHECKED AND transfer_to_worker = "" then err_msg = err_msg & vbNewLine & "* You must enter the basket number the case to be transfered by the script or check that no transfer is needed."
+	    IF no_transfer_checkbox = CHECKED and transfer_to_worker <> "" then err_msg = err_msg & vbNewLine & "* You have checked that no transfer is needed, please remove basket number from transfer field."
+	    IF no_transfer_checkbox = UNCHECKED AND len(transfer_to_worker) > 3 AND isnumeric(transfer_to_worker) = FALSE then err_msg = err_msg & vbNewLine & "* Please enter the last 3 digits of the worker number for transfer."
+	    IF METS_retro_checkbox = CHECKED and METS_case_number = "" THEN err_msg = err_msg & vbNewLine & "* You have checked that this is a METS Retro Request, please enter a METS IC #."
+	    IF MA_transition_request_checkbox = CHECKED and METS_case_number = "" THEN err_msg = err_msg & vbNewLine & "* You have checked that this is a METS Transition Request, please enter a METS IC #."
+	    IF app_type = "ApplyMN" AND isnumeric(confirmation_number) = FALSE THEN err_msg = err_msg & vbNewLine & "* If an ApplyMN was received, you must enter the confirmation number and time received"
+	    IF METS_retro_checkbox = CHECKED and MEMB_number = "" THEN err_msg = err_msg & vbNewLine & "* Please enter the member number(s) applying for HC."
+	    IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 LOOP UNTIL are_we_passworded_out = FALSE					'loops until user passwords back in
@@ -410,7 +446,6 @@ If interview_completed = TRUE Then
     Call back_to_SELF
     Call Navigate_to_MAXIS_screen("STAT", "PROG")
     PF9
-
     intv_day = right("00" & DatePart("d", date), 2)
     Intv_mo  = right("00" & DatePart("m", date), 2)
     intv_yr  = right(DatePart("yyyy", date), 2)
@@ -444,6 +479,28 @@ If interview_completed = TRUE Then
 End If
 '--------------------------------------------------------------------------------initial case note
 start_a_blank_case_note
+IF how_app_rcvd <> "Request to APPL Form" THEN CALL write_variable_in_CASE_NOTE ("~ Application Received (" & app_type & ") via " & how_app_rcvd & " on " & application_date & " ~")
+IF how_app_rcvd = "Request to APPL Form" and METS_retro_checkbox = UNCHECKED and MA_transition_request_checkbox = UNCHECKED  THEN
+	CALL write_variable_in_CASE_NOTE ("~ Application Received via " & how_app_rcvd & " for " & application_date & " ~")
+	'~ Application Received (METS Retro) via Request to APPL Form form on 7/16/2019 ~'
+	CALL write_variable_in_CASE_NOTE("* Request to APPL Form received on " & request_date & "")
+	CALL write_variable_in_CASE_NOTE("* Emailed worker " & request_worker_number & " to let them know the request was processed.")
+END IF
+IF METS_retro_checkbox = CHECKED THEN
+	CALL write_variable_in_CASE_NOTE ("~ Application Received(METS Retro)via " & how_app_rcvd & " for " & application_date & " ~")
+	'~ Application Received (METS Retro) via Request to APPL form on 7/16/2019 ~
+	IF MEMB_number <> "" THEN CALL write_variable_in_CASE_NOTE("* Requesting HC for " &  "M" & MEMB_number)
+	CALL write_variable_in_CASE_NOTE("* Request to APPL Form received on " & request_date & "")
+	CALL write_variable_in_CASE_NOTE("* Emailed worker " & request_worker_number & " to let them know the request was processed.")
+END IF
+IF MA_transition_request_checkbox = CHECKED THEN
+	CALL write_variable_in_CASE_NOTE ("~ Application Received(MA Transition)via " & how_app_rcvd & " for " & application_date & " ~")
+	''~ Application Received (MA Transition) via Request to APPL form on 7/16/2019 ~
+	IF MEMB_number <> "" THEN CALL write_variable_in_CASE_NOTE("* Requesting HC for " &  "M" & MEMB_number)
+	CALL write_variable_in_CASE_NOTE("* Request to APPL Form received on " & request_date & "")
+	CALL write_variable_in_CASE_NOTE("* Emailed worker " & request_worker_number & " to let them know the request was processed.")
+END IF
+
 If app_type = "Verbal Request" then
     CALL write_variable_in_CASE_NOTE ("~ Application Received via " & how_app_rcvd & " on " & application_date & " ~")
 Else
@@ -460,12 +517,17 @@ CALL write_bullet_and_variable_in_CASE_NOTE ("Application Requesting", programs_
 CALL write_bullet_and_variable_in_CASE_NOTE ("Pended on", pended_date)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Other Pending Programs", additional_programs_applied_for)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Active Programs", active_programs)
-If transfer_to_worker <> "" THEN CALL write_variable_in_CASE_NOTE ("Application assigned to X127" & transfer_to_worker)
+If transfer_to_worker <> "" THEN CALL write_variable_in_CASE_NOTE ("* Application assigned to X127" & transfer_to_worker)
 'CALL write_bullet_and_variable_in_CASE_NOTE ("Reason for APPL Request", request_reason)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Other Notes", other_notes)
+'IF how_app_rcvd = "Request to APPL Form" THEN CALL write_variable_in_CASE_NOTE("* Emailed worker to let them know the request to APPL has been completed.")
+IF METS_retro_checkbox = CHECKED and team_601_email_checkbox = CHECKED  THEN CALL write_variable_in_CASE_NOTE("* Emailed team 601 to let them know the retro request is ready to be processed.")
+IF METS_retro_checkbox = CHECKED and team_601_email_checkbox = UNCHECKED THEN CALL write_variable_in_CASE_NOTE("* Emailed METS worker to let them know the retro request is ready to be processed.")
+IF MA_transition_request_checkbox = CHECKED  THEN CALL write_variable_in_CASE_NOTE("* Emailed worker to let them know the transition request is ready to be processed.")
+CALL write_variable_in_CASE_NOTE ("---")
 'IF METS_retro_checkbox = CHECKED THEN CALL write_variable_in_CASE_NOTE("* Emailed team 603 to let them know the retro request is ready to be processed.")
 If interview_completed = TRUE Then
-CALL write_variable_in_CASE_NOTE ("---")
+    CALL write_variable_in_CASE_NOTE ("---")
     CALL write_variable_in_CASE_NOTE("* This case had an interview completed sameday. Interview Date on PROG was checked and updated if needed.")
 End If
 CALL write_variable_in_CASE_NOTE ("---")
@@ -473,28 +535,44 @@ CALL write_variable_in_CASE_NOTE (worker_signature)
 PF3 ' to save Case note
 
 '----------------------------------------------------------------------------------------------------EXPEDITED SCREENING!
-
 IF snap_pends = TRUE THEN
-    '-------------------------------------------------------------------------------------------------DIALOG
-    Dialog1 = "" 'Blanking out previous dialog detail
-    BeginDialog Dialog1, 0, 0, 181, 165, "Expedited Screening"
-    	EditBox 100, 5, 50, 15, MAXIS_case_number
-    	EditBox 100, 25, 50, 15, income
-    	EditBox 100, 45, 50, 15, assets
-    	EditBox 100, 65, 50, 15, rent
-    	CheckBox 15, 95, 55, 10, "Heat (or AC)", heat_AC_check
-    	CheckBox 75, 95, 45, 10, "Electricity", electric_check
-    	CheckBox 130, 95, 35, 10, "Phone", phone_check
-    	ButtonGroup ButtonPressed
-      	OkButton 70, 115, 50, 15
-      	CancelButton 125, 115, 50, 15
-    	Text 10, 140, 160, 15, "The income, assets and shelter costs fields will default to $0 if left blank. "
-    	Text 5, 30, 95, 10, "Income received this month:"
-    	Text 5, 50, 95, 10, "Cash, checking, or savings: "
-    	Text 5, 70, 90, 10, "AMT paid for rent/mortgage:"
-    	GroupBox 5, 85, 170, 25, "Utilities claimed (check below):"
-    	Text 50, 10, 50, 10, "Case number: "
-    	GroupBox 0, 130, 175, 30, "**IMPORTANT**"
+    'DATE BASED LOGIC FOR UTILITY AMOUNTS------------------------------------------------------------------------------------------
+    If application_date >= cdate("10/01/2019") then     'these variables need to change every October
+        heat_AC_amt = 490
+        electric_amt = 143
+        phone_amt = 49
+    ElseIf application_date >= cdate("10/01/2018") then
+        heat_AC_amt = 493
+        electric_amt = 126
+        phone_amt = 47
+    else
+        heat_AC_amt = 556
+        electric_amt = 172
+        phone_amt = 41
+    End if
+
+    'Ensuring case number carries thru
+    CALL MAXIS_case_number_finder(MAXIS_case_number)
+	'-------------------------------------------------------------------------------------------------DIALOG
+	Dialog1 = "" 'Blanking out previous dialog detail
+	BeginDialog Dialog1, 0, 0, 181, 165, "Expedited Screening"
+     	EditBox 100, 5, 50, 15, MAXIS_case_number
+     	EditBox 100, 25, 50, 15, income
+     	EditBox 100, 45, 50, 15, assets
+     	EditBox 100, 65, 50, 15, rent
+     	CheckBox 15, 95, 55, 10, "Heat (or AC)", heat_AC_check
+     	CheckBox 75, 95, 45, 10, "Electricity", electric_check
+     	CheckBox 130, 95, 35, 10, "Phone", phone_check
+     	ButtonGroup ButtonPressed
+    	OkButton 70, 115, 50, 15
+    	CancelButton 125, 115, 50, 15
+     	Text 10, 140, 160, 15, "The income, assets and shelter costs fields will default to $0 if left blank. "
+     	Text 5, 30, 95, 10, "Income received this month:"
+     	Text 5, 50, 95, 10, "Cash, checking, or savings: "
+     	Text 5, 70, 90, 10, "AMT paid for rent/mortgage:"
+     	GroupBox 5, 85, 170, 25, "Utilities claimed (check below):"
+     	Text 50, 10, 50, 10, "Case number: "
+     	GroupBox 0, 130, 175, 30, "**IMPORTANT**"
     EndDialog
 
     'DATE BASED LOGIC FOR UTILITY AMOUNTS------------------------------------------------------------------------------------------
@@ -528,13 +606,13 @@ IF snap_pends = TRUE THEN
     '----------------------------------------------------------------------------------------------------LOGIC AND CALCULATIONS
     'Logic for figuring out utils. The highest priority for the if...THEN is heat/AC, followed by electric and phone, followed by phone and electric separately.
     IF heat_AC_check = CHECKED THEN
-      	utilities = heat_AC_amt
+       	utilities = heat_AC_amt
     ELSEIF electric_check = CHECKED and phone_check = CHECKED THEN
-      	utilities = phone_amt + electric_amt					'Phone standard plus electric standard.
+       	utilities = phone_amt + electric_amt					'Phone standard plus electric standard.
     ELSEIF phone_check = CHECKED and electric_check = UNCHECKED THEN
-      	utilities = phone_amt
+       	utilities = phone_amt
     ELSEIF electric_check = CHECKED and phone_check = UNCHECKED THEN
-      	utilities = electric_amt
+       	utilities = electric_amt
     END IF
 
     'in case no options are clicked, utilities are set to zero.
@@ -547,60 +625,59 @@ IF snap_pends = TRUE THEN
     'Calculates expedited status based on above numbers
     IF (int(income) < 150 and int(assets) <= 100) or ((int(income) + int(assets)) < (int(rent) + cint(utilities))) THEN expedited_status = "Client Appears Expedited"
     IF (int(income) + int(assets) >= int(rent) + cint(utilities)) and (int(income) >= 150 or int(assets) > 100) THEN expedited_status = "Client Does Not Appear Expedited"
-    	'----------------------------------------------------------------------------------------------------checking DISQ
-	CALL navigate_to_MAXIS_screen("STAT", "DISQ")
-	'grabbing footer month and year
-	CALL MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
-	'Reads the DISQ info for the case note.
-	EMReadScreen DISQ_member_check, 34, 24, 2
-	IF DISQ_member_check = "DISQ DOES NOT EXIST FOR ANY MEMBER" THEN
-   		has_DISQ = False
-	ELSE
-   		has_DISQ = True
+    '----------------------------------------------------------------------------------------------------checking DISQ
+    CALL navigate_to_MAXIS_screen("STAT", "DISQ")
+    'grabbing footer month and year
+    CALL MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+    'Reads the DISQ info for the case note.
+    EMReadScreen DISQ_member_check, 34, 24, 2
+    IF DISQ_member_check = "DISQ DOES NOT EXIST FOR ANY MEMBER" THEN
+      	has_DISQ = False
+    ELSE
+      	has_DISQ = True
     END IF
 
 	'expedited_status = "Client Appears Expedited"
 	'expedited_status = "Client Does Not Appear Expedited"
-	'Reads MONY/DISB to see if EBT account is open
-	IF expedited_status = "Client Appears Expedited" THEN
-   		CALL navigate_to_MAXIS_screen("MONY", "DISB")
-   		EMReadScreen EBT_account_status, 1, 14, 27
+    'Reads MONY/DISB to see if EBT account is open
+    IF expedited_status = "Client Appears Expedited" THEN
+  		CALL navigate_to_MAXIS_screen("MONY", "DISB")
+  		EMReadScreen EBT_account_status, 1, 14, 27
 	    same_day_offered = FALSE
         If interview_completed = TRUE Then same_day_offered = TRUE
         If interview_completed = FALSE Then
-            offer_same_date_interview = MsgBox("This client appears EXPEDITED. A same-day needs to be offered." & vbNewLine & vbNewLine & "Has the client been offered a same-day Interview?", vbYesNo + vbQuestion, "SameDay Offered?")
+            offer_same_date_interview = MsgBox("This client appears EXPEDITED. A same-day needs to be offered." & vbNewLine & vbNewLine & "Has the client been offered a Same Day Interview?", vbYesNo + vbQuestion, "SameDay Offered?")
             if offer_same_date_interview = vbYes Then same_day_offered = TRUE
         End If
   		'MsgBox "This Client Appears EXPEDITED. A same-day interview needs to be offered."
 		'same_day_interview = TRUE
-		Send_email = TRUE
-	END IF
+		'Send_email = TRUE
+    END IF
 	IF expedited_status = "Client Does Not Appear Expedited" THEN MsgBox "This client does NOT appear expedited. A same-day interview does not need to be offered."
-	'-----------------------------------------------------------------------------------------------EXPCASENOTE
-	start_a_blank_CASE_NOTE
-	CALL write_variable_in_CASE_NOTE("~ Received Application for SNAP, " & expedited_status & " ~")
-	CALL write_variable_in_CASE_NOTE("---")
-	CALL write_variable_in_CASE_NOTE("     CAF 1 income claimed this month: $" & income)
-	CALL write_variable_in_CASE_NOTE("         CAF 1 liquid assets claimed: $" & assets)
-	CALL write_variable_in_CASE_NOTE("         CAF 1 rent/mortgage claimed: $" & rent)
-	CALL write_variable_in_CASE_NOTE("        Utilities (AMT/HEST claimed): $" & utilities)
-	CALL write_variable_in_CASE_NOTE("---")
-	IF has_DISQ = TRUE THEN CALL write_variable_in_CASE_NOTE("A DISQ panel exists for someone on this case.")
-	IF has_DISQ = FALSE THEN CALL write_variable_in_CASE_NOTE("No DISQ panels were found for this case.")
-	IF expedited_status = "Client Appears Expedited" AND EBT_account_status = "Y" THEN CALL write_variable_in_CASE_NOTE("* EBT Account IS open.  Recipient will NOT be able to get a replacement card in the agency.  Rapid Electronic Issuance (REI) with caution.")
-	IF expedited_status = "Client Appears Expedited" AND EBT_account_status = "N" THEN CALL write_variable_in_CASE_NOTE("* EBT Account is NOT open.  Recipient is able to get initial card in the agency.  Rapid Electronic Issuance (REI) can be used, but only to avoid an emergency issuance or to meet EXP criteria.")
-	IF expedited_status = "Client Does Not Appear Expedited" THEN CALL write_variable_in_CASE_NOTE("Client does not appear expedited. Application sent to ECF.")
+    '-----------------------------------------------------------------------------------------------EXPCASENOTE
+    start_a_blank_CASE_NOTE
+    CALL write_variable_in_CASE_NOTE("~ Received Application for SNAP, " & expedited_status & " ~")
+    CALL write_variable_in_CASE_NOTE("---")
+    CALL write_variable_in_CASE_NOTE("     CAF 1 income claimed this month: $" & income)
+    CALL write_variable_in_CASE_NOTE("         CAF 1 liquid assets claimed: $" & assets)
+    CALL write_variable_in_CASE_NOTE("         CAF 1 rent/mortgage claimed: $" & rent)
+    CALL write_variable_in_CASE_NOTE("        Utilities (AMT/HEST claimed): $" & utilities)
+    CALL write_variable_in_CASE_NOTE("---")
+    IF has_DISQ = TRUE THEN CALL write_variable_in_CASE_NOTE("A DISQ panel exists for someone on this case.")
+    IF has_DISQ = FALSE THEN CALL write_variable_in_CASE_NOTE("No DISQ panels were found for this case.")
+    IF expedited_status = "Client Appears Expedited" AND EBT_account_status = "Y" THEN CALL write_variable_in_CASE_NOTE("* EBT Account IS open.  Recipient will NOT be able to get a replacement card in the agency.  Rapid Electronic Issuance (REI) with caution.")
+    IF expedited_status = "Client Appears Expedited" AND EBT_account_status = "N" THEN CALL write_variable_in_CASE_NOTE("* EBT Account is NOT open.  Recipient is able to get initial card in the agency.  Rapid Electronic Issuance (REI) can be used, but only to avoid an emergency issuance or to meet EXP criteria.")
+    IF expedited_status = "Client Does Not Appear Expedited" THEN CALL write_variable_in_CASE_NOTE("Client does not appear expedited. Application sent to ECF.")
 	IF expedited_status = "Client Appears Expedited" THEN CALL write_variable_in_CASE_NOTE("Client appears expedited. Application sent to ECF.")
 	CALL write_variable_in_CASE_NOTE("---")
 	CALL write_variable_in_CASE_NOTE(worker_signature)
 END IF
 
-'IF expedited_status = "Client appears expedited" THEN same_day_interview = TRUE
 '-------------------------------------------------------------------------------------Transfers the case to the assigned worker if this was selected in the second dialog box
 'Determining if a case will be transferred or not. All cases will be transferred except addendum app types. THIS IS NOT CORRECT AND NEEDS TO BE DISCUSSED WITH QI
 IF transfer_to_worker = "" and no_transfer_checkbox = CHECKED THEN
 	transfer_case = False
-  	action_completed = TRUE     'This is to decide if the case was successfully transferred or not
+    action_completed = TRUE     'This is to decide if the case was successfully transferred or not
 ELSE
 	transfer_case = True
 	CALL navigate_to_MAXIS_screen ("SPEC", "XFER")
@@ -617,54 +694,42 @@ ELSE
 		PF3 'SPEC menu
 		PF3 'SELF Menu'
 	ELSE
-		EMWriteScreen "X127" & transfer_to_worker, 18, 61
-		transmit
+	    EMWriteScreen "X127" & transfer_to_worker, 18, 61
+	    transmit
 		'msgbox "stop"
 	    EMReadScreen worker_check, 9, 24, 2
-	IF worker_check = "SERVICING" THEN
-        action_completed = False
+	    IF worker_check = "SERVICING" THEN
+            action_completed = False
 	    	PF10 'backout
 			PF3 'SPEC menu
 			PF3 'SELF Menu'
-	END IF
+	    END IF
 		'msgbox "stop"
-    EMReadScreen transfer_confirmation, 16, 24, 2
-    IF transfer_confirmation = "CASE XFER'D FROM" then
-    	action_completed = True
-    Else
-        action_completed = False
+        EMReadScreen transfer_confirmation, 16, 24, 2
+        IF transfer_confirmation = "CASE XFER'D FROM" then
+        	action_completed = True
+        Else
+            action_completed = False
 			'msgbox action_completed
-    End if
-END IF
+        End if
+	END IF
 END IF
 
+
+'IF METS_case_number = "" then METS_case_number = "N/A "
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
 'If run_locally = TRUE Then send_email = FALSE
-'IF send_email = True THEN CALL create_outlook_email("HSPH.EWS.Triagers@hennepin.us", "", "Case number #" & maxis_case_number & " Expedited case to be assigned, transferred to team. " & worker_number & "  EOM.", "", "", TRUE)
-'IF how_app_rcvd = "Request to APPL Form" and METS_case_number <> "" THEN CALL create_outlook_email("", "", "Maxis case number #" & maxis_case_number & " Mets case number #" & METS_case_number & "Request to APPL form received-APPL'd in Maxis-ACTION REQUIRED.", "", "", FALSE)
-'IF how_app_rcvd = "Request to APPL Form" and METS_case_number = "" THEN CALL create_outlook_email("", "", "Maxis case number #" & maxis_case_number & "Request to APPL form received-APPL'd in Maxis-ACTION REQUIRED.", "", "", FALSE)
-'IF METS_retro_checkbox = CHECKED THEN CALL create_outlook_email("HSPH.EWS.TEAM.603@hennepin.us", "", "Maxis case number #" & maxis_case_number & " Mets case number #" & METS_case_number & " Retro Request APPL'd in Maxis-ACTION REQUIRED.", "", "", FALSE)
-'IF MA_transition_request_checkbox = CHECKED THEN CALL create_outlook_email("", "", "Maxis case number #" & maxis_case_number & " Mets case number #" & METS_case_number & " MA Transition Request APPL'd in Maxis-ACTION REQUIRED.", "", "", FALSE)
+'IF send_email = True THEN CALL create_outlook_email("HSPH.EWS.Triagers@hennepin.us", "", "Case #" & maxis_case_number & " Expedited case to be assigned, transferred to team. " & worker_number & "  EOM.", "", "", TRUE)
+IF how_app_rcvd = "Request to APPL Form" and METS_retro_checkbox = UNCHECKED and team_601_email_checkbox = UNCHECKED and MA_transition_request_checkbox = UNCHECKED THEN CALL create_outlook_email("", "", "MAXIS case #" & maxis_case_number & " Request to APPL form received-APPL'd in MAXIS-ACTION REQUIRED.", "", "", FALSE)
+'IF how_app_rcvd = "Request to APPL Form" and METS_case_number = "" THEN CALL create_outlook_email("", "", "MAXIS case number #" & maxis_case_number & " Request to APPL form received-APPL'd in MAXIS-ACTION REQUIRED.", "", "", FALSE)
+IF METS_retro_checkbox = CHECKED and team_601_email_checkbox = UNCHECKED THEN CALL create_outlook_email("", "", "MAXIS case #" & maxis_case_number & "/METS IC #" & METS_case_number & " Retro Request APPL'd in MAXIS-ACTION REQUIRED.", "", "", FALSE)
+IF METS_retro_checkbox = CHECKED and team_601_email_checkbox = CHECKED THEN CALL create_outlook_email("HSPH.EWS.TEAM.601@hennepin.us", "", "MAXIS case #" & maxis_case_number & "/METS IC #" & METS_case_number & " Retro Request APPL'd in MAXIS-ACTION REQUIRED.", "", "", FALSE)
+IF MA_transition_request_checkbox = CHECKED THEN CALL create_outlook_email("", "", "MAXIS case #" & maxis_case_number & "/METS IC #" & METS_case_number & " MA Transition Request APPL'd in MAXIS-ACTION REQUIRED.", "", "", FALSE)
 '----------------------------------------------------------------------------------------------------NOTICE APPT LETTER Dialog
 IF cash_pends = TRUE or cash2_pends = TRUE or SNAP_pends = TRUE or grh_pends or instr(programs_applied_for, "EGA") THEN send_appt_ltr = TRUE
 if interview_completed = TRUE Then send_appt_ltr = FALSE
-
 IF send_appt_ltr = TRUE THEN
-    '-------------------------------------------------------------------------------------------------DIALOG
-    Dialog1 = "" 'Blanking out previous dialog detail
-	BeginDialog Dialog1, 0, 0, 266, 80, "APPOINTMENT LETTER"
-    EditBox 185, 20, 55, 15, interview_date
-    ButtonGroup ButtonPressed
-    	OkButton 155, 60, 50, 15
-    	CancelButton 210, 60, 50, 15
-    EditBox 50, 20, 55, 15, application_date
-    Text 120, 25, 60, 10, "Appointment date:"
-    GroupBox 5, 5, 255, 35, "Enter a new appointment date only if it's a date county offices are not open."
-    Text 15, 25, 35, 10, "CAF date:"
-    Text 25, 45, 205, 10, "If same-day interview is being offered please use today's date"
-	EndDialog
-
-    IF expedited_status = "Client Appears Expedited" THEN
+	IF expedited_status = "Client Appears Expedited" THEN
         'creates interview date for 7 calendar days from the CAF date
     	interview_date = dateadd("d", 7, application_date)
     	If interview_date <= date then interview_date = dateadd("d", 7, date)
@@ -679,6 +744,19 @@ IF send_appt_ltr = TRUE THEN
     application_date = application_date & ""
     interview_date = interview_date & ""		'turns interview date into string for variable
  	'need to handle for if we dont need an appt letter, which would be...'
+	'-------------------------------------------------------------------------------------------------DIALOG
+	Dialog1 = "" 'Blanking out previous dialog detail
+	BeginDialog Dialog1, 0, 0, 266, 80, "APPOINTMENT LETTER"
+	EditBox 185, 20, 55, 15, interview_date
+	ButtonGroup ButtonPressed
+		OkButton 155, 60, 50, 15
+		CancelButton 210, 60, 50, 15
+	EditBox 50, 20, 55, 15, application_date
+	Text 120, 25, 60, 10, "Appointment date:"
+	GroupBox 5, 5, 255, 35, "Enter a new appointment date only if it's a date county offices are not open."
+	Text 15, 25, 35, 10, "CAF date:"
+	Text 25, 45, 205, 10, "If same-day interview is being offered please use today's date"
+	EndDialog
 
 	Do
 		Do
@@ -711,8 +789,8 @@ IF send_appt_ltr = TRUE THEN
     	End if
     Loop until SELF_check <> "SELF"
 
-    last_contact_day = DateAdd("d", 30, application_date)
-    If DateDiff("d", interview_date, last_contact_day) < 0 Then last_contact_day = interview_date
+	last_contact_day = DateAdd("d", 30, application_date)
+	If DateDiff("d", interview_date, last_contact_day) < 0 Then last_contact_day = interview_date
 
 	'Navigating to SPEC/MEMO
 	Call start_a_new_spec_memo		'Writes the appt letter into the MEMO.
@@ -724,7 +802,7 @@ IF send_appt_ltr = TRUE THEN
     Call write_variable_in_SPEC_MEMO("612-596-1300 between 9:00am and 4:00pm Monday thru Friday.")
     Call write_variable_in_SPEC_MEMO(" ")
     Call write_variable_in_SPEC_MEMO("* You may be able to have SNAP benefits issued within 24 hours of the interview.")
-    ' Call write_variable_in_SPEC_MEMO(" ")										'removal of in person verbiage during the COVID-19 PEACETIME STATE OF EMERGENCY
+    ' Call write_variable_in_SPEC_MEMO(" ")                                     'removal of in person verbiage during the COVID-19 PEACETIME STATE OF EMERGENCY
     ' Call write_variable_in_SPEC_MEMO("If you wish to schedule an interview, call 612-596-1300. You may also come to any of the six offices below for an in-person interview between 8 and 4:30, Monday thru Friday.")
     ' Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
     ' Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
@@ -736,15 +814,15 @@ IF send_appt_ltr = TRUE THEN
     Call write_variable_in_SPEC_MEMO(" ")
     Call write_variable_in_SPEC_MEMO("  ** If we do not hear from you by " & last_contact_day & " **")
     Call write_variable_in_SPEC_MEMO("  **    your application will be denied.     **")
+    CALL write_variable_in_SPEC_MEMO("You now have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. To obtain information about your case please contact your worker. EMAIL: hhsews@hennepin.us ")
     ' Call write_variable_in_SPEC_MEMO("If you are applying for a cash program for pregnant women or minor children, you may need a face-to-face interview.")
     Call write_variable_in_SPEC_MEMO(" ")
-	CALL write_variable_in_SPEC_MEMO("You now have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. To obtain information about your case please contact your worker. EMAIL: hhsews@hennepin.us ")
     Call write_variable_in_SPEC_MEMO("Domestic violence brochures are available at https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG.")
     Call write_variable_in_SPEC_MEMO("You can also request a paper copy.  Auth: 7CFR 273.2(e)(3).")
 	PF4
 
     start_a_blank_CASE_NOTE
-    Call write_variable_in_CASE_NOTE("~ Appointment letter sent in MEMO for " & interview_date & " ~")
+	Call write_variable_in_CASE_NOTE("~ Appointment letter sent in MEMO for " & interview_date & " ~")
     Call write_variable_in_CASE_NOTE("* A notice has been sent via SPEC/MEMO informing the client of needed interview.")
     Call write_variable_in_CASE_NOTE("* Households failing to complete the interview within 30 days of the date they file an application will receive a denial notice")
     Call write_variable_in_CASE_NOTE("* A link to the Domestic Violence Brochure sent to client in SPEC/MEMO as part of notice.")
@@ -754,14 +832,14 @@ IF send_appt_ltr = TRUE THEN
 END IF
 
 IF same_day_offered = TRUE and how_app_rcvd = "Office" THEN
-  	start_a_blank_CASE_NOTE
+   	start_a_blank_CASE_NOTE
   	Call write_variable_in_CASE_NOTE("~ Same-day interview offered ~")
   	Call write_variable_in_CASE_NOTE("* Agency informed the client of needed interview.")
   	Call write_variable_in_CASE_NOTE("* Households failing to complete the interview within 30 days of the date they file an application will receive a denial notice")
   	Call write_variable_in_CASE_NOTE("* A Domestic Violence Brochure has been offered to client as part of application packet.")
   	Call write_variable_in_CASE_NOTE("---")
   	CALL write_variable_in_CASE_NOTE (worker_signature)
-  	PF3
+	PF3
 END IF
 
 IF action_completed = False and servicing_worker <> transfer_to_worker THEN
