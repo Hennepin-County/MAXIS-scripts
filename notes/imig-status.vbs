@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("08/25/2020", "Added handling to ensure the member number is entered as a 2 digit number for readability.", "Casey Love, Hennepin County")
 call changelog_update("07/29/2020", "Updated coding to email HPImmigration and handling for when a client is reported as Lawfully Residing.", "MiKayla Handley, Hennepin County")
 call changelog_update("08/07/2019", "Updated coding to update citizenship status and verification at new location due to MEMI panel changes associated with New Spouse Income Policy.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/25/2019", "Added a case note only option when a case is inactive.", "MiKayla Handley")
@@ -185,7 +186,7 @@ Do
 			If ButtonPressed = Noncitzn_button then CreateObject("WScript.Shell").Run("https://dept.hennepin.us/hsphd/manuals/hsrm/Pages/Immigration_and_Non-Citizens.aspx")
 		Loop until ButtonPressed = -1
 		IF MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
-		IF MEMB_number = "" or IsNumeric(MEMB_number) = False or len(MEMB_number) > 2 then err_msg = err_msg & vbNewLine & "* Enter a member number."
+		IF MEMB_number = "" or IsNumeric(MEMB_number) = False or len(MEMB_number) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a member number."
 		IF immig_status_dropdown = "US Citizen" Then
 			err_msg = err_msg & vbNewLine & "* This will delete IMIG, SPON, and update MEMI & MEMB for this member."
 			EXIT DO
