@@ -43,7 +43,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		Execute text_from_the_other_script
 	END IF
 END IF
-call run_from_GitHub(script_repository & "application-received.vbs")
+call run_from_GitHub(script_repository & "notes/application-received.vbs")
 
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
