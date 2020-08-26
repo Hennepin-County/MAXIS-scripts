@@ -500,12 +500,6 @@ IF MA_transition_request_checkbox = CHECKED THEN
 	CALL write_variable_in_CASE_NOTE("* Request to APPL Form received on " & request_date & "")
 	CALL write_variable_in_CASE_NOTE("* Emailed worker " & request_worker_number & " to let them know the request was processed.")
 END IF
-
-If app_type = "Verbal Request" then
-    CALL write_variable_in_CASE_NOTE ("~ Application Received via " & how_app_rcvd & " on " & application_date & " ~")
-Else
-    CALL write_variable_in_CASE_NOTE ("~ Application Received (" & app_type & ") via " & how_app_rcvd & " on " & application_date & " ~")
-End if
 IF confirmation_number <> "" THEN CALL write_bullet_and_variable_in_CASE_NOTE ("Confirmation # ", confirmation_number)
 IF app_type = "6696" THEN write_variable_in_CASE_NOTE ("* Form Received: METS Application for Health Coverage and Help Paying Costs (DHS-6696) ")
 IF app_type = "HCAPP" THEN write_variable_in_CASE_NOTE ("* Form Received: Health Care Application (HCAPP) (DHS-3417) ")
