@@ -43,6 +43,8 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		Execute text_from_the_other_script
 	END IF
 END IF
+call run_from_GitHub(script_repository & "application-received.vbs")
+
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 'CHANGELOG BLOCK ===========================================================================================================
@@ -368,7 +370,7 @@ END IF
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 306, 195, "Application Received for: "  & programs_applied_for &   " on "   & application_date
-  DropListBox 85, 10, 95, 15, "Select One:"+chr(9)+"Mystery Doc Queue"+chr(9)+"Office (In person)"+chr(9)+"Online (Apply MN/SHIBA)"+chr(9)+"Request to APPL Form"+chr(9)+"Verbal Request (Phone)", how_app_rcvd
+  DropListBox 85, 10, 95, 15, "Select One:"+chr(9)+"Fax"+chr(9)+"Mystery Doc Queue"+chr(9)+"Office (In person)"+chr(9)+"Online (Apply MN/SHIBA)"+chr(9)+"Request to APPL Form"+chr(9)+"Verbal Request (Phone)", how_app_rcvd
   DropListBox 85, 30, 95, 15, "Select One:"+chr(9)+"ApplyMN"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Populations"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer"+chr(9)+"N/A"+chr(9)+"SHIBA"+chr(9)+"Verbal Request", app_type
   EditBox 250, 10, 45, 15, request_date
   EditBox 250, 30, 45, 15, confirmation_number
@@ -479,33 +481,25 @@ If interview_completed = TRUE Then
 End If
 '--------------------------------------------------------------------------------initial case note
 start_a_blank_case_note
-IF how_app_rcvd <> "Request to APPL Form" THEN CALL write_variable_in_CASE_NOTE ("~ Application Received (" & app_type & ") via " & how_app_rcvd & " on " & application_date & " ~")
+
 IF how_app_rcvd = "Request to APPL Form" and METS_retro_checkbox = UNCHECKED and MA_transition_request_checkbox = UNCHECKED  THEN
 	CALL write_variable_in_CASE_NOTE ("~ Application Received via " & how_app_rcvd & " for " & application_date & " ~")
-	'~ Application Received (METS Retro) via Request to APPL Form form on 7/16/2019 ~'
 	CALL write_variable_in_CASE_NOTE("* Request to APPL Form received on " & request_date & "")
 	CALL write_variable_in_CASE_NOTE("* Emailed worker " & request_worker_number & " to let them know the request was processed.")
 END IF
-IF METS_retro_checkbox = CHECKED THEN
+IF how_app_rcvd = "Request to APPL Form" and METS_retro_checkbox = CHECKED THEN
 	CALL write_variable_in_CASE_NOTE ("~ Application Received(METS Retro)via " & how_app_rcvd & " for " & application_date & " ~")
-	'~ Application Received (METS Retro) via Request to APPL form on 7/16/2019 ~
 	IF MEMB_number <> "" THEN CALL write_variable_in_CASE_NOTE("* Requesting HC for " &  "M" & MEMB_number)
-	CALL write_variable_in_CASE_NOTE("* Request to APPL Form received on " & request_date & "")
+    CALL write_variable_in_CASE_NOTE("* Request to APPL Form received on " & request_date & "")
 	CALL write_variable_in_CASE_NOTE("* Emailed worker " & request_worker_number & " to let them know the request was processed.")
 END IF
-IF MA_transition_request_checkbox = CHECKED THEN
-	CALL write_variable_in_CASE_NOTE ("~ Application Received(MA Transition)via " & how_app_rcvd & " for " & application_date & " ~")
-	''~ Application Received (MA Transition) via Request to APPL form on 7/16/2019 ~
-	IF MEMB_number <> "" THEN CALL write_variable_in_CASE_NOTE("* Requesting HC for " &  "M" & MEMB_number)
-	CALL write_variable_in_CASE_NOTE("* Request to APPL Form received on " & request_date & "")
-	CALL write_variable_in_CASE_NOTE("* Emailed worker " & request_worker_number & " to let them know the request was processed.")
+IF how_app_rcvd = "Request to APPL Form" and MA_transition_request_checkbox = CHECKED THEN
+    CALL write_variable_in_CASE_NOTE ("~ Application Received(MA Transition)via " & how_app_rcvd & " for " & application_date & " ~")
+    IF MEMB_number <> "" THEN CALL write_variable_in_CASE_NOTE("* Requesting HC for " &  "M" & MEMB_number)
+    CALL write_variable_in_CASE_NOTE("* Request to APPL Form received on " & request_date & "")
+    CALL write_variable_in_CASE_NOTE("* Emailed worker " & request_worker_number & " to let them know the request was processed.")
 END IF
-
-If app_type = "Verbal Request" then
-    CALL write_variable_in_CASE_NOTE ("~ Application Received via " & how_app_rcvd & " on " & application_date & " ~")
-Else
-    CALL write_variable_in_CASE_NOTE ("~ Application Received (" & app_type & ") via " & how_app_rcvd & " on " & application_date & " ~")
-End if
+IF how_app_rcvd <> "Request to APPL Form" THEN CALL write_variable_in_CASE_NOTE ("~ Application Received (" & app_type & ") via " & how_app_rcvd & " on " & application_date & " ~")
 IF confirmation_number <> "" THEN CALL write_bullet_and_variable_in_CASE_NOTE ("Confirmation # ", confirmation_number)
 IF app_type = "6696" THEN write_variable_in_CASE_NOTE ("* Form Received: METS Application for Health Coverage and Help Paying Costs (DHS-6696) ")
 IF app_type = "HCAPP" THEN write_variable_in_CASE_NOTE ("* Form Received: Health Care Application (HCAPP) (DHS-3417) ")
@@ -524,7 +518,7 @@ CALL write_bullet_and_variable_in_CASE_NOTE ("Other Notes", other_notes)
 IF METS_retro_checkbox = CHECKED and team_601_email_checkbox = CHECKED  THEN CALL write_variable_in_CASE_NOTE("* Emailed team 601 to let them know the retro request is ready to be processed.")
 IF METS_retro_checkbox = CHECKED and team_601_email_checkbox = UNCHECKED THEN CALL write_variable_in_CASE_NOTE("* Emailed METS worker to let them know the retro request is ready to be processed.")
 IF MA_transition_request_checkbox = CHECKED  THEN CALL write_variable_in_CASE_NOTE("* Emailed worker to let them know the transition request is ready to be processed.")
-CALL write_variable_in_CASE_NOTE ("---")
+'CALL write_variable_in_CASE_NOTE ("---")
 'IF METS_retro_checkbox = CHECKED THEN CALL write_variable_in_CASE_NOTE("* Emailed team 603 to let them know the retro request is ready to be processed.")
 If interview_completed = TRUE Then
     CALL write_variable_in_CASE_NOTE ("---")
