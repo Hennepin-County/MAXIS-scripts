@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("08/31/2020", "Updated email information gathering and output functionality for additional stability.", "Ilse Ferris, Hennepin County")
 call changelog_update("08/25/2020", "Added handling to ensure the member number is entered as a 2 digit number for readability.", "Casey Love, Hennepin County")
 call changelog_update("07/29/2020", "Updated coding to email HPImmigration and handling for when a client is reported as Lawfully Residing.", "MiKayla Handley, Hennepin County")
 call changelog_update("08/07/2019", "Updated coding to update citizenship status and verification at new location due to MEMI panel changes associated with New Spouse Income Policy.", "Ilse Ferris, Hennepin County")
@@ -567,6 +568,7 @@ Call write_variable_in_case_note("---")
 Call write_variable_in_case_note(worker_signature)
 PF3
 IF HP_EMAIL_CHECKBOX = CHECKED THEN
+    message_array = "CASE NOTE" & vbcr 
 	EMWriteScreen "x", 5, 3
 	TRANSMIT
 	note_row = 4			'Beginning of the case notes
@@ -584,8 +586,10 @@ IF HP_EMAIL_CHECKBOX = CHECKED THEN
 			End If
 		End If
 	Loop until next_page = "More:  " OR next_page = "       "	'No more pages
-	'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-	CALL create_outlook_email("HP.Immigration@hennepin.us", "", "Please review for accuracy case #  " & MAXIS_case_number & " Member # " & memb_number , "CASE NOTE" & vbcr & message_array, "", FALSE)
+	
+    email_header = "Please review for accuracy: Case #" & MAXIS_case_number & ", Member #" & memb_number 
+    'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
+	CALL create_outlook_email("HP.Immigration@hennepin.us", "", email_header, message_array, "", FALSE)
 END IF
 ''create_outlook_appointment(appt_date, appt_start_time, appt_end_time, appt_subject, appt_body, appt_location, appt_reminder, reminder_in_minutes, appt_category)
 IF additional_CHECKBOX = CHECKED THEN
