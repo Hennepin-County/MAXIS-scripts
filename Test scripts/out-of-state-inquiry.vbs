@@ -1,14 +1,12 @@
 NATIONAL DIRECTORY OF CONTACTS
 
-Revision Date: 5/1/20
 ALABAMA
 SNAP Participation: Email contact preferred to: fs@dhr.alabama.gov
 For other participation questions:
 Betty S. White, Program Manager Alabama Dept. of Human Resources 50 Ripley St, S. Gordon Persons Bldg. Montgomery, AL 36130-4000 Email: Betty.White@dhr.alabama.gov Phone: 334-242-1745; Fax: 334-353-1363
 Medical Benefits: Phone (334) 242-5010 Email: PIDParis@medicaid.alabama.gov
 TANF/FIP: No TANF information given over the phone.
-Email:
-DHR_PA_Helpdesk@dhr.alabama.gov FAX number for TANF inquiries: (334) 242-0513.
+Email:DHR_PA_Helpdesk@dhr.alabama.gov FAX number for TANF inquiries: (334) 242-0513.
 Claims: Email contact preferred to: Avis Buford
 Same address as above. Avis.buford@dhr.alabama.gov Phone(251) 450-7545; Fax 251-450-7544
 WEB: www.dhr.alabama.gov
@@ -23,8 +21,7 @@ Email requests to: Azstateinquiries@Azdes.gov
 FAX: 602-353-5746 Phone number for status request messages can be left at:
 (602) 771-2047
 WEB: www.des.az.gov
-CALIFORNIA
-California Department of Social Services 744 P Street, MS 8-4-23 Sacramento, CA 95814-6400
+CALIFORNIA California Department of Social Services 744 P Street, MS 8-4-23 Sacramento, CA 95814-6400
 OUT OF STATE INQUIRIES
 The city and/or county in which the client resided in California must be provided in order to provide a referral to one of the 58 counties for verification of benefits.
 cdss.osi@dss.ca.gov

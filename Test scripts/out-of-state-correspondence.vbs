@@ -1395,7 +1395,7 @@ IF out_of_state_request = "Received" THEN
     CheckBox 135, 45, 25, 10, "HC", HC_CHECKBOX
     CheckBox 160, 45, 25, 10, "SSI", SSI_CHECKBOX
     CheckBox 185, 45, 40, 10, "OTHER", OTHER_CHECKBOX
-    DropListBox 35, 60, 55, 15, "Select One:"+chr(9)+"Active"+chr(9)+"Closed"+chr(9)+"Set to Close"+chr(9)+"Client not known "+chr(9)+"Other", out_of_state_status
+    DropListBox 35, 60, 60, 15, "Select One:"+chr(9)+"Active"+chr(9)+"Closed"+chr(9)+"Set to Close"+chr(9)+"Client not known"+chr(9)+"Other", out_of_state_status
     EditBox 175, 60, 45, 15, date_received
     Text 10, 95, 210, 25, "Name: " & Ucase(agency_name)
     Text 10, 120, 100, 10, "Phone: " & agency_phone
@@ -1431,48 +1431,50 @@ IF out_of_state_request = "Received" THEN
 
 	start_a_blank_case_note
 	Call write_variable_in_CASE_NOTE("---Out of State Inquiry received via " & how_sent & " from " & abbr_state & "---")
-	CALL write_variable_in_CASE_NOTE("* " & abbr_state & " reported client received " & out_of_state_programs & " on " & date_received & " the case is currently: " & out_of_state_status)
+	IF out_of_state_programs <> "" THEN CALL write_variable_in_CASE_NOTE("* " & abbr_state & " reported client received " & out_of_state_programs & " on " & date_received & " the case is currently: " & out_of_state_status)
+	IF out_of_state_programs = "" THEN CALL write_variable_in_CASE_NOTE("* " & abbr_state & " reported client did not receive benefits in this state. ")
+	IF out_of_state_status = "Client not known" THEN CALL write_variable_in_CASE_NOTE("* " & abbr_state & " reported client is not known.")
 	CALL write_bullet_and_variable_in_CASE_NOTE("Name", agency_name)
 	CALL write_bullet_and_variable_in_CASE_NOTE("Address", agency_address)
 	CALL write_bullet_and_variable_in_CASE_NOTE("Email", agency_email)
 	CALL write_bullet_and_variable_in_CASE_NOTE("Phone", agency_phone)
 	CALL write_bullet_and_variable_in_CASE_NOTE("Fax", agency_fax)
 	Call write_bullet_and_variable_in_CASE_NOTE("Other Notes", other_notes)
-	CALL write_variable_in_CASE_NOTE("* Updated MAXIS to reflect this")
+	CALL write_variable_in_CASE_NOTE("* Updated MAXIS to reflect information received")
 	CALL write_variable_in_CASE_NOTE("---")
 	CALL write_variable_in_CASE_NOTE(worker_signature)
 	PF3
-
-
-
 END IF
 
 IF out_of_state_request = "Unknown/No Response" THEN
     '-------------------------------------------------------------------------------------------------DIALOG
     Dialog1 = "" 'Blanking out previous dialog detail
-	BeginDialog Dialog1, 0, 0, 196, 125, "OUT OF STATE INQUIRY NO RESPONSE"
+	BeginDialog Dialog1, 0, 0, 196, 150, "OUT OF STATE INQUIRY NO RESPONSE"
 	  EditBox 50, 5, 40, 15, date_closed
+	  CheckBox 105, 5, 90, 10, "No response from client", no_response_from_client_CHECKBOX
+	  CheckBox 105, 15, 85, 10, "No response from state", no_response_from_state_CHECKBOX
 	  CheckBox 10, 35, 85, 10, "Out of State Inquiry", Out_of_State_Inquiry_CHECKBOX
-	  CheckBox 10, 45, 90, 10, "Authorization to release", ATR_Verf_CheckBox
-	  CheckBox 105, 35, 70, 10, "Shelter verification", shel_verf_checkbox
-	  CheckBox 105, 45, 80, 10, "Other (please specify)", other_checkbox
-	  EditBox 65, 65, 125, 15, reason_closed
-	  CheckBox 5, 85, 180, 10, "Overpayment possible to be reviewed at a later date", overpayment_checkbox
-	  CheckBox 5, 100, 90, 10, "Contacted other state(s)", other_state_contact_checkbox
+	  CheckBox 10, 45, 90, 10, "Authorization to release", ATR_Verf_CHECKBOX
+	  CheckBox 105, 35, 70, 10, "Shelter verification", shel_verf_CHECKBOX
+	  CheckBox 105, 45, 80, 10, "Other (please specify)", other_CHECKBOX
+	  CheckBox 5, 65, 90, 10, "Contacted other state(s)", other_state_contact_CHECKBOX
+	  CheckBox 5, 80, 120, 10, "Unable to close(please explain)", unable_to_close_CHECKBOX
+	  CheckBox 5, 95, 180, 10, "Overpayment possible to be reviewed at a later date", overpayment_CHECKBOX
+	  EditBox 50, 110, 140, 15, other_notes
 	  ButtonGroup ButtonPressed
-	    OkButton 105, 105, 40, 15
-	    CancelButton 150, 105, 40, 15
+	    OkButton 105, 130, 40, 15
+	    CancelButton 150, 130, 40, 15
 	  GroupBox 5, 25, 185, 35, "Verification Requested: "
-	  Text 5, 70, 55, 10, "Closure reason:"
 	  Text 5, 10, 45, 10, "Date closed:"
+	  Text 5, 115, 45, 10, "Other Notes:"
 	EndDialog
     Do
     	Do
             err_msg = ""
     		Dialog Dialog1
     		cancel_without_confirmation
-    		IF Isdate(date_closed) = false THEN err_msg = err_msg & vbNewLine & "* Please enter the closed date."
-			IF reason_closed = "" THEN err_msg = err_msg & vbNewLine & "* Please enter the closure reason."
+    		IF Isdate(date_closed) = false THEN err_msg = err_msg & vbNewLine & "Please enter the closed date."
+			IF unable_to_close_CHECKBOX = CHECKED and other_notes = "" THEN err_msg = err_msg & vbNewLine & "Please explain why you were unable to close the case."
     		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
         Loop until err_msg = ""
      	Call check_for_password(are_we_passworded_out)
@@ -1487,24 +1489,26 @@ IF out_of_state_request = "Unknown/No Response" THEN
     IF right(pending_verifs, 1) = "," THEN pending_verifs = left(pending_verifs, len(pending_verifs) - 1)
 
 	start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
-	Call write_variable_in_CASE_NOTE("---Out of State Inquiry no response received---")
 
-	Call write_bullet_and_variable_in_CASE_NOTE("State(s)", out_of_state)
-	IF case_status = "INACTIVE" THEN
-		Call write_variable_in_CASE_NOTE("* Client will need to verify MN residence when reapplying and a written statement explain why accessing benefits out of state.")
+	Call write_variable_in_CASE_NOTE("---Out of State Inquiry to " & abbr_state & "no response received---")
+	IF no_response_from_client_CHECKBOX = CHECKED THEN
+		Call write_variable_in_CASE_NOTE("* No response from client.")
+		Call write_variable_in_CASE_NOTE("* Client will need to verify MN residence.")
+	END IF
+	IF no_response_from_client_CHECKBOX = CHECKED THEN
+		CALL write_variable_in_CASE_NOTE("* No response from state.")
 		Call write_variable_in_CASE_NOTE("* Agency will need to verify benefits received in the other state prior to reopening case")
 	END IF
 	IF other_state_contact_checkbox = CHECKED THEN Call write_variable_in_CASE_NOTE("* Other state(s) have been contacted")
 	IF other_state_contact_checkbox = UNCHECKED THEN Call write_variable_in_CASE_NOTE("* Other state(s) have not been contacted")
-	Call write_variable_in_CASE_NOTE("* Request sent to client for explanation of benefits used in the other state and shelter request ")
-	CALL write_variable_in_CASE_NOTE ("----- ----- -----")
 	Call write_bullet_and_variable_in_CASE_NOTE("Date case was closed", date_closed)
-	Call write_bullet_and_variable_in_CASE_NOTE("Explanation of action to close the case", reason_closed)
+
 	CALL write_bullet_and_variable_in_CASE_NOTE("Verification requested", pending_verifs)
 	CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
 	CALL write_variable_in_CASE_NOTE("---")
 	CALL write_variable_in_CASE_NOTE(worker_signature)
 	PF3
+	IF unable_to_close_CHECKBOX = CHECKED THEN call create_TIKL("Unable to close due to 10 day cutoff", 10, date, TRUE, "")
 END IF 'if non received'
 
 'TODO If an area is blank do not write it in the request
