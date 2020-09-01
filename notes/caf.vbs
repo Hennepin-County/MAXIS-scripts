@@ -49,6 +49,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/01/2020", "UPDATE IN TESTING##~## ##~##There is new functionality added to this script to assist in updating REVW for some cases. There is detail in SIR about cases that need to have the next ER date adjusted due to a previous postponement. ##~## ##~##We have not had time with this functionality to complete live testing so all script runs will be a part of the test. Please let us know if you have any issues running this script.", "Casey Love, Hennepin County")
 call changelog_update("05/18/2020", "Additional handling to be sure when saving the interview date to PROG the script does not get stuck.", "Casey Love, Hennepin County")
 call changelog_update("04/02/2020", "BUG FIX - The 'notes on child support' detail was not always pulling into the case note. Updated to ensure the information entered in this field will be entered in the NOTE.##~##", "Casey Love, Hennepin County")
 call changelog_update("03/01/2020", "Updated TIKL functionality.", "Ilse Ferris")
@@ -2703,6 +2704,384 @@ If IsDate(CAF_datestamp) = False Then
     	Loop until err_msg = ""
     	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
     LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
+End If
+
+
+check_the_array = FALSE
+If the_process_for_cash = "Recertification" OR the_process_for_snap = "Recertification" Then
+    ' If (cash_recert_mo = "09" AND cash_recert_yr = "20") OR (snap_recert_mo = "09" AND snap_recert_yr = "20") Then
+    '     check_the_array = TRUE
+    '     month_to_pull = 9
+    ' End If
+    If (cash_recert_mo = "10" AND cash_recert_yr = "20") OR (snap_recert_mo = "10" AND snap_recert_yr = "20") Then
+        check_the_array = TRUE
+        month_to_pull = 10
+    End If
+    If (cash_recert_mo = "11" AND cash_recert_yr = "20") OR (snap_recert_mo = "11" AND snap_recert_yr = "20") Then
+        check_the_array = TRUE
+        month_to_pull = 11
+    End If
+    If (cash_recert_mo = "12" AND cash_recert_yr = "20") OR (snap_recert_mo = "12" AND snap_recert_yr = "20") Then
+        check_the_array = TRUE
+        month_to_pull = 12
+    End If
+    If (cash_recert_mo = "01" AND cash_recert_yr = "21") OR (snap_recert_mo = "01" AND snap_recert_yr = "21") Then
+        check_the_array = TRUE
+        month_to_pull = 1
+    End If
+    If (cash_recert_mo = "02" AND cash_recert_yr = "20") OR (snap_recert_mo = "02" AND snap_recert_yr = "20") Then
+        check_the_array = TRUE
+        month_to_pull = 2
+    End If
+End If
+
+MAXIS_case_number = trim(MAXIS_case_number)
+REVW_NEEDS_ADJUSTMENT = FALSE
+If check_the_array = TRUE Then
+    run_another_script("\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Scripts\Script Files\reviews-delayed.vbs")
+    ' If month_to_pull = 9 Then
+    '     CASE_NUMBER_ARRAY = oct_revw_to_adjust_array
+    '     cash_revw_new_ER_date = "03/01/2021"
+    '     cash_revw_new_SR_date = "09/01/2021"
+    '     snap_revw_new_ER_date = "03/01/2021"
+    '     snap_revw_new_SR_date = "09/01/2021"
+    ' End If
+    If month_to_pull = 10 Then
+        CASE_NUMBER_ARRAY = oct_revw_to_adjust_array
+        cash_revw_new_ER_date = "04/01/2021"
+        cash_revw_new_SR_date = "10/01/2021"
+        snap_revw_new_ER_date = "04/01/2021"
+        snap_revw_new_SR_date = "10/01/2021"
+    End If
+    If month_to_pull = 11 Then
+        CASE_NUMBER_ARRAY = nov_revw_to_adjust_array
+        cash_revw_new_ER_date = "05/01/2021"
+        cash_revw_new_SR_date = "11/01/2021"
+        snap_revw_new_ER_date = "05/01/2021"
+        snap_revw_new_SR_date = "11/01/2021"
+    End If
+    If month_to_pull = 12 Then
+        CASE_NUMBER_ARRAY = dec_revw_to_adjust_array
+        cash_revw_new_ER_date = "06/01/2021"
+        cash_revw_new_SR_date = "12/01/2021"
+        snap_revw_new_ER_date = "06/01/2021"
+        snap_revw_new_SR_date = "12/01/2021"
+    End If
+    If month_to_pull = 1 Then
+        CASE_NUMBER_ARRAY = jan_revw_to_adjust_array
+        cash_revw_new_ER_date = "07/01/2021"
+        cash_revw_new_SR_date = "01/01/2022"
+        snap_revw_new_ER_date = "07/01/2021"
+        snap_revw_new_SR_date = "01/01/2022"
+    End If
+    If month_to_pull = 2 Then
+        CASE_NUMBER_ARRAY = feb_revw_to_adjust_array
+        cash_revw_new_ER_date = "08/01/2021"
+        cash_revw_new_SR_date = "02/01/2022"
+        snap_revw_new_ER_date = "08/01/2021"
+        snap_revw_new_SR_date = "02/01/2022"
+    End If
+
+    ' MsgBox UBound(CASE_NUMBER_ARRAY)
+
+    For each revw_case in CASE_NUMBER_ARRAY
+        If MAXIS_case_number = revw_case Then REVW_NEEDS_ADJUSTMENT = TRUE
+    Next
+
+    ' MsgBox REVW_NEEDS_ADJUSTMENT
+End If
+
+' REVW_NEEDS_ADJUSTMENT = TRUE
+If REVW_NEEDS_ADJUSTMENT = TRUE Then
+    Call Navigate_to_MAXIS_screen("STAT", "REVW")
+
+    EMReadScreen cash_revw_status_code, 1, 7, 40
+    EMReadScreen cash_revw_next_revw_date, 8, 9, 37
+    EMReadScreen cash_revw_last_revw_date, 8, 11, 37
+
+    EMReadScreen snap_revw_status_code, 1, 7, 60
+    EMReadScreen snap_revw_next_revw_date, 8, 9, 57
+    EMReadScreen snap_revw_last_revw_date, 8, 11, 57
+
+    If CAF_datestamp = "" Then
+        EMReadScreen revw_caf_recvd_date, 8, 13, 37
+        CAF_datestamp = revw_caf_recvd_date
+    End If
+    If interview_date = "" Then
+        EMReadScreen revw_intv_date, 8, 15, 37
+        interview_date = revw_intv_date
+    End If
+
+    cash_dates_to_update = FALSE
+    snap_dates_to_update = FALSE
+    revw_has_been_approved = FALSE
+    If cash_revw_status_code <> "_" Then cash_dates_to_update = TRUE
+    If snap_revw_status_code <> "_" Then snap_dates_to_update = TRUE
+    If cash_revw_status_code = "N" or snap_revw_status_code = "N" Then panel_has_been_acted_on = FALSE
+    If cash_revw_status_code = "U" or cash_revw_status_code = "I" or cash_revw_status_code = "A" or snap_revw_status_code = "U" or snap_revw_status_code = "I" or snap_revw_status_code = "A" Then panel_has_been_acted_on = TRUE
+    If cash_revw_status_code = "A" or snap_revw_status_code = "A" Then revw_has_been_approved = TRUE
+    '
+    ' cash_dates_to_update = TRUE
+    ' snap_dates_to_update = TRUE
+    ' revw_has_been_approved = TRUE
+
+    If cash_dates_to_update = TRUE Then
+        EMWriteScreen "X", 5, 35
+        transmit
+
+        EMReadScreen revw_grh_SR_date, 8, 9, 26
+        EMReadScreen revw_grh_ER_date, 8, 9, 64
+
+        revw_grh_SR_date = replace(revw_grh_SR_date, " ", "/")
+        revw_grh_ER_date = replace(revw_grh_ER_date, " ", "/")
+
+        If revw_grh_SR_date = "__/01/__" THen revw_grh_SR_date = ""
+        If revw_grh_ER_date = "__/01/__" THen revw_grh_ER_date = ""
+
+        transmit
+
+        If cash_revw_status_code <> "_" and cash_revw_status_code <> "N" Then cash_revw_new_status_code = cash_revw_status_code
+    End If
+    If snap_dates_to_update = TRUE Then
+        EMWriteScreen "X", 5, 58
+        transmit
+
+        EMReadScreen revw_snap_SR_date, 8, 9, 26
+        EMReadScreen revw_snap_ER_date, 8, 9, 64
+
+        revw_snap_SR_date = replace(revw_snap_SR_date, " ", "/")
+        revw_snap_ER_date = replace(revw_snap_ER_date, " ", "/")
+
+        If revw_snap_SR_date = "__/01/__" THen revw_snap_SR_date = ""
+        If revw_snap_ER_date = "__/01/__" THen revw_snap_ER_date = ""
+
+        transmit
+
+        If snap_revw_status_code <> "_" and snap_revw_status_code <> "N" Then snap_revw_new_status_code = snap_revw_status_code
+    End If
+
+    If cash_dates_to_update = TRUE OR snap_dates_to_update = TRUE Then
+        Do
+            Do
+
+                cash_revw_next_revw_date = replace(cash_revw_next_revw_date, " ", "/")
+                cash_revw_last_revw_date = replace(cash_revw_last_revw_date, " ", "/")
+                snap_revw_next_revw_date = replace(snap_revw_next_revw_date, " ", "/")
+                snap_revw_last_revw_date = replace(snap_revw_last_revw_date, " ", "/")
+                CAF_datestamp = replace(CAF_datestamp, " ", "/")
+                interview_date = replace(interview_date, " ", "/")
+
+                If interview_date = "__/__/__" THen interview_date = ""
+                If cash_revw_last_revw_date = "__/__/__" THen cash_revw_last_revw_date = ""
+                If snap_revw_last_revw_date = "__/__/__" THen snap_revw_last_revw_date = ""
+                dlg_width = 310
+                If cash_dates_to_update = TRUE AND snap_dates_to_update = TRUE Then dlg_width = 555
+
+                x_pos = 5
+                Dialog1 = ""
+                BeginDialog Dialog1, 0, 0, dlg_width, 255, "Update to REVW Dates"
+                  Text 5, 10, 300, 35, "This case previously had the ER waived due to the COVID Peacetime Emergency. In order to balance our workload, the review dates for this case need to be adjusted back to the schedule prior to the postponment/waivers.                                                                                                                                                     This functionality will assist in the correct update."
+                  If cash_dates_to_update = TRUE Then
+                      GroupBox x_pos, 70, 270, 120, "Cash/GRH"
+                      GroupBox x_pos, 85, 135, 105, "Current Panel Information"
+                      Text x_pos + 35, 100, 50, 10, "Status:    " & cash_revw_status_code
+                      Text x_pos + 15, 115, 45, 10, "Next Review:"
+                      Text x_pos + 15, 130, 45, 10, "Last Review:"
+                      Text x_pos + 65, 115, 55, 10, cash_revw_next_revw_date
+                      Text x_pos + 65, 130, 55, 10, cash_revw_last_revw_date
+                      Text x_pos + 5, 160, 55, 10, "SR Report Date:"
+                      Text x_pos + 5, 175, 55, 10, "ER Report Date:"
+                      Text x_pos + 65, 160, 50, 10, revw_grh_SR_date
+                      Text x_pos + 65, 175, 50, 10, revw_grh_ER_date
+                      GroupBox x_pos, 145, 135, 45, "GRH Pop-Up"
+                      GroupBox x_pos + 135, 85, 135, 105, "New Panel Information"
+                      Text x_pos + 170, 100, 25, 10, "Status:   "
+                      DropListBox x_pos + 200, 95, 65, 45, " "+chr(9)+"N"+chr(9)+"I"+chr(9)+"U"+chr(9)+"A", cash_revw_new_status_code
+                      Text x_pos + 150, 115, 45, 10, "Next Review:"
+                      Text x_pos + 150, 130, 45, 10, "Last Review:"
+                      Text x_pos + 200, 115, 55, 10, cash_revw_new_ER_date
+                      Text x_pos + 200, 130, 55, 10, cash_revw_last_revw_date
+                      GroupBox x_pos + 135, 145, 135, 45, "GRH Pop-Up"
+                      Text x_pos + 140, 160, 55, 10, "SR Report Date:"
+                      Text x_pos + 140, 175, 55, 10, "ER Report Date:"
+                      Text x_pos + 200, 160, 50, 10, cash_revw_new_SR_date
+                      Text x_pos + 200, 175, 50, 10, cash_revw_new_ER_date
+                      x_pos = x_pos + 275
+                  End If
+                  If snap_dates_to_update = TRUE Then
+                      GroupBox x_pos, 70, 270, 120, "SNAP"
+                      GroupBox x_pos, 85, 135, 105, "Current Panel Information"
+                      Text x_pos + 25, 100, 50, 10, "Status:    " & snap_revw_status_code
+                      Text x_pos + 15, 115, 45, 10, "Next Review:"
+                      Text x_pos + 15, 130, 45, 10, "Last Review:"
+                      Text x_pos + 65, 115, 55, 10, snap_revw_next_revw_date
+                      Text x_pos + 65, 130, 55, 10, snap_revw_last_revw_date
+                      GroupBox x_pos, 145, 135, 45, "SNAP Pop-Up"
+                      Text x_pos + 5, 160, 55, 10, "SR Report Date:"
+                      Text x_pos + 5, 175, 55, 10, "ER Report Date:"
+                      Text x_pos + 65, 160, 50, 10, revw_snap_SR_date
+                      Text x_pos + 65, 175, 50, 10, revw_snap_ER_date
+                      GroupBox x_pos + 135, 85, 135, 105, "New Panel Information"
+                      Text x_pos + 170, 100, 25, 10, "Status:   "
+                      DropListBox x_pos + 200, 95, 65, 45, " "+chr(9)+"N"+chr(9)+"I"+chr(9)+"U"+chr(9)+"A", snap_revw_new_status_code
+                      Text x_pos + 150, 115, 45, 10, "Next Review:"
+                      Text x_pos + 150, 130, 45, 10, "Last Review:"
+                      Text x_pos + 200, 115, 55, 10, snap_revw_new_ER_date
+                      Text x_pos + 200, 130, 55, 10, snap_revw_last_revw_date
+                      GroupBox x_pos + 135, 145, 135, 45, "SNAP Pop-Up"
+                      Text x_pos + 140, 160, 55, 10, "SR Report Date:"
+                      Text x_pos + 140, 175, 55, 10, "ER Report Date:"
+                      Text x_pos + 200, 160, 50, 10, snap_revw_new_SR_date
+                      Text x_pos + 200, 175, 50, 10, snap_revw_new_ER_date
+                      x_pos = x_pos + 275
+                  End If
+                  Text 15, 200, 70, 10, "CAF Received Date:"
+                  Text 30, 220, 50, 10, "Interview Date:"
+                  EditBox 85, 195, 50, 15, CAF_datestamp
+                  EditBox 85, 215, 50, 15, interview_date
+                  Text 150, 220, 75, 10, "Phone Interview (Y/N):"
+                  DropListBox 230, 215, 40, 45, "Y"+chr(9)+"N", phone_interview_y_n
+                  CheckBox 10, 240, 160, 10, "Check here to confirm this update is accurate", confirm_update_checkbox
+                  ButtonGroup ButtonPressed
+                    PushButton 5, 50, 125, 15, "See the SIR Announcement ", sir_announcement_btn
+                    ' If x_pos = 280 Then
+                    '     OkButton 175, 235, 50, 15
+                    '     CancelButton 225, 235, 50, 15
+                    ' Else
+                    '     OkButton 450, 235, 50, 15
+                    '     CancelButton 500, 235, 50, 15
+                    ' End If
+                    OkButton dlg_width - 105, 235, 50, 15
+                    CancelButton dlg_width - 55, 235, 50, 15
+                EndDialog
+
+                err_msg = ""
+
+                dialog Dialog1
+                cancel_confirmation
+
+                ' If confirm_update_checkbox = unchecked Then err_msg = err_msg & "* "
+                If cash_dates_to_update = TRUE Then
+                    If cash_revw_new_status_code = " " OR cash_revw_new_status_code = "N" Then err_msg = err_msg & vbNewLine & "* The CASH Review Status should be either 'I' or 'U' at the time you are completing the CAF Script. Enter I if the review is incomplete and cannot be approved, enter U if the review is complete and ready for approval."
+                    If cash_revw_new_status_code = "A" and cash_revw_status_code <> "A" Then err_msg = err_msg & vbNewLine & "* Only the system can update the status to 'A' for the CASH Review Status. This was not already coded with an A. If the review is complete, code the review with 'U'."
+                End If
+
+                If snap_dates_to_update = TRUE Then
+                    If snap_revw_new_status_code = " " OR snap_revw_new_status_code = "N" Then err_msg = err_msg & vbNewLine & "* The SNAP Review Status should be either 'I' or 'U' at the time you are completing the CAF Script. Enter I if the review is incomplete and cannot be approved, enter U if the review is complete and ready for approval."
+                    If snap_revw_new_status_code = "A" and snap_revw_status_code <> "A" Then err_msg = err_msg & vbNewLine & "* Only the system can update the status to 'A' for the SNAP Review Status. This was not already coded with an A. If the review is complete, code the review with 'U'."
+                End If
+                If IsDate(CAF_datestamp) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter the date the review was received as a valid date."
+                If IsDate(interview_date) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter the interview date as a a valid date. (The interview should have been completed at this time.)"
+
+                If ButtonPressed = sir_announcement_btn Then
+                    err_msg = "LOOP"
+                    Call open_URL_in_browser("https://www.dhssir.cty.dhs.state.mn.us/MAXIS/Lists/MAXIS%20Announcements/DispForm.aspx?ID=6798&ContentTypeId=0x01040097CAC0201808F844B3CD7E8E0C2ACAB600C88AE1669411024A9386CE6D01F7BD87")
+                Else
+                    If err_msg <> "" Then MsgBox "*****  NOTICE *****" & vbNewLine & "Please resolve to continue:" & vbNewLine & err_msg
+                End If
+            Loop until err_msg = ""
+            Call check_for_password(are_we_passworded_out)
+        Loop until are_we_passworded_out = FALSE
+
+        Call back_to_SELF
+
+        Call Navigate_to_MAXIS_screen("STAT", "REVW")
+
+        PF9
+
+        If cash_dates_to_update = TRUE Then
+            EMWriteScreen cash_revw_status_code, 7, 40
+            Call create_mainframe_friendly_date(cash_revw_new_ER_date, 9, 37, "YY")
+
+            EMWriteScreen "X", 5, 35
+            transmit
+
+            EMWriteScreen snap_revw_new_status_code, 7, 64
+            Call create_mainframe_friendly_date(CAF_datestamp, 7, 26, "YY")
+            Call create_mainframe_friendly_date(cash_revw_new_SR_date, 9, 26, "YY")
+            Call create_mainframe_friendly_date(cash_revw_new_ER_date, 9, 64, "YY")
+
+            transmit
+        End If
+
+        If snap_dates_to_update = TRUE Then
+            EMWriteScreen snap_revw_new_status_code, 7, 60
+
+            EMWriteScreen "X", 5, 58
+            transmit
+
+            EMWriteScreen snap_revw_new_status_code, 7, 64
+            Call create_mainframe_friendly_date(CAF_datestamp, 7, 26, "YY")
+            Call create_mainframe_friendly_date(snap_revw_new_SR_date, 9, 26, "YY")
+            Call create_mainframe_friendly_date(snap_revw_new_ER_date, 9, 64, "YY")
+
+            transmit
+        End If
+
+        Call create_mainframe_friendly_date(CAF_datestamp, 13, 37, "YY")
+        Call create_mainframe_friendly_date(interview_date, 15, 37, "YY")
+        EMWriteScreen phone_interview_y_n, 13, 75
+        EMWriteScreen phone_interview_y_n, 15, 75
+
+        transmit
+        ' MsgBox "Pause"
+
+        PF4
+
+        DO
+            PF9
+            EMReadScreen case_note_check, 17, 2, 33
+            EMReadScreen mode_check, 1, 20, 09
+            If case_note_check <> "Case Notes (NOTE)" or mode_check <> "A" then
+                'msgbox "The script can't open a case note. Reasons may include:" & vbnewline & vbnewline & "* You may be in inquiry" & vbnewline & "* You may not have authorization to case note this case (e.g.: out-of-county case)" & vbnewline & vbnewline & "Check MAXIS and/or navigate to CASE/NOTE, and try again. You can press the STOP SCRIPT button on the power pad to stop the script."
+                BeginDialog Inquiry_Dialog, 0, 0, 241, 115, "CASE NOTE Cannot be Started"
+                  ButtonGroup ButtonPressed
+                    OkButton 185, 95, 50, 15
+                  Text 10, 10, 190, 10, "The script can't open a case note. Reasons may include:"
+                  Text 20, 25, 80, 10, "* You may be in inquiry"
+                  Text 20, 40, 185, 20, "* You may not have authorization to case note this case (e.g.: out-of-county case)"
+                  Text 5, 70, 225, 20, "Check MAXIS and/or navigate to CASE/NOTE, and try again. You can press the STOP SCRIPT button on the power pad to stop the script."
+                EndDialog
+                Do
+                    Dialog Inquiry_Dialog
+                Loop until ButtonPressed = -1
+            End If
+        Loop until (mode_check = "A" or mode_check = "E")
+
+        Call write_variable_in_CASE_NOTE("REVW Dates Updated to return to Original Schedule")
+        Call write_variable_in_CASE_NOTE("This case had review dates postponed due to the COVID Peacetime Emergency. The reviews were delayed 6 months. This updates returns the next ER to the original review month.")
+        Call write_variable_in_CASE_NOTE("---")
+        Call write_variable_in_CASE_NOTE(worker_signature)
+
+        PF3
+
+        email_sub = "CAF ER Functionality TEST RESPONSE"
+        email_bod = "Case: " & MAXIS_case_number & vbCr & vbCr & "This case needed the ER dates adjusted after the waiver." & vbCr & "Check the case to ensure the update happened correctly."
+        If confirm_update_checkbox = unchecked Then email_bod = email_bod & vbCr & vbCr & "Information was NOT confirmed."
+        If confirm_update_checkbox = checked Then email_bod = email_bod & vbCr & vbCr & "Information was confirmed."
+        If revw_has_been_approved = TRUE Then email_bod = email_bod & vbCr & vbCr & "Needs to be reapproved."
+        Call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", email_sub, email_bod, "", TRUE)
+    Else
+
+        email_sub = "CAF ER Functionality ERROR TEST RESPONSE"
+        email_bod = "Case: " & MAXIS_case_number & vbCr & vbCr & "This case did not work as expected." & vbCr & "It was on the list but was not selected for REVW to be updated."
+        ' If confirm_update_checkbox = unchecked Then email_bod = email_bod & vbCr & vbCr & "Information was NOT confirmed."
+        ' If confirm_update_checkbox = checked Then email_bod = email_bod & vbCr & vbCr & "Information was confirmed."
+        If revw_has_been_approved = TRUE Then email_bod = email_bod & vbCr & vbCr & "Needs to be reapproved."
+        Call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", email_sub, email_bod, "", TRUE)
+
+        MsgBox "ERROR - this case should have been selected to update and it was not. An Email has been sent to the BZST to review "
+    End If
+
+    If revw_has_been_approved = TRUE Then
+        MsgBox "It appears this case was approved prior to running the script. Please reapprove the same eligibility with the new review dates. This is the best way to ensure this case is processed correctly in the future."
+    End If
+
+    Call back_to_SELF
+    Do
+        Call Navigate_to_MAXIS_screen("STAT", "SUMM")
+        EMReadScreen summ_check, 4, 2, 46
+    Loop until summ_check = "SUMM"
 End If
 
 If CAF_type = "Application" Then
