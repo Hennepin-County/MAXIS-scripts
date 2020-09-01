@@ -2791,7 +2791,30 @@ If check_the_array = TRUE Then
     ' MsgBox REVW_NEEDS_ADJUSTMENT
 End If
 
-' REVW_NEEDS_ADJUSTMENT = TRUE
+If REVW_NEEDS_ADJUSTMENT = TRUE Then
+    Call Navigate_to_MAXIS_screen("STAT", "REVW")
+    PF4
+
+    already_done_note_found = FALSE
+    note_row = 5
+    Do
+        EMReadScreen note_date, 8, note_row, 6
+        EMReadScreen note_title, 49, note_row, 25
+
+        If note_title = "REVW Dates Updated to return to Original Schedule" THen
+            REVW_NEEDS_ADJUSTMENT = FALSE
+            Exit Do
+        End If
+        If note_date = "        " Then Exit Do
+        note_row = note_row + 1
+        If note_row = 19 Then
+            PF8
+            EMReadScreen check_for_end, 9, 24, 14
+            If check_for_end = "LAST PAGE" Then Exit Do
+            note_row = 5
+        End If
+    Loop Until DateDiff("d", note_date, date) > 30
+End If
 If REVW_NEEDS_ADJUSTMENT = TRUE Then
     Call Navigate_to_MAXIS_screen("STAT", "REVW")
 
@@ -2986,8 +3009,10 @@ If REVW_NEEDS_ADJUSTMENT = TRUE Then
         Call back_to_SELF
 
         Call Navigate_to_MAXIS_screen("STAT", "REVW")
-
+        revw_panel_updated = TRUE
         PF9
+        EMReadScreen read_only_access, 16, 24, 11
+        If read_only_access = "READ ONLY ACCESS" Then revw_panel_updated = FALSE 
 
         If cash_dates_to_update = TRUE Then
             EMWriteScreen cash_revw_status_code, 7, 40
@@ -3023,44 +3048,65 @@ If REVW_NEEDS_ADJUSTMENT = TRUE Then
         EMWriteScreen phone_interview_y_n, 13, 75
         EMWriteScreen phone_interview_y_n, 15, 75
 
-        transmit
-        ' MsgBox "Pause"
+        attempt_count = 1
 
-        PF4
-
-        DO
-            PF9
-            EMReadScreen case_note_check, 17, 2, 33
-            EMReadScreen mode_check, 1, 20, 09
-            If case_note_check <> "Case Notes (NOTE)" or mode_check <> "A" then
-                'msgbox "The script can't open a case note. Reasons may include:" & vbnewline & vbnewline & "* You may be in inquiry" & vbnewline & "* You may not have authorization to case note this case (e.g.: out-of-county case)" & vbnewline & vbnewline & "Check MAXIS and/or navigate to CASE/NOTE, and try again. You can press the STOP SCRIPT button on the power pad to stop the script."
-                BeginDialog Inquiry_Dialog, 0, 0, 241, 115, "CASE NOTE Cannot be Started"
-                  ButtonGroup ButtonPressed
-                    OkButton 185, 95, 50, 15
-                  Text 10, 10, 190, 10, "The script can't open a case note. Reasons may include:"
-                  Text 20, 25, 80, 10, "* You may be in inquiry"
-                  Text 20, 40, 185, 20, "* You may not have authorization to case note this case (e.g.: out-of-county case)"
-                  Text 5, 70, 225, 20, "Check MAXIS and/or navigate to CASE/NOTE, and try again. You can press the STOP SCRIPT button on the power pad to stop the script."
-                EndDialog
-                Do
-                    Dialog Inquiry_Dialog
-                Loop until ButtonPressed = -1
+        Do
+            transmit
+            EMReadScreen actually_saved, 7, 24, 2
+            attempt_count = attempt_count + 1
+            If attempt_count = 20 Then
+                PF10
+                revw_panel_updated = FALSE
+                Exit Do
             End If
-        Loop until (mode_check = "A" or mode_check = "E")
+        Loop until actually_saved = "ENTER A"
+        ' MsgBox "Pause"
+        MsgBox revw_panel_updated
 
-        Call write_variable_in_CASE_NOTE("REVW Dates Updated to return to Original Schedule")
-        Call write_variable_in_CASE_NOTE("This case had review dates postponed due to the COVID Peacetime Emergency. The reviews were delayed 6 months. This updates returns the next ER to the original review month.")
-        Call write_variable_in_CASE_NOTE("---")
-        Call write_variable_in_CASE_NOTE(worker_signature)
+        If revw_panel_updated = TRUE Then
+            PF4
 
-        PF3
+            DO
+                PF9
+                EMReadScreen case_note_check, 17, 2, 33
+                EMReadScreen mode_check, 1, 20, 09
+                If case_note_check <> "Case Notes (NOTE)" or mode_check <> "A" then
+                    'msgbox "The script can't open a case note. Reasons may include:" & vbnewline & vbnewline & "* You may be in inquiry" & vbnewline & "* You may not have authorization to case note this case (e.g.: out-of-county case)" & vbnewline & vbnewline & "Check MAXIS and/or navigate to CASE/NOTE, and try again. You can press the STOP SCRIPT button on the power pad to stop the script."
+                    BeginDialog Inquiry_Dialog, 0, 0, 241, 115, "CASE NOTE Cannot be Started"
+                      ButtonGroup ButtonPressed
+                        OkButton 185, 95, 50, 15
+                      Text 10, 10, 190, 10, "The script can't open a case note. Reasons may include:"
+                      Text 20, 25, 80, 10, "* You may be in inquiry"
+                      Text 20, 40, 185, 20, "* You may not have authorization to case note this case (e.g.: out-of-county case)"
+                      Text 5, 70, 225, 20, "Check MAXIS and/or navigate to CASE/NOTE, and try again. You can press the STOP SCRIPT button on the power pad to stop the script."
+                    EndDialog
+                    Do
+                        Dialog Inquiry_Dialog
+                    Loop until ButtonPressed = -1
+                End If
+            Loop until (mode_check = "A" or mode_check = "E")
 
-        email_sub = "CAF ER Functionality TEST RESPONSE"
-        email_bod = "Case: " & MAXIS_case_number & vbCr & vbCr & "This case needed the ER dates adjusted after the waiver." & vbCr & "Check the case to ensure the update happened correctly."
-        If confirm_update_checkbox = unchecked Then email_bod = email_bod & vbCr & vbCr & "Information was NOT confirmed."
-        If confirm_update_checkbox = checked Then email_bod = email_bod & vbCr & vbCr & "Information was confirmed."
-        If revw_has_been_approved = TRUE Then email_bod = email_bod & vbCr & vbCr & "Needs to be reapproved."
-        Call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", email_sub, email_bod, "", TRUE)
+            Call write_variable_in_CASE_NOTE("REVW Dates Updated to return to Original Schedule")
+            Call write_variable_in_CASE_NOTE("This case had review dates postponed due to the COVID Peacetime Emergency. The reviews were delayed 6 months. This updates returns the next ER to the original review month.")
+            Call write_variable_in_CASE_NOTE("---")
+            Call write_variable_in_CASE_NOTE(worker_signature)
+
+            PF3
+
+            email_sub = "CAF ER Functionality TEST RESPONSE"
+            email_bod = "Case: " & MAXIS_case_number & vbCr & vbCr & "This case needed the ER dates adjusted after the waiver." & vbCr & "Check the case to ensure the update happened correctly."
+            If confirm_update_checkbox = unchecked Then email_bod = email_bod & vbCr & vbCr & "Information was NOT confirmed."
+            If confirm_update_checkbox = checked Then email_bod = email_bod & vbCr & vbCr & "Information was confirmed."
+            If revw_has_been_approved = TRUE Then email_bod = email_bod & vbCr & vbCr & "Needs to be reapproved."
+            Call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", email_sub, email_bod, "", TRUE)
+        ELSE
+            email_sub = "CAF ER Functionality Update FAILED"
+            email_bod = "Case: " & MAXIS_case_number & vbCr & vbCr & "The REVW Panel on this case did not update as expected." & vbCr & "It was on the list but something went goofy."
+            ' If confirm_update_checkbox = unchecked Then email_bod = email_bod & vbCr & vbCr & "Information was NOT confirmed."
+            ' If confirm_update_checkbox = checked Then email_bod = email_bod & vbCr & vbCr & "Information was confirmed."
+            If revw_has_been_approved = TRUE Then email_bod = email_bod & vbCr & vbCr & "Needs to be reapproved."
+            Call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", email_sub, email_bod, "", TRUE)
+        End If
     Else
 
         email_sub = "CAF ER Functionality ERROR TEST RESPONSE"
