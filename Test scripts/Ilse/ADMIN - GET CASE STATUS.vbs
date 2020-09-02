@@ -60,6 +60,8 @@ FUNCTION get_case_status
 
 	Call navigate_to_MAXIS_screen("CASE", "CURR")
 	EMReadScreen CURR_panel_check, 4, 2, 55
+
+
 	If CURR_panel_check <> "CURR" then ObjExcel.Cells(excel_row, 2).Value = ""
 
 	EMReadScreen case_status, 8, 8, 9
@@ -89,16 +91,18 @@ MAXIS_footer_year = CM_yr
 
 'dialog and dialog DO...Loop
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 266, 115, "BULK - GET CASE STATUS"
+BeginDialog Dialog1, 0, 0, 301, 100, "BULK - GET CASE STATUS"
   ButtonGroup ButtonPressed
-    PushButton 200, 50, 50, 15, "Browse...", select_a_file_button
-    OkButton 150, 95, 50, 15
-    CancelButton 205, 95, 50, 15
-  EditBox 15, 50, 180, 15, file_selection_path
-  Text 20, 20, 235, 25, "This script should be used when a list of cases needs a case status."
-  Text 15, 70, 230, 15, "Select the Excel file that contains your inforamtion by selecting the 'Browse' button, and finding the file."
-  GroupBox 10, 5, 250, 85, "Using this script:"
+    PushButton 15, 40, 60, 15, "Browse...", select_a_file_button
+  EditBox 80, 40, 205, 15, file_selection_path
+  ButtonGroup ButtonPressed
+    OkButton 190, 80, 50, 15
+    CancelButton 245, 80, 50, 15
+  Text 40, 60, 230, 10, "This script should be used when a list of cases needs a case status."
+  Text 15, 15, 275, 20, "Select the Excel file that contains your information by selecting the 'Browse' button, and finding the file."
+  GroupBox 10, 5, 285, 70, "Using this script:"
 EndDialog
+
 Do
     'Initial Dialog to determine the excel file to use, column with case numbers, and which process should be run
     'Show initial dialog
@@ -120,15 +124,15 @@ BeginDialog Dialog1, 0, 0, 126, 50, "Select the excel row to start"
   Text 10, 10, 60, 10, "Excel row to start:"
 EndDialog
 
-do
+DO
     dialog Dialog1
     If buttonpressed = 0 then stopscript								'loops until all errors are resolved
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-Loop until are_we_passworded_out = false					'loops until user passwords back in
+LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
 excel_row = excel_row_to_restart
 
-'resets the case number and footer month/year back to the CM (REVS for current month plus two has is going to be a problem otherwise)
+
 back_to_self
 EMWriteScreen CM_mo, 20, 43
 EMWriteScreen CM_yr, 20, 46
@@ -139,7 +143,7 @@ Do
 	MAXIS_case_number = objExcel.cells(excel_row, 3).value
 	If MAXIS_case_number = "" then exit do
 	get_case_status
-LOOP UNTIL objExcel.Cells(excel_row, 3).value = ""	'looping until the list of cases to check for recert is complete
-STATS_counter = STATS_counter - 1 'removes one from the count since 1 is counted at the beginning (because counting :p)
+LOOP UNTIL objExcel.Cells(excel_row, 3).value = ""
+STATS_counter = STATS_counter - 1 'removes one from the count since 1 is counted at the beginning
 
 script_end_procedure("All done.")

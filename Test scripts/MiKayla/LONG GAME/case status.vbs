@@ -133,6 +133,21 @@ pending_status = 0
 inactive_status = 0
 rein_status = 0
 
+	objExcel.Columns(3).EntireColumn.Insert
+'FOR column = 2 to 2
+	objExcel.Columns(3).EntireColumn.Insert
+'NEXT
+'Columns(B).EntireColumn.Insert
+'Sub sbInsertingColumns()
+'Inserting a Column at Column B
+'sht.Range("B1").EntireColumn.Insert
+'objExcel.Columns().EntireColumn.Insert
+'ObjExcel.Cells("b1").EntireColumn.Insert
+'Range("B1").EntireColumn.Insert
+'4832'
+
+
+
 excel_row = 2
 Do
 	'Grabs the case number
