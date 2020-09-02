@@ -241,7 +241,6 @@ BeginDialog Dialog1, 0, 0, 401, 375 - dialog_shrink_amt, "Denied progs"
   EditBox 50, 170, 345, 15, other_notes
   If case_noting_intake_dates = True then
 	CheckBox 15, 200, 360, 10, "Check here if requested proofs were not provided, interview was completed (if applicable) and this case pended", requested_proofs_not_provided_check
-	CheckBox 15, 225, 365, 10, "Denied SNAP for self-declaration of income over 165% FPG (hold for 30 days, with an add'l 30 for proration)", self_declaration_of_income_over_165_FPG
 	CheckBox 15, 245, 130, 10, "Client is disabled (60 day HC period)", disabled_client_check
 	CheckBox 15, 260, 305, 10, "Check here if there are any programs still open/pending (doesn't become intake again yet)", open_prog_check
 	EditBox 105, 275, 235, 15, open_progs
@@ -371,7 +370,7 @@ End if
 If SNAP_check = 1 then
   If withdraw_pnd2_SNAP_checkbox = checked Then
 	SNAP_intake_date = dateadd("d", SNAP_denial_date, 10)
-  ElseIf requested_proofs_not_provided_check = 0 and self_declaration_of_income_over_165_FPG = 0 then
+  ElseIf requested_proofs_not_provided_check = 0 then
     SNAP_intake_date = SNAP_denial_date
   ElseIf dateadd("d", SNAP_denial_date, 10) > dateadd("d", application_date, 60) then
     SNAP_intake_date = dateadd("d", SNAP_denial_date, 10)
@@ -518,19 +517,7 @@ IF edit_notice_check = 1 THEN
 	LOOP UNTIL row = 18 or last_month_check = "NOT"
 END IF
 
-If self_declaration_of_income_over_165_FPG = 1 THEN
-	call navigate_to_MAXIS_screen("STAT", "PROG")
-	EMReadScreen int_date, 8, 10, 55
-          	int_date = replace(int_date, " ", "/")
-	call navigate_to_MAXIS_screen("ELIG", "FS")
-	transmit
-	EMWriteScreen "x", 15, 4
-	transmit
-	EMReadScreen reported_income, 10, 9, 30
-	reported_income = trim(reported_income)
-	EMReadScreen max_gross_income, 10, 15, 67
-	max_gross_income = trim(max_gross_income)
-End if
+
 
 'NOW IT CASE NOTES THE DATA.
 call start_a_blank_case_note
@@ -543,15 +530,7 @@ call write_bullet_and_variable_in_case_note("Application date", application_date
 call write_bullet_and_variable_in_case_note("Reason for denial", reason_for_denial)
 call write_bullet_and_variable_in_case_note("Coding for denial", coded_denial)
 call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)
-	'adding case note portion to cover Self Declaration of Over Income Policy
-	If self_declaration_of_income_over_165_FPG = 1 THEN
-		call write_variable_in_case_note("---")
-		call write_variable_in_case_note("   ***Self Declaration of Over Income Policy for SNAP***")
-		call write_variable_in_case_note("* Date of Interview: " & int_date)
-		call write_variable_in_case_note("* Client's Stated Total Income: $" & reported_income)
-		call write_variable_in_case_note("* Max Gross Income 165% of FPG: $" & max_gross_income)
-		call write_variable_in_case_note("* Denial Reason: Client stated their income is greater than 165% of FPG")
-	End If
+
 If updated_MMIS_check = 1 then call write_variable_in_case_note("* Updated MMIS.")
 If disabled_client_check = 1 then call write_variable_in_case_note("* Client is disabled.")
 If WCOM_check = 1 then call write_variable_in_case_note("* Added WCOM to notice.")
