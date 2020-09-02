@@ -111,13 +111,15 @@ If qi_staff = FALSE Then script_end_procedure_with_error_report("This script is 
 
 work_assignment_date = date & ""                'defaulting some of the variables for the initial values
 email_signature = qi_worker_first_name
+type_of_work_assignment = "Expedited Review"
 
 'Dialog to determine who you are and what kind of assignment you finished.
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 306, 110, "Work Assingment Selection"
   EditBox 150, 5, 150, 15, qi_worker_full_name
   EditBox 150, 25, 150, 15, work_assignment_date
-  DropListBox 150, 45, 150, 45, "Select One..."+chr(9)+"Expedited Review"+chr(9)+"Pending at Day 30 - Part of On Demand", type_of_work_assignment
+  ' DropListBox 150, 45, 150, 45, "Select One..."+chr(9)+"Expedited Review"+chr(9)+"Pending at Day 30 - Part of On Demand", type_of_work_assignment
+  DropListBox 150, 45, 150, 45, "Select One..."+chr(9)+"Expedited Review", type_of_work_assignment
   EditBox 150, 65, 150, 15, email_signature
   ButtonGroup ButtonPressed
     OkButton 195, 90, 50, 15
