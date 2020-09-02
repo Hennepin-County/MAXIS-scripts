@@ -327,7 +327,7 @@ Elseif DateDiff("d", application_date, date) = 1 then
 	application_check = "Day 1"
 	reminder_date = dateadd("d", 5, application_date)
 	reminder_text = "Day 5"
-Elseif (DateDiff("d", application_date, date) > 1 AND DateDiff("d", application_date, date) < 9) then
+Elseif (DateDiff("d", application_date, date) > 1 AND DateDiff("d", application_date, date) < 10) then
 	application_check = "Day 5"
 	reminder_date = dateadd("d", 10, application_date)
 	reminder_text = "Day 10"
