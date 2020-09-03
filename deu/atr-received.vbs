@@ -54,7 +54,7 @@ changelog_display
 '=================================================================================================END CHANGELOG BLOCK
 '---------------------------------------------------------------------THE SCRIPT
 '---------------------------------------------------------------------THE SCRIPT
-testing_run = TRUE
+'testing_run = TRUE
 EMConnect ""
 CALL MAXIS_case_number_finder (MAXIS_case_number)
 'MAXIS_case_number = "2260862"
