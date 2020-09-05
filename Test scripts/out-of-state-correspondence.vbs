@@ -52,7 +52,7 @@ changelog_display
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 
-'testing_run = TRUE
+testing_run = TRUE
 EMConnect ""
 'Hunts for Maxis case number to autofill it
 Call MAXIS_case_number_finder(MAXIS_case_number)
@@ -80,9 +80,9 @@ DO
 		err_msg = ""
 		Dialog Dialog1
 		cancel_without_confirmation
-		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
-		If state_droplist = "Select One:" then err_msg = err_msg & vbnewline & "* Select the state."
-		If how_sent = "Select One:" then err_msg = err_msg & vbnewline & "* Select how the request was sent."
+		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "Enter a valid case number."
+		If state_droplist = "Select One:" then err_msg = err_msg & vbnewline & "Select the state."
+		If how_sent = "Select One:" then err_msg = err_msg & vbnewline & "Select how the request was sent."
 		If out_of_state_request = "Select One:" then err_msg = err_msg & vbNewLine & "Please select the status of the out of state inquiry."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP until err_msg = ""
@@ -104,15 +104,13 @@ Call navigate_to_MAXIS_screen("CASE", "CURR")
 EMReadScreen CURR_panel_check, 4, 2, 55
 EMReadScreen case_status, 8, 8, 9
 case_status = trim(case_status)
-
 IF case_status = "ACTIVE" THEN active_status = TRUE
 IF case_status = "APP OPEN" THEN active_status = TRUE
 IF case_status = "APP CLOS" THEN active_status = TRUE
-IF case_status = "INACTIVE" THEN active_status = FALSE
 If case_status = "CAF2 PEN" THEN active_status = TRUE
 If case_status = "CAF1 PEN" THEN active_status = TRUE
 IF case_status = "REIN" THEN active_status = TRUE
-
+IF case_status = "INACTIVE" THEN active_status = FALSE
 Call MAXIS_footer_month_confirmation
 EmReadscreen original_MAXIS_footer_month, 2, 20, 43
 
@@ -120,17 +118,17 @@ CALL navigate_to_MAXIS_screen("STAT", "PROG")		'Goes to STAT/PROG
 'Checking for PRIV cases.
 EMReadScreen priv_check, 4, 24, 14 'If it can't get into the case needs to skip
 IF priv_check = "PRIV" THEN script_end_procedure_with_error_report("This case is privileged. Please request access before running the script again. ")
-CASH_STATUS = FALSE 'overall variable'
-CCA_STATUS = FALSE
-DWP_STATUS = FALSE 'Diversionary Work Program'
-ER_STATUS = FALSE
-FS_STATUS = FALSE
-GA_STATUS = FALSE 'General Assistance'
-GRH_STATUS = FALSE
-HC_STATUS = FALSE
-MS_STATUS = FALSE 'Mn Suppl Aid '
-MF_STATUS = FALSE 'Mn Family Invest Program '
-RC_STATUS = FALSE 'Refugee Cash Assistance'
+MN_CASH_STATUS = FALSE 'overall variable'
+MN_CCA_STATUS = FALSE
+MN_DWP_STATUS = FALSE 'Diversionary Work Program'
+MN_ER_STATUS = FALSE
+MN_FS_STATUS = FALSE
+MN_GA_STATUS = FALSE 'General Assistance'
+MN_GRH_STATUS = FALSE
+MN_HC_STATUS = FALSE
+MN_MS_STATUS = FALSE 'Mn Suppl Aid '
+MN_MF_STATUS = FALSE 'Mn Family Invest Program '
+MN_RC_STATUS = FALSE 'Refugee Cash Assistance'
 
 'Reading the status and program
 EMReadScreen cash1_status_check, 4, 6, 74
@@ -150,60 +148,34 @@ EMReadScreen ive_prog_check, 2, 11, 67
 EMReadScreen hc_prog_check, 2, 12, 67
 
 IF FS_status_check = "ACTV" or FS_status_check = "PEND" THEN
-	FS_STATUS = TRUE
+	MN_FS_STATUS = TRUE
 	MN_FS_CHECKBOX = CHECKED
 END IF
 IF hc_status_check = "ACTV" or hc_status_check = "PEND" THEN
-	HC_STATUS = TRUE
+	MN_HC_STATUS = TRUE
 	MN_HC_CHECKBOX  = CHECKED
 END IF
 IF cca_status_check = "ACTV" or cca_status_check = "PEND" THEN
-	CCA_STATUS = TRUE
+	MN_CCA_STATUS = TRUE
 	MN_CCA_CHECKBOX  = CHECKED
 END IF
-'Logic to determine if MFIP is active
-IF cash1_prog_check = "MF" THEN
-	IF cash1_status_check = "ACTV" or cash1_status_check = "PEND" THEN
-		MF_STATUS = TRUE
-		'MsgBox MF_STATUS
-		MN_MFIP_CHECKBOX = CHECKED
-		'MsgBox MFIP_CHECKBOX
-	END IF
-	If cash1_status_check = "INAC" or cash1_status_check = "SUSP" or cash1_status_check = "DENY" or cash1_status_check = "" THEN MF_STATUS = FALSE
+IF cash1_status_check = "ACTV"  or cash1_status_check = "PEND" THEN
+	'Msgbox MN_CASH_STATUS
+	MN_CASH_STATUS = TRUE
+	MN_CASH_CHECKBOX = CHECKED
 END IF
-IF cash1_prog_check = "MF" THEN
-	IF cash2_status_check = "ACTV" or cash2_status_check = "PEND" THEN
-		MF_STATUS = TRUE
-		MN_MFIP_CHECKBOX = CHECKED
-	END IF
-	IF cash2_status_check = "INAC" or cash2_status_check = "SUSP" or cash2_status_check = "DENY" or cash2_status_check = "" THEN MF_STATUS = FALSE
+IF cash2_status_check = "ACTV"  or cash2_status_check = "PEND" THEN
+	'Msgbox MN_CASH_STATUS
+	MN_CASH_STATUS = TRUE
+	MN_CASH_CHECKBOX = CHECKED
 END IF
-IF cash1_prog_check = "DW" THEN
-	IF cash1_status_check = "ACTV" or cash1_status_check = "PEND" or cash2_status_check = "ACTV" or cash2_status_check = "PEND" THEN
-		DWP_STATUS = TRUE
-		MN_DWP_CHECKBOX  = CHECKED
-	END IF
-	If cash1_status_check = "INAC" or cash1_status_check = "SUSP" or cash1_status_check = "DENY" or cash1_status_check = "" THEN DWP_STATUS = FALSE
-	If cash2_status_check = "INAC" or cash2_status_check = "SUSP" or cash2_status_check = "DENY" or cash2_status_check = "" THEN DWP_STATUS = FALSE
+IF emer_status_check = "ACTV" or emer_status_check = "PEND"  THEN MN_ER_STATUS = TRUE
+IF grh_status_check = "ACTV" or grh_status_check = "PEND"  THEN MN_GRH_STATUS = TRUE
+IF MN_MF_STATUS = FALSE and MN_FS_STATUS = FALSE and MN_HC_STATUS = FALSE and MN_DWP_STATUS = FALSE and MN_CASH_STATUS = FALSE AND MN_ER_STATUS = FALSE AND MN_GRH_STATUS = FALSE THEN
+	active_status = FALSE
+	script_end_procedure_with_error_report("It appears no programs are open or pending on this case.")
 END IF
-If cash1_prog_check = "" THEN
-	If cash1_status_check = "PEND" or cash2_status_check = "PEND" THEN
-		CASH_STATUS = TRUE
-		MN_CASH_CHECKBOX = CHECKED
-	END IF
-	If cash1_status_check = "INAC" or cash1_status_check = "SUSP" or cash1_status_check = "DENY" or cash1_status_check = "" THEN CASH_STATUS = FALSE
-END IF
-If cash2_prog_check = "" THEN
-	If cash2_status_check = "INAC" or cash2_status_check = "SUSP" or cash2_status_check = "DENY" or cash2_status_check = "" THEN CASH_STATUS = FALSE
-END IF
-IF emer_status_check = "ACTV" or emer_status_check = "PEND"  THEN ER_STATUS = TRUE
-IF grh_status_check = "ACTV" or grh_status_check = "PEND"  THEN GRH_STATUS = TRUE
-IF active_status = FALSE THEN
- 	IF MN_MF_STATUS = FALSE and MN_FS_STATUS = FALSE and MN_HC_STATUS = FALSE and MN_DWP_STATUS = FALSE and MN_CASH_STATUS = FALSE THEN
-		case_note_only = TRUE
-		msgbox "It appears no HC, FS, or Cash are open on this case."
-	END IF
-END IF
+
 
 'State information for dialog and notice'
 state_county = ""
@@ -1042,7 +1014,6 @@ Const clt_dob_const 			= 4
 Const client_selection_checkbox_const = 5
 Const clt_ssn_const 			= 6
 
-
 Dim ALL_CLT_INFO_ARRAY()
 ReDim ALL_CLT_INFO_ARRAY(clt_ssn_const, 0)
 
@@ -1088,11 +1059,11 @@ DO								'reads the reference number, last name, first name, and then puts it i
 	the_incrementer = the_incrementer + 1
 	transmit
 	Emreadscreen edit_check, 7, 24, 2
-LOOP until edit_check = "ENTER A"			'the script will continue to transmit through memb until it reaches the last page and finds the ENTER A edit on the bottom row.
-'For each path the script takes a different Route'
+LOOP until edit_check = "ENTER A"'the script will continue to transmit through memb until it reaches the last page and finds the ENTER A edit on the bottom row.
 
+'For each path the script takes a different route'
     Dialog1 = "" 'runs the dialog that has been dynamically created. Streamlined with new functions.
-    BEGINDIALOG Dialog1, 0, 0, 241, (35 + (Ubound(ALL_CLT_INFO_ARRAY, 2) * 15)), "Household Member(s) "   'Creates the dynamic dialog. The height will change based on the number of clients it finds.
+    BEGINDIALOG Dialog1, 0, 0, 241, (50 + (Ubound(ALL_CLT_INFO_ARRAY, 2) * 15)), "Household Member(s) "   'Creates the dynamic dialog. The height will change based on the number of clients it finds.
     	Text 10, 5, 130, 10, "Select household members to request:"
     	FOR the_pers = 0 to Ubound(ALL_CLT_INFO_ARRAY, 2)
     		checkbox 10, (20 + (the_pers * 15)), 160, 10, ALL_CLT_INFO_ARRAY(ref_numb_const, the_pers) & " " & ALL_CLT_INFO_ARRAY(first_name_const, the_pers) & " " & ALL_CLT_INFO_ARRAY(last_name_const, the_pers) & " " & ALL_CLT_INFO_ARRAY(clt_ssn_const, the_pers), ALL_CLT_INFO_ARRAY(client_selection_checkbox_const, the_pers)
@@ -1108,8 +1079,11 @@ LOOP until edit_check = "ENTER A"			'the script will continue to transmit throug
     		Dialog Dialog1
     		cancel_confirmation
     	LOOP until err_msg = ""
-    	CALL check_for_password(are_we_passworded_out)     'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
     Loop until are_we_passworded_out = false
+
+	IF agency_phone = "" THEN agency_phone = "N/A"
+	IF agency_fax = "" THEN agency_fax = "N/A"
+	IF agency_email = "" THEN agency_email = "N/A"
 
 IF out_of_state_request = "Sent/Send" THEN
     Dialog1 = ""
@@ -1143,16 +1117,14 @@ IF out_of_state_request = "Sent/Send" THEN
 	    OkButton 130, 250, 45, 15
 	    CancelButton 180, 250, 45, 15
 	  Text 10, 20, 40, 10, "Programs:"
-	  GroupBox 5, 5, 220, 30, "Current programs applied or actv on:"
+	  GroupBox 5, 5, 220, 30, "Current programs pending or active on in MN"
 	  GroupBox 5, 85, 220, 95, "Out of State Agency Contact"
 	  Text 120, 65, 50, 10, "Last Received:"
 	  Text 10, 45, 40, 10, "Programs:"
 	  Text 10, 65, 25, 10, "Status:"
 	  GroupBox 5, 35, 220, 45, "Client reported they received assistance (Q5 on CAF):"
 	  Text 5, 235, 45, 10, "Other Notes:"
-
 	EndDialog
-
 
     DO
     	DO
@@ -1162,13 +1134,14 @@ IF out_of_state_request = "Sent/Send" THEN
     			If ButtonPressed = outofstate_button then CreateObject("WScript.Shell").Run("https://dept.hennepin.us/hsphd/manuals/hsrm/Pages/Out_of_State_Inquiry.aspx")
     		Loop until ButtonPressed = -1
     		err_msg = ""
-            If agency_state_droplist = "Select One:" then err_msg = err_msg & vbnewline & "* Select the state."
+			IF CASH_CHECKBOX = UNCHECKED AND CCA_CHECKBOX = UNCHECKED AND FS_CHECKBOX = UNCHECKED AND HC_CHECKBOX = UNCHECKED AND SSI_CHECKBOX = UNCHECKED AND OTHER_CHECKBOX = UNCHECKED THEN err_msg = err_msg & vbnewline & "Please select the program the client reported they recieved in other state, if no program was reported no request is needed."
+			If agency_state_droplist = "Select One:" THEN  err_msg = err_msg & vbnewline & "Select the state."
             IF ECF_checkbox <> CHECKED THEN err_msg = err_msg & vbNewLine & "Please review ECF to ensure that the verifcations are there."
             IF OTHER_CHECKBOX = CHECKED and other_notes = "" THEN err_msg = err_msg & vbNewLine & "Please advise what other benefits the client reported."
             IF out_of_state_status = "Select One:" then err_msg = err_msg & vbnewline & "Please select the reported status regarding the other state's benefits."
-            IF out_of_state_status = "Active" AND trim(date_received) = "" then err_msg = err_msg & vbcr & "* Enter the date the client reported benefits were last received."
-    		IF out_of_state_status = "Closed" AND trim(date_received) = "" then err_msg = err_msg & vbcr & "* Enter the date the client reported benefits were last received."
-    		IF out_of_state_status = "Unknown" AND other_notes = "" then err_msg = err_msg & vbcr & "* Please advise why the status of previous benefits is unknown."
+            IF out_of_state_status = "Active" AND trim(date_received) = "" then err_msg = err_msg & vbcr & "Enter the date the client reported benefits were last received."
+    		IF out_of_state_status = "Closed" AND trim(date_received) = "" then err_msg = err_msg & vbcr & "Enter the date the client reported benefits were last received."
+    		IF out_of_state_status = "Unknown" AND other_notes = "" then err_msg = err_msg & vbcr & "Please advise why the status of previous benefits is unknown."
     		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
     	LOOP until err_msg = ""
     	CALL check_for_password(are_we_passworded_out)                                 'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -1193,22 +1166,6 @@ IF out_of_state_request = "Sent/Send" THEN
     End If
     client_address = replace(client_1staddress, "_","") & " " & replace(client_2ndaddress, "_","") & " " & replace(client_city, "_","") & ", " & replace(client_state, "_","") & " " & replace(client_zip, "_","")
 
-    'reads county info.'
-    EMReadScreen worker_county, 4, 21, 21
-    If worker_county = "X127" then
-    	hennepin_county = true
-    Else
-    	hennepin_county = false
-    End If
-
-    'reads assigned worker info
-    EMSetCursor 21, 21
-    PF1
-    EMReadScreen worker_name, 21, 19, 10
-    EMReadScreen worker_phone, 12, 19, 45
-    TRANSMIT
-
-
     'Generates Word Doc Form
     Set objWord = CreateObject("Word.Application")
     objWord.Caption = "OUT OF STATE INQUIRY"
@@ -1224,6 +1181,7 @@ IF out_of_state_request = "Sent/Send" THEN
     objSelection.Font.Size = "12"
     objSelection.TypeText "OUT OF STATE INQUIRY"
     objSelection.TypeParagraph
+	objSelection.TypeParagraph
     objSelection.TypeText "Hennepin County Human Services & Public Health Department"
     objSelection.TypeParagraph
     objSelection.TypeText "PO Box 107, Minneapolis, MN 55440-0107"
@@ -1239,23 +1197,35 @@ IF out_of_state_request = "Sent/Send" THEN
     objSelection.ParagraphFormat.SpaceBefore = 0
     objSelection.ParagraphFormat.SpaceAfter = 0
     objSelection.Font.Name = "Calibri"
-    objSelection.Font.Size = "11"
+    objSelection.Font.Size = "12"
     objSelection.TypeText "DATE: " & date()
     objSelection.TypeParagraph
-    objSelection.ParagraphFormat.Alignment = 0
-    objSelection.Font.Size = "10"
+	objSelection.ParagraphFormat.Alignment = 0
+    objSelection.ParagraphFormat.LineSpacing = 12
+    objSelection.ParagraphFormat.SpaceBefore = 0
+    objSelection.ParagraphFormat.SpaceAfter = 0
+    objSelection.Font.Name = "Calibri"
+    objSelection.Font.Size = "12"
     'objSelection.Font.Bold = True
     objSelection.TypeText "To: " & agency_name
     objSelection.TypeParagraph
-    objSelection.TypeText "Address: " & agency_address
-    objSelection.TypeParagraph
-    objSelection.TypeText "Email: " & agency_email
-    objSelection.TypeParagraph
-    objSelection.TypeText "Phone: " & agency_phone
-    objSelection.TypeParagraph
-    objSelection.TypeText "Fax: " & agency_fax
-    objSelection.TypeParagraph
-    objSelection.TypeText " "
+    IF agency_address <> "" THEN
+		objSelection.TypeText "Address: " & agency_address
+    	objSelection.TypeParagraph
+	END IF
+    IF agency_address <> "" THEN
+		objSelection.TypeText "Email: " & agency_email
+    	objSelection.TypeParagraph
+	END IF
+	IF agency_address <> "" THEN
+		objSelection.TypeText "Phone: " & agency_phone
+    	objSelection.TypeParagraph
+	END IF
+	IF agency_address <> "" THEN
+		objSelection.TypeText "Fax: " & agency_fax
+    	objSelection.TypeParagraph
+	END IF
+	objSelection.TypeText " "
     objSelection.TypeParagraph
     objSelection.TypeText "RE: "
     For the_pers = 0 to UBound(ALL_CLT_INFO_ARRAY, 2)
@@ -1273,20 +1243,18 @@ IF out_of_state_request = "Sent/Send" THEN
     objSelection.TypeText "Please indicate if the client is open on SNAP or Medical Assistance in your state OR the date these programs most recently closed.  Thank you."
     objSelection.TypeParagraph
     objSelection.TypeParagraph
-    objSelection.TypeText "Is CASH currently closed?   YES	 NO		Date of closure: "
+    objSelection.TypeText "Is CASH currently closed?  ____YES ____NO		Date of closure: "
     objSelection.TypeParagraph
-    objSelection.TypeText "Is SNAP currently closed?   YES	 NO		Date of closure: "
+    objSelection.TypeText "Is SNAP currently closed?  ____YES ____NO		Date of closure: "
     'objSelection.TypeParagraph
     'objSelection.TypeText "Total ABAWD months used:"
     objSelection.TypeParagraph
     objSelection.TypeText "Please list the month(s)/year(s) of ABAWD months used: "
     objSelection.TypeParagraph
-    objSelection.TypeParagraph
+
     objSelection.TypeText "Please complete the following:"
     objSelection.TypeParagraph
     objSelection.TypeText "Circle the month(s)/year(s) the person received federally funded TANF cash assistance: "
-    objSelection.TypeParagraph
-    objSelection.TypeParagraph
     objSelection.TypeText Year(date)-20 & ":   Jan  Feb  Mar  Apr  May  Jun  Jul  Aug  Sep  Oct  Nov  Dec"
     objSelection.TypeParagraph
     objSelection.TypeText Year(date)-19 & ":   Jan  Feb  Mar  Apr  May  Jun  Jul  Aug  Sep  Oct  Nov  Dec"
@@ -1330,16 +1298,14 @@ IF out_of_state_request = "Sent/Send" THEN
     objSelection.TypeText Year(date) & ":   Jan  Feb  Mar  Apr  May  Jun  Jul  Aug  Sep  Oct  Nov  Dec"
     objSelection.TypeParagraph
     objSelection.TypeParagraph
-    objSelection.TypeText "Is Medical Assistance closed?   YES	NO		Date of closure: "
+    objSelection.TypeText "Is Medical Assistance closed? ____YES ____NO		Date of closure: "
     objSelection.TypeParagraph
-    objSelection.TypeText "Name of Person verifying information: "
+    objSelection.TypeText "Name of person verifying information: "
     objSelection.TypeParagraph
     objSelection.TypeText "Contact Information: "
     objSelection.TypeParagraph
     objSelection.TypeParagraph
-    objSelection.TypeText "Please email or fax your response to: " & worker_name & " Hennepin County Human Services and Public Health Services."
-    objSelection.TypeParagraph
-    objSelection.TypeText "If you have any questions about this request, you may contact me at: " & worker_phone
+    objSelection.TypeText "Please reply or email your response to: Hennepin County Human Services and Public Health Services at hhsews@hennepin.us"
     objSelection.TypeParagraph
     objSelection.TypeParagraph
     objSelection.TypeParagraph
@@ -1366,7 +1332,7 @@ IF out_of_state_request = "Sent/Send" THEN
 	    HH_member_array = "RE:" & vbcr & ALL_CLT_INFO_ARRAY(first_name_const, the_pers) & " " & ALL_CLT_INFO_ARRAY(last_name_const, the_pers) & vbcr & "  SSN: "  & ALL_CLT_INFO_ARRAY(clt_ssn_const, the_pers) & "  DOB: " & ALL_CLT_INFO_ARRAY(clt_dob_const, the_pers) & HH_member_array
 	NEXT
 
-	message_array = ("FROM: Hennepin County Human Services & Public Health Department" & vbcr & "PO Box 107, Minneapolis, MN 55440-0107" & vbcr & "FAX: 612-288-2981" & vbcr & "Phone: 612-596-8500" & vbcr & "Email: HHSEWS@hennepin.us" & vbcr & "DATE: " & date & vbcr & "To: " & agency_name & vbcr & "Address: " & agency_address & vbcr & "Email: " & agency_email & vbcr & "Phone: " & agency_phone & vbcr & "Fax: " & agency_fax & vbcr & HH_member_array & vbcr & "Current Address: " & client_address & vbcr & "Our records indicate that the above individual(s) received or receives assistance from your state.  We need to verify the number of months of Federally-funded TANF cash assistance issued by your state that count towards the 60 month lifetime limit.  In addition, we need to know the number of months of TANF assistance from other states that your agency has verified.  " & "Please indicate if the client is open on SNAP or Medical Assistance in your state OR the date these programs most recently closed.  Thank you." & vbcr & "Is CASH/TANF currently closed?   YES	 NO		Date of closure: " & vbcr & "Is SNAP currently closed?   YES	 NO		Date of closure: " & vbcr & "Please list the month(s)/year(s) the person received federally funded TANF cash assistance: " & vbcr & "Is Medical Assistance closed?   YES	NO		Date of closure: " & vbcr & "Name of Person verifying information: " & vbcr & "Contact Information:" & vbcr & " Please email or fax your response to: " & worker_name & vbcr & " Hennepin County Human Services and Public Health Services." & vbcr & "If you have any questions about this request, you may contact me at: " & worker_phone)
+	message_array = ("FROM: Hennepin County Human Services & Public Health Department" & vbcr & "PO Box 107, Minneapolis, MN 55440-0107" & vbcr & "FAX: 612-288-2981" & vbcr & "Phone: 612-596-8500" & vbcr & "Email: HHSEWS@hennepin.us" & vbcr & "DATE: " & date & vbcr & "To: " & agency_name & vbcr & "Address: " & agency_address & vbcr & "Email: " & agency_email & vbcr & "Phone: " & agency_phone & vbcr & "Fax: " & agency_fax & vbcr & HH_member_array & vbcr & "Current Address: " & client_address & vbcr & "Our records indicate that the above individual(s) received or receives assistance from your state.  We need to verify the number of months of Federally-funded TANF cash assistance issued by your state that count towards the 60 month lifetime limit.  In addition, we need to know the number of months of TANF assistance from other states that your agency has verified.  " & "Please indicate if the client is open on SNAP or Medical Assistance in your state OR the date these programs most recently closed.  Thank you." & vbcr & "Is CASH/TANF currently closed?   YES	 NO		Date of closure: " & vbcr & "Is SNAP currently closed?   YES	 NO		Date of closure: " & vbcr & "Please list the month(s)/year(s) the person received federally funded TANF cash assistance: " & vbcr & "Is Medical Assistance closed?   YES	NO		Date of closure: " & vbcr & "Name of Person verifying information: " & vbcr & "Contact Information:" & vbcr & "Please reply or email your response to: Hennepin County Human Services and Public Health Services at hhsews@hennepin.us")
 
     'create_outlook_appointment(appt_date, appt_start_time, appt_end_time, appt_subject, appt_body, appt_location, appt_reminder, reminder_in_minutes, appt_category)
     IF outlook_reminder_CHECKBOX = CHECKED THEN
@@ -1379,6 +1345,7 @@ IF out_of_state_request = "Sent/Send" THEN
     	CALL create_outlook_email(agency_email, "","Out of State Inquiry for case #" &  MAXIS_case_number & " [ENCRYPT]", "Out of State Inquiry" & vbcr & message_array,"", False)
     END IF
 END IF 'If for sent/send'
+
 
 IF out_of_state_request = "Received" THEN
 	Dialog1 = ""
@@ -1408,7 +1375,7 @@ IF out_of_state_request = "Received" THEN
     OkButton 130, 210, 45, 15
     CancelButton 180, 210, 45, 15
     Text 10, 20, 40, 10, "Programs:"
-    GroupBox 5, 5, 220, 30, "Current programs applied or actv on:"
+    GroupBox 5, 5, 220, 30, "Current programs pending or active on in MN:"
     GroupBox 5, 85, 220, 100, "Out of State Agency Contact"
     Text 120, 65, 50, 10, "Last Received:"
     Text 10, 45, 40, 10, "Programs:"
@@ -1429,6 +1396,9 @@ IF out_of_state_request = "Received" THEN
 	    CALL check_for_password(are_we_passworded_out)                                 'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 	Loop until are_we_passworded_out = false
 
+
+
+
 	start_a_blank_case_note
 	Call write_variable_in_CASE_NOTE("---Out of State Inquiry received via " & how_sent & " from " & abbr_state & "---")
 	IF out_of_state_programs <> "" THEN CALL write_variable_in_CASE_NOTE("* " & abbr_state & " reported client received " & out_of_state_programs & " on " & date_received & " the case is currently: " & out_of_state_status)
@@ -1446,6 +1416,34 @@ IF out_of_state_request = "Received" THEN
 	PF3
 END IF
 
+"ask the hsr if we need to update the national directory?"
+IF update_state_info_checkbox = CHECKED THEN
+    BeginDialog Dialog1, 0, 0, 226, 130, "OUT OF STATE INQUIRY"
+      EditBox 45, 20, 165, 15, agency_name
+      EditBox 45, 40, 165, 15, agency_address
+      EditBox 45, 60, 165, 15, agency_email
+      EditBox 45, 80, 50, 15, agency_phone
+      EditBox 160, 80, 50, 15, agency_fax
+      ButtonGroup ButtonPressed
+        OkButton 125, 110, 45, 15
+        CancelButton 175, 110, 45, 15
+      GroupBox 5, 5, 215, 95, "Out of State Agency Contact Information"
+      Text 10, 25, 25, 10, "Name:"
+      Text 10, 45, 30, 10, "Address:"
+      Text 10, 65, 25, 10, "Email:"
+      Text 10, 85, 25, 10, "Phone:"
+      Text 140, 85, 15, 10, "Fax:"
+    EndDialog
+	DO      'Password DO loop
+		DO  'Conditional handling DO loop
+			Dialog Dialog1
+			cancel_without_confirmation
+			err_msg = ""
+			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+		LOOP until err_msg = ""
+		CALL check_for_password(are_we_passworded_out)
+	Loop until are_we_passworded_out = false
+END IF
 IF out_of_state_request = "Unknown/No Response" THEN
     '-------------------------------------------------------------------------------------------------DIALOG
     Dialog1 = "" 'Blanking out previous dialog detail
@@ -1512,4 +1510,4 @@ IF out_of_state_request = "Unknown/No Response" THEN
 END IF 'if non received'
 
 'TODO If an area is blank do not write it in the request
-script_end_procedure("Success! Your Out of State Inquiry has been generated, please follow up with the next steps to ensure the request is received timely. The verification request must be reflected in ECF.")
+script_end_procedure_with_error_report("Success! Your Out of State Inquiry has been generated, please follow up with the next steps to ensure the request is received timely. The verification request must be reflected in ECF this can be done by saving the word document as a PDF and uploading to ECF.")
