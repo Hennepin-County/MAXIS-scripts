@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("08/27/2020", "Removed the first dialog of questions and incorporated them into the detail entry dialogs.", "Casey Love, Hennepin County")
 Call changelog_update("03/06/2019", "Added 2 new options to the Notes on Income button to support referencing CASE/NOTE made by Earned Income Budgeting.", "Casey Love, Hennepin County")
 call changelog_update("12/22/2018", "Added closing message reminder about accepting all ECF work items for CSR's at the time of processing.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/07/2018", "Added Paperless (*) IR Option back, with updated functionality.", "Casey Love, Hennepin County")
@@ -2290,6 +2291,16 @@ MAXIS_footer_month = CM_plus_1_mo
 MAXIS_footer_year = CM_plus_1_yr
 
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Dim MAXIS_footer_month, MAXIS_footer_year, snap_active_count, hc_active_count, grh_active_count, snap_sr_yn, snap_sr_mo, snap_sr_yr, hc_sr_yn, hc_sr_mo, hc_sr_yr, grh_sr_yn, grh_sr_mo, grh_sr_yr, client_on_csr_form
+Dim residence_address_match_yn, mailing_address_match_yn, homeless_status, grh_sr, hc_sr, snap_sr, notes_on_address, resi_line_one, resi_line_two, resi_city, resi_state, resi_zip, resi_county, new_mail_zip
+Dim quest_two_move_in_out, new_hh_memb_not_in_mx_yn, apply_for_ma, q_4_details_blank_checkbox, ma_self_employed, q_5_details_blank_checkbox, ma_start_working, q_6_details_blank_checkbox, ma_other_income
+Dim q_7_details_blank_checkbox, ma_liquid_assets, q_9_details_blank_checkbox, ma_security_assets, q_10_details_blank_checkbox, ma_vehicle, q_11_details_blank_checkbox, ma_real_assets, q_12_details_blank_checkbox
+Dim ma_other_changes, other_changes_reported, changes_reported_blank_checkbox, quest_fifteen_form_answer, new_rent_or_mortgage_amount, heat_ac_checkbox, electricity_checkbox, telephone_checkbox, shel_proof_provided
+Dim quest_sixteen_form_answer, q_16_details_blank_checkbox, quest_seventeen_form_answer, q_17_details_blank_checkbox, quest_eighteen_form_answer, q_18_details_blank_checkbox, quest_nineteen_form_answer, csr_form_date
+Dim addr_verif, addr_homeless, addr_reservation, living_situation_status, mail_line_one, mail_line_two, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, new_mail_one, new_mail_city, new_mail_state
+Dim client_signed_yn, client_dated_yn, confirm_csr_form_information, notes_on_faci, notes_on_wreg, new_addr_effective_date, new_resi_one, new_resi_city, new_resi_state, new_resi_zip, new_resi_county, new_shel_verif
+Dim new_resi_addr_entered, new_mail_addr_entered
+
 HH_memb_row = 5
 Dim row
 Dim col
@@ -2612,9 +2623,7 @@ ReDim NEW_UNEARNED_ARRAY(unearned_notes, 0)
 ReDim NEW_CHILD_SUPPORT_ARRAY(cs_notes, 0)
 ReDim NEW_ASSET_ARRAY(asset_notes, 0)
 
-Dim notes_on_address, resi_line_one, resi_line_two, resi_city, resi_state, resi_zip, resi_county
-Dim addr_verif, addr_homeless, addr_reservation, living_situation_status, mail_line_one, mail_line_two, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date
-Dim notes_on_faci, notes_on_wreg
+
 
 unea_type_list = "Type or Select"
 unea_type_list = unea_type_list+chr(9)+"01 - RSDI, Disa"
@@ -2968,235 +2977,230 @@ Loop until last_memb = "ENTER A"
 
 Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, living_situation_status, mail_line_one, mail_line_two, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, curr_phone_one, curr_phone_two, curr_phone_three, curr_phone_type_one, curr_phone_type_two, curr_phone_type_three)
 
-'This dialog reviews address and household composition
-Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 426, 230, "CSR Detail and Address"
-  GroupBox 5, 5, 415, 60, "SR Programs"
-  Text 15, 20, 155, 10, "Are you processing a SNAP six-month report?"
-  DropListBox 165, 15, 40, 45, " "+chr(9)+"Yes"+chr(9)+"No", snap_sr_yn
-  ' Text 210, 20, 25, 10, "status:"
-  ' DropListBox 235, 15, 90, 45, "Select One..."+chr(9)+"I - Incomplete"+chr(9)+"U - Complete and Updt Req"+chr(9)+"N - Not Rcvd"+chr(9)+"A - Approved"+chr(9)+"O - Override Autoclose"+chr(9)+"T - Terminated"+chr(9)+"D - Denied", curr_snap_sr_status
-  Text 220, 20, 40, 10, "Month/Year"
-  EditBox 260, 15, 20, 15, snap_sr_mo
-  EditBox 285, 15, 20, 15, snap_sr_yr
+new_memb_counter = 0
+back_to_dlg_addr		= 1201
+back_to_dlg_ma_income	= 1202
+back_to_dlg_ma_asset	= 1203
+back_to_dlg_snap		= 1204
+back_to_dlg_sig			= 1205
+add_another_new_memb_btn= 1206
+done_adding_new_memb_btn= 1207
+add_memb_btn			= 1208
+add_jobs_btn			= 1209
+add_unea_btn			= 1210
+why_answer_btn			= 1211
+next_page_ma_btn		= 1212
+add_acct_btn			= 1213
+add_secu_btn			= 1214
+add_cars_btn			= 1215
+add_rest_btn			= 1216
+back_to_ma_dlg_1		= 1217
+continue_btn			= 1218
+back_to_ma_dlg_1		= 1219
+back_to_ma_dlg_2		= 1220
+finish_ma_questions		= 1221
+add_snap_earned_income_btn = 1222
+add_snap_unearned_btn	= 1223
+add_snap_cs_btn			= 1224
+complete_csr_questions	= 1225
 
-  Text 15, 35, 155, 10, "Are you processing a HC six-month report?"
-  DropListBox 165, 30, 40, 45, " "+chr(9)+"Yes"+chr(9)+"No", hc_sr_yn
-  ' Text 210, 35, 25, 10, "status:"
-  ' DropListBox 235, 30, 90, 45, "Select One..."+chr(9)+"I - Incomplete"+chr(9)+"U - Complete and Updt Req"+chr(9)+"N - Not Rcvd"+chr(9)+"A - Approved"+chr(9)+"O - Override Autoclose"+chr(9)+"T - Terminated"+chr(9)+"D - Denied", curr_hc_sr_status
-  Text 220, 35, 40, 10, "Month/Year"
-  EditBox 260, 30, 20, 15, hc_sr_mo
-  EditBox 285, 30, 20, 15, hc_sr_yr
 
-  Text 15, 50, 155, 10, "Are you processing a GRH six-month report?"
-  DropListBox 165, 45, 40, 45, " "+chr(9)+"Yes"+chr(9)+"No", grh_sr_yn
-  ' Text 210, 50, 25, 10, "status:"
-  ' DropListBox 235, 45, 90, 45, "Select One..."+chr(9)+"I - Incomplete"+chr(9)+"U - Complete and Updt Req"+chr(9)+"N - Not Rcvd"+chr(9)+"A - Approved"+chr(9)+"O - Override Autoclose"+chr(9)+"T - Terminated"+chr(9)+"D - Denied", curr_grh_sr_status
-  Text 220, 50, 40, 10, "Month/Year"
-  EditBox 260, 45, 20, 15, grh_sr_mo
-  EditBox 285, 45, 20, 15, grh_sr_yr
+function csr_dlg_q_1()
+	Do
+		Do
+			Do
+				'This dialog reviews address and household composition
+				Dialog1 = ""
+				BeginDialog Dialog1, 0, 0, 450, 230, "CSR Detail and Address"
+				  GroupBox 5, 5, 415, 60, "SR Programs"
+				  Text 15, 20, 155, 10, "Are you processing a SNAP six-month report?"
+				  DropListBox 165, 15, 40, 45, " "+chr(9)+"Yes"+chr(9)+"No", snap_sr_yn
+				  ' Text 210, 20, 25, 10, "status:"
+				  ' DropListBox 235, 15, 90, 45, "Select One..."+chr(9)+"I - Incomplete"+chr(9)+"U - Complete and Updt Req"+chr(9)+"N - Not Rcvd"+chr(9)+"A - Approved"+chr(9)+"O - Override Autoclose"+chr(9)+"T - Terminated"+chr(9)+"D - Denied", curr_snap_sr_status
+				  Text 220, 20, 40, 10, "Month/Year"
+				  EditBox 260, 15, 20, 15, snap_sr_mo
+				  EditBox 285, 15, 20, 15, snap_sr_yr
 
-  GroupBox 5, 70, 415, 30, "CSR Name Information"
-  Text 15, 85, 200, 10, "Who is listed as the member on the CSR Form?"
-  ComboBox 210, 80, 150, 45, all_the_clients+chr(9)+"Person Information Missing", client_on_csr_form
+				  Text 15, 35, 155, 10, "Are you processing a HC six-month report?"
+				  DropListBox 165, 30, 40, 45, " "+chr(9)+"Yes"+chr(9)+"No", hc_sr_yn
+				  ' Text 210, 35, 25, 10, "status:"
+				  ' DropListBox 235, 30, 90, 45, "Select One..."+chr(9)+"I - Incomplete"+chr(9)+"U - Complete and Updt Req"+chr(9)+"N - Not Rcvd"+chr(9)+"A - Approved"+chr(9)+"O - Override Autoclose"+chr(9)+"T - Terminated"+chr(9)+"D - Denied", curr_hc_sr_status
+				  Text 220, 35, 40, 10, "Month/Year"
+				  EditBox 260, 30, 20, 15, hc_sr_mo
+				  EditBox 285, 30, 20, 15, hc_sr_yr
 
-  DropListBox 295, 115, 120, 45, "Does the residence address match?"+chr(9)+"Yes - the addresses are the same."+chr(9)+"No - there is a difference."+chr(9)+"RESI Address not Provided", residence_address_match_yn
-  DropListBox 295, 145, 120, 45, "Does the mailing address match?"+chr(9)+"Yes - the addresses are the same."+chr(9)+"No - there is a difference."+chr(9)+"MAIL Address not Provided", mailing_address_match_yn
-  DropListBox 355, 170, 60, 45, "Select One..."+chr(9)+"Yes - Homeless"+chr(9)+"No", homeless_status
-  ' EditBox 355, 190, 60, 15, form_phone_number
-  GroupBox 5, 105, 130, 105, "Current Case Address"
-  Text 15, 115, 75, 10, "Residence Address:"
-  Text 20, 125, 110, 10, resi_line_one
-  If resi_line_two = "" Then
-    Text 20, 135, 110, 10, resi_city & ", " & resi_state & " " & resi_zip
-  Else
-    Text 20, 135, 110, 10, resi_line_two
-    Text 20, 145, 110, 10, resi_city & ", " & resi_state & " " & resi_zip
-  End If
-  Text 15, 160, 75, 10, "Mailing Address:"
-  If mail_line_one = "" Then
-      Text 20, 170, 110, 10, "NO MAILING ADDRESS LISTED"
-  Else
-      Text 20, 170, 110, 10, mail_line_one
-      If mail_line_two = "" Then
-        Text 20, 180, 110, 10, mail_city & ", " & mail_state & " " & mail_zip
-      Else
-        Text 20, 180, 110, 10, mail_line_two
-        Text 20, 190, 110, 10, mail_city & ", " & mail_state & " " & mail_zip
-      End If
-  End If
-  GroupBox 140, 105, 280, 105, "Address on CSR"
-  Text 150, 115, 135, 25, "RESIDENCE ADDRESS MATCH? Does the Residence Address in MAXIS match the Residence Address reported on the CSR?"
-  Text 150, 145, 135, 25, "MAILING ADDRESS MATCH? Does the Mailing Address in MAXIS match the Mailing Address reported on the CSR?"
-  Text 150, 175, 170, 10, "Does the CSR Form indicate the client is homeless?"
-  ' Text 150, 195, 170, 10, "Phone number listed on the CSR:"
+				  Text 15, 50, 155, 10, "Are you processing a GRH six-month report?"
+				  DropListBox 165, 45, 40, 45, " "+chr(9)+"Yes"+chr(9)+"No", grh_sr_yn
+				  ' Text 210, 50, 25, 10, "status:"
+				  ' DropListBox 235, 45, 90, 45, "Select One..."+chr(9)+"I - Incomplete"+chr(9)+"U - Complete and Updt Req"+chr(9)+"N - Not Rcvd"+chr(9)+"A - Approved"+chr(9)+"O - Override Autoclose"+chr(9)+"T - Terminated"+chr(9)+"D - Denied", curr_grh_sr_status
+				  Text 220, 50, 40, 10, "Month/Year"
+				  EditBox 260, 45, 20, 15, grh_sr_mo
+				  EditBox 285, 45, 20, 15, grh_sr_yr
 
-  ButtonGroup ButtonPressed
-    OkButton 315, 210, 50, 15
-    CancelButton 370, 210, 50, 15
-EndDialog
+				  GroupBox 5, 70, 415, 30, "CSR Name Information"
+				  Text 15, 85, 200, 10, "Who is listed as the member on the CSR Form?"
+				  ComboBox 210, 80, 150, 45, all_the_clients+chr(9)+"Person Information Missing", client_on_csr_form
 
-Do
+				  DropListBox 295, 115, 145, 45, "Does the residence address match?"+chr(9)+"Yes - the addresses are the same."+chr(9)+"No - there is a difference."+chr(9)+"RESI Address not Provided"+chr(9)+"No - New Address Entered", residence_address_match_yn
+				  DropListBox 295, 145, 145, 45, "Does the mailing address match?"+chr(9)+"Yes - the addresses are the same."+chr(9)+"No - there is a difference."+chr(9)+"MAIL Address not Provided"+chr(9)+"No - New Address Entered", mailing_address_match_yn
+				  DropListBox 355, 170, 85, 45, "Select One..."+chr(9)+"Yes - Homeless"+chr(9)+"No", homeless_status
+				  ' EditBox 355, 190, 60, 15, form_phone_number
+				  If new_resi_addr_entered = FALSE AND new_mail_addr_entered = FALSE Then GroupBox 5, 105, 130, 105, "Current Case Address in MAXIS"
+				  If new_resi_addr_entered = TRUE OR new_mail_addr_entered = TRUE Then GroupBox 5, 105, 130, 105, "Case Address Information"
+				  ' Text 15, 115, 75, 10, "Residence Address:"
+				  If new_resi_addr_entered = TRUE Then
+					  Text 15, 115, 110, 10, "UPDATED Residence Address:"
+					  Text 20, 125, 110, 10, new_resi_one
+					  Text 20, 135, 110, 10, new_resi_city & ", " & new_resi_state & " " & new_resi_zip
+				  Else
+					  Text 15, 115, 75, 10, "Residence Address:"
+					  Text 20, 125, 110, 10, resi_line_one
+					  If resi_line_two = "" Then
+					    Text 20, 135, 110, 10, resi_city & ", " & resi_state & " " & resi_zip
+					  Else
+					    Text 20, 135, 110, 10, resi_line_two
+					    Text 20, 145, 110, 10, resi_city & ", " & resi_state & " " & resi_zip
+					  End If
+				  End If
+				  If new_mail_addr_entered = TRUE Then
+					  Text 15, 160, 110, 10, "UPDATED Mailing Address:"
+					  Text 20, 170, 110, 10, new_mail_one
+					  Text 20, 180, 110, 10, new_mail_city & ", " & new_mail_state & " " & new_mail_zip
+				  Else
+					  Text 15, 160, 75, 10, "Mailing Address:"
+					  If mail_line_one = "" Then
+					      Text 20, 170, 110, 10, "NO MAILING ADDRESS LISTED"
+					  Else
+					      Text 20, 170, 110, 10, mail_line_one
+					      If mail_line_two = "" Then
+					        Text 20, 180, 110, 10, mail_city & ", " & mail_state & " " & mail_zip
+					      Else
+					        Text 20, 180, 110, 10, mail_line_two
+					        Text 20, 190, 110, 10, mail_city & ", " & mail_state & " " & mail_zip
+					      End If
+					  End If
+				  End IF
+				  GroupBox 140, 105, 305, 105, "Address on CSR"
+				  Text 150, 115, 135, 25, "RESIDENCE ADDRESS MATCH? Does the Residence Address in MAXIS match the Residence Address reported on the CSR?"
+				  Text 150, 145, 135, 25, "MAILING ADDRESS MATCH? Does the Mailing Address in MAXIS match the Mailing Address reported on the CSR?"
+				  Text 150, 175, 170, 10, "Does the CSR Form indicate the client is homeless?"
+				  ' Text 150, 195, 170, 10, "Phone number listed on the CSR:"
+
+				  ButtonGroup ButtonPressed
+				    OkButton 340, 210, 50, 15
+				    CancelButton 395, 210, 50, 15
+				EndDialog
+
+			    err_msg = ""
+
+			    dialog Dialog1
+			    cancel_confirmation
+
+			    program_indicated = FALSE
+			    If snap_sr_yn = "Yes" Then
+			        ' If snap_sr_status = "Select One..." Then err_msg = err_msg & vbNewLine & "* Since this case is for a SNAP Six-Month report indicate the status of the SR process (eg. N, I, or U)."
+			        Call validate_footer_month_entry(snap_sr_mo, snap_sr_yr, err_msg, "* SNAP SR MONTH")
+			        program_indicated = TRUE
+			    End If
+			    If hc_sr_yn = "Yes" Then
+			        ' If hc_sr_status = "Select One..." Then err_msg = err_msg & vbNewLine & "* Since this case is for a HC Six-Month report indicate the status of the SR process (eg. N, I, or U)."
+			        Call validate_footer_month_entry(hc_sr_mo, hc_sr_yr, err_msg, "* HC SR MONTH")
+			        program_indicated = TRUE
+			    End If
+			    If grh_sr_yn = "Yes" Then
+			        ' If grh_sr_status = "Select One..." Then err_msg = err_msg & vbNewLine & "* Since this case is for a GRH Six-Month report indicate the status of the SR process (eg. N, I, or U)."
+			        Call validate_footer_month_entry(grh_sr_mo, grh_sr_yr, err_msg, "* GRH SR MONTH")
+			        program_indicated = TRUE
+			    End If
+
+			    If client_on_csr_form = "Select or Type" OR trim(client_on_csr_form) = "" Then err_msg = err_msg & vbNewLine & "* Indicate who is listed on the CSR form in the person infromation, or if this is blank, select that the person information is missing."
+
+			    If program_indicated = FALSE Then err_msg = err_msg & vbNewLine & "* Select the program(s) that the CSR form is processing. (None of the programs are indicated to have an SR due.)"
+
+			    If residence_address_match_yn = "Does the residence address match?" Then err_msg = err_msg & vbNewLine & "* Indicate information about the residence address provided on the CSR form."
+			    If mailing_address_match_yn = "Does the mailing address match?" Then err_msg = err_msg & vbNewLine & "* Indicate information abobut the mailing address provided on the CSR form."
+				If residence_address_match_yn = "No - New Address Entered" AND new_resi_addr_entered = FALSE Then err_msg = err_msg & vbNewLine & "* The option 'No - New Address Endered' for the residence address can only be updated by the script."
+				If mailing_address_match_yn = "No - New Address Entered" AND new_mail_addr_entered = FALSE Then err_msg = err_msg & vbNewLine & "* The option 'No - New Address Endered' for the Mailing address can only be updated by the script."
+			    If homeless_yn = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate if the CSR form indicates the household is homeless or not."
+
+			    If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
+			Loop until err_msg = ""
+
+			If residence_address_match_yn = "No - there is a difference." Then call enter_new_residence_address
+
+			If mailing_address_match_yn = "No - there is a difference." Then call enter_new_mailing_address
+		Loop until mailing_address_match_yn <> "No - there is a difference." AND residence_address_match_yn <> "No - there is a difference."
+
+		show_csr_dlg_q_1 = FALSE
+		csr_dlg_q_1_cleared = TRUE
+		Call check_for_password(are_we_passworded_out)
+	Loop until are_we_passworded_out = FALSE
+end function
+
+function csr_dlg_q_2()
     Do
-        err_msg = ""
 
-        dialog Dialog1
-        cancel_confirmation
+		dlg_width = 425
+		If grh_sr = TRUE Then dlg_width = dlg_width + 50
+		If hc_sr = TRUE Then dlg_width = dlg_width + 50
+		If snap_sr = TRUE Then dlg_width = dlg_width + 50
 
-        program_indicated = FALSE
-        If snap_sr_yn = "Yes" Then
-            ' If snap_sr_status = "Select One..." Then err_msg = err_msg & vbNewLine & "* Since this case is for a SNAP Six-Month report indicate the status of the SR process (eg. N, I, or U)."
-            Call validate_footer_month_entry(snap_sr_mo, snap_sr_yr, err_msg, "* SNAP SR MONTH")
-            program_indicated = TRUE
-        End If
-        If hc_sr_yn = "Yes" Then
-            ' If hc_sr_status = "Select One..." Then err_msg = err_msg & vbNewLine & "* Since this case is for a HC Six-Month report indicate the status of the SR process (eg. N, I, or U)."
-            Call validate_footer_month_entry(hc_sr_mo, hc_sr_yr, err_msg, "* HC SR MONTH")
-            program_indicated = TRUE
-        End If
-        If grh_sr_yn = "Yes" Then
-            ' If grh_sr_status = "Select One..." Then err_msg = err_msg & vbNewLine & "* Since this case is for a GRH Six-Month report indicate the status of the SR process (eg. N, I, or U)."
-            Call validate_footer_month_entry(grh_sr_mo, grh_sr_yr, err_msg, "* GRH SR MONTH")
-            program_indicated = TRUE
-        End If
+		dlg_len = 80
+		For known_memb = 0 to UBOUND(ALL_CLIENTS_ARRAY, 2)
+		    dlg_len = dlg_len + 15
+		Next
 
-        If client_on_csr_form = "Select or Type" OR trim(client_on_csr_form) = "" Then err_msg = err_msg & vbNewLine & "* Indicate who is listed on the CSR form in the person infromation, or if this is blank, select that the person information is missing."
+		Dialog1 = ""
+		BeginDialog Dialog1, 0, 0, dlg_width, dlg_len, "CSR Household"
+		  ' GroupBox 5, 180, 415, grp_len, "Household Comp"
+		  Text 15, 10, 220, 10, "Q2. Has anyone moved in or out of your home in the past six months?"
+		  DropListBox 240, 5, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", quest_two_move_in_out
+		  x_pos = 430
+		  y_pos = 25
+		  Text 15, y_pos + 5, 275, 10, "Are there new household members that have been reported that are not listed here?"
+		  DropListBox 295, y_pos, 150, 45, "Select One..."+chr(9)+"Yes - add another member"+chr(9)+"No - all member in MAXIS"+chr(9)+"New Members Have been Added", new_hh_memb_not_in_mx_yn
+		  y_pos = y_pos + 20
+		  Text 15, y_pos, 35, 10, "Member #"
+		  Text 60, y_pos, 40, 10, "Last Name"
+		  Text 130, y_pos, 40, 10, "First Name"
+		  Text 205, y_pos, 15, 10, "Age"
+		  Text 295, y_pos, 50, 10, "HH Moved Out"
+		  Text 360, y_pos, 55, 10, "HH Moved In"
+		  If grh_sr = TRUE Then
+		      Text x_pos, y_pos, 20, 10, "GRH"
+		      grh_col = x_pos
+		      x_pos = x_pos + 50
+		  End If
+		  If hc_sr = TRUE Then
+		      Text x_pos, y_pos, 20, 10, "HC"
+		      hc_col = x_pos
+		      x_pos = x_pos + 50
+		  End If
+		  If snap_sr = TRUE Then
+		      Text x_pos, y_pos, 20, 10, "SNAP"
+		      snap_col = x_pos
+		      x_pos = x_pos + 50
+		  End If
+		  y_pos = y_pos + 20
+		  For known_memb = 0 to UBOUND(ALL_CLIENTS_ARRAY, 2)
+		    Text 20, y_pos, 15, 10, ALL_CLIENTS_ARRAY(memb_ref_numb, known_memb)
+		    Text 60, y_pos, 65, 10, ALL_CLIENTS_ARRAY(memb_last_name, known_memb)
+		    Text 130, y_pos, 65, 10, ALL_CLIENTS_ARRAY(memb_first_name, known_memb)
+		    Text 205, y_pos, 30, 10, ALL_CLIENTS_ARRAY(memb_age, known_memb)
+		    CheckBox 305, y_pos, 25, 10, "Out", ALL_CLIENTS_ARRAY(memb_remo_checkbox, known_memb)
+		    CheckBox 370, y_pos, 25, 10, "In", ALL_CLIENTS_ARRAY(memb_new_checkbox, known_memb)
+		    x_pos = 430
+		    If grh_sr = TRUE Then Text grh_col, y_pos, 35, 10, ALL_CLIENTS_ARRAY(clt_grh_status, known_memb)
+		    If hc_sr = TRUE Then Text hc_col, y_pos, 35, 10, ALL_CLIENTS_ARRAY(clt_hc_status, known_memb)
+		    If snap_sr = TRUE Then Text snap_col, y_pos, 35, 10, ALL_CLIENTS_ARRAY(clt_snap_status, known_memb)
+		    y_pos = y_pos + 15
+		  Next
+		  ' y_pos = y_pos + 25
+		  ButtonGroup ButtonPressed
+		    OkButton dlg_width - 110, y_pos, 50, 15
+		    CancelButton dlg_width - 55, y_pos, 50, 15
+		EndDialog
 
-        If program_indicated = FALSE Then err_msg = err_msg & vbNewLine & "* Select the program(s) that the CSR form is processing. (None of the programs are indicated to have an SR due.)"
-
-        If residence_address_match_yn = "Does the residence address match?" Then err_msg = err_msg & vbNewLine & "* Indicate information about the residence address provided on the CSR form."
-        If mailing_address_match_yn = "Does the mailing address match?" Then err_msg = err_msg & vbNewLine & "* Indicate information abobut the mailing address provided on the CSR form."
-        If homeless_yn = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate if the CSR form indicates the household is homeless or not."
-
-        If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
-    Loop until err_msg = ""
-    Call check_for_password(are_we_passworded_out)
-Loop until are_we_passworded_out = FALSE
-
-If grh_sr_yn = "Yes" Then grh_sr = TRUE
-If hc_sr_yn = "Yes" Then hc_sr = TRUE
-If snap_sr_yn = "Yes" Then snap_sr = TRUE
-
-If grh_sr = TRUE Then
-    MAXIS_footer_month = grh_sr_mo
-    MAXIS_footer_year = grh_sr_yr
-End If
-If hc_sr = TRUE Then
-    MAXIS_footer_month = hc_sr_mo
-    MAXIS_footer_year = hc_sr_yr
-End If
-If snap_sr = TRUE Then
-    MAXIS_footer_month = snap_sr_mo
-    MAXIS_footer_year = snap_sr_yr
-End If
-
-Call navigate_to_MAXIS_screen("CASE", "PERS")
-
-pers_row = 10                                               'This is where client information starts on CASE PERS
-person_counter = 0
-Do
-    EMReadScreen the_snap_status, 1, pers_row, 54
-    EMReadScreen the_grh_status, 1, pers_row, 66
-    EMReadScreen the_hc_status, 1, pers_row, 61             'reading the HC status of each client
-    ' MsgBox the_snap_status & vbNewLine & person_counter
-    If the_snap_status = "A" Then
-        ALL_CLIENTS_ARRAY(clt_snap_status, person_counter) = "Active"
-    ElseIf the_snap_status = "P" Then
-        ALL_CLIENTS_ARRAY(clt_snap_status, person_counter) = "Pending"
-    Else
-        ALL_CLIENTS_ARRAY(clt_snap_status, person_counter) = "Inactive"
-    End If
-    If the_grh_status = "A" Then
-        ALL_CLIENTS_ARRAY(clt_grh_status, person_counter) = "Active"
-    ElseIf the_grh_status = "P" Then
-        ALL_CLIENTS_ARRAY(clt_grh_status, person_counter) = "Pending"
-    Else
-        ALL_CLIENTS_ARRAY(clt_grh_status, person_counter) = "Inactive"
-    End If
-    If the_hc_status = "A" Then
-        ALL_CLIENTS_ARRAY(clt_hc_status, person_counter) = "Active"
-    ElseIf the_hc_status = "P" Then
-        ALL_CLIENTS_ARRAY(clt_hc_status, person_counter) = "Pending"
-    Else
-        ALL_CLIENTS_ARRAY(clt_hc_status, person_counter) = "Inactive"
-    End If
-
-    person_counter = person_counter + 1
-    pers_row = pers_row + 3         'next client information is 3 rows down
-    If pers_row = 19 Then           'this is the end of the list of client on each list
-        PF8                         'going to the next page of client information
-        pers_row = 10
-        EmReadscreen end_of_list, 9, 24, 14
-        If end_of_list = "LAST PAGE" Then Exit Do
-    End If
-    EmReadscreen next_pers_ref_numb, 2, pers_row, 3     'this reads for the end of the list
-
-Loop until next_pers_ref_numb = "  "
-Call back_to_SELF
-
-dlg_width = 425
-If grh_sr = TRUE Then dlg_width = dlg_width + 50
-If hc_sr = TRUE Then dlg_width = dlg_width + 50
-If snap_sr = TRUE Then dlg_width = dlg_width + 50
-
-dlg_len = 80
-For known_memb = 0 to UBOUND(ALL_CLIENTS_ARRAY, 2)
-    dlg_len = dlg_len + 15
-Next
-
-Dialog1 = ""
-BeginDialog Dialog1, 0, 0, dlg_width, dlg_len, "CSR Household"
-  ' GroupBox 5, 180, 415, grp_len, "Household Comp"
-  Text 15, 10, 220, 10, "Q2. Has anyone moved in or out of your home in the past six months?"
-  DropListBox 240, 5, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", quest_two_move_in_out
-  x_pos = 430
-  y_pos = 25
-  Text 15, y_pos + 5, 275, 10, "Are there new household members that have been reported that are not listed here?"
-  DropListBox 295, y_pos, 150, 45, "Select One..."+chr(9)+"Yes - add another member"+chr(9)+"No - all member in MAXIS", new_hh_memb_not_in_mx_yn
-  y_pos = y_pos + 20
-  Text 15, y_pos, 35, 10, "Member #"
-  Text 60, y_pos, 40, 10, "Last Name"
-  Text 130, y_pos, 40, 10, "First Name"
-  Text 205, y_pos, 15, 10, "Age"
-  Text 295, y_pos, 50, 10, "HH Moved Out"
-  Text 360, y_pos, 55, 10, "HH Moved In"
-  If grh_sr = TRUE Then
-      Text x_pos, y_pos, 20, 10, "GRH"
-      grh_col = x_pos
-      x_pos = x_pos + 50
-  End If
-  If hc_sr = TRUE Then
-      Text x_pos, y_pos, 20, 10, "HC"
-      hc_col = x_pos
-      x_pos = x_pos + 50
-  End If
-  If snap_sr = TRUE Then
-      Text x_pos, y_pos, 20, 10, "SNAP"
-      snap_col = x_pos
-      x_pos = x_pos + 50
-  End If
-  y_pos = y_pos + 20
-  For known_memb = 0 to UBOUND(ALL_CLIENTS_ARRAY, 2)
-    Text 20, y_pos, 15, 10, ALL_CLIENTS_ARRAY(memb_ref_numb, known_memb)
-    Text 60, y_pos, 65, 10, ALL_CLIENTS_ARRAY(memb_last_name, known_memb)
-    Text 130, y_pos, 65, 10, ALL_CLIENTS_ARRAY(memb_first_name, known_memb)
-    Text 205, y_pos, 30, 10, ALL_CLIENTS_ARRAY(memb_age, known_memb)
-    CheckBox 305, y_pos, 25, 10, "Out", ALL_CLIENTS_ARRAY(memb_remo_checkbox, known_memb)
-    CheckBox 370, y_pos, 25, 10, "In", ALL_CLIENTS_ARRAY(memb_new_checkbox, known_memb)
-    x_pos = 430
-    If grh_sr = TRUE Then Text grh_col, y_pos, 35, 10, ALL_CLIENTS_ARRAY(clt_grh_status, known_memb)
-    If hc_sr = TRUE Then Text hc_col, y_pos, 35, 10, ALL_CLIENTS_ARRAY(clt_hc_status, known_memb)
-    If snap_sr = TRUE Then Text snap_col, y_pos, 35, 10, ALL_CLIENTS_ARRAY(clt_snap_status, known_memb)
-    y_pos = y_pos + 15
-  Next
-  ' y_pos = y_pos + 25
-  ButtonGroup ButtonPressed
-    OkButton dlg_width - 110, y_pos, 50, 15
-    CancelButton dlg_width - 55, y_pos, 50, 15
-EndDialog
-
-Do
-    Do
         err_msg = ""
 
         dialog Dialog1
@@ -3204,20 +3208,1567 @@ Do
 
         If quest_two_move_in_out = "Select One..." Then err_msg = err_msg & vbNewLine & "* Enter the answer for Question 2 as provided on the CSR Form."
         If new_hh_memb_not_in_mx_yn = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate if there are new members of the household that are not listed on this dialog."
-
+		If new_hh_memb_not_in_mx_yn = "New Members Have been Added" AND new_memb_counter = 0 Then err_msg = err_msg & vbNewLine & "* No new members have been added during this script run. Select either 'Yes' or 'No'."
         If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
     Loop until err_msg = ""
-    Call check_for_password(are_we_passworded_out)
+	show_csr_dlg_q_2 = FALSE
+	csr_dlg_q_2_cleared = TRUE
+
+	If new_hh_memb_not_in_mx_yn = "Yes - add another member" Then
+	    Do
+	        ReDim Preserve NEW_MEMBERS_ARRAY(new_memb_notes, new_memb_counter)
+
+	        BeginDialog Dialog1, 0, 0, 255, 210, "New HH Member"
+	          EditBox 55, 35, 120, 15, NEW_MEMBERS_ARRAY(new_first_name, new_memb_counter)
+	          EditBox 235, 35, 15, 15, NEW_MEMBERS_ARRAY(new_mid_initial, new_memb_counter)
+	          EditBox 55, 55, 120, 15, NEW_MEMBERS_ARRAY(new_last_name, new_memb_counter)
+	          EditBox 210, 55, 40, 15, NEW_MEMBERS_ARRAY(new_suffix, new_memb_counter)
+	          EditBox 55, 75, 50, 15, NEW_MEMBERS_ARRAY(new_dob, new_memb_counter)
+	          DropListBox 105, 95, 145, 45, "Select One..."+chr(9)+"01 - Applicant"+chr(9)+"02 - Spouse"+chr(9)+"03 - Child"+chr(9)+"04 - Parent"+chr(9)+"05 - Sibling"+chr(9)+"06 - Step Sibling"+chr(9)+"08 - Step Child"+chr(9)+"09 - Step Parent"+chr(9)+"10 - Aunt"+chr(9)+"11 - Uncle"+chr(9)+"12 - Niece"+chr(9)+"13 - Nephew"+chr(9)+"14 - Cousin"+chr(9)+"15 - Grandparent"+chr(9)+"16 - Grandchild"+chr(9)+"17 - Other Relative"+chr(9)+"18 - Legal Guardian"+chr(9)+"24 - Not Related"+chr(9)+"25 - Live-In Attendant"+chr(9)+"27 - Unknown", NEW_MEMBERS_ARRAY(new_rel_to_applicant, new_memb_counter)
+	          CheckBox 35, 130, 20, 10, "HC", NEW_MEMBERS_ARRAY(new_ma_request, new_memb_counter)
+	          CheckBox 65, 130, 30, 10, "SNAP", NEW_MEMBERS_ARRAY(new_fs_request, new_memb_counter)
+	          CheckBox 100, 130, 30, 10, "GRH", NEW_MEMBERS_ARRAY(new_grh_request, new_memb_counter)
+	          CheckBox 200, 115, 50, 10, "Moved In", NEW_MEMBERS_ARRAY(new_memb_moved_in, new_memb_counter)
+	          CheckBox 200, 130, 50, 10, "Moved Out", NEW_MEMBERS_ARRAY(new_memb_moved_out, new_memb_counter)
+	          EditBox 40, 150, 210, 15, NEW_MEMBERS_ARRAY(new_memb_notes, new_memb_counter)
+	          ButtonGroup ButtonPressed
+	            PushButton 145, 190, 50, 15, "Add Another", add_another_new_memb_btn
+	            PushButton 200, 190, 50, 15, "No More", done_adding_new_memb_btn
+	          Text 10, 10, 155, 20, "Enter any information about the new household member that has not been added to MAXIS."
+	          Text 10, 40, 40, 10, "First Name"
+	          Text 180, 40, 45, 10, "Middle Initial:"
+	          Text 10, 60, 40, 10, "Last Name:"
+	          Text 180, 60, 25, 10, "Suffix:"
+	          Text 10, 80, 45, 10, "Date of Birth:"
+	          Text 10, 100, 85, 10, "Relationship to Memb 01:"
+	          GroupBox 10, 115, 165, 30, "Check any programs this Memb is requesting"
+	          Text 10, 155, 25, 10, "Notes:"
+	          Text 15, 175, 95, 25, "This script will not add this information to STAT, it will CASE:NOTE the information."
+	        EndDialog
+
+	        Dialog Dialog1
+	        cancel_confirmation
+
+			If ButtonPressed = -1 Then ButtonPressed = add_another_new_memb_btn
+			If ButtonPressed = 0 Then ButtonPressed = done_adding_new_memb_btn
+	        If ButtonPressed = add_another_new_memb_btn Then new_memb_counter = new_memb_counter + 1
+	    Loop until ButtonPressed = done_adding_new_memb_btn
+		new_hh_memb_not_in_mx_yn = "New Members Have been Added"
+
+	    For new_hh_memb = 0 to UBound(NEW_MEMBERS_ARRAY, 2)
+	        NEW_MEMBERS_ARRAY(new_mid_initial, new_hh_memb) = trim(NEW_MEMBERS_ARRAY(new_mid_initial, new_hh_memb))
+	        NEW_MEMBERS_ARRAY(new_suffix, new_hh_memb) = trim(NEW_MEMBERS_ARRAY(new_suffix, new_hh_memb))
+	        If NEW_MEMBERS_ARRAY(new_mid_initial, new_hh_memb) = "" Then NEW_MEMBERS_ARRAY(new_full_name, new_hh_memb) = NEW_MEMBERS_ARRAY(new_first_name, new_hh_memb) & " " & NEW_MEMBERS_ARRAY(new_last_name, new_hh_memb)
+	        If NEW_MEMBERS_ARRAY(new_mid_initial, new_hh_memb) <> "" Then NEW_MEMBERS_ARRAY(new_full_name, new_hh_memb) = NEW_MEMBERS_ARRAY(new_first_name, new_hh_memb) & " " & NEW_MEMBERS_ARRAY(new_mid_initial, new_hh_memb) & ". " & NEW_MEMBERS_ARRAY(new_last_name, new_hh_memb)
+	        If NEW_MEMBERS_ARRAY(new_suffix, new_hh_memb) <> "" Then NEW_MEMBERS_ARRAY(new_full_name, new_hh_memb) = NEW_MEMBERS_ARRAY(new_full_name, new_hh_memb) & " " & NEW_MEMBERS_ARRAY(new_suffix, new_hh_memb)
+	    Next
+		new_memb_counter = new_memb_counter + 1
+	End If
+end function
+
+function csr_dlg_q_4_7()
+	Do
+		dlg_len = 190
+		q_4_grp_len = 15
+		q_5_grp_len = 30
+		q_6_grp_len = 30
+		q_7_grp_len = 30
+		For new_jobs_listed = 0 to UBound(NEW_EARNED_ARRAY, 2)
+			If NEW_EARNED_ARRAY(earned_type, new_jobs_listed) = "BUSI" AND NEW_EARNED_ARRAY(earned_prog_list, new_jobs_listed) = "MA" Then
+				dlg_len = dlg_len + 20
+				q_5_grp_len = q_5_grp_len + 20
+			End If
+			If NEW_EARNED_ARRAY(earned_type, new_jobs_listed) = "JOBS"  AND NEW_EARNED_ARRAY(earned_prog_list, new_jobs_listed) = "MA" Then
+				dlg_len = dlg_len + 20
+				q_6_grp_len = q_6_grp_len + 20
+			End If
+		Next
+		For new_unea_listed = 0 to UBound(NEW_UNEARNED_ARRAY, 2)
+			If NEW_UNEARNED_ARRAY(unearned_type, new_unea_listed) = "UNEA"  AND NEW_UNEARNED_ARRAY(unearned_prog_list, new_unea_listed) = "MA" Then
+				dlg_len = dlg_len + 20
+				q_7_grp_len = q_7_grp_len + 20
+			End If
+		Next
+		' If apply_for_ma = "Yes" Then
+		'     dlg_len = dlg_len + (UBound(NEW_MA_REQUEST_ARRAY, 2) + 1) * 20
+		'     q_4_grp_len = 35 + UBound(NEW_MA_REQUEST_ARRAY, 2) * 20
+		' End If
+		For each_new_memb = 0 to UBound(NEW_MA_REQUEST_ARRAY, 2)
+			If NEW_MA_REQUEST_ARRAY(ma_request_client, each_new_memb) <> "Select or Type" and NEW_MA_REQUEST_ARRAY(ma_request_client, each_new_memb) <> "" Then
+				dlg_len = dlg_len + 20
+				q_4_grp_len = q_4_grp_len + 20
+			End If
+		Next
+
+		y_pos = 45
+
+		Dialog1 = ""
+		BeginDialog Dialog1, 0, 0, 610, dlg_len, "MA CSR Income Questions"
+		  Text 10, 10, 180, 10, "Enter the answers from the CSR form, questions 4 - 7:"
+		  Text 195, 10, 210, 10, "If all questions and details have been left blank, indicate that here:"
+		  DropListBox 405, 5, 200, 15, "Enter Question specific information below"+chr(9)+"Questions 4 - 7 are completely blank.", all_questions_4_7_blank
+
+		  GroupBox 15, 30, 585, q_4_grp_len, "Q4. Do you want to apply for MA for someone who is not getting coverage now?"
+		  DropListBox 285, 25, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", apply_for_ma
+		  CheckBox 430, 30, 75, 10, "Q4 Deailts left Blank", q_4_details_blank_checkbox
+		  ButtonGroup ButtonPressed
+			PushButton 540, 30, 50, 10, "Add Another", add_memb_btn
+		  ' If apply_for_ma = "Yes" Then
+		  For each_new_memb = 0 to UBound(NEW_MA_REQUEST_ARRAY, 2)
+			  If NEW_MA_REQUEST_ARRAY(ma_request_client, each_new_memb) <> "Select or Type" and NEW_MA_REQUEST_ARRAY(ma_request_client, each_new_memb) <> "" Then
+				  Text 35, y_pos + 5, 105, 10, "Select the Member requesting:"
+				  ComboBox 145, y_pos, 195, 45, all_the_clients, NEW_MA_REQUEST_ARRAY(ma_request_client, each_new_memb)
+				  y_pos = y_pos + 20
+			  End If
+		  Next
+		  If y_pos = 45 Then y_pos = y_pos + 5
+		  ' End If
+
+		  GroupBox 15, y_pos + 5, 585, q_5_grp_len, "Q5. Is anyone self-employed or does anyone expect to be self-employed?"
+		  DropListBox 265, y_pos, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_self_employed
+		  CheckBox 430, y_pos + 5, 75, 10, "Q5 Deailts left Blank", q_5_details_blank_checkbox
+		  y_pos = y_pos + 20
+
+		  ButtonGroup ButtonPressed
+			PushButton 540, y_pos - 15, 50, 10, "Add Another", add_busi_btn
+		  first_busi= TRUE
+		  For each_busi = 0 to UBound(NEW_EARNED_ARRAY, 2)
+			  If NEW_EARNED_ARRAY(earned_type, each_busi) = "BUSI" AND NEW_EARNED_ARRAY(earned_prog_list, each_busi) = "MA" Then
+				  If first_busi = TRUE then
+					  Text 35, y_pos, 25, 10, "Name"
+					  Text 155, y_pos, 55, 10, "Business Name"
+					  Text 265, y_pos, 35, 10, "Start Date"
+					  Text 325, y_pos, 50, 10, "Yearly Income"
+					  y_pos = y_pos + 10
+					  first_busi = FALSE
+				  End If
+
+				  ComboBox 35, y_pos, 110, 45, all_the_clients, NEW_EARNED_ARRAY(earned_client, each_busi)
+				  EditBox 155, y_pos, 105, 15, NEW_EARNED_ARRAY(earned_source, each_busi)
+				  EditBox 265, y_pos, 50, 15, NEW_EARNED_ARRAY(earned_start_date, each_busi)
+				  EditBox 325, y_pos, 60, 15, NEW_EARNED_ARRAY(earned_amount, each_busi)
+				  ' CheckBox 495, y_pos, 30, 10, "New", ALL_INCOME_ARRAY(new_checkbox, each_busi)
+				  ' CheckBox 530, y_pos, 40, 10, "Detail", ALL_INCOME_ARRAY(update_checkbox, each_busi)
+				  y_pos = y_pos  + 20
+			  End If
+		  Next
+		  If first_busi = TRUE Then
+			  Text 35, y_pos, 400, 10, "CSR form - no BUSI information has been added."
+			  y_pos = y_pos + 20
+		  Else
+			y_pos = y_pos + 10
+		  End If
+
+		  GroupBox 15, y_pos + 5, 585, q_6_grp_len, "Q6. Does anyone work or does anyone expect to start working?"
+		  DropListBox 230, y_pos, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_start_working
+		  CheckBox 430, y_pos + 5, 75, 10, "Q6 Deailts left Blank", q_6_details_blank_checkbox
+		  y_pos = y_pos  + 20
+		  ButtonGroup ButtonPressed
+			PushButton 540, y_pos - 15, 50, 10, "Add Another", add_jobs_btn
+		  first_job = TRUE
+		  For each_job = 0 to UBound(NEW_EARNED_ARRAY, 2)
+			  If NEW_EARNED_ARRAY(earned_type, each_job) = "JOBS" AND NEW_EARNED_ARRAY(earned_prog_list, each_job) = "MA" Then
+				  If first_job = TRUE Then
+					  Text 40, y_pos, 20, 10, "Name"
+					  Text 160, y_pos, 55, 10, "Employer Name"
+					  Text 270, y_pos, 35, 10, "Start Date"
+					  Text 330, y_pos, 35, 10, "Seasonal"
+					  Text 375, y_pos, 30, 10, "Amount"
+					  Text 425, y_pos, 50, 10, "How often?"
+					  y_pos = y_pos  + 10
+					  first_job = FALSE
+				  End If
+				  ComboBox 40, y_pos, 110, 45, all_the_clients, NEW_EARNED_ARRAY(earned_client, each_job)
+				  EditBox 155, y_pos, 105, 15, NEW_EARNED_ARRAY(earned_source, each_job)
+				  EditBox 270, y_pos, 50, 15, NEW_EARNED_ARRAY(earned_start_date, each_job)
+				  DropListBox 330, y_pos, 40, 45, " "+chr(9)+"No"+chr(9)+"Yes", NEW_EARNED_ARRAY(earned_seasonal, each_job)
+				  EditBox 375, y_pos, 45, 15, NEW_EARNED_ARRAY(earned_amount, each_job)
+				  DropListBox 425, y_pos, 60, 45, "Select One..."+chr(9)+"4 - Weekly"+chr(9)+"3 - Biweekly"+chr(9)+"2 - Semi Monthly"+chr(9)+"1 - Monthly", NEW_EARNED_ARRAY(earned_freq, each_job)
+				  ' CheckBox 495, y_pos, 30, 10, "New", ALL_INCOME_ARRAY(new_checkbox, each_job)
+				  ' CheckBox 530, y_pos, 40, 10, "Detail", ALL_INCOME_ARRAY(update_checkbox, each_job)
+				  y_pos = y_pos + 20
+			  End If
+		  Next
+		  If first_job = TRUE Then
+			  Text 35, y_pos, 400, 10, "CSR form - no JOBS information has been added."
+			  y_pos = y_pos + 20
+		  Else
+			y_pos = y_pos + 10
+		  End If
+
+		  GroupBox 15, y_pos + 5, 585, q_7_grp_len, "Q7. Does anyone get money or does anyone expect to get money from sources other than work?"
+		  DropListBox 335, y_pos, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_other_income
+		  CheckBox 430, y_pos + 5, 75, 10, "Q7 Deailts left Blank", q_7_details_blank_checkbox
+		  y_pos = y_pos +20
+		  ButtonGroup ButtonPressed
+			PushButton 540, y_pos - 15, 50, 10, "Add Another", add_unea_btn
+		  first_unea = TRUE
+
+		  For each_unea = 0 to UBound(NEW_UNEARNED_ARRAY, 2)
+			  If NEW_UNEARNED_ARRAY(unearned_type, each_unea) = "UNEA" AND NEW_UNEARNED_ARRAY(unearned_prog_list, each_unea) = "MA" Then
+				  If first_unea = TRUE Then
+					  Text 30, y_pos, 25, 10, "Name"
+					  Text 165, y_pos, 55, 10, "Type of Income"
+					  Text 280, y_pos, 35, 10, "Start Date"
+					  Text 335, y_pos, 35, 10, "Amount"
+					  Text 390, y_pos, 55, 10, "How often recvd"
+					  y_pos = y_pos + 10
+					  first_unea = FALSE
+				  End If
+				  ComboBox 30, y_pos, 130, 45, all_the_clients, NEW_UNEARNED_ARRAY(unearned_client, each_unea)
+				  ComboBox 165, y_pos, 110, 45, unea_type_list, NEW_UNEARNED_ARRAY(unearned_source, each_unea)   'unea_type
+				  EditBox 280, y_pos, 50, 15, NEW_UNEARNED_ARRAY(unearned_start_date, each_unea)    'unea_start_date
+				  EditBox 335, y_pos, 50, 15, NEW_UNEARNED_ARRAY(unearned_amount, each_unea)    'unea_amount
+				  DropListBox 390, y_pos, 90, 45, "Select One..."+chr(9)+"4 - Weekly"+chr(9)+"3 - Biweekly"+chr(9)+"2 - Semi Monthly"+chr(9)+"1 - Monthly", NEW_UNEARNED_ARRAY(unearned_freq, each_unea) 'unea_frequency
+				  ' CheckBox 495, y_pos, 30, 10, "New", ALL_INCOME_ARRAY(new_checkbox, each_unea)
+				  ' CheckBox 530, y_pos, 55, 10, "Update/Detail", ALL_INCOME_ARRAY(update_checkbox, each_unea)
+				  y_pos = y_pos + 20
+			  End If
+		  Next
+		  If first_unea = TRUE Then
+			  Text 35, y_pos, 400, 10, "CSR form - no UNEA information has been added."
+			  y_pos = y_pos + 20
+		  Else
+			y_pos = y_pos + 10
+		  End If
+
+		  ButtonGroup ButtonPressed
+			PushButton 20, y_pos + 2, 200, 13, "Why do I have to answer these if in is not HC?", why_answer_btn
+			PushButton 475, y_pos, 80, 15, "Go to Q9 - Q12", next_page_ma_btn
+			CancelButton 555, y_pos, 50, 15
+		EndDialog
+
+		dialog Dialog1
+		cancel_confirmation
+
+		err_msg = "LOOP"
+
+		If ButtonPressed = -1 Then ButtonPressed = next_page_ma_btn
+
+		If all_questions_4_7_blank = "Questions 4 - 7 are completely blank." Then
+			apply_for_ma = "Did not answer"
+			ma_self_employed = "Did not answer"
+			ma_start_working = "Did not answer"
+			ma_other_income = "Did not answer"
+
+			q_4_details_blank_checkbox = checked
+			q_5_details_blank_checkbox = checked
+			q_6_details_blank_checkbox = checked
+			q_7_details_blank_checkbox = checked
+		End If
+
+		If ButtonPressed = add_memb_btn Then
+			If NEW_MA_REQUEST_ARRAY(ma_request_client, 0) = "Select or Type" Then
+				NEW_MA_REQUEST_ARRAY(ma_request_client, 0) = "Enter or Select Member"
+			Else
+				new_item = UBound(NEW_MA_REQUEST_ARRAY, 2) + 1
+				ReDim Preserve NEW_MA_REQUEST_ARRAY(ma_request_notes, new_item)
+				NEW_MA_REQUEST_ARRAY(ma_request_client, new_item) = "Enter or Select Member"
+			End If
+		End If
+		If ButtonPressed = add_busi_btn Then
+			ReDim Preserve NEW_EARNED_ARRAY(earned_notes, new_earned_counter)
+			NEW_EARNED_ARRAY(earned_type, new_earned_counter) = "BUSI"
+			NEW_EARNED_ARRAY(earned_prog_list, new_earned_counter) = "MA"
+			new_earned_counter = new_earned_counter + 1
+		End If
+		If ButtonPressed = add_jobs_btn Then
+			ReDim Preserve NEW_EARNED_ARRAY(earned_notes, new_earned_counter)
+			NEW_EARNED_ARRAY(earned_type, new_earned_counter) = "JOBS"
+			NEW_EARNED_ARRAY(earned_prog_list, new_earned_counter) = "MA"
+			new_earned_counter = new_earned_counter + 1
+		End If
+		If ButtonPressed = add_unea_btn Then
+			new_item = UBound(ALL_INCOME_ARRAY, 2) + 1
+			ReDim Preserve NEW_UNEARNED_ARRAY(unearned_notes, new_unearned_counter)
+			NEW_UNEARNED_ARRAY(unearned_type, new_unearned_counter) = "UNEA"
+			NEW_UNEARNED_ARRAY(unearned_prog_list, new_unearned_counter) = "MA"
+			new_unearned_counter = new_unearned_counter + 1
+		End If
+		If ButtonPressed = why_answer_btn Then
+			explain_text = "This case may not have MA, MSP, or any HC active and you may have indicated that it is only for a SNAP Review, HOWEVER" & vbCr & vbCr
+			explain_text = explain_text & "The form that was sent to the client STILL has these questions listed on it." & vbCr
+			explain_text = explain_text & "We need to be looking at all information that the client reported, anything entered here may impact the benefits because it is now 'known to the agency'." & vbCr & vbCr
+			explain_text = explain_text & "Though the client is not required to answer these questions, we are still required to review the entire form."
+			' explain_text = explain_text & ""
+			why_answer_when_not_HC_msg = MsgBOx(explain_text, vbInformation + vbOKonly, "No HC on the case")
+		End If
+
+		If ButtonPressed = next_page_ma_btn Then
+			questions_answered = TRUE
+			err_msg = ""
+
+			If apply_for_ma = "Select One..." Then questions_answered = FALSE
+			If ma_self_employed = "Select One..." Then questions_answered = FALSE
+			If ma_start_working = "Select One..." Then questions_answered = FALSE
+			If ma_other_income = "Select One..." Then questions_answered = FALSE
+
+			If questions_answered = FALSE Then
+				err_msg = err_msg & vbNewLine & "* All of the questions must be answered with the answers from the CSR Form."
+				If apply_for_ma = "Select One..." Then err_msg = err_msg & vbNewLine & "   - "
+				If ma_self_employed = "Select One..." Then err_msg = err_msg & vbNewLine & "   - "
+				If ma_start_working = "Select One..." Then err_msg = err_msg & vbNewLine & "   - "
+				If ma_other_income = "Select One..." Then err_msg = err_msg & vbNewLine & "   - "
+			End If
+
+			q_4_details_entered = FALSE
+			q_5_details_entered = FALSE
+			q_6_details_entered = FALSE
+			q_7_details_entered = FALSE
+			If q_4_details_blank_checkbox = unchecked Then
+				For each_new_memb = 0 to UBound(NEW_MA_REQUEST_ARRAY, 2)
+					If NEW_MA_REQUEST_ARRAY(ma_request_client, each_new_memb) <> "Select or Type" and NEW_MA_REQUEST_ARRAY(ma_request_client, each_new_memb) <> "" and NEW_MA_REQUEST_ARRAY(ma_request_client, each_new_memb) <> "Enter or Select Member" Then
+						q_4_details_entered = TRUE
+					End If
+				Next
+				If q_4_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* No details of a person requesting MA for someone not getting coverage now (Question 4). Either enter information about which members are requesting MA coverage or check the box to indicate this portion of the form was left blank."
+			End If
+			If q_5_details_blank_checkbox = unchecked Then
+				For each_busi = 0 to UBound(NEW_EARNED_ARRAY, 2)
+					If NEW_EARNED_ARRAY(earned_type, each_busi) = "BUSI" AND NEW_EARNED_ARRAY(earned_prog_list, each_busi) = "MA" Then
+						q_5_details_entered = TRUE
+					End If
+				Next
+				If q_5_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* No Self Employment information has been entered (Question 5). Either enter BUSI details from the CSR Form or check the box to indicate this portion of the form was left blank."
+			End If
+			If q_6_details_blank_checkbox = unchecked Then
+				For each_job = 0 to UBound(NEW_EARNED_ARRAY, 2)
+					If NEW_EARNED_ARRAY(earned_type, each_job) = "JOBS" AND NEW_EARNED_ARRAY(earned_prog_list, each_job) = "MA" Then
+						q_6_details_entered = TRUE
+					End If
+				Next
+				If q_6_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* * No Job information has been entered (Question 6). Either enter JOBS details from the CSR Form or check the box to indicate this portion of the form was left blank."
+			End If
+			If q_7_details_blank_checkbox = unchecked Then
+				For each_unea = 0 to UBound(NEW_UNEARNED_ARRAY, 2)
+					If NEW_UNEARNED_ARRAY(unearned_type, each_unea) = "UNEA" AND NEW_UNEARNED_ARRAY(unearned_prog_list, each_unea) = "MA" Then
+						q_7_details_entered = TRUE
+					End If
+				Next
+				If q_7_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* * No Unearned Income information has been entered (Question 7). Either enter UNEA details from the CSR Form or check the box to indicate this portion of the form was left blank."
+			End If
+
+			If err_msg <> "" Then MsgBox "*** NOTICE ***" & vbNewLine & "Please resolve to continue:" & vbNewLine & err_msg
+			If err_msg = "" Then csr_dlg_q_4_7_cleared = TRUE
+		End If
+	Loop until err_msg = ""
+	show_csr_dlg_q_4_7 = FALSE
+
+end function
+
+function csr_dlg_q_9_12()
+	Do
+		dlg_len = 205
+		q_9_grp_len = 30
+		q_10_grp_len = 30
+		q_11_grp_len = 30
+		q_12_grp_len = 30
+		For new_assets_listed = 0 to UBound(NEW_ASSET_ARRAY, 2)
+			If NEW_ASSET_ARRAY(asset_type, new_assets_listed) = "CASH" AND NEW_ASSET_ARRAY(asset_prog_list, new_assets_listed) = "MA" Then
+				dlg_len = dlg_len + 20
+				q_9_grp_len = q_9_grp_len + 20
+				' MsgBox ALL_ASSETS_ARRAY(category_const, assets_on_case)
+			End If
+			If NEW_ASSET_ARRAY(asset_type, new_assets_listed) = "ACCT" AND NEW_ASSET_ARRAY(asset_prog_list, new_assets_listed) = "MA" Then
+				dlg_len = dlg_len + 20
+				q_9_grp_len = q_9_grp_len + 20
+			End If
+			If NEW_ASSET_ARRAY(asset_type, new_assets_listed) = "SECU" AND NEW_ASSET_ARRAY(asset_prog_list, new_assets_listed) = "MA" Then
+				dlg_len = dlg_len + 20
+				q_10_grp_len = q_10_grp_len + 20
+			End If
+			If NEW_ASSET_ARRAY(asset_type, new_assets_listed) = "CARS" AND NEW_ASSET_ARRAY(asset_prog_list, new_assets_listed) = "MA" Then
+				dlg_len = dlg_len + 20
+				q_11_grp_len = q_11_grp_len + 20
+			End If
+			If NEW_ASSET_ARRAY(asset_type, new_assets_listed) = "REST" AND NEW_ASSET_ARRAY(asset_prog_list, new_assets_listed) = "MA" Then
+				dlg_len = dlg_len + 20
+				q_12_grp_len = q_12_grp_len + 20
+			End If
+		Next
+		y_pos = 25
+		Dialog1 = ""
+		BeginDialog Dialog1, 0, 0, 610, dlg_len, "MA CSR Asset Questions"
+		  Text 10, 10, 180, 10, "Enter the answers from the CSR form, questions 9 - 12:"
+		  Text 195, 10, 210, 10, "If all questions and details have been left blank, indicate that here:"
+		  DropListBox 405, 5, 200, 15, "Enter Question specific information below"+chr(9)+"Questions 9 - 12 are completely blank.", all_questions_9_12_blank
+
+		  GroupBox 15, y_pos + 5, 585, q_9_grp_len, "Q9. Does anyone have cash, a savings or checking account, or a certificate of deposit?"
+		  DropListBox 330, y_pos, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_liquid_assets
+		  CheckBox 430, y_pos + 5, 75, 10, "Q9 Deailts left Blank", q_9_details_blank_checkbox
+		  y_pos = y_pos +20
+		  ButtonGroup ButtonPressed
+			PushButton 540, y_pos - 15, 50, 10, "Add Another", add_acct_btn
+		  first_account = TRUE
+
+		  For each_asset = 0 to UBound(NEW_ASSET_ARRAY, 2)
+			If (NEW_ASSET_ARRAY(asset_type, each_asset) = "ACCT" OR NEW_ASSET_ARRAY(asset_type, each_asset) = "CASH") AND NEW_ASSET_ARRAY(asset_prog_list, each_asset) = "MA" Then
+			  If first_account = TRUE Then
+				  Text 30, y_pos, 55, 10, "Owner(s) Name"
+				  Text 165, y_pos, 25, 10, "Type"
+				  Text 285, y_pos, 50, 10, "Bank Name"
+				  y_pos = y_pos + 10
+				  first_account = FALSE
+			  End If
+			  ComboBox 30, y_pos, 130, 45, all_the_clients, NEW_ASSET_ARRAY(asset_client, each_asset) 'liquid_asset_member'
+			  ComboBox 165, y_pos, 115, 40, account_list, NEW_ASSET_ARRAY(asset_acct_type, each_asset)'liquid_asst_type
+			  EditBox 285, y_pos, 195, 15, NEW_ASSET_ARRAY(asset_bank_name, each_asset)'liquid_asset_name
+			  ' CheckBox 495, y_pos, 30, 10, "New", ALL_ASSETS_ARRAY(new_checkbox, each_asset)    'new_checkbox
+			  ' CheckBox 530, y_pos, 55, 10, "Update/Detail", ALL_ASSETS_ARRAY(update_checkbox, each_asset)'update_checkbox
+			  y_pos = y_pos + 20
+			End If
+		  Next
+		  If first_account = TRUE Then
+			Text 30, y_pos, 250, 10, "CSR form - no ACCT information has been added."
+			y_pos = y_pos + 10
+		  End If
+
+		  y_pos = y_pos +10
+		  GroupBox 15, y_pos + 5, 585, q_10_grp_len, "Q10. Does anyone own or co-own securities or other assets?"
+		  DropListBox 295, y_pos, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_security_assets
+		  CheckBox 430, y_pos + 5, 80, 10, "Q10 Deailts left Blank", q_10_details_blank_checkbox
+		  y_pos = y_pos +  20
+		  ButtonGroup ButtonPressed
+			PushButton 540, y_pos - 15, 50, 10, "Add Another", add_secu_btn
+
+		  first_secu = TRUE
+		  For each_asset = 0 to UBound(NEW_ASSET_ARRAY, 2)
+			If NEW_ASSET_ARRAY(asset_type, each_asset) = "SECU" AND NEW_ASSET_ARRAY(asset_prog_list, each_asset) = "MA" Then
+				If first_secu = TRUE Then
+					Text 30, y_pos, 55, 10, "Owner(s) Name"
+					Text 165, y_pos, 25, 10, "Type"
+					Text 285, y_pos, 50, 10, "Bank Name"
+					y_pos = y_pos + 10
+					first_secu = FALSE
+				End If
+				ComboBox 30, y_pos, 130, 45, all_the_clients, NEW_ASSET_ARRAY(asset_client, each_asset) 'security_asset_member
+				ComboBox 165, y_pos, 115, 40, security_list, NEW_ASSET_ARRAY(asset_acct_type, each_asset)    'security_asset_type
+				EditBox 285, y_pos, 195, 15, NEW_ASSET_ARRAY(asset_bank_name, each_asset)   'security_asset_name
+				' CheckBox 495, y_pos, 30, 10, "New", ALL_ASSETS_ARRAY(new_checkbox, each_asset)
+				' CheckBox 530, y_pos, 55, 10, "Update/Detail", ALL_ASSETS_ARRAY(update_checkbox, each_asset)
+				y_pos = y_pos + 20
+			End If
+		  Next
+		  If first_secu = TRUE Then
+			  Text 30, y_pos, 250, 10, "CSR form - no SECU information has been added."
+			  y_pos = y_pos + 10
+		  End If
+		  y_pos = y_pos + 10
+
+		  GroupBox 15, y_pos + 5, 585, q_11_grp_len, "Q11. Does anyone own a vehicle?"
+		  DropListBox 250, y_pos, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_vehicle
+		  CheckBox 430, y_pos + 5, 80, 10, "Q11 Deailts left Blank", q_11_details_blank_checkbox
+		  y_pos = y_pos + 20
+		  ButtonGroup ButtonPressed
+			PushButton 540, y_pos - 15, 50, 10, "Add Another", add_cars_btn
+		  first_car = TRUE
+		  For each_asset = 0 to UBound(NEW_ASSET_ARRAY, 2)
+			  If NEW_ASSET_ARRAY(asset_type, each_asset) = "CARS" AND NEW_ASSET_ARRAY(asset_prog_list, each_asset) = "MA" Then
+				  If first_car = TRUE Then
+					  Text 30, y_pos, 55, 10, "Owner(s) Name"
+					  Text 165, y_pos, 25, 10, "Type"
+					  Text 285, y_pos, 75, 10, "Year/Make/Model"
+					  y_pos = y_pos + 10
+					  first_car = FALSE
+				  End If
+				  ComboBox 30, y_pos, 130, 45, all_the_clients, NEW_ASSET_ARRAY(asset_client, each_asset)     'vehicle_asset_member
+				  ComboBox 165, y_pos, 115, 40, cars_list, NEW_ASSET_ARRAY(asset_acct_type, each_asset)    'vehicle_asset_type
+				  EditBox 285, y_pos, 195, 15, NEW_ASSET_ARRAY(asset_year_make_model, each_asset)  'vehicle_asset_name
+				  ' CheckBox 495, y_pos, 30, 10, "New", ALL_ASSETS_ARRAY(new_checkbox, each_asset)
+				  ' CheckBox 530, y_pos, 55, 10, "Update/Detail", ALL_ASSETS_ARRAY(update_checkbox, each_asset)
+				  y_pos = y_pos + 20
+			  End If
+		  Next
+		  If first_car = TRUE Then
+			Text 30, y_pos, 250, 10, "CSR form - no CARS information has been added."
+			y_pos = y_pos + 10
+		  End If
+		  y_pos = y_pos + 10
+
+		  GroupBox 15, y_pos + 5, 585, q_12_grp_len, "Q12. Does anyone own or co-own any real estate?"
+		  DropListBox 280, y_pos, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_real_assets
+		  CheckBox 430, y_pos + 5, 80, 10, "Q12 Deailts left Blank", q_12_details_blank_checkbox
+		  y_pos = y_pos + 20
+		  ButtonGroup ButtonPressed
+			PushButton 540, y_pos - 15, 50, 10, "Add Another", add_rest_btn
+		  first_home = TRUE
+		  For each_asset = 0 to Ubound(NEW_ASSET_ARRAY, 2)
+			  If NEW_ASSET_ARRAY(asset_type, each_asset) = "REST" AND NEW_ASSET_ARRAY(asset_prog_list, each_asset) = "MA" Then
+				  If first_home = TRUE Then
+					  Text 30, y_pos, 55, 10, "Owner(s) Name"
+					  Text 165, y_pos, 25, 10, "Address"
+					  Text 320, y_pos, 75, 10, "Type of Property"
+					  y_pos = y_pos + 10
+					  first_home = FALSE
+				  End If
+				  ComboBox 30, y_pos, 130, 45, all_the_clients, NEW_ASSET_ARRAY(asset_client, each_asset)     'property_asset_member
+				  EditBox 165, y_pos, 150, 15, NEW_ASSET_ARRAY(asset_address, each_asset)      'property_asset_address
+				  ComboBox 320, y_pos, 150, 40, rest_list, NEW_ASSET_ARRAY(asset_acct_type, each_asset)     'property_asset_type
+				  ' CheckBox 495, y_pos, 30, 10, "New", ALL_ASSETS_ARRAY(new_checkbox, each_asset)
+				  ' CheckBox 530, y_pos, 55, 10, "Update/Detail", ALL_ASSETS_ARRAY(update_checkbox, each_asset)
+				  y_pos = y_pos + 20
+			  End If
+		  Next
+		  If first_home = TRUE Then
+			Text 30, y_pos, 250, 10, "CSR form - no REST information has been added."
+			y_pos = y_pos + 10
+		  End If
+		  y_pos = y_pos + 10
+
+		  ButtonGroup ButtonPressed
+			PushButton 415, y_pos, 80, 15, "Go Back to Q4 - Q7", back_to_ma_dlg_1
+			PushButton 495, y_pos, 60, 15, "Continue", continue_btn
+			CancelButton 555, y_pos, 50, 15
+		EndDialog
+
+		err_msg = "LOOP"
+
+		dialog Dialog1
+		cancel_confirmation
+
+		' MsgBox ButtonPressed & " - 1 - "
+		If ButtonPressed = -1 Then ButtonPressed = continue_btn
+
+		If ButtonPressed = add_acct_btn Then
+			ReDim Preserve NEW_ASSET_ARRAY(asset_notes, new_asset_counter)
+			NEW_ASSET_ARRAY(asset_type, new_asset_counter) = "ACCT"
+			NEW_ASSET_ARRAY(asset_prog_list, new_asset_counter) = "MA"
+			new_asset_counter = new_asset_counter + 1
+		End If
+		If ButtonPressed = add_secu_btn Then
+			ReDim Preserve NEW_ASSET_ARRAY(asset_notes, new_asset_counter)
+			NEW_ASSET_ARRAY(asset_type, new_asset_counter) = "SECU"
+			NEW_ASSET_ARRAY(asset_prog_list, new_asset_counter) = "MA"
+			new_asset_counter = new_asset_counter + 1
+		End If
+		If ButtonPressed = add_cars_btn Then
+			ReDim Preserve NEW_ASSET_ARRAY(asset_notes, new_asset_counter)
+			NEW_ASSET_ARRAY(asset_type, new_asset_counter) = "CARS"
+			NEW_ASSET_ARRAY(asset_prog_list, new_asset_counter) = "MA"
+			new_asset_counter = new_asset_counter + 1
+		End If
+		If ButtonPressed = add_rest_btn Then
+			ReDim Preserve NEW_ASSET_ARRAY(asset_notes, new_asset_counter)
+			NEW_ASSET_ARRAY(asset_type, new_asset_counter) = "REST"
+			NEW_ASSET_ARRAY(asset_prog_list, new_asset_counter) = "MA"
+			new_asset_counter = new_asset_counter + 1
+		End If
+
+		If all_questions_9_12_blank = "Questions 9 - 12 are completely blank." Then
+			ma_liquid_assets = "Did not answer"
+			ma_security_assets = "Did not answer"
+			ma_vehicle = "Did not answer"
+			ma_real_assets = "Did not answer"
+
+			q_9_details_blank_checkbox = checked
+			q_10_details_blank_checkbox = checked
+			q_11_details_blank_checkbox = checked
+			q_12_details_blank_checkbox = checked
+		End If
+
+		If ButtonPressed = continue_btn Then
+			questions_answered = TRUE
+			err_msg = ""
+
+			If ma_liquid_assets = "Select One..." Then questions_answered = FALSE
+			If ma_security_assets = "Select One..." Then questions_answered = FALSE
+			If ma_vehicle = "Select One..." Then questions_answered = FALSE
+			If ma_real_assets = "Select One..." Then questions_answered = FALSE
+
+			If questions_answered = FALSE Then
+				err_msg = err_msg & vbNewLine & "* All of the questions must be answered with the answers from the CSR Form."
+
+				If ma_liquid_assets = "Select One..." Then err_msg = err_msg & vbNewLine & "   - "
+				If ma_security_assets = "Select One..." Then err_msg = err_msg & vbNewLine & "   - "
+				If ma_vehicle = "Select One..." Then err_msg = err_msg & vbNewLine & "   - "
+				If ma_real_assets = "Select One..." Then err_msg = err_msg & vbNewLine & "   - "
+			End If
+
+			q_9_details_entered = FALSE
+			q_10_details_entered = FALSE
+			q_11_details_entered = FALSE
+			q_12_details_entered = FALSE
+			If q_9_details_blank_checkbox = unchecked Then
+				For each_new_memb = 0 to UBound(NEW_MA_REQUEST_ARRAY, 2)
+					If (NEW_ASSET_ARRAY(asset_type, each_asset) = "ACCT" OR NEW_ASSET_ARRAY(asset_type, each_asset) = "CASH") AND NEW_ASSET_ARRAY(asset_prog_list, each_asset) = "MA" AND NEW_ASSET_ARRAY(ma_request_client, each_asset) <> "Enter or Select Member" Then
+						q_9_details_entered = TRUE
+					End If
+				Next
+				If q_9_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* No details of a person requesting MA for someone not getting coverage now (Question 4). Either enter information about which members are requesting MA coverage or check the box to indicate this portion of the form was left blank."
+			End If
+			If q_10_details_blank_checkbox = unchecked Then
+				For each_busi = 0 to UBound(NEW_EARNED_ARRAY, 2)
+					If NEW_EARNED_ARRAY(earned_type, each_busi) = "BUSI" AND NEW_EARNED_ARRAY(earned_prog_list, each_busi) = "MA" Then
+						q_10_details_entered = TRUE
+					End If
+				Next
+				If q_10_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* No Self Employment information has been entered (Question 5). Either enter BUSI details from the CSR Form or check the box to indicate this portion of the form was left blank."
+			End If
+			If q_11_details_blank_checkbox = unchecked Then
+				For each_job = 0 to UBound(NEW_EARNED_ARRAY, 2)
+					If NEW_EARNED_ARRAY(earned_type, each_job) = "JOBS" AND NEW_EARNED_ARRAY(earned_prog_list, each_job) = "MA" Then
+						q_11_details_entered = TRUE
+					End If
+				Next
+				If q_11_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* * No Job information has been entered (Question 6). Either enter JOBS details from the CSR Form or check the box to indicate this portion of the form was left blank."
+			End If
+			If q_12_details_blank_checkbox = unchecked Then
+				For each_unea = 0 to UBound(NEW_UNEARNED_ARRAY, 2)
+					If NEW_UNEARNED_ARRAY(unearned_type, each_unea) = "UNEA" AND NEW_UNEARNED_ARRAY(unearned_prog_list, each_unea) = "MA" Then
+						q_12_details_entered = TRUE
+					End If
+				Next
+				If q_12_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* * No Unearned Income information has been entered (Question 7). Either enter UNEA details from the CSR Form or check the box to indicate this portion of the form was left blank."
+			End If
+
+			If err_msg <> "" Then MsgBox "*** NOTICE ***" & vbNewLine & "Please resolve to continue:" & vbNewLine & err_msg
+			If err_msg = "" Then 	csr_dlg_q_9_12_cleared = TRUE
+		End If
+
+		If ButtonPressed = back_to_ma_dlg_1 Then
+			' MsgBox ButtonPressed & " - 2 - "
+			show_csr_dlg_q_4_7 = TRUE
+			show_csr_dlg_q_13 = FALSE
+			show_csr_dlg_q_15_19 = FALSE
+			show_csr_dlg_sig = FALSE
+			show_confirmation = FALSE
+			err_msg = ""
+		End If
+	Loop until err_msg = ""
+	show_csr_dlg_q_9_12 = FALSE
+
+end function
+
+function csr_dlg_q_13()
+	Do
+		err_msg = ""
+
+		Dialog1 = ""
+		BeginDialog Dialog1, 0, 0, 610, 100, "MA CSR Changes"
+		  Text 10, 10, 180, 10, "Enter the answers from the CSR form, questions 13:"
+
+		  Text 25, 25, 135, 10, "Q13. Do you have any changes to report?"
+		  DropListBox 160, 20, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_other_changes
+		  EditBox 30, 40, 555, 15, other_changes_reported
+		  CheckBox 30, 60, 300, 10, "Check here if client left the changes to report field on the form blank.", changes_reported_blank_checkbox
+
+		  ButtonGroup ButtonPressed
+			PushButton 255, 80, 100, 15, "Back to Q 4-7", back_to_ma_dlg_1
+			PushButton 355, 80, 100, 15, "Back to Q 9 - 12", back_to_ma_dlg_2
+			PushButton 455, 80, 100, 15, "Finish MA Questions", finish_ma_questions
+			CancelButton 555, 80, 50, 15
+		EndDialog
+
+		dialog Dialog1
+		cancel_confirmation
+		If ButtonPressed = -1 Then ButtonPressed = finish_ma_questions
+
+		If ButtonPressed = back_to_ma_dlg_1 Then
+			show_csr_dlg_q_4_7 = TRUE
+			show_csr_dlg_q_15_19 = FALSE
+			show_csr_dlg_sig = FALSE
+			show_confirmation = FALSE
+		End If
+		If ButtonPressed = back_to_ma_dlg_2 Then
+			show_csr_dlg_q_9_12 = TRUE
+			show_csr_dlg_q_15_19 = FALSE
+			show_csr_dlg_sig = FALSE
+			show_confirmation = FALSE
+		End If
+		If ButtonPressed = finish_ma_questions Then
+			show_ma_dlg_three = FALSE
+
+			questions_answered = TRUE
+
+			If trim(other_changes_reported) <> "" Then details_shown = TRUE
+			If changes_reported_blank_checkbox = checked Then details_shown = TRUE
+
+			If ma_other_changes = "Select One..." Then questions_answered = FALSE
+
+			If questions_answered = FALSE Then
+				err_msg = err_msg & vbNewLine & "* All of the questions must be answered with the answers from the CSR Form."
+
+				If ma_other_changes = "Select One..." Then err_msg = err_msg & vbNewLine & "   - Indicate what the client entered for Question 13."
+			Else
+				If details_shown = FALSE Then err_msg = err_msg & vbNewLine & "* You must either enter what the client wrote in for Question 13 or check the box to indicate if if was blank."
+			End If
+			If trim(other_changes_reported) <> "" AND changes_reported_blank_checkbox = checked Then err_msg = err_msg & vbNewLine & "* You entered detail in what the client wrote and indicated it was blank using the checkbox, please update as only one of these should be completed."
+
+			If err_msg <> "" AND left(err_msg, 4) <> "LOOP" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
+			If err_msg = "" Then csr_dlg_q_13_cleared = TRUE
+		End If
+	Loop until err_msg = ""
+	show_csr_dlg_q_13 = FALSE
+	' MsgBox "Q 13 Cleared - " & csr_dlg_q_13_cleared
+end function
+
+function csr_dlg_q_15_19()
+	Do
+		err_msg = ""
+
+		dlg_len = 190
+		q_15_grp_len = 30
+		q_16_grp_len = 25
+		q_17_grp_len = 25
+		q_18_grp_len = 25
+
+		For the_earned = 0 to UBound(NEW_EARNED_ARRAY, 2)
+			If NEW_EARNED_ARRAY(earned_prog_list, the_earned) = "SNAP" Then
+				dlg_len = dlg_len + 20
+				q_16_grp_len = q_16_grp_len + 20
+			End If
+		Next
+
+		For the_unearned = 0 to UBound(NEW_UNEARNED_ARRAY, 2)
+			If NEW_UNEARNED_ARRAY(unearned_prog_list, the_unearned) = "SNAP" Then
+				dlg_len = dlg_len + 20
+				q_17_grp_len = q_17_grp_len + 20
+			End If
+		Next
+
+		For the_cs = 0 to UBound(NEW_CHILD_SUPPORT_ARRAY, 2)
+			If NEW_CHILD_SUPPORT_ARRAY(cs_current, the_cs) <> "" THen
+				dlg_len = dlg_len + 20
+				q_18_grp_len = q_18_grp_len + 20
+			End If
+		Next
+		' dlg_len = dlg_len + UBound(NEW_EARNED_ARRAY, 2) * 20
+		' dlg_len = dlg_len + UBound(NEW_UNEARNED_ARRAY, 2) * 20
+		' dlg_len = dlg_len + UBound(NEW_CHILD_SUPPORT_ARRAY, 2) * 20
+		' q_15_grp_len = 50
+		' q_16_grp_len = 45 + UBound(NEW_EARNED_ARRAY, 2) * 20
+		' q_17_grp_len = 45 + UBound(NEW_UNEARNED_ARRAY, 2) * 20
+		' q_18_grp_len = 45 + UBound(NEW_CHILD_SUPPORT_ARRAY, 2) * 20
+
+		y_pos = 95
+
+		Dialog1 = ""
+		BeginDialog Dialog1, 0, 0, 615, dlg_len, "SNAP CSR Question Details"
+		  Text 10, 10, 180, 10, "Enter the answers from the CSR form, questions 15 - 19:"
+		  Text 195, 10, 210, 10, "If all questions and details have been left blank, indicate that here:"
+		  DropListBox 405, 5, 200, 15, "Enter Question specific information below"+chr(9)+"Questions 15 - 19 are completely blank.", all_questions_15_19_blank
+		  GroupBox 10, 30, 600, q_15_grp_len, "Q15. Has your household moved since your last application or in the past six months?"
+		  DropListBox 305, 25, 100, 45, "Select One..."+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Did not answer", quest_fifteen_form_answer
+		  Text 25, 45, 105, 10, "New Rent or Mortgage Amount:"
+		  EditBox 130, 40, 65, 15, new_rent_or_mortgage_amount
+		  CheckBox 220, 45, 50, 10, "Heat/AC", heat_ac_checkbox
+		  CheckBox 275, 45, 50, 10, "Electricity", electricity_checkbox
+		  CheckBox 345, 45, 50, 10, "Telephone", telephone_checkbox
+		  Text 400, 45, 80, 10, "Did client attach proof?"
+		  DropListBox 480, 40, 125, 45, "Select One..."+chr(9)+"Yes"+chr(9)+"No", shel_proof_provided
+		  GroupBox 10, 70, 490, q_16_grp_len, "Q16 Has there been a change in EARNED INCOME?"
+		  DropListBox 190, 65, 100, 45, "Select One..."+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Did not answer", quest_sixteen_form_answer
+		  CheckBox 310, 70, 85, 10, "Q16 Deailts left Blank", q_16_details_blank_checkbox
+		  ButtonGroup ButtonPressed
+			PushButton 440, 70, 50, 10, "Add Another", add_snap_earned_income_btn
+		  first_earned = TRUE
+		  For the_earned = 0 to UBound(NEW_EARNED_ARRAY, 2)
+			  If NEW_EARNED_ARRAY(earned_prog_list, the_earned) = "SNAP" Then
+				  If first_earned = TRUE Then
+					  Text 15, 85, 20, 10, "Client"
+					  Text 130, 85, 100, 10, "Employer (or Business Name)"
+					  Text 265, 85, 50, 10, "Change Date"
+					  Text 320, 85, 35, 10, "Amount"
+					  Text 375, 85, 40, 10, "Frequency"
+					  Text 445, 85, 25, 10, "Hours"
+					  first_earned = FALSE
+				  End If
+				  ComboBox 15, y_pos, 110, 45, all_the_clients, NEW_EARNED_ARRAY(earned_client, the_earned)
+				  EditBox 130, y_pos, 130, 15, NEW_EARNED_ARRAY(earned_source, the_earned)
+				  EditBox 265, y_pos, 50, 15, NEW_EARNED_ARRAY(earned_change_date, the_earned)
+				  EditBox 320, y_pos, 50, 15, NEW_EARNED_ARRAY(earned_amount, the_earned)
+				  DropListBox 375, y_pos, 65, 45, "Select One..."+chr(9)+"Weekly"+chr(9)+"BiWeekly"+chr(9)+"Semi-Monthly"+chr(9)+"Monthly", NEW_EARNED_ARRAY(earned_freq, the_earned)
+				  EditBox 445, y_pos, 50, 15, NEW_EARNED_ARRAY(earned_hours, the_earned)
+				  y_pos = y_pos + 20
+			  End If
+		  Next
+		  y_pos = y_pos + 10
+		  GroupBox 10, y_pos, 490, q_17_grp_len, "Q17. Has there been a change in UNEARNED INCOME?"
+		  DropListBox 205, y_pos - 5, 100, 45, "Select One..."+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Did not answer", quest_seventeen_form_answer
+		  CheckBox 310, y_pos, 85, 10, "Q17 Deailts left Blank", q_17_details_blank_checkbox
+		  ButtonGroup ButtonPressed
+			PushButton 440, y_pos, 50, 10, "Add Another", add_snap_unearned_btn
+		  y_pos = y_pos + 15
+		  first_unearned = TRUE
+		  For the_unearned = 0 to UBound(NEW_UNEARNED_ARRAY, 2)
+			  If NEW_UNEARNED_ARRAY(unearned_prog_list, the_unearned) = "SNAP" Then
+				  If first_unearned = TRUE Then
+					  Text 15, y_pos, 20, 10, "Client"
+					  Text 145, y_pos, 100, 10, "Type and Source"
+					  Text 280, y_pos, 50, 10, "Change Date"
+					  Text 340, y_pos, 35, 10, "Amount"
+					  Text 405, y_pos, 40, 10, "Frequency"
+					  y_pos = y_pos + 10
+					  first_unearned = FALSE
+				  End If
+				  ComboBox 15, y_pos, 125, 45, all_the_clients, NEW_UNEARNED_ARRAY(unearned_client, the_unearned)
+				  EditBox 145, y_pos, 130, 15, NEW_UNEARNED_ARRAY(unearned_source, the_unearned)
+				  EditBox 280, y_pos, 55, 15, NEW_UNEARNED_ARRAY(unearned_change_date, the_unearned)
+				  EditBox 340, y_pos, 60, 15, NEW_UNEARNED_ARRAY(unearned_amount, the_unearned)
+				  DropListBox 405, y_pos, 90, 45, "Select One..."+chr(9)+"Weekly"+chr(9)+"BiWeekly"+chr(9)+"Semi-Monthly"+chr(9)+"Monthly", NEW_UNEARNED_ARRAY(unearned_freq, the_unearned)
+				  y_pos = y_pos + 20
+			  End If
+		  Next
+		  If first_unearned = TRUE Then y_pos = y_pos + 10
+		  y_pos = y_pos + 10
+		  GroupBox 10, y_pos, 490, q_18_grp_len, "Q18 Has there been a change in CHILD SUPPORT?"
+		  DropListBox 190, y_pos - 5, 100, 45, "Select One..."+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Did not answer", quest_eighteen_form_answer
+		  CheckBox 310, y_pos, 85, 10, "Q18 Deailts left Blank", q_18_details_blank_checkbox
+		  ButtonGroup ButtonPressed
+			PushButton 440, y_pos, 50, 10, "Add Another", add_snap_cs_btn
+		  y_pos = y_pos + 15
+
+		  first_cs = TRUE
+		  For the_cs = 0 to UBound(NEW_CHILD_SUPPORT_ARRAY, 2)
+			  If NEW_CHILD_SUPPORT_ARRAY(cs_current, the_cs) <> "" THen
+				  If first_cs = TRUE Then
+					  Text 15, y_pos, 85, 10, "Name of person paying"
+					  Text 220, y_pos, 35, 10, "Amount"
+					  Text 295, y_pos, 65, 10, "Currently Paying?"
+					  y_pos = y_pos + 10
+					  first_cs = FALSE
+				  End If
+				  EditBox 15, y_pos, 200, 15, NEW_CHILD_SUPPORT_ARRAY(cs_payer, the_cs)
+				  EditBox 220, y_pos, 65, 15, NEW_CHILD_SUPPORT_ARRAY(cs_amount, the_cs)
+				  DropListBox 295, y_pos, 60, 45, "Select..."+chr(9)+"Yes"+chr(9)+"No", NEW_CHILD_SUPPORT_ARRAY(cs_current, the_cs)
+				  y_pos = y_pos + 20
+			  End If
+		  Next
+		  If first_cs = TRUE Then y_pos = y_pos + 10
+		  y_pos = y_pos + 10
+		  Text 10, y_pos, 345, 10, "Q19. Did you work 20 hours each week, for an average of 80 hours per month during the past six months?"
+		  DropListBox 355, y_pos - 5, 100, 45, "Select One..."+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Did not answer", quest_nineteen_form_answer
+		  ' y_pos = y_pos + 15
+		  ButtonGroup ButtonPressed
+			PushButton 505, y_pos-5, 50, 15, "Continue", continue_btn
+			CancelButton 555, y_pos-5, 50, 15
+		EndDialog
+
+		dialog Dialog1
+		cancel_confirmation
+
+		If all_questions_15_19_blank = "Questions 15 - 19 are completely blank." Then
+			quest_fifteen_form_answer = "Did not answer"
+			quest_sixteen_form_answer = "Did not answer"
+			quest_seventeen_form_answer = "Did not answer"
+			quest_eighteen_form_answer = "Did not answer"
+			quest_nineteen_form_answer = "Did not answer"
+
+			q_16_details_blank_checkbox = checked
+			q_17_details_blank_checkbox = checked
+			q_18_details_blank_checkbox = checked
+		End If
+
+		If quest_fifteen_form_answer = "Select One..." OR quest_sixteen_form_answer = "Select One..." OR quest_seventeen_form_answer = "Select One..." OR quest_eighteen_form_answer = "Select One..." OR quest_nineteen_form_answer = "Select One..." Then err_msg = err_msg & vbNewLine & "* All of the questions must be answered with the answers from the CSR Form." & vbNewLine
+		If quest_fifteen_form_answer = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate the answer on the CSR form for Question 15 (Has the household moved?)."
+		If quest_sixteen_form_answer = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate the answer on the CSR form for Question 16 (Has anyone had a change in Earned income?)."
+		If quest_seventeen_form_answer = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate the answer on the CSR form for Question 17 (Has anyone had a change in Unearned income?)."
+		If quest_eighteen_form_answer = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate the answer on the CSR form for Question 18 (Has there been a change in Child Support income?)."
+		If quest_nineteen_form_answer = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate the answer on the CSR form for Question 19 (Have you worked 80 hours per month?)."
+
+		If ButtonPressed = add_snap_earned_income_btn Then
+			ReDim Preserve NEW_EARNED_ARRAY(earned_notes, new_earned_counter)
+			NEW_EARNED_ARRAY(earned_prog_list, new_earned_counter) = "SNAP"
+			new_earned_counter = new_earned_counter + 1
+			err_msg = "LOOP" & err_msg
+		End If
+
+		If ButtonPressed = add_snap_unearned_btn Then
+			new_item = UBound(NEW_UNEARNED_ARRAY, 2) + 1
+			ReDim Preserve NEW_UNEARNED_ARRAY(unearned_notes, new_unearned_counter)
+			NEW_UNEARNED_ARRAY(unearned_prog_list, new_unearned_counter) = "SNAP"
+			new_unearned_counter = new_unearned_counter + 1
+			err_msg = "LOOP" & err_msg
+		End If
+
+		If ButtonPressed = add_snap_cs_btn Then
+			If NEW_CHILD_SUPPORT_ARRAY(cs_current, 0) = "" THen
+				NEW_CHILD_SUPPORT_ARRAY(cs_current, 0) = "Select..."
+			Else
+				new_item = UBound(NEW_CHILD_SUPPORT_ARRAY, 2) + 1
+				ReDim Preserve NEW_CHILD_SUPPORT_ARRAY(cs_notes, new_item)
+			End If
+			err_msg = "LOOP" & err_msg
+
+		End If
+
+		If ButtonPressed = -1 Then ButtonPressed = continue_btn
+
+		If err_msg <> "" AND left(err_msg, 4) <> "LOOP" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
+		' MsgBox show_two & vbNewLine & "line 1480"
+		' Loop until leave_ma_questions = TRUE
+	Loop until err_msg = ""
+	show_csr_dlg_q_15_19 = FALSE
+	csr_dlg_q_15_19_cleared = TRUE
+end function
+
+function csr_dlg_sig()
+	Do
+		err_msg = ""
+
+		Dialog1 = ""
+		BeginDialog Dialog1, 0, 0, 201, 140, "Form dates and signatures"
+		  EditBox 135, 30, 60, 15, csr_form_date
+		  DropListBox 135, 55, 60, 45, "Select..."+chr(9)+"Yes"+chr(9)+"No", client_signed_yn
+		  DropListBox 135, 75, 60, 45, "Select..."+chr(9)+"Yes"+chr(9)+"No", client_dated_yn
+		  ButtonGroup ButtonPressed
+		    PushButton 35, 120, 105, 15, "Complete CSR Form Detail", complete_csr_questions
+		    CancelButton 145, 120, 50, 15
+		  Text 60, 35, 70, 10, "Date form Received:"
+		  Text 10, 60, 120, 10, "Has the client signed the CSR Form?"
+		  Text 10, 80, 120, 10, "Has the client dated the CSR Form?"
+		  Text 10, 10, 115, 15, "Answer if the CSR Form has been signed and dated by the client:"
+		  Text 5, 95, 190, 20, "Note: During the COVID Peacetime emergency verbal signatures over the phone count as 'Yes' for signed/dated."
+		EndDialog
+
+		dialog Dialog1
+
+		cancel_confirmation
+
+		If IsDate(csr_form_date) = FALSE Then
+			err_msg = err_msg & vbNewLine & "* Enter a valid date for the date the form was received."
+		Else
+			If DateDiff("d", date, csr_form_date) > 0 Then err_msg = err_msg & vbNewLine & "* The date of the CSR form is listed as a future date, a form cannot be listed as received inthe future, please review the form date."
+		End If
+		If client_signed_yn = "Select..." Then err_msg = err_msg & vbNewLine & "* Indicate if the client has signed the form correctly by selecting 'yes' or 'no'."
+		If client_dated_yn = "Select..." Then err_msg = err_msg & vbNewLine & "* Indicate if the form has been dated correctly by selecting 'yes' or 'no'."
+
+		If err_msg <> "" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
+
+	Loop until err_msg = ""
+	show_csr_dlg_sig = FALSE
+	csr_dlg_sig_cleared = TRUE
+end function
+
+function confirm_csr_form_dlg()
+	Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 751, 370, "CSR Form Information"
+	  DropListBox 255, 350, 190, 50, "Indicate the form information"+chr(9)+"NO - the information here is different"+chr(9)+"YES - This is the information on the CSR Form", confirm_csr_form_information
+	  ButtonGroup ButtonPressed
+	    OkButton 645, 350, 50, 15
+	    CancelButton 695, 350, 50, 15
+		PushButton 15, 327, 165, 13, "Fix Page One Information", back_to_dlg_addr
+		PushButton 200, 327, 165, 13, "Fix Page Two Information", back_to_dlg_ma_income
+		PushButton 385, 327, 165, 13, "Fix Page Three Information", back_to_dlg_ma_asset
+		PushButton 570, 270, 165, 13, "Fix Page Four Information", back_to_dlg_snap
+		PushButton 570, 327, 165, 13, "Fix Page Five Information", back_to_dlg_sig
+	  GroupBox 5, 5, 185, 340, "Page 1"
+	  Text 10, 20, 105, 10, "1. Name and Address"
+	  Text 20, 35, 160, 10, "Name:" & client_on_csr_form
+	  Text 20, 50, 70, 10, "Residence Address"
+	  If new_resi_addr_entered = TRUE Then
+		  Text 25, 65, 110, 10, new_resi_one
+		  Text 25, 75, 110, 10, new_resi_city & ", " & new_resi_state & " " & new_resi_zip
+		  y_pos_1 = 85
+	  Else
+		  Text 25, 65, 110, 10, resi_line_one
+		  If resi_line_two = "" Then
+			Text 25, 75, 110, 10, resi_city & ", " & resi_state & " " & resi_zip
+			y_pos_1 = 85
+		  Else
+			Text 25, 75, 110, 10, resi_line_two
+			Text 25, 85, 110, 10, resi_city & ", " & resi_state & " " & resi_zip
+			y_pos_1 = 95
+		  End If
+	  End If
+	  If residence_address_match_yn = "Yes - the addresses are the same." Then Text 100, y_pos_1, 75, 10, "Matches MAXIS - YES"
+	  If residence_address_match_yn = "No - there is a difference." Then Text 100, y_pos_1, 75, 10, "Matches MAXIS - NO"
+	  If residence_address_match_yn = "No - New Address Entered" Then Text 100, y_pos_1, 75, 10, "Matches MAXIS - NO"
+	  If residence_address_match_yn = "RESI Address not Provided" Then Text 100, y_pos_1, 75, 10, "BLANK RESI ADDR"
+
+	  Text 20, y_pos_1 + 15, 70, 10, "Mailing Address"
+	  y_pos_1 = y_pos_1 + 30
+	  If new_mail_addr_entered = TRUE Then
+		  Text 25, y_pos_1, 110, 10, new_mail_one
+		  y_pos_1 = y_pos_1 + 10
+		  Text 25, y_pos_1, 110, 10, new_mail_city & ", " & new_mail_state & " " & new_mail_zip
+		  y_pos_1 = y_pos_1 + 10
+	  Else
+		  If mail_line_one = "" Then
+			  Text 25, y_pos_1, 110, 10, "NO MAILING ADDRESS LISTED"
+			  y_pos_1 = y_pos_1 + 15
+		  Else
+			  Text 25, y_pos_1, 110, 10, mail_line_one
+			  y_pos_1 = y_pos_1 + 10
+			  If mail_line_two = "" Then
+				Text 25, y_pos_1, 110, 10, mail_city & ", " & mail_state & " " & mail_zip
+				y_pos_1 = y_pos_1 + 10
+			  Else
+				Text 25, y_pos_1, 110, 10, mail_line_two
+				Text 25, y_pos_1 + 10, 110, 10, mail_city & ", " & mail_state & " " & mail_zip
+				y_pos_1 = y_pos_1 + 20
+			  End If
+		  End If
+	  End If
+	  If mailing_address_match_yn = "Yes - the addresses are the same." Then Text 100, y_pos_1, 75, 10, "Matches MAXIS - YES"
+	  If mailing_address_match_yn = "No - there is a difference." Then Text 100, y_pos_1, 75, 10, "Matches MAXIS - NO"
+	  If mailing_address_match_yn = "No - New Address Entered" Then Text 100, y_pos_1, 75, 10, "Matches MAXIS - NO"
+	  If mailing_address_match_yn = "MAIL Address not Provided" Then Text 100, y_pos_1, 75, 10, "BLANK MAIL ADDR"
+
+	  y_pos_1 = y_pos_1 + 15
+	  Text 10, y_pos_1, 110, 20, "2. Has anyone moved in or out of your home in the past six months?"
+	  ' Text 20, 160, 115, 10, "your home in the past six months?"
+	  Text 150, y_pos_1, 35, 10, quest_two_move_in_out
+	  y_pos_1 = y_pos_1 + 25
+	  pers_list_count = 1
+
+	  For known_memb = 0 to UBOUND(ALL_CLIENTS_ARRAY, 2)
+		  If ALL_CLIENTS_ARRAY(memb_remo_checkbox, known_memb) = checked OR ALL_CLIENTS_ARRAY(memb_new_checkbox, known_memb) = checked Then
+			  Text 20, y_pos_1, 50, 10, "Person 1" & pers_list_count
+			  If ALL_CLIENTS_ARRAY(memb_remo_checkbox, known_memb) = checked Then Text 140, y_pos_1, 40, 10, "MOVED OUT"
+			  If ALL_CLIENTS_ARRAY(memb_new_checkbox, known_memb) = checked Then Text 140, y_pos_1, 40, 10, "MOVED IN"
+			  Text 25, y_pos_1 + 10, 155, 10, "Name:" & ALL_CLIENTS_ARRAY(memb_first_name, known_memb) & " " & ALL_CLIENTS_ARRAY(memb_last_name, known_memb)
+			  Text 25, y_pos_1 + 20, 155, 10, "Relationship:" & right(ALL_CLIENTS_ARRAY(memb_rel_to_applct, case_memb), len(ALL_CLIENTS_ARRAY(memb_rel_to_applct, case_memb)) - 5)
+			  ' Text 25, 205, 155, 10, "Date of Change:"
+			  ' Text 25, 215, 155, 10, "other"
+			  pers_list_count = pers_list_count + 1
+			  y_pos_1 = y_pos_1 + 40
+		  End If
+	  Next
+	  For new_memb_counter = 0 to UBOUND(NEW_MEMBERS_ARRAY, 2)
+		  If NEW_MEMBERS_ARRAY(new_memb_moved_out, new_memb_counter) = checked OR NEW_MEMBERS_ARRAY(new_memb_moved_in, new_memb_counter) = checked Then
+			  Text 20, y_pos_1, 50, 10, "Person 1" & pers_list_count
+			  If NEW_MEMBERS_ARRAY(new_memb_moved_out, new_memb_counter) = checked Then Text 140, y_pos_1, 40, 10, "MOVED OUT"
+			  If NEW_MEMBERS_ARRAY(new_memb_moved_in, new_memb_counter) = checked Then Text 140, y_pos_1, 40, 10, "MOVED IN"
+			  Text 25, y_pos_1 + 10, 155, 10, "Name:" & NEW_MEMBERS_ARRAY(new_first_name, new_memb_counter) & " " & NEW_MEMBERS_ARRAY(new_last_name, new_memb_counter)
+			  Text 25, y_pos_1 + 20, 155, 10, "Relationship:" & right(NEW_MEMBERS_ARRAY(new_rel_to_applicant, new_memb_counter), len(NEW_MEMBERS_ARRAY(new_rel_to_applicant, new_memb_counter)) - 5)
+			  ' Text 25, 205, 155, 10, "Date of Change:"
+			  ' Text 25, 215, 155, 10, "other"
+			  pers_list_count = pers_list_count + 1
+			  y_pos_1 = y_pos_1 + 40
+		  End If
+	  Next
+
+
+	  GroupBox 190, 5, 185, 340, "Page 2"
+	  Text 195, 20, 135, 20, "4. Do you want to apply for someone who is not getting coverage now?"
+	  ' Text 205, 30, 125, 10, "is not getting coverage now?"
+	  Text 340, 20, 35, 10, replace(apply_for_ma, "Did not answer", "BLANK")
+	  y_pos_2 = 40
+	  If q_4_details_blank_checkbox = checked then
+		  Text 200, y_pos_2, 150, 10, "Q4 details left BLANK"
+		  y_pos_2 = y_pos_2 + 10
+	  End If
+	  For each_new_memb = 0 to UBound(NEW_MA_REQUEST_ARRAY, 2)
+		  If NEW_MA_REQUEST_ARRAY(ma_request_client, each_new_memb) <> "" Then
+			  Text 200, y_pos_2, 150, 10, NEW_MA_REQUEST_ARRAY(ma_request_client, each_new_memb)
+			  y_pos_2 = y_pos_2 + 10
+		  End If
+	  Next
+	  y_pos_2 = y_pos_2 + 10
+
+	  Text 195, y_pos_2, 135, 20, "5. Is anyone self-employed or does anyone expect to be self-employed?"
+	  ' Text 205, 60, 125, 10, "anyone expect to be self-employed?"
+	  Text 340, y_pos_2, 35, 10, replace(ma_self_employed, "Did not answer", "BLANK")
+	  y_pos_2 = y_pos_2 + 20
+	  If q_5_details_blank_checkbox = checked Then
+		  Text 200, y_pos_2, 150, 10, "Q5 details left BLANK"
+		  y_pos_2 = y_pos_2 + 10
+	  End If
+	  For each_busi = 0 to UBound(NEW_EARNED_ARRAY, 2)
+		  If NEW_EARNED_ARRAY(earned_type, each_busi) = "BUSI" AND NEW_EARNED_ARRAY(earned_prog_list, each_busi) = "MA" Then
+			  Text 200, y_pos_2, 150, 10, NEW_EARNED_ARRAY(earned_client, each_busi) & " from " & NEW_EARNED_ARRAY(earned_source, each_busi) & " - $" & NEW_EARNED_ARRAY(earned_amount, each_busi) & " on " & NEW_EARNED_ARRAY(earned_start_date, each_busi)
+			  y_pos_2 = y_pos_2 + 10
+		  End If
+	  Next
+	  y_pos_2 = y_pos_2 + 10
+
+	  Text 195, y_pos_2, 135, 20, "6. Does anyone work or does anyone expect to start working?"
+	  ' Text 205, 90, 125, 10, "expect to start working?"
+	  Text 340, y_pos_2, 35, 10, replace(ma_start_working, "Did not answer", "BLANK")
+	  y_pos_2 = y_pos_2 + 20
+	  If q_6_details_blank_checkbox = checked Then
+		  Text 200, y_pos_2, 150, 10, "Q6 details left BLANK"
+		  y_pos_2 = y_pos_2 + 10
+	  End If
+	  For each_job = 0 to UBound(NEW_EARNED_ARRAY, 2)
+		  If NEW_EARNED_ARRAY(earned_type, each_job) = "JOBS" AND NEW_EARNED_ARRAY(earned_prog_list, each_job) = "MA" Then
+			  Text 200, y_pos_2, 150, 10, NEW_EARNED_ARRAY(earned_client, each_job) & " from " & NEW_EARNED_ARRAY(earned_source, each_job) & " - $" & NEW_EARNED_ARRAY(earned_amount, each_job) & " on " & NEW_EARNED_ARRAY(earned_start_date, each_job)
+			  y_pos_2 = y_pos_2 + 10
+		  End If
+	  Next
+	  y_pos_2 = y_pos_2 + 10
+
+	  Text 195, y_pos_2, 140, 25, "7. Does anyone get money or does anyone expect to get money from sources other than work?"
+	  ' Text 205, 120, 130, 10, "anyone expect to get money from "
+	  ' Text 205, 130, 115, 10, "sources other than work?"
+	  Text 340, y_pos_2, 35, 10, replace(ma_other_income, "Did not answer", "BLANK")
+	  y_pos_2 = y_pos_2 + 30
+	  If q_7_details_blank_checkbox = checked Then
+		  Text 200, y_pos_2, 150, 10, "Q7 details left BLANK"
+		  y_pos_2 = y_pos_2 + 10
+	  End If
+	  For each_unea = 0 to UBound(NEW_UNEARNED_ARRAY, 2)
+		  If NEW_UNEARNED_ARRAY(unearned_type, each_unea) = "UNEA" AND NEW_UNEARNED_ARRAY(unearned_prog_list, each_unea) = "MA" Then
+			  Text 200, y_pos_2, 150, 10, NEW_UNEARNED_ARRAY(unearned_client, each_unea) & " from " & NEW_UNEARNED_ARRAY(unearned_source, each_unea) & " - $" & NEW_UNEARNED_ARRAY(unearned_amount, each_unea) & " on " & NEW_UNEARNED_ARRAY(unearned_start_date, each_unea)
+			  y_pos_2 = y_pos_2 + 10
+		  End If
+	  Next
+	  y_pos_2 = y_pos_2 + 10
+
+
+	  GroupBox 375, 5, 185, 340, "Page 3"
+	  Text 380, 20, 145, 10, "9. Does anyone have cash or account?"
+	  Text 525, 20, 35, 10, replace(ma_liquid_assets, "Did not answer", "BLANK")
+	  y_pos_3 = 30
+	  If q_9_details_blank_checkbox = checked Then
+		  Text 385, y_pos_3, 150, 10, "Q9 details left BLANK"
+		  y_pos_3 = y_pos_3 + 10
+	  End If
+	  For each_asset = 0 to UBound(NEW_ASSET_ARRAY, 2)
+		If (NEW_ASSET_ARRAY(asset_type, each_asset) = "ACCT" OR NEW_ASSET_ARRAY(asset_type, each_asset) = "CASH") AND NEW_ASSET_ARRAY(asset_prog_list, each_asset) = "MA" Then
+		  Text 385, y_pos_3, 150, 10,  NEW_ASSET_ARRAY(asset_client, each_asset) & " Type -  " & NEW_ASSET_ARRAY(asset_acct_type, each_asset) & " at " & NEW_ASSET_ARRAY(asset_bank_name, each_asset)
+		  y_pos_3 = y_pos_3 + 10
+		End If
+	  Next
+	  y_pos_3 = y_pos_3 + 10
+
+	  Text 380, y_pos_3, 135, 20, "10. Does anyone own securities or other assets?"
+	  ' Text 390, 50, 125, 10, "other assets?"
+	  Text 525, y_pos_3, 35, 10, replace(ma_security_assets, "Did not answer", "BLANK")
+	  y_pos_3 = y_pos_3 + 20
+	  If q_10_details_blank_checkbox = checked Then
+		  Text 385, y_pos_3, 150, 10, "Q10 details left BLANK"
+		  y_pos_3 = y_pos_3 + 10
+	  End If
+	  For each_asset = 0 to UBound(NEW_ASSET_ARRAY, 2)
+		If NEW_ASSET_ARRAY(asset_type, each_asset) = "SECU" AND NEW_ASSET_ARRAY(asset_prog_list, each_asset) = "MA" Then
+			Text 385, y_pos_3, 150, 10,  NEW_ASSET_ARRAY(asset_client, each_asset) & " Type -  " & NEW_ASSET_ARRAY(asset_acct_type, each_asset) & " at " & NEW_ASSET_ARRAY(asset_bank_name, each_asset)
+			y_pos_3 = y_pos_3 + 10
+		End If
+	  Next
+	  y_pos_3 = y_pos_3 + 10
+
+	  Text 380, y_pos_3, 135, 10, "11. Does anyone own a vehicle?"
+	  Text 525, y_pos_3, 35, 10, replace(ma_vehicle, "Did not answer", "BLANK")
+	  y_pos_3 = y_pos_3 + 10
+	  If q_11_details_blank_checkbox = checked Then
+		  Text 385, y_pos_3, 150, 10, "Q11 details left BLANK"
+		  y_pos_3 = y_pos_3 + 10
+	  End If
+	  For each_asset = 0 to UBound(NEW_ASSET_ARRAY, 2)
+		  If NEW_ASSET_ARRAY(asset_type, each_asset) = "CARS" AND NEW_ASSET_ARRAY(asset_prog_list, each_asset) = "MA" Then
+			  Text 385, y_pos_3, 150, 10,  NEW_ASSET_ARRAY(asset_client, each_asset) & " Type -  " & NEW_ASSET_ARRAY(asset_acct_type, each_asset) & " at " & NEW_ASSET_ARRAY(asset_bank_name, each_asset)
+			  y_pos_3 = y_pos_3 + 10
+		  End If
+	  Next
+	  y_pos_3 = y_pos_3 + 10
+
+	  Text 380, y_pos_3, 140, 20, "12. Does anyone own or co-own a house or any real estate?"
+	  ' Text 390, 100, 130, 10, "or any real estate?"
+	  Text 525, y_pos_3, 35, 10, replace(ma_real_assets, "Did not answer", "BLANK")
+	  y_pos_3 = y_pos_3 + 20
+	  If q_12_details_blank_checkbox = checked Then
+		  Text 385, y_pos_3, 150, 10, "Q12 details left BLANK"
+		  y_pos_3 = y_pos_3 + 10
+	  End If
+
+	  y_pos_3 = y_pos_3 + 10
+
+	  Text 380, y_pos_3, 140, 10, "13. Do you have any change to report?"
+	  Text 525, y_pos_3, 35, 10, replace(ma_other_changes, "Did not answer", "BLANK")
+	  y_pos_3 = y_pos_3 + 10
+	  If changes_reported_blank_checkbox = checked Then
+		  Text 385, y_pos_3, 150, 10, "Q13 details left BLANK"
+		  y_pos_3 = y_pos_3 + 10
+	  End If
+	  If trim(other_changes_reported) <> "" Then
+		  Text 385, y_pos_3, 150, 10, "Other changes: " & other_changes_reported
+		  y_pos_3 = y_pos_3 + 10
+	  ENd If
+
+	  y_pos_3 = y_pos_3 + 10
+
+
+	  GroupBox 560, 5, 185, 340, "Page 4"
+	  Text 585, 20, 135, 20, "Since your last application or in the past six months..."
+	  Text 565, 45, 125, 10, "15. Has your household moved?"
+	  Text 710, 45, 35, 10, replace(quest_fifteen_form_answer, "Did not answer", "BLANK")
+	  y_pos_4 = 55
+	  If trim(new_rent_or_mortgage_amount) = "" AND heat_ac_checkbox = unchecked AND electricity_checkbox = unchecked AND telephone_checkbox = unchecked Then
+		  Text 570, y_pos_4, 150, 10, "Q15 details left BLANK"
+		  y_pos_4 = y_pos_4 + 10
+	  Else
+		  If trim(new_rent_or_mortgage_amount) = "" Then Text 570, y_pos_4, 150, 10, "NO new shelter Cost"
+		  If trim(new_rent_or_mortgage_amount) <> "" THen Text 570, y_pos_4, 150, 10, "New Shelter Cost: $" & new_rent_or_mortgage_amount
+		  y_pos_4 = y_pos_4 + 10
+
+		  If heat_ac_checkbox = checked OR electricity_checkbox = checked OR telephone_checkbox = checked Then
+			  Text 570, y_pos_4, 50, 10, "Utilities Paid"
+			  y_pos_4 = y_pos_4 + 10
+			  If heat_ac_checkbox = checked Then Text 575, y_pos_4, 50, 10, "HEAT/AC"
+			  If electricity_checkbox = checked Then Text 625, y_pos_4, 50, 10, "ELECTRIC"
+			  If telephone_checkbox = checked Then Text 675, y_pos_4, 50, 10, "PHONE"
+			  y_pos_4 = y_pos_4 + 10
+		  End If
+
+		  ' Text 570, y_pos_4, 150, 10, dlg_text
+
+	  End If
+
+	  y_pos_4 = y_pos_4 + 10
+
+	  Text 565, y_pos_4, 135, 20, "16. Has anyone had a change in their income from work?"
+	  ' Text 575, 75, 125, 10, ""
+	  Text 710, y_pos_4, 35, 10, replace(quest_sixteen_form_answer, "Did not answer", "BLANK")
+	  y_pos_4 = y_pos_4 + 20
+	  If q_16_details_blank_checkbox = checked Then
+		  Text 570, y_pos_4, 150, 10, "Q16 details left BLANK"
+		  y_pos_4 = y_pos_4 + 10
+	  End If
+	  For the_earned = 0 to UBound(NEW_EARNED_ARRAY, 2)
+		  If NEW_EARNED_ARRAY(earned_prog_list, the_earned) = "SNAP" Then
+			  Text 570, y_pos_4, 150, 10, NEW_EARNED_ARRAY(earned_client, the_earned) & " from " & NEW_EARNED_ARRAY(earned_source, the_earned) & " - $" & NEW_EARNED_ARRAY(earned_amount, the_earned) & " on " & NEW_EARNED_ARRAY(earned_change_date, the_earned)
+
+			  y_pos_4 = y_pos_4 + 10
+		  End If
+	  Next
+	  y_pos_4 = y_pos_4 + 10
+
+	  Text 565, y_pos_4, 140, 25, "17. Has anyone had a change of more than $50 per month from income sources other than work or a change in unearned income?"
+	  ' Text 575, 105, 140, 10, "than $50 per month from income sources"
+	  ' Text 575, 115, 160, 10, "other than work or a change in unearned income?"
+	  Text 710, y_pos_4, 35, 10, replace(quest_seventeen_form_answer, "Did not answer", "BLANK")
+	  y_pos_4 = y_pos_4 + 30
+	  If q_17_details_blank_checkbox = checked Then
+		  Text 570, y_pos_4, 150, 10, "Q17 details left BLANK"
+		  y_pos_4 = y_pos_4 + 10
+	  End If
+	  For the_unearned = 0 to UBound(NEW_UNEARNED_ARRAY, 2)
+		  If NEW_UNEARNED_ARRAY(unearned_prog_list, the_unearned) = "SNAP" Then
+			  Text 570, y_pos_4, 150, 10, NEW_UNEARNED_ARRAY(unearned_client, the_unearned) & " from " & NEW_UNEARNED_ARRAY(unearned_source, the_unearned) & " - $" & NEW_UNEARNED_ARRAY(unearned_amount, the_unearned) & " on " & NEW_UNEARNED_ARRAY(unearned_change_date, the_unearned)
+
+			  y_pos_4 = y_pos_4 + 10
+		  End If
+	  Next
+	  y_pos_4 = y_pos_4 + 10
+
+	  Text 565, y_pos_4, 135, 25, "18. Has anyone had a change in court-ordered child or medical support payments?"
+	  ' Text 575, 145, 140, 10, "court-ordered child or medical "
+	  ' Text 575, 155, 160, 10, "support payments?"
+	  Text 710, y_pos_4, 35, 10, replace(quest_eighteen_form_answer, "Did not answer", "BLANK")
+	  y_pos_4 = y_pos_4 + 30
+	  If q_18_details_blank_checkbox = checked Then
+		  Text 570, y_pos_4, 150, 10, "Q18 details left BLANK"
+		  y_pos_4 = y_pos_4 + 10
+	  End If
+	  For the_cs = 0 to UBound(NEW_CHILD_SUPPORT_ARRAY, 2)
+		  If NEW_CHILD_SUPPORT_ARRAY(cs_current, the_cs) <> "" THen
+			  Text 570, y_pos_4, 150, 10, "Child support - paid by: " & NEW_CHILD_SUPPORT_ARRAY(cs_payer, the_cs) & " - $" & NEW_CHILD_SUPPORT_ARRAY(cs_amount, the_cs)
+
+			  y_pos_4 = y_pos_4 + 10
+		  End If
+	  Next
+	  y_pos_4 = y_pos_4 + 10
+
+	  Text 565, y_pos_4, 135, 25, "19. Did you work 20 hours each week, for an average of 80 hours each month during the past six months?"
+	  ' Text 575, 185, 140, 10, "for an average of 80 hours each month"
+	  ' Text 575, 195, 160, 10, "during the past six months?"
+	  Text 710, y_pos_4, 35, 10, replace(quest_nineteen_form_answer, "Did not answer", "BLANK")
+	  GroupBox 560, 285, 185, 60, "Page 5"
+	  Text 570, 300, 165, 10, "Signature:" & client_signed_yn
+	  Text 570, 315, 165, 10, "Date:" & client_dated_yn
+
+	  Text 10, 355, 240, 10, "Review the information here, does it match the form the client submited?"
+
+	EndDialog
+
+	dialog Dialog1
+	cancel_confirmation
+
+	err_msg = "LOOP"
+
+	If ButtonPressed = back_to_dlg_addr Then
+		show_csr_dlg_q_1 = TRUE
+		show_csr_dlg_q_2 = TRUE
+	End If
+	If ButtonPressed = back_to_dlg_ma_income Then show_csr_dlg_q_4_7 = TRUE
+	If ButtonPressed = back_to_dlg_ma_asset Then
+		show_csr_dlg_q_9_12 = TRUE
+		show_csr_dlg_q_13 = TRUE
+	End If
+	If ButtonPressed = back_to_dlg_snap Then show_csr_dlg_q_15_19 = TRUE
+	If ButtonPressed = back_to_dlg_sig Then show_csr_dlg_sig = TRUE
+	' MsgBox show_csr_dlg_q_15_19
+	If ButtonPressed = -1 Then
+		err_msg = ""
+		If confirm_csr_form_information = "Indicate the form information" THen err_msg = err_msg & vbNewLine & "* Indicate if this information is correct and matches the form received. If something is not correct, use the buttons on this dialog to go back to the correct area and update the information on the specific dialog."
+		If err_msg <> "" Then MsgBox "*** NOTICE ***" & vbNewLine & "Please Resolve to Continue:" & vbNewLine & err_msg
+		If confirm_csr_form_information = "NO - the information here is different" Then
+			show_csr_dlg_q_1 = TRUE
+			show_csr_dlg_q_2 = TRUE
+			show_csr_dlg_q_4_7 = TRUE
+			show_csr_dlg_q_9_12 = TRUE
+			show_csr_dlg_q_13 = TRUE
+			show_csr_dlg_q_15_19 = TRUE
+			show_csr_dlg_sig = TRUE
+		End If
+	Else
+		confirm_csr_form_information = "Indicate the form information"
+	End If
+end function
+
+function gather_pers_detail()
+	If grh_sr_yn = "Yes" Then grh_sr = TRUE
+	If hc_sr_yn = "Yes" Then hc_sr = TRUE
+	If snap_sr_yn = "Yes" Then snap_sr = TRUE
+
+	If grh_sr = TRUE Then
+	    MAXIS_footer_month = grh_sr_mo
+	    MAXIS_footer_year = grh_sr_yr
+	End If
+	If hc_sr = TRUE Then
+	    MAXIS_footer_month = hc_sr_mo
+	    MAXIS_footer_year = hc_sr_yr
+	End If
+	If snap_sr = TRUE Then
+	    MAXIS_footer_month = snap_sr_mo
+	    MAXIS_footer_year = snap_sr_yr
+	End If
+
+	Call navigate_to_MAXIS_screen("CASE", "PERS")
+
+	pers_row = 10                                               'This is where client information starts on CASE PERS
+	person_counter = 0
+	Do
+	    EMReadScreen the_snap_status, 1, pers_row, 54
+	    EMReadScreen the_grh_status, 1, pers_row, 66
+	    EMReadScreen the_hc_status, 1, pers_row, 61             'reading the HC status of each client
+	    ' MsgBox the_snap_status & vbNewLine & person_counter
+	    If the_snap_status = "A" Then
+	        ALL_CLIENTS_ARRAY(clt_snap_status, person_counter) = "Active"
+	    ElseIf the_snap_status = "P" Then
+	        ALL_CLIENTS_ARRAY(clt_snap_status, person_counter) = "Pending"
+	    Else
+	        ALL_CLIENTS_ARRAY(clt_snap_status, person_counter) = "Inactive"
+	    End If
+	    If the_grh_status = "A" Then
+	        ALL_CLIENTS_ARRAY(clt_grh_status, person_counter) = "Active"
+	    ElseIf the_grh_status = "P" Then
+	        ALL_CLIENTS_ARRAY(clt_grh_status, person_counter) = "Pending"
+	    Else
+	        ALL_CLIENTS_ARRAY(clt_grh_status, person_counter) = "Inactive"
+	    End If
+	    If the_hc_status = "A" Then
+	        ALL_CLIENTS_ARRAY(clt_hc_status, person_counter) = "Active"
+	    ElseIf the_hc_status = "P" Then
+	        ALL_CLIENTS_ARRAY(clt_hc_status, person_counter) = "Pending"
+	    Else
+	        ALL_CLIENTS_ARRAY(clt_hc_status, person_counter) = "Inactive"
+	    End If
+
+	    person_counter = person_counter + 1
+	    pers_row = pers_row + 3         'next client information is 3 rows down
+	    If pers_row = 19 Then           'this is the end of the list of client on each list
+	        PF8                         'going to the next page of client information
+	        pers_row = 10
+	        EmReadscreen end_of_list, 9, 24, 14
+	        If end_of_list = "LAST PAGE" Then Exit Do
+	    End If
+	    EmReadscreen next_pers_ref_numb, 2, pers_row, 3     'this reads for the end of the list
+
+	Loop until next_pers_ref_numb = "  "
+	Call back_to_SELF
+
+	Call navigate_to_MAXIS_screen("STAT", "WREG")
+
+	For all_the_membs = 0 to UBound(ALL_CLIENTS_ARRAY, 2)
+		If ALL_CLIENTS_ARRAY(clt_snap_status, all_the_membs) = "Active" OR ALL_CLIENTS_ARRAY(clt_snap_status, all_the_membs) = "Pending" Then
+			EMWriteScreen ALL_CLIENTS_ARRAY(memb_ref_numb, all_the_membs), 20, 76
+			transmit
+
+			EMReadScreen wreg_abawd_code, 2, 13, 50
+			If wreg_abawd_code = "09" OR wreg_abawd_code = "10" OR wreg_abawd_code = "11" OR wreg_abawd_code = "13" Then abawd_on_case = TRUE
+		End If
+	Next
+end function
+
+function count_actives()
+	snap_active_count = 0
+	hc_active_count = 0
+	grh_active_count = 0
+	For known_memb = 0 to UBOUND(ALL_CLIENTS_ARRAY, 2)
+	    If ALL_CLIENTS_ARRAY(clt_grh_status, known_memb) = "Active" Then grh_active_count = grh_active_count + 1
+	    If ALL_CLIENTS_ARRAY(clt_hc_status, known_memb) = "Active" Then hc_active_count = hc_active_count + 1
+	    If ALL_CLIENTS_ARRAY(clt_snap_status, known_memb) = "Active" Then snap_active_count = snap_active_count + 1
+	Next
+end function
+
+function enter_new_residence_address()
+	Do
+		err_msg = ""
+
+		Dialog1 = ""
+		BeginDialog Dialog1, 0, 0, 356, 135, "New Residence Address Information"
+		  Text 240, 25, 50, 10, "Effective Date"
+		  EditBox 300, 20, 50, 15, new_addr_effective_date
+		  Text 10, 25, 145, 10, "New Residence Address Reported on CSR:"
+		  Text 20, 45, 45, 10, "House/Street:"
+		  EditBox 70, 40, 280, 15, new_resi_one
+		  Text 50, 65, 15, 10, "City:"
+		  EditBox 70, 60, 80, 15, new_resi_city
+		  Text 160, 65, 20, 10, "State:"
+		  DropListBox 185, 60, 75, 45, state_list, new_resi_state
+		  Text 275, 65, 20, 10, "Zip:"
+		  EditBox 300, 60, 50, 15, new_resi_zip
+		  Text 40, 85, 30, 10, "County:"
+		  DropListBox 70, 80, 190, 45, "Select One..."+chr(9)+county_list, new_resi_county
+		  Text 95, 100, 90, 10, "Address/Home Verification:"
+		  DropListBox 190, 95, 125, 45, "Select One..."+chr(9)+"SF - Shelter Form"+chr(9)+"CO - Coltrl Stmt"+chr(9)+"MO - Mortgage Papers"+chr(9)+"TX - Prop Tax Stmt"+chr(9)+"CD - Contrct for Deed"+chr(9)+"UT - Utility Stmt"+chr(9)+"DL - Driver Lic/State ID"+chr(9)+"OT - Other Document"+chr(9)+"NO - No Ver Prvd", new_shel_verif
+		  Text 10, 5, 300, 10, "ENTER THE RESIDENCE ADDRESS INFORMATION FROM THE CSR FORM"
+		  ButtonGroup ButtonPressed
+		    OkButton 300, 115, 50, 15
+		EndDialog
+
+		dialog Dialog1
+
+		If trim(new_addr_effective_date) <> "" AND IsDate(new_addr_effective_date) = FALSE THen err_msg = err_msg & vbNewLine & "* Enter the effective date as a valid date or leave blank."
+		new_resi_one = trim(new_resi_one)
+		new_resi_city = trim(new_resi_city)
+		new_resi_zip = trim(new_resi_zip)
+		If new_resi_one = "" AND new_resi_city = "" AND new_resi_state = "Select One..." AND new_resi_zip = "" Then err_msg = err_msg & vbNewLine & "* Enter the details from the form."
+		If new_resi_county = "Select One..." Then err_msg = err_msg & vbNewLine & "* Enter the county of residence."
+		If new_shel_verif = "Select One..." Then err_msg = err_msg & vbNewLine & "* Enter the verification (NO or OT are acceptable)."
+
+		If err_msg <> "" Then MsgBox "****** NOTICE ******" & vbNewLine & "Please Resolve to Continue:" & vbNewLine & err_msg
+
+	Loop until err_msg = ""
+	residence_address_match_yn = "No - New Address Entered"
+	new_resi_addr_entered = TRUE
+end function
+
+function enter_new_mailing_address()
+	Do
+		err_msg = ""
+
+		Dialog1 = ""
+		BeginDialog Dialog1, 0, 0, 356, 95, "New Mailing Address Information"
+		  Text 10, 20, 145, 10, "New Mailing Address Reported on CSR:"
+		  Text 20, 40, 45, 10, "House/Street:"
+		  EditBox 70, 35, 280, 15, new_mail_one
+		  Text 50, 60, 15, 10, "City:"
+		  EditBox 70, 55, 80, 15, new_mail_city
+		  Text 160, 60, 20, 10, "State:"
+		  DropListBox 185, 55, 75, 45, state_list, new_mail_state
+		  Text 275, 60, 20, 10, "Zip:"
+		  EditBox 300, 55, 50, 15, new_mail_zip
+		  Text 10, 5, 300, 10, "ENTER THE MAILING ADDRESS INFORMATION FROM THE CSR FORM"
+		  ButtonGroup ButtonPressed
+		    OkButton 300, 75, 50, 15
+		EndDialog
+
+		dialog Dialog1
+
+		new_mail_one = trim(new_mail_one)
+		new_mail_city = trim(new_mail_city)
+		new_mail_zip = trim(new_mail_zip)
+
+		If new_mail_one = "" AND new_mail_city = "" AND new_mail_state = "Select One..." AND new_mail_zip = "" Then err_msg = err_msg & vbNewLine & "* Enter the details from the form."
+		If err_msg <> "" Then MsgBox "****** NOTICE ******" & vbNewLine & "Please Resolve to Continue:" & vbNewLine & err_msg
+	Loop until err_msg = ""
+	mailing_address_match_yn = "No - New Address Entered"
+	new_mail_addr_entered = TRUE
+end function
+
+show_csr_dlg_q_1 		= TRUE
+show_csr_dlg_q_2 		= TRUE
+show_csr_dlg_q_4_7 		= TRUE
+show_csr_dlg_q_9_12 	= TRUE
+show_csr_dlg_q_13 		= TRUE
+show_csr_dlg_q_15_19 	= TRUE
+show_csr_dlg_sig 		= TRUE
+show_confirmation		= TRUE
+
+csr_dlg_q_1_cleared 	= FALSE
+csr_dlg_q_2_cleared 	= FALSE
+csr_dlg_q_4_7_cleared 	= FALSE
+csr_dlg_q_9_12_cleared 	= FALSE
+csr_dlg_q_13_cleared 	= FALSE
+csr_dlg_q_15_19_cleared = FALSE
+csr_dlg_sig_cleared 	= FALSE
+
+first_q_1_round = TURE
+first_q_2_round = TRUE
+questions_answered = FALSE
+details_shown = FALSE
+abawd_on_case = FALSE
+
+next_page_ma_btn = 1100
+previous_page_btn = 1200
+continue_btn = 1300
+
+new_earned_counter = 0
+new_unearned_counter = 0
+new_asset_counter = 0
+
+Dim NEW_MEMBERS_ARRAY()
+ReDim NEW_MEMBERS_ARRAY(new_memb_notes, 0)
+
+Do
+	Do
+		Do
+			Do
+				Do
+					Do
+						Do
+							Do
+								Do
+									' MsgBox "dlg q 1 - " & show_csr_dlg_q_1 & vbNewLine &_
+									' 	   "dlg q 2 - " & show_csr_dlg_q_2 & vbNewLine &_
+									' 	   "dlg q 4-7 - " & show_csr_dlg_q_4_7 & vbNewLine &_
+									' 	   "dlg q 9-12 - " & show_csr_dlg_q_9_12 & vbNewLine &_
+									' 	   "dlg q 13 - " & show_csr_dlg_q_13 & vbNewLine &_
+									' 	   "dlg q 15-19 - " & show_csr_dlg_q_15_19 & vbNewLine &_
+									' 	   "dlg q sig - " & show_csr_dlg_sig & vbNewLine &_
+									' 	   "dlg confirm - " & show_confirmation & vbNewLine & vbNewLine & "ONE"
+									show_confirmation = TRUE
+									If csr_dlg_q_1_cleared = FALSE Then show_csr_dlg_q_1 = TRUE
+									If csr_dlg_q_2_cleared = FALSE Then show_csr_dlg_q_2 = TRUE
+									If csr_dlg_q_4_7_cleared = FALSE Then show_csr_dlg_q_4_7 = TRUE
+									If csr_dlg_q_9_12_cleared = FALSE Then show_csr_dlg_q_9_12 = TRUE
+									If csr_dlg_q_13_cleared = FALSE Then show_csr_dlg_q_13 = TRUE
+									If csr_dlg_q_15_19_cleared = FALSE Then show_csr_dlg_q_15_19 = TRUE
+									If csr_dlg_sig_cleared = FALSE Then show_csr_dlg_sig = TRUE
+									' MsgBox "dlg q 1 - " & show_csr_dlg_q_1 & vbNewLine &_
+									' 	   "dlg q 2 - " & show_csr_dlg_q_2 & vbNewLine &_
+									' 	   "dlg q 4-7 - " & show_csr_dlg_q_4_7 & vbNewLine &_
+									' 	   "dlg q 9-12 - " & show_csr_dlg_q_9_12 & vbNewLine &_
+									' 	   "dlg q 13 - " & show_csr_dlg_q_13 & vbNewLine &_
+									' 	   "dlg q 15-19 - " & show_csr_dlg_q_15_19 & vbNewLine &_
+									' 	   "dlg q sig - " & show_csr_dlg_sig & vbNewLine &_
+									' 	   "dlg confirm - " & show_confirmation & vbNewLine & vbNewLine & "TWO"
+
+									If show_csr_dlg_q_1 = TRUE Then Call csr_dlg_q_1
+
+									If first_q_1_round = TURE Then
+										Call gather_pers_detail
+										first_q_1_round = FALSE
+									End If
+								Loop until show_csr_dlg_q_1 = FALSE
+								If show_csr_dlg_q_2 = TRUE Then Call csr_dlg_q_2
+
+								If first_q_2_round = TURE Then
+									Call count_actives
+									first_q_2_round = FALSE
+								End If
+							Loop until show_csr_dlg_q_2 = FALSE
+							If show_csr_dlg_q_4_7 = TRUE Then Call csr_dlg_q_4_7
+						Loop until show_csr_dlg_q_4_7 = FALSE
+						If show_csr_dlg_q_9_12 = TRUE Then Call csr_dlg_q_9_12
+					Loop until show_csr_dlg_q_9_12 = FALSE
+					If show_csr_dlg_q_13 = TRUE Then Call csr_dlg_q_13
+				Loop until show_csr_dlg_q_13 = FALSE
+				If show_csr_dlg_q_15_19 = TRUE Then Call csr_dlg_q_15_19
+			Loop until show_csr_dlg_q_15_19 = FALSE
+			If show_csr_dlg_sig = TRUE Then Call csr_dlg_sig
+		Loop until show_csr_dlg_sig = FALSE
+		If show_confirmation = TRUE Then Call confirm_csr_form_dlg
+	Loop until confirm_csr_form_information = "YES - This is the information on the CSR Form"
+	Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = FALSE
 
-snap_active_count = 0
-hc_active_count = 0
-grh_active_count = 0
-For known_memb = 0 to UBOUND(ALL_CLIENTS_ARRAY, 2)
-    If ALL_CLIENTS_ARRAY(clt_grh_status, known_memb) = "Active" Then grh_active_count = grh_active_count + 1
-    If ALL_CLIENTS_ARRAY(clt_hc_status, known_memb) = "Active" Then hc_active_count = hc_active_count + 1
-    If ALL_CLIENTS_ARRAY(clt_snap_status, known_memb) = "Active" Then snap_active_count = snap_active_count + 1
-Next
+
+
 ' 'dialog code for if the address doesn't match
 ' CheckBox 150, 170, 210, 10, "Check here if address on CSR matches the address in MAXIS", address_matches_checkbox
 ' Text 150, 185, 215, 10, "If address doesn't match, enter the new address information here:"
@@ -3230,859 +4781,979 @@ Next
 ' Text 285, 240, 20, 10, "State:"
 ' DropListBox 305, 235, 75, 45, "", state_list
 
-Dim NEW_MEMBERS_ARRAY()
-ReDim NEW_MEMBERS_ARRAY(new_memb_notes, 0)
 
-new_memb_counter = 0
-If new_hh_memb_not_in_mx_yn = "Yes - add another member" Then
-    Do
-        ReDim Preserve NEW_MEMBERS_ARRAY(new_memb_notes, new_memb_counter)
 
-        BeginDialog Dialog1, 0, 0, 256, 210, "New HH Member"
-          EditBox 55, 35, 120, 15, NEW_MEMBERS_ARRAY(new_first_name, new_memb_counter)
-          EditBox 235, 35, 15, 15, NEW_MEMBERS_ARRAY(new_mid_initial, new_memb_counter)
-          EditBox 55, 55, 120, 15, NEW_MEMBERS_ARRAY(new_last_name, new_memb_counter)
-          EditBox 210, 55, 40, 15, NEW_MEMBERS_ARRAY(new_suffix, new_memb_counter)
-          EditBox 55, 75, 50, 15, NEW_MEMBERS_ARRAY(new_dob, new_memb_counter)
-          DropListBox 105, 95, 145, 45, "Select One..."+chr(9)+"01 - Applicant"+chr(9)+"02 - Spouse"+chr(9)+"03 - Child"+chr(9)+"04 - Parent"+chr(9)+"05 - Sibling"+chr(9)+"06 - Step Sibling"+chr(9)+"08 - Step Child"+chr(9)+"09 - Step Parent"+chr(9)+"10 - Aunt"+chr(9)+"11 - Uncle"+chr(9)+"12 - Niece"+chr(9)+"13 - Nephew"+chr(9)+"14 - Cousin"+chr(9)+"15 - Grandparent"+chr(9)+"16 - Grandchild"+chr(9)+"17 - Other Relative"+chr(9)+"18 - Legal Guardian"+chr(9)+"24 - Not Related"+chr(9)+"25 - Live-In Attendant"+chr(9)+"27 - Unknown", NEW_MEMBERS_ARRAY(new_rel_to_applicant, new_memb_counter)
-          CheckBox 35, 130, 20, 10, "HC", NEW_MEMBERS_ARRAY(new_ma_request, new_memb_counter)
-          CheckBox 65, 130, 30, 10, "SNAP", NEW_MEMBERS_ARRAY(new_fs_request, new_memb_counter)
-          CheckBox 100, 130, 30, 10, "GRH", NEW_MEMBERS_ARRAY(new_grh_request, new_memb_counter)
-          CheckBox 200, 115, 50, 10, "Moved In", NEW_MEMBERS_ARRAY(new_memb_moved_in, new_memb_counter)
-          CheckBox 200, 130, 50, 10, "Moved Out", NEW_MEMBERS_ARRAY(new_memb_moved_out, new_memb_counter)
-          EditBox 40, 150, 210, 15, NEW_MEMBERS_ARRAY(new_memb_notes, new_memb_counter)
-          ButtonGroup ButtonPressed
-            PushButton 145, 190, 50, 15, "Add Another", add_another_new_memb_btn
-            PushButton 200, 190, 50, 15, "No More", done_adding_new_memb_btn
-          Text 10, 10, 155, 20, "Enter any information about the new household member that has not been added to MAXIS."
-          Text 10, 40, 40, 10, "First Name"
-          Text 180, 40, 45, 10, "Middle Initial:"
-          Text 10, 60, 40, 10, "Last Name:"
-          Text 180, 60, 25, 10, "Suffix:"
-          Text 10, 80, 45, 10, "Date of Birth:"
-          Text 10, 100, 85, 10, "Relationship to Memb 01:"
-          GroupBox 10, 115, 165, 30, "Check any programs this Memb is requesting"
-          Text 10, 155, 25, 10, "Notes:"
-          Text 15, 175, 95, 25, "This script will not add this information to STAT, it will CASE:NOTE the information."
-        EndDialog
 
-        Dialog Dialog1
-        cancel_confirmation
 
-        If ButtonPressed = add_another_new_memb_btn Then new_memb_counter = new_memb_counter + 1
-    Loop until ButtonPressed = done_adding_new_memb_btn
 
-    For new_hh_memb = 0 to UBound(NEW_MEMBERS_ARRAY, 2)
-        NEW_MEMBERS_ARRAY(new_mid_initial, new_hh_memb) = trim(NEW_MEMBERS_ARRAY(new_mid_initial, new_hh_memb))
-        NEW_MEMBERS_ARRAY(new_suffix, new_hh_memb) = trim(NEW_MEMBERS_ARRAY(new_suffix, new_hh_memb))
-        If NEW_MEMBERS_ARRAY(new_mid_initial, new_hh_memb) = "" Then NEW_MEMBERS_ARRAY(new_full_name, new_hh_memb) = NEW_MEMBERS_ARRAY(new_first_name, new_hh_memb) & " " & NEW_MEMBERS_ARRAY(new_last_name, new_hh_memb)
-        If NEW_MEMBERS_ARRAY(new_mid_initial, new_hh_memb) <> "" Then NEW_MEMBERS_ARRAY(new_full_name, new_hh_memb) = NEW_MEMBERS_ARRAY(new_first_name, new_hh_memb) & " " & NEW_MEMBERS_ARRAY(new_mid_initial, new_hh_memb) & ". " & NEW_MEMBERS_ARRAY(new_last_name, new_hh_memb)
-        If NEW_MEMBERS_ARRAY(new_suffix, new_hh_memb) <> "" Then NEW_MEMBERS_ARRAY(new_full_name, new_hh_memb) = NEW_MEMBERS_ARRAY(new_full_name, new_hh_memb) & " " & NEW_MEMBERS_ARRAY(new_suffix, new_hh_memb)
-    Next
-End If
 
-
-questions_answered = FALSE
-details_shown = FALSE
-Do
-    Do
-
-        'NEEDING A MA SPECIFIC DIALOG - Questions 4 - 13 are for MA only
-        Dialog1 = ""
-        BeginDialog Dialog1, 0, 0, 610, 245, "MA CSR Questions"
-          Text 10, 10, 180, 10, "Enter the answers from the CSR form, questions 4 - 18:"
-          Text 25, 30, 255, 10, "Q4. Do you want to apply for MA for someone who is not getting coverage now?"
-          DropListBox 285, 25, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", apply_for_ma
-          Text 25, 50, 235, 10, "Q5. Is anyone self-employed or does anyone expect to be self-employed?"
-          DropListBox 265, 45, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_self_employed
-          Text 25, 70, 205, 10, "Q6. Does anyone work or does anyone expect to start working?"
-          DropListBox 230, 65, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_start_working
-          Text 25, 90, 310, 10, "Q7. Does anyone get money or does anyone expect to get money from sources other than work?"
-          DropListBox 335, 85, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_other_income
-          Text 25, 110, 280, 10, "Q9. Does anyone have cash, a savings or checking account, or a certificate of deposit?"
-          DropListBox 305, 105, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_liquid_assets
-          Text 25, 135, 280, 20, "Q10. Does anyone own or co-own stocks, bonds, retirement accounts, life insurance, burial contracts, annuities, trusts, contracts for deed, or other assets?"
-          DropListBox 295, 135, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_security_assets
-          Text 25, 170, 110, 10, "Q11. Does anyone own a vehicle?"
-          DropListBox 140, 165, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_vehicle
-          Text 25, 190, 355, 10, "Q12. Does anyone own or co-own a home, life estate, cobin, land, time share, rental property or any real estate?"
-          DropListBox 385, 185, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_real_assets
-          Text 25, 210, 135, 10, "Q13. Do you have any changes to report?"
-          DropListBox 160, 205, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_other_changes
-          ButtonGroup ButtonPressed
-            PushButton 505, 225, 50, 15, "Submit", submit_btn
-            CancelButton 555, 225, 50, 15
-        EndDialog
-
-        err_msg = ""
-
-        dialog Dialog1
-        cancel_confirmation
-
-        questions_answered = TRUE
-        If apply_for_ma = "Select One..." Then questions_answered = FALSE
-        If ma_self_employed = "Select One..." Then questions_answered = FALSE
-        If ma_start_working = "Select One..." Then questions_answered = FALSE
-        If ma_other_income = "Select One..." Then questions_answered = FALSE
-        If ma_liquid_assets = "Select One..." Then questions_answered = FALSE
-        If ma_security_assets = "Select One..." Then questions_answered = FALSE
-        If ma_vehicle = "Select One..." Then questions_answered = FALSE
-        If ma_real_assets = "Select One..." Then questions_answered = FALSE
-        If ma_other_changes = "Select One..." Then questions_answered = FALSE
-
-        If questions_answered = FALSE Then err_msg = err_msg & vbNewLine & "* All of the questions must be answered with the answers from the CSR Form."
-
-        If err_msg <> "" AND left(err_msg, 4) <> "LOOP" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
-
-    Loop until err_msg = ""
-    Call check_for_password(are_we_passworded_out)
-Loop until are_we_passworded_out = FALSE
-
-show_two = FALSE
-next_page_ma_btn = 1100
-previous_page_btn = 1200
-continue_btn = 1300
-
-new_earned_counter = 0
-new_unearned_counter = 0
-new_asset_counter = 0
-
-If ma_self_employed = "Yes" Then
-    ReDim Preserve NEW_EARNED_ARRAY(earned_notes, new_earned_counter)
-    NEW_EARNED_ARRAY(earned_type, new_earned_counter) = "BUSI"
-    NEW_EARNED_ARRAY(earned_prog_list, new_earned_counter) = "MA"
-    new_earned_counter = new_earned_counter + 1
-End If
-If ma_start_working = "Yes" Then
-    ReDim Preserve NEW_EARNED_ARRAY(earned_notes, new_earned_counter)
-    NEW_EARNED_ARRAY(earned_type, new_earned_counter) = "JOBS"
-    NEW_EARNED_ARRAY(earned_prog_list, new_earned_counter) = "MA"
-    new_earned_counter = new_earned_counter + 1
-End If
-If ma_other_income = "Yes" Then
-    ReDim Preserve NEW_UNEARNED_ARRAY(unearned_notes, new_unearned_counter)
-    NEW_UNEARNED_ARRAY(unearned_type, new_unearned_counter) = "UNEA"
-    NEW_UNEARNED_ARRAY(unearned_prog_list, new_unearned_counter) = "MA"
-    new_unearned_counter = new_unearned_counter + 1
-End If
-If ma_liquid_assets = "Yes" Then
-    ReDim Preserve NEW_ASSET_ARRAY(asset_notes, new_asset_counter)
-    NEW_ASSET_ARRAY(asset_type, new_asset_counter) = "ACCT"
-    NEW_ASSET_ARRAY(asset_prog_list, new_asset_counter) = "MA"
-    new_asset_counter = new_asset_counter + 1
-End If
-If ma_security_assets = "Yes" Then
-    ReDim Preserve NEW_ASSET_ARRAY(asset_notes, new_asset_counter)
-    NEW_ASSET_ARRAY(asset_type, new_asset_counter) = "SECU"
-    NEW_ASSET_ARRAY(asset_prog_list, new_asset_counter) = "MA"
-    new_asset_counter = new_asset_counter + 1
-End If
-If ma_vehicle = "Yes" Then
-    ReDim Preserve NEW_ASSET_ARRAY(asset_notes, new_asset_counter)
-    NEW_ASSET_ARRAY(asset_type, new_asset_counter) = "CARS"
-    NEW_ASSET_ARRAY(asset_prog_list, new_asset_counter) = "MA"
-    new_asset_counter = new_asset_counter + 1
-End If
-If ma_real_assets = "Yes" Then
-    ReDim Preserve NEW_ASSET_ARRAY(asset_notes, new_asset_counter)
-    NEW_ASSET_ARRAY(asset_type, new_asset_counter) = "REST"
-    NEW_ASSET_ARRAY(asset_prog_list, new_asset_counter) = "MA"
-    new_asset_counter = new_asset_counter + 1
-End If
-
-Do
-    Do
-        Do
-            ' MsgBox show_two & vbNewLine & "line 1166"
-            If show_two = FALSE Then
-                dlg_len = 185
-                q_4_grp_len = 15
-                q_5_grp_len = 30
-                q_6_grp_len = 30
-                q_7_grp_len = 30
-                For new_jobs_listed = 0 to UBound(NEW_EARNED_ARRAY, 2)
-                    If NEW_EARNED_ARRAY(earned_type, new_jobs_listed) = "BUSI" AND NEW_EARNED_ARRAY(earned_prog_list, new_jobs_listed) = "MA" Then
-                        dlg_len = dlg_len + 20
-                        q_5_grp_len = q_5_grp_len + 20
-                    End If
-                    If NEW_EARNED_ARRAY(earned_type, new_jobs_listed) = "JOBS"  AND NEW_EARNED_ARRAY(earned_prog_list, new_jobs_listed) = "MA" Then
-                        dlg_len = dlg_len + 20
-                        q_6_grp_len = q_6_grp_len + 20
-                    End If
-                Next
-                For new_unea_listed = 0 to UBound(NEW_UNEARNED_ARRAY, 2)
-                    If NEW_UNEARNED_ARRAY(unearned_type, new_unea_listed) = "UNEA"  AND NEW_UNEARNED_ARRAY(unearned_prog_list, new_unea_listed) = "MA" Then
-                        dlg_len = dlg_len + 20
-                        q_7_grp_len = q_7_grp_len + 20
-                    End If
-                Next
-                If apply_for_ma = "Yes" Then
-                    dlg_len = dlg_len + (UBound(NEW_MA_REQUEST_ARRAY, 2) + 1) * 20
-                    q_4_grp_len = 35 + UBound(NEW_MA_REQUEST_ARRAY, 2) * 20
-                End If
-
-                y_pos = 40
-
-                Dialog1 = ""
-                BeginDialog Dialog1, 0, 0, 610, dlg_len, "MA CSR Income Questions"
-                  Text 10, 10, 180, 10, "Enter the answers from the CSR form, questions 4 - 7:"
-
-                  GroupBox 15, 25, 585, q_4_grp_len, "Q4. Do you want to apply for MA for someone who is not getting coverage now?"
-                  DropListBox 285, 20, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", apply_for_ma
-                  CheckBox 430, 25, 75, 10, "Q4 Deailts left Blank", q_4_details_blank_checkbox
-                  If apply_for_ma = "Yes" Then
-                      ButtonGroup ButtonPressed
-                        PushButton 540, y_pos - 15, 50, 10, "Add Another", add_memb_btn
-                      For each_new_memb = 0 to UBound(NEW_MA_REQUEST_ARRAY, 2)
-                          Text 35, y_pos + 5, 105, 10, "Select the Member requesting:"
-                          ComboBox 145, y_pos, 195, 45, all_the_clients, NEW_MA_REQUEST_ARRAY(ma_request_client, each_new_memb)
-                          y_pos = y_pos + 20
-                      Next
-                  End If
-
-                  GroupBox 15, y_pos + 5, 585, q_5_grp_len, "Q5. Is anyone self-employed or does anyone expect to be self-employed?"
-                  DropListBox 265, y_pos, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_self_employed
-                  CheckBox 430, y_pos + 5, 75, 10, "Q5 Deailts left Blank", q_5_details_blank_checkbox
-                  y_pos = y_pos + 20
-
-                  ButtonGroup ButtonPressed
-                    PushButton 540, y_pos - 15, 50, 10, "Add Another", add_busi_btn
-                  first_busi= TRUE
-                  For each_busi = 0 to UBound(NEW_EARNED_ARRAY, 2)
-                      If NEW_EARNED_ARRAY(earned_type, each_busi) = "BUSI" AND NEW_EARNED_ARRAY(earned_prog_list, each_busi) = "MA" Then
-                          If first_busi = TRUE then
-                              Text 35, y_pos, 25, 10, "Name"
-                              Text 155, y_pos, 55, 10, "Business Name"
-                              Text 265, y_pos, 35, 10, "Start Date"
-                              Text 325, y_pos, 50, 10, "Yearly Income"
-                              y_pos = y_pos + 10
-                              first_busi = FALSE
-                          End If
-
-                          ComboBox 35, y_pos, 110, 45, all_the_clients, NEW_EARNED_ARRAY(earned_client, each_busi)
-                          EditBox 155, y_pos, 105, 15, NEW_EARNED_ARRAY(earned_source, each_busi)
-                          EditBox 265, y_pos, 50, 15, NEW_EARNED_ARRAY(earned_start_date, each_busi)
-                          EditBox 325, y_pos, 60, 15, NEW_EARNED_ARRAY(earned_amount, each_busi)
-                          ' CheckBox 495, y_pos, 30, 10, "New", ALL_INCOME_ARRAY(new_checkbox, each_busi)
-                          ' CheckBox 530, y_pos, 40, 10, "Detail", ALL_INCOME_ARRAY(update_checkbox, each_busi)
-                          y_pos = y_pos  + 20
-                      End If
-                  Next
-                  If first_busi = TRUE Then
-                      Text 35, y_pos, 400, 10, "CSR form for Question 5 is listed as 'No' and no BUSI information has been added."
-                      y_pos = y_pos + 20
-                  Else
-                    y_pos = y_pos + 10
-                  End If
-
-                  GroupBox 15, y_pos + 5, 585, q_6_grp_len, "Q6. Does anyone work or does anyone expect to start working?"
-                  DropListBox 230, y_pos, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_start_working
-                  CheckBox 430, y_pos + 5, 75, 10, "Q6 Deailts left Blank", q_6_details_blank_checkbox
-                  y_pos = y_pos  + 20
-                  ButtonGroup ButtonPressed
-                    PushButton 540, y_pos - 15, 50, 10, "Add Another", add_jobs_btn
-                  first_job = TRUE
-                  For each_job = 0 to UBound(NEW_EARNED_ARRAY, 2)
-                      If NEW_EARNED_ARRAY(earned_type, each_job) = "JOBS" AND NEW_EARNED_ARRAY(earned_prog_list, each_job) = "MA" Then
-                          If first_job = TRUE Then
-                              Text 40, y_pos, 20, 10, "Name"
-                              Text 160, y_pos, 55, 10, "Employer Name"
-                              Text 270, y_pos, 35, 10, "Start Date"
-                              Text 330, y_pos, 35, 10, "Seasonal"
-                              Text 375, y_pos, 30, 10, "Amount"
-                              Text 425, y_pos, 50, 10, "How often?"
-                              y_pos = y_pos  + 10
-                              first_job = FALSE
-                          End If
-                          ComboBox 40, y_pos, 110, 45, all_the_clients, NEW_EARNED_ARRAY(earned_client, each_job)
-                          EditBox 155, y_pos, 105, 15, NEW_EARNED_ARRAY(earned_source, each_job)
-                          EditBox 270, y_pos, 50, 15, NEW_EARNED_ARRAY(earned_start_date, each_job)
-                          DropListBox 330, y_pos, 40, 45, " "+chr(9)+"No"+chr(9)+"Yes", NEW_EARNED_ARRAY(earned_seasonal, each_job)
-                          EditBox 375, y_pos, 45, 15, NEW_EARNED_ARRAY(earned_amount, each_job)
-                          DropListBox 425, y_pos, 60, 45, "Select One..."+chr(9)+"4 - Weekly"+chr(9)+"3 - Biweekly"+chr(9)+"2 - Semi Monthly"+chr(9)+"1 - Monthly", NEW_EARNED_ARRAY(earned_freq, each_job)
-                          ' CheckBox 495, y_pos, 30, 10, "New", ALL_INCOME_ARRAY(new_checkbox, each_job)
-                          ' CheckBox 530, y_pos, 40, 10, "Detail", ALL_INCOME_ARRAY(update_checkbox, each_job)
-                          y_pos = y_pos + 20
-                      End If
-                  Next
-                  If first_job = TRUE Then
-                      Text 35, y_pos, 400, 10, "CSR form for Question 6 is listed as 'No' and no JOBS information has been added."
-                      y_pos = y_pos + 20
-                  Else
-                    y_pos = y_pos + 10
-                  End If
-
-                  GroupBox 15, y_pos + 5, 585, q_7_grp_len, "Q7. Does anyone get money or does anyone expect to get money from sources other than work?"
-                  DropListBox 335, y_pos, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_other_income
-                  CheckBox 430, y_pos + 5, 75, 10, "Q7 Deailts left Blank", q_7_details_blank_checkbox
-                  y_pos = y_pos +20
-                  ButtonGroup ButtonPressed
-                    PushButton 540, y_pos - 15, 50, 10, "Add Another", add_unea_btn
-                  first_unea = TRUE
-
-                  For each_unea = 0 to UBound(NEW_UNEARNED_ARRAY, 2)
-                      If NEW_UNEARNED_ARRAY(unearned_type, each_unea) = "UNEA" AND NEW_UNEARNED_ARRAY(unearned_prog_list, each_unea) = "MA" Then
-                          If first_unea = TRUE Then
-                              Text 30, y_pos, 25, 10, "Name"
-                              Text 165, y_pos, 55, 10, "Type of Income"
-                              Text 280, y_pos, 35, 10, "Start Date"
-                              Text 335, y_pos, 35, 10, "Amount"
-                              Text 390, y_pos, 55, 10, "How often recvd"
-                              y_pos = y_pos + 10
-                              first_unea = FALSE
-                          End If
-                          ComboBox 30, y_pos, 130, 45, all_the_clients, NEW_UNEARNED_ARRAY(unearned_client, each_unea)
-                          ComboBox 165, y_pos, 110, 45, unea_type_list, NEW_UNEARNED_ARRAY(unearned_source, each_unea)   'unea_type
-                          EditBox 280, y_pos, 50, 15, NEW_UNEARNED_ARRAY(unearned_start_date, each_unea)    'unea_start_date
-                          EditBox 335, y_pos, 50, 15, NEW_UNEARNED_ARRAY(unearned_amount, each_unea)    'unea_amount
-                          DropListBox 390, y_pos, 90, 45, "Select One..."+chr(9)+"4 - Weekly"+chr(9)+"3 - Biweekly"+chr(9)+"2 - Semi Monthly"+chr(9)+"1 - Monthly", NEW_UNEARNED_ARRAY(unearned_freq, each_unea) 'unea_frequency
-                          ' CheckBox 495, y_pos, 30, 10, "New", ALL_INCOME_ARRAY(new_checkbox, each_unea)
-                          ' CheckBox 530, y_pos, 55, 10, "Update/Detail", ALL_INCOME_ARRAY(update_checkbox, each_unea)
-                          y_pos = y_pos + 20
-                      End If
-                  Next
-                  If first_unea = TRUE Then
-                      Text 35, y_pos, 400, 10, "CSR form for Question 7 is listed as 'No' and no UNEA information has been added."
-                      y_pos = y_pos + 20
-                  Else
-                    y_pos = y_pos + 10
-                  End If
-
-                  ButtonGroup ButtonPressed
-                    PushButton 475, y_pos, 80, 15, "Go to Q9 - Q12", next_page_ma_btn
-                    CancelButton 555, y_pos, 50, 15
-                EndDialog
-
-                dialog Dialog1
-                cancel_confirmation
-
-                If ButtonPressed = -1 Then ButtonPressed = next_page_ma_btn
-
-                If ButtonPressed = add_memb_btn Then
-                    new_item = UBound(NEW_MA_REQUEST_ARRAY, 2) + 1
-                    ReDim Preserve NEW_MA_REQUEST_ARRAY(ma_request_notes, new_item)
-                End If
-                If ButtonPressed = add_busi_btn Then
-                    ReDim Preserve NEW_EARNED_ARRAY(earned_notes, new_earned_counter)
-                    NEW_EARNED_ARRAY(earned_type, new_earned_counter) = "BUSI"
-                    NEW_EARNED_ARRAY(earned_prog_list, new_earned_counter) = "MA"
-                    new_earned_counter = new_earned_counter + 1
-                End If
-                If ButtonPressed = add_jobs_btn Then
-                    ReDim Preserve NEW_EARNED_ARRAY(earned_notes, new_earned_counter)
-                    NEW_EARNED_ARRAY(earned_type, new_earned_counter) = "JOBS"
-                    NEW_EARNED_ARRAY(earned_prog_list, new_earned_counter) = "MA"
-                    new_earned_counter = new_earned_counter + 1
-                End If
-                If ButtonPressed = add_unea_btn Then
-                    new_item = UBound(ALL_INCOME_ARRAY, 2) + 1
-                    ReDim Preserve NEW_UNEARNED_ARRAY(unearned_notes, new_unearned_counter)
-                    NEW_UNEARNED_ARRAY(unearned_type, new_unearned_counter) = "UNEA"
-                    NEW_UNEARNED_ARRAY(unearned_prog_list, new_unearned_counter) = "MA"
-                    new_unearned_counter = new_unearned_counter + 1
-                End If
-
-                If ButtonPressed = next_page_ma_btn Then
-                    show_two = TRUE
-                End If
-            End If
-
-        Loop until show_two = TRUE
-
-        dlg_len = 205
-        q_9_grp_len = 30
-        q_10_grp_len = 30
-        q_11_grp_len = 30
-        q_12_grp_len = 30
-        For new_assets_listed = 0 to UBound(NEW_ASSET_ARRAY, 2)
-            If NEW_ASSET_ARRAY(asset_type, new_assets_listed) = "CASH" AND NEW_ASSET_ARRAY(asset_prog_list, new_assets_listed) = "MA" Then
-                dlg_len = dlg_len + 20
-                q_9_grp_len = q_9_grp_len + 20
-                ' MsgBox ALL_ASSETS_ARRAY(category_const, assets_on_case)
-            End If
-            If NEW_ASSET_ARRAY(asset_type, new_assets_listed) = "ACCT" AND NEW_ASSET_ARRAY(asset_prog_list, new_assets_listed) = "MA" Then
-                dlg_len = dlg_len + 20
-                q_9_grp_len = q_9_grp_len + 20
-            End If
-            If NEW_ASSET_ARRAY(asset_type, new_assets_listed) = "SECU" AND NEW_ASSET_ARRAY(asset_prog_list, new_assets_listed) = "MA" Then
-                dlg_len = dlg_len + 20
-                q_10_grp_len = q_10_grp_len + 20
-            End If
-            If NEW_ASSET_ARRAY(asset_type, new_assets_listed) = "CARS" AND NEW_ASSET_ARRAY(asset_prog_list, new_assets_listed) = "MA" Then
-                dlg_len = dlg_len + 20
-                q_11_grp_len = q_11_grp_len + 20
-            End If
-            If NEW_ASSET_ARRAY(asset_type, new_assets_listed) = "REST" AND NEW_ASSET_ARRAY(asset_prog_list, new_assets_listed) = "MA" Then
-                dlg_len = dlg_len + 20
-                q_12_grp_len = q_12_grp_len + 20
-            End If
-        Next
-        y_pos = 25
-        Dialog1 = ""
-        BeginDialog Dialog1, 0, 0, 610, dlg_len, "MA CSR Asset Questions"
-          Text 10, 10, 180, 10, "Enter the answers from the CSR form, questions 9 - 12:"
-
-          GroupBox 15, y_pos + 5, 585, q_9_grp_len, "Q9. Does anyone have cash, a savings or checking account, or a certificate of deposit?"
-          DropListBox 330, y_pos, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_liquid_assets
-          CheckBox 430, y_pos + 5, 75, 10, "Q9 Deailts left Blank", q_9_details_blank_checkbox
-          y_pos = y_pos +20
-          ButtonGroup ButtonPressed
-            PushButton 540, y_pos - 15, 50, 10, "Add Another", add_acct_btn
-          first_account = TRUE
-
-          For each_asset = 0 to UBound(NEW_ASSET_ARRAY, 2)
-            If (NEW_ASSET_ARRAY(asset_type, each_asset) = "ACCT" OR NEW_ASSET_ARRAY(asset_type, each_asset) = "CASH") AND NEW_ASSET_ARRAY(asset_prog_list, each_asset) = "MA" Then
-              If first_account = TRUE Then
-                  Text 30, y_pos, 55, 10, "Owner(s) Name"
-                  Text 165, y_pos, 25, 10, "Type"
-                  Text 285, y_pos, 50, 10, "Bank Name"
-                  y_pos = y_pos + 10
-                  first_account = FALSE
-              End If
-              ComboBox 30, y_pos, 130, 45, all_the_clients, NEW_ASSET_ARRAY(asset_client, each_asset) 'liquid_asset_member'
-              ComboBox 165, y_pos, 115, 40, account_list, NEW_ASSET_ARRAY(asset_acct_type, each_asset)'liquid_asst_type
-              EditBox 285, y_pos, 195, 15, NEW_ASSET_ARRAY(asset_bank_name, each_asset)'liquid_asset_name
-              ' CheckBox 495, y_pos, 30, 10, "New", ALL_ASSETS_ARRAY(new_checkbox, each_asset)    'new_checkbox
-              ' CheckBox 530, y_pos, 55, 10, "Update/Detail", ALL_ASSETS_ARRAY(update_checkbox, each_asset)'update_checkbox
-              y_pos = y_pos + 20
-            End If
-          Next
-          If first_account = TRUE Then
-            Text 30, y_pos, 250, 10, "CSR form for Question 9 is listed as 'No' and no ACCT information has been added."
-            y_pos = y_pos + 10
-          End If
-
-          y_pos = y_pos +10
-          GroupBox 15, y_pos + 5, 585, q_10_grp_len, "Q10. Does anyone own or co-own securities or other assets?"
-          DropListBox 295, y_pos, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_security_assets
-          CheckBox 430, y_pos + 5, 75, 10, "Q10 Deailts left Blank", q_10_details_blank_checkbox
-          y_pos = y_pos +  20
-          ButtonGroup ButtonPressed
-            PushButton 540, y_pos - 15, 50, 10, "Add Another", add_secu_btn
-
-          first_secu = TRUE
-          For each_asset = 0 to UBound(NEW_ASSET_ARRAY, 2)
-            If NEW_ASSET_ARRAY(asset_type, each_asset) = "SECU" AND NEW_ASSET_ARRAY(asset_prog_list, each_asset) = "MA" Then
-                If first_secu = TRUE Then
-                    Text 30, y_pos, 55, 10, "Owner(s) Name"
-                    Text 165, y_pos, 25, 10, "Type"
-                    Text 285, y_pos, 50, 10, "Bank Name"
-                    y_pos = y_pos + 10
-                    first_secu = FALSE
-                End If
-                ComboBox 30, y_pos, 130, 45, all_the_clients, NEW_ASSET_ARRAY(asset_client, each_asset) 'security_asset_member
-                ComboBox 165, y_pos, 115, 40, security_list, NEW_ASSET_ARRAY(asset_acct_type, each_asset)    'security_asset_type
-                EditBox 285, y_pos, 195, 15, NEW_ASSET_ARRAY(asset_bank_name, each_asset)   'security_asset_name
-                ' CheckBox 495, y_pos, 30, 10, "New", ALL_ASSETS_ARRAY(new_checkbox, each_asset)
-                ' CheckBox 530, y_pos, 55, 10, "Update/Detail", ALL_ASSETS_ARRAY(update_checkbox, each_asset)
-                y_pos = y_pos + 20
-            End If
-          Next
-          If first_secu = TRUE Then
-              Text 30, y_pos, 250, 10, "CSR form for Question 10 is listed as 'No' and no SECU information has been added."
-              y_pos = y_pos + 10
-          End If
-          y_pos = y_pos + 10
-
-          GroupBox 15, y_pos + 5, 585, q_11_grp_len, "Q11. Does anyone own a vehicle?"
-          DropListBox 250, y_pos, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_vehicle
-          CheckBox 430, y_pos + 5, 75, 10, "Q11 Deailts left Blank", q_11_details_blank_checkbox
-          y_pos = y_pos + 20
-          ButtonGroup ButtonPressed
-            PushButton 540, y_pos - 15, 50, 10, "Add Another", add_cars_btn
-          first_car = TRUE
-          For each_asset = 0 to UBound(NEW_ASSET_ARRAY, 2)
-              If NEW_ASSET_ARRAY(asset_type, each_asset) = "CARS" AND NEW_ASSET_ARRAY(asset_prog_list, each_asset) = "MA" Then
-                  If first_car = TRUE Then
-                      Text 30, y_pos, 55, 10, "Owner(s) Name"
-                      Text 165, y_pos, 25, 10, "Type"
-                      Text 285, y_pos, 75, 10, "Year/Make/Model"
-                      y_pos = y_pos + 10
-                      first_car = FALSE
-                  End If
-                  ComboBox 30, y_pos, 130, 45, all_the_clients, NEW_ASSET_ARRAY(asset_client, each_asset)     'vehicle_asset_member
-                  ComboBox 165, y_pos, 115, 40, cars_list, NEW_ASSET_ARRAY(asset_acct_type, each_asset)    'vehicle_asset_type
-                  EditBox 285, y_pos, 195, 15, NEW_ASSET_ARRAY(asset_year_make_model, each_asset)  'vehicle_asset_name
-                  ' CheckBox 495, y_pos, 30, 10, "New", ALL_ASSETS_ARRAY(new_checkbox, each_asset)
-                  ' CheckBox 530, y_pos, 55, 10, "Update/Detail", ALL_ASSETS_ARRAY(update_checkbox, each_asset)
-                  y_pos = y_pos + 20
-              End If
-          Next
-          If first_car = TRUE Then
-            Text 30, y_pos, 250, 10, "CSR form for Question 11 is listed as 'No' and no CARS information has been added."
-            y_pos = y_pos + 10
-          End If
-          y_pos = y_pos + 10
-
-          GroupBox 15, y_pos + 5, 585, q_12_grp_len, "Q12. Does anyone own or co-own any real estate?"
-          DropListBox 280, y_pos, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_real_assets
-          CheckBox 430, y_pos + 5, 75, 10, "Q12 Deailts left Blank", q_12_details_blank_checkbox
-          y_pos = y_pos + 20
-          ButtonGroup ButtonPressed
-            PushButton 540, y_pos - 15, 50, 10, "Add Another", add_rest_btn
-          first_home = TRUE
-          For each_asset = 0 to Ubound(NEW_ASSET_ARRAY, 2)
-              If NEW_ASSET_ARRAY(asset_type, each_asset) = "REST" AND NEW_ASSET_ARRAY(asset_prog_list, each_asset) = "MA" Then
-                  If first_home = TRUE Then
-                      Text 30, y_pos, 55, 10, "Owner(s) Name"
-                      Text 165, y_pos, 25, 10, "Address"
-                      Text 320, y_pos, 75, 10, "Type of Property"
-                      y_pos = y_pos + 10
-                      first_home = FALSE
-                  End If
-                  ComboBox 30, y_pos, 130, 45, all_the_clients, NEW_ASSET_ARRAY(asset_client, each_asset)     'property_asset_member
-                  EditBox 165, y_pos, 150, 15, NEW_ASSET_ARRAY(asset_address, each_asset)      'property_asset_address
-                  ComboBox 320, y_pos, 150, 40, rest_list, NEW_ASSET_ARRAY(asset_acct_type, each_asset)     'property_asset_type
-                  ' CheckBox 495, y_pos, 30, 10, "New", ALL_ASSETS_ARRAY(new_checkbox, each_asset)
-                  ' CheckBox 530, y_pos, 55, 10, "Update/Detail", ALL_ASSETS_ARRAY(update_checkbox, each_asset)
-                  y_pos = y_pos + 20
-              End If
-          Next
-          If first_home = TRUE Then
-            Text 30, y_pos, 250, 10, "CSR form for Question 12 is listed as 'No' and no REST information has been added."
-            y_pos = y_pos + 10
-          End If
-          y_pos = y_pos + 10
-
-          ButtonGroup ButtonPressed
-            PushButton 415, y_pos, 80, 15, "Go Back to Q4 - Q7", previous_page_btn
-            PushButton 495, y_pos, 60, 15, "Continue", continue_btn
-            CancelButton 555, y_pos, 50, 15
-        EndDialog
-
-        err_msg = ""
-
-        dialog Dialog1
-        cancel_confirmation
-
-        ' MsgBox ButtonPressed & " - 1 - "
-        If ButtonPressed = -1 Then ButtonPressed = continue_btn
-
-        questions_answered = TRUE
-        If apply_for_ma = "Select One..." Then questions_answered = FALSE
-        If ma_self_employed = "Select One..." Then questions_answered = FALSE
-        If ma_start_working = "Select One..." Then questions_answered = FALSE
-        If ma_other_income = "Select One..." Then questions_answered = FALSE
-        If ma_liquid_assets = "Select One..." Then questions_answered = FALSE
-        If ma_security_assets = "Select One..." Then questions_answered = FALSE
-        If ma_vehicle = "Select One..." Then questions_answered = FALSE
-        If ma_real_assets = "Select One..." Then questions_answered = FALSE
-        If ma_other_changes = "Select One..." Then questions_answered = FALSE
-
-        If questions_answered = FALSE Then
-            err_msg = err_msg & vbNewLine & "* All of the questions must be answered with the answers from the CSR Form."
-        Else
-            If details_shown = FALSE Then err_msg = "LOOP" & err_msg
-        End If
-
-        If ButtonPressed = add_acct_btn Then
-            ReDim Preserve NEW_ASSET_ARRAY(asset_notes, new_asset_counter)
-            NEW_ASSET_ARRAY(asset_type, new_asset_counter) = "ACCT"
-            NEW_ASSET_ARRAY(asset_prog_list, new_asset_counter) = "MA"
-            new_asset_counter = new_asset_counter + 1
-        End If
-        If ButtonPressed = add_secu_btn Then
-            ReDim Preserve NEW_ASSET_ARRAY(asset_notes, new_asset_counter)
-            NEW_ASSET_ARRAY(asset_type, new_asset_counter) = "SECU"
-            NEW_ASSET_ARRAY(asset_prog_list, new_asset_counter) = "MA"
-            new_asset_counter = new_asset_counter + 1
-        End If
-        If ButtonPressed = add_cars_btn Then
-            ReDim Preserve NEW_ASSET_ARRAY(asset_notes, new_asset_counter)
-            NEW_ASSET_ARRAY(asset_type, new_asset_counter) = "CARS"
-            NEW_ASSET_ARRAY(asset_prog_list, new_asset_counter) = "MA"
-            new_asset_counter = new_asset_counter + 1
-        End If
-        If ButtonPressed = add_rest_btn Then
-            ReDim Preserve NEW_ASSET_ARRAY(asset_notes, new_asset_counter)
-            NEW_ASSET_ARRAY(asset_type, new_asset_counter) = "REST"
-            NEW_ASSET_ARRAY(asset_prog_list, new_asset_counter) = "MA"
-            new_asset_counter = new_asset_counter + 1
-        End If
-
-        err_msg = "LOOP" & err_msg
-        If ButtonPressed = previous_page_btn Then
-            ' MsgBox ButtonPressed & " - 2 - "
-            show_two = FALSE
-            err_msg = "LOOP" & err_msg
-        End If
-        If err_msg <> "" AND left(err_msg, 4) <> "LOOP" Then
-            MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
-        Else
-            If ButtonPressed = continue_btn then err_msg = ""
-        End If
-        ' MsgBox show_two & vbNewLine & "line 1480"
-        ' Loop until leave_ma_questions = TRUE
-    Loop until err_msg = ""
-    Call check_for_password(are_we_passworded_out)
-Loop until are_we_passworded_out = FALSE
-
-Do
-    Do
-        err_msg = ""
-
-        Dialog1 = ""
-        BeginDialog Dialog1, 0, 0, 610, 100, "MA CSR Changes"
-          Text 10, 10, 180, 10, "Enter the answers from the CSR form, questions 13:"
-
-          Text 25, 25, 135, 10, "Q13. Do you have any changes to report?"
-          DropListBox 160, 20, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_other_changes
-          EditBox 30, 40, 555, 15, other_changes_reported
-          CheckBox 30, 60, 300, 10, "Check here if client left the changes to report field on the form blank.", changes_reported_blank_checkbox
-
-          ButtonGroup ButtonPressed
-            PushButton 455, 80, 100, 15, "Finish MA Questions", finish_ma_questions
-            CancelButton 555, 80, 50, 15
-        EndDialog
-
-        dialog Dialog1
-        cancel_confirmation
-
-        If ma_other_changes = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate if the answer the client enterd on Question 13."
-
-    Loop until err_msg = ""
-    Call check_for_password(are_we_passworded_out)
-Loop until are_we_passworded_out = FALSE
-
-Do
-    Do
-        err_msg = ""
-
-        Dialog1 = ""
-        BeginDialog Dialog1, 0, 0, 501, 130, "SNAP CSR Questions"
-          Text 10, 10, 290, 10, "Q15. Has your household moved since your last application or in the past six months?"
-          DropListBox 305, 5, 100, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", quest_fifteen_form_answer
-          Text 10, 30, 175, 10, "Q16 Has there been a change in EARNED INCOME?"
-          DropListBox 190, 25, 100, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", quest_sixteen_form_answer
-          Text 10, 50, 195, 10, "Q17. Has there been a change in UNEARNED INCOME?"
-          DropListBox 205, 45, 100, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", quest_seventeen_form_answer
-          Text 10, 70, 175, 10, "Q18 Has there been a change in CHILD SUPPORT?"
-          DropListBox 190, 65, 100, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", quest_eighteen_form_answer
-          Text 10, 90, 345, 10, "Q19. Did you work 20 hours each week, for an average of 80 hours per month during the past six months?"
-          DropListBox 355, 85, 100, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", quest_nineteen_form_answer
-          ButtonGroup ButtonPressed
-            PushButton 395, 110, 50, 15, "Continue", continue_btn
-            CancelButton 445, 110, 50, 15
-        EndDialog
-
-        dialog Dialog1
-
-        cancel_confirmation
-
-        If quest_fifteen_form_answer = "Select One..." OR quest_sixteen_form_answer = "Select One..." OR quest_seventeen_form_answer = "Select One..." OR quest_eighteen_form_answer = "Select One..." OR quest_nineteen_form_answer = "Select One..." Then err_msg = err_msg & vbNewLine & "* All of the questions must be answered with the answers from the CSR Form." & vbNewLine
-        If quest_fifteen_form_answer = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate the answer on the CSR form for Question 15 (Has the household moved?)."
-        If quest_sixteen_form_answer = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate the answer on the CSR form for Question 16 (Has anyone had a change in Earned income?)."
-        If quest_seventeen_form_answer = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate the answer on the CSR form for Question 17 (Has anyone had a change in Unearned income?)."
-        If quest_eighteen_form_answer = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate the answer on the CSR form for Question 18 (Has there been a change in Child Support income?)."
-        If quest_nineteen_form_answer = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate the answer on the CSR form for Question 19 (Have you worked 80 hours per month?)."
-
-        If ButtonPressed = -1 Then ButtonPressed = continue_btn
-
-        If err_msg <> "" Then MsgBox "Please Resolve to Continue:" & vbNewLine & err_msg
-    Loop until err_msg = ""
-    Call check_for_password(are_we_passworded_out)
-Loop until are_we_passworded_out = FALSE
-
-If quest_sixteen_form_answer = "Yes" Then
-    ReDim Preserve NEW_EARNED_ARRAY(earned_notes, new_earned_counter)
-    NEW_EARNED_ARRAY(earned_prog_list, new_earned_counter) = "SNAP"
-    new_earned_counter = new_earned_counter + 1
-End If
-
-If quest_seventeen_form_answer = "Yes" Then
-    ReDim Preserve NEW_UNEARNED_ARRAY(unearned_notes, new_unearned_counter)
-    NEW_UNEARNED_ARRAY(unearned_prog_list, new_unearned_counter) = "SNAP"
-    new_unearned_counter = new_unearned_counter + 1
-End If
-
-Do
-    Do
-        err_msg = ""
-
-        dlg_len = 230
-        q_15_grp_len = 50
-        q_16_grp_len = 25
-        q_17_grp_len = 25
-
-        For the_earned = 0 to UBound(NEW_EARNED_ARRAY, 2)
-            If NEW_EARNED_ARRAY(earned_prog_list, the_earned) = "SNAP" Then
-                dlg_len = dlg_len + 20
-                q_16_grp_len = q_16_grp_len + 20
-            End If
-        Next
-
-        For the_unearned = 0 to UBound(NEW_UNEARNED_ARRAY, 2)
-            If NEW_UNEARNED_ARRAY(unearned_prog_list, the_unearned) = "SNAP" Then
-                dlg_len = dlg_len + 20
-                q_17_grp_len = q_17_grp_len + 20
-            End If
-        Next
-        ' dlg_len = dlg_len + UBound(NEW_EARNED_ARRAY, 2) * 20
-        ' dlg_len = dlg_len + UBound(NEW_UNEARNED_ARRAY, 2) * 20
-        dlg_len = dlg_len + UBound(NEW_CHILD_SUPPORT_ARRAY, 2) * 20
-        ' q_15_grp_len = 50
-        ' q_16_grp_len = 45 + UBound(NEW_EARNED_ARRAY, 2) * 20
-        ' q_17_grp_len = 45 + UBound(NEW_UNEARNED_ARRAY, 2) * 20
-        q_18_grp_len = 45 + UBound(NEW_CHILD_SUPPORT_ARRAY, 2) * 20
-
-        y_pos = 95
-
-        Dialog1 = ""
-        BeginDialog Dialog1, 0, 0, 510, dlg_len, "SNAP CSR Question Details"
-          GroupBox 10, 10, 415, q_15_grp_len, "Q15. Has your household moved since your last application or in the past six months?"
-          DropListBox 305, 5, 100, 45, "Select One..."+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Did not answer", quest_fifteen_form_answer
-          Text 25, 25, 105, 10, "New Rent or Mortgage Amount:"
-          EditBox 130, 20, 65, 15, new_rent_or_mortgage_amount
-          CheckBox 220, 25, 50, 10, "Heat/AC", heat_ac_checkbox
-          CheckBox 275, 25, 50, 10, "Electricity", electricity_checkbox
-          CheckBox 345, 25, 50, 10, "Telephone", telephone_checkbox
-          Text 210, 45, 80, 10, "Did client attach proof?"
-          DropListBox 290, 40, 125, 45, "Select One..."+chr(9)+"Yes"+chr(9)+"No", shel_proof_provided
-          GroupBox 10, 70, 490, q_16_grp_len, "Q16 Has there been a change in EARNED INCOME?"
-          DropListBox 190, 65, 100, 45, "Select One..."+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Did not answer", quest_sixteen_form_answer
-          CheckBox 310, 70, 85, 10, "Q16 Deailts left Blank", q_16_details_blank_checkbox
-          ButtonGroup ButtonPressed
-            PushButton 440, 70, 50, 10, "Add Another", add_snap_earned_income_btn
-          Text 15, 85, 20, 10, "Client"
-          Text 130, 85, 100, 10, "Employer (or Business Name)"
-          Text 265, 85, 50, 10, "Change Date"
-          Text 320, 85, 35, 10, "Amount"
-          Text 375, 85, 40, 10, "Frequency"
-          Text 445, 85, 25, 10, "Hours"
-          For the_earned = 0 to UBound(NEW_EARNED_ARRAY, 2)
-              If NEW_EARNED_ARRAY(earned_prog_list, the_earned) = "SNAP" Then
-                  ComboBox 15, y_pos, 110, 45, all_the_clients, NEW_EARNED_ARRAY(earned_client, the_earned)
-                  EditBox 130, y_pos, 130, 15, NEW_EARNED_ARRAY(earned_source, the_earned)
-                  EditBox 265, y_pos, 50, 15, NEW_EARNED_ARRAY(earned_change_date, the_earned)
-                  EditBox 320, y_pos, 50, 15, NEW_EARNED_ARRAY(earned_amount, the_earned)
-                  DropListBox 375, y_pos, 65, 45, "Select One..."+chr(9)+"Weekly"+chr(9)+"BiWeekly"+chr(9)+"Semi-Monthly"+chr(9)+"Monthly", NEW_EARNED_ARRAY(earned_freq, the_earned)
-                  EditBox 445, y_pos, 50, 15, NEW_EARNED_ARRAY(earned_hours, the_earned)
-                  y_pos = y_pos + 20
-              End If
-          Next
-          y_pos = y_pos + 10
-          GroupBox 10, y_pos, 490, q_17_grp_len, "Q17. Has there been a change in UNEARNED INCOME?"
-          DropListBox 205, y_pos - 5, 100, 45, "Select One..."+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Did not answer", quest_seventeen_form_answer
-          CheckBox 310, y_pos, 85, 10, "Q17 Deailts left Blank", q_17_details_blank_checkbox
-          ButtonGroup ButtonPressed
-            PushButton 440, y_pos, 50, 10, "Add Another", add_snap_unearned_btn
-          y_pos = y_pos + 15
-          Text 15, y_pos, 20, 10, "Client"
-          Text 145, y_pos, 100, 10, "Type and Source"
-          Text 280, y_pos, 50, 10, "Change Date"
-          Text 340, y_pos, 35, 10, "Amount"
-          Text 405, y_pos, 40, 10, "Frequency"
-          y_pos = y_pos + 10
-          For the_unearned = 0 to UBound(NEW_UNEARNED_ARRAY, 2)
-              If NEW_UNEARNED_ARRAY(unearned_prog_list, the_unearned) = "SNAP" Then
-                  ComboBox 15, y_pos, 125, 45, all_the_clients, NEW_UNEARNED_ARRAY(unearned_client, the_unearned)
-                  EditBox 145, y_pos, 130, 15, NEW_UNEARNED_ARRAY(unearned_source, the_unearned)
-                  EditBox 280, y_pos, 55, 15, NEW_UNEARNED_ARRAY(unearned_change_date, the_unearned)
-                  EditBox 340, y_pos, 60, 15, NEW_UNEARNED_ARRAY(unearned_amount, the_unearned)
-                  DropListBox 405, y_pos, 90, 45, "Select One..."+chr(9)+"Weekly"+chr(9)+"BiWeekly"+chr(9)+"Semi-Monthly"+chr(9)+"Monthly", NEW_UNEARNED_ARRAY(unearned_freq, the_unearned)
-                  y_pos = y_pos + 20
-              End If
-          Next
-          y_pos = y_pos + 10
-          GroupBox 10, y_pos, 490, q_18_grp_len, "Q18 Has there been a change in CHILD SUPPORT?"
-          DropListBox 190, y_pos - 5, 100, 45, "Select One..."+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Did not answer", quest_eighteen_form_answer
-          CheckBox 310, y_pos, 85, 10, "Q18 Deailts left Blank", q_18_details_blank_checkbox
-          ButtonGroup ButtonPressed
-            PushButton 440, y_pos, 50, 10, "Add Another", add_snap_cs_btn
-          y_pos = y_pos + 15
-          Text 15, y_pos, 85, 10, "Name of person paying"
-          Text 220, y_pos, 35, 10, "Amount"
-          Text 295, y_pos, 65, 10, "Currently Paying?"
-          y_pos = y_pos + 10
-          For the_cs = 0 to UBound(NEW_CHILD_SUPPORT_ARRAY, 2)
-              EditBox 15, y_pos, 200, 15, NEW_CHILD_SUPPORT_ARRAY(cs_payer, the_cs)
-              EditBox 220, y_pos, 65, 15, NEW_CHILD_SUPPORT_ARRAY(cs_amount, the_cs)
-              DropListBox 295, y_pos, 60, 45, "Select..."+chr(9)+"Yes"+chr(9)+"No", NEW_CHILD_SUPPORT_ARRAY(cs_current, the_cs)
-              y_pos = y_pos + 20
-          Next
-          y_pos = y_pos + 10
-          Text 10, y_pos, 345, 10, "Q19. Did you work 20 hours each week, for an average of 80 hours per month during the past six months?"
-          DropListBox 355, y_pos - 5, 100, 45, "Select One..."+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Did not answer", quest_nineteen_form_answer
-          y_pos = y_pos + 15
-          ButtonGroup ButtonPressed
-            PushButton 405, y_pos, 50, 15, "Continue", continue_btn
-            CancelButton 455, y_pos, 50, 15
-        EndDialog
-
-        dialog Dialog1
-
-        cancel_confirmation
-
-        If quest_fifteen_form_answer = "Select One..." OR quest_sixteen_form_answer = "Select One..." OR quest_seventeen_form_answer = "Select One..." OR quest_eighteen_form_answer = "Select One..." OR quest_nineteen_form_answer = "Select One..." Then err_msg = err_msg & vbNewLine & "* All of the questions must be answered with the answers from the CSR Form." & vbNewLine
-        If quest_fifteen_form_answer = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate the answer on the CSR form for Question 15 (Has the household moved?)."
-        If quest_sixteen_form_answer = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate the answer on the CSR form for Question 16 (Has anyone had a change in Earned income?)."
-        If quest_seventeen_form_answer = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate the answer on the CSR form for Question 17 (Has anyone had a change in Unearned income?)."
-        If quest_eighteen_form_answer = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate the answer on the CSR form for Question 18 (Has there been a change in Child Support income?)."
-        If quest_nineteen_form_answer = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate the answer on the CSR form for Question 19 (Have you worked 80 hours per month?)."
-
-        If ButtonPressed = add_snap_earned_income_btn Then
-            ReDim Preserve NEW_EARNED_ARRAY(earned_notes, new_earned_counter)
-            NEW_EARNED_ARRAY(earned_prog_list, new_earned_counter) = "SNAP"
-            new_earned_counter = new_earned_counter + 1
-            err_msg = "LOOP" & err_msg
-        End If
-
-        If ButtonPressed = add_snap_unearned_btn Then
-            new_item = UBound(NEW_UNEARNED_ARRAY, 2) + 1
-            ReDim Preserve NEW_UNEARNED_ARRAY(unearned_notes, new_unearned_counter)
-            NEW_UNEARNED_ARRAY(unearned_prog_list, new_unearned_counter) = "SNAP"
-            new_unearned_counter = new_unearned_counter + 1
-            err_msg = "LOOP" & err_msg
-        End If
-
-        If ButtonPressed = add_snap_cs_btn Then
-            new_item = UBound(NEW_CHILD_SUPPORT_ARRAY, 2) + 1
-            ReDim Preserve NEW_CHILD_SUPPORT_ARRAY(cs_notes, new_item)
-            err_msg = "LOOP" & err_msg
-        End If
-
-        If ButtonPressed = -1 Then ButtonPressed = continue_btn
-
-        If err_msg <> "" AND left(err_msg, 4) <> "LOOP" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
-    Loop until err_msg = ""
-    Call check_for_password(are_we_passworded_out)
-Loop until are_we_passworded_out = FALSE
-
-
-Do
-    Do
-        err_msg = ""
-
-        Dialog1 = ""
-        BeginDialog Dialog1, 0, 0, 211, 100, "Form dates and signatures"
-          EditBox 90, 5, 60, 15, csr_form_date
-          DropListBox 145, 30, 60, 45, "Select..."+chr(9)+"Yes"+chr(9)+"No", client_signed_yn
-          DropListBox 145, 50, 60, 45, "Select..."+chr(9)+"Yes"+chr(9)+"No", client_dated_yn
-          ButtonGroup ButtonPressed
-            PushButton 45, 75, 105, 15, "Complete CSR Form Detail", complete_csr_questions
-            CancelButton 155, 75, 50, 15
-          Text 15, 10, 70, 10, "Date form Received:"
-          Text 15, 35, 130, 10, "Has the client signed the CSR Form?"
-          Text 15, 55, 130, 10, "Has the client dated the CSR Form?"
-        EndDialog
-
-        dialog Dialog1
-
-        cancel_confirmation
-
-        If IsDate(csr_form_date) = FALSE Then
-            err_msg = err_msg & vbNewLine & "* Enter a valid date for the date the form was received."
-        Else
-            If DateDiff("d", date, csr_form_date) > 0 Then err_msg = err_msg & vbNewLine & "* The date of the CSR form is listed as a future date, a form cannot be listed as received inthe future, please review the form date."
-        End If
-        If client_signed_yn = "Select..." Then err_msg = err_msg & vbNewLine & "* Indicate if the client has signed the form correctly by selecting 'yes' or 'no'."
-        If client_dated_yn = "Select..." Then err_msg = err_msg & vbNewLine & "* Indicate if the form has been dated correctly by selecting 'yes' or 'no'."
-
-        If err_msg <> "" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
-
-    Loop until err_msg = ""
-    Call check_for_password(are_we_passworded_out)
-Loop until are_we_passworded_out = FALSE
+' Do
+'     Do
+'
+'         'NEEDING A MA SPECIFIC DIALOG - Questions 4 - 13 are for MA only
+'         Dialog1 = ""
+'         BeginDialog Dialog1, 0, 0, 610, 245, "MA CSR Questions"
+'           Text 10, 10, 180, 10, "Enter the answers from the CSR form, questions 4 - 18:"
+'           Text 25, 30, 255, 10, "Q4. Do you want to apply for MA for someone who is not getting coverage now?"
+'           DropListBox 285, 25, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", apply_for_ma
+'           Text 25, 50, 235, 10, "Q5. Is anyone self-employed or does anyone expect to be self-employed?"
+'           DropListBox 265, 45, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_self_employed
+'           Text 25, 70, 205, 10, "Q6. Does anyone work or does anyone expect to start working?"
+'           DropListBox 230, 65, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_start_working
+'           Text 25, 90, 310, 10, "Q7. Does anyone get money or does anyone expect to get money from sources other than work?"
+'           DropListBox 335, 85, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_other_income
+'           Text 25, 110, 280, 10, "Q9. Does anyone have cash, a savings or checking account, or a certificate of deposit?"
+'           DropListBox 305, 105, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_liquid_assets
+'           Text 25, 135, 280, 20, "Q10. Does anyone own or co-own stocks, bonds, retirement accounts, life insurance, burial contracts, annuities, trusts, contracts for deed, or other assets?"
+'           DropListBox 295, 135, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_security_assets
+'           Text 25, 170, 110, 10, "Q11. Does anyone own a vehicle?"
+'           DropListBox 140, 165, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_vehicle
+'           Text 25, 190, 355, 10, "Q12. Does anyone own or co-own a home, life estate, cobin, land, time share, rental property or any real estate?"
+'           DropListBox 385, 185, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_real_assets
+'           Text 25, 210, 135, 10, "Q13. Do you have any changes to report?"
+'           DropListBox 160, 205, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_other_changes
+'           ButtonGroup ButtonPressed
+'             PushButton 505, 225, 50, 15, "Submit", submit_btn
+'             CancelButton 555, 225, 50, 15
+'         EndDialog
+'
+'         err_msg = ""
+'
+'         dialog Dialog1
+'         cancel_confirmation
+'
+'         questions_answered = TRUE
+'         If apply_for_ma = "Select One..." Then questions_answered = FALSE
+'         If ma_self_employed = "Select One..." Then questions_answered = FALSE
+'         If ma_start_working = "Select One..." Then questions_answered = FALSE
+'         If ma_other_income = "Select One..." Then questions_answered = FALSE
+'         If ma_liquid_assets = "Select One..." Then questions_answered = FALSE
+'         If ma_security_assets = "Select One..." Then questions_answered = FALSE
+'         If ma_vehicle = "Select One..." Then questions_answered = FALSE
+'         If ma_real_assets = "Select One..." Then questions_answered = FALSE
+'         If ma_other_changes = "Select One..." Then questions_answered = FALSE
+'
+'         If questions_answered = FALSE Then err_msg = err_msg & vbNewLine & "* All of the questions must be answered with the answers from the CSR Form."
+'
+'         If err_msg <> "" AND left(err_msg, 4) <> "LOOP" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
+'
+'     Loop until err_msg = ""
+'     Call check_for_password(are_we_passworded_out)
+' Loop until are_we_passworded_out = FALSE
+'
+' show_two = FALSE
+
+'
+' If ma_self_employed = "Yes" Then
+'     ReDim Preserve NEW_EARNED_ARRAY(earned_notes, new_earned_counter)
+'     NEW_EARNED_ARRAY(earned_type, new_earned_counter) = "BUSI"
+'     NEW_EARNED_ARRAY(earned_prog_list, new_earned_counter) = "MA"
+'     new_earned_counter = new_earned_counter + 1
+' End If
+' If ma_start_working = "Yes" Then
+'     ReDim Preserve NEW_EARNED_ARRAY(earned_notes, new_earned_counter)
+'     NEW_EARNED_ARRAY(earned_type, new_earned_counter) = "JOBS"
+'     NEW_EARNED_ARRAY(earned_prog_list, new_earned_counter) = "MA"
+'     new_earned_counter = new_earned_counter + 1
+' End If
+' If ma_other_income = "Yes" Then
+'     ReDim Preserve NEW_UNEARNED_ARRAY(unearned_notes, new_unearned_counter)
+'     NEW_UNEARNED_ARRAY(unearned_type, new_unearned_counter) = "UNEA"
+'     NEW_UNEARNED_ARRAY(unearned_prog_list, new_unearned_counter) = "MA"
+'     new_unearned_counter = new_unearned_counter + 1
+' End If
+' If ma_liquid_assets = "Yes" Then
+'     ReDim Preserve NEW_ASSET_ARRAY(asset_notes, new_asset_counter)
+'     NEW_ASSET_ARRAY(asset_type, new_asset_counter) = "ACCT"
+'     NEW_ASSET_ARRAY(asset_prog_list, new_asset_counter) = "MA"
+'     new_asset_counter = new_asset_counter + 1
+' End If
+' If ma_security_assets = "Yes" Then
+'     ReDim Preserve NEW_ASSET_ARRAY(asset_notes, new_asset_counter)
+'     NEW_ASSET_ARRAY(asset_type, new_asset_counter) = "SECU"
+'     NEW_ASSET_ARRAY(asset_prog_list, new_asset_counter) = "MA"
+'     new_asset_counter = new_asset_counter + 1
+' End If
+' If ma_vehicle = "Yes" Then
+'     ReDim Preserve NEW_ASSET_ARRAY(asset_notes, new_asset_counter)
+'     NEW_ASSET_ARRAY(asset_type, new_asset_counter) = "CARS"
+'     NEW_ASSET_ARRAY(asset_prog_list, new_asset_counter) = "MA"
+'     new_asset_counter = new_asset_counter + 1
+' End If
+' If ma_real_assets = "Yes" Then
+'     ReDim Preserve NEW_ASSET_ARRAY(asset_notes, new_asset_counter)
+'     NEW_ASSET_ARRAY(asset_type, new_asset_counter) = "REST"
+'     NEW_ASSET_ARRAY(asset_prog_list, new_asset_counter) = "MA"
+'     new_asset_counter = new_asset_counter + 1
+' End If
+
+' Do
+' 	Do
+' 		Do
+' 			Do
+' 			    Do
+' 					Do
+' 				        Do
+' 				            ' MsgBox show_two & vbNewLine & "line 1166"
+' 				            If show_ma_dlg_one = TRUE Then
+' 								show_ma_dlg_two = TRUE
+' 								show_ma_dlg_three = TRUE
+'
+' 				                dlg_len = 190
+' 				                q_4_grp_len = 15
+' 				                q_5_grp_len = 30
+' 				                q_6_grp_len = 30
+' 				                q_7_grp_len = 30
+' 				                For new_jobs_listed = 0 to UBound(NEW_EARNED_ARRAY, 2)
+' 				                    If NEW_EARNED_ARRAY(earned_type, new_jobs_listed) = "BUSI" AND NEW_EARNED_ARRAY(earned_prog_list, new_jobs_listed) = "MA" Then
+' 				                        dlg_len = dlg_len + 20
+' 				                        q_5_grp_len = q_5_grp_len + 20
+' 				                    End If
+' 				                    If NEW_EARNED_ARRAY(earned_type, new_jobs_listed) = "JOBS"  AND NEW_EARNED_ARRAY(earned_prog_list, new_jobs_listed) = "MA" Then
+' 				                        dlg_len = dlg_len + 20
+' 				                        q_6_grp_len = q_6_grp_len + 20
+' 				                    End If
+' 				                Next
+' 				                For new_unea_listed = 0 to UBound(NEW_UNEARNED_ARRAY, 2)
+' 				                    If NEW_UNEARNED_ARRAY(unearned_type, new_unea_listed) = "UNEA"  AND NEW_UNEARNED_ARRAY(unearned_prog_list, new_unea_listed) = "MA" Then
+' 				                        dlg_len = dlg_len + 20
+' 				                        q_7_grp_len = q_7_grp_len + 20
+' 				                    End If
+' 				                Next
+' 				                ' If apply_for_ma = "Yes" Then
+' 				                '     dlg_len = dlg_len + (UBound(NEW_MA_REQUEST_ARRAY, 2) + 1) * 20
+' 				                '     q_4_grp_len = 35 + UBound(NEW_MA_REQUEST_ARRAY, 2) * 20
+' 				                ' End If
+' 								For each_new_memb = 0 to UBound(NEW_MA_REQUEST_ARRAY, 2)
+' 									If NEW_MA_REQUEST_ARRAY(ma_request_client, each_new_memb) <> "Select or Type" and NEW_MA_REQUEST_ARRAY(ma_request_client, each_new_memb) <> "" Then
+' 										dlg_len = dlg_len + 20
+' 										q_4_grp_len = q_4_grp_len + 20
+' 									End If
+' 								Next
+'
+' 				                y_pos = 45
+' 								err_msg = ""
+'
+' 				                Dialog1 = ""
+' 				                BeginDialog Dialog1, 0, 0, 610, dlg_len, "MA CSR Income Questions"
+' 				                  Text 10, 10, 180, 10, "Enter the answers from the CSR form, questions 4 - 7:"
+' 								  Text 195, 10, 210, 10, "If all questions and details have been left blank, indicate that here:"
+' 								  DropListBox 405, 5, 200, 15, "Enter Question specific information below"+chr(9)+"Questions 4 - 7 are completely blank.", all_questions_4_7_blank
+'
+' 				                  GroupBox 15, 30, 585, q_4_grp_len, "Q4. Do you want to apply for MA for someone who is not getting coverage now?"
+' 				                  DropListBox 285, 25, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", apply_for_ma
+' 				                  CheckBox 430, 30, 75, 10, "Q4 Deailts left Blank", q_4_details_blank_checkbox
+' 								  ButtonGroup ButtonPressed
+' 									PushButton 540, 30, 50, 10, "Add Another", add_memb_btn
+' 				                  ' If apply_for_ma = "Yes" Then
+' 				                  For each_new_memb = 0 to UBound(NEW_MA_REQUEST_ARRAY, 2)
+' 								  	  If NEW_MA_REQUEST_ARRAY(ma_request_client, each_new_memb) <> "Select or Type" and NEW_MA_REQUEST_ARRAY(ma_request_client, each_new_memb) <> "" Then
+' 				                          Text 35, y_pos + 5, 105, 10, "Select the Member requesting:"
+' 				                          ComboBox 145, y_pos, 195, 45, all_the_clients, NEW_MA_REQUEST_ARRAY(ma_request_client, each_new_memb)
+' 				                          y_pos = y_pos + 20
+' 									  End If
+' 				                  Next
+' 								  If y_pos = 45 Then y_pos = y_pos + 5
+' 				                  ' End If
+'
+' 				                  GroupBox 15, y_pos + 5, 585, q_5_grp_len, "Q5. Is anyone self-employed or does anyone expect to be self-employed?"
+' 				                  DropListBox 265, y_pos, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_self_employed
+' 				                  CheckBox 430, y_pos + 5, 75, 10, "Q5 Deailts left Blank", q_5_details_blank_checkbox
+' 				                  y_pos = y_pos + 20
+'
+' 				                  ButtonGroup ButtonPressed
+' 				                    PushButton 540, y_pos - 15, 50, 10, "Add Another", add_busi_btn
+' 				                  first_busi= TRUE
+' 				                  For each_busi = 0 to UBound(NEW_EARNED_ARRAY, 2)
+' 				                      If NEW_EARNED_ARRAY(earned_type, each_busi) = "BUSI" AND NEW_EARNED_ARRAY(earned_prog_list, each_busi) = "MA" Then
+' 				                          If first_busi = TRUE then
+' 				                              Text 35, y_pos, 25, 10, "Name"
+' 				                              Text 155, y_pos, 55, 10, "Business Name"
+' 				                              Text 265, y_pos, 35, 10, "Start Date"
+' 				                              Text 325, y_pos, 50, 10, "Yearly Income"
+' 				                              y_pos = y_pos + 10
+' 				                              first_busi = FALSE
+' 				                          End If
+'
+' 				                          ComboBox 35, y_pos, 110, 45, all_the_clients, NEW_EARNED_ARRAY(earned_client, each_busi)
+' 				                          EditBox 155, y_pos, 105, 15, NEW_EARNED_ARRAY(earned_source, each_busi)
+' 				                          EditBox 265, y_pos, 50, 15, NEW_EARNED_ARRAY(earned_start_date, each_busi)
+' 				                          EditBox 325, y_pos, 60, 15, NEW_EARNED_ARRAY(earned_amount, each_busi)
+' 				                          ' CheckBox 495, y_pos, 30, 10, "New", ALL_INCOME_ARRAY(new_checkbox, each_busi)
+' 				                          ' CheckBox 530, y_pos, 40, 10, "Detail", ALL_INCOME_ARRAY(update_checkbox, each_busi)
+' 				                          y_pos = y_pos  + 20
+' 				                      End If
+' 				                  Next
+' 				                  If first_busi = TRUE Then
+' 				                      Text 35, y_pos, 400, 10, "CSR form - no BUSI information has been added."
+' 				                      y_pos = y_pos + 20
+' 				                  Else
+' 				                    y_pos = y_pos + 10
+' 				                  End If
+'
+' 				                  GroupBox 15, y_pos + 5, 585, q_6_grp_len, "Q6. Does anyone work or does anyone expect to start working?"
+' 				                  DropListBox 230, y_pos, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_start_working
+' 				                  CheckBox 430, y_pos + 5, 75, 10, "Q6 Deailts left Blank", q_6_details_blank_checkbox
+' 				                  y_pos = y_pos  + 20
+' 				                  ButtonGroup ButtonPressed
+' 				                    PushButton 540, y_pos - 15, 50, 10, "Add Another", add_jobs_btn
+' 				                  first_job = TRUE
+' 				                  For each_job = 0 to UBound(NEW_EARNED_ARRAY, 2)
+' 				                      If NEW_EARNED_ARRAY(earned_type, each_job) = "JOBS" AND NEW_EARNED_ARRAY(earned_prog_list, each_job) = "MA" Then
+' 				                          If first_job = TRUE Then
+' 				                              Text 40, y_pos, 20, 10, "Name"
+' 				                              Text 160, y_pos, 55, 10, "Employer Name"
+' 				                              Text 270, y_pos, 35, 10, "Start Date"
+' 				                              Text 330, y_pos, 35, 10, "Seasonal"
+' 				                              Text 375, y_pos, 30, 10, "Amount"
+' 				                              Text 425, y_pos, 50, 10, "How often?"
+' 				                              y_pos = y_pos  + 10
+' 				                              first_job = FALSE
+' 				                          End If
+' 				                          ComboBox 40, y_pos, 110, 45, all_the_clients, NEW_EARNED_ARRAY(earned_client, each_job)
+' 				                          EditBox 155, y_pos, 105, 15, NEW_EARNED_ARRAY(earned_source, each_job)
+' 				                          EditBox 270, y_pos, 50, 15, NEW_EARNED_ARRAY(earned_start_date, each_job)
+' 				                          DropListBox 330, y_pos, 40, 45, " "+chr(9)+"No"+chr(9)+"Yes", NEW_EARNED_ARRAY(earned_seasonal, each_job)
+' 				                          EditBox 375, y_pos, 45, 15, NEW_EARNED_ARRAY(earned_amount, each_job)
+' 				                          DropListBox 425, y_pos, 60, 45, "Select One..."+chr(9)+"4 - Weekly"+chr(9)+"3 - Biweekly"+chr(9)+"2 - Semi Monthly"+chr(9)+"1 - Monthly", NEW_EARNED_ARRAY(earned_freq, each_job)
+' 				                          ' CheckBox 495, y_pos, 30, 10, "New", ALL_INCOME_ARRAY(new_checkbox, each_job)
+' 				                          ' CheckBox 530, y_pos, 40, 10, "Detail", ALL_INCOME_ARRAY(update_checkbox, each_job)
+' 				                          y_pos = y_pos + 20
+' 				                      End If
+' 				                  Next
+' 				                  If first_job = TRUE Then
+' 				                      Text 35, y_pos, 400, 10, "CSR form - no JOBS information has been added."
+' 				                      y_pos = y_pos + 20
+' 				                  Else
+' 				                    y_pos = y_pos + 10
+' 				                  End If
+'
+' 				                  GroupBox 15, y_pos + 5, 585, q_7_grp_len, "Q7. Does anyone get money or does anyone expect to get money from sources other than work?"
+' 				                  DropListBox 335, y_pos, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_other_income
+' 				                  CheckBox 430, y_pos + 5, 75, 10, "Q7 Deailts left Blank", q_7_details_blank_checkbox
+' 				                  y_pos = y_pos +20
+' 				                  ButtonGroup ButtonPressed
+' 				                    PushButton 540, y_pos - 15, 50, 10, "Add Another", add_unea_btn
+' 				                  first_unea = TRUE
+'
+' 				                  For each_unea = 0 to UBound(NEW_UNEARNED_ARRAY, 2)
+' 				                      If NEW_UNEARNED_ARRAY(unearned_type, each_unea) = "UNEA" AND NEW_UNEARNED_ARRAY(unearned_prog_list, each_unea) = "MA" Then
+' 				                          If first_unea = TRUE Then
+' 				                              Text 30, y_pos, 25, 10, "Name"
+' 				                              Text 165, y_pos, 55, 10, "Type of Income"
+' 				                              Text 280, y_pos, 35, 10, "Start Date"
+' 				                              Text 335, y_pos, 35, 10, "Amount"
+' 				                              Text 390, y_pos, 55, 10, "How often recvd"
+' 				                              y_pos = y_pos + 10
+' 				                              first_unea = FALSE
+' 				                          End If
+' 				                          ComboBox 30, y_pos, 130, 45, all_the_clients, NEW_UNEARNED_ARRAY(unearned_client, each_unea)
+' 				                          ComboBox 165, y_pos, 110, 45, unea_type_list, NEW_UNEARNED_ARRAY(unearned_source, each_unea)   'unea_type
+' 				                          EditBox 280, y_pos, 50, 15, NEW_UNEARNED_ARRAY(unearned_start_date, each_unea)    'unea_start_date
+' 				                          EditBox 335, y_pos, 50, 15, NEW_UNEARNED_ARRAY(unearned_amount, each_unea)    'unea_amount
+' 				                          DropListBox 390, y_pos, 90, 45, "Select One..."+chr(9)+"4 - Weekly"+chr(9)+"3 - Biweekly"+chr(9)+"2 - Semi Monthly"+chr(9)+"1 - Monthly", NEW_UNEARNED_ARRAY(unearned_freq, each_unea) 'unea_frequency
+' 				                          ' CheckBox 495, y_pos, 30, 10, "New", ALL_INCOME_ARRAY(new_checkbox, each_unea)
+' 				                          ' CheckBox 530, y_pos, 55, 10, "Update/Detail", ALL_INCOME_ARRAY(update_checkbox, each_unea)
+' 				                          y_pos = y_pos + 20
+' 				                      End If
+' 				                  Next
+' 				                  If first_unea = TRUE Then
+' 				                      Text 35, y_pos, 400, 10, "CSR form - no UNEA information has been added."
+' 				                      y_pos = y_pos + 20
+' 				                  Else
+' 				                    y_pos = y_pos + 10
+' 				                  End If
+'
+' 				                  ButtonGroup ButtonPressed
+' 								  	PushButton 20, y_pos + 2, 200, 13, "Why do I have to answer these if in is not HC?", why_answer_btn
+' 				                    PushButton 475, y_pos, 80, 15, "Go to Q9 - Q12", next_page_ma_btn
+' 				                    CancelButton 555, y_pos, 50, 15
+' 				                EndDialog
+'
+' 				                dialog Dialog1
+' 				                cancel_confirmation
+'
+' 				                If ButtonPressed = -1 Then ButtonPressed = next_page_ma_btn
+'
+' 								If all_questions_4_7_blank = "Questions 4 - 7 are completely blank." Then
+' 									apply_for_ma = "Did not answer"
+' 									ma_self_employed = "Did not answer"
+' 									ma_start_working = "Did not answer"
+' 									ma_other_income = "Did not answer"
+'
+' 									q_4_details_blank_checkbox = checked
+' 									q_5_details_blank_checkbox = checked
+' 									q_6_details_blank_checkbox = checked
+' 									q_7_details_blank_checkbox = checked
+' 								End If
+'
+' 				                If ButtonPressed = add_memb_btn Then
+' 									If NEW_MA_REQUEST_ARRAY(ma_request_client, 0) = "Select or Type" Then
+' 										NEW_MA_REQUEST_ARRAY(ma_request_client, 0) = "Enter or Select Member"
+' 									Else
+' 					                    new_item = UBound(NEW_MA_REQUEST_ARRAY, 2) + 1
+' 					                    ReDim Preserve NEW_MA_REQUEST_ARRAY(ma_request_notes, new_item)
+' 										NEW_MA_REQUEST_ARRAY(ma_request_client, new_item) = "Enter or Select Member"
+' 									End If
+' 				                End If
+' 				                If ButtonPressed = add_busi_btn Then
+' 				                    ReDim Preserve NEW_EARNED_ARRAY(earned_notes, new_earned_counter)
+' 				                    NEW_EARNED_ARRAY(earned_type, new_earned_counter) = "BUSI"
+' 				                    NEW_EARNED_ARRAY(earned_prog_list, new_earned_counter) = "MA"
+' 				                    new_earned_counter = new_earned_counter + 1
+' 				                End If
+' 				                If ButtonPressed = add_jobs_btn Then
+' 				                    ReDim Preserve NEW_EARNED_ARRAY(earned_notes, new_earned_counter)
+' 				                    NEW_EARNED_ARRAY(earned_type, new_earned_counter) = "JOBS"
+' 				                    NEW_EARNED_ARRAY(earned_prog_list, new_earned_counter) = "MA"
+' 				                    new_earned_counter = new_earned_counter + 1
+' 				                End If
+' 				                If ButtonPressed = add_unea_btn Then
+' 				                    new_item = UBound(ALL_INCOME_ARRAY, 2) + 1
+' 				                    ReDim Preserve NEW_UNEARNED_ARRAY(unearned_notes, new_unearned_counter)
+' 				                    NEW_UNEARNED_ARRAY(unearned_type, new_unearned_counter) = "UNEA"
+' 				                    NEW_UNEARNED_ARRAY(unearned_prog_list, new_unearned_counter) = "MA"
+' 				                    new_unearned_counter = new_unearned_counter + 1
+' 				                End If
+' 								If ButtonPressed = why_answer_btn Then
+' 									explain_text = "This case may not have MA, MSP, or any HC active and you may have indicated that it is only for a SNAP Review, HOWEVER" & vbCr & vbCr
+' 									explain_text = explain_text & "The form that was sent to the client STILL has these questions listed on it." & vbCr
+' 									explain_text = explain_text & "We need to be looking at all information that the client reported, anything entered here may impact the benefits because it is now 'known to the agency'." & vbCr & vbCr
+' 									explain_text = explain_text & "Though the client is not required to answer these questions, we are still required to review the entire form."
+' 									' explain_text = explain_text & ""
+' 									why_answer_when_not_HC_msg = MsgBOx(explain_text, vbInformation + vbOKonly, "No HC on the case")
+' 								End If
+'
+' 				                If ButtonPressed = next_page_ma_btn Then
+' 									questions_answered = TRUE
+'
+' 									If apply_for_ma = "Select One..." Then questions_answered = FALSE
+' 								    If ma_self_employed = "Select One..." Then questions_answered = FALSE
+' 								    If ma_start_working = "Select One..." Then questions_answered = FALSE
+' 								    If ma_other_income = "Select One..." Then questions_answered = FALSE
+'
+' 									If questions_answered = FALSE Then
+' 										err_msg = err_msg & vbNewLine & "* All of the questions must be answered with the answers from the CSR Form."
+' 										If apply_for_ma = "Select One..." Then err_msg = err_msg & vbNewLine & "   - "
+' 								        If ma_self_employed = "Select One..." Then err_msg = err_msg & vbNewLine & "   - "
+' 								        If ma_start_working = "Select One..." Then err_msg = err_msg & vbNewLine & "   - "
+' 								        If ma_other_income = "Select One..." Then err_msg = err_msg & vbNewLine & "   - "
+' 									End If
+'
+' 									q_4_details_entered = FALSE
+' 									q_5_details_entered = FALSE
+' 									q_6_details_entered = FALSE
+' 									q_7_details_entered = FALSE
+' 									If q_4_details_blank_checkbox = unchecked Then
+' 										For each_new_memb = 0 to UBound(NEW_MA_REQUEST_ARRAY, 2)
+' 											If NEW_MA_REQUEST_ARRAY(ma_request_client, each_new_memb) <> "Select or Type" and NEW_MA_REQUEST_ARRAY(ma_request_client, each_new_memb) <> "" and NEW_MA_REQUEST_ARRAY(ma_request_client, each_new_memb) <> "Enter or Select Member" Then
+' 												q_4_details_entered = TRUE
+' 											End If
+' 										Next
+' 										If q_4_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* No details of a person requesting MA for someone not getting coverage now (Question 4). Either enter information about which members are requesting MA coverage or check the box to indicate this portion of the form was left blank."
+' 									End If
+' 									If q_5_details_blank_checkbox = unchecked Then
+' 										For each_busi = 0 to UBound(NEW_EARNED_ARRAY, 2)
+' 					                        If NEW_EARNED_ARRAY(earned_type, each_busi) = "BUSI" AND NEW_EARNED_ARRAY(earned_prog_list, each_busi) = "MA" Then
+' 												q_5_details_entered = TRUE
+' 											End If
+' 										Next
+' 										If q_5_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* No Self Employment information has been entered (Question 5). Either enter BUSI details from the CSR Form or check the box to indicate this portion of the form was left blank."
+' 									End If
+' 									If q_6_details_blank_checkbox = unchecked Then
+' 										For each_job = 0 to UBound(NEW_EARNED_ARRAY, 2)
+' 											If NEW_EARNED_ARRAY(earned_type, each_job) = "JOBS" AND NEW_EARNED_ARRAY(earned_prog_list, each_job) = "MA" Then
+' 												q_6_details_entered = TRUE
+' 											End If
+' 										Next
+' 										If q_6_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* * No Job information has been entered (Question 6). Either enter JOBS details from the CSR Form or check the box to indicate this portion of the form was left blank."
+' 									End If
+' 									If q_7_details_blank_checkbox = unchecked Then
+' 										For each_unea = 0 to UBound(NEW_UNEARNED_ARRAY, 2)
+' 											If NEW_UNEARNED_ARRAY(unearned_type, each_unea) = "UNEA" AND NEW_UNEARNED_ARRAY(unearned_prog_list, each_unea) = "MA" Then
+' 												q_7_details_entered = TRUE
+' 											End If
+' 										Next
+' 										If q_7_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* * No Unearned Income information has been entered (Question 7). Either enter UNEA details from the CSR Form or check the box to indicate this portion of the form was left blank."
+' 									End If
+'
+' 									If err_msg <> "" Then MsgBox "*** NOTICE ***" & vbNewLine & "Please resolve to continue:" & vbNewLine & err_msg
+' 				                    If err_msg = "" Then show_ma_dlg_one = FALSE
+' 				                End If
+' 				            End If
+'
+' 				        Loop until show_ma_dlg_one = FALSE
+'
+' 						If show_ma_dlg_two = TRUE Then
+' 							show_ma_dlg_three = TRUE
+' 					        dlg_len = 205
+' 					        q_9_grp_len = 30
+' 					        q_10_grp_len = 30
+' 					        q_11_grp_len = 30
+' 					        q_12_grp_len = 30
+' 					        For new_assets_listed = 0 to UBound(NEW_ASSET_ARRAY, 2)
+' 					            If NEW_ASSET_ARRAY(asset_type, new_assets_listed) = "CASH" AND NEW_ASSET_ARRAY(asset_prog_list, new_assets_listed) = "MA" Then
+' 					                dlg_len = dlg_len + 20
+' 					                q_9_grp_len = q_9_grp_len + 20
+' 					                ' MsgBox ALL_ASSETS_ARRAY(category_const, assets_on_case)
+' 					            End If
+' 					            If NEW_ASSET_ARRAY(asset_type, new_assets_listed) = "ACCT" AND NEW_ASSET_ARRAY(asset_prog_list, new_assets_listed) = "MA" Then
+' 					                dlg_len = dlg_len + 20
+' 					                q_9_grp_len = q_9_grp_len + 20
+' 					            End If
+' 					            If NEW_ASSET_ARRAY(asset_type, new_assets_listed) = "SECU" AND NEW_ASSET_ARRAY(asset_prog_list, new_assets_listed) = "MA" Then
+' 					                dlg_len = dlg_len + 20
+' 					                q_10_grp_len = q_10_grp_len + 20
+' 					            End If
+' 					            If NEW_ASSET_ARRAY(asset_type, new_assets_listed) = "CARS" AND NEW_ASSET_ARRAY(asset_prog_list, new_assets_listed) = "MA" Then
+' 					                dlg_len = dlg_len + 20
+' 					                q_11_grp_len = q_11_grp_len + 20
+' 					            End If
+' 					            If NEW_ASSET_ARRAY(asset_type, new_assets_listed) = "REST" AND NEW_ASSET_ARRAY(asset_prog_list, new_assets_listed) = "MA" Then
+' 					                dlg_len = dlg_len + 20
+' 					                q_12_grp_len = q_12_grp_len + 20
+' 					            End If
+' 					        Next
+' 					        y_pos = 25
+' 					        Dialog1 = ""
+' 					        BeginDialog Dialog1, 0, 0, 610, dlg_len, "MA CSR Asset Questions"
+' 					          Text 10, 10, 180, 10, "Enter the answers from the CSR form, questions 9 - 12:"
+' 							  Text 195, 10, 210, 10, "If all questions and details have been left blank, indicate that here:"
+' 							  DropListBox 405, 5, 200, 15, "Enter Question specific information below"+chr(9)+"Questions 9 - 12 are completely blank.", all_questions_9_12_blank
+'
+' 					          GroupBox 15, y_pos + 5, 585, q_9_grp_len, "Q9. Does anyone have cash, a savings or checking account, or a certificate of deposit?"
+' 					          DropListBox 330, y_pos, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_liquid_assets
+' 					          CheckBox 430, y_pos + 5, 75, 10, "Q9 Deailts left Blank", q_9_details_blank_checkbox
+' 					          y_pos = y_pos +20
+' 					          ButtonGroup ButtonPressed
+' 					            PushButton 540, y_pos - 15, 50, 10, "Add Another", add_acct_btn
+' 					          first_account = TRUE
+'
+' 					          For each_asset = 0 to UBound(NEW_ASSET_ARRAY, 2)
+' 					            If (NEW_ASSET_ARRAY(asset_type, each_asset) = "ACCT" OR NEW_ASSET_ARRAY(asset_type, each_asset) = "CASH") AND NEW_ASSET_ARRAY(asset_prog_list, each_asset) = "MA" Then
+' 					              If first_account = TRUE Then
+' 					                  Text 30, y_pos, 55, 10, "Owner(s) Name"
+' 					                  Text 165, y_pos, 25, 10, "Type"
+' 					                  Text 285, y_pos, 50, 10, "Bank Name"
+' 					                  y_pos = y_pos + 10
+' 					                  first_account = FALSE
+' 					              End If
+' 					              ComboBox 30, y_pos, 130, 45, all_the_clients, NEW_ASSET_ARRAY(asset_client, each_asset) 'liquid_asset_member'
+' 					              ComboBox 165, y_pos, 115, 40, account_list, NEW_ASSET_ARRAY(asset_acct_type, each_asset)'liquid_asst_type
+' 					              EditBox 285, y_pos, 195, 15, NEW_ASSET_ARRAY(asset_bank_name, each_asset)'liquid_asset_name
+' 					              ' CheckBox 495, y_pos, 30, 10, "New", ALL_ASSETS_ARRAY(new_checkbox, each_asset)    'new_checkbox
+' 					              ' CheckBox 530, y_pos, 55, 10, "Update/Detail", ALL_ASSETS_ARRAY(update_checkbox, each_asset)'update_checkbox
+' 					              y_pos = y_pos + 20
+' 					            End If
+' 					          Next
+' 					          If first_account = TRUE Then
+' 					            Text 30, y_pos, 250, 10, "CSR form - no ACCT information has been added."
+' 					            y_pos = y_pos + 10
+' 					          End If
+'
+' 					          y_pos = y_pos +10
+' 					          GroupBox 15, y_pos + 5, 585, q_10_grp_len, "Q10. Does anyone own or co-own securities or other assets?"
+' 					          DropListBox 295, y_pos, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_security_assets
+' 					          CheckBox 430, y_pos + 5, 80, 10, "Q10 Deailts left Blank", q_10_details_blank_checkbox
+' 					          y_pos = y_pos +  20
+' 					          ButtonGroup ButtonPressed
+' 					            PushButton 540, y_pos - 15, 50, 10, "Add Another", add_secu_btn
+'
+' 					          first_secu = TRUE
+' 					          For each_asset = 0 to UBound(NEW_ASSET_ARRAY, 2)
+' 					            If NEW_ASSET_ARRAY(asset_type, each_asset) = "SECU" AND NEW_ASSET_ARRAY(asset_prog_list, each_asset) = "MA" Then
+' 					                If first_secu = TRUE Then
+' 					                    Text 30, y_pos, 55, 10, "Owner(s) Name"
+' 					                    Text 165, y_pos, 25, 10, "Type"
+' 					                    Text 285, y_pos, 50, 10, "Bank Name"
+' 					                    y_pos = y_pos + 10
+' 					                    first_secu = FALSE
+' 					                End If
+' 					                ComboBox 30, y_pos, 130, 45, all_the_clients, NEW_ASSET_ARRAY(asset_client, each_asset) 'security_asset_member
+' 					                ComboBox 165, y_pos, 115, 40, security_list, NEW_ASSET_ARRAY(asset_acct_type, each_asset)    'security_asset_type
+' 					                EditBox 285, y_pos, 195, 15, NEW_ASSET_ARRAY(asset_bank_name, each_asset)   'security_asset_name
+' 					                ' CheckBox 495, y_pos, 30, 10, "New", ALL_ASSETS_ARRAY(new_checkbox, each_asset)
+' 					                ' CheckBox 530, y_pos, 55, 10, "Update/Detail", ALL_ASSETS_ARRAY(update_checkbox, each_asset)
+' 					                y_pos = y_pos + 20
+' 					            End If
+' 					          Next
+' 					          If first_secu = TRUE Then
+' 					              Text 30, y_pos, 250, 10, "CSR form - no SECU information has been added."
+' 					              y_pos = y_pos + 10
+' 					          End If
+' 					          y_pos = y_pos + 10
+'
+' 					          GroupBox 15, y_pos + 5, 585, q_11_grp_len, "Q11. Does anyone own a vehicle?"
+' 					          DropListBox 250, y_pos, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_vehicle
+' 					          CheckBox 430, y_pos + 5, 80, 10, "Q11 Deailts left Blank", q_11_details_blank_checkbox
+' 					          y_pos = y_pos + 20
+' 					          ButtonGroup ButtonPressed
+' 					            PushButton 540, y_pos - 15, 50, 10, "Add Another", add_cars_btn
+' 					          first_car = TRUE
+' 					          For each_asset = 0 to UBound(NEW_ASSET_ARRAY, 2)
+' 					              If NEW_ASSET_ARRAY(asset_type, each_asset) = "CARS" AND NEW_ASSET_ARRAY(asset_prog_list, each_asset) = "MA" Then
+' 					                  If first_car = TRUE Then
+' 					                      Text 30, y_pos, 55, 10, "Owner(s) Name"
+' 					                      Text 165, y_pos, 25, 10, "Type"
+' 					                      Text 285, y_pos, 75, 10, "Year/Make/Model"
+' 					                      y_pos = y_pos + 10
+' 					                      first_car = FALSE
+' 					                  End If
+' 					                  ComboBox 30, y_pos, 130, 45, all_the_clients, NEW_ASSET_ARRAY(asset_client, each_asset)     'vehicle_asset_member
+' 					                  ComboBox 165, y_pos, 115, 40, cars_list, NEW_ASSET_ARRAY(asset_acct_type, each_asset)    'vehicle_asset_type
+' 					                  EditBox 285, y_pos, 195, 15, NEW_ASSET_ARRAY(asset_year_make_model, each_asset)  'vehicle_asset_name
+' 					                  ' CheckBox 495, y_pos, 30, 10, "New", ALL_ASSETS_ARRAY(new_checkbox, each_asset)
+' 					                  ' CheckBox 530, y_pos, 55, 10, "Update/Detail", ALL_ASSETS_ARRAY(update_checkbox, each_asset)
+' 					                  y_pos = y_pos + 20
+' 					              End If
+' 					          Next
+' 					          If first_car = TRUE Then
+' 					            Text 30, y_pos, 250, 10, "CSR form - no CARS information has been added."
+' 					            y_pos = y_pos + 10
+' 					          End If
+' 					          y_pos = y_pos + 10
+'
+' 					          GroupBox 15, y_pos + 5, 585, q_12_grp_len, "Q12. Does anyone own or co-own any real estate?"
+' 					          DropListBox 280, y_pos, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_real_assets
+' 					          CheckBox 430, y_pos + 5, 80, 10, "Q12 Deailts left Blank", q_12_details_blank_checkbox
+' 					          y_pos = y_pos + 20
+' 					          ButtonGroup ButtonPressed
+' 					            PushButton 540, y_pos - 15, 50, 10, "Add Another", add_rest_btn
+' 					          first_home = TRUE
+' 					          For each_asset = 0 to Ubound(NEW_ASSET_ARRAY, 2)
+' 					              If NEW_ASSET_ARRAY(asset_type, each_asset) = "REST" AND NEW_ASSET_ARRAY(asset_prog_list, each_asset) = "MA" Then
+' 					                  If first_home = TRUE Then
+' 					                      Text 30, y_pos, 55, 10, "Owner(s) Name"
+' 					                      Text 165, y_pos, 25, 10, "Address"
+' 					                      Text 320, y_pos, 75, 10, "Type of Property"
+' 					                      y_pos = y_pos + 10
+' 					                      first_home = FALSE
+' 					                  End If
+' 					                  ComboBox 30, y_pos, 130, 45, all_the_clients, NEW_ASSET_ARRAY(asset_client, each_asset)     'property_asset_member
+' 					                  EditBox 165, y_pos, 150, 15, NEW_ASSET_ARRAY(asset_address, each_asset)      'property_asset_address
+' 					                  ComboBox 320, y_pos, 150, 40, rest_list, NEW_ASSET_ARRAY(asset_acct_type, each_asset)     'property_asset_type
+' 					                  ' CheckBox 495, y_pos, 30, 10, "New", ALL_ASSETS_ARRAY(new_checkbox, each_asset)
+' 					                  ' CheckBox 530, y_pos, 55, 10, "Update/Detail", ALL_ASSETS_ARRAY(update_checkbox, each_asset)
+' 					                  y_pos = y_pos + 20
+' 					              End If
+' 					          Next
+' 					          If first_home = TRUE Then
+' 					            Text 30, y_pos, 250, 10, "CSR form - no REST information has been added."
+' 					            y_pos = y_pos + 10
+' 					          End If
+' 					          y_pos = y_pos + 10
+'
+' 					          ButtonGroup ButtonPressed
+' 					            PushButton 415, y_pos, 80, 15, "Go Back to Q4 - Q7", back_to_ma_dlg_1
+' 					            PushButton 495, y_pos, 60, 15, "Continue", continue_btn
+' 					            CancelButton 555, y_pos, 50, 15
+' 					        EndDialog
+'
+' 					        err_msg = ""
+'
+' 					        dialog Dialog1
+' 					        cancel_confirmation
+'
+' 					        ' MsgBox ButtonPressed & " - 1 - "
+' 					        If ButtonPressed = -1 Then ButtonPressed = continue_btn
+'
+' 							If ButtonPressed = add_acct_btn Then
+' 						        ReDim Preserve NEW_ASSET_ARRAY(asset_notes, new_asset_counter)
+' 						        NEW_ASSET_ARRAY(asset_type, new_asset_counter) = "ACCT"
+' 						        NEW_ASSET_ARRAY(asset_prog_list, new_asset_counter) = "MA"
+' 						        new_asset_counter = new_asset_counter + 1
+' 						    End If
+' 						    If ButtonPressed = add_secu_btn Then
+' 						        ReDim Preserve NEW_ASSET_ARRAY(asset_notes, new_asset_counter)
+' 						        NEW_ASSET_ARRAY(asset_type, new_asset_counter) = "SECU"
+' 						        NEW_ASSET_ARRAY(asset_prog_list, new_asset_counter) = "MA"
+' 						        new_asset_counter = new_asset_counter + 1
+' 						    End If
+' 						    If ButtonPressed = add_cars_btn Then
+' 						        ReDim Preserve NEW_ASSET_ARRAY(asset_notes, new_asset_counter)
+' 						        NEW_ASSET_ARRAY(asset_type, new_asset_counter) = "CARS"
+' 						        NEW_ASSET_ARRAY(asset_prog_list, new_asset_counter) = "MA"
+' 						        new_asset_counter = new_asset_counter + 1
+' 						    End If
+' 						    If ButtonPressed = add_rest_btn Then
+' 						        ReDim Preserve NEW_ASSET_ARRAY(asset_notes, new_asset_counter)
+' 						        NEW_ASSET_ARRAY(asset_type, new_asset_counter) = "REST"
+' 						        NEW_ASSET_ARRAY(asset_prog_list, new_asset_counter) = "MA"
+' 						        new_asset_counter = new_asset_counter + 1
+' 						    End If
+'
+' 							If all_questions_9_12_blank = "Questions 9 - 12 are completely blank." Then
+' 								ma_liquid_assets = "Did not answer"
+' 								ma_security_assets = "Did not answer"
+' 								ma_vehicle = "Did not answer"
+' 								ma_real_assets = "Did not answer"
+'
+' 								q_9_details_blank_checkbox = checked
+' 								q_10_details_blank_checkbox = checked
+' 								q_11_details_blank_checkbox = checked
+' 								q_12_details_blank_checkbox = checked
+' 							End If
+'
+' 							If ButtonPressed = continue_btn Then
+' 								questions_answered = TRUE
+'
+' 								If ma_liquid_assets = "Select One..." Then questions_answered = FALSE
+' 								If ma_security_assets = "Select One..." Then questions_answered = FALSE
+' 								If ma_vehicle = "Select One..." Then questions_answered = FALSE
+' 								If ma_real_assets = "Select One..." Then questions_answered = FALSE
+'
+' 								If questions_answered = FALSE Then
+' 									err_msg = err_msg & vbNewLine & "* All of the questions must be answered with the answers from the CSR Form."
+'
+' 									If ma_liquid_assets = "Select One..." Then err_msg = err_msg & vbNewLine & "   - "
+' 									If ma_security_assets = "Select One..." Then err_msg = err_msg & vbNewLine & "   - "
+' 									If ma_vehicle = "Select One..." Then err_msg = err_msg & vbNewLine & "   - "
+' 									If ma_real_assets = "Select One..." Then err_msg = err_msg & vbNewLine & "   - "
+' 								End If
+'
+' 								q_9_details_entered = FALSE
+' 								q_10_details_entered = FALSE
+' 								q_11_details_entered = FALSE
+' 								q_12_details_entered = FALSE
+' 								If q_9_details_blank_checkbox = unchecked Then
+' 									For each_new_memb = 0 to UBound(NEW_MA_REQUEST_ARRAY, 2)
+' 										If (NEW_ASSET_ARRAY(asset_type, each_asset) = "ACCT" OR NEW_ASSET_ARRAY(asset_type, each_asset) = "CASH") AND NEW_ASSET_ARRAY(asset_prog_list, each_asset) = "MA" AND NEW_ASSET_ARRAY(ma_request_client, each_asset) <> "Enter or Select Member" Then
+' 											q_9_details_entered = TRUE
+' 										End If
+' 									Next
+' 									If q_9_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* No details of a person requesting MA for someone not getting coverage now (Question 4). Either enter information about which members are requesting MA coverage or check the box to indicate this portion of the form was left blank."
+' 								End If
+' 								If q_10_details_blank_checkbox = unchecked Then
+' 									For each_busi = 0 to UBound(NEW_EARNED_ARRAY, 2)
+' 										If NEW_EARNED_ARRAY(earned_type, each_busi) = "BUSI" AND NEW_EARNED_ARRAY(earned_prog_list, each_busi) = "MA" Then
+' 											q_10_details_entered = TRUE
+' 										End If
+' 									Next
+' 									If q_10_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* No Self Employment information has been entered (Question 5). Either enter BUSI details from the CSR Form or check the box to indicate this portion of the form was left blank."
+' 								End If
+' 								If q_11_details_blank_checkbox = unchecked Then
+' 									For each_job = 0 to UBound(NEW_EARNED_ARRAY, 2)
+' 										If NEW_EARNED_ARRAY(earned_type, each_job) = "JOBS" AND NEW_EARNED_ARRAY(earned_prog_list, each_job) = "MA" Then
+' 											q_11_details_entered = TRUE
+' 										End If
+' 									Next
+' 									If q_11_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* * No Job information has been entered (Question 6). Either enter JOBS details from the CSR Form or check the box to indicate this portion of the form was left blank."
+' 								End If
+' 								If q_12_details_blank_checkbox = unchecked Then
+' 									For each_unea = 0 to UBound(NEW_UNEARNED_ARRAY, 2)
+' 										If NEW_UNEARNED_ARRAY(unearned_type, each_unea) = "UNEA" AND NEW_UNEARNED_ARRAY(unearned_prog_list, each_unea) = "MA" Then
+' 											q_12_details_entered = TRUE
+' 										End If
+' 									Next
+' 									If q_12_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* * No Unearned Income information has been entered (Question 7). Either enter UNEA details from the CSR Form or check the box to indicate this portion of the form was left blank."
+' 								End If
+'
+' 								If err_msg <> "" Then MsgBox "*** NOTICE ***" & vbNewLine & "Please resolve to continue:" & vbNewLine & err_msg
+' 								If err_msg = "" Then show_ma_dlg_two = FALSE
+' 							End If
+'
+' 							If ButtonPressed = back_to_ma_dlg_1 Then
+' 								' MsgBox ButtonPressed & " - 2 - "
+' 								show_ma_dlg_one = TRUE
+' 								show_ma_dlg_two = FALSE
+' 								show_ma_dlg_three = FALSE
+' 								err_msg = ""
+' 							End If
+' 						End If
+' 					Loop until show_ma_dlg_two = FALSE
+'
+' 					If show_ma_dlg_three = TRUE Then
+' 						leave_q_13 = FALSE
+'
+' 						Dialog1 = ""
+' 						BeginDialog Dialog1, 0, 0, 610, 100, "MA CSR Changes"
+' 						  Text 10, 10, 180, 10, "Enter the answers from the CSR form, questions 13:"
+'
+' 						  Text 25, 25, 135, 10, "Q13. Do you have any changes to report?"
+' 						  DropListBox 160, 20, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_other_changes
+' 						  EditBox 30, 40, 555, 15, other_changes_reported
+' 						  CheckBox 30, 60, 300, 10, "Check here if client left the changes to report field on the form blank.", changes_reported_blank_checkbox
+'
+' 						  ButtonGroup ButtonPressed
+' 						  	PushButton 255, 80, 100, 15, "Back to Q 4-7", back_to_ma_dlg_1
+' 							PushButton 355, 80, 100, 15, "Back to Q 9 - 12", back_to_ma_dlg_2
+' 							PushButton 455, 80, 100, 15, "Finish MA Questions", finish_ma_questions
+' 							CancelButton 555, 80, 50, 15
+' 						EndDialog
+'
+' 						dialog Dialog1
+' 						cancel_confirmation
+'
+' 						If ButtonPressed = back_to_ma_dlg_1 Then
+' 							show_ma_dlg_three = FALSE
+' 							show_ma_dlg_one = TRUE
+' 						End If
+' 						If ButtonPressed = back_to_ma_dlg_2 Then
+' 							show_ma_dlg_three = FALSE
+' 							show_ma_dlg_two = TRUE
+' 						End If
+' 						If ButtonPressed = finish_ma_questions Then
+' 							show_ma_dlg_three = FALSE
+'
+' 							questions_answered = TRUE
+'
+' 							If ma_other_changes = "Select One..." Then questions_answered = FALSE
+'
+' 							If questions_answered = FALSE Then
+' 								err_msg = err_msg & vbNewLine & "* All of the questions must be answered with the answers from the CSR Form."
+'
+' 								If ma_other_changes = "Select One..." Then err_msg = err_msg & vbNewLine & "   - "
+' 							Else
+' 								If details_shown = FALSE Then err_msg = "LOOP" & err_msg
+' 							End If
+'
+' 							If err_msg <> "" AND left(err_msg, 4) <> "LOOP" Then
+' 								MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
+' 							' Else
+' 							'     If ButtonPressed = continue_btn then err_msg = ""
+' 							End If
+' 						End If
+' 					End If
+' 				Loop until show_ma_dlg_three = FALSE
+' 			Loop until show_ma_dlg_one = FALSE AND show_ma_dlg_two = FALSE AND show_ma_dlg_three = FALSE
+'
+' 			err_msg = ""
+'
+' 	        dlg_len = 230
+' 	        q_15_grp_len = 50
+' 	        q_16_grp_len = 25
+' 	        q_17_grp_len = 25
+'
+' 	        For the_earned = 0 to UBound(NEW_EARNED_ARRAY, 2)
+' 	            If NEW_EARNED_ARRAY(earned_prog_list, the_earned) = "SNAP" Then
+' 	                dlg_len = dlg_len + 20
+' 	                q_16_grp_len = q_16_grp_len + 20
+' 	            End If
+' 	        Next
+'
+' 	        For the_unearned = 0 to UBound(NEW_UNEARNED_ARRAY, 2)
+' 	            If NEW_UNEARNED_ARRAY(unearned_prog_list, the_unearned) = "SNAP" Then
+' 	                dlg_len = dlg_len + 20
+' 	                q_17_grp_len = q_17_grp_len + 20
+' 	            End If
+' 	        Next
+' 	        ' dlg_len = dlg_len + UBound(NEW_EARNED_ARRAY, 2) * 20
+' 	        ' dlg_len = dlg_len + UBound(NEW_UNEARNED_ARRAY, 2) * 20
+' 	        dlg_len = dlg_len + UBound(NEW_CHILD_SUPPORT_ARRAY, 2) * 20
+' 	        ' q_15_grp_len = 50
+' 	        ' q_16_grp_len = 45 + UBound(NEW_EARNED_ARRAY, 2) * 20
+' 	        ' q_17_grp_len = 45 + UBound(NEW_UNEARNED_ARRAY, 2) * 20
+' 	        q_18_grp_len = 45 + UBound(NEW_CHILD_SUPPORT_ARRAY, 2) * 20
+'
+' 	        y_pos = 95
+'
+' 	        Dialog1 = ""
+' 	        BeginDialog Dialog1, 0, 0, 510, dlg_len, "SNAP CSR Question Details"
+' 	          GroupBox 10, 10, 415, q_15_grp_len, "Q15. Has your household moved since your last application or in the past six months?"
+' 	          DropListBox 305, 5, 100, 45, "Select One..."+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Did not answer", quest_fifteen_form_answer
+' 	          Text 25, 25, 105, 10, "New Rent or Mortgage Amount:"
+' 	          EditBox 130, 20, 65, 15, new_rent_or_mortgage_amount
+' 	          CheckBox 220, 25, 50, 10, "Heat/AC", heat_ac_checkbox
+' 	          CheckBox 275, 25, 50, 10, "Electricity", electricity_checkbox
+' 	          CheckBox 345, 25, 50, 10, "Telephone", telephone_checkbox
+' 	          Text 210, 45, 80, 10, "Did client attach proof?"
+' 	          DropListBox 290, 40, 125, 45, "Select One..."+chr(9)+"Yes"+chr(9)+"No", shel_proof_provided
+' 	          GroupBox 10, 70, 490, q_16_grp_len, "Q16 Has there been a change in EARNED INCOME?"
+' 	          DropListBox 190, 65, 100, 45, "Select One..."+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Did not answer", quest_sixteen_form_answer
+' 	          CheckBox 310, 70, 85, 10, "Q16 Deailts left Blank", q_16_details_blank_checkbox
+' 	          ButtonGroup ButtonPressed
+' 	            PushButton 440, 70, 50, 10, "Add Another", add_snap_earned_income_btn
+' 	          Text 15, 85, 20, 10, "Client"
+' 	          Text 130, 85, 100, 10, "Employer (or Business Name)"
+' 	          Text 265, 85, 50, 10, "Change Date"
+' 	          Text 320, 85, 35, 10, "Amount"
+' 	          Text 375, 85, 40, 10, "Frequency"
+' 	          Text 445, 85, 25, 10, "Hours"
+' 	          For the_earned = 0 to UBound(NEW_EARNED_ARRAY, 2)
+' 	              If NEW_EARNED_ARRAY(earned_prog_list, the_earned) = "SNAP" Then
+' 	                  ComboBox 15, y_pos, 110, 45, all_the_clients, NEW_EARNED_ARRAY(earned_client, the_earned)
+' 	                  EditBox 130, y_pos, 130, 15, NEW_EARNED_ARRAY(earned_source, the_earned)
+' 	                  EditBox 265, y_pos, 50, 15, NEW_EARNED_ARRAY(earned_change_date, the_earned)
+' 	                  EditBox 320, y_pos, 50, 15, NEW_EARNED_ARRAY(earned_amount, the_earned)
+' 	                  DropListBox 375, y_pos, 65, 45, "Select One..."+chr(9)+"Weekly"+chr(9)+"BiWeekly"+chr(9)+"Semi-Monthly"+chr(9)+"Monthly", NEW_EARNED_ARRAY(earned_freq, the_earned)
+' 	                  EditBox 445, y_pos, 50, 15, NEW_EARNED_ARRAY(earned_hours, the_earned)
+' 	                  y_pos = y_pos + 20
+' 	              End If
+' 	          Next
+' 	          y_pos = y_pos + 10
+' 	          GroupBox 10, y_pos, 490, q_17_grp_len, "Q17. Has there been a change in UNEARNED INCOME?"
+' 	          DropListBox 205, y_pos - 5, 100, 45, "Select One..."+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Did not answer", quest_seventeen_form_answer
+' 	          CheckBox 310, y_pos, 85, 10, "Q17 Deailts left Blank", q_17_details_blank_checkbox
+' 	          ButtonGroup ButtonPressed
+' 	            PushButton 440, y_pos, 50, 10, "Add Another", add_snap_unearned_btn
+' 	          y_pos = y_pos + 15
+' 	          Text 15, y_pos, 20, 10, "Client"
+' 	          Text 145, y_pos, 100, 10, "Type and Source"
+' 	          Text 280, y_pos, 50, 10, "Change Date"
+' 	          Text 340, y_pos, 35, 10, "Amount"
+' 	          Text 405, y_pos, 40, 10, "Frequency"
+' 	          y_pos = y_pos + 10
+' 	          For the_unearned = 0 to UBound(NEW_UNEARNED_ARRAY, 2)
+' 	              If NEW_UNEARNED_ARRAY(unearned_prog_list, the_unearned) = "SNAP" Then
+' 	                  ComboBox 15, y_pos, 125, 45, all_the_clients, NEW_UNEARNED_ARRAY(unearned_client, the_unearned)
+' 	                  EditBox 145, y_pos, 130, 15, NEW_UNEARNED_ARRAY(unearned_source, the_unearned)
+' 	                  EditBox 280, y_pos, 55, 15, NEW_UNEARNED_ARRAY(unearned_change_date, the_unearned)
+' 	                  EditBox 340, y_pos, 60, 15, NEW_UNEARNED_ARRAY(unearned_amount, the_unearned)
+' 	                  DropListBox 405, y_pos, 90, 45, "Select One..."+chr(9)+"Weekly"+chr(9)+"BiWeekly"+chr(9)+"Semi-Monthly"+chr(9)+"Monthly", NEW_UNEARNED_ARRAY(unearned_freq, the_unearned)
+' 	                  y_pos = y_pos + 20
+' 	              End If
+' 	          Next
+' 	          y_pos = y_pos + 10
+' 	          GroupBox 10, y_pos, 490, q_18_grp_len, "Q18 Has there been a change in CHILD SUPPORT?"
+' 	          DropListBox 190, y_pos - 5, 100, 45, "Select One..."+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Did not answer", quest_eighteen_form_answer
+' 	          CheckBox 310, y_pos, 85, 10, "Q18 Deailts left Blank", q_18_details_blank_checkbox
+' 	          ButtonGroup ButtonPressed
+' 	            PushButton 440, y_pos, 50, 10, "Add Another", add_snap_cs_btn
+' 	          y_pos = y_pos + 15
+' 	          Text 15, y_pos, 85, 10, "Name of person paying"
+' 	          Text 220, y_pos, 35, 10, "Amount"
+' 	          Text 295, y_pos, 65, 10, "Currently Paying?"
+' 	          y_pos = y_pos + 10
+' 	          For the_cs = 0 to UBound(NEW_CHILD_SUPPORT_ARRAY, 2)
+' 	              EditBox 15, y_pos, 200, 15, NEW_CHILD_SUPPORT_ARRAY(cs_payer, the_cs)
+' 	              EditBox 220, y_pos, 65, 15, NEW_CHILD_SUPPORT_ARRAY(cs_amount, the_cs)
+' 	              DropListBox 295, y_pos, 60, 45, "Select..."+chr(9)+"Yes"+chr(9)+"No", NEW_CHILD_SUPPORT_ARRAY(cs_current, the_cs)
+' 	              y_pos = y_pos + 20
+' 	          Next
+' 	          y_pos = y_pos + 10
+' 	          Text 10, y_pos, 345, 10, "Q19. Did you work 20 hours each week, for an average of 80 hours per month during the past six months?"
+' 	          DropListBox 355, y_pos - 5, 100, 45, "Select One..."+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Did not answer", quest_nineteen_form_answer
+' 	          y_pos = y_pos + 15
+' 	          ButtonGroup ButtonPressed
+' 	            PushButton 405, y_pos, 50, 15, "Continue", continue_btn
+' 	            CancelButton 455, y_pos, 50, 15
+' 	        EndDialog
+'
+' 	        dialog Dialog1
+'
+' 	        cancel_confirmation
+'
+' 	        If quest_fifteen_form_answer = "Select One..." OR quest_sixteen_form_answer = "Select One..." OR quest_seventeen_form_answer = "Select One..." OR quest_eighteen_form_answer = "Select One..." OR quest_nineteen_form_answer = "Select One..." Then err_msg = err_msg & vbNewLine & "* All of the questions must be answered with the answers from the CSR Form." & vbNewLine
+' 	        If quest_fifteen_form_answer = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate the answer on the CSR form for Question 15 (Has the household moved?)."
+' 	        If quest_sixteen_form_answer = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate the answer on the CSR form for Question 16 (Has anyone had a change in Earned income?)."
+' 	        If quest_seventeen_form_answer = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate the answer on the CSR form for Question 17 (Has anyone had a change in Unearned income?)."
+' 	        If quest_eighteen_form_answer = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate the answer on the CSR form for Question 18 (Has there been a change in Child Support income?)."
+' 	        If quest_nineteen_form_answer = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate the answer on the CSR form for Question 19 (Have you worked 80 hours per month?)."
+'
+' 	        If ButtonPressed = add_snap_earned_income_btn Then
+' 	            ReDim Preserve NEW_EARNED_ARRAY(earned_notes, new_earned_counter)
+' 	            NEW_EARNED_ARRAY(earned_prog_list, new_earned_counter) = "SNAP"
+' 	            new_earned_counter = new_earned_counter + 1
+' 	            err_msg = "LOOP" & err_msg
+' 	        End If
+'
+' 	        If ButtonPressed = add_snap_unearned_btn Then
+' 	            new_item = UBound(NEW_UNEARNED_ARRAY, 2) + 1
+' 	            ReDim Preserve NEW_UNEARNED_ARRAY(unearned_notes, new_unearned_counter)
+' 	            NEW_UNEARNED_ARRAY(unearned_prog_list, new_unearned_counter) = "SNAP"
+' 	            new_unearned_counter = new_unearned_counter + 1
+' 	            err_msg = "LOOP" & err_msg
+' 	        End If
+'
+' 	        If ButtonPressed = add_snap_cs_btn Then
+' 	            new_item = UBound(NEW_CHILD_SUPPORT_ARRAY, 2) + 1
+' 	            ReDim Preserve NEW_CHILD_SUPPORT_ARRAY(cs_notes, new_item)
+' 	            err_msg = "LOOP" & err_msg
+' 	        End If
+'
+' 	        If ButtonPressed = -1 Then ButtonPressed = continue_btn
+'
+' 	        If err_msg <> "" AND left(err_msg, 4) <> "LOOP" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
+' 		    ' MsgBox show_two & vbNewLine & "line 1480"
+' 		    ' Loop until leave_ma_questions = TRUE
+' 	    Loop until err_msg = ""
+' 		err_msg = ""
+'
+' 		Dialog1 = ""
+' 		BeginDialog Dialog1, 0, 0, 211, 100, "Form dates and signatures"
+' 		  EditBox 90, 5, 60, 15, csr_form_date
+' 		  DropListBox 145, 30, 60, 45, "Select..."+chr(9)+"Yes"+chr(9)+"No", client_signed_yn
+' 		  DropListBox 145, 50, 60, 45, "Select..."+chr(9)+"Yes"+chr(9)+"No", client_dated_yn
+' 		  ButtonGroup ButtonPressed
+' 			PushButton 45, 75, 105, 15, "Complete CSR Form Detail", complete_csr_questions
+' 			CancelButton 155, 75, 50, 15
+' 		  Text 15, 10, 70, 10, "Date form Received:"
+' 		  Text 15, 35, 130, 10, "Has the client signed the CSR Form?"
+' 		  Text 15, 55, 130, 10, "Has the client dated the CSR Form?"
+' 		EndDialog
+'
+' 		dialog Dialog1
+'
+' 		cancel_confirmation
+'
+' 		If IsDate(csr_form_date) = FALSE Then
+' 			err_msg = err_msg & vbNewLine & "* Enter a valid date for the date the form was received."
+' 		Else
+' 			If DateDiff("d", date, csr_form_date) > 0 Then err_msg = err_msg & vbNewLine & "* The date of the CSR form is listed as a future date, a form cannot be listed as received inthe future, please review the form date."
+' 		End If
+' 		If client_signed_yn = "Select..." Then err_msg = err_msg & vbNewLine & "* Indicate if the client has signed the form correctly by selecting 'yes' or 'no'."
+' 		If client_dated_yn = "Select..." Then err_msg = err_msg & vbNewLine & "* Indicate if the form has been dated correctly by selecting 'yes' or 'no'."
+'
+' 		If err_msg <> "" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
+'
+' 	Loop until err_msg = ""
+'     Call check_for_password(are_we_passworded_out)
+' Loop until are_we_passworded_out = FALSE
+
+
+
+
+'
+' Do
+'     Do
+'         err_msg = ""
+'
+'         Dialog1 = ""
+'         BeginDialog Dialog1, 0, 0, 501, 130, "SNAP CSR Questions"
+'           Text 10, 10, 290, 10, "Q15. Has your household moved since your last application or in the past six months?"
+'           DropListBox 305, 5, 100, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", quest_fifteen_form_answer
+'           Text 10, 30, 175, 10, "Q16 Has there been a change in EARNED INCOME?"
+'           DropListBox 190, 25, 100, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", quest_sixteen_form_answer
+'           Text 10, 50, 195, 10, "Q17. Has there been a change in UNEARNED INCOME?"
+'           DropListBox 205, 45, 100, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", quest_seventeen_form_answer
+'           Text 10, 70, 175, 10, "Q18 Has there been a change in CHILD SUPPORT?"
+'           DropListBox 190, 65, 100, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", quest_eighteen_form_answer
+'           Text 10, 90, 345, 10, "Q19. Did you work 20 hours each week, for an average of 80 hours per month during the past six months?"
+'           DropListBox 355, 85, 100, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", quest_nineteen_form_answer
+'           ButtonGroup ButtonPressed
+'             PushButton 395, 110, 50, 15, "Continue", continue_btn
+'             CancelButton 445, 110, 50, 15
+'         EndDialog
+'
+'         dialog Dialog1
+'
+'         cancel_confirmation
+'
+'         If quest_fifteen_form_answer = "Select One..." OR quest_sixteen_form_answer = "Select One..." OR quest_seventeen_form_answer = "Select One..." OR quest_eighteen_form_answer = "Select One..." OR quest_nineteen_form_answer = "Select One..." Then err_msg = err_msg & vbNewLine & "* All of the questions must be answered with the answers from the CSR Form." & vbNewLine
+'         If quest_fifteen_form_answer = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate the answer on the CSR form for Question 15 (Has the household moved?)."
+'         If quest_sixteen_form_answer = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate the answer on the CSR form for Question 16 (Has anyone had a change in Earned income?)."
+'         If quest_seventeen_form_answer = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate the answer on the CSR form for Question 17 (Has anyone had a change in Unearned income?)."
+'         If quest_eighteen_form_answer = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate the answer on the CSR form for Question 18 (Has there been a change in Child Support income?)."
+'         If quest_nineteen_form_answer = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate the answer on the CSR form for Question 19 (Have you worked 80 hours per month?)."
+'
+'         If ButtonPressed = -1 Then ButtonPressed = continue_btn
+'
+'         If err_msg <> "" Then MsgBox "Please Resolve to Continue:" & vbNewLine & err_msg
+'     Loop until err_msg = ""
+'     Call check_for_password(are_we_passworded_out)
+' Loop until are_we_passworded_out = FALSE
+'
+' If quest_sixteen_form_answer = "Yes" Then
+'     ReDim Preserve NEW_EARNED_ARRAY(earned_notes, new_earned_counter)
+'     NEW_EARNED_ARRAY(earned_prog_list, new_earned_counter) = "SNAP"
+'     new_earned_counter = new_earned_counter + 1
+' End If
+'
+' If quest_seventeen_form_answer = "Yes" Then
+'     ReDim Preserve NEW_UNEARNED_ARRAY(unearned_notes, new_unearned_counter)
+'     NEW_UNEARNED_ARRAY(unearned_prog_list, new_unearned_counter) = "SNAP"
+'     new_unearned_counter = new_unearned_counter + 1
+' End If
 
 
 'Logic to reflect on if the form is complete.
@@ -4150,7 +5821,7 @@ If residence_address_match_yn = "RESI Address not Provided" Then
 End If
 If q_one_complete = FALSE Then dlg_len = dlg_len + 20
 
-If HC_active = TRUE Then
+If HC_active = TRUE OR hc_sr_yn = "Yes" Then
     ma_side_len = ma_side_len + 50
     dlg_width = 520
     hc_grp_len = 35
@@ -4264,7 +5935,7 @@ If HC_active = TRUE Then
 End If
 If ma_questions_complete = FALSE Then form_questions_complete = FALSE
 
-If SNAP_active = TRUE Then
+If SNAP_active = TRUE OR snap_sr_yn = "Yes" Then
     snap_grp_len = 35
     dlg_len = dlg_len + 50
     If quest_fifteen_form_answer = "Did not answer" Then
@@ -4320,12 +5991,14 @@ If SNAP_active = TRUE Then
     If q_eightneen_complete = FALSE Then dlg_len = dlg_len + 25
     If q_eightneen_complete = FALSE Then snap_grp_len = snap_grp_len + 25
 
-    If quest_nineteen_form_answer = "Did not answer" Then
-        snap_questions_complete = FALSE
-        q_nineteen_complete = FALSE
-        dlg_len = dlg_len + 25
-        snap_grp_len = snap_grp_len + 25
-    End If
+	If abawd_on_case = TRUE Then
+	    If quest_nineteen_form_answer = "Did not answer" Then
+	        snap_questions_complete = FALSE
+	        q_nineteen_complete = FALSE
+	        dlg_len = dlg_len + 25
+	        snap_grp_len = snap_grp_len + 25
+	    End If
+	End If
 End If
 If snap_questions_complete = FALSE Then form_questions_complete = FALSE
 
