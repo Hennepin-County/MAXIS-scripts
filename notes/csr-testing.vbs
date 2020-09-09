@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/09/2020", "Added a new dialog between the form completion and the MAXIS Detail and Information entry to make the process clearer.", "Casey Love, Hennepin County")
 call changelog_update("08/27/2020", "Removed the first dialog of questions and incorporated them into the detail entry dialogs.", "Casey Love, Hennepin County")
 Call changelog_update("03/06/2019", "Added 2 new options to the Notes on Income button to support referencing CASE/NOTE made by Earned Income Budgeting.", "Casey Love, Hennepin County")
 call changelog_update("12/22/2018", "Added closing message reminder about accepting all ECF work items for CSR's at the time of processing.", "Ilse Ferris, Hennepin County")
@@ -2830,6 +2831,7 @@ EMReadScreen HC_status, 4, 12, 74
 GRH_active = FALSE
 SNAP_active = FALSE
 HC_active = FALSE
+show_buttons_on_confirmation_dlg = TRUE
 
 If GRH_status = "ACTV" Then GRH_active = TRUE
 If SNAP_status = "ACTV" Then SNAP_active = TRUE
@@ -4143,15 +4145,20 @@ end function
 function confirm_csr_form_dlg()
 	Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 751, 370, "CSR Form Information"
-	  DropListBox 255, 350, 190, 50, "Indicate the form information"+chr(9)+"NO - the information here is different"+chr(9)+"YES - This is the information on the CSR Form", confirm_csr_form_information
-	  ButtonGroup ButtonPressed
-	    OkButton 645, 350, 50, 15
-	    CancelButton 695, 350, 50, 15
-		PushButton 15, 327, 165, 13, "Fix Page One Information", back_to_dlg_addr
-		PushButton 200, 327, 165, 13, "Fix Page Two Information", back_to_dlg_ma_income
-		PushButton 385, 327, 165, 13, "Fix Page Three Information", back_to_dlg_ma_asset
-		PushButton 570, 270, 165, 13, "Fix Page Four Information", back_to_dlg_snap
-		PushButton 570, 327, 165, 13, "Fix Page Five Information", back_to_dlg_sig
+	  If show_buttons_on_confirmation_dlg = TRUE Then
+		  DropListBox 255, 350, 190, 50, "Indicate the form information"+chr(9)+"NO - the information here is different"+chr(9)+"YES - This is the information on the CSR Form", confirm_csr_form_information
+		  ButtonGroup ButtonPressed
+		    OkButton 645, 350, 50, 15
+		    CancelButton 695, 350, 50, 15
+			PushButton 15, 327, 165, 13, "Fix Page One Information", back_to_dlg_addr
+			PushButton 200, 327, 165, 13, "Fix Page Two Information", back_to_dlg_ma_income
+			PushButton 385, 327, 165, 13, "Fix Page Three Information", back_to_dlg_ma_asset
+			PushButton 570, 270, 165, 13, "Fix Page Four Information", back_to_dlg_snap
+			PushButton 570, 327, 165, 13, "Fix Page Five Information", back_to_dlg_sig
+	  Else
+		  ButtonGroup ButtonPressed
+			OkButton 695, 350, 50, 15
+	  End If
 	  GroupBox 5, 5, 185, 340, "Page 1"
 	  Text 10, 20, 105, 10, "1. Name and Address"
 	  Text 20, 35, 160, 10, "Name:" & client_on_csr_form
@@ -5758,7 +5765,7 @@ Loop until are_we_passworded_out = FALSE
 
 'Logic to reflect on if the form is complete.
 dlg_width = 260
-dlg_len = 125
+dlg_len = 140
 ma_side_len = 15
 'list of all the questions
 form_questions_complete = TRUE
@@ -6014,238 +6021,238 @@ End If
 If ma_side_len > dlg_len THen dlg_len = ma_side_len
 
 Do
-    Do
-        err_msg = ""
-        y_pos = 95
-        hc_y_pos = 40
+    err_msg = ""
+    y_pos = 90
+    hc_y_pos = 40
 
-        BeginDialog Dialog1, 0, 0, dlg_width, dlg_len, "CSR Form Complete"
-          Text 5, 5, 250, 10, "We have finished gathering what what entered into the CSR form."
-          GroupBox 5, 20, 250, 30, "FORM DETAIL ENTRY COMPLETE"
-          Text 15, 30, 235, 15, "REVIEW AND UPDATE MAXIS. Now that the form has been reviewed, update STAT panels as needed."
-          GroupBox 5, 55, 250, 35, "CSR Form Status"
-          If form_questions_complete = FALSE Then Text 20, 70, 150, 10, "This CSR Form appears INCOMPLETE."
-          If form_questions_complete = TRUE Then Text 20, 70, 150, 10, "This CSR Form appears complete."
-          If q_one_complete = FALSE Then
-              Text 10, y_pos, 235, 10, "Q1. Name & Address - Question One is incomplete."
+	Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, dlg_width, dlg_len, "CSR Form Complete"
+      Text 5, 5, 250, 10, "We have finished gathering what what entered into the CSR form."
+      GroupBox 5, 20, 250, 30, "FORM DETAIL ENTRY COMPLETE"
+      ' Text 15, 30, 235, 15, "REVIEW AND UPDATE MAXIS. Now that the form has been reviewed, update STAT panels as needed."
+      GroupBox 5, 35, 250, 55, "CSR Form Status"
+      If form_questions_complete = FALSE Then Text 20, 45, 150, 10, "This CSR Form appears INCOMPLETE."
+      If form_questions_complete = TRUE Then Text 20, 45, 150, 10, "This CSR Form appears complete."
+	  Text 20, 60, 225, 25, "*** This identifies only if FORM ITSELF HAS BEEN COMPLETED - this does not apply to the whole review. This does not consider verifications or information known to the agency."
+      If q_one_complete = FALSE Then
+          Text 10, y_pos, 235, 10, "Q1. Name & Address - Question One is incomplete."
+          y_pos = y_pos + 10
+          If client_on_csr_form = "Person Information Missing" Then
+              Text 20, y_pos, 80, 10, "Name is not provided."
               y_pos = y_pos + 10
-              If client_on_csr_form = "Person Information Missing" Then
-                  Text 20, y_pos, 80, 10, "Name is not provided."
-                  y_pos = y_pos + 10
-              End If
-              If residence_address_match_yn = "RESI Address not Provided" Then
-                  Text 20, y_pos, 120, 10, "Residence Address is not provided."
-                  y_pos = y_pos + 10
-              End If
-              y_pos = y_pos + 5
           End If
-
-          If q_two_complete = FALSE Then
-              Text 10, y_pos, 235, 10, "Q2. Anyone moved in or out - Question Two is incomplete."
+          If residence_address_match_yn = "RESI Address not Provided" Then
+              Text 20, y_pos, 120, 10, "Residence Address is not provided."
               y_pos = y_pos + 10
-              If quest_two_move_in_out = "Did not answer" Then
+          End If
+          y_pos = y_pos + 5
+      End If
+
+      If q_two_complete = FALSE Then
+          Text 10, y_pos, 235, 10, "Q2. Anyone moved in or out - Question Two is incomplete."
+          y_pos = y_pos + 10
+          If quest_two_move_in_out = "Did not answer" Then
+              Text 20, y_pos, 170, 10, "Requires 'Yes' or 'No' and neither were checked."
+              y_pos = y_pos + 10
+          ElseIf quest_two_move_in_out = "Yes" AND hh_memb_change = FALSE THen
+              Text 20, y_pos, 170, 10, "Answerred 'Yes' but no detail about a member moving in or out."
+              y_pos = y_pos + 10
+          End If
+          y_pos = y_pos + 5
+      End If
+      If client_signed_yn = "No" Then
+          Text 10, y_pos, 185, 10, "CSR form has not been signed. SIGNATURE MISSING."
+          y_pos = y_pos + 15
+      End If
+      If client_dated_yn = "No" Then
+          Text 10, y_pos, 205, 10, "CSR form has not been dated. SIGNATURE DATE MISSING."
+          y_pos = y_pos + 15
+      End If
+
+      If SNAP_active = TRUE Then
+          GroupBox 5, y_pos, 250, snap_grp_len, "Since this case is active SNAP"
+          If snap_questions_complete = FALSE Then Text 20, y_pos + 15, 225, 10, "The SNAP portion of the form is INCOMPLETE."
+          If snap_questions_complete = TRUE Then Text 20, y_pos + 15, 225, 10, "The SNAP portion of the form is complete."
+          y_pos = y_pos + 35
+          If q_fifteen_complete = FALSE Then
+              Text 10, y_pos, 235, 10, "Q15. Household Moved - Question Fifteen is incomplete."
+              Text 20, y_pos + 10, 170, 10, "Requires 'Yes' or 'No' and neither were checked."
+              y_pos = y_pos + 25
+          End If
+          If q_sixteen_complete = FALSE Then
+              Text 10, y_pos, 235, 10, "Q16. Job Change - Question Sixteen is incomplete."
+              y_pos = y_pos + 10
+              If quest_sixteen_form_answer = "Did not answer" Then
+                  Text 20, y_pos, 170, 10, "Answered 'Yes' but detail was not provided."
+                  y_pos = y_pos + 10
+              ElseIf quest_sixteen_form_answer = "Yes" AND q_16_details_blank_checkbox = checked Then
                   Text 20, y_pos, 170, 10, "Requires 'Yes' or 'No' and neither were checked."
                   y_pos = y_pos + 10
-              ElseIf quest_two_move_in_out = "Yes" AND hh_memb_change = FALSE THen
-                  Text 20, y_pos, 170, 10, "Answerred 'Yes' but no detail about a member moving in or out."
+              End If
+              y_pos = y_pos + 5
+          End If
+          If q_seventeen_complete = FALSE Then
+              Text 10, y_pos, 235, 10, "Q17. UNEA Change - Question Seventeen is incomplete."
+              y_pos = y_pos + 10
+              If quest_seventeen_form_answer = "Did not answer" Then
+                  Text 20, y_pos, 170, 10, "Answered 'Yes' but detail was not provided."
+                  y_pos = y_pos + 10
+              ElseIf quest_seventeen_form_answer = "Yes" AND q_17_details_blank_checkbox = checked Then
+                  Text 20, y_pos, 170, 10, "Requires 'Yes' or 'No' and neither were checked."
                   y_pos = y_pos + 10
               End If
               y_pos = y_pos + 5
           End If
-          If client_signed_yn = "No" Then
-              Text 10, y_pos, 185, 10, "CSR form has not been signed. SIGNATURE MISSING."
-              y_pos = y_pos + 15
-          End If
-          If client_dated_yn = "No" Then
-              Text 10, y_pos, 205, 10, "CSR form has not been dated. SIGNATURE DATE MISSING."
-              y_pos = y_pos + 15
-          End If
-
-          If SNAP_active = TRUE Then
-              GroupBox 5, y_pos, 250, snap_grp_len, "Since this case is active SNAP"
-              If snap_questions_complete = FALSE Then Text 20, y_pos + 15, 225, 10, "The SNAP portion of the form is INCOMPLETE."
-              If snap_questions_complete = TRUE Then Text 20, y_pos + 15, 225, 10, "The SNAP portion of the form is complete."
-              y_pos = y_pos + 35
-              If q_fifteen_complete = FALSE Then
-                  Text 10, y_pos, 235, 10, "Q15. Household Moved - Question Fifteen is incomplete."
-                  Text 20, y_pos + 10, 170, 10, "Requires 'Yes' or 'No' and neither were checked."
-                  y_pos = y_pos + 25
-              End If
-              If q_sixteen_complete = FALSE Then
-                  Text 10, y_pos, 235, 10, "Q16. Job Change - Question Sixteen is incomplete."
+          If q_eightneen_complete = FALSE Then
+              Text 10, y_pos, 235, 10, "Q18. Child Support Change - Question Eighteen is incomplete."
+              y_pos = y_pos + 10
+              If quest_eighteen_form_answer = "Did not answer" Then
+                  Text 20, y_pos, 170, 10, "Requires 'Yes' or 'No' and neither were checked."
                   y_pos = y_pos + 10
-                  If quest_sixteen_form_answer = "Did not answer" Then
-                      Text 20, y_pos, 170, 10, "Answered 'Yes' but detail was not provided."
-                      y_pos = y_pos + 10
-                  ElseIf quest_sixteen_form_answer = "Yes" AND q_16_details_blank_checkbox = checked Then
-                      Text 20, y_pos, 170, 10, "Requires 'Yes' or 'No' and neither were checked."
-                      y_pos = y_pos + 10
-                  End If
-                  y_pos = y_pos + 5
-              End If
-              If q_seventeen_complete = FALSE Then
-                  Text 10, y_pos, 235, 10, "Q17. UNEA Change - Question Seventeen is incomplete."
+              ElseIf quest_eighteen_form_answer = "Yes" and q_18_details_blank_checkbox = checked Then
+                  Text 20, y_pos, 170, 10, "Requires 'Yes' or 'No' and neither were checked."
                   y_pos = y_pos + 10
-                  If quest_seventeen_form_answer = "Did not answer" Then
-                      Text 20, y_pos, 170, 10, "Answered 'Yes' but detail was not provided."
-                      y_pos = y_pos + 10
-                  ElseIf quest_seventeen_form_answer = "Yes" AND q_17_details_blank_checkbox = checked Then
-                      Text 20, y_pos, 170, 10, "Requires 'Yes' or 'No' and neither were checked."
-                      y_pos = y_pos + 10
-                  End If
-                  y_pos = y_pos + 5
               End If
-              If q_eightneen_complete = FALSE Then
-                  Text 10, y_pos, 235, 10, "Q18. Child Support Change - Question Eighteen is incomplete."
-                  y_pos = y_pos + 10
-                  If quest_eighteen_form_answer = "Did not answer" Then
-                      Text 20, y_pos, 170, 10, "Requires 'Yes' or 'No' and neither were checked."
-                      y_pos = y_pos + 10
-                  ElseIf quest_eighteen_form_answer = "Yes" and q_18_details_blank_checkbox = checked Then
-                      Text 20, y_pos, 170, 10, "Requires 'Yes' or 'No' and neither were checked."
-                      y_pos = y_pos + 10
-                  End If
-                  y_pos = y_pos + 5
-              End If
-              If q_nineteen_complete = FALSE Then
-                  Text 10, y_pos, 235, 10, "Q19. Child Support Change - Question Ninetee is incomplete."
-                  Text 20, y_pos + 10, 170, 10, "Requires 'Yes' or 'No' and neither were checked."
-                  y_pos = y_pos + 25
-              End If
+              y_pos = y_pos + 5
           End If
-
-
-          If HC_active = TRUE Then
-              GroupBox 265, 5, 250, hc_grp_len, "Since this case is active HC"
-              If ma_questions_complete = FALSE Then Text 280, 20, 225, 10, "The HC portion of the form is INCOMPLETE."
-              If ma_questions_complete = TRUE Then Text 280, 20, 225, 10, "The HC portion of the form is complete."
-              If q_four_complete = FALSE Then
-                  Text 270, hc_y_pos, 235, 10, "Q4. Apply for new MA Coverage - Question Four is incomplete."
-                  hc_y_pos = hc_y_pos + 10
-                  If apply_for_ma = "Did not answer" Then
-                      Text 280, hc_y_pos, 170, 10, "Requires 'Yes' or 'No' and neither were checked."
-                      hc_y_pos = hc_y_pos + 10
-                  End If
-                  hc_y_pos = hc_y_pos + 5
-              End If
-              If q_five_complete = FALSE Then
-                  Text 270, hc_y_pos, 235, 10, "Q5. Self-Employed - Question Fve is incomplete."
-                  hc_y_pos = hc_y_pos + 10
-                  If ma_self_employed = "Did not answer" Then
-                      Text 280, hc_y_pos, 170, 10, "Requires 'Yes' or 'No' and neither were checked."
-                      hc_y_pos = hc_y_pos + 10
-                  ElseIf ma_self_employed = "Yes" AND q_5_details_blank_checkbox = checked Then
-                      Text 280, hc_y_pos, 170, 10, "Answered 'Yes' but detail was not provided."
-                      hc_y_pos = hc_y_pos + 10
-                  End If
-                  hc_y_pos = hc_y_pos + 5
-              End If
-              If q_six_complete = FALSE Then
-                  Text 270, hc_y_pos, 235, 10, "Q6.Working - Question Six is incomplete."
-                  hc_y_pos = hc_y_pos + 10
-                  If ma_start_working = "Did not answer" Then
-                      Text 280, hc_y_pos, 170, 10, "Requires 'Yes' or 'No' and neither were checked."
-                      hc_y_pos = hc_y_pos + 10
-                  ElseIf ma_start_working = "Yes" AND q_6_details_blank_checkbox = checked Then
-                      Text 280, hc_y_pos, 170, 10, "Answered 'Yes' but detail was not provided."
-                      hc_y_pos = hc_y_pos + 10
-                  End If
-                  hc_y_pos = hc_y_pos + 5
-              End If
-              If q_seven_complete = FALSE Then
-                  Text 270, hc_y_pos, 235, 10, "Q7. Unearned Income - Question Seven is incomplete."
-                  hc_y_pos = hc_y_pos + 10
-                  If ma_other_income = "Did not_answer" Then
-                      Text 280, hc_y_pos, 170, 10, "Requires 'Yes' or 'No' and neither were checked."
-                      hc_y_pos = hc_y_pos + 10
-                  ElseIf ma_other_income = "Yes" AND q_7_details_blank_checkbox = checked Then
-                      Text 280, hc_y_pos, 170, 10, "Answered 'Yes' but detail was not provided."
-                      hc_y_pos = hc_y_pos + 10
-                  End If
-                  hc_y_pos = hc_y_pos + 5
-              End If
-              If q_nine_complete = FALSE Then
-                  Text 270, hc_y_pos, 235, 10, "Q9. Bank Account - Question Nine is incomplete."
-                  hc_y_pos = hc_y_pos + 10
-                  If ma_liquid_assets = "Did not answer" Then
-                      Text 280, hc_y_pos, 170, 10, "Requires 'Yes' or 'No' and neither were checked."
-                      hc_y_pos = hc_y_pos + 10
-                  ElseIf ma_liquid_assets = "Yes" AND q_9_details_blank_checkbox = checked Then
-                      Text 280, hc_y_pos, 170, 10, "Answered 'Yes' but detail was not provided."
-                      hc_y_pos = hc_y_pos + 10
-                  End If
-                  hc_y_pos = hc_y_pos + 5
-              End If
-              If q_ten_complete = FALSE Then
-                  Text 270, hc_y_pos, 235, 10, "Q10. Securities - Question Ten is incomplete."
-                  hc_y_pos = hc_y_pos + 10
-                  If ma_security_assets = "Did not answer" Then
-                      Text 280, hc_y_pos, 170, 10, "Requires 'Yes' or 'No' and neither were checked."
-                      hc_y_pos = hc_y_pos + 10
-                  ElseIf ma_security_assets = "Yes" and q_10_details_blank_checkbox = checked Then
-                      Text 280, hc_y_pos, 170, 10, "Answered 'Yes' but detail was not provided."
-                      hc_y_pos = hc_y_pos + 10
-                  End If
-                  hc_y_pos = hc_y_pos + 5
-              End If
-              If q_eleven_complete = FALSE Then
-                  Text 270, hc_y_pos, 235, 10, "Q11.Vehicle - Question Eleven is incomplete."
-                  hc_y_pos = hc_y_pos + 10
-                  If ma_vehicle = "Did not answer" Then
-                      Text 280, hc_y_pos, 170, 10, "Requires 'Yes' or 'No' and neither were checked."
-                      hc_y_pos = hc_y_pos + 10
-                  ElseIf ma_vehicle = "Yes" AND q_11_details_blank_checkbox = checked Then
-                      Text 280, hc_y_pos, 170, 10, "Answered 'Yes' but detail was not provided."
-                      hc_y_pos = hc_y_pos + 10
-                  End If
-                  hc_y_pos = hc_y_pos + 5
-              End If
-              If q_twelve_complete = FALSE Then
-                  Text 270, hc_y_pos, 235, 10, "Q12. Real Estate - Question Twelve is incomplete."
-                  hc_y_pos = hc_y_pos + 10
-                  If ma_real_assets = "Did not answer" Then
-                      Text 280, hc_y_pos, 170, 10, "Requires 'Yes' or 'No' and neither were checked."
-                      hc_y_pos = hc_y_pos + 10
-                  ElseIf ma_real_assets = "Yes" and q_12_details_blank_checkbox = checked Then
-                      Text 280, hc_y_pos, 170, 10, "Answered 'Yes' but detail was not provided."
-                      hc_y_pos = hc_y_pos + 10
-                  End If
-                  hc_y_pos = hc_y_pos + 5
-              End If
-              If q_thirteen_complete = FALSE Then
-                  Text 270, hc_y_pos, 235, 10, "Q13. Changes - Question Thirteen is incomplete."
-                  hc_y_pos = hc_y_pos + 10
-                  If ma_other_changes = "Did not answer" Then
-                      Text 280, hc_y_pos, 170, 10, "Requires 'Yes' or 'No' and neither were checked."
-                      hc_y_pos = hc_y_pos + 10
-                  ElseIf ma_other_changes = "Yes" and changes_reported_blank_checkbox = checked Then
-                      Text 280, hc_y_pos, 170, 10, "Answered 'Yes' but detail was not provided."
-                      hc_y_pos = hc_y_pos + 10
-                  End If
-                  hc_y_pos = hc_y_pos + 5
-              End If
+          If q_nineteen_complete = FALSE Then
+              Text 10, y_pos, 235, 10, "Q19. Child Support Change - Question Ninetee is incomplete."
+              Text 20, y_pos + 10, 170, 10, "Requires 'Yes' or 'No' and neither were checked."
+              y_pos = y_pos + 25
           End If
-          CheckBox 10, dlg_len - 40, 200, 10, "Check here if this assessment is WRONG.", functionality_wrong_checkbox
-          CheckBox 10, dlg_len - 25, 110, 10, "Check here to have this detail ", export_form_info_to_word_checkbox
-          Text 25, dlg_len - 15, 75, 10, "exported to Word."
+      End If
 
-          ButtonGroup ButtonPressed
-            ' PushButton 10, dlg_len - 15, 100, 10, "Export to Word", export_to_word_btn
-            ' OkButton dlg_width - 110, dlg_len - 20, 50, 15
-            PushButton dlg_width - 120, dlg_len - 20, 60, 15, "Panels Updated", panels_updated_btn
-            CancelButton dlg_width - 55, dlg_len - 20, 50, 15
-        EndDialog
 
-        ' MsgBox y_pos & " - y pos"
-        ' MsgBox dlg_len & " - dlg len"
-        dialog Dialog1
-        cancel_confirmation
+      If HC_active = TRUE Then
+          GroupBox 265, 5, 250, hc_grp_len, "Since this case is active HC"
+          If ma_questions_complete = FALSE Then Text 280, 20, 225, 10, "The HC portion of the form is INCOMPLETE."
+          If ma_questions_complete = TRUE Then Text 280, 20, 225, 10, "The HC portion of the form is complete."
+          If q_four_complete = FALSE Then
+              Text 270, hc_y_pos, 235, 10, "Q4. Apply for new MA Coverage - Question Four is incomplete."
+              hc_y_pos = hc_y_pos + 10
+              If apply_for_ma = "Did not answer" Then
+                  Text 280, hc_y_pos, 170, 10, "Requires 'Yes' or 'No' and neither were checked."
+                  hc_y_pos = hc_y_pos + 10
+              End If
+              hc_y_pos = hc_y_pos + 5
+          End If
+          If q_five_complete = FALSE Then
+              Text 270, hc_y_pos, 235, 10, "Q5. Self-Employed - Question Fve is incomplete."
+              hc_y_pos = hc_y_pos + 10
+              If ma_self_employed = "Did not answer" Then
+                  Text 280, hc_y_pos, 170, 10, "Requires 'Yes' or 'No' and neither were checked."
+                  hc_y_pos = hc_y_pos + 10
+              ElseIf ma_self_employed = "Yes" AND q_5_details_blank_checkbox = checked Then
+                  Text 280, hc_y_pos, 170, 10, "Answered 'Yes' but detail was not provided."
+                  hc_y_pos = hc_y_pos + 10
+              End If
+              hc_y_pos = hc_y_pos + 5
+          End If
+          If q_six_complete = FALSE Then
+              Text 270, hc_y_pos, 235, 10, "Q6.Working - Question Six is incomplete."
+              hc_y_pos = hc_y_pos + 10
+              If ma_start_working = "Did not answer" Then
+                  Text 280, hc_y_pos, 170, 10, "Requires 'Yes' or 'No' and neither were checked."
+                  hc_y_pos = hc_y_pos + 10
+              ElseIf ma_start_working = "Yes" AND q_6_details_blank_checkbox = checked Then
+                  Text 280, hc_y_pos, 170, 10, "Answered 'Yes' but detail was not provided."
+                  hc_y_pos = hc_y_pos + 10
+              End If
+              hc_y_pos = hc_y_pos + 5
+          End If
+          If q_seven_complete = FALSE Then
+              Text 270, hc_y_pos, 235, 10, "Q7. Unearned Income - Question Seven is incomplete."
+              hc_y_pos = hc_y_pos + 10
+              If ma_other_income = "Did not_answer" Then
+                  Text 280, hc_y_pos, 170, 10, "Requires 'Yes' or 'No' and neither were checked."
+                  hc_y_pos = hc_y_pos + 10
+              ElseIf ma_other_income = "Yes" AND q_7_details_blank_checkbox = checked Then
+                  Text 280, hc_y_pos, 170, 10, "Answered 'Yes' but detail was not provided."
+                  hc_y_pos = hc_y_pos + 10
+              End If
+              hc_y_pos = hc_y_pos + 5
+          End If
+          If q_nine_complete = FALSE Then
+              Text 270, hc_y_pos, 235, 10, "Q9. Bank Account - Question Nine is incomplete."
+              hc_y_pos = hc_y_pos + 10
+              If ma_liquid_assets = "Did not answer" Then
+                  Text 280, hc_y_pos, 170, 10, "Requires 'Yes' or 'No' and neither were checked."
+                  hc_y_pos = hc_y_pos + 10
+              ElseIf ma_liquid_assets = "Yes" AND q_9_details_blank_checkbox = checked Then
+                  Text 280, hc_y_pos, 170, 10, "Answered 'Yes' but detail was not provided."
+                  hc_y_pos = hc_y_pos + 10
+              End If
+              hc_y_pos = hc_y_pos + 5
+          End If
+          If q_ten_complete = FALSE Then
+              Text 270, hc_y_pos, 235, 10, "Q10. Securities - Question Ten is incomplete."
+              hc_y_pos = hc_y_pos + 10
+              If ma_security_assets = "Did not answer" Then
+                  Text 280, hc_y_pos, 170, 10, "Requires 'Yes' or 'No' and neither were checked."
+                  hc_y_pos = hc_y_pos + 10
+              ElseIf ma_security_assets = "Yes" and q_10_details_blank_checkbox = checked Then
+                  Text 280, hc_y_pos, 170, 10, "Answered 'Yes' but detail was not provided."
+                  hc_y_pos = hc_y_pos + 10
+              End If
+              hc_y_pos = hc_y_pos + 5
+          End If
+          If q_eleven_complete = FALSE Then
+              Text 270, hc_y_pos, 235, 10, "Q11.Vehicle - Question Eleven is incomplete."
+              hc_y_pos = hc_y_pos + 10
+              If ma_vehicle = "Did not answer" Then
+                  Text 280, hc_y_pos, 170, 10, "Requires 'Yes' or 'No' and neither were checked."
+                  hc_y_pos = hc_y_pos + 10
+              ElseIf ma_vehicle = "Yes" AND q_11_details_blank_checkbox = checked Then
+                  Text 280, hc_y_pos, 170, 10, "Answered 'Yes' but detail was not provided."
+                  hc_y_pos = hc_y_pos + 10
+              End If
+              hc_y_pos = hc_y_pos + 5
+          End If
+          If q_twelve_complete = FALSE Then
+              Text 270, hc_y_pos, 235, 10, "Q12. Real Estate - Question Twelve is incomplete."
+              hc_y_pos = hc_y_pos + 10
+              If ma_real_assets = "Did not answer" Then
+                  Text 280, hc_y_pos, 170, 10, "Requires 'Yes' or 'No' and neither were checked."
+                  hc_y_pos = hc_y_pos + 10
+              ElseIf ma_real_assets = "Yes" and q_12_details_blank_checkbox = checked Then
+                  Text 280, hc_y_pos, 170, 10, "Answered 'Yes' but detail was not provided."
+                  hc_y_pos = hc_y_pos + 10
+              End If
+              hc_y_pos = hc_y_pos + 5
+          End If
+          If q_thirteen_complete = FALSE Then
+              Text 270, hc_y_pos, 235, 10, "Q13. Changes - Question Thirteen is incomplete."
+              hc_y_pos = hc_y_pos + 10
+              If ma_other_changes = "Did not answer" Then
+                  Text 280, hc_y_pos, 170, 10, "Requires 'Yes' or 'No' and neither were checked."
+                  hc_y_pos = hc_y_pos + 10
+              ElseIf ma_other_changes = "Yes" and changes_reported_blank_checkbox = checked Then
+                  Text 280, hc_y_pos, 170, 10, "Answered 'Yes' but detail was not provided."
+                  hc_y_pos = hc_y_pos + 10
+              End If
+              hc_y_pos = hc_y_pos + 5
+          End If
+      End If
+      CheckBox 10, dlg_len - 40, 200, 10, "Check here if this assessment is WRONG.", functionality_wrong_checkbox
+      CheckBox 10, dlg_len - 25, 110, 10, "Check here to have this detail ", export_form_info_to_word_checkbox
+      Text 25, dlg_len - 15, 75, 10, "exported to Word."
 
-        If ButtonPressed = -1 Then err_msg = "LOOP"
+      ButtonGroup ButtonPressed
+        ' PushButton 10, dlg_len - 15, 100, 10, "Export to Word", export_to_word_btn
+        ' OkButton dlg_width - 110, dlg_len - 20, 50, 15
+        ' PushButton dlg_width - 120, dlg_len - 20, 60, 15, "Panels Updated", panels_updated_btn
+		OkButton dlg_width - 120, dlg_len - 20, 60, 15
+        CancelButton dlg_width - 55, dlg_len - 20, 50, 15
+    EndDialog
 
-    Loop until err_msg = ""
-    Call check_for_password(are_we_passworded_out)
-Loop until are_we_passworded_out = FALSE
+    ' MsgBox y_pos & " - y pos"
+    ' MsgBox dlg_len & " - dlg len"
+    dialog Dialog1
+    cancel_confirmation
+
+    ' If ButtonPressed = -1 Then err_msg = "LOOP"
+
+Loop until err_msg = ""
 
 If functionality_wrong_checkbox = checked Then
     If form_questions_complete = FALSE Then form_completion_status = "Incomplete"
@@ -6360,6 +6367,29 @@ If functionality_wrong_checkbox = checked Then
     If hc_completion_status = "HC note relevant" Then HC_active = FALSE
 
 End If
+
+show_buttons_on_confirmation_dlg = FALSE
+Do
+	Do
+		Dialog1 = ""
+		BeginDialog Dialog1, 0, 0, 281, 135, "Update MAXIS NOW"
+		  ButtonGroup ButtonPressed
+		    PushButton 135, 90, 140, 15, "Show CSR Details", show_confirmation_btn
+		    PushButton 35, 115, 180, 15, "MAXIS Panels for CSR have been Updated", all_panels_updated_btn
+		  Text 10, 10, 265, 10, "Now that we have reviewed the CSR Form, update the MAXIS panels for " & MAXIS_footer_month & "/" & MAXIS_footer_year & "."
+		  Text 25, 25, 240, 20, "*** The script will read MAXIS panels after you have completed the update and pressed the button to indicate the updates are complete. "
+		  Text 25, 50, 240, 20, "The next step in the script will allow you add notes about the details in MAXIS and indicate verifications needed."
+		  Text 5, 75, 270, 10, "The CASE:NOTEs will only be entered after completion of the notes and information."
+		  Text 5, 95, 130, 10, "To review details from the CSR FORM:"
+		EndDialog
+
+		dialog Dialog1
+
+		If ButtonPressed = show_confirmation_btn Then Call confirm_csr_form_dlg
+	Loop until ButtonPressed = all_panels_updated_btn
+
+	Call check_for_password(are_we_passworded_out)
+Loop until are_we_passworded_out = FALSE
 
 Call navigate_to_MAXIS_screen("STAT", "MEMB")
 For case_memb = 0 to UBound(ALL_CLIENTS_ARRAY, 2)
