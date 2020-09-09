@@ -21,11 +21,8 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
 		ELSE														'Error message
-			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
-                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
-                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
-                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
-            StopScript
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine & "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine & "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+		    StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\MAXIS-scripts\MASTER FUNCTIONS LIBRARY.vbs"
@@ -36,47 +33,11 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		Execute text_from_the_other_script
 	END IF
 END IF
-'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'GATHERING STATS===========================================================================================
-name_of_script = "ACTIONS - DEU-MATCH CLEARED CC.vbs"
-start_time = timer
-STATS_counter = 1
-STATS_manualtime = 300
-STATS_denominatinon = "C"
-'END OF STATS BLOCK===========================================================================================
-'run_locally = TRUE
-'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
-IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else											'Everyone else should use the release branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		End if
-		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
-		req.open "GET", FuncLib_URL, FALSE							'Attempts to open the FuncLib_URL
-		req.send													'Sends request
-		IF req.Status = 200 THEN									'200 means great success
-			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
-			Execute req.responseText								'Executes the script code
-		ELSE														'Error message
-			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
-                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
-                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
-                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
-            StopScript
-		END IF
-	ELSE
-		FuncLib_URL = "C:\MAXIS-scripts\MASTER FUNCTIONS LIBRARY.vbs"
-		Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-		Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
-		text_from_the_other_script = fso_command.ReadAll
-		fso_command.Close
-		Execute text_from_the_other_script
-	END IF
-END IF
 'FUNCTIONS LIBRARY BLOCK================================================================================================
+script_run_lowdown = ""
+'TODO I need error proofing in multiple places on this script. in and out of IULA and IULB ensuring the case and on CCOL' 'need to check about adding for multiple claims'
+
 FUNCTION write_variable_in_CCOL_note_test(variable)
     ''--- This function writes a variable in CCOL note
     '~~~~~ variable: information to be entered into CASE note from script/edit box
@@ -243,6 +204,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: CALL changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/08/2020", "Updated BUG when clearing match BO-Other worker must indicate other notes for comments on IULA.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("04/22/2020", "Combined OP script with match cleared, added HH member dialog. Created a new drop down for claim referral tracking.", "MiKayla Handley, Hennepin County")
 call changelog_update("08/05/2019", "Updated the term claim referral to use the action taken on MISC as well as to read for active programs.", "MiKayla Handley")
 CALL changelog_update("07/17/2019", "Updated script to no longer run off DAIL, it will ask for a case number to ensure all the matches pull correctly.", "MiKayla Handley, Hennepin County")
@@ -261,13 +223,12 @@ CALL changelog_update("11/21/2017", "Updated to clear match, and added handling 
 CALL changelog_update("11/14/2017", "Initial version.", "MiKayla Handley, Hennepin County")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
-'END CHANGELOG BLOCK =======================================================================================================
+'====================================================================END CHANGELOG BLOCK
 
 '---------------------------------------------------------------------THE SCRIPT
-testing_run = TRUE
 EMConnect ""
 CALL MAXIS_case_number_finder (MAXIS_case_number)
-'MAXIS_case_number = "2260862"
+
 '---------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 111, 45, "Case Number"
@@ -282,7 +243,7 @@ DO
 	DO
 		err_msg = ""
 		Dialog Dialog1
-		cancel_without_confirmation
+		cancel_confirmation
   		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Enter a valid case number."
   		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
@@ -362,9 +323,18 @@ CALL navigate_to_MAXIS_screen("INFC" , "____")
 CALL write_value_and_transmit("IEVP", 20, 71)
 CALL write_value_and_transmit(IEVS_ssn, 3, 63)
 
-EMReadscreen err_msg, 75, 24, 02
-err_msg = trim(err_msg)
-If err_msg <> "" THEN script_end_procedure_with_error_report("*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine)
+EMReadScreen MISC_error_check,  74, 24, 02
+IF trim(MISC_error_check) = "" THEN
+	case_note_only = FALSE
+else
+	maxis_error_check = MsgBox("*** NOTICE!!!***" & vbNewLine & "Continue to case note only?" & vbNewLine & MISC_error_check & vbNewLine, vbYesNo + vbQuestion, "Message handling")
+	IF maxis_error_check = vbYes THEN
+		case_note_only = TRUE 'this will case note only'
+	END IF
+	IF maxis_error_check= vbNo THEN
+		case_note_only = FALSE 'this will update the panels and case note'
+	END IF
+END IF
 
 '------------------------------------------------------------------selecting the correct wage match
 Row = 7
@@ -510,22 +480,17 @@ END IF
 EMReadScreen notice_sent, 1, 14, 37
 EMReadScreen sent_date, 8, 14, 68
 sent_date = trim(sent_date)
-
 IF sent_date = "" THEN sent_date = "N/A"
 IF sent_date <> "" THEN sent_date = replace(sent_date, " ", "/")
-
 EMReadScreen clear_code, 2, 12, 58
-
 '----------------------------------------------------------------Defaulting checkboxes to being checked (per DEU instruction)
-
 IF notice_sent = "N" THEN
-    '-------------------------------------------------------------------------------------------------DIALOG
     Dialog1 = "" 'Blanking out previous dialog detail
 	BeginDialog Dialog1, 0, 0, 271, 185, "DIFFERENCE NOTICE NOT SENT FOR: " & MAXIS_case_number
 	  DropListBox 85, 90, 70, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", difference_notice_action_dropdown
 	  CheckBox 175, 15, 70, 10, "Difference Notice", diff_notice_checkbox
 	  CheckBox 175, 25, 90, 10, "Authorization to Release", ATR_verf_checkbox
-	  CheckBox 175, 35, 90, 10, "Employment verification", EVF_checkbox
+	  CheckBox 175, 35, 90, 10, "Employment Verification", EVF_checkbox
 	  CheckBox 175, 45, 80, 10, "Lottery/Gaming Form", lottery_verf_checkbox
 	  CheckBox 175, 55, 80, 10, "Rental Income Form", rental_checkbox
 	  CheckBox 175, 65, 80, 10, "Other (please specify)", other_checkbox
@@ -544,7 +509,7 @@ IF notice_sent = "N" THEN
 	  GroupBox 5, 110, 260, 30, "SNAP or MFIP Federal Food only"
 	  Text 10, 125, 130, 10, "Claim Referral Tracking on STAT/MISC:"
 	  Text 5, 95, 80, 10, "Send Difference Notice: "
-	  Text 5, 150, 40, 10, "Other notes: "
+	  Text 5, 150, 40, 10, "Other notes:"
 	EndDialog
 
 	DO
@@ -568,7 +533,6 @@ IF difference_notice_action_dropdown =  "YES" THEN '----------------------------
 	TRANSMIT'exiting IULA, helps prevent errors when going to the case note
     '-----------------------------------------------------------------------------------Claim Referral Tracking
     action_date = date & ""
-
 ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or clear_code <> "__" '
 	'-------------------------------------------------------------------------------------------------DIALOG
     Dialog1 = "" 'Blanking out previous dialog detail
@@ -617,6 +581,7 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
 		IF resolution_status = "BE-No Change" AND other_notes = "" THEN err_msg = err_msg & vbNewLine & "When clearing using BE other notes must be completed."
 		IF resolution_status = "BE-Child" AND exp_grad_date = "" THEN err_msg = err_msg & vbNewLine & "When clearing using BE - Child graduation date and date rcvd must be completed."
 		If resolution_status = "CC-Overpayment Only" AND programs = "Health Care" or programs = "Medical Assistance" THEN err_msg = err_msg & vbNewLine & "System does not allow HC or MA cases to be cleared with the code 'CC - Claim Entered'."
+		If resolution_status = "BO-Other" AND other_notes = "" THEN err_msg = err_msg & vbNewLine & "When clearing using BO-Other other notes must be completed."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
 	CALL check_for_password_without_transmit(are_we_passworded_out)
@@ -738,7 +703,6 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
 	END IF
 
 	IF resolution_status = "CF-Future Save" THEN
-	    '-------------------------------------------------------------------------------------------------DIALOG
 	    Dialog1 = "" 'Blanking out previous dialog detail
 		BeginDialog Dialog1, 0, 0, 161, 120, "Cleared CF Future Savings"
   		DropListBox 65, 5, 90, 15, "Select One:"+chr(9)+"Case Became Ineligible"+chr(9)+"Person Removed"+chr(9)+"Benefit Increased"+chr(9)+"Benefit Decreased", IULB_result_dropdown
@@ -769,7 +733,6 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
 	    	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	    LOOP UNTIL err_msg = ""
 	    CALL check_for_password_without_transmit(are_we_passworded_out)
-
  	    IF IULB_result_dropdown = "Case Became Ineligible" THEN IULB_result = "I"
 	    IF IULB_result_dropdown = "Person Removed" THEN IULB_result = "R"
 	    IF IULB_result_dropdown = "Benefit Increased" THEN IULB_result = "P"
@@ -777,217 +740,193 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
 		IF IULB_method_dropdown = "One Time Only" THEN IULB_method = "O"
 		IF IULB_method_dropdown = "Per Month For Nbr of Months" THEN IULB_method = "O"
 	END IF
-END IF
-'----------------------------------------------------------------------------------------------------RESOLVING THE MATCH
+
+	'----------------------------------------------------------------------------------------------------RESOLVING THE MATCH
 	EMReadScreen panel_name, 4, 02, 52
 	IF panel_name <> "IULA" THEN
-		EMReadScreen back_panel_name, 4, 2, 52
-		If back_panel_name <> "IEVP" Then
-			CALL back_to_SELF
-			CALL navigate_to_MAXIS_screen("INFC" , "____")
-			CALL write_value_and_transmit("IEVP", 20, 71)
-			CALL write_value_and_transmit(client_SSN, 3, 63)
-		End If
-		CALL write_value_and_transmit("U", row, 3)   'navigates to IULA
+	EMReadScreen back_panel_name, 4, 2, 52
+	If back_panel_name <> "IEVP" Then
+		CALL back_to_SELF
+		CALL navigate_to_MAXIS_screen("INFC" , "____")
+		CALL write_value_and_transmit("IEVP", 20, 71)
+		CALL write_value_and_transmit(client_SSN, 3, 63)
 	End If
+	CALL write_value_and_transmit("U", row, 3)   'navigates to IULA
+
+	End If
+	'msgbox panel_name
 
 	EMWriteScreen resolve_time, 12, 46	    'resolved notes depending on the resolution_status
-	IF resolution_status = "CB-Ovrpmt And Future Save" THEN IULA_res_status = "CB"
-	IF resolution_status = "CC-Overpayment Only" THEN IULA_res_status = "CC" 'Claim Entered" CC cannot be used - ACTION CODE FOR ACTH OR ACTM IS INVALID
-	IF resolution_status = "CF-Future Save" THEN IULA_res_status = "CF"
-	IF resolution_status = "CA-Excess Assets" THEN IULA_res_status = "CA"
-	IF resolution_status = "CI-Benefit Increase" THEN IULA_res_status = "CI"
-	IF resolution_status = "CP-Applicant Only Savings" THEN IULA_res_status = "CP"
-	IF resolution_status = "BC-Case Closed" THEN IULA_res_status = "BC"
-	IF resolution_status = "BE-Child" THEN IULA_res_status = "BE"
-	IF resolution_status = "BE-No Change" THEN IULA_res_status = "BE"
-	IF resolution_status = "BE-Overpayment Entered" THEN IULA_res_status = "BE"
-	IF resolution_status = "BE-NC-Non-collectible" THEN IULA_res_status = "BE"
-	IF resolution_status = "BI-Interface Prob" THEN IULA_res_status = "BI"
-	IF resolution_status = "BN-Already Known-No Savings" THEN IULA_res_status = "BN"
-	IF resolution_status = "BP-Wrong Person" THEN IULA_res_status = "BP"
-	IF resolution_status = "BU-Unable To Verify" THEN IULA_res_status = "BU"
-	IF resolution_status = "BO Other" THEN IULA_res_status = "BO"
-	IF resolution_status = "NC-Non Cooperation" THEN IULA_res_status = "NC"
+    IF resolution_status = "CB-Ovrpmt And Future Save" THEN IULA_res_status = "CB"
+    IF resolution_status = "CC-Overpayment Only" THEN IULA_res_status = "CC" 'Claim Entered" CC cannot be used - ACTION ODE FOR ACTH OR ACTM IS INVALID
+    IF resolution_status = "CF-Future Save" THEN IULA_res_status = "CF"
+    IF resolution_status = "CA-Excess Assets" THEN IULA_res_status = "CA"
+    IF resolution_status = "CI-Benefit Increase" THEN IULA_res_status = "CI"
+    IF resolution_status = "CP-Applicant Only Savings" THEN IULA_res_status = "CP"
+    IF resolution_status = "BC-Case Closed" THEN IULA_res_status = "BC"
+    IF resolution_status = "BE-Child" THEN IULA_res_status = "BE"
+    IF resolution_status = "BE-No Change" THEN IULA_res_status = "BE"
+    IF resolution_status = "BE-Overpayment Entered" THEN IULA_res_status = "BE"
+    IF resolution_status = "BE-NC-Non-collectible" THEN IULA_res_status = "BE"
+    IF resolution_status = "BI-Interface Prob" THEN IULA_res_status = "BI"
+    IF resolution_status = "BN-Already Known-No Savings" THEN IULA_res_status = "BN"
+    IF resolution_status = "BP-Wrong Person" THEN IULA_res_status = "BP"
+    IF resolution_status = "BU-Unable To Verify" THEN IULA_res_status = "BU"
+    IF resolution_status = "BO-Other" THEN IULA_res_status = "BO"
+    IF resolution_status = "NC-Non Cooperation" THEN IULA_res_status = "NC"
+    'checked these all to programS'
+    EMwritescreen IULA_res_status, 12, 58
+    IF IULA_res_status = "CC" THEN
+        col = 57
+        Do
+        	EMReadscreen action_header, 4, 11, col
+        	If action_header <> "    " Then
+        		If action_header = "ACTH" Then
+        			EMWriteScreen "BE", 12, col+1
+        		Else
+        			EMWriteScreen "CC", 12, col+1
+        		End If
+        	End If
+        		col = col + 6
+        Loop until action_header = "    "
+    END IF
 
-	'checked these all to programS'
-	EMwritescreen IULA_res_status, 12, 58
-	IF IULA_res_status = "CC" THEN
-	    col = 57
-	    Do
-	    	EMReadscreen action_header, 4, 11, col
-	    	If action_header <> "    " Then
-	    		If action_header = "ACTH" Then
-	    			EMWriteScreen "BE", 12, col+1
-	    		Else
-	    			EMWriteScreen "CC", 12, col+1
-	    		End If
-	    	End If
-	    		col = col + 6
-	    Loop until action_header = "    "
-	END IF
+    IF change_response = "YES" THEN
+    	EMwritescreen "Y", 15, 37
+    ELSE
+    	EMwritescreen "N", 15, 37
+    END IF
 
-	IF change_response = "YES" THEN
-		EMwritescreen "Y", 15, 37
-	ELSE
-		EMwritescreen "N", 15, 37
-	END IF
-
-	TRANSMIT 'Going to IULB
-
-	EMReadScreen err_msg, 75, 24, 02
-	err_msg = trim(err_msg)
-	IF err_msg <> "" THEN
-		Dialog1 = "" 'Blanking out previous dialog detail
-		  BeginDialog Dialog1, 0, 0, 231, 95, "Maxis Message, please screen shot"
-			ButtonGroup ButtonPressed
-			OkButton 135, 75, 45, 15
-			CancelButton 180, 75, 45, 15
-			GroupBox 5, 0, 220, 50, "You can update maxis if there is an error, then hit ok to continue."
-			Text 15, 10, 190, 35, err_msg
-			EditBox 50, 55, 175, 15, email_BZST
-			Text 5, 60, 45, 10, "Email BZST:"
-		  EndDialog
-
-		'Showing case number dialog
-		Do
-		  Dialog Dialog1
-		  cancel_without_confirmation
-		  CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-		Loop until are_we_passworded_out = false					'loops until user passwords back in
-		IF email_BZST <> "" THEN CALL create_outlook_email("Mikayla.Handley@hennepin.us", "", "Case #" & maxis_case_number & " Error message: " & err_msg & "  EOM.", "", "", TRUE)
-	END IF
-
+    TRANSMIT 'Going to IULB
     '----------------------------------------------------------------------------------------writing the note on IULB
+    EMReadScreen panel_name, 4, 02, 52
+    IF panel_name = "IULB" THEN
+    	TRANSMIT
+    	EMReadScreen MISC_error_check,  74, 24, 02
+    	EMReadScreen IULB_enter_msg, 5, 24, 02
+    	IF IULB_enter_msg = "ENTER" THEN 'check if we need to input other notes
+			CALL clear_line_of_text(8, 6)
+			CALL clear_line_of_text(9, 6)
+			IF resolution_status = "CB-Ovrpmt And Future Save" THEN EMWriteScreen "OP Claim entered and future savings. " & other_notes, 8, 6
+			IF resolution_status = "CC-Overpayment Only" Or HC_OP_checkbox = CHECKED THEN
+				EMWriteScreen "Claim entered. See case note. ", 8, 6
+				CALL clear_line_of_text(17, 9)
+			END IF
+			If action_header <> "ACTH" THEN
+				EMWriteScreen Claim_number, 17, 9
+				EMWriteScreen Claim_number_II, 18, 9
+				EMWriteScreen claim_number_III, 19, 9
+			END IF
 
-	IF resolution_status = "CB-Ovrpmt And Future Save" THEN EMWriteScreen "OP Claim entered and future savings." & other_notes, 8, 6
-	IF resolution_status = "CC-Overpayment Only" Or HC_OP_checkbox = CHECKED THEN
-		EMWriteScreen "OP Claim entered." & other_notes, 8, 6
-		CALL clear_line_of_text(8, 6)
-		EMWriteScreen "Claim entered. See Case Note. ", 8, 6
-		CALL clear_line_of_text(17, 9)
-		If action_header <> "ACTH" THEN
-			EMWriteScreen Claim_number, 17, 9
-			EMWriteScreen Claim_number_II, 18, 9
-			EMWriteScreen claim_number_III, 19, 9
-		END IF
-		'need to check about adding for multiple claims'
-
-		TRANSMIT 'this will take us back to IEVP main menu'
-
-		EMReadScreen err_msg, 75, 24, 02
-		err_msg = trim(err_msg)
-		IF err_msg <> "" THEN
-			Dialog1 = "" 'Blanking out previous dialog detail
-			  BeginDialog Dialog1, 0, 0, 231, 95, "Maxis Message, please screen shot"
-				ButtonGroup ButtonPressed
-				OkButton 135, 75, 45, 15
-				CancelButton 180, 75, 45, 15
-				GroupBox 5, 0, 220, 50, "You can update maxis if there is an error, THEN hit ok to continue."
-				Text 15, 10, 190, 35, err_msg
-				EditBox 50, 55, 175, 15, email_BZST
-				Text 5, 60, 45, 10, "Email BZST:"
-			  EndDialog
-
-			'Showing case number dialog
-			Do
-			  Dialog Dialog1
-			  cancel_without_confirmation
-			  CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-			Loop until are_we_passworded_out = false					'loops until user passwords back in
-			IF email_BZST <> "" THEN CALL create_outlook_email("Mikayla.Handley@hennepin.us", "", "Case #" & maxis_case_number & " Error message: " & err_msg & "  EOM.", "", "", TRUE)
-		END IF
-	END IF
-
-	IF resolution_status = "CF-Future Save" THEN
-		EMWriteScreen "Future Savings. " & other_notes, 8, 6
-		EMwritescreen active_programs, 12, 37
-		EMwritescreen IULB_results, 12, 42
-		EMwritescreen IULB_method, 12, 49
-		EMwritescreen IULB_savings_amount, 12, 54
-		EMwritescreen IULB_start_month, 12, 65
-		EMwritescreen IULB_start_year, 12, 68
-		EMwritescreen IULB_months, 12, 74
-		TRANSMIT
-	END IF
-
-	IF resolution_status = "CA-Excess Assets" THEN EMWriteScreen "Excess Assets. " & other_notes, 8, 6
-	IF resolution_status = "CI-Benefit Increase" THEN EMWriteScreen "Benefit Increase. " & other_notes, 8, 6
-	IF resolution_status = "CP-Applicant Only Savings" THEN EMWriteScreen "Applicant Only Savings. " & other_notes, 8, 6
-	IF resolution_status = "BC-Case Closed" THEN EMWriteScreen "Case closed. " & other_notes, 8, 6
-	IF resolution_status = "BE-Child" THEN EMWriteScreen "No change, minor child income excluded. " & other_notes, 8, 6
-	IF resolution_status = "BE-No Change" THEN EMWriteScreen "No change. " & other_notes, 8, 6
-	IF resolution_status = "BE-Overpayment Entered" THEN EMWriteScreen "OP entered other programs. " & other_notes, 8, 6
-	IF resolution_status = "BE-NC-Non-collectible" THEN EMWriteScreen "Non-Coop remains, but claim is non-collectible. ", 8, 6
-	IF resolution_status = "BI-Interface Prob" THEN EMWriteScreen "Interface Problem. " & other_notes, 8, 6
-	IF resolution_status = "BN-Already Known-No Savings" THEN EMWriteScreen "Already known - No savings. " & other_notes, 8, 6
-	IF resolution_status = "BP-Wrong Person" THEN EMWriteScreen "Client name and wage earner name are different. " & other_notes, 8, 6
-	IF resolution_status = "BU-Unable To Verify" THEN EMWriteScreen "Unable To Verify. " & other_notes, 8, 6
-	IF resolution_status = "BO Other" THEN EMWriteScreen "HC Claim entered. " & other_notes, 8, 6
-	IF resolution_status = "NC-Non Cooperation" THEN EMWriteScreen "Non-coop, requested verf not in ECF, " & other_notes, 8, 6
-
+			IF resolution_status = "CF-Future Save" THEN
+				EMWriteScreen "Future Savings. " & other_notes, 8, 6
+				EMwritescreen active_programs, 12, 37
+				EMwritescreen IULB_results, 12, 42
+				EMwritescreen IULB_method, 12, 49
+				EMwritescreen IULB_savings_amount, 12, 54
+				EMwritescreen IULB_start_month, 12, 65
+				EMwritescreen IULB_start_year, 12, 68
+				EMwritescreen IULB_months, 12, 74
+				TRANSMIT
+			END IF
+			IF resolution_status = "CA-Excess Assets" THEN EMWriteScreen "Excess Assets. " & other_notes, 8, 6
+			IF resolution_status = "CI-Benefit Increase" THEN EMWriteScreen "Benefit Increase. " & other_notes, 8, 6
+			IF resolution_status = "CP-Applicant Only Savings" THEN EMWriteScreen "Applicant Only Savings. " & other_notes, 8, 6
+			IF resolution_status = "BC-Case Closed" THEN EMWriteScreen "Case closed. " & other_notes, 8, 6
+			IF resolution_status = "BE-Child" THEN EMWriteScreen "No change, minor child income excluded. " & other_notes, 8, 6
+			IF resolution_status = "BE-No Change" THEN EMWriteScreen "No change. " & other_notes, 8, 6
+			IF resolution_status = "BE-Overpayment Entered" THEN EMWriteScreen "OP entered other programs. " & other_notes, 8, 6
+			IF resolution_status = "BE-NC-Non-collectible" THEN EMWriteScreen "Non-Coop remains, but claim is non-collectible. ", 8, 6
+			IF resolution_status = "BI-Interface Prob" THEN EMWriteScreen "Interface Problem. " & other_notes, 8, 6
+			IF resolution_status = "BN-Already Known-No Savings" THEN EMWriteScreen "Already known - No savings. " & other_notes, 8, 6
+			IF resolution_status = "BP-Wrong Person" THEN EMWriteScreen "Client name and wage earner name are different. " & other_notes, 8, 6
+			IF resolution_status = "BU-Unable To Verify" THEN EMWriteScreen "Unable To Verify. " & other_notes, 8, 6
+			'IF resolution_status = "BO-Other" THEN EMWriteScreen "HC Claim entered. " & other_notes, 8, 6
+			IF resolution_status = "NC-Non Cooperation" THEN EMWriteScreen "Non-coop, requested verf not in ECF, " & other_notes, 8, 6
+    	    EMWriteScreen other_notes, 8, 6
+    	    TRANSMIT
+    		EMReadScreen MISC_error_check,  74, 24, 02
+    		IF trim(MISC_error_check) <> "" THEN
+    			next_steps_message_box = MsgBox("***Next steps***" & vbNewLine & "Transmit?" & vbNewLine & MISC_error_check & vbNewLine, vbYesNo + vbQuestion,     "Message handling")
+    			IF next_steps_message_box = vbYes THEN
+    				TRANSMIT
+    				EMReadScreen panel_name, 4, 02, 52
+    			END IF
+    			IF next_steps_message_box= vbNo THEN
+    				PF3
+    				EMReadScreen panel_name, 4, 02, 52
+					script_run_lowdown = script_run_lowdown & vbCr & vbCR & "DEU Error Type: " & MISC_error_check & panel_name
+    			END IF
+    		END IF
+    	ELSE 	'IF panel_name = "IEVP" THEN
+    		CALL back_to_SELF
+    	END IF
+    ELSE
+    	script_run_lowdown = script_run_lowdown & vbCr & vbCR & "DEU Error Type: " & MISC_error_check & panel_name
+    END IF
 	'------------------------------------------------------------------back on the IEVP menu, making sure that the match cleared
+	EMReadScreen days_pending, 5, row, 72
+    days_pending = trim(days_pending)
+    match_cleared = TRUE
 
-	'EMReadScreen days_pending, 5, row, 72
-	'days_pending = trim(days_pending)
-	'match_cleared = TRUE
-	'IF IsNumeric(days_pending) = TRUE THEN match_cleared = FALSE
-	'If match_cleared = FALSE and sent_date <> date THEN
-	'   	confirm_cleared = MsgBox ("The script cannot identify that this match has cleared." & vbNewLine & vbNewLine & "Review IEVP and find the match that is being cleared with this run." &vbNewLine & " ** HAS THE MATCH BEEN CLEARED? **", vbQuestion + vbYesNo, "Confirm Match Cleared")
-	'   	IF confirm_cleared = vbYes Then match_cleared = TRUE
-	'	IF confirm_cleared = vbno Then
-	'		match_cleared = FALSE
-	'		script_end_procedure_with_error_report("This match did not clear in IEVP, please advise what may have happened.")
-	'	END IF
-	'End If
-	'--------------------------------------------------------------------The case note & case note related code
-	verifcation_needed = ""
-  	IF Diff_Notice_Checkbox = CHECKED THEN verifcation_needed = verifcation_needed & "Difference Notice, "
-	IF EVF_checkbox = CHECKED THEN verifcation_needed = verifcation_needed & "EVF, "
-	IF ATR_Verf_CheckBox = CHECKED THEN verifcation_needed = verifcation_needed & "ATR, "
-	IF lottery_verf_checkbox = CHECKED THEN verifcation_needed = verifcation_needed & "Lottery/Gaming Form, "
-	IF rental_checkbox =  CHECKED THEN verifcation_needed = verifcation_needed & "Rental Income Form, "
-	IF other_checkbox = CHECKED THEN verifcation_needed = verifcation_needed & "Other, "
-
-	IF MAXIS_error_message <> "" THEN
-		EMReadScreen MAXIS_error_message, 75, 24, 02
-		MAXIS_error_message = trim(MAXIS_error_message)
-
-		Dialog1 = "" 'Blanking out previous dialog detail
-		BeginDialog Dialog1, 0, 0, 231, 95, "Maxis Message, please screen shot"
-			ButtonGroup ButtonPressed
-			OkButton 135, 75, 45, 15
-			CancelButton 180, 75, 45, 15
-			GroupBox 5, 0, 220, 50, "You can update maxis if there is an error, THEN hit ok to continue."
-			Text 15, 10, 190, 35, MAXIS_error_message
-			EditBox 50, 55, 175, 15, email_BZST
-			Text 5, 60, 45, 10, "Email BZST:"
-		EndDialog
-
-		'Showing case number dialog
-		Do
-		  Dialog Dialog1
-		  cancel_without_confirmation
-		  CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-		Loop until are_we_passworded_out = false					'loops until user passwords back in
-		IF email_BZST <> "" THEN CALL create_outlook_email("Mikayla.Handley@hennepin.us", "", "Case #" & maxis_case_number & " Error message: " & MAXIS_error_message & "  EOM.", "", "", TRUE)
+    IF IsNumeric(days_pending) = TRUE THEN
+		match_cleared = FALSE
+    	EMReadScreen MAXIS_error_message, 75, 24, 02
+    	MAXIS_error_message = trim(MAXIS_error_message)
+    	IF MAXIS_error_message <> "" THEN
+    		Dialog1 = "" 'Blanking out previous dialog detail
+    		BeginDialog Dialog1, 0, 0, 231, 95, "Maxis Message, please screen shot"
+    		ButtonGroup ButtonPressed
+    		OkButton 135, 75, 45, 15
+    		CancelButton 180, 75, 45, 15
+    		GroupBox 5, 0, 220, 50, "You can update maxis if there is an error, THEN hit ok to continue."
+    		Text 15, 10, 190, 35, MAXIS_error_message
+    		EditBox 50, 55, 175, 15, email_BZST
+    		Text 5, 60, 45, 10, "Email BZST:"
+    		EndDialog
+    		'Showing case number dialog
+    		Do
+    	  		Dialog Dialog1
+    	  		cancel_without_confirmation
+    	  		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    		Loop until are_we_passworded_out = false					'loops until user passwords back in
+    		IF email_BZST <> "" THEN CALL create_outlook_email("Mikayla.Handley@hennepin.us", "", "Case #" & maxis_case_number & " Error message: " &    MAXIS_error_message & "  EOM.", "", "", TRUE)
+    	END IF
 	END IF
-'------------------------------------------------------------------STAT/MISC for claim referral tracking
-	IF claim_referral_tracking_dropdown <> "Not Needed" THEN
-	    'Going to the MISC panel to add claim referral tracking information
-		CALL navigate_to_MAXIS_screen ("STAT", "MISC")
-		Row = 6
-		EMReadScreen panel_number, 1, 02, 73
-		If panel_number = "0" THEN
-			EMWriteScreen "NN", 20,79
-			TRANSMIT
-			'CHECKING FOR MAXIS PROGRAMS ARE INACTIVE'
-			EMReadScreen MISC_error_check,  74, 24, 02
-			IF trim(MISC_error_check) = "" THEN
-				case_note_only = FALSE
-			else
-				maxis_error_check = MsgBox("*** NOTICE!!!***" & vbNewLine & "Continue to case note only?" & vbNewLine & MISC_error_check & vbNewLine, vbYesNo + vbQuestion, "Message handling")
-				IF maxis_error_check = vbYes THEN
+END IF 'end of match when difference_notice_action_dropdown =  "YES" '
+     	If match_cleared = FALSE and sent_date <> date THEN
+           	confirm_cleared = MsgBox("The script cannot identify that this match has cleared." & vbNewLine & vbNewLine & "Review IEVP and find the match that is being cleared with this run." & vbNewLine & " ** HAS THE MATCH BEEN 'CLEARED? **", vbQuestion + vbYesNo, "Confirm Match Cleared")
+           	IF confirm_cleared = vbYes Then match_cleared = TRUE
+        	IF confirm_cleared = vbno Then
+        		match_cleared = FALSE
+        		script_end_procedure_with_error_report("This match did not clear in IEVP, please advise what may have     'happened.")
+        	END IF
+        END IF
+    ''--------------------------------------------------------------------The case note & case note related code
+    	verifcation_needed = ""
+      	IF Diff_Notice_Checkbox = CHECKED THEN verifcation_needed = verifcation_needed & "Difference Notice, "
+    	IF EVF_checkbox = CHECKED THEN verifcation_needed = verifcation_needed & "EVF, "
+    	IF ATR_Verf_CheckBox = CHECKED THEN verifcation_needed = verifcation_needed & "ATR, "
+    	IF lottery_verf_checkbox = CHECKED THEN verifcation_needed = verifcation_needed & "Lottery/Gaming Form, "
+    	IF rental_checkbox =  CHECKED THEN verifcation_needed = verifcation_needed & "Rental Income Form, "
+    	IF other_checkbox = CHECKED THEN verifcation_needed = verifcation_needed & "Other, "
+
+    	'------------------------------------------------------------------STAT/MISC for claim referral tracking
+    	IF claim_referral_tracking_dropdown <> "Not Needed" THEN
+    	    'Going to the MISC panel to add claim referral tracking information
+    		CALL navigate_to_MAXIS_screen ("STAT", "MISC")
+    		Row = 6
+    		EMReadScreen panel_number, 1, 02, 73
+    		If panel_number = "0" THEN
+    			EMWriteScreen "NN", 20,79
+    			TRANSMIT
+    			'CHECKING FOR MAXIS PROGRAMS ARE INACTIVE'
+    			EMReadScreen MISC_error_check,  74, 24, 02
+    			IF trim(MISC_error_check) = "" THEN
+    				case_note_only = FALSE
+    			else
+    				maxis_error_check = MsgBox("*** NOTICE!!!***" & vbNewLine & "Continue to case note only?" & vbNewLine & MISC_error_check & vbNewLine, vbYesNo     + vbQuestion, "Message handling")
+    				IF maxis_error_check = vbYes THEN
 					case_note_only = TRUE 'this will case note only'
 				END IF
 				IF maxis_error_check= vbNo THEN
@@ -1019,6 +958,7 @@ END IF
 		EMWriteScreen MISC_action_taken, Row, 30
 		EMWriteScreen date, Row, 66
         TRANSMIT
+
 	END IF
 	'------------------------------------------setting up case note header'
 	IF ATR_needed_checkbox = CHECKED THEN
@@ -1082,7 +1022,7 @@ END IF
 	CALL write_bullet_and_variable_in_case_note("Source of income", income_source)
 	CALL write_variable_in_case_note("----- ----- ----- ----- ----- ----- -----")
 	CALL write_bullet_and_variable_in_case_note("Date Diff notice sent", sent_date)
-	IF  difference_notice_action_dropdown = "YES" THEN 
+	IF  difference_notice_action_dropdown = "YES" THEN
 		CALL write_bullet_and_variable_in_case_note("Verifications Requested", verifcation_needed)
 		CALL write_variable_in_case_note("* Client must be provided 10 days to return requested verifications")
 	ELSE
@@ -1108,7 +1048,8 @@ END IF
 	IF resolution_status = "BN-Already Known-No Savings" THEN CALL write_variable_in_case_note("* Client reported income. Correct income is in JOBS/BUSI and budgeted.")
 	IF resolution_status = "BP-Wrong Person" THEN CALL write_variable_in_case_note("* Client name and wage earner name are different.  Client's SSN has been verified. No overpayment or savings related to this match.")
 	IF resolution_status = "BU-Unable To Verify" THEN CALL write_variable_in_case_note("* Unable to verify, due to:")
-	IF resolution_status = "BO Other" THEN CALL write_variable_in_case_note("* HC Claim entered.")
+	'IF resolution_status = "BO-Other" THEN CALL write_variable_in_case_note("* HC Claim entered.")
+	IF resolution_status = "BO-Other" THEN CALL write_variable_in_case_note("* No review due during the match period.  Per DHS, reporting requirements are waived during pandemic.")
 	IF resolution_status = "NC-Non Cooperation" THEN
 		CALL write_variable_in_case_note("* Client failed to cooperate wth wage match.")
 		CALL write_variable_in_case_note("* Case approved to close.")
@@ -1165,30 +1106,6 @@ END IF
 	    CALL navigate_to_MAXIS_screen("CCOL", "CLSM")
 	    EMWriteScreen Claim_number, 4, 9
 	    TRANSMIT
-	    'checking for error messages'
-		IF MAXIS_error_message <> "" THEN
-			EMReadScreen MAXIS_error_message, 75, 24, 02
-			MAXIS_error_message = trim(MAXIS_error_message)
-
-			Dialog1 = "" 'Blanking out previous dialog detail
-			BeginDialog Dialog1, 0, 0, 231, 95, "Maxis Message, please screen shot"
-				ButtonGroup ButtonPressed
-				OkButton 135, 75, 45, 15
-				CancelButton 180, 75, 45, 15
-				GroupBox 5, 0, 220, 50, "You can update maxis if there is an error, THEN hit ok to continue."
-				Text 15, 10, 190, 35, MAXIS_error_message
-				EditBox 50, 55, 175, 15, email_BZST
-				Text 5, 60, 45, 10, "Email BZST:"
-			EndDialog
-
-			'Showing case number dialog
-			Do
-			  Dialog Dialog1
-			  cancel_without_confirmation
-			  CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-			Loop until are_we_passworded_out = false					'loops until user passwords back in
-			IF email_BZST <> "" THEN CALL create_outlook_email("Mikayla.Handley@hennepin.us", "", "Case #" & maxis_case_number & " Error message: " & MAXIS_error_message & "  EOM.", "", "", TRUE)
-		END IF
 	    PF4
 	    EMReadScreen existing_case_note, 1, 5, 6
 	    IF existing_case_note = "" THEN
@@ -1225,10 +1142,8 @@ END IF
         CALL write_variable_in_CCOL_note_test("----- ----- ----- ----- ----- ----- -----")
         CALL write_variable_in_CCOL_note_test("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
         PF3 'to save CCOL casenote'
-	    'script_end_procedure_with_error_report("Overpayment case note entered and copied to CCOL, please review the case to make sure the notes updated correctly." & vbcr & next_page)
 
 		'-------------------------------The following will generate a TIKL formatted date for 10 days from now, and add it to the TIKL
 		IF tenday_checkbox = CHECKED THEN CALL create_TIKL("Unable to close due to 10 day cutoff. Verification of match should have returned by now. If not received and processed, take appropriate action.", 0, date, True, TIKL_note_text)
 		script_end_procedure_with_error_report("Match has been acted on. Please take any additional action needed for your case.")
 	END IF
-'END IF
