@@ -79,16 +79,18 @@ MAXIS_footer_year = CM_yr
 
 'The dialog is defined in the loop as it can change as buttons are pressed 
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 266, 115, "MAXIS TO METS Conversion Information"
+BeginDialog Dialog1, 0, 0, 221, 115, "Health Care Information Report"
   ButtonGroup ButtonPressed
-    PushButton 200, 50, 50, 15, "Browse...", select_a_file_button
-    OkButton 150, 95, 50, 15
-    CancelButton 205, 95, 50, 15
-  EditBox 15, 50, 180, 15, file_selection_path
-  Text 20, 20, 235, 25, "This script should be used when a list of conversion cases are provided by the METS team or DHS."
-  Text 15, 70, 230, 15, "Select the Excel file that contains your inforamtion by selecting the 'Browse' button, and finding the file."
-  GroupBox 10, 5, 250, 85, "Using this script:"
+    PushButton 170, 45, 40, 15, "Browse...", select_a_file_button
+    OkButton 130, 95, 40, 15
+    CancelButton 175, 95, 40, 15
+  EditBox 15, 45, 150, 15, file_selection_path
+  Text 20, 20, 190, 20, "This script should be used when a list of PMI's that Health Care Information from MMIS is needed and provided."
+  Text 15, 65, 195, 15, "Select the Excel file that contains the list of PMI's by selecting the 'Browse' button, and finding the file."
+  GroupBox 10, 5, 205, 85, "Using this script:"
 EndDialog
+
+Call check_for_MAXIS(false) 'ensuring we're in MAXIS
 
 'dialog and dialog DO...Loop	
 Do
@@ -246,15 +248,15 @@ ObjExcel.Cells(1,  3).Value = "Last Name"
 ObjExcel.Cells(1,  4).Value = "First Name"
 ObjExcel.Cells(1,  5).Value = "DOB"
 ObjExcel.Cells(1,  6).Value = "Gender"
-ObjExcel.Cells(1,  7).Value = "1st case"
-ObjExcel.Cells(1,  8).Value = "1st type/prog"
-ObjExcel.Cells(1,  9).Value = "1st elig dates"
-ObjExcel.Cells(1, 10).Value = "2nd case"
-ObjExcel.Cells(1, 11).Value = "2nd type/prog"
-ObjExcel.Cells(1, 12).Value = "2nd elig dates"
-ObjExcel.Cells(1, 13).Value = "3rd case"
-ObjExcel.Cells(1, 14).Value = "3rd type/prog"
-ObjExcel.Cells(1, 15).Value = "3rd elig dates"
+ObjExcel.Cells(1,  7).Value = "1st Case"
+ObjExcel.Cells(1,  8).Value = "1st Type/Prog"
+ObjExcel.Cells(1,  9).Value = "1st Elig Dates"
+ObjExcel.Cells(1, 10).Value = "2nd Case"
+ObjExcel.Cells(1, 11).Value = "2nd Type/Prog"
+ObjExcel.Cells(1, 12).Value = "2nd Elig Dates"
+ObjExcel.Cells(1, 13).Value = "3rd Case"
+ObjExcel.Cells(1, 14).Value = "3rd Type/Prog"
+ObjExcel.Cells(1, 15).Value = "3rd Elig Dates"
 
 FOR i = 1 to 15 	'formatting the cells'
 	objExcel.Cells(1, i).Font.Bold = True		'bold font'
