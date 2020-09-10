@@ -799,8 +799,9 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
 
     TRANSMIT 'Going to IULB
     '----------------------------------------------------------------------------------------writing the note on IULB
-    EMReadScreen panel_name, 4, 02, 52
-    IF panel_name = "IULB" THEN
+
+	EMReadScreen panel_name, 4, 02, 52
+    IF panel_name = "IULB" and difference_notice_action_dropdown = "YES" THEN
     	TRANSMIT
     	EMReadScreen MISC_error_check,  74, 24, 02
     	EMReadScreen IULB_enter_msg, 5, 24, 02
@@ -863,45 +864,46 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
     	END IF
     ELSE
     	script_run_lowdown = script_run_lowdown & vbCr & vbCR & "DEU Error Type: " & MISC_error_check & panel_name
+
     END IF
 	'------------------------------------------------------------------back on the IEVP menu, making sure that the match cleared
-	EMReadScreen days_pending, 5, row, 72
-    days_pending = trim(days_pending)
-    match_cleared = TRUE
+	'EMReadScreen days_pending, 5, row, 72
+    'days_pending = trim(days_pending)
+    'match_cleared = TRUE
 
-    IF IsNumeric(days_pending) = TRUE THEN
-		match_cleared = FALSE
-    	EMReadScreen MAXIS_error_message, 75, 24, 02
-    	MAXIS_error_message = trim(MAXIS_error_message)
-    	IF MAXIS_error_message <> "" THEN
-    		Dialog1 = "" 'Blanking out previous dialog detail
-    		BeginDialog Dialog1, 0, 0, 231, 95, "Maxis Message, please screen shot"
-    		ButtonGroup ButtonPressed
-    		OkButton 135, 75, 45, 15
-    		CancelButton 180, 75, 45, 15
-    		GroupBox 5, 0, 220, 50, "You can update maxis if there is an error, THEN hit ok to continue."
-    		Text 15, 10, 190, 35, MAXIS_error_message
-    		EditBox 50, 55, 175, 15, email_BZST
-    		Text 5, 60, 45, 10, "Email BZST:"
-    		EndDialog
-    		'Showing case number dialog
-    		Do
-    	  		Dialog Dialog1
-    	  		cancel_without_confirmation
-    	  		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-    		Loop until are_we_passworded_out = false					'loops until user passwords back in
-    		IF email_BZST <> "" THEN CALL create_outlook_email("Mikayla.Handley@hennepin.us", "", "Case #" & maxis_case_number & " Error message: " &    MAXIS_error_message & "  EOM.", "", "", TRUE)
-    	END IF
-	END IF
+    'IF IsNumeric(days_pending) = TRUE THEN
+	'	match_cleared = FALSE
+    '	EMReadScreen MAXIS_error_message, 75, 24, 02
+    '	MAXIS_error_message = trim(MAXIS_error_message)
+    '	IF MAXIS_error_message <> "" THEN
+    '		Dialog1 = "" 'Blanking out previous dialog detail
+    '		BeginDialog Dialog1, 0, 0, 231, 95, "Maxis Message, please screen shot"
+    '		ButtonGroup ButtonPressed
+    '		OkButton 135, 75, 45, 15
+    '		CancelButton 180, 75, 45, 15
+    '		GroupBox 5, 0, 220, 50, "You can update maxis if there is an error, THEN hit ok to continue."
+    '		Text 15, 10, 190, 35, MAXIS_error_message
+    '		EditBox 50, 55, 175, 15, email_BZST
+    '		Text 5, 60, 45, 10, "Email BZST:"
+    '		EndDialog
+    '		'Showing case number dialog
+    '		Do
+    '	  		Dialog Dialog1
+    '	  		cancel_without_confirmation
+    '	  		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows 'user to password back into MAXIS
+    '		Loop until are_we_passworded_out = false					'loops until user passwords back in
+    '		IF email_BZST <> "" THEN CALL create_outlook_email("Mikayla.Handley@hennepin.us", "", "Case #" & maxis_case_number & " Error message: " &    'MAXIS_error_message & "  EOM.", "", "", TRUE)
+    '	END IF
+	'END IF
 END IF 'end of match when difference_notice_action_dropdown =  "YES" '
-     	If match_cleared = FALSE and sent_date <> date THEN
-           	confirm_cleared = MsgBox("The script cannot identify that this match has cleared." & vbNewLine & vbNewLine & "Review IEVP and find the match that is being cleared with this run." & vbNewLine & " ** HAS THE MATCH BEEN 'CLEARED? **", vbQuestion + vbYesNo, "Confirm Match Cleared")
-           	IF confirm_cleared = vbYes Then match_cleared = TRUE
-        	IF confirm_cleared = vbno Then
-        		match_cleared = FALSE
-        		script_end_procedure_with_error_report("This match did not clear in IEVP, please advise what may have     'happened.")
-        	END IF
-        END IF
+     	'If match_cleared = FALSE and sent_date <> date THEN
+        '   	confirm_cleared = MsgBox("The script cannot identify that this match has cleared." & vbNewLine & vbNewLine & "Review IEVP and find the match that 'is being cleared with this run." & vbNewLine & " ** HAS THE MATCH BEEN 'CLEARED? **", vbQuestion + vbYesNo, "Confirm Match Cleared")
+        '   	IF confirm_cleared = vbYes Then match_cleared = TRUE
+        '	IF confirm_cleared = vbno Then
+        '		match_cleared = FALSE
+        '		script_end_procedure_with_error_report("This match did not clear in IEVP, please advise what may have     'happened.")
+        '	END IF
+        'END IF
     ''--------------------------------------------------------------------The case note & case note related code
     	verifcation_needed = ""
       	IF Diff_Notice_Checkbox = CHECKED THEN verifcation_needed = verifcation_needed & "Difference Notice, "
@@ -1051,7 +1053,7 @@ END IF 'end of match when difference_notice_action_dropdown =  "YES" '
 	'IF resolution_status = "BO-Other" THEN CALL write_variable_in_case_note("* HC Claim entered.")
 	IF resolution_status = "BO-Other" THEN CALL write_variable_in_case_note("* No review due during the match period.  Per DHS, reporting requirements are waived during pandemic.")
 	IF resolution_status = "NC-Non Cooperation" THEN
-		CALL write_variable_in_case_note("* Client failed to cooperate wth wage match.")
+		CALL write_variable_in_case_note("* Client failed to cooperate with wage match.")
 		CALL write_variable_in_case_note("* Case approved to close.")
 		CALL write_variable_in_case_note("* Client needs to provide: ATR, Income Verification, Difference Notice.")
 	END IF
