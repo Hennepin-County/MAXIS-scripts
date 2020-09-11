@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/10/2020", "Update to functionality script will now create an email and a word document from  National Directoy of Contacts" & VBCR & " Revision Date: 5/1/20", "MiKayla Handley, Hennepin County")
 call changelog_update("06/28/2016", "Initial version. NATIONAL DIRECTORY OF CONTACTS Revision Date: 5/1/20", "MiKayla Handley, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -958,7 +959,7 @@ IF	state_droplist = "Wisconsin"	THEN
 	abbr_state = "WI"
 	IF FS_CHECKBOX = CHECKED THEN
 		other_state_fs = TRUE
-		agency_name = "	WI Department of Health & Family Services"
+		agency_name = "WI Department of Health & Family Services"
 		agency_address = "1 W Wilson St, Madison, WI 53703"
 		agency_phone = "608-261-6378"
 		agency_ext = "Option 3"
@@ -1062,7 +1063,6 @@ DO								'reads the reference number, last name, first name, and then puts it i
 LOOP until edit_check = "ENTER A"'the script will continue to transmit through memb until it reaches the last page and finds the ENTER A edit on the bottom row.
 
 'is this a permanant change to the national directory, souyrce of infdomrtion, ematio to or sned pf
-
 
 '
 'For each path the script takes a different route'
@@ -1319,7 +1319,7 @@ IF out_of_state_request = "Sent/Send" THEN
 
 	start_a_blank_case_note
 	Call write_variable_in_CASE_NOTE("---Out of State Inquiry sent via " & how_sent & " to " & abbr_state & "---")
-	If out_of_state_programs <> " "CALL write_variable_in_CASE_NOTE("* Client reported they received " & out_of_state_programs & " on " & date_received & " the case is currently: " & out_of_state_status)
+	IF out_of_state_status <> "Unknown" THEN CALL write_variable_in_CASE_NOTE("* Client reported they received " & out_of_state_programs & " on " & date_received & " the case is currently: " & out_of_state_status)
 	CALL write_bullet_and_variable_in_CASE_NOTE("Name", agency_name)
 	CALL write_bullet_and_variable_in_CASE_NOTE("Address", agency_address)
 	CALL write_bullet_and_variable_in_CASE_NOTE("Email", agency_email)
@@ -1371,7 +1371,7 @@ IF out_of_state_request = "Received" THEN
     Text 10, 120, 100, 10, "Phone: " & agency_phone
     Text 135, 120, 90, 15, "Fax: "  & agency_fax
     Text 10, 135, 205, 15, "Email: " & agency_email
-    CheckBox 10, 150, 160, 15, "Update information for contact state received", update_state_info_checkbox
+    CheckBox 10, 155, 160, 10, "Update information for contact state received", update_state_info_checkbox
     CheckBox 10, 165, 170, 10, "Please confirm that the inquiry was sent to ECF", ECF_checkbox
     EditBox 50, 190, 175, 15, other_notes
     ButtonGroup ButtonPressed
