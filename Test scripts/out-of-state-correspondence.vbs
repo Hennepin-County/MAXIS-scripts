@@ -98,7 +98,7 @@ IF Len(MAXIS_footer_month) <> 2 THEN MAXIS_footer_month = "0" & MAXIS_footer_mon
 MAXIS_footer_year = right(datepart("YYYY", date), 2)
 
 'Navigate back to self
-Back_to_self
+'Back_to_self
 EMWriteScreen MAXIS_case_number, 18, 43
 Call navigate_to_MAXIS_screen("CASE", "CURR")
 EMReadScreen CURR_panel_check, 4, 2, 55
@@ -1061,6 +1061,10 @@ DO								'reads the reference number, last name, first name, and then puts it i
 	Emreadscreen edit_check, 7, 24, 2
 LOOP until edit_check = "ENTER A"'the script will continue to transmit through memb until it reaches the last page and finds the ENTER A edit on the bottom row.
 
+'is this a permanant change to the national directory, souyrce of infdomrtion, ematio to or sned pf
+
+
+'
 'For each path the script takes a different route'
     Dialog1 = "" 'runs the dialog that has been dynamically created. Streamlined with new functions.
     BEGINDIALOG Dialog1, 0, 0, 241, (50 + (Ubound(ALL_CLT_INFO_ARRAY, 2) * 15)), "Household Member(s) "   'Creates the dynamic dialog. The height will change based on the number of clients it finds.
@@ -1107,7 +1111,7 @@ IF out_of_state_request = "Sent/Send" THEN
 	  Text 10, 150, 100, 10, "Phone: " & agency_phone
 	  Text 130, 150, 90, 15, "Fax:  " & agency_fax
 	  Text 10, 165, 205, 15, "Email: " & agency_email
-	  CheckBox 10, 200, 150, 10, "Different information for contact state found", update_state_info_checkbox
+	  CheckBox 10, 200, 150, 10, "Update information for contact state received", update_state_info_checkbox
 	  CheckBox 170, 185, 60, 10, "PARIS Match", PARIS_CHECKBOX
 	  CheckBox 10, 185, 130, 10, "Set an Outlook reminder to follow up ", outlook_remider_CHECKBOX
 	  CheckBox 10, 215, 215, 10, "Please confirm that the verification or request was sent to ECF", ECF_checkbox
@@ -1315,7 +1319,7 @@ IF out_of_state_request = "Sent/Send" THEN
 
 	start_a_blank_case_note
 	Call write_variable_in_CASE_NOTE("---Out of State Inquiry sent via " & how_sent & " to " & abbr_state & "---")
-	CALL write_variable_in_CASE_NOTE("* Client reported they received " & out_of_state_programs & " on " & date_received & " the case is currently: " & out_of_state_status)
+	If out_of_state_programs <> " "CALL write_variable_in_CASE_NOTE("* Client reported they received " & out_of_state_programs & " on " & date_received & " the case is currently: " & out_of_state_status)
 	CALL write_bullet_and_variable_in_CASE_NOTE("Name", agency_name)
 	CALL write_bullet_and_variable_in_CASE_NOTE("Address", agency_address)
 	CALL write_bullet_and_variable_in_CASE_NOTE("Email", agency_email)
@@ -1346,7 +1350,6 @@ IF out_of_state_request = "Sent/Send" THEN
     END IF
 END IF 'If for sent/send'
 
-
 IF out_of_state_request = "Received" THEN
 	Dialog1 = ""
     BeginDialog Dialog1, 0, 0, 231, 230, "OUT OF STATE INQUIRY RECEIVED FROM: "  & Ucase(state_droplist)
@@ -1368,7 +1371,7 @@ IF out_of_state_request = "Received" THEN
     Text 10, 120, 100, 10, "Phone: " & agency_phone
     Text 135, 120, 90, 15, "Fax: "  & agency_fax
     Text 10, 135, 205, 15, "Email: " & agency_email
-    CheckBox 10, 150, 160, 10, "Different information for contact state received", update_state_info_checkbox
+    CheckBox 10, 150, 160, 15, "Update information for contact state received", update_state_info_checkbox
     CheckBox 10, 165, 170, 10, "Please confirm that the inquiry was sent to ECF", ECF_checkbox
     EditBox 50, 190, 175, 15, other_notes
     ButtonGroup ButtonPressed
@@ -1396,9 +1399,6 @@ IF out_of_state_request = "Received" THEN
 	    CALL check_for_password(are_we_passworded_out)                                 'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 	Loop until are_we_passworded_out = false
 
-
-
-
 	start_a_blank_case_note
 	Call write_variable_in_CASE_NOTE("---Out of State Inquiry received via " & how_sent & " from " & abbr_state & "---")
 	IF out_of_state_programs <> "" THEN CALL write_variable_in_CASE_NOTE("* " & abbr_state & " reported client received " & out_of_state_programs & " on " & date_received & " the case is currently: " & out_of_state_status)
@@ -1414,9 +1414,9 @@ IF out_of_state_request = "Received" THEN
 	CALL write_variable_in_CASE_NOTE("---")
 	CALL write_variable_in_CASE_NOTE(worker_signature)
 	PF3
-END IF
+END IF 'if for Received'
 
-"ask the hsr if we need to update the national directory?"
+'ask the hsr if we need to update the national directory?"
 IF update_state_info_checkbox = CHECKED THEN
     BeginDialog Dialog1, 0, 0, 226, 130, "OUT OF STATE INQUIRY"
       EditBox 45, 20, 165, 15, agency_name
@@ -1443,7 +1443,12 @@ IF update_state_info_checkbox = CHECKED THEN
 		LOOP until err_msg = ""
 		CALL check_for_password(are_we_passworded_out)
 	Loop until are_we_passworded_out = false
-END IF
+	message_array =   "Agency Name: " & agency_name & vbcr & "Address: " & agency_address & vbcr & "Email: " & agency_email & vbcr & "Phone: " & agency_phone & vbcr & "Fax: " & agency_fax
+	'this will send an email to the team to let them know to review possible update to the directory
+	'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
+    	CALL create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "","Out of State Inquiry for case #" &  MAXIS_case_number & " Change of CONACT INFO", "Out of State Inquiry" & vbcr & message_array,"", TRUE)
+    END IF
+
 IF out_of_state_request = "Unknown/No Response" THEN
     '-------------------------------------------------------------------------------------------------DIALOG
     Dialog1 = "" 'Blanking out previous dialog detail
@@ -1471,13 +1476,12 @@ IF out_of_state_request = "Unknown/No Response" THEN
             err_msg = ""
     		Dialog Dialog1
     		cancel_without_confirmation
-    		IF Isdate(date_closed) = false THEN err_msg = err_msg & vbNewLine & "Please enter the closed date."
+    		IF Isdate(date_closed) = "" and unable_to_close_CHECKBOX <> CHECKED THEN err_msg = err_msg & vbNewLine & "Please enter the closed date."
 			IF unable_to_close_CHECKBOX = CHECKED and other_notes = "" THEN err_msg = err_msg & vbNewLine & "Please explain why you were unable to close the case."
     		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
         Loop until err_msg = ""
      	Call check_for_password(are_we_passworded_out)
     LOOP UNTIL check_for_password(are_we_passworded_out) = False
-
     IF Out_of_State_Inquiry_CHECKBOX = CHECKED THEN pending_verifs = pending_verifs & "Out of State Inquiry, "
     IF shel_verf_checkbox = CHECKED THEN pending_verifs = pending_verifs & "Shelter Verification, "
     IF ATR_Verf_CheckBox = CHECKED THEN pending_verifs = pending_verifs & "ATR, "
@@ -1487,20 +1491,16 @@ IF out_of_state_request = "Unknown/No Response" THEN
     IF right(pending_verifs, 1) = "," THEN pending_verifs = left(pending_verifs, len(pending_verifs) - 1)
 
 	start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
-
-	Call write_variable_in_CASE_NOTE("---Out of State Inquiry to " & abbr_state & "no response received---")
+	Call write_variable_in_CASE_NOTE("---Out of State Inquiry for " & abbr_state & " no response received---")
 	IF no_response_from_client_CHECKBOX = CHECKED THEN
 		Call write_variable_in_CASE_NOTE("* No response from client.")
 		Call write_variable_in_CASE_NOTE("* Client will need to verify MN residence.")
 	END IF
-	IF no_response_from_client_CHECKBOX = CHECKED THEN
-		CALL write_variable_in_CASE_NOTE("* No response from state.")
-		Call write_variable_in_CASE_NOTE("* Agency will need to verify benefits received in the other state prior to reopening case")
-	END IF
-	IF other_state_contact_checkbox = CHECKED THEN Call write_variable_in_CASE_NOTE("* Other state(s) have been contacted")
-	IF other_state_contact_checkbox = UNCHECKED THEN Call write_variable_in_CASE_NOTE("* Other state(s) have not been contacted")
+	IF no_response_from_state_CHECKBOX = CHECKED THEN CALL write_variable_in_CASE_NOTE("* No response from state.")
+	IF PARIS_CHECKBOX = CHECKED THEN Call write_variable_in_CASE_NOTE("* Agency will need to verify benefits received in the other state prior to reopening case")
+	IF other_state_contact_checkbox = CHECKED THEN Call write_variable_in_CASE_NOTE("* " & state_droplist & "  has been contacted")
+	IF other_state_contact_checkbox = UNCHECKED THEN Call write_variable_in_CASE_NOTE("* " & state_droplist & "  has not been contacted")
 	Call write_bullet_and_variable_in_CASE_NOTE("Date case was closed", date_closed)
-
 	CALL write_bullet_and_variable_in_CASE_NOTE("Verification requested", pending_verifs)
 	CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
 	CALL write_variable_in_CASE_NOTE("---")
