@@ -41,6 +41,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/11/2020", "This script now contains the functionality for Open Enrollment and for any other enrollment.##~## ##~##The seperate script for Open Enrollment will no longer be available.##~##", "Casey Love, Hennepin County")
 call changelog_update("12/19/2019", "Added IM 12 as an option for contract codes.", "Casey Love, Hennepin County")
 call changelog_update("05/24/2019", "Added the ability for the script to delete the current enrollment plan if the beginning date for the current plan is the same as the new enrollment date.", "Casey Love, Hennepin County")
 call changelog_update("05/24/2019", "Added the ability for the script to delete the Delayed Decision exclusion if the start date is the same as the enrollment date.", "Casey Love, Hennepin County")
@@ -264,15 +265,9 @@ Function MMIS_case_number_finder(MMIS_case_number)
     End If
 End Function
 
-'DIALOG----------------------------------------------------------------------------------------------------
-
-
-
-
-
-
 'SCRIPT----------------------------------------------------------------------------------------------------
 EMConnect ""
+testing_run = TRUE
 'call check_for_MMIS(True) 'Sending MMIS back to the beginning screen and checking for a password prompt
 Call MMIS_case_number_finder(MMIS_case_number)
 
@@ -284,66 +279,79 @@ If MMIS_case_number = "" Then
     MMIS_case_number= trim(MMIS_case_number)
 End If
 
-enrollment_month = CM_plus_1_mo
-enrollment_year = CM_plus_1_yr
+open_enrollment_case = FALSE
+If Month(date) = 10 OR Month(date) = 12 OR Month(date) = 11 Then
+	ask_if_open_enrollment = MsgBox("Are you processing an Open Enrollment?", vbQuestion + vbYesNo, "Open Enrollment?")
+	If ask_if_open_enrollment = vbYes Then
+		enrollment_month = "01"
+		enrollment_year = "21"
+		open_enrollment_case = TRUE
+		case_open_enrollment_yn = "Yes"
+	End If
+End If
 
-this_month = monthname(month(date))
-Select Case this_month
-    Case "January"
-        cut_off_date = #01/22/2020#
-    Case "February"
-        cut_off_date = #2/19/2020#
-    Case "March"
-        cut_off_date = #3/20/2020#
-    Case "April"
-        cut_off_date = #4/21/2020#
-    Case "May"
-        cut_off_date = #5/19/2020#
-    Case "June"
-        cut_off_date = #6/19/2020#
-    Case "July"
-        cut_off_date = #7/22/2020#
-    Case "August"
-        cut_off_date = #8/20/2020#
-    Case "September"
-        cut_off_date = #9/21/2020#
-    Case "October"
-        cut_off_date = #10/21/2020#
-    Case "November"
-        cut_off_date = #11/17/2020#
-    Case "December"
-        cut_off_date = #12/21/2020#
-End Select
-'MsgBox cut_off_date
-If cut_off_date <> "" Then
-    If DateDiff("d", date, cut_off_date) < 0 Then
-        'MsgBox DateDiff("d", date, cut_off_date)
-        enrollment_month = CM_plus_2_mo
-        enrollment_year = CM_plus_2_yr
-    End If
+IF open_enrollment_case = FALSE Then
+	enrollment_month = CM_plus_1_mo
+	enrollment_year = CM_plus_1_yr
+
+	this_month = monthname(month(date))
+	Select Case this_month
+	    Case "January"
+	        cut_off_date = #01/22/2020#
+	    Case "February"
+	        cut_off_date = #2/19/2020#
+	    Case "March"
+	        cut_off_date = #3/20/2020#
+	    Case "April"
+	        cut_off_date = #4/21/2020#
+	    Case "May"
+	        cut_off_date = #5/19/2020#
+	    Case "June"
+	        cut_off_date = #6/19/2020#
+	    Case "July"
+	        cut_off_date = #7/22/2020#
+	    Case "August"
+	        cut_off_date = #8/20/2020#
+	    Case "September"
+	        cut_off_date = #9/21/2020#
+	    Case "October"
+	        cut_off_date = #10/21/2020#
+	    Case "November"
+	        cut_off_date = #11/17/2020#
+	    Case "December"
+	        cut_off_date = #12/21/2020#
+	End Select
+	'MsgBox cut_off_date
+	If cut_off_date <> "" Then
+	    If DateDiff("d", date, cut_off_date) < 0 Then
+	        'MsgBox DateDiff("d", date, cut_off_date)
+	        enrollment_month = CM_plus_2_mo
+	        enrollment_year = CM_plus_2_yr
+	    End If
+	End If
 End If
 
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 161, 170, "Enrollment Information"
+BeginDialog Dialog1, 0, 0, 206, 180, "Enrollment Information"
   EditBox 90, 25, 60, 15, MMIS_case_number
-  EditBox 90, 45, 25, 15, enrollment_month
-  EditBox 115, 45, 25, 15, enrollment_year
+  EditBox 90, 45, 20, 15, enrollment_month
+  EditBox 115, 45, 20, 15, enrollment_year
   DropListBox 55, 75, 95, 15, "Select one..."+chr(9)+"Blue Plus"+chr(9)+"Health Partners"+chr(9)+"Hennepin Health PMAP"+chr(9)+"Medica"+chr(9)+"Ucare", Health_plan
   CheckBox 120, 95, 25, 10, "Yes", Insurance_yes
   CheckBox 120, 105, 25, 10, "Yes", foster_care_yes
-  DropListBox 60, 130, 90, 45, "Select One..."+chr(9)+"Phone"+chr(9)+"Paper Enrollment Form"+chr(9)+"Morning Letters", enrollment_source
+  DropListBox 110, 120, 90, 45, "Select One..."+chr(9)+"Phone"+chr(9)+"Paper Enrollment Form"+chr(9)+"Morning Letters", enrollment_source
+  DropListBox 110, 140, 50, 45, "No"+chr(9)+"Yes", case_open_enrollment_yn
   ButtonGroup ButtonPressed
-    OkButton 50, 150, 50, 15
-    CancelButton 105, 150, 50, 15
+    OkButton 95, 160, 50, 15
+    CancelButton 150, 160, 50, 15
   GroupBox 5, 10, 150, 55, "Leading zeros not needed"
   Text 10, 30, 50, 10, "Case Number:"
   Text 10, 50, 80, 10, "Enrollment Month/Year:"
   Text 10, 80, 40, 10, "Health plan:"
   Text 10, 95, 100, 10, "Other Insurance for this case?"
   Text 10, 105, 50, 10, "Foster Care?"
-  Text 10, 120, 100, 10, "Enrollment was requested via"
-  ButtonGroup ButtonPressed
-    OkButton 155, 330, 50, 15
+  Text 10, 125, 100, 10, "Enrollment was requested via"
+  Text 20, 145, 85, 10, "Is this Open Enrollment?"
 EndDialog
 
 'do the dialog here
@@ -356,12 +364,20 @@ Do
     MMIS_case_number = trim(MMIS_case_number)
 
     If MMIS_case_number = "" then err_msg = err_msg & vbNewLine & "* Enter the case number."
-    If enrollment_month = "" OR enrollment_year = "" Then err_msg = err_msg & vbNewLine & "* Enter the month and year enrollment is effective."
-    If enrollment_source = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate where the request for the enrollment came from (phone call or enrollment form)."
+	If enrollment_source = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate where the request for the enrollment came from (phone call or enrollment form)."
+	If case_open_enrollment_yn = "Yes" Then
+		enrollment_month = "01"
+		enrollment_year = "21"
+		open_enrollment_case = TRUE
+	Else
+		If enrollment_month = "" OR enrollment_year = "" Then err_msg = err_msg & vbNewLine & "* Enter the month and year enrollment is effective."
+	End If
     If health_plan = "Select one..." then err_msg = err_msg & vbNewLine & "* You must select a health plan."
 
     If err_msg <> "" Then MsgBOx "Please resolve to continue: " & vbNewLine & err_msg
 Loop until err_msg = ""
+If case_open_enrollment_yn = "No" Then open_enrollment_case = FALSE
+If open_enrollment_case = TRUE then testing_run = TRUE
 MAXIS_case_number = MMIS_case_number
 
 If Insurance_yes = checked then
@@ -378,19 +394,7 @@ End if
 
 'checking for an active MMIS session
 Call check_for_MMIS(True)
-EMReadScreen MMIS_panel_check, 4, 1, 52	'checking to see if user is on the RKEY panel in MMIS. If not, then it will go to there.
-IF MMIS_panel_check <> "RKEY" THEN
-	DO
-		PF6
-		EMReadScreen session_terminated_check, 18, 1, 7
-	LOOP until session_terminated_check = "SESSION TERMINATED"
-	'Getting back in to MMIS and transmitting past the warning screen (workers should already have accepted the warning screen when they logged themselves into MMIS the first time!)
-	EMWriteScreen "mw00", 1, 2
-	transmit
-	transmit
-	EMWriteScreen "x", 8, 3
-	transmit
-END IF
+Call get_to_RKEY
 
 'formatting variables----------------------------------------------------------------------------------------------------
 If len(enrollment_month) = 1 THEN enrollment_month = "0" & enrollment_month
@@ -510,19 +514,7 @@ ReDim MMIS_clients_array (12, 0)
 
 EMReadScreen RCIN_check, 4, 1, 49
 If RCIN_check = "RCIN" Then PF6
-EMReadScreen MMIS_panel_check, 4, 1, 52	'checking to see if user is on the RKEY panel in MMIS. If not, then it will go to there.
-IF MMIS_panel_check <> "RKEY" THEN
-	DO
-		PF6
-		EMReadScreen session_terminated_check, 18, 1, 7
-	LOOP until session_terminated_check = "SESSION TERMINATED"
-	'Getting back in to MMIS and transmitting past the warning screen (workers should already have accepted the warning screen when they logged themselves into MMIS the first time!)
-	EMWriteScreen "mw00", 1, 2
-	transmit
-	transmit
-	EMWriteScreen "x", 8, 3
-	transmit
-END IF
+Call get_to_RKEY
 
 item = 0
 
@@ -638,6 +630,9 @@ dlg_len = 60
 If enrollment_source = "Phone" Then
     dlg_len = dlg_len + 20
 End If
+If enrollment_source = "Paper Enrollment Form" Then
+	dlg_len = dlg_len + 15
+End If
 
 name_list = ""
 For person = 0 to Ubound(MMIS_clients_array, 2)
@@ -662,6 +657,10 @@ BeginDialog Dialog1, 0, 0, 750, dlg_len, "Enrollment Information"
   For person = 0 to Ubound(MMIS_clients_array, 2)
     If enrollment_source = "Morning Letters" Then MMIS_clients_array(change_rsn, person) = "Reenrollment"
     If MMIS_clients_array(new_plan, person) = "Medica" Then MMIS_clients_array(contr_code, person) = "MA 30"
+	If open_enrollment_case = TRUE Then
+		MMIS_clients_array(change_rsn, person) = "Open enrollment"
+		MMIS_clients_array(disenrol_rsn, person) = "Open Enrollment"
+	End If
   	Text 5, (x * 20) + 25, 95, 10, MMIS_clients_array(client_name, person)
   	Text 100, (x * 20) + 25, 35, 10, MMIS_clients_array(client_pmi, person)
   	Text 145, (x * 20) + 25, 95, 10, MMIS_clients_array(current_plan, person)
@@ -688,13 +687,17 @@ BeginDialog Dialog1, 0, 0, 750, dlg_len, "Enrollment Information"
       CheckBox 340, (x * 20) + 55, 65, 10, "Used Interpreter", used_interpreter_checkbox
       x = x + 1
   End If
+  If enrollment_source = "Paper Enrollment Form" Then
+	  GroupBox 5, (x * 20) + 40, 180, 30, "Paper Form Information"
+	  Text 10, (x * 20) + 55, 80, 10, "Form Received Date:"
+	  EditBox 95, (x * 20) + 50, 80, 15, form_received_date
+  End If
 
-
-  Text 445, (x * 20) + 45, 60, 10, "Worker Signature"
-  EditBox 510, (x * 20) + 40, 110, 15, worker_signature
+  Text 445, dlg_len - 15, 60, 10, "Worker Signature"
+  EditBox 510, dlg_len - 20, 110, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 640, (x * 20) + 40, 50, 15
-    CancelButton 695, (x * 20) + 40, 50, 15
+    OkButton 640, dlg_len - 20, 50, 15
+    CancelButton 695, dlg_len - 20, 50, 15
 EndDialog
 
 Do
@@ -720,6 +723,7 @@ Do
     If worker_signature = "" THen err_msg = err_msg & vbNewLine & "* Enter your name for the case note signature."
 
     If err_msg <> "" THen MsgBox "Please resovle to continue:" & vbNewLine & err_msg
+	If ButtonPressed = 0 Then err_msg = "LOOP"
 
 Loop Until err_msg = ""
 
@@ -1387,14 +1391,19 @@ pf4
 pf11		'Starts a new case note'
 
 ' CALL write_variable_in_MMIS_NOTE ("***Hennepin MHC note*** Household enrollment updated for " & Enrollment_date & " per enrollment form")
-If enrollment_source = "Morning Letters" Then
-    CALL write_variable_in_MMIS_NOTE ("Re-enrollment processed effective: " & enrollment_date)
-    CALL write_variable_in_MMIS_NOTE ("Following clients had PMAP under duplicate PMI(s) in the last 12 months:")
+If open_enrollment_case = TRUE Then
+	CALL write_variable_in_MMIS_NOTE ("AHPS request processed for 2020 selection")
 Else
-    CALL write_variable_in_MMIS_NOTE ("Enrollment effective: " & enrollment_date & " requested by " & caller_rela & " via " & enrollment_source)
+	If enrollment_source = "Morning Letters" Then
+	    CALL write_variable_in_MMIS_NOTE ("Re-enrollment processed effective: " & enrollment_date)
+	    CALL write_variable_in_MMIS_NOTE ("Following clients had PMAP under duplicate PMI(s) in the last 12 months:")
+	Else
+	    CALL write_variable_in_MMIS_NOTE ("Enrollment effective: " & enrollment_date & " requested by " & caller_rela & " via " & enrollment_source)
+	End If
 End If
 If enrollment_source = "Phone" Then CALL write_variable_in_MMIS_NOTE("Call completed " & now & " with " & caller_name)
 If used_interpreter_checkbox = checked then CALL write_variable_in_MMIS_NOTE("Interpreter used for phone call.")
+If trim(form_received_date) <> "" Then CALL write_variable_in_MMIS_NOTE("Enrollment requested via Form received on " & form_received_date & ".")
 For member = 0 to Ubound(MMIS_clients_array, 2)
 	If MMIS_clients_array(enrol_sucs, member) = TRUE Then
         If enrollment_source = "Morning Letters" Then
