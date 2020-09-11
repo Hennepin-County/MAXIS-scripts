@@ -2061,952 +2061,6 @@ function create_array_of_all_panels(Array_Name)
     If check_for_end_two = "WRAP" Then transmit
 end function
 
-function get_county_name_from_county_code(county_code, county_name, include_county_code)
-    If county_code = "01" Then county_name = "Aitkin"
-    If county_code = "02" Then county_name = "Anoka"
-    If county_code = "03" Then county_name = "Becker"
-    If county_code = "04" Then county_name = "Beltrami"
-    If county_code = "05" Then county_name = "Benton"
-    If county_code = "06" Then county_name = "Big Stone"
-    If county_code = "07" Then county_name = "Blue Earth"
-    If county_code = "08" Then county_name = "Brown"
-    If county_code = "09" Then county_name = "Carlton"
-    If county_code = "10" Then county_name = "Carver"
-    If county_code = "11" Then county_name = "Cass"
-    If county_code = "12" Then county_name = "Chippewa"
-    If county_code = "13" Then county_name = "Chisago"
-    If county_code = "14" Then county_name = "Clay"
-    If county_code = "15" Then county_name = "Clearwater"
-    If county_code = "16" Then county_name = "Cook"
-    If county_code = "17" Then county_name = "Cottonwood"
-    If county_code = "18" Then county_name = "Crow Wing"
-    If county_code = "19" Then county_name = "Dakota"
-    If county_code = "20" Then county_name = "Dodge"
-    If county_code = "21" Then county_name = "Douglas"
-    If county_code = "22" Then county_name = "Faribault"
-    If county_code = "23" Then county_name = "Fillmore"
-    If county_code = "24" Then county_name = "Freeborn"
-    If county_code = "25" Then county_name = "Goodhue"
-    If county_code = "26" Then county_name = "Grant"
-    If county_code = "27" Then county_name = "Hennepin"
-    If county_code = "28" Then county_name = "Houston"
-    If county_code = "29" Then county_name = "Hubbard"
-    If county_code = "30" Then county_name = "Isanti"
-    If county_code = "31" Then county_name = "Itasca"
-    If county_code = "32" Then county_name = "Jackson"
-    If county_code = "33" Then county_name = "Kanabec"
-    If county_code = "34" Then county_name = "Kandiyohi"
-    If county_code = "35" Then county_name = "Kittson"
-    If county_code = "36" Then county_name = "Koochiching"
-    If county_code = "37" Then county_name = "Lac Qui Parle"
-    If county_code = "38" Then county_name = "Lake"
-    If county_code = "39" Then county_name = "Lake Of Woods"
-    If county_code = "40" Then county_name = "Le Sueur"
-    If county_code = "41" Then county_name = "Lincoln"
-    If county_code = "42" Then county_name = "Lyon"
-    If county_code = "43" Then county_name = "Mcleod"
-    If county_code = "44" Then county_name = "Mahnomen"
-    If county_code = "45" Then county_name = "Marshall"
-    If county_code = "46" Then county_name = "Martin"
-    If county_code = "47" Then county_name = "Meeker"
-    If county_code = "48" Then county_name = "Mille Lacs"
-    If county_code = "49" Then county_name = "Morrison"
-    If county_code = "50" Then county_name = "Mower"
-    If county_code = "51" Then county_name = "Murray"
-    If county_code = "52" Then county_name = "Nicollet"
-    If county_code = "53" Then county_name = "Nobles"
-    If county_code = "54" Then county_name = "Norman"
-    If county_code = "55" Then county_name = "Olmsted"
-    If county_code = "56" Then county_name = "Otter Tail"
-    If county_code = "57" Then county_name = "Pennington"
-    If county_code = "58" Then county_name = "Pine"
-    If county_code = "59" Then county_name = "Pipestone"
-    If county_code = "60" Then county_name = "Polk"
-    If county_code = "61" Then county_name = "Pope"
-    If county_code = "62" Then county_name = "Ramsey"
-    If county_code = "63" Then county_name = "Red Lake"
-    If county_code = "64" Then county_name = "Redwood"
-    If county_code = "65" Then county_name = "Renville"
-    If county_code = "66" Then county_name = "Rice"
-    If county_code = "67" Then county_name = "Rock"
-    If county_code = "68" Then county_name = "Roseau"
-    If county_code = "69" Then county_name = "St. Louis"
-    If county_code = "70" Then county_name = "Scott"
-    If county_code = "71" Then county_name = "Sherburne"
-    If county_code = "72" Then county_name = "Sibley"
-    If county_code = "73" Then county_name = "Stearns"
-    If county_code = "74" Then county_name = "Steele"
-    If county_code = "75" Then county_name = "Stevens"
-    If county_code = "76" Then county_name = "Swift"
-    If county_code = "77" Then county_name = "Todd"
-    If county_code = "78" Then county_name = "Traverse"
-    If county_code = "79" Then county_name = "Wabasha"
-    If county_code = "80" Then county_name = "Wadena"
-    If county_code = "81" Then county_name = "Waseca"
-    If county_code = "82" Then county_name = "Washington"
-    If county_code = "83" Then county_name = "Watonwan"
-    If county_code = "84" Then county_name = "Wilkin"
-    If county_code = "85" Then county_name = "Winona"
-    If county_code = "86" Then county_name = "Wright"
-    If county_code = "87" Then county_name = "Yellow Medicine"
-    If county_code = "89" Then county_name = "Out-of-State"
-
-    If include_county_code = TRUE Then county_name = county_code & " " & county_name
-end function
-
-function get_state_name_from_state_code(state_code, state_name, include_state_code)
-    If state_code = "NB" Then state_name = "MN Newborn"
-    If state_code = "FC" Then state_name = "Foreign Country"
-    If state_code = "UN" Then state_name = "Unknown"
-    If state_code = "AL" Then state_name = "Alabama"
-    If state_code = "AK" Then state_name = "Alaska"
-    If state_code = "AZ" Then state_name = "Arizona"
-    If state_code = "AR" Then state_name = "Arkansas"
-    If state_code = "CA" Then state_name = "California"
-    If state_code = "CO" Then state_name = "Colorado"
-    If state_code = "CT" Then state_name = "Connecticut"
-    If state_code = "DE" Then state_name = "Delaware"
-    If state_code = "DC" Then state_name = "District Of Columbia"
-    If state_code = "FL" Then state_name = "Florida"
-    If state_code = "GA" Then state_name = "Georgia"
-    If state_code = "HI" Then state_name = "Hawaii"
-    If state_code = "ID" Then state_name = "Idaho"
-    If state_code = "IL" Then state_name = "Illnois"
-    If state_code = "IN" Then state_name = "Indiana"
-    If state_code = "IA" Then state_name = "Iowa"
-    If state_code = "KS" Then state_name = "Kansas"
-    If state_code = "KY" Then state_name = "Kentucky"
-    If state_code = "LA" Then state_name = "Louisiana"
-    If state_code = "ME" Then state_name = "Maine"
-    If state_code = "MD" Then state_name = "Maryland"
-    If state_code = "MA" Then state_name = "Massachusetts"
-    If state_code = "MI" Then state_name = "Michigan"
-    If state_code = "MS" Then state_name = "Mississippi"
-    If state_code = "MO" Then state_name = "Missouri"
-    If state_code = "MT" Then state_name = "Montana"
-    If state_code = "NE" Then state_name = "Nebraska"
-    If state_code = "NV" Then state_name = "Nevada"
-    If state_code = "NH" Then state_name = "New Hampshire"
-    If state_code = "NJ" Then state_name = "New Jersey"
-    If state_code = "NM" Then state_name = "New Mexico"
-    If state_code = "NY" Then state_name = "New York"
-    If state_code = "NC" Then state_name = "North Carolina"
-    If state_code = "ND" Then state_name = "North Dakota"
-    If state_code = "OH" Then state_name = "Ohio"
-    If state_code = "OK" Then state_name = "Oklahoma"
-    If state_code = "OR" Then state_name = "Oregon"
-    If state_code = "PA" Then state_name = "Pennsylvania"
-    If state_code = "RI" Then state_name = "Rhode Island"
-    If state_code = "SC" Then state_name = "South Carolina"
-    If state_code = "SD" Then state_name = "South Dakota"
-    If state_code = "TN" Then state_name = "Tennessee"
-    If state_code = "TX" Then state_name = "Texas"
-    If state_code = "UT" Then state_name = "Utah"
-    If state_code = "VT" Then state_name = "Vermont"
-    If state_code = "VA" Then state_name = "Virginia"
-    If state_code = "WA" Then state_name = "Washington"
-    If state_code = "WV" Then state_name = "West Virginia"
-    If state_code = "WI" Then state_name = "Wisconsin"
-    If state_code = "WY" Then state_name = "Wyoming"
-    If state_code = "PR" Then state_name = "Puerto Rico"
-    If state_code = "VI" Then state_name = "Virgin Islands"
-
-    If include_state_code = TRUE Then state_name = state_code & " " & state_name
-end function
-
-function get_state_code_from_state_name(state_name, state_code)
-    If state_name = "Alabama"           Then state_code = "AL"
-    If state_name = "Alaska"            Then state_code = "AK"
-    If state_name = "Arizona"           Then state_code = "AZ"
-    If state_name = "Arkansas"          Then state_code = "AR"
-    If state_name = "California"        Then state_code = "CA"
-    If state_name = "Colorado"          Then state_code = "CO"
-    If state_name = "Connecticut"       Then state_code = "CT"
-    If state_name = "Delaware"          Then state_code = "DE"
-    If state_name = "Florida"           Then state_code = "FL"
-    If state_name = "Georgia"           Then state_code = "GA"
-    If state_name = "Hawaii"            Then state_code = "HI"
-    If state_name = "Idaho"             Then state_code = "ID"
-    If state_name = "Illinois"          Then state_code = "IL"
-    If state_name = "Indiana"           Then state_code = "IN"
-    If state_name = "Iowa"              Then state_code = "IA"
-    If state_name = "Kansas"            Then state_code = "KS"
-    If state_name = "Kentucky"          Then state_code = "KY"
-    If state_name = "Louisiana"         Then state_code = "LA"
-    If state_name = "Maine"             Then state_code = "ME"
-    If state_name = "Maryland"          Then state_code = "MD"
-    If state_name = "Massachusetts"     Then state_code = "MA"
-    If state_name = "Michigan"          Then state_code = "MI"
-    If state_name = "Mississippi"       Then state_code = "MS"
-    If state_name = "Missouri"          Then state_code = "MO"
-    If state_name = "Montana"           Then state_code = "MT"
-    If state_name = "Nebraska"          Then state_code = "NE"
-    If state_name = "Nevada"            Then state_code = "NV"
-    If state_name = "New Hampshire"     Then state_code = "NH"
-    If state_name = "New Jersey"        Then state_code = "NJ"
-    If state_name = "New Mexico"        Then state_code = "NM"
-    If state_name = "New York"          Then state_code = "NY"
-    If state_name = "North Carolina"    Then state_code = "NC"
-    If state_name = "North Dakota"      Then state_code = "ND"
-    If state_name = "Ohio"              Then state_code = "OH"
-    If state_name = "Oklahoma"          Then state_code = "OK"
-    If state_name = "Oregon"            Then state_code = "OR"
-    If state_name = "Pennsylvania"      Then state_code = "PA"
-    If state_name = "Rhode Island"      Then state_code = "RI"
-    If state_name = "South Carolina"    Then state_code = "SC"
-    If state_name = "South Dakota"      Then state_code = "SD"
-    If state_name = "Tennessee"         Then state_code = "TN"
-    If state_name = "Texas"             Then state_code = "TX"
-    If state_name = "Utah"              Then state_code = "UT"
-    If state_name = "Vermont"           Then state_code = "VT"
-    If state_name = "Virginia"          Then state_code = "VA"
-    If state_name = "Washington"        Then state_code = "WA"
-    If state_name = "West Virginia"     Then state_code = "WV"
-    If state_name = "Wisconsin"         Then state_code = "WI"
-    If state_name = "Wyoming"           Then state_code = "WY"
-end function
-
-
-function validate_footer_month_entry(footer_month, footer_year, err_msg_var, bullet_char)
-    If IsNumeric(footer_month) = FALSE Then
-        err_msg_var = err_msg_var & vbNewLine & bullet_char & " The footer month should be a number, review and reenter the footer month information."
-    Else
-        footer_month = footer_month * 1
-        If footer_month > 12 OR footer_month < 1 Then err_msg_var = err_msg_var & vbNewLine & bullet_char & " The footer month should be between 1 and 12. Review and reenter the footer month information."
-        footer_month = right("00" & footer_month, 2)
-    End If
-
-    If len(footer_year) < 2 Then
-        err_msg_var = err_msg_var & vbNewLine & bullet_char & " The footer year should be at least 2 characters long, review and reenter the footer year information."
-    Else
-        If IsNumeric(footer_year) = FALSE Then
-            err_msg_var = err_msg_var & vbNewLine & bullet_char & " The footer year should be a number, review and reenter the footer year information."
-        Else
-            footer_year = right("00" & footer_year, 2)
-        End If
-    End If
-end function
-'===========================================================================================================================
-'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
-MAXIS_footer_month = CM_plus_1_mo
-MAXIS_footer_year = CM_plus_1_yr
-
-'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-Dim MAXIS_footer_month, MAXIS_footer_year, snap_active_count, hc_active_count, grh_active_count, snap_sr_yn, snap_sr_mo, snap_sr_yr, hc_sr_yn, hc_sr_mo, hc_sr_yr, grh_sr_yn, grh_sr_mo, grh_sr_yr, client_on_csr_form
-Dim residence_address_match_yn, mailing_address_match_yn, homeless_status, grh_sr, hc_sr, snap_sr, notes_on_address, resi_line_one, resi_line_two, resi_city, resi_state, resi_zip, resi_county, new_mail_zip
-Dim quest_two_move_in_out, new_hh_memb_not_in_mx_yn, apply_for_ma, q_4_details_blank_checkbox, ma_self_employed, q_5_details_blank_checkbox, ma_start_working, q_6_details_blank_checkbox, ma_other_income
-Dim q_7_details_blank_checkbox, ma_liquid_assets, q_9_details_blank_checkbox, ma_security_assets, q_10_details_blank_checkbox, ma_vehicle, q_11_details_blank_checkbox, ma_real_assets, q_12_details_blank_checkbox
-Dim ma_other_changes, other_changes_reported, changes_reported_blank_checkbox, quest_fifteen_form_answer, new_rent_or_mortgage_amount, heat_ac_checkbox, electricity_checkbox, telephone_checkbox, shel_proof_provided
-Dim quest_sixteen_form_answer, q_16_details_blank_checkbox, quest_seventeen_form_answer, q_17_details_blank_checkbox, quest_eighteen_form_answer, q_18_details_blank_checkbox, quest_nineteen_form_answer, csr_form_date
-Dim addr_verif, addr_homeless, addr_reservation, living_situation_status, mail_line_one, mail_line_two, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, new_mail_one, new_mail_city, new_mail_state
-Dim client_signed_yn, client_dated_yn, confirm_csr_form_information, notes_on_faci, notes_on_wreg, new_addr_effective_date, new_resi_one, new_resi_city, new_resi_state, new_resi_zip, new_resi_county, new_shel_verif
-Dim new_resi_addr_entered, new_mail_addr_entered
-
-HH_memb_row = 5
-Dim row
-Dim col
-
-Const owner_name                = 00
-Const category_const            = 01
-Const type_const                = 02
-Const name_const                = 03
-Const amount_const              = 04
-Const start_date_const          = 05
-Const end_date_const            = 06
-Const verif_const               = 07
-Const pay_amt_const             = 08
-Const hours_const               = 09
-Const update_date_const         = 10
-Const seasonal_yn               = 11
-Const frequency_const           = 12
-Const make_const                = 13
-Const model_const               = 14
-Const year_const                = 15
-Const make_model_yr             = 16
-Const address_const             = 17
-Const cash_amt_const            = 18        'cash panel
-Const cash_verif_const          = 19
-Const snap_amt_const            = 20
-Const snap_verif_const          = 21
-Const hc_amt_const              = 22
-Const hc_verif_const            = 23
-Const busi_cash_net_prosp       = 24        'busi panel
-Const busi_cash_net_retro       = 25
-Const busi_cash_gross_retro     = 26
-Const busi_cash_expense_retro   = 27
-Const busi_cash_gross_prosp     = 28
-Const busi_cash_expense_prosp   = 29
-Const busi_cash_income_verif    = 30
-Const busi_cash_expense_verif   = 31
-Const busi_snap_net_prosp       = 32
-Const busi_snap_net_retro       = 33
-Const busi_snap_gross_retro     = 34
-Const busi_snap_expense_retro   = 35
-Const busi_snap_gross_prosp     = 36
-Const busi_snap_expense_prosp   = 37
-Const busi_snap_income_verif    = 38
-Const busi_snap_expense_verif   = 39
-Const busi_hc_a_net_prosp       = 40
-Const busi_hc_a_gross_prosp     = 41
-Const busi_hc_a_expense_prosp   = 42
-Const busi_hc_a_income_verif    = 43
-Const busi_hc_a_expense_verif   = 44
-Const busi_hc_b_net_prosp       = 45
-Const busi_hc_b_gross_prosp     = 46
-Const busi_hc_b_expense_prosp   = 47
-Const busi_hc_b_income_verif    = 48
-Const busi_hc_b_expense_verif   = 49
-Const busi_se_method            = 50
-Const busi_se_method_date       = 51
-Const rptd_hours_const          = 52
-Const min_wg_hours_const        = 53
-Const claim_nbr_const           = 54        'unea panel
-Const cola_disregard_amt        = 55
-Const id_number_const           = 56
-Const panel_instance            = 57
-Const owner_ref_const           = 58
-Const verif_checkbox_const      = 59
-Const verif_time_const          = 60
-Const verif_added_const         = 61
-Const item_notes_const          = 62
-Const balance_date_const        = 63
-Const withdraw_penalty_const    = 64
-Const withdraw_yn_const         = 65
-Const withdraw_verif_const      = 66
-Const count_cash_const          = 67
-Const count_snap_const          = 68
-Const count_hc_const            = 69
-Const count_grh_const           = 70
-Const count_ive_const           = 71
-Const joint_own_const           = 72
-Const share_ratio_const         = 73
-Const next_interst_const        = 74
-Const face_value_const          = 75
-Const trade_in_const            = 76
-Const loan_const                = 77
-Const source_const              = 78
-Const owed_amt_const            = 79
-Const owed_verif_const          = 80
-Const owed_date_const           = 81
-Const cars_use_const            = 82
-Const hc_benefit_const          = 83
-Const market_value_const        = 84
-Const value_verif_const         = 85
-Const rest_prop_status_const    = 86
-Const rest_repymt_date_const    = 87
-
-Const jobs_hrly_wage            = 88
-Const retro_income_amount       = 89
-Const retro_income_hours        = 90
-Const snap_pic_frequency        = 91
-Const snap_pic_hours_per_pay    = 92
-Const snap_pic_income_per_pay   = 93
-Const snap_pic_monthly_income   = 94
-Const grh_pic_frequency         = 95
-Const grh_pic_income_per_pay    = 96
-Const grh_pic_monthly_income    = 97
-Const jobs_subsidy              = 98
-
-Const new_checkbox              = 99
-Const update_checkbox           = 100
-
-Const faci_ref_numb                 = 00
-Const faci_instance                 = 01
-Const faci_member                   = 02
-Const faci_name                     = 03
-Const faci_vendor_number            = 04
-Const faci_type                     = 05
-Const faci_FS_elig                  = 06
-Const faci_FS_type                  = 07
-Const faci_waiver_type              = 08
-Const faci_ltc_inelig_reason        = 09
-Const faci_inelig_begin_date        = 10
-Const faci_inelig_end_date          = 11
-Const faci_anticipated_out_date     = 12
-Const faci_GRH_plan_required        = 13
-Const faci_GRH_plan_verif           = 14
-Const faci_cty_app_place            = 15
-Const faci_approval_cty_name        = 16
-Const faci_GRH_DOC_amount           = 17
-Const faci_GRH_postpay              = 18
-Const faci_stay_one_rate            = 19
-Const faci_stay_one_date_in         = 20
-Const faci_stay_one_date_out        = 21
-Const faci_stay_two_rate            = 22
-Const faci_stay_two_date_in         = 23
-Const faci_stay_two_date_out        = 24
-Const faci_stay_three_rate          = 25
-Const faci_stay_three_date_in       = 26
-Const faci_stay_three_date_out      = 27
-Const faci_stay_four_rate           = 28
-Const faci_stay_four_date_in        = 29
-Const faci_stay_four_date_out       = 30
-Const faci_stay_five_rate           = 31
-Const faci_stay_five_date_in        = 32
-Const faci_stay_five_date_out       = 33
-Const faci_verif_checkbox           = 34
-Const faci_verif_added              = 35
-Const faci_notes                    = 36
-
-Dim ALL_INCOME_ARRAY()
-ReDim ALL_INCOME_ARRAY(update_checkbox, 0)
-
-Dim ALL_ASSETS_ARRAY()
-ReDim ALL_ASSETS_ARRAY(update_checkbox, 0)
-
-Dim FACILITIES_ARRAY()
-ReDim FACILITIES_ARRAY(faci_notes, 0)
-
-const memb_ref_numb                 = 00
-const memb_last_name                = 01
-const memb_first_name               = 02
-const memb_age                      = 03
-const memb_remo_checkbox            = 04
-const memb_new_checkbox             = 05
-const clt_grh_status                = 06
-const clt_hc_status                 = 07
-const clt_snap_status               = 08
-const memb_id_verif                 = 09
-const memb_soc_sec_numb             = 10
-const memb_ssn_verif                = 11
-const memb_dob                      = 12
-const memb_dob_verif                = 13
-const memb_gender                   = 14
-const memb_rel_to_applct            = 15
-const memb_spoken_language          = 16
-const memb_written_language         = 17
-const memb_interpreter              = 18
-const memb_alias                    = 19
-const memb_ethnicity                = 20
-const memb_race                     = 21
-const memi_marriage_status          = 22
-const memi_spouse_ref               = 23
-const memi_spouse_name              = 24
-const memi_designated_spouse        = 25
-const memi_marriage_date            = 26
-const memi_marriage_verif           = 27
-const memi_citizen                  = 28
-const memi_citizen_verif            = 29
-const memi_last_grade               = 30
-const memi_in_MN_less_12_mo         = 31
-const memi_resi_verif               = 32
-const memi_MN_entry_date            = 33
-const memi_former_state             = 34
-const memi_other_FS_end             = 35
-const wreg_pwe                      = 36
-const wreg_status                   = 37
-const wreg_defer_fset               = 38
-const wreg_fset_orient_date         = 39
-const wreg_sanc_begin_date          = 40
-const wreg_sanc_count               = 41
-const wreg_sanc_reasons             = 42
-const wreg_abawd_status             = 43
-const wreg_banekd_months            = 44
-const wreg_GA_basis                 = 45
-const wreg_GA_coop                  = 46
-const wreg_numb_ABAWD_months        = 47
-const wreg_ABAWD_months_list        = 48
-const wreg_numb_second_set_months   = 49
-const wreg_second_set_months_list   = 50
-Const wreg_notes                    = 51
-
-const shel_hud_sub_yn               = 52
-const shel_shared_yn                = 53
-const shel_paid_to                  = 54
-const shel_rent_retro_amt           = 55
-const shel_rent_retro_verif         = 56
-const shel_rent_prosp_amt           = 57
-const shel_rent_prosp_verif         = 58
-const shel_lot_rent_retro_amt       = 59
-const shel_lot_rent_retro_verif     = 60
-const shel_lot_rent_prosp_amt       = 61
-const shel_lot_rent_prosp_verif     = 62
-const shel_mortgage_retro_amt       = 63
-const shel_mortgage_retro_verif     = 64
-const shel_mortgage_prosp_amt       = 65
-const shel_mortgage_prosp_verif     = 66
-const shel_insurance_retro_amt      = 67
-const shel_insurance_retro_verif    = 68
-const shel_insurance_prosp_amt      = 69
-const shel_insurance_prosp_verif    = 70
-const shel_tax_retro_amt            = 71
-const shel_tax_retro_verif          = 72
-const shel_tax_prosp_amt            = 73
-const shel_tax_prosp_verif          = 74
-const shel_room_retro_amt           = 75
-const shel_room_retro_verif         = 76
-const shel_room_prosp_amt           = 77
-const shel_room_prosp_verif         = 78
-const shel_garage_retro_amt         = 79
-const shel_garage_retro_verif       = 80
-const shel_garage_prosp_amt         = 81
-const shel_garage_prosp_verif       = 82
-const shel_subsidy_retro_amt        = 83
-const shel_subsidy_retro_verif      = 84
-const shel_subsidy_prosp_amt        = 85
-const shel_subsidy_prosp_verif      = 86
-const shel_notes                    = 87
-const shel_verif_checkbox           = 88
-const shel_verif_added              = 89
-const shel_verif_time               = 90
-
-const memb_notes                    = 91
-
-const new_last_name         = 0
-const new_first_name        = 1
-const new_mid_initial       = 2
-const new_suffix            = 3
-const new_full_name         = 4
-const new_dob               = 5
-const new_rel_to_applicant  = 6
-const new_ma_request        = 7
-const new_fs_request        = 8
-const new_grh_request       = 9
-const new_memb_moved_in     = 10
-const new_memb_moved_out    = 11
-const new_memb_notes        = 12
-
-const ma_request_client     = 0
-const ma_request_notes      = 10
-
-Dim NEW_MA_REQUEST_ARRAY()
-ReDim NEW_MA_REQUEST_ARRAY(ma_request_notes, 0)
-
-
-const earned_client         = 0
-const earned_type           = 1
-const earned_source         = 2
-const earned_change_date    = 3
-const earned_amount         = 4
-const earned_freq           = 5
-const earned_hours          = 6
-const earned_prog_list      = 7
-const earned_start_date     = 8
-const earned_seasonal       = 9
-
-const earned_notes          = 11
-
-const unearned_client       = 0
-const unearned_type         = 1
-const unearned_source       = 2
-const unearned_change_date  = 3
-const unearned_amount       = 4
-const unearned_freq         = 5
-Const unearned_prog_list    = 6
-const unearned_start_date   = 7
-const unearned_notes        = 10
-
-const asset_client          = 0
-const asset_type            = 1
-const asset_acct_type       = 2
-const asset_bank_name       = 3
-const asset_year_make_model = 4
-const asset_address         = 5
-' const asset_
-' const asset_
-' const asset_
-' const asset_
-const asset_prog_list       = 9
-const asset_notes           = 10
-
-const cs_payer              = 0
-const cs_amount             = 1
-const cs_current            = 2
-const cs_notes              = 10
-
-
-Dim NEW_EARNED_ARRAY
-Dim NEW_UNEARNED_ARRAY
-Dim NEW_CHILD_SUPPORT_ARRAY
-Dim NEW_ASSET_ARRAY
-ReDim NEW_EARNED_ARRAY(earned_notes, 0)
-ReDim NEW_UNEARNED_ARRAY(unearned_notes, 0)
-ReDim NEW_CHILD_SUPPORT_ARRAY(cs_notes, 0)
-ReDim NEW_ASSET_ARRAY(asset_notes, 0)
-
-
-
-unea_type_list = "Type or Select"
-unea_type_list = unea_type_list+chr(9)+"01 - RSDI, Disa"
-unea_type_list = unea_type_list+chr(9)+"02 - RSDI, No Disa"
-unea_type_list = unea_type_list+chr(9)+"03 - SSI"
-unea_type_list = unea_type_list+chr(9)+"06 - Non-MN PA"
-unea_type_list = unea_type_list+chr(9)+"11 - VA Disability"
-unea_type_list = unea_type_list+chr(9)+"12 - VA Pension"
-unea_type_list = unea_type_list+chr(9)+"13 - VA Other"
-unea_type_list = unea_type_list+chr(9)+"38 - VA Aid & Attendance"
-unea_type_list = unea_type_list+chr(9)+"14 - Unemployment Insurance"
-unea_type_list = unea_type_list+chr(9)+"15 - Worker's Comp"
-unea_type_list = unea_type_list+chr(9)+"16 - Railroad Retirement"
-unea_type_list = unea_type_list+chr(9)+"17 - Other Retirement"
-unea_type_list = unea_type_list+chr(9)+"18 - Military Enrirlement"
-unea_type_list = unea_type_list+chr(9)+"19 - FC Child req FS"
-unea_type_list = unea_type_list+chr(9)+"20 - FC Child not req FS"
-unea_type_list = unea_type_list+chr(9)+"21 - FC Adult req FS"
-unea_type_list = unea_type_list+chr(9)+"22 - FC Adult not req FS"
-unea_type_list = unea_type_list+chr(9)+"23 - Dividends"
-unea_type_list = unea_type_list+chr(9)+"24 - Interest"
-unea_type_list = unea_type_list+chr(9)+"25 - Cnt gifts/prizes"
-unea_type_list = unea_type_list+chr(9)+"26 - Strike Benefits"
-unea_type_list = unea_type_list+chr(9)+"27 - Contract for Deed"
-unea_type_list = unea_type_list+chr(9)+"28 - Illegal Income"
-unea_type_list = unea_type_list+chr(9)+"29 - Other Countable"
-unea_type_list = unea_type_list+chr(9)+"30 - Infrequent"
-unea_type_list = unea_type_list+chr(9)+"31 - Other - FS Only"
-unea_type_list = unea_type_list+chr(9)+"08 - Direct Child Support"
-unea_type_list = unea_type_list+chr(9)+"35 - Direct Spousal Support"
-unea_type_list = unea_type_list+chr(9)+"36 - Disbursed Child Support"
-unea_type_list = unea_type_list+chr(9)+"37 - Disbursed Spousal Support"
-unea_type_list = unea_type_list+chr(9)+"39 - Disbursed CS Arrears"
-unea_type_list = unea_type_list+chr(9)+"40 - Disbursed Spsl Sup Arrears"
-unea_type_list = unea_type_list+chr(9)+"43 - Disbursed Excess CS"
-unea_type_list = unea_type_list+chr(9)+"44 - MSA - Excess Income for SSI"
-unea_type_list = unea_type_list+chr(9)+"47 - Tribal Income"
-unea_type_list = unea_type_list+chr(9)+"48 - Trust Income"
-unea_type_list = unea_type_list+chr(9)+"49 - Non-Recurring"
-
-account_list = "Select or Type"
-account_list = account_list+chr(9)+"Cash"
-account_list = account_list+chr(9)+"SV - Savings"
-account_list = account_list+chr(9)+"CK - Checking"
-account_list = account_list+chr(9)+"CE - Certificate of Deposit"
-account_list = account_list+chr(9)+"MM - Money Market"
-account_list = account_list+chr(9)+"DC - Debit Card"
-account_list = account_list+chr(9)+"KO - Keogh Account"
-account_list = account_list+chr(9)+"FT - Fed Thrift Savings Plan"
-account_list = account_list+chr(9)+"SL - State & Local Govt"
-account_list = account_list+chr(9)+"RA - Employee Ret Annuities"
-account_list = account_list+chr(9)+"NP - Non-Profit Emmployee Ret"
-account_list = account_list+chr(9)+"IR - Indiv Ret Acct"
-account_list = account_list+chr(9)+"RH - Roth IRA"
-account_list = account_list+chr(9)+"FR - Ret Plan for Employers"
-account_list = account_list+chr(9)+"CT - Corp Ret Trust"
-account_list = account_list+chr(9)+"RT - Other Ret Fund"
-account_list = account_list+chr(9)+"QT - Qualified Tuition (529)"
-account_list = account_list+chr(9)+"CA - Coverdell SV (530)"
-account_list = account_list+chr(9)+"OE - Other Educational"
-account_list = account_list+chr(9)+"OT - Other"
-
-security_list = "Select or Type"
-security_list = security_list+chr(9)+"LI - Life Insurance"
-security_list = security_list+chr(9)+"ST - Stocks"
-security_list = security_list+chr(9)+"BO - Bonds"
-security_list = security_list+chr(9)+"CD - Ctrct for Deed"
-security_list = security_list+chr(9)+"MO - Mortgage Note"
-security_list = security_list+chr(9)+"AN - Annuity"
-security_list = security_list+chr(9)+"OT - Other"
-
-cars_list = "Select or Type"
-cars_list = cars_list+chr(9)+"1 - Car"
-cars_list = cars_list+chr(9)+"2 - Truck"
-cars_list = cars_list+chr(9)+"3 - Van"
-cars_list = cars_list+chr(9)+"4 - Camper"
-cars_list = cars_list+chr(9)+"5 - Motorcycle"
-cars_list = cars_list+chr(9)+"6 - Trailer"
-cars_list = cars_list+chr(9)+"7 - Other"
-
-rest_list = "Select or Type"
-rest_list = rest_list+chr(9)+"1 - House"
-rest_list = rest_list+chr(9)+"2 - Land"
-rest_list = rest_list+chr(9)+"3 - Buildings"
-rest_list = rest_list+chr(9)+"4 - Mobile Home"
-rest_list = rest_list+chr(9)+"5 - Life Estate"
-rest_list = rest_list+chr(9)+"6 - Other"
-
-state_list = "Select One..."
-state_list = state_list+chr(9)+"AL Alabama"
-state_list = state_list+chr(9)+"AK Alaska"
-state_list = state_list+chr(9)+"AZ Arizona"
-state_list = state_list+chr(9)+"AR Arkansas"
-state_list = state_list+chr(9)+"CA California"
-state_list = state_list+chr(9)+"CO Colorado"
-state_list = state_list+chr(9)+"CT Connecticut"
-state_list = state_list+chr(9)+"DE Delaware"
-state_list = state_list+chr(9)+"DC District Of Columbia"
-state_list = state_list+chr(9)+"FL Florida"
-state_list = state_list+chr(9)+"GA Georgia"
-state_list = state_list+chr(9)+"HI Hawaii"
-state_list = state_list+chr(9)+"ID Idaho"
-state_list = state_list+chr(9)+"IL Illnois"
-state_list = state_list+chr(9)+"IN Indiana"
-state_list = state_list+chr(9)+"IA Iowa"
-state_list = state_list+chr(9)+"KS Kansas"
-state_list = state_list+chr(9)+"KY Kentucky"
-state_list = state_list+chr(9)+"LA Louisiana"
-state_list = state_list+chr(9)+"ME Maine"
-state_list = state_list+chr(9)+"MD Maryland"
-state_list = state_list+chr(9)+"MA Massachusetts"
-state_list = state_list+chr(9)+"MI Michigan"
-state_list = state_list+chr(9)+"MN Minnesota"
-state_list = state_list+chr(9)+"MS Mississippi"
-state_list = state_list+chr(9)+"MO Missouri"
-state_list = state_list+chr(9)+"MT Montana"
-state_list = state_list+chr(9)+"NE Nebraska"
-state_list = state_list+chr(9)+"NV Nevada"
-state_list = state_list+chr(9)+"NH New Hampshire"
-state_list = state_list+chr(9)+"NJ New Jersey"
-state_list = state_list+chr(9)+"NM New Mexico"
-state_list = state_list+chr(9)+"NY New York"
-state_list = state_list+chr(9)+"NC North Carolina"
-state_list = state_list+chr(9)+"ND North Dakota"
-state_list = state_list+chr(9)+"OH Ohio"
-state_list = state_list+chr(9)+"OK Oklahoma"
-state_list = state_list+chr(9)+"OR Oregon"
-state_list = state_list+chr(9)+"PA Pennsylvania"
-state_list = state_list+chr(9)+"RI Rhode Island"
-state_list = state_list+chr(9)+"SC South Carolina"
-state_list = state_list+chr(9)+"SD South Dakota"
-state_list = state_list+chr(9)+"TN Tennessee"
-state_list = state_list+chr(9)+"TX Texas"
-state_list = state_list+chr(9)+"UT Utah"
-state_list = state_list+chr(9)+"VT Vermont"
-state_list = state_list+chr(9)+"VA Virginia"
-state_list = state_list+chr(9)+"WA Washington"
-state_list = state_list+chr(9)+"WV West Virginia"
-state_list = state_list+chr(9)+"WI Wisconsin"
-state_list = state_list+chr(9)+"WY Wyoming"
-state_list = state_list+chr(9)+"PR Puerto Rico"
-state_list = state_list+chr(9)+"VI Virgin Islands"
-'THE SCRIPT------------------------------------------------------------------------------------------------------------------------------------------------
-'Connecting to MAXIS & grabbing the case number
-EMConnect ""
-Call MAXIS_case_number_finder(MAXIS_case_number)
-Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
-
-Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 196, 190, "Case number dialog"
-  EditBox 70, 5, 65, 15, MAXIS_case_number
-  EditBox 70, 25, 20, 15, MAXIS_footer_month
-  EditBox 95, 25, 20, 15, MAXIS_footer_year
-  EditBox 70, 45, 115, 15, Worker_signature
-  CheckBox 15, 70, 135, 10, "Check here if this is an exempt (*) IR?", paperless_checkbox
-  ButtonGroup ButtonPressed
-    OkButton 85, 170, 50, 15
-    CancelButton 140, 170, 50, 15
-  Text 20, 10, 45, 10, "Case number:"
-  Text 20, 30, 45, 10, "Footer Month:"
-  Text 125, 30, 25, 10, "mm/yy"
-  Text 10, 50, 60, 10, "Worker Signature"
-  GroupBox 20, 85, 155, 75, "Exempt IR checkbox warning:"
-  Text 25, 100, 145, 25, "If you select ''Is this an exempt IR'', the case note will only provide detail and information about the HC approval."
-  Text 25, 135, 140, 20, " If you are processing a CSR with SNAP, you should NOT check that option."
-EndDialog
-'Showing the case number dialog
-Do
-	DO
-		err_msg = ""
-		Dialog Dialog1
-		cancel_without_confirmation
-
-        Call validate_MAXIS_case_number(err_msg, "*")
-        Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
-        IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-	LOOP UNTIL err_msg = ""
-	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
-LOOP UNTIL are_we_passworded_out = false
-
-Call back_to_SELF
-continue_in_inquiry = ""
-EMReadScreen MX_region, 12, 22, 48
-MX_region = trim(MX_region)
-If MX_region = "INQUIRY DB" Then
-    continue_in_inquiry = MsgBox("It appears you are in INQUIRY. Income information cannot be saved to STAT and a CASE/NOTE cannot be created." & vbNewLine & vbNewLine & "Do you wish to continue?", vbQuestion + vbYesNo, "Continue in Inquiry?")
-    If continue_in_inquiry = vbNo Then script_end_procedure("Script ended since it was started in Inquiry.")
-End If
-
-'If "paperless" was checked, the script will put a simple case note in and end.
-If paperless_checkbox = checked then
-    run_from_DAIL = FALSE
-    call run_from_GitHub(script_repository &  "dail/paperless-dail.vbs")
-End If
-
-Call HH_member_custom_dialog(HH_member_array)
-
-Call navigate_to_MAXIS_screen("STAT", "PROG")
-EMReadScreen GRH_status, 4, 9, 74
-EMReadScreen SNAP_status, 4, 10, 74
-EMReadScreen HC_status, 4, 12, 74
-
-GRH_active = FALSE
-SNAP_active = FALSE
-HC_active = FALSE
-show_buttons_on_confirmation_dlg = TRUE
-
-If GRH_status = "ACTV" Then GRH_active = TRUE
-If SNAP_status = "ACTV" Then SNAP_active = TRUE
-If HC_status = "ACTV" Then HC_active = TRUE
-
-'check to see if there is an adult on MA'
-Call navigate_to_MAXIS_screen("STAT", "REVW")
-
-grh_sr = FALSE
-snap_sr = FALSE
-hc_sr = FALSE
-'Read for GRH
-grh_sr_mo = ""
-grh_sr_yr = ""
-EMReadScreen grh_revw_status, 1, 7, 40
-grh_sr_yn = "No"
-If grh_revw_status <> "_" Then
-    EMWriteScreen "X", 5, 35
-    transmit
-    EMReadScreen sr_month, 2, 9, 26
-    EMReadScreen sr_year, 2, 9, 32
-    PF3
-
-    If grh_revw_status = "N" or grh_revw_status = "I" Then
-        grh_sr_mo = sr_month
-        grh_sr_yr = sr_year
-    Else
-        grh_sr_mo = sr_month
-        sr_year = sr_year * 1
-        sr_year = sr_year - 1
-        grh_sr_yr = right("00" & sr_year, 2)
-    End If
-    grh_sr_yn= "Yes"
-End If
-
-'Read for SNAP
-snap_sr_mo = ""
-snap_sr_yr = ""
-curr_snap_sr_status = ""
-EMReadScreen snap_revw_status, 1, 7, 60
-snap_sr_yn = "No"
-If snap_revw_status <> "_" Then
-    EMWriteScreen "X", 5, 58
-    transmit
-    EMReadScreen sr_month, 2, 9, 26
-    EMReadScreen sr_year, 2, 9, 32
-    PF3
-    If snap_revw_status = "N" or snap_revw_status = "I" Then
-        snap_sr_mo = sr_month
-        snap_sr_yr = sr_year
-    Else
-        snap_sr_mo = sr_month
-        sr_year = sr_year * 1
-        sr_year = sr_year - 1
-        snap_sr_yr = right("00" & sr_year, 2)
-    End If
-    snap_sr_yn= "Yes"
-End If
-
-'Read for MA
-hc_sr_mo = ""
-hc_sr_yr = ""
-curr_hc_sr_status = ""
-EMReadScreen hc_revw_status, 1, 7, 73
-hc_sr_yn = "No"
-If hc_revw_status <> "_" Then
-    EMWriteScreen "X", 5, 71
-    transmit
-    EMReadScreen ir_month, 2, 8, 27
-    EMReadScreen ir_year, 2, 8, 33
-    EMReadScreen ar_month, 2, 8, 71
-    EMReadScreen ar_year, 2, 8, 77
-    PF3
-    If ir_month <> "__" Then
-        sr_month = ir_month
-        sr_year = ir_year
-    End If
-    If ar_month <> "__" Then
-        sr_month = ar_month
-        sr_year = ar_year
-    End If
-    If hc_revw_status = "N" or hc_revw_status = "I" Then
-        hc_sr_mo = sr_month
-        hc_sr_yr = sr_year
-    Else
-        hc_sr_mo = sr_month
-        sr_year = sr_year * 1
-        sr_year = sr_year - 1
-        hc_sr_yr = right("00" & sr_year, 2)
-    End If
-    hc_sr_yn= "Yes"
-End If
-
-Call back_to_SELF
-
-Const the_panel_const               = 0
-Const the_memb_const                = 1
-Const the_inst_const                = 2
-Const array_ref_const               = 3
-Const panel_btn_const               = 4
-Const show_this_panel               = 5
-Const one_per_case_const          = 6
-Const multiple_per_case_const       = 7
-Const one_per_person_const          = 8
-Const multiple_per_person_const     = 9
-Const panel_notes_const             = 10
-
-Dim ALL_PANELS_ARRAY()
-ReDim ALL_PANELS_ARRAY(panel_notes_const, 0)
-Call create_array_of_all_panels(ALL_PANELS_ARRAY)
-
-' For the_panels = 0 to UBound(ALL_PANELS_ARRAY, 2)
-'     MsgBox "Panel: " & ALL_PANELS_ARRAY(the_panel_const, the_panels) & "-" & ALL_PANELS_ARRAY(the_memb_const, the_panels) & "-" & ALL_PANELS_ARRAY(the_inst_const, the_panels)
-' Next
-
-Call generate_client_list(all_the_clients, "Select or Type")
-list_for_array = right(all_the_clients, len(all_the_clients) - 15)
-full_hh_list = Split(list_for_array, chr(9))
-' MsgBox full_hh_list
-' MsgBox all_the_clients
-' ref_numb
-Call back_to_SELF
-Call navigate_to_MAXIS_screen("STAT", "MEMB")
-
-' Dim ALL_CLIENTS_ARRAY()
-' ReDim ALL_CLIENTS_ARRAY(memb_notes, 0)
-
-member_counter = 0
-Do
-    EMReadScreen clt_ref_nbr, 2, 4, 33
-    EMReadScreen clt_last_name, 25, 6, 30
-    EMReadScreen clt_first_name, 12, 6, 63
-    EMReadScreen clt_age, 3, 8, 76
-
-    ReDim Preserve ALL_CLIENTS_ARRAY(memb_notes, member_counter)
-    ALL_CLIENTS_ARRAY(memb_ref_numb, member_counter) = clt_ref_nbr
-    ALL_CLIENTS_ARRAY(memb_last_name, member_counter) = replace(clt_last_name, "_", "")
-    ALL_CLIENTS_ARRAY(memb_first_name, member_counter) = replace(clt_first_name, "_", "")
-    ALL_CLIENTS_ARRAY(memb_age, member_counter) = trim(clt_age)
-
-    member_counter = member_counter + 1
-    transmit
-    EMReadScreen last_memb, 7, 24, 2
-Loop until last_memb = "ENTER A"
-
-Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, living_situation_status, mail_line_one, mail_line_two, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, curr_phone_one, curr_phone_two, curr_phone_three, curr_phone_type_one, curr_phone_type_two, curr_phone_type_three)
-
-new_memb_counter = 0
-back_to_dlg_addr		= 1201
-back_to_dlg_ma_income	= 1202
-back_to_dlg_ma_asset	= 1203
-back_to_dlg_snap		= 1204
-back_to_dlg_sig			= 1205
-add_another_new_memb_btn= 1206
-done_adding_new_memb_btn= 1207
-add_memb_btn			= 1208
-add_jobs_btn			= 1209
-add_unea_btn			= 1210
-why_answer_btn			= 1211
-next_page_ma_btn		= 1212
-add_acct_btn			= 1213
-add_secu_btn			= 1214
-add_cars_btn			= 1215
-add_rest_btn			= 1216
-back_to_ma_dlg_1		= 1217
-continue_btn			= 1218
-back_to_ma_dlg_1		= 1219
-back_to_ma_dlg_2		= 1220
-finish_ma_questions		= 1221
-add_snap_earned_income_btn = 1222
-add_snap_unearned_btn	= 1223
-add_snap_cs_btn			= 1224
-complete_csr_questions	= 1225
-
-
 function csr_dlg_q_1()
 	Do
 		Do
@@ -4677,6 +3731,953 @@ function enter_new_mailing_address()
 	new_mail_addr_entered = TRUE
 end function
 
+function get_county_name_from_county_code(county_code, county_name, include_county_code)
+    If county_code = "01" Then county_name = "Aitkin"
+    If county_code = "02" Then county_name = "Anoka"
+    If county_code = "03" Then county_name = "Becker"
+    If county_code = "04" Then county_name = "Beltrami"
+    If county_code = "05" Then county_name = "Benton"
+    If county_code = "06" Then county_name = "Big Stone"
+    If county_code = "07" Then county_name = "Blue Earth"
+    If county_code = "08" Then county_name = "Brown"
+    If county_code = "09" Then county_name = "Carlton"
+    If county_code = "10" Then county_name = "Carver"
+    If county_code = "11" Then county_name = "Cass"
+    If county_code = "12" Then county_name = "Chippewa"
+    If county_code = "13" Then county_name = "Chisago"
+    If county_code = "14" Then county_name = "Clay"
+    If county_code = "15" Then county_name = "Clearwater"
+    If county_code = "16" Then county_name = "Cook"
+    If county_code = "17" Then county_name = "Cottonwood"
+    If county_code = "18" Then county_name = "Crow Wing"
+    If county_code = "19" Then county_name = "Dakota"
+    If county_code = "20" Then county_name = "Dodge"
+    If county_code = "21" Then county_name = "Douglas"
+    If county_code = "22" Then county_name = "Faribault"
+    If county_code = "23" Then county_name = "Fillmore"
+    If county_code = "24" Then county_name = "Freeborn"
+    If county_code = "25" Then county_name = "Goodhue"
+    If county_code = "26" Then county_name = "Grant"
+    If county_code = "27" Then county_name = "Hennepin"
+    If county_code = "28" Then county_name = "Houston"
+    If county_code = "29" Then county_name = "Hubbard"
+    If county_code = "30" Then county_name = "Isanti"
+    If county_code = "31" Then county_name = "Itasca"
+    If county_code = "32" Then county_name = "Jackson"
+    If county_code = "33" Then county_name = "Kanabec"
+    If county_code = "34" Then county_name = "Kandiyohi"
+    If county_code = "35" Then county_name = "Kittson"
+    If county_code = "36" Then county_name = "Koochiching"
+    If county_code = "37" Then county_name = "Lac Qui Parle"
+    If county_code = "38" Then county_name = "Lake"
+    If county_code = "39" Then county_name = "Lake Of Woods"
+    If county_code = "40" Then county_name = "Le Sueur"
+    If county_code = "41" Then county_name = "Lincoln"
+    If county_code = "42" Then county_name = "Lyon"
+    If county_code = "43" Then county_name = "Mcleod"
+    If county_code = "44" Then county_name = "Mahnomen"
+    If county_code = "45" Then county_name = "Marshall"
+    If county_code = "46" Then county_name = "Martin"
+    If county_code = "47" Then county_name = "Meeker"
+    If county_code = "48" Then county_name = "Mille Lacs"
+    If county_code = "49" Then county_name = "Morrison"
+    If county_code = "50" Then county_name = "Mower"
+    If county_code = "51" Then county_name = "Murray"
+    If county_code = "52" Then county_name = "Nicollet"
+    If county_code = "53" Then county_name = "Nobles"
+    If county_code = "54" Then county_name = "Norman"
+    If county_code = "55" Then county_name = "Olmsted"
+    If county_code = "56" Then county_name = "Otter Tail"
+    If county_code = "57" Then county_name = "Pennington"
+    If county_code = "58" Then county_name = "Pine"
+    If county_code = "59" Then county_name = "Pipestone"
+    If county_code = "60" Then county_name = "Polk"
+    If county_code = "61" Then county_name = "Pope"
+    If county_code = "62" Then county_name = "Ramsey"
+    If county_code = "63" Then county_name = "Red Lake"
+    If county_code = "64" Then county_name = "Redwood"
+    If county_code = "65" Then county_name = "Renville"
+    If county_code = "66" Then county_name = "Rice"
+    If county_code = "67" Then county_name = "Rock"
+    If county_code = "68" Then county_name = "Roseau"
+    If county_code = "69" Then county_name = "St. Louis"
+    If county_code = "70" Then county_name = "Scott"
+    If county_code = "71" Then county_name = "Sherburne"
+    If county_code = "72" Then county_name = "Sibley"
+    If county_code = "73" Then county_name = "Stearns"
+    If county_code = "74" Then county_name = "Steele"
+    If county_code = "75" Then county_name = "Stevens"
+    If county_code = "76" Then county_name = "Swift"
+    If county_code = "77" Then county_name = "Todd"
+    If county_code = "78" Then county_name = "Traverse"
+    If county_code = "79" Then county_name = "Wabasha"
+    If county_code = "80" Then county_name = "Wadena"
+    If county_code = "81" Then county_name = "Waseca"
+    If county_code = "82" Then county_name = "Washington"
+    If county_code = "83" Then county_name = "Watonwan"
+    If county_code = "84" Then county_name = "Wilkin"
+    If county_code = "85" Then county_name = "Winona"
+    If county_code = "86" Then county_name = "Wright"
+    If county_code = "87" Then county_name = "Yellow Medicine"
+    If county_code = "89" Then county_name = "Out-of-State"
+
+    If include_county_code = TRUE Then county_name = county_code & " " & county_name
+end function
+
+function get_state_name_from_state_code(state_code, state_name, include_state_code)
+    If state_code = "NB" Then state_name = "MN Newborn"
+    If state_code = "FC" Then state_name = "Foreign Country"
+    If state_code = "UN" Then state_name = "Unknown"
+    If state_code = "AL" Then state_name = "Alabama"
+    If state_code = "AK" Then state_name = "Alaska"
+    If state_code = "AZ" Then state_name = "Arizona"
+    If state_code = "AR" Then state_name = "Arkansas"
+    If state_code = "CA" Then state_name = "California"
+    If state_code = "CO" Then state_name = "Colorado"
+    If state_code = "CT" Then state_name = "Connecticut"
+    If state_code = "DE" Then state_name = "Delaware"
+    If state_code = "DC" Then state_name = "District Of Columbia"
+    If state_code = "FL" Then state_name = "Florida"
+    If state_code = "GA" Then state_name = "Georgia"
+    If state_code = "HI" Then state_name = "Hawaii"
+    If state_code = "ID" Then state_name = "Idaho"
+    If state_code = "IL" Then state_name = "Illnois"
+    If state_code = "IN" Then state_name = "Indiana"
+    If state_code = "IA" Then state_name = "Iowa"
+    If state_code = "KS" Then state_name = "Kansas"
+    If state_code = "KY" Then state_name = "Kentucky"
+    If state_code = "LA" Then state_name = "Louisiana"
+    If state_code = "ME" Then state_name = "Maine"
+    If state_code = "MD" Then state_name = "Maryland"
+    If state_code = "MA" Then state_name = "Massachusetts"
+    If state_code = "MI" Then state_name = "Michigan"
+    If state_code = "MS" Then state_name = "Mississippi"
+    If state_code = "MO" Then state_name = "Missouri"
+    If state_code = "MT" Then state_name = "Montana"
+    If state_code = "NE" Then state_name = "Nebraska"
+    If state_code = "NV" Then state_name = "Nevada"
+    If state_code = "NH" Then state_name = "New Hampshire"
+    If state_code = "NJ" Then state_name = "New Jersey"
+    If state_code = "NM" Then state_name = "New Mexico"
+    If state_code = "NY" Then state_name = "New York"
+    If state_code = "NC" Then state_name = "North Carolina"
+    If state_code = "ND" Then state_name = "North Dakota"
+    If state_code = "OH" Then state_name = "Ohio"
+    If state_code = "OK" Then state_name = "Oklahoma"
+    If state_code = "OR" Then state_name = "Oregon"
+    If state_code = "PA" Then state_name = "Pennsylvania"
+    If state_code = "RI" Then state_name = "Rhode Island"
+    If state_code = "SC" Then state_name = "South Carolina"
+    If state_code = "SD" Then state_name = "South Dakota"
+    If state_code = "TN" Then state_name = "Tennessee"
+    If state_code = "TX" Then state_name = "Texas"
+    If state_code = "UT" Then state_name = "Utah"
+    If state_code = "VT" Then state_name = "Vermont"
+    If state_code = "VA" Then state_name = "Virginia"
+    If state_code = "WA" Then state_name = "Washington"
+    If state_code = "WV" Then state_name = "West Virginia"
+    If state_code = "WI" Then state_name = "Wisconsin"
+    If state_code = "WY" Then state_name = "Wyoming"
+    If state_code = "PR" Then state_name = "Puerto Rico"
+    If state_code = "VI" Then state_name = "Virgin Islands"
+
+    If include_state_code = TRUE Then state_name = state_code & " " & state_name
+end function
+
+function get_state_code_from_state_name(state_name, state_code)
+    If state_name = "Alabama"           Then state_code = "AL"
+    If state_name = "Alaska"            Then state_code = "AK"
+    If state_name = "Arizona"           Then state_code = "AZ"
+    If state_name = "Arkansas"          Then state_code = "AR"
+    If state_name = "California"        Then state_code = "CA"
+    If state_name = "Colorado"          Then state_code = "CO"
+    If state_name = "Connecticut"       Then state_code = "CT"
+    If state_name = "Delaware"          Then state_code = "DE"
+    If state_name = "Florida"           Then state_code = "FL"
+    If state_name = "Georgia"           Then state_code = "GA"
+    If state_name = "Hawaii"            Then state_code = "HI"
+    If state_name = "Idaho"             Then state_code = "ID"
+    If state_name = "Illinois"          Then state_code = "IL"
+    If state_name = "Indiana"           Then state_code = "IN"
+    If state_name = "Iowa"              Then state_code = "IA"
+    If state_name = "Kansas"            Then state_code = "KS"
+    If state_name = "Kentucky"          Then state_code = "KY"
+    If state_name = "Louisiana"         Then state_code = "LA"
+    If state_name = "Maine"             Then state_code = "ME"
+    If state_name = "Maryland"          Then state_code = "MD"
+    If state_name = "Massachusetts"     Then state_code = "MA"
+    If state_name = "Michigan"          Then state_code = "MI"
+    If state_name = "Mississippi"       Then state_code = "MS"
+    If state_name = "Missouri"          Then state_code = "MO"
+    If state_name = "Montana"           Then state_code = "MT"
+    If state_name = "Nebraska"          Then state_code = "NE"
+    If state_name = "Nevada"            Then state_code = "NV"
+    If state_name = "New Hampshire"     Then state_code = "NH"
+    If state_name = "New Jersey"        Then state_code = "NJ"
+    If state_name = "New Mexico"        Then state_code = "NM"
+    If state_name = "New York"          Then state_code = "NY"
+    If state_name = "North Carolina"    Then state_code = "NC"
+    If state_name = "North Dakota"      Then state_code = "ND"
+    If state_name = "Ohio"              Then state_code = "OH"
+    If state_name = "Oklahoma"          Then state_code = "OK"
+    If state_name = "Oregon"            Then state_code = "OR"
+    If state_name = "Pennsylvania"      Then state_code = "PA"
+    If state_name = "Rhode Island"      Then state_code = "RI"
+    If state_name = "South Carolina"    Then state_code = "SC"
+    If state_name = "South Dakota"      Then state_code = "SD"
+    If state_name = "Tennessee"         Then state_code = "TN"
+    If state_name = "Texas"             Then state_code = "TX"
+    If state_name = "Utah"              Then state_code = "UT"
+    If state_name = "Vermont"           Then state_code = "VT"
+    If state_name = "Virginia"          Then state_code = "VA"
+    If state_name = "Washington"        Then state_code = "WA"
+    If state_name = "West Virginia"     Then state_code = "WV"
+    If state_name = "Wisconsin"         Then state_code = "WI"
+    If state_name = "Wyoming"           Then state_code = "WY"
+end function
+
+
+function validate_footer_month_entry(footer_month, footer_year, err_msg_var, bullet_char)
+    If IsNumeric(footer_month) = FALSE Then
+        err_msg_var = err_msg_var & vbNewLine & bullet_char & " The footer month should be a number, review and reenter the footer month information."
+    Else
+        footer_month = footer_month * 1
+        If footer_month > 12 OR footer_month < 1 Then err_msg_var = err_msg_var & vbNewLine & bullet_char & " The footer month should be between 1 and 12. Review and reenter the footer month information."
+        footer_month = right("00" & footer_month, 2)
+    End If
+
+    If len(footer_year) < 2 Then
+        err_msg_var = err_msg_var & vbNewLine & bullet_char & " The footer year should be at least 2 characters long, review and reenter the footer year information."
+    Else
+        If IsNumeric(footer_year) = FALSE Then
+            err_msg_var = err_msg_var & vbNewLine & bullet_char & " The footer year should be a number, review and reenter the footer year information."
+        Else
+            footer_year = right("00" & footer_year, 2)
+        End If
+    End If
+end function
+'===========================================================================================================================
+'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
+MAXIS_footer_month = CM_plus_1_mo
+MAXIS_footer_year = CM_plus_1_yr
+
+'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Dim MAXIS_footer_month, MAXIS_footer_year, snap_active_count, hc_active_count, grh_active_count, snap_sr_yn, snap_sr_mo, snap_sr_yr, hc_sr_yn, hc_sr_mo, hc_sr_yr, grh_sr_yn, grh_sr_mo, grh_sr_yr, client_on_csr_form
+Dim residence_address_match_yn, mailing_address_match_yn, homeless_status, grh_sr, hc_sr, snap_sr, notes_on_address, resi_line_one, resi_line_two, resi_city, resi_state, resi_zip, resi_county, new_mail_zip
+Dim quest_two_move_in_out, new_hh_memb_not_in_mx_yn, apply_for_ma, q_4_details_blank_checkbox, ma_self_employed, q_5_details_blank_checkbox, ma_start_working, q_6_details_blank_checkbox, ma_other_income
+Dim q_7_details_blank_checkbox, ma_liquid_assets, q_9_details_blank_checkbox, ma_security_assets, q_10_details_blank_checkbox, ma_vehicle, q_11_details_blank_checkbox, ma_real_assets, q_12_details_blank_checkbox
+Dim ma_other_changes, other_changes_reported, changes_reported_blank_checkbox, quest_fifteen_form_answer, new_rent_or_mortgage_amount, heat_ac_checkbox, electricity_checkbox, telephone_checkbox, shel_proof_provided
+Dim quest_sixteen_form_answer, q_16_details_blank_checkbox, quest_seventeen_form_answer, q_17_details_blank_checkbox, quest_eighteen_form_answer, q_18_details_blank_checkbox, quest_nineteen_form_answer, csr_form_date
+Dim addr_verif, addr_homeless, addr_reservation, living_situation_status, mail_line_one, mail_line_two, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, new_mail_one, new_mail_city, new_mail_state
+Dim client_signed_yn, client_dated_yn, confirm_csr_form_information, notes_on_faci, notes_on_wreg, new_addr_effective_date, new_resi_one, new_resi_city, new_resi_state, new_resi_zip, new_resi_county, new_shel_verif
+Dim new_resi_addr_entered, new_mail_addr_entered
+
+HH_memb_row = 5
+Dim row
+Dim col
+
+Const owner_name                = 00
+Const category_const            = 01
+Const type_const                = 02
+Const name_const                = 03
+Const amount_const              = 04
+Const start_date_const          = 05
+Const end_date_const            = 06
+Const verif_const               = 07
+Const pay_amt_const             = 08
+Const hours_const               = 09
+Const update_date_const         = 10
+Const seasonal_yn               = 11
+Const frequency_const           = 12
+Const make_const                = 13
+Const model_const               = 14
+Const year_const                = 15
+Const make_model_yr             = 16
+Const address_const             = 17
+Const cash_amt_const            = 18        'cash panel
+Const cash_verif_const          = 19
+Const snap_amt_const            = 20
+Const snap_verif_const          = 21
+Const hc_amt_const              = 22
+Const hc_verif_const            = 23
+Const busi_cash_net_prosp       = 24        'busi panel
+Const busi_cash_net_retro       = 25
+Const busi_cash_gross_retro     = 26
+Const busi_cash_expense_retro   = 27
+Const busi_cash_gross_prosp     = 28
+Const busi_cash_expense_prosp   = 29
+Const busi_cash_income_verif    = 30
+Const busi_cash_expense_verif   = 31
+Const busi_snap_net_prosp       = 32
+Const busi_snap_net_retro       = 33
+Const busi_snap_gross_retro     = 34
+Const busi_snap_expense_retro   = 35
+Const busi_snap_gross_prosp     = 36
+Const busi_snap_expense_prosp   = 37
+Const busi_snap_income_verif    = 38
+Const busi_snap_expense_verif   = 39
+Const busi_hc_a_net_prosp       = 40
+Const busi_hc_a_gross_prosp     = 41
+Const busi_hc_a_expense_prosp   = 42
+Const busi_hc_a_income_verif    = 43
+Const busi_hc_a_expense_verif   = 44
+Const busi_hc_b_net_prosp       = 45
+Const busi_hc_b_gross_prosp     = 46
+Const busi_hc_b_expense_prosp   = 47
+Const busi_hc_b_income_verif    = 48
+Const busi_hc_b_expense_verif   = 49
+Const busi_se_method            = 50
+Const busi_se_method_date       = 51
+Const rptd_hours_const          = 52
+Const min_wg_hours_const        = 53
+Const claim_nbr_const           = 54        'unea panel
+Const cola_disregard_amt        = 55
+Const id_number_const           = 56
+Const panel_instance            = 57
+Const owner_ref_const           = 58
+Const verif_checkbox_const      = 59
+Const verif_time_const          = 60
+Const verif_added_const         = 61
+Const item_notes_const          = 62
+Const balance_date_const        = 63
+Const withdraw_penalty_const    = 64
+Const withdraw_yn_const         = 65
+Const withdraw_verif_const      = 66
+Const count_cash_const          = 67
+Const count_snap_const          = 68
+Const count_hc_const            = 69
+Const count_grh_const           = 70
+Const count_ive_const           = 71
+Const joint_own_const           = 72
+Const share_ratio_const         = 73
+Const next_interst_const        = 74
+Const face_value_const          = 75
+Const trade_in_const            = 76
+Const loan_const                = 77
+Const source_const              = 78
+Const owed_amt_const            = 79
+Const owed_verif_const          = 80
+Const owed_date_const           = 81
+Const cars_use_const            = 82
+Const hc_benefit_const          = 83
+Const market_value_const        = 84
+Const value_verif_const         = 85
+Const rest_prop_status_const    = 86
+Const rest_repymt_date_const    = 87
+
+Const jobs_hrly_wage            = 88
+Const retro_income_amount       = 89
+Const retro_income_hours        = 90
+Const snap_pic_frequency        = 91
+Const snap_pic_hours_per_pay    = 92
+Const snap_pic_income_per_pay   = 93
+Const snap_pic_monthly_income   = 94
+Const grh_pic_frequency         = 95
+Const grh_pic_income_per_pay    = 96
+Const grh_pic_monthly_income    = 97
+Const jobs_subsidy              = 98
+
+Const new_checkbox              = 99
+Const update_checkbox           = 100
+
+Const faci_ref_numb                 = 00
+Const faci_instance                 = 01
+Const faci_member                   = 02
+Const faci_name                     = 03
+Const faci_vendor_number            = 04
+Const faci_type                     = 05
+Const faci_FS_elig                  = 06
+Const faci_FS_type                  = 07
+Const faci_waiver_type              = 08
+Const faci_ltc_inelig_reason        = 09
+Const faci_inelig_begin_date        = 10
+Const faci_inelig_end_date          = 11
+Const faci_anticipated_out_date     = 12
+Const faci_GRH_plan_required        = 13
+Const faci_GRH_plan_verif           = 14
+Const faci_cty_app_place            = 15
+Const faci_approval_cty_name        = 16
+Const faci_GRH_DOC_amount           = 17
+Const faci_GRH_postpay              = 18
+Const faci_stay_one_rate            = 19
+Const faci_stay_one_date_in         = 20
+Const faci_stay_one_date_out        = 21
+Const faci_stay_two_rate            = 22
+Const faci_stay_two_date_in         = 23
+Const faci_stay_two_date_out        = 24
+Const faci_stay_three_rate          = 25
+Const faci_stay_three_date_in       = 26
+Const faci_stay_three_date_out      = 27
+Const faci_stay_four_rate           = 28
+Const faci_stay_four_date_in        = 29
+Const faci_stay_four_date_out       = 30
+Const faci_stay_five_rate           = 31
+Const faci_stay_five_date_in        = 32
+Const faci_stay_five_date_out       = 33
+Const faci_verif_checkbox           = 34
+Const faci_verif_added              = 35
+Const faci_notes                    = 36
+
+Dim ALL_INCOME_ARRAY()
+ReDim ALL_INCOME_ARRAY(update_checkbox, 0)
+
+Dim ALL_ASSETS_ARRAY()
+ReDim ALL_ASSETS_ARRAY(update_checkbox, 0)
+
+Dim FACILITIES_ARRAY()
+ReDim FACILITIES_ARRAY(faci_notes, 0)
+
+const memb_ref_numb                 = 00
+const memb_last_name                = 01
+const memb_first_name               = 02
+const memb_age                      = 03
+const memb_remo_checkbox            = 04
+const memb_new_checkbox             = 05
+const clt_grh_status                = 06
+const clt_hc_status                 = 07
+const clt_snap_status               = 08
+const memb_id_verif                 = 09
+const memb_soc_sec_numb             = 10
+const memb_ssn_verif                = 11
+const memb_dob                      = 12
+const memb_dob_verif                = 13
+const memb_gender                   = 14
+const memb_rel_to_applct            = 15
+const memb_spoken_language          = 16
+const memb_written_language         = 17
+const memb_interpreter              = 18
+const memb_alias                    = 19
+const memb_ethnicity                = 20
+const memb_race                     = 21
+const memi_marriage_status          = 22
+const memi_spouse_ref               = 23
+const memi_spouse_name              = 24
+const memi_designated_spouse        = 25
+const memi_marriage_date            = 26
+const memi_marriage_verif           = 27
+const memi_citizen                  = 28
+const memi_citizen_verif            = 29
+const memi_last_grade               = 30
+const memi_in_MN_less_12_mo         = 31
+const memi_resi_verif               = 32
+const memi_MN_entry_date            = 33
+const memi_former_state             = 34
+const memi_other_FS_end             = 35
+const wreg_pwe                      = 36
+const wreg_status                   = 37
+const wreg_defer_fset               = 38
+const wreg_fset_orient_date         = 39
+const wreg_sanc_begin_date          = 40
+const wreg_sanc_count               = 41
+const wreg_sanc_reasons             = 42
+const wreg_abawd_status             = 43
+const wreg_banekd_months            = 44
+const wreg_GA_basis                 = 45
+const wreg_GA_coop                  = 46
+const wreg_numb_ABAWD_months        = 47
+const wreg_ABAWD_months_list        = 48
+const wreg_numb_second_set_months   = 49
+const wreg_second_set_months_list   = 50
+Const wreg_notes                    = 51
+
+const shel_hud_sub_yn               = 52
+const shel_shared_yn                = 53
+const shel_paid_to                  = 54
+const shel_rent_retro_amt           = 55
+const shel_rent_retro_verif         = 56
+const shel_rent_prosp_amt           = 57
+const shel_rent_prosp_verif         = 58
+const shel_lot_rent_retro_amt       = 59
+const shel_lot_rent_retro_verif     = 60
+const shel_lot_rent_prosp_amt       = 61
+const shel_lot_rent_prosp_verif     = 62
+const shel_mortgage_retro_amt       = 63
+const shel_mortgage_retro_verif     = 64
+const shel_mortgage_prosp_amt       = 65
+const shel_mortgage_prosp_verif     = 66
+const shel_insurance_retro_amt      = 67
+const shel_insurance_retro_verif    = 68
+const shel_insurance_prosp_amt      = 69
+const shel_insurance_prosp_verif    = 70
+const shel_tax_retro_amt            = 71
+const shel_tax_retro_verif          = 72
+const shel_tax_prosp_amt            = 73
+const shel_tax_prosp_verif          = 74
+const shel_room_retro_amt           = 75
+const shel_room_retro_verif         = 76
+const shel_room_prosp_amt           = 77
+const shel_room_prosp_verif         = 78
+const shel_garage_retro_amt         = 79
+const shel_garage_retro_verif       = 80
+const shel_garage_prosp_amt         = 81
+const shel_garage_prosp_verif       = 82
+const shel_subsidy_retro_amt        = 83
+const shel_subsidy_retro_verif      = 84
+const shel_subsidy_prosp_amt        = 85
+const shel_subsidy_prosp_verif      = 86
+const shel_notes                    = 87
+const shel_verif_checkbox           = 88
+const shel_verif_added              = 89
+const shel_verif_time               = 90
+
+const memb_notes                    = 91
+
+const new_last_name         = 0
+const new_first_name        = 1
+const new_mid_initial       = 2
+const new_suffix            = 3
+const new_full_name         = 4
+const new_dob               = 5
+const new_rel_to_applicant  = 6
+const new_ma_request        = 7
+const new_fs_request        = 8
+const new_grh_request       = 9
+const new_memb_moved_in     = 10
+const new_memb_moved_out    = 11
+const new_memb_notes        = 12
+
+const ma_request_client     = 0
+const ma_request_notes      = 10
+
+Dim NEW_MA_REQUEST_ARRAY()
+ReDim NEW_MA_REQUEST_ARRAY(ma_request_notes, 0)
+
+
+const earned_client         = 0
+const earned_type           = 1
+const earned_source         = 2
+const earned_change_date    = 3
+const earned_amount         = 4
+const earned_freq           = 5
+const earned_hours          = 6
+const earned_prog_list      = 7
+const earned_start_date     = 8
+const earned_seasonal       = 9
+
+const earned_notes          = 11
+
+const unearned_client       = 0
+const unearned_type         = 1
+const unearned_source       = 2
+const unearned_change_date  = 3
+const unearned_amount       = 4
+const unearned_freq         = 5
+Const unearned_prog_list    = 6
+const unearned_start_date   = 7
+const unearned_notes        = 10
+
+const asset_client          = 0
+const asset_type            = 1
+const asset_acct_type       = 2
+const asset_bank_name       = 3
+const asset_year_make_model = 4
+const asset_address         = 5
+' const asset_
+' const asset_
+' const asset_
+' const asset_
+const asset_prog_list       = 9
+const asset_notes           = 10
+
+const cs_payer              = 0
+const cs_amount             = 1
+const cs_current            = 2
+const cs_notes              = 10
+
+
+Dim NEW_EARNED_ARRAY
+Dim NEW_UNEARNED_ARRAY
+Dim NEW_CHILD_SUPPORT_ARRAY
+Dim NEW_ASSET_ARRAY
+ReDim NEW_EARNED_ARRAY(earned_notes, 0)
+ReDim NEW_UNEARNED_ARRAY(unearned_notes, 0)
+ReDim NEW_CHILD_SUPPORT_ARRAY(cs_notes, 0)
+ReDim NEW_ASSET_ARRAY(asset_notes, 0)
+
+
+
+unea_type_list = "Type or Select"
+unea_type_list = unea_type_list+chr(9)+"01 - RSDI, Disa"
+unea_type_list = unea_type_list+chr(9)+"02 - RSDI, No Disa"
+unea_type_list = unea_type_list+chr(9)+"03 - SSI"
+unea_type_list = unea_type_list+chr(9)+"06 - Non-MN PA"
+unea_type_list = unea_type_list+chr(9)+"11 - VA Disability"
+unea_type_list = unea_type_list+chr(9)+"12 - VA Pension"
+unea_type_list = unea_type_list+chr(9)+"13 - VA Other"
+unea_type_list = unea_type_list+chr(9)+"38 - VA Aid & Attendance"
+unea_type_list = unea_type_list+chr(9)+"14 - Unemployment Insurance"
+unea_type_list = unea_type_list+chr(9)+"15 - Worker's Comp"
+unea_type_list = unea_type_list+chr(9)+"16 - Railroad Retirement"
+unea_type_list = unea_type_list+chr(9)+"17 - Other Retirement"
+unea_type_list = unea_type_list+chr(9)+"18 - Military Enrirlement"
+unea_type_list = unea_type_list+chr(9)+"19 - FC Child req FS"
+unea_type_list = unea_type_list+chr(9)+"20 - FC Child not req FS"
+unea_type_list = unea_type_list+chr(9)+"21 - FC Adult req FS"
+unea_type_list = unea_type_list+chr(9)+"22 - FC Adult not req FS"
+unea_type_list = unea_type_list+chr(9)+"23 - Dividends"
+unea_type_list = unea_type_list+chr(9)+"24 - Interest"
+unea_type_list = unea_type_list+chr(9)+"25 - Cnt gifts/prizes"
+unea_type_list = unea_type_list+chr(9)+"26 - Strike Benefits"
+unea_type_list = unea_type_list+chr(9)+"27 - Contract for Deed"
+unea_type_list = unea_type_list+chr(9)+"28 - Illegal Income"
+unea_type_list = unea_type_list+chr(9)+"29 - Other Countable"
+unea_type_list = unea_type_list+chr(9)+"30 - Infrequent"
+unea_type_list = unea_type_list+chr(9)+"31 - Other - FS Only"
+unea_type_list = unea_type_list+chr(9)+"08 - Direct Child Support"
+unea_type_list = unea_type_list+chr(9)+"35 - Direct Spousal Support"
+unea_type_list = unea_type_list+chr(9)+"36 - Disbursed Child Support"
+unea_type_list = unea_type_list+chr(9)+"37 - Disbursed Spousal Support"
+unea_type_list = unea_type_list+chr(9)+"39 - Disbursed CS Arrears"
+unea_type_list = unea_type_list+chr(9)+"40 - Disbursed Spsl Sup Arrears"
+unea_type_list = unea_type_list+chr(9)+"43 - Disbursed Excess CS"
+unea_type_list = unea_type_list+chr(9)+"44 - MSA - Excess Income for SSI"
+unea_type_list = unea_type_list+chr(9)+"47 - Tribal Income"
+unea_type_list = unea_type_list+chr(9)+"48 - Trust Income"
+unea_type_list = unea_type_list+chr(9)+"49 - Non-Recurring"
+
+account_list = "Select or Type"
+account_list = account_list+chr(9)+"Cash"
+account_list = account_list+chr(9)+"SV - Savings"
+account_list = account_list+chr(9)+"CK - Checking"
+account_list = account_list+chr(9)+"CE - Certificate of Deposit"
+account_list = account_list+chr(9)+"MM - Money Market"
+account_list = account_list+chr(9)+"DC - Debit Card"
+account_list = account_list+chr(9)+"KO - Keogh Account"
+account_list = account_list+chr(9)+"FT - Fed Thrift Savings Plan"
+account_list = account_list+chr(9)+"SL - State & Local Govt"
+account_list = account_list+chr(9)+"RA - Employee Ret Annuities"
+account_list = account_list+chr(9)+"NP - Non-Profit Emmployee Ret"
+account_list = account_list+chr(9)+"IR - Indiv Ret Acct"
+account_list = account_list+chr(9)+"RH - Roth IRA"
+account_list = account_list+chr(9)+"FR - Ret Plan for Employers"
+account_list = account_list+chr(9)+"CT - Corp Ret Trust"
+account_list = account_list+chr(9)+"RT - Other Ret Fund"
+account_list = account_list+chr(9)+"QT - Qualified Tuition (529)"
+account_list = account_list+chr(9)+"CA - Coverdell SV (530)"
+account_list = account_list+chr(9)+"OE - Other Educational"
+account_list = account_list+chr(9)+"OT - Other"
+
+security_list = "Select or Type"
+security_list = security_list+chr(9)+"LI - Life Insurance"
+security_list = security_list+chr(9)+"ST - Stocks"
+security_list = security_list+chr(9)+"BO - Bonds"
+security_list = security_list+chr(9)+"CD - Ctrct for Deed"
+security_list = security_list+chr(9)+"MO - Mortgage Note"
+security_list = security_list+chr(9)+"AN - Annuity"
+security_list = security_list+chr(9)+"OT - Other"
+
+cars_list = "Select or Type"
+cars_list = cars_list+chr(9)+"1 - Car"
+cars_list = cars_list+chr(9)+"2 - Truck"
+cars_list = cars_list+chr(9)+"3 - Van"
+cars_list = cars_list+chr(9)+"4 - Camper"
+cars_list = cars_list+chr(9)+"5 - Motorcycle"
+cars_list = cars_list+chr(9)+"6 - Trailer"
+cars_list = cars_list+chr(9)+"7 - Other"
+
+rest_list = "Select or Type"
+rest_list = rest_list+chr(9)+"1 - House"
+rest_list = rest_list+chr(9)+"2 - Land"
+rest_list = rest_list+chr(9)+"3 - Buildings"
+rest_list = rest_list+chr(9)+"4 - Mobile Home"
+rest_list = rest_list+chr(9)+"5 - Life Estate"
+rest_list = rest_list+chr(9)+"6 - Other"
+
+state_list = "Select One..."
+state_list = state_list+chr(9)+"AL Alabama"
+state_list = state_list+chr(9)+"AK Alaska"
+state_list = state_list+chr(9)+"AZ Arizona"
+state_list = state_list+chr(9)+"AR Arkansas"
+state_list = state_list+chr(9)+"CA California"
+state_list = state_list+chr(9)+"CO Colorado"
+state_list = state_list+chr(9)+"CT Connecticut"
+state_list = state_list+chr(9)+"DE Delaware"
+state_list = state_list+chr(9)+"DC District Of Columbia"
+state_list = state_list+chr(9)+"FL Florida"
+state_list = state_list+chr(9)+"GA Georgia"
+state_list = state_list+chr(9)+"HI Hawaii"
+state_list = state_list+chr(9)+"ID Idaho"
+state_list = state_list+chr(9)+"IL Illnois"
+state_list = state_list+chr(9)+"IN Indiana"
+state_list = state_list+chr(9)+"IA Iowa"
+state_list = state_list+chr(9)+"KS Kansas"
+state_list = state_list+chr(9)+"KY Kentucky"
+state_list = state_list+chr(9)+"LA Louisiana"
+state_list = state_list+chr(9)+"ME Maine"
+state_list = state_list+chr(9)+"MD Maryland"
+state_list = state_list+chr(9)+"MA Massachusetts"
+state_list = state_list+chr(9)+"MI Michigan"
+state_list = state_list+chr(9)+"MN Minnesota"
+state_list = state_list+chr(9)+"MS Mississippi"
+state_list = state_list+chr(9)+"MO Missouri"
+state_list = state_list+chr(9)+"MT Montana"
+state_list = state_list+chr(9)+"NE Nebraska"
+state_list = state_list+chr(9)+"NV Nevada"
+state_list = state_list+chr(9)+"NH New Hampshire"
+state_list = state_list+chr(9)+"NJ New Jersey"
+state_list = state_list+chr(9)+"NM New Mexico"
+state_list = state_list+chr(9)+"NY New York"
+state_list = state_list+chr(9)+"NC North Carolina"
+state_list = state_list+chr(9)+"ND North Dakota"
+state_list = state_list+chr(9)+"OH Ohio"
+state_list = state_list+chr(9)+"OK Oklahoma"
+state_list = state_list+chr(9)+"OR Oregon"
+state_list = state_list+chr(9)+"PA Pennsylvania"
+state_list = state_list+chr(9)+"RI Rhode Island"
+state_list = state_list+chr(9)+"SC South Carolina"
+state_list = state_list+chr(9)+"SD South Dakota"
+state_list = state_list+chr(9)+"TN Tennessee"
+state_list = state_list+chr(9)+"TX Texas"
+state_list = state_list+chr(9)+"UT Utah"
+state_list = state_list+chr(9)+"VT Vermont"
+state_list = state_list+chr(9)+"VA Virginia"
+state_list = state_list+chr(9)+"WA Washington"
+state_list = state_list+chr(9)+"WV West Virginia"
+state_list = state_list+chr(9)+"WI Wisconsin"
+state_list = state_list+chr(9)+"WY Wyoming"
+state_list = state_list+chr(9)+"PR Puerto Rico"
+state_list = state_list+chr(9)+"VI Virgin Islands"
+'THE SCRIPT------------------------------------------------------------------------------------------------------------------------------------------------
+'Connecting to MAXIS & grabbing the case number
+EMConnect ""
+Call MAXIS_case_number_finder(MAXIS_case_number)
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 196, 190, "Case number dialog"
+  EditBox 70, 5, 65, 15, MAXIS_case_number
+  EditBox 70, 25, 20, 15, MAXIS_footer_month
+  EditBox 95, 25, 20, 15, MAXIS_footer_year
+  EditBox 70, 45, 115, 15, Worker_signature
+  CheckBox 15, 70, 135, 10, "Check here if this is an exempt (*) IR?", paperless_checkbox
+  ButtonGroup ButtonPressed
+    OkButton 85, 170, 50, 15
+    CancelButton 140, 170, 50, 15
+  Text 20, 10, 45, 10, "Case number:"
+  Text 20, 30, 45, 10, "Footer Month:"
+  Text 125, 30, 25, 10, "mm/yy"
+  Text 10, 50, 60, 10, "Worker Signature"
+  GroupBox 20, 85, 155, 75, "Exempt IR checkbox warning:"
+  Text 25, 100, 145, 25, "If you select ''Is this an exempt IR'', the case note will only provide detail and information about the HC approval."
+  Text 25, 135, 140, 20, " If you are processing a CSR with SNAP, you should NOT check that option."
+EndDialog
+'Showing the case number dialog
+Do
+	DO
+		err_msg = ""
+		Dialog Dialog1
+		cancel_without_confirmation
+
+        Call validate_MAXIS_case_number(err_msg, "*")
+        Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
+        IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+	LOOP UNTIL err_msg = ""
+	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+LOOP UNTIL are_we_passworded_out = false
+
+Call back_to_SELF
+continue_in_inquiry = ""
+EMReadScreen MX_region, 12, 22, 48
+MX_region = trim(MX_region)
+If MX_region = "INQUIRY DB" Then
+    continue_in_inquiry = MsgBox("It appears you are in INQUIRY. Income information cannot be saved to STAT and a CASE/NOTE cannot be created." & vbNewLine & vbNewLine & "Do you wish to continue?", vbQuestion + vbYesNo, "Continue in Inquiry?")
+    If continue_in_inquiry = vbNo Then script_end_procedure("Script ended since it was started in Inquiry.")
+End If
+
+'If "paperless" was checked, the script will put a simple case note in and end.
+If paperless_checkbox = checked then
+    run_from_DAIL = FALSE
+    call run_from_GitHub(script_repository &  "dail/paperless-dail.vbs")
+End If
+
+Call HH_member_custom_dialog(HH_member_array)
+
+Call navigate_to_MAXIS_screen("STAT", "PROG")
+EMReadScreen GRH_status, 4, 9, 74
+EMReadScreen SNAP_status, 4, 10, 74
+EMReadScreen HC_status, 4, 12, 74
+
+GRH_active = FALSE
+SNAP_active = FALSE
+HC_active = FALSE
+show_buttons_on_confirmation_dlg = TRUE
+
+If GRH_status = "ACTV" Then GRH_active = TRUE
+If SNAP_status = "ACTV" Then SNAP_active = TRUE
+If HC_status = "ACTV" Then HC_active = TRUE
+
+'check to see if there is an adult on MA'
+Call navigate_to_MAXIS_screen("STAT", "REVW")
+
+grh_sr = FALSE
+snap_sr = FALSE
+hc_sr = FALSE
+'Read for GRH
+grh_sr_mo = ""
+grh_sr_yr = ""
+EMReadScreen grh_revw_status, 1, 7, 40
+grh_sr_yn = "No"
+If grh_revw_status <> "_" Then
+    EMWriteScreen "X", 5, 35
+    transmit
+    EMReadScreen sr_month, 2, 9, 26
+    EMReadScreen sr_year, 2, 9, 32
+    PF3
+
+    If grh_revw_status = "N" or grh_revw_status = "I" Then
+        grh_sr_mo = sr_month
+        grh_sr_yr = sr_year
+    Else
+        grh_sr_mo = sr_month
+        sr_year = sr_year * 1
+        sr_year = sr_year - 1
+        grh_sr_yr = right("00" & sr_year, 2)
+    End If
+    grh_sr_yn= "Yes"
+End If
+
+'Read for SNAP
+snap_sr_mo = ""
+snap_sr_yr = ""
+curr_snap_sr_status = ""
+EMReadScreen snap_revw_status, 1, 7, 60
+snap_sr_yn = "No"
+If snap_revw_status <> "_" Then
+    EMWriteScreen "X", 5, 58
+    transmit
+    EMReadScreen sr_month, 2, 9, 26
+    EMReadScreen sr_year, 2, 9, 32
+    PF3
+    If snap_revw_status = "N" or snap_revw_status = "I" Then
+        snap_sr_mo = sr_month
+        snap_sr_yr = sr_year
+    Else
+        snap_sr_mo = sr_month
+        sr_year = sr_year * 1
+        sr_year = sr_year - 1
+        snap_sr_yr = right("00" & sr_year, 2)
+    End If
+    snap_sr_yn= "Yes"
+End If
+
+'Read for MA
+hc_sr_mo = ""
+hc_sr_yr = ""
+curr_hc_sr_status = ""
+EMReadScreen hc_revw_status, 1, 7, 73
+hc_sr_yn = "No"
+If hc_revw_status <> "_" Then
+    EMWriteScreen "X", 5, 71
+    transmit
+    EMReadScreen ir_month, 2, 8, 27
+    EMReadScreen ir_year, 2, 8, 33
+    EMReadScreen ar_month, 2, 8, 71
+    EMReadScreen ar_year, 2, 8, 77
+    PF3
+    If ir_month <> "__" Then
+        sr_month = ir_month
+        sr_year = ir_year
+    End If
+    If ar_month <> "__" Then
+        sr_month = ar_month
+        sr_year = ar_year
+    End If
+    If hc_revw_status = "N" or hc_revw_status = "I" Then
+        hc_sr_mo = sr_month
+        hc_sr_yr = sr_year
+    Else
+        hc_sr_mo = sr_month
+        sr_year = sr_year * 1
+        sr_year = sr_year - 1
+        hc_sr_yr = right("00" & sr_year, 2)
+    End If
+    hc_sr_yn= "Yes"
+End If
+
+Call back_to_SELF
+
+Const the_panel_const               = 0
+Const the_memb_const                = 1
+Const the_inst_const                = 2
+Const array_ref_const               = 3
+Const panel_btn_const               = 4
+Const show_this_panel               = 5
+Const one_per_case_const          = 6
+Const multiple_per_case_const       = 7
+Const one_per_person_const          = 8
+Const multiple_per_person_const     = 9
+Const panel_notes_const             = 10
+
+Dim ALL_PANELS_ARRAY()
+ReDim ALL_PANELS_ARRAY(panel_notes_const, 0)
+Call create_array_of_all_panels(ALL_PANELS_ARRAY)
+
+' For the_panels = 0 to UBound(ALL_PANELS_ARRAY, 2)
+'     MsgBox "Panel: " & ALL_PANELS_ARRAY(the_panel_const, the_panels) & "-" & ALL_PANELS_ARRAY(the_memb_const, the_panels) & "-" & ALL_PANELS_ARRAY(the_inst_const, the_panels)
+' Next
+
+Call generate_client_list(all_the_clients, "Select or Type")
+list_for_array = right(all_the_clients, len(all_the_clients) - 15)
+full_hh_list = Split(list_for_array, chr(9))
+' MsgBox full_hh_list
+' MsgBox all_the_clients
+' ref_numb
+Call back_to_SELF
+Call navigate_to_MAXIS_screen("STAT", "MEMB")
+
+' Dim ALL_CLIENTS_ARRAY()
+' ReDim ALL_CLIENTS_ARRAY(memb_notes, 0)
+
+member_counter = 0
+Do
+    EMReadScreen clt_ref_nbr, 2, 4, 33
+    EMReadScreen clt_last_name, 25, 6, 30
+    EMReadScreen clt_first_name, 12, 6, 63
+    EMReadScreen clt_age, 3, 8, 76
+
+    ReDim Preserve ALL_CLIENTS_ARRAY(memb_notes, member_counter)
+    ALL_CLIENTS_ARRAY(memb_ref_numb, member_counter) = clt_ref_nbr
+    ALL_CLIENTS_ARRAY(memb_last_name, member_counter) = replace(clt_last_name, "_", "")
+    ALL_CLIENTS_ARRAY(memb_first_name, member_counter) = replace(clt_first_name, "_", "")
+    ALL_CLIENTS_ARRAY(memb_age, member_counter) = trim(clt_age)
+
+    member_counter = member_counter + 1
+    transmit
+    EMReadScreen last_memb, 7, 24, 2
+Loop until last_memb = "ENTER A"
+
+Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, living_situation_status, mail_line_one, mail_line_two, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, curr_phone_one, curr_phone_two, curr_phone_three, curr_phone_type_one, curr_phone_type_two, curr_phone_type_three)
+
+new_memb_counter = 0
+back_to_dlg_addr		= 1201
+back_to_dlg_ma_income	= 1202
+back_to_dlg_ma_asset	= 1203
+back_to_dlg_snap		= 1204
+back_to_dlg_sig			= 1205
+add_another_new_memb_btn= 1206
+done_adding_new_memb_btn= 1207
+add_memb_btn			= 1208
+add_jobs_btn			= 1209
+add_unea_btn			= 1210
+why_answer_btn			= 1211
+next_page_ma_btn		= 1212
+add_acct_btn			= 1213
+add_secu_btn			= 1214
+add_cars_btn			= 1215
+add_rest_btn			= 1216
+back_to_ma_dlg_1		= 1217
+continue_btn			= 1218
+back_to_ma_dlg_1		= 1219
+back_to_ma_dlg_2		= 1220
+finish_ma_questions		= 1221
+add_snap_earned_income_btn = 1222
+add_snap_unearned_btn	= 1223
+add_snap_cs_btn			= 1224
+complete_csr_questions	= 1225
+
+
+
 show_csr_dlg_q_1 		= TRUE
 show_csr_dlg_q_2 		= TRUE
 show_csr_dlg_q_4_7 		= TRUE
@@ -4720,14 +4721,6 @@ Do
 						Do
 							Do
 								Do
-									' MsgBox "dlg q 1 - " & show_csr_dlg_q_1 & vbNewLine &_
-									' 	   "dlg q 2 - " & show_csr_dlg_q_2 & vbNewLine &_
-									' 	   "dlg q 4-7 - " & show_csr_dlg_q_4_7 & vbNewLine &_
-									' 	   "dlg q 9-12 - " & show_csr_dlg_q_9_12 & vbNewLine &_
-									' 	   "dlg q 13 - " & show_csr_dlg_q_13 & vbNewLine &_
-									' 	   "dlg q 15-19 - " & show_csr_dlg_q_15_19 & vbNewLine &_
-									' 	   "dlg q sig - " & show_csr_dlg_sig & vbNewLine &_
-									' 	   "dlg confirm - " & show_confirmation & vbNewLine & vbNewLine & "ONE"
 									show_confirmation = TRUE
 									If csr_dlg_q_1_cleared = FALSE Then show_csr_dlg_q_1 = TRUE
 									If csr_dlg_q_2_cleared = FALSE Then show_csr_dlg_q_2 = TRUE
@@ -4736,14 +4729,6 @@ Do
 									If csr_dlg_q_13_cleared = FALSE Then show_csr_dlg_q_13 = TRUE
 									If csr_dlg_q_15_19_cleared = FALSE Then show_csr_dlg_q_15_19 = TRUE
 									If csr_dlg_sig_cleared = FALSE Then show_csr_dlg_sig = TRUE
-									' MsgBox "dlg q 1 - " & show_csr_dlg_q_1 & vbNewLine &_
-									' 	   "dlg q 2 - " & show_csr_dlg_q_2 & vbNewLine &_
-									' 	   "dlg q 4-7 - " & show_csr_dlg_q_4_7 & vbNewLine &_
-									' 	   "dlg q 9-12 - " & show_csr_dlg_q_9_12 & vbNewLine &_
-									' 	   "dlg q 13 - " & show_csr_dlg_q_13 & vbNewLine &_
-									' 	   "dlg q 15-19 - " & show_csr_dlg_q_15_19 & vbNewLine &_
-									' 	   "dlg q sig - " & show_csr_dlg_sig & vbNewLine &_
-									' 	   "dlg confirm - " & show_confirmation & vbNewLine & vbNewLine & "TWO"
 
 									If show_csr_dlg_q_1 = TRUE Then Call csr_dlg_q_1
 
@@ -4774,995 +4759,6 @@ Do
 	Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = FALSE
 
-
-
-' 'dialog code for if the address doesn't match
-' CheckBox 150, 170, 210, 10, "Check here if address on CSR matches the address in MAXIS", address_matches_checkbox
-' Text 150, 185, 215, 10, "If address doesn't match, enter the new address information here:"
-' Text 150, 200, 25, 10, "Street:"
-' Text 150, 220, 25, 10, "Street:"
-' EditBox 175, 195, 205, 15, new_street_one
-' EditBox 175, 215, 205, 15, new_street_two
-' Text 155, 240, 15, 10, "City:"
-' EditBox 175, 235, 105, 15, new_city
-' Text 285, 240, 20, 10, "State:"
-' DropListBox 305, 235, 75, 45, "", state_list
-
-
-
-
-
-
-
-' Do
-'     Do
-'
-'         'NEEDING A MA SPECIFIC DIALOG - Questions 4 - 13 are for MA only
-'         Dialog1 = ""
-'         BeginDialog Dialog1, 0, 0, 610, 245, "MA CSR Questions"
-'           Text 10, 10, 180, 10, "Enter the answers from the CSR form, questions 4 - 18:"
-'           Text 25, 30, 255, 10, "Q4. Do you want to apply for MA for someone who is not getting coverage now?"
-'           DropListBox 285, 25, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", apply_for_ma
-'           Text 25, 50, 235, 10, "Q5. Is anyone self-employed or does anyone expect to be self-employed?"
-'           DropListBox 265, 45, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_self_employed
-'           Text 25, 70, 205, 10, "Q6. Does anyone work or does anyone expect to start working?"
-'           DropListBox 230, 65, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_start_working
-'           Text 25, 90, 310, 10, "Q7. Does anyone get money or does anyone expect to get money from sources other than work?"
-'           DropListBox 335, 85, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_other_income
-'           Text 25, 110, 280, 10, "Q9. Does anyone have cash, a savings or checking account, or a certificate of deposit?"
-'           DropListBox 305, 105, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_liquid_assets
-'           Text 25, 135, 280, 20, "Q10. Does anyone own or co-own stocks, bonds, retirement accounts, life insurance, burial contracts, annuities, trusts, contracts for deed, or other assets?"
-'           DropListBox 295, 135, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_security_assets
-'           Text 25, 170, 110, 10, "Q11. Does anyone own a vehicle?"
-'           DropListBox 140, 165, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_vehicle
-'           Text 25, 190, 355, 10, "Q12. Does anyone own or co-own a home, life estate, cobin, land, time share, rental property or any real estate?"
-'           DropListBox 385, 185, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_real_assets
-'           Text 25, 210, 135, 10, "Q13. Do you have any changes to report?"
-'           DropListBox 160, 205, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_other_changes
-'           ButtonGroup ButtonPressed
-'             PushButton 505, 225, 50, 15, "Submit", submit_btn
-'             CancelButton 555, 225, 50, 15
-'         EndDialog
-'
-'         err_msg = ""
-'
-'         dialog Dialog1
-'         cancel_confirmation
-'
-'         questions_answered = TRUE
-'         If apply_for_ma = "Select One..." Then questions_answered = FALSE
-'         If ma_self_employed = "Select One..." Then questions_answered = FALSE
-'         If ma_start_working = "Select One..." Then questions_answered = FALSE
-'         If ma_other_income = "Select One..." Then questions_answered = FALSE
-'         If ma_liquid_assets = "Select One..." Then questions_answered = FALSE
-'         If ma_security_assets = "Select One..." Then questions_answered = FALSE
-'         If ma_vehicle = "Select One..." Then questions_answered = FALSE
-'         If ma_real_assets = "Select One..." Then questions_answered = FALSE
-'         If ma_other_changes = "Select One..." Then questions_answered = FALSE
-'
-'         If questions_answered = FALSE Then err_msg = err_msg & vbNewLine & "* All of the questions must be answered with the answers from the CSR Form."
-'
-'         If err_msg <> "" AND left(err_msg, 4) <> "LOOP" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
-'
-'     Loop until err_msg = ""
-'     Call check_for_password(are_we_passworded_out)
-' Loop until are_we_passworded_out = FALSE
-'
-' show_two = FALSE
-
-'
-' If ma_self_employed = "Yes" Then
-'     ReDim Preserve NEW_EARNED_ARRAY(earned_notes, new_earned_counter)
-'     NEW_EARNED_ARRAY(earned_type, new_earned_counter) = "BUSI"
-'     NEW_EARNED_ARRAY(earned_prog_list, new_earned_counter) = "MA"
-'     new_earned_counter = new_earned_counter + 1
-' End If
-' If ma_start_working = "Yes" Then
-'     ReDim Preserve NEW_EARNED_ARRAY(earned_notes, new_earned_counter)
-'     NEW_EARNED_ARRAY(earned_type, new_earned_counter) = "JOBS"
-'     NEW_EARNED_ARRAY(earned_prog_list, new_earned_counter) = "MA"
-'     new_earned_counter = new_earned_counter + 1
-' End If
-' If ma_other_income = "Yes" Then
-'     ReDim Preserve NEW_UNEARNED_ARRAY(unearned_notes, new_unearned_counter)
-'     NEW_UNEARNED_ARRAY(unearned_type, new_unearned_counter) = "UNEA"
-'     NEW_UNEARNED_ARRAY(unearned_prog_list, new_unearned_counter) = "MA"
-'     new_unearned_counter = new_unearned_counter + 1
-' End If
-' If ma_liquid_assets = "Yes" Then
-'     ReDim Preserve NEW_ASSET_ARRAY(asset_notes, new_asset_counter)
-'     NEW_ASSET_ARRAY(asset_type, new_asset_counter) = "ACCT"
-'     NEW_ASSET_ARRAY(asset_prog_list, new_asset_counter) = "MA"
-'     new_asset_counter = new_asset_counter + 1
-' End If
-' If ma_security_assets = "Yes" Then
-'     ReDim Preserve NEW_ASSET_ARRAY(asset_notes, new_asset_counter)
-'     NEW_ASSET_ARRAY(asset_type, new_asset_counter) = "SECU"
-'     NEW_ASSET_ARRAY(asset_prog_list, new_asset_counter) = "MA"
-'     new_asset_counter = new_asset_counter + 1
-' End If
-' If ma_vehicle = "Yes" Then
-'     ReDim Preserve NEW_ASSET_ARRAY(asset_notes, new_asset_counter)
-'     NEW_ASSET_ARRAY(asset_type, new_asset_counter) = "CARS"
-'     NEW_ASSET_ARRAY(asset_prog_list, new_asset_counter) = "MA"
-'     new_asset_counter = new_asset_counter + 1
-' End If
-' If ma_real_assets = "Yes" Then
-'     ReDim Preserve NEW_ASSET_ARRAY(asset_notes, new_asset_counter)
-'     NEW_ASSET_ARRAY(asset_type, new_asset_counter) = "REST"
-'     NEW_ASSET_ARRAY(asset_prog_list, new_asset_counter) = "MA"
-'     new_asset_counter = new_asset_counter + 1
-' End If
-
-' Do
-' 	Do
-' 		Do
-' 			Do
-' 			    Do
-' 					Do
-' 				        Do
-' 				            ' MsgBox show_two & vbNewLine & "line 1166"
-' 				            If show_ma_dlg_one = TRUE Then
-' 								show_ma_dlg_two = TRUE
-' 								show_ma_dlg_three = TRUE
-'
-' 				                dlg_len = 190
-' 				                q_4_grp_len = 15
-' 				                q_5_grp_len = 30
-' 				                q_6_grp_len = 30
-' 				                q_7_grp_len = 30
-' 				                For new_jobs_listed = 0 to UBound(NEW_EARNED_ARRAY, 2)
-' 				                    If NEW_EARNED_ARRAY(earned_type, new_jobs_listed) = "BUSI" AND NEW_EARNED_ARRAY(earned_prog_list, new_jobs_listed) = "MA" Then
-' 				                        dlg_len = dlg_len + 20
-' 				                        q_5_grp_len = q_5_grp_len + 20
-' 				                    End If
-' 				                    If NEW_EARNED_ARRAY(earned_type, new_jobs_listed) = "JOBS"  AND NEW_EARNED_ARRAY(earned_prog_list, new_jobs_listed) = "MA" Then
-' 				                        dlg_len = dlg_len + 20
-' 				                        q_6_grp_len = q_6_grp_len + 20
-' 				                    End If
-' 				                Next
-' 				                For new_unea_listed = 0 to UBound(NEW_UNEARNED_ARRAY, 2)
-' 				                    If NEW_UNEARNED_ARRAY(unearned_type, new_unea_listed) = "UNEA"  AND NEW_UNEARNED_ARRAY(unearned_prog_list, new_unea_listed) = "MA" Then
-' 				                        dlg_len = dlg_len + 20
-' 				                        q_7_grp_len = q_7_grp_len + 20
-' 				                    End If
-' 				                Next
-' 				                ' If apply_for_ma = "Yes" Then
-' 				                '     dlg_len = dlg_len + (UBound(NEW_MA_REQUEST_ARRAY, 2) + 1) * 20
-' 				                '     q_4_grp_len = 35 + UBound(NEW_MA_REQUEST_ARRAY, 2) * 20
-' 				                ' End If
-' 								For each_new_memb = 0 to UBound(NEW_MA_REQUEST_ARRAY, 2)
-' 									If NEW_MA_REQUEST_ARRAY(ma_request_client, each_new_memb) <> "Select or Type" and NEW_MA_REQUEST_ARRAY(ma_request_client, each_new_memb) <> "" Then
-' 										dlg_len = dlg_len + 20
-' 										q_4_grp_len = q_4_grp_len + 20
-' 									End If
-' 								Next
-'
-' 				                y_pos = 45
-' 								err_msg = ""
-'
-' 				                Dialog1 = ""
-' 				                BeginDialog Dialog1, 0, 0, 610, dlg_len, "MA CSR Income Questions"
-' 				                  Text 10, 10, 180, 10, "Enter the answers from the CSR form, questions 4 - 7:"
-' 								  Text 195, 10, 210, 10, "If all questions and details have been left blank, indicate that here:"
-' 								  DropListBox 405, 5, 200, 15, "Enter Question specific information below"+chr(9)+"Questions 4 - 7 are completely blank.", all_questions_4_7_blank
-'
-' 				                  GroupBox 15, 30, 585, q_4_grp_len, "Q4. Do you want to apply for MA for someone who is not getting coverage now?"
-' 				                  DropListBox 285, 25, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", apply_for_ma
-' 				                  CheckBox 430, 30, 75, 10, "Q4 Deailts left Blank", q_4_details_blank_checkbox
-' 								  ButtonGroup ButtonPressed
-' 									PushButton 540, 30, 50, 10, "Add Another", add_memb_btn
-' 				                  ' If apply_for_ma = "Yes" Then
-' 				                  For each_new_memb = 0 to UBound(NEW_MA_REQUEST_ARRAY, 2)
-' 								  	  If NEW_MA_REQUEST_ARRAY(ma_request_client, each_new_memb) <> "Select or Type" and NEW_MA_REQUEST_ARRAY(ma_request_client, each_new_memb) <> "" Then
-' 				                          Text 35, y_pos + 5, 105, 10, "Select the Member requesting:"
-' 				                          ComboBox 145, y_pos, 195, 45, all_the_clients, NEW_MA_REQUEST_ARRAY(ma_request_client, each_new_memb)
-' 				                          y_pos = y_pos + 20
-' 									  End If
-' 				                  Next
-' 								  If y_pos = 45 Then y_pos = y_pos + 5
-' 				                  ' End If
-'
-' 				                  GroupBox 15, y_pos + 5, 585, q_5_grp_len, "Q5. Is anyone self-employed or does anyone expect to be self-employed?"
-' 				                  DropListBox 265, y_pos, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_self_employed
-' 				                  CheckBox 430, y_pos + 5, 75, 10, "Q5 Deailts left Blank", q_5_details_blank_checkbox
-' 				                  y_pos = y_pos + 20
-'
-' 				                  ButtonGroup ButtonPressed
-' 				                    PushButton 540, y_pos - 15, 50, 10, "Add Another", add_busi_btn
-' 				                  first_busi= TRUE
-' 				                  For each_busi = 0 to UBound(NEW_EARNED_ARRAY, 2)
-' 				                      If NEW_EARNED_ARRAY(earned_type, each_busi) = "BUSI" AND NEW_EARNED_ARRAY(earned_prog_list, each_busi) = "MA" Then
-' 				                          If first_busi = TRUE then
-' 				                              Text 35, y_pos, 25, 10, "Name"
-' 				                              Text 155, y_pos, 55, 10, "Business Name"
-' 				                              Text 265, y_pos, 35, 10, "Start Date"
-' 				                              Text 325, y_pos, 50, 10, "Yearly Income"
-' 				                              y_pos = y_pos + 10
-' 				                              first_busi = FALSE
-' 				                          End If
-'
-' 				                          ComboBox 35, y_pos, 110, 45, all_the_clients, NEW_EARNED_ARRAY(earned_client, each_busi)
-' 				                          EditBox 155, y_pos, 105, 15, NEW_EARNED_ARRAY(earned_source, each_busi)
-' 				                          EditBox 265, y_pos, 50, 15, NEW_EARNED_ARRAY(earned_start_date, each_busi)
-' 				                          EditBox 325, y_pos, 60, 15, NEW_EARNED_ARRAY(earned_amount, each_busi)
-' 				                          ' CheckBox 495, y_pos, 30, 10, "New", ALL_INCOME_ARRAY(new_checkbox, each_busi)
-' 				                          ' CheckBox 530, y_pos, 40, 10, "Detail", ALL_INCOME_ARRAY(update_checkbox, each_busi)
-' 				                          y_pos = y_pos  + 20
-' 				                      End If
-' 				                  Next
-' 				                  If first_busi = TRUE Then
-' 				                      Text 35, y_pos, 400, 10, "CSR form - no BUSI information has been added."
-' 				                      y_pos = y_pos + 20
-' 				                  Else
-' 				                    y_pos = y_pos + 10
-' 				                  End If
-'
-' 				                  GroupBox 15, y_pos + 5, 585, q_6_grp_len, "Q6. Does anyone work or does anyone expect to start working?"
-' 				                  DropListBox 230, y_pos, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_start_working
-' 				                  CheckBox 430, y_pos + 5, 75, 10, "Q6 Deailts left Blank", q_6_details_blank_checkbox
-' 				                  y_pos = y_pos  + 20
-' 				                  ButtonGroup ButtonPressed
-' 				                    PushButton 540, y_pos - 15, 50, 10, "Add Another", add_jobs_btn
-' 				                  first_job = TRUE
-' 				                  For each_job = 0 to UBound(NEW_EARNED_ARRAY, 2)
-' 				                      If NEW_EARNED_ARRAY(earned_type, each_job) = "JOBS" AND NEW_EARNED_ARRAY(earned_prog_list, each_job) = "MA" Then
-' 				                          If first_job = TRUE Then
-' 				                              Text 40, y_pos, 20, 10, "Name"
-' 				                              Text 160, y_pos, 55, 10, "Employer Name"
-' 				                              Text 270, y_pos, 35, 10, "Start Date"
-' 				                              Text 330, y_pos, 35, 10, "Seasonal"
-' 				                              Text 375, y_pos, 30, 10, "Amount"
-' 				                              Text 425, y_pos, 50, 10, "How often?"
-' 				                              y_pos = y_pos  + 10
-' 				                              first_job = FALSE
-' 				                          End If
-' 				                          ComboBox 40, y_pos, 110, 45, all_the_clients, NEW_EARNED_ARRAY(earned_client, each_job)
-' 				                          EditBox 155, y_pos, 105, 15, NEW_EARNED_ARRAY(earned_source, each_job)
-' 				                          EditBox 270, y_pos, 50, 15, NEW_EARNED_ARRAY(earned_start_date, each_job)
-' 				                          DropListBox 330, y_pos, 40, 45, " "+chr(9)+"No"+chr(9)+"Yes", NEW_EARNED_ARRAY(earned_seasonal, each_job)
-' 				                          EditBox 375, y_pos, 45, 15, NEW_EARNED_ARRAY(earned_amount, each_job)
-' 				                          DropListBox 425, y_pos, 60, 45, "Select One..."+chr(9)+"4 - Weekly"+chr(9)+"3 - Biweekly"+chr(9)+"2 - Semi Monthly"+chr(9)+"1 - Monthly", NEW_EARNED_ARRAY(earned_freq, each_job)
-' 				                          ' CheckBox 495, y_pos, 30, 10, "New", ALL_INCOME_ARRAY(new_checkbox, each_job)
-' 				                          ' CheckBox 530, y_pos, 40, 10, "Detail", ALL_INCOME_ARRAY(update_checkbox, each_job)
-' 				                          y_pos = y_pos + 20
-' 				                      End If
-' 				                  Next
-' 				                  If first_job = TRUE Then
-' 				                      Text 35, y_pos, 400, 10, "CSR form - no JOBS information has been added."
-' 				                      y_pos = y_pos + 20
-' 				                  Else
-' 				                    y_pos = y_pos + 10
-' 				                  End If
-'
-' 				                  GroupBox 15, y_pos + 5, 585, q_7_grp_len, "Q7. Does anyone get money or does anyone expect to get money from sources other than work?"
-' 				                  DropListBox 335, y_pos, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_other_income
-' 				                  CheckBox 430, y_pos + 5, 75, 10, "Q7 Deailts left Blank", q_7_details_blank_checkbox
-' 				                  y_pos = y_pos +20
-' 				                  ButtonGroup ButtonPressed
-' 				                    PushButton 540, y_pos - 15, 50, 10, "Add Another", add_unea_btn
-' 				                  first_unea = TRUE
-'
-' 				                  For each_unea = 0 to UBound(NEW_UNEARNED_ARRAY, 2)
-' 				                      If NEW_UNEARNED_ARRAY(unearned_type, each_unea) = "UNEA" AND NEW_UNEARNED_ARRAY(unearned_prog_list, each_unea) = "MA" Then
-' 				                          If first_unea = TRUE Then
-' 				                              Text 30, y_pos, 25, 10, "Name"
-' 				                              Text 165, y_pos, 55, 10, "Type of Income"
-' 				                              Text 280, y_pos, 35, 10, "Start Date"
-' 				                              Text 335, y_pos, 35, 10, "Amount"
-' 				                              Text 390, y_pos, 55, 10, "How often recvd"
-' 				                              y_pos = y_pos + 10
-' 				                              first_unea = FALSE
-' 				                          End If
-' 				                          ComboBox 30, y_pos, 130, 45, all_the_clients, NEW_UNEARNED_ARRAY(unearned_client, each_unea)
-' 				                          ComboBox 165, y_pos, 110, 45, unea_type_list, NEW_UNEARNED_ARRAY(unearned_source, each_unea)   'unea_type
-' 				                          EditBox 280, y_pos, 50, 15, NEW_UNEARNED_ARRAY(unearned_start_date, each_unea)    'unea_start_date
-' 				                          EditBox 335, y_pos, 50, 15, NEW_UNEARNED_ARRAY(unearned_amount, each_unea)    'unea_amount
-' 				                          DropListBox 390, y_pos, 90, 45, "Select One..."+chr(9)+"4 - Weekly"+chr(9)+"3 - Biweekly"+chr(9)+"2 - Semi Monthly"+chr(9)+"1 - Monthly", NEW_UNEARNED_ARRAY(unearned_freq, each_unea) 'unea_frequency
-' 				                          ' CheckBox 495, y_pos, 30, 10, "New", ALL_INCOME_ARRAY(new_checkbox, each_unea)
-' 				                          ' CheckBox 530, y_pos, 55, 10, "Update/Detail", ALL_INCOME_ARRAY(update_checkbox, each_unea)
-' 				                          y_pos = y_pos + 20
-' 				                      End If
-' 				                  Next
-' 				                  If first_unea = TRUE Then
-' 				                      Text 35, y_pos, 400, 10, "CSR form - no UNEA information has been added."
-' 				                      y_pos = y_pos + 20
-' 				                  Else
-' 				                    y_pos = y_pos + 10
-' 				                  End If
-'
-' 				                  ButtonGroup ButtonPressed
-' 								  	PushButton 20, y_pos + 2, 200, 13, "Why do I have to answer these if in is not HC?", why_answer_btn
-' 				                    PushButton 475, y_pos, 80, 15, "Go to Q9 - Q12", next_page_ma_btn
-' 				                    CancelButton 555, y_pos, 50, 15
-' 				                EndDialog
-'
-' 				                dialog Dialog1
-' 				                cancel_confirmation
-'
-' 				                If ButtonPressed = -1 Then ButtonPressed = next_page_ma_btn
-'
-' 								If all_questions_4_7_blank = "Questions 4 - 7 are completely blank." Then
-' 									apply_for_ma = "Did not answer"
-' 									ma_self_employed = "Did not answer"
-' 									ma_start_working = "Did not answer"
-' 									ma_other_income = "Did not answer"
-'
-' 									q_4_details_blank_checkbox = checked
-' 									q_5_details_blank_checkbox = checked
-' 									q_6_details_blank_checkbox = checked
-' 									q_7_details_blank_checkbox = checked
-' 								End If
-'
-' 				                If ButtonPressed = add_memb_btn Then
-' 									If NEW_MA_REQUEST_ARRAY(ma_request_client, 0) = "Select or Type" Then
-' 										NEW_MA_REQUEST_ARRAY(ma_request_client, 0) = "Enter or Select Member"
-' 									Else
-' 					                    new_item = UBound(NEW_MA_REQUEST_ARRAY, 2) + 1
-' 					                    ReDim Preserve NEW_MA_REQUEST_ARRAY(ma_request_notes, new_item)
-' 										NEW_MA_REQUEST_ARRAY(ma_request_client, new_item) = "Enter or Select Member"
-' 									End If
-' 				                End If
-' 				                If ButtonPressed = add_busi_btn Then
-' 				                    ReDim Preserve NEW_EARNED_ARRAY(earned_notes, new_earned_counter)
-' 				                    NEW_EARNED_ARRAY(earned_type, new_earned_counter) = "BUSI"
-' 				                    NEW_EARNED_ARRAY(earned_prog_list, new_earned_counter) = "MA"
-' 				                    new_earned_counter = new_earned_counter + 1
-' 				                End If
-' 				                If ButtonPressed = add_jobs_btn Then
-' 				                    ReDim Preserve NEW_EARNED_ARRAY(earned_notes, new_earned_counter)
-' 				                    NEW_EARNED_ARRAY(earned_type, new_earned_counter) = "JOBS"
-' 				                    NEW_EARNED_ARRAY(earned_prog_list, new_earned_counter) = "MA"
-' 				                    new_earned_counter = new_earned_counter + 1
-' 				                End If
-' 				                If ButtonPressed = add_unea_btn Then
-' 				                    new_item = UBound(ALL_INCOME_ARRAY, 2) + 1
-' 				                    ReDim Preserve NEW_UNEARNED_ARRAY(unearned_notes, new_unearned_counter)
-' 				                    NEW_UNEARNED_ARRAY(unearned_type, new_unearned_counter) = "UNEA"
-' 				                    NEW_UNEARNED_ARRAY(unearned_prog_list, new_unearned_counter) = "MA"
-' 				                    new_unearned_counter = new_unearned_counter + 1
-' 				                End If
-' 								If ButtonPressed = why_answer_btn Then
-' 									explain_text = "This case may not have MA, MSP, or any HC active and you may have indicated that it is only for a SNAP Review, HOWEVER" & vbCr & vbCr
-' 									explain_text = explain_text & "The form that was sent to the client STILL has these questions listed on it." & vbCr
-' 									explain_text = explain_text & "We need to be looking at all information that the client reported, anything entered here may impact the benefits because it is now 'known to the agency'." & vbCr & vbCr
-' 									explain_text = explain_text & "Though the client is not required to answer these questions, we are still required to review the entire form."
-' 									' explain_text = explain_text & ""
-' 									why_answer_when_not_HC_msg = MsgBOx(explain_text, vbInformation + vbOKonly, "No HC on the case")
-' 								End If
-'
-' 				                If ButtonPressed = next_page_ma_btn Then
-' 									questions_answered = TRUE
-'
-' 									If apply_for_ma = "Select One..." Then questions_answered = FALSE
-' 								    If ma_self_employed = "Select One..." Then questions_answered = FALSE
-' 								    If ma_start_working = "Select One..." Then questions_answered = FALSE
-' 								    If ma_other_income = "Select One..." Then questions_answered = FALSE
-'
-' 									If questions_answered = FALSE Then
-' 										err_msg = err_msg & vbNewLine & "* All of the questions must be answered with the answers from the CSR Form."
-' 										If apply_for_ma = "Select One..." Then err_msg = err_msg & vbNewLine & "   - "
-' 								        If ma_self_employed = "Select One..." Then err_msg = err_msg & vbNewLine & "   - "
-' 								        If ma_start_working = "Select One..." Then err_msg = err_msg & vbNewLine & "   - "
-' 								        If ma_other_income = "Select One..." Then err_msg = err_msg & vbNewLine & "   - "
-' 									End If
-'
-' 									q_4_details_entered = FALSE
-' 									q_5_details_entered = FALSE
-' 									q_6_details_entered = FALSE
-' 									q_7_details_entered = FALSE
-' 									If q_4_details_blank_checkbox = unchecked Then
-' 										For each_new_memb = 0 to UBound(NEW_MA_REQUEST_ARRAY, 2)
-' 											If NEW_MA_REQUEST_ARRAY(ma_request_client, each_new_memb) <> "Select or Type" and NEW_MA_REQUEST_ARRAY(ma_request_client, each_new_memb) <> "" and NEW_MA_REQUEST_ARRAY(ma_request_client, each_new_memb) <> "Enter or Select Member" Then
-' 												q_4_details_entered = TRUE
-' 											End If
-' 										Next
-' 										If q_4_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* No details of a person requesting MA for someone not getting coverage now (Question 4). Either enter information about which members are requesting MA coverage or check the box to indicate this portion of the form was left blank."
-' 									End If
-' 									If q_5_details_blank_checkbox = unchecked Then
-' 										For each_busi = 0 to UBound(NEW_EARNED_ARRAY, 2)
-' 					                        If NEW_EARNED_ARRAY(earned_type, each_busi) = "BUSI" AND NEW_EARNED_ARRAY(earned_prog_list, each_busi) = "MA" Then
-' 												q_5_details_entered = TRUE
-' 											End If
-' 										Next
-' 										If q_5_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* No Self Employment information has been entered (Question 5). Either enter BUSI details from the CSR Form or check the box to indicate this portion of the form was left blank."
-' 									End If
-' 									If q_6_details_blank_checkbox = unchecked Then
-' 										For each_job = 0 to UBound(NEW_EARNED_ARRAY, 2)
-' 											If NEW_EARNED_ARRAY(earned_type, each_job) = "JOBS" AND NEW_EARNED_ARRAY(earned_prog_list, each_job) = "MA" Then
-' 												q_6_details_entered = TRUE
-' 											End If
-' 										Next
-' 										If q_6_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* * No Job information has been entered (Question 6). Either enter JOBS details from the CSR Form or check the box to indicate this portion of the form was left blank."
-' 									End If
-' 									If q_7_details_blank_checkbox = unchecked Then
-' 										For each_unea = 0 to UBound(NEW_UNEARNED_ARRAY, 2)
-' 											If NEW_UNEARNED_ARRAY(unearned_type, each_unea) = "UNEA" AND NEW_UNEARNED_ARRAY(unearned_prog_list, each_unea) = "MA" Then
-' 												q_7_details_entered = TRUE
-' 											End If
-' 										Next
-' 										If q_7_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* * No Unearned Income information has been entered (Question 7). Either enter UNEA details from the CSR Form or check the box to indicate this portion of the form was left blank."
-' 									End If
-'
-' 									If err_msg <> "" Then MsgBox "*** NOTICE ***" & vbNewLine & "Please resolve to continue:" & vbNewLine & err_msg
-' 				                    If err_msg = "" Then show_ma_dlg_one = FALSE
-' 				                End If
-' 				            End If
-'
-' 				        Loop until show_ma_dlg_one = FALSE
-'
-' 						If show_ma_dlg_two = TRUE Then
-' 							show_ma_dlg_three = TRUE
-' 					        dlg_len = 205
-' 					        q_9_grp_len = 30
-' 					        q_10_grp_len = 30
-' 					        q_11_grp_len = 30
-' 					        q_12_grp_len = 30
-' 					        For new_assets_listed = 0 to UBound(NEW_ASSET_ARRAY, 2)
-' 					            If NEW_ASSET_ARRAY(asset_type, new_assets_listed) = "CASH" AND NEW_ASSET_ARRAY(asset_prog_list, new_assets_listed) = "MA" Then
-' 					                dlg_len = dlg_len + 20
-' 					                q_9_grp_len = q_9_grp_len + 20
-' 					                ' MsgBox ALL_ASSETS_ARRAY(category_const, assets_on_case)
-' 					            End If
-' 					            If NEW_ASSET_ARRAY(asset_type, new_assets_listed) = "ACCT" AND NEW_ASSET_ARRAY(asset_prog_list, new_assets_listed) = "MA" Then
-' 					                dlg_len = dlg_len + 20
-' 					                q_9_grp_len = q_9_grp_len + 20
-' 					            End If
-' 					            If NEW_ASSET_ARRAY(asset_type, new_assets_listed) = "SECU" AND NEW_ASSET_ARRAY(asset_prog_list, new_assets_listed) = "MA" Then
-' 					                dlg_len = dlg_len + 20
-' 					                q_10_grp_len = q_10_grp_len + 20
-' 					            End If
-' 					            If NEW_ASSET_ARRAY(asset_type, new_assets_listed) = "CARS" AND NEW_ASSET_ARRAY(asset_prog_list, new_assets_listed) = "MA" Then
-' 					                dlg_len = dlg_len + 20
-' 					                q_11_grp_len = q_11_grp_len + 20
-' 					            End If
-' 					            If NEW_ASSET_ARRAY(asset_type, new_assets_listed) = "REST" AND NEW_ASSET_ARRAY(asset_prog_list, new_assets_listed) = "MA" Then
-' 					                dlg_len = dlg_len + 20
-' 					                q_12_grp_len = q_12_grp_len + 20
-' 					            End If
-' 					        Next
-' 					        y_pos = 25
-' 					        Dialog1 = ""
-' 					        BeginDialog Dialog1, 0, 0, 610, dlg_len, "MA CSR Asset Questions"
-' 					          Text 10, 10, 180, 10, "Enter the answers from the CSR form, questions 9 - 12:"
-' 							  Text 195, 10, 210, 10, "If all questions and details have been left blank, indicate that here:"
-' 							  DropListBox 405, 5, 200, 15, "Enter Question specific information below"+chr(9)+"Questions 9 - 12 are completely blank.", all_questions_9_12_blank
-'
-' 					          GroupBox 15, y_pos + 5, 585, q_9_grp_len, "Q9. Does anyone have cash, a savings or checking account, or a certificate of deposit?"
-' 					          DropListBox 330, y_pos, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_liquid_assets
-' 					          CheckBox 430, y_pos + 5, 75, 10, "Q9 Deailts left Blank", q_9_details_blank_checkbox
-' 					          y_pos = y_pos +20
-' 					          ButtonGroup ButtonPressed
-' 					            PushButton 540, y_pos - 15, 50, 10, "Add Another", add_acct_btn
-' 					          first_account = TRUE
-'
-' 					          For each_asset = 0 to UBound(NEW_ASSET_ARRAY, 2)
-' 					            If (NEW_ASSET_ARRAY(asset_type, each_asset) = "ACCT" OR NEW_ASSET_ARRAY(asset_type, each_asset) = "CASH") AND NEW_ASSET_ARRAY(asset_prog_list, each_asset) = "MA" Then
-' 					              If first_account = TRUE Then
-' 					                  Text 30, y_pos, 55, 10, "Owner(s) Name"
-' 					                  Text 165, y_pos, 25, 10, "Type"
-' 					                  Text 285, y_pos, 50, 10, "Bank Name"
-' 					                  y_pos = y_pos + 10
-' 					                  first_account = FALSE
-' 					              End If
-' 					              ComboBox 30, y_pos, 130, 45, all_the_clients, NEW_ASSET_ARRAY(asset_client, each_asset) 'liquid_asset_member'
-' 					              ComboBox 165, y_pos, 115, 40, account_list, NEW_ASSET_ARRAY(asset_acct_type, each_asset)'liquid_asst_type
-' 					              EditBox 285, y_pos, 195, 15, NEW_ASSET_ARRAY(asset_bank_name, each_asset)'liquid_asset_name
-' 					              ' CheckBox 495, y_pos, 30, 10, "New", ALL_ASSETS_ARRAY(new_checkbox, each_asset)    'new_checkbox
-' 					              ' CheckBox 530, y_pos, 55, 10, "Update/Detail", ALL_ASSETS_ARRAY(update_checkbox, each_asset)'update_checkbox
-' 					              y_pos = y_pos + 20
-' 					            End If
-' 					          Next
-' 					          If first_account = TRUE Then
-' 					            Text 30, y_pos, 250, 10, "CSR form - no ACCT information has been added."
-' 					            y_pos = y_pos + 10
-' 					          End If
-'
-' 					          y_pos = y_pos +10
-' 					          GroupBox 15, y_pos + 5, 585, q_10_grp_len, "Q10. Does anyone own or co-own securities or other assets?"
-' 					          DropListBox 295, y_pos, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_security_assets
-' 					          CheckBox 430, y_pos + 5, 80, 10, "Q10 Deailts left Blank", q_10_details_blank_checkbox
-' 					          y_pos = y_pos +  20
-' 					          ButtonGroup ButtonPressed
-' 					            PushButton 540, y_pos - 15, 50, 10, "Add Another", add_secu_btn
-'
-' 					          first_secu = TRUE
-' 					          For each_asset = 0 to UBound(NEW_ASSET_ARRAY, 2)
-' 					            If NEW_ASSET_ARRAY(asset_type, each_asset) = "SECU" AND NEW_ASSET_ARRAY(asset_prog_list, each_asset) = "MA" Then
-' 					                If first_secu = TRUE Then
-' 					                    Text 30, y_pos, 55, 10, "Owner(s) Name"
-' 					                    Text 165, y_pos, 25, 10, "Type"
-' 					                    Text 285, y_pos, 50, 10, "Bank Name"
-' 					                    y_pos = y_pos + 10
-' 					                    first_secu = FALSE
-' 					                End If
-' 					                ComboBox 30, y_pos, 130, 45, all_the_clients, NEW_ASSET_ARRAY(asset_client, each_asset) 'security_asset_member
-' 					                ComboBox 165, y_pos, 115, 40, security_list, NEW_ASSET_ARRAY(asset_acct_type, each_asset)    'security_asset_type
-' 					                EditBox 285, y_pos, 195, 15, NEW_ASSET_ARRAY(asset_bank_name, each_asset)   'security_asset_name
-' 					                ' CheckBox 495, y_pos, 30, 10, "New", ALL_ASSETS_ARRAY(new_checkbox, each_asset)
-' 					                ' CheckBox 530, y_pos, 55, 10, "Update/Detail", ALL_ASSETS_ARRAY(update_checkbox, each_asset)
-' 					                y_pos = y_pos + 20
-' 					            End If
-' 					          Next
-' 					          If first_secu = TRUE Then
-' 					              Text 30, y_pos, 250, 10, "CSR form - no SECU information has been added."
-' 					              y_pos = y_pos + 10
-' 					          End If
-' 					          y_pos = y_pos + 10
-'
-' 					          GroupBox 15, y_pos + 5, 585, q_11_grp_len, "Q11. Does anyone own a vehicle?"
-' 					          DropListBox 250, y_pos, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_vehicle
-' 					          CheckBox 430, y_pos + 5, 80, 10, "Q11 Deailts left Blank", q_11_details_blank_checkbox
-' 					          y_pos = y_pos + 20
-' 					          ButtonGroup ButtonPressed
-' 					            PushButton 540, y_pos - 15, 50, 10, "Add Another", add_cars_btn
-' 					          first_car = TRUE
-' 					          For each_asset = 0 to UBound(NEW_ASSET_ARRAY, 2)
-' 					              If NEW_ASSET_ARRAY(asset_type, each_asset) = "CARS" AND NEW_ASSET_ARRAY(asset_prog_list, each_asset) = "MA" Then
-' 					                  If first_car = TRUE Then
-' 					                      Text 30, y_pos, 55, 10, "Owner(s) Name"
-' 					                      Text 165, y_pos, 25, 10, "Type"
-' 					                      Text 285, y_pos, 75, 10, "Year/Make/Model"
-' 					                      y_pos = y_pos + 10
-' 					                      first_car = FALSE
-' 					                  End If
-' 					                  ComboBox 30, y_pos, 130, 45, all_the_clients, NEW_ASSET_ARRAY(asset_client, each_asset)     'vehicle_asset_member
-' 					                  ComboBox 165, y_pos, 115, 40, cars_list, NEW_ASSET_ARRAY(asset_acct_type, each_asset)    'vehicle_asset_type
-' 					                  EditBox 285, y_pos, 195, 15, NEW_ASSET_ARRAY(asset_year_make_model, each_asset)  'vehicle_asset_name
-' 					                  ' CheckBox 495, y_pos, 30, 10, "New", ALL_ASSETS_ARRAY(new_checkbox, each_asset)
-' 					                  ' CheckBox 530, y_pos, 55, 10, "Update/Detail", ALL_ASSETS_ARRAY(update_checkbox, each_asset)
-' 					                  y_pos = y_pos + 20
-' 					              End If
-' 					          Next
-' 					          If first_car = TRUE Then
-' 					            Text 30, y_pos, 250, 10, "CSR form - no CARS information has been added."
-' 					            y_pos = y_pos + 10
-' 					          End If
-' 					          y_pos = y_pos + 10
-'
-' 					          GroupBox 15, y_pos + 5, 585, q_12_grp_len, "Q12. Does anyone own or co-own any real estate?"
-' 					          DropListBox 280, y_pos, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_real_assets
-' 					          CheckBox 430, y_pos + 5, 80, 10, "Q12 Deailts left Blank", q_12_details_blank_checkbox
-' 					          y_pos = y_pos + 20
-' 					          ButtonGroup ButtonPressed
-' 					            PushButton 540, y_pos - 15, 50, 10, "Add Another", add_rest_btn
-' 					          first_home = TRUE
-' 					          For each_asset = 0 to Ubound(NEW_ASSET_ARRAY, 2)
-' 					              If NEW_ASSET_ARRAY(asset_type, each_asset) = "REST" AND NEW_ASSET_ARRAY(asset_prog_list, each_asset) = "MA" Then
-' 					                  If first_home = TRUE Then
-' 					                      Text 30, y_pos, 55, 10, "Owner(s) Name"
-' 					                      Text 165, y_pos, 25, 10, "Address"
-' 					                      Text 320, y_pos, 75, 10, "Type of Property"
-' 					                      y_pos = y_pos + 10
-' 					                      first_home = FALSE
-' 					                  End If
-' 					                  ComboBox 30, y_pos, 130, 45, all_the_clients, NEW_ASSET_ARRAY(asset_client, each_asset)     'property_asset_member
-' 					                  EditBox 165, y_pos, 150, 15, NEW_ASSET_ARRAY(asset_address, each_asset)      'property_asset_address
-' 					                  ComboBox 320, y_pos, 150, 40, rest_list, NEW_ASSET_ARRAY(asset_acct_type, each_asset)     'property_asset_type
-' 					                  ' CheckBox 495, y_pos, 30, 10, "New", ALL_ASSETS_ARRAY(new_checkbox, each_asset)
-' 					                  ' CheckBox 530, y_pos, 55, 10, "Update/Detail", ALL_ASSETS_ARRAY(update_checkbox, each_asset)
-' 					                  y_pos = y_pos + 20
-' 					              End If
-' 					          Next
-' 					          If first_home = TRUE Then
-' 					            Text 30, y_pos, 250, 10, "CSR form - no REST information has been added."
-' 					            y_pos = y_pos + 10
-' 					          End If
-' 					          y_pos = y_pos + 10
-'
-' 					          ButtonGroup ButtonPressed
-' 					            PushButton 415, y_pos, 80, 15, "Go Back to Q4 - Q7", back_to_ma_dlg_1
-' 					            PushButton 495, y_pos, 60, 15, "Continue", continue_btn
-' 					            CancelButton 555, y_pos, 50, 15
-' 					        EndDialog
-'
-' 					        err_msg = ""
-'
-' 					        dialog Dialog1
-' 					        cancel_confirmation
-'
-' 					        ' MsgBox ButtonPressed & " - 1 - "
-' 					        If ButtonPressed = -1 Then ButtonPressed = continue_btn
-'
-' 							If ButtonPressed = add_acct_btn Then
-' 						        ReDim Preserve NEW_ASSET_ARRAY(asset_notes, new_asset_counter)
-' 						        NEW_ASSET_ARRAY(asset_type, new_asset_counter) = "ACCT"
-' 						        NEW_ASSET_ARRAY(asset_prog_list, new_asset_counter) = "MA"
-' 						        new_asset_counter = new_asset_counter + 1
-' 						    End If
-' 						    If ButtonPressed = add_secu_btn Then
-' 						        ReDim Preserve NEW_ASSET_ARRAY(asset_notes, new_asset_counter)
-' 						        NEW_ASSET_ARRAY(asset_type, new_asset_counter) = "SECU"
-' 						        NEW_ASSET_ARRAY(asset_prog_list, new_asset_counter) = "MA"
-' 						        new_asset_counter = new_asset_counter + 1
-' 						    End If
-' 						    If ButtonPressed = add_cars_btn Then
-' 						        ReDim Preserve NEW_ASSET_ARRAY(asset_notes, new_asset_counter)
-' 						        NEW_ASSET_ARRAY(asset_type, new_asset_counter) = "CARS"
-' 						        NEW_ASSET_ARRAY(asset_prog_list, new_asset_counter) = "MA"
-' 						        new_asset_counter = new_asset_counter + 1
-' 						    End If
-' 						    If ButtonPressed = add_rest_btn Then
-' 						        ReDim Preserve NEW_ASSET_ARRAY(asset_notes, new_asset_counter)
-' 						        NEW_ASSET_ARRAY(asset_type, new_asset_counter) = "REST"
-' 						        NEW_ASSET_ARRAY(asset_prog_list, new_asset_counter) = "MA"
-' 						        new_asset_counter = new_asset_counter + 1
-' 						    End If
-'
-' 							If all_questions_9_12_blank = "Questions 9 - 12 are completely blank." Then
-' 								ma_liquid_assets = "Did not answer"
-' 								ma_security_assets = "Did not answer"
-' 								ma_vehicle = "Did not answer"
-' 								ma_real_assets = "Did not answer"
-'
-' 								q_9_details_blank_checkbox = checked
-' 								q_10_details_blank_checkbox = checked
-' 								q_11_details_blank_checkbox = checked
-' 								q_12_details_blank_checkbox = checked
-' 							End If
-'
-' 							If ButtonPressed = continue_btn Then
-' 								questions_answered = TRUE
-'
-' 								If ma_liquid_assets = "Select One..." Then questions_answered = FALSE
-' 								If ma_security_assets = "Select One..." Then questions_answered = FALSE
-' 								If ma_vehicle = "Select One..." Then questions_answered = FALSE
-' 								If ma_real_assets = "Select One..." Then questions_answered = FALSE
-'
-' 								If questions_answered = FALSE Then
-' 									err_msg = err_msg & vbNewLine & "* All of the questions must be answered with the answers from the CSR Form."
-'
-' 									If ma_liquid_assets = "Select One..." Then err_msg = err_msg & vbNewLine & "   - "
-' 									If ma_security_assets = "Select One..." Then err_msg = err_msg & vbNewLine & "   - "
-' 									If ma_vehicle = "Select One..." Then err_msg = err_msg & vbNewLine & "   - "
-' 									If ma_real_assets = "Select One..." Then err_msg = err_msg & vbNewLine & "   - "
-' 								End If
-'
-' 								q_9_details_entered = FALSE
-' 								q_10_details_entered = FALSE
-' 								q_11_details_entered = FALSE
-' 								q_12_details_entered = FALSE
-' 								If q_9_details_blank_checkbox = unchecked Then
-' 									For each_new_memb = 0 to UBound(NEW_MA_REQUEST_ARRAY, 2)
-' 										If (NEW_ASSET_ARRAY(asset_type, each_asset) = "ACCT" OR NEW_ASSET_ARRAY(asset_type, each_asset) = "CASH") AND NEW_ASSET_ARRAY(asset_prog_list, each_asset) = "MA" AND NEW_ASSET_ARRAY(ma_request_client, each_asset) <> "Enter or Select Member" Then
-' 											q_9_details_entered = TRUE
-' 										End If
-' 									Next
-' 									If q_9_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* No details of a person requesting MA for someone not getting coverage now (Question 4). Either enter information about which members are requesting MA coverage or check the box to indicate this portion of the form was left blank."
-' 								End If
-' 								If q_10_details_blank_checkbox = unchecked Then
-' 									For each_busi = 0 to UBound(NEW_EARNED_ARRAY, 2)
-' 										If NEW_EARNED_ARRAY(earned_type, each_busi) = "BUSI" AND NEW_EARNED_ARRAY(earned_prog_list, each_busi) = "MA" Then
-' 											q_10_details_entered = TRUE
-' 										End If
-' 									Next
-' 									If q_10_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* No Self Employment information has been entered (Question 5). Either enter BUSI details from the CSR Form or check the box to indicate this portion of the form was left blank."
-' 								End If
-' 								If q_11_details_blank_checkbox = unchecked Then
-' 									For each_job = 0 to UBound(NEW_EARNED_ARRAY, 2)
-' 										If NEW_EARNED_ARRAY(earned_type, each_job) = "JOBS" AND NEW_EARNED_ARRAY(earned_prog_list, each_job) = "MA" Then
-' 											q_11_details_entered = TRUE
-' 										End If
-' 									Next
-' 									If q_11_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* * No Job information has been entered (Question 6). Either enter JOBS details from the CSR Form or check the box to indicate this portion of the form was left blank."
-' 								End If
-' 								If q_12_details_blank_checkbox = unchecked Then
-' 									For each_unea = 0 to UBound(NEW_UNEARNED_ARRAY, 2)
-' 										If NEW_UNEARNED_ARRAY(unearned_type, each_unea) = "UNEA" AND NEW_UNEARNED_ARRAY(unearned_prog_list, each_unea) = "MA" Then
-' 											q_12_details_entered = TRUE
-' 										End If
-' 									Next
-' 									If q_12_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* * No Unearned Income information has been entered (Question 7). Either enter UNEA details from the CSR Form or check the box to indicate this portion of the form was left blank."
-' 								End If
-'
-' 								If err_msg <> "" Then MsgBox "*** NOTICE ***" & vbNewLine & "Please resolve to continue:" & vbNewLine & err_msg
-' 								If err_msg = "" Then show_ma_dlg_two = FALSE
-' 							End If
-'
-' 							If ButtonPressed = back_to_ma_dlg_1 Then
-' 								' MsgBox ButtonPressed & " - 2 - "
-' 								show_ma_dlg_one = TRUE
-' 								show_ma_dlg_two = FALSE
-' 								show_ma_dlg_three = FALSE
-' 								err_msg = ""
-' 							End If
-' 						End If
-' 					Loop until show_ma_dlg_two = FALSE
-'
-' 					If show_ma_dlg_three = TRUE Then
-' 						leave_q_13 = FALSE
-'
-' 						Dialog1 = ""
-' 						BeginDialog Dialog1, 0, 0, 610, 100, "MA CSR Changes"
-' 						  Text 10, 10, 180, 10, "Enter the answers from the CSR form, questions 13:"
-'
-' 						  Text 25, 25, 135, 10, "Q13. Do you have any changes to report?"
-' 						  DropListBox 160, 20, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_other_changes
-' 						  EditBox 30, 40, 555, 15, other_changes_reported
-' 						  CheckBox 30, 60, 300, 10, "Check here if client left the changes to report field on the form blank.", changes_reported_blank_checkbox
-'
-' 						  ButtonGroup ButtonPressed
-' 						  	PushButton 255, 80, 100, 15, "Back to Q 4-7", back_to_ma_dlg_1
-' 							PushButton 355, 80, 100, 15, "Back to Q 9 - 12", back_to_ma_dlg_2
-' 							PushButton 455, 80, 100, 15, "Finish MA Questions", finish_ma_questions
-' 							CancelButton 555, 80, 50, 15
-' 						EndDialog
-'
-' 						dialog Dialog1
-' 						cancel_confirmation
-'
-' 						If ButtonPressed = back_to_ma_dlg_1 Then
-' 							show_ma_dlg_three = FALSE
-' 							show_ma_dlg_one = TRUE
-' 						End If
-' 						If ButtonPressed = back_to_ma_dlg_2 Then
-' 							show_ma_dlg_three = FALSE
-' 							show_ma_dlg_two = TRUE
-' 						End If
-' 						If ButtonPressed = finish_ma_questions Then
-' 							show_ma_dlg_three = FALSE
-'
-' 							questions_answered = TRUE
-'
-' 							If ma_other_changes = "Select One..." Then questions_answered = FALSE
-'
-' 							If questions_answered = FALSE Then
-' 								err_msg = err_msg & vbNewLine & "* All of the questions must be answered with the answers from the CSR Form."
-'
-' 								If ma_other_changes = "Select One..." Then err_msg = err_msg & vbNewLine & "   - "
-' 							Else
-' 								If details_shown = FALSE Then err_msg = "LOOP" & err_msg
-' 							End If
-'
-' 							If err_msg <> "" AND left(err_msg, 4) <> "LOOP" Then
-' 								MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
-' 							' Else
-' 							'     If ButtonPressed = continue_btn then err_msg = ""
-' 							End If
-' 						End If
-' 					End If
-' 				Loop until show_ma_dlg_three = FALSE
-' 			Loop until show_ma_dlg_one = FALSE AND show_ma_dlg_two = FALSE AND show_ma_dlg_three = FALSE
-'
-' 			err_msg = ""
-'
-' 	        dlg_len = 230
-' 	        q_15_grp_len = 50
-' 	        q_16_grp_len = 25
-' 	        q_17_grp_len = 25
-'
-' 	        For the_earned = 0 to UBound(NEW_EARNED_ARRAY, 2)
-' 	            If NEW_EARNED_ARRAY(earned_prog_list, the_earned) = "SNAP" Then
-' 	                dlg_len = dlg_len + 20
-' 	                q_16_grp_len = q_16_grp_len + 20
-' 	            End If
-' 	        Next
-'
-' 	        For the_unearned = 0 to UBound(NEW_UNEARNED_ARRAY, 2)
-' 	            If NEW_UNEARNED_ARRAY(unearned_prog_list, the_unearned) = "SNAP" Then
-' 	                dlg_len = dlg_len + 20
-' 	                q_17_grp_len = q_17_grp_len + 20
-' 	            End If
-' 	        Next
-' 	        ' dlg_len = dlg_len + UBound(NEW_EARNED_ARRAY, 2) * 20
-' 	        ' dlg_len = dlg_len + UBound(NEW_UNEARNED_ARRAY, 2) * 20
-' 	        dlg_len = dlg_len + UBound(NEW_CHILD_SUPPORT_ARRAY, 2) * 20
-' 	        ' q_15_grp_len = 50
-' 	        ' q_16_grp_len = 45 + UBound(NEW_EARNED_ARRAY, 2) * 20
-' 	        ' q_17_grp_len = 45 + UBound(NEW_UNEARNED_ARRAY, 2) * 20
-' 	        q_18_grp_len = 45 + UBound(NEW_CHILD_SUPPORT_ARRAY, 2) * 20
-'
-' 	        y_pos = 95
-'
-' 	        Dialog1 = ""
-' 	        BeginDialog Dialog1, 0, 0, 510, dlg_len, "SNAP CSR Question Details"
-' 	          GroupBox 10, 10, 415, q_15_grp_len, "Q15. Has your household moved since your last application or in the past six months?"
-' 	          DropListBox 305, 5, 100, 45, "Select One..."+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Did not answer", quest_fifteen_form_answer
-' 	          Text 25, 25, 105, 10, "New Rent or Mortgage Amount:"
-' 	          EditBox 130, 20, 65, 15, new_rent_or_mortgage_amount
-' 	          CheckBox 220, 25, 50, 10, "Heat/AC", heat_ac_checkbox
-' 	          CheckBox 275, 25, 50, 10, "Electricity", electricity_checkbox
-' 	          CheckBox 345, 25, 50, 10, "Telephone", telephone_checkbox
-' 	          Text 210, 45, 80, 10, "Did client attach proof?"
-' 	          DropListBox 290, 40, 125, 45, "Select One..."+chr(9)+"Yes"+chr(9)+"No", shel_proof_provided
-' 	          GroupBox 10, 70, 490, q_16_grp_len, "Q16 Has there been a change in EARNED INCOME?"
-' 	          DropListBox 190, 65, 100, 45, "Select One..."+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Did not answer", quest_sixteen_form_answer
-' 	          CheckBox 310, 70, 85, 10, "Q16 Deailts left Blank", q_16_details_blank_checkbox
-' 	          ButtonGroup ButtonPressed
-' 	            PushButton 440, 70, 50, 10, "Add Another", add_snap_earned_income_btn
-' 	          Text 15, 85, 20, 10, "Client"
-' 	          Text 130, 85, 100, 10, "Employer (or Business Name)"
-' 	          Text 265, 85, 50, 10, "Change Date"
-' 	          Text 320, 85, 35, 10, "Amount"
-' 	          Text 375, 85, 40, 10, "Frequency"
-' 	          Text 445, 85, 25, 10, "Hours"
-' 	          For the_earned = 0 to UBound(NEW_EARNED_ARRAY, 2)
-' 	              If NEW_EARNED_ARRAY(earned_prog_list, the_earned) = "SNAP" Then
-' 	                  ComboBox 15, y_pos, 110, 45, all_the_clients, NEW_EARNED_ARRAY(earned_client, the_earned)
-' 	                  EditBox 130, y_pos, 130, 15, NEW_EARNED_ARRAY(earned_source, the_earned)
-' 	                  EditBox 265, y_pos, 50, 15, NEW_EARNED_ARRAY(earned_change_date, the_earned)
-' 	                  EditBox 320, y_pos, 50, 15, NEW_EARNED_ARRAY(earned_amount, the_earned)
-' 	                  DropListBox 375, y_pos, 65, 45, "Select One..."+chr(9)+"Weekly"+chr(9)+"BiWeekly"+chr(9)+"Semi-Monthly"+chr(9)+"Monthly", NEW_EARNED_ARRAY(earned_freq, the_earned)
-' 	                  EditBox 445, y_pos, 50, 15, NEW_EARNED_ARRAY(earned_hours, the_earned)
-' 	                  y_pos = y_pos + 20
-' 	              End If
-' 	          Next
-' 	          y_pos = y_pos + 10
-' 	          GroupBox 10, y_pos, 490, q_17_grp_len, "Q17. Has there been a change in UNEARNED INCOME?"
-' 	          DropListBox 205, y_pos - 5, 100, 45, "Select One..."+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Did not answer", quest_seventeen_form_answer
-' 	          CheckBox 310, y_pos, 85, 10, "Q17 Deailts left Blank", q_17_details_blank_checkbox
-' 	          ButtonGroup ButtonPressed
-' 	            PushButton 440, y_pos, 50, 10, "Add Another", add_snap_unearned_btn
-' 	          y_pos = y_pos + 15
-' 	          Text 15, y_pos, 20, 10, "Client"
-' 	          Text 145, y_pos, 100, 10, "Type and Source"
-' 	          Text 280, y_pos, 50, 10, "Change Date"
-' 	          Text 340, y_pos, 35, 10, "Amount"
-' 	          Text 405, y_pos, 40, 10, "Frequency"
-' 	          y_pos = y_pos + 10
-' 	          For the_unearned = 0 to UBound(NEW_UNEARNED_ARRAY, 2)
-' 	              If NEW_UNEARNED_ARRAY(unearned_prog_list, the_unearned) = "SNAP" Then
-' 	                  ComboBox 15, y_pos, 125, 45, all_the_clients, NEW_UNEARNED_ARRAY(unearned_client, the_unearned)
-' 	                  EditBox 145, y_pos, 130, 15, NEW_UNEARNED_ARRAY(unearned_source, the_unearned)
-' 	                  EditBox 280, y_pos, 55, 15, NEW_UNEARNED_ARRAY(unearned_change_date, the_unearned)
-' 	                  EditBox 340, y_pos, 60, 15, NEW_UNEARNED_ARRAY(unearned_amount, the_unearned)
-' 	                  DropListBox 405, y_pos, 90, 45, "Select One..."+chr(9)+"Weekly"+chr(9)+"BiWeekly"+chr(9)+"Semi-Monthly"+chr(9)+"Monthly", NEW_UNEARNED_ARRAY(unearned_freq, the_unearned)
-' 	                  y_pos = y_pos + 20
-' 	              End If
-' 	          Next
-' 	          y_pos = y_pos + 10
-' 	          GroupBox 10, y_pos, 490, q_18_grp_len, "Q18 Has there been a change in CHILD SUPPORT?"
-' 	          DropListBox 190, y_pos - 5, 100, 45, "Select One..."+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Did not answer", quest_eighteen_form_answer
-' 	          CheckBox 310, y_pos, 85, 10, "Q18 Deailts left Blank", q_18_details_blank_checkbox
-' 	          ButtonGroup ButtonPressed
-' 	            PushButton 440, y_pos, 50, 10, "Add Another", add_snap_cs_btn
-' 	          y_pos = y_pos + 15
-' 	          Text 15, y_pos, 85, 10, "Name of person paying"
-' 	          Text 220, y_pos, 35, 10, "Amount"
-' 	          Text 295, y_pos, 65, 10, "Currently Paying?"
-' 	          y_pos = y_pos + 10
-' 	          For the_cs = 0 to UBound(NEW_CHILD_SUPPORT_ARRAY, 2)
-' 	              EditBox 15, y_pos, 200, 15, NEW_CHILD_SUPPORT_ARRAY(cs_payer, the_cs)
-' 	              EditBox 220, y_pos, 65, 15, NEW_CHILD_SUPPORT_ARRAY(cs_amount, the_cs)
-' 	              DropListBox 295, y_pos, 60, 45, "Select..."+chr(9)+"Yes"+chr(9)+"No", NEW_CHILD_SUPPORT_ARRAY(cs_current, the_cs)
-' 	              y_pos = y_pos + 20
-' 	          Next
-' 	          y_pos = y_pos + 10
-' 	          Text 10, y_pos, 345, 10, "Q19. Did you work 20 hours each week, for an average of 80 hours per month during the past six months?"
-' 	          DropListBox 355, y_pos - 5, 100, 45, "Select One..."+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Did not answer", quest_nineteen_form_answer
-' 	          y_pos = y_pos + 15
-' 	          ButtonGroup ButtonPressed
-' 	            PushButton 405, y_pos, 50, 15, "Continue", continue_btn
-' 	            CancelButton 455, y_pos, 50, 15
-' 	        EndDialog
-'
-' 	        dialog Dialog1
-'
-' 	        cancel_confirmation
-'
-' 	        If quest_fifteen_form_answer = "Select One..." OR quest_sixteen_form_answer = "Select One..." OR quest_seventeen_form_answer = "Select One..." OR quest_eighteen_form_answer = "Select One..." OR quest_nineteen_form_answer = "Select One..." Then err_msg = err_msg & vbNewLine & "* All of the questions must be answered with the answers from the CSR Form." & vbNewLine
-' 	        If quest_fifteen_form_answer = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate the answer on the CSR form for Question 15 (Has the household moved?)."
-' 	        If quest_sixteen_form_answer = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate the answer on the CSR form for Question 16 (Has anyone had a change in Earned income?)."
-' 	        If quest_seventeen_form_answer = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate the answer on the CSR form for Question 17 (Has anyone had a change in Unearned income?)."
-' 	        If quest_eighteen_form_answer = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate the answer on the CSR form for Question 18 (Has there been a change in Child Support income?)."
-' 	        If quest_nineteen_form_answer = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate the answer on the CSR form for Question 19 (Have you worked 80 hours per month?)."
-'
-' 	        If ButtonPressed = add_snap_earned_income_btn Then
-' 	            ReDim Preserve NEW_EARNED_ARRAY(earned_notes, new_earned_counter)
-' 	            NEW_EARNED_ARRAY(earned_prog_list, new_earned_counter) = "SNAP"
-' 	            new_earned_counter = new_earned_counter + 1
-' 	            err_msg = "LOOP" & err_msg
-' 	        End If
-'
-' 	        If ButtonPressed = add_snap_unearned_btn Then
-' 	            new_item = UBound(NEW_UNEARNED_ARRAY, 2) + 1
-' 	            ReDim Preserve NEW_UNEARNED_ARRAY(unearned_notes, new_unearned_counter)
-' 	            NEW_UNEARNED_ARRAY(unearned_prog_list, new_unearned_counter) = "SNAP"
-' 	            new_unearned_counter = new_unearned_counter + 1
-' 	            err_msg = "LOOP" & err_msg
-' 	        End If
-'
-' 	        If ButtonPressed = add_snap_cs_btn Then
-' 	            new_item = UBound(NEW_CHILD_SUPPORT_ARRAY, 2) + 1
-' 	            ReDim Preserve NEW_CHILD_SUPPORT_ARRAY(cs_notes, new_item)
-' 	            err_msg = "LOOP" & err_msg
-' 	        End If
-'
-' 	        If ButtonPressed = -1 Then ButtonPressed = continue_btn
-'
-' 	        If err_msg <> "" AND left(err_msg, 4) <> "LOOP" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
-' 		    ' MsgBox show_two & vbNewLine & "line 1480"
-' 		    ' Loop until leave_ma_questions = TRUE
-' 	    Loop until err_msg = ""
-' 		err_msg = ""
-'
-' 		Dialog1 = ""
-' 		BeginDialog Dialog1, 0, 0, 211, 100, "Form dates and signatures"
-' 		  EditBox 90, 5, 60, 15, csr_form_date
-' 		  DropListBox 145, 30, 60, 45, "Select..."+chr(9)+"Yes"+chr(9)+"No", client_signed_yn
-' 		  DropListBox 145, 50, 60, 45, "Select..."+chr(9)+"Yes"+chr(9)+"No", client_dated_yn
-' 		  ButtonGroup ButtonPressed
-' 			PushButton 45, 75, 105, 15, "Complete CSR Form Detail", complete_csr_questions
-' 			CancelButton 155, 75, 50, 15
-' 		  Text 15, 10, 70, 10, "Date form Received:"
-' 		  Text 15, 35, 130, 10, "Has the client signed the CSR Form?"
-' 		  Text 15, 55, 130, 10, "Has the client dated the CSR Form?"
-' 		EndDialog
-'
-' 		dialog Dialog1
-'
-' 		cancel_confirmation
-'
-' 		If IsDate(csr_form_date) = FALSE Then
-' 			err_msg = err_msg & vbNewLine & "* Enter a valid date for the date the form was received."
-' 		Else
-' 			If DateDiff("d", date, csr_form_date) > 0 Then err_msg = err_msg & vbNewLine & "* The date of the CSR form is listed as a future date, a form cannot be listed as received inthe future, please review the form date."
-' 		End If
-' 		If client_signed_yn = "Select..." Then err_msg = err_msg & vbNewLine & "* Indicate if the client has signed the form correctly by selecting 'yes' or 'no'."
-' 		If client_dated_yn = "Select..." Then err_msg = err_msg & vbNewLine & "* Indicate if the form has been dated correctly by selecting 'yes' or 'no'."
-'
-' 		If err_msg <> "" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
-'
-' 	Loop until err_msg = ""
-'     Call check_for_password(are_we_passworded_out)
-' Loop until are_we_passworded_out = FALSE
-
-
-
-
-'
-' Do
-'     Do
-'         err_msg = ""
-'
-'         Dialog1 = ""
-'         BeginDialog Dialog1, 0, 0, 501, 130, "SNAP CSR Questions"
-'           Text 10, 10, 290, 10, "Q15. Has your household moved since your last application or in the past six months?"
-'           DropListBox 305, 5, 100, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", quest_fifteen_form_answer
-'           Text 10, 30, 175, 10, "Q16 Has there been a change in EARNED INCOME?"
-'           DropListBox 190, 25, 100, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", quest_sixteen_form_answer
-'           Text 10, 50, 195, 10, "Q17. Has there been a change in UNEARNED INCOME?"
-'           DropListBox 205, 45, 100, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", quest_seventeen_form_answer
-'           Text 10, 70, 175, 10, "Q18 Has there been a change in CHILD SUPPORT?"
-'           DropListBox 190, 65, 100, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", quest_eighteen_form_answer
-'           Text 10, 90, 345, 10, "Q19. Did you work 20 hours each week, for an average of 80 hours per month during the past six months?"
-'           DropListBox 355, 85, 100, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", quest_nineteen_form_answer
-'           ButtonGroup ButtonPressed
-'             PushButton 395, 110, 50, 15, "Continue", continue_btn
-'             CancelButton 445, 110, 50, 15
-'         EndDialog
-'
-'         dialog Dialog1
-'
-'         cancel_confirmation
-'
-'         If quest_fifteen_form_answer = "Select One..." OR quest_sixteen_form_answer = "Select One..." OR quest_seventeen_form_answer = "Select One..." OR quest_eighteen_form_answer = "Select One..." OR quest_nineteen_form_answer = "Select One..." Then err_msg = err_msg & vbNewLine & "* All of the questions must be answered with the answers from the CSR Form." & vbNewLine
-'         If quest_fifteen_form_answer = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate the answer on the CSR form for Question 15 (Has the household moved?)."
-'         If quest_sixteen_form_answer = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate the answer on the CSR form for Question 16 (Has anyone had a change in Earned income?)."
-'         If quest_seventeen_form_answer = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate the answer on the CSR form for Question 17 (Has anyone had a change in Unearned income?)."
-'         If quest_eighteen_form_answer = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate the answer on the CSR form for Question 18 (Has there been a change in Child Support income?)."
-'         If quest_nineteen_form_answer = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate the answer on the CSR form for Question 19 (Have you worked 80 hours per month?)."
-'
-'         If ButtonPressed = -1 Then ButtonPressed = continue_btn
-'
-'         If err_msg <> "" Then MsgBox "Please Resolve to Continue:" & vbNewLine & err_msg
-'     Loop until err_msg = ""
-'     Call check_for_password(are_we_passworded_out)
-' Loop until are_we_passworded_out = FALSE
-'
-' If quest_sixteen_form_answer = "Yes" Then
-'     ReDim Preserve NEW_EARNED_ARRAY(earned_notes, new_earned_counter)
-'     NEW_EARNED_ARRAY(earned_prog_list, new_earned_counter) = "SNAP"
-'     new_earned_counter = new_earned_counter + 1
-' End If
-'
-' If quest_seventeen_form_answer = "Yes" Then
-'     ReDim Preserve NEW_UNEARNED_ARRAY(unearned_notes, new_unearned_counter)
-'     NEW_UNEARNED_ARRAY(unearned_prog_list, new_unearned_counter) = "SNAP"
-'     new_unearned_counter = new_unearned_counter + 1
-' End If
-
-
 'Logic to reflect on if the form is complete.
 dlg_width = 260
 dlg_len = 140
@@ -5788,19 +4784,6 @@ q_fifteen_complete = TRUE
 q_seventeen_complete = TRUE
 q_eightneen_complete = TRUE
 q_nineteen_complete = TRUE
-'
-' q_4_details_blank_checkbox
-' q_5_details_blank_checkbox
-' q_6_details_blank_checkbox
-' q_7_details_blank_checkbox
-' q_9_details_blank_checkbox
-' q_10_details_blank_checkbox
-' q_11_details_blank_checkbox
-' q_12_details_blank_checkbox
-'
-' q_16_details_blank_checkbox
-' q_17_details_blank_checkbox
-' q_18_details_blank_checkbox
 
 hh_memb_change = FALSE
 If quest_two_move_in_out = "Did not answer" Then
