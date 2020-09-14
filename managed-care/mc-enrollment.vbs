@@ -409,6 +409,7 @@ enrollment_date = enrollment_month & "/01/" & enrollment_year
 
 'Now we are in RKEY, and it navigates into the case, transmits, and makes sure we've moved to the next screen.
 EMWriteScreen "i", 2, 19
+EmWriteScreen "        ", 4, 19
 EMWriteScreen MMIS_case_number, 9, 19
 transmit
 transmit
