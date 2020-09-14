@@ -1,6 +1,5 @@
-''GATHERING STATS===========================================================================================
+OTHER_STATE_CASH_CHECKBOX'GATHERING STATS===========================================================================================
 name_of_script = "NOTICES - OUT OF STATE INQUIRY.vbs"
-start_time = timer
 STATS_counter = 1                          'sets the stats counter at one
 STATS_manualtime = 500                     'manual run time in seconds
 STATS_denomination = "C"                   'C is for each CASE
@@ -8,14 +7,7 @@ STATS_denomination = "C"                   'C is for each CASE
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-    IF on_the_desert_island = TRUE Then
-        FuncLib_URL = "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Scripts\Script Files\desert-island\MASTER FUNCTIONS LIBRARY.vbs"
-        Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-        Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
-        text_from_the_other_script = fso_command.ReadAll
-        fso_command.Close
-        Execute text_from_the_other_script
-    ELSEIF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
 		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		Else											'Everyone else should use the release branch.
@@ -43,29 +35,25 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		Execute text_from_the_other_script
 	END IF
 END IF
-call run_from_GitHub(script_repository & "notes/application-received.vbs")
-
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 'CHANGELOG BLOCK ===========================================================================================================
 'Starts by defining a changelog array
 changelog = array()
+
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
-'call changelog_update("09/10/2020", "Update to functionality script will now create an email and a word document from  National Directoy of Contacts Revision Date: 5/1/20", "MiKayla Handley, Hennepin County")
-'call changelog_update("06/28/2016", "Initial version. NATIONAL DIRECTORY OF CONTACTS Revision Date: 5/1/20", "MiKayla Handley, Hennepin County")
-''Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County
+CALL changelog_update("01/31/2020", "Initial version.", "MiKayla Handley, Hennepin County")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'THE SCRIPT----------------------------------------------------------------------------------------------------------------
+'---------------------------------------------------------------------------------------The script
+'Grabs the case number
 EMConnect ""
-MAXIS_case_number = "298199"
-'testing_run = TRUE
-'Hunts for Maxis case number to autofill it
-Call MAXIS_case_number_finder(MAXIS_case_number)
-
-'Error proof functions
-Call check_for_MAXIS(true)
+CALL MAXIS_case_number_finder(MAXIS_case_number)
+'back_to_SELF' added to ensure we have the time to update and send the case in the background
 
 Dialog1 = ""
 BEGINDIALOG Dialog1, 0, 0, 146, 105, "Out of State Inquiry"
@@ -98,7 +86,7 @@ Loop until are_we_passworded_out = false
 
 'Error proof functions
 Call check_for_MAXIS(False)
-msgbox "do i even get in?"
+'msgbox "do i even get in?"
 'changing footer dates to current month to avoid invalid months.
 MAXIS_footer_month = datepart("M", date)
 IF Len(MAXIS_footer_month) <> 2 THEN MAXIS_footer_month = "0" & MAXIS_footer_month
@@ -106,7 +94,7 @@ MAXIS_footer_year = right(datepart("YYYY", date), 2)
 
 'Navigate back to self
 'Back_to_self
-EMWriteScreen MAXIS_case_number, 18, 43
+'EMWriteScreen MAXIS_case_number, 18, 43
 Call navigate_to_MAXIS_screen("CASE", "CURR")
 EMReadScreen CURR_panel_check, 4, 2, 55
 EMReadScreen case_status, 8, 8, 9
@@ -205,20 +193,20 @@ agency_ext = ""
 agency_fax = ""
 agency_email = ""
 agency_website = ""
-
+'------------------start of state list'
 IF state_droplist = "Alabama" THEN
 	abbr_state = "AL"
-	IF FS_CHECKBOX = CHECKED THEN
+	IF OTHER_STATE_FS_CHECKBOX = CHECKED THEN
 		other_state_fs = TRUE
 		agency_email = "fs@dhr.alabama.gov"
 	END IF
-	IF CASH_CHECKBOX = CHECKED THEN
+	IF OTHER_STATE_CASH_CHECKBOX = CHECKED THEN
 		other_state_cash = TRUE
 		agency_email = "DHR_PA_Helpdesk@dhr.alabama.gov"
 	END IF
-	IF CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
-	IF COMMOD_CHECKBOX = CHECKED THEN other_state_program = TRUE
-	IF HC_CHECKBOX = CHECKED THEN
+	IF OTHER_STATE_CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
+	IF COMMOD_CHECKBOX = CHECKED THEN other_state_commod = TRUE
+	IF OTHER_STATE_HC_CHECKBOX = CHECKED THEN
 		other_state_hc = TRUE
 		agency_phone = "334-242-5010"
 	END IF
@@ -235,11 +223,11 @@ IF state_droplist = "Alabama" THEN
 END IF
 IF	state_droplist = "Alaska" THEN
 	abbr_state = "AK"
-	IF FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
-	IF CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
-	IF CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
-	IF COMMOD_CHECKBOX = CHECKED THEN other_state_program = TRUE
-	IF HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
+	IF OTHER_STATE_FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
+	IF OTHER_STATE_CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
+	IF OTHER_STATE_CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
+	IF COMMOD_CHECKBOX = CHECKED THEN other_state_commod = TRUE
+	IF OTHER_STATE_HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
 	IF PARIS_CHECKBOX = CHECKED THEN other_state_paris = TRUE
 	agency_name = "Alaska Dept of Health & Social Services Division of Public Assistance"
 	agency_address = "PO Box 110640, Juneau, AK 998110640"
@@ -249,11 +237,11 @@ IF	state_droplist = "Alaska" THEN
 END IF
 IF	state_droplist = "Arizona" THEN
 	abbr_state = "AZ"
-	IF FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
-	IF CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
-	IF CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
-	IF COMMOD_CHECKBOX = CHECKED THEN other_state_program = TRUE
-	IF HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
+	IF OTHER_STATE_FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
+	IF OTHER_STATE_CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
+	IF OTHER_STATE_CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
+	IF COMMOD_CHECKBOX = CHECKED THEN other_state_commod = TRUE
+	IF OTHER_STATE_HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
 	IF PARIS_CHECKBOX = CHECKED THEN other_state_paris = TRUE
 	agency_name = "Dept. of Economic Security Communication Center"
 	agency_phone = "602-771-2047"
@@ -263,11 +251,11 @@ IF	state_droplist = "Arizona" THEN
 END IF
 IF	state_droplist = "Arkansas"	THEN
 	abbr_state = "AR"
-	IF FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
-	IF CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
-	IF CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
-	IF COMMOD_CHECKBOX = CHECKED THEN other_state_program = TRUE
-	IF HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
+	IF OTHER_STATE_FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
+	IF OTHER_STATE_CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
+	IF OTHER_STATE_CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
+	IF COMMOD_CHECKBOX = CHECKED THEN other_state_commod = TRUE
+	IF OTHER_STATE_HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
 	IF PARIS_CHECKBOX = CHECKED THEN other_state_paris = TRUE
 	agency_name = "Ruthie Broughton DHS Program Manager, Customer Assistance Unit"
 	agency_address = "PO Box 1437, Slot S-341 Little Rock , Arkansas 72203-1437"
@@ -279,11 +267,11 @@ END IF
 IF	state_droplist = "California" THEN
 	IF state_county = "" THEN err_msg = err_msg & vbNewLine & "Please select the county of the out of state inquiry."
 	abbr_state = "CA"
-	IF FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
-	IF CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
-	IF CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
-	IF COMMOD_CHECKBOX = CHECKED THEN other_state_program = TRUE
-	IF HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
+	IF OTHER_STATE_FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
+	IF OTHER_STATE_CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
+	IF OTHER_STATE_CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
+	IF COMMOD_CHECKBOX = CHECKED THEN other_state_commod = TRUE
+	IF OTHER_STATE_HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
 	IF PARIS_CHECKBOX = CHECKED THEN other_state_paris = TRUE
 	agency_name = "California Department of Social Services"
 	agency_address = "744 P Street, MS 8-4-23 Sacramento, CA 95814-6400"
@@ -295,11 +283,11 @@ IF	state_droplist = "California" THEN
 END IF
 IF	state_droplist = "Colorado"	THEN
 	abbr_state = "CO"
-	IF FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
-	IF CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
-	IF CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
-	IF COMMOD_CHECKBOX = CHECKED THEN other_state_program = TRUE
-	IF HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
+	IF OTHER_STATE_FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
+	IF OTHER_STATE_CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
+	IF OTHER_STATE_CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
+	IF COMMOD_CHECKBOX = CHECKED THEN other_state_commod = TRUE
+	IF OTHER_STATE_HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
 	IF PARIS_CHECKBOX = CHECKED THEN
 		agency_phone = "1-800-359-1991"
 		other_state_paris = TRUE
@@ -313,15 +301,15 @@ IF	state_droplist = "Colorado"	THEN
 END IF
 IF	state_droplist = "Connecticut" THEN
 	abbr_state = "CT"
-	IF FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
-	IF CASH_CHECKBOX = CHECKED THEN
+	IF OTHER_STATE_FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
+	IF OTHER_STATE_CASH_CHECKBOX = CHECKED THEN
 		other_state_cash = TRUE
 		agency_phone = "860-424-5540"
 		agency_fax = "860-424-4886"
 	END IF
-	IF CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
-	IF COMMOD_CHECKBOX = CHECKED THEN other_state_program = TRUE
-	IF HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
+	IF OTHER_STATE_CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
+	IF COMMOD_CHECKBOX = CHECKED THEN other_state_commod = TRUE
+	IF OTHER_STATE_HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
 	IF PARIS_CHECKBOX = CHECKED THEN
 		other_state_paris = TRUE
 		agency_email = "Contact.Paris@ct.gov"
@@ -334,11 +322,11 @@ IF	state_droplist = "Connecticut" THEN
 END IF
 IF	state_droplist = "Delaware"	THEN
 	abbr_state = "DE"
-	IF FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
-	IF CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
-	IF CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
-	IF COMMOD_CHECKBOX = CHECKED THEN other_state_program = TRUE
-	IF HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
+	IF OTHER_STATE_FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
+	IF OTHER_STATE_CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
+	IF OTHER_STATE_CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
+	IF COMMOD_CHECKBOX = CHECKED THEN other_state_commod = TRUE
+	IF OTHER_STATE_HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
 	IF PARIS_CHECKBOX = CHECKED THEN
 		other_state_paris = TRUE
 		agency_email = "DE_PARIS-ARMS@delaware.gov"
@@ -351,11 +339,11 @@ IF	state_droplist = "Delaware"	THEN
 END IF
 IF	state_droplist = "District of Columbia"	THEN
 	abbr_state = "DC"
-	IF FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
-	IF CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
-	IF CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
-	IF COMMOD_CHECKBOX = CHECKED THEN other_state_program = TRUE
-	IF HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
+	IF OTHER_STATE_FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
+	IF OTHER_STATE_CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
+	IF OTHER_STATE_CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
+	IF COMMOD_CHECKBOX = CHECKED THEN other_state_commod = TRUE
+	IF OTHER_STATE_HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
 	IF PARIS_CHECKBOX = CHECKED THEN other_state_paris = TRUE
 	agency_name = "Vivessia Avent, Program Analyst Eligibility Review and Investigations District of Columbia Department of Human Services, Office of Program Review, Monitoring and Investigation"
 	agency_address = "645 H Street, N.E. – 3rd Floor Washington, D.C. 20002"
@@ -367,11 +355,11 @@ IF	state_droplist = "District of Columbia"	THEN
 END IF
 IF	state_droplist = "Florida"	THEN
 	abbr_state = "FL"
-	IF FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
-	IF CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
-	IF CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
-	IF COMMOD_CHECKBOX = CHECKED THEN other_state_program = TRUE
-	IF HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
+	IF OTHER_STATE_FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
+	IF OTHER_STATE_CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
+	IF OTHER_STATE_CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
+	IF COMMOD_CHECKBOX = CHECKED THEN other_state_commod = TRUE
+	IF OTHER_STATE_HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
 	IF PARIS_CHECKBOX = CHECKED THEN other_state_paris = TRUE
 	agency_name = "Dept. of Children & Families"
 	agency_address = "1317 Winewood Blvd., Bldg. 3, Room 435 Tallahassee, FL 32399-0700"
@@ -381,11 +369,11 @@ IF	state_droplist = "Florida"	THEN
 END IF
 IF	state_droplist = "Georgia"	THEN
 	abbr_state = "GA"
-	IF FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
-	IF CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
-	IF CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
-	IF COMMOD_CHECKBOX = CHECKED THEN other_state_program = TRUE
-	IF HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
+	IF OTHER_STATE_FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
+	IF OTHER_STATE_CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
+	IF OTHER_STATE_CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
+	IF COMMOD_CHECKBOX = CHECKED THEN other_state_commod = TRUE
+	IF OTHER_STATE_HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
 	IF PARIS_CHECKBOX = CHECKED THEN
 		other_state_paris = TRUE
 		agency_email = "ga.paris@dhs.ga.gov"
@@ -398,17 +386,17 @@ IF	state_droplist = "Georgia"	THEN
 END IF
 IF	state_droplist = "Hawaii"	THEN
 	abbr_state = "HI"
-	IF FS_CHECKBOX = CHECKED THEN
+	IF OTHER_STATE_FS_CHECKBOX = CHECKED THEN
 		other_state_fs = TRUE
 		agency_phone = "808-586-5720"
 	END IF
-	IF CASH_CHECKBOX = CHECKED THEN
+	IF OTHER_STATE_CASH_CHECKBOX = CHECKED THEN
 		other_state_cash = TRUE
 		agency_phone = "808-586-5732"
 	END IF
-	IF CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
-	IF COMMOD_CHECKBOX = CHECKED THEN other_state_program = TRUE
-	IF HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
+	IF OTHER_STATE_CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
+	IF COMMOD_CHECKBOX = CHECKED THEN other_state_commod = TRUE
+	IF OTHER_STATE_HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
 	IF PARIS_CHECKBOX = CHECKED THEN other_state_paris = TRUE
 	agency_name = "Department of Human Services State Office Administrative Assistant Benefit, Employment & Support Services Division"
 	agency_address = "1010 Richards Street, Suite 512 Honolulu, Hi  96813"
@@ -417,11 +405,11 @@ IF	state_droplist = "Hawaii"	THEN
 END IF
 IF	state_droplist = "Idaho"	THEN
 	abbr_state = "ID"
-	IF FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
-	IF CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
-	IF CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
-	IF COMMOD_CHECKBOX = CHECKED THEN other_state_program = TRUE
-	IF HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
+	IF OTHER_STATE_FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
+	IF OTHER_STATE_CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
+	IF OTHER_STATE_CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
+	IF COMMOD_CHECKBOX = CHECKED THEN other_state_commod = TRUE
+	IF OTHER_STATE_HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
 	IF PARIS_CHECKBOX = CHECKED THEN other_state_paris = TRUE
 	agency_name = "Idaho Department of Health & Welfare Division of Welfare, 2nd Floor"
 	agency_address = "P.O. Box 83720 Boise, ID  83720-0036"
@@ -431,11 +419,11 @@ IF	state_droplist = "Idaho"	THEN
 END IF
 IF	state_droplist = "Illinois"	THEN
 	abbr_state = "IL"
-	IF FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
-	IF CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
-	IF CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
-	IF COMMOD_CHECKBOX = CHECKED THEN other_state_program = TRUE
-	IF HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
+	IF OTHER_STATE_FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
+	IF OTHER_STATE_CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
+	IF OTHER_STATE_CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
+	IF COMMOD_CHECKBOX = CHECKED THEN other_state_commod = TRUE
+	IF OTHER_STATE_HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
 	IF PARIS_CHECKBOX = CHECKED THEN other_state_paris = TRUE
 	agency_name = "Illinois Department of Human Services Bureau of Customer and Support Services"
 	agency_address = "600 East Ash St., Bld. 500 Springfield, IL 62703"
@@ -445,11 +433,11 @@ IF	state_droplist = "Illinois"	THEN
 END IF
 IF	state_droplist = "Indiana"	THEN
 	abbr_state = "IN"
-	IF FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
-	IF CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
-	IF CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
-	IF COMMOD_CHECKBOX = CHECKED THEN other_state_program = TRUE
-	IF HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
+	IF OTHER_STATE_FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
+	IF OTHER_STATE_CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
+	IF OTHER_STATE_CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
+	IF COMMOD_CHECKBOX = CHECKED THEN other_state_commod = TRUE
+	IF OTHER_STATE_HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
 	IF PARIS_CHECKBOX = CHECKED THEN
 		other_state_paris = TRUE
 		agency_email = "Paris Unit Inquiries: parisinquiries@fssa.IN.gov"
@@ -461,11 +449,11 @@ IF	state_droplist = "Indiana"	THEN
 END IF
 IF	state_droplist = "Iowa"	THEN
 	abbr_state = "IA"
-	IF FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
-	IF CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
-	IF CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
-	IF COMMOD_CHECKBOX = CHECKED THEN other_state_program = TRUE
-	IF HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
+	IF OTHER_STATE_FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
+	IF OTHER_STATE_CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
+	IF OTHER_STATE_CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
+	IF COMMOD_CHECKBOX = CHECKED THEN other_state_commod = TRUE
+	IF OTHER_STATE_HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
 	IF PARIS_CHECKBOX = CHECKED THEN other_state_paris = TRUE
 	agency_name = "Integrated Claims Recovery Unit"
 	agency_phone ="1-877-855-0021"
@@ -476,11 +464,11 @@ IF	state_droplist = "Iowa"	THEN
 END IF
 IF	state_droplist = "Kansas"	THEN
 	abbr_state = "KS"
-	IF FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
-	IF CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
-	IF CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
-	IF COMMOD_CHECKBOX = CHECKED THEN other_state_program = TRUE
-	IF HC_CHECKBOX = CHECKED THEN
+	IF OTHER_STATE_FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
+	IF OTHER_STATE_CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
+	IF OTHER_STATE_CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
+	IF COMMOD_CHECKBOX = CHECKED THEN other_state_commod = TRUE
+	IF OTHER_STATE_HC_CHECKBOX = CHECKED THEN
 		other_state_hc = TRUE
 		agency_phone = "800-792-4884"
 	END IF
@@ -497,11 +485,11 @@ IF	state_droplist = "Kansas"	THEN
 END IF
 IF	state_droplist = "Kentucky"	THEN
 	abbr_state = "KY"
-	IF FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
-	IF CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
-	IF CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
-	IF COMMOD_CHECKBOX = CHECKED THEN other_state_program = TRUE
-	IF HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
+	IF OTHER_STATE_FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
+	IF OTHER_STATE_CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
+	IF OTHER_STATE_CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
+	IF COMMOD_CHECKBOX = CHECKED THEN other_state_commod = TRUE
+	IF OTHER_STATE_HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
 	IF PARIS_CHECKBOX = CHECKED THEN other_state_paris = TRUE
 	agency_name = "Kentucky Cabinet for Health and Family Services"
 	agency_phone = "855-306-8959"
@@ -510,11 +498,11 @@ IF	state_droplist = "Kentucky"	THEN
 END IF
 IF	state_droplist = "Louisiana"	THEN
 	abbr_state = "LA"
-	IF FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
-	IF CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
-	IF CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
-	IF COMMOD_CHECKBOX = CHECKED THEN other_state_program = TRUE
-	IF HC_CHECKBOX = CHECKED THEN
+	IF OTHER_STATE_FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
+	IF OTHER_STATE_CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
+	IF OTHER_STATE_CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
+	IF COMMOD_CHECKBOX = CHECKED THEN other_state_commod = TRUE
+	IF OTHER_STATE_HC_CHECKBOX = CHECKED THEN
 		other_state_hc = TRUE
 		agency_phone = "225-342-9730"
 		agency_fax = "225-389-8100"
@@ -531,11 +519,11 @@ END IF
 IF	state_droplist = "Maine" THEN
 	abbr_state = "ME"
 	MsgBox "The State of Maine requires a signed release is to obtain the verification Out-of-State Inquiries, please attach to the email."
-	IF FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
-	IF CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
-	IF CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
-	IF COMMOD_CHECKBOX = CHECKED THEN other_state_program = TRUE
-	IF HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
+	IF OTHER_STATE_FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
+	IF OTHER_STATE_CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
+	IF OTHER_STATE_CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
+	IF COMMOD_CHECKBOX = CHECKED THEN other_state_commod = TRUE
+	IF OTHER_STATE_HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
 	IF PARIS_CHECKBOX = CHECKED THEN other_state_paris = TRUE
 	agency_name = "ACES Help Desk Eligibility Specialists Department of Health and Human Services Office for Family Independence"
 	agency_address = "109 Capital Street, SHS#11 Augusta, ME 04333"
@@ -546,11 +534,11 @@ IF	state_droplist = "Maine" THEN
 END IF
 IF	state_droplist = "Maryland"	THEN
 	abbr_state = "MD"
-	IF FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
-	IF CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
-	IF CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
-	IF COMMOD_CHECKBOX = CHECKED THEN other_state_program = TRUE
-	IF HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
+	IF OTHER_STATE_FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
+	IF OTHER_STATE_CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
+	IF OTHER_STATE_CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
+	IF COMMOD_CHECKBOX = CHECKED THEN other_state_commod = TRUE
+	IF OTHER_STATE_HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
 	IF PARIS_CHECKBOX = CHECKED THEN
 	 	other_state_paris = TRUE
 		agency_email = "paris.inquiries@maryland.gov "
@@ -563,11 +551,11 @@ IF	state_droplist = "Maryland"	THEN
 END IF
 IF	state_droplist = "Massachusetts"	THEN
 	abbr_state = "MA"
-	IF FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
-	IF CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
-	IF CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
-	IF COMMOD_CHECKBOX = CHECKED THEN other_state_program = TRUE
-	IF HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
+	IF OTHER_STATE_FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
+	IF OTHER_STATE_CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
+	IF OTHER_STATE_CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
+	IF COMMOD_CHECKBOX = CHECKED THEN other_state_commod = TRUE
+	IF OTHER_STATE_HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
 	IF PARIS_CHECKBOX = CHECKED THEN other_state_paris = TRUE
 	agency_name = "MA Department of Transitional Assistance Data Matching Unit"
 	agency_address = "600 Washington Street, 5th Floor Boston, MA 02111"
@@ -576,11 +564,11 @@ IF	state_droplist = "Massachusetts"	THEN
 END IF
 IF	state_droplist = "Michigan"	THEN
 	abbr_state = "MI"
-	IF FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
-	IF CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
-	IF CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
-	IF COMMOD_CHECKBOX = CHECKED THEN other_state_program = TRUE
-	IF HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
+	IF OTHER_STATE_FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
+	IF OTHER_STATE_CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
+	IF OTHER_STATE_CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
+	IF COMMOD_CHECKBOX = CHECKED THEN other_state_commod = TRUE
+	IF OTHER_STATE_HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
 	IF PARIS_CHECKBOX = CHECKED THEN other_state_paris = TRUE
 	agency_name = "Dept of Health and Human Services"
 	agency_address = "PO Box 30037 235 S. Grand Ave. Lansing, MI 48909"
@@ -591,11 +579,11 @@ IF	state_droplist = "Michigan"	THEN
 END IF
 IF	state_droplist = "Mississippi"	THEN
 	abbr_state = "MS"
-	IF FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
-	IF CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
-	IF CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
-	IF COMMOD_CHECKBOX = CHECKED THEN other_state_program = TRUE
-	IF HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
+	IF OTHER_STATE_FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
+	IF OTHER_STATE_CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
+	IF OTHER_STATE_CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
+	IF COMMOD_CHECKBOX = CHECKED THEN other_state_commod = TRUE
+	IF OTHER_STATE_HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
 	IF PARIS_CHECKBOX = CHECKED THEN other_state_paris = TRUE
 	agency_name = "Department of Human Services Division of Field Operations"
 	agency_address = "P.O. Box 352 Jackson, MS 39205"
@@ -606,11 +594,11 @@ IF	state_droplist = "Mississippi"	THEN
 END IF
 IF	state_droplist = "Missouri"	THEN
 	abbr_state = "MO"
-	IF FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
-	IF CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
-	IF CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
-	IF COMMOD_CHECKBOX = CHECKED THEN other_state_program = TRUE
-	IF HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
+	IF OTHER_STATE_FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
+	IF OTHER_STATE_CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
+	IF OTHER_STATE_CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
+	IF COMMOD_CHECKBOX = CHECKED THEN other_state_commod = TRUE
+	IF OTHER_STATE_HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
 	IF PARIS_CHECKBOX = CHECKED THEN other_state_paris = TRUE
 	agency_name = "Correspondence and Information Unit Family Support Division Department of Social Services"
 	agency_address = "P.O. Box 2320, Jefferson City, MO 65102-2320"
@@ -620,17 +608,17 @@ IF	state_droplist = "Missouri"	THEN
 END IF
 IF	state_droplist = "Montana"	THEN
 	abbr_state = "MT"
-	IF FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
-	IF CASH_CHECKBOX = CHECKED THEN
+	IF OTHER_STATE_FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
+	IF OTHER_STATE_CASH_CHECKBOX = CHECKED THEN
 		other_state_cash = TRUE
 		agency_name = "Montana Department of Public Health and Human Services"
 		agency_address = "111 N. Jackson, Helena, MT 59601"
 		agency_fax = "406-444-2770"
 		agency_email = "TANF@mt.gov"
 	END IF
-	IF CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
-	IF COMMOD_CHECKBOX = CHECKED THEN other_state_program = TRUE
-	IF HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
+	IF OTHER_STATE_CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
+	IF COMMOD_CHECKBOX = CHECKED THEN other_state_commod = TRUE
+	IF OTHER_STATE_HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
 	IF PARIS_CHECKBOX = CHECKED THEN other_state_paris = TRUE
 	agency_name = "Department of Public Health & Human Services Human & Community Services Division C/O Julie Nepine "
 	agency_address = "PO Box 202925, Helena, MT  59620-2925"
@@ -641,14 +629,14 @@ IF	state_droplist = "Montana"	THEN
 END IF
 IF	state_droplist = "Nebraska"	THEN
 	abbr_state = "NE"
-	IF FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
-	IF CASH_CHECKBOX = CHECKED THEN
+	IF OTHER_STATE_FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
+	IF OTHER_STATE_CASH_CHECKBOX = CHECKED THEN
 		other_state_cash = TRUE
 		agency_email = "DHHS.EconomicAssistancePolicyQuestions@nebraska.gov"
 	END IF
-	IF CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
-	IF COMMOD_CHECKBOX = CHECKED THEN other_state_program = TRUE
-	IF HC_CHECKBOX = CHECKED THEN
+	IF OTHER_STATE_CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
+	IF COMMOD_CHECKBOX = CHECKED THEN other_state_commod = TRUE
+	IF OTHER_STATE_HC_CHECKBOX = CHECKED THEN
 		other_state_hc = TRUE
 		agency_email = "DHHS.MedicaidPolicyQuestions@nebraska.gov"
 	END IF
@@ -659,11 +647,11 @@ IF	state_droplist = "Nebraska"	THEN
 END IF
 IF	state_droplist = "Nevada"	THEN
 	abbr_state = "NV"
-	IF FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
-	IF CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
-	IF CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
-	IF COMMOD_CHECKBOX = CHECKED THEN other_state_program = TRUE
-	IF HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
+	IF OTHER_STATE_FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
+	IF OTHER_STATE_CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
+	IF OTHER_STATE_CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
+	IF COMMOD_CHECKBOX = CHECKED THEN other_state_commod = TRUE
+	IF OTHER_STATE_HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
 	IF PARIS_CHECKBOX = CHECKED THEN other_state_paris = TRUE
 	agency_name = "Dept of Health & Human Services Division of Welfare and Supportive Services"
 	agency_address = "1470 College Parkway Carson City, NV 89706"
@@ -673,11 +661,11 @@ IF	state_droplist = "Nevada"	THEN
 END IF
 IF	state_droplist = "New Hampshire"	THEN
 	abbr_state = "NH"
-	IF FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
-	IF CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
-	IF CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
-	IF COMMOD_CHECKBOX = CHECKED THEN other_state_program = TRUE
-	IF HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
+	IF OTHER_STATE_FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
+	IF OTHER_STATE_CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
+	IF OTHER_STATE_CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
+	IF COMMOD_CHECKBOX = CHECKED THEN other_state_commod = TRUE
+	IF OTHER_STATE_HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
 	IF PARIS_CHECKBOX = CHECKED THEN other_state_paris = TRUE
 	agency_name = "Department of Health & Human Services Bureau of Family Assistance C/O Molly Fulton"
 	agency_phone = "603-444-3663"
@@ -687,11 +675,11 @@ IF	state_droplist = "New Hampshire"	THEN
 END IF
 IF	state_droplist = "New Jersey"	THEN
 	abbr_state = "NJ"
-	IF FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
-	IF CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
-	IF CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
-	IF COMMOD_CHECKBOX = CHECKED THEN other_state_program = TRUE
-	IF HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
+	IF OTHER_STATE_FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
+	IF OTHER_STATE_CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
+	IF OTHER_STATE_CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
+	IF COMMOD_CHECKBOX = CHECKED THEN other_state_commod = TRUE
+	IF OTHER_STATE_HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
 	IF PARIS_CHECKBOX = CHECKED THEN other_state_paris = TRUE
 	agency_name = "Department of Human Services Division of Family Development (DFD)"
 	agency_address = "P.O. Box 716, Trenton, NJ 08625-0716"
@@ -701,11 +689,11 @@ IF	state_droplist = "New Jersey"	THEN
 END IF
 IF	state_droplist = "New Mexico" THEN
 	abbr_state = "NM"
-	IF FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
-	IF CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
-	IF CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
-	IF COMMOD_CHECKBOX = CHECKED THEN other_state_program = TRUE
-	IF HC_CHECKBOX = CHECKED THEN
+	IF OTHER_STATE_FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
+	IF OTHER_STATE_CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
+	IF OTHER_STATE_CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
+	IF COMMOD_CHECKBOX = CHECKED THEN other_state_commod = TRUE
+	IF OTHER_STATE_HC_CHECKBOX = CHECKED THEN
 		other_state_hc = TRUE
 		agency_phone = "1-888-997-2583"
 	END IF
@@ -717,11 +705,11 @@ IF	state_droplist = "New Mexico" THEN
 END IF
 IF	state_droplist = "New York"	THEN
 	abbr_state = "NY"
-	IF FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
-	IF CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
-	IF CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
-	IF COMMOD_CHECKBOX = CHECKED THEN other_state_program = TRUE
-	IF HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
+	IF OTHER_STATE_FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
+	IF OTHER_STATE_CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
+	IF OTHER_STATE_CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
+	IF COMMOD_CHECKBOX = CHECKED THEN other_state_commod = TRUE
+	IF OTHER_STATE_HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
 	IF PARIS_CHECKBOX = CHECKED THEN other_state_paris = TRUE
 	agency_name = "New York Human Services Department"
 	agency_phone = "518-486-3460"
@@ -730,11 +718,11 @@ IF	state_droplist = "New York"	THEN
 END IF
 IF	state_droplist = "North Carolina" THEN
 	abbr_state = "NC"
-	IF FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
-	IF CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
-	IF CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
-	IF COMMOD_CHECKBOX = CHECKED THEN other_state_program = TRUE
-	IF HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
+	IF OTHER_STATE_FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
+	IF OTHER_STATE_CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
+	IF OTHER_STATE_CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
+	IF COMMOD_CHECKBOX = CHECKED THEN other_state_commod = TRUE
+	IF OTHER_STATE_HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
 	IF PARIS_CHECKBOX = CHECKED THEN other_state_paris = TRUE
 	agency_name = "North Carolina Department of Health & Human Services Division of Social Services"
 	agency_address = "DHHS (EBT) Call Center P. O. Box 190 Everetts, NC  27825"
@@ -745,11 +733,11 @@ IF	state_droplist = "North Carolina" THEN
 END IF
 IF	state_droplist = "North Dakota"	THEN
 	abbr_state = "ND"
-	IF FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
-	IF CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
-	IF CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
-	IF COMMOD_CHECKBOX = CHECKED THEN other_state_program = TRUE
-	IF HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
+	IF OTHER_STATE_FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
+	IF OTHER_STATE_CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
+	IF OTHER_STATE_CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
+	IF COMMOD_CHECKBOX = CHECKED THEN other_state_commod = TRUE
+	IF OTHER_STATE_HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
 	IF PARIS_CHECKBOX = CHECKED THEN other_state_paris = TRUE
 	agency_name = "North Dakota Human Services Department"
 	agency_email = "dhseap@nd.gov"
@@ -758,11 +746,11 @@ IF	state_droplist = "North Dakota"	THEN
 END IF
 IF	state_droplist = "Ohio"	THEN
 	abbr_state = "OH"
-	IF FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
-	IF CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
-	IF CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
-	IF COMMOD_CHECKBOX = CHECKED THEN other_state_program = TRUE
-	IF HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
+	IF OTHER_STATE_FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
+	IF OTHER_STATE_CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
+	IF OTHER_STATE_CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
+	IF COMMOD_CHECKBOX = CHECKED THEN other_state_commod = TRUE
+	IF OTHER_STATE_HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
 	IF PARIS_CHECKBOX = CHECKED THEN other_state_paris = TRUE
 	agency_name = "Office of Family Assistance, Ohio Department of Job & Family Services"
 	agency_address = "P.O. Box 183204, Columbus, Ohio 43218-3204"
@@ -774,14 +762,14 @@ IF	state_droplist = "Ohio"	THEN
 END IF
 IF	state_droplist = "Oklahoma"	THEN
 	abbr_state = "OK"
-	IF FS_CHECKBOX = CHECKED THEN
+	IF OTHER_STATE_FS_CHECKBOX = CHECKED THEN
 		other_state_fs = TRUE
 		agency_email = "SNAP@okdhs.org"
 	END IF
-	IF CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
-	IF CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
-	IF COMMOD_CHECKBOX = CHECKED THEN other_state_program = TRUE
-	IF HC_CHECKBOX = CHECKED THEN
+	IF OTHER_STATE_CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
+	IF OTHER_STATE_CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
+	IF COMMOD_CHECKBOX = CHECKED THEN other_state_commod = TRUE
+	IF OTHER_STATE_HC_CHECKBOX = CHECKED THEN
 		other_state_hc = TRUE
 		agency_email = "eligibility@OKHCA.org"
 	END IF
@@ -794,11 +782,11 @@ IF	state_droplist = "Oklahoma"	THEN
 END IF
 IF	state_droplist = "Oregon" THEN
 	abbr_state = "OR"
-	IF FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
-	IF CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
-	IF CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
-	IF COMMOD_CHECKBOX = CHECKED THEN other_state_program = TRUE
-	IF HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
+	IF OTHER_STATE_FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
+	IF OTHER_STATE_CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
+	IF OTHER_STATE_CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
+	IF COMMOD_CHECKBOX = CHECKED THEN other_state_commod = TRUE
+	IF OTHER_STATE_HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
 	IF PARIS_CHECKBOX = CHECKED THEN
 		other_state_paris = TRUE
 		agency_name = "	Oregon Department of Human Services"
@@ -811,11 +799,11 @@ IF	state_droplist = "Oregon" THEN
 END IF
 IF	state_droplist = "Pennsylvania"	THEN
 	abbr_state = "PA"
-	IF FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
-	IF CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
-	IF CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
-	IF COMMOD_CHECKBOX = CHECKED THEN other_state_program = TRUE
-	IF HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
+	IF OTHER_STATE_FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
+	IF OTHER_STATE_CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
+	IF OTHER_STATE_CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
+	IF COMMOD_CHECKBOX = CHECKED THEN other_state_commod = TRUE
+	IF OTHER_STATE_HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
 	IF PARIS_CHECKBOX = CHECKED THEN other_state_paris = TRUE
 	agency_name = "Pennsylvania Department of Human Services"
 	agency_address = "P.O. Box 2675 Harrisburg, PA 17105-2675"
@@ -826,11 +814,11 @@ IF	state_droplist = "Pennsylvania"	THEN
 END IF
 IF	state_droplist = "Rhode Island"	THEN
 	abbr_state = "RI"
-	IF FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
-	IF CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
-	IF CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
-	IF COMMOD_CHECKBOX = CHECKED THEN other_state_program = TRUE
-	IF HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
+	IF OTHER_STATE_FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
+	IF OTHER_STATE_CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
+	IF OTHER_STATE_CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
+	IF COMMOD_CHECKBOX = CHECKED THEN other_state_commod = TRUE
+	IF OTHER_STATE_HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
 	IF PARIS_CHECKBOX = CHECKED THEN
 		other_state_paris = TRUE
 		agency_name = "State of Rhode Island and Providence Plantations, Department of Administration"
@@ -847,11 +835,11 @@ IF	state_droplist = "Rhode Island"	THEN
 END IF
 IF	state_droplist = "South Carolina"	THEN
 	abbr_state = "SC"
-	IF FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
-	IF CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
-	IF CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
-	IF COMMOD_CHECKBOX = CHECKED THEN other_state_program = TRUE
-	IF HC_CHECKBOX = CHECKED THEN
+	IF OTHER_STATE_FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
+	IF OTHER_STATE_CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
+	IF OTHER_STATE_CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
+	IF COMMOD_CHECKBOX = CHECKED THEN other_state_commod = TRUE
+	IF OTHER_STATE_HC_CHECKBOX = CHECKED THEN
 		other_state_hc = TRUE
 		agency_phone " 888-549-0820.  Press #1 for English, #1 for caseworker feedback and #2 to speak with a rep."
 	END IF
@@ -866,11 +854,11 @@ IF	state_droplist = "South Carolina"	THEN
 END IF
 IF	state_droplist = "South Dakota"	THEN
 	abbr_state = "SD"
-	IF FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
-	IF CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
-	IF CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
-	IF COMMOD_CHECKBOX = CHECKED THEN other_state_program = TRUE
-	IF HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
+	IF OTHER_STATE_FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
+	IF OTHER_STATE_CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
+	IF OTHER_STATE_CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
+	IF COMMOD_CHECKBOX = CHECKED THEN other_state_commod = TRUE
+	IF OTHER_STATE_HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
 	IF PARIS_CHECKBOX = CHECKED THEN other_state_paris = TRUE
 	agency_name = "Department of Social Services"
 	agency_address = "700 Governors Drive Pierre, South Dakota  57501-2291"
@@ -880,11 +868,11 @@ IF	state_droplist = "South Dakota"	THEN
 END IF
 IF	state_droplist = "Tennessee" THEN
 	abbr_state = "TN"
-	IF FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
-	IF CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
-	IF CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
-	IF COMMOD_CHECKBOX = CHECKED THEN other_state_program = TRUE
-	IF HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
+	IF OTHER_STATE_FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
+	IF OTHER_STATE_CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
+	IF OTHER_STATE_CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
+	IF COMMOD_CHECKBOX = CHECKED THEN other_state_commod = TRUE
+	IF OTHER_STATE_HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
 	IF PARIS_CHECKBOX = CHECKED THEN other_state_paris = TRUE
 	agency_name = "TN Supplemental Nutrition Assistance Program (SNAP) Policy"
 	agency_address = "James K. Polk Bldg. 15th Floor 505 Deaderick Street Nashville, TN 37243"
@@ -893,22 +881,22 @@ IF	state_droplist = "Tennessee" THEN
 END IF
 IF	state_droplist = "Texas"	THEN
 	abbr_state = "TX"
-	IF FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
-	IF CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
-	IF CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
-	IF COMMOD_CHECKBOX = CHECKED THEN other_state_program = TRUE
-	IF HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
+	IF OTHER_STATE_FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
+	IF OTHER_STATE_CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
+	IF OTHER_STATE_CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
+	IF COMMOD_CHECKBOX = CHECKED THEN other_state_commod = TRUE
+	IF OTHER_STATE_HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
 	IF PARIS_CHECKBOX = CHECKED THEN other_state_paris = TRUE
 	agency_name = "Texas Health and Human Services Commission"
 	agency_fax = "1-877-447-2839"
 END IF
 IF	state_droplist = "Utah"	THEN
 	abbr_state = "UT"
-	IF FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
-	IF CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
-	IF CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
-	IF COMMOD_CHECKBOX = CHECKED THEN other_state_program = TRUE
-	IF HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
+	IF OTHER_STATE_FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
+	IF OTHER_STATE_CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
+	IF OTHER_STATE_CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
+	IF COMMOD_CHECKBOX = CHECKED THEN other_state_commod = TRUE
+	IF OTHER_STATE_HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
 	IF PARIS_CHECKBOX = CHECKED THEN other_state_paris = TRUE
 	agency_name = "Department of Workforce Services Eligibility Services Division"
 	agency_address = "P.O. Box 143245 Salt Lake City, UT 84114-3245"
@@ -918,11 +906,11 @@ IF	state_droplist = "Utah"	THEN
 END IF
 IF	state_droplist = "Vermont"	THEN
 	abbr_state = "VT"
-	IF FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
-	IF CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
-	IF CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
-	IF COMMOD_CHECKBOX = CHECKED THEN other_state_program = TRUE
-	IF HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
+	IF OTHER_STATE_FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
+	IF OTHER_STATE_CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
+	IF OTHER_STATE_CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
+	IF COMMOD_CHECKBOX = CHECKED THEN other_state_commod = TRUE
+	IF OTHER_STATE_HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
 	IF PARIS_CHECKBOX = CHECKED THEN other_state_paris = TRUE
 	agency_name = "Economic Services Benefits Service Center"
 	agency_address = "1000 River Rd Essex Junction, VT 05452"
@@ -931,11 +919,11 @@ IF	state_droplist = "Vermont"	THEN
 END IF
 IF	state_droplist = "Virginia"	THEN
 	abbr_state = "VA"
-	IF FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
-	IF CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
-	IF CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
-	IF COMMOD_CHECKBOX = CHECKED THEN other_state_program = TRUE
-	IF HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
+	IF OTHER_STATE_FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
+	IF OTHER_STATE_CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
+	IF OTHER_STATE_CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
+	IF COMMOD_CHECKBOX = CHECKED THEN other_state_commod = TRUE
+	IF OTHER_STATE_HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
 	IF PARIS_CHECKBOX = CHECKED THEN other_state_paris = TRUE
 	agency_name = "Virginia Department of Social Services Division of Benefit Programs"
 	agency_address = "801 East Main St Richmond, VA  23219-2901"
@@ -945,11 +933,11 @@ IF	state_droplist = "Virginia"	THEN
 END IF
 IF	state_droplist = "Washington"	THEN
 	abbr_state = "WA"
-	IF FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
-	IF CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
-	IF CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
-	IF COMMOD_CHECKBOX = CHECKED THEN other_state_program = TRUE
-	IF HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
+	IF OTHER_STATE_FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
+	IF OTHER_STATE_CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
+	IF OTHER_STATE_CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
+	IF COMMOD_CHECKBOX = CHECKED THEN other_state_commod = TRUE
+	IF OTHER_STATE_HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
 	IF PARIS_CHECKBOX = CHECKED THEN
 		other_state_paris = TRUE
 		agency_email = "dshsparissupport@dshs.wa.gov"
@@ -961,11 +949,11 @@ IF	state_droplist = "Washington"	THEN
 END IF
 IF	state_droplist = "West Virginia"	THEN
 	abbr_state = "WV"
-	IF FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
-	IF CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
-	IF CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
-	IF COMMOD_CHECKBOX = CHECKED THEN other_state_program = TRUE
-	IF HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
+	IF OTHER_STATE_FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
+	IF OTHER_STATE_CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
+	IF OTHER_STATE_CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
+	IF COMMOD_CHECKBOX = CHECKED THEN other_state_commod = TRUE
+	IF OTHER_STATE_HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
 	IF PARIS_CHECKBOX = CHECKED THEN other_state_paris = TRUE
 	agency_name = "Department of Health & Human Resources Division of Family Assistance"
 	agency_address = "350 Capitol St., Room B-18Charleston, WV  25301-3705"
@@ -975,7 +963,7 @@ IF	state_droplist = "West Virginia"	THEN
 END IF
 IF	state_droplist = "Wisconsin"	THEN
 	abbr_state = "WI"
-	IF FS_CHECKBOX = CHECKED THEN
+	IF OTHER_STATE_FS_CHECKBOX = CHECKED THEN
 		other_state_fs = TRUE
 		agency_name = "WI Department of Health & Family Services"
 		agency_address = "1 W Wilson St, Madison, WI 53703"
@@ -984,15 +972,15 @@ IF	state_droplist = "Wisconsin"	THEN
 		agency_fax = "608-267-2269"
 		agency_email = "DHSOSBQ@dhs.wisconsin.gov"
 	END IF
-	IF CASH_CHECKBOX = CHECKED THEN
+	IF OTHER_STATE_CASH_CHECKBOX = CHECKED THEN
 		other_state_cash = TRUE
 		agency_phone = "608-422-7900"
 		agency_fax = "608-327-6125"
 		agency_email = "DCFW2TANFVerify@wisconsin.gov"
 	END IF
-	IF CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
-	IF COMMOD_CHECKBOX = CHECKED THEN other_state_program = TRUE
-	IF HC_CHECKBOX = CHECKED THEN
+	IF OTHER_STATE_CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
+	IF COMMOD_CHECKBOX = CHECKED THEN other_state_commod = TRUE
+	IF OTHER_STATE_HC_CHECKBOX = CHECKED THEN
 		other_state_hc = TRUE
 		agency_email = "DHSOIGPARIS@dhs.wisconsin.gov"
 		agency_phone ="608-267-0470"
@@ -1011,11 +999,11 @@ IF	state_droplist = "Wisconsin"	THEN
 END IF
 IF	state_droplist = "Wyoming"	THEN
 	abbr_state = "WY"
-	IF FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
-	IF CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
-	IF CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
-	IF COMMOD_CHECKBOX = CHECKED THEN other_state_program = TRUE
-	IF HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
+	IF OTHER_STATE_FS_CHECKBOX = CHECKED THEN other_state_fs = TRUE
+	IF OTHER_STATE_CASH_CHECKBOX = CHECKED THEN other_state_cash = TRUE
+	IF OTHER_STATE_CCA_CHECKBOX = CHECKED THEN other_state_cca = TRUE
+	IF COMMOD_CHECKBOX = CHECKED THEN other_state_commod = TRUE
+	IF OTHER_STATE_HC_CHECKBOX = CHECKED THEN other_state_hc = TRUE
 	IF PARIS_CHECKBOX = CHECKED THEN other_state_paris = TRUE
 	agency_name = "Department of Family Services C/O Ann Bowen, SNAP/TANF Help Desk"
 	agency_address = "2300 Capitol Ave., Hathaway Bld, Third Floor"
@@ -1023,7 +1011,7 @@ IF	state_droplist = "Wyoming"	THEN
 	agency_fax = "1-307-777-6276"
 	agency_email = "ann.bowen@wyo.gov"
 	agency_website = "https://dfs.wyo.gov/assistance-programs/food-assistance/"
-END IF
+END IF '---------------------------------------------end of states
 
 Const ref_numb_const 			= 0
 Const first_name_const 			= 1
@@ -1080,38 +1068,35 @@ DO								'reads the reference number, last name, first name, and then puts it i
 	Emreadscreen edit_check, 7, 24, 2
 LOOP until edit_check = "ENTER A"'the script will continue to transmit through memb until it reaches the last page and finds the ENTER A edit on the bottom row.
 
-'is this a permanant change to the national directory, source of info
-'
 'For each path the script takes a different route'
-    Dialog1 = "" 'runs the dialog that has been dynamically created. Streamlined with new functions.
-    BEGINDIALOG Dialog1, 0, 0, 241, (50 + (Ubound(ALL_CLT_INFO_ARRAY, 2) * 15)), "Household Member(s) "   'Creates the dynamic dialog. The height will change based on the number of clients it finds.
-    	Text 10, 5, 130, 10, "Select household members to request:"
-    	FOR the_pers = 0 to Ubound(ALL_CLT_INFO_ARRAY, 2)
-    		checkbox 10, (20 + (the_pers * 15)), 160, 10, ALL_CLT_INFO_ARRAY(ref_numb_const, the_pers) & " " & ALL_CLT_INFO_ARRAY(first_name_const, the_pers) & " " & ALL_CLT_INFO_ARRAY(last_name_const, the_pers) & " " & ALL_CLT_INFO_ARRAY(clt_ssn_const, the_pers), ALL_CLT_INFO_ARRAY(client_selection_checkbox_const, the_pers)
-    	NEXT
-    	ButtonGroup ButtonPressed
-    	OkButton 185, 10, 50, 15
-    	CancelButton 185, 30, 50, 15
-    ENDDIALOG
+Dialog1 = "" 'runs the dialog that has been dynamically created. Streamlined with new functions.
+BEGINDIALOG Dialog1, 0, 0, 241, (50 + (Ubound(ALL_CLT_INFO_ARRAY, 2) * 15)), "Household Member(s) "   'Creates the dynamic dialog. The height will change based on the number of clients it finds.
+	Text 10, 5, 130, 10, "Select household members to request:"
+	FOR the_pers = 0 to Ubound(ALL_CLT_INFO_ARRAY, 2)
+		checkbox 10, (20 + (the_pers * 15)), 160, 10, ALL_CLT_INFO_ARRAY(ref_numb_const, the_pers) & " " & ALL_CLT_INFO_ARRAY(first_name_const, the_pers) & " " & ALL_CLT_INFO_ARRAY(last_name_const, the_pers) & " " & ALL_CLT_INFO_ARRAY(clt_ssn_const, the_pers), ALL_CLT_INFO_ARRAY(client_selection_checkbox_const, the_pers)
+	NEXT
+	ButtonGroup ButtonPressed
+	OkButton 185, 10, 50, 15
+	CancelButton 185, 30, 50, 15
+ENDDIALOG
 
-    DO
-    	DO
-    		err_msg = ""
-    		Dialog Dialog1
-    		cancel_confirmation
-    	LOOP until err_msg = ""
-    Loop until are_we_passworded_out = false
+DO
+	DO
+		err_msg = ""
+		Dialog Dialog1
+		cancel_confirmation
+	LOOP until err_msg = ""
+Loop until are_we_passworded_out = false
 
-	IF agency_phone = "" THEN agency_phone = "N/A"
-	IF agency_fax = "" THEN agency_fax = "N/A"
-	IF agency_email = "" THEN agency_email = "N/A"
-
-	IF CASH_CHECKBOX = TRUE THEN CASH_CHECKBOX = CHECKED
-	IF CCA_CHECKBOX = TRUE THEN CCA_CHECKBOX = CHECKED
-	IF FS_CHECKBOX = TRUE THEN FS_CHECKBOX = CHECKED
-	IF HC_CHECKBOX = TRUE THEN HC_CHECKBOX = CHECKED
-	IF SSI_CHECKBOX = TRUE THEN SSI_CHECKBOX = CHECKED
-	IF OTHER_CHECKBOX = TRUE THEN OTHER_CHECKBOX = CHECKED
+IF agency_phone = "" THEN agency_phone = "N/A"
+IF agency_fax = "" THEN agency_fax = "N/A"
+IF agency_email = "" THEN agency_email = "N/A"
+IF OTHER_STATE_CASH_CHECKBOX = TRUE THEN OTHER_STATE_CASH_CHECKBOX = CHECKED
+IF OTHER_STATE_CCA_CHECKBOX = TRUE THEN OTHER_STATE_CCA_CHECKBOX = CHECKED
+IF OTHER_STATE_FS_CHECKBOX = TRUE THEN OTHER_STATE_FS_CHECKBOX = CHECKED
+IF OTHER_STATE_HC_CHECKBOX = TRUE THEN OTHER_STATE_HC_CHECKBOX = CHECKED
+IF OTHER_STATE_SSI_CHECKBOX = TRUE THEN OTHER_STATE_SSI_CHECKBOX = CHECKED
+IF OTHER_STATE_CHECKBOX = TRUE THEN OTHER_STATE_CHECKBOX = CHECKED
 
 IF out_of_state_request = "Sent/Send" THEN
     Dialog1 = ""
@@ -1122,12 +1107,12 @@ IF out_of_state_request = "Sent/Send" THEN
 	  CheckBox 135, 20, 25, 10, "HC", MN_HC_CHECKBOX
 	  CheckBox 160, 20, 25, 10, "GRH", MN_GRH_CHECKBOX
 	  CheckBox 190, 20, 25, 10, "SSI", MN_SSI_CHECKBOX
-	  CheckBox 50, 45, 30, 10, "Cash", CASH_CHECKBOX
-	  CheckBox 80, 45, 25, 10, "CCA", CCA_CHECKBOX
-	  CheckBox 110, 45, 20, 10, "FS", FS_CHECKBOX
-	  CheckBox 135, 45, 25, 10, "HC", HC_CHECKBOX
-	  CheckBox 160, 45, 25, 10, "SSI", SSI_CHECKBOX
-	  CheckBox 185, 45, 40, 10, "OTHER", OTHER_CHECKBOX
+	  CheckBox 50, 45, 30, 10, "Cash", OTHER_STATE_CASH_CHECKBOX
+	  CheckBox 80, 45, 25, 10, "CCA", OTHER_STATE_CCA_CHECKBOX
+	  CheckBox 110, 45, 20, 10, "FS", OTHER_STATE_FS_CHECKBOX
+	  CheckBox 135, 45, 25, 10, "HC", OTHER_STATE_HC_CHECKBOX
+	  CheckBox 160, 45, 25, 10, "SSI", OTHER_STATE_SSI_CHECKBOX
+	  CheckBox 185, 45, 40, 10, "OTHER", OTHER_STATE_CHECKBOX
 	  DropListBox 35, 60, 55, 15, "Select One:"+chr(9)+"Active"+chr(9)+"Closed"+chr(9)+"Unknown", out_of_state_status
 	  EditBox 175, 60, 45, 15, date_received
 	  Text 10, 95, 210, 25, "Name: " & Ucase(agency_name)
@@ -1135,7 +1120,7 @@ IF out_of_state_request = "Sent/Send" THEN
 	  Text 10, 150, 100, 10, "Phone: " & agency_phone
 	  Text 130, 150, 90, 15, "Fax:  " & agency_fax
 	  Text 10, 165, 205, 15, "Email: " & agency_email
-	  CheckBox 10, 200, 150, 10, "Update information for contact state received", update_state_info_checkbox
+	  CheckBox 10, 200, 155, 10, "Update information for contact state received", update_state_info_checkbox
 	  CheckBox 170, 185, 60, 10, "PARIS Match", PARIS_CHECKBOX
 	  CheckBox 10, 185, 130, 10, "Set an Outlook reminder to follow up ", outlook_remider_CHECKBOX
 	  CheckBox 10, 215, 215, 10, "Please confirm that the verification or request was sent to ECF", ECF_checkbox
@@ -1162,10 +1147,10 @@ IF out_of_state_request = "Sent/Send" THEN
     			If ButtonPressed = outofstate_button then CreateObject("WScript.Shell").Run("https://dept.hennepin.us/hsphd/manuals/hsrm/Pages/Out_of_State_Inquiry.aspx")
     		Loop until ButtonPressed = -1
     		err_msg = ""
-			IF CASH_CHECKBOX = UNCHECKED AND CCA_CHECKBOX = UNCHECKED AND FS_CHECKBOX = UNCHECKED AND HC_CHECKBOX = UNCHECKED AND SSI_CHECKBOX = UNCHECKED AND OTHER_CHECKBOX = UNCHECKED THEN err_msg = err_msg & vbnewline & "Please select the program the client reported they recieved in other state, if no program was reported no request is needed."
+			IF OTHER_STATE_CASH_CHECKBOX = UNCHECKED AND OTHER_STATE_CCA_CHECKBOX = UNCHECKED AND OTHER_STATE_FS_CHECKBOX = UNCHECKED AND OTHER_STATE_HC_CHECKBOX = UNCHECKED AND OTHER_STATE_SSI_CHECKBOX = UNCHECKED AND OTHER_STATE_CHECKBOX = UNCHECKED THEN err_msg = err_msg & vbnewline & "Please select the program the client reported they recieved in other state, if no program was reported no request is needed."
 			If agency_state_droplist = "Select One:" THEN  err_msg = err_msg & vbnewline & "Select the state."
             IF ECF_checkbox <> CHECKED THEN err_msg = err_msg & vbNewLine & "Please review ECF to ensure that the verifcations are there."
-            IF OTHER_CHECKBOX = CHECKED and other_notes = "" THEN err_msg = err_msg & vbNewLine & "Please advise what other benefits the client reported."
+            IF OTHER_STATE_CHECKBOX = CHECKED and other_notes = "" THEN err_msg = err_msg & vbNewLine & "Please advise what other benefits the client reported."
             IF out_of_state_status = "Select One:" then err_msg = err_msg & vbnewline & "Please select the reported status regarding the other state's benefits."
             IF out_of_state_status = "Active" AND trim(date_received) = "" then err_msg = err_msg & vbcr & "Enter the date the client reported benefits were last received."
     		IF out_of_state_status = "Closed" AND trim(date_received) = "" then err_msg = err_msg & vbcr & "Enter the date the client reported benefits were last received."
@@ -1174,6 +1159,22 @@ IF out_of_state_request = "Sent/Send" THEN
     	LOOP until err_msg = ""
     	CALL check_for_password(are_we_passworded_out)                                 'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
     Loop until are_we_passworded_out = false
+
+
+
+
+
+	other_state_programs = ""        'Creates a variable that lists all the active.
+	IF other_state_cash = TRUE THEN other_state_programs = other_state_programs & "CASH, "
+	IF other_state_fs = TRUE THEN other_state_programs = other_state_programs & "SNAP, "
+	IF other_state_hc = TRUE THEN other_state_programs = other_state_programs & "HC, "
+	IF other_state_cca = TRUE THEN other_state_programs = other_state_programs & "CCA,"
+	IF other_state_commod = TRUE THEN other_state_programs = other_state_programs & "Other,"
+
+	other_state_programs = trim(other_state_programs)  'trims excess spaces of other_state_programs
+	If right(other_state_programs, 1) = "," THEN other_state_programs = left(other_state_programs, len(other_state_programs) - 1)
+
+	'IF other_state_paris = TRUE THEN
 
     'this reads clients current mailing address
 
@@ -1201,7 +1202,7 @@ IF out_of_state_request = "Sent/Send" THEN
 
     Set objDoc = objWord.Documents.Add()
     Set objSelection = objWord.Selection
-    objSelection.ParagraphFormat.Alignment = 0
+    'objSelection.ParagraphFormat.Alignment = 0
     objSelection.ParagraphFormat.LineSpacing = 12
     objSelection.ParagraphFormat.SpaceBefore = 0
     objSelection.ParagraphFormat.SpaceAfter = 0
@@ -1235,7 +1236,7 @@ IF out_of_state_request = "Sent/Send" THEN
     objSelection.Font.Name = "Calibri"
     objSelection.Font.Size = "12"
     'objSelection.Font.Bold = True
-    objSelection.TypeText "To: " & agency_name
+    objSelection.TypeText agency_name
     objSelection.TypeParagraph
     IF agency_address <> "" THEN
 		objSelection.TypeText agency_address
@@ -1256,7 +1257,7 @@ IF out_of_state_request = "Sent/Send" THEN
 	END IF
 	objSelection.TypeText " "
     objSelection.TypeParagraph
-    objSelection.TypeText "RE: "
+    objSelection.TypeText "Request RE: "
     For the_pers = 0 to UBound(ALL_CLT_INFO_ARRAY, 2)
 		objSelection.TypeParagraph
     	objSelection.TypeText ALL_CLT_INFO_ARRAY(first_name_const, the_pers) & " " & ALL_CLT_INFO_ARRAY(last_name_const, the_pers)
@@ -1272,9 +1273,9 @@ IF out_of_state_request = "Sent/Send" THEN
     objSelection.TypeText "Please indicate if the client is open on SNAP or Medical Assistance in your state OR the date these programs most recently closed.  Thank you."
     objSelection.TypeParagraph
     objSelection.TypeParagraph
-    objSelection.TypeText "Is CASH currently closed?      ____YES ____NO		Date of closure: "
+    objSelection.TypeText "Is CASH currently closed?         ____YES ____NO		Date of closure: "
     objSelection.TypeParagraph
-    objSelection.TypeText "Is SNAP currently closed?      ____YES ____NO		Date of closure: "
+    objSelection.TypeText "Is SNAP currently closed?         ____YES ____NO		Date of closure: "
 	objSelection.TypeParagraph
 	objSelection.TypeText "Is Medical Assistance closed?  ____YES ____NO		Date of closure: "
 	objSelection.TypeParagraph
@@ -1283,7 +1284,7 @@ IF out_of_state_request = "Sent/Send" THEN
     'objSelection.TypeParagraph
     'objSelection.TypeText "Please list the month(s)/year(s) of ABAWD months used: "
     'objSelection.TypeParagraph
-
+objSelection.TypeParagraph
     objSelection.TypeText "Please complete the following:"
     objSelection.TypeParagraph
     objSelection.TypeText "Circle the month(s)/year(s) the person received federally funded TANF cash assistance: "
@@ -1329,6 +1330,7 @@ IF out_of_state_request = "Sent/Send" THEN
     objSelection.TypeParagraph
     objSelection.TypeText Year(date) & ":   Jan  Feb  Mar  Apr  May  Jun  Jul  Aug  Sep  Oct  Nov  Dec"
     objSelection.TypeParagraph
+	objSelection.TypeParagraph
     objSelection.TypeText "Name of person verifying information: "
     objSelection.TypeParagraph
     objSelection.TypeText "Contact Information: "
@@ -1340,7 +1342,7 @@ IF out_of_state_request = "Sent/Send" THEN
 
 	start_a_blank_case_note
 	Call write_variable_in_CASE_NOTE("---Out of State Inquiry sent via " & how_sent & " to " & abbr_state & "---")
-	IF out_of_state_status <> "Unknown" THEN CALL write_variable_in_CASE_NOTE("* Client reported they received " & out_of_state_programs & " on " & date_received & " the case is currently: " & out_of_state_status)
+	IF out_of_state_status <> "Unknown" THEN CALL write_variable_in_CASE_NOTE("* Client reported they received " & out_state_programs & " on " & date_received & " the case is currently: " & out_of_state_status)
 	CALL write_bullet_and_variable_in_CASE_NOTE("Name", agency_name)
 	CALL write_bullet_and_variable_in_CASE_NOTE("Address", agency_address)
 	CALL write_bullet_and_variable_in_CASE_NOTE("Email", agency_email)
@@ -1353,11 +1355,11 @@ IF out_of_state_request = "Sent/Send" THEN
 
 	CALL find_user_name(the_person_running_the_script)
 
-	For the_pers = 0 to UBound(ALL_CLT_INFO_ARRAY, 2)
+	FOR the_pers = 0 to UBound(ALL_CLT_INFO_ARRAY, 2)
 	    HH_member_array = "RE:" & vbcr & ALL_CLT_INFO_ARRAY(first_name_const, the_pers) & " " & ALL_CLT_INFO_ARRAY(last_name_const, the_pers) & vbcr & "  SSN: "  & ALL_CLT_INFO_ARRAY(clt_ssn_const, the_pers) & "  DOB: " & ALL_CLT_INFO_ARRAY(clt_dob_const, the_pers) & HH_member_array
 	NEXT
 
-	message_array = ("FROM: Hennepin County Human Services & Public Health Department" & vbcr & "PO Box 107, Minneapolis, MN 55440-0107" & vbcr & "Fax: 612-288-2981" & vbcr & "Phone: 612-596-8500" & vbcr & "Email: HHSEWS@hennepin.us" & vbcr & "Date: " & date & vbcr & "To: " & agency_name & vbcr & agency_address & vbcr & "Email: " & agency_email & vbcr & "Phone: " & agency_phone & vbcr & "Fax: " & agency_fax & vbcr & HH_member_array & vbcr & "Current Address: " & client_address & vbcr & "Our records indicate that the above individual(s) received or receives assistance from your state.  We need to verify the number of months of Federally-funded TANF cash assistance issued by your state that count towards the 60 month lifetime limit.  In addition, we need to know the number of months of TANF assistance from other states that your agency has verified.  " & "Please indicate if the client is open on SNAP or Medical Assistance in your state OR the date these programs most recently closed.  Thank you." & vbcr & "Is CASH/TANF currently closed?   YES	 NO		Date of closure: " & vbcr & "Is SNAP currently closed?   YES	 NO		Date of closure: " & vbcr & "Please list the month(s)/year(s) the person received federally funded TANF cash assistance: " & vbcr & "Is Medical Assistance closed?   YES	NO		Date of closure: " & vbcr & "Name of Person verifying information: " & vbcr & "Contact Information:" & vbcr & "Please reply or email your response to: Hennepin County Human Services and Public Health Services at hhsews@hennepin.us")
+	message_array = ("Hennepin County Human Services & Public Health Department" & vbcr & "PO Box 107, Minneapolis, MN 55440-0107" & vbcr & "Fax: 612-288-2981" & vbcr & "Phone: 612-596-8500" & vbcr & "Email: HHSEWS@hennepin.us" & vbcr & "Date: " & date & vbcr & vbcr & agency_name & vbcr & agency_address & vbcr & "Email: " & agency_email & vbcr & "Phone: " & agency_phone & vbcr & "Fax: " & agency_fax & vbcr & HH_member_array & vbcr & "Current Address: " & client_address & vbcr & "Our records indicate that the above individual(s) received or receives assistance from your state.  We need to verify the number of months of Federally-funded TANF cash assistance issued by your state that count towards the 60 month lifetime limit.  In addition, we need to know the number of months of TANF assistance from other states that your agency has verified.  " & "Please indicate if the client is open on SNAP or Medical Assistance in your state OR the date these programs most recently closed.  Thank you." & vbcr & "Please list the month(s)/year(s) the person received federally funded TANF cash assistance: " & vbcr & "Is CASH/TANF currently closed? ____YES ____NO   Date of closure: " & vbcr & "Is SNAP currently closed?____YES ____NO    Date of closure: " & vbcr & "Is Medical Assistance closed?____YES ____NO    Date of closure: " & vbcr & vbcr & "Name of Person verifying information: " & vbcr & "Contact Information:" & vbcr & "Please reply or email your response to: Hennepin County Human Services and Public Health Services at hhsews@hennepin.us")
 
     'create_outlook_appointment(appt_date, appt_start_time, appt_end_time, appt_subject, appt_body, appt_location, appt_reminder, reminder_in_minutes, appt_category)
     IF outlook_reminder_CHECKBOX = CHECKED THEN
@@ -1382,12 +1384,12 @@ IF out_of_state_request = "Received" THEN
 		    CheckBox 135, 20, 25, 10, "HC", MN_HC_CHECKBOX
 		    CheckBox 160, 20, 25, 10, "GRH", MN_GRH_CHECKBOX
 		    CheckBox 190, 20, 25, 10, "SSI", MN_SSI_CHECKBOX
-		    CheckBox 50, 45, 30, 10, "Cash", CASH_CHECKBOX
-		    CheckBox 80, 45, 25, 10, "CCA", CCA_CHECKBOX
-		    CheckBox 110, 45, 20, 10, "FS", FS_CHECKBOX
-		    CheckBox 135, 45, 25, 10, "HC", HC_CHECKBOX
-		    CheckBox 160, 45, 25, 10, "SSI", SSI_CHECKBOX
-		    CheckBox 185, 45, 40, 10, "OTHER", OTHER_CHECKBOX
+		    CheckBox 50, 45, 30, 10, "Cash", OTHER_STATE_CASH_CHECKBOX
+		    CheckBox 80, 45, 25, 10, "CCA", OTHER_STATE_CCA_CHECKBOX
+		    CheckBox 110, 45, 20, 10, "FS", OTHER_STATE_FS_CHECKBOX
+		    CheckBox 135, 45, 25, 10, "HC", OTHER_STATE_HC_CHECKBOX
+		    CheckBox 160, 45, 25, 10, "SSI", OTHER_STATE_SSI_CHECKBOX
+		    CheckBox 185, 45, 40, 10, "OTHER", OTHER_STATE_CHECKBOX
 		    DropListBox 35, 60, 60, 15, "Select One:"+chr(9)+"Active"+chr(9)+"Closed"+chr(9)+"Set to Close"+chr(9)+"Client not known"+chr(9)+"Other", out_of_state_status
 		    EditBox 175, 60, 45, 15, date_received
 		    Text 10, 95, 210, 25, "Name: " & Ucase(agency_name)
@@ -1454,7 +1456,7 @@ IF out_of_state_request = "Received" THEN
 
 			'ELSE
 			'	IF ECF_checkbox <> CHECKED THEN err_msg = err_msg & vbNewLine & "Please review ECF to ensure that the 'verifcations are there."
-			'	IF OTHER_CHECKBOX = CHECKED and other_notes = "" THEN err_msg = err_msg & vbNewLine & "Please advise what 'other benefits the client reported."
+			'	IF OTHER_STATE_CHECKBOX = CHECKED and other_notes = "" THEN err_msg = err_msg & vbNewLine & "Please advise what 'other benefits the client reported."
 			'	IF out_of_state_status = "Select One:" then err_msg = err_msg & vbnewline & "Please select the reported 'status regarding the other state's benefits."
 			'	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 			'END IF
@@ -1464,8 +1466,8 @@ IF out_of_state_request = "Received" THEN
 
 	start_a_blank_case_note
 	Call write_variable_in_CASE_NOTE("---Out of State Inquiry received via " & how_sent & " from " & abbr_state & "---")
-	IF out_of_state_status <> "Unknown" THEN CALL write_variable_in_CASE_NOTE("* " & abbr_state & " reported client received " & out_of_state_programs & " on " & date_received & " the case is currently: " & out_of_state_status)
-	'IF out_of_state_programs = UNCHECKED THEN CALL write_variable_in_CASE_NOTE("* " & abbr_state & " reported client did not receive benefits in this state. ")
+	IF out_of_state_status <> "Unknown" THEN CALL write_variable_in_CASE_NOTE("* " & abbr_state & " reported client received " & out_state_programs & " on " & date_received & " the case is currently: " & out_of_state_status)
+	'IF out_state_programs = UNCHECKED THEN CALL write_variable_in_CASE_NOTE("* " & abbr_state & " reported client did not receive benefits in this state. ")
 	IF out_of_state_status = "Client not known" THEN CALL write_variable_in_CASE_NOTE("* " & abbr_state & " reported client is not known.")
 	CALL write_bullet_and_variable_in_CASE_NOTE("Name", agency_name)
 	CALL write_bullet_and_variable_in_CASE_NOTE("Address", agency_address)
@@ -1515,7 +1517,7 @@ IF out_of_state_request = "Unknown/No Response" THEN
 	  CheckBox 10, 35, 85, 10, "Out of State Inquiry", Out_of_State_Inquiry_CHECKBOX
 	  CheckBox 10, 45, 90, 10, "Authorization to release", ATR_Verf_CHECKBOX
 	  CheckBox 105, 35, 70, 10, "Shelter verification", shel_verf_CHECKBOX
-	  CheckBox 105, 45, 80, 10, "Other (please specify)", other_CHECKBOX
+	  CheckBox 105, 45, 80, 10, "Other (please specify)", OTHER_CHECKBOX
 	  CheckBox 5, 65, 90, 10, "Contacted other state(s)", other_state_contact_CHECKBOX
 	  CheckBox 5, 80, 120, 10, "Unable to close(please explain)", unable_to_close_CHECKBOX
 	  CheckBox 5, 95, 180, 10, "Overpayment possible to be reviewed at a later date", overpayment_CHECKBOX
@@ -1538,11 +1540,11 @@ IF out_of_state_request = "Unknown/No Response" THEN
         Loop until err_msg = ""
      	Call check_for_password(are_we_passworded_out)
     LOOP UNTIL check_for_password(are_we_passworded_out) = False
+	'-------------------------------------------------------------------pending_verifs
     IF Out_of_State_Inquiry_CHECKBOX = CHECKED THEN pending_verifs = pending_verifs & "Out of State Inquiry, "
     IF shel_verf_checkbox = CHECKED THEN pending_verifs = pending_verifs & "Shelter Verification, "
     IF ATR_Verf_CheckBox = CHECKED THEN pending_verifs = pending_verifs & "ATR, "
-    IF other_checkbox = CHECKED THEN pending_verifs = pending_verifs & "Other, "
-    '-------------------------------------------------------------------trims excess spaces of pending_verifs
+    IF OTHER_CHECKBOX = CHECKED THEN pending_verifs = pending_verifs & "Other, "
     pending_verifs = trim(pending_verifs) 	'takes the last comma off of pending_verifs when autofilled into dialog if more than one app date is found and additional app is selected
     IF right(pending_verifs, 1) = "," THEN pending_verifs = left(pending_verifs, len(pending_verifs) - 1)
 
@@ -1564,5 +1566,6 @@ IF out_of_state_request = "Unknown/No Response" THEN
 	PF3
 	IF unable_to_close_CHECKBOX = CHECKED THEN call create_TIKL("Unable to close due to 10 day cutoff", 10, date, TRUE, "")
 END IF 'if non received'
-
+'todo do we need to look at memi and update for when recieved? In MN > 12 Months (Y/N):
+'do you want to update the national directory?'
 script_end_procedure_with_error_report("Success! Your Out of State Inquiry has been generated, please follow up with the next steps to ensure the request is received timely. The verification request must be reflected in ECF this can be done by saving the word document as a PDF and uploading to ECF.")
