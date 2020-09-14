@@ -1111,7 +1111,7 @@ IF agency_fax = "" THEN agency_fax = "N/A"
 IF agency_email = "" THEN agency_email = "N/A"
 
 Call fill_in_the_states
-
+Dialog1 = "" 'runs the dialog that has been dynamically created. Streamlined with new functions.
 BeginDialog Dialog1, 0, 0, 231, 140, "OUT OF STATE INQUIRY FOR: "   & Ucase(state_droplist)
   CheckBox 50, 20, 30, 10, "Cash", MN_CASH_CHECKBOX
   CheckBox 80, 20, 25, 10, "CCA", MN_CCA_CHECKBOX
@@ -1171,27 +1171,27 @@ IF out_of_state_request = "Sent/Send" THEN
 	other_state_programs = trim(other_state_programs)  'trims excess spaces of other_state_programs
 	If right(other_state_programs, 1) = "," THEN other_state_programs = left(other_state_programs, len(other_state_programs) - 1)
 
-
-	BeginDialog Dialog1, 0, 0, 336, 265, "OUT OF STATE INQUIRY FOR: "   & Ucase(state_droplist)
-	  ButtonGroup ButtonPressed
-		OkButton 210, 245, 50, 15
-		CancelButton 260, 245, 50, 15
+	Dialog1 = "" 'blanking the previous dialog
+	BeginDialog Dialog1, 0, 0, 301, 240, "OUT OF STATE INQUIRY FOR: " & Ucase(state_droplist)
 	  Text 10, 10, 290, 10, "Based on the detail entered, the National Directory has the following contact information:"
-	  GroupBox 5, 25, 290, 110, "What we have"
-	  Text 10, 95, 210, 25, "Name: " & Ucase(agency_name)
-	  Text 10, 125, 210, 20, "Address: "  & Ucase(agency_address)
-	  Text 10, 150, 100, 10, "Phone: " & agency_phone
-	  Text 130, 150, 90, 15, "Fax:  " & agency_fax
-	  Text 10, 165, 205, 15, "Email: " & agency_email
-	  Text 15, 45, 50, 10, "`Address goes here"
-	  Text 15, 65, 50, 10, "Phone"
-	  Text 15, 90, 50, 10, "EMAIL 1"
-	  Text 15, 105, 50, 10, "EMAIL 1"
-	  Text 15, 120, 50, 10, "EMAIL 1"
+	  GroupBox 5, 25, 290, 170, ""
+	  Text 15, 40, 240, 25, "Name: " & Ucase(agency_name)
+	  Text 15, 75, 240, 20, "Address: " & Ucase(agency_address)
+	  Text 15, 105, 100, 10, "Phone: "  & agency_phone
+	  Text 135, 105, 120, 15, "Fax:  " & agency_fax
+	  Text 15, 135, 240, 15, "Email: " & agency_email
+	  Text 15, 155, 240, 15, "Email: " & agency_email
+	  Text 15, 175, 240, 15, "Email: " & agency_email
 	  ButtonGroup ButtonPressed
-		PushButton 5, 245, 50, 15, "I need to send to differ contact place", Button3
+	    PushButton 10, 200, 160, 15, "National directory requires an update", update_state_info_checkbox
+	    'PushButton 10, 220, 160, 15, "Information provided is different", update_state_info_checkbox
+	    OkButton 195, 220, 50, 15
+	    CancelButton 250, 220, 45, 15
 	EndDialog
 
+	Dialog Dialog1
+	cancel_without_confirmation
+	err_msg = ""
 
 
 	'Generates Word Doc Form
@@ -1337,11 +1337,6 @@ IF out_of_state_request = "Sent/Send" THEN
     objSelection.TypeText "Please reply or email your response to: hhsews@hennepin.us"
     objSelection.TypeParagraph
     objSelection.TypeParagraph 'end of word doc'
-
-
-
-
-
 
 	start_a_blank_case_note
 	Call write_variable_in_CASE_NOTE("---Out of State Inquiry sent via " & how_sent & " to " & abbr_state & "---")
