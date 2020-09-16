@@ -409,7 +409,16 @@ enrollment_date = enrollment_month & "/01/" & enrollment_year
 
 'Now we are in RKEY, and it navigates into the case, transmits, and makes sure we've moved to the next screen.
 EMWriteScreen "i", 2, 19
-EmWriteScreen "        ", 4, 19
+Call clear_line_of_text(4, 19)		'Clearing all of the search options used on RKEY as we must ONLY enter a case number
+Call clear_line_of_text(5, 19)
+Call clear_line_of_text(5, 48)
+Call clear_line_of_text(6, 19)
+Call clear_line_of_text(6, 48)
+Call clear_line_of_text(6, 69)
+Call clear_line_of_text(9, 19)
+Call clear_line_of_text(9, 48)
+Call clear_line_of_text(9, 69)
+
 EMWriteScreen MMIS_case_number, 9, 19
 transmit
 transmit
