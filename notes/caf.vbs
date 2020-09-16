@@ -3012,7 +3012,7 @@ If REVW_NEEDS_ADJUSTMENT = TRUE Then
         revw_panel_updated = TRUE
         PF9
         EMReadScreen read_only_access, 16, 24, 11
-        If read_only_access = "READ ONLY ACCESS" Then revw_panel_updated = FALSE 
+        If read_only_access = "READ ONLY ACCESS" Then revw_panel_updated = FALSE
 
         If cash_dates_to_update = TRUE Then
             EMWriteScreen cash_revw_status_code, 7, 40
@@ -3061,7 +3061,7 @@ If REVW_NEEDS_ADJUSTMENT = TRUE Then
             End If
         Loop until actually_saved = "ENTER A"
         ' MsgBox "Pause"
-        MsgBox revw_panel_updated
+        ' MsgBox revw_panel_updated
 
         If revw_panel_updated = TRUE Then
             PF4
@@ -3087,7 +3087,7 @@ If REVW_NEEDS_ADJUSTMENT = TRUE Then
             Loop until (mode_check = "A" or mode_check = "E")
 
             Call write_variable_in_CASE_NOTE("REVW Dates Updated to return to Original Schedule")
-            Call write_variable_in_CASE_NOTE("This case had review dates postponed due to the COVID Peacetime Emergency. The reviews were delayed 6 months. This updates returns the next ER to the original review month.")
+            Call write_variable_in_CASE_NOTE("This case had review dates postponed due to the COVID Peacetime Emergency. The reviews were delayed 6 months. This update returns the next ER to the original review month.")
             Call write_variable_in_CASE_NOTE("---")
             Call write_variable_in_CASE_NOTE(worker_signature)
 
@@ -3098,14 +3098,16 @@ If REVW_NEEDS_ADJUSTMENT = TRUE Then
             If confirm_update_checkbox = unchecked Then email_bod = email_bod & vbCr & vbCr & "Information was NOT confirmed."
             If confirm_update_checkbox = checked Then email_bod = email_bod & vbCr & vbCr & "Information was confirmed."
             If revw_has_been_approved = TRUE Then email_bod = email_bod & vbCr & vbCr & "Needs to be reapproved."
-            Call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", email_sub, email_bod, "", TRUE)
+            ' Call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", email_sub, email_bod, "", TRUE)
         ELSE
-            email_sub = "CAF ER Functionality Update FAILED"
-            email_bod = "Case: " & MAXIS_case_number & vbCr & vbCr & "The REVW Panel on this case did not update as expected." & vbCr & "It was on the list but something went goofy."
-            ' If confirm_update_checkbox = unchecked Then email_bod = email_bod & vbCr & vbCr & "Information was NOT confirmed."
-            ' If confirm_update_checkbox = checked Then email_bod = email_bod & vbCr & vbCr & "Information was confirmed."
-            If revw_has_been_approved = TRUE Then email_bod = email_bod & vbCr & vbCr & "Needs to be reapproved."
-            Call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", email_sub, email_bod, "", TRUE)
+            If snap_revw_status_code <> "I" and cash_revw_status_code <> "I" Then
+                email_sub = "CAF ER Functionality Update FAILED"
+                email_bod = "Case: " & MAXIS_case_number & vbCr & vbCr & "The REVW Panel on this case did not update as expected." & vbCr & "It was on the list but something went goofy."
+                ' If confirm_update_checkbox = unchecked Then email_bod = email_bod & vbCr & vbCr & "Information was NOT confirmed."
+                ' If confirm_update_checkbox = checked Then email_bod = email_bod & vbCr & vbCr & "Information was confirmed."
+                If revw_has_been_approved = TRUE Then email_bod = email_bod & vbCr & vbCr & "Needs to be reapproved."
+                Call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", email_sub, email_bod, "", TRUE)
+            End If
         End If
     Else
 
@@ -3116,7 +3118,7 @@ If REVW_NEEDS_ADJUSTMENT = TRUE Then
         If revw_has_been_approved = TRUE Then email_bod = email_bod & vbCr & vbCr & "Needs to be reapproved."
         Call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", email_sub, email_bod, "", TRUE)
 
-        MsgBox "ERROR - this case should have been selected to update and it was not. An Email has been sent to the BZST to review "
+        ' MsgBox "ERROR - this case should have been selected to update and it was not. An Email has been sent to the BZST to review "
     End If
 
     If revw_has_been_approved = TRUE Then
