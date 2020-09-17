@@ -1253,6 +1253,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                                     there_are_counted_checks = FALSE
                                     all_pay_in_app_month = TRUE
                                     For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)
+										LIST_OF_INCOME_ARRAY(budget_in_SNAP_no, all_income) = LIST_OF_INCOME_ARRAY(budget_in_SNAP_no, all_income)
                                         LIST_OF_INCOME_ARRAY(pay_date, all_income) = trim(LIST_OF_INCOME_ARRAY(pay_date, all_income))           'formatting the information'
                                         LIST_OF_INCOME_ARRAY(gross_amount, all_income) = trim(LIST_OF_INCOME_ARRAY(gross_amount, all_income))
                                         LIST_OF_INCOME_ARRAY(hours, all_income) = trim(LIST_OF_INCOME_ARRAY(hours, all_income))
@@ -2313,7 +2314,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                         If EARNED_INCOME_PANELS_ARRAY(apply_to_SNAP, ei_panel) = checked Then       'resizing the dialog and the SNAP Groupbox if income applies to SNAP
                             grp_len = 100 + number_of_checks_budgeted*10
                             If number_of_checks_budgeted < 4 Then grp_len = 125
-                            If using_30_days = FALSE Then grp_len = grp_len + 25
+                            If using_30_days = FALSE Then grp_len = grp_len + 35
 
                             dlg_len = dlg_len + grp_len + 20
                         End If
