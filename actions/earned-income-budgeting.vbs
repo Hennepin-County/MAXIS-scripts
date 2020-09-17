@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("09/17/2020", "The script will no longer read the Pay Frequency. This will have to be entered when entering the paycheck information.##~## ##~##We made this change because this script relys heavily on the pay frequency being correct at this point and there is not a great way to ensure accuracy otherwise.", "Casey Love, Hennepin County")
 Call changelog_update("09/17/2020", "Added some options to the 'Explanation of why we are not using 30 days of income' for SNAP. This used to be a typing field (EditBox) and now had a dropdown option but you can still type anything that explains this information. ##~## ##~##For SNAP anytime we use anything other than 30 days of income, we are required to note clearly why we used something other than 30 day of income. Now there are some common options listed.##~## ##~##If you have more options that happen regularly, please send them to us for review and we can possibly add them. Remember you can always type out the explanation as well.", "Casey Love, Hennepin County")
 Call changelog_update("01/10/2020", "This script may force an error report at the end of the script run.##~## ##~##We have and ongoing script error that is happening around dates and the updating of the panel. We have added a workaround to the script but if this error happens, it should be sending us and error report so we can try to discover the nature of the issue in real time. ##~## The script should be working well and this is just an alert that the error reporting may happen automatically. ", "Casey Love, Hennepin County")
 Call changelog_update("01/08/2020", "The script cannot be used on a JOBS panel with an income end date at this time. The script now reads if an end date exists and prevents information from being entered for a panel that cannot be updated. ##~##", "Casey Love, Hennepin County")
@@ -522,11 +523,11 @@ For each member in HH_member_array                  'We are going to look at eac
                 If EARNED_INCOME_PANELS_ARRAY(income_start_dt, the_panel) = "__/__/__" Then EARNED_INCOME_PANELS_ARRAY(income_start_dt, the_panel) = ""
                 If EARNED_INCOME_PANELS_ARRAY(income_end_dt, the_panel) = "__/__/__" Then EARNED_INCOME_PANELS_ARRAY(income_end_dt, the_panel) = ""
                 EARNED_INCOME_PANELS_ARRAY(old_verif, the_panel) = trim(current_verif)
-                If frequency = "1" Then EARNED_INCOME_PANELS_ARRAY(pay_freq, the_panel) = "1 - One Time Per Month"      'setting full detail to the array instead of a single letter code
-                If frequency = "2" Then EARNED_INCOME_PANELS_ARRAY(pay_freq, the_panel) = "2 - Two Times Per Month"
-                If frequency = "3" Then EARNED_INCOME_PANELS_ARRAY(pay_freq, the_panel) = "3 - Every Other Week"
-                If frequency = "4" Then EARNED_INCOME_PANELS_ARRAY(pay_freq, the_panel) = "4 - Every Week"
-                If frequency = "5" Then EARNED_INCOME_PANELS_ARRAY(pay_freq, the_panel) = "5 - Other"
+                ' If frequency = "1" Then EARNED_INCOME_PANELS_ARRAY(pay_freq, the_panel) = "1 - One Time Per Month"      'setting full detail to the array instead of a single letter code
+                ' If frequency = "2" Then EARNED_INCOME_PANELS_ARRAY(pay_freq, the_panel) = "2 - Two Times Per Month"
+                ' If frequency = "3" Then EARNED_INCOME_PANELS_ARRAY(pay_freq, the_panel) = "3 - Every Other Week"
+                ' If frequency = "4" Then EARNED_INCOME_PANELS_ARRAY(pay_freq, the_panel) = "4 - Every Week"
+                ' If frequency = "5" Then EARNED_INCOME_PANELS_ARRAY(pay_freq, the_panel) = "5 - Other"
 
                 EARNED_INCOME_PANELS_ARRAY(income_list_indct, the_panel) = "NONE"       'This is where all of the array items from LIST_OF_INCOME_ARRAY will be added that are associated with this panel
                 EARNED_INCOME_PANELS_ARRAY(this_is_a_new_panel, the_panel) = FALSE      'identifies if a panel was created by the script or not - these are currently existing - changes CNote
