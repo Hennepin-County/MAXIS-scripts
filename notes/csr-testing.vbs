@@ -3279,7 +3279,7 @@ function confirm_csr_form_dlg()
 			  If ALL_CLIENTS_ARRAY(memb_remo_checkbox, known_memb) = checked Then Text 140, y_pos_1, 40, 10, "MOVED OUT"
 			  If ALL_CLIENTS_ARRAY(memb_new_checkbox, known_memb) = checked Then Text 140, y_pos_1, 40, 10, "MOVED IN"
 			  Text 25, y_pos_1 + 10, 155, 10, "Name:" & ALL_CLIENTS_ARRAY(memb_first_name, known_memb) & " " & ALL_CLIENTS_ARRAY(memb_last_name, known_memb)
-			  Text 25, y_pos_1 + 20, 155, 10, "Relationship:" & right(ALL_CLIENTS_ARRAY(memb_rel_to_applct, case_memb), len(ALL_CLIENTS_ARRAY(memb_rel_to_applct, case_memb)) - 5)
+			  If len(ALL_CLIENTS_ARRAY(memb_rel_to_applct, known_memb)) > 4 Then Text 25, y_pos_1 + 20, 155, 10, "Relationship:" & right(ALL_CLIENTS_ARRAY(memb_rel_to_applct, known_memb), len(ALL_CLIENTS_ARRAY(memb_rel_to_applct, known_memb)) - 5)
 			  ' Text 25, 205, 155, 10, "Date of Change:"
 			  ' Text 25, 215, 155, 10, "other"
 			  pers_list_count = pers_list_count + 1
