@@ -204,6 +204,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: CALL changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/17/2020", "The field for 'OTHER NOTES' is now required when completing the information to clear the match. ##~## ##~##We are aware that this will not always be required in MAXIS and will be adding additional functionality for scenario and match specific requirements of this field, but in order to provide you with a working script right now this field must be mandatory each time.##~## ##~##Thank you for your patience as we provide updates to this script.##~##", "Casey Love, Hennepin County")
 CALL changelog_update("09/08/2020", "Updated BUG when clearing match BO-Other worker must indicate other notes for comments on IULA.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("04/22/2020", "Combined OP script with match cleared, added HH member dialog. Created a new drop down for claim referral tracking.", "MiKayla Handley, Hennepin County")
 call changelog_update("08/05/2019", "Updated the term claim referral to use the action taken on MISC as well as to read for active programs.", "MiKayla Handley")
@@ -574,6 +575,8 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
 		err_msg = ""
 		Dialog Dialog1
 		cancel_without_confirmation
+
+		other_notes = trim(other_notes)
 		IF IsNumeric(resolve_time) = false or len(resolve_time) > 3 THEN err_msg = err_msg & vbNewLine & "Please enter a valid numeric resolved time, ie 005."
 		IF other_checkbox = CHECKED and other_notes = "" THEN err_msg = err_msg & vbNewLine & "Please advise what other verification was used to clear the match."
 		IF change_response = "Select One:" THEN err_msg = err_msg & vbNewLine & "Did the client respond to Difference Notice?"
@@ -582,6 +585,7 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
 		IF resolution_status = "BE-Child" AND exp_grad_date = "" THEN err_msg = err_msg & vbNewLine & "When clearing using BE - Child graduation date and date rcvd must be completed."
 		If resolution_status = "CC-Overpayment Only" AND programs = "Health Care" or programs = "Medical Assistance" THEN err_msg = err_msg & vbNewLine & "System does not allow HC or MA cases to be cleared with the code 'CC - Claim Entered'."
 		If resolution_status = "BO-Other" AND other_notes = "" THEN err_msg = err_msg & vbNewLine & "When clearing using BO-Other other notes must be completed."
+		If other_notes = "" Then err_msg = err_msg & vbNewLine & "Enter information into the 'Other Notes' field for entry into ILUB. (We will be address scenario specific requirements for this field in the future.)"
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
 	CALL check_for_password_without_transmit(are_we_passworded_out)
