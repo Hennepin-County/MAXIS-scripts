@@ -2845,36 +2845,36 @@ function csr_dlg_q_9_12()
 			q_11_details_entered = FALSE
 			q_12_details_entered = FALSE
 			If q_9_details_blank_checkbox = unchecked Then
-				For each_new_memb = 0 to UBound(NEW_MA_REQUEST_ARRAY, 2)
+				For each_asset = 0 to UBound(NEW_ASSET_ARRAY, 2)
 					If (NEW_ASSET_ARRAY(asset_type, each_asset) = "ACCT" OR NEW_ASSET_ARRAY(asset_type, each_asset) = "CASH") AND NEW_ASSET_ARRAY(asset_prog_list, each_asset) = "MA" AND NEW_ASSET_ARRAY(ma_request_client, each_asset) <> "Enter or Select Member" Then
 						q_9_details_entered = TRUE
 					End If
 				Next
-				If q_9_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* No details of a person requesting MA for someone not getting coverage now (Question 4). Either enter information about which members are requesting MA coverage or check the box to indicate this portion of the form was left blank."
+				If q_9_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* No details of a person requesting MA for someone not getting coverage now (Question 9). Either enter information about which members are requesting MA coverage or check the box to indicate this portion of the form was left blank."
 			End If
 			If q_10_details_blank_checkbox = unchecked Then
-				For each_busi = 0 to UBound(NEW_EARNED_ARRAY, 2)
-					If NEW_EARNED_ARRAY(earned_type, each_busi) = "BUSI" AND NEW_EARNED_ARRAY(earned_prog_list, each_busi) = "MA" Then
+				For each_asset = 0 to UBound(NEW_ASSET_ARRAY, 2)
+					If NEW_ASSET_ARRAY(asset_type, each_asset) = "SECU" AND NEW_ASSET_ARRAY(asset_prog_list, each_asset) = "MA" Then
 						q_10_details_entered = TRUE
 					End If
 				Next
-				If q_10_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* No Self Employment information has been entered (Question 5). Either enter BUSI details from the CSR Form or check the box to indicate this portion of the form was left blank."
+				If q_10_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* No Self Employment information has been entered (Question 10). Either enter BUSI details from the CSR Form or check the box to indicate this portion of the form was left blank."
 			End If
 			If q_11_details_blank_checkbox = unchecked Then
-				For each_job = 0 to UBound(NEW_EARNED_ARRAY, 2)
-					If NEW_EARNED_ARRAY(earned_type, each_job) = "JOBS" AND NEW_EARNED_ARRAY(earned_prog_list, each_job) = "MA" Then
+				For each_asset = 0 to UBound(NEW_ASSET_ARRAY, 2)
+					If NEW_ASSET_ARRAY(asset_type, each_asset) = "CARS" AND NEW_ASSET_ARRAY(asset_prog_list, each_asset) = "MA" Then
 						q_11_details_entered = TRUE
 					End If
 				Next
-				If q_11_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* * No Job information has been entered (Question 6). Either enter JOBS details from the CSR Form or check the box to indicate this portion of the form was left blank."
+				If q_11_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* * No Job information has been entered (Question 11). Either enter JOBS details from the CSR Form or check the box to indicate this portion of the form was left blank."
 			End If
 			If q_12_details_blank_checkbox = unchecked Then
-				For each_unea = 0 to UBound(NEW_UNEARNED_ARRAY, 2)
-					If NEW_UNEARNED_ARRAY(unearned_type, each_unea) = "UNEA" AND NEW_UNEARNED_ARRAY(unearned_prog_list, each_unea) = "MA" Then
+				For each_asset = 0 to UBound(NEW_ASSET_ARRAY, 2)
+					If NEW_ASSET_ARRAY(asset_type, each_asset) = "REST" AND NEW_ASSET_ARRAY(asset_prog_list, each_asset) = "MA" Then
 						q_12_details_entered = TRUE
 					End If
 				Next
-				If q_12_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* * No Unearned Income information has been entered (Question 7). Either enter UNEA details from the CSR Form or check the box to indicate this portion of the form was left blank."
+				If q_12_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* * No Unearned Income information has been entered (Question 12). Either enter UNEA details from the CSR Form or check the box to indicate this portion of the form was left blank."
 			End If
 
 			If err_msg <> "" Then MsgBox "*** NOTICE ***" & vbNewLine & "Please resolve to continue:" & vbNewLine & err_msg
