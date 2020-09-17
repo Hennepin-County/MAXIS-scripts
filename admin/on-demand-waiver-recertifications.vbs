@@ -299,7 +299,7 @@ if notice_type = "Data Only" then
     MAXIS_footer_year = CM_yr
 
     'Creating an array of letters to loop through
-    col_hdr = "A~B~C~D~E~F~G~H~I~J~K~L~M~N~O~P~Q~R~S~T~U~V~W~X~Y~Z"
+    col_hdr = "A~B~C~D~E~F~G~H~I~J~K~L~M~N~O~P~Q~R~S~T~U~V~W~X~Y~Z~AA~AB~AC~AD~AE~AF~AG~AH~AI~AJ~AK~AL~AM~AN~AO~AP~AQ~AR~AS~AT~AU~AV~AW~AX~AY~AZ~BA~BB~BC~BD~BE~BF~BG~BH~BI~BJ~BK~BL~BM~BN~BO~BP~BQ~BR~BS~BT~BU~BV~BW~BX~BY~BZ"
     header_array = split(col_hdr, "~")
     'setting the start of the list of column options
     header_list = "Select One..."
@@ -421,9 +421,9 @@ call convert_excel_letter_to_excel_number(col)
 
 if notice_type = "Data Only" Then
     wrkr_col = left(worker_col, 1)
-    call convert_excel_letter_to_excel_number(worker_col)
+	letter_worker_col = wrkr_col
+    call convert_excel_letter_to_excel_number(wrkr_col)
 end if
-
 'reading each line of the Excel file and adding case number information to the array
 do
     ReDim Preserve ALL_CASES_ARRAY(notc_confirm, case_entry)
@@ -432,7 +432,7 @@ do
 
     if notice_type = "Data Only" then
         ALL_CASES_ARRAY(wrkr_x_numb, case_entry) = trim(objExcel.Cells(row, wrkr_col).Value)
-        if InStr(list_all_workers, trim(objExcel.Cells(row, wrkr_col).Value)) = 0 then list_all_workers = list_all_workers & trim(objExcel.Cells(row, wrkr_col).Value) & "~"
+        ' if InStr(list_all_workers, trim(objExcel.Cells(row, wrkr_col).Value)) = 0 then list_all_workers = list_all_workers & trim(objExcel.Cells(row, wrkr_col).Value) & "~"
     end if
 
     ALL_CASES_ARRAY(MFIP_case, case_entry) = FALSE
@@ -445,10 +445,10 @@ loop until next_case_number = ""
 last_excel_row = row -1
 
 total_cases = case_entry
-if notice_type = "Data Only" then
-    list_all_workers = left(list_all_workers, len(list_all_workers)-1)
-    worker_array = split(list_all_workers, "~")
-end if
+' if notice_type = "Data Only" then
+'     list_all_workers = left(list_all_workers, len(list_all_workers)-1)
+'     worker_array = split(list_all_workers, "~")
+' end if
 
 running_total = 0
 running_interviews_complete = 0
@@ -456,11 +456,48 @@ running_interviews_not_done = 0
 running_no_app = 0
 running_app_recvd = 0
 
+revw_status_col_known = "Needs New"
+interview_date_col_known = "Needs New"
+app_date_col_known = "Needs New"
+nomi_recvd_col_known = "Needs New"
+appt_ltr_recvd_col_known = "Needs New"
+
+If excel_row_to_start <> "2" Then
+
+	header_list = replace(header_list, "Select One...", "Needs New")
+
+	Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 236, 165, "Select a Known Column"
+	  DropListBox 90, 40, 140, 45, header_list, appt_ltr_recvd_col_known
+	  DropListBox 90, 60, 140, 45, header_list, nomi_recvd_col_known
+	  DropListBox 90, 80, 140, 45, header_list, revw_status_col_known
+	  DropListBox 90, 100, 140, 45, header_list, interview_date_col_known
+	  DropListBox 90, 120, 140, 45, header_list, app_date_col_known
+	  ButtonGroup ButtonPressed
+	    OkButton 120, 140, 50, 15
+	    CancelButton 180, 140, 50, 15
+	  Text 10, 10, 185, 20, "Since you are not starting at the beginning, you can select if a column is already created to store the data."
+	  Text 20, 45, 70, 10, "APPT Letter Confirm"
+	  Text 40, 65, 50, 10, "NOMI Confirm"
+	  Text 40, 85, 50, 10, "REVW Status"
+	  Text 35, 105, 50, 10, "Interview Date"
+	  Text 35, 125, 55, 10, "Date App Recvd"
+	EndDialog
+
+	Dialog Dialog1
+	If ButtonPressed = cancel then stopscript
+	if notice_type = "Data Only" Then
+	    wrkr_col = left(worker_col, 1)
+		letter_worker_col = wrkr_col
+	    call convert_excel_letter_to_excel_number(wrkr_col)
+	end if
+End If
+
 'Insert columns in excel for additional information to be added
 column_end = last_col & "1"
 
 Set objRange = objExcel.Range(column_end).EntireColumn
-objRange.Insert(xlShiftToRight)                             'inserting one column to the end of the data in the spreadsheet
+If appt_ltr_recvd_col_known = "Needs New" Then objRange.Insert(xlShiftToRight)                             'inserting one column to the end of the data in the spreadsheet
 
 notc_col = last_col                                         'setting the a variable with the notice column for later updating of excel
 notc_letter_col = notc_col
@@ -474,40 +511,80 @@ if notice_type = "Appointment Notice" Then
 End If
 
 If notice_type = "NOMI" or notice_type = "Data Only" Then
-    objRange.Insert(xlShiftToRight)     'add column for review status
-    objRange.Insert(xlShiftToRight)     'add column with interview date
-    objRange.Insert(xlShiftToRight)     'add column with app date
-    If notice_type = "Data Only" Then objRange.Insert(xlShiftToRight)     'add another column for the other notice confirmation
+    If revw_status_col_known = "Needs New" Then objRange.Insert(xlShiftToRight)     'add column for review status
+    If interview_date_col_known = "Needs New" Then objRange.Insert(xlShiftToRight)     'add column with interview date
+    If app_date_col_known = "Needs New" Then objRange.Insert(xlShiftToRight)     'add column with app date
+
+    If notice_type = "Data Only" AND nomi_recvd_col_known = "Needs New" Then objRange.Insert(xlShiftToRight)     'add another column for the other notice confirmation
 
     If notice_type = "NOMI" Then
         revw_code_col = notc_col + 1
         nomi_letter_col = convert_digit_to_excel_column(notc_col)
     ElseIf notice_type = "Data Only" Then
-        appt_lrt_col = notc_col
-        nomi_col = notc_col + 1
-        revw_code_col = nomi_col + 1        'setting variables for writing to excel'
+        If appt_ltr_recvd_col_known = "Needs New" Then appt_lrt_col = notc_col
+        If nomi_recvd_col_known = "Needs New" Then nomi_col = notc_col + 1
+        If revw_status_col_known = "Needs New" Then revw_code_col = nomi_col + 1        'setting variables for writing to excel'
 
-        appt_ltr_letter_col = convert_digit_to_excel_column(appt_lrt_col)
-        nomi_letter_col = convert_digit_to_excel_column(nomi_col)
+        If appt_ltr_recvd_col_known = "Needs New" Then appt_ltr_letter_col = convert_digit_to_excel_column(appt_lrt_col)
+        If nomi_recvd_col_known = "Needs New" Then nomi_letter_col = convert_digit_to_excel_column(nomi_col)
     End If
-    intvw_date_col = revw_code_col + 1
-    app_date_col = intvw_date_col + 1
+    If interview_date_col_known = "Needs New" Then intvw_date_col = revw_code_col + 1
+    If app_date_col_known = "Needs New" Then app_date_col = intvw_date_col + 1
 
-    revw_code_letter_col = convert_digit_to_excel_column(revw_code_col)
-    intvw_date_letter_col = convert_digit_to_excel_column(intvw_date_col)
-    app_date_letter_col = convert_digit_to_excel_column(app_date_col)
+    If revw_status_col_known = "Needs New" Then revw_code_letter_col = convert_digit_to_excel_column(revw_code_col)
+    If interview_date_col_known = "Needs New" Then intvw_date_letter_col = convert_digit_to_excel_column(intvw_date_col)
+    If app_date_col_known = "Needs New" Then app_date_letter_col = convert_digit_to_excel_column(app_date_col)
 
     If notice_type = "NOMI" Then objExcel.Cells(1, notc_col).Value = "NOMI Success"          'adding headers to Excel
     If notice_type = "Data Only" Then
-        objExcel.Cells(1, appt_lrt_col).Value = "Appt LTR Confirm"
-        objExcel.Cells(1, nomi_col).Value = "NOMI Confirm"
+        If appt_ltr_recvd_col_known = "Needs New" Then objExcel.Cells(1, appt_lrt_col).Value = "Appt LTR Confirm"
+        If nomi_recvd_col_known = "Needs New" Then objExcel.Cells(1, nomi_col).Value = "NOMI Confirm"
     End If
-    objExcel.Cells(1, revw_code_col).Value = "REVW Status"
-    objExcel.Cells(1, intvw_date_col).Value = "Interview Date"
-    objExcel.Cells(1, app_date_col).Value = "Date App Rec'vd"
+    If revw_status_col_known = "Needs New" Then objExcel.Cells(1, revw_code_col).Value = "REVW Status"
+    If interview_date_col_known = "Needs New" Then objExcel.Cells(1, intvw_date_col).Value = "Interview Date"
+    If app_date_col_known = "Needs New" Then objExcel.Cells(1, app_date_col).Value = "Date App Rec'vd"
 
-    stats_header_col = app_date_col + 2    'Setting variables with coumn locations for statistics
-    stats_col = app_date_col + 3
+    If app_date_col_known = "Needs New" Then stats_header_col = app_date_col + 2    'Setting variables with coumn locations for statistics
+    If app_date_col_known = "Needs New" Then stats_col = app_date_col + 3
+
+
+	If appt_ltr_recvd_col_known <> "Needs New" Then
+		appt_ltr_letter_col = left(appt_ltr_recvd_col_known, 2)
+		appt_ltr_letter_col = trim(appt_ltr_letter_col)
+		appt_lrt_col = appt_ltr_letter_col
+		call convert_excel_letter_to_excel_number(appt_lrt_col)
+		notc_col = appt_lrt_col
+	End If
+	If nomi_recvd_col_known <> "Needs New" Then
+		nomi_letter_col = left(nomi_recvd_col_known, 2)
+		nomi_letter_col = trim(nomi_letter_col)
+		nomi_col = nomi_letter_col
+		call convert_excel_letter_to_excel_number(nomi_col)
+	End If
+	If revw_status_col_known <> "Needs New" Then
+		revw_code_letter_col = left(revw_status_col_known, 2)
+		revw_code_letter_col = trim(revw_code_letter_col)
+		revw_code_col = revw_code_letter_col
+		call convert_excel_letter_to_excel_number(revw_code_col)
+	End If
+	If interview_date_col_known <> "Needs New" Then
+		intvw_date_letter_col = left(interview_date_col_known, 2)
+		intvw_date_letter_col = trim(intvw_date_letter_col)
+		intvw_date_col = intvw_date_letter_col
+		call convert_excel_letter_to_excel_number(intvw_date_col)
+	End If
+	If app_date_col_known <> "Needs New" Then
+		app_date_letter_col = left(app_date_col_known, 2)
+		app_date_letter_col = trim(app_date_letter_col)
+		app_date_col = app_date_letter_col
+		call convert_excel_letter_to_excel_number(app_date_col)
+
+		final_col = last_col
+		call convert_excel_letter_to_excel_number(final_col)
+		stats_header_col = final_col + 2
+		stats_col = final_col + 3
+	End If
+
 End If
 
 'creating a variable in the MM/DD/YY format to compare with date read from MAXIS
@@ -1654,6 +1731,18 @@ end if
 
 'IF the Data Only option was selected
 if notice_type = "Data Only" then
+	row = 2
+	cn_col = left(case_number_column, 1)
+	call convert_excel_letter_to_excel_number(cn_col)
+	do
+		if InStr(list_all_workers, trim(objExcel.Cells(row, wrkr_col).Value)) = 0 then list_all_workers = list_all_workers & trim(objExcel.Cells(row, wrkr_col).Value) & "~"
+		row = row + 1
+		next_case_number = trim(objExcel.Cells(row, cn_col).Value)
+	loop until next_case_number = ""
+
+	list_all_workers = left(list_all_workers, len(list_all_workers)-1)
+	worker_array = split(list_all_workers, "~")
+
     row_to_use = 2      'Setting row and column because we are going to create a new worksheet
     col_to_use = 1
 
@@ -1825,6 +1914,14 @@ if notice_type = "Data Only" then
             objExcel.Cells(1, col_to_use).Font.Bold = TRUE
             recvd_perc_col = col_to_use
             col_to_use = col_to_use + 1
+
+			letter_case_tot_col = convert_digit_to_excel_column(case_tot_col)
+			letter_incomplete_col = convert_digit_to_excel_column(incomplete_col)
+			letter_complete_col = convert_digit_to_excel_column(complete_col)
+			letter_compl_perc_col = convert_digit_to_excel_column(compl_perc_col)
+			letter_received_col = convert_digit_to_excel_column(received_col)
+			letter_not_recvd_col = convert_digit_to_excel_column(not_recvd_col)
+			letter_recvd_perc_col = convert_digit_to_excel_column(recvd_perc_col)
         end if
 
         if worker_recert_status_checkbox = checked then         'Headers for status on REVW by worker
@@ -1884,174 +1981,131 @@ if notice_type = "Data Only" then
             objExcel.Cells(1, col_to_use).Font.Bold = TRUE
             col_to_use = col_to_use + 1
 
+			objExcel.Cells(row_to_use, revw_i_col + 1).Value = 0
+			objExcel.Cells(row_to_use, revw_u_col + 1).Value = 0
+			objExcel.Cells(row_to_use, revw_n_col + 1).Value = 0
+			objExcel.Cells(row_to_use, revw_a_col + 1).Value = 0
+			objExcel.Cells(row_to_use, revw_o_col + 1).Value = 0
+			objExcel.Cells(row_to_use, revw_t_col + 1).Value = 0
+			objExcel.Cells(row_to_use, revw_d_col + 1).Value = 0
+
+			letter_revw_i_col = convert_digit_to_excel_column(revw_i_col)
+			letter_revw_u_col = convert_digit_to_excel_column(revw_u_col)
+			letter_revw_n_col = convert_digit_to_excel_column(revw_n_col)
+			letter_revw_a_col = convert_digit_to_excel_column(revw_a_col)
+			letter_revw_o_col = convert_digit_to_excel_column(revw_o_col)
+			letter_revw_t_col = convert_digit_to_excel_column(revw_t_col)
+			letter_revw_d_col = convert_digit_to_excel_column(revw_d_col)
+
         end if
 
-        running_i_status = 0        'Setting running counts for totals
-        running_u_status = 0
-        running_n_status = 0
-        running_a_status = 0
-        running_o_status = 0
-        running_t_status = 0
-        running_d_status = 0
+		objExcel.ActiveSheet.Range("A2").Select
+		objExcel.ActiveWindow.FreezePanes = True
 
-        for each x1_number in worker_array      'looping through the list of workers
+		is_not_blank_excel_string = chr(34) & "<>" & chr(34)
+
+		letter_wrkr_col = convert_digit_to_excel_column(wrkr_col)
+
+
+		for each x1_number in worker_array      'looping through the list of workers
             objExcel.Cells(row_to_use, wrkr_col).Value = x1_number
 
-            case_total = 0          'Setting counts for each loop
-            complt_intvw = 0
-            incomplt_intvw = 0
-            no_app_rcvd = 0
-            app_recvd = 0
-            wrkr_i_status = 0
-            wrkr_u_status = 0
-            wrkr_n_status = 0
-            wrkr_a_status = 0
-            wrkr_o_status = 0
-            wrkr_t_status = 0
-            wrkr_d_status = 0
+			' MsgBOx "=COUNTIF('" & scenario_dropdown & "'!" & letter_worker_col & "2:" & letter_worker_col & last_excel_row & ", '" & sheet_name &"'!" & letter_wrkr_col & row_to_use & ")"
+			objExcel.Cells(row_to_use, case_tot_col).Value = "=COUNTIF('" & scenario_dropdown & "'!" & letter_worker_col & "2:" & letter_worker_col & last_excel_row & ", '" & sheet_name &"'!" & letter_wrkr_col & row_to_use & ")"
+			if worker_interview_checkbox = checked then
 
-            'This loop will look at each case and add to the above set counts for the selected worker
-            for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
-                'if the case is in the selected basket - and is not PRIV and is in Hennepin - the case will be assesed to add to counts
-                if ALL_CASES_ARRAY(wrkr_x_numb, case_entry) = x1_number AND ALL_CASES_ARRAY(priv_case, case_entry) = FALSE AND ALL_CASES_ARRAY(out_of_co, case_entry) = "" then
-                    case_total = case_total + 1     'Cases looked at
-                    if worker_interview_checkbox = checked then
-                        If ALL_CASES_ARRAY(date_of_interview, case_entry) = "" then
-                            incomplt_intvw = incomplt_intvw + 1     'incomplete interviews
-                        ELSE
-                            complt_intvw = complt_intvw + 1         'complete interviews
-                        end if
-
-                        If ALL_CASES_ARRAY(date_of_app, case_entry) = "" then
-                            no_app_rcvd = no_app_rcvd + 1           'no apps
-                        ELSE
-                            app_recvd = app_recvd + 1               'apps received
-                        end if
-                    end if
-
-                    if worker_recert_status_checkbox = checked then
-                        SELECT CASE ALL_CASES_ARRAY(REVW_code, case_entry)
-
-                        CASE "I"                                    'count for each REVW status
-                            wrkr_i_status = wrkr_i_status + 1
-                            running_i_status = running_i_status + 1
-                        CASE "U"
-                            wrkr_u_status = wrkr_u_status + 1
-                            running_u_status = running_u_status + 1
-                        CASE "N"
-                            wrkr_n_status = wrkr_n_status + 1
-                            running_n_status = running_n_status + 1
-                        CASE "A"
-                            wrkr_a_status = wrkr_a_status + 1
-                            running_a_status = running_a_status + 1
-                        CASE "O"
-                            wrkr_o_status = wrkr_o_status + 1
-                            running_o_status = running_o_status + 1
-                        CASE "T"
-                            wrkr_t_status = wrkr_t_status + 1
-                            running_t_status = running_t_status + 1
-                        CASE "D"
-                            wrkr_d_status = wrkr_d_status + 1
-                            running_d_status = running_d_status + 1
-                        END SELECT
-                    end if
-                end if
-            next
-
-            'each count will be added to the spreadsheet
-            objExcel.Cells(row_to_use, case_tot_col).Value = case_total
-            if worker_interview_checkbox = checked then
-                objExcel.Cells(row_to_use, incomplete_col).Value = incomplt_intvw
-                objExcel.Cells(row_to_use, complete_col).Value = complt_intvw
-                if case_total <> 0 then
-                    objExcel.Cells(row_to_use, compl_perc_col).Value = complt_intvw / case_total
-                else
-                    objExcel.Cells(row_to_use, compl_perc_col).Value = 0
-                end if
-                objExcel.Cells(row_to_use, compl_perc_col).NumberFormat = "0.00%"
-                objExcel.Cells(row_to_use, received_col).Value = app_recvd
-                objExcel.Cells(row_to_use, not_recvd_col).Value = no_app_rcvd
-                if case_total <> 0 then
-                    objExcel.Cells(row_to_use, recvd_perc_col).Value = app_recvd / case_total
-                else
-                    objExcel.Cells(row_to_use, recvd_perc_col).Value = 0
-                end if
-                objExcel.Cells(row_to_use, recvd_perc_col).NumberFormat = "0.00%"
-            end if
-
-            if worker_recert_status_checkbox = checked then
-                objExcel.Cells(row_to_use, revw_i_col).Value = wrkr_i_status
-                objExcel.Cells(row_to_use, revw_u_col).Value = wrkr_u_status
-                objExcel.Cells(row_to_use, revw_n_col).Value = wrkr_n_status
-                objExcel.Cells(row_to_use, revw_a_col).Value = wrkr_a_status
-                objExcel.Cells(row_to_use, revw_o_col).Value = wrkr_o_status
-                objExcel.Cells(row_to_use, revw_t_col).Value = wrkr_t_status
-                objExcel.Cells(row_to_use, revw_d_col).Value = wrkr_d_status
-
-                if case_total <> 0 then
-                    objExcel.Cells(row_to_use, revw_i_col + 1).Value = wrkr_i_status / case_total
-                    objExcel.Cells(row_to_use, revw_u_col + 1).Value = wrkr_u_status / case_total
-                    objExcel.Cells(row_to_use, revw_n_col + 1).Value = wrkr_n_status / case_total
-                    objExcel.Cells(row_to_use, revw_a_col + 1).Value = wrkr_a_status / case_total
-                    objExcel.Cells(row_to_use, revw_o_col + 1).Value = wrkr_o_status / case_total
-                    objExcel.Cells(row_to_use, revw_t_col + 1).Value = wrkr_t_status / case_total
-                    objExcel.Cells(row_to_use, revw_d_col + 1).Value = wrkr_d_status / case_total
-                else
-                    objExcel.Cells(row_to_use, revw_i_col + 1).Value = 0
-                    objExcel.Cells(row_to_use, revw_u_col + 1).Value = 0
-                    objExcel.Cells(row_to_use, revw_n_col + 1).Value = 0
-                    objExcel.Cells(row_to_use, revw_a_col + 1).Value = 0
-                    objExcel.Cells(row_to_use, revw_o_col + 1).Value = 0
-                    objExcel.Cells(row_to_use, revw_t_col + 1).Value = 0
-                    objExcel.Cells(row_to_use, revw_d_col + 1).Value = 0
-                end if
-                objExcel.Cells(row_to_use, revw_i_col + 1).NumberFormat = "0.00%"
-                objExcel.Cells(row_to_use, revw_u_col + 1).NumberFormat = "0.00%"
-                objExcel.Cells(row_to_use, revw_n_col + 1).NumberFormat = "0.00%"
-                objExcel.Cells(row_to_use, revw_a_col + 1).NumberFormat = "0.00%"
-                objExcel.Cells(row_to_use, revw_o_col + 1).NumberFormat = "0.00%"
-                objExcel.Cells(row_to_use, revw_t_col + 1).NumberFormat = "0.00%"
-                objExcel.Cells(row_to_use, revw_d_col + 1).NumberFormat = "0.00%"
-            end if
+				objExcel.Cells(row_to_use, incomplete_col).Value = "=COUNTIFS('" & scenario_dropdown & "'!" & letter_worker_col & "2:" & letter_worker_col & last_excel_row & ", '" & sheet_name &"'!" & letter_wrkr_col & row_to_use & ", '" & scenario_dropdown & "'!" & intvw_date_letter_col & "2:" & intvw_date_letter_col & last_excel_row & ", " & chr(34) & chr(34) & ")"
+				objExcel.Cells(row_to_use, complete_col).Value = "=COUNTIFS('" & scenario_dropdown & "'!" & letter_worker_col & "2:" & letter_worker_col & last_excel_row & ", '" & sheet_name &"'!" & letter_wrkr_col & row_to_use & ", '" & scenario_dropdown & "'!" & intvw_date_letter_col & "2:" & intvw_date_letter_col & last_excel_row & ", " & is_not_blank_excel_string & ")"
 
 
-            row_to_use = row_to_use + 1
+				objExcel.Cells(row_to_use, compl_perc_col).Value = "=" & letter_complete_col & row_to_use & "/" & letter_case_tot_col & row_to_use
+				objExcel.Cells(row_to_use, compl_perc_col).NumberFormat = "0.00%"
+
+				objExcel.Cells(row_to_use, received_col).Value = "=COUNTIFS('" & scenario_dropdown & "'!" & letter_worker_col & "2:" & letter_worker_col & last_excel_row & ", '" & sheet_name &"'!" & letter_wrkr_col & row_to_use & ", '" & scenario_dropdown & "'!" & app_date_letter_col & "2:" & app_date_letter_col & last_excel_row & ", " & is_not_blank_excel_string & ")"
+				objExcel.Cells(row_to_use, not_recvd_col).Value = "=COUNTIFS('" & scenario_dropdown & "'!" & letter_worker_col & "2:" & letter_worker_col & last_excel_row & ", '" & sheet_name &"'!" & letter_wrkr_col & row_to_use & ", '" & scenario_dropdown & "'!" & app_date_letter_col & "2:" & app_date_letter_col & last_excel_row & ", " & chr(34) & chr(34) & ")"
+
+				objExcel.Cells(row_to_use, recvd_perc_col).Value = "=" & letter_received_col & row_to_use & "/" & letter_case_tot_col & row_to_use
+				objExcel.Cells(row_to_use, recvd_perc_col).NumberFormat = "0.00%"
+			end if
+
+			if worker_recert_status_checkbox = checked then
+				objExcel.Cells(row_to_use, revw_i_col).Value = "=COUNTIFS('" & scenario_dropdown & "'!" & letter_worker_col & "2:" & letter_worker_col & last_excel_row & ", '" & sheet_name &"'!" & letter_wrkr_col & row_to_use & ", '" & scenario_dropdown & "'!" & revw_code_letter_col & "2:" & revw_code_letter_col & last_excel_row & ", " & chr(34) & "I" & chr(34) & ")"
+				objExcel.Cells(row_to_use, revw_u_col).Value = "=COUNTIFS('" & scenario_dropdown & "'!" & letter_worker_col & "2:" & letter_worker_col & last_excel_row & ", '" & sheet_name &"'!" & letter_wrkr_col & row_to_use & ", '" & scenario_dropdown & "'!" & revw_code_letter_col & "2:" & revw_code_letter_col & last_excel_row & ", " & chr(34) & "U" & chr(34) & ")"
+				objExcel.Cells(row_to_use, revw_n_col).Value = "=COUNTIFS('" & scenario_dropdown & "'!" & letter_worker_col & "2:" & letter_worker_col & last_excel_row & ", '" & sheet_name &"'!" & letter_wrkr_col & row_to_use & ", '" & scenario_dropdown & "'!" & revw_code_letter_col & "2:" & revw_code_letter_col & last_excel_row & ", " & chr(34) & "N" & chr(34) & ")"
+				objExcel.Cells(row_to_use, revw_a_col).Value = "=COUNTIFS('" & scenario_dropdown & "'!" & letter_worker_col & "2:" & letter_worker_col & last_excel_row & ", '" & sheet_name &"'!" & letter_wrkr_col & row_to_use & ", '" & scenario_dropdown & "'!" & revw_code_letter_col & "2:" & revw_code_letter_col & last_excel_row & ", " & chr(34) & "A" & chr(34) & ")"
+				objExcel.Cells(row_to_use, revw_o_col).Value = "=COUNTIFS('" & scenario_dropdown & "'!" & letter_worker_col & "2:" & letter_worker_col & last_excel_row & ", '" & sheet_name &"'!" & letter_wrkr_col & row_to_use & ", '" & scenario_dropdown & "'!" & revw_code_letter_col & "2:" & revw_code_letter_col & last_excel_row & ", " & chr(34) & "O" & chr(34) & ")"
+				objExcel.Cells(row_to_use, revw_t_col).Value = "=COUNTIFS('" & scenario_dropdown & "'!" & letter_worker_col & "2:" & letter_worker_col & last_excel_row & ", '" & sheet_name &"'!" & letter_wrkr_col & row_to_use & ", '" & scenario_dropdown & "'!" & revw_code_letter_col & "2:" & revw_code_letter_col & last_excel_row & ", " & chr(34) & "T" & chr(34) & ")"
+				objExcel.Cells(row_to_use, revw_d_col).Value = "=COUNTIFS('" & scenario_dropdown & "'!" & letter_worker_col & "2:" & letter_worker_col & last_excel_row & ", '" & sheet_name &"'!" & letter_wrkr_col & row_to_use & ", '" & scenario_dropdown & "'!" & revw_code_letter_col & "2:" & revw_code_letter_col & last_excel_row & ", " & chr(34) & "D" & chr(34) & ")"
+
+
+				objExcel.Cells(row_to_use, revw_i_col + 1).Value = "=" & letter_revw_i_col & row_to_use & "/" & letter_case_tot_col & row_to_use
+				objExcel.Cells(row_to_use, revw_u_col + 1).Value = "=" & letter_revw_u_col & row_to_use & "/" & letter_case_tot_col & row_to_use
+				objExcel.Cells(row_to_use, revw_n_col + 1).Value = "=" & letter_revw_n_col & row_to_use & "/" & letter_case_tot_col & row_to_use
+				objExcel.Cells(row_to_use, revw_a_col + 1).Value = "=" & letter_revw_a_col & row_to_use & "/" & letter_case_tot_col & row_to_use
+				objExcel.Cells(row_to_use, revw_o_col + 1).Value = "=" & letter_revw_o_col & row_to_use & "/" & letter_case_tot_col & row_to_use
+				objExcel.Cells(row_to_use, revw_t_col + 1).Value = "=" & letter_revw_t_col & row_to_use & "/" & letter_case_tot_col & row_to_use
+				objExcel.Cells(row_to_use, revw_d_col + 1).Value = "=" & letter_revw_d_col & row_to_use & "/" & letter_case_tot_col & row_to_use
+				objExcel.Cells(row_to_use, revw_i_col + 1).NumberFormat = "0.00%"
+				objExcel.Cells(row_to_use, revw_u_col + 1).NumberFormat = "0.00%"
+				objExcel.Cells(row_to_use, revw_n_col + 1).NumberFormat = "0.00%"
+				objExcel.Cells(row_to_use, revw_a_col + 1).NumberFormat = "0.00%"
+				objExcel.Cells(row_to_use, revw_o_col + 1).NumberFormat = "0.00%"
+				objExcel.Cells(row_to_use, revw_t_col + 1).NumberFormat = "0.00%"
+				objExcel.Cells(row_to_use, revw_d_col + 1).NumberFormat = "0.00%"
+
+			end if
+
+			row_to_use = row_to_use + 1
+
         next
 
-        'Now the total counts will be added
-        objExcel.Cells(row_to_use, wrkr_col).Value = "TOTAL"
-        objExcel.Cells(row_to_use, case_tot_col).Value = running_total
+		objExcel.Cells(row_to_use, wrkr_col).Value = "TOTAL"
 
-        if worker_recert_status_checkbox = checked then
-            objExcel.Cells(row_to_use, revw_i_col).Value = running_i_status
-            objExcel.Cells(row_to_use, revw_i_col + 1).Value = running_i_status / running_total
-            objExcel.Cells(row_to_use, revw_i_col + 1).NumberFormat = "0.00%"
+		objExcel.Cells(row_to_use, case_tot_col).Value = "=SUM(" & letter_case_tot_col & "2:" & letter_case_tot_col & row_to_use - 1 & ")"
 
-            objExcel.Cells(row_to_use, revw_u_col).Value = running_u_status
-            objExcel.Cells(row_to_use, revw_u_col + 1).Value = running_u_status / running_total
-            objExcel.Cells(row_to_use, revw_u_col + 1).NumberFormat = "0.00%"
+		if worker_interview_checkbox = checked then
+			objExcel.Cells(row_to_use, incomplete_col).Value = "=SUM(" & letter_incomplete_col & "2:" & letter_incomplete_col & row_to_use - 1 & ")"
+			objExcel.Cells(row_to_use, complete_col).Value = "=SUM(" & letter_complete_col & "2:" & letter_complete_col &  row_to_use - 1 & ")"
 
-            objExcel.Cells(row_to_use, revw_n_col).Value = running_n_status
-            objExcel.Cells(row_to_use, revw_n_col + 1).Value = running_n_status / running_total
-            objExcel.Cells(row_to_use, revw_n_col + 1).NumberFormat = "0.00%"
+			objExcel.Cells(row_to_use, compl_perc_col).Value = "=" & letter_complete_col & row_to_use & "/" & letter_case_tot_col & row_to_use
+			objExcel.Cells(row_to_use, compl_perc_col).NumberFormat = "0.00%"
 
-            objExcel.Cells(row_to_use, revw_a_col).Value = running_a_status
-            objExcel.Cells(row_to_use, revw_a_col + 1).Value = running_a_status / running_total
-            objExcel.Cells(row_to_use, revw_a_col + 1).NumberFormat = "0.00%"
+			objExcel.Cells(row_to_use, received_col).Value = "=SUM(" & letter_received_col & "2:" & letter_received_col & row_to_use - 1 & ")"
+			objExcel.Cells(row_to_use, not_recvd_col).Value = "=SUM(" & letter_not_recvd_col & "2:" & letter_not_recvd_col & row_to_use - 1 & ")"
 
-            objExcel.Cells(row_to_use, revw_o_col).Value = running_o_status
-            objExcel.Cells(row_to_use, revw_o_col + 1).Value = running_o_status / running_total
-            objExcel.Cells(row_to_use, revw_o_col + 1).NumberFormat = "0.00%"
+			objExcel.Cells(row_to_use, recvd_perc_col).Value = "=" & letter_received_col & row_to_use & "/" & letter_case_tot_col & row_to_use
+			objExcel.Cells(row_to_use, recvd_perc_col).NumberFormat = "0.00%"
+		end if
 
-            objExcel.Cells(row_to_use, revw_t_col).Value = running_t_status
-            objExcel.Cells(row_to_use, revw_t_col + 1).Value = running_t_status / running_total
-            objExcel.Cells(row_to_use, revw_t_col + 1).NumberFormat = "0.00%"
+		if worker_recert_status_checkbox = checked then
+			objExcel.Cells(row_to_use, revw_i_col).Value = "=SUM(" & letter_revw_i_col & "2:" & letter_revw_i_col & row_to_use - 1 & ")"
+			objExcel.Cells(row_to_use, revw_u_col).Value = "=SUM(" & letter_revw_u_col & "2:" & letter_revw_u_col & row_to_use - 1 & ")"
+			objExcel.Cells(row_to_use, revw_n_col).Value = "=SUM(" & letter_revw_n_col & "2:" & letter_revw_n_col & row_to_use - 1 & ")"
+			objExcel.Cells(row_to_use, revw_a_col).Value = "=SUM(" & letter_revw_a_col & "2:" & letter_revw_a_col & row_to_use - 1 & ")"
+			objExcel.Cells(row_to_use, revw_o_col).Value = "=SUM(" & letter_revw_o_col & "2:" & letter_revw_o_col & row_to_use - 1 & ")"
+			objExcel.Cells(row_to_use, revw_t_col).Value = "=SUM(" & letter_revw_t_col & "2:" & letter_revw_t_col & row_to_use - 1 & ")"
+			objExcel.Cells(row_to_use, revw_d_col).Value = "=SUM(" & letter_revw_d_col & "2:" & letter_revw_d_col & row_to_use - 1 & ")"
 
-            objExcel.Cells(row_to_use, revw_d_col).Value = running_d_status
-            objExcel.Cells(row_to_use, revw_d_col + 1).Value = running_d_status / running_total
-            objExcel.Cells(row_to_use, revw_d_col + 1).NumberFormat = "0.00%"
+			objExcel.Cells(row_to_use, revw_i_col + 1).Value = "=" & letter_revw_i_col & row_to_use & "/" & letter_case_tot_col & row_to_use
+			objExcel.Cells(row_to_use, revw_u_col + 1).Value = "=" & letter_revw_u_col & row_to_use & "/" & letter_case_tot_col & row_to_use
+			objExcel.Cells(row_to_use, revw_n_col + 1).Value = "=" & letter_revw_n_col & row_to_use & "/" & letter_case_tot_col & row_to_use
+			objExcel.Cells(row_to_use, revw_a_col + 1).Value = "=" & letter_revw_a_col & row_to_use & "/" & letter_case_tot_col & row_to_use
+			objExcel.Cells(row_to_use, revw_o_col + 1).Value = "=" & letter_revw_o_col & row_to_use & "/" & letter_case_tot_col & row_to_use
+			objExcel.Cells(row_to_use, revw_t_col + 1).Value = "=" & letter_revw_t_col & row_to_use & "/" & letter_case_tot_col & row_to_use
+			objExcel.Cells(row_to_use, revw_d_col + 1).Value = "=" & letter_revw_d_col & row_to_use & "/" & letter_case_tot_col & row_to_use
+			objExcel.Cells(row_to_use, revw_i_col + 1).NumberFormat = "0.00%"
+			objExcel.Cells(row_to_use, revw_u_col + 1).NumberFormat = "0.00%"
+			objExcel.Cells(row_to_use, revw_n_col + 1).NumberFormat = "0.00%"
+			objExcel.Cells(row_to_use, revw_a_col + 1).NumberFormat = "0.00%"
+			objExcel.Cells(row_to_use, revw_o_col + 1).NumberFormat = "0.00%"
+			objExcel.Cells(row_to_use, revw_t_col + 1).NumberFormat = "0.00%"
+			objExcel.Cells(row_to_use, revw_d_col + 1).NumberFormat = "0.00%"
+
         end if
+
+		objExcel.Rows(row_to_use).Font.Bold = TRUE
         col_to_use = col_to_use + 1
+
     end if
 
     'adding a stats block of information
@@ -2150,6 +2204,7 @@ if notice_type = "Data Only" then
 
     objExcel.Cells(entry_row, stats_header_col).Value       = "Privleged Cases:"
     objExcel.Cells(entry_row, stats_header_col).Font.Bold 	= TRUE
+
 end if
 
 'Creating the list of privileged cases and adding to the spreadsheet
