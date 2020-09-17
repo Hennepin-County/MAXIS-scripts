@@ -520,7 +520,7 @@ IF notice_sent = "N" THEN
     	IF difference_notice_action_dropdown = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Please select an answer to continue."
     	'IF claim_referral_tracking_dropdown =  "Select One:" and difference_notice_action_dropdown =  "YES" THEN err_msg = err_msg & vbNewLine & "* Please select if the claim referral tracking needs to be updated."
 		IF other_checkbox = CHECKED and other_notes = "" THEN err_msg = err_msg & vbNewLine & "* Please ensure you are completing other notes"
-		If other_notes = "" Then err_msg = err_msg & vbNewLine & "Enter information into the 'Other Notes' field for entry into ILUB. (We will be address scenario specific requirements for this field in the future.)"
+		' If other_notes = "" Then err_msg = err_msg & vbNewLine & "Enter information into the 'Other Notes' field for entry into ILUB. (We will be address scenario specific requirements for this field in the future.)"
     	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
 	CALL check_for_password_without_transmit(are_we_passworded_out)
@@ -806,7 +806,7 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
     '----------------------------------------------------------------------------------------writing the note on IULB
 
 	EMReadScreen panel_name, 4, 02, 52
-    IF panel_name = "IULB" and difference_notice_action_dropdown = "YES" THEN
+    IF panel_name = "IULB" and difference_notice_action_dropdown = "NO" THEN
     	TRANSMIT
     	EMReadScreen MISC_error_check,  74, 24, 02
     	EMReadScreen IULB_enter_msg, 5, 24, 02
