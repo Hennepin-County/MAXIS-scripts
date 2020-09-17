@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("09/17/2020", "Update to the script to remove the functionality that would LUMP together any income in the month of application on the SNAP PIC.##~## ##~##The income will still update the SNAP PIC with income as a LUMP if for the month a job started.", "Casey Love, Hennepin County")
 Call changelog_update("09/17/2020", "The script will no longer read the Pay Frequency. This will have to be entered when entering the paycheck information.##~## ##~##We made this change because this script relys heavily on the pay frequency being correct at this point and there is not a great way to ensure accuracy otherwise.", "Casey Love, Hennepin County")
 Call changelog_update("09/17/2020", "Added some options to the 'Explanation of why we are not using 30 days of income' for SNAP. This used to be a typing field (EditBox) and now had a dropdown option but you can still type anything that explains this information. ##~## ##~##For SNAP anytime we use anything other than 30 days of income, we are required to note clearly why we used something other than 30 day of income. Now there are some common options listed.##~## ##~##If you have more options that happen regularly, please send them to us for review and we can possibly add them. Remember you can always type out the explanation as well.", "Casey Love, Hennepin County")
 Call changelog_update("01/10/2020", "This script may force an error report at the end of the script run.##~## ##~##We have and ongoing script error that is happening around dates and the updating of the panel. We have added a workaround to the script but if this error happens, it should be sending us and error report so we can try to discover the nature of the issue in real time. ##~## The script should be working well and this is just an alert that the error reporting may happen automatically. ", "Casey Love, Hennepin County")
@@ -3330,9 +3331,9 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
                             Call create_MAXIS_friendly_date(date, 0, 5, 34)                     'enter the current date in date of calculation field
                             EMWriteScreen left(EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel), 1), 5, 64        'enter the pay frequency code only in the correct field
 
-                            'If we are in the footer month that is the month of application or first month of income for a new job
+                            'If we are in the footer month that is the first month of income for a new job
                             'there is special functionality to LUMP the income in the PIC so that an accurate amount can be entered NEED POLICY REFERENCE
-                            If (fs_appl_footer_month = MAXIS_footer_month AND fs_appl_footer_year = MAXIS_footer_year) OR (job_start_month = MAXIS_footer_month AND job_start_year = MAXIS_footer_year) Then
+							If job_start_month = MAXIS_footer_month AND job_start_year = MAXIS_footer_year Then
                                 updates_to_display = updates_to_display & vbNewLine & "Date of Calculation: " & date & "  Pay Frequency: 1 - Monthly"
 
                                 fs_appl_date = DateValue(fs_appl_date)      'setting some defaults - more for-nexts are coming
@@ -3344,13 +3345,7 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
                                 income_items_used = "~"
 
                                 month_lumped = MAXIS_footer_month & "/" & MAXIS_footer_year     'formatting for readability
-                                If fs_appl_footer_month = MAXIS_footer_month AND fs_appl_footer_year = MAXIS_footer_year Then
-                                    reason_lumped = "month of application"
-                                ElseIf job_start_month = MAXIS_footer_month AND job_start_year = MAXIS_footer_year Then
-                                    reason_lumped = "first month of new job"
-                                Else
-                                    reason_lumped = "month of application and first month of new job"
-                                End If
+								reason_lumped = "first month of new job"
                                 ' MsgBox "Ave inc - " & EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel) & vbNewLine & "Ave hrs - " & EARNED_INCOME_PANELS_ARRAY(ave_hrs_per_pay, ei_panel)
                                 For each this_date in this_month_checks_array           'this array was set at the begining of this month's loop - it will get us all our pay dates
                                     If IsDate(this_date) = TRUE Then
