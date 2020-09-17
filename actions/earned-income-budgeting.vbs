@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("09/17/2020", "Added some options to the 'Explanation of why we are not using 30 days of income' for SNAP. This used to be a typing field (EditBox) and now had a dropdown option but you can still type anything that explains this information. ##~## ##~##For SNAP anytime we use anything other than 30 days of income, we are required to note clearly why we used something other than 30 day of income. Now there are some common options listed.##~## ##~##If you have more options that happen regularly, please send them to us for review and we can possibly add them. Remember you can always type out the explanation as well.", "Casey Love, Hennepin County")
 Call changelog_update("01/10/2020", "This script may force an error report at the end of the script run.##~## ##~##We have and ongoing script error that is happening around dates and the updating of the panel. We have added a workaround to the script but if this error happens, it should be sending us and error report so we can try to discover the nature of the issue in real time. ##~## The script should be working well and this is just an alert that the error reporting may happen automatically. ", "Casey Love, Hennepin County")
 Call changelog_update("01/08/2020", "The script cannot be used on a JOBS panel with an income end date at this time. The script now reads if an end date exists and prevents information from being entered for a panel that cannot be updated. ##~##", "Casey Love, Hennepin County")
 call changelog_update("1/3/2020", "BUG FIX - The script could not continue if ongoing income for a job was $0. Updated functionality to better suppor an ongoing job with $0 income. This new functionality still does not support jobs that are ending.##~##", "Casey Love, Hennepin County")
@@ -2366,9 +2367,10 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
 
                               Text 10, y_pos + 10, 400, 10, "Income provided covers the period " & first_date & " to " & last_date & ". This income covers " & spread_of_pay_dates & " days."
                               If using_30_days = FALSE Then
-                                  y_pos = y_pos + 25
-                                  Text 10, y_pos + 5, 175, 10, "It appears this is not 30 days of income. Explain:"
-                                  EditBox 185, y_pos, 200, 15, not_30_explanation
+                                  y_pos = y_pos + 20
+								  Text 10, y_pos, 175, 10, "It appears this is not 30 days of income. Explain:"
+								  ComboBox 10, y_pos+10, 400, 15, "Type or Select"+chr(9)+"Income has just started and this is all that has been received."+chr(9)+"Hours Reduction - this is all the income since the change."+chr(9)+"Hours Increase - this is all the income since the change."+chr(9)+"Wage Reduction - this is all the income since the change."+chr(9)+"Wage Increase - this is all the income since the change."+chr(9)+"Due to how work is scheduled, this is the best representation of expected ongoing income."+chr(9)+"Client stated this income is consistent."+chr(9)+not_30_explanation, not_30_explanation
+								  y_pos = y_pos + 5
                               End If
                               y_pos = y_pos + 10
 
