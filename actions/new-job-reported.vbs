@@ -38,8 +38,8 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 'Here we look for testers as we have a new version of this script in testing.
-test_reason = "New functionality to capture information about not only a new job reported, but also a change in an existing job or the end of a job being reported. "
-Call select_testing_file("ALL", "", "actions/job-change-reported.vbs", "master", TRUE, TRUE)
+' test_reason = "New functionality to capture information about not only a new job reported, but also a change in an existing job or the end of a job being reported. "
+' Call select_testing_file("ALL", "", "actions/job-change-reported.vbs", "master", TRUE, TRUE)
 'CHANGELOG BLOCK ===========================================================================================================
 'Starts by defining a changelog array
 changelog = array()
@@ -56,6 +56,9 @@ changelog_display
 
 'THIS SCRIPT IS BEING USED IN A WORKFLOW SO DIALOGS ARE NOT NAMED
 'DIALOGS MAY NOT BE DEFINED AT THE BEGINNING OF THE SCRIPT BUT WITHIN THE SCRIPT FILE
+
+Switch_to_job_change_reported_msg = MsgBox("This script will be retired soon!!!" & vbCr & vbCr & "It will be replaced with the new script: " & vbCr & "        JOB CHANGE REPORTED." & vbCr & vbCr & "This new script will still:" & vbCr & " - Create a JOBS panel for a new job reported and CASE:NOTE about it." & vbCr & vbCr & "This new script will ALSO:" & vbCr & " - Update a JOBS panel when a change in pay and/or hours are reported and CASE:NOTE." & vbCr & " - Update a JOBS panel when stopwork is reported." & vbCr & vbCr & "The script 'New Job Reported' will be removed later this month and then only JOB CHANGE REPORTED will be available. JOB CHANGE REPORTED is currently available directly in the ACTIONS scripts." & vbCr & vbCr & "*** Do you want to run the new JOB CHANGE REPORTED script now?", vbQuestion + vbYesNo, "Run New script?")
+If Switch_to_job_change_reported_msg = vbYes Then Call run_from_GitHub(script_repository & "/actions/job-change-reported.vbs")
 
 'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
 MAXIS_footer_month = CM_plus_1_mo
