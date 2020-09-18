@@ -2599,7 +2599,8 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                         review_small_dlg = TRUE
                     End If
                     If using_30_days = FALSE Then                   'if checks do not span 30 days and SNAP is selected, there must be an explanation
-                        If not_30_explanation = "" Then big_err_msg = big_err_msg & vbNewLine & "** Since income received is not 30 days of income for SNAP, it must be explained why we are accepting more or less."
+						not_30_explanation = trim(not_30_explanation)
+                        If not_30_explanation = "" OR not_30_explanation = "Type or Select" Then big_err_msg = big_err_msg & vbNewLine & "** Since income received is not 30 days of income for SNAP, it must be explained why we are accepting more or less."
                     End If
                     If ButtonPressed = calc_btn Then            'REMOVE CODE - this should no longer come up. Need to review functionality
                         review_small_dlg = FALSE
