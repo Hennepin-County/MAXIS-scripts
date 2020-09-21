@@ -1,4 +1,4 @@
-OTHER_STATE_CASH_CHECKBOX'GATHERING STATS===========================================================================================
+'GATHERING STATS===========================================================================================
 name_of_script = "NOTICES - OUT OF STATE INQUIRY.vbs"
 STATS_counter = 1                          'sets the stats counter at one
 STATS_manualtime = 500                     'manual run time in seconds
@@ -1246,6 +1246,12 @@ EndDialog
          EMReadScreen client_zip, 7, 16, 52
     End If
     client_address = replace(client_1staddress, "_","") & " " & replace(client_2ndaddress, "_","") & " " & replace(client_city, "_","") & ", " & replace(client_state, "_","") & " " & replace(client_zip, "_","")
+
+
+
+
+
+
 
     'Generates Word Doc Form
     Set objWord = CreateObject("Word.Application")
