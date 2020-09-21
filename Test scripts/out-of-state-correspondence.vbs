@@ -674,6 +674,26 @@ IF case_status = "INACTIVE" THEN active_status = FALSE
 Call MAXIS_footer_month_confirmation
 EmReadscreen original_MAXIS_footer_month, 2, 20, 43
 
+
+CALL navigate_to_MAXIS_screen("STAT", "ADDR")
+EMreadscreen resi_addr_line_one, 22, 6, 43
+resi_addr_line_one = replace(resi_addr_line_one, "_", "")
+EMreadscreen resi_addr_line_two, 22, 7, 43
+resi_addr_line_two = replace(resi_addr_line_two, "_", "")
+EMreadscreen resi_addr_city, 15, 8, 43
+resi_addr_city = replace(resi_addr_city, "_", "")
+EMreadscreen resi_addr_state, 2, 8, 66
+resi_addr_state = replace(resi_addr_state, "_", "")
+EMreadscreen resi_addr_zip, 7, 9, 43
+resi_addr_zip = replace(resi_addr_zip, "_", "")
+
+
+EMreadscreen addr_homeless, 1, 10, 43
+
+
+
+
+
 'this reads clients current mailing address for the letter
 Call navigate_to_MAXIS_screen("STAT", "ADDR")
 EMReadScreen mail_address, 1, 13, 64
@@ -754,7 +774,7 @@ IF MN_MF_STATUS = FALSE and MN_FS_STATUS = FALSE and MN_HC_STATUS = FALSE and MN
 	active_status = FALSE
 	script_end_procedure_with_error_report("It appears no programs are open or pending on this case.")
 END IF
-
+'come back to this for the case note need to run the dialog first '
 programs_applied_for = ""        'Creates a variable that lists all the active.
 IF MN_CASH_STATUS = TRUE THEN programs_applied_for = programs_applied_for & "CASH, "
 IF MN_ER_STATUS = TRUE THEN programs_applied_for = programs_applied_for & "Emergency, "
@@ -841,13 +861,12 @@ DO
 		cancel_confirmation
 	LOOP until err_msg = ""
 Loop until are_we_passworded_out = false
-
+Call fill_in_the_states
 IF agency_phone = "" THEN agency_phone = "N/A"
 IF agency_fax = "" THEN agency_fax = "N/A"
 IF agency_email = "" THEN agency_email = "N/A"
 date_received = ""
 
-Call fill_in_the_states
 Dialog1 = "" 'runs the dialog that has been dynamically created. Streamlined with new functions.
 BeginDialog Dialog1, 0, 0, 231, 140, "OUT OF STATE INQUIRY FOR: "   & Ucase(state_droplist)
   CheckBox 50, 20, 30, 10, "Cash", MN_CASH_CHECKBOX

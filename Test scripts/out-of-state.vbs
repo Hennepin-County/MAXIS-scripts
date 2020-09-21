@@ -55,6 +55,7 @@ EMConnect ""
 CALL check_for_MAXIS(TRUE)'if not in maxis fylo'
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 CALL convert_date_into_MAXIS_footer_month(date, MAXIS_footer_month, MAXIS_footer_year)'can use this for any date MM/YY'
+
 Dialog1 = ""
 BEGINDIALOG Dialog1, 0, 0, 146, 105, "Out of State Inquiry"
  EditBox 55, 5, 55, 15, MAXIS_case_number
@@ -84,38 +85,141 @@ DO
     CALL check_for_password(are_we_passworded_out)                                 'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false
 
-CALL determine_program_and_case_status_from_CASE_CURR(
-case_active,
-case_pending,
-family_cash_case,
-mfip_case,
-dwp_case,
-adult_cash_case,
-ga_case, msa_case,
-grh_case, snap_case,
-ma_case, msp_case,
-unknown_cash_pending)
-
+CALL navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv) 'gives a true/false'
+IF is_this_priv = TRUE THEN script_end_procedure_with_error_report("This case is privileged. Please request access before running the script again. ")
+'new function set to true to navigate and let the worker know if they need to request access '
 CALL determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, unknown_cash_pending)
 row = 1                                                 'First we will look for SNAP
-  col = 1
-  EMSearch "CCAP:", row, col
-  If row <> 0 Then
-	  EMReadScreen CC_status, 9, row, col + 6
-	  CC_status = trim(CC_status)
-	  If CC_status = "ACTIVE" or CC_status = "APP CLOSE" or CC_status = "APP OPEN" Then
-		  ccap_case = TRUE
-		  case_active = TRUE
-	  End If
-	  If CC_status = "PENDING" Then
-		  ccap_case = TRUE
-		  case_pending = TRUE
-	  ENd If
-  End If
+col = 1
+EMSearch "IV-E:", row, col
+If row <> 0 Then
+	EMReadScreen IVE_status, 9, row, col + 6
+	IVE_status = trim(IVE_status)
+ 	IF IVE_status = "ACTIVE" or IVE_status = "APP CLOSE" or IVE_status = "APP OPEN" Then
+ 		ive_case = TRUE
+		case_active = TRUE
+	END IF
+	If IVE_status = "PENDING" Then
+		ive_case = TRUE
+		case_pending = TRUE
+ 	END IF
+END IF
+row = 1                                                 'First we will look for SNAP
+col = 1
+EMSearch "CCAP:", row, col
+IF row <> 0 Then
+  	EMReadScreen CC_status, 9, row, col + 6
+  	CC_status = trim(CC_status)
+  	IF CC_status = "ACTIVE" or CC_status = "APP CLOSE" or CC_status = "APP OPEN" Then
+  		ccap_case = TRUE
+  		case_active = TRUE
+    END IF
+  	IF CC_status = "PENDING" Then
+  	  	ccap_case = TRUE
+  		case_pending = TRUE
+  	END IF
+END IF 'reminder to look at adding thse to function at a later date'
+
+IF case_active = FALSE and case_pending = FALSE THEN script_end_procedure_with_error_report("It appears no programs are open or pending on this case.")
+
+IF family_cash_case = TRUE THEN MN_CASH_CHECKBOX = CHECKED
+IF adult_cash_case = TRUE THEN MN_CASH_CHECKBOX = CHECKED
+IF unknown_cash_pending = TRUE THEN MN_CASH_CHECKBOX = CHECKED
+IF grh_case = TRUE THEN MN_GRH_CHECKBOX = CHECKED
+IF snap_case = TRUE THEN MN_FS_CHECKBOX = CHECKED
+IF ma_case = TRUE THEN  MN_HC_CHECKBOX = CHECKED
+IF msp_case = TRUE THEN  MN_HC_CHECKBOX = CHECKED
+IF ccap_case = TRUE THEN MN_CCA_CHECKBOX = CHECKED
+'IF ive_case = TRUE THEN MN_IVE_CHECKBOX = CHECKED need to add to dialog
+
+
+
 CALL navigate_to_MAXIS_screen("STAT", "ADDR")
 EMReadScreen client_1staddress, 21, 06, 43
 EMReadScreen client_2ndaddress, 21, 07, 43
 EMReadScreen client_city, 14, 08, 43
 EMReadScreen client_state, 2, 08, 66
 EMReadScreen client_zip, 7, 09, 43
+EMreadscreen addr_homeless, 1, 10, 43
 client_address = replace(client_1staddress, "_","") & " " & replace(client_2ndaddress, "_","") & " " & replace(client_city, "_","") & ", " & replace(client_state, "_","") & " " & replace(client_zip, "_","")
+EMreadscreen addr_homeless, 1, 10, 43
+Const ref_numb_const 			= 0
+Const first_name_const 			= 1
+Const last_name_const			= 2
+Const clt_middle_const 			= 3
+Const clt_dob_const 			= 4
+Const client_selection_checkbox_const = 5
+Const clt_ssn_const 			= 6
+
+Dim ALL_CLT_INFO_ARRAY()
+ReDim ALL_CLT_INFO_ARRAY(clt_ssn_const, 0)
+
+the_incrementer = 0
+CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
+DO								'reads the reference number, last name, first name, and then puts it into a single string then into the array
+	EMReadscreen ref_nbr, 3, 4, 33
+	EMReadScreen access_denied_check, 13, 24, 2
+	ReDim Preserve ALL_CLT_INFO_ARRAY(clt_ssn_const, the_incrementer)' this is to tell the array to get bigger'
+	ALL_CLT_INFO_ARRAY(ref_numb_const, the_incrementer) = ref_nbr 'going back to the first piece of information to hold it in this specific postion'
+	'MsgBox access_denied_check
+	If access_denied_check = "ACCESS DENIED" Then
+		PF10
+		last_name = "UNABLE TO FIND"
+		first_name = " - Access Denied"
+		mid_initial = ""
+	Else
+	    'Reading info and removing spaces
+	    EMReadscreen First_name, 12, 6, 63
+	    First_name = replace(First_name, "_", "")
+	    ALL_CLT_INFO_ARRAY(first_name_const, the_incrementer) = First_name
+	    'Reading Last name and removing spaces
+	    EMReadscreen Last_name, 25, 6, 30
+	    Last_name = replace(Last_name, "_", "")
+	    ALL_CLT_INFO_ARRAY(last_name_const, the_incrementer) = Last_name
+	    'Reading Middle initial and replacing _ with a blank if empty.
+	    EMReadscreen Middle_initial, 1, 6, 79
+	    Middle_initial = replace(Middle_initial, "_", "")
+	    ALL_CLT_INFO_ARRAY(clt_middle_const, the_incrementer) = Middle_initial
+		 'Reading date of birth and replacing space.
+	    Emreadscreen client_dob, 10, 8, 42
+	    SSN_number = replace(client_dob, " ", "/")
+	    ALL_CLT_INFO_ARRAY(clt_dob_const, the_incrementer) = client_dob
+	    'Reads SSN
+	    Emreadscreen SSN_number, 11, 7, 42
+	    SSN_number = replace(SSN_number, " ", "-")
+	    ALL_CLT_INFO_ARRAY(clt_ssn_const, the_incrementer) = SSN_number
+		'adds the ref number to the array'
+	    ALL_CLT_INFO_ARRAY(ref_numb_const, the_incrementer) = client_ref_number
+		'ensuring that the check box is checked for all members in the dialog'
+		ALL_CLT_INFO_ARRAY(client_selection_checkbox_const, the_incrementer) = CHECKED
+	End If
+	the_incrementer = the_incrementer + 1
+	TRANSMIT
+	Emreadscreen edit_check, 7, 24, 2
+LOOP until edit_check = "ENTER A"'the script will continue to transmit through memb until it reaches the last page and finds the ENTER A edit on the bottom row.
+
+'For each path the script takes a different route'
+Dialog1 = "" 'runs the dialog that has been dynamically created. Streamlined with new functions.
+BEGINDIALOG Dialog1, 0, 0, 241, (50 + (Ubound(ALL_CLT_INFO_ARRAY, 2) * 15)), "Household Member(s) "   'Creates the dynamic dialog. The height will change based on the number of clients it finds.
+	Text 10, 5, 130, 10, "Select household members to request:"
+	FOR the_pers = 0 to Ubound(ALL_CLT_INFO_ARRAY, 2)
+		checkbox 10, (20 + (the_pers * 15)), 160, 10, ALL_CLT_INFO_ARRAY(ref_numb_const, the_pers) & " " & ALL_CLT_INFO_ARRAY(first_name_const, the_pers) & " " & ALL_CLT_INFO_ARRAY(last_name_const, the_pers) & " " & ALL_CLT_INFO_ARRAY(clt_ssn_const, the_pers), ALL_CLT_INFO_ARRAY(client_selection_checkbox_const, the_pers)
+	NEXT
+	ButtonGroup ButtonPressed
+	OkButton 185, 10, 50, 15
+	CancelButton 185, 30, 50, 15
+ENDDIALOG
+
+DO
+	DO
+		err_msg = ""
+		Dialog Dialog1
+		cancel_confirmation
+	LOOP until err_msg = ""
+Loop until are_we_passworded_out = false
+
+Call fill_in_the_states
+IF agency_phone = "" THEN agency_phone = "N/A"
+IF agency_fax = "" THEN agency_fax = "N/A"
+IF agency_email = "" THEN agency_email = "N/A"
+date_received = ""
