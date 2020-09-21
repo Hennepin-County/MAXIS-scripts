@@ -267,7 +267,7 @@ End Function
 
 'SCRIPT----------------------------------------------------------------------------------------------------
 EMConnect ""
-testing_run = TRUE
+' testing_run = TRUE
 'call check_for_MMIS(True) 'Sending MMIS back to the beginning screen and checking for a password prompt
 Call MMIS_case_number_finder(MMIS_case_number)
 
@@ -800,7 +800,7 @@ If MNSURE_Case = TRUE Then
 		EMWriteScreen MMIS_clients_array(client_pmi, member), 4, 19
 		transmit
 		EMReadscreen RKEY_check, 4, 1, 52
-		If RKEY_check = "RKEY" then process_manually_message = process_manually_message & "PMI " & MMIS_clients_array(client_pmi, member) & " could not be accessed. The enrollment for " & MMIS_clients_array(client_name, member) & "needs to be processed manually." & vbNewLine & vbNewLine
+		If RKEY_check = "RKEY" then process_manually_message = process_manually_message & "PMI " & MMIS_clients_array(client_pmi, member) & " could not be accessed. The enrollment for " & MMIS_clients_array(client_name, member) & " needs to be processed manually." & vbNewLine & vbNewLine
 
 		DO
 			'check RPOL to see if there is other insurance available, if so worker processes manually
@@ -808,7 +808,7 @@ If MNSURE_Case = TRUE Then
 			transmit
 			'making sure script got to right panel
 			EMReadScreen RPOL_check, 4, 1, 52
-			If RPOL_check <> "RPOL" then process_manually_message = process_manually_message & "Could not navigate to RPOL for PMI " & MMIS_clients_array(client_pmi, member) & ". The enrollment for " & MMIS_clients_array(client_name, member) & "needs to be processed manually." & vbNewLine & vbNewLine
+			If RPOL_check <> "RPOL" then process_manually_message = process_manually_message & "Could not navigate to RPOL for PMI " & MMIS_clients_array(client_pmi, member) & ". The enrollment for " & MMIS_clients_array(client_name, member) & " needs to be processed manually." & vbNewLine & vbNewLine
 			EMreadscreen policy_number, 1, 7, 8
             If policy_number <> " " then
 
@@ -1131,7 +1131,7 @@ Else
 		transmit
 		' msgbox "at RSUM"
 		EMReadscreen RKEY_check, 4, 1, 52
-		If RKEY_check = "RKEY" then process_manually_message = process_manually_message & "PMI " & MMIS_clients_array(client_pmi, member) & " could not be accessed. The enrollment for " & MMIS_clients_array(client_name, member) & "needs to be processed manually." & vbNewLine & vbNewLine
+		If RKEY_check = "RKEY" then process_manually_message = process_manually_message & "PMI " & MMIS_clients_array(client_pmi, member) & " could not be accessed. The enrollment for " & MMIS_clients_array(client_name, member) & " needs to be processed manually." & vbNewLine & vbNewLine
 		' msgbox process_manually_message
 
 		DO
