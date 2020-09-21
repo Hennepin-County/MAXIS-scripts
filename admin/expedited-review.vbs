@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/21/2020", "Added specified report for the YET team based on basket number X127FA5. WFM will not get FA5 cases for FAD assignment.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("08/20/2020", "Removed all other emails from assignment email besides WFM.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("08/18/2020", "Added WFM and coverage worker email to assignment email at end of script run.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("08/17/2020", "Updated file name of QI assignment from Expedited Review to QI Expedited Review.", "Ilse Ferris, Hennepin County")
@@ -772,6 +773,17 @@ objExcel.DisplayAlerts = True
 'Changes name of Excel sheet
 ObjExcel.ActiveSheet.Name = "Appears Expedited X127FA"
 
+'adding information to the Excel list from PND2
+ObjExcel.Cells(1, 1).Value = "Worker #"
+ObjExcel.Cells(1, 2).Value = "Case number"
+ObjExcel.Cells(1, 3).Value = "Prog ID"
+ObjExcel.Cells(1, 4).Value = "Days Pending"
+ObjExcel.Cells(1, 5).Value = "APPL Date"
+objExcel.Columns(5).NumberFormat = "mm/dd/yy"					'formats the date column as MM/DD/YY
+ObjExcel.Cells(1, 6).Value = "Interview Date"
+objExcel.Columns(6).NumberFormat = "mm/dd/yy"					'formats the date column as MM/DD/YY
+ObjExcel.Cells(1, 7).Value = "Notes"
+ 
 Excel_row = 2
  
 For item = 0 to UBound(expedited_array, 2)
