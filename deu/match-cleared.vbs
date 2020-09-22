@@ -806,16 +806,16 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
     '----------------------------------------------------------------------------------------writing the note on IULB
 
 	EMReadScreen panel_name, 4, 02, 52
-    IF panel_name = "IULB" and difference_notice_action_dropdown = "NO" THEN
+    IF panel_name = "IULB" and (difference_notice_action_dropdown = "NO" OR notice_sent = "Y") THEN
     	TRANSMIT
     	EMReadScreen MISC_error_check,  74, 24, 02
     	EMReadScreen IULB_enter_msg, 5, 24, 02
     	IF IULB_enter_msg = "ENTER" THEN 'check if we need to input other notes
 			CALL clear_line_of_text(8, 6)
 			CALL clear_line_of_text(9, 6)
-			IF resolution_status = "CB-Ovrpmt And Future Save" THEN EMWriteScreen "OP Claim entered and future savings. " & other_notes, 8, 6
+			IF resolution_status = "CB-Ovrpmt And Future Save" THEN other_notes = "OP Claim entered and future savings. " & other_notes
 			IF resolution_status = "CC-Overpayment Only" Or HC_OP_checkbox = CHECKED THEN
-				EMWriteScreen "Claim entered. See case note. ", 8, 6
+				other_notes = "Claim entered. See case note. " & other_notes
 				CALL clear_line_of_text(17, 9)
 			END IF
 			If action_header <> "ACTH" THEN
@@ -825,7 +825,7 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
 			END IF
 
 			IF resolution_status = "CF-Future Save" THEN
-				EMWriteScreen "Future Savings. " & other_notes, 8, 6
+				other_notes = "Future Savings. " & other_notes
 				EMwritescreen active_programs, 12, 37
 				EMwritescreen IULB_results, 12, 42
 				EMwritescreen IULB_method, 12, 49
@@ -835,21 +835,42 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
 				EMwritescreen IULB_months, 12, 74
 				TRANSMIT
 			END IF
-			IF resolution_status = "CA-Excess Assets" THEN EMWriteScreen "Excess Assets. " & other_notes, 8, 6
-			IF resolution_status = "CI-Benefit Increase" THEN EMWriteScreen "Benefit Increase. " & other_notes, 8, 6
-			IF resolution_status = "CP-Applicant Only Savings" THEN EMWriteScreen "Applicant Only Savings. " & other_notes, 8, 6
-			IF resolution_status = "BC-Case Closed" THEN EMWriteScreen "Case closed. " & other_notes, 8, 6
-			IF resolution_status = "BE-Child" THEN EMWriteScreen "No change, minor child income excluded. " & other_notes, 8, 6
-			IF resolution_status = "BE-No Change" THEN EMWriteScreen "No change. " & other_notes, 8, 6
-			IF resolution_status = "BE-Overpayment Entered" THEN EMWriteScreen "OP entered other programs. " & other_notes, 8, 6
-			IF resolution_status = "BE-NC-Non-collectible" THEN EMWriteScreen "Non-Coop remains, but claim is non-collectible. ", 8, 6
-			IF resolution_status = "BI-Interface Prob" THEN EMWriteScreen "Interface Problem. " & other_notes, 8, 6
-			IF resolution_status = "BN-Already Known-No Savings" THEN EMWriteScreen "Already known - No savings. " & other_notes, 8, 6
-			IF resolution_status = "BP-Wrong Person" THEN EMWriteScreen "Client name and wage earner name are different. " & other_notes, 8, 6
-			IF resolution_status = "BU-Unable To Verify" THEN EMWriteScreen "Unable To Verify. " & other_notes, 8, 6
-			'IF resolution_status = "BO-Other" THEN EMWriteScreen "HC Claim entered. " & other_notes, 8, 6
-			IF resolution_status = "NC-Non Cooperation" THEN EMWriteScreen "Non-coop, requested verf not in ECF, " & other_notes, 8, 6
-    	    EMWriteScreen other_notes, 8, 6
+			IF resolution_status = "CA-Excess Assets" THEN other_notes = "Excess Assets. " & other_notes
+			IF resolution_status = "CI-Benefit Increase" THEN other_notes = "Benefit Increase. " & other_notes
+			IF resolution_status = "CP-Applicant Only Savings" THEN other_notes = "Applicant Only Savings. " & other_notes
+			IF resolution_status = "BC-Case Closed" THEN other_notes = "Case closed. " & other_notes
+			IF resolution_status = "BE-Child" THEN other_notes = "No change, minor child income excluded. " & other_notes
+			IF resolution_status = "BE-No Change" THEN other_notes = "No change. " & other_notes
+			IF resolution_status = "BE-Overpayment Entered" THEN other_notes = "OP entered other programs. " & other_notes
+			IF resolution_status = "BE-NC-Non-collectible" THEN other_notes = "Non-Coop remains, but claim is non-collectible. " & other_notes
+			IF resolution_status = "BI-Interface Prob" THEN other_notes = "Interface Problem. " & other_notes
+			IF resolution_status = "BN-Already Known-No Savings" THEN other_notes = "Already known - No savings. " & other_notes
+			IF resolution_status = "BP-Wrong Person" THEN other_notes = "Client name and wage earner name are different. " & other_notes
+			IF resolution_status = "BU-Unable To Verify" THEN other_notes = "Unable To Verify. " & other_notes
+			'IF resolution_status = "BO-Other" THEN other_notes = "HC Claim entered. " & other_notes
+			IF resolution_status = "NC-Non Cooperation" THEN other_notes = "Non-coop, requested verf not in ECF, " & other_notes
+
+			other_notes = trim(other_notes)
+			iulb_row = 8
+			iulb_col = 6
+			notes_array = split(other_notes, " ")
+			For each word in notes_array
+				' MsgBox "Word - " & word & vbCr & "Row - " & iulb_row & "   Col - " & iulb_col & vbCr & "Add - " & iulb_col + len(word)
+				If iulb_col + len(word) > 77 Then
+					iulb_col = 6
+					iulb_row = iulb_row + 1
+					If iulb_row = 10 Then Exit For
+				End If
+				EMWriteScreen word & " ", iulb_row, iulb_col
+				iulb_col = iulb_col + len(word) + 1
+				If iulb_col >  77 Then
+					iulb_col = 6
+					iulb_row = iulb_row + 1
+					If iulb_row = 10 Then Exit For
+				End If
+			Next
+    	    ' EMWriteScreen other_notes, 8, 6
+			' MsgBox "PAUSE"
     	    TRANSMIT
     		EMReadScreen MISC_error_check,  74, 24, 02
     		IF trim(MISC_error_check) <> "" THEN
