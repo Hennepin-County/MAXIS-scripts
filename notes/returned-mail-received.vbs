@@ -597,7 +597,7 @@ Call MAXIS_background_check 'checking to make sure case is out of background
 
 '----------------------------------------------------------------------------------------------------TIKL
 'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
-IF ADDR_actions <> "Client has not responded to request" THEN Call create_TIKL("Returned mail rec'd contact from the client should have occured regarding address change. If no response-verbal or written, please take appropriate action.", 10, date, True, TIKL_note_text)
+IF ADDR_actions <> "Client has not responded to request" THEN Call create_TIKL("Returned mail rec'd contact from the client should have occurred regarding address change. If no response-verbal or written, please take appropriate action.", 10, date, True, TIKL_note_text)
 
 'starts a blank case note
 call start_a_blank_case_note
