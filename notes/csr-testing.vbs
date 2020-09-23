@@ -2367,6 +2367,7 @@ function csr_dlg_q_4_7()
 		  GroupBox 15, 30, 585, q_4_grp_len, "Q4. Do you want to apply for MA for someone who is not getting coverage now?"
 		  DropListBox 285, 25, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", apply_for_ma
 		  CheckBox 430, 30, 75, 10, "Q4 Deailts left Blank", q_4_details_blank_checkbox
+		  ' DropListBox 285, 25, 150, 45, "Select One..."+chr(9)+"No and details blank"+chr(9)+"No but details listed below"+chr(9)+"Yes but details blank"+chr(9)+"Yes and details listed below"+chr(9)+"Did not answer and details blank"+chr(9)+"Did not answer but details listed below", apply_for_ma
 		  ButtonGroup ButtonPressed
 			PushButton 540, 30, 50, 10, "Add Another", add_memb_btn
 		  ' If apply_for_ma = "Yes" Then
@@ -2383,6 +2384,7 @@ function csr_dlg_q_4_7()
 		  GroupBox 15, y_pos + 5, 585, q_5_grp_len, "Q5. Is anyone self-employed or does anyone expect to be self-employed?"
 		  DropListBox 265, y_pos, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_self_employed
 		  CheckBox 430, y_pos + 5, 75, 10, "Q5 Deailts left Blank", q_5_details_blank_checkbox
+		  ' DropListBox 265, y_pos, 150, 45, "Select One..."+chr(9)+"No and details blank"+chr(9)+"No but details listed below"+chr(9)+"Yes but details blank"+chr(9)+"Yes and details listed below"+chr(9)+"Did not answer and details blank"+chr(9)+"Did not answer but details listed below", ma_self_employed
 		  y_pos = y_pos + 20
 
 		  ButtonGroup ButtonPressed
@@ -2418,6 +2420,7 @@ function csr_dlg_q_4_7()
 		  GroupBox 15, y_pos + 5, 585, q_6_grp_len, "Q6. Does anyone work or does anyone expect to start working?"
 		  DropListBox 230, y_pos, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_start_working
 		  CheckBox 430, y_pos + 5, 75, 10, "Q6 Deailts left Blank", q_6_details_blank_checkbox
+		  ' DropListBox 230, y_pos, 150, 45, "Select One..."+chr(9)+"No and details blank"+chr(9)+"No but details listed below"+chr(9)+"Yes but details blank"+chr(9)+"Yes and details listed below"+chr(9)+"Did not answer and details blank"+chr(9)+"Did not answer but details listed below", ma_start_working
 		  y_pos = y_pos  + 20
 		  ButtonGroup ButtonPressed
 			PushButton 540, y_pos - 15, 50, 10, "Add Another", add_jobs_btn
@@ -2455,6 +2458,7 @@ function csr_dlg_q_4_7()
 		  GroupBox 15, y_pos + 5, 585, q_7_grp_len, "Q7. Does anyone get money or does anyone expect to get money from sources other than work?"
 		  DropListBox 335, y_pos, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_other_income
 		  CheckBox 430, y_pos + 5, 75, 10, "Q7 Deailts left Blank", q_7_details_blank_checkbox
+		  ' DropListBox 335, y_pos, 150, 45, "Select One..."+chr(9)+"No and details blank"+chr(9)+"No but details listed below"+chr(9)+"Yes but details blank"+chr(9)+"Yes and details listed below"+chr(9)+"Did not answer and details blank"+chr(9)+"Did not answer but details listed below", ma_other_income
 		  y_pos = y_pos +20
 		  ButtonGroup ButtonPressed
 			PushButton 540, y_pos - 15, 50, 10, "Add Another", add_unea_btn
@@ -7735,7 +7739,13 @@ Do
                         Else
                             panel_array_to_use = panel_array_to_use + 1
                             Do
-                                If ALL_PANELS_ARRAY(show_this_panel, panel_array_to_use) = FALSE Then panel_array_to_use = panel_array_to_use + 1
+								If ALL_PANELS_ARRAY(show_this_panel, panel_array_to_use) = FALSE Then panel_array_to_use = panel_array_to_use + 1
+								If panel_array_to_use > UBound(ALL_PANELS_ARRAY, 2) Then
+									ButtonPressed = verifs_tab_btn
+									panel_array_to_use = UBound(ALL_PANELS_ARRAY, 2)
+									Exit Do
+								End If
+
                             Loop until ALL_PANELS_ARRAY(show_this_panel, panel_array_to_use) = TRUE
                             If panel_indicator = ALL_PANELS_ARRAY(the_panel_const, panel_array_to_use) Then find_indicator = FALSE
                             panel_indicator = ALL_PANELS_ARRAY(the_panel_const, panel_array_to_use)
