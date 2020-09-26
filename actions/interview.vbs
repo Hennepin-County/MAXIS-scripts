@@ -38,6 +38,17 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/13/2020", "Initial version.", "Casey Love, Hennepin County")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
 
 BeginDialog Dialog1, 0, 0, 550, 385, "Dialog"
   GroupBox 180, 5, 300, 260, "Client Conversation"
@@ -48,6 +59,9 @@ BeginDialog Dialog1, 0, 0, 550, 385, "Dialog"
     PushButton 415, 365, 50, 15, "NEXT", next_btn
     PushButton 465, 365, 80, 15, "Complete Interview", finish_interview_btn
 EndDialog
+
+function read_and_format_from_MAXIS()
+end function 
 
 class mx_hh_member
 
@@ -133,6 +147,84 @@ class mx_hh_member
 	public school_elig_status
 	public higher_ed
 
+	public stin_exists
+	public total_stin
+	public stin_type_array
+	public stin_amount_array
+	public stin_avail_date_array
+	public stin_months_cov_array
+	public stin_verif_array
+
+	public stec_exists
+	public total_stec
+	public stec_type_array
+	public stec_amount_array
+	public stec_months_cov_array
+	public stec_verif_array
+	public stec_earmarked_amount_array
+	public stec_earmarked_months_cov_array
+
+	public shel_exists
+	public shel_summary
+	public shel_hud_subsidy_yn
+	public shel_shared_yn
+	public shel_paid_to
+	public shel_retro_rent_amount
+	public shel_retro_rent_verif
+	public shel_retro_lot_rent_amount
+	public shel_retro_lot_rent_verif
+	public shel_retro_mortgage_amount
+	public shel_retro_mortgage_verif
+	public shel_retro_insurance_amount
+	public shel_retro_insurance_verif
+	public shel_retro_taxes_amount
+	public shel_retro_taxes_verif
+	public shel_retro_room_amount
+	public shel_retro_room_verif
+	public shel_retro_garage_amount
+	public shel_retro_garage_verif
+	public shel_retro_subsidy_amount
+	public shel_retro_subsidy_verif
+
+	public shel_prosp_rent_amount
+	public shel_prosp_rent_verif
+	public shel_prosp_lot_rent_amount
+	public shel_prosp_lot_rent_verif
+	public shel_prosp_mortgage_amount
+	public shel_prosp_mortgage_verif
+	public shel_prosp_insurance_amount
+	public shel_prosp_insurance_verif
+	public shel_prosp_taxes_amount
+	public shel_prosp_taxes_verif
+	public shel_prosp_room_amount
+	public shel_prosp_room_verif
+	public shel_prosp_garage_amount
+	public shel_prosp_garage_verif
+	public shel_prosp_subsidy_amount
+	public shel_prosp_subsidy_verif
+
+	public coex_exists
+	public coex_support_verif
+	public coex_support_retro_amount
+	public coex_support_prosp_amount
+	public coex_support_hc_est_amount
+	public coex_alimony_verif
+	public coex_alimony_retro_amount
+	public coex_alimony_prosp_amount
+	public coex_alimony_hc_est_amount
+	public coex_tax_dep_verif
+	public coex_tax_dep_retro_amount
+	public coex_tax_dep_prosp_amount
+	public coex_tax_dep_hc_est_amount
+	public coex_other_verif
+	public coex_other_retro_amount
+	public coex_other_prosp_amount
+	public coex_other_hc_est_amount
+	public coex_total_retro_amount
+	public coex_total_prosp_amount
+	public coex_total_hc_est_amount
+	public coex_change_in_financial_circumstances
+
 	public checkbox_one
 	public checkbox_two
 	public checkbox_three
@@ -149,6 +241,8 @@ class mx_hh_member
 	public button_four
 
 	public clt_has_cs_income
+	public clt_cs_counted
+	public cs_paid_to
 	public clt_has_ss_income
 	public clt_has_BUSI
 	public clt_has_JOBS
@@ -389,6 +483,49 @@ class mx_hh_member
 			End If
 
 
+			Call navigate_to_MAXIS_screen("STAT", "COEX")		'===============================================================================================
+			EMWriteScreen ref_number, 20, 76
+			transmit
+
+			EMreadScreen coex_version, 1, 2, 73
+			If coex_version = "0" Then coex_exists = FALSE
+			If coex_version = "1" Then coex_exists = TRUE
+
+			If coex_exists = TRUE Then
+				EMReadScreen coex_support_verif, 1, 10, 36
+				EMReadScreen coex_support_retro_amount, 8, 10, 45
+				EMReadScreen coex_support_prosp_amount, 8, 10, 63
+
+				EMReadScreen coex_alimony_verif, 1, 11, 36
+				EMReadScreen coex_alimony_retro_amount, 8, 11, 45
+				EMReadScreen coex_alimony_prosp_amount, 8, 11, 63
+
+				EMReadScreen coex_tax_dep_verif, 1, 12, 36
+				EMReadScreen coex_tax_dep_retro_amount, 8, 12, 45
+				EMReadScreen coex_tax_dep_prosp_amount, 8, 12, 63
+
+				EMReadScreen coex_other_verif, 1, 13, 36
+				EMReadScreen coex_other_retro_amount, 8, 13, 45
+				EMReadScreen coex_other_prosp_amount, 8, 13, 63
+
+				EMReadScreen coex_total_retro_amount, 8, 15, 45
+				EMReadScreen coex_total_prosp_amount, 8, 15, 63
+
+				EMReadScreen coex_change_in_financial_circumstances, 1, 17, 61
+
+				EMWriteScreen "X", 18, 44
+				transmit
+
+				EMReadScreen coex_support_hc_est_amount, 8, 6, 38
+				EMReadScreen coex_alimony_hc_est_amount, 8, 7, 38
+				EMReadScreen coex_tax_dep_hc_est_amount, 8, 8, 38
+				EMReadScreen coex_other_hc_est_amount, 8, 9, 38
+				EMReadScreen coex_total_hc_est_amount, 8, 11, 38
+
+				PF3
+
+			End If
+
 			Call navigate_to_MAXIS_screen("STAT", "DISA")		'===============================================================================================
 			EMWriteScreen ref_number, 20, 76
 			transmit
@@ -601,6 +738,366 @@ class mx_hh_member
 				If schl_higher_ed_yn = "_" Then higher_ed = "Blank"
 
 			End If
+
+			Call navigate_to_MAXIS_screen("STAT", "STIN")		'===============================================================================================
+			EMWriteScreen ref_number, 20, 76
+			transmit
+
+			EMreadScreen stin_version, 1, 2, 73
+			If stin_version = "0" Then stin_exists = FALSE
+			If stin_version = "1" Then stin_exists = TRUE
+
+			If stin_exists = TRUE Then
+				total_stin = 0
+
+				stin_type_array = ARRAY("")
+				stin_amount_array = ARRAY("")
+				stin_avail_date_array = ARRAY("")
+				stin_months_cov_array = ARRAY("")
+				stin_verif_array = ARRAY("")
+
+				stin_row = 8
+				stin_counter = 0
+				Do
+					EMReadScreen stin_type, 2, stin_row, 27
+					EMReadScreen stin_amount, 8, stin_row, 34
+					EMReadScreen stin_date, 8, stin_row, 46
+					EMReadScreen stin_month_one, 5, stin_row, 58
+					EmReadscreen stin_month_two, 5, stin_row, 67
+					EMReadScreen stin_verif, 1, stin_row, 76
+
+
+					ReDim Preserve stin_type_array(stin_counter)
+					ReDim Preserve stin_amount_array(stin_counter)
+					ReDim Preserve stin_avail_date_array(stin_counter)
+					ReDim Preserve stin_months_cov_array(stin_counter)
+					ReDim Preserve stin_verif_array(stin_counter)
+
+					If stin_type = "01" Then stin_type_array(stin_counter) = stin_type & " - Perkins Loan"
+					If stin_type = "02" Then stin_type_array(stin_counter) = stin_type & " - Stafford Loan"
+					If stin_type = "03" Then stin_type_array(stin_counter) = stin_type & " - Pell Grant"
+					If stin_type = "04" Then stin_type_array(stin_counter) = stin_type & " - BIA Grant"
+					If stin_type = "05" Then stin_type_array(stin_counter) = stin_type & " - SEOG"
+					If stin_type = "06" Then stin_type_array(stin_counter) = stin_type & " - MN State Scholarship"
+					If stin_type = "07" Then stin_type_array(stin_counter) = stin_type & " - Robert C Byrd Scholarship"
+					If stin_type = "46" Then stin_type_array(stin_counter) = stin_type & " - Plus Loan (Deferred)"
+					If stin_type = "16" Then stin_type_array(stin_counter) = stin_type & " - Plus Loan (Non-Deferred)"
+					If stin_type = "47" Then stin_type_array(stin_counter) = stin_type & " - SLS (ALAS) Loan (Deferred)"
+					If stin_type = "17" Then stin_type_array(stin_counter) = stin_type & " - SLS (ALAS) Loan (Non-Deferred)"
+					If stin_type = "08" Then stin_type_array(stin_counter) = stin_type & " - Other Title IV Deferred Income"
+					If stin_type = "09" Then stin_type_array(stin_counter) = stin_type & " - Other Title IV Grant"
+					If stin_type = "10" Then stin_type_array(stin_counter) = stin_type & " - Other Title IV Scholarship"
+					If stin_type = "11" Then stin_type_array(stin_counter) = stin_type & " - VA/GI Bill"
+					If stin_type = "51" Then stin_type_array(stin_counter) = stin_type & " - VA/GI Bill (Earmarked)"
+					If stin_type = "12" Then stin_type_array(stin_counter) = stin_type & " - Other Deferred Loan"
+					If stin_type = "52" Then stin_type_array(stin_counter) = stin_type & " - Other Deferred Loan (Earmarked)"
+					If stin_type = "13" Then stin_type_array(stin_counter) = stin_type & " - Other Grant"
+					If stin_type = "53" Then stin_type_array(stin_counter) = stin_type & " - Other Grant (Earmarked)"
+					If stin_type = "14" Then stin_type_array(stin_counter) = stin_type & " - Other Scholarship"
+					If stin_type = "54" Then stin_type_array(stin_counter) = stin_type & " - Other Scholarship (Earmarked)"
+					If stin_type = "15" Then stin_type_array(stin_counter) = stin_type & " - Other Aid"
+					If stin_type = "55" Then stin_type_array(stin_counter) = stin_type & " - Other Aid (Earmarked)"
+					If stin_type = "60" Then stin_type_array(stin_counter) = stin_type & " - MFIP Empl Svc (Earmarked)"
+					If stin_type = "61" Then stin_type_array(stin_counter) = stin_type & " - WIOA, Unearned (Earmarked)"
+					If stin_type = "18" Then stin_type_array(stin_counter) = stin_type & " - Other Exempt Loan"
+					If stin_type = "62" Then stin_type_array(stin_counter) = stin_type & " - Tribal DSARLP"
+
+					stin_amount_array(stin_counter) = trim(stin_amount)
+
+					stin_avail_date_array(stin_counter) = replace(stin_date, " ", "/")
+
+					stin_month_one = replace(stin_month_one, " ", "/")
+					stin_month_two = replace(stin_month_two, " ", "/")
+					stin_months_cov_array(stin_counter) = stin_month_one & " - " & stin_month_two
+
+					If stin_verif = "1" Then stin_verif_array(stin_counter) = stin_verif & " - Award Letter"
+					If stin_verif = "2" Then stin_verif_array(stin_counter) = stin_verif & " - DHS Financial Aid Form"
+					If stin_verif = "3" Then stin_verif_array(stin_counter) = stin_verif & " - Student Profile Bulletin"
+					If stin_verif = "4" Then stin_verif_array(stin_counter) = stin_verif & " - Pay Stubs"
+					If stin_verif = "5" Then stin_verif_array(stin_counter) = stin_verif & " - Source Document"
+					If stin_verif = "6" Then stin_verif_array(stin_counter) = stin_verif & " - Pend Out State Verif"
+					If stin_verif = "7" Then stin_verif_array(stin_counter) = stin_verif & " - Other Document"
+					If stin_verif = "N" Then stin_verif_array(stin_counter) = stin_verif & " - No Ver Prvd"
+
+					stin_amount = stin_amount * 1
+					total_stin = total_stin + stin_amount
+
+					stin_row = stin_row + 1
+					stin_counter = stin_counter + 1
+
+					If stin_row = 18 Then
+						PF20
+						EMReadscreen last_page, 9, 24, 14
+						If last_page = "LAST PAGE" Then Exit Do
+						stin_row = 8
+					End If
+					EMReadScreen next_stin_type, 2, stin_row, 27
+				Loop until next_stin_type = "__"
+
+			End If
+
+			Call navigate_to_MAXIS_screen("STAT", "STEC")		'===============================================================================================
+			EMWriteScreen ref_number, 20, 76
+			transmit
+
+			EMreadScreen stec_version, 1, 2, 73
+			If stec_version = "0" Then stec_exists = FALSE
+			If stec_version = "1" Then stec_exists = TRUE
+
+			If stec_exists = TRUE Then
+				total_stec = 0
+
+				stec_type_array = ARRAY("")
+				stec_amount_array = ARRAY("")
+				stec_months_cov_array = ARRAY("")
+				stec_verif_array = ARRAY("")
+				stec_earmarked_amount_array = ARRAY("")
+				stec_earmarked_months_cov_array = ARRAY("")
+
+				stec_row = 8
+				stec_counter = 0
+				Do
+					EMReadScreen stec_type, 2, stec_row, 25
+					EMReadScreen stec_amount, 8, stec_row, 31
+					EMReadScreen stec_month_one, 5, stec_row, 41
+					EMReadScreen stec_month_two, 5, stec_row, 48
+					EMReadScreen stec_verif, 1, stec_row, 55
+					EMReadScreen stec_earmarked_amount, 8, stec_row, 59
+					EMReadScreen stec_earmarked_month_one, 2, stec_row, 69
+					EMReadScreen stec_earmarked_month_two, 2, stec_row, 76
+
+					ReDim Preserve stec_type_array(stec_counter)
+					ReDim Preserve stec_amount_array(stec_counter)
+					ReDim Preserve stec_months_cov_array(stec_counter)
+					ReDim Preserve stec_verif_array(stec_counter)
+					ReDim Preserve stec_earmarked_amount_array(stec_counter)
+					ReDim Preserve stec_earmarked_months_cov_array(stec_counter)
+
+					If stec_type = "" Then stec_type_array(stec_counter) = stec_type & " - "
+
+					stec_amount_array(stec_counter) = trim(stec_amount)
+
+					stec_month_one = replace(stec_month_one, " ", "/")
+					stec_month_two = replace(stec_month_two, " ", "/")
+					stec_months_cov_array(stec_counter) = stec_month_one & " - " & stec_month_two
+
+					If stec_verif = "" Then stec_verif_array(stec_counter) = stec_verif & " - "
+
+					stec_earmarked_amount_array(stec_counter) = trim(stec_earmarked_amount)
+
+					stec_earmarked_month_one = replace(stec_earmarked_month_one, " ", "/")
+					stec_earmarked_month_two = replace(stec_earmarked_month_two, " ", "/")
+					stec_earmarked_months_cov_array(stec_counter) = stec_earmarked_month_one & " - " & stec_earmarked_month_two
+
+					stec_amount = stec_amount * 1
+					total_stec = total_stec + stec_amount
+
+					stec_row = stec_row + 1
+					stec_counter = stec_counter + 1
+
+					If stec_row = 17 Then
+						PF20
+						EMReadscreen last_page, 9, 24, 14
+						If last_page = "LAST PAGE" Then Exit Do
+						stec_row = 8
+					End If
+					EMReadScreen next_stec_type, 2, stec_row, 25
+				Loop until next_stec_type = "__"
+			End If
+
+			Call navigate_to_MAXIS_screen("STAT", "SHEL")		'===============================================================================================
+			EMWriteScreen ref_number, 20, 76
+			transmit
+
+			EMreadScreen shel_version, 1, 2, 73
+			If shel_version = "0" Then shel_exists = FALSE
+			If shel_version = "1" Then shel_exists = TRUE
+
+			If shel_exists = TRUE Then
+				EMReadScreen shel_hud_subsidy_yn, 1, 6, 46
+				EMReadScreen shel_shared_yn, 1, 6, 64
+
+				EMReadScreen shel_paid_to, 25, 7, 50
+
+				EMReadScreen shel_retro_rent_amount, 8, 11, 37
+				EMReadScreen shel_retro_rent_verif, 2, 11, 48
+				EMReadScreen shel_retro_lot_rent_amount, 8, 12, 37
+				EMReadScreen shel_retro_lot_rent_verif, 2, 12, 48
+				EMReadScreen shel_retro_mortgage_amount, 8, 13, 37
+				EMReadScreen shel_retro_mortgage_verif, 2, 13, 48
+				EMReadScreen shel_retro_insurance_amount, 8, 14, 37
+				EMReadScreen shel_retro_insurance_verif, 2, 14, 48
+				EMReadScreen shel_retro_taxes_amount, 8, 15, 37
+				EMReadScreen shel_retro_taxes_verif, 2, 15, 48
+				EMReadScreen shel_retro_room_amount, 8, 16, 37
+				EMReadScreen shel_retro_room_verif, 2, 16, 48
+				EMReadScreen shel_retro_garage_amount, 8, 17, 37
+				EMReadScreen shel_retro_garage_verif, 2, 17, 48
+				EMReadScreen shel_retro_subsidy_amount, 8, 18, 37
+				EMReadScreen shel_retro_subsidy_verif, 2, 18, 48
+
+				EMReadScreen shel_prosp_rent_amount, 8, 11, 56
+				EMReadScreen shel_prosp_rent_verif, 2, 11, 67
+				EMReadScreen shel_prosp_lot_rent_amount, 8, 12, 56
+				EMReadScreen shel_prosp_lot_rent_verif, 2, 12, 67
+				EMReadScreen shel_prosp_mortgage_amount, 8, 13, 56
+				EMReadScreen shel_prosp_mortgage_verif, 2, 13, 67
+				EMReadScreen shel_prosp_insurance_amount, 8, 14, 56
+				EMReadScreen shel_prosp_insurance_verif, 2, 14, 67
+				EMReadScreen shel_prosp_taxes_amount, 8, 15, 56
+				EMReadScreen shel_prosp_taxes_verif, 2, 15, 67
+				EMReadScreen shel_prosp_room_amount, 8, 16, 56
+				EMReadScreen shel_prosp_room_verif, 2, 16, 67
+				EMReadScreen shel_prosp_garage_amount, 8, 17, 56
+				EMReadScreen shel_prosp_garage_verif, 2, 17, 67
+				EMReadScreen shel_prosp_subsidy_amount, 8, 18, 56
+				EMReadScreen shel_prosp_subsidy_verif, 2, 18, 67
+
+				shel_paid_to = replace(shel_paid_to, "_", "")
+
+				shel_retro_rent_amount = trim(replace(shel_retro_rent_amount, "_", ""))
+				shel_retro_lot_rent_amount = trim(replace(shel_retro_lot_rent_amount, "_", ""))
+				shel_retro_mortgage_amount = trim(replace(shel_retro_mortgage_amount, "_", ""))
+				shel_retro_insurance_amount = trim(replace(shel_retro_insurance_amount, "_", ""))
+				shel_retro_taxes_amount = trim(replace(shel_retro_taxes_amount, "_", ""))
+				shel_retro_room_amount = trim(replace(shel_retro_room_amount, "_", ""))
+				shel_retro_garage_amount = trim(replace(shel_retro_garage_amount, "_", ""))
+				shel_retro_subsidy_amount = trim(replace(shel_retro_subsidy_amount, "_", ""))
+
+				shel_prosp_rent_amount = trim(replace(shel_prosp_rent_amount, "_", ""))
+				shel_prosp_lot_rent_amount = trim(replace(shel_prosp_lot_rent_amount, "_", ""))
+				shel_prosp_mortgage_amount = trim(replace(shel_prosp_mortgage_amount, "_", ""))
+				shel_prosp_insurance_amount = trim(replace(shel_prosp_insurance_amount, "_", ""))
+				shel_prosp_taxes_amount = trim(replace(shel_prosp_taxes_amount, "_", ""))
+				shel_prosp_room_amount = trim(replace(shel_prosp_room_amount, "_", ""))
+				shel_prosp_garage_amount = trim(replace(shel_prosp_garage_amount, "_", ""))
+				shel_prosp_subsidy_amount = trim(replace(shel_prosp_subsidy_amount, "_", ""))
+
+				If shel_prosp_rent_amount <> "" Then shel_summary = shel_summary & " Rent: $" & shel_prosp_rent_amount & " - Verif: " & shel_prosp_rent_verif & " | "
+				If shel_prosp_lot_rent_amount <> "" Then shel_summary = shel_summary & " Lot Rent: $" & shel_prosp_lot_rent_amount & " - Verif: " & shel_prosp_lot_rent_verif & " | "
+				If shel_prosp_mortgage_amount <> "" Then shel_summary = shel_summary & " Mortgage: $" & shel_prosp_mortgage_amount & " - Verif: " & shel_prosp_mortgage_verif & " | "
+				If shel_prosp_insurance_amount <> "" Then shel_summary = shel_summary & " Insurance: $" & shel_prosp_insurance_amount & " - Verif: " & shel_prosp_insurance_verif & " | "
+				If shel_prosp_taxes_amount <> "" Then shel_summary = shel_summary & " Taxes: $" & shel_prosp_taxes_amount & " - Verif: " & shel_prosp_taxes_verif & " | "
+				If shel_prosp_room_amount <> "" Then shel_summary = shel_summary & " Room: $" & shel_prosp_room_amount & " - Verif: " & shel_prosp_room_verif & " | "
+				If shel_prosp_garage_amount <> "" Then shel_summary = shel_summary & " Garage: $" & shel_prosp_garage_amount & " - Verif: " & shel_prosp_garage_verif & " | "
+				If shel_prosp_subsidy_amount <> "" Then shel_summary = shel_summary & " Subsidy: $" & shel_prosp_subsidy_amount & " - Verif: " & shel_prosp_subsidy_verif & " | "
+
+				If shel_retro_rent_verif = "SF" Then shel_retro_rent_verif = shel_retro_rent_verif & " - Shelter Form"
+				If shel_retro_rent_verif = "LE" Then shel_retro_rent_verif = shel_retro_rent_verif & " - Lease"
+				If shel_retro_rent_verif = "RE" Then shel_retro_rent_verif = shel_retro_rent_verif & " - Rent Receipts"
+				If shel_retro_rent_verif = "OT" Then shel_retro_rent_verif = shel_retro_rent_verif & " - Other Document"
+				If shel_retro_rent_verif = "NC" Then shel_retro_rent_verif = shel_retro_rent_verif & " - Not Verif, Neg Impact"
+				If shel_retro_rent_verif = "PC" Then shel_retro_rent_verif = shel_retro_rent_verif & " - Not Verif, Pos Impact"
+				If shel_retro_rent_verif = "NO" Then shel_retro_rent_verif = shel_retro_rent_verif & " - No Verif Provided"
+
+				If shel_retro_lot_rent_verif = "LE" Then shel_retro_lot_rent_verif = shel_retro_lot_rent_verif & " - Lease"
+				If shel_retro_lot_rent_verif = "RE" Then shel_retro_lot_rent_verif = shel_retro_lot_rent_verif & " - Rent Receipts"
+				If shel_retro_lot_rent_verif = "BI" Then shel_retro_lot_rent_verif = shel_retro_lot_rent_verif & " - Billing Statement"
+				If shel_retro_lot_rent_verif = "OT" Then shel_retro_lot_rent_verif = shel_retro_lot_rent_verif & " - Other Document"
+				If shel_retro_lot_rent_verif = "NC" Then shel_retro_lot_rent_verif = shel_retro_lot_rent_verif & " - Not Verif, Neg Impact"
+				If shel_retro_lot_rent_verif = "PC" Then shel_retro_lot_rent_verif = shel_retro_lot_rent_verif & " - Not Verif, Pos Impact"
+				If shel_retro_lot_rent_verif = "NO" Then shel_retro_lot_rent_verif = shel_retro_lot_rent_verif & " - No Verif Provided"
+
+				If shel_retro_mortgage_verif = "MO" Then shel_retro_mortgage_verif = shel_retro_mortgage_verif & " - Mortgage Payment"
+				If shel_retro_mortgage_verif = "CD" Then shel_retro_mortgage_verif = shel_retro_mortgage_verif & " - Contract for Deed"
+				If shel_retro_mortgage_verif = "OT" Then shel_retro_mortgage_verif = shel_retro_mortgage_verif & " - Other Document"
+				If shel_retro_mortgage_verif = "NC" Then shel_retro_mortgage_verif = shel_retro_mortgage_verif & " - Not Verif, Neg Impact"
+				If shel_retro_mortgage_verif = "PC" Then shel_retro_mortgage_verif = shel_retro_mortgage_verif & " - Not Verif, Pos Impact"
+				If shel_retro_mortgage_verif = "NO" Then shel_retro_mortgage_verif = shel_retro_mortgage_verif & " - No Verif Provided"
+
+				If shel_retro_insurance_verif = "BI" Then shel_retro_insurance_verif = shel_retro_insurance_verif & " - Billing Statement"
+				If shel_retro_insurance_verif = "OT" Then shel_retro_insurance_verif = shel_retro_insurance_verif & " - Other Document"
+				If shel_retro_insurance_verif = "NC" Then shel_retro_insurance_verif = shel_retro_insurance_verif & " - Not Verif, Neg Impact"
+				If shel_retro_insurance_verif = "PC" Then shel_retro_insurance_verif = shel_retro_insurance_verif & " - Not Verif, Pos Impact"
+				If shel_retro_insurance_verif = "NO" Then shel_retro_insurance_verif = shel_retro_insurance_verif & " - No Verif Provided"
+
+				If shel_retro_taxes_verif = "TX" Then shel_retro_taxes_verif = shel_retro_taxes_verif & " - Property Tax Statement"
+				If shel_retro_taxes_verif = "OT" Then shel_retro_taxes_verif = shel_retro_taxes_verif & " - Other Document"
+				If shel_retro_taxes_verif = "NC" Then shel_retro_taxes_verif = shel_retro_taxes_verif & " - Not Verif, Neg Impact"
+				If shel_retro_taxes_verif = "PC" Then shel_retro_taxes_verif = shel_retro_taxes_verif & " - Not Verif, Pos Impact"
+				If shel_retro_taxes_verif = "NO" Then shel_retro_taxes_verif = shel_retro_taxes_verif & " - No Verif Provided"
+
+				If shel_retro_room_verif = "SF" Then shel_retro_room_verif = shel_retro_room_verif & " - Shelter Form"
+				If shel_retro_room_verif = "LE" Then shel_retro_room_verif = shel_retro_room_verif & " - Lease"
+				If shel_retro_room_verif = "RE" Then shel_retro_room_verif = shel_retro_room_verif & " - Rent Receipts"
+				If shel_retro_room_verif = "OT" Then shel_retro_room_verif = shel_retro_room_verif & " - Other Document"
+				If shel_retro_room_verif = "NC" Then shel_retro_room_verif = shel_retro_room_verif & " - Not Verif, Neg Impact"
+				If shel_retro_room_verif = "PC" Then shel_retro_room_verif = shel_retro_room_verif & " - Not Verif, Pos Impact"
+				If shel_retro_room_verif = "NO" Then shel_retro_room_verif = shel_retro_room_verif & " - No Verif Provided"
+
+				If shel_retro_garage_verif = "SF" Then shel_retro_garage_verif = shel_retro_garage_verif & " - Shelter Form"
+				If shel_retro_garage_verif = "LE" Then shel_retro_garage_verif = shel_retro_garage_verif & " - Lease"
+				If shel_retro_garage_verif = "RE" Then shel_retro_garage_verif = shel_retro_garage_verif & " - Rent Receipts"
+				If shel_retro_garage_verif = "OT" Then shel_retro_garage_verif = shel_retro_garage_verif & " - Other Document"
+				If shel_retro_garage_verif = "NC" Then shel_retro_garage_verif = shel_retro_garage_verif & " - Not Verif, Neg Impact"
+				If shel_retro_garage_verif = "PC" Then shel_retro_garage_verif = shel_retro_garage_verif & " - Not Verif, Pos Impact"
+				If shel_retro_garage_verif = "NO" Then shel_retro_garage_verif = shel_retro_garage_verif & " - No Verif Provided"
+
+				If shel_retro_subsidy_verif = "SF" Then shel_retro_subsidy_verif = shel_retro_subsidy_verif & " - Shelter Form"
+				If shel_retro_subsidy_verif = "LE" Then shel_retro_subsidy_verif = shel_retro_subsidy_verif & " - Lease"
+				If shel_retro_subsidy_verif = "OT" Then shel_retro_subsidy_verif = shel_retro_subsidy_verif & " - Other Document"
+				If shel_retro_subsidy_verif = "NO" Then shel_retro_subsidy_verif = shel_retro_subsidy_verif & " - No Verif Provided"
+
+
+				If shel_prosp_rent_verif = "SF" Then shel_prosp_rent_verif = shel_prosp_rent_verif & " - Shelter Form"
+				If shel_prosp_rent_verif = "LE" Then shel_prosp_rent_verif = shel_prosp_rent_verif & " - Lease"
+				If shel_prosp_rent_verif = "RE" Then shel_prosp_rent_verif = shel_prosp_rent_verif & " - Rent Receipts"
+				If shel_prosp_rent_verif = "OT" Then shel_prosp_rent_verif = shel_prosp_rent_verif & " - Other Document"
+				If shel_prosp_rent_verif = "NC" Then shel_prosp_rent_verif = shel_prosp_rent_verif & " - Not Verif, Neg Impact"
+				If shel_prosp_rent_verif = "PC" Then shel_prosp_rent_verif = shel_prosp_rent_verif & " - Not Verif, Pos Impact"
+				If shel_prosp_rent_verif = "NO" Then shel_prosp_rent_verif = shel_prosp_rent_verif & " - No Verif Provided"
+
+				If shel_prosp_lot_rent_verif = "LE" Then shel_prosp_lot_rent_verif = shel_prosp_lot_rent_verif & " - Lease"
+				If shel_prosp_lot_rent_verif = "RE" Then shel_prosp_lot_rent_verif = shel_prosp_lot_rent_verif & " - Rent Receipts"
+				If shel_prosp_lot_rent_verif = "BI" Then shel_prosp_lot_rent_verif = shel_prosp_lot_rent_verif & " - Billing Statement"
+				If shel_prosp_lot_rent_verif = "OT" Then shel_prosp_lot_rent_verif = shel_prosp_lot_rent_verif & " - Other Document"
+				If shel_prosp_lot_rent_verif = "NC" Then shel_prosp_lot_rent_verif = shel_prosp_lot_rent_verif & " - Not Verif, Neg Impact"
+				If shel_prosp_lot_rent_verif = "PC" Then shel_prosp_lot_rent_verif = shel_prosp_lot_rent_verif & " - Not Verif, Pos Impact"
+				If shel_prosp_lot_rent_verif = "NO" Then shel_prosp_lot_rent_verif = shel_prosp_lot_rent_verif & " - No Verif Provided"
+
+				If shel_prosp_mortgage_verif = "MO" Then shel_prosp_mortgage_verif = shel_prosp_mortgage_verif & " - Mortgage Payment"
+				If shel_prosp_mortgage_verif = "CD" Then shel_prosp_mortgage_verif = shel_prosp_mortgage_verif & " - Contract for Deed"
+				If shel_prosp_mortgage_verif = "OT" Then shel_prosp_mortgage_verif = shel_prosp_mortgage_verif & " - Other Document"
+				If shel_prosp_mortgage_verif = "NC" Then shel_prosp_mortgage_verif = shel_prosp_mortgage_verif & " - Not Verif, Neg Impact"
+				If shel_prosp_mortgage_verif = "PC" Then shel_prosp_mortgage_verif = shel_prosp_mortgage_verif & " - Not Verif, Pos Impact"
+				If shel_prosp_mortgage_verif = "NO" Then shel_prosp_mortgage_verif = shel_prosp_mortgage_verif & " - No Verif Provided"
+
+				If shel_prosp_insurance_verif = "BI" Then shel_prosp_insurance_verif = shel_prosp_insurance_verif & " - Billing Statement"
+				If shel_prosp_insurance_verif = "OT" Then shel_prosp_insurance_verif = shel_prosp_insurance_verif & " - Other Document"
+				If shel_prosp_insurance_verif = "NC" Then shel_prosp_insurance_verif = shel_prosp_insurance_verif & " - Not Verif, Neg Impact"
+				If shel_prosp_insurance_verif = "PC" Then shel_prosp_insurance_verif = shel_prosp_insurance_verif & " - Not Verif, Pos Impact"
+				If shel_prosp_insurance_verif = "NO" Then shel_prosp_insurance_verif = shel_prosp_insurance_verif & " - No Verif Provided"
+
+				If shel_prosp_taxes_verif = "TX" Then shel_prosp_taxes_verif = shel_prosp_taxes_verif & " - Property Tax Statement"
+				If shel_prosp_taxes_verif = "OT" Then shel_prosp_taxes_verif = shel_prosp_taxes_verif & " - Other Document"
+				If shel_prosp_taxes_verif = "NC" Then shel_prosp_taxes_verif = shel_prosp_taxes_verif & " - Not Verif, Neg Impact"
+				If shel_prosp_taxes_verif = "PC" Then shel_prosp_taxes_verif = shel_prosp_taxes_verif & " - Not Verif, Pos Impact"
+				If shel_prosp_taxes_verif = "NO" Then shel_prosp_taxes_verif = shel_prosp_taxes_verif & " - No Verif Provided"
+
+				If shel_prosp_room_verif = "SF" Then shel_prosp_room_verif = shel_prosp_room_verif & " - Shelter Form"
+				If shel_prosp_room_verif = "LE" Then shel_prosp_room_verif = shel_prosp_room_verif & " - Lease"
+				If shel_prosp_room_verif = "RE" Then shel_prosp_room_verif = shel_prosp_room_verif & " - Rent Receipts"
+				If shel_prosp_room_verif = "OT" Then shel_prosp_room_verif = shel_prosp_room_verif & " - Other Document"
+				If shel_prosp_room_verif = "NC" Then shel_prosp_room_verif = shel_prosp_room_verif & " - Not Verif, Neg Impact"
+				If shel_prosp_room_verif = "PC" Then shel_prosp_room_verif = shel_prosp_room_verif & " - Not Verif, Pos Impact"
+				If shel_prosp_room_verif = "NO" Then shel_prosp_room_verif = shel_prosp_room_verif & " - No Verif Provided"
+
+				If shel_prosp_garage_verif = "SF" Then shel_prosp_garage_verif = shel_prosp_garage_verif & " - Shelter Form"
+				If shel_prosp_garage_verif = "LE" Then shel_prosp_garage_verif = shel_prosp_garage_verif & " - Lease"
+				If shel_prosp_garage_verif = "RE" Then shel_prosp_garage_verif = shel_prosp_garage_verif & " - Rent Receipts"
+				If shel_prosp_garage_verif = "OT" Then shel_prosp_garage_verif = shel_prosp_garage_verif & " - Other Document"
+				If shel_prosp_garage_verif = "NC" Then shel_prosp_garage_verif = shel_prosp_garage_verif & " - Not Verif, Neg Impact"
+				If shel_prosp_garage_verif = "PC" Then shel_prosp_garage_verif = shel_prosp_garage_verif & " - Not Verif, Pos Impact"
+				If shel_prosp_garage_verif = "NO" Then shel_prosp_garage_verif = shel_prosp_garage_verif & " - No Verif Provided"
+
+				If shel_prosp_subsidy_verif = "SF" Then shel_prosp_subsidy_verif = shel_prosp_subsidy_verif & " - Shelter Form"
+				If shel_prosp_subsidy_verif = "LE" Then shel_prosp_subsidy_verif = shel_prosp_subsidy_verif & " - Lease"
+				If shel_prosp_subsidy_verif = "OT" Then shel_prosp_subsidy_verif = shel_prosp_subsidy_verif & " - Other Document"
+				If shel_prosp_subsidy_verif = "NO" Then shel_prosp_subsidy_verif = shel_prosp_subsidy_verif & " - No Verif Provided"
+
+			End If
+
+
 		End If
 	end sub
 
@@ -1004,8 +1501,8 @@ end class
 Dim HH_MEMB_ARRAY()
 ReDim HH_MEMB_ARRAY(0)
 
-Dim UNEA_ARRAY()
-ReDim UNEA_ARRAY(0)
+Dim INCOME_ARRAY()
+ReDim INCOME_ARRAY(0)
 
 const rela_clt_one_ref		= 0
 const rela_clt_two_ref 		= 1
@@ -1200,7 +1697,8 @@ function dialog_movement()
 		If ButtonPressed = HH_MEMB_ARRAY(i).button_one Then
 			' MsgBox "selected"
 			If page_display = show_pg_memb_info Then memb_selected = i
-			If second_page_display = ssi_unea Then memb_to_match = HH_MEMB_ARRAY(i).ref_number
+			If page_display = show_q_12 Then memb_to_match = HH_MEMB_ARRAY(i).ref_number
+			' If second_page_display = ssi_unea Then memb_to_match = HH_MEMB_ARRAY(i).ref_number
 		End If
 	Next
 	' MsgBox ButtonPressed
@@ -1342,7 +1840,7 @@ function dialog_movement()
 end function
 
 function define_main_dialog()
-	Dialog1 = ""
+
 	BeginDialog Dialog1, 0, 0, 550, 385, "Full Interview Questions"
 
 	  ButtonGroup ButtonPressed
@@ -1564,12 +2062,12 @@ function define_main_dialog()
 		    Text 5, 25, 370, 10, "^^2 - ASK - Q1 and Q2 and record the verbal answers in the 'Confirm CAF Answer' field under the question."
 		    Text 15, 40, 235, 10, "Q. 1. Does everyone in your household buy, fix or eat food with you?"
 		    Text 370, 40, 65, 10, "Answer on the CAF"
-		    DropListBox 435, 35, 40, 45, "No"+chr(9)+"Yes"+chr(9)+"Blank", q1_caf_answer
+		    DropListBox 435, 35, 40, 45, caf_answer_droplist, q1_caf_answer
 		    Text 35, 60, 70, 10, "Confirm CAF Answer"
 		    ComboBox 110, 55, 365, 45, "", q1_confirm_caf_answer
 		    Text 15, 85, 315, 20, "Q. 2. Is anyone who is in the household, who is age 60 or over or disabled, unable to buy or fix food due to a disability?"
 		    Text 370, 85, 65, 10, "Answer on the CAF"
-		    DropListBox 435, 80, 40, 45, "No"+chr(9)+"Yes"+chr(9)+"Blank", q2_caf_answer
+		    DropListBox 435, 80, 40, 45, caf_answer_droplist, q2_caf_answer
 		    Text 35, 110, 70, 10, "Confirm CAF Answer"
 		    ComboBox 110, 105, 365, 45, "", q2_confirm_caf_answer
 		    Text 5, 140, 285, 10, "^^3 - ASK - Is there anyone else living in the house that does NOT share food with you?"
@@ -1622,10 +2120,10 @@ function define_main_dialog()
 			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q3 into the 'Answer on the CAF' field."
 			Text 15, 25, 180, 10, "Q. 3. Is anyone in your household attending school?"
 			Text 370, 25, 65, 10, "Answer on the CAF"
-			DropListBox 435, 20, 40, 45, "", caf_answer
+			DropListBox 435, 20, 40, 45, caf_answer_droplist, q3_caf_answer
 			Text 5, 45, 405, 10, "^^2 - ASK - 'Is anyone attending school?' and record the verbal answers in the 'Confirm CAF Answer' field under the question."
 			Text 40, 65, 70, 10, "Confirm CAF Answer"
-			ComboBox 110, 60, 365, 45, "", confirm_caf_answer
+			ComboBox 110, 60, 365, 45, "", q3_confirm_caf_answer
 
 
 		    Text 5, 85, 380, 10, "^^3 - If there are school-age children in the household - ASK - What grade and school district does each child attend?"
@@ -1711,11 +2209,11 @@ function define_main_dialog()
 			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q4 into the 'Answer on the CAF' field."
 			Text 15, 25, 335, 20, "Q. 4. Is anyone in your household temporarily not living in your home? (example: vacation, foster care, treatment, hospital job search)"
 			Text 370, 25, 65, 10, "Answer on the CAF"
-			DropListBox 435, 20, 40, 45, " "+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Blank", caf_answer
+			DropListBox 435, 20, 40, 45, caf_answer_droplist, q4_caf_answer
 			Text 5, 50, 35, 10, "^^2 - ASK - "
 			Text 40, 50, 405, 20, "'Is there anyone who typically lives at home and is currently living elsewhere? Common examples are someone away for vacation, job search, but could also include treatment, hospital stay, or even foster care.'"
 			Text 40, 80, 70, 10, "Confirm CAF Answer"
-			ComboBox 110, 75, 365, 45, "", confirm_caf_answer
+			ComboBox 110, 75, 365, 45, "", q4_confirm_caf_answer
 			Text 40, 100, 245, 10, "Based on Information Provided, Are there individuals Temporarily absent?"
 			DropListBox 285, 95, 60, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes", temp_absent_yn
 		    GroupBox 10, 120, 465, 65, "^^3 - If YES to anyone Temporary Absent - ASK - the person information, where they are, and the dates they left and were expected to return."
@@ -1741,11 +2239,11 @@ function define_main_dialog()
 			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
 		    Text 20, 25, 335, 20, "Q. 5. Is anyone blind, or does anyone have a physical or mental health condition that limit the ability to work or perform daily activities?"
 		    Text 370, 30, 65, 10, "Answer on the CAF"
-		    DropListBox 435, 25, 40, 45, "Yes"+chr(9)+"No"+chr(9)+"Blank", caf_answer
+		    DropListBox 435, 25, 40, 45, caf_answer_droplist, q5_caf_answer
 		    Text 5, 50, 35, 10, "^^2 - ASK - "
 		    Text 40, 50, 280, 10, "'Is anyone in the household disabled or have a physical or mental health condition?"
 		    Text 40, 70, 70, 10, "Confirm CAF Answer"
-		    ComboBox 110, 65, 365, 45, "", confirm_caf_answer
+		    ComboBox 110, 65, 365, 45, "", q5_confirm_caf_answer
 		    Text 40, 90, 230, 10, "Based on Information Provided, Is anyone in the household Disabled?"
 		    DropListBox 275, 85, 60, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes", temp_absent_yn
 		    Text 5, 110, 300, 10, "^^3 - REVIEW information from MAXIS with client about known disabilities:"
@@ -1779,6 +2277,7 @@ function define_main_dialog()
 					y_pos = y_pos + 20
 				End If
 			Next
+			If y_pos = 125 Then Text 20, 145, 400, 10, "There is know DISA information in MAXIS or added."
 
 		    PushButton 345, y_pos, 130, 13, "Add New DISA for a Known Member", new_disa_btn
 
@@ -1789,11 +2288,11 @@ function define_main_dialog()
 			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q6 into the 'Answer on the CAF' field."
 		    Text 20, 25, 335, 10, "Q. 6. Is anyone unable to work for reasons other than illness or disability?"
 		    Text 370, 25, 65, 10, "Answer on the CAF"
-		    DropListBox 435, 20, 40, 45, "Yes"+chr(9)+"No"+chr(9)+"Blank", caf_answer
+		    DropListBox 435, 20, 40, 45, caf_answer_droplist, q6_caf_answer
 		    Text 5, 45, 35, 10, "^^2 - ASK - "
 		    Text 40, 45, 280, 10, "'Is anyone in the household disabled or have a physical or mental health condition?"
 		    Text 40, 65, 70, 10, "Confirm CAF Answer"
-		    ComboBox 110, 60, 365, 45, "", confirm_caf_answer
+		    ComboBox 110, 60, 365, 45, "", q6_confirm_caf_answer
 		    Text 5, 85, 385, 10, "^^3 - If YES (based on above detail if the client indicates someone is unable to work) - ASK client to EXPLAIN in detail"
 
 			y_pos = 100
@@ -1827,11 +2326,11 @@ function define_main_dialog()
 			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
 			Text 20, 25, 335, 20, "Q. 7. In the last 60 days did anyone in the household: Stop working or quit? Refuse a job offer? Ask to work fewwer hours? Go on strike?"
 			Text 370, 30, 65, 10, "Answer on the CAF"
-			DropListBox 435, 25, 40, 45, "Yes"+chr(9)+"No"+chr(9)+"Blank", caf_answer
+			DropListBox 435, 25, 40, 45, caf_answer_droplist, q7_caf_answer
 			Text 5, 50, 35, 10, "^^2 - ASK - "
 			Text 40, 50, 280, 10, "'Is anyone in the household disabled or have a physical or mental health condition?"
 			Text 40, 70, 70, 10, "Confirm CAF Answer"
-			ComboBox 110, 65, 365, 45, "", confirm_caf_answer
+			ComboBox 110, 65, 365, 45, "", q7_confirm_caf_answer
 		End If
 		If page_display = show_q_8 Then
 			Text 508, 132, 60, 13, "Q. 8"
@@ -1839,21 +2338,21 @@ function define_main_dialog()
 			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
 			Text 20, 25, 335, 20, "Q. 8. Has anyone in the household had a job or been self-employed in the past 12 months?"
 			Text 370, 30, 65, 10, "Answer on the CAF"
-			DropListBox 435, 25, 40, 45, "Yes"+chr(9)+"No"+chr(9)+"Blank", caf_answer
+			DropListBox 435, 25, 40, 45, caf_answer_droplist, q8_caf_answer
 			Text 5, 50, 35, 10, "^^2 - ASK - "
 			Text 40, 50, 280, 10, "'Is anyone in the household disabled or have a physical or mental health condition?"
 			Text 40, 70, 70, 10, "Confirm CAF Answer"
-			ComboBox 110, 65, 365, 45, "", confirm_caf_answer
+			ComboBox 110, 65, 365, 45, "", q8_confirm_caf_answer
 
 
 			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
 			Text 20, 25, 335, 20, "Q. 8a. FOR SNAP ONLY: Has anyone in the household had a job or been self-employed in the past 36 months?"
 			Text 370, 30, 65, 10, "Answer on the CAF"
-			DropListBox 435, 25, 40, 45, "Yes"+chr(9)+"No"+chr(9)+"Blank", caf_answer
+			DropListBox 435, 25, 40, 45, caf_answer_droplist, q8a_caf_answer
 			Text 5, 50, 35, 10, "^^2 - ASK - "
 			Text 40, 50, 280, 10, "'Is anyone in the household disabled or have a physical or mental health condition?"
 			Text 40, 70, 70, 10, "Confirm CAF Answer"
-			ComboBox 110, 65, 365, 45, "", confirm_caf_answer
+			ComboBox 110, 65, 365, 45, "", q8a_confirm_caf_answer
 
 
 		End If
@@ -1863,11 +2362,11 @@ function define_main_dialog()
 			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
 			Text 20, 25, 335, 20, "Q. 9. Does anyone in the household have a job or expect to get income from a job this month or next month? (Include income from Work Study and paid scholarships. Include free benefits or reduced expenses received for work (shelter, food, clothing, etc.)"
 			Text 370, 30, 65, 10, "Answer on the CAF"
-			DropListBox 435, 25, 40, 45, "Yes"+chr(9)+"No"+chr(9)+"Blank", caf_answer
+			DropListBox 435, 25, 40, 45, caf_answer_droplist, q9_caf_answer
 			Text 5, 50, 35, 10, "^^2 - ASK - "
 			Text 40, 50, 280, 10, "'Is anyone in the household disabled or have a physical or mental health condition?"
 			Text 40, 70, 70, 10, "Confirm CAF Answer"
-			ComboBox 110, 65, 365, 45, "", confirm_caf_answer
+			ComboBox 110, 65, 365, 45, "", q9_confirm_caf_answer
 
 		End If
 		If page_display = show_q_10 Then
@@ -1876,11 +2375,11 @@ function define_main_dialog()
 			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
 			Text 20, 25, 335, 20, "Q. 10. Is anyone in the household self-employed or does anyone expect to get income from self-employment this month or next month?"
 			Text 370, 30, 65, 10, "Answer on the CAF"
-			DropListBox 435, 25, 40, 45, "Yes"+chr(9)+"No"+chr(9)+"Blank", caf_answer
+			DropListBox 435, 25, 40, 45, caf_answer_droplist, q10_caf_answer
 			Text 5, 50, 35, 10, "^^2 - ASK - "
 			Text 40, 50, 280, 10, "'Is anyone in the household disabled or have a physical or mental health condition?"
 			Text 40, 70, 70, 10, "Confirm CAF Answer"
-			ComboBox 110, 65, 365, 45, "", confirm_caf_answer
+			ComboBox 110, 65, 365, 45, "", q10_confirm_caf_answer
 
 		End If
 		If page_display = show_q_11 Then
@@ -1889,11 +2388,11 @@ function define_main_dialog()
 			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
 			Text 20, 25, 335, 20, "Q. 11. Do you expect any changes in income, expenses or work hours?"
 			Text 370, 30, 65, 10, "Answer on the CAF"
-			DropListBox 435, 25, 40, 45, "Yes"+chr(9)+"No"+chr(9)+"Blank", caf_answer
+			DropListBox 435, 25, 40, 45, caf_answer_droplist, q11_caf_answer
 			Text 5, 50, 35, 10, "^^2 - ASK - "
 			Text 40, 50, 280, 10, "'Is anyone in the household disabled or have a physical or mental health condition?"
 			Text 40, 70, 70, 10, "Confirm CAF Answer"
-			ComboBox 110, 65, 365, 45, "", confirm_caf_answer
+			ComboBox 110, 65, 365, 45, "", q11_confirm_caf_answer
 
 
 		End If
@@ -1973,13 +2472,13 @@ function define_main_dialog()
 
 				x_pos = 110
 				first_rsdi = TRUE
-				for i = 0 to UBound(UNEA_ARRAY, 1)
-					If UNEA_ARRAY(i).panel_name = "UNEA" Then
-						If UNEA_ARRAY(i).income_type_code = "01" OR UNEA_ARRAY(i).income_type_code = "02" Then
+				for i = 0 to UBound(INCOME_ARRAY, 1)
+					If INCOME_ARRAY(i).panel_name = "UNEA" Then
+						If INCOME_ARRAY(i).income_type_code = "01" OR INCOME_ARRAY(i).income_type_code = "02" Then
 
 							show_rsdi = FALSE
 							for j = 0 to UBound(HH_MEMB_ARRAY, 1)
-								If HH_MEMB_ARRAY(j).ref_number = UNEA_ARRAY(i).member_ref Then
+								If HH_MEMB_ARRAY(j).ref_number = INCOME_ARRAY(i).member_ref Then
 									If first_rsdi = TRUE and memb_to_match = "" Then
 										Text x_pos + 5, 331, 35, 10, "MEMB " & HH_MEMB_ARRAY(j).ref_number
 										first_rsdi = FALSE
@@ -1995,25 +2494,25 @@ function define_main_dialog()
 							Next
 
 							If show_rsdi = TRUE Then
-								Text 110, 135, 160, 10, "HH Member: " & UNEA_ARRAY(i).member
-							    Text 280, 135, 105, 10, "Claim Number: " & UNEA_ARRAY(i).claim_number
-								Text 110, 150, 270, 10, "RSDI Income Type: " & UNEA_ARRAY(i).income_type
+								Text 110, 135, 160, 10, "HH Member: " & INCOME_ARRAY(i).member
+							    Text 280, 135, 105, 10, "Claim Number: " & INCOME_ARRAY(i).claim_number
+								Text 110, 150, 270, 10, "RSDI Income Type: " & INCOME_ARRAY(i).income_type
 								Text 110, 165, 120, 10, "Date Most Recent Income Received:"
-							    EditBox 235, 160, 45, 15, UNEA_ARRAY(i).most_recent_pay_date
+							    EditBox 235, 160, 45, 15, INCOME_ARRAY(i).most_recent_pay_date
 							    Text 290, 165, 130, 10, "How Much was the Most Recent Check:"
-							    EditBox 425, 160, 50, 15, UNEA_ARRAY(i).most_recent_pay_amt
-							    Text 110, 180, 110, 10, "Known Monthly Income: $" & UNEA_ARRAY(i).prosp_pay_total
+							    EditBox 425, 160, 50, 15, INCOME_ARRAY(i).most_recent_pay_amt
+							    Text 110, 180, 110, 10, "Known Monthly Income: $" & INCOME_ARRAY(i).prosp_pay_total
 							    Text 110, 195, 355, 20, "If the known income and the most recent income received does not match, press the 'Update RSDI Information' button to clarify the income to budget and other details."
-							    Text 110, 215, 90, 10, "Start Date: " & UNEA_ARRAY(i).income_start_date
-							    Text 215, 215, 85, 10, "End Date: " & UNEA_ARRAY(i).income_end_date
+							    Text 110, 215, 90, 10, "Start Date: " & INCOME_ARRAY(i).income_start_date
+							    Text 215, 215, 85, 10, "End Date: " & INCOME_ARRAY(i).income_end_date
 							    Text 110, 230, 50, 10, "Verification"
 							    Text 240, 230, 50, 10, "Verif Info"
-							    DropListBox 110, 240, 125, 45, unea_verif_droplist, UNEA_ARRAY(i).income_verification
-							    EditBox 240, 240, 235, 15, UNEA_ARRAY(i).verif_explaination
+							    DropListBox 110, 240, 125, 45, unea_verif_droplist, INCOME_ARRAY(i).income_verification
+							    EditBox 240, 240, 235, 15, INCOME_ARRAY(i).verif_explaination
 							    Text 110, 260, 50, 10, "Income Notes"
-							    EditBox 110, 270, 365, 15, UNEA_ARRAY(i).income_notes
+							    EditBox 110, 270, 365, 15, INCOME_ARRAY(i).income_notes
 							    Text 110, 295, 70, 10, "Review of Income"
-							    ComboBox 110, 305, 365, 45, "", UNEA_ARRAY(i).income_review
+							    ComboBox 110, 305, 365, 45, "", INCOME_ARRAY(i).income_review
 
 							    PushButton 390, 135, 85, 15, "Update RSDI Information", update_rsdi_info_btn
 							End If
@@ -2021,7 +2520,7 @@ function define_main_dialog()
 					End If
 				next
 				If rsdi_count = 0 Then
-					Text 110, 140, 355, 10, "There are no RSDI panels known in MAXIS and no additional RSDI Income information has been added."
+					Text 110, 140, 355, 20, "There are no RSDI panels known in MAXIS and no additional RSDI Income information has been added."
 				End If
 				PushButton 385, 347, 95, 13, "Add RSDI Information", add_another_rsdi_unea_btn
 
@@ -2032,12 +2531,12 @@ function define_main_dialog()
 
 				x_pos = 110
 				first_ssi = TRUE
-				for i = 0 to UBound(UNEA_ARRAY, 1)
-					If UNEA_ARRAY(i).panel_name = "UNEA" Then
-						If UNEA_ARRAY(i).income_type_code = "03" Then
+				for i = 0 to UBound(INCOME_ARRAY, 1)
+					If INCOME_ARRAY(i).panel_name = "UNEA" Then
+						If INCOME_ARRAY(i).income_type_code = "03" Then
 							show_ssi = FALSE
 							for j = 0 to UBound(HH_MEMB_ARRAY, 1)
-								If HH_MEMB_ARRAY(j).ref_number = UNEA_ARRAY(i).member_ref Then
+								If HH_MEMB_ARRAY(j).ref_number = INCOME_ARRAY(i).member_ref Then
 									If first_ssi = TRUE and memb_to_match = "" Then
 										Text x_pos + 5, 331, 35, 10, "MEMB " & HH_MEMB_ARRAY(j).ref_number
 										first_ssi = FALSE
@@ -2053,24 +2552,24 @@ function define_main_dialog()
 							Next
 
 							If show_ssi = TRUE Then
-								Text 110, 140, 160, 10, "HH Member: " & UNEA_ARRAY(i).member
-							    Text 280, 140, 105, 10, "Claim Number: " & UNEA_ARRAY(i).claim_number
+								Text 110, 140, 160, 10, "HH Member: " & INCOME_ARRAY(i).member
+							    Text 280, 140, 105, 10, "Claim Number: " & INCOME_ARRAY(i).claim_number
 								Text 110, 160, 120, 10, "Date Most Recent Income Received:"
-							    EditBox 235, 155, 45, 15, UNEA_ARRAY(i).most_recent_pay_date
+							    EditBox 235, 155, 45, 15, INCOME_ARRAY(i).most_recent_pay_date
 							    Text 290, 160, 130, 10, "How Much was the Most Recent Check:"
-							    EditBox 425, 155, 50, 15, UNEA_ARRAY(i).most_recent_pay_amt
-							    Text 110, 175, 110, 10, "Known Monthly Income: $" & UNEA_ARRAY(i).prosp_pay_total
+							    EditBox 425, 155, 50, 15, INCOME_ARRAY(i).most_recent_pay_amt
+							    Text 110, 175, 110, 10, "Known Monthly Income: $" & INCOME_ARRAY(i).prosp_pay_total
 							    Text 110, 190, 355, 20, "If the known income and the most recent income received does not match, press the 'Update SSI Information' button to clarify the income to budget and other details."
-							    Text 110, 210, 90, 10, "Start Date: " & UNEA_ARRAY(i).income_start_date
-							    Text 215, 210, 85, 10, "End Date: " & UNEA_ARRAY(i).income_end_date
+							    Text 110, 210, 90, 10, "Start Date: " & INCOME_ARRAY(i).income_start_date
+							    Text 215, 210, 85, 10, "End Date: " & INCOME_ARRAY(i).income_end_date
 							    Text 110, 230, 50, 10, "Verification"
 							    Text 240, 230, 50, 10, "Verif Info"
-							    DropListBox 110, 240, 125, 45, unea_verif_droplist, UNEA_ARRAY(i).income_verification
-							    EditBox 240, 240, 235, 15, UNEA_ARRAY(i).verif_explaination
+							    DropListBox 110, 240, 125, 45, unea_verif_droplist, INCOME_ARRAY(i).income_verification
+							    EditBox 240, 240, 235, 15, INCOME_ARRAY(i).verif_explaination
 							    Text 110, 260, 50, 10, "Income Notes"
-							    EditBox 110, 270, 365, 15, UNEA_ARRAY(i).income_notes
+							    EditBox 110, 270, 365, 15, INCOME_ARRAY(i).income_notes
 							    Text 110, 295, 70, 10, "Review of Income"
-							    ComboBox 110, 305, 365, 45, "", UNEA_ARRAY(i).income_review
+							    ComboBox 110, 305, 365, 45, "", INCOME_ARRAY(i).income_review
 
 							    PushButton 390, 135, 85, 15, "Update SSI Information", update_ssi_info_btn
 							End If
@@ -2078,7 +2577,7 @@ function define_main_dialog()
 					End If
 				next
 				If ssi_count = 0 Then
-					Text 110, 140, 355, 10, "There are no RSDI panels known in MAXIS and no additional RSDI Income information has been added."
+					Text 110, 140, 355, 20, "There are no RSDI panels known in MAXIS and no additional RSDI Income information has been added."
 				End If
 				PushButton 385, 347, 95, 13, "Add SSI Information", add_another_ssi_unea_btn
 
@@ -2089,13 +2588,13 @@ function define_main_dialog()
 
 				x_pos = 110
 				first_va = TRUE
-				for i = 0 to UBound(UNEA_ARRAY, 1)
-					If UNEA_ARRAY(i).panel_name = "UNEA" Then
-						If UNEA_ARRAY(i).income_type_code = "11" OR UNEA_ARRAY(i).income_type_code = "12" OR UNEA_ARRAY(i).income_type_code = "13" OR UNEA_ARRAY(i).income_type_code = "38" Then
+				for i = 0 to UBound(INCOME_ARRAY, 1)
+					If INCOME_ARRAY(i).panel_name = "UNEA" Then
+						If INCOME_ARRAY(i).income_type_code = "11" OR INCOME_ARRAY(i).income_type_code = "12" OR INCOME_ARRAY(i).income_type_code = "13" OR INCOME_ARRAY(i).income_type_code = "38" Then
 
 							show_va = FALSE
 							for j = 0 to UBound(HH_MEMB_ARRAY, 1)
-								If HH_MEMB_ARRAY(j).ref_number = UNEA_ARRAY(i).member_ref Then
+								If HH_MEMB_ARRAY(j).ref_number = INCOME_ARRAY(i).member_ref Then
 									If first_va = TRUE and memb_to_match = "" Then
 										Text x_pos + 5, 331, 35, 10, "MEMB " & HH_MEMB_ARRAY(j).ref_number
 										first_va = FALSE
@@ -2110,31 +2609,31 @@ function define_main_dialog()
 								End If
 							Next
 							If show_va = TRUE Then
-								Text 110, 140, 160, 10, "HH Member: " "HH Member: " & UNEA_ARRAY(i).member
-							    Text 280, 140, 105, 10, "Claim Number: " & UNEA_ARRAY(i).claim_number
+								Text 110, 140, 160, 10, "HH Member: " & INCOME_ARRAY(i).member
+							    Text 280, 140, 105, 10, "Claim Number: " & INCOME_ARRAY(i).claim_number
 							    Text 110, 160, 120, 10, "Date Most Recent Income Received:"
-							    EditBox 235, 155, 45, 15, UNEA_ARRAY(i).most_recent_pay_date
+							    EditBox 235, 155, 45, 15, INCOME_ARRAY(i).most_recent_pay_date
 							    Text 290, 160, 130, 10, "How Much was the Most Recent Check:"
-							    EditBox 425, 155, 50, 15, UNEA_ARRAY(i).most_recent_pay_amt
-							    Text 110, 175, 110, 10, "Known Monthly Income: $" & UNEA_ARRAY(i).prosp_pay_total
-							    Text 230, 175, 245, 10, "VA Income Type: " & UNEA_ARRAY(i).income_type
+							    EditBox 425, 155, 50, 15, INCOME_ARRAY(i).most_recent_pay_amt
+							    Text 110, 175, 110, 10, "Known Monthly Income: $" & INCOME_ARRAY(i).prosp_pay_total
+							    Text 230, 175, 245, 10, "VA Income Type: " & INCOME_ARRAY(i).income_type
 							    Text 110, 195, 75, 10, "Gross Monthly Income:"
-							    EditBox 190, 190, 35, 15, UNEA_ARRAY(i).pay_gross
+							    EditBox 190, 190, 35, 15, INCOME_ARRAY(i).pay_gross
 							    Text 235, 195, 70, 10, "Allowed Exclusions:"
-							    EditBox 305, 190, 35, 15, UNEA_ARRAY(i).expenses_allowed
+							    EditBox 305, 190, 35, 15, INCOME_ARRAY(i).expenses_allowed
 							    Text 355, 195, 85, 10, "Exclusions NOT Allowed:"
-							    EditBox 440, 190, 35, 15, UNEA_ARRAY(i).expenses_not_allowed
+							    EditBox 440, 190, 35, 15, INCOME_ARRAY(i).expenses_not_allowed
 							    Text 110, 210, 355, 10, "If the counted income is incorrect, press the Update Income button."
-							    Text 110, 225, 90, 10, "Start Date: " & UNEA_ARRAY(i).income_start_date
-							    Text 215, 225, 85, 10, "End Date: " & UNEA_ARRAY(i).income_end_date
+							    Text 110, 225, 90, 10, "Start Date: " & INCOME_ARRAY(i).income_start_date
+							    Text 215, 225, 85, 10, "End Date: " & INCOME_ARRAY(i).income_end_date
 							    Text 110, 240, 50, 10, "Verification"
 							    Text 240, 240, 50, 10, "Verif Info"
-							    DropListBox 110, 250, 125, 45, unea_verif_droplist, UNEA_ARRAY(i).income_verification
-							    EditBox 240, 250, 235, 15, UNEA_ARRAY(i).verif_explaination
+							    DropListBox 110, 250, 125, 45, unea_verif_droplist, INCOME_ARRAY(i).income_verification
+							    EditBox 240, 250, 235, 15, INCOME_ARRAY(i).verif_explaination
 							    Text 110, 265, 50, 10, "Income Notes"
-							    EditBox 110, 275, 365, 15, UNEA_ARRAY(i).income_notes
+							    EditBox 110, 275, 365, 15, INCOME_ARRAY(i).income_notes
 							    Text 110, 295, 70, 10, "Review of Income"
-							    ComboBox 110, 305, 365, 45, "", UNEA_ARRAY(i).income_review
+							    ComboBox 110, 305, 365, 45, "", INCOME_ARRAY(i).income_review
 
 								PushButton 390, 135, 85, 15, "Update Income", update_va_info_btn
 							End If
@@ -2142,7 +2641,7 @@ function define_main_dialog()
 					End If
 				next
 				If va_count = 0 Then
-					Text 110, 140, 355, 10, "There are no VA panels known in MAXIS and no additional VA Income information has been added."
+					Text 110, 140, 355, 20, "There are no VA panels known in MAXIS and no additional VA Income information has been added."
 				End If
 				PushButton 385, 347, 95, 13, "Add VA Information", add_another_va_unea_btn
 
@@ -2153,14 +2652,14 @@ function define_main_dialog()
 
 				x_pos = 110
 				first_ui = TRUE
-				for i = 0 to UBound(UNEA_ARRAY, 1)
-					If UNEA_ARRAY(i).panel_name = "UNEA" Then
-						If UNEA_ARRAY(i).income_type_code = "14" Then
-							' MsgBox memb_droplist & vbNewLine & "~" & UNEA_ARRAY(i).member & "~" & vbNewLine & unea_verif_droplist & vbNewLine & "~" & UNEA_ARRAY(i).income_verification & "~" & vbNewLine & days_of_the_week_droplist & vbNewLine & "~" &  UNEA_ARRAY(i).pay_weekday & "~"
+				for i = 0 to UBound(INCOME_ARRAY, 1)
+					If INCOME_ARRAY(i).panel_name = "UNEA" Then
+						If INCOME_ARRAY(i).income_type_code = "14" Then
+							' MsgBox memb_droplist & vbNewLine & "~" & INCOME_ARRAY(i).member & "~" & vbNewLine & unea_verif_droplist & vbNewLine & "~" & INCOME_ARRAY(i).income_verification & "~" & vbNewLine & days_of_the_week_droplist & vbNewLine & "~" &  INCOME_ARRAY(i).pay_weekday & "~"
 
 							show_ui = FALSE
 							for j = 0 to UBound(HH_MEMB_ARRAY, 1)
-								If HH_MEMB_ARRAY(j).ref_number = UNEA_ARRAY(i).member_ref Then
+								If HH_MEMB_ARRAY(j).ref_number = INCOME_ARRAY(i).member_ref Then
 									If first_ui = TRUE and memb_to_match = "" Then
 										Text x_pos + 5, 331, 35, 10, "MEMB " & HH_MEMB_ARRAY(j).ref_number
 										first_ui = FALSE
@@ -2175,32 +2674,32 @@ function define_main_dialog()
 								End If
 							Next
 							If show_ui = TRUE Then
-								Text 110, 140, 160, 10, "HH Member: " & UNEA_ARRAY(i).member
-							    Text 280, 140, 105, 10, "Claim Number: " & UNEA_ARRAY(i).claim_number
+								Text 110, 140, 160, 10, "HH Member: " & INCOME_ARRAY(i).member
+							    Text 280, 140, 105, 10, "Claim Number: " & INCOME_ARRAY(i).claim_number
 							    Text 110, 160, 120, 10, "Date Most Recent Income Received:"
-							    EditBox 235, 155, 45, 15, UNEA_ARRAY(i).most_recent_pay_date
+							    EditBox 235, 155, 45, 15, INCOME_ARRAY(i).most_recent_pay_date
 							    Text 290, 160, 130, 10, "How Much was the Most Recent Check:"
-							    EditBox 425, 155, 50, 15, UNEA_ARRAY(i).most_recent_pay_amt
-							    Text 110, 175, 110, 10, "Known Weekly Income: $" & UNEA_ARRAY(i).prosp_average_pay
+							    EditBox 425, 155, 50, 15, INCOME_ARRAY(i).most_recent_pay_amt
+							    Text 110, 175, 110, 10, "Known Weekly Income: $" & INCOME_ARRAY(i).prosp_average_pay
 							    Text 110, 195, 75, 10, "Gross Weekly Income:"
-							    EditBox 190, 190, 35, 15, UNEA_ARRAY(i).pay_gross
+							    EditBox 190, 190, 35, 15, INCOME_ARRAY(i).pay_gross
 							    Text 235, 195, 70, 10, "Allowed Exclusions:"
-							    EditBox 305, 190, 35, 15, UNEA_ARRAY(i).expenses_allowed
+							    EditBox 305, 190, 35, 15, INCOME_ARRAY(i).expenses_allowed
 							    Text 355, 195, 85, 10, "Exclusions NOT Allowed:"
-							    EditBox 440, 190, 35, 15, UNEA_ARRAY(i).expenses_not_allowed
+							    EditBox 440, 190, 35, 15, INCOME_ARRAY(i).expenses_not_allowed
 							    Text 110, 210, 355, 10, "If the counted income is incorrect, press the Update Income button."
-							    Text 110, 225, 90, 10, "Start Date: " & UNEA_ARRAY(i).income_start_date
-							    Text 215, 225, 85, 10, "End Date: " & UNEA_ARRAY(i).income_end_date
+							    Text 110, 225, 90, 10, "Start Date: " & INCOME_ARRAY(i).income_start_date
+							    Text 215, 225, 85, 10, "End Date: " & INCOME_ARRAY(i).income_end_date
 								Text 360, 225, 50, 10, "Pay Weekday:"
-							    DropListBox 415, 220, 60, 45, days_of_the_week_droplist, UNEA_ARRAY(i).pay_weekday
+							    DropListBox 415, 220, 60, 45, days_of_the_week_droplist, INCOME_ARRAY(i).pay_weekday
 							    Text 110, 240, 50, 10, "Verification"
 							    Text 240, 240, 50, 10, "Verif Info"
-							    DropListBox 110, 250, 125, 45, unea_verif_droplist, UNEA_ARRAY(i).income_verification
-							    EditBox 240, 250, 235, 15, UNEA_ARRAY(i).verif_explaination
+							    DropListBox 110, 250, 125, 45, unea_verif_droplist, INCOME_ARRAY(i).income_verification
+							    EditBox 240, 250, 235, 15, INCOME_ARRAY(i).verif_explaination
 							    Text 110, 265, 50, 10, "Income Notes"
-							    EditBox 110, 275, 365, 15, UNEA_ARRAY(i).income_notes
+							    EditBox 110, 275, 365, 15, INCOME_ARRAY(i).income_notes
 							    Text 110, 295, 70, 10, "Review of Income"
-							    ComboBox 110, 305, 365, 45, "", UNEA_ARRAY(i).income_review
+							    ComboBox 110, 305, 365, 45, "", INCOME_ARRAY(i).income_review
 
 							    PushButton 390, 135, 85, 15, "Update UI Information", update_ui_info_btn
 							End If
@@ -2208,7 +2707,7 @@ function define_main_dialog()
 					End If
 				next
 				If ui_count = 0 Then
-					Text 110, 140, 355, 10, "There are no UI panels known in MAXIS and no additional UI Income information has been added."
+					Text 110, 140, 355, 20, "There are no UI panels known in MAXIS and no additional UI Income information has been added."
 				End If
 				PushButton 385, 347, 95, 13, "Add UI Information", add_another_ui_unea_btn
 
@@ -2219,12 +2718,12 @@ function define_main_dialog()
 
 				x_pos = 110
 				first_wc = TRUE
-				for i = 0 to UBound(UNEA_ARRAY, 1)
-					If UNEA_ARRAY(i).panel_name = "UNEA" Then
-						If UNEA_ARRAY(i).income_type_code = "15" Then
+				for i = 0 to UBound(INCOME_ARRAY, 1)
+					If INCOME_ARRAY(i).panel_name = "UNEA" Then
+						If INCOME_ARRAY(i).income_type_code = "15" Then
 							show_wc = FALSE
 							for j = 0 to UBound(HH_MEMB_ARRAY, 1)
-								If HH_MEMB_ARRAY(j).ref_number = UNEA_ARRAY(i).member_ref Then
+								If HH_MEMB_ARRAY(j).ref_number = INCOME_ARRAY(i).member_ref Then
 									If first_wc = TRUE and memb_to_match = "" Then
 										Text x_pos + 5, 331, 35, 10, "MEMB " & HH_MEMB_ARRAY(j).ref_number
 										first_wc = FALSE
@@ -2239,32 +2738,32 @@ function define_main_dialog()
 								End If
 							Next
 							If show_wc = TRUE Then
-								Text 110, 140, 160, 10, "HH Member: " & UNEA_ARRAY(i).member
-								Text 280, 140, 105, 10, "Claim Number: " & UNEA_ARRAY(i).claim_number
+								Text 110, 140, 160, 10, "HH Member: " & INCOME_ARRAY(i).member
+								Text 280, 140, 105, 10, "Claim Number: " & INCOME_ARRAY(i).claim_number
 								Text 110, 160, 120, 10, "Date Most Recent Income Received:"
-								EditBox 235, 155, 45, 15, UNEA_ARRAY(i).most_recent_pay_date
+								EditBox 235, 155, 45, 15, INCOME_ARRAY(i).most_recent_pay_date
 								Text 290, 160, 130, 10, "How Much was the Most Recent Check:"
-								EditBox 425, 155, 50, 15, UNEA_ARRAY(i).most_recent_pay_amt
-								Text 110, 175, 110, 10, "Known Weekly Income: $" & UNEA_ARRAY(i).prosp_average_pay
+								EditBox 425, 155, 50, 15, INCOME_ARRAY(i).most_recent_pay_amt
+								Text 110, 175, 110, 10, "Known Weekly Income: $" & INCOME_ARRAY(i).prosp_average_pay
 								Text 110, 195, 75, 10, "Gross Weekly Income:"
-								EditBox 190, 190, 35, 15, UNEA_ARRAY(i).pay_gross
+								EditBox 190, 190, 35, 15, INCOME_ARRAY(i).pay_gross
 								Text 235, 195, 70, 10, "Allowed Exclusions:"
-								EditBox 305, 190, 35, 15, UNEA_ARRAY(i).expenses_allowed
+								EditBox 305, 190, 35, 15, INCOME_ARRAY(i).expenses_allowed
 								Text 355, 195, 85, 10, "Exclusions NOT Allowed:"
-								EditBox 440, 190, 35, 15, UNEA_ARRAY(i).expenses_not_allowed
+								EditBox 440, 190, 35, 15, INCOME_ARRAY(i).expenses_not_allowed
 								Text 110, 210, 355, 10, "If the counted income is incorrect, press the Update Income button."
-								Text 110, 225, 90, 10, "Start Date: " & UNEA_ARRAY(i).income_start_date
-								Text 215, 225, 85, 10, "End Date: " & UNEA_ARRAY(i).income_end_date
+								Text 110, 225, 90, 10, "Start Date: " & INCOME_ARRAY(i).income_start_date
+								Text 215, 225, 85, 10, "End Date: " & INCOME_ARRAY(i).income_end_date
 								Text 360, 225, 50, 10, "Pay Weekday:"
-								DropListBox 415, 220, 60, 45, days_of_the_week_droplist, UNEA_ARRAY(i).pay_weekday
+								DropListBox 415, 220, 60, 45, days_of_the_week_droplist, INCOME_ARRAY(i).pay_weekday
 								Text 110, 240, 50, 10, "Verification"
 								Text 240, 240, 50, 10, "Verif Info"
-								DropListBox 110, 250, 125, 45, unea_verif_droplist, UNEA_ARRAY(i).income_verification
-								EditBox 240, 250, 235, 15, UNEA_ARRAY(i).verif_explaination
+								DropListBox 110, 250, 125, 45, unea_verif_droplist, INCOME_ARRAY(i).income_verification
+								EditBox 240, 250, 235, 15, INCOME_ARRAY(i).verif_explaination
 								Text 110, 265, 50, 10, "Income Notes"
-								EditBox 110, 275, 365, 15, UNEA_ARRAY(i).income_notes
+								EditBox 110, 275, 365, 15, INCOME_ARRAY(i).income_notes
 								Text 110, 295, 70, 10, "Review of Income"
-								ComboBox 110, 305, 365, 45, "", UNEA_ARRAY(i).income_review
+								ComboBox 110, 305, 365, 45, "", INCOME_ARRAY(i).income_review
 
 								PushButton 390, 135, 85, 15, "Update WC Information", update_wc_info_btn
 							End If
@@ -2272,7 +2771,7 @@ function define_main_dialog()
 					End If
 				next
 				If wc_count = 0 Then
-					Text 110, 140, 355, 10, "There are no WC panels known in MAXIS and no additional WC Income information has been added."
+					Text 110, 140, 355, 20, "There are no WC panels known in MAXIS and no additional WC Income information has been added."
 				End If
 				PushButton 385, 347, 95, 13, "Add WC Information", add_another_wc_unea_btn
 
@@ -2283,12 +2782,12 @@ function define_main_dialog()
 
 				x_pos = 110
 				first_ri = TRUE
-				for i = 0 to UBound(UNEA_ARRAY, 1)
-					If UNEA_ARRAY(i).panel_name = "UNEA" Then
-						If UNEA_ARRAY(i).income_type_code = "16" OR UNEA_ARRAY(i).income_type_code = "17" Then
+				for i = 0 to UBound(INCOME_ARRAY, 1)
+					If INCOME_ARRAY(i).panel_name = "UNEA" Then
+						If INCOME_ARRAY(i).income_type_code = "16" OR INCOME_ARRAY(i).income_type_code = "17" Then
 							show_ri = FALSE
 							for j = 0 to UBound(HH_MEMB_ARRAY, 1)
-								If HH_MEMB_ARRAY(j).ref_number = UNEA_ARRAY(i).member_ref Then
+								If HH_MEMB_ARRAY(j).ref_number = INCOME_ARRAY(i).member_ref Then
 									If first_ri = TRUE and memb_to_match = "" Then
 										Text x_pos + 5, 331, 35, 10, "MEMB " & HH_MEMB_ARRAY(j).ref_number
 										first_ri = FALSE
@@ -2303,31 +2802,31 @@ function define_main_dialog()
 								End If
 							Next
 							If show_ri = TRUE Then
-								Text 110, 140, 160, 10, "HH Member: " "HH Member: " & UNEA_ARRAY(i).member
-								Text 280, 140, 105, 10, "Claim Number: " & UNEA_ARRAY(i).claim_number
+								Text 110, 140, 160, 10, "HH Member: " & INCOME_ARRAY(i).member
+								Text 280, 140, 105, 10, "Claim Number: " & INCOME_ARRAY(i).claim_number
 								Text 110, 160, 120, 10, "Date Most Recent Income Received:"
-								EditBox 235, 155, 45, 15, UNEA_ARRAY(i).most_recent_pay_date
+								EditBox 235, 155, 45, 15, INCOME_ARRAY(i).most_recent_pay_date
 								Text 290, 160, 130, 10, "How Much was the Most Recent Check:"
-								EditBox 425, 155, 50, 15, UNEA_ARRAY(i).most_recent_pay_amt
-								Text 110, 175, 110, 10, "Known Monthly Income: $" & UNEA_ARRAY(i).prosp_pay_total
-								Text 230, 175, 245, 10, "Ret Income Type: " & UNEA_ARRAY(i).income_type
+								EditBox 425, 155, 50, 15, INCOME_ARRAY(i).most_recent_pay_amt
+								Text 110, 175, 110, 10, "Known Monthly Income: $" & INCOME_ARRAY(i).prosp_pay_total
+								Text 230, 175, 245, 10, "Ret Income Type: " & INCOME_ARRAY(i).income_type
 								Text 110, 195, 75, 10, "Gross Monthly Income:"
-								EditBox 190, 190, 35, 15, UNEA_ARRAY(i).pay_gross
+								EditBox 190, 190, 35, 15, INCOME_ARRAY(i).pay_gross
 								Text 235, 195, 70, 10, "Allowed Exclusions:"
-								EditBox 305, 190, 35, 15, UNEA_ARRAY(i).expenses_allowed
+								EditBox 305, 190, 35, 15, INCOME_ARRAY(i).expenses_allowed
 								Text 355, 195, 85, 10, "Exclusions NOT Allowed:"
-								EditBox 440, 190, 35, 15, UNEA_ARRAY(i).expenses_not_allowed
+								EditBox 440, 190, 35, 15, INCOME_ARRAY(i).expenses_not_allowed
 								Text 110, 210, 355, 10, "If the counted income is incorrect, press the Update Income button."
-								Text 110, 225, 90, 10, "Start Date: " & UNEA_ARRAY(i).income_start_date
-								Text 215, 225, 85, 10, "End Date: " & UNEA_ARRAY(i).income_end_date
+								Text 110, 225, 90, 10, "Start Date: " & INCOME_ARRAY(i).income_start_date
+								Text 215, 225, 85, 10, "End Date: " & INCOME_ARRAY(i).income_end_date
 								Text 110, 240, 50, 10, "Verification"
 								Text 240, 240, 50, 10, "Verif Info"
-								DropListBox 110, 250, 125, 45, unea_verif_droplist, UNEA_ARRAY(i).income_verification
-								EditBox 240, 250, 235, 15, UNEA_ARRAY(i).verif_explaination
+								DropListBox 110, 250, 125, 45, unea_verif_droplist, INCOME_ARRAY(i).income_verification
+								EditBox 240, 250, 235, 15, INCOME_ARRAY(i).verif_explaination
 								Text 110, 265, 50, 10, "Income Notes"
-								EditBox 110, 275, 365, 15, UNEA_ARRAY(i).income_notes
+								EditBox 110, 275, 365, 15, INCOME_ARRAY(i).income_notes
 								Text 110, 295, 70, 10, "Review of Income"
-								ComboBox 110, 305, 365, 45, "", UNEA_ARRAY(i).income_review
+								ComboBox 110, 305, 365, 45, "", INCOME_ARRAY(i).income_review
 
 								PushButton 390, 135, 85, 15, "Update Income", update_ri_info_btn
 							End If
@@ -2335,7 +2834,7 @@ function define_main_dialog()
 					End If
 				next
 				If retirement_count = 0 Then
-					Text 110, 140, 355, 10, "There are no Retirement panels known in MAXIS and no additional Retirement Income information has been added."
+					Text 110, 140, 355, 20, "There are no Retirement panels known in MAXIS and no additional Retirement Income information has been added."
 				End If
 				PushButton 385, 347, 95, 13, "Add Retirement Information", add_another_unea_btn
 
@@ -2346,12 +2845,12 @@ function define_main_dialog()
 
 				x_pos = 110
 				first_ti = TRUE
-				for i = 0 to UBound(UNEA_ARRAY, 1)
-					If UNEA_ARRAY(i).panel_name = "UNEA" Then
-						If UNEA_ARRAY(i).income_type_code = "46" OR UNEA_ARRAY(i).income_type_code = "47" Then
+				for i = 0 to UBound(INCOME_ARRAY, 1)
+					If INCOME_ARRAY(i).panel_name = "UNEA" Then
+						If INCOME_ARRAY(i).income_type_code = "46" OR INCOME_ARRAY(i).income_type_code = "47" Then
 							show_ti = FALSE
 							for j = 0 to UBound(HH_MEMB_ARRAY, 1)
-								If HH_MEMB_ARRAY(j).ref_number = UNEA_ARRAY(i).member_ref Then
+								If HH_MEMB_ARRAY(j).ref_number = INCOME_ARRAY(i).member_ref Then
 									If first_ti = TRUE and memb_to_match = "" Then
 										Text x_pos + 5, 331, 35, 10, "MEMB " & HH_MEMB_ARRAY(j).ref_number
 										first_ti = FALSE
@@ -2366,30 +2865,30 @@ function define_main_dialog()
 								End If
 							Next
 							If show_ti = TRUE Then
-								Text 110, 140, 160, 10, "HH Member: " "HH Member: " & UNEA_ARRAY(i).member
-								Text 280, 140, 105, 10, "Claim Number: " & UNEA_ARRAY(i).claim_number
+								Text 110, 140, 160, 10, "HH Member: " & INCOME_ARRAY(i).member
+								Text 280, 140, 105, 10, "Claim Number: " & INCOME_ARRAY(i).claim_number
 								Text 110, 160, 120, 10, "Date Most Recent Income Received:"
-								EditBox 235, 155, 45, 15, UNEA_ARRAY(i).most_recent_pay_date
+								EditBox 235, 155, 45, 15, INCOME_ARRAY(i).most_recent_pay_date
 								Text 290, 160, 130, 10, "How Much was the Most Recent Check:"
-								EditBox 425, 155, 50, 15, UNEA_ARRAY(i).most_recent_pay_amt
-								Text 110, 175, 110, 10, "Known Monthly Income: $" & UNEA_ARRAY(i).prosp_pay_total
+								EditBox 425, 155, 50, 15, INCOME_ARRAY(i).most_recent_pay_amt
+								Text 110, 175, 110, 10, "Known Monthly Income: $" & INCOME_ARRAY(i).prosp_pay_total
 								Text 110, 195, 75, 10, "Gross Monthly Income:"
-								EditBox 190, 190, 35, 15, UNEA_ARRAY(i).pay_gross
+								EditBox 190, 190, 35, 15, INCOME_ARRAY(i).pay_gross
 								Text 235, 195, 70, 10, "Allowed Exclusions:"
-								EditBox 305, 190, 35, 15, UNEA_ARRAY(i).expenses_allowed
+								EditBox 305, 190, 35, 15, INCOME_ARRAY(i).expenses_allowed
 								Text 355, 195, 85, 10, "Exclusions NOT Allowed:"
-								EditBox 440, 190, 35, 15, UNEA_ARRAY(i).expenses_not_allowed
+								EditBox 440, 190, 35, 15, INCOME_ARRAY(i).expenses_not_allowed
 								Text 110, 210, 355, 10, "If the counted income is incorrect, press the Update Income button."
-								Text 110, 225, 90, 10, "Start Date: " & UNEA_ARRAY(i).income_start_date
-								Text 215, 225, 85, 10, "End Date: " & UNEA_ARRAY(i).income_end_date
+								Text 110, 225, 90, 10, "Start Date: " & INCOME_ARRAY(i).income_start_date
+								Text 215, 225, 85, 10, "End Date: " & INCOME_ARRAY(i).income_end_date
 								Text 110, 240, 50, 10, "Verification"
 								Text 240, 240, 50, 10, "Verif Info"
-								DropListBox 110, 250, 125, 45, unea_verif_droplist, UNEA_ARRAY(i).income_verification
-								EditBox 240, 250, 235, 15, UNEA_ARRAY(i).verif_explaination
+								DropListBox 110, 250, 125, 45, unea_verif_droplist, INCOME_ARRAY(i).income_verification
+								EditBox 240, 250, 235, 15, INCOME_ARRAY(i).verif_explaination
 								Text 110, 265, 50, 10, "Income Notes"
-								EditBox 110, 275, 365, 15, UNEA_ARRAY(i).income_notes
+								EditBox 110, 275, 365, 15, INCOME_ARRAY(i).income_notes
 								Text 110, 295, 70, 10, "Review of Income"
-								ComboBox 110, 305, 365, 45, "", UNEA_ARRAY(i).income_review
+								ComboBox 110, 305, 365, 45, "", INCOME_ARRAY(i).income_review
 
 								PushButton 390, 135, 85, 15, "Update Income", update_ti_info_btn
 							End If
@@ -2397,7 +2896,7 @@ function define_main_dialog()
 					End If
 				next
 				If tribal_count = 0 Then
-					Text 110, 140, 355, 10, "There are no Tribal Income panels known in MAXIS and no additional Tribal Income information has been added."
+					Text 110, 140, 355, 20, "There are no Tribal Income panels known in MAXIS and no additional Tribal Income information has been added."
 				End If
 				PushButton 385, 347, 95, 13, "Add Tribal Income Information", add_another_unea_btn
 
@@ -2409,91 +2908,55 @@ function define_main_dialog()
 				x_pos = 110
 				first_cs = TRUE
 				for j = 0 to UBound(HH_MEMB_ARRAY, 1)
-					If HH_MEMB_ARRAY(j).clt_has_ss_income = TRUE Then
+					show_cs = FALSE
+					If HH_MEMB_ARRAY(j).clt_has_cs_income = TRUE Then
 						If first_cs = TRUE and memb_to_match = "" Then
-							Text x_pos + 5, 331, 35, 10, "MEMB " & HH_MEMB_ARRAY(j).ref_number
 							first_cs = FALSE
 							show_cs = TRUE
 						ElseIf memb_to_match = HH_MEMB_ARRAY(j).ref_number Then
-							Text x_pos + 5, 331, 35, 10, "MEMB " & HH_MEMB_ARRAY(j).ref_number
 							show_cs = TRUE
-						Else
-							PushButton x_pos, 330, 40, 10, "MEMB " & HH_MEMB_ARRAY(j).ref_number, HH_MEMB_ARRAY(j).button_one
 						End If
 					End If
 
-					direct_added = FALSE
-					disb_added = FALSE
-					arrears_added = FALSE
 					If show_cs = TRUE Then
 						the_ref_to_use = HH_MEMB_ARRAY(j).ref_number
 
-						Text 110, 140, 260, 10, "CS Income Received For MEMBER NAME"
+						Text 110, 140, 260, 10, "CS Income Received For " & HH_MEMB_ARRAY(j).full_name
 						Text 110, 160, 30, 10, "Paid to:"
-					    ComboBox 140, 155, 150, 45, "", paid_to_member
+					    ComboBox 140, 155, 150, 45, memb_droplist, HH_MEMB_ARRAY(j).cs_paid_to
 						Text 300, 160, 125, 10, "Is this Income Counted on this Case?"
-					    DropListBox 425, 155, 50, 45, "", cs_income_counted
+					    DropListBox 425, 155, 50, 45, " "+chr(9)+"Yes"+chr(9)+"No", HH_MEMB_ARRAY(j).clt_cs_counted
 
-						for i = 0 to UBound(UNEA_ARRAY, 1)
-							If UNEA_ARRAY(i).member_ref = the_ref_to_use Then
+						for i = 0 to UBound(INCOME_ARRAY, 1)
+							If INCOME_ARRAY(i).member_ref = the_ref_to_use Then
 
 
-								Select Case UNEA_ARRAY(i).income_type_code
+								Select Case INCOME_ARRAY(i).income_type_code
 									Case "08"
-										direct_added = TRUE
-										Text 110, 175, 115, 10, "Known Direct Monthly Amt: $444"
+										Text 110, 175, 115, 10, "Known Direct Monthly Amt: $" & INCOME_ARRAY(i).prosp_pay_total
 									Case "36"
-										disb_added = TRUE
-										Text 110, 195, 130, 10, "Known Disbursed Monthly Amt: $444"
+										Text 110, 195, 130, 10, "Known Disbursed Monthly Amt: $" & INCOME_ARRAY(i).prosp_pay_total
 										Text 250, 195, 50, 10, "Order Amount: "
 										EditBox 300, 190, 40, 15, disb_order_amount
 									Case "39"
-										arrears_added = TRUE
-										Text 110, 215, 120, 10, "Known Arrears Monthly Amt: $444"
+										Text 110, 215, 120, 10, "Known Arrears Monthly Amt: $" & INCOME_ARRAY(i).prosp_pay_total
 										Text 250, 215, 50, 10, "Order Amount: "
-										EditBox 300, 210, 40, 15, arrears_order_amount										
+										EditBox 300, 210, 40, 15, arrears_order_amount
 									Case "43"
 									Case "45"
 								End Select
 							End If
 						next
-
-						If direct_added = FALSE Then
-						End If
-						If disb_added = FALSE Then
-						End If
-						If arrears_added = FALSE Then
-						End If
+					End If
+					If HH_MEMB_ARRAY(j).clt_has_cs_income = TRUE Then
+						If show_cs = FALSE Then PushButton x_pos, 330, 40, 10, "MEMB " & HH_MEMB_ARRAY(j).ref_number, HH_MEMB_ARRAY(j).button_one
+						If show_cs = TRUE Then Text x_pos + 5, 331, 35, 10, "MEMB " & HH_MEMB_ARRAY(j).ref_number
+						x_pos = x_pos + 40
 					End If
 				next
 
-				for i = 0 to UBound(UNEA_ARRAY, 1)
-					If UNEA_ARRAY(i).panel_name = "UNEA" Then
-						If UNEA_ARRAY(i).income_type_code = "08" OR UNEA_ARRAY(i).income_type_code = "36" OR UNEA_ARRAY(i).income_type_code = "39" OR UNEA_ARRAY(i).income_type_code = "43" OR UNEA_ARRAY(i).income_type_code = "45" Then
-							show_cs = FALSE
-							for j = 0 to UBound(HH_MEMB_ARRAY, 1)
-								If HH_MEMB_ARRAY(j).ref_number = UNEA_ARRAY(i).member_ref Then
-									If first_cs = TRUE and memb_to_match = "" Then
-										Text x_pos + 5, 331, 35, 10, "MEMB " & HH_MEMB_ARRAY(j).ref_number
-										first_cs = FALSE
-										show_cs = TRUE
-									ElseIf memb_to_match = HH_MEMB_ARRAY(j).ref_number Then
-										Text x_pos + 5, 331, 35, 10, "MEMB " & HH_MEMB_ARRAY(j).ref_number
-										show_cs = TRUE
-									Else
-										PushButton x_pos, 330, 40, 10, "MEMB " & HH_MEMB_ARRAY(j).ref_number, HH_MEMB_ARRAY(j).button_one
-									End If
-									x_pos = x_pos + 40
-								End If
-							Next
-							If show_cs = TRUE Then
-
-							End If
-						End If
-					End If
-				next
 				If cs_count = 0 Then
-					Text 110, 140, 355, 10, "There are no Child Support panels known in MAXIS and no additional CS Income information has been added."
+					Text 110, 140, 355, 20, "There are no Child Support panels known in MAXIS and no additional CS Income information has been added."
 				End If
 				PushButton 385, 347, 95, 13, "Add CS Income Information", add_another_unea_btn
 
@@ -2504,12 +2967,12 @@ function define_main_dialog()
 
 				x_pos = 110
 				first_ss = TRUE
-				for i = 0 to UBound(UNEA_ARRAY, 1)
-					If UNEA_ARRAY(i).panel_name = "UNEA" Then
-						If UNEA_ARRAY(i).income_type_code = "35" OR UNEA_ARRAY(i).income_type_code = "37" OR UNEA_ARRAY(i).income_type_code = "40" Then
+				for i = 0 to UBound(INCOME_ARRAY, 1)
+					If INCOME_ARRAY(i).panel_name = "UNEA" Then
+						If INCOME_ARRAY(i).income_type_code = "35" OR INCOME_ARRAY(i).income_type_code = "37" OR INCOME_ARRAY(i).income_type_code = "40" Then
 							show_ss = FALSE
 							for j = 0 to UBound(HH_MEMB_ARRAY, 1)
-								If HH_MEMB_ARRAY(j).ref_number = UNEA_ARRAY(i).member_ref Then
+								If HH_MEMB_ARRAY(j).ref_number = INCOME_ARRAY(i).member_ref Then
 									If first_ss = TRUE and memb_to_match = "" Then
 										Text x_pos + 5, 331, 35, 10, "MEMB " & HH_MEMB_ARRAY(j).ref_number
 										first_ss = FALSE
@@ -2530,7 +2993,7 @@ function define_main_dialog()
 					End If
 				next
 				If ss_count = 0 Then
-					Text 110, 140, 355, 10, "There are no Spousal Support panels known in MAXIS and no additional Spousal Support Income information has been added."
+					Text 110, 140, 355, 20, "There are no Spousal Support panels known in MAXIS and no additional Spousal Support Income information has been added."
 				End If
 				PushButton 385, 347, 95, 13, "Add Spousal Support Income Information", add_another_unea_btn
 
@@ -2541,12 +3004,12 @@ function define_main_dialog()
 
 				x_pos = 110
 				first_other = TRUE
-				for i = 0 to UBound(UNEA_ARRAY, 1)
-					If UNEA_ARRAY(i).panel_name = "UNEA" Then
-						If UNEA_ARRAY(i).income_type_code = "06" OR UNEA_ARRAY(i).income_type_code = "18" OR UNEA_ARRAY(i).income_type_code = "19" OR UNEA_ARRAY(i).income_type_code = "20" OR UNEA_ARRAY(i).income_type_code = "21" OR UNEA_ARRAY(i).income_type_code = "22" OR UNEA_ARRAY(i).income_type_code = "23" OR UNEA_ARRAY(i).income_type_code = "24" OR UNEA_ARRAY(i).income_type_code = "25" OR UNEA_ARRAY(i).income_type_code = "26" OR UNEA_ARRAY(i).income_type_code = "27" OR UNEA_ARRAY(i).income_type_code = "28" OR UNEA_ARRAY(i).income_type_code = "29" OR UNEA_ARRAY(i).income_type_code = "30" OR UNEA_ARRAY(i).income_type_code = "31" OR UNEA_ARRAY(i).income_type_code = "44" OR UNEA_ARRAY(i).income_type_code = "48" OR UNEA_ARRAY(i).income_type_code = "49" Then
+				for i = 0 to UBound(INCOME_ARRAY, 1)
+					If INCOME_ARRAY(i).panel_name = "UNEA" Then
+						If INCOME_ARRAY(i).income_type_code = "06" OR INCOME_ARRAY(i).income_type_code = "18" OR INCOME_ARRAY(i).income_type_code = "19" OR INCOME_ARRAY(i).income_type_code = "20" OR INCOME_ARRAY(i).income_type_code = "21" OR INCOME_ARRAY(i).income_type_code = "22" OR INCOME_ARRAY(i).income_type_code = "23" OR INCOME_ARRAY(i).income_type_code = "24" OR INCOME_ARRAY(i).income_type_code = "25" OR INCOME_ARRAY(i).income_type_code = "26" OR INCOME_ARRAY(i).income_type_code = "27" OR INCOME_ARRAY(i).income_type_code = "28" OR INCOME_ARRAY(i).income_type_code = "29" OR INCOME_ARRAY(i).income_type_code = "30" OR INCOME_ARRAY(i).income_type_code = "31" OR INCOME_ARRAY(i).income_type_code = "44" OR INCOME_ARRAY(i).income_type_code = "48" OR INCOME_ARRAY(i).income_type_code = "49" Then
 							show_other = FALSE
 							for j = 0 to UBound(HH_MEMB_ARRAY, 1)
-								If HH_MEMB_ARRAY(j).ref_number = UNEA_ARRAY(i).member_ref Then
+								If HH_MEMB_ARRAY(j).ref_number = INCOME_ARRAY(i).member_ref Then
 									If first_other = TRUE and memb_to_match = "" Then
 										Text x_pos + 5, 331, 35, 10, "MEMB " & HH_MEMB_ARRAY(j).ref_number
 										first_other = FALSE
@@ -2561,31 +3024,31 @@ function define_main_dialog()
 								End If
 							Next
 							If show_other = TRUE Then
-								Text 110, 140, 160, 10, "HH Member: " "HH Member: " & UNEA_ARRAY(i).member
-								Text 280, 140, 105, 10, "Claim Number: " & UNEA_ARRAY(i).claim_number
+								Text 110, 140, 160, 10, "HH Member: " & INCOME_ARRAY(i).member
+								Text 280, 140, 105, 10, "Claim Number: " & INCOME_ARRAY(i).claim_number
 								Text 110, 160, 120, 10, "Date Most Recent Income Received:"
-								EditBox 235, 155, 45, 15, UNEA_ARRAY(i).most_recent_pay_date
+								EditBox 235, 155, 45, 15, INCOME_ARRAY(i).most_recent_pay_date
 								Text 290, 160, 130, 10, "How Much was the Most Recent Check:"
-								EditBox 425, 155, 50, 15, UNEA_ARRAY(i).most_recent_pay_amt
-								Text 110, 175, 110, 10, "Known Monthly Income: $" & UNEA_ARRAY(i).prosp_pay_total
-								Text 230, 175, 245, 10, "Othr Income Type: " & UNEA_ARRAY(i).income_type
+								EditBox 425, 155, 50, 15, INCOME_ARRAY(i).most_recent_pay_amt
+								Text 110, 175, 110, 10, "Known Monthly Income: $" & INCOME_ARRAY(i).prosp_pay_total
+								Text 230, 175, 245, 10, "Othr Income Type: " & INCOME_ARRAY(i).income_type
 								Text 110, 195, 75, 10, "Gross Monthly Income:"
-								EditBox 190, 190, 35, 15, UNEA_ARRAY(i).pay_gross
+								EditBox 190, 190, 35, 15, INCOME_ARRAY(i).pay_gross
 								Text 235, 195, 70, 10, "Allowed Exclusions:"
-								EditBox 305, 190, 35, 15, UNEA_ARRAY(i).expenses_allowed
+								EditBox 305, 190, 35, 15, INCOME_ARRAY(i).expenses_allowed
 								Text 355, 195, 85, 10, "Exclusions NOT Allowed:"
-								EditBox 440, 190, 35, 15, UNEA_ARRAY(i).expenses_not_allowed
+								EditBox 440, 190, 35, 15, INCOME_ARRAY(i).expenses_not_allowed
 								Text 110, 210, 355, 10, "If the counted income is incorrect, press the Update Income button."
-								Text 110, 225, 90, 10, "Start Date: " & UNEA_ARRAY(i).income_start_date
-								Text 215, 225, 85, 10, "End Date: " & UNEA_ARRAY(i).income_end_date
+								Text 110, 225, 90, 10, "Start Date: " & INCOME_ARRAY(i).income_start_date
+								Text 215, 225, 85, 10, "End Date: " & INCOME_ARRAY(i).income_end_date
 								Text 110, 240, 50, 10, "Verification"
 								Text 240, 240, 50, 10, "Verif Info"
-								DropListBox 110, 250, 125, 45, unea_verif_droplist, UNEA_ARRAY(i).income_verification
-								EditBox 240, 250, 235, 15, UNEA_ARRAY(i).verif_explaination
+								DropListBox 110, 250, 125, 45, unea_verif_droplist, INCOME_ARRAY(i).income_verification
+								EditBox 240, 250, 235, 15, INCOME_ARRAY(i).verif_explaination
 								Text 110, 265, 50, 10, "Income Notes"
-								EditBox 110, 275, 365, 15, UNEA_ARRAY(i).income_notes
+								EditBox 110, 275, 365, 15, INCOME_ARRAY(i).income_notes
 								Text 110, 295, 70, 10, "Review of Income"
-								ComboBox 110, 305, 365, 45, "", UNEA_ARRAY(i).income_review
+								ComboBox 110, 305, 365, 45, "", INCOME_ARRAY(i).income_review
 
 								PushButton 390, 135, 85, 15, "Update Income", update_other_info_btn
 							End If
@@ -2593,7 +3056,7 @@ function define_main_dialog()
 					End If
 				next
 				If other_UNEA_count = 0 Then
-					Text 110, 140, 355, 10, "There are no Other UNEA panels known in MAXIS and no additional Other UNEA information has been added."
+					Text 110, 140, 355, 20, "There are no Other UNEA panels known in MAXIS and no additional Other UNEA information has been added."
 				End If
 				PushButton 385, 347, 95, 13, "Add Other Income Information", add_another_unea_btn
 
@@ -2655,10 +3118,10 @@ function define_main_dialog()
 '   Text 5, 10, 195, 10, "^^1 - Enter the answers listed on the actual CAF from Q12"
 '   ButtonGroup ButtonPressed
 '     PushButton 20, 170, 70, 15, "VA", va_btn
-'     PushButton 485, 10, 60, 15, "CAF Page 1", caf_page_one_btn
-'     PushButton 485, 135, 60, 15, "CAF Page 1", Button27
-'     PushButton 415, 365, 50, 15, "NEXT", next_btn
-'     PushButton 465, 365, 80, 15, "Complete Interview", finish_interview_btn
+    ' PushButton 485, 10, 60, 15, "CAF Page 1", caf_page_one_btn
+    ' PushButton 485, 135, 60, 15, "CAF Page 1", Button27
+    ' PushButton 415, 365, 50, 15, "NEXT", next_btn
+    ' PushButton 465, 365, 80, 15, "Complete Interview", finish_interview_btn
 '     PushButton 20, 290, 70, 15, "Spousal Support", ss_btn
 '     PushButton 20, 310, 70, 15, "Other", other_btn
 '     PushButton 385, 350, 95, 10, "Add RSDI Information", add_another_unea_btn
@@ -2689,69 +3152,270 @@ function define_main_dialog()
 		If page_display = show_q_13 Then
 			Text 507, 207, 60, 13, "Q. 13"
 
-			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
+			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q13 into the 'Answer on the CAF' field."
 			Text 20, 25, 335, 20, "Q. 13. Does anyone in the household have or expect to get any loans, scholarships or grants for attending school?"
 			Text 370, 30, 65, 10, "Answer on the CAF"
-			DropListBox 435, 25, 40, 45, "Yes"+chr(9)+"No"+chr(9)+"Blank", caf_answer
+			DropListBox 435, 25, 40, 45, caf_answer_droplist, q13_caf_answer
 			Text 5, 50, 35, 10, "^^2 - ASK - "
 			Text 40, 50, 280, 10, "'Is anyone in the household disabled or have a physical or mental health condition?"
 			Text 40, 70, 70, 10, "Confirm CAF Answer"
-			ComboBox 110, 65, 365, 45, "", confirm_caf_answer
+			ComboBox 110, 65, 365, 45, "", q13_confirm_caf_answer
+
+
+			Text 505, 205, 60, 15, "Q. 13"
+		    Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q13 into the 'Answer on the CAF' field."
+		    Text 20, 25, 335, 20, "Q. 13. Does anyone in the household have or expect to get any loans, scholarships or grants for attending school?"
+		    Text 370, 30, 65, 10, "Answer on the CAF"
+		    DropListBox 435, 25, 40, 45, caf_answer_droplist, q13_caf_answer
+		    Text 5, 50, 35, 10, "^^2 - ASK - "
+		    Text 40, 50, 290, 10, "Does anyone in the household receive or expect to receive money to attend school?'"
+		    Text 40, 70, 70, 10, "Confirm CAF Answer"
+		    ComboBox 110, 65, 365, 45, "", q13_confirm_caf_answer
+
+		    Text 5, 95, 345, 10, "^^3 - ENTER information about student income using the 'Details - Add' button or 'Details - Update' button."
+
+			y_pos = 115
+			For i = 0 to UBound(HH_MEMB_ARRAY, 1)
+				If HH_MEMB_ARRAY(i).stin_exists = FALSE and HH_MEMB_ARRAY(i).stec_exists = FALSE Then
+					Text 20, y_pos, 340, 10, "MEMB " & HH_MEMB_ARRAY(i).ref_number & " - " & HH_MEMB_ARRAY(i).full_name & " - No STIN or STEC"
+				ElseIf HH_MEMB_ARRAY(i).stin_exists = TRUE and HH_MEMB_ARRAY(i).stec_exists = FALSE Then
+					Text 20, y_pos, 340, 10, "MEMB " & HH_MEMB_ARRAY(i).ref_number & " - " & HH_MEMB_ARRAY(i).full_name & " - STIN: $" & HH_MEMB_ARRAY(i).total_stin & " - No STEC"
+				ElseIf HH_MEMB_ARRAY(i).stin_exists = FALSE and HH_MEMB_ARRAY(i).stec_exists = TRUE Then
+					Text 20, y_pos, 340, 10, "MEMB " & HH_MEMB_ARRAY(i).ref_number & " - " & HH_MEMB_ARRAY(i).full_name & " - No STIN - STEC: $" & HH_MEMB_ARRAY(i).total_stec
+				ElseIf HH_MEMB_ARRAY(i).stin_exists = TRUE and HH_MEMB_ARRAY(i).stec_exists = TRUE Then
+					Text 20, y_pos, 340, 10, "MEMB " & HH_MEMB_ARRAY(i).ref_number & " - " & HH_MEMB_ARRAY(i).full_name & " - STIN: $" & HH_MEMB_ARRAY(i).total_stin & " - STEC: $" & HH_MEMB_ARRAY(i).total_stec
+				End If
+		    	If HH_MEMB_ARRAY(i).stin_exists = TRUE OR HH_MEMB_ARRAY(i).stec_exists = TRUE Then
+					PushButton 370, y_pos-2, 105, 13, "Details - Update", HH_MEMB_ARRAY(i).button_one
+				Else
+					PushButton 370, y_pos-2, 105, 13, "Details - Add", HH_MEMB_ARRAY(i).button_one
+				End If
+				y_pos = y_pos + 15
+			Next
+			y_pos = y_pos + 5
+
+		    Text 20, y_pos, 265, 10, "Any HH Member that has known STIN or STEC must have details updated."
+
 		End If
 		If page_display = show_q_14_15 Then
 			Text 495, 222, 60, 13, "Q. 14 and 15"
 
-			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
-			Text 20, 25, 335, 20, "Q. 14. Does your household have the following housing expenses?"
-			Text 370, 30, 65, 10, "Answer on the CAF"
-			DropListBox 435, 25, 40, 45, "Yes"+chr(9)+"No"+chr(9)+"Blank", caf_answer
-			Text 5, 50, 35, 10, "^^2 - ASK - "
-			Text 40, 50, 280, 10, "'Is anyone in the household disabled or have a physical or mental health condition?"
-			Text 40, 70, 70, 10, "Confirm CAF Answer"
-			ComboBox 110, 65, 365, 45, "", confirm_caf_answer
+			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q14 into the 'Answer on the CAF' field."
+		    Text 20, 20, 225, 10, "Q. 14. Does your household have the following housing expenses?"
 
-			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
-			Text 20, 25, 335, 20, "Q. 15. Does your household have the following utility expenses any time during the year?"
-			Text 370, 30, 65, 10, "Answer on the CAF"
-			DropListBox 435, 25, 40, 45, "Yes"+chr(9)+"No"+chr(9)+"Blank", caf_answer
-			Text 5, 50, 35, 10, "^^2 - ASK - "
-			Text 40, 50, 280, 10, "'Is anyone in the household disabled or have a physical or mental health condition?"
-			Text 40, 70, 70, 10, "Confirm CAF Answer"
-			ComboBox 110, 65, 365, 45, "", confirm_caf_answer
+		    Text 5, 30, 255, 10, "^^2 - If any are 'YES' then ASK the amount and ENTER the amount answered."
+		    Text 25, 50, 125, 10, "Rent (include mobild home lot rental)"
+		    DropListBox 155, 45, 40, 45, caf_answer_droplist, q14_rent_caf_answer
+		    EditBox 205, 45, 35, 15, q14_rent_caf_response
+		    Text 25, 65, 125, 10, "Mortgage/Contract for Deed Payment"
+		    DropListBox 155, 60, 40, 45, caf_answer_droplist, q14_mort_caf_answer
+		    EditBox 205, 60, 35, 15, q14_mort_caf_response
+		    Text 25, 80, 125, 10, "Homeowner's Insurance"
+		    DropListBox 155, 75, 40, 45, caf_answer_droplist, q14_ins_caf_answer
+		    EditBox 205, 75, 35, 15, q14_ins_caf_response
+		    Text 25, 95, 125, 10, "Real Estate Taxes"
+		    DropListBox 155, 90, 40, 45, caf_answer_droplist, q14_tax_caf_answer
+		    EditBox 205, 90, 35, 15, q14_tax_caf_response
+
+		    Text 255, 50, 105, 10, "Rental or Secontion 8 Subsidy"
+		    DropListBox 365, 45, 40, 45, caf_answer_droplist, q14_subs_caf_answer
+		    EditBox 415, 45, 35, 15, q14_subs_caf_response
+		    Text 255, 65, 100, 10, "Association Fees"
+		    DropListBox 365, 60, 40, 45, caf_answer_droplist, q14_fees_caf_answer
+		    EditBox 415, 60, 35, 15, q14_fees_caf_response
+		    Text 255, 80, 95, 10, "Room and/or Board"
+		    DropListBox 365, 75, 40, 45, caf_answer_droplist, q14_room_caf_answer
+		    EditBox 415, 75, 35, 15, q14_room_caf_response
+			Text 255, 95, 105, 20, "CONFIM - Do you get help paying rent?"
+			DropListBox 365, 95, 40, 45, caf_answer_droplist, q14_confirm_subsidy
+			EditBox 415, 95, 35, 15, q14_confirm_subsidy_amount
+
+		    Text 5, 115, 455, 10, "^^3 - ASK - 'Explain how you pay your housing expenses.' and REVIEW Shelter Expenses entered or in MAXIS."
+		    Text 20, 135, 70, 10, "Housing Explanation"
+		    ComboBox 95, 130, 380, 45, "", q14_confirm_caf_answer
+			y_pos = 165
+			grp_len = 15
+			for i = 0 to UBound(HH_MEMB_ARRAY, 1)
+				If HH_MEMB_ARRAY(i).shel_exists = TRUE Then
+					Text 30, y_pos, 440, 10, "MEMB " & HH_MEMB_ARRAY(i).ref_number & " - " & HH_MEMB_ARRAY(i).full_name & ": " & HH_MEMB_ARRAY(i).shel_summary
+					y_pos = y_pos + 15
+					grp_len = grp_len + 15
+				End If
+			Next
+			y_pos = y_pos + 5
+			GroupBox 20, 150, 455, grp_len, "Already Known Shelter Expenses - Added or listed in MAXIS"
+		    ' Text 30, 165, 440, 10, "MEMB 01 - CLIENT FULL NAME HERE - Amount: $400"
+		    ' Text 30, 180, 440, 10, "MEMB 01 - CLIENT FULL NAME HERE - Amount: $400"
+		    PushButton 350, y_pos, 125, 10, "Update Shelter Expense Information", update_shel_btn
+
+			Text 5, 210, 310, 10, "^^4 - Enter the answers listed on the actual CAF fom for Q15 into the 'Answer on the CAF' field."
+		    Text 20, 220, 295, 10, "Q. 15. Does your household have the following utility expenses any time during the year?"
+		    Text 20, 240, 85, 10, "Heating/Air Conditioning"
+		    DropListBox 110, 235, 40, 45, caf_answer_droplist, q15_h_ac_caf_answer
+		    Text 5, 285, 170, 10, "^^5 - ASK - 'Does anyone in the household pay ...'"
+		    Text 20, 255, 85, 10, "Water and Sewer"
+		    DropListBox 110, 250, 40, 45, caf_answer_droplist, q15_ws_caf_answer
+		    Text 180, 240, 85, 10, "Electricity"
+		    DropListBox 270, 235, 40, 45, caf_answer_droplist, q15_e_caf_answer
+		    Text 180, 255, 85, 10, "Garbage Removal"
+		    DropListBox 270, 250, 40, 45, caf_answer_droplist, q15_gr_caf_answer
+		    Text 345, 240, 85, 10, "Cooking Fuel"
+		    DropListBox 435, 235, 40, 45, caf_answer_droplist, q15_cf_caf_answer
+		    Text 345, 255, 85, 10, "Phone/Cell Phone"
+		    DropListBox 435, 250, 40, 45, caf_answer_droplist, q15_p_caf_answer
+		    Text 75, 270, 355, 10, "Did anyone in the household receive Energy Assistance (LIHEAP) of more than $20 in the past 12 months?"
+		    DropListBox 435, 265, 40, 45, caf_answer_droplist, q15_liheap_caf_answer
+
+			Text 5, 285, 270, 10, "^^5 - ASK - 'Does anyone in the household pay ...'  RECORD the verbal responses"
+		    Text 20, 305, 85, 10, "Heating"
+		    DropListBox 110, 300, 40, 45, caf_answer_droplist, q15_h_caf_response
+		    Text 20, 320, 85, 10, "Air Conditioning"
+		    DropListBox 110, 315, 40, 45, caf_answer_droplist, q15_ac_caf_response
+		    Text 20, 335, 85, 10, "Water and Sewer"
+		    DropListBox 110, 330, 40, 45, caf_answer_droplist, q15_ws_caf_response
+		    Text 180, 305, 85, 10, "Electricity"
+		    DropListBox 270, 300, 40, 45, caf_answer_droplist, q15_e_caf_response
+		    Text 180, 320, 85, 10, "Garbage Removal"
+		    DropListBox 270, 315, 40, 45, caf_answer_droplist, q15_gr_caf_response
+		    Text 345, 305, 85, 10, "Cooking Fuel"
+		    DropListBox 435, 300, 40, 45, caf_answer_droplist, q15_cf_caf_response
+		    Text 345, 320, 85, 10, "Phone/Cell Phone"
+		    DropListBox 435, 315, 40, 45, caf_answer_droplist, q15_p_caf_response
+		    Text 170, 340, 265, 10, "Did your household receive any help in paying for your energy or power bills?"
+		    DropListBox 435, 335, 40, 45, caf_answer_droplist, q15_liheap_caf_response
+		    PushButton 20, 350, 130, 10, "Utilities are Complicated", utility_detail_btn
+
 		End If
 		If page_display = show_q_16_18 Then
 			Text 487, 237, 60, 13, "Q. 16, 17, and 18"
 
-			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
-			Text 20, 25, 335, 20, "Q. 16. Do you or anyone living with you have costs for care of a child(ren) because you or they are working, looking for work or going to school? The Child Care Assistance Program (CCAP) may help pay child care costs."
-			Text 370, 30, 65, 10, "Answer on the CAF"
-			DropListBox 435, 25, 40, 45, "Yes"+chr(9)+"No"+chr(9)+"Blank", caf_answer
-			Text 5, 50, 35, 10, "^^2 - ASK - "
-			Text 40, 50, 280, 10, "'Is anyone in the household disabled or have a physical or mental health condition?"
-			Text 40, 70, 70, 10, "Confirm CAF Answer"
-			ComboBox 110, 65, 365, 45, "", confirm_caf_answer
+			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q16 into the 'Answer on the CAF' field."
+		    Text 365, 10, 65, 10, "Answer on the CAF"
+		    DropListBox 435, 5, 40, 45, caf_answer_droplist, q16_caf_answer
+		    Text 20, 20, 445, 20, "Q. 16. Do you or anyone living with you have costs for care of a child(ren) because you or they are working, looking for work or going to school? The Child Care Assistance Program (CCAP) may help pay child care costs."
+		    Text 5, 45, 35, 10, "^^2 - ASK - "
+		    Text 40, 45, 210, 10, "'Does anyone in your household have costs for care of a child?'"
+		    DropListBox 260, 40, 40, 45, caf_answer_droplist, q16_caf_confirm
+		    Text 40, 60, 100, 10, "Additional detail from answer:"
+		    EditBox 140, 55, 335, 15, q16_caf_confirm_notes
+		    Text 5, 80, 305, 10, "^^3 - Enter the answers listed on the actual CAF fom for Q17 into the 'Answer on the CAF' field."
+		    Text 370, 80, 65, 10, "Answer on the CAF"
+		    DropListBox 435, 75, 40, 45, caf_answer_droplist, q17_caf_answer
+		    Text 20, 90, 460, 20, "Q. 17. Do you or anyone living with you have costs for care of an ill or disabled adult because you are working, looking for work or going to school?"
+		    Text 5, 115, 35, 10, "^^4 - ASK - "
+		    Text 40, 115, 215, 10, "'Does anyone in your household have cost for care of an adult?'"
+		    DropListBox 255, 110, 40, 45, caf_answer_droplist, q17_caf_confirm
+		    Text 40, 130, 100, 10, "Additional detail from answer:"
+		    EditBox 140, 125, 335, 15, q17_caf_confirm_notes
+		    Text 5, 145, 255, 10, "^^5 - REVIEW Known Information (listed here) and UPDATE based on answer"
+		    GroupBox 20, 155, 455, 55, "DCEX in MAXIS or added manually"
+		    Text 30, 170, 435, 10, "Care Cost for MEMB 03 - $500 per month"
+		    Text 30, 180, 435, 10, "Care Cost for MEMB 03 - $500 per month"
+		    Text 25, 200, 100, 10, "Confirm Information is Correct:"
+		    DropListBox 130, 195, 205, 45, ""+chr(9)+""+chr(9)+""+chr(9)+"", List7
+		    PushButton 345, 195, 120, 10, "Update Child Care Information", update_DCEX_info_btn
+		    Text 5, 220, 305, 10, "^^6 - Enter the answers listed on the actual CAF fom for Q18 into the 'Answer on the CAF' field."
+		    Text 20, 230, 320, 20, "Q. 18. Does anyone in the household pay court-ordered child support, spousal support, child care support, medical support or contribute to a tax-dependent who does not live in your home?"
+		    Text 370, 230, 65, 10, "Answer on the CAF"
+		    DropListBox 435, 225, 40, 45, caf_answer_droplist, q18_caf_answer
+		    Text 5, 255, 35, 10, "^^7 - ASK - "
+		    Text 40, 255, 315, 10, "'Does anyone in your household pay court ordered expenses for someone outside of the home?'"
+		    DropListBox 360, 250, 40, 45, caf_answer_droplist, List6
+		    Text 40, 270, 100, 10, "Additional detail from answer:"
+		    EditBox 140, 265, 335, 15, Edit3
+		    Text 5, 285, 255, 10, "^^8 - REVIEW Known Information (listed here) and UPDATE based on answer"
+		    GroupBox 20, 295, 455, 55, "COEX in MAXIS or added manually"
+		    Text 30, 310, 435, 10, "Care Cost for MEMB 03 - $500 per month"
+		    Text 30, 320, 435, 10, "Care Cost for MEMB 03 - $500 per month"
+		    Text 25, 340, 100, 10, "Confirm Information is Correct:"
+		    DropListBox 130, 335, 205, 45, "", List8
+		    PushButton 345, 335, 120, 10, "Update Child Care Information", Button7
+
+			'
+			' Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
+			' Text 20, 25, 335, 20, "Q. 16. Do you or anyone living with you have costs for care of a child(ren) because you or they are working, looking for work or going to school? The Child Care Assistance Program (CCAP) may help pay child care costs."
+			' Text 370, 30, 65, 10, "Answer on the CAF"
+			' DropListBox 435, 25, 40, 45, caf_answer_droplist, q16_caf_answer
+			' Text 5, 50, 35, 10, "^^2 - ASK - "
+			' Text 40, 50, 280, 10, "'Is anyone in the household disabled or have a physical or mental health condition?"
+			' Text 40, 70, 70, 10, "Confirm CAF Answer"
+			' ComboBox 110, 65, 365, 45, "", q16_confirm_caf_answer
+			'
+			'
+			'
+			' Text 5, 90, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
+			' Text 20, 105, 335, 20, "Q. 17. Do you or anyone living with you have costs for care of an ill or disabled adult because you are working, looking for work or going to school?"
+			' Text 370, 110, 65, 10, "Answer on the CAF"
+			' DropListBox 435, 105, 40, 45, caf_answer_droplist, q17_caf_answer
+			' Text 5, 130, 35, 10, "^^2 - ASK - "
+			' Text 40, 130, 280, 10, "'Is anyone in the household disabled or have a physical or mental health condition?"
+			' Text 40, 150, 70, 10, "Confirm CAF Answer"
+			' ComboBox 110, 145, 365, 45, "", q17_confirm_caf_answer
+			'
+			'
+			'
+			' Text 5, 170, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
+			' Text 20, 185, 335, 20, "Q. 18. Does anyone in the household pay court-ordered child support, spousal support, child care support, medical support or contribute to a tax-dependent who does not live in your home?"
+			' Text 370, 190, 65, 10, "Answer on the CAF"
+			' DropListBox 435, 185, 40, 45, caf_answer_droplist, q18_caf_answer
+			' Text 5, 210, 35, 10, "^^2 - ASK - "
+			' Text 40, 210, 280, 10, "'Is anyone in the household disabled or have a physical or mental health condition?"
+			' Text 40, 230, 70, 10, "Confirm CAF Answer"
+			' ComboBox 110, 225, 365, 45, "", q18_confirm_caf_answer
 
 
 
-			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
-			Text 20, 25, 335, 20, "Q. 17. Do you or anyone living with you have costs for care of an ill or disabled adult because you are working, looking for work or going to school?"
-			Text 370, 30, 65, 10, "Answer on the CAF"
-			DropListBox 435, 25, 40, 45, "Yes"+chr(9)+"No"+chr(9)+"Blank", caf_answer
-			Text 5, 50, 35, 10, "^^2 - ASK - "
-			Text 40, 50, 280, 10, "'Is anyone in the household disabled or have a physical or mental health condition?"
-			Text 40, 70, 70, 10, "Confirm CAF Answer"
-			ComboBox 110, 65, 365, 45, "", confirm_caf_answer
 
-
-
-			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
-			Text 20, 25, 335, 20, "Q. 18. Does anyone in the household pay court-ordered child support, spousal support, child care support, medical support or contribute to a tax-dependent who does not live in your home?"
-			Text 370, 30, 65, 10, "Answer on the CAF"
-			DropListBox 435, 25, 40, 45, "Yes"+chr(9)+"No"+chr(9)+"Blank", caf_answer
-			Text 5, 50, 35, 10, "^^2 - ASK - "
-			Text 40, 50, 280, 10, "'Is anyone in the household disabled or have a physical or mental health condition?"
-			Text 40, 70, 70, 10, "Confirm CAF Answer"
-			ComboBox 110, 65, 365, 45, "", confirm_caf_answer
+' BeginDialog Dialog1, 0, 0, 550, 385, "Full Interview Questions"
+'   ButtonGroup ButtonPressed
+'     PushButton 415, 365, 50, 15, "NEXT", next_btn
+'     PushButton 465, 365, 80, 15, "Complete Interview", finish_interview_btn
+'     PushButton 485, 10, 60, 15, "CAF Page 1", caf_page_one_btn
+'     PushButton 485, 135, 60, 15, "CAF Page 1", Button27
+'   Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q16 into the 'Answer on the CAF' field."
+'   Text 365, 10, 65, 10, "Answer on the CAF"
+'   DropListBox 435, 5, 40, 45, "caf_answer_droplist", q16_caf_answer
+'   Text 20, 20, 445, 20, "Q. 16. Do you or anyone living with you have costs for care of a child(ren) because you or they are working, looking for work or going to school? The Child Care Assistance Program (CCAP) may help pay child care costs."
+'   Text 5, 45, 35, 10, "^^2 - ASK - "
+'   Text 40, 45, 210, 10, "'Does anyone in your household have costs for care of a child?'"
+'   DropListBox 260, 40, 40, 45, "caf_answer_droplist", List4
+'   Text 40, 60, 100, 10, "Additional detail from answer:"
+'   EditBox 140, 55, 335, 15, Edit1
+'   Text 5, 80, 305, 10, "^^3 - Enter the answers listed on the actual CAF fom for Q17 into the 'Answer on the CAF' field."
+'   Text 370, 80, 65, 10, "Answer on the CAF"
+'   DropListBox 435, 75, 40, 45, "caf_answer_droplist", q17_caf_answer
+'   Text 20, 90, 460, 20, "Q. 17. Do you or anyone living with you have costs for care of an ill or disabled adult because you are working, looking for work or going to school?"
+'   Text 5, 115, 35, 10, "^^4 - ASK - "
+'   Text 40, 115, 215, 10, "'Does anyone in your household have cost for care of an adult?'"
+'   DropListBox 255, 110, 40, 45, "caf_answer_droplist", List5
+'   Text 40, 130, 100, 10, "Additional detail from answer:"
+'   EditBox 140, 125, 335, 15, Edit2
+'   Text 5, 145, 255, 10, "^^5 - REVIEW Known Information (listed here) and UPDATE based on answer"
+'   GroupBox 20, 155, 455, 55, "DCEX in MAXIS or added manually"
+'   Text 30, 170, 435, 10, "Care Cost for MEMB 03 - $500 per month"
+'   Text 30, 180, 435, 10, "Care Cost for MEMB 03 - $500 per month"
+'   Text 25, 200, 100, 10, "Confirm Information is Correct:"
+'   DropListBox 130, 195, 205, 45, "", List7
+'   ButtonGroup ButtonPressed
+'     PushButton 345, 195, 120, 10, "Update Child Care Information", update_DCEX_info_btn
+'   Text 5, 220, 305, 10, "^^6 - Enter the answers listed on the actual CAF fom for Q18 into the 'Answer on the CAF' field."
+'   Text 20, 230, 320, 20, "Q. 18. Does anyone in the household pay court-ordered child support, spousal support, child care support, medical support or contribute to a tax-dependent who does not live in your home?"
+'   Text 370, 230, 65, 10, "Answer on the CAF"
+'   DropListBox 435, 225, 40, 45, "caf_answer_droplist", q18_caf_answer
+'   Text 5, 255, 35, 10, "^^7 - ASK - "
+'   Text 40, 255, 315, 10, "'Does anyone in your household pay court ordered expenses for someone outside of the home?'"
+'   DropListBox 360, 250, 40, 45, "caf_answer_droplist", List6
+'   Text 40, 270, 100, 10, "Additional detail from answer:"
+'   EditBox 140, 265, 335, 15, Edit3
+'   Text 5, 285, 255, 10, "^^8 - REVIEW Known Information (listed here) and UPDATE based on answer"
+'   GroupBox 20, 295, 455, 55, "COEX in MAXIS or added manually"
+'   Text 30, 310, 435, 10, "Care Cost for MEMB 03 - $500 per month"
+'   Text 30, 320, 435, 10, "Care Cost for MEMB 03 - $500 per month"
+'   Text 25, 340, 100, 10, "Confirm Information is Correct:"
+'   DropListBox 130, 335, 205, 45, "", List8
+'   ButtonGroup ButtonPressed
+'     PushButton 345, 335, 120, 10, "Update Child Care Information", Button7
+' EndDialog
 
 
 		End If
@@ -2761,11 +3425,11 @@ function define_main_dialog()
 			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
 			Text 20, 25, 335, 20, "Q. 19. For SNAP only: Does anyone in the household have medical expenses?"
 			Text 370, 30, 65, 10, "Answer on the CAF"
-			DropListBox 435, 25, 40, 45, "Yes"+chr(9)+"No"+chr(9)+"Blank", caf_answer
+			DropListBox 435, 25, 40, 45, caf_answer_droplist, q19_caf_answer
 			Text 5, 50, 35, 10, "^^2 - ASK - "
 			Text 40, 50, 280, 10, "'Is anyone in the household disabled or have a physical or mental health condition?"
 			Text 40, 70, 70, 10, "Confirm CAF Answer"
-			ComboBox 110, 65, 365, 45, "", confirm_caf_answer
+			ComboBox 110, 65, 365, 45, "", q19_confirm_caf_answer
 
 
 		End If
@@ -2775,22 +3439,22 @@ function define_main_dialog()
 			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
 			Text 20, 25, 335, 20, "Q. 20. Does anyone in the household own, or is anyone buying, any of the following?"
 			Text 370, 30, 65, 10, "Answer on the CAF"
-			DropListBox 435, 25, 40, 45, "Yes"+chr(9)+"No"+chr(9)+"Blank", caf_answer
+			DropListBox 435, 25, 40, 45, caf_answer_droplist, q20_caf_answer
 			Text 5, 50, 35, 10, "^^2 - ASK - "
 			Text 40, 50, 280, 10, "'Is anyone in the household disabled or have a physical or mental health condition?"
 			Text 40, 70, 70, 10, "Confirm CAF Answer"
-			ComboBox 110, 65, 365, 45, "", confirm_caf_answer
+			ComboBox 110, 65, 365, 45, "", q20_confirm_caf_answer
 
 
 
 			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
 			Text 20, 25, 335, 20, "Q. 21. FOR CASH PROGRAMS ONLY: Has anyone in the household given away, sold or traded anything of value in the past 12 months? (For Example: Cash, Bank Accounts, Stocks, Bonds, or Vehicles)?"
 			Text 370, 30, 65, 10, "Answer on the CAF"
-			DropListBox 435, 25, 40, 45, "Yes"+chr(9)+"No"+chr(9)+"Blank", caf_answer
+			DropListBox 435, 25, 40, 45, caf_answer_droplist, q21_caf_answer
 			Text 5, 50, 35, 10, "^^2 - ASK - "
 			Text 40, 50, 280, 10, "'Is anyone in the household disabled or have a physical or mental health condition?"
 			Text 40, 70, 70, 10, "Confirm CAF Answer"
-			ComboBox 110, 65, 365, 45, "", confirm_caf_answer
+			ComboBox 110, 65, 365, 45, "", q21_confirm_caf_answer
 
 
 		End If
@@ -2800,11 +3464,11 @@ function define_main_dialog()
 			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
 			Text 20, 25, 335, 20, "Q. 22. FOR RECERTIFICATIONS ONLY: Did anyone move in or out of your home in the past 12 months?"
 			Text 370, 30, 65, 10, "Answer on the CAF"
-			DropListBox 435, 25, 40, 45, "Yes"+chr(9)+"No"+chr(9)+"Blank", caf_answer
+			DropListBox 435, 25, 40, 45, caf_answer_droplist, q22_caf_answer
 			Text 5, 50, 35, 10, "^^2 - ASK - "
 			Text 40, 50, 280, 10, "'Is anyone in the household disabled or have a physical or mental health condition?"
 			Text 40, 70, 70, 10, "Confirm CAF Answer"
-			ComboBox 110, 65, 365, 45, "", confirm_caf_answer
+			ComboBox 110, 65, 365, 45, "", q22_confirm_caf_answer
 
 
 		End If
@@ -2814,11 +3478,11 @@ function define_main_dialog()
 			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
 			Text 20, 25, 335, 20, "Q. 23. For children under the age of 19, are both parents living in the home?"
 			Text 370, 30, 65, 10, "Answer on the CAF"
-			DropListBox 435, 25, 40, 45, "Yes"+chr(9)+"No"+chr(9)+"Blank", caf_answer
+			DropListBox 435, 25, 40, 45, caf_answer_droplist, q23_caf_answer
 			Text 5, 50, 35, 10, "^^2 - ASK - "
 			Text 40, 50, 280, 10, "'Is anyone in the household disabled or have a physical or mental health condition?"
 			Text 40, 70, 70, 10, "Confirm CAF Answer"
-			ComboBox 110, 65, 365, 45, "", confirm_caf_answer
+			ComboBox 110, 65, 365, 45, "", q23_confirm_caf_answer
 
 
 		End If
@@ -2828,11 +3492,11 @@ function define_main_dialog()
 			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
 			Text 20, 25, 335, 20, "Q. 24. FOR MSA RECIPIENTS ONLY: Does anyone in the household have any of the following expenses?"
 			Text 370, 30, 65, 10, "Answer on the CAF"
-			DropListBox 435, 25, 40, 45, "Yes"+chr(9)+"No"+chr(9)+"Blank", caf_answer
+			DropListBox 435, 25, 40, 45, caf_answer_droplist, q24_caf_answer
 			Text 5, 50, 35, 10, "^^2 - ASK - "
 			Text 40, 50, 280, 10, "'Is anyone in the household disabled or have a physical or mental health condition?"
 			Text 40, 70, 70, 10, "Confirm CAF Answer"
-			ComboBox 110, 65, 365, 45, "", confirm_caf_answer
+			ComboBox 110, 65, 365, 45, "", q24_confirm_caf_answer
 
 		End If
 		If page_display = show_qual Then
@@ -3085,6 +3749,53 @@ function read_ADDR_panel(addr_eff_date, line_one, line_two, city, state, zip, co
 	updated_date = replace(updated_date, " ", "/")
 end function
 
+
+function read_all_COEX()
+	Call navigate_to_MAXIS_screen ("STAT", "PNLE")
+
+	pnle_row = 3
+	count = 1
+	previous_member = ""
+	panel_count = UBound(INCOME_ARRAY, 1)
+	start_count = panel_count
+	coex_found = FALSE
+	Do
+		EMReadScreen panel_name, 4, pnle_row, 5
+		' MsgBox panel_name
+		IF panel_name = "UNEA" Then
+			EMReadScreen panel_memb, 2, pnle_row, 10
+			If panel_memb <> previous_member Then count = 1
+
+			ReDim Preserve INCOME_ARRAY(panel_count)
+			Set INCOME_ARRAY(panel_count) = new client_income
+			INCOME_ARRAY(panel_count).member_ref = panel_memb
+			INCOME_ARRAY(panel_count).panel_instance = "0" & count
+
+
+			panel_count = panel_count + 1
+			count = count + 1
+			previous_member = panel_memb
+			' MsgBox panel_count
+			coex_found = TRUE
+			case_has_income_listed = TRUE
+
+		End If
+		pnle_row = pnle_row + 1
+		If pnle_row = 20 Then
+			transmit
+			pnle_row = 3
+		End If
+		EMReadScreen panel_summ, 4, 2, 53
+		' MsgBox "PNLI Row - " & pnle_row & vbNewLine & "SUMM - " & panel_summ
+	Loop until panel_summ = "PNLE"
+	' If count = 1 Then ReDim Preserve INCOME_ARRAY(panel_count)
+	stop_count = panel_count - 1
+	If stop_count < 0 Then stop_count = 0
+end function
+
+function read_all_DCEX()
+end function
+
 ' FUNCTION - Read all the HH Members from case, including how they are related to M01 and SIBL and PARE - get age
 function read_all_the_MEMBs()
 	CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
@@ -3317,8 +4028,9 @@ function read_all_UNEA()
 	pnli_row = 3
 	count = 1
 	previous_member = ""
-	panel_count = UBound(UNEA_ARRAY, 1)
+	panel_count = UBound(INCOME_ARRAY, 1)
 	start_count = panel_count
+	unea_found = FALSE
 	Do
 		EMReadScreen panel_name, 4, pnli_row, 5
 		' MsgBox panel_name
@@ -3326,16 +4038,18 @@ function read_all_UNEA()
 			EMReadScreen panel_memb, 2, pnli_row, 10
 			If panel_memb <> previous_member Then count = 1
 
-			ReDim Preserve UNEA_ARRAY(panel_count)
-			Set UNEA_ARRAY(panel_count) = new client_income
-			UNEA_ARRAY(panel_count).member_ref = panel_memb
-			UNEA_ARRAY(panel_count).panel_instance = "0" & count
+			ReDim Preserve INCOME_ARRAY(panel_count)
+			Set INCOME_ARRAY(panel_count) = new client_income
+			INCOME_ARRAY(panel_count).member_ref = panel_memb
+			INCOME_ARRAY(panel_count).panel_instance = "0" & count
 
 
 			panel_count = panel_count + 1
 			count = count + 1
 			previous_member = panel_memb
 			' MsgBox panel_count
+			unea_found = TRUE
+			case_has_income_listed = TRUE
 
 		End If
 		pnli_row = pnli_row + 1
@@ -3346,26 +4060,31 @@ function read_all_UNEA()
 		EMReadScreen panel_summ, 4, 2, 53
 		' MsgBox "PNLI Row - " & pnli_row & vbNewLine & "SUMM - " & panel_summ
 	Loop until panel_summ = "PNLE"
+	' If count = 1 Then ReDim Preserve INCOME_ARRAY(panel_count)
 	stop_count = panel_count - 1
 	If stop_count < 0 Then stop_count = 0
 
 	' MsgBox start_count & vbNewLine & stop_count
-	for i = start_count to stop_count
-		' MsgBox "HERE"
-		UNEA_ARRAY(i).read_member_name
-		UNEA_ARRAY(i).read_unea_panel
+	' If start_count <> 0 Then
+	If unea_found = TRUE Then
+		for i = start_count to stop_count
+			' MsgBox "HERE"
+			INCOME_ARRAY(i).read_member_name
+			INCOME_ARRAY(i).read_unea_panel
 
-		If UNEA_ARRAY(i).income_type_code = "01" OR UNEA_ARRAY(i).income_type_code = "02" Then rsdi_count = rsdi_count + 1
-		If UNEA_ARRAY(i).income_type_code = "03" Then ssi_count = ssi_count + 1
-		If UNEA_ARRAY(i).income_type_code = "15" Then wc_count = wc_count + 1
-		If UNEA_ARRAY(i).income_type_code = "14" Then ui_count = ui_count + 1
-		If UNEA_ARRAY(i).income_type_code = "11" OR UNEA_ARRAY(i).income_type_code = "12" OR UNEA_ARRAY(i).income_type_code = "13" OR UNEA_ARRAY(i).income_type_code = "38" Then va_count = va_count + 1
-		If UNEA_ARRAY(i).income_type_code = "16" OR UNEA_ARRAY(i).income_type_code = "17" Then retirement_count = retirement_count + 1
-		If UNEA_ARRAY(i).income_type_code = "46" OR UNEA_ARRAY(i).income_type_code = "47" Then tribal_count = tribal_count + 1
-		If UNEA_ARRAY(i).income_type_code = "08" OR UNEA_ARRAY(i).income_type_code = "36" OR UNEA_ARRAY(i).income_type_code = "39" OR UNEA_ARRAY(i).income_type_code = "43" OR UNEA_ARRAY(i).income_type_code = "45" Then cs_count = cs_count + 1
-		If UNEA_ARRAY(i).income_type_code = "35" OR UNEA_ARRAY(i).income_type_code = "37" OR UNEA_ARRAY(i).income_type_code = "40" Then ss_count = ss_count + 1
-		If UNEA_ARRAY(i).income_type_code = "06" OR UNEA_ARRAY(i).income_type_code = "18" OR UNEA_ARRAY(i).income_type_code = "19" OR UNEA_ARRAY(i).income_type_code = "20" OR UNEA_ARRAY(i).income_type_code = "21" OR UNEA_ARRAY(i).income_type_code = "22" OR UNEA_ARRAY(i).income_type_code = "23" OR UNEA_ARRAY(i).income_type_code = "24" OR UNEA_ARRAY(i).income_type_code = "25" OR UNEA_ARRAY(i).income_type_code = "26" OR UNEA_ARRAY(i).income_type_code = "27" OR UNEA_ARRAY(i).income_type_code = "28" OR UNEA_ARRAY(i).income_type_code = "29" OR UNEA_ARRAY(i).income_type_code = "30" OR UNEA_ARRAY(i).income_type_code = "31" OR UNEA_ARRAY(i).income_type_code = "44" OR UNEA_ARRAY(i).income_type_code = "48" OR UNEA_ARRAY(i).income_type_code = "49" Then other_UNEA_count = other_UNEA_count + 1
-	next
+			If INCOME_ARRAY(i).income_type_code = "01" OR INCOME_ARRAY(i).income_type_code = "02" Then rsdi_count = rsdi_count + 1
+			If INCOME_ARRAY(i).income_type_code = "03" Then ssi_count = ssi_count + 1
+			If INCOME_ARRAY(i).income_type_code = "15" Then wc_count = wc_count + 1
+			If INCOME_ARRAY(i).income_type_code = "14" Then ui_count = ui_count + 1
+			If INCOME_ARRAY(i).income_type_code = "11" OR INCOME_ARRAY(i).income_type_code = "12" OR INCOME_ARRAY(i).income_type_code = "13" OR INCOME_ARRAY(i).income_type_code = "38" Then va_count = va_count + 1
+			If INCOME_ARRAY(i).income_type_code = "16" OR INCOME_ARRAY(i).income_type_code = "17" Then retirement_count = retirement_count + 1
+			If INCOME_ARRAY(i).income_type_code = "46" OR INCOME_ARRAY(i).income_type_code = "47" Then tribal_count = tribal_count + 1
+			If INCOME_ARRAY(i).income_type_code = "08" OR INCOME_ARRAY(i).income_type_code = "36" OR INCOME_ARRAY(i).income_type_code = "39" OR INCOME_ARRAY(i).income_type_code = "43" OR INCOME_ARRAY(i).income_type_code = "45" Then cs_count = cs_count + 1
+			If INCOME_ARRAY(i).income_type_code = "35" OR INCOME_ARRAY(i).income_type_code = "37" OR INCOME_ARRAY(i).income_type_code = "40" Then ss_count = ss_count + 1
+			If INCOME_ARRAY(i).income_type_code = "06" OR INCOME_ARRAY(i).income_type_code = "18" OR INCOME_ARRAY(i).income_type_code = "19" OR INCOME_ARRAY(i).income_type_code = "20" OR INCOME_ARRAY(i).income_type_code = "21" OR INCOME_ARRAY(i).income_type_code = "22" OR INCOME_ARRAY(i).income_type_code = "23" OR INCOME_ARRAY(i).income_type_code = "24" OR INCOME_ARRAY(i).income_type_code = "25" OR INCOME_ARRAY(i).income_type_code = "26" OR INCOME_ARRAY(i).income_type_code = "27" OR INCOME_ARRAY(i).income_type_code = "28" OR INCOME_ARRAY(i).income_type_code = "29" OR INCOME_ARRAY(i).income_type_code = "30" OR INCOME_ARRAY(i).income_type_code = "31" OR INCOME_ARRAY(i).income_type_code = "44" OR INCOME_ARRAY(i).income_type_code = "48" OR INCOME_ARRAY(i).income_type_code = "49" Then other_UNEA_count = other_UNEA_count + 1
+		next
+	End If
+	' end If
 
 end function
 
@@ -3596,6 +4315,7 @@ Call check_for_MAXIS(TRUE)
 Call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 interview_date = date & ""
+case_has_income_listed = FALSE
 
 Call back_to_SELF
 EMReadScreen MX_region, 10, 22, 48
@@ -3628,7 +4348,7 @@ BeginDialog Dialog1, 0, 0, 281, 105, "INTERVIEW Case number dialog"
   Text 55, 90, 105, 10, "Look for me for Tips and Tricks!"
   Text 10, 70, 50, 10, "Interview Date:"
   Text 115, 70, 50, 10, "Interview Type:"
-  Text 140, 15, 65, 10, "Footer month/year: "
+  Text 140, 15, 65, 10, "Footer month/year:"
   Text 10, 15, 50, 10, "Case number:"
 EndDialog
 
@@ -3679,16 +4399,22 @@ call read_EATS_panel(all_hh_members_eat_w_applicant, members_unable_to_fix_food,
 
 For hh_memb = 0 to UBound(HH_MEMB_ARRAY, 1)
 	' MsgBox HH_MEMB_ARRAY(hh_memb).ref_number & vbNewLine & HH_MEMB_ARRAY(hh_memb).full_name
-	For each_income = 0 to UBound)UNEA_ARRAY, 1)
-		If UNEA_ARRAY(each_income).member_ref = HH_MEMB_ARRAY(hh_memb).ref_number Then
-			If UNEA_ARRAY(each_income).panel_name = "JOBS" Then HH_MEMB_ARRAY(hh_memb).clt_has_JOBS = TRUE
-			If UNEA_ARRAY(each_income).panel_name = "BUSI" Then HH_MEMB_ARRAY(hh_memb).clt_has_BUSI = TRUE
-			If UNEA_ARRAY(each_income).panel_name = "UNEA" Then
-				If UNEA_ARRAY(i).income_type_code = "08" OR UNEA_ARRAY(i).income_type_code = "36" OR UNEA_ARRAY(i).income_type_code = "39" OR UNEA_ARRAY(i).income_type_code = "43" OR UNEA_ARRAY(i).income_type_code = "45" Then HH_MEMB_ARRAY(hh_memb).clt_has_cs_income = TRUE
-				If UNEA_ARRAY(i).income_type_code = "35" OR UNEA_ARRAY(i).income_type_code = "37" OR UNEA_ARRAY(i).income_type_code = "40" Then HH_MEMB_ARRAY(hh_memb).clt_has_ss_income = TRUE
+	If case_has_income_listed = TRUE Then
+		For each_income = 0 to UBound(INCOME_ARRAY, 1)
+			' MsgBox INCOME_ARRAY(each_income)
+			' MsgBox "1 - " & INCOME_ARRAY(each_income).member_ref
+			' MsgBox "2 - " & HH_MEMB_ARRAY(hh_memb).ref_number
+
+			If INCOME_ARRAY(each_income).member_ref = HH_MEMB_ARRAY(hh_memb).ref_number Then
+				If INCOME_ARRAY(each_income).panel_name = "JOBS" Then HH_MEMB_ARRAY(hh_memb).clt_has_JOBS = TRUE
+				If INCOME_ARRAY(each_income).panel_name = "BUSI" Then HH_MEMB_ARRAY(hh_memb).clt_has_BUSI = TRUE
+				If INCOME_ARRAY(each_income).panel_name = "UNEA" Then
+					If INCOME_ARRAY(i).income_type_code = "08" OR INCOME_ARRAY(i).income_type_code = "36" OR INCOME_ARRAY(i).income_type_code = "39" OR INCOME_ARRAY(i).income_type_code = "43" OR INCOME_ARRAY(i).income_type_code = "45" Then HH_MEMB_ARRAY(hh_memb).clt_has_cs_income = TRUE
+					If INCOME_ARRAY(i).income_type_code = "35" OR INCOME_ARRAY(i).income_type_code = "37" OR INCOME_ARRAY(i).income_type_code = "40" Then HH_MEMB_ARRAY(hh_memb).clt_has_ss_income = TRUE
+				End If
 			End If
-		End If
-	Next
+		Next
+	End If
 Next
 'Gather all of the household information
 
@@ -3730,7 +4456,7 @@ Do
 	Do
 		If memb_selected = "" Then memb_selected = 0
 		' MsgBox page_display
-
+		Dialog1 = ""
 		call define_main_dialog
 
 		err_msg = ""
