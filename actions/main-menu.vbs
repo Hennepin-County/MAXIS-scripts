@@ -40,6 +40,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("09/25/2020", "Script has been retired.##~## ##~##ACTIONS - New Job Reported is retired and no longer available.##~## ##~##Job Change Reported now has the functionality from New Job Reported.##~##", "09/25/2020")
 Call changelog_update("09/23/2020", "!!! NEW SCRIPT !!! ##~## ##~##Job Change Reported##~## ##~##This script will replace 'New Job Reported', it handles the functionality of a new job reported and adds functionality to handle for changes to existing jobs and stop work reports.##~##This script is not intended for budgeting with received verifications, it is used for the initial report when no verif have been received.##~## ##~##Expect 'New Job Reported' to be retired soon.##~##", "Casey Love, Hennepin County")
 call changelog_update("06/03/2020", "Removed the script 'ABAWD FIATer' as there is currently an ABAWD waiver in effect due to the Coronavirus Response Act. Processing cases as ABAWDs, and so FIATing is unnecessary.", "Casey Love, Hennepin County")
 call changelog_update("07/31/2019", "Removed the script ACCT Panel Updater. This functionality is now available in the script NOTES - Docs Received.", "Casey Love, Hennepin County")
