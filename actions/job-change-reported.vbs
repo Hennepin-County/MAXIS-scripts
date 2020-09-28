@@ -902,7 +902,7 @@ If developer_mode = FALSE Then                      'If we are in developer mode
                     jobs_row = jobs_row + 1                     'going to the next row down
                 Else                                        'If the job IS ended
                     EMWriteScreen last_pay_amount, jobs_row, 67 'Enter the last gross pay
-                    prosp_hours = last_pay_amount/panel_hourly_wage
+                    prosp_hours = last_pay_amount/job_hourly_wage
                     jobs_row = jobs_row - 1                     'go to the next row above
                 End If
             End If
@@ -1007,6 +1007,7 @@ If developer_mode = FALSE Then                      'If we are in developer mode
             Else
                 checks_entered = abs(jobs_row - 16)
             End If
+			If IsNumeric(prosp_hours) = TRUE Then prosp_hours = round(prosp_hours)
             If job_change_type = "New Job Reported" Then prosp_hours = "000"        'If new job then set the hours to 0
             If job_change_type = "Job Ended" AND prosp_hours = 0 Then prosp_hours = ""
             EMWriteScreen "   ", 18, 72             'blanking out hours and entering the new ones
