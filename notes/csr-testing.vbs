@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/30/2020", "Changed the 'Details Blank' checkbox to being embeded in the droplist.", "Casey Love, Hennepin County")
 call changelog_update("09/09/2020", "Added a new dialog between the form completion and the MAXIS Detail and Information entry to make the process clearer.", "Casey Love, Hennepin County")
 call changelog_update("08/27/2020", "Removed the first dialog of questions and incorporated them into the detail entry dialogs.", "Casey Love, Hennepin County")
 Call changelog_update("03/06/2019", "Added 2 new options to the Notes on Income button to support referencing CASE/NOTE made by Earned Income Budgeting.", "Casey Love, Hennepin County")
@@ -2365,9 +2366,9 @@ function csr_dlg_q_4_7()
 		  DropListBox 405, 5, 200, 15, "Enter Question specific information below"+chr(9)+"Questions 4 - 7 are completely blank.", all_questions_4_7_blank
 
 		  GroupBox 15, 30, 585, q_4_grp_len, "Q4. Do you want to apply for MA for someone who is not getting coverage now?"
-		  DropListBox 285, 25, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", apply_for_ma
-		  CheckBox 430, 30, 75, 10, "Q4 Deailts left Blank", q_4_details_blank_checkbox
-		  ' DropListBox 285, 25, 150, 45, "Select One..."+chr(9)+"No and details blank"+chr(9)+"No but details listed below"+chr(9)+"Yes but details blank"+chr(9)+"Yes and details listed below"+chr(9)+"Did not answer and details blank"+chr(9)+"Did not answer but details listed below", apply_for_ma
+		  ' DropListBox 285, 25, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", apply_for_ma
+		  ' CheckBox 430, 30, 75, 10, "Q4 Deailts left Blank", q_4_details_blank_checkbox
+		  DropListBox 285, 25, 150, 45, "Select One..."+chr(9)+"No and details blank"+chr(9)+"No but details listed below"+chr(9)+"Yes but details blank"+chr(9)+"Yes and details listed below"+chr(9)+"Did not answer and details blank"+chr(9)+"Did not answer but details listed below", apply_for_ma
 		  ButtonGroup ButtonPressed
 			PushButton 540, 30, 50, 10, "Add Another", add_memb_btn
 		  ' If apply_for_ma = "Yes" Then
@@ -2382,9 +2383,9 @@ function csr_dlg_q_4_7()
 		  ' End If
 
 		  GroupBox 15, y_pos + 5, 585, q_5_grp_len, "Q5. Is anyone self-employed or does anyone expect to be self-employed?"
-		  DropListBox 265, y_pos, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_self_employed
-		  CheckBox 430, y_pos + 5, 75, 10, "Q5 Deailts left Blank", q_5_details_blank_checkbox
-		  ' DropListBox 265, y_pos, 150, 45, "Select One..."+chr(9)+"No and details blank"+chr(9)+"No but details listed below"+chr(9)+"Yes but details blank"+chr(9)+"Yes and details listed below"+chr(9)+"Did not answer and details blank"+chr(9)+"Did not answer but details listed below", ma_self_employed
+		  ' DropListBox 265, y_pos, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_self_employed
+		  ' CheckBox 430, y_pos + 5, 75, 10, "Q5 Deailts left Blank", q_5_details_blank_checkbox
+		  DropListBox 265, y_pos, 150, 45, "Select One..."+chr(9)+"No and details blank"+chr(9)+"No but details listed below"+chr(9)+"Yes but details blank"+chr(9)+"Yes and details listed below"+chr(9)+"Did not answer and details blank"+chr(9)+"Did not answer but details listed below", ma_self_employed
 		  y_pos = y_pos + 20
 
 		  ButtonGroup ButtonPressed
@@ -2418,9 +2419,9 @@ function csr_dlg_q_4_7()
 		  End If
 
 		  GroupBox 15, y_pos + 5, 585, q_6_grp_len, "Q6. Does anyone work or does anyone expect to start working?"
-		  DropListBox 230, y_pos, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_start_working
-		  CheckBox 430, y_pos + 5, 75, 10, "Q6 Deailts left Blank", q_6_details_blank_checkbox
-		  ' DropListBox 230, y_pos, 150, 45, "Select One..."+chr(9)+"No and details blank"+chr(9)+"No but details listed below"+chr(9)+"Yes but details blank"+chr(9)+"Yes and details listed below"+chr(9)+"Did not answer and details blank"+chr(9)+"Did not answer but details listed below", ma_start_working
+		  ' DropListBox 230, y_pos, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_start_working
+		  ' CheckBox 430, y_pos + 5, 75, 10, "Q6 Deailts left Blank", q_6_details_blank_checkbox
+		  DropListBox 230, y_pos, 150, 45, "Select One..."+chr(9)+"No and details blank"+chr(9)+"No but details listed below"+chr(9)+"Yes but details blank"+chr(9)+"Yes and details listed below"+chr(9)+"Did not answer and details blank"+chr(9)+"Did not answer but details listed below", ma_start_working
 		  y_pos = y_pos  + 20
 		  ButtonGroup ButtonPressed
 			PushButton 540, y_pos - 15, 50, 10, "Add Another", add_jobs_btn
@@ -2456,9 +2457,9 @@ function csr_dlg_q_4_7()
 		  End If
 
 		  GroupBox 15, y_pos + 5, 585, q_7_grp_len, "Q7. Does anyone get money or does anyone expect to get money from sources other than work?"
-		  DropListBox 335, y_pos, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_other_income
-		  CheckBox 430, y_pos + 5, 75, 10, "Q7 Deailts left Blank", q_7_details_blank_checkbox
-		  ' DropListBox 335, y_pos, 150, 45, "Select One..."+chr(9)+"No and details blank"+chr(9)+"No but details listed below"+chr(9)+"Yes but details blank"+chr(9)+"Yes and details listed below"+chr(9)+"Did not answer and details blank"+chr(9)+"Did not answer but details listed below", ma_other_income
+		  ' DropListBox 335, y_pos, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_other_income
+		  ' CheckBox 430, y_pos + 5, 75, 10, "Q7 Deailts left Blank", q_7_details_blank_checkbox
+		  DropListBox 335, y_pos, 150, 45, "Select One..."+chr(9)+"No and details blank"+chr(9)+"No but details listed below"+chr(9)+"Yes but details blank"+chr(9)+"Yes and details listed below"+chr(9)+"Did not answer and details blank"+chr(9)+"Did not answer but details listed below", ma_other_income
 		  y_pos = y_pos +20
 		  ButtonGroup ButtonPressed
 			PushButton 540, y_pos - 15, 50, 10, "Add Another", add_unea_btn
@@ -2506,15 +2507,15 @@ function csr_dlg_q_4_7()
 		If ButtonPressed = -1 Then ButtonPressed = next_page_ma_btn
 
 		If all_questions_4_7_blank = "Questions 4 - 7 are completely blank." Then
-			apply_for_ma = "Did not answer"
-			ma_self_employed = "Did not answer"
-			ma_start_working = "Did not answer"
-			ma_other_income = "Did not answer"
+			apply_for_ma = "Did not answer and details blank"
+			ma_self_employed = "Did not answer and details blank"
+			ma_start_working = "Did not answer and details blank"
+			ma_other_income = "Did not answer and details blank"
 
-			q_4_details_blank_checkbox = checked
-			q_5_details_blank_checkbox = checked
-			q_6_details_blank_checkbox = checked
-			q_7_details_blank_checkbox = checked
+			' q_4_details_blank_checkbox = checked
+			' q_5_details_blank_checkbox = checked
+			' q_6_details_blank_checkbox = checked
+			' q_7_details_blank_checkbox = checked
 		End If
 
 		If ButtonPressed = add_memb_btn Then
@@ -2565,48 +2566,71 @@ function csr_dlg_q_4_7()
 
 			If questions_answered = FALSE Then
 				err_msg = err_msg & vbNewLine & "* All of the questions must be answered with the answers from the CSR Form."
-				If apply_for_ma = "Select One..." Then err_msg = err_msg & vbNewLine & "   - "
-				If ma_self_employed = "Select One..." Then err_msg = err_msg & vbNewLine & "   - "
-				If ma_start_working = "Select One..." Then err_msg = err_msg & vbNewLine & "   - "
-				If ma_other_income = "Select One..." Then err_msg = err_msg & vbNewLine & "   - "
+				If apply_for_ma = "Select One..." Then err_msg = err_msg & vbNewLine & "   - Question 4 about applying for someone not currently getting MA coverage."
+				If ma_self_employed = "Select One..." Then err_msg = err_msg & vbNewLine & "   - Question 5 about anyone being self-employed."
+				If ma_start_working = "Select One..." Then err_msg = err_msg & vbNewLine & "   - Question 6 about anyone working."
+				If ma_other_income = "Select One..." Then err_msg = err_msg & vbNewLine & "   - Question 7 about unearned income."
 			End If
 
 			q_4_details_entered = FALSE
 			q_5_details_entered = FALSE
 			q_6_details_entered = FALSE
 			q_7_details_entered = FALSE
-			If q_4_details_blank_checkbox = unchecked Then
+			' If q_4_details_blank_checkbox = unchecked Then
+			If InStr(apply_for_ma, "details listed below") <> 0 Then
 				For each_new_memb = 0 to UBound(NEW_MA_REQUEST_ARRAY, 2)
 					If NEW_MA_REQUEST_ARRAY(ma_request_client, each_new_memb) <> "Select or Type" and NEW_MA_REQUEST_ARRAY(ma_request_client, each_new_memb) <> "" and NEW_MA_REQUEST_ARRAY(ma_request_client, each_new_memb) <> "Enter or Select Member" Then
 						q_4_details_entered = TRUE
 					End If
 				Next
-				If q_4_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* No details of a person requesting MA for someone not getting coverage now (Question 4). Either enter information about which members are requesting MA coverage or check the box to indicate this portion of the form was left blank."
+				' If q_4_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* No details of a person requesting MA for someone not getting coverage now (Question 4). Either enter information about which members are requesting MA coverage or check the box to indicate this portion of the form was left blank."
+				' If q_4_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* Question 4 - Someone getting MA coverage. The answer indicates there was detail provided but no detail was listed. Update the droplist answer to indicate there are no details or add details about who is requesting MA coverage from the form."
+			Else
+				q_4_details_entered = TRUE
 			End If
-			If q_5_details_blank_checkbox = unchecked Then
+			' If q_5_details_blank_checkbox = unchecked Then
+			If InStr(ma_self_employed, "details listed below") <> 0 Then
 				For each_busi = 0 to UBound(NEW_EARNED_ARRAY, 2)
 					If NEW_EARNED_ARRAY(earned_type, each_busi) = "BUSI" AND NEW_EARNED_ARRAY(earned_prog_list, each_busi) = "MA" Then
 						q_5_details_entered = TRUE
 					End If
 				Next
-				If q_5_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* No Self Employment information has been entered (Question 5). Either enter BUSI details from the CSR Form or check the box to indicate this portion of the form was left blank."
+				' If q_5_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* No Self Employment information has been entered (Question 5). Either enter BUSI details from the CSR Form or check the box to indicate this portion of the form was left blank."
+				' If q_5_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* Question 5 - Self-Employment Income. The answer indicates there was detail provided but no detail was listed. Update the droplist answer to indicate there are no details or add details about who is requesting MA coverage from the form."
+			Else
+				q_5_details_entered = TRUE
 			End If
-			If q_6_details_blank_checkbox = unchecked Then
+			' If q_6_details_blank_checkbox = unchecked Then
+			If InStr(ma_start_working, "details listed below") <> 0 Then
 				For each_job = 0 to UBound(NEW_EARNED_ARRAY, 2)
 					If NEW_EARNED_ARRAY(earned_type, each_job) = "JOBS" AND NEW_EARNED_ARRAY(earned_prog_list, each_job) = "MA" Then
 						q_6_details_entered = TRUE
 					End If
 				Next
-				If q_6_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* * No Job information has been entered (Question 6). Either enter JOBS details from the CSR Form or check the box to indicate this portion of the form was left blank."
+				' If q_6_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* * No Job information has been entered (Question 6). Either enter JOBS details from the CSR Form or check the box to indicate this portion of the form was left blank."
+				' If q_6_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* Question 6 - Job Income. The answer indicates there was detail provided but no detail was listed. Update the droplist answer to indicate there are no details or add details about who is requesting MA coverage from the form."
+			Else
+				q_6_details_entered = TRUE
 			End If
-			If q_7_details_blank_checkbox = unchecked Then
+			' If q_7_details_blank_checkbox = unchecked Then
+			If InStr(ma_other_income, "details listed below") <> 0 Then
 				For each_unea = 0 to UBound(NEW_UNEARNED_ARRAY, 2)
 					If NEW_UNEARNED_ARRAY(unearned_type, each_unea) = "UNEA" AND NEW_UNEARNED_ARRAY(unearned_prog_list, each_unea) = "MA" Then
 						q_7_details_entered = TRUE
 					End If
 				Next
-				If q_7_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* * No Unearned Income information has been entered (Question 7). Either enter UNEA details from the CSR Form or check the box to indicate this portion of the form was left blank."
+				' If q_7_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* * No Unearned Income information has been entered (Question 7). Either enter UNEA details from the CSR Form or check the box to indicate this portion of the form was left blank."
+				' If q_7_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* Question 7 - Unearned Income. The answer indicates there was detail provided but no detail was listed. Update the droplist answer to indicate there are no details or add details about who is requesting MA coverage from the form."
+			Else
+				q_7_details_entered = TRUE
 			End If
+
+			If q_4_details_entered = FALSE OR q_5_details_entered = FALSE OR q_6_details_entered = FALSE  OR q_7_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "The folowing questions need review. The answer indicates there was detail provided but no detail was listed for:"
+			If q_4_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "- Question 4 - Someone getting MA coverage."
+			If q_5_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "- Question 5 - Self-Employment Income."
+			If q_6_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "- Question 6 - Job Income. "
+			If q_7_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "- Question 7 - Unearned Income."
+			If q_4_details_entered = FALSE OR q_5_details_entered = FALSE OR q_6_details_entered = FALSE  OR q_7_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "-- Update the droplist answer to indicate there are no details or add details about who is requesting MA coverage from the form. --"
 
 			If err_msg <> "" Then MsgBox "*** NOTICE ***" & vbNewLine & "Please resolve to continue:" & vbNewLine & err_msg
 			If err_msg = "" Then csr_dlg_q_4_7_cleared = TRUE
@@ -2654,8 +2678,9 @@ function csr_dlg_q_9_12()
 		  DropListBox 405, 5, 200, 15, "Enter Question specific information below"+chr(9)+"Questions 9 - 12 are completely blank.", all_questions_9_12_blank
 
 		  GroupBox 15, y_pos + 5, 585, q_9_grp_len, "Q9. Does anyone have cash, a savings or checking account, or a certificate of deposit?"
-		  DropListBox 330, y_pos, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_liquid_assets
-		  CheckBox 430, y_pos + 5, 75, 10, "Q9 Deailts left Blank", q_9_details_blank_checkbox
+		  ' DropListBox 330, y_pos, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_liquid_assets
+		  ' CheckBox 430, y_pos + 5, 75, 10, "Q9 Deailts left Blank", q_9_details_blank_checkbox
+		  DropListBox 330, y_pos, 150, 45, "Select One..."+chr(9)+"No and details blank"+chr(9)+"No but details listed below"+chr(9)+"Yes but details blank"+chr(9)+"Yes and details listed below"+chr(9)+"Did not answer and details blank"+chr(9)+"Did not answer but details listed below", ma_liquid_assets
 		  y_pos = y_pos +20
 		  ButtonGroup ButtonPressed
 			PushButton 540, y_pos - 15, 50, 10, "Add Another", add_acct_btn
@@ -2685,8 +2710,9 @@ function csr_dlg_q_9_12()
 
 		  y_pos = y_pos +10
 		  GroupBox 15, y_pos + 5, 585, q_10_grp_len, "Q10. Does anyone own or co-own securities or other assets?"
-		  DropListBox 295, y_pos, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_security_assets
-		  CheckBox 430, y_pos + 5, 80, 10, "Q10 Deailts left Blank", q_10_details_blank_checkbox
+		  ' DropListBox 295, y_pos, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_security_assets
+		  ' CheckBox 430, y_pos + 5, 80, 10, "Q10 Deailts left Blank", q_10_details_blank_checkbox
+		  DropListBox 295, y_pos, 150, 45, "Select One..."+chr(9)+"No and details blank"+chr(9)+"No but details listed below"+chr(9)+"Yes but details blank"+chr(9)+"Yes and details listed below"+chr(9)+"Did not answer and details blank"+chr(9)+"Did not answer but details listed below", ma_security_assets
 		  y_pos = y_pos +  20
 		  ButtonGroup ButtonPressed
 			PushButton 540, y_pos - 15, 50, 10, "Add Another", add_secu_btn
@@ -2716,8 +2742,9 @@ function csr_dlg_q_9_12()
 		  y_pos = y_pos + 10
 
 		  GroupBox 15, y_pos + 5, 585, q_11_grp_len, "Q11. Does anyone own a vehicle?"
-		  DropListBox 250, y_pos, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_vehicle
-		  CheckBox 430, y_pos + 5, 80, 10, "Q11 Deailts left Blank", q_11_details_blank_checkbox
+		  ' DropListBox 250, y_pos, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_vehicle
+		  ' CheckBox 430, y_pos + 5, 80, 10, "Q11 Deailts left Blank", q_11_details_blank_checkbox
+		  DropListBox 250, y_pos, 150, 45, "Select One..."+chr(9)+"No and details blank"+chr(9)+"No but details listed below"+chr(9)+"Yes but details blank"+chr(9)+"Yes and details listed below"+chr(9)+"Did not answer and details blank"+chr(9)+"Did not answer but details listed below", ma_vehicle
 		  y_pos = y_pos + 20
 		  ButtonGroup ButtonPressed
 			PushButton 540, y_pos - 15, 50, 10, "Add Another", add_cars_btn
@@ -2746,8 +2773,9 @@ function csr_dlg_q_9_12()
 		  y_pos = y_pos + 10
 
 		  GroupBox 15, y_pos + 5, 585, q_12_grp_len, "Q12. Does anyone own or co-own any real estate?"
-		  DropListBox 280, y_pos, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_real_assets
-		  CheckBox 430, y_pos + 5, 80, 10, "Q12 Deailts left Blank", q_12_details_blank_checkbox
+		  ' DropListBox 280, y_pos, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_real_assets
+		  ' CheckBox 430, y_pos + 5, 80, 10, "Q12 Deailts left Blank", q_12_details_blank_checkbox
+		  DropListBox 280, y_pos, 150, 45, "Select One..."+chr(9)+"No and details blank"+chr(9)+"No but details listed below"+chr(9)+"Yes but details blank"+chr(9)+"Yes and details listed below"+chr(9)+"Did not answer and details blank"+chr(9)+"Did not answer but details listed below", ma_real_assets
 		  y_pos = y_pos + 20
 		  ButtonGroup ButtonPressed
 			PushButton 540, y_pos - 15, 50, 10, "Add Another", add_rest_btn
@@ -2815,15 +2843,15 @@ function csr_dlg_q_9_12()
 		End If
 
 		If all_questions_9_12_blank = "Questions 9 - 12 are completely blank." Then
-			ma_liquid_assets = "Did not answer"
-			ma_security_assets = "Did not answer"
-			ma_vehicle = "Did not answer"
-			ma_real_assets = "Did not answer"
+			ma_liquid_assets = "Did not answer and details blank"
+			ma_security_assets = "Did not answer and details blank"
+			ma_vehicle = "Did not answer and details blank"
+			ma_real_assets = "Did not answer and details blank"
 
-			q_9_details_blank_checkbox = checked
-			q_10_details_blank_checkbox = checked
-			q_11_details_blank_checkbox = checked
-			q_12_details_blank_checkbox = checked
+			' q_9_details_blank_checkbox = checked
+			' q_10_details_blank_checkbox = checked
+			' q_11_details_blank_checkbox = checked
+			' q_12_details_blank_checkbox = checked
 		End If
 
 		If ButtonPressed = continue_btn Then
@@ -2848,38 +2876,62 @@ function csr_dlg_q_9_12()
 			q_10_details_entered = FALSE
 			q_11_details_entered = FALSE
 			q_12_details_entered = FALSE
-			If q_9_details_blank_checkbox = unchecked Then
+			' If q_9_details_blank_checkbox = unchecked Then
+			If InStr(ma_liquid_assets, "details listed below") <> 0 Then
 				For each_asset = 0 to UBound(NEW_ASSET_ARRAY, 2)
 					If (NEW_ASSET_ARRAY(asset_type, each_asset) = "ACCT" OR NEW_ASSET_ARRAY(asset_type, each_asset) = "CASH") AND NEW_ASSET_ARRAY(asset_prog_list, each_asset) = "MA" AND NEW_ASSET_ARRAY(ma_request_client, each_asset) <> "Enter or Select Member" Then
 						q_9_details_entered = TRUE
 					End If
 				Next
-				If q_9_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* No details of a person requesting MA for someone not getting coverage now (Question 9). Either enter information about which members are requesting MA coverage or check the box to indicate this portion of the form was left blank."
+				' If q_9_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* No details of a person requesting MA for someone not getting coverage now (Question 9). Either enter information about which members are requesting MA coverage or check the box to indicate this portion of the form was left blank."
+				' If q_9_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* Question 9 - Liquid Assets. The answer indicates there was detail provided but no detail was listed. Update the droplist answer to indicate there are no details or add details about who is requesting MA coverage from the form."
+			Else
+				q_9_details_entered = TRUE
 			End If
-			If q_10_details_blank_checkbox = unchecked Then
+			' If q_10_details_blank_checkbox = unchecked Then
+			If InStr(ma_security_assets, "details listed below") <> 0 Then
 				For each_asset = 0 to UBound(NEW_ASSET_ARRAY, 2)
 					If NEW_ASSET_ARRAY(asset_type, each_asset) = "SECU" AND NEW_ASSET_ARRAY(asset_prog_list, each_asset) = "MA" Then
 						q_10_details_entered = TRUE
 					End If
 				Next
-				If q_10_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* No Self Employment information has been entered (Question 10). Either enter BUSI details from the CSR Form or check the box to indicate this portion of the form was left blank."
+				' If q_10_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* No Self Employment information has been entered (Question 10). Either enter BUSI details from the CSR Form or check the box to indicate this portion of the form was left blank."
+				' If q_10_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* Question 10 - Securities. The answer indicates there was detail provided but no detail was listed. Update the droplist answer to indicate there are no details or add details about who is requesting MA coverage from the form."
+			Else
+				q_10_details_entered = TRUE
 			End If
-			If q_11_details_blank_checkbox = unchecked Then
+			' If q_11_details_blank_checkbox = unchecked Then
+			If InStr(ma_vehicle, "details listed below") <> 0 Then
 				For each_asset = 0 to UBound(NEW_ASSET_ARRAY, 2)
 					If NEW_ASSET_ARRAY(asset_type, each_asset) = "CARS" AND NEW_ASSET_ARRAY(asset_prog_list, each_asset) = "MA" Then
 						q_11_details_entered = TRUE
 					End If
 				Next
-				If q_11_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* * No Job information has been entered (Question 11). Either enter JOBS details from the CSR Form or check the box to indicate this portion of the form was left blank."
+				' If q_11_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* * No Job information has been entered (Question 11). Either enter JOBS details from the CSR Form or check the box to indicate this portion of the form was left blank."
+				' If q_11_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* Question 11 - Vehicles. The answer indicates there was detail provided but no detail was listed. Update the droplist answer to indicate there are no details or add details about who is requesting MA coverage from the form."
+			Else
+				q_11_details_entered = TRUE
 			End If
-			If q_12_details_blank_checkbox = unchecked Then
+			' If q_12_details_blank_checkbox = unchecked Then
+			If InStr(ma_real_assets, "details listed below") <> 0 Then
 				For each_asset = 0 to UBound(NEW_ASSET_ARRAY, 2)
 					If NEW_ASSET_ARRAY(asset_type, each_asset) = "REST" AND NEW_ASSET_ARRAY(asset_prog_list, each_asset) = "MA" Then
 						q_12_details_entered = TRUE
 					End If
 				Next
-				If q_12_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* * No Unearned Income information has been entered (Question 12). Either enter UNEA details from the CSR Form or check the box to indicate this portion of the form was left blank."
+				' If q_12_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* * No Unearned Income information has been entered (Question 12). Either enter UNEA details from the CSR Form or check the box to indicate this portion of the form was left blank."
+				' If q_12_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* Question 12 - Real Estate. The answer indicates there was detail provided but no detail was listed. Update the droplist answer to indicate there are no details or add details about who is requesting MA coverage from the form."
+			Else
+				q_12_details_entered = TRUE
 			End If
+
+			If q_9_details_entered = FALSE OR q_10_details_entered = FALSE OR q_11_details_entered = FALSE  OR q_12_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "The folowing questions need review. The answer indicates there was detail provided but no detail was listed for:"
+			If q_9_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "- Question 9 - Liquid Assets."
+			If q_10_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "-  Question 10 - Securities."
+			If q_11_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "- Question 11 - Vehicles."
+			If q_12_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "- Question 12 - Real Estate."
+			If q_9_details_entered = FALSE OR q_10_details_entered = FALSE OR q_11_details_entered = FALSE  OR q_12_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "-- Update the droplist answer to indicate there are no details or add details about who is requesting MA coverage from the form. --"
+
 
 			If err_msg <> "" Then MsgBox "*** NOTICE ***" & vbNewLine & "Please resolve to continue:" & vbNewLine & err_msg
 			If err_msg = "" Then 	csr_dlg_q_9_12_cleared = TRUE
@@ -2904,19 +2956,20 @@ function csr_dlg_q_13()
 		err_msg = ""
 
 		Dialog1 = ""
-		BeginDialog Dialog1, 0, 0, 610, 100, "MA CSR Changes"
+		BeginDialog Dialog1, 0, 0, 610, 80, "MA CSR Changes"
 		  Text 10, 10, 180, 10, "Enter the answers from the CSR form, questions 13:"
 
 		  Text 25, 25, 135, 10, "Q13. Do you have any changes to report?"
-		  DropListBox 160, 20, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_other_changes
+		  ' DropListBox 160, 20, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Did not answer", ma_other_changes
+		  ' CheckBox 30, 60, 300, 10, "Check here if client left the changes to report field on the form blank.", changes_reported_blank_checkbox
+		  DropListBox 160, 20, 150, 45, "Select One..."+chr(9)+"No and details blank"+chr(9)+"No but details listed below"+chr(9)+"Yes but details blank"+chr(9)+"Yes and details listed below"+chr(9)+"Did not answer and details blank"+chr(9)+"Did not answer but details listed below", ma_other_changes
 		  EditBox 30, 40, 555, 15, other_changes_reported
-		  CheckBox 30, 60, 300, 10, "Check here if client left the changes to report field on the form blank.", changes_reported_blank_checkbox
 
 		  ButtonGroup ButtonPressed
-			PushButton 255, 80, 100, 15, "Back to Q 4-7", back_to_ma_dlg_1
-			PushButton 355, 80, 100, 15, "Back to Q 9 - 12", back_to_ma_dlg_2
-			PushButton 455, 80, 100, 15, "Finish MA Questions", finish_ma_questions
-			CancelButton 555, 80, 50, 15
+			PushButton 255, 60, 100, 15, "Back to Q 4-7", back_to_ma_dlg_1
+			PushButton 355, 60, 100, 15, "Back to Q 9 - 12", back_to_ma_dlg_2
+			PushButton 455, 60, 100, 15, "Finish MA Questions", finish_ma_questions
+			CancelButton 555, 60, 50, 15
 		EndDialog
 
 		dialog Dialog1
@@ -2941,7 +2994,7 @@ function csr_dlg_q_13()
 			questions_answered = TRUE
 
 			If trim(other_changes_reported) <> "" Then details_shown = TRUE
-			If changes_reported_blank_checkbox = checked Then details_shown = TRUE
+			If Instr(ma_other_changes, "details blank") <> 0 Then details_shown = TRUE
 
 			If ma_other_changes = "Select One..." Then questions_answered = FALSE
 
@@ -3008,7 +3061,8 @@ function csr_dlg_q_15_19()
 		  Text 195, 10, 210, 10, "If all questions and details have been left blank, indicate that here:"
 		  DropListBox 405, 5, 200, 15, "Enter Question specific information below"+chr(9)+"Questions 15 - 19 are completely blank.", all_questions_15_19_blank
 		  GroupBox 10, 30, 600, q_15_grp_len, "Q15. Has your household moved since your last application or in the past six months?"
-		  DropListBox 305, 25, 100, 45, "Select One..."+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Did not answer", quest_fifteen_form_answer
+		  ' DropListBox 305, 25, 100, 45, "Select One..."+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Did not answer", quest_fifteen_form_answer
+		  DropListBox 305, 25, 150, 45, "Select One..."+chr(9)+"No and details blank"+chr(9)+"No but details listed below"+chr(9)+"Yes but details blank"+chr(9)+"Yes and details listed below"+chr(9)+"Did not answer and details blank"+chr(9)+"Did not answer but details listed below", quest_fifteen_form_answer
 		  Text 25, 45, 105, 10, "New Rent or Mortgage Amount:"
 		  EditBox 130, 40, 65, 15, new_rent_or_mortgage_amount
 		  CheckBox 220, 45, 50, 10, "Heat/AC", heat_ac_checkbox
@@ -3017,8 +3071,9 @@ function csr_dlg_q_15_19()
 		  Text 400, 45, 80, 10, "Did client attach proof?"
 		  DropListBox 480, 40, 125, 45, "Select One..."+chr(9)+"Yes"+chr(9)+"No", shel_proof_provided
 		  GroupBox 10, 70, 490, q_16_grp_len, "Q16 Has there been a change in EARNED INCOME?"
-		  DropListBox 190, 65, 100, 45, "Select One..."+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Did not answer", quest_sixteen_form_answer
-		  CheckBox 310, 70, 85, 10, "Q16 Deailts left Blank", q_16_details_blank_checkbox
+		  ' DropListBox 190, 65, 100, 45, "Select One..."+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Did not answer", quest_sixteen_form_answer
+		  ' CheckBox 310, 70, 85, 10, "Q16 Deailts left Blank", q_16_details_blank_checkbox
+		  DropListBox 190, 65, 150, 45, "Select One..."+chr(9)+"No and details blank"+chr(9)+"No but details listed below"+chr(9)+"Yes but details blank"+chr(9)+"Yes and details listed below"+chr(9)+"Did not answer and details blank"+chr(9)+"Did not answer but details listed below", quest_sixteen_form_answer
 		  ButtonGroup ButtonPressed
 			PushButton 440, 70, 50, 10, "Add Another", add_snap_earned_income_btn
 		  first_earned = TRUE
@@ -3044,8 +3099,9 @@ function csr_dlg_q_15_19()
 		  Next
 		  y_pos = y_pos + 10
 		  GroupBox 10, y_pos, 490, q_17_grp_len, "Q17. Has there been a change in UNEARNED INCOME?"
-		  DropListBox 205, y_pos - 5, 100, 45, "Select One..."+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Did not answer", quest_seventeen_form_answer
-		  CheckBox 310, y_pos, 85, 10, "Q17 Deailts left Blank", q_17_details_blank_checkbox
+		  ' DropListBox 205, y_pos - 5, 100, 45, "Select One..."+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Did not answer", quest_seventeen_form_answer
+		  ' CheckBox 310, y_pos, 85, 10, "Q17 Deailts left Blank", q_17_details_blank_checkbox
+		  DropListBox 205, y_pos - 5, 150, 45, "Select One..."+chr(9)+"No and details blank"+chr(9)+"No but details listed below"+chr(9)+"Yes but details blank"+chr(9)+"Yes and details listed below"+chr(9)+"Did not answer and details blank"+chr(9)+"Did not answer but details listed below", quest_seventeen_form_answer
 		  ButtonGroup ButtonPressed
 			PushButton 440, y_pos, 50, 10, "Add Another", add_snap_unearned_btn
 		  y_pos = y_pos + 15
@@ -3072,8 +3128,9 @@ function csr_dlg_q_15_19()
 		  If first_unearned = TRUE Then y_pos = y_pos + 10
 		  y_pos = y_pos + 10
 		  GroupBox 10, y_pos, 490, q_18_grp_len, "Q18 Has there been a change in CHILD SUPPORT?"
-		  DropListBox 190, y_pos - 5, 100, 45, "Select One..."+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Did not answer", quest_eighteen_form_answer
-		  CheckBox 310, y_pos, 85, 10, "Q18 Deailts left Blank", q_18_details_blank_checkbox
+		  ' DropListBox 190, y_pos - 5, 100, 45, "Select One..."+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Did not answer", quest_eighteen_form_answer
+		  ' CheckBox 310, y_pos, 85, 10, "Q18 Deailts left Blank", q_18_details_blank_checkbox
+		  DropListBox 190, y_pos - 5, 150, 45, "Select One..."+chr(9)+"No and details blank"+chr(9)+"No but details listed below"+chr(9)+"Yes but details blank"+chr(9)+"Yes and details listed below"+chr(9)+"Did not answer and details blank"+chr(9)+"Did not answer but details listed below", quest_eighteen_form_answer
 		  ButtonGroup ButtonPressed
 			PushButton 440, y_pos, 50, 10, "Add Another", add_snap_cs_btn
 		  y_pos = y_pos + 15
@@ -3108,23 +3165,86 @@ function csr_dlg_q_15_19()
 		cancel_confirmation
 
 		If all_questions_15_19_blank = "Questions 15 - 19 are completely blank." Then
-			quest_fifteen_form_answer = "Did not answer"
-			quest_sixteen_form_answer = "Did not answer"
-			quest_seventeen_form_answer = "Did not answer"
-			quest_eighteen_form_answer = "Did not answer"
+			quest_fifteen_form_answer = "Did not answer and details blank"
+			quest_sixteen_form_answer = "Did not answer and details blank"
+			quest_seventeen_form_answer = "Did not answer and details blank"
+			quest_eighteen_form_answer = "Did not answer and details blank"
 			quest_nineteen_form_answer = "Did not answer"
 
-			q_16_details_blank_checkbox = checked
-			q_17_details_blank_checkbox = checked
-			q_18_details_blank_checkbox = checked
+			' q_16_details_blank_checkbox = checked
+			' q_17_details_blank_checkbox = checked
+			' q_18_details_blank_checkbox = checked
 		End If
 
 		If quest_fifteen_form_answer = "Select One..." OR quest_sixteen_form_answer = "Select One..." OR quest_seventeen_form_answer = "Select One..." OR quest_eighteen_form_answer = "Select One..." OR quest_nineteen_form_answer = "Select One..." Then err_msg = err_msg & vbNewLine & "* All of the questions must be answered with the answers from the CSR Form." & vbNewLine
-		If quest_fifteen_form_answer = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate the answer on the CSR form for Question 15 (Has the household moved?)."
-		If quest_sixteen_form_answer = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate the answer on the CSR form for Question 16 (Has anyone had a change in Earned income?)."
-		If quest_seventeen_form_answer = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate the answer on the CSR form for Question 17 (Has anyone had a change in Unearned income?)."
-		If quest_eighteen_form_answer = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate the answer on the CSR form for Question 18 (Has there been a change in Child Support income?)."
-		If quest_nineteen_form_answer = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate the answer on the CSR form for Question 19 (Have you worked 80 hours per month?)."
+		If quest_fifteen_form_answer = "Select One..." Then err_msg = err_msg & vbNewLine & " - Indicate the answer on the CSR form for Question 15 (Has the household moved?)."
+		If quest_sixteen_form_answer = "Select One..." Then err_msg = err_msg & vbNewLine & " - Indicate the answer on the CSR form for Question 16 (Has anyone had a change in Earned income?)."
+		If quest_seventeen_form_answer = "Select One..." Then err_msg = err_msg & vbNewLine & " - Indicate the answer on the CSR form for Question 17 (Has anyone had a change in Unearned income?)."
+		If quest_eighteen_form_answer = "Select One..." Then err_msg = err_msg & vbNewLine & " - Indicate the answer on the CSR form for Question 18 (Has there been a change in Child Support income?)."
+		If quest_nineteen_form_answer = "Select One..." Then err_msg = err_msg & vbNewLine & " - Indicate the answer on the CSR form for Question 19 (Have you worked 80 hours per month?)."
+
+		q_15_details_entered = FALSE
+		q_16_details_entered = FALSE
+		q_17_details_entered = FALSE
+		q_18_details_entered = FALSE
+
+		If InStr(quest_fifteen_form_answer, "details listed below") <> 0 Then
+
+			new_rent_or_mortgage_amount = trim(new_rent_or_mortgage_amount)
+			If new_rent_or_mortgage_amount <> "" Then q_15_details_entered = TRUE
+			If heat_ac_checkbox = CHECKED Then q_15_details_entered = TRUE
+			If electricity_checkbox = CHECKED Then q_15_details_entered = TRUE
+			If telephone_checkbox = CHECKED Then q_15_details_entered = TRUE
+
+			' If q_12_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* * No Unearned Income information has been entered (Question 12). Either enter UNEA details from the CSR Form or check the box to indicate this portion of the form was left blank."
+			' If q_15_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* Question 15 - Shelter and Utilities Expenses. The answer indicates there was detail provided but no detail was listed. Update the droplist answer to indicate there are no details or add details about who is requesting MA coverage from the form."
+		Else
+			q_15_details_entered = TRUE
+		End If
+
+		If InStr(quest_sixteen_form_answer, "details listed below") <> 0 Then
+			For the_earned = 0 to UBound(NEW_EARNED_ARRAY, 2)
+				If NEW_EARNED_ARRAY(earned_prog_list, the_earned) = "SNAP" Then
+					q_16_details_entered = TRUE
+				End If
+			Next
+			' If q_12_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* * No Unearned Income information has been entered (Question 12). Either enter UNEA details from the CSR Form or check the box to indicate this portion of the form was left blank."
+			' If q_16_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* Question 16 - Earned Income. The answer indicates there was detail provided but no detail was listed. Update the droplist answer to indicate there are no details or add details about who is requesting MA coverage from the form."
+		Else
+			q_16_details_entered = TRUE
+		End If
+
+		If InStr(quest_seventeen_form_answer, "details listed below") <> 0 Then
+			For the_unearned = 0 to UBound(NEW_UNEARNED_ARRAY, 2)
+				If NEW_UNEARNED_ARRAY(unearned_prog_list, the_unearned) = "SNAP" Then
+					q_17_details_entered = TRUE
+				End If
+			Next
+			' If q_12_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* * No Unearned Income information has been entered (Question 12). Either enter UNEA details from the CSR Form or check the box to indicate this portion of the form was left blank."
+			' If q_17_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* Question 17 - Unearned Income. The answer indicates there was detail provided but no detail was listed. Update the droplist answer to indicate there are no details or add details about who is requesting MA coverage from the form."
+		Else
+			q_17_details_entered = TRUE
+		End If
+
+		If InStr(quest_eighteen_form_answer, "details listed below") <> 0 Then
+			For the_cs = 0 to UBound(NEW_CHILD_SUPPORT_ARRAY, 2)
+				If NEW_CHILD_SUPPORT_ARRAY(cs_current, the_cs) <> "" THen
+					q_18_details_entered = TRUE
+				End If
+			Next
+			' If q_12_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* * No Unearned Income information has been entered (Question 12). Either enter UNEA details from the CSR Form or check the box to indicate this portion of the form was left blank."
+			' If q_18_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* Question 18 - Child Support. The answer indicates there was detail provided but no detail was listed. Update the droplist answer to indicate there are no details or add details about who is requesting MA coverage from the form."
+		Else
+			q_18_details_entered = TRUE
+		End If
+
+		If q_15_details_entered = FALSE OR q_16_details_entered = FALSE OR q_17_details_entered = FALSE  OR q_18_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "The folowing questions need review. The answer indicates there was detail provided but no detail was listed for:"
+		If q_15_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "- Question 15 - Shelter and Utilities Expenses."
+		If q_16_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "- Question 16 - Earned Income."
+		If q_17_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "- Question 17 - Unearned Income."
+		If q_18_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "- Question 18 - Child Support."
+		If q_15_details_entered = FALSE OR q_16_details_entered = FALSE OR q_17_details_entered = FALSE  OR q_18_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "-- Update the droplist answer to indicate there are no details or add details about who is requesting MA coverage from the form. --"
+
 
 		If ButtonPressed = add_snap_earned_income_btn Then
 			ReDim Preserve NEW_EARNED_ARRAY(earned_notes, new_earned_counter)
