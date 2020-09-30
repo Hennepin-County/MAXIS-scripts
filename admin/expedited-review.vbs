@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/30/2020", "YET workbooks have now been added to the achive transfer process at the end of the script.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("09/21/2020", "Added specified report for the YET team based on basket number X127FA5. WFM will not get FA5 cases for FAD assignment.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("08/20/2020", "Removed all other emails from assignment email besides WFM.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("08/18/2020", "Added WFM and coverage worker email to assignment email at end of script run.", "Ilse Ferris, Hennepin County")
@@ -836,7 +837,7 @@ Call create_outlook_email("HSPH.EWS.Unit.Frey@hennepin.us", "", "Today's EXP SNA
 Call create_outlook_email("Ilse.Ferris@hennepin.us;Laurie.Hennen@hennepin.us","","Expedited SNAP Daily statistics for " & date, stats_report, "", True)
 
 '----------------------------------------------------------------------------------------------------Moves yesterday's files to the archive folder for the specific month
-array_of_archive_assigments = array("QI Expedited Review ","Pending Over 30 Days ", "EXP SNAP ", "")
+array_of_archive_assigments = array("QI Expedited Review ","Pending Over 30 Days ", "EXP SNAP ", "EXP SNAP X127FA5 ", "")
 
 previous_date = dateadd("d", -1, date)
 Call change_date_to_soonest_working_day(previous_date)       'finds the most recent previous working day for the fin
