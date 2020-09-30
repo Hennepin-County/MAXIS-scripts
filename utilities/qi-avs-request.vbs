@@ -43,6 +43,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/30/2020", "Updated closing message.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/10/2020", "Initial version.", "MiKayla Handley, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -219,4 +220,4 @@ If spouse_deeming = "YES" then body_of_email = body_of_email & "Spouse: " & spou
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
 CALL create_outlook_email("HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us", "", "AVS initial run requests  #" &  MAXIS_case_number & " Member # " & memb_number, body_of_email, "", TRUE)
 
-script_end_procedure_with_error_report("The email has been created please be review to ensure accuracy.")
+script_end_procedure_with_error_report("The email has been created and sent to the QI Team.")
