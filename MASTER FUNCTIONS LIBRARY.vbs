@@ -624,26 +624,27 @@ END FUNCTION
 FUNCTION income_test_SNAP_net(household_size, income_limit)
 	'See Combined Manual 0020.12 - Net income standard 100% FPG
 	'When using this function, you can pass (ubound(hh_array) + 1) for household_size
-	IF ((MAXIS_footer_month * 1) >= "10" AND (MAXIS_footer_year * 1) >= "19") OR (MAXIS_footer_year = "20") THEN  'This will allow the function to be used during the transition period when both income limits can be used.
-		IF household_size = 1 THEN income_limit = 1041										'Going forward you should only have to change the years and this should hold.
-		IF household_size = 2 THEN income_limit = 1410										'Multipled the footer months by 1 to insure they become numeric
-		IF household_size = 3 THEN income_limit = 1778
-		IF household_size = 4 THEN income_limit = 2146
-		IF household_size = 5 THEN income_limit = 2515
-		IF household_size = 6 THEN income_limit = 2883
-		IF household_size = 7 THEN income_limit = 3251
-		IF household_size = 8 THEN income_limit = 3620
-		IF household_size > 8 THEN income_limit = 3620 + (369 * (household_size- 8))
+	IF ((MAXIS_footer_month * 1) >= "10" AND (MAXIS_footer_year * 1) >= "20") OR (MAXIS_footer_year = "21") THEN  'This will allow the function to be used during the transition period when both income limits can be used.
+		IF household_size = 1 THEN income_limit = 1064										'Going forward you should only have to change the years and this should hold.
+		IF household_size = 2 THEN income_limit = 1437										'Multipled the footer months by 1 to insure they become numeric
+		IF household_size = 3 THEN income_limit = 1810
+		IF household_size = 4 THEN income_limit = 2184
+		IF household_size = 5 THEN income_limit = 2557
+		IF household_size = 6 THEN income_limit = 2930
+		IF household_size = 7 THEN income_limit = 3304
+		IF household_size = 8 THEN income_limit = 3677
+		IF household_size > 8 THEN income_limit = 3677 + (374 * (household_size- 8))
 	ELSE
-        IF household_size = 1 THEN income_limit = 1012										'Going forward you should only have to change the years and this should hold.
-        IF household_size = 2 THEN income_limit = 1372										'Multipled the footer months by 1 to insure they become numeric
-        IF household_size = 3 THEN income_limit = 1732
-        IF household_size = 4 THEN income_limit = 2092
-        IF household_size = 5 THEN income_limit = 2452
-        IF household_size = 6 THEN income_limit = 2812
-        IF household_size = 7 THEN income_limit = 3172
-        IF household_size = 8 THEN income_limit = 3532
-        IF household_size > 8 THEN income_limit = 3532 + (360 * (household_size- 8))
+        '2019 Amounts
+        IF household_size = 1 THEN income_limit = 1041										
+        IF household_size = 2 THEN income_limit = 1410										
+        IF household_size = 3 THEN income_limit = 1778
+        IF household_size = 4 THEN income_limit = 2146
+        IF household_size = 5 THEN income_limit = 2515
+        IF household_size = 6 THEN income_limit = 2883
+        IF household_size = 7 THEN income_limit = 3251
+        IF household_size = 8 THEN income_limit = 3620
+        IF household_size > 8 THEN income_limit = 3620 + (369 * (household_size- 8))
 	END IF
 
 	valid_through_date = #10/01/2021#
