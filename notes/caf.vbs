@@ -49,6 +49,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("10/01/2020", "Updated Standard Utility Allowances for 10/2020.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/01/2020", "UPDATE IN TESTING##~## ##~##There is new functionality added to this script to assist in updating REVW for some cases. There is detail in SIR about cases that need to have the next ER date adjusted due to a previous postponement. ##~## ##~##We have not had time with this functionality to complete live testing so all script runs will be a part of the test. Please let us know if you have any issues running this script.", "Casey Love, Hennepin County")
 call changelog_update("05/18/2020", "Additional handling to be sure when saving the interview date to PROG the script does not get stuck.", "Casey Love, Hennepin County")
 call changelog_update("04/02/2020", "BUG FIX - The 'notes on child support' detail was not always pulling into the case note. Updated to ensure the information entered in this field will be entered in the NOTE.##~##", "Casey Love, Hennepin County")
@@ -792,7 +793,19 @@ function read_HEST_panel()
         EMReadScreen prosp_phone, 1, 15, 60
         CAF_datestamp = cdate(CAF_datestamp)
 
-        If CAF_datestamp >= cdate("10/01/2019") then
+        If CAF_datestamp >= cdate("10/01/2020") then
+            If prosp_heat_air = "Y" Then
+                hest_information = "AC/Heat - Full $496"
+            ElseIf prosp_electric = "Y" Then
+                If prosp_phone = "Y" Then
+                    hest_information = "Electric and Phone - $210"
+                Else
+                    hest_information = "Electric ONLY - $154"
+                End If
+            ElseIf prosp_phone = "Y" Then
+                hest_information = "Phone ONLY - $56"
+            End If
+        Else
             If prosp_heat_air = "Y" Then
                 hest_information = "AC/Heat - Full $490"
             ElseIf prosp_electric = "Y" Then
@@ -803,18 +816,6 @@ function read_HEST_panel()
                 End If
             ElseIf prosp_phone = "Y" Then
                 hest_information = "Phone ONLY - $49"
-            End If
-        Else
-            If prosp_heat_air = "Y" Then
-                hest_information = "AC/Heat - Full $493"
-            ElseIf prosp_electric = "Y" Then
-                If prosp_phone = "Y" Then
-                    hest_information = "Electric and Phone - $173"
-                Else
-                    hest_information = "Electric ONLY - $126"
-                End If
-            ElseIf prosp_phone = "Y" Then
-                hest_information = "Phone ONLY - $47"
             End If
         End If
         CAF_datestamp = CAF_datestamp & ""
@@ -4525,7 +4526,7 @@ Do
                           ButtonGroup ButtonPressed
                             PushButton 440, 30, 105, 15, "Update ABAWD and WREG", abawd_button
                             PushButton 235, 85, 50, 15, "Update SHEL", update_shel_button
-                          DropListBox 45, 140, 100, 45, "Select ALLOWED HEST"+chr(9)+"AC/Heat - Full $493"+chr(9)+"AC/Heat - Full $490"+chr(9)+"Electric and Phone - $173"+chr(9)+"Electric and Phone - $192"+chr(9)+"Electric ONLY - $126"+chr(9)+"Electric ONLY - $143"+chr(9)+"Phone ONLY - $47"+chr(9)+"Phone ONLY - $49"+chr(9)+"NONE - $0", hest_information
+                          DropListBox 45, 140, 100, 45, "Select ALLOWED HEST"+chr(9)+"AC/Heat - Full $496"+chr(9)+"AC/Heat - Full $490"+chr(9)+"Electric and Phone - $210"+chr(9)+"Electric and Phone - $192"+chr(9)+"Electric ONLY - $154"+chr(9)+"Electric ONLY - $143"+chr(9)+"Phone ONLY - $56"+chr(9)+"Phone ONLY - $49"+chr(9)+"NONE - $0", hest_information
                           EditBox 180, 140, 110, 15, notes_on_acut
                           EditBox 45, 160, 245, 15, notes_on_coex
                           EditBox 45, 180, 245, 15, notes_on_dcex
