@@ -3099,7 +3099,7 @@ If REVW_NEEDS_ADJUSTMENT = TRUE Then
             If confirm_update_checkbox = unchecked Then email_bod = email_bod & vbCr & vbCr & "Information was NOT confirmed."
             If confirm_update_checkbox = checked Then email_bod = email_bod & vbCr & vbCr & "Information was confirmed."
             If revw_has_been_approved = TRUE Then email_bod = email_bod & vbCr & vbCr & "Needs to be reapproved."
-            If month_to_pull = 11 Then Call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", email_sub, email_bod, "", TRUE)
+            ' If month_to_pull = 11 Then Call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", email_sub, email_bod, "", TRUE)
         ELSE
             If snap_revw_status_code <> "I" and cash_revw_status_code <> "I" Then
                 email_sub = "CAF ER Functionality Update FAILED"
@@ -3107,7 +3107,7 @@ If REVW_NEEDS_ADJUSTMENT = TRUE Then
                 ' If confirm_update_checkbox = unchecked Then email_bod = email_bod & vbCr & vbCr & "Information was NOT confirmed."
                 ' If confirm_update_checkbox = checked Then email_bod = email_bod & vbCr & vbCr & "Information was confirmed."
                 If revw_has_been_approved = TRUE Then email_bod = email_bod & vbCr & vbCr & "Needs to be reapproved."
-                Call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", email_sub, email_bod, "", TRUE)
+                ' Call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", email_sub, email_bod, "", TRUE)
             End If
         End If
     Else
@@ -3117,7 +3117,7 @@ If REVW_NEEDS_ADJUSTMENT = TRUE Then
         ' If confirm_update_checkbox = unchecked Then email_bod = email_bod & vbCr & vbCr & "Information was NOT confirmed."
         ' If confirm_update_checkbox = checked Then email_bod = email_bod & vbCr & vbCr & "Information was confirmed."
         If revw_has_been_approved = TRUE Then email_bod = email_bod & vbCr & vbCr & "Needs to be reapproved."
-        Call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", email_sub, email_bod, "", TRUE)
+        ' Call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", email_sub, email_bod, "", TRUE)
 
         ' MsgBox "ERROR - this case should have been selected to update and it was not. An Email has been sent to the BZST to review "
     End If
