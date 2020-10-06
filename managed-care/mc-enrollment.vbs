@@ -638,11 +638,8 @@ Next
 x = 0
 max = Ubound(MMIS_clients_array, 2)
 dlg_len = 60
-If enrollment_source = "Phone" Then
+If enrollment_source = "Phone" OR enrollment_source = "Paper Enrollment Form" Then
     dlg_len = dlg_len + 20
-End If
-If enrollment_source = "Paper Enrollment Form" Then
-	dlg_len = dlg_len + 15
 End If
 
 name_list = ""
@@ -702,13 +699,18 @@ BeginDialog Dialog1, 0, 0, 750, dlg_len, "Enrollment Information"
       x = x + 1
   End If
   If enrollment_source = "Paper Enrollment Form" Then
-	  GroupBox 5, (x * 20) + 40, 180, 30, "Paper Form Information"
-	  Text 10, (x * 20) + 55, 80, 10, "Form Received Date:"
-	  EditBox 95, (x * 20) + 50, 80, 15, form_received_date
+	  GroupBox 5, (x * 20) + 45, 180, 30, "Paper Form Information"
+	  Text 10, (x * 20) + 60, 80, 10, "Form Received Date:"
+	  EditBox 95, (x * 20) + 55, 80, 15, form_received_date
   End If
 
-  Text 570, dlg_len - 35, 60, 10, "Worker Signature"
-  EditBox 635, dlg_len - 40, 110, 15, worker_signature
+  If enrollment_source = "Paper Enrollment Form" OR enrollment_source = "Phone" Then
+	  Text 570, dlg_len - 35, 60, 10, "Worker Signature"
+	  EditBox 635, dlg_len - 40, 110, 15, worker_signature
+  Else
+	  Text 445, dlg_len - 15, 60, 10, "Worker Signature"
+	  EditBox 510, dlg_len - 20, 110, 15, worker_signature
+  End If
   ButtonGroup ButtonPressed
     OkButton 640, dlg_len - 20, 50, 15
     CancelButton 695, dlg_len - 20, 50, 15
