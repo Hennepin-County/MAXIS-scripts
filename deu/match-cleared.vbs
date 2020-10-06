@@ -680,6 +680,10 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
 	        	cancel_confirmation
 	        	IF fraud_referral = "Select:" THEN err_msg = err_msg & vbnewline & "* You must select a fraud referral entry."
 	        	IF trim(Reason_OP) = "" or len(Reason_OP) < 5 THEN err_msg = err_msg & vbnewline & "* You must enter a reason for the overpayment please provide as much detail as possible (min 5)."
+				If OP_program = "Select:" THEN err_msg = err_msg & vbNewLine &  "* Please enter the overpayment program for the first claim."
+				IF OP_from = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the month and year overpayment occurred."
+				IF Claim_number = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the claim number."
+				IF Claim_amount = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the amount of claim."
 	           	IF OP_program_II <> "Select:" THEN
 	    			IF OP_from_II = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the month and year overpayment occurred II."
 	        		IF Claim_number_II = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the claim number."
@@ -749,14 +753,14 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
 	'----------------------------------------------------------------------------------------------------RESOLVING THE MATCH
 	EMReadScreen panel_name, 4, 02, 52
 	IF panel_name <> "IULA" THEN
-	EMReadScreen back_panel_name, 4, 2, 52
-	If back_panel_name <> "IEVP" Then
-		CALL back_to_SELF
-		CALL navigate_to_MAXIS_screen("INFC" , "____")
-		CALL write_value_and_transmit("IEVP", 20, 71)
-		CALL write_value_and_transmit(client_SSN, 3, 63)
-	End If
-	CALL write_value_and_transmit("U", row, 3)   'navigates to IULA
+		EMReadScreen back_panel_name, 4, 2, 52
+		If back_panel_name <> "IEVP" Then
+			CALL back_to_SELF
+			CALL navigate_to_MAXIS_screen("INFC" , "____")
+			CALL write_value_and_transmit("IEVP", 20, 71)
+			CALL write_value_and_transmit(client_SSN, 3, 63)
+		End If
+		CALL write_value_and_transmit("U", row, 3)   'navigates to IULA
 
 	End If
 	'msgbox panel_name
@@ -780,6 +784,7 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
     IF resolution_status = "BO-Other" THEN IULA_res_status = "BO"
     IF resolution_status = "NC-Non Cooperation" THEN IULA_res_status = "NC"
     'checked these all to programS'
+	' enter_claim = TRUE
     EMwritescreen IULA_res_status, 12, 58
     IF IULA_res_status = "CC" THEN
         col = 57
@@ -788,12 +793,15 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
         	If action_header <> "    " Then
         		If action_header = "ACTH" Then
         			EMWriteScreen "BE", 12, col+1
+					' If col = 57 Then enter_claim = FALSE
         		Else
         			EMWriteScreen "CC", 12, col+1
+					' enter_claim = TRUE
         		End If
         	End If
-        		col = col + 6
+        	col = col + 6
         Loop until action_header = "    "
+		' Loop until col = 77
     END IF
 
     IF change_response = "YES" THEN
@@ -818,11 +826,12 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
 				other_notes = "Claim entered. See case note. " & other_notes
 				CALL clear_line_of_text(17, 9)
 			END IF
-			If action_header <> "ACTH" THEN
+			' If action_header <> "ACTH" THEN
+			' If enter_claim = TRUE Then
 				EMWriteScreen Claim_number, 17, 9
 				EMWriteScreen Claim_number_II, 18, 9
 				EMWriteScreen claim_number_III, 19, 9
-			END IF
+			' END IF
 
 			IF resolution_status = "CF-Future Save" THEN
 				other_notes = "Future Savings. " & other_notes
@@ -922,6 +931,65 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
     '	END IF
 	'END IF
 END IF 'end of match when difference_notice_action_dropdown =  "YES" '
+
+script_run_lowdown = script_run_lowdown & vbCr & vbCr & "Notice Sent: " & notice_sent
+script_run_lowdown = script_run_lowdown & vbCr & "Sent Date: " & sent_date
+script_run_lowdown = script_run_lowdown & vbCr & "DIFF NOTC ACTION: " & difference_notice_action_dropdown
+script_run_lowdown = script_run_lowdown & vbCr & "Claim referral tracking: " & claim_referral_tracking_dropdown
+script_run_lowdown = script_run_lowdown & vbCr & "Client Name: " & client_name
+script_run_lowdown = script_run_lowdown & vbCr & "The Programs: " & programs
+script_run_lowdown = script_run_lowdown & vbCr & "Income Source: " & income_source
+script_run_lowdown = script_run_lowdown & vbCr & "Match Type: " & match_type
+script_run_lowdown = script_run_lowdown & vbCr & "IEVS Period: " & IEVS_period
+script_run_lowdown = script_run_lowdown & vbCr & "Resolve Time: " & resolve_time
+script_run_lowdown = script_run_lowdown & vbCr & "Resolution Status: " & resolution_status
+script_run_lowdown = script_run_lowdown & vbCr & "Change Response: " & change_response
+script_run_lowdown = script_run_lowdown & vbCr & "DISQ Action: " & DISQ_action & vbCR
+script_run_lowdown = script_run_lowdown & vbCr & "Active Programs Codes: " & Active_Programs
+script_run_lowdown = script_run_lowdown & vbCr & "IULA Resolution Status: " & IULA_res_status
+script_run_lowdown = script_run_lowdown & vbCr & "IULB Enter Msg: " & IULB_enter_msg
+script_run_lowdown = script_run_lowdown & vbCr & "Other Notes: " & other_notes & vbCr
+
+
+script_run_lowdown = script_run_lowdown & vbCr & "Fraud referral: " & fraud_referral
+script_run_lowdown = script_run_lowdown & vbCr & "Discovery Date: " & discovery_date & vbCR
+script_run_lowdown = script_run_lowdown & vbCr & "CLAIM I" & vbCR & "OP Program: " & OP_program
+script_run_lowdown = script_run_lowdown & vbCr & "OP from: " & OP_from
+script_run_lowdown = script_run_lowdown & vbCr & "OP to: " & OP_to
+script_run_lowdown = script_run_lowdown & vbCr & "Claim Number: " & Claim_number
+script_run_lowdown = script_run_lowdown & vbCr & "Claim Amount: " & Claim_amount& vbCR
+script_run_lowdown = script_run_lowdown & vbCr & "CLAIM II" & vbCR & "OP Program: " & OP_program_II
+script_run_lowdown = script_run_lowdown & vbCr & "OP from: " & OP_from_II
+script_run_lowdown = script_run_lowdown & vbCr & "OP to: " & OP_to_II
+script_run_lowdown = script_run_lowdown & vbCr & "Claim Number: " & Claim_number_II
+script_run_lowdown = script_run_lowdown & vbCr & "Claim Amount: " & Claim_amount_II& vbCR
+script_run_lowdown = script_run_lowdown & vbCr & "CLAIM III" & vbCR & "OP Program: " & OP_program_III
+script_run_lowdown = script_run_lowdown & vbCr & "OP from: " & OP_from_III
+script_run_lowdown = script_run_lowdown & vbCr & "OP to: " & OP_to_III
+script_run_lowdown = script_run_lowdown & vbCr & "Claim Number: " & claim_number_III
+script_run_lowdown = script_run_lowdown & vbCr & "Claim Amount: " & Claim_amount_III& vbCR
+script_run_lowdown = script_run_lowdown & vbCr & "CLAIM IV" & vbCR & "OP Program: " & OP_program_IV
+script_run_lowdown = script_run_lowdown & vbCr & "OP from: " & OP_from_IV
+script_run_lowdown = script_run_lowdown & vbCr & "OP to: " & OP_to_IV
+script_run_lowdown = script_run_lowdown & vbCr & "Claim Number: " & claim_number_IV
+script_run_lowdown = script_run_lowdown & vbCr & "Claim Amount: " & Claim_amount_IV& vbCR
+script_run_lowdown = script_run_lowdown & vbCr & "HC CLAIM" & vbCR & "OP from: " & HC_from
+script_run_lowdown = script_run_lowdown & vbCr & "OP to: " & HC_to
+script_run_lowdown = script_run_lowdown & vbCr & "Claim Number: " & HC_claim_number
+script_run_lowdown = script_run_lowdown & vbCr & "Claim Amount: " & HC_claim_amount
+script_run_lowdown = script_run_lowdown & vbCr & "HC Resp member: " & HC_resp_memb
+script_run_lowdown = script_run_lowdown & vbCr & "FED HC Amount: " & Fed_HC_AMT
+script_run_lowdown = script_run_lowdown & vbCr & "" & EI_checkbox
+If EI_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "Earned income disregard allowed"
+script_run_lowdown = script_run_lowdown & vbCr & "EVF Used: " & EVF_used
+script_run_lowdown = script_run_lowdown & vbCr & "Income Received Date: " & income_rcvd_date
+script_run_lowdown = script_run_lowdown & vbCr & "OP Reason: " & Reason_OP
+script_run_lowdown = script_run_lowdown & vbCr & "Other resp members: " & OT_resp_memb
+If ATR_needed_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "EVF/ATR is still needed"
+
+
+
+
      	'If match_cleared = FALSE and sent_date <> date THEN
         '   	confirm_cleared = MsgBox("The script cannot identify that this match has cleared." & vbNewLine & vbNewLine & "Review IEVP and find the match that 'is being cleared with this run." & vbNewLine & " ** HAS THE MATCH BEEN 'CLEARED? **", vbQuestion + vbYesNo, "Confirm Match Cleared")
         '   	IF confirm_cleared = vbYes Then match_cleared = TRUE
