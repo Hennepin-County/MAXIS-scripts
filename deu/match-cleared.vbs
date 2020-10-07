@@ -818,7 +818,7 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
     	TRANSMIT
     	EMReadScreen MISC_error_check,  74, 24, 02
     	EMReadScreen IULB_enter_msg, 5, 24, 02
-    	IF IULB_enter_msg = "ENTER" THEN 'check if we need to input other notes
+    	IF IULB_enter_msg = "ENTER" OR IULB_enter_msg = "ACTIO" THEN 'check if we need to input other notes
 			CALL clear_line_of_text(8, 6)
 			CALL clear_line_of_text(9, 6)
 			IF resolution_status = "CB-Ovrpmt And Future Save" THEN other_notes = "OP Claim entered and future savings. " & other_notes
