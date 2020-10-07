@@ -370,7 +370,7 @@ END IF
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 306, 195, "Application Received for: "  & programs_applied_for &   " on "   & application_date
-  DropListBox 85, 10, 95, 15, "Select One:"+chr(9)+"Fax"+chr(9)+"Mystery Doc Queue"+chr(9)+"Office (In person)"+chr(9)+"Online (Apply MN/SHIBA)"+chr(9)+"Request to APPL Form"+chr(9)+"Verbal Request (Phone)", how_app_rcvd
+  DropListBox 85, 10, 95, 15, "Select One:"+chr(9)+"Fax"+chr(9)+"Mystery Doc Queue"+chr(9)+"Office (In person)"+chr(9)+"Online (MN benefit)"+chr(9)+"Request to APPL Form"+chr(9)+"Verbal Request (Phone)", how_app_rcvd
   DropListBox 85, 30, 95, 15, "Select One:"+chr(9)+"ApplyMN"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Populations"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer"+chr(9)+"N/A"+chr(9)+"SHIBA"+chr(9)+"Verbal Request", app_type
   EditBox 250, 10, 45, 15, request_date
   EditBox 250, 30, 45, 15, confirmation_number

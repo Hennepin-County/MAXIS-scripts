@@ -41,6 +41,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/06/2020", "Added phone number field to the dialog for when the enrollment is requested by phone.", "Casey Love, Hennepin County")
 call changelog_update("09/11/2020", "This script now contains the functionality for Open Enrollment and for any other enrollment.##~## ##~##The seperate script for Open Enrollment will no longer be available.##~##", "Casey Love, Hennepin County")
 call changelog_update("12/19/2019", "Added IM 12 as an option for contract codes.", "Casey Love, Hennepin County")
 call changelog_update("05/24/2019", "Added the ability for the script to delete the current enrollment plan if the beginning date for the current plan is the same as the new enrollment date.", "Casey Love, Hennepin County")
@@ -637,11 +638,8 @@ Next
 x = 0
 max = Ubound(MMIS_clients_array, 2)
 dlg_len = 60
-If enrollment_source = "Phone" Then
+If enrollment_source = "Phone" OR enrollment_source = "Paper Enrollment Form" Then
     dlg_len = dlg_len + 20
-End If
-If enrollment_source = "Paper Enrollment Form" Then
-	dlg_len = dlg_len + 15
 End If
 
 name_list = ""
@@ -662,7 +660,7 @@ BeginDialog Dialog1, 0, 0, 750, dlg_len, "Enrollment Information"
   Text 500, 5, 55, 10, "Change reason:"
   Text 565, 5, 60, 10, "Disenroll reason:"
   Text 640, 5, 35, 10, "Pregnant?"
-  Text 695, 5, 55, 10, "Interpreter Code"
+  Text 690, 5, 55, 10, "Interpreter Code"
 
   For person = 0 to Ubound(MMIS_clients_array, 2)
     If enrollment_source = "Morning Letters" Then MMIS_clients_array(change_rsn, person) = "Reenrollment"
@@ -689,22 +687,30 @@ BeginDialog Dialog1, 0, 0, 750, dlg_len, "Enrollment Information"
   EditBox 55, (x * 20) + 20, 690, 15, other_notes
 
   If enrollment_source = "Phone" Then
-      GroupBox 5, (x * 20) + 40, 410, 35, "Phone Call Information"
+      GroupBox 5, (x * 20) + 40, 530, 35, "Phone Call Information"
       Text 10, (x * 20) + 60, 40, 10, "Caller name"
       ComboBox 55, (x * 20) + 55, 120, 45, " " & name_list, caller_name
-      Text 180, (x * 20) + 60, 40, 10, ", who is the"
-      ComboBox 225, (x * 20) + 55, 80, 45, "Client"+chr(9)+"AREP", caller_rela
-      CheckBox 340, (x * 20) + 55, 65, 10, "Used Interpreter", used_interpreter_checkbox
+      Text 175, (x * 20) + 60, 40, 10, ", who is the"
+      ComboBox 215, (x * 20) + 55, 80, 45, "Client"+chr(9)+"AREP", caller_rela
+      CheckBox 305, (x * 20) + 50, 30, 10, "Used", used_interpreter_checkbox
+	  Text 305, (x * 20) + 60, 70, 10, "Interpreter"
+	  Text 350, (x * 20) + 60, 80, 10, "Phone Number of Caller"
+	  EditBox 430, (x * 20) + 55, 100, 15, phone_number_of_caller
       x = x + 1
   End If
   If enrollment_source = "Paper Enrollment Form" Then
-	  GroupBox 5, (x * 20) + 40, 180, 30, "Paper Form Information"
-	  Text 10, (x * 20) + 55, 80, 10, "Form Received Date:"
-	  EditBox 95, (x * 20) + 50, 80, 15, form_received_date
+	  GroupBox 5, (x * 20) + 45, 180, 30, "Paper Form Information"
+	  Text 10, (x * 20) + 60, 80, 10, "Form Received Date:"
+	  EditBox 95, (x * 20) + 55, 80, 15, form_received_date
   End If
 
-  Text 445, dlg_len - 15, 60, 10, "Worker Signature"
-  EditBox 510, dlg_len - 20, 110, 15, worker_signature
+  If enrollment_source = "Paper Enrollment Form" OR enrollment_source = "Phone" Then
+	  Text 570, dlg_len - 35, 60, 10, "Worker Signature"
+	  EditBox 635, dlg_len - 40, 110, 15, worker_signature
+  Else
+	  Text 445, dlg_len - 15, 60, 10, "Worker Signature"
+	  EditBox 510, dlg_len - 20, 110, 15, worker_signature
+  End If
   ButtonGroup ButtonPressed
     OkButton 640, dlg_len - 20, 50, 15
     CancelButton 695, dlg_len - 20, 50, 15
@@ -727,6 +733,7 @@ Do
 
         If trim(caller_name) = "" Then err_msg = err_msg & vbNewLine & "* Enter the name of the caller."
         If trim(caller_rela) = "" Then err_msg = err_msg & vbNewLine & "* Select who is calling (typically Client or AREP)."
+		If trim(phone_number_of_caller) = "" Then err_msg = err_msg & vbNewLine & "* Enter the phone number the person is calling from."
 
     End If
 
@@ -1407,11 +1414,13 @@ Else
 	If enrollment_source = "Morning Letters" Then
 	    CALL write_variable_in_MMIS_NOTE ("Re-enrollment processed effective: " & enrollment_date)
 	    CALL write_variable_in_MMIS_NOTE ("Following clients had PMAP under duplicate PMI(s) in the last 12 months:")
-	Else
+	ElseIf enrollment_source = "Phone" Then
 	    CALL write_variable_in_MMIS_NOTE ("Enrollment effective: " & enrollment_date & " requested by " & caller_rela & " via " & enrollment_source)
+	ElseIf enrollment_source = "Paper Enrollment Form" Then
+	    CALL write_variable_in_MMIS_NOTE ("Enrollment effective: " & enrollment_date & " requested via " & enrollment_source)
 	End If
 End If
-If enrollment_source = "Phone" Then CALL write_variable_in_MMIS_NOTE("Call completed " & now & " with " & caller_name)
+If enrollment_source = "Phone" Then CALL write_variable_in_MMIS_NOTE("Call completed " & now & " with " & caller_name & " from the number: " & phone_number_of_caller)
 If used_interpreter_checkbox = checked then CALL write_variable_in_MMIS_NOTE("Interpreter used for phone call.")
 If trim(form_received_date) <> "" Then CALL write_variable_in_MMIS_NOTE("Enrollment requested via Form received on " & form_received_date & ".")
 For member = 0 to Ubound(MMIS_clients_array, 2)

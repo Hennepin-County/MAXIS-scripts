@@ -2326,6 +2326,17 @@ child_emer_count = 0
 'FUNCTIONS =================================================================================================================
 '===========================================================================================================================
 
+'Specialty functionality
+Set objNet = CreateObject("WScript.NetWork")
+windows_user_ID = objNet.UserName
+user_ID_for_special_function = ucase(windows_user_ID)
+
+user_running_waived_interview_cases = FALSE
+If user_ID_for_special_function = "JAAR001" Then user_running_waived_interview_cases = TRUE     'Jacob
+If user_ID_for_special_function = "WFP106" Then user_running_waived_interview_cases = TRUE      'Deb
+If user_ID_for_special_function = "TAPA002" Then user_running_waived_interview_cases = TRUE     'Tanya
+If user_ID_for_special_function = "CALO001" Then user_running_waived_interview_cases = TRUE     'Casey
+
 'SCRIPT ====================================================================================================================
 EMConnect ""
 get_county_code				'since there is a county specific checkbox, this makes the the county clear
@@ -2597,9 +2608,6 @@ If cash_checkbox = checked OR snap_checkbox = checked OR hc_checkbox = checked T
 End If
 If EMER_checkbox = checked Then CAF_type = "Application"
 
-interview_required = FALSE
-If SNAP_checkbox = checked OR family_cash = TRUE OR CAF_type = "Application" then interview_required = TRUE
-
 ' If interview_required = TRUE Then
 '     Interview_notice = MsgBox("Has an interview been completed?" &vbNewLine & vbNewLine & "                *~* WITHOUT AN INTERVIEW *~* " & vbNewLine & "             *~* A CAF CANNOT BE PROCESSED *~*" & vbNewLine & vbNewLine & "If you have not completed an interview, do not use this script as you cannot process a CAF without an interview.  There are a couple scripts that may be useful for noting review of a case with a CAF received before the interview has been completed:" & vbNewLine & "          NOTES - Application Check" & vbNewLine & "          NOTES - Client Contact" & vbNewLine & vbNewLine & "Press OK if you completed an interview (or are processing one of the two exceptions)." & vbNewLine & "Press Cancel if you have not interviewed yet.", vbExclamation + vbOkCancel, "Have you done an interview?")
 '     If Interview_notice = vbCancel Then script_end_procedure_with_error_report("The script has been cancelled as no interview has been completed.")
@@ -2709,6 +2717,7 @@ End If
 
 
 check_the_array = FALSE
+check_for_waived_interview = FALSE
 If the_process_for_cash = "Recertification" OR the_process_for_snap = "Recertification" Then
     ' If (cash_recert_mo = "09" AND cash_recert_yr = "20") OR (snap_recert_mo = "09" AND snap_recert_yr = "20") Then
     '     check_the_array = TRUE
@@ -2716,24 +2725,49 @@ If the_process_for_cash = "Recertification" OR the_process_for_snap = "Recertifi
     ' End If
     If (cash_recert_mo = "10" AND cash_recert_yr = "20") OR (snap_recert_mo = "10" AND snap_recert_yr = "20") Then
         check_the_array = TRUE
+        If snap_recert_mo = "10" AND snap_recert_yr = "20" Then check_for_waived_interview = TRUE
         month_to_pull = 10
     End If
     If (cash_recert_mo = "11" AND cash_recert_yr = "20") OR (snap_recert_mo = "11" AND snap_recert_yr = "20") Then
         check_the_array = TRUE
+        If snap_recert_mo = "11" AND snap_recert_yr = "20" Then check_for_waived_interview = TRUE
         month_to_pull = 11
     End If
     If (cash_recert_mo = "12" AND cash_recert_yr = "20") OR (snap_recert_mo = "12" AND snap_recert_yr = "20") Then
         check_the_array = TRUE
+        If snap_recert_mo = "12" AND snap_recert_yr = "20" Then check_for_waived_interview = TRUE
         month_to_pull = 12
     End If
     If (cash_recert_mo = "01" AND cash_recert_yr = "21") OR (snap_recert_mo = "01" AND snap_recert_yr = "21") Then
         check_the_array = TRUE
+        If snap_recert_mo = "01" AND snap_recert_yr = "21" Then check_for_waived_interview = TRUE
         month_to_pull = 1
     End If
-    If (cash_recert_mo = "02" AND cash_recert_yr = "20") OR (snap_recert_mo = "02" AND snap_recert_yr = "20") Then
+    If (cash_recert_mo = "02" AND cash_recert_yr = "21") OR (snap_recert_mo = "02" AND snap_recert_yr = "21") Then
         check_the_array = TRUE
+        If snap_recert_mo = "02" AND snap_recert_yr = "21" Then check_for_waived_interview = TRUE
         month_to_pull = 2
     End If
+End If
+
+interview_required = FALSE
+If SNAP_checkbox = checked OR family_cash = TRUE OR CAF_type = "Application" then interview_required = TRUE
+
+If user_running_waived_interview_cases = TRUE AND check_for_waived_interview = TRUE Then
+    run_another_script("\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Scripts\Script Files\reviews-delayed.vbs")
+    If month_to_pull = 10 Then POSSIBLE_WAIVED_ARRAY = oct_revw_to_check_array
+    If month_to_pull = 11 Then POSSIBLE_WAIVED_ARRAY = nov_revw_to_check_array
+    If month_to_pull = 12 Then POSSIBLE_WAIVED_ARRAY = dec_revw_to_check_array
+    If month_to_pull = 1 Then POSSIBLE_WAIVED_ARRAY = jan_revw_to_check_array
+    If month_to_pull = 2 Then POSSIBLE_WAIVED_ARRAY = feb_revw_to_check_array
+
+    For each revw_case in POSSIBLE_WAIVED_ARRAY
+        If MAXIS_case_number = revw_case Then
+            interview_is_being_waived = MsgBox("This case appears to potentially meet the criteria for having the interview waived if the client reports no changes to from what is known." & vbNewLine & vbNewLine & " --- Are you waiving the interview? ---" & vbNewLine & vbNewLine & "clicking 'YES' will will prevent the script from requiring Interview Detail.", vbquestion + vbYesNo, "")
+            If interview_is_being_waived = vbYes Then interview_required = FALSE
+            Exit For
+        End If
+    Next
 End If
 
 MAXIS_case_number = trim(MAXIS_case_number)
@@ -3099,7 +3133,7 @@ If REVW_NEEDS_ADJUSTMENT = TRUE Then
             If confirm_update_checkbox = unchecked Then email_bod = email_bod & vbCr & vbCr & "Information was NOT confirmed."
             If confirm_update_checkbox = checked Then email_bod = email_bod & vbCr & vbCr & "Information was confirmed."
             If revw_has_been_approved = TRUE Then email_bod = email_bod & vbCr & vbCr & "Needs to be reapproved."
-            If month_to_pull = 11 Then Call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", email_sub, email_bod, "", TRUE)
+            ' If month_to_pull = 11 Then Call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", email_sub, email_bod, "", TRUE)
         ELSE
             If snap_revw_status_code <> "I" and cash_revw_status_code <> "I" Then
                 email_sub = "CAF ER Functionality Update FAILED"
@@ -3107,7 +3141,7 @@ If REVW_NEEDS_ADJUSTMENT = TRUE Then
                 ' If confirm_update_checkbox = unchecked Then email_bod = email_bod & vbCr & vbCr & "Information was NOT confirmed."
                 ' If confirm_update_checkbox = checked Then email_bod = email_bod & vbCr & vbCr & "Information was confirmed."
                 If revw_has_been_approved = TRUE Then email_bod = email_bod & vbCr & vbCr & "Needs to be reapproved."
-                Call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", email_sub, email_bod, "", TRUE)
+                ' Call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", email_sub, email_bod, "", TRUE)
             End If
         End If
     Else
@@ -3117,7 +3151,7 @@ If REVW_NEEDS_ADJUSTMENT = TRUE Then
         ' If confirm_update_checkbox = unchecked Then email_bod = email_bod & vbCr & vbCr & "Information was NOT confirmed."
         ' If confirm_update_checkbox = checked Then email_bod = email_bod & vbCr & vbCr & "Information was confirmed."
         If revw_has_been_approved = TRUE Then email_bod = email_bod & vbCr & vbCr & "Needs to be reapproved."
-        Call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", email_sub, email_bod, "", TRUE)
+        ' Call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", email_sub, email_bod, "", TRUE)
 
         ' MsgBox "ERROR - this case should have been selected to update and it was not. An Email has been sent to the BZST to review "
     End If
