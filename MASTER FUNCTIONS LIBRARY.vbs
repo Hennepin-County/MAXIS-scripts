@@ -569,8 +569,8 @@ FUNCTION income_test_SNAP_categorically_elig(household_size, income_limit) '165%
 		IF household_size > 8 THEN income_limit = 6067 + (616 * (household_size- 8))
 	ELSE
         '2019 Amounts
-        IF household_size = 1 THEN income_limit = 1718										
-		IF household_size = 2 THEN income_limit = 2236										
+        IF household_size = 1 THEN income_limit = 1718
+		IF household_size = 2 THEN income_limit = 2236
 		IF household_size = 3 THEN income_limit = 2933
 		IF household_size = 4 THEN income_limit = 3541
 		IF household_size = 5 THEN income_limit = 4149
@@ -603,8 +603,8 @@ FUNCTION income_test_SNAP_gross(household_size, income_limit) '130% FPG
 		IF household_size > 8 THEN income_limit = 4705 + (486 * (household_size- 8))
 	ELSE
         '2019 Amounts
-        IF household_size = 1 THEN income_limit = 1354								
-		IF household_size = 2 THEN income_limit = 1832								
+        IF household_size = 1 THEN income_limit = 1354
+		IF household_size = 2 THEN income_limit = 1832
 		IF household_size = 3 THEN income_limit = 2311
 		IF household_size = 4 THEN income_limit = 2790
 		IF household_size = 5 THEN income_limit = 3269
@@ -636,8 +636,8 @@ FUNCTION income_test_SNAP_net(household_size, income_limit)
 		IF household_size > 8 THEN income_limit = 3677 + (374 * (household_size- 8))
 	ELSE
         '2019 Amounts
-        IF household_size = 1 THEN income_limit = 1041										
-        IF household_size = 2 THEN income_limit = 1410										
+        IF household_size = 1 THEN income_limit = 1041
+        IF household_size = 2 THEN income_limit = 1410
         IF household_size = 3 THEN income_limit = 1778
         IF household_size = 4 THEN income_limit = 2146
         IF household_size = 5 THEN income_limit = 2515
@@ -3375,6 +3375,7 @@ end function
 function changelog_display()
 '--- This function determines if the user has been informed of a change to a script, and if not will display a mesage box with the script's change log information
 '===== Keywords: MAXIS, PRISM, change, info, information
+	If name_of_script = "ACTIONS - DEU-MATCH CLEARED CC.vbs" or name_of_script = "ACTIONS - DEU-MATCH CLEARED CC" Then script_end_procedure_with_error_report("This script is no longer supported by the BlueZone Script team and cannot be run. PLease reach out to the BlueZone Script Team with any questions.")
 	If changelog_enabled = "" Then changelog_enabled = true
 	If changelog_enabled <> false Then
 		'Needs to determine MyDocs directory before proceeding.
