@@ -49,6 +49,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("10/09/2020", "Updated the functionality to adjust review dates for some cases to not require an interview date for Adult Cash Recertification cases.##~##", "Casey Love, Hennepin County")
 Call changelog_update("10/01/2020", "Updated Standard Utility Allowances for 10/2020.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/01/2020", "UPDATE IN TESTING##~## ##~##There is new functionality added to this script to assist in updating REVW for some cases. There is detail in SIR about cases that need to have the next ER date adjusted due to a previous postponement. ##~## ##~##We have not had time with this functionality to complete live testing so all script runs will be a part of the test. Please let us know if you have any issues running this script.", "Casey Love, Hennepin County")
 call changelog_update("05/18/2020", "Additional handling to be sure when saving the interview date to PROG the script does not get stuck.", "Casey Love, Hennepin County")
@@ -3029,7 +3030,7 @@ If REVW_NEEDS_ADJUSTMENT = TRUE Then
                     If snap_revw_new_status_code = "A" and snap_revw_status_code <> "A" Then err_msg = err_msg & vbNewLine & "* Only the system can update the status to 'A' for the SNAP Review Status. This was not already coded with an A. If the review is complete, code the review with 'U'."
                 End If
                 If IsDate(CAF_datestamp) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter the date the review was received as a valid date."
-                If IsDate(interview_date) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter the interview date as a a valid date. (The interview should have been completed at this time.)"
+                If interview_required = TRUE AND IsDate(interview_date) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter the interview date as a a valid date. (The interview should have been completed at this time.)"
 
                 If ButtonPressed = sir_announcement_btn Then
                     err_msg = "LOOP"
@@ -3079,7 +3080,7 @@ If REVW_NEEDS_ADJUSTMENT = TRUE Then
         End If
 
         Call create_mainframe_friendly_date(CAF_datestamp, 13, 37, "YY")
-        Call create_mainframe_friendly_date(interview_date, 15, 37, "YY")
+        If IsDate(interview_date) = TRUE THen Call create_mainframe_friendly_date(interview_date, 15, 37, "YY")
         EMWriteScreen phone_interview_y_n, 13, 75
         EMWriteScreen phone_interview_y_n, 15, 75
 
