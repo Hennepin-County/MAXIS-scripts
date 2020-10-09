@@ -2338,6 +2338,33 @@ If user_ID_for_special_function = "WFP106" Then user_running_waived_interview_ca
 If user_ID_for_special_function = "TAPA002" Then user_running_waived_interview_cases = TRUE     'Tanya
 If user_ID_for_special_function = "CALO001" Then user_running_waived_interview_cases = TRUE     'Casey
 
+'DWP TEAM
+If user_ID_for_special_function = "WFK314" Then user_running_waived_interview_cases = TRUE
+If user_ID_for_special_function = "ALHE001" Then user_running_waived_interview_cases = TRUE
+If user_ID_for_special_function = "WFB709" Then user_running_waived_interview_cases = TRUE
+If user_ID_for_special_function = "WFE533" Then user_running_waived_interview_cases = TRUE
+If user_ID_for_special_function = "WF2543" Then user_running_waived_interview_cases = TRUE
+If user_ID_for_special_function = "WFC804" Then user_running_waived_interview_cases = TRUE
+If user_ID_for_special_function = "REHU001" Then user_running_waived_interview_cases = TRUE
+If user_ID_for_special_function = "WF7660" Then user_running_waived_interview_cases = TRUE
+If user_ID_for_special_function = "WFA168" Then user_running_waived_interview_cases = TRUE
+If user_ID_for_special_function = "TELO001" Then user_running_waived_interview_cases = TRUE
+If user_ID_for_special_function = "WFE269" Then user_running_waived_interview_cases = TRUE
+If user_ID_for_special_function = "WFX820" Then user_running_waived_interview_cases = TRUE
+If user_ID_for_special_function = "TIRE001" Then user_running_waived_interview_cases = TRUE
+If user_ID_for_special_function = "WFB093" Then user_running_waived_interview_cases = TRUE
+If user_ID_for_special_function = "WFW682" Then user_running_waived_interview_cases = TRUE
+If user_ID_for_special_function = "WFH084" Then user_running_waived_interview_cases = TRUE
+If user_ID_for_special_function = "JUBR001" Then user_running_waived_interview_cases = TRUE
+If user_ID_for_special_function = "WFN649" Then user_running_waived_interview_cases = TRUE
+If user_ID_for_special_function = "WFD867" Then user_running_waived_interview_cases = TRUE
+If user_ID_for_special_function = "WFH254" Then user_running_waived_interview_cases = TRUE
+If user_ID_for_special_function = "MEIS001" Then user_running_waived_interview_cases = TRUE
+If user_ID_for_special_function = "LILE002" Then user_running_waived_interview_cases = TRUE
+If user_ID_for_special_function = "CALI001" Then user_running_waived_interview_cases = TRUE
+If user_ID_for_special_function = "WFZ107" Then user_running_waived_interview_cases = TRUE
+If user_ID_for_special_function = "WFX421" Then user_running_waived_interview_cases = TRUE
+
 'SCRIPT ====================================================================================================================
 EMConnect ""
 get_county_code				'since there is a county specific checkbox, this makes the the county clear
