@@ -53,6 +53,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County
+CALL changelog_update("10/13/2020", "Enhanced date evaluation functionality when which determining HEST standards to use.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("08/24/2020", "Added MN Benefits application and removed SHIBA and apply MN options.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("10/01/2020", "Updated Standard Utility Allowances for 10/2020.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("08/24/2020", "Added SHIBA application and combined CA and NOTES scripts.", "MiKayla Handley, Hennepin County")
@@ -485,21 +486,21 @@ PF3 ' to save Case note
 
 '----------------------------------------------------------------------------------------------------EXPEDITED SCREENING!
 IF snap_pends = TRUE THEN
-    'DATE BASED LOGIC FOR UTILITY AMOUNTS------------------------------------------------------------------------------------------
-    If application_date >= cdate("10/01/2019") then     'these variables need to change every October
+    'DATE BASED LOGIC FOR UTILITY AMOUNTS: variables need to change every October per CM.18.15.09------------------------------------------------------------------------------------------
+    If DateDiff("d",application_date,"10/01/2020") <= 0 then
+        msgbox DateDiff("d",application_date,"10/01/2020")
+        'October 2020 amounts 
+        heat_AC_amt = 496
+        electric_amt = 154
+        phone_amt = 56
+    Else
+        msgbox DateDiff("d",application_date,"10/01/2020")
+        'October 2019 amounts 
         heat_AC_amt = 490
         electric_amt = 143
         phone_amt = 49
-    ElseIf application_date >= cdate("10/01/2018") then
-        heat_AC_amt = 493
-        electric_amt = 126
-        phone_amt = 47
-    else
-        heat_AC_amt = 556
-        electric_amt = 172
-        phone_amt = 41
-    End if
-
+    End if 
+    
     'Ensuring case number carries thru
     CALL MAXIS_case_number_finder(MAXIS_case_number)
 	'-------------------------------------------------------------------------------------------------DIALOG
@@ -523,23 +524,6 @@ IF snap_pends = TRUE THEN
      	Text 50, 10, 50, 10, "Case number: "
      	GroupBox 0, 130, 175, 30, "**IMPORTANT**"
     EndDialog
-
-    'DATE BASED LOGIC FOR UTILITY AMOUNTS------------------------------------------------------------------------------------------
-    If application_date >= cdate("10/01/2020") then     'these variables need to change every October per CM.18.15.09
-        heat_AC_amt = 496
-        electric_amt = 154
-        phone_amt = 56
-    ElseIf application_date >= cdate("10/01/2019") then
-        'October 2019 amounts
-        heat_AC_amt = 490
-        electric_amt = 143
-        phone_amt = 49
-    else
-        ' October 2018 amounts
-        heat_AC_amt = 493
-        electric_amt = 126
-        phone_amt = 47
-    End if
 
     '----------------------------------------------------------------------------------------------------THE SCRIPT
     CALL MAXIS_case_number_finder(MAXIS_case_number)
