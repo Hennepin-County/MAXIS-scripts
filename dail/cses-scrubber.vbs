@@ -1109,27 +1109,75 @@ If MFIP_active = true then
 
 			'Raises excel_row + 3, so we can start adding messages
 			excel_row = excel_row + 3
+			count = 0
 
-			'Looks through each message in the array, and if it's for this UNEA panel, it will add it to the Excel sheet
 			For i = 0 to ubound(message_array)
 				If message_array(i).UNEAPanel <> "NONE" then
 					If UNEA_panel = message_array(i).UNEAPanel then
-						ObjExcel.Cells(excel_row, 1).Value = message_array(i).IssueDate
-						ObjExcel.Cells(excel_row, 2).Value = message_array(i).AmtAlloted
-						ObjExcel.Cells(excel_row, 3).Value = dateadd("m", 2, message_array(i).IssueDate)
-						ObjExcel.Cells(excel_row, 4).Value = message_array(i).AmtAlloted
+						count = count + 1
+					End If
+				End If
+			Next
+			If count > 5 Then
+				amount_alloted = 0
+				For i = 0 to ubound(message_array)
+					If message_array(i).UNEAPanel <> "NONE" then
+						If UNEA_panel = message_array(i).UNEAPanel then
+							issue_month = DatePart("m", message_array(i).IssueDate)
+							issue_year = DatePart("yyyy", message_array(i).IssueDate)
 
-						ObjExcel.Cells(excel_row, 2).NumberFormat = "$#,##0.00"
-						ObjExcel.Cells(excel_row, 4).NumberFormat = "$#,##0.00"
+							prosp_issue_month = DatePart("m", dateadd("m", 2, message_array(i).IssueDate))
+							prosp_issue_year = DatePart("yyyy", dateadd("m", 2, message_array(i).IssueDate))
 
-						ObjExcel.Cells(header_row, 1).Value = UNEA_panel & " | " & "TYPE: " & message_array(i).CSType
+							amount_alloted = amount_alloted + message_array(i).AmtAlloted
+							ObjExcel.Cells(header_row, 1).Value = UNEA_panel & " | " & "TYPE: " & message_array(i).CSType
 
-						excel_row = excel_row + 1
+						End if
 
 					End if
+				Next
+				ObjExcel.Cells(excel_row, 1).Value = issue_month & "/1/" & issue_year
+				ObjExcel.Cells(excel_row, 2).Value = amount_alloted
+				ObjExcel.Cells(excel_row, 3).Value = prosp_issue_month & "/1/" & prosp_issue_year
+				ObjExcel.Cells(excel_row, 4).Value = amount_alloted
 
-				End if
-			Next
+				ObjExcel.Cells(excel_row, 2).NumberFormat = "$#,##0.00"
+				ObjExcel.Cells(excel_row, 4).NumberFormat = "$#,##0.00"
+
+				lump_list = lump_list & UNEA_panel & " Updated as a LUMP amount. Total: $" & amount_alloted & ". Determined from: ; "
+				For i = 0 to ubound(message_array)
+					If message_array(i).UNEAPanel <> "NONE" then
+						If UNEA_panel = message_array(i).UNEAPanel then
+							lump_list = lump_list & "  - $" & message_array(i).AmtAlloted & " issued on " & message_array(i).IssueDate & "; "
+						End If
+					End If
+				Next
+				lump_list = lump_list & "~"
+
+				excel_row = excel_row + 1
+
+			Else
+				'Looks through each message in the array, and if it's for this UNEA panel, it will add it to the Excel sheet
+				For i = 0 to ubound(message_array)
+					If message_array(i).UNEAPanel <> "NONE" then
+						If UNEA_panel = message_array(i).UNEAPanel then
+							ObjExcel.Cells(excel_row, 1).Value = message_array(i).IssueDate
+							ObjExcel.Cells(excel_row, 2).Value = message_array(i).AmtAlloted
+							ObjExcel.Cells(excel_row, 3).Value = dateadd("m", 2, message_array(i).IssueDate)
+							ObjExcel.Cells(excel_row, 4).Value = message_array(i).AmtAlloted
+
+							ObjExcel.Cells(excel_row, 2).NumberFormat = "$#,##0.00"
+							ObjExcel.Cells(excel_row, 4).NumberFormat = "$#,##0.00"
+
+							ObjExcel.Cells(header_row, 1).Value = UNEA_panel & " | " & "TYPE: " & message_array(i).CSType
+
+							excel_row = excel_row + 1
+
+						End if
+
+					End if
+				Next
+			End If
 
 			excel_row = excel_row + 1		'The next message should start with a row in-between
 
@@ -1285,6 +1333,7 @@ If MFIP_active = TRUE then
 
 End If
 
+If right(lump_list, 1) = "~" Then lump_list = left(lump_list, len(lump_list)-1)
 'Alert to worker that additional action is required.
 If Outside_the_realm = TRUE Then MsgBox "This is a SNAP case and you have indicated at least one of the UNEA panels needs to be reviewed for possible budget adjustment." & vbNewLine & vbNewLine & "At this time, this script does NOT update UNEA for SNAP cases. Case note will indicate that worker followup is needed."
 
@@ -1326,6 +1375,18 @@ If developer_mode <> TRUE Then
 	Call Write_Variable_in_CASE_NOTE ("* Income reported from PRISM Interface - details are listed in previous case notes.")
 	If MFIP_active = TRUE Then
 		Call Write_Variable_in_CASE_NOTE ("* Updated retro/prospective income amounts.")
+		If lump_list <> "" Then
+			If InStr(lump_list, "~") <> 0 Then
+				lump_array = split(lump_list, "~")
+			Else
+				lump_array = array(lump_list)
+			End If
+			For each detail in lump_array
+				lump_header = left(detail, 10)
+				lump_details = right(detail, len(detail)-11)
+				Call write_bullet_and_variable_in_CASE_NOTE(lump_header, lump_details)
+			Next
+		End If
 		' Call Write_Bullet_and_Variable_in_Case_Note("Change to MFIP Benefit", impact_on_benefit)
 	End If
 	If MFIP_active <> TRUE AND SNAP_active = TRUE Then
@@ -1378,7 +1439,10 @@ Else
 		Case_Note_Message = Case_Note_Message & vbNewLine & ":::CSES Messages Reviewed::::"
 	End If
 	Case_Note_Message = Case_Note_Message & vbNewLine & "* Income reported from PRISM Interface - details are listed in previous case notes."
-	If MFIP_active = TRUE Then Case_Note_Message = Case_Note_Message & vbNewLine & "* Updated retro/prospective income amounts."
+	If MFIP_active = TRUE Then
+		Case_Note_Message = Case_Note_Message & vbNewLine & "* Updated retro/prospective income amounts."
+		If lump_list <> "" Then Case_Note_Message = Case_Note_Message & vbNewLine & lump_list
+	End If
 	If Exceed_130 = TRUE Then Case_Note_Message = Case_Note_Message & vbNewLine & "* With this CS Income, it appears case income may exceed 130% FPG."
 	If CS_Change = TRUE Then
 		Case_Note_Message = Case_Note_Message & vbNewLine & "* CS Income listed in DAILs is different from the amount of CS Income Budgeted."
