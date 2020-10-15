@@ -167,7 +167,7 @@ ELSEIF limit_reached <> "The REPT" THEN
     EMReadScreen add_app_year, 2, MAXIS_row + 1, 44
     'Creating new variable for application check date and additional application date.
     application_date = app_month & "/" & app_day & "/" & app_year
-	'MsgBox application_date
+
     additional_application_date = add_app_month & "/" & add_app_day & "/" & add_app_year
     'checking for multiple application dates.  Creates message boxes giving the user an option of which app date to choose
     If additional_application_check = "ADDITIONAL APP" THEN multiple_apps = MsgBox("Do you want this application date: " & application_date, VbYesNoCancel)
@@ -488,13 +488,11 @@ PF3 ' to save Case note
 IF snap_pends = TRUE THEN
     'DATE BASED LOGIC FOR UTILITY AMOUNTS: variables need to change every October per CM.18.15.09------------------------------------------------------------------------------------------
     If DateDiff("d",application_date,"10/01/2020") <= 0 then
-        msgbox DateDiff("d",application_date,"10/01/2020")
         'October 2020 amounts 
         heat_AC_amt = 496
         electric_amt = 154
         phone_amt = 56
     Else
-        msgbox DateDiff("d",application_date,"10/01/2020")
         'October 2019 amounts 
         heat_AC_amt = 490
         electric_amt = 143
