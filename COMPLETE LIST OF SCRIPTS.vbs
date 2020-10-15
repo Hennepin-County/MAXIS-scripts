@@ -3213,3 +3213,16 @@ script_array(script_num).tags                   = array("Navigation", "Utility")
 script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
+
+
+script_num = script_num + 1							'Increment by one
+ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script. Script details below...
+script_array(script_num).script_name		    = "Waived ER Interview Screening"										'Script name
+script_array(script_num).description		    = "Evaluate a case to determine if we can waive the ER Interview."
+script_array(script_num).category               = "UTILITIES"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("")
+script_array(script_num).dlg_keys               = array("")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/14/2020#
