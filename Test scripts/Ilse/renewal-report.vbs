@@ -520,146 +520,109 @@ If renewal_option = "Create Renewal Report" then
     objExcel.ActiveWorkbook.Close                           
     objExcel.Application.Quit
     objExcel.Quit
+
+    '----------------------------------------------------------------------------------------------------Creating the Interview Required Excel List for the auto-dialer and notices 
+    'Opening the Excel file, (now that the dialog is done)
+    Set objExcel = CreateObject("Excel.Application")
+    objExcel.Visible = True
+    Set objWorkbook = objExcel.Workbooks.Add()
+    objExcel.DisplayAlerts = True
     
-    ''----------------------------------------------------------------------------------------------------Creating the Interview Required Excel List for the auto-dialer and notices 
-    ''Opening the Excel file, (now that the dialog is done)
-    'Set objExcel = CreateObject("Excel.Application")
-    'objExcel.Visible = True
-    'Set objWorkbook = objExcel.Workbooks.Add()
-    'objExcel.DisplayAlerts = True
-    '
-    ''Changes name of Excel sheet to "Case information"
-    'ObjExcel.ActiveSheet.Name = "ER cases " & REPT_month & "-" & REPT_year
-    '
-    ''formatting excel file with columns for case number and interview date/time
-    'objExcel.cells(1, 1).value 	= "X number"
-    'objExcel.cells(1, 2).value 	= "Case Number"
-    'objExcel.cells(1, 3).value 	= "Programs"
-    'objExcel.cells(1, 4).value 	= "Case language"
-    'objExcel.Cells(1, 5).value 	= "Interpreter"
-    'objExcel.cells(1, 6).value 	= "Phone # One"
-    'objExcel.cells(1, 7).value 	= "Phone # Two"
-    'objExcel.Cells(1, 8).value 	= "Phone # Three"
-    '
-    'FOR i = 1 to 8									'formatting the cells'
-    '	objExcel.Cells(1, i).Font.Bold = True		'bold font'
-    '    ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
-    '	objExcel.Columns(i).AutoFit()				'sizing the columns'
-    'NEXT
-    '
-    'excel_row = 2 'Adding the case information to Excel
-    '
-    'For item = 0 to UBound(review_array, 2)
-    '    If review_array(interview_const, item) = True then 
-    '        'determining the programs list 
-    '        If ( review_array(SNAP_status_const, item) = True and review_array(MFIP_status_const, item) = True ) then 
-    '            programs_list = "SNAP & MFIP"
-    '        elseif review_array(SNAP_status_const, item) = True then 
-    '            programs_list = "SNAP"
-    '        elseif review_array(MFIP_status_const, item) = True then 
-    '            programs_list = "MFIP"
-    '        End if 
-    '        'Excel output of Interview Required case information
-    '        If review_array(notes_const, item) <> "PRIV Case." then 
-    '	        ObjExcel.Cells(excel_row, 1).value = review_array(worker_const,       item)
-    '	        ObjExcel.Cells(excel_row, 2).value = review_array(case_number_const,  item)
-    '	        ObjExcel.Cells(excel_row, 3).value = programs_list
-    '	        ObjExcel.Cells(excel_row, 4).value = review_array(Language_const,     item)
-    '	        ObjExcel.Cells(excel_row, 5).value = review_array(Interpreter_const,  item)
-    '	        ObjExcel.Cells(excel_row, 6).value = review_array( phone_1_const,     item)
-    '	        ObjExcel.Cells(excel_row, 7).value = review_array( phone_2_const,     item)
-    '	        ObjExcel.Cells(excel_row, 8).value = review_array( phone_3_const,     item)
-    '            excel_row = excel_row + 1
-    '        End if 
-    '    End if 
-    'Next
-    '
-    ''Query date/time/runtime info
-    'objExcel.Cells(1, 11).Font.Bold = TRUE
-    'objExcel.Cells(2, 11).Font.Bold = TRUE
-    'objExcel.Cells(3, 11).Font.Bold = TRUE
-    'objExcel.Cells(4, 11).Font.Bold = TRUE
-    'ObjExcel.Cells(1, 11).Value = "Query date and time:"
-    'ObjExcel.Cells(2, 11).Value = "Query runtime (in seconds):"
-    'ObjExcel.Cells(3, 11).Value = "Total reviews:"
-    'ObjExcel.Cells(4, 11).Value = "Interview required:"
-    'ObjExcel.Cells(1, 12).Value = now
-    'ObjExcel.Cells(2, 12).Value = timer - query_start_time
-    'ObjExcel.Cells(3, 12).Value = total_cases_review    
-    'ObjExcel.Cells(4, 12).Value = recert_cases 
-    '
-    ''Formatting the columns to autofit after they are all finished being created.
-    'FOR i = 1 to 12
-    '	objExcel.Columns(i).autofit()
-    'Next
-    '
-    'ObjExcel.Worksheets.Add().Name = "Priviliged Cases"
-    '
-    ''adding information to the Excel list from PND2
-    'ObjExcel.Cells(1, 1).Value = "Worker #"
-    'ObjExcel.Cells(1, 2).Value = "Case number"
-    '
-    'FOR i = 1 to 2								'formatting the cells'
-    '    objExcel.Cells(1, i).Font.Bold = True		'bold font'
-    '    ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
-    '    objExcel.Columns(i).AutoFit()				'sizing the columns'
-    'NEXT
-    '
-    'excel_row = 2   'Adding the case information to Excel
-    '
-    'For item = 0 to UBound(review_array, 2)
-    '    'Excel output of Interview Required case information
-    '    If review_array(notes_const, item) = "PRIV Case." then 
-    '        ObjExcel.Cells(excel_row, 1).value = review_array(worker_const,       item)
-    '        ObjExcel.Cells(excel_row, 2).value = review_array(case_number_const,  item)
-    '        excel_row = excel_row + 1
-    '    End if 
-    'Next
-    '
-    ''Formatting the columns to autofit after they are all finished being created.
-    'FOR i = 1 to 2
-    '	objExcel.Columns(i).autofit()
-    'Next
-Else' 
+    'Changes name of Excel sheet to "Case information"
+    ObjExcel.ActiveSheet.Name = "ER cases " & REPT_month & "-" & REPT_year
+    
+    'formatting excel file with columns for case number and interview date/time
+    objExcel.cells(1, 1).value 	= "X number"
+    objExcel.cells(1, 2).value 	= "Case Number"
+    objExcel.cells(1, 3).value 	= "Programs"
+    objExcel.cells(1, 4).value 	= "Case language"
+    objExcel.Cells(1, 5).value 	= "Interpreter"
+    objExcel.cells(1, 6).value 	= "Phone # One"
+    objExcel.cells(1, 7).value 	= "Phone # Two"
+    objExcel.Cells(1, 8).value 	= "Phone # Three"
+    
+    FOR i = 1 to 8									'formatting the cells'
+    	objExcel.Cells(1, i).Font.Bold = True		'bold font'
+        ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
+    	objExcel.Columns(i).AutoFit()				'sizing the columns'
+    NEXT
+    
+    excel_row = 2 'Adding the case information to Excel
+    
+    For item = 0 to UBound(review_array, 2)
+        If review_array(interview_const, item) = True then 
+            'determining the programs list 
+            If ( review_array(SNAP_status_const, item) = True and review_array(MFIP_status_const, item) = True ) then 
+                programs_list = "SNAP & MFIP"
+            elseif review_array(SNAP_status_const, item) = True then 
+                programs_list = "SNAP"
+            elseif review_array(MFIP_status_const, item) = True then 
+                programs_list = "MFIP"
+            End if 
+            'Excel output of Interview Required case information
+            If review_array(notes_const, item) <> "PRIV Case." then 
+    	        ObjExcel.Cells(excel_row, 1).value = review_array(worker_const,       item)
+    	        ObjExcel.Cells(excel_row, 2).value = review_array(case_number_const,  item)
+    	        ObjExcel.Cells(excel_row, 3).value = programs_list
+    	        ObjExcel.Cells(excel_row, 4).value = review_array(Language_const,     item)
+    	        ObjExcel.Cells(excel_row, 5).value = review_array(Interpreter_const,  item)
+    	        ObjExcel.Cells(excel_row, 6).value = review_array( phone_1_const,     item)
+    	        ObjExcel.Cells(excel_row, 7).value = review_array( phone_2_const,     item)
+    	        ObjExcel.Cells(excel_row, 8).value = review_array( phone_3_const,     item)
+                excel_row = excel_row + 1
+            End if 
+        End if 
+    Next
+    
+    'Query date/time/runtime info
+    objExcel.Cells(1, 11).Font.Bold = TRUE
+    objExcel.Cells(2, 11).Font.Bold = TRUE
+    objExcel.Cells(3, 11).Font.Bold = TRUE
+    objExcel.Cells(4, 11).Font.Bold = TRUE
+    ObjExcel.Cells(1, 11).Value = "Query date and time:"
+    ObjExcel.Cells(2, 11).Value = "Query runtime (in seconds):"
+    ObjExcel.Cells(3, 11).Value = "Total reviews:"
+    ObjExcel.Cells(4, 11).Value = "Interview required:"
+    ObjExcel.Cells(1, 12).Value = now
+    ObjExcel.Cells(2, 12).Value = timer - query_start_time
+    ObjExcel.Cells(3, 12).Value = total_cases_review    
+    ObjExcel.Cells(4, 12).Value = recert_cases 
+    
+    'Formatting the columns to autofit after they are all finished being created.
+    FOR i = 1 to 12
+    	objExcel.Columns(i).autofit()
+    Next
+    
+    ObjExcel.Worksheets.Add().Name = "Priviliged Cases"
+    
+    'adding information to the Excel list from PND2
+    ObjExcel.Cells(1, 1).Value = "Worker #"
+    ObjExcel.Cells(1, 2).Value = "Case number"
+    
+    FOR i = 1 to 2								'formatting the cells'
+        objExcel.Cells(1, i).Font.Bold = True		'bold font'
+        ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
+        objExcel.Columns(i).AutoFit()				'sizing the columns'
+    NEXT
+    
+    excel_row = 2   'Adding the case information to Excel
+    
+    For item = 0 to UBound(review_array, 2)
+        'Excel output of Interview Required case information
+        If review_array(notes_const, item) = "PRIV Case." then 
+            ObjExcel.Cells(excel_row, 1).value = review_array(worker_const,       item)
+            ObjExcel.Cells(excel_row, 2).value = review_array(case_number_const,  item)
+            excel_row = excel_row + 1
+        End if 
+    Next
+    
+    'Formatting the columns to autofit after they are all finished being created.
+    FOR i = 1 to 2
+    	objExcel.Columns(i).autofit()
+    Next
+Else 
     msgbox "No discrepancy report available yet."
 End if 
     
 STATS_counter = STATS_counter - 1
 script_end_procedure("Success! The review report is ready.")
-
-'----------------------------------------------------------------------------------------------------Formatting & Color for ease of reading report
-'ObjExcel.Cells("A1:A5").MergeCells = True
-
-'ObjExcel.Cells("A1:A5").HorizontalAlignment = xlCenter
-'ObjExcel.Cells("A6").HorizontalAlignment = xlCenter
-
-'For i = 7 to 11
-'	ObjExcel.Cells(1, i).HorizontalAlignment = xlCenter
-'Next
-'
-'For i = 12 to 14
-'	ObjExcel.Cells(1, i).HorizontalAlignment = xlCenter
-'Next
-'
-'For i = 15 to 19
-'	ObjExcel.Cells(1, i).HorizontalAlignment = xlCenter
-'Next
-
-'Range("A1").Borders(xlEdgeBottom).Color = RGB(255, 0, 0)		'HEX Codes for reference 
-'For i = 1 to 5
-'	ObjExcel.Columns(i).Interior.Color 	= RGB(208, 206, 206)	' #d0cece
-'Next 
-'
-'ObjExcel.Columns(6).Interior.Color 		= RGB(252, 228, 214)	' #fce4d6
-'
-'For i = 7 to 11
-'	ObjExcel.Columns(i).Interior.Color 	= RGB(217, 225, 242) 	' #d9e1f2
-'Next
-'
-'For i = 12 to 14
-'	ObjExcel.Columns(i).Interior.Color 	= RGB(255, 242, 204) 	' #fff2cc
-'Next
-'
-'For i = 15 to 19
-'	ObjExcel.Columns(i).Interior.Color 	= RGB(226, 239, 218) 	' #e2efda
-'Next
