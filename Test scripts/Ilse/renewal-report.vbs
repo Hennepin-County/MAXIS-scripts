@@ -1,5 +1,5 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "ADMIN- REVIEW REPORT.vbs" 'BULK script that creates a list of cases that require an interview, and the contact phone numbers'
+name_of_script = "ADMIN - REVIEW REPORT.vbs" 'BULK script that creates a list of cases that require an interview, and the contact phone numbers'
 start_time = timer
 STATS_counter = 1			     'sets the stats counter at one
 STATS_manualtime = 	100			 'manual run time in seconds
@@ -100,7 +100,6 @@ End if
 report_date = REPT_month & "-" & REPT_year  'establishing review date
 
 If renewal_option = "Create Renewal Report" then 
-
     'If all workers are selected, the script will go to REPT/USER, and load all of the workers into an array. Otherwise it'll create a single-object "array" just for simplicity of code.
     If all_workers_check = checked then
     	call create_array_of_all_active_x_numbers_in_county(worker_array, two_digit_county_code)
@@ -138,29 +137,23 @@ If renewal_option = "Create Renewal Report" then
     objExcel.cells(1,  8).value = "GA Status"
     objExcel.cells(1,  9).value = "MSA Status"
     objExcel.cells(1, 10).value = "HS/GRH Status"
-    objExcel.cells(1, 11).value = "CASH SR Status"
-    objExcel.cells(1, 12).value = "CASH ER Status"
-    objExcel.cells(1, 13).value = "CASH Next SR"
-    objExcel.cells(1, 14).value = "CASH Next ER"
-    objExcel.cells(1, 15).value = "SNAP Status"
-    objExcel.cells(1, 16).value = "SNAP SR Status"
-    objExcel.cells(1, 17).value = "SNAP ER Status"
-    objExcel.cells(1, 18).value = "Next SNAP SR"
-    objExcel.cells(1, 19).value = "Next SNAP ER"
-    objExcel.cells(1, 20).value = "MA Status"
-    objExcel.cells(1, 21).value = "MSP Status"
-    objExcel.cells(1, 22).value = "MA SR Status"
-    objExcel.cells(1, 23).value = "MA ER Status"
-    objExcel.cells(1, 24).value = "Next HC SR"
-    objExcel.cells(1, 25).value = "Next HC ER"
-    objExcel.cells(1, 26).value = "Case Language"
-    objExcel.Cells(1, 27).value = "Interpreter"
-    objExcel.cells(1, 28).value = "Phone # One"
-    objExcel.cells(1, 29).value = "Phone # Two"
-    objExcel.Cells(1, 30).value = "Phone # Three"
-    objExcel.Cells(1, 31).value = "Notes"
+    objExcel.cells(1, 11).value = "CASH Next SR"
+    objExcel.cells(1, 12).value = "CASH Next ER"
+    objExcel.cells(1, 13).value = "SNAP Status"
+    objExcel.cells(1, 14).value = "Next SNAP SR"
+    objExcel.cells(1, 15).value = "Next SNAP ER"
+    objExcel.cells(1, 16).value = "MA Status"
+    objExcel.cells(1, 17).value = "MSP Status"
+    objExcel.cells(1, 18).value = "Next HC SR"
+    objExcel.cells(1, 19).value = "Next HC ER"
+    objExcel.cells(1, 20).value = "Case Language"
+    objExcel.Cells(1, 21).value = "Interpreter"
+    objExcel.cells(1, 22).value = "Phone # One"
+    objExcel.cells(1, 23).value = "Phone # Two"
+    objExcel.Cells(1, 24).value = "Phone # Three"
+    objExcel.Cells(1, 25).value = "Notes"
     
-    FOR i = 1 to 31									'formatting the cells'
+    FOR i = 1 to 25									'formatting the cells'
     	objExcel.Cells(1, i).Font.Bold = True		'bold font'
     	ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
         objExcel.Columns(i).AutoFit()				'sizing the columns'
@@ -225,7 +218,7 @@ If renewal_option = "Create Renewal Report" then
     'Establish the reviews array 
     recert_cases = 0	'value for the array
     DIM review_array()
-    ReDim review_array(30, 0)
+    ReDim review_array(24, 0)
     
     const worker_const          = 0 
     const case_number_const     = 1
@@ -237,27 +230,21 @@ If renewal_option = "Create Renewal Report" then
     const GA_status_const       = 7
     const MSA_status_const      = 8
     const GRH_status_const      = 9
-    const CASH_SR_status_const  = 10
-    const CASH_ER_status_const  = 11
-    const CASH_next_SR_const    = 12
-    const CASH_next_ER_const    = 13
-    const SNAP_status_const     = 14
-    const SNAP_SR_status_const  = 15
-    const SNAP_ER_status_const  = 16
-    const SNAP_next_SR_const    = 17
-    const SNAP_next_ER_const    = 18
-    const MA_status_const       = 19
-    const MSP_status_const      = 20
-    const HC_SR_status_const    = 21
-    const HC_ER_status_const    = 22
-    const HC_next_SR_const      = 23
-    const HC_next_ER_const      = 24
-    const Language_const        = 25
-    const Interpreter_const     = 26
-    const phone_1_const         = 27
-    const phone_2_const         = 28
-    const phone_3_const         = 29
-    const notes_const           = 30
+    const CASH_next_SR_const    = 10
+    const CASH_next_ER_const    = 11
+    const SNAP_status_const     = 12
+    const SNAP_SR_status_const  = 13
+    const SNAP_next_ER_const    = 14
+    const MA_status_const       = 15
+    const MSP_status_const      = 16
+    const HC_next_SR_const      = 17
+    const HC_next_ER_const      = 18
+    const Language_const        = 19
+    const Interpreter_const     = 20
+    const phone_1_const         = 21
+    const phone_2_const         = 22
+    const phone_3_const         = 23
+    const notes_const           = 24
 
     objExcel.worksheets(report_date & " Review Report").Activate  'Activates the review worksheet    
     
@@ -270,7 +257,7 @@ If renewal_option = "Create Renewal Report" then
         
         worker = ObjExcel.Cells(excel_row, 1).Value
     
-        ReDim Preserve review_array(30,     recert_cases)	'This resizes the array based on if master notes were found or not
+        ReDim Preserve review_array(24,     recert_cases)	'This resizes the array based on if master notes were found or not
         review_array(worker_const,          recert_cases) = trim(worker)
         review_array(case_number_const,     recert_cases) = MAXIS_case_number
         review_array(interview_const,       recert_cases) = False 
@@ -281,21 +268,15 @@ If renewal_option = "Create Renewal Report" then
         review_array(GA_status_const,       recert_cases) = ""
         review_array(MSA_status_const,      recert_cases) = ""
         review_array(GRH_status_const,      recert_cases) = ""
-        review_array(CASH_SR_status_const,  recert_cases) = ""
-        review_array(CASH_ER_status_const,  recert_cases) = ""
         review_array(CASH_next_SR_const,    recert_cases) = ""
         review_array(CASH_next_ER_const,    recert_cases) = ""
         review_array(SNAP_status_const,     recert_cases) = ""
-        review_array(SNAP_SR_status_const,  recert_cases) = ""
-        review_array(SNAP_ER_status_const,  recert_cases) = ""
         review_array(SNAP_next_SR_const,    recert_cases) = ""
         review_array(SNAP_next_ER_const,    recert_cases) = ""
         review_array(MA_status_const,       recert_cases) = ""
         review_array(MSP_status_const,      recert_cases) = ""
         review_array(HC_SR_status_const,    recert_cases) = ""
         review_array(HC_ER_status_const,    recert_cases) = ""
-        review_array(HC_next_SR_const,      recert_cases) = ""
-        review_array(HC_next_ER_const,      recert_cases) = ""
         review_array(Language_const,        recert_cases) = ""
         review_array(Interpreter_const,     recert_cases) = ""
         review_array(phone_1_const,         recert_cases) = ""
@@ -314,7 +295,7 @@ If renewal_option = "Create Renewal Report" then
     Call MAXIS_footer_month_confirmation
     
     total_cases_review = 0  'for total recert counts for stats 
-    excel_row = 2           'resetting excel_row to output the array information  
+    excel_row = 2          'resetting excel_row to output the array information  
     
     'DO 'Loops until there are no more cases in the Excel list
     For item = 0 to Ubound(review_array, 2)
@@ -389,11 +370,6 @@ If renewal_option = "Create Renewal Report" then
                             'Next CASH ER and SR dates
                             review_array(CASH_next_SR_const, item) = CASH_CSR_date
                             review_array(CASH_next_ER_const, item) = CASH_ER_date
-                            
-                            EmReadscreen CASH_report_status, 1, 7, 64
-                            If CASH_report_status = "_" then CASH_report_status = ""
-                            If review_array(interview_const, item) = True then review_array(CASH_ER_status_const, item) = CASH_report_status
-                            If review_array(current_SR_const, item) = True then review_array(CASH_SR_status_const, item) = CASH_report_status 
                         Else 
                             review_array(notes_const, i) = "Unable to Access CASH Review Information."
                         End if 
@@ -430,11 +406,6 @@ If renewal_option = "Create Renewal Report" then
                             'Next SNAP ER and SR dates
                             review_array(SNAP_next_SR_const, item) = SNAP_CSR_date
                             review_array(SNAP_next_ER_const, item) = SNAP_ER_date
-                            
-                            EmReadscreen SNAP_report_status, 1, 7, 64
-                            If SNAP_report_status = "_" then SNAP_report_status = ""
-                            If review_array(interview_const, item) = True then review_array(SNAP_ER_status_const, item) = SNAP_report_status
-                            If review_array(current_SR_const, item) = True then review_array(SNAP_SR_status_const, item) = SNAP_report_status 
                         Else 
                             review_array(notes_const, i) = "Unable to Access FS Review Information."
                         End if 
@@ -477,11 +448,6 @@ If renewal_option = "Create Renewal Report" then
                             review_array(HC_next_ER_const, item) = HC_ER_date
                             
                             Transmit 'to exit out of the pop-up screen 
-                        
-                            EmReadscreen HC_report_status, 1, 7, 73 
-                            If HC_report_status = "_" then HC_report_status = ""
-                            If review_array(interview_const, item) = True then review_array(HC_ER_status_const, item) = HC_report_status
-                            If review_array(current_SR_const, item) = True then review_array(HC_SR_status_const, item) = HC_report_status 
                         Else 
                             Transmit 'to exit out of the pop-up screen 
                             review_array(notes_const, i) = "Unable to Access HC Review Information."
@@ -523,27 +489,21 @@ If renewal_option = "Create Renewal Report" then
         ObjExcel.Cells(excel_row,  8).value = review_array(GA_status_const,       item)     'COL H
         ObjExcel.Cells(excel_row,  9).value = review_array(MSA_status_const,      item)     'COL I
         ObjExcel.Cells(excel_row, 10).value = review_array(GRH_status_const,      item)     'COL J
-        ObjExcel.Cells(excel_row, 11).value = review_array(CASH_SR_status_const,  item)     'COL K
-        ObjExcel.Cells(excel_row, 12).value = review_array(CASH_ER_status_const,  item)     'COL L
-        ObjExcel.Cells(excel_row, 13).value = review_array(CASH_next_SR_const,    item)     'COL M
-        ObjExcel.Cells(excel_row, 14).value = review_array(CASH_next_ER_const,    item)     'COL N
-        ObjExcel.Cells(excel_row, 15).value = review_array(SNAP_status_const,     item)     'COL O
-        ObjExcel.Cells(excel_row, 16).value = review_array(SNAP_SR_status_const,  item)     'COL P
-        ObjExcel.Cells(excel_row, 17).value = review_array(SNAP_ER_status_const,  item)     'COL Q
-        ObjExcel.Cells(excel_row, 18).value = review_array(SNAP_next_SR_const,    item)     'COL R
-        ObjExcel.Cells(excel_row, 19).value = review_array(SNAP_next_ER_const,    item)     'COL S
-        ObjExcel.Cells(excel_row, 20).value = review_array(MA_status_const,       item)     'COL T
-        ObjExcel.Cells(excel_row, 21).value = review_array(MSP_status_const,      item)     'COL U
-        ObjExcel.Cells(excel_row, 22).value = review_array(HC_SR_status_const,    item)     'COL V
-        ObjExcel.Cells(excel_row, 23).value = review_array(HC_ER_status_const,    item)     'COL W
-        ObjExcel.Cells(excel_row, 24).value = review_array(HC_next_SR_const,      item)     'COL X
-        ObjExcel.Cells(excel_row, 25).value = review_array(HC_next_ER_const,      item)     'COL Y
-        ObjExcel.Cells(excel_row, 26).value = review_array(Language_const,        item)     'COL Z
-        ObjExcel.Cells(excel_row, 27).value = review_array(Interpreter_const,     item)     'COL AA
-        ObjExcel.Cells(excel_row, 28).value = review_array(phone_1_const,         item)     'COL AB
-        ObjExcel.Cells(excel_row, 29).value = review_array(phone_2_const,         item)     'COL AC
-        ObjExcel.Cells(excel_row, 30).value = review_array(phone_3_const,         item)     'COL AD
-        ObjExcel.Cells(excel_row, 31).value = review_array(notes_const,           item)     'COL AE
+        ObjExcel.Cells(excel_row, 11).value = review_array(CASH_next_SR_const,    item)     'COL M
+        ObjExcel.Cells(excel_row, 12).value = review_array(CASH_next_ER_const,    item)     'COL N
+        ObjExcel.Cells(excel_row, 13).value = review_array(SNAP_status_const,     item)     'COL O
+        ObjExcel.Cells(excel_row, 14).value = review_array(SNAP_next_SR_const,    item)     'COL R
+        ObjExcel.Cells(excel_row, 15).value = review_array(SNAP_next_ER_const,    item)     'COL S
+        ObjExcel.Cells(excel_row, 16).value = review_array(MA_status_const,       item)     'COL T
+        ObjExcel.Cells(excel_row, 17).value = review_array(MSP_status_const,      item)     'COL U
+        ObjExcel.Cells(excel_row, 18).value = review_array(HC_next_SR_const,      item)     'COL X
+        ObjExcel.Cells(excel_row, 19).value = review_array(HC_next_ER_const,      item)     'COL Y
+        ObjExcel.Cells(excel_row, 20).value = review_array(Language_const,        item)     'COL Z
+        ObjExcel.Cells(excel_row, 21).value = review_array(Interpreter_const,     item)     'COL AA
+        ObjExcel.Cells(excel_row, 22).value = review_array(phone_1_const,         item)     'COL AB
+        ObjExcel.Cells(excel_row, 23).value = review_array(phone_2_const,         item)     'COL AC
+        ObjExcel.Cells(excel_row, 24).value = review_array(phone_3_const,         item)     'COL AD
+        ObjExcel.Cells(excel_row, 25).value = review_array(notes_const,           item)     'COL AE
         excel_row = excel_row + 1
         total_cases_review = total_cases_review + 1
         STATS_counter = STATS_counter + 1						'adds one instance to the stats counter
@@ -551,7 +511,7 @@ If renewal_option = "Create Renewal Report" then
     Next 
     
     'Formatting the columns to autofit after they are all finished being created.
-    FOR i = 1 to 31
+    FOR i = 1 to 25
     	objExcel.Columns(i).autofit()
     Next
     
@@ -561,106 +521,106 @@ If renewal_option = "Create Renewal Report" then
     objExcel.Application.Quit
     objExcel.Quit
     
-    '----------------------------------------------------------------------------------------------------Creating the Interview Required Excel List for the auto-dialer and notices 
-    'Opening the Excel file, (now that the dialog is done)
-    Set objExcel = CreateObject("Excel.Application")
-    objExcel.Visible = True
-    Set objWorkbook = objExcel.Workbooks.Add()
-    objExcel.DisplayAlerts = True
-    
-    'Changes name of Excel sheet to "Case information"
-    ObjExcel.ActiveSheet.Name = "ER cases " & REPT_month & "-" & REPT_year
-    
-    'formatting excel file with columns for case number and interview date/time
-    objExcel.cells(1, 1).value 	= "X number"
-    objExcel.cells(1, 2).value 	= "Case Number"
-    objExcel.cells(1, 3).value 	= "Programs"
-    objExcel.cells(1, 4).value 	= "Case language"
-    objExcel.Cells(1, 5).value 	= "Interpreter"
-    objExcel.cells(1, 6).value 	= "Phone # One"
-    objExcel.cells(1, 7).value 	= "Phone # Two"
-    objExcel.Cells(1, 8).value 	= "Phone # Three"
-    
-    FOR i = 1 to 8									'formatting the cells'
-    	objExcel.Cells(1, i).Font.Bold = True		'bold font'
-        ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
-    	objExcel.Columns(i).AutoFit()				'sizing the columns'
-    NEXT
-    
-    excel_row = 2 'Adding the case information to Excel
-    
-    For item = 0 to UBound(review_array, 2)
-        If review_array(interview_const, item) = True then 
-            'determining the programs list 
-            If ( review_array(SNAP_status_const, item) = True and review_array(MFIP_status_const, item) = True ) then 
-                programs_list = "SNAP & MFIP"
-            elseif review_array(SNAP_status_const, item) = True then 
-                programs_list = "SNAP"
-            elseif review_array(MFIP_status_const, item) = True then 
-                programs_list = "MFIP"
-            End if 
-            'Excel output of Interview Required case information
-            If review_array(notes_const, item) <> "PRIV Case." then 
-    	        ObjExcel.Cells(excel_row, 1).value = review_array(worker_const,       item)
-    	        ObjExcel.Cells(excel_row, 2).value = review_array(case_number_const,  item)
-    	        ObjExcel.Cells(excel_row, 3).value = programs_list
-    	        ObjExcel.Cells(excel_row, 4).value = review_array(Language_const,     item)
-    	        ObjExcel.Cells(excel_row, 5).value = review_array(Interpreter_const,  item)
-    	        ObjExcel.Cells(excel_row, 6).value = review_array( phone_1_const,     item)
-    	        ObjExcel.Cells(excel_row, 7).value = review_array( phone_2_const,     item)
-    	        ObjExcel.Cells(excel_row, 8).value = review_array( phone_3_const,     item)
-                excel_row = excel_row + 1
-            End if 
-        End if 
-    Next
-    
-    'Query date/time/runtime info
-    objExcel.Cells(1, 11).Font.Bold = TRUE
-    objExcel.Cells(2, 11).Font.Bold = TRUE
-    objExcel.Cells(3, 11).Font.Bold = TRUE
-    objExcel.Cells(4, 11).Font.Bold = TRUE
-    ObjExcel.Cells(1, 11).Value = "Query date and time:"
-    ObjExcel.Cells(2, 11).Value = "Query runtime (in seconds):"
-    ObjExcel.Cells(3, 11).Value = "Total reviews:"
-    ObjExcel.Cells(4, 11).Value = "Interview required:"
-    ObjExcel.Cells(1, 12).Value = now
-    ObjExcel.Cells(2, 12).Value = timer - query_start_time
-    ObjExcel.Cells(3, 12).Value = total_cases_review    
-    ObjExcel.Cells(4, 12).Value = recert_cases 
-    
-    'Formatting the columns to autofit after they are all finished being created.
-    FOR i = 1 to 12
-    	objExcel.Columns(i).autofit()
-    Next
-    
-    ObjExcel.Worksheets.Add().Name = "Priviliged Cases"
-    
-    'adding information to the Excel list from PND2
-    ObjExcel.Cells(1, 1).Value = "Worker #"
-    ObjExcel.Cells(1, 2).Value = "Case number"
-    
-    FOR i = 1 to 2								'formatting the cells'
-        objExcel.Cells(1, i).Font.Bold = True		'bold font'
-        ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
-        objExcel.Columns(i).AutoFit()				'sizing the columns'
-    NEXT
-    
-    excel_row = 2   'Adding the case information to Excel
-    
-    For item = 0 to UBound(review_array, 2)
-        'Excel output of Interview Required case information
-        If review_array(notes_const, item) = "PRIV Case." then 
-            ObjExcel.Cells(excel_row, 1).value = review_array(worker_const,       item)
-            ObjExcel.Cells(excel_row, 2).value = review_array(case_number_const,  item)
-            excel_row = excel_row + 1
-        End if 
-    Next
-    
-    'Formatting the columns to autofit after they are all finished being created.
-    FOR i = 1 to 2
-    	objExcel.Columns(i).autofit()
-    Next
-Else 
+    ''----------------------------------------------------------------------------------------------------Creating the Interview Required Excel List for the auto-dialer and notices 
+    ''Opening the Excel file, (now that the dialog is done)
+    'Set objExcel = CreateObject("Excel.Application")
+    'objExcel.Visible = True
+    'Set objWorkbook = objExcel.Workbooks.Add()
+    'objExcel.DisplayAlerts = True
+    '
+    ''Changes name of Excel sheet to "Case information"
+    'ObjExcel.ActiveSheet.Name = "ER cases " & REPT_month & "-" & REPT_year
+    '
+    ''formatting excel file with columns for case number and interview date/time
+    'objExcel.cells(1, 1).value 	= "X number"
+    'objExcel.cells(1, 2).value 	= "Case Number"
+    'objExcel.cells(1, 3).value 	= "Programs"
+    'objExcel.cells(1, 4).value 	= "Case language"
+    'objExcel.Cells(1, 5).value 	= "Interpreter"
+    'objExcel.cells(1, 6).value 	= "Phone # One"
+    'objExcel.cells(1, 7).value 	= "Phone # Two"
+    'objExcel.Cells(1, 8).value 	= "Phone # Three"
+    '
+    'FOR i = 1 to 8									'formatting the cells'
+    '	objExcel.Cells(1, i).Font.Bold = True		'bold font'
+    '    ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
+    '	objExcel.Columns(i).AutoFit()				'sizing the columns'
+    'NEXT
+    '
+    'excel_row = 2 'Adding the case information to Excel
+    '
+    'For item = 0 to UBound(review_array, 2)
+    '    If review_array(interview_const, item) = True then 
+    '        'determining the programs list 
+    '        If ( review_array(SNAP_status_const, item) = True and review_array(MFIP_status_const, item) = True ) then 
+    '            programs_list = "SNAP & MFIP"
+    '        elseif review_array(SNAP_status_const, item) = True then 
+    '            programs_list = "SNAP"
+    '        elseif review_array(MFIP_status_const, item) = True then 
+    '            programs_list = "MFIP"
+    '        End if 
+    '        'Excel output of Interview Required case information
+    '        If review_array(notes_const, item) <> "PRIV Case." then 
+    '	        ObjExcel.Cells(excel_row, 1).value = review_array(worker_const,       item)
+    '	        ObjExcel.Cells(excel_row, 2).value = review_array(case_number_const,  item)
+    '	        ObjExcel.Cells(excel_row, 3).value = programs_list
+    '	        ObjExcel.Cells(excel_row, 4).value = review_array(Language_const,     item)
+    '	        ObjExcel.Cells(excel_row, 5).value = review_array(Interpreter_const,  item)
+    '	        ObjExcel.Cells(excel_row, 6).value = review_array( phone_1_const,     item)
+    '	        ObjExcel.Cells(excel_row, 7).value = review_array( phone_2_const,     item)
+    '	        ObjExcel.Cells(excel_row, 8).value = review_array( phone_3_const,     item)
+    '            excel_row = excel_row + 1
+    '        End if 
+    '    End if 
+    'Next
+    '
+    ''Query date/time/runtime info
+    'objExcel.Cells(1, 11).Font.Bold = TRUE
+    'objExcel.Cells(2, 11).Font.Bold = TRUE
+    'objExcel.Cells(3, 11).Font.Bold = TRUE
+    'objExcel.Cells(4, 11).Font.Bold = TRUE
+    'ObjExcel.Cells(1, 11).Value = "Query date and time:"
+    'ObjExcel.Cells(2, 11).Value = "Query runtime (in seconds):"
+    'ObjExcel.Cells(3, 11).Value = "Total reviews:"
+    'ObjExcel.Cells(4, 11).Value = "Interview required:"
+    'ObjExcel.Cells(1, 12).Value = now
+    'ObjExcel.Cells(2, 12).Value = timer - query_start_time
+    'ObjExcel.Cells(3, 12).Value = total_cases_review    
+    'ObjExcel.Cells(4, 12).Value = recert_cases 
+    '
+    ''Formatting the columns to autofit after they are all finished being created.
+    'FOR i = 1 to 12
+    '	objExcel.Columns(i).autofit()
+    'Next
+    '
+    'ObjExcel.Worksheets.Add().Name = "Priviliged Cases"
+    '
+    ''adding information to the Excel list from PND2
+    'ObjExcel.Cells(1, 1).Value = "Worker #"
+    'ObjExcel.Cells(1, 2).Value = "Case number"
+    '
+    'FOR i = 1 to 2								'formatting the cells'
+    '    objExcel.Cells(1, i).Font.Bold = True		'bold font'
+    '    ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
+    '    objExcel.Columns(i).AutoFit()				'sizing the columns'
+    'NEXT
+    '
+    'excel_row = 2   'Adding the case information to Excel
+    '
+    'For item = 0 to UBound(review_array, 2)
+    '    'Excel output of Interview Required case information
+    '    If review_array(notes_const, item) = "PRIV Case." then 
+    '        ObjExcel.Cells(excel_row, 1).value = review_array(worker_const,       item)
+    '        ObjExcel.Cells(excel_row, 2).value = review_array(case_number_const,  item)
+    '        excel_row = excel_row + 1
+    '    End if 
+    'Next
+    '
+    ''Formatting the columns to autofit after they are all finished being created.
+    'FOR i = 1 to 2
+    '	objExcel.Columns(i).autofit()
+    'Next
+Else' 
     msgbox "No discrepancy report available yet."
 End if 
     
