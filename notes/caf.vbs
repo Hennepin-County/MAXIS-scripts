@@ -2364,6 +2364,7 @@ If user_ID_for_special_function = "LILE002" Then user_running_waived_interview_c
 If user_ID_for_special_function = "CALI001" Then user_running_waived_interview_cases = TRUE
 If user_ID_for_special_function = "WFZ107" Then user_running_waived_interview_cases = TRUE
 If user_ID_for_special_function = "WFX421" Then user_running_waived_interview_cases = TRUE
+user_running_waived_interview_cases = TRUE
 
 'SCRIPT ====================================================================================================================
 EMConnect ""
@@ -2753,27 +2754,32 @@ If the_process_for_cash = "Recertification" OR the_process_for_snap = "Recertifi
     ' End If
     If (cash_recert_mo = "10" AND cash_recert_yr = "20") OR (snap_recert_mo = "10" AND snap_recert_yr = "20") Then
         check_the_array = TRUE
-        If snap_recert_mo = "10" AND snap_recert_yr = "20" Then check_for_waived_interview = TRUE
+        If the_process_for_snap = "Recertification" Then check_for_waived_interview = TRUE
+        If the_process_for_cash = "Recertification" AND type_of_cash = "Family" Then check_for_waived_interview = TRUE
         month_to_pull = 10
     End If
     If (cash_recert_mo = "11" AND cash_recert_yr = "20") OR (snap_recert_mo = "11" AND snap_recert_yr = "20") Then
         check_the_array = TRUE
-        If snap_recert_mo = "11" AND snap_recert_yr = "20" Then check_for_waived_interview = TRUE
+        If the_process_for_snap = "Recertification" Then check_for_waived_interview = TRUE
+        If the_process_for_cash = "Recertification" AND type_of_cash = "Family" Then check_for_waived_interview = TRUE
         month_to_pull = 11
     End If
     If (cash_recert_mo = "12" AND cash_recert_yr = "20") OR (snap_recert_mo = "12" AND snap_recert_yr = "20") Then
         check_the_array = TRUE
-        If snap_recert_mo = "12" AND snap_recert_yr = "20" Then check_for_waived_interview = TRUE
+        If the_process_for_snap = "Recertification" Then check_for_waived_interview = TRUE
+        If the_process_for_cash = "Recertification" AND type_of_cash = "Family" Then check_for_waived_interview = TRUE
         month_to_pull = 12
     End If
     If (cash_recert_mo = "01" AND cash_recert_yr = "21") OR (snap_recert_mo = "01" AND snap_recert_yr = "21") Then
         check_the_array = TRUE
-        If snap_recert_mo = "01" AND snap_recert_yr = "21" Then check_for_waived_interview = TRUE
+        If the_process_for_snap = "Recertification" Then check_for_waived_interview = TRUE
+        If the_process_for_cash = "Recertification" AND type_of_cash = "Family" Then check_for_waived_interview = TRUE
         month_to_pull = 1
     End If
     If (cash_recert_mo = "02" AND cash_recert_yr = "21") OR (snap_recert_mo = "02" AND snap_recert_yr = "21") Then
         check_the_array = TRUE
-        If snap_recert_mo = "02" AND snap_recert_yr = "21" Then check_for_waived_interview = TRUE
+        If the_process_for_snap = "Recertification" Then check_for_waived_interview = TRUE
+        If the_process_for_cash = "Recertification" AND type_of_cash = "Family" Then check_for_waived_interview = TRUE
         month_to_pull = 2
     End If
 End If
