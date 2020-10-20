@@ -76,11 +76,9 @@ DO
 		Dialog Dialog1
 		cancel_without_confirmation
         If renewal_option = "Select one..." then err_msg = err_msg & vbNewLine & "* Select a renewal option."
-		If renewal_option = "Create Renewal Report" then
-            If worker_number = "" and all_workers_check = 0 then err_msg = err_msg & vbNewLine & "* Enter a valid worker number."
-		    If worker_number <> "" and all_workers_check = 1 then err_msg = err_msg & vbNewLine & "* Enter a worker number OR select the entire agency, not both."
-		    If (CM_plus_two_checkbox = 1 and datePart("d", date) < 16) then err_msg = err_msg & VbNewLine & "* This is not a valid time period for REPT/REVS until the 16th of the month. Please select a new time period."
-		End if 
+        If worker_number = "" and all_workers_check = 0 then err_msg = err_msg & vbNewLine & "* Enter a valid worker number."
+		If worker_number <> "" and all_workers_check = 1 then err_msg = err_msg & vbNewLine & "* Enter a worker number OR select the entire agency, not both."
+		If (CM_plus_two_checkbox = 1 and datePart("d", date) < 16) then err_msg = err_msg & VbNewLine & "* This is not a valid time period for REPT/REVS until the 16th of the month. Please select a new time period."
         IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP until err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -171,8 +169,7 @@ If renewal_option = "Create Renewal Report" then
     For each worker in worker_array
     	worker = trim(worker)
         If worker = "" then exit for
-    	'writing in the worker number in the correct col
-    	Call write_value_and_transmit(worker, 21, 6)
+    	Call write_value_and_transmit(worker, 21, 6)   'writing in the worker number in the correct col
     	
         'Grabbing case numbers from REVS for requested worker
     	DO	'All of this loops until last_page_check = "THIS IS THE LAST PAGE"
@@ -212,14 +209,14 @@ If renewal_option = "Create Renewal Report" then
     	Loop until last_page_check = "THIS IS THE LAST PAGE"
     next
     
-    'Saves and closes the most recent Excel workbook
+    'Saves and closes the most the main spreadsheet before continuing 
     objExcel.ActiveWorkbook.SaveAs "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\Renewals\" & report_date & " Review Report.xlsx"
-
-    'Establish the reviews array 
-    recert_cases = 0	'value for the array
-    DIM review_array()
-    ReDim review_array(24, 0)
     
+    'Establish the reviews array 
+    recert_cases = 0	            'incrementor for the array
+    DIM review_array()              'declaring the array
+    ReDim review_array(24, 0)       're-establihing size of array. 
+    'constants for review_array 
     const worker_const          = 0 
     const case_number_const     = 1
     const interview_const       = 2
@@ -247,7 +244,6 @@ If renewal_option = "Create Renewal Report" then
     const notes_const           = 24
 
     objExcel.worksheets(report_date & " Review Report").Activate  'Activates the review worksheet    
-    
     excel_row = 2   'Excel start row reading the case information for the array 
 
     Do 
@@ -255,15 +251,15 @@ If renewal_option = "Create Renewal Report" then
         MAXIS_case_number = trim(MAXIS_case_number)
         If MAXIS_case_number = "" then exit do 
         
-        worker = ObjExcel.Cells(excel_row, 1).Value
+        worker = ObjExcel.Cells(excel_row, 1).Value             
     
         ReDim Preserve review_array(24,     recert_cases)	'This resizes the array based on if master notes were found or not
         review_array(worker_const,          recert_cases) = trim(worker)
         review_array(case_number_const,     recert_cases) = MAXIS_case_number
-        review_array(interview_const,       recert_cases) = False 
+        review_array(interview_const,       recert_cases) = False   'values defaulted to False 
         review_array(no_interview_const,    recert_cases) = False
         review_array(current_SR_const,      recert_cases) = False
-        review_array(MFIP_status_const,     recert_cases) = ""
+        review_array(MFIP_status_const,     recert_cases) = ""      'values start at blank
         review_array(DWP_status_const,      recert_cases) = ""
         review_array(GA_status_const,       recert_cases) = ""
         review_array(MSA_status_const,      recert_cases) = ""
@@ -284,11 +280,12 @@ If renewal_option = "Create Renewal Report" then
         review_array(phone_3_const,         recert_cases) = ""
         review_array(notes_const,           recert_cases) = ""
         'Incremented variables
-        recert_cases = recert_cases + 1                 'array count  
+        recert_cases = recert_cases + 1                 'array incrementor  
         STATS_counter = STATS_counter + 1               'stats incrementor 
         excel_row = excel_row + 1                       'Excel row incrementor
     LOOP
     
+    '----------------------------------------------------------------------------------------------------MAXIS TIME 
     back_to_SELF
     MAXIS_footer_month = CM_mo_plus_one
     MAXIS_footer_year = CM_yr_plus_one
@@ -316,13 +313,13 @@ If renewal_option = "Create Renewal Report" then
                 review_array(no_interview_const, item) = ""
                 review_array(current_SR_const, item) = ""
             Else 
+                'function to determine programs and the program's status---Yay Casey!
                 Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, unknown_cash_pending)
             
                 If case_active = False then 
                     review_array(notes_const, item) = "Case Not Active."
-                    continue_data_colletion = False
                 Else 
-                    'valuing the array variables 
+                    'valuing the array variables from the inforamtion gathered in from CASE/CURR 
                     review_array(MFIP_status_const, item) = mfip_case
                     review_array(DWP_status_const,  item) = dwp_case     
                     review_array(GA_status_const,   item) = ga_case      
@@ -351,7 +348,7 @@ If renewal_option = "Create Renewal Report" then
                             CASH_ER_date = recert_mo & "/" & recert_yr
                             If CASH_ER_date = "__/__" then CASH_ER_date = ""
                             
-                            'Comparing CSR and ER daates to the month of REVS review
+                            'Comparing CSR dates to the month of REVS review
                             IF CSR_mo = left(REPT_month, 2) and CSR_yr = right(REPT_year, 2) THEN
                                 review_array(current_SR_const, item) = True
                             Else
@@ -360,9 +357,9 @@ If renewal_option = "Create Renewal Report" then
                             
                             'Determining if a case is ER, and if it meets interview requirement 
                             IF recert_mo = left(REPT_month, 2) and recert_yr = right(REPT_year, 2) then 
-                                If mfip_case = True then review_array(interview_const, item) = True 
-                                IF adult_cash_case = True then review_array(no_interview_const, item) = True 
-                            Elseif recert_mo = left(REPT_month, 2) and recert_yr <> right(REPT_year, 2)  then 
+                                If mfip_case = True then review_array(interview_const, item) = True             'MFIP interview requirement 
+                                IF adult_cash_case = True then review_array(no_interview_const, item) = True    'Adult CASH programs do not meet interview requirement
+                            Elseif recert_mo = left(REPT_month, 2) and recert_yr <> right(REPT_year, 2) then 
                                 review_array(interview_const, item) = False
                                 review_array(no_interview_const, item) = False 
                             End if 
@@ -489,21 +486,21 @@ If renewal_option = "Create Renewal Report" then
         ObjExcel.Cells(excel_row,  8).value = review_array(GA_status_const,       item)     'COL H
         ObjExcel.Cells(excel_row,  9).value = review_array(MSA_status_const,      item)     'COL I
         ObjExcel.Cells(excel_row, 10).value = review_array(GRH_status_const,      item)     'COL J
-        ObjExcel.Cells(excel_row, 11).value = review_array(CASH_next_SR_const,    item)     'COL M
-        ObjExcel.Cells(excel_row, 12).value = review_array(CASH_next_ER_const,    item)     'COL N
-        ObjExcel.Cells(excel_row, 13).value = review_array(SNAP_status_const,     item)     'COL O
-        ObjExcel.Cells(excel_row, 14).value = review_array(SNAP_next_SR_const,    item)     'COL R
-        ObjExcel.Cells(excel_row, 15).value = review_array(SNAP_next_ER_const,    item)     'COL S
-        ObjExcel.Cells(excel_row, 16).value = review_array(MA_status_const,       item)     'COL T
-        ObjExcel.Cells(excel_row, 17).value = review_array(MSP_status_const,      item)     'COL U
-        ObjExcel.Cells(excel_row, 18).value = review_array(HC_next_SR_const,      item)     'COL X
-        ObjExcel.Cells(excel_row, 19).value = review_array(HC_next_ER_const,      item)     'COL Y
-        ObjExcel.Cells(excel_row, 20).value = review_array(Language_const,        item)     'COL Z
-        ObjExcel.Cells(excel_row, 21).value = review_array(Interpreter_const,     item)     'COL AA
-        ObjExcel.Cells(excel_row, 22).value = review_array(phone_1_const,         item)     'COL AB
-        ObjExcel.Cells(excel_row, 23).value = review_array(phone_2_const,         item)     'COL AC
-        ObjExcel.Cells(excel_row, 24).value = review_array(phone_3_const,         item)     'COL AD
-        ObjExcel.Cells(excel_row, 25).value = review_array(notes_const,           item)     'COL AE
+        ObjExcel.Cells(excel_row, 11).value = review_array(CASH_next_SR_const,    item)     'COL K
+        ObjExcel.Cells(excel_row, 12).value = review_array(CASH_next_ER_const,    item)     'COL L
+        ObjExcel.Cells(excel_row, 13).value = review_array(SNAP_status_const,     item)     'COL M
+        ObjExcel.Cells(excel_row, 14).value = review_array(SNAP_next_SR_const,    item)     'COL N
+        ObjExcel.Cells(excel_row, 15).value = review_array(SNAP_next_ER_const,    item)     'COL O
+        ObjExcel.Cells(excel_row, 16).value = review_array(MA_status_const,       item)     'COL P
+        ObjExcel.Cells(excel_row, 17).value = review_array(MSP_status_const,      item)     'COL Q
+        ObjExcel.Cells(excel_row, 18).value = review_array(HC_next_SR_const,      item)     'COL R
+        ObjExcel.Cells(excel_row, 19).value = review_array(HC_next_ER_const,      item)     'COL S
+        ObjExcel.Cells(excel_row, 20).value = review_array(Language_const,        item)     'COL T
+        ObjExcel.Cells(excel_row, 21).value = review_array(Interpreter_const,     item)     'COL U
+        ObjExcel.Cells(excel_row, 22).value = review_array(phone_1_const,         item)     'COL V
+        ObjExcel.Cells(excel_row, 23).value = review_array(phone_2_const,         item)     'COL W
+        ObjExcel.Cells(excel_row, 24).value = review_array(phone_3_const,         item)     'COL X
+        ObjExcel.Cells(excel_row, 25).value = review_array(notes_const,           item)     'COL Y
         excel_row = excel_row + 1
         total_cases_review = total_cases_review + 1
         STATS_counter = STATS_counter + 1						'adds one instance to the stats counter
