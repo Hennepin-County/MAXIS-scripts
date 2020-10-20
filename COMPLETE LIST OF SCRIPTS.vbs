@@ -2138,6 +2138,18 @@ script_array(script_num).subcategory            = array("HEALTH CARE", "SNAP", "
 script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1							'Increment by one
+ReDim Preserve script_array(script_num)   'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script. Script details below...
+script_array(script_num).script_name 			= "Review Report"											'Script name
+script_array(script_num).description 			= "BULK script that gathers reivew (ER, SR, etc.) cases and information."
+script_array(script_num).category               = "ADMIN"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("BZ", "Monthly Tasks")
+script_array(script_num).dlg_keys               = array("")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/20/2020#
+
+script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie	'Set this array element to be a new script. Script details below...
 script_array(script_num).script_name		    = "Review Testers"										'Script name
