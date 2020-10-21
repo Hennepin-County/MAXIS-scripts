@@ -843,6 +843,8 @@ ElseIf renewal_option = "Collect Statistics" Then
 		excel_row = excel_row + 1
 	Loop until case_number_to_check = ""
 
+ElseIf renewal_option = "Create Worklist" Then
+	msgbox "No worklist report available yet."
 Else
     msgbox "No discrepancy report available yet."
 End if
