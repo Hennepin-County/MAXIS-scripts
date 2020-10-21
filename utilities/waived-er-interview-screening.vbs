@@ -1107,7 +1107,7 @@ Do
 	If interview_needed = TRUE Then
 		end_msg = "*** Changes / Differences Reported ***"
 		end_msg = end_msg & vbCr & vbCr & "Since the information from the case appears to have potentially changed, we need to complete an interview."
-		end_msg = end_msg & vbCr & vbCr & "Providing a full ineterview for a client with changes provides the best client service and ensures the most accuracy."
+		end_msg = end_msg & vbCr & vbCr & "Providing a full interview for a client with changes provides the best client service and ensures the most accuracy."
 		script_end_procedure_with_error_report(end_msg)
 	End If
 
@@ -1820,7 +1820,7 @@ If form_type_received = "Combined Annual Renewal (CAR)" Then
 		If interview_needed = TRUE Then
 			end_msg = "*** Changes / Differences Reported ***"
 			end_msg = end_msg & vbCr & vbCr & "Since the information from the case appears to have potentially changed, we need to complete an interview."
-			end_msg = end_msg & vbCr & vbCr & "Providing a full ineterview for a client with changes provides the best client service and ensures the most accuracy."
+			end_msg = end_msg & vbCr & vbCr & "Providing a full interview for a client with changes provides the best client service and ensures the most accuracy."
 			If quest_two_changes_reported = "CHANGES REPORTED" Then end_msg = end_msg & vbCr & vbCr & " - You entered that there are changes reported question two of the Combined AR Form."
 			If car_changes_reported = "CHANGES REPORTED" Then end_msg = end_msg & vbCr & vbCr & " - You entered that there are changes reported on the form compared to the information in MAXIS."
 			script_end_procedure_with_error_report(end_msg)
@@ -1960,7 +1960,7 @@ If form_type_received <> "Combined Annual Renewal (CAR)" Then
 		If interview_needed = TRUE Then
 			end_msg = "*** Changes / Differences Reported ***"
 			end_msg = end_msg & vbCr & vbCr & "Since the information from the case appears to have potentially changed, we need to complete an interview."
-			end_msg = end_msg & vbCr & vbCr & "Providing a full ineterview for a client with changes provides the best client service and ensures the most accuracy."
+			end_msg = end_msg & vbCr & vbCr & "Providing a full interview for a client with changes provides the best client service and ensures the most accuracy."
 			If income_changes_apparent = "CHANGES REPORTED" Then end_msg = end_msg & vbCr & vbCr & " - You entered that there are changes reported on the form compared to the information in MAXIS."
 			If form_report_all_income_sources = "No" OR form_report_all_income_sources = "Unsure" Then end_msg = end_msg & vbCr & vbCr & " - You indicated that the form did not report all of the income sources, or that it is unclear."
 			If form_report_new_income_sources = "Yes" OR form_report_new_income_sources = "Unsure" Then end_msg = end_msg & vbCr & vbCr & " - You indicated that the form reported an income source not listed in MAXIS, or that this is unclear."
@@ -2191,7 +2191,7 @@ If form_type_received <> "Combined Annual Renewal (CAR)" Then
 		If interview_needed = TRUE Then
 			end_msg = "*** Changes / Differences Reported ***"
 			end_msg = end_msg & vbCr & vbCr & "Since the information from the case appears to have potentially changed, we need to complete an interview."
-			end_msg = end_msg & vbCr & vbCr & "Providing a full ineterview for a client with changes provides the best client service and ensures the most accuracy."
+			end_msg = end_msg & vbCr & vbCr & "Providing a full interview for a client with changes provides the best client service and ensures the most accuracy."
 
 			If housing_expense_change_apparent = "CHANGES REPORTED" Then end_msg = end_msg & vbCr & vbCr & " - You entered that there are changes in shelter expense reported on the form compared to the information in MAXIS."
 			If other_expense_change_apparent = "CHANGES REPORTED" Then end_msg = end_msg & vbCr & vbCr & " - You entered that there are changes in other expense reported on the form compared to the information in MAXIS."
@@ -2250,7 +2250,7 @@ Do
 	If interview_needed = TRUE Then
 		end_msg = "*** Changes / Differences Reported ***"
 		end_msg = end_msg & vbCr & vbCr & "Since the information from the case appears to have potentially changed, we need to complete an interview."
-		end_msg = end_msg & vbCr & vbCr & "Providing a full ineterview for a client with changes provides the best client service and ensures the most accuracy."
+		end_msg = end_msg & vbCr & vbCr & "Providing a full interview for a client with changes provides the best client service and ensures the most accuracy."
 		script_end_procedure_with_error_report(end_msg)
 	End If
 
