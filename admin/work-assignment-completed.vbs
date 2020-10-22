@@ -167,6 +167,54 @@ word_doc_file_path = ""
 'Dialog to gather the details/stats/counts
 Select Case type_of_work_assignment                                             'differen selections/options based on the work assignment selection
     Case "Expedited Review"
+		file_selection_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\QI Expedited Review " & date_for_doc & ".xlsx" 'single assignment file
+		Call excel_open(file_selection_path, True, True, ObjWorkExcel, objWorkbook)  'opens the selected excel file'
+
+		exp_number_of_cases_reviewed = 0
+		exp_number_of_cases_approved = 0
+		exp_number_of_cases_no_id = 0
+		exp_number_of_cases_ID_approved = 0
+		exp_number_of_cases_correct = 0
+		exp_number_of_cases_xfs_no_caf = 0
+		exp_number_of_cases_should_have_been_postponed = 0
+		exp_number_of_cases_MAXIS_incorrect = 0
+		exp_number_of_cases_bad_notes = 0
+
+		excel_row = 2
+		Do
+			the_case_number = trim(ObjWorkExcel.Cells(excel_row, 2).Value)
+
+			If the_case_number <> "" Then
+				If ObjWorkExcel.Cells(excel_row,  9).Value = "Yes" Then exp_number_of_cases_reviewed = exp_number_of_cases_reviewed + 1 									'Rewiewed
+				If ObjWorkExcel.Cells(excel_row, 10).Value = "Yes" Then exp_number_of_cases_approved = exp_number_of_cases_approved + 1 									'Approved
+				If ObjWorkExcel.Cells(excel_row, 11).Value = "Yes" Then exp_number_of_cases_no_id = exp_number_of_cases_no_id + 1 											'Appear EXP, no ID, could not be approved
+				If ObjWorkExcel.Cells(excel_row, 12).Value = "Yes" Then exp_number_of_cases_ID_approved = exp_number_of_cases_ID_approved + 1 								'Appear EXP, ID was available - Incorrect
+				If ObjWorkExcel.Cells(excel_row, 13).Value = "Yes" Then exp_number_of_cases_correct = exp_number_of_cases_correct + 1 										'Processed correctly by HSR
+				If ObjWorkExcel.Cells(excel_row, 14).Value = "Yes" Then exp_number_of_cases_xfs_no_caf = exp_number_of_cases_xfs_no_caf + 1 								'No CAF on file
+				If ObjWorkExcel.Cells(excel_row, 15).Value = "Yes" Then exp_number_of_cases_should_have_been_postponed = exp_number_of_cases_should_have_been_postponed + 1 'Verifications should have been postponed/Case app'd
+				If ObjWorkExcel.Cells(excel_row, 16).Value = "Yes" Then exp_number_of_cases_MAXIS_incorrect = exp_number_of_cases_MAXIS_incorrect + 1 						'MAXIS was updated incorrectly
+				If ObjWorkExcel.Cells(excel_row, 17).Value = "Yes" Then exp_number_of_cases_bad_notes = exp_number_of_cases_bad_notes + 1 									'Has insufficient CASE/NOTES
+				If ObjWorkExcel.Cells(excel_row, 18).Value = "Yes" Then assignment_case_numbers_to_save = assignment_case_numbers_to_save & ", " & the_case_number 			'Save case number for team review?
+			End If
+
+			excel_row = excel_row + 1
+		Loop Until the_case_number = ""
+
+		ObjWorkExcel.ActiveWorkbook.Close
+		ObjWorkExcel.Application.Quit
+		ObjWorkExcel.Quit
+
+		If left(assignment_case_numbers_to_save, 2) = ", " Then assignment_case_numbers_to_save = right(assignment_case_numbers_to_save, len(assignment_case_numbers_to_save) - 2)
+		exp_number_of_cases_reviewed = exp_number_of_cases_reviewed & ""
+		exp_number_of_cases_approved = exp_number_of_cases_approved & ""
+		exp_number_of_cases_no_id = exp_number_of_cases_no_id & ""
+		exp_number_of_cases_ID_approved = exp_number_of_cases_ID_approved & ""
+		exp_number_of_cases_correct = exp_number_of_cases_correct & ""
+		exp_number_of_cases_xfs_no_caf = exp_number_of_cases_xfs_no_caf & ""
+		exp_number_of_cases_should_have_been_postponed = exp_number_of_cases_should_have_been_postponed & ""
+		exp_number_of_cases_MAXIS_incorrect = exp_number_of_cases_MAXIS_incorrect & ""
+		exp_number_of_cases_bad_notes = exp_number_of_cases_bad_notes & ""
+
         counts_number = 8                                                       'There are 9 counts we select so the array goes to 8
         'Setting the file locations and doc strings
         word_doc_name = qi_worker_full_name & " - EXP Processing Assignment Report for " & date_for_doc
@@ -610,5 +658,24 @@ If assignment_case_numbers_to_save <> "" Then CALL create_outlook_email("HSPH.EW
 If assignment_new_ideas <> "" Then CALL create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", ideas_email_subject, ideas_email_body, "", TRUE)
 'email all the people that this is done
 CALL create_outlook_email(qi_worker_supervisor_email, "Ilse.Ferris@hennepin.us", main_email_subject, main_email_body, "", TRUE)
+
+If type_of_work_assignment = "Expedited Review" Then                                             'differen selections/options based on the work assignment selection
+	file_selection_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\QI Expedited Review " & date_for_doc & ".xlsx" 'single assignment file
+	Call excel_open(file_selection_path, True, True, ObjWorkExcel, objWorkbook)  'opens the selected excel file'
+
+	excel_row = 2
+	Do
+		For excel_col = 9 to 18
+			If ObjWorkExcel.Cells(excel_row,  excel_col).Value = "Yes" Then ObjWorkExcel.Cells(excel_row,  excel_col).Value = "X"
+		Next
+		excel_row = excel_row + 1
+		the_case_number = trim(ObjWorkExcel.Cells(excel_row, 2).Value)
+	Loop Until the_case_number = ""
+	'Saves and closes the most recent Excel workbook
+	ObjWorkExcel.ActiveWorkbook.SaveAs file_selection_path
+	ObjWorkExcel.ActiveWorkbook.Close
+	ObjWorkExcel.Application.Quit
+	ObjWorkExcel.Quit
+End If
 
 Call script_end_procedure_with_error_report("Great work! Thank you for completing your assignment report.")
