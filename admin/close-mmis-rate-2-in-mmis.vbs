@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/22/2020", "Added functionalty to support more than one SSRT panel in MAXIS.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/22/2018", "Added functionalty to support more than one SSR agreement in MMIS.", "Ilse Ferris, Hennepin County")
 call changelog_update("08/17/2018", "Added custom function for MAXIS navigation, updated output to show PMI numbers as they are collected, more handling for multiple agreements in MMIS.", "Ilse Ferris, Hennepin County")
 call changelog_update("08/10/2018", "Added functionalty to disregard Andrew Residence cases as Rate 2.", "Ilse Ferris, Hennepin County")
@@ -110,7 +111,6 @@ end function
 'CONNECTS TO BlueZone
 EMConnect ""
 get_county_code
-
 MAXIS_footer_month = CM_mo	'establishing footer month/year
 MAXIS_footer_year = CM_yr
 
@@ -231,13 +231,14 @@ For item = 0 to UBound(Update_MMIS_array, 2)
 
 	'----------------------------------------------------------------------------------------------------SSRT: ensuring that a panel exists, and the FACI dates match.
 	If Update_MMIS_array(rate_two, item) = True then
-
+        
         Call navigate_to_MAXIS_screen("STAT", "MEMB")
         EMReadScreen client_PMI, 8, 4, 46
         client_PMI = trim(client_PMI)
         client_PMI = right("00000000" & client_pmi, 8)
         Update_MMIS_array(clt_PMI, item) = client_pmi
 
+        multiple_panels = False     'defaulting to False 
         Call navigate_to_MAXIS_screen ("STAT", "SSRT")
         call write_value_and_transmit ("01", 20, 76)	'For member 01 - All GRH cases should be for member 01.
 
@@ -248,16 +249,14 @@ For item = 0 to UBound(Update_MMIS_array, 2)
         If SSRT_total_check = "0" then
             Update_MMIS_array(rate_two, item) = False
             Update_MMIS_array(case_status, item) = "Case is not Rate 2."
-        elseif SSRT_total_check <> "1" then
-            Update_MMIS_array(rate_two, item) = False
-            Update_MMIS_array(case_status, item) = "More than one SSRT panel exists. Process manually."
         elseif instr(SSRT_vendor_name, "ANDREW RESIDENCE") then
             Update_MMIS_array(rate_two, item) = False
             Update_MMIS_array(case_status, item) = "Andrew Residence facilities do not get loaded into MMIS."
+        elseif SSRT_total_check <> "1" then 
+            multiple_panels = True
         Else
             Update_MMIS_array(rate_two, item) = True
             EMReadScreen NPI_number, 10, 7, 43
-
             row = 14
             Do
                 EMReadScreen ssrt_in_date, 10, row, 47
@@ -277,8 +276,69 @@ For item = 0 to UBound(Update_MMIS_array, 2)
                     row = row - 1
                 End if
             Loop until row = 9
+        End if 
+        
+        If multiple_panels = True then 
+            Update_MMIS_array(rate_two, item) = False   'valuing the variable to false until proven true 
+            Call write_value_and_transmit("01", 20, 79)
+            Do
+                EmReadscreen current_panel_num, 1, 2, 73
+                row = 14
+                Do 
+                    EMReadScreen open_row, 10, row, 47
+                    If open_row <> "__ __ ____" then 
+                        EmReadscreen date_out, 10, row, 71 
+                        If date_out = "__ __ ____" then
+                            'If open ended date, then this is the SSRT panel to select
+                            Update_MMIS_array(rate_two, item) = True
+                            EMReadScreen NPI_number, 10, 7, 43
+                            Update_MMIS_array(closing_date, item) = last_day_of_month
+                            exit do    'can exit do since other panels will not require evaluation
+                        End if
+                    End if      
+                    row = row - 1
+                Loop until row = 9 '10 is 1st SSRT row 
+                If Update_MMIS_array(rate_two, item) = True then exit do
+                transmit
+            Loop until current_panel_num = SSRT_total_check 
+            
+            'manual removal of SSRT panels if open-ended panel could not be found. This is very discretionary. 
+            If (multiple_panels = True and Update_MMIS_array(rate_two, item) = False) then 
+                BeginDialog Dialog1, 0, 0, 191, 80, "More than one SSRT panel"
+                ButtonGroup ButtonPressed
+                OkButton 95, 60, 40, 15
+                CancelButton 140, 60, 40, 15
+                GroupBox 5, 5, 175, 45, "More than one SSRT panel exists:"
+                Text 10, 20, 165, 25, "Manually delete all other SSRT panels, leaving the most applicable panel. This is likely to be the one that most recently closed. Press OK when done."
+                EndDialog
+
+                Dialog Dialog1                
+
+                'reading lone SSRT panel information 
+                Update_MMIS_array(rate_two, item) = True
+                EMReadScreen NPI_number, 10, 7, 43
+                row = 14
+                Do
+                    EMReadScreen ssrt_in_date, 10, row, 47
+                    If ssrt_in_date <> "__ __ ____" then
+                        EMReadScreen ssrt_out_date, 10, row, 71
+                        If ssrt_out_date = "__ __ ____" then
+                            Update_MMIS_array(closing_date, item) = last_day_of_month
+                        Else
+                            EMReadScreen ssrt_mo, 2, row, 71
+                            EMReadScreen ssrt_day, 2, row, 74
+                            EMReadScreen ssrt_yr, 2, row, 79
+                            closed_date = ssrt_mo & "/" & ssrt_day & "/" & ssrt_yr
+                            Update_MMIS_array(closing_date, item) = closed_date
+                        End if
+                        exit do
+                    else
+                        row = row - 1
+                    End if
+                Loop until row = 9
+            End if 
         End if
-    End if
+    End if  
 
     If Update_MMIS_array(rate_two, item) = True then
 		'----------------------------------------------------------------------------------------------------DISA: ensuring that client is not on a waiver. If they are, they should not be rate 2.
@@ -312,7 +372,7 @@ For item = 0 to UBound(Update_MMIS_array, 2)
 Next
 
 'Formatting the column width.
-FOR i = 1 to 6
+FOR i = 1 to 7
 	objExcel.Columns(i).AutoFit()
 NEXT
 
@@ -451,7 +511,7 @@ For item = 0 to UBound(Update_MMIS_array, 2)
 		Call start_a_blank_CASE_NOTE
 		Call write_variable_in_CASE_NOTE("GRH Rate 2 SSR closed in MMIS eff " & close_date)
 		Call write_variable_in_CASE_NOTE("---")
-		Call write_variable_in_CASE_NOTE("Actions performed by BZ script, run by I. Ferris, QI team")
+		Call write_variable_in_CASE_NOTE("Actions performed by BZ script, run by I. Ferris, QI/BZS Teams")
 		PF3
 	End if
 Next
