@@ -1388,7 +1388,13 @@ Else
 	Next
 End If
 
-name_of_script = "ACTIONS - MHC ENROLLMENT - " & left(enrollment_source, 5) & ".vbs"
+If enrollment_source = "Morning Letters" Then
+	name_of_script = "ACTIONS - MHC ENROLLMENT - Morn Ltrs.vbs"
+	If open_enrollment_case = TRUE Then name_of_script = "ACTIONS - MHC AHPS ENROLLMENT - Morn Ltrs.vbs"
+Else
+	name_of_script = "ACTIONS - MHC ENROLLMENT - " & left(enrollment_source, 5) & ".vbs"
+	If open_enrollment_case = TRUE Then name_of_script = "ACTIONS - MHC AHPS ENROLLMENT - " & left(enrollment_source, 5) & ".vbs"
+End If
 If caller_rela = "" Then caller_rela = "Client"
 
 EMReadScreen MMIS_panel_check, 4, 1, 52	'checking to see if user is on the RKEY panel in MMIS. If not, then it will go to there.
@@ -1416,6 +1422,12 @@ pf11		'Starts a new case note'
 ' CALL write_variable_in_MMIS_NOTE ("***Hennepin MHC note*** Household enrollment updated for " & Enrollment_date & " per enrollment form")
 If open_enrollment_case = TRUE Then
 	CALL write_variable_in_MMIS_NOTE ("AHPS request processed for 2020 selection")
+	If enrollment_source = "Morning Letters" Then
+	ElseIf enrollment_source = "Phone" Then
+		CALL write_variable_in_MMIS_NOTE ("Enrollment requested by " & caller_rela & " via " & enrollment_source)
+	ElseIf enrollment_source = "Paper Enrollment Form" Then
+		CALL write_variable_in_MMIS_NOTE ("Enrollment requested via " & enrollment_source)
+	End If
 Else
 	If enrollment_source = "Morning Letters" Then
 	    CALL write_variable_in_MMIS_NOTE ("Re-enrollment processed effective: " & enrollment_date)
