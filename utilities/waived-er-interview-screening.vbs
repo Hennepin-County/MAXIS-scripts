@@ -1,5 +1,5 @@
 'GATHERING STATS===========================================================================================
-name_of_script = "Waived ER Interview Screening.vbs"
+name_of_script = "UTILITIES - WAIVED ER INTERVIEW SCREENING.vbs"
 start_time = timer
 STATS_counter = 1
 STATS_manualtime = 270
