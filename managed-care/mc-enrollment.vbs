@@ -1389,11 +1389,11 @@ Else
 End If
 
 If enrollment_source = "Morning Letters" Then
-	name_of_script = "ACTIONS - MHC ENROLLMENT - Morn Ltrs.vbs"
-	If open_enrollment_case = TRUE Then name_of_script = "ACTIONS - MHC AHPS ENROLLMENT - Morn Ltrs.vbs"
+	name_of_script = "ACTIONS - MHC ENROLLMENT - MORN LTRS.vbs"
+	If open_enrollment_case = TRUE Then name_of_script = "ACTIONS - MHC AHPS ENROLLMENT - MORN LTRS.vbs"
 Else
-	name_of_script = "ACTIONS - MHC ENROLLMENT - " & left(enrollment_source, 5) & ".vbs"
-	If open_enrollment_case = TRUE Then name_of_script = "ACTIONS - MHC AHPS ENROLLMENT - " & left(enrollment_source, 5) & ".vbs"
+	name_of_script = "ACTIONS - MHC ENROLLMENT - " & UCASE(left(enrollment_source, 5)) & ".vbs"
+	If open_enrollment_case = TRUE Then name_of_script = "ACTIONS - MHC AHPS ENROLLMENT - " & UCASE(left(enrollment_source, 5)) & ".vbs"
 End If
 If caller_rela = "" Then caller_rela = "Client"
 
