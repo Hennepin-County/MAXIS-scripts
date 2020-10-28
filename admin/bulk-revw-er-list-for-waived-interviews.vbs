@@ -67,7 +67,7 @@ Call check_for_MAXIS(true)
 'Identify which month it is for revw
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 181, 55, "Which Month"
-  DropListBox 95, 15, 80, 45, "Select One..."+chr(9)+"October"+chr(9)+"November", month_to_check
+  DropListBox 95, 15, 80, 45, "Select One..."+chr(9)+"October"+chr(9)+"November"+chr(9)+"December"+chr(9)+"January"+chr(9)+"February", month_to_check
   ButtonGroup ButtonPressed
     OkButton 125, 35, 50, 15
   Text 10, 20, 80, 10, "What is the ER month?"
@@ -100,6 +100,22 @@ If month_to_check = "December" Then
 	sheet_to_select = "ER cases 12-20"
 	' sheet_to_select = "TRIAL"
 	ADJUSTED_CASES_ARRAY = dec_revw_to_adjust_array
+End If
+If month_to_check = "January" Then
+	excel_file_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\Renewals\2021\01-21 Renewals.xlsx"
+	REVS_footer_mo = "01"
+	REVS_footer_yr = "21"
+	sheet_to_select = "ER cases 01-21"
+	' sheet_to_select = "TRIAL"
+	ADJUSTED_CASES_ARRAY = jan_revw_to_adjust_array
+End If
+If month_to_check = "February" Then
+	excel_file_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\Renewals\2021\02-21 Renewals.xlsx"
+	REVS_footer_mo = "02"
+	REVS_footer_yr = "21"
+	sheet_to_select = "ER cases 02-21"
+	' sheet_to_select = "TRIAL"
+	ADJUSTED_CASES_ARRAY = feb_revw_to_adjust_array
 End If
 
 'Initial Dialog which requests a file path for the excel file
