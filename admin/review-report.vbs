@@ -268,7 +268,8 @@ const HC_revw_status_const	= 29
 const HC_MAGI_code_const	= 30
 const review_recvd_const	= 31
 const interview_date_const	= 32
-const notes_const           = 33
+const saved_to_excel_const	= 33
+const notes_const           = 34
 
 DIM review_array()              'declaring the array
 ReDim review_array(notes_const, 0)       're-establihing size of array.
@@ -575,8 +576,6 @@ If renewal_option = "Create Renewal Report" then
 
     total_cases_review = 0  'for total recert counts for stats
     excel_row = 2          'resetting excel_row to output the array information
-	first_restart = TRUE
-	' MsgBox "Starting array - " & starting_array_position
 
     'DO 'Loops until there are no more cases in the Excel list
     For item = 0 to Ubound(review_array, 2)
@@ -638,9 +637,7 @@ If renewal_option = "Create Renewal Report" then
 				review_array(phone_3_const,         item) = ObjExcel.Cells(excel_row, 24).value      'COL X
 				review_array(notes_const,           item) = ObjExcel.Cells(excel_row, 25).value      'COL Y
 			Else
-				If first_restart = TRUE  Then MsgBox "Now we are reading" & vbCr & "Array item - " & item & vbCr & "Starting array position - " & starting_array_position & vbCr & "Case - " & MAXIS_case_number
-				first_restart = FALSE
-
+				Call check_for_MAXIS(FALSE)		'making sure we haven't passworded out
 				Call read_case_details_for_review_report(item)
 
 		        '----------------------------------------------------------------------------------------------------Excel Output
@@ -713,6 +710,7 @@ If renewal_option = "Create Renewal Report" then
     NEXT
 
     excel_row = 2 'Adding the case information to Excel
+	recert_cases = 0
 
     For item = 0 to UBound(review_array, 2)
         If review_array(interview_const, item) = True then
@@ -734,6 +732,7 @@ If renewal_option = "Create Renewal Report" then
     	        ObjExcel.Cells(excel_row, 6).value = review_array( phone_1_const,     item)
     	        ObjExcel.Cells(excel_row, 7).value = review_array( phone_2_const,     item)
     	        ObjExcel.Cells(excel_row, 8).value = review_array( phone_3_const,     item)
+				recert_cases = recert_cases + 1
                 excel_row = excel_row + 1
             End if
         End if
@@ -785,6 +784,8 @@ If renewal_option = "Create Renewal Report" then
     FOR i = 1 to 2
     	objExcel.Columns(i).autofit()
     Next
+
+	end_msg = "Success! The review report is ready."
 ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we are ready to collect statistics about review cases.
 	MAXIS_footer_month = REPT_month							'Setting the footer month and year based on the review month. We do not run statistics in CM + 2
 	MAXIS_footer_year = REPT_year
@@ -938,6 +939,7 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 				If review_array(review_recvd_const, recert_cases) = "__/__/__" Then review_array(review_recvd_const, recert_cases) = ""
 				review_array(interview_date_const, recert_cases) = replace(intvw_date, " ", "/")
 				If review_array(interview_date_const, recert_cases) = "__/__/__" Then review_array(interview_date_const, recert_cases) = ""
+				review_array(saved_to_excel_const, recert_cases) = FALSE
 
                 recert_cases = recert_cases + 1
 
@@ -969,11 +971,12 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 				If review_array(review_recvd_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, recvd_date_excel_col).Value = review_array(review_recvd_const, revs_item)
 				If review_array(interview_date_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, intvw_date_excel_col).Value = review_array(interview_date_const, revs_item)
 				found_in_array = TRUE			'this lets the script know that this case was found in the array
+				review_array(saved_to_excel_const, revs_item) = TRUE
 				Exit For						'if we found a match, we should stop looking
 			End If
 		Next
 		'if the case was not found in the array, we need to look in STAT for the information
-		If found_in_array = FALSE Then
+		If found_in_array = FALSE AND case_number_to_check <> "" Then
 			Call check_for_MAXIS(FALSE)		'making sure we haven't passworded out
 
 			MAXIS_case_number = case_number_to_check		'setting the case number for NAV functions
@@ -1006,11 +1009,61 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 		excel_row = excel_row + 1		'going to the next excel
 	Loop until case_number_to_check = ""
 
+	'Now we will check for any cases that have been ADDED to REVS since we created the report or last ran statistics.
+	For revs_item = 0 to UBound(review_array, 2)
+		If review_array(saved_to_excel_const, revs_item) = FALSE Then
+			Call check_for_MAXIS(FALSE)		'making sure we haven't passworded out
+			MAXIS_case_number = review_array(case_number_const, revs_item)
+
+			Call read_case_details_for_review_report(revs_item)
+
+			'----------------------------------------------------------------------------------------------------Excel Output
+			ObjExcel.Cells(excel_row,  3).value = review_array(interview_const,       revs_item)     'COL C
+			ObjExcel.Cells(excel_row,  4).value = review_array(no_interview_const,    revs_item)     'COL D
+			ObjExcel.Cells(excel_row,  5).value = review_array(current_SR_const,      revs_item)     'COL E
+			ObjExcel.Cells(excel_row,  6).value = review_array(MFIP_status_const,     revs_item)     'COL F
+			ObjExcel.Cells(excel_row,  7).value = review_array(DWP_status_const,      revs_item)     'COL G
+			ObjExcel.Cells(excel_row,  8).value = review_array(GA_status_const,       revs_item)     'COL H
+			ObjExcel.Cells(excel_row,  9).value = review_array(MSA_status_const,      revs_item)     'COL I
+			ObjExcel.Cells(excel_row, 10).value = review_array(GRH_status_const,      revs_item)     'COL J
+			ObjExcel.Cells(excel_row, 11).value = review_array(CASH_next_SR_const,    revs_item)     'COL K
+			ObjExcel.Cells(excel_row, 12).value = review_array(CASH_next_ER_const,    revs_item)     'COL L
+			ObjExcel.Cells(excel_row, 13).value = review_array(SNAP_status_const,     revs_item)     'COL M
+			ObjExcel.Cells(excel_row, 14).value = review_array(SNAP_next_SR_const,    revs_item)     'COL N
+			ObjExcel.Cells(excel_row, 15).value = review_array(SNAP_next_ER_const,    revs_item)     'COL O
+			ObjExcel.Cells(excel_row, 16).value = review_array(MA_status_const,       revs_item)     'COL P
+			ObjExcel.Cells(excel_row, 17).value = review_array(MSP_status_const,      revs_item)     'COL Q
+			ObjExcel.Cells(excel_row, 18).value = review_array(HC_next_SR_const,      revs_item)     'COL R
+			ObjExcel.Cells(excel_row, 19).value = review_array(HC_next_ER_const,      revs_item)     'COL S
+			ObjExcel.Cells(excel_row, 20).value = review_array(Language_const,        revs_item)     'COL T
+			ObjExcel.Cells(excel_row, 21).value = review_array(Interpreter_const,     revs_item)     'COL U
+			ObjExcel.Cells(excel_row, 22).value = review_array(phone_1_const,         revs_item)     'COL V
+			ObjExcel.Cells(excel_row, 23).value = review_array(phone_2_const,         revs_item)     'COL W
+			ObjExcel.Cells(excel_row, 24).value = review_array(phone_3_const,         revs_item)     'COL X
+			ObjExcel.Cells(excel_row, 25).value = review_array(notes_const,           revs_item)     'COL Y
+
+			'Entering information from the array into the excel spreadsheet
+			If review_array(CASH_revw_status_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, cash_stat_excel_col).Value = review_array(CASH_revw_status_const, revs_item)
+			If review_array(SNAP_revw_status_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, snap_stat_excel_col).Value = review_array(SNAP_revw_status_const, revs_item)
+			If review_array(HC_revw_status_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, hc_stat_excel_col).Value = review_array(HC_revw_status_const, revs_item)
+			If review_array(HC_MAGI_code_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, magi_stat_excel_col).Value = review_array(HC_MAGI_code_const, revs_item)
+			If review_array(review_recvd_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, recvd_date_excel_col).Value = review_array(review_recvd_const, revs_item)
+			If review_array(interview_date_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, intvw_date_excel_col).Value = review_array(interview_date_const, revs_item)
+
+			Call back_to_SELF		'Back out in case we need to look into another case.
+
+		End If
+	Next
+
+
+
+	run_time = timer - query_start_time
+	end_msg = "Case details have been added to the Review Report" & vbCr & vbCr & "Run time: " & run_time & " seconds."
 ElseIf renewal_option = "Create Worklist" Then
-	msgbox "No worklist report available yet."
+	end_msg = "No worklist report available yet."
 Else
-    msgbox "No discrepancy report available yet."
+    end_msg = "No discrepancy report available yet."
 End if
 
 STATS_counter = STATS_counter - 1
-script_end_procedure("Success! The review report is ready.")
+script_end_procedure(end_msg)
