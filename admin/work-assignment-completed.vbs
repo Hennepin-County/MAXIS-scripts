@@ -69,6 +69,7 @@ Const cases_xfs_bad_note_col            = 12
 Const xfs_assignment_length_col         = 13
 Const xfs_assignment_assessment_col     = 14
 Const xfs_list_of_cases_col             = 15
+Const other_notes_col					= 16
 
 Const cases_d30_no_interview            = 5
 Const cases_d30_other_reason            = 6
@@ -338,6 +339,7 @@ Select Case type_of_work_assignment                                             
         ObjExcel.Cells(excel_row, xfs_assignment_length_col         ).Value = assignment_time
         ObjExcel.Cells(excel_row, xfs_assignment_assessment_col     ).Value = assignment_assesment
         ObjExcel.Cells(excel_row, xfs_list_of_cases_col             ).Value = assignment_case_numbers_to_save
+		ObjExcel.Cells(excel_row, other_notes_col             	).Value = assignment_other_notes
 
         ObjExcel.ActiveWorkbook.Save        'saving and closing the Excel spreadsheet
         ObjExcel.ActiveWorkbook.Close
@@ -652,13 +654,6 @@ objDoc.SaveAs word_doc_file_path & word_doc_name & ".docx"                      
 objWord.ActiveDocument.Close
 objWord.Application.Quit
 
-'send the list of messy cases to the QI email that Mandora reviews
-If assignment_case_numbers_to_save <> "" Then CALL create_outlook_email("HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us", "", case_numbers_email_subject, case_numbers_email_body, "", TRUE)
-'send the new ideas of things to count to the BZST email
-If assignment_new_ideas <> "" Then CALL create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", ideas_email_subject, ideas_email_body, "", TRUE)
-'email all the people that this is done
-CALL create_outlook_email(qi_worker_supervisor_email, "Ilse.Ferris@hennepin.us", main_email_subject, main_email_body, "", TRUE)
-
 If type_of_work_assignment = "Expedited Review" Then                                             'differen selections/options based on the work assignment selection
 	file_selection_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\QI Expedited Review " & date_for_doc & ".xlsx" 'single assignment file
 	Call excel_open(file_selection_path, True, True, ObjWorkExcel, objWorkbook)  'opens the selected excel file'
@@ -676,6 +671,15 @@ If type_of_work_assignment = "Expedited Review" Then                            
 	ObjWorkExcel.ActiveWorkbook.Close
 	ObjWorkExcel.Application.Quit
 	ObjWorkExcel.Quit
+
+	MsgBox "Your counts and details have been successfully saved. The script will now send the emails to report out that your work assignment is completed."
 End If
+
+'send the list of messy cases to the QI email that Mandora reviews
+If assignment_case_numbers_to_save <> "" Then CALL create_outlook_email("HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us", "", case_numbers_email_subject, case_numbers_email_body, "", TRUE)
+'send the new ideas of things to count to the BZST email
+If assignment_new_ideas <> "" Then CALL create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", ideas_email_subject, ideas_email_body, "", TRUE)
+'email all the people that this is done
+CALL create_outlook_email(qi_worker_supervisor_email, "Ilse.Ferris@hennepin.us", main_email_subject, main_email_body, "", TRUE)
 
 Call script_end_procedure_with_error_report("Great work! Thank you for completing your assignment report.")
