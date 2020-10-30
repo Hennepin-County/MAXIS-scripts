@@ -523,10 +523,6 @@ Select Case type_of_work_assignment                                             
         End If
 End Select
 
-If type_of_work_assignment = "Expedited Review" Then                                             'differen selections/options based on the work assignment selection
-
-End If
-
 'Adding the rest of the detail to the email body
 main_email_body = main_email_body & vbCr & "Completed by: " & qi_worker_full_name
 main_email_body = main_email_body & vbCr & vbCr & "Report completed, can be found: "
@@ -559,7 +555,6 @@ If assignment_new_ideas <> "" Then
 End If
 main_email_body = main_email_body & vbCr & vbCr & "------"
 main_email_body = main_email_body & vbCr & email_signature
-
 
 
 'send the list of messy cases to the QI email that Mandora reviews
