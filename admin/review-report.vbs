@@ -1692,6 +1692,7 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 	ObjExcel.Cells(1, 34).Value = now
 	ObjExcel.Cells(2, 34).Value = timer - query_start_time
 
+	'https://docs.microsoft.com/en-us/office/vba/api/excel.xlcolorindex - This is where you find all the excel numbers to use are.
 	border_array = array("B1:C"&last_row, "D1:D"&last_row, "E1:E"&last_row, "F1:G"&last_row, "H1:I"&last_row, "A2:I2", "A3:I5", "A6:I8", "B10:I10", "K3:AE5", "K6:AE8", "K9:AE11", "K12:AE14", "K15:AE17", "M1:N17", "O1:P17",_
 	 					 "Q1:R17", "S1:T17", "U1:V17", "W1:X17", "Y1:Z17", "AA1:AB17", "AC1:AD17", "AE1:AE17")
 
