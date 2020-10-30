@@ -5587,25 +5587,27 @@ If this_is_a_tester = TRUE Then
                     Call check_for_password(are_we_passworded_out)
                 Loop until are_we_passworded_out = FALSE
 
-                Call Navigate_to_MAXIS_screen("STAT", "REVW")
-                PF9
-                Call create_mainframe_friendly_date(CAF_datestamp, 13, 37, "YY")
-                Call create_mainframe_friendly_date(interview_date, 15, 37, "YY")
+                IF confirm_update_revw = 1 Then
+                    Call Navigate_to_MAXIS_screen("STAT", "REVW")
+                    PF9
+                    Call create_mainframe_friendly_date(CAF_datestamp, 13, 37, "YY")
+                    Call create_mainframe_friendly_date(interview_date, 15, 37, "YY")
 
-                If cash_stat_revw_status = "N" Then EMWriteScreen "I", 7, 40
-                If snap_stat_revw_status = "N" Then EMWriteScreen "I", 7, 60
+                    If cash_stat_revw_status = "N" Then EMWriteScreen "I", 7, 40
+                    If snap_stat_revw_status = "N" Then EMWriteScreen "I", 7, 60
 
-                attempt_count = 1
-                Do
-                    transmit
-                    EMReadScreen actually_saved, 7, 24, 2
-                    attempt_count = attempt_count + 1
-                    If attempt_count = 20 Then
-                        PF10
-                        revw_panel_updated = FALSE
-                        Exit Do
-                    End If
-                Loop until actually_saved = "ENTER A"
+                    attempt_count = 1
+                    Do
+                        transmit
+                        EMReadScreen actually_saved, 7, 24, 2
+                        attempt_count = attempt_count + 1
+                        If attempt_count = 20 Then
+                            PF10
+                            revw_panel_updated = FALSE
+                            Exit Do
+                        End If
+                    Loop until actually_saved = "ENTER A"
+                End If
                 If interview_is_being_waived = vbYes AND interview_date = date Then interview_date = ""
             End If
         End If
@@ -6845,5 +6847,6 @@ END IF
 
 end_msg = "Success! CAF has been successfully noted. Please remember to run the Approved Programs, Closed Programs, or Denied Programs scripts if  results have been APP'd."
 If do_not_update_prog = 1 Then end_msg = end_msg & vbNewLine & vbNewLine & "It was selected that PROG would NOT be updated because " & no_update_reason
+If interview_is_being_waived = vbYes Then end_msg = "INTERVIEW WAIVED" & vbCR & vbCr & end_msg
 
 script_end_procedure_with_error_report(end_msg)
