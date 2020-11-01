@@ -615,13 +615,13 @@ ObjExcel.Cells(1, 8).Value = "QI Review Notes"
 
 ObjExcel.Cells(1,  9).Value = "Rewiewed"
 ObjExcel.Cells(1, 10).Value = "Approved"
-ObjExcel.Cells(1, 11).Value = "Appear EXP, no ID, could not be approved"
+ObjExcel.Cells(1, 11).Value = "Appear EXP, no ID - Correct"
 ObjExcel.Cells(1, 12).Value = "Appear EXP, ID was available - Incorrect"
 ObjExcel.Cells(1, 13).Value = "Processed correctly by HSR"
 ObjExcel.Cells(1, 14).Value = "No CAF on file"
 ObjExcel.Cells(1, 15).Value = "Verifications should have been postponed/Case app'd"
-ObjExcel.Cells(1, 16).Value = "MAXIS was updated correctly"
-ObjExcel.Cells(1, 17).Value = "Has sufficient CASE/NOTES"
+ObjExcel.Cells(1, 16).Value = "MAXIS was updated incorrectly"
+ObjExcel.Cells(1, 17).Value = "Insufficient CASE/NOTES"
 ObjExcel.Cells(1, 18).Value = "Save case number for team review?" 
 
 Excel_row = 2
