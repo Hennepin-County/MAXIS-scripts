@@ -139,31 +139,31 @@ Do
     case_number = trim(case_number)
     If case_number = "" then exit do 
     
-    master_CN = ObjExcel.Cells(excel_row, 8).Value       'reading worker entered notes       
-    PN1  = ObjExcel.Cells(excel_row, 9).Value
-    PN2  = ObjExcel.Cells(excel_row, 10).Value
-    PN3  = ObjExcel.Cells(excel_row, 11).Value
-    PN4  = ObjExcel.Cells(excel_row, 12).Value
-    PN5  = ObjExcel.Cells(excel_row, 13).Value
-    PN6  = ObjExcel.Cells(excel_row, 14).Value
-    PN7  = ObjExcel.Cells(excel_row, 15).Value
-    PN8  = ObjExcel.Cells(excel_row, 16).Value
-    PN9  = ObjExcel.Cells(excel_row, 17).Value
-    PN10 = ObjExcel.Cells(excel_row, 18).Value 
+    master_note = ObjExcel.Cells(excel_row,  8).Value       'reading worker entered notes       
+    PN1         = ObjExcel.Cells(excel_row,  9).Value
+    PN2         = ObjExcel.Cells(excel_row, 10).Value
+    PN3         = ObjExcel.Cells(excel_row, 11).Value
+    PN4         = ObjExcel.Cells(excel_row, 12).Value
+    PN5         = ObjExcel.Cells(excel_row, 13).Value
+    PN6         = ObjExcel.Cells(excel_row, 14).Value
+    PN7         = ObjExcel.Cells(excel_row, 15).Value
+    PN8         = ObjExcel.Cells(excel_row, 16).Value
+    PN9         = ObjExcel.Cells(excel_row, 17).Value
+    PN10        = ObjExcel.Cells(excel_row, 18).Value 
 
     ReDim Preserve master_notes_array(11,  master_note_record)	'This resizes the array based on if master notes were found or not
-    master_notes_array(master_case_number_const,   master_note_record) = case_number
-    master_notes_array(master_note_const, master_note_record) = trim(master_CN)
-    master_notes_array(PN1_const, master_record) =  trim(PN1)
-    master_notes_array(PN2_const, master_record) =  trim(PN2)
-    master_notes_array(PN3_const, master_record) =  trim(PN3)
-    master_notes_array(PN4_const, master_record) =  trim(PN4)
-    master_notes_array(PN5_const, master_record) =  trim(PN5)
-    master_notes_array(PN6_const, master_record) =  trim(PN6)
-    master_notes_array(PN7_const, master_record) =  trim(PN7)
-    master_notes_array(PN8_const, master_record) =  trim(PN8)
-    master_notes_array(PN9_const, master_record) =  trim(PN9)
-    master_notes_array(PN10_const, master_record) = trim(PN10) 
+    master_notes_array(master_case_number_const, master_note_record) = case_number
+    master_notes_array(master_note_const, master_note_record) = trim(master_note)
+    master_notes_array(PN1_const, master_note_record) =  trim(PN1)
+    master_notes_array(PN2_const, master_note_record) =  trim(PN2)
+    master_notes_array(PN3_const, master_note_record) =  trim(PN3)
+    master_notes_array(PN4_const, master_note_record) =  trim(PN4)
+    master_notes_array(PN5_const, master_note_record) =  trim(PN5)
+    master_notes_array(PN6_const, master_note_record) =  trim(PN6)
+    master_notes_array(PN7_const, master_note_record) =  trim(PN7)
+    master_notes_array(PN8_const, master_note_record) =  trim(PN8)
+    master_notes_array(PN9_const, master_note_record) =  trim(PN9)
+    master_notes_array(PN10_const, master_note_record) = trim(PN10) 
     
     master_note_record = master_note_record + 1			'This increments to the next entry in the array'
     STATS_counter = STATS_counter + 1           'stats incrementor 
@@ -206,11 +206,20 @@ For each excel_sheet in array_of_sheets
         For i = 0 to Ubound(master_notes_array, 2)                                                            'If notes were selected to be added, array is looped thru for matching case number
             master_CN = master_notes_array(master_case_number_const, i)
             If master_CN = MAXIS_case_number then 
-                ObjExcel.Cells(excel_row, 8).Value = master_notes_array(master_notes_const, i)   'If case number is found, previous list notes are added to the array 
+                ObjExcel.Cells(excel_row,  8).Value = master_notes_array(master_note_const, i)   'If case number is found, previous list notes are added to the array 
+                ObjExcel.Cells(excel_row,  9).Value = master_notes_array(PN1_const, i)
+                ObjExcel.Cells(excel_row, 10).Value = master_notes_array(PN2_const, i)
+                ObjExcel.Cells(excel_row, 11).Value = master_notes_array(PN3_const, i)
+                ObjExcel.Cells(excel_row, 12).Value = master_notes_array(PN4_const, i)
+                ObjExcel.Cells(excel_row, 13).Value = master_notes_array(PN5_const, i)
+                ObjExcel.Cells(excel_row, 14).Value = master_notes_array(PN6_const, i)
+                ObjExcel.Cells(excel_row, 15).Value = master_notes_array(PN7_const, i)
+                ObjExcel.Cells(excel_row, 16).Value = master_notes_array(PN8_const, i)
+                ObjExcel.Cells(excel_row, 17).Value = master_notes_array(PN9_const, i)
+                ObjExcel.Cells(excel_row, 18).Value = master_notes_array(PN10_const,i)        
                 exit for 
             End if      
         Next 
-          
         excel_row = excel_row + 1                       'Excel row incrementor
     LOOP
 Next 
@@ -327,7 +336,7 @@ Do
             
         For i = 0 to Ubound(master_notes_array, 2)                                                            'If notes were selected to be added, array is looped thru for matching case number
             If master_notes_array(master_case_number_const, i) = MAXIS_case_number then 
-                expedited_array(prev_notes_const,   entry_record) = master_notes_array(master_notes_const, i)   'If case number is found, prevoius list notes are added to the array 
+                expedited_array(prev_notes_const,   entry_record) = master_notes_array(master_note_const, i)   'If case number is found, prevoius list notes are added to the array 
                 expedited_array(prev_notes1_const,  entry_record) = master_notes_array(PN1_const,  i)
                 expedited_array(prev_notes2_const,  entry_record) = master_notes_array(PN2_const,  i)
                 expedited_array(prev_notes3_const,  entry_record) = master_notes_array(PN3_const,  i)
@@ -640,24 +649,24 @@ For item = 0 to UBound(expedited_array, 2)
     If assign_case = True then
         'only assigning cases that haven't exceeded Day 30 - Those are their own assignments 
         If expedited_array(days_pending_const, item) < 30 then 
-            objExcel.Cells(excel_row, 1).Value = expedited_array(worker_number_const,     item)   'COL A
-            objExcel.Cells(excel_row, 2).Value = expedited_array(case_number_const,       item)   'COL B
-            objExcel.Cells(excel_row, 3).Value = expedited_array(program_ID_const,        item)   'COL C
-            objExcel.Cells(excel_row, 4).Value = expedited_array(days_pending_const,      item)   'COL D
-            objExcel.Cells(excel_row, 5).Value = expedited_array(application_date_const,  item)   'COL E
-            objExcel.Cells(excel_row, 6).Value = expedited_array(interview_date_const,    item)   'COL F
-            objExcel.Cells(excel_row, 7).Value = expedited_array(case_status_const,       item)   'COL G
-            objExcel.Cells(excel_row, 8).Value = expedited_array(prev_notes_const,        item)   'COL H
-            objExcel.Cells(excel_row, 9).Value = expedited_array(prev_notes1_const,       item)   'COL I
-            objExcel.Cells(excel_row, 10).Value = expedited_array(prev_notes2_const,      item)   'COL J
-            objExcel.Cells(excel_row, 11).Value = expedited_array(prev_notes3_const,      item)   'COL K
-            objExcel.Cells(excel_row, 12).Value = expedited_array(prev_notes4_const,      item)   'COL L
-            objExcel.Cells(excel_row, 13).Value = expedited_array(prev_notes5_const,      item)   'COL M
-            objExcel.Cells(excel_row, 14).Value = expedited_array(prev_notes6_const,      item)   'COL N
-            objExcel.Cells(excel_row, 15).Value = expedited_array(prev_notes7_const,      item)   'COL O
-            objExcel.Cells(excel_row, 16).Value = expedited_array(prev_notes8_const,      item)   'COL P
-            objExcel.Cells(excel_row, 17).Value = expedited_array(prev_notes9_const,      item)   'COL Q
-            objExcel.Cells(excel_row, 18).Value = expedited_array(prev_notes10_const,     item)   'COL R
+            objExcel.Cells(excel_row,  1).Value = expedited_array(worker_number_const,     item)   'COL A
+            objExcel.Cells(excel_row,  2).Value = expedited_array(case_number_const,       item)   'COL B
+            objExcel.Cells(excel_row,  3).Value = expedited_array(program_ID_const,        item)   'COL C
+            objExcel.Cells(excel_row,  4).Value = expedited_array(days_pending_const,      item)   'COL D
+            objExcel.Cells(excel_row,  5).Value = expedited_array(application_date_const,  item)   'COL E
+            objExcel.Cells(excel_row,  6).Value = expedited_array(interview_date_const,    item)   'COL F
+            objExcel.Cells(excel_row,  7).Value = expedited_array(case_status_const,       item)   'COL G
+            objExcel.Cells(excel_row,  8).Value = expedited_array(prev_notes_const,        item)   'COL H
+            objExcel.Cells(excel_row,  9).Value = expedited_array(prev_notes1_const,       item)   'COL I
+            objExcel.Cells(excel_row, 10).Value = expedited_array(prev_notes2_const,       item)   'COL J
+            objExcel.Cells(excel_row, 11).Value = expedited_array(prev_notes3_const,       item)   'COL K
+            objExcel.Cells(excel_row, 12).Value = expedited_array(prev_notes4_const,       item)   'COL L
+            objExcel.Cells(excel_row, 13).Value = expedited_array(prev_notes5_const,       item)   'COL M
+            objExcel.Cells(excel_row, 14).Value = expedited_array(prev_notes6_const,       item)   'COL N
+            objExcel.Cells(excel_row, 15).Value = expedited_array(prev_notes7_const,       item)   'COL O
+            objExcel.Cells(excel_row, 16).Value = expedited_array(prev_notes8_const,       item)   'COL P
+            objExcel.Cells(excel_row, 17).Value = expedited_array(prev_notes9_const,       item)   'COL Q
+            objExcel.Cells(excel_row, 18).Value = expedited_array(prev_notes10_const,      item)   'COL R
             excel_row = excel_row + 1
         End if 
     End if 
