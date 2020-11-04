@@ -268,7 +268,7 @@ End Function
 
 'SCRIPT----------------------------------------------------------------------------------------------------
 EMConnect ""
-' testing_run = TRUE
+
 'call check_for_MMIS(True) 'Sending MMIS back to the beginning screen and checking for a password prompt
 Call MMIS_case_number_finder(MMIS_case_number)
 
@@ -384,7 +384,6 @@ Do
     If err_msg <> "" Then MsgBOx "Please resolve to continue: " & vbNewLine & err_msg
 Loop until err_msg = ""
 If case_open_enrollment_yn = "No" Then open_enrollment_case = FALSE
-If open_enrollment_case = TRUE then testing_run = TRUE
 MAXIS_case_number = MMIS_case_number
 
 If Insurance_yes = checked then
