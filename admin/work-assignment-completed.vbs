@@ -534,8 +534,8 @@ End Select
 
 'Adding the rest of the detail to the email body
 main_email_body = main_email_body & vbCr & "Completed by: " & qi_worker_full_name
-main_email_body = main_email_body & vbCr & vbCr & "Report completed, can be found: "
-main_email_body = main_email_body & vbCr & "<" & word_doc_file_path & word_doc_name & ".docx>"
+main_email_body = main_email_body & vbCr & vbCr & "Report completed, information can be found on the Count Worksheet."
+' main_email_body = main_email_body & vbCr & "<" & word_doc_file_path & word_doc_name & ".docx>"
 main_email_body = main_email_body & vbCr & vbCr & "Count Worksheet updated, can be found: "
 main_email_body = main_email_body & vbCr & "<" & excel_file_path & ">"
 main_email_body = main_email_body & vbCr & vbCr & "Work assignment assesment: " & assignment_assesment
