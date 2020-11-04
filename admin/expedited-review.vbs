@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("11/04/2020", "Final testing complete for additional data input and output functionality.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("10/12/2020", "Adding case review tracking elements capture and output into script.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("09/30/2020", "YET workbooks have now been added to the achive transfer process at the end of the script.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("09/21/2020", "Added specified report for the YET team based on basket number X127FA5. WFM will not get FA5 cases for FAD assignment.", "Ilse Ferris, Hennepin County")
@@ -672,9 +673,9 @@ For item = 0 to UBound(expedited_array, 2)
     End if 
 Next 
 
+Set objWorkSheet = objExcel.ActiveWorkbook.Worksheets("QI Expedited Review")    'Creating a connection to the active worksheet 
 'Creates droplist with Data Vaildation within the Excel range 
 range_variable = "I2:R" & excel_row - 1 & ""    'range to drop lists. Columns are static. excel_row -1 used to determine last row. 
-msgbox range_variable
 
 '----------------------------------------------------------------------------------------------------Validation.add method in Excel
 'Syntax: expression.Add (Type, AlertStyle, Operator, Formula1, Formula2)
@@ -720,7 +721,7 @@ msgbox range_variable
 'With/End With: Executes a series of statements that repeatedly refer to a single object or structure so that the statements can use a simplified syntax when accessing members of the object or structure. 
 'When using a structure, you can only read the values of members or invoke methods, and you get an error if you try to assign values to members of a structure used in a With...End With statement.
 
-With objWorkSheet.Range(range_variable).Validation  'ObjectExpression - Required. An expression that evaluates to an object. The expression may be arbitrarily complex and is evaluated only once. The expression can evaluate to any data type, including elementary types.
+With objWorksheet.Range(range_variable).Validation  'ObjectExpression - Required. An expression that evaluates to an object. The expression may be arbitrarily complex and is evaluated only once. The expression can evaluate to any data type, including elementary types.
         .Add 3, 1, 1, "Yes,No,X"                    'expression.Add (Type, AlertStyle, Operator, Formula1, Formula2) ---values used vs. names                    
         .IgnoreBlank = True                         'True if blank values are permitted by the range data validation. Read/write Boolean.      
         .InCellDropdown = True                      'True if data validation displays a drop-down list that contains acceptable values. Read/write Boolean.  
