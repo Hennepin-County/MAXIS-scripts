@@ -69,6 +69,7 @@ Const cases_xfs_bad_note_col            = 12
 Const xfs_assignment_length_col         = 13
 Const xfs_assignment_assessment_col     = 14
 Const xfs_list_of_cases_col             = 15
+Const other_notes_col					= 16
 
 Const cases_d30_no_interview            = 5
 Const cases_d30_other_reason            = 6
@@ -167,6 +168,59 @@ word_doc_file_path = ""
 'Dialog to gather the details/stats/counts
 Select Case type_of_work_assignment                                             'differen selections/options based on the work assignment selection
     Case "Expedited Review"
+		file_selection_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\QI Expedited Review " & date_for_doc & ".xlsx" 'single assignment file
+
+		Set fso = CreateObject("Scripting.FileSystemObject")
+
+		If (fso.FileExists(file_selection_path)) Then
+			Call excel_open(file_selection_path, True, True, ObjWorkExcel, objWorkbook)  'opens the selected excel file'
+
+			exp_number_of_cases_reviewed = 0
+			exp_number_of_cases_approved = 0
+			exp_number_of_cases_no_id = 0
+			exp_number_of_cases_ID_approved = 0
+			exp_number_of_cases_correct = 0
+			exp_number_of_cases_xfs_no_caf = 0
+			exp_number_of_cases_should_have_been_postponed = 0
+			exp_number_of_cases_MAXIS_incorrect = 0
+			exp_number_of_cases_bad_notes = 0
+
+			excel_row = 2
+			Do
+				the_case_number = trim(ObjWorkExcel.Cells(excel_row, 2).Value)
+
+				If the_case_number <> "" Then
+					If ObjWorkExcel.Cells(excel_row,  9).Value = "Yes" Then exp_number_of_cases_reviewed = exp_number_of_cases_reviewed + 1 									'Rewiewed
+					If ObjWorkExcel.Cells(excel_row, 10).Value = "Yes" Then exp_number_of_cases_approved = exp_number_of_cases_approved + 1 									'Approved
+					If ObjWorkExcel.Cells(excel_row, 11).Value = "Yes" Then exp_number_of_cases_no_id = exp_number_of_cases_no_id + 1 											'Appear EXP, no ID, could not be approved
+					If ObjWorkExcel.Cells(excel_row, 12).Value = "Yes" Then exp_number_of_cases_ID_approved = exp_number_of_cases_ID_approved + 1 								'Appear EXP, ID was available - Incorrect
+					If ObjWorkExcel.Cells(excel_row, 13).Value = "Yes" Then exp_number_of_cases_correct = exp_number_of_cases_correct + 1 										'Processed correctly by HSR
+					If ObjWorkExcel.Cells(excel_row, 14).Value = "Yes" Then exp_number_of_cases_xfs_no_caf = exp_number_of_cases_xfs_no_caf + 1 								'No CAF on file
+					If ObjWorkExcel.Cells(excel_row, 15).Value = "Yes" Then exp_number_of_cases_should_have_been_postponed = exp_number_of_cases_should_have_been_postponed + 1 'Verifications should have been postponed/Case app'd
+					If ObjWorkExcel.Cells(excel_row, 16).Value = "Yes" Then exp_number_of_cases_MAXIS_incorrect = exp_number_of_cases_MAXIS_incorrect + 1 						'MAXIS was updated incorrectly
+					If ObjWorkExcel.Cells(excel_row, 17).Value = "Yes" Then exp_number_of_cases_bad_notes = exp_number_of_cases_bad_notes + 1 									'Has insufficient CASE/NOTES
+					If ObjWorkExcel.Cells(excel_row, 18).Value = "Yes" Then assignment_case_numbers_to_save = assignment_case_numbers_to_save & ", " & the_case_number 			'Save case number for team review?
+				End If
+
+				excel_row = excel_row + 1
+			Loop Until the_case_number = ""
+
+			ObjWorkExcel.ActiveWorkbook.Close
+			ObjWorkExcel.Application.Quit
+			ObjWorkExcel.Quit
+		End If
+
+		If left(assignment_case_numbers_to_save, 2) = ", " Then assignment_case_numbers_to_save = right(assignment_case_numbers_to_save, len(assignment_case_numbers_to_save) - 2)
+		exp_number_of_cases_reviewed = exp_number_of_cases_reviewed & ""
+		exp_number_of_cases_approved = exp_number_of_cases_approved & ""
+		exp_number_of_cases_no_id = exp_number_of_cases_no_id & ""
+		exp_number_of_cases_ID_approved = exp_number_of_cases_ID_approved & ""
+		exp_number_of_cases_correct = exp_number_of_cases_correct & ""
+		exp_number_of_cases_xfs_no_caf = exp_number_of_cases_xfs_no_caf & ""
+		exp_number_of_cases_should_have_been_postponed = exp_number_of_cases_should_have_been_postponed & ""
+		exp_number_of_cases_MAXIS_incorrect = exp_number_of_cases_MAXIS_incorrect & ""
+		exp_number_of_cases_bad_notes = exp_number_of_cases_bad_notes & ""
+
         counts_number = 8                                                       'There are 9 counts we select so the array goes to 8
         'Setting the file locations and doc strings
         word_doc_name = qi_worker_full_name & " - EXP Processing Assignment Report for " & date_for_doc
@@ -273,6 +327,9 @@ Select Case type_of_work_assignment                                             
             this_entry = trim(this_entry)
             If this_entry <> "" Then excel_row = excel_row + 1
         Loop until this_entry = ""
+		assignment_other_notes = trim(assignment_other_notes)
+		assignment_other_notes = " - Completed on: " & date & " " & time & " - " & assignment_other_notes
+		If right(assignment_other_notes, 3) = " - " Then assignment_other_notes = left(assignment_other_notes, len(assignment_other_notes) - 3)
 
         'Adding the information from the dialog into the Excel spreadsheet
         ObjExcel.Cells(excel_row, date_col                          ).Value = work_assignment_date
@@ -290,33 +347,34 @@ Select Case type_of_work_assignment                                             
         ObjExcel.Cells(excel_row, xfs_assignment_length_col         ).Value = assignment_time
         ObjExcel.Cells(excel_row, xfs_assignment_assessment_col     ).Value = assignment_assesment
         ObjExcel.Cells(excel_row, xfs_list_of_cases_col             ).Value = assignment_case_numbers_to_save
+		ObjExcel.Cells(excel_row, other_notes_col             		).Value = assignment_other_notes
 
         ObjExcel.ActiveWorkbook.Save        'saving and closing the Excel spreadsheet
         ObjExcel.ActiveWorkbook.Close
         ObjExcel.Application.Quit
 
-        ReDim TABLE_ARRAY(1, counts_number)                                     'sizing the array for this work assignment type
+		file_selection_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\QI Expedited Review " & date_for_doc & ".xlsx" 'single assignment file
+		Set fso = CreateObject("Scripting.FileSystemObject")
 
-        TABLE_ARRAY(1, 0) = exp_number_of_cases_reviewed                        'saving the information to the array
-        TABLE_ARRAY(1, 1) = exp_number_of_cases_approved
-        TABLE_ARRAY(1, 2) = exp_number_of_cases_no_id
-        TABLE_ARRAY(1, 3) = exp_number_of_cases_ID_approved
-        TABLE_ARRAY(1, 4) = exp_number_of_cases_correct
-        TABLE_ARRAY(1, 5) = exp_number_of_cases_xfs_no_caf
-        TABLE_ARRAY(1, 6) = exp_number_of_cases_should_have_been_postponed
-        TABLE_ARRAY(1, 7) = exp_number_of_cases_MAXIS_incorrect
-        TABLE_ARRAY(1, 8) = exp_number_of_cases_bad_notes
+		If (fso.FileExists(file_selection_path)) Then
+			Call excel_open(file_selection_path, True, True, ObjWorkExcel, objWorkbook)  'opens the selected excel file'
 
+			excel_row = 2
+			Do
+				For excel_col = 9 to 18
+					If ObjWorkExcel.Cells(excel_row,  excel_col).Value = "Yes" Then ObjWorkExcel.Cells(excel_row,  excel_col).Value = "X"
+				Next
+				excel_row = excel_row + 1
+				the_case_number = trim(ObjWorkExcel.Cells(excel_row, 2).Value)
+			Loop Until the_case_number = ""
+			'Saves and closes the most recent Excel workbook
+			ObjWorkExcel.ActiveWorkbook.Save
+			ObjWorkExcel.ActiveWorkbook.Close
+			ObjWorkExcel.Application.Quit
+			ObjWorkExcel.Quit
+		End If
 
-        TABLE_ARRAY(0, 0) = "Cases Reviewed"
-        TABLE_ARRAY(0, 1) = "Cases Approved"
-        TABLE_ARRAY(0, 2) = "XFS Cases with NO ID"
-        TABLE_ARRAY(0, 3) = "XFS Cases with ID and Approved"
-        TABLE_ARRAY(0, 4) = "XFS Cases Correct by HSR"
-        TABLE_ARRAY(0, 5) = "Cases with no CAF on file"
-        TABLE_ARRAY(0, 6) = "Cases with verif should have been postponed"
-        TABLE_ARRAY(0, 7) = "Cases with MAXIS incorrectly coded"
-        TABLE_ARRAY(0, 8) = "Case with poor CASE:NOTE"
+		MsgBox "Your counts and details have been successfully saved. The script will now send the emails to report out that your work assignment is completed."
 
         'Setting the beginning of the emails and the subject lines.
         main_email_body = "The Expedited Work Assignment has been completed for " & work_assignment_date & "."
@@ -476,8 +534,8 @@ End Select
 
 'Adding the rest of the detail to the email body
 main_email_body = main_email_body & vbCr & "Completed by: " & qi_worker_full_name
-main_email_body = main_email_body & vbCr & vbCr & "Report completed, can be found: "
-main_email_body = main_email_body & vbCr & "<" & word_doc_file_path & word_doc_name & ".docx>"
+main_email_body = main_email_body & vbCr & vbCr & "Report completed, information can be found on the Count Worksheet."
+' main_email_body = main_email_body & vbCr & "<" & word_doc_file_path & word_doc_name & ".docx>"
 main_email_body = main_email_body & vbCr & vbCr & "Count Worksheet updated, can be found: "
 main_email_body = main_email_body & vbCr & "<" & excel_file_path & ">"
 main_email_body = main_email_body & vbCr & vbCr & "Work assignment assesment: " & assignment_assesment
@@ -507,102 +565,6 @@ End If
 main_email_body = main_email_body & vbCr & vbCr & "------"
 main_email_body = main_email_body & vbCr & email_signature
 
-'save report as WORD
-Set objWord = CreateObject("Word.Application")                                  'Create a new Word Doc
-Const wdDialogFilePrint = 88
-Const end_of_doc = 6
-objWord.Caption = word_doc_name
-objWord.Visible = True
-
-Set objDoc = objWord.Documents.Add()
-Set objSelection = objWord.Selection
-
-objSelection.Font.Name = "Arial"                                                'Adding the worker and assignment detail information
-objSelection.Font.Size = "14"
-objSelection.Font.Bold = TRUE
-objSelection.TypeText "Work Assignment Report"
-objSelection.TypeParagraph()
-objSelection.Font.Bold = TRUE
-objSelection.TypeText "Assignment Type: "
-objSelection.Font.Bold = FALSE
-objSelection.TypeText type_of_work_assignment
-objSelection.TypeParagraph()
-
-objSelection.Font.Bold = TRUE
-objSelection.TypeText "Worker: "
-objSelection.Font.Bold = FALSE
-objSelection.TypeText qi_worker_full_name & " (" & qi_worker_id_number & ")"
-objSelection.TypeParagraph()
-
-objSelection.Font.Bold = TRUE
-objSelection.TypeText "Date of assignment: "
-objSelection.Font.Bold = FALSE
-objSelection.TypeText work_assignment_date
-objSelection.TypeParagraph()
-
-objSelection.Font.Bold = TRUE
-objSelection.TypeText "Reported complete: "
-objSelection.Font.Bold = FALSE
-objSelection.TypeText date & " " & time
-objSelection.TypeParagraph()
-
-objSelection.Font.Bold = TRUE
-objSelection.TypeText "How was the work assignment today: "
-objSelection.Font.Bold = FALSE
-objSelection.TypeText assignment_assesment
-objSelection.TypeParagraph()
-
-objSelection.Font.Bold = TRUE
-objSelection.TypeText "The assignment took: "
-objSelection.Font.Bold = FALSE
-objSelection.TypeText assignment_hours & " hours and " & assignment_minutes & " minutes."
-objSelection.TypeParagraph()
-
-objSelection.Font.Bold = TRUE
-objSelection.TypeText "Cases that are needed for example/review"
-objSelection.TypeParagraph()
-objSelection.Font.Bold = FALSE
-objSelection.TypeText assignment_case_numbers_to_save
-objSelection.TypeParagraph()
-
-objSelection.Font.Bold = TRUE
-objSelection.TypeText "New ideas for counts (statistics)"
-objSelection.TypeParagraph()
-objSelection.Font.Bold = FALSE
-objSelection.TypeText assignment_new_ideas
-objSelection.TypeParagraph()
-
-objSelection.Font.Bold = TRUE
-objSelection.TypeText "Other notes from Work Assignment"
-objSelection.TypeParagraph()
-objSelection.Font.Bold = FALSE
-objSelection.TypeText assignment_other_notes
-objSelection.TypeParagraph()
-
-objSelection.Font.Size = "16"                                                   'Adding the counts/statistics
-
-objSelection.Font.Bold = TRUE
-objSelection.TypeText "Statistics about Cases"
-objSelection.TypeParagraph()
-objSelection.Font.Bold = FALSE
-
-objSelection.Font.Size = "12"
-Set objRange = objSelection.Range                                               'This creates a table based on the size of the array
-objDoc.Tables.Add objRange, counts_number+1, 2
-set objTable = objDoc.Tables(1)
-
-For table_item = 0 to counts_number                                             'Enters the information from the array defined above into the table
-    objTable.Cell(table_item+1, 1).Range.Text = TABLE_ARRAY(0, table_item)
-    objTable.Cell(table_item+1, 2).Range.Text = TABLE_ARRAY(1, table_item)
-Next
-objTable.AutoFormat(16)                                                         'Formats the table
-
-objSelection.EndKey end_of_doc
-objSelection.TypeParagraph()
-
-objDoc.SaveAs word_doc_file_path & word_doc_name & ".docx"                      'Save and Close the WORD document
-objWord.ActiveDocument.Close
-objWord.Application.Quit
 
 'send the list of messy cases to the QI email that Mandora reviews
 If assignment_case_numbers_to_save <> "" Then CALL create_outlook_email("HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us", "", case_numbers_email_subject, case_numbers_email_body, "", TRUE)
