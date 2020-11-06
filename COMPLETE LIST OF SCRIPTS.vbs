@@ -1396,7 +1396,7 @@ script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie	'Set this array element to be a new script. Script details below...
 script_array(script_num).script_name			= "Lost ApplyMN"													'Script name
-script_array(script_num).description			= "Collects language statistics by language and region. Take approximately 10 hours to run."
+script_array(script_num).description			= "Sends an Email request to search for an ApplyMN that is not in ECF."
 script_array(script_num).category               = "UTILITIES"
 script_array(script_num).workflows              = ""
 script_array(script_num).tags                   = array("")
