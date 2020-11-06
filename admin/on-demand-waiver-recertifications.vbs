@@ -553,7 +553,8 @@ If notice_type = "NOMI" Then
 		objExcel.Cells(1, notc_col).Value = "NOMI Success"
 	Else
 		nomi_letter_col = left(nomi_success_col_known, 2)
-		nomi_ltr_col = trim(nomi_letter_col)
+		nomi_letter_col = trim(nomi_letter_col)
+		nomi_ltr_col = nomi_letter_col
 		call convert_excel_letter_to_excel_number(nomi_ltr_col)
 		notc_col = nomi_ltr_col
 	End If
@@ -2266,5 +2267,15 @@ End If
 For col_to_autofit = 1 to stats_col
     ObjExcel.columns(col_to_autofit).AutoFit()
 Next
+
+If notice_type = "NOMI" Then
+
+	ObjExcel.Worksheets.Add().Name = "NOMI Count"
+	ObjExcel.Cells(1, 1).Value = "NOMIs Sent for this Month"
+	ObjExcel.Cells(1, 2).Value = "=COUNTIF('" & scenario_dropdown & "'!" & nomi_letter_col & ":" & nomi_letter_col & ", "& chr(34) & "Y" & chr(34) & ")"
+	ObjExcel.columns(1).AutoFit()
+	ObjExcel.columns(2).AutoFit()
+
+End If 
 
 script_end_procedure("Notices have been sent. Detail of script run is on the spreadsheet that was opened.")
