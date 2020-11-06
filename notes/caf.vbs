@@ -49,6 +49,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("11/6/2020", "Added new functionality to have the script update the 'REVW' panel with the Interview Date and CAF date for Recertification Cases.##~## As this is a new functionality, please let us know how it works for you!.##~##", "Casey Love, Hennepin County")
 Call changelog_update("10/09/2020", "Updated the functionality to adjust review dates for some cases to not require an interview date for Adult Cash Recertification cases.##~##", "Casey Love, Hennepin County")
 Call changelog_update("10/01/2020", "Updated Standard Utility Allowances for 10/2020.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/01/2020", "UPDATE IN TESTING##~## ##~##There is new functionality added to this script to assist in updating REVW for some cases. There is detail in SIR about cases that need to have the next ER date adjusted due to a previous postponement. ##~## ##~##We have not had time with this functionality to complete live testing so all script runs will be a part of the test. Please let us know if you have any issues running this script.", "Casey Love, Hennepin County")
@@ -5523,96 +5524,79 @@ If CAF_type = "Application" Then        'Interview date is not on PROG for recer
     End If
 End If
 
-script_list_URL = "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Scripts\Script Files\COMPLETE LIST OF TESTERS.vbs"        'Opening the list of testers - which is saved locally for security
-Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-Set fso_command = run_another_script_fso.OpenTextFile(script_list_URL)
-text_from_the_other_script = fso_command.ReadAll
-fso_command.Close
-Execute text_from_the_other_script
+If the_process_for_cash = "Recertification" OR the_process_for_snap = "Recertification" Then
+    If interview_required = TRUE or interview_is_being_waived = vbYes Then
+        revw_panel_update_needed = FALSE
+        Call Navigate_to_MAXIS_screen("STAT", "REVW")
+        EMReadScreen STAT_REVW_caf_date, 8, 13, 37
+        EMReadScreen STAT_REVW_intvw_date, 8, 15, 37
+        If STAT_REVW_caf_date = "__ __ __" Then revw_panel_update_needed = TRUE
+        If STAT_REVW_intvw_date = "__ __ __" Then revw_panel_update_needed = TRUE
 
-Set objNet = CreateObject("WScript.NetWork")
-windows_user_ID = objNet.UserName
-user_ID_for_validation = ucase(windows_user_ID)
+        If revw_panel_update_needed = TRUE Then
+            If interview_is_being_waived = vbYes AND trim(interview_date) = "" Then interview_date = date
+            EMReadScreen cash_stat_revw_status, 1, 7, 40
+            EMReadScreen snap_stat_revw_status, 1, 7, 60
 
-this_is_a_tester = FALSE
-For each tester in tester_array
-    If user_ID_for_validation = tester.tester_id_number Then this_is_a_tester = TRUE
-Next
+            BeginDialog Dialog1, 0, 0, 241, 165, "Update REVW"
+              OptionGroup RadioGroup1
+                RadioButton 10, 10, 185, 10, "YES! Update REVW with the Interview Date/CAF Date", confirm_update_revw
+                RadioButton 10, 95, 100, 10, "No, do not update REVW", do_not_update_revw
+              EditBox 70, 25, 45, 15, interview_date
+              EditBox 70, 45, 45, 15, caf_datestamp
+              EditBox 20, 125, 215, 15, no_update_reason
+              ButtonGroup ButtonPressed
+                OkButton 185, 145, 50, 15
+              Text 20, 30, 50, 10, "Interview Date:"
+              If interview_is_being_waived = vbYes Then Text 125, 25, 105, 35, "THIS INTERVIEW WAS WAIVED. Today's date will be used."
+              Text 35, 50, 35, 10, "CAF Date:"
+              Text 20, 70, 175, 20, "If the REVW Status has not been updated already, it will be changed to an 'I' when the dates are entered."
+              Text 20, 110, 220, 10, "Reason REVW should not be updated with the Interview/CAF Date:"
+            EndDialog
 
-If this_is_a_tester = TRUE Then
-    If the_process_for_cash = "Recertification" OR the_process_for_snap = "Recertification" Then
-        If interview_required = TRUE or interview_is_being_waived = vbYes Then
-            revw_panel_update_needed = FALSE
-            Call Navigate_to_MAXIS_screen("STAT", "REVW")
-            EMReadScreen STAT_REVW_caf_date, 8, 13, 37
-            EMReadScreen STAT_REVW_intvw_date, 8, 15, 37
-            If STAT_REVW_caf_date = "__ __ __" Then revw_panel_update_needed = TRUE
-            If STAT_REVW_intvw_date = "__ __ __" Then revw_panel_update_needed = TRUE
-
-            If revw_panel_update_needed = TRUE Then
-                If interview_is_being_waived = vbYes AND trim(interview_date) = "" Then interview_date = date
-                EMReadScreen cash_stat_revw_status, 1, 7, 40
-                EMReadScreen snap_stat_revw_status, 1, 7, 60
-
-                BeginDialog Dialog1, 0, 0, 241, 165, "Update REVW"
-                  OptionGroup RadioGroup1
-                    RadioButton 10, 10, 185, 10, "YES! Update REVW with the Interview Date/CAF Date", confirm_update_revw
-                    RadioButton 10, 95, 100, 10, "No, do not update REVW", do_not_update_revw
-                  EditBox 70, 25, 45, 15, interview_date
-                  EditBox 70, 45, 45, 15, caf_datestamp
-                  EditBox 20, 125, 215, 15, no_update_reason
-                  ButtonGroup ButtonPressed
-                    OkButton 185, 145, 50, 15
-                  Text 20, 30, 50, 10, "Interview Date:"
-                  If interview_is_being_waived = vbYes Then Text 125, 25, 105, 35, "THIS INTERVIEW WAS WAIVED. Today's date will be used."
-                  Text 35, 50, 35, 10, "CAF Date:"
-                  Text 20, 70, 175, 20, "If the REVW Status has not been updated already, it will be changed to an 'I' when the dates are entered."
-                  Text 20, 110, 220, 10, "Reason REVW should not be updated with the Interview/CAF Date:"
-                EndDialog
-
-                'Running the dialog
+            'Running the dialog
+            Do
                 Do
-                    Do
-                        err_msg = ""
-                        Dialog Dialog1
-                        'Requiring a reason for not updating PROG and making sure if confirm is updated that a program is selected.
-                        If do_not_update_revw = 1 AND no_update_reason = "" Then err_msg = err_msg & vbNewLine & "* If REVW is not to be updated, please explain why REVW should not be updated."
-                        IF confirm_update_revw = 1 Then
-                            If IsDate(interview_date) = FALSE Then err_msg = err_msg & vbNewLine & "* Check the Interview Date as it appears invalid."
-                            If IsDate(caf_datestamp) = FALSE Then err_msg = err_msg & vbNewLine & "* Check the CAF Date as it appears invalid."
-                        End If
+                    err_msg = ""
+                    Dialog Dialog1
+                    'Requiring a reason for not updating PROG and making sure if confirm is updated that a program is selected.
+                    If do_not_update_revw = 1 AND no_update_reason = "" Then err_msg = err_msg & vbNewLine & "* If REVW is not to be updated, please explain why REVW should not be updated."
+                    IF confirm_update_revw = 1 Then
+                        If IsDate(interview_date) = FALSE Then err_msg = err_msg & vbNewLine & "* Check the Interview Date as it appears invalid."
+                        If IsDate(caf_datestamp) = FALSE Then err_msg = err_msg & vbNewLine & "* Check the CAF Date as it appears invalid."
+                    End If
 
-                        If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
-                    Loop until err_msg = ""
-                    Call check_for_password(are_we_passworded_out)
-                Loop until are_we_passworded_out = FALSE
+                    If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
+                Loop until err_msg = ""
+                Call check_for_password(are_we_passworded_out)
+            Loop until are_we_passworded_out = FALSE
 
-                IF confirm_update_revw = 1 Then
-                    Call Navigate_to_MAXIS_screen("STAT", "REVW")
-                    PF9
-                    Call create_mainframe_friendly_date(CAF_datestamp, 13, 37, "YY")
-                    Call create_mainframe_friendly_date(interview_date, 15, 37, "YY")
+            IF confirm_update_revw = 1 Then
+                Call Navigate_to_MAXIS_screen("STAT", "REVW")
+                PF9
+                Call create_mainframe_friendly_date(CAF_datestamp, 13, 37, "YY")
+                Call create_mainframe_friendly_date(interview_date, 15, 37, "YY")
 
-                    If cash_stat_revw_status = "N" Then EMWriteScreen "I", 7, 40
-                    If snap_stat_revw_status = "N" Then EMWriteScreen "I", 7, 60
+                If cash_stat_revw_status = "N" Then EMWriteScreen "I", 7, 40
+                If snap_stat_revw_status = "N" Then EMWriteScreen "I", 7, 60
 
-                    attempt_count = 1
-                    Do
-                        transmit
-                        EMReadScreen actually_saved, 7, 24, 2
-                        attempt_count = attempt_count + 1
-                        If attempt_count = 20 Then
-                            PF10
-                            revw_panel_updated = FALSE
-                            Exit Do
-                        End If
-                    Loop until actually_saved = "ENTER A"
-                End If
-                If interview_is_being_waived = vbYes AND interview_date = date Then interview_date = ""
+                attempt_count = 1
+                Do
+                    transmit
+                    EMReadScreen actually_saved, 7, 24, 2
+                    attempt_count = attempt_count + 1
+                    If attempt_count = 20 Then
+                        PF10
+                        revw_panel_updated = FALSE
+                        Exit Do
+                    End If
+                Loop until actually_saved = "ENTER A"
             End If
+            If interview_is_being_waived = vbYes AND interview_date = date Then interview_date = ""
         End If
     End If
 End If
+
 Do
     Do
         qual_err_msg = ""
