@@ -388,9 +388,9 @@ script_array(script_num).script_name 			= "Application Check"																		'
 script_array(script_num).description 			= "Template for documenting details and tracking pending cases."
 script_array(script_num).category               = "ADMIN"
 script_array(script_num).workflows              = ""
-script_array(script_num).tags                   = array("Adult Cash", "Application", "DWP", "EMER", "Health Care", "HS/GRH", "LTC", "MFIP", "SNAP")
-script_array(script_num).dlg_keys               = array("Cn", "Oa", "Tk")
-script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
+script_array(script_num).tags                   = array("")
+script_array(script_num).dlg_keys               = array("")
+script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #11/9/2020#
 
 script_num = script_num + 1						'Increment by one
