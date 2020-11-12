@@ -2333,40 +2333,6 @@ Set objNet = CreateObject("WScript.NetWork")
 windows_user_ID = objNet.UserName
 user_ID_for_special_function = ucase(windows_user_ID)
 
-user_running_waived_interview_cases = FALSE
-If user_ID_for_special_function = "JAAR001" Then user_running_waived_interview_cases = TRUE     'Jacob
-If user_ID_for_special_function = "WFP106" Then user_running_waived_interview_cases = TRUE      'Deb
-If user_ID_for_special_function = "TAPA002" Then user_running_waived_interview_cases = TRUE     'Tanya
-If user_ID_for_special_function = "CALO001" Then user_running_waived_interview_cases = TRUE     'Casey
-
-'DWP TEAM
-If user_ID_for_special_function = "WFK314" Then user_running_waived_interview_cases = TRUE
-If user_ID_for_special_function = "ALHE001" Then user_running_waived_interview_cases = TRUE
-If user_ID_for_special_function = "WFB709" Then user_running_waived_interview_cases = TRUE
-If user_ID_for_special_function = "WFE533" Then user_running_waived_interview_cases = TRUE
-If user_ID_for_special_function = "WF2543" Then user_running_waived_interview_cases = TRUE
-If user_ID_for_special_function = "WFC804" Then user_running_waived_interview_cases = TRUE
-If user_ID_for_special_function = "REHU001" Then user_running_waived_interview_cases = TRUE
-If user_ID_for_special_function = "WF7660" Then user_running_waived_interview_cases = TRUE
-If user_ID_for_special_function = "WFA168" Then user_running_waived_interview_cases = TRUE
-If user_ID_for_special_function = "TELO001" Then user_running_waived_interview_cases = TRUE
-If user_ID_for_special_function = "WFE269" Then user_running_waived_interview_cases = TRUE
-If user_ID_for_special_function = "WFX820" Then user_running_waived_interview_cases = TRUE
-If user_ID_for_special_function = "TIRE001" Then user_running_waived_interview_cases = TRUE
-If user_ID_for_special_function = "WFB093" Then user_running_waived_interview_cases = TRUE
-If user_ID_for_special_function = "WFW682" Then user_running_waived_interview_cases = TRUE
-If user_ID_for_special_function = "WFH084" Then user_running_waived_interview_cases = TRUE
-If user_ID_for_special_function = "JUBR001" Then user_running_waived_interview_cases = TRUE
-If user_ID_for_special_function = "WFN649" Then user_running_waived_interview_cases = TRUE
-If user_ID_for_special_function = "WFD867" Then user_running_waived_interview_cases = TRUE
-If user_ID_for_special_function = "WFH254" Then user_running_waived_interview_cases = TRUE
-If user_ID_for_special_function = "MEIS001" Then user_running_waived_interview_cases = TRUE
-If user_ID_for_special_function = "LILE002" Then user_running_waived_interview_cases = TRUE
-If user_ID_for_special_function = "CALI001" Then user_running_waived_interview_cases = TRUE
-If user_ID_for_special_function = "WFZ107" Then user_running_waived_interview_cases = TRUE
-If user_ID_for_special_function = "WFX421" Then user_running_waived_interview_cases = TRUE
-user_running_waived_interview_cases = TRUE
-
 'SCRIPT ====================================================================================================================
 EMConnect ""
 get_county_code				'since there is a county specific checkbox, this makes the the county clear
@@ -2753,34 +2719,26 @@ If the_process_for_cash = "Recertification" OR the_process_for_snap = "Recertifi
     '     check_the_array = TRUE
     '     month_to_pull = 9
     ' End If
+    If the_process_for_snap = "Recertification" Then check_for_waived_interview = TRUE
+    If the_process_for_cash = "Recertification" AND type_of_cash = "Family" Then check_for_waived_interview = TRUE
     If (cash_recert_mo = "10" AND cash_recert_yr = "20") OR (snap_recert_mo = "10" AND snap_recert_yr = "20") Then
         check_the_array = TRUE
-        If the_process_for_snap = "Recertification" Then check_for_waived_interview = TRUE
-        If the_process_for_cash = "Recertification" AND type_of_cash = "Family" Then check_for_waived_interview = TRUE
         month_to_pull = 10
     End If
     If (cash_recert_mo = "11" AND cash_recert_yr = "20") OR (snap_recert_mo = "11" AND snap_recert_yr = "20") Then
         check_the_array = TRUE
-        If the_process_for_snap = "Recertification" Then check_for_waived_interview = TRUE
-        If the_process_for_cash = "Recertification" AND type_of_cash = "Family" Then check_for_waived_interview = TRUE
         month_to_pull = 11
     End If
     If (cash_recert_mo = "12" AND cash_recert_yr = "20") OR (snap_recert_mo = "12" AND snap_recert_yr = "20") Then
         check_the_array = TRUE
-        If the_process_for_snap = "Recertification" Then check_for_waived_interview = TRUE
-        If the_process_for_cash = "Recertification" AND type_of_cash = "Family" Then check_for_waived_interview = TRUE
         month_to_pull = 12
     End If
     If (cash_recert_mo = "01" AND cash_recert_yr = "21") OR (snap_recert_mo = "01" AND snap_recert_yr = "21") Then
         check_the_array = TRUE
-        If the_process_for_snap = "Recertification" Then check_for_waived_interview = TRUE
-        If the_process_for_cash = "Recertification" AND type_of_cash = "Family" Then check_for_waived_interview = TRUE
         month_to_pull = 1
     End If
     If (cash_recert_mo = "02" AND cash_recert_yr = "21") OR (snap_recert_mo = "02" AND snap_recert_yr = "21") Then
         check_the_array = TRUE
-        If the_process_for_snap = "Recertification" Then check_for_waived_interview = TRUE
-        If the_process_for_cash = "Recertification" AND type_of_cash = "Family" Then check_for_waived_interview = TRUE
         month_to_pull = 2
     End If
 End If
@@ -2788,21 +2746,9 @@ End If
 interview_required = FALSE
 If SNAP_checkbox = checked OR family_cash = TRUE OR CAF_type = "Application" then interview_required = TRUE
 
-If user_running_waived_interview_cases = TRUE AND check_for_waived_interview = TRUE Then
-    run_another_script("\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Scripts\Script Files\reviews-delayed.vbs")
-    If month_to_pull = 10 Then POSSIBLE_WAIVED_ARRAY = oct_revw_to_check_array
-    If month_to_pull = 11 Then POSSIBLE_WAIVED_ARRAY = nov_revw_to_check_array
-    If month_to_pull = 12 Then POSSIBLE_WAIVED_ARRAY = dec_revw_to_check_array
-    If month_to_pull = 1 Then POSSIBLE_WAIVED_ARRAY = jan_revw_to_check_array
-    If month_to_pull = 2 Then POSSIBLE_WAIVED_ARRAY = feb_revw_to_check_array
-
-    For each revw_case in POSSIBLE_WAIVED_ARRAY
-        If MAXIS_case_number = revw_case Then
-            interview_is_being_waived = MsgBox("This case appears to potentially meet the criteria for having the interview waived if the client reports no changes to from what is known." & vbNewLine & vbNewLine & " --- Are you waiving the interview? ---" & vbNewLine & vbNewLine & "clicking 'YES' will will prevent the script from requiring Interview Detail.", vbquestion + vbYesNo, "")
-            If interview_is_being_waived = vbYes Then interview_required = FALSE
-            Exit For
-        End If
-    Next
+If check_for_waived_interview = TRUE Then
+    interview_is_being_waived = MsgBox("Recertifications can be processed without an interview per DHS." & vbNewLine & vbNewLine & " --- Are you waiving the interview? ---" & vbNewLine & vbNewLine & "clicking 'YES' will will prevent the script from requiring Interview Detail.", vbquestion + vbYesNo, "")
+    If interview_is_being_waived = vbYes Then interview_required = FALSE
 End If
 
 MAXIS_case_number = trim(MAXIS_case_number)
