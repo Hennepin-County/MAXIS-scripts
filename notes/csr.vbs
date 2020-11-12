@@ -45,9 +45,6 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'Here we look for testers as we have a new version of this script in testing.
-test_reason = "Change to the CSR script to match the form and the method of processing the form. We want the script to follow the process and not just take a snapshot of the case details AFTER processing is done."
-Call select_testing_file("ALL", "", "notes/csr-testing.vbs", "master", TRUE, TRUE)
 'CHANGELOG BLOCK ===========================================================================================================
 'Starts by defining a changelog array
 changelog = array()
