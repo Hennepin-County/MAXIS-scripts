@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/12/2020", "Updated HSR Manual link for OUT OF STATE due to SharePoint Online Migration.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/29/2018", "Updated for current National Directory information and requested changes to word document.", "MiKayla Handley, Hennepin County")
 call changelog_update("09/20/2018", "Updated for current content.", "Charles Potter, DHS")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
@@ -104,7 +105,7 @@ DO      'Password DO loop
         DO  'External resource DO loop
             Dialog Dialog1
             cancel_confirmation
-            If ButtonPressed = outofstate_button then CreateObject("WScript.Shell").Run("https://dept.hennepin.us/hsphd/manuals/hsrm/Pages/Out_of_State_Inquiry.aspx")
+            If ButtonPressed = outofstate_button then CreateObject("WScript.Shell").Run("https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Out_of_State_Inquiry.aspx")
         Loop until ButtonPressed = -1
         err_msg = ""
 		If agency_state_droplist = "Select One:" then err_msg = err_msg & vbnewline & "* Select the state."
