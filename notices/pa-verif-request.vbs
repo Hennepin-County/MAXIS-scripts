@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/12/2020", "Updated HSR Manual link for Data Privacy due to SharePoint Online Migration.", "Ilse Ferris, Hennepin County")
 call changelog_update("07/29/2020", "Removed the 'PRINT' default of the document at the end of the script run because we are not currently in the office.", "Casey Love, Hennepin County")
 call changelog_update("07/29/2020", "Removed the option to include income information from MAXIS in the document. The official policy and process needs to be followed for this type of information. Added a button to open the HSR Manual page.", "Casey Love, Hennepin County")
 call changelog_update("01/15/2019", "Updated to accomodate benefits larger than $1,000 for SNAP, MFIP, and DWP.", "Casey Love, Hennepin County")
@@ -340,7 +341,7 @@ Do
 		If worker_phone = "" then err_msg = err_msg & vbNewLine & "* Please fill out the worker phone field."
 
 		if ButtonPressed = data_privacy_btn Then
-			Call open_URL_in_browser("https://dept.hennepin.us/hsphd/manuals/hsrm/Pages/Data_Privacy.aspx")
+			Call open_URL_in_browser("https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Data_Privacy.aspx")
 			err_msg = "LOOP" & err_msg
 		Else
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
