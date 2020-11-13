@@ -3238,3 +3238,4 @@ script_array(script_num).tags                   = array("")
 script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/14/2020#
+script_array(script_num).retirement_date		= #11/12/2020#
