@@ -465,6 +465,8 @@ interview_date_col_known = "Needs New"
 app_date_col_known = "Needs New"
 nomi_recvd_col_known = "Needs New"
 appt_ltr_recvd_col_known = "Needs New"
+nomi_success_col_known = "Needs New"
+appt_ltr_success_col_known = "Needs New"
 
 If excel_row_to_start <> "2" Then
 
@@ -550,6 +552,7 @@ If notice_type = "NOMI" Then
 	If nomi_success_col_known = "Needs New" Then
 		objRange.Insert(xlShiftToRight)     'add column for review status
 		nomi_letter_col = convert_digit_to_excel_column(notc_col)
+		nomi_col = notc_col
 		objExcel.Cells(1, notc_col).Value = "NOMI Success"
 	Else
 		nomi_letter_col = left(nomi_success_col_known, 2)
@@ -2276,6 +2279,6 @@ If notice_type = "NOMI" Then
 	ObjExcel.columns(1).AutoFit()
 	ObjExcel.columns(2).AutoFit()
 
-End If 
+End If
 
 script_end_procedure("Notices have been sent. Detail of script run is on the spreadsheet that was opened.")
