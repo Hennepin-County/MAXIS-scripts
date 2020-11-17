@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("11/17/2020", "Additional testing for 1800 cases.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("11/14/2020", "Added specified report for 1800 baskets. WFM will not get 1800 cases for FAD assignment.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("11/04/2020", "Final testing complete for additional data input and output functionality.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("10/12/2020", "Adding case review tracking elements capture and output into script.", "Ilse Ferris, Hennepin County")
@@ -957,17 +958,15 @@ For item = 0 to UBound(expedited_array, 2)
         'only assigning cases that haven't exceeded Day 30 - Those are their own assignments 
         If expedited_array(days_pending_const, item) < 30 then 
             'Assigning only 1800 baskets pending cases to 1800 team  
-            If expedited_array(worker_number_const, item) = "X127EF8" then 
-                If expedited_array(worker_number_const, item) = "X127EF9" then 
-                    objExcel.Cells(excel_row, 1).Value = expedited_array(worker_number_const,    item)
-                    objExcel.Cells(excel_row, 2).Value = expedited_array(case_number_const,      item)
-                    objExcel.Cells(excel_row, 3).Value = expedited_array(program_ID_const,       item)
-                    objExcel.Cells(excel_row, 4).Value = expedited_array(days_pending_const,     item)
-                    objExcel.Cells(excel_row, 5).Value = expedited_array(application_date_const, item)
-                    objExcel.Cells(excel_row, 6).Value = expedited_array(interview_date_const,   item)
-                    objExcel.Cells(excel_row, 7).Value = expedited_array(case_status_const,      item)
-                    excel_row = excel_row + 1
-                End if 
+            If expedited_array(worker_number_const, item) = "X127EF8" or expedited_array(worker_number_const, item) = "X127EF9" then 
+                objExcel.Cells(excel_row, 1).Value = expedited_array(worker_number_const,    item)
+                objExcel.Cells(excel_row, 2).Value = expedited_array(case_number_const,      item)
+                objExcel.Cells(excel_row, 3).Value = expedited_array(program_ID_const,       item)
+                objExcel.Cells(excel_row, 4).Value = expedited_array(days_pending_const,     item)
+                objExcel.Cells(excel_row, 5).Value = expedited_array(application_date_const, item)
+                objExcel.Cells(excel_row, 6).Value = expedited_array(interview_date_const,   item)
+                objExcel.Cells(excel_row, 7).Value = expedited_array(case_status_const,      item)
+                excel_row = excel_row + 1
             End if 
         End if 
     End if 
