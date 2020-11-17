@@ -41,8 +41,9 @@ END IF
 'cash prog active
 'possible waiver interview t/f
 
+t_drive = "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team"
 case_nbr_col = 2
-run_another_script(t_drive & "\Eligibility Support\Scripts\Script Files\reviews-delayed.vbs")
+run_another_script("\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Scripts\Script Files\reviews-delayed.vbs")
 MAXIS_footer_month = CM_mo
 MAXIS_footer_year = CM_yr
 
