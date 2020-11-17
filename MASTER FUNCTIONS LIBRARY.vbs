@@ -73,7 +73,6 @@ unchecked = 0		'Value for unchecked boxes
 cancel = 0			'Value for cancel button in dialogs
 OK = -1			'Value for OK button in dialogs
 blank = ""
-t_drive = "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team"
 
 Dim STATS_counter, STATS_manualtime, STATS_denomination, script_run_lowdown, testing_run
 
@@ -3635,7 +3634,7 @@ end function
 function confirm_tester_information()
 '--- Ask a tester to confirm the details we have for them. THIS FUNCTION IS CALLED IN THE FUNCTIONS LIBRARY
 '===== Keywords: Testing, Infrastucture
-    script_list_URL = t_drive & "\Eligibility Support\Scripts\Script Files\COMPLETE LIST OF TESTERS.vbs"        'Opening the list of testers - which is saved locally for security
+    script_list_URL = "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Scripts\Script Files\COMPLETE LIST OF TESTERS.vbs"        'Opening the list of testers - which is saved locally for security
     Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
     Set fso_command = run_another_script_fso.OpenTextFile(script_list_URL)
     text_from_the_other_script = fso_command.ReadAll
@@ -6433,7 +6432,7 @@ function select_testing_file(selection_type, the_selection, file_path, file_bran
 '~~~~~ force_error_reporting: should the in-script error reporting automatically happen
 '===== Keywords: MAXIS, PRISM, production, clear
 
-    script_list_URL = t_drive & "\Eligibility Support\Scripts\Script Files\COMPLETE LIST OF TESTERS.vbs"        'Opening the list of testers - which is saved locally for security
+    script_list_URL = "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Scripts\Script Files\COMPLETE LIST OF TESTERS.vbs"        'Opening the list of testers - which is saved locally for security
     Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
     Set fso_command = run_another_script_fso.OpenTextFile(script_list_URL)
     text_from_the_other_script = fso_command.ReadAll
