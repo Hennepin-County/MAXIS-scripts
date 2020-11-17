@@ -87,6 +87,7 @@ email_recipient = ""
 email_recipient_cc = ""
 email_signature = qi_worker_full_name
 send_email = true
+t_drive = "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team"
 
 'Dialog to select which type of correction needs to be sent
 BeginDialog Dialog1, 0, 0, 231, 170, "What type of correction?"
