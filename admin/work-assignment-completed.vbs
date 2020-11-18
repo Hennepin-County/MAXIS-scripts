@@ -52,7 +52,6 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 'DECLARATIONS ==============================================================================================================
-t_drive = "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team"           'this is the best way to call the t drive
 
 Const date_col                          = 1                         'These are the constants for the columns in the tracking Excel documents
 Const worker_id_col                     = 2
