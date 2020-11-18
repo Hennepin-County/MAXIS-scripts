@@ -62,19 +62,18 @@ ELSE
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'Global function to actually RUN'
-Call confirm_tester_information
-
 'GLOBAL CONSTANTS----------------------------------------------------------------------------------------------------
-Dim checked, unchecked, cancel, OK, blank		'Declares this for Option Explicit users
+Dim checked, unchecked, cancel, OK, blank, t_drive, STATS_counter, STATS_manualtime, STATS_denomination, script_run_lowdown, testing_run		'Declares this for Option Explicit users
 
 checked = 1			'Value for checked boxes
 unchecked = 0		'Value for unchecked boxes
 cancel = 0			'Value for cancel button in dialogs
 OK = -1			'Value for OK button in dialogs
 blank = ""
+t_drive = "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team"
 
-Dim STATS_counter, STATS_manualtime, STATS_denomination, script_run_lowdown, testing_run
+'Global function to actually RUN'
+Call confirm_tester_information
 
 'Time arrays which can be used to fill an editbox with the convert_array_to_droplist_items function
 time_array_15_min = array("7:00 AM", "7:15 AM", "7:30 AM", "7:45 AM", "8:00 AM", "8:15 AM", "8:30 AM", "8:45 AM", "9:00 AM", "9:15 AM", "9:30 AM", "9:45 AM", "10:00 AM", "10:15 AM", "10:30 AM", "10:45 AM", "11:00 AM", "11:15 AM", "11:30 AM", "11:45 AM", "12:00 PM", "12:15 PM", "12:30 PM", "12:45 PM", "1:00 PM", "1:15 PM", "1:30 PM", "1:45 PM", "2:00 PM", "2:15 PM", "2:30 PM", "2:45 PM", "3:00 PM", "3:15 PM", "3:30 PM", "3:45 PM", "4:00 PM", "4:15 PM", "4:30 PM", "4:45 PM", "5:00 PM", "5:15 PM", "5:30 PM", "5:45 PM", "6:00 PM")
@@ -3634,7 +3633,7 @@ end function
 function confirm_tester_information()
 '--- Ask a tester to confirm the details we have for them. THIS FUNCTION IS CALLED IN THE FUNCTIONS LIBRARY
 '===== Keywords: Testing, Infrastucture
-    script_list_URL = "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Scripts\Script Files\COMPLETE LIST OF TESTERS.vbs"        'Opening the list of testers - which is saved locally for security
+	script_list_URL = t_drive & "\Eligibility Support\Scripts\Script Files\COMPLETE LIST OF TESTERS.vbs"        'Opening the list of testers - which is saved locally for security
     Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
     Set fso_command = run_another_script_fso.OpenTextFile(script_list_URL)
     text_from_the_other_script = fso_command.ReadAll
@@ -6432,7 +6431,7 @@ function select_testing_file(selection_type, the_selection, file_path, file_bran
 '~~~~~ force_error_reporting: should the in-script error reporting automatically happen
 '===== Keywords: MAXIS, PRISM, production, clear
 
-    script_list_URL = "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Scripts\Script Files\COMPLETE LIST OF TESTERS.vbs"        'Opening the list of testers - which is saved locally for security
+    script_list_URL = t_drive & "\Eligibility Support\Scripts\Script Files\COMPLETE LIST OF TESTERS.vbs"        'Opening the list of testers - which is saved locally for security
     Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
     Set fso_command = run_another_script_fso.OpenTextFile(script_list_URL)
     text_from_the_other_script = fso_command.ReadAll
