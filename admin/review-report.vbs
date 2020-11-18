@@ -257,8 +257,6 @@ const notes_const           = 34
 DIM review_array()              'declaring the array
 ReDim review_array(notes_const, 0)       're-establihing size of array.
 
-t_drive = "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team"
-
 'THE SCRIPT-------------------------------------------------------------------------------------------------------------------------
 EMConnect ""		'Connects to BlueZone
 all_workers_check = 1		'defaulting the check box to checked
