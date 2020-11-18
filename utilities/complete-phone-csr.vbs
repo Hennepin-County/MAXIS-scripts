@@ -248,137 +248,6 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
         If type_three = "T" Then type_three = "T - TTY/TDD"
         If type_three = "_" Then type_three = ""
     End If
-
-    If access_type = "WRITE" Then
-        Call navigate_to_MAXIS_screen("STAT", "ADDR")
-
-        PF9
-
-        Call create_mainframe_friendly_date(addr_eff_date, 4, 43, "YY")
-
-        If len(resi_line_one) > 22 Then
-            resi_words = split(resi_line_one, " ")
-            write_resi_line_one = ""
-            write_resi_line_two = ""
-            For each word in resi_words
-                If write_resi_line_one = "" Then
-                    write_resi_line_one = word
-                ElseIf len(write_resi_line_one & " " & word) =< 22 Then
-                    write_resi_line_one = write_resi_line_one & " " & word
-                Else
-                    If write_resi_line_two = "" Then
-                        write_resi_line_two = word
-                    Else
-                        write_resi_line_two = write_resi_line_two & " " & word
-                    End If
-                End If
-            Next
-        Else
-            write_resi_line_one = resi_line_one
-        End If
-        EMWriteScreen write_resi_line_one, 6, 43
-        EMWriteScreen write_resi_line_two, 7, 43
-        EMWriteScreen resi_city, 8, 43
-        ' resi_county
-        EMWriteScreen left(resi_state, 2), 8, 66
-        EMWriteScreen resi_zip, 9, 43
-
-        EMWriteScreen left(addr_verif, 2), 9, 66
-
-
-        If len(mail_line_one) > 22 Then
-            mail_words = split(mail_line_one, " ")
-            write_mail_line_one = ""
-            write_mail_line_two = ""
-            For each word in mail_words
-                If write_mail_line_one = "" Then
-                    write_mail_line_one = word
-                ElseIf len(write_mail_line_one & " " & word) =< 22 Then
-                    write_mail_line_one = write_mail_line_one & " " & word
-                Else
-                    If write_mail_line_two = "" Then
-                        write_mail_line_two = word
-                    Else
-                        write_mail_line_two = write_mail_line_two & " " & word
-                    End If
-                End If
-            Next
-        Else
-            write_mail_line_one = mail_line_one
-        End If
-        EMWriteScreen write_mail_line_one, 13, 43
-        EMWriteScreen write_mail_line_two, 14, 43
-        EMWriteScreen mail_city, 15, 43
-        If write_mail_line_one <> "" Then EMWriteScreen left(mail_state, 2), 16, 43
-        EMWriteScreen mail_zip, 16, 52
-
-        call split_phone_number_into_parts(phone_one, phone_one_left, phone_one_mid, phone_one_right)
-        call split_phone_number_into_parts(phone_two, phone_two_left, phone_two_mid, phone_two_right)
-        call split_phone_number_into_parts(phone_three, phone_three_left, phone_three_mid, phone_three_right)
-
-        EMWriteScreen phone_one_left, 17, 45
-        EMWriteScreen phone_one_mid, 17, 51
-        EMWriteScreen phone_one_right, 17, 55
-        If type_one <> "Select ..." Then EMWriteScreen type_one, 17, 67
-
-        EMWriteScreen phone_two_left, 18, 45
-        EMWriteScreen phone_two_mid, 18, 51
-        EMWriteScreen phone_two_right, 18, 55
-        If type_two <> "Select ..." Then EMWriteScreen type_two, 18, 67
-
-        EMWriteScreen phone_three_left, 19, 45
-        EMWriteScreen phone_three_mid, 19, 51
-        EMWriteScreen phone_three_right, 19, 55
-        If type_three <> "Select ..." Then EMWriteScreen type_three, 19, 67
-
-        save_attempt = 1
-        Do
-            transmit
-            EMReadScreen resi_standard_note, 33, 24, 2
-            If resi_standard_note = "RESIDENCE ADDRESS IS STANDARDIZED" Then transmit
-            EMReadScreen mail_standard_note, 31, 24, 2
-            If mail_standard_note = "MAILING ADDRESS IS STANDARDIZED" Then transmit
-
-            row = 0
-            col = 0
-            EMSearch "Warning:", row, col
-
-            If row <> 0 Then
-                Do
-                    EMReadScreen warning_note, 55, row, col
-                    warning_note = trim(warning_note)
-                    warning_message = warning_message & "; " & warning_note
-                Loop until warning_note = ""
-            End If
-
-            save_attempt = save_attempt + 1
-        Loop until save_attempt = 20
-
-        Dialog1 = ""
-        BeginDialog Dialog1, 0, 0, 356, 160, "ADDR Updated"
-          EditBox 60, 120, 290, 15, notes_on_address
-          ButtonGroup ButtonPressed
-            OkButton 300, 140, 50, 15
-          Text 10, 10, 160, 10, "The ADDR panel has been updated successfully. "
-          Text 10, 30, 155, 20, "When saving the information to the panel, the following warning message was displayed:"
-          Text 30, 55, 310, 55, warning_message
-          Text 5, 125, 50, 10, "Address Notes:"
-        EndDialog
-
-        Do
-            err_msg = ""
-            dialog Dialog1
-            cancel_confirmation
-
-            EMReadScreen addr_check, 4, 2, 44
-            If addr_check = "ADDR" Then
-                EMReadScreen info_saved, 7, 24, 2
-                If info_saved <> "ENTER A"  Then err_msg = err_msg & vbNewLine & "* Review the ADDR panel and update as needed. It appears the script is unable to complete the update without assistance. In order to prevent all work from being lost, please complete the ADDR update manually and press 'OK' for the script to continue once the address information has been saved."
-            End If
-
-            If err_msg <> "" Then MsgBox "The ADDR Update functionality needs assistance" & vbNewLine & err_msg
-        Loop until err_msg = ""
-    End If
 end function
 
 function split_phone_number_into_parts(phone_variable, phone_left, phone_mid, phone_right)
@@ -396,1328 +265,7 @@ function split_phone_number_into_parts(phone_variable, phone_left, phone_mid, ph
     End If
 end function
 
-' function access_JOBS_panel(access_type, job_member, job_verif, job_employer, job_type, job_pay_amount, job_prosp_total, job_prosp_hours, job_frequency, job_update_date, job_start_date, job_end_date, panel_ref_numb, hourly_wage, retrospective_total, retrospective_hours, fs_pic_pay_frequency, fs_pic_average_hours, fs_pic_average_pay, fs_pic_monthly_prospective, grh_pic_pay_frequency, grh_pic_average_pay, grh_pic_monthly_prospective, jobs_subsidy_code)
-'     access_type = UCase(access_type)
-'     If access_type = "READ" Then
-'         EMReadScreen job_member, 2, 4, 33
-'         EMReadScreen job_type, 1, 5, 34
-'         EMReadScreen jobs_subsidy_code, 2, 5, 74
-'         EMReadScreen job_verif, 1, 6, 34
-'         EMReadScreen hourly_wage, 6, 6, 75
-'         EMReadScreen employer_name, 30, 7, 42
-'         EMReadScreen income_start_date, 8, 9, 35
-'         EMReadScreen income_end_date, 8, 9, 49
-'         EMReadScreen retrospective_total, 8, 17, 38
-'         EMReadScreen retrospective_hours, 3, 18, 43
-'
-'         For jobs_row = 16 to 12 Step -1
-'             EMReadScreen paycheck_amount, 8, jobs_row, 67
-'             If paycheck_amount <> "________" Then
-'                 job_pay_amount = trim(paycheck_amount)
-'                 Exit For
-'             End If
-'         Next
-'         EMReadScreen job_prosp_total, 8, 17, 67
-'         EMReadScreen job_frequency, 1, 18, 35
-'         EMReadScreen job_prosp_hours, 3, 18, 72
-'         EMReadScreen last_updated, 8, 21, 55
-'         ' MsgBox "Line 817" & vbNewLine & last_updated
-'
-'         EMWriteScreen "X", 19, 38           'opening the FS PIC
-'         transmit
-'
-'         EMReadScreen fs_pic_pay_frequency, 1, 5, 64
-'         EMReadScreen fs_pic_average_hours, 6, 16, 51
-'         EMReadScreen fs_pic_average_pay, 8, 17, 56
-'         EMReadScreen fs_pic_monthly_prospective, 8, 18, 56
-'
-'         PF3                                 'closing the FS PIC
-'
-'         EMWriteScreen "X", 19, 71           'opening the GRH PIC
-'         transmit
-'
-'         EMReadScreen grh_pic_pay_frequency, 1, 3, 63
-'         EMReadScreen grh_pic_average_pay, 8, 16, 65
-'         EMReadScreen grh_pic_monthly_prospective, 8, 17, 65
-'
-'         PF3                                 'closing the GRH PIC
-'
-'         If jobs_subsidy_code = "01" Then jobs_subsidy_code = "01 - Subsidized Public Secotr Employer"
-'         If jobs_subsidy_code = "02" Then jobs_subsidy_code = "02 - Subsidized Private Sector Employer"
-'         If jobs_subsidy_code = "03" Then jobs_subsidy_code = "03 - On-the-Job-Training"
-'         If jobs_subsidy_code = "04" Then jobs_subsidy_code = "04 - Americorps"
-'         If jobs_subsidy_code = "__" Then jobs_subsidy_code = "None"
-'
-'         hourly_wage = trim(hourly_wage)
-'         retrospective_total = trim(retrospective_total)
-'         retrospective_hours = trim(retrospective_hours)
-'
-'         job_employer = replace(employer_name, "_", "")
-'         If job_verif = "1" Then job_verif = "1 - Pay Stubs"
-'         If job_verif = "2" Then job_verif = "2 - Empl Stmt"
-'         If job_verif = "3" Then job_verif = "3 - Coltrl Stmt"
-'         If job_verif = "4" Then job_verif = "4 - Other Doc"
-'         If job_verif = "5" Then job_verif = "5 - Pend Out State"
-'         If job_verif = "N" Then job_verif = "N - No Verif Prvd"
-'         If job_verif = "?" Then job_verif = "? - Delayed Verif"
-'
-'         If job_type = "J" Then job_type = "J - WIOA"
-'         If job_type = "W" Then job_type = "W - Wages"
-'         If job_type = "E" Then job_type = "E - EITC"
-'         If job_type = "G" Then job_type = "G - Experience Works"
-'         If job_type = "F" Then job_type = "F - Fed Work Study"
-'         If job_type = "S" Then job_type = "S - State Work Study"
-'         If job_type = "O" Then job_type = "O - Other"
-'         If job_type = "C" Then job_type = "C - Contract Income"
-'         If job_type = "T" Then job_type = "T - Training Prog"
-'         If job_type = "P" Then job_type = "P - Service Prog"
-'         If job_type = "R" Then job_type = "R - Rehab Prog"
-'
-'         job_prosp_total = trim(job_prosp_total)
-'         job_prosp_hours = trim(job_prosp_hours)
-'         If job_frequency = "1" Then job_frequency = "1 - Monthly"
-'         If job_frequency = "2" Then job_frequency = "2 - Semi Monthly"
-'         If job_frequency = "3" Then job_frequency = "3 - Biweekly"
-'         If job_frequency = "4" Then job_frequency = "4 -  Weekly"
-'         If job_frequency = "5" Then job_frequency = "5 - Other"
-'
-'         job_update_date = replace(last_updated, " ", "/")
-'         ' MsgBox "Line 849" & vbNewLine & job_update_date
-'         job_start_date = replace(income_start_date, " ", "/")
-'         job_end_date = replace(income_end_date, " ", "/")
-'         if job_end_date = "__/__/__" then job_end_date = ""
-'
-'         If fs_pic_pay_frequency = "1" Then fs_pic_pay_frequency = "1 - Monthly"
-'         If fs_pic_pay_frequency = "2" Then fs_pic_pay_frequency = "2 - Semi Monthly"
-'         If fs_pic_pay_frequency = "3" Then fs_pic_pay_frequency = "3 - Biweekly"
-'         If fs_pic_pay_frequency = "4" Then fs_pic_pay_frequency = "4 -  Weekly"
-'         If fs_pic_pay_frequency = "5" Then fs_pic_pay_frequency = "5 - Other"
-'         If fs_pic_pay_frequency = "_" Then fs_pic_pay_frequency = ""
-'
-'         fs_pic_average_hours = trim(fs_pic_average_hours)
-'         fs_pic_average_pay = trim(fs_pic_average_pay)
-'         fs_pic_monthly_prospective = trim(fs_pic_monthly_prospective)
-'
-'         If grh_pic_pay_frequency = "1" Then grh_pic_pay_frequency = "1 - Monthly"
-'         If grh_pic_pay_frequency = "2" Then grh_pic_pay_frequency = "2 - Semi Monthly"
-'         If grh_pic_pay_frequency = "3" Then grh_pic_pay_frequency = "3 - Biweekly"
-'         If grh_pic_pay_frequency = "4" Then grh_pic_pay_frequency = "4 -  Weekly"
-'         If grh_pic_pay_frequency = "5" Then grh_pic_pay_frequency = "5 - Other"
-'         If grh_pic_pay_frequency = "_" Then grh_pic_pay_frequency = ""
-'
-'         grh_pic_average_pay = trim(grh_pic_average_pay)
-'         grh_pic_monthly_prospective = trim(grh_pic_monthly_prospective)
-'
-'         EMReadScreen panel_ref_numb, 1, 2, 73
-'         panel_ref_numb = "0" & panel_ref_numb
-'     End If
-' end function
-'
-' function access_BUSI_panel(access_type, busi_member, busi_type, income_start_date, income_end_date, cash_net_prosp_amount, cash_net_retro_amount, cash_retro_total_income, cash_retro_expenses, cash_prosp_total_income, cash_prosp_expenses, cash_income_verif, cash_expense_verif, snap_net_prosp_amount, snap_net_retro_amount, snap_retro_total_income, snap_retro_expenses, snap_prosp_total_income, snap_prosp_expenses, snap_income_verif, snap_expense_verif, hc_method_a_net_prosp_amount, hc_method_b_net_prosp_amount, hc_method_a_total_income, hc_method_a_expenses, hc_method_a_income_verif, hc_method_a_expense_verif, hc_method_b_total_income, hc_method_b_expenses, hc_method_b_income_verif, hc_method_b_expense_verif, SE_method, SE_method_date, reported_hours, minimum_wage_hours, update_date, panel_ref_numb)
-'     access_type = UCase(access_type)
-'     If access_type = "READ" Then
-'         EMReadScreen busi_member, 2, 4, 33
-'         EMReadScreen type_of_income, 2, 5, 37
-'         EMReadScreen income_start_date, 8, 5, 55
-'         EMReadScreen income_end_date, 8, 5, 72
-'         EMReadScreen cash_net_prosp_amount, 8, 8, 69
-'         EMReadScreen cash_net_retro_amount, 8, 8, 55
-'         EMReadScreen snap_net_prosp_amount, 8, 10, 69
-'         EMReadScreen snap_net_retro_amount, 8, 10, 55
-'         EMReadScreen hc_method_a_net_prosp_amount, 8, 11, 69
-'         EMReadScreen hc_method_b_net_prosp_amount, 8, 12, 69
-'         EMReadScreen reported_hours, 3, 13, 74
-'         EMReadScreen minimum_wage_hours, 3, 14, 74
-'         EMReadScreen update_date, 8, 21, 55
-'
-'         EMReadScreen SE_method, 2, 16, 53
-'         EMReadScreen SE_method_date, 8, 16, 63
-'
-'         ' MsgBox "Line 870" & vbNewLine & update_date
-'         EMWriteScreen "X", 6, 26
-'         transmit
-'         EMReadScreen cash_retro_total_income, 8, 9, 43
-'         EMReadScreen cash_retro_expenses, 8, 15, 43
-'         EMReadScreen cash_prosp_total_income, 8, 9, 59
-'         EMReadScreen cash_prosp_expenses, 8, 15, 59
-'         EMReadScreen cash_income_verif, 1, 9, 73
-'         EMReadScreen cash_expense_verif, 1, 15, 73
-'
-'         EMReadScreen snap_retro_total_income, 8,  11, 43
-'         EMReadScreen snap_retro_expenses, 8, 17, 43
-'         EMReadScreen snap_prosp_total_income, 8,  11, 59
-'         EMReadScreen snap_prosp_expenses, 8, 17, 59
-'         EMReadScreen snap_income_verif, 1, 11, 73
-'         EMReadScreen snap_expense_verif, 1, 17, 73
-'
-'         EMReadScreen hc_method_a_total_income, 8, 12, 59
-'         EMReadScreen hc_method_a_income_verif, 1, 12, 73
-'         EMReadScreen hc_method_a_expenses, 8, 18, 59
-'         EMReadScreen hc_method_a_expense_verif, 1, 18, 73
-'
-'         EMReadScreen hc_method_b_total_income, 8, 13, 59
-'         EMReadScreen hc_method_b_income_verif, 1, 13, 73
-'         EMReadScreen hc_method_b_expenses, 8, 19, 59
-'         EMReadScreen hc_method_b_expense_verif, 1, 19, 73
-'
-'         PF3
-'
-'         If type_of_income = "01" Then busi_type = "01 - Farming"
-'         If type_of_income = "02" Then busi_type = "02 - Real Estate"
-'         If type_of_income = "03" Then busi_type = "03 - Home Product Sales"
-'         If type_of_income = "04" Then busi_type = "04 - Other Sales"
-'         If type_of_income = "05" Then busi_type = "05 - Personal Services"
-'         If type_of_income = "06" Then busi_type = "06 - Paper Route"
-'         If type_of_income = "07" Then busi_type = "07 - In Home Daycare"
-'         If type_of_income = "08" Then busi_type = "08 - Rental Income"
-'         If type_of_income = "09" Then busi_type = "09 - Other"
-'
-'         income_start_date = replace(income_start_date, " ", "/")
-'         income_end_date = replace(income_end_date, " ", "/")
-'         If income_end_date = "__/__/__" Then income_end_date = ""
-'         ' cash_net_prosp_amount = trim(cash_net_prosp_amount)
-'         ' snap_net_prosp_amount = trim(snap_net_prosp_amount)
-'         ' hc_method_a_net_prosp_amount = trim(hc_method_a_net_prosp_amount)
-'         ' hc_method_b_net_prosp_amount = trim(hc_method_b_net_prosp_amount)
-'         ' reported_hours = trim(reported_hours)
-'         ' minimum_wage_hours = trim(minimum_wage_hours)
-'         update_date = replace(update_date, " ", "/")
-'
-'         If SE_method = "01" Then SE_method = "01 - 50% Gross Inc"
-'         If SE_method = "02" Then SE_method = "02 - Tax Forms"
-'
-'         SE_method_date = replace(SE_method_date, " ", "/")
-'         If SE_method_date = "__/__/__" Then SE_method_date = ""
-'
-'         ' MsgBox "Line 898" & vbNewLine & update_date
-'         If cash_income_verif = "1" Then cash_verif = "1 - Tax Returns"
-'         If cash_income_verif = "2" Then cash_verif = "2 - Receipts"
-'         If cash_income_verif = "3" Then cash_verif = "3 - Busi Records"
-'         If cash_income_verif = "6" Then cash_verif = "6 - Other Doc"
-'         If cash_income_verif = "N" Then cash_verif = "N - No Verif Prvd"
-'         If cash_income_verif = "?" Then cash_verif = "? - Delayed Verif"
-'
-'         If snap_income_verif = "1" Then snap_verif = "1 - Tax Returns"
-'         If snap_income_verif = "2" Then snap_verif = "2 - Receipts"
-'         If snap_income_verif = "3" Then snap_verif = "3 - Busi Records"
-'         If snap_income_verif = "4" Then snap_verif = "4 - Pend Out State"
-'         If snap_income_verif = "6" Then snap_verif = "6 - Other Doc"
-'         If snap_income_verif = "N" Then snap_verif = "N - No Verif Prvd"
-'         If snap_income_verif = "?" Then snap_verif = "? - Delayed Verif"
-'
-'         If hc_method_b_income_verif = "1" Then hc_verif = "1 - Tax Returns"
-'         If hc_method_b_income_verif = "2" Then hc_verif = "2 - Receipts"
-'         If hc_method_b_income_verif = "3" Then hc_verif = "3 - Busi Records"
-'         If hc_method_b_income_verif = "6" Then hc_verif = "6 - Other Doc"
-'         If hc_method_b_income_verif = "N" Then hc_verif = "N - No Verif Prvd"
-'         If hc_method_b_income_verif = "?" Then hc_verif = "? - Delayed Verif"
-'
-'         cash_retro_total_income = replace(cash_retro_total_income, "_", " ")
-'         ' cash_retro_total_income = trim(cash_retro_total_income)
-'
-'         cash_retro_expenses = replace(cash_retro_expenses, "_", " ")
-'         ' cash_retro_expenses = trim(cash_retro_expenses)
-'
-'         cash_prosp_total_income = replace(cash_prosp_total_income, "_", " ")
-'         ' cash_prosp_total_income = trim(cash_prosp_total_income)
-'
-'         cash_prosp_expenses = replace(cash_prosp_expenses, "_", " ")
-'         ' cash_prosp_expenses = trim(cash_prosp_expenses)
-'
-'         If cash_income_verif = "1" Then cash_income_verif = "1 - Tax Returns"
-'         If cash_income_verif = "2" Then cash_income_verif = "2 - Receipts"
-'         If cash_income_verif = "3" Then cash_income_verif = "3 - Busi Records"
-'         If cash_income_verif = "6" Then cash_income_verif = "6 - Other Doc"
-'         If cash_income_verif = "N" Then cash_income_verif = "N - No Verif Prvd"
-'         If cash_income_verif = "?" Then cash_income_verif = "? - Delayed Verif"
-'
-'         If cash_expense_verif = "1" Then cash_expense_verif = "1 - Tax Returns"
-'         If cash_expense_verif = "2" Then cash_expense_verif = "2 - Receipts"
-'         If cash_expense_verif = "3" Then cash_expense_verif = "3 - Busi Records"
-'         If cash_expense_verif = "6" Then cash_expense_verif = "6 - Other Doc"
-'         If cash_expense_verif = "N" Then cash_expense_verif = "N - No Verif Prvd"
-'         If cash_expense_verif = "?" Then cash_expense_verif = "? - Delayed Verif"
-'
-'
-'         snap_retro_total_income = replace(snap_retro_total_income, "_", " ")
-'         ' snap_retro_total_income = trim(snap_retro_total_income)
-'
-'         snap_retro_expenses = replace(snap_retro_expenses, "_", " ")
-'         ' snap_retro_expenses = trim(snap_retro_expenses)
-'
-'         snap_prosp_total_income = replace(snap_prosp_total_income, "_", " ")
-'         ' snap_prosp_total_income = trim(snap_prosp_total_income)
-'
-'         snap_prosp_expenses = replace(snap_prosp_expenses, "_", " ")
-'         ' snap_prosp_expenses = trim(snap_prosp_expenses)
-'
-'         If snap_income_verif = "1" Then snap_income_verif = "1 - Tax Returns"
-'         If snap_income_verif = "2" Then snap_income_verif = "2 - Receipts"
-'         If snap_income_verif = "3" Then snap_income_verif = "3 - Busi Records"
-'         If snap_income_verif = "4" Then snap_income_verif = "4 - Pend Out State"
-'         If snap_income_verif = "6" Then snap_income_verif = "6 - Other Doc"
-'         If snap_income_verif = "N" Then snap_income_verif = "N - No Verif Prvd"
-'         If snap_income_verif = "?" Then snap_income_verif = "? - Delayed Verif"
-'
-'         If snap_expense_verif = "1" Then snap_expense_verif = "1 - Tax Returns"
-'         If snap_expense_verif = "2" Then snap_expense_verif = "2 - Receipts"
-'         If snap_expense_verif = "3" Then snap_expense_verif = "3 - Busi Records"
-'         If snap_expense_verif = "4" Then snap_expense_verif = "4 - Pend Out State"
-'         If snap_expense_verif = "6" Then snap_expense_verif = "6 - Other Doc"
-'         If snap_expense_verif = "N" Then snap_expense_verif = "N - No Verif Prvd"
-'         If snap_expense_verif = "?" Then snap_expense_verif = "? - Delayed Verif"
-'
-'         hc_method_a_total_income = replace(hc_method_a_total_income, "_", " ")
-'         ' hc_method_a_total_income = trim(hc_method_a_total_income)
-'
-'         If hc_method_a_income_verif = "1" Then hc_method_a_income_verif = "1 - Tax Returns"
-'         If hc_method_a_income_verif = "2" Then hc_method_a_income_verif = "2 - Receipts"
-'         If hc_method_a_income_verif = "3" Then hc_method_a_income_verif = "3 - Busi Records"
-'         If hc_method_a_income_verif = "6" Then hc_method_a_income_verif = "6 - Other Doc"
-'         If hc_method_a_income_verif = "N" Then hc_method_a_income_verif = "N - No Verif Prvd"
-'         If hc_method_a_income_verif = "?" Then hc_method_a_income_verif = "? - Delayed Verif"
-'
-'         hc_method_a_expenses = replace(hc_method_a_expenses, "_", " ")
-'         ' hc_method_a_expenses = trim(hc_method_a_expenses)
-'
-'         If hc_method_a_expense_verif = "1" Then hc_method_a_expense_verif = "1 - Tax Returns"
-'         If hc_method_a_expense_verif = "2" Then hc_method_a_expense_verif = "2 - Receipts"
-'         If hc_method_a_expense_verif = "3" Then hc_method_a_expense_verif = "3 - Busi Records"
-'         If hc_method_a_expense_verif = "6" Then hc_method_a_expense_verif = "6 - Other Doc"
-'         If hc_method_a_expense_verif = "N" Then hc_method_a_expense_verif = "N - No Verif Prvd"
-'         If hc_method_a_expense_verif = "?" Then hc_method_a_expense_verif = "? - Delayed Verif"
-'
-'         hc_method_b_total_income = replace(hc_method_b_total_income, "_", " ")
-'         ' hc_method_b_total_income = trim(hc_method_b_total_income)
-'
-'         If hc_method_b_income_verif = "1" Then hc_method_b_income_verif = "1 - Tax Returns"
-'         If hc_method_b_income_verif = "2" Then hc_method_b_income_verif = "2 - Receipts"
-'         If hc_method_b_income_verif = "3" Then hc_method_b_income_verif = "3 - Busi Records"
-'         If hc_method_b_income_verif = "6" Then hc_method_b_income_verif = "6 - Other Doc"
-'         If hc_method_b_income_verif = "N" Then hc_method_b_income_verif = "N - No Verif Prvd"
-'         If hc_method_b_income_verif = "?" Then hc_method_b_income_verif = "? - Delayed Verif"
-'
-'         hc_method_b_expenses = replace(hc_method_b_expenses, "_", " ")
-'         ' hc_method_b_expenses = trim(hc_method_b_expenses)
-'
-'         If hc_method_b_expense_verif = "1" Then hc_method_b_expense_verif = "1 - Tax Returns"
-'         If hc_method_b_expense_verif = "2" Then hc_method_b_expense_verif = "2 - Receipts"
-'         If hc_method_b_expense_verif = "3" Then hc_method_b_expense_verif = "3 - Busi Records"
-'         If hc_method_b_expense_verif = "6" Then hc_method_b_expense_verif = "6 - Other Doc"
-'         If hc_method_b_expense_verif = "N" Then hc_method_b_expense_verif = "N - No Verif Prvd"
-'         If hc_method_b_expense_verif = "?" Then hc_method_b_expense_verif = "? - Delayed Verif"
-'
-'         EMReadScreen panel_ref_numb, 1, 2, 73
-'         panel_ref_numb = "0" & panel_ref_numb
-'     End If
-' end function
-'
-' function access_UNEA_panel(access_type, member_name, unea_type, unea_verif, panel_claim_nmbr, start_date, end_date, cola_amt, unea_amount, unea_pay_amount, unea_frequency, update_date, panel_ref_numb, pic_ave_inc, pic_prosp_income, retro_total)
-'     access_type = UCase(access_type)
-'     If access_type = "READ" Then
-'         EMReadScreen member_name, 2, 4, 33
-'         EMReadScreen panel_type, 2, 5, 37
-'         EMReadScreen panel_verif_code, 1, 5, 65
-'         EMReadScreen panel_claim_nmbr, 15, 6, 37
-'         EMReadScreen panel_start_date, 8, 7, 37
-'         EMReadScreen panel_end_date, 8, 7, 68
-'         EMReadScreen cola_disregard, 8, 10, 67
-'         EMReadScreen update_date, 8, 21, 55
-'
-'         For unea_row = 17 to 13 Step -1
-'             EMReadScreen pay_amount, 8, unea_row, 67
-'             If pay_amount <> "________" Then
-'                 unea_pay_amount = trim(pay_amount)
-'                 Exit For
-'             End If
-'         Next
-'         EMReadScreen total_amount, 8, 18, 68
-'         EMReadScreen retro_total, 8, 18, 39
-'
-'         unea_amount = trim(total_amount)
-'         retro_total = trim(retro_total)
-'
-'         EMWriteScreen "X", 10, 26       'opening SNAP pic
-'         transmit
-'         EMReadScreen pic_ave_inc, 8, 17, 56
-'         EMReadScreen pic_prosp_income, 8, 18, 56
-'         EMReadScreen panel_frequency_code, 1, 5, 64
-'         PF3
-'
-'         If panel_type = "01" Then unea_type = "01 - RSDI, Disa"
-'         If panel_type = "02" Then unea_type = "02 - RSDI, No Disa"
-'         If panel_type = "03" Then unea_type = "03 - SSI"
-'         If panel_type = "06" Then unea_type = "06 - Non-MN PA"
-'         If panel_type = "11" Then unea_type = "11 - VA Disability"
-'         If panel_type = "12" Then unea_type = "12 - VA Pension"
-'         If panel_type = "13" Then unea_type = "13 - VA Other"
-'         If panel_type = "38" Then unea_type = "38 - VA Aid & Attendance"
-'         If panel_type = "14" Then unea_type = "14 - Unemployment Insurance"
-'         If panel_type = "15" Then unea_type = "15 - Worker's Comp"
-'         If panel_type = "16" Then unea_type = "16 - Railroad Retirement"
-'         If panel_type = "17" Then unea_type = "17 - Other Retirement"
-'         If panel_type = "18" Then unea_type = "18 - Military Enrirlement"
-'         If panel_type = "19" Then unea_type = "19 - FC Child req FS"
-'         If panel_type = "20" Then unea_type = "20 - FC Child not req FS"
-'         If panel_type = "21" Then unea_type = "21 - FC Adult req FS"
-'         If panel_type = "22" Then unea_type = "22 - FC Adult not req FS"
-'         If panel_type = "23" Then unea_type = "23 - Dividends"
-'         If panel_type = "24" Then unea_type = "24 - Interest"
-'         If panel_type = "25" Then unea_type = "25 - Cnt gifts/prizes"
-'         If panel_type = "26" Then unea_type = "26 - Strike Benefits"
-'         If panel_type = "27" Then unea_type = "27 - Contract for Deed"
-'         If panel_type = "28" Then unea_type = "28 - Illegal Income"
-'         If panel_type = "29" Then unea_type = "29 - Other Countable"
-'         If panel_type = "30" Then unea_type = "30 - Infrequent"
-'         If panel_type = "31" Then unea_type = "31 - Other - FS Only"
-'         If panel_type = "08" Then unea_type = "08 - Direct Child Support"
-'         If panel_type = "35" Then unea_type = "35 - Direct Spousal Support"
-'         If panel_type = "36" Then unea_type = "36 - Disbursed Child Support"
-'         If panel_type = "37" Then unea_type = "37 - Disbursed Spousal Support"
-'         If panel_type = "39" Then unea_type = "39 - Disbursed CS Arrears"
-'         If panel_type = "40" Then unea_type = "40 - Disbursed Spsl Sup Arrears"
-'         If panel_type = "43" Then unea_type = "43 - Disbursed Excess CS"
-'         If panel_type = "44" Then unea_type = "44 - MSA - Excess Income for SSI"
-'         If panel_type = "47" Then unea_type = "47 - Tribal Income"
-'         If panel_type = "48" Then unea_type = "48 - Trust Income"
-'         If panel_type = "49" Then unea_type = "49 - Non-Recurring"
-'
-'         If panel_verif_code = "1" Then unea_verif = "1 - Copy of Checks"
-'         If panel_verif_code = "2" Then unea_verif = "2 - Award Letters"
-'         If panel_verif_code = "3" Then unea_verif = "3 - System Initiated Verif"
-'         If panel_verif_code = "4" Then unea_verif = "4 - Coltrl Stmt"
-'         If panel_verif_code = "5" Then unea_verif = "5 - Pend Out State Verif"
-'         If panel_verif_code = "6" Then unea_verif = "6 - Other Document"
-'         If panel_verif_code = "7" Then unea_verif = "7 - Worker Initiated Verif"
-'         If panel_verif_code = "8" Then unea_verif = "8 - RI Stubs"
-'         If panel_verif_code = "N" Then unea_verif = "N - No Verif Prvd"
-'         If panel_verif_code = "?" Then unea_verif = "? - Delayed Verif"
-'
-'         panel_claim_nmbr = replace(panel_claim_nmbr, "_", "")
-'
-'         start_date = replace(panel_start_date, " ", "/")
-'         end_date = replace(panel_end_date, " ", "/")
-'         If end_date = "__/__/__" Then end_date = ""
-'         update_date = replace(update_date, " ", "/")
-'         cola_amt = trim(cola_disregard)
-'         If cola_amt = "________" Then cola_amt = ""
-'
-'         If panel_frequency_code = "1" Then unea_frequency = "1 - Monthly"
-'         If panel_frequency_code = "2" Then unea_frequency = "2 - Semi Monthly"
-'         If panel_frequency_code = "3" Then unea_frequency = "3 - Biweekly"
-'         If panel_frequency_code = "4" Then unea_frequency = "4 - Weekly"
-'         pic_ave_inc = trim(pic_ave_inc)
-'         pic_prosp_income = trim(pic_prosp_income)
-'
-'         EMReadScreen panel_ref_numb, 1, 2, 73
-'         panel_ref_numb = "0" & panel_ref_numb
-'     End If
-' end function
-'
-' function access_ACCT_panel(access_type, member_name, account_type, account_number, account_location, account_balance, account_verification, update_date, panel_ref_numb, balance_date, withdraw_penalty, withdraw_yn, withdraw_verif_code, count_cash, count_snap, count_hc, count_grh, count_ive, joint_own_yn, share_ratio, next_interest)
-'     access_type = UCase(access_type)
-'     If access_type = "READ" Then
-'         EMReadScreen member_name, 2, 4, 33
-'         EMReadScreen panel_type, 2, 6, 44
-'         EMReadScreen panel_number, 20, 7, 44
-'         EMReadScreen panel_name, 20, 8, 44
-'         EMReadScreen panel_balance, 8, 10, 46
-'         EMReadScreen panel_verif_code, 1, 10, 64
-'         EMReadScreen balance_date, 8, 11, 44
-'         EMReadScreen withdraw_penalty, 8, 12, 46
-'         EMReadScreen withdraw_yn, 1, 12, 64
-'         EMReadScreen withdraw_verif_code, 1, 12, 72
-'         EMReadScreen count_cash, 1, 14, 50
-'         EMReadScreen count_snap, 1, 14, 57
-'         EMReadScreen count_hc, 1, 14, 64
-'         EMReadScreen count_grh, 1, 14, 72
-'         EMReadScreen count_ive, 1, 14, 80
-'         EMReadScreen joint_own_yn, 1, 15, 44
-'         EMReadScreen share_ratio, 5, 15, 76
-'         EMReadScreen next_interest, 5, 17, 57
-'         EMReadScreen update_date, 8, 21, 55
-'
-'         If panel_type = "SV" Then account_type = "SV - Savings"
-'         If panel_type = "CK" Then account_type = "CK - Checking"
-'         If panel_type = "CE" Then account_type = "CE - Certificate of Deposit"
-'         If panel_type = "MM" Then account_type = "MM - Money Market"
-'         If panel_type = "DC" Then account_type = "DC - Debit Card"
-'         If panel_type = "KO" Then account_type = "KO - Keogh Account"
-'         If panel_type = "FT" Then account_type = "FT - Fed Thrift Savings Plan"
-'         If panel_type = "SL" Then account_type = "SL - State & Local Govt"
-'         If panel_type = "RA" Then account_type = "RA - Employee Ret Annuities"
-'         If panel_type = "NP" Then account_type = "NP - Non-Profit Emmployee Ret"
-'         If panel_type = "IR" Then account_type = "IR - Indiv Ret Acct"
-'         If panel_type = "RH" Then account_type = "RH - Roth IRA"
-'         If panel_type = "FR" Then account_type = "FR - Ret Plan for Employers"
-'         If panel_type = "CT" Then account_type = "CT - Corp Ret Trust"
-'         If panel_type = "RT" Then account_type = "RT - Other Ret Fund"
-'         If panel_type = "QT" Then account_type = "QT - Qualified Tuition (529)"
-'         If panel_type = "CA" Then account_type = "CA - Coverdell SV (530)"
-'         If panel_type = "OE" Then account_type = "OE - Other Educational"
-'         If panel_type = "OT" Then account_type = "OT - Other"
-'
-'         account_number = replace(panel_number, "_", "")
-'         account_location =  replace(panel_name, "_", "")
-'         account_balance = trim(panel_balance)
-'
-'         If panel_verif_code = "1"  Then account_verification = "1 - Bank Statement"
-'         If panel_verif_code = "2"  Then account_verification = "2 - Agcy Ver Form"
-'         If panel_verif_code = "3"  Then account_verification = "3 - Coltrl Contact"
-'         If panel_verif_code = "5"  Then account_verification = "5 - Other Document"
-'         If panel_verif_code = "6"  Then account_verification = "6 - Personal Statement"
-'         If panel_verif_code = "N"  Then account_verification = "N - No Ver Prvd"
-'
-'         balance_date = replace(balance_date, " ", "/")
-'         If balance_date = "__/__/__" Then balance_date = ""
-'
-'         withdraw_penalty = replace(withdraw_penalty, "_", "")
-'         withdraw_penalty = trim(withdraw_penalty)
-'         withdraw_yn = replace(withdraw_yn, "_", "")
-'         If withdraw_verif_code = "1"  Then withdraw_verif_code = "1 - Bank Statement"
-'         If withdraw_verif_code = "2"  Then withdraw_verif_code = "2 - Agcy Ver Form"
-'         If withdraw_verif_code = "3"  Then withdraw_verif_code = "3 - Coltrl Contact"
-'         If withdraw_verif_code = "5"  Then withdraw_verif_code = "5 - Other Document"
-'         If withdraw_verif_code = "6"  Then withdraw_verif_code = "6 - Personal Statement"
-'         If withdraw_verif_code = "N"  Then withdraw_verif_code = "N - No Ver Prvd"
-'
-'         count_cash = replace(count_cash, "_", "")
-'         count_snap = replace(count_snap, "_", "")
-'         count_hc = replace(count_hc, "_", "")
-'         count_grh = replace(count_grh, "_", "")
-'         count_ive = replace(count_ive, "_", "")
-'
-'         share_ratio = replace(share_ratio, " ", "")
-'
-'         next_interest = replace(next_interest, " ", "/")
-'         If next_interest = "__/__" Then next_interest = ""
-'
-'         update_date = replace(update_date, " ", "/")
-'
-'         EMReadScreen panel_ref_numb, 1, 2, 73
-'         panel_ref_numb = "0" & panel_ref_numb
-'     End If
-' end function
-'
-' function access_CARS_panel(access_type, member_name, cars_type, cars_year, cars_make, cars_model, cars_verif, update_date, panel_ref_numb, cars_trade_in, cars_loan, cars_source, cars_owed, cars_owed_verif_code, cars_owed_date, cars_use, cars_hc_benefit, cars_joint_yn, cars_share)
-'     access_type = UCase(access_type)
-'     If access_type = "READ" Then
-'         EMReadScreen member_name, 2, 4, 33
-'         EMReadScreen cars_type, 1, 6, 43
-'         EMReadScreen cars_year, 4, 8, 31
-'         EMReadScreen cars_make, 15, 8, 43
-'         EMReadScreen cars_model, 15, 8, 66
-'         EMReadScreen cars_trade_in, 8, 9, 45            'not output
-'         EMReadScreen cars_loan, 8, 9, 62                'not output
-'         EMReadScreen cars_source, 1, 9, 80              'not output
-'         EMReadScreen cars_verif_code, 1, 10, 60
-'         EMReadScreen cars_owed, 8, 12, 45               'not output
-'         EMReadScreen cars_owed_verif_code, 1, 12, 60    'not output
-'         EMReadScreen cars_owed_date, 8, 13, 43          'not output
-'         EMReadScreen cars_use, 1, 15, 43                'not output
-'         EMReadScreen cars_hc_benefit, 1, 15, 76         'not output
-'         EMReadScreen cars_joint_yn, 1, 16, 43           'not output
-'         EMReadScreen cars_share, 5, 16, 76              'not output
-'         EMReadScreen cars_update, 8, 21, 55
-'
-'         If cars_type = "1" Then cars_type = "1 - Car"
-'         If cars_type = "2" Then cars_type = "2 - Truck"
-'         If cars_type = "3" Then cars_type = "3 - Van"
-'         If cars_type = "4" Then cars_type = "4 - Camper"
-'         If cars_type = "5" Then cars_type = "5 - Motorcycle"
-'         If cars_type = "6" Then cars_type = "6 - Trailer"
-'         If cars_type = "7" Then cars_type = "7 - Other"
-'
-'         cars_make = replace(cars_make, "_", "")
-'         cars_model = replace(cars_model, "_", "")
-'
-'
-'         cars_trade_in = replace(cars_trade_in, "_", "")
-'         cars_trade_in = trim(cars_trade_in)
-'
-'         cars_loan = replace(cars_loan, "_", "")
-'         cars_loan = trim(cars_loan)
-'
-'         If cars_source = "1" Then cars_source = "1 - NADA"
-'         If cars_source = "2" Then cars_source = "2 - Appraisal Val"
-'         If cars_source = "3" Then cars_source = "3 - Client Stmt"
-'         If cars_source = "4" Then cars_source = "4 - Other Document"
-'
-'         If cars_verif_code = "1" Then cars_verif = "1 - Title"
-'         If cars_verif_code = "2" Then cars_verif = "2 - License Reg"
-'         If cars_verif_code = "3" Then cars_verif = "3 - DMV"
-'         If cars_verif_code = "4" Then cars_verif = "4 - Purchase Agmt"
-'         If cars_verif_code = "5" Then cars_verif = "5 - Other Document"
-'         If cars_verif_code = "N" Then cars_verif = "N - No Ver Prvd"
-'
-'         cars_owed = replace(cars_owed, "_", "")
-'         cars_owed = trim(cars_owed)
-'
-'         If cars_owed_verif_code = "1" Then cars_owed_verif_code = "1 - Bank/Lending Inst Stmt"
-'         If cars_owed_verif_code = "2" Then cars_owed_verif_code = "2 - Private Lender Stmt"
-'         If cars_owed_verif_code = "3" Then cars_owed_verif_code = "3 - Other Document"
-'         If cars_owed_verif_code = "4" Then cars_owed_verif_code = "4 - Pend Out State Verif"
-'         If cars_owed_verif_code = "N" Then cars_owed_verif_code = "N - No Ver Prvd"
-'
-'         cars_owed_date = replace(cars_owed_date, " ", "/")
-'         If cars_owed_date = "__/__/__" Then cars_owed_date = ""
-'
-'         If cars_use = "1" Then cars_use = "1 - Primary Vehicle"
-'         If cars_use = "2" Then cars_use = "2 - Employment/Training Search"
-'         If cars_use = "3" Then cars_use = "3 - Disa Transportation"
-'         If cars_use = "4" Then cars_use = "4 - Income Producing"
-'         If cars_use = "5" Then cars_use = "5 - Used as Home"
-'         If cars_use = "7" Then cars_use = "7 - Unlicensed"
-'         If cars_use = "8" Then cars_use = "8 - Other Countable"
-'         If cars_use = "9" Then cars_use = "9 - Unavailable"
-'         If cars_use = "0" Then cars_use = "0 - Long Distance Employment Travel"
-'         If cars_use = "A" Then cars_use = "A - Carry Heating Fuel or Water"
-'
-'         cars_hc_benefit = replace(cars_hc_benefit, "_", "")
-'         cars_joint_yn = replace(cars_joint_yn, "_", "")
-'         cars_share = replace(cars_share, " ", "")
-'
-'         update_date = replace(cars_update, " ", "/")
-'
-'         EMReadScreen panel_ref_numb, 1, 2, 73
-'         panel_ref_numb = "0" & panel_ref_numb
-'     End If
-' end function
-'
-' function access_FACI_panel(access_type, notes_on_faci, facility_name, facility_vendor_number, facility_type, facility_FS_elig, FS_facility_type, facility_waiver_type, facility_LTC_inelig_reason, facility_inelig_begin_date, facility_inelig_end_date, facility_anticipated_out_date, facility_GRH_plan_required, facility_GRH_plan_verif, facility_cty_app_place, facility_approval_cty_name, facility_GRH_DOC_amount, facility_GRH_postpay, facility_stay_one_rate, facility_stay_one_date_in, facility_stay_one_date_out, facility_stay_two_rate, facility_stay_two_date_in, facility_stay_two_date_out, facility_stay_three_rate, facility_stay_three_date_in, facility_stay_three_date_out, facility_stay_four_rate, facility_stay_four_date_in, facility_stay_four_date_out, facility_stay_five_rate, facility_stay_five_date_in, facility_stay_five_date_out)
-'     If access_type = "READ" Then
-'         EMReadScreen facility_name,                 30, 6, 43
-'         EMReadScreen facility_vendor_number,        8, 5, 43
-'         EMReadScreen facility_type,                 2, 7, 43
-'         EMReadScreen facility_FS_elig,              1, 8, 43
-'         EMReadScreen FS_facility_type,              1, 8, 71
-'         EMReadScreen facility_waiver_type,          2, 7, 71
-'         EMReadScreen facility_LTC_inelig_reason,    1,  9, 43
-'         EMReadScreen facility_inelig_begin_date,    10, 10, 52
-'         EMReadScreen facility_inelig_end_date,      10, 10, 71
-'         EMReadScreen facility_anticipated_out_date, 10, 9, 71
-'
-'         facility_name = replace(facility_name, "_", "")
-'         If facility_type = "41" Then facility_type = "41 - NF-I"
-'         If facility_type = "42" Then facility_type = "42 - NF-II"
-'         If facility_type = "43" Then facility_type = "43 - ICF-DD"
-'         If facility_type = "44" Then facility_type = "44 - Short Stay In NF-I"
-'         If facility_type = "45" Then facility_type = "45 - Short Stay In NF-II"
-'         If facility_type = "46" Then facility_type = "46 - Short Stay in ICF-DD"
-'         If facility_type = "47" Then facility_type = "47 - RTC - Not IMD"
-'         If facility_type = "48" Then facility_type = "48 - Medical Hospital"
-'         If facility_type = "49" Then facility_type = "49 - MSOP"
-'         If facility_type = "50" Then facility_type = "50 - IMD/RTC"
-'         If facility_type = "51" Then facility_type = "51 - Rule 31 CD-IMD"
-'         If facility_type = "52" Then facility_type = "52 - Rule 36 MI-IMD"
-'         If facility_type = "53" Then facility_type = "53 - IMD Hospitals"
-'         If facility_type = "55" Then facility_type = "55 - Adult Foster Care/Rule 203"
-'         If facility_type = "56" Then facility_type = "56 - GRH (Not FC or Rule 36)"
-'         If facility_type = "57" Then facility_type = "57 - Rule 36 MI-Non-IMD"
-'         If facility_type = "60" Then facility_type = "60 - Non-GRH"
-'         If facility_type = "61" Then facility_type = "61 - Rule 31 CD-Non-IMD"
-'         If facility_type = "67" Then facility_type = "67 - Family Violence Shelter"
-'         If facility_type = "68" Then facility_type = "68 - County Correctional Facility"
-'         If facility_type = "69" Then facility_type = "69 - Non-Cty Adult Correctional"
-'
-'         If FS_facility_type = "1" Then FS_facility_type = "1 - Fed Subsidized Housing for Elderly"
-'         If FS_facility_type = "2" Then FS_facility_type = "2 - Licensed Facility/Treatment Center - CD"
-'         If FS_facility_type = "3" Then FS_facility_type = "3 - Blind or Disabled RSDI/SSI Recipient"
-'         If FS_facility_type = "4" Then FS_facility_type = "4 - Family Violence Shelter"
-'         If FS_facility_type = "5" Then FS_facility_type = "5 - Temporary Shelter for Homeless"
-'         If FS_facility_type = "6" Then FS_facility_type = "6 - Not a facility by FS Definition"
-'
-'         If facility_waiver_type = "01" Then facility_waiver_type = "01 - CADI"
-'         If facility_waiver_type = "02" Then facility_waiver_type = "02 - CAC"
-'         If facility_waiver_type = "03" Then facility_waiver_type = "03 - EW Single"
-'         If facility_waiver_type = "04" Then facility_waiver_type = "04 - EW Married"
-'         If facility_waiver_type = "05" Then facility_waiver_type = "05 - TBI"
-'         If facility_waiver_type = "06" Then facility_waiver_type = "06 - DD"
-'         If facility_waiver_type = "07" Then facility_waiver_type = "07 - ACS (Alt Care Services DD)"
-'         If facility_waiver_type = "08" Then facility_waiver_type = "08 - SISEW Single"
-'         If facility_waiver_type = "09" Then facility_waiver_type = "09 - SISEW Married"
-'
-'         If facility_LTC_inelig_reason = "L" Then facility_LTC_inelig_reason = "L - This level of Care Not Required"
-'         If facility_LTC_inelig_reason = "N" Then facility_LTC_inelig_reason = "N - Not Pre-Screened"
-'         If facility_LTC_inelig_reason = "_" Then facility_LTC_inelig_reason = ""
-'
-'         facility_inelig_begin_date = replace(facility_inelig_begin_date, " ", "/")
-'         If facility_inelig_begin_date = "__/__/____" Then facility_inelig_begin_date = ""
-'         facility_inelig_end_date = replace(facility_inelig_end_date, " ", "/")
-'         If facility_inelig_end_date = "__/__/____" Then facility_inelig_end_date = ""
-'         facility_anticipated_out_date = replace(facility_anticipated_out_date, " ", "/")
-'         If facility_anticipated_out_date = "__/__/____" Then facility_anticipated_out_date = ""
-'
-'         EMReadScreen facility_GRH_plan_required,    1, 11, 52
-'         EMReadScreen facility_cty_app_place,        1, 12, 52
-'         EMReadScreen facility_GRH_plan_verif,       1, 11, 71
-'         EMReadScreen facility_approval_cty,         2, 12, 71
-'         EMReadScreen facility_GRH_DOC_amount,       8, 13, 45
-'         EMReadScreen facility_GRH_postpay,          1, 13, 71
-'
-'         EMReadScreen facility_stay_one_rate,        1,  14, 34
-'         EMReadScreen facility_stay_one_date_in,     10, 14, 47
-'         EMReadScreen facility_stay_one_date_out,    10, 14, 71
-'
-'         EMReadScreen facility_stay_two_rate,        1,  15, 34
-'         EMReadScreen facility_stay_two_date_in,     10, 15, 47
-'         EMReadScreen facility_stay_two_date_out,    10, 15, 71
-'
-'         EMReadScreen facility_stay_three_rate,      1,  16, 34
-'         EMReadScreen facility_stay_three_date_in,   10, 16, 47
-'         EMReadScreen facility_stay_three_date_out,  10, 16, 71
-'
-'         EMReadScreen facility_stay_four_rate,       1,  17, 34
-'         EMReadScreen facility_stay_four_date_in,    10, 17, 47
-'         EMReadScreen facility_stay_four_date_out,   10, 17, 71
-'
-'         EMReadScreen facility_stay_five_rate,       1,  18, 34
-'         EMReadScreen facility_stay_five_date_in,    10, 18, 47
-'         EMReadScreen facility_stay_five_date_out,   10, 18, 71
-'
-'         facility_GRH_plan_required = replace(facility_GRH_plan_required, "_", "")
-'         facility_GRH_plan_verif = replace(facility_GRH_plan_verif, "_", "")
-'         facility_cty_app_place = replace(facility_cty_app_place, "_", "")
-'         Call get_county_name_from_county_code(facility_approval_cty, facility_approval_cty_name, TRUE)
-'         facility_GRH_DOC_amount = replace(facility_GRH_DOC_amount, "_", "")
-'         facility_GRH_DOC_amount = trim(facility_GRH_DOC_amount)
-'         facility_GRH_postpay = replace(facility_GRH_postpay, "_", "")
-'
-'         If facility_stay_one_rate = "1" Then facility_stay_one_rate = "Rate 1"
-'         If facility_stay_one_rate = "2" Then facility_stay_one_rate = "Rate 2"
-'         If facility_stay_one_rate = "3" Then facility_stay_one_rate = "Rate 3"
-'         If facility_stay_one_rate = "_" Then facility_stay_one_rate = "      "
-'         facility_stay_one_date_in = replace(facility_stay_one_date_in, " ", "/")
-'         If facility_stay_one_date_in = "__/__/____" Then facility_stay_one_date_in = ""
-'         facility_stay_one_date_out = replace(facility_stay_one_date_out, " ", "/")
-'         If facility_stay_one_date_out = "__/__/____" Then facility_stay_one_date_out = ""
-'
-'         If facility_stay_two_rate = "1" Then facility_stay_two_rate = "Rate 1"
-'         If facility_stay_two_rate = "2" Then facility_stay_two_rate = "Rate 2"
-'         If facility_stay_two_rate = "3" Then facility_stay_two_rate = "Rate 3"
-'         If facility_stay_two_rate = "_" Then facility_stay_two_rate = "      "
-'         facility_stay_two_date_in = replace(facility_stay_two_date_in, " ", "/")
-'         If facility_stay_two_date_in = "__/__/____" Then facility_stay_two_date_in = ""
-'         facility_stay_two_date_out = replace(facility_stay_two_date_out, " ", "/")
-'         If facility_stay_two_date_out = "__/__/____" Then facility_stay_two_date_out = ""
-'
-'         If facility_stay_three_rate = "1" Then facility_stay_three_rate = "Rate 1"
-'         If facility_stay_three_rate = "2" Then facility_stay_three_rate = "Rate 2"
-'         If facility_stay_three_rate = "3" Then facility_stay_three_rate = "Rate 3"
-'         If facility_stay_three_rate = "_" Then facility_stay_three_rate = "      "
-'         facility_stay_three_date_in = replace(facility_stay_three_date_in, " ", "/")
-'         If facility_stay_three_date_in = "__/__/____" Then facility_stay_three_date_in = ""
-'         facility_stay_three_date_out = replace(facility_stay_three_date_out, " ", "/")
-'         If facility_stay_three_date_out = "__/__/____" Then facility_stay_three_date_out = ""
-'
-'         If facility_stay_four_rate = "1" Then facility_stay_four_rate = "Rate 1"
-'         If facility_stay_four_rate = "2" Then facility_stay_four_rate = "Rate 2"
-'         If facility_stay_four_rate = "3" Then facility_stay_four_rate = "Rate 3"
-'         If facility_stay_four_rate = "_" Then facility_stay_four_rate = "      "
-'         facility_stay_four_date_in = replace(facility_stay_four_date_in, " ", "/")
-'         If facility_stay_four_date_in = "__/__/____" Then facility_stay_four_date_in = ""
-'         facility_stay_four_date_out = replace(facility_stay_four_date_out, " ", "/")
-'         If facility_stay_four_date_out = "__/__/____" Then facility_stay_four_date_out = ""
-'
-'         If facility_stay_five_rate = "1" Then facility_stay_five_rate = "Rate 1"
-'         If facility_stay_five_rate = "2" Then facility_stay_five_rate = "Rate 2"
-'         If facility_stay_five_rate = "3" Then facility_stay_five_rate = "Rate 3"
-'         If facility_stay_five_rate = "_" Then facility_stay_five_rate = "      "
-'         facility_stay_five_date_in = replace(facility_stay_five_date_in, " ", "/")
-'         If facility_stay_five_date_in = "__/__/____" Then facility_stay_five_date_in = ""
-'         facility_stay_five_date_out = replace(facility_stay_five_date_out, " ", "/")
-'         If facility_stay_five_date_out = "__/__/____" Then facility_stay_five_date_out = ""
-'     End If
-' end function
-'
-' function access_SECU_panel(access_type, member_name, security_type, security_account_number, security_name, security_cash_value, security_verif, secu_update_date, panel_ref_numb, security_face_value, security_withdraw, security_withdraw_yn, security_withdraw_verif, secu_cash_yn, secu_snap_yn, secu_hc_yn, secu_grh_yn, secu_ive_yn, secu_joint, secu_ratio, security_eff_date)
-'     access_type = UCase(access_type)
-'     If access_type = "READ" Then
-'         EMReadScreen member_name, 2, 4, 33
-'         EMReadScreen panel_type, 2, 6, 50
-'         EMReadScreen security_account_number, 12, 7, 50
-'         EMReadScreen security_name, 20, 8, 50
-'         EMReadScreen security_cash_value, 8, 10, 52
-'         EMReadScreen security_eff_date, 8, 11, 35   'not output
-'         EMReadScreen verif_code, 1, 11, 50
-'         EMReadScreen security_face_value, 8, 12, 52     'not output
-'         EMReadScreen security_withdraw, 8, 13, 52       'not output
-'         EMReadScreen security_withdraw_yn, 1, 13, 72    'not output
-'         EMReadScreen security_withdraw_verif, 1, 13, 80 'not output
-'
-'         EMReadScreen secu_cash_yn, 1, 15, 50    'not output
-'         EMReadScreen secu_snap_yn, 1, 15, 57    'not output
-'         EMReadScreen secu_hc_yn, 1, 15, 64      'not output
-'         EMReadScreen secu_grh_yn, 1, 15, 72     'not output
-'         EMReadScreen secu_ive_yn, 1, 15, 80     'not output
-'
-'         EMReadScreen secu_joint, 1, 16, 44      'not output
-'         EMReadScreen secu_ratio, 5, 16, 76      'not output
-'         EMReadScreen secu_update_date, 8, 21, 55
-'
-'         If panel_type = "LI" Then security_type = "LI - Life Insurance"
-'         If panel_type = "ST" Then security_type = "ST - Stocks"
-'         If panel_type = "BO" Then security_type = "BO - Bonds"
-'         If panel_type = "CD" Then security_type = "CD - Ctrct for Deed"
-'         If panel_type = "MO" Then security_type = "MO - Mortgage Note"
-'         If panel_type = "AN" Then security_type = "AN - Annuity"
-'         If panel_type = "OT" Then security_type = "OT - Other"
-'
-'         security_account_number = replace(security_account_number, "_", "")
-'         security_name = replace(security_name, "_", "")
-'
-'         security_cash_value = replace(security_cash_value, "_", "")
-'         security_cash_value = trim(security_cash_value)
-'
-'         security_eff_date = replace(security_eff_date, " ", "/")
-'         If security_eff_date = "__/__/__" Then security_eff_date = ""
-'
-'         If verif_code = "1" Then security_verif = "1 - Agency Form"
-'         If verif_code = "2" Then security_verif = "2 - Source Doc"
-'         If verif_code = "3" Then security_verif = "3 - Phone Contact"
-'         If verif_code = "5" Then security_verif = "5 - Other Document"
-'         If verif_code = "6" Then security_verif = "6 - Personal Statement"
-'         If verif_code = "N" Then security_verif = "N - No Ver Prov"
-'
-'         security_face_value = replace(security_face_value, "_", "")
-'         security_face_value = trim(security_face_value)
-'
-'         security_withdraw = replace(security_withdraw, "_", "")
-'         security_withdraw = trim(security_withdraw)
-'
-'         security_withdraw_yn = replace(security_withdraw_yn, "_", "")
-'
-'         If security_withdraw_verif = "1" Then security_withdraw_verif = "1 - Agency Form"
-'         If security_withdraw_verif = "2" Then security_withdraw_verif = "2 - Source Doc"
-'         If security_withdraw_verif = "3" Then security_withdraw_verif = "3 - Phone Contact"
-'         If security_withdraw_verif = "4" Then security_withdraw_verif = "4 - Other Document"
-'         If security_withdraw_verif = "5" Then security_withdraw_verif = "5 - Personal Stmt"
-'         If security_withdraw_verif = "N" Then security_withdraw_verif = "N - No Ver Prov"
-'
-'         secu_cash_yn = replace(secu_cash_yn, "_", "")
-'         secu_snap_yn = replace(secu_snap_yn, "_", "")
-'         secu_hc_yn = replace(secu_hc_yn, "_", "")
-'         secu_grh_yn = replace(secu_grh_yn, "_", "")
-'         secu_ive_yn = replace(secu_ive_yn, "_", "")
-'
-'         secu_joint = replace(secu_joint, "_", "")
-'         secu_ratio = replace(secu_ratio, " ", "")
-'
-'         secu_update_date = replace(secu_update_date, " ", "/")
-'
-'         EMReadScreen panel_ref_numb, 1, 2, 73
-'         panel_ref_numb = "0" & panel_ref_numb
-'     End If
-' end function
-'
-' function access_SHEL_panel(access_type, hud_sub_yn, shared_yn, paid_to, rent_retro_amt, rent_retro_verif, rent_prosp_amt, rent_prosp_verif, lot_rent_retro_amt, lot_rent_retro_verif, lot_rent_prosp_amt, lot_rent_prosp_verif, mortgage_retro_amt, mortgage_retro_verif, mortgage_prosp_amt, mortgage_prosp_verif, insurance_retro_amt, insurance_retro_verif, insurance_prosp_amt, insurance_prosp_verif, tax_retro_amt, tax_retro_verif, tax_prosp_amt, tax_prosp_verif, room_retro_amt, room_retro_verif, room_prosp_amt, room_prosp_verif, garage_retro_amt, garage_retro_verif, garage_prosp_amt, garage_prosp_verif, subsidy_retro_amt, subsidy_retro_verif, subsidy_prosp_amt, subsidy_prosp_verif)
-'     access_type = UCase(access_type)
-'     If access_type = "READ" Then
-'         EMReadScreen hud_sub_yn,            1, 6, 46
-'         EMReadScreen shared_yn,             1, 6, 64
-'         EMReadScreen paid_to,               25, 7, 50
-'
-'         paid_to = replace(paid_to, "_", "")
-'
-'         EMReadScreen rent_retro_amt,        8, 11, 37
-'         EMReadScreen rent_retro_verif,      2, 11, 48
-'         EMReadScreen rent_prosp_amt,        8, 11, 56
-'         EMReadScreen rent_prosp_verif,      2, 11, 67
-'
-'         rent_retro_amt = replace(rent_retro_amt, "_", "")
-'         rent_retro_amt = trim(rent_retro_amt)
-'         If rent_retro_verif = "SF" Then rent_retro_verif = "SF - Shelter Form"
-'         If rent_retro_verif = "LE" Then rent_retro_verif = "LE - Lease"
-'         If rent_retro_verif = "RE" Then rent_retro_verif = "RE - Rent Receipt"
-'         If rent_retro_verif = "OT" Then rent_retro_verif = "OT - Other Document"
-'         If rent_retro_verif = "NC" Then rent_retro_verif = "NC - Chg Rept, Neg Impact"
-'         If rent_retro_verif = "PC" Then rent_retro_verif = "PC - Chg Rept, Pos Imact"
-'         If rent_retro_verif = "NO" Then rent_retro_verif = "NO - No Ver Prvd"
-'         If rent_retro_verif = "__" Then rent_retro_verif = ""
-'         rent_prosp_amt = replace(rent_prosp_amt, "_", "")
-'         rent_prosp_amt = trim(rent_prosp_amt)
-'         If rent_prosp_verif = "SF" Then rent_prosp_verif = "SF - Shelter Form"
-'         If rent_prosp_verif = "LE" Then rent_prosp_verif = "LE - Lease"
-'         If rent_prosp_verif = "RE" Then rent_prosp_verif = "RE - Rent Receipt"
-'         If rent_prosp_verif = "OT" Then rent_prosp_verif = "OT - Other Document"
-'         If rent_prosp_verif = "NC" Then rent_prosp_verif = "NC - Chg Rept, Neg Impact"
-'         If rent_prosp_verif = "PC" Then rent_prosp_verif = "PC - Chg Rept, Pos Imact"
-'         If rent_prosp_verif = "NO" Then rent_prosp_verif = "NO - No Ver Prvd"
-'         If rent_prosp_verif = "__" Then rent_prosp_verif = ""
-'
-'         EMReadScreen lot_rent_retro_amt,    8, 12, 37
-'         EMReadScreen lot_rent_retro_verif,  2, 12, 48
-'         EMReadScreen lot_rent_prosp_amt,    8, 12, 56
-'         EMReadScreen lot_rent_prosp_verif,  2, 12, 67
-'
-'         lot_rent_retro_amt = replace(lot_rent_retro_amt, "_", "")
-'         lot_rent_retro_amt = trim(lot_rent_retro_amt)
-'         If lot_rent_retro_verif = "LE" Then lot_rent_retro_verif = "LE - Lease"
-'         If lot_rent_retro_verif = "RE" Then lot_rent_retro_verif = "RE - Rent Receipt"
-'         If lot_rent_retro_verif = "BI" Then lot_rent_retro_verif = "BI - Billing Stmt"
-'         If lot_rent_retro_verif = "OT" Then lot_rent_retro_verif = "OT - Other Document"
-'         If lot_rent_retro_verif = "NC" Then lot_rent_retro_verif = "NC - Chg Rept, Neg Impact"
-'         If lot_rent_retro_verif = "PC" Then lot_rent_retro_verif = "PC - Chg Rept, Pos Imact"
-'         If lot_rent_retro_verif = "NO" Then lot_rent_retro_verif = "NO - No Ver Prvd"
-'         If lot_rent_retro_verif = "__" Then lot_rent_retro_verif = ""
-'         lot_rent_prosp_amt = replace(lot_rent_prosp_amt, "_", "")
-'         lot_rent_prosp_amt = trim(lot_rent_prosp_amt)
-'         If lot_rent_prosp_verif = "LE" Then lot_rent_prosp_verif = "LE - Lease"
-'         If lot_rent_prosp_verif = "RE" Then lot_rent_prosp_verif = "RE - Rent Receipt"
-'         If lot_rent_prosp_verif = "BI" Then lot_rent_prosp_verif = "BI - Billing Stmt"
-'         If lot_rent_prosp_verif = "OT" Then lot_rent_prosp_verif = "OT - Other Document"
-'         If lot_rent_prosp_verif = "NC" Then lot_rent_prosp_verif = "NC - Chg Rept, Neg Impact"
-'         If lot_rent_prosp_verif = "PC" Then lot_rent_prosp_verif = "PC - Chg Rept, Pos Imact"
-'         If lot_rent_prosp_verif = "NO" Then lot_rent_prosp_verif = "NO - No Ver Prvd"
-'         If lot_rent_prosp_verif = "__" Then lot_rent_prosp_verif = ""
-'
-'         EMReadScreen mortgage_retro_amt,    8, 13, 37
-'         EMReadScreen mortgage_retro_verif,  2, 13, 48
-'         EMReadScreen mortgage_prosp_amt,    8, 13, 56
-'         EMReadScreen mortgage_prosp_verif,  2, 13, 67
-'
-'         mortgage_retro_amt = replace(mortgage_retro_amt, "_", "")
-'         mortgage_retro_amt = trim(mortgage_retro_amt)
-'         If mortgage_retro_verif = "MO" Then mortgage_retro_verif = "MO - Mortgage Pmt Book"
-'         If mortgage_retro_verif = "CD" Then mortgage_retro_verif = "CD - Ctrct fro Deed"
-'         If mortgage_retro_verif = "OT" Then mortgage_retro_verif = "OT - Other Document"
-'         If mortgage_retro_verif = "NC" Then mortgage_retro_verif = "NC - Chg Rept, Neg Impact"
-'         If mortgage_retro_verif = "PC" Then mortgage_retro_verif = "PC - Chg Rept, Pos Imact"
-'         If mortgage_retro_verif = "NO" Then mortgage_retro_verif = "NO - No Ver Prvd"
-'         If mortgage_retro_verif = "__" Then mortgage_retro_verif = ""
-'         mortgage_prosp_amt = replace(mortgage_prosp_amt, "_", "")
-'         mortgage_prosp_amt = trim(mortgage_prosp_amt)
-'         If mortgage_prosp_verif = "MO" Then mortgage_prosp_verif = "MO - Mortgage Pmt Book"
-'         If mortgage_prosp_verif = "CD" Then mortgage_prosp_verif = "CD - Ctrct fro Deed"
-'         If mortgage_prosp_verif = "OT" Then mortgage_prosp_verif = "OT - Other Document"
-'         If mortgage_prosp_verif = "NC" Then mortgage_prosp_verif = "NC - Chg Rept, Neg Impact"
-'         If mortgage_prosp_verif = "PC" Then mortgage_prosp_verif = "PC - Chg Rept, Pos Imact"
-'         If mortgage_prosp_verif = "NO" Then mortgage_prosp_verif = "NO - No Ver Prvd"
-'         If mortgage_prosp_verif = "__" Then mortgage_prosp_verif = ""
-'
-'         EMReadScreen insurance_retro_amt,   8, 14, 37
-'         EMReadScreen insurance_retro_verif, 2, 14, 48
-'         EMReadScreen insurance_prosp_amt,   8, 14, 56
-'         EMReadScreen insurance_prosp_verif, 2, 14, 67
-'
-'         insurance_retro_amt = replace(insurance_retro_amt, "_", "")
-'         insurance_retro_amt = trim(insurance_retro_amt)
-'         If insurance_retro_verif = "BI" Then insurance_retro_verif = "BI - Billing Stmt"
-'         If insurance_retro_verif = "OT" Then insurance_retro_verif = "OT - Other Document"
-'         If insurance_retro_verif = "NC" Then insurance_retro_verif = "NC - Chg Rept, Neg Impact"
-'         If insurance_retro_verif = "PC" Then insurance_retro_verif = "PC - Chg Rept, Pos Imact"
-'         If insurance_retro_verif = "NO" Then insurance_retro_verif = "NO - No Ver Prvd"
-'         If insurance_retro_verif = "__" Then insurance_retro_verif = ""
-'         insurance_prosp_amt = replace(insurance_prosp_amt, "_", "")
-'         insurance_prosp_amt = trim(insurance_prosp_amt)
-'         If insurance_prosp_verif = "BI" Then insurance_prosp_verif = "BI - Billing Stmt"
-'         If insurance_prosp_verif = "OT" Then insurance_prosp_verif = "OT - Other Document"
-'         If insurance_prosp_verif = "NC" Then insurance_prosp_verif = "NC - Chg Rept, Neg Impact"
-'         If insurance_prosp_verif = "PC" Then insurance_prosp_verif = "PC - Chg Rept, Pos Imact"
-'         If insurance_prosp_verif = "NO" Then insurance_prosp_verif = "NO - No Ver Prvd"
-'         If insurance_prosp_verif = "__" Then insurance_prosp_verif = ""
-'
-'         EMReadScreen tax_retro_amt,         8, 15, 37
-'         EMReadScreen tax_retro_verif,       2, 15, 48
-'         EMReadScreen tax_prosp_amt,         8, 15, 56
-'         EMReadScreen tax_prosp_verif,       2, 15, 67
-'
-'         tax_retro_amt = replace(tax_retro_amt, "_", "")
-'         tax_retro_amt = trim(tax_retro_amt)
-'         If tax_retro_verif = "TX" Then tax_retro_verif = "TX - Prop Tax Stmt"
-'         If tax_retro_verif = "OT" Then tax_retro_verif = "OT - Other Document"
-'         If tax_retro_verif = "NC" Then tax_retro_verif = "NC - Chg Rept, Neg Impact"
-'         If tax_retro_verif = "PC" Then tax_retro_verif = "PC - Chg Rept, Pos Imact"
-'         If tax_retro_verif = "NO" Then tax_retro_verif = "NO - No Ver Prvd"
-'         If tax_retro_verif = "__" Then tax_retro_verif = ""
-'         tax_prosp_amt = replace(tax_prosp_amt, "_", "")
-'         tax_prosp_amt = trim(tax_prosp_amt)
-'         If tax_prosp_verif = "TX" Then tax_prosp_verif = "TX - Prop Tax Stmt"
-'         If tax_prosp_verif = "OT" Then tax_prosp_verif = "OT - Other Document"
-'         If tax_prosp_verif = "NC" Then tax_prosp_verif = "NC - Chg Rept, Neg Impact"
-'         If tax_prosp_verif = "PC" Then tax_prosp_verif = "PC - Chg Rept, Pos Imact"
-'         If tax_prosp_verif = "NO" Then tax_prosp_verif = "NO - No Ver Prvd"
-'         If tax_prosp_verif = "__" Then tax_prosp_verif = ""
-'
-'         EMReadScreen room_retro_amt,        8, 16, 37
-'         EMReadScreen room_retro_verif,      2, 16, 48
-'         EMReadScreen room_prosp_amt,        8, 16, 56
-'         EMReadScreen room_prosp_verif,      2, 16, 67
-'
-'         room_retro_amt = replace(room_retro_amt, "_", "")
-'         room_retro_amt = trim(room_retro_amt)
-'         If room_retro_verif = "SF" Then room_retro_verif = "SF - Shelter Form"
-'         If room_retro_verif = "LE" Then room_retro_verif = "LE - Lease"
-'         If room_retro_verif = "RE" Then room_retro_verif = "RE - Rent Receipt"
-'         If room_retro_verif = "OT" Then room_retro_verif = "OT - Other Document"
-'         If room_retro_verif = "NC" Then room_retro_verif = "NC - Chg Rept, Neg Impact"
-'         If room_retro_verif = "PC" Then room_retro_verif = "PC - Chg Rept, Pos Imact"
-'         If room_retro_verif = "NO" Then room_retro_verif = "NO - No Ver Prvd"
-'         If room_retro_verif = "__" Then room_retro_verif = ""
-'         room_prosp_amt = replace(room_prosp_amt, "_", "")
-'         room_prosp_amt = trim(room_prosp_amt)
-'         If room_prosp_verif = "SF" Then room_prosp_verif = "SF - Shelter Form"
-'         If room_prosp_verif = "LE" Then room_prosp_verif = "LE - Lease"
-'         If room_prosp_verif = "RE" Then room_prosp_verif = "RE - Rent Receipt"
-'         If room_prosp_verif = "OT" Then room_prosp_verif = "OT - Other Document"
-'         If room_prosp_verif = "NC" Then room_prosp_verif = "NC - Chg Rept, Neg Impact"
-'         If room_prosp_verif = "PC" Then room_prosp_verif = "PC - Chg Rept, Pos Imact"
-'         If room_prosp_verif = "NO" Then room_prosp_verif = "NO - No Ver Prvd"
-'         If room_prosp_verif = "__" Then room_prosp_verif = ""
-'
-'         EMReadScreen garage_retro_amt,      8, 17, 37
-'         EMReadScreen garage_retro_verif,    2, 17, 48
-'         EMReadScreen garage_prosp_amt,      8, 17, 56
-'         EMReadScreen garage_prosp_verif,    2, 17, 67
-'
-'         garage_retro_amt = replace(garage_retro_amt, "_", "")
-'         garage_retro_amt = trim(garage_retro_amt)
-'         If garage_retro_verif = "SF" Then garage_retro_verif = "SF - Shelter Form"
-'         If garage_retro_verif = "LE" Then garage_retro_verif = "LE - Lease"
-'         If garage_retro_verif = "RE" Then garage_retro_verif = "RE - Rent Receipt"
-'         If garage_retro_verif = "OT" Then garage_retro_verif = "OT - Other Document"
-'         If garage_retro_verif = "NC" Then garage_retro_verif = "NC - Chg Rept, Neg Impact"
-'         If garage_retro_verif = "PC" Then garage_retro_verif = "PC - Chg Rept, Pos Imact"
-'         If garage_retro_verif = "NO" Then garage_retro_verif = "NO - No Ver Prvd"
-'         If garage_retro_verif = "__" Then garage_retro_verif = ""
-'         garage_prosp_amt = replace(garage_prosp_amt, "_", "")
-'         garage_prosp_amt = trim(garage_prosp_amt)
-'         If garage_prosp_verif = "SF" Then garage_prosp_verif = "SF - Shelter Form"
-'         If garage_prosp_verif = "LE" Then garage_prosp_verif = "LE - Lease"
-'         If garage_prosp_verif = "RE" Then garage_prosp_verif = "RE - Rent Receipt"
-'         If garage_prosp_verif = "OT" Then garage_prosp_verif = "OT - Other Document"
-'         If garage_prosp_verif = "NC" Then garage_prosp_verif = "NC - Chg Rept, Neg Impact"
-'         If garage_prosp_verif = "PC" Then garage_prosp_verif = "PC - Chg Rept, Pos Imact"
-'         If garage_prosp_verif = "NO" Then garage_prosp_verif = "NO - No Ver Prvd"
-'         If garage_prosp_verif = "__" Then garage_prosp_verif = ""
-'
-'         EMReadScreen subsidy_retro_amt,     8, 18, 37
-'         EMReadScreen subsidy_retro_verif,   2, 18, 48
-'         EMReadScreen subsidy_prosp_amt,     8, 18, 56
-'         EMReadScreen subsidy_prosp_verif,   2, 18, 67
-'
-'         subsidy_retro_amt = replace(subsidy_retro_amt, "_", "")
-'         subsidy_retro_amt = trim(subsidy_retro_amt)
-'         If subsidy_retro_verif = "SF" Then subsidy_retro_verif = "SF - Shelter Form"
-'         If subsidy_retro_verif = "LE" Then subsidy_retro_verif = "LE - Lease"
-'         If subsidy_retro_verif = "OT" Then subsidy_retro_verif = "OT - Other Document"
-'         If subsidy_retro_verif = "NO" Then subsidy_retro_verif = "NO - No Ver Prvd"
-'         If subsidy_retro_verif = "__" Then subsidy_retro_verif = ""
-'         subsidy_prosp_amt = replace(subsidy_prosp_amt, "_", "")
-'         subsidy_prosp_amt = trim(subsidy_prosp_amt)
-'         If subsidy_prosp_verif = "SF" Then subsidy_prosp_verif = "SF - Shelter Form"
-'         If subsidy_prosp_verif = "LE" Then subsidy_prosp_verif = "LE - Lease"
-'         If subsidy_prosp_verif = "OT" Then subsidy_prosp_verif = "OT - Other Document"
-'         If subsidy_prosp_verif = "NO" Then subsidy_prosp_verif = "NO - No Ver Prvd"
-'         If subsidy_prosp_verif = "__" Then subsidy_prosp_verif = ""
-'     End If
-' end function
-'
-' function access_REST_panel(access_type, member_name, rest_type, rest_verif, rest_update_date, panel_ref_numb, rest_market_value, value_verif_code, rest_amt_owed, amt_owed_verif_code, rest_eff_date, rest_status, rest_joint_yn, rest_ratio, repymt_agree_date)
-'     access_type = UCase(access_type)
-'     If access_type = "READ" Then
-'         EMReadScreen member_name, 2, 4, 33
-'         EMReadScreen type_code, 1, 6, 39
-'         EMReadScreen type_verif_code, 2, 6, 62
-'         EMReadScreen rest_market_value, 10, 8, 41
-'         EMReadScreen value_verif_code, 2, 8, 62
-'         EMReadScreen rest_amt_owed, 10, 9, 41
-'         EMReadScreen amt_owed_verif_code, 2, 9, 62
-'         EMReadScreen rest_eff_date, 8, 10, 39
-'         EMReadScreen rest_status, 1, 12, 54
-'         EMReadScreen rest_joint_yn, 1, 13, 54
-'         EMReadScreen rest_ratio, 5, 14, 54
-'         EMReadScreen repymt_agree_date, 8, 16, 62
-'         EMReadScreen rest_update_date, 8, 21, 55
-'
-'         If type_code = "1" Then rest_type = "1 - House"
-'         If type_code = "2" Then rest_type = "2 - Land"
-'         If type_code = "3" Then rest_type = "3 - Buildings"
-'         If type_code = "4" Then rest_type = "4 - Mobile Home"
-'         If type_code = "5" Then rest_type = "5 - Life Estate"
-'         If type_code = "6" Then rest_type = "6 - Other"
-'
-'         If type_verif_code = "TX" Then rest_verif = "TX - Property Tax Statement"
-'         If type_verif_code = "PU" Then rest_verif = "PU - Purchase Agreement"
-'         If type_verif_code = "TI" Then rest_verif = "TI - Title/Deed"
-'         If type_verif_code = "CD" Then rest_verif = "CD - Contract for Deed"
-'         If type_verif_code = "CO" Then rest_verif = "CO - County Record"
-'         If type_verif_code = "OT" Then rest_verif = "OT - Other Document"
-'         If type_verif_code = "NO" Then rest_verif = "NO - No Ver Prvd"
-'
-'         rest_market_value = replace(rest_market_value, "_", "")
-'         rest_market_value = trim(rest_market_value)
-'
-'         If value_verif_code = "TX" Then value_verif_code = "TX - Property Tax Statement"
-'         If value_verif_code = "PU" Then value_verif_code = "PU - Purchase Agreement"
-'         If value_verif_code = "AP" Then value_verif_code = "AP - Appraisal"
-'         If value_verif_code = "CO" Then value_verif_code = "CO - County Record"
-'         If value_verif_code = "OT" Then value_verif_code = "OT - Other Document"
-'         If value_verif_code = "NO" Then value_verif_code = "NO - No Ver Prvd"
-'
-'         rest_amt_owed = replace(rest_amt_owed, "_", "")
-'         rest_amt_owed = trim(rest_amt_owed)
-'
-'         If amt_owed_verif_code = "MO" Then amt_owed_verif_code = "TI - Title/Deed"
-'         If amt_owed_verif_code = "LN" Then amt_owed_verif_code = "CD - Contract for Deed"
-'         If amt_owed_verif_code = "CD" Then amt_owed_verif_code = "CD - Contract for Deed"
-'         If amt_owed_verif_code = "OT" Then amt_owed_verif_code = "OT - Other Document"
-'         If amt_owed_verif_code = "NO" Then amt_owed_verif_code = "NO - No Ver Prvd"
-'
-'         rest_eff_date = replace(rest_eff_date, " ", "/")
-'         If rest_eff_date = "__/__/__" Then rest_eff_date = ""
-'
-'         If rest_status = "1" Then rest_status = "1 - Home Residence"
-'         If rest_status = "2" Then rest_status = "2 - For Sale, IV-E Rpymt Agmt"
-'         If rest_status = "3" Then rest_status = "3 - Joint Owner, Unavailable"
-'         If rest_status = "4" Then rest_status = "4 - Income Producing"
-'         If rest_status = "5" Then rest_status = "5 - Future Residence"
-'         If rest_status = "6" Then rest_status = "6 - Other"
-'         If rest_status = "7" Then rest_status = "7 - For Sale, Unavailable"
-'
-'         rest_joint_yn = replace(rest_joint_yn, "_", "")
-'         rest_ratio = replace(rest_ratio, "_", "")
-'
-'         repymt_agree_date = replace(repymt_agree_date, " ", "/")
-'         If repymt_agree_date = "__/__/__" Then repymt_agree_date = ""
-'
-'         rest_update_date = replace(rest_update_date, " ", "/")
-'
-'         EMReadScreen panel_ref_numb, 1, 2, 73
-'         panel_ref_numb = "0" & panel_ref_numb
-'     End If
-' end function
-'
-' function access_HEST_panel(access_type, all_persons_paying, choice_date, actual_initial_exp, retro_heat_ac_yn, retro_heat_ac_units, retro_heat_ac_amt, retro_electric_yn, retro_electric_units, retro_electric_amt, retro_phone_yn, retro_phone_units, retro_phone_amt, prosp_heat_ac_yn, prosp_heat_ac_units, prosp_heat_ac_amt, prosp_electric_yn, prosp_electric_units, prosp_electric_amt, prosp_phone_yn, prosp_phone_units, prosp_phone_amt, total_utility_expense)
-'     access_type = UCase(access_type)
-'     If access_type = "READ" Then
-'         Call navigate_to_MAXIS_screen("STAT", "HEST")
-'
-'         hest_col = 40
-'         Do
-'             EMReadScreen pers_paying, 2, 6, hest_col
-'             If pers_paying <> "__" Then
-'                 all_persons_paying = all_persons_paying & ", " & pers_paying
-'             Else
-'                 exit do
-'             End If
-'             hest_col = hest_col + 3
-'         Loop until hest_col = 70
-'         If left(all_persons_paying, 1) = "," Then all_persons_paying = right(all_persons_paying, len(all_persons_paying) - 2)
-'
-'         EMReadScreen choice_date, 8, 7, 40
-'         EMReadScreen actual_initial_exp, 8, 8, 61
-'
-'         EMReadScreen retro_heat_ac_yn, 1, 13, 34
-'         EMReadScreen retro_heat_ac_units, 2, 13, 42
-'         EMReadScreen retro_heat_ac_amt, 6, 13, 49
-'         EMReadScreen retro_electric_yn, 1, 14, 34
-'         EMReadScreen retro_electric_units, 2, 14, 42
-'         EMReadScreen retro_electric_amt, 6, 14, 49
-'         EMReadScreen retro_phone_yn, 1, 15, 34
-'         EMReadScreen retro_phone_units, 2, 15, 42
-'         EMReadScreen retro_phone_amt, 6, 15, 49
-'
-'         EMReadScreen prosp_heat_ac_yn, 1, 13, 60
-'         EMReadScreen prosp_heat_ac_units, 2, 13, 68
-'         EMReadScreen prosp_heat_ac_amt, 6, 13, 75
-'         EMReadScreen prosp_electric_yn, 1, 14, 60
-'         EMReadScreen prosp_electric_units, 2, 14, 68
-'         EMReadScreen prosp_electric_amt, 6, 14, 75
-'         EMReadScreen prosp_phone_yn, 1, 15, 60
-'         EMReadScreen prosp_phone_units, 2, 15, 68
-'         EMReadScreen prosp_phone_amt, 6, 15, 75
-'
-'         choice_date = replace(choice_date, " ", "/")
-'         If choice_date = "__/__/__" Then choice_date = ""
-'         actual_initial_exp = trim(actual_initial_exp)
-'         actual_initial_exp = replace(actual_initial_exp, "_", "")
-'
-'         retro_heat_ac_yn = replace(retro_heat_ac_yn, "_", "")
-'         retro_heat_ac_units = replace(retro_heat_ac_units, "_", "")
-'         retro_heat_ac_amt = trim(retro_heat_ac_amt)
-'         retro_electric_yn = replace(retro_electric_yn, "_", "")
-'         retro_electric_units = replace(retro_electric_units, "_", "")
-'         retro_electric_amt = trim(retro_electric_amt)
-'         retro_phone_yn = replace(retro_phone_yn, "_", "")
-'         retro_phone_units = replace(retro_phone_units, "_", "")
-'         retro_phone_amt = trim(retro_phone_amt)
-'
-'         prosp_heat_ac_yn = replace(prosp_heat_ac_yn, "_", "")
-'         prosp_heat_ac_units = replace(prosp_heat_ac_units, "_", "")
-'         prosp_heat_ac_amt = trim(prosp_heat_ac_amt)
-'         If prosp_heat_ac_amt = "" Then prosp_heat_ac_amt = 0
-'         prosp_electric_yn = replace(prosp_electric_yn, "_", "")
-'         prosp_electric_units = replace(prosp_electric_units, "_", "")
-'         prosp_electric_amt = trim(prosp_electric_amt)
-'         If prosp_electric_amt = "" Then prosp_electric_amt = 0
-'         prosp_phone_yn = replace(prosp_phone_yn, "_", "")
-'         prosp_phone_units = replace(prosp_phone_units, "_", "")
-'         prosp_phone_amt = trim(prosp_phone_amt)
-'         If prosp_phone_amt = "" Then prosp_phone_amt = 0
-'
-'         total_utility_expense = 0
-'         If prosp_heat_ac_yn = "Y" Then
-'             total_utility_expense =  prosp_heat_ac_amt
-'         ElseIf prosp_electric_yn = "Y" AND prosp_phone_yn = "Y" Then
-'             total_utility_expense =  prosp_electric_amt + prosp_phone_amt
-'         ElseIf prosp_electric_yn = "Y" Then
-'             total_utility_expense =  prosp_electric_amt
-'         Elseif prosp_phone_yn = "Y" Then
-'             total_utility_expense =  prosp_phone_amt
-'         End If
-'
-'     End If
-' end function
-'
-' function access_WREG_panel(access_type, notes_on_wreg, clt_fs_pwe, clt_wreg_status, clt_defer_fset, clt_orient_date, clt_sanc_begin_date, clt_numb_of_sanc, clt_sanc_reasons, clt_abawd_status, clt_banked_months, clt_GA_elig_basis, clt_GA_coop, abawd_counted_months, abawd_info_list, second_abawd_period, second_set_info_list)
-'     access_type = UCase(access_type)
-'     If access_type = "READ" Then
-'         EMReadScreen clt_fs_pwe, 1, 6, 68
-'         EMReadScreen clt_wreg_status, 2, 8, 50
-'         EMReadScreen clt_defer_fset, 1, 8, 80
-'         EMReadScreen clt_orient_date, 8, 9, 50
-'         EMReadScreen clt_sanc_begin_date, 8, 10, 50
-'         EMReadScreen clt_numb_of_sanc, 2, 11, 50
-'         EMReadScreen clt_sanc_reasons, 2, 12, 50
-'         EMReadScreen clt_abawd_status, 2, 13, 50
-'         EMReadScreen clt_banked_months, 1, 14, 50
-'         EMReadScreen clt_GA_elig_basis, 2, 15, 50
-'         EMReadScreen clt_GA_coop, 2, 15, 78
-'
-'         EmWriteScreen "x", 13, 57
-'         transmit
-'         bene_mo_col = (15 + (4*cint(MAXIS_footer_month)))
-'         bene_yr_row = 10
-'         abawd_counted_months = 0
-'         abawd_info_list = ""
-'         second_abawd_period = 0
-'         second_set_info_list = ""
-'         month_count = 0
-'         DO
-'             'establishing variables for specific ABAWD counted month dates
-'             If bene_mo_col = "19" then counted_date_month = "01"
-'             If bene_mo_col = "23" then counted_date_month = "02"
-'             If bene_mo_col = "27" then counted_date_month = "03"
-'             If bene_mo_col = "31" then counted_date_month = "04"
-'             If bene_mo_col = "35" then counted_date_month = "05"
-'             If bene_mo_col = "39" then counted_date_month = "06"
-'             If bene_mo_col = "43" then counted_date_month = "07"
-'             If bene_mo_col = "47" then counted_date_month = "08"
-'             If bene_mo_col = "51" then counted_date_month = "09"
-'             If bene_mo_col = "55" then counted_date_month = "10"
-'             If bene_mo_col = "59" then counted_date_month = "11"
-'             If bene_mo_col = "63" then counted_date_month = "12"
-'             'reading to see if a month is counted month or not
-'             EMReadScreen is_counted_month, 1, bene_yr_row, bene_mo_col
-'             'counting and checking for counted ABAWD months
-'             IF is_counted_month = "X" or is_counted_month = "M" THEN
-'                 EMReadScreen counted_date_year, 2, bene_yr_row, 15			'reading counted year date
-'                 abawd_counted_months_string = counted_date_month & "/" & counted_date_year
-'                 abawd_info_list = abawd_info_list & ", " & abawd_counted_months_string			'adding variable to list to add to array
-'                 abawd_counted_months = abawd_counted_months + 1				'adding counted months
-'             END IF
-'
-'             'declaring & splitting the abawd months array
-'             If left(abawd_info_list, 1) = "," then abawd_info_list = right(abawd_info_list, len(abawd_info_list) - 1)
-'
-'             'counting and checking for second set of ABAWD months
-'             IF is_counted_month = "Y" or is_counted_month = "N" THEN
-'                 EMReadScreen counted_date_year, 2, bene_yr_row, 15			'reading counted year date
-'                 second_abawd_period = second_abawd_period + 1				'adding counted months
-'                 second_counted_months_string = counted_date_month & "/" & counted_date_year			'creating new variable for array
-'                 second_set_info_list = second_set_info_list & ", " & second_counted_months_string	'adding variable to list to add to array
-'             END IF
-'
-'             'declaring & splitting the second set of abawd months array
-'             If left(second_set_info_list, 1) = "," then second_set_info_list = right(second_set_info_list, len(second_set_info_list) - 1)
-'
-'             bene_mo_col = bene_mo_col - 4
-'             IF bene_mo_col = 15 THEN
-'                 bene_yr_row = bene_yr_row - 1
-'                 bene_mo_col = 63
-'             END IF
-'             month_count = month_count + 1
-'         LOOP until month_count = 36
-'         PF3
-'
-'         clt_fs_pwe = replace(clt_fs_pwe, "_", "")
-'         If clt_wreg_status = "03" Then clt_wreg_status = "03 - Unfit for Employment"
-'         If clt_wreg_status = "04" Then clt_wreg_status = "04 - Resp for Care of Incapacitated Person"
-'         If clt_wreg_status = "05" Then clt_wreg_status = "05 - Age 60 or Older"
-'         If clt_wreg_status = "06" Then clt_wreg_status = "06 - Under Age 16"
-'         If clt_wreg_status = "07" Then clt_wreg_status = "07 - Age 16-17, Living w/ Caregiver"
-'         If clt_wreg_status = "08" Then clt_wreg_status = "08 - Resp for Care of Child under 6"
-'         If clt_wreg_status = "09" Then clt_wreg_status = "09 - Empl 30 hrs/wk or Earnings of 30 hrs/wk"
-'         If clt_wreg_status = "10" Then clt_wreg_status = "10 - Matching Grant Participant"
-'         If clt_wreg_status = "11" Then clt_wreg_status = "11 - Receiving or Applied for UI"
-'         If clt_wreg_status = "12" Then clt_wreg_status = "12 - Enrolled in School, Training, or Higher Ed"
-'         If clt_wreg_status = "13" Then clt_wreg_status = "13 - Participating in CD Program"
-'         If clt_wreg_status = "14" Then clt_wreg_status = "14 - Receiving MFIP"
-'         If clt_wreg_status = "20" Then clt_wreg_status = "20 - Pending/Receiving DWP"
-'         If clt_wreg_status = "15" Then clt_wreg_status = "15 - Age 16-17, NOT Living w/ Caregiver"
-'         If clt_wreg_status = "16" Then clt_wreg_status = "16 - 50-59 Years Old"
-'         If clt_wreg_status = "17" Then clt_wreg_status = "17 - Receiving RCA or GA"
-'         If clt_wreg_status = "21" Then clt_wreg_status = "21 - Resp for Care of Child under 18"
-'         If clt_wreg_status = "30" Then clt_wreg_status = "30 - Mandatory FSET Participant"
-'         If clt_wreg_status = "02" Then clt_wreg_status = "02 - Fail to Cooperate with FSET"
-'         If clt_wreg_status = "33" Then clt_wreg_status = "33 - Non-Coop being Referred"
-'
-'         clt_defer_fset = replace(clt_defer_fset, "_", "")
-'         clt_orient_date = replace(clt_orient_date, " ", "/")
-'         IF clt_orient_date = "__/__/__" Then clt_orient_date = ""
-'
-'         clt_sanc_begin_date = replace(clt_sanc_begin_date, " ", "/")
-'         IF clt_sanc_begin_date = "__/01/__" Then clt_sanc_begin_date = ""
-'         IF clt_numb_of_sanc = "01" Then clt_numb_of_sanc = "1st Sanction"
-'         IF clt_numb_of_sanc = "02" Then clt_numb_of_sanc = "2nd Sanction"
-'         IF clt_numb_of_sanc = "03" Then clt_numb_of_sanc = "3rd Sanction"
-'         If clt_numb_of_sanc = "__" Then clt_numb_of_sanc = ""
-'         If clt_sanc_reasons = "01" Then clt_sanc_reasons = "01 - Attend Orientation"
-'         If clt_sanc_reasons = "02" Then clt_sanc_reasons = "02 - Develop Work Plan"
-'         If clt_sanc_reasons = "03" Then clt_sanc_reasons = "03 - Follow Work Plan"
-'         If clt_sanc_reasons = "__" Then clt_sanc_reasons = ""
-'
-'         If clt_abawd_status = "01" Then clt_abawd_status = "01 - Work Reg Exempt"
-'         If clt_abawd_status = "02" Then clt_abawd_status = "02 - Under Age 18"
-'         If clt_abawd_status = "03" Then clt_abawd_status = "03 - Age 50 or Over"
-'         If clt_abawd_status = "04" Then clt_abawd_status = "04 - Caregiver of Minor Child"
-'         If clt_abawd_status = "05" Then clt_abawd_status = "05 - Pregnant"
-'         If clt_abawd_status = "06" Then clt_abawd_status = "06 - Employed Avg of 20 hrs/wk"
-'         If clt_abawd_status = "07" Then clt_abawd_status = "07 - Work Experience Participant"
-'         If clt_abawd_status = "08" Then clt_abawd_status = "08 - Other E&T Services"
-'         If clt_abawd_status = "09" Then clt_abawd_status = "09 - Resides in a Waivered Area"
-'         If clt_abawd_status = "10" Then clt_abawd_status = "10 - ABAWD Counted Month"
-'         If clt_abawd_status = "11" Then clt_abawd_status = "11 - 2nd-3rd Month Period of Elig"
-'         If clt_abawd_status = "12" Then clt_abawd_status = "12 - RCA or GA Recipient"
-'         If clt_abawd_status = "13" Then clt_abawd_status = "13 - ABAWD Banked Months"
-'         clt_banked_months = replace(clt_banked_months, "_", "")
-'
-'         If clt_GA_elig_basis = "04" Then clt_GA_elig_basis = "04 - Permanent Ill or Incap"
-'         If clt_GA_elig_basis = "05" Then clt_GA_elig_basis = "05 - Temporary Ill or Incap"
-'         If clt_GA_elig_basis = "06" Then clt_GA_elig_basis = "06 - Care of Ill or Incap Memb"
-'         If clt_GA_elig_basis = "07" Then clt_GA_elig_basis = "07 - Requires Services in Residence"
-'         If clt_GA_elig_basis = "09" Then clt_GA_elig_basis = "09 - Mentally Ill or Dev Disa"
-'         If clt_GA_elig_basis = "10" Then clt_GA_elig_basis = "10 - SSI/RSDI Pending"
-'         If clt_GA_elig_basis = "11" Then clt_GA_elig_basis = "11 - Appealing SSI/RSDI Denial"
-'         If clt_GA_elig_basis = "12" Then clt_GA_elig_basis = "12 - Advanced Age"
-'         If clt_GA_elig_basis = "13" Then clt_GA_elig_basis = "13 - Learning Disability"
-'         If clt_GA_elig_basis = "17" Then clt_GA_elig_basis = "17 - Protect/Court Ordered"
-'         If clt_GA_elig_basis = "20" Then clt_GA_elig_basis = "20 - Age 16 or 17 SS Approval"
-'         If clt_GA_elig_basis = "25" Then clt_GA_elig_basis = "25 - Emancipated Minor"
-'         If clt_GA_elig_basis = "28" Then clt_GA_elig_basis = "28 - Unemployable"
-'         If clt_GA_elig_basis = "29" Then clt_GA_elig_basis = "29 - Displaced Hmkr (FT Student)"
-'         If clt_GA_elig_basis = "30" Then clt_GA_elig_basis = "30 - Minor w/ Adult Unrelated"
-'         If clt_GA_elig_basis = "32" Then clt_GA_elig_basis = "32 - Adult ESL/Adult HS"
-'         If clt_GA_elig_basis = "99" Then clt_GA_elig_basis = "99 - No Elig Basis"
-'         If clt_GA_elig_basis = "__" Then clt_GA_elig_basis = ""
-'
-'         If clt_GA_coop = "01" Then clt_GA_coop = "01 - Cooperating"
-'         If clt_GA_coop = "03" Then clt_GA_coop = "03 - Failed to Coop"
-'         If clt_GA_coop = "__" Then clt_GA_coop = ""
-'     end If
-' end function
-
+'THESE FUNCTIONS CREATE, DECLARE, AND SHOW MOST OF THE DIALOGS
 function csr_dlg_q_1()
 	Do
 		Do
@@ -1745,7 +293,6 @@ function csr_dlg_q_1()
 			  EditBox 285, 80, 20, 15, grh_sr_yr
 			  GroupBox 5, 105, 350, 115, "Address on CSR"
 			  Text 10, 120, 310, 10, "Ask client for their address. Compare it to the current addresses listed below from MAXIS:"
-			  ' Text 10, 135, 75, 10, "Residence Address:"
 			  If new_resi_addr_entered = TRUE Then
 				  Text 10, 135, 110, 10, "UPDATED Residence Address:"
 				  Text 20, 145, 110, 10, new_resi_one
@@ -1760,9 +307,6 @@ function csr_dlg_q_1()
 					  Text 20, 165, 115, 10, resi_city & ", " & resi_state & " " & resi_zip
 				  End If
 			  End If
-			  ' Text 20, 145, 110, 10, "resi_line_one"
-			  ' Text 20, 155, 115, 10, "resi_city & ,  & resi_state &   & resi_zip"
-			  ' Text 205, 135, 75, 10, "Mailing Address:"
 			  If new_mail_addr_entered = TRUE Then
 				  Text 205, 135, 110, 10, "UPDATED Mailing Address:"
 				  Text 210, 145, 110, 10, new_mail_one
@@ -1781,8 +325,6 @@ function csr_dlg_q_1()
 					  End If
 				  End If
 			  End IF
-			  ' Text 210, 145, 110, 10, "mail_line_one"
-			  ' Text 210, 155, 120, 10, "mail_city & ,  & mail_state &   & mail_zip"
 			  Text 20, 205, 145, 10, "Is the Client indicating they are homeless?"
 			  DropListBox 165, 200, 85, 45, "Select One..."+chr(9)+"Yes - Homeless"+chr(9)+"No", homeless_status
 			  ButtonGroup ButtonPressed
@@ -1802,17 +344,14 @@ function csr_dlg_q_1()
 
 		    program_indicated = FALSE
 		    If snap_sr_yn = "Yes" Then
-		        ' If snap_sr_status = "Select One..." Then err_msg = err_msg & vbNewLine & "* Since this case is for a SNAP Six-Month report indicate the status of the SR process (eg. N, I, or U)."
 		        Call validate_footer_month_entry(snap_sr_mo, snap_sr_yr, err_msg, "* SNAP SR MONTH")
 		        program_indicated = TRUE
 		    End If
 		    If hc_sr_yn = "Yes" Then
-		        ' If hc_sr_status = "Select One..." Then err_msg = err_msg & vbNewLine & "* Since this case is for a HC Six-Month report indicate the status of the SR process (eg. N, I, or U)."
 		        Call validate_footer_month_entry(hc_sr_mo, hc_sr_yr, err_msg, "* HC SR MONTH")
 		        program_indicated = TRUE
 		    End If
 		    If grh_sr_yn = "Yes" Then
-		        ' If grh_sr_status = "Select One..." Then err_msg = err_msg & vbNewLine & "* Since this case is for a GRH Six-Month report indicate the status of the SR process (eg. N, I, or U)."
 		        Call validate_footer_month_entry(grh_sr_mo, grh_sr_yr, err_msg, "* GRH SR MONTH")
 		        program_indicated = TRUE
 		    End If
@@ -1820,13 +359,7 @@ function csr_dlg_q_1()
 			If ButtonPressed = -1 Then
 				err_msg = ""
 			    If client_on_csr_form = "Select or Type" OR trim(client_on_csr_form) = "" Then err_msg = err_msg & vbNewLine & "* Indicate who is listed on the CSR form in the person infromation, or if this is blank, select that the person information is missing."
-
 			    If program_indicated = FALSE Then err_msg = err_msg & vbNewLine & "* Select the program(s) that the CSR form is processing. (None of the programs are indicated to have an SR due.)"
-
-			    ' If residence_address_match_yn = "Does the residence address match?" Then err_msg = err_msg & vbNewLine & "* Indicate information about the residence address provided on the CSR form."
-			    ' If mailing_address_match_yn = "Does the mailing address match?" Then err_msg = err_msg & vbNewLine & "* Indicate information abobut the mailing address provided on the CSR form."
-				' If residence_address_match_yn = "No - New Address Entered" AND new_resi_addr_entered = FALSE Then err_msg = err_msg & vbNewLine & "* The option 'No - New Address Endered' for the residence address can only be updated by the script."
-				' If mailing_address_match_yn = "No - New Address Entered" AND new_mail_addr_entered = FALSE Then err_msg = err_msg & vbNewLine & "* The option 'No - New Address Endered' for the Mailing address can only be updated by the script."
 			    If homeless_yn = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate if the CSR form indicates the household is homeless or not."
 
 			    If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
@@ -1854,7 +387,6 @@ function csr_dlg_q_2()
 
 		Dialog1 = ""
 		BeginDialog Dialog1, 0, 0, dlg_width, dlg_len, "CSR Household"
-		  ' GroupBox 5, 180, 415, grp_len, "Household Comp"
 		  Text 15, 10, 220, 10, "Q2. Has anyone moved in or out of your home in the past six months?"
 		  DropListBox 240, 5, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Not Required", quest_two_move_in_out
 		  x_pos = 430
@@ -1899,7 +431,6 @@ function csr_dlg_q_2()
 		  Text 15, y_pos + 5, 275, 10, "Are there new household members that have been reported that are not listed here?"
 		  DropListBox 295, y_pos, 150, 45, "Select One..."+chr(9)+"Yes - add another member"+chr(9)+"No - all member in MAXIS"+chr(9)+"New Members Have been Added", new_hh_memb_not_in_mx_yn
 		  y_pos = y_pos + 20
-		  ' y_pos = y_pos + 25
 		  ButtonGroup ButtonPressed
 		    OkButton dlg_width - 110, y_pos, 50, 15
 		    CancelButton dlg_width - 55, y_pos, 50, 15
@@ -1993,10 +524,6 @@ function csr_dlg_q_4_7()
 				q_7_grp_len = q_7_grp_len + 20
 			End If
 		Next
-		' If apply_for_ma = "Yes" Then
-		'     dlg_len = dlg_len + (UBound(NEW_MA_REQUEST_ARRAY, 2) + 1) * 20
-		'     q_4_grp_len = 35 + UBound(NEW_MA_REQUEST_ARRAY, 2) * 20
-		' End If
 		For each_new_memb = 0 to UBound(NEW_MA_REQUEST_ARRAY, 2)
 			If NEW_MA_REQUEST_ARRAY(ma_request_client, each_new_memb) <> "Select or Type" and NEW_MA_REQUEST_ARRAY(ma_request_client, each_new_memb) <> "" Then
 				dlg_len = dlg_len + 20
@@ -2011,14 +538,10 @@ function csr_dlg_q_4_7()
 		  Text 10, 10, 180, 10, "Enter the answers from the CSR form, questions 4 - 7:"
 		  Text 195, 10, 210, 10, "If all questions and details have been left blank, indicate that here:"
 		  DropListBox 405, 5, 200, 15, "Enter Question specific information below"+chr(9)+"Questions 4 - 7 are not required.", all_questions_4_7_blank
-
 		  GroupBox 15, 30, 585, q_4_grp_len, "Q4. Do you want to apply for MA for someone who is not getting coverage now?"
-		  ' DropListBox 285, 25, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Not Required", apply_for_ma
-		  ' CheckBox 430, 30, 75, 10, "Q4 Deailts left Blank", q_4_details_blank_checkbox
 		  DropListBox 285, 25, 150, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Not Required", apply_for_ma
 		  ButtonGroup ButtonPressed
 			PushButton 540, 30, 50, 10, "Add Another", add_memb_btn
-		  ' If apply_for_ma = "Yes" Then
 		  For each_new_memb = 0 to UBound(NEW_MA_REQUEST_ARRAY, 2)
 			  If NEW_MA_REQUEST_ARRAY(ma_request_client, each_new_memb) <> "Select or Type" and NEW_MA_REQUEST_ARRAY(ma_request_client, each_new_memb) <> "" Then
 				  Text 35, y_pos + 5, 105, 10, "Select the Member requesting:"
@@ -2027,11 +550,8 @@ function csr_dlg_q_4_7()
 			  End If
 		  Next
 		  If y_pos = 45 Then y_pos = y_pos + 5
-		  ' End If
 
 		  GroupBox 15, y_pos + 5, 585, q_5_grp_len, "Q5. Is anyone self-employed or does anyone expect to be self-employed?"
-		  ' DropListBox 265, y_pos, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Not Required", ma_self_employed
-		  ' CheckBox 430, y_pos + 5, 75, 10, "Q5 Deailts left Blank", q_5_details_blank_checkbox
 		  DropListBox 265, y_pos, 150, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Not Required", ma_self_employed
 		  y_pos = y_pos + 20
 
@@ -2053,8 +573,6 @@ function csr_dlg_q_4_7()
 				  EditBox 155, y_pos, 105, 15, NEW_EARNED_ARRAY(earned_source, each_busi)
 				  EditBox 265, y_pos, 50, 15, NEW_EARNED_ARRAY(earned_start_date, each_busi)
 				  EditBox 325, y_pos, 60, 15, NEW_EARNED_ARRAY(earned_amount, each_busi)
-				  ' CheckBox 495, y_pos, 30, 10, "New", ALL_INCOME_ARRAY(new_checkbox, each_busi)
-				  ' CheckBox 530, y_pos, 40, 10, "Detail", ALL_INCOME_ARRAY(update_checkbox, each_busi)
 				  y_pos = y_pos  + 20
 			  End If
 		  Next
@@ -2066,8 +584,6 @@ function csr_dlg_q_4_7()
 		  End If
 
 		  GroupBox 15, y_pos + 5, 585, q_6_grp_len, "Q6. Does anyone work or does anyone expect to start working?"
-		  ' DropListBox 230, y_pos, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Not Required", ma_start_working
-		  ' CheckBox 430, y_pos + 5, 75, 10, "Q6 Deailts left Blank", q_6_details_blank_checkbox
 		  DropListBox 230, y_pos, 150, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Not Required", ma_start_working
 		  y_pos = y_pos  + 20
 		  ButtonGroup ButtonPressed
@@ -2091,8 +607,6 @@ function csr_dlg_q_4_7()
 				  DropListBox 330, y_pos, 40, 45, " "+chr(9)+"No"+chr(9)+"Yes", NEW_EARNED_ARRAY(earned_seasonal, each_job)
 				  EditBox 375, y_pos, 45, 15, NEW_EARNED_ARRAY(earned_amount, each_job)
 				  DropListBox 425, y_pos, 60, 45, "Select One..."+chr(9)+"4 - Weekly"+chr(9)+"3 - Biweekly"+chr(9)+"2 - Semi Monthly"+chr(9)+"1 - Monthly", NEW_EARNED_ARRAY(earned_freq, each_job)
-				  ' CheckBox 495, y_pos, 30, 10, "New", ALL_INCOME_ARRAY(new_checkbox, each_job)
-				  ' CheckBox 530, y_pos, 40, 10, "Detail", ALL_INCOME_ARRAY(update_checkbox, each_job)
 				  y_pos = y_pos + 20
 			  End If
 		  Next
@@ -2104,8 +618,6 @@ function csr_dlg_q_4_7()
 		  End If
 
 		  GroupBox 15, y_pos + 5, 585, q_7_grp_len, "Q7. Does anyone get money or does anyone expect to get money from sources other than work?"
-		  ' DropListBox 335, y_pos, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Not Required", ma_other_income
-		  ' CheckBox 430, y_pos + 5, 75, 10, "Q7 Deailts left Blank", q_7_details_blank_checkbox
 		  DropListBox 335, y_pos, 150, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Not Required", ma_other_income
 		  y_pos = y_pos +20
 		  ButtonGroup ButtonPressed
@@ -2128,8 +640,6 @@ function csr_dlg_q_4_7()
 				  EditBox 280, y_pos, 50, 15, NEW_UNEARNED_ARRAY(unearned_start_date, each_unea)    'unea_start_date
 				  EditBox 335, y_pos, 50, 15, NEW_UNEARNED_ARRAY(unearned_amount, each_unea)    'unea_amount
 				  DropListBox 390, y_pos, 90, 45, "Select One..."+chr(9)+"4 - Weekly"+chr(9)+"3 - Biweekly"+chr(9)+"2 - Semi Monthly"+chr(9)+"1 - Monthly", NEW_UNEARNED_ARRAY(unearned_freq, each_unea) 'unea_frequency
-				  ' CheckBox 495, y_pos, 30, 10, "New", ALL_INCOME_ARRAY(new_checkbox, each_unea)
-				  ' CheckBox 530, y_pos, 55, 10, "Update/Detail", ALL_INCOME_ARRAY(update_checkbox, each_unea)
 				  y_pos = y_pos + 20
 			  End If
 		  Next
@@ -2141,7 +651,6 @@ function csr_dlg_q_4_7()
 		  End If
 
 		  ButtonGroup ButtonPressed
-			' PushButton 20, y_pos + 2, 200, 13, "Why do I have to answer these if in is not HC?", why_answer_btn
 			PushButton 475, y_pos, 80, 15, "Go to Q9 - Q12", next_page_ma_btn
 			CancelButton 555, y_pos, 50, 15
 		EndDialog
@@ -2158,11 +667,6 @@ function csr_dlg_q_4_7()
 			ma_self_employed = "Not Required"
 			ma_start_working = "Not Required"
 			ma_other_income = "Not Required"
-
-			' q_4_details_blank_checkbox = checked
-			' q_5_details_blank_checkbox = checked
-			' q_6_details_blank_checkbox = checked
-			' q_7_details_blank_checkbox = checked
 		End If
 
 		If ButtonPressed = add_memb_btn Then
@@ -2187,20 +691,12 @@ function csr_dlg_q_4_7()
 			new_earned_counter = new_earned_counter + 1
 		End If
 		If ButtonPressed = add_unea_btn Then
-			new_item = UBound(ALL_INCOME_ARRAY, 2) + 1
+			new_item = UBound(NEW_UNEARNED_ARRAY, 2) + 1
 			ReDim Preserve NEW_UNEARNED_ARRAY(unearned_notes, new_unearned_counter)
 			NEW_UNEARNED_ARRAY(unearned_type, new_unearned_counter) = "UNEA"
 			NEW_UNEARNED_ARRAY(unearned_prog_list, new_unearned_counter) = "MA"
 			new_unearned_counter = new_unearned_counter + 1
 		End If
-		' If ButtonPressed = why_answer_btn Then
-		' 	explain_text = "This case may not have MA, MSP, or any HC active and you may have indicated that it is only for a SNAP Review, HOWEVER" & vbCr & vbCr
-		' 	explain_text = explain_text & "The form that was sent to the client STILL has these questions listed on it." & vbCr
-		' 	explain_text = explain_text & "We need to be looking at all information that the client reported, anything entered here may impact the benefits because it is now 'known to the agency'." & vbCr & vbCr
-		' 	explain_text = explain_text & "Though the client is not required to answer these questions, we are still required to review the entire form."
-		' 	' explain_text = explain_text & ""
-		' 	why_answer_when_not_HC_msg = MsgBOx(explain_text, vbInformation + vbOKonly, "No HC on the case")
-		' End If
 
 		If ButtonPressed = next_page_ma_btn Then
 			questions_answered = TRUE
@@ -2223,51 +719,39 @@ function csr_dlg_q_4_7()
 			q_5_details_entered = FALSE
 			q_6_details_entered = FALSE
 			q_7_details_entered = FALSE
-			' If q_4_details_blank_checkbox = unchecked Then
 			If InStr(apply_for_ma, "details listed below") <> 0 Then
 				For each_new_memb = 0 to UBound(NEW_MA_REQUEST_ARRAY, 2)
 					If NEW_MA_REQUEST_ARRAY(ma_request_client, each_new_memb) <> "Select or Type" and NEW_MA_REQUEST_ARRAY(ma_request_client, each_new_memb) <> "" and NEW_MA_REQUEST_ARRAY(ma_request_client, each_new_memb) <> "Enter or Select Member" Then
 						q_4_details_entered = TRUE
 					End If
 				Next
-				' If q_4_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* No details of a person requesting MA for someone not getting coverage now (Question 4). Either enter information about which members are requesting MA coverage or check the box to indicate this portion of the form was left blank."
-				' If q_4_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* Question 4 - Someone getting MA coverage. The answer indicates there was detail provided but no detail was listed. Update the droplist answer to indicate there are no details or add details about who is requesting MA coverage from the form."
 			Else
 				q_4_details_entered = TRUE
 			End If
-			' If q_5_details_blank_checkbox = unchecked Then
 			If InStr(ma_self_employed, "details listed below") <> 0 Then
 				For each_busi = 0 to UBound(NEW_EARNED_ARRAY, 2)
 					If NEW_EARNED_ARRAY(earned_type, each_busi) = "BUSI" AND NEW_EARNED_ARRAY(earned_prog_list, each_busi) = "MA" Then
 						q_5_details_entered = TRUE
 					End If
 				Next
-				' If q_5_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* No Self Employment information has been entered (Question 5). Either enter BUSI details from the CSR Form or check the box to indicate this portion of the form was left blank."
-				' If q_5_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* Question 5 - Self-Employment Income. The answer indicates there was detail provided but no detail was listed. Update the droplist answer to indicate there are no details or add details about who is requesting MA coverage from the form."
 			Else
 				q_5_details_entered = TRUE
 			End If
-			' If q_6_details_blank_checkbox = unchecked Then
 			If InStr(ma_start_working, "details listed below") <> 0 Then
 				For each_job = 0 to UBound(NEW_EARNED_ARRAY, 2)
 					If NEW_EARNED_ARRAY(earned_type, each_job) = "JOBS" AND NEW_EARNED_ARRAY(earned_prog_list, each_job) = "MA" Then
 						q_6_details_entered = TRUE
 					End If
 				Next
-				' If q_6_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* * No Job information has been entered (Question 6). Either enter JOBS details from the CSR Form or check the box to indicate this portion of the form was left blank."
-				' If q_6_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* Question 6 - Job Income. The answer indicates there was detail provided but no detail was listed. Update the droplist answer to indicate there are no details or add details about who is requesting MA coverage from the form."
 			Else
 				q_6_details_entered = TRUE
 			End If
-			' If q_7_details_blank_checkbox = unchecked Then
 			If InStr(ma_other_income, "details listed below") <> 0 Then
 				For each_unea = 0 to UBound(NEW_UNEARNED_ARRAY, 2)
 					If NEW_UNEARNED_ARRAY(unearned_type, each_unea) = "UNEA" AND NEW_UNEARNED_ARRAY(unearned_prog_list, each_unea) = "MA" Then
 						q_7_details_entered = TRUE
 					End If
 				Next
-				' If q_7_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* * No Unearned Income information has been entered (Question 7). Either enter UNEA details from the CSR Form or check the box to indicate this portion of the form was left blank."
-				' If q_7_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* Question 7 - Unearned Income. The answer indicates there was detail provided but no detail was listed. Update the droplist answer to indicate there are no details or add details about who is requesting MA coverage from the form."
 			Else
 				q_7_details_entered = TRUE
 			End If
@@ -2298,7 +782,6 @@ function csr_dlg_q_9_12()
 			If NEW_ASSET_ARRAY(asset_type, new_assets_listed) = "CASH" AND NEW_ASSET_ARRAY(asset_prog_list, new_assets_listed) = "MA" Then
 				dlg_len = dlg_len + 20
 				q_9_grp_len = q_9_grp_len + 20
-				' MsgBox ALL_ASSETS_ARRAY(category_const, assets_on_case)
 			End If
 			If NEW_ASSET_ARRAY(asset_type, new_assets_listed) = "ACCT" AND NEW_ASSET_ARRAY(asset_prog_list, new_assets_listed) = "MA" Then
 				dlg_len = dlg_len + 20
@@ -2325,8 +808,6 @@ function csr_dlg_q_9_12()
 		  DropListBox 405, 5, 200, 15, "Enter Question specific information below"+chr(9)+"Questions 9 - 12 are not required.", all_questions_9_12_blank
 
 		  GroupBox 15, y_pos + 5, 585, q_9_grp_len, "Q9. Does anyone have cash, a savings or checking account, or a certificate of deposit?"
-		  ' DropListBox 330, y_pos, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Not Required", ma_liquid_assets
-		  ' CheckBox 430, y_pos + 5, 75, 10, "Q9 Deailts left Blank", q_9_details_blank_checkbox
 		  DropListBox 330, y_pos, 150, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Not Required", ma_liquid_assets
 		  y_pos = y_pos +20
 		  ButtonGroup ButtonPressed
@@ -2345,8 +826,6 @@ function csr_dlg_q_9_12()
 			  ComboBox 30, y_pos, 130, 45, all_the_clients, NEW_ASSET_ARRAY(asset_client, each_asset) 'liquid_asset_member'
 			  ComboBox 165, y_pos, 115, 40, account_list, NEW_ASSET_ARRAY(asset_acct_type, each_asset)'liquid_asst_type
 			  EditBox 285, y_pos, 195, 15, NEW_ASSET_ARRAY(asset_bank_name, each_asset)'liquid_asset_name
-			  ' CheckBox 495, y_pos, 30, 10, "New", ALL_ASSETS_ARRAY(new_checkbox, each_asset)    'new_checkbox
-			  ' CheckBox 530, y_pos, 55, 10, "Update/Detail", ALL_ASSETS_ARRAY(update_checkbox, each_asset)'update_checkbox
 			  y_pos = y_pos + 20
 			End If
 		  Next
@@ -2357,8 +836,6 @@ function csr_dlg_q_9_12()
 
 		  y_pos = y_pos +10
 		  GroupBox 15, y_pos + 5, 585, q_10_grp_len, "Q10. Does anyone own or co-own securities or other assets?"
-		  ' DropListBox 295, y_pos, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Not Required", ma_security_assets
-		  ' CheckBox 430, y_pos + 5, 80, 10, "Q10 Deailts left Blank", q_10_details_blank_checkbox
 		  DropListBox 295, y_pos, 150, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Not Required", ma_security_assets
 		  y_pos = y_pos +  20
 		  ButtonGroup ButtonPressed
@@ -2377,8 +854,6 @@ function csr_dlg_q_9_12()
 				ComboBox 30, y_pos, 130, 45, all_the_clients, NEW_ASSET_ARRAY(asset_client, each_asset) 'security_asset_member
 				ComboBox 165, y_pos, 115, 40, security_list, NEW_ASSET_ARRAY(asset_acct_type, each_asset)    'security_asset_type
 				EditBox 285, y_pos, 195, 15, NEW_ASSET_ARRAY(asset_bank_name, each_asset)   'security_asset_name
-				' CheckBox 495, y_pos, 30, 10, "New", ALL_ASSETS_ARRAY(new_checkbox, each_asset)
-				' CheckBox 530, y_pos, 55, 10, "Update/Detail", ALL_ASSETS_ARRAY(update_checkbox, each_asset)
 				y_pos = y_pos + 20
 			End If
 		  Next
@@ -2389,8 +864,6 @@ function csr_dlg_q_9_12()
 		  y_pos = y_pos + 10
 
 		  GroupBox 15, y_pos + 5, 585, q_11_grp_len, "Q11. Does anyone own a vehicle?"
-		  ' DropListBox 250, y_pos, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Not Required", ma_vehicle
-		  ' CheckBox 430, y_pos + 5, 80, 10, "Q11 Deailts left Blank", q_11_details_blank_checkbox
 		  DropListBox 250, y_pos, 150, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Not Required", ma_vehicle
 		  y_pos = y_pos + 20
 		  ButtonGroup ButtonPressed
@@ -2408,8 +881,6 @@ function csr_dlg_q_9_12()
 				  ComboBox 30, y_pos, 130, 45, all_the_clients, NEW_ASSET_ARRAY(asset_client, each_asset)     'vehicle_asset_member
 				  ComboBox 165, y_pos, 115, 40, cars_list, NEW_ASSET_ARRAY(asset_acct_type, each_asset)    'vehicle_asset_type
 				  EditBox 285, y_pos, 195, 15, NEW_ASSET_ARRAY(asset_year_make_model, each_asset)  'vehicle_asset_name
-				  ' CheckBox 495, y_pos, 30, 10, "New", ALL_ASSETS_ARRAY(new_checkbox, each_asset)
-				  ' CheckBox 530, y_pos, 55, 10, "Update/Detail", ALL_ASSETS_ARRAY(update_checkbox, each_asset)
 				  y_pos = y_pos + 20
 			  End If
 		  Next
@@ -2420,8 +891,6 @@ function csr_dlg_q_9_12()
 		  y_pos = y_pos + 10
 
 		  GroupBox 15, y_pos + 5, 585, q_12_grp_len, "Q12. Does anyone own or co-own any real estate?"
-		  ' DropListBox 280, y_pos, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Not Required", ma_real_assets
-		  ' CheckBox 430, y_pos + 5, 80, 10, "Q12 Deailts left Blank", q_12_details_blank_checkbox
 		  DropListBox 280, y_pos, 150, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Not Required", ma_real_assets
 		  y_pos = y_pos + 20
 		  ButtonGroup ButtonPressed
@@ -2439,8 +908,6 @@ function csr_dlg_q_9_12()
 				  ComboBox 30, y_pos, 130, 45, all_the_clients, NEW_ASSET_ARRAY(asset_client, each_asset)     'property_asset_member
 				  EditBox 165, y_pos, 150, 15, NEW_ASSET_ARRAY(asset_address, each_asset)      'property_asset_address
 				  ComboBox 320, y_pos, 150, 40, rest_list, NEW_ASSET_ARRAY(asset_acct_type, each_asset)     'property_asset_type
-				  ' CheckBox 495, y_pos, 30, 10, "New", ALL_ASSETS_ARRAY(new_checkbox, each_asset)
-				  ' CheckBox 530, y_pos, 55, 10, "Update/Detail", ALL_ASSETS_ARRAY(update_checkbox, each_asset)
 				  y_pos = y_pos + 20
 			  End If
 		  Next
@@ -2461,7 +928,6 @@ function csr_dlg_q_9_12()
 		dialog Dialog1
 		cancel_confirmation
 
-		' MsgBox ButtonPressed & " - 1 - "
 		If ButtonPressed = -1 Then ButtonPressed = continue_btn
 
 		If ButtonPressed = add_acct_btn Then
@@ -2494,11 +960,6 @@ function csr_dlg_q_9_12()
 			ma_security_assets = "Not Required"
 			ma_vehicle = "Not Required"
 			ma_real_assets = "Not Required"
-
-			' q_9_details_blank_checkbox = checked
-			' q_10_details_blank_checkbox = checked
-			' q_11_details_blank_checkbox = checked
-			' q_12_details_blank_checkbox = checked
 		End If
 
 		If ButtonPressed = continue_btn Then
@@ -2523,51 +984,39 @@ function csr_dlg_q_9_12()
 			q_10_details_entered = FALSE
 			q_11_details_entered = FALSE
 			q_12_details_entered = FALSE
-			' If q_9_details_blank_checkbox = unchecked Then
 			If InStr(ma_liquid_assets, "details listed below") <> 0 Then
 				For each_asset = 0 to UBound(NEW_ASSET_ARRAY, 2)
 					If (NEW_ASSET_ARRAY(asset_type, each_asset) = "ACCT" OR NEW_ASSET_ARRAY(asset_type, each_asset) = "CASH") AND NEW_ASSET_ARRAY(asset_prog_list, each_asset) = "MA" AND NEW_ASSET_ARRAY(ma_request_client, each_asset) <> "Enter or Select Member" Then
 						q_9_details_entered = TRUE
 					End If
 				Next
-				' If q_9_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* No details of a person requesting MA for someone not getting coverage now (Question 9). Either enter information about which members are requesting MA coverage or check the box to indicate this portion of the form was left blank."
-				' If q_9_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* Question 9 - Liquid Assets. The answer indicates there was detail provided but no detail was listed. Update the droplist answer to indicate there are no details or add details about who is requesting MA coverage from the form."
 			Else
 				q_9_details_entered = TRUE
 			End If
-			' If q_10_details_blank_checkbox = unchecked Then
 			If InStr(ma_security_assets, "details listed below") <> 0 Then
 				For each_asset = 0 to UBound(NEW_ASSET_ARRAY, 2)
 					If NEW_ASSET_ARRAY(asset_type, each_asset) = "SECU" AND NEW_ASSET_ARRAY(asset_prog_list, each_asset) = "MA" Then
 						q_10_details_entered = TRUE
 					End If
 				Next
-				' If q_10_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* No Self Employment information has been entered (Question 10). Either enter BUSI details from the CSR Form or check the box to indicate this portion of the form was left blank."
-				' If q_10_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* Question 10 - Securities. The answer indicates there was detail provided but no detail was listed. Update the droplist answer to indicate there are no details or add details about who is requesting MA coverage from the form."
 			Else
 				q_10_details_entered = TRUE
 			End If
-			' If q_11_details_blank_checkbox = unchecked Then
 			If InStr(ma_vehicle, "details listed below") <> 0 Then
 				For each_asset = 0 to UBound(NEW_ASSET_ARRAY, 2)
 					If NEW_ASSET_ARRAY(asset_type, each_asset) = "CARS" AND NEW_ASSET_ARRAY(asset_prog_list, each_asset) = "MA" Then
 						q_11_details_entered = TRUE
 					End If
 				Next
-				' If q_11_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* * No Job information has been entered (Question 11). Either enter JOBS details from the CSR Form or check the box to indicate this portion of the form was left blank."
-				' If q_11_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* Question 11 - Vehicles. The answer indicates there was detail provided but no detail was listed. Update the droplist answer to indicate there are no details or add details about who is requesting MA coverage from the form."
 			Else
 				q_11_details_entered = TRUE
 			End If
-			' If q_12_details_blank_checkbox = unchecked Then
 			If InStr(ma_real_assets, "details listed below") <> 0 Then
 				For each_asset = 0 to UBound(NEW_ASSET_ARRAY, 2)
 					If NEW_ASSET_ARRAY(asset_type, each_asset) = "REST" AND NEW_ASSET_ARRAY(asset_prog_list, each_asset) = "MA" Then
 						q_12_details_entered = TRUE
 					End If
 				Next
-				' If q_12_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* * No Unearned Income information has been entered (Question 12). Either enter UNEA details from the CSR Form or check the box to indicate this portion of the form was left blank."
-				' If q_12_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* Question 12 - Real Estate. The answer indicates there was detail provided but no detail was listed. Update the droplist answer to indicate there are no details or add details about who is requesting MA coverage from the form."
 			Else
 				q_12_details_entered = TRUE
 			End If
@@ -2585,7 +1034,6 @@ function csr_dlg_q_9_12()
 		End If
 
 		If ButtonPressed = back_to_ma_dlg_1 Then
-			' MsgBox ButtonPressed & " - 2 - "
 			show_csr_dlg_q_4_7 = TRUE
 			show_csr_dlg_q_13 = FALSE
 			show_csr_dlg_q_15_19 = FALSE
@@ -2607,8 +1055,6 @@ function csr_dlg_q_13()
 		  Text 10, 10, 180, 10, "Enter the answers from the CSR form, questions 13:"
 
 		  Text 25, 25, 135, 10, "Q13. Do you have any changes to report?"
-		  ' DropListBox 160, 20, 75, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Not Required", ma_other_changes
-		  ' CheckBox 30, 60, 300, 10, "Check here if client left the changes to report field on the form blank.", changes_reported_blank_checkbox
 		  DropListBox 160, 20, 150, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Not Required", ma_other_changes
 		  EditBox 30, 40, 555, 15, other_changes_reported
 
@@ -2659,7 +1105,6 @@ function csr_dlg_q_13()
 		End If
 	Loop until err_msg = ""
 	show_csr_dlg_q_13 = FALSE
-	' MsgBox "Q 13 Cleared - " & csr_dlg_q_13_cleared
 end function
 
 function csr_dlg_q_15_19()
@@ -2692,13 +1137,6 @@ function csr_dlg_q_15_19()
 				q_18_grp_len = q_18_grp_len + 20
 			End If
 		Next
-		' dlg_len = dlg_len + UBound(NEW_EARNED_ARRAY, 2) * 20
-		' dlg_len = dlg_len + UBound(NEW_UNEARNED_ARRAY, 2) * 20
-		' dlg_len = dlg_len + UBound(NEW_CHILD_SUPPORT_ARRAY, 2) * 20
-		' q_15_grp_len = 50
-		' q_16_grp_len = 45 + UBound(NEW_EARNED_ARRAY, 2) * 20
-		' q_17_grp_len = 45 + UBound(NEW_UNEARNED_ARRAY, 2) * 20
-		' q_18_grp_len = 45 + UBound(NEW_CHILD_SUPPORT_ARRAY, 2) * 20
 
 		y_pos = 95
 
@@ -2708,18 +1146,13 @@ function csr_dlg_q_15_19()
 		  Text 195, 10, 210, 10, "If all questions and details have been left blank, indicate that here:"
 		  DropListBox 405, 5, 200, 15, "Enter Question specific information below"+chr(9)+"Questions 15 - 19 are not required.", all_questions_15_19_blank
 		  GroupBox 10, 30, 600, q_15_grp_len, "Q15. Has your household moved since your last application or in the past six months?"
-		  ' DropListBox 305, 25, 100, 45, "Select One..."+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Did not answer", quest_fifteen_form_answer
 		  DropListBox 305, 25, 150, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Not Required", quest_fifteen_form_answer
 		  Text 25, 45, 105, 10, "New Rent or Mortgage Amount:"
 		  EditBox 130, 40, 65, 15, new_rent_or_mortgage_amount
 		  CheckBox 220, 45, 50, 10, "Heat/AC", heat_ac_checkbox
 		  CheckBox 275, 45, 50, 10, "Electricity", electricity_checkbox
 		  CheckBox 345, 45, 50, 10, "Telephone", telephone_checkbox
-		  ' Text 400, 45, 80, 10, "Did client attach proof?"
-		  ' DropListBox 480, 40, 125, 45, "Select One..."+chr(9)+"Yes"+chr(9)+"No", shel_proof_provided
 		  GroupBox 10, 70, 490, q_16_grp_len, "Q16 Has there been a change in EARNED INCOME?"
-		  ' DropListBox 190, 65, 100, 45, "Select One..."+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Did not answer", quest_sixteen_form_answer
-		  ' CheckBox 310, 70, 85, 10, "Q16 Deailts left Blank", q_16_details_blank_checkbox
 		  DropListBox 190, 65, 150, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Not Required", quest_sixteen_form_answer
 		  ButtonGroup ButtonPressed
 			PushButton 440, 70, 50, 10, "Add Another", add_snap_earned_income_btn
@@ -2746,8 +1179,6 @@ function csr_dlg_q_15_19()
 		  Next
 		  y_pos = y_pos + 10
 		  GroupBox 10, y_pos, 490, q_17_grp_len, "Q17. Has there been a change in UNEARNED INCOME?"
-		  ' DropListBox 205, y_pos - 5, 100, 45, "Select One..."+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Did not answer", quest_seventeen_form_answer
-		  ' CheckBox 310, y_pos, 85, 10, "Q17 Deailts left Blank", q_17_details_blank_checkbox
 		  DropListBox 205, y_pos - 5, 150, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Not Required", quest_seventeen_form_answer
 		  ButtonGroup ButtonPressed
 			PushButton 440, y_pos, 50, 10, "Add Another", add_snap_unearned_btn
@@ -2775,8 +1206,6 @@ function csr_dlg_q_15_19()
 		  If first_unearned = TRUE Then y_pos = y_pos + 10
 		  y_pos = y_pos + 10
 		  GroupBox 10, y_pos, 490, q_18_grp_len, "Q18 Has there been a change in CHILD SUPPORT?"
-		  ' DropListBox 190, y_pos - 5, 100, 45, "Select One..."+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Did not answer", quest_eighteen_form_answer
-		  ' CheckBox 310, y_pos, 85, 10, "Q18 Deailts left Blank", q_18_details_blank_checkbox
 		  DropListBox 190, y_pos - 5, 150, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes"+chr(9)+"Not Required", quest_eighteen_form_answer
 		  ButtonGroup ButtonPressed
 			PushButton 440, y_pos, 50, 10, "Add Another", add_snap_cs_btn
@@ -2802,7 +1231,6 @@ function csr_dlg_q_15_19()
 		  y_pos = y_pos + 10
 		  Text 10, y_pos, 345, 10, "Q19. Did you work 20 hours each week, for an average of 80 hours per month during the past six months?"
 		  DropListBox 355, y_pos - 5, 100, 45, "Select One..."+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Not Required", quest_nineteen_form_answer
-		  ' y_pos = y_pos + 15
 		  ButtonGroup ButtonPressed
 			PushButton 505, y_pos-5, 50, 15, "Continue", continue_btn
 			CancelButton 555, y_pos-5, 50, 15
@@ -2817,10 +1245,6 @@ function csr_dlg_q_15_19()
 			quest_seventeen_form_answer = "Not Required"
 			quest_eighteen_form_answer = "Not Required"
 			quest_nineteen_form_answer = "Not Required"
-
-			' q_16_details_blank_checkbox = checked
-			' q_17_details_blank_checkbox = checked
-			' q_18_details_blank_checkbox = checked
 		End If
 
 		If quest_fifteen_form_answer = "Select One..." OR quest_sixteen_form_answer = "Select One..." OR quest_seventeen_form_answer = "Select One..." OR quest_eighteen_form_answer = "Select One..." OR quest_nineteen_form_answer = "Select One..." Then err_msg = err_msg & vbNewLine & "* All of the questions must be answered with the answers from the CSR Form." & vbNewLine
@@ -2836,15 +1260,11 @@ function csr_dlg_q_15_19()
 		q_18_details_entered = FALSE
 
 		If InStr(quest_fifteen_form_answer, "details listed below") <> 0 Then
-
 			new_rent_or_mortgage_amount = trim(new_rent_or_mortgage_amount)
 			If new_rent_or_mortgage_amount <> "" Then q_15_details_entered = TRUE
 			If heat_ac_checkbox = CHECKED Then q_15_details_entered = TRUE
 			If electricity_checkbox = CHECKED Then q_15_details_entered = TRUE
 			If telephone_checkbox = CHECKED Then q_15_details_entered = TRUE
-
-			' If q_12_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* * No Unearned Income information has been entered (Question 12). Either enter UNEA details from the CSR Form or check the box to indicate this portion of the form was left blank."
-			' If q_15_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* Question 15 - Shelter and Utilities Expenses. The answer indicates there was detail provided but no detail was listed. Update the droplist answer to indicate there are no details or add details about who is requesting MA coverage from the form."
 		Else
 			q_15_details_entered = TRUE
 		End If
@@ -2855,8 +1275,6 @@ function csr_dlg_q_15_19()
 					q_16_details_entered = TRUE
 				End If
 			Next
-			' If q_12_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* * No Unearned Income information has been entered (Question 12). Either enter UNEA details from the CSR Form or check the box to indicate this portion of the form was left blank."
-			' If q_16_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* Question 16 - Earned Income. The answer indicates there was detail provided but no detail was listed. Update the droplist answer to indicate there are no details or add details about who is requesting MA coverage from the form."
 		Else
 			q_16_details_entered = TRUE
 		End If
@@ -2867,8 +1285,6 @@ function csr_dlg_q_15_19()
 					q_17_details_entered = TRUE
 				End If
 			Next
-			' If q_12_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* * No Unearned Income information has been entered (Question 12). Either enter UNEA details from the CSR Form or check the box to indicate this portion of the form was left blank."
-			' If q_17_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* Question 17 - Unearned Income. The answer indicates there was detail provided but no detail was listed. Update the droplist answer to indicate there are no details or add details about who is requesting MA coverage from the form."
 		Else
 			q_17_details_entered = TRUE
 		End If
@@ -2879,8 +1295,6 @@ function csr_dlg_q_15_19()
 					q_18_details_entered = TRUE
 				End If
 			Next
-			' If q_12_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* * No Unearned Income information has been entered (Question 12). Either enter UNEA details from the CSR Form or check the box to indicate this portion of the form was left blank."
-			' If q_18_details_entered = FALSE Then err_msg = err_msg & vbNewLine & "* Question 18 - Child Support. The answer indicates there was detail provided but no detail was listed. Update the droplist answer to indicate there are no details or add details about who is requesting MA coverage from the form."
 		Else
 			q_18_details_entered = TRUE
 		End If
@@ -2922,8 +1336,6 @@ function csr_dlg_q_15_19()
 		If ButtonPressed = -1 Then ButtonPressed = continue_btn
 
 		If err_msg <> "" AND left(err_msg, 4) <> "LOOP" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
-		' MsgBox show_two & vbNewLine & "line 1480"
-		' Loop until leave_ma_questions = TRUE
 	Loop until err_msg = ""
 	show_csr_dlg_q_15_19 = FALSE
 	csr_dlg_q_15_19_cleared = TRUE
@@ -2955,7 +1367,6 @@ function csr_dlg_sig()
 			If DateDiff("d", date, csr_form_date) > 0 Then err_msg = err_msg & vbNewLine & "* The date of the CSR form is listed as a future date, a form cannot be listed as received inthe future, please review the form date."
 		End If
 		If client_signed_yn = "Select..." Then err_msg = err_msg & vbNewLine & "* Indicate if the client has signed the form correctly by selecting 'yes' or 'no'."
-		' If client_dated_yn = "Select..." Then err_msg = err_msg & vbNewLine & "* Indicate if the form has been dated correctly by selecting 'yes' or 'no'."
 
 		If err_msg <> "" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
 
@@ -3036,7 +1447,6 @@ function confirm_csr_form_dlg()
 
 	  y_pos_1 = y_pos_1 + 15
 	  Text 10, y_pos_1, 110, 20, "2. Has anyone moved in or out of your home in the past six months?"
-	  ' Text 20, 160, 115, 10, "your home in the past six months?"
 	  Text 150, y_pos_1, 35, 10, quest_two_move_in_out
 	  y_pos_1 = y_pos_1 + 25
 	  pers_list_count = 1
@@ -3048,8 +1458,6 @@ function confirm_csr_form_dlg()
 			  If ALL_CLIENTS_ARRAY(memb_new_checkbox, known_memb) = checked Then Text 140, y_pos_1, 40, 10, "MOVED IN"
 			  Text 25, y_pos_1 + 10, 155, 10, "Name:" & ALL_CLIENTS_ARRAY(memb_first_name, known_memb) & " " & ALL_CLIENTS_ARRAY(memb_last_name, known_memb)
 			  If len(ALL_CLIENTS_ARRAY(memb_rel_to_applct, known_memb)) > 4 Then Text 25, y_pos_1 + 20, 155, 10, "Relationship:" & right(ALL_CLIENTS_ARRAY(memb_rel_to_applct, known_memb), len(ALL_CLIENTS_ARRAY(memb_rel_to_applct, known_memb)) - 5)
-			  ' Text 25, 205, 155, 10, "Date of Change:"
-			  ' Text 25, 215, 155, 10, "other"
 			  pers_list_count = pers_list_count + 1
 			  y_pos_1 = y_pos_1 + 40
 		  End If
@@ -3061,17 +1469,13 @@ function confirm_csr_form_dlg()
 			  If NEW_MEMBERS_ARRAY(new_memb_moved_in, new_memb_counter) = checked Then Text 140, y_pos_1, 40, 10, "MOVED IN"
 			  Text 25, y_pos_1 + 10, 155, 10, "Name:" & NEW_MEMBERS_ARRAY(new_first_name, new_memb_counter) & " " & NEW_MEMBERS_ARRAY(new_last_name, new_memb_counter)
 			  Text 25, y_pos_1 + 20, 155, 10, "Relationship:" & right(NEW_MEMBERS_ARRAY(new_rel_to_applicant, new_memb_counter), len(NEW_MEMBERS_ARRAY(new_rel_to_applicant, new_memb_counter)) - 5)
-			  ' Text 25, 205, 155, 10, "Date of Change:"
-			  ' Text 25, 215, 155, 10, "other"
 			  pers_list_count = pers_list_count + 1
 			  y_pos_1 = y_pos_1 + 40
 		  End If
 	  Next
 
-
 	  GroupBox 190, 5, 185, 340, "Page 2"
 	  Text 195, 20, 135, 20, "4. Do you want to apply for someone who is not getting coverage now?"
-	  ' Text 205, 30, 125, 10, "is not getting coverage now?"
 	  Text 340, 20, 35, 10, replace(apply_for_ma, "Not Required", "BLANK")
 	  y_pos_2 = 40
 	  If q_4_details_blank_checkbox = checked then
@@ -3087,7 +1491,6 @@ function confirm_csr_form_dlg()
 	  y_pos_2 = y_pos_2 + 10
 
 	  Text 195, y_pos_2, 135, 20, "5. Is anyone self-employed or does anyone expect to be self-employed?"
-	  ' Text 205, 60, 125, 10, "anyone expect to be self-employed?"
 	  Text 340, y_pos_2, 35, 10, replace(ma_self_employed, "Not Required", "BLANK")
 	  y_pos_2 = y_pos_2 + 20
 	  If q_5_details_blank_checkbox = checked Then
@@ -3103,7 +1506,6 @@ function confirm_csr_form_dlg()
 	  y_pos_2 = y_pos_2 + 10
 
 	  Text 195, y_pos_2, 135, 20, "6. Does anyone work or does anyone expect to start working?"
-	  ' Text 205, 90, 125, 10, "expect to start working?"
 	  Text 340, y_pos_2, 35, 10, replace(ma_start_working, "Not Required", "BLANK")
 	  y_pos_2 = y_pos_2 + 20
 	  If q_6_details_blank_checkbox = checked Then
@@ -3119,8 +1521,6 @@ function confirm_csr_form_dlg()
 	  y_pos_2 = y_pos_2 + 10
 
 	  Text 195, y_pos_2, 140, 25, "7. Does anyone get money or does anyone expect to get money from sources other than work?"
-	  ' Text 205, 120, 130, 10, "anyone expect to get money from "
-	  ' Text 205, 130, 115, 10, "sources other than work?"
 	  Text 340, y_pos_2, 35, 10, replace(ma_other_income, "Not Required", "BLANK")
 	  y_pos_2 = y_pos_2 + 30
 	  If q_7_details_blank_checkbox = checked Then
@@ -3153,7 +1553,6 @@ function confirm_csr_form_dlg()
 	  y_pos_3 = y_pos_3 + 10
 
 	  Text 380, y_pos_3, 135, 20, "10. Does anyone own securities or other assets?"
-	  ' Text 390, 50, 125, 10, "other assets?"
 	  Text 525, y_pos_3, 35, 10, replace(ma_security_assets, "Not Required", "BLANK")
 	  y_pos_3 = y_pos_3 + 20
 	  If q_10_details_blank_checkbox = checked Then
@@ -3184,7 +1583,6 @@ function confirm_csr_form_dlg()
 	  y_pos_3 = y_pos_3 + 10
 
 	  Text 380, y_pos_3, 140, 20, "12. Does anyone own or co-own a house or any real estate?"
-	  ' Text 390, 100, 130, 10, "or any real estate?"
 	  Text 525, y_pos_3, 35, 10, replace(ma_real_assets, "Not Required", "BLANK")
 	  y_pos_3 = y_pos_3 + 20
 	  If q_12_details_blank_checkbox = checked Then
@@ -3230,15 +1628,11 @@ function confirm_csr_form_dlg()
 			  If telephone_checkbox = checked Then Text 675, y_pos_4, 50, 10, "PHONE"
 			  y_pos_4 = y_pos_4 + 10
 		  End If
-
-		  ' Text 570, y_pos_4, 150, 10, dlg_text
-
 	  End If
 
 	  y_pos_4 = y_pos_4 + 10
 
 	  Text 565, y_pos_4, 135, 20, "16. Has anyone had a change in their income from work?"
-	  ' Text 575, 75, 125, 10, ""
 	  Text 710, y_pos_4, 35, 10, replace(quest_sixteen_form_answer, "Not Required", "BLANK")
 	  y_pos_4 = y_pos_4 + 20
 	  If q_16_details_blank_checkbox = checked Then
@@ -3248,15 +1642,12 @@ function confirm_csr_form_dlg()
 	  For the_earned = 0 to UBound(NEW_EARNED_ARRAY, 2)
 		  If NEW_EARNED_ARRAY(earned_prog_list, the_earned) = "SNAP" Then
 			  Text 570, y_pos_4, 150, 10, NEW_EARNED_ARRAY(earned_client, the_earned) & " from " & NEW_EARNED_ARRAY(earned_source, the_earned) & " - $" & NEW_EARNED_ARRAY(earned_amount, the_earned) & " on " & NEW_EARNED_ARRAY(earned_change_date, the_earned)
-
 			  y_pos_4 = y_pos_4 + 10
 		  End If
 	  Next
 	  y_pos_4 = y_pos_4 + 10
 
 	  Text 565, y_pos_4, 140, 25, "17. Has anyone had a change of more than $50 per month from income sources other than work or a change in unearned income?"
-	  ' Text 575, 105, 140, 10, "than $50 per month from income sources"
-	  ' Text 575, 115, 160, 10, "other than work or a change in unearned income?"
 	  Text 710, y_pos_4, 35, 10, replace(quest_seventeen_form_answer, "Not Required", "BLANK")
 	  y_pos_4 = y_pos_4 + 30
 	  If q_17_details_blank_checkbox = checked Then
@@ -3273,8 +1664,6 @@ function confirm_csr_form_dlg()
 	  y_pos_4 = y_pos_4 + 10
 
 	  Text 565, y_pos_4, 135, 25, "18. Has anyone had a change in court-ordered child or medical support payments?"
-	  ' Text 575, 145, 140, 10, "court-ordered child or medical "
-	  ' Text 575, 155, 160, 10, "support payments?"
 	  Text 710, y_pos_4, 35, 10, replace(quest_eighteen_form_answer, "Not Required", "BLANK")
 	  y_pos_4 = y_pos_4 + 30
 	  If q_18_details_blank_checkbox = checked Then
@@ -3284,15 +1673,12 @@ function confirm_csr_form_dlg()
 	  For the_cs = 0 to UBound(NEW_CHILD_SUPPORT_ARRAY, 2)
 		  If NEW_CHILD_SUPPORT_ARRAY(cs_current, the_cs) <> "" THen
 			  Text 570, y_pos_4, 150, 10, "Child support - paid by: " & NEW_CHILD_SUPPORT_ARRAY(cs_payer, the_cs) & " - $" & NEW_CHILD_SUPPORT_ARRAY(cs_amount, the_cs)
-
 			  y_pos_4 = y_pos_4 + 10
 		  End If
 	  Next
 	  y_pos_4 = y_pos_4 + 10
 
 	  Text 565, y_pos_4, 135, 25, "19. Did you work 20 hours each week, for an average of 80 hours each month during the past six months?"
-	  ' Text 575, 185, 140, 10, "for an average of 80 hours each month"
-	  ' Text 575, 195, 160, 10, "during the past six months?"
 	  Text 710, y_pos_4, 35, 10, replace(quest_nineteen_form_answer, "Not Required", "BLANK")
 	  GroupBox 560, 285, 185, 60, "Page 5"
 	  Text 570, 300, 165, 10, "Signature:" & client_signed_yn
@@ -3318,7 +1704,6 @@ function confirm_csr_form_dlg()
 	End If
 	If ButtonPressed = back_to_dlg_snap Then show_csr_dlg_q_15_19 = TRUE
 	If ButtonPressed = back_to_dlg_sig Then show_csr_dlg_sig = TRUE
-	' MsgBox show_csr_dlg_q_15_19
 	If ButtonPressed = -1 Then
 		err_msg = ""
 		If confirm_csr_form_information = "Indicate the form information" THen err_msg = err_msg & vbNewLine & "* Indicate if this information is correct and matches the form received. If something is not correct, use the buttons on this dialog to go back to the correct area and update the information on the specific dialog."
@@ -3363,7 +1748,6 @@ function gather_pers_detail()
 	    EMReadScreen the_snap_status, 1, pers_row, 54
 	    EMReadScreen the_grh_status, 1, pers_row, 66
 	    EMReadScreen the_hc_status, 1, pers_row, 61             'reading the HC status of each client
-	    ' MsgBox the_snap_status & vbNewLine & person_counter
 	    If the_snap_status = "A" Then
 	        ALL_CLIENTS_ARRAY(clt_snap_status, person_counter) = "Active"
 	    ElseIf the_snap_status = "P" Then
@@ -3509,18 +1893,23 @@ function validate_footer_month_entry(footer_month, footer_year, err_msg_var, bul
 end function
 
 function save_your_work()
+'This function will store the variables that have been defined in the script run into a text file.
+'This file can then be accessed if the script fails or is cancelled.
+'For scripts that work during 'live' interaction with clients/others this functionality is important to prevent loss of time and frustration
+'This function is script specific because the variables need to be defined for each script within this dialog and the enumberation codes need to be script specific
 
 	'Needs to determine MyDocs directory before proceeding.
 	Set wshshell = CreateObject("WScript.Shell")
 	user_myDocs_folder = wshShell.SpecialFolders("MyDocuments") & "\"
 
-	'Now determines name of file
+	'Now creates the name of file
 	local_work_save_path = user_myDocs_folder & "csr-answers-" & MAXIS_case_number & "-info.txt"
 
 	Const ForReading = 1
 	Const ForWriting = 2
 	Const ForAppending = 8
 
+	'Needed for interacting with files in the computer
 	Dim objFSO
 	Set objFSO = CreateObject("Scripting.FileSystemObject")
 
@@ -3529,17 +1918,20 @@ function save_your_work()
 		'Creating an object for the stream of text which we'll use frequently
 		Dim objTextStream
 
+		'If the file already exists, we need to delete it so that a brand new one can be written
+		'If we do not delete it - the variables may be wrong/old.
 		If .FileExists(local_work_save_path) = True then
 			.DeleteFile(local_work_save_path)
 		End If
 
-		'If the file doesn't exist, it needs to create it here and initialize it here! After this, it can just exit as the file will now be initialized
-
+		'At this point, the file should not exist in any case.
+		'We need to create an write a new file.
 		If .FileExists(local_work_save_path) = False then
 			'Setting the object to open the text file for appending the new data
 			Set objTextStream = .OpenTextFile(local_work_save_path, ForWriting, true)
 
-			'Write the contents of the text file
+			'Write the contents of the text file - these are all the variables that save case information
+			'Each element of every array is also saved here - joined together by a unique character so we can split them later.
 			objTextStream.WriteLine "00 - " & all_the_clients
 			objTextStream.WriteLine "FS SR - " & snap_sr_yn & " - " & snap_sr_mo & "/" & snap_sr_yr
 			objTextStream.WriteLine "HC SR - " & hc_sr_yn & " - " & hc_sr_mo & "/" & hc_sr_yr
@@ -3600,7 +1992,6 @@ function save_your_work()
 			objTextStream.WriteLine "15 - HEAT - " & heat_ac_checkbox
 			objTextStream.WriteLine "15 - ELEC - " & electricity_checkbox
 			objTextStream.WriteLine "15 - TELE - " & telephone_checkbox
-			' objTextStream.WriteLine "15 - PROF - " & shel_proof_provided
 			objTextStream.WriteLine "16 - " & quest_sixteen_form_answer
 			objTextStream.WriteLine "17 - " & quest_seventeen_form_answer
 			objTextStream.WriteLine "18 - " & quest_eighteen_form_answer
@@ -3620,34 +2011,31 @@ function save_your_work()
 			For the_cs = 0 to UBound(NEW_CHILD_SUPPORT_ARRAY, 2)
 				objTextStream.WriteLine "NEW_CHILD_SUPPORT_ARRAY - " & NEW_CHILD_SUPPORT_ARRAY(cs_payer, the_cs) & "~" & NEW_CHILD_SUPPORT_ARRAY(cs_amount, the_cs) & "~" & NEW_CHILD_SUPPORT_ARRAY(cs_current, the_cs) & "~" & NEW_CHILD_SUPPORT_ARRAY(cs_notes, the_cs)
 			Next
-			' objTextStream.WriteLine
-			' objTextStream.WriteLine
-			' objTextStream.WriteLine
-			' objTextStream.WriteLine
 
-			'Close the object so it can be opened again shortly
+			'Close the object so it can be opened again shortly - these types of files do not need to be explicitly saved.
 			objTextStream.Close
-
-			'Since the file was new, we can simply exit the function
-			exit function
 		End if
 	End with
 end function
 
 
 function restore_your_work(vars_filled)
+'This function runs at the beginning of the script after the case number is Gathered
+'It will redefine the variables from the text file that was saved from a previous run if one exists.
+'This function must be script specific as the variables are hard coded within in.
 
 	'Needs to determine MyDocs directory before proceeding.
 	Set wshshell = CreateObject("WScript.Shell")
 	user_myDocs_folder = wshShell.SpecialFolders("MyDocuments") & "\"
 
-	'Now determines name of file
-	local_changelog_path = user_myDocs_folder & "csr-answers-" & MAXIS_case_number & "-info.txt"
+	'Creates the file name based on the convention we have defined
+	local_work_save_path = user_myDocs_folder & "csr-answers-" & MAXIS_case_number & "-info.txt"
 
 	Const ForReading = 1
 	Const ForWriting = 2
 	Const ForAppending = 8
 
+	'Needed for interacting with files in the computer
 	Dim objFSO
 	Set objFSO = CreateObject("Scripting.FileSystemObject")
 
@@ -3656,21 +2044,26 @@ function restore_your_work(vars_filled)
 		'Creating an object for the stream of text which we'll use frequently
 		Dim objTextStream
 
-		If .FileExists(local_changelog_path) = True then
+		'If the file exists it means that this script was run for this case by this worker.
+		'If that happened, it may be that there was a failure that the worker will want to restore the information that was already saved.
+		If .FileExists(local_work_save_path) = True then
 
+			'Asking the worker if they would like to restore the information from the previous run
 			pull_variables = MsgBox("It appears there is information saved for this case from a previous run of this script." & vbCr & vbCr & "Would you like to restore the details from this previous run?", vbQuestion + vbYesNo, "Restore Detail from Previous Run")
 
+			'If the worker indicates 'YES' then we will read the file and save the information in the file BACK into the script variables.
 			If pull_variables = vbYes Then
 				'Setting the object to open the text file for reading the data already in the file
-				Set objTextStream = .OpenTextFile(local_changelog_path, ForReading)
+				Set objTextStream = .OpenTextFile(local_work_save_path, ForReading)
 
 				'Reading the entire text file into a string
 				every_line_in_text_file = objTextStream.ReadAll
 
 				'Splitting the text file contents into an array which will be sorted
 				saved_csr_details = split(every_line_in_text_file, vbNewLine)
-				vars_filled = TRUE
+				vars_filled = TRUE		'this tells the script that we do not need to read from MAXIS for ADDR and MEMB information
 
+				'Setting initial counters for all the different arrays
 				known_memb = 0
 				new_hh_memb = 0
 				each_new_memb = 0
@@ -3678,6 +2071,7 @@ function restore_your_work(vars_filled)
 				each_unea = 0
 				each_asset = 0
 				the_cs = 0
+				'Now we look at each line in the text file and use the first characters to identify which variable the line is storing
 				For Each text_line in saved_csr_details
 					If left(text_line, 2) = "FS" Then
 						answer = mid(text_line, 9, 3)
@@ -3724,7 +2118,6 @@ function restore_your_work(vars_filled)
 						full_hh_list = Split(list_for_array, chr(9))
 					End If
 					If left(text_line, 2) = "01" Then
-						' MsgBox Mid(text_line, 6, 13)
 						If mid(text_line, 6, 13) = "RESI - NEW L1" Then
 							new_resi_one = Mid(text_line, 22)
 						ElseIf mid(text_line, 6, 13) = "RESI - NEW CI" Then
@@ -3819,7 +2212,7 @@ function restore_your_work(vars_filled)
 
 					If left(text_line, 2) = "19" Then quest_nineteen_form_answer = Mid(text_line, 6)
 
-
+					'Since the information for each array ittem was joined together we can split it and then use the location in the temporary array toput it in the right place in the main array
 					If left(text_line, 17) = "ALL_CLIENTS_ARRAY" Then
 						array_info = Mid(text_line, 21)
 						array_info = split(array_info, "~")
@@ -3838,8 +2231,6 @@ function restore_your_work(vars_filled)
 					If left(text_line, 17) = "NEW_MEMBERS_ARRAY" Then
 						array_info = Mid(text_line, 21)
 						array_info = split(array_info, "~")
-
-						' objTextStream.WriteLine "NEW_MEMBERS_ARRAY - " &
 						ReDim Preserve NEW_MEMBERS_ARRAY(new_memb_notes, new_hh_memb)
 						NEW_MEMBERS_ARRAY(new_first_name, new_hh_memb) = array_info(0)
 						NEW_MEMBERS_ARRAY(new_mid_initial, new_hh_memb) = array_info(1)
@@ -3859,8 +2250,6 @@ function restore_your_work(vars_filled)
 					If left(text_line, 20) = "NEW_MA_REQUEST_ARRAY" Then
 						array_info = Mid(text_line, 24)
 						array_info = split(array_info, "~")
-
-						' objTextStream.WriteLine "NEW_MA_REQUEST_ARRAY - " &
 						ReDim Preserve NEW_MA_REQUEST_ARRAY(ma_request_notes, each_new_memb)
 						NEW_MA_REQUEST_ARRAY(ma_request_client, each_new_memb) = array_info(0)
 						each_new_memb = each_new_memb + 1
@@ -3868,8 +2257,6 @@ function restore_your_work(vars_filled)
 					If left(text_line, 16) = "NEW_EARNED_ARRAY" Then
 						array_info = Mid(text_line, 20)
 						array_info = split(array_info, "~")
-
-						' objTextStream.WriteLine "NEW_EARNED_ARRAY - " &
 						ReDim Preserve NEW_EARNED_ARRAY(earned_notes, each_job)
 						NEW_EARNED_ARRAY(earned_client, each_job) = array_info(0)
 						NEW_EARNED_ARRAY(earned_type, each_job) = array_info(1)
@@ -3883,13 +2270,10 @@ function restore_your_work(vars_filled)
 						NEW_EARNED_ARRAY(earned_seasonal, each_job) = array_info(9)
 						NEW_EARNED_ARRAY(earned_notes, each_job) = array_info(10)
 						each_job = each_job + 1
-
 					End If
 					If left(text_line, 18) = "NEW_UNEARNED_ARRAY" Then
 						array_info = Mid(text_line, 22)
 						array_info = split(array_info, "~")
-
-						' objTextStream.WriteLine "NEW_UNEARNED_ARRAY - " &
 						ReDim Preserve NEW_UNEARNED_ARRAY(unearned_notes, each_unea)
 						NEW_UNEARNED_ARRAY(unearned_client, each_unea) = array_info(0)
 						NEW_UNEARNED_ARRAY(unearned_type, each_unea) = array_info(1)
@@ -3901,13 +2285,10 @@ function restore_your_work(vars_filled)
 						NEW_UNEARNED_ARRAY(unearned_start_date, each_unea) = array_info(7)
 						NEW_UNEARNED_ARRAY(unearned_notes, each_unea) = array_info(8)
 						each_unea = each_unea + 1
-
 					End If
 					If left(text_line, 15) = "NEW_ASSET_ARRAY" Then
 						array_info = Mid(text_line, 19)
 						array_info = split(array_info, "~")
-
-						' objTextStream.WriteLine "NEW_ASSET_ARRAY - " &
 						ReDim Preserve NEW_ASSET_ARRAY(asset_notes, each_asset)
 						NEW_ASSET_ARRAY(asset_client, each_asset) = array_info(0)
 						NEW_ASSET_ARRAY(asset_type, each_asset) = array_info(1)
@@ -3918,27 +2299,21 @@ function restore_your_work(vars_filled)
 						NEW_ASSET_ARRAY(asset_prog_list, each_asset) = array_info(6)
 						NEW_ASSET_ARRAY(asset_notes, each_asset) = array_info(7)
 						each_asset = each_asset + 1
-
 					End If
 					If left(text_line, 23) = "NEW_CHILD_SUPPORT_ARRAY" Then
 						array_info = Mid(text_line, 27)
 						array_info = split(array_info, "~")
-
-						' objTextStream.WriteLine "NEW_CHILD_SUPPORT_ARRAY - " &
 						ReDim Preserve NEW_CHILD_SUPPORT_ARRAY(cs_notes, the_cs)
 						NEW_CHILD_SUPPORT_ARRAY(cs_payer, the_cs) = array_info(0)
 						NEW_CHILD_SUPPORT_ARRAY(cs_amount, the_cs) = array_info(1)
 						NEW_CHILD_SUPPORT_ARRAY(cs_current, the_cs) = array_info(2)
 						NEW_CHILD_SUPPORT_ARRAY(cs_notes, the_cs) = array_info(3)
 						the_cs = the_cs + 1
-
 					End If
 				Next
 			End If
 		End If
-
 	End With
-
 end function
 
 'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
@@ -3946,6 +2321,7 @@ MAXIS_footer_month = CM_plus_1_mo
 MAXIS_footer_year = CM_plus_1_yr
 
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+'Because the variables are all defined within a function - we need to define them here so that they will be completed outside of the function
 Dim MAXIS_footer_month, MAXIS_footer_year, snap_active_count, hc_active_count, grh_active_count, snap_sr_yn, snap_sr_mo, snap_sr_yr, hc_sr_yn, hc_sr_mo, hc_sr_yr, grh_sr_yn, grh_sr_mo, grh_sr_yr, client_on_csr_form
 Dim residence_address_match_yn, mailing_address_match_yn, homeless_status, grh_sr, hc_sr, snap_sr, notes_on_address, resi_line_one, resi_line_two, resi_city, resi_state, resi_zip, resi_county, new_mail_zip
 Dim quest_two_move_in_out, new_hh_memb_not_in_mx_yn, apply_for_ma, q_4_details_blank_checkbox, ma_self_employed, q_5_details_blank_checkbox, ma_start_working, q_6_details_blank_checkbox, ma_other_income
@@ -3959,157 +2335,6 @@ Dim new_resi_addr_entered, new_mail_addr_entered, change_resi_addr_btn, change_m
 HH_memb_row = 5
 Dim row
 Dim col
-
-Const owner_name                = 00
-Const category_const            = 01
-Const type_const                = 02
-Const name_const                = 03
-Const amount_const              = 04
-Const start_date_const          = 05
-Const end_date_const            = 06
-Const verif_const               = 07
-Const pay_amt_const             = 08
-Const hours_const               = 09
-Const update_date_const         = 10
-Const seasonal_yn               = 11
-Const frequency_const           = 12
-Const make_const                = 13
-Const model_const               = 14
-Const year_const                = 15
-Const make_model_yr             = 16
-Const address_const             = 17
-Const cash_amt_const            = 18        'cash panel
-Const cash_verif_const          = 19
-Const snap_amt_const            = 20
-Const snap_verif_const          = 21
-Const hc_amt_const              = 22
-Const hc_verif_const            = 23
-Const busi_cash_net_prosp       = 24        'busi panel
-Const busi_cash_net_retro       = 25
-Const busi_cash_gross_retro     = 26
-Const busi_cash_expense_retro   = 27
-Const busi_cash_gross_prosp     = 28
-Const busi_cash_expense_prosp   = 29
-Const busi_cash_income_verif    = 30
-Const busi_cash_expense_verif   = 31
-Const busi_snap_net_prosp       = 32
-Const busi_snap_net_retro       = 33
-Const busi_snap_gross_retro     = 34
-Const busi_snap_expense_retro   = 35
-Const busi_snap_gross_prosp     = 36
-Const busi_snap_expense_prosp   = 37
-Const busi_snap_income_verif    = 38
-Const busi_snap_expense_verif   = 39
-Const busi_hc_a_net_prosp       = 40
-Const busi_hc_a_gross_prosp     = 41
-Const busi_hc_a_expense_prosp   = 42
-Const busi_hc_a_income_verif    = 43
-Const busi_hc_a_expense_verif   = 44
-Const busi_hc_b_net_prosp       = 45
-Const busi_hc_b_gross_prosp     = 46
-Const busi_hc_b_expense_prosp   = 47
-Const busi_hc_b_income_verif    = 48
-Const busi_hc_b_expense_verif   = 49
-Const busi_se_method            = 50
-Const busi_se_method_date       = 51
-Const rptd_hours_const          = 52
-Const min_wg_hours_const        = 53
-Const claim_nbr_const           = 54        'unea panel
-Const cola_disregard_amt        = 55
-Const id_number_const           = 56
-Const panel_instance            = 57
-Const owner_ref_const           = 58
-Const verif_checkbox_const      = 59
-Const verif_time_const          = 60
-Const verif_added_const         = 61
-Const item_notes_const          = 62
-Const balance_date_const        = 63
-Const withdraw_penalty_const    = 64
-Const withdraw_yn_const         = 65
-Const withdraw_verif_const      = 66
-Const count_cash_const          = 67
-Const count_snap_const          = 68
-Const count_hc_const            = 69
-Const count_grh_const           = 70
-Const count_ive_const           = 71
-Const joint_own_const           = 72
-Const share_ratio_const         = 73
-Const next_interst_const        = 74
-Const face_value_const          = 75
-Const trade_in_const            = 76
-Const loan_const                = 77
-Const source_const              = 78
-Const owed_amt_const            = 79
-Const owed_verif_const          = 80
-Const owed_date_const           = 81
-Const cars_use_const            = 82
-Const hc_benefit_const          = 83
-Const market_value_const        = 84
-Const value_verif_const         = 85
-Const rest_prop_status_const    = 86
-Const rest_repymt_date_const    = 87
-
-Const jobs_hrly_wage            = 88
-Const retro_income_amount       = 89
-Const retro_income_hours        = 90
-Const snap_pic_frequency        = 91
-Const snap_pic_hours_per_pay    = 92
-Const snap_pic_income_per_pay   = 93
-Const snap_pic_monthly_income   = 94
-Const grh_pic_frequency         = 95
-Const grh_pic_income_per_pay    = 96
-Const grh_pic_monthly_income    = 97
-Const jobs_subsidy              = 98
-
-Const new_checkbox              = 99
-Const update_checkbox           = 100
-
-Const faci_ref_numb                 = 00
-Const faci_instance                 = 01
-Const faci_member                   = 02
-Const faci_name                     = 03
-Const faci_vendor_number            = 04
-Const faci_type                     = 05
-Const faci_FS_elig                  = 06
-Const faci_FS_type                  = 07
-Const faci_waiver_type              = 08
-Const faci_ltc_inelig_reason        = 09
-Const faci_inelig_begin_date        = 10
-Const faci_inelig_end_date          = 11
-Const faci_anticipated_out_date     = 12
-Const faci_GRH_plan_required        = 13
-Const faci_GRH_plan_verif           = 14
-Const faci_cty_app_place            = 15
-Const faci_approval_cty_name        = 16
-Const faci_GRH_DOC_amount           = 17
-Const faci_GRH_postpay              = 18
-Const faci_stay_one_rate            = 19
-Const faci_stay_one_date_in         = 20
-Const faci_stay_one_date_out        = 21
-Const faci_stay_two_rate            = 22
-Const faci_stay_two_date_in         = 23
-Const faci_stay_two_date_out        = 24
-Const faci_stay_three_rate          = 25
-Const faci_stay_three_date_in       = 26
-Const faci_stay_three_date_out      = 27
-Const faci_stay_four_rate           = 28
-Const faci_stay_four_date_in        = 29
-Const faci_stay_four_date_out       = 30
-Const faci_stay_five_rate           = 31
-Const faci_stay_five_date_in        = 32
-Const faci_stay_five_date_out       = 33
-Const faci_verif_checkbox           = 34
-Const faci_verif_added              = 35
-Const faci_notes                    = 36
-
-Dim ALL_INCOME_ARRAY()
-ReDim ALL_INCOME_ARRAY(update_checkbox, 0)
-
-Dim ALL_ASSETS_ARRAY()
-ReDim ALL_ASSETS_ARRAY(update_checkbox, 0)
-
-Dim FACILITIES_ARRAY()
-ReDim FACILITIES_ARRAY(faci_notes, 0)
 
 const memb_ref_numb                 = 00
 const memb_last_name                = 01
@@ -4255,10 +2480,6 @@ const asset_acct_type       = 2
 const asset_bank_name       = 3
 const asset_year_make_model = 4
 const asset_address         = 5
-' const asset_
-' const asset_
-' const asset_
-' const asset_
 const asset_prog_list       = 9
 const asset_notes           = 10
 
@@ -4286,6 +2507,7 @@ csr_form_date = date & ""
 Call find_user_name(worker_name)						'defaulting the name of the suer running the script
 show_buttons_on_confirmation_dlg = TRUE
 
+'Drop List options for dialogs'
 unea_type_list = "Type or Select"
 unea_type_list = unea_type_list+chr(9)+"01 - RSDI, Disa"
 unea_type_list = unea_type_list+chr(9)+"02 - RSDI, No Disa"
@@ -4435,6 +2657,7 @@ EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
+'Initial dialog to gather case number and footer month.
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 196, 90, "Case number dialog"
   EditBox 70, 5, 65, 15, MAXIS_case_number
@@ -4466,20 +2689,24 @@ LOOP UNTIL are_we_passworded_out = false
 
 Call back_to_SELF
 vars_filled = FALSE
+'This is where we restore the variables if the script for this case is restarted.
 Call restore_your_work(vars_filled)
 
+'This is defined within the 'restore_your_work' function. If the variables are restored, we do not need to read this Information
+'This saves time and ensures that the variables and arrays are not overwritten.
 If vars_filled = FALSE Then
-	' msgbox "reading things"
 	CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
 
+	'Defining the array we will use to look through all the people real quick.
+	'This is similar to the functionality in the FuncLib but it does not allow the script user to select the people
+	'Since this is the completion of the CSR - we should be looking at ALL the people.
 	Dim HH_member_array()
 	ReDim HH_member_array(0)
 
-	hh_count = 0
+	hh_count = 0					'this is an incrementer
 	DO								'reads the reference number, last name, first name, and then puts it into a single string then into the array
 		EMReadscreen ref_nbr, 3, 4, 33
 		EMReadScreen access_denied_check, 13, 24, 2
-		'MsgBox access_denied_check
 		If access_denied_check <> "ACCESS DENIED" Then
 			ReDim Preserve HH_member_array(hh_count)
 			HH_member_array(hh_count) = ref_nbr
@@ -4489,6 +2716,8 @@ If vars_filled = FALSE Then
 		Emreadscreen edit_check, 7, 24, 2
 	LOOP until edit_check = "ENTER A"			'the script will continue to transmit through memb until it reaches the last page and finds the ENTER A edit on the bottom row.
 
+	'This is functionality to read which programs are active on this case
+	'Currently this is not being used but I will leave this here because it might be useful.
 	Call navigate_to_MAXIS_screen("STAT", "PROG")
 	EMReadScreen GRH_status, 4, 9, 74
 	EMReadScreen SNAP_status, 4, 10, 74
@@ -4503,13 +2732,13 @@ If vars_filled = FALSE Then
 	If SNAP_status = "ACTV" Then SNAP_active = TRUE
 	If HC_status = "ACTV" Then HC_active = TRUE
 
-	'check to see if there is an adult on MA'
+	'We are now reading for SR information by program and sets the dialog 'autofil'
 	Call navigate_to_MAXIS_screen("STAT", "REVW")
 
 	grh_sr = FALSE
 	snap_sr = FALSE
 	hc_sr = FALSE
-	'Read for GRH
+
 	grh_sr_mo = ""
 	grh_sr_yr = ""
 	EMReadScreen grh_revw_status, 1, 7, 40
@@ -4533,7 +2762,6 @@ If vars_filled = FALSE Then
 	    grh_sr_yn= "Yes"
 	End If
 
-	'Read for SNAP
 	snap_sr_mo = ""
 	snap_sr_yr = ""
 	curr_snap_sr_status = ""
@@ -4557,7 +2785,6 @@ If vars_filled = FALSE Then
 	    snap_sr_yn= "Yes"
 	End If
 
-	'Read for MA
 	hc_sr_mo = ""
 	hc_sr_yr = ""
 	curr_hc_sr_status = ""
@@ -4593,14 +2820,14 @@ If vars_filled = FALSE Then
 
 	Call back_to_SELF
 
-	Call generate_client_list(all_the_clients, "Select or Type")
-	list_for_array = right(all_the_clients, len(all_the_clients) - 15)
+	Call generate_client_list(all_the_clients, "Select or Type")				'Here we read for the clients and add it to a droplist
+	list_for_array = right(all_the_clients, len(all_the_clients) - 15)			'Then we create an array of the the full hh list for looping purpoases
 	full_hh_list = Split(list_for_array, chr(9))
 
 	Call back_to_SELF
 	Call navigate_to_MAXIS_screen("STAT", "MEMB")
 
-
+	'Now we start filling in the full client array for use in the dialogs
 	member_counter = 0
 	Do
 	    EMReadScreen clt_ref_nbr, 2, 4, 33
@@ -4619,10 +2846,11 @@ If vars_filled = FALSE Then
 	    EMReadScreen last_memb, 7, 24, 2
 	Loop until last_memb = "ENTER A"
 
+	'Now we gather the address information that exists in MAXIS
 	Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, living_situation_status, mail_line_one, mail_line_two, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, curr_phone_one, curr_phone_two, curr_phone_three, curr_phone_type_one, curr_phone_type_two, curr_phone_type_three)
 End If
 
-new_memb_counter = 0
+'These definitions make sure that in creating of the dialogs there is no confusion in which button is pushed.
 back_to_dlg_addr		= 1201
 back_to_dlg_ma_income	= 1202
 back_to_dlg_ma_asset	= 1203
@@ -4649,8 +2877,11 @@ add_snap_unearned_btn	= 1223
 add_snap_cs_btn			= 1224
 complete_csr_questions	= 1225
 
+next_page_ma_btn = 1100
+previous_page_btn = 1200
+continue_btn = 1300
 
-
+'Setting some starting definitions so we can loop around between dialogs
 show_csr_dlg_q_1 		= TRUE
 show_csr_dlg_q_2 		= TRUE
 show_csr_dlg_q_4_7 		= TRUE
@@ -4674,16 +2905,15 @@ questions_answered = FALSE
 details_shown = FALSE
 abawd_on_case = FALSE
 
-next_page_ma_btn = 1100
-previous_page_btn = 1200
-continue_btn = 1300
-
+'Incrementer starting values
+new_memb_counter = 0
 new_earned_counter = 0
 new_unearned_counter = 0
 new_asset_counter = 0
 
 
-
+'This massive nested looping fun is so we can go between all these dialogs smoothly and easily
+'Each dialog has its own function so that this code is easier to read
 Do
 	Do
 		Do
@@ -4741,15 +2971,15 @@ save_your_work
 
 '****writing the word document
 Set objWord = CreateObject("Word.Application")
-' Const wdDialogFilePrint = 88
-' Const end_of_doc = 6
-objWord.Caption = "CSR Form Details - CASE #" & MAXIS_case_number
-objWord.Visible = True
 
-Set objDoc = objWord.Documents.Add()
-Set objSelection = objWord.Selection
+'Adding all of the information in the dialogs into a Word Document
+objWord.Caption = "CSR Form Details - CASE #" & MAXIS_case_number			'Title of the document
+objWord.Visible = True														'Let the worker see the document
 
-objSelection.Font.Name = "Arial"
+Set objDoc = objWord.Documents.Add()										'Start a new document
+Set objSelection = objWord.Selection										'This is kind of the 'inside' of the document
+
+objSelection.Font.Name = "Arial"											'Setting the font before typing
 objSelection.Font.Size = "16"
 objSelection.Font.Bold = TRUE
 objSelection.TypeText "CSR Information"
@@ -4757,27 +2987,30 @@ objSelection.TypeParagraph()
 objSelection.Font.Size = "14"
 objSelection.Font.Bold = FALSE
 
-objSelection.TypeText "Case Number: " & MAXIS_case_number & vbCR
+objSelection.TypeText "Case Number: " & MAXIS_case_number & vbCR			'General case information
 objSelection.TypeText "Date Completed: " & date & vbCR
 objSelection.TypeText "Completed by: " & worker_name & vbCR
 
+'Program SR information
 If snap_sr_yn = "Yes" Then objSelection.TypeText "SNAP SR for " & snap_sr_mo & "/" & snap_sr_yr & vbCr
 If hc_sr_yn = "Yes" Then objSelection.TypeText "HC SR for " & hc_sr_mo & "/" & hc_sr_yr & vbCr
 If grh_sr_yn = "Yes" Then objSelection.TypeText "GRH SR for " & grh_sr_mo & "/" & grh_sr_yr & vbCr
 objSelection.Font.Size = "11"
 
+'Answers entered for ALL the questions
 objSelection.TypeText "CSR Questions:" & vbCr
 objSelection.TypeText "Q 1. Name and Address" & vbCr
 objSelection.TypeText chr(9) & "Name: " & client_on_csr_form & vbCr
-If new_resi_addr_entered = TRUE Then objSelection.TypeText chr(9) & "Address: " & new_resi_one & " " & new_resi_city & ", " & new_resi_state & " " & new_resi_zip & vbCr
+If new_resi_addr_entered = TRUE Then objSelection.TypeText chr(9) & "NEW Address: " & new_resi_one & " " & new_resi_city & ", " & new_resi_state & " " & new_resi_zip & vbCr
 If new_resi_addr_entered = FALSE Then objSelection.TypeText chr(9) & "Address: " & resi_line_one & " " & resi_line_two & " " & resi_city & ", " & resi_state & " " & resi_zip & vbCr
 
-If new_mail_addr_entered = TRUE Then objSelection.TypeText chr(9) & "Mailing Address: " & new_mail_one & " " & new_mail_city & ", " & new_mail_state & " " & new_mail_zip & vbCr
+If new_mail_addr_entered = TRUE Then objSelection.TypeText chr(9) & "NEW Mailing Address: " & new_mail_one & " " & new_mail_city & ", " & new_mail_state & " " & new_mail_zip & vbCr
 If new_mail_addr_entered = FALSE Then objSelection.TypeText chr(9) & "Mailing Address: " & mail_line_one & " " & mail_line_two & " " & mail_city & ", " & mail_state & " " & mail_zip & vbCr
 If homeless_status = "Yes" Then  objSelection.TypeText "Reports Homeless" & vbCr
 
 objSelection.TypeText "Q 2. Has anyone moved in or out of your home in the past six months?" & vbCr
 objSelection.TypeText chr(9) & quest_two_move_in_out & vbCr
+'Listing all the clients that have moved in or out
 For known_memb = 0 to UBOUND(ALL_CLIENTS_ARRAY, 2)
 	If ALL_CLIENTS_ARRAY(memb_remo_checkbox, known_memb) = checked OR ALL_CLIENTS_ARRAY(memb_new_checkbox, known_memb) = checked Then
 		objSelection.TypeText chr(9) & "- MEMB " & ALL_CLIENTS_ARRAY(memb_ref_numb, known_memb) & " " & ALL_CLIENTS_ARRAY(memb_first_name, known_memb) & " " & ALL_CLIENTS_ARRAY(memb_last_name, known_memb) & ", age: " & ALL_CLIENTS_ARRAY(memb_age, known_memb)
@@ -4800,22 +3033,22 @@ For new_hh_memb = 0 to UBound(NEW_MEMBERS_ARRAY, 2)
 		If NEW_MEMBERS_ARRAY(new_grh_request, new_memb_counter) = checked Then objSelection.TypeText chr(9) & chr(9) & "- Requesting GRH" & vbCr
 	End If
 Next
-table_counter = 1
+table_counter = 1		'Each array is definined by an index - we need to change the index dynamically based on which questions need a table entered. This is the incrementer
 objSelection.TypeText "Q 4. Do you want to apply for someone who is not getting coverage now?" & vbCr
 objSelection.TypeText chr(9) & apply_for_ma & vbCr
-q_4_count = 0
+q_4_count = 0		'the count lists how many rows will be in the column
 For each_new_memb = 0 to UBound(NEW_MA_REQUEST_ARRAY, 2)
 	If NEW_MA_REQUEST_ARRAY(ma_request_client, each_new_memb) <> "Select or Type" and NEW_MA_REQUEST_ARRAY(ma_request_client, each_new_memb) <> "" Then
-		found_q_4_det = TRUE
+		found_q_4_det = TRUE	'this identifies if we need to add a table
 		q_4_count = q_4_count + 1
 	End If
 Next
 If found_q_4_det = TRUE Then
-	Set objRange = objSelection.Range
-	objDoc.Tables.Add objRange, q_4_count + 1, 1
-	set objQ4Table = objDoc.Tables(table_counter)
-	table_counter = table_counter + 1
-	tbl_row = 2
+	Set objRange = objSelection.Range					'range is needed to create tables
+	objDoc.Tables.Add objRange, q_4_count + 1, 1		'This sets the rows and columns needed row then column'
+	set objQ4Table = objDoc.Tables(table_counter)		'Creates the table with the specific index'
+	table_counter = table_counter + 1					'incrementing the index
+	tbl_row = 2											'we start at row 2 with the array information because row 1 is a header row
 	objQ4Table.Cell(1, 1).Range.Text = "Members "
 	For each_new_memb = 0 to UBound(NEW_MA_REQUEST_ARRAY, 2)
 		If NEW_MA_REQUEST_ARRAY(ma_request_client, each_new_memb) <> "Select or Type" and NEW_MA_REQUEST_ARRAY(ma_request_client, each_new_memb) <> "" Then
@@ -4823,9 +3056,9 @@ If found_q_4_det = TRUE Then
 			tbl_row = tbl_row + 1
 		End If
 	Next
-	objQ4Table.AutoFormat(16)
-	objSelection.EndKey end_of_doc
-	objSelection.TypeParagraph()
+	objQ4Table.AutoFormat(16)							'This adds the borders to the table and formats it
+	objSelection.EndKey end_of_doc						'this sets the cursor to the end of the document for more writing
+	objSelection.TypeParagraph()						'adds a line between the table and the next information
 End If
 
 objSelection.TypeText "Q 5. Is anyone self-employed or does anyone expect to be self-employed?" & vbCr
@@ -4838,11 +3071,11 @@ For each_busi = 0 to UBound(NEW_EARNED_ARRAY, 2)
 	End If
 Next
 If found_q_5_det = TRUE Then
-	Set objRange = objSelection.Range
-	objDoc.Tables.Add objRange, q_5_count, 4
-	set objQ5Table = objDoc.Tables(table_counter)
-	table_counter = table_counter + 1
-	tbl_row = 2
+	Set objRange = objSelection.Range					'range is needed to create tables
+	objDoc.Tables.Add objRange, q_5_count, 4			'This sets the rows and columns needed row then column'
+	set objQ5Table = objDoc.Tables(table_counter)		'Creates the table with the specific index'
+	table_counter = table_counter + 1					'incrementing the index
+	tbl_row = 2											'we start at row 2 with the array information because row 1 is a header row
 	objQ5Table.Cell(1, 1).Range.Text = "Name"
 	objQ5Table.Cell(1, 2).Range.Text = "Business"
 	objQ5Table.Cell(1, 3).Range.Text = "Start Date"
@@ -4856,9 +3089,9 @@ If found_q_5_det = TRUE Then
 			tbl_row = tbl_row + 1
 		End If
 	Next
-	objQ5Table.AutoFormat(16)
-	objSelection.EndKey end_of_doc
-	objSelection.TypeParagraph()
+	objQ4Table.AutoFormat(16)							'This adds the borders to the table and formats it
+	objSelection.EndKey end_of_doc						'this sets the cursor to the end of the document for more writing
+	objSelection.TypeParagraph()						'adds a line between the table and the next information
 End If
 
 objSelection.TypeText "Q 6. Does anyone work or does anyone expect to start working?" & vbCr
@@ -4871,11 +3104,11 @@ For each_job = 0 to UBound(NEW_EARNED_ARRAY, 2)
 	End If
 Next
 If found_q_6_det = TRUE Then
-	Set objRange = objSelection.Range
-	objDoc.Tables.Add objRange, q_6_count + 1, 6
-	set objQ6Table = objDoc.Tables(table_counter)
-	table_counter = table_counter + 1
-	tbl_row = 2
+	Set objRange = objSelection.Range					'range is needed to create tables
+	objDoc.Tables.Add objRange, q_6_count + 1, 6		'This sets the rows and columns needed row then column'
+	set objQ6Table = objDoc.Tables(table_counter)		'Creates the table with the specific index'
+	table_counter = table_counter + 1					'incrementing the index
+	tbl_row = 2											'we start at row 2 with the array information because row 1 is a header row
 	objQ6Table.Cell(1, 1).Range.Text = "Name"
 	objQ6Table.Cell(1, 2).Range.Text = "Employer Name"
 	objQ6Table.Cell(1, 3).Range.Text = "Start Date"
@@ -4893,9 +3126,9 @@ If found_q_6_det = TRUE Then
 			tbl_row = tbl_row + 1
 		End If
 	Next
-	objQ6Table.AutoFormat(16)
-	objSelection.EndKey end_of_doc
-	objSelection.TypeParagraph()
+	objQ4Table.AutoFormat(16)							'This adds the borders to the table and formats it
+	objSelection.EndKey end_of_doc						'this sets the cursor to the end of the document for more writing
+	objSelection.TypeParagraph()						'adds a line between the table and the next information
 End If
 objSelection.TypeText "Q 7. Does anyone get money or does anyone expect to get money from sources other than work?" & vbCr
 objSelection.TypeText chr(9) & ma_other_income & vbCr
@@ -4907,11 +3140,11 @@ For each_unea = 0 to UBound(NEW_UNEARNED_ARRAY, 2)
 	End If
 Next
 If found_q_7_det = TRUE Then
-	Set objRange = objSelection.Range
-	objDoc.Tables.Add objRange, q_7_count + 1, 5
-	set objQ7Table = objDoc.Tables(table_counter)
-	table_counter = table_counter + 1
-	tbl_row = 2
+	Set objRange = objSelection.Range					'range is needed to create tables
+	objDoc.Tables.Add objRange, q_7_count + 1, 5		'This sets the rows and columns needed row then column'
+	set objQ7Table = objDoc.Tables(table_counter)		'Creates the table with the specific index'
+	table_counter = table_counter + 1					'incrementing the index
+	tbl_row = 2											'we start at row 2 with the array information because row 1 is a header row
 	objQ7Table.Cell(1, 1).Range.Text = "Name"
 	objQ7Table.Cell(1, 2).Range.Text = "Type of Income"
 	objQ7Table.Cell(1, 3).Range.Text = "Start Date"
@@ -4927,9 +3160,9 @@ If found_q_7_det = TRUE Then
 			tbl_row = tbl_row + 1
 		End If
 	Next
-	objQ7Table.AutoFormat(16)
-	objSelection.EndKey end_of_doc
-	objSelection.TypeParagraph()
+	objQ4Table.AutoFormat(16)							'This adds the borders to the table and formats it
+	objSelection.EndKey end_of_doc						'this sets the cursor to the end of the document for more writing
+	objSelection.TypeParagraph()						'adds a line between the table and the next information
 End If
 objSelection.TypeText "Q 9. Does anyone have cash, a savings or checking account, or certificates of deposit?" & vbCr
 objSelection.TypeText chr(9) & ma_liquid_assets & vbCr
@@ -4941,11 +3174,11 @@ For each_asset = 0 to UBound(NEW_ASSET_ARRAY, 2)
 	End If
 Next
 If found_q_9_det = TRUE Then
-	Set objRange = objSelection.Range
-	objDoc.Tables.Add objRange, q_9_count + 1, 3
-	set objQ9Table = objDoc.Tables(table_counter)
-	table_counter = table_counter + 1
-	tbl_row = 2
+	Set objRange = objSelection.Range					'range is needed to create tables
+	objDoc.Tables.Add objRange, q_9_count + 1, 3		'This sets the rows and columns needed row then column'
+	set objQ9Table = objDoc.Tables(table_counter)		'Creates the table with the specific index'
+	table_counter = table_counter + 1					'incrementing the index
+	tbl_row = 2											'we start at row 2 with the array information because row 1 is a header row
 	objQ9Table.Cell(1, 1).Range.Text = "Owner(s) Name"
 	objQ9Table.Cell(1, 2).Range.Text = "Type"
 	objQ9Table.Cell(1, 3).Range.Text = "Name of bank"
@@ -4957,9 +3190,9 @@ If found_q_9_det = TRUE Then
 			tbl_row = tbl_row + 1
 		End If
 	Next
-	objQ9Table.AutoFormat(16)
-	objSelection.EndKey end_of_doc
-	objSelection.TypeParagraph()
+	objQ4Table.AutoFormat(16)							'This adds the borders to the table and formats it
+	objSelection.EndKey end_of_doc						'this sets the cursor to the end of the document for more writing
+	objSelection.TypeParagraph()						'adds a line between the table and the next information
 End If
 objSelection.TypeText "Q 10. Does anyone own or co-own stocks, bonds, retirement accounts, life insurance, burial contracts, annuities, trusts, contracts for deed, or other assets?" & vbCr
 objSelection.TypeText chr(9) & ma_security_assets & vbCr
@@ -4971,11 +3204,11 @@ For each_asset = 0 to UBound(NEW_ASSET_ARRAY, 2)
 	End If
 Next
 If found_q_10_det = TRUE Then
-	Set objRange = objSelection.Range
-	objDoc.Tables.Add objRange, q_10_count + 1, 3
-	set objQ10Table = objDoc.Tables(table_counter)
-	table_counter = table_counter + 1
-	tbl_row = 2
+	Set objRange = objSelection.Range					'range is needed to create tables
+	objDoc.Tables.Add objRange, q_10_count + 1, 3		'This sets the rows and columns needed row then column'
+	set objQ10Table = objDoc.Tables(table_counter)		'Creates the table with the specific index'
+	table_counter = table_counter + 1					'incrementing the index
+	tbl_row = 2											'we start at row 2 with the array information because row 1 is a header row
 	objQ10Table.Cell(1, 1).Range.Text = "Owner(s) Name"
 	objQ10Table.Cell(1, 2).Range.Text = "Type of asset"
 	objQ10Table.Cell(1, 3).Range.Text = "Name of company or bank"
@@ -4987,9 +3220,9 @@ If found_q_10_det = TRUE Then
 			tbl_row = tbl_row + 1
 		End If
 	Next
-	objQ10Table.AutoFormat(16)
-	objSelection.EndKey end_of_doc
-	objSelection.TypeParagraph()
+	objQ4Table.AutoFormat(16)							'This adds the borders to the table and formats it
+	objSelection.EndKey end_of_doc						'this sets the cursor to the end of the document for more writing
+	objSelection.TypeParagraph()						'adds a line between the table and the next information
 End If
 objSelection.TypeText "Q 11. Does anyone own a vehicle?" & vbCr
 objSelection.TypeText chr(9) & ma_vehicle & vbCr
@@ -5001,11 +3234,11 @@ For each_asset = 0 to UBound(NEW_ASSET_ARRAY, 2)
 	End If
 Next
 If found_q_11_det = TRUE Then
-	Set objRange = objSelection.Range
-	objDoc.Tables.Add objRange, q_11_count + 1, 3
-	set objQ11Table = objDoc.Tables(table_counter)
-	table_counter = table_counter + 1
-	tbl_row = 2
+	Set objRange = objSelection.Range					'range is needed to create tables
+	objDoc.Tables.Add objRange, q_11_count + 1, 3		'This sets the rows and columns needed row then column'
+	set objQ11Table = objDoc.Tables(table_counter)		'Creates the table with the specific index'
+	table_counter = table_counter + 1					'incrementing the index
+	tbl_row = 2											'we start at row 2 with the array information because row 1 is a header row
 	objQ11Table.Cell(1, 1).Range.Text = "Owner(s) Name"
 	objQ11Table.Cell(1, 2).Range.Text = "Type of vehicle"
 	objQ11Table.Cell(1, 3).Range.Text = "Year/Make/Model"
@@ -5017,9 +3250,9 @@ If found_q_11_det = TRUE Then
 			tbl_row = tbl_row + 1
 		End If
 	Next
-	objQ11Table.AutoFormat(16)
-	objSelection.EndKey end_of_doc
-	objSelection.TypeParagraph()
+	objQ4Table.AutoFormat(16)							'This adds the borders to the table and formats it
+	objSelection.EndKey end_of_doc						'this sets the cursor to the end of the document for more writing
+	objSelection.TypeParagraph()						'adds a line between the table and the next information
 End If
 objSelection.TypeText "Q 12. Does anyone own or co-own a home, life estate, cabin, land, time share, rental property or any real estate?" & vbCr
 objSelection.TypeText chr(9) & ma_real_assets & vbCr
@@ -5031,11 +3264,11 @@ For each_asset = 0 to UBound(NEW_ASSET_ARRAY, 2)
 	End If
 Next
 If found_q_12_det = TRUE Then
-	Set objRange = objSelection.Range
-	objDoc.Tables.Add objRange, q_12_count + 1, 3
-	set objQ12Table = objDoc.Tables(table_counter)
-	table_counter = table_counter + 1
-	tbl_row = 2
+	Set objRange = objSelection.Range					'range is needed to create tables
+	objDoc.Tables.Add objRange, q_12_count + 1, 3		'This sets the rows and columns needed row then column'
+	set objQ12Table = objDoc.Tables(table_counter)		'This sets the rows and columns needed row then column'
+	table_counter = table_counter + 1					'incrementing the index
+	tbl_row = 2											'we start at row 2 with the array information because row 1 is a header row
 	objQ12Table.Cell(1, 1).Range.Text = "Owner(s) Name"
 	objQ12Table.Cell(1, 2).Range.Text = "Address"
 	objQ12Table.Cell(1, 3).Range.Text = "Type of property"
@@ -5047,9 +3280,9 @@ If found_q_12_det = TRUE Then
 			tbl_row = tbl_row + 1
 		End If
 	Next
-	objQ12Table.AutoFormat(16)
-	objSelection.EndKey end_of_doc
-	objSelection.TypeParagraph()
+	objQ4Table.AutoFormat(16)							'This adds the borders to the table and formats it
+	objSelection.EndKey end_of_doc						'this sets the cursor to the end of the document for more writing
+	objSelection.TypeParagraph()						'adds a line between the table and the next information
 End If
 objSelection.TypeText "Q 13. Do you have any changes to report?" & vbCr
 objSelection.TypeText chr(9) & ma_other_changes & vbCr
@@ -5078,11 +3311,11 @@ For the_earned = 0 to UBound(NEW_EARNED_ARRAY, 2)
 	End If
 Next
 If found_q_16_det = TRUE Then
-	Set objRange = objSelection.Range
-	objDoc.Tables.Add objRange, q_16_count + 1, 6
-	set objQ16Table = objDoc.Tables(table_counter)
-	table_counter = table_counter + 1
-	tbl_row = 2
+	Set objRange = objSelection.Range					'range is needed to create tables
+	objDoc.Tables.Add objRange, q_16_count + 1, 6		'This sets the rows and columns needed row then column'
+	set objQ16Table = objDoc.Tables(table_counter)		'This sets the rows and columns needed row then column'
+	table_counter = table_counter + 1					'incrementing the index
+	tbl_row = 2											'we start at row 2 with the array information because row 1 is a header row
 	objQ16Table.Cell(1, 1).Range.Text = "Name"
 	objQ16Table.Cell(1, 2).Range.Text = "Employer or Business name"
 	objQ16Table.Cell(1, 3).Range.Text = "Start or end date"
@@ -5100,9 +3333,9 @@ If found_q_16_det = TRUE Then
 			tbl_row = tbl_row + 1
 		End If
 	Next
-	objQ16Table.AutoFormat(16)
-	objSelection.EndKey end_of_doc
-	objSelection.TypeParagraph()
+	objQ4Table.AutoFormat(16)							'This adds the borders to the table and formats it
+	objSelection.EndKey end_of_doc						'this sets the cursor to the end of the document for more writing
+	objSelection.TypeParagraph()						'adds a line between the table and the next information
 End If
 objSelection.TypeText "Q 17. Since your last application or in the past six months, has anyone had a change of more than $50 per month from income sources other than work or a change in a source of unearned income?" & vbCr
 objSelection.TypeText chr(9) & quest_seventeen_form_answer & vbCr
@@ -5114,11 +3347,11 @@ For the_unearned = 0 to UBound(NEW_UNEARNED_ARRAY, 2)
 	End If
 Next
 If found_q_17_det = TRUE Then
-	Set objRange = objSelection.Range
-	objDoc.Tables.Add objRange, q_17_count + 1, 5
-	set objQ17Table = objDoc.Tables(table_counter)
-	table_counter = table_counter + 1
-	tbl_row = 2
+	Set objRange = objSelection.Range					'range is needed to create tables
+	objDoc.Tables.Add objRange, q_17_count + 1, 5		'This sets the rows and columns needed row then column'
+	set objQ17Table = objDoc.Tables(table_counter)		'This sets the rows and columns needed row then column'
+	table_counter = table_counter + 1					'incrementing the index
+	tbl_row = 2											'we start at row 2 with the array information because row 1 is a header row
 	objQ17Table.Cell(1, 1).Range.Text = "Name"
 	objQ17Table.Cell(1, 2).Range.Text = "Type and source of income"
 	objQ17Table.Cell(1, 3).Range.Text = "Start or end date"
@@ -5134,9 +3367,9 @@ If found_q_17_det = TRUE Then
 			tbl_row = tbl_row + 1
 		End If
 	Next
-	objQ17Table.AutoFormat(16)
-	objSelection.EndKey end_of_doc
-	objSelection.TypeParagraph()
+	objQ4Table.AutoFormat(16)							'This adds the borders to the table and formats it
+	objSelection.EndKey end_of_doc						'this sets the cursor to the end of the document for more writing
+	objSelection.TypeParagraph()						'adds a line between the table and the next information
 End If
 objSelection.TypeText "Q 18. Since your last application or in the past six months, has anyone had a change in court-ordered child or medical support payments?" & vbCr
 objSelection.TypeText chr(9) & quest_eighteen_form_answer & vbCr
@@ -5148,11 +3381,11 @@ For the_cs = 0 to UBound(NEW_CHILD_SUPPORT_ARRAY, 2)
 	End If
 Next
 If found_q_18_det = TRUE Then
-	Set objRange = objSelection.Range
-	objDoc.Tables.Add objRange, q_18_count + 1, 3
-	set objQ18Table = objDoc.Tables(table_counter)
-	table_counter = table_counter + 1
-	tbl_row = 2
+	Set objRange = objSelection.Range					'range is needed to create tables
+	objDoc.Tables.Add objRange, q_18_count + 1, 3		'This sets the rows and columns needed row then column'
+	set objQ18Table = objDoc.Tables(table_counter)		'This sets the rows and columns needed row then column'
+	table_counter = table_counter + 1					'incrementing the index
+	tbl_row = 2											'we start at row 2 with the array information because row 1 is a header row
 	objQ18Table.Cell(1, 1).Range.Text = "Name of person paying"
 	objQ18Table.Cell(1, 2).Range.Text = "Monthly Amount"
 	objQ18Table.Cell(1, 3).Range.Text = "Currently Paying?"
@@ -5164,38 +3397,49 @@ If found_q_18_det = TRUE Then
 			tbl_row = tbl_row + 1
 		End If
 	Next
-	objQ18Table.AutoFormat(16)
-	objSelection.EndKey end_of_doc
-	objSelection.TypeParagraph()
+	objQ4Table.AutoFormat(16)							'This adds the borders to the table and formats it
+	objSelection.EndKey end_of_doc						'this sets the cursor to the end of the document for more writing
+	objSelection.TypeParagraph()						'adds a line between the table and the next information
 End If
 objSelection.TypeText "Q 19. Did you work 20 hours each week, for an average of 80 hours each month during the past six months?" & vbCr
 objSelection.TypeText chr(9) & quest_nineteen_form_answer & vbCr
 
+'Final information for the document
 objSelection.Font.Size = "14"
 objSelection.Font.Bold = FALSE
 objSelection.TypeText "Verbal Signature accepted on " & csr_form_date
 
-t_drive = "\\hcgg.fr.co.hennepin.mn.us\lobroot\HSPH\Team"
-file_safe_date = replace(date, "/", "-")
-word_doc_path = t_drive & "\Eligibility Support\Assignments\CSR Forms for ECF\CSR - " & MAXIS_case_number & " on " & file_safe_date & ".docx"
+'Here we are creating the file path and saving the file
+file_safe_date = replace(date, "/", "-")		'dates cannot have / for a file name so we change it to a -
+'We set the file path and name based on case number and date. We can add other criteria if important.
+'This MUST have the 'pdf' file extension to work
 pdf_doc_path = t_drive & "\Eligibility Support\Assignments\CSR Forms for ECF\CSR - " & MAXIS_case_number & " on " & file_safe_date & ".pdf"
+'Now we save the document.
+'MS Word allows us to save directly as a PDF instead of a DOC.
+'the file path must be PDF
+'The number '17' is a Word Ennumeration that defines this should be saved as a PDF.
 objDoc.SaveAs pdf_doc_path, 17
 
+'Now we interact with the system again
 Dim objFSO
 Set objFSO = CreateObject("Scripting.FileSystemObject")
+'This looks to see if the PDF file has been correctly saved. If it has the file will exists in the pdf file path
 If objFSO.FileExists(pdf_doc_path) = TRUE Then
+	'This allows us to close without any changes to the Word Document. Since we have the PDF we do not need the Word Doc
 	objDoc.Close wdDoNotSaveChanges
-	objWord.Quit
+	objWord.Quit						'close Word Application instance we opened. (any other word instances will remain)
 
 	'Needs to determine MyDocs directory before proceeding.
 	Set wshshell = CreateObject("WScript.Shell")
 	user_myDocs_folder = wshShell.SpecialFolders("MyDocuments") & "\"
-	'Now determines name of file
-	local_changelog_path = user_myDocs_folder & "csr-answers-" & MAXIS_case_number & "-info.txt"
-	If objFSO.FileExists(local_changelog_path) = True then
-		objFSO.DeleteFile(local_changelog_path)
+	'this is the file for the 'save your work' functionality.
+	local_work_save_path = user_myDocs_folder & "csr-answers-" & MAXIS_case_number & "-info.txt"
+	'we are checking the save your work text file. If it exists we need to delete it because we don't want to save that information locally.
+	If objFSO.FileExists(local_work_save_path) = True then
+		objFSO.DeleteFile(local_work_save_path)			'DELETE
 	End If
 
+	'Now we case note!
 	Call start_a_blank_case_note
 	Call write_variable_in_CASE_NOTE("CSR Form completed via Phone")
 	Call write_variable_in_CASE_NOTE("Form information taken verbally per COVID Waiver Allowance.")
@@ -5204,13 +3448,13 @@ If objFSO.FileExists(pdf_doc_path) = TRUE Then
 	Call write_variable_in_CASE_NOTE("---")
 	Call write_variable_in_CASE_NOTE(worker_signature)
 
+	'setting the end message
 	end_msg = "Success! The information you have provided for the CSR form has been saved to the Assignments forlder so the CSR Form can be updated and added to ECF. The case can be processed using the information saved in the PDF. Additional notes and information are needed or case processing. This script has NOT updated MAXIS or added CSR processing notes."
 
+	'Now we ask if the worker would like the PDF to be opened by the script before the script closes
+	'This is helpful because they may not be familiar with where these are saved and they could work from the PDF to process the reVw
 	reopen_pdf_doc_msg = MsgBox("The information about the CSR has been saved to a PDF on the LAN to be added to the DHS form and added to ECF." & vbCr & vbCr & "Would you like the PDF Document opened to process/review?", vbQuestion + vbYesNo, "Open PDF Doc?")
 	If reopen_pdf_doc_msg = vbYes Then
-		' Set objAdob = CreateObject("ArcoExch.App")
-		' objAdob.Open pdf_doc_path
-		' wshshell.Run "C:\Program Files (x86)\Adobe\Acrobat Reader DC\Reader\ArcoRd32.exe", pdf_doc_path
 		run_path = chr(34) & pdf_doc_path & chr(34)
 		wshshell.Run run_path
 		end_msg = end_msg & vbCr & vbCr & "The PDF has been opened for you to view the information that has been saved."
