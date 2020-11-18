@@ -352,7 +352,6 @@ IF REFM_error_check = "WARNING: MA12,01/16" Then
 END IF
 
 If faxed_yn = "Yes" Then
-	t_drive = "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team"
 	mhc_msho_list = t_drive & "\Eligibility Support\EA_ADAD\EA_ADAD_MHC\Forms Faxed List.xlsx"
 
 	Call find_user_name(worker_name)						'defaulting the name of the suer running the script
