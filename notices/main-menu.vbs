@@ -194,7 +194,7 @@ Do
 	dialog
 	If ButtonPressed = 0 then stopscript
 
-    If ButtonPressed = add_wcom_instructions_button Then call open_URL_in_browser("https://dept.hennepin.us/hsphd/sa/ews/BlueZone_Script_Instructions/NOTICES/NOTICES%20-%20ADD%20WCOM.docx")
+    If ButtonPressed = add_wcom_instructions_button Then call open_URL_in_browser("https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTICES/NOTICES%20-%20ADD%20WCOM.docx")
 
     If ButtonPressed = add_wcom_button Then
         ready_to_exit_loop = true		'Doing this just in case a stopscript or script_end_procedure is missing from the script in question
