@@ -43,6 +43,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("11/20/2020", "Added stars to the NOTE for a delimitator between notes.", "Casey Love, Hennepin County")
 call changelog_update("11/10/2020", "Initial version.", "Casey Love, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -344,6 +345,7 @@ If form_type = "MSHO" Then
 	End If
 End If
 CALL write_variable_in_MMIS_NOTE(worker_signature)
+CALL write_variable_in_MMIS_NOTE ("*************************************************************************")
 
 pf3
 pf3
