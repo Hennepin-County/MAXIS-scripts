@@ -281,7 +281,13 @@ If MMIS_case_number = "" Then
 End If
 
 open_enrollment_case = FALSE
-If Month(date) = 10 OR Month(date) = 12 OR Month(date) = 11 Then
+ask_about_oe = FALSE
+nov_cut_off_date = #11/17/2020#
+If Month(date) = 10 OR Month(date) = 11 Then
+	If DateDiff("d", date, nov_cut_off_date) > 0 Then ask_about_oe = TRUE
+End If
+
+If ask_about_oe = TRUE Then 
 	ask_if_open_enrollment = MsgBox("Are you processing an Open Enrollment?", vbQuestion + vbYesNo, "Open Enrollment?")
 	If ask_if_open_enrollment = vbYes Then
 		enrollment_month = "01"
