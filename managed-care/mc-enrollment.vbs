@@ -41,6 +41,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/20/2020", "BUG FIXES AND UPDATES##~## ##~##1. Changed the NOTE so that it will not create a note if no one has actually been enrolled.##~##2. Adjusted the end script wording to be more specific about what happened. ##~##3. Changed the 'Is this Open Enrollment' question to only appear from October until the November Cutoff date. You should not see the question now until next October.##~##", "Casey Love, Hennepin County")
 call changelog_update("10/06/2020", "Added phone number field to the dialog for when the enrollment is requested by phone.", "Casey Love, Hennepin County")
 call changelog_update("09/11/2020", "This script now contains the functionality for Open Enrollment and for any other enrollment.##~## ##~##The seperate script for Open Enrollment will no longer be available.##~##", "Casey Love, Hennepin County")
 call changelog_update("12/19/2019", "Added IM 12 as an option for contract codes.", "Casey Love, Hennepin County")
