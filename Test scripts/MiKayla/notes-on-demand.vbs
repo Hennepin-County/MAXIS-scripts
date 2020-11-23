@@ -408,4 +408,4 @@ IF case_note = TRUE THEN
     CALL write_variable_in_CASE_NOTE (worker_signature)
     PF3
 END IF
-script_end_procedure_with_error_report ("Case note has been updated please review to ensure it was processed correctly.")
+script_end_procedure_with_error_report ("Case note has been entered please review.")

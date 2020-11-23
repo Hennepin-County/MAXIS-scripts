@@ -76,7 +76,7 @@ For each tester in tester_array                                                 
     End If
 Next
 'If this did not find the user is a tester for QI the script will end as this is only for QI staff - access to the files and folders will be restricted and the script will fail
-If qi_staff = FALSE Then script_end_procedure_with_error_report("This script is for QI specific processes and only for QI staff. You are not listed as QI staff and running this script could cause errors in data reccording and QI processes. Please contact the BlueZone script team or pres 'Yes' below if you believe this to be in error.")
+If qi_staff = FALSE Then script_end_procedure_with_error_report("This script is for QI specific processes and only for QI staff. You are not listed as QI staff and running this script could cause errors in data recording and QI processes. Please contact the BlueZone script team or press 'Yes' below if you believe this to be in error.")
 
 EMConnect ""											'connecting to MAXIS
 Call MAXIS_case_number_finder(MAXIS_case_number)		'Grabbing the case number if it can find one
@@ -87,6 +87,7 @@ email_recipient = ""
 email_recipient_cc = ""
 email_signature = qi_worker_full_name
 send_email = true
+'can i set cariable to true and hold over from another script?'
 
 'Dialog to select which type of correction needs to be sent
 BeginDialog Dialog1, 0, 0, 231, 170, "What type of correction?"
