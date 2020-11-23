@@ -58,22 +58,23 @@ back_to_SELF' added to ensure we have the time to update and send the case in th
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 231, 120, "Notes On Demand"
+BeginDialog Dialog1, 0, 0, 276, 120, "Notes On Demand"
   EditBox 55, 5, 45, 15, MAXIS_case_number
-  CheckBox 140, 10, 85, 10, "Updated STAT/PROG", prog_updated_CHECKBOX
-  DropListBox 55, 25, 170, 15, "Select One:"+chr(9)+"Client completed application interview"+chr(9)+"Client has not completed application interview"+chr(9)+"Client has not completed F2F CASH application interview"+chr(9)+"Client has not completed MSA application interview"+chr(9)+"Case was not pended timely"+chr(9)+"Interview not needed for MFIP to SNAP transition"+chr(9)+"Withdrawal completed on PND2"+chr(9)+"Denied programs for no interview"+chr(9)+"Other (please describe)", case_status_dropdown
-  EditBox 55, 40, 170, 15, other_notes
-  EditBox 180, 60, 45, 15, interview_date
-  EditBox 180, 80, 45, 15, case_note_date
+  CheckBox 190, 10, 85, 10, "Updated STAT/PROG", prog_updated_CHECKBOX
+  DropListBox 55, 25, 215, 15, "Select One:"+chr(9)+"Additional application pended prior to interview being completed"+chr(9)+"Case was not pended timely"+chr(9)+"Clear case note for other pending program pending not mentioned"+chr(9)+"Client completed application interview"+chr(9)+"Client has not completed application interview"+chr(9)+"Client has not completed F2F CASH application interview"+chr(9)+"Client contact was made no interview offered"+chr(9)+"Denied programs for no interview"+chr(9)+"Interview completed on NOMI day and NOMI was not cancelled"+chr(9)+"Interview not needed for MFIP to SNAP transition"+chr(9)+"Script-Application Received-not used when pending case"+chr(9)+"Script-CAF-used but no interview completed"+chr(9)+"Script-CAF-not used but approval made"+chr(9)+"Worker completed denial for no interview in ELIG"+chr(9)+"Other(please describe)", case_status_dropdown
+  EditBox 55, 40, 215, 15, other_notes
+  EditBox 225, 60, 45, 15, interview_date
+  EditBox 225, 80, 45, 15, case_note_date
   ButtonGroup ButtonPressed
-    OkButton 130, 100, 45, 15
-    CancelButton 180, 100, 45, 15
+    OkButton 175, 100, 45, 15
+    CancelButton 225, 100, 45, 15
   Text 5, 10, 50, 10, "Case number:"
   Text 5, 30, 45, 10, "Case status:"
+  Text 55, 70, 165, 10, "Date NOMI sent or interview completed case note:"
   Text 5, 45, 45, 10, "Other notes:"
-  Text 5, 65, 130, 10, "Date NOMI sent or interview completed:"
-  Text 5, 80, 90, 10, "Date of appt or case note:"
+  Text 135, 85, 90, 10, "Date of appt or case note:"
 EndDialog
+
 
 'Runs the first dialog - which confirms the case number
 Do
@@ -85,6 +86,7 @@ Do
 		IF case_status_dropdown = "Client completed application interview" and case_note_date = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case note date."
 		IF case_status_dropdown = "Client completed application interview" and interview_date = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a valid interview date."
 		IF case_status_dropdown = "Client has not completed application interview" and interview_date = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a valid date that the NOMI was sent."
+		IF case_status_dropdown = "Other(please describe)" and issue_notes = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a description of what occured."
       	IF IsNumeric(maxis_case_number) = false or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
 	Loop until err_msg = ""
@@ -359,70 +361,51 @@ If SNAP_pends = TRUE Then
     '    EmWriteScreen intv_yr, 10, 61
     'End If
 End If
+case_note = TRUE
 
-"Client completed application interview"
-"Client has not completed application interview"
-"Client has not completed F2F CASH application interview"
-"Client has not completed MSA application interview"
-"Case was not pended timely"
-"Interview not needed for MFIP to SNAP transition"
-"Withdrawal completed on PND2"
-"Denied programs for no interview"
-"Other (please describe)",
-
-Script - Application Received - not used when pending case
-PROG not updated but interview has been completed
-Migrant/Seasonal Farmworker field not updated
-Script - CAF - used but no interview completed
-Script - CAF - not used but approval made
-Case not put in to PND2
-Worker completed denial for no interview on PND2
-Worker completed denial for no interview in ELIG
-Interview completed on NOMI day and NOMI was not cancelled
-Programs pended on 2 different dates
-Clear case note for FS not mentioned
-Client contact was made no interview offered
-Worker completed denial for no interview and did not use PND2
-
-
-start_a_blank_CASE_NOTE
-IF case_status_dropdown = "Client completed application interview" THEN
-	Call write_variable_in_CASE_NOTE("~ " & case_status_dropdown & interview_date & " PROG updated ~")
-	Call write_variable_in_CASE_NOTE("* Completed by previous worker per case note dated: " & case_note_date)
-ELSEIF case_status_dropdown = "Client has not completed application interview" THEN
-	Call write_variable_in_CASE_NOTE("~ " & case_status_dropdown  & " ~")
-	Call write_variable_in_CASE_NOTE("* Application date:" & application_date)
-	Call write_variable_in_CASE_NOTE("* NOMI sent to client on:" & interview_date  )
-ELSEIF case_status_dropdown = "Client has not completed CASH application interview" THEN
-	Call write_variable_in_CASE_NOTE("~ " & case_status_dropdown  & " NOMI sent ~")
-	Call write_variable_in_CASE_NOTE("* A notice was previously sent to client with detail about completing an interview.")
-	'Call write_variable_in_CASE_NOTE("* Households failing to complete the interview within 30 days of the date they file an application will receive a denial notice")
-	Call write_variable_in_CASE_NOTE("* Face to face interview required because client has not been open on CASH in the last 12 months")
- 	Call write_variable_in_CASE_NOTE("* SNAP interview completed by previous worker per case note dated: " & case_note_date)
-ELSEIF case_status_dropdown = "Client has not completed MSA application interview" THEN
-    Call write_variable_in_CASE_NOTE("~ " & case_status_dropdown  & " NOMI sent ~")
-	Call write_variable_in_CASE_NOTE("* A notice was previously sent to client with detail about completing an interview.")
-    Call write_variable_in_CASE_NOTE("* Households failing to complete the interview within 60 days of the date they file an application will receive a denial notice per CM0005.12.15 - APPLICATION PROCESSING STANDARDS")
-ELSEIF case_status_dropdown = "Case was not pended timely" THEN
-    Call write_variable_in_CASE_NOTE("~ Client has not completed application interview ~")
-    Call write_variable_in_CASE_NOTE("* Application date:" & application_date)
-    Call write_variable_in_CASE_NOTE("* Reason for delay:" & reason_delay)
-    Call write_variable_in_CASE_NOTE("* NOMI sent to client on:" & interview_date  )
-    Call write_variable_in_CASE_NOTE("* Interview is still needed, client has 30 days from date of application to complete it. Because the appt letter provides a date of " & appt_date & " and Case was not pended timely a NOMI still needs to be sent and adequate time provided to the client to comply.")
-ELSEIF case_status_dropdown = "Denied programs for no interview" &  programs_applied_for & " for no interview" THEN
-	Call write_variable_in_CASE_NOTE("~ " & case_status_dropdown  & " ~")
-    Call write_variable_in_CASE_NOTE("* Application date:" & application_date)
-    Call write_variable_in_CASE_NOTE("* Reason for denial: interview was not completed timely")
-    Call write_variable_in_CASE_NOTE("* NOMI sent to client on:" & interview_date  )
-   	Call write_variable_in_CASE_NOTE("* Confirmed client was provided sufficient 10 day notice.")
-ELSEIF case_status_dropdown = "Interview not needed for MFIP to SNAP transition" THEN
-	Call write_variable_in_CASE_NOTE("~ " & case_status_dropdown  & " ~")
-	Call write_variable_in_CASE_NOTE("* MFIP to SNAP transition no interview required updated PROG to reflect this")
-ELSEIF case_status_dropdown = "Other please describe" THEN
-	Call write_variable_in_CASE_NOTE("~ " & other_notes  & " ~")
+IF case_status_dropdown = "Additional application pended prior to interview being completed" OR case_status_dropdown = 	"Clear case note for other pending program pending not mentioned" OR case_status_dropdown = "Client contact was made no interview offered" OR case_status_dropdown = "Interview completed on NOMI day and NOMI was not cancelled" OR case_status_dropdown = "Interview not needed for MFIP to SNAP transition" OR case_status_dropdown = "Script-Application Received-not used when pending case" OR case_status_dropdown = "Script-CAF-used but no interview completed" OR case_status_dropdown = "Script-CAF-not used but approval made" OR case_status_dropdown = "Worker completed denial for no interview in ELIG" THEN
+	case_note = FALSE
+	CALL run_another_script("C:\MAXIS-scripts\admin\send-email-correction.vbs")
 END IF
-IF case_status_dropdown <> "Other please describe" THEN CALL write_bullet_and_variable_in_CASE_NOTE ("Other Notes", other_notes)
-Call write_variable_in_CASE_NOTE("---")
-CALL write_variable_in_CASE_NOTE (worker_signature)
-PF3
+
+
+IF case_note = TRUE THEN
+	start_a_blank_CASE_NOTE
+    IF case_status_dropdown = "Client completed application interview" THEN
+    	Call write_variable_in_CASE_NOTE("~ " & case_status_dropdown & " on "  & interview_date & " PROG updated ~")
+    	Call write_variable_in_CASE_NOTE("* Completed by previous worker per case note dated: " & case_note_date)
+    ELSEIF case_status_dropdown = "Client has not completed application interview" THEN
+    	Call write_variable_in_CASE_NOTE("~ " & case_status_dropdown  & " ~")
+    	Call write_variable_in_CASE_NOTE("* Application date:" & application_date)
+    	Call write_variable_in_CASE_NOTE("* NOMI sent to client on:" & interview_date  )
+    	Call write_variable_in_CASE_NOTE("* A notice was previously sent to client with detail about completing an interview.")
+    	Call write_variable_in_CASE_NOTE("* Households failing to complete the interview within 30 days of the date they file     an application will receive a denial notice")
+    'ELSEIF case_status_dropdown = "Client has not completed CASH application interview" THEN
+    	'Call write_variable_in_CASE_NOTE("~ " & case_status_dropdown  & " NOMI sent ~")
+    	'Call write_variable_in_CASE_NOTE("* A notice was previously sent to client with detail about completing an     interview.")
+    	'Call write_variable_in_CASE_NOTE("* Households failing to complete the interview within 30 days of the date they file     an application will receive a denial notice")
+    	'Call write_variable_in_CASE_NOTE("* Face to face interview required because client has not been open on CASH in the     last 12 months")
+     	'Call write_variable_in_CASE_NOTE("* SNAP interview completed by previous worker per case note dated: " &     case_note_date)
+    ELSEIF case_status_dropdown = "Case was not pended timely" THEN
+        Call write_variable_in_CASE_NOTE("~ Client has not completed application interview ~")
+        Call write_variable_in_CASE_NOTE("* Application date:" & application_date)
+        Call write_variable_in_CASE_NOTE("* NOMI sent to client on:" & interview_date  )
+        Call write_variable_in_CASE_NOTE("* Interview is still needed, client has 30 days from date of application to complete it. Because the case was not pended timely a NOMI still needs to be sent and adequate time provided to the client to comply.")
+    ELSEIF case_status_dropdown = "Denied programs for no interview" THEN
+    	Call write_variable_in_CASE_NOTE("~ " & case_status_dropdown  & " - " &  programs_applied_for & " for no interview" &     " ~")
+        Call write_variable_in_CASE_NOTE("* Application date:" & application_date)
+        Call write_variable_in_CASE_NOTE("* Reason for denial: interview was not completed timely")
+        Call write_variable_in_CASE_NOTE("* NOMI sent to client on:" & interview_date  )
+       	Call write_variable_in_CASE_NOTE("* Confirmed client was provided sufficient 10 day notice.")
+    ELSEIF case_status_dropdown = "Interview not needed for MFIP to SNAP transition" THEN
+    	Call write_variable_in_CASE_NOTE("~ " & case_status_dropdown  & " ~")
+    	Call write_variable_in_CASE_NOTE("* MFIP to SNAP transition no interview required updated PROG to reflect this")
+    ELSEIF case_status_dropdown = "Other(please describe)" THEN
+    	Call write_variable_in_CASE_NOTE("~ " & issue_notes  & " ~")
+    END IF
+    CALL write_bullet_and_variable_in_CASE_NOTE ("Other Notes", other_notes)
+    Call write_variable_in_CASE_NOTE("---")
+    CALL write_variable_in_CASE_NOTE (worker_signature)
+    PF3
+END IF
 script_end_procedure_with_error_report ("Case note has been updated please review to ensure it was processed correctly.")
