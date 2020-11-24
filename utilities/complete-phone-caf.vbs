@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/24/2020", "Initial version.", "Casey Love, Hennepin County")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'FUNCTIONS =================================================================================================================
 
 function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_line_two, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, mail_line_one, mail_line_two, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three)
@@ -1396,7 +1408,11 @@ function dlg_page_two_household_comp()
 					' PushButton 330, 5, 95, 15, "Save Information", save_information_btn
 					y_pos = 35
 					For the_memb = 0 to UBound(ALL_CLIENTS_ARRAY, 2)
-						PushButton 490, y_pos, 45, 10, "Person " & (the_memb + 1), ALL_CLIENTS_ARRAY(clt_nav_btn, the_memb)
+						If the_memb = known_membs Then
+							Text 498, y_pos + 1, 45, 10, "Person " & (the_memb + 1)
+						Else
+							PushButton 490, y_pos, 45, 10, "Person " & (the_memb + 1), ALL_CLIENTS_ARRAY(clt_nav_btn, the_memb)
+						End If
 						y_pos = y_pos + 10
 					Next
 					PushButton 490, 230, 45, 10, "Add Person", add_person_btn
@@ -1700,7 +1716,7 @@ function dlg_page_four_income()
 			  ' Text 95, 85, 395, 10, "Employer: NAME OF EMPLOYER  - Employee: THE WORKER NAME HERE   - Gross Monthly Earnings: $ XXXXX"
 			  Text 95, y_pos, 25, 10, "Notes:"
 			  EditBox 120, y_pos - 5, 390, 15, question_9_notes
-			  y_pos = y_pos + 20
+			  y_pos = y_pos + 15
 			  DropListBox 10, y_pos, 60, 45, question_answers, question_10_yn
 			  Text 80, y_pos, 430, 10, "10. Is anyone in the household self-employed or does anyone expect to get income from self-employment this month or next month?"
 			  Text 540, y_pos, 105, 10, "Q10 - Verification - " & question_10_verif_yn
@@ -1721,9 +1737,9 @@ function dlg_page_four_income()
 			    PushButton 560, y_pos, 75, 10, "ADD VERIFICATION", add_verif_11_btn
 			  Text 95, y_pos + 5, 25, 10, "Notes:"
 			  EditBox 120, y_pos, 390, 15, question_11_notes
-			  y_pos = y_pos + 20
-			  Text 5, y_pos, 75, 10, "Pricipal Wage Earner"
-			  DropListBox 80, y_pos - 5, 175, 45, all_the_clients, pwe_selection
+			  y_pos = y_pos + 25
+			  Text 80, y_pos, 75, 10, "Pricipal Wage Earner"
+			  DropListBox 155, y_pos - 5, 175, 45, all_the_clients, pwe_selection
 			  y_pos = y_pos + 10
 			  Text 80, y_pos + 5, 370, 10, "12. Has anyone in the household applied for or does anyone get any of the following type of income each month?"
 			  Text 540, y_pos, 105, 10, "Q12 - Verification - " & question_12_verif_yn
@@ -1734,33 +1750,33 @@ function dlg_page_four_income()
 			  DropListBox 80, y_pos, 60, 45, question_answers, question_12_rsdi_yn
 			  Text 150, y_pos + 5, 70, 10, "RSDI                      $"
 			  EditBox 220, y_pos, 35, 15, question_12_rsdi_amt
-			  DropListBox 285, y_pos, 60, 45, question_answers, question_12_ssi_yn
-			  Text 355, y_pos + 5, 70, 10, "SSI                         $"
-			  EditBox 425, y_pos, 35, 15, question_12_ssi_amt
+			  DropListBox 305, y_pos, 60, 45, question_answers, question_12_ssi_yn
+			  Text 375, y_pos + 5, 85, 10, "SSI                                 $"
+			  EditBox 460, y_pos, 35, 15, question_12_ssi_amt
 			  y_pos = y_pos + 15
 			  DropListBox 80, y_pos, 60, 45, question_answers, question_12_va_yn
 			  Text 150, y_pos + 5, 70, 10, "VA                          $"
 			  EditBox 220, y_pos, 35, 15, question_12_va_amt
-			  DropListBox 285, y_pos, 60, 45, question_answers, question_12_ui_yn
-			  Text 355, y_pos + 5, 70, 10, "Unemployment Ins  $"
-			  EditBox 425, y_pos, 35, 15, question_12_ui_amt
+			  DropListBox 305, y_pos, 60, 45, question_answers, question_12_ui_yn
+			  Text 375, y_pos + 5, 85, 10, "Unemployment Ins          $"
+			  EditBox 460, y_pos, 35, 15, question_12_ui_amt
 			  y_pos = y_pos + 15
 			  DropListBox 80, y_pos, 60, 45, question_answers, question_12_wc_yn
 			  Text 150, y_pos + 5, 70, 10, "Workers Comp       $"
 			  EditBox 220, y_pos, 35, 15, question_12_wc_amt
-			  DropListBox 285, y_pos, 60, 45, question_answers, question_12_ret_yn
-			  Text 355, y_pos + 5, 70, 10, "Retirement Ben.      $"
-			  EditBox 425, y_pos, 35, 15, question_12_ret_amt
+			  DropListBox 305, y_pos, 60, 45, question_answers, question_12_ret_yn
+			  Text 375, y_pos + 5, 85, 10, "Retirement Ben.              $"
+			  EditBox 460, y_pos, 35, 15, question_12_ret_amt
 			  y_pos = y_pos + 15
 			  DropListBox 80, y_pos, 60, 45, question_answers, question_12_trib_yn
 			  Text 150, y_pos + 5, 70, 10, "Tribal Payments      $"
 			  EditBox 220, y_pos, 35, 15, question_12_trib_amt
-			  DropListBox 285, y_pos, 60, 45, question_answers, question_12_cs_yn
-			  Text 355, y_pos + 5, 70, 10, "Child/Spousal Support   $"
-			  EditBox 425, y_pos, 35, 15, question_12_cs_amt
+			  DropListBox 305, y_pos, 60, 45, question_answers, question_12_cs_yn
+			  Text 375, y_pos + 5, 85, 10, "Child/Spousal Support    $"
+			  EditBox 460, y_pos, 35, 15, question_12_cs_amt
 			  y_pos = y_pos + 15
 			  DropListBox 80, y_pos, 60, 45, question_answers, question_12_other_yn
-			  Text 150, y_pos + 5, 100, 10, "Other unearned income      $"
+			  Text 150, y_pos + 5, 110, 10, "Other unearned income          $"
 			  EditBox 250, y_pos, 35, 15, question_12_other_amt
 			  y_pos = y_pos + 20
 			  Text 95, y_pos + 5, 25, 10, "Notes:"
