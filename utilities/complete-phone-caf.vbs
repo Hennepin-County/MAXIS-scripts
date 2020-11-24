@@ -560,8 +560,11 @@ function save_your_work()
 	user_myDocs_folder = wshShell.SpecialFolders("MyDocuments") & "\"
 
 	'Now determines name of file
-	If MAXIS_case_number <> "" Then local_changelog_path = user_myDocs_folder & "caf-answers-" & MAXIS_case_number & "-info.txt"
-	If no_case_number_checkbox = checked Then local_changelog_path = user_myDocs_folder & "caf-answers-new-case-info.txt"
+	If MAXIS_case_number <> "" Then
+		local_changelog_path = user_myDocs_folder & "caf-answers-" & MAXIS_case_number & "-info.txt"
+	Else
+		local_changelog_path = user_myDocs_folder & "caf-answers-new-case-info.txt"
+	End If
 	Const ForReading = 1
 	Const ForWriting = 2
 	Const ForAppending = 8
@@ -784,11 +787,11 @@ function save_your_work()
 			objTextStream.WriteLine "24D - " & question_24_verif_details
 
 
-			For the_memb = 0 to UBound(ALL_CLIENTS_ARRAY, 2)
+			For known_membs = 0 to UBound(ALL_CLIENTS_ARRAY, 2)
 				objTextStream.WriteLine "ARR - ALL_CLIENTS_ARRAY - " & ALL_CLIENTS_ARRAY(memb_last_name, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_first_name, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_mid_name, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_other_names, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_ssn_verif, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_soc_sec_numb, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_dob, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_gender, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_rel_to_applct, known_membs)&"~"&ALL_CLIENTS_ARRAY(memi_marriage_status, known_membs)&"~"&ALL_CLIENTS_ARRAY(memi_last_grade, known_membs)&"~"&ALL_CLIENTS_ARRAY(memi_MN_entry_date, known_membs)&"~"&ALL_CLIENTS_ARRAY(memi_former_state, known_membs)&"~"&ALL_CLIENTS_ARRAY(memi_citizen, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_interpreter, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_spoken_language, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_written_language, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_ethnicity, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_race_a_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_race_b_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_race_n_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_race_p_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_race_w_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_snap_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_cash_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_emer_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_none_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_intend_to_reside_mn, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_imig_status, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_sponsor_yn, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_verif_yn, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_verif_details, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_notes, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_ref_numb, known_membs)
 			Next
 
-			for each_job = 0 to UBOUND(JOBS_ARRAY, 2)
+			for this_jobs = 0 to UBOUND(JOBS_ARRAY, 2)
 				objTextStream.WriteLine "ARR - JOBS_ARRAY - " & JOBS_ARRAY(jobs_employee_name, this_jobs)&"~"&JOBS_ARRAY(jobs_hourly_wage, this_jobs)&"~"&JOBS_ARRAY(jobs_gross_monthly_earnings, this_jobs)&"~"&JOBS_ARRAY(jobs_employer_name, this_jobs)&"~"&JOBS_ARRAY(jobs_notes, this_jobs)
 			Next
 
@@ -1163,6 +1166,7 @@ end function
 function dlg_page_one_address()
 
 	If resi_addr_street_full = blank Then show_known_addr = FALSE
+	If resi_addr_county = "" Then resi_addr_county = "27 Hennepin"
 	go_back = FALSE
 	Do
 		Do
@@ -1527,6 +1531,12 @@ function dlg_page_two_household_comp()
 			For the_memb = 0 to UBound(ALL_CLIENTS_ARRAY, 2)
 				If ButtonPressed = ALL_CLIENTS_ARRAY(clt_nav_btn, the_memb) Then known_membs = the_memb
 			Next
+			If ButtonPressed = add_person_btn Then
+				last_clt = UBound(ALL_CLIENTS_ARRAY, 2)
+				new_clt = last_clt + 1
+				ReDim Preserve ALL_CLIENTS_ARRAY(memb_notes, new_clt)
+				known_membs = new_clt
+			End If
 			If ButtonPressed = back_btn Then
 				If known_membs = 0 Then
 					go_back = TRUE
@@ -3965,12 +3975,15 @@ If objFSO.FileExists(pdf_doc_path) = TRUE Then
 	Set wshshell = CreateObject("WScript.Shell")
 	user_myDocs_folder = wshShell.SpecialFolders("MyDocuments") & "\"
 	'this is the file for the 'save your work' functionality.
-	If MAXIS_case_number <> "" Then local_changelog_path = user_myDocs_folder & "caf-answers-" & MAXIS_case_number & "-info.txt"
-	If no_case_number_checkbox = checked Then local_changelog_path = user_myDocs_folder & "caf-answers-new-case-info.txt"
+	If MAXIS_case_number <> "" Then
+		local_changelog_path = user_myDocs_folder & "caf-answers-" & MAXIS_case_number & "-info.txt"
+	Else
+		local_changelog_path = user_myDocs_folder & "caf-answers-new-case-info.txt"
+	End If
 
 	'we are checking the save your work text file. If it exists we need to delete it because we don't want to save that information locally.
-	If objFSO.FileExists(local_work_save_path) = True then
-		objFSO.DeleteFile(local_work_save_path)			'DELETE
+	If objFSO.FileExists(local_changelog_path) = True then
+		objFSO.DeleteFile(local_changelog_path)			'DELETE
 	End If
 
 	'Now we case note!
