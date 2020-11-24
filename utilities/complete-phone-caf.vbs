@@ -1680,7 +1680,7 @@ function dlg_page_four_income()
 			  Text 80, 55, 350, 10, "9. Does anyone in the household have a job or expect to get income from a job this month or next month?"
 			  ButtonGroup ButtonPressed
 			    PushButton 430, 55, 55, 10, "ADD JOB", add_job_btn
-			  Text 540, 55, 105, 10, "Q9 - Verification -  "
+			  Text 540, 55, 105, 10, "Q9 - Verification - " & question_9_verif_yn
 			  ButtonGroup ButtonPressed
 			    PushButton 560, 65, 75, 10, "ADD VERIFICATION", add_verif_9_btn
 			  y_pos = 65
@@ -1909,7 +1909,7 @@ function dlg_page_five_expenses()
 			  Text 80, 235, 380, 10, "17. Do you or anyone living with you have costs for care of an ill or disabled adult because you or they are working,"
 			  Text 95, 245, 125, 10, "looking for work or going to school?"
 			  Text 95, 260, 25, 10, "Notes:"
-			  Text 560, 235, 105, 10, "Q17 - Verification -  " & question_17_verif_yn
+			  Text 560, 235, 105, 10, "Q17 - Verification - " & question_17_verif_yn
 			  Text 80, 280, 430, 10, "18. Does anyone in the household pay court-ordered child support, spousal support, child care support, medical support"
 			  Text 95, 290, 215, 10, "or contribute to a tax dependent who does not live in your home?"
 			  Text 95, 305, 25, 10, "Notes:"
@@ -2784,111 +2784,6 @@ If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 	show_known_addr = TRUE
 End If
 
-
-
-
-
-
-' BeginDialog Dialog1, 0, 0, 651, 360, "What kinds of income do you have?"
-'   DropListBox 10, 10, 60, 45, question_answers, question_8_yn
-'   Text 80, 10, 290, 10, "8. Has anyone in the household had a job or been self-employed in the past 12 months?"
-'   Text 540, 10, 105, 10, "Q8 - Verification - " & question_8_verif_yn
-'   ButtonGroup ButtonPressed
-'     PushButton 560, 20, 75, 10, "ADD VERIFICATION", add_verif_8_btn
-'   DropListBox 10, 25, 60, 45, question_answers, question_8a_yn
-'   Text 90, 25, 350, 10, "a. FOR SNAP ONLY: Has anyone in the household had a job or been self-employed in the past 36 months?"
-'   Text 95, 40, 25, 10, "Notes:"
-'   EditBox 120, 35, 390, 15, question_8_notes
-'   DropListBox 10, 60, 60, 45, question_answers, question_9_yn
-'   Text 80, 60, 350, 10, "9. Does anyone in the household have a job or expect to get income from a job this month or next month?"
-'   ButtonGroup ButtonPressed
-'     PushButton 430, 60, 55, 10, "ADD JOB", add_job_btn
-'   Text 540, 60, 105, 10, "Q9 - Verification -  "
-'   ButtonGroup ButtonPressed
-'     PushButton 560, 70, 75, 10, "ADD VERIFICATION", add_verif_9_btn
-'   Text 95, 75, 395, 10, "Employer: NAME OF EMPLOYER  - Employee: THE WORKER NAME HERE   - Gross Monthly Earnings: $ XXXXX"
-'   Text 95, 85, 395, 10, "Employer: NAME OF EMPLOYER  - Employee: THE WORKER NAME HERE   - Gross Monthly Earnings: $ XXXXX"
-'   Text 95, 105, 25, 10, "Notes:"
-'   EditBox 120, 100, 390, 15, question_9_notes
-'   DropListBox 10, 125, 60, 45, question_answers, question_10_yn
-'   Text 80, 125, 430, 10, "10. Is anyone in the household self-employed or does anyone expect to get income from self-employment this month or next month?"
-'   Text 540, 125, 105, 10, "Q10 - Verification - " & question_10_verif_yn
-'   ButtonGroup ButtonPressed
-'     PushButton 560, 135, 75, 10, "ADD VERIFICATION", add_verif_10_btn
-'   Text 95, 135, 85, 10, "Gross Monthly Earnings:"
-'   Text 185, 135, 25, 10, "Notes:"
-'   EditBox 95, 145, 80, 15, question_10_monthly_earnings
-'   EditBox 185, 145, 325, 15, question_10_notes
-'   DropListBox 10, 170, 60, 45, question_answers, question_11_yn
-'   Text 80, 170, 255, 10, "11. Do you expect any changes in income, expenses or work hours?"
-'   Text 540, 170, 105, 10, "Q11 - Verification - " & question_11_verif_yn
-'   ButtonGroup ButtonPressed
-'     PushButton 560, 180, 75, 10, "ADD VERIFICATION", add_verif_11_btn
-'   Text 95, 185, 25, 10, "Notes:"
-'   EditBox 120, 180, 390, 15, question_11_notes
-'   Text 5, 210, 75, 10, "Pricipal Wage Earner"
-'   DropListBox 80, 205, 175, 45, all_the_clients, pwe_selection
-'   Text 80, 225, 370, 10, "12. Has anyone in the household applied for or does anyone get any of the following type of income each month?"
-'   Text 540, 220, 105, 10, "Q12 - Verification - " & question_12_verif_yn
-'   ButtonGroup ButtonPressed
-'     PushButton 560, 230, 75, 10, "ADD VERIFICATION", add_verif_12_btn
-'   DropListBox 80, 240, 60, 45, question_answers, question_12_rsdi_yn
-'   Text 150, 245, 70, 10, "RSDI                      $"
-'   EditBox 220, 240, 35, 15, question_12_rsdi_amt
-'   DropListBox 285, 240, 60, 45, question_answers, question_12_ssi_yn
-'   Text 355, 245, 70, 10, "SSI                       $"
-'   EditBox 425, 240, 35, 15, question_12_ssi_amt
-'   DropListBox 80, 260, 60, 45, question_answers, question_12_va_yn
-'   Text 150, 265, 70, 10, "VA                          $"
-'   EditBox 220, 260, 35, 15, question_12_va_amt
-'   DropListBox 285, 260, 60, 45, question_answers, question_12_ui_yn
-'   Text 355, 265, 70, 10, "Unemployment Ins  $"
-'   EditBox 425, 260, 35, 15, question_12_ui_amt
-'   DropListBox 80, 280, 60, 45, question_answers, question_12_wc_yn
-'   Text 150, 285, 70, 10, "Workers Comp       $"
-'   EditBox 220, 280, 35, 15, question_12_wc_amt
-'   DropListBox 220, 280, 60, 45, question_answers, question_12_ret_yn
-'   Text 355, 285, 70, 10, "Retirement Ben.    $"
-'   EditBox 425, 280, 35, 15, question_12_ret_amt
-'   DropListBox 80, 300, 60, 45, question_answers, question_12_trib_yn
-'   Text 150, 305, 70, 10, "Tribal Payments      $"
-'   EditBox 220, 300, 35, 15, question_12_trib_amt
-'   DropListBox 220, 300, 60, 45, question_answers, question_12_cs_yn
-'   Text 355, 305, 70, 10, "Child/Spousal Support   $"
-'   EditBox 425, 300, 35, 15, question_12_cs_amt
-'   DropListBox 80, 320, 60, 45, question_answers, question_12_other_yn
-'   Text 150, 325, 100, 10, "Other unearned income         $"
-'   EditBox 250, 320, 35, 15, question_12_other_amt
-'   Text 95, 345, 25, 10, "Notes:"
-'   EditBox 120, 340, 390, 15, question_12_notes
-'   ButtonGroup ButtonPressed
-'     PushButton 540, 340, 50, 15, "Next", next_btn
-'     PushButton 540, 330, 50, 10, "Back", back_btn
-'     CancelButton 595, 340, 50, 15
-' EndDialog
-
-
-' BeginDialog Dialog1, 0, 0, 541, 310, "Household Member Information"
-'   DropListBox 15, 260, 80, 50, "", verif_yn
-'   EditBox 100, 260, 435, 15, verif_details
-'   EditBox 15, 290, 350, 15, notes
-'   ButtonGroup ButtonPressed
-'     PushButton 430, 290, 50, 15, "Next", next_btn
-'     PushButton 375, 295, 50, 10, "Back", back_btn
-'     CancelButton 485, 290, 50, 15
-'   Text 15, 250, 50, 10, "Verification"
-'   Text 100, 250, 65, 10, "Verification Details"
-'   Text 15, 280, 50, 10, "Notes:"
-' EndDialog
-'
-' BeginDialog Dialog1, 0, 0, 391, 285, "Dialog"
-'   ButtonGroup ButtonPressed
-'     PushButton 280, 265, 50, 15, "Next", next_btn
-'     CancelButton 335, 265, 50, 15
-'     PushButton 290, 20, 95, 15, "Update Information", update_information_btn
-'   Text 10, 10, 360, 10, "Review the Address informaiton known with the client. If it needs updating, press this button to make changes:"
-' EndDialog
-
 next_btn					= 1000
 back_btn					= 1010
 update_information_btn		= 1020
@@ -3009,7 +2904,8 @@ objSelection.Font.Bold = FALSE
 
 If MAXIS_case_number <> "" Then objSelection.TypeText "Case Number: " & MAXIS_case_number & vbCR			'General case information
 If no_case_number_checkbox = checked Then objSelection.TypeText "New Case - no case number" & vbCr
-objSelection.TypeText "Date Completed: " & date & vbCR
+objSelection.TypeText "Date Completed: " & caf_form_date & vbCR
+objSelection.TypeText "DATE OF APPLICATION: " & application_date & vbCR
 objSelection.TypeText "Completed by: " & worker_name & vbCR
 objSelection.TypeText "Completed over the phone with: " & who_are_we_completing_the_form_with & vbCR
 
@@ -3991,7 +3887,8 @@ If objFSO.FileExists(pdf_doc_path) = TRUE Then
 	Call write_variable_in_CASE_NOTE("CAF Form completed via Phone")
 	Call write_variable_in_CASE_NOTE("Form information taken verbally per COVID Waiver Allowance.")
 	Call write_variable_in_CASE_NOTE("Form information taken on " & caf_form_date)
-	Call write_variable_in_CASE_NOTE("CAF for application date: " & caf_form_date)
+	Call write_variable_in_CASE_NOTE("CAF for application date: " & application_date)
+	Call write_variable_in_CASE_NOTE("CAF information saved and will be added to ECF within a few days. Detail can be viewed in 'Assignments Folder'.")
 	Call write_variable_in_CASE_NOTE("---")
 	Call write_variable_in_CASE_NOTE(worker_signature)
 
@@ -4010,4 +3907,4 @@ Else
 	end_msg = "Something has gone wrong - the CAF information has NOT been saved correctly to be processed." & vbCr & vbCr & "You can either save the Word Document that has opened as a PDF in the Assignment folder OR Close that document without saving and RERUN the script. Your details have been saved and the script can reopen them and attampt to create the files again. When the script is running, it is best to not interrupt the process."
 End If
 
-Call script_end_procedure("Done")
+Call script_end_procedure_with_error_report(end_msg)
