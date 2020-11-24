@@ -3577,7 +3577,7 @@ for each_job = 0 to UBOUND(JOBS_ARRAY, 2)
 		TABLE_ARRAY(array_counters).Cell(2, 3).Range.Text = JOBS_ARRAY(jobs_gross_monthly_earnings, each_job)
 
 		TABLE_ARRAY(array_counters).Cell(3, 1).Range.Text = "EMPLOYER/BUSINESS NAME"
-		TABLE_ARRAY(array_counters).Cell(3, 1).Range.Text = JOBS_ARRAY(jobs_employer_name, each_job)
+		TABLE_ARRAY(array_counters).Cell(4, 1).Range.Text = JOBS_ARRAY(jobs_employer_name, each_job)
 
 		objSelection.EndKey end_of_doc						'this sets the cursor to the end of the document for more writing
 		' objSelection.TypeParagraph()						'adds a line between the table and the next information
