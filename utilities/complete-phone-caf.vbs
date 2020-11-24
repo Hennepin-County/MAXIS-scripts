@@ -798,6 +798,18 @@ function save_your_work()
 			objTextStream.WriteLine "24V - " & question_24_verif_yn
 			objTextStream.WriteLine "24D - " & question_24_verif_details
 
+			objTextStream.WriteLine "QQ1A - " & qual_question_one
+			objTextStream.WriteLine "QQ1M - " & qual_memb_one
+			objTextStream.WriteLine "QQ2A - " & qual_question_two
+			objTextStream.WriteLine "QQ2M - " & qual_memb_two
+			objTextStream.WriteLine "QQ3A - " & qual_question_three
+			objTextStream.WriteLine "QQ3M - " & qual_memb_there
+			objTextStream.WriteLine "QQ4A - " & qual_question_four
+			objTextStream.WriteLine "QQ4M - " & qual_memb_four
+			objTextStream.WriteLine "QQ5A - " & qual_question_five
+			objTextStream.WriteLine "QQ5M - " & qual_memb_five
+
+
 
 			For known_membs = 0 to UBound(ALL_CLIENTS_ARRAY, 2)
 				objTextStream.WriteLine "ARR - ALL_CLIENTS_ARRAY - " & ALL_CLIENTS_ARRAY(memb_last_name, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_first_name, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_mid_name, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_other_names, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_ssn_verif, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_soc_sec_numb, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_dob, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_gender, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_rel_to_applct, known_membs)&"~"&ALL_CLIENTS_ARRAY(memi_marriage_status, known_membs)&"~"&ALL_CLIENTS_ARRAY(memi_last_grade, known_membs)&"~"&ALL_CLIENTS_ARRAY(memi_MN_entry_date, known_membs)&"~"&ALL_CLIENTS_ARRAY(memi_former_state, known_membs)&"~"&ALL_CLIENTS_ARRAY(memi_citizen, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_interpreter, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_spoken_language, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_written_language, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_ethnicity, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_race_a_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_race_b_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_race_n_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_race_p_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_race_w_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_snap_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_cash_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_emer_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_none_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_intend_to_reside_mn, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_imig_status, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_sponsor_yn, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_verif_yn, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_verif_details, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_notes, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_ref_numb, known_membs)
@@ -1053,6 +1065,19 @@ function restore_your_work(vars_filled)
 					If left(text_line, 3) = "24N" Then question_24_notes = Mid(text_line, 7)
 					If left(text_line, 3) = "24V" Then question_24_verif_yn = Mid(text_line, 7)
 					If left(text_line, 3) = "24D" Then question_24_verif_details = Mid(text_line, 7)
+
+					If left(text_line, 4) = "QQ1A" Then qual_question_one = Mid(text_line, 8)
+					If left(text_line, 4) = "QQ1M" Then qual_memb_one = Mid(text_line, 8)
+					If left(text_line, 4) = "QQ2A" Then qual_question_two = Mid(text_line, 8)
+					If left(text_line, 4) = "QQ2M" Then qual_memb_two = Mid(text_line, 8)
+					If left(text_line, 4) = "QQ3A" Then qual_question_three = Mid(text_line, 8)
+					If left(text_line, 4) = "QQ3M" Then qual_memb_there = Mid(text_line, 8)
+					If left(text_line, 4) = "QQ4A" Then qual_question_four = Mid(text_line, 8)
+					If left(text_line, 4) = "QQ4M" Then qual_memb_four = Mid(text_line, 8)
+					If left(text_line, 4) = "QQ5A" Then qual_question_five = Mid(text_line, 8)
+					If left(text_line, 4) = "QQ5M" Then qual_memb_five = Mid(text_line, 8)
+
+					' If left(text_line, 4) = "QQ1A" Then qual_question_one = Mid(text_line, 8)
 
 					If left(text_line, 3) = "ARR" Then
 						If MID(text_line, 7, 17) = "ALL_CLIENTS_ARRAY" Then
@@ -1678,7 +1703,7 @@ function dlg_page_four_income()
 			for each_job = 0 to UBOUND(JOBS_ARRAY, 2)
 				JOBS_ARRAY(jobs_edit_btn, each_job) = btn_placeholder
 				btn_placeholder = btn_placeholder + 1
-				If JOBS_ARRAY(jobs_employer_name, each_job) <> "" AND JOBS_ARRAY(jobs_employee_name, each_job) <> "" AND JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) <> "" AND JOBS_ARRAY(jobs_hourly_wage, each_job) <> "" Then dlg_len = dlg_len + 10
+				If JOBS_ARRAY(jobs_employer_name, each_job) <> "" OR JOBS_ARRAY(jobs_employee_name, each_job) <> "" OR JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) <> "" OR JOBS_ARRAY(jobs_hourly_wage, each_job) <> "" Then dlg_len = dlg_len + 10
 			next
 
 			Dialog1 = ""
@@ -1702,7 +1727,8 @@ function dlg_page_four_income()
 			  y_pos = 65
 			  ' If JOBS_ARRAY(jobs_employee_name, 0) <> "" Then
 			  for each_job = 0 to UBOUND(JOBS_ARRAY, 2)
-				  If JOBS_ARRAY(jobs_employer_name, each_job) <> "" AND JOBS_ARRAY(jobs_employee_name, each_job) <> "" AND JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) <> "" AND JOBS_ARRAY(jobs_hourly_wage, each_job) <> "" Then
+				  ' If JOBS_ARRAY(jobs_employer_name, each_job) <> "" AND JOBS_ARRAY(jobs_employee_name, each_job) <> "" AND JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) <> "" AND JOBS_ARRAY(jobs_hourly_wage, each_job) <> "" Then
+				  If JOBS_ARRAY(jobs_employer_name, each_job) <> "" OR JOBS_ARRAY(jobs_employee_name, each_job) <> "" OR JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) <> "" OR JOBS_ARRAY(jobs_hourly_wage, each_job) <> "" Then
 
 					  Text 95, y_pos, 395, 10, "Employer: " & JOBS_ARRAY(jobs_employer_name, each_job) & "  - Employee: " & JOBS_ARRAY(jobs_employee_name, each_job) & "   - Gross Monthly Earnings: $ " & JOBS_ARRAY(jobs_gross_monthly_earnings, each_job)
 					  ButtonGroup ButtonPressed
@@ -2059,6 +2085,63 @@ function dlg_page_six_assets_and_other()
 end function
 
 
+function dlg_qualifying_questions()
+	go_back = FALSE
+	Do
+		Do
+			err_msg = ""
+			BeginDialog Dialog1, 0, 0, 451, 205, "CAF Qualifying Questions"
+			  DropListBox 220, 40, 30, 45, "No"+chr(9)+"Yes", qual_question_one
+			  ComboBox 340, 40, 105, 45, all_the_clients, qual_memb_one
+			  DropListBox 220, 80, 30, 45, "No"+chr(9)+"Yes", qual_question_two
+			  ComboBox 340, 80, 105, 45, all_the_clients, qual_memb_two
+			  DropListBox 220, 110, 30, 45, "No"+chr(9)+"Yes", qual_question_three
+			  ComboBox 340, 110, 105, 45, all_the_clients, qual_memb_there
+			  DropListBox 220, 140, 30, 45, "No"+chr(9)+"Yes", qual_question_four
+			  ComboBox 340, 140, 105, 45, all_the_clients, qual_memb_four
+			  DropListBox 220, 160, 30, 45, "No"+chr(9)+"Yes", qual_question_five
+			  ComboBox 340, 160, 105, 45, all_the_clients, qual_memb_five
+			  ButtonGroup ButtonPressed
+			    CancelButton 395, 185, 50, 15
+			    PushButton 340, 185, 50, 15, "Next", next_btn
+			    PushButton 285, 190, 50, 10, "Back", back_btn
+			  Text 10, 10, 395, 15, "Qualifying Questions are listed at the end of the CAF form and are completed by the client. Indicate the answers to those questions here. If any are 'Yes' then indicate which household member to which the question refers."
+			  Text 10, 40, 200, 40, "Has a court or any other civil or administrative process in Minnesota or any other state found anyone in the household guilty or has anyone been disqualified from receiving public assistance for breaking any of the rules listed in the CAF?"
+			  Text 10, 80, 195, 30, "Has anyone in the household been convicted of making fraudulent statements about their place of residence to get cash or SNAP benefits from more than one state?"
+			  Text 10, 110, 195, 30, "Is anyone in your householdhiding or running from the law to avoid prosecution being taken into custody, or to avoid going to jail for a felony?"
+			  Text 10, 140, 195, 20, "Has anyone in your household been convicted of a drug felony in the past 10 years?"
+			  Text 10, 160, 195, 20, "Is anyone in your household currently violating a condition of parole, probation or supervised release?"
+			  Text 260, 40, 70, 10, "Household Member:"
+			  Text 260, 80, 70, 10, "Household Member:"
+			  Text 260, 110, 70, 10, "Household Member:"
+			  Text 260, 140, 70, 10, "Household Member:"
+			  Text 260, 160, 70, 10, "Household Member:"
+			EndDialog
+
+			dialog Dialog1
+
+			cancel_confirmation
+
+			If ButtonPressed = -1 Then ButtonPressed = next_btn
+
+			If ButtonPressed = back_btn Then
+				go_back = TRUE
+				ButtonPressed = next_btn
+				err_msg = ""
+				show_caf_pg_5_expenses_dlg = TRUE
+			End If
+		Loop until ButtonPressed = next_btn
+		If err_msg <> "" Then MsgBox "*** Please Resolve to Continue ***" & vbNewLine & err_msg
+	Loop until err_msg = ""
+
+	If go_back = FALSE Then
+		show_caf_qual_questions_dlg = FALSE
+		caf_caf_qual_questions_dlg_cleared = TRUE
+	End If
+
+end function
+
+
 function dlg_signature()
 	go_back = FALSE
 	Do
@@ -2066,16 +2149,17 @@ function dlg_signature()
 			err_msg = ""
 
 			Dialog1 = ""
-			BeginDialog Dialog1, 0, 0, 201, 95, "Form dates and signatures"
-			  EditBox 135, 35, 60, 15, caf_form_date
-			  DropListBox 135, 55, 60, 45, "Select..."+chr(9)+"Yes"+chr(9)+"No", client_signed_yn
+			BeginDialog Dialog1, 0, 0, 201, 110, "Form dates and signatures"
+			  EditBox 135, 50, 60, 15, caf_form_date
+			  DropListBox 135, 70, 60, 45, "Select..."+chr(9)+"Yes"+chr(9)+"No", client_signed_yn
 			  ButtonGroup ButtonPressed
-			    PushButton 35, 75, 105, 15, "Complete CAF Form Detail", complete_caf_questions
-				PushButton 5, 80, 25, 10, "BACK", back_btn
-			    CancelButton 145, 75, 50, 15
-			  Text 70, 40, 55, 10, "CAF Form Date:"
-			  Text 10, 60, 120, 10, "Cient signature accepted verbally?"
+			    PushButton 35, 90, 105, 15, "Complete CAF Form Detail", complete_caf_questions
+			    PushButton 5, 95, 25, 10, "BACK", back_btn
+			    PushButton 10, 35, 145, 10, "Open RIGHTS AND RESPONSIBLITIES ", open_r_and_r_button
+			    CancelButton 145, 90, 50, 15
 			  Text 10, 10, 160, 20, "Confirm the client is signing this form and attesting to the information provided verbally."
+			  Text 70, 55, 55, 10, "CAF Form Date:"
+			  Text 10, 75, 120, 10, "Cient signature accepted verbally?"
 			EndDialog
 
 			dialog Dialog1
@@ -2083,6 +2167,7 @@ function dlg_signature()
 			cancel_confirmation
 
 			If ButtonPressed = -1 Then ButtonPressed = complete_caf_questions
+			If ButtonPressed = open_r_and_r_button Then open_URL_in_browser("https://edocs.dhs.state.mn.us/lfserver/Public/DHS-4163-ENG")
 
 			If IsDate(caf_form_date) = FALSE Then
 				err_msg = err_msg & vbNewLine & "* Enter a valid date for the date the form was received."
@@ -2091,6 +2176,12 @@ function dlg_signature()
 			End If
 			If client_signed_yn = "Select..." Then err_msg = err_msg & vbNewLine & "* Indicate if the client has signed the form correctly by selecting 'yes' or 'no'."
 
+			If ButtonPressed = back_btn Then
+				go_back = TRUE
+				ButtonPressed = complete_caf_questions
+				err_msg = ""
+				show_caf_qual_questions_dlg = TRUE
+			End If
 		Loop until ButtonPressed = complete_caf_questions
 		If err_msg <> "" Then MsgBox "*** Please Resolve to Continue ***" & vbNewLine & err_msg
 	Loop until err_msg = ""
@@ -2301,9 +2392,10 @@ end function
 
 function jobs_details_dlg(this_jobs)
 	Do
+		pick_a_client = replace(all_the_clients, "Select or Type", "Select One...")
 		Dialog1 = ""
 		BeginDialog Dialog1, 0, 0, 321, 130, "Add Job"
-		  DropListBox 10, 35, 135, 45, all_the_clients, JOBS_ARRAY(jobs_employee_name, this_jobs)
+		  DropListBox 10, 35, 135, 45, pick_a_client+chr(9)+"", JOBS_ARRAY(jobs_employee_name, this_jobs)
 		  EditBox 150, 35, 60, 15, JOBS_ARRAY(jobs_hourly_wage, this_jobs)
 		  EditBox 215, 35, 100, 15, JOBS_ARRAY(jobs_gross_monthly_earnings, this_jobs)
 		  EditBox 10, 65, 305, 15, JOBS_ARRAY(jobs_employer_name, this_jobs)
@@ -2330,6 +2422,7 @@ function jobs_details_dlg(this_jobs)
 			JOBS_ARRAY(jobs_notes, this_jobs) = ""
 		End If
 	Loop until ButtonPressed = return_btn
+	If JOBS_ARRAY(jobs_employee_name, this_jobs) = "Select One..." Then JOBS_ARRAY(jobs_employee_name, this_jobs) = ""
 
 end function
 
@@ -2529,6 +2622,8 @@ Dim question_22_yn, question_22_notes, question_22_verif_yn, question_22_verif_d
 Dim question_23_yn, question_23_notes, question_23_verif_yn, question_23_verif_details
 Dim question_24_yn, question_24_notes, question_24_verif_yn, question_24_verif_details
 Dim question_24_rep_payee_yn, question_24_guardian_fees_yn, question_24_special_diet_yn, question_24_high_housing_yn
+Dim qual_question_one, qual_memb_one, qual_question_two, qual_memb_two, qual_question_three, qual_memb_there, qual_question_four, qual_memb_four, qual_question_five, qual_memb_five
+
 'THE SCRIPT------------------------------------------------------------------------------------------------------------------------------------------------
 'Connecting to MAXIS & grabbing the case number
 EMConnect ""
@@ -2835,6 +2930,7 @@ add_verif_22_btn			= 1092
 add_verif_23_btn			= 1093
 add_verif_24_btn			= 1094
 clear_job_btn				= 1100
+open_r_and_r_button 		= 1200
 
 show_caf_pg_1_pers_dlg = TRUE
 show_caf_pg_1_addr_dlg = TRUE
@@ -2843,6 +2939,7 @@ show_caf_pg_3_hhinfo_dlg = TRUE
 show_caf_pg_4_income_dlg = TRUE
 show_caf_pg_5_expenses_dlg = TRUE
 show_caf_pg_6_other_dlg = TRUE
+show_caf_qual_questions_dlg = TRUE
 show_caf_sig_dlg = TRUE
 
 caf_pg_1_pers_dlg_cleared = FALSE
@@ -2852,6 +2949,7 @@ caf_pg_3_hhinfo_dlg_cleared = FALSE
 caf_pg_4_income_dlg_cleared = FALSE
 caf_pg_5_expenses_dlg_cleared = FALSE
 caf_pg_6_other_dlg_cleared = FALSE
+caf_caf_qual_questions_dlg_cleared = FALSE
 caf_sig_dlg_cleared = FALSE
 
 Do
@@ -2862,37 +2960,43 @@ Do
 					Do
 						Do
 							Do
-								show_confirmation = TRUE
-								If caf_pg_1_pers_dlg_cleared = FALSE Then show_caf_pg_1_pers_dlg = TRUE
-								If caf_pg_1_addr_dlg_cleared = FALSE Then show_caf_pg_1_addr_dlg = TRUE
-								If caf_pg_2_hhcomp_dlg_cleared = FALSE Then show_caf_pg_2_hhcomp_dlg = TRUE
-								If caf_pg_3_hhinfo_dlg_cleared = FALSE Then show_caf_pg_3_hhinfo_dlg = TRUE
-								If caf_pg_4_income_dlg_cleared = FALSE Then show_caf_pg_4_income_dlg = TRUE
-								If caf_pg_5_expenses_dlg_cleared = FALSE Then show_caf_pg_5_expenses_dlg = TRUE
-								If caf_pg_6_other_dlg_cleared = FALSE Then show_caf_pg_6_other_dlg = TRUE
-								If caf_sig_dlg_cleared = FALSE Then show_caf_sig_dlg = TRUE
+								Do
+									show_confirmation = TRUE
+									If caf_pg_1_pers_dlg_cleared = FALSE Then show_caf_pg_1_pers_dlg = TRUE
+									If caf_pg_1_addr_dlg_cleared = FALSE Then show_caf_pg_1_addr_dlg = TRUE
+									If caf_pg_2_hhcomp_dlg_cleared = FALSE Then show_caf_pg_2_hhcomp_dlg = TRUE
+									If caf_pg_3_hhinfo_dlg_cleared = FALSE Then show_caf_pg_3_hhinfo_dlg = TRUE
+									If caf_pg_4_income_dlg_cleared = FALSE Then show_caf_pg_4_income_dlg = TRUE
+									If caf_pg_5_expenses_dlg_cleared = FALSE Then show_caf_pg_5_expenses_dlg = TRUE
+									If caf_pg_6_other_dlg_cleared = FALSE Then show_caf_pg_6_other_dlg = TRUE
+									If caf_caf_qual_questions_dlg_cleared = FALSE Then show_caf_qual_questions_dlg = TRUE
 
-								If show_caf_pg_1_pers_dlg = TRUE Then Call dlg_page_one_pers_and_exp
+									If caf_sig_dlg_cleared = FALSE Then show_caf_sig_dlg = TRUE
 
-							Loop until show_caf_pg_1_pers_dlg = FALSE
+									If show_caf_pg_1_pers_dlg = TRUE Then Call dlg_page_one_pers_and_exp
+
+								Loop until show_caf_pg_1_pers_dlg = FALSE
+								save_your_work
+								If show_caf_pg_1_addr_dlg = TRUE Then Call dlg_page_one_address
+							Loop until show_caf_pg_1_addr_dlg = FALSE
 							save_your_work
-							If show_caf_pg_1_addr_dlg = TRUE Then Call dlg_page_one_address
-						Loop until show_caf_pg_1_addr_dlg = FALSE
+							If show_caf_pg_2_hhcomp_dlg = TRUE Then Call dlg_page_two_household_comp
+						Loop until show_caf_pg_2_hhcomp_dlg = FALSE
 						save_your_work
-						If show_caf_pg_2_hhcomp_dlg = TRUE Then Call dlg_page_two_household_comp
-					Loop until show_caf_pg_2_hhcomp_dlg = FALSE
+						If show_caf_pg_3_hhinfo_dlg = TRUE Then Call dlg_page_three_household_info
+					Loop until show_caf_pg_3_hhinfo_dlg = FALSE
 					save_your_work
-					If show_caf_pg_3_hhinfo_dlg = TRUE Then Call dlg_page_three_household_info
-				Loop until show_caf_pg_3_hhinfo_dlg = FALSE
+					If show_caf_pg_4_income_dlg = TRUE Then Call dlg_page_four_income
+				Loop until show_caf_pg_4_income_dlg = FALSE
 				save_your_work
-				If show_caf_pg_4_income_dlg = TRUE Then Call dlg_page_four_income
-			Loop until show_caf_pg_4_income_dlg = FALSE
+				If show_caf_pg_5_expenses_dlg = TRUE Then Call dlg_page_five_expenses
+			Loop until show_caf_pg_5_expenses_dlg = FALSE
 			save_your_work
-			If show_caf_pg_5_expenses_dlg = TRUE Then Call dlg_page_five_expenses
-		Loop until show_caf_pg_5_expenses_dlg = FALSE
+			If show_caf_pg_6_other_dlg = TRUE Then Call dlg_page_six_assets_and_other
+		Loop until show_caf_pg_6_other_dlg = FALSE
 		save_your_work
-		If show_caf_pg_6_other_dlg = TRUE Then Call dlg_page_six_assets_and_other
-	Loop until show_caf_pg_6_other_dlg = FALSE
+		If show_caf_qual_questions_dlg = TRUE Then Call dlg_qualifying_questions
+	Loop until show_caf_qual_questions_dlg = FALSE
 	save_your_work
 	If show_caf_sig_dlg = TRUE Then Call dlg_signature
 Loop until show_caf_sig_dlg = FALSE
@@ -3464,7 +3568,7 @@ objSelection.TypeText "Q 9. Does anyone in the household have a job or expect to
 
 job_added = FALSE
 for each_job = 0 to UBOUND(JOBS_ARRAY, 2)
-	If JOBS_ARRAY(jobs_employer_name, each_job) <> "" AND JOBS_ARRAY(jobs_employee_name, each_job) <> "" AND JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) <> "" AND JOBS_ARRAY(jobs_hourly_wage, each_job) <> "" Then
+	If JOBS_ARRAY(jobs_employer_name, each_job) <> "" OR JOBS_ARRAY(jobs_employee_name, each_job) <> "" OR JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) <> "" OR JOBS_ARRAY(jobs_hourly_wage, each_job) <> "" Then
 		job_added = TRUE
 
 		all_the_tables = UBound(TABLE_ARRAY) + 1
@@ -3862,6 +3966,25 @@ array_counters = array_counters + 1
 If question_24_notes <> "" Then objSelection.TypeText chr(9) & "Notes: " & question_24_notes & vbCr
 If question_24_verif_yn <> "Mot Needed" AND question_24_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_24_verif_yn & vbCr
 If question_24_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_24_verif_details & vbCr
+
+objSelection.TypeText "CAF QUALIFYING QUESTIONS" & vbCr
+
+objSelection.TypeText "Has a court or any other civil or administrative process in Minnesota or any other state found anyone in the household guilty or has anyone been disqualified from receiving public assistance for breaking any of the rules listed in the CAF?" & vbCr
+objSelection.TypeText "Has anyone in the household been convicted of making fraudulent statements about their place of residence to get cash or SNAP benefits from more than one state?" & vbCr
+objSelection.TypeText "Is anyone in your householdhiding or running from the law to avoid prosecution being taken into custody, or to avoid going to jail for a felony?" & vbCr
+objSelection.TypeText "Has anyone in your household been convicted of a drug felony in the past 10 years?" & vbCr
+objSelection.TypeText "Is anyone in your household currently violating a condition of parole, probation or supervised release?" & vbCr
+
+objSelection.TypeText chr(9) & qual_question_one & vbCr
+If trim(qual_memb_one) <> "" AND qual_memb_one <> "Select or Type" Then objSelection.TypeText chr(9) & qual_memb_one & vbCr
+objSelection.TypeText chr(9) & qual_question_two & vbCr
+If trim(qual_memb_two) <> "" AND qual_memb_two <> "Select or Type" Then objSelection.TypeText chr(9) & qual_memb_two & vbCr
+objSelection.TypeText chr(9) & qual_question_three & vbCr
+If trim(qual_memb_there) <> "" AND qual_memb_there <> "Select or Type" Then objSelection.TypeText chr(9) & qual_memb_there & vbCr
+objSelection.TypeText chr(9) & qual_question_four & vbCr
+If trim(qual_memb_four) <> "" AND qual_memb_four <> "Select or Type" Then objSelection.TypeText chr(9) & qual_memb_four & vbCr
+objSelection.TypeText chr(9) & qual_question_five & vbCr
+If trim(qual_memb_five) <> "" AND qual_memb_five <> "Select or Type" Then objSelection.TypeText chr(9) & qual_memb_five & vbCr
 
 
 objSelection.Font.Size = "14"
