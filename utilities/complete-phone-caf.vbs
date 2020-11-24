@@ -2928,9 +2928,9 @@ objSelection.TypeText "Completed over the phone with: " & who_are_we_completing_
 'Program CAF Information
 caf_progs = ""
 for each_memb = 0 to UBOUND(ALL_CLIENTS_ARRAY, 2)
-	If ALL_CLIENTS_ARRAY(clt_snap_checkbox, each_memb) = checked Then caf_progs = caf_progs & ", SNAP"
-	If ALL_CLIENTS_ARRAY(clt_cash_checkbox, each_memb) = checked Then caf_progs = caf_progs & ", Cash"
-	If ALL_CLIENTS_ARRAY(clt_emer_checkbox, each_memb) = checked Then caf_progs = caf_progs & ", EMER"
+	If ALL_CLIENTS_ARRAY(clt_snap_checkbox, each_memb) = checked AND InStr(caf_progs, "SNAP") = 0 Then caf_progs = caf_progs & ", SNAP"
+	If ALL_CLIENTS_ARRAY(clt_cash_checkbox, each_memb) = checked AND InStr(caf_progs, "Cash") = 0 Then caf_progs = caf_progs & ", Cash"
+	If ALL_CLIENTS_ARRAY(clt_emer_checkbox, each_memb) = checked AND InStr(caf_progs, "EMER") = 0 Then caf_progs = caf_progs & ", EMER"
 Next
 If left(caf_progs, 2) = ", " Then caf_progs = right(caf_progs, len(caf_progs)-2)
 objSelection.TypeText "CAF requesting: " & caf_progs & vbCr
@@ -3019,8 +3019,8 @@ For row = 5 to 6
 	objPers1Table.Cell(row, 1).SetWidth 230, 2
 	objPers1Table.Cell(row, 2).SetWidth 55, 2
 	objPers1Table.Cell(row, 3).SetWidth 110, 2
-	objPers1Table.Cell(row, 4).SetWidth 30, 2
-	objPers1Table.Cell(row, 5).SetWidth 75, 2
+	objPers1Table.Cell(row, 4).SetWidth 35, 2
+	objPers1Table.Cell(row, 5).SetWidth 70, 2
 Next
 For col = 1 to 5
 	objPers1Table.Cell(5, col).Range.Font.Size = 6
@@ -3046,8 +3046,8 @@ For row = 7 to 8
 	objPers1Table.Cell(row, 1).SetWidth 230, 2
 	objPers1Table.Cell(row, 2).SetWidth 55, 2
 	objPers1Table.Cell(row, 3).SetWidth 110, 2
-	objPers1Table.Cell(row, 4).SetWidth 30, 2
-	objPers1Table.Cell(row, 5).SetWidth 75, 2
+	objPers1Table.Cell(row, 4).SetWidth 35, 2
+	objPers1Table.Cell(row, 5).SetWidth 70, 2
 Next
 For col = 1 to 5
 	objPers1Table.Cell(7, col).Range.Font.Size = 6
@@ -3100,7 +3100,7 @@ For col = 1 to 3
 	objPers1Table.Cell(12, col).Range.Font.Size = 12
 Next
 objPers1Table.Cell(11, 1).Range.Text = "DO YOU NEED AN INTERPRETER?"
-objPers1Table.Cell(11, 2).Range.Text = "WHAT IS YOU RPREFERRED SPOKEN LANGUAGE?"
+objPers1Table.Cell(11, 2).Range.Text = "WHAT IS YOU PREFERRED SPOKEN LANGUAGE?"
 objPers1Table.Cell(11, 3).Range.Text = "WHAT IS YOUR PREFERRED WRITTEN LANGUAGE?"
 
 objPers1Table.Cell(12, 1).Range.Text = ALL_CLIENTS_ARRAY(memb_interpreter, 0)
@@ -3192,7 +3192,7 @@ for col = 1 to 2
 	next
 next
 
-objEXPTable.Cell(1, 1).Range.Text = "1. How much income (cash or checkes) did or will your household get this month?"
+objEXPTable.Cell(1, 1).Range.Text = "1. How much income (cash or checks) did or will your household get this month?"
 objEXPTable.Cell(1, 2).Range.Text = exp_q_1_income_this_month
 
 objEXPTable.Cell(2, 1).Range.Text = "2. How much does your household (including children) have cash, checking or savings?"
@@ -3228,7 +3228,11 @@ objEXPTable.Cell(7, 5).Range.Text = "What?"
 objEXPTable.Cell(7, 6).Range.Text = exp_previous_assistance_what
 
 objEXPTable.Cell(8, 1).Range.Text = "6. Is anyone in your household pregnant?"
-objEXPTable.Cell(8, 2).Range.Text = exp_pregnant_who
+If exp_pregnant_who <> "" Then
+	objEXPTable.Cell(8, 2).Range.Text = exp_pregnant_yn & ", " &  exp_pregnant_who
+Else
+	objEXPTable.Cell(8, 2).Range.Text = exp_pregnant_yn
+End If
 
 
 objSelection.EndKey end_of_doc						'this sets the cursor to the end of the document for more writing
@@ -3324,7 +3328,7 @@ If UBound(ALL_CLIENTS_ARRAY, 2) <> 0 Then
 			TABLE_ARRAY(array_counters).Cell(6, col).Range.Font.Size = 12
 		Next
 		TABLE_ARRAY(array_counters).Cell(5, 1).Range.Text = "DO YOU NEED AN INTERPRETER?"
-		TABLE_ARRAY(array_counters).Cell(5, 2).Range.Text = "WHAT IS YOU RPREFERRED SPOKEN LANGUAGE?"
+		TABLE_ARRAY(array_counters).Cell(5, 2).Range.Text = "WHAT IS YOU PREFERRED SPOKEN LANGUAGE?"
 		TABLE_ARRAY(array_counters).Cell(5, 3).Range.Text = "WHAT IS YOUR PREFERRED WRITTEN LANGUAGE?"
 
 		TABLE_ARRAY(array_counters).Cell(6, 1).Range.Text = ALL_CLIENTS_ARRAY(memb_interpreter, each_member)
@@ -3367,12 +3371,14 @@ If UBound(ALL_CLIENTS_ARRAY, 2) <> 0 Then
 		TABLE_ARRAY(array_counters).Cell(9, 2).Range.Text = "ETHNICITY"
 		TABLE_ARRAY(array_counters).Cell(9, 3).Range.Text = "RACE"
 
+		progs_applying_for = ""
 		If ALL_CLIENTS_ARRAY(clt_none_checkbox, each_member) = checked then progs_applying_for = "NONE"
 		If ALL_CLIENTS_ARRAY(clt_snap_checkbox, each_member) = checked then progs_applying_for = progs_applying_for & ", SNAP"
 		If ALL_CLIENTS_ARRAY(clt_cash_checkbox, each_member) = checked then progs_applying_for = progs_applying_for & ", Cash"
 		If ALL_CLIENTS_ARRAY(clt_emer_checkbox, each_member) = checked then progs_applying_for = progs_applying_for & ", Emergency Assistance"
 		If left(progs_applying_for, 2) = ", " Then progs_applying_for = right(progs_applying_for, len(progs_applying_for) - 2)
 
+		race_to_enter = ""
 		If ALL_CLIENTS_ARRAY(memb_race_a_checkbox, each_member) = checked then race_to_enter = race_to_enter & ", Asian"
 		If ALL_CLIENTS_ARRAY(memb_race_b_checkbox, each_member) = checked then race_to_enter = race_to_enter & ", Black"
 		If ALL_CLIENTS_ARRAY(memb_race_n_checkbox, each_member) = checked then race_to_enter = race_to_enter & ", American Indian or Alaska Native"
