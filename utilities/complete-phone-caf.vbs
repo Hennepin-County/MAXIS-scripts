@@ -840,10 +840,11 @@ function restore_your_work(vars_filled)
 				vars_filled = TRUE
 
 				array_counters = 0
-				known_memb = 0
+				known_membs = 0
 				known_jobs = 0
 				For Each text_line in saved_caf_details
 					' MsgBox "~" & left(text_line, 9) & "~"
+					' MsgBox text_line
 					If left(text_line, 9) = "PRE - WHO" Then who_are_we_completing_the_form_with = Mid(text_line, 13)
 					If left(text_line, 9) = "PRE - ATC" Then all_the_clients = Mid(text_line, 13)
 					If left(text_line, 7) = "EXP - 1" Then exp_q_1_income_this_month = Mid(text_line, 11)
@@ -862,29 +863,30 @@ function restore_your_work(vars_filled)
 					If left(text_line, 14) = "EXP - 6 - PREG" Then exp_pregnant_yn = Mid(text_line, 18)
 					If left(text_line, 14) = "EXP - 6 - WHO?" Then exp_pregnant_who = Mid(text_line, 18)
 					If left(text_line, 3) = "ADR" Then
-						If mid(text_line, 6, 10) = "RESI - STR" Then resi_addr_street_full = MID(text_line, 20)
-						If mid(text_line, 6, 10) = "RESI - CIT" Then resi_addr_city = MID(text_line, 20)
-						If mid(text_line, 6, 10) = "RESI - STA" Then resi_addr_state = MID(text_line, 20)
-						If mid(text_line, 6, 10) = "RESI - ZIP" Then resi_addr_zip = MID(text_line, 20)
-						If mid(text_line, 6, 10) = "RESI - RES" Then reservation_yn = MID(text_line, 20)
-						If mid(text_line, 6, 10) = "RESI - NAM" Then reservation_name = MID(text_line, 20)
-						If mid(text_line, 6, 10) = "RESI - HML" Then homeless_yn = MID(text_line, 20)
-						If mid(text_line, 6, 10) = "RESI - LIV" Then living_situation = MID(text_line, 20)
+						' MsgBox "~" & mid(text_line, 7, 10) & "~"
+						If mid(text_line, 7, 10) = "RESI - STR" Then resi_addr_street_full = MID(text_line, 20)
+						If mid(text_line, 7, 10) = "RESI - CIT" Then resi_addr_city = MID(text_line, 20)
+						If mid(text_line, 7, 10) = "RESI - STA" Then resi_addr_state = MID(text_line, 20)
+						If mid(text_line, 7, 10) = "RESI - ZIP" Then resi_addr_zip = MID(text_line, 20)
+						If mid(text_line, 7, 10) = "RESI - RES" Then reservation_yn = MID(text_line, 20)
+						If mid(text_line, 7, 10) = "RESI - NAM" Then reservation_name = MID(text_line, 20)
+						If mid(text_line, 7, 10) = "RESI - HML" Then homeless_yn = MID(text_line, 20)
+						If mid(text_line, 7, 10) = "RESI - LIV" Then living_situation = MID(text_line, 20)
 
-						If mid(text_line, 6, 10) = "MAIL - STR" Then mail_addr_street_full = MID(text_line, 20)
-						If mid(text_line, 6, 10) = "MAIL - CIT" Then mail_addr_city = MID(text_line, 20)
-						If mid(text_line, 6, 10) = "MAIL - STA" Then mail_addr_state = MID(text_line, 20)
-						If mid(text_line, 6, 10) = "MAIL - ZIP" Then mail_addr_zip = MID(text_line, 20)
+						If mid(text_line, 7, 10) = "MAIL - STR" Then mail_addr_street_full = MID(text_line, 20)
+						If mid(text_line, 7, 10) = "MAIL - CIT" Then mail_addr_city = MID(text_line, 20)
+						If mid(text_line, 7, 10) = "MAIL - STA" Then mail_addr_state = MID(text_line, 20)
+						If mid(text_line, 7, 10) = "MAIL - ZIP" Then mail_addr_zip = MID(text_line, 20)
 
-						If mid(text_line, 6, 10) = "PHON - NON" Then phone_one_number = MID(text_line, 20)
-						If mid(text_line, 6, 10) = "PHON - TON" Then phone_one_type = MID(text_line, 20)
-						If mid(text_line, 6, 10) = "PHON - NTW" Then phone_two_number = MID(text_line, 20)
-						If mid(text_line, 6, 10) = "PHON - TTW" Then phone_two_type = MID(text_line, 20)
-						If mid(text_line, 6, 10) = "PHON - NTH" Then phone_three_number = MID(text_line, 20)
-						If mid(text_line, 6, 10) = "PHON - TTH" Then phone_three_type = MID(text_line, 20)
+						If mid(text_line, 7, 10) = "PHON - NON" Then phone_one_number = MID(text_line, 20)
+						If mid(text_line, 7, 10) = "PHON - TON" Then phone_one_type = MID(text_line, 20)
+						If mid(text_line, 7, 10) = "PHON - NTW" Then phone_two_number = MID(text_line, 20)
+						If mid(text_line, 7, 10) = "PHON - TTW" Then phone_two_type = MID(text_line, 20)
+						If mid(text_line, 7, 10) = "PHON - NTH" Then phone_three_number = MID(text_line, 20)
+						If mid(text_line, 7, 10) = "PHON - TTH" Then phone_three_type = MID(text_line, 20)
 
-						If mid(text_line, 6, 4) = "DATE" Then address_change_date = MID(text_line, 13)
-						If mid(text_line, 6, 4) = "CNTY" Then resi_addr_county = MID(text_line, 13)
+						If mid(text_line, 7, 4) = "DATE" Then address_change_date = MID(text_line, 13)
+						If mid(text_line, 7, 4) = "CNTY" Then resi_addr_county = MID(text_line, 13)
 
 					End If
 					' If left(text_line, 3) = "" Then  = Mid(text_line, 7)
@@ -1038,10 +1040,10 @@ function restore_your_work(vars_filled)
 					If left(text_line, 3) = "24D" Then question_24_verif_details = Mid(text_line, 7)
 
 					If left(text_line, 3) = "ARR" Then
-						If MID(text_line, 6, 17) = "ALL_CLIENTS_ARRAY" Then
+						If MID(text_line, 7, 17) = "ALL_CLIENTS_ARRAY" Then
 							array_info = Mid(text_line, 27)
 							array_info = split(array_info, "~")
-							ReDim Preserve ALL_CLIENTS_ARRAY(memb_notes, known_memb)
+							ReDim Preserve ALL_CLIENTS_ARRAY(memb_notes, known_membs)
 							ALL_CLIENTS_ARRAY(memb_last_name, known_membs) 				= array_info(0)
 							ALL_CLIENTS_ARRAY(memb_first_name, known_membs) 			= array_info(1)
 							ALL_CLIENTS_ARRAY(memb_mid_name, known_membs) 				= array_info(2)
@@ -1076,9 +1078,10 @@ function restore_your_work(vars_filled)
 							ALL_CLIENTS_ARRAY(clt_verif_details, known_membs) 			= array_info(31)
 							ALL_CLIENTS_ARRAY(memb_notes, known_membs) 					= array_info(32)
 							ALL_CLIENTS_ARRAY(memb_ref_numb, known_membs) 				= array_info(33)
+							known_membs = known_membs + 1
 						End If
 
-						If MID(text_line, 6, 10) = "JOBS_ARRAY" Then
+						If MID(text_line, 7, 10) = "JOBS_ARRAY" Then
 							array_info = Mid(text_line, 20)
 							array_info = split(array_info, "~")
 							ReDim Preserve JOBS_ARRAY(jobs_notes, known_jobs)
@@ -1087,7 +1090,7 @@ function restore_your_work(vars_filled)
 							JOBS_ARRAY(jobs_gross_monthly_earnings, known_jobs) = array_info(2)
 							JOBS_ARRAY(jobs_employer_name, known_jobs) 			= array_info(3)
 							JOBS_ARRAY(jobs_notes, known_jobs) 					= array_info(4)
-
+							known_jobs = known_jobs + 1
 						End If
 					End If
 				Next
@@ -1645,12 +1648,12 @@ function dlg_page_four_income()
 			err_msg = ""
 
 			btn_placeholder = 4000
+			dlg_len = 350
 			for each_job = 0 to UBOUND(JOBS_ARRAY, 2)
 				JOBS_ARRAY(jobs_edit_btn, each_job) = btn_placeholder
 				btn_placeholder = btn_placeholder + 1
+				If JOBS_ARRAY(jobs_employer_name, each_job) <> "" AND JOBS_ARRAY(jobs_employee_name, each_job) <> "" AND JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) <> "" AND JOBS_ARRAY(jobs_hourly_wage, each_job) <> "" Then dlg_len = dlg_len + 10
 			next
-
-			dlg_len = 360 + UBound(JOBS_ARRAY, 2) *10
 
 			Dialog1 = ""
 			BeginDialog Dialog1, 0, 0, 650, dlg_len, "What kinds of income do you have?"
@@ -1663,22 +1666,25 @@ function dlg_page_four_income()
 			  Text 90, 25, 350, 10, "a. FOR SNAP ONLY: Has anyone in the household had a job or been self-employed in the past 36 months?"
 			  Text 95, 40, 25, 10, "Notes:"
 			  EditBox 120, 35, 390, 15, question_8_notes
-			  DropListBox 10, 60, 60, 45, question_answers, question_9_yn
-			  Text 80, 60, 350, 10, "9. Does anyone in the household have a job or expect to get income from a job this month or next month?"
+			  DropListBox 10, 55, 60, 45, question_answers, question_9_yn
+			  Text 80, 55, 350, 10, "9. Does anyone in the household have a job or expect to get income from a job this month or next month?"
 			  ButtonGroup ButtonPressed
-			    PushButton 430, 60, 55, 10, "ADD JOB", add_job_btn
-			  Text 540, 60, 105, 10, "Q9 - Verification -  "
+			    PushButton 430, 55, 55, 10, "ADD JOB", add_job_btn
+			  Text 540, 55, 105, 10, "Q9 - Verification -  "
 			  ButtonGroup ButtonPressed
-			    PushButton 560, 70, 75, 10, "ADD VERIFICATION", add_verif_9_btn
-			  y_pos = 75
+			    PushButton 560, 65, 75, 10, "ADD VERIFICATION", add_verif_9_btn
+			  y_pos = 65
 			  ' If JOBS_ARRAY(jobs_employee_name, 0) <> "" Then
-				  for each_job = 0 to UBOUND(JOBS_ARRAY, 2)
+			  for each_job = 0 to UBOUND(JOBS_ARRAY, 2)
+				  If JOBS_ARRAY(jobs_employer_name, each_job) <> "" AND JOBS_ARRAY(jobs_employee_name, each_job) <> "" AND JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) <> "" AND JOBS_ARRAY(jobs_hourly_wage, each_job) <> "" Then
+
 					  Text 95, y_pos, 395, 10, "Employer: " & JOBS_ARRAY(jobs_employer_name, each_job) & "  - Employee: " & JOBS_ARRAY(jobs_employee_name, each_job) & "   - Gross Monthly Earnings: $ " & JOBS_ARRAY(jobs_gross_monthly_earnings, each_job)
-					  ButtonPressed
+					  ButtonGroup ButtonPressed
 					    PushButton 495, y_pos, 20, 10, "EDIT", JOBS_ARRAY(jobs_edit_btn, each_job)
 					  y_pos = y_pos + 10
-				  next
-				  y_pos = y_pos + 20
+				  End If
+			  next
+			  y_pos = y_pos + 10
 			  ' End If
 			  ' Text 95, 75, 395, 10, "Employer: NAME OF EMPLOYER  - Employee: THE WORKER NAME HERE   - Gross Monthly Earnings: $ XXXXX"
 			  ' Text 95, 85, 395, 10, "Employer: NAME OF EMPLOYER  - Employee: THE WORKER NAME HERE   - Gross Monthly Earnings: $ XXXXX"
@@ -1696,7 +1702,7 @@ function dlg_page_four_income()
 			  y_pos = y_pos + 10
 			  EditBox 95, y_pos, 80, 15, question_10_monthly_earnings
 			  EditBox 185, y_pos, 325, 15, question_10_notes
-			  y_pos = y_pos + 25
+			  y_pos = y_pos + 20
 			  DropListBox 10, y_pos, 60, 45, question_answers, question_11_yn
 			  Text 80, y_pos, 255, 10, "11. Do you expect any changes in income, expenses or work hours?"
 			  Text 540, y_pos, 105, 10, "Q11 - Verification - " & question_11_verif_yn
@@ -1705,7 +1711,7 @@ function dlg_page_four_income()
 			    PushButton 560, y_pos, 75, 10, "ADD VERIFICATION", add_verif_11_btn
 			  Text 95, y_pos + 5, 25, 10, "Notes:"
 			  EditBox 120, y_pos, 390, 15, question_11_notes
-			  y_pos = y_pos + 30
+			  y_pos = y_pos + 20
 			  Text 5, y_pos, 75, 10, "Pricipal Wage Earner"
 			  DropListBox 80, y_pos - 5, 175, 45, all_the_clients, pwe_selection
 			  y_pos = y_pos + 10
@@ -1751,6 +1757,11 @@ function dlg_page_four_income()
 			  EditBox 120, y_pos, 390, 15, question_12_notes
 			  y_pos = y_pos + 25
 			  DropListBox 10, y_pos, 60, 45, question_answers, question_13_yn
+			  Text 0, 0, 0, 0, ""
+			  Text 0, 0, 0, 0, ""
+			  Text 0, 0, 0, 0, ""
+			  Text 0, 0, 0, 0, ""
+			  Text 0, 0, 0, 0, ""
 			  Text 80, y_pos, 400, 10, "13. Does anyone in the household have or expect to get any loans, scholarships or grants for attending school?"
 			  Text 540, y_pos, 105, 10, "Q13 - Verification - " & question_13_verif_yn
 			  y_pos = y_pos + 10
@@ -1780,8 +1791,18 @@ function dlg_page_four_income()
 			If ButtonPressed = add_verif_13_btn Then Call verif_details_dlg(13)
 
 			If ButtonPressed = add_job_btn Then
-				another_job = UBound(JOBS_ARRAY, 2) + 1
-				ReDim Preserve JOBS_ARRAY(jobs_notes, another_job)
+				another_job = ""
+				count = 0
+				for each_job = 0 to UBOUND(JOBS_ARRAY, 2)
+					count = count + 1
+					If JOBS_ARRAY(jobs_employer_name, each_job) = "" AND JOBS_ARRAY(jobs_employee_name, each_job) = "" AND JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) = "" AND JOBS_ARRAY(jobs_hourly_wage, each_job) = "" Then
+						another_job = each_job
+					End If
+				Next
+				If another_job = "" Then
+					another_job = count
+					ReDim Preserve JOBS_ARRAY(jobs_notes, another_job)
+				End If
 				Call jobs_details_dlg(another_job)
 			End If
 
@@ -1882,6 +1903,8 @@ function dlg_page_five_expenses()
 			  Text 80, 280, 430, 10, "18. Does anyone in the household pay court-ordered child support, spousal support, child care support, medical support"
 			  Text 95, 290, 215, 10, "or contribute to a tax dependent who does not live in your home?"
 			  Text 95, 305, 25, 10, "Notes:"
+			  Text 0, 0, 0, 0, ""
+			  Text 0, 0, 0, 0, ""
 			  Text 560, 280, 105, 10, "Q18 - Verification - " & question_18_verif_yn
 			  Text 80, 325, 255, 10, "19. For SNAP only: Does anyone in the household have medical expenses? "
 			  Text 95, 340, 25, 10, "Notes:"
@@ -2251,29 +2274,29 @@ function verif_details_dlg(question_number)
 end function
 
 function jobs_details_dlg(this_jobs)
-
-
-	BeginDialog Dialog1, 0, 0, 321, 130, "Add Job"
-	  DropListBox 10, 35, 135, 45, all_the_clients, JOBS_ARRAY(jobs_employee_name, this_jobs)
-	  EditBox 150, 35, 60, 15, JOBS_ARRAY(jobs_hourly_wage, this_jobs)
-	  EditBox 215, 35, 100, 15, JOBS_ARRAY(jobs_gross_monthly_earnings, this_jobs)
-	  EditBox 10, 65, 305, 15, JOBS_ARRAY(jobs_employer_name, this_jobs)
-	  EditBox 35, 90, 280, 15, JOBS_ARRAY(jobs_notes, this_jobs)
-	  ButtonGroup ButtonPressed
-	    PushButton 265, 110, 50, 15, "Return", return_btn
-	    PushButton 265, 10, 50, 10, "CLEAR", clear_btn
-	  Text 10, 10, 100, 10, "Enter Job Details/Information"
-	  Text 10, 25, 70, 10, "EMPLOYEE NAME:"
-	  Text 150, 25, 60, 10, "HOURLY WAGE:"
-	  Text 215, 25, 105, 10, "GROSS MONTHLY EARNINGS:"
-	  Text 10, 55, 110, 10, "EMPLOYER/BUSINESS NAME:"
-	  Text 10, 95, 25, 10, "Notes:"
-	EndDialog
-
 	Do
+		Dialog1 = ""
+		BeginDialog Dialog1, 0, 0, 321, 130, "Add Job"
+		  DropListBox 10, 35, 135, 45, all_the_clients, JOBS_ARRAY(jobs_employee_name, this_jobs)
+		  EditBox 150, 35, 60, 15, JOBS_ARRAY(jobs_hourly_wage, this_jobs)
+		  EditBox 215, 35, 100, 15, JOBS_ARRAY(jobs_gross_monthly_earnings, this_jobs)
+		  EditBox 10, 65, 305, 15, JOBS_ARRAY(jobs_employer_name, this_jobs)
+		  EditBox 35, 90, 280, 15, JOBS_ARRAY(jobs_notes, this_jobs)
+		  ButtonGroup ButtonPressed
+		    PushButton 265, 110, 50, 15, "Return", return_btn
+		    PushButton 265, 10, 50, 10, "CLEAR", clear_job_btn
+		  Text 10, 10, 100, 10, "Enter Job Details/Information"
+		  Text 10, 25, 70, 10, "EMPLOYEE NAME:"
+		  Text 150, 25, 60, 10, "HOURLY WAGE:"
+		  Text 215, 25, 105, 10, "GROSS MONTHLY EARNINGS:"
+		  Text 10, 55, 110, 10, "EMPLOYER/BUSINESS NAME:"
+		  Text 10, 95, 25, 10, "Notes:"
+		EndDialog
+
+
 		dialog Dialog1
 		If ButtonPressed = -1 Then ButtonPressed = return_btn
-		If ButtonPressed = clear_btn Then
+		If ButtonPressed = clear_job_btn Then
 			JOBS_ARRAY(jobs_employee_name, this_jobs) = ""
 			JOBS_ARRAY(jobs_hourly_wage, this_jobs) = ""
 			JOBS_ARRAY(jobs_gross_monthly_earnings, this_jobs) = ""
@@ -2890,6 +2913,7 @@ add_verif_21_btn			= 1091
 add_verif_22_btn			= 1092
 add_verif_23_btn			= 1093
 add_verif_24_btn			= 1094
+clear_job_btn				= 1100
 
 show_caf_pg_1_pers_dlg = TRUE
 show_caf_pg_1_addr_dlg = TRUE
@@ -3510,8 +3534,11 @@ If question_8_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "
 
 objSelection.TypeText "Q 9. Does anyone in the household have a job or expect to get income from a job this month or next month?" & vbCr
 
-If JOBS_ARRAY(jobs_employee_name, 0) Then
-	for each_job = 0 to UBOUND(JOBS_ARRAY, 2)
+job_added = FALSE
+for each_job = 0 to UBOUND(JOBS_ARRAY, 2)
+	If JOBS_ARRAY(jobs_employer_name, each_job) <> "" AND JOBS_ARRAY(jobs_employee_name, each_job) <> "" AND JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) <> "" AND JOBS_ARRAY(jobs_hourly_wage, each_job) <> "" Then
+		job_added = TRUE
+
 		all_the_tables = UBound(TABLE_ARRAY) + 1
 		ReDim Preserve TABLE_ARRAY(all_the_tables)
 		Set objRange = objSelection.Range					'range is needed to create tables
@@ -3558,10 +3585,11 @@ If JOBS_ARRAY(jobs_employee_name, 0) Then
 		array_counters = array_counters + 1
 
 		objSelection.TypeText "NOTES: " & JOBS_ARRAY(jobs_notes, each_job) & vbCR
-	next
-Else
-	objSelection.TypeText chr(9) & "THERE ARE NO JOBS ENTERED." & vbCr
-End If
+	End If
+next
+
+If job_added = FALSE Then objSelection.TypeText chr(9) & "THERE ARE NO JOBS ENTERED." & vbCr
+
 If question_9_notes <> "" Then objSelection.TypeText chr(9) & "Notes: " & question_9_notes & vbCr
 If question_9_verif_yn <> "Mot Needed" AND question_10_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_9_verif_yn & vbCr
 If question_9_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_9_verif_details & vbCr
