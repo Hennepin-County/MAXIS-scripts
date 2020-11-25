@@ -3970,22 +3970,20 @@ If question_24_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & 
 objSelection.TypeText "CAF QUALIFYING QUESTIONS" & vbCr
 
 objSelection.TypeText "Has a court or any other civil or administrative process in Minnesota or any other state found anyone in the household guilty or has anyone been disqualified from receiving public assistance for breaking any of the rules listed in the CAF?" & vbCr
-objSelection.TypeText "Has anyone in the household been convicted of making fraudulent statements about their place of residence to get cash or SNAP benefits from more than one state?" & vbCr
-objSelection.TypeText "Is anyone in your householdhiding or running from the law to avoid prosecution being taken into custody, or to avoid going to jail for a felony?" & vbCr
-objSelection.TypeText "Has anyone in your household been convicted of a drug felony in the past 10 years?" & vbCr
-objSelection.TypeText "Is anyone in your household currently violating a condition of parole, probation or supervised release?" & vbCr
-
 objSelection.TypeText chr(9) & qual_question_one & vbCr
 If trim(qual_memb_one) <> "" AND qual_memb_one <> "Select or Type" Then objSelection.TypeText chr(9) & qual_memb_one & vbCr
+objSelection.TypeText "Has anyone in the household been convicted of making fraudulent statements about their place of residence to get cash or SNAP benefits from more than one state?" & vbCr
 objSelection.TypeText chr(9) & qual_question_two & vbCr
 If trim(qual_memb_two) <> "" AND qual_memb_two <> "Select or Type" Then objSelection.TypeText chr(9) & qual_memb_two & vbCr
+objSelection.TypeText "Is anyone in your householdhiding or running from the law to avoid prosecution being taken into custody, or to avoid going to jail for a felony?" & vbCr
 objSelection.TypeText chr(9) & qual_question_three & vbCr
 If trim(qual_memb_there) <> "" AND qual_memb_there <> "Select or Type" Then objSelection.TypeText chr(9) & qual_memb_there & vbCr
+objSelection.TypeText "Has anyone in your household been convicted of a drug felony in the past 10 years?" & vbCr
 objSelection.TypeText chr(9) & qual_question_four & vbCr
 If trim(qual_memb_four) <> "" AND qual_memb_four <> "Select or Type" Then objSelection.TypeText chr(9) & qual_memb_four & vbCr
+objSelection.TypeText "Is anyone in your household currently violating a condition of parole, probation or supervised release?" & vbCr
 objSelection.TypeText chr(9) & qual_question_five & vbCr
 If trim(qual_memb_five) <> "" AND qual_memb_five <> "Select or Type" Then objSelection.TypeText chr(9) & qual_memb_five & vbCr
-
 
 objSelection.Font.Size = "14"
 objSelection.Font.Bold = FALSE
