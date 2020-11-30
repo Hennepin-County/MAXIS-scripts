@@ -916,7 +916,7 @@ objExcel.ActiveWorkbook.Close
 objExcel.Application.Quit
 objExcel.Quit
 
-'----------------------------------------------------------------------------------------------------Appears Expedited & EXP Screening & Secondary w/o Interview for DWP
+'----------------------------------------------------------------------------------------------------DWP Appears Expedited & EXP Screening & Secondary w/o Interview
 '----------------------------------------------------------------------------------------------------Secondary Assignment 
 'Opening the Excel file
 Set objExcel = CreateObject("Excel.Application")
@@ -1004,7 +1004,6 @@ For item = 0 to UBound(expedited_array, 2)
         'only assigning cases that haven't exceeded Day 30 - Those are their own assignments 
         If expedited_array(days_pending_const, item) < 30 then 
             If expedited_array(days_pending_const, item) =< 7 then 
-                If 
                 objExcel.Cells(excel_row, 1).Value = expedited_array(worker_number_const,    item)
                 objExcel.Cells(excel_row, 2).Value = expedited_array(case_number_const,      item)
                 objExcel.Cells(excel_row, 3).Value = expedited_array(program_ID_const,       item)
@@ -1084,7 +1083,7 @@ stats_report = "Screening Count: " & screening_count & vbcr & _
 Call create_outlook_email("WFMTeam@hennepin.us", "Laurie.Hennen@hennepin.us", "EXP SNAP Report without Interviews is Ready. EOM.", "", "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP SNAP " & report_date & ".xlsx", True)
 Call create_outlook_email("Maslah.Jama@hennepin.us", "Laurie.Hennen@hennepin.us", "EXP SNAP Report for YET without Interviews is Ready. EOM.", "", "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP SNAP X127FA5 " & report_date & ".xlsx", True)
 Call create_outlook_email("HSPH.EWS.Unit.Frey@hennepin.us", "", "Today's EXP SNAP reports are ready.", "Path to folder - T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project", "", True)
-Call create_outlook_email("Ilse.Ferris@hennepin.us", "Laurie.Hennen@hennepin.us", "Today's EXP SNAP primary and secondary assignments are ready.", "See attachment.", "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP SNAP DWP " & report_date & ".xlsx", True)
+Call create_outlook_email("Mohamed.Ahmed@hennepin.us; Dawn.Welch@hennepin.us", "Ilse.Ferris@hennepin.us;Laurie.Hennen@hennepin.us", "Today's EXP SNAP primary and secondary assignments are ready.", "See attachment.", "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP SNAP DWP " & report_date & ".xlsx", True)
 Call create_outlook_email("Ilse.Ferris@hennepin.us;Laurie.Hennen@hennepin.us","","Expedited SNAP Daily statistics for " & date, stats_report, "", True)
 
 '----------------------------------------------------------------------------------------------------Moves yesterday's files to the archive folder for the specific month
@@ -1105,4 +1104,4 @@ Next
 
 'logging usage stats
 STATS_counter = STATS_counter - 1  'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
-script_end_procedure("Success, the expedited SNAP run is complete. The workbook has been saved.")
+script_end_procedure("Success, the expedited SNAP run is complete. The workbook has been saved.")``
