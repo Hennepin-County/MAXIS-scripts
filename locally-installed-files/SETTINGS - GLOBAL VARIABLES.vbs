@@ -9,7 +9,7 @@
 default_directory = "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Scripts\Script Files\"
 
 'Run locally: if this is set to "True", the scripts will run locally and bypass GitHub entirely. This is great for debugging or developing scripts.
-run_locally = false
+run_locally = true
 
 '========================================================================================================================================
 
@@ -90,7 +90,7 @@ banked_month_database_path = ""
 'BRANCH CONFIGURATION=====================
 
 'This is a variable which sets the scripts to use the master branch (common with scriptwriters)
-use_master_branch = False 
+use_master_branch = False
 
 'TRAINING CASE SCENARIO SETTINGS==========
 
