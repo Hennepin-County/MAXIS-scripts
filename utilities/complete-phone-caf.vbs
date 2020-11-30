@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/30/2020", "Updated the phone output so the phone number type is visible on the PDF - it had been getting cut off in the box of the table.", "Casey Love, Hennepin County")
 call changelog_update("11/24/2020", "Initial version.", "Casey Love, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -1324,6 +1325,9 @@ function dlg_page_one_address()
 			cancel_confirmation
 
 			'ADD ERROR HANDLING HERE
+			Call validate_phone_number(err_msg, "*", phone_one_number, TRUE)
+			Call validate_phone_number(err_msg, "*", phone_two_number, TRUE)
+			Call validate_phone_number(err_msg, "*", phone_three_number, TRUE)
 
 			If ButtonPressed = -1 Then ButtonPressed = next_btn
 
@@ -2426,6 +2430,52 @@ function jobs_details_dlg(this_jobs)
 
 end function
 
+function format_phone_number(phone_variable, format_type)
+	' format_type_options:
+	'  (xxx)xxx-xxxx
+	'  xxx-xxx-xxxx
+	'  xxx xxx xxxx
+	original_phone_var = phone_variable
+	phone_variable = trim(phone_variable)
+	phone_variable = replace(phone_variable, "(", "")
+	phone_variable = replace(phone_variable, ")", "")
+	phone_variable = replace(phone_variable, "-", "")
+	phone_variable = replace(phone_variable, " ", "")
+
+	If len(phone_variable) = 10 Then
+		left_phone = left(phone_variable, 3)
+		mid_phone = mid(phone_variable, 4, 3)
+		right_phone = right(phone_variable, 4)
+		format_type = lcase(format_type)
+		If format_type = "(xxx)xxx-xxxx" Then
+			phone_variable = "(" & left_phone & ")" & mid_phone & "-" & right_phone
+		End If
+		If format_type = "xxx-xxx-xxxx" Then
+			phone_variable = left_phone & "-" & mid_phone & "-" & right_phone
+		End If
+		If format_type = "xxx xxx xxxx" Then
+			phone_variable = left_phone & " " & mid_phone & " " & right_phone
+		End If
+	Else
+		phone_variable = original_phone_var
+	End If
+end function
+
+function validate_phone_number(err_msg_variable, list_delimiter, phone_variable, allow_to_be_blank)
+	original_phone_var = phone_variable
+	phone_variable = trim(phone_variable)
+	phone_variable = replace(phone_variable, "(", "")
+	phone_variable = replace(phone_variable, ")", "")
+	phone_variable = replace(phone_variable, "-", "")
+	phone_variable = replace(phone_variable, " ", "")
+
+	If len(phone_variable) <> 10 Then err_msg_variable = err_msg_variable & vbNewLine & list_delimiter & " Phone numbers should be entered as a 10 digit number. Please incldue the area code or check the number to ensure the correct information is entered."
+	If len(phone_variable) = 0 then
+		If allow_to_be_blank = TRUE then err_msg_variable = ""
+	End If
+	phone_variable = original_phone_var
+end function
+
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 const memb_ref_numb                 = 00
@@ -2590,7 +2640,7 @@ question_answers = ""+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Not Required"
 Dim who_are_we_completing_the_form_with, caf_person_one, exp_q_1_income_this_month, exp_q_2_assets_this_month, exp_q_3_rent_this_month, exp_pay_heat_checkbox, exp_pay_ac_checkbox, exp_pay_electricity_checkbox, exp_pay_phone_checkbox
 Dim exp_pay_none_checkbox, exp_migrant_seasonal_formworker_yn, exp_received_previous_assistance_yn, exp_previous_assistance_when, exp_previous_assistance_where, exp_previous_assistance_what, exp_pregnant_yn, exp_pregnant_who, resi_addr_street_full
 Dim resi_addr_city, resi_addr_state, resi_addr_zip, reservation_yn, reservation_name, homeless_yn, living_situation, mail_addr_street_full, mail_addr_city, mail_addr_state, mail_addr_zip, phone_one_number, phone_pne_type, phone_two_number
-Dim phone_two_type, phone_three_number, phone_three_type, address_change_date, resi_addr_county, caf_form_date, all_the_clients
+Dim phone_two_type, phone_three_number, phone_three_type, address_change_date, resi_addr_county, caf_form_date, all_the_clients, err_msg
 
 Dim question_1_yn, question_1_notes, question_1_verif_yn, question_1_verif_details
 Dim question_2_yn, question_2_notes, question_2_verif_yn, question_2_verif_details
@@ -3002,7 +3052,6 @@ Do
 Loop until show_caf_sig_dlg = FALSE
 save_your_work
 
-
 '****writing the word document
 Set objWord = CreateObject("Word.Application")
 
@@ -3118,77 +3167,100 @@ objPers1Table.Cell(4, 4).Range.Text = ALL_CLIENTS_ARRAY(memi_marriage_status, 0)
 
 ' objPers1Table.Rows(4).Cells.Split 1, 5, TRUE
 For row = 5 to 6
-	objPers1Table.Rows(row).Cells.Split 1, 5, TRUE
+	objPers1Table.Rows(row).Cells.Split 1, 4, TRUE
 
-	objPers1Table.Cell(row, 1).SetWidth 230, 2
-	objPers1Table.Cell(row, 2).SetWidth 55, 2
-	objPers1Table.Cell(row, 3).SetWidth 110, 2
-	objPers1Table.Cell(row, 4).SetWidth 35, 2
-	objPers1Table.Cell(row, 5).SetWidth 70, 2
+	objPers1Table.Cell(row, 1).SetWidth 285, 2
+	' objPers1Table.Cell(row, 2).SetWidth 55, 2
+	objPers1Table.Cell(row, 2).SetWidth 110, 2
+	objPers1Table.Cell(row, 3).SetWidth 35, 2
+	objPers1Table.Cell(row, 4).SetWidth 70, 2
 Next
-For col = 1 to 5
+For col = 1 to 4
 	objPers1Table.Cell(5, col).Range.Font.Size = 6
 	objPers1Table.Cell(6, col).Range.Font.Size = 12
 Next
 objPers1Table.Cell(5, 1).Range.Text = "ADDRESS WHERE YOU LIVE"
-objPers1Table.Cell(5, 2).Range.Text = "APT. NUMBER"
-objPers1Table.Cell(5, 3).Range.Text = "CITY"
-objPers1Table.Cell(5, 4).Range.Text = "STATE"
-objPers1Table.Cell(5, 5).Range.Text = "ZIP CODE"
+' objPers1Table.Cell(5, 2).Range.Text = "APT. NUMBER"
+objPers1Table.Cell(5, 2).Range.Text = "CITY"
+objPers1Table.Cell(5, 3).Range.Text = "STATE"
+objPers1Table.Cell(5, 4).Range.Text = "ZIP CODE"
 
 objPers1Table.Cell(6, 1).Range.Text = resi_addr_street_full
-objPers1Table.Cell(6, 2).Range.Text = ""
-objPers1Table.Cell(6, 3).Range.Text = resi_addr_city
-objPers1Table.Cell(6, 4).Range.Text = LEFT(resi_addr_state, 2)
-objPers1Table.Cell(6, 5).Range.Text = resi_addr_zip
+' objPers1Table.Cell(6, 2).Range.Text = ""
+objPers1Table.Cell(6, 2).Range.Text = resi_addr_city
+objPers1Table.Cell(6, 3).Range.Text = LEFT(resi_addr_state, 2)
+objPers1Table.Cell(6, 4).Range.Text = resi_addr_zip
 
 
 ' objPers1Table.Rows(5).Cells.Split 1, 3, TRUE
 For row = 7 to 8
-	objPers1Table.Rows(row).Cells.Split 1, 5, TRUE
+	objPers1Table.Rows(row).Cells.Split 1, 4, TRUE
 
-	objPers1Table.Cell(row, 1).SetWidth 230, 2
-	objPers1Table.Cell(row, 2).SetWidth 55, 2
-	objPers1Table.Cell(row, 3).SetWidth 110, 2
-	objPers1Table.Cell(row, 4).SetWidth 35, 2
-	objPers1Table.Cell(row, 5).SetWidth 70, 2
+	objPers1Table.Cell(row, 1).SetWidth 285, 2
+	' objPers1Table.Cell(row, 2).SetWidth 55, 2
+	objPers1Table.Cell(row, 2).SetWidth 110, 2
+	objPers1Table.Cell(row, 3).SetWidth 35, 2
+	objPers1Table.Cell(row, 4).SetWidth 70, 2
 Next
-For col = 1 to 5
+For col = 1 to 4
 	objPers1Table.Cell(7, col).Range.Font.Size = 6
 	objPers1Table.Cell(8, col).Range.Font.Size = 12
 Next
 objPers1Table.Cell(7, 1).Range.Text = "MAILING ADDRESS"
-objPers1Table.Cell(7, 2).Range.Text = "APT. NUMBER"
-objPers1Table.Cell(7, 3).Range.Text = "CITY"
-objPers1Table.Cell(7, 4).Range.Text = "STATE"
-objPers1Table.Cell(7, 5).Range.Text = "ZIP CODE"
+' objPers1Table.Cell(7, 2).Range.Text = "APT. NUMBER"
+objPers1Table.Cell(7, 2).Range.Text = "CITY"
+objPers1Table.Cell(7, 3).Range.Text = "STATE"
+objPers1Table.Cell(7, 4).Range.Text = "ZIP CODE"
 
 objPers1Table.Cell(8, 1).Range.Text = mail_addr_street_full
-objPers1Table.Cell(8, 2).Range.Text = ""
-objPers1Table.Cell(8, 3).Range.Text = mail_addr_city
-objPers1Table.Cell(8, 4).Range.Text = LEFT(mail_addr_state, 2)
-objPers1Table.Cell(8, 5).Range.Text = mail_addr_zip
+' objPers1Table.Cell(8, 2).Range.Text = ""
+objPers1Table.Cell(8, 2).Range.Text = mail_addr_city
+objPers1Table.Cell(8, 3).Range.Text = LEFT(mail_addr_state, 2)
+objPers1Table.Cell(8, 4).Range.Text = mail_addr_zip
 
 
 ' objPers1Table.Rows(6).Cells.Split 1, 3, TRUE
 For row = 9 to 10
-	objPers1Table.Rows(row).Cells.Split 1, 3, TRUE
+	objPers1Table.Rows(row).Cells.Split 1, 4, TRUE
 
-	objPers1Table.Cell(row, 1).SetWidth 115, 2
-	objPers1Table.Cell(row, 2).SetWidth 115, 2
-	objPers1Table.Cell(row, 3).SetWidth 270, 2
+	objPers1Table.Cell(row, 1).SetWidth 105, 2
+	objPers1Table.Cell(row, 2).SetWidth 105, 2
+	objPers1Table.Cell(row, 3).SetWidth 105, 2
+	objPers1Table.Cell(row, 4).SetWidth 185, 2
 Next
-For col = 1 to 3
+For col = 1 to 4
 	objPers1Table.Cell(9, col).Range.Font.Size = 6
-	objPers1Table.Cell(10, col).Range.Font.Size = 12
+	objPers1Table.Cell(10, col).Range.Font.Size = 11
 Next
 objPers1Table.Cell(9, 1).Range.Text = "PHONE NUMBER"
 objPers1Table.Cell(9, 2).Range.Text = "PHONE NUMBER"
-objPers1Table.Cell(9, 3).Range.Text = "DO YOU LIVE ON A RESERVATION?"
+objPers1Table.Cell(9, 3).Range.Text = "PHONE NUMBER"
+objPers1Table.Cell(9, 4).Range.Text = "DO YOU LIVE ON A RESERVATION?"
 
-objPers1Table.Cell(10, 1).Range.Text = phone_one_number & " (" & phone_pne_type & ")"
-objPers1Table.Cell(10, 2).Range.Text = phone_two_number & " (" & phone_two_type & ")"
-objPers1Table.Cell(10, 3).Range.Text = reservation_yn & " - " & reservation_name
+Call format_phone_number(phone_one_number, "xxx-xxx-xxxx")
+Call format_phone_number(phone_two_number, "xxx-xxx-xxxx")
+Call format_phone_number(phone_three_number, "xxx-xxx-xxxx")
+If phone_pne_type = "" OR phone_pne_type = "Select One..." Then
+	phone_one_info = phone_one_number
+Else
+	phone_one_info = phone_one_number & " (" & left(phone_pne_type, 1) & ")"
+End If
+
+If phone_two_type = "" OR phone_two_type = "Select One..." Then
+	phone_two_info = phone_two_number
+Else
+	phone_two_info = phone_two_number & " (" & left(phone_two_type, 1) & ")"
+End If
+If phone_three_type = "" OR phone_three_type = "Select One..." Then
+	phone_three_info = phone_three_number
+Else
+	phone_three_info = phone_three_number & " (" & left(phone_three_type, 1) & ")"
+End If
+objPers1Table.Cell(10, 1).Range.Text = phone_one_info
+objPers1Table.Cell(10, 2).Range.Text = phone_two_info
+objPers1Table.Cell(10, 3).Range.Text = phone_three_info
+objPers1Table.Cell(10, 4).Range.Text = reservation_yn & " - " & reservation_name
+
 
 
 ' objPers1Table.Rows(7).Cells.Split 1, 3, TRUE
