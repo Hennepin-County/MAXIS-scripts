@@ -82,6 +82,8 @@ Do
 		err_msg = ""
 		Dialog Dialog1
 		cancel_confirmation
+		IF case_status_dropdown = "Case was not pended timely" and interview_date = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a valid NOMI date."
+		IF case_status_dropdown = "Denied programs for no interview" and interview_date = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a valid NOMI date."
 		IF case_status_dropdown = "Client completed application interview" and prog_updated_CHECKBOX <> CHECKED THEN err_msg = err_msg & vbNewLine & "* Please update PROG with interview date."
 		IF case_status_dropdown = "Client completed application interview" and case_note_date = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case note date."
 		IF case_status_dropdown = "Client completed application interview" and interview_date = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a valid interview date."
@@ -362,9 +364,35 @@ If SNAP_pends = TRUE Then
     'End If
 End If
 case_note = TRUE
+DropListBox 55, 25, 215, 15, "Select One:"+chr(9)+"Additional application pended prior to interview being completed"+chr(9)+"Case was not pended timely"+chr(9)+"Clear case note for other pending program pending not mentioned"+chr(9)+"Client completed application interview"+chr(9)+"Client has not completed application interview"+chr(9)+"Client has not completed F2F CASH application interview"+chr(9)+"Client contact was made no interview offered"+chr(9)+"Denied programs for no interview"+chr(9)+"Interview completed on NOMI day and NOMI was not cancelled"+chr(9)+"Interview not needed for MFIP to SNAP transition"+chr(9)+"Script-Application Received-not used when pending case"+chr(9)+"Script-CAF-used but no interview completed"+chr(9)+"Script-CAF-not used but approval made"+chr(9)+"Worker completed denial for no interview in ELIG"+chr(9)+"Other(please describe)", case_status_dropdown
+
 
 IF case_status_dropdown = "Additional application pended prior to interview being completed" OR case_status_dropdown = 	"Clear case note for other pending program pending not mentioned" OR case_status_dropdown = "Client contact was made no interview offered" OR case_status_dropdown = "Interview completed on NOMI day and NOMI was not cancelled" OR case_status_dropdown = "Interview not needed for MFIP to SNAP transition" OR case_status_dropdown = "Script-Application Received-not used when pending case" OR case_status_dropdown = "Script-CAF-used but no interview completed" OR case_status_dropdown = "Script-CAF-not used but approval made" OR case_status_dropdown = "Worker completed denial for no interview in ELIG" THEN
 	case_note = FALSE
+
+	IF case_status_dropdown = "Script-Application Received-not used when pending case" THEN  app_recvd_script_not_used_checkbox = CHECKED
+
+	prog_not_updated_interview_completed_checkbox
+
+	IF case_status_dropdown = "Additional application pended prior to interview being completed"  THEN intv_adult_cash_not_completed = CHECKED
+
+	IF case_status_dropdown = 	"Clear case note for other pending program pending not mentioned" THEN  cash_detail_not_covered_checkbox = CHECKED
+
+	CheckBox 30, 100, 370, 10, "Cash and SNAP were applied for, Cash needs a face to face, SNAP should have had a phone interview offered.", snap_phone_interview_should_have_been_offered_checkbox
+	CheckBox 30, 135, 260, 10, "Case was denied for no interview from PND2, QI should be doing all of these.", denied_for_no_interview_on_PND2_checkbox
+
+	IF case_status_dropdown = "Worker completed denial for no interview in ELIG" THEN denied_for_no_interview_NOT_on_PND2_checkbox = CHECKED
+
+	IF case_status_dropdown = "Script-CAF-not used but approval made" THEN  caf_script_used_no_interview_checkbox = CHECKED
+
+	IF case_status_dropdown = "Client contact was made no interview offered" THEN  client_contacted_should_have_been_offered_interview_checkbox = CHECKED
+
+	IF case_status_dropdown = "Interview completed on NOMI day and NOMI was not cancelled" THEN  interview_completed_same_day_NOMI_sent_checkbox = CHECKED
+
+
+
+
+
 	CALL run_another_script("C:\MAXIS-scripts\admin\send-email-correction.vbs")
 END IF
 

@@ -3397,26 +3397,29 @@ If UBound(ALL_CLIENTS_ARRAY, 2) <> 0 Then
 
 		' TABLE_ARRAY(array_counters).Rows(3).Cells.Split 1, 5, TRUE
 		For row = 3 to 4
-			TABLE_ARRAY(array_counters).Rows(row).Cells.Split 1, 4, TRUE
+			TABLE_ARRAY(array_counters).Rows(row).Cells.Split 1, 5, TRUE
 
-			TABLE_ARRAY(array_counters).Cell(row, 1).SetWidth 110, 2
-			TABLE_ARRAY(array_counters).Cell(row, 2).SetWidth 85, 2
-			TABLE_ARRAY(array_counters).Cell(row, 3).SetWidth 115, 2
+			TABLE_ARRAY(array_counters).Cell(row, 1).SetWidth 95, 2
+			TABLE_ARRAY(array_counters).Cell(row, 2).SetWidth 80, 2
+			TABLE_ARRAY(array_counters).Cell(row, 3).SetWidth 65, 2
 			TABLE_ARRAY(array_counters).Cell(row, 4).SetWidth 190, 2
+			TABLE_ARRAY(array_counters).Cell(row, 5).SetWidth 70, 2
 		Next
-		For col = 1 to 4
+		For col = 1 to 5
 			TABLE_ARRAY(array_counters).Cell(3, col).Range.Font.Size = 6
 			TABLE_ARRAY(array_counters).Cell(4, col).Range.Font.Size = 12
 		Next
 		TABLE_ARRAY(array_counters).Cell(3, 1).Range.Text = "SOCIAL SECURITY NUMBER"
 		TABLE_ARRAY(array_counters).Cell(3, 2).Range.Text = "DATE OF BIRTH"
 		TABLE_ARRAY(array_counters).Cell(3, 3).Range.Text = "GENDER"
-		TABLE_ARRAY(array_counters).Cell(3, 4).Range.Text = "MARITAL STATUS"
+		TABLE_ARRAY(array_counters).Cell(3, 4).Range.Text = "RELATIONSHIP TO YOU"
+		TABLE_ARRAY(array_counters).Cell(3, 5).Range.Text = "MARITAL STATUS"
 
 		TABLE_ARRAY(array_counters).Cell(4, 1).Range.Text = ALL_CLIENTS_ARRAY(memb_soc_sec_numb, each_member)
 		TABLE_ARRAY(array_counters).Cell(4, 2).Range.Text = ALL_CLIENTS_ARRAY(memb_dob, each_member)
 		TABLE_ARRAY(array_counters).Cell(4, 3).Range.Text = ALL_CLIENTS_ARRAY(memb_gender, each_member)
-		TABLE_ARRAY(array_counters).Cell(4, 4).Range.Text = ALL_CLIENTS_ARRAY(memi_marriage_status, each_member)
+		TABLE_ARRAY(array_counters).Cell(4, 4).Range.Text = ALL_CLIENTS_ARRAY(memb_rel_to_applct, each_member)
+		TABLE_ARRAY(array_counters).Cell(4, 5).Range.Text = Left(ALL_CLIENTS_ARRAY(memi_marriage_status, each_member), 1)
 
 
 		' TABLE_ARRAY(array_counters).Rows(7).Cells.Split 1, 3, TRUE
