@@ -35,7 +35,7 @@ END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 'This block is to lock out non-testers from using TAGS.
-testers_script_list_URL = "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Scripts\Script Files\COMPLETE LIST OF TESTERS.vbs"        'Opening the list of testers - which is saved locally for security
+testers_script_list_URL = t_drive & "\Eligibility Support\Scripts\Script Files\COMPLETE LIST OF TESTERS.vbs"        'Opening the list of testers - which is saved locally for security
 Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
 Set fso_command = run_another_script_fso.OpenTextFile(testers_script_list_URL)
 text_from_the_other_script = fso_command.ReadAll

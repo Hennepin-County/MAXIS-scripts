@@ -1,5 +1,5 @@
 'Required for statistical purposes===============================================================================
-name_of_script = "ADMIN - BULK DUPLICATE PMI HC ELIG.vbs"
+name_of_script = "FAA- HEALTH CARE INFORMATION REPORT.vbs"
 start_time = timer
 STATS_counter = 1                          'sets the stats counter at one
 STATS_manualtime = 300                      'manual run time in seconds
@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/20/2020", "Added link to instructions in main dialog.", "Ilse Ferris, Hennepin County")
 call changelog_update("08/06/2020", "Final release version ready for production.", "Ilse Ferris, Hennepin County")
 call changelog_update("07/16/2020", "Added gender and DOB fields to report.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/13/2018", "Initial version.", "Ilse Ferris, Hennepin County")
@@ -82,25 +83,32 @@ Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 221, 115, "Health Care Information Report"
   ButtonGroup ButtonPressed
     PushButton 170, 45, 40, 15, "Browse...", select_a_file_button
+    PushButton 45, 95, 80, 15, "Script Instructions", help_button
     OkButton 130, 95, 40, 15
     CancelButton 175, 95, 40, 15
-  EditBox 15, 45, 150, 15, file_selection_path
   Text 20, 20, 190, 20, "This script should be used when a list of PMI's that Health Care Information from MMIS is needed and provided."
   Text 15, 65, 195, 15, "Select the Excel file that contains the list of PMI's by selecting the 'Browse' button, and finding the file."
   GroupBox 10, 5, 205, 85, "Using this script:"
+  EditBox 15, 45, 150, 15, file_selection_path
 EndDialog
 
 Call check_for_MAXIS(false) 'ensuring we're in MAXIS
 
 'dialog and dialog DO...Loop	
 Do
-    'Initial Dialog to determine the excel file to use, column with case numbers, and which process should be run
-    'Show initial dialog
-    Do
-    	Dialog Dialog1 
-    	cancel_without_confirmation
-    	If ButtonPressed = select_a_file_button then call file_selection_system_dialog(file_selection_path, ".xlsx")
-    Loop until ButtonPressed = OK and file_selection_path <> ""
+    Do 
+        'Initial Dialog to determine the excel file to use, column with case numbers, and which process should be run
+        'Show initial dialog
+        Do
+        	Dialog Dialog1 
+        	cancel_without_confirmation
+            If ButtonPressed = help_button then open_URL_in_browser("https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/General%20and%20Organizational%20Documents/Health%20Care%20Information%20Report%20Instructions.docx?d=w66570f8c377544eb973f334f3210fbed&csf=1&web=1&e=bRpmfV")
+        	If ButtonPressed = select_a_file_button then call file_selection_system_dialog(file_selection_path, ".xlsx")
+        Loop until ButtonPressed = -1
+        err_msg = ""
+        If trim(file_selection_path) = "" then err_msg = err_msg & "Select the file of PMI numbers. Press the BROWSE button to search the file explorer for the file."
+        IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+    LOOP until err_msg = ""
     If objExcel = "" Then call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in

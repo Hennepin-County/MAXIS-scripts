@@ -1,22 +1,3 @@
-'**********THIS IS A HENNEPIN SPECIFIC SCRIPT.  IF YOU REVERSE ENGINEER THIS SCRIPT, JUST BE CAREFUL.************
-
-' 'REMOVING ESSO CODE AS WE ARE UPGRADING BZ AND A BUCH OF STUFF _ WILL REVIEW LATER
-' 'ESSO is password manager software used by many Hennepin County employees
-' 'Scripts do not work properly if ESSO is running
-' 'If ESSO is installed on the user's computer, ESSO is stopped at the start of each script and is opened back up at the end of each script
-' 'If we want to load Global Variables and we don't want ESSO to be closed when we run a script, then Ignore_ESSO can be set to TRUE in that script before global variables are loaded, and ESSO won't be closed.
-' IF Ignore_ESSO = FALSE or Ignore_ESSO = "" THEN
-'   ESSO_path = "C:\Program Files (x86)\Passlogix\v-GO SSO\ssoShell.exe"
-'   SET ObjFSO = CreateObject("Scripting.FileSystemObject")                   'Create a File System Object
-'   IF (ObjFSO.FileExists(ESSO_path)) THEN                                    'If ESSO exists at the location stored in ESSO_path, ESSO is installed on the user's computer
-'     Using_ESSO = TRUE                                                       'Set Using_ESSO to TRUE so that if/when we check later to see if ESSO should be stopped or restarted, we won't have to check to see if ESSO is installed again
-'     SET ObjShell = CreateObject("Wscript.Shell")                            'Create an object that we can run to terminate the ESSO program (next line)
-'     ObjShell.Run "taskkill /s localhost /im ssoshell.exe /f", 0, TRUE       'See https://technet.microsoft.com/en-us/library/bb491009.aspx for detail on taskkill. 0 hides the window, true forces the script to wait until the taskkill command is executed
-'   ELSE
-'     Using_ESSO = FALSE                                                      'Set to FALSE so that if/when we check later to see if ESSO should be restarted, we won't have to check to see if ESSO is installed again
-'   END IF
-' END IF
-
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "NOTES - MHC NOTE ENROLLMENT.vbs"
 start_time = timer

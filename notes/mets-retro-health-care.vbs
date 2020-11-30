@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/20/2020", "Updated link to REQUEST TO APPL use form on SharePoint.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/04/2019", "Per project request - Removed checkbox for DOA and scenario pushbuttons.", "MiKayla Handley, Hennepin County")
 call changelog_update("11/04/2019", "Updated link in SharePoint to Request to APPL useform.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/04/2019", "Updated link to Useform and changed name of form to 'Request to APPL'.", "Ilse Ferris, Hennepin County")
@@ -410,7 +411,7 @@ CALL write_variable_in_CASE_NOTE(worker_signature)
 
 If initial_option = "Initial Request" then
     navigate_decision = Msgbox("Do you want to open a Request to APPL useform?", vbQuestion + vbYesNo, "Navigate to Useform?")
-    If navigate_decision = vbYes then CreateObject("WScript.Shell").Run("http://aem.hennepin.us/rest/services/HennepinCounty/Processes/ServletRenderForm:1.0?formName=HSPH5004_1-0.xdp&interactive=1")
+    If navigate_decision = vbYes then run "C:\Program Files\Internet Explorer\iexplore.exe http://aem.hennepin.us/rest/services/HennepinCounty/Processes/ServletRenderForm:1.0?formName=HSPH5004_1-0.xdp&interactive=1" 
     If navigate_decision = vbNo then navigate_to_form = False
 End if
 

@@ -74,7 +74,7 @@ changelog_display
 '         "Collect CN: " & collect_MAXIS_case_number
 
 'hardcode the file path for excel because this is a disposable script
-file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Projects\MBI Update\MBI list.xlsx"
+file_selection_path = t_drive & "Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Projects\MBI Update\MBI list.xlsx"
 'Open the excel file
 CALL excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)
 'select the right sheet

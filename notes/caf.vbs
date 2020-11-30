@@ -49,6 +49,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("11/6/2020", "Added new functionality to have the script update the 'REVW' panel with the Interview Date and CAF date for Recertification Cases.##~## As this is a new functionality, please let us know how it works for you!.##~##", "Casey Love, Hennepin County")
 Call changelog_update("10/09/2020", "Updated the functionality to adjust review dates for some cases to not require an interview date for Adult Cash Recertification cases.##~##", "Casey Love, Hennepin County")
 Call changelog_update("10/01/2020", "Updated Standard Utility Allowances for 10/2020.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/01/2020", "UPDATE IN TESTING##~## ##~##There is new functionality added to this script to assist in updating REVW for some cases. There is detail in SIR about cases that need to have the next ER date adjusted due to a previous postponement. ##~## ##~##We have not had time with this functionality to complete live testing so all script runs will be a part of the test. Please let us know if you have any issues running this script.", "Casey Love, Hennepin County")
@@ -2332,39 +2333,6 @@ Set objNet = CreateObject("WScript.NetWork")
 windows_user_ID = objNet.UserName
 user_ID_for_special_function = ucase(windows_user_ID)
 
-user_running_waived_interview_cases = FALSE
-If user_ID_for_special_function = "JAAR001" Then user_running_waived_interview_cases = TRUE     'Jacob
-If user_ID_for_special_function = "WFP106" Then user_running_waived_interview_cases = TRUE      'Deb
-If user_ID_for_special_function = "TAPA002" Then user_running_waived_interview_cases = TRUE     'Tanya
-If user_ID_for_special_function = "CALO001" Then user_running_waived_interview_cases = TRUE     'Casey
-
-'DWP TEAM
-If user_ID_for_special_function = "WFK314" Then user_running_waived_interview_cases = TRUE
-If user_ID_for_special_function = "ALHE001" Then user_running_waived_interview_cases = TRUE
-If user_ID_for_special_function = "WFB709" Then user_running_waived_interview_cases = TRUE
-If user_ID_for_special_function = "WFE533" Then user_running_waived_interview_cases = TRUE
-If user_ID_for_special_function = "WF2543" Then user_running_waived_interview_cases = TRUE
-If user_ID_for_special_function = "WFC804" Then user_running_waived_interview_cases = TRUE
-If user_ID_for_special_function = "REHU001" Then user_running_waived_interview_cases = TRUE
-If user_ID_for_special_function = "WF7660" Then user_running_waived_interview_cases = TRUE
-If user_ID_for_special_function = "WFA168" Then user_running_waived_interview_cases = TRUE
-If user_ID_for_special_function = "TELO001" Then user_running_waived_interview_cases = TRUE
-If user_ID_for_special_function = "WFE269" Then user_running_waived_interview_cases = TRUE
-If user_ID_for_special_function = "WFX820" Then user_running_waived_interview_cases = TRUE
-If user_ID_for_special_function = "TIRE001" Then user_running_waived_interview_cases = TRUE
-If user_ID_for_special_function = "WFB093" Then user_running_waived_interview_cases = TRUE
-If user_ID_for_special_function = "WFW682" Then user_running_waived_interview_cases = TRUE
-If user_ID_for_special_function = "WFH084" Then user_running_waived_interview_cases = TRUE
-If user_ID_for_special_function = "JUBR001" Then user_running_waived_interview_cases = TRUE
-If user_ID_for_special_function = "WFN649" Then user_running_waived_interview_cases = TRUE
-If user_ID_for_special_function = "WFD867" Then user_running_waived_interview_cases = TRUE
-If user_ID_for_special_function = "WFH254" Then user_running_waived_interview_cases = TRUE
-If user_ID_for_special_function = "MEIS001" Then user_running_waived_interview_cases = TRUE
-If user_ID_for_special_function = "LILE002" Then user_running_waived_interview_cases = TRUE
-If user_ID_for_special_function = "CALI001" Then user_running_waived_interview_cases = TRUE
-If user_ID_for_special_function = "WFZ107" Then user_running_waived_interview_cases = TRUE
-If user_ID_for_special_function = "WFX421" Then user_running_waived_interview_cases = TRUE
-
 'SCRIPT ====================================================================================================================
 EMConnect ""
 get_county_code				'since there is a county specific checkbox, this makes the the county clear
@@ -2751,29 +2719,26 @@ If the_process_for_cash = "Recertification" OR the_process_for_snap = "Recertifi
     '     check_the_array = TRUE
     '     month_to_pull = 9
     ' End If
+    If the_process_for_snap = "Recertification" Then check_for_waived_interview = TRUE
+    If the_process_for_cash = "Recertification" AND type_of_cash = "Family" Then check_for_waived_interview = TRUE
     If (cash_recert_mo = "10" AND cash_recert_yr = "20") OR (snap_recert_mo = "10" AND snap_recert_yr = "20") Then
         check_the_array = TRUE
-        If snap_recert_mo = "10" AND snap_recert_yr = "20" Then check_for_waived_interview = TRUE
         month_to_pull = 10
     End If
     If (cash_recert_mo = "11" AND cash_recert_yr = "20") OR (snap_recert_mo = "11" AND snap_recert_yr = "20") Then
         check_the_array = TRUE
-        If snap_recert_mo = "11" AND snap_recert_yr = "20" Then check_for_waived_interview = TRUE
         month_to_pull = 11
     End If
     If (cash_recert_mo = "12" AND cash_recert_yr = "20") OR (snap_recert_mo = "12" AND snap_recert_yr = "20") Then
         check_the_array = TRUE
-        If snap_recert_mo = "12" AND snap_recert_yr = "20" Then check_for_waived_interview = TRUE
         month_to_pull = 12
     End If
     If (cash_recert_mo = "01" AND cash_recert_yr = "21") OR (snap_recert_mo = "01" AND snap_recert_yr = "21") Then
         check_the_array = TRUE
-        If snap_recert_mo = "01" AND snap_recert_yr = "21" Then check_for_waived_interview = TRUE
         month_to_pull = 1
     End If
     If (cash_recert_mo = "02" AND cash_recert_yr = "21") OR (snap_recert_mo = "02" AND snap_recert_yr = "21") Then
         check_the_array = TRUE
-        If snap_recert_mo = "02" AND snap_recert_yr = "21" Then check_for_waived_interview = TRUE
         month_to_pull = 2
     End If
 End If
@@ -2781,21 +2746,9 @@ End If
 interview_required = FALSE
 If SNAP_checkbox = checked OR family_cash = TRUE OR CAF_type = "Application" then interview_required = TRUE
 
-If user_running_waived_interview_cases = TRUE AND check_for_waived_interview = TRUE Then
-    run_another_script("\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Scripts\Script Files\reviews-delayed.vbs")
-    If month_to_pull = 10 Then POSSIBLE_WAIVED_ARRAY = oct_revw_to_check_array
-    If month_to_pull = 11 Then POSSIBLE_WAIVED_ARRAY = nov_revw_to_check_array
-    If month_to_pull = 12 Then POSSIBLE_WAIVED_ARRAY = dec_revw_to_check_array
-    If month_to_pull = 1 Then POSSIBLE_WAIVED_ARRAY = jan_revw_to_check_array
-    If month_to_pull = 2 Then POSSIBLE_WAIVED_ARRAY = feb_revw_to_check_array
-
-    For each revw_case in POSSIBLE_WAIVED_ARRAY
-        If MAXIS_case_number = revw_case Then
-            interview_is_being_waived = MsgBox("This case appears to potentially meet the criteria for having the interview waived if the client reports no changes to from what is known." & vbNewLine & vbNewLine & " --- Are you waiving the interview? ---" & vbNewLine & vbNewLine & "clicking 'YES' will will prevent the script from requiring Interview Detail.", vbquestion + vbYesNo, "")
-            If interview_is_being_waived = vbYes Then interview_required = FALSE
-            Exit For
-        End If
-    Next
+If check_for_waived_interview = TRUE Then
+    interview_is_being_waived = MsgBox("Recertifications can be processed without an interview per DHS." & vbNewLine & vbNewLine & " --- Are you waiving the interview? ---" & vbNewLine & vbNewLine & "clicking 'YES' will will prevent the script from requiring Interview Detail.", vbquestion + vbYesNo, "")
+    If interview_is_being_waived = vbYes Then interview_required = FALSE
 End If
 
 MAXIS_case_number = trim(MAXIS_case_number)
@@ -5427,14 +5380,17 @@ If CAF_type = "Application" Then        'Interview date is not on PROG for recer
 
             'Running the dialog
             Do
-                err_msg = ""
-                Dialog Dialog1
-                'Requiring a reason for not updating PROG and making sure if confirm is updated that a program is selected.
-                If do_not_update_prog = 1 AND no_update_reason = "" Then err_msg = err_msg & vbNewLine & "* If PROG is not to be updated, please explain why PROG should not be updated."
-                IF confirm_update_prog = 1 AND prog_update_SNAP_checkbox = unchecked AND prog_update_cash_checkbox = unchecked Then err_msg = err_msg & vbNewLine & "* Select either CASH or SNAP to have updated on PROG."
+                Do
+                    err_msg = ""
+                    Dialog Dialog1
+                    'Requiring a reason for not updating PROG and making sure if confirm is updated that a program is selected.
+                    If do_not_update_prog = 1 AND no_update_reason = "" Then err_msg = err_msg & vbNewLine & "* If PROG is not to be updated, please explain why PROG should not be updated."
+                    IF confirm_update_prog = 1 AND prog_update_SNAP_checkbox = unchecked AND prog_update_cash_checkbox = unchecked Then err_msg = err_msg & vbNewLine & "* Select either CASH or SNAP to have updated on PROG."
 
-                If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
-            Loop until err_msg = ""
+                    If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
+                Loop until err_msg = ""
+                Call check_for_password(are_we_passworded_out)
+            Loop until are_we_passworded_out = FALSE
 
             If confirm_update_prog = 1 Then     'If the dialog selects to have PROG updated
                 CALL back_to_SELF               'Need to do this because we need to go to the footer month of the application and we may be in a different month
@@ -5511,6 +5467,79 @@ If CAF_type = "Application" Then        'Interview date is not on PROG for recer
                 MAXIS_footer_year = keep_footer_year
             End If
         ENd If
+    End If
+End If
+
+If the_process_for_cash = "Recertification" OR the_process_for_snap = "Recertification" Then
+    If interview_required = TRUE or interview_is_being_waived = vbYes Then
+        revw_panel_update_needed = FALSE
+        Call Navigate_to_MAXIS_screen("STAT", "REVW")
+        EMReadScreen STAT_REVW_caf_date, 8, 13, 37
+        EMReadScreen STAT_REVW_intvw_date, 8, 15, 37
+        If STAT_REVW_caf_date = "__ __ __" Then revw_panel_update_needed = TRUE
+        If STAT_REVW_intvw_date = "__ __ __" Then revw_panel_update_needed = TRUE
+
+        If revw_panel_update_needed = TRUE Then
+            If interview_is_being_waived = vbYes AND trim(interview_date) = "" Then interview_date = date
+            EMReadScreen cash_stat_revw_status, 1, 7, 40
+            EMReadScreen snap_stat_revw_status, 1, 7, 60
+
+            BeginDialog Dialog1, 0, 0, 241, 165, "Update REVW"
+              OptionGroup RadioGroup1
+                RadioButton 10, 10, 185, 10, "YES! Update REVW with the Interview Date/CAF Date", confirm_update_revw
+                RadioButton 10, 95, 100, 10, "No, do not update REVW", do_not_update_revw
+              EditBox 70, 25, 45, 15, interview_date
+              EditBox 70, 45, 45, 15, caf_datestamp
+              EditBox 20, 125, 215, 15, no_update_reason
+              ButtonGroup ButtonPressed
+                OkButton 185, 145, 50, 15
+              Text 20, 30, 50, 10, "Interview Date:"
+              If interview_is_being_waived = vbYes Then Text 125, 25, 105, 35, "THIS INTERVIEW WAS WAIVED. Today's date will be used."
+              Text 35, 50, 35, 10, "CAF Date:"
+              Text 20, 70, 175, 20, "If the REVW Status has not been updated already, it will be changed to an 'I' when the dates are entered."
+              Text 20, 110, 220, 10, "Reason REVW should not be updated with the Interview/CAF Date:"
+            EndDialog
+
+            'Running the dialog
+            Do
+                Do
+                    err_msg = ""
+                    Dialog Dialog1
+                    'Requiring a reason for not updating PROG and making sure if confirm is updated that a program is selected.
+                    If do_not_update_revw = 1 AND no_update_reason = "" Then err_msg = err_msg & vbNewLine & "* If REVW is not to be updated, please explain why REVW should not be updated."
+                    IF confirm_update_revw = 1 Then
+                        If IsDate(interview_date) = FALSE Then err_msg = err_msg & vbNewLine & "* Check the Interview Date as it appears invalid."
+                        If IsDate(caf_datestamp) = FALSE Then err_msg = err_msg & vbNewLine & "* Check the CAF Date as it appears invalid."
+                    End If
+
+                    If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
+                Loop until err_msg = ""
+                Call check_for_password(are_we_passworded_out)
+            Loop until are_we_passworded_out = FALSE
+
+            IF confirm_update_revw = 1 Then
+                Call Navigate_to_MAXIS_screen("STAT", "REVW")
+                PF9
+                Call create_mainframe_friendly_date(CAF_datestamp, 13, 37, "YY")
+                Call create_mainframe_friendly_date(interview_date, 15, 37, "YY")
+
+                If cash_stat_revw_status = "N" Then EMWriteScreen "I", 7, 40
+                If snap_stat_revw_status = "N" Then EMWriteScreen "I", 7, 60
+
+                attempt_count = 1
+                Do
+                    transmit
+                    EMReadScreen actually_saved, 7, 24, 2
+                    attempt_count = attempt_count + 1
+                    If attempt_count = 20 Then
+                        PF10
+                        revw_panel_updated = FALSE
+                        Exit Do
+                    End If
+                Loop until actually_saved = "ENTER A"
+            End If
+            If interview_is_being_waived = vbYes AND interview_date = date Then interview_date = ""
+        End If
     End If
 End If
 
@@ -6748,5 +6777,6 @@ END IF
 
 end_msg = "Success! CAF has been successfully noted. Please remember to run the Approved Programs, Closed Programs, or Denied Programs scripts if  results have been APP'd."
 If do_not_update_prog = 1 Then end_msg = end_msg & vbNewLine & vbNewLine & "It was selected that PROG would NOT be updated because " & no_update_reason
+If interview_is_being_waived = vbYes Then end_msg = "INTERVIEW WAIVED" & vbCR & vbCr & end_msg
 
 script_end_procedure_with_error_report(end_msg)

@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/12/2020", "Updated HSR Manual link for Facility List due to SharePoint Online Migration.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/01/2020", "Updated TIKL functionality and TIKL text in the case note.", "Ilse Ferris")
 call changelog_update("01/27/2020", "Removed handling for the DAIL deletion.", "MiKayla Handley, Hennepin County")
 call changelog_update("04/24/2019", "Update to run on DAIL.", "MiKayla Handley, Hennepin County")
@@ -152,7 +153,7 @@ IF dail_check = "DAIL" THEN
 					Dialog Dialog1
 					cancel_confirmation
 					If ButtonPressed = inmate_locator_button then CreateObject("WScript.Shell").Run("https://www.bop.gov/inmateloc/")
-					If ButtonPressed = HSR_manual_button then CreateObject("WScript.Shell").Run("https://dept.hennepin.us/hsphd/manuals/hsrm/Pages/Facility_List.aspx")
+					If ButtonPressed = HSR_manual_button then CreateObject("WScript.Shell").Run("https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Facility_List.aspx")
 				Loop until ButtonPressed = -1
 				If trim(actions_taken) = "" then err_msg = err_msg & vbcr & "* Please enter the action taken."
 				IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect

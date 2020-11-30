@@ -53,6 +53,8 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County
+call changelog_update("11/15/2020", "Updated droplist to add virtual drop box option to how the application was received.", "MiKayla Handley, Hennepin County")
+CALL changelog_update("10/13/2020", "Enhanced date evaluation functionality when which determining HEST standards to use.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("08/24/2020", "Added MN Benefits application and removed SHIBA and apply MN options.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("10/01/2020", "Updated Standard Utility Allowances for 10/2020.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("08/24/2020", "Added SHIBA application and combined CA and NOTES scripts.", "MiKayla Handley, Hennepin County")
@@ -166,7 +168,7 @@ ELSEIF limit_reached <> "The REPT" THEN
     EMReadScreen add_app_year, 2, MAXIS_row + 1, 44
     'Creating new variable for application check date and additional application date.
     application_date = app_month & "/" & app_day & "/" & app_year
-	'MsgBox application_date
+
     additional_application_date = add_app_month & "/" & add_app_day & "/" & add_app_year
     'checking for multiple application dates.  Creates message boxes giving the user an option of which app date to choose
     If additional_application_check = "ADDITIONAL APP" THEN multiple_apps = MsgBox("Do you want this application date: " & application_date, VbYesNoCancel)
@@ -374,7 +376,7 @@ END IF
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 306, 195, "Application Received for: "  & programs_applied_for &   " on "   & application_date
-  DropListBox 85, 10, 95, 15, "Select One:"+chr(9)+"Fax"+chr(9)+"Mystery Doc Queue"+chr(9)+"Office (In person)"+chr(9)+"Online"+chr(9)+"Request to APPL Form"+chr(9)+"Verbal Request (Phone)", how_app_rcvd
+  DropListBox 85, 10, 95, 15, "Select One:"+chr(9)+"Fax"+chr(9)+"Mystery Doc Queue"+chr(9)+"Office (In person)"+chr(9)+"Online"+chr(9)+"Request to APPL Form"+chr(9)+"Verbal Request (Phone)"+chr(9)+"Virtual Drop Box", how_app_rcvd
   DropListBox 85, 30, 95, 15, "Select One:"+chr(9)+"ApplyMN"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Populations"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer"+chr(9)+"MN Benefits"+chr(9)+"N/A"+chr(9)+"Verbal Request", app_type
   EditBox 250, 10, 45, 15, request_date
   EditBox 250, 30, 45, 15, confirmation_number
@@ -485,19 +487,17 @@ PF3 ' to save Case note
 
 '----------------------------------------------------------------------------------------------------EXPEDITED SCREENING!
 IF snap_pends = TRUE THEN
-    'DATE BASED LOGIC FOR UTILITY AMOUNTS------------------------------------------------------------------------------------------
-    If application_date >= cdate("10/01/2019") then     'these variables need to change every October
+    'DATE BASED LOGIC FOR UTILITY AMOUNTS: variables need to change every October per CM.18.15.09------------------------------------------------------------------------------------------
+    If DateDiff("d",application_date,"10/01/2020") <= 0 then
+        'October 2020 amounts
+        heat_AC_amt = 496
+        electric_amt = 154
+        phone_amt = 56
+    Else
+        'October 2019 amounts
         heat_AC_amt = 490
         electric_amt = 143
         phone_amt = 49
-    ElseIf application_date >= cdate("10/01/2018") then
-        heat_AC_amt = 493
-        electric_amt = 126
-        phone_amt = 47
-    else
-        heat_AC_amt = 556
-        electric_amt = 172
-        phone_amt = 41
     End if
 
     'Ensuring case number carries thru
@@ -523,23 +523,6 @@ IF snap_pends = TRUE THEN
      	Text 50, 10, 50, 10, "Case number: "
      	GroupBox 0, 130, 175, 30, "**IMPORTANT**"
     EndDialog
-
-    'DATE BASED LOGIC FOR UTILITY AMOUNTS------------------------------------------------------------------------------------------
-    If application_date >= cdate("10/01/2020") then     'these variables need to change every October per CM.18.15.09
-        heat_AC_amt = 496
-        electric_amt = 154
-        phone_amt = 56
-    ElseIf application_date >= cdate("10/01/2019") then
-        'October 2019 amounts
-        heat_AC_amt = 490
-        electric_amt = 143
-        phone_amt = 49
-    else
-        ' October 2018 amounts
-        heat_AC_amt = 493
-        electric_amt = 126
-        phone_amt = 47
-    End if
 
     '----------------------------------------------------------------------------------------------------THE SCRIPT
     CALL MAXIS_case_number_finder(MAXIS_case_number)

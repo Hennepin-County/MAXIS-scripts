@@ -41,6 +41,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/20/2020", "BUG FIXES AND UPDATES##~## ##~##1. Changed the NOTE so that it will not create a note if no one has actually been enrolled.##~##2. Adjusted the end script wording to be more specific about what happened. ##~##3. Changed the 'Is this Open Enrollment' question to only appear from October until the November Cutoff date. You should not see the question now until next October.##~##", "Casey Love, Hennepin County")
 call changelog_update("10/06/2020", "Added phone number field to the dialog for when the enrollment is requested by phone.", "Casey Love, Hennepin County")
 call changelog_update("09/11/2020", "This script now contains the functionality for Open Enrollment and for any other enrollment.##~## ##~##The seperate script for Open Enrollment will no longer be available.##~##", "Casey Love, Hennepin County")
 call changelog_update("12/19/2019", "Added IM 12 as an option for contract codes.", "Casey Love, Hennepin County")
@@ -268,7 +269,7 @@ End Function
 
 'SCRIPT----------------------------------------------------------------------------------------------------
 EMConnect ""
-' testing_run = TRUE
+
 'call check_for_MMIS(True) 'Sending MMIS back to the beginning screen and checking for a password prompt
 Call MMIS_case_number_finder(MMIS_case_number)
 
@@ -281,7 +282,13 @@ If MMIS_case_number = "" Then
 End If
 
 open_enrollment_case = FALSE
-If Month(date) = 10 OR Month(date) = 12 OR Month(date) = 11 Then
+ask_about_oe = FALSE
+nov_cut_off_date = #11/17/2020#
+If Month(date) = 10 OR Month(date) = 11 Then
+	If DateDiff("d", date, nov_cut_off_date) > 0 Then ask_about_oe = TRUE
+End If
+
+If ask_about_oe = TRUE Then
 	ask_if_open_enrollment = MsgBox("Are you processing an Open Enrollment?", vbQuestion + vbYesNo, "Open Enrollment?")
 	If ask_if_open_enrollment = vbYes Then
 		enrollment_month = "01"
@@ -298,29 +305,35 @@ IF open_enrollment_case = FALSE Then
 	this_month = monthname(month(date))
 	Select Case this_month
 	    Case "January"
-	        cut_off_date = #01/22/2020#
+			cut_off_date = #01/20/2021#
 	    Case "February"
-	        cut_off_date = #2/19/2020#
+			cut_off_date = #02/17/2021#
 	    Case "March"
-	        cut_off_date = #3/20/2020#
+			cut_off_date = #03/22/2021#
 	    Case "April"
-	        cut_off_date = #4/21/2020#
+			cut_off_date = #04/21/2021#
 	    Case "May"
-	        cut_off_date = #5/19/2020#
+			cut_off_date = #05/19/2021#
 	    Case "June"
-	        cut_off_date = #6/19/2020#
+			cut_off_date = #06/21/2021#
 	    Case "July"
-	        cut_off_date = #7/22/2020#
+			cut_off_date = #07/21/2021#
 	    Case "August"
-	        cut_off_date = #8/20/2020#
+			cut_off_date = #08/20/2021#
 	    Case "September"
-	        cut_off_date = #9/21/2020#
+			cut_off_date = #09/21/2021#
 	    Case "October"
 	        cut_off_date = #10/21/2020#
+			' November 2021
+			' cut_off_date = #10/20/2021#
 	    Case "November"
 	        cut_off_date = #11/17/2020#
+			' December 2021
+			' cut_off_date = #11/17/2021#
 	    Case "December"
 	        cut_off_date = #12/21/2020#
+			' January 2022
+			' cut_off_date = #12/20/2021#
 	End Select
 	'MsgBox cut_off_date
 	If cut_off_date <> "" Then
@@ -378,7 +391,6 @@ Do
     If err_msg <> "" Then MsgBOx "Please resolve to continue: " & vbNewLine & err_msg
 Loop until err_msg = ""
 If case_open_enrollment_yn = "No" Then open_enrollment_case = FALSE
-If open_enrollment_case = TRUE then testing_run = TRUE
 MAXIS_case_number = MMIS_case_number
 
 If Insurance_yes = checked then
@@ -1382,7 +1394,13 @@ Else
 	Next
 End If
 
-name_of_script = "ACTIONS - MHC ENROLLMENT - " & left(enrollment_source, 5) & ".vbs"
+If enrollment_source = "Morning Letters" Then
+	name_of_script = "ACTIONS - MHC ENROLLMENT - MORN LTRS.vbs"
+	If open_enrollment_case = TRUE Then name_of_script = "ACTIONS - MHC AHPS ENROLLMENT - MORN LTRS.vbs"
+Else
+	name_of_script = "ACTIONS - MHC ENROLLMENT - " & UCASE(left(enrollment_source, 5)) & ".vbs"
+	If open_enrollment_case = TRUE Then name_of_script = "ACTIONS - MHC AHPS ENROLLMENT - " & UCASE(left(enrollment_source, 5)) & ".vbs"
+End If
 If caller_rela = "" Then caller_rela = "Client"
 
 EMReadScreen MMIS_panel_check, 4, 1, 52	'checking to see if user is on the RKEY panel in MMIS. If not, then it will go to there.
@@ -1407,42 +1425,62 @@ transmit
 pf4
 pf11		'Starts a new case note'
 
+create_case_note = FALSE
+For member = 0 to Ubound(MMIS_clients_array, 2)
+	If MMIS_clients_array(enrol_sucs, member) = TRUE Then create_case_note = TRUE
+Next
+
 ' CALL write_variable_in_MMIS_NOTE ("***Hennepin MHC note*** Household enrollment updated for " & Enrollment_date & " per enrollment form")
-If open_enrollment_case = TRUE Then
-	CALL write_variable_in_MMIS_NOTE ("AHPS request processed for 2020 selection")
+If create_case_note = TRUE Then
+	If open_enrollment_case = TRUE Then
+		CALL write_variable_in_MMIS_NOTE ("AHPS request processed for 2020 selection")
+		If enrollment_source = "Morning Letters" Then
+		ElseIf enrollment_source = "Phone" Then
+			CALL write_variable_in_MMIS_NOTE ("Enrollment requested by " & caller_rela & " via " & enrollment_source)
+		ElseIf enrollment_source = "Paper Enrollment Form" Then
+			CALL write_variable_in_MMIS_NOTE ("Enrollment requested via " & enrollment_source)
+		End If
+	Else
+		If enrollment_source = "Morning Letters" Then
+		    CALL write_variable_in_MMIS_NOTE ("Re-enrollment processed effective: " & enrollment_date)
+		    CALL write_variable_in_MMIS_NOTE ("Following clients had PMAP under duplicate PMI(s) in the last 12 months:")
+		ElseIf enrollment_source = "Phone" Then
+		    CALL write_variable_in_MMIS_NOTE ("Enrollment effective: " & enrollment_date & " requested by " & caller_rela & " via " & enrollment_source)
+		ElseIf enrollment_source = "Paper Enrollment Form" Then
+		    CALL write_variable_in_MMIS_NOTE ("Enrollment effective: " & enrollment_date & " requested via " & enrollment_source)
+		End If
+	End If
+	If enrollment_source = "Phone" Then CALL write_variable_in_MMIS_NOTE("Call completed " & now & " with " & caller_name & " from the number: " & phone_number_of_caller)
+	If used_interpreter_checkbox = checked then CALL write_variable_in_MMIS_NOTE("Interpreter used for phone call.")
+	If trim(form_received_date) <> "" Then CALL write_variable_in_MMIS_NOTE("Enrollment requested via Form received on " & form_received_date & ".")
+	For member = 0 to Ubound(MMIS_clients_array, 2)
+		If MMIS_clients_array(enrol_sucs, member) = TRUE Then
+	        If enrollment_source = "Morning Letters" Then
+	            CALL write_variable_in_MMIS_NOTE ("- Re-enrolled " & MMIS_clients_array(client_name, member) & " in " & MMIS_clients_array(new_plan, member))
+	        Else
+			    CALL write_variable_in_MMIS_NOTE ("- " & MMIS_clients_array(client_name, member) & " enrolled into " & MMIS_clients_array(new_plan, member))
+	        End If
+		End If
+	Next
+	CALL write_bullet_and_variable_in_MMIS_NOTE ("Notes", other_notes)
+
+	CALL write_variable_in_MMIS_NOTE ("Processed by " & worker_signature)
+	CALL write_variable_in_MMIS_NOTE ("*************************************************************************")
+	pf3
+	pf3
+	IF REFM_error_check = "WARNING: MA12,01/16" Then
+		PF3
+	END IF
+End If
+
+If create_case_note = FALSE Then
+	failed_enrollment_message = "Script run is complete but NO NOTE has been entered in MMIS as none of the members were able to be enrolled." & vbNewLine & vbNewLine & "Members that could not be enrolled:" & vbNewLine & vbNewLine & "*****" & vbNewLine & failed_enrollment_message
 Else
-	If enrollment_source = "Morning Letters" Then
-	    CALL write_variable_in_MMIS_NOTE ("Re-enrollment processed effective: " & enrollment_date)
-	    CALL write_variable_in_MMIS_NOTE ("Following clients had PMAP under duplicate PMI(s) in the last 12 months:")
-	ElseIf enrollment_source = "Phone" Then
-	    CALL write_variable_in_MMIS_NOTE ("Enrollment effective: " & enrollment_date & " requested by " & caller_rela & " via " & enrollment_source)
-	ElseIf enrollment_source = "Paper Enrollment Form" Then
-	    CALL write_variable_in_MMIS_NOTE ("Enrollment effective: " & enrollment_date & " requested via " & enrollment_source)
+	If trim(failed_enrollment_message) = "" Then
+		failed_enrollment_message = "The script is complete. Enrollment has been updated and case noted." & vbNewLine & vbNewLine & "It appears all clients were able to be enrolled as requested."
+	Else
+		failed_enrollment_message = "The script is complete. Enrollment has been updated and case noted." & vbNewLine & vbNewLine & "Some clients enrollments could not be processed by the script for some reason, they are listed below:" & vbNewLine & vbNewLine & "*****" & vbNewLine & failed_enrollment_message
 	End If
 End If
-If enrollment_source = "Phone" Then CALL write_variable_in_MMIS_NOTE("Call completed " & now & " with " & caller_name & " from the number: " & phone_number_of_caller)
-If used_interpreter_checkbox = checked then CALL write_variable_in_MMIS_NOTE("Interpreter used for phone call.")
-If trim(form_received_date) <> "" Then CALL write_variable_in_MMIS_NOTE("Enrollment requested via Form received on " & form_received_date & ".")
-For member = 0 to Ubound(MMIS_clients_array, 2)
-	If MMIS_clients_array(enrol_sucs, member) = TRUE Then
-        If enrollment_source = "Morning Letters" Then
-            CALL write_variable_in_MMIS_NOTE ("- Re-enrolled " & MMIS_clients_array(client_name, member) & " in " & MMIS_clients_array(new_plan, member))
-        Else
-		    CALL write_variable_in_MMIS_NOTE ("- " & MMIS_clients_array(client_name, member) & " enrolled into " & MMIS_clients_array(new_plan, member))
-        End If
-	End If
-Next
-CALL write_bullet_and_variable_in_MMIS_NOTE ("Notes", other_notes)
-
-CALL write_variable_in_MMIS_NOTE ("Processed by " & worker_signature)
-CALL write_variable_in_MMIS_NOTE ("*************************************************************************")
-pf3
-pf3
-IF REFM_error_check = "WARNING: MA12,01/16" Then
-	PF3
-END IF
-
-
-failed_enrollment_message = "The script is complete. Enrollment has been updated and case noted." & vbNewLine & "There may be some clients enrollments that could not be processed by the script for some reason, they will be listed below:" & vbNewLine & "*****" & vbNewLine & vbNewLine & failed_enrollment_message
 
 script_end_procedure_with_error_report (failed_enrollment_message)

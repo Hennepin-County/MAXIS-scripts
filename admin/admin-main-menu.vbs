@@ -47,6 +47,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/01/2020", "Retired ADMIN - INTERVIEW REQUIRED. ADMIN - REVIEW REPORT replaces this.", "Ilse Ferris, Hennepin County")
 call changelog_update("07/24/2020", "Removed the script 'Update Check Dates' from the ADMIN menu, it is currently available in the 'UTILITIES' Menu.", "Casey Love, Hennepin County")
 call changelog_update("01/27/2020", "Added new HSR's to the QI script access menu. Welcome Keith, Kerry & Tanya!", "Ilse Ferris, Hennepin County")
 call changelog_update("12/09/2019", "Added Jacob to the QI script access menu. Welcome Jacob!", "Ilse Ferris, Hennepin County")
@@ -62,7 +63,7 @@ call changelog_update("11/30/2017", "Initial version.", "Ilse Ferris, Hennepin C
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-testers_script_list_URL = "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Scripts\Script Files\COMPLETE LIST OF TESTERS.vbs"        'Opening the list of testers - which is saved locally for security
+testers_script_list_URL = t_drive & "\Eligibility Support\Scripts\Script Files\COMPLETE LIST OF TESTERS.vbs"        'Opening the list of testers - which is saved locally for security
 Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
 Set fso_command = run_another_script_fso.OpenTextFile(testers_script_list_URL)
 text_from_the_other_script = fso_command.ReadAll

@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("10/22/2020", "Removed the default date for the addendum date as the functionality was pulling incorrect data and there is not a reliable way to know which date is accurate. Since this is a form date, it should be manually entered.", "Casey Love, Hennepin County")
 Call changelog_update("12/21/2019", "Added 'NB' to the list of former states.", "Casey Love, Hennepin County")
 Call changelog_update("09/25/2019", "Bug Fix - Verifs Needed was creating possible multiple case notes and noting when nothing was added. Also a typo in the case note wording.", "Casey Love, Hennepin County")
 call changelog_update("09/12/2019", "Initial version.", "Casey Love, Hennepin County")
@@ -217,17 +218,21 @@ If MAXIS_case_number = "" Then          'This is sometimes run from another scri
 End If
 script_run_lowdown = ""
 
-If MAXIS_case_number <> "" Then
-    Call Navigate_to_MAXIS_screen("STAT", "ADME")
-    EMReadScreen cash_adme_date, 8, 12, 38
-    EMReadScreen snap_adme_date, 8, 16, 38
-
-    cash_adme_date = replace(cash_adme_date, " ", "/")
-    snap_adme_date = replace(snap_adme_date, " ", "/")
-
-    If IsDate(snap_adme_date) = TRUE Then addendum_date = snap_adme_date
-    If IsDate(cash_adme_date) = TRUE Then addendum_date = cash_adme_date
-End If
+'This code is commented out because it needs review if we are rewriting.
+'The purpose here is to autofill the date the addendum was received as it is entered on the ADME panel. However this code goes to the first ADME panel in the case and has no functionality
+'to determine if it is the most recent, or newest member.
+'Future stat this could be adjusted to read ALL the ADME panels and find the most recent date to autofil the date field, currently we do not have time to build this functionality.
+' If MAXIS_case_number <> "" Then
+'     Call Navigate_to_MAXIS_screen("STAT", "ADME")
+'     EMReadScreen cash_adme_date, 8, 12, 38
+'     EMReadScreen snap_adme_date, 8, 16, 38
+'
+'     cash_adme_date = replace(cash_adme_date, " ", "/")
+'     snap_adme_date = replace(snap_adme_date, " ", "/")
+'
+'     If IsDate(snap_adme_date) = TRUE Then addendum_date = snap_adme_date
+'     If IsDate(cash_adme_date) = TRUE Then addendum_date = cash_adme_date
+' End If
 how_many_new_members = "1"
 
 '-------------------------------------------------------------------------------------------------DIALOG

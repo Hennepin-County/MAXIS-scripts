@@ -293,31 +293,35 @@ end if
 MAXIS_footer_month = CM_plus_1_mo
 MAXIS_footer_year = CM_plus_1_yr
 
+'Creating an array of letters to loop through
+col_hdr = "A~B~C~D~E~F~G~H~I~J~K~L~M~N~O~P~Q~R~S~T~U~V~W~X~Y~Z~AA~AB~AC~AD~AE~AF~AG~AH~AI~AJ~AK~AL~AM~AN~AO~AP~AQ~AR~AS~AT~AU~AV~AW~AX~AY~AZ~BA~BB~BC~BD~BE~BF~BG~BH~BI~BJ~BK~BL~BM~BN~BO~BP~BQ~BR~BS~BT~BU~BV~BW~BX~BY~BZ"
+header_array = split(col_hdr, "~")
+'setting the start of the list of column options
+header_list = "Select One..."
+cell_val = 1        'starting the value for reading the top cell of each column to use header information
+
+'looping through the array
+For each letter in header_array
+	col_header = UCase(objExcel.Cells(1, cell_val).Value)
+	col_header = trim(col_header)
+
+	If col_header <> ""  then                                              'if the column is not blank - add to dropdown
+		header_list = header_list & chr(9) & letter & " - " & col_header
+		if notice_type = "Data Only" then
+			if ucase(col_header) = "X NUMBER" then worker_col = letter & " - " & col_header    'if the first cell says 'Case Number' then it is likely the correct column
+		End If
+	Else
+		Exit For
+	End If
+	cell_val = cell_val + 1
+Next
+
 if notice_type = "Data Only" then
 
     MAXIS_footer_month = CM_mo
     MAXIS_footer_year = CM_yr
 
-    'Creating an array of letters to loop through
-    col_hdr = "A~B~C~D~E~F~G~H~I~J~K~L~M~N~O~P~Q~R~S~T~U~V~W~X~Y~Z~AA~AB~AC~AD~AE~AF~AG~AH~AI~AJ~AK~AL~AM~AN~AO~AP~AQ~AR~AS~AT~AU~AV~AW~AX~AY~AZ~BA~BB~BC~BD~BE~BF~BG~BH~BI~BJ~BK~BL~BM~BN~BO~BP~BQ~BR~BS~BT~BU~BV~BW~BX~BY~BZ"
-    header_array = split(col_hdr, "~")
-    'setting the start of the list of column options
-    header_list = "Select One..."
-    cell_val = 1        'starting the value for reading the top cell of each column to use header information
 
-    'looping through the array
-    For each letter in header_array
-        col_header = UCase(objExcel.Cells(1, cell_val).Value)
-        col_header = trim(col_header)
-
-        If col_header <> ""  then                                              'if the column is not blank - add to dropdown
-            header_list = header_list & chr(9) & letter & " - " & col_header
-            if ucase(col_header) = "X NUMBER" then worker_col = letter & " - " & col_header    'if the first cell says 'Case Number' then it is likely the correct column
-        Else
-            Exit For
-        End If
-        cell_val = cell_val + 1
-    Next
 
     interview_deadline_checkbox = checked
     beg_of_recert_pd = MAXIS_footer_month & "/1/" & MAXIS_footer_year
@@ -461,28 +465,56 @@ interview_date_col_known = "Needs New"
 app_date_col_known = "Needs New"
 nomi_recvd_col_known = "Needs New"
 appt_ltr_recvd_col_known = "Needs New"
+nomi_success_col_known = "Needs New"
+appt_ltr_success_col_known = "Needs New"
 
 If excel_row_to_start <> "2" Then
 
 	header_list = replace(header_list, "Select One...", "Needs New")
 
 	Dialog1 = ""
-	BeginDialog Dialog1, 0, 0, 236, 165, "Select a Known Column"
-	  DropListBox 90, 40, 140, 45, header_list, appt_ltr_recvd_col_known
-	  DropListBox 90, 60, 140, 45, header_list, nomi_recvd_col_known
-	  DropListBox 90, 80, 140, 45, header_list, revw_status_col_known
-	  DropListBox 90, 100, 140, 45, header_list, interview_date_col_known
-	  DropListBox 90, 120, 140, 45, header_list, app_date_col_known
-	  ButtonGroup ButtonPressed
-	    OkButton 120, 140, 50, 15
-	    CancelButton 180, 140, 50, 15
-	  Text 10, 10, 185, 20, "Since you are not starting at the beginning, you can select if a column is already created to store the data."
-	  Text 20, 45, 70, 10, "APPT Letter Confirm"
-	  Text 40, 65, 50, 10, "NOMI Confirm"
-	  Text 40, 85, 50, 10, "REVW Status"
-	  Text 35, 105, 50, 10, "Interview Date"
-	  Text 35, 125, 55, 10, "Date App Recvd"
-	EndDialog
+	If notice_type = "Appointment Notice" Then
+		BeginDialog Dialog1, 0, 0, 236, 80, "Select a Known Column"
+		  DropListBox 90, 40, 140, 45, header_list, appt_ltr_success_col_known
+		  ButtonGroup ButtonPressed
+		    OkButton 120, 60, 50, 15
+		    CancelButton 180, 60, 50, 15
+		  Text 10, 10, 185, 20, "Since you are not starting at the beginning, you can select if a column is already created to store the data."
+		  Text 20, 45, 70, 10, "Appt Notice Success"
+		EndDialog
+	ElseIf notice_type = "NOMI" Then
+		BeginDialog Dialog1, 0, 0, 236, 135, "Select a Known Column"
+		  DropListBox 90, 35, 140, 45, header_list, nomi_success_col_known
+		  DropListBox 90, 55, 140, 45, header_list, revw_status_col_known
+		  DropListBox 90, 75, 140, 45, header_list, interview_date_col_known
+		  DropListBox 90, 95, 140, 45, header_list, app_date_col_known
+		  ButtonGroup ButtonPressed
+		    OkButton 120, 115, 50, 15
+		    CancelButton 180, 115, 50, 15
+		  Text 10, 10, 185, 20, "Since you are not starting at the beginning, you can select if a column is already created to store the data."
+		  Text 40, 40, 50, 10, "NOMI Success"
+		  Text 40, 60, 50, 10, "REVW Status"
+		  Text 35, 80, 50, 10, "Interview Date"
+		  Text 35, 100, 55, 10, "Date App Recvd"
+		EndDialog
+	ElseIf notice_type = "Data Only" Then
+		BeginDialog Dialog1, 0, 0, 236, 165, "Select a Known Column"
+		  DropListBox 90, 40, 140, 45, header_list, appt_ltr_recvd_col_known
+		  DropListBox 90, 60, 140, 45, header_list, nomi_recvd_col_known
+		  DropListBox 90, 80, 140, 45, header_list, revw_status_col_known
+		  DropListBox 90, 100, 140, 45, header_list, interview_date_col_known
+		  DropListBox 90, 120, 140, 45, header_list, app_date_col_known
+		  ButtonGroup ButtonPressed
+		    OkButton 120, 140, 50, 15
+		    CancelButton 180, 140, 50, 15
+		  Text 10, 10, 185, 20, "Since you are not starting at the beginning, you can select if a column is already created to store the data."
+		  Text 20, 45, 70, 10, "APPT Letter Confirm"
+		  Text 40, 65, 50, 10, "NOMI Confirm"
+		  Text 40, 85, 50, 10, "REVW Status"
+		  Text 35, 105, 50, 10, "Interview Date"
+		  Text 35, 125, 55, 10, "Date App Recvd"
+		EndDialog
+	End If
 
 	Dialog Dialog1
 	If ButtonPressed = cancel then stopscript
@@ -497,83 +529,97 @@ End If
 column_end = last_col & "1"
 
 Set objRange = objExcel.Range(column_end).EntireColumn
-If appt_ltr_recvd_col_known = "Needs New" Then objRange.Insert(xlShiftToRight)                             'inserting one column to the end of the data in the spreadsheet
 
 notc_col = last_col                                         'setting the a variable with the notice column for later updating of excel
 notc_letter_col = notc_col
 call convert_excel_letter_to_excel_number(notc_col)
 
 if notice_type = "Appointment Notice" Then
-    objExcel.Cells(1, notc_col).Value = "Appt Notice Success"   'Adding header to Excel
-
-    stats_header_col = notc_col + 2         'Setting variables with coumn locations for statistics
-    stats_col = notc_col + 3
+    If appt_ltr_success_col_known = "Needs New" THen
+		objExcel.Cells(1, notc_col).Value = "Appt Notice Success"   'Adding header to Excel
+	Else
+		appt_ltr_letter_col = left(appt_ltr_success_col_known, 2)
+		appt_ltr_letter_col = trim(appt_ltr_letter_col)
+		appt_lrt_col = appt_ltr_letter_col
+		call convert_excel_letter_to_excel_number(appt_lrt_col)
+		notc_col = appt_lrt_col
+	End If
+	stats_header_col = notc_col + 2         'Setting variables with coumn locations for statistics
+	stats_col = notc_col + 3
 End If
 
-If notice_type = "NOMI" or notice_type = "Data Only" Then
-    If revw_status_col_known = "Needs New" Then objRange.Insert(xlShiftToRight)     'add column for review status
-    If interview_date_col_known = "Needs New" Then objRange.Insert(xlShiftToRight)     'add column with interview date
-    If app_date_col_known = "Needs New" Then objRange.Insert(xlShiftToRight)     'add column with app date
+If notice_type = "NOMI" Then
+	If nomi_success_col_known = "Needs New" Then
+		objRange.Insert(xlShiftToRight)     'add column for review status
+		nomi_letter_col = convert_digit_to_excel_column(notc_col)
+		nomi_col = notc_col
+		objExcel.Cells(1, notc_col).Value = "NOMI Success"
+	Else
+		nomi_letter_col = left(nomi_success_col_known, 2)
+		nomi_letter_col = trim(nomi_letter_col)
+		nomi_ltr_col = nomi_letter_col
+		call convert_excel_letter_to_excel_number(nomi_ltr_col)
+		notc_col = nomi_ltr_col
+	End If
+End If
 
-    If notice_type = "Data Only" AND nomi_recvd_col_known = "Needs New" Then objRange.Insert(xlShiftToRight)     'add another column for the other notice confirmation
-
-    If notice_type = "NOMI" Then
-        revw_code_col = notc_col + 1
-        nomi_letter_col = convert_digit_to_excel_column(notc_col)
-    ElseIf notice_type = "Data Only" Then
-        If appt_ltr_recvd_col_known = "Needs New" Then appt_lrt_col = notc_col
-        If nomi_recvd_col_known = "Needs New" Then nomi_col = notc_col + 1
-        If revw_status_col_known = "Needs New" Then revw_code_col = nomi_col + 1        'setting variables for writing to excel'
-
-        If appt_ltr_recvd_col_known = "Needs New" Then appt_ltr_letter_col = convert_digit_to_excel_column(appt_lrt_col)
-        If nomi_recvd_col_known = "Needs New" Then nomi_letter_col = convert_digit_to_excel_column(nomi_col)
-    End If
-    If interview_date_col_known = "Needs New" Then intvw_date_col = revw_code_col + 1
-    If app_date_col_known = "Needs New" Then app_date_col = intvw_date_col + 1
-
-    If revw_status_col_known = "Needs New" Then revw_code_letter_col = convert_digit_to_excel_column(revw_code_col)
-    If interview_date_col_known = "Needs New" Then intvw_date_letter_col = convert_digit_to_excel_column(intvw_date_col)
-    If app_date_col_known = "Needs New" Then app_date_letter_col = convert_digit_to_excel_column(app_date_col)
-
-    If notice_type = "NOMI" Then objExcel.Cells(1, notc_col).Value = "NOMI Success"          'adding headers to Excel
-    If notice_type = "Data Only" Then
-        If appt_ltr_recvd_col_known = "Needs New" Then objExcel.Cells(1, appt_lrt_col).Value = "Appt LTR Confirm"
-        If nomi_recvd_col_known = "Needs New" Then objExcel.Cells(1, nomi_col).Value = "NOMI Confirm"
-    End If
-    If revw_status_col_known = "Needs New" Then objExcel.Cells(1, revw_code_col).Value = "REVW Status"
-    If interview_date_col_known = "Needs New" Then objExcel.Cells(1, intvw_date_col).Value = "Interview Date"
-    If app_date_col_known = "Needs New" Then objExcel.Cells(1, app_date_col).Value = "Date App Rec'vd"
-
-    If app_date_col_known = "Needs New" Then stats_header_col = app_date_col + 2    'Setting variables with coumn locations for statistics
-    If app_date_col_known = "Needs New" Then stats_col = app_date_col + 3
-
-
-	If appt_ltr_recvd_col_known <> "Needs New" Then
+If notice_type = "Data Only" Then
+	If appt_ltr_recvd_col_known = "Needs New" Then
+		objRange.Insert(xlShiftToRight)                             'inserting one column to the end of the data in the spreadsheet
+		appt_lrt_col = notc_col
+		appt_ltr_letter_col = convert_digit_to_excel_column(appt_lrt_col)
+		objExcel.Cells(1, appt_lrt_col).Value = "Appt LTR Confirm"
+	Else
 		appt_ltr_letter_col = left(appt_ltr_recvd_col_known, 2)
 		appt_ltr_letter_col = trim(appt_ltr_letter_col)
 		appt_lrt_col = appt_ltr_letter_col
 		call convert_excel_letter_to_excel_number(appt_lrt_col)
 		notc_col = appt_lrt_col
 	End If
-	If nomi_recvd_col_known <> "Needs New" Then
+	If nomi_recvd_col_known = "Needs New" Then
+		objRange.Insert(xlShiftToRight)     'add another column for the other notice confirmation
+		nomi_col = notc_col + 1
+		nomi_letter_col = convert_digit_to_excel_column(nomi_col)
+		objExcel.Cells(1, nomi_col).Value = "NOMI Confirm"
+	Else
 		nomi_letter_col = left(nomi_recvd_col_known, 2)
 		nomi_letter_col = trim(nomi_letter_col)
 		nomi_col = nomi_letter_col
 		call convert_excel_letter_to_excel_number(nomi_col)
 	End If
-	If revw_status_col_known <> "Needs New" Then
+End If
+
+If notice_type = "NOMI" or notice_type = "Data Only" Then
+	If revw_status_col_known = "Needs New" Then
+		objRange.Insert(xlShiftToRight)     'add column for review status
+		revw_code_col = nomi_col + 1        'setting variables for writing to excel'
+		revw_code_letter_col = convert_digit_to_excel_column(revw_code_col)
+		objExcel.Cells(1, revw_code_col).Value = "REVW Status"
+	Else
 		revw_code_letter_col = left(revw_status_col_known, 2)
 		revw_code_letter_col = trim(revw_code_letter_col)
 		revw_code_col = revw_code_letter_col
 		call convert_excel_letter_to_excel_number(revw_code_col)
 	End If
-	If interview_date_col_known <> "Needs New" Then
+	If interview_date_col_known = "Needs New" Then
+		objRange.Insert(xlShiftToRight)     'add column with interview date
+		intvw_date_col = revw_code_col + 1
+		intvw_date_letter_col = convert_digit_to_excel_column(intvw_date_col)
+		objExcel.Cells(1, intvw_date_col).Value = "Interview Date"
+	Else
 		intvw_date_letter_col = left(interview_date_col_known, 2)
 		intvw_date_letter_col = trim(intvw_date_letter_col)
 		intvw_date_col = intvw_date_letter_col
 		call convert_excel_letter_to_excel_number(intvw_date_col)
 	End If
-	If app_date_col_known <> "Needs New" Then
+	If app_date_col_known = "Needs New" Then
+		objRange.Insert(xlShiftToRight)     'add column with app date
+		app_date_col = intvw_date_col + 1
+		app_date_letter_col = convert_digit_to_excel_column(app_date_col)
+		objExcel.Cells(1, app_date_col).Value = "Date App Rec'vd"
+		stats_header_col = app_date_col + 2    'Setting variables with coumn locations for statistics
+		stats_col = app_date_col + 3
+	Else
 		app_date_letter_col = left(app_date_col_known, 2)
 		app_date_letter_col = trim(app_date_letter_col)
 		app_date_col = app_date_letter_col
@@ -2224,5 +2270,15 @@ End If
 For col_to_autofit = 1 to stats_col
     ObjExcel.columns(col_to_autofit).AutoFit()
 Next
+
+If notice_type = "NOMI" Then
+
+	ObjExcel.Worksheets.Add().Name = "NOMI Count"
+	ObjExcel.Cells(1, 1).Value = "NOMIs Sent for this Month"
+	ObjExcel.Cells(1, 2).Value = "=COUNTIF('" & scenario_dropdown & "'!" & nomi_letter_col & ":" & nomi_letter_col & ", "& chr(34) & "Y" & chr(34) & ")"
+	ObjExcel.columns(1).AutoFit()
+	ObjExcel.columns(2).AutoFit()
+
+End If
 
 script_end_procedure("Notices have been sent. Detail of script run is on the spreadsheet that was opened.")

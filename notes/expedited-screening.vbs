@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("10/13/2020", "Enhanced date evaluation functionality when which determining HEST standards to use.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("10/01/2020", "Updated Standard Utility Allowances for 10/2020.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("09/01/2019", "Updated Utility standards that go into effect for 10/01/2019. Added application date field for accurate expedited screening.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("09/01/2018", "Updated Utility standards that go into effect for 10/01/2018.", "Ilse Ferris, Hennepin County")
@@ -117,22 +118,18 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 Call check_for_MAXIS(FALSE) 'checking for an active MAXIS session
 
-'DATE BASED LOGIC FOR UTILITY AMOUNTS------------------------------------------------------------------------------------------
-If application_date >= cdate("10/01/2020") then     'these variables need to change every October per CM.18.15.09
+'DATE BASED LOGIC FOR UTILITY AMOUNTS: variables need to change every October per CM.18.15.09------------------------------------------------------------------------------------------
+If DateDiff("d",application_date,"10/01/2020") <= 0 then  
+    'October 2020 amounts 
     heat_AC_amt = 496
     electric_amt = 154
     phone_amt = 56
-ElseIf application_date >= cdate("10/01/2019") then
+Else
     'October 2019 amounts 
     heat_AC_amt = 490
     electric_amt = 143
     phone_amt = 49
-else
-    ' October 2018 amounts 
-    heat_AC_amt = 493
-    electric_amt = 126
-    phone_amt = 47
-End if
+End if 
 
 'LOGIC AND CALCULATIONS----------------------------------------------------------------------------------------------------
 'Logic for figuring out utils. The highest priority for the if...then is heat/AC, followed by electric and phone, followed by phone and electric separately.

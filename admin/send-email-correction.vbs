@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/12/2020", "Updated all SharePoint hyperlinks due to SharePoint Online Migration.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/21/2020", "Added a checkbox for situations where the interview has been completed but the worker did not address the Adult Cash programs requested. This option is now available for both Expedited SNAP and On Demand options.", "Casey Love, Hennepin County")
 call changelog_update("07/29/2020", "Initial version.", "Casey Love, Hennepin County")
 
@@ -75,7 +76,7 @@ For each tester in tester_array                                                 
     End If
 Next
 'If this did not find the user is a tester for QI the script will end as this is only for QI staff - access to the files and folders will be restricted and the script will fail
-If qi_staff = FALSE Then script_end_procedure_with_error_report("This script is for QI specific processes and only for QI staff. You are not listed as QI staff and running this script could cause errors in data reccording and QI processes. Please contact the BlueZone script team or pres 'Yes' below if you believe this to be in error.")
+If qi_staff = FALSE Then script_end_procedure_with_error_report("This script is for QI specific processes and only for QI staff. You are not listed as QI staff and running this script could cause errors in data recording and QI processes. Please contact the BlueZone script team or press 'Yes' below if you believe this to be in error.")
 
 EMConnect ""											'connecting to MAXIS
 Call MAXIS_case_number_finder(MAXIS_case_number)		'Grabbing the case number if it can find one
@@ -86,7 +87,7 @@ email_recipient = ""
 email_recipient_cc = ""
 email_signature = qi_worker_full_name
 send_email = true
-t_drive = "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team"
+'can i set cariable to true and hold over from another script?'
 
 'Dialog to select which type of correction needs to be sent
 BeginDialog Dialog1, 0, 0, 231, 170, "What type of correction?"
@@ -127,7 +128,7 @@ Do
     If correction_process = "Select One ..." Then err_msg = err_msg & vbNewLine & "* Select which process the correction email is regarding."
 
 	If ButtonPressed = instructions_btn Then
-		Call open_URL_in_browser("https://dept.hennepin.us/hsphd/sa/ews/BlueZone_Script_Instructions/ADMIN/QI%20-%20SEND%20EMAIL%20CORRECTION.docx")
+		Call open_URL_in_browser("https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/ADMIN/QI%20-%20SEND%20EMAIL%20CORRECTION.docx")
 		err_msg = "LOOP" & err_msg
     ElseIf err_msg <> "" Then
 		MsgBox "Please resolve to continue:" & vbNewLine & err_msg
@@ -461,8 +462,8 @@ Select Case correction_process
 		If add_snap_id_doc_resource = TRUE OR add_hsr_case_note_guidelines_resource = TRUE OR add_client_contact_interview_qs_resource = TRUE Then email_body = email_body & "<i>" & "&emsp;" & "Internal:" & "</i><br>"
 
 		If add_snap_id_doc_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "https://www.dhssir.cty.dhs.state.mn.us/MAXIS/Documents/SNAP Identity Verification.pdf" & chr(34) & ">" & " SNAP Identity Verification" & "</a><br>"
-		If add_hsr_case_note_guidelines_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- HSR Manual: " & "<a href=" & chr(34) & "https://dept.hennepin.us/hsphd/manuals/hsrm/Pages/Guidelines_and_Format.aspx" & chr(34) & ">" & "Case Notes Guidelines and Format" & "</a><br>"
-		If add_client_contact_interview_qs_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- Client Contact Documents: " & "<a href=" & chr(34) & "https://dept.hennepin.us/hsphd/sa/ews/COVID19WorkProcess/Cash%20and%20EGA%20interview%20questions.docx" & chr(34) & ">" & "Cash and EGA Interview Questions" & "</a><br>"
+		If add_hsr_case_note_guidelines_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- HSR Manual: " & "<a href=" & chr(34) & "https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Guidelines_and_Format.aspx" & chr(34) & ">" & "Case Notes Guidelines and Format" & "</a><br>"
+		If add_client_contact_interview_qs_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- Client Contact Documents: " & "<a href=" & chr(34) & "https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/_layouts/15/Doc.aspx?sourcedoc=%7B699D501E-6F92-4A08-A608-7F9D93B4D9EA%7D&file=Cash%20and%20EGA%20interview%20questions.docx" & chr(34) & ">" & "Cash and EGA Interview Questions" & "</a><br>"
 
 		If add_temp_02_10_01_resource = TRUE OR add_temp_02_10_79_resource = TRUE OR add_temp_19_152_resource = TRUE OR add_temp_16_09_resource = TRUE OR add_temp_02_08_143_resource = TRUE Then email_body = email_body & "<i>" & "&emsp;" & "TEMP Manual:" & "</i><br>"
 
@@ -474,15 +475,15 @@ Select Case correction_process
 
 		If add_script_app_progs_resource = TRUE OR add_script_caf_resource = TRUE OR add_script_cit_id_resource = TRUE OR add_script_exp_det_resource = TRUE OR add_script_add_wcom_resource = TRUE OR add_script_verif_needed_resource = TRUE OR add_script_app_recvd_resource = TRUE OR add_script_exp_screen_resource = TRUE OR add_script_mf_to_fs_resource = TRUE Then email_body = email_body & "<i>" & "&emsp;" & "Scripts: (Instructions)" & "</i><br>"
 
-		If add_script_app_progs_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "https://dept.hennepin.us/hsphd/sa/ews/BlueZone_Script_Instructions/NOTES/NOTES - APPROVED PROGRAMS.docx" & chr(34) & ">" & "NOTES - APPROVED PROGRAMS" & "</a><br>"
-		If add_script_caf_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "https://dept.hennepin.us/hsphd/sa/ews/BlueZone_Script_Instructions/NOTES/NOTES - CAF.docx" & chr(34) & ">" & "NOTES - CAF" & "</a><br>"
-		If add_script_cit_id_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "https://dept.hennepin.us/hsphd/sa/ews/BlueZone_Script_Instructions/NOTES/NOTES - CITIZENSHIP IDENTITY VERIFIED.docx" & chr(34) & ">" & "NOTES - CITIZENSHIP IDENTITY VERIFIED" & "</a><br>"
-		If add_script_exp_det_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "https://dept.hennepin.us/hsphd/sa/ews/BlueZone_Script_Instructions/NOTES/NOTES - EXPEDITED DETERMINATION.docx" & chr(34) & ">" & "NOTES - EXPEDITED DETERMINATION" & "</a><br>"
+		If add_script_app_progs_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20APPROVED%20PROGRAMS.docx" & chr(34) & ">" & "NOTES - APPROVED PROGRAMS" & "</a><br>"
+		If add_script_caf_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20CAF.docx" & chr(34) & ">" & "NOTES - CAF" & "</a><br>"
+		If add_script_cit_id_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20CITIZENSHIP%20IDENTITY%20VERIFIED.docx" & chr(34) & ">" & "NOTES - CITIZENSHIP IDENTITY VERIFIED" & "</a><br>"
+		If add_script_exp_det_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20EXPEDITED%20DETERMINATION.docx" & chr(34) & ">" & "NOTES - EXPEDITED DETERMINATION" & "</a><br>"
 		If add_script_add_wcom_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "https://dept.hennepin.us/hsphd/sa/ews/BlueZone_Script_Instructions/NOTICES/NOTICES - ADD WCOM.docx" & chr(34) & ">" & "NOTICES - ADD WCOM" & "</a><br>"
-		If add_script_verif_needed_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "https://dept.hennepin.us/hsphd/sa/ews/BlueZone_Script_Instructions/NOTES/NOTES - VERIFICATIONS NEEDED.docx" & chr(34) & ">" & "NOTES - VERIFICATIONS NEEDED" & "</a><br>"
-		If add_script_app_recvd_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "https://dept.hennepin.us/hsphd/sa/ews/BlueZone_Script_Instructions/NOTES/NOTES - APPLICATION RECEIVED.docx" & chr(34) & ">" & "NOTES - APPLICATION RECEIVED" & "</a><br>"
-		If add_script_exp_screen_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "https://dept.hennepin.us/hsphd/sa/ews/BlueZone_Script_Instructions/NOTES/NOTES - EXPEDITED SCREENING.docx" & chr(34) & ">" & "NOTES - EXPEDITED SCREENING" & "</a><br>"
-		If add_script_mf_to_fs_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "https://dept.hennepin.us/hsphd/sa/ews/BlueZone_Script_Instructions/NOTES/NOTES - MFIP TO SNAP TRANSITION.docx" & chr(34) & ">" & "NOTES - MFIP TO SNAP TRANSITION" & "</a><br>"
+		If add_script_verif_needed_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20VERIFICATIONS%20NEEDED.docx" & chr(34) & ">" & "NOTES - VERIFICATIONS NEEDED" & "</a><br>"
+		If add_script_app_recvd_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20APPLICATION%20RECEIVED.docx" & chr(34) & ">" & "NOTES - APPLICATION RECEIVED" & "</a><br>"
+		If add_script_exp_screen_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & " https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20EXPEDITED%20SCREENING.docx" & chr(34) & ">" & "NOTES - EXPEDITED SCREENING" & "</a><br>"
+		If add_script_mf_to_fs_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20MFIP%20TO%20SNAP%20TRANSITION.docx" & chr(34) & ">" & "NOTES - MFIP TO SNAP TRANSITION" & "</a><br>"
 		email_body = email_body & "</p>"
 
 		'End of the message with email llinks
@@ -670,7 +671,7 @@ Select Case correction_process
 		email_body = email_body & "<p style=" & chr(34) & "font-size:20px" & chr(34) & "><b>" & "Issues/Errors Found on Case # " & MAXIS_case_number & "</b></p>"
 
 		If app_recvd_script_not_used_checkbox = checked Then
-			email_body = email_body & "<p><i>" & "&emsp;" & counter &  ". The " & "<a href=" & chr(34) & "https://dept.hennepin.us/hsphd/sa/ews/BlueZone_Script_Instructions/NOTES/NOTES - APPLICATION RECEIVED.docx" & chr(34) & ">" & "NOTES - APPLICATION RECEIVED" & "</a>" & " script was not used at the time the case was APPL'd. " & "</i>" & " This script case notes details about the application, screens for expedited SNAP (if applicable), sends the appointment letter for SNAP and/or CASH cases and transfers the case (if applicable)." & "</p>"
+			email_body = email_body & "<p><i>" & "&emsp;" & counter &  ". The " & "<a href=" & chr(34) & " https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20APPLICATION%20RECEIVED.docx" & chr(34) & ">" & "NOTES - APPLICATION RECEIVED" & "</a>" & " script was not used at the time the case was APPL'd. " & "</i>" & " This script case notes details about the application, screens for expedited SNAP (if applicable), sends the appointment letter for SNAP and/or CASH cases and transfers the case (if applicable)." & "</p>"
 			add_hsr_appling_resource = TRUE
 			add_script_app_recvd_resource = TRUE
 			STATS_manualtime = STATS_manualtime + 30
@@ -726,8 +727,8 @@ Select Case correction_process
 		End If
 		If caf_script_used_no_interview_checkbox = checked Then
 			email_body = email_body & "<p><i>" & "&emsp;" & counter &  ". The " & "<a href=" & chr(34) & "" & chr(34) & ">" & "NOTES - CAF" & "</a>" & " script was used on the case when an interview has been not been completed." & "</i>" & " This script is for cases that have completed the interview process, and all STAT panels have been reviewed and updated with the information provided in the interview. If you are reviewing the case and no action has been taken in MAXIS please use "
-			email_body = email_body & "<a href=" & chr(34) & "https://dept.hennepin.us/hsphd/sa/ews/BlueZone_Script_Instructions/NOTES/NOTES - APPLICATION CHECK.docx" & chr(34) & ">" & "NOTES - APPLICATION CHECK" & "</a>" & ". If you cannot update MAXIS panels, and want to case note information about the interview use "
-			email_body = email_body & "<a href=" & chr(34) & "https://dept.hennepin.us/hsphd/sa/ews/BlueZone_Script_Instructions/NOTES/NOTES - INTERVIEW COMPLETED.docx" & chr(34) & ">" & "NOTES - INTERVIEW COMPLETED." & "</a>" & "</p>"
+			email_body = email_body & "<a href=" & chr(34) & " https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20APPLICATION%20CHECK.docx" & chr(34) & ">" & "NOTES - APPLICATION CHECK" & "</a>" & ". If you cannot update MAXIS panels, and want to case note information about the interview use "
+			email_body = email_body & "<a href=" & chr(34) & "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20INTERVIEW%20COMPLETED.docx" & chr(34) & ">" & "NOTES - INTERVIEW COMPLETED." & "</a>" & "</p>"
 			add_script_app_check_resource = TRUE
 			add_script_caf_resource = TRUE
 			add_script_interview_comp_resource = TRUE
@@ -765,22 +766,22 @@ Select Case correction_process
 
 		If add_hsr_app_guide_resource = TRUE OR add_hsr_interview_process_resource = TRUE OR add_hsr_appling_resource = TRUE OR add_client_contact_interview_qs_resource = TRUE OR add_hsr_nomi_resource = TRUE OR add_hsr_on_demand_resource = TRUE Then email_body = email_body & "<i>" & "&emsp;" & "Internal:" & "</i><br>"
 
-		If add_hsr_appling_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- HSR Manual:" & "<a href=" & chr(34) & "https://dept.hennepin.us/hsphd/manuals/hsrm/Pages/APPLing.aspx" & chr(34) & ">" & " APPLing" & "</a><br>"
-		If add_hsr_app_guide_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- HSR Manual:" & "<a href=" & chr(34) & "https://dept.hennepin.us/hsphd/manuals/hsrm/Pages/Application_Guide.aspx" & chr(34) & ">" & " Application Guide" & "</a><br>"
-		If add_hsr_interview_process_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- HSR Manual:" & "<a href=" & chr(34) & "https://dept.hennepin.us/hsphd/manuals/hsrm/Pages/Application_Guide_Interview_Process.aspx" & chr(34) & ">" & " Application Guide: Interview Process" & "</a><br>"
-		If add_client_contact_interview_qs_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- Client Contact Documents: " & "<a href=" & chr(34) & "https://dept.hennepin.us/hsphd/sa/ews/COVID19WorkProcess/Cash%20and%20EGA%20interview%20questions.docx" & chr(34) & ">" & "Cash and EGA Interview Questions" & "</a><br>"
-		If add_hsr_nomi_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- HSR Manual:" & "<a href=" & chr(34) & "https://dept.hennepin.us/hsphd/manuals/hsrm/Pages/NOMI.aspx" & chr(34) & ">" & " NOMI" & "</a><br>"
-		If add_hsr_on_demand_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- HSR Manual:" & "<a href=" & chr(34) & "https://dept.hennepin.us/hsphd/manuals/hsrm/Pages/On_Demand_Waiver.aspx" & chr(34) & ">" & " On Demand" & "</a><br>"
+		If add_hsr_appling_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- HSR Manual:" & "<a href=" & chr(34) & "https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/APPLing.aspx" & chr(34) & ">" & " APPLing" & "</a><br>"
+		If add_hsr_app_guide_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- HSR Manual:" & "<a href=" & chr(34) & " https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Application_Guide.aspx" & chr(34) & ">" & " Application Guide" & "</a><br>"
+		If add_hsr_interview_process_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- HSR Manual:" & "<a href=" & chr(34) & "https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Application_Guide_Interview_Process.aspx" & chr(34) & ">" & " Application Guide: Interview Process" & "</a><br>"
+		If add_client_contact_interview_qs_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- Client Contact Documents: " & "<a href=" & chr(34) & "https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/_layouts/15/Doc.aspx?sourcedoc=%7B699D501E-6F92-4A08-A608-7F9D93B4D9EA%7D&file=Cash%20and%20EGA%20interview%20questions.docx" & chr(34) & ">" & "Cash and EGA Interview Questions" & "</a><br>"
+		If add_hsr_nomi_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- HSR Manual:" & "<a href=" & chr(34) & "https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/NOMI.aspx" & chr(34) & ">" & " NOMI" & "</a><br>"
+		If add_hsr_on_demand_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- HSR Manual:" & "<a href=" & chr(34) & "https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/On_Demand_Waiver.aspx" & chr(34) & ">" & " On Demand" & "</a><br>"
 
 
 		If add_script_app_recvd_resource = TRUE OR add_script_app_check_resource = TRUE OR add_script_caf_resource = TRUE OR add_script_appr_progs_resource = TRUE OR add_script_clt_contact_resource = TRUE OR add_script_interview_comp_resource = TRUE Then email_body = email_body & "<i>" & "&emsp;" & "Scripts: (Instructions)" & "</i><br>"
 
-		If add_script_app_recvd_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "https://dept.hennepin.us/hsphd/sa/ews/BlueZone_Script_Instructions/NOTES/NOTES - APPLICATION RECEIVED.docx" & chr(34) & ">" & "NOTES - APPLICATION RECEIVED" & "</a><br>"
-		If add_script_app_check_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "https://dept.hennepin.us/hsphd/sa/ews/BlueZone_Script_Instructions/NOTES/NOTES - APPLICATION CHECK.docx" & chr(34) & ">" & "NOTES - APPLICATION CHECK" & "</a><br>"
-		If add_script_caf_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "https://dept.hennepin.us/hsphd/sa/ews/BlueZone_Script_Instructions/NOTES/NOTES - CAF.docx" & chr(34) & ">" & "NOTES - CAF" & "</a><br>"
-		If add_script_appr_progs_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "https://dept.hennepin.us/hsphd/sa/ews/BlueZone_Script_Instructions/NOTES/NOTES - APPROVED PROGRAMS.docx" & chr(34) & ">" & "NOTES - APPROVED PROGRAMS" & "</a><br>"
-		If add_script_clt_contact_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "https://dept.hennepin.us/hsphd/sa/ews/BlueZone_Script_Instructions/NOTES/NOTES - CLIENT CONTACT.docx" & chr(34) & ">" & "NOTES - CLIENT CONTACT" & "</a><br>"
-		If add_script_interview_comp_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "https://dept.hennepin.us/hsphd/sa/ews/BlueZone_Script_Instructions/NOTES/NOTES - INTERVIEW COMPLETED.docx" & chr(34) & ">" & "NOTES - INTERVIEW COMPLETED" & "</a><br>"
+		If add_script_app_recvd_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/_layouts/15/Doc.aspx?sourcedoc=%7B1A3B241F-CCD6-414B-B4F5-8B40B4B66F6B%7D&file=NOTES%20-%20APPLICATION%20RECEIVED.docx" & chr(34) & ">" & "NOTES - APPLICATION RECEIVED" & "</a><br>"
+		If add_script_app_check_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20APPLICATION%20CHECK.docx" & chr(34) & ">" & "NOTES - APPLICATION CHECK" & "</a><br>"
+		If add_script_caf_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & " https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20CAF.docx" & chr(34) & ">" & "NOTES - CAF" & "</a><br>"
+		If add_script_appr_progs_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20APPROVED%20PROGRAMS.docx" & chr(34) & ">" & "NOTES - APPROVED PROGRAMS" & "</a><br>"
+		If add_script_clt_contact_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20CLIENT%20CONTACT.docx" & chr(34) & ">" & "NOTES - CLIENT CONTACT" & "</a><br>"
+		If add_script_interview_comp_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & " https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20INTERVIEW%20COMPLETED.docx" & chr(34) & ">" & "NOTES - INTERVIEW COMPLETED" & "</a><br>"
 
 		'End of the message with email llinks
 		email_body = email_body & "<p>" & "Thank you for taking the time to review this information. If you have any additional questions or want additional directions and resources, please contact the QI team. For Script questions contact the BlueZone Script Team." & "<br>"

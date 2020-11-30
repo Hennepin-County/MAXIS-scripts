@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("11/01/2020", "Removed COLA information, it's not applicable, and updated data columns.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("12/16/2019", "Updated data columns based on current data pull.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("04/12/2019", "Updated text for case note re: veterans services.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("01/04/2019", "Updated column numbers. New information is being pulled into the report.", "Ilse Ferris, Hennepin County")
@@ -96,19 +97,18 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'Sets up the array to store all the information for each client'
 Dim UNEA_array()
-ReDim UNEA_array (10, 0)
+ReDim UNEA_array (8, 0)
 
 'Sets constants for the array to make the script easier to read (and easier to code)'
-Const case_num    	= 1			'Each of the case numbers will be stored at this position'
-Const clt_pmi     	= 2
-Const inc_type		= 3
-Const claim_num   	= 4
-Const act_claim		= 5
-Const unea_amt 	  	= 6
-Const cola_amt    	= 7
-Const act_status  	= 8
-Const act_notes   	= 9
-Const Send_memo     = 10
+Const case_num    	= 0			'Each of the case numbers will be stored at this position'
+Const clt_pmi     	= 1
+Const inc_type		= 2
+Const claim_num   	= 3
+Const act_claim		= 4
+Const unea_amt 	  	= 5
+Const act_status  	= 6
+Const act_notes   	= 7
+Const send_memo     = 8
 
 'Now the script adds all the clients on the excel list into an array
 excel_row = 2 're-establishing the row to start checking the members for
@@ -125,28 +125,25 @@ Do                                                            'Loops until there
 		If left(client_PMI, 1) = "0" then client_PMI = right(client_PMI, len(client_PMI) - 1)
 	Loop until left(client_PMI, 1) <> "0"
 
-	income_type  	= objExcel.cells(excel_row,  9).value	'(col I) establishes income type code
-	claim_number 	= objExcel.cells(excel_row, 11).value	'(col K) establishes claim number from MAXIS (created by the report)
-
-    actual_claim 	= objExcel.cells(excel_row, 16).value	'(col P) establishes the acutal claim number (if another claim number was found by VA staff)
-	unea_amount	 	= objExcel.cells(excel_row, 17).value	'(col Q) establishes grant amount for each case
-	cola_amount	 	= objExcel.cells(excel_row, 18).value	'(col R) establishes COLA amount for each case (if applicable)
+	income_type  	= objExcel.cells(excel_row, 4).value	'(col D) establishes income type code
+	claim_number 	= objExcel.cells(excel_row, 6).value	'(col F) establishes claim number from MAXIS (created by the report)
+    actual_claim 	= objExcel.cells(excel_row, 7).value	'(col G) establishes the acutal claim number (if another claim number was found by VA staff)
+	unea_amount	 	= objExcel.cells(excel_row, 8).value	'(col H) establishes grant amount for each case
+	
 	'cleaning up the variables
 	income_type	 	= trim(income_type)
 	claim_number 	= trim(claim_number)
     actual_claim    = trim(actual_claim)
 	unea_amount		= trim(unea_amount)
-	cola_amount 	= trim(cola_amount)
 
 	'Adding client information to the array'
-	ReDim Preserve UNEA_array(10, entry_record)	'This resizes the array based on the number of rows in the Excel File'
+	ReDim Preserve UNEA_array(8, entry_record)	'This resizes the array based on the number of rows in the Excel File'
 	UNEA_array (case_num, 	entry_record) = MAXIS_case_number		'The client information is added to the array'
 	UNEA_array (clt_PMI,  	entry_record) = client_PMI
 	UNEA_array (inc_type, 	entry_record) = income_type
     UNEA_array (claim_num,	entry_record) = claim_number
 	UNEA_array (act_claim, 	entry_record) = actual_claim
 	UNEA_array (unea_amt,   entry_record) = unea_amount
-	UNEA_array (cola_amt,   entry_record) = cola_amount
 	UNEA_array (act_status, entry_record) = ""
 	UNEA_array (act_notes,  entry_record) = ""
     UNEA_array (send_memo,  entry_record) = False
@@ -166,7 +163,6 @@ For i = 0 to Ubound(UNEA_array, 2)
 	income_type 		= UNEA_array (inc_type, i)
     actual_claim        = UNEA_array (act_claim, i)
 	unea_amount 		= UNEA_array (unea_amt, i)
-	cola_amount 		= UNEA_array (cola_amt, i)
 
 	If unea_amount = "" or IsNumeric(unea_amount) = False then
 		UNEA_array(act_status, i) = "Error"
@@ -317,11 +313,6 @@ For i = 0 to Ubound(UNEA_array, 2)
 	        							EMWriteScreen UNEA_array(act_claim, i), 6, 37
 	        						End if
 
-	        						If UNEA_array(cola_amt, i) <> "" then 				'writes in the COLA amount if applicable
-	        							EMWriteScreen "________", 10, 67
-	        							EMWriteScreen UNEA_array(cola_amt, i), 10, 67
-	        						End if
-
 	        						'----------------------------------------------------------------------------------------------------RETROSPECTIVE
 	        						EMReadscreen prospective_amt, 8, 13, 68
 	        						prospective_amt = replace(prospective_amt, "_", "")
@@ -414,7 +405,6 @@ For i = 0 to Ubound(UNEA_array, 2)
         '----------------------------------------------------------------------------------------------------THE SPEC/MEMO
         Call start_a_new_spec_memo
         call navigate_to_MAXIS_screen("SPEC", "MEMO")		'Navigating to SPEC/MEMO
-
         'Writes the MEMO.
         call write_variable_in_SPEC_MEMO("If you have any questions about veterans benefits, please contact the Hennepin County Veterans Service Office at 612-348-3300. Veterans Services has staff at the Government Center, the South Minneapolis Human Service center, and Maple Grove. You may also make an appointment at a variety of regional locations.")
         Call write_variable_in_SPEC_MEMO("")
@@ -434,8 +424,8 @@ Next
 'Export data to Excel
 excel_row = 2
 For i = 0 to Ubound(UNEA_array, 2)
-	ObjExcel.Cells(Excel_row, 19).Value = UNEA_array(act_status, i) '(Col P)
-	ObjExcel.Cells(Excel_row, 20).Value = UNEA_array(act_notes,  i) '(Col Q)
+	ObjExcel.Cells(Excel_row,  9).Value = UNEA_array(act_status, i) '(Col I)
+	ObjExcel.Cells(Excel_row, 10).Value = UNEA_array(act_notes,  i) '(Col J)
 	Excel_row = Excel_row + 1
 Next
 

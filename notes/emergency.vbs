@@ -53,6 +53,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/12/2020", "Updated HSR Manual link for EGA policy/procedure due to SharePoint Online Migration.", "Ilse Ferris, Hennepin County")
 call changelog_update("07/30/2020", "BUG Fix: The script was getting stuck and would not continue to the note if a required field was not completed.##~##Updated so that the dialog with the missing field would appear.##~##", "Casey Love, Hennepin County")
 call changelog_update("04/01/2020", "Updated 200% FPG for 2020.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/28/2019", "Updated EGA screening determination when emer has been used before, but the elig period has expired.", "Ilse Ferris, Hennepin County")
@@ -159,7 +160,7 @@ If EGA_screening_check = 1 then
     			Dialog Dialog1
     			cancel_without_confirmation
 				MAXIS_dialog_navigation
-                IF buttonpressed = EMER_HSR_manual_button then CreateObject("WScript.Shell").Run("https://dept.hennepin.us/hsphd/manuals/hsrm/Pages/Emergency_Assistance_Policy.aspx") 'HSR manual policy page
+                IF buttonpressed = EMER_HSR_manual_button then CreateObject("WScript.Shell").Run("https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/EGA_Policy.aspx") 'HSR manual policy page
             LOOP until ButtonPressed = -1
     		If HH_members = "" or IsNumeric(HH_members) = False then err_msg = err_msg & vbNewLine & "* Enter the number of household members."
     		If meets_residency = "Select one..." then err_msg = err_msg & vbNewLine & "* Answer the MN residency question."
