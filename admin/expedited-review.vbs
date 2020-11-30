@@ -1113,4 +1113,4 @@ Next
 
 'logging usage stats
 STATS_counter = STATS_counter - 1  'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
-script_end_procedure("Success, the expedited SNAP run is complete. The workbook has been saved.")``
+script_end_procedure("Success, the expedited SNAP run is complete. The workbook has been saved.")
