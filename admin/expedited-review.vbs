@@ -44,6 +44,8 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+
+CALL changelog_update("11/29/2020", "Updated to include Phase 1 of ES Expedited SNAP Support with DWP group.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("11/17/2020", "Additional testing for 1800 cases.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("11/14/2020", "Added specified report for 1800 baskets. WFM will not get 1800 cases for FAD assignment.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("11/04/2020", "Final testing complete for additional data input and output functionality.", "Ilse Ferris, Hennepin County")
@@ -639,7 +641,7 @@ ObjExcel.Cells(1, 18).Value = "Save case number for team review?"
 Excel_row = 2
  
 For item = 0 to UBound(expedited_array, 2)
-    If expedited_array(appears_exp_const, item) = "Exp Screening Req" then 
+    If expedited_array(appears_exp_const, item) = "Exp Screening Req" and expedited_array(interview_date_const, item) <> "" then 
         assign_case = True 
     ElseIf expedited_array(appears_exp_const, item) = "Req Exp Processing" and expedited_array(interview_date_const, item) <> "" then 
         assign_case = True 
@@ -783,6 +785,9 @@ For item = 0 to UBound(expedited_array, 2)
         assign_case = False 
     End if 
     
+    'Excluding YET (X127FA5) and 1800 (X127EF8 and X127EF9) baskets
+    If expedited_array(worker_number_const, item) = "X127FA5" or expedited_array(worker_number_const, item) = "X127EF8" or expedited_array(worker_number_const, item) = "X127EF9" then assign_case = False 
+    
     If assign_case = True then 
         'only assigning cases that haven't exceeded Day 30 - Those are their own assignments 
         If expedited_array(days_pending_const, item) < 30 then 
@@ -820,31 +825,28 @@ ObjExcel.Cells(1, 7).Value = "Notes"
 Excel_row = 2
  
 For item = 0 to UBound(expedited_array, 2)
-    If expedited_array(appears_exp_const, item) = "Exp Screening Req" and expedited_array(interview_date_const, item) = "" then 
-        assign_case = True 
-    ElseIf expedited_array(appears_exp_const, item) = "Req Exp Processing" and expedited_array(interview_date_const, item) = "" then 
+    If expedited_array(appears_exp_const, item) = "Req Exp Processing" and expedited_array(interview_date_const, item) = "" then 
         assign_case = True 
     Else 
         assign_case = False 
     End if 
     
+    'Excluding YET (X127FA5) and 1800 (X127EF8 and X127EF9) baskets
+    If expedited_array(worker_number_const, item) = "X127FA5" or expedited_array(worker_number_const, item) = "X127EF8" or expedited_array(worker_number_const, item) = "X127EF9" then assign_case = False 
+        
     If assign_case = True then 
         'only assigning cases that haven't exceeded Day 30 - Those are their own assignments 
         If expedited_array(days_pending_const, item) < 30 then 
-            'Excluding YET baskets
-            If expedited_array(worker_number_const, item) <> "X127FA5" then
-                If expedited_array(worker_number_const, item) <> "X127EF8" then
-                    If expedited_array(worker_number_const, item) <> "X127EF9" then
-                        objExcel.Cells(excel_row, 1).Value = expedited_array(worker_number_const,    item)
-                        objExcel.Cells(excel_row, 2).Value = expedited_array(case_number_const,      item)
-                        objExcel.Cells(excel_row, 3).Value = expedited_array(program_ID_const,       item)
-                        objExcel.Cells(excel_row, 4).Value = expedited_array(days_pending_const,     item)
-                        objExcel.Cells(excel_row, 5).Value = expedited_array(application_date_const, item)
-                        objExcel.Cells(excel_row, 6).Value = expedited_array(interview_date_const,   item)
-                        objExcel.Cells(excel_row, 7).Value = expedited_array(case_status_const,      item)
-                        excel_row = excel_row + 1
-                    End if 
-                End if 
+            If expedited_array(days_pending_const, item) => 8 then
+                'Appears expedited pending days 1-7 are currently assigned to DWP
+                objExcel.Cells(excel_row, 1).Value = expedited_array(worker_number_const,    item)
+                objExcel.Cells(excel_row, 2).Value = expedited_array(case_number_const,      item)
+                objExcel.Cells(excel_row, 3).Value = expedited_array(program_ID_const,       item)
+                objExcel.Cells(excel_row, 4).Value = expedited_array(days_pending_const,     item)
+                objExcel.Cells(excel_row, 5).Value = expedited_array(application_date_const, item)
+                objExcel.Cells(excel_row, 6).Value = expedited_array(interview_date_const,   item)
+                objExcel.Cells(excel_row, 7).Value = expedited_array(case_status_const,      item)
+                excel_row = excel_row + 1
             End if 
         End if 
     End if 
@@ -950,7 +952,9 @@ For item = 0 to UBound(expedited_array, 2)
         assign_case = True 
     ElseIf expedited_array(appears_exp_const, item) = "Req Exp Processing" and expedited_array(interview_date_const, item) = "" then 
         assign_case = True 
-    Else 
+    Elseif expedited_array(case_status_const, item) = "Case Notes Do Not Exist" then 
+        assign_case = True 
+    Else
         assign_case = False 
     End if 
     
@@ -983,6 +987,166 @@ objExcel.ActiveWorkbook.Close
 objExcel.Application.Quit
 objExcel.Quit
 
+'----------------------------------------------------------------------------------------------------DWP Appears Expedited & EXP Screening & Secondary w/o Interview
+'----------------------------------------------------------------------------------------------------Secondary Assignment 
+'Opening the Excel file
+Set objExcel = CreateObject("Excel.Application")
+objExcel.Visible = True
+Set objWorkbook = objExcel.Workbooks.Add()
+objExcel.DisplayAlerts = True
+
+'Changes name of Excel sheet
+ObjExcel.ActiveSheet.Name = "Secondary Assignment"
+
+'adding information to the Excel list from PND2
+ObjExcel.Cells(1, 1).Value = "Worker #"
+ObjExcel.Cells(1, 2).Value = "Case number"
+ObjExcel.Cells(1, 3).Value = "Prog ID"
+ObjExcel.Cells(1, 4).Value = "Days Pending"
+ObjExcel.Cells(1, 5).Value = "APPL Date"
+objExcel.Columns(5).NumberFormat = "mm/dd/yy"					'formats the date column as MM/DD/YY
+ObjExcel.Cells(1, 6).Value = "Interview Date"
+objExcel.Columns(6).NumberFormat = "mm/dd/yy"					'formats the date column as MM/DD/YY
+ObjExcel.Cells(1, 7).Value = "Notes"
+ 
+Excel_row = 2
+ 
+For item = 0 to UBound(expedited_array, 2)
+    If expedited_array(appears_exp_const, item) = "Req Exp Processing" and expedited_array(interview_date_const, item) = "" then 
+        assign_case = True  
+    Else 
+        assign_case = False 
+    End if 
+    
+    'Excluding YET (X127FA5) and 1800 (X127EF8 and X127EF9) baskets
+    If expedited_array(worker_number_const, item) = "X127FA5" or expedited_array(worker_number_const, item) = "X127EF8" or expedited_array(worker_number_const, item) = "X127EF9" then assign_case = False 
+    
+    If assign_case = True then 
+        'only assigning cases that haven't exceeded Day 30 - Those are their own assignments 
+        If expedited_array(days_pending_const, item) < 30 then 
+            If expedited_array(days_pending_const, item) => 8 then 
+                'Assigning only cases pending 8-29 days 
+                objExcel.Cells(excel_row, 1).Value = expedited_array(worker_number_const,    item)
+                objExcel.Cells(excel_row, 2).Value = expedited_array(case_number_const,      item)
+                objExcel.Cells(excel_row, 3).Value = expedited_array(program_ID_const,       item)
+                objExcel.Cells(excel_row, 4).Value = expedited_array(days_pending_const,     item)
+                objExcel.Cells(excel_row, 5).Value = expedited_array(application_date_const, item)
+                objExcel.Cells(excel_row, 6).Value = expedited_array(interview_date_const,   item)
+                objExcel.Cells(excel_row, 7).Value = expedited_array(case_status_const,      item)
+                excel_row = excel_row + 1
+            End if 
+        End if 
+    End if 
+Next 
+ 
+FOR i = 1 to 7		'formatting the cells
+    objExcel.Cells(1, i).Font.Bold = True		'bold font'
+    objExcel.Columns(i).AutoFit()				'sizing the columns'
+NEXT
+
+'----------------------------------------------------------------------------------------------------Appears Expedited & Requires Interview
+'----------------------------------------------------------------------------------------------------Appears Expedited Days 1-7
+ObjExcel.Worksheets.Add().Name = "Appears Expedited"
+
+'adding information to the Excel list from PND2
+ObjExcel.Cells(1, 1).Value = "Worker #"
+ObjExcel.Cells(1, 2).Value = "Case number"
+ObjExcel.Cells(1, 3).Value = "Prog ID"
+ObjExcel.Cells(1, 4).Value = "Days Pending"
+ObjExcel.Cells(1, 5).Value = "APPL Date"
+objExcel.Columns(5).NumberFormat = "mm/dd/yy"					'formats the date column as MM/DD/YY
+ObjExcel.Cells(1, 6).Value = "Interview Date"
+objExcel.Columns(6).NumberFormat = "mm/dd/yy"					'formats the date column as MM/DD/YY
+ObjExcel.Cells(1, 7).Value = "Notes"
+ 
+Excel_row = 2
+ 
+For item = 0 to UBound(expedited_array, 2)
+    If expedited_array(appears_exp_const, item) = "Req Exp Processing" and expedited_array(interview_date_const, item) = "" then 
+        assign_case = True 
+    Elseif expedited_array(case_status_const, item) = "Case Notes Do Not Exist" then 
+        assign_case = True 
+    Else 
+        assign_case = False 
+    End if 
+    
+    'Excluding YET (X127FA5) and 1800 (X127EF8 and X127EF9) baskets
+    If expedited_array(worker_number_const, item) = "X127FA5" or expedited_array(worker_number_const, item) = "X127EF8" or expedited_array(worker_number_const, item) = "X127EF9" then assign_case = False 
+    
+    If assign_case = True then 
+        'only assigning cases that haven't exceeded Day 30 - Those are their own assignments 
+        If expedited_array(days_pending_const, item) < 30 then 
+            If expedited_array(days_pending_const, item) =< 7 then 
+                objExcel.Cells(excel_row, 1).Value = expedited_array(worker_number_const,    item)
+                objExcel.Cells(excel_row, 2).Value = expedited_array(case_number_const,      item)
+                objExcel.Cells(excel_row, 3).Value = expedited_array(program_ID_const,       item)
+                objExcel.Cells(excel_row, 4).Value = expedited_array(days_pending_const,     item)
+                objExcel.Cells(excel_row, 5).Value = expedited_array(application_date_const, item)
+                objExcel.Cells(excel_row, 6).Value = expedited_array(interview_date_const,   item)
+                objExcel.Cells(excel_row, 7).Value = expedited_array(case_status_const,      item)
+                excel_row = excel_row + 1
+            End if 
+        End if 
+    End if 
+Next 
+ 
+FOR i = 1 to 7		'formatting the cells
+    objExcel.Cells(1, i).Font.Bold = True		'bold font'
+    objExcel.Columns(i).AutoFit()				'sizing the columns'
+NEXT
+
+'----------------------------------------------------------------------------------------------------Expedited Screening
+ObjExcel.Worksheets.Add().Name = "Expedited Screening"
+
+'adding information to the Excel list from PND2
+ObjExcel.Cells(1, 1).Value = "Worker #"
+ObjExcel.Cells(1, 2).Value = "Case number"
+ObjExcel.Cells(1, 3).Value = "Prog ID"
+ObjExcel.Cells(1, 4).Value = "Days Pending"
+ObjExcel.Cells(1, 5).Value = "APPL Date"
+objExcel.Columns(5).NumberFormat = "mm/dd/yy"					'formats the date column as MM/DD/YY
+ObjExcel.Cells(1, 6).Value = "Interview Date"
+objExcel.Columns(6).NumberFormat = "mm/dd/yy"					'formats the date column as MM/DD/YY
+ObjExcel.Cells(1, 7).Value = "Notes"
+ 
+Excel_row = 2
+ 
+For item = 0 to UBound(expedited_array, 2)
+    If expedited_array(appears_exp_const, item) = "Exp Screening Req" and expedited_array(interview_date_const, item) = "" then 
+        assign_case = True 
+    Else 
+        assign_case = False 
+    End if 
+    
+    'Excluding YET (X127FA5) and 1800 (X127EF8 and X127EF9) baskets
+    If expedited_array(worker_number_const, item) = "X127FA5" or expedited_array(worker_number_const, item) = "X127EF8" or expedited_array(worker_number_const, item) = "X127EF9" then assign_case = False 
+    
+    If assign_case = True then 
+        'only assigning cases that haven't exceeded Day 30 - Those are their own assignments 
+        If expedited_array(days_pending_const, item) < 30 then 
+            objExcel.Cells(excel_row, 1).Value = expedited_array(worker_number_const,    item)
+            objExcel.Cells(excel_row, 2).Value = expedited_array(case_number_const,      item)
+            objExcel.Cells(excel_row, 3).Value = expedited_array(program_ID_const,       item)
+            objExcel.Cells(excel_row, 4).Value = expedited_array(days_pending_const,     item)
+            objExcel.Cells(excel_row, 5).Value = expedited_array(application_date_const, item)
+            objExcel.Cells(excel_row, 6).Value = expedited_array(interview_date_const,   item)
+            objExcel.Cells(excel_row, 7).Value = expedited_array(case_status_const,      item)
+            excel_row = excel_row + 1 
+        End if 
+    End if 
+Next 
+ 
+FOR i = 1 to 7		'formatting the cells
+    objExcel.Cells(1, i).Font.Bold = True		'bold font'
+    objExcel.Columns(i).AutoFit()				'sizing the columns'
+NEXT
+
+'Saves and closes the most recent Excel workbook
+objExcel.ActiveWorkbook.SaveAs "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP SNAP DWP " & report_date & ".xlsx"
+objExcel.ActiveWorkbook.Close
+objExcel.Application.Quit
+objExcel.Quit
+
 stats_report = "Screening Count: " & screening_count & vbcr & _
 "Expedited Processing Count: " & expedited_count & vbcr & _
 "PRIV Case Count: " & priv_count & vbcr & _
@@ -993,10 +1157,12 @@ Call create_outlook_email("WFMTeam@hennepin.us", "Laurie.Hennen@hennepin.us", "E
 Call create_outlook_email("Maslah.Jama@hennepin.us", "Laurie.Hennen@hennepin.us", "EXP SNAP Report for YET without Interviews is Ready. EOM.", "", "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP SNAP X127FA5 " & report_date & ".xlsx", True)
 Call create_outlook_email("Carlotta.Madison@hennepin.us", "Laurie.Hennen@hennepin.us", "EXP SNAP Report for 1800 without Interviews is Ready. EOM.", "", "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP SNAP 1800 " & report_date & ".xlsx", True)
 Call create_outlook_email("HSPH.EWS.Unit.Frey@hennepin.us", "", "Today's EXP SNAP reports are ready.", "Path to folder - T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project", "", True)
+Call create_outlook_email("Mohamed.Ahmed@hennepin.us; Dawn.Welch@hennepin.us", "Ilse.Ferris@hennepin.us;Laurie.Hennen@hennepin.us", "Today's EXP SNAP primary and secondary assignments are ready.", "See attachment.", "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP SNAP DWP " & report_date & ".xlsx", True)
 Call create_outlook_email("Ilse.Ferris@hennepin.us;Laurie.Hennen@hennepin.us","","Expedited SNAP Daily statistics for " & date, stats_report, "", True)
 
 '----------------------------------------------------------------------------------------------------Moves yesterday's files to the archive folder for the specific month
-array_of_archive_assigments = array("QI Expedited Review ","Pending Over 30 Days ", "EXP SNAP ", "EXP SNAP X127FA5 ", "EXP SNAP 1800 ", "")
+
+array_of_archive_assigments = array("QI Expedited Review ","Pending Over 30 Days ", "EXP SNAP ", "EXP SNAP X127FA5 ", "EXP SNAP 1800 ", "EXP SNAP DWP ", "")
 
 previous_date = dateadd("d", -1, date)
 Call change_date_to_soonest_working_day(previous_date)       'finds the most recent previous working day for the fin
