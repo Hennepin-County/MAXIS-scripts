@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("11/29/2020", "Updated to include Phase 1 of ES Expedited SNAP Support with DWP group.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("11/04/2020", "Final testing complete for additional data input and output functionality.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("10/12/2020", "Adding case review tracking elements capture and output into script.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("09/30/2020", "YET workbooks have now been added to the achive transfer process at the end of the script.", "Ilse Ferris, Hennepin County")
@@ -781,6 +782,9 @@ For item = 0 to UBound(expedited_array, 2)
         assign_case = False 
     End if 
     
+    'Excluding YET (X127FA5) and 1800 (X127EF8 and X127EF9) baskets
+    If expedited_array(worker_number_const, item) = "X127FA5" or expedited_array(worker_number_const, item) = "X127EF8" or expedited_array(worker_number_const, item) = "X127EF9" then assign_case = False 
+    
     If assign_case = True then 
         'only assigning cases that haven't exceeded Day 30 - Those are their own assignments 
         If expedited_array(days_pending_const, item) < 30 then 
@@ -818,19 +822,20 @@ ObjExcel.Cells(1, 7).Value = "Notes"
 Excel_row = 2
  
 For item = 0 to UBound(expedited_array, 2)
-    If expedited_array(appears_exp_const, item) = "Exp Screening Req" and expedited_array(interview_date_const, item) = "" then 
-        assign_case = True 
-    ElseIf expedited_array(appears_exp_const, item) = "Req Exp Processing" and expedited_array(interview_date_const, item) = "" then 
+    If expedited_array(appears_exp_const, item) = "Req Exp Processing" and expedited_array(interview_date_const, item) = "" then 
         assign_case = True 
     Else 
         assign_case = False 
     End if 
     
+    'Excluding YET (X127FA5) and 1800 (X127EF8 and X127EF9) baskets
+    If expedited_array(worker_number_const, item) = "X127FA5" or expedited_array(worker_number_const, item) = "X127EF8" or expedited_array(worker_number_const, item) = "X127EF9" then assign_case = False 
+        
     If assign_case = True then 
         'only assigning cases that haven't exceeded Day 30 - Those are their own assignments 
         If expedited_array(days_pending_const, item) < 30 then 
-            'Excluding YET baskets
-            If expedited_array(worker_number_const, item) <> "X127FA5" then 
+            If expedited_array(days_pending_const, item) => 8 then
+                'Appears expedited pending days 1-7 are currently assigned to DWP
                 objExcel.Cells(excel_row, 1).Value = expedited_array(worker_number_const,    item)
                 objExcel.Cells(excel_row, 2).Value = expedited_array(case_number_const,      item)
                 objExcel.Cells(excel_row, 3).Value = expedited_array(program_ID_const,       item)
@@ -947,7 +952,7 @@ For item = 0 to UBound(expedited_array, 2)
         assign_case = False 
     End if 
     
-    'Excluded baskets for FAD and 1800
+    'Excluding YET (X127FA5) and 1800 (X127EF8 and X127EF9) baskets
     If expedited_array(worker_number_const, item) = "X127FA5" or expedited_array(worker_number_const, item) = "X127EF8" or expedited_array(worker_number_const, item) = "X127EF9" then assign_case = False 
     
     If assign_case = True then 
@@ -997,7 +1002,7 @@ For item = 0 to UBound(expedited_array, 2)
         assign_case = False 
     End if 
     
-    'Excluded baskets for FAD and 1800
+    'Excluding YET (X127FA5) and 1800 (X127EF8 and X127EF9) baskets
     If expedited_array(worker_number_const, item) = "X127FA5" or expedited_array(worker_number_const, item) = "X127EF8" or expedited_array(worker_number_const, item) = "X127EF9" then assign_case = False 
     
     If assign_case = True then 
@@ -1045,7 +1050,7 @@ For item = 0 to UBound(expedited_array, 2)
         assign_case = False 
     End if 
     
-    'Excluded baskets for FAD and 1800
+    'Excluding YET (X127FA5) and 1800 (X127EF8 and X127EF9) baskets
     If expedited_array(worker_number_const, item) = "X127FA5" or expedited_array(worker_number_const, item) = "X127EF8" or expedited_array(worker_number_const, item) = "X127EF9" then assign_case = False 
     
     If assign_case = True then 
