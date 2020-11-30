@@ -888,7 +888,9 @@ For item = 0 to UBound(expedited_array, 2)
         assign_case = True 
     ElseIf expedited_array(appears_exp_const, item) = "Req Exp Processing" and expedited_array(interview_date_const, item) = "" then 
         assign_case = True 
-    Else 
+    Elseif expedited_array(case_status_const, item) = "Case Notes Do Not Exist" then 
+        assign_case = True 
+    Else
         assign_case = False 
     End if 
     
@@ -997,6 +999,8 @@ Excel_row = 2
  
 For item = 0 to UBound(expedited_array, 2)
     If expedited_array(appears_exp_const, item) = "Req Exp Processing" and expedited_array(interview_date_const, item) = "" then 
+        assign_case = True 
+    Elseif expedited_array(case_status_const, item) = "Case Notes Do Not Exist" then 
         assign_case = True 
     Else 
         assign_case = False 
