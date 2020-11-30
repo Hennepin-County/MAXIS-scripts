@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/30/2020", "Moved the 'Agency Use' section that was before the Expedted questions to AFTER the expedited questions to match the CAF pages.", "Casey Love, Hennepin County")
 call changelog_update("11/30/2020", "Updated the phone output so the phone number type is visible on the PDF - it had been getting cut off in the box of the table.", "Casey Love, Hennepin County")
 call changelog_update("11/24/2020", "Initial version.", "Casey Love, Hennepin County")
 
@@ -2112,7 +2113,7 @@ function dlg_qualifying_questions()
 			  Text 10, 10, 395, 15, "Qualifying Questions are listed at the end of the CAF form and are completed by the client. Indicate the answers to those questions here. If any are 'Yes' then indicate which household member to which the question refers."
 			  Text 10, 40, 200, 40, "Has a court or any other civil or administrative process in Minnesota or any other state found anyone in the household guilty or has anyone been disqualified from receiving public assistance for breaking any of the rules listed in the CAF?"
 			  Text 10, 80, 195, 30, "Has anyone in the household been convicted of making fraudulent statements about their place of residence to get cash or SNAP benefits from more than one state?"
-			  Text 10, 110, 195, 30, "Is anyone in your householdhiding or running from the law to avoid prosecution being taken into custody, or to avoid going to jail for a felony?"
+			  Text 10, 110, 195, 30, "Is anyone in your household hiding or running from the law to avoid prosecution being taken into custody, or to avoid going to jail for a felony?"
 			  Text 10, 140, 195, 20, "Has anyone in your household been convicted of a drug felony in the past 10 years?"
 			  Text 10, 160, 195, 20, "Is anyone in your household currently violating a condition of parole, probation or supervised release?"
 			  Text 260, 40, 70, 10, "Household Member:"
@@ -3341,15 +3342,6 @@ objSelection.EndKey end_of_doc						'this sets the cursor to the end of the docu
 ' objSelection.TypeParagraph()						'adds a line between the table and the next information
 
 objSelection.TypeText "NOTES: " & ALL_CLIENTS_ARRAY(memb_notes, 0) & vbCR
-objSelection.Font.Bold = TRUE
-objSelection.TypeText "AGENCY USE:" & vbCr
-objSelection.Font.Bold = FALSE
-objSelection.TypeText chr(9) & "Intends to reside in MN? - " & ALL_CLIENTS_ARRAY(clt_intend_to_reside_mn, 0) & vbCr
-objSelection.TypeText chr(9) & "Has Sponsor? - " & ALL_CLIENTS_ARRAY(clt_sponsor_yn, 0) & vbCr
-objSelection.TypeText chr(9) & "Immigration Status: " & ALL_CLIENTS_ARRAY(clt_imig_status, 0) & vbCr
-objSelection.TypeText chr(9) & "Verification: " & ALL_CLIENTS_ARRAY(clt_verif_yn, 0) & vbCr
-If ALL_CLIENTS_ARRAY(clt_verif_details, 0) <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & ALL_CLIENTS_ARRAY(clt_verif_details, 0) & vbCr
-
 
 objSelection.Font.Bold = TRUE
 objSelection.TypeText "CAF 1 - EXPEDITED QUESTIONS"
@@ -3413,7 +3405,15 @@ End If
 
 objSelection.EndKey end_of_doc						'this sets the cursor to the end of the document for more writing
 objSelection.TypeParagraph()						'adds a line between the table and the next information
+
+objSelection.Font.Bold = TRUE
+objSelection.TypeText "AGENCY USE:" & vbCr
 objSelection.Font.Bold = FALSE
+objSelection.TypeText chr(9) & "Intends to reside in MN? - " & ALL_CLIENTS_ARRAY(clt_intend_to_reside_mn, 0) & vbCr
+objSelection.TypeText chr(9) & "Has Sponsor? - " & ALL_CLIENTS_ARRAY(clt_sponsor_yn, 0) & vbCr
+objSelection.TypeText chr(9) & "Immigration Status: " & ALL_CLIENTS_ARRAY(clt_imig_status, 0) & vbCr
+objSelection.TypeText chr(9) & "Verification: " & ALL_CLIENTS_ARRAY(clt_verif_yn, 0) & vbCr
+If ALL_CLIENTS_ARRAY(clt_verif_details, 0) <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & ALL_CLIENTS_ARRAY(clt_verif_details, 0) & vbCr
 
 table_count = 3
 If UBound(ALL_CLIENTS_ARRAY, 2) <> 0 Then
@@ -4050,7 +4050,7 @@ If trim(qual_memb_one) <> "" AND qual_memb_one <> "Select or Type" Then objSelec
 objSelection.TypeText "Has anyone in the household been convicted of making fraudulent statements about their place of residence to get cash or SNAP benefits from more than one state?" & vbCr
 objSelection.TypeText chr(9) & qual_question_two & vbCr
 If trim(qual_memb_two) <> "" AND qual_memb_two <> "Select or Type" Then objSelection.TypeText chr(9) & qual_memb_two & vbCr
-objSelection.TypeText "Is anyone in your householdhiding or running from the law to avoid prosecution being taken into custody, or to avoid going to jail for a felony?" & vbCr
+objSelection.TypeText "Is anyone in your household hiding or running from the law to avoid prosecution being taken into custody, or to avoid going to jail for a felony?" & vbCr
 objSelection.TypeText chr(9) & qual_question_three & vbCr
 If trim(qual_memb_there) <> "" AND qual_memb_there <> "Select or Type" Then objSelection.TypeText chr(9) & qual_memb_there & vbCr
 objSelection.TypeText "Has anyone in your household been convicted of a drug felony in the past 10 years?" & vbCr
