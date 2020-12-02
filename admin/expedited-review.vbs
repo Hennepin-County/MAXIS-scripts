@@ -1098,7 +1098,7 @@ FOR i = 1 to 7		'formatting the cells
 NEXT
 
 '----------------------------------------------------------------------------------------------------Expedited Screening
-ObjExcel.Worksheets.Add().Name = "Expedited Screening"
+ObjExcel.Worksheets.Add().Name = "Screening Not Found"
 
 'adding information to the Excel list from PND2
 ObjExcel.Cells(1, 1).Value = "Worker #"
