@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/3/2020", "BUG FIX##~##Script was hitting an error in some case situations that indicated 'Type mismatch: UBound'. Update made that should prevent this error in the future.##~##", "Casey Love, Hennepin County")
 call changelog_update("11/30/2020", "Moved the 'Agency Use' section that was before the Expedted questions to AFTER the expedited questions to match the CAF pages.", "Casey Love, Hennepin County")
 call changelog_update("11/30/2020", "Updated the phone output so the phone number type is visible on the PDF - it had been getting cut off in the box of the table.", "Casey Love, Hennepin County")
 call changelog_update("11/24/2020", "Initial version.", "Casey Love, Hennepin County")
@@ -3587,6 +3588,7 @@ If UBound(ALL_CLIENTS_ARRAY, 2) <> 0 Then
 	Next
 Else
 	objSelection.TypeText "THERE ARE NO OTHER PEOPLE TO BE LISTED ON THIS APPLICATION" & vbCr
+	ReDim TABLE_ARRAY(0)
 End If
 
 objSelection.TypeText "Q 1. Does everyone in your household buy, fix or eat food with you?" & vbCr
@@ -4063,6 +4065,8 @@ If trim(qual_memb_five) <> "" AND qual_memb_five <> "Select or Type" Then objSel
 objSelection.Font.Size = "14"
 objSelection.Font.Bold = FALSE
 objSelection.TypeText "Verbal Signature accepted on " & caf_form_date
+
+' MsgBox "DOC IS CREATED"			'This can be used for testing so we don't add fake documents to the assignment folder.
 
 'Here we are creating the file path and saving the file
 file_safe_date = replace(date, "/", "-")		'dates cannot have / for a file name so we change it to a -
