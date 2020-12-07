@@ -284,7 +284,7 @@ Do
     Call navigate_to_MAXIS_screen("CASE", "NOTE")
     EMReadScreen PRIV_check, 4, 24, 14					'if case is a priv case then it gets added to priv case list
     If PRIV_check = "PRIV" then
-        objExcel.Cells(excel_row, 6).Value = "PRIV, unable to case note."
+        objExcel.Cells(excel_row, 6).Value = "PRIV. Unable to case note."
         'This DO LOOP ensure that the user gets out of a PRIV case. It can be fussy, and mess the script up if the PRIV case is not cleared.
     	Do
     		back_to_self
@@ -293,7 +293,9 @@ Do
     	LOOP until SELF_screen_check = "SELF"
     	EMWriteScreen "________", 18, 43		'clears the MAXIS case number
     	transmit
-    Else
+    Elseif PRIV_check <> "X127" then 
+        objExcel.Cells(excel_row, 6).Value = "Out-of-County, Unable to case note."
+    Else     
         PF9
         CALL write_variable_in_case_note(dail_msg)
         CALL write_variable_in_case_note("")
