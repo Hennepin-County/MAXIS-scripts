@@ -2919,6 +2919,18 @@ script_array(script_num).release_date           = #10/01/2000#
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "On Demand Notes"
+script_array(script_num).description 			= "Creates some case notes and assists with emails on reoccuring process issues."
+script_array(script_num).category               = "ADMIN"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("QI")
+script_array(script_num).dlg_keys               = array("")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #12/07/2000#
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name 			= "PERS"
 script_array(script_num).description 			= ""
 script_array(script_num).category               = "NAV"
