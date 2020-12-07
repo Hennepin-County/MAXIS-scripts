@@ -60,7 +60,7 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
     If access_type = "READ" Then
         Call navigate_to_MAXIS_screen("STAT", "ADDR")
 
-        EMReadScreen line_one, 22, 6, 43
+        EMReadScreen line_one, 22, 6, 43										'Reading all the information from the panel
         EMReadScreen line_two, 22, 7, 43
         EMReadScreen city_line, 15, 8, 43
         EMReadScreen state_line, 2, 8, 66
@@ -71,7 +71,7 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
         EMReadScreen reservation_line, 1, 10, 74
         EMReadScreen living_sit_line, 2, 11, 43
 
-        resi_line_one = replace(line_one, "_", "")
+        resi_line_one = replace(line_one, "_", "")								'This is all formatting of the information from the panel
         resi_line_two = replace(line_two, "_", "")
         resi_city = replace(city_line, "_", "")
         resi_zip = replace(zip_line, "_", "")
@@ -166,7 +166,7 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
         If county_line = "89" Then addr_county = "89 Out-of-State"
         resi_county = addr_county
 
-		Call get_state_name_from_state_code(state_line, resi_state, TRUE)
+		Call get_state_name_from_state_code(state_line, resi_state, TRUE)		'This function makes the state code to be the state name written out - including the code
 
         If homeless_line = "Y" Then addr_homeless = "Yes"
         If homeless_line = "N" Then addr_homeless = "No"
@@ -199,7 +199,7 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
         If living_sit_line = "10" Then living_situation = "10 - Unknown"
         addr_living_sit = living_situation
 
-        EMReadScreen addr_eff_date, 8, 4, 43
+        EMReadScreen addr_eff_date, 8, 4, 43									'reading the mail information
         EMReadScreen addr_future_date, 8, 4, 66
         EMReadScreen mail_line_one, 22, 13, 43
         EMReadScreen mail_line_two, 22, 14, 43
@@ -207,7 +207,7 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
         EMReadScreen mail_state_line, 2, 16, 43
         EMReadScreen mail_zip_line, 7, 16, 52
 
-        addr_eff_date = replace(addr_eff_date, " ", "/")
+        addr_eff_date = replace(addr_eff_date, " ", "/")						'cormatting the mail information
         addr_future_date = trim(addr_future_date)
         addr_future_date = replace(addr_future_date, " ", "/")
         mail_line_one = replace(mail_line_one, "_", "")
@@ -223,7 +223,7 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
         ' End If
         If addr_future_date <> "" Then notes_on_address = notes_on_address & "; ** Address will update effective " & addr_future_date & "."
 
-        EMReadScreen phone_one, 14, 17, 45
+        EMReadScreen phone_one, 14, 17, 45										'reading the phone information
         EMReadScreen phone_two, 14, 18, 45
         EMReadScreen phone_three, 14, 19, 45
 
@@ -231,7 +231,7 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
         EMReadScreen type_two, 1, 18, 67
         EMReadScreen type_three, 1, 19, 67
 
-        phone_one = replace(phone_one, " ) ", "-")
+        phone_one = replace(phone_one, " ) ", "-")								'formatting the phone information
         phone_one = replace(phone_one, " ", "-")
         If phone_one = "___-___-____" Then phone_one = ""
 
@@ -265,140 +265,10 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
         If type_three = "_" Then type_three = ""
     End If
 
-    If access_type = "WRITE" Then
-        Call navigate_to_MAXIS_screen("STAT", "ADDR")
-
-        PF9
-
-        Call create_mainframe_friendly_date(addr_eff_date, 4, 43, "YY")
-
-        If len(resi_line_one) > 22 Then
-            resi_words = split(resi_line_one, " ")
-            write_resi_line_one = ""
-            write_resi_line_two = ""
-            For each word in resi_words
-                If write_resi_line_one = "" Then
-                    write_resi_line_one = word
-                ElseIf len(write_resi_line_one & " " & word) =< 22 Then
-                    write_resi_line_one = write_resi_line_one & " " & word
-                Else
-                    If write_resi_line_two = "" Then
-                        write_resi_line_two = word
-                    Else
-                        write_resi_line_two = write_resi_line_two & " " & word
-                    End If
-                End If
-            Next
-        Else
-            write_resi_line_one = resi_line_one
-        End If
-        EMWriteScreen write_resi_line_one, 6, 43
-        EMWriteScreen write_resi_line_two, 7, 43
-        EMWriteScreen resi_city, 8, 43
-        ' resi_county
-        EMWriteScreen left(resi_state, 2), 8, 66
-        EMWriteScreen resi_zip, 9, 43
-
-        EMWriteScreen left(addr_verif, 2), 9, 66
-
-
-        If len(mail_line_one) > 22 Then
-            mail_words = split(mail_line_one, " ")
-            write_mail_line_one = ""
-            write_mail_line_two = ""
-            For each word in mail_words
-                If write_mail_line_one = "" Then
-                    write_mail_line_one = word
-                ElseIf len(write_mail_line_one & " " & word) =< 22 Then
-                    write_mail_line_one = write_mail_line_one & " " & word
-                Else
-                    If write_mail_line_two = "" Then
-                        write_mail_line_two = word
-                    Else
-                        write_mail_line_two = write_mail_line_two & " " & word
-                    End If
-                End If
-            Next
-        Else
-            write_mail_line_one = mail_line_one
-        End If
-        EMWriteScreen write_mail_line_one, 13, 43
-        EMWriteScreen write_mail_line_two, 14, 43
-        EMWriteScreen mail_city, 15, 43
-        If write_mail_line_one <> "" Then EMWriteScreen left(mail_state, 2), 16, 43
-        EMWriteScreen mail_zip, 16, 52
-
-        call split_phone_number_into_parts(phone_one, phone_one_left, phone_one_mid, phone_one_right)
-        call split_phone_number_into_parts(phone_two, phone_two_left, phone_two_mid, phone_two_right)
-        call split_phone_number_into_parts(phone_three, phone_three_left, phone_three_mid, phone_three_right)
-
-        EMWriteScreen phone_one_left, 17, 45
-        EMWriteScreen phone_one_mid, 17, 51
-        EMWriteScreen phone_one_right, 17, 55
-        If type_one <> "Select ..." Then EMWriteScreen type_one, 17, 67
-
-        EMWriteScreen phone_two_left, 18, 45
-        EMWriteScreen phone_two_mid, 18, 51
-        EMWriteScreen phone_two_right, 18, 55
-        If type_two <> "Select ..." Then EMWriteScreen type_two, 18, 67
-
-        EMWriteScreen phone_three_left, 19, 45
-        EMWriteScreen phone_three_mid, 19, 51
-        EMWriteScreen phone_three_right, 19, 55
-        If type_three <> "Select ..." Then EMWriteScreen type_three, 19, 67
-
-        save_attempt = 1
-        Do
-            transmit
-            EMReadScreen resi_standard_note, 33, 24, 2
-            If resi_standard_note = "RESIDENCE ADDRESS IS STANDARDIZED" Then transmit
-            EMReadScreen mail_standard_note, 31, 24, 2
-            If mail_standard_note = "MAILING ADDRESS IS STANDARDIZED" Then transmit
-
-            row = 0
-            col = 0
-            EMSearch "Warning:", row, col
-
-            If row <> 0 Then
-                Do
-                    EMReadScreen warning_note, 55, row, col
-                    warning_note = trim(warning_note)
-                    warning_message = warning_message & "; " & warning_note
-                Loop until warning_note = ""
-            End If
-
-            save_attempt = save_attempt + 1
-        Loop until save_attempt = 20
-
-        Dialog1 = ""
-        BeginDialog Dialog1, 0, 0, 356, 160, "ADDR Updated"
-          EditBox 60, 120, 290, 15, notes_on_address
-          ButtonGroup ButtonPressed
-            OkButton 300, 140, 50, 15
-          Text 10, 10, 160, 10, "The ADDR panel has been updated successfully. "
-          Text 10, 30, 155, 20, "When saving the information to the panel, the following warning message was displayed:"
-          Text 30, 55, 310, 55, warning_message
-          Text 5, 125, 50, 10, "Address Notes:"
-        EndDialog
-
-        Do
-            err_msg = ""
-            dialog Dialog1
-            cancel_confirmation
-
-            EMReadScreen addr_check, 4, 2, 44
-            If addr_check = "ADDR" Then
-                EMReadScreen info_saved, 7, 24, 2
-                If info_saved <> "ENTER A"  Then err_msg = err_msg & vbNewLine & "* Review the ADDR panel and update as needed. It appears the script is unable to complete the update without assistance. In order to prevent all work from being lost, please complete the ADDR update manually and press 'OK' for the script to continue once the address information has been saved."
-            End If
-
-            If err_msg <> "" Then MsgBox "The ADDR Update functionality needs assistance" & vbNewLine & err_msg
-        Loop until err_msg = ""
-    End If
 end function
 
 function get_state_name_from_state_code(state_code, state_name, include_state_code)
-    If state_code = "NB" Then state_name = "MN Newborn"
+    If state_code = "NB" Then state_name = "MN Newborn"							'This is the list of all the states connected to the code.
     If state_code = "FC" Then state_name = "Foreign Country"
     If state_code = "UN" Then state_name = "Unknown"
     If state_code = "AL" Then state_name = "Alabama"
@@ -455,100 +325,27 @@ function get_state_name_from_state_code(state_code, state_name, include_state_co
     If state_code = "PR" Then state_name = "Puerto Rico"
     If state_code = "VI" Then state_name = "Virgin Islands"
 
-    If include_state_code = TRUE Then state_name = state_code & " " & state_name
+    If include_state_code = TRUE Then state_name = state_code & " " & state_name	'This adds the code to the state name if seelected
 end function
 
 function split_phone_number_into_parts(phone_variable, phone_left, phone_mid, phone_right)
+'This function is to take the information provided as a phone number and split it up into the 3 parts
     phone_variable = trim(phone_variable)
     If phone_variable <> "" Then
-        phone_variable = replace(phone_variable, "(", "")
+        phone_variable = replace(phone_variable, "(", "")						'formatting the phone variable to get rid of symbols and spaces
         phone_variable = replace(phone_variable, ")", "")
         phone_variable = replace(phone_variable, "-", "")
         phone_variable = replace(phone_variable, " ", "")
         phone_variable = trim(phone_variable)
-        phone_left = left(phone_variable, 3)
+        phone_left = left(phone_variable, 3)									'reading the certain sections of the variable for each part.
         phone_mid = mid(phone_variable, 4, 3)
         phone_right = right(phone_variable, 4)
         phone_variable = "(" & phone_left & ")" & phone_mid & "-" & phone_right
     End If
 end function
 
-function gather_pers_detail()
-	If grh_sr_yn = "Yes" Then grh_sr = TRUE
-	If hc_sr_yn = "Yes" Then hc_sr = TRUE
-	If snap_sr_yn = "Yes" Then snap_sr = TRUE
-
-	If grh_sr = TRUE Then
-	    MAXIS_footer_month = grh_sr_mo
-	    MAXIS_footer_year = grh_sr_yr
-	End If
-	If hc_sr = TRUE Then
-	    MAXIS_footer_month = hc_sr_mo
-	    MAXIS_footer_year = hc_sr_yr
-	End If
-	If snap_sr = TRUE Then
-	    MAXIS_footer_month = snap_sr_mo
-	    MAXIS_footer_year = snap_sr_yr
-	End If
-
-	Call navigate_to_MAXIS_screen("CASE", "PERS")
-
-	pers_row = 10                                               'This is where client information starts on CASE PERS
-	person_counter = 0
-	Do
-	    EMReadScreen the_snap_status, 1, pers_row, 54
-	    EMReadScreen the_grh_status, 1, pers_row, 66
-	    EMReadScreen the_hc_status, 1, pers_row, 61             'reading the HC status of each client
-	    ' MsgBox the_snap_status & vbNewLine & person_counter
-	    If the_snap_status = "A" Then
-	        ALL_CLIENTS_ARRAY(clt_snap_status, person_counter) = "Active"
-	    ElseIf the_snap_status = "P" Then
-	        ALL_CLIENTS_ARRAY(clt_snap_status, person_counter) = "Pending"
-	    Else
-	        ALL_CLIENTS_ARRAY(clt_snap_status, person_counter) = "Inactive"
-	    End If
-	    If the_grh_status = "A" Then
-	        ALL_CLIENTS_ARRAY(clt_grh_status, person_counter) = "Active"
-	    ElseIf the_grh_status = "P" Then
-	        ALL_CLIENTS_ARRAY(clt_grh_status, person_counter) = "Pending"
-	    Else
-	        ALL_CLIENTS_ARRAY(clt_grh_status, person_counter) = "Inactive"
-	    End If
-	    If the_hc_status = "A" Then
-	        ALL_CLIENTS_ARRAY(clt_hc_status, person_counter) = "Active"
-	    ElseIf the_hc_status = "P" Then
-	        ALL_CLIENTS_ARRAY(clt_hc_status, person_counter) = "Pending"
-	    Else
-	        ALL_CLIENTS_ARRAY(clt_hc_status, person_counter) = "Inactive"
-	    End If
-
-	    person_counter = person_counter + 1
-	    pers_row = pers_row + 3         'next client information is 3 rows down
-	    If pers_row = 19 Then           'this is the end of the list of client on each list
-	        PF8                         'going to the next page of client information
-	        pers_row = 10
-	        EmReadscreen end_of_list, 9, 24, 14
-	        If end_of_list = "LAST PAGE" Then Exit Do
-	    End If
-	    EmReadscreen next_pers_ref_numb, 2, pers_row, 3     'this reads for the end of the list
-
-	Loop until next_pers_ref_numb = "  "
-	Call back_to_SELF
-
-	Call navigate_to_MAXIS_screen("STAT", "WREG")
-
-	For all_the_membs = 0 to UBound(ALL_CLIENTS_ARRAY, 2)
-		If ALL_CLIENTS_ARRAY(clt_snap_status, all_the_membs) = "Active" OR ALL_CLIENTS_ARRAY(clt_snap_status, all_the_membs) = "Pending" Then
-			EMWriteScreen ALL_CLIENTS_ARRAY(memb_ref_numb, all_the_membs), 20, 76
-			transmit
-
-			EMReadScreen wreg_abawd_code, 2, 13, 50
-			If wreg_abawd_code = "09" OR wreg_abawd_code = "10" OR wreg_abawd_code = "11" OR wreg_abawd_code = "13" Then abawd_on_case = TRUE
-		End If
-	Next
-end function
-
 function validate_footer_month_entry(footer_month, footer_year, err_msg_var, bullet_char)
+'This function will asses the variables provided as the footer month and year to be sure it is correct.
     If IsNumeric(footer_month) = FALSE Then
         err_msg_var = err_msg_var & vbNewLine & bullet_char & " The footer month should be a number, review and reenter the footer month information."
     Else
@@ -569,6 +366,7 @@ function validate_footer_month_entry(footer_month, footer_year, err_msg_var, bul
 end function
 
 function save_your_work()
+'This function records the variables into a txt file so that it can be retrieved by the script if run later.
 
 	'Needs to determine MyDocs directory before proceeding.
 	Set wshshell = CreateObject("WScript.Shell")
@@ -603,9 +401,6 @@ function save_your_work()
 			Set objTextStream = .OpenTextFile(local_changelog_path, ForWriting, true)
 
 			'Write the contents of the text file
-			' objTextStream.WriteLine "PRE - "
-			' objTextStream.WriteLine "PRE - "
-			' objTextStream.WriteLine "PRE - "
 			objTextStream.WriteLine "PRE - ATC - " & all_the_clients
 			objTextStream.WriteLine "PRE - WHO - " & who_are_we_completing_the_form_with
 
@@ -812,8 +607,6 @@ function save_your_work()
 			objTextStream.WriteLine "QQ5A - " & qual_question_five
 			objTextStream.WriteLine "QQ5M - " & qual_memb_five
 
-
-
 			For known_membs = 0 to UBound(ALL_CLIENTS_ARRAY, 2)
 				objTextStream.WriteLine "ARR - ALL_CLIENTS_ARRAY - " & ALL_CLIENTS_ARRAY(memb_last_name, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_first_name, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_mid_name, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_other_names, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_ssn_verif, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_soc_sec_numb, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_dob, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_gender, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_rel_to_applct, known_membs)&"~"&ALL_CLIENTS_ARRAY(memi_marriage_status, known_membs)&"~"&ALL_CLIENTS_ARRAY(memi_last_grade, known_membs)&"~"&ALL_CLIENTS_ARRAY(memi_MN_entry_date, known_membs)&"~"&ALL_CLIENTS_ARRAY(memi_former_state, known_membs)&"~"&ALL_CLIENTS_ARRAY(memi_citizen, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_interpreter, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_spoken_language, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_written_language, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_ethnicity, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_race_a_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_race_b_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_race_n_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_race_p_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_race_w_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_snap_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_cash_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_emer_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_none_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_intend_to_reside_mn, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_imig_status, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_sponsor_yn, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_verif_yn, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_verif_details, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_notes, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_ref_numb, known_membs)
 			Next
@@ -821,7 +614,6 @@ function save_your_work()
 			for this_jobs = 0 to UBOUND(JOBS_ARRAY, 2)
 				objTextStream.WriteLine "ARR - JOBS_ARRAY - " & JOBS_ARRAY(jobs_employee_name, this_jobs)&"~"&JOBS_ARRAY(jobs_hourly_wage, this_jobs)&"~"&JOBS_ARRAY(jobs_gross_monthly_earnings, this_jobs)&"~"&JOBS_ARRAY(jobs_employer_name, this_jobs)&"~"&JOBS_ARRAY(jobs_notes, this_jobs)
 			Next
-
 
 			'Close the object so it can be opened again shortly
 			objTextStream.Close
@@ -833,7 +625,8 @@ function save_your_work()
 end function
 
 function restore_your_work(vars_filled)
-
+'this function looks to see if a txt file exists for the case that is being run to pull already known variables back into the script from a previous run
+'
 	'Needs to determine MyDocs directory before proceeding.
 	Set wshshell = CreateObject("WScript.Shell")
 	user_myDocs_folder = wshShell.SpecialFolders("MyDocuments") & "\"
@@ -1142,7 +935,7 @@ function restore_your_work(vars_filled)
 	End With
 end function
 
-
+'THESE FUNCTIONS ARE ALL THE INDIVIDUAL DIALOGS WITHIN THE MAIN DIALOG LOOP
 function dlg_page_one_pers_and_exp()
 	go_back = FALSE
 	Do
@@ -1151,7 +944,6 @@ function dlg_page_one_pers_and_exp()
 			Dialog1 = ""
 			BeginDialog Dialog1, 0, 0, 416, 240, "CAF Person and Expedited"
 			  ComboBox 205, 10, 205, 45, all_the_clients+chr(9)+who_are_we_completing_the_form_with, who_are_we_completing_the_form_with
-			  ' DropListBox 205, 30, 205, 45, all_the_clients, caf_person_one
 			  EditBox 290, 65, 50, 15, exp_q_1_income_this_month
 			  EditBox 310, 85, 50, 15, exp_q_2_assets_this_month
 			  EditBox 250, 105, 50, 15, exp_q_3_rent_this_month
@@ -1169,10 +961,8 @@ function dlg_page_one_pers_and_exp()
 			  ComboBox 255, 195, 150, 45, all_the_clients, exp_pregnant_who
 			  ButtonGroup ButtonPressed
 				PushButton 305, 220, 50, 15, "Next", next_btn
-				' PushButton 250, 225, 50, 10, "Back", back_btn
 			    CancelButton 360, 220, 50, 15
 			  Text 70, 15, 130, 10, "Who are you completing the form with?"
-			  ' Text 145, 35, 55, 10, "Select Person 1:"
 			  GroupBox 10, 50, 400, 165, "Expedited Questions - Do you need help right away?"
 			  Text 20, 70, 270, 10, "1. How much income (cash or checkes) did or will your household get this month?"
 			  Text 20, 90, 290, 10, "2. How much does your household (including children) have cash, checking or savings?"
@@ -1386,12 +1176,6 @@ function dlg_page_two_household_comp()
 
 			err_msg = ""
 			Dialog1 = ""
-
-			' If no_case_number_checkbox = checked Then
-			'
-			' Else
-			'
-			' End If
 
 			If shown_known_pers_detail = TRUE Then
 				BeginDialog Dialog1, 0, 0, 541, 310, "Household Member Information"
@@ -1743,9 +1527,6 @@ function dlg_page_four_income()
 				  End If
 			  next
 			  y_pos = y_pos + 10
-			  ' End If
-			  ' Text 95, 75, 395, 10, "Employer: NAME OF EMPLOYER  - Employee: THE WORKER NAME HERE   - Gross Monthly Earnings: $ XXXXX"
-			  ' Text 95, 85, 395, 10, "Employer: NAME OF EMPLOYER  - Employee: THE WORKER NAME HERE   - Gross Monthly Earnings: $ XXXXX"
 			  Text 95, y_pos, 25, 10, "Notes:"
 			  EditBox 120, y_pos - 5, 390, 15, question_9_notes
 			  y_pos = y_pos + 15
@@ -2433,6 +2214,7 @@ function jobs_details_dlg(this_jobs)
 end function
 
 function format_phone_number(phone_variable, format_type)
+'This function formats phone numbers to match the specificed format.
 	' format_type_options:
 	'  (xxx)xxx-xxxx
 	'  xxx-xxx-xxxx
@@ -2464,6 +2246,8 @@ function format_phone_number(phone_variable, format_type)
 end function
 
 function validate_phone_number(err_msg_variable, list_delimiter, phone_variable, allow_to_be_blank)
+'This isn't working yet
+'This function will review to ensure a variale appears to be a phone number.
 	original_phone_var = phone_variable
 	phone_variable = trim(phone_variable)
 	phone_variable = replace(phone_variable, "(", "")
@@ -2533,8 +2317,7 @@ const clt_imig_status				= 49
 const clt_sponsor_yn 				= 50
 const clt_verif_yn					= 51
 const clt_verif_details				= 52
-
-const memb_notes                    = 91
+const memb_notes                    = 53
 
 const jobs_employee_name 			= 0
 const jobs_hourly_wage 				= 1
@@ -2543,7 +2326,7 @@ const jobs_employer_name 			= 3
 const jobs_edit_btn					= 4
 const jobs_notes 					= 5
 
-Const end_of_doc = 6
+Const end_of_doc = 6			'This is for word document ennumeration
 
 Call find_user_name(worker_name)						'defaulting the name of the suer running the script
 Dim TABLE_ARRAY
@@ -2552,6 +2335,7 @@ Dim JOBS_ARRAY
 ReDim ALL_CLIENTS_ARRAY(memb_notes, 0)
 ReDim JOBS_ARRAY(jobs_notes, 0)
 
+'These are all the definitions for droplists
 state_list = "Select One..."
 state_list = state_list+chr(9)+"AL Alabama"
 state_list = state_list+chr(9)+"AK Alaska"
@@ -2639,6 +2423,7 @@ marital_status = marital_status+chr(9)+"W  Widowed"
 
 question_answers = ""+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Not Required"
 
+'Dimming all the variables because they are defined and set within functions
 Dim who_are_we_completing_the_form_with, caf_person_one, exp_q_1_income_this_month, exp_q_2_assets_this_month, exp_q_3_rent_this_month, exp_pay_heat_checkbox, exp_pay_ac_checkbox, exp_pay_electricity_checkbox, exp_pay_phone_checkbox
 Dim exp_pay_none_checkbox, exp_migrant_seasonal_formworker_yn, exp_received_previous_assistance_yn, exp_previous_assistance_when, exp_previous_assistance_where, exp_previous_assistance_what, exp_pregnant_yn, exp_pregnant_who, resi_addr_street_full
 Dim resi_addr_city, resi_addr_state, resi_addr_zip, reservation_yn, reservation_name, homeless_yn, living_situation, mail_addr_street_full, mail_addr_city, mail_addr_state, mail_addr_zip, phone_one_number, phone_pne_type, phone_two_number
@@ -2718,11 +2503,12 @@ show_known_addr = FALSE
 vars_filled = FALSE
 
 Call back_to_SELF
-Call restore_your_work(vars_filled)
+Call restore_your_work(vars_filled)			'looking for a 'restart' run
 Call convert_date_into_MAXIS_footer_month(application_date, MAXIS_footer_month, MAXIS_footer_year)
-caf_form_date = application_date
-If vars_filled = TRUE Then show_known_addr = TRUE
+caf_form_date = application_date			'The CAF form date is defaulted to the application date
+If vars_filled = TRUE Then show_known_addr = TRUE		'This is a setting for the address dialog to see the view
 
+'If we already know the variables because we used 'restore your work' OR if there is no case number, we don't need to read the information from MAXIS
 If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 
 	Call back_to_SELF
@@ -2732,17 +2518,17 @@ If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 	full_hh_list = Split(list_for_array, chr(9))
 
 	Call back_to_SELF
-	Call navigate_to_MAXIS_screen("STAT", "MEMB")
+	Call navigate_to_MAXIS_screen("STAT", "MEMB")								'Going to MEMB for each person in MAXIS to read the known information.
 
 	'Now we start filling in the full client array for use in the dialogs
-	member_counter = 0
+	member_counter = 0		'this increments to let us add people to the array depending on the case
 	Do
-		EMReadScreen clt_ref_nbr, 2, 4, 33
+		EMReadScreen clt_ref_nbr, 2, 4, 33										'REading each person
 		EMReadScreen clt_last_name, 25, 6, 30
 		EMReadScreen clt_first_name, 12, 6, 63
 		EMReadScreen clt_age, 3, 8, 76
 
-		ReDim Preserve ALL_CLIENTS_ARRAY(memb_notes, member_counter)
+		ReDim Preserve ALL_CLIENTS_ARRAY(memb_notes, member_counter)			'creating and adding to the array as we read all the people
 		ALL_CLIENTS_ARRAY(memb_ref_numb, member_counter) = clt_ref_nbr
 		ALL_CLIENTS_ARRAY(memb_last_name, member_counter) = replace(clt_last_name, "_", "")
 		ALL_CLIENTS_ARRAY(memb_first_name, member_counter) = replace(clt_first_name, "_", "")
@@ -2753,13 +2539,13 @@ If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 		EMReadScreen last_memb, 7, 24, 2
 	Loop until last_memb = "ENTER A"
 
-	Call back_to_SELF
-	Call navigate_to_MAXIS_screen("STAT", "MEMB")
-	For case_memb = 0 to UBound(ALL_CLIENTS_ARRAY, 2)
-	    EMWriteScreen ALL_CLIENTS_ARRAY(memb_ref_numb, case_memb), 20, 76
+	Call back_to_SELF		'backing out to reset
+	Call navigate_to_MAXIS_screen("STAT", "MEMB")	'going back to MEMB
+	For case_memb = 0 to UBound(ALL_CLIENTS_ARRAY, 2)							'Looping through all of the people and gathering detail for each person.
+	    EMWriteScreen ALL_CLIENTS_ARRAY(memb_ref_numb, case_memb), 20, 76		'going to the right member
 	    transmit
 
-	    EMReadScreen clt_id_verif, 2, 9, 68
+	    EMReadScreen clt_id_verif, 2, 9, 68										'Reading all the information from MEMB for each person
 	    EMReadScreen clt_ssn, 11, 7, 42
 	    EMReadScreen clt_ssn_verif, 1, 7, 68
 	    EMReadScreen clt_dob, 10, 8, 42
@@ -2788,6 +2574,7 @@ If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 			PF10
 		End If
 
+		'Formatting all of the detail found and saving to the array
 	    If clt_id_verif = "BC" Then ALL_CLIENTS_ARRAY(memb_id_verif, case_memb) = "BC - Birth Certificate"
 	    If clt_id_verif = "RE" Then ALL_CLIENTS_ARRAY(memb_id_verif, case_memb) = "RE - Religious Record"
 	    If clt_id_verif = "DL" Then ALL_CLIENTS_ARRAY(memb_id_verif, case_memb) = "DL - Drivers Lic/St ID"
@@ -2857,12 +2644,12 @@ If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 		' If race_x_u = "X" Then race_a_checkbox = checked
 	Next
 
-	Call navigate_to_MAXIS_screen("STAT", "MEMI")
-	For case_memb = 0 to UBound(ALL_CLIENTS_ARRAY, 2)
-	    EMWriteScreen ALL_CLIENTS_ARRAY(memb_ref_numb, case_memb), 20, 76
+	Call navigate_to_MAXIS_screen("STAT", "MEMI")								'Now fgoing to MEMI to get all the detail about each person from MEMI
+	For case_memb = 0 to UBound(ALL_CLIENTS_ARRAY, 2)							'Looping through all of the people
+	    EMWriteScreen ALL_CLIENTS_ARRAY(memb_ref_numb, case_memb), 20, 76		'Going to the MEMI for this person
 	    transmit
 
-	    EMReadScreen clt_mar_status, 1, 7, 40
+	    EMReadScreen clt_mar_status, 1, 7, 40									'Reading all the MEMI detail
 	    EMReadScreen clt_spouse, 2, 9, 49
 
 	    EMReadScreen clt_desg_spouse_yn, 1, 7, 71
@@ -2878,6 +2665,7 @@ If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 	    EMReadScreen clt_former_state, 2, 15, 78
 	    EMReadScreen clt_other_st_FS_end, 8, 13, 49
 
+		'Formatting the information read from the panel into the array
 	    If clt_mar_status = "N" Then ALL_CLIENTS_ARRAY(memi_marriage_status, case_memb) = "N Never married"
 	    If clt_mar_status = "M" Then ALL_CLIENTS_ARRAY(memi_marriage_status, case_memb) = "M Married, Living with Spouse"
 	    If clt_mar_status = "S" Then ALL_CLIENTS_ARRAY(memi_marriage_status, case_memb) = "S Married Living Apart"
@@ -2947,6 +2735,8 @@ If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 	show_known_addr = TRUE
 End If
 
+
+'Giving the buttons specific unumerations so they don't think they are eachother
 next_btn					= 1000
 back_btn					= 1010
 update_information_btn		= 1020
@@ -2984,6 +2774,7 @@ add_verif_24_btn			= 1094
 clear_job_btn				= 1100
 open_r_and_r_button 		= 1200
 
+'Presetting booleans for the dialog looping
 show_caf_pg_1_pers_dlg = TRUE
 show_caf_pg_1_addr_dlg = TRUE
 show_caf_pg_2_hhcomp_dlg = TRUE
@@ -3004,6 +2795,8 @@ caf_pg_6_other_dlg_cleared = FALSE
 caf_caf_qual_questions_dlg_cleared = FALSE
 caf_sig_dlg_cleared = FALSE
 
+'This is where all of the main dialogs are called.
+'They loop together so that you can move between all of the different dialogs.
 Do
 	Do
 		Do
@@ -3101,19 +2894,22 @@ objSelection.Font.Size = "11"
 
 objSelection.TypeText "PERSON 1"
 Set objRange = objSelection.Range					'range is needed to create tables
-objDoc.Tables.Add objRange, 16, 1					'This sets the rows and columns needed row then column'
+objDoc.Tables.Add objRange, 16, 1					'This sets the rows and columns needed row then column
+'This table starts with 1 column - other columns are added after we split some of the cells
 set objPers1Table = objDoc.Tables(1)		'Creates the table with the specific index'
+'This table will be formatted to look similar to the structure of CAF Page 1
 
 objPers1Table.AutoFormat(16)							'This adds the borders to the table and formats it
-objPers1Table.Columns(1).Width = 500
+objPers1Table.Columns(1).Width = 500					'This sets the width of the table.
 
 for row = 1 to 15 Step 2
-	objPers1Table.Cell(row, 1).SetHeight 10, 2
+	objPers1Table.Cell(row, 1).SetHeight 10, 2			'setting the heights of the rows
 Next
 for row = 2 to 16 Step 2
 	objPers1Table.Cell(row, 1).SetHeight 15, 2
 Next
 
+'Now we are going to look at the the first and second rows. These have 4 cells to add details in and we will split the row into those 4 then resize them
 For row = 1 to 2
 	objPers1Table.Rows(row).Cells.Split 1, 4, TRUE
 
@@ -3122,29 +2918,32 @@ For row = 1 to 2
 	objPers1Table.Cell(row, 3).SetWidth 85, 2
 	objPers1Table.Cell(row, 4).SetWidth 190, 2
 Next
+'Now going to each cell and setting teh font size
 For col = 1 to 4
 	objPers1Table.Cell(1, col).Range.Font.Size = 6
 	objPers1Table.Cell(2, col).Range.Font.Size = 12
 Next
 
+'Adding the headers
 objPers1Table.Cell(1, 1).Range.Text = "APPLICANT'S LEGAL NAME - LAST"
 objPers1Table.Cell(1, 2).Range.Text = "FIRST NAME"
 objPers1Table.Cell(1, 3).Range.Text = "MIDDLE NAME"
 objPers1Table.Cell(1, 4).Range.Text = "OTHER NAMES YOU USE"
 
+'Adding the detail from the dialog
 objPers1Table.Cell(2, 1).Range.Text = ALL_CLIENTS_ARRAY(memb_last_name, 0)
 objPers1Table.Cell(2, 2).Range.Text = ALL_CLIENTS_ARRAY(memb_first_name, 0)
 objPers1Table.Cell(2, 3).Range.Text = ALL_CLIENTS_ARRAY(memb_mid_name, 0)
 objPers1Table.Cell(2, 4).Range.Text = ALL_CLIENTS_ARRAY(memb_other_names, 0)
 
-' objPers1Table.Cell(1, 2).Borders(wdBorderBottom).LineStyle = wdLineStyleNone
+' objPers1Table.Cell(1, 2).Borders(wdBorderBottom).LineStyle = wdLineStyleNone			'commented out code dealing with borders
 ' objPers1Table.Cell(1, 3).Borders(wdBorderBottom).LineStyle = wdLineStyleNone
 ' objPers1Table.Cell(1, 4).Borders(wdBorderBottom).LineStyle = wdLineStyleNone
 ' objPers1Table.Cell(1, 1).Range.Borders(9).LineStyle = 0
 ' objPers1Table.Rows(1).Range.Borders(9).LineStyle = 0
 ' objPers1Table.Rows(1).Borders(wdBorderBottom) = wdLineStyleNone
 
-' objPers1Table.Rows(3).Cells.Split 1, 5, TRUE
+'Now formatting rows 3 and 4 - 3 is the header and 4 is the actual information
 For row = 3 to 4
 	objPers1Table.Rows(row).Cells.Split 1, 4, TRUE
 
@@ -3157,6 +2956,7 @@ For col = 1 to 4
 	objPers1Table.Cell(3, col).Range.Font.Size = 6
 	objPers1Table.Cell(4, col).Range.Font.Size = 12
 Next
+'Adding the words to rows 3 and 4
 objPers1Table.Cell(3, 1).Range.Text = "SOCIAL SECURITY NUMBER"
 objPers1Table.Cell(3, 2).Range.Text = "DATE OF BIRTH"
 objPers1Table.Cell(3, 3).Range.Text = "GENDER"
@@ -3167,7 +2967,7 @@ objPers1Table.Cell(4, 2).Range.Text = ALL_CLIENTS_ARRAY(memb_dob, 0)
 objPers1Table.Cell(4, 3).Range.Text = ALL_CLIENTS_ARRAY(memb_gender, 0)
 objPers1Table.Cell(4, 4).Range.Text = ALL_CLIENTS_ARRAY(memi_marriage_status, 0)
 
-' objPers1Table.Rows(4).Cells.Split 1, 5, TRUE
+'Now formatting rows 5 and 6 - 5 is the header and 6 is the actual information
 For row = 5 to 6
 	objPers1Table.Rows(row).Cells.Split 1, 4, TRUE
 
@@ -3181,6 +2981,7 @@ For col = 1 to 4
 	objPers1Table.Cell(5, col).Range.Font.Size = 6
 	objPers1Table.Cell(6, col).Range.Font.Size = 12
 Next
+'Adding the words to rows 5 and 6
 objPers1Table.Cell(5, 1).Range.Text = "ADDRESS WHERE YOU LIVE"
 ' objPers1Table.Cell(5, 2).Range.Text = "APT. NUMBER"
 objPers1Table.Cell(5, 2).Range.Text = "CITY"
@@ -3193,8 +2994,7 @@ objPers1Table.Cell(6, 2).Range.Text = resi_addr_city
 objPers1Table.Cell(6, 3).Range.Text = LEFT(resi_addr_state, 2)
 objPers1Table.Cell(6, 4).Range.Text = resi_addr_zip
 
-
-' objPers1Table.Rows(5).Cells.Split 1, 3, TRUE
+'Now formatting rows 7 and 8 - 7 is the header and 8 is the actual information
 For row = 7 to 8
 	objPers1Table.Rows(row).Cells.Split 1, 4, TRUE
 
@@ -3208,6 +3008,7 @@ For col = 1 to 4
 	objPers1Table.Cell(7, col).Range.Font.Size = 6
 	objPers1Table.Cell(8, col).Range.Font.Size = 12
 Next
+'Adding the words to rows 7 and 8
 objPers1Table.Cell(7, 1).Range.Text = "MAILING ADDRESS"
 ' objPers1Table.Cell(7, 2).Range.Text = "APT. NUMBER"
 objPers1Table.Cell(7, 2).Range.Text = "CITY"
@@ -3220,8 +3021,7 @@ objPers1Table.Cell(8, 2).Range.Text = mail_addr_city
 objPers1Table.Cell(8, 3).Range.Text = LEFT(mail_addr_state, 2)
 objPers1Table.Cell(8, 4).Range.Text = mail_addr_zip
 
-
-' objPers1Table.Rows(6).Cells.Split 1, 3, TRUE
+'Now formatting rows 9 and 10 - 9 is the header and 10 is the actual information
 For row = 9 to 10
 	objPers1Table.Rows(row).Cells.Split 1, 4, TRUE
 
@@ -3234,11 +3034,13 @@ For col = 1 to 4
 	objPers1Table.Cell(9, col).Range.Font.Size = 6
 	objPers1Table.Cell(10, col).Range.Font.Size = 11
 Next
+'Adding the words to rows 9 and 10
 objPers1Table.Cell(9, 1).Range.Text = "PHONE NUMBER"
 objPers1Table.Cell(9, 2).Range.Text = "PHONE NUMBER"
 objPers1Table.Cell(9, 3).Range.Text = "PHONE NUMBER"
 objPers1Table.Cell(9, 4).Range.Text = "DO YOU LIVE ON A RESERVATION?"
 
+'formatting the phone numbers so they all match and fit
 Call format_phone_number(phone_one_number, "xxx-xxx-xxxx")
 Call format_phone_number(phone_two_number, "xxx-xxx-xxxx")
 Call format_phone_number(phone_three_number, "xxx-xxx-xxxx")
@@ -3263,9 +3065,7 @@ objPers1Table.Cell(10, 2).Range.Text = phone_two_info
 objPers1Table.Cell(10, 3).Range.Text = phone_three_info
 objPers1Table.Cell(10, 4).Range.Text = reservation_yn & " - " & reservation_name
 
-
-
-' objPers1Table.Rows(7).Cells.Split 1, 3, TRUE
+'Now formatting rows 11 and 12 - 11 is the header and 12 is the actual information
 For row = 11 to 12
 	objPers1Table.Rows(row).Cells.Split 1, 3, TRUE
 
@@ -3277,6 +3077,7 @@ For col = 1 to 3
 	objPers1Table.Cell(11, col).Range.Font.Size = 6
 	objPers1Table.Cell(12, col).Range.Font.Size = 12
 Next
+'Adding the words to rows 11 and 12
 objPers1Table.Cell(11, 1).Range.Text = "DO YOU NEED AN INTERPRETER?"
 objPers1Table.Cell(11, 2).Range.Text = "WHAT IS YOU PREFERRED SPOKEN LANGUAGE?"
 objPers1Table.Cell(11, 3).Range.Text = "WHAT IS YOUR PREFERRED WRITTEN LANGUAGE?"
@@ -3285,8 +3086,7 @@ objPers1Table.Cell(12, 1).Range.Text = ALL_CLIENTS_ARRAY(memb_interpreter, 0)
 objPers1Table.Cell(12, 2).Range.Text = ALL_CLIENTS_ARRAY(memb_spoken_language, 0)
 objPers1Table.Cell(12, 3).Range.Text = ALL_CLIENTS_ARRAY(memb_written_language, 0)
 
-
-' objPers1Table.Rows(8).Cells.Split 1, 3, TRUE
+'Now formatting rows 13 and 14 - 13 is the header and 14 is the actual information
 For row = 13 to 14
 	objPers1Table.Rows(row).Cells.Split 1, 3, TRUE
 
@@ -3298,6 +3098,7 @@ For col = 1 to 3
 	objPers1Table.Cell(13, col).Range.Font.Size = 6
 	objPers1Table.Cell(14, col).Range.Font.Size = 12
 Next
+'Adding the words to rows 13 and 14
 objPers1Table.Cell(13, 1).Range.Text = "LAST SCHOOL GRADE COMPLETED"
 objPers1Table.Cell(13, 2).Range.Text = "MOST RECENTLY MOVED TO MINNESOTA"
 objPers1Table.Cell(13, 3).Range.Text = "US CITIZEN OR US NATIONAL?"
@@ -3306,6 +3107,7 @@ objPers1Table.Cell(14, 1).Range.Text = ALL_CLIENTS_ARRAY(memi_last_grade, 0)
 objPers1Table.Cell(14, 2).Range.Text = "Date: " & ALL_CLIENTS_ARRAY(memi_MN_entry_date, 0) & "   From: " & ALL_CLIENTS_ARRAY(memi_former_state, 0)
 objPers1Table.Cell(14, 3).Range.Text = ALL_CLIENTS_ARRAY(memi_citizen, 0)
 
+'Now formatting rows 15 and 16 - 15 is the header and 16 is the actual information
 For row = 15 to 16
 	objPers1Table.Rows(row).Cells.Split 1, 3, TRUE
 
@@ -3317,16 +3119,19 @@ For col = 1 to 3
 	objPers1Table.Cell(15, col).Range.Font.Size = 6
 	objPers1Table.Cell(16, col).Range.Font.Size = 12
 Next
+'Adding the words to rows 15 and 16
 objPers1Table.Cell(15, 1).Range.Text = "WHAT PROGRAMS ARE YOU APPLYING FOR?"
 objPers1Table.Cell(15, 2).Range.Text = "ETHNICITY"
 objPers1Table.Cell(15, 3).Range.Text = "RACE"
 
+'defining a string that lists the programs based on the checkboxes of programs from the dialog'
 If ALL_CLIENTS_ARRAY(clt_none_checkbox, 0) = checked then progs_applying_for = "NONE"
 If ALL_CLIENTS_ARRAY(clt_snap_checkbox, 0) = checked then progs_applying_for = progs_applying_for & ", SNAP"
 If ALL_CLIENTS_ARRAY(clt_cash_checkbox, 0) = checked then progs_applying_for = progs_applying_for & ", Cash"
 If ALL_CLIENTS_ARRAY(clt_emer_checkbox, 0) = checked then progs_applying_for = progs_applying_for & ", Emergency Assistance"
 If left(progs_applying_for, 2) = ", " Then progs_applying_for = right(progs_applying_for, len(progs_applying_for) - 2)
 
+'defining a string of the races that were selected from checkboxes in the dialog.
 If ALL_CLIENTS_ARRAY(memb_race_a_checkbox, 0) = checked then race_to_enter = race_to_enter & ", Asian"
 If ALL_CLIENTS_ARRAY(memb_race_b_checkbox, 0) = checked then race_to_enter = race_to_enter & ", Black"
 If ALL_CLIENTS_ARRAY(memb_race_n_checkbox, 0) = checked then race_to_enter = race_to_enter & ", American Indian or Alaska Native"
@@ -3338,9 +3143,7 @@ objPers1Table.Cell(16, 1).Range.Text = progs_applying_for
 objPers1Table.Cell(16, 2).Range.Text = ALL_CLIENTS_ARRAY(memb_ethnicity, 0)
 objPers1Table.Cell(16, 3).Range.Text = race_to_enter
 
-
 objSelection.EndKey end_of_doc						'this sets the cursor to the end of the document for more writing
-' objSelection.TypeParagraph()						'adds a line between the table and the next information
 
 objSelection.TypeText "NOTES: " & ALL_CLIENTS_ARRAY(memb_notes, 0) & vbCR
 
@@ -3351,16 +3154,15 @@ objDoc.Tables.Add objRange, 8, 2					'This sets the rows and columns needed row 
 set objEXPTable = objDoc.Tables(2)		'Creates the table with the specific index'
 
 objEXPTable.AutoFormat(16)							'This adds the borders to the table and formats it
-objEXPTable.Columns(1).Width = 375
+objEXPTable.Columns(1).Width = 375					'Setting the widths of the columns
 objEXPTable.Columns(2).Width = 120
-' objEXPTable.Columns(1).Font.Bold = TRUE
-' objEXPTable.Columns(2).Font.Bold = TRUE
 for col = 1 to 2
 	for row = 1 to 8
-		objEXPTable.Cell(row, col).Range.Font.Bold = TRUE
+		objEXPTable.Cell(row, col).Range.Font.Bold = TRUE	'Making the cell text bold.
 	next
 next
 
+'Adding the Expedited text to the table for Expedited
 objEXPTable.Cell(1, 1).Range.Text = "1. How much income (cash or checks) did or will your household get this month?"
 objEXPTable.Cell(1, 2).Range.Text = exp_q_1_income_this_month
 
@@ -3385,10 +3187,7 @@ objEXPTable.Cell(5, 2).Range.Text = exp_migrant_seasonal_formworker_yn
 objEXPTable.Cell(6, 1).Range.Text = "5. Has anyone in your household ever received cash assistance, commodities or SNAP benefits before?"
 objEXPTable.Cell(6, 2).Range.Text = exp_received_previous_assistance_yn
 
-' objEXPTable.Rows(7).Cells.Merge
-objEXPTable.Rows(7).Cells.Split 1, 6, TRUE
-' objEXPTable.Cell(7, 1).Range.Split 1, 4, FALSE
-' objEXPTable.Cell(7, 5).Range.Split 1, 2, FALSE
+objEXPTable.Rows(7).Cells.Split 1, 6, TRUE										'Splitting the cells to add more detail for the three questions here
 objEXPTable.Cell(7, 1).Range.Text = "When?"
 objEXPTable.Cell(7, 2).Range.Text = exp_previous_assistance_when
 objEXPTable.Cell(7, 3).Range.Text = "Where?"
@@ -3403,7 +3202,6 @@ Else
 	objEXPTable.Cell(8, 2).Range.Text = exp_pregnant_yn
 End If
 
-
 objSelection.EndKey end_of_doc						'this sets the cursor to the end of the document for more writing
 objSelection.TypeParagraph()						'adds a line between the table and the next information
 
@@ -3416,19 +3214,23 @@ objSelection.TypeText chr(9) & "Immigration Status: " & ALL_CLIENTS_ARRAY(clt_im
 objSelection.TypeText chr(9) & "Verification: " & ALL_CLIENTS_ARRAY(clt_verif_yn, 0) & vbCr
 If ALL_CLIENTS_ARRAY(clt_verif_details, 0) <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & ALL_CLIENTS_ARRAY(clt_verif_details, 0) & vbCr
 
-table_count = 3
+'Now we have a dynamic number of tables
+'each table has to be defined with its index so we need to have a variable to increment
+table_count = 3			'table index variable
 If UBound(ALL_CLIENTS_ARRAY, 2) <> 0 Then
-	ReDim TABLE_ARRAY(UBound(ALL_CLIENTS_ARRAY, 2)-1)
-	array_counters = 0
+	ReDim TABLE_ARRAY(UBound(ALL_CLIENTS_ARRAY, 2)-1)		'defining the table array for as many persons aas are in the household - each person gets their own table
+	array_counters = 0		'the incrementer for the table array'
 
 	For each_member = 1 to UBound(ALL_CLIENTS_ARRAY, 2)
 		objSelection.TypeText "PERSON " & each_member + 1
-		Set objRange = objSelection.Range					'range is needed to create tables
-		objDoc.Tables.Add objRange, 10, 1					'This sets the rows and columns needed row then column'
-		set TABLE_ARRAY(array_counters) = objDoc.Tables(table_count)		'Creates the table with the specific index'
-		table_count = table_count + 1
+		Set objRange = objSelection.Range										'range is needed to create tables
+		objDoc.Tables.Add objRange, 10, 1										'This sets the rows and columns needed row then column'
+		set TABLE_ARRAY(array_counters) = objDoc.Tables(table_count)			'Creates the table with the specific index - using the vairable index
+		table_count = table_count + 1											'incrementing the table index'
 
-		TABLE_ARRAY(array_counters).AutoFormat(16)							'This adds the borders to the table and formats it
+		'This table is now formatted to match how the CAF looks with person information.
+		'This formatting uses 'spliting' and resizing to make theym look like the CAF
+		TABLE_ARRAY(array_counters).AutoFormat(16)								'This adds the borders to the table and formats it
 		TABLE_ARRAY(array_counters).Columns(1).Width = 500
 
 		for row = 1 to 9 Step 2
@@ -3461,14 +3263,6 @@ If UBound(ALL_CLIENTS_ARRAY, 2) <> 0 Then
 		TABLE_ARRAY(array_counters).Cell(2, 3).Range.Text = ALL_CLIENTS_ARRAY(memb_mid_name, each_member)
 		TABLE_ARRAY(array_counters).Cell(2, 4).Range.Text = ALL_CLIENTS_ARRAY(memb_other_names, each_member)
 
-		' TABLE_ARRAY(array_counters).Cell(1, 2).Borders(wdBorderBottom).LineStyle = wdLineStyleNone
-		' TABLE_ARRAY(array_counters).Cell(1, 3).Borders(wdBorderBottom).LineStyle = wdLineStyleNone
-		' TABLE_ARRAY(array_counters).Cell(1, 4).Borders(wdBorderBottom).LineStyle = wdLineStyleNone
-		' TABLE_ARRAY(array_counters).Cell(1, 1).Range.Borders(9).LineStyle = 0
-		' TABLE_ARRAY(array_counters).Rows(1).Range.Borders(9).LineStyle = 0
-		' TABLE_ARRAY(array_counters).Rows(1).Borders(wdBorderBottom) = wdLineStyleNone
-
-		' TABLE_ARRAY(array_counters).Rows(3).Cells.Split 1, 5, TRUE
 		For row = 3 to 4
 			TABLE_ARRAY(array_counters).Rows(row).Cells.Split 1, 5, TRUE
 
@@ -3494,8 +3288,6 @@ If UBound(ALL_CLIENTS_ARRAY, 2) <> 0 Then
 		TABLE_ARRAY(array_counters).Cell(4, 4).Range.Text = ALL_CLIENTS_ARRAY(memb_rel_to_applct, each_member)
 		TABLE_ARRAY(array_counters).Cell(4, 5).Range.Text = Left(ALL_CLIENTS_ARRAY(memi_marriage_status, each_member), 1)
 
-
-		' TABLE_ARRAY(array_counters).Rows(7).Cells.Split 1, 3, TRUE
 		For row = 5 to 6
 			TABLE_ARRAY(array_counters).Rows(row).Cells.Split 1, 3, TRUE
 
@@ -3515,8 +3307,6 @@ If UBound(ALL_CLIENTS_ARRAY, 2) <> 0 Then
 		TABLE_ARRAY(array_counters).Cell(6, 2).Range.Text = ALL_CLIENTS_ARRAY(memb_spoken_language, each_member)
 		TABLE_ARRAY(array_counters).Cell(6, 3).Range.Text = ALL_CLIENTS_ARRAY(memb_written_language, each_member)
 
-
-		' TABLE_ARRAY(array_counters).Rows(8).Cells.Split 1, 3, TRUE
 		For row = 7 to 8
 			TABLE_ARRAY(array_counters).Rows(row).Cells.Split 1, 3, TRUE
 
@@ -3572,7 +3362,6 @@ If UBound(ALL_CLIENTS_ARRAY, 2) <> 0 Then
 
 
 		objSelection.EndKey end_of_doc						'this sets the cursor to the end of the document for more writing
-		' objSelection.TypeParagraph()						'adds a line between the table and the next information
 
 		objSelection.TypeText "NOTES: " & ALL_CLIENTS_ARRAY(memb_notes, each_member) & vbCR
 		objSelection.Font.Bold = TRUE
@@ -3588,9 +3377,10 @@ If UBound(ALL_CLIENTS_ARRAY, 2) <> 0 Then
 	Next
 Else
 	objSelection.TypeText "THERE ARE NO OTHER PEOPLE TO BE LISTED ON THIS APPLICATION" & vbCr
-	ReDim TABLE_ARRAY(0)
+	ReDim TABLE_ARRAY(0)			'This creates the table array for if there is only one person listed on the CAF
 End If
 
+'This is the rest of the verbiage from the CAF. It is not kept in tables - for the most part
 objSelection.TypeText "Q 1. Does everyone in your household buy, fix or eat food with you?" & vbCr
 objSelection.TypeText chr(9) & question_1_yn & vbCr
 If question_1_notes <> "" Then objSelection.TypeText chr(9) & "Notes: " & question_1_notes & vbCr
@@ -3759,6 +3549,7 @@ objDoc.Tables.Add objRange, 5, 1					'This sets the rows and columns needed row 
 set TABLE_ARRAY(array_counters) = objDoc.Tables(table_count)		'Creates the table with the specific index'
 table_count = table_count + 1
 
+'note that this table does not use an autoformat - which is why there are no borders on this table.'
 TABLE_ARRAY(array_counters).Columns(1).Width = 500
 
 For row = 1 to 4
@@ -3832,6 +3623,7 @@ objDoc.Tables.Add objRange, 4, 1					'This sets the rows and columns needed row 
 set TABLE_ARRAY(array_counters) = objDoc.Tables(table_count)		'Creates the table with the specific index'
 table_count = table_count + 1
 
+'note that this table does not use an autoformat - which is why there are no borders on this table.'
 TABLE_ARRAY(array_counters).Columns(1).Width = 520
 
 For row = 1 to 3
@@ -3882,6 +3674,7 @@ objDoc.Tables.Add objRange, 3, 1					'This sets the rows and columns needed row 
 set TABLE_ARRAY(array_counters) = objDoc.Tables(table_count)		'Creates the table with the specific index'
 table_count = table_count + 1
 
+'note that this table does not use an autoformat - which is why there are no borders on this table.'
 TABLE_ARRAY(array_counters).Columns(1).Width = 525
 
 For row = 1 to 2
@@ -3957,6 +3750,7 @@ objDoc.Tables.Add objRange, 2, 1					'This sets the rows and columns needed row 
 set TABLE_ARRAY(array_counters) = objDoc.Tables(table_count)		'Creates the table with the specific index'
 table_count = table_count + 1
 
+'note that this table does not use an autoformat - which is why there are no borders on this table.'
 TABLE_ARRAY(array_counters).Columns(1).Width = 520
 
 For row = 1 to 2
@@ -4014,6 +3808,7 @@ objDoc.Tables.Add objRange, 2, 1					'This sets the rows and columns needed row 
 set TABLE_ARRAY(array_counters) = objDoc.Tables(table_count)		'Creates the table with the specific index'
 table_count = table_count + 1
 
+'note that this table does not use an autoformat - which is why there are no borders on this table.'
 TABLE_ARRAY(array_counters).Columns(1).Width = 520
 
 For row = 1 to 2
