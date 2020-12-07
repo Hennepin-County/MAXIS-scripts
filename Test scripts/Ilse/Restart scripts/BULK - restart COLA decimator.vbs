@@ -126,8 +126,10 @@ Do
         If county_check <> "27" then 
             objExcel.Cells(excel_row, 6).Value = "Out of county case."
         Else 
-            Call start_a_blank_CASE_NOTE
+            PF9
             CALL write_variable_in_case_note(dail_msg)
+            CALL write_variable_in_case_note("")
+            CALL write_variable_in_case_note("This DAIL message regarding DHS action/auto-approval process has been case noted. No action taken at county level for this approval.")
             PF3 ' save message
             objExcel.Cells(excel_row, 6).Value = "Case note created."
         End if 
