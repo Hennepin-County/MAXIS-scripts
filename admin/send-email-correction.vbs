@@ -87,7 +87,7 @@ email_recipient = ""
 email_recipient_cc = ""
 email_signature = qi_worker_full_name
 send_email = true
-'can i set cariable to true and hold over from another script?'
+
 
 'Dialog to select which type of correction needs to be sent
 BeginDialog Dialog1, 0, 0, 231, 170, "What type of correction?"
@@ -109,10 +109,8 @@ EndDialog
 
 Do
     err_msg = ""
-
     dialog Dialog1
     cancel_without_confirmation
-
 	email_recipient = trim(email_recipient)
     'Everything is required in this dialog.
 	If email_recipient = "" Then
@@ -126,14 +124,12 @@ Do
 		err_msg = err_msg & vbNewLine & "* The email address of the supervisor entered does not appear to be a valid email address."
 	End If
     If correction_process = "Select One ..." Then err_msg = err_msg & vbNewLine & "* Select which process the correction email is regarding."
-
 	If ButtonPressed = instructions_btn Then
 		Call open_URL_in_browser("https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/ADMIN/QI%20-%20SEND%20EMAIL%20CORRECTION.docx")
 		err_msg = "LOOP" & err_msg
     ElseIf err_msg <> "" Then
 		MsgBox "Please resolve to continue:" & vbNewLine & err_msg
 	End If
-
 Loop until err_msg = ""
 
 'formatting the email addresses.
@@ -170,25 +166,25 @@ Select Case correction_process
 		  CheckBox 20, 175, 305, 10, "The Verification Request is incomplete, not sent, or specific information was blank. Details:", verif_request_incomplete_checkbox
 		  EditBox 330, 170, 210, 15, verif_request_details
 		  CheckBox 20, 190, 150, 10, "Identity for more than MEMB 01 requested.", identity_for_more_than_MEMB_01_checkbox_02
-		  CheckBox 20, 205, 240, 10, "Verification Requested was not needed for SNAP. What was requested:", verif_request_not_needed_checkbox
+		  CheckBox 20, 205, 240, 10, "Verification requested was not needed for SNAP. What was requested:", verif_request_not_needed_checkbox
 		  EditBox 265, 200, 275, 15, what_was_requested
 		  CheckBox 20, 220, 195, 10, "Verifications were not postponed for expedited SNAP.", verif_not_delayed_checkbox
 		  CheckBox 160, 250, 70, 10, "assets incorrect.", maxis_coded_incorectly_assets_checkbox
 		  CheckBox 255, 250, 95, 10, "postponed verifications.", maxis_coded_incorectly_postponed_verif_checkbox
 		  CheckBox 150, 265, 135, 10, " processing has not been completed.", interview_complete_processing_not_complete_checkbox
-		  CheckBox 285, 265, 120, 10, "CASE NOTE has not been added.", interview_complete_case_note_missing_checkbox
+		  CheckBox 285, 265, 120, 10, "CASE/NOTE has not been added.", interview_complete_case_note_missing_checkbox
 		  CheckBox 415, 265, 125, 10, "Adult Cash Programs not addressed.", interview_complete_adult_cash_not_addressed_checkbox
 		  CheckBox 20, 280, 205, 10, "Case was pended, but expedited screening not conducted.", screening_not_done_checkbox
 		  CheckBox 20, 295, 305, 10, "SNAP is pending as MFIP is closing, does not appear to need any mandatory verifications.", snap_pending_after_mfip_closed_checkbox
 		  CheckBox 20, 310, 185, 10, "Discrepancy between case notes and MAXIS coding.", maxis_coding_case_note_discrepancy_checkbox
-		  CheckBox 20, 325, 110, 10, "The CASE NOTE is Insufficient.", insufficient_case_note_checkbox
+		  CheckBox 20, 325, 110, 10, "The CASE/NOTE is Insufficient.", insufficient_case_note_checkbox
 		  EditBox 105, 345, 440, 15, email_notes
 		  DropListBox 15, 365, 195, 45, "Indicate if case has been or needs to be updated."+chr(9)+"Case has been updated already - no action needed."+chr(9)+"Please update the case to resolve these issues.", action_needed
 		  EditBox 285, 365, 125, 15, email_signature
 		  ButtonGroup ButtonPressed
 		    OkButton 445, 365, 50, 15
 		    CancelButton 495, 365, 50, 15
-		  Text 10, 10, 120, 10, "Case Number the Error happend on: "
+		  Text 10, 10, 120, 10, "Case number the error occurred on: "
 		  Text 205, 10, 230, 10, "Select the Issues/Errors to alert the client about. Check all that apply:"
 		  Text 20, 250, 135, 10, "MAXIS panels were not coded correctly - "
 		  GroupBox 10, 25, 535, 95, "Case Appears Expedited after Interview but was Not Approved"
@@ -613,7 +609,7 @@ Select Case correction_process
 		BeginDialog Dialog1, 0, 0, 536, 265, "On Demand Corrections"
 		  EditBox 130, 5, 50, 15, MAXIS_case_number
 		  CheckBox 20, 25, 295, 10, "The script NOTES - APPLICATION RECEIVED was not used when the case was APPL'd.", app_recvd_script_not_used_checkbox
-		  CheckBox 30, 55, 340, 10, "The interview date field was not completed on STAT:PROG though interview appears to be completed.", prog_not_updated_interview_completed_checkbox
+		  CheckBox 30, 55, 340, 10, "The interview date field was not completed on STAT/PROG, though interview appears to be completed.", prog_not_updated_interview_completed_checkbox
 		  CheckBox 30, 70, 130, 10, "Adult Cash Programs not assessed.", intv_adult_cash_not_completed
 		  CheckBox 30, 85, 495, 10, "The client applied for Cash and SNAP, Cash needs a face to face but this is not clear in notes, cash information should be reviewed in phone interview.", cash_detail_not_covered_checkbox
 		  CheckBox 30, 100, 370, 10, "Cash and SNAP were applied for, Cash needs a face to face, SNAP should have had a phone interview offered.", snap_phone_interview_should_have_been_offered_checkbox

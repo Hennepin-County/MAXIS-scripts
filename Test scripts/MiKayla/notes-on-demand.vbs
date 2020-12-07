@@ -49,12 +49,13 @@ CALL changelog_update("01/31/2020", "Initial version.", "MiKayla Handley, Hennep
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-
+correction_process = "On Demand Applications" 'for the next script'
 '---------------------------------------------------------------------------------------The script
 'Grabs the case number
 EMConnect ""
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 back_to_SELF' added to ensure we have the time to update and send the case in the background
+
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
@@ -372,14 +373,13 @@ IF case_status_dropdown = "Additional application pended prior to interview bein
 
 	IF case_status_dropdown = "Script-Application Received-not used when pending case" THEN  app_recvd_script_not_used_checkbox = CHECKED
 
-	prog_not_updated_interview_completed_checkbox
+	IF case_status_dropdown = "Client completed application interview" THEN prog_not_updated_interview_completed_checkbox = CHECKED
 
-	IF case_status_dropdown = "Additional application pended prior to interview being completed"  THEN intv_adult_cash_not_completed = CHECKED
+	IF case_status_dropdown = "Additional application pended prior to interview being completed"  THEN email_notes = case_status_dropdown
 
 	IF case_status_dropdown = 	"Clear case note for other pending program pending not mentioned" THEN  cash_detail_not_covered_checkbox = CHECKED
 
-	CheckBox 30, 100, 370, 10, "Cash and SNAP were applied for, Cash needs a face to face, SNAP should have had a phone interview offered.", snap_phone_interview_should_have_been_offered_checkbox
-	CheckBox 30, 135, 260, 10, "Case was denied for no interview from PND2, QI should be doing all of these.", denied_for_no_interview_on_PND2_checkbox
+	IF case_status_dropdown = "Cash and SNAP were applied for, Cash needs a face to face, SNAP should have had a phone interview offered." THEN snap_phone_interview_should_have_been_offered_checkbox = CHECKED
 
 	IF case_status_dropdown = "Worker completed denial for no interview in ELIG" THEN denied_for_no_interview_NOT_on_PND2_checkbox = CHECKED
 
@@ -388,14 +388,8 @@ IF case_status_dropdown = "Additional application pended prior to interview bein
 	IF case_status_dropdown = "Client contact was made no interview offered" THEN  client_contacted_should_have_been_offered_interview_checkbox = CHECKED
 
 	IF case_status_dropdown = "Interview completed on NOMI day and NOMI was not cancelled" THEN  interview_completed_same_day_NOMI_sent_checkbox = CHECKED
-
-
-
-
-
 	CALL run_another_script("C:\MAXIS-scripts\admin\send-email-correction.vbs")
 END IF
-
 
 IF case_note = TRUE THEN
 	start_a_blank_CASE_NOTE
@@ -404,10 +398,10 @@ IF case_note = TRUE THEN
     	Call write_variable_in_CASE_NOTE("* Completed by previous worker per case note dated: " & case_note_date)
     ELSEIF case_status_dropdown = "Client has not completed application interview" THEN
     	Call write_variable_in_CASE_NOTE("~ " & case_status_dropdown  & " ~")
-    	Call write_variable_in_CASE_NOTE("* Application date:" & application_date)
-    	Call write_variable_in_CASE_NOTE("* NOMI sent to client on:" & interview_date  )
+    	Call write_variable_in_CASE_NOTE("* Application date: " & application_date)
+    	Call write_variable_in_CASE_NOTE("* NOMI sent to client on: " & interview_date  )
     	Call write_variable_in_CASE_NOTE("* A notice was previously sent to client with detail about completing an interview.")
-    	Call write_variable_in_CASE_NOTE("* Households failing to complete the interview within 30 days of the date they file     an application will receive a denial notice")
+    	Call write_variable_in_CASE_NOTE("* Households failing to complete the interview within 30 days of the date they file an application will receive a denial notice.")
     'ELSEIF case_status_dropdown = "Client has not completed CASH application interview" THEN
     	'Call write_variable_in_CASE_NOTE("~ " & case_status_dropdown  & " NOMI sent ~")
     	'Call write_variable_in_CASE_NOTE("* A notice was previously sent to client with detail about completing an     interview.")
@@ -420,7 +414,7 @@ IF case_note = TRUE THEN
         Call write_variable_in_CASE_NOTE("* NOMI sent to client on:" & interview_date  )
         Call write_variable_in_CASE_NOTE("* Interview is still needed, client has 30 days from date of application to complete it. Because the case was not pended timely a NOMI still needs to be sent and adequate time provided to the client to comply.")
     ELSEIF case_status_dropdown = "Denied programs for no interview" THEN
-    	Call write_variable_in_CASE_NOTE("~ " & case_status_dropdown  & " - " &  programs_applied_for & " for no interview" &     " ~")
+    	Call write_variable_in_CASE_NOTE("~ " & case_status_dropdown & " - " & programs_applied_for & " for no interview" & " ~")
         Call write_variable_in_CASE_NOTE("* Application date:" & application_date)
         Call write_variable_in_CASE_NOTE("* Reason for denial: interview was not completed timely")
         Call write_variable_in_CASE_NOTE("* NOMI sent to client on:" & interview_date  )
