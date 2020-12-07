@@ -1484,3 +1484,33 @@ Else
 End If
 
 script_end_procedure_with_error_report (failed_enrollment_message)
+
+
+' BeginDialog Dialog1, 0, 0, 376, 265, "Dialog"
+'   GroupBox 10, 5, 360, 90, "Requested Enrollment"
+'   Text 20, 20, 340, 10, "You have selected the following enrollment for CLIENT NAME GOES HERE"
+'   Text 30, 35, 190, 10, "Health Plan: SELECTED HEALTH PLAN"
+'   Text 30, 45, 185, 10, "Contract code: MA 12"
+'   Text 30, 55, 185, 10, "Change Reason:"
+'   Text 30, 65, 185, 10, "Disenroll Reason:"
+'   Text 30, 75, 185, 10, "Enrollment Effective Date 01/2021"
+'   GroupBox 10, 100, 360, 60, "Enrollment Failed"
+'   Text 20, 115, 310, 10, "The enrollment failed with the above selections. Message(s) from MMIS read:"
+'   Text 30, 130, 325, 10, "MMIS ERROR CODE AND MESSAGE GO HERE"
+'   Text 30, 145, 325, 10, "MMIS ERROR CODE AND MESSAGE GO HERE"
+'   GroupBox 10, 165, 360, 75, "New Selection Information for CLIENT NAME"
+'   Text 35, 185, 50, 10, "Health Plan:"
+'   DropListBox 80, 180, 145, 45, "", List1
+'   Text 235, 185, 50, 10, "Contract Code:"
+'   DropListBox 290, 180, 75, 45, "", List2
+'   Text 25, 205, 50, 10, "Cange Reason:"
+'   DropListBox 80, 200, 145, 45, "", List3
+'   Text 15, 225, 65, 15, "Disenroll Reason:"
+'   DropListBox 80, 220, 145, 45, "", List4
+'   Text 235, 205, 70, 10, "Enrollment MM/YY"
+'   EditBox 310, 200, 25, 15, Edit1
+'   EditBox 340, 200, 25, 15, Edit2
+'   ButtonGroup ButtonPressed
+'     PushButton 10, 245, 100, 15, "Cancel this Enrollment", Button3
+'     PushButton 220, 245, 150, 15, "Try Enrollment Again with New Selections", Button5
+' EndDialog
