@@ -119,34 +119,34 @@ Do
         ObjExcel.Cells(excel_row, 9).Value = False 
     End if 
 
-    ''Dim CurrentDate, Years, ThisYear, Months, ThisMonth, Days
-    'CurrentDate = CDate(client_DOB)
-    'Years = DateDiff("yyyy", CurrentDate, Date)
-    'ThisYear = DateAdd("yyyy", Years, CurrentDate)
-    'Months = DateDiff("m", ThisYear, Date)
-    'ThisMonth = DateAdd("m", Months, ThisYear)
-    'Days = DateDiff("d", ThisMonth, Date)
+    'Dim CurrentDate, Years, ThisYear, Months, ThisMonth, Days
+    CurrentDate = CDate(client_DOB)
+    Years = DateDiff("yyyy", CurrentDate, Date)
+    ThisYear = DateAdd("yyyy", Years, CurrentDate)
+    Months = DateDiff("m", ThisYear, Date)
+    ThisMonth = DateAdd("m", Months, ThisYear)
+    Days = DateDiff("d", ThisMonth, Date)
 
-    'Do While (Days < 0) Or (Months < 0)
-    '    If Days < 0 Then
-    '        Months = Months - 1
-    '        ThisMonth = DateAdd("m", Months, ThisYear)
-    '        Days = DateDiff("d", ThisMonth, Date)
-    '    End If
-    '    If Months < 0 Then
-    '        Years = Years - 1
-    '        ThisYear = DateAdd("yyyy", Years, CurrentDate)
-    '        Months = DateDiff("m", ThisYear, Date)
-    '        ThisMonth = DateAdd("m", Months, ThisYear)
-    '        Days = DateDiff("d", ThisMonth, Date)
-    '    End If
-    'Loop
-    'client_age = Years ''& "y/" & Months & "m/" & Days
-    'ObjExcel.Cells(excel_row, 6).Value = client_age
+    Do While (Days < 0) Or (Months < 0)
+        If Days < 0 Then
+            Months = Months - 1
+            ThisMonth = DateAdd("m", Months, ThisYear)
+            Days = DateDiff("d", ThisMonth, Date)
+        End If
+        If Months < 0 Then
+            Years = Years - 1
+            ThisYear = DateAdd("yyyy", Years, CurrentDate)
+            Months = DateDiff("m", ThisYear, Date)
+            ThisMonth = DateAdd("m", Months, ThisYear)
+            Days = DateDiff("d", ThisMonth, Date)
+        End If
+    Loop
+    client_age = Years ''& "y/" & Months & "m/" & Days
+    ObjExcel.Cells(excel_row, 6).Value = client_age
 
     STATS_counter = STATS_counter + 1
     excel_row = excel_row + 1
-Loop until ObjExcel.Cells(excel_row, 2).Value = ""
+Loop until ObjExcel.Cells(excel_row, 5).Value = ""
 
 msgbox "all done"
 stopscript
