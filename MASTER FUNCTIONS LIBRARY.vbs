@@ -5826,13 +5826,17 @@ Function non_actionable_dails
         instr(dail_msg, "PERSON HAS HC RENEWAL OR HRF DUE") OR _
         instr(dail_msg, "GA: REVIEW DUE FOR JANUARY - NOT AUTO") OR _
         instr(dail_msg, "GRH: REVIEW DUE - NOT AUTO") or _
+        instr(dail_msg, "GRH: APPROVED VERSION EXISTS FOR JANUARY - NOT AUTO-APPROVED") OR _
         instr(dail_msg, "HEALTH CARE IS IN REINSTATE OR PENDING STATUS") OR _
         instr(dail_msg, "MSA RECERT DUE - NOT AUTO") or _
         instr(dail_msg, "MSA IN PENDING STATUS - NOT AUTO") or _
+        instr(dail_msg, "APPROVED MSA VERSION EXISTS - NOT AUTO-APPROVED") OR _
         instr(dail_msg, "SNAP: RECERT/SR DUE FOR JANUARY - NOT AUTO") or _
         instr(dail_msg, "GRH: STATUS IS REIN, PENDING OR SUSPEND - NOT AUTO") OR _
         instr(dail_msg, "SNAP: PENDING OR STAT EDITS EXIST") OR _
         instr(dail_msg, "SNAP: REIN STATUS - NOT AUTO-APPROVED") OR _
+        instr(dail_msg, "SNAP: APPROVED VERSION ALREADY EXISTS - NOT AUTO-APPROVED") OR _
+        instr(dail_msg, "SNAP: AUTO-APPROVED - PREVIOUS UNAPPROVED VERSION EXISTS") OR _
         instr(dail_msg, "CASE NOT AUTO-APPROVED HRF/SR/RECERT DUE") OR _
         instr(dail_msg, "MFIP MASS CHANGE AUTO-APPROVED AN UNUSUAL INCREASE") OR _
         instr(dail_msg, "MFIP MASS CHANGE AUTO-APPROVED CASE WITH SANCTION") OR _
