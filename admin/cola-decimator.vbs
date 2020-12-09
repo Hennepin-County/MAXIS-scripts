@@ -118,7 +118,7 @@ Set objWorkbook = objExcel.Workbooks.Add()
 objExcel.DisplayAlerts = True
 
 'Changes name of Excel sheet to "DAIL List"
-ObjExcel.ActiveSheet.Name = "Deleted DAILS - COLA and INFO"
+ObjExcel.ActiveSheet.Name = "Deleted DAILS - COLA"
 
 'Excel headers and formatting the columns
 objExcel.Cells(1, 1).Value = "X NUMBER"
@@ -186,10 +186,11 @@ For each worker in worker_array
 			stats_counter = stats_counter + 1
 
             '----------------------------------------------------------------------------------------------------January COLA messages
-            If instr(dail_msg, "GA: NEW PERSONAL NEEDS STANDARD AUTO") or _
-                instr(dail_msg, "GRH: NEW VERSION AUTO") or _
+            If instr(dail_msg, "GA: NEW PERSONAL NEEDS STANDARD AUTO-APPROVED FOR JANUARY") or _
+                instr(dail_msg, "GRH: NEW VERSION AUTO-APPROVED") or _
                 instr(dail_msg, "NEW MSA ELIG AUTO") or _
-                instr(dail_msg, "SNAP: NEW VERSION AUTO") or _
+                instr(dail_msg, "NEW MSA ELIG AUTO-APPROVED") or _
+                instr(dail_msg, "SNAP: NEW VERSION AUTO-APPROVED") or _
                 instr(dail_msg, "SNAP: AUTO-APPROVED - PREVIOUS UNAPPROVED VERSION EXISTS") then
                 add_to_excel = True
             Else
@@ -270,21 +271,22 @@ Next
 dail_msg = ""
 excel_row = 2
 
-Do
+Do 
     MAXIS_case_number = ObjExcel.Cells(excel_row, 2).Value
     MAXIS_case_number = trim(MAXIS_case_number)
 
     dail_msg = ObjExcel.Cells(excel_row, 5).Value
     dail_msg = trim(dail_msg)
-    'Cleaning up the DAIL messages for the case note
+    'Cleaning up the DAIL messages for the case note 
     If right(dail_msg, 9) = "-SEE PF12" THEN dail_msg = left(dail_msg, len(dail_msg) - 9)
     If right(dail_msg, 1) = "*" THEN dail_msg = left(dail_msg, len(dail_msg) - 1)
     dail_msg = trim(dail_msg)
-
+    
     Call navigate_to_MAXIS_screen("CASE", "NOTE")
     EMReadScreen PRIV_check, 4, 24, 14					'if case is a priv case then it gets added to priv case list
-    If PRIV_check = "PRIV" then
-        objExcel.Cells(excel_row, 6).Value = "PRIV. Unable to case note."
+    
+    If PRIV_check = "PRIV" then 
+        objExcel.Cells(excel_row, 6).Value = "PRIV, unable to case note."
         'This DO LOOP ensure that the user gets out of a PRIV case. It can be fussy, and mess the script up if the PRIV case is not cleared.
     	Do
     		back_to_self
@@ -293,18 +295,21 @@ Do
     	LOOP until SELF_screen_check = "SELF"
     	EMWriteScreen "________", 18, 43		'clears the MAXIS case number
     	transmit
-    Elseif PRIV_check <> "X127" then 
-        objExcel.Cells(excel_row, 6).Value = "Out-of-County, Unable to case note."
-    Else     
-        PF9
-        CALL write_variable_in_case_note(dail_msg)
-        CALL write_variable_in_case_note("")
-        CALL write_variable_in_case_note("This DAIL message regarding DHS action/auto-approval process has been case noted. No action taken at county level for this approval.")
-        PF3 ' save message
-        objExcel.Cells(excel_row, 6).Value = "Case note created."
-    End If
-    excel_row = excel_row + 1
-Loop until ObjExcel.Cells(excel_row, 2).Value = ""
+    Else
+        EmReadscreen county_check, 2, 21, 16
+        If county_check <> "27" then 
+            objExcel.Cells(excel_row, 6).Value = "Out of county case."
+        Else 
+            PF9
+            CALL write_variable_in_case_note(dail_msg)
+            CALL write_variable_in_case_note("")
+            CALL write_variable_in_case_note("This DAIL message regarding DHS action/auto-approval process has been case noted. No action taken at county level for this approval.")
+            PF3 ' save message
+            objExcel.Cells(excel_row, 6).Value = "Case note created."
+        End if 
+    End If 
+    excel_row = excel_row + 1     
+Loop until ObjExcel.Cells(excel_row, 2).Value = ""    
 
 STATS_counter = STATS_counter - 1
 'Enters info about runtime for the benefit of folks using the script
