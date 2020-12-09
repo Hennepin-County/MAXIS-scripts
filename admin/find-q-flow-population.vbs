@@ -88,7 +88,6 @@ If is_this_priv = TRUE then script_end_procedure("Privileged case, cannot access
 
 '----------------------------------------------------------------------------------------------------Adding suggested Q-Flow Ticketing population for follow up work. needed during the COVID-19 PEACETIME STATE OF EMERGENCY
 EmReadscreen basket_number, 7, 21, 14    'Reading basket number on CASE/CURR 
-msgbox basket_number
 suggested_population = ""                'Blanking this out. Will default to no suggestions if x number is not in this this.
 
 If basket_number = "X127EF8" then suggested_population = "1800"
@@ -217,11 +216,7 @@ If basket_number = "X127FB1" then suggested_population = "YET"
 If basket_number = "X127F3S" then suggested_population = "YET"
 If basket_number = "X127FA9" then suggested_population = "YET"
 
-If trim(suggested_population) = "" then 
-    suggested_population = "No suggestions available"
-    end_msg = "Q Flow Population: " & suggested_population & vbcr & vbcr & "Basket Number: " & basket_number
-Else 
-    end_msg = "Q Flow Population: " & suggested_population
-End if 
+If trim(suggested_population) = "" then suggested_population = "No suggestions available"
 
+end_msg = "Q Flow Population: " & suggested_population
 script_end_procedure(end_msg)
