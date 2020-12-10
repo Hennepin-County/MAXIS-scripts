@@ -86,7 +86,7 @@ email_subject = ""										'setting some variables
 email_recipient = ""
 email_recipient_cc = ""
 email_signature = qi_worker_full_name
-send_email = true
+send_email = FALSE
 
 
 'Dialog to select which type of correction needs to be sent
