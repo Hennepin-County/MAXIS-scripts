@@ -148,59 +148,105 @@ Do
 	    EMReadScreen addr_line_01, 22, 6, 43
 	    Call navigate_to_MAXIS_screen("STAT", "ALTP")
 	    EMReadScreen altp_addr_line_01, 22, 12, 37
-
 	    IF trim(addr_line_01) = trim(altp_addr_line_01) THEN
 	    	update_case = FALSE
 	       	error_reason = "ADDR same ALTP"
 	    ELSE
-	    	Call navigate_to_MAXIS_screen("MONY", "DISB")
+			update_case = TRUE
+			Call navigate_to_MAXIS_screen("MONY", "DISB")
 	    	EMReadscreen payment_method, 2, 5, 35
-			IF payment_method = "DD" or payment_method = "EB" THEN update_case = FALSE
-
-			EMReadscreen worker_mail_preference, 2, 9, 35
-	    	IF worker_mail_preference = "RG" THEN
-				PF9
-				EMWriteScreen "IC", 9, 35
-            	TRANSMIT
-            	error_reason = "transfer back to RG"
-            ELSE
-				error_reason = "none"
+			IF payment_method = "DD" or payment_method = "EB" THEN
+				update_case = FALSE
+				error_reason = "payment method"
 			END IF
-     	   	start_a_blank_CASE_NOTE
-             CALL write_variable_in_CASE_NOTE("MONY/DISB UPDATED")
-             CALL write_variable_in_CASE_NOTE("To allow FS cash out cases to be issued PEBT benefits. These benefits will be issued by DHS in the form of a check and sent to a county office. The county office will then mail checks to the clients payee. After all PEBT benefits are issued, MONY/DISB will be changed back to regular mail. Clients do not need to pick up their benefit check, they should contact their payee for distribution")
-     	   	CALL write_variable_in_CASE_NOTE("VIA BULK SCRIPT")
-     	   	PF3 'saving the case note
-         	error_reason = "Case/note updated"
+			IF update_case = TRUE THEN
+				EMReadscreen worker_mail_preference, 2, 9, 35
+	    	    IF worker_mail_preference = "RG" THEN
+			    	PF9
+			    	EMWriteScreen "IC", 9, 35 'Worker Mail Preference'
+					EMWriteScreen "27", 10, 35 'Pick Up County '
+					EMWriteScreen "02", 10, 47 'Pick Up Office'
+                	TRANSMIT
+					EMReadScreen look_for_error, 8, 24, 2   'checking the bottom for an error message
+					look_for_error = trim(look_for_error)
+
+					If look_for_error = "WARNING:" Then     'we can transmit past warning messages and then look again
+						transmit
+						EMReadScreen look_for_error, 8, 24, 2   'checking the bottom for an error message
+						look_for_error = trim(look_for_error)
+					End If
+					If look_for_error <> "" Then        'if there is anything here - assume an error
+						                        'blank out the work
+						MsgBox "what is happening?"
+					END IF
+					error_reason = "transfer back to RG"
+                ELSE
+			    	error_reason = "TBD"
+			    END IF
+				IF error_reason = "transfer back to RG" THEN
+					start_a_blank_CASE_NOTE
+                    CALL write_variable_in_CASE_NOTE("MONY/DISB UPDATED " & CM_minus_1_mo & CM_yr)
+                    CALL write_variable_in_CASE_NOTE("To allow FS cash out cases to be issued PEBT benefits. These benefits will be issued by DHS in the form of a check and sent to a county office. The county office will then mail checks to the clients payee. After all PEBT benefits are issued, MONY/DISB will be changed back to regular mail. Clients do not need to pick up their benefit check, they should contact their payee for distribution.")
+				    CALL write_variable_in_CASE_NOTE("VIA BULK SCRIPT")
+     	   	        PF3 'saving the case note
+         	        error_reason = "Case/note updated"
+
+					Call navigate_to_MAXIS_screen("SPEC", "WCOM")
+					MAXIS_row = 7
+					Do
+						'IF datediff("D", date, todays_date) = 0 THEN ....... = True trying to get the date to read the date as a dates
+						EMReadscreen todays_date, 8, MAXIS_row, 16
+						EmReadscreen print_status, 8, MAXIS_row, 71
+						If print_status = "Canceled" THEN EXIT DO
+						If todays_date = "" THEN
+							spec_wcom_canceled = "no notice"
+							EXIT DO
+						END IF
+							IF todays_date = "12/12/20" and print_status = "Waiting" THEN
+								EmReadscreen doc_description, 4, MAXIS_row, 30
+								EmReadscreen prog_type, 2, MAXIS_row, 26
+								If doc_description	= "SEND" and prog_type = "FS" THEN
+									EMWriteScreen "C", MAXIS_row, 13
+									TRANSMIT
+									spec_wcom_canceled = TRUE
+								ELSE
+									EmReadscreen print_status, 8, MAXIS_row, 71
+									spec_wcom_canceled = FALSE
+								END IF
+							ELSE
+								MAXIS_row = MAXIS_row + 1
+							END IF
+					Loop until MAXIS_row = 10
+				END IF
+
+			    'IF action_taken = "revert" THEN
+			    '   EMReadscreen worker_mail_preference, 2, 9, 35
+	    	    '   IF worker_mail_preference = "IC" THEN
+			    '   	PF9
+			    '   	EMWriteScreen "RG", 9, 35
+                '   	TRANSMIT
+                '   	error_reason = "transferred back to RG"
+                '   ELSE
+			    '   	error_reason = "none"
+			    '   END IF
+			    'END IF
+				END IF
 		END IF
-			IF action_taken = "revert" THEN
-			   EMReadscreen worker_mail_preference, 2, 9, 35
-	    	   IF worker_mail_preference = "IC" THEN
-			   	PF9
-			   	EMWriteScreen "RG", 9, 35
-               	TRANSMIT
-               	error_reason = "transferred back to RG"
-               ELSE
-			   	error_reason = "none"
-			   END IF
-			END IF
-
-
-	    	amount_cashout = objExcel.cells(excel_row, 2).Value
-	    	objExcel.Cells(excel_row,  3).Value = trim(case_active) 'true/false based on case status
-	    	objExcel.Cells(excel_row,  4).Value = trim(update_case) 	'if case meets criteria to cashout
-	    	objExcel.Cells(excel_row,  5).Value = trim(payment_method) 'payment method
-            objExcel.Cells(excel_row,  6).Value = trim(error_reason) 'notes or error reason
-			objExcel.Cells(excel_row,  7).Value = trim(spec_wcom_canceled) 'spec/wcom status
-            excel_row = excel_row + 1
-            STATS_counter = STATS_counter + 1
-            back_to_SELF
-			error_reason = ""
-			payment_method = ""
-			update_case = ""
-			case_active = ""
-			spec_wcom_canceled = ""
 	END IF
+	amount_cashout = objExcel.cells(excel_row, 2).Value
+	objExcel.Cells(excel_row,  3).Value = trim(case_active) 'true/false based on case status
+	objExcel.Cells(excel_row,  4).Value = trim(update_case) 	'if case meets criteria to cashout
+	objExcel.Cells(excel_row,  5).Value = trim(payment_method) 'payment method
+	objExcel.Cells(excel_row,  6).Value = trim(error_reason) 'notes or error reason
+	objExcel.Cells(excel_row,  7).Value = trim(spec_wcom_canceled) 'spec/wcom status
+	excel_row = excel_row + 1
+	STATS_counter = STATS_counter + 1
+	back_to_SELF
+	error_reason = ""
+	payment_method = ""
+	update_case = ""
+	case_active = ""
+	spec_wcom_canceled = ""
 LOOP UNTIL objExcel.Cells(excel_row, 1).Value = ""	'Loops until there are no more cases in the Excel list
 
 FOR i = 1 to 7							'making the columns stretch to fit the widest cell
