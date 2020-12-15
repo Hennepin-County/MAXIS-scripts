@@ -119,25 +119,26 @@ Do
 			print_status = "no notice"
 			EXIT DO
 		END IF
-		IF todays_date = "11/30/20" THEN
+		IF todays_date = "12/14/20" THEN
 			EMWriteScreen "C", MAXIS_row, 13
 			TRANSMIT
-			EmReadscreen print_status, 8, MAXIS_row, 71
-
+			EmReadscreen second_check, 8, MAXIS_row, 71
+			IF second_check <>  "Canceled"  THEN print_status "REVIEW"
+			IF second_check = "Canceled" THEN print_status = TRUE
 		ELSE
-		MAXIS_row = MAXIS_row + 1
+			MAXIS_row = MAXIS_row + 1
 		END IF
 	Loop until MAXIS_row = 10
 
 
-    objExcel.Cells(excel_row,  6).Value = trim(print_status) 'notes or error reason
+    objExcel.Cells(excel_row,  7).Value = trim(print_status) 'notes or error reason
     excel_row = excel_row + 1
     STATS_counter = STATS_counter + 1
     back_to_SELF
     error_reason = ""
 LOOP UNTIL objExcel.Cells(excel_row, 1).Value = ""	'Loops until there are no more cases in the Excel list
 
-FOR i = 1 to 6							'making the columns stretch to fit the widest cell
+FOR i = 1 to 7							'making the columns stretch to fit the widest cell
 objExcel.Columns(i).AutoFit()
 NEXT
 

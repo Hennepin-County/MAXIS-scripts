@@ -114,8 +114,12 @@ ObjExcel.Cells(1, 7).Font.Bold = TRUE
 
 update_case = FALSE
 excel_row = 2           're-establishing the row to start checking the members for
-
+MAXIS_footer_month = "11"
+MAXIS_footer_year = "20"
 Do
+	back_to_SELF
+	EMWriteScreen MAXIS_footer_month, 20, 43			'goes back to self and enters the date that the user selcted'
+	EMWriteScreen MAXIS_footer_year, 20, 46
 	'Assign case number from Excel
 	MAXIS_case_number = ObjExcel.Cells(excel_row, 1).Value
 	MAXIS_case_number = trim(MAXIS_case_number)
@@ -169,23 +173,24 @@ Do
                 	TRANSMIT
 					EMReadScreen look_for_error, 8, 24, 2   'checking the bottom for an error message
 					look_for_error = trim(look_for_error)
-
 					If look_for_error = "WARNING:" Then     'we can transmit past warning messages and then look again
-						transmit
-						EMReadScreen look_for_error, 8, 24, 2   'checking the bottom for an error message
-						look_for_error = trim(look_for_error)
+						TRANSMIT
+						EMReadScreen really_look_for_error,72, 24, 2   'checking the bottom for an error message
+						really_look_for_error = trim(really_look_for_error)
 					End If
-					If look_for_error <> "" Then        'if there is anything here - assume an error
-						                        'blank out the work
-						MsgBox "what is happening?"
+					If really_look_for_error <> "" Then        'if there is anything here - assume an error
+						MsgBox really_look_for_error
 					END IF
 					error_reason = "transfer back to RG"
                 ELSE
-			    	error_reason = "TBD"
+					IF worker_mail_preference = "IC" THEN
+						EMReadScreen updated_mony_disb_date, 8, 9, 40
+			    		error_reason = "already updated " & replace(updated_mony_disb_date, " ", "/")
+					END IF
 			    END IF
 				IF error_reason = "transfer back to RG" THEN
 					start_a_blank_CASE_NOTE
-                    CALL write_variable_in_CASE_NOTE("MONY/DISB UPDATED " & CM_minus_1_mo & CM_yr)
+                    CALL write_variable_in_CASE_NOTE("MONY/DISB UPDATED " & MAXIS_footer_month &"/"& MAXIS_footer_year)
                     CALL write_variable_in_CASE_NOTE("To allow FS cash out cases to be issued PEBT benefits. These benefits will be issued by DHS in the form of a check and sent to a county office. The county office will then mail checks to the clients payee. After all PEBT benefits are issued, MONY/DISB will be changed back to regular mail. Clients do not need to pick up their benefit check, they should contact their payee for distribution.")
 				    CALL write_variable_in_CASE_NOTE("VIA BULK SCRIPT")
      	   	        PF3 'saving the case note
@@ -194,28 +199,33 @@ Do
 					Call navigate_to_MAXIS_screen("SPEC", "WCOM")
 					MAXIS_row = 7
 					Do
-						'IF datediff("D", date, todays_date) = 0 THEN ....... = True trying to get the date to read the date as a dates
 						EMReadscreen todays_date, 8, MAXIS_row, 16
-						EmReadscreen print_status, 8, MAXIS_row, 71
-						If print_status = "Canceled" THEN EXIT DO
-						If todays_date = "" THEN
-							spec_wcom_canceled = "no notice"
-							EXIT DO
+						EMReadscreen print_status, 8, MAXIS_row, 71
+						EmReadscreen doc_description, 4, MAXIS_row, 30
+						EmReadscreen prog_type, 2, MAXIS_row, 26
+						IF todays_date = "" THEN
+							EMWaitReady
+							TRANSMIT
+							spec_wcom_canceled = FALSE & "NO DATE"
 						END IF
-							IF todays_date = "12/12/20" and print_status = "Waiting" THEN
-								EmReadscreen doc_description, 4, MAXIS_row, 30
-								EmReadscreen prog_type, 2, MAXIS_row, 26
-								If doc_description	= "SEND" and prog_type = "FS" THEN
-									EMWriteScreen "C", MAXIS_row, 13
-									TRANSMIT
-									spec_wcom_canceled = TRUE
-								ELSE
-									EmReadscreen print_status, 8, MAXIS_row, 71
-									spec_wcom_canceled = FALSE
+						IF todays_date = "12/14/20" THEN
+							IF print_status = "Canceled" THEN spec_wcom_canceled = FALSE
+						  	IF print_status = "Waiting" THEN
+								If doc_description	= "SEND" THEN
+									IF prog_type = "FS" THEN
+										EMWriteScreen "C", MAXIS_row, 13
+										TRANSMIT
+										spec_wcom_canceled = TRUE
+									Else
+										MAXIS_row = MAXIS_row + 1
+									END IF
 								END IF
 							ELSE
 								MAXIS_row = MAXIS_row + 1
 							END IF
+						ELSE
+							MAXIS_row = MAXIS_row + 1
+						END IF
 					Loop until MAXIS_row = 10
 				END IF
 
@@ -230,7 +240,7 @@ Do
 			    '   	error_reason = "none"
 			    '   END IF
 			    'END IF
-				END IF
+			END IF
 		END IF
 	END IF
 	amount_cashout = objExcel.cells(excel_row, 2).Value
