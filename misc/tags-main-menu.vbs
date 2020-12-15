@@ -129,11 +129,11 @@ function declare_tabbed_menu(tab_selected)
                                     If listed_tag <> "" Then
                                         tag_matched = FALSE
 
-                                        ' MsgBox "selected tag - " & selected_tag & vbNewLine & "listed tag - " & listed_tag
+                                        ' If listed_tag = "Support" Then MsgBox "selected tag - " & selected_tag & vbNewLine & "listed tag - " & listed_tag
 
                                         If UCase(selected_tag) = UCase(listed_tag) Then
                                             tag_matched = TRUE
-                                            ' MsgBox "selected tag - " & selected_tag & vbNewLine & "listed tag - " & listed_tag & vbNewLine & "tag matched - " & tag_matched & vbNewLine & script_array(current_script).script_name & vbNewLine & "list this script - " & list_this_script
+                                            ' If listed_tag = "Support" Then MsgBox "selected tag - " & selected_tag & vbNewLine & "listed tag - " & listed_tag & vbNewLine & "tag matched - " & tag_matched & vbNewLine & script_array(current_script).script_name & vbNewLine & "list this script - " & list_this_script
                                             Exit For
                                         End If
                                     Else
@@ -518,6 +518,7 @@ function declare_tabbed_menu(tab_selected)
           ' Text 170, 60, 170, 10, "Description"p
 
             PushButton 10, dlg_len - 20, 100, 15, "Clear TAG Selection", clear_selection_btn
+			PushButton 110, dlg_len - 20, 100, 15, "Reources", resources_btn
             If bz_staff = TRUE Then
                 PushButton 595, dlg_len - 20, 55, 15, "Monthly Tasks", monthly_task_btn
                 PushButton 650, dlg_len - 20, 40, 15, "BZST", bz_btn
@@ -677,6 +678,7 @@ review_btn = 1400
 communication_btn = 1500
 utility_btn = 1600
 reports_btn = 1700
+support_btn = 1750
 resources_btn = 1800
 clear_selection_btn = 1900
 page_one_btn = 2000
@@ -732,7 +734,7 @@ button_name_bottom_5 = "Reviews"
 button_name_bottom_6 = "Communication"
 button_name_bottom_7 = "Utility"
 button_name_bottom_8 = "Reports"
-button_name_bottom_9 = "--Resources--"
+button_name_bottom_9 = "Support"
 button_name_bottom_0 = ""
 
 qi_menu = FALSE
@@ -768,7 +770,7 @@ Do
     If ButtonPressed = button_clik_bottom_6 Then ButtonPressed = communication_btn
     If ButtonPressed = button_clik_bottom_7 Then ButtonPressed = utility_btn
     If ButtonPressed = button_clik_bottom_8 Then ButtonPressed = reports_btn
-    If ButtonPressed = button_clik_bottom_9 Then ButtonPressed = resources_btn
+    If ButtonPressed = button_clik_bottom_9 Then ButtonPressed = support_btn
 
     If ButtonPressed = explain_questionmark_btn Then
         explain_questionmark_msg = MsgBox("See all the Question Mark Buttons?" & vbCr & vbCr & "Look to the left of the script name button. Each script has a button with a question mark - ? - next to it." & vbCr & vbCr & "Press this button and the instructions for that script will be opened. This is an easy way to see how a script functions, or when to use it.", vbQuestion, "What's with the Question Marks?")
@@ -959,7 +961,7 @@ Do
         ButtonPressed = resources_btn
     End If
 
-    If ButtonPressed = snap_btn OR ButtonPressed = mfip_btn OR ButtonPressed = dwp_btn OR ButtonPressed = hc_btn OR ButtonPressed = grh_btn OR ButtonPressed = ga_btn OR ButtonPressed = emer_btn OR ButtonPressed = ltc_btn OR ButtonPressed = abawd_btn OR ButtonPressed = income_btn OR ButtonPressed = asset_btn OR ButtonPressed = deductions_btn OR ButtonPressed = application_btn OR ButtonPressed = review_btn OR ButtonPressed = communication_btn OR ButtonPressed = utility_btn OR ButtonPressed = reports_btn OR ButtonPressed = resources_btn Then
+    If ButtonPressed = snap_btn OR ButtonPressed = mfip_btn OR ButtonPressed = dwp_btn OR ButtonPressed = hc_btn OR ButtonPressed = grh_btn OR ButtonPressed = ga_btn OR ButtonPressed = emer_btn OR ButtonPressed = ltc_btn OR ButtonPressed = abawd_btn OR ButtonPressed = income_btn OR ButtonPressed = asset_btn OR ButtonPressed = deductions_btn OR ButtonPressed = application_btn OR ButtonPressed = review_btn OR ButtonPressed = communication_btn OR ButtonPressed = utility_btn OR ButtonPressed = reports_btn OR ButtonPressed = support_btn OR ButtonPressed = resources_btn Then
 
         ' leave_loop = FALSE
         qi_menu = FALSE
@@ -982,6 +984,7 @@ Do
         If ButtonPressed = review_btn           AND InStr(select_tab, "Reviews") = 0        Then select_tab = select_tab & "~" & "Reviews"
         If ButtonPressed = communication_btn    AND InStr(select_tab, "Communication") = 0  Then select_tab = select_tab & "~" & "Communication"
         If ButtonPressed = utility_btn          AND InStr(select_tab, "Utility") = 0        Then select_tab = select_tab & "~" & "Utility"
+		If ButtonPressed = support_btn 			AND InStr(select_tab, "Support") = 0		Then select_tab = select_tab & "~" & "Support"
         If ButtonPressed = reports_btn          AND InStr(select_tab, "Reports") = 0        Then select_tab = select_tab & "~" & "Reports"
     End If
     If ButtonPressed = resources_btn Then
