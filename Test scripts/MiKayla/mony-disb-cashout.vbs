@@ -57,19 +57,23 @@ query_start_time = timer
 Call check_for_password(false)
 'Connecting to BlueZone, grabbing case number
 EMConnect ""
+
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 266, 105, ""
-  DropListBox 205, 20, 45, 15, "intial"+chr(9)+"revert", action_taken
+BeginDialog Dialog1, 0, 0, 251, 105, ""
+  DropListBox 70, 20, 45, 15, "initial"+chr(9)+"revert", action_taken
+  EditBox 210, 20, 15, 15, MAXIS_footer_month
+  EditBox 225, 20, 15, 15, MAXIS_footer_year
   ButtonGroup ButtonPressed
     PushButton 15, 40, 50, 15, "Browse...", select_a_file_button
-  EditBox 70, 40, 180, 15, file_selection_path
+  EditBox 70, 40, 170, 15, file_selection_path
   ButtonGroup ButtonPressed
-    OkButton 145, 85, 50, 15
-    CancelButton 200, 85, 50, 15
-  Text 155, 25, 50, 10, "Action to take:"
-  GroupBox 10, 5, 250, 75, "MONY/DISB CASHOUT"
+    OkButton 140, 85, 50, 15
+    CancelButton 195, 85, 50, 15
   Text 25, 60, 215, 15, "Select the Excel file that contains the information by selecting the 'Browse' button, and finding the file."
+  Text 160, 25, 50, 10, "Footer MMYY:"
+  GroupBox 10, 5, 235, 75, "MONY/DISB CASHOUT"
+  Text 20, 25, 50, 10, "Action to take:"
 EndDialog
 
 '----------------------------------------------------------------------------------------------------THE SCRIPT
@@ -85,6 +89,8 @@ Do
 			End If
 			call file_selection_system_dialog(file_selection_path,".xlsx") 'allows the user to select the file'
 		End If
+		If MAXIS_footer_month = "" THEN err_msg = err_msg & vbNewLine & "Please advise the footer year which  you want this script to run."
+		If MAXIS_footer_year = "" THEN err_msg = err_msg & vbNewLine & "Please advise the footer year which  you want this script to run."
 		If action_taken = "" THEN err_msg = err_msg & vbNewLine & "Please select which option you are taking with this script run."
 		If file_selection_path = "" THEN err_msg = err_msg & vbNewLine & "Use the Browse button to select the file that has your data"
 		If err_msg <> "" THEN MsgBox err_msg
@@ -94,29 +100,21 @@ Do
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-
 CALL check_for_MAXIS(False)
 back_to_SELF
 ObjExcel.Cells(1, 1).Value = "CASE NUMBER"
-objExcel.Cells(1, 1).Font.Bold = TRUE
 ObjExcel.Cells(1, 2).Value = "AMOUNT"
-objExcel.Cells(1, 2).Font.Bold = TRUE
 ObjExcel.Cells(1, 3).Value = "FS STATUS"
-ObjExcel.Cells(1, 3).Font.Bold = TRUE
 ObjExcel.Cells(1, 4).Value = "UPDATE MADE"
-ObjExcel.Cells(1, 4).Font.Bold = TRUE
 ObjExcel.Cells(1, 5).Value = "METHOD"
-ObjExcel.Cells(1, 5).Font.Bold = TRUE
 ObjExcel.Cells(1, 6).Value = "NOTES"
-ObjExcel.Cells(1, 6).Font.Bold = TRUE
 ObjExcel.Cells(1, 7).Value = "SPEC/WCOM CANCELED"
-ObjExcel.Cells(1, 7).Font.Bold = TRUE
+ObjExcel.Cells(1, 8).Value = "REVERTED"
 
 update_case = FALSE
 excel_row = 2           're-establishing the row to start checking the members for
-MAXIS_footer_month = "11"
-MAXIS_footer_year = "20"
-Do
+
+DO
 	back_to_SELF
 	EMWriteScreen MAXIS_footer_month, 20, 43			'goes back to self and enters the date that the user selcted'
 	EMWriteScreen MAXIS_footer_year, 20, 46
@@ -146,7 +144,7 @@ Do
 
     Call navigate_to_MAXIS_screen("STAT", "ADDR")
 	EMReadScreen priv_check, 4, 2, 50
-	IF priv_check = "SELF" then
+	IF priv_check = "SELF" THEN
 		error_reason = "Privileged"
 	ELSE
 	    EMReadScreen addr_line_01, 22, 6, 43
@@ -163,7 +161,7 @@ Do
 				update_case = FALSE
 				error_reason = "payment method"
 			END IF
-			IF update_case = TRUE THEN
+			IF update_case = TRUE and action_taken = "initial" THEN
 				EMReadscreen worker_mail_preference, 2, 9, 35
 	    	    IF worker_mail_preference = "RG" THEN
 			    	PF9
@@ -188,6 +186,7 @@ Do
 			    		error_reason = "already updated " & replace(updated_mony_disb_date, " ", "/")
 					END IF
 			    END IF
+
 				IF error_reason = "transfer back to RG" THEN
 					start_a_blank_CASE_NOTE
                     CALL write_variable_in_CASE_NOTE("MONY/DISB UPDATED " & MAXIS_footer_month &"/"& MAXIS_footer_year)
@@ -195,51 +194,72 @@ Do
 				    CALL write_variable_in_CASE_NOTE("VIA BULK SCRIPT")
      	   	        PF3 'saving the case note
          	        error_reason = "Case/note updated"
-
-					Call navigate_to_MAXIS_screen("SPEC", "WCOM")
-					MAXIS_row = 7
-					Do
-						EMReadscreen todays_date, 8, MAXIS_row, 16
-						EMReadscreen print_status, 8, MAXIS_row, 71
-						EmReadscreen doc_description, 4, MAXIS_row, 30
-						EmReadscreen prog_type, 2, MAXIS_row, 26
-						IF todays_date = "" THEN
-							EMWaitReady
-							TRANSMIT
-							spec_wcom_canceled = FALSE & "NO DATE"
-						END IF
-						IF todays_date = "12/14/20" THEN
-							IF print_status = "Canceled" THEN spec_wcom_canceled = FALSE
-						  	IF print_status = "Waiting" THEN
-								If doc_description	= "SEND" THEN
-									IF prog_type = "FS" THEN
-										EMWriteScreen "C", MAXIS_row, 13
-										TRANSMIT
-										spec_wcom_canceled = TRUE
-									Else
-										MAXIS_row = MAXIS_row + 1
-									END IF
-								END IF
-							ELSE
-								MAXIS_row = MAXIS_row + 1
-							END IF
-						ELSE
-							MAXIS_row = MAXIS_row + 1
-						END IF
-					Loop until MAXIS_row = 10
 				END IF
 
-			    'IF action_taken = "revert" THEN
-			    '   EMReadscreen worker_mail_preference, 2, 9, 35
-	    	    '   IF worker_mail_preference = "IC" THEN
-			    '   	PF9
-			    '   	EMWriteScreen "RG", 9, 35
-                '   	TRANSMIT
-                '   	error_reason = "transferred back to RG"
-                '   ELSE
-			    '   	error_reason = "none"
-			    '   END IF
-			    'END IF
+				IF action_taken = "revert" THEN
+					EMReadscreen worker_mail_preference, 2, 9, 35
+					IF worker_mail_preference = "IC" THEN
+						PF9
+						EMWriteScreen "RG", 9, 35
+						TRANSMIT
+						EMReadScreen look_for_error, 8, 24, 2   'checking the bottom for an error message
+						look_for_error = trim(look_for_error)
+						If look_for_error = "WARNING:" Then     'we can transmit past warning messages and then look again
+							TRANSMIT
+							revert_complete = TRUE
+							EMReadScreen really_look_for_error,72, 24, 2   'checking the bottom for an error message
+							really_look_for_error = trim(really_look_for_error)
+						End If
+						If really_look_for_error <> "" Then        'if there is anything here - assume an error
+							MsgBox really_look_for_error
+							revert_complete = FALSE
+							'exit do
+						END IF
+						revert_complete = TRUE
+	                ELSE
+						IF worker_mail_preference = "IC" THEN
+							EMReadScreen updated_mony_disb_date, 8, 9, 40
+				    		error_reason = "already updated " & replace(updated_mony_disb_date, " ", "/")
+						END IF
+						error_reason = "review"
+						revert_complete = FALSE
+					END IF
+				END IF
+
+
+			    IF error_reason = "Case/note updated" or revert_complete = TRUE THEN
+			    	Call navigate_to_MAXIS_screen("SPEC", "WCOM")
+			    	MAXIS_row = 7
+			    	Do
+			    		EMReadscreen todays_date, 8, MAXIS_row, 16
+			    		EMReadscreen print_status, 8, MAXIS_row, 71
+			    		EmReadscreen doc_description, 4, MAXIS_row, 30
+			    		EmReadscreen prog_type, 2, MAXIS_row, 26
+			    		IF todays_date = "" THEN
+			    			EMWaitReady
+			    			TRANSMIT
+			    			spec_wcom_canceled = FALSE & "NO DATE"
+			    		END IF
+			    		IF todays_date = date THEN 'if i use 12/16/20 it works but even getting it to recognize it is a date     failed'
+			    			IF print_status = "Canceled" THEN spec_wcom_canceled = FALSE
+			    		  	IF print_status = "Waiting" THEN
+			    				If doc_description	= "SEND" THEN
+			    					IF prog_type = "FS" THEN
+			    						EMWriteScreen "C", MAXIS_row, 13
+			    						TRANSMIT
+			    						spec_wcom_canceled = TRUE
+			    					Else
+			    						MAXIS_row = MAXIS_row + 1
+			    					END IF
+			    				END IF
+			    			ELSE
+			    				MAXIS_row = MAXIS_row + 1
+			    			END IF
+			    		ELSE
+			    			MAXIS_row = MAXIS_row + 1
+			    		END IF
+			    	Loop until MAXIS_row = 10
+				END IF
 			END IF
 		END IF
 	END IF
@@ -249,6 +269,7 @@ Do
 	objExcel.Cells(excel_row,  5).Value = trim(payment_method) 'payment method
 	objExcel.Cells(excel_row,  6).Value = trim(error_reason) 'notes or error reason
 	objExcel.Cells(excel_row,  7).Value = trim(spec_wcom_canceled) 'spec/wcom status
+	objExcel.Cells(excel_row,  8).Value = trim(revert_complete) 'spec/wcom statusc
 	excel_row = excel_row + 1
 	STATS_counter = STATS_counter + 1
 	back_to_SELF
@@ -259,8 +280,11 @@ Do
 	spec_wcom_canceled = ""
 LOOP UNTIL objExcel.Cells(excel_row, 1).Value = ""	'Loops until there are no more cases in the Excel list
 
-FOR i = 1 to 7							'making the columns stretch to fit the widest cell
-	objExcel.Columns(i).AutoFit()
+
+FOR i = 1 to 8		'formatting the cells'
+	objExcel.Cells(1, i).Font.Bold = True		'bold font'
+	ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
+	objExcel.Columns(i).AutoFit()				'sizing the columns'
 NEXT
 
 STATS_counter = STATS_counter - 1
