@@ -58,19 +58,15 @@ Call check_for_password(false)
 'Connecting to BlueZone, grabbing case number
 EMConnect ""
 '-------------------------------------------------------------------------------------------------DIALOG
-BeginDialog Dialog1, 0, 0, 266, 105, ""
-  DropListBox 205, 20, 45, 15, "intial"+chr(9)+"revert", action_taken
+BeginDialog Dialog1, 0, 0, 236, 75, "MONY/DISB"
   ButtonGroup ButtonPressed
-    PushButton 15, 40, 50, 15, "Browse...", select_a_file_button
-  EditBox 70, 40, 180, 15, file_selection_path
+    PushButton 10, 10, 50, 15, "Browse...", select_a_file_button
+  EditBox 65, 10, 165, 15, file_selection_path
   ButtonGroup ButtonPressed
-    OkButton 145, 85, 50, 15
-    CancelButton 200, 85, 50, 15
-  Text 155, 25, 50, 10, "Action to take:"
-  GroupBox 10, 5, 250, 75, "MONY/DISB CASHOUT"
-  Text 25, 60, 215, 15, "Select the Excel file that contains the information by selecting the 'Browse' button, and finding the file."
+    OkButton 125, 55, 50, 15
+    CancelButton 180, 55, 50, 15
+  Text 15, 30, 225, 15, "Select the Excel file that contains the information by selecting the 'Browse' button, and finding the file."
 EndDialog
-
 
 '----------------------------------------------------------------------------------------------------THE SCRIPT
 
@@ -94,53 +90,67 @@ Do
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-
 CALL check_for_MAXIS(False)
-back_to_SELF
+
 ObjExcel.Cells(1, 1).Value = "CASE NUMBER"
+ObjExcel.Cells(1, 2).Value = "AMOUNT"
+ObjExcel.Cells(1, 3).Value = "FS STATUS"
+ObjExcel.Cells(1, 4).Value = "UPDATE MADE"
+ObjExcel.Cells(1, 5).Value = "METHOD"
+ObjExcel.Cells(1, 6).Value = "NOTES"
+ObjExcel.Cells(1, 7).Value = "SPEC/WCOM CANCELED"
+ObjExcel.Cells(1, 8).Value = "REVERTED"
 
 excel_row = 2           're-establishing the row to start checking the members for
-
+back_to_SELF
 Do
 	'Assign case number from Excel
 	MAXIS_case_number = ObjExcel.Cells(excel_row, 1).Value
-	MAXIS_case_number = trim(MAXIS_case_number)
-	'Exiting if the case number is blank
+	MAXIS_case_number = trim(MAXIS_case_number) 'Exiting if the case number is blank
 	If MAXIS_case_number = "" then exit do
-	EMWriteScreen MAXIS_case_number, 18, 43
-	Call navigate_to_MAXIS_screen("SPEC", "WCOM")
-	MAXIS_row = 7
-	Do
-		'IF datediff("D", date, todays_date) = 0 THEN ....... = True trying to get the date to read the date as a dates
-		EMReadscreen todays_date, 8, MAXIS_row, 16
-		EmReadscreen print_status, 8, MAXIS_row, 71
-		If print_status = "Canceled" THEN EXIT DO
-		If todays_date = "" THEN
-			print_status = "no notice"
-			EXIT DO
-		END IF
-		IF todays_date = "12/14/20" THEN
-			EMWriteScreen "C", MAXIS_row, 13
-			TRANSMIT
-			EmReadscreen second_check, 8, MAXIS_row, 71
-			IF second_check <>  "Canceled"  THEN print_status "REVIEW"
-			IF second_check = "Canceled" THEN print_status = TRUE
-		ELSE
-			MAXIS_row = MAXIS_row + 1
-		END IF
-	Loop until MAXIS_row = 10
-
-
-    objExcel.Cells(excel_row,  7).Value = trim(print_status) 'notes or error reason
-    excel_row = excel_row + 1
-    STATS_counter = STATS_counter + 1
-    back_to_SELF
-    error_reason = ""
+	update_made = ObjExcel.Cells(excel_row, 4).Value
+	update_made = trim(update_made)
+	update_made = UCASE(update_made)
+	'msgbox update_made
+	If update_made = "TRUE" THEN
+		EMWriteScreen MAXIS_case_number, 18, 43
+		Call navigate_to_MAXIS_screen("SPEC", "WCOM")
+		row = 7                             'Defining row and col for the search feature.
+		col = 1
+		EMSearch "SEND", row, col
+		Do
+		    'IF datediff("D", date, todays_date) = 0 THEN ....... = True trying to get the date to read the date as a dates
+		    EMReadscreen todays_date, 8, row, 16
+		    EmReadscreen print_status, 8, row, 71
+ 		    'If row <> 0 Then PF8
+		    If todays_date = "" THEN
+		       	print_status = "no notice"
+		       	EXIT DO
+		    END IF
+		    IF todays_date = "12/17/20" THEN
+		      	EMWriteScreen "C", row, 13
+		       	TRANSMIT
+		       	EmReadscreen second_check, 8, row, 71
+		       	IF second_check <>  "Canceled"  THEN print_status "REVIEW"
+		    ELSE
+		       	row = row + 1
+		    	EMWriteScreen "C", row, 13
+		       	TRANSMIT
+		       	EmReadscreen second_check, 8, row, 71
+		       	IF second_check <>  "Canceled"  THEN print_status = "NO NOTICES"
+		    END IF
+		Loop until row = 10
+    	objExcel.Cells(excel_row,  7).Value = trim(print_status) 'notes or error reason
+        excel_row = excel_row + 1
+        STATS_counter = STATS_counter + 1
+        print_status = ""
+	Else
+	excel_row = excel_row + 1
+	END IF
 LOOP UNTIL objExcel.Cells(excel_row, 1).Value = ""	'Loops until there are no more cases in the Excel list
-
-FOR i = 1 to 7							'making the columns stretch to fit the widest cell
+'NO NOTICES EXIST FOR THE BENEFIT MONTH '
+FOR i = 1 to 8							'making the columns stretch to fit the widest cell
 objExcel.Columns(i).AutoFit()
 NEXT
-
 STATS_counter = STATS_counter - 1
 script_end_procedure("Success! Please review the list generated.")

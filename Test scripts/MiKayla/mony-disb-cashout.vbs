@@ -147,7 +147,7 @@ DO
 	IF priv_check = "SELF" THEN
 		error_reason = "Privileged"
 	ELSE
-	    EMReadScreen addr_line_01, 22, 6, 43
+		EMReadScreen addr_line_01, 22, 6, 43
 	    Call navigate_to_MAXIS_screen("STAT", "ALTP")
 	    EMReadScreen altp_addr_line_01, 22, 12, 37
 	    IF trim(addr_line_01) = trim(altp_addr_line_01) THEN
@@ -161,9 +161,9 @@ DO
 				update_case = FALSE
 				error_reason = "payment method"
 			END IF
-			IF update_case = TRUE and action_taken = "initial" THEN
+			IF update_case = TRUE THEN
 				EMReadscreen worker_mail_preference, 2, 9, 35
-	    	    IF worker_mail_preference = "RG" THEN
+	    	    IF worker_mail_preference = "RG" and action_taken = "initial" THEN
 			    	PF9
 			    	EMWriteScreen "IC", 9, 35 'Worker Mail Preference'
 					EMWriteScreen "27", 10, 35 'Pick Up County '
@@ -180,54 +180,51 @@ DO
 						MsgBox really_look_for_error
 					END IF
 					error_reason = "transfer back to RG"
-                ELSE
-					IF worker_mail_preference = "IC" THEN
-						EMReadScreen updated_mony_disb_date, 8, 9, 40
-			    		error_reason = "already updated " & replace(updated_mony_disb_date, " ", "/")
-					END IF
-			    END IF
-
+                'ELSEIF worker_mail_preference = "IC" THEN
+				'		EMReadScreen updated_mony_disb_date, 8, 9, 40
+			    '		error_reason = "already updated " & replace(updated_mony_disb_date, " ", "/")
+				action_taken = "revert" THEN
+					   	EMReadscreen worker_mail_preference, 2, 9, 35
+				    	IF worker_mail_preference = "IC" THEN
+				    		PF9
+				    		EMWriteScreen "RG", 9, 35
+				    		TRANSMIT
+				    		EMReadScreen look_for_error, 8, 24, 2   'checking the bottom for an error message
+				    		look_for_error = trim(look_for_error)
+				    		If look_for_error = "WARNING:" THEN'we can transmit past warning messages and then look     gain
+				    			TRANSMIT
+				    			revert_complete = TRUE
+				    			EMReadScreen really_look_for_error,72, 24, 2   'checking the bottom for an error message
+				    			really_look_for_error = trim(really_look_for_error)
+				    		End If
+				    		If really_look_for_error <> "" Then        'if there is anything here - assume an error
+				    			MsgBox really_look_for_error
+				    			revert_complete = FALSE
+				    			'exit do
+				    		END IF
+				    		revert_complete = TRUE
+				    	ELSE
+				    		IF worker_mail_preference = "IC" THEN
+				    			EMReadScreen updated_mony_disb_date, 8, 9, 40
+				    			error_reason = "already updated " & replace(updated_mony_disb_date, " ", "/")
+				    		END IF
+							IF worker_mail_preference = "RG" THEN
+								error_reason = "COMPLETE"
+				    			revert_complete = TRUE
+							END IF
+				    	END IF
+				    END IF
+				end if
 				IF error_reason = "transfer back to RG" THEN
 					start_a_blank_CASE_NOTE
                     CALL write_variable_in_CASE_NOTE("MONY/DISB UPDATED " & MAXIS_footer_month &"/"& MAXIS_footer_year)
-                    CALL write_variable_in_CASE_NOTE("To allow FS cash out cases to be issued PEBT benefits. These benefits will be issued by DHS in the form of a check and sent to a county office. The county office will then mail checks to the clients payee. After all PEBT benefits are issued, MONY/DISB will be changed back to regular mail. Clients do not need to pick up their benefit check, they should contact their payee for distribution.")
-				    CALL write_variable_in_CASE_NOTE("VIA BULK SCRIPT")
-     	   	        PF3 'saving the case note
-         	        error_reason = "Case/note updated"
-				END IF
+                    CALL write_variable_in_CASE_NOTE("To allow FS cash out cases to be issued PEBT benefits. These benefits will be issued by DHS in the form 'of a check and sent to a county office. The county office will then mail checks to the clients payee. After all PEBT benefits are issued, 'MONY/DISB will be changed back to regular mail. Clients do not need to pick up their benefit check, they should contact their payee for 'distribution.")
+	'			    CALL write_variable_in_CASE_NOTE("VIA BULK SCRIPT")
+    ' 	   	        PF3 'saving the case note
+    '     	        error_reason = "Case/note updated"
+	'			END IF
 
-				IF action_taken = "revert" THEN
-					EMReadscreen worker_mail_preference, 2, 9, 35
-					IF worker_mail_preference = "IC" THEN
-						PF9
-						EMWriteScreen "RG", 9, 35
-						TRANSMIT
-						EMReadScreen look_for_error, 8, 24, 2   'checking the bottom for an error message
-						look_for_error = trim(look_for_error)
-						If look_for_error = "WARNING:" Then     'we can transmit past warning messages and then look again
-							TRANSMIT
-							revert_complete = TRUE
-							EMReadScreen really_look_for_error,72, 24, 2   'checking the bottom for an error message
-							really_look_for_error = trim(really_look_for_error)
-						End If
-						If really_look_for_error <> "" Then        'if there is anything here - assume an error
-							MsgBox really_look_for_error
-							revert_complete = FALSE
-							'exit do
-						END IF
-						revert_complete = TRUE
-	                ELSE
-						IF worker_mail_preference = "IC" THEN
-							EMReadScreen updated_mony_disb_date, 8, 9, 40
-				    		error_reason = "already updated " & replace(updated_mony_disb_date, " ", "/")
-						END IF
-						error_reason = "review"
-						revert_complete = FALSE
-					END IF
-				END IF
-
-
-			    IF error_reason = "Case/note updated" or revert_complete = TRUE THEN
+			    'IF error_reason = "Case/note updated" or revert_complete = TRUE THEN
 			    	Call navigate_to_MAXIS_screen("SPEC", "WCOM")
 			    	MAXIS_row = 7
 			    	Do
@@ -240,7 +237,7 @@ DO
 			    			TRANSMIT
 			    			spec_wcom_canceled = FALSE & "NO DATE"
 			    		END IF
-			    		IF todays_date = date THEN 'if i use 12/16/20 it works but even getting it to recognize it is a date     failed'
+			    		IF todays_date = "12/17/20" THEN 'if i use 12/16/20 it works but even getting it to recognize it is a date     failed'
 			    			IF print_status = "Canceled" THEN spec_wcom_canceled = FALSE
 			    		  	IF print_status = "Waiting" THEN
 			    				If doc_description	= "SEND" THEN
@@ -248,35 +245,32 @@ DO
 			    						EMWriteScreen "C", MAXIS_row, 13
 			    						TRANSMIT
 			    						spec_wcom_canceled = TRUE
-			    					Else
-			    						MAXIS_row = MAXIS_row + 1
 			    					END IF
-			    				END IF
-			    			ELSE
-			    				MAXIS_row = MAXIS_row + 1
-			    			END IF
+								END IF
+							END IF
 			    		ELSE
 			    			MAXIS_row = MAXIS_row + 1
 			    		END IF
 			    	Loop until MAXIS_row = 10
-				END IF
-			END IF
-		END IF
-	END IF
-	amount_cashout = objExcel.cells(excel_row, 2).Value
-	objExcel.Cells(excel_row,  3).Value = trim(case_active) 'true/false based on case status
-	objExcel.Cells(excel_row,  4).Value = trim(update_case) 	'if case meets criteria to cashout
-	objExcel.Cells(excel_row,  5).Value = trim(payment_method) 'payment method
-	objExcel.Cells(excel_row,  6).Value = trim(error_reason) 'notes or error reason
+				'END IF
+			'END IF
+		'END IF
+	'END IF
+'END IF
+	'amount_cashout = objExcel.cells(excel_row, 2).Value
+	'objExcel.Cells(excel_row,  3).Value = trim(case_active) 'true/false based on case status
+	'objExcel.Cells(excel_row,  4).Value = trim(update_case) 	'if case meets criteria to cashout
+	'objExcel.Cells(excel_row,  5).Value = trim(payment_method) 'payment method
+	'objExcel.Cells(excel_row,  6).Value = trim(error_reason) 'notes or error reason
 	objExcel.Cells(excel_row,  7).Value = trim(spec_wcom_canceled) 'spec/wcom status
-	objExcel.Cells(excel_row,  8).Value = trim(revert_complete) 'spec/wcom statusc
+	'objExcel.Cells(excel_row,  8).Value = trim(revert_complete) 'spec/wcom statusc
 	excel_row = excel_row + 1
 	STATS_counter = STATS_counter + 1
 	back_to_SELF
-	error_reason = ""
-	payment_method = ""
-	update_case = ""
-	case_active = ""
+	'error_reason = ""
+	'payment_method = ""
+	'update_case = ""
+	'case_active = ""
 	spec_wcom_canceled = ""
 LOOP UNTIL objExcel.Cells(excel_row, 1).Value = ""	'Loops until there are no more cases in the Excel list
 
