@@ -56,26 +56,25 @@ EMConnect ""
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 back_to_SELF' added to ensure we have the time to update and send the case in the background
 
-
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 276, 120, "Notes On Demand"
+BeginDialog Dialog1, 0, 0, 226, 120, "Notes On Demand"
   EditBox 55, 5, 45, 15, MAXIS_case_number
-  CheckBox 190, 10, 85, 10, "Updated STAT/PROG", prog_updated_CHECKBOX
-  DropListBox 55, 25, 215, 15, "Select One:"+chr(9)+"Additional application pended prior to interview being completed"+chr(9)+"Case was not pended timely"+chr(9)+"Clear case note for other pending program pending not mentioned"+chr(9)+"Client completed application interview"+chr(9)+"Client has not completed application interview"+chr(9)+"Client has not completed F2F CASH application interview"+chr(9)+"Client contact was made no interview offered"+chr(9)+"Denied programs for no interview"+chr(9)+"Interview completed on NOMI day and NOMI was not cancelled"+chr(9)+"Interview not needed for MFIP to SNAP transition"+chr(9)+"Script-Application Received-not used when pending case"+chr(9)+"Script-CAF-used but no interview completed"+chr(9)+"Script-CAF-not used but approval made"+chr(9)+"Worker completed denial for no interview in ELIG"+chr(9)+"Other(please describe)", case_status_dropdown
-  EditBox 55, 40, 215, 15, other_notes
-  EditBox 225, 60, 45, 15, interview_date
-  EditBox 225, 80, 45, 15, case_note_date
+  DropListBox 55, 25, 165, 15, "Select One:"+chr(9)+"Additional application pended prior to interview being completed"+chr(9)+"Case was not pended timely"+chr(9)+"Clear case note for other pending program pending not mentioned"+chr(9)+"Client completed application interview"+chr(9)+"Client has not completed application interview"+chr(9)+"Client has not completed F2F CASH application interview"+chr(9)+"Client contact was made no interview offered"+chr(9)+"Denied programs for no interview"+chr(9)+"Interview completed on NOMI day and NOMI was not cancelled"+chr(9)+"Interview not needed for MFIP to SNAP transition"+chr(9)+"Script-Application Received-not used when pending case"+chr(9)+"Script-CAF-used but no interview completed"+chr(9)+"Script-CAF-not used but approval made"+chr(9)+"Worker completed denial for no interview in ELIG"+chr(9)+"Other(please describe)", case_status_dropdown
+  EditBox 55, 40, 165, 15, other_notes
+  EditBox 170, 60, 50, 15, interview_date
+  EditBox 170, 80, 50, 15, case_note_date
+  CheckBox 5, 105, 85, 10, "Send Email Correction", correction_email_CHECKBOX
   ButtonGroup ButtonPressed
-    OkButton 175, 100, 45, 15
-    CancelButton 225, 100, 45, 15
+    OkButton 115, 100, 50, 15
+    CancelButton 170, 100, 50, 15
   Text 5, 10, 50, 10, "Case number:"
   Text 5, 30, 45, 10, "Case status:"
-  Text 55, 70, 165, 10, "Date NOMI sent or interview completed case note:"
+  Text 5, 65, 165, 10, "Date NOMI sent or interview completed case note:"
   Text 5, 45, 45, 10, "Other notes:"
-  Text 135, 85, 90, 10, "Date of appt or case note:"
+  Text 5, 85, 90, 10, "Date of appt or case note:"
+  CheckBox 140, 10, 80, 10, "Update STAT/PROG", prog_updated_CHECKBOX
 EndDialog
-
 
 'Runs the first dialog - which confirms the case number
 Do
@@ -89,7 +88,7 @@ Do
 		IF case_status_dropdown = "Client completed application interview" and case_note_date = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case note date."
 		IF case_status_dropdown = "Client completed application interview" and interview_date = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a valid interview date."
 		IF case_status_dropdown = "Client has not completed application interview" and interview_date = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a valid date that the NOMI was sent."
-		IF case_status_dropdown = "Other(please describe)" and issue_notes = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a description of what occured."
+		IF case_status_dropdown = "Other(please describe)" and other_notes = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a description of what occured."
       	IF IsNumeric(maxis_case_number) = false or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
 	Loop until err_msg = ""
