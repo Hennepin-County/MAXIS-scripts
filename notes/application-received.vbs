@@ -53,6 +53,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County
+call changelog_update("12/18/2020", "Temporarily removed in person option for how applications are received.", "MiKayla Handley, Hennepin County")
 call changelog_update("12/18/2020", "Update to make confirmation number mandatory for MN Benefit application.", "MiKayla Handley, Hennepin County")
 call changelog_update("11/15/2020", "Updated droplist to add virtual drop box option to how the application was received.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("10/13/2020", "Enhanced date evaluation functionality when which determining HEST standards to use.", "Ilse Ferris, Hennepin County")
@@ -377,7 +378,7 @@ END IF
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 306, 195, "Application Received for: "  & programs_applied_for &   " on "   & application_date
-  DropListBox 85, 10, 95, 15, "Select One:"+chr(9)+"Fax"+chr(9)+"Mystery Doc Queue"+chr(9)+"Office (In person)"+chr(9)+"Online"+chr(9)+"Request to APPL Form"+chr(9)+"Verbal Request (Phone)"+chr(9)+"Virtual Drop Box", how_app_rcvd
+  DropListBox 85, 10, 95, 15, "Select One:"+chr(9)+"Fax"+chr(9)+"Mystery Doc Queue"+chr(9)+"Online"+chr(9)+"Phone-Verbal Request"+chr(9)+"Request to APPL Form"+chr(9)+"Virtual Drop Box", how_app_rcvd
   DropListBox 85, 30, 95, 15, "Select One:"+chr(9)+"ApplyMN"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Populations"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer"+chr(9)+"MN Benefits"+chr(9)+"N/A"+chr(9)+"Verbal Request", app_type
   EditBox 250, 10, 45, 15, request_date
   EditBox 250, 30, 45, 15, confirmation_number
@@ -442,7 +443,7 @@ transfer_to_worker = Ucase(transfer_to_worker)
 pended_date = date
 
 IF app_type = "6696" or app_type = "HCAPP" or app_type = "HC-Certain Pop" or app_type = "LTC" or app_type = "MHCP B/C Cancer"  THEN HC_applied_for = TRUE
-
+If how_app_rcvd = "Phone-Verbal Request" THEN how_app_rcvd = replace(how_app_rcvd, "Phone-Verbal Request", "Phone")
 '--------------------------------------------------------------------------------initial case note
 start_a_blank_case_note
 IF how_app_rcvd = "Request to APPL Form" and METS_retro_checkbox = UNCHECKED and MA_transition_request_checkbox = UNCHECKED  THEN
@@ -462,7 +463,7 @@ IF how_app_rcvd = "Request to APPL Form" and MA_transition_request_checkbox = CH
     CALL write_variable_in_CASE_NOTE("* Request to APPL Form received on " & request_date & "")
     CALL write_variable_in_CASE_NOTE("* Emailed worker " & request_worker_number & " to let them know the request was processed.")
 END IF
-IF how_app_rcvd <> "Request to APPL Form" THEN CALL write_variable_in_CASE_NOTE ("~ Application Received (" & app_type & ") via " & how_app_rcvd & " on " & application_date & " ~")
+IF how_app_rcvd <> "Request to APPL Form" THEN CALL write_variable_in_CASE_NOTE ("~ Application Received " & app_type & " via " & how_app_rcvd & " on " & application_date & " ~")
 IF confirmation_number <> "" THEN CALL write_bullet_and_variable_in_CASE_NOTE ("Confirmation # ", confirmation_number)
 IF app_type = "6696" THEN write_variable_in_CASE_NOTE ("* Form Received: METS Application for Health Coverage and Help Paying Costs (DHS-6696) ")
 IF app_type = "HCAPP" THEN write_variable_in_CASE_NOTE ("* Form Received: Health Care Application (HCAPP) (DHS-3417) ")
