@@ -132,12 +132,9 @@ Do
 		       	TRANSMIT
 		       	EmReadscreen second_check, 8, row, 71
 		       	IF second_check <>  "Canceled"  THEN print_status "REVIEW"
+				IF second_check =  "Canceled"  THEN exit do
 		    ELSE
 		       	row = row + 1
-		    	EMWriteScreen "C", row, 13
-		       	TRANSMIT
-		       	EmReadscreen second_check, 8, row, 71
-		       	IF second_check <>  "Canceled"  THEN print_status = "NO NOTICES"
 		    END IF
 		Loop until row = 10
     	objExcel.Cells(excel_row,  7).Value = trim(print_status) 'notes or error reason
