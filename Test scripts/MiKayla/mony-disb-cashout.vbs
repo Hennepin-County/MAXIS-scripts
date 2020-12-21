@@ -180,9 +180,9 @@ DO
 						MsgBox really_look_for_error
 					END IF
 					error_reason = "transfer back to RG"
-                'ELSEIF worker_mail_preference = "IC" THEN
-				'		EMReadScreen updated_mony_disb_date, 8, 9, 40
-			    '		error_reason = "already updated " & replace(updated_mony_disb_date, " ", "/")
+                ELSEIF worker_mail_preference = "IC" THEN
+						EMReadScreen updated_mony_disb_date, 8, 9, 40
+			    		error_reason = "already updated " & replace(updated_mony_disb_date, " ", "/")
 				action_taken = "revert" THEN
 					   	EMReadscreen worker_mail_preference, 2, 9, 35
 				    	IF worker_mail_preference = "IC" THEN
@@ -219,12 +219,12 @@ DO
 					start_a_blank_CASE_NOTE
                     CALL write_variable_in_CASE_NOTE("MONY/DISB UPDATED " & MAXIS_footer_month &"/"& MAXIS_footer_year)
                     CALL write_variable_in_CASE_NOTE("To allow FS cash out cases to be issued PEBT benefits. These benefits will be issued by DHS in the form 'of a check and sent to a county office. The county office will then mail checks to the clients payee. After all PEBT benefits are issued, 'MONY/DISB will be changed back to regular mail. Clients do not need to pick up their benefit check, they should contact their payee for 'distribution.")
-	'			    CALL write_variable_in_CASE_NOTE("VIA BULK SCRIPT")
-    ' 	   	        PF3 'saving the case note
-    '     	        error_reason = "Case/note updated"
-	'			END IF
+				    CALL write_variable_in_CASE_NOTE("VIA BULK SCRIPT")
+     	   	        PF3 'saving the case note
+         	        error_reason = "Case/note updated"
+				END IF
 
-			    'IF error_reason = "Case/note updated" or revert_complete = TRUE THEN
+			    IF error_reason = "Case/note updated" or revert_complete = TRUE THEN
 			    	Call navigate_to_MAXIS_screen("SPEC", "WCOM")
 			    	MAXIS_row = 7
 			    	Do
@@ -237,7 +237,7 @@ DO
 			    			TRANSMIT
 			    			spec_wcom_canceled = FALSE & "NO DATE"
 			    		END IF
-			    		IF todays_date = "12/17/20" THEN 'if i use 12/16/20 it works but even getting it to recognize it is a date     failed'
+			    		IF todays_date = "12/17/20" THEN 'if i use 12/16/20 it works but even getting it to recognize it is a date failed
 			    			IF print_status = "Canceled" THEN spec_wcom_canceled = FALSE
 			    		  	IF print_status = "Waiting" THEN
 			    				If doc_description	= "SEND" THEN
@@ -252,25 +252,25 @@ DO
 			    			MAXIS_row = MAXIS_row + 1
 			    		END IF
 			    	Loop until MAXIS_row = 10
-				'END IF
-			'END IF
-		'END IF
-	'END IF
-'END IF
-	'amount_cashout = objExcel.cells(excel_row, 2).Value
-	'objExcel.Cells(excel_row,  3).Value = trim(case_active) 'true/false based on case status
-	'objExcel.Cells(excel_row,  4).Value = trim(update_case) 	'if case meets criteria to cashout
-	'objExcel.Cells(excel_row,  5).Value = trim(payment_method) 'payment method
-	'objExcel.Cells(excel_row,  6).Value = trim(error_reason) 'notes or error reason
+				END IF
+			END IF
+		END IF
+	END IF
+END IF
+	amount_cashout = objExcel.cells(excel_row, 2).Value
+	objExcel.Cells(excel_row,  3).Value = trim(case_active) 'true/false based on case status
+	objExcel.Cells(excel_row,  4).Value = trim(update_case) 	'if case meets criteria to cashout
+	objExcel.Cells(excel_row,  5).Value = trim(payment_method) 'payment method
+	objExcel.Cells(excel_row,  6).Value = trim(error_reason) 'notes or error reason
 	objExcel.Cells(excel_row,  7).Value = trim(spec_wcom_canceled) 'spec/wcom status
 	'objExcel.Cells(excel_row,  8).Value = trim(revert_complete) 'spec/wcom statusc
 	excel_row = excel_row + 1
 	STATS_counter = STATS_counter + 1
 	back_to_SELF
-	'error_reason = ""
-	'payment_method = ""
-	'update_case = ""
-	'case_active = ""
+	error_reason = ""
+	payment_method = ""
+	update_case = ""
+	case_active = ""
 	spec_wcom_canceled = ""
 LOOP UNTIL objExcel.Cells(excel_row, 1).Value = ""	'Loops until there are no more cases in the Excel list
 
