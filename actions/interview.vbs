@@ -61,7 +61,7 @@ BeginDialog Dialog1, 0, 0, 550, 385, "Dialog"
 EndDialog
 
 function read_and_format_from_MAXIS()
-end function 
+end function
 
 class mx_hh_member
 
@@ -224,6 +224,36 @@ class mx_hh_member
 	public coex_total_prosp_amount
 	public coex_total_hc_est_amount
 	public coex_change_in_financial_circumstances
+
+	public stwk_exists
+	public stwk_employer
+	public stwk_work_stop_date
+	public stwk_income_stop_date
+	public stwk_verification
+	public stwk_refused_employment
+	public stwk_vol_quit
+	public stwk_refused_employment_date
+	public stwk_cash_good_cause_yn
+	public stwk_grh_good_cause_yn
+	public stwk_snap_good_cause_yn
+	public stwk_snap_pwe
+	public stwk_ma_epd_extension
+	public stwk_summary
+
+	public fmed_exists
+	public fmed_miles
+	public fmed_rate
+	public fmed_milage_expense
+	public fmed_page()
+	public fmed_row()
+	public fmed_type()
+	public fmed_verif()
+	public fmed_ref()
+	public fmed_catgry()
+	public fmed_begin()
+	public fmed_end()
+	public fmed_expense()
+	public fmed_notes()
 
 	public checkbox_one
 	public checkbox_two
@@ -482,6 +512,32 @@ class mx_hh_member
 				If nationality = "OT" Then nationality = "OT - All Others"
 			End If
 
+			Call navigate_to_MAXIS_screen("STAT", "REMO")		'===============================================================================================
+			EMWriteScreen ref_number, 20, 76
+			transmit
+
+			EMreadScreen remo_version, 1, 2, 73
+			If remo_version = "0" Then remo_exists = FALSE
+			If remo_version = "1" Then remo_exists = TRUE
+
+			If remo_exists = TRUE Then
+				EMReadScreen left_hh_date
+				EMReadScreen left_hh_reason, 2,
+				EMReadScreen left_hh_expected_return_date, 8,
+				EMReadScreen left_hh_expected_return_verif, 2,
+				EMReadScreen left_hh_actual_return_date, 8,
+				EMReadScreen left_hh_HC_temp_out_of_state, 1,
+				EMReadScreen left_hh_date_reported, 8,
+
+
+
+				public left_hh_reason
+				public left_hh_expected_return_date
+				public left_hh_expected_return_verif
+				public left_hh_actual_return_date
+				public left_hh_HC_temp_out_of_state
+				public left_hh_date_reported
+			End If
 
 			Call navigate_to_MAXIS_screen("STAT", "COEX")		'===============================================================================================
 			EMWriteScreen ref_number, 20, 76
@@ -1097,6 +1153,130 @@ class mx_hh_member
 
 			End If
 
+			Call navigate_to_MAXIS_screen("STAT", "STWK")		'===============================================================================================
+			EMWriteScreen ref_number, 20, 76
+			transmit
+
+			EMreadScreen stwk_version, 1, 2, 73
+			If stwk_version = "0" Then stwk_exists = FALSE
+			If stwk_version = "1" Then stwk_exists = TRUE
+
+			If stwk_exists = TRUE Then
+				EMReadScreen stwk_employer, 30, 6, 46
+				EMReadScreen stwk_work_stop_date, 8, 7, 46
+				EMReadScreen stwk_income_stop_date, 8, 8, 46
+				EMReadScreen stwk_verification, 1, 7, 63
+				EMReadScreen stwk_refused_employment, 1, 8, 78
+				EMReadScreen stwk_vol_quit, 1, 10, 46
+				EMReadScreen stwk_refused_employment_date, 8, 10, 72
+				EMReadScreen stwk_cash_good_cause_yn, 1, 12, 52
+				EMReadScreen stwk_grh_good_cause_yn, 1, 12, 60
+				EMReadScreen stwk_snap_good_cause_yn, 1, 12, 67
+				EMReadScreen stwk_snap_pwe, 1, 14, 46
+				EMReadScreen stwk_ma_epd_extension, 1, 16, 46
+
+				stwk_employer = replace(stwk_employer, "_", "")
+				stwk_work_stop_date = replace(stwk_work_stop_date, " ", "/")
+				stwk_income_stop_date = replace(stwk_income_stop_date, " ", "/")
+				If stwk_verification = "1" Then stwk_verification = "Employers Statement"
+				If stwk_verification = "2" Then stwk_verification = "Seperation Notice"
+				If stwk_verification = "3" Then stwk_verification = "Colateral Statement"
+				If stwk_verification = "4" Then stwk_verification = "Other Document"
+				If stwk_verification = "N" Then stwk_verification = "No Verif Provided"
+				If stwk_verification = "_" Then stwk_verification = "Blank"
+				If stwk_verification = "?" Then stwk_verification = "Postponed Verif"
+				stwk_refused_employment_date = replace(stwk_refused_employment_date, " ", "/")
+				stwk_summary = "Work ended at " & stwk_employer & " on " & stwk_work_stop_date
+
+			End If
+
+			Call navigate_to_MAXIS_screen("STAT", "FMED")		'===============================================================================================
+			EMWriteScreen ref_number, 20, 76
+			transmit
+
+			EMreadScreen fmed_version, 1, 2, 73
+			If fmed_version = "0" Then fmed_exists = FALSE
+			If fmed_version = "1" Then fmed_exists = TRUE
+
+			If fmed_exists = TRUE Then
+				EMReadScreen fmed_miles, 4, 17, 34
+				EMReadScreen fmed_rate, 6, 17, 58
+				EMReadScreen fmed_milage_expense, 8, 17, 70
+
+				panel_row = 9
+				fmed_count = 0
+				scroll_page = 1
+				Do
+					EMReadScreen the_type, 2, panel_row, 25
+
+					If the_type <> "__" Then
+						' ReDim Preserve fmed_expense_array(fmed_count, fmed_notes)
+						ReDim Preserve fmed_page(fmed_count)
+						ReDim Preserve fmed_row(fmed_count)
+						ReDim Preserve fmed_type(fmed_count)
+						ReDim Preserve fmed_verif(fmed_count)
+						ReDim Preserve fmed_ref(fmed_count)
+						ReDim Preserve fmed_catgry(fmed_count)
+						ReDim Preserve fmed_begin(fmed_count)
+						ReDim Preserve fmed_end(fmed_count)
+						ReDim Preserve fmed_expense(fmed_count)
+						ReDim Preserve fmed_notes(fmed_count)
+
+						EMReadScreen the_ver, 2, panel_row, 32
+						EMReadScreen the_ref, 2, panel_row, 38
+						EMReadScreen the_cat, 1, panel_row, 44
+						EMReadScreen the_begin, 5, panel_row, 50
+						EMReadScreen the_end, 5, panel_row, 60
+						EMReadScreen the_amt, 8, panel_row, 70
+
+						fmed_page(fmed_count) = scroll_page
+						fmed_row(fmed_count) = panel_row
+
+						If the_type = "01" Then fmed_type(fmed_count) = "01 Nursing Home"
+						If the_type = "02" Then fmed_type(fmed_count) = "02 Hosp/Clinic"
+						If the_type = "03" Then fmed_type(fmed_count) = "03 Physicians"
+						If the_type = "04" Then fmed_type(fmed_count) = "04 Prescriptions"
+						If the_type = "05" Then fmed_type(fmed_count) = "05 Ins Premiums"
+						If the_type = "06" Then fmed_type(fmed_count) = "06 Dental"
+						If the_type = "07" Then fmed_type(fmed_count) = "07 Medical Trans/Flat Amount"
+						If the_type = "08" Then fmed_type(fmed_count) = "08 Vision Care"
+						If the_type = "09" Then fmed_type(fmed_count) = "09 Medicare Prem"
+						If the_type = "10" Then fmed_type(fmed_count) = "10 Mo Spdwn Amt/Waiver Oblig"
+						If the_type = "11" Then fmed_type(fmed_count) = "11 Home Care"
+						If the_type = "12" Then fmed_type(fmed_count) = "12 Medical Trans/Mileage Calc"
+						If the_type = "15" Then fmed_type(fmed_count) = "15 Medi Part D Premium"
+
+						If the_ver = "BI" Then fmed_verif(fmed_count) = "BI Billing Stmt"
+						If the_ver = "EB" Then fmed_verif(fmed_count) = "EB Expl Of Bnft (Medicare/Ins)"
+						If the_ver = "CL" Then fmed_verif(fmed_count) = "CL Client Stmt Med Trans Only"
+						If the_ver = "OS" Then fmed_verif(fmed_count) = "OS Pend Out State Verification"
+						If the_ver = "OT" Then fmed_verif(fmed_count) = "OT Other Document"
+						If the_ver = "NO" Then fmed_verif(fmed_count) = "NO No Ver Prvd"
+						If the_ver = "MX" Then fmed_verif(fmed_count) = "MX System Entered Ver By SSA"
+
+						fmed_ref(fmed_count) = the_ref
+
+						If the_cat = "1" Then fmed_catgry(fmed_count) = "1 HH Member"
+						If the_cat = "2" Then fmed_catgry(fmed_count) = "2 Former Aged/Disa HH Mbr In NF Or Hospital"
+						If the_cat = "3" Then fmed_catgry(fmed_count) = "3 Former Aged/Disa HH Decd"
+						If the_cat = "4" Then fmed_catgry(fmed_count) = "4 Other Eligible"
+
+						fmed_begin(fmed_count) = replace(the_begin, " ", "/")
+						fmed_end(fmed_count) = replace(the_end, " ", "/")
+						fmed_expense(fmed_count) = trim(the_amt)
+
+						panel_row = panel_row + 1
+						fmed_count = fmed_count + 1
+						If panel_row = 15 Then
+							pf20
+							scroll_page = scroll_page + 1
+							panel_row = 9
+							EMReadScreen end_of_list, 9, 24, 14
+							If end_of_list = "LAST PAGE" Then Exit Do
+						End If
+					End If
+				Loop until panel_type = "__"
+			End If
 
 		End If
 	end sub
@@ -1246,11 +1426,11 @@ class client_income
 	end sub
 
 	Public sub read_jobs_panel()
-
+		jobs_found = FALSE
 	end sub
 
 	Public sub read_busi_panel()
-
+		busi_found = FALSE
 	end sub
 
 	Public sub read_unea_panel()
@@ -1492,8 +1672,501 @@ class client_income
 
 	end sub
 
+end class
 
+class client_assets
 
+	public member_ref
+	public member_name
+	public member
+	public access_denied
+
+	public panel_name
+	public panel_instance
+
+	public asset_btn_one
+	public asset_type
+	public account_number
+	public asset_verification
+	public asset_update_date
+	public withdraw_yn
+	public withdraw_penalty
+	public withdraw_verif
+	public count_cash_yn
+	public count_snap_yn
+	public count_hc_yn
+	public count_grh_yn
+	public count_ive_yn
+	public joint_owners_yn
+	public share_ratio
+	public next_interest_date
+
+	public cash_value
+
+	public acct_location
+	public acct_balance
+	public acct_balance_date
+
+	public cars_year
+	public cars_make
+	public cars_model
+	public cars_trade_in_value
+	public cars_loan_value
+	public cars_value_source
+	public cars_amt_owed
+	public cars_owed_verification
+	public cars_owed_date
+	public cars_use
+	public cars_hc_benefit
+
+	public secu_name
+	public secu_cash_value
+	public secu_cash_value_date
+	public secu_face_value
+
+	public rest_market_value
+	public rest_value_verification
+	public rest_amount_owed
+	public rest_owed_verification
+	public rest_owed_date
+	public rest_property_status
+	public rest_ive_repayment_agreement_date
+
+	' function access_ACCT_panel(access_type, member_name,
+
+	' account_type,
+	' account_number,
+	' account_location,
+	' account_balance,
+	' account_verification,
+	' update_date, panel_ref_numb,
+	' balance_date,
+	' withdraw_penalty,
+	' withdraw_yn,
+	' withdraw_verif_code,
+	' count_cash,
+	' count_snap,
+	' count_hc,
+	' count_grh,
+	' count_ive,
+	' joint_own_yn,
+	' share_ratio,
+	' next_interest)
+
+	' function access_CARS_panel(access_type, member_name,
+
+	' cars_type,
+	' cars_year,
+	' cars_make,
+	' cars_model,
+	' cars_verif,
+	' update_date, panel_ref_numb,
+	' cars_trade_in,
+	' cars_loan,
+	' cars_source,
+	' cars_owed,
+	' cars_owed_verif_code,
+	' cars_owed_date,
+	' cars_use,
+	' cars_hc_benefit,
+	' cars_joint_yn,
+	' cars_share)
+
+	' function access_SECU_panel(access_type, member_name,
+
+	' security_type,
+	' security_account_number,
+	' security_name,
+	' security_cash_value,
+	' security_verif,
+	' secu_update_date,
+	' panel_ref_numb,
+	' security_face_value,
+	' security_withdraw,
+	' security_withdraw_yn,
+	' security_withdraw_verif,
+	' secu_cash_yn,
+	' secu_snap_yn,
+	' secu_hc_yn,
+	' secu_grh_yn,
+	' secu_ive_yn,
+	' secu_joint,
+	' secu_ratio,
+	' security_eff_date)
+
+	' function access_REST_panel(access_type, member_name,
+
+	' rest_type,
+	' rest_verif,
+	' rest_update_date,
+	' panel_ref_numb,
+	' rest_market_value,
+	' value_verif_code,
+	' rest_amt_owed,
+	' amt_owed_verif_code,
+	' rest_eff_date,
+	' rest_status,
+	' rest_joint_yn,
+	' rest_ratio,
+	' repymt_agree_date)
+
+	public sub read_member_name()
+		Call navigate_to_MAXIS_screen("STAT", "MEMB")
+		EMWriteScreen member_ref, 20, 76
+		transmit
+
+		EMReadScreen access_denied_check, 13, 24, 2         'Sometimes MEMB gets this access denied issue and we have to work around it.
+		If access_denied_check = "ACCESS DENIED" Then
+			PF10
+			last_name = "UNABLE TO FIND"
+			first_name = "Access Denied"
+			access_denied = TRUE
+		Else
+			access_denied = FALSE
+			EMReadscreen last_name, 25, 6, 30
+			EMReadscreen first_name, 12, 6, 63
+		End If
+		last_name = trim(replace(last_name, "_", ""))
+		first_name = trim(replace(first_name, "_", ""))
+
+		member_name = first_name & " " & last_name
+		member = member_ref & " - " & member_name
+		' MsgBox "~" & member & "~"
+	end sub
+
+	public sub read_cash_panel()
+		Call navigate_to_MAXIS_screen("STAT", "CASH")
+		EMWriteScreen member_ref, 20, 76
+		EMWriteScreen panel_instance, 20, 79
+		transmit
+
+		asset_type = "CASH"
+
+		EMReadScreen cash_value, 8, 8, 39
+		cash_value = trim(cash_value)
+
+	end sub
+
+	public sub read_acct_panel()
+
+		Call navigate_to_MAXIS_screen("STAT", "ACCT")
+		EMWriteScreen member_ref, 20, 76
+		EMWriteScreen panel_instance, 20, 79
+		transmit
+
+		EMReadScreen panel_type, 2, 6, 44
+		EMReadScreen panel_number, 20, 7, 44
+		EMReadScreen acct_location, 20, 8, 44
+		EMReadScreen panel_balance, 8, 10, 46
+		EMReadScreen panel_verif_code, 1, 10, 64
+		EMReadScreen balance_date, 8, 11, 44
+		EMReadScreen withdraw_penalty, 8, 12, 46
+		EMReadScreen withdraw_yn, 1, 12, 64
+		EMReadScreen withdraw_verif_code, 1, 12, 72
+		EMReadScreen count_cash, 1, 14, 50
+		EMReadScreen count_snap, 1, 14, 57
+		EMReadScreen count_hc, 1, 14, 64
+		EMReadScreen count_grh, 1, 14, 72
+		EMReadScreen count_ive, 1, 14, 80
+		EMReadScreen joint_own_yn, 1, 15, 44
+		EMReadScreen share_ratio, 5, 15, 76
+		EMReadScreen next_interest, 5, 17, 57
+		EMReadScreen update_date, 8, 21, 55
+
+		If panel_type = "SV" Then asset_type = "SV - Savings"
+		If panel_type = "CK" Then asset_type = "CK - Checking"
+		If panel_type = "CE" Then asset_type = "CE - Certificate of Deposit"
+		If panel_type = "MM" Then asset_type = "MM - Money Market"
+		If panel_type = "DC" Then asset_type = "DC - Debit Card"
+		If panel_type = "KO" Then asset_type = "KO - Keogh Account"
+		If panel_type = "FT" Then asset_type = "FT - Fed Thrift Savings Plan"
+		If panel_type = "SL" Then asset_type = "SL - State & Local Govt"
+		If panel_type = "RA" Then asset_type = "RA - Employee Ret Annuities"
+		If panel_type = "NP" Then asset_type = "NP - Non-Profit Emmployee Ret"
+		If panel_type = "IR" Then asset_type = "IR - Indiv Ret Acct"
+		If panel_type = "RH" Then asset_type = "RH - Roth IRA"
+		If panel_type = "FR" Then asset_type = "FR - Ret Plan for Employers"
+		If panel_type = "CT" Then asset_type = "CT - Corp Ret Trust"
+		If panel_type = "RT" Then asset_type = "RT - Other Ret Fund"
+		If panel_type = "QT" Then asset_type = "QT - Qualified Tuition (529)"
+		If panel_type = "CA" Then asset_type = "CA - Coverdell SV (530)"
+		If panel_type = "OE" Then asset_type = "OE - Other Educational"
+		If panel_type = "OT" Then asset_type = "OT - Other"
+
+		account_number = replace(panel_number, "_", "")
+		acct_location =  replace(acct_location, "_", "")
+		acct_balance = trim(panel_balance)
+
+		If panel_verif_code = "1"  Then asset_verification = "1 - Bank Statement"
+		If panel_verif_code = "2"  Then asset_verification = "2 - Agcy Ver Form"
+		If panel_verif_code = "3"  Then asset_verification = "3 - Coltrl Contact"
+		If panel_verif_code = "5"  Then asset_verification = "5 - Other Document"
+		If panel_verif_code = "6"  Then asset_verification = "6 - Personal Statement"
+		If panel_verif_code = "N"  Then asset_verification = "N - No Ver Prvd"
+
+		acct_balance_date = replace(balance_date, " ", "/")
+		If acct_balance_date = "__/__/__" Then acct_balance_date = ""
+
+		withdraw_penalty = replace(withdraw_penalty, "_", "")
+		withdraw_penalty = trim(withdraw_penalty)
+		withdraw_yn = replace(withdraw_yn, "_", "")
+		If withdraw_verif_code = "1"  Then withdraw_verif = "1 - Bank Statement"
+		If withdraw_verif_code = "2"  Then withdraw_verif = "2 - Agcy Ver Form"
+		If withdraw_verif_code = "3"  Then withdraw_verif = "3 - Coltrl Contact"
+		If withdraw_verif_code = "5"  Then withdraw_verif = "5 - Other Document"
+		If withdraw_verif_code = "6"  Then withdraw_verif = "6 - Personal Statement"
+		If withdraw_verif_code = "N"  Then withdraw_verif = "N - No Ver Prvd"
+
+		count_cash_yn = replace(count_cash, "_", "")
+		count_snap_yn = replace(count_snap, "_", "")
+		count_hc_yn = replace(count_hc, "_", "")
+		count_grh_yn = replace(count_grh, "_", "")
+		count_ive_yn = replace(count_ive, "_", "")
+
+		share_ratio = replace(share_ratio, " ", "")
+
+		next_interest_date = replace(next_interest, " ", "/")
+		If next_interest_date = "__/__" Then next_interest_date = ""
+
+		asset_update_date = replace(update_date, " ", "/")
+
+	end sub
+
+	public sub read_secu_panel()
+		Call navigate_to_MAXIS_screen("STAT", "SECU")
+		EMWriteScreen member_ref, 20, 76
+		EMWriteScreen panel_instance, 20, 79
+		transmit
+
+        EMReadScreen panel_type, 2, 6, 50
+        EMReadScreen security_account_number, 12, 7, 50
+        EMReadScreen security_name, 20, 8, 50
+        EMReadScreen security_cash_value, 8, 10, 52
+        EMReadScreen security_eff_date, 8, 11, 35   'not output
+        EMReadScreen verif_code, 1, 11, 50
+        EMReadScreen security_face_value, 8, 12, 52     'not output
+        EMReadScreen security_withdraw, 8, 13, 52       'not output
+        EMReadScreen security_withdraw_yn, 1, 13, 72    'not output
+        EMReadScreen security_withdraw_verif, 1, 13, 80 'not output
+
+        EMReadScreen secu_cash_yn, 1, 15, 50    'not output
+        EMReadScreen secu_snap_yn, 1, 15, 57    'not output
+        EMReadScreen secu_hc_yn, 1, 15, 64      'not output
+        EMReadScreen secu_grh_yn, 1, 15, 72     'not output
+        EMReadScreen secu_ive_yn, 1, 15, 80     'not output
+
+        EMReadScreen secu_joint, 1, 16, 44      'not output
+        EMReadScreen secu_ratio, 5, 16, 76      'not output
+        EMReadScreen secu_update_date, 8, 21, 55
+
+        If panel_type = "LI" Then asset_type = "LI - Life Insurance"
+        If panel_type = "ST" Then asset_type = "ST - Stocks"
+        If panel_type = "BO" Then asset_type = "BO - Bonds"
+        If panel_type = "CD" Then asset_type = "CD - Ctrct for Deed"
+        If panel_type = "MO" Then asset_type = "MO - Mortgage Note"
+        If panel_type = "AN" Then asset_type = "AN - Annuity"
+        If panel_type = "OT" Then asset_type = "OT - Other"
+
+        account_number = replace(security_account_number, "_", "")
+        secu_name = replace(security_name, "_", "")
+
+        secu_cash_value = replace(security_cash_value, "_", "")
+        secu_cash_value = trim(secu_cash_value)
+
+        secu_cash_value_date = replace(security_eff_date, " ", "/")
+        If secu_cash_value_date = "__/__/__" Then secu_cash_value_date = ""
+
+        If verif_code = "1" Then asset_verification = "1 - Agency Form"
+        If verif_code = "2" Then asset_verification = "2 - Source Doc"
+        If verif_code = "3" Then asset_verification = "3 - Phone Contact"
+        If verif_code = "5" Then asset_verification = "5 - Other Document"
+        If verif_code = "6" Then asset_verification = "6 - Personal Statement"
+        If verif_code = "N" Then asset_verification = "N - No Ver Prov"
+
+        secu_face_value = replace(security_face_value, "_", "")
+        secu_face_value = trim(secu_face_value)
+
+        withdraw_penalty = replace(security_withdraw, "_", "")
+        withdraw_penalty = trim(withdraw_penalty)
+
+        withdraw_yn = replace(security_withdraw_yn, "_", "")
+
+        If security_withdraw_verif = "1" Then withdraw_verif = "1 - Agency Form"
+        If security_withdraw_verif = "2" Then withdraw_verif = "2 - Source Doc"
+        If security_withdraw_verif = "3" Then withdraw_verif = "3 - Phone Contact"
+        If security_withdraw_verif = "4" Then withdraw_verif = "4 - Other Document"
+        If security_withdraw_verif = "5" Then withdraw_verif = "5 - Personal Stmt"
+        If security_withdraw_verif = "N" Then withdraw_verif = "N - No Ver Prov"
+
+        count_cash_yn = replace(secu_cash_yn, "_", "")
+        count_snap_yn = replace(secu_snap_yn, "_", "")
+        count_hc_yn = replace(secu_hc_yn, "_", "")
+        count_grh_yn = replace(secu_grh_yn, "_", "")
+        count_ive_yn = replace(secu_ive_yn, "_", "")
+
+        joint_owners_yn = replace(secu_joint, "_", "")
+        share_ratio = replace(secu_ratio, " ", "")
+
+        asset_update_date = replace(secu_update_date, " ", "/")
+
+	end sub
+
+	public sub read_cars_panel()
+		Call navigate_to_MAXIS_screen("STAT", "CARS")
+		EMWriteScreen member_ref, 20, 76
+		EMWriteScreen panel_instance, 20, 79
+		transmit
+
+		EMReadScreen cars_type, 1, 6, 43
+		EMReadScreen cars_year, 4, 8, 31
+		EMReadScreen cars_make, 15, 8, 43
+		EMReadScreen cars_model, 15, 8, 66
+		EMReadScreen cars_trade_in, 8, 9, 45            'not output
+		EMReadScreen cars_loan, 8, 9, 62                'not output
+		EMReadScreen cars_source, 1, 9, 80              'not output
+		EMReadScreen cars_verif_code, 1, 10, 60
+		EMReadScreen cars_owed, 8, 12, 45               'not output
+		EMReadScreen cars_owed_verif_code, 1, 12, 60    'not output
+		EMReadScreen cars_owed_date, 8, 13, 43          'not output
+		EMReadScreen cars_use, 1, 15, 43                'not output
+		EMReadScreen cars_hc_benefit, 1, 15, 76         'not output
+		EMReadScreen cars_joint_yn, 1, 16, 43           'not output
+		EMReadScreen cars_share, 5, 16, 76              'not output
+		EMReadScreen cars_update, 8, 21, 55
+
+		If cars_type = "1" Then asset_type = "1 - Car"
+		If cars_type = "2" Then asset_type = "2 - Truck"
+		If cars_type = "3" Then asset_type = "3 - Van"
+		If cars_type = "4" Then asset_type = "4 - Camper"
+		If cars_type = "5" Then asset_type = "5 - Motorcycle"
+		If cars_type = "6" Then asset_type = "6 - Trailer"
+		If cars_type = "7" Then asset_type = "7 - Other"
+
+		cars_make = replace(cars_make, "_", "")
+		cars_model = replace(cars_model, "_", "")
+
+		cars_trade_in_value = replace(cars_trade_in, "_", "")
+		cars_trade_in_value = trim(cars_trade_in_value)
+
+		cars_loan_value = replace(cars_loan, "_", "")
+		cars_loan_value = trim(cars_loan_value)
+
+		If cars_source = "1" Then cars_value_source = "1 - NADA"
+		If cars_source = "2" Then cars_value_source = "2 - Appraisal Val"
+		If cars_source = "3" Then cars_value_source = "3 - Client Stmt"
+		If cars_source = "4" Then cars_value_source = "4 - Other Document"
+
+		If cars_verif_code = "1" Then asset_verification = "1 - Title"
+		If cars_verif_code = "2" Then asset_verification = "2 - License Reg"
+		If cars_verif_code = "3" Then asset_verification = "3 - DMV"
+		If cars_verif_code = "4" Then asset_verification = "4 - Purchase Agmt"
+		If cars_verif_code = "5" Then asset_verification = "5 - Other Document"
+		If cars_verif_code = "N" Then asset_verification = "N - No Ver Prvd"
+
+		cars_amt_owed = replace(cars_owed, "_", "")
+		cars_amt_owed = trim(cars_amt_owed)
+
+		If cars_owed_verif_code = "1" Then cars_owed_verification = "1 - Bank/Lending Inst Stmt"
+		If cars_owed_verif_code = "2" Then cars_owed_verification = "2 - Private Lender Stmt"
+		If cars_owed_verif_code = "3" Then cars_owed_verification = "3 - Other Document"
+		If cars_owed_verif_code = "4" Then cars_owed_verification = "4 - Pend Out State Verif"
+		If cars_owed_verif_code = "N" Then cars_owed_verification = "N - No Ver Prvd"
+
+		cars_owed_date = replace(cars_owed_date, " ", "/")
+		If cars_owed_date = "__/__/__" Then cars_owed_date = ""
+
+		If cars_use = "1" Then cars_use = "1 - Primary Vehicle"
+		If cars_use = "2" Then cars_use = "2 - Employment/Training Search"
+		If cars_use = "3" Then cars_use = "3 - Disa Transportation"
+		If cars_use = "4" Then cars_use = "4 - Income Producing"
+		If cars_use = "5" Then cars_use = "5 - Used as Home"
+		If cars_use = "7" Then cars_use = "7 - Unlicensed"
+		If cars_use = "8" Then cars_use = "8 - Other Countable"
+		If cars_use = "9" Then cars_use = "9 - Unavailable"
+		If cars_use = "0" Then cars_use = "0 - Long Distance Employment Travel"
+		If cars_use = "A" Then cars_use = "A - Carry Heating Fuel or Water"
+
+		cars_hc_benefit = replace(cars_hc_benefit, "_", "")
+		joint_owners_yn = replace(cars_joint_yn, "_", "")
+		share_ratio = replace(cars_share, " ", "")
+
+		asset_update_date = replace(cars_update, " ", "/")
+
+	end sub
+
+	public sub read_rest_panel()
+		Call navigate_to_MAXIS_screen("STAT", "REST")
+		EMWriteScreen member_ref, 20, 76
+		EMWriteScreen panel_instance, 20, 79
+		transmit
+
+        EMReadScreen type_code, 1, 6, 39
+        EMReadScreen type_verif_code, 2, 6, 62
+        EMReadScreen rest_market_value, 10, 8, 41
+        EMReadScreen value_verif_code, 2, 8, 62
+        EMReadScreen rest_amt_owed, 10, 9, 41
+        EMReadScreen amt_owed_verif_code, 2, 9, 62
+        EMReadScreen rest_eff_date, 8, 10, 39
+        EMReadScreen rest_status, 1, 12, 54
+        EMReadScreen rest_joint_yn, 1, 13, 54
+        EMReadScreen rest_ratio, 5, 14, 54
+        EMReadScreen repymt_agree_date, 8, 16, 62
+        EMReadScreen rest_update_date, 8, 21, 55
+
+        If type_code = "1" Then asset_type = "1 - House"
+        If type_code = "2" Then asset_type = "2 - Land"
+        If type_code = "3" Then asset_type = "3 - Buildings"
+        If type_code = "4" Then asset_type = "4 - Mobile Home"
+        If type_code = "5" Then asset_type = "5 - Life Estate"
+        If type_code = "6" Then asset_type = "6 - Other"
+
+        If type_verif_code = "TX" Then asset_verification = "TX - Property Tax Statement"
+        If type_verif_code = "PU" Then asset_verification = "PU - Purchase Agreement"
+        If type_verif_code = "TI" Then asset_verification = "TI - Title/Deed"
+        If type_verif_code = "CD" Then asset_verification = "CD - Contract for Deed"
+        If type_verif_code = "CO" Then asset_verification = "CO - County Record"
+        If type_verif_code = "OT" Then asset_verification = "OT - Other Document"
+        If type_verif_code = "NO" Then asset_verification = "NO - No Ver Prvd"
+
+        rest_market_value = replace(rest_market_value, "_", "")
+        rest_market_value = trim(rest_market_value)
+
+        If value_verif_code = "TX" Then rest_value_verification = "TX - Property Tax Statement"
+        If value_verif_code = "PU" Then rest_value_verification = "PU - Purchase Agreement"
+        If value_verif_code = "AP" Then rest_value_verification = "AP - Appraisal"
+        If value_verif_code = "CO" Then rest_value_verification = "CO - County Record"
+        If value_verif_code = "OT" Then rest_value_verification = "OT - Other Document"
+        If value_verif_code = "NO" Then rest_value_verification = "NO - No Ver Prvd"
+
+        rest_amount_owed = replace(rest_amt_owed, "_", "")
+        rest_amount_owed = trim(rest_amount_owed)
+
+        If amt_owed_verif_code = "MO" Then rest_owed_verification = "TI - Title/Deed"
+        If amt_owed_verif_code = "LN" Then rest_owed_verification = "CD - Contract for Deed"
+        If amt_owed_verif_code = "CD" Then rest_owed_verification = "CD - Contract for Deed"
+        If amt_owed_verif_code = "OT" Then rest_owed_verification = "OT - Other Document"
+        If amt_owed_verif_code = "NO" Then rest_owed_verification = "NO - No Ver Prvd"
+
+        rest_owed_date = replace(rest_eff_date, " ", "/")
+        If rest_owed_date = "__/__/__" Then rest_owed_date = ""
+
+        If rest_status = "1" Then rest_property_status = "1 - Home Residence"
+        If rest_status = "2" Then rest_property_status = "2 - For Sale, IV-E Rpymt Agmt"
+        If rest_status = "3" Then rest_property_status = "3 - Joint Owner, Unavailable"
+        If rest_status = "4" Then rest_property_status = "4 - Income Producing"
+        If rest_status = "5" Then rest_property_status = "5 - Future Residence"
+        If rest_status = "6" Then rest_property_status = "6 - Other"
+        If rest_status = "7" Then rest_property_status = "7 - For Sale, Unavailable"
+
+        joint_owners_yn = replace(rest_joint_yn, "_", "")
+        share_ratio = replace(rest_ratio, "_", "")
+
+        rest_ive_repayment_agreement_date = replace(repymt_agree_date, " ", "/")
+        If rest_ive_repayment_agreement_date = "__/__/__" Then rest_ive_repayment_agreement_date = ""
+
+        asset_update_date = replace(rest_update_date, " ", "/")
+
+	end sub
 
 end class
 
@@ -1567,7 +2240,21 @@ tribal_count = 0
 cs_count = 0
 ss_count = 0
 other_UNEA_count = 0
+cash_count = 0
+acct_count = 0
+secu_count = 0
+cars_count = 0
+rest_count = 0
 memb_to_match = ""
+inst_to_match = ""
+unea_found = FALSE
+jobs_found = FALSE
+busi_found = FALSE
+cash_found = FALSE
+acct_found = FALSE
+secu_found = FALSE
+cars_found = FALSE
+rest_found = FALSE
 
 'Button Definitions
 caf_page_one_btn	= 1000
@@ -1613,6 +2300,7 @@ add_ged_ell_student						= 2013
 add_another_absent_pers_btn				= 2014
 new_disa_btn							= 2015
 add_unable_tp_work_memb_btn				= 2016
+next_stwk_btn							= 2017
 
 rsdi_btn 	= 3000
 ssi_btn		= 3001
@@ -1625,6 +2313,12 @@ cs_btn		= 3007
 ss_btn		= 3008
 other_btn	= 3009
 main_btn	= 3010
+cash_btn	= 3011
+acct_btn	= 3012
+secu_btn	= 3013
+cars_btn	= 3014
+rest_btn	= 3015
+main_asset_btn	= 3016
 
 'PRESETS FOR QUESTIONS COMPLETIONS
 done_pg_one 	= FALSE
@@ -1688,6 +2382,11 @@ cs_unea		= 8
 ss_unea		= 9
 other_unea	= 10
 main_unea	= 11
+cash_asset	= 12
+acct_asset	= 13
+secu_asset	= 14
+cars_asset	= 15
+main_asset	= 16
 
 
 
@@ -1695,10 +2394,18 @@ function dialog_movement()
 	For i = 0 to Ubound(HH_MEMB_ARRAY, 1)
 		' MsgBox HH_MEMB_ARRAY(i).button_one
 		If ButtonPressed = HH_MEMB_ARRAY(i).button_one Then
-			' MsgBox "selected"
 			If page_display = show_pg_memb_info Then memb_selected = i
 			If page_display = show_q_12 Then memb_to_match = HH_MEMB_ARRAY(i).ref_number
+			If page_display = show_q_7 Then stwk_selected = i
+			If page_display = show_q_19 Then fmed_selected = i
 			' If second_page_display = ssi_unea Then memb_to_match = HH_MEMB_ARRAY(i).ref_number
+		End If
+	Next
+	For i = 0 to Ubound(ASSET_ARRAY, 1)
+		' MsgBox HH_MEMB_ARRAY(i).button_one
+		If ButtonPressed = ASSET_ARRAY(i).asset_btn_one Then
+			memb_to_match = ASSET_ARRAY(i).member_ref
+			inst_to_match = ASSET_ARRAY(i).panel_instance
 		End If
 	Next
 	' MsgBox ButtonPressed
@@ -1706,6 +2413,22 @@ function dialog_movement()
 	If ButtonPressed = next_memb_btn Then
 		memb_selected = memb_selected + 1
 		If memb_selected > UBound(HH_MEMB_ARRAY, 1) Then ButtonPressed = next_btn
+	End If
+	If ButtonPressed = next_stwk_btn Then
+		stwk_selected = stwk_selected + 1
+		Do
+			If HH_MEMB_ARRAY(stwk_selected).stwk_exists = FALSE Then stwk_selected = stwk_selected + 1
+			If stwk_selected > UBound(HH_MEMB_ARRAY, 1) Then Exit Do
+		Loop Until  HH_MEMB_ARRAY(stwk_selected).stwk_exists = TRUE
+		If stwk_selected > UBound(HH_MEMB_ARRAY, 1) Then ButtonPressed = next_btn
+	End If
+	If ButtonPressed = next_fmed_btn Then
+		fmed_selected = fmed_selected + 1
+		Do
+			If HH_MEMB_ARRAY(fmed_selected).fmed_exists = FALSE Then fmed_selected = fmed_selected + 1
+			If fmed_selected > UBound(HH_MEMB_ARRAY, 1) Then Exit Do
+		Loop Until  HH_MEMB_ARRAY(fmed_selected).fmed_exists = TRUE
+		If fmed_selected > UBound(HH_MEMB_ARRAY, 1) Then ButtonPressed = next_btn
 	End If
 	If ButtonPressed = -1 Then ButtonPressed = next_btn
 	If ButtonPressed = next_btn Then
@@ -1739,7 +2462,14 @@ function dialog_movement()
 		If page_display = show_q_14_15 Then ButtonPressed = caf_q_16_17_18_btn
 		If page_display = show_q_16_18 Then ButtonPressed = caf_q_19_btn
 		If page_display = show_q_19 Then ButtonPressed = caf_q_20_21_btn
-		If page_display = show_q_20_21 Then ButtonPressed = caf_q_22_btn
+		If page_display = show_q_20_21 Then
+			If second_page_display = main_asset Then ButtonPressed = cash_btn
+			If second_page_display = cash_asset Then ButtonPressed = acct_btn
+			If second_page_display = acct_asset Then ButtonPressed = secu_btn
+			If second_page_display = secu_asset Then ButtonPressed = cars_btn
+			If second_page_display = cars_asset Then ButtonPressed = rest_btn
+			If second_page_display = rest_asset Then ButtonPressed = caf_q_22_btn
+		End If
 		If page_display = show_q_22 Then ButtonPressed = caf_q_23_btn
 		If page_display = show_q_23 Then ButtonPressed = caf_q_24_btn
 		If page_display = show_q_24 Then ButtonPressed = caf_qual_q_btn
@@ -1819,7 +2549,14 @@ function dialog_movement()
 	End If
 	If ButtonPressed = caf_q_20_21_btn Then
 		page_display = show_q_20_21
+		second_page_display = main_asset
 	End If
+	If ButtonPressed = cash_btn		Then second_page_display = cash_asset
+	If ButtonPressed = acct_btn		Then second_page_display = acct_asset
+	If ButtonPressed = secu_btn		Then second_page_display = secu_asset
+	If ButtonPressed = cars_btn		Then second_page_display = cars_asset
+	If ButtonPressed = rest_btn		Then second_page_display = rest_asset
+	If ButtonPressed = main_asset_btn		Then second_page_display = main_asset
 	If ButtonPressed = caf_q_22_btn Then
 		page_display = show_q_22
 	End If
@@ -1835,16 +2572,32 @@ function dialog_movement()
 	If ButtonPressed = caf_last_page_btn Then
 		page_display = show_pg_last
 	End If
+	If ButtonPressed = finish_interview_btn then leave_loop = TRUE
 
 	If page_display <> show_pg_memb_info Then memb_selected = ""
+	If page_display <> show_q_7 Then stwk_selected = ""
+	If page_display <> show_q_12 AND page_display <> show_q_20_21 Then memb_to_match = ""
+	If page_display <> show_q_19 Then fmed_selected = ""
+
+	If page_display <> show_q_20_21 Then inst_to_match = ""
+
 end function
 
 function define_main_dialog()
 
+' BeginDialog Dialog1, 0, 0, 550, 385, "Full Interview Questions"
+'   ButtonGroup ButtonPressed
+'     PushButton 415, 365, 50, 15, "NEXT", next_btn
+'     PushButton 465, 365, 80, 15, "Complete Interview", finish_interview_btn
+'     PushButton 485, 10, 60, 15, "CAF Page 1", caf_page_one_btn
+'     PushButton 485, 135, 60, 15, "CAF Page 1", Button27
+'   Text 495, 265, 60, 15, "Q. 20 and 21"
+' EndDialog
+
 	BeginDialog Dialog1, 0, 0, 550, 385, "Full Interview Questions"
 
 	  ButtonGroup ButtonPressed
-		If page_display = show_pg_one Then
+		If page_display = show_pg_one Then										'THIS IS THE INFORMATION FOR PAGE  ----------------------------------------------------------------------------------------------------------------------------------
 			Text 495, 12, 60, 13, "CAF Page 1"
 
 			GroupBox 180, 5, 300, 260, "Client Conversation"
@@ -1914,7 +2667,7 @@ function define_main_dialog()
 			Text 20, 360, 125, 10, "^^8 - Ask: What is your living situation?"
 			DropListBox 150, 355, 200, 15, "Select One..."+chr(9)+"Own Housing(lease, mortgage, or roomate)"+chr(9)+"Family/Friends due to economic hardship"+chr(9)+"Servc prvdr- foster/group home"+chr(9)+"Hospital/Treatment/Detox/Nursing Home"+chr(9)+"Jail/Prison//Juvenile Det."+chr(9)+"Hotel/Motel"+chr(9)+"Emergency Shelter"+chr(9)+"Place not meant for Housing"+chr(9)+"Declined"+chr(9)+"Unknown", clt_response_living_sit
 		End If
-		If page_display = show_pg_memb_list Then
+		If page_display = show_pg_memb_list Then										'THIS IS THE INFORMATION FOR PAGE  ----------------------------------------------------------------------------------------------------------------------------------
 			Text 495, 27, 60, 13, "CAF MEMBs"
 
 			' Text 15, 15, 450, 10, "THE QUESTION GOES HERE"
@@ -1964,7 +2717,7 @@ function define_main_dialog()
 			Text 20, 8, 80, 15, "List of HH Members"
 			PushButton 95, 5, 125, 15, "Review HH Member Information", HH_memb_detail_review
 		End If
-		If page_display = show_pg_memb_info Then
+		If page_display = show_pg_memb_info Then										'THIS IS THE INFORMATION FOR PAGE  ----------------------------------------------------------------------------------------------------------------------------------
 			Text 495, 27, 60, 13, "CAF MEMBs"
 
 			Text 15, 23, 460, 10, "^^1 - Review the personal information/detail for each household member on this case with the client. Review and add ALL household relationships."
@@ -2055,7 +2808,7 @@ function define_main_dialog()
 			PushButton 10, 5, 80, 15, "List of HH Members", hh_list_btn
 
 		End If
-		If page_display = show_q_1_2 Then
+		If page_display = show_q_1_2 Then										'THIS IS THE INFORMATION FOR PAGE  ----------------------------------------------------------------------------------------------------------------------------------
 			Text 500, 42, 60, 13, "Q. 1 and 2"
 
 			Text 5, 10, 330, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q1 and Q2 into the 'Answer on the CAF' field."
@@ -2114,7 +2867,7 @@ function define_main_dialog()
 
 
 		End If
-		If page_display = show_q_3 Then
+		If page_display = show_q_3 Then										'THIS IS THE INFORMATION FOR PAGE  ----------------------------------------------------------------------------------------------------------------------------------
 			Text 508, 57, 60, 13, "Q. 3"
 
 			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q3 into the 'Answer on the CAF' field."
@@ -2203,7 +2956,7 @@ function define_main_dialog()
 
 
 		End If
-		If page_display = show_q_4 Then
+		If page_display = show_q_4 Then										'THIS IS THE INFORMATION FOR PAGE  ----------------------------------------------------------------------------------------------------------------------------------
 			Text 508, 72, 60, 13, "Q. 4"
 
 			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q4 into the 'Answer on the CAF' field."
@@ -2233,7 +2986,7 @@ function define_main_dialog()
 			y_pos = y_pos + 15
 		    Text 20, y_pos, 455, 65, "ENTER TEMP ABSENCE POLICY HERE"
 		End If
-		If page_display = show_q_5 Then
+		If page_display = show_q_5 Then										'THIS IS THE INFORMATION FOR PAGE  ----------------------------------------------------------------------------------------------------------------------------------
 			Text 508, 87, 60, 13, "Q. 5"
 
 			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
@@ -2282,7 +3035,7 @@ function define_main_dialog()
 		    PushButton 345, y_pos, 130, 13, "Add New DISA for a Known Member", new_disa_btn
 
 		End If
-		If page_display = show_q_6 Then
+		If page_display = show_q_6 Then										'THIS IS THE INFORMATION FOR PAGE  ----------------------------------------------------------------------------------------------------------------------------------
 			Text 508, 102, 60, 13, "Q. 6"
 
 			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q6 into the 'Answer on the CAF' field."
@@ -2320,7 +3073,7 @@ function define_main_dialog()
 			PushButton 365, y_pos, 110, 10, "Add MEMBER Unable to Work", add_unable_tp_work_memb_btn
 
 		End If
-		If page_display = show_q_7 Then
+		If page_display = show_q_7 Then										'THIS IS THE INFORMATION FOR PAGE  ----------------------------------------------------------------------------------------------------------------------------------
 			Text 508, 117, 60, 13, "Q. 7"
 
 			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
@@ -2331,8 +3084,46 @@ function define_main_dialog()
 			Text 40, 50, 280, 10, "'Is anyone in the household disabled or have a physical or mental health condition?"
 			Text 40, 70, 70, 10, "Confirm CAF Answer"
 			ComboBox 110, 65, 365, 45, "", q7_confirm_caf_answer
+			Text 5, 90, 315, 10, "^^3 - CONFIRM - Review details of known STWK or add details if not currently known."
+
+			grp_len = 180
+
+			If case_has_stwk_panel = FALSE Then
+				GroupBox 50, 105, 425, 24, "STWK on CASE " & MAXIS_case_number
+				Text 75, 115, 250, 10, "NO STWK PANELS OR OTHER STWK DETAILS ON THIS CASE"
+			Else
+				GroupBox 50, 105, 425, grp_len, "STWK for " & HH_MEMB_ARRAY(stwk_selected).full_name
+				Text 75, 125, 165, 10, "Employer: " & HH_MEMB_ARRAY(stwk_selected).stwk_employer
+				Text 75, 140, 165, 10, "Work Stop Date: " & HH_MEMB_ARRAY(stwk_selected).stwk_work_stop_date
+				Text 275, 140, 165, 10, "Verif: " & HH_MEMB_ARRAY(stwk_selected).stwk_verification
+				Text 75, 155, 165, 10, "Income Stop Date: " & HH_MEMB_ARRAY(stwk_selected).stwk_income_stop_date
+				Text 275, 155, 165, 10, "Refused Empl: " & HH_MEMB_ARRAY(stwk_selected).stwk_refused_employment
+				Text 75, 180, 165, 10, "Voluntary Quit: " & HH_MEMB_ARRAY(stwk_selected).stwk_vol_quit
+				Text 275, 180, 165, 10, "Refused Empl Date: " & HH_MEMB_ARRAY(stwk_selected).stwk_refused_employment_date
+				Text 75, 205, 165, 10, "Good Cause: Cash: " & HH_MEMB_ARRAY(stwk_selected).stwk_cash_good_cause_yn & "   GRH: " & HH_MEMB_ARRAY(stwk_selected).stwk_grh_good_cause_yn & "   GRH: " & HH_MEMB_ARRAY(stwk_selected).stwk_snap_good_cause_yn
+				Text 75, 230, 165, 10, "FS PWE: " & HH_MEMB_ARRAY(stwk_selected).stwk_snap_pwe
+				Text 75, 255, 165, 10, "MA-EPD Extension: " & HH_MEMB_ARRAY(stwk_selected).stwk_ma_epd_extension
+
+				PushButton 55, 270, 125, 10, "Update STWK Information", stwk_info_change
+				PushButton 410, 270, 60, 10, "NEXT MEMB", next_stwk_btn
+
+				btn_pos = 110
+				For i = 0 to Ubound(HH_MEMB_ARRAY, 1)
+					If i = stwk_selected Then
+						Text 9, btn_pos+1, 40, 10, "MEMB " & HH_MEMB_ARRAY(i).ref_number
+					ElseIf HH_MEMB_ARRAY(i).stwk_exists = TRUE Then
+						PushButton 5, btn_pos, 40, 10, "MEMB " & HH_MEMB_ARRAY(i).ref_number, HH_MEMB_ARRAY(i).button_one
+					End If
+					btn_pos = btn_pos + 10
+				Next
+				btn_pos = btn_pos + 20
+			End If
+
+			PushButton 5, 290, 150, 10, "ADD STWK FOR ANOTHER MEMBER", add_new_stwk_btn
+
+
 		End If
-		If page_display = show_q_8 Then
+		If page_display = show_q_8 Then										'THIS IS THE INFORMATION FOR PAGE  ----------------------------------------------------------------------------------------------------------------------------------
 			Text 508, 132, 60, 13, "Q. 8"
 
 			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
@@ -2345,18 +3136,18 @@ function define_main_dialog()
 			ComboBox 110, 65, 365, 45, "", q8_confirm_caf_answer
 
 
-			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
-			Text 20, 25, 335, 20, "Q. 8a. FOR SNAP ONLY: Has anyone in the household had a job or been self-employed in the past 36 months?"
-			Text 370, 30, 65, 10, "Answer on the CAF"
-			DropListBox 435, 25, 40, 45, caf_answer_droplist, q8a_caf_answer
-			Text 5, 50, 35, 10, "^^2 - ASK - "
-			Text 40, 50, 280, 10, "'Is anyone in the household disabled or have a physical or mental health condition?"
-			Text 40, 70, 70, 10, "Confirm CAF Answer"
-			ComboBox 110, 65, 365, 45, "", q8a_confirm_caf_answer
+			Text 5, 90, 305, 10, "^^3 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
+			Text 20, 105, 335, 20, "Q. 8a. FOR SNAP ONLY: Has anyone in the household had a job or been self-employed in the past 36 months?"
+			Text 370, 110, 65, 10, "Answer on the CAF"
+			DropListBox 435, 108, 40, 45, caf_answer_droplist, q8a_caf_answer
+			Text 5, 130, 35, 10, "^^4 - ASK - "
+			Text 40, 130, 280, 10, "'Is anyone in the household disabled or have a physical or mental health condition?"
+			Text 40, 150, 70, 10, "Confirm CAF Answer"
+			ComboBox 110, 145, 365, 45, "", q8a_confirm_caf_answer
 
 
 		End If
-		If page_display = show_q_9 Then
+		If page_display = show_q_9 Then										'THIS IS THE INFORMATION FOR PAGE  ----------------------------------------------------------------------------------------------------------------------------------
 			Text 508, 147, 60, 13, "Q. 9"
 
 			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
@@ -2369,7 +3160,7 @@ function define_main_dialog()
 			ComboBox 110, 65, 365, 45, "", q9_confirm_caf_answer
 
 		End If
-		If page_display = show_q_10 Then
+		If page_display = show_q_10 Then										'THIS IS THE INFORMATION FOR PAGE  ----------------------------------------------------------------------------------------------------------------------------------
 			Text 507, 162, 60, 13, "Q. 10"
 
 			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
@@ -2382,7 +3173,7 @@ function define_main_dialog()
 			ComboBox 110, 65, 365, 45, "", q10_confirm_caf_answer
 
 		End If
-		If page_display = show_q_11 Then
+		If page_display = show_q_11 Then										'THIS IS THE INFORMATION FOR PAGE  ----------------------------------------------------------------------------------------------------------------------------------
 			Text 507, 177, 60, 13, "Q. 11"
 
 			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
@@ -2396,7 +3187,7 @@ function define_main_dialog()
 
 
 		End If
-		If page_display = show_q_12 Then
+		If page_display = show_q_12 Then										'THIS IS THE INFORMATION FOR PAGE  ----------------------------------------------------------------------------------------------------------------------------------
 			' MsgBox second_page_display
 			Text 507, 192, 60, 13, "Q. 12"
 
@@ -2438,31 +3229,60 @@ function define_main_dialog()
 		    Text 155, 90, 5, 10, "$"
 		    EditBox 165, 85, 40, 15, other_unea_caf_amt
 
+			rsdi_count = 0
+			ssi_count = 0
+			va_count = 0
+			ui_count = 0
+			wc_count = 0
+			retirement_count = 0
+			tribal_count = 0
+			cs_count = 0
+			ss_count = 0
+			other_UNEA_count = 0
+			If unea_found = TRUE Then
+				for i = start_count to stop_count
+					' MsgBox "HERE"
+					INCOME_ARRAY(i).read_member_name
+					INCOME_ARRAY(i).read_unea_panel
+
+					If INCOME_ARRAY(i).income_type_code = "01" OR INCOME_ARRAY(i).income_type_code = "02" Then rsdi_count = rsdi_count + 1
+					If INCOME_ARRAY(i).income_type_code = "03" Then ssi_count = ssi_count + 1
+					If INCOME_ARRAY(i).income_type_code = "15" Then wc_count = wc_count + 1
+					If INCOME_ARRAY(i).income_type_code = "14" Then ui_count = ui_count + 1
+					If INCOME_ARRAY(i).income_type_code = "11" OR INCOME_ARRAY(i).income_type_code = "12" OR INCOME_ARRAY(i).income_type_code = "13" OR INCOME_ARRAY(i).income_type_code = "38" Then va_count = va_count + 1
+					If INCOME_ARRAY(i).income_type_code = "16" OR INCOME_ARRAY(i).income_type_code = "17" Then retirement_count = retirement_count + 1
+					If INCOME_ARRAY(i).income_type_code = "46" OR INCOME_ARRAY(i).income_type_code = "47" Then tribal_count = tribal_count + 1
+					If INCOME_ARRAY(i).income_type_code = "08" OR INCOME_ARRAY(i).income_type_code = "36" OR INCOME_ARRAY(i).income_type_code = "39" OR INCOME_ARRAY(i).income_type_code = "43" OR INCOME_ARRAY(i).income_type_code = "45" Then cs_count = cs_count + 1
+					If INCOME_ARRAY(i).income_type_code = "35" OR INCOME_ARRAY(i).income_type_code = "37" OR INCOME_ARRAY(i).income_type_code = "40" Then ss_count = ss_count + 1
+					If INCOME_ARRAY(i).income_type_code = "06" OR INCOME_ARRAY(i).income_type_code = "18" OR INCOME_ARRAY(i).income_type_code = "19" OR INCOME_ARRAY(i).income_type_code = "20" OR INCOME_ARRAY(i).income_type_code = "21" OR INCOME_ARRAY(i).income_type_code = "22" OR INCOME_ARRAY(i).income_type_code = "23" OR INCOME_ARRAY(i).income_type_code = "24" OR INCOME_ARRAY(i).income_type_code = "25" OR INCOME_ARRAY(i).income_type_code = "26" OR INCOME_ARRAY(i).income_type_code = "27" OR INCOME_ARRAY(i).income_type_code = "28" OR INCOME_ARRAY(i).income_type_code = "29" OR INCOME_ARRAY(i).income_type_code = "30" OR INCOME_ARRAY(i).income_type_code = "31" OR INCOME_ARRAY(i).income_type_code = "44" OR INCOME_ARRAY(i).income_type_code = "48" OR INCOME_ARRAY(i).income_type_code = "49" Then other_UNEA_count = other_UNEA_count + 1
+				next
+			End If
+
 			' Text 25, 100, 400, 20, "Use the Buttons below to ask about details for each type of unearned income. The numbers on the buttons indicate how many panels of each type of income is known."
 
 			If second_page_display = main_unea Then
 				Text 5, 115, 35, 10, "^^2 - ASK - "
 			    Text 40, 115, 280, 10, "'Has anyone in the household applied for or receive any ..."
 				Text 100, 135, 75, 10, "RSDI - Social Security"
-			    DropListBox 200, 135, 180, 45, "", rsdi_confirm_response
+			    DropListBox 200, 130, 180, 45, "", rsdi_confirm_response
 			    Text 100, 155, 70, 10, "SSI - Social Security"
-			    DropListBox 200, 155, 180, 45, "", ssi_confirm_response
+			    DropListBox 200, 150, 180, 45, "", ssi_confirm_response
 			    Text 100, 175, 70, 10, "Veteran Benefits (VA)"
-			    DropListBox 200, 175, 180, 45, "", va_confirm_response
+			    DropListBox 200, 170, 180, 45, "", va_confirm_response
 			    Text 100, 195, 65, 10, "Unemployment (UI)"
-			    DropListBox 200, 195, 180, 45, "", ui_confirm_response
+			    DropListBox 200, 190, 180, 45, "", ui_confirm_response
 			    Text 100, 215, 100, 10, "Workers' Compensation (WC)"
-			    DropListBox 200, 215, 180, 45, "", wc_confirm_response
+			    DropListBox 200, 210, 180, 45, "", wc_confirm_response
 			    Text 100, 235, 70, 10, "Retirement Benefits"
-			    DropListBox 200, 235, 180, 45, "", ret_confirm_response
+			    DropListBox 200, 230, 180, 45, "", ret_confirm_response
 			    Text 100, 255, 55, 10, "Tribal Payments"
-			    DropListBox 200, 255, 180, 45, "", tribal_confirm_response
+			    DropListBox 200, 250, 180, 45, "", tribal_confirm_response
 			    Text 100, 275, 45, 10, "Child Support"
-			    DropListBox 200, 275, 180, 45, "", cs_confirm_response
+			    DropListBox 200, 270, 180, 45, "", cs_confirm_response
 			    Text 100, 295, 55, 10, "Spousal Support"
-			    DropListBox 200, 295, 180, 45, "", ss_confirm_response
+			    DropListBox 200, 290, 180, 45, "", ss_confirm_response
 			    Text 100, 315, 45, 10, "Other UNEA"
-			    DropListBox 200, 315, 180, 45, "", other_unea_confirm_response
+			    DropListBox 200, 310, 180, 45, "", other_unea_confirm_response
 
 				Text 48, 332, 70, 15, "Main"
 			End If
@@ -2577,7 +3397,7 @@ function define_main_dialog()
 					End If
 				next
 				If ssi_count = 0 Then
-					Text 110, 140, 355, 20, "There are no RSDI panels known in MAXIS and no additional RSDI Income information has been added."
+					Text 110, 140, 355, 20, "There are no SSI panels known in MAXIS and no additional SSI Income information has been added."
 				End If
 				PushButton 385, 347, 95, 13, "Add SSI Information", add_another_ssi_unea_btn
 
@@ -3118,10 +3938,10 @@ function define_main_dialog()
 '   Text 5, 10, 195, 10, "^^1 - Enter the answers listed on the actual CAF from Q12"
 '   ButtonGroup ButtonPressed
 '     PushButton 20, 170, 70, 15, "VA", va_btn
-    ' PushButton 485, 10, 60, 15, "CAF Page 1", caf_page_one_btn
-    ' PushButton 485, 135, 60, 15, "CAF Page 1", Button27
-    ' PushButton 415, 365, 50, 15, "NEXT", next_btn
-    ' PushButton 465, 365, 80, 15, "Complete Interview", finish_interview_btn
+'     PushButton 485, 10, 60, 15, "CAF Page 1", caf_page_one_btn
+'     PushButton 485, 135, 60, 15, "CAF Page 1", Button27
+'     PushButton 415, 365, 50, 15, "NEXT", next_btn
+'     PushButton 465, 365, 80, 15, "Complete Interview", finish_interview_btn
 '     PushButton 20, 290, 70, 15, "Spousal Support", ss_btn
 '     PushButton 20, 310, 70, 15, "Other", other_btn
 '     PushButton 385, 350, 95, 10, "Add RSDI Information", add_another_unea_btn
@@ -3149,7 +3969,7 @@ function define_main_dialog()
 ' ComboBox 110, 65, 365, 45, "", confirm_caf_answer
 
 		End If
-		If page_display = show_q_13 Then
+		If page_display = show_q_13 Then										'THIS IS THE INFORMATION FOR PAGE  ----------------------------------------------------------------------------------------------------------------------------------
 			Text 507, 207, 60, 13, "Q. 13"
 
 			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q13 into the 'Answer on the CAF' field."
@@ -3161,16 +3981,6 @@ function define_main_dialog()
 			Text 40, 70, 70, 10, "Confirm CAF Answer"
 			ComboBox 110, 65, 365, 45, "", q13_confirm_caf_answer
 
-
-			Text 505, 205, 60, 15, "Q. 13"
-		    Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q13 into the 'Answer on the CAF' field."
-		    Text 20, 25, 335, 20, "Q. 13. Does anyone in the household have or expect to get any loans, scholarships or grants for attending school?"
-		    Text 370, 30, 65, 10, "Answer on the CAF"
-		    DropListBox 435, 25, 40, 45, caf_answer_droplist, q13_caf_answer
-		    Text 5, 50, 35, 10, "^^2 - ASK - "
-		    Text 40, 50, 290, 10, "Does anyone in the household receive or expect to receive money to attend school?'"
-		    Text 40, 70, 70, 10, "Confirm CAF Answer"
-		    ComboBox 110, 65, 365, 45, "", q13_confirm_caf_answer
 
 		    Text 5, 95, 345, 10, "^^3 - ENTER information about student income using the 'Details - Add' button or 'Details - Update' button."
 
@@ -3197,7 +4007,7 @@ function define_main_dialog()
 		    Text 20, y_pos, 265, 10, "Any HH Member that has known STIN or STEC must have details updated."
 
 		End If
-		If page_display = show_q_14_15 Then
+		If page_display = show_q_14_15 Then										'THIS IS THE INFORMATION FOR PAGE  ----------------------------------------------------------------------------------------------------------------------------------
 			Text 495, 222, 60, 13, "Q. 14 and 15"
 
 			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q14 into the 'Answer on the CAF' field."
@@ -3242,51 +4052,63 @@ function define_main_dialog()
 					grp_len = grp_len + 15
 				End If
 			Next
+			If grp_len = 15 Then
+				Text 30, y_pos, 440, 10, "NO SHELTER EXPENSES LISTED IN MAXIS OR ADDED TO THE SCRIPT."
+				y_pos = y_pos + 15
+				grp_len = grp_len + 15
+			End If
 			y_pos = y_pos + 5
 			GroupBox 20, 150, 455, grp_len, "Already Known Shelter Expenses - Added or listed in MAXIS"
 		    ' Text 30, 165, 440, 10, "MEMB 01 - CLIENT FULL NAME HERE - Amount: $400"
 		    ' Text 30, 180, 440, 10, "MEMB 01 - CLIENT FULL NAME HERE - Amount: $400"
 		    PushButton 350, y_pos, 125, 10, "Update Shelter Expense Information", update_shel_btn
+			y_pos = y_pos + 15
+			Text 5, y_pos, 310, 10, "^^4 - Enter the answers listed on the actual CAF fom for Q15 into the 'Answer on the CAF' field."
+		    Text 20, y_pos + 10, 295, 10, "Q. 15. Does your household have the following utility expenses any time during the year?"
+			y_pos = y_pos + 30
+		    Text 20, y_pos, 85, 10, "Heating/Air Conditioning"
+		    DropListBox 110, y_pos - 5, 40, 45, caf_answer_droplist, q15_h_ac_caf_answer
+			Text 180, y_pos, 85, 10, "Electricity"
+			DropListBox 270, y_pos - 5, 40, 45, caf_answer_droplist, q15_e_caf_answer
+			Text 345, y_pos, 85, 10, "Cooking Fuel"
+			DropListBox 435, y_pos - 5, 40, 45, caf_answer_droplist, q15_cf_caf_answer
+			y_pos = y_pos + 15
+		    Text 20, y_pos, 85, 10, "Water and Sewer"
+		    DropListBox 110, y_pos - 5, 40, 45, caf_answer_droplist, q15_ws_caf_answer
+		    Text 180, y_pos, 85, 10, "Garbage Removal"
+		    DropListBox 270, y_pos - 5, 40, 45, caf_answer_droplist, q15_gr_caf_answer
+		    Text 345, y_pos, 85, 10, "Phone/Cell Phone"
+		    DropListBox 435, y_pos - 5, 40, 45, caf_answer_droplist, q15_p_caf_answer
+			y_pos = y_pos + 15
+		    Text 75, y_pos, 355, 10, "Did anyone in the household receive Energy Assistance (LIHEAP) of more than $20 in the past 12 months?"
+		    DropListBox 435, y_pos - 5, 40, 45, caf_answer_droplist, q15_liheap_caf_answer
+			y_pos = y_pos + 15
 
-			Text 5, 210, 310, 10, "^^4 - Enter the answers listed on the actual CAF fom for Q15 into the 'Answer on the CAF' field."
-		    Text 20, 220, 295, 10, "Q. 15. Does your household have the following utility expenses any time during the year?"
-		    Text 20, 240, 85, 10, "Heating/Air Conditioning"
-		    DropListBox 110, 235, 40, 45, caf_answer_droplist, q15_h_ac_caf_answer
-		    Text 5, 285, 170, 10, "^^5 - ASK - 'Does anyone in the household pay ...'"
-		    Text 20, 255, 85, 10, "Water and Sewer"
-		    DropListBox 110, 250, 40, 45, caf_answer_droplist, q15_ws_caf_answer
-		    Text 180, 240, 85, 10, "Electricity"
-		    DropListBox 270, 235, 40, 45, caf_answer_droplist, q15_e_caf_answer
-		    Text 180, 255, 85, 10, "Garbage Removal"
-		    DropListBox 270, 250, 40, 45, caf_answer_droplist, q15_gr_caf_answer
-		    Text 345, 240, 85, 10, "Cooking Fuel"
-		    DropListBox 435, 235, 40, 45, caf_answer_droplist, q15_cf_caf_answer
-		    Text 345, 255, 85, 10, "Phone/Cell Phone"
-		    DropListBox 435, 250, 40, 45, caf_answer_droplist, q15_p_caf_answer
-		    Text 75, 270, 355, 10, "Did anyone in the household receive Energy Assistance (LIHEAP) of more than $20 in the past 12 months?"
-		    DropListBox 435, 265, 40, 45, caf_answer_droplist, q15_liheap_caf_answer
-
-			Text 5, 285, 270, 10, "^^5 - ASK - 'Does anyone in the household pay ...'  RECORD the verbal responses"
-		    Text 20, 305, 85, 10, "Heating"
-		    DropListBox 110, 300, 40, 45, caf_answer_droplist, q15_h_caf_response
-		    Text 20, 320, 85, 10, "Air Conditioning"
-		    DropListBox 110, 315, 40, 45, caf_answer_droplist, q15_ac_caf_response
-		    Text 20, 335, 85, 10, "Water and Sewer"
-		    DropListBox 110, 330, 40, 45, caf_answer_droplist, q15_ws_caf_response
-		    Text 180, 305, 85, 10, "Electricity"
-		    DropListBox 270, 300, 40, 45, caf_answer_droplist, q15_e_caf_response
-		    Text 180, 320, 85, 10, "Garbage Removal"
-		    DropListBox 270, 315, 40, 45, caf_answer_droplist, q15_gr_caf_response
-		    Text 345, 305, 85, 10, "Cooking Fuel"
-		    DropListBox 435, 300, 40, 45, caf_answer_droplist, q15_cf_caf_response
-		    Text 345, 320, 85, 10, "Phone/Cell Phone"
-		    DropListBox 435, 315, 40, 45, caf_answer_droplist, q15_p_caf_response
-		    Text 170, 340, 265, 10, "Did your household receive any help in paying for your energy or power bills?"
-		    DropListBox 435, 335, 40, 45, caf_answer_droplist, q15_liheap_caf_response
-		    PushButton 20, 350, 130, 10, "Utilities are Complicated", utility_detail_btn
+			Text 5, y_pos, 270, 10, "^^5 - ASK - 'Does anyone in the household pay ...'  RECORD the verbal responses"
+			y_pos = y_pos + 20
+		    Text 20, y_pos, 85, 10, "Heating"
+		    DropListBox 110, y_pos - 5, 40, 45, caf_answer_droplist, q15_h_caf_response
+			Text 180, y_pos, 85, 10, "Electricity"
+			DropListBox 270, y_pos - 5, 40, 45, caf_answer_droplist, q15_e_caf_response
+			Text 345, y_pos, 85, 10, "Cooking Fuel"
+			DropListBox 435, y_pos - 5, 40, 45, caf_answer_droplist, q15_cf_caf_response
+			y_pos = y_pos + 15
+		    Text 20, y_pos, 85, 10, "Air Conditioning"
+		    DropListBox 110, y_pos - 5, 40, 45, caf_answer_droplist, q15_ac_caf_response
+		    Text 180, y_pos, 85, 10, "Garbage Removal"
+		    DropListBox 270, y_pos - 5, 40, 45, caf_answer_droplist, q15_gr_caf_response
+		    Text 345, y_pos, 85, 10, "Phone/Cell Phone"
+		    DropListBox 435, y_pos - 5, 40, 45, caf_answer_droplist, q15_p_caf_response
+			y_pos = y_pos + 15
+			Text 20, y_pos, 85, 10, "Water and Sewer"
+			DropListBox 110, y_pos - 5, 40, 45, caf_answer_droplist, q15_ws_caf_response
+		    Text 170, y_pos + 5, 265, 10, "Did your household receive any help in paying for your energy or power bills?"
+		    DropListBox 435, y_pos, 40, 45, caf_answer_droplist, q15_liheap_caf_response
+			y_pos = y_pos + 15
+		    PushButton 20, y_pos, 130, 10, "Utilities are Complicated", utility_detail_btn
 
 		End If
-		If page_display = show_q_16_18 Then
+		If page_display = show_q_16_18 Then										'THIS IS THE INFORMATION FOR PAGE  ----------------------------------------------------------------------------------------------------------------------------------
 			Text 487, 237, 60, 13, "Q. 16, 17, and 18"
 
 			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q16 into the 'Answer on the CAF' field."
@@ -3419,7 +4241,7 @@ function define_main_dialog()
 
 
 		End If
-		If page_display = show_q_19 Then
+		If page_display = show_q_19 Then										'THIS IS THE INFORMATION FOR PAGE  ----------------------------------------------------------------------------------------------------------------------------------
 			Text 507, 252, 60, 13, "Q. 19"
 
 			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
@@ -3427,38 +4249,370 @@ function define_main_dialog()
 			Text 370, 30, 65, 10, "Answer on the CAF"
 			DropListBox 435, 25, 40, 45, caf_answer_droplist, q19_caf_answer
 			Text 5, 50, 35, 10, "^^2 - ASK - "
-			Text 40, 50, 280, 10, "'Is anyone in the household disabled or have a physical or mental health condition?"
+			Text 40, 50, 280, 10, "'Does anyone in the household have medical expenses?'"
 			Text 40, 70, 70, 10, "Confirm CAF Answer"
 			ComboBox 110, 65, 365, 45, "", q19_confirm_caf_answer
 
+			Text 5, 90, 315, 10, "^^3 - CONFIRM - Review details of known STWK or add details if not currently known."
+
+			grp_len = 180
+
+			If case_has_fmed_panel = FALSE Then
+				GroupBox 50, 105, 425, 24, "FMED on CASE " & MAXIS_case_number
+				Text 75, 115, 250, 10, "NO FMED PANELS OR OTHER FMED DETAILS ON THIS CASE"
+			Else
+				GroupBox 50, 105, 425, grp_len, "FMED for " & HH_MEMB_ARRAY(fmed_selected).full_name
+
+				Text 55, 120, 50, 10, "Type"
+				Text 175, 120, 60, 10, "Verif"
+				Text 250, 120, 80, 10, "Category"
+				Text 325, 120, 120, 10, "Expense Amount"
+				y_pos = 140
+
+				For clts_fmed = 0 to UBound(HH_MEMB_ARRAY(fmed_selected).fmed_type)
+					Text 55, y_pos, 50, 10, HH_MEMB_ARRAY(fmed_selected).fmed_type(clts_fmed)
+					Text 175, y_pos, 60, 10, HH_MEMB_ARRAY(fmed_selected).fmed_verif(clts_fmed)
+					Text 250, y_pos, 80, 10, HH_MEMB_ARRAY(fmed_selected).fmed_catgry(clts_fmed)
+					Text 325, y_pos, 120, 10, HH_MEMB_ARRAY(fmed_selected).fmed_expense(clts_fmed)
+					y_pos = y_pos + 15
+				Next
+
+				PushButton 55, 270, 125, 10, "Update FMED Information", fmed_info_change
+				PushButton 410, 270, 60, 10, "NEXT FMED", next_fmed_btn
+
+				btn_pos = 110
+				For i = 0 to Ubound(HH_MEMB_ARRAY, 1)
+					If i = fmed_selected Then
+						Text 9, btn_pos+1, 40, 10, "MEMB " & HH_MEMB_ARRAY(i).ref_number
+					ElseIf HH_MEMB_ARRAY(i).fmed_exists = TRUE Then
+						PushButton 5, btn_pos, 40, 10, "MEMB " & HH_MEMB_ARRAY(i).ref_number, HH_MEMB_ARRAY(i).button_one
+					End If
+					btn_pos = btn_pos + 10
+				Next
+				btn_pos = btn_pos + 20
+			End If
+
+			PushButton 5, 290, 150, 10, "ADD STWK FOR ANOTHER MEMBER", add_new_stwk_btn
 
 		End If
-		If page_display = show_q_20_21 Then
-			Text 495, 267, 60, 13, "Q. 20 and 21"
 
-			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
-			Text 20, 25, 335, 20, "Q. 20. Does anyone in the household own, or is anyone buying, any of the following?"
-			Text 370, 30, 65, 10, "Answer on the CAF"
-			DropListBox 435, 25, 40, 45, caf_answer_droplist, q20_caf_answer
-			Text 5, 50, 35, 10, "^^2 - ASK - "
-			Text 40, 50, 280, 10, "'Is anyone in the household disabled or have a physical or mental health condition?"
-			Text 40, 70, 70, 10, "Confirm CAF Answer"
-			ComboBox 110, 65, 365, 45, "", q20_confirm_caf_answer
+		If page_display = show_q_20_21 Then										'THIS IS THE INFORMATION FOR PAGE  ----------------------------------------------------------------------------------------------------------------------------------
+			Text 495, 267, 60, 15, "Q. 20 and 21"
+		    Text 5, 10, 200, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q20"
+		    Text 20, 20, 335, 10, "Q. 20. Does anyone in the household own, or is anyone buying, any of the following?"
+		    Text 30, 40, 20, 10, "Cash"
+		    DropListBox 70, 35, 40, 45, caf_answer_droplist, cash_caf_answer
+		    Text 250, 40, 55, 10, "Bank accounts"
+			Text 350, 40, 170, 10, "(savings, checking, debit card, etc.)"
+		    DropListBox 305, 35, 40, 45, caf_answer_droplist, acct_caf_answer
 
+		    Text 30, 55, 40, 10, "Securities"
+			Text 115, 55, 170, 10, "(stocks, bonds, annuities, 401K, etc.)"
+		    DropListBox 70, 50, 40, 45, caf_answer_droplist, secu_caf_answer
+		    Text 250, 55, 35, 10, "Vehicles"
+			Text 350, 52, 130, 20, "(cars, trucks, motorcycles, campers, trailers, etc.)"
+		    DropListBox 305, 50, 40, 45, caf_answer_droplist, cars_caf_answer
+		    Text 5, 75, 35, 10, "^^2 - ASK - "
+		    Text 40, 75, 250, 10, "'Does anyone own or is buying any of the following?' and CONFIRM details."
 
+			cash_count = 0
+			acct_count = 0
+			secu_count = 0
+			cars_count = 0
+			' MsgBox "UBound - " & UBound(ASSET_ARRAY, 1)
+			for i = 0 to UBound(ASSET_ARRAY)
+				If ASSET_ARRAY(i).panel_name = "CASH" Then cash_count = cash_count + 1
+				If ASSET_ARRAY(i).panel_name = "ACCT" Then acct_count = acct_count + 1
+				' If ASSET_ARRAY(i).panel_name = "ACCT" Then MsgBox "ACCT" & vbNewLine & i
+				If ASSET_ARRAY(i).panel_name = "SECU" Then secu_count = secu_count + 1
+				If ASSET_ARRAY(i).panel_name = "CARS" Then cars_count = cars_count + 1
+				' If ASSET_ARRAY(i).panel_name = "ACCT" Then acct_count = acct_count + 1
+			next
+			If second_page_display = main_asset Then								'=====================================================================================   Account - CASH
+			    Text 70, 107, 20, 10, "Cash"
+			    ComboBox 130, 105, 290, 45, "", cash_confirm_response
+			    Text 70, 122, 55, 10, "Bank accounts"
+			    ComboBox 130, 120, 290, 45, "", acct_confirm_response
+			    Text 70, 137, 40, 10, "Securities"
+			    ComboBox 130, 135, 290, 45, "", secu_confirm_response
+			    Text 70, 152, 35, 10, "Vehicles"
+			    ComboBox 130, 150, 290, 45, "", cars_confirm_response
+				Text 70, 167, 55, 10, "Real Estate"
+			    ComboBox 130, 165, 290, 45, "", rest_confirm_response
 
-			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
-			Text 20, 25, 335, 20, "Q. 21. FOR CASH PROGRAMS ONLY: Has anyone in the household given away, sold or traded anything of value in the past 12 months? (For Example: Cash, Bank Accounts, Stocks, Bonds, or Vehicles)?"
-			Text 370, 30, 65, 10, "Answer on the CAF"
-			DropListBox 435, 25, 40, 45, caf_answer_droplist, q21_caf_answer
-			Text 5, 50, 35, 10, "^^2 - ASK - "
-			Text 40, 50, 280, 10, "'Is anyone in the household disabled or have a physical or mental health condition?"
-			Text 40, 70, 70, 10, "Confirm CAF Answer"
-			ComboBox 110, 65, 365, 45, "", q21_confirm_caf_answer
+				Text 70, 185, 350, 20, "Enter the details of the verbal answer here. Capture any details about each specific asset usng the buttons to the left."
+
+				Text 30, 92, 40, 10, "MAIN"
+			End If
+			If second_page_display = cash_asset Then								'=====================================================================================   Account - CASH
+				GroupBox 70, 90, 405, 190, "Cash"
+
+				x_pos = 75
+				first_cash = TRUE
+				for i = 0 to UBound(ASSET_ARRAY)
+					If ASSET_ARRAY(i).panel_name = "CASH" Then
+						show_cash = FALSE
+						If memb_to_match = "" and first_cash = TRUE Then
+							Text x_pos + 5, 276, 40, 10, "CASH " & ASSET_ARRAY(i).member_ref
+							first_cash = FALSE
+							show_cash = TRUE
+						ElseIf ASSET_ARRAY(i).member_ref = memb_to_match  Then
+							Text x_pos + 5, 276, 40, 10, "CASH " & ASSET_ARRAY(i).member_ref
+							show_cash = TRUE
+						Else
+							PushButton x_pos, 275, 40, 10, "CASH " & ASSET_ARRAY(i).member_ref, ASSET_ARRAY(i).asset_btn_one
+						End If
+						' MsgBox "Panel: " & vbCr & "Member - " & ASSET_ARRAY(i).member_ref & vbCr & "Instance - " & ASSET_ARRAY(i).panel_instance & vbCr & "Member to match - " & memb_to_match & vbCr & "Inst to match - " & inst_to_match
+						x_pos = x_pos + 40
+
+						If show_cash = TRUE Then
+							Text 80, 105, 160, 10, "HH Member: " & ASSET_ARRAY(i).member
+
+							Text 80, 125, 160, 10, "Cash Amount: " & ASSET_ARRAY(i).cash_value
+
+							PushButton 360, 105, 105, 13, "Update this CASH Panel", update_asset_btn
+						End If
+
+					End If
+				next
+				If cash_count = 0 Then
+					Text 110, 105, 300, 20, "There are no CASH panels known in MAXIS and no additional CASH information has been added."
+				End If
+				PushButton 360, 87, 105, 13, "Add New Cash Information", add_another_asset_btn
+				Text 25, 107, 40, 10, "CASH - " & cash_count
+			End If
+			If second_page_display = acct_asset Then								'=====================================================================================   Account - ACCT
+				GroupBox 70, 90, 405, 190, "Bank Account"
+
+				x_pos = 75
+				first_acct = TRUE
+				for i = 0 to UBound(ASSET_ARRAY)
+					If ASSET_ARRAY(i).panel_name = "ACCT" Then
+						show_acct = FALSE
+						If memb_to_match = "" and inst_to_match = "" AND first_acct = TRUE Then
+							Text x_pos + 5, 276, 45, 10, "ACCT " & ASSET_ARRAY(i).member_ref & " " & ASSET_ARRAY(i).panel_instance
+							first_acct = FALSE
+							show_acct = TRUE
+						ElseIf ASSET_ARRAY(i).member_ref = memb_to_match AND ASSET_ARRAY(i).panel_instance = inst_to_match Then
+							Text x_pos + 5, 276, 45, 10, "ACCT " & ASSET_ARRAY(i).member_ref & " " & ASSET_ARRAY(i).panel_instance
+							show_acct = TRUE
+						Else
+							PushButton x_pos, 275, 45, 10, "ACCT " & ASSET_ARRAY(i).member_ref & " " & ASSET_ARRAY(i).panel_instance, ASSET_ARRAY(i).asset_btn_one
+						End If
+						' MsgBox "Panel: " & vbCr & "Member - " & ASSET_ARRAY(i).member_ref & vbCr & "Instance - " & ASSET_ARRAY(i).panel_instance & vbCr & "Member to match - " & memb_to_match & vbCr & "Inst to match - " & inst_to_match
+						x_pos = x_pos + 45
+
+						If show_acct = TRUE Then
+							Text 80, 105, 160, 10, "HH Member: " & ASSET_ARRAY(i).member
+
+							Text 80, 125, 160, 10, "Account Type: " & ASSET_ARRAY(i).asset_type
+							Text 80, 140, 160, 10, "Account Number: " & ASSET_ARRAY(i).account_number
+							Text 80, 155, 160, 10, "Account Location: " & ASSET_ARRAY(i).acct_location
+							Text 80, 175, 160, 10, "Balance: $ " & ASSET_ARRAY(i).acct_balance
+							Text 250, 175, 160, 10, "Ver: " & ASSET_ARRAY(i).asset_verification
+
+							Text 80, 190, 160, 10, "As Of: " & ASSET_ARRAY(i).acct_balance_date
+							Text 80, 205, 120, 10, "Withdrawal Penalty: " & ASSET_ARRAY(i).withdraw_penalty
+							Text 210, 205, 75, 10, "(Y/N): " & ASSET_ARRAY(i).withdraw_yn
+							Text 285, 205, 160, 10, "Ver: " & ASSET_ARRAY(i).withdraw_verif
+
+							Text 80, 225, 160, 10, "Count (Y/N): Cash: " & ASSET_ARRAY(i).count_cash_yn
+							Text 240, 225, 50, 10, "FS: " & ASSET_ARRAY(i).count_snap_yn
+							Text 290, 225, 50, 10, "HC: " & ASSET_ARRAY(i).count_hc_yn
+							Text 340, 225, 50, 10, "GRH: " & ASSET_ARRAY(i).count_grh_yn
+							Text 390, 225, 50, 10, "IV-E: " & ASSET_ARRAY(i).count_ive_yn
+
+							Text 80, 240, 160, 10, "Joint Owner (Y/N): " & ASSET_ARRAY(i).joint_owners_yn
+							Text 250, 240, 160, 10, "Share Ratio: " & ASSET_ARRAY(i).share_ratio
+
+							Text 80, 260, 160, 10, "Next Interest Date (MM/YY): " & ASSET_ARRAY(i).next_interest_date
+
+							PushButton 360, 105, 105, 13, "Update this ACCT Panel", update_asset_btn
+						End If
+					End If
+				next
+				If acct_count = 0 Then
+					Text 110, 105, 300, 20, "There are no ACCT panels known in MAXIS and no additional ACCT information has been added."
+				End If
+				PushButton 360, 87, 106, 13, "Add New Account Information", add_another_asset_btn
+				Text 25, 122, 40, 10, "ACCT - " & acct_count
+			End If
+			If second_page_display = secu_asset Then								'=====================================================================================   Account - SECU
+				GroupBox 70, 90, 405, 190, "Security Account"
+
+				x_pos = 75
+				first_acct = TRUE
+				for i = 0 to UBound(ASSET_ARRAY)
+					If ASSET_ARRAY(i).panel_name = "SECU" Then
+						show_acct = FALSE
+						If memb_to_match = "" and inst_to_match = "" AND first_acct = TRUE Then
+							Text x_pos + 5, 276, 45, 10, "SECU " & ASSET_ARRAY(i).member_ref & " " & ASSET_ARRAY(i).panel_instance
+							first_acct = FALSE
+							show_acct = TRUE
+						ElseIf ASSET_ARRAY(i).member_ref = memb_to_match AND ASSET_ARRAY(i).panel_instance = inst_to_match Then
+							Text x_pos + 5, 276, 45, 10, "SECU " & ASSET_ARRAY(i).member_ref & " " & ASSET_ARRAY(i).panel_instance
+							show_acct = TRUE
+						Else
+							PushButton x_pos, 275, 45, 10, "SECU " & ASSET_ARRAY(i).member_ref & " " & ASSET_ARRAY(i).panel_instance, ASSET_ARRAY(i).asset_btn_one
+						End If
+						' MsgBox "Panel: " & vbCr & "Member - " & ASSET_ARRAY(i).member_ref & vbCr & "Instance - " & ASSET_ARRAY(i).panel_instance & vbCr & "Member to match - " & memb_to_match & vbCr & "Inst to match - " & inst_to_match
+						x_pos = x_pos + 45
+
+						If show_acct = TRUE Then
+							Text 80, 105, 160, 10, "HH Member: " & ASSET_ARRAY(i).member
+
+							Text 80, 125, 160, 10, "Security Type: " & ASSET_ARRAY(i).asset_type
+							Text 80, 140, 160, 10, "Policy/Account Number: " & ASSET_ARRAY(i).account_number
+							Text 80, 155, 160, 10, "Security Name: " & ASSET_ARRAY(i).secu_name
+
+							Text 80, 175, 160, 10, "Cash (Surrender) Value: $ " & ASSET_ARRAY(i).secu_cash_value
+							Text 80, 190, 160, 10, "As Of: " & ASSET_ARRAY(i).secu_cash_value_date
+
+							Text 250, 190, 160, 10, "Ver: " & ASSET_ARRAY(i).asset_verification
+							Text 80, 205, 120, 10, "Face Value of Life Ins: $" & ASSET_ARRAY(i).secu_face_value
+							Text 80, 220, 120, 10, "Withdrawal Penalty: $" & ASSET_ARRAY(i).withdraw_penalty
+							Text 210, 220, 75, 10, "(Y/N): " & ASSET_ARRAY(i).withdraw_yn
+							Text 285, 220, 160, 10, "Ver: " & ASSET_ARRAY(i).withdraw_verif
+
+							Text 80, 240, 160, 10, "Count (Y/N): Cash: " & ASSET_ARRAY(i).count_cash_yn
+							Text 240, 240, 50, 10, "FS: " & ASSET_ARRAY(i).count_snap_yn
+							Text 290, 240, 50, 10, "HC: " & ASSET_ARRAY(i).count_hc_yn
+							Text 340, 240, 50, 10, "GRH: " & ASSET_ARRAY(i).count_grh_yn
+							Text 390, 240, 50, 10, "IV-E: " & ASSET_ARRAY(i).count_ive_yn
+
+							Text 80, 255, 160, 10, "Joint Owner (Y/N): " & ASSET_ARRAY(i).joint_owners_yn
+							Text 250, 255, 160, 10, "Share Ratio: " & ASSET_ARRAY(i).share_ratio
+
+							PushButton 360, 105, 105, 13, "Update this SECU Panel", update_asset_btn
+						End If
+					End If
+				next
+				If secu_count = 0 Then
+					Text 110, 105, 300, 20, "There are no SECU panels known in MAXIS and no additional SECU information has been added."
+				End If
+				PushButton 360, 87, 105, 13, "Add New Security Information", add_another_asset_btn
+				Text 25, 137, 40, 10, "SECU - " & secu_count
+			End If
+			If second_page_display = cars_asset Then								'=====================================================================================   Account - CARS
+				GroupBox 70, 90, 405, 190, "Vehicle"
+
+				x_pos = 75
+				first_acct = TRUE
+				for i = 0 to UBound(ASSET_ARRAY)
+					If ASSET_ARRAY(i).panel_name = "CARS" Then
+						show_acct = FALSE
+						If memb_to_match = "" and inst_to_match = "" AND first_acct = TRUE Then
+							Text x_pos + 5, 276, 45, 10, "CARS " & ASSET_ARRAY(i).member_ref & " " & ASSET_ARRAY(i).panel_instance
+							first_acct = FALSE
+							show_acct = TRUE
+						ElseIf ASSET_ARRAY(i).member_ref = memb_to_match AND ASSET_ARRAY(i).panel_instance = inst_to_match Then
+							Text x_pos + 5, 276, 45, 10, "CARS " & ASSET_ARRAY(i).member_ref & " " & ASSET_ARRAY(i).panel_instance
+							show_acct = TRUE
+						Else
+							PushButton x_pos, 275, 45, 10, "CARS " & ASSET_ARRAY(i).member_ref & " " & ASSET_ARRAY(i).panel_instance, ASSET_ARRAY(i).asset_btn_one
+						End If
+						' MsgBox "Panel: " & vbCr & "Member - " & ASSET_ARRAY(i).member_ref & vbCr & "Instance - " & ASSET_ARRAY(i).panel_instance & vbCr & "Member to match - " & memb_to_match & vbCr & "Inst to match - " & inst_to_match
+						x_pos = x_pos + 45
+
+						If show_acct = TRUE Then
+							Text 80, 105, 160, 10, "HH Member: " & ASSET_ARRAY(i).member
+
+							Text 80, 125, 160, 10, "Vehicle Type: " & ASSET_ARRAY(i).asset_type
+							Text 80, 145, 100, 10, "Year: " & ASSET_ARRAY(i).cars_year
+							Text 180, 145, 160, 10, "Make: " & ASSET_ARRAY(i).cars_make
+							Text 340, 145, 160, 10, "Model: " & ASSET_ARRAY(i).cars_model
+							Text 80, 160, 160, 10, "Value     Trade In: $" & ASSET_ARRAY(i).cars_trade_in_value
+							Text 200, 160, 160, 10, "Loan: $" & ASSET_ARRAY(i).cars_loan_value
+							Text 200, 160, 160, 10, "Source: " & ASSET_ARRAY(i).cars_value_source
+							Text 80, 175, 160, 10, "IV-E/Cash/GRH/HC Ownership Ver: " & ASSET_ARRAY(i).asset_verification
+
+							Text 80, 195, 160, 10, "Amount Owed: $" & ASSET_ARRAY(i).cars_amt_owed
+							Text 80, 195, 160, 10, "Ver: " & ASSET_ARRAY(i).cars_owed_verification
+							Text 80, 210, 160, 10, "As Of: " & ASSET_ARRAY(i).cars_owed_date
+
+							Text 80, 230, 160, 10, "Use: " & ASSET_ARRAY(i).cars_use
+							Text 250, 230, 120, 10, "HC Client Benefit (Y/N): " & ASSET_ARRAY(i).cars_hc_benefit
+							Text 80, 245, 160, 10, "Joint Owner (Y/N): " & ASSET_ARRAY(i).joint_owners_yn
+							Text 250, 245, 160, 10, "Share Ratio: " & ASSET_ARRAY(i).share_ratio
+
+							PushButton 360, 105, 105, 13, "Update This CARS Panel", update_asset_btn
+						End If
+					End If
+				next
+				If cars_count = 0 Then
+					Text 110, 105, 300, 20, "There are no CARS panels known in MAXIS and no additional CARS information has been added."
+				End If
+				PushButton 360, 87, 105, 13, "Add New Cars Information", add_another_asset_btn
+				Text 25, 152, 40, 10, "CARS - " & cars_count
+			End If
+			If second_page_display = rest_asset Then								'=====================================================================================   Account - CARS
+				GroupBox 70, 90, 405, 190, "Real Estate"
+
+				x_pos = 75
+				first_acct = TRUE
+				for i = 0 to UBound(ASSET_ARRAY)
+					If ASSET_ARRAY(i).panel_name = "REST" Then
+						show_acct = FALSE
+						If memb_to_match = "" and inst_to_match = "" AND first_acct = TRUE Then
+							Text x_pos + 5, 276, 45, 10, "REST " & ASSET_ARRAY(i).member_ref & " " & ASSET_ARRAY(i).panel_instance
+							first_acct = FALSE
+							show_acct = TRUE
+						ElseIf ASSET_ARRAY(i).member_ref = memb_to_match AND ASSET_ARRAY(i).panel_instance = inst_to_match Then
+							Text x_pos + 5, 276, 45, 10, "REST " & ASSET_ARRAY(i).member_ref & " " & ASSET_ARRAY(i).panel_instance
+							show_acct = TRUE
+						Else
+							PushButton x_pos, 275, 45, 10, "REST " & ASSET_ARRAY(i).member_ref & " " & ASSET_ARRAY(i).panel_instance, ASSET_ARRAY(i).asset_btn_one
+						End If
+						' MsgBox "Panel: " & vbCr & "Member - " & ASSET_ARRAY(i).member_ref & vbCr & "Instance - " & ASSET_ARRAY(i).panel_instance & vbCr & "Member to match - " & memb_to_match & vbCr & "Inst to match - " & inst_to_match
+						x_pos = x_pos + 45
+
+						If show_acct = TRUE Then
+							Text 80, 105, 160, 10, "HH Member: " & ASSET_ARRAY(i).member
+
+							Text 80, 125, 160, 10, "Property Type: " & ASSET_ARRAY(i).asset_type
+							Text 250, 125, 160, 10, "Ver: " & ASSET_ARRAY(i).asset_verification
+							Text 80, 145, 100, 10, "Market Value: $" & ASSET_ARRAY(i).rest_market_value
+							Text 250, 145, 160, 10, "Ver: " & ASSET_ARRAY(i).rest_value_verification
+							Text 80, 160, 160, 10, "Amount Owed: $" & ASSET_ARRAY(i).rest_amount_owed
+							Text 250, 160, 160, 10, "Ver: " & ASSET_ARRAY(i).rest_owed_verification
+							Text 80, 175, 160, 10, "As Of: " & ASSET_ARRAY(i).rest_owed_date
+
+							Text 80, 195, 160, 10, "Property Status: " & ASSET_ARRAY(i).rest_property_status
+							Text 80, 210, 160, 10, "Joint Owner (Y/N): " & ASSET_ARRAY(i).joint_owners_yn
+							Text 80, 225, 160, 10, "IV-E/Cash/GRH/HC Share Ratio: " & ASSET_ARRAY(i).share_ratio
+
+							Text 80, 245, 160, 10, "IV-E Repayment Agreement Date: " & ASSET_ARRAY(i).rest_ive_repayment_agreement_date
+
+							PushButton 360, 105, 105, 13, "Update This REST Panel", update_asset_btn
+						End If
+					End If
+				next
+				If rest_count = 0 Then
+					Text 110, 105, 300, 20, "There are no REST panels known in MAXIS and no additional REST information has been added."
+				End If
+				PushButton 360, 87, 105, 13, "Add New REST Information", add_another_asset_btn
+				Text 25, 167, 40, 10, "REST - " & rest_count
+			End If
+
+			If second_page_display <> main_asset Then PushButton 20, 90, 40, 15, "MAIN", main_asset_btn
+		    If second_page_display <> cash_asset Then PushButton 20, 105, 40, 15, "CASH - " & cash_count, cash_btn
+		    If second_page_display <> acct_asset Then PushButton 20, 120, 40, 15, "ACCT - " & acct_count, acct_btn
+		    If second_page_display <> secu_asset Then PushButton 20, 135, 40, 15, "SECU - " & secu_count, secu_btn
+		    If second_page_display <> cars_asset Then PushButton 20, 150, 40, 15, "CARS - " & cars_count, cars_btn
+			If second_page_display <> rest_asset Then PushButton 20, 165, 40, 15, "REST - " & rest_count, rest_btn
+		    Text 5, 290, 305, 10, "^^3 - Enter the answers listed on the actual CAF fom for Q21 into the 'Answer on the CAF' field."
+		    Text 20, 305, 335, 20, "Q. 21. FOR CASH PROGRAMS ONLY: Has anyone in the household given away, sold or traded anything of value in the past 12 months? (For Example: Cash, Bank Accounts, Stocks, Bonds, or Vehicles)?"
+		    Text 370, 310, 65, 10, "Answer on the CAF"
+		    DropListBox 435, 305, 40, 45, caf_answer_droplist, q21_caf_answer
+		    Text 5, 330, 35, 10, "^^4 - ASK - "
+		    Text 40, 330, 335, 10, "'Has anyonein the household given away, sold, or traded anythong of value in the past 12 months?'"
+			PushButton 365, 325, 115, 15, "YES - Review Improper XFER", improper_transfer_btn
+		    Text 40, 350, 70, 10, "Confirm CAF Answer"
+		    ComboBox 110, 345, 365, 45, "", q21_confirm_caf_answer
 
 
 		End If
-		If page_display = show_q_22 Then
+		If page_display = show_q_22 Then										'THIS IS THE INFORMATION FOR PAGE  ----------------------------------------------------------------------------------------------------------------------------------
 			Text 507, 282, 60, 13, "Q. 22"
 
 			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
@@ -3466,13 +4620,28 @@ function define_main_dialog()
 			Text 370, 30, 65, 10, "Answer on the CAF"
 			DropListBox 435, 25, 40, 45, caf_answer_droplist, q22_caf_answer
 			Text 5, 50, 35, 10, "^^2 - ASK - "
-			Text 40, 50, 280, 10, "'Is anyone in the household disabled or have a physical or mental health condition?"
+			Text 40, 50, 280, 10, "'Did anyone move in or out of your home in the past 12 months?'"
 			Text 40, 70, 70, 10, "Confirm CAF Answer"
 			ComboBox 110, 65, 365, 45, "", q22_confirm_caf_answer
 
 
+			EditBox 415, 85, 50, 15, HH_MEMB_ARRAY(0).left_hh_date
+
+			Text 20, 110, 95, 10, "Other Household Members:"
+			y_pos = 125
+			for i = 1 to UBound(HH_MEMB_ARRAY, 1)
+				Text 25, y_pos, 255, 10, "- MEMB " & HH_MEMB_ARRAY(i).ref_number & "    " & HH_MEMB_ARRAY(i).full_name & " - " & HH_MEMB_ARRAY(i).rel_to_applcnt & " of Memb 01"
+				CheckBox 285, y_pos, 50, 10, "On the CAF", HH_MEMB_ARRAY(i).checkbox_one
+				CheckBox 340, y_pos, 70, 10, "Verbally Reported", HH_MEMB_ARRAY(i).checkbox_two
+				EditBox 415, y_pos - 5, 50, 15, HH_MEMB_ARRAY(i).left_hh_date
+				y_pos = y_pos + 15
+			Next
+
+
+
+
 		End If
-		If page_display = show_q_23 Then
+		If page_display = show_q_23 Then										'THIS IS THE INFORMATION FOR PAGE  ----------------------------------------------------------------------------------------------------------------------------------
 			Text 507, 297, 60, 13, "Q. 23"
 
 			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
@@ -3486,7 +4655,7 @@ function define_main_dialog()
 
 
 		End If
-		If page_display = show_q_24 Then
+		If page_display = show_q_24 Then										'THIS IS THE INFORMATION FOR PAGE  ----------------------------------------------------------------------------------------------------------------------------------
 			Text 507, 312, 60, 13, "Q. 24"
 
 			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
@@ -3499,10 +4668,10 @@ function define_main_dialog()
 			ComboBox 110, 65, 365, 45, "", q24_confirm_caf_answer
 
 		End If
-		If page_display = show_qual Then
+		If page_display = show_qual Then										'THIS IS THE INFORMATION FOR PAGE  ----------------------------------------------------------------------------------------------------------------------------------
 			Text 492, 327, 60, 13, "CAF QUAL Q"
 		End If
-		If page_display = show_pg_last Then
+		If page_display = show_pg_last Then										'THIS IS THE INFORMATION FOR PAGE  ----------------------------------------------------------------------------------------------------------------------------------
 			Text 490, 342, 60, 13, "CAF Last Page"
 		End If
 
@@ -3750,48 +4919,48 @@ function read_ADDR_panel(addr_eff_date, line_one, line_two, city, state, zip, co
 end function
 
 
-function read_all_COEX()
-	Call navigate_to_MAXIS_screen ("STAT", "PNLE")
-
-	pnle_row = 3
-	count = 1
-	previous_member = ""
-	panel_count = UBound(INCOME_ARRAY, 1)
-	start_count = panel_count
-	coex_found = FALSE
-	Do
-		EMReadScreen panel_name, 4, pnle_row, 5
-		' MsgBox panel_name
-		IF panel_name = "UNEA" Then
-			EMReadScreen panel_memb, 2, pnle_row, 10
-			If panel_memb <> previous_member Then count = 1
-
-			ReDim Preserve INCOME_ARRAY(panel_count)
-			Set INCOME_ARRAY(panel_count) = new client_income
-			INCOME_ARRAY(panel_count).member_ref = panel_memb
-			INCOME_ARRAY(panel_count).panel_instance = "0" & count
-
-
-			panel_count = panel_count + 1
-			count = count + 1
-			previous_member = panel_memb
-			' MsgBox panel_count
-			coex_found = TRUE
-			case_has_income_listed = TRUE
-
-		End If
-		pnle_row = pnle_row + 1
-		If pnle_row = 20 Then
-			transmit
-			pnle_row = 3
-		End If
-		EMReadScreen panel_summ, 4, 2, 53
-		' MsgBox "PNLI Row - " & pnle_row & vbNewLine & "SUMM - " & panel_summ
-	Loop until panel_summ = "PNLE"
-	' If count = 1 Then ReDim Preserve INCOME_ARRAY(panel_count)
-	stop_count = panel_count - 1
-	If stop_count < 0 Then stop_count = 0
-end function
+' function read_all_COEX()
+' 	Call navigate_to_MAXIS_screen ("STAT", "PNLE")
+'
+' 	pnle_row = 3
+' 	count = 1
+' 	previous_member = ""
+' 	panel_count = UBound(INCOME_ARRAY, 1)
+' 	start_count = panel_count
+' 	coex_found = FALSE
+' 	Do
+' 		EMReadScreen panel_name, 4, pnle_row, 5
+' 		' MsgBox panel_name
+' 		IF panel_name = "UNEA" Then
+' 			EMReadScreen panel_memb, 2, pnle_row, 10
+' 			If panel_memb <> previous_member Then count = 1
+'
+' 			ReDim Preserve INCOME_ARRAY(panel_count)
+' 			Set INCOME_ARRAY(panel_count) = new client_income
+' 			INCOME_ARRAY(panel_count).member_ref = panel_memb
+' 			INCOME_ARRAY(panel_count).panel_instance = "0" & count
+'
+'
+' 			panel_count = panel_count + 1
+' 			count = count + 1
+' 			previous_member = panel_memb
+' 			' MsgBox panel_count
+' 			coex_found = TRUE
+' 			case_has_income_listed = TRUE
+'
+' 		End If
+' 		pnle_row = pnle_row + 1
+' 		If pnle_row = 20 Then
+' 			transmit
+' 			pnle_row = 3
+' 		End If
+' 		EMReadScreen panel_summ, 4, 2, 53
+' 		' MsgBox "PNLI Row - " & pnle_row & vbNewLine & "SUMM - " & panel_summ
+' 	Loop until panel_summ = "PNLE"
+' 	' If count = 1 Then ReDim Preserve INCOME_ARRAY(panel_count)
+' 	stop_count = panel_count - 1
+' 	If stop_count < 0 Then stop_count = 0
+' end function
 
 function read_all_DCEX()
 end function
@@ -4022,6 +5191,140 @@ function read_all_the_MEMBs()
 	Next
 end function
 
+Dim ASSET_ARRAY()
+ReDim ASSET_ARRAY(0)
+function read_all_Assets()
+	Call navigate_to_MAXIS_screen ("STAT", "PNLR")
+
+	pnlr_row = 3
+	acct_inst = 1
+	secu_inst = 1
+	cars_inst = 1
+	rest_inst = 1
+	previous_member = ""
+	start_count = 0
+	asset_count = 0
+	Do
+		EMReadScreen panel_name, 4, pnlr_row, 5
+		' MsgBox panel_name
+		IF panel_name = "CASH" Then
+			EMReadScreen panel_memb, 2, pnlr_row, 10
+
+			ReDim Preserve ASSET_ARRAY(asset_count)
+			Set ASSET_ARRAY(asset_count) = new client_assets
+			ASSET_ARRAY(asset_count).member_ref = panel_memb
+			ASSET_ARRAY(asset_count).panel_instance = "01"
+			ASSET_ARRAY(asset_count).panel_name = "CASH"
+			ASSET_ARRAY(asset_count).asset_btn_one = 700 + asset_count
+
+			asset_count = asset_count + 1
+			cash_count = cash_count + 1
+
+			' MsgBox asset_count
+			unea_found = TRUE
+		End If
+
+		IF panel_name = "ACCT" Then
+			EMReadScreen panel_memb, 2, pnlr_row, 10
+			If panel_memb <> previous_member Then acct_inst = 1
+
+			ReDim Preserve ASSET_ARRAY(asset_count)
+			Set ASSET_ARRAY(asset_count) = new client_assets
+			ASSET_ARRAY(asset_count).member_ref = panel_memb
+			ASSET_ARRAY(asset_count).panel_instance = "0" & acct_inst
+			ASSET_ARRAY(asset_count).panel_name = "ACCT"
+			ASSET_ARRAY(asset_count).asset_btn_one = 700 + asset_count
+
+			asset_count = asset_count + 1
+			acct_inst = acct_inst + 1
+			acct_count = acct_count + 1
+			previous_member = panel_memb
+			' MsgBox asset_count
+			unea_found = TRUE
+		End If
+
+		IF panel_name = "SECU" Then
+			EMReadScreen panel_memb, 2, pnlr_row, 10
+			If panel_memb <> previous_member Then secu_inst = 1
+
+			ReDim Preserve ASSET_ARRAY(asset_count)
+			Set ASSET_ARRAY(asset_count) = new client_assets
+			ASSET_ARRAY(asset_count).member_ref = panel_memb
+			ASSET_ARRAY(asset_count).panel_instance = "0" & secu_inst
+			ASSET_ARRAY(asset_count).panel_name = "SECU"
+			ASSET_ARRAY(asset_count).asset_btn_one = 700 + asset_count
+
+			asset_count = asset_count + 1
+			secu_inst = secu_inst + 1
+			secu_count = secu_count + 1
+			previous_member = panel_memb
+			' MsgBox asset_count
+			unea_found = TRUE
+		End If
+
+		IF panel_name = "CARS" Then
+			EMReadScreen panel_memb, 2, pnlr_row, 10
+			If panel_memb <> previous_member Then cars_inst = 1
+
+			ReDim Preserve ASSET_ARRAY(asset_count)
+			Set ASSET_ARRAY(asset_count) = new client_assets
+			ASSET_ARRAY(asset_count).member_ref = panel_memb
+			ASSET_ARRAY(asset_count).panel_instance = "0" & cars_inst
+			ASSET_ARRAY(asset_count).panel_name = "CARS"
+			ASSET_ARRAY(asset_count).asset_btn_one = 700 + asset_count
+
+			asset_count = asset_count + 1
+			cars_inst = cars_inst + 1
+			cars_count = cars_count + 1
+			previous_member = panel_memb
+			' MsgBox asset_count
+			unea_found = TRUE
+		End If
+
+		IF panel_name = "REST" Then
+			EMReadScreen panel_memb, 2, pnlr_row, 10
+			If panel_memb <> previous_member Then rest_inst = 1
+
+			ReDim Preserve ASSET_ARRAY(asset_count)
+			Set ASSET_ARRAY(asset_count) = new client_assets
+			ASSET_ARRAY(asset_count).member_ref = panel_memb
+			ASSET_ARRAY(asset_count).panel_instance = "0" & rest_inst
+			ASSET_ARRAY(asset_count).panel_name = "REST"
+			ASSET_ARRAY(asset_count).asset_btn_one = 700 + asset_count
+
+			asset_count = asset_count + 1
+			rest_inst = rest_inst + 1
+			rest_count = rest_count + 1
+			previous_member = panel_memb
+			' MsgBox asset_count
+			unea_found = TRUE
+		End If
+		pnlr_row = pnlr_row + 1
+		If pnlr_row = 20 Then
+			transmit
+			pnlr_row = 3
+		End If
+		EMReadScreen panel_summ, 4, 2, 53
+	Loop until panel_summ = "PNLI"
+
+
+
+
+	If unea_found = TRUE Then
+		for i = 0 to UBound(ASSET_ARRAY)
+			ASSET_ARRAY(i).read_member_name
+
+			If ASSET_ARRAY(i).panel_name = "CASH" Then ASSET_ARRAY(i).read_cash_panel
+			If ASSET_ARRAY(i).panel_name = "ACCT" Then ASSET_ARRAY(i).read_acct_panel
+			If ASSET_ARRAY(i).panel_name = "SECU" Then ASSET_ARRAY(i).read_secu_panel
+			If ASSET_ARRAY(i).panel_name = "CARS" Then ASSET_ARRAY(i).read_cars_panel
+			If ASSET_ARRAY(i).panel_name = "REST" Then ASSET_ARRAY(i).read_rest_panel
+			' MsgBox ASSET_ARRAY(i).panel_name
+		Next
+
+	End If
+end function
+
 function read_all_UNEA()
 	Call navigate_to_MAXIS_screen ("STAT", "PNLI")
 
@@ -4042,7 +5345,6 @@ function read_all_UNEA()
 			Set INCOME_ARRAY(panel_count) = new client_income
 			INCOME_ARRAY(panel_count).member_ref = panel_memb
 			INCOME_ARRAY(panel_count).panel_instance = "0" & count
-
 
 			panel_count = panel_count + 1
 			count = count + 1
@@ -4066,24 +5368,7 @@ function read_all_UNEA()
 
 	' MsgBox start_count & vbNewLine & stop_count
 	' If start_count <> 0 Then
-	If unea_found = TRUE Then
-		for i = start_count to stop_count
-			' MsgBox "HERE"
-			INCOME_ARRAY(i).read_member_name
-			INCOME_ARRAY(i).read_unea_panel
 
-			If INCOME_ARRAY(i).income_type_code = "01" OR INCOME_ARRAY(i).income_type_code = "02" Then rsdi_count = rsdi_count + 1
-			If INCOME_ARRAY(i).income_type_code = "03" Then ssi_count = ssi_count + 1
-			If INCOME_ARRAY(i).income_type_code = "15" Then wc_count = wc_count + 1
-			If INCOME_ARRAY(i).income_type_code = "14" Then ui_count = ui_count + 1
-			If INCOME_ARRAY(i).income_type_code = "11" OR INCOME_ARRAY(i).income_type_code = "12" OR INCOME_ARRAY(i).income_type_code = "13" OR INCOME_ARRAY(i).income_type_code = "38" Then va_count = va_count + 1
-			If INCOME_ARRAY(i).income_type_code = "16" OR INCOME_ARRAY(i).income_type_code = "17" Then retirement_count = retirement_count + 1
-			If INCOME_ARRAY(i).income_type_code = "46" OR INCOME_ARRAY(i).income_type_code = "47" Then tribal_count = tribal_count + 1
-			If INCOME_ARRAY(i).income_type_code = "08" OR INCOME_ARRAY(i).income_type_code = "36" OR INCOME_ARRAY(i).income_type_code = "39" OR INCOME_ARRAY(i).income_type_code = "43" OR INCOME_ARRAY(i).income_type_code = "45" Then cs_count = cs_count + 1
-			If INCOME_ARRAY(i).income_type_code = "35" OR INCOME_ARRAY(i).income_type_code = "37" OR INCOME_ARRAY(i).income_type_code = "40" Then ss_count = ss_count + 1
-			If INCOME_ARRAY(i).income_type_code = "06" OR INCOME_ARRAY(i).income_type_code = "18" OR INCOME_ARRAY(i).income_type_code = "19" OR INCOME_ARRAY(i).income_type_code = "20" OR INCOME_ARRAY(i).income_type_code = "21" OR INCOME_ARRAY(i).income_type_code = "22" OR INCOME_ARRAY(i).income_type_code = "23" OR INCOME_ARRAY(i).income_type_code = "24" OR INCOME_ARRAY(i).income_type_code = "25" OR INCOME_ARRAY(i).income_type_code = "26" OR INCOME_ARRAY(i).income_type_code = "27" OR INCOME_ARRAY(i).income_type_code = "28" OR INCOME_ARRAY(i).income_type_code = "29" OR INCOME_ARRAY(i).income_type_code = "30" OR INCOME_ARRAY(i).income_type_code = "31" OR INCOME_ARRAY(i).income_type_code = "44" OR INCOME_ARRAY(i).income_type_code = "48" OR INCOME_ARRAY(i).income_type_code = "49" Then other_UNEA_count = other_UNEA_count + 1
-		next
-	End If
 	' end If
 
 end function
@@ -4392,7 +5677,10 @@ updated_phone_type_three 	= phone_type_three
 
 Call read_all_the_MEMBs
 
+Call read_all_Assets
+
 Call read_all_UNEA
+
 
 call read_EATS_panel(all_hh_members_eat_w_applicant, members_unable_to_fix_food, group_one_number, group_one_member_list, group_one_member_array, group_two_number, group_two_member_list, group_two_member_array, group_three_number, group_three_member_list, group_three_member_array, group_four_number, group_four_member_list, group_four_member_array, group_five_number, group_five_member_list, group_five_member_array)
 
@@ -4452,9 +5740,34 @@ second_page_display = main_unea
 
 ButtonPressed = caf_page_one_btn
 leave_loop = FALSE
+
+If unea_found = FALSE AND jobs_found = FALSE AND busi_found = FALSE Then
+	Set INCOME_ARRAY(0) = new client_income
+End If
 Do
 	Do
 		If memb_selected = "" Then memb_selected = 0
+
+		case_has_stwk_panel = FALSE
+		If page_display = show_q_7 AND stwk_selected = "" Then
+			For i = 0 to Ubound(HH_MEMB_ARRAY, 1)
+				If HH_MEMB_ARRAY(i).stwk_exists = TRUE Then
+					stwk_selected = i
+					case_has_stwk_panel = TRUE
+					Exit For
+				End If
+			Next
+		End If
+		case_has_fmed_panel = FALSE
+		If page_display = show_q_19 AND fmed_selected = "" Then
+			For i = 0 to Ubound(HH_MEMB_ARRAY, 1)
+				If HH_MEMB_ARRAY(i).fmed_exists = TRUE Then
+					fmed_selected = i
+					case_has_fmed_panel = TRUE
+					Exit For
+				End If
+			Next
+		End If
 		' MsgBox page_display
 		Dialog1 = ""
 		call define_main_dialog
@@ -4482,6 +5795,25 @@ Do
 	Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = FALSE
 
+
+Do
+	Do
+		err_msg = ""
+
+		BeginDialog Dialog1, 0, 0, 550, 385, "Full Interview Questions"
+		  ButtonGroup ButtonPressed
+		    PushButton 465, 365, 80, 15, "Review Office Contact", move_to_contact
+		  Text 10, 10, 160, 10, "^^1 - READ the complete text here to the client:"
+		  GroupBox 10, 25, 530, 325, "Rights and Responsibilities Text"
+		  Text 20, 35, 505, 25, "Note: Cash on an Electronic Benefit Transfer (EBT) card is provided to help families meet their basic needs, including: food, shelter, clothing, utilities and transportation. These funds are provided until families can support themselves. It is illegal for an EBT user to buy or attempt to buy tobacco products or alcohol with the EBT card. If you do, it is fraud and you will be removed from the program. Do not use an EBT card at a gambling establishment or "
+		  Text 20, 60, 490, 10, "retail establishment, which provides adult-orientated entertainment in which performers disrobe or perform in an unclothed state for entertainment."
+		  Text 20, 80, 215, 155, "- If you receive cash assistance and/or child care assistance, you must report changes which may affect your benefits to the county agency within 10 days after the change has occurred. If you receive"
+		EndDialog
+
+		dialog Dialog1
+	Loop until err_msg = ""
+	Call check_for_password(are_we_passworded_out)
+Loop until are_we_passworded_out = FALSE
 
 'CAF PAGE 1 - HH Comp and Address
 ' FUNCTION - Read the current address on ADDR - resi and mail and phone numbers.
