@@ -385,7 +385,7 @@ Call write_bullet_and_variable_in_CASE_NOTE("METS Case Number", METS_case_number
 Call write_bullet_and_variable_in_CASE_NOTE("Date of Application", application_date)
 'doesn't add due date if no changes are reported. This case can be worked on now.
 If forms_needed <> "Client verbally attested - No changes" and trim(due_date) <> "" then Call write_bullet_and_variable_in_CASE_NOTE("Verfication Due Date", due_date)
-Call write_bullet_and_variable_in_CASE_NOTE("Verifs/Froms Requested", forms_needed)
+Call write_bullet_and_variable_in_CASE_NOTE("Verifs/Forms Requested", forms_needed)
 Call write_variable_in_CASE_NOTE("---Health Care Member Information---")
 'HH member array output
 For i = 0 to ubound(HC_array, 2)
@@ -411,7 +411,7 @@ CALL write_variable_in_CASE_NOTE(worker_signature)
 
 If initial_option = "Initial Request" then
     navigate_decision = Msgbox("Do you want to open a Request to APPL useform?", vbQuestion + vbYesNo, "Navigate to Useform?")
-    If navigate_decision = vbYes then run "C:\Program Files\Internet Explorer\iexplore.exe http://aem.hennepin.us/rest/services/HennepinCounty/Processes/ServletRenderForm:1.0?formName=HSPH5004_1-0.xdp&interactive=1" 
+    If navigate_decision = vbYes then run "C:\Program Files\Internet Explorer\iexplore.exe http://aem.hennepin.us/rest/services/HennepinCounty/Processes/ServletRenderForm:1.0?formName=HSPH5004_1-0.xdp&interactive=1"
     If navigate_decision = vbNo then navigate_to_form = False
 End if
 
