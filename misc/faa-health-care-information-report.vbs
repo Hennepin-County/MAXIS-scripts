@@ -53,19 +53,96 @@ call changelog_update("09/13/2018", "Initial version.", "Ilse Ferris, Hennepin C
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-Function HCRE_panel_bypass() 
-	'handling for cases that do not have a completed HCRE panel
-	PF3		'exits PROG to prommpt HCRE if HCRE insn't complete
-	Do
-		EMReadscreen HCRE_panel_check, 4, 2, 50
-		If HCRE_panel_check = "HCRE" then
-			PF10	'exists edit mode in cases where HCRE isn't complete for a member
-			PF3
-		END IF
-	Loop until HCRE_panel_check <> "HCRE"
+Function get_to_RKEY()
+    EMReadScreen MMIS_panel_check, 4, 1, 52	'checking to see if user is on the RKEY panel in MMIS. If not, then it will go to there.
+    IF MMIS_panel_check <> "RKEY" THEN
+        attempt = 1
+        DO
+            If MMIS_case_number = "" Then Call MMIS_case_number_finder(MMIS_case_number)
+            PF6
+            EMReadScreen MMIS_panel_check, 4, 1, 52
+            attempt = attempt + 1
+            If attempt = 15 Then Exit Do
+        Loop Until MMIS_panel_check = "RKEY"
+    End If
+    EMReadScreen MMIS_panel_check, 4, 1, 52	'checking to see if user is on the RKEY panel in MMIS. If not, then it will go to there.
+    IF MMIS_panel_check <> "RKEY" THEN
+    	DO
+    		PF6
+    		EMReadScreen session_terminated_check, 18, 1, 7
+    	LOOP until session_terminated_check = "SESSION TERMINATED"
+
+        'Getting back in to MMIS and trasmitting past the warning screen (workers should already have accepted the warning when they logged themselves into MMIS the first time, yo.
+        EMWriteScreen "MW00", 1, 2
+        transmit
+        transmit
+
+        EMReadScreen MMIS_menu, 24, 3, 30
+	    If MMIS_menu = "GROUP SECURITY SELECTION" Then
+            row = 1
+            col = 1
+            EMSearch " C3", row, col
+            If row <> 0 Then
+                EMWriteScreen "x", row, 4
+                transmit
+            Else
+                row = 1
+                col = 1
+                EMSearch " C4", row, col
+                If row <> 0 Then
+                    EMWriteScreen "x", row, 4
+                    transmit
+                Else
+                    script_end_procedure_with_error_report("You do not appear to have access to the County Eligibility area of MMIS, this script requires access to this region. The script will now stop.")
+                End If
+            End If
+
+            'Now it finds the recipient file application feature and selects it.
+            row = 1
+            col = 1
+            EMSearch "RECIPIENT FILE APPLICATION", row, col
+            EMWriteScreen "x", row, col - 3
+            transmit
+        Else
+            'Now it finds the recipient file application feature and selects it.
+            row = 1
+            col = 1
+            EMSearch "RECIPIENT FILE APPLICATION", row, col
+            EMWriteScreen "x", row, col - 3
+            transmit
+        End If
+    END IF
 End Function
 
-Function MMIS_panel_check(panel_name, col)
+Function MMIS_case_number_finder(MMIS_case_number)
+    row = 1
+    col = 1
+    EMSearch "CASE NUMBER:", row, col
+    If row <> 0 Then
+        EMReadScreen MMIS_case_number, 8, row, col + 13
+        MMIS_case_number = trim(MMIS_case_number)
+    End If
+    If MMIS_case_number = "" Then
+        row = 1
+        col = 1
+        EMSearch "CASE NBR:", row, col
+        If row <> 0 Then
+            EMReadScreen MMIS_case_number, 8, row, col + 10
+            MMIS_case_number = trim(MMIS_case_number)
+        End If
+    End If
+    If MMIS_case_number = "" Then
+        row = 1
+        col = 1
+        EMSearch "CASE:", row, col
+        If row <> 0 Then
+            EMReadScreen MMIS_case_number, 8, row, col + 6
+            MMIS_case_number = trim(MMIS_case_number)
+        End If
+    End If
+End Function
+
+Function MMIS_panel_confirmation(panel_name, col)
 	Do 
 		EMReadScreen panel_check, 4, 1, col
 		If panel_check <> panel_name then Call write_value_and_transmit(panel_name, 1, 8)
@@ -75,8 +152,6 @@ End function
 '----------------------------------------------------------------------------------------------------The script
 'CONNECTS TO BlueZone
 EMConnect ""
-MAXIS_footer_month = CM_mo	'establishing footer month/year 
-MAXIS_footer_year = CM_yr 
 
 'The dialog is defined in the loop as it can change as buttons are pressed 
 Dialog1 = ""
@@ -92,7 +167,7 @@ BeginDialog Dialog1, 0, 0, 221, 115, "Health Care Information Report"
   EditBox 15, 45, 150, 15, file_selection_path
 EndDialog
 
-Call check_for_MAXIS(false) 'ensuring we're in MAXIS
+Call check_for_MMIS(True) 'ensuring we're in MMIS 
 
 'dialog and dialog DO...Loop	
 Do
@@ -147,6 +222,7 @@ Do
     Client_PMI = objExcel.cells(excel_row, 1).Value          'reading the PMI from Excel 
     Client_PMI = trim(Client_PMI)
     If Client_PMI = "" then exit do
+    client_PMI = right("00000000" & Client_PMI, 8)
 
     'If the case number is found in the string of case numbers, it's not added again. 
     If instr(all_pmi_array, "*" & Client_PMI & "*") then 
@@ -183,68 +259,6 @@ Do
 Loop
 
 objExcel.Quit		'Once all of the clients have been added to the array, the excel document is closed because we are going to open another document and don't want the script to be confused
-back_to_self
-call MAXIS_footer_month_confirmation	'ensuring we are in the correct footer month/year
-
-For item = 0 to UBound(case_array, 2)
-    Client_PMI = case_array(clt_PMI_const, item)
-
-    Call navigate_to_MAXIS_screen("PERS", "____")
-    EMReadScreen PRIV_check, 4, 24, 14					'if case is a priv case then it gets identified, and will not be updated in MMIS
-	If PRIV_check = "PRIV" then
-        case_array(case_status, item) = "PRIV case."
-		'This DO LOOP ensure that the user gets out of a PRIV case. It can be fussy, and mess the script up if the PRIV case is not cleared.
-		Do
-			back_to_self
-			EMReadScreen SELF_screen_check, 4, 2, 50	'DO LOOP makes sure that we're back in SELF menu
-			If SELF_screen_check <> "SELF" then PF3
-		LOOP until SELF_screen_check = "SELF"
-		EMWriteScreen "________", 18, 43		'clears the MAXIS case number
-		transmit
-    Else
-        Call write_value_and_transmit(client_PMI, 15, 36)
-        EmReadscreen error_message, 80, 24, 2
-        error_message = trim(error_message)
-        If error_message <> "" then 
-            case_array(case_status, item) = error_message 
-        Else     
-            EmReadscreen panel_PMI, 10, 8, 71
-            panel_PMI = trim(panel_PMI)
-            
-            If instr(Client_PMI, panel_PMI) then
-                EmReadscreen Client_SSN, 11, 8, 7
-                Client_SSN = replace(Client_SSN, "-", "")
-                Client_SSN = trim(Client_SSN)
-                
-                EmReadscreen no_case_message, 20, 24, 38
-                If no_case_message = "NO MAXIS CASE EXISTS" then 
-                    case_array(case_status, item) = "Client does not have a MAXIS case." 
-                Elseif Client_SSN = "" then
-                    case_array(case_status, item) = "Unable to find SSN in PERS."
-                Else 
-                    case_array(case_status, item) = ""
-                    Case_array(client_SSN_const, item) = Client_SSN
-                End if 
-                EmReadscreen last_name, 20, 8, 21
-                Case_array(last_name_const, item) = trim(last_name)
-                
-                EmReadscreen first_name, 12, 8, 42 
-                Case_array(first_name_const, item) = trim(first_name)
-                
-                EmReadscreen client_DOB, 10, 8, 60
-                case_array(DOB_const, item) = trim(client_DOB)
-                
-                EmReadscreen gender_code, 1, 8, 58
-                case_array(gender_const, item) = gender_code
-            Else 
-                case_array(case_status, item) = "Unable to find PMI in PERS." 
-            End if 
-        End if 
-    End if 
-Next 
-
-'-------------------------------------------------------------------------------------------------------------------------------------MMIS portion of the script
-Call navigate_to_MMIS_region("CTY ELIG STAFF/UPDATE")	'function to navigate into MMIS, select the HC realm, and enters the prior autorization area
 
 'Opening the Excel file
 Set objExcel = CreateObject("Excel.Application")
@@ -282,15 +296,49 @@ FOR i = 1 to 18 	'formatting the cells'
 NEXT
 
 excel_row = 2
+'----------------------------------------------------------------------------------------------------Gathering Person information based on provided PMI 
+For item = 0 to UBound(case_array, 2)
+    Client_PMI = case_array(clt_PMI_const, item)
+
+    get_to_RKEY
+    Call write_value_and_transmit (Client_PMI, 4, 19)
+    Call MMIS_panel_confirmation("RSUM", 51) 
+    Call write_value_and_transmit ("RCIP", 1, 8)
+    Call MMIS_panel_confirmation("RCIP", 52) 
+    
+    EmReadscreen Client_SSN, 9, 5, 28
+    Client_SSN = trim(Client_SSN)
+    
+    If Client_SSN = "" then
+        case_array(case_status, item) = "Unable to find SSN in MMIS."
+    Else 
+        case_array(case_status, item) = ""
+        Case_array(client_SSN_const, item) = Client_SSN
+    End if 
+
+    EmReadscreen last_name, 17, 3, 2
+    Case_array(last_name_const, item) = trim(last_name)
+    
+    EmReadscreen first_name, 13, 3, 20 
+    Case_array(first_name_const, item) = trim(first_name)
+    
+    EmReadscreen client_DOB, 10, 2, 24
+    case_array(DOB_const, item) = trim(client_DOB)
+    
+    EmReadscreen gender_code, 1, 8, 28
+    case_array(gender_const, item) = gender_code
+Next 
+
+'----------------------------------------------------------------------------------------------------Health Care Information Report
 For item = 0 to UBound(case_array, 2)
     Client_SSN = case_array(client_SSN_const, item) 
     Client_PMI = case_array(clt_PMI_const, item)
-    client_PMI = right("00000000" & client_pmi, 8)
     
     If case_array(case_status, item) = "" then
-        Call MMIS_panel_check("RKEY", 52) 
-        Call clear_line_of_text(4, 19)
-        EMWriteScreen Client_SSN, 5, 19
+        get_to_RKEY
+        'Call MMIS_panel_confirmation("RKEY", 52) 
+        Call clear_line_of_text(5, 19)
+        EMWriteScreen Client_PMI, 4, 19
         Call write_value_and_transmit("I", 2, 19)
         RSEL_row = 7
         Do 
@@ -378,7 +426,7 @@ For item = 0 to UBound(case_array, 2)
                     
                     'Reading PMAP Information from RPPH panel 
                     Call write_value_and_transmit("RPPH", 1, 8)
-                    Call MMIS_panel_check("RPPH", 52)
+                    Call MMIS_panel_confirmation("RPPH", 52)
                     
                     EmReadscreen pmap_begin, 8, 13, 5
                     case_array(pmap_begin_const, item) = trim(pmap_begin)
