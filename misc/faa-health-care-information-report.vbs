@@ -65,9 +65,9 @@ Function HCRE_panel_bypass()
 	Loop until HCRE_panel_check <> "HCRE"
 End Function
 
-Function MMIS_panel_check(panel_name)
+Function MMIS_panel_check(panel_name, col)
 	Do 
-		EMReadScreen panel_check, 4, 1, 52
+		EMReadScreen panel_check, 4, 1, col
 		If panel_check <> panel_name then Call write_value_and_transmit(panel_name, 1, 8)
 	Loop until panel_check = panel_name
 End function
@@ -114,7 +114,7 @@ Do
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 DIM case_array()
-ReDim case_array(16, 0)
+ReDim case_array(19, 0)
 
 'constants for array
 const clt_PMI_const 	        = 0
@@ -134,6 +134,9 @@ const third_type_const      	= 13
 const third_elig_const      	= 14
 const case_status               = 15        	
 const rsum_PMI_const            = 16
+const pmap_begin_const          = 17
+const pmap_end_const            = 18
+const pmap_name_const           = 19
 
 'Now the script adds all the clients on the excel list into an array
 excel_row = 2 're-establishing the row to start checking the members for
@@ -149,7 +152,7 @@ Do
     If instr(all_pmi_array, "*" & Client_PMI & "*") then 
         add_to_array = False
     Else 
-        ReDim Preserve case_array(16, entry_record)	'This resizes the array based on the number of rows in the Excel File'
+        ReDim Preserve case_array(19, entry_record)	'This resizes the array based on the number of rows in the Excel File'
         'The client information is added to the array'
         case_array(clt_PMI_const,               entry_record) = Client_PMI			
         case_array(last_name_const,             entry_record) = ""             
@@ -168,7 +171,10 @@ Do
         case_array(third_elig_const,            entry_record) = ""	
         case_array(case_status,                 entry_record) = "" 
         case_array(rsum_PMI_const,              entry_record) = ""		
-
+        case_array(pmap_begin_const,            entry_record) = ""
+        case_array(pmap_end_const,              entry_record) = ""
+        case_array(pmap_name_const,             entry_record) = ""
+        
         entry_record = entry_record + 1			'This increments to the next entry in the array'
         stats_counter = stats_counter + 1
         all_pmi_array = trim(all_pmi_array & Client_PMI & "*") 'Adding MAXIS case number to case number string
@@ -265,8 +271,11 @@ ObjExcel.Cells(1, 12).Value = "2nd Elig Dates"
 ObjExcel.Cells(1, 13).Value = "3rd Case"
 ObjExcel.Cells(1, 14).Value = "3rd Type/Prog"
 ObjExcel.Cells(1, 15).Value = "3rd Elig Dates"
+ObjExcel.Cells(1, 16).Value = "PMAP Start"
+ObjExcel.Cells(1, 17).Value = "PMAP End"
+ObjExcel.Cells(1, 18).Value = "PMAP Name"
 
-FOR i = 1 to 15 	'formatting the cells'
+FOR i = 1 to 18 	'formatting the cells'
 	objExcel.Cells(1, i).Font.Bold = True		'bold font'
 	ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
 	objExcel.Columns(i).AutoFit()				'sizing the columns'
@@ -279,7 +288,7 @@ For item = 0 to UBound(case_array, 2)
     client_PMI = right("00000000" & client_pmi, 8)
     
     If case_array(case_status, item) = "" then
-        MMIS_panel_check("RKEY") 
+        Call MMIS_panel_check("RKEY", 52) 
         Call clear_line_of_text(4, 19)
         EMWriteScreen Client_SSN, 5, 19
         Call write_value_and_transmit("I", 2, 19)
@@ -366,7 +375,25 @@ For item = 0 to UBound(case_array, 2)
                             case_array(third_elig_const, item) = third_elig_dates
                         End if    
                     End if 
-             
+                    
+                    'Reading PMAP Information from RPPH panel 
+                    Call write_value_and_transmit("RPPH", 1, 8)
+                    Call MMIS_panel_check("RPPH", 52)
+                    
+                    EmReadscreen pmap_begin, 8, 13, 5
+                    case_array(pmap_begin_const, item) = trim(pmap_begin)
+                    
+                    EmReadscreen pmap_end, 8, 13, 14
+                    case_array(pmap_end_const, item) = trim(pmap_end)
+                    
+                    EMReadScreen hp_code, 10, 13, 23
+                    If hp_code = "A585713900" then case_array(pmap_name_const, item) = "HealthPartners"
+                    If hp_code = "A565813600" then case_array(pmap_name_const, item) = "Ucare"
+                    If hp_code = "A405713900" then case_array(pmap_name_const, item) = "Medica"
+                    If hp_code = "A065813800" then case_array(pmap_name_const, item) = "BluePlus"
+                    If hp_code = "A836618200" then case_array(pmap_name_const, item) = "Hennepin Health PMAP"
+                    If hp_code = "A965713400" then case_array(pmap_name_const, item) = "Hennepin Health SNBC"
+                            
                     'outputting to Excel 
                     If case_array(case_status, item) = "" then 
                         objExcel.Cells(excel_row,  1).Value = case_array (clt_PMI_const,            item)
@@ -384,6 +411,9 @@ For item = 0 to UBound(case_array, 2)
                         objExcel.Cells(excel_row, 13).Value = case_array (third_case_number_const,  item)
                         objExcel.Cells(excel_row, 14).Value = case_array (third_type_const,      	item)
                         objExcel.Cells(excel_row, 15).Value = case_array (third_elig_const,         item) 
+                        objExcel.Cells(excel_row, 16).Value = case_array(pmap_begin_const,          item)
+                        objExcel.Cells(excel_row, 17).Value = case_array(pmap_end_const,            item)
+                        objExcel.Cells(excel_row, 18).Value = case_array(pmap_name_const,           item)
                         excel_row = excel_row + 1
                     End if 
                 End if      
@@ -405,6 +435,9 @@ For item = 0 to UBound(case_array, 2)
                     case_array(third_type_const,        item) = ""				
                     case_array(third_elig_const,        item) = ""
                     case_array(case_status,             item) = ""	
+                    case_array(pmap_begin_const,        item) = ""
+                    case_array(pmap_end_const,          item) = ""
+                    case_array(pmap_name_const,         item) = ""
                 Else 
                     exit do 'No more cases on RSEL 
                 end if 
@@ -416,7 +449,7 @@ For item = 0 to UBound(case_array, 2)
     End if 
 Next     
     
-FOR i = 1 to 15		'formatting the cells
+FOR i = 1 to 18		'formatting the cells
 	objExcel.Columns(i).AutoFit()				'sizing the columns'
 NEXT
 
