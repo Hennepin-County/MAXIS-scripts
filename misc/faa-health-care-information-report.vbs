@@ -288,8 +288,9 @@ ObjExcel.Cells(1, 15).Value = "3rd Elig Dates"
 ObjExcel.Cells(1, 16).Value = "PMAP Start"
 ObjExcel.Cells(1, 17).Value = "PMAP End"
 ObjExcel.Cells(1, 18).Value = "PMAP Name"
+ObjExcel.Cells(1, 19).Value = "Status"
 
-FOR i = 1 to 18 	'formatting the cells'
+FOR i = 1 to 19 	'formatting the cells'
 	objExcel.Cells(1, i).Font.Bold = True		'bold font'
 	ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
 	objExcel.Columns(i).AutoFit()				'sizing the columns'
@@ -374,97 +375,98 @@ For item = 0 to UBound(case_array, 2)
                 Case_array(rsum_PMI_const, item) = RSUM_PMI
                 EmReadscreen first_case_number, 8, 7, 16
                 first_case_number = trim(first_case_number)
-                If first_case_number = "" then
-                    case_array(case_status, item) = "No active programs in MMIS under billed PMI."
-                Else     
-                    case_array(first_case_number_const, item) = first_case_number
-                    EmReadscreen first_program, 2, 6, 13
-                    EmReadscreen first_type, 2, 6, 35
-                    If trim(first_program) <> "" then 
-                        first_elig_type = first_program & "-" & first_type
-                        case_array(first_type_const, item) = first_elig_type
-                        '1st elig dates 
-                        EmReadscreen first_elig_start, 8, 7, 35
-                        EmReadscreen first_elig_end, 8, 7, 54
-                        first_elig_dates = first_elig_start &  " - " & first_elig_end
-                        case_array(first_elig_const, item) = first_elig_dates
-                    End if    
-            
-                    EmReadscreen second_case_number, 8, 9, 16
-                    second_case_number = trim(second_case_number)
-                    If second_case_number <> "" then 
-                        case_array(second_case_number_const, item) = second_case_number
-                        EmReadscreen second_program, 2, 8, 13
-                        EmReadscreen second_type, 2, 8, 35
-                        If trim(second_program) <> "" then 
-                            second_elig_type = second_program & "-" & second_type
-                            case_array(second_type_const, item) = second_elig_type
-                            '1st elig dates 
-                            EmReadscreen second_elig_start, 8, 9, 35
-                            EmReadscreen second_elig_end, 8, 9, 54
-                            second_elig_dates = second_elig_start &  " - " & second_elig_end
-                            case_array(second_elig_const, item) = second_elig_dates
-                        ENd if    
-                    End if     
                 
-                    EmReadscreen third_case_number, 8, 11, 16
-                    third_case_number = trim(third_case_number)
-                    If third_case_number <> "" then 
-                        case_array(third_case_number_const, item) = third_case_number
-                        EmReadscreen third_program, 2, 10, 13
-                        EmReadscreen third_type, 2, 10, 35
-                        If trim(third_program) <> "" then 
-                            third_elig_type = third_program & "-" & third_type
-                            case_array(third_type_const, item) = third_elig_type
-                            '1st elig dates 
-                            EmReadscreen third_elig_start, 8, 11, 35
-                            EmReadscreen third_elig_end, 8, 11, 54
-                            third_elig_dates = third_elig_start &  " - " & third_elig_end
-                            case_array(third_elig_const, item) = third_elig_dates
-                        End if    
-                    End if 
-                    
-                    'Reading PMAP Information from RPPH panel 
-                    Call write_value_and_transmit("RPPH", 1, 8)
-                    Call MMIS_panel_confirmation("RPPH", 52)
-                    
-                    EmReadscreen pmap_begin, 8, 13, 5
-                    case_array(pmap_begin_const, item) = trim(pmap_begin)
-                    
-                    EmReadscreen pmap_end, 8, 13, 14
-                    case_array(pmap_end_const, item) = trim(pmap_end)
-                    
-                    EMReadScreen hp_code, 10, 13, 23
-                    If hp_code = "A585713900" then case_array(pmap_name_const, item) = "HealthPartners"
-                    If hp_code = "A565813600" then case_array(pmap_name_const, item) = "Ucare"
-                    If hp_code = "A405713900" then case_array(pmap_name_const, item) = "Medica"
-                    If hp_code = "A065813800" then case_array(pmap_name_const, item) = "BluePlus"
-                    If hp_code = "A836618200" then case_array(pmap_name_const, item) = "Hennepin Health PMAP"
-                    If hp_code = "A965713400" then case_array(pmap_name_const, item) = "Hennepin Health SNBC"
-                            
-                    'outputting to Excel 
-                    If case_array(case_status, item) = "" then 
-                        objExcel.Cells(excel_row,  1).Value = case_array (clt_PMI_const,            item)
-                        objExcel.Cells(excel_row,  2).Value = case_array (rsum_PMI_const,           item)
-                        objExcel.Cells(excel_row,  3).Value = case_array (last_name_const,          item)
-                        objExcel.Cells(excel_row,  4).Value = case_array (first_name_const,         item)
-                        objExcel.Cells(excel_row,  5).Value = case_array (DOB_const,                item)
-                        objExcel.Cells(excel_row,  6).Value = case_array (gender_const,             item)
-                        objExcel.Cells(excel_row,  7).Value = case_array (first_case_number_const,  item)
-                        objExcel.Cells(excel_row,  8).Value = case_array (first_type_const, 	    item)
-                        objExcel.Cells(excel_row,  9).Value = case_array (first_elig_const, 	    item)
-                        objExcel.Cells(excel_row, 10).Value = case_array (second_case_number_const, item)
-                        objExcel.Cells(excel_row, 11).Value = case_array (second_type_const, 	    item)
-                        objExcel.Cells(excel_row, 12).Value = case_array (second_elig_const, 	    item)
-                        objExcel.Cells(excel_row, 13).Value = case_array (third_case_number_const,  item)
-                        objExcel.Cells(excel_row, 14).Value = case_array (third_type_const,      	item)
-                        objExcel.Cells(excel_row, 15).Value = case_array (third_elig_const,         item) 
-                        objExcel.Cells(excel_row, 16).Value = case_array(pmap_begin_const,          item)
-                        objExcel.Cells(excel_row, 17).Value = case_array(pmap_end_const,            item)
-                        objExcel.Cells(excel_row, 18).Value = case_array(pmap_name_const,           item)
-                        excel_row = excel_row + 1
-                    End if 
-                End if      
+                If first_case_number = "" then case_array(case_status, item) = "No active programs in MMIS under billed PMI."
+                   
+                case_array(first_case_number_const, item) = first_case_number
+                EmReadscreen first_program, 2, 6, 13
+                EmReadscreen first_type, 2, 6, 35
+                If trim(first_program) <> "" then 
+                    first_elig_type = first_program & "-" & first_type
+                    case_array(first_type_const, item) = first_elig_type
+                    '1st elig dates 
+                    EmReadscreen first_elig_start, 8, 7, 35
+                    EmReadscreen first_elig_end, 8, 7, 54
+                    first_elig_dates = first_elig_start &  " - " & first_elig_end
+                    case_array(first_elig_const, item) = first_elig_dates
+                End if    
+        
+                EmReadscreen second_case_number, 8, 9, 16
+                second_case_number = trim(second_case_number)
+                If second_case_number <> "" then 
+                    case_array(second_case_number_const, item) = second_case_number
+                    EmReadscreen second_program, 2, 8, 13
+                    EmReadscreen second_type, 2, 8, 35
+                    If trim(second_program) <> "" then 
+                        second_elig_type = second_program & "-" & second_type
+                        case_array(second_type_const, item) = second_elig_type
+                        '1st elig dates 
+                        EmReadscreen second_elig_start, 8, 9, 35
+                        EmReadscreen second_elig_end, 8, 9, 54
+                        second_elig_dates = second_elig_start &  " - " & second_elig_end
+                        case_array(second_elig_const, item) = second_elig_dates
+                    ENd if    
+                End if     
+                
+                EmReadscreen third_case_number, 8, 11, 16
+                third_case_number = trim(third_case_number)
+                If third_case_number <> "" then 
+                    case_array(third_case_number_const, item) = third_case_number
+                    EmReadscreen third_program, 2, 10, 13
+                    EmReadscreen third_type, 2, 10, 35
+                    If trim(third_program) <> "" then 
+                        third_elig_type = third_program & "-" & third_type
+                        case_array(third_type_const, item) = third_elig_type
+                        '1st elig dates 
+                        EmReadscreen third_elig_start, 8, 11, 35
+                        EmReadscreen third_elig_end, 8, 11, 54
+                        third_elig_dates = third_elig_start &  " - " & third_elig_end
+                        case_array(third_elig_const, item) = third_elig_dates
+                    End if    
+                End if 
+                
+                'Reading PMAP Information from RPPH panel 
+                Call write_value_and_transmit("RPPH", 1, 8)
+                Call MMIS_panel_confirmation("RPPH", 52)
+                
+                EmReadscreen pmap_begin, 8, 13, 5
+                case_array(pmap_begin_const, item) = trim(pmap_begin)
+                
+                EmReadscreen pmap_end, 8, 13, 14
+                case_array(pmap_end_const, item) = trim(pmap_end)
+                
+                EMReadScreen hp_code, 10, 13, 23
+                If hp_code = "A585713900" then case_array(pmap_name_const, item) = "HealthPartners"
+                If hp_code = "A565813600" then case_array(pmap_name_const, item) = "Ucare"
+                If hp_code = "A405713900" then case_array(pmap_name_const, item) = "Medica"
+                If hp_code = "A065813800" then case_array(pmap_name_const, item) = "BluePlus"
+                If hp_code = "A836618200" then case_array(pmap_name_const, item) = "Hennepin Health PMAP"
+                If hp_code = "A965713400" then case_array(pmap_name_const, item) = "Hennepin Health SNBC"
+                        
+                'outputting to Excel 
+                'If case_array(case_status, item) = "" then 
+                    objExcel.Cells(excel_row,  1).Value = case_array (clt_PMI_const,            item)
+                    objExcel.Cells(excel_row,  2).Value = case_array (rsum_PMI_const,           item)
+                    objExcel.Cells(excel_row,  3).Value = case_array (last_name_const,          item)
+                    objExcel.Cells(excel_row,  4).Value = case_array (first_name_const,         item)
+                    objExcel.Cells(excel_row,  5).Value = case_array (DOB_const,                item)
+                    objExcel.Cells(excel_row,  6).Value = case_array (gender_const,             item)
+                    objExcel.Cells(excel_row,  7).Value = case_array (first_case_number_const,  item)
+                    objExcel.Cells(excel_row,  8).Value = case_array (first_type_const, 	    item)
+                    objExcel.Cells(excel_row,  9).Value = case_array (first_elig_const, 	    item)
+                    objExcel.Cells(excel_row, 10).Value = case_array (second_case_number_const, item)
+                    objExcel.Cells(excel_row, 11).Value = case_array (second_type_const, 	    item)
+                    objExcel.Cells(excel_row, 12).Value = case_array (second_elig_const, 	    item)
+                    objExcel.Cells(excel_row, 13).Value = case_array (third_case_number_const,  item)
+                    objExcel.Cells(excel_row, 14).Value = case_array (third_type_const,      	item)
+                    objExcel.Cells(excel_row, 15).Value = case_array (third_elig_const,         item) 
+                    objExcel.Cells(excel_row, 16).Value = case_array(pmap_begin_const,          item)
+                    objExcel.Cells(excel_row, 17).Value = case_array(pmap_end_const,            item)
+                    objExcel.Cells(excel_row, 18).Value = case_array(pmap_name_const,           item)
+                    objExcel.Cells(excel_row, 19).Value = case_array(case_status,               item)
+                    excel_row = excel_row + 1
+                'End if 
+                'End if      
             End if 
                  
             If duplicate_entry = True then 
@@ -497,42 +499,42 @@ For item = 0 to UBound(case_array, 2)
     End if 
 Next     
     
-FOR i = 1 to 18		'formatting the cells
+FOR i = 1 to 19		'formatting the cells
 	objExcel.Columns(i).AutoFit()				'sizing the columns'
 NEXT
 
-'Adding another sheet
-ObjExcel.Worksheets.Add().Name = "Error List" 
-
-'formatting excel file with columns for case number and interview date/time
-objExcel.cells(1, 1).value 	= "Billed PMI"
-objExcel.cells(1, 2).value 	= "RSUM PMI"
-objExcel.cells(1, 3).value 	= "Error Reason"
-objExcel.cells(1, 4).value 	= "Last Name"
-objExcel.cells(1, 5).value 	= "First Name"
-	
-FOR i = 1 to 5									'formatting the cells'
-	objExcel.Cells(1, i).Font.Bold = True		'bold font'
-	objExcel.Columns(i).AutoFit()				'sizing the columns'
-NEXT
-
-'Adding the case information to Excel
-excel_row = 2
-For item = 0 to UBound(case_array, 2)
-    If case_array(case_status, item) <> "" then
-	    ObjExcel.Cells(excel_row, 1).value = case_array (clt_PMI_const,    item)
-	    ObjExcel.Cells(excel_row, 2).value = case_array (rsum_PMI_const,   item)  'This outputs the reason for the error
-        ObjExcel.Cells(excel_row, 3).value = case_array (case_status,      item)  'This outputs the reason for the error
-        objExcel.Cells(excel_row, 4).Value = case_array (last_name_const,  item)
-        objExcel.Cells(excel_row, 5).Value = case_array (first_name_const, item)
-	    excel_row = excel_row + 1 
-    End if 
-Next
-
-'Formatting the columns to autofit after they are all finished being created.
-FOR i = 1 to 5
-	objExcel.Columns(i).autofit()
-Next
+''Adding another sheet
+'ObjExcel.Worksheets.Add().Name = "Error List" 
+'
+''formatting excel file with columns for case number and interview date/time
+'objExcel.cells(1, 1).value 	= "Billed PMI"
+'objExcel.cells(1, 2).value 	= "RSUM PMI"
+'objExcel.cells(1, 3).value 	= "Error Reason"
+'objExcel.cells(1, 4).value 	= "Last Name"
+'objExcel.cells(1, 5).value 	= "First Name"
+'	
+'FOR i = 1 to 5									'formatting the cells'
+'	objExcel.Cells(1, i).Font.Bold = True		'bold font'
+'	objExcel.Columns(i).AutoFit()				'sizing the columns'
+'NEXT
+'
+''Adding the case information to Excel
+'excel_row = 2
+'For item = 0 to UBound(case_array, 2)
+'    If case_array(case_status, item) <> "" then
+'	    ObjExcel.Cells(excel_row, 1).value = case_array (clt_PMI_const,    item)
+'	    ObjExcel.Cells(excel_row, 2).value = case_array (rsum_PMI_const,   item)  'This outputs the reason for the error
+'        ObjExcel.Cells(excel_row, 3).value = case_array (case_status,      item)  'This outputs the reason for the error
+'        objExcel.Cells(excel_row, 4).Value = case_array (last_name_const,  item)
+'        objExcel.Cells(excel_row, 5).Value = case_array (first_name_const, item)
+'	    excel_row = excel_row + 1 
+'    End if 
+'Next
+'
+''Formatting the columns to autofit after they are all finished being created.
+'FOR i = 1 to 5
+'	objExcel.Columns(i).autofit()
+'Next
 
 STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
 script_end_procedure("Success! Your list has been created. Please review for cases that need to be processed manually.")
