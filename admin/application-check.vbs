@@ -50,7 +50,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("08/17/2020", "Added support for the pending Health Care application interview requirements.", "Ilse Ferris")
+call changelog_update("08/17/2020", "Added support for the pending Health Care application screening requirements.", "Ilse Ferris")
 call changelog_update("03/01/2020", "Updated TIKL functionality and TIKL text in the case note.", "Ilse Ferris")
 call changelog_update("12/17/2019", "Enhanced PND2 case pending case search.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/03/2019", "Updated TIKL functionality to suppress when the case is identified to either approve or deny.", "Ilse Ferris")
@@ -122,7 +122,7 @@ Do
 LOOP until row = 19
 If found_case = False then script_end_procedure_with_error_report("There is not a pending program on this case, or case is not in PND2 status." & vbNewLine & vbNewLine & "Please make sure you have the right case number, and/or check your case notes to ensure that this application has been completed.")
 
-HC_pending = False  'setting variable to false. This will be used to determine if HC is penfing or not to support HC screening/interview process.       
+HC_pending = False  'setting variable to false. This will be used to determine if HC is penfing or not to support HC screening process.       
 
 EMReadScreen app_month, 2, row, 38
 EMReadScreen app_day, 2, row, 41
@@ -159,7 +159,7 @@ EMReadScreen PEND_HC_check, 1, row, 65
 EMReadScreen PEND_EMER_check,	1, row, 68
 EMReadScreen PEND_GRH_check, 1, row, 72
 
-If PEND_HC_check = "P" then HC_pending = True   'This will search case notes to ensure that a HC Application Interview has been conducted.
+If PEND_HC_check = "P" then HC_pending = True   'This will search case notes to ensure that a HC Application screening has been conducted.
 
 CALL navigate_to_MAXIS_screen("STAT", "PROG")		'Goes to STAT/PROG
 EMReadScreen err_msg, 7, 24, 02
@@ -362,12 +362,12 @@ Elseif DateDiff("d", application_date, date) > 60 then
 	reminder_text = "Post day 60"
 END IF
 
-'--------------------------------------------------------------------------------------------------------------------------------------Health Care Interview Portion 
+'--------------------------------------------------------------------------------------------------------------------------------------Health Care Screening Portion 
 IF HC_pending = True then
     hc_days_pending = datediff("D", hc_app_date, date) 
-    'Checking case note to see if a HC interview has been completed to date
+    'Checking case note to see if a HC screening has been completed to date
     Call navigate_to_MAXIS_screen("CASE", "NOTE")
-    'starting at the 1st case note, checking the headers for the HC Interview 
+    'starting at the 1st case note, checking the headers for the HC screening
     case_note_found = False         'defaulting to false if not able to find an expedited care note
     row = 5
     Do
@@ -382,8 +382,8 @@ IF HC_pending = True then
             If trim(case_note_date) = "" then
                 case_note_found = False             'The end of the case notes has been found
                 exit do 
-            ElseIf instr(case_note_header, "health care application interview completed") then
-                case_note_found = True     'no need for interview. 
+            ElseIf instr(case_note_header, "Health Care Application Screening Completed") then
+                case_note_found = True     'no need for screening. 
                 exit do
             Else
                 row = row + 1
@@ -397,10 +397,10 @@ IF HC_pending = True then
     
     interview_status = ""   'blanking out variable
     If case_note_found = False then 
-        'Asking the user if they wish to contact the client/arep. If yes, they will go to the interview dialog 
+        'Asking the user if they wish to contact the client/arep. If yes, they will go to the screening dialog 
         'If no - the user needs to provide a reason for not screening which then will be added to the Application check case note.
         Dialog1 = ""
-        BeginDialog Dialog1, 0, 0, 226, 65, "Health Care Application Interview Not Found"
+        BeginDialog Dialog1, 0, 0, 226, 65, "Health Care Application Screening Not Found"
             DropListBox 160, 5, 60, 15, "Select one..."+chr(9)+"Yes"+chr(9)+"No", interview_confirmation
             EditBox 75, 25, 145, 15, no_call_reason
             ButtonGroup ButtonPressed
@@ -418,7 +418,7 @@ IF HC_pending = True then
                 cancel_without_confirmation
         		If interview_confirmation = "Select one..." then err_msg = error_msg & ("Confirm if you will call the resident/AREP.")
                 If interview_confirmation = "No" and trim(no_call_reason) = "" then err_msg = error_msg & ("Provide a reason for not calling the resident/AREP.")
-                If interview_confirmation = "Yes" and trim(no_call_reason) <> "" then err_msg = error_msg & ("Either select Yes and clear the reason field, or select No and provide a reason for not conducting an interview.")
+                If interview_confirmation = "Yes" and trim(no_call_reason) <> "" then err_msg = error_msg & ("Either select Yes and clear the reason field, or select No and provide a reason for not conducting a screening.")
                 If err_msg <> "" then MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
         	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
         	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -439,7 +439,7 @@ IF HC_pending = True then
             phone_number_array = split(phone_number_list, "|")
             Call convert_array_to_droplist_items(phone_number_array, phone_numbers)
             
-            'HC Application Interview Dialog 
+            'HC Application Screening Dialog 
             Do
             	Do  
                     err_msg = ""        
@@ -536,7 +536,7 @@ IF HC_pending = True then
                     If trim(phone_number) = "" or trim(phone_number) = "Select or Type" then err_msg = err_msg & vbcr & "* Enter the phone number called."
                     If trim(when_contact_was_made) = "" then err_msg = err_msg & vbcr & "* Enter the date and time of contact."
                     If contact_type = "Phone Call" then 
-                        'mandotory fields for completing the health care application interview 
+                        'mandotory fields for completing the health care application screening 
                         If trim(verifs_needed) = "" then err_msg = err_msg & vbcr & "* Enter the mandatory verifications needed for this application."
                         If barrier_droplist = "Select" then err_msg = err_msg & vbcr &"* Provide an answer re: barrier to providing verifs."
                         IF reasonable_droplist = "Select" then err_msg = err_msg & vbcr &"* Provide an answer re: reason explanation for barrier"
@@ -567,12 +567,12 @@ IF HC_pending = True then
             End if 
             
             start_a_blank_CASE_NOTE
-            Call write_variable_in_CASE_NOTE("Health Care Application Interview " & interview_status & " " & date)
+            Call write_variable_in_CASE_NOTE("Health Care Application Screening " & interview_status & " " & date)
             Call write_variable_in_CASE_NOTE("* " & contact_type & " " & contact_direction & " " & who_contacted & " completed at " & when_contact_was_made)
             Call write_bullet_and_variable_in_CASE_NOTE("Phone Number", phone_number)
             CALL write_bullet_and_variable_in_CASE_NOTE("METS/IC number", METS_IC_number)
             If interview_status = "Completed" then
-                Call write_variable_in_CASE_NOTE("===Interview Inforamtion===")
+                Call write_variable_in_CASE_NOTE("===Screening Inforamtion===")
                 Call write_bullet_and_variable_in_CASE_NOTE("Mandatory Verifs", verifs_needed)
                 Call write_bullet_and_variable_in_CASE_NOTE("Resident has a barrier to providing verifs", barrier_droplist)
                 If barrier_droplist = "Yes" then Call write_bullet_and_variable_in_CASE_NOTE("Resident has resonable explaination for the barrier", reasonable_droplist)
@@ -594,7 +594,7 @@ IF HC_pending = True then
             CALL write_variable_in_CASE_NOTE (worker_signature)
             PF3
 
-            'Updating the PROG panel with the interview date
+            'Updating the PROG panel with the screening date
             If interview_status = "Completed" then
                 no_call_reason = "" 'ensuring variable in case note is blank
                 Call convert_date_into_MAXIS_footer_month(hc_app_date, MAXIS_footer_month, MAXIS_footer_year)   'converting application month into MAXIS footer month/year
@@ -603,7 +603,7 @@ IF HC_pending = True then
                 EMReadScreen hc_status_check, 4, 12, 74         'double checking for pending status in the application month, will update if pending  
                 If hc_status_check = "PEND" then 
                     PF9
-                    Call create_MAXIS_friendly_date(date, 0, 12, 55)    'adding in today's date to HC interview date field. 
+                    Call create_MAXIS_friendly_date(date, 0, 12, 55)    'adding in today's date to HC screening date field. 
                     Transmit 'to save and exit
                     PF3     'to wrap screen
                     PF3     'to exit wrap screen
