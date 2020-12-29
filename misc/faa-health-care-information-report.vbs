@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/29/2020", "Added PMAP information to report. Added status to report. Removed error list. Status cases may also have health care information, enhancement from previous error list.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/20/2020", "Added link to instructions in main dialog.", "Ilse Ferris, Hennepin County")
 call changelog_update("08/06/2020", "Final release version ready for production.", "Ilse Ferris, Hennepin County")
 call changelog_update("07/16/2020", "Added gender and DOB fields to report.", "Ilse Ferris, Hennepin County")
@@ -303,31 +304,38 @@ For item = 0 to UBound(case_array, 2)
 
     get_to_RKEY
     Call write_value_and_transmit (Client_PMI, 4, 19)
-    Call MMIS_panel_confirmation("RSUM", 51) 
-    Call write_value_and_transmit ("RCIP", 1, 8)
-    Call MMIS_panel_confirmation("RCIP", 52) 
-    
-    EmReadscreen Client_SSN, 9, 5, 28
-    Client_SSN = trim(Client_SSN)
-    
-    If Client_SSN = "" then
-        case_array(case_status, item) = "Unable to find SSN in MMIS."
+    'Call MMIS_panel_confirmation("RSUM", 51) 
+    EmReadscreen RKEY_panel_check, 4, 1, 52
+    If RKEY_panel_check = "RKEY" then 
+        EmReadscreen RKEY_error, 78, 24, 2
+        case_array(case_status, item) = trim(RKEY_error)
     Else 
-        case_array(case_status, item) = ""
-        Case_array(client_SSN_const, item) = Client_SSN
-    End if 
+        'All accessable cases will have information gathered for them from the RCIP panel.  
+        Call write_value_and_transmit ("RCIP", 1, 8)
+        Call MMIS_panel_confirmation("RCIP", 52) 
+        
+        EmReadscreen Client_SSN, 9, 5, 28
+        Client_SSN = trim(Client_SSN)
+        
+        If Client_SSN = "" then
+            case_array(case_status, item) = "Unable to find SSN in MMIS."
+        Else 
+            case_array(case_status, item) = ""
+            Case_array(client_SSN_const, item) = Client_SSN
+        End if 
 
-    EmReadscreen last_name, 17, 3, 2
-    Case_array(last_name_const, item) = trim(last_name)
-    
-    EmReadscreen first_name, 13, 3, 20 
-    Case_array(first_name_const, item) = trim(first_name)
-    
-    EmReadscreen client_DOB, 10, 2, 24
-    case_array(DOB_const, item) = trim(client_DOB)
-    
-    EmReadscreen gender_code, 1, 8, 28
-    case_array(gender_const, item) = gender_code
+        EmReadscreen last_name, 17, 3, 2
+        Case_array(last_name_const, item) = trim(last_name)
+        
+        EmReadscreen first_name, 13, 3, 20 
+        Case_array(first_name_const, item) = trim(first_name)
+        
+        EmReadscreen client_DOB, 10, 2, 24
+        case_array(DOB_const, item) = trim(client_DOB)
+        
+        EmReadscreen gender_code, 1, 8, 28
+        case_array(gender_const, item) = gender_code
+    End if 
 Next 
 
 '----------------------------------------------------------------------------------------------------Health Care Information Report
@@ -335,7 +343,11 @@ For item = 0 to UBound(case_array, 2)
     Client_SSN = case_array(client_SSN_const, item) 
     Client_PMI = case_array(clt_PMI_const, item)
     
-    If case_array(case_status, item) = "" then
+    If case_array(case_status, item) = "RECIPIENT ID COULD NOT BE FOUND" then
+        objExcel.Cells(excel_row,  1).Value = case_array (clt_PMI_const, item)
+        objExcel.Cells(excel_row, 19).Value = case_array(case_status,    item)
+        excel_row = excel_row + 1
+    Else 
         get_to_RKEY
         'Call MMIS_panel_confirmation("RKEY", 52) 
         Call clear_line_of_text(5, 19)
@@ -442,33 +454,30 @@ For item = 0 to UBound(case_array, 2)
                 If hp_code = "A065813800" then case_array(pmap_name_const, item) = "BluePlus"
                 If hp_code = "A836618200" then case_array(pmap_name_const, item) = "Hennepin Health PMAP"
                 If hp_code = "A965713400" then case_array(pmap_name_const, item) = "Hennepin Health SNBC"
-                        
-                'outputting to Excel 
-                'If case_array(case_status, item) = "" then 
-                    objExcel.Cells(excel_row,  1).Value = case_array (clt_PMI_const,            item)
-                    objExcel.Cells(excel_row,  2).Value = case_array (rsum_PMI_const,           item)
-                    objExcel.Cells(excel_row,  3).Value = case_array (last_name_const,          item)
-                    objExcel.Cells(excel_row,  4).Value = case_array (first_name_const,         item)
-                    objExcel.Cells(excel_row,  5).Value = case_array (DOB_const,                item)
-                    objExcel.Cells(excel_row,  6).Value = case_array (gender_const,             item)
-                    objExcel.Cells(excel_row,  7).Value = case_array (first_case_number_const,  item)
-                    objExcel.Cells(excel_row,  8).Value = case_array (first_type_const, 	    item)
-                    objExcel.Cells(excel_row,  9).Value = case_array (first_elig_const, 	    item)
-                    objExcel.Cells(excel_row, 10).Value = case_array (second_case_number_const, item)
-                    objExcel.Cells(excel_row, 11).Value = case_array (second_type_const, 	    item)
-                    objExcel.Cells(excel_row, 12).Value = case_array (second_elig_const, 	    item)
-                    objExcel.Cells(excel_row, 13).Value = case_array (third_case_number_const,  item)
-                    objExcel.Cells(excel_row, 14).Value = case_array (third_type_const,      	item)
-                    objExcel.Cells(excel_row, 15).Value = case_array (third_elig_const,         item) 
-                    objExcel.Cells(excel_row, 16).Value = case_array(pmap_begin_const,          item)
-                    objExcel.Cells(excel_row, 17).Value = case_array(pmap_end_const,            item)
-                    objExcel.Cells(excel_row, 18).Value = case_array(pmap_name_const,           item)
-                    objExcel.Cells(excel_row, 19).Value = case_array(case_status,               item)
-                    excel_row = excel_row + 1
-                'End if 
-                'End if      
-            End if 
-                 
+            End if     
+            
+            'outputting to Excel 
+            objExcel.Cells(excel_row,  1).Value = case_array (clt_PMI_const,            item)
+            objExcel.Cells(excel_row,  2).Value = case_array (rsum_PMI_const,           item)
+            objExcel.Cells(excel_row,  3).Value = case_array (last_name_const,          item)
+            objExcel.Cells(excel_row,  4).Value = case_array (first_name_const,         item)
+            objExcel.Cells(excel_row,  5).Value = case_array (DOB_const,                item)
+            objExcel.Cells(excel_row,  6).Value = case_array (gender_const,             item)
+            objExcel.Cells(excel_row,  7).Value = case_array (first_case_number_const,  item)
+            objExcel.Cells(excel_row,  8).Value = case_array (first_type_const, 	    item)
+            objExcel.Cells(excel_row,  9).Value = case_array (first_elig_const, 	    item)
+            objExcel.Cells(excel_row, 10).Value = case_array (second_case_number_const, item)
+            objExcel.Cells(excel_row, 11).Value = case_array (second_type_const, 	    item)
+            objExcel.Cells(excel_row, 12).Value = case_array (second_elig_const, 	    item)
+            objExcel.Cells(excel_row, 13).Value = case_array (third_case_number_const,  item)
+            objExcel.Cells(excel_row, 14).Value = case_array (third_type_const,      	item)
+            objExcel.Cells(excel_row, 15).Value = case_array (third_elig_const,         item) 
+            objExcel.Cells(excel_row, 16).Value = case_array(pmap_begin_const,          item)
+            objExcel.Cells(excel_row, 17).Value = case_array(pmap_end_const,            item)
+            objExcel.Cells(excel_row, 18).Value = case_array(pmap_name_const,           item)
+            objExcel.Cells(excel_row, 19).Value = case_array(case_status,               item)
+            excel_row = excel_row + 1
+                
             If duplicate_entry = True then 
                 RSEL_row = RSEL_row + 1
                 PF3
@@ -490,51 +499,18 @@ For item = 0 to UBound(case_array, 2)
                     case_array(pmap_name_const,         item) = ""
                 Else 
                     exit do 'No more cases on RSEL 
-                end if 
-            else
+                End if 
+            Else
                 PF3
-                exit do     'cases that did not have more than one known entry 
+                Exit do     'cases that did not have more than one known entry 
             End if 
-        loop 
+        Loop 
     End if 
 Next     
     
 FOR i = 1 to 19		'formatting the cells
 	objExcel.Columns(i).AutoFit()				'sizing the columns'
 NEXT
-
-''Adding another sheet
-'ObjExcel.Worksheets.Add().Name = "Error List" 
-'
-''formatting excel file with columns for case number and interview date/time
-'objExcel.cells(1, 1).value 	= "Billed PMI"
-'objExcel.cells(1, 2).value 	= "RSUM PMI"
-'objExcel.cells(1, 3).value 	= "Error Reason"
-'objExcel.cells(1, 4).value 	= "Last Name"
-'objExcel.cells(1, 5).value 	= "First Name"
-'	
-'FOR i = 1 to 5									'formatting the cells'
-'	objExcel.Cells(1, i).Font.Bold = True		'bold font'
-'	objExcel.Columns(i).AutoFit()				'sizing the columns'
-'NEXT
-'
-''Adding the case information to Excel
-'excel_row = 2
-'For item = 0 to UBound(case_array, 2)
-'    If case_array(case_status, item) <> "" then
-'	    ObjExcel.Cells(excel_row, 1).value = case_array (clt_PMI_const,    item)
-'	    ObjExcel.Cells(excel_row, 2).value = case_array (rsum_PMI_const,   item)  'This outputs the reason for the error
-'        ObjExcel.Cells(excel_row, 3).value = case_array (case_status,      item)  'This outputs the reason for the error
-'        objExcel.Cells(excel_row, 4).Value = case_array (last_name_const,  item)
-'        objExcel.Cells(excel_row, 5).Value = case_array (first_name_const, item)
-'	    excel_row = excel_row + 1 
-'    End if 
-'Next
-'
-''Formatting the columns to autofit after they are all finished being created.
-'FOR i = 1 to 5
-'	objExcel.Columns(i).autofit()
-'Next
 
 STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
 script_end_procedure("Success! Your list has been created. Please review for cases that need to be processed manually.")
