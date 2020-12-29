@@ -54,6 +54,8 @@ changelog_display
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
 
+initial_option = "AVS Forms" 'Testing code
+
 '----------------------------------------------------------------------------------------------------Initial dialog 
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 151, 75, "AVS Initial Process Dialog"
@@ -79,14 +81,10 @@ DO
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-EMReadScreen PRIV_check, 4, 24, 14					'if case is a priv case then it gets identified, and will not be updated in MMIS
-If PRIV_check = "PRIV" then script_end_procedure("PRIV case, cannot access/update. The script will now end.")
-
-Call check_for_maxis(False)
+Call navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", is_this_priv)
+If is_this_priv = True then script_end_procedure("This case is privilged, and you do not have access. The script will now end.")
 
 '----------------------------------------------------------------------------------------------------Gathering the member information 
-CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
-
 DO								'reads the reference number, last name, first name, and then puts it into a single string then into the array
 	EMReadscreen ref_nbr, 3, 4, 33
 	EMReadscreen last_name, 25, 6, 30
@@ -122,6 +120,7 @@ If initial_option = "AVS Submission" then selection_text = "Select all members A
 Dialog1 = ""
 BEGINDIALOG Dialog1, 0, 0, 241, (50 + (total_clients * 15)), "Member Selection Dialog"   'Creates the dynamic dialog. The height will change based on the number of clients it finds.
     Text 5, 5, 180, 10, selection_text
+    PushButton 170, 0, 10, 15, "!", help_button
 	FOR i = 0 to total_clients										'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
 		IF all_clients_array(i, 0) <> "" THEN checkbox 10, (20 + (i * 15)), 160, 10, all_clients_array(i, 0), all_clients_array(i, 1)  'Ignores and blank scanned in persons/strings to avoid a blank checkbox
 	NEXT
@@ -129,19 +128,28 @@ BEGINDIALOG Dialog1, 0, 0, 241, (50 + (total_clients * 15)), "Member Selection D
     If initial_option = "AVS Forms" then DropListBox 80, (5 + (i * 15)), 90, 15, "Select one..."+chr(9)+"Initial Request"+chr(9)+"Not Received"+chr(9)+"Received - Complete"+chr(9)+"Received - Incomplete", avs_option 
     If initial_option = "AVS Submission" then DropListBox 80, (5 + (i * 15)), 90, 15, "Select one..."+chr(9)+"Submitting a Request"+chr(9)+"Review Results"+chr(9)+"Results After Decision", avs_option 
 	ButtonGroup ButtonPressed
+    PushButton 250, 170, 10, 15, "!", help_button
 	OkButton 185, 10, 50, 15
 	CancelButton 185, 30, 50, 15
 ENDDIALOG
 
 'TODO: add handling for no members checked 
+'TODO: Update HH comp to include memb 01 if 18 or older, spouses, AREP, no SSN's
 
 Do 
     Do 
         err_msg = ""
         Dialog Dialog1      'runs the dialog that has been dynamically created. Streamlined with new functions.
         cancel_without_confirmation
+        If ButtonPressed = help_button then 
+            tips_tricks_msg = MsgBox("*** Who Needs to Sign the Authorization Form ***" & vbNewLine & "--------------------" & vbNewLine & vbNewLine & "Information source: DHS-7823 Form - Authorization to Obtain Financial Information from the Account Validation Service (AVS)." & vbcr & vbcr & _
+            "- People who are applying for or enrolled in MA for people who are age 65 or older, blind or have a disability," & vbNewLine & vbNewLine & _ 
+            "- The person's spouse, unless the person is applying for or enrolled in MA-EPD, or the person has one of the following waivers: Brain Injury (BI), Community Alternative Care (CAC), Community Access for Disability Inclusion (CADI), and Developmental Disabilities (DD)." & vbNewLine & vbNewLine & _ 
+            "- The sponsor of the person or the person's spouse. A sponsor is someone who signed an Affidavit of Support (USCIS I-864) as a condition of the person's or his or her spouse's entry to the country.", vbInformation, "Tips and Tricks")        
+            err_msg = "LOOP" & err_msg
+        End if 
         If avs_option = "Select one..." then err_msg = err_msg & vbcr & "* Select an AVS process option."
-        IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+        IF err_msg <> "" AND left(err_msg, 4) <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect    
     LOOP UNTIL err_msg = ""									'loops until all errors are resolved
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
@@ -339,7 +347,6 @@ If initial_option = "AVS Forms" then
     Call write_variable_in_CASE_NOTE(header) 
     Call write_bullet_and_variable_in_CASE_NOTE("Date " & date_text, sent_recd_date)
     Call write_bullet_and_variable_in_CASE_NOTE("Request Type", request_type)
-    Call write_variable_in_CASE_NOTE("---") 
     Call write_variable_in_CASE_NOTE("---Members that are required to sign the AVS Form(s)---") 
     
     'HH member array output 
