@@ -210,35 +210,35 @@ If initial_option = "AVS Forms" then
     End if 
     
     Dialog1 = ""
-    BeginDialog Dialog1, 0, 0, 271, (150 + (avs_membs * 15)), "AVS Forms for #" & MAXIS_case_number
-    Text 15, 10, 55, 10, date_text & " date:"
-    EditBox 60, 5, 55, 15, sent_recd_date
-    Text 145, 10, 45, 10, "MA Process:"
-    DropListBox 195, 5, 70, 15, "Select one..."+chr(9)+"Application"+chr(9)+"Change in Basis", ma_process
-    'DropListBox 195, 5, 70, 15, "Select one..."+chr(9)+"Application"+chr(9)+"Change in Basis"+chr(9)+"Renewal", ma_process
-    Text 5, 30, 50, 10, "Request Type:"
-    
-    If avs_option = "Received - Incomplete" then
-        Text 5, 50, 65, 10, "Reason Incomplete:"
-        EditBox 75, 45, 190, 15, reason_incomplete 
-    End if 
-      x = 0
-      FOR item = 0 to ubound(avs_members_array, 2)							'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
-          If avs_members_array(member_name_const, item) <> "" then Text 10, (80 + (x * 15)), 140, 10, " - " & avs_members_array(member_name_const, item)
-          If avs_members_array(hc_type_const, item) <> "" then DropListBox 60, 25, 150, 15, "Select One:"+chr(9)+"BI-Brain Injury Waiver"+chr(9)+"BX-Blind"+chr(9)+"CA-Community Alt. Care"+chr(9)+"DD-Developmental Disa Waiver"+chr(9)+"DP-MA for Employed Pers w/ Disa"+chr(9)+"DX-Disability"+chr(9)+"EH-Emergency Medical Assistance"+chr(9)+"EW-Elderly Waiver"+chr(9)+"EX-65 and Older"+chr(9)+"LC-Long Term Care"+chr(9)+"MP-QMB SLMB Only"+chr(9)+"QI-QI"+chr(9)+"QW-QWD"+chr(9)+"Not Applying", request_type
-          'If avs_members_array(member_name_const, item) <> "" then DropListBox 160, (110 + (x * 15)), 50, 15, "Select one..."+chr(9)+"MA"+chr(9)+"MCRE"+chr(9)+"IA"+chr(9)+"QHP", avs_members_array(hc_type_const, item)
-          x = x + 1
-      NEXT
-      GroupBox 5, 30, 260, (20 + (x * 12)), "AVS DHS-7823 Signatures are Required for the following members:"
-      Text 5, (100 + (x * 12)), 40, 10, "Other notes:"
-      EditBox 50, (95 + (x * 12)), 215, 15, other_notes
-      Text 5,  (120 + (x * 12)), 60, 10, "Worker Signature:" 
-      EditBox 70, (115 + (x * 12)), 85, 15, worker_signature
-      ButtonGroup ButtonPressed
-      OkButton 160, (115 + (x * 12)), 50, 15
-      CancelButton 215, (115 + (x * 12)), 50, 15
+    BeginDialog Dialog1, 0, 0, 271, 170, "AVS Forms for #" & MAXIS_case_number
+        Text 25, 10, 40, 10, date_text & " date:"
+        EditBox 60, 5, 55, 15, sent_recd_date
+        Text 150, 10, 45, 10, "MA Process:"
+        DropListBox 195, 5, 70, 15, "Select one..."+chr(9)+"Application"+chr(9)+"Change in Basis", ma_process
+        GroupBox 5, 30, 260, 75, "AVS DHS-7823 Signatures are Required for the following members:"
+        'Required signagure HH list
+        x = 0
+        FOR item = 0 to ubound(avs_members_array, 2)							'For each person/string in the first level of the array the script will create a text box for them with height dependant on their order read
+            If avs_members_array(member_name_const, item) <> "" then Text 10, (45 + (x * 15)), 140, 10, " - " & avs_members_array(member_name_const, item)
+            'If avs_members_array(hc_type_const, item) <> "" then DropListBox 60, 45, 150, 15, "Select One:"+chr(9)+"BI-Brain Injury Waiver"+chr(9)+"BX-Blind"+chr(9)+"CA-Community Alt. Care"+chr(9)+"DD-Developmental Disa Waiver"+chr(9)+"DP-MA for Employed Pers w/ Disa"+chr(9)+"DX-Disability"+chr(9)+"EH-Emergency Medical Assistance"+chr(9)+"EW-Elderly Waiver"+chr(9)+"EX-65 and Older"+chr(9)+"LC-Long Term Care"+chr(9)+"MP-QMB SLMB Only"+chr(9)+"QI-QI"+chr(9)+"QW-QWD"+chr(9)+"Not Applying", request_type
+            'If avs_members_array(member_name_const, item) <> "" then DropListBox 160, (110 + (x * 15)), 50, 15, "Select one..."+chr(9)+"MA"+chr(9)+"MCRE"+chr(9)+"IA"+chr(9)+"QHP", avs_members_array(hc_type_const, item)
+            x = x + 1
+        NEXT
+            'mandatory field only visable when incomplete option is selected. 
+        If avs_option = "Received - Incomplete" then
+            Text 5, 115, 65, 10, "Reason Incomplete:"
+            EditBox 70, 110, 195, 15, reason_incomplete
+        End if 
+        Text 5, 135, 40, 10, "Other notes:"
+        EditBox 50, 130, 215, 15, other_notes
+        Text 5, 155, 60, 10, "Worker Signature:"
+        EditBox 65, 150, 105, 15, worker_signature
+        ButtonGroup ButtonPressed
+        OkButton 175, 150, 45, 15
+        CancelButton 220, 150, 45, 15
+        DropListBox 195, 5, 70, 15, "Select one..."+chr(9)+"Application"+chr(9)+"Change in Basis"+chr(9)+"Renewal", ma_process
     EndDialog
-    
+ 
     'Main dialog: user will input case number and member number
     DO
         DO
