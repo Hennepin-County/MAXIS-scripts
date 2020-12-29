@@ -153,6 +153,7 @@ End function
 '----------------------------------------------------------------------------------------------------The script
 'CONNECTS TO BlueZone
 EMConnect ""
+Call check_for_MMIS(True) 'ensuring we're in MMIS 
 
 'The dialog is defined in the loop as it can change as buttons are pressed 
 Dialog1 = ""
@@ -167,8 +168,6 @@ BeginDialog Dialog1, 0, 0, 221, 115, "Health Care Information Report"
   GroupBox 10, 5, 205, 85, "Using this script:"
   EditBox 15, 45, 150, 15, file_selection_path
 EndDialog
-
-Call check_for_MMIS(True) 'ensuring we're in MMIS 
 
 'dialog and dialog DO...Loop	
 Do
