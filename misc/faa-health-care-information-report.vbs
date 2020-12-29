@@ -298,12 +298,23 @@ NEXT
 
 excel_row = 2
 '----------------------------------------------------------------------------------------------------Gathering Person information based on provided PMI 
+get_to_RKEY 'Navigate to RKEY and clear any exising searches
+Call clear_line_of_text(4, 19)  'Clearing PMI
+Call clear_line_of_text(5, 19)  'Clearing SSN
+Call clear_line_of_text(5, 48)  'Clearing Medicare ID
+Call clear_line_of_text(6, 19)  'Clearing Last Name 
+Call clear_line_of_text(6, 48)  'Clearing First Name 
+Call clear_line_of_text(6, 69)  'Clearing Middle Initial
+Call clear_line_of_text(7, 19)  'Clearing DOB 
+Call clear_line_of_text(9, 19)  'Clearing Case Number 
+Call clear_line_of_text(9, 48)  'Clearing Client Option Number 
+Call clear_line_of_text(9, 69)  'Clearing Case Type 
+
 For item = 0 to UBound(case_array, 2)
     Client_PMI = case_array(clt_PMI_const, item)
 
     get_to_RKEY
     Call write_value_and_transmit (Client_PMI, 4, 19)
-    'Call MMIS_panel_confirmation("RSUM", 51) 
     EmReadscreen RKEY_panel_check, 4, 1, 52
     If RKEY_panel_check = "RKEY" then 
         EmReadscreen RKEY_error, 78, 24, 2
@@ -348,13 +359,19 @@ For item = 0 to UBound(case_array, 2)
         excel_row = excel_row + 1
     Else 
         get_to_RKEY
-        'Call MMIS_panel_confirmation("RKEY", 52) 
-        Call clear_line_of_text(5, 19)
-        EMWriteScreen Client_PMI, 4, 19
-        Call write_value_and_transmit("I", 2, 19)
+        Call clear_line_of_text(4, 19)  'Clearing PMI
+        Call clear_line_of_text(5, 19)  'Clearing SSN
+        
+        If trim(Client_SSN) = "" then 
+            EMWriteScreen Client_PMI, 4, 19
+        Else 
+            EMWriteScreen Client_SSN, 5, 19
+        End if 
+        
+        Call write_value_and_transmit("I", 2, 19)   'transmitting to next screen. Could be RSEL or RSUM. If SSN is searched and more than one record is found, the RSEL screen will appear. 
         RSEL_row = 7
         Do 
-            EmReadscreen RSEL_panel_check, 4, 1, 52  'RSEL is listed at column 52 
+            EmReadscreen RSEL_panel_check, 4, 1, 52
             EmReadscreen panel_check, 4, 1, 51
             If RSEL_panel_check = "RSEL" then
                 EmReadscreen RSEL_SSN, 9, RSEL_row, 48
