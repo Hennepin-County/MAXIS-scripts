@@ -165,22 +165,22 @@ Function AVS_sync()
             SMI_AAF = "" 
         Loop 
     Next 
-    ''----------------------------------------------------------------------------------------------------Filling in any missing ALL AVS FORMS information
-    objExcel.worksheets("All AVS Forms").Activate 'Activates worksheet based on user selection
-    
-    excel_row = 2
-    For item = 0 to UBound(master_array, 2)
-        ObjExcel.Cells(excel_row, 3).Value = master_array(case_number_AAF_const, item)
-        ObjExcel.Cells(excel_row, 4).Value = master_array(PMI_AAF_const,         item)
-        ObjExcel.Cells(excel_row, 5).Value = master_array(client_name_AAF_const, item)
-        ObjExcel.Cells(excel_row, 6).Value = master_array(case_note_const,       item)
-        objExcel.Cells(excel_row, 3).Interior.ColorIndex = 3	'Fills the row with red     
-        excel_row = excel_row + 1
-    Next
-    
-    FOR i = 1 to 6		'formatting the cells
-        objExcel.Columns(i).AutoFit()				'sizing the columns'
-    NEXT
+    '''----------------------------------------------------------------------------------------------------Filling in any missing ALL AVS FORMS information
+    'objExcel.worksheets("All AVS Forms").Activate 'Activates worksheet based on user selection
+    '
+    'excel_row = 2
+    'For item = 0 to UBound(master_array, 2)
+    '    ObjExcel.Cells(excel_row, 3).Value = master_array(case_number_AAF_const, item)
+    '    ObjExcel.Cells(excel_row, 4).Value = master_array(PMI_AAF_const,         item)
+    '    ObjExcel.Cells(excel_row, 5).Value = master_array(client_name_AAF_const, item)
+    '    ObjExcel.Cells(excel_row, 6).Value = master_array(case_note_const,       item)
+    '    objExcel.Cells(excel_row, 3).Interior.ColorIndex = 3	'Fills the row with red     
+    '    excel_row = excel_row + 1
+    'Next
+    '
+    'FOR i = 1 to 6		'formatting the cells
+    '    objExcel.Columns(i).AutoFit()				'sizing the columns'
+    'NEXT
     msgbox "Sync Complete"
 End function
 '----------------------------------------------------------------------------------------------------The script
