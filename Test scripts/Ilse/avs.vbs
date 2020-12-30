@@ -84,23 +84,57 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 Call navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", is_this_priv)
 If is_this_priv = True then script_end_procedure("This case is privilged, and you do not have access. The script will now end.")
 
-'----------------------------------------------------------------------------------------------------Gathering the member information 
+'----------------------------------------------------------------------------------------------------Gathering the member/AREP/Sponsor information for signature selection array 
+add_to_array = False    'defaulting to false 
 DO								'reads the reference number, last name, first name, and then puts it into a single string then into the array
 	EMReadscreen ref_nbr, 3, 4, 33
 	EMReadscreen last_name, 25, 6, 30
 	EMReadscreen first_name, 12, 6, 63
 	EMReadscreen mid_initial, 1, 6, 79
     EMReadScreen client_DOB, 10, 8, 42
+    EmReadscreen relationship_code, 2, 10, 42
+    EmReadscreen client_age, 3, 8, 76
 	last_name = trim(replace(last_name, "_", "")) & " "
 	first_name = trim(replace(first_name, "_", "")) & " "
 	mid_initial = replace(mid_initial, "_", "")
-
-	client_string = ref_nbr & last_name & first_name
-	client_array = client_array & trim(client_string) & "|"
+     
+    If relationship_code = "01" then add_to_array = True    'applicants of HC yes 
+    If relationship_code = "02" then add_to_array = True    'spouses of HC applicants yes 
+    
+    If trim(client_age) < "18" then add_to_array = False  'under 18 are not required to sign 
+    
+    If add_to_array = True then 
+	    client_string = ref_nbr & last_name & first_name
+	    client_array = client_array & trim(client_string) & "|"
+    End if 
 	transmit
 	Emreadscreen edit_check, 7, 24, 2
 LOOP until edit_check = "ENTER A"			'the script will continue to transmit through memb until it reaches the last page and finds the ENTER A edit on the bottom row.
 
+'----------------------------------------------------------------------------------------------------AREP information if applicable to be added to array 
+Call navigate_to_MAXIS_screen("STAT", "AREP")
+EMReadScreen arep_name, 37, 4, 32
+arep_name = replace(arep_name, "_", "")
+If trim(arep_name) <> "" then  
+    client_string = "AREP: " & trim(arep_name)
+    client_array = client_array & trim(client_string) & "|"
+End if
+
+'----------------------------------------------------------------------------------------------------SPONSOR information if applicable to be added to array 
+Call navigate_to_MAXIS_screen("STAT", "SPON")
+EmReadscreen total_spon_panels, 1, 2, 78
+Do 
+    If total_spon_panels = "0" then exit do 
+    EMReadScreen spon_name, 20, 8, 38
+    spon_name = replace(spon_name, "_", "")
+    If trim(spon_name) <> "" then  
+	    client_string = "Sponsor: " & trim(spon_name)
+	    client_array = client_array & trim(client_string) & "|"
+    End if
+    transmit
+    EMReadScreen last_panel, 5, 24, 2
+Loop until last_panel = "ENTER"	'This means that there are no other faci panels
+    
 client_array = TRIM(client_array)
 test_array = split(client_array, "|")
 total_clients = Ubound(test_array)			'setting the upper bound for how many spaces to use from the array
@@ -113,6 +147,15 @@ FOR x = 0 to total_clients				'using a dummy array to build in the autofilled ch
 	all_clients_array(x, 0) = Interim_array(x)
 	all_clients_array(x, 1) = 1    '1 = checked
 NEXT
+
+'Handling in case no members are idenified as needing the form. Helping to reduce errors for workers. 
+initial_checked_count = 0
+FOR i = 0 to total_clients										'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
+    IF all_clients_array(i, 0) <> "" THEN 
+        If all_clients_array(i, 1) then initial_checked_count = initial_checked_count + 1 'Ignores and blank scanned in persons/strings to avoid a blank checkbox
+    End if
+NEXT
+If initial_checked_count = 0 then script_end_procedure_with_error_report("No members on this case are required by policy to sign the AVS form. Please review case if necessary.")
 
 If initial_option = "AVS Forms" then selection_text = "Select all members REQUIRED to sign AVS form(s):"
 If initial_option = "AVS Submission" then selection_text = "Select all members AVS is being submitted for:"
@@ -133,9 +176,6 @@ BEGINDIALOG Dialog1, 0, 0, 241, (50 + (total_clients * 15)), "Member Selection D
 	CancelButton 185, 30, 50, 15
 ENDDIALOG
 
-'TODO: add handling for no members checked 
-'TODO: Update HH comp to include memb 01 if 18 or older, spouses, AREP, no SSN's
-
 Do 
     Do 
         err_msg = ""
@@ -148,6 +188,13 @@ Do
             "- The sponsor of the person or the person's spouse. A sponsor is someone who signed an Affidavit of Support (USCIS I-864) as a condition of the person's or his or her spouse's entry to the country.", vbInformation, "Tips and Tricks")        
             err_msg = "LOOP" & err_msg
         End if 
+        checked_count = 0
+        FOR i = 0 to total_clients										'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
+            IF all_clients_array(i, 0) <> "" THEN 
+                If all_clients_array(i, 1) then checked_count = checked_count + 1 'Ignores and blank scanned in persons/strings to avoid a blank checkbox
+            End if
+        NEXT
+        If checked_count = 0 then err_msg = err_msg & vbcr & "* Select all persons responsible for signing the AVS form."
         If avs_option = "Select one..." then err_msg = err_msg & vbcr & "* Select an AVS process option."
         IF err_msg <> "" AND left(err_msg, 4) <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect    
     LOOP UNTIL err_msg = ""									'loops until all errors are resolved
@@ -215,6 +262,7 @@ If initial_option = "AVS Forms" then
         EditBox 60, 5, 55, 15, sent_recd_date
         Text 150, 10, 45, 10, "MA Process:"
         DropListBox 195, 5, 70, 15, "Select one..."+chr(9)+"Application"+chr(9)+"Change in Basis", ma_process
+        'DropListBox 195, 5, 70, 15, "Select one..."+chr(9)+"Application"+chr(9)+"Change in Basis"+chr(9)+"Renewal", ma_process
         GroupBox 5, 30, 260, 75, "AVS DHS-7823 Signatures are Required for the following members:"
         'Required signagure HH list
         x = 0
@@ -236,7 +284,6 @@ If initial_option = "AVS Forms" then
         ButtonGroup ButtonPressed
         OkButton 175, 150, 45, 15
         CancelButton 220, 150, 45, 15
-        DropListBox 195, 5, 70, 15, "Select one..."+chr(9)+"Application"+chr(9)+"Change in Basis"+chr(9)+"Renewal", ma_process
     EndDialog
  
     'Main dialog: user will input case number and member number
