@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/30/2020", "Added denial reason of ineligible lump sum per CM0008.06.15", "Ilse Ferris")
 call changelog_update("03/01/2020", "Updated TIKL functionality and TIKL text in the case note.", "Ilse Ferris")
 CALL changelog_update("12/29/2017", "Coordinates for sending MEMO's has changed in SPEC/MEMO. Updated script to support change.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
@@ -62,7 +63,7 @@ Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 291, 260, "Significant Change"
   EditBox 75, 5, 60, 15, MAXIS_case_number
   DropListBox 75, 25, 65, 15, "Select one..."+chr(9)+"Requested"+chr(9)+"Pending"+chr(9)+"Approved"+chr(9)+"Denied", Sig_change_status_dropdown
-  DropListBox 75, 45, 215, 15, "Select one..."+chr(9)+"Income did not decrease enough to qualify."+chr(9)+"Income change was due to an extra paycheck in the budget month."+chr(9)+"The decrease in income is due to a unit member on strike."+chr(9)+"Self Employment Income does not apply to Significant Change."+chr(9)+"Significant Change was used twice in last 12 months.", Denial_reason_dropdown
+  DropListBox 75, 45, 215, 15, "Select one..."+chr(9)+"Income did not decrease enough to qualify."+chr(9)+"Income change was due to an extra paycheck in the budget month."+chr(9)+"Ineligible lump sum received in the budget month."+chr(9)+"The decrease in income is due to a unit member on strike."+chr(9)+"Self Employment Income does not apply to Significant Change."+chr(9)+"Significant Change was used twice in last 12 months.", Denial_reason_dropdown
   DropListBox 75, 75, 55, 15, "Select one..."+chr(9)+"January"+chr(9)+"February"+chr(9)+"March"+chr(9)+"April"+chr(9)+"May"+chr(9)+"June"+chr(9)+"July"+chr(9)+"August"+chr(9)+"September"+chr(9)+"October"+chr(9)+"November"+chr(9)+"December", Month_requested_dropdown
   EditBox 160, 75, 25, 15, Month_Requested_Year
   EditBox 75, 95, 35, 15, Last_month_used
@@ -121,7 +122,7 @@ If Sig_change_status_dropdown = "Denied" THEN
 	call write_variable_in_SPEC_MEMO("************************************************************")
 	call write_variable_in_SPEC_MEMO("Your request for Significant Change for the month of " & Month_requested_dropdown & " " & Month_requested_year & " has been received.")
 	call write_variable_in_SPEC_MEMO("Your household is not eligible to receive a significant change supplement for the month requested.")
-	call write_variable_in_SPEC_MEMO("This is because " & Denial_reason_dropdown)
+	call write_variable_in_SPEC_MEMO("This is because of" & Denial_reason_dropdown)
 	call write_variable_in_SPEC_MEMO("Please contact your worker if you have any questions")
 	call write_variable_in_SPEC_MEMO("************************************************************")
 	PF4    'Exits the MEMO
