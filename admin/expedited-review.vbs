@@ -45,6 +45,7 @@ changelog = array()
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
 
+CALL changelog_update("12/30/2020", "Updated non-expedited count code for more accurate data.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("11/29/2020", "Updated to include Phase 1 of ES Expedited SNAP Support with DWP group.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("11/17/2020", "Additional testing for 1800 cases.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("11/14/2020", "Added specified report for 1800 baskets. WFM will not get 1800 cases for FAD assignment.", "Ilse Ferris, Hennepin County")
@@ -87,6 +88,7 @@ Function add_pages(exp_status)
      
     For item = 0 to UBound(expedited_array, 2)
         If expedited_array(appears_exp_const, item) = exp_status then 
+            If expedited_array(appears_exp_const, item) = "Not Expedited" then not_exp_count = not_exp_count + 1
             objExcel.Cells(excel_row, 1).Value = expedited_array(worker_number_const,    item)
             objExcel.Cells(excel_row, 2).Value = expedited_array(case_number_const,      item)
             objExcel.Cells(excel_row, 3).Value = expedited_array(program_ID_const,       item)
@@ -109,6 +111,12 @@ END FUNCTION
 EMConnect ""
 MAXIS_footer_month = CM_mo
 MAXIS_footer_year = CM_yr 
+
+'Setting up counts for data tracking
+screening_count = 0
+expedited_count = 0
+priv_count = 0
+not_exp_count = 0   'incrementor built into the function for not expedited only 
 
 '----------------------------------------------------------------------------------------------------Gathering previous working days' assignment notes
 'Establshing array     
@@ -363,12 +371,6 @@ Do
     excel_row = excel_row + 1   
 Loop
 
-'Setting up counts for data tracking
-screening_count = 0
-expedited_count = 0
-priv_count = 0
-not_exp_count = 0
-
 back_to_self                            'resetting MAXIS back to self before getting started
 Call MAXIS_footer_month_confirmation	'ensuring we are in the correct footer month/year
 
@@ -383,7 +385,6 @@ For item = 0 to UBound(expedited_array, 2)
     If left(worker_number, 4) <> "X127" then                                    'Out of county cases from initial upload
         expedited_array(case_status_const, item) = "OUT OF COUNTY CASE"
         expedited_array(appears_exp_const, item) = "Not Expedited"
-        not_exp_count = not_exp_count + 1
     Else 
         Call navigate_to_MAXIS_screen("STAT", "PROG")
         EMReadScreen priv_check, 4, 24, 14 'If it can't get into the case needs to skip - checking in PROD and INQUIRY 
@@ -397,7 +398,6 @@ For item = 0 to UBound(expedited_array, 2)
             If county_code <> "X127" then
                 expedited_array(case_status_const, item) = "OUT OF COUNTY CASE"
                 expedited_array(appears_exp_const, item) = "Not Expedited"
-                not_exp_count = not_exp_count + 1
             End if 
         End if 
     End if 
@@ -423,13 +423,11 @@ For item = 0 to UBound(expedited_array, 2)
             SNAP_PENDING = FALSE
             expedited_array(case_status_const, item) = "SNAP ACTIVE"
             expedited_array(appears_exp_const, item) = "Not Expedited"
-            not_exp_count = not_exp_count + 1
         ElseIF SNAP_status_check = "PEND" then 
             SNAP_PENDING = TRUE 
         ElseIF program_ID = "FS" and SNAP_status_check = "DENY" then 
             expedited_array(case_status_const, item) = "SNAP Application Denied"
             expedited_array(appears_exp_const, item) = "Not Expedited"
-            not_exp_count = not_exp_count + 1
         Else    
             'MFIP determination of pending or active 
             SNAP_PENDING = FALSE
@@ -463,8 +461,7 @@ For item = 0 to UBound(expedited_array, 2)
         
         IF MFIP_ACTIVE = TRUE and SNAP_PENDING = TRUE then 
             expedited_array(case_status_const, item) = "MFIP ACTIVE"
-            expedited_array(appears_exp_const, item) = "Not Expedited"
-            not_exp_count = not_exp_count + 1    
+            expedited_array(appears_exp_const, item) = "Not Expedited" 
         End if  
                
         'Determining if case notes need to be reviewed or not     
@@ -514,7 +511,6 @@ For item = 0 to UBound(expedited_array, 2)
                         case_note_found = True 
                         expedited_array(case_status_const, item) = "Screened, Not EXP"
                         expedited_array(appears_exp_const, item) = "Not Expedited"
-                        not_exp_count = not_exp_count + 1
                         exit do
                     Else
                         case_note_found = False         'defaulting to false if not able to find an expedited care note
