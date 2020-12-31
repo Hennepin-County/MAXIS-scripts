@@ -54,7 +54,9 @@ changelog_display
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
 
-initial_option = "AVS Forms" 'Testing code
+initial_option = "AVS Forms"    'Testing code
+MAXIS_case_number = "298531"    'Testing code 
+avs_option = "Initial Request"  'Testing code 
 
 '----------------------------------------------------------------------------------------------------Initial dialog 
 Dialog1 = ""
@@ -85,6 +87,18 @@ Call navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", is_this_priv)
 If is_this_priv = True then script_end_procedure("This case is privilged, and you do not have access. The script will now end.")
 
 '----------------------------------------------------------------------------------------------------Gathering the member/AREP/Sponsor information for signature selection array 
+'Setting up main array 
+avs_membs = 0
+Dim avs_members_array()
+ReDim avs_members_array(5, 0)
+
+const member_number_const   = 0
+const member_info_const     = 1 
+const member_name_const     = 2 
+const checked_const         = 3
+const hc_applicant_const    = 4
+const hc_type_const         = 5
+  
 add_to_array = False    'defaulting to false 
 DO								'reads the reference number, last name, first name, and then puts it into a single string then into the array
 	EMReadscreen ref_nbr, 3, 4, 33
@@ -103,10 +117,16 @@ DO								'reads the reference number, last name, first name, and then puts it i
     
     If trim(client_age) < "18" then add_to_array = False  'under 18 are not required to sign 
     
-    If add_to_array = True then 
-	    client_string = ref_nbr & last_name & first_name
-	    client_array = client_array & trim(client_string) & "|"
-    End if 
+    If add_to_array = True then   
+        ReDim Preserve avs_members_array(5,     avs_membs)
+        avs_members_array(member_info_const,  avs_membs) = ref_nbr & last_name & "" & first_name
+        avs_members_array(member_number_const,  avs_membs) = ref_nbr
+        avs_members_array(member_name_const,    avs_membs) = first_name & "" & last_name
+        avs_members_array(checked_const,        avs_membs) = 1          'defaulted to checked
+        avs_members_array(hc_applicant_const,   avs_membs) = ""         'defaulted to blank until determined if applicant or not (based on STAT/TYPE)
+        avs_members_array(hc_type_const,        avs_membs) = ""         'defaulted to blank until determined later in user dialog 
+        avs_membs = avs_membs + 1
+    End if   
 	transmit
 	Emreadscreen edit_check, 7, 24, 2
 LOOP until edit_check = "ENTER A"			'the script will continue to transmit through memb until it reaches the last page and finds the ENTER A edit on the bottom row.
@@ -118,6 +138,15 @@ arep_name = replace(arep_name, "_", "")
 If trim(arep_name) <> "" then  
     client_string = "AREP: " & trim(arep_name)
     client_array = client_array & trim(client_string) & "|"
+    'Adding to main array 
+    ReDim Preserve avs_members_array(5,     avs_membs)
+    avs_members_array(member_info_const,  avs_membs) = "AREP: " & trim(arep_name)
+    avs_members_array(member_number_const,  avs_membs) = ""
+    avs_members_array(member_name_const,    avs_membs) = trim(arep_name)
+    avs_members_array(checked_const,        avs_membs) = 1          'defaulted to checked
+    avs_members_array(hc_applicant_const,   avs_membs) = FALSE      'AREP's will not be applicants          
+    avs_members_array(hc_type_const,        avs_membs) = "Not Applying"
+    avs_membs = avs_membs + 1
 End if
 
 '----------------------------------------------------------------------------------------------------SPONSOR information if applicable to be added to array 
@@ -128,53 +157,43 @@ Do
     EMReadScreen spon_name, 20, 8, 38
     spon_name = replace(spon_name, "_", "")
     If trim(spon_name) <> "" then  
-	    client_string = "Sponsor: " & trim(spon_name)
-	    client_array = client_array & trim(client_string) & "|"
+        'Adding to main array 
+        ReDim Preserve avs_members_array(5,     avs_membs)
+        avs_members_array(member_info_const,    avs_membs) = "Sponsor: " & trim(spon_name)
+        avs_members_array(member_number_const,  avs_membs) = ""
+        avs_members_array(member_name_const,    avs_membs) = trim(spon_name)
+        avs_members_array(checked_const,        avs_membs) = 1          'defaulted to checked
+        avs_members_array(hc_applicant_const,   avs_membs) = FALSE      'AREP's will not be applicants          
+        avs_members_array(hc_type_const,        avs_membs) = "Not Applying"
+        avs_membs = avs_membs + 1
     End if
     transmit
     EMReadScreen last_panel, 5, 24, 2
 Loop until last_panel = "ENTER"	'This means that there are no other faci panels
     
-client_array = TRIM(client_array)
-test_array = split(client_array, "|")
-total_clients = Ubound(test_array)			'setting the upper bound for how many spaces to use from the array
-
-DIM all_client_array()
-ReDim all_clients_array(total_clients, 2)
-
-FOR x = 0 to total_clients				'using a dummy array to build in the autofilled check boxes into the array used for the dialog.
-	Interim_array = split(client_array, "|")
-	all_clients_array(x, 0) = Interim_array(x)
-	all_clients_array(x, 1) = 1    '1 = checked
-NEXT
-
 'Handling in case no members are idenified as needing the form. Helping to reduce errors for workers. 
-initial_checked_count = 0
-FOR i = 0 to total_clients										'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
-    IF all_clients_array(i, 0) <> "" THEN 
-        If all_clients_array(i, 1) then initial_checked_count = initial_checked_count + 1 'Ignores and blank scanned in persons/strings to avoid a blank checkbox
-    End if
-NEXT
-If initial_checked_count = 0 then script_end_procedure_with_error_report("No members on this case are required by policy to sign the AVS form. Please review case if necessary.")
+If avs_membs = 0 then script_end_procedure_with_error_report("No members on this case are required by policy to sign the AVS form. Please review case if necessary.")
 
+'Text for the next dialog based on initial option 
 If initial_option = "AVS Forms" then selection_text = "Select all members REQUIRED to sign AVS form(s):"
 If initial_option = "AVS Submission" then selection_text = "Select all members AVS is being submitted for:"
 
 Dialog1 = ""
-BEGINDIALOG Dialog1, 0, 0, 241, (50 + (total_clients * 15)), "Member Selection Dialog"   'Creates the dynamic dialog. The height will change based on the number of clients it finds.
+BeginDialog Dialog1, 0, 0, 185, 125, "Member Selection Dialog"
     Text 5, 5, 180, 10, selection_text
+    ButtonGroup ButtonPressed
     PushButton 170, 0, 10, 15, "!", help_button
-	FOR i = 0 to total_clients										'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
-		IF all_clients_array(i, 0) <> "" THEN checkbox 10, (20 + (i * 15)), 160, 10, all_clients_array(i, 0), all_clients_array(i, 1)  'Ignores and blank scanned in persons/strings to avoid a blank checkbox
-	NEXT
-    Text 5, (10 + (i * 15)), 70, 10, "Select process status:"
-    If initial_option = "AVS Forms" then DropListBox 80, (5 + (i * 15)), 90, 15, "Select one..."+chr(9)+"Initial Request"+chr(9)+"Not Received"+chr(9)+"Received - Complete"+chr(9)+"Received - Incomplete", avs_option 
-    If initial_option = "AVS Submission" then DropListBox 80, (5 + (i * 15)), 90, 15, "Select one..."+chr(9)+"Submitting a Request"+chr(9)+"Review Results"+chr(9)+"Results After Decision", avs_option 
-	ButtonGroup ButtonPressed
+    Text 5, 30, 75, 10, "Select process status:"
+    If initial_option = "AVS Forms" then DropListBox 85, 25, 95, 15, "Select one..."+chr(9)+"Initial Request"+chr(9)+"Not Received"+chr(9)+"Received - Complete"+chr(9)+"Received - Incomplete", avs_option
+    If initial_option = "AVS Submission" then DropListBox 85, 25, 95, 15, "Select one..."+chr(9)+"Submitting a Request"+chr(9)+"Review Results"+chr(9)+"Results After Decision", avs_option   
+    For item = 0 to UBound(avs_members_array, 2)									'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
+        If avs_members_array(checked_const, item) = 1 then checkbox 10, (50 + (item * 15)), 140, 10, avs_members_array(member_info_const, item), avs_members_array(checked_const, item)
+    Next 
+    ButtonGroup ButtonPressed
+    OkButton 85, 105, 45, 15
+    CancelButton 135, 105, 45, 15
     PushButton 250, 170, 10, 15, "!", help_button
-	OkButton 185, 10, 50, 15
-	CancelButton 185, 30, 50, 15
-ENDDIALOG
+EndDialog
 
 Do 
     Do 
@@ -188,52 +207,48 @@ Do
             "- The sponsor of the person or the person's spouse. A sponsor is someone who signed an Affidavit of Support (USCIS I-864) as a condition of the person's or his or her spouse's entry to the country.", vbInformation, "Tips and Tricks")        
             err_msg = "LOOP" & err_msg
         End if 
+        'ensuring that users have 
         checked_count = 0
-        FOR i = 0 to total_clients										'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
-            IF all_clients_array(i, 0) <> "" THEN 
-                If all_clients_array(i, 1) then checked_count = checked_count + 1 'Ignores and blank scanned in persons/strings to avoid a blank checkbox
-            End if
+        FOR item = 0 to UBound(avs_members_array, 2)										'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
+            If avs_members_array(checked_const, item) = 1 then checked_count = checked_count + 1 'Ignores and blank scanned in persons/strings to avoid a blank checkbox
         NEXT
+        msgbox "checked count: " & checked_count
         If checked_count = 0 then err_msg = err_msg & vbcr & "* Select all persons responsible for signing the AVS form."
         If avs_option = "Select one..." then err_msg = err_msg & vbcr & "* Select an AVS process option."
         IF err_msg <> "" AND left(err_msg, 4) <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect    
     LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+    
+    'Revaluing the checked or selected names based on the user selection in the dialog 
+    FOR item = 0 to UBound(avs_members_array, 2)										'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
+        If avs_members_array(checked_const, item) = 0 then avs_members_array(checked_const, item) = 0
+    NEXT
+    
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
     
-CALL Navigate_to_MAXIS_screen("STAT", "TYPE")   'navigating to stat type to get HC application status     
+CALL Navigate_to_MAXIS_screen("STAT", "TYPE")   'navigating to stat type to get HC application status 
+
     
-avs_membs = -1
-Dim avs_members_array()
-ReDim avs_members_array(2, 0)
-
-const member_number_const   = 0
-const member_name_const     = 1  
-const hc_type_const         = 2
-
-FOR i = 0 to total_clients
-	IF all_clients_array(i, 1) = 1 THEN						'if the person/string has been checked on the dialog then the reference number portion (left 2) will be added to new HH_member_array
-		avs_membs = avs_membs + 1
-        ReDim Preserve avs_members_array(2, avs_membs)
-        avs_members_array(member_number_const, avs_membs) = left(all_clients_array(i, 0), 2)
-        avs_members_array(member_name_const, avs_membs) = all_clients_array(i, 0)
-        avs_members_array(hc_type_const, avs_membs) = ""
-        ''adding TYPE Information to be output into the dialog and case note 
-        'row = 6
-        'Do
-        '    EmReadscreen type_memb_number, 2, row, 3
-        '    EmReadscreen hc_type, 1, row, 37
-        '    If hc_type = "_" then hc_type = "N"
-        '    If type_memb_number = left(all_clients_array(i, 0), 2) then
-        '        msgbox "match"
-        '        avs_members_array(hc_type_const, avs_membs) = hc_type
-        '        exit do
-        '    Else 
-        '        row = row + 1
-        '    End if 
-        'Loop until trim(type_memb_number) = ""
-	END IF
-NEXT
+'For item = 0 to Ubound(avs_members_array, 2) 
+'    If instr(avs_members_array, member_name_const) = "Sponsor" or instr(avs_members_array, member_name_const) = "AREP" then 
+'        avs_members_array(hc_applicant_const, item) = False
+'        
+'    Else 
+'        'adding TYPE Information to be output into the dialog and case note 
+'        row = 6
+'        Do
+'            EmReadscreen type_memb_number, 2, row, 3
+'            EmReadscreen hc_type, 1, row, 37
+'            If hc_type = "_" then hc_type = "N"
+'            If type_memb_number = avs_members_array(member_number_const, item)
+'                msgbox "match"
+'                avs_members_array(hc_type_const, avs_membs) = hc_type
+'                exit do
+'            Else 
+'                row = row + 1
+'            End if 
+'        Loop until trim(type_memb_number) = "" 
+'	End if 
 
 '----------------------------------------------------------------------------------------------------AVS Forms processing option
 If initial_option = "AVS Forms" then 
@@ -267,7 +282,7 @@ If initial_option = "AVS Forms" then
         'Required signagure HH list
         x = 0
         FOR item = 0 to ubound(avs_members_array, 2)							'For each person/string in the first level of the array the script will create a text box for them with height dependant on their order read
-            If avs_members_array(member_name_const, item) <> "" then Text 10, (45 + (x * 15)), 140, 10, " - " & avs_members_array(member_name_const, item)
+            If avs_members_array(checked_const, item) = 1 then Text 10, (45 + (x * 15)), 140, 10, " - " & avs_members_array(member_info_const, item)
             'If avs_members_array(hc_type_const, item) <> "" then DropListBox 60, 45, 150, 15, "Select One:"+chr(9)+"BI-Brain Injury Waiver"+chr(9)+"BX-Blind"+chr(9)+"CA-Community Alt. Care"+chr(9)+"DD-Developmental Disa Waiver"+chr(9)+"DP-MA for Employed Pers w/ Disa"+chr(9)+"DX-Disability"+chr(9)+"EH-Emergency Medical Assistance"+chr(9)+"EW-Elderly Waiver"+chr(9)+"EX-65 and Older"+chr(9)+"LC-Long Term Care"+chr(9)+"MP-QMB SLMB Only"+chr(9)+"QI-QI"+chr(9)+"QW-QWD"+chr(9)+"Not Applying", request_type
             'If avs_members_array(member_name_const, item) <> "" then DropListBox 160, (110 + (x * 15)), 50, 15, "Select one..."+chr(9)+"MA"+chr(9)+"MCRE"+chr(9)+"IA"+chr(9)+"QHP", avs_members_array(hc_type_const, item)
             x = x + 1
@@ -306,44 +321,7 @@ If initial_option = "AVS Forms" then
     Loop until are_we_passworded_out = false                    'loops until user passwords back in
     
 'elseif initial_option = "AVS Submission" then 
-'
-'    '(initial_option = "2. Request to end eligibility in METS" or "3. Eligibility ended in METS")
-'    Dialog1 = ""
-'    BeginDialog Dialog1, 0, 0, 271, (120 + (avs_membs * 15)), "Eligibility Ending for #" & MAXIS_case_number
-'    If initial_option = "3. Eligibility ended in METS" then 
-'        Text 10, 10, 70, 10, "MMIS elig end date:"
-'        EditBox 80, 5, 55, 15, mmis_end_date
-'    End if 
-'      Text 140, 10, 70, 10, "METS Case Number:"
-'      EditBox 210, 5, 55, 15, METS_case_number
-'      x = 0
-'      FOR item = 0 to ubound(avs_members_array, 2)							'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
-'          Text 10, (40 + (x * 15)), 100, 10, avs_members_array(member_name_const, item)
-'          x = x + 1
-'      NEXT
-'      GroupBox 5, 25, 260, (25 + (x * 10)), "Client(s) name"
-'      Text 5, (65 + (x * 10)), 40, 10, "Other notes:"
-'      EditBox 50, (60 + (x * 10)), 215, 15, other_notes
-'      Text 5, (85 + (x * 10)), 60, 10, "Worker Signature:"
-'      EditBox 70, (80 + (x * 10)), 85, 15, worker_signature
-'      ButtonGroup ButtonPressed
-'          OkButton 160, (80 + (x * 10)), 50, 15
-'          CancelButton 215, (80 + (x * 10)), 50, 15
-'    EndDialog
-'
-'    DO
-'        DO
-'            err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
-'            dialog Dialog1				    
-'            cancel_without_confirmation              'new function that will cancel, collect stats, but not give user option to confirm ending script.
-'            If (initial_option = "3. Eligibility ended in METS" AND (isdate(mmis_end_date) = false or trim(mmis_end_date) = "")) then err_msg = err_msg & vbcr & "* Enter a valid MMIS end date."
-'            If trim(METS_case_number) = "" or IsNumeric(METS_case_number) = False or len(METS_case_number) <> 8 then err_msg = err_msg & vbcr & "* Enter a valid METS case number."
-'            IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "* Please enter your worker signature."
-'            IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
-'        LOOP UNTIL err_msg = ""									'loops until all errors are resolved
-'        CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-'    Loop until are_we_passworded_out = false					'loops until user passwords back in
-'End if 
+
 
     client_name_list = ""
     member_numbers = ""
@@ -364,13 +342,7 @@ If initial_option = "AVS Forms" then
             client_name_list = client_name_list & first_name & ", "    
         End if 
     Next 
-    
-    member_numbers = trim(member_numbers) 'trims excess spaces of member_numbers
-    If right(member_numbers, 1) = "," THEN member_numbers = left(member_numbers, len(member_numbers) - 1) 'takes the last comma off of member_numbers
-    
-    client_name_list = trim(client_name_list) 'trims excess spaces of client_name_list
-    If right(client_name_list, 1) = "," THEN client_name_list = left(client_name_list, len(client_name_list) - 1) 'takes the last comma off of client_name_list
-    
+        
     If set_TIKL = False then 
         TIKL_msgbox = msgbox("Do you wish to send another verification requesting the AVS form?" & vbcr & vbcr & "Selecting YES will create another 10-day TIKL and case note that a verification request is being sent.", vbQuestion + vbYesNo, "Set another TIKL?")
         If TIKL_msgbox = vbYes then 
@@ -384,9 +356,15 @@ If initial_option = "AVS Forms" then
     'set_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
     If set_TIKL = True then Call create_TIKL("DHS-7823 - AVS Auth Form(s) have been requested for this case. Review ECF and case notes and take applicable actions.", 10, date, False, TIKL_note_text)
 
+    member_numbers = trim(member_numbers) 'trims excess spaces of member_numbers
+    If right(member_numbers, 1) = "," THEN member_numbers = left(member_numbers, len(member_numbers) - 1) 'takes the last comma off of member_numbers
+    
+    client_name_list = trim(client_name_list) 'trims excess spaces of client_name_list
+    If right(client_name_list, 1) = "," THEN client_name_list = left(client_name_list, len(client_name_list) - 1) 'takes the last comma off of client_name_list
+    
     '----------------------------------------------------------------------------------------------------The case note
     'Information for the case note
-        memb_info = " for Memb " & member_numbers ' for the case note
+    memb_info = " for Memb " & member_numbers ' for the case note
     If initial_option = "AVS Forms" then header = "-AVS Form(s) " & avs_option & " for " & ma_process & memb_info & "-"
     If initial_option = "AVS Submission" then header = ""
 
@@ -409,11 +387,15 @@ If initial_option = "AVS Forms" then
     Call write_variable_in_CASE_NOTE(worker_signature) 
 End if 
 
-'Providing the option to run the avd option 
-'If avs_option = "Received - Complete" then confirm_msgbox = msgbox("Do you wish to case note submitting the AVS request?", vbQuestion + vbYesNo, "Submit the AVS Request?")
-'If confirm_msgbox = vbYes then 
-'If confirm_msgbox = vbNo then 
-    
+''Providing the option to run the avs option 
+'If avs_option = "Received - Complete" then 
+'    confirm_msgbox = msgbox("Do you wish to case note submitting the AVS request?", vbQuestion + vbYesNo, "Submit the AVS Request?")
+'    If confirm_msgbox = vbYes then initial_option = "AVS Submission"
+'    If confirm_msgbox = vbNo then 
+'        intial_option = "AVS Forms" 
+'        'Exit do 
+'    End if 
+'End if 
 
 If verif_request = True then 
     'Outputting AVS verbiage to Word 
