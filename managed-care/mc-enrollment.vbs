@@ -323,17 +323,11 @@ IF open_enrollment_case = FALSE Then
 	    Case "September"
 			cut_off_date = #09/21/2021#
 	    Case "October"
-	        cut_off_date = #10/21/2020#
-			' November 2021
-			' cut_off_date = #10/20/2021#
+			cut_off_date = #10/20/2021#
 	    Case "November"
-	        cut_off_date = #11/17/2020#
-			' December 2021
-			' cut_off_date = #11/17/2021#
+			cut_off_date = #11/17/2021#
 	    Case "December"
-	        cut_off_date = #12/21/2020#
-			' January 2022
-			' cut_off_date = #12/20/2021#
+			cut_off_date = #12/20/2021#
 	End Select
 	'MsgBox cut_off_date
 	If cut_off_date <> "" Then
