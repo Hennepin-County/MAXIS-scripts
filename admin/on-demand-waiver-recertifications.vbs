@@ -471,6 +471,7 @@ appt_ltr_success_col_known = "Needs New"
 If excel_row_to_start <> "2" Then
 
 	header_list = replace(header_list, "Select One...", "Needs New")
+	MsgBox header_list
 
 	Dialog1 = ""
 	If notice_type = "Appointment Notice" Then
@@ -499,11 +500,11 @@ If excel_row_to_start <> "2" Then
 		EndDialog
 	ElseIf notice_type = "Data Only" Then
 		BeginDialog Dialog1, 0, 0, 236, 165, "Select a Known Column"
-		  DropListBox 90, 40, 140, 45, header_list, appt_ltr_recvd_col_known
-		  DropListBox 90, 60, 140, 45, header_list, nomi_recvd_col_known
-		  DropListBox 90, 80, 140, 45, header_list, revw_status_col_known
-		  DropListBox 90, 100, 140, 45, header_list, interview_date_col_known
-		  DropListBox 90, 120, 140, 45, header_list, app_date_col_known
+		  ComboBox 90, 40, 140, 45, header_list, appt_ltr_recvd_col_known
+		  ComboBox 90, 60, 140, 45, header_list, nomi_recvd_col_known
+		  ComboBox 90, 80, 140, 45, header_list, revw_status_col_known
+		  ComboBox 90, 100, 140, 45, header_list, interview_date_col_known
+		  ComboBox 90, 120, 140, 45, header_list, app_date_col_known
 		  ButtonGroup ButtonPressed
 		    OkButton 120, 140, 50, 15
 		    CancelButton 180, 140, 50, 15
