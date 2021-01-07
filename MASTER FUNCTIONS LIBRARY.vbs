@@ -5105,6 +5105,84 @@ function get_county_code()
     end if
 end function
 
+function get_this_script_started(script_index, end_script, month_to_use)
+	EMConnect ""
+	Call check_for_MAXIS(end_script)
+	Call MAXIS_case_number_finder(MAXIS_case_number)
+
+	month_to_use = UCase(month_to_use)
+	If month_to_use = "MAXIS MONTH" Then Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+	If month_to_use = "CM" Then
+		MAXIS_footer_month = CM_mo
+		MAXIS_footer_year = CM_yr
+	End If
+	If month_to_use = "CM PLUS 1" Then
+		MAXIS_footer_month = CM_plus_1_mo
+		MAXIS_footer_year = CM_plus_1_yr
+	End If
+	If month_to_use = "CM PLUS 2" Then
+		MAXIS_footer_month = CM_plus_2_mo
+		MAXIS_footer_year = CM_plus_2_yr
+	End If
+	If month_to_use = "LM" Then
+		MAXIS_footer_month = right("0" &             DatePart("m",           DateAdd("m", -1, date)            ), 2)
+		MAXIS_footer_year =  right(                  DatePart("yyyy",        DateAdd("m", -1, date)            ), 2)
+	End If
+	If month_to_use = "LM LESS 1" Then
+		MAXIS_footer_month = right("0" &             DatePart("m",           DateAdd("m", -2, date)            ), 2)
+		MAXIS_footer_year =  right(                  DatePart("yyyy",        DateAdd("m", -2, date)            ), 2)
+	End If
+
+	MsgBox "The script running is:" & vbCR & "Category - " & script_array(script_index).category & vbCr & "Name - " & script_array(script_index).script_name
+
+	'Showing the case number dialog
+	Do
+		DO
+			err_msg = ""
+
+			'Initial dialog to gather case number and footer month.
+			Dialog1 = ""
+			BeginDialog Dialog1, 0, 0, 236, 195, "Case number dialog"
+			  EditBox 70, 105, 65, 15, MAXIS_case_number
+			  EditBox 70, 125, 20, 15, MAXIS_footer_month
+			  EditBox 95, 125, 20, 15, MAXIS_footer_year
+			  EditBox 70, 145, 160, 15, Worker_signature
+			  ButtonGroup ButtonPressed
+				OkButton 125, 175, 50, 15
+				CancelButton 180, 175, 50, 15
+				PushButton 165, 85, 60, 10, "INSTRUCTIONS", instructions_btn
+				PushButton 115, 160, 115, 10, "SAVE MY WORKER SIGNATURE", save_worker_sig
+			  GroupBox 10, 5, 220, 95, "Currently Running "
+			  Text 20, 20, 210, 10, "Script: " & script_array(script_index).script_name
+			  Text 30, 30, 195, 10, "from the " & script_array(script_index).category & " category"
+			  Text 20, 45, 50, 10, "Description:"
+			  Text 25, 55, 200, 25, script_array(script_index).description
+			  Text 20, 110, 45, 10, "Case number:"
+			  Text 25, 130, 40, 10, "CSR Month:"
+			  Text 10, 150, 60, 10, "Worker Signature"
+			  Text 125, 130, 25, 10, "mm/yy"
+			EndDialog
+
+			Dialog Dialog1
+			cancel_without_confirmation
+
+			If ButtonPressed = instructions_btn Then
+				err_msg = "LOOP"
+				call open_URL_in_browser(script_array(script_index).SharePoint_instructions_URL)
+			ElseIf ButtonPressed = save_worker_sig Then
+				err_msg = "LOOP"
+			Else
+		        Call validate_MAXIS_case_number(err_msg, "*")
+		        Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
+		        IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
+				IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+			End If
+		LOOP UNTIL err_msg = ""
+		call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+	LOOP UNTIL are_we_passworded_out = false
+
+end function
+
 function HH_member_custom_dialog(HH_member_array)
 '--- This function creates an array of all household members in a MAXIS case, and allows users to select which members to seek/add information to add to edit boxes in dialogs.
 '~~~~~ HH_member_array: should be HH_member_array for function to work
