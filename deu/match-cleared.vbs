@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: CALL changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("1/11/2021", "Updated BNDX handling to ensure header of case note is written correctly.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("10/20/2020", "Removed custom functions from script file. Functions have all been incorporated into the project's Function Library.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("09/17/2020", "The field for 'OTHER NOTES' is now required when completing the information to clear the match. ##~## ##~##We are aware that this will not always be required in MAXIS and will be adding additional functionality for scenario and match specific requirements of this field, but in order to provide you with a working script right now this field must be mandatory each time.##~## ##~##Thank you for your patience as we provide updates to this script.##~##", "Casey Love, Hennepin County")
 CALL changelog_update("09/08/2020", "Updated BUG when clearing match BO-Other worker must indicate other notes for comments on IULA.", "MiKayla Handley, Hennepin County")
@@ -840,14 +841,16 @@ If ATR_needed_checkbox = checked Then script_run_lowdown = script_run_lowdown & 
         '	END IF
         'END IF
     ''--------------------------------------------------------------------The case note & case note related code
-    	verifcation_needed = ""
-      	IF Diff_Notice_Checkbox = CHECKED THEN verifcation_needed = verifcation_needed & "Difference Notice, "
-    	IF EVF_checkbox = CHECKED THEN verifcation_needed = verifcation_needed & "EVF, "
-    	IF ATR_Verf_CheckBox = CHECKED THEN verifcation_needed = verifcation_needed & "ATR, "
-    	IF lottery_verf_checkbox = CHECKED THEN verifcation_needed = verifcation_needed & "Lottery/Gaming Form, "
-    	IF rental_checkbox =  CHECKED THEN verifcation_needed = verifcation_needed & "Rental Income Form, "
-    	IF other_checkbox = CHECKED THEN verifcation_needed = verifcation_needed & "Other, "
+    	verification_needed = ""
+      	IF Diff_Notice_Checkbox = CHECKED THEN verification_needed = verification_needed & "Difference Notice, "
+    	IF EVF_checkbox = CHECKED THEN verification_needed = verification_needed & "EVF, "
+    	IF ATR_Verf_CheckBox = CHECKED THEN verification_needed = verification_needed & "ATR, "
+    	IF lottery_verf_checkbox = CHECKED THEN verification_needed = verification_needed & "Lottery/Gaming Form, "
+    	IF rental_checkbox =  CHECKED THEN verification_needed = verification_needed & "Rental Income Form, "
+    	IF other_checkbox = CHECKED THEN verification_needed = verification_needed & "Other, "
 
+		verification_needed = trim(verification_needed) 	'takes the last comma off of verification_needed when autofilled into dialog if more more than one app date is found and additional app is selected
+		IF right(verification_needed, 1) = "," THEN verification_needed = left(verification_needed, len(verification_needed) - 1)
     	'------------------------------------------------------------------STAT/MISC for claim referral tracking
     	IF claim_referral_tracking_dropdown <> "Not Needed" THEN
     	    'Going to the MISC panel to add claim referral tracking information
@@ -917,8 +920,6 @@ If ATR_needed_checkbox = checked Then script_run_lowdown = script_run_lowdown & 
 	IF match_type = "UBEN" THEN match_type_letter = "U"
 	IF match_type = "UNVI" THEN match_type_letter = "U"
 
-	verifcation_needed = trim(verifcation_needed) 	'takes the last comma off of verifcation_needed when autofilled into dialog if more more than one app date is found and additional app is selected
-	IF right(verifcation_needed, 1) = "," THEN verifcation_needed = left(verifcation_needed, len(verifcation_needed) - 1)
 	IF match_type = "WAGE" THEN
 		IF select_quarter = 1 THEN IEVS_quarter = "1ST"
 		IF select_quarter = 2 THEN IEVS_quarter = "2ND"
@@ -953,6 +954,7 @@ If ATR_needed_checkbox = checked Then script_run_lowdown = script_run_lowdown & 
 	IF match_type = "BEER" THEN CALL write_variable_in_case_note("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type_letter & ")" & " (" & first_name & ") " & cleared_header & header_note & "-----")
 	IF match_type = "UNVI" THEN CALL write_variable_in_case_note("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type_letter & ")" & " (" & first_name & ") " & cleared_header & header_note & "-----")
 	IF match_type = "UBEN" THEN CALL write_variable_in_case_note("-----" & IEVS_period & " NON-WAGE MATCH(" & match_type_letter & ")" & " (" & first_name & ") " & cleared_header & header_note & "-----")
+	IF match_type = "BNDX" THEN CALL write_variable_in_case_note("-----" & IEVS_period & " NON-WAGE MATCH(" & match_type & ")" & " (" & first_name & ") " & cleared_header & header_note & "-----")
 	CALL write_bullet_and_variable_in_case_note("Discovery date", discovery_date)
 	CALL write_bullet_and_variable_in_case_note("Period", IEVS_period)
 	CALL write_bullet_and_variable_in_case_note("Active Programs", programs)
@@ -960,10 +962,10 @@ If ATR_needed_checkbox = checked Then script_run_lowdown = script_run_lowdown & 
 	CALL write_variable_in_case_note("----- ----- ----- ----- ----- ----- -----")
 	CALL write_bullet_and_variable_in_case_note("Date Diff notice sent", sent_date)
 	IF  difference_notice_action_dropdown = "YES" THEN
-		CALL write_bullet_and_variable_in_case_note("Verifications Requested", verifcation_needed)
+		CALL write_bullet_and_variable_in_case_note("Verifications Requested", verification_needed)
 		CALL write_variable_in_case_note("* Client must be provided 10 days to return requested verifications")
 	ELSE
-		CALL write_bullet_and_variable_in_case_note("Verifications Received", verifcation_needed)
+		CALL write_bullet_and_variable_in_case_note("Verifications Received", verification_needed)
 	END IF
 	IF change_response <> "N/A" THEN CALL write_bullet_and_variable_in_case_note("Responded to Difference Notice", change_response)
 	IF DISQ_action <> "Select One:" THEN CALL write_bullet_and_variable_in_case_note("STAT/DISQ addressed for each program", DISQ_action)
