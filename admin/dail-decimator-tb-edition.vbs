@@ -334,7 +334,6 @@ For each worker in worker_array
                         add_to_array = True 
                     Else 
                         add_to_array = False
-                        false_count = false_count + 1
                     End if 
                     'msgbox "Duplicate Found: " & dail_string & vbcr & add_to_array
                 else 
@@ -349,12 +348,13 @@ For each worker in worker_array
             	    DAIL_array(dail_month_const, 		   DAIL_count) = dail_month
             	    DAIL_array(dail_msg_const, 		       DAIL_count) = dail_msg
                     Dail_count = DAIL_count + 1
-                    all_dail_array = trim(all_dail_array & dail_string & "*") 'Adding MAXIS case number to case number string                 
+                    all_dail_array = trim(all_dail_array & dail_string & "*") 'Adding MAXIS case number to case number string
+                    dail_string = ""
+                else
+                    false_count = false_count + 1
                 End if 
 			End if
 
-            dail_string = ""  'blanking out the DAIL string. 
-            
 			EMReadScreen message_error, 11, 24, 2		'Cases can also NAT out for whatever reason if the no messages instruction comes up.
 			If message_error = "NO MESSAGES" then
 				CALL navigate_to_MAXIS_screen("DAIL", "DAIL")
