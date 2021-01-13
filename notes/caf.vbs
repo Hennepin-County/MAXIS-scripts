@@ -2338,6 +2338,7 @@ EMConnect ""
 get_county_code				'since there is a county specific checkbox, this makes the the county clear
 Call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+Call remove_dash_from_droplist(county_list)
 script_run_lowdown = ""
 
 BeginDialog Dialog1, 0, 0, 281, 235, "CAF Script Case number dialog"
