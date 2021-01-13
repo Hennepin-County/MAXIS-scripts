@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/13/2021", "Added temporary checkbox to case note 15% food benefit increase. Removed SNAP Banked Months case noting options.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/12/2020", "Removed coding specific to Banked Months that was preventing the script from continuing.", "Casey Love, Hennepin County")
 call changelog_update("01/25/2019", "Removed enhanced Banked Months case noting as this is tracked by QI staff, Banked Months indicator is still within the approval note for reflecing a SNAP Banked Months case.", "Casey Love, Hennepin County")
 call changelog_update("05/19/2018", "Added 'Verifs Needed' as a mandatory field for cases identified as expedited SNAP.", "Ilse Ferris, Hennepin County")
@@ -60,15 +61,11 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'Checks for county info from global variables, or asks if it is not already defined.
-get_county_code
-'THE SCRIPT----------------------------------------------------------------------------------------------------
-'connecting to MAXIS
-EMConnect ""
-'Finds the case number
-call MAXIS_case_number_finder(MAXIS_case_number)
-'Finds the benefit month
-EMReadScreen on_SELF, 4, 2, 50
+get_county_code 'Checks for county info from global variables, or asks if it is not already defined.
+EMConnect "" 'connecting to MAXIS
+call MAXIS_case_number_finder(MAXIS_case_number) 'Finds the case number
+
+EMReadScreen on_SELF, 4, 2, 50  'Finds the benefit month
 IF on_SELF = "SELF" THEN
 	CALL find_variable("Benefit Period (MM YY): ", bene_month, 2)
 	IF bene_month <> "" THEN CALL find_variable("Benefit Period (MM YY): " & bene_month & " ", bene_year, 2)
@@ -100,12 +97,12 @@ BeginDialog Dialog1, 0, 0, 316, 235, "Benefits Approved"
   EditBox 75, 120, 235, 15, programs_pending
   EditBox 55, 140, 255, 15, docs_needed
   CheckBox 10, 165, 250, 10, "Check here if SNAP was approved expedited with postponed verifications.", postponed_verif_check
-  CheckBox 10, 180, 125, 10, "Check here if the case was FIATed", FIAT_checkbox
+  CheckBox 10, 180, 125, 10, "Check here if the case was FIATed.", FIAT_checkbox
+  CheckBox 10, 195, 185, 10, "Case approved due to 15% increase in food benefits.", covid_increase_checkbox
   EditBox 75, 210, 125, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 205, 210, 50, 15
     CancelButton 260, 210, 50, 15
-  Text 5, 40, 110, 20, "Benefit Breakdown (Issuance/Spenddown/Premium):"
   Text 10, 85, 160, 10, "Select the first month of approval (MM YY)..."
   Text 5, 105, 45, 10, "Other Notes:"
   Text 5, 125, 70, 10, "Pending Program(s):"
@@ -114,7 +111,9 @@ BeginDialog Dialog1, 0, 0, 316, 235, "Benefits Approved"
   Text 120, 25, 60, 10, "Type of Approval:"
   Text 5, 5, 70, 10, "Approved Programs:"
   Text 5, 25, 50, 10, "Case Number:"
+  Text 5, 40, 110, 20, "Benefit Breakdown (Issuance/Spenddown/Premium):"
 EndDialog
+
 
 Do
 	Do
@@ -623,8 +622,8 @@ IF other_notes <> "" THEN call write_bullet_and_variable_in_CASE_NOTE("Approval 
 IF programs_pending <> "" THEN call write_bullet_and_variable_in_CASE_NOTE("Programs Pending", programs_pending)
 If docs_needed <> "" then call write_bullet_and_variable_in_CASE_NOTE("Verifs needed", docs_needed)
 IF SNAP_banked_mo_check = checked THEN Call write_variable_in_CASE_NOTE ("* BANKED MONTHS were approved on this case starting with " & banked_footer_month & "/" & banked_footer_year & ".")
+If covid_increase_checkbox = 1 then Call write_variable_in_CASE_NOTE ("* Case approved due to 15% increase in food benefits.")
 call write_variable_in_CASE_NOTE("---")
 call write_variable_in_CASE_NOTE(worker_signature)
-
 
 script_end_procedure("Success! Please remember to check the generated notice to make sure it is correct. If not, please add WCOMs to make notice read correctly.")
