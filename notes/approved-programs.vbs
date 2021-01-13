@@ -101,9 +101,6 @@ BeginDialog Dialog1, 0, 0, 316, 235, "Benefits Approved"
   EditBox 55, 140, 255, 15, docs_needed
   CheckBox 10, 165, 250, 10, "Check here if SNAP was approved expedited with postponed verifications.", postponed_verif_check
   CheckBox 10, 180, 125, 10, "Check here if the case was FIATed", FIAT_checkbox
-  CheckBox 10, 195, 190, 10, "Check here if SNAP BANKED MONTHS were approved.", SNAP_banked_mo_check
-  EditBox 280, 190, 15, 15, banked_footer_month
-  EditBox 295, 190, 15, 15, banked_footer_year
   EditBox 75, 210, 125, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 205, 210, 50, 15
@@ -117,7 +114,6 @@ BeginDialog Dialog1, 0, 0, 316, 235, "Benefits Approved"
   Text 120, 25, 60, 10, "Type of Approval:"
   Text 5, 5, 70, 10, "Approved Programs:"
   Text 5, 25, 50, 10, "Case Number:"
-  Text 200, 195, 75, 10, "BANKED footer month: "
 EndDialog
 
 Do
@@ -133,7 +129,7 @@ Do
 				 vbCr & "* You checked to have the approved amount autofilled but have not selected a program with an approval amount. Please check your selections."
 			End If
             If postponed_verif_check = checked and trim(docs_needed) = "" then err_msg = err_msg & vbCr & "* Please enter the postponed verifications needed/requested."
-            If SNAP_banked_mo_check = checked AND (trim(banked_footer_month) = "" OR trim(banked_footer_year) = "") Then err_msg = err_msg & vbNewLine & "* Indicate the first month being approved with BANKED MONTHS since this approval includes a BANKED MONTH."
+            'If SNAP_banked_mo_check = checked AND (trim(banked_footer_month) = "" OR trim(banked_footer_year) = "") Then err_msg = err_msg & vbNewLine & "* Indicate the first month being approved with BANKED MONTHS since this approval includes a BANKED MONTH."
 			IF worker_signature = "" then err_msg = err_msg & vbCr & "* Please sign your case note."
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 	Loop until err_msg = ""
