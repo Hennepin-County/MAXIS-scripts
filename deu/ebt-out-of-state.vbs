@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/14/2021", "Updated handling for review case to update for overpayment at a later date .", "MiKayla Handley, Hennepin County")
 call changelog_update("11/30/2018", "Initial version.", "MiKayla Handley, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -210,7 +211,7 @@ start_a_blank_case_note      'navigates to case/note and puts case/note into edi
 	CALL write_variable_in_CASE_NOTE ("----- ----- -----")
 	Call write_bullet_and_variable_in_CASE_NOTE("Date case was closed", date_closed)
 	Call write_bullet_and_variable_in_CASE_NOTE("Explanation of action to close the case", reason_closed)
-	Call write_variable_in_CASE_NOTE("* DEU will review for possible overpayment regarding out of state usage at a later date.")
+	IF overpayment_checkbox = CHECKED THEN Call write_variable_in_CASE_NOTE("* DEU will review for possible overpayment regarding out of state usage at a later date.")
 	IF action_taken = "Client responds to request" THEN Call write_bullet_and_variable_in_CASE_NOTE("Verification received", pending_verifs)
 	IF action_taken <> "Client responds to request" THEN CALL write_bullet_and_variable_in_CASE_NOTE("Verification requested", pending_verifs)
 	IF action_taken = "Initial review" THEN
