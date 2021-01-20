@@ -1372,7 +1372,7 @@ For the_member = 1 to how_many_new_members
     If unea_yn = "Yes" Then
         If trim(unea_type) <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Unearned Income Type: " & unea_type)
         If trim(unea_amount) <> "" Then unea_info = "Amount of Unearned Income: $" & unea_amount & "."
-        If trim(unea_frequency) <> "" AND unea_frequency <> "Select or Type" Then unea_info = unea_info & "Recieved " & unea_frequency & "."
+        If trim(unea_frequency) <> "" AND unea_frequency <> "Select or Type" Then unea_info = unea_info & "Received " & unea_frequency & "."
     End If
 
     Call write_bullet_and_variable_in_CASE_NOTE("Person has Earned Income", earned_yn)
