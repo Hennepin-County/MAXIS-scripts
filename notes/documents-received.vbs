@@ -2167,7 +2167,7 @@ If arep_form_checkbox = checked Then
       Text 95, 85, 15, 10, "Ext."
       Text 140, 85, 25, 10, "Phone:"
       Text 220, 85, 15, 10, "Ext."
-      Text 10, 145, 95, 10, "Date of AREP Form Recieved"
+      Text 10, 145, 95, 10, "Date of AREP Form Received"
       Text 10, 195, 115, 10, "Date form was signed (MM/DD/YY):"
       Text 255, 160, 85, 10, "Programs Authorized for:"
       GroupBox 265, 5, 125, 150, "Specific FORM Received"
