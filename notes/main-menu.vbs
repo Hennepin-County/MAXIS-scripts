@@ -235,6 +235,7 @@ Do
 		If ButtonPressed = script_array(i).button then
 			ready_to_exit_loop = true		'Doing this just in case a stopscript or script_end_procedure is missing from the script in question
 			script_to_run = script_array(i).script_URL
+			script_index = i
             ' MsgBox script_to_run
 			Exit for
 		End if
