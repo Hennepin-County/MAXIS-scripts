@@ -313,7 +313,7 @@ IF match_answer_droplist = "NO-RUN NEW HIRE" THEN 'CHECKING CASE CURR. MFIP AND 
     PF3
 
     reminder_date = dateadd("d", 10, date)  'Setting out for 10 days reminder
-    If Outlook_reminder_checkbox = CHECKED THEN CALL create_outlook_appointment(reminder_date, "08:00 AM", "08:00 AM", "New Hire recieved " & " for " & MAXIS_case_number, "", "", TRUE, 5, "")
+    If Outlook_reminder_checkbox = CHECKED THEN CALL create_outlook_appointment(reminder_date, "08:00 AM", "08:00 AM", "New Hire received for " & MAXIS_case_number, "", "", TRUE, 5, "")
 
     script_end_procedure_with_error_report("Success! MAXIS updated for new HIRE message, a case note made, and a TIKL has been sent for 10 days from now. An Employment Verification and Verif Req Form should now be sent. The job is at " & employer & ".")
 END IF
