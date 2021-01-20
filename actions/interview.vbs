@@ -97,7 +97,40 @@ class mx_hh_member
 	public mn_entry_date
 	public former_state
 
+	public parents_in_home
+	public parents_in_home_notes
+	public parent_one_name
+	public parent_one_type
+	public parent_one_verif
+	public parent_one_in_home
+	public parent_two_name
+	public parent_two_type
+	public parent_two_verif
+	public parent_two_in_home
+
+	public pare_exists
+	public pare_child_ref_nbr
+	public pare_child_name
+	public pare_child_member_index
+	public pare_relationship_type
+	public pare_verification
+
+	public remo_exists
 	public left_hh_date
+	public left_hh_reason
+	public left_hh_expected_return_date
+	public left_hh_expected_return_verif
+	public left_hh_actual_return_date
+	public left_hh_HC_temp_out_of_state
+	public left_hh_date_reported
+	public left_hh_12_months_or_more
+
+	public adme_exists
+	public adme_arrival_date
+	public adme_cash_date
+	public adme_emer_date
+	public adme_snap_date
+	public adme_within_12_months
 
 	public imig_exists
 	public imig_status
@@ -282,6 +315,13 @@ class mx_hh_member
 	end property
 
 	Public sub define_the_member()
+
+		pare_child_ref_nbr = array("")
+		pare_child_name = array("")
+		pare_child_member_index = array("")
+		pare_relationship_type = array("")
+		pare_verification = array("")
+
 		Call navigate_to_MAXIS_screen("STAT", "MEMB")		'===============================================================================================
 		EMWriteScreen ref_number, 20, 76
 		transmit
@@ -521,23 +561,93 @@ class mx_hh_member
 			If remo_version = "1" Then remo_exists = TRUE
 
 			If remo_exists = TRUE Then
-				EMReadScreen left_hh_date
-				EMReadScreen left_hh_reason, 2,
-				EMReadScreen left_hh_expected_return_date, 8,
-				EMReadScreen left_hh_expected_return_verif, 2,
-				EMReadScreen left_hh_actual_return_date, 8,
-				EMReadScreen left_hh_HC_temp_out_of_state, 1,
-				EMReadScreen left_hh_date_reported, 8,
+				EMReadScreen left_hh_date, 8, 8, 53
+				EMReadScreen left_hh_reason, 2, 8, 71
+				EMReadScreen left_hh_expected_return_date, 8, 13, 53
+				EMReadScreen left_hh_expected_return_verif, 2, 13, 71
+				EMReadScreen left_hh_actual_return_date, 8, 14, 53
+				EMReadScreen left_hh_HC_temp_out_of_state, 1, 16, 64
+				EMReadScreen left_hh_date_reported, 8, 17, 64
 
+				left_hh_date = replace(left_hh_date, " ", "/")
+				If left_hh_date = "__/__/__" Then left_hh_date = ""
 
+				If left_hh_reason = "01" Then left_hh_reason = "01 - Death"
+				If left_hh_reason = "02" Then left_hh_reason = "02 - Moved out of Household"
+				If left_hh_reason = "03" Then left_hh_reason = "03 - Institutional Placement"
+				If left_hh_reason = "04" Then left_hh_reason = "04 - IV-E Foster Care Placement"
+				If left_hh_reason = "05" Then left_hh_reason = "05 - Non IV-E Foster Care Placement"
+				If left_hh_reason = "06" Then left_hh_reason = "06 - Illness"
+				If left_hh_reason = "07" Then left_hh_reason = "07 - Vacation or Visit"
+				If left_hh_reason = "08" Then left_hh_reason = "08 - Runaway"
+				If left_hh_reason = "09" Then left_hh_reason = "09 - Away for Education"
+				If left_hh_reason = "10" Then left_hh_reason = "10 - Relative Ill/Deceased"
+				If left_hh_reason = "11" Then left_hh_reason = "11 - Training of Employment Search"
+				If left_hh_reason = "12" Then left_hh_reason = "12 - Incarceration"
+				If left_hh_reason = "13" Then left_hh_reason = "13 - Other Allowed Return before 10th"
+				If left_hh_reason = "14" Then left_hh_reason = "14 - Non-Allowed Absent Cash"
+				If left_hh_reason = "15" Then left_hh_reason = "15 - Military Service"
+				If left_hh_reason = "16" Then left_hh_reason = "16 - Other"
+				If left_hh_reason = "__" Then left_hh_reason = ""
 
-				public left_hh_reason
-				public left_hh_expected_return_date
-				public left_hh_expected_return_verif
-				public left_hh_actual_return_date
-				public left_hh_HC_temp_out_of_state
-				public left_hh_date_reported
+				left_hh_expected_return_date = replace(left_hh_expected_return_date, " ", "/")
+				If left_hh_expected_return_date = "__/__/__" Then left_hh_expected_return_date = ""
+
+				If left_hh_expected_return_verif = "01" Then left_hh_expected_return_verif = "01 - Social Worker Statement"
+				If left_hh_expected_return_verif = "02" Then left_hh_expected_return_verif = "02 - Court Papers"
+				If left_hh_expected_return_verif = "03" Then left_hh_expected_return_verif = "03 - Doctor Statement"
+				If left_hh_expected_return_verif = "04" Then left_hh_expected_return_verif = "04 - Other Document"
+				If left_hh_expected_return_verif = "__" Then left_hh_expected_return_verif = ""
+
+				left_hh_actual_return_date = replace(left_hh_actual_return_date, " ", "/")
+				If left_hh_actual_return_date = "__/__/__" Then left_hh_actual_return_date = ""
+
+				If left_hh_HC_temp_out_of_state = "_" Then left_hh_HC_temp_out_of_state = ""
+
+				left_hh_date_reported = replace(left_hh_date_reported, " ", "/")
+				If left_hh_date_reported = "__/__/__" Then left_hh_date_reported = ""
+
+				If IsDate(left_hh_date) = TRUE Then
+					If DateDiff("m", left_hh_date, date) >= 12 Then
+						left_hh_12_months_or_more = TRUE
+					Else
+						left_hh_12_months_or_more = FALSE
+					End If
+				End If
 			End If
+
+			Call navigate_to_MAXIS_screen("STAT", "ADME")		'===============================================================================================
+			EMWriteScreen ref_number, 20, 76
+			transmit
+
+			EMreadScreen adme_version, 1, 2, 73
+			If adme_version = "0" Then adme_exists = FALSE
+			If adme_version = "1" Then adme_exists = TRUE
+
+			If adme_exists = TRUE Then
+				EMReadScreen adme_arrival_date, 8, 7, 38
+				EMReadScreen adme_cash_date, 8, 12, 38
+				EMReadScreen adme_emer_date, 8, 14, 38
+				EMReadScreen adme_snap_date, 8, 16, 38
+
+				adme_arrival_date = trim(adme_arrival_date)
+				If adme_arrival_date = "////////" Then adme_arrival_date = ""
+
+				adme_cash_date = replace(adme_cash_date, " ", "/")
+				If adme_cash_date = "__/__/__" Then adme_cash_date = ""
+
+				adme_emer_date = replace(adme_emer_date, " ", "/")
+				If adme_emer_date = "__/__/__" Then adme_emer_date = ""
+
+				adme_snap_date = replace(adme_snap_date, " ", "/")
+				If adme_snap_date = "__/__/__" Then adme_snap_date = ""
+
+				adme_within_12_months = FALSE
+				If IsDate(adme_arrival_date) = TRUE Then
+					If DateDiff("m", adme_arrival_date, date) < 13 Then adme_within_12_months = TRUE
+				End If
+			End If
+
 
 			Call navigate_to_MAXIS_screen("STAT", "COEX")		'===============================================================================================
 			EMWriteScreen ref_number, 20, 76
@@ -1278,7 +1388,162 @@ class mx_hh_member
 				Loop until panel_type = "__"
 			End If
 
+			Call navigate_to_MAXIS_screen("STAT", "PARE")		'===============================================================================================
+			EMWriteScreen ref_number, 20, 76
+			transmit
+
+			EMreadScreen pare_version, 1, 2, 73
+			If pare_version = "0" Then pare_exists = FALSE
+			If pare_version = "1" Then pare_exists = TRUE
+
+			If pare_exists = TRUE Then
+				pare_row = 8
+				pare_array_count = 0
+
+				Do
+					EMReadScreen panel_child_ref_number, 2, pare_row, 24
+					EMReadScreen panel_child_name, 25, pare_row, 27
+					EMReadScreen panel_rela_type, 1, pare_row, 53
+					EMReadScreen panel_rela_verif, 2, pare_row, 71
+
+					If panel_child_ref_number <> "__" Then
+						ReDim preserve pare_child_ref_nbr(pare_array_count)
+						ReDim preserve pare_child_name(pare_array_count)
+						ReDim preserve pare_child_member_index(pare_array_count)
+						ReDim preserve pare_relationship_type(pare_array_count)
+						ReDim preserve pare_verification(pare_array_count)
+
+						pare_child_ref_nbr(pare_array_count) = panel_child_ref_number
+						pare_child_name(pare_array_count) = trim(panel_child_name)
+
+						' pare_child_member_index(pare_array_count)
+
+						If panel_rela_type = "1" Then pare_relationship_type(pare_array_count) = "1 - Birth/Adopted Parent"
+						If panel_rela_type = "2" Then pare_relationship_type(pare_array_count) = "2 - Stepchild"
+						If panel_rela_type = "3" Then pare_relationship_type(pare_array_count) = "3 - Grandchild"
+						If panel_rela_type = "4" Then pare_relationship_type(pare_array_count) = "4 - Relative Caregiver"
+						If panel_rela_type = "5" Then pare_relationship_type(pare_array_count) = "5 - Foster Child"
+						If panel_rela_type = "6" Then pare_relationship_type(pare_array_count) = "6 - Non-related Caregiver"
+						If panel_rela_type = "7" Then pare_relationship_type(pare_array_count) = "7 - Legal Guardian"
+						If panel_rela_type = "8" Then pare_relationship_type(pare_array_count) = "8 - Other Relative"
+
+						If panel_rela_verif = "BC" Then pare_verification(pare_array_count) = "BC - Birth Certificate"
+						If panel_rela_verif = "AR" Then pare_verification(pare_array_count) = "AR - Adoption Records"
+						If panel_rela_verif = "LG" Then pare_verification(pare_array_count) = "LG - Legal Guardian"
+						If panel_rela_verif = "RE" Then pare_verification(pare_array_count) = "RE - Religious Records"
+						If panel_rela_verif = "HR" Then pare_verification(pare_array_count) = "HR - Hospital Records"
+						If panel_rela_verif = "RP" Then pare_verification(pare_array_count) = "RP - Recognition of Parentage"
+						If panel_rela_verif = "OT" Then pare_verification(pare_array_count) = "OT - Other Verification"
+						If panel_rela_verif = "NO" Then pare_verification(pare_array_count) = "NO - No Verif Provided"
+						If panel_rela_verif = "__" Then pare_verification(pare_array_count) = "Blank"
+						If panel_rela_verif = "?_" Then pare_verification(pare_array_count) = "Delayed Verification"
+					End If
+
+					pare_row = pare_row + 1
+					pare_array_count = pare_array_count + 1
+					If pare_row = 18 Then
+						pare_row = 8
+						PF20
+						EMReadScreen end_of_list, 9, 24, 14
+						If end_of_list = "LAST PAGE" then Exit Do
+					End If
+				Loop until panel_child_ref_number = "__"
+			End If
+
 		End If
+	end sub
+
+	public sub collect_parent_information()
+
+		If pare_exists = TRUE Then
+			' MsgBox "PARE EXISTS for " & ref_number
+			pare_row_index = 0
+			Do
+				For the_membs = 0 to UBound(HH_MEMB_ARRAY)
+					' MsgBox "REF on PARE - " & pare_child_ref_nbr(pare_row_index) & vbCr & "REF of the HH MEMB - " & HH_MEMB_ARRAY(the_membs).ref_number
+					If pare_child_ref_nbr(pare_row_index) = HH_MEMB_ARRAY(the_membs).ref_number Then
+						pare_child_member_index(pare_array_count) = the_membs
+
+						If HH_MEMB_ARRAY(the_membs).parent_one_name = "" Then
+
+							HH_MEMB_ARRAY(the_membs).parent_one_name = full_name
+							HH_MEMB_ARRAY(the_membs).parent_one_type = pare_relationship_type(pare_array_count)
+							HH_MEMB_ARRAY(the_membs).parent_one_verif = pare_verification(pare_array_count)
+							HH_MEMB_ARRAY(the_membs).parent_one_in_home = TRUE
+
+						ElseIf HH_MEMB_ARRAY(the_membs).parent_two_name = "" Then
+							HH_MEMB_ARRAY(the_membs).parent_two_name = full_name
+							HH_MEMB_ARRAY(the_membs).parent_two_type = pare_relationship_type(pare_array_count)
+							HH_MEMB_ARRAY(the_membs).parent_two_verif = pare_verification(pare_array_count)
+							HH_MEMB_ARRAY(the_membs).parent_two_in_home = TRUE
+						End If
+						' MsgBox HH_MEMB_ARRAY(the_membs).parent_one_name
+
+						Exit For
+					End If
+				Next
+				pare_row_index = pare_row_index + 1
+			Loop until pare_row_index > UBound(pare_child_ref_nbr)
+		End If
+
+		Call navigate_to_MAXIS_screen("STAT", "ABPS")
+		Do
+			abps_row = 15
+			Do
+				EMReadScreen abps_ref_nrb, 2, abps_row, 35
+				' MsgBox "REF on ABPS - " & abps_ref_nrb & vbCr & "REF of the HH MEMB - " & ref_number
+				If abps_ref_nrb = ref_number Then
+					EMReadScreen abps_last_name, 24, 10, 30
+					EMReadScreen abps_first_name, 12, 10, 63
+					EMReadScreen abps_mid_initial, 1, 10, 80
+					EMReadScreen abps_ssn, 11, 11, 30
+					EMReadScreen abps_dob, 10, 11, 60
+					EMReadScreen abps_gender, 1, 11, 80
+					EMReadScreen abps_parental_status, 1, abps_row, 53
+					EMReadScreen abps_custody, 1, abps_row, 67
+
+					abps_last_name = replace(abps_last_name, "_", "")
+					abps_first_name = replace(abps_first_name, "_", "")
+					abps_mid_initial = replace(abps_mid_initial, "_", "")
+
+					' MsgBox trim(abps_first_name) & " " & trim(abps_last_name)
+					If abps_first_name = "" AND abps_last_name = "" Then abps_first_name = "Name Unknown"
+					abps_ssn = replace(abps_ssn, "_", "")
+					abps_ssn = trim(abps_ssn)
+					abps_ssn = replace(abps_ssn, " ", "-")
+
+					abps_dob = replace(abps_dob, "_", "")
+					abps_dob = trim(abps_dob)
+					abps_dob = replace(abps_dob, " ", "/")
+
+					If parent_one_name = "" Then
+
+						parent_one_name = trim(abps_first_name) & " " & trim(abps_last_name)
+						parent_one_type = "ABSENT"
+						parent_one_verif = ""
+						parent_one_in_home = FALSE
+
+					ElseIf parent_two_name = "" Then
+						parent_two_name = trim(abps_first_name) & " " & trim(abps_last_name)
+						parent_two_type = "ABSENT"
+						parent_two_verif = ""
+						parent_two_in_home = FALSE
+					End If
+				End If
+				abps_row = abps_row + 1
+
+				If abps_row = 18 Then
+					PF20
+					abps_row = 15
+					EMReadScreen end_of_list, 9, 24, 14
+					If end_of_list = "LAST PAGE" Then Exit Do
+				End If
+			Loop until abps_ref_nrb = "__"
+			transmit
+			EMReadScreen last_abps, 7, 24, 2
+		Loop until last_abps = "ENTER A"
+
+
 	end sub
 
 	Public sub choose_the_members()
@@ -2388,6 +2653,16 @@ secu_asset	= 14
 cars_asset	= 15
 main_asset	= 16
 
+' page__step__btn 	= 10,000
+page_1_step_1_btn 	= 10011
+page_1_step_2_btn 	= 10012
+page_1_step_3_btn 	= 10013
+page_1_step_4_btn 	= 10014
+page_1_step_5_btn 	= 10015
+page_1_step_6_btn 	= 10016
+page_1_step_7_btn 	= 10017
+page_1_step_8_btn 	= 10018
+
 
 
 function dialog_movement()
@@ -2581,6 +2856,86 @@ function dialog_movement()
 
 	If page_display <> show_q_20_21 Then inst_to_match = ""
 
+	If ButtonPressed > 10000 Then
+		save_button = ButtonPressed
+		If ButtonPressed = page_1_step_1_btn Then call explain_dialog_actions("PAGE 1", "STEP 1")
+		If ButtonPressed = page_1_step_2_btn Then call explain_dialog_actions("PAGE 1", "STEP 2")
+
+		ButtonPressed = save_button
+	End If
+
+end function
+
+function explain_dialog_actions(dlg_page, dlg_step)
+	BeginDialog Dialog1, 0, 0, 550, 385, "Full Interview Questions"
+		ButtonGroup ButtonPressed
+		If dlg_page = "PAGE 1" Then
+			Text 495, 12, 60, 13, "CAF Page 1"
+
+			If dlg_step = "STEP 1" Then
+				GroupBox 10, 5, 170, 260, "Address Information listed in MAXIS"
+				Text 15, 20, 160, 25, "^^1 - Compare this address to the one entered on the CAF. If there is a difference, press the button below to update."
+				Text 20, 60, 70, 10, "Residence Address"
+				Text 25, 75, 150, 10, resi_line_one
+				If resi_line_two = "" Then
+					Text 25, 85, 150, 10, resi_city & ", " & resi_state & " " & resi_zip
+					Text 25, 95, 150, 10, "County: " & resi_county
+
+				Else
+					Text 25, 85, 150, 10, resi_line_two
+					Text 25, 95, 150, 10, resi_city & ", " & resi_state & " " & resi_zip
+					Text 25, 105, 150, 10, "County: " & resi_county
+				End If
+				Text 25, 120, 65, 10, "Homeless: " & homeless
+				Text 25, 130, 150, 20, "Living Situation: " & living_sit
+				Text 25, 155, 60, 10, "IND RES - " & ind_reservation
+				Text 25, 165, 150, 10, "RES NAME - " & res_name
+				Text 25, 180, 150, 10, "Verification: " & verif
+				If mail_line_one = "" Then
+					Text 20, 195, 150, 10, "No MAILING ADDRESS Listed"
+				ElseIf mail_line_two = "" Then
+					Text 20, 195, 70, 10, "Mailing Address"
+					Text 25, 210, 150, 10, mail_line_one
+					Text 25, 220, 150, 10, mail_city & ", " & mail_state & " " & mail_zip
+				Else
+					Text 20, 195, 70, 10, "Mailing Address"
+					Text 25, 210, 150, 10, mail_line_one
+					Text 25, 220, 150, 10, mail_line_two
+					Text 25, 230, 150, 10, mail_city & ", " & mail_state & " " & mail_zip
+				End If
+				' PushButton 50, 245, 125, 15, "CAF has Different Information", caf_info_different_btn
+				GroupBox 50, 242, 125, 20, ""
+				text 67, 250, 100, 10, "CAF has Different Information"
+
+				Text 185, 20, 20, 10, "<<---"
+				Text 200, 20, 200, 25, "This is asking you to check the CAF form received on this case and see if there has been any change reported in the address compared to what is listed in MAXIS."
+				Text 185, 75, 20, 10, "<<---"
+				Text 200, 75, 200, 25, "This is the current residence address known in MAXIS"
+				If mail_line_one = "" Then
+					Text 185, 195, 20, 10, "<<---"
+					Text 200, 195, 200, 25, "MAXIS does not have a mailing address listed."
+				Else
+					Text 185, 210, 20, 10, "<<---"
+					Text 200, 210, 200, 25, "This is the current mailing addresss known in MAXIS"
+				End If
+			ElseIf dlg_step = "STEP 2" Then
+				GroupBox 180, 5, 300, 260, "Client Conversation"
+				Text 185, 20, 245, 10, "^^2 - Read the Residence Address to the client."
+				Text 195, 30, 125, 10, "Ask: Is thatthe address you live at?"
+				GroupBox 195, 36, 280, 20,""
+				Text 200, 43, 100, 20,"Select or Type client response"
+				GroupBox 345, 52, 130, 20,""
+				Text 360, 58, 100, 10, "Record specific changes here"
+
+				Text 165, 20, 20, 10, "--->>"
+				Text 15, 20, 150, 25, "Now that the addresses on the CAF and in MAXIS have been reconciled, have the client verbally confirm the address."
+			End If
+		End If
+
+		PushButton 465, 365, 80, 15, "Back to Update", return_to_full_dialog_btn
+	EndDialog
+
+	dialog Dialog1
 end function
 
 function define_main_dialog()
@@ -2601,24 +2956,33 @@ function define_main_dialog()
 			Text 495, 12, 60, 13, "CAF Page 1"
 
 			GroupBox 180, 5, 300, 260, "Client Conversation"
-			Text 185, 20, 245, 10, "^^2 - Read the Residence Address to the client."
-			Text 195, 30, 125, 10, "Ask: Is thatthe address you live at?"
+			PushButton 182, 20, 18, 10, "^^2", page_1_step_2_btn
+			Text 200, 20, 245, 10, " - Read the Residence Address to the client."
+			Text 195, 30, 125, 10, "Ask: Is that the address you live at?"
 			ComboBox 195, 40, 280, 45, "Select or Type client response"+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Household is Homeless", residence_address_response
 			PushButton 345, 55, 130, 13, "Record specific changes here", client_verbal_changes_resi_address_btn
-			Text 185, 70, 245, 10, "^^3 - Ask: Are you experiencing housing instability (or homelessness)?"
+			' Text 185, 70, 245, 10, "^^3 - Ask: Are you experiencing housing instability (or homelessness)?"
+			PushButton 182, 70, 18, 10, "^^3", page_1_step_3_btn
+			Text 200, 70, 245, 10, " - Ask: Are you experiencing housing instability (or homelessness)?"
 			ComboBox 195, 80, 280, 45, "Select or Type client response"+chr(9)+"Yes"+chr(9)+"No", household_homeless_response
-			Text 185, 100, 50, 10, "^^4 - Explain:"
+			' Text 185, 100, 50, 10, "^^4 - Explain:"
+			PushButton 182, 100, 18, 10, "^^4", page_1_step_4_btn
+			Text 200, 100, 50, 10, " - Explain:"
 			Text 200, 110, 275, 25, "We use mail as our primary means of communication to let you know if any action is required for any benefits you receive to continue. It is important the address we send mail to has your name listed and that you check it regularly. "
 			Text 200, 140, 240, 15, "If a mailing address has been listed on the CAF or in MAXIS - read it to the client.                                         Which Address?"
 			DropListBox 365, 150, 110, 45, "Residence Address"+chr(9)+"Mailing Address", which_address_are_we_discussing
 			Text 195, 165, 150, 10, "Ask: Can you receive mail at this address?"
 			ComboBox 195, 175, 280, 45, "Select or Type client response"+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"No - Use General Delivery", mail_received_at_this_address_response
 			PushButton 345, 190, 130, 13, "Record specific changes here", client_verbal_changes_mail_address_btn
-			Text 185, 205, 140, 10, "^^5 - If General Delivery requested - Explain:"
+			' Text 185, 205, 140, 10, "^^5 - If General Delivery requested - Explain:"
+			PushButton 182, 205, 18, 10, "^^5", page_1_step_5_btn
+			Text 200, 205, 140, 10, " - If General Delivery requested - Explain:"
 			Text 195, 215, 260, 25, "GD can be used to have your mail held at the post office. You will need a photo ID to collect mail from GD. As our mail often requires a response within 10 days, you should be checking GD at least every 2-3 days."
 			DropListBox 275, 245, 200, 45, "General Delivery Not Requested"+chr(9)+"Explained and Client Confirmed Understanding", confirm_gen_del_explanation
 			GroupBox 10, 5, 170, 260, "Address Information listed in MAXIS"
-			Text 15, 20, 160, 25, "^^1 - Compare this address to the one entered on the CAF. If there is a difference, press the button below to update."
+			' Text 15, 20, 160, 25, "^^1 - Compare this address to the one entered on the CAF. If there is a difference, press the button below to update."
+			Text 15, 20, 160, 25, "        - Compare this address to the one entered on the CAF. If there is a difference, press the button below to update."
+			PushButton 12, 18, 18, 10, "^^1", page_1_step_1_btn
 			Text 20, 60, 70, 10, "Residence Address"
 			Text 25, 75, 150, 10, resi_line_one
 			If resi_line_two = "" Then
@@ -2656,15 +3020,21 @@ function define_main_dialog()
 			Text 90, 310, 35, 10, phone_type_two
 			Text 25, 325, 60, 10, phone_numb_three
 			Text 90, 325, 40, 10, phone_type_three
-			Text 150, 280, 185, 10, "^^6 - Ask: What is the best phone number to reach out at?"
+			' Text 150, 280, 185, 10, "^^6 - Ask: What is the best phone number to reach out at?"
+			PushButton 147, 280, 18, 10, "^^6", page_1_step_6_btn
+			Text 165, 280, 185, 10, " - Ask: What is the best phone number to reach out at?"
 			EditBox 340, 275, 65, 15, reported_phone_number
 			Text 185, 295, 120, 10, "What type of phone number is this?"
 			DropListBox 305, 290, 100, 45, "Select One..."+chr(9)+"Cell"+chr(9)+"Home"+chr(9)+"Work"+chr(9)+"Message Only"+chr(9)+"TTY/TDD", reported_phone_type
-			Text 150, 315, 320, 10, "^^7 - For each number on the lest, Read it to the client and Ask: is this still agood number?"
+			' Text 150, 315, 320, 10, "^^7 - For each number on the lest, Read it to the client and Ask: is this still agood number?"
+			PushButton 147, 315, 18, 10, "^^7", page_1_step_7_btn
+			Text 165, 315, 320, 10, " - For each number on the lest, Read it to the client and Ask: is this still agood number?"
 			PushButton 345, 325, 130, 13, "Record Any Changes to Numbers Here", client_verbal_changes_phone_numbers_btn
 
 			GroupBox 10, 345, 350, 30, "Living Situation"
-			Text 20, 360, 125, 10, "^^8 - Ask: What is your living situation?"
+			' Text 20, 360, 125, 10, "^^8 - Ask: What is your living situation?"
+			PushButton 17, 360, 18, 10, "^^8", page_1_step_8_btn
+			Text 35, 360, 125, 10, " - Ask: What is your living situation?"
 			DropListBox 150, 355, 200, 15, "Select One..."+chr(9)+"Own Housing(lease, mortgage, or roomate)"+chr(9)+"Family/Friends due to economic hardship"+chr(9)+"Servc prvdr- foster/group home"+chr(9)+"Hospital/Treatment/Detox/Nursing Home"+chr(9)+"Jail/Prison//Juvenile Det."+chr(9)+"Hotel/Motel"+chr(9)+"Emergency Shelter"+chr(9)+"Place not meant for Housing"+chr(9)+"Declined"+chr(9)+"Unknown", clt_response_living_sit
 		End If
 		If page_display = show_pg_memb_list Then										'THIS IS THE INFORMATION FOR PAGE  ----------------------------------------------------------------------------------------------------------------------------------
@@ -2811,7 +3181,7 @@ function define_main_dialog()
 		If page_display = show_q_1_2 Then										'THIS IS THE INFORMATION FOR PAGE  ----------------------------------------------------------------------------------------------------------------------------------
 			Text 500, 42, 60, 13, "Q. 1 and 2"
 
-			Text 5, 10, 330, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q1 and Q2 into the 'Answer on the CAF' field."
+			Text 5, 10, 330, 10, "^^1 - Enter the answers listed on the actual CAF form for Q1 and Q2 into the 'Answer on the CAF' field."
 		    Text 5, 25, 370, 10, "^^2 - ASK - Q1 and Q2 and record the verbal answers in the 'Confirm CAF Answer' field under the question."
 		    Text 15, 40, 235, 10, "Q. 1. Does everyone in your household buy, fix or eat food with you?"
 		    Text 370, 40, 65, 10, "Answer on the CAF"
@@ -2870,7 +3240,7 @@ function define_main_dialog()
 		If page_display = show_q_3 Then										'THIS IS THE INFORMATION FOR PAGE  ----------------------------------------------------------------------------------------------------------------------------------
 			Text 508, 57, 60, 13, "Q. 3"
 
-			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q3 into the 'Answer on the CAF' field."
+			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF form for Q3 into the 'Answer on the CAF' field."
 			Text 15, 25, 180, 10, "Q. 3. Is anyone in your household attending school?"
 			Text 370, 25, 65, 10, "Answer on the CAF"
 			DropListBox 435, 20, 40, 45, caf_answer_droplist, q3_caf_answer
@@ -2959,7 +3329,7 @@ function define_main_dialog()
 		If page_display = show_q_4 Then										'THIS IS THE INFORMATION FOR PAGE  ----------------------------------------------------------------------------------------------------------------------------------
 			Text 508, 72, 60, 13, "Q. 4"
 
-			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q4 into the 'Answer on the CAF' field."
+			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF form for Q4 into the 'Answer on the CAF' field."
 			Text 15, 25, 335, 20, "Q. 4. Is anyone in your household temporarily not living in your home? (example: vacation, foster care, treatment, hospital job search)"
 			Text 370, 25, 65, 10, "Answer on the CAF"
 			DropListBox 435, 20, 40, 45, caf_answer_droplist, q4_caf_answer
@@ -2989,7 +3359,7 @@ function define_main_dialog()
 		If page_display = show_q_5 Then										'THIS IS THE INFORMATION FOR PAGE  ----------------------------------------------------------------------------------------------------------------------------------
 			Text 508, 87, 60, 13, "Q. 5"
 
-			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
+			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF form for Q5 into the 'Answer on the CAF' field."
 		    Text 20, 25, 335, 20, "Q. 5. Is anyone blind, or does anyone have a physical or mental health condition that limit the ability to work or perform daily activities?"
 		    Text 370, 30, 65, 10, "Answer on the CAF"
 		    DropListBox 435, 25, 40, 45, caf_answer_droplist, q5_caf_answer
@@ -3038,7 +3408,7 @@ function define_main_dialog()
 		If page_display = show_q_6 Then										'THIS IS THE INFORMATION FOR PAGE  ----------------------------------------------------------------------------------------------------------------------------------
 			Text 508, 102, 60, 13, "Q. 6"
 
-			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q6 into the 'Answer on the CAF' field."
+			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF form for Q6 into the 'Answer on the CAF' field."
 		    Text 20, 25, 335, 10, "Q. 6. Is anyone unable to work for reasons other than illness or disability?"
 		    Text 370, 25, 65, 10, "Answer on the CAF"
 		    DropListBox 435, 20, 40, 45, caf_answer_droplist, q6_caf_answer
@@ -3076,7 +3446,7 @@ function define_main_dialog()
 		If page_display = show_q_7 Then										'THIS IS THE INFORMATION FOR PAGE  ----------------------------------------------------------------------------------------------------------------------------------
 			Text 508, 117, 60, 13, "Q. 7"
 
-			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
+			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF form for Q5 into the 'Answer on the CAF' field."
 			Text 20, 25, 335, 20, "Q. 7. In the last 60 days did anyone in the household: Stop working or quit? Refuse a job offer? Ask to work fewwer hours? Go on strike?"
 			Text 370, 30, 65, 10, "Answer on the CAF"
 			DropListBox 435, 25, 40, 45, caf_answer_droplist, q7_caf_answer
@@ -3126,7 +3496,7 @@ function define_main_dialog()
 		If page_display = show_q_8 Then										'THIS IS THE INFORMATION FOR PAGE  ----------------------------------------------------------------------------------------------------------------------------------
 			Text 508, 132, 60, 13, "Q. 8"
 
-			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
+			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF form for Q5 into the 'Answer on the CAF' field."
 			Text 20, 25, 335, 20, "Q. 8. Has anyone in the household had a job or been self-employed in the past 12 months?"
 			Text 370, 30, 65, 10, "Answer on the CAF"
 			DropListBox 435, 25, 40, 45, caf_answer_droplist, q8_caf_answer
@@ -3136,7 +3506,7 @@ function define_main_dialog()
 			ComboBox 110, 65, 365, 45, "", q8_confirm_caf_answer
 
 
-			Text 5, 90, 305, 10, "^^3 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
+			Text 5, 90, 305, 10, "^^3 - Enter the answers listed on the actual CAF form for Q5 into the 'Answer on the CAF' field."
 			Text 20, 105, 335, 20, "Q. 8a. FOR SNAP ONLY: Has anyone in the household had a job or been self-employed in the past 36 months?"
 			Text 370, 110, 65, 10, "Answer on the CAF"
 			DropListBox 435, 108, 40, 45, caf_answer_droplist, q8a_caf_answer
@@ -3150,7 +3520,7 @@ function define_main_dialog()
 		If page_display = show_q_9 Then										'THIS IS THE INFORMATION FOR PAGE  ----------------------------------------------------------------------------------------------------------------------------------
 			Text 508, 147, 60, 13, "Q. 9"
 
-			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
+			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF form for Q5 into the 'Answer on the CAF' field."
 			Text 20, 25, 335, 20, "Q. 9. Does anyone in the household have a job or expect to get income from a job this month or next month? (Include income from Work Study and paid scholarships. Include free benefits or reduced expenses received for work (shelter, food, clothing, etc.)"
 			Text 370, 30, 65, 10, "Answer on the CAF"
 			DropListBox 435, 25, 40, 45, caf_answer_droplist, q9_caf_answer
@@ -3163,7 +3533,7 @@ function define_main_dialog()
 		If page_display = show_q_10 Then										'THIS IS THE INFORMATION FOR PAGE  ----------------------------------------------------------------------------------------------------------------------------------
 			Text 507, 162, 60, 13, "Q. 10"
 
-			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
+			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF form for Q5 into the 'Answer on the CAF' field."
 			Text 20, 25, 335, 20, "Q. 10. Is anyone in the household self-employed or does anyone expect to get income from self-employment this month or next month?"
 			Text 370, 30, 65, 10, "Answer on the CAF"
 			DropListBox 435, 25, 40, 45, caf_answer_droplist, q10_caf_answer
@@ -3176,7 +3546,7 @@ function define_main_dialog()
 		If page_display = show_q_11 Then										'THIS IS THE INFORMATION FOR PAGE  ----------------------------------------------------------------------------------------------------------------------------------
 			Text 507, 177, 60, 13, "Q. 11"
 
-			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
+			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF form for Q5 into the 'Answer on the CAF' field."
 			Text 20, 25, 335, 20, "Q. 11. Do you expect any changes in income, expenses or work hours?"
 			Text 370, 30, 65, 10, "Answer on the CAF"
 			DropListBox 435, 25, 40, 45, caf_answer_droplist, q11_caf_answer
@@ -3959,7 +4329,7 @@ function define_main_dialog()
 '     PushButton 20, 250, 70, 15, "Tribal", tribal_btn
 ' EndDialog
 
-' Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
+' Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF form for Q5 into the 'Answer on the CAF' field."
 ' Text 20, 25, 335, 20, "Q. 12. Has anyone in the household applied for or does anyone get any of the following types of income each month?"
 ' Text 370, 30, 65, 10, "Answer on the CAF"
 ' DropListBox 435, 25, 40, 45, "Yes"+chr(9)+"No"+chr(9)+"Blank", caf_answer
@@ -3972,7 +4342,7 @@ function define_main_dialog()
 		If page_display = show_q_13 Then										'THIS IS THE INFORMATION FOR PAGE  ----------------------------------------------------------------------------------------------------------------------------------
 			Text 507, 207, 60, 13, "Q. 13"
 
-			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q13 into the 'Answer on the CAF' field."
+			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF form for Q13 into the 'Answer on the CAF' field."
 			Text 20, 25, 335, 20, "Q. 13. Does anyone in the household have or expect to get any loans, scholarships or grants for attending school?"
 			Text 370, 30, 65, 10, "Answer on the CAF"
 			DropListBox 435, 25, 40, 45, caf_answer_droplist, q13_caf_answer
@@ -4010,7 +4380,7 @@ function define_main_dialog()
 		If page_display = show_q_14_15 Then										'THIS IS THE INFORMATION FOR PAGE  ----------------------------------------------------------------------------------------------------------------------------------
 			Text 495, 222, 60, 13, "Q. 14 and 15"
 
-			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q14 into the 'Answer on the CAF' field."
+			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF form for Q14 into the 'Answer on the CAF' field."
 		    Text 20, 20, 225, 10, "Q. 14. Does your household have the following housing expenses?"
 
 		    Text 5, 30, 255, 10, "^^2 - If any are 'YES' then ASK the amount and ENTER the amount answered."
@@ -4063,7 +4433,7 @@ function define_main_dialog()
 		    ' Text 30, 180, 440, 10, "MEMB 01 - CLIENT FULL NAME HERE - Amount: $400"
 		    PushButton 350, y_pos, 125, 10, "Update Shelter Expense Information", update_shel_btn
 			y_pos = y_pos + 15
-			Text 5, y_pos, 310, 10, "^^4 - Enter the answers listed on the actual CAF fom for Q15 into the 'Answer on the CAF' field."
+			Text 5, y_pos, 310, 10, "^^4 - Enter the answers listed on the actual CAF form for Q15 into the 'Answer on the CAF' field."
 		    Text 20, y_pos + 10, 295, 10, "Q. 15. Does your household have the following utility expenses any time during the year?"
 			y_pos = y_pos + 30
 		    Text 20, y_pos, 85, 10, "Heating/Air Conditioning"
@@ -4111,7 +4481,7 @@ function define_main_dialog()
 		If page_display = show_q_16_18 Then										'THIS IS THE INFORMATION FOR PAGE  ----------------------------------------------------------------------------------------------------------------------------------
 			Text 487, 237, 60, 13, "Q. 16, 17, and 18"
 
-			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q16 into the 'Answer on the CAF' field."
+			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF form for Q16 into the 'Answer on the CAF' field."
 		    Text 365, 10, 65, 10, "Answer on the CAF"
 		    DropListBox 435, 5, 40, 45, caf_answer_droplist, q16_caf_answer
 		    Text 20, 20, 445, 20, "Q. 16. Do you or anyone living with you have costs for care of a child(ren) because you or they are working, looking for work or going to school? The Child Care Assistance Program (CCAP) may help pay child care costs."
@@ -4120,7 +4490,7 @@ function define_main_dialog()
 		    DropListBox 260, 40, 40, 45, caf_answer_droplist, q16_caf_confirm
 		    Text 40, 60, 100, 10, "Additional detail from answer:"
 		    EditBox 140, 55, 335, 15, q16_caf_confirm_notes
-		    Text 5, 80, 305, 10, "^^3 - Enter the answers listed on the actual CAF fom for Q17 into the 'Answer on the CAF' field."
+		    Text 5, 80, 305, 10, "^^3 - Enter the answers listed on the actual CAF form for Q17 into the 'Answer on the CAF' field."
 		    Text 370, 80, 65, 10, "Answer on the CAF"
 		    DropListBox 435, 75, 40, 45, caf_answer_droplist, q17_caf_answer
 		    Text 20, 90, 460, 20, "Q. 17. Do you or anyone living with you have costs for care of an ill or disabled adult because you are working, looking for work or going to school?"
@@ -4136,7 +4506,7 @@ function define_main_dialog()
 		    Text 25, 200, 100, 10, "Confirm Information is Correct:"
 		    DropListBox 130, 195, 205, 45, ""+chr(9)+""+chr(9)+""+chr(9)+"", List7
 		    PushButton 345, 195, 120, 10, "Update Child Care Information", update_DCEX_info_btn
-		    Text 5, 220, 305, 10, "^^6 - Enter the answers listed on the actual CAF fom for Q18 into the 'Answer on the CAF' field."
+		    Text 5, 220, 305, 10, "^^6 - Enter the answers listed on the actual CAF form for Q18 into the 'Answer on the CAF' field."
 		    Text 20, 230, 320, 20, "Q. 18. Does anyone in the household pay court-ordered child support, spousal support, child care support, medical support or contribute to a tax-dependent who does not live in your home?"
 		    Text 370, 230, 65, 10, "Answer on the CAF"
 		    DropListBox 435, 225, 40, 45, caf_answer_droplist, q18_caf_answer
@@ -4154,7 +4524,7 @@ function define_main_dialog()
 		    PushButton 345, 335, 120, 10, "Update Child Care Information", Button7
 
 			'
-			' Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
+			' Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF form for Q5 into the 'Answer on the CAF' field."
 			' Text 20, 25, 335, 20, "Q. 16. Do you or anyone living with you have costs for care of a child(ren) because you or they are working, looking for work or going to school? The Child Care Assistance Program (CCAP) may help pay child care costs."
 			' Text 370, 30, 65, 10, "Answer on the CAF"
 			' DropListBox 435, 25, 40, 45, caf_answer_droplist, q16_caf_answer
@@ -4165,7 +4535,7 @@ function define_main_dialog()
 			'
 			'
 			'
-			' Text 5, 90, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
+			' Text 5, 90, 305, 10, "^^1 - Enter the answers listed on the actual CAF form for Q5 into the 'Answer on the CAF' field."
 			' Text 20, 105, 335, 20, "Q. 17. Do you or anyone living with you have costs for care of an ill or disabled adult because you are working, looking for work or going to school?"
 			' Text 370, 110, 65, 10, "Answer on the CAF"
 			' DropListBox 435, 105, 40, 45, caf_answer_droplist, q17_caf_answer
@@ -4176,7 +4546,7 @@ function define_main_dialog()
 			'
 			'
 			'
-			' Text 5, 170, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
+			' Text 5, 170, 305, 10, "^^1 - Enter the answers listed on the actual CAF form for Q5 into the 'Answer on the CAF' field."
 			' Text 20, 185, 335, 20, "Q. 18. Does anyone in the household pay court-ordered child support, spousal support, child care support, medical support or contribute to a tax-dependent who does not live in your home?"
 			' Text 370, 190, 65, 10, "Answer on the CAF"
 			' DropListBox 435, 185, 40, 45, caf_answer_droplist, q18_caf_answer
@@ -4194,7 +4564,7 @@ function define_main_dialog()
 '     PushButton 465, 365, 80, 15, "Complete Interview", finish_interview_btn
 '     PushButton 485, 10, 60, 15, "CAF Page 1", caf_page_one_btn
 '     PushButton 485, 135, 60, 15, "CAF Page 1", Button27
-'   Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q16 into the 'Answer on the CAF' field."
+'   Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF form for Q16 into the 'Answer on the CAF' field."
 '   Text 365, 10, 65, 10, "Answer on the CAF"
 '   DropListBox 435, 5, 40, 45, "caf_answer_droplist", q16_caf_answer
 '   Text 20, 20, 445, 20, "Q. 16. Do you or anyone living with you have costs for care of a child(ren) because you or they are working, looking for work or going to school? The Child Care Assistance Program (CCAP) may help pay child care costs."
@@ -4203,7 +4573,7 @@ function define_main_dialog()
 '   DropListBox 260, 40, 40, 45, "caf_answer_droplist", List4
 '   Text 40, 60, 100, 10, "Additional detail from answer:"
 '   EditBox 140, 55, 335, 15, Edit1
-'   Text 5, 80, 305, 10, "^^3 - Enter the answers listed on the actual CAF fom for Q17 into the 'Answer on the CAF' field."
+'   Text 5, 80, 305, 10, "^^3 - Enter the answers listed on the actual CAF form for Q17 into the 'Answer on the CAF' field."
 '   Text 370, 80, 65, 10, "Answer on the CAF"
 '   DropListBox 435, 75, 40, 45, "caf_answer_droplist", q17_caf_answer
 '   Text 20, 90, 460, 20, "Q. 17. Do you or anyone living with you have costs for care of an ill or disabled adult because you are working, looking for work or going to school?"
@@ -4220,7 +4590,7 @@ function define_main_dialog()
 '   DropListBox 130, 195, 205, 45, "", List7
 '   ButtonGroup ButtonPressed
 '     PushButton 345, 195, 120, 10, "Update Child Care Information", update_DCEX_info_btn
-'   Text 5, 220, 305, 10, "^^6 - Enter the answers listed on the actual CAF fom for Q18 into the 'Answer on the CAF' field."
+'   Text 5, 220, 305, 10, "^^6 - Enter the answers listed on the actual CAF form for Q18 into the 'Answer on the CAF' field."
 '   Text 20, 230, 320, 20, "Q. 18. Does anyone in the household pay court-ordered child support, spousal support, child care support, medical support or contribute to a tax-dependent who does not live in your home?"
 '   Text 370, 230, 65, 10, "Answer on the CAF"
 '   DropListBox 435, 225, 40, 45, "caf_answer_droplist", q18_caf_answer
@@ -4244,7 +4614,7 @@ function define_main_dialog()
 		If page_display = show_q_19 Then										'THIS IS THE INFORMATION FOR PAGE  ----------------------------------------------------------------------------------------------------------------------------------
 			Text 507, 252, 60, 13, "Q. 19"
 
-			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
+			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF form for Q5 into the 'Answer on the CAF' field."
 			Text 20, 25, 335, 20, "Q. 19. For SNAP only: Does anyone in the household have medical expenses?"
 			Text 370, 30, 65, 10, "Answer on the CAF"
 			DropListBox 435, 25, 40, 45, caf_answer_droplist, q19_caf_answer
@@ -4298,7 +4668,7 @@ function define_main_dialog()
 
 		If page_display = show_q_20_21 Then										'THIS IS THE INFORMATION FOR PAGE  ----------------------------------------------------------------------------------------------------------------------------------
 			Text 495, 267, 60, 15, "Q. 20 and 21"
-		    Text 5, 10, 200, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q20"
+		    Text 5, 10, 200, 10, "^^1 - Enter the answers listed on the actual CAF form for Q20"
 		    Text 20, 20, 335, 10, "Q. 20. Does anyone in the household own, or is anyone buying, any of the following?"
 		    Text 30, 40, 20, 10, "Cash"
 		    DropListBox 70, 35, 40, 45, caf_answer_droplist, cash_caf_answer
@@ -4600,7 +4970,7 @@ function define_main_dialog()
 		    If second_page_display <> secu_asset Then PushButton 20, 135, 40, 15, "SECU - " & secu_count, secu_btn
 		    If second_page_display <> cars_asset Then PushButton 20, 150, 40, 15, "CARS - " & cars_count, cars_btn
 			If second_page_display <> rest_asset Then PushButton 20, 165, 40, 15, "REST - " & rest_count, rest_btn
-		    Text 5, 290, 305, 10, "^^3 - Enter the answers listed on the actual CAF fom for Q21 into the 'Answer on the CAF' field."
+		    Text 5, 290, 305, 10, "^^3 - Enter the answers listed on the actual CAF form for Q21 into the 'Answer on the CAF' field."
 		    Text 20, 305, 335, 20, "Q. 21. FOR CASH PROGRAMS ONLY: Has anyone in the household given away, sold or traded anything of value in the past 12 months? (For Example: Cash, Bank Accounts, Stocks, Bonds, or Vehicles)?"
 		    Text 370, 310, 65, 10, "Answer on the CAF"
 		    DropListBox 435, 305, 40, 45, caf_answer_droplist, q21_caf_answer
@@ -4615,7 +4985,7 @@ function define_main_dialog()
 		If page_display = show_q_22 Then										'THIS IS THE INFORMATION FOR PAGE  ----------------------------------------------------------------------------------------------------------------------------------
 			Text 507, 282, 60, 13, "Q. 22"
 
-			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
+			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF form for Q5 into the 'Answer on the CAF' field."
 			Text 20, 25, 335, 20, "Q. 22. FOR RECERTIFICATIONS ONLY: Did anyone move in or out of your home in the past 12 months?"
 			Text 370, 30, 65, 10, "Answer on the CAF"
 			DropListBox 435, 25, 40, 45, caf_answer_droplist, q22_caf_answer
@@ -4624,48 +4994,155 @@ function define_main_dialog()
 			Text 40, 70, 70, 10, "Confirm CAF Answer"
 			ComboBox 110, 65, 365, 45, "", q22_confirm_caf_answer
 
+			Text 5, 90, 300, 10, "^^3 - REVIEW - Review any known members that have left and confirm or add others not listed."
 
-			EditBox 415, 85, 50, 15, HH_MEMB_ARRAY(0).left_hh_date
-
-			Text 20, 110, 95, 10, "Other Household Members:"
-			y_pos = 125
+			' Text 20, 110, 150, 10, "Household Members that have left"
+			remo_grp_hgt = 15
 			for i = 1 to UBound(HH_MEMB_ARRAY, 1)
-				Text 25, y_pos, 255, 10, "- MEMB " & HH_MEMB_ARRAY(i).ref_number & "    " & HH_MEMB_ARRAY(i).full_name & " - " & HH_MEMB_ARRAY(i).rel_to_applcnt & " of Memb 01"
-				CheckBox 285, y_pos, 50, 10, "On the CAF", HH_MEMB_ARRAY(i).checkbox_one
-				CheckBox 340, y_pos, 70, 10, "Verbally Reported", HH_MEMB_ARRAY(i).checkbox_two
-				EditBox 415, y_pos - 5, 50, 15, HH_MEMB_ARRAY(i).left_hh_date
-				y_pos = y_pos + 15
+				If IsDate(HH_MEMB_ARRAY(i).left_hh_date) = TRUE Then
+					remo_grp_hgt = remo_grp_hgt + 25
+					If HH_MEMB_ARRAY(i).left_hh_expected_return_date <> "" Then remo_grp_hgt = remo_grp_hgt + 10
+				End If
+			next
+			If remo_grp_hgt = 15 Then remo_grp_hgt = 30
+			Groupbox 20, 110, 325, remo_grp_hgt, "Household Members that have left"
+			y_pos = 125
+			member_left_listed = FALSE
+			for i = 1 to UBound(HH_MEMB_ARRAY, 1)
+				If IsDate(HH_MEMB_ARRAY(i).left_hh_date) = TRUE Then
+
+				 	member_left_listed = TRUE
+					Text 25, y_pos, 255, 10, "- MEMB " & HH_MEMB_ARRAY(i).ref_number & "    " & HH_MEMB_ARRAY(i).full_name & " - " & HH_MEMB_ARRAY(i).rel_to_applcnt & " of Memb 01"
+					PushButton 290, y_pos, 50, 10, "EDIT", HH_MEMB_ARRAY(i).button_one
+					y_pos = y_pos + 10
+					Text 50, y_pos, 150, 10, "HH Member Left Date: " & HH_MEMB_ARRAY(i).left_hh_date
+					Text 205, y_pos, 150, 10, "Reason: " & HH_MEMB_ARRAY(i).left_hh_reason
+					If HH_MEMB_ARRAY(i).left_hh_expected_return_date <> "" Then
+						y_pos = y_pos + 10
+						Text 50, y_pos, 150, 10, "Expected Return Date: " & HH_MEMB_ARRAY(i).left_hh_expected_return_date
+						Text 205, y_pos, 150, 10, "Verif: " & HH_MEMB_ARRAY(i).left_hh_expected_return_verif
+					End If
+					y_pos = y_pos + 15
+				End If
 			Next
+			If member_left_listed = FALSE Then
+				Text 25, y_pos, 255, 10, "No REMO panels in MAXIS or added."
+				y_pos = y_pos + 15
+			End If
+			PushButton 25, y_pos, 150, 10, "Add Another Member that Left", add_remo_btn
+			y_pos = y_pos + 20
 
+			Text 5, y_pos, 300, 10, "^^4 - REVIEW - Review any known members that have joined and confirm or add others not listed."
+			y_pos = y_pos + 15
+			' Text 20, y_pos, 150, 10, "Household Members that have joined:"
+			adme_grp_hgt = 15
+			for i = 1 to UBound(HH_MEMB_ARRAY, 1)
+				If HH_MEMB_ARRAY(i).adme_within_12_months = TRUE Then
+					adme_grp_hgt = adme_grp_hgt + 25
+				ENd If
+			next
+			If adme_grp_hgt = 15 Then adme_grp_hgt = 30
+			GroupBox 20, y_pos, 325, adme_grp_hgt, "Household Members that have joined"
+			y_pos = y_pos + 15
 
+			member_added_listed = FALSE
+			for i = 1 to UBound(HH_MEMB_ARRAY, 1)
+				If HH_MEMB_ARRAY(i).adme_within_12_months = TRUE Then
+					member_added_listed = TRUE
 
-
+					Text 25, y_pos, 255, 10, "- MEMB " & HH_MEMB_ARRAY(i).ref_number & "    " & HH_MEMB_ARRAY(i).full_name & " - " & HH_MEMB_ARRAY(i).rel_to_applcnt & " of Memb 01"
+					PushButton 290, y_pos, 50, 10, "EDIT", HH_MEMB_ARRAY(i).button_one
+					y_pos = y_pos + 10
+					Text 50, y_pos, 150, 10, "HH Member Arrival Date: " & HH_MEMB_ARRAY(i).adme_arrival_date
+					y_pos = y_pos + 15
+				End If
+			next
+			If member_added_listed = FALSE Then
+				Text 25, y_pos, 255, 10, "No ADME panels in MAXIS or added."
+				y_pos = y_pos + 15
+			End If
+			PushButton 25, y_pos, 150, 10, "Add Another Member that Joined", add_adme_btn
 		End If
 		If page_display = show_q_23 Then										'THIS IS THE INFORMATION FOR PAGE  ----------------------------------------------------------------------------------------------------------------------------------
 			Text 507, 297, 60, 13, "Q. 23"
 
-			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
+			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF form for Q5 into the 'Answer on the CAF' field."
 			Text 20, 25, 335, 20, "Q. 23. For children under the age of 19, are both parents living in the home?"
-			Text 370, 30, 65, 10, "Answer on the CAF"
-			DropListBox 435, 25, 40, 45, caf_answer_droplist, q23_caf_answer
+			Text 370, 25, 65, 10, "Answer on the CAF"
+			DropListBox 435, 20, 40, 45, caf_answer_droplist, q23_caf_answer
 			Text 5, 50, 35, 10, "^^2 - ASK - "
-			Text 40, 50, 280, 10, "'Is anyone in the household disabled or have a physical or mental health condition?"
+			Text 40, 50, 280, 10, "'For each of the children under the age of 19, are both parents living in the home?"
 			Text 40, 70, 70, 10, "Confirm CAF Answer"
 			ComboBox 110, 65, 365, 45, "", q23_confirm_caf_answer
+			PushButton 2, 100, 18, 10, "^^3", page_23_step_3_btn
+			Text 20, 100, 350, 10, " - Review all of the children listed with the client and identify if parents are in or out of the home."
+			Text 40, 120, 400, 10, "CHILD'S NAME   -  -  -  -  -  -  -  -  -  - AGE  -  -  PARENTS  -  -  -  -  -  -  -  -  -  -  -  -  -  -  NOTES"
+
+			y_pos = 140
+			for i = 0 to UBound(HH_MEMB_ARRAY, 1)
+				If HH_MEMB_ARRAY(i).age < 19 Then
+					' MsgBox HH_MEMB_ARRAY(i).parents_in_home
+					Text 25, y_pos, 100, 10, "M " & HH_MEMB_ARRAY(i).ref_number & " - " & HH_MEMB_ARRAY(i).full_name
+					Text 155, y_pos, 30, 20, HH_MEMB_ARRAY(i).age
+					DropListBox 185, y_pos-5, 110, 15, "Select One..."+chr(9)+"1 parent in the home"+chr(9)+"Both parents in the home"+chr(9)+"Neither parent in the home"+chr(9)+HH_MEMB_ARRAY(i).parents_in_home, HH_MEMB_ARRAY(i).parents_in_home
+					EditBox 305, y_pos-5, 170, 15, HH_MEMB_ARRAY(i).parents_in_home_notes
+
+					Text 50, y_pos+10, 200, 10, "Parent One - " & HH_MEMB_ARRAY(i).parent_one_name
+					If HH_MEMB_ARRAY(i).parent_one_in_home = TRUE Then Text 185, y_pos + 10, 100, 10, "Parent is in the home."
+					If HH_MEMB_ARRAY(i).parent_one_in_home = FALSE Then Text 185, y_pos + 10, 100, 10, "Absent Parent."
+
+					Text 50, y_pos+20, 200, 10, "Parent Two - " & HH_MEMB_ARRAY(i).parent_two_name
+					If HH_MEMB_ARRAY(i).parent_two_in_home = TRUE Then Text 185, y_pos + 20, 100, 10, "Parent is in the home."
+					If HH_MEMB_ARRAY(i).parent_two_in_home = FALSE Then Text 185, y_pos + 20, 100, 10, "Absent Parent."
+
+					y_pos = y_pos + 40
+				End If
+			next
+
+
 
 
 		End If
 		If page_display = show_q_24 Then										'THIS IS THE INFORMATION FOR PAGE  ----------------------------------------------------------------------------------------------------------------------------------
 			Text 507, 312, 60, 13, "Q. 24"
 
-			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF fom for Q5 into the 'Answer on the CAF' field."
-			Text 20, 25, 335, 20, "Q. 24. FOR MSA RECIPIENTS ONLY: Does anyone in the household have any of the following expenses?"
-			Text 370, 30, 65, 10, "Answer on the CAF"
-			DropListBox 435, 25, 40, 45, caf_answer_droplist, q24_caf_answer
-			Text 5, 50, 35, 10, "^^2 - ASK - "
-			Text 40, 50, 280, 10, "'Is anyone in the household disabled or have a physical or mental health condition?"
-			Text 40, 70, 70, 10, "Confirm CAF Answer"
-			ComboBox 110, 65, 365, 45, "", q24_confirm_caf_answer
+			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF form for Q24."
+			Text 20, 20, 335, 20, "Q. 24. FOR MSA RECIPIENTS ONLY: Does anyone in the household have any of the following expenses?"
+			Text 30, 40, 150, 10, "Representative Payee fees"
+			DropListBox 135, 35, 40, 45, caf_answer_droplist, rep_payee_fees_caf_answer
+			Text 250, 40, 150, 10, "Guardian Conservator fees"
+			' Text 350, 40, 170, 10, "(savings, checking, debit card, etc.)"
+			DropListBox 355, 35, 40, 45, caf_answer_droplist, guard_consrv_fees_caf_answer
+
+			Text 30, 55, 150, 10, "Physician-prescribed special diet"
+			' Text 115, 55, 170, 10, "(stocks, bonds, annuities, 401K, etc.)"
+			DropListBox 135, 50, 40, 45, caf_answer_droplist, spec_diet_caf_answer
+			Text 250, 55, 150, 10, "High housing costs"
+			' Text 350, 52, 130, 20, "(cars, trucks, motorcycles, campers, trailers, etc.)"
+			DropListBox 355, 50, 40, 45, caf_answer_droplist, high_housing_caf_answer
+
+
+			Text 5, 80, 35, 10, "^^2 - ASK - "
+			Text 40, 80, 280, 10, "'Is anyone in the household disabled or have a physical or mental health condition?"
+			Text 40, 100, 70, 10, "Confirm CAF Answer"
+			ComboBox 110, 95, 365, 45, "", q24_confirm_caf_answer
+
+
+			' Text 495, 267, 60, 15, "Q. 20 and 21"
+			' Text 5, 10, 200, 10, "^^1 - Enter the answers listed on the actual CAF form for Q20"
+			' Text 20, 20, 335, 10, "Q. 20. Does anyone in the household own, or is anyone buying, any of the following?"
+			' Text 30, 40, 20, 10, "Cash"
+			' DropListBox 70, 35, 40, 45, caf_answer_droplist, cash_caf_answer
+			' Text 250, 40, 55, 10, "Bank accounts"
+			' Text 350, 40, 170, 10, "(savings, checking, debit card, etc.)"
+			' DropListBox 305, 35, 40, 45, caf_answer_droplist, acct_caf_answer
+			'
+			' Text 30, 55, 40, 10, "Securities"
+			' Text 115, 55, 170, 10, "(stocks, bonds, annuities, 401K, etc.)"
+			' DropListBox 70, 50, 40, 45, caf_answer_droplist, secu_caf_answer
+			' Text 250, 55, 35, 10, "Vehicles"
+			' Text 350, 52, 130, 20, "(cars, trucks, motorcycles, campers, trailers, etc.)"
+			' DropListBox 305, 50, 40, 45, caf_answer_droplist, cars_caf_answer
 
 		End If
 		If page_display = show_qual Then										'THIS IS THE INFORMATION FOR PAGE  ----------------------------------------------------------------------------------------------------------------------------------
@@ -5000,6 +5477,20 @@ function read_all_the_MEMBs()
 		clt_count = clt_count + 1
 	Next
 
+	For i = 0 to UBOUND(HH_MEMB_ARRAY, 1)
+		HH_MEMB_ARRAY(i).collect_parent_information
+
+		If HH_MEMB_ARRAY(i).parent_one_in_home = TRUE AND HH_MEMB_ARRAY(i).parent_two_in_home = TRUE Then
+			HH_MEMB_ARRAY(i).parents_in_home = "Both parents in the home"
+		ElseIf HH_MEMB_ARRAY(i).parent_one_in_home = FALSE AND HH_MEMB_ARRAY(i).parent_two_in_home = FALSE Then
+			HH_MEMB_ARRAY(i).parents_in_home = "Neither parent in the home"
+		ElseIf HH_MEMB_ARRAY(i).parent_one_in_home = TRUE AND HH_MEMB_ARRAY(i).parent_two_in_home = FALSE Then
+			HH_MEMB_ARRAY(i).parents_in_home = "1 parent in the home"
+		ElseIf HH_MEMB_ARRAY(i).parent_one_in_home = FALSE AND HH_MEMB_ARRAY(i).parent_two_in_home = TRUE Then
+			HH_MEMB_ARRAY(i).parents_in_home = "1 parent in the home"
+		End If
+	Next
+
 	rela_counter = 0
 	For i = 0 to UBOUND(HH_MEMB_ARRAY, 1)
 		If HH_MEMB_ARRAY(i).rel_to_applcnt <> "Self" AND HH_MEMB_ARRAY(i).rel_to_applcnt <> "Not Related" AND HH_MEMB_ARRAY(i).rel_to_applcnt <> "Live-in Attendant" AND HH_MEMB_ARRAY(i).rel_to_applcnt <> "Unknown" Then
@@ -5307,7 +5798,9 @@ function read_all_Assets()
 		EMReadScreen panel_summ, 4, 2, 53
 	Loop until panel_summ = "PNLI"
 
-
+	If asset_count = 0 Then
+		Set ASSET_ARRAY(0) = new client_assets
+	End If
 
 
 	If unea_found = TRUE Then
@@ -5591,7 +6084,7 @@ end function
 function review_caf_q_26()
 end function
 
-
+Dim household_homeless_response
 
 'THE SCRIPT ===========================================================================================================
 EMConnect ""
