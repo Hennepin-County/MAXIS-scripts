@@ -64,7 +64,7 @@ END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 'GLOBAL CONSTANTS----------------------------------------------------------------------------------------------------
-Dim checked, unchecked, cancel, OK, blank, t_drive, STATS_counter, STATS_manualtime, STATS_denomination, script_run_lowdown, testing_run		'Declares this for Option Explicit users
+Dim checked, unchecked, cancel, OK, blank, t_drive, STATS_counter, STATS_manualtime, STATS_denomination, script_run_lowdown, testing_run, MAXIS_case_number		'Declares this for Option Explicit users
 
 checked = 1			'Value for checked boxes
 unchecked = 0		'Value for unchecked boxes
@@ -5106,6 +5106,12 @@ function get_county_code()
 end function
 
 function get_this_script_started(script_index, end_script, month_to_use)
+'--- WORK IN PROGRESS - This function has the primary functionality needed at the begining of an individual script run.
+'~~~~~ script_index: this should just be 'script_index' and indicates the number of the script in the COMPLETE LIST OF SCRIPTS.
+'~~~~~ end_script: If NOT in MAXIS (passworded out) should the script end.
+'~~~~~ month_to_use: default value of the footer month and year - Options: 'MAXIS MONTH', 'CM', 'CM PLUS 1', 'CM PLUS 2', 'CM MINUS 1', 'CM MINUS 2'
+'~~~~~
+'===== Keywords: MAXIS, dialog,
 	EMConnect ""
 	Call check_for_MAXIS(end_script)
 	Call MAXIS_case_number_finder(MAXIS_case_number)
@@ -5124,16 +5130,16 @@ function get_this_script_started(script_index, end_script, month_to_use)
 		MAXIS_footer_month = CM_plus_2_mo
 		MAXIS_footer_year = CM_plus_2_yr
 	End If
-	If month_to_use = "LM" Then
+	If month_to_use = "CM MINUS 1" Then
 		MAXIS_footer_month = right("0" &             DatePart("m",           DateAdd("m", -1, date)            ), 2)
 		MAXIS_footer_year =  right(                  DatePart("yyyy",        DateAdd("m", -1, date)            ), 2)
 	End If
-	If month_to_use = "LM LESS 1" Then
+	If month_to_use = "CM MINUS 2" Then
 		MAXIS_footer_month = right("0" &             DatePart("m",           DateAdd("m", -2, date)            ), 2)
 		MAXIS_footer_year =  right(                  DatePart("yyyy",        DateAdd("m", -2, date)            ), 2)
 	End If
 
-	MsgBox "The script running is:" & vbCR & "Category - " & script_array(script_index).category & vbCr & "Name - " & script_array(script_index).script_name
+	' MsgBox "The script running is:" & vbCR & "Category - " & script_array(script_index).category & vbCr & "Name - " & script_array(script_index).script_name
 
 	'Showing the case number dialog
 	Do
@@ -5158,7 +5164,7 @@ function get_this_script_started(script_index, end_script, month_to_use)
 			  Text 20, 45, 50, 10, "Description:"
 			  Text 25, 55, 200, 25, script_array(script_index).description
 			  Text 20, 110, 45, 10, "Case number:"
-			  Text 25, 130, 40, 10, "CSR Month:"
+			  Text 20, 130, 45, 10, "Footer Month:"
 			  Text 10, 150, 60, 10, "Worker Signature"
 			  Text 125, 130, 25, 10, "mm/yy"
 			EndDialog
@@ -5172,6 +5178,7 @@ function get_this_script_started(script_index, end_script, month_to_use)
 			ElseIf ButtonPressed = save_worker_sig Then
 				err_msg = "LOOP"
 			Else
+				' MsgBox MAXIS_case_number
 		        Call validate_MAXIS_case_number(err_msg, "*")
 		        Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
 		        IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
@@ -6827,6 +6834,32 @@ function transmit()
  '===== Keywords: MAXIS, MMIS, PRISM, transmit
   EMSendKey "<enter>"
   EMWaitReady 0, 0
+end function
+
+function validate_footer_month_entry(footer_month, footer_year, err_msg_var, bullet_char)
+'--- This function checks a fooder month and year variable provided in a dialog loop and ensures that is numeric and 2 digits long.
+'~~~~~ footer_month: This is whatever variable you are using for the footer month
+'~~~~~ footer_year: This is whatever variable you are using for the footer year
+'~~~~~ err_msg_var: This is the variable you are using for the error message handling in the dialog loop
+'~~~~~ bullet_char: This is the character(s) that you are using to identify each line in the error message
+'===== Keywords: MAXIS, dialog, footer month
+    If IsNumeric(footer_month) = FALSE Then
+        err_msg_var = err_msg_var & vbNewLine & bullet_char & " The footer month should be a number, review and reenter the footer month information."
+    Else
+        footer_month = footer_month * 1
+        If footer_month > 12 OR footer_month < 1 Then err_msg_var = err_msg_var & vbNewLine & bullet_char & " The footer month should be between 1 and 12. Review and reenter the footer month information."
+        footer_month = right("00" & footer_month, 2)
+    End If
+
+    If len(footer_year) < 2 Then
+        err_msg_var = err_msg_var & vbNewLine & bullet_char & " The footer year should be at least 2 characters long, review and reenter the footer year information."
+    Else
+        If IsNumeric(footer_year) = FALSE Then
+            err_msg_var = err_msg_var & vbNewLine & bullet_char & " The footer year should be a number, review and reenter the footer year information."
+        Else
+            footer_year = right("00" & footer_year, 2)
+        End If
+    End If
 end function
 
 function validate_MAXIS_case_number(err_msg_variable, list_delimiter)
