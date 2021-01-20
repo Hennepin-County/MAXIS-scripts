@@ -278,7 +278,7 @@ Call create_TIKL("Verification of " & employer & "job via NEW HIRE should have r
 reminder_date = dateadd("d", 10, date)  'Setting out for 10 days reminder
 If Outlook_reminder_checkbox = CHECKED THEN
 	'Call create_outlook_appointment(appt_date, appt_start_time, appt_end_time, appt_subject, appt_body, appt_location, appt_reminder, appt_category)
-	CALL create_outlook_appointment(reminder_date, "08:00 AM", "08:00 AM", "New Hire recieved " & " for " & MAXIS_case_number, "", "", TRUE, 5, "")
+	CALL create_outlook_appointment(reminder_date, "08:00 AM", "08:00 AM", "New Hire received " & " for " & MAXIS_case_number, "", "", TRUE, 5, "")
 End if
 
 '-----------------------------------------------------------------------------------------CASENOTE
