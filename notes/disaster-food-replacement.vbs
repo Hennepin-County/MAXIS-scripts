@@ -114,7 +114,7 @@ Do
 		If disaster_type = "" Then err_msg = err_msg & vbCr & "* Please complete the type of disaster if power outage - specify what caused the power outage."
 		If how_verif = "" Then err_msg = err_msg & vbCr & "* Please complete how the disaster was verified - news reports, Social Worker, RedCross, Excel confirmation etc."
 		IF replacement_status <> "Pending Complete DHS-1609" and IsDate(dhs1609_done_date) <> TRUE or dhs1609_done_date = "" Then err_msg = err_msg & vbCr & "* Please complete the date the date the county signed the form or enter N/A."
-		IF replacement_status <> "Pending Complete DHS-1609" and IsDate(dhs1609_rcvd_date) <> TRUE or dhs1609_rcvd_date = "" Then err_msg = err_msg & vbCr & "* Please complete the date county recieved the request or write N/A."
+		IF replacement_status <> "Pending Complete DHS-1609" and IsDate(dhs1609_rcvd_date) <> TRUE or dhs1609_rcvd_date = "" Then err_msg = err_msg & vbCr & "* Please complete the date county received the request or write N/A."
 		IF replacement_status <> "Pending Complete DHS-1609" and IsDate(dhs1609_sig_date) <> TRUE or dhs1609_sig_date = "" Then err_msg = err_msg & vbCr & "* Please complete the date the client signed the form or write N/A."
     	IF TSS_BENE_sent_checkbox = UNCHECKED and replacement_status = "Submitted Request to TSS BENE" THEN err_msg = err_msg & vbCr & "* Please check that the TSS BENE Webform has been completed."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
