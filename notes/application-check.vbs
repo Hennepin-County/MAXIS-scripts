@@ -698,7 +698,7 @@ CALL write_bullet_and_variable_in_CASE_NOTE("Application Date", application_date
 CALL write_bullet_and_variable_in_CASE_NOTE("Other Pending Programs", additional_programs_applied_for)
 CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", active_programs)
 IF ECF_checkbox = CHECKED THEN CALL write_variable_in_CASE_NOTE("* ECF reviewed and verifications have been sent")
-CALL write_bullet_and_variable_in_CASE_NOTE("Verifications Recieved", verifs_rcvd)
+CALL write_bullet_and_variable_in_CASE_NOTE("Verifications Received", verifs_rcvd)
 CALL write_bullet_and_variable_in_CASE_NOTE("Pending Verifications", verifs_needed)
 CALL write_bullet_and_variable_in_CASE_NOTE("Actions Taken", actions_taken)
 CALL write_bullet_and_variable_in_CASE_NOTE("Other Notes", other_notes)
