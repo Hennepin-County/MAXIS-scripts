@@ -636,7 +636,7 @@ function csr_dlg_q_4_7()
 					  first_unea = FALSE
 				  End If
 				  ComboBox 30, y_pos, 130, 45, all_the_clients, NEW_UNEARNED_ARRAY(unearned_client, each_unea)
-				  ComboBox 165, y_pos, 110, 45, unea_type_list, NEW_UNEARNED_ARRAY(unearned_source, each_unea)   'unea_type
+				  ComboBox 165, y_pos, 110, 45, "Type or Select"+chr(9)+UNEA_type_list, NEW_UNEARNED_ARRAY(unearned_source, each_unea)   'unea_type
 				  EditBox 280, y_pos, 50, 15, NEW_UNEARNED_ARRAY(unearned_start_date, each_unea)    'unea_start_date
 				  EditBox 335, y_pos, 50, 15, NEW_UNEARNED_ARRAY(unearned_amount, each_unea)    'unea_amount
 				  DropListBox 390, y_pos, 90, 45, "Select One..."+chr(9)+"4 - Weekly"+chr(9)+"3 - Biweekly"+chr(9)+"2 - Semi Monthly"+chr(9)+"1 - Monthly", NEW_UNEARNED_ARRAY(unearned_freq, each_unea) 'unea_frequency
@@ -824,7 +824,7 @@ function csr_dlg_q_9_12()
 				  first_account = FALSE
 			  End If
 			  ComboBox 30, y_pos, 130, 45, all_the_clients, NEW_ASSET_ARRAY(asset_client, each_asset) 'liquid_asset_member'
-			  ComboBox 165, y_pos, 115, 40, account_list, NEW_ASSET_ARRAY(asset_acct_type, each_asset)'liquid_asst_type
+			  ComboBox 165, y_pos, 115, 40, "Type or Select..."+chr(9)+"Cash"+chr(9)+ACCT_type_list, NEW_ASSET_ARRAY(asset_acct_type, each_asset)'liquid_asst_type
 			  EditBox 285, y_pos, 195, 15, NEW_ASSET_ARRAY(asset_bank_name, each_asset)'liquid_asset_name
 			  y_pos = y_pos + 20
 			End If
@@ -852,7 +852,7 @@ function csr_dlg_q_9_12()
 					first_secu = FALSE
 				End If
 				ComboBox 30, y_pos, 130, 45, all_the_clients, NEW_ASSET_ARRAY(asset_client, each_asset) 'security_asset_member
-				ComboBox 165, y_pos, 115, 40, security_list, NEW_ASSET_ARRAY(asset_acct_type, each_asset)    'security_asset_type
+				ComboBox 165, y_pos, 115, 40, "Type or Select"+chr(9)+SECU_type_list, NEW_ASSET_ARRAY(asset_acct_type, each_asset)    'security_asset_type
 				EditBox 285, y_pos, 195, 15, NEW_ASSET_ARRAY(asset_bank_name, each_asset)   'security_asset_name
 				y_pos = y_pos + 20
 			End If
@@ -879,7 +879,7 @@ function csr_dlg_q_9_12()
 					  first_car = FALSE
 				  End If
 				  ComboBox 30, y_pos, 130, 45, all_the_clients, NEW_ASSET_ARRAY(asset_client, each_asset)     'vehicle_asset_member
-				  ComboBox 165, y_pos, 115, 40, cars_list, NEW_ASSET_ARRAY(asset_acct_type, each_asset)    'vehicle_asset_type
+				  ComboBox 165, y_pos, 115, 40, "Type or Select"+chr(9)+CARS_type_list, NEW_ASSET_ARRAY(asset_acct_type, each_asset)    'vehicle_asset_type
 				  EditBox 285, y_pos, 195, 15, NEW_ASSET_ARRAY(asset_year_make_model, each_asset)  'vehicle_asset_name
 				  y_pos = y_pos + 20
 			  End If
@@ -907,7 +907,7 @@ function csr_dlg_q_9_12()
 				  End If
 				  ComboBox 30, y_pos, 130, 45, all_the_clients, NEW_ASSET_ARRAY(asset_client, each_asset)     'property_asset_member
 				  EditBox 165, y_pos, 150, 15, NEW_ASSET_ARRAY(asset_address, each_asset)      'property_asset_address
-				  ComboBox 320, y_pos, 150, 40, rest_list, NEW_ASSET_ARRAY(asset_acct_type, each_asset)     'property_asset_type
+				  ComboBox 320, y_pos, 150, 40, "Type or Select"+chr(9)+REST_type_list, NEW_ASSET_ARRAY(asset_acct_type, each_asset)     'property_asset_type
 				  y_pos = y_pos + 20
 			  End If
 		  Next
@@ -1810,7 +1810,7 @@ function enter_new_residence_address()
 		  Text 50, 65, 15, 10, "City:"
 		  EditBox 70, 60, 80, 15, new_resi_city
 		  Text 160, 65, 20, 10, "State:"
-		  DropListBox 185, 60, 75, 45, state_list, new_resi_state
+		  DropListBox 185, 60, 75, 45, "Select One..."+chr(9)+state_list, new_resi_state
 		  Text 275, 65, 20, 10, "Zip:"
 		  EditBox 300, 60, 50, 15, new_resi_zip
 		  Text 40, 85, 30, 10, "County:"
@@ -1851,7 +1851,7 @@ function enter_new_mailing_address()
 		  Text 50, 60, 15, 10, "City:"
 		  EditBox 70, 55, 80, 15, new_mail_city
 		  Text 160, 60, 20, 10, "State:"
-		  DropListBox 185, 55, 75, 45, state_list, new_mail_state
+		  DropListBox 185, 55, 75, 45, "Select One..."+chr(9)+state_list, new_mail_state
 		  Text 275, 60, 20, 10, "Zip:"
 		  EditBox 300, 55, 50, 15, new_mail_zip
 		  Text 10, 5, 300, 10, "ENTER THE MAILING ADDRESS INFORMATION FROM THE CSR FORM"
@@ -2507,149 +2507,7 @@ csr_form_date = date & ""
 Call find_user_name(worker_name)						'defaulting the name of the suer running the script
 show_buttons_on_confirmation_dlg = TRUE
 
-'Drop List options for dialogs'
-unea_type_list = "Type or Select"
-unea_type_list = unea_type_list+chr(9)+"01 - RSDI, Disa"
-unea_type_list = unea_type_list+chr(9)+"02 - RSDI, No Disa"
-unea_type_list = unea_type_list+chr(9)+"03 - SSI"
-unea_type_list = unea_type_list+chr(9)+"06 - Non-MN PA"
-unea_type_list = unea_type_list+chr(9)+"11 - VA Disability"
-unea_type_list = unea_type_list+chr(9)+"12 - VA Pension"
-unea_type_list = unea_type_list+chr(9)+"13 - VA Other"
-unea_type_list = unea_type_list+chr(9)+"38 - VA Aid & Attendance"
-unea_type_list = unea_type_list+chr(9)+"14 - Unemployment Insurance"
-unea_type_list = unea_type_list+chr(9)+"15 - Worker's Comp"
-unea_type_list = unea_type_list+chr(9)+"16 - Railroad Retirement"
-unea_type_list = unea_type_list+chr(9)+"17 - Other Retirement"
-unea_type_list = unea_type_list+chr(9)+"18 - Military Enrirlement"
-unea_type_list = unea_type_list+chr(9)+"19 - FC Child req FS"
-unea_type_list = unea_type_list+chr(9)+"20 - FC Child not req FS"
-unea_type_list = unea_type_list+chr(9)+"21 - FC Adult req FS"
-unea_type_list = unea_type_list+chr(9)+"22 - FC Adult not req FS"
-unea_type_list = unea_type_list+chr(9)+"23 - Dividends"
-unea_type_list = unea_type_list+chr(9)+"24 - Interest"
-unea_type_list = unea_type_list+chr(9)+"25 - Cnt gifts/prizes"
-unea_type_list = unea_type_list+chr(9)+"26 - Strike Benefits"
-unea_type_list = unea_type_list+chr(9)+"27 - Contract for Deed"
-unea_type_list = unea_type_list+chr(9)+"28 - Illegal Income"
-unea_type_list = unea_type_list+chr(9)+"29 - Other Countable"
-unea_type_list = unea_type_list+chr(9)+"30 - Infrequent"
-unea_type_list = unea_type_list+chr(9)+"31 - Other - FS Only"
-unea_type_list = unea_type_list+chr(9)+"08 - Direct Child Support"
-unea_type_list = unea_type_list+chr(9)+"35 - Direct Spousal Support"
-unea_type_list = unea_type_list+chr(9)+"36 - Disbursed Child Support"
-unea_type_list = unea_type_list+chr(9)+"37 - Disbursed Spousal Support"
-unea_type_list = unea_type_list+chr(9)+"39 - Disbursed CS Arrears"
-unea_type_list = unea_type_list+chr(9)+"40 - Disbursed Spsl Sup Arrears"
-unea_type_list = unea_type_list+chr(9)+"43 - Disbursed Excess CS"
-unea_type_list = unea_type_list+chr(9)+"44 - MSA - Excess Income for SSI"
-unea_type_list = unea_type_list+chr(9)+"47 - Tribal Income"
-unea_type_list = unea_type_list+chr(9)+"48 - Trust Income"
-unea_type_list = unea_type_list+chr(9)+"49 - Non-Recurring"
-
-account_list = "Select or Type"
-account_list = account_list+chr(9)+"Cash"
-account_list = account_list+chr(9)+"SV - Savings"
-account_list = account_list+chr(9)+"CK - Checking"
-account_list = account_list+chr(9)+"CE - Certificate of Deposit"
-account_list = account_list+chr(9)+"MM - Money Market"
-account_list = account_list+chr(9)+"DC - Debit Card"
-account_list = account_list+chr(9)+"KO - Keogh Account"
-account_list = account_list+chr(9)+"FT - Fed Thrift Savings Plan"
-account_list = account_list+chr(9)+"SL - State & Local Govt"
-account_list = account_list+chr(9)+"RA - Employee Ret Annuities"
-account_list = account_list+chr(9)+"NP - Non-Profit Emmployee Ret"
-account_list = account_list+chr(9)+"IR - Indiv Ret Acct"
-account_list = account_list+chr(9)+"RH - Roth IRA"
-account_list = account_list+chr(9)+"FR - Ret Plan for Employers"
-account_list = account_list+chr(9)+"CT - Corp Ret Trust"
-account_list = account_list+chr(9)+"RT - Other Ret Fund"
-account_list = account_list+chr(9)+"QT - Qualified Tuition (529)"
-account_list = account_list+chr(9)+"CA - Coverdell SV (530)"
-account_list = account_list+chr(9)+"OE - Other Educational"
-account_list = account_list+chr(9)+"OT - Other"
-
-security_list = "Select or Type"
-security_list = security_list+chr(9)+"LI - Life Insurance"
-security_list = security_list+chr(9)+"ST - Stocks"
-security_list = security_list+chr(9)+"BO - Bonds"
-security_list = security_list+chr(9)+"CD - Ctrct for Deed"
-security_list = security_list+chr(9)+"MO - Mortgage Note"
-security_list = security_list+chr(9)+"AN - Annuity"
-security_list = security_list+chr(9)+"OT - Other"
-
-cars_list = "Select or Type"
-cars_list = cars_list+chr(9)+"1 - Car"
-cars_list = cars_list+chr(9)+"2 - Truck"
-cars_list = cars_list+chr(9)+"3 - Van"
-cars_list = cars_list+chr(9)+"4 - Camper"
-cars_list = cars_list+chr(9)+"5 - Motorcycle"
-cars_list = cars_list+chr(9)+"6 - Trailer"
-cars_list = cars_list+chr(9)+"7 - Other"
-
-rest_list = "Select or Type"
-rest_list = rest_list+chr(9)+"1 - House"
-rest_list = rest_list+chr(9)+"2 - Land"
-rest_list = rest_list+chr(9)+"3 - Buildings"
-rest_list = rest_list+chr(9)+"4 - Mobile Home"
-rest_list = rest_list+chr(9)+"5 - Life Estate"
-rest_list = rest_list+chr(9)+"6 - Other"
-
-state_list = "Select One..."
-state_list = state_list+chr(9)+"AL Alabama"
-state_list = state_list+chr(9)+"AK Alaska"
-state_list = state_list+chr(9)+"AZ Arizona"
-state_list = state_list+chr(9)+"AR Arkansas"
-state_list = state_list+chr(9)+"CA California"
-state_list = state_list+chr(9)+"CO Colorado"
-state_list = state_list+chr(9)+"CT Connecticut"
-state_list = state_list+chr(9)+"DE Delaware"
-state_list = state_list+chr(9)+"DC District Of Columbia"
-state_list = state_list+chr(9)+"FL Florida"
-state_list = state_list+chr(9)+"GA Georgia"
-state_list = state_list+chr(9)+"HI Hawaii"
-state_list = state_list+chr(9)+"ID Idaho"
-state_list = state_list+chr(9)+"IL Illnois"
-state_list = state_list+chr(9)+"IN Indiana"
-state_list = state_list+chr(9)+"IA Iowa"
-state_list = state_list+chr(9)+"KS Kansas"
-state_list = state_list+chr(9)+"KY Kentucky"
-state_list = state_list+chr(9)+"LA Louisiana"
-state_list = state_list+chr(9)+"ME Maine"
-state_list = state_list+chr(9)+"MD Maryland"
-state_list = state_list+chr(9)+"MA Massachusetts"
-state_list = state_list+chr(9)+"MI Michigan"
-state_list = state_list+chr(9)+"MN Minnesota"
-state_list = state_list+chr(9)+"MS Mississippi"
-state_list = state_list+chr(9)+"MO Missouri"
-state_list = state_list+chr(9)+"MT Montana"
-state_list = state_list+chr(9)+"NE Nebraska"
-state_list = state_list+chr(9)+"NV Nevada"
-state_list = state_list+chr(9)+"NH New Hampshire"
-state_list = state_list+chr(9)+"NJ New Jersey"
-state_list = state_list+chr(9)+"NM New Mexico"
-state_list = state_list+chr(9)+"NY New York"
-state_list = state_list+chr(9)+"NC North Carolina"
-state_list = state_list+chr(9)+"ND North Dakota"
-state_list = state_list+chr(9)+"OH Ohio"
-state_list = state_list+chr(9)+"OK Oklahoma"
-state_list = state_list+chr(9)+"OR Oregon"
-state_list = state_list+chr(9)+"PA Pennsylvania"
-state_list = state_list+chr(9)+"RI Rhode Island"
-state_list = state_list+chr(9)+"SC South Carolina"
-state_list = state_list+chr(9)+"SD South Dakota"
-state_list = state_list+chr(9)+"TN Tennessee"
-state_list = state_list+chr(9)+"TX Texas"
-state_list = state_list+chr(9)+"UT Utah"
-state_list = state_list+chr(9)+"VT Vermont"
-state_list = state_list+chr(9)+"VA Virginia"
-state_list = state_list+chr(9)+"WA Washington"
-state_list = state_list+chr(9)+"WV West Virginia"
-state_list = state_list+chr(9)+"WI Wisconsin"
-state_list = state_list+chr(9)+"WY Wyoming"
-state_list = state_list+chr(9)+"PR Puerto Rico"
-state_list = state_list+chr(9)+"VI Virgin Islands"
-
+Call remove_dash_from_droplist(state_list)
 
 'THE SCRIPT------------------------------------------------------------------------------------------------------------------------------------------------
 'Connecting to MAXIS & grabbing the case number
