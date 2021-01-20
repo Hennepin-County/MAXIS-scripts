@@ -1373,6 +1373,6 @@ IF out_of_state_request = "Unknown/No Response" THEN
 	PF3
 	IF unable_to_close_CHECKBOX = CHECKED THEN call create_TIKL("Unable to close due to 10 day cutoff", 10, date, TRUE, "")
 END IF 'if non received'
-'todo do we need to look at memi and update for when recieved? In MN > 12 Months (Y/N):
+'todo do we need to look at memi and update for when received? In MN > 12 Months (Y/N):
 'do you want to update the national directory?'
 script_end_procedure_with_error_report("Success! Your Out of State Inquiry has been generated, please follow up with the next steps to ensure the request is received timely. The verification request must be reflected in ECF this can be done by saving the word document as a PDF and uploading to ECF.")
