@@ -1008,10 +1008,10 @@ script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name			= "Enroll in Script Demo"
-script_array(script_num).description			= "Reviews income, Updates JOBS, CASE/NOTE for multiple Earned Income Panels on a single case."
+script_array(script_num).description			= "Script to display any upcoming BlueZone Script Demos that are scheduled and allow you to sign up and add to your Outlook Schedule."
 script_array(script_num).category               = "UTILITIES"
 script_array(script_num).workflows              = ""
-script_array(script_num).tags                   = array("")
+script_array(script_num).tags                   = array("Support", "Utility")
 script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("TOOL", "POLICY")
 script_array(script_num).release_date           = #08/10/2020#
