@@ -49,6 +49,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("11/6/2020", "The script will now check the interview date entered on PROG or REVW to confirm the updated happened accurately when the script is tasked with updating PROG or REVW.##~## ##~##There may be a message that the update failed, this means this update must be completed manually.##~##", "Casey Love, Hennepin County")
 Call changelog_update("11/6/2020", "Added new functionality to have the script update the 'REVW' panel with the Interview Date and CAF date for Recertification Cases.##~## As this is a new functionality, please let us know how it works for you!.##~##", "Casey Love, Hennepin County")
 Call changelog_update("10/09/2020", "Updated the functionality to adjust review dates for some cases to not require an interview date for Adult Cash Recertification cases.##~##", "Casey Love, Hennepin County")
 Call changelog_update("10/01/2020", "Updated Standard Utility Allowances for 10/2020.", "Ilse Ferris, Hennepin County")
@@ -5416,6 +5417,7 @@ If CAF_type = "Application" Then        'Interview date is not on PROG for recer
                 intv_mo = right("00"&intv_mo, 2)            'formatting variables in to 2 digit strings - because MAXIS
                 intv_day = right("00"&intv_day, 2)
                 intv_yr = right(intv_yr, 2)
+                intv_date_to_check = intv_mo & " " & intv_day & " " & intv_yr
 
                 If prog_update_SNAP_checkbox = checked Then     'If it was selected to SNAP interview to be updated
                     programs_w_interview = "SNAP"               'Setting a variable for case noting
@@ -5468,6 +5470,46 @@ If CAF_type = "Application" Then        'Interview date is not on PROG for recer
                 MAXIS_footer_year = keep_footer_year
             End If
         ENd If
+
+        If intv_date_needed = TRUE and confirm_update_prog = 1 Then         'If previous code has determined that PROG needs to be updated
+            snap_intv_date_updated = FALSE
+            cash_intv_date_updated = FALSE
+            show_prog_update_failure = FALSE
+            Call back_to_SELF
+            CALL navigate_to_MAXIS_screen ("STAT", "PROG")  'Now we can navigate to PROG in the application footer month and year
+            If prog_update_SNAP_checkbox = checked Then
+                EMReadScreen new_snap_intv_date, 8, 10, 55
+                If new_snap_intv_date = intv_date_to_check Then snap_intv_date_updated = TRUE
+                If snap_intv_date_updated = FALSE Then show_prog_update_failure = TRUE
+            End If
+            If prog_update_cash_checkbox = checked Then
+                EMReadScreen new_cash_intv_date, 8, prog_row, 55
+                If new_cash_intv_date = intv_date_to_check Then cash_intv_date_updated = TRUE
+                If cash_intv_date_updated = FALSE Then show_prog_update_failure = TRUE
+            End If
+
+            If show_prog_update_failure = TRUE Then
+                fail_msg = "You have requested the script update PROG for "
+                If prog_update_SNAP_checkbox = checked AND prog_update_cash_checkbox = checked Then
+                    fail_msg = fail_msg & "Cash and SNAP "
+                ElseIf prog_update_SNAP_checkbox = checked Then
+                    fail_msg = fail_msg & "SNAP "
+                ElseIf prog_update_cash_checkbox = checked Then
+                    fail_msg = fail_msg & "Cash "
+                End If
+
+                fail_msg = fail_msg & "to enter the interview date on PROG." & vbCr & vbCr & "The script was unable to update PROG completely." & vbCr
+
+                If prog_update_SNAP_checkbox = checked Then
+                    fail_msg = fail_msg & " - The SNAP Interview Date was not entered." & vbCr
+                ElseIf prog_update_cash_checkbox = checked Then
+                    fail_msg = fail_msg & " - The Cash Interview Date was not entered." & vbCr
+                End If
+                fail_msg = fail_msg & vbCr & "The PROG panel will need to be updated manually with the interview information."
+
+                MsgBox fail_msg
+            End If
+        End If
     End If
 End If
 
@@ -5538,7 +5580,21 @@ If the_process_for_cash = "Recertification" OR the_process_for_snap = "Recertifi
                         Exit Do
                     End If
                 Loop until actually_saved = "ENTER A"
+
+                revw_intv_date_updated = FALSE
+                Call back_to_SELF
+                Call Navigate_to_MAXIS_screen("STAT", "REVW")
+
+                EMReadScreen updated_intv_date, 8, 15, 37
+                If IsDate(updated_intv_date) = TRUE Then
+                    updated_intv_date = DateAdd("d", 0, updated_intv_date)
+                    If updated_intv_date = interview_date Then revw_intv_date_updated = TRUE
+
+                    fail_msg = "You have requested the script update REVW with the interview date." & vbCr & vbCr & "The script was unable to update REVW completely." & vbCr & vbCr & "The REVW panel will need to be updated manually with the interview information."
+                    If revw_intv_date_updated = FALSE Then MsgBox fail_msg
+                End If
             End If
+
             If interview_is_being_waived = vbYes AND interview_date = date Then interview_date = ""
         End If
     End If
@@ -6282,7 +6338,16 @@ If interview_required = TRUE Then
 
     Call write_bullet_and_variable_in_CASE_NOTE("AREP ID Info", arep_id_info)
 
-    If confirm_update_prog = 1 Then CALL write_variable_in_CASE_NOTE("* Interview date entered on PROG for " & programs_w_interview)
+    If confirm_update_prog = 1 Then
+        If snap_intv_date_updated = TRUE AND cash_intv_date_updated = TRUE Then
+            prog_updated_for_programs = "SNAP and Cash"
+        ElseIf snap_intv_date_updated = TRUE Then
+            prog_updated_for_programs = "SNAP"
+        ElseIf cash_intv_date_updated = TRUE Then
+            prog_updated_for_programs = "Cash"
+        End If
+        If snap_intv_date_updated = TRUE OR cash_intv_date_updated = TRUE Then CALL write_variable_in_CASE_NOTE("* Interview date entered on PROG for " & prog_updated_for_programs)
+    End If
     If do_not_update_prog = 1 Then CALL write_bullet_and_variable_in_CASE_NOTE("PROG WAS NOT UPDATED WITH INTERVIEW DATE, because", no_update_reason)
 
     Call write_variable_in_CASE_NOTE("----- Programs requested " & progs_list & " -----")
