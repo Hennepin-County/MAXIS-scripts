@@ -169,6 +169,14 @@ FUNCTION ei_function
 End Function
 
 FUNCTION unea_function
+	Call remove_dash_from_droplist(UNEA_type_list)
+	UNEA_type_list = replace(UNEA_type_list, "01 RSDI, Disa"+chr(9), "")
+	UNEA_type_list = replace(UNEA_type_list, "02 RSDI, No Disa"+chr(9), "")
+	UNEA_type_list = replace(UNEA_type_list, "03 SSI"+chr(9), "")
+	UNEA_type_list = replace(UNEA_type_list, "08 Direct Child Support"+chr(9), "")
+	UNEA_type_list = replace(UNEA_type_list, "36 Disbursed Child Support"+chr(9), "")
+	UNEA_type_list = replace(UNEA_type_list, "39 Disbursed CS Arrears"+chr(9), "")
+	UNEA_type_list = replace(UNEA_type_list, "43 Disbursed Excess CS"+chr(9), "")
     case_memb_unea_total = 0
     f = 0
     dialog_measures = 0
@@ -190,7 +198,7 @@ FUNCTION unea_function
               IF all_clients_array(clt_i, 1) = 1 THEN Text 90, (20 + (f * 35)), 20, 10, "RSDI:"
               IF all_clients_array(clt_i, 1) = 1 THEN Text 15, (20 + (f * 35)), 15, 10, "SSI:"
               IF all_clients_array(clt_i, 1) = 1 THEN GroupBox 5, (5 + (f * 35)), 470, 30, all_clients_array(clt_i, 0)
-              IF all_clients_array(clt_i, 1) = 1 THEN DropListBox 300, (15 + (f * 35)), 110, 15, "29 Other Countable"+chr(9)+"06 Non-MN PA"+chr(9)+"11 VA Disability Benefit"+chr(9)+"12 VA Pension"+chr(9)+"13 VA Other"+chr(9)+"38 VA Aid & Attendance"+chr(9)+"14 Unemployment Insurance"+chr(9)+"15 Worker's Comp"+chr(9)+"16 Railroad Retirement"+chr(9)+"17 Other Retirement"+chr(9)+"18 Military Allotment"+chr(9)+"19 FC Child Requesting FS"+chr(9)+"20 FC Child Not Req FS"+chr(9)+"21 FC Adult Requesting FS"+chr(9)+"22 FC Adult Not Req FS"+chr(9)+"23 Dividends"+chr(9)+"24 Interest"+chr(9)+"25 Cnt Gifts Or Prizes"+chr(9)+"26 Strike Benefit 27 Contract For Deed"+chr(9)+"28 Illegal Income"+chr(9)+"30 Infrequent <30 Not Counted"+chr(9)+"31 Other FS Only"+chr(9)+"32 Infreq <= $20 MSA Exclusion"+chr(9)+"35 Direct Spousal Support"+chr(9)+"37 Disbursed Spousal Sup"+chr(9)+"40 Disbursed Spsl Sup Arrears"+chr(9)+"43 Disbursed Excess CS"+chr(9)+"44 MSA - Excess Inc for SSI"+chr(9)+"45 County 88 Child Support"+chr(9)+"46 County 88 Gaming", other_unea_type(clt_i)
+			  IF all_clients_array(clt_i, 1) = 1 THEN DropListBox 300, (15 + (f * 35)), 110, 15, "Select One..."+chr(9)+UNEA_type_list, other_unea_type(clt_i)
               IF all_clients_array(clt_i, 1) = 1 THEN f = f + 1
             End If
         Next
