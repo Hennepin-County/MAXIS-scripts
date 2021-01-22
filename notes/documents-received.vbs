@@ -1283,7 +1283,7 @@ If asset_form_checkbox = checked Then
                 'Dialog to fill the ACCT panel
                 BeginDialog Dialog1, 0, 0, 271, 235, "New ACCT panel for Case #" & MAXIS_case_number
                   DropListBox 75, 10, 135, 45, client_dropdown, ASSETS_ARRAY(ast_owner, asset_counter)
-                  DropListBox 75, 30, 135, 45, "Select ..."+chr(9)+"SV - Savings"+chr(9)+"CK - Checking"+chr(9)+"CE - Certificate of Deposit"+chr(9)+"MM - Money Market"+chr(9)+"DC - Debit Card"+chr(9)+"KO - Keogh Account"+chr(9)+"FT - Federal Thrift Savings Plan"+chr(9)+"SL - State and Local Govt Ret"+chr(9)+"RA - Employee Ret Annuities"+chr(9)+"NP - Non-Profit Employer Ret Plans"+chr(9)+"IR - Indiv Ret Acct"+chr(9)+"RH - Roth IRA"+chr(9)+"FR - Ret Plans for Certain Employees"+chr(9)+"CT - Corp Ret Trust (before 1959)"+chr(9)+"RT - Other Ret Fund"+chr(9)+"QT - Qualified Tuition (529)"+chr(9)+"CA - Coverdell SV (530)"+chr(9)+"OE - Other Educationsal"+chr(9)+"OT - Other Account Type", ASSETS_ARRAY(ast_type, asset_counter)
+                  DropListBox 75, 30, 135, 45, "Select ..."+chr(9)+ACCT_type_list, ASSETS_ARRAY(ast_type, asset_counter)
                   EditBox 75, 50, 105, 15, ASSETS_ARRAY(ast_number, asset_counter)
                   EditBox 75, 70, 105, 15, ASSETS_ARRAY(ast_location, asset_counter)
                   EditBox 75, 90, 50, 15, ASSETS_ARRAY(ast_balance, asset_counter)
@@ -1596,7 +1596,7 @@ If asset_form_checkbox = checked Then
                 'Dialog to fill the SECU panel
                 BeginDialog Dialog1, 0, 0, 271, 235, "New SECU panel for Case #" & MAXIS_case_number
                   DropListBox 75, 10, 135, 45, client_dropdown, ASSETS_ARRAY(ast_owner, asset_counter)
-                  DropListBox 75, 30, 135, 45, "Select ..."+chr(9)+"LI - Life Insurance"+chr(9)+"ST - Stocks"+chr(9)+"BO - Bonds"+chr(9)+"CD - Ctrct For Deed"+chr(9)+"MO - Mortgage Note"+chr(9)+"AN - Annuity"+chr(9)+"OT - Other", ASSETS_ARRAY(ast_type, asset_counter)
+                  DropListBox 75, 30, 135, 45, "Select ..."+chr(9)+SECU_type_list, ASSETS_ARRAY(ast_type, asset_counter)
                   EditBox 75, 50, 105, 15, ASSETS_ARRAY(ast_number, asset_counter)
                   EditBox 75, 70, 105, 15, ASSETS_ARRAY(ast_location, asset_counter)
                   EditBox 75, 90, 50, 15, ASSETS_ARRAY(ast_csv, asset_counter)
@@ -1929,7 +1929,7 @@ If asset_form_checkbox = checked Then
                 'Dialog to fill the CARS panel.
                 BeginDialog Dialog1, 0, 0, 270, 255, "New CARS panel for Case # & MAXIS_case_number" & MAXIS_case_number
                   DropListBox 75, 10, 135, 45, client_dropdown, ASSETS_ARRAY(ast_owner, asset_counter)
-                  DropListBox 75, 30, 90, 45, "Select..."+chr(9)+"1 - Car"+chr(9)+"2 - Truck"+chr(9)+"3 - Van"+chr(9)+"4 - Camper"+chr(9)+"5 - Motorcycle"+chr(9)+"6 - Trailer"+chr(9)+"7 - Other", ASSETS_ARRAY(ast_type, asset_counter)
+                  DropListBox 75, 30, 90, 45, "Select..."+chr(9)+CARS_type_list, ASSETS_ARRAY(ast_type, asset_counter)
                   EditBox 220, 30, 40, 15, ASSETS_ARRAY(ast_year, asset_counter)
                   ComboBox 75, 50, 185, 45, "Type or Select"+chr(9)+"Acura"+chr(9)+"Audi"+chr(9)+"BMW"+chr(9)+"Buick"+chr(9)+"Cadillac"+chr(9)+"Chevrolet"+chr(9)+"Chrysler"+chr(9)+"Dodge"+chr(9)+"Ford"+chr(9)+"GMC"+chr(9)+"Honda"+chr(9)+"Hummer"+chr(9)+"Hyundai"+chr(9)+"Infiniti"+chr(9)+"Isuzu"+chr(9)+"Jeep"+chr(9)+"Kia"+chr(9)+"Lincoln"+chr(9)+"Mazda"+chr(9)+"Mercedes-Benz"+chr(9)+"Mercury"+chr(9)+"Mitsubishi"+chr(9)+"Nissan"+chr(9)+"Oldsmobile"+chr(9)+"Plymouth"+chr(9)+"Pontiac"+chr(9)+"Saab"+chr(9)+"Saturn"+chr(9)+"Scion"+chr(9)+"Subaru"+chr(9)+"Suzuki"+chr(9)+"Toyota"+chr(9)+"Volkswagen"+chr(9)+"Volvo", ASSETS_ARRAY(ast_make, asset_counter)
                   EditBox 75, 70, 185, 15, ASSETS_ARRAY(ast_model, asset_counter)
