@@ -722,8 +722,8 @@ function OTHER_ASSETS_BUTTON_PRESSED
 		  Text 225, 20, 25, 10, "Value"
 		  vehicle_add = 0
 		  For vehicle = 0 to UBOUND (VEHICLE_ARRAY, 2)
-		  	DropListBox 15, 35 + vehicle_add, 55, 45, "Select One ..."+chr(9)+"Car - 1"+chr(9)+"Truck - 2"+chr(9)+"Van - 3"+chr(9)+"Camper - 4"+chr(9)+"Motorcycle - 5"+chr(9)+"Trailer - 6"+chr(9)+"Other - 7", VEHICLE_ARRAY(vehicle_type, vehicle)
-		  	EditBox 80, 35 + vehicle_add, 30, 15, VEHICLE_ARRAY(vehicle_year, vehicle)
+			DropListBox 15, 35 + vehicle_add, 55, 45, "Select One ..."+chr(9)+CARS_type_list, VEHICLE_ARRAY(vehicle_type, vehicle)
+			EditBox 80, 35 + vehicle_add, 30, 15, VEHICLE_ARRAY(vehicle_year, vehicle)
 		  	EditBox 115, 35 + vehicle_add, 50, 15, VEHICLE_ARRAY(vehicle_make, vehicle)
 		  	EditBox 170, 35 + vehicle_add, 50, 15, VEHICLE_ARRAY(vehicle_model, vehicle)
 		  	EditBox 225, 35 + vehicle_add, 35, 15, VEHICLE_ARRAY(vehicle_value, vehicle)
@@ -739,7 +739,7 @@ function OTHER_ASSETS_BUTTON_PRESSED
 		  Text 200, 80 + vehicle_extend, 65, 10, "Withdrawl Penalty"
 		  security_add = 0
 		  For security = 0 to  UBOUND(SECURITIES_ARRAY, 2)
-		  	DropListBox 15, 95 + vehicle_extend + security_add, 55, 45, "Select One ..."+chr(9)+"Stocks"+chr(9)+"Bonds"+chr(9)+"Pension"+chr(9)+"Retirement", SECURITIES_ARRAY(security_type, security)
+			DropListBox 15, 95 + vehicle_extend + security_add, 55, 45, "Select One ..."+chr(9)+SECU_type_list, SECURITIES_ARRAY(security_type, security)
 		  	EditBox 80, 95 + vehicle_extend + security_add, 65, 15, SECURITIES_ARRAY(security_description, security)
 		  	EditBox 150, 95 + vehicle_extend + security_add, 40, 15, SECURITIES_ARRAY(security_value, security)
 		  	EditBox 200, 95 + vehicle_extend + security_add, 40, 15, SECURITIES_ARRAY(security_withdrawl, security)
@@ -3307,10 +3307,10 @@ If word_doc_checkbox = checked Then
 	objScreenSelect.Font.Underline = False
 	objScreenSelect.TypeParagraph()
 	For vehicle = 0 to UBOUND (VEHICLE_ARRAY, 2)
-		If VEHICLE_ARRAY(vehicle_type, vehicle) <> "Select One ..." AND VEHICLE_ARRAY(vehicle_type, vehicle) <> "" Then objScreenSelect.TypeText VEHICLE_ARRAY(vehicle_type, vehicle) & ": " & VEHICLE_ARRAY(vehicle_year, vehicle) & " - " & VEHICLE_ARRAY(vehicle_make, vehicle) & " " & VEHICLE_ARRAY(vehicle_model, vehicle) & " Value ~ $" & VEHICLE_ARRAY(vehicle_value, vehicle) & chr(13)
+		If VEHICLE_ARRAY(vehicle_type, vehicle) <> "Select One ..." AND VEHICLE_ARRAY(vehicle_type, vehicle) <> "" Then objScreenSelect.TypeText right(VEHICLE_ARRAY(vehicle_type, vehicle), len(VEHICLE_ARRAY(vehicle_type, vehicle))-4) & ": " & VEHICLE_ARRAY(vehicle_year, vehicle) & " - " & VEHICLE_ARRAY(vehicle_make, vehicle) & " " & VEHICLE_ARRAY(vehicle_model, vehicle) & " Value ~ $" & VEHICLE_ARRAY(vehicle_value, vehicle) & chr(13)
 	Next
 	For security = 0 to UBOUND (SECURITIES_ARRAY, 2)
-		If SECURITIES_ARRAY(security_type, security) <> "Select One ..." AND SECURITIES_ARRAY(security_type, security) <> "" Then objScreenSelect.TypeText SECURITIES_ARRAY(security_type, security) & " - " & SECURITIES_ARRAY(security_description, security) & " Value ~ $" & SECURITIES_ARRAY(security_value, security)
+		If SECURITIES_ARRAY(security_type, security) <> "Select One ..." AND SECURITIES_ARRAY(security_type, security) <> "" Then objScreenSelect.TypeText right(SECURITIES_ARRAY(security_type, security), len(SECURITIES_ARRAY(security_type, security))-5) & " - " & SECURITIES_ARRAY(security_description, security) & " Value ~ $" & SECURITIES_ARRAY(security_value, security)
 		If SECURITIES_ARRAY(security_withdrawl, security) <> 0 Then objScreenSelect.TypeText ", Withdrawl Penalty $" & SECURITIES_ARRAY(security_withdrawl, security)
 		objScreenSelect.TypeParagraph()
 	Next
