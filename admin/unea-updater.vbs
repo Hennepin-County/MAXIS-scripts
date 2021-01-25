@@ -57,6 +57,23 @@ call changelog_update("07/28/2017", "Initial version.", "Ilse Ferris, Hennepin C
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
+'----------FUNCTIONS----------
+'-----This function needs to be added to the FUNCTIONS FILE-----
+'>>>>> This function converts the letter for a number so the script can work with it <<<<<
+FUNCTION convert_excel_letter_to_excel_number(excel_col)
+	IF isnumeric(excel_col) = FALSE THEN
+		alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+		excel_col = ucase(excel_col)
+		IF len(excel_col) = 1 THEN
+			excel_col = InStr(alphabet, excel_col)
+		ELSEIF len(excel_col) = 2 THEN
+			excel_col = (26 * InStr(alphabet, left(excel_col, 1))) + (InStr(alphabet, right(excel_col, 1)))
+		END IF
+	ELSE
+		excel_col = CInt(excel_col)
+	END IF
+END FUNCTION
+
 'THE SCRIPT-------------------------------------------------------------------------------------------------------------------------
 EMConnect ""		'Connects to BlueZone
 
@@ -71,12 +88,16 @@ current_date = date
 Call ONLY_create_MAXIS_friendly_date(current_date)			'reformatting the dates to be MM/DD/YY format to measure against the panel dates
 
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 221, 50, "Select the UNEA income source file"
-    ButtonGroup ButtonPressed
-    PushButton 175, 10, 40, 15, "Browse...", select_a_file_button
-    OkButton 110, 30, 50, 15
-    CancelButton 165, 30, 50, 15
-    EditBox 5, 10, 165, 15, file_selection_path
+BeginDialog Dialog1, 0, 0, 246, 110, "UNEA Updater"
+  GroupBox 10, 5, 230, 80, "Using this script:"
+  Text 20, 20, 210, 20, "This script should be used when a list of UNEA income has been provided and verified through internal sources."
+  DropListBox 120, 50, 115, 15, "Select one..."+chr(9)+"Unemployment (UC)"+chr(9)+"Veterans (VA)", type_selection
+  ButtonGroup ButtonPressed
+  PushButton 195, 65, 40, 15, "Browse...", select_a_file_button
+  OkButton 150, 90, 40, 15
+  CancelButton 195, 90, 40, 15
+  EditBox 20, 65, 170, 15, file_selection_path
+  Text 20, 50, 95, 10, "Select the processing option:"
 EndDialog
 
 'dialog and dialog DO...Loop
@@ -88,16 +109,104 @@ Do
     	Dialog Dialog1
     	cancel_without_confirmation
     	If ButtonPressed = select_a_file_button then call file_selection_system_dialog(file_selection_path, ".xlsx")
-        If file_selection_path = "" then err_msg = err_msg & vbNewLine & "Use the Browse Button to select the file that has your client data"
+        If type_selection = "Select one..." then err_msg = err_msg & vbNewLine & "Select the income type."
+        If file_selection_path = "" then err_msg = err_msg & vbNewLine & "Use the Browse Button to select the file that has your client data."
         If err_msg <> "" Then MsgBox err_msg
     Loop until ButtonPressed = OK and file_selection_path <> ""
     If objExcel = "" Then call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
+'Creating an array of letters to loop through
+col_ind = "A~B~C~D~E~F~G~H~I~J~K~L~M~N~O~P~Q~R~S~T~U~V~W~X~Y~Z~AA~AB~AC~AD~AE~AF~AG~AH~AI~AJ~AK~AL~AM~AN~AO~AP~AQ~AR~AS~AT~AU~AV~AW~AX~AY~AZ"
+col_array = split(col_ind, "~")
+'setting the start of the list of column options
+column_list = "Select One..."
+cell_val = 1        'starting the value for reading the top cell of each column to use header information
+
+'looping through the array
+For each letter in col_array
+    col_header = UCase(objExcel.Cells(1, cell_val).Value)
+    col_header = trim(col_header)
+
+    If col_header <> ""  then                                              'if the column is not blank - add to dropdown
+        column_list = column_list & chr(9) & letter & " - " & col_header
+        If col_header = "CASE NUMBER" or col_header = "CASENUMBER" then case_number_col = letter & " - " & col_header
+        If col_header = "PERSONID" or col_header = "PMI" then pmi_col = letter & " - " & col_header     
+        If col_header = "INCOME TYPE CODE" or col_header = "INCOMETYPECODE" then income_type_col = letter & " - " & col_header  
+        If col_header = "CLAIM NBR" or col_header = "CLAIMNBR" then claim_col = letter & " - " & col_header  
+        If instr(col_header) = "INCORRECT" then act_claim_col = letter & " - " & col_header  
+        If col_header = "AMT" or col_header = "WEEKLY AMT" then unea_col = letter & " - " & col_header  
+        If col_header = "ACCT BALANCE" then balance_col = letter & " - " & col_header    
+        If col_header = "CASE STATUS" or col_header = "STATUS" then status_col = letter & " - " & col_header  
+        If col_header = "NOTES" or col_header = "CASE NOTES" then notes_col = letter & " - " & col_header
+    Else
+        last_col = letter       'setting this for adding additional columns with information
+        Exit For
+    End If
+    cell_val = cell_val + 1
+Next
+
+'Next dialog determines the column the case numbers are in and the type of notification to be sent.
+'Defining the dialog here so that the list of columns can be dynamically generated
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 266, 135, "Select Data Locations"
+  DropListBox 160, 70, 100, 45, column_list, case_number_column
+  ButtonGroup ButtonPressed
+    OkButton 155, 115, 50, 15
+    CancelButton 210, 115, 50, 15
+  Text 10, 10, 245, 20, "Check the Excel File that has been opened. Be sure it is the correct file to run at this time."
+  Text 10, 35, 245, 30, "Choose the column that has all the case numbers listed and select which type of notice should be sent. The script will run very differently based on these answers."
+  Text 10, 70, 145, 10, "Indicate the column with the case numbers:"
+  Text 10, 95, 140, 10, "Which type of notice do you want to send?"
+  Text 10, 120, 60, 10, "Excel row to start:"
+EndDialog
+
+'Displaying the dialog to select the correct column and type of notice.
+Do
+    Dialog Dialog1
+    If ButtonPressed = cancel then stopscript
+Loop until case_number_column <> "Select One..." AND notice_type <> "Select One..."
+
+call back_to_self
+EMReadScreen mx_region, 10, 22, 48
+
+If mx_region = "INQUIRY DB" Then
+    continue_in_inquiry = MsgBox("It appears you are attempting to have the script send notices for these cases." & vbNewLine & vbNewLine & "However, you appear to be in MAXIS Inquiry." &vbNewLine & "*************************" & vbNewLine & "Do you want to continue?", vbQuestion + vbYesNo, "Confirm Inquiry")
+    If continue_in_inquiry = vbNo Then script_end_procedure("Live script run was attempted in Inquiry and aborted.")
+End If
+
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 196, 150, "Confirm Selections"
+  Text 10, 10, 175, 20, "You are running a BULK script that will send notices. Review the Excel Spreadsheet that opened."
+  Text 10, 35, 175, 10, "Worksheet selected: " & scenario_dropdown
+  Text 10, 55, 175, 10, "Case Number Column: " & case_number_column
+  Text 10, 75, 175, 10, "Notice to be sent: " & notice_type
+  Text 10, 90, 180, 35, "This is a long running script and you will be unable to use any Excel document or the current session of MAXIS while the script runs. Review the selected options to be sure the script will takethe correct action."
+  ButtonGroup ButtonPressed
+    PushButton 80, 130, 50, 15, "Confirm", cnfrm_btn
+    CancelButton 140, 130, 50, 15
+EndDialog
+
+Do
+    Dialog Dialog1
+    cancel_without_confirmation
+Loop until buttonpressed = cnfrm_btn
+
+'Setting the Excel Columns 
+case_number_col     =  
+pmi_col             =
+income_type_col     = 
+claim_col           = 
+act_claim_col       = 
+unea_col            = 
+status_col          = 
+notes_col           =
+balance_col         = 
+
 'Sets up the array to store all the information for each client'
 Dim UNEA_array()
-ReDim UNEA_array (8, 0)
+ReDim UNEA_array (9, 0)
 
 'Sets constants for the array to make the script easier to read (and easier to code)'
 Const case_num    	= 0			'Each of the case numbers will be stored at this position'
@@ -109,6 +218,11 @@ Const unea_amt 	  	= 5
 Const act_status  	= 6
 Const act_notes   	= 7
 Const send_memo     = 8
+Const acct_bal      = 9
+
+'converting the column letter to a number because cell values are called by number
+col = left(case_number_column, 1)
+call convert_excel_letter_to_excel_number(col)
 
 'Now the script adds all the clients on the excel list into an array
 excel_row = 2 're-establishing the row to start checking the members for
@@ -125,28 +239,24 @@ Do                                                            'Loops until there
 		If left(client_PMI, 1) = "0" then client_PMI = right(client_PMI, len(client_PMI) - 1)
 	Loop until left(client_PMI, 1) <> "0"
 
-	income_type  	= objExcel.cells(excel_row, 4).value	'(col D) establishes income type code
-	claim_number 	= objExcel.cells(excel_row, 6).value	'(col F) establishes claim number from MAXIS (created by the report)
-    actual_claim 	= objExcel.cells(excel_row, 7).value	'(col G) establishes the acutal claim number (if another claim number was found by VA staff)
-	unea_amount	 	= objExcel.cells(excel_row, 8).value	'(col H) establishes grant amount for each case
-	
-	'cleaning up the variables
-	income_type	 	= trim(income_type)
-	claim_number 	= trim(claim_number)
-    actual_claim    = trim(actual_claim)
-	unea_amount		= trim(unea_amount)
+	income_type  	= objExcel.cells(excel_row, income_col).value 
+	claim_number 	= objExcel.cells(excel_row, claim_col).value 
+    actual_claim 	= objExcel.cells(excel_row, act_claim_col).value 
+	unea_amount	 	= objExcel.cells(excel_row, unea_col).value 
+    account_balance = objExcel.cells(excel_row, balance_col).value 
 
 	'Adding client information to the array'
-	ReDim Preserve UNEA_array(8, entry_record)	'This resizes the array based on the number of rows in the Excel File'
-	UNEA_array (case_num, 	entry_record) = MAXIS_case_number		'The client information is added to the array'
-	UNEA_array (clt_PMI,  	entry_record) = client_PMI
-	UNEA_array (inc_type, 	entry_record) = income_type
-    UNEA_array (claim_num,	entry_record) = claim_number
-	UNEA_array (act_claim, 	entry_record) = actual_claim
-	UNEA_array (unea_amt,   entry_record) = unea_amount
+	ReDim Preserve UNEA_array(9, entry_record)	'This resizes the array based on the number of rows in the Excel File'
+	UNEA_array (case_num, 	entry_record) = trim(MAXIS_case_number)		'The client information is added to the array'
+	UNEA_array (clt_PMI,  	entry_record) = trim(client_PMI)
+	UNEA_array (inc_type, 	entry_record) = trim(income_type)
+    UNEA_array (claim_num,	entry_record) = trim(claim_number)
+	UNEA_array (act_claim, 	entry_record) = trim(actual_claim)
+	UNEA_array (unea_amt,   entry_record) = trim(unea_amount)
 	UNEA_array (act_status, entry_record) = ""
 	UNEA_array (act_notes,  entry_record) = ""
     UNEA_array (send_memo,  entry_record) = False
+    UNEA_array (acct_bal,   entry_record) = trim(account_balance)
 	entry_record = entry_record + 1			'This increments to the next entry in the array'
 	Stats_counter = stats_counter + 1
 	excel_row = excel_row + 1
@@ -180,7 +290,6 @@ For i = 0 to Ubound(UNEA_array, 2)
             UNEA_array(send_memo, i) = False
             income_panel_found = false
         Else
-
 	        'Checking the SNAP status
 	        Call navigate_to_MAXIS_screen("STAT", "PROG")
 	        EMReadScreen PRIV_check, 4, 24, 14					'if case is a priv case then it gets added to priv case list
@@ -398,28 +507,30 @@ For i = 0 to Ubound(UNEA_array, 2)
 	End if
 Next
 
-For i = 0 to Ubound(UNEA_array, 2)
-    If UNEA_array(send_memo, i) = True then
-        MAXIS_case_number = UNEA_array(case_num, i)
-        Call MAXIS_background_check
-        '----------------------------------------------------------------------------------------------------THE SPEC/MEMO
-        Call start_a_new_spec_memo
-        call navigate_to_MAXIS_screen("SPEC", "MEMO")		'Navigating to SPEC/MEMO
-        'Writes the MEMO.
-        call write_variable_in_SPEC_MEMO("If you have any questions about veterans benefits, please contact the Hennepin County Veterans Service Office at 612-348-3300. Veterans Services has staff at the Government Center, the South Minneapolis Human Service center, and Maple Grove. You may also make an appointment at a variety of regional locations.")
-        Call write_variable_in_SPEC_MEMO("")
-        Call write_variable_in_SPEC_MEMO("Even if you are already in receipt of compensation or pension, your benefit amount may be able to be increased.")
-        Call write_variable_in_SPEC_MEMO("")
-        Call write_variable_in_SPEC_MEMO("If you are interested in speaking with someone regarding Veterans benefits, or if you have questions about this notice, please call the Hennepin County Veterans Service Office at 612-348-3300. Thank you.")
-        PF4			'Exits the MEMO
-        EMReadScreen memo_sent, 8, 24, 2
-        If memo_sent <> "NEW MEMO" then
-            UNEA_array(act_status, i) = "Error"
-            UNEA_array(act_notes, i) = "Does not appear that memo sent."	'Explanation for the rejected report'
-            PF10
+If type_selection = "Veterans (VA)" then 
+    For i = 0 to Ubound(UNEA_array, 2)
+        If UNEA_array(send_memo, i) = True then
+            MAXIS_case_number = UNEA_array(case_num, i)
+            Call MAXIS_background_check
+            '----------------------------------------------------------------------------------------------------THE SPEC/MEMO
+            Call start_a_new_spec_memo
+            call navigate_to_MAXIS_screen("SPEC", "MEMO")		'Navigating to SPEC/MEMO
+            'Writes the MEMO.
+            call write_variable_in_SPEC_MEMO("If you have any questions about veterans benefits, please contact the Hennepin County Veterans Service Office at 612-348-3300. Veterans Services has staff at the Government Center, the South Minneapolis Human Service center, and Maple Grove. You may also make an appointment at a variety of regional locations.")
+            Call write_variable_in_SPEC_MEMO("")
+            Call write_variable_in_SPEC_MEMO("Even if you are already in receipt of compensation or pension, your benefit amount may be able to be increased.")
+            Call write_variable_in_SPEC_MEMO("")
+            Call write_variable_in_SPEC_MEMO("If you are interested in speaking with someone regarding Veterans benefits, or if you have questions about this notice, please call the Hennepin County Veterans Service Office at 612-348-3300. Thank you.")
+            PF4			'Exits the MEMO
+            EMReadScreen memo_sent, 8, 24, 2
+            If memo_sent <> "NEW MEMO" then
+                UNEA_array(act_status, i) = "Error"
+                UNEA_array(act_notes, i) = "Does not appear that memo sent."	'Explanation for the rejected report'
+                PF10
+            End if
         End if
-    End if
-Next
+    Next
+End if 
 
 'Export data to Excel
 excel_row = 2
