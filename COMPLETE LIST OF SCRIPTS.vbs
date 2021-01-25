@@ -1151,18 +1151,6 @@ script_array(script_num).release_date           = #10/01/2000#
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
-script_array(script_num).script_name 			= "GA Advanced Age Identifier"
-script_array(script_num).description 			= "Pulls a list of GA adv. age identified info into an Excel spreadsheet."
-script_array(script_num).category               = "BULK"
-script_array(script_num).workflows              = ""
-script_array(script_num).tags                   = array("Adult Cash", "Income", "Reports", "SNAP")
-script_array(script_num).dlg_keys               = array("Ex")
-script_array(script_num).subcategory            = array("ENHANCED LISTS")
-script_array(script_num).release_date           = #10/01/2000#
-
-script_num = script_num + 1						'Increment by one
-ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
-Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name 			= "GA Basis of Eligibility"
 script_array(script_num).description			= "Template to document the basis of eligibility and verification of the basis for GA recipients."
 script_array(script_num).category               = "NOTES"
