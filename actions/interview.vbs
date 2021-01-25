@@ -288,6 +288,33 @@ class mx_hh_member
 	public fmed_expense()
 	public fmed_notes()
 
+	public pded_exists
+	public pded_guardian_fee
+	public pded_rep_payee_fee
+	public pded_shel_spec_need
+
+	public diet_exists
+	public diet_mf_type_one
+	public diet_mf_verif_one
+	public diet_mf_type_two
+	public diet_mf_verif_two
+	public diet_msa_type_one
+	public diet_msa_verif_one
+	public diet_msa_type_two
+	public diet_msa_verif_two
+	public diet_msa_type_three
+	public diet_msa_verif_three
+	public diet_msa_type_four
+	public diet_msa_verif_four
+	public diet_msa_type_five
+	public diet_msa_verif_five
+	public diet_msa_type_six
+	public diet_msa_verif_six
+	public diet_msa_type_seven
+	public diet_msa_verif_seven
+	public diet_msa_type_eight
+	public diet_msa_verif_eight
+
 	public checkbox_one
 	public checkbox_two
 	public checkbox_three
@@ -1450,6 +1477,205 @@ class mx_hh_member
 				Loop until panel_child_ref_number = "__"
 			End If
 
+			Call navigate_to_MAXIS_screen("STAT", "PDED")		'===============================================================================================
+			EMWriteScreen ref_number, 20, 76
+			transmit
+
+			EMreadScreen pded_version, 1, 2, 73
+			If pded_version = "0" Then pded_exists = FALSE
+			If pded_version = "1" Then pded_exists = TRUE
+
+			If pded_exists = TRUE Then
+				EMReadScreen pded_guardian_fee, 8, 15, 44
+				EMReadScreen pded_rep_payee_fee, 8, 15, 70
+				EMReadScreen pded_shel_spec_need, 1, 18, 78
+
+				pded_guardian_fee = replace(pded_guardian_fee, "_", "")
+				pded_guardian_fee = trim(pded_guardian_fee)
+				' MsgBox pded_rep_payee_fee & " 1"
+				pded_rep_payee_fee = replace(pded_rep_payee_fee, "_", "")
+				pded_rep_payee_fee = trim(pded_rep_payee_fee)
+				' MsgBox pded_rep_payee_fee & " 2"
+
+				If pded_shel_spec_need = "Y" Then pded_shel_spec_need = "Yes"
+				If pded_shel_spec_need = "N" Then pded_shel_spec_need = "No"
+				If pded_shel_spec_need = "_" Then pded_shel_spec_need = ""
+			End If
+
+
+			Call navigate_to_MAXIS_screen("STAT", "DIET")		'===============================================================================================
+			EMWriteScreen ref_number, 20, 76
+			transmit
+
+			EMreadScreen diet_version, 1, 2, 73
+			If diet_version = "0" Then diet_exists = FALSE
+			If diet_version = "1" Then diet_exists = TRUE
+
+			If diet_exists = TRUE Then
+				EMReadScreen diet_mf_type_one, 2, 8, 40
+				EMReadScreen diet_mf_verif_one, 1, 8, 51
+				EMReadScreen diet_mf_type_two, 2, 9, 40
+				EMReadScreen diet_mf_verif_two, 1, 9, 51
+
+				EMReadScreen diet_msa_type_one, 2, 11, 40
+				EMReadScreen diet_msa_verif_one, 1, 11, 51
+				EMReadScreen diet_msa_type_two, 2, 12, 40
+				EMReadScreen diet_msa_verif_two, 1, 12, 51
+				EMReadScreen diet_msa_type_three, 2, 13, 40
+				EMReadScreen diet_msa_verif_three, 1, 13, 51
+				EMReadScreen diet_msa_type_four, 2, 14, 40
+				EMReadScreen diet_msa_verif_four, 1, 14, 51
+				EMReadScreen diet_msa_type_five, 2, 15, 40
+				EMReadScreen diet_msa_verif_five, 1, 15, 51
+				EMReadScreen diet_msa_type_six, 2, 16, 40
+				EMReadScreen diet_msa_verif_six, 1, 16, 51
+				EMReadScreen diet_msa_type_seven, 2, 17, 40
+				EMReadScreen diet_msa_verif_seven, 1, 17, 51
+				EMReadScreen diet_msa_type_eight, 2, 18, 40
+				EMReadScreen diet_msa_verif_eight, 1, 18, 51
+
+				If diet_mf_type_one = "01" Then diet_mf_type_one = "01 - High Protein > 79 grams/day"
+				If diet_mf_type_one = "02" Then diet_mf_type_one = "02 - Control Protein 40-60 grams/day"
+				If diet_mf_type_one = "03" Then diet_mf_type_one = "03 - Control Protein < 40 grams/day"
+				If diet_mf_type_one = "04" Then diet_mf_type_one = "04 - Lo Cholesterol"
+				If diet_mf_type_one = "05" Then diet_mf_type_one = "05 - High Residue"
+				If diet_mf_type_one = "06" Then diet_mf_type_one = "06 - Pregnancy and Lactation"
+				If diet_mf_type_one = "07" Then diet_mf_type_one = "07 - Gluten Free"
+				If diet_mf_type_one = "08" Then diet_mf_type_one = "08 - Lactose Free"
+				If diet_mf_type_one = "09" Then diet_mf_type_one = "09 - Anti-Dumping"
+				If diet_mf_type_one = "10" Then diet_mf_type_one = "10 - Hypoglycemic"
+				If diet_mf_type_one = "11" Then diet_mf_type_one = "11 - Ketogenic"
+				If diet_mf_type_one = "__" Then diet_mf_type_one = ""
+
+				If diet_mf_type_two = "01" Then diet_mf_type_two = "01 - High Protein > 79 grams/day"
+				If diet_mf_type_two = "02" Then diet_mf_type_two = "02 - Control Protein 40-60 grams/day"
+				If diet_mf_type_two = "03" Then diet_mf_type_two = "03 - Control Protein < 40 grams/day"
+				If diet_mf_type_two = "04" Then diet_mf_type_two = "04 - Lo Cholesterol"
+				If diet_mf_type_two = "05" Then diet_mf_type_two = "05 - High Residue"
+				If diet_mf_type_two = "06" Then diet_mf_type_two = "06 - Pregnancy and Lactation"
+				If diet_mf_type_two = "07" Then diet_mf_type_two = "07 - Gluten Free"
+				If diet_mf_type_two = "08" Then diet_mf_type_two = "08 - Lactose Free"
+				If diet_mf_type_two = "09" Then diet_mf_type_two = "09 - Anti-Dumping"
+				If diet_mf_type_two = "10" Then diet_mf_type_two = "10 - Hypoglycemic"
+				If diet_mf_type_two = "11" Then diet_mf_type_two = "11 - Ketogenic"
+				If diet_mf_type_two = "__" Then diet_mf_type_two = ""
+
+
+				If diet_msa_type_one = "01" Then diet_msa_type_one = "01 - High Protein > 79 grams/day"
+				If diet_msa_type_one = "02" Then diet_msa_type_one = "02 - Control Protein 40-60 grams/day"
+				If diet_msa_type_one = "03" Then diet_msa_type_one = "03 - Control Protein < 40 grams/day"
+				If diet_msa_type_one = "04" Then diet_msa_type_one = "04 - Lo Cholesterol"
+				If diet_msa_type_one = "05" Then diet_msa_type_one = "05 - High Residue"
+				If diet_msa_type_one = "06" Then diet_msa_type_one = "06 - Pregnancy and Lactation"
+				If diet_msa_type_one = "07" Then diet_msa_type_one = "07 - Gluten Free"
+				If diet_msa_type_one = "08" Then diet_msa_type_one = "08 - Lactose Free"
+				If diet_msa_type_one = "09" Then diet_msa_type_one = "09 - Anti-Dumping"
+				If diet_msa_type_one = "10" Then diet_msa_type_one = "10 - Hypoglycemic"
+				If diet_msa_type_one = "11" Then diet_msa_type_one = "11 - Ketogenic"
+				If diet_msa_type_one = "__" Then diet_msa_type_one = ""
+
+				If diet_msa_type_two = "01" Then diet_msa_type_two = "01 - High Protein > 79 grams/day"
+				If diet_msa_type_two = "02" Then diet_msa_type_two = "02 - Control Protein 40-60 grams/day"
+				If diet_msa_type_two = "03" Then diet_msa_type_two = "03 - Control Protein < 40 grams/day"
+				If diet_msa_type_two = "04" Then diet_msa_type_two = "04 - Lo Cholesterol"
+				If diet_msa_type_two = "05" Then diet_msa_type_two = "05 - High Residue"
+				If diet_msa_type_two = "06" Then diet_msa_type_two = "06 - Pregnancy and Lactation"
+				If diet_msa_type_two = "07" Then diet_msa_type_two = "07 - Gluten Free"
+				If diet_msa_type_two = "08" Then diet_msa_type_two = "08 - Lactose Free"
+				If diet_msa_type_two = "09" Then diet_msa_type_two = "09 - Anti-Dumping"
+				If diet_msa_type_two = "10" Then diet_msa_type_two = "10 - Hypoglycemic"
+				If diet_msa_type_two = "11" Then diet_msa_type_two = "11 - Ketogenic"
+				If diet_msa_type_two = "__" Then diet_msa_type_two = ""
+
+				If diet_msa_type_three = "01" Then diet_msa_type_three = "01 - High Protein > 79 grams/day"
+				If diet_msa_type_three = "02" Then diet_msa_type_three = "02 - Control Protein 40-60 grams/day"
+				If diet_msa_type_three = "03" Then diet_msa_type_three = "03 - Control Protein < 40 grams/day"
+				If diet_msa_type_three = "04" Then diet_msa_type_three = "04 - Lo Cholesterol"
+				If diet_msa_type_three = "05" Then diet_msa_type_three = "05 - High Residue"
+				If diet_msa_type_three = "06" Then diet_msa_type_three = "06 - Pregnancy and Lactation"
+				If diet_msa_type_three = "07" Then diet_msa_type_three = "07 - Gluten Free"
+				If diet_msa_type_three = "08" Then diet_msa_type_three = "08 - Lactose Free"
+				If diet_msa_type_three = "09" Then diet_msa_type_three = "09 - Anti-Dumping"
+				If diet_msa_type_three = "10" Then diet_msa_type_three = "10 - Hypoglycemic"
+				If diet_msa_type_three = "11" Then diet_msa_type_three = "11 - Ketogenic"
+				If diet_msa_type_three = "__" Then diet_msa_type_three = ""
+
+				If diet_msa_type_four = "01" Then diet_msa_type_four = "01 - High Protein > 79 grams/day"
+				If diet_msa_type_four = "02" Then diet_msa_type_four = "02 - Control Protein 40-60 grams/day"
+				If diet_msa_type_four = "03" Then diet_msa_type_four = "03 - Control Protein < 40 grams/day"
+				If diet_msa_type_four = "04" Then diet_msa_type_four = "04 - Lo Cholesterol"
+				If diet_msa_type_four = "05" Then diet_msa_type_four = "05 - High Residue"
+				If diet_msa_type_four = "06" Then diet_msa_type_four = "06 - Pregnancy and Lactation"
+				If diet_msa_type_four = "07" Then diet_msa_type_four = "07 - Gluten Free"
+				If diet_msa_type_four = "08" Then diet_msa_type_four = "08 - Lactose Free"
+				If diet_msa_type_four = "09" Then diet_msa_type_four = "09 - Anti-Dumping"
+				If diet_msa_type_four = "10" Then diet_msa_type_four = "10 - Hypoglycemic"
+				If diet_msa_type_four = "11" Then diet_msa_type_four = "11 - Ketogenic"
+				If diet_msa_type_four = "__" Then diet_msa_type_four = ""
+
+				If diet_msa_type_five = "01" Then diet_msa_type_five = "01 - High Protein > 79 grams/day"
+				If diet_msa_type_five = "02" Then diet_msa_type_five = "02 - Control Protein 40-60 grams/day"
+				If diet_msa_type_five = "03" Then diet_msa_type_five = "03 - Control Protein < 40 grams/day"
+				If diet_msa_type_five = "04" Then diet_msa_type_five = "04 - Lo Cholesterol"
+				If diet_msa_type_five = "05" Then diet_msa_type_five = "05 - High Residue"
+				If diet_msa_type_five = "06" Then diet_msa_type_five = "06 - Pregnancy and Lactation"
+				If diet_msa_type_five = "07" Then diet_msa_type_five = "07 - Gluten Free"
+				If diet_msa_type_five = "08" Then diet_msa_type_five = "08 - Lactose Free"
+				If diet_msa_type_five = "09" Then diet_msa_type_five = "09 - Anti-Dumping"
+				If diet_msa_type_five = "10" Then diet_msa_type_five = "10 - Hypoglycemic"
+				If diet_msa_type_five = "11" Then diet_msa_type_five = "11 - Ketogenic"
+				If diet_msa_type_five = "__" Then diet_msa_type_five = ""
+
+				If diet_msa_type_six = "01" Then diet_msa_type_six = "01 - High Protein > 79 grams/day"
+				If diet_msa_type_six = "02" Then diet_msa_type_six = "02 - Control Protein 40-60 grams/day"
+				If diet_msa_type_six = "03" Then diet_msa_type_six = "03 - Control Protein < 40 grams/day"
+				If diet_msa_type_six = "04" Then diet_msa_type_six = "04 - Lo Cholesterol"
+				If diet_msa_type_six = "05" Then diet_msa_type_six = "05 - High Residue"
+				If diet_msa_type_six = "06" Then diet_msa_type_six = "06 - Pregnancy and Lactation"
+				If diet_msa_type_six = "07" Then diet_msa_type_six = "07 - Gluten Free"
+				If diet_msa_type_six = "08" Then diet_msa_type_six = "08 - Lactose Free"
+				If diet_msa_type_six = "09" Then diet_msa_type_six = "09 - Anti-Dumping"
+				If diet_msa_type_six = "10" Then diet_msa_type_six = "10 - Hypoglycemic"
+				If diet_msa_type_six = "11" Then diet_msa_type_six = "11 - Ketogenic"
+				If diet_msa_type_six = "__" Then diet_msa_type_six = ""
+
+				If diet_msa_type_seven = "01" Then diet_msa_type_seven = "01 - High Protein > 79 grams/day"
+				If diet_msa_type_seven = "02" Then diet_msa_type_seven = "02 - Control Protein 40-60 grams/day"
+				If diet_msa_type_seven = "03" Then diet_msa_type_seven = "03 - Control Protein < 40 grams/day"
+				If diet_msa_type_seven = "04" Then diet_msa_type_seven = "04 - Lo Cholesterol"
+				If diet_msa_type_seven = "05" Then diet_msa_type_seven = "05 - High Residue"
+				If diet_msa_type_seven = "06" Then diet_msa_type_seven = "06 - Pregnancy and Lactation"
+				If diet_msa_type_seven = "07" Then diet_msa_type_seven = "07 - Gluten Free"
+				If diet_msa_type_seven = "08" Then diet_msa_type_seven = "08 - Lactose Free"
+				If diet_msa_type_seven = "09" Then diet_msa_type_seven = "09 - Anti-Dumping"
+				If diet_msa_type_seven = "10" Then diet_msa_type_seven = "10 - Hypoglycemic"
+				If diet_msa_type_seven = "11" Then diet_msa_type_seven = "11 - Ketogenic"
+				If diet_msa_type_seven = "__" Then diet_msa_type_seven = ""
+
+				If diet_msa_type_eight = "01" Then diet_msa_type_eight = "01 - High Protein > 79 grams/day"
+				If diet_msa_type_eight = "02" Then diet_msa_type_eight = "02 - Control Protein 40-60 grams/day"
+				If diet_msa_type_eight = "03" Then diet_msa_type_eight = "03 - Control Protein < 40 grams/day"
+				If diet_msa_type_eight = "04" Then diet_msa_type_eight = "04 - Lo Cholesterol"
+				If diet_msa_type_eight = "05" Then diet_msa_type_eight = "05 - High Residue"
+				If diet_msa_type_eight = "06" Then diet_msa_type_eight = "06 - Pregnancy and Lactation"
+				If diet_msa_type_eight = "07" Then diet_msa_type_eight = "07 - Gluten Free"
+				If diet_msa_type_eight = "08" Then diet_msa_type_eight = "08 - Lactose Free"
+				If diet_msa_type_eight = "09" Then diet_msa_type_eight = "09 - Anti-Dumping"
+				If diet_msa_type_eight = "10" Then diet_msa_type_eight = "10 - Hypoglycemic"
+				If diet_msa_type_eight = "11" Then diet_msa_type_eight = "11 - Ketogenic"
+				If diet_msa_type_eight = "__" Then diet_msa_type_eight = ""
+
+				If diet_mf_verif_one = "_" Then diet_mf_verif_one = ""
+				If diet_mf_verif_two = "_" Then diet_mf_verif_two = ""
+				If diet_msa_verif_one = "_" Then diet_msa_verif_one = ""
+				If diet_msa_verif_two = "_" Then diet_msa_verif_two = ""
+				If diet_msa_verif_three = "_" Then diet_msa_verif_three = ""
+				If diet_msa_verif_four = "_" Then diet_msa_verif_four = ""
+				If diet_msa_verif_five = "_" Then diet_msa_verif_five = ""
+				If diet_msa_verif_six = "_" Then diet_msa_verif_six = ""
+				If diet_msa_verif_seven = "_" Then diet_msa_verif_seven = ""
+				If diet_msa_verif_eight	 = "_" Then diet_msa_verif_eight = ""
+			End If
 		End If
 	end sub
 
@@ -2482,6 +2708,12 @@ const unable_to_work_notes 		= 10
 Dim NON_DISA_UNABLE_TO_WORK()
 ReDim NON_DISA_UNABLE_TO_WORK(unable_to_work_notes, 0)
 
+const quest_numb = 0
+const memb_numb = 1
+
+Dim QUAL_QUESTIONS_ARRAY()
+ReDim QUAL_QUESTIONS_ARRAY(memb_numb, 0)
+
 rela_type_dropdown = "Select One..."+chr(9)+"Parent"+chr(9)+"Child"+chr(9)+"Sibling"+chr(9)+"Spouse"+chr(9)+"Grandparent"+chr(9)+"Neice"+chr(9)+"Nephew"+chr(9)+"Aunt"+chr(9)+"Uncle"+chr(9)+"Grandchild"+chr(9)+"Step Parent"+chr(9)+"Step Child"+chr(9)+"Relative Caregiver"+chr(9)+"Foster Child"+chr(9)+"Foster Parent"+chr(9)+"Not Related"+chr(9)+"Legal Guardian"+chr(9)+"Other Relative"+chr(9)+"Cousin"+chr(9)+"Live-in Attendant"+chr(9)+"Unknown"
 rela_verif_dropdown = "Type or Select"+chr(9)+"BC - Birth Certificate"+chr(9)+"AR - Adoption Records"+chr(9)+"LG = Legal Guardian"+chr(9)+"RE - Religious Records"+chr(9)+"HR - Hospital Records"+chr(9)+"RP - Recognition of Parentage"+chr(9)+"OT - Other Verifciation"+chr(9)+"NO - No Verif Provided"+chr(9)
 grade_droplist = "Select One..."+chr(9)+"Kindergarten"+chr(9)+"1st Grade"+chr(9)+"2nd Grade"+chr(9)+"3rd Grade"+chr(9)+"4th Grade"+chr(9)+"5th Grade"+chr(9)+"6th Grade"+chr(9)+"7th Grade"+chr(9)+"8th Grade"+chr(9)+"9th Grade"+chr(9)+"10th Grade"+chr(9)+"11th Grade"+chr(9)+"12th Grade"
@@ -2566,6 +2798,8 @@ add_another_absent_pers_btn				= 2014
 new_disa_btn							= 2015
 add_unable_tp_work_memb_btn				= 2016
 next_stwk_btn							= 2017
+
+add_qual_quest_yes						= 2020
 
 rsdi_btn 	= 3000
 ssi_btn		= 3001
@@ -5106,8 +5340,8 @@ function define_main_dialog()
 		If page_display = show_q_24 Then										'THIS IS THE INFORMATION FOR PAGE  ----------------------------------------------------------------------------------------------------------------------------------
 			Text 507, 312, 60, 13, "Q. 24"
 
-			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF form for Q24."
-			Text 20, 20, 335, 20, "Q. 24. FOR MSA RECIPIENTS ONLY: Does anyone in the household have any of the following expenses?"
+			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF form for Q24. FOR MSA RECIPIENTS ONLY"
+			Text 20, 20, 335, 20, "Q. 24. Does anyone in the household have any of the following expenses?"
 			Text 30, 40, 150, 10, "Representative Payee fees"
 			DropListBox 135, 35, 40, 45, caf_answer_droplist, rep_payee_fees_caf_answer
 			Text 250, 40, 150, 10, "Guardian Conservator fees"
@@ -5121,12 +5355,131 @@ function define_main_dialog()
 			' Text 350, 52, 130, 20, "(cars, trucks, motorcycles, campers, trailers, etc.)"
 			DropListBox 355, 50, 40, 45, caf_answer_droplist, high_housing_caf_answer
 
+			' DIET
+			' PDED
 
-			Text 5, 80, 35, 10, "^^2 - ASK - "
-			Text 40, 80, 280, 10, "'Is anyone in the household disabled or have a physical or mental health condition?"
-			Text 40, 100, 70, 10, "Confirm CAF Answer"
-			ComboBox 110, 95, 365, 45, "", q24_confirm_caf_answer
 
+			Text 5, 80, 300, 10, "^^2 - CONFIRM DETAILS for each expense type."
+			' Text 40, 80, 280, 10, "'Does anyone in the household have any of the following expenses?''"
+			' Text 40, 100, 70, 10, "Confirm CAF Answer"
+			' ComboBox 110, 95, 365, 45, "", q24_confirm_caf_answer
+
+			y_pos = 115
+
+			Text 30, 100, 200, 10, "Representative Payee fees"
+			rep_payee_detail_found = FALSE
+			for i = 0 to UBound(HH_MEMB_ARRAY, 1)
+				If HH_MEMB_ARRAY(i).pded_rep_payee_fee <> "" Then
+					rep_payee_detail_found = TRUE
+
+					Text 50, y_pos, 200, 10, "Rep Payee Fees for M " & HH_MEMB_ARRAY(i).ref_number & " - " & HH_MEMB_ARRAY(i).full_name
+					Text 250, y_pos, 5, 10, "$"
+					EditBox 260, y_pos-5, 75, 15, HH_MEMB_ARRAY(i).pded_rep_payee_fee
+					y_pos = y_pos + 15
+				End If
+			Next
+			If rep_payee_detail_found = FALSE Then
+				Text 50, y_pos, 300, 10, "No Rep Payee Fees listed for any member."
+				y_pos = y_pos + 15
+			End If
+			y_pos = y_pos + 5
+
+			Text 30, y_pos, 200, 10, "Guardian or Conservator fees"
+			y_pos = y_pos + 15
+			guardian_fee_found = FALSE
+			for i = 0 to UBound(HH_MEMB_ARRAY, 1)
+				If HH_MEMB_ARRAY(i).pded_guardian_fee <> "" Then
+					guardian_fee_found = TRUE
+
+					Text 50, y_pos, 200, 10, "Guardian Fees for M " & HH_MEMB_ARRAY(i).ref_number & " - " & HH_MEMB_ARRAY(i).full_name
+					Text 250, y_pos, 5, 10, "$"
+					EditBox 260, y_pos-5, 75, 15, HH_MEMB_ARRAY(i).pded_guardian_fee
+					y_pos = y_pos + 15
+				End If
+			Next
+			If guardian_fee_found = FALSE Then
+				Text 50, y_pos, 300, 10, "No Guardian or Conservator Fees listed for any member."
+				y_pos = y_pos + 15
+			End If
+			y_pos = y_pos + 5
+
+			Text 30, y_pos, 200, 10, "Physician-prescribed special diet"
+			y_pos = y_pos + 15
+			special_diet_found = FALSE
+			for i = 0 to UBound(HH_MEMB_ARRAY, 1)
+				If HH_MEMB_ARRAY(i).diet_exists = TRUE Then
+					special_diet_found = TRUE
+
+					Text 50, y_pos, 250, 10, "M " & HH_MEMB_ARRAY(i).ref_number & " - " & HH_MEMB_ARRAY(i).full_name & " special diet(s):"
+					y_pos = y_pos + 15
+
+					If HH_MEMB_ARRAY(i).diet_msa_type_one <> "" Then
+						Text 60, y_pos, 150, 10, "Diet Type: " & HH_MEMB_ARRAY(i).diet_msa_type_one
+						Text 215, y_pos, 150, 10, "Verified: " & HH_MEMB_ARRAY(i).diet_msa_verif_one
+						y_pos = y_pos + 15
+					End If
+					If HH_MEMB_ARRAY(i).diet_msa_type_two <> "" Then
+						Text 60, y_pos, 150, 10, "Diet Type: " & HH_MEMB_ARRAY(i).diet_msa_type_two
+						Text 215, y_pos, 150, 10, "Verified: " & HH_MEMB_ARRAY(i).diet_msa_verif_two
+						y_pos = y_pos + 15
+					End If
+					If HH_MEMB_ARRAY(i).diet_msa_type_three <> "" Then
+						Text 60, y_pos, 150, 10, "Diet Type: " & HH_MEMB_ARRAY(i).diet_msa_type_three
+						Text 215, y_pos, 150, 10, "Verified: " & HH_MEMB_ARRAY(i).diet_msa_verif_three
+						y_pos = y_pos + 15
+					End If
+					If HH_MEMB_ARRAY(i).diet_msa_type_four <> "" Then
+						Text 60, y_pos, 150, 10, "Diet Type: " & HH_MEMB_ARRAY(i).diet_msa_type_four
+						Text 215, y_pos, 150, 10, "Verified: " & HH_MEMB_ARRAY(i).diet_msa_verif_four
+						y_pos = y_pos + 15
+					End If
+					If HH_MEMB_ARRAY(i).diet_msa_type_five <> "" Then
+						Text 60, y_pos, 150, 10, "Diet Type: " & HH_MEMB_ARRAY(i).diet_msa_type_five
+						Text 215, y_pos, 150, 10, "Verified: " & HH_MEMB_ARRAY(i).diet_msa_verif_five
+						y_pos = y_pos + 15
+					End If
+					If HH_MEMB_ARRAY(i).diet_msa_type_six <> "" Then
+						Text 60, y_pos, 150, 10, "Diet Type: " & HH_MEMB_ARRAY(i).diet_msa_type_six
+						Text 215, y_pos, 150, 10, "Verified: " & HH_MEMB_ARRAY(i).diet_msa_verif_six
+						y_pos = y_pos + 15
+					End If
+					If HH_MEMB_ARRAY(i).diet_msa_type_seven <> "" Then
+						Text 60, y_pos, 150, 10, "Diet Type: " & HH_MEMB_ARRAY(i).diet_msa_type_seven
+						Text 215, y_pos, 150, 10, "Verified: " & HH_MEMB_ARRAY(i).diet_msa_verif_seven
+						y_pos = y_pos + 15
+					End If
+					If HH_MEMB_ARRAY(i).diet_msa_type_eight <> "" Then
+						Text 60, y_pos, 150, 10, "Diet Type: " & HH_MEMB_ARRAY(i).diet_msa_type_eight
+						Text 215, y_pos, 150, 10, "Verified: " & HH_MEMB_ARRAY(i).diet_msa_verif_eight
+						y_pos = y_pos + 15
+					End If
+				End If
+			next
+			If special_diet_found = FALSE Then
+				Text 50, y_pos, 300, 10, "No Special Diet listed for any member."
+				y_pos = y_pos + 15
+			End If
+			y_pos = y_pos + 5
+
+			Text 30, y_pos, 200, 10, "High housing costs"
+			y_pos = y_pos + 15
+			shel_needy_found = FALSE
+			for i = 0 to UBound(HH_MEMB_ARRAY, 1)
+				If HH_MEMB_ARRAY(i).pded_shel_spec_need <> "" Then
+					shel_needy_found = TRUE
+
+					If HH_MEMB_ARRAY(i).pded_shel_spec_need = "Yes" Then Text 50, y_pos, 300, 10, "M " & HH_MEMB_ARRAY(i).ref_number & " - " & HH_MEMB_ARRAY(i).full_name & " indicated as 'SHELTER NEEDY'"
+					If HH_MEMB_ARRAY(i).pded_shel_spec_need = "No" Then Text 50, y_pos, 300, 10, "M " & HH_MEMB_ARRAY(i).ref_number & " - " & HH_MEMB_ARRAY(i).full_name & " NO shelter special need."
+					y_pos = y_pos + 15
+				End If
+			next
+			If shel_needy_found = FALSE Then
+				Text 50, y_pos, 300, 10, "No Shelter Special Need listed for any member."
+				y_pos = y_pos + 15
+			End If
+			y_pos = y_pos + 10
+
+			PushButton 355, y_pos, 100, 15, "EDIT EXPENSE DETAIL", edit_expense_detail_btn
 
 			' Text 495, 267, 60, 15, "Q. 20 and 21"
 			' Text 5, 10, 200, 10, "^^1 - Enter the answers listed on the actual CAF form for Q20"
@@ -5147,6 +5500,46 @@ function define_main_dialog()
 		End If
 		If page_display = show_qual Then										'THIS IS THE INFORMATION FOR PAGE  ----------------------------------------------------------------------------------------------------------------------------------
 			Text 492, 327, 60, 13, "CAF QUAL Q"
+
+			Text 10, 10, 350, 10, "^^1 - ENTER the answers listed on the actual CAF on page 8."
+
+			Text 10, 30, 395, 15, "Qualifying Questions are listed at the end of the CAF form and are completed by the client. Indicate the answers to those questions here. If any are 'Yes' then indicate which household member to which the question refers."
+			Text 15, 60, 395, 20, "Has a court or any other civil or administrative process in Minnesota or any other state found anyone in the household guilty or has anyone been disqualified from receiving public assistance for breaking any of the rules listed in the CAF?"
+			DropListBox 415, 60, 40, 45, caf_answer_droplist, qual_question_one
+			Text 15, 85, 395, 20, "Has anyone in the household been convicted of making fraudulent statements about their place of residence to get cash or SNAP benefits from more than one state?"
+			DropListBox 415, 85, 40, 45, caf_answer_droplist, qual_question_two
+			Text 15, 110, 395, 20, "Is anyone in your householdhiding or running from the law to avoid prosecution being taken into custody, or to avoid going to jail for a felony?"
+			DropListBox 415, 110, 40, 45, caf_answer_droplist, qual_question_three
+			Text 15, 135, 395, 20, "Has anyone in your household been convicted of a drug felony in the past 10 years?"
+			DropListBox 415, 135, 40, 45, caf_answer_droplist, qual_question_four
+			Text 15, 150, 395, 20, "Is anyone in your household currently violating a condition of parole, probation or supervised release?"
+			DropListBox 415, 150, 40, 45, caf_answer_droplist, qual_question_five
+
+			Text 10, 170, 350, 10, "^^2 - CONFIRM verbally with the client the answers provided above."
+			Text 40, 190, 70, 10, "Confirm CAF Answer"
+			ComboBox 110, 185, 365, 45, "", qual_q_confirm_caf_answer
+
+			Text 10, 210, 350, 10, "^^3 - If ANY questions have been answerd as 'YES', enter the quesiton number and HH Member to which the question applies."
+
+			y_pos = 230
+			For qual_yes = 0 to UBound(QUAL_QUESTIONS_ARRAY,2)
+				Text 40, y_pos, 45, 10, "Question No."
+				DropListBox 90, y_pos-5, 55, 15, "Select"+chr(9)+"Q. 1"+chr(9)+"Q. 2"+chr(9)+"Q. 3"+chr(9)+"Q. 4"+chr(9)+"Q. 5", QUAL_QUESTIONS_ARRAY(quest_numb, qual_yes)
+				Text 160, y_pos, 40, 10, "HH Member"
+				ComboBox 205, y_pos-5, 105, 45, memb_droplist, QUAL_QUESTIONS_ARRAY(memb_numb, qual_yes)
+				y_pos = y_pos + 15
+			Next
+			PushButton 40, y_pos, 110, 10, "ADD ANOTHER 'YES' DETAIL", add_qual_quest_yes
+			' Text 260, 40, 70, 10, "Household Member:"
+			' Text 260, 80, 70, 10, "Household Member:"
+			' Text 260, 110, 70, 10, "Household Member:"
+			' Text 260, 140, 70, 10, "Household Member:"
+			' Text 260, 160, 70, 10, "Household Member:"
+			' ComboBox 340, 40, 105, 45, memb_droplist, qual_memb_one
+			' ComboBox 340, 80, 105, 45, memb_droplist, qual_memb_two
+			' ComboBox 340, 110, 105, 45, memb_droplist, qual_memb_there
+			' ComboBox 340, 140, 105, 45, memb_droplist, qual_memb_four
+			' ComboBox 340, 160, 105, 45, memb_droplist, qual_memb_five
 		End If
 		If page_display = show_pg_last Then										'THIS IS THE INFORMATION FOR PAGE  ----------------------------------------------------------------------------------------------------------------------------------
 			Text 490, 342, 60, 13, "CAF Last Page"
