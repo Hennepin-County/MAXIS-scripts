@@ -368,7 +368,7 @@ If right(additional_programs_applied_for, 1) = "," THEN additional_programs_appl
 
 IF programs_applied_for = "" THEN
     DO
-    	prog_confirmation = MsgBox("Press YES to confirm this application is PND1 and has no progams selected. If this is not the case select NO and run the script again.", vbYesNo, "Program confirmation")
+    	prog_confirmation = MsgBox("Press YES to confirm this application is PND1 and has no programs selected. If this is not the case select NO and run the script again.", vbYesNo, "Program confirmation")
     	IF prog_confirmation = vbNo THEN script_end_procedure_with_error_report("The script has ended. The application has not been acted on.")
     	IF prog_confirmation = vbYes THEN
     		EXIT DO
