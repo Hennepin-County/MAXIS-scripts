@@ -5580,56 +5580,32 @@ function navigate_to_MAXIS(maxis_mode)
 '--- This function is to be used when navigating back to MAXIS from another function in BlueZone (MMIS, PRISM, INFOPAC, etc.)
 '~~~~~ maxis_mode: This parameter needs to be "maxis_mode"
 '===== Keywords: MAXIS, navigate
-    EMWaitReady 0, 0
     attn
-    EMWaitReady 0, 0
-	EMConnect "A"
-    EMWaitReady 0, 0
+    Do
+        EMReadScreen MAI_check, 3, 1, 33
+        If MAI_check <> "MAI" then EMWaitReady 1, 1
+    Loop until MAI_check = "MAI"
 
-	IF maxis_mode = "PRODUCTION" THEN
-		EMReadScreen prod_running, 7, 6, 15
-		IF prod_running = "RUNNING" THEN
-			x = "A"
-		ELSE
-			EMConnect"B"
-            EMWaitReady 0, 0
-			attn
-            EMWaitReady 0, 0
-			EMReadScreen prod_running, 7, 6, 15
-			IF prod_running = "RUNNING" THEN
-				x = "B"
-			ELSE
-				script_end_procedure("Please do not run this script in a session larger than S2.")
-			END IF
-		END IF
-	ELSEIF maxis_mode = "INQUIRY DB" THEN
-		EMReadScreen inq_running, 7, 7, 15
-		IF inq_running = "RUNNING" THEN
-			x = "A"
-		ELSE
-			EMConnect "B"
-            EMWaitReady 0, 0
-			attn
-            EMWaitReady 0, 0
-			EMReadScreen inq_running, 7, 7, 15
-			IF inq_running = "RUNNING" THEN
-				x = "B"
-			ELSE
-				script_end_procedure("Please do not run this script in a session larger than 2.")
-			END IF
-		END IF
-	END IF
-
-    EMWaitReady 0, 0
-	EMConnect (x)
-    EMWaitReady 0, 0
-	IF maxis_mode = "PRODUCTION" THEN
-		EMWriteScreen "1", 2, 15
-		transmit
-	ELSEIF maxis_mode = "INQUIRY DB" THEN
-		EMWriteScreen "2", 2, 15
-		transmit
-	END IF
+    EMReadScreen prod_check, 7, 6, 15
+    IF prod_check = "RUNNING" THEN
+        Call write_value_and_transmit("1", 2, 15)
+    ELSE
+        EMConnect"A"
+        attn
+        EMReadScreen prod_check, 7, 6, 15
+        IF prod_check = "RUNNING" THEN
+            Call write_value_and_transmit("1", 2, 15)
+        ELSE
+            EMConnect"B"
+            attn
+            EMReadScreen prod_check, 7, 6, 15
+            IF prod_check = "RUNNING" THEN
+                Call write_value_and_transmit("1", 2, 15)
+            Else
+                script_end_procedure("You do not appear to have Production mode running. This script will now stop. Please make sure you have production and MMIS open in the same session, and re-run the script.")
+            END IF
+        END IF
+    END IF
 end function
 
 function navigate_to_MAXIS_screen(function_to_go_to, command_to_go_to)
