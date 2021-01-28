@@ -55,154 +55,6 @@ call changelog_update("09/21/2018", "Initial version.", "Casey Love, Hennepin Co
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-Function MMIS_case_number_finder(MMIS_case_number)
-    row = 1
-    col = 1
-    EMSearch "CASE NUMBER:", row, col
-    If row <> 0 Then
-        EMReadScreen MMIS_case_number, 8, row, col + 13
-        MMIS_case_number = trim(MMIS_case_number)
-    End If
-    If MMIS_case_number = "" Then
-        row = 1
-        col = 1
-        EMSearch "CASE NBR:", row, col
-        If row <> 0 Then
-            EMReadScreen MMIS_case_number, 8, row, col + 10
-            MMIS_case_number = trim(MMIS_case_number)
-        End If
-    End If
-    If MMIS_case_number = "" Then
-        row = 1
-        col = 1
-        EMSearch "CASE:", row, col
-        If row <> 0 Then
-            EMReadScreen MMIS_case_number, 8, row, col + 6
-            MMIS_case_number = trim(MMIS_case_number)
-        End If
-    End If
-End Function
-
-function navigate_to_MAXIS_test(maxis_mode)
-'--- This function is to be used when navigating back to MAXIS from another function in BlueZone (MMIS, PRISM, INFOPAC, etc.)
-'~~~~~ maxis_mode: This parameter needs to be "maxis_mode"
-'===== Keywords: MAXIS, navigate
-    maxis_mode = UCase(maxis_mode)
-    If right(maxis_mode, 2) = "DB" Then maxis_mode = left(maxis_mode, 7)
-
-    attn
-    Do
-        EMReadScreen MAI_check, 3, 1, 33
-        If MAI_check <> "MAI" then EMWaitReady 1, 1
-    Loop until MAI_check = "MAI"
-
-    If maxis_mode = "PRODUCTION" Then
-        EMReadScreen prod_check, 7, 6, 15
-        IF prod_check = "RUNNING" THEN
-            Call write_value_and_transmit("2", 2, 15)
-        ELSE
-            EMConnect"A"
-            attn
-            EMReadScreen prod_check, 7, 6, 15
-            IF prod_check = "RUNNING" THEN
-                Call write_value_and_transmit("1", 2, 15)
-            ELSE
-                EMConnect"B"
-                attn
-                EMReadScreen prod_check, 7, 6, 15
-                IF prod_check = "RUNNING" THEN
-                    Call write_value_and_transmit("1", 2, 15)
-                Else
-                    script_end_procedure("You do not appear to have Production mode running. This script will now stop. Please make sure you have production and MMIS open in the same session, and re-run the script.")
-                END IF
-            END IF
-        END IF
-    ElseIf maxis_mode = "INQUIRY" Then
-
-        EMReadScreen inq_check, 7, 7, 15
-        IF inq_check = "RUNNING" THEN
-            Call write_value_and_transmit("2", 2, 15)
-        ELSE
-            EMConnect"A"
-            attn
-            EMReadScreen inq_check, 7, 7, 15
-            IF inq_check = "RUNNING" THEN
-                Call write_value_and_transmit("2", 2, 15)
-            ELSE
-                EMConnect"B"
-                attn
-                EMReadScreen inq_check, 7, 7, 15
-                IF inq_check = "RUNNING" THEN
-                    Call write_value_and_transmit("2", 2, 15)
-                Else
-                    script_end_procedure("You do not appear to have Inquiry mode running. This script will now stop. Please make sure you have inquiry and MMIS open in the same session, and re-run the script.")
-                END IF
-            END IF
-        END IF
-    End If
-end function
-
-Function get_to_RKEY()
-    EMReadScreen MMIS_panel_check, 4, 1, 52	'checking to see if user is on the RKEY panel in MMIS. If not, then it will go to there.
-    IF MMIS_panel_check <> "RKEY" THEN
-        attempt = 1
-        DO
-            If MMIS_case_number = "" Then Call MMIS_case_number_finder(MMIS_case_number)
-            PF6
-            EMReadScreen MMIS_panel_check, 4, 1, 52
-            attempt = attempt + 1
-            If attempt = 15 Then Exit Do
-        Loop Until MMIS_panel_check = "RKEY"
-    End If
-    EMReadScreen MMIS_panel_check, 4, 1, 52	'checking to see if user is on the RKEY panel in MMIS. If not, then it will go to there.
-    IF MMIS_panel_check <> "RKEY" THEN
-    	DO
-    		PF6
-    		EMReadScreen session_terminated_check, 18, 1, 7
-    	LOOP until session_terminated_check = "SESSION TERMINATED"
-
-        'Getting back in to MMIS and trasmitting past the warning screen (workers should already have accepted the warning when they logged themselves into MMIS the first time, yo.
-        EMWriteScreen "MW00", 1, 2
-        transmit
-        transmit
-
-        EMReadScreen MMIS_menu, 24, 3, 30
-	    If MMIS_menu = "GROUP SECURITY SELECTION" Then
-            row = 1
-            col = 1
-            EMSearch " C3", row, col
-            If row <> 0 Then
-                EMWriteScreen "x", row, 4
-                transmit
-            Else
-                row = 1
-                col = 1
-                EMSearch " C4", row, col
-                If row <> 0 Then
-                    EMWriteScreen "x", row, 4
-                    transmit
-                Else
-                    script_end_procedure_with_error_report("You do not appear to have access to the County Eligibility area of MMIS, this script requires access to this region. The script will now stop.")
-                End If
-            End If
-
-            'Now it finds the recipient file application feature and selects it.
-            row = 1
-            col = 1
-            EMSearch "RECIPIENT FILE APPLICATION", row, col
-            EMWriteScreen "x", row, col - 3
-            transmit
-        Else
-            'Now it finds the recipient file application feature and selects it.
-            row = 1
-            col = 1
-            EMSearch "RECIPIENT FILE APPLICATION", row, col
-            EMWriteScreen "x", row, col - 3
-            transmit
-        End If
-    END IF
-End Function
-
 'function specific to this script - running_stopwatch and MX_environment are defined outside of this function
 'meant to keep MMIS from passwording out while this long bulk script is running
 function keep_MMIS_passworded_in(mmis_area, maxis_area)
@@ -210,7 +62,7 @@ function keep_MMIS_passworded_in(mmis_area, maxis_area)
     If timer - running_stopwatch > 720 Then         'this means the script has been running for more than 12 minutes since we last popped in to MMIS
         Call navigate_to_MMIS_region(mmis_area)      'Going to MMIS'
         'MsgBox "In MMIS"
-        Call navigate_to_MAXIS_test(maxis_area)                       'going back to MAXIS'
+        Call navigate_to_MAXIS(maxis_area)                       'going back to MAXIS'
         'MsgBox "Back to MAXIS"
         running_stopwatch = timer                                       'resetting the stopwatch'
     End If
@@ -333,7 +185,7 @@ Call back_to_SELF                                               'starting at the
 EMReadScreen MX_environment, 13, 22, 48                         'seeing which MX environment we are in
 MX_environment = trim(MX_environment)
 Call navigate_to_MMIS_region("CTY ELIG STAFF/UPDATE")        'Going to MMIS'
-Call navigate_to_MAXIS_test(MX_environment)                          'going back to MAXIS
+Call navigate_to_MAXIS(MX_environment)                          'going back to MAXIS
 running_stopwatch = timer               'setting the running timer so we log in to MMIS within every 15 mintues so we don't password out
 
 make_changes = FALSE                    'setting this at the start
