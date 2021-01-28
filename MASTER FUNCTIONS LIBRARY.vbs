@@ -5487,6 +5487,34 @@ function MAXIS_footer_month_confirmation()
 	END IF
 end function
 
+Function MMIS_case_number_finder(MMIS_case_number)
+    row = 1
+    col = 1
+    EMSearch "CASE NUMBER:", row, col
+    If row <> 0 Then
+        EMReadScreen MMIS_case_number, 8, row, col + 13
+        MMIS_case_number = trim(MMIS_case_number)
+    End If
+    If MMIS_case_number = "" Then
+        row = 1
+        col = 1
+        EMSearch "CASE NBR:", row, col
+        If row <> 0 Then
+            EMReadScreen MMIS_case_number, 8, row, col + 10
+            MMIS_case_number = trim(MMIS_case_number)
+        End If
+    End If
+    If MMIS_case_number = "" Then
+        row = 1
+        col = 1
+        EMSearch "CASE:", row, col
+        If row <> 0 Then
+            EMReadScreen MMIS_case_number, 8, row, col + 6
+            MMIS_case_number = trim(MMIS_case_number)
+        End If
+    End If
+End Function
+
 function MMIS_RKEY_finder()
 '--- This function finds the 'RKEY' screen in MMIS
 '===== Keywords: MMIS, find, panel
