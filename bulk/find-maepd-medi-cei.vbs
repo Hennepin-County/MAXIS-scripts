@@ -254,8 +254,10 @@ DO
 				        	DO
 				        		IF len(cl_pmi) <> 8 THEN cl_pmi = "0" & cl_pmi
 				        	LOOP UNTIL len(cl_pmi) = 8
-				        	navigate_to_MMIS										'the script will now take the PMI and go into MMIS and check RELG
-				        	DO
+                            
+				        	Call navigate_to_MMIS_region("CTY ELIG STAFF/UPDATE")	'function to navigate into MMIS, select the HC realm, and enters the prior autorization area
+				        	
+                            DO
 				        		EMReadScreen RKEY, 4, 1, 52
 				        		IF RKEY <> "RKEY" THEN EMWaitReady 0, 0
 				        	LOOP UNTIL RKEY = "RKEY"
