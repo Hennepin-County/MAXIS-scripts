@@ -5190,6 +5190,70 @@ function get_this_script_started(script_index, end_script, month_to_use)
 
 end function
 
+Function get_to_RKEY()
+'--- This function will get the user back to the main MMIS selection screen RKEY. You will need to already be in MMIS. Navigate_to_MMIS_region
+'~~~~~ HH_member_array: leave blank
+'===== Keywords: MMIS, navigate
+    EMReadScreen MMIS_panel_check, 4, 1, 52	'checking to see if user is on the RKEY panel in MMIS. If not, then it will go to there.
+    IF MMIS_panel_check <> "RKEY" THEN
+        attempt = 1
+        DO
+            If MMIS_case_number = "" Then Call MMIS_case_number_finder(MMIS_case_number)
+            PF6
+            EMReadScreen MMIS_panel_check, 4, 1, 52
+            attempt = attempt + 1
+            If attempt = 15 Then Exit Do
+        Loop Until MMIS_panel_check = "RKEY"
+    End If
+    EMReadScreen MMIS_panel_check, 4, 1, 52	'checking to see if user is on the RKEY panel in MMIS. If not, then it will go to there.
+    IF MMIS_panel_check <> "RKEY" THEN
+    	DO
+    		PF6
+    		EMReadScreen session_terminated_check, 18, 1, 7
+    	LOOP until session_terminated_check = "SESSION TERMINATED"
+
+        'Getting back in to MMIS and trasmitting past the warning screen (workers should already have accepted the warning when they logged themselves into MMIS the first time, yo.
+        EMWriteScreen "MW00", 1, 2
+        transmit
+        transmit
+
+        EMReadScreen MMIS_menu, 24, 3, 30
+	    If MMIS_menu = "GROUP SECURITY SELECTION" Then
+            row = 1
+            col = 1
+            EMSearch " C3", row, col
+            If row <> 0 Then
+                EMWriteScreen "x", row, 4
+                transmit
+            Else
+                row = 1
+                col = 1
+                EMSearch " C4", row, col
+                If row <> 0 Then
+                    EMWriteScreen "x", row, 4
+                    transmit
+                Else
+                    script_end_procedure_with_error_report("You do not appear to have access to the County Eligibility area of MMIS, this script requires access to this region. The script will now stop.")
+                End If
+            End If
+
+            'Now it finds the recipient file application feature and selects it.
+            row = 1
+            col = 1
+            EMSearch "RECIPIENT FILE APPLICATION", row, col
+            EMWriteScreen "x", row, col - 3
+            transmit
+        Else
+            'Now it finds the recipient file application feature and selects it.
+            row = 1
+            col = 1
+            EMSearch "RECIPIENT FILE APPLICATION", row, col
+            EMWriteScreen "x", row, col - 3
+            transmit
+        End If
+    END IF
+End Function
+
 function HH_member_custom_dialog(HH_member_array)
 '--- This function creates an array of all household members in a MAXIS case, and allows users to select which members to seek/add information to add to edit boxes in dialogs.
 '~~~~~ HH_member_array: should be HH_member_array for function to work
