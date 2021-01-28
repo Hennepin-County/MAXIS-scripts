@@ -75,38 +75,6 @@ Function MMIS_panel_check(panel_name)
 	Loop until panel_check = panel_name
 End function
 
-function navigate_to_MAXIS_test(maxis_mode)
-'--- This function is to be used when navigating back to MAXIS from another function in BlueZone (MMIS, PRISM, INFOPAC, etc.)
-'~~~~~ maxis_mode: This parameter needs to be "maxis_mode"
-'===== Keywords: MAXIS, navigate
-    attn
-    Do
-        EMReadScreen MAI_check, 3, 1, 33
-        If MAI_check <> "MAI" then EMWaitReady 1, 1
-    Loop until MAI_check = "MAI"
-
-    EMReadScreen prod_check, 7, 6, 15
-    IF prod_check = "RUNNING" THEN
-        Call write_value_and_transmit("1", 2, 15)
-    ELSE
-        EMConnect"A"
-        attn
-        EMReadScreen prod_check, 7, 6, 15
-        IF prod_check = "RUNNING" THEN
-            Call write_value_and_transmit("1", 2, 15)
-        ELSE
-            EMConnect"B"
-            attn
-            EMReadScreen prod_check, 7, 6, 15
-            IF prod_check = "RUNNING" THEN
-                Call write_value_and_transmit("1", 2, 15)
-            Else
-                script_end_procedure("You do not appear to have Production mode running. This script will now stop. Please make sure you have production and MMIS open in the same session, and re-run the script.")
-            END IF
-        END IF
-    END IF
-end function
-
 '----------------------------------------------------------------------------------------------------The script
 'CONNECTS TO BlueZone
 EMConnect ""
@@ -465,7 +433,7 @@ For item = 0 to UBound(Update_MMIS_array, 2)
 Next
 
 ''----------------------------------------------------------------------------------------------------MAXIS
-Call navigate_to_MAXIS_test(maxis_mode)
+Call navigate_to_MAXIS(maxis_mode)
 
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 156, 55, "Going to MAXIS"
