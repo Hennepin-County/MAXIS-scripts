@@ -78,41 +78,6 @@ Function MMIS_panel_check(panel_name)
 	Loop until panel_check = panel_name
 End function
 
-function navigate_to_MAXIS_test(maxis_mode)
-'--- This function is to be used when navigating back to MAXIS from another function in BlueZone (MMIS, PRISM, INFOPAC, etc.)
-'~~~~~ maxis_mode: This parameter needs to be "maxis_mode"
-'===== Keywords: MAXIS, navigate
-    attn
-    Do
-        EMReadScreen MAI_check, 3, 1, 33
-        If MAI_check <> "MAI" then EMWaitReady 1, 1
-    Loop until MAI_check = "MAI"
-
-    EMReadScreen prod_check, 7, 6, 15
-    IF prod_check = "RUNNING" THEN
-        Call write_value_and_transmit("1", 2, 15)
-    ELSE
-        EMConnect"A"
-        attn
-        EMReadScreen prod_check, 7, 6, 15
-        IF prod_check = "RUNNING" THEN
-            Call write_value_and_transmit("1", 2, 15)
-        ELSE
-            EMConnect"B"
-            attn
-            EMReadScreen prod_check, 7, 6, 15
-            IF prod_check = "RUNNING" THEN
-                Call write_value_and_transmit("1", 2, 15)
-            Else
-                script_end_procedure("You do not appear to have Production mode running. This script will now stop. Please make sure you have production and MMIS open in the same session, and re-run the script.")
-            END IF
-        END IF
-    END IF
-end function
-
-'----------------------------------------------------------------------------------------------------
-
-
 '----------------------------------------------------------------------------------------------------The script
 'CONNECTS TO BlueZone
 EMConnect ""
@@ -521,7 +486,7 @@ DO
             cancel_confirmation
             'Navigation button handling
             MAXIS_dialog_navigation
-            If ButtonPressed = MAXIS_button then Call navigate_to_MAXIS_test(maxis_mode)  'Function to navigate back to MAXIS
+            If ButtonPressed = MAXIS_button then Call navigate_to_MAXIS(maxis_mode)  'Function to navigate back to MAXIS
             If ButtonPressed = MMIS_button then
                 Call navigate_to_MMIS_region("GRH UPDATE")	'function to navigate into MMIS, select the GRH update realm, and enter the prior authorization area
                 Call MMIS_panel_check("AKEY")				'ensuring we are on the right MMIS screen
@@ -726,7 +691,7 @@ End if
 
 '----------------------------------------------------------------------------------------------------Back to MAXIS & CASE/NOTE
 If Update_MMIS = True then
-    Call navigate_to_MAXIS_test(maxis_mode)  'Function to navigate back to MAXIS
+    Call navigate_to_MAXIS(maxis_mode)  'Function to navigate back to MAXIS
     Call check_for_MAXIS(False)
 
     If disa_start_checkbox = checked then start_date_source = ", PSN start date."
