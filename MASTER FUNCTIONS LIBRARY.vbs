@@ -7371,6 +7371,56 @@ Function write_variable_in_CCOL_note(variable)
     End if
 End Function
 
+Function write_variable_in_MMIS_NOTE(variable)
+''--- This function writes a variable in MMIS case note
+'~~~~~ variable: information to be entered into CASE note from script/edit box
+'===== Keywords: MMIS, CASE note
+    If trim(variable) <> "" THEN
+        EMGetCursor noting_row, noting_col						'Needs to get the row and col to start. Doesn't need to get it in the array function because that uses EMWriteScreen.
+        noting_col = 8											'The noting col should always be 3 at this point, because it's the beginning. But, this will be dynamically recreated each time.
+        'The following figures out if we need a new page, or if we need a new case note entirely as well.
+		Do
+			EMReadScreen character_test, 1, noting_row, noting_col 	'Reads a single character at the noting row/col. If there's a character there, it needs to go down a row, and look again until there's nothing. It also needs to trigger these events if it's at or above row 18 (which means we're beyond case note range).
+			If character_test <> " " or noting_row >= 20 then
+				noting_row = noting_row + 1
+
+				'If we get to row 18 (which can't be read here), it will go to the next panel (PF8).
+				If noting_row >= 20 then
+                    PF11
+                    noting_row = 5
+				End if
+			End if
+		Loop until character_test = " "
+
+        'Splits the contents of the variable into an array of words
+        variable_array = split(variable, " ")
+
+        For each word in variable_array
+            word = trim(word)
+			'If the length of the word would go past col 80 (you can't write to col 80), it will kick it to the next line and indent the length of the bullet
+			If len(word) + noting_col > 80 then
+				noting_row = noting_row + 1
+				noting_col = 8
+			End if
+
+            'If the next line is row 18 (you can't write to row 18), it will PF8 to get to the next page
+			If noting_row >= 20 then
+                PF11
+                noting_row = 5
+			End if
+
+            'Writes the word and a space using EMWriteScreen
+			EMWriteScreen replace(word, ";", "") & " ", noting_row, noting_col
+
+			'Increases noting_col the length of the word + 1 (for the space)
+			noting_col = noting_col + (len(word) + 1)
+		Next
+
+		'After the array is processed, set the cursor on the following row, in col 3, so that the user can enter in information here (just like writing by hand). If you're on row 18 (which isn't writeable), hit a PF8. If the panel is at the very end (page 5), it will back out and go into another case note, as we did above.
+		EMSetCursor noting_row + 1, 3
+    End if
+End Function
+
 function write_variable_in_SPEC_MEMO(variable)
 '--- This function writes a variable in SPEC/MEMO
 '~~~~~ variable: information to be entered into SPEC/MEMO
