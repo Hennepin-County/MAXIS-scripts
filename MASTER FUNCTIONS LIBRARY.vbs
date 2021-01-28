@@ -5515,35 +5515,6 @@ Function MMIS_case_number_finder(MMIS_case_number)
     End If
 End Function
 
-function MMIS_RKEY_finder()
-'--- This function finds the 'RKEY' screen in MMIS
-'===== Keywords: MMIS, find, panel
-  Do	  						'Now we use a Do Loop to get to the start screen for MMIS.
-    EMSendkey "<PF6>"
-    EMWaitReady 0, 0
-    EMReadScreen session_start, 18, 1, 7
-  Loop until session_start = "SESSION TERMINATED"
-  'Now we get back into MMIS. We have to skip past the intro screens.
-  EMWriteScreen "mw00", 1, 2
-  EMSendKey "<enter>"
-  EMWaitReady 0, 0
-  EMSendKey "<enter>"
-  EMWaitReady 0, 0
-  'This section may not work for all OSAs, since some only have EK01. This will find EK01 and enter it.
-  MMIS_row = 1
-  MMIS_col = 1
-  EMSearch "EK01", MMIS_row, MMIS_col
-  If MMIS_row <> 0 then
-    EMWriteScreen "x", MMIS_row, 4
-    EMSendKey "<enter>"
-    EMWaitReady 0, 0
-  End if
-  'This section starts from EK01. OSAs may need to skip the previous section.
-  EMWriteScreen "x", 10, 3
-  EMSendKey "<enter>"
-  EMWaitReady 0, 0
-end function
-
 function navigate_to_MAXIS_screen_review_PRIV(function_to_go_to, command_to_go_to, is_this_priv)
 '--- This function is to be used to navigate to a specific MAXIS screen and will check for privileged status
 '~~~~~ function_to_go_to: needs to be MAXIS function like "STAT" or "REPT"
