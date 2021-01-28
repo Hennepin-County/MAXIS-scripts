@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/28/2021", "Added the Expedited Retrain Your Brain Video links as resources to be sent on email corrections.", "Casey Love, Hennepin County")
 call changelog_update("11/12/2020", "Updated all SharePoint hyperlinks due to SharePoint Online Migration.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/21/2020", "Added a checkbox for situations where the interview has been completed but the worker did not address the Adult Cash programs requested. This option is now available for both Expedited SNAP and On Demand options.", "Casey Love, Hennepin County")
 call changelog_update("07/29/2020", "Initial version.", "Casey Love, Hennepin County")
@@ -242,6 +243,7 @@ Select Case correction_process
 					email_body = email_body & "&emsp;&ensp;" & "- Case was not approved timely. Case should have been approved on " & should_have_approved_date & "." & "<br>"
 				End If
 				email_body = email_body & "&emsp;&emsp;" & "* Case should have been approved immediately following the Interview if determined expedited." & "<br>"
+				add_exp_timeliness_video_resource = TRUE
 				STATS_manualtime = STATS_manualtime + 30
 			End If
 			If identity_for_more_than_MEMB_01_checkbox = checked Then
@@ -261,12 +263,14 @@ Select Case correction_process
 				add_snap_id_doc_resource = TRUE
 				add_cm_10_18_02_resource = TRUE
 				add_script_cit_id_resource = TRUE
+				add_exp_identity_video_resource = TRUE
 				STATS_manualtime = STATS_manualtime + 30
 			End If
 			If delayed_for_other_verifs_checkbox = checked Then
 				email_body = email_body & "&emsp;&ensp;" & "- Delayed for verifications other than proof of identity." & "<br>"
 				add_snap_id_doc_resource = TRUE
 				add_script_cit_id_resource = TRUE
+				add_exp_identity_video_resource = TRUE
 				STATS_manualtime = STATS_manualtime + 30
 			End If
 			If out_of_state_month_two_checkbox = checked Then
@@ -359,6 +363,7 @@ Select Case correction_process
 			email_body = email_body & "<p><i>" & "&emsp;" & counter & ". MAXIS panels in STAT were not updated correctly." & "</i><br>"
 			If maxis_coded_incorectly_assets_checkbox = checked Then
 				email_body = email_body & "&emsp;&ensp;" & "- Asset Panels were not coded correctly" & "<br>"
+				add_exp_assets_video_resource = TRUE
 				STATS_manualtime = STATS_manualtime + 30
 			End If
 			If maxis_coded_incorectly_postponed_verif_checkbox = checked Then
@@ -377,7 +382,10 @@ Select Case correction_process
 
 		If interview_complete_processing_not_complete_checkbox = checked OR interview_complete_case_note_missing_checkbox = checked OR insufficient_case_note_checkbox = checked Then
 			email_body = email_body & "<p><i>" & "&emsp;" & counter & ". Interview was complete but follow up processing was not." & "</i><br>"
-			If interview_complete_processing_not_complete_checkbox = checked Then email_body = email_body & "&emsp;&ensp;" & "- MAXIS processing has not been completed." & "<br>"
+			If interview_complete_processing_not_complete_checkbox = checked Then
+				email_body = email_body & "&emsp;&ensp;" & "- MAXIS processing has not been completed." & "<br>"
+				add_exp_timeliness_video_resource = TRUE
+			End If
 			If interview_complete_case_note_missing_checkbox = checked Then
 				email_body = email_body & "&emsp;&ensp;" & "- CASE NOTE is missing." & "<br>"
 				add_hsr_case_note_guidelines_resource = TRUE
@@ -460,6 +468,12 @@ Select Case correction_process
 		If add_snap_id_doc_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "https://www.dhssir.cty.dhs.state.mn.us/MAXIS/Documents/SNAP Identity Verification.pdf" & chr(34) & ">" & " SNAP Identity Verification" & "</a><br>"
 		If add_hsr_case_note_guidelines_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- HSR Manual: " & "<a href=" & chr(34) & "https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Guidelines_and_Format.aspx" & chr(34) & ">" & "Case Notes Guidelines and Format" & "</a><br>"
 		If add_client_contact_interview_qs_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- Client Contact Documents: " & "<a href=" & chr(34) & "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/Adults%20and%20Families%20Eligibility%20Documents/Cash%20and%20EGA%20interview%20questions.docx" & chr(34) & ">" & "Cash and EGA Interview Questions" & "</a><br>"
+
+		If add_exp_timeliness_video_resource = TRUE OR add_exp_identity_video_resource = TRUE OR add_exp_assets_video_resource = TRUE Then email_body = email_body & "<i>" & "&emsp;" & "Retrain Your Brain Videos:" & "</i><br>"
+
+		If add_exp_identity_video_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "https://web.microsoftstream.com/video/5639ccc5-02ba-47b9-a99a-fdcc321b20d6?channelId=a52b0e9b-200d-4e2c-bf78-697fd7d5cf2e" & chr(34) & ">" & "Watch 'SNAP EXP 1 - ID' | Microsoft Stream" & "</a><br>"
+		If add_exp_timeliness_video_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "https://web.microsoftstream.com/video/ef749c68-873c-4719-a6ae-ea18748efc04?channelId=a52b0e9b-200d-4e2c-bf78-697fd7d5cf2e" & chr(34) & ">" & "Watch 'SNAP EXP 2 - Timeliness' | Microsoft Stream" & "</a><br>"
+		If add_exp_assets_video_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "https://web.microsoftstream.com/video/be6bd005-b1ad-4f7c-96a6-05868e296fea?channelId=a52b0e9b-200d-4e2c-bf78-697fd7d5cf2e" & chr(34) & ">" & "Watch 'SNAP EXP 3 - Assets' | Microsoft Stream" & "</a><br>"
 
 		If add_temp_02_10_01_resource = TRUE OR add_temp_02_10_79_resource = TRUE OR add_temp_19_152_resource = TRUE OR add_temp_16_09_resource = TRUE OR add_temp_02_08_143_resource = TRUE Then email_body = email_body & "<i>" & "&emsp;" & "TEMP Manual:" & "</i><br>"
 
