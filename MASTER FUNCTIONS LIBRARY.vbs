@@ -5582,6 +5582,17 @@ Function MMIS_case_number_finder(MMIS_case_number)
     End If
 End Function
 
+Function MMIS_panel_confirmation(panel_name, col)
+'--- This function confirms that a user in on the correct MMIS panel. 
+'~~~~~ panel_name: name of the panel you are confirming as a string in ""
+'~~~~~ col: The column which to start reading the panel name. For instance, this is usually 51 or 52 in MMIS. 
+'===== Keywords: MMIS, navigate, confirm 
+	Do 
+		EMReadScreen panel_check, 4, 1, col
+		If panel_check <> panel_name then Call write_value_and_transmit(panel_name, 1, 8)
+	Loop until panel_check = panel_name
+End function
+
 function navigate_to_MAXIS_screen_review_PRIV(function_to_go_to, command_to_go_to, is_this_priv)
 '--- This function is to be used to navigate to a specific MAXIS screen and will check for privileged status
 '~~~~~ function_to_go_to: needs to be MAXIS function like "STAT" or "REPT"
