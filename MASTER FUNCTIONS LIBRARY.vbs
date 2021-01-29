@@ -5552,6 +5552,9 @@ function MAXIS_footer_month_confirmation()
 end function
 
 Function MMIS_case_number_finder(MMIS_case_number)
+'--- This function finds the MAXIS case number if listed on a MMIS screen
+'~~~~~ MMIS_case_number: this should be <code>MMIS_case_number</code>
+'===== Keywords: MMIS, case number
     row = 1
     col = 1
     EMSearch "CASE NUMBER:", row, col
