@@ -53,7 +53,8 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County
-call changelog_update("01/07/2020", "Updated worker signature as a mandatory field.", "MiKayla Handley, Hennepin County")
+call changelog_update("01/29/2021", "Updated Request for APPL handling per case assignement request. Issue #322", "MiKayla Handley, Hennepin County")
+call changelog_update("01/07/2021", "Updated worker signature as a mandatory field.", "MiKayla Handley, Hennepin County")
 call changelog_update("12/18/2020", "Temporarily removed in person option for how applications are received.", "MiKayla Handley, Hennepin County")
 call changelog_update("12/18/2020", "Update to make confirmation number mandatory for MN Benefit application.", "MiKayla Handley, Hennepin County")
 call changelog_update("11/15/2020", "Updated droplist to add virtual drop box option to how the application was received.", "MiKayla Handley, Hennepin County")
@@ -378,114 +379,154 @@ END IF
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 306, 195, "Application Received for: "  & programs_applied_for &   " on "   & application_date
-  DropListBox 85, 10, 95, 15, "Select One:"+chr(9)+"Fax"+chr(9)+"Mystery Doc Queue"+chr(9)+"Online"+chr(9)+"Phone-Verbal Request"+chr(9)+"Request to APPL Form"+chr(9)+"Virtual Drop Box", how_app_rcvd
-  DropListBox 85, 30, 95, 15, "Select One:"+chr(9)+"ApplyMN"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Populations"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer"+chr(9)+"MN Benefits"+chr(9)+"N/A"+chr(9)+"Verbal Request", app_type
-  EditBox 250, 10, 45, 15, request_date
+BeginDialog Dialog1, 0, 0, 306, 125,  "Application Received for: "  & programs_applied_for &   " on "   & application_date
+  DropListBox 85, 10, 95, 15, "Select One:"+chr(9)+"Fax"+chr(9)+"Mystery Doc Queue"+chr(9)+"Online"+chr(9)+"Phone-Verbal Request"+chr(9)+"Request to APPL Form"+chr(9)+"Virtual Drop Box", how_application_rcvd
+  DropListBox 85, 30, 95, 15, "Select One:"+chr(9)+"ApplyMN"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Populations"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer"+chr(9)+"MN Benefits"+chr(9)+"N/A"+chr(9)+"Verbal Request", application_type
   EditBox 250, 30, 45, 15, confirmation_number
-  EditBox 95, 60, 55, 15, request_worker_number
-  EditBox 95, 80, 55, 15, METS_case_number
-  EditBox 250, 60, 20, 15, MEMB_number
-  CheckBox 190, 75, 55, 10, "MA Transition", MA_transition_request_checkbox
-  CheckBox 190, 85, 85, 10, "METS Retro Coverage", METS_retro_checkbox
-  CheckBox 200, 95, 85, 10, "Team 601 will process", team_601_email_checkbox
-  EditBox 50, 120, 20, 15, transfer_to_worker
-  CheckBox 10, 135, 155, 10, "Check if the case does not require a transfer ", no_transfer_checkbox
-  EditBox 55, 155, 245, 15, other_notes
-  EditBox 70, 175, 120, 15, worker_signature
+  EditBox 50, 60, 20, 15, transfer_to_worker
+  CheckBox 140, 65, 155, 10, "Check if the case does not require a transfer ", no_transfer_checkbox
+  EditBox 55, 85, 245, 15, other_notes
+  EditBox 70, 105, 120, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 195, 175, 50, 15
-    CancelButton 250, 175, 50, 15
+    OkButton 195, 105, 50, 15
+    CancelButton 250, 105, 50, 15
   Text 185, 35, 50, 10, "Confirmation #:"
-  Text 5, 180, 60, 10, "Worker Signature:"
-  Text 10, 85, 85, 10, "METS Integrated Case #:"
-  GroupBox 5, 50, 295, 60, "Request to Appl Information"
-  GroupBox 5, 110, 295, 40, "Transfer Information"
-  Text 5, 160, 45, 10, "Other Notes:"
-  Text 10, 125, 40, 10, "Transfer to:"
-  Text 75, 125, 60, 10, "(last 3 digit of X#)"
+  Text 5, 110, 60, 10, "Worker Signature:"
+  GroupBox 5, 50, 295, 30, "Transfer Information"
+  Text 5, 90, 45, 10, "Other Notes:"
+  Text 10, 65, 40, 10, "Transfer to:"
+  Text 75, 65, 60, 10, "(last 3 digit of X#)"
   Text 10, 15, 70, 10, "Application Received:"
   Text 10, 35, 65, 10, "Type of Application:"
   GroupBox 5, 0, 295, 50, "Application Information"
-  Text 185, 10, 60, 20, "Request to APPL Submission Date:"
-  Text 190, 65, 55, 10, "MEMB # for HC:"
-  Text 10, 65, 60, 10, "Requested By X#:"
 EndDialog
-
 '------------------------------------------------------------------------------------DIALOG APPL
 Do
 	Do
         err_msg = ""
         Dialog Dialog1
         cancel_confirmation
-	    IF how_app_rcvd = "Select One:" then err_msg = err_msg & vbNewLine & "* Please enter how the application was received to the agency."
-	    IF how_app_rcvd <> "Request to APPL Form" and request_date <> "" THEN err_msg = err_msg & vbNewLine & "* The APPL form request date does not need to be completed if this is not a request to APPL form."
-	    IF app_type = "Select One:" then err_msg = err_msg & vbNewLine & "* Please enter the type of application received."
-	    IF request_date = "" AND how_app_rcvd = "Request to APPL Form"  THEN err_msg = err_msg & vbNewLine & "* If a request to APPL was received, you must enter the date the form was submitted."
+	    IF how_application_rcvd = "Select One:" then err_msg = err_msg & vbNewLine & "* Please enter how the application was received to the agency."
+        'IF application_type = "N/A" and other_notes = "" THEN err_msg = err_msg & vbNewLine & "* Please enter in other notes what type of application was received to the agency."
+	    IF application_type = "Select One:" then err_msg = err_msg & vbNewLine & "* Please enter the type of application received."
+        IF application_type = "ApplyMN" AND isnumeric(confirmation_number) = FALSE THEN err_msg = err_msg & vbNewLine & "* If an ApplyMN app was received, you must enter the confirmation number and time received."
+        IF application_type = "MN Benefits" AND isnumeric(confirmation_number) = FALSE THEN err_msg = err_msg & vbNewLine & "* If a MN Benefits app was received, you must enter the confirmation number and time received."
 	    IF no_transfer_checkbox = UNCHECKED AND transfer_to_worker = "" then err_msg = err_msg & vbNewLine & "* You must enter the basket number the case to be transferred by the script or check that no transfer is needed."
 	    IF no_transfer_checkbox = CHECKED and transfer_to_worker <> "" then err_msg = err_msg & vbNewLine & "* You have checked that no transfer is needed, please remove basket number from transfer field."
 	    IF no_transfer_checkbox = UNCHECKED AND len(transfer_to_worker) > 3 AND isnumeric(transfer_to_worker) = FALSE then err_msg = err_msg & vbNewLine & "* Please enter the last 3 digits of the worker number for transfer."
-	    IF METS_retro_checkbox = CHECKED and METS_case_number = "" THEN err_msg = err_msg & vbNewLine & "* You have checked that this is a METS Retro Request, please enter a METS IC #."
-	    IF MA_transition_request_checkbox = CHECKED and METS_case_number = "" THEN err_msg = err_msg & vbNewLine & "* You have checked that this is a METS Transition Request, please enter a METS IC #."
-	    IF app_type = "ApplyMN" AND isnumeric(confirmation_number) = FALSE THEN err_msg = err_msg & vbNewLine & "* If an ApplyMN was received, you must enter the confirmation number and time received."
-        IF app_type = "MN Benefits" AND isnumeric(confirmation_number) = FALSE THEN err_msg = err_msg & vbNewLine & "* If a MN Benefits app was received, you must enter the confirmation number and time received."
-	    IF METS_retro_checkbox = CHECKED and MEMB_number = "" THEN err_msg = err_msg & vbNewLine & "* Please enter the member number(s) applying for HC."
-        IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
+	    IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
 	    IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 LOOP UNTIL are_we_passworded_out = FALSE					'loops until user passwords back in
 
-HC_applied_for = FALSE
-IF app_type = "6696" or app_type = "HCAPP" or app_type = "HC-Certain Pop" or app_type = "LTC" or app_type = "MHCP B/C Cancer" or app_type = "N/A" THEN HC_applied_for = TRUE
-IF app_type = "N/A" THEN app_type = ""
+IF how_application_rcvd = "Request to APPL Form" THEN
+    DO
+        CALL HH_member_custom_dialog(HH_member_array)
+        IF uBound(HH_member_array) = -1 THEN MsgBox ("You must select at least one person.")
+    LOOP UNTIL uBound(HH_member_array) <> -1
+
+    'CALL navigate_to_MAXIS_screen("STAT", "MEMB")
+    'FOR EACH person IN HH_member_array
+    '    IF person <> "" THEN
+    '        CALL write_value_and_transmit(person, 20, 76)
+    '        EMReadScreen MEMB_number, 2, 4, 33
+
+    '    END IF
+    '    MEMB_number = MEMB_number & ", "
+    'NEXT
+    household_persons = ""
+    pers_count = 0
+    FOR EACH person IN HH_member_array
+    	IF person <> "" THEN
+    		IF pers_count = uBound(HH_member_array) THEN
+    			IF pers_count = 0 THEN
+    				household_persons = household_persons & person
+    			ELSE
+    				household_persons = household_persons & " " & person
+    			END IF
+    		ELSE
+    			household_persons = household_persons & person & ", "
+    			pers_count = pers_count + 1
+    		END IF
+    	END IF
+    NEXT
+
+    '-------------------------------------------------------------------------------------------------DIALOG
+    BeginDialog Dialog1, 0, 0, 186, 135, "Request to Appl"
+      EditBox 85, 15, 45, 15, request_date
+      EditBox 85, 35, 45, 15, request_worker_number
+      EditBox 85, 55, 45, 15, METS_case_number
+      CheckBox 15, 80, 55, 10, "MA Transition", MA_transition_request_checkbox
+      CheckBox 15, 95, 60, 10, "Auto Newborn", Auto_Newborn_checkbox
+      CheckBox 85, 80, 85, 10, "METS Retro Coverage", METS_retro_checkbox
+      CheckBox 85, 95, 85, 10, "Team 601 will process", team_601_email_checkbox
+      GroupBox 5, 5, 175, 105, "Request to Appl Information"
+      Text 15, 20, 60, 10, "Submission Date:"
+      Text 15, 40, 60, 10, "Requested By X#:"
+      Text 15, 60, 55, 10, "METS Case #:"
+      ButtonGroup ButtonPressed
+        OkButton 75, 115, 50, 15
+        CancelButton 130, 115, 50, 15
+    EndDialog
+
+
+    '------------------------------------------------------------------------------------DIALOG APPL
+    Do
+    	Do
+            err_msg = ""
+            Dialog Dialog1
+            cancel_confirmation
+    	    IF request_date = "" THEN err_msg = err_msg & vbNewLine & "* If a request to APPL was received, you must enter the date the form was submitted."
+    	    IF METS_retro_checkbox = CHECKED and METS_case_number = "" THEN err_msg = err_msg & vbNewLine & "* You have checked that this is a METS Retro Request, please enter a METS IC #."
+    	    IF MA_transition_request_checkbox = CHECKED and METS_case_number = "" THEN err_msg = err_msg &  vbNewLine & "* You have checked that this is a METS Transition Request, please enter a METS IC #."
+            IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+    	LOOP UNTIL err_msg = ""
+    	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has     not passworded out of MAXIS, allows user to password back into MAXIS
+    LOOP UNTIL are_we_passworded_out = FALSE
+END IF
+
 transfer_to_worker = trim(transfer_to_worker)
 transfer_to_worker = Ucase(transfer_to_worker)
+request_worker_number = trim(request_worker_number)
+request_worker_number = Ucase(request_worker_number)
 'msgbox transfer_to_worker
 pended_date = date
 
-IF app_type = "6696" or app_type = "HCAPP" or app_type = "HC-Certain Pop" or app_type = "LTC" or app_type = "MHCP B/C Cancer"  THEN HC_applied_for = TRUE
-If how_app_rcvd = "Phone-Verbal Request" THEN how_app_rcvd = replace(how_app_rcvd, "Phone-Verbal Request", "Phone")
+HC_applied_for = FALSE
+IF application_type = "6696" or application_type = "HCAPP" or application_type = "HC-Certain Pop" or application_type = "LTC" or application_type = "MHCP B/C Cancer" THEN HC_applied_for = TRUE
+
+If how_application_rcvd = "Phone-Verbal Request" THEN how_application_rcvd = replace(how_application_rcvd, "Phone-Verbal Request", "Phone")
+IF how_application_rcvd = "Request to APPL Form" THEN
+    IF application_type = "N/A" AND Auto_Newborn_checkbox = CHECKED THEN application_type = replace(application_type, "N/A", "Auto Newborn")
+    IF application_type = "N/A" AND Auto_Newborn_checkbox = CHECKED AND MA_transition_request_checkbox = CHECKED THEN application_type = replace(application_type, "N/A", "Auto Newborn")
+    IF application_type = "N/A" AND Auto_Newborn_checkbox = CHECKED AND METS_retro_checkbox = CHECKED THEN application_type = replace(application_type, "N/A", "Auto Newborn")
+    IF application_type = "N/A" AND METS_retro_checkbox = CHECKED THEN application_type = replace(application_type, "N/A", "METS Retro")
+    IF application_type = "N/A" AND MA_transition_request_checkbox = CHECKED THEN application_type = replace(application_type, "N/A", "MA Transition")
+END IF
 '--------------------------------------------------------------------------------initial case note
 start_a_blank_case_note
-IF how_app_rcvd = "Request to APPL Form" and METS_retro_checkbox = UNCHECKED and MA_transition_request_checkbox = UNCHECKED  THEN
-	CALL write_variable_in_CASE_NOTE ("~ Application Received via " & how_app_rcvd & " for " & application_date & " ~")
-	CALL write_variable_in_CASE_NOTE("* Request to APPL Form received on " & request_date & "")
-	CALL write_variable_in_CASE_NOTE("* Emailed worker " & request_worker_number & " to let them know the request was processed.")
+CALL write_variable_in_CASE_NOTE ("~ Application Received (" &  application_type & ")via " & how_application_rcvd & " for " & application_date & " ~")
+CALL write_bullet_and_variable_in_CASE_NOTE("Requesting HC for MEMBER(S) ", household_persons)
+CALL write_bullet_and_variable_in_CASE_NOTE("Request to APPL Form received on ", request_date)
+IF how_application_rcvd = "Request to APPL Form" THEN
+	IF team_601_email_checkbox = UNCHECKED  THEN CALL write_variable_in_CASE_NOTE("* Emailed worker to let them know the request was processed.")
+    IF team_601_email_checkbox = CHECKED  THEN CALL write_variable_in_CASE_NOTE("* Emailed team 601 to let them know the retro request was processed.")
 END IF
-IF how_app_rcvd = "Request to APPL Form" and METS_retro_checkbox = CHECKED THEN
-	CALL write_variable_in_CASE_NOTE ("~ Application Received (METS Retro) via " & how_app_rcvd & " for " & application_date & " ~")
-	IF MEMB_number <> "" THEN CALL write_variable_in_CASE_NOTE("* Requesting HC for " &  "M" & MEMB_number)
-    CALL write_variable_in_CASE_NOTE("* Request to APPL Form received on " & request_date & "")
-	CALL write_variable_in_CASE_NOTE("* Emailed worker " & request_worker_number & " to let them know the request was processed.")
-END IF
-IF how_app_rcvd = "Request to APPL Form" and MA_transition_request_checkbox = CHECKED THEN
-    CALL write_variable_in_CASE_NOTE ("~ Application Received (MA Transition) via " & how_app_rcvd & " for " & application_date & " ~")
-    IF MEMB_number <> "" THEN CALL write_variable_in_CASE_NOTE("* Requesting HC for " &  "M" & MEMB_number)
-    CALL write_variable_in_CASE_NOTE("* Request to APPL Form received on " & request_date & "")
-    CALL write_variable_in_CASE_NOTE("* Emailed worker " & request_worker_number & " to let them know the request was processed.")
-END IF
-IF how_app_rcvd <> "Request to APPL Form" THEN CALL write_variable_in_CASE_NOTE ("~ Application Received (" & app_type & ") via " & how_app_rcvd & " on " & application_date & " ~")
-IF confirmation_number <> "" THEN CALL write_bullet_and_variable_in_CASE_NOTE ("Confirmation # ", confirmation_number)
-IF app_type = "6696" THEN write_variable_in_CASE_NOTE ("* Form Received: METS Application for Health Coverage and Help Paying Costs (DHS-6696) ")
-IF app_type = "HCAPP" THEN write_variable_in_CASE_NOTE ("* Form Received: Health Care Application (HCAPP) (DHS-3417) ")
-IF app_type = "HC-Certain Pop" THEN write_variable_in_CASE_NOTE ("* Form Received: MHC Programs Application for Certain Populations (DHS-3876) ")
-IF app_type = "LTC" THEN write_variable_in_CASE_NOTE ("* Form Received: Application for Medical Assistance for Long Term Care Services (DHS-3531) ")
-IF app_type = "MHCP B/C Cancer" THEN write_variable_in_CASE_NOTE ("* Form Received: Minnesota Health Care Programs Application and Renewal Form Medical Assistance for Women with Breast or Cervical Cancer (DHS-3525) ")
-IF app_type = "Verbal Request" THEN write_variable_in_CASE_NOTE ("* Verbal Request was made for programs. CAF will be completed with resident over the phone.")
+CALL write_bullet_and_variable_in_CASE_NOTE ("Confirmation # ", confirmation_number)
+IF application_type = "6696" THEN write_variable_in_CASE_NOTE ("* Form Received: METS Application for Health Coverage and Help Paying Costs (DHS-6696) ")
+IF application_type = "HCAPP" THEN write_variable_in_CASE_NOTE ("* Form Received: Health Care Application (HCAPP) (DHS-3417) ")
+IF application_type = "HC-Certain Pop" THEN write_variable_in_CASE_NOTE ("* Form Received: MHC Programs Application for Certain Populations (DHS-3876) ")
+IF application_type = "LTC" THEN write_variable_in_CASE_NOTE ("* Form Received: Application for Medical Assistance for Long Term Care Services (DHS-3531) ")
+IF application_type = "MHCP B/C Cancer" THEN write_variable_in_CASE_NOTE ("* Form Received: Minnesota Health Care Programs Application and Renewal Form Medical Assistance for Women with Breast or Cervical Cancer (DHS-3525) ")
+IF application_type = "Verbal Request" THEN write_variable_in_CASE_NOTE ("* Verbal Request was made for programs. CAF will be completed with resident over the phone.")
 CALL write_bullet_and_variable_in_CASE_NOTE ("Application Requesting", programs_applied_for)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Pended on", pended_date)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Other Pending Programs", additional_programs_applied_for)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Active Programs", active_programs)
 If transfer_to_worker <> "" THEN CALL write_variable_in_CASE_NOTE ("* Application assigned to X127" & transfer_to_worker)
-'CALL write_bullet_and_variable_in_CASE_NOTE ("Reason for APPL Request", request_reason)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Other Notes", other_notes)
-'IF how_app_rcvd = "Request to APPL Form" THEN CALL write_variable_in_CASE_NOTE("* Emailed worker to let them know the request to APPL has been completed.")
-IF METS_retro_checkbox = CHECKED and team_601_email_checkbox = CHECKED  THEN CALL write_variable_in_CASE_NOTE("* Emailed team 601 to let them know the retro request is ready to be processed.")
-IF METS_retro_checkbox = CHECKED and team_601_email_checkbox = UNCHECKED THEN CALL write_variable_in_CASE_NOTE("* Emailed METS worker to let them know the retro request is ready to be processed.")
-IF MA_transition_request_checkbox = CHECKED  THEN CALL write_variable_in_CASE_NOTE("* Emailed worker to let them know the transition request is ready to be processed.")
-'CALL write_variable_in_CASE_NOTE ("---")
-'IF METS_retro_checkbox = CHECKED THEN CALL write_variable_in_CASE_NOTE("* Emailed team 603 to let them know the retro request is ready to be processed.")
+
 CALL write_variable_in_CASE_NOTE ("---")
 CALL write_variable_in_CASE_NOTE (worker_signature)
 PF3 ' to save Case note
@@ -655,12 +696,12 @@ ELSE
 END IF
 
 
-'IF METS_case_number = "" then METS_case_number = "N/A "
+
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-'If run_locally = TRUE Then send_email = FALSE
+
 'IF send_email = True THEN CALL create_outlook_email("HSPH.EWS.Triagers@hennepin.us", "", "Case #" & maxis_case_number & " Expedited case to be assigned, transferred to team. " & worker_number & "  EOM.", "", "", TRUE)
-IF how_app_rcvd = "Request to APPL Form" and METS_retro_checkbox = UNCHECKED and team_601_email_checkbox = UNCHECKED and MA_transition_request_checkbox = UNCHECKED THEN CALL create_outlook_email("", "", "MAXIS case #" & maxis_case_number & " Request to APPL form received-APPL'd in MAXIS-ACTION REQUIRED.", "", "", FALSE)
-'IF how_app_rcvd = "Request to APPL Form" and METS_case_number = "" THEN CALL create_outlook_email("", "", "MAXIS case number #" & maxis_case_number & " Request to APPL form received-APPL'd in MAXIS-ACTION REQUIRED.", "", "", FALSE)
+IF how_application_rcvd = "Request to APPL Form" and METS_retro_checkbox = UNCHECKED and team_601_email_checkbox = UNCHECKED and MA_transition_request_checkbox = UNCHECKED THEN CALL create_outlook_email("", "", "MAXIS case #" & maxis_case_number & " Request to APPL form received-APPL'd in MAXIS-ACTION REQUIRED.", "", "", FALSE)
+
 IF METS_retro_checkbox = CHECKED and team_601_email_checkbox = UNCHECKED THEN CALL create_outlook_email("", "", "MAXIS case #" & maxis_case_number & "/METS IC #" & METS_case_number & " Retro Request APPL'd in MAXIS-ACTION REQUIRED.", "", "", FALSE)
 IF METS_retro_checkbox = CHECKED and team_601_email_checkbox = CHECKED THEN CALL create_outlook_email("HSPH.EWS.TEAM.601@hennepin.us", "", "MAXIS case #" & maxis_case_number & "/METS IC #" & METS_case_number & " Retro Request APPL'd in MAXIS-ACTION REQUIRED.", "", "", FALSE)
 IF MA_transition_request_checkbox = CHECKED THEN CALL create_outlook_email("", "", "MAXIS case #" & maxis_case_number & "/METS IC #" & METS_case_number & " MA Transition Request APPL'd in MAXIS-ACTION REQUIRED.", "", "", FALSE)
@@ -696,7 +737,7 @@ IF send_appt_ltr = TRUE THEN
 	GroupBox 5, 5, 255, 35, "Enter a new appointment date only if it's a date county offices are not open."
 	Text 15, 25, 35, 10, "CAF date:"
 	Text 25, 45, 205, 10, "If interview is being completed please use today's date"
-	EndDialog
+    EndDialog
 
 	Do
 		Do
@@ -771,7 +812,7 @@ IF send_appt_ltr = TRUE THEN
 	PF3
 END IF
 
-'IF same_day_offered = TRUE and how_app_rcvd = "Office" THEN
+'IF same_day_offered = TRUE and how_application_rcvd = "Office" THEN
 '   	start_a_blank_CASE_NOTE
 '  	Call write_variable_in_CASE_NOTE("~ Same-day interview offered ~")
 '  	Call write_variable_in_CASE_NOTE("* Agency informed the client of needed interview.")
