@@ -139,7 +139,41 @@ class mx_hh_member
 	public imig_status_verif
 	public lpr_adj_from
 	public nationality
+	public nationality_detail
 	public alien_id_nbr
+	public imig_active_doc
+	public imig_recvd_doc
+	public imig_q_2_required
+	public imig_q_4_required
+	public imig_q_5_required
+	public imig_clt_current_doc
+	public imig_doc_on_file
+	public imig_save_completed
+	public imig_prev_status
+
+	public spon_exists
+	public clt_has_sponsor
+	public ask_about_spon
+	public spon_type
+	public spon_verif
+	public spon_name
+	public spon_street
+	public spon_city
+	public spon_state
+	public spon_zip
+	public spon_phone
+	public spon_cash_retro_income
+	public spon_cash_prosp_income
+	public spon_cash_assets
+	public spon_snap_retro_income
+	public spon_snap_prosp_income
+	public spon_snap_assets
+	public spon_spouse
+	public spon_hh_size
+	public spon_possible_indigent_exemption
+	public spon_gross_income
+	public spon_spouse_income
+
 
 	public disa_exists
 	public disa_begin_date
@@ -519,7 +553,8 @@ class mx_hh_member
 			If imig_version = "1" Then imig_exists = TRUE
 
 			If imig_exists = TRUE Then
-				EMReadScreen imig_status, 40, 6, 45
+				EMReadScreen imig_status_code, 2, 6, 45
+				EMReadScreen imig_status_desc, 32, 6, 48
 				EMReadScreen us_entry_date, 10, 7, 45
 				EMReadScreen imig_status_date, 10, 7, 71
 				EMReadScreen imig_status_verif, 2, 8, 45
@@ -527,7 +562,8 @@ class mx_hh_member
 				EMReadScreen nationality, 2, 10, 45
 				EMReadScreen alien_id_nbr, 10, 10, 71
 
-				imig_status = trim(imig_status)
+				imig_status_desc = trim(imig_status_desc)
+				imig_status = imig_status_code & " - " & imig_status_desc
 				us_entry_date = replace(us_entry_date, " ", "/")
 				imig_status_date = replace(imig_status_date, " ", "/")
 
@@ -578,6 +614,20 @@ class mx_hh_member
 				If nationality = "VM" Then nationality = "VM - Vietnam"
 				If nationality = "OT" Then nationality = "OT - All Others"
 			End If
+
+			Call navigate_to_MAXIS_screen("STAT", "SPON")		'===============================================================================================
+			EMWriteScreen ref_number, 20, 76
+			transmit
+
+			EMreadScreen spon_version, 1, 2, 73
+			If spon_version = "0" Then spon_exists = FALSE
+			If spon_version = "1" Then spon_exists = TRUE
+
+			If spon_exists = TRUE Then
+
+
+			End If
+			' public spon_exists
 
 			Call navigate_to_MAXIS_screen("STAT", "REMO")		'===============================================================================================
 			EMWriteScreen ref_number, 20, 76
@@ -1776,6 +1826,26 @@ class mx_hh_member
 
 	end sub
 
+	public sub assess_imig_questions()
+		imig_q_2_required = FALSE
+		If left(imig_status, 2) = "24" Then imig_q_2_required = TRUE
+
+		ask_about_spon = TRUE
+		If left(imig_status, 2) = "21" Then ask_about_spon = FALSE
+		If left(imig_status, 2) = "22" Then ask_about_spon = FALSE
+		If left(imig_status, 2) = "28" Then ask_about_spon = FALSE
+		If left(imig_prev_status, 2) = "21" Then ask_about_spon = FALSE
+		If left(imig_prev_status, 2) = "22" Then ask_about_spon = FALSE
+
+		imig_q_4_required = FALSE
+		imig_q_5_required = FALSE
+		If clt_has_sponsor = "Yes" Then
+			imig_q_4_required = TRUE
+			imig_q_5_required = TRUE
+		End If
+
+	end sub
+
 	' private sub Class_Initialize()
 	' end sub
 end class
@@ -2722,6 +2792,50 @@ schl_status_droplist = "Select One..."+chr(9)+"Fulltime"+chr(9)+"Halftime"+chr(9
 caf_answer_droplist = " "+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Blank"
 unea_verif_droplist = "Select One..."+chr(9)+"1 - Copy of Checks"+chr(9)+"2 - Award Letters"+chr(9)+"3 - System Initiated"+chr(9)+"4 - Colateral Statement"+chr(9)+"5 - Pend Out State Verif"+chr(9)+"6 - Other Document"+chr(9)+"7 - Worker Initiated"+chr(9)+"8 - RI Stubs"+chr(9)+"N - No Verif Provided"+chr(9)
 days_of_the_week_droplist = "Select One..."+chr(9)+"Monday"+chr(9)+"Tuesday"+chr(9)+"Wednesday"+chr(9)+"Thursday"+chr(9)+"Friday"+chr(9)+"Saturday"+chr(9)+"Sunday"
+imig_status_dropdown = "21 - Refugee"
+imig_status_dropdown = imig_status_dropdown+chr(9)+"22 - Asylee"
+imig_status_dropdown = imig_status_dropdown+chr(9)+"23 - Deportation/Removal Withheld"
+imig_status_dropdown = imig_status_dropdown+chr(9)+"24 - LPR"
+imig_status_dropdown = imig_status_dropdown+chr(9)+"25 - Paroled for 1 Year or More"
+imig_status_dropdown = imig_status_dropdown+chr(9)+"26 - Conditional Entry < 4/80"
+imig_status_dropdown = imig_status_dropdown+chr(9)+"27 - Non-Immmigraant"
+imig_status_dropdown = imig_status_dropdown+chr(9)+"28 - Unndocumented"
+imig_status_dropdown = imig_status_dropdown+chr(9)+"50 - Other Lawfully Residing"
+imig_nationality_droplist = "AA - Amerasian"
+imig_nationality_droplist = imig_nationality_droplist+chr(9)+"EH - Ethnic Chinese"
+imig_nationality_droplist = imig_nationality_droplist+chr(9)+"EL - Ethnic Lao"
+imig_nationality_droplist = imig_nationality_droplist+chr(9)+"HG - Hmong"
+imig_nationality_droplist = imig_nationality_droplist+chr(9)+"KD - Kurd"
+imig_nationality_droplist = imig_nationality_droplist+chr(9)+"SJ - Soviet Jew"
+imig_nationality_droplist = imig_nationality_droplist+chr(9)+"TT - Tinh"
+imig_nationality_droplist = imig_nationality_droplist+chr(9)+"AF - Afghanistan"
+imig_nationality_droplist = imig_nationality_droplist+chr(9)+"BK - Bosnia"
+imig_nationality_droplist = imig_nationality_droplist+chr(9)+"CB - Cambodia"
+imig_nationality_droplist = imig_nationality_droplist+chr(9)+"CH - China, Mainland"
+imig_nationality_droplist = imig_nationality_droplist+chr(9)+"CU - Cuba"
+imig_nationality_droplist = imig_nationality_droplist+chr(9)+"ES - El Salvador"
+imig_nationality_droplist = imig_nationality_droplist+chr(9)+"ER - Eritrea"
+imig_nationality_droplist = imig_nationality_droplist+chr(9)+"ET - Ethiopia"
+imig_nationality_droplist = imig_nationality_droplist+chr(9)+"GT - Guatemala"
+imig_nationality_droplist = imig_nationality_droplist+chr(9)+"HA - Haiti"
+imig_nationality_droplist = imig_nationality_droplist+chr(9)+"HO - Honduras"
+imig_nationality_droplist = imig_nationality_droplist+chr(9)+"IR - Iran"
+imig_nationality_droplist = imig_nationality_droplist+chr(9)+"IZ - Iraq"
+imig_nationality_droplist = imig_nationality_droplist+chr(9)+"LI - Liberia"
+imig_nationality_droplist = imig_nationality_droplist+chr(9)+"MC - Micronesia"
+imig_nationality_droplist = imig_nationality_droplist+chr(9)+"MI - Marshall Islands"
+imig_nationality_droplist = imig_nationality_droplist+chr(9)+"MX - Mexico"
+imig_nationality_droplist = imig_nationality_droplist+chr(9)+"WA - Namibia"
+imig_nationality_droplist = imig_nationality_droplist+chr(9)+"PK - Pakistan"
+imig_nationality_droplist = imig_nationality_droplist+chr(9)+"RP - Philippines"
+imig_nationality_droplist = imig_nationality_droplist+chr(9)+"PL - Poland"
+imig_nationality_droplist = imig_nationality_droplist+chr(9)+"RO - Romania"
+imig_nationality_droplist = imig_nationality_droplist+chr(9)+"RS - Russia"
+imig_nationality_droplist = imig_nationality_droplist+chr(9)+"SO - Somalia"
+imig_nationality_droplist = imig_nationality_droplist+chr(9)+"SF - South Africa"
+imig_nationality_droplist = imig_nationality_droplist+chr(9)+"TH - Thailand"
+imig_nationality_droplist = imig_nationality_droplist+chr(9)+"VM - Vietnam"
+imig_nationality_droplist = imig_nationality_droplist+chr(9)+"OT - All Others"
 memb_droplist = ""
 
 the_pwe_for_this_case = ""
@@ -2752,6 +2866,7 @@ acct_found = FALSE
 secu_found = FALSE
 cars_found = FALSE
 rest_found = FALSE
+imig_questions_step = 1
 
 'Button Definitions
 caf_page_one_btn	= 1000
@@ -2790,16 +2905,20 @@ add_relationship_btn					= 2006
 memb_info_change						= 2007
 next_memb_btn							= 2008
 hh_list_btn								= 2009
-update_groups_btn						= 2010
-search_district_btn						= 2011
-add_higher_ed_studen					= 2012
-add_ged_ell_student						= 2013
-add_another_absent_pers_btn				= 2014
-new_disa_btn							= 2015
-add_unable_tp_work_memb_btn				= 2016
-next_stwk_btn							= 2017
+hh_imig_btn								= 2010
+update_imig_info_btn					= 2011
+update_groups_btn						= 2012
+search_district_btn						= 2013
+add_higher_ed_studen					= 2014
+add_ged_ell_student						= 2015
+add_another_absent_pers_btn				= 2016
+new_disa_btn							= 2017
+add_unable_tp_work_memb_btn				= 2018
+next_stwk_btn							= 2019
+prev_imig_btn							= 2020
+next_imig_btn							= 2021
 
-add_qual_quest_yes						= 2020
+add_qual_quest_yes						= 2030
 
 rsdi_btn 	= 3000
 ssi_btn		= 3001
@@ -2848,27 +2967,28 @@ done_pg_last	= FALSE
 show_pg_one 		= 1
 show_pg_memb_list 	= 2
 show_pg_memb_info 	= 3
-show_q_1_2			= 4
-show_q_3			= 5
-show_q_4			= 6
-show_q_5			= 7
-show_q_6			= 8
-show_q_7			= 9
-show_q_8			= 10
-show_q_9			= 11
-show_q_10			= 12
-show_q_11			= 13
-show_q_12			= 14
-show_q_13			= 15
-show_q_14_15		= 16
-show_q_16_18		= 17
-show_q_19			= 18
-show_q_20_21 		= 19
-show_q_22			= 20
-show_q_23			= 21
-show_q_24			= 22
-show_qual			= 23
-show_pg_last		= 24
+show_pg_imig		= 4
+show_q_1_2			= 5
+show_q_3			= 6
+show_q_4			= 7
+show_q_5			= 8
+show_q_6			= 9
+show_q_7			= 10
+show_q_8			= 11
+show_q_9			= 12
+show_q_10			= 13
+show_q_11			= 14
+show_q_12			= 15
+show_q_13			= 16
+show_q_14_15		= 17
+show_q_16_18		= 18
+show_q_19			= 19
+show_q_20_21 		= 20
+show_q_22			= 21
+show_q_23			= 22
+show_q_24			= 23
+show_qual			= 24
+show_pg_last		= 25
 
 rsdi_unea	= 1
 ssi_unea	= 2
@@ -2897,13 +3017,16 @@ page_1_step_6_btn 	= 10016
 page_1_step_7_btn 	= 10017
 page_1_step_8_btn 	= 10018
 
-
+Dim case_has_imig
 
 function dialog_movement()
+	case_has_imig = FALSE
 	For i = 0 to Ubound(HH_MEMB_ARRAY, 1)
+		If HH_MEMB_ARRAY(i).imig_exists = TRUE Then case_has_imig = TRUE
 		' MsgBox HH_MEMB_ARRAY(i).button_one
 		If ButtonPressed = HH_MEMB_ARRAY(i).button_one Then
 			If page_display = show_pg_memb_info Then memb_selected = i
+			If page_display = show_pg_imig Then memb_selected = i
 			If page_display = show_q_12 Then memb_to_match = HH_MEMB_ARRAY(i).ref_number
 			If page_display = show_q_7 Then stwk_selected = i
 			If page_display = show_q_19 Then fmed_selected = i
@@ -2919,6 +3042,16 @@ function dialog_movement()
 	Next
 	' MsgBox ButtonPressed
 	If page_display = show_pg_memb_info AND ButtonPressed = -1 Then ButtonPressed = next_memb_btn
+	If page_display = show_pg_imig AND ButtonPressed = -1 Then ButtonPressed = next_imig_btn
+
+	If ButtonPressed = next_imig_btn Then
+		imig_questions_step = imig_questions_step + 1
+		HH_MEMB_ARRAY(memb_selected).assess_imig_questions
+		If imig_questions_step = 2 AND HH_MEMB_ARRAY(memb_selected).imig_q_2_required = FALSE Then imig_questions_step = 3
+		If imig_questions_step = 4 AND HH_MEMB_ARRAY(memb_selected).imig_q_4_required = FALSE Then imig_questions_step = 5
+		If imig_questions_step = 5 AND HH_MEMB_ARRAY(memb_selected).imig_q_5_required = FALSE Then imig_questions_step = 6
+		If imig_questions_step > 5 Then ButtonPressed = next_memb_btn
+	End If
 	If ButtonPressed = next_memb_btn Then
 		memb_selected = memb_selected + 1
 		If memb_selected > UBound(HH_MEMB_ARRAY, 1) Then ButtonPressed = next_btn
@@ -2943,7 +3076,9 @@ function dialog_movement()
 	If ButtonPressed = next_btn Then
 		If page_display = show_pg_one Then ButtonPressed = caf_membs_btn
 		If page_display = show_pg_memb_list Then ButtonPressed = HH_memb_detail_review
-		If page_display = show_pg_memb_info Then ButtonPressed = caf_q_1_2_btn
+		If page_display = show_pg_memb_info AND case_has_imig = FALSE Then ButtonPressed = show_pg_imig
+		If page_display = show_pg_memb_info AND case_has_imig = TRUE Then ButtonPressed = caf_q_1_2_btn
+		If ButtonPressed = show_pg_imig Then ButtonPressed = caf_q_1_2_btn
 		If page_display = show_q_1_2 Then ButtonPressed = caf_q_3_btn
 		If page_display = show_q_3 Then ButtonPressed = caf_q_4_btn
 		If page_display = show_q_4 Then ButtonPressed = caf_q_5_btn
@@ -2997,6 +3132,9 @@ function dialog_movement()
 	End If
 	If ButtonPressed = HH_memb_detail_review Then
 		page_display = show_pg_memb_info
+	End If
+	If ButtonPressed = hh_imig_btn Then
+		page_display = show_pg_imig
 	End If
 	If ButtonPressed = caf_q_1_2_btn Then
 		page_display = show_q_1_2
@@ -3083,7 +3221,7 @@ function dialog_movement()
 	End If
 	If ButtonPressed = finish_interview_btn then leave_loop = TRUE
 
-	If page_display <> show_pg_memb_info Then memb_selected = ""
+	If page_display <> show_pg_memb_info AND page_display <> show_pg_imig Then memb_selected = ""
 	If page_display <> show_q_7 Then stwk_selected = ""
 	If page_display <> show_q_12 AND page_display <> show_q_20_21 Then memb_to_match = ""
 	If page_display <> show_q_19 Then fmed_selected = ""
@@ -3320,6 +3458,8 @@ function define_main_dialog()
 			' PushButton 10, 10, 80, 15, "List of HH Members", hh_list_btn
 			Text 20, 8, 80, 15, "List of HH Members"
 			PushButton 95, 5, 125, 15, "Review HH Member Information", HH_memb_detail_review
+			If case_has_imig = TRUE Then PushButton 225, 5, 125, 15, "Immigration Information", hh_imig_btn
+			If case_has_imig = FALSE Then Text 230, 8, 125, 10, "All MEMBERS listed as Citizens"
 		End If
 		If page_display = show_pg_memb_info Then										'THIS IS THE INFORMATION FOR PAGE  ----------------------------------------------------------------------------------------------------------------------------------
 			Text 495, 27, 60, 13, "CAF MEMBs"
@@ -3408,9 +3548,150 @@ function define_main_dialog()
 			' PushButton 5, 110, 40, 10, "MEMB 01", Button12
 
 			' PushButton 95, 10, 125, 15, "Review HH Member Information", HH_memb_detail_review
-			Text 105, 8, 125, 15, "Review HH Member Information"
 			PushButton 10, 5, 80, 15, "List of HH Members", hh_list_btn
+			Text 105, 8, 125, 15, "Review HH Member Information"
+			If case_has_imig = TRUE Then PushButton 225, 5, 125, 15, "Immigration Information", hh_imig_btn
+			If case_has_imig = FALSE Then Text 230, 8, 125, 10, "All MEMBERS listed as Citizens"
+		End If
+		If page_display = show_pg_imig Then										'THIS IS THE INFORMATION FOR PAGE  ----------------------------------------------------------------------------------------------------------------------------------
+			Text 495, 27, 60, 13, "CAF MEMBs"
 
+			Text 15, 30, 460, 10, "DISCUSS Immigration details for each household member."
+			' Text 20, 33, 460, 10, "* Be sure to check if proof of identity is required and look in ECF or SOL-Q to ensure verification is correct."
+			' Text 20, 43, 460, 10, "* Confirm name spelling, language, marital status, immigration/citizenship status."
+			' Text 20, 53, 460, 10, "* If the SSN has not been validated, ask the client for the correct SSN."
+
+			GroupBox 50, 45, 425, 115, "Immmigration Information for " & HH_MEMB_ARRAY(memb_selected).full_name
+			If HH_MEMB_ARRAY(memb_selected).imig_exists = TRUE Then
+				' Text 85, 80, 165, 10, "Name: " & HH_MEMB_ARRAY(memb_selected).full_name
+				Text 230, 45, 40, 10, "Alien ID:"
+				Text 270, 45, 50, 10, HH_MEMB_ARRAY(memb_selected).alien_id_nbr
+
+				Text 85, 60, 40, 10, "IMIG Status:"
+				Text 130, 60, 150, 10, HH_MEMB_ARRAY(memb_selected).imig_status
+				' DropListBox 125, 95, 200, 45, "Select One..."+chr(9)+imig_status_dropdown, HH_MEMB_ARRAY(memb_selected).imig_status
+				Text 230, 60, 40, 10, "Status Date:"
+				Text 270, 60, 40, 10, HH_MEMB_ARRAY(memb_selected).imig_status_date
+				' EditBox 380, 95, 75, 15, HH_MEMB_ARRAY(memb_selected).imig_status_date
+				If HH_MEMB_ARRAY(memb_selected).imig_status = "24 - LPR" Then
+					Text 330, 60, 60, 10, "LPR adjusted from:"
+					Text 395, 75, 75, 10, HH_MEMB_ARRAY(memb_selected).lpr_adj_from
+				End If
+
+				Text 85, 75, 40, 10, "Status Verif:"
+				Text 130, 75, 200, 10, HH_MEMB_ARRAY(memb_selected).imig_status_verif
+				' EditBox 125, 115, 200, 15, HH_MEMB_ARRAY(memb_selected).imig_status_verif
+				Text 230, 75, 40, 10, "Document:"
+				Text 270, 75, 200, 10, HH_MEMB_ARRAY(memb_selected).imig_active_doc
+				Text 270, 75, 200, 10, HH_MEMB_ARRAY(memb_selected).imig_recvd_doc
+
+				Text 70, 90, 65, 10, "Date of US Entry:"
+				Text 130, 90, 75, 10, HH_MEMB_ARRAY(memb_selected).us_entry_date
+				' EditBox 140, 135, 75, 15, HH_MEMB_ARRAY(memb_selected).us_entry_date
+
+				Text 230, 90, 35, 10, "Nationality:"
+				Text 270, 90, 75, 10, HH_MEMB_ARRAY(memb_selected).nationality
+				' DropListBox 140, 155, 75, 15, "Select One..."+chr(9)+imig_nationality_droplist, HH_MEMB_ARRAY(memb_selected).nationality
+				If left(HH_MEMB_ARRAY(memb_selected).nationality, 2) = "OT" Then
+					Text 395, 90, 50, 10, "Detail, if other:"
+					Text 465, 90, 75, 10, HH_MEMB_ARRAY(memb_selected).nationality_detail
+					' DropListBox 140, 155, 75, 15, "Select One..."+chr(9)+imig_nationality_droplist, HH_MEMB_ARRAY(memb_selected).nationality
+				End If
+				'WE CAN LOOK UP A I-94 RECORD OURSELVES!!!'
+				' Text 60, 180, 350, 10, "^^2 - ASK "
+
+				If HH_MEMB_ARRAY(memb_selected).spon_exists = TRUE Then
+					Text 85, 105, 80, 10, "Client has sponsor."
+					Text 230, 105, 200, 10, HH_MEMB_ARRAY(memb_selected).spon_name
+				Else
+					Text 85, 105, 80, 10, "No sponsor."
+				End If
+
+				Text 50, 165, 400, 10, "^^1 - ASK all questions in this series:"
+				GroupBox 50, 180, 425, 175, "Immigration Questions - Step " & imig_questions_step
+
+				If imig_questions_step = 1 Then
+
+					Text 70, 200, 150, 10, "What is your date of entry to the United States?"
+					EditBox 225, 195, 75, 15, HH_MEMB_ARRAY(memb_selected).us_entry_date
+
+					Text 70, 220, 85, 10, "What is your nationality?"
+					DropListBox 155, 215, 125, 15, "Select One..."+chr(9)+imig_nationality_droplist, HH_MEMB_ARRAY(memb_selected).nationality
+					Text 285, 220, 75, 10, "If 'Other' add details"
+					EditBox 360, 215, 100, 15, HH_MEMB_ARRAY(memb_selected).nationality_detail
+
+					Text 70, 240, 150, 10, "What is your current immigration status?"
+					ComboBox 225, 235, 150, 15, "Type or Select"+chr(9)+imig_status_dropdown, HH_MEMB_ARRAY(memb_selected).imig_status
+
+				ElseIf imig_questions_step = 2 Then
+					Text 70, 200, 300, 10, "Since this client is an LPR, we need to clarify details of the status."
+
+					Text 70, 220, 150, 10, "What was your previous immigration status?"
+					ComboBox 225, 215, 150, 15, "Type or Select"+chr(9)+imig_status_dropdown, HH_MEMB_ARRAY(memb_selected).imig_prev_status
+
+					Text 70, 240, 150, 10, "What date did you adjust to LPR?"
+					EditBox 225, 235, 75, 15, HH_MEMB_ARRAY(memb_selected).us_entry_dat
+				ElseIf imig_questions_step = 3 Then
+					Text 70, 200, 200, 10, "What is your Immigration documentation do you currently have"
+					ComboBox 275, 195, 150, 15, "Type or Select"+chr(9)+imig_document_dropdown, HH_MEMB_ARRAY(memb_selected).imig_clt_current_doc
+
+					Text 70, 220, 200, 10, "What Immigration documentation do we have on file?"
+					ComboBox 275, 215, 150, 15, "Type or Select"+chr(9)+imig_document_dropdown, HH_MEMB_ARRAY(memb_selected).imig_doc_on_file
+
+					Text 70, 240, 100, 10, "Has SAVE been completed?"
+					DropListBox 175, 235, 75, 15, "No"+chr(9)+"Yes", HH_MEMB_ARRAY(memb_selected).imig_save_completed
+
+					Text 70, 240, 75, 10, "Do you have a sponsor?"
+					DropListBox 150, 235, 150, 15, "No"+chr(9)+"Yes", HH_MEMB_ARRAY(memb_selected).ask_about_spon
+				ElseIf imig_questions_step = 4 Then
+				ElseIf imig_questions_step = 5 Then
+				End If
+				If imig_questions_step <> 1 Then PushButton 50, 342, 75, 13, "PREVIOUS", prev_imig_btn
+				PushButton 400, 342, 75, 13, "NEXT", next_imig_btn
+
+				' Immigration Questions
+				' STEP 1
+				' 	What is your date of entry?
+				' 	What is your nationality? If other, fill edit box.
+				' 	What is your current immigration status?
+				' STEP 2
+				' 	IF LPR, what status did you have previously?
+				' 	IF LPR, when did you adjust to LPR?
+				' STEP 3
+				' 	What immigration document do you have to support your status?
+				' 	What immigration document do we have on file?
+				' 	Has a SAVE been completed?
+				' 	IF LPR and not adjusted from refugee/asylee, Do you have a sponsor?
+				' STEP 4
+				' 	IF Sponsor:
+				' 	Sponsor name?
+				' 	Sponsor’s address?
+				' 	Is sponsor married?
+				' 	Does the sponsor have any children that live in their household?
+				' STEP 5
+				' 	What is the sponsor’s income?
+				' 	What is the sponsor’s spouse’s income?
+
+
+			Else
+				Text 60, 60, 165, 10, "Name: " & HH_MEMB_ARRAY(memb_selected).full_name
+				Text 60, 80, 200, 10, "There is no IMMIGRATION information for " & HH_MEMB_ARRAY(memb_selected).full_name
+			End If
+			' PushButton 400, 55, 70, 13, "UPDATE DETAIL", update_imig_info_btn
+
+			btn_pos = 50
+			For i = 0 to Ubound(HH_MEMB_ARRAY, 1)
+				If i = memb_selected Then
+					Text 9, btn_pos+1, 40, 10, "MEMB " & HH_MEMB_ARRAY(i).ref_number
+				Else
+					PushButton 5, btn_pos, 40, 10, "MEMB " & HH_MEMB_ARRAY(i).ref_number, HH_MEMB_ARRAY(i).button_one
+				End If
+				btn_pos = btn_pos + 10
+			Next
+			PushButton 5, btn_pos, 40, 20, "NEXT MEMB", next_memb_btn
+			PushButton 10, 5, 80, 15, "List of HH Members", hh_list_btn
+			PushButton 95, 5, 125, 15, "Review HH Member Information", HH_memb_detail_review
+			Text 240, 8, 125, 10, "Immigration Information"
 		End If
 		If page_display = show_q_1_2 Then										'THIS IS THE INFORMATION FOR PAGE  ----------------------------------------------------------------------------------------------------------------------------------
 			Text 500, 42, 60, 13, "Q. 1 and 2"
@@ -3753,6 +4034,11 @@ function define_main_dialog()
 		End If
 		If page_display = show_q_9 Then										'THIS IS THE INFORMATION FOR PAGE  ----------------------------------------------------------------------------------------------------------------------------------
 			Text 508, 147, 60, 13, "Q. 9"
+
+			'NOTES ABOUT ENTERING JOBS
+			'INTV script will not update JOBS because we cannot fit EI budgeting into this scrpit.(except maybe create a new panel)
+			'EI Budgeting can read from ITVW case note to gather initial JOBS details that were captured in the note
+			'THE PURPOSE HERE IS TO ASK THE RIGHT QUESTIONS
 
 			Text 5, 10, 305, 10, "^^1 - Enter the answers listed on the actual CAF form for Q5 into the 'Answer on the CAF' field."
 			Text 20, 25, 335, 20, "Q. 9. Does anyone in the household have a job or expect to get income from a job this month or next month? (Include income from Work Study and paid scholarships. Include free benefits or reduced expenses received for work (shelter, food, clothing, etc.)"
@@ -6700,6 +6986,11 @@ Do
 	Loop until err_msg = ""
 	Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = FALSE
+
+
+'CASE:NOTES
+'SEPERATE notes with pertinent information. This will make it easier to read
+'Have a title convention that will make it clear these are all together (indents or maybe same start of header)' Idea on training case 298532
 
 'CAF PAGE 1 - HH Comp and Address
 ' FUNCTION - Read the current address on ADDR - resi and mail and phone numbers.
