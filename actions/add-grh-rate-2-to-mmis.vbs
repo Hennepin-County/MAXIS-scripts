@@ -71,13 +71,6 @@ Function HCRE_panel_bypass()
 	Loop until HCRE_panel_check <> "HCRE"
 End Function
 
-Function MMIS_panel_check(panel_name)
-	Do
-		EMReadScreen panel_check, 4, 1, 51
-		If panel_check <> panel_name then Call write_value_and_transmit(panel_name, 1, 8)
-	Loop until panel_check = panel_name
-End function
-
 '----------------------------------------------------------------------------------------------------The script
 'CONNECTS TO BlueZone
 EMConnect ""
@@ -489,7 +482,7 @@ DO
             If ButtonPressed = MAXIS_button then Call navigate_to_MAXIS(maxis_mode)  'Function to navigate back to MAXIS
             If ButtonPressed = MMIS_button then
                 Call navigate_to_MMIS_region("GRH UPDATE")	'function to navigate into MMIS, select the GRH update realm, and enter the prior authorization area
-                Call MMIS_panel_check("AKEY")				'ensuring we are on the right MMIS screen
+                Call MMIS_panel_confirmation("AKEY", 51)         'ensuring we are on the right MMIS screen
                 Call write_value_and_transmit(client_PMI, 10, 36)
             End if
 
@@ -543,7 +536,7 @@ output_end_date = end_mo & end_day & end_yr
 
 '----------------------------------------------------------------------------------------------------MMIS portion of the script
 Call navigate_to_MMIS_region("GRH UPDATE")	'function to navigate into MMIS, select the GRH update realm, and enter the prior authorization area
-Call MMIS_panel_check("AKEY")				'ensuring we are on the right MMIS screen
+Call MMIS_panel_confirmation("AKEY", 51)         'ensuring we are on the right MMIS screen
 
 EmWriteScreen client_PMI, 10, 36
 Call write_value_and_transmit("C", 3, 22)	'Checking to make sure that more than one agreement is not listed by trying to change (C) the information for the PMI selected.
@@ -607,7 +600,7 @@ If duplicate_agreement = False then
     Call write_value_and_transmit("2", 7, 77)	'Enters the agreement type and transmits
 
     '----------------------------------------------------------------------------------------------------ASA1 screen
-    Call MMIS_panel_check("ASA1")				'ensuring we are on the right MMIS screen
+    Call MMIS_panel_confirmation("ASA1", 51)         'ensuring we are on the right MMIS screen
 
     EmWriteScreen output_start_date, 4, 64				'Start date
     EmWriteScreen output_end_date, 4, 71				'End date
@@ -617,10 +610,10 @@ If duplicate_agreement = False then
     EmWriteScreen approval_county, 11, 39				'Enters 3 digit CO of RES
     Call write_value_and_transmit(approval_county, 11, 64)	'Enters 3 digit CO of FIN RESP and transmits
 
-    Call MMIS_panel_check("ASA2")				'ensuring we are on the right MMIS screen
+    Call MMIS_panel_confirmation("ASA2", 51)         'ensuring we are on the right MMIS screen
     transmit 	'no action required on ASA2
     '----------------------------------------------------------------------------------------------------ASA3 screen
-    Call MMIS_panel_check("ASA3")				'ensuring we are on the right MMIS screen
+    Call MMIS_panel_confirmation("ASA3", 51)         'ensuring we are on the right MMIS screen
     EMWriteScreen "H0043", 7, 36
     EMWriteScreen "U5", 7, 44
     EmWriteScreen output_start_date, 8, 60
@@ -659,7 +652,7 @@ If duplicate_agreement = False then
         End if
 
         '----------------------------------------------------------------------------------------------------ACF1 screen
-        Call MMIS_panel_check("ACF1")		'ensuring we are on the right MMIS screen
+        Call MMIS_panel_confirmation("ACF1", 51)         'ensuring we are on the right MMIS screen
         EmWriteScreen addr_line_01, 5, 8	'enters the clients address
         EmWriteScreen addr_line_02, 5, 37
         EmWriteScreen city_line, 6, 8
@@ -668,7 +661,7 @@ If duplicate_agreement = False then
         Call write_value_and_transmit("ASA1", 1, 8)		'direct navigating to ASA1
 
         '----------------------------------------------------------------------------------------------------ASA1 screen
-        Call MMIS_panel_check("ASA1")		'ensuring we are on the right MMIS screen
+        Call MMIS_panel_confirmation("ASA1", 51)         'ensuring we are on the right MMIS screen
          PF9 								'triggering stat edits
         EmreadScreen error_codes, 79, 20, 2	'checking for stat edits
         If trim(error_codes) <> "00 140  4          01 140  4" then
@@ -676,12 +669,12 @@ If duplicate_agreement = False then
         else
         	EMWriteScreen "A", 3, 17						'Updating the AMT type/STAT to A for approved
         	Call write_value_and_transmit("ASA3", 1, 8)		'direct navigating to ASA3
-        	Call MMIS_panel_check("ASA3")					'ensuring we are on the right MMIS screen
+        	Call MMIS_panel_confirmation("ASA3", 51)         'ensuring we are on the right MMIS screen
         	EMWriteScreen "A", 12, 19						'Updating the STAT CD/DATE to A for approved
         	Update_MMIS = true
             PF3 '	to save changes
 
-            Call MMIS_panel_check("AKEY")		'ensuring we are on the right MMIS screen
+            Call MMIS_panel_confirmation("AKEY", 51)         'ensuring we are on the right MMIS screen
             EMReadScreen authorization_number, 13, 9, 36
             authorization_number = trim(authorization_number)
             EMReadscreen approval_message, 16, 24, 2
