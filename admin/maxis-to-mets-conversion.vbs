@@ -64,13 +64,6 @@ Function HCRE_panel_bypass()
 	Loop until HCRE_panel_check <> "HCRE"
 End Function
 
-Function MMIS_panel_check(panel_name)
-	Do
-		EMReadScreen panel_check, 4, 1, 52
-		If panel_check <> panel_name then Call write_value_and_transmit(panel_name, 1, 8)
-	Loop until panel_check = panel_name
-End function
-
 Function client_age(client_DOB, output_variable)
     Dim CurrentDate, Years, ThisYear, Months, ThisMonth, Days
     CurrentDate = CDate(client_DOB)
@@ -319,7 +312,7 @@ For item = 0 to UBound(case_array, 2)
 
     If case_array(case_status, item) = True then
         'msgbox Client_SSN
-        MMIS_panel_check("RKEY")
+        Call MMIS_panel_confirmation("RKEY", 52)
         If Client_SSN = "" then
             Call clear_line_of_text(5, 19)
             EmWriteScreen Client_PMI, 4, 19
