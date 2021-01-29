@@ -68,13 +68,6 @@ Function HCRE_panel_bypass()
 	Loop until HCRE_panel_check <> "HCRE"
 End Function
 
-Function MMIS_panel_check(panel_name)
-	Do
-		EMReadScreen panel_check, 4, 1, 51
-		If panel_check <> panel_name then Call write_value_and_transmit(panel_name, 1, 8)
-	Loop until panel_check = panel_name
-End function
-
 '----------------------------------------------------------------------------------------------------The script
 'CONNECTS TO BlueZone
 EMConnect ""
@@ -335,7 +328,7 @@ For item = 0 to UBound(Update_MMIS_array, 2)
 
 	If Update_MMIS_array(rate_two, item) = True then
         Call navigate_to_MMIS_region("GRH UPDATE")	'function to navigate into MMIS, select the GRH update realm, and enter the prior authorization area
-		Call MMIS_panel_check("AKEY")				'ensuring we are on the right MMIS screen
+		Call MMIS_panel_confirmation("AKEY", 51)				'ensuring we are on the right MMIS screen
 	    EmWriteScreen client_PMI, 10, 36
 	    EmReadscreen PMI_check, 8, 10, 36
         If trim(PMI_check) <> client_PMI then
@@ -379,7 +372,7 @@ For item = 0 to UBound(Update_MMIS_array, 2)
 
         If continue_update = True then
 	       '----------------------------------------------------------------------------------------------------ASA1 screen
-	        Call MMIS_panel_check("ASA1")				'ensuring we are on the right MMIS screen
+	        Call MMIS_panel_confirmation("ASA1", 51)				'ensuring we are on the right MMIS screen
             EMReadScreen start_month, 2, 4, 64
             EMReadScreen start_day , 2, 4, 66
             EMReadScreen start_year , 2, 4, 68
@@ -403,10 +396,10 @@ For item = 0 to UBound(Update_MMIS_array, 2)
                     continue_update = true
                     Call write_value_and_transmit(write_close_date, 4, 71)      'entering agreement date of closure from MAXIS. 
 
-                    Call MMIS_panel_check("ASA2")				'ensuring we are on the right MMIS screen
+                    Call MMIS_panel_confirmation("ASA2", 51)				'ensuring we are on the right MMIS screen
             	    transmit 	'no action required on ASA2
             	    '----------------------------------------------------------------------------------------------------ASA3 screen
-            	    Call MMIS_panel_check("ASA3")				'ensuring we are on the right MMIS screen
+            	    Call MMIS_panel_confirmation("ASA3", 51)				'ensuring we are on the right MMIS screen
                     EMReadScreen ASA3_end_date, 6, 8, 67
 
                     EMWriteScreen write_close_date, 8, 67        'entering agreement date of closure from MAXIS. 
