@@ -54,13 +54,6 @@ call changelog_update("09/13/2018", "Initial version.", "Ilse Ferris, Hennepin C
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-Function MMIS_panel_confirmation(panel_name, col)
-	Do 
-		EMReadScreen panel_check, 4, 1, col
-		If panel_check <> panel_name then Call write_value_and_transmit(panel_name, 1, 8)
-	Loop until panel_check = panel_name
-End function
-
 '----------------------------------------------------------------------------------------------------The script
 'CONNECTS TO BlueZone
 EMConnect ""
