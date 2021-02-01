@@ -5951,8 +5951,9 @@ function navigate_to_MMIS_region(group_security_selection)
 	End If
 end function
 
-Function non_actionable_dails
+Function non_actionable_dails(actionable_dail)
 '--- This function used to determine if a DAIL message is actionable or non-actionable as determined by the QI Team. 
+'~~~~~ actionable_dail: boolean variable to determine if message is actionable or not.
 '===== Keywords: MAXIS, DAIL
     actionable_dail = True    'Defaulting to True
     If instr(dail_msg, "AMT CHILD SUPP MOD/ORD") OR _
