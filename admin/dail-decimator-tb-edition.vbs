@@ -44,6 +44,8 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("02/01/2021", "Defaulted common populations and DAIL messages to being checked when script starts.", "Ilse Ferris, Hennepin County")
+call changelog_update("02/01/2021", "Updated boolean variable name for clarity.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/13/2021", "Added 1800 baskets to adults population. Added YET baskets to family popultion.", "Ilse Ferris, Hennepin County")
 call changelog_update("08/10/2020", "Added email confirmation at the end of the script run.", "Ilse Ferris, Hennepin County")
 call changelog_update("04/29/2020", "Added new ADULTS pending baskets X127EP6-X127EP8", "Ilse Ferris, Hennepin County")
@@ -92,6 +94,17 @@ End Function
 
 '----------------------------------------------------------------------------------------------------THE SCRIPT
 EMConnect ""
+
+'Defaulting these populations to checked per current process. 
+ADAD_checkbox = 1   
+FAD_checkbox = 1
+
+'Defaulting these messages to checked as these are the most assigned cases. 
+cola_check = 1
+cses_check = 1
+info_check = 1
+pepr_check = 1
+tikl_check = 1
 
 this_month = CM_mo & " " & CM_yr
 next_month = CM_plus_1_mo & " " & CM_plus_1_yr
@@ -297,10 +310,10 @@ For each worker in worker_array
             dail_month = trim(dail_month)
 
             stats_counter = stats_counter + 1   'I increment thee
-            Call non_actionable_dails   'Function to evaluate the DAIL messages
-
-            IF add_to_excel = True then
-				'--------------------------------------------------------------------...and put that in Excel.
+            Call non_actionable_dails(actionable_dail)   'Function to evaluate the DAIL messages
+            
+            IF actionable_dail = False then
+				'--------------------------------------------------------------------actionable_dail = False will captured in Excel and deleted. 
 				objExcel.Cells(excel_row, 1).Value = worker
 				objExcel.Cells(excel_row, 2).Value = MAXIS_case_number
 				objExcel.Cells(excel_row, 3).Value = dail_type
@@ -313,7 +326,7 @@ For each worker in worker_array
 				If other_worker_error = "** WARNING **" then transmit
 				deleted_dails = deleted_dails + 1
 			else
-				add_to_excel = False
+				actionable_dail = True      'actionable_dail = True will NOT be deleted and will be captured and reported out as actionable.  
 				dail_row = dail_row + 1
                 If len(dail_month) = 5 then
                     output_year = ("20" & right(dail_month, 2))
@@ -336,7 +349,6 @@ For each worker in worker_array
                     Else 
                         add_to_array = False
                     End if 
-                    'msgbox "Duplicate Found: " & dail_string & vbcr & add_to_array
                 else 
                     add_to_array = True 
                 End if 
