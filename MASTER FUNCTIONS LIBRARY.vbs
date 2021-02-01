@@ -5952,6 +5952,9 @@ function navigate_to_MMIS_region(group_security_selection)
 end function
 
 Function non_actionable_dails
+'--- This function used to determine if a DAIL message is actionable or non-actionable as determined by the QI Team. 
+'===== Keywords: MAXIS, DAIL
+    actionable_dail = ""    'Defaulting to blank 
     If instr(dail_msg, "AMT CHILD SUPP MOD/ORD") OR _
         instr(dail_msg, "AP OF CHILD REF NBR:") OR _
         instr(dail_msg, "ADDRESS DIFFERS W/ CS RECORDS:") OR _
@@ -6033,7 +6036,7 @@ Function non_actionable_dails
         instr(dail_msg, "RSDI UPDATED - (REF") OR _
         instr(dail_msg, "SSI UPDATED - (REF") OR _
         instr(dail_msg, "SNAP ABAWD ELIGIBILITY HAS EXPIRED, APPROVE NEW ELIG RESULTS") then
-            add_to_excel = True
+            actionable_dail = False 
         '----------------------------------------------------------------------------------------------------CORRECT STAT EDITS over 5 days old
     Elseif dail_type = "STAT" or instr(dail_msg, "NEW FIAT RESULTS EXIST") then
         EmReadscreen stat_date, 8, dail_row, 39
@@ -6046,49 +6049,50 @@ Function non_actionable_dails
         If isdate(stat_date) = True then
             five_days_ago = DateAdd("d", -5, date)
             If cdate(five_days_ago) => cdate(stat_date) then
-                add_to_excel = True
+                'messages over 5 days old are non-actionable 
+                actionable_dail = False
             Else
-                add_to_excel = False
+                actionable_dail = True
             End if
         else
-            add_to_excel = False
+            actionable_dail = True
         End if
     '----------------------------------------------------------------------------------------------------REMOVING PEPR messages not CM or CM + 1
     Elseif dail_type = "PEPR" then
         if dail_month = this_month or dail_month = next_month then
-            add_to_excel = False
+            actionable_dail = True
         Else
-            add_to_excel = True ' delete the old messages
+            actionable_dail = False ' delete the old messages
         End if
     '----------------------------------------------------------------------------------------------------clearing elig messages older than CM
     Elseif instr(dail_msg, "OVERPAYMENT POSSIBLE") or inStr(dail_msg, "DISBURSE EXPEDITED SERVICE") or instr(dail_msg, "NEW FIAT RESULTS EXIST") or instr(dail_msg, "NEW FS VERSION MUST BE APPROVED") or instr(dail_msg, "APPROVE NEW ELIG RESULTS RECOUPMENT HAS INCREASED") or instr(dail_msg, "PERSON/S REQD FS NOT IN FS UNIT") then
         if dail_month = this_month or dail_month = next_month then
-            add_to_excel = False
+            actionable_dail = True
         Else
-            add_to_excel = True ' delete the old messages
+            actionable_dail = False ' delete the old messages
         End if
     '----------------------------------------------------------------------------------------------------SSN messages older than CM or CM +1
     Elseif instr(dail_msg, "SSN UNMATCHED DATA EXISTS") then
         if dail_month = this_month or dail_month = next_month then
-            add_to_excel = False
+            actionable_dail = True
         Else
-            add_to_excel = True ' delete the old messages
+            actionable_dail = False ' delete the old messages
         End if
     '----------------------------------------------------------------------------------------------------DISB CS messages older than CM or CM +1
     Elseif instr(dail_msg, "DISB CS") then
         if dail_month = this_month or dail_month = next_month then
-            add_to_excel = False
+            actionable_dail = True
         Else
-            add_to_excel = True ' delete the old messages
+            actionable_dail = False ' delete the old messages
         End if
     '----------------------------------------------------------------------------------------------------clearing Exempt IR TIKL's over 2 months old.
     Elseif instr(dail_msg, "%^% SENT THROUGH") then
         TIKL_date = cdate(TIKL_date)
         TIKL_date = right("0" & DatePart("m",dail_month), 2)
         if TIKL_date = CM_minus_2_mo then
-            add_to_excel = True   ' delete the exempt IR message older than last month.
+            actionable_dail = False   ' delete the exempt IR message older than last month.
         Else
-            add_to_excel = False
+            actionable_dail = True
         End if
         '----------------------------------------------------------------------------------------------------MEC2
     Elseif dail_type = "MEC2" then
@@ -6096,24 +6100,24 @@ Function non_actionable_dails
             instr(dail_msg, "SELF EMPLOYMENT REPORTED TO MEC²") OR _
             instr(dail_msg, "SSI REPORTED TO MEC²") OR _
             instr(dail_msg, "UNEMPLOYMENT INS") then
-            add_to_excel = FALSE            'Income based MEC2 messages will not be removed
+            actionable_dail = True            'Income based MEC2 messages will not be removed
         Else
-            add_to_excel =  True    'All other MEC2 messages can be deleted.
+            actionable_dail = False    'All other MEC2 messages can be deleted.
         End if
         '----------------------------------------------------------------------------------------------------TIKL
     Elseif dail_type = "TIKL" then
         if instr(dail_msg, "VENDOR") OR instr(dail_msg, "VND") then
-            add_to_excel = FALSE        'Will not delete TIKL's with vendor information
+            actionable_dail = True        'Will not delete TIKL's with vendor information
         Else
             six_months = DateAdd("M", -6, date)
             If cdate(six_months) => cdate(dail_month) then
-                add_to_excel = True     'Will delete any TIKL over 6 months old
+                actionable_dail = False     'Will delete any TIKL over 6 months old
             Else
-                add_to_excel = False
+                actionable_dail = True
             End if
         End if
     Else
-        add_to_excel = False
+        actionable_dail = True
     End if
 End Function
 
