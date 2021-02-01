@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("02/01/2021", "Updated boolean variable name for clarity.", "Ilse Ferris, Hennepin County")
 call changelog_update("06/10/2020", "Added TIKL DAIL selection.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/17/2019", "Added function to evaluate DAIL messages.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/09/2019", "Added 01/20 COLA messages to removal list.", "Ilse Ferris, Hennepin County")
@@ -243,8 +244,8 @@ For each worker in worker_array
             stats_counter = stats_counter + 1   'I increment thee
             Call non_actionable_dails   'Function to evaluate the DAIL messages
 
-            IF add_to_excel = True then
-				'--------------------------------------------------------------------...and put that in Excel.
+            IF actionable_dail = False then
+				'--------------------------------------------------------------------actionable_dail = False will captured in Excel and deleted. 
 				objExcel.Cells(excel_row, 1).Value = worker
 				objExcel.Cells(excel_row, 2).Value = MAXIS_case_number
 				objExcel.Cells(excel_row, 3).Value = dail_type
@@ -257,7 +258,7 @@ For each worker in worker_array
 				If other_worker_error = "** WARNING **" then transmit
 				deleted_dails = deleted_dails + 1
 			else
-				add_to_excel = False
+				actionable_dail = True      'actionable_dail = True will NOT be deleted and will be captured and reported out as actionable.  
 				dail_row = dail_row + 1
                 ReDim Preserve DAIL_array(4, DAIL_count)	'This resizes the array based on the number of rows in the Excel File'
             	DAIL_array(worker_const,	           DAIL_count) = worker
