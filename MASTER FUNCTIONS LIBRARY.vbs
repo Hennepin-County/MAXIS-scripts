@@ -5954,7 +5954,7 @@ end function
 Function non_actionable_dails
 '--- This function used to determine if a DAIL message is actionable or non-actionable as determined by the QI Team. 
 '===== Keywords: MAXIS, DAIL
-    actionable_dail = ""    'Defaulting to blank 
+    actionable_dail = True    'Defaulting to True
     If instr(dail_msg, "AMT CHILD SUPP MOD/ORD") OR _
         instr(dail_msg, "AP OF CHILD REF NBR:") OR _
         instr(dail_msg, "ADDRESS DIFFERS W/ CS RECORDS:") OR _
