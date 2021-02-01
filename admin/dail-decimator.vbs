@@ -242,7 +242,7 @@ For each worker in worker_array
             dail_month = trim(dail_month)
 
             stats_counter = stats_counter + 1   'I increment thee
-            Call non_actionable_dails   'Function to evaluate the DAIL messages
+            Call non_actionable_dails(actionable_dail) 'Function to evaluate the DAIL messages
 
             IF actionable_dail = False then
 				'--------------------------------------------------------------------actionable_dail = False will captured in Excel and deleted. 
