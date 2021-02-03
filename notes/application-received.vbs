@@ -451,7 +451,7 @@ IF how_application_rcvd = "Request to APPL Form" THEN
     		END IF
     	END IF
     NEXT
-    household_persons = trim(household_persons) 
+    household_persons = trim(household_persons)
     If right(household_persons, 1) = "," THEN household_persons = left(household_persons, len(household_persons) - 1)
     '-------------------------------------------------------------------------------------------------DIALOG
     BeginDialog Dialog1, 0, 0, 186, 135, "Request to Appl"
@@ -712,6 +712,7 @@ IF METS_retro_checkbox = CHECKED and team_601_email_checkbox = CHECKED THEN CALL
 
 IF MA_transition_request_checkbox = CHECKED THEN CALL create_outlook_email("", "", "MAXIS case #" & maxis_case_number & "/METS IC #" & METS_case_number & " MA Transition Request APPL'd in MAXIS-ACTION REQUIRED.", "", "", FALSE)
 
+IF MA_transition_request_checkbox = CHECKED and team_601_email_checkbox = CHECKED THEN CALL create_outlook_email("HSPH.EWS.TEAM.601@hennepin.us", "", "MAXIS case #" & maxis_case_number & "/METS IC #" & METS_case_number & " MA Transition Request APPL'd in MAXIS-ACTION REQUIRED.", "", "", FALSE)
 '----------------------------------------------------------------------------------------------------NOTICE APPT LETTER Dialog
 send_appt_ltr = FALSE
 IF cash_pends = TRUE or cash2_pends = TRUE or SNAP_pends = TRUE or grh_pends or instr(programs_applied_for, "EGA") THEN send_appt_ltr = TRUE
