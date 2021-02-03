@@ -5955,6 +5955,11 @@ Function non_actionable_dails(actionable_dail)
 '--- This function used to determine if a DAIL message is actionable or non-actionable as determined by the QI Team. 
 '~~~~~ actionable_dail: boolean variable to determine if message is actionable or not.
 '===== Keywords: MAXIS, DAIL
+    'Valuing variables used within the function
+    this_month = CM_mo & " " & CM_yr
+    next_month = CM_plus_1_mo & " " & CM_plus_1_yr
+    CM_minus_2_mo =  right("0" & DatePart("m", DateAdd("m", -2, date)), 2)
+    
     actionable_dail = True    'Defaulting to True
     If instr(dail_msg, "AMT CHILD SUPP MOD/ORD") OR _
         instr(dail_msg, "AP OF CHILD REF NBR:") OR _
