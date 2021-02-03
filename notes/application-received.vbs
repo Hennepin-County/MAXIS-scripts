@@ -451,7 +451,8 @@ IF how_application_rcvd = "Request to APPL Form" THEN
     		END IF
     	END IF
     NEXT
-
+    household_persons = trim(household_persons) 
+    If right(household_persons, 1) = "," THEN household_persons = left(household_persons, len(household_persons) - 1)
     '-------------------------------------------------------------------------------------------------DIALOG
     BeginDialog Dialog1, 0, 0, 186, 135, "Request to Appl"
       EditBox 85, 15, 45, 15, request_date
