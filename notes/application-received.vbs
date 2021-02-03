@@ -441,7 +441,7 @@ IF how_application_rcvd = "Request to APPL Form" THEN
     	IF person <> "" THEN
     		IF pers_count = uBound(HH_member_array) THEN
     			IF pers_count = 0 THEN
-    				household_persons = household_persons & person
+    				household_persons = household_persons & person & ", "
     			ELSE
     				household_persons = household_persons & " " & person
     			END IF
@@ -510,7 +510,7 @@ CALL write_variable_in_CASE_NOTE ("~ Application Received (" &  application_type
 CALL write_bullet_and_variable_in_CASE_NOTE("Requesting HC for MEMBER(S) ", household_persons)
 CALL write_bullet_and_variable_in_CASE_NOTE("Request to APPL Form received on ", request_date)
 IF how_application_rcvd = "Request to APPL Form" THEN
-	IF team_601_email_checkbox = UNCHECKED  THEN CALL write_variable_in_CASE_NOTE("* Emailed worker to let them know the request was processed.")
+	IF team_601_email_checkbox = UNCHECKED  THEN CALL write_variable_in_CASE_NOTE("* Emailed " & request_worker_number & " to let them know the request was processed.")
     IF team_601_email_checkbox = CHECKED  THEN CALL write_variable_in_CASE_NOTE("* Emailed team 601 to let them know the retro request was processed.")
 END IF
 CALL write_bullet_and_variable_in_CASE_NOTE ("Confirmation # ", confirmation_number)
@@ -700,11 +700,17 @@ END IF
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
 
 'IF send_email = True THEN CALL create_outlook_email("HSPH.EWS.Triagers@hennepin.us", "", "Case #" & maxis_case_number & " Expedited case to be assigned, transferred to team. " & worker_number & "  EOM.", "", "", TRUE)
-IF how_application_rcvd = "Request to APPL Form" and METS_retro_checkbox = UNCHECKED and team_601_email_checkbox = UNCHECKED and MA_transition_request_checkbox = UNCHECKED THEN CALL create_outlook_email("", "", "MAXIS case #" & maxis_case_number & " Request to APPL form received-APPL'd in MAXIS-ACTION REQUIRED.", "", "", FALSE)
+IF how_application_rcvd = "Request to APPL Form" and METS_retro_checkbox = UNCHECKED and team_601_email_checkbox =  UNCHECKED and MA_transition_request_checkbox = UNCHECKED and Auto_Newborn_checkbox = UNCHECKED THEN
+    CALL create_outlook_email("", "", "MAXIS case #" & maxis_case_number & " Request to APPL form received-APPL'd in MAXIS-ACTION REQUIRED.", "", "", FALSE)
+    ELSEIF Auto_Newborn_checkbox = CHECKED THEN CALL create_outlook_email("", "", "MAXIS case #" & maxis_case_number & " Request to APPL form received-APPL'd in MAXIS-ACTION REQUIRED.", "", "", FALSE)
+END IF
 
 IF METS_retro_checkbox = CHECKED and team_601_email_checkbox = UNCHECKED THEN CALL create_outlook_email("", "", "MAXIS case #" & maxis_case_number & "/METS IC #" & METS_case_number & " Retro Request APPL'd in MAXIS-ACTION REQUIRED.", "", "", FALSE)
+
 IF METS_retro_checkbox = CHECKED and team_601_email_checkbox = CHECKED THEN CALL create_outlook_email("HSPH.EWS.TEAM.601@hennepin.us", "", "MAXIS case #" & maxis_case_number & "/METS IC #" & METS_case_number & " Retro Request APPL'd in MAXIS-ACTION REQUIRED.", "", "", FALSE)
+
 IF MA_transition_request_checkbox = CHECKED THEN CALL create_outlook_email("", "", "MAXIS case #" & maxis_case_number & "/METS IC #" & METS_case_number & " MA Transition Request APPL'd in MAXIS-ACTION REQUIRED.", "", "", FALSE)
+
 '----------------------------------------------------------------------------------------------------NOTICE APPT LETTER Dialog
 send_appt_ltr = FALSE
 IF cash_pends = TRUE or cash2_pends = TRUE or SNAP_pends = TRUE or grh_pends or instr(programs_applied_for, "EGA") THEN send_appt_ltr = TRUE
