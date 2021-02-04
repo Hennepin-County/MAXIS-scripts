@@ -292,15 +292,15 @@ IF ADDR_actions = "Forwarding address in MN" or ADDR_actions = "Forwarding addre
     	LOOP UNTIL err_msg = ""
     	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
     LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
+
+	county_code_number = left(county_code, 2)
+	county_code = right(county_code, len(county_code)-3)
 END IF
 
 IF homeless_addr = "YES" THEN homeless_addr_code = "Y"
 IF homeless_addr = "NO" THEN homeless_addr_code = "N"
 IF reservation_addr = "YES" THEN reservation_addr_code = "Y"
 IF reservation_addr = "NO" THEN reservation_addr_code = "N"
-
-county_code_number = left(county_code, 2)
-county_code = right(county_code, len(county_code)-3)
 
 IF living_situation = "Own Housing: Lease, Mortgage or Roommate" THEN living_situation_code = "01"
 IF living_situation = "Family/Friends Due to Economic Hardship" THEN living_situation_code = "02"
