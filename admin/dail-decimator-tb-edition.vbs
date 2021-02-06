@@ -106,6 +106,10 @@ info_check = 1
 pepr_check = 1
 tikl_check = 1
 
+this_month = CM_mo & " " & CM_yr
+next_month = CM_plus_1_mo & " " & CM_plus_1_yr
+CM_minus_2_mo =  right("0" & DatePart("m", DateAdd("m", -2, date)), 2)
+
 'Finding the right folder to automatically save the file
 month_folder = "DAIL " & CM_mo & "-" & DatePart("yyyy", date) & ""
 decimator_folder = replace(this_month, " ", "-") & " DAIL Decimator"
