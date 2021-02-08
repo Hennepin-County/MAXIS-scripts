@@ -80,9 +80,13 @@ DO
     	DIALOG Dialog1
     	cancel_confirmation
     	IF MAXIS_case_number = "" OR (MAXIS_case_number <> "" AND len(MAXIS_case_number) > 8) OR (MAXIS_case_number <> "" AND IsNumeric(MAXIS_case_number) = False) THEN err_msg = err_msg & vbCr & "* Please enter a valid case number."
-		If isdate(date_received) = FALSE and Cdate(date_received) > cdate(date) = TRUE THEN  err_msg = err_msg & vbnewline & "* You must enter an actual date that is not in the future and is in the footer month that you are working in."
-		IF ADDR_actions = "Select:" THEN err_msg = err_msg & vbCr & "Please chose an action for the returned mail."
-    	IF worker_signature = "" THEN err_msg = err_msg & vbCr & "Please sign your case note."
+		If isdate(date_received) = FALSE THEN
+			err_msg = err_msg & vbnewline & "* You must enter an actual date that is not in the future and is in the footer month that you are working in."
+		ElseIf Cdate(date_received) > cdate(date) = TRUE THEN
+			err_msg = err_msg & vbnewline & "* You must enter an actual date that is not in the future and is in the footer month that you are working in."
+		End If
+		IF ADDR_actions = "Select:" THEN err_msg = err_msg & vbCr & "* Please chose an action for the returned mail."
+    	IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
     	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
     LOOP UNTIL err_msg = ""
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
