@@ -2458,9 +2458,13 @@ If EMER_on_CAF_checkbox = checked Then script_run_lowdown = script_run_lowdown &
 If trim(emer_other_req_detail) <> "" Then script_run_lowdown = script_run_lowdown & vbCr & "EMER: " & emer_other_req_detail
 
 'GRABBING THE DATE RECEIVED AND THE HH MEMBERS---------------------------------------------------------------------------------------------------------------------------------------------------------------------
-call navigate_to_MAXIS_screen("stat", "hcre")
-EMReadScreen STAT_check, 4, 20, 21
-If STAT_check <> "STAT" then script_end_procedure("Can't get in to STAT. This case may be in background. Wait a few seconds and try again. If the case is not in background contact an alpha user for your agency.")
+loop_start = timer
+Do
+    call navigate_to_MAXIS_screen("STAT", "SUMM")
+    EMReadScreen SUMM_check, 4, 2, 46
+    Call back_to_SELF
+    If timer - loop_start > 300 Then script_end_procedure("Can't get in to STAT. The script has attempted for 5 mintutes to get into STAT and iit appears to be stuck. The script timed out.")
+Loop until SUMM_check = "SUMM"
 
 'Creating a custom dialog for determining who the HH members are
 call HH_comp_dialog(HH_member_array)
