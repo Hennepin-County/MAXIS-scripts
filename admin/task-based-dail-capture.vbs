@@ -79,9 +79,9 @@ End Function
 EMConnect ""
 
 'Defaulting these populations to checked per current process. 
-'ADAD_checkbox = 1   
-'FAD_checkbox = 1
-ADS_checkbox = 1    'For testing - this is my x number 
+FAD_checkbox = 1
+ADAD_checkbox = 1   
+'ADS_checkbox = 1    'For testing - this is my x number 
 
 'Defaulting these messages to checked as these are the most assigned cases. 
 cola_check = 1
@@ -159,8 +159,7 @@ If all_workers_check = checked then
     dail_to_decimate = "ALL"
 Else
     ADAD_baskets = "X127EE1,X127EE2,X127EE3,X127EE4,X127EE5,X127EE6,X127EE7,X127EL2,X127EL3,X127EL4,X127EL5,X127EL6,X127EL7,X127EL8,X127EN1,X127EN2,X127EN3,X127EN4,X127EN5,X127EQ1,X127EQ4,X127EQ5,X127EQ8,X127EQ9,X127EL9,X127ED8,X127EH8,X127EG4,X127EQ3,X127EQ2,X127EP6,X127EP7,X127EP8,X127EF8,X127EF9,"
-    'ADS_baskets = "X127EH1,X127EH2,X127EH3,X127EH6,X127EJ4,X127EJ6,X127EJ7,X127EJ8,X127EK1,X127EK2,X127EK4,X127EK5,X127EK6,X127EK9,X127EM1,X127EM7,X127EM8,X127EM9,X127EN6,X127EP3,X127EP4,X127EP5,X127EP9,X127F3F,X127FE5,X127FG3,X127FH4,X127FH5,X127FI2,X127FI7,X127EJ5,"
-    ADS_baskets = "X127CCL"
+    ADS_baskets = "X127EH1,X127EH2,X127EH3,X127EH6,X127EJ4,X127EJ6,X127EJ7,X127EJ8,X127EK1,X127EK2,X127EK4,X127EK5,X127EK6,X127EK9,X127EM1,X127EM7,X127EM8,X127EM9,X127EN6,X127EP3,X127EP4,X127EP5,X127EP9,X127F3F,X127FE5,X127FG3,X127FH4,X127FH5,X127FI2,X127FI7,X127EJ5,"
     FAD_baskets = "X127ES1,X127ES2,X127ES3,X127ES4,X127ES5,X127ES6,X127ES7,X127ES8,X127ES9,X127ET1,X127ET2,X127ET3,X127ET4,X127ET5,X127ET6,X127ET7,X127ET8,X127ET9,X127FE7,X127FE8,X127FE9,X127FA5,X127FA9,X127FA6,X127FA7,X127FA8"
     
     worker_numbers = ""     'Creating and valuing incrementor variables
@@ -327,7 +326,6 @@ For each worker in worker_array
 				deleted_dails = deleted_dails + 1
 			else
 				actionable_dail = True      'actionable_dail = True will NOT be deleted and will be captured and reported out as actionable.  
-				dail_row = dail_row + 1
                 If len(dail_month) = 5 then
                     output_year = ("20" & right(dail_month, 2))
                     output_month = left(dail_month, 2)
@@ -368,14 +366,15 @@ For each worker in worker_array
                 End if 
 			End if
 
-			EMReadScreen message_error, 11, 24, 2		'Cases can also NAT out for whatever reason if the no messages instruction comes up.
-			If message_error = "NO MESSAGES" then
-				CALL navigate_to_MAXIS_screen("DAIL", "DAIL")
-				Call write_value_and_transmit(worker, 21, 6)
-				transmit   'transmit past 'not your dail message'
-                Call dail_type_selection
-				exit do
-			End if
+            dail_row = dail_row + 1
+			'EMReadScreen message_error, 11, 24, 2		'Cases can also NAT out for whatever reason if the no messages instruction comes up.
+			'If message_error = "NO MESSAGES" then
+			'	CALL navigate_to_MAXIS_screen("DAIL", "DAIL")
+			'	Call write_value_and_transmit(worker, 21, 6)
+			'	transmit   'transmit past 'not your dail message'
+            '    Call dail_type_selection
+			'	exit do
+			'End if
 
 			'...going to the next page if necessary
 			EMReadScreen next_dail_check, 4, dail_row, 4
@@ -457,8 +456,8 @@ file_info = month_folder & "\" & decimator_folder & "\" & report_date & " " & da
 'Saves and closes the most recent Excel workbook with the Task based cases to process.
 objExcel.ActiveWorkbook.SaveAs "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\DAIL list\" & file_info & ".xlsx"
 
-msgbox "script will stop now. stats_counter: " & stats_counter & vbcr & dail_count
-stopscript 
+'msgbox "script will stop now. stats_counter: " & stats_counter & vbcr & dail_count
+'stopscript 
 
 'Setting constants
 Const adOpenStatic = 3
