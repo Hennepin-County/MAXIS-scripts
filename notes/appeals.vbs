@@ -70,7 +70,7 @@ EMReadScreen priv_check, 4, 24, 14 'If it can't get into the case needs to skip
 IF priv_check = "PRIV" THEN script_end_procedure_with_error_report("This case is privileged. Please request access before running the script again. ")
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 116, 45, "Appeal Received"
+BeginDialog Dialog1, 0, 0, 116, 45, "Appeals"
   EditBox 65, 5, 45, 15, MAXIS_case_number
   ButtonGroup ButtonPressed
     OkButton 5, 25, 50, 15
@@ -239,7 +239,6 @@ If right(programs_applied_for, 1) = "," THEN programs_applied_for = left(program
 
 additional_programs_applied_for = trim(additional_programs_applied_for)       'trims excess spaces of programs_applied_for
 If right(additional_programs_applied_for, 1) = "," THEN additional_programs_applied_for = left(additional_programs_applied_for, len(additional_programs_applied_for) - 1)
-
 
 IF programs_applied_for = " " THEN programs_applied_for = replace(programs_applied_for, " ", "None")
 IF additional_programs_applied_for = "" THEN additional_programs_applied_for = replace(additional_programs_applied_for, " ", "None")
