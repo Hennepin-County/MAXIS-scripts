@@ -191,7 +191,8 @@ For each worker in worker_array
                 instr(dail_msg, "NEW MSA ELIG AUTO") or _
                 instr(dail_msg, "NEW MSA ELIG AUTO-APPROVED") or _
                 instr(dail_msg, "SNAP: NEW VERSION AUTO-APPROVED") or _
-                instr(dail_msg, "SNAP: AUTO-APPROVED - PREVIOUS UNAPPROVED VERSION EXISTS") then
+                instr(dail_msg, "SNAP: AUTO-APPROVED - PREVIOUS UNAPPROVED VERSION EXISTS") or _
+                instr(dail_msg, "NEW MFIP ELIG AUTO-APPROVED") then
                 add_to_excel = True
             Else
                 add_to_excel = False
