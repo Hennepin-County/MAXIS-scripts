@@ -50,16 +50,6 @@ call changelog_update("07/13/2020", "Initial version.", "Casey Love, Hennepin Co
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-BeginDialog Dialog1, 0, 0, 550, 385, "Dialog"
-  GroupBox 180, 5, 300, 260, "Client Conversation"
-  GroupBox 10, 5, 170, 260, "Address Information listed in MAXIS"
-  ButtonGroup ButtonPressed
-    PushButton 50, 245, 125, 15, "CAF has Different Information", caf_info_different_btn
-    PushButton 485, 10, 60, 15, "CAF Page 1", caf_page_one_btn
-    PushButton 415, 365, 50, 15, "NEXT", next_btn
-    PushButton 465, 365, 80, 15, "Complete Interview", finish_interview_btn
-EndDialog
-
 function read_and_format_from_MAXIS()
 end function
 
@@ -151,9 +141,61 @@ class mx_hh_member
 	public imig_save_completed
 	public imig_prev_status
 
+	public new_imig_status
+	public new_us_entry_date
+	public new_imig_status_date
+	public new_imig_status_verif
+	public new_lpr_adj_from
+	public new_nationality
+	public new_nationality_detail
+	public new_imig_active_doc
+	public new_imig_recvd_doc
+	public new_imig_clt_current_doc
+	public new_imig_doc_on_file
+	public new_imig_save_completed
+	public new_imig_prev_status
+	public new_spon_name
+	public new_spon_street
+	public new_spon_city
+	public new_spon_state
+	public new_spon_zip
+	public new_spon_phone
+	public new_spon_gross_income
+	public new_spon_income_freq
+	public new_spon_spouse_name
+	public new_spon_spouse_income
+	public new_spon_spouse_income_freq
+
+	' public ans_us_entry_date
+	' public ans_nationality
+	' public ans_nationality_detail
+	' public ans_imig_status
+	' public ans_imig_prev_status
+	' public ans_imig_status_date
+	' public ans_imig_clt_current_doc
+	' public ans_imig_doc_on_file
+	' public ans_imig_save_completed
+	' public ans_clt_has_sponsor
+	' public ans_spon_name
+	' public ans_live_with_spon
+	' public ans_spon_street
+	' public ans_spon_city
+	' public ans_spon_state
+	' public ans_spon_zip
+	' public ans_spon_phone
+	' public ans_spon_gross_income
+	' public ans_spon_income_freq
+	' public ans_spon_married_yn
+	' public ans_spon_children_yn
+	' public ans_spon_spouse_name
+	' public ans_spon_spouse_income
+	' public ans_spon_spouse_income_freq
+	' public ans_spon_numb_children
+	' public ans_spon_hh_notes
+
 	public spon_exists
 	public clt_has_sponsor
-	public ask_about_spon
+	' public ask_about_spon
 	public spon_type
 	public spon_verif
 	public spon_name
@@ -170,10 +212,17 @@ class mx_hh_member
 	public spon_snap_assets
 	public spon_spouse
 	public spon_hh_size
+	public spon_numb_children
 	public spon_possible_indigent_exemption
 	public spon_gross_income
 	public spon_spouse_income
-
+	public live_with_spon
+	public spon_income_freq
+	public spon_spouse_income_freq
+	public spon_married_yn
+	public spon_children_yn
+	public spon_hh_notes
+	public spon_spouse_name
 
 	public disa_exists
 	public disa_begin_date
@@ -613,6 +662,11 @@ class mx_hh_member
 				If nationality = "TH" Then nationality = "TH - Thailand"
 				If nationality = "VM" Then nationality = "VM - Vietnam"
 				If nationality = "OT" Then nationality = "OT - All Others"
+
+				imig_q_2_required = TRUE
+				imig_q_4_required = TRUE
+				imig_q_5_required = TRUE
+
 			End If
 
 			Call navigate_to_MAXIS_screen("STAT", "SPON")		'===============================================================================================
@@ -624,6 +678,18 @@ class mx_hh_member
 			If spon_version = "1" Then spon_exists = TRUE
 
 			If spon_exists = TRUE Then
+
+				' new_spon_name			=
+				' new_spon_street			=
+				' new_spon_city			=
+				' new_spon_state			=
+				' new_spon_zip			=
+				' new_spon_phone			=
+				' new_spon_gross_income	=
+				' new_spon_income_freq	=
+				' new_spon_spouse_name	=
+				' new_spon_spouse_income	=
+				' new_spon_spouse_income_freq =
 
 
 			End If
@@ -1826,26 +1892,6 @@ class mx_hh_member
 
 	end sub
 
-	public sub assess_imig_questions()
-		imig_q_2_required = FALSE
-		If left(imig_status, 2) = "24" Then imig_q_2_required = TRUE
-
-		ask_about_spon = TRUE
-		If left(imig_status, 2) = "21" Then ask_about_spon = FALSE
-		If left(imig_status, 2) = "22" Then ask_about_spon = FALSE
-		If left(imig_status, 2) = "28" Then ask_about_spon = FALSE
-		If left(imig_prev_status, 2) = "21" Then ask_about_spon = FALSE
-		If left(imig_prev_status, 2) = "22" Then ask_about_spon = FALSE
-
-		imig_q_4_required = FALSE
-		imig_q_5_required = FALSE
-		If clt_has_sponsor = "Yes" Then
-			imig_q_4_required = TRUE
-			imig_q_5_required = TRUE
-		End If
-
-	end sub
-
 	' private sub Class_Initialize()
 	' end sub
 end class
@@ -2732,6 +2778,40 @@ class client_assets
 end class
 
 
+
+const ans_us_entry_date			= 0
+const ans_nationality			= 1
+const ans_nationality_detail	= 2
+const ans_imig_status			= 3
+const ans_imig_prev_status		= 4
+const ans_imig_status_date		= 5
+const ans_imig_clt_current_doc	= 6
+const ans_imig_doc_on_file		= 7
+const ans_imig_save_completed	= 8
+const ans_clt_has_sponsor		= 9
+const ans_spon_name				= 10
+const ans_live_with_spon		= 11
+const ans_spon_street			= 12
+const ans_spon_city				= 13
+const ans_spon_state			= 14
+const ans_spon_zip				= 15
+const ans_spon_phone			= 16
+const ans_spon_gross_income		= 17
+const ans_spon_income_freq		= 18
+const ans_spon_married_yn		= 19
+const ans_spon_children_yn		= 20
+const ans_spon_spouse_name		= 21
+const ans_spon_spouse_income	= 22
+const ans_spon_spouse_income_freq	= 23
+const ans_spon_numb_children	= 24
+const ans_spon_hh_notes			= 25
+const ask_about_spon			= 26
+const ans_notes 				= 100
+
+
+Dim ALL_ANSWERS_ARRAY()
+ReDim ALL_ANSWERS_ARRAY(ans_notes, 0)
+
 Dim HH_MEMB_ARRAY()
 ReDim HH_MEMB_ARRAY(0)
 
@@ -2836,6 +2916,17 @@ imig_nationality_droplist = imig_nationality_droplist+chr(9)+"SF - South Africa"
 imig_nationality_droplist = imig_nationality_droplist+chr(9)+"TH - Thailand"
 imig_nationality_droplist = imig_nationality_droplist+chr(9)+"VM - Vietnam"
 imig_nationality_droplist = imig_nationality_droplist+chr(9)+"OT - All Others"
+imig_document_dropdown = "I-551 - Alien ID Card"
+imig_document_dropdown = imig_document_dropdown+chr(9)+"I-766 - Employment Authorization Doc"
+imig_document_dropdown = imig_document_dropdown+chr(9)+"I-94 - Arrival Record"
+imig_document_dropdown = imig_document_dropdown+chr(9)+"I-327 - Reentry Permit"
+imig_document_dropdown = imig_document_dropdown+chr(9)+"I-571 - Refugee Travel Doc"
+imig_document_dropdown = imig_document_dropdown+chr(9)+"Foreign Passport"
+' imig_document_dropdown = imig_document_dropdown+chr(9)+""
+' imig_document_dropdown = imig_document_dropdown+chr(9)+""
+' imig_document_dropdown = imig_document_dropdown+chr(9)+""
+' imig_document_dropdown = imig_document_dropdown+chr(9)+""
+' imig_document_dropdown = imig_document_dropdown+chr(9)+""
 memb_droplist = ""
 
 the_pwe_for_this_case = ""
@@ -2917,6 +3008,7 @@ add_unable_tp_work_memb_btn				= 2018
 next_stwk_btn							= 2019
 prev_imig_btn							= 2020
 next_imig_btn							= 2021
+next_fmed_btn							= 2022
 
 add_qual_quest_yes						= 2030
 
@@ -3019,6 +3111,31 @@ page_1_step_8_btn 	= 10018
 
 Dim case_has_imig
 
+function assess_imig_questions()
+
+	for i = 0 to UBound(HH_MEMB_ARRAY)
+	' MsgBox ans_imig_status & vbCr & "Code - " & left(ans_imig_status, 2)
+	HH_MEMB_ARRAY(i).imig_q_2_required = FALSE
+	If left(ALL_ANSWERS_ARRAY(ans_imig_status, i), 2) = "24" Then HH_MEMB_ARRAY(i).imig_q_2_required = TRUE
+
+	ALL_ANSWERS_ARRAY(ask_about_spon, i) = TRUE
+	If left(ALL_ANSWERS_ARRAY(ans_imig_status, i), 2) = "21" Then ALL_ANSWERS_ARRAY(ask_about_spon, i) = FALSE
+	If left(ALL_ANSWERS_ARRAY(ans_imig_status, i), 2) = "22" Then ALL_ANSWERS_ARRAY(ask_about_spon, i) = FALSE
+	If left(ALL_ANSWERS_ARRAY(ans_imig_status, i), 2) = "28" Then ALL_ANSWERS_ARRAY(ask_about_spon, i) = FALSE
+	If left(ALL_ANSWERS_ARRAY(ans_imig_prev_status, i), 2) = "21" Then ALL_ANSWERS_ARRAY(ask_about_spon, i) = FALSE
+	If left(ALL_ANSWERS_ARRAY(ans_imig_prev_status, i), 2) = "22" Then ALL_ANSWERS_ARRAY(ask_about_spon, i) = FALSE
+	If HH_MEMB_ARRAY(i).spon_exists = TRUE Then
+		ALL_ANSWERS_ARRAY(ask_about_spon, i) = TRUE
+		ALL_ANSWERS_ARRAY(ans_clt_has_sponsor, i) = TRUE
+	End If
+
+	HH_MEMB_ARRAY(i).imig_q_4_required = FALSE
+	If ALL_ANSWERS_ARRAY(ans_clt_has_sponsor, i) = "Yes" Then HH_MEMB_ARRAY(i).imig_q_4_required = TRUE
+	HH_MEMB_ARRAY(i).imig_q_5_required = FALSE
+	If ALL_ANSWERS_ARRAY(ans_spon_married_yn, i) = "Yes" OR ALL_ANSWERS_ARRAY(ans_spon_children_yn, i) = "Yes" Then HH_MEMB_ARRAY(i).imig_q_5_required = TRUE
+	Next
+end function
+
 function dialog_movement()
 	case_has_imig = FALSE
 	For i = 0 to Ubound(HH_MEMB_ARRAY, 1)
@@ -3046,11 +3163,22 @@ function dialog_movement()
 
 	If ButtonPressed = next_imig_btn Then
 		imig_questions_step = imig_questions_step + 1
-		HH_MEMB_ARRAY(memb_selected).assess_imig_questions
+
 		If imig_questions_step = 2 AND HH_MEMB_ARRAY(memb_selected).imig_q_2_required = FALSE Then imig_questions_step = 3
 		If imig_questions_step = 4 AND HH_MEMB_ARRAY(memb_selected).imig_q_4_required = FALSE Then imig_questions_step = 5
 		If imig_questions_step = 5 AND HH_MEMB_ARRAY(memb_selected).imig_q_5_required = FALSE Then imig_questions_step = 6
-		If imig_questions_step > 5 Then ButtonPressed = next_memb_btn
+		If imig_questions_step > 5 Then
+			ButtonPressed = next_memb_btn
+			imig_questions_step = 1
+		End If
+	End If
+	If ButtonPressed = prev_imig_btn Then
+		imig_questions_step = imig_questions_step - 1
+		If imig_questions_step = 2 AND HH_MEMB_ARRAY(memb_selected).imig_q_2_required = FALSE Then imig_questions_step = 1
+		If imig_questions_step = 5 AND HH_MEMB_ARRAY(memb_selected).imig_q_5_required = FALSE Then imig_questions_step = 4
+		If imig_questions_step = 4 AND HH_MEMB_ARRAY(memb_selected).imig_q_4_required = FALSE Then imig_questions_step = 3
+
+		If imig_questions_step < 1 Then imig_questions_step = 1
 	End If
 	If ButtonPressed = next_memb_btn Then
 		memb_selected = memb_selected + 1
@@ -3078,7 +3206,7 @@ function dialog_movement()
 		If page_display = show_pg_memb_list Then ButtonPressed = HH_memb_detail_review
 		If page_display = show_pg_memb_info AND case_has_imig = FALSE Then ButtonPressed = show_pg_imig
 		If page_display = show_pg_memb_info AND case_has_imig = TRUE Then ButtonPressed = caf_q_1_2_btn
-		If ButtonPressed = show_pg_imig Then ButtonPressed = caf_q_1_2_btn
+		If page_display = show_pg_imig Then ButtonPressed = caf_q_1_2_btn
 		If page_display = show_q_1_2 Then ButtonPressed = caf_q_3_btn
 		If page_display = show_q_3 Then ButtonPressed = caf_q_4_btn
 		If page_display = show_q_4 Then ButtonPressed = caf_q_5_btn
@@ -3239,6 +3367,7 @@ function dialog_movement()
 end function
 
 function explain_dialog_actions(dlg_page, dlg_step)
+	Dialog1 = Empty
 	BeginDialog Dialog1, 0, 0, 550, 385, "Full Interview Questions"
 		ButtonGroup ButtonPressed
 		If dlg_page = "PAGE 1" Then
@@ -3563,46 +3692,47 @@ function define_main_dialog()
 
 			GroupBox 50, 45, 425, 115, "Immmigration Information for " & HH_MEMB_ARRAY(memb_selected).full_name
 			If HH_MEMB_ARRAY(memb_selected).imig_exists = TRUE Then
-				' Text 85, 80, 165, 10, "Name: " & HH_MEMB_ARRAY(memb_selected).full_name
 				Text 230, 45, 40, 10, "Alien ID:"
 				Text 270, 45, 50, 10, HH_MEMB_ARRAY(memb_selected).alien_id_nbr
 
 				Text 85, 60, 40, 10, "IMIG Status:"
-				Text 130, 60, 150, 10, HH_MEMB_ARRAY(memb_selected).imig_status
-				' DropListBox 125, 95, 200, 45, "Select One..."+chr(9)+imig_status_dropdown, HH_MEMB_ARRAY(memb_selected).imig_status
+				Text 130, 60, 150, 10, HH_MEMB_ARRAY(memb_selected).new_imig_status
+
 				Text 230, 60, 40, 10, "Status Date:"
-				Text 270, 60, 40, 10, HH_MEMB_ARRAY(memb_selected).imig_status_date
-				' EditBox 380, 95, 75, 15, HH_MEMB_ARRAY(memb_selected).imig_status_date
+				Text 270, 60, 40, 10, HH_MEMB_ARRAY(memb_selected).new_imig_status_date
 				If HH_MEMB_ARRAY(memb_selected).imig_status = "24 - LPR" Then
 					Text 330, 60, 60, 10, "LPR adjusted from:"
-					Text 395, 75, 75, 10, HH_MEMB_ARRAY(memb_selected).lpr_adj_from
+					Text 395, 75, 75, 10, HH_MEMB_ARRAY(memb_selected).new_lpr_adj_from
 				End If
 
 				Text 85, 75, 40, 10, "Status Verif:"
-				Text 130, 75, 200, 10, HH_MEMB_ARRAY(memb_selected).imig_status_verif
-				' EditBox 125, 115, 200, 15, HH_MEMB_ARRAY(memb_selected).imig_status_verif
+				Text 130, 75, 200, 10, HH_MEMB_ARRAY(memb_selected).new_imig_status_verif
 				Text 230, 75, 40, 10, "Document:"
-				Text 270, 75, 200, 10, HH_MEMB_ARRAY(memb_selected).imig_active_doc
-				Text 270, 75, 200, 10, HH_MEMB_ARRAY(memb_selected).imig_recvd_doc
+				If HH_MEMB_ARRAY(memb_selected).new_imig_active_doc <> "" AND HH_MEMB_ARRAY(memb_selected).new_imig_active_doc <> "Type or Select" then
+					Text 270, 75, 200, 10, HH_MEMB_ARRAY(memb_selected).new_imig_active_doc
+				Else
+					Text 270, 75, 200, 10, HH_MEMB_ARRAY(memb_selected).new_imig_recvd_doc
+				End If
 
 				Text 70, 90, 65, 10, "Date of US Entry:"
-				Text 130, 90, 75, 10, HH_MEMB_ARRAY(memb_selected).us_entry_date
-				' EditBox 140, 135, 75, 15, HH_MEMB_ARRAY(memb_selected).us_entry_date
+				Text 130, 90, 75, 10, HH_MEMB_ARRAY(memb_selected).new_us_entry_date
 
 				Text 230, 90, 35, 10, "Nationality:"
-				Text 270, 90, 75, 10, HH_MEMB_ARRAY(memb_selected).nationality
-				' DropListBox 140, 155, 75, 15, "Select One..."+chr(9)+imig_nationality_droplist, HH_MEMB_ARRAY(memb_selected).nationality
-				If left(HH_MEMB_ARRAY(memb_selected).nationality, 2) = "OT" Then
+				Text 270, 90, 75, 10, HH_MEMB_ARRAY(memb_selected).new_nationality
+				If left(HH_MEMB_ARRAY(memb_selected).new_nationality, 2) = "OT" Then
 					Text 395, 90, 50, 10, "Detail, if other:"
-					Text 465, 90, 75, 10, HH_MEMB_ARRAY(memb_selected).nationality_detail
-					' DropListBox 140, 155, 75, 15, "Select One..."+chr(9)+imig_nationality_droplist, HH_MEMB_ARRAY(memb_selected).nationality
+					Text 465, 90, 75, 10, HH_MEMB_ARRAY(memb_selected).new_nationality_detail
 				End If
 				'WE CAN LOOK UP A I-94 RECORD OURSELVES!!!'
 				' Text 60, 180, 350, 10, "^^2 - ASK "
 
-				If HH_MEMB_ARRAY(memb_selected).spon_exists = TRUE Then
-					Text 85, 105, 80, 10, "Client has sponsor."
-					Text 230, 105, 200, 10, HH_MEMB_ARRAY(memb_selected).spon_name
+				If HH_MEMB_ARRAY(memb_selected).spon_exists = TRUE OR ALL_ANSWERS_ARRAY(ans_clt_has_sponsor, memb_selected) = "Yes" Then
+					Text 85, 105, 300, 10, "Client has sponsor. Name: " & HH_MEMB_ARRAY(memb_selected).new_spon_name
+					' Text 185, 105, 200, 10, HH_MEMB_ARRAY(memb_selected).new_spon_name
+					If ALL_ANSWERS_ARRAY(ans_spon_married_yn, memb_selected) = "Yes" Then Text 85, 120, 200, 10, "Sponsor is married. Spouse Name: " & ALL_ANSWERS_ARRAY(ans_spon_spouse_name, memb_selected)
+					Text 85, 135, 100, 10, "Income: Sponsor: $" & ALL_ANSWERS_ARRAY(ans_spon_gross_income, memb_selected)
+					If ALL_ANSWERS_ARRAY(ans_spon_married_yn, memb_selected) = "Yes" Then Text 190, 135, 100, 10, "Spouse: $" & ALL_ANSWERS_ARRAY(ans_spon_spouse_income, memb_selected)
+					If ALL_ANSWERS_ARRAY(ans_spon_numb_children, memb_selected) <> "" Then Text 300, 120, 200, 10, "Children in sponsor's household: " & ALL_ANSWERS_ARRAY(ans_spon_numb_children, memb_selected)
 				Else
 					Text 85, 105, 80, 10, "No sponsor."
 				End If
@@ -3613,38 +3743,85 @@ function define_main_dialog()
 				If imig_questions_step = 1 Then
 
 					Text 70, 200, 150, 10, "What is your date of entry to the United States?"
-					EditBox 225, 195, 75, 15, HH_MEMB_ARRAY(memb_selected).us_entry_date
+					EditBox 225, 195, 75, 15, ALL_ANSWERS_ARRAY(ans_us_entry_date, memb_selected)
 
 					Text 70, 220, 85, 10, "What is your nationality?"
-					DropListBox 155, 215, 125, 15, "Select One..."+chr(9)+imig_nationality_droplist, HH_MEMB_ARRAY(memb_selected).nationality
+					' DropListBox 155, 215, 125, 15, "Select One..."+chr(9)+imig_nationality_droplist+chr(9)+HH_MEMB_ARRAY(memb_selected).ans_nationality, HH_MEMB_ARRAY(memb_selected).ans_nationality
+					DropListBox 155, 215, 125, 15, "Select One..."+chr(9)+imig_nationality_droplist, ALL_ANSWERS_ARRAY(ans_nationality, memb_selected)
+					' DropListBox 155, 215, 125, 15, "Select One..."+chr(9)+imig_nationality_droplist, nat_answer_here
+					' DropListBox 155, 215, 125, 15, "Select One..."+chr(9)+imig_nationality_droplist+chr(9)+HH_MEMB_ARRAY(memb_selected).ans_nationality, nat_answer_here
 					Text 285, 220, 75, 10, "If 'Other' add details"
-					EditBox 360, 215, 100, 15, HH_MEMB_ARRAY(memb_selected).nationality_detail
+					EditBox 360, 215, 100, 15, ALL_ANSWERS_ARRAY(ans_nationality_detail, memb_selected)
 
 					Text 70, 240, 150, 10, "What is your current immigration status?"
-					ComboBox 225, 235, 150, 15, "Type or Select"+chr(9)+imig_status_dropdown, HH_MEMB_ARRAY(memb_selected).imig_status
+					ComboBox 225, 235, 150, 15, "Type or Select"+chr(9)+imig_status_dropdown+chr(9)+ALL_ANSWERS_ARRAY(ans_imig_status, memb_selected), ALL_ANSWERS_ARRAY(ans_imig_status, memb_selected)
 
 				ElseIf imig_questions_step = 2 Then
 					Text 70, 200, 300, 10, "Since this client is an LPR, we need to clarify details of the status."
 
 					Text 70, 220, 150, 10, "What was your previous immigration status?"
-					ComboBox 225, 215, 150, 15, "Type or Select"+chr(9)+imig_status_dropdown, HH_MEMB_ARRAY(memb_selected).imig_prev_status
+					ComboBox 225, 215, 150, 15, "Type or Select"+chr(9)+imig_status_dropdown+chr(9)+"24 - None"+chr(9)+ALL_ANSWERS_ARRAY(ans_imig_prev_status, memb_selected), ALL_ANSWERS_ARRAY(ans_imig_prev_status, memb_selected)
 
 					Text 70, 240, 150, 10, "What date did you adjust to LPR?"
-					EditBox 225, 235, 75, 15, HH_MEMB_ARRAY(memb_selected).us_entry_dat
+					EditBox 225, 235, 75, 15, ALL_ANSWERS_ARRAY(ans_imig_status_date, memb_selected)
 				ElseIf imig_questions_step = 3 Then
 					Text 70, 200, 200, 10, "What is your Immigration documentation do you currently have"
-					ComboBox 275, 195, 150, 15, "Type or Select"+chr(9)+imig_document_dropdown, HH_MEMB_ARRAY(memb_selected).imig_clt_current_doc
+					ComboBox 275, 195, 150, 15, "Type or Select"+chr(9)+imig_document_dropdown+chr(9)+ALL_ANSWERS_ARRAY(ans_imig_clt_current_doc, memb_selected), ALL_ANSWERS_ARRAY(ans_imig_clt_current_doc, memb_selected)
 
 					Text 70, 220, 200, 10, "What Immigration documentation do we have on file?"
-					ComboBox 275, 215, 150, 15, "Type or Select"+chr(9)+imig_document_dropdown, HH_MEMB_ARRAY(memb_selected).imig_doc_on_file
+					ComboBox 275, 215, 150, 15, "Type or Select"+chr(9)+imig_document_dropdown+chr(9)+ALL_ANSWERS_ARRAY(ans_imig_doc_on_file, memb_selected), ALL_ANSWERS_ARRAY(ans_imig_doc_on_file, memb_selected)
 
 					Text 70, 240, 100, 10, "Has SAVE been completed?"
-					DropListBox 175, 235, 75, 15, "No"+chr(9)+"Yes", HH_MEMB_ARRAY(memb_selected).imig_save_completed
+					DropListBox 175, 235, 75, 15, "No"+chr(9)+"Yes", ALL_ANSWERS_ARRAY(ans_imig_save_completed, memb_selected)
 
-					Text 70, 240, 75, 10, "Do you have a sponsor?"
-					DropListBox 150, 235, 150, 15, "No"+chr(9)+"Yes", HH_MEMB_ARRAY(memb_selected).ask_about_spon
+					If ALL_ANSWERS_ARRAY(ask_about_spon, memb_selected) = TRUE Then
+						Text 70, 260, 85, 10, "Do you have a sponsor?"
+						DropListBox 160, 255, 150, 15, "No"+chr(9)+"Yes", ALL_ANSWERS_ARRAY(ans_clt_has_sponsor, memb_selected)
+					End If
 				ElseIf imig_questions_step = 4 Then
+					Text 70, 200, 60, 10, "Sponsor's Name:"
+					EditBox 130, 195, 125, 15, ALL_ANSWERS_ARRAY(ans_spon_name, memb_selected)
+
+					Text 275, 200, 110, 10, "Do you live with your sponsor?"
+					DropListBox 385, 195, 50, 15, "?"+chr(9)+"No"+chr(9)+"Yes", ALL_ANSWERS_ARRAY(ans_live_with_spon, memb_selected)
+
+					Text 70, 220, 75, 10, "Sponsor's Address:"
+					Text 70, 235, 30, 10, "Street:"
+					EditBox 100, 230, 200, 15, ALL_ANSWERS_ARRAY(ans_spon_street, memb_selected)
+					Text 70, 255, 20, 10, "City:"
+					EditBox 90, 250, 75, 15, ALL_ANSWERS_ARRAY(ans_spon_city, memb_selected)
+					Text 180, 255, 25, 10, "State:"
+					EditBox 205, 250, 50, 15, ALL_ANSWERS_ARRAY(ans_spon_state, memb_selected)
+					Text 265, 255, 20, 10, "Zip:"
+					EditBox 285, 250, 60, 15, ALL_ANSWERS_ARRAY(ans_spon_zip, memb_selected)
+					Text 360, 255, 30, 10, "Phone:"
+					EditBox 390, 250, 75, 15, ALL_ANSWERS_ARRAY(ans_spon_phone, memb_selected)
+
+					Text 70, 275, 125, 10, "What is the sponsor's income?"
+					EditBox 195, 270, 75, 15, ALL_ANSWERS_ARRAY(ans_spon_gross_income, memb_selected)
+					Text 280, 275, 50, 10, "frequency:"
+					DropListBox 330, 270, 75, 15, "Select..."+chr(9)+"Annually"+chr(9)+"Monthly"+chr(9)+"BiWeekly"+chr(9)+"Weekly"+chr(9)+"Semi-Monthly", ALL_ANSWERS_ARRAY(ans_spon_income_freq, memb_selected)
+
+					Text 70, 295, 85, 10, "Is your sponsor married?"
+					DropListBox 155, 290, 50, 15, "?"+chr(9)+"No"+chr(9)+"Yes", ALL_ANSWERS_ARRAY(ans_spon_married_yn, memb_selected)
+					Text 225, 295, 175, 10, "Does your sponsor have children living in the home?"
+					DropListBox 400, 290, 50, 15, "?"+chr(9)+"No"+chr(9)+"Yes", ALL_ANSWERS_ARRAY(ans_spon_children_yn, memb_selected)
+
 				ElseIf imig_questions_step = 5 Then
+
+					Text 70, 200, 85, 10, "Sponsor's Spouse's Name:"
+					EditBox 155, 195, 125, 15, ALL_ANSWERS_ARRAY(ans_spon_spouse_name, memb_selected)
+
+					Text 70, 220, 100, 10, "What is the Spouse's income?"
+					EditBox 170, 215, 75, 15, ALL_ANSWERS_ARRAY(ans_spon_spouse_income, memb_selected)
+					Text 275, 220, 40, 10, "frequency:"
+					DropListBox 315, 215, 75, 15, "Select..."+chr(9)+"Annually"+chr(9)+"Monthly"+chr(9)+"BiWeekly"+chr(9)+"Weekly"+chr(9)+"Semi-Monthly", ALL_ANSWERS_ARRAY(ans_spon_spouse_income_freq, memb_selected)
+
+					Text 70, 240, 175, 10, "How many children does the sponsor have at home?"
+					EditBox 245, 235, 50, 15, ALL_ANSWERS_ARRAY(ans_spon_numb_children, memb_selected)
+
+					Text 70, 260, 60, 10, "Household Notes:"
+					EditBox 130, 255,  250, 15, ALL_ANSWERS_ARRAY(ans_spon_hh_notes, memb_selected)
 				End If
 				If imig_questions_step <> 1 Then PushButton 50, 342, 75, 13, "PREVIOUS", prev_imig_btn
 				PushButton 400, 342, 75, 13, "NEXT", next_imig_btn
@@ -3666,11 +3843,14 @@ function define_main_dialog()
 				' 	IF Sponsor:
 				' 	Sponsor name?
 				' 	Sponsor’s address?
+				' 	Sspponsor's Income?
 				' 	Is sponsor married?
 				' 	Does the sponsor have any children that live in their household?
 				' STEP 5
-				' 	What is the sponsor’s income?
+				' 	What is the sponsor’s spouse's name?
 				' 	What is the sponsor’s spouse’s income?
+				' 	How many children are in the ssponsor's home?
+				' 	children details
 
 
 			Else
@@ -3688,7 +3868,7 @@ function define_main_dialog()
 				End If
 				btn_pos = btn_pos + 10
 			Next
-			PushButton 5, btn_pos, 40, 20, "NEXT MEMB", next_memb_btn
+			' PushButton 5, btn_pos, 40, 20, "NEXT MEMB", next_memb_btn
 			PushButton 10, 5, 80, 15, "List of HH Members", hh_list_btn
 			PushButton 95, 5, 125, 15, "Review HH Member Information", HH_memb_detail_review
 			Text 240, 8, 125, 10, "Immigration Information"
@@ -4049,6 +4229,50 @@ function define_main_dialog()
 			Text 40, 70, 70, 10, "Confirm CAF Answer"
 			ComboBox 110, 65, 365, 45, "", q9_confirm_caf_answer
 
+			' Text 5, 90, 100, 10, "this is a test of the dialog"
+			' EditBox 110, 85, 100, 15, this_is_an_editbox
+			' Text 5, 105, 100, 10, "this is a test of the dialog"
+			' EditBox 110, 100, 100, 15, this_is_an_editbox
+			' Text 5, 120, 100, 10, "this is a test of the dialog"
+			' EditBox 110, 115, 100, 15, this_is_an_editbox
+			' Text 5, 135, 100, 10, "this is a test of the dialog"
+			' EditBox 110, 130, 100, 15, this_is_an_editbox
+			' Text 5, 150, 100, 10, "this is a test of the dialog"
+			' EditBox 110, 145, 100, 15, this_is_an_editbox
+			' Text 5, 165, 100, 10, "this is a test of the dialog"
+			' EditBox 110, 160, 100, 15, this_is_an_editbox
+			' Text 5, 180, 100, 10, "this is a test of the dialog"
+			' EditBox 110, 175, 100, 15, this_is_an_editbox
+			' Text 5, 195, 100, 10, "this is a test of the dialog"
+			' EditBox 110, 190, 100, 15, this_is_an_editbox
+			' Text 5, 210, 100, 10, "this is a test of the dialog"
+			' EditBox 110, 205, 100, 15, this_is_an_editbox
+			' Text 5, 225, 100, 10, "this is a test of the dialog"
+			' EditBox 110, 220, 100, 15, this_is_an_editbox
+			' Text 5, 240, 100, 10, "this is a test of the dialog"
+			' EditBox 110, 235, 100, 15, this_is_an_editbox
+			' Text 5, 255, 100, 10, "this is a test of the dialog"
+			' EditBox 110, 250, 100, 15, this_is_an_editbox
+			' Text 5, 270, 100, 10, "this is a test of the dialog"
+			' EditBox 110, 265, 100, 15, this_is_an_editbox
+			' Text 5, 285, 100, 10, "this is a test of the dialog"
+			' EditBox 110, 280, 100, 15, this_is_an_editbox
+			' Text 5, 300, 100, 10, "this is a test of the dialog"
+			' EditBox 110, 295, 100, 15, this_is_an_editbox
+			' Text 5, 315, 100, 10, "this is a test of the dialog"
+			' EditBox 110, 310, 100, 15, this_is_an_editbox
+			' Text 5, 330, 100, 10, "this is a test of the dialog"
+			' EditBox 110, 325, 100, 15, this_is_an_editbox
+			' Text 5, 345, 100, 10, "this is a test of the dialog"
+			' EditBox 110, 340, 100, 15, this_is_an_editbox
+			' Text 5, 360, 100, 10, "this is a test of the dialog"
+			' EditBox 110, 355, 100, 15, this_is_an_editbox
+			' Text 5, 375, 100, 10, "this is a test of the dialog"
+			' EditBox 110, 370, 100, 15, this_is_an_editbox
+			' Text 5, 390, 100, 10, "this is a test of the dialog"
+			' EditBox 110, 385, 100, 15, this_is_an_editbox
+			' Text 5, 405, 100, 10, "this is a test of the dialog"
+			' EditBox 110, 400, 100, 15, this_is_an_editbox
 		End If
 		If page_display = show_q_10 Then										'THIS IS THE INFORMATION FOR PAGE  ----------------------------------------------------------------------------------------------------------------------------------
 			Text 507, 162, 60, 13, "Q. 10"
@@ -5832,7 +6056,7 @@ function define_main_dialog()
 		End If
 
 		If page_display <> show_pg_one Then PushButton 485, 10, 60, 13, "CAF Page 1", caf_page_one_btn
-		If page_display <> show_pg_memb_list AND page_display <> show_pg_memb_info Then PushButton 485, 25, 60, 13, "CAF MEMBs", caf_membs_btn
+		If page_display <> show_pg_memb_list AND page_display <> show_pg_memb_info AND  page_display <> show_pg_imig Then PushButton 485, 25, 60, 13, "CAF MEMBs", caf_membs_btn
 		If page_display <> show_q_1_2 Then PushButton 485, 40, 60, 13, "Q. 1 and 2", caf_q_1_2_btn
 		If page_display <> show_q_3 Then PushButton 485, 55, 60, 13, "Q. 3", caf_q_3_btn
 		If page_display <> show_q_4 Then PushButton 485, 70, 60, 13, "Q. 4", caf_q_4_btn
@@ -6074,6 +6298,38 @@ function read_ADDR_panel(addr_eff_date, line_one, line_two, city, state, zip, co
 	updated_date = replace(updated_date, " ", "/")
 end function
 
+function fill_answers_with_known_details()
+
+	For i = 0 to UBound(HH_MEMB_ARRAY)
+		ALL_ANSWERS_ARRAY(ans_us_entry_date, i) 		= HH_MEMB_ARRAY(i).us_entry_date
+		ALL_ANSWERS_ARRAY(ans_nationality, i)			= HH_MEMB_ARRAY(i).nationality
+		ALL_ANSWERS_ARRAY(ans_nationality_detail, i)	= HH_MEMB_ARRAY(i).nationality_detail
+		ALL_ANSWERS_ARRAY(ans_imig_status, i)			= HH_MEMB_ARRAY(i).imig_status
+		ALL_ANSWERS_ARRAY(ans_imig_prev_status, i)		= HH_MEMB_ARRAY(i).lpr_adj_from
+		ALL_ANSWERS_ARRAY(ans_imig_status_date, i)		= HH_MEMB_ARRAY(i).imig_status_date
+		' ALL_ANSWERS_ARRAY(ans_imig_clt_current_doc, i)	= HH_MEMB_ARRAY(i).
+		' ALL_ANSWERS_ARRAY(ans_imig_doc_on_file, i)		= HH_MEMB_ARRAY(i).
+		' ALL_ANSWERS_ARRAY(ans_imig_save_completed, i)	= HH_MEMB_ARRAY(i).
+		' ALL_ANSWERS_ARRAY(ans_clt_has_sponsor, i)		= HH_MEMB_ARRAY(i).
+		' ALL_ANSWERS_ARRAY(ans_spon_name, i)				= HH_MEMB_ARRAY(i).
+		' ALL_ANSWERS_ARRAY(ans_live_with_spon, i)		= HH_MEMB_ARRAY(i).
+		' ALL_ANSWERS_ARRAY(ans_spon_street, i)			= HH_MEMB_ARRAY(i).
+		' ALL_ANSWERS_ARRAY(ans_spon_city, i)				= HH_MEMB_ARRAY(i).
+		' ALL_ANSWERS_ARRAY(ans_spon_state, i)			= HH_MEMB_ARRAY(i).
+		' ALL_ANSWERS_ARRAY(ans_spon_zip, i)				= HH_MEMB_ARRAY(i).
+		' ALL_ANSWERS_ARRAY(ans_spon_phone, i)			= HH_MEMB_ARRAY(i).
+		' ALL_ANSWERS_ARRAY(ans_spon_gross_income, i)		= HH_MEMB_ARRAY(i).
+		' ALL_ANSWERS_ARRAY(ans_spon_income_freq, i)		= HH_MEMB_ARRAY(i).
+		' ALL_ANSWERS_ARRAY(ans_spon_married_yn, i)		= HH_MEMB_ARRAY(i).
+		' ALL_ANSWERS_ARRAY(ans_spon_children_yn, i)		= HH_MEMB_ARRAY(i).
+		' ALL_ANSWERS_ARRAY(ans_spon_spouse_name, i)		= HH_MEMB_ARRAY(i).
+		' ALL_ANSWERS_ARRAY(ans_spon_spouse_income, i)	= HH_MEMB_ARRAY(i).
+		' ALL_ANSWERS_ARRAY(ans_spon_spouse_income_freq, i) = HH_MEMB_ARRAY(i).
+		' ALL_ANSWERS_ARRAY(ans_spon_numb_children, i)	= HH_MEMB_ARRAY(i).
+		' ALL_ANSWERS_ARRAY(ans_spon_hh_notes, i)			= HH_MEMB_ARRAY(i).
+	Next
+
+end function
 
 ' function read_all_COEX()
 ' 	Call navigate_to_MAXIS_screen ("STAT", "PNLE")
@@ -6122,6 +6378,9 @@ function read_all_DCEX()
 end function
 
 ' FUNCTION - Read all the HH Members from case, including how they are related to M01 and SIBL and PARE - get age
+function find_all_the_MEMBs()
+end function
+
 function read_all_the_MEMBs()
 	CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
 
@@ -6153,6 +6412,7 @@ function read_all_the_MEMBs()
 		memb_droplist = memb_droplist+chr(9)+HH_MEMB_ARRAY(clt_count).ref_number & " - " & HH_MEMB_ARRAY(clt_count).full_name
 		If HH_MEMB_ARRAY(clt_count).fs_pwe = "Yes" Then the_pwe_for_this_case = HH_MEMB_ARRAY(clt_count).ref_number & " - " & HH_MEMB_ARRAY(clt_count).full_name
 
+		ReDim Preserve ALL_ANSWERS_ARRAY(ans_notes, clt_count)
 		clt_count = clt_count + 1
 	Next
 
@@ -6763,6 +7023,45 @@ end function
 function review_caf_q_26()
 end function
 
+function save_entered_information()
+	For person = 0 to UBound(HH_MEMB_ARRAY)
+		' MsgBox "SAVING ANSWERS AS NEW" & vbCr & "ANS - " & HH_MEMB_ARRAY(person).ans_imig_status & vbCr & "NEW - " & HH_MEMB_ARRAY(person).new_imig_status
+		' If HH_MEMB_ARRAY(person).ans_imig_status <> "" Then MsgBox "ANS is not blank - "
+		' If HH_MEMB_ARRAY(person).ans_imig_status <> HH_MEMB_ARRAY(person).new_imig_status Then MsgBox "ANS and NEW do not match"
+
+		If ALL_ANSWERS_ARRAY(ans_us_entry_date, person) 		<> "" AND ALL_ANSWERS_ARRAY(ans_us_entry_date, person) 		<> HH_MEMB_ARRAY(person).new_us_entry_date 			Then HH_MEMB_ARRAY(person).new_us_entry_date = ALL_ANSWERS_ARRAY(ans_us_entry_date, person)
+		If ALL_ANSWERS_ARRAY(ans_nationality, person)			<> "" AND ALL_ANSWERS_ARRAY(ans_nationality, person)		<> HH_MEMB_ARRAY(person).new_nationality 			Then HH_MEMB_ARRAY(person).new_nationality = ALL_ANSWERS_ARRAY(ans_nationality, person)
+		If ALL_ANSWERS_ARRAY(ans_nationality_detail, person)	<> "" AND ALL_ANSWERS_ARRAY(ans_nationality_detail, person)	<> HH_MEMB_ARRAY(person).new_nationality_detail 	Then HH_MEMB_ARRAY(person).new_nationality_detail = ALL_ANSWERS_ARRAY(ans_nationality_detail, person)
+		If ALL_ANSWERS_ARRAY(ans_imig_status, person)			<> "" AND ALL_ANSWERS_ARRAY(ans_imig_status, person)		<> HH_MEMB_ARRAY(person).new_imig_status 			Then HH_MEMB_ARRAY(person).new_imig_status = ALL_ANSWERS_ARRAY(ans_imig_status, person)
+		If ALL_ANSWERS_ARRAY(ans_imig_prev_status, person)		<> "" AND ALL_ANSWERS_ARRAY(ans_imig_prev_status, person)	<> HH_MEMB_ARRAY(person).new_imig_prev_status 		Then HH_MEMB_ARRAY(person).new_imig_prev_status = ALL_ANSWERS_ARRAY(ans_imig_prev_status, person)
+		If ALL_ANSWERS_ARRAY(ans_imig_status_date, person)		<> "" AND ALL_ANSWERS_ARRAY(ans_imig_status_date, person)	<> HH_MEMB_ARRAY(person).new_imig_status_date 		Then HH_MEMB_ARRAY(person).new_imig_status_date = ALL_ANSWERS_ARRAY(ans_imig_status_date, person)
+		If ALL_ANSWERS_ARRAY(ans_imig_clt_current_doc, person)	<> "" AND ALL_ANSWERS_ARRAY(ans_imig_clt_current_doc, person)<> HH_MEMB_ARRAY(person).new_imig_clt_current_doc 	Then HH_MEMB_ARRAY(person).new_imig_clt_current_doc = ALL_ANSWERS_ARRAY(ans_imig_clt_current_doc, person)
+		If ALL_ANSWERS_ARRAY(ans_imig_doc_on_file, person)		<> "" AND ALL_ANSWERS_ARRAY(ans_imig_doc_on_file, person)	<> HH_MEMB_ARRAY(person).new_imig_doc_on_file 		Then HH_MEMB_ARRAY(person).new_imig_doc_on_file = ALL_ANSWERS_ARRAY(ans_imig_doc_on_file, person)
+		If ALL_ANSWERS_ARRAY(ans_imig_save_completed, person)	<> "" AND ALL_ANSWERS_ARRAY(ans_imig_save_completed, person)<> HH_MEMB_ARRAY(person).new_imig_save_completed 	Then HH_MEMB_ARRAY(person).new_imig_save_completed = ALL_ANSWERS_ARRAY(ans_imig_save_completed, person)
+		' If ans_clt_has_sponsor		<> "" Then  = ans_clt_has_sponsor
+		If ALL_ANSWERS_ARRAY(ans_spon_name, person)				<> "" AND ALL_ANSWERS_ARRAY(ans_spon_name, person)			<> HH_MEMB_ARRAY(person).new_spon_name 				Then HH_MEMB_ARRAY(person).new_spon_name = ALL_ANSWERS_ARRAY(ans_spon_name, person)
+		' If ans_live_with_spon		<> "" Then  = ans_live_with_spon
+		If ALL_ANSWERS_ARRAY(ans_spon_street, person)			<> "" AND ALL_ANSWERS_ARRAY(ans_spon_street, person)		<> HH_MEMB_ARRAY(person).new_spon_street 			Then HH_MEMB_ARRAY(person).new_spon_street = ALL_ANSWERS_ARRAY(ans_spon_street, person)
+		If ALL_ANSWERS_ARRAY(ans_spon_city, person)				<> "" AND ALL_ANSWERS_ARRAY(ans_spon_city, person)			<> HH_MEMB_ARRAY(person).new_spon_city 				Then HH_MEMB_ARRAY(person).new_spon_city = ALL_ANSWERS_ARRAY(ans_spon_city, person)
+		If ALL_ANSWERS_ARRAY(ans_spon_state, person)			<> "" AND ALL_ANSWERS_ARRAY(ans_spon_state, person)			<> HH_MEMB_ARRAY(person).new_spon_state 			Then HH_MEMB_ARRAY(person).new_spon_state = ALL_ANSWERS_ARRAY(ans_spon_state, person)
+		If ALL_ANSWERS_ARRAY(ans_spon_zip, person)				<> "" AND ALL_ANSWERS_ARRAY(ans_spon_zip, person)			<> HH_MEMB_ARRAY(person).new_spon_zip 				Then HH_MEMB_ARRAY(person).new_spon_zip = ALL_ANSWERS_ARRAY(ans_spon_zip, person)
+		If ALL_ANSWERS_ARRAY(ans_spon_phone, person)			<> "" AND ALL_ANSWERS_ARRAY(ans_spon_phone, person)			<> HH_MEMB_ARRAY(person).new_spon_phone 			Then HH_MEMB_ARRAY(person).new_spon_phone = ALL_ANSWERS_ARRAY(ans_spon_phone, person)
+		If ALL_ANSWERS_ARRAY(ans_spon_gross_income, person)		<> "" AND ALL_ANSWERS_ARRAY(ans_spon_gross_income, person)	<> HH_MEMB_ARRAY(person).new_spon_gross_income 		Then HH_MEMB_ARRAY(person).new_spon_gross_income = ALL_ANSWERS_ARRAY(ans_spon_gross_income, person)
+		If ALL_ANSWERS_ARRAY(ans_spon_income_freq, person)		<> "" AND ALL_ANSWERS_ARRAY(ans_spon_income_freq, person)	<> HH_MEMB_ARRAY(person).new_spon_income_freq 		Then HH_MEMB_ARRAY(person).new_spon_income_freq = ALL_ANSWERS_ARRAY(ans_spon_income_freq, person)
+		' If ans_spon_married_yn		<> "" Then  = ans_spon_married_yn
+		' If ans_spon_children_yn		<> "" Then  = ans_spon_children_yn
+		If ALL_ANSWERS_ARRAY(ans_spon_spouse_name, person)		<> "" AND ALL_ANSWERS_ARRAY(ans_spon_spouse_name, person) 	<> HH_MEMB_ARRAY(person).new_spon_spouse_name 		Then HH_MEMB_ARRAY(person).new_spon_spouse_name = ALL_ANSWERS_ARRAY(ans_spon_spouse_name, person)
+		If ALL_ANSWERS_ARRAY(ans_spon_spouse_income, person)	<> "" AND ALL_ANSWERS_ARRAY(ans_spon_spouse_income, person) <> HH_MEMB_ARRAY(person).new_spon_spouse_income 	Then HH_MEMB_ARRAY(person).new_spon_spouse_income = ALL_ANSWERS_ARRAY(ans_spon_spouse_income, person)
+		If ALL_ANSWERS_ARRAY(ans_spon_spouse_income_freq, person) <> "" AND ALL_ANSWERS_ARRAY(ans_spon_spouse_income_freq, person) <> HH_MEMB_ARRAY(person).new_spon_spouse_income_freq Then HH_MEMB_ARRAY(person).new_spon_spouse_income_freq = ALL_ANSWERS_ARRAY(ans_spon_spouse_income_freq, person)
+		' If ans_spon_numb_children	<> "" Then  = ans_spon_numb_children
+		' If ans_spon_hh_notes		<> "" Then  = ans_spon_hh_notes
+		 If ALL_ANSWERS_ARRAY(ans_imig_clt_current_doc, person) <> "" AND ALL_ANSWERS_ARRAY(ans_imig_clt_current_doc, person) <> HH_MEMB_ARRAY(person).new_imig_active_doc Then HH_MEMB_ARRAY(person).new_imig_active_doc = ALL_ANSWERS_ARRAY(ans_imig_clt_current_doc, person)
+		 If ALL_ANSWERS_ARRAY(ans_imig_doc_on_file, person) 	<> "" AND ALL_ANSWERS_ARRAY(ans_imig_doc_on_file, person) 	<> HH_MEMB_ARRAY(person).new_imig_recvd_doc Then  HH_MEMB_ARRAY(person).new_imig_recvd_doc = ALL_ANSWERS_ARRAY(ans_imig_doc_on_file, person)
+
+		' MsgBox "SAVED" & vbCr & "ANS - " & HH_MEMB_ARRAY(person).ans_imig_status & vbCr & "NEW - " & HH_MEMB_ARRAY(person).new_imig_status
+	Next
+end function
+
 Dim household_homeless_response
 
 'THE SCRIPT ===========================================================================================================
@@ -6785,7 +7084,9 @@ End If
 'Start of Interview
 'Dialog to gather interview set up information/detail.
 'Date of interview, type of interview, case number.
-Dialog1 = ""
+Dialog1 = Empty
+' Dialog1 = Null
+' Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 281, 105, "INTERVIEW Case number dialog"
   EditBox 65, 10, 60, 15, MAXIS_case_number
   EditBox 210, 10, 15, 15, MAXIS_footer_month
@@ -6849,6 +7150,29 @@ updated_phone_type_three 	= phone_type_three
 
 Call read_all_the_MEMBs
 
+for i = 0 to UBound(HH_MEMB_ARRAY)
+
+	HH_MEMB_ARRAY(i).new_imig_status 		= HH_MEMB_ARRAY(i).imig_status
+	HH_MEMB_ARRAY(i).new_us_entry_date 		= HH_MEMB_ARRAY(i).us_entry_date
+	HH_MEMB_ARRAY(i).new_imig_status_date	= HH_MEMB_ARRAY(i).imig_status_date
+	HH_MEMB_ARRAY(i).new_imig_status_verif	= HH_MEMB_ARRAY(i).imig_status_verif
+	HH_MEMB_ARRAY(i).new_lpr_adj_from		= HH_MEMB_ARRAY(i).lpr_adj_from
+	HH_MEMB_ARRAY(i).new_nationality		= HH_MEMB_ARRAY(i).nationality
+	HH_MEMB_ARRAY(i).new_nationality_detail	= HH_MEMB_ARRAY(i).nationality_detail
+	' new_imig_active_doc		= imig_active_doc
+	' new_imig_recvd_doc		= imig_recvd_doc
+
+	' HH_MEMB_ARRAY(i).ans_imig_status 		= HH_MEMB_ARRAY(i).imig_status
+	' HH_MEMB_ARRAY(i).ans_us_entry_date 		= HH_MEMB_ARRAY(i).us_entry_date
+	' HH_MEMB_ARRAY(i).ans_imig_status_date 	= HH_MEMB_ARRAY(i).imig_status_date
+	' HH_MEMB_ARRAY(i).ans_imig_prev_status	= HH_MEMB_ARRAY(i).lpr_adj_from
+	' HH_MEMB_ARRAY(i).ans_nationality 		= HH_MEMB_ARRAY(i).nationality
+	' HH_MEMB_ARRAY(i).ans_nationality_detail = HH_MEMB_ARRAY(i).nationality_detail
+
+next
+
+call fill_answers_with_known_details
+
 Call read_all_Assets
 
 Call read_all_UNEA
@@ -6883,7 +7207,7 @@ Next
 'Gather the DISA information
 
 'Dialog to get the programs, person the interview is completed with, and some basic CAF information
-Dialog1 = ""
+Dialog1 = Empty
 BeginDialog Dialog1, 0, 0, 326, 45, "Interview Details"
   EditBox 50, 5, 50, 15, caf_date
   ComboBox 175, 5, 145, 45, "Type or Select"+chr(9)+"List of People", interview_with
@@ -6906,7 +7230,7 @@ Do
 	Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = FALSE
 
-
+' MsgBox HH_MEMB_ARRAY(0).ans_imig_status
 page_display = show_pg_one
 second_page_display = main_unea
 
@@ -6941,7 +7265,7 @@ Do
 			Next
 		End If
 		' MsgBox page_display
-		Dialog1 = ""
+		Dialog1 = Empty
 		call define_main_dialog
 
 		err_msg = ""
@@ -6951,8 +7275,17 @@ Do
 
 		dialog Dialog1
 		cancel_confirmation
-
+		' MsgBox  HH_MEMB_ARRAY(0).ans_imig_status
 		If err_msg <> "" Then MsgBox "*** Please resolve to Continue: ***" & vbNewLine & err_msg
+
+		Call assess_imig_questions
+		call save_entered_information
+		' For i = 0 to UBound(HH_MEMB_ARRAY)
+		' 	If page_display = show_pg_imig Then
+		' 		' HH_MEMB_ARRAY(i).save_entered_information
+		' 		HH_MEMB_ARRAY(i).assess_imig_questions
+		' 	End If
+		' next
 
 		If page_display <> prev_page Then
 			'ADD FUNCTIONS HERE TO EVALUATE THE COMPLETION OF EACH PAGE
@@ -6972,6 +7305,7 @@ Do
 	Do
 		err_msg = ""
 
+		Dialog1 = Empty
 		BeginDialog Dialog1, 0, 0, 550, 385, "Full Interview Questions"
 		  ButtonGroup ButtonPressed
 		    PushButton 465, 365, 80, 15, "Review Office Contact", move_to_contact
