@@ -183,7 +183,7 @@ DO
                 ELSEIF worker_mail_preference = "IC" THEN
 						EMReadScreen updated_mony_disb_date, 8, 9, 40
 			    		error_reason = "already updated " & replace(updated_mony_disb_date, " ", "/")
-				action_taken = "revert" THEN
+				ELSEIF action_taken = "revert" THEN
 					   	EMReadscreen worker_mail_preference, 2, 9, 35
 				    	IF worker_mail_preference = "IC" THEN
 				    		PF9
@@ -255,8 +255,8 @@ DO
 				END IF
 			END IF
 		END IF
-	END IF
-END IF
+	'END IF
+'END IF
 	amount_cashout = objExcel.cells(excel_row, 2).Value
 	objExcel.Cells(excel_row,  3).Value = trim(case_active) 'true/false based on case status
 	objExcel.Cells(excel_row,  4).Value = trim(update_case) 	'if case meets criteria to cashout

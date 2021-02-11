@@ -127,7 +127,7 @@ Do
 		       	print_status = "no notice"
 		       	EXIT DO
 		    END IF
-		    IF todays_date = "12/17/20" THEN
+		    IF todays_date = "02/09/21" THEN
 		      	EMWriteScreen "C", row, 13
 		       	TRANSMIT
 		       	EmReadscreen second_check, 8, row, 71
