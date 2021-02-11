@@ -54,8 +54,10 @@ changelog_display
 '----------------------------------------------------------------------------------------------------THE SCRIPT
 EMConnect ""
 
+'Gathering windows user information for transpancy purposes. 
 Set objNet = CreateObject("WScript.NetWork")
 windows_user_ID = objNet.UserName
+Call find_user_name(the_person_running_the_script)
 
 BeginDialog Dialog1, 0, 0, 281, 140, "Delete DAIL Tasks Dialog"
   DropListBox 225, 100, 50, 15, "Select one..."+chr(9)+"Yes"+chr(9)+"No", deletion_choice
@@ -103,6 +105,6 @@ objRecordSet.Open "DELETE FROM EWS.DAILDecimator",objConnection, adOpenStatic, a
 objConnection.Close
 
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-Call create_outlook_email("Faughn.Ramisch-Church@hennepin.us;Todd.Bennington@hennepin.us", "Ilse.Ferris@hennepin.us", "Task-Based Assignment DAIL Messages deleted in SQL Table by: " & windows_user_ID & ". EOM.", "", "", True)
+Call create_outlook_email("Faughn.Ramisch-Church@hennepin.us;Todd.Bennington@hennepin.us", "Ilse.Ferris@hennepin.us", "Task-Based Assignment DAIL Messages deleted in SQL Table by " & windows_user_ID & ": " & the_person_running_the_script & ". EOM.", "", "", True)
 
 script_end_procedure("Success! The database has been deleted.")
