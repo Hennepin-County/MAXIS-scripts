@@ -2,7 +2,7 @@
 name_of_script = "ADMIN - TASK-BASED DAIL CAPTURE.vbs"
 start_time = timer
 STATS_counter = 1                       'sets the stats counter at one
-STATS_manualtime = 20
+STATS_manualtime = 30
 STATS_denomination = "C"       			'C is for each CASE
 'END OF stats block==============================================================================================
 
@@ -48,32 +48,7 @@ call changelog_update("02/02/2021", "Initial version.", "Ilse Ferris, Hennepin C
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
-
 'END CHANGELOG BLOCK =======================================================================================================
-
-Function dail_type_selection
-	'selecting the type of DAIl message
-    If all_check = 0 then
-	    EMWriteScreen "x", 4, 12		'transmits to the PICK screen
-	    transmit
-	    EMWriteScreen "_", 7, 39		'clears the all selection
-
-	    If cola_check = 1 then EMWriteScreen "x", 8, 39
-	    If clms_check = 1 then EMWriteScreen "x", 9, 39
-	    If cses_check = 1 then EMWriteScreen "x", 10, 39
-	    If elig_check = 1 then EMWriteScreen "x", 11, 39
-	    If ievs_check = 1 then EMWriteScreen "x", 12, 39
-	    If info_check = 1 then EMWriteScreen "x", 13, 39
-	    If ive_check = 1 then EMWriteScreen "x", 14, 39
-	    If ma_check = 1 then EMWriteScreen "x", 15, 39
- 	    If mec2_check = 1 then EMWriteScreen "x", 16, 39
-	    If pari_chck = 1 then EMWriteScreen "x", 17, 39
-	    If pepr_check = 1 then EMWriteScreen "x", 18, 39
-	    If tikl_check = 1 then EMWriteScreen "x", 19, 39
-	    If wf1_check = 1 then EMWriteScreen "x", 20, 39
-	    transmit
-    End if
-End Function
 
 '----------------------------------------------------------------------------------------------------THE SCRIPT
 EMConnect ""
@@ -81,7 +56,6 @@ EMConnect ""
 'Defaulting these populations to checked per current process. 
 FAD_checkbox = 1
 ADAD_checkbox = 1   
-'ADS_checkbox = 1    'For testing - this is my x number 
 
 'Defaulting these messages to checked as these are the most assigned cases. 
 cola_check = 1
@@ -89,15 +63,6 @@ cses_check = 1
 info_check = 1
 pepr_check = 1
 tikl_check = 1
-
-this_month = CM_mo & " " & CM_yr
-next_month = CM_plus_1_mo & " " & CM_plus_1_yr
-CM_minus_2_mo =  right("0" & DatePart("m", DateAdd("m", -2, date)), 2)
-
-'Finding the right folder to automatically save the file
-month_folder = "DAIL " & CM_mo & "-" & DatePart("yyyy", date) & ""
-decimator_folder = replace(this_month, " ", "-") & " DAIL Decimator"
-report_date = replace(date, "/", "-")
 
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 251, 260, "Task-Based DAIL Capture Main Dialog"
@@ -156,44 +121,18 @@ back_to_SELF 'navigates back to self in case the worker is working within the DA
 'If all workers are selected, the script will go to REPT/USER, and load all of the workers into an array. Otherwise it'll create a single-object "array" just for simplicity of code.
 If all_workers_check = checked then
 	call create_array_of_all_active_x_numbers_in_county(worker_array, two_digit_county_code)
-    dail_to_decimate = "ALL"
 Else
     ADAD_baskets = "X127EE1,X127EE2,X127EE3,X127EE4,X127EE5,X127EE6,X127EE7,X127EL2,X127EL3,X127EL4,X127EL5,X127EL6,X127EL7,X127EL8,X127EN1,X127EN2,X127EN3,X127EN4,X127EN5,X127EQ1,X127EQ4,X127EQ5,X127EQ8,X127EQ9,X127EL9,X127ED8,X127EH8,X127EG4,X127EQ3,X127EQ2,X127EP6,X127EP7,X127EP8,X127EF8,X127EF9,"
     ADS_baskets = "X127EH1,X127EH2,X127EH3,X127EH6,X127EJ4,X127EJ6,X127EJ7,X127EJ8,X127EK1,X127EK2,X127EK4,X127EK5,X127EK6,X127EK9,X127EM1,X127EM7,X127EM8,X127EM9,X127EN6,X127EP3,X127EP4,X127EP5,X127EP9,X127F3F,X127FE5,X127FG3,X127FH4,X127FH5,X127FI2,X127FI7,X127EJ5,"
     FAD_baskets = "X127ES1,X127ES2,X127ES3,X127ES4,X127ES5,X127ES6,X127ES7,X127ES8,X127ES9,X127ET1,X127ET2,X127ET3,X127ET4,X127ET5,X127ET6,X127ET7,X127ET8,X127ET9,X127FE7,X127FE8,X127FE9,X127FA5,X127FA9,X127FA6,X127FA7,X127FA8"
     
     worker_numbers = ""     'Creating and valuing incrementor variables
-    dail_to_decimate = ""
     
-    'If ADAD_checkbox = 1 then worker_numbers = worker_numbers & ADAD_baskets
-    'If ADS_checkbox = 1 then worker_numbers = worker_numbers & ADS_baskets
-    'If FAD_checkbox = 1 then worker_numbers = worker_numbers & FAD_baskets
-    'If all_baskets_checkbox = 1 then worker_numbers = ADAD_baskets & "," & ADS_baskets & "," & FAD_baskets  'conditional logic in do loop doesn't allow for populations and baskets to be selcted. Not incremented variable.
+    If ADAD_checkbox = 1 then worker_numbers = worker_numbers & ADAD_baskets
+    If ADS_checkbox = 1 then worker_numbers = worker_numbers & ADS_baskets
+    If FAD_checkbox = 1 then worker_numbers = worker_numbers & FAD_baskets
+    If all_baskets_checkbox = 1 then worker_numbers = ADAD_baskets & "," & ADS_baskets & "," & FAD_baskets  'conditional logic in do loop doesn't allow for populations and baskets to be selcted. Not incremented variable.
     
-    If ADAD_checkbox = 1 then 
-        worker_numbers = worker_numbers & ADAD_baskets
-        dail_to_decimate = dail_to_decimate & "ADAD,"
-    End if 
-    
-    If ADS_checkbox = 1 then 
-        worker_numbers = worker_numbers & ADS_baskets
-        dail_to_decimate = dail_to_decimate & "ADS,"
-    End if 
-    
-    If FAD_checkbox = 1 then 
-        worker_numbers = worker_numbers & FAD_baskets
-        dail_to_decimate = dail_to_decimate & "FAD"
-    End if 
-    
-    If all_baskets_checkbox = 1 then 
-        worker_numbers = ADAD_baskets & "," & ADS_baskets & "," & FAD_baskets  'conditional logic in do loop doesn't allow for populations and baskets to be selcted. Not incremented variable.
-        dail_to_decimate = "All Baskets"
-    End if 
-    
-    dail_to_decimate = trim(dail_to_decimate)  'trims excess spaces of dail_to_decimate
-    If right(dail_to_decimate, 1) = "," THEN dail_to_decimate = left(dail_to_decimate, len(dail_to_decimate) - 1)
-    dail_to_decimate = dail_to_decimate & " TB"
-        
     x1s_from_dialog = split(worker_numbers, ",")	'Splits the worker array based on commas
 
 	'Need to add the worker_county_code to each one
@@ -208,29 +147,8 @@ Else
 	worker_array = split(worker_array, ",")
 End if
 
-'Opening the Excel file
-Set objExcel = CreateObject("Excel.Application")
-objExcel.Visible = True
-Set objWorkbook = objExcel.Workbooks.Add()
-objExcel.DisplayAlerts = True
-
-'Changes name of Excel sheet to "DAIL List"
-ObjExcel.ActiveSheet.Name = "Deleted DAILS - " & dail_to_decimate
-
-'Excel headers and formatting the columns
-objExcel.Cells(1, 1).Value = "X NUMBER"
-objExcel.Cells(1, 2).Value = "CASE #"
-objExcel.Cells(1, 3).Value = "DAIL TYPE"
-objExcel.Cells(1, 4).Value = "DAIL MO."
-objExcel.Cells(1, 5).Value = "DAIL MESSAGE"
-
-FOR i = 1 to 5		'formatting the cells'
-	objExcel.Cells(1, i).Font.Bold = True		'bold font'
-	ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
-	objExcel.Columns(i).AutoFit()				'sizing the columns'
-NEXT
-
-DIM DAIL_array()
+'----------------------------------------------------------------------------------------------------Setting up and valueing the array 
+Dim DAIL_array()
 ReDim DAIL_array(4, 0)
 Dail_count = 0              'Incremental for the array
 all_dail_array = "*"    'setting up string to find duplicate DAIL messages. At times there is a glitch in the DAIL, and messages are reviewed a second time.
@@ -243,10 +161,9 @@ const dail_type_const 	        = 2
 const dail_month_const		    = 3
 const dail_msg_const		    = 4
 
-'Sets variable for all of the Excel stuff
-excel_row = 2
 deleted_dails = 0	'establishing the value of the count for deleted deleted_dails
 
+'----------------------------------------------------------------------------------------------------DAIL Actions
 CALL navigate_to_MAXIS_screen("DAIL", "PICK")
 EMReadscreen pick_confirmation, 26, 4, 29
 
@@ -312,20 +229,7 @@ For each worker in worker_array
             stats_counter = stats_counter + 1   'I increment thee
             Call non_actionable_dails(actionable_dail)   'Function to evaluate the DAIL messages
             
-            IF actionable_dail = False then
-				'--------------------------------------------------------------------actionable_dail = False will captured in Excel and deleted. 
-				objExcel.Cells(excel_row, 1).Value = worker
-				objExcel.Cells(excel_row, 2).Value = MAXIS_case_number
-				objExcel.Cells(excel_row, 3).Value = dail_type
-				objExcel.Cells(excel_row, 4).Value = dail_month
-				objExcel.Cells(excel_row, 5).Value = dail_msg
-				excel_row = excel_row + 1
-				'Call write_value_and_transmit("D", dail_row, 3)
-				'EMReadScreen other_worker_error, 13, 24, 2
-				'If other_worker_error = "** WARNING **" then transmit
-				deleted_dails = deleted_dails + 1
-			else
-				actionable_dail = True      'actionable_dail = True will NOT be deleted and will be captured and reported out as actionable.  
+            IF actionable_dail = True then      'actionable_dail = True will NOT be deleted and will be captured and reported out as actionable.  
                 If len(dail_month) = 5 then
                     output_year = ("20" & right(dail_month, 2))
                     output_month = left(dail_month, 2)
@@ -367,15 +271,6 @@ For each worker in worker_array
 			End if
 
             dail_row = dail_row + 1
-			'EMReadScreen message_error, 11, 24, 2		'Cases can also NAT out for whatever reason if the no messages instruction comes up.
-			'If message_error = "NO MESSAGES" then
-			'	CALL navigate_to_MAXIS_screen("DAIL", "DAIL")
-			'	Call write_value_and_transmit(worker, 21, 6)
-			'	transmit   'transmit past 'not your dail message'
-            '    Call dail_type_selection
-			'	exit do
-			'End if
-
 			'...going to the next page if necessary
 			EMReadScreen next_dail_check, 4, dail_row, 4
 			If trim(next_dail_check) = "" then
@@ -393,72 +288,7 @@ For each worker in worker_array
 	LOOP
 Next
 
-STATS_counter = STATS_counter - 1
-'Enters info about runtime for the benefit of folks using the script
-objExcel.Cells(2, 7).Value = "Number of DAILs deleted:"
-objExcel.Cells(3, 7).Value = "Average time to find/select/copy/paste one line (in seconds):"
-objExcel.Cells(4, 7).Value = "Estimated manual processing time (lines x average):"
-objExcel.Cells(5, 7).Value = "Script run time (in seconds):"
-objExcel.Cells(6, 7).Value = "Estimated time savings by using script (in minutes):"
-objExcel.Cells(7, 7).Value = "Number of messages reviewed/DAIL messages remaining:"
-objExcel.Columns(7).Font.Bold = true
-objExcel.Cells(2, 8).Value = deleted_dails
-objExcel.Cells(3, 8).Value = STATS_manualtime
-objExcel.Cells(4, 8).Value = STATS_counter * STATS_manualtime
-objExcel.Cells(5, 8).Value = timer - start_time
-objExcel.Cells(6, 8).Value = ((STATS_counter * STATS_manualtime) - (timer - start_time)) / 60
-objExcel.Cells(7, 8).Value = STATS_counter
-
-'Formatting the column width.
-FOR i = 1 to 8
-	objExcel.Columns(i).AutoFit()
-NEXT
-
-'Adding another sheet
-ObjExcel.Worksheets.Add().Name = "Remaining DAIL messages"
-
-excel_row = 2
-'Excel headers and formatting the columns
-objExcel.Cells(1, 1).Value = "X NUMBER"
-objExcel.Cells(1, 2).Value = "CASE #"
-objExcel.Cells(1, 3).Value = "DAIL TYPE"
-objExcel.Cells(1, 4).Value = "DAIL MO."
-objExcel.Cells(1, 5).Value = "DAIL MESSAGE"
-
-FOR i = 1 to 5		'formatting the cells'
-	objExcel.Cells(1, i).Font.Bold = True		'bold font'
-	ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
-	objExcel.Columns(i).AutoFit()				'sizing the columns'
-NEXT
-
-'Export informaiton to Excel re: case status
-For item = 0 to UBound(DAIL_array, 2)
-	objExcel.Cells(excel_row, 1).Value = DAIL_array(worker_const, item)
-	objExcel.Cells(excel_row, 2).Value = DAIL_array(maxis_case_number_const, item)
-    objExcel.Cells(excel_row, 3).Value = DAIL_array(dail_type_const, item)
-	objExcel.Cells(excel_row, 4).Value = DAIL_array(dail_month_const, item)
-    objExcel.Cells(excel_row, 5).Value = DAIL_array(dail_msg_const, item)
-	excel_row = excel_row + 1
-Next
-
-objExcel.Cells(1, 7).Value = "Remaning DAIL messages:"
-objExcel.Columns(7).Font.Bold = true
-objExcel.Cells(1, 8).Value = DAIL_count
-
-'formatting the cells
-FOR i = 1 to 8
-	objExcel.Columns(i).AutoFit()				'sizing the columns
-NEXT
-
-'saving the Excel file
-file_info = month_folder & "\" & decimator_folder & "\" & report_date & " " & dail_to_decimate & " " & deleted_dails
-
-'Saves and closes the most recent Excel workbook with the Task based cases to process.
-objExcel.ActiveWorkbook.SaveAs "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\DAIL list\" & file_info & ".xlsx"
-
-'msgbox "script will stop now. stats_counter: " & stats_counter & vbcr & dail_count
-'stopscript 
-
+'----------------------------------------------------------------------------------------------------SQL Database Actions
 'Setting constants
 Const adOpenStatic = 3
 Const adLockOptimistic = 3
@@ -499,6 +329,6 @@ Next
 objConnection.Close
 
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-Call create_outlook_email("Laurie.Hennen@hennepin.us;Todd.Bennington@hennepin.us", "Ilse.Ferris@hennepin.us", "DAIL Decimator: Task-Based Edition complete. EOM.", "", "", True)
+Call create_outlook_email("Laurie.Hennen@hennepin.us;Todd.Bennington@hennepin.us", "Ilse.Ferris@hennepin.us", "Task-Based DAIL Capture Complete. Actionable DAIL Count: " & DAIL_count & "EOM.", "", "", True)
 
-script_end_procedure("Success! Please review the list created for accuracy. False count is: " & false_count)
+script_end_procedure("Success! Actionable DAIL's have been added to the database.")
