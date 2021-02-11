@@ -859,6 +859,18 @@ script_array(script_num).dlg_keys               = array("Cn")
 script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
 script_array(script_num).release_date           = #04/25/2016#
 
+script_num = script_num + 1							'Increment by one
+ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script. Script details below...
+script_array(script_num).script_name		    = "Delete DAIL Tasks"													'Script name
+script_array(script_num).description		    = "Script Function that will delete Task-based DAIL's from SQL Database. Use with caution."
+script_array(script_num).category               = "ADMIN"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("BZ")
+script_array(script_num).dlg_keys               = array("")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #02/11/2021#
+
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
