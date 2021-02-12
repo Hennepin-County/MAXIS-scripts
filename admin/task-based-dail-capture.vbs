@@ -329,6 +329,6 @@ Next
 objConnection.Close
 
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-Call create_outlook_email("Laurie.Hennen@hennepin.us;Todd.Bennington@hennepin.us", "Ilse.Ferris@hennepin.us", "Task-Based DAIL Capture Complete. Actionable DAIL Count: " & DAIL_count & "EOM.", "", "", True)
+Call create_outlook_email("Laurie.Hennen@hennepin.us;Todd.Bennington@hennepin.us", "Ilse.Ferris@hennepin.us", "Task-Based DAIL Capture Complete. Actionable DAIL Count: " & DAIL_count & ". EOM.", "", "", True)
 
 script_end_procedure("Success! Actionable DAIL's have been added to the database.")
