@@ -1,7 +1,7 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "Hennepin Favorites.vbs"
 start_time = timer
-run_locally = TRUE
+' run_locally = TRUE
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
@@ -1020,7 +1020,7 @@ If IsArray(script_array) = TRUE Then Erase script_array
 If IsArray(fav_scripts_array) = TRUE Then Erase fav_scripts_array
 If IsArray(favorite_scripts_array) = TRUE Then Erase favorite_scripts_array
 If IsArray(featured_scripts_array) = TRUE Then Erase featured_scripts_array
-If IsArray(new_scripts_array) = TRUE Then Erase new_scripts_array 
+If IsArray(new_scripts_array) = TRUE Then Erase new_scripts_array
 
 '>>> Running the script
 MsgBox script_to_run
