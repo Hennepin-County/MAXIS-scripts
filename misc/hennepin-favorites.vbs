@@ -1,7 +1,7 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "Hennepin Favorites.vbs"
 start_time = timer
-
+run_locally = TRUE
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
@@ -1008,12 +1008,55 @@ CALL favorite_menu(favorites_text_file_string, script_to_run)
 ' dialog1 =  "1 - " & dialog1
 ' dialog1 = ""
 Dialog1 = ""
-ReDim scripts_edit_favs_array(0)
-ReDim script_array(0)
-ReDim fav_scripts_array(0)
-ReDIm favorite_scripts_array(0)
-ReDim featured_scripts_array(0)
-ReDim new_scripts_array(0)
+' ReDim scripts_edit_favs_array(0)
+' ReDim script_array(0)
+' ReDim fav_scripts_array(0)
+' ReDIm favorite_scripts_array(0)
+' ReDim featured_scripts_array(0)
+' ReDim new_scripts_array(0)
+
+If IsArray(scripts_edit_favs_array) = TRUE Then Erase scripts_edit_favs_array
+If IsArray(script_array) = TRUE Then Erase script_array
+If IsArray(fav_scripts_array) = TRUE Then Erase fav_scripts_array
+If IsArray(favorite_scripts_array) = TRUE Then Erase favorite_scripts_array
+If IsArray(featured_scripts_array) = TRUE Then Erase featured_scripts_array
+If IsArray(new_scripts_array) = TRUE Then Erase new_scripts_array 
 
 '>>> Running the script
+MsgBox script_to_run
+
+' list_of_things_to_remove = array("OPTION EXPLICIT", _
+' 								"option explicit", _
+' 								"Option Explicit", _
+' 								"dim case_number", _
+' 								"DIM case_number", _
+' 								"Dim case_number")
+' If run_locally = "" or run_locally = False then					'Runs the script from GitHub if we're not set up to run locally.
+' 	Set req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a URL
+' 	req.open "GET", script_to_run, False									'Attempts to open the URL
+' 	req.send													'Sends request
+' 	If req.Status = 200 Then									'200 means great success
+' 		Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
+' 		script_contents = req.responseText						'Empties the response into a variable called script_contents
+' 		'Uses a for/next to remove the list_of_things_to_remove
+' 		FOR EACH phrase IN list_of_things_to_remove
+' 			script_contents = replace(script_contents, phrase, "")
+' 		NEXT
+' 		ExecuteGlobal script_contents							'Executes the remaining script code
+' 	ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
+' 		critical_error_msgbox = MsgBox ("Something has gone wrong. The code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+' 										"The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+' 										vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+' 		script_end_procedure("Script ended due to error connecting to GitHub.")
+' 	END IF
+' ELSE
+' 	Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
+' 	Set fso_command = run_another_script_fso.OpenTextFile(script_to_run)
+' 	text_from_the_other_script = fso_command.ReadAll
+' 	fso_command.Close
+' 	ExecuteGlobal text_from_the_other_script
+'
+' 	call run_another_script(url)
+' END IF
+
 CALL run_from_GitHub(script_to_run)
