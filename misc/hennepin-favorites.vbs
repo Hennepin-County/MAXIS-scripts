@@ -589,24 +589,28 @@ FUNCTION favorite_menu(favorites_text_file_string, script_to_run)
             favorite_script_name = right(script_path, len(script_path) - divider_position)
 
             If favorite_script_category = script_data_from_complete_list.category AND favorite_script_name = script_data_from_complete_list.script_name Then
-                ReDim Preserve favorite_scripts_array(script_counter)
-                SET favorite_scripts_array(script_counter) = NEW script_bowie
-                favorite_scripts_array(script_counter).script_name		= script_data_from_complete_list.script_name
-                favorite_scripts_array(script_counter).category			= script_data_from_complete_list.category
-                favorite_scripts_array(script_counter).description		= script_data_from_complete_list.description
-                favorite_scripts_array(script_counter).release_date		= script_data_from_complete_list.release_date
-                favorite_scripts_array(script_counter).tags		        = script_data_from_complete_list.tags
-                favorite_scripts_array(script_counter).dlg_keys		    = script_data_from_complete_list.dlg_keys
-                favorite_scripts_array(script_counter).keywords		    = script_data_from_complete_list.keywords
-                favorite_scripts_array(script_counter).hot_topic_date   = script_data_from_complete_list.hot_topic_date
+
+				ReDim Preserve favorite_scripts_array(hot_topic_date_const, script_counter)
+				favorite_scripts_array(script_name_const, script_counter)		= script_data_from_complete_list.script_name
+				favorite_scripts_array(category_const, script_counter)			= script_data_from_complete_list.category
+				favorite_scripts_array(description_const, script_counter)		= script_data_from_complete_list.description
+				favorite_scripts_array(release_date_const, script_counter)		= script_data_from_complete_list.release_date
+				favorite_scripts_array(tags_const, script_counter)				= join(script_data_from_complete_list.tags, "~")
+				favorite_scripts_array(dlg_keys_const, script_counter)			= join(script_data_from_complete_list.dlg_keys, ":")
+				favorite_scripts_array(keywords_const, script_counter)			= script_data_from_complete_list.keywords
+				favorite_scripts_array(hot_topic_date_const, script_counter)	= script_data_from_complete_list.hot_topic_date
+				favorite_scripts_array(instsr_URL_const, script_counter)		= script_data_from_complete_list.SharePoint_instructions_URL
+				favorite_scripts_array(script_URL_const, script_counter)		= script_data_from_complete_list.script_URL
+				' favorite_scripts_array(, script_counter)		= script_data_from_complete_list.
+
                 script_counter = script_counter + 1
             End If
         Next
     Next
 
 
-	dlg_height = 0
-    dlg_height = dlg_height + 15 + ((ubound(favorite_scripts_array, 1) + 1) * 12)
+	dlg_height = 20
+    dlg_height = dlg_height + 15 + ((ubound(favorite_scripts_array, 2) + 1) * 12)
 
 	'>>> Adjusting the height if the user has fewer scripts selected (in the left column) than what is "new" (in the right column).
 	dlg_height = dlg_height + 15 + (12 * num_of_new_scripts)
@@ -622,11 +626,8 @@ FUNCTION favorite_menu(favorites_text_file_string, script_to_run)
 	END IF
 
 	'>>> The dialog
-    ' MsgBox dlg_height & " - 4"
-	' MsgBox "2 - " & dialog1
-	' dialog1 = "2 - " & dialog1
     Dialog1 = ""
-	BeginDialog Dialog1, 0, 0, 600, dlg_height, dlg_name & ""
+	BeginDialog Dialog1, 0, 0, 700, dlg_height, dlg_name & ""
   	  ButtonGroup ButtonPressed
 
 		'>>> User's favorites
@@ -642,21 +643,21 @@ FUNCTION favorite_menu(favorites_text_file_string, script_to_run)
 
         vert_button_position = 10
 
-        If featured_scripts_array(1).script_name <> "" Then
-            GroupBox 5, vert_button_position, 590, 15 + (12 * num_featured_scripts), "These scripts have been recently featured in HOT TOPICS"
-            PushButton 205, vert_button_position, 50, 10, "HOT TOPICS", hot_topics_button
+        If featured_scripts_array(script_name_const, 0) <> "" Then
+            GroupBox 5, vert_button_position, 690, 15 + (12 * num_featured_scripts), "These scripts have been recently featured in HOT TOPICS"
+            PushButton 205, vert_button_position-2, 50, 13, "HOT TOPICS", hot_topics_button
             vert_button_position = vert_button_position + 12
-            for i = 1 to num_featured_scripts
+            for i = 0 to UBound(featured_scripts_array, 2)
                 script_keys_combine = ""
-                If featured_scripts_array(i).dlg_keys(0) <> "" Then script_keys_combine = join(featured_scripts_array(i).dlg_keys, ":")
+                ' If featured_scripts_array(i).dlg_keys(0) <> "" Then script_keys_combine = join(featured_scripts_array(i).dlg_keys, ":")
                 PushButton 		10, 					vert_button_position, 	10, 		10, 			"?", 												SIR_button_placeholder
-                PushButton 		23,						vert_button_position, 	120, 		10, 			featured_scripts_array(i).script_name, 			button_placeholder
-                Text 			152, 				    vert_button_position, 	40, 		10, 			"-- " & script_keys_combine & " --"
+                PushButton 		23,						vert_button_position, 	120, 		10, 			featured_scripts_array(script_name_const, i), 			button_placeholder
+                Text 			152, 				    vert_button_position, 	40, 		10, 			"-- " & featured_scripts_array(dlg_keys_const, i) & " --"
                 ' PushButton      175,                    vert_button_position,   10,         10,             "+",                                                add_to_favorites_button_placeholder
-                Text            190,                    vert_button_position,   450,        10,             "Featured on " & featured_scripts_array(i).hot_topic_date & " --- " & featured_scripts_array(i).description
+                Text            190,                    vert_button_position,   450,        10,             "Featured on " & featured_scripts_array(hot_topic_date_const, i) & " --- " & featured_scripts_array(description_const, i)
 
-                featured_scripts_array(i).button = button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
-                featured_scripts_array(i).SIR_instructions_button = SIR_button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
+                featured_scripts_array(button_const, i) = button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
+                featured_scripts_array(SIR_iinstr_btn_const, i) = SIR_button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
 
                 vert_button_position = vert_button_position + 12
                 button_placeholder = button_placeholder + 1			'This gets passed to ButtonPressed where it can be refigured as the selected item in the array by subtracting 100
@@ -668,18 +669,18 @@ FUNCTION favorite_menu(favorites_text_file_string, script_to_run)
 
         Text 5, vert_button_position, 500, 10, "---------------------------------------------------------------------- FAVORITE SCRIPTS ------------------------------------------------------------------------"
         vert_button_position = vert_button_position + 12
-        FOR i = 0 TO (ubound(favorite_scripts_array, 1))
-            If favorite_scripts_array(i).script_name <> "" Then
+        FOR i = 0 TO (ubound(favorite_scripts_array, 2))
+            If favorite_scripts_array(script_name_const, i) <> "" Then
                 script_keys_combine = ""
-                If favorite_scripts_array(i).dlg_keys(0) <> "" Then script_keys_combine = join(favorite_scripts_array(i).dlg_keys, ":")
+                ' If favorite_scripts_array(i).dlg_keys(0) <> "" Then script_keys_combine = join(favorite_scripts_array(i).dlg_keys, ":")
                 PushButton 		5, 						vert_button_position, 	10, 		10, 			"?", 												SIR_button_placeholder
-                PushButton 		18,						vert_button_position, 	120, 		10, 			favorite_scripts_array(i).script_name, 			button_placeholder
-                Text 			143, 				    vert_button_position, 	40, 		10, 			"-- " & script_keys_combine & " --"
+                PushButton 		18,						vert_button_position, 	120, 		10, 			favorite_scripts_array(script_name_const, i), 			button_placeholder
+                Text 			143, 				    vert_button_position, 	40, 		10, 			"-- " & favorite_scripts_array(dlg_keys_const, i) & " --"
                 ' PushButton      175,                    vert_button_position,   10,         10,             "+",                                                add_to_favorites_button_placeholder
-                Text            185,                    vert_button_position,   450,        10,             favorite_scripts_array(i).description
+                Text            185,                    vert_button_position,   450,        10,             favorite_scripts_array(description_const, i)
 
-                favorite_scripts_array(i).button = button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
-                favorite_scripts_array(i).SIR_instructions_button = SIR_button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
+                favorite_scripts_array(button_const, i) = button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
+                favorite_scripts_array(SIR_iinstr_btn_const, i) = SIR_button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
 
                 vert_button_position = vert_button_position + 12
                 button_placeholder = button_placeholder + 1			'This gets passed to ButtonPressed where it can be refigured as the selected item in the array by subtracting 100
@@ -695,22 +696,22 @@ FUNCTION favorite_menu(favorites_text_file_string, script_to_run)
 
 		'>>> Now we increment through the new scripts, and create buttons for them
         ' MsgBox new_scripts_array(1).script_name
-        If new_scripts_array(1).script_name = "" Then
+        If new_scripts_array(script_name_const, 1) = "" Then
             Text 185, vert_button_position, 200, 10, "*****         No new scripts added in the past 60 Days         *****"
         Else
             Text 5, vert_button_position, 500, 10, "------------------------------------------------------------------------------ NEW SCRIPTS --------------------------------------------------------------------------------"
             vert_button_position = vert_button_position + 12
-    		for i = 1 to num_of_new_scripts
+    		for i = 0 to UBound(new_scripts_array, 2)
                 script_keys_combine = ""
-                If new_scripts_array(i).dlg_keys(0) <> "" Then script_keys_combine = join(new_scripts_array(i).dlg_keys, ":")
+                ' If new_scripts_array(i).dlg_keys(0) <> "" Then script_keys_combine = join(new_scripts_array(i).dlg_keys, ":")
                 PushButton 		5, 						vert_button_position, 	10, 		10, 			"?", 												SIR_button_placeholder
-                PushButton 		18,						vert_button_position, 	120, 		10, 			new_scripts_array(i).script_name, 			button_placeholder
-                Text 			143, 				    vert_button_position, 	40, 		10, 			"-- " & script_keys_combine & " --"
+                PushButton 		18,						vert_button_position, 	120, 		10, 			new_scripts_array(script_name_const, i), 			button_placeholder
+                Text 			143, 				    vert_button_position, 	40, 		10, 			"-- " & new_scripts_array(dlg_keys_const, i) & " --"
                 ' PushButton      175,                    vert_button_position,   10,         10,             "+",                                                add_to_favorites_button_placeholder
-                Text            185,                    vert_button_position,   450,        10,             "NEW " & new_scripts_array(i).release_date & "!!! --- " & new_scripts_array(i).description
+                Text            185,                    vert_button_position,   450,        10,             "NEW " & new_scripts_array(release_date_const, i) & "!!! --- " & new_scripts_array(description_const, i)
 
-                new_scripts_array(i).button = button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
-                new_scripts_array(i).SIR_instructions_button = SIR_button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
+                new_scripts_array(button_const, i) = button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
+                new_scripts_array(SIR_iinstr_btn_const, i) = SIR_button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
 
                 vert_button_position = vert_button_position + 12
                 button_placeholder = button_placeholder + 1			'This gets passed to ButtonPressed where it can be refigured as the selected item in the array by subtracting 100
@@ -722,8 +723,8 @@ FUNCTION favorite_menu(favorites_text_file_string, script_to_run)
 
 
 		' PushButton 210, dlg_height - 25, 60, 15, "Update Hotkeys", update_hotkeys_button						<<<<< SEE ISSUE #765
-		PushButton 475, dlg_height - 25, 65, 15, "Update Favorites", update_favorites_button
-		CancelButton 545, dlg_height - 25, 50, 15
+		PushButton 630, dlg_height - 37, 65, 15, "Update Favorites", update_favorites_button
+		CancelButton 630, dlg_height - 20, 65, 15
 	EndDialog
 
     Do
@@ -733,44 +734,41 @@ FUNCTION favorite_menu(favorites_text_file_string, script_to_run)
     	'>>> Cancelling the script if ButtonPressed = 0
     	IF ButtonPressed = 0 THEN stopscript
 
-        If ButtonPressed = hot_topics_button Then run "C:\Program Files\Internet Explorer\iexplore.exe https://dept.hennepin.us/hsphd/sa/ews/afepages/Adults%20and%20Families%20Eligibility.aspx#BlueZone%20Update"
+        If ButtonPressed = hot_topics_button Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/SitePages/Economic_Supports_ES_Zone.aspx"
 
     	'>>> Giving user has the option of updating their favorites menu.
     	'>>> We should try to incorporate the chainloading function of the new script_end_procedure to bring the user back to their favorites.
     	IF buttonpressed = update_favorites_button THEN
     		call edit_favorites
     		StopScript
-    	ElseIf buttonpressed = update_hotkeys_button then
+    	ElseIf buttonpressed = update_hotkeys_button then		'THIS DOES NOT EXIST YET
     		call edit_hotkeys
     		StopScript
     	End if
 
-        For i = 1 to ubound(featured_scripts_array)
-            If ButtonPressed = featured_scripts_array(i).SIR_instructions_button then call open_URL_in_browser(featured_scripts_array(i).SharePoint_instructions_URL)
-            If ButtonPressed = featured_scripts_array(i).button then
-                script_to_run = featured_scripts_array(i).script_URL
+        For i = 0 to ubound(featured_scripts_array, 2)
+            If ButtonPressed = featured_scripts_array(SIR_iinstr_btn_const, i) then call open_URL_in_browser(featured_scripts_array(instsr_URL_const, i))
+            If ButtonPressed = featured_scripts_array(button_const, i) then
+                script_to_run = featured_scripts_array(script_URL_const, i)
                 Exit For
             End If
         Next
-        For i = 0 to ubound(favorite_scripts_array)
-            If ButtonPressed = favorite_scripts_array(i).SIR_instructions_button then call open_URL_in_browser(favorite_scripts_array(i).SharePoint_instructions_URL)
-            If ButtonPressed = favorite_scripts_array(i).button then
-                script_to_run = favorite_scripts_array(i).script_URL
+        For i = 0 to ubound(favorite_scripts_array, 2)
+            If ButtonPressed = favorite_scripts_array(SIR_iinstr_btn_const, i) then call open_URL_in_browser(favorite_scripts_array(instsr_URL_const, i))
+            If ButtonPressed = favorite_scripts_array(button_const, i) then
+                script_to_run = favorite_scripts_array(script_URL_const,  i)
                 Exit For
             End If
         Next
-        For i = 1 to ubound(new_scripts_array)
-            If ButtonPressed = new_scripts_array(i).SIR_instructions_button then call open_URL_in_browser(new_scripts_array(i).SharePoint_instructions_URL)
-            If ButtonPressed = new_scripts_array(i).button then
-                script_to_run = new_scripts_array(i).script_URL
+        For i = 0 to ubound(new_scripts_array, 2)
+            If ButtonPressed = new_scripts_array(SIR_iinstr_btn_const, i) then call open_URL_in_browser(new_scripts_array(instsr_URL_const, i))
+            If ButtonPressed = new_scripts_array(button_const, i) then
+                script_to_run = new_scripts_array(script_URL_const, i)
                 Exit For
             End If
         Next
 
     Loop until script_to_run <> ""
-    ' MsgBox script_URL
-	' MsgBox "3 - " & dialog1
-	' dialog1 = "1 - " & dialog1
 
 END FUNCTION
 
@@ -867,12 +865,35 @@ const script_hotkey     = 4
 'This VERY VERY long function contains all of the logic behind editing the favorites.
 '====================================================================================
 '====================================================================================
-' MsgBox "1 - " & dialog1
-' dialog1 = "1 - " & dialog1
+
 
 '======================================
 
 'The script starts HERE!!!-------------------------------------------------------------------------------------------------------------------------------------
+EMConnect ""
+
+const script_name_const		= 0
+const category_const		= 1
+const description_const		= 2
+const release_date_const	= 3
+const tags_const			= 4
+const dlg_keys_const		= 5
+const keywords_const		= 6
+const button_const			= 7
+const SIR_iinstr_btn_const	= 8
+const instsr_URL_const		= 9
+const script_URL_const		= 10
+
+const hot_topic_date_const	= 15
+
+Dim favorite_scripts_array
+ReDim favorite_scripts_array(hot_topic_date_const, 0)
+
+Dim featured_scripts_array
+ReDim featured_scripts_array(hot_topic_date_const, 0)
+
+Dim new_scripts_array
+ReDim new_scripts_array(hot_topic_date_const, 0)
 
 Set objNet = CreateObject("WScript.NetWork")
 windows_user_ID = objNet.UserName
@@ -934,10 +955,10 @@ favorited_scripts_array = ""
 '>>> Building the array of new scripts
 num_of_new_scripts = 0
 num_featured_scripts = 0
-Dim featured_scripts_array()
-Dim new_scripts_array()
-ReDim featured_scripts_array(1)
-ReDim new_scripts_array(1)
+' Dim featured_scripts_array()
+' Dim new_scripts_array()
+' ReDim featured_scripts_array(1)
+' ReDim new_scripts_array(1)
 '>>> Looking through the scripts array and determining all of the new ones.
 FOR i = 0 TO Ubound(script_array)
     IF DateDiff("D", script_array(i).release_date, date) < 60 THEN
@@ -950,36 +971,43 @@ FOR i = 0 TO Ubound(script_array)
 			Next
 		End If
 		If show_this_one = TRUE Then
-	        num_of_new_scripts = num_of_new_scripts + 1
-	        ReDim Preserve new_scripts_array(num_of_new_scripts)
-	        SET new_scripts_array(num_of_new_scripts) = NEW script_bowie
-	        new_scripts_array(num_of_new_scripts).script_name		= script_array(i).script_name
-	        new_scripts_array(num_of_new_scripts).category			= script_array(i).category
-	        new_scripts_array(num_of_new_scripts).description		= script_array(i).description
-	        new_scripts_array(num_of_new_scripts).release_date		= script_array(i).release_date
-	        new_scripts_array(num_of_new_scripts).tags		        = script_array(i).tags
-	        new_scripts_array(num_of_new_scripts).dlg_keys		    = script_array(i).dlg_keys
-	        new_scripts_array(num_of_new_scripts).keywords		    = script_array(i).keywords
+
+			ReDim Preserve new_scripts_array(hot_topic_date_const, num_of_new_scripts)
+			new_scripts_array(script_name_const, num_of_new_scripts)	= script_array(i).script_name
+			new_scripts_array(category_const, num_of_new_scripts)		= script_array(i).category
+			new_scripts_array(description_const, num_of_new_scripts)	= script_array(i).description
+			new_scripts_array(release_date_const, num_of_new_scripts)	= script_array(i).release_date
+			new_scripts_array(tags_const, num_of_new_scripts)		    = join(script_array(i).tags, "~")
+			new_scripts_array(dlg_keys_const, num_of_new_scripts)		= join(script_array(i).dlg_keys, "")
+			new_scripts_array(keywords_const, num_of_new_scripts)		= script_array(i).keywords
+			new_scripts_array(instsr_URL_const, num_of_new_scripts)		= script_array(i).SharePoint_instructions_URL
+			new_scripts_array(script_URL_const, num_of_new_scripts)		= script_array(i).script_URL
+
+			num_of_new_scripts = num_of_new_scripts + 1
 		End If
     end if
 
     If IsDate(script_array(i).hot_topic_date) = TRUE Then
         IF DateDiff("d", script_array(i).hot_topic_date, date) < 7 Then
-            num_featured_scripts = num_featured_scripts + 1
-            ReDim Preserve featured_scripts_array(num_featured_scripts)
-            SET featured_scripts_array(num_featured_scripts) = NEW script_bowie
-            featured_scripts_array(num_featured_scripts).script_name		= script_array(i).script_name
-            featured_scripts_array(num_featured_scripts).category			= script_array(i).category
-            featured_scripts_array(num_featured_scripts).description		= script_array(i).description
-            featured_scripts_array(num_featured_scripts).release_date		= script_array(i).release_date
-            featured_scripts_array(num_featured_scripts).tags		        = script_array(i).tags
-            featured_scripts_array(num_featured_scripts).dlg_keys		    = script_array(i).dlg_keys
-            featured_scripts_array(num_featured_scripts).keywords		    = script_array(i).keywords
-            featured_scripts_array(num_featured_scripts).hot_topic_date		= script_array(i).hot_topic_date
+
+            ReDim Preserve featured_scripts_array(hot_topic_date_const, num_featured_scripts)
+			featured_scripts_array(script_name_const, num_featured_scripts)		= script_array(i).script_name
+            featured_scripts_array(category_const, num_featured_scripts)		= script_array(i).category
+            featured_scripts_array(description_const, num_featured_scripts)		= script_array(i).description
+            featured_scripts_array(release_date_const, num_featured_scripts)	= script_array(i).release_date
+            featured_scripts_array(tags_const, num_featured_scripts)		    = join(script_array(i).tags, "~")
+            featured_scripts_array(dlg_keys_const, num_featured_scripts)		= join(script_array(i).dlg_keys, ":")
+            featured_scripts_array(keywords_const, num_featured_scripts)		= script_array(i).keywords
+            featured_scripts_array(hot_topic_date_const, num_featured_scripts)	= script_array(i).hot_topic_date
+			featured_scripts_array(instsr_URL_const, num_featured_scripts)		= script_array(i).SharePoint_instructions_URL
+			featured_scripts_array(script_URL_const, num_featured_scripts)		= script_array(i).script_URL
+
+			num_featured_scripts = num_featured_scripts + 1
+
         End If
     End If
-    If num_featured_scripts = 0 Then SET featured_scripts_array(1) = NEW script_bowie
-    If num_of_new_scripts = 0 Then SET new_scripts_array(1) = NEW script_bowie
+    ' If num_featured_scripts = 0 Then SET featured_scripts_array(1) = NEW script_bowie
+    ' If num_of_new_scripts = 0 Then SET new_scripts_array(1) = NEW script_bowie
 NEXT
 
 ' '>>> This handles what happens if there are no new scripts (it'll happen)
@@ -1004,59 +1032,11 @@ Call open_favorites_file
 
 '>>> Calling the function that builds the favorites menu.
 CALL favorite_menu(favorites_text_file_string, script_to_run)
-' MsgBox "4 - " & dialog1
-' dialog1 =  "1 - " & dialog1
-' dialog1 = ""
-Dialog1 = ""
-' ReDim scripts_edit_favs_array(0)
-' ReDim script_array(0)
-' ReDim fav_scripts_array(0)
-' ReDIm favorite_scripts_array(0)
-' ReDim featured_scripts_array(0)
-' ReDim new_scripts_array(0)
 
-If IsArray(scripts_edit_favs_array) = TRUE Then Erase scripts_edit_favs_array
-If IsArray(script_array) = TRUE Then Erase script_array
-If IsArray(fav_scripts_array) = TRUE Then Erase fav_scripts_array
-If IsArray(favorite_scripts_array) = TRUE Then Erase favorite_scripts_array
-If IsArray(featured_scripts_array) = TRUE Then Erase featured_scripts_array
-If IsArray(new_scripts_array) = TRUE Then Erase new_scripts_array
+Dialog1 = ""
 
 '>>> Running the script
-MsgBox script_to_run
+' MsgBox script_to_run
 
-' list_of_things_to_remove = array("OPTION EXPLICIT", _
-' 								"option explicit", _
-' 								"Option Explicit", _
-' 								"dim case_number", _
-' 								"DIM case_number", _
-' 								"Dim case_number")
-' If run_locally = "" or run_locally = False then					'Runs the script from GitHub if we're not set up to run locally.
-' 	Set req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a URL
-' 	req.open "GET", script_to_run, False									'Attempts to open the URL
-' 	req.send													'Sends request
-' 	If req.Status = 200 Then									'200 means great success
-' 		Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
-' 		script_contents = req.responseText						'Empties the response into a variable called script_contents
-' 		'Uses a for/next to remove the list_of_things_to_remove
-' 		FOR EACH phrase IN list_of_things_to_remove
-' 			script_contents = replace(script_contents, phrase, "")
-' 		NEXT
-' 		ExecuteGlobal script_contents							'Executes the remaining script code
-' 	ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-' 		critical_error_msgbox = MsgBox ("Something has gone wrong. The code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
-' 										"The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
-' 										vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
-' 		script_end_procedure("Script ended due to error connecting to GitHub.")
-' 	END IF
-' ELSE
-' 	Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-' 	Set fso_command = run_another_script_fso.OpenTextFile(script_to_run)
-' 	text_from_the_other_script = fso_command.ReadAll
-' 	fso_command.Close
-' 	ExecuteGlobal text_from_the_other_script
-'
-' 	call run_another_script(url)
-' END IF
 
 CALL run_from_GitHub(script_to_run)
