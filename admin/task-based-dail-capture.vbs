@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("02/17/2021", "Added defaults for DAIL type selctions based on if before or on/after ten day cut off. DAIL types selected on/after ten day cut off are only TIKL messages.", "Ilse Ferris, Hennepin County")
 call changelog_update("02/02/2021", "Initial version.", "Ilse Ferris, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -57,12 +58,17 @@ EMConnect ""
 FAD_checkbox = 1
 ADAD_checkbox = 1   
 
-'Defaulting these messages to checked as these are the most assigned cases. 
-cola_check = 1
-cses_check = 1
-info_check = 1
-pepr_check = 1
-tikl_check = 1
+'Defaulting autochecks based on the ten day cut off schedule. On ten day and after, only TIKL's are pulled. 
+If DateDiff("d", date, ten_day_cutoff_date) > 0 then  
+    'Defaulting these messages to checked as these are the most assigned cases. 
+    cola_check = 1
+    cses_check = 1
+    info_check = 1
+    pepr_check = 1
+    tikl_check = 1
+Else 
+    tikl_check = 1
+End if 
 
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 251, 260, "Task-Based DAIL Capture Main Dialog"
