@@ -124,13 +124,6 @@ script_array_MC_main(script_num).script_name 			= "Enrollment"																'S
 script_array_MC_main(script_num).file_name 				= "mc-enrollment.vbs"															'Script URL
 script_array_MC_main(script_num).description 			= "Action script that will update Enrollment in MMIS."
 
-' script_num = script_num + 1								'Increment by one
-' ReDim Preserve script_array_MC_main(script_num)			'Resets the array to add one more element to it
-' Set script_array_MC_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-' script_array_MC_main(script_num).script_name 			= "Open Enrollment"																		'Script name
-' script_array_MC_main(script_num).file_name 				= "mc-open-enrollment.vbs"															'Script URL
-' script_array_MC_main(script_num).description 			= "Action script that will update Enrollment in MMIS for open enrollment."
-
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_MC_main(script_num)			'Resets the array to add one more element to it
 Set script_array_MC_main(script_num) = new script		'Set this array element to be a new script. Script details below...
