@@ -116,35 +116,41 @@ function edit_favorites
 		row = row + 10
 
 		FOR i = 0 to ubound(script_array)
-			IF script_array(i).category = "ACTIONS" THEN
-				'>>> Determining the positioning of the checkboxes.
-				'>>> For some reason, even though we exceed 65 objects, we do not hit any issues with missing scripts. Oh well.
-				IF row >= 360 THEN
-					col = col + 125
-					If col > 250 Then
-						row = 10
-					Else
-						row = 30
-					End If
+			retirement_number = -1
+			If IsDate(script_array(i).retirement_date) = TRUE Then
+				retirement_number = DateDiff("d", script_array(i).retirement_date, date)
+			End If
+			If retirement_number <= 0 Then
+				IF script_array(i).category = "ACTIONS" THEN
+					'>>> Determining the positioning of the checkboxes.
+					'>>> For some reason, even though we exceed 65 objects, we do not hit any issues with missing scripts. Oh well.
+					IF row >= 360 THEN
+						col = col + 125
+						If col > 250 Then
+							row = 10
+						Else
+							row = 30
+						End If
+					END IF
+					'>>> If the script in question is already known to the list of scripts already picked by the user, the check box is defaulted to checked.
+					IF InStr(UCASE(replace(favorites_text_file_array, "-", " ")), UCASE(replace(script_array(i).script_name, "-", " "))) <> 0 THEN
+						scripts_edit_favs_array(script_position, add_checkbox) = checked
+					ELSE
+						scripts_edit_favs_array(script_position, add_checkbox) = unchecked
+					END IF
+
+					'Sets the file name and category
+					scripts_edit_favs_array(script_position, fav_script_name)   = script_array(i).script_name
+					' scripts_edit_favs_array(script_position, proper_name)       = script_array(i).file_name
+					scripts_edit_favs_array(script_position, cat_as_direct)     = script_array(i).category & "/"
+
+					'Displays the checkbox
+					CheckBox col, row, 120, 10, scripts_edit_favs_array(script_position, fav_script_name), scripts_edit_favs_array(script_position, add_checkbox)
+
+					'Increments the row and script_position
+					row = row + 10
+					script_position = script_position + 1
 				END IF
-				'>>> If the script in question is already known to the list of scripts already picked by the user, the check box is defaulted to checked.
-				IF InStr(UCASE(replace(favorites_text_file_array, "-", " ")), UCASE(replace(script_array(i).script_name, "-", " "))) <> 0 THEN
-					scripts_edit_favs_array(script_position, add_checkbox) = checked
-				ELSE
-					scripts_edit_favs_array(script_position, add_checkbox) = unchecked
-				END IF
-
-				'Sets the file name and category
-				scripts_edit_favs_array(script_position, fav_script_name)   = script_array(i).script_name
-				' scripts_edit_favs_array(script_position, proper_name)       = script_array(i).file_name
-				scripts_edit_favs_array(script_position, cat_as_direct)     = script_array(i).category & "/"
-
-				'Displays the checkbox
-				CheckBox col, row, 120, 10, scripts_edit_favs_array(script_position, fav_script_name), scripts_edit_favs_array(script_position, add_checkbox)
-
-				'Increments the row and script_position
-				row = row + 10
-				script_position = script_position + 1
 			END IF
 		NEXT
 
@@ -165,34 +171,40 @@ function edit_favorites
 		'BULK script laying out
 		FOR i = 0 to ubound(script_array)
 			IF script_array(i).category = "BULK" THEN
-				'>>> Determining the positioning of the checkboxes.
-				'>>> For some reason, even though we exceed 65 objects, we do not hit any issues with missing scripts. Oh well.
-				IF row >= 360 THEN
-					col = col + 125
-					If col > 250 Then
-						row = 10
-					Else
-						row = 30
-					End If
+				retirement_number = -1
+				If IsDate(script_array(i).retirement_date) = TRUE Then
+					retirement_number = DateDiff("d", script_array(i).retirement_date, date)
+				End If
+				If retirement_number <= 0 Then
+					'>>> Determining the positioning of the checkboxes.
+					'>>> For some reason, even though we exceed 65 objects, we do not hit any issues with missing scripts. Oh well.
+					IF row >= 360 THEN
+						col = col + 125
+						If col > 250 Then
+							row = 10
+						Else
+							row = 30
+						End If
+					END IF
+	                '>>> If the script in question is already known to the list of scripts already picked by the user, the check box is defaulted to checked.
+					IF InStr(UCASE(replace(favorites_text_file_array, "-", " ")), UCASE(replace(script_array(i).script_name, "-", " "))) <> 0 THEN
+						scripts_edit_favs_array(script_position, add_checkbox) = checked
+					ELSE
+						scripts_edit_favs_array(script_position, add_checkbox) = unchecked
+					END IF
+
+					'Sets the file name and category
+					scripts_edit_favs_array(script_position, fav_script_name)   = script_array(i).script_name
+					' scripts_edit_favs_array(script_position, proper_name)       = script_array(i).file_name
+					scripts_edit_favs_array(script_position, cat_as_direct)     = script_array(i).category & "/"
+
+					'Displays the checkbox
+					CheckBox col, row, 120, 10, scripts_edit_favs_array(script_position, fav_script_name), scripts_edit_favs_array(script_position, add_checkbox)
+
+					'Increments the row and script_position
+					row = row + 10
+					script_position = script_position + 1
 				END IF
-                '>>> If the script in question is already known to the list of scripts already picked by the user, the check box is defaulted to checked.
-				IF InStr(UCASE(replace(favorites_text_file_array, "-", " ")), UCASE(replace(script_array(i).script_name, "-", " "))) <> 0 THEN
-					scripts_edit_favs_array(script_position, add_checkbox) = checked
-				ELSE
-					scripts_edit_favs_array(script_position, add_checkbox) = unchecked
-				END IF
-
-				'Sets the file name and category
-				scripts_edit_favs_array(script_position, fav_script_name)   = script_array(i).script_name
-				' scripts_edit_favs_array(script_position, proper_name)       = script_array(i).file_name
-				scripts_edit_favs_array(script_position, cat_as_direct)     = script_array(i).category & "/"
-
-				'Displays the checkbox
-				CheckBox col, row, 120, 10, scripts_edit_favs_array(script_position, fav_script_name), scripts_edit_favs_array(script_position, add_checkbox)
-
-				'Increments the row and script_position
-				row = row + 10
-				script_position = script_position + 1
 			END IF
 		NEXT
 
@@ -213,34 +225,40 @@ function edit_favorites
 		'CALCULATOR script laying out
 		FOR i = 0 to ubound(script_array)
 			IF script_array(i).category = "NOTICES" THEN
-				'>>> Determining the positioning of the checkboxes.
-				'>>> For some reason, even though we exceed 65 objects, we do not hit any issues with missing scripts. Oh well.
-				IF row >= 360 THEN
-					col = col + 125
-					If col > 250 Then
-						row = 10
-					Else
-						row = 30
-					End If
+				retirement_number = -1
+				If IsDate(script_array(i).retirement_date) = TRUE Then
+					retirement_number = DateDiff("d", script_array(i).retirement_date, date)
+				End If
+				If retirement_number <= 0 Then
+					'>>> Determining the positioning of the checkboxes.
+					'>>> For some reason, even though we exceed 65 objects, we do not hit any issues with missing scripts. Oh well.
+					IF row >= 360 THEN
+						col = col + 125
+						If col > 250 Then
+							row = 10
+						Else
+							row = 30
+						End If
+					END IF
+	                '>>> If the script in question is already known to the list of scripts already picked by the user, the check box is defaulted to checked.
+					IF InStr(UCASE(replace(favorites_text_file_array, "-", " ")), UCASE(replace(script_array(i).script_name, "-", " "))) <> 0 THEN
+						scripts_edit_favs_array(script_position, add_checkbox) = checked
+					ELSE
+						scripts_edit_favs_array(script_position, add_checkbox) = unchecked
+					END IF
+
+					'Sets the file name and category
+					scripts_edit_favs_array(script_position, fav_script_name)   = script_array(i).script_name
+					' scripts_edit_favs_array(script_position, proper_name)       = script_array(i).file_name
+					scripts_edit_favs_array(script_position, cat_as_direct)     = script_array(i).category & "/"
+
+					'Displays the checkbox
+					CheckBox col, row, 120, 10, scripts_edit_favs_array(script_position, fav_script_name), scripts_edit_favs_array(script_position, add_checkbox)
+
+					'Increments the row and script_position
+					row = row + 10
+					script_position = script_position + 1
 				END IF
-                '>>> If the script in question is already known to the list of scripts already picked by the user, the check box is defaulted to checked.
-				IF InStr(UCASE(replace(favorites_text_file_array, "-", " ")), UCASE(replace(script_array(i).script_name, "-", " "))) <> 0 THEN
-					scripts_edit_favs_array(script_position, add_checkbox) = checked
-				ELSE
-					scripts_edit_favs_array(script_position, add_checkbox) = unchecked
-				END IF
-
-				'Sets the file name and category
-				scripts_edit_favs_array(script_position, fav_script_name)   = script_array(i).script_name
-				' scripts_edit_favs_array(script_position, proper_name)       = script_array(i).file_name
-				scripts_edit_favs_array(script_position, cat_as_direct)     = script_array(i).category & "/"
-
-				'Displays the checkbox
-				CheckBox col, row, 120, 10, scripts_edit_favs_array(script_position, fav_script_name), scripts_edit_favs_array(script_position, add_checkbox)
-
-				'Increments the row and script_position
-				row = row + 10
-				script_position = script_position + 1
 			END IF
 		NEXT
 
@@ -261,34 +279,40 @@ function edit_favorites
 		'NOTES script laying out
 		FOR i = 0 to ubound(script_array)
 			IF script_array(i).category = "NOTES" THEN
-				'>>> Determining the positioning of the checkboxes.
-				'>>> For some reason, even though we exceed 65 objects, we do not hit any issues with missing scripts. Oh well.
-				IF row >= 360 THEN
-					col = col + 125
-					If col > 250 Then
-						row = 10
-					Else
-						row = 30
-					End If
+				retirement_number = -1
+				If IsDate(script_array(i).retirement_date) = TRUE Then
+					retirement_number = DateDiff("d", script_array(i).retirement_date, date)
+				End If
+				If retirement_number <= 0 Then
+					'>>> Determining the positioning of the checkboxes.
+					'>>> For some reason, even though we exceed 65 objects, we do not hit any issues with missing scripts. Oh well.
+					IF row >= 360 THEN
+						col = col + 125
+						If col > 250 Then
+							row = 10
+						Else
+							row = 30
+						End If
+					END IF
+	                '>>> If the script in question is already known to the list of scripts already picked by the user, the check box is defaulted to checked.
+					IF InStr(UCASE(replace(favorites_text_file_array, "-", " ")), UCASE(replace(script_array(i).script_name, "-", " "))) <> 0 THEN
+						scripts_edit_favs_array(script_position, add_checkbox) = checked
+					ELSE
+						scripts_edit_favs_array(script_position, add_checkbox) = unchecked
+					END IF
+
+					'Sets the file name and category
+					scripts_edit_favs_array(script_position, fav_script_name)   = script_array(i).script_name
+					' scripts_edit_favs_array(script_position, proper_name)       = script_array(i).file_name
+					scripts_edit_favs_array(script_position, cat_as_direct)     = script_array(i).category & "/"
+
+					'Displays the checkbox
+					CheckBox col, row, 120, 10, scripts_edit_favs_array(script_position, fav_script_name), scripts_edit_favs_array(script_position, add_checkbox)
+
+					'Increments the row and script_position
+					row = row + 10
+					script_position = script_position + 1
 				END IF
-                '>>> If the script in question is already known to the list of scripts already picked by the user, the check box is defaulted to checked.
-				IF InStr(UCASE(replace(favorites_text_file_array, "-", " ")), UCASE(replace(script_array(i).script_name, "-", " "))) <> 0 THEN
-					scripts_edit_favs_array(script_position, add_checkbox) = checked
-				ELSE
-					scripts_edit_favs_array(script_position, add_checkbox) = unchecked
-				END IF
-
-				'Sets the file name and category
-				scripts_edit_favs_array(script_position, fav_script_name)   = script_array(i).script_name
-				' scripts_edit_favs_array(script_position, proper_name)       = script_array(i).file_name
-				scripts_edit_favs_array(script_position, cat_as_direct)     = script_array(i).category & "/"
-
-				'Displays the checkbox
-				CheckBox col, row, 120, 10, scripts_edit_favs_array(script_position, fav_script_name), scripts_edit_favs_array(script_position, add_checkbox)
-
-				'Increments the row and script_position
-				row = row + 10
-				script_position = script_position + 1
 			END IF
 		NEXT
 
@@ -309,34 +333,40 @@ function edit_favorites
 		'UTILITIES script laying out
 	    FOR i = 0 to ubound(script_array)
 			IF script_array(i).category = "UTILITIES" THEN
-				'>>> Determining the positioning of the checkboxes.
-				'>>> For some reason, even though we exceed 65 objects, we do not hit any issues with missing scripts. Oh well.
-				IF row >= 360 THEN
-					col = col + 125
-					If col > 250 Then
-						row = 10
-					Else
-						row = 30
-					End If
+				retirement_number = -1
+				If IsDate(script_array(i).retirement_date) = TRUE Then
+					retirement_number = DateDiff("d", script_array(i).retirement_date, date)
+				End If
+				If retirement_number <= 0 Then
+					'>>> Determining the positioning of the checkboxes.
+					'>>> For some reason, even though we exceed 65 objects, we do not hit any issues with missing scripts. Oh well.
+					IF row >= 360 THEN
+						col = col + 125
+						If col > 250 Then
+							row = 10
+						Else
+							row = 30
+						End If
+					END IF
+	                '>>> If the script in question is already known to the list of scripts already picked by the user, the check box is defaulted to checked.
+					IF InStr(UCASE(replace(favorites_text_file_array, "-", " ")), UCASE(replace(script_array(i).script_name, "-", " "))) <> 0 THEN
+						scripts_edit_favs_array(script_position, add_checkbox) = checked
+					ELSE
+						scripts_edit_favs_array(script_position, add_checkbox) = unchecked
+					END IF
+
+					'Sets the file name and category
+					scripts_edit_favs_array(script_position, fav_script_name)   = script_array(i).script_name
+					' scripts_edit_favs_array(script_position, proper_name)       = script_array(i).file_name
+					scripts_edit_favs_array(script_position, cat_as_direct)     = script_array(i).category & "/"
+
+					'Displays the checkbox
+					CheckBox col, row, 120, 10, scripts_edit_favs_array(script_position, fav_script_name), scripts_edit_favs_array(script_position, add_checkbox)
+
+					'Increments the row and script_position
+					row = row + 10
+					script_position = script_position + 1
 				END IF
-                '>>> If the script in question is already known to the list of scripts already picked by the user, the check box is defaulted to checked.
-				IF InStr(UCASE(replace(favorites_text_file_array, "-", " ")), UCASE(replace(script_array(i).script_name, "-", " "))) <> 0 THEN
-					scripts_edit_favs_array(script_position, add_checkbox) = checked
-				ELSE
-					scripts_edit_favs_array(script_position, add_checkbox) = unchecked
-				END IF
-
-				'Sets the file name and category
-				scripts_edit_favs_array(script_position, fav_script_name)   = script_array(i).script_name
-				' scripts_edit_favs_array(script_position, proper_name)       = script_array(i).file_name
-				scripts_edit_favs_array(script_position, cat_as_direct)     = script_array(i).category & "/"
-
-				'Displays the checkbox
-				CheckBox col, row, 120, 10, scripts_edit_favs_array(script_position, fav_script_name), scripts_edit_favs_array(script_position, add_checkbox)
-
-				'Increments the row and script_position
-				row = row + 10
-				script_position = script_position + 1
 			END IF
 		NEXT
 
@@ -359,59 +389,11 @@ function edit_favorites
 			IF script_array(i).category = "ADMIN" THEN
 				For each review_group in script_array(i).tags
 					If review_group = "" Then
-						'>>> Determining the positioning of the checkboxes.
-						'>>> For some reason, even though we exceed 65 objects, we do not hit any issues with missing scripts. Oh well.
-						IF row >= 360 THEN
-							col = col + 125
-							If col > 250 Then
-								row = 10
-							Else
-								row = 30
-							End If
-						END IF
-		                '>>> If the script in question is already known to the list of scripts already picked by the user, the check box is defaulted to checked.
-						IF InStr(UCASE(replace(favorites_text_file_array, "-", " ")), UCASE(replace(script_array(i).script_name, "-", " "))) <> 0 THEN
-							scripts_edit_favs_array(script_position, add_checkbox) = checked
-						ELSE
-							scripts_edit_favs_array(script_position, add_checkbox) = unchecked
-						END IF
-
-						'Sets the file name and category
-						scripts_edit_favs_array(script_position, fav_script_name)   = script_array(i).script_name
-						' scripts_edit_favs_array(script_position, proper_name)       = script_array(i).file_name
-						scripts_edit_favs_array(script_position, cat_as_direct)     = script_array(i).category & "/"
-
-						'Displays the checkbox
-						CheckBox col, row, 120, 10, scripts_edit_favs_array(script_position, fav_script_name), scripts_edit_favs_array(script_position, add_checkbox)
-
-						'Increments the row and script_position
-						row = row + 10
-						script_position = script_position + 1
-					End If
-				Next
-			END IF
-		NEXT
-
-		If qi_staff = TRUE Then
-			'Section header
-			row = row + 10	'Padding for the new section
-			'Account for overflow
-			IF row >= 360 THEN
-				col = col + 125
-				If col > 250 Then
-					row = 10
-				Else
-					row = 30
-				End If
-			END IF
-			Text col, row, 175, 10, "---------- QI SCRIPTS ----------"
-			row = row + 10
-
-			'ADMIN script laying out
-		    FOR i = 0 to ubound(script_array)
-				IF script_array(i).category = "ADMIN" THEN
-					For each review_group in script_array(i).tags
-						If review_group = "QI" Then
+						retirement_number = -1
+						If IsDate(script_array(i).retirement_date) = TRUE Then
+							retirement_number = DateDiff("d", script_array(i).retirement_date, date)
+						End If
+						If retirement_number <= 0 Then
 							'>>> Determining the positioning of the checkboxes.
 							'>>> For some reason, even though we exceed 65 objects, we do not hit any issues with missing scripts. Oh well.
 							IF row >= 360 THEN
@@ -441,6 +423,66 @@ function edit_favorites
 							row = row + 10
 							script_position = script_position + 1
 						End If
+					END IF
+				Next
+			END IF
+		NEXT
+
+		If qi_staff = TRUE Then
+			'Section header
+			row = row + 10	'Padding for the new section
+			'Account for overflow
+			IF row >= 360 THEN
+				col = col + 125
+				If col > 250 Then
+					row = 10
+				Else
+					row = 30
+				End If
+			END IF
+			Text col, row, 175, 10, "---------- QI SCRIPTS ----------"
+			row = row + 10
+
+			'ADMIN script laying out
+		    FOR i = 0 to ubound(script_array)
+				IF script_array(i).category = "ADMIN" THEN
+					For each review_group in script_array(i).tags
+						If review_group = "QI" Then
+							retirement_number = -1
+							If IsDate(script_array(i).retirement_date) = TRUE Then
+								retirement_number = DateDiff("d", script_array(i).retirement_date, date)
+							End If
+							If retirement_number <= 0 Then
+								'>>> Determining the positioning of the checkboxes.
+								'>>> For some reason, even though we exceed 65 objects, we do not hit any issues with missing scripts. Oh well.
+								IF row >= 360 THEN
+									col = col + 125
+									If col > 250 Then
+										row = 10
+									Else
+										row = 30
+									End If
+								END IF
+				                '>>> If the script in question is already known to the list of scripts already picked by the user, the check box is defaulted to checked.
+								IF InStr(UCASE(replace(favorites_text_file_array, "-", " ")), UCASE(replace(script_array(i).script_name, "-", " "))) <> 0 THEN
+									scripts_edit_favs_array(script_position, add_checkbox) = checked
+								ELSE
+									scripts_edit_favs_array(script_position, add_checkbox) = unchecked
+								END IF
+
+								'Sets the file name and category
+								scripts_edit_favs_array(script_position, fav_script_name)   = script_array(i).script_name
+								' scripts_edit_favs_array(script_position, proper_name)       = script_array(i).file_name
+								scripts_edit_favs_array(script_position, cat_as_direct)     = script_array(i).category & "/"
+
+								'Displays the checkbox
+								CheckBox col, row, 120, 10, scripts_edit_favs_array(script_position, fav_script_name), scripts_edit_favs_array(script_position, add_checkbox)
+
+								'Increments the row and script_position
+								row = row + 10
+								script_position = script_position + 1
+							End If
+						END IF
 					Next
 				END IF
 			NEXT
@@ -466,34 +508,40 @@ function edit_favorites
 				IF script_array(i).category = "ADMIN" THEN
 					For each review_group in script_array(i).tags
 						If review_group = "BZ" Then
-							'>>> Determining the positioning of the checkboxes.
-							'>>> For some reason, even though we exceed 65 objects, we do not hit any issues with missing scripts. Oh well.
-							IF row >= 360 THEN
-								col = col + 125
-								If col > 250 Then
-									row = 10
-								Else
-									row = 30
-								End If
-							END IF
-							'>>> If the script in question is already known to the list of scripts already picked by the user, the check box is defaulted to checked.
-							IF InStr(UCASE(replace(favorites_text_file_array, "-", " ")), UCASE(replace(script_array(i).script_name, "-", " "))) <> 0 THEN
-								scripts_edit_favs_array(script_position, add_checkbox) = checked
-							ELSE
-								scripts_edit_favs_array(script_position, add_checkbox) = unchecked
-							END IF
+							retirement_number = -1
+							If IsDate(script_array(i).retirement_date) = TRUE Then
+								retirement_number = DateDiff("d", script_array(i).retirement_date, date)
+							End If
+							If retirement_number <= 0 Then
+								'>>> Determining the positioning of the checkboxes.
+								'>>> For some reason, even though we exceed 65 objects, we do not hit any issues with missing scripts. Oh well.
+								IF row >= 360 THEN
+									col = col + 125
+									If col > 250 Then
+										row = 10
+									Else
+										row = 30
+									End If
+								END IF
+								'>>> If the script in question is already known to the list of scripts already picked by the user, the check box is defaulted to checked.
+								IF InStr(UCASE(replace(favorites_text_file_array, "-", " ")), UCASE(replace(script_array(i).script_name, "-", " "))) <> 0 THEN
+									scripts_edit_favs_array(script_position, add_checkbox) = checked
+								ELSE
+									scripts_edit_favs_array(script_position, add_checkbox) = unchecked
+								END IF
 
-							'Sets the file name and category
-							scripts_edit_favs_array(script_position, fav_script_name)   = script_array(i).script_name
-							' scripts_edit_favs_array(script_position, proper_name)       = script_array(i).file_name
-							scripts_edit_favs_array(script_position, cat_as_direct)     = script_array(i).category & "/"
+								'Sets the file name and category
+								scripts_edit_favs_array(script_position, fav_script_name)   = script_array(i).script_name
+								' scripts_edit_favs_array(script_position, proper_name)       = script_array(i).file_name
+								scripts_edit_favs_array(script_position, cat_as_direct)     = script_array(i).category & "/"
 
-							'Displays the checkbox
-							CheckBox col, row, 120, 10, scripts_edit_favs_array(script_position, fav_script_name), scripts_edit_favs_array(script_position, add_checkbox)
+								'Displays the checkbox
+								CheckBox col, row, 120, 10, scripts_edit_favs_array(script_position, fav_script_name), scripts_edit_favs_array(script_position, add_checkbox)
 
-							'Increments the row and script_position
-							row = row + 10
-							script_position = script_position + 1
+								'Increments the row and script_position
+								row = row + 10
+								script_position = script_position + 1
+							End If
 						End If
 					Next
 				END IF
@@ -595,6 +643,7 @@ FUNCTION favorite_menu(favorites_text_file_string, script_to_run)
 				favorite_scripts_array(category_const, script_counter)			= script_data_from_complete_list.category
 				favorite_scripts_array(description_const, script_counter)		= script_data_from_complete_list.description
 				favorite_scripts_array(release_date_const, script_counter)		= script_data_from_complete_list.release_date
+				favorite_scripts_array(retirement_date_const, script_counter)	= script_data_from_complete_list.retirement_date
 				favorite_scripts_array(tags_const, script_counter)				= join(script_data_from_complete_list.tags, "~")
 				favorite_scripts_array(dlg_keys_const, script_counter)			= join(script_data_from_complete_list.dlg_keys, ":")
 				favorite_scripts_array(keywords_const, script_counter)			= script_data_from_complete_list.keywords
@@ -613,8 +662,8 @@ FUNCTION favorite_menu(favorites_text_file_string, script_to_run)
     dlg_height = dlg_height + 15 + ((ubound(favorite_scripts_array, 2) + 1) * 12)
 
 	'>>> Adjusting the height if the user has fewer scripts selected (in the left column) than what is "new" (in the right column).
-	dlg_height = dlg_height + 15 + (12 * num_of_new_scripts)
-    dlg_height = dlg_height + 15 + (12 * num_featured_scripts)
+	If num_of_new_scripts <> 0 THEN dlg_height = dlg_height + 15 + (12 * num_of_new_scripts)
+    If num_featured_scripts <> 0 THEN dlg_height = dlg_height + 15 + (12 * num_featured_scripts)
 
 	'>>> A nice decoration for the user. If they have used Update Worker Signature, then their signature is built into the dialog display.
 	IF worker_full_name <> "" THEN
@@ -670,23 +719,33 @@ FUNCTION favorite_menu(favorites_text_file_string, script_to_run)
         Text 5, vert_button_position, 500, 10, "---------------------------------------------------------------------- FAVORITE SCRIPTS ------------------------------------------------------------------------"
         vert_button_position = vert_button_position + 12
         FOR i = 0 TO (ubound(favorite_scripts_array, 2))
-            If favorite_scripts_array(script_name_const, i) <> "" Then
-                script_keys_combine = ""
-                ' If favorite_scripts_array(i).dlg_keys(0) <> "" Then script_keys_combine = join(favorite_scripts_array(i).dlg_keys, ":")
-                PushButton 		5, 						vert_button_position, 	10, 		10, 			"?", 												SIR_button_placeholder
-                PushButton 		18,						vert_button_position, 	120, 		10, 			favorite_scripts_array(script_name_const, i), 			button_placeholder
-                Text 			143, 				    vert_button_position, 	40, 		10, 			"-- " & favorite_scripts_array(dlg_keys_const, i) & " --"
-                ' PushButton      175,                    vert_button_position,   10,         10,             "+",                                                add_to_favorites_button_placeholder
-                Text            185,                    vert_button_position,   450,        10,             favorite_scripts_array(description_const, i)
 
-                favorite_scripts_array(button_const, i) = button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
-                favorite_scripts_array(SIR_iinstr_btn_const, i) = SIR_button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
 
-                vert_button_position = vert_button_position + 12
-                button_placeholder = button_placeholder + 1			'This gets passed to ButtonPressed where it can be refigured as the selected item in the array by subtracting 100
-                SIR_button_placeholder = SIR_button_placeholder + 1			'This gets passed to ButtonPressed where it can be refigured as the selected item in the array by subtracting 100
+			retirement_number = -1
+			If IsDate(favorite_scripts_array(retirement_date_const, i)) = TRUE Then
+				retirement_number = DateDiff("d", favorite_scripts_array(retirement_date_const, i), date)
+			End If
+			' MsgBox favorite_scripts_array(script_name_const, i) & vbCr & favorite_scripts_array(retirement_date_const, i) & vbCr & retirement_number
+			If retirement_number <= 0 Then
 
-            End If
+	            If favorite_scripts_array(script_name_const, i) <> "" Then
+	                script_keys_combine = ""
+	                ' If favorite_scripts_array(i).dlg_keys(0) <> "" Then script_keys_combine = join(favorite_scripts_array(i).dlg_keys, ":")
+	                PushButton 		5, 						vert_button_position, 	10, 		10, 			"?", 												SIR_button_placeholder
+	                PushButton 		18,						vert_button_position, 	120, 		10, 			favorite_scripts_array(script_name_const, i), 			button_placeholder
+	                Text 			143, 				    vert_button_position, 	40, 		10, 			"-- " & favorite_scripts_array(dlg_keys_const, i) & " --"
+	                ' PushButton      175,                    vert_button_position,   10,         10,             "+",                                                add_to_favorites_button_placeholder
+	                Text            185,                    vert_button_position,   450,        10,             favorite_scripts_array(description_const, i)
+
+	                favorite_scripts_array(button_const, i) = button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
+	                favorite_scripts_array(SIR_iinstr_btn_const, i) = SIR_button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
+
+	                vert_button_position = vert_button_position + 12
+	                button_placeholder = button_placeholder + 1			'This gets passed to ButtonPressed where it can be refigured as the selected item in the array by subtracting 100
+	                SIR_button_placeholder = SIR_button_placeholder + 1			'This gets passed to ButtonPressed where it can be refigured as the selected item in the array by subtracting 100
+
+	            End If
+			End If
 		NEXT
         vert_button_position = vert_button_position + 5
 		'>>> Placing new scripts on the list! This happens in the right-hand column of the dialog.
@@ -883,7 +942,7 @@ const button_const			= 7
 const SIR_iinstr_btn_const	= 8
 const instsr_URL_const		= 9
 const script_URL_const		= 10
-
+const retirement_date_const = 11
 const hot_topic_date_const	= 15
 
 Dim favorite_scripts_array
@@ -977,6 +1036,7 @@ FOR i = 0 TO Ubound(script_array)
 			new_scripts_array(category_const, num_of_new_scripts)		= script_array(i).category
 			new_scripts_array(description_const, num_of_new_scripts)	= script_array(i).description
 			new_scripts_array(release_date_const, num_of_new_scripts)	= script_array(i).release_date
+			new_scripts_array(retirement_date_const, num_of_new_scripts)= script_array(i).retirement_date
 			new_scripts_array(tags_const, num_of_new_scripts)		    = join(script_array(i).tags, "~")
 			new_scripts_array(dlg_keys_const, num_of_new_scripts)		= join(script_array(i).dlg_keys, "")
 			new_scripts_array(keywords_const, num_of_new_scripts)		= script_array(i).keywords
@@ -995,6 +1055,7 @@ FOR i = 0 TO Ubound(script_array)
             featured_scripts_array(category_const, num_featured_scripts)		= script_array(i).category
             featured_scripts_array(description_const, num_featured_scripts)		= script_array(i).description
             featured_scripts_array(release_date_const, num_featured_scripts)	= script_array(i).release_date
+			featured_scripts_array(retirement_date_const, num_featured_scripts)	= script_array(i).retirement_date
             featured_scripts_array(tags_const, num_featured_scripts)		    = join(script_array(i).tags, "~")
             featured_scripts_array(dlg_keys_const, num_featured_scripts)		= join(script_array(i).dlg_keys, ":")
             featured_scripts_array(keywords_const, num_featured_scripts)		= script_array(i).keywords
