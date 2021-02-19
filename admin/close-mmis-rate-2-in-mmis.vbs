@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("02/19/2021", "Fixed bug with close_date, added auto-filled file selction path and removed case note functionality.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/22/2020", "Added functionalty to support more than one SSRT panel in MAXIS.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/22/2018", "Added functionalty to support more than one SSR agreement in MMIS.", "Ilse Ferris, Hennepin County")
 call changelog_update("08/17/2018", "Added custom function for MAXIS navigation, updated output to show PMI numbers as they are collected, more handling for multiple agreements in MMIS.", "Ilse Ferris, Hennepin County")
@@ -82,6 +83,8 @@ end_of_the_month = dateadd("d", -1, next_month) & "" 	'blank space added to make
 last_date = datePart("D", end_of_the_month)
 end_date = CM_mo & last_date & CM_yr
 last_day_of_month = CM_mo & "/" & last_date & "/" & CM_yr
+
+file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\GRH\GRH EOMC Reports\" & CM_mo & "-" & CM_yr & " EOMC.xlsx"
 
 'dialog and dialog DO...Loop
 Dialog1 = ""
@@ -236,68 +239,43 @@ For item = 0 to UBound(Update_MMIS_array, 2)
                     row = row - 1   'minus one
                 End if
             Loop until row = 9      '10 is 1st SSRT row 
-        End if 
-        
-        If multiple_panels = True then 
-            Update_MMIS_array(rate_two, item) = False   'valuing the variable to false until proven true 
-            Call write_value_and_transmit("01", 20, 79) 'going to 1st instance of panels 
+        End if      
+               
+        'manual removal of SSRT panels if open-ended panel could not be found. This is very discretionary. 
+        If multiple_panels = True then
+            BeginDialog Dialog1, 0, 0, 191, 80, "More than one SSRT panel"
+            ButtonGroup ButtonPressed
+            OkButton 95, 60, 40, 15
+            CancelButton 140, 60, 40, 15
+            GroupBox 5, 5, 175, 45, "More than one SSRT panel exists:"
+            Text 10, 20, 165, 25, "Manually delete all other SSRT panels, leaving the most applicable panel. This is likely to be the one that most recently closed. Press OK when done."
+            EndDialog
+
+            Dialog Dialog1       'no dialog handling         
+
+            'reading lone SSRT panel information 
+            Update_MMIS_array(rate_two, item) = True
+            EMReadScreen NPI_number, 10, 7, 43
+            row = 14
             Do
-                EmReadscreen current_panel_num, 1, 2, 73
-                row = 14                 'starting at the bottom of the list of service dates to find the most recent date spans 
-                Do 
-                    EMReadScreen open_row, 10, row, 47
-                    If open_row <> "__ __ ____" then 
-                        EmReadscreen date_out, 10, row, 71 
-                        If date_out = "__ __ ____" then
-                            'If open ended date, then this is the SSRT panel to select
-                            Update_MMIS_array(rate_two, item) = True
-                            EMReadScreen NPI_number, 10, 7, 43
-                            Update_MMIS_array(closing_date, item) = last_day_of_month
-                            exit do    'can exit do since other panels will not require evaluation
-                        End if
-                    End if      
-                    row = row - 1   'minus 1
-                Loop until row = 9  '10 is 1st SSRT row 
-                If Update_MMIS_array(rate_two, item) = True then exit do    'exiting 2nd do...loop if span is found 
-                transmit
-            Loop until current_panel_num = SSRT_total_check    
-            
-            'manual removal of SSRT panels if open-ended panel could not be found. This is very discretionary. 
-            If (multiple_panels = True and Update_MMIS_array(rate_two, item) = False) then 
-                BeginDialog Dialog1, 0, 0, 191, 80, "More than one SSRT panel"
-                ButtonGroup ButtonPressed
-                OkButton 95, 60, 40, 15
-                CancelButton 140, 60, 40, 15
-                GroupBox 5, 5, 175, 45, "More than one SSRT panel exists:"
-                Text 10, 20, 165, 25, "Manually delete all other SSRT panels, leaving the most applicable panel. This is likely to be the one that most recently closed. Press OK when done."
-                EndDialog
-
-                Dialog Dialog1       'no dialog handling         
-
-                'reading lone SSRT panel information 
-                Update_MMIS_array(rate_two, item) = True
-                EMReadScreen NPI_number, 10, 7, 43
-                row = 14
-                Do
-                    EMReadScreen ssrt_in_date, 10, row, 47
-                    If ssrt_in_date <> "__ __ ____" then
-                        EMReadScreen ssrt_out_date, 10, row, 71
-                        If ssrt_out_date = "__ __ ____" then
-                            Update_MMIS_array(closing_date, item) = last_day_of_month       'Using last day of the month as resident still in FACI, but GRH is closing at EOM 
-                        Else
-                            EMReadScreen ssrt_mo, 2, row, 71
-                            EMReadScreen ssrt_day, 2, row, 74
-                            EMReadScreen ssrt_yr, 2, row, 79
-                            closed_date = ssrt_mo & "/" & ssrt_day & "/" & ssrt_yr
-                            Update_MMIS_array(closing_date, item) = closed_date              'if closed date is listed, this is used to close the agreement in MMIS. 
-                        End if
-                        exit do
-                    else
-                        row = row - 1
+                EMReadScreen ssrt_in_date, 10, row, 47
+                If ssrt_in_date <> "__ __ ____" then
+                    EMReadScreen ssrt_out_date, 10, row, 71
+                    If ssrt_out_date = "__ __ ____" then
+                        Update_MMIS_array(closing_date, item) = last_day_of_month       'Using last day of the month as resident still in FACI, but GRH is closing at EOM 
+                    Else
+                        EMReadScreen ssrt_mo, 2, row, 71
+                        EMReadScreen ssrt_day, 2, row, 74
+                        EMReadScreen ssrt_yr, 2, row, 79
+                        closed_date = ssrt_mo & "/" & ssrt_day & "/" & ssrt_yr
+                        Update_MMIS_array(closing_date, item) = closed_date              'if closed date is listed, this is used to close the agreement in MMIS. 
                     End if
-                Loop until row = 9
-            End if 
-        End if
+                    exit do
+                else
+                    row = row - 1
+                End if
+            Loop until row = 9
+        End if 
     End if  
 
     If Update_MMIS_array(rate_two, item) = True then
@@ -378,7 +356,7 @@ For item = 0 to UBound(Update_MMIS_array, 2)
             EMReadScreen start_year , 2, 4, 68
             agreement_start_date = start_month & "/" & start_day & "/" & start_year
             total_units = datediff("d", agreement_start_date, close_date) + 1
-
+            
             If total_units < "0" then
                 PF6
                 continue_update = False
@@ -423,39 +401,6 @@ For item = 0 to UBound(Update_MMIS_array, 2)
 
 	objExcel.Cells(excel_row, 7).Value = Update_MMIS_array(case_status, item)
 	excel_row = excel_row + 1
-Next
-
-''----------------------------------------------------------------------------------------------------MAXIS
-Call navigate_to_MAXIS(maxis_mode)
-
-Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 156, 55, "Going to MAXIS"
-  ButtonGroup ButtonPressed
-    OkButton 45, 35, 50, 15
-    CancelButton 100, 35, 50, 15
-  Text 5, 5, 150, 25, "The script will now navigate back to MAXIS. Press OK to continue. Press CANCEL to stop the script."
-EndDialog
-Do
-    Do
-        Dialog Dialog1
-        cancel_confirmation
-    Loop until ButtonPressed = -1
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-Loop until are_we_passworded_out = false					'loops until user passwords back in
-
-Call navigate_to_MAXIS_screen("CASE", "NOTE")
-'----------------------------------------------------------------------------------------------------CASE NOTE
-'Make the script case note
-For item = 0 to UBound(Update_MMIS_array, 2)
-	If Update_MMIS_array(update_MMIS, 	item) = True then
-		MAXIS_case_number = Update_MMIS_array(case_number, 	item)
-        close_date = 		Update_MMIS_array(closing_date, item)
-		Call start_a_blank_CASE_NOTE
-		Call write_variable_in_CASE_NOTE("GRH Rate 2 SSR closed in MMIS eff " & close_date)
-		Call write_variable_in_CASE_NOTE("---")
-		Call write_variable_in_CASE_NOTE("Actions performed by BZ script, run by I. Ferris, QI/BZS Teams")
-		PF3
-	End if
 Next
 
 STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
