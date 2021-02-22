@@ -53,6 +53,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County
+CALL changelog_update("02/22/2021", "#117 Update to dialog for received handling. Added mandatory explanation for continuation of pre-appeal benefits.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("01/20/2021", "Initial version.", "MiKayla Handley, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -69,14 +70,16 @@ back_to_self' added to ensure we have the time to update and send the case in th
 EMReadScreen priv_check, 4, 24, 14 'If it can't get into the case needs to skip
 IF priv_check = "PRIV" THEN script_end_procedure_with_error_report("This case is privileged. Please request access before running the script again. ")
 '-------------------------------------------------------------------------------------------------DIALOG
-Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 116, 45, "Appeals"
-  EditBox 65, 5, 45, 15, MAXIS_case_number
+BeginDialog Dialog1, 0, 0, 131, 65, "Appeals"
+  EditBox 55, 5, 45, 15, MAXIS_case_number
+  DropListBox 55, 25, 70, 15, "Select One:"+chr(9)+"Received"+chr(9)+"Summary Completed"+chr(9)+"Hearing Information"+chr(9)+"Decision Received"+chr(9)+"Pending Request"+chr(9)+"Reconsideration"+chr(9)+"Resolution", appeal_actions
   ButtonGroup ButtonPressed
-    OkButton 5, 25, 50, 15
-    CancelButton 60, 25, 50, 15
-  Text 10, 10, 50, 10, "Case Number:"
+    OkButton 30, 45, 45, 15
+    CancelButton 80, 45, 45, 15
+  Text 5, 10, 50, 10, "Case Number:"
+  Text 5, 30, 50, 10, "Appeal Action:"
 EndDialog
+
 
 'Runs the first dialog - which confirms the case number
 Do
@@ -85,6 +88,7 @@ Do
 		Dialog Dialog1
 		cancel_without_confirmation
       	IF IsNumeric(maxis_case_number) = false or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
+        IF appeal_action_dropdown = "Select One:" then err_msg = err_msg & vbNewLine & "* Please select what type of appeal action the client is claiming."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
 	Loop until err_msg = ""
 CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -243,67 +247,74 @@ If right(additional_programs_applied_for, 1) = "," THEN additional_programs_appl
 IF programs_applied_for = " " THEN programs_applied_for = replace(programs_applied_for, " ", "None")
 IF additional_programs_applied_for = "" THEN additional_programs_applied_for = replace(additional_programs_applied_for, " ", "None")
 IF active_programs = " " THEN active_programs = replace(active_programs, " ", "None")
+
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 286, 215, "Appeal Received - App pend: "  & programs_applied_for & additional_programs_applied_for & " Active on: "  & active_programs
-  DropListBox 65, 5, 95, 15, "Select One:"+chr(9)+"Summary Completed"+chr(9)+"Hearing Information"+chr(9)+"Decision Received"+chr(9)+"Pending Request"+chr(9)+"Reconsideration"+chr(9)+"Resolution", appeal_actions
-  DropListBox 65, 25, 95, 15, "Select One:"+chr(9)+"ECF"+chr(9)+"DHS"+chr(9)+"Phone-Verbal Request", how_appeal_rcvd
-  EditBox 225, 5, 45, 15, docket_number
-  EditBox 225, 25, 45, 15, client_request_date
-  DropListBox 100, 55, 70, 15, "Select One:"+chr(9)+"Denial"+chr(9)+"Overpayment"+chr(9)+"Reduction"+chr(9)+"Termination"+chr(9)+"Other", appeal_action_dropdown
-  EditBox 140, 75, 55, 15, effective_date
-  CheckBox 10, 115, 35, 10, "CASH", cash1_appeal_checkbox
-  CheckBox 45, 115, 30, 10, "SNAP", snap_appeal_checkbox
-  CheckBox 80, 115, 30, 10, "GRH", grh_appeal_checkbox
-  CheckBox 115, 115, 25, 10, "HC", hc_appeal_checkbox
-  CheckBox 140, 115, 35, 10, "EMER", emer_appeal_checkbox
-  CheckBox 175, 115, 40, 10, "OTHER", ot_appeal_checkbox
-  CheckBox 215, 115, 25, 10, "CCA", cca_appeal_checkbox
-  CheckBox 245, 115, 25, 10, "IVE", ive_appeal_checkbox
-  DropListBox 140, 130, 60, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", benefits_continuing
-  EditBox 50, 155, 225, 15, other_notes
-  EditBox 70, 175, 205, 15, proofs_attachments
-  EditBox 70, 195, 100, 15, worker_signature
+BeginDialog Dialog1, 0, 0, 286, 210, "Received - App pend: "  & programs_applied_for & additional_programs_applied_for & " Active on: "  & active_programs
+  DropListBox 60, 5, 85, 15, "Select One:"+chr(9)+"ECF"+chr(9)+"DHS"+chr(9)+"Phone-Verbal Request", how_appeal_rcvd
+  EditBox 235, 5, 45, 15, client_request_date
+  EditBox 140, 25, 45, 15, effective_date
+  DropListBox 90, 45, 55, 15, "Select One:"+chr(9)+"Denial"+chr(9)+"Overpayment"+chr(9)+"Reduction"+chr(9)+"Termination"+chr(9)+"Other", appeal_action_dropdown
+  EditBox 235, 25, 45, 15, docket_number
+  DropListBox 135, 65, 55, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", benefits_continuing_dropdown
+  EditBox 235, 45, 45, 15, claim_number
+  EditBox 165, 85, 115, 15, benefits_continuing_explanation
+  EditBox 70, 105, 210, 15, proofs_attachments
+  CheckBox 10, 135, 35, 10, "CASH", cash_appeal_checkbox
+  CheckBox 45, 135, 30, 10, "SNAP", snap_appeal_checkbox
+  CheckBox 80, 135, 30, 10, "GRH", grh_appeal_checkbox
+  CheckBox 115, 135, 25, 10, "HC", hc_appeal_checkbox
+  CheckBox 140, 135, 35, 10, "EMER", emer_appeal_checkbox
+  CheckBox 175, 135, 40, 10, "OTHER", ot_appeal_checkbox
+  CheckBox 215, 135, 25, 10, "CCA", cca_appeal_checkbox
+  CheckBox 245, 135, 25, 10, "IVE", ive_appeal_checkbox
+  CheckBox 10, 150, 65, 10, "BURIAL ASSIST", BURIAL_ASSIST_checkbox
+  CheckBox 80, 150, 75, 10, "REVENUE RECAP", REVENUE_RECAP_checkbox
+  CheckBox 160, 150, 50, 10, "SANCTION", SANCTION_checkbox
+  CheckBox 215, 150, 55, 10, "TRANSPORT", TRANSPORT_checkbox
+  EditBox 50, 170, 230, 15, other_notes
+  EditBox 70, 190, 110, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 175, 195, 50, 15
-    CancelButton 225, 195, 50, 15
-  Text 10, 10, 50, 10, "Appeal Action:"
-  Text 10, 30, 50, 10, "How Received:"
-  Text 170, 30, 55, 10, "Date Received:"
-  Text 170, 10, 35, 10, "Docket #:"
-  GroupBox 5, 45, 270, 55, "Appeal Information"
-  Text 10, 60, 85, 10, "Action client is appealing:"
-  Text 10, 135, 130, 10, "Benefits continuing at pre-appeal level:"
-  GroupBox 5, 105, 270, 45, "Appealed Programs"
-  Text 5, 200, 60, 10, "Worker Signature:"
-  Text 5, 160, 45, 10, "Other Notes:"
-  Text 10, 80, 130, 10, "Effective date of action being appealed:"
-  Text 5, 180, 65, 10, "Proof/Attachments:"
+    OkButton 185, 190, 45, 15
+    CancelButton 235, 190, 45, 15
+  Text 5, 195, 60, 10, "Worker Signature:"
+  Text 5, 175, 45, 10, "Other Notes:"
+  Text 5, 30, 130, 10, "Effective date of action being appealed:"
+  Text 5, 110, 65, 10, "Proof/Attachments:"
+  Text 175, 10, 55, 10, "Date Received:"
+  GroupBox 5, 125, 275, 40, "Appealed Programs/Decisions"
+  Text 5, 70, 130, 10, "Benefits continuing at pre-appeal level:"
+  Text 5, 10, 50, 10, "How Received:"
+  Text 5, 50, 85, 10, "Action client is appealing:"
+  Text 5, 90, 155, 10, "How was determination made for cont benefits:"
+  Text 200, 30, 35, 10, "Docket #:"
+  Text 200, 50, 35, 10, "Claim(s)#:"
 EndDialog
-
 '------------------------------------------------------------------------------------DIALOG
 Do
 	Do
         err_msg = ""
         Dialog Dialog1
         cancel_confirmation
-        IF appeal_action_dropdown = "Select One:" then err_msg = err_msg & vbNewLine & "* Please select what type of appeal action the client is claiming."
+        IF isdate(client_request_date) = FALSE THEN err_msg = err_msg & vbNewLine & "* Please enter the date the appeal form was received."
+        IF isdate(effective_date) = "" THEN err_msg = err_msg & vbNewLine & "* Please enter the effective date of the appeal."
         IF appeal_actions = "Select One:" then err_msg = err_msg & vbNewLine & "* Please select what type of appeal was received."
-	    IF appeal_actions = "Summary Completed" THEN
-            IF how_appeal_rcvd = "Select One:" THEN  err_msg = err_msg & vbNewLine & "* Please select how the appeal was received."
-	        IF effective_date = "" THEN err_msg = err_msg & vbNewLine & "* Please enter the effective date of the appeal."
-            IF client_request_date = "" THEN err_msg = err_msg & vbNewLine & "* Please enter the date the appeal form was received."
-            IF benefits_continuing = "Select One:" then err_msg = err_msg & vbNewLine & "* Please select if the benefits will be continuing."
-        END IF
-        IF docket_number = "" THEN err_msg = err_msg & vbNewLine & "* Please enter the docket number."
-	    IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
+	    IF how_appeal_rcvd_dropdown = "Select One:" THEN  err_msg = err_msg & vbNewLine & "* Please select how the appeal was received."
+        IF appeal_action_dropdown = "Other" and other_notes = "" THEN  err_msg = err_msg & vbNewLine & "* Please advise what the appeal action was in other notes."
+	    IF docket_number = "" THEN err_msg = err_msg & vbNewLine & "* Please enter the docket number, if unknown enter N/A."
+        IF benefits_continuing_dropdown = "Select:" then err_msg = err_msg & vbNewLine & "* Please select if the benefits will be continuing and explain your decision."
+        IF benefits_continuing_explanation = "" then err_msg = err_msg & vbNewLine & "* Please advise why the benefits will or will not be continuing at pre-appeal level."
+        IF proofs_attachments = "" then err_msg = err_msg & vbNewLine & "* Please advise what proofs or information has been provided."
+        If ot_appeal_checkbox = CHECKED and other_notes = "" THEN err_msg = err_msg & vbNewLine & "* Please advise what other program or decision is being appealed."
+        IF cash_appeal_checkbox = UNCHECKED AND snap_appeal_checkbox = UNCHECKED AND grh_appeal_checkbox = UNCHECKED AND hc_appeal_checkbox = UNCHECKED AND emer_appeal_checkbox = UNCHECKED AND ot_appeal_checkbox = UNCHECKED AND ca_appeal_checkbox = UNCHECKED AND ive_appeal_checkbox = UNCHECKED AND BURIAL_ASSIST_checkbox = UNCHECKED AND REVENUE_RECAP_checkbox = UNCHECKED AND SANCTION_checkbox = UNCHECKED AND TRANSPORT_checkbox = UNCHECKED THEN err_msg = err_msg & vbCr & "* Please select the appealed program or decision."
+        IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
 	    IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 LOOP UNTIL are_we_passworded_out = FALSE					'loops until user passwords back in
 
 appeal_programs = ""
-IF cash1_appeal_checkbox = CHECKED THEN appeal_programs =  appeal_programs & "CASH, "
+IF cash_appeal_checkbox = CHECKED THEN appeal_programs =  appeal_programs & "CASH, "
 IF snap_appeal_checkbox = CHECKED THEN appeal_programs = appeal_programs & "SNAP, "
 IF grh_appeal_checkbox = CHECKED THEN appeal_programs = appeal_programs & "GRH, "
 IF hc_appeal_checkbox = CHECKED THEN appeal_programs = appeal_programs & "HC, "
@@ -311,27 +322,34 @@ IF emer_appeal_checkbox = CHECKED THEN appeal_programs = appeal_programs & "Emer
 IF cca_appeal_checkbox = CHECKED THEN appeal_programs = appeal_programs & "CCA"
 IF ive_appeal_checkbox = CHECKED THEN appeal_programs = appeal_programs & "IV-E, "
 IF ot_appeal_checkbox = CHECKED THEN appeal_programs = appeal_programs & "Other, "
+IF BURIAL_ASSIST_checkbox = CHECKED THEN appeal_programs =  appeal_programs & "BURIAL ASSISTANCE,"
+IF REVENUE_RECAP_checkbox = CHECKED THEN appeal_programs =  appeal_programs & "REVENUE RECAPTURE,"
+IF SANCTION_checkbox = CHECKED THEN appeal_programs =  appeal_programs & "SANCTION,"
+IF TRANSPORT_checkbox = CHECKED THEN appeal_programs =  appeal_programs & "TRANSPORT,"
 
 appeal_programs = trim(appeal_programs)  'trims excess spaces of appeal_programs
 If right(appeal_programs, 1) = "," THEN appeal_programs = left(appeal_programs, len(appeal_programs) - 1)
 
-IF appeal_actions = "Summary Completed" OR appeal_actions = "Pending Request" OR appeal_actions = "Reconsideration" THEN
+IF appeal_actions = "Received" or appeal_actions = "Summary Completed" OR appeal_actions = "Pending Request" OR appeal_actions = "Reconsideration" THEN
     start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
     CALL write_variable_in_CASE_NOTE("-----Appeal " & appeal_actions & "-----")
     CALL write_bullet_and_variable_in_CASE_NOTE("Docket Number", docket_number)
+    CALL write_bullet_and_variable_in_CASE_NOTE("Claim(s) Number", claim_number)
     CALL write_bullet_and_variable_in_CASE_NOTE("Date appeal request received", date_appeal_received)
-    IF appeal_actions = "Summary Completed" THEN CALL write_bullet_and_variable_in_CASE_NOTE("How appeal request received", how_appeal_rcvd)
+    CALL write_bullet_and_variable_in_CASE_NOTE("How appeal request received", how_appeal_rcvd_dropdown)
     CALL write_bullet_and_variable_in_CASE_NOTE("Effective date of action being appealed", effective_date)
     CALL write_bullet_and_variable_in_CASE_NOTE("Action client is appealing", appeal_action_dropdown)
     CALL write_bullet_and_variable_in_CASE_NOTE ("Programs client appealing", appeal_programs)
-    CALL write_bullet_and_variable_in_CASE_NOTE("Benefits continuing at pre-appeal level", benefits_continuing)
+    CALL write_bullet_and_variable_in_CASE_NOTE("Benefits continuing at pre-appeal level", benefits_continuing_dropdown)
+    CALL write_bullet_and_variable_in_CASE_NOTE("Explanation", benefits_continuing_explanation)
+    CALL write_bullet_and_variable_in_CASE_NOTE("Proofs/attachments", proofs_attachments)
+    CALL write_bullet_and_variable_in_CASE_NOTE ("Other Notes", other_notes)
+    CALL write_variable_in_CASE_NOTE ("---")
     CALL write_bullet_and_variable_in_CASE_NOTE ("Application Pending", programs_applied_for)
     CALL write_bullet_and_variable_in_CASE_NOTE ("Pended on", application_date)
     CALL write_bullet_and_variable_in_CASE_NOTE ("Other Pending Programs", additional_programs_applied_for)
     CALL write_bullet_and_variable_in_CASE_NOTE ("Active Programs", active_programs)
-    CALL write_bullet_and_variable_in_CASE_NOTE("Proofs/attachments", proofs_attachments)
-    CALL write_bullet_and_variable_in_CASE_NOTE ("Other Notes", other_notes)
-    CALL write_variable_in_CASE_NOTE ("---")
+        CALL write_variable_in_CASE_NOTE ("---")
     CALL write_variable_in_CASE_NOTE (worker_signature)
     PF3 ' to save CaseNote
 END IF
