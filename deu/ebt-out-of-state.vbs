@@ -44,7 +44,8 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("01/14/2021", "Updated handling for review case to update for overpayment at a later date .", "MiKayla Handley, Hennepin County")
+call changelog_update("02/22/2021", "Removed handling for other option.", "MiKayla Handley, Hennepin County")
+call changelog_update("01/14/2021", "Updated handling for review case to update for overpayment at a later date.", "MiKayla Handley, Hennepin County")
 call changelog_update("11/30/2018", "Initial version.", "MiKayla Handley, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -54,7 +55,6 @@ changelog_display
 'connecting to BlueZone and grabbing the case number
 EMConnect ""
 CALL MAXIS_case_number_finder (MAXIS_case_number)
-'MEMB_number = "01"
 date_due = dateadd("d", 10, date)
 
 '-------------------------------------------------------------------------------------------------DIALOG
@@ -65,7 +65,7 @@ BeginDialog Dialog1, 0, 0, 281, 85, "EBT OUT OF STATE "
   EditBox 60, 25, 40, 15, MEMB_number
   EditBox 190, 25, 25, 15, out_of_state
   DropListBox 60, 45, 65, 15, "Select One:"+chr(9)+"Active"+chr(9)+"Inactive", case_status
-  DropListBox 190, 45, 85, 15, "Select One:"+chr(9)+"Initial review"+chr(9)+"Client responds to request"+chr(9)+"No response received"+chr(9)+"Other(please specifiy)", action_taken
+  DropListBox 190, 45, 85, 15, "Select One:"+chr(9)+"Initial review"+chr(9)+"Client responds to request"+chr(9)+"No response received", action_taken
   ButtonGroup ButtonPressed
     OkButton 170, 65, 50, 15
     CancelButton 225, 65, 50, 15
@@ -83,6 +83,7 @@ DO
 		Dialog Dialog1
 		cancel_without_confirmation
 		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+		IF Isdate(bene_date) = false THEN err_msg = err_msg & vbNewLine & "* Please enter the date the client was accessing the benefits."
 		If out_of_state = ""  then err_msg = err_msg & vbNewLine & "* Enter the state(s) that the client has used benefits in."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
@@ -152,7 +153,7 @@ IF action_taken = "Client responds to request" THEN
     LOOP UNTIL check_for_password(are_we_passworded_out) = False
 END IF
 
-IF action_taken = "No response received" or action_taken = "Other" THEN
+IF action_taken = "No response received" THEN
     '-------------------------------------------------------------------------------------------------DIALOG
     Dialog1 = "" 'Blanking out previous dialog detail
     BeginDialog Dialog1, 0, 0, 196, 125, "No response received"
@@ -190,6 +191,7 @@ IF request_contact_checkbox = CHECKED THEN pending_verifs = pending_verifs & "Co
 IF shel_verf_checkbox = CHECKED THEN pending_verifs = pending_verifs & "Shelter Verification, "
 IF ATR_Verf_CheckBox = CHECKED THEN pending_verifs = pending_verifs & "ATR, "
 IF other_checkbox = CHECKED THEN pending_verifs = pending_verifs & "Other, "
+out_of_state = ucase(out_of_state)
 '-------------------------------------------------------------------trims excess spaces of pending_verifs
 pending_verifs = trim(pending_verifs) 	'takes the last comma off of pending_verifs when autofilled into dialog if more than one app date is found and additional app is selected
 IF right(pending_verifs, 1) = "," THEN pending_verifs = left(pending_verifs, len(pending_verifs) - 1)
@@ -197,29 +199,27 @@ IF right(pending_verifs, 1) = "," THEN pending_verifs = left(pending_verifs, len
 start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
 	IF action_taken = "Initial review" THEN Call write_variable_in_CASE_NOTE("-----EBT OUT OF STATE REVIEWED FOR M" & MEMB_number & "-----")
 	IF action_taken = "Client responds to request" THEN Call write_variable_in_CASE_NOTE("-----EBT OUT OF STATE RESPONSE RECEIVED FOR M" & MEMB_number & "-----")
-	IF action_taken = "No response received" or action_taken = "Other" THEN Call write_variable_in_CASE_NOTE("-----EBT OUT OF STATE REQUESTED NO REPONSE RECEIVED FOR M" & MEMB_number & "-----")
+	IF action_taken = "No response received" THEN Call write_variable_in_CASE_NOTE("-----EBT OUT OF STATE REQUESTED NO REPONSE RECEIVED FOR M" & MEMB_number & "-----")
     Call write_bullet_and_variable_in_CASE_NOTE("Client has been accessing benefits out of state since", bene_date)
 	Call write_bullet_and_variable_in_CASE_NOTE("State(s)", out_of_state)
 	IF case_status = "Inactive" THEN
 		Call write_variable_in_CASE_NOTE("* Client will need to verify MN residence when reapplying and a written statement explain why accessing benefits out of state.")
-		Call write_variable_in_CASE_NOTE("* Agency will need to verify benefits received in the other state prior to reopening case")
+		Call write_variable_in_CASE_NOTE("* Agency will need to verify benefits received in the other state prior to reopening case.")
 	END IF
-	IF other_state_contact_checkbox = CHECKED THEN Call write_variable_in_CASE_NOTE("* Other state(s) have been contacted")
-	IF other_state_contact_checkbox = UNCHECKED THEN Call write_variable_in_CASE_NOTE("* Other state(s) have not been contacted")
-	Call write_variable_in_CASE_NOTE("* Request sent to client for explanation of benefits used in the other state and shelter request ")
-	IF action_taken = "No response received" or action_taken = "Other" THEN  Call write_variable_in_CASE_NOTE("* Client will need to verify residence when reapplying")
-	CALL write_variable_in_CASE_NOTE ("----- ----- -----")
+	IF other_state_contact_checkbox = CHECKED THEN Call write_variable_in_CASE_NOTE("* Other state(s) have been contacted.")
+	IF other_state_contact_checkbox = UNCHECKED THEN Call write_variable_in_CASE_NOTE("* Other state(s) have not been contacted.")
+	Call write_variable_in_CASE_NOTE("* Request sent to client for explanation of benefits used in the other state and shelter request.")
+	IF action_taken = "No response received" THEN Call write_variable_in_CASE_NOTE("* Client will need to verify residence when reapplying.")
 	Call write_bullet_and_variable_in_CASE_NOTE("Date case was closed", date_closed)
 	Call write_bullet_and_variable_in_CASE_NOTE("Explanation of action to close the case", reason_closed)
 	IF overpayment_checkbox = CHECKED THEN Call write_variable_in_CASE_NOTE("* DEU will review for possible overpayment regarding out of state usage at a later date.")
 	IF action_taken = "Client responds to request" THEN Call write_bullet_and_variable_in_CASE_NOTE("Verification received", pending_verifs)
 	IF action_taken <> "Client responds to request" THEN CALL write_bullet_and_variable_in_CASE_NOTE("Verification requested", pending_verifs)
 	IF action_taken = "Initial review" THEN
-		CALL write_variable_in_CASE_NOTE ("----- ----- -----")
 		Call write_bullet_and_variable_in_CASE_NOTE("Verification due", date_due)
 		CALL write_variable_in_CASE_NOTE ("* Client must be provided 10 days to return requested verifications.")
 	END IF
 	CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
-	CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
+	CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
 	Call write_variable_in_CASE_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
 script_end_procedure_with_error_report("EBT out of state case note complete.")
