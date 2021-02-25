@@ -383,7 +383,7 @@ IF appeal_actions = "Hearing Information" THEN
             If appeal_attendence = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Please select if the client attended appeal, or if appeal was held by phone"
             IF hearing_details = "" THEN err_msg = err_msg & vbNewLine & "* Please enter hearing details"
             IF isdate(anticipated_date_result) = false THEN err_msg = err_msg & vbNewLine & "* Please enter a valid date for the anticipated date of appeal decision"
-            IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "* Please enter your worker signature."
+            'IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "* Please enter your worker signature."
             IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
         Loop until err_msg = ""
         Call check_for_password(are_we_passworded_out)
