@@ -357,22 +357,26 @@ END IF
 
 IF appeal_actions = "Hearing Information" THEN
     '-------------------------------------------------------------------------------------------------DIALOG
-    Dialog1 = "" 'Blanking out previous dialog detail
-    BeginDialog Dialog1, 0, 0, 286, 85, "Hearing Information"
+    BeginDialog Dialog1, 0, 0, 286, 110, "Hearing Information"
       EditBox 65, 5, 55, 15, hearing_date
       EditBox 225, 5, 55, 15, anticipated_date_result
-      EditBox 65, 25, 215, 15, hearing_details
-      EditBox 65, 45, 215, 15, other_notes
-      DropListBox 65, 65, 60, 15, "Select One:"+chr(9)+"Yes, in person"+chr(9)+"Yes, by phone"+chr(9)+"Did not attend", appeal_attendence
+      DropListBox 65, 25, 60, 15, "Select One:"+chr(9)+"Yes, in person"+chr(9)+"Yes, by phone"+chr(9)+"Did not attend", appeal_attendence
+      EditBox 225, 25, 55, 15, docket_number
+      EditBox 65, 45, 215, 15, hearing_details
+      EditBox 65, 65, 215, 15, other_notes
+      EditBox 65, 85, 105, 15, worker_signature
       ButtonGroup ButtonPressed
-        OkButton 175, 65, 50, 15
-        CancelButton 230, 65, 50, 15
+        OkButton 175, 85, 50, 15
+        CancelButton 230, 85, 50, 15
+      Text 5, 30, 55, 10, "Client Attended:"
+      Text 5, 50, 55, 10, "Hearing Details:"
+      Text 5, 70, 45, 10, "Other Notes:"
       Text 5, 10, 60, 10, "Date Of Hearing:"
+      Text 190, 30, 35, 10, "Docket #:"
       Text 135, 10, 85, 10, "Anticipated Decision Date:"
-      Text 5, 70, 55, 10, "Client Attended:"
-      Text 5, 30, 55, 10, "Hearing Details:"
-      Text 5, 50, 55, 10, "Other Notes:"
+      Text 5, 90, 60, 10, "Worker Signature:"
     EndDialog
+
 
     DO
         Do
@@ -383,7 +387,7 @@ IF appeal_actions = "Hearing Information" THEN
             If appeal_attendence = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Please select if the client attended appeal, or if appeal was held by phone"
             IF hearing_details = "" THEN err_msg = err_msg & vbNewLine & "* Please enter hearing details"
             IF isdate(anticipated_date_result) = false THEN err_msg = err_msg & vbNewLine & "* Please enter a valid date for the anticipated date of appeal decision"
-            'IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "* Please enter your worker signature."
+            IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "* Please enter your worker signature."
             IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
         Loop until err_msg = ""
         Call check_for_password(are_we_passworded_out)
@@ -404,22 +408,24 @@ END IF
 
 IF appeal_actions = "Decision Received" THEN
     '-------------------------------------------------------------------------------------------------DIALOG
-    Dialog1 = "" 'Blanking out previous dialog detail
-    BeginDialog Dialog1, 0, 0, 346, 120, "Appeal decision received"
-      EditBox 85, 10, 245, 15, disposition_of_appeal
-      EditBox 85, 35, 245, 15, actions_needed
-      EditBox 85, 60, 60, 15, date_signed_by_judge
-      DropListBox 275, 60, 55, 15, "Select One:"+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"NA", compliance_form_needed
-      EditBox 85, 90, 135, 15, worker_signature
+    BeginDialog Dialog1, 0, 0, 346, 120, "Appeal Decision Received"
+      EditBox 270, 5, 60, 15, docket_number
+      EditBox 85, 25, 245, 15, disposition_of_appeal
+      EditBox 85, 45, 245, 15, actions_needed
+      EditBox 85, 65, 60, 15, date_signed_by_judge
+      DropListBox 275, 65, 55, 15, "Select One:"+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"NA", compliance_form_needed
+      EditBox 85, 85, 135, 15, worker_signature
       ButtonGroup ButtonPressed
-    OkButton 225, 90, 50, 15
-    CancelButton 280, 90, 50, 15
-      Text 20, 95, 60, 10, "Worker Signature:"
-      Text 5, 15, 75, 10, "Disposition of appeal:"
-      Text 10, 65, 75, 10, "Date signed by judge:"
-      Text 155, 65, 115, 10, "SNAP compliance form completed:"
-      Text 25, 40, 55, 10, "Actions needed:"
+        OkButton 230, 85, 50, 15
+        CancelButton 280, 85, 50, 15
+      Text 5, 30, 75, 10, "Disposition of appeal:"
+      Text 155, 70, 115, 10, "SNAP compliance form completed:"
+      Text 5, 50, 55, 10, "Actions needed:"
+      Text 5, 90, 60, 10, "Worker Signature:"
+      Text 230, 10, 40, 10, "Docket #:"
+      Text 5, 70, 75, 10, "Date signed by judge:"
     EndDialog
+
     'Shows dialog and creates and displays an error message if worker completes things incorrectly.
     Do
         Do
@@ -482,7 +488,7 @@ IF appeal_actions = "Resolution" THEN
 
     start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
     Call write_variable_in_CASE_NOTE("-----Appeal Resolution-----")
-    CALL write_bullet_and_variable_in_CASE_NOTE("Docket Number", docket_number)
+    'CALL write_bullet_and_variable_in_CASE_NOTE("Docket Number", docket_number)
     IF Further_Action_Required_checkbox = CHECKED THEN Call write_bullet_and_variable_in_CASE_NOTE("Further Action Required", actions_taken_required)
     IF Overpayments_Required_checkbox = CHECKED THEN
         Call write_variable_in_CASE_NOTE("* Overpayments Required")
