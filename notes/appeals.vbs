@@ -248,6 +248,7 @@ IF programs_applied_for = " " THEN programs_applied_for = replace(programs_appli
 IF additional_programs_applied_for = "" THEN additional_programs_applied_for = replace(additional_programs_applied_for, " ", "None")
 IF active_programs = " " THEN active_programs = replace(active_programs, " ", "None")
 
+IF appeal_actions = "Received" or appeal_actions = "Summary Completed" OR appeal_actions = "Pending Request" OR appeal_actions = "Reconsideration" THEN
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 286, 210, "Received - App pend: "  & programs_applied_for & additional_programs_applied_for & " Active on: "  & active_programs
@@ -330,7 +331,7 @@ IF TRANSPORT_checkbox = CHECKED THEN appeal_programs =  appeal_programs & "TRANS
 appeal_programs = trim(appeal_programs)  'trims excess spaces of appeal_programs
 If right(appeal_programs, 1) = "," THEN appeal_programs = left(appeal_programs, len(appeal_programs) - 1)
 
-IF appeal_actions = "Received" or appeal_actions = "Summary Completed" OR appeal_actions = "Pending Request" OR appeal_actions = "Reconsideration" THEN
+
     start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
     CALL write_variable_in_CASE_NOTE("-----Appeal " & appeal_actions & "-----")
     CALL write_bullet_and_variable_in_CASE_NOTE("Docket Number", docket_number)
