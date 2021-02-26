@@ -42,13 +42,13 @@ END IF
 BeginDialog Dialog1, 0, 0, 336, 210, "Task Completion Information"
   DropListBox 170, 20, 45, 45, "?"+chr(9)+"Yes"+chr(9)+"No", List2
   DropListBox 170, 35, 45, 45, "?"+chr(9)+"Yes"+chr(9)+"No", List3
-  ListBox 15, 65, 180, 45, "No follow up needed"+chr(9)+"Yes - policy and process questions"+chr(9)+"Yes - Unique/specific task assignment"+chr(9)+"Yes - Assingment/work question", List1
+  DropListBox 15, 65, 180, 45, "No follow up needed"+chr(9)+"Yes - policy and process questions"+chr(9)+"Yes - Unique/specific task assignment"+chr(9)+"Yes - Assingment/work question", List1
   CheckBox 20, 100, 70, 10, "MFIP Sanctions", Check1
   CheckBox 95, 100, 70, 10, "Immigration", Check3
   CheckBox 175, 100, 70, 10, "More...", Check5
   CheckBox 20, 115, 70, 10, "Facility", Check2
   CheckBox 95, 115, 70, 10, "Overpayment", Check4
-  TextBox 175, 115, 100, 45, more_detail_var
+  TextBox 175, 115, 100, 15, more_detail_var
   DropListBox 130, 130, 45, 45, "?"+chr(9)+"Yes"+chr(9)+"No", List4
   DropListBox 130, 145, 45, 45, "?"+chr(9)+"Yes"+chr(9)+"No", List5
   DropListBox 130, 160, 45, 45, "?"+chr(9)+"Yes"+chr(9)+"No", List6
