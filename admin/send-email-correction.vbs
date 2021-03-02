@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/01/2021", "Added option to Expedited Review for insufficient annotations/interview notes in ECF.", "Casey Love, Hennepin County")
 call changelog_update("01/28/2021", "Added the Expedited Retrain Your Brain Video links as resources to be sent on email corrections.", "Casey Love, Hennepin County")
 call changelog_update("11/12/2020", "Updated all SharePoint hyperlinks due to SharePoint Online Migration.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/21/2020", "Added a checkbox for situations where the interview has been completed but the worker did not address the Adult Cash programs requested. This option is now available for both Expedited SNAP and On Demand options.", "Casey Love, Hennepin County")
@@ -153,7 +154,7 @@ Select Case correction_process
 	Case "Expedited Review"
 		end_msg = "Expedited Review Correction Email sent and tracking updated. Thank you!"
 
-		BeginDialog Dialog1, 0, 0, 550, 385, "Expedited Corrections"
+		BeginDialog Dialog1, 0, 0, 550, 395, "Expedited Corrections"
 		  EditBox 130, 5, 50, 15, MAXIS_case_number
 		  CheckBox 20, 40, 235, 10, "Case was not approved timely. Case should have been approved on ", not_approved_timely_checkbox
 		  EditBox 260, 35, 50, 15, should_have_approved_date
@@ -170,31 +171,32 @@ Select Case correction_process
 		  CheckBox 20, 205, 240, 10, "Verification requested was not needed for SNAP. What was requested:", verif_request_not_needed_checkbox
 		  EditBox 265, 200, 275, 15, what_was_requested
 		  CheckBox 20, 220, 195, 10, "Verifications were not postponed for expedited SNAP.", verif_not_delayed_checkbox
-		  CheckBox 160, 250, 70, 10, "assets incorrect.", maxis_coded_incorectly_assets_checkbox
-		  CheckBox 255, 250, 95, 10, "postponed verifications.", maxis_coded_incorectly_postponed_verif_checkbox
-		  CheckBox 150, 265, 135, 10, " processing has not been completed.", interview_complete_processing_not_complete_checkbox
-		  CheckBox 285, 265, 120, 10, "CASE/NOTE has not been added.", interview_complete_case_note_missing_checkbox
-		  CheckBox 415, 265, 125, 10, "Adult Cash Programs not addressed.", interview_complete_adult_cash_not_addressed_checkbox
-		  CheckBox 20, 280, 205, 10, "Case was pended, but expedited screening not conducted.", screening_not_done_checkbox
-		  CheckBox 20, 295, 305, 10, "SNAP is pending as MFIP is closing, does not appear to need any mandatory verifications.", snap_pending_after_mfip_closed_checkbox
-		  CheckBox 20, 310, 185, 10, "Discrepancy between case notes and MAXIS coding.", maxis_coding_case_note_discrepancy_checkbox
-		  CheckBox 20, 325, 110, 10, "The CASE/NOTE is Insufficient.", insufficient_case_note_checkbox
-		  EditBox 105, 345, 440, 15, email_notes
-		  DropListBox 15, 365, 195, 45, "Indicate if case has been or needs to be updated."+chr(9)+"Case has been updated already - no action needed."+chr(9)+"Please update the case to resolve these issues.", action_needed
-		  EditBox 285, 365, 125, 15, email_signature
+		  CheckBox 160, 245, 70, 10, "assets incorrect.", maxis_coded_incorectly_assets_checkbox
+		  CheckBox 255, 245, 95, 10, "postponed verifications.", maxis_coded_incorectly_postponed_verif_checkbox
+		  CheckBox 150, 260, 130, 10, " processing has not been completed.", interview_complete_processing_not_complete_checkbox
+		  CheckBox 285, 260, 120, 10, "CASE/NOTE has not been added.", interview_complete_case_note_missing_checkbox
+		  CheckBox 415, 260, 125, 10, "Adult Cash Programs not addressed.", interview_complete_adult_cash_not_addressed_checkbox
+		  CheckBox 20, 275, 205, 10, "Case was pended, but expedited screening not conducted.", screening_not_done_checkbox
+		  CheckBox 20, 290, 305, 10, "SNAP is pending as MFIP is closing, does not appear to need any mandatory verifications.", snap_pending_after_mfip_closed_checkbox
+		  CheckBox 20, 305, 185, 10, "Discrepancy between case notes and MAXIS coding.", maxis_coding_case_note_discrepancy_checkbox
+		  CheckBox 20, 320, 110, 10, "The CASE/NOTE is Insufficient.", insufficient_case_note_checkbox
+		  CheckBox 20, 335, 225, 10, "Missing or Insufficient annotations or notes about the interview.", insufficient_intv_notes_in_ecf_checkbox
+		  EditBox 105, 355, 440, 15, email_notes
+		  DropListBox 15, 375, 195, 45, "Indicate if case has been or needs to be updated."+chr(9)+"Case has been updated already - no action needed."+chr(9)+"Please update the case to resolve these issues.", action_needed
+		  EditBox 285, 375, 125, 15, email_signature
 		  ButtonGroup ButtonPressed
-		    OkButton 445, 365, 50, 15
-		    CancelButton 495, 365, 50, 15
+		    OkButton 445, 375, 50, 15
+		    CancelButton 495, 375, 50, 15
 		  Text 10, 10, 120, 10, "Case number the error occurred on: "
 		  Text 205, 10, 230, 10, "Select the Issues/Errors to alert the client about. Check all that apply:"
-		  Text 20, 250, 135, 10, "MAXIS panels were not coded correctly - "
+		  Text 20, 245, 135, 10, "MAXIS panels were not coded correctly - "
 		  GroupBox 10, 25, 535, 95, "Case Appears Expedited after Interview but was Not Approved"
 		  GroupBox 10, 115, 535, 50, "Expedited to be Determined"
-		  Text 15, 350, 90, 10, "Additional Notes for Email:"
+		  Text 15, 360, 90, 10, "Additional Notes for Email:"
 		  GroupBox 10, 160, 535, 80, "Verification Request Issues"
-		  GroupBox 10, 235, 535, 105, "MAXIS Actions"
-		  Text 220, 370, 60, 10, "Sign your Email:"
-		  Text 20, 265, 115, 10, "Interview completed, still needed - "
+		  GroupBox 10, 235, 535, 115, "MAXIS Actions"
+		  Text 220, 380, 60, 10, "Sign your Email:"
+		  Text 20, 260, 115, 10, "Interview completed, still needed - "
 		EndDialog
 
 		Do
@@ -380,7 +382,7 @@ Select Case correction_process
 			counter = counter + 1
 		End If
 
-		If interview_complete_processing_not_complete_checkbox = checked OR interview_complete_case_note_missing_checkbox = checked OR insufficient_case_note_checkbox = checked Then
+		If interview_complete_processing_not_complete_checkbox = checked OR interview_complete_case_note_missing_checkbox = checked OR insufficient_case_note_checkbox = checked OR insufficient_intv_notes_in_ecf_checkbox = checked Then
 			email_body = email_body & "<p><i>" & "&emsp;" & counter & ". Interview was complete but follow up processing was not." & "</i><br>"
 			If interview_complete_processing_not_complete_checkbox = checked Then
 				email_body = email_body & "&emsp;&ensp;" & "- MAXIS processing has not been completed." & "<br>"
@@ -393,6 +395,12 @@ Select Case correction_process
 			If insufficient_case_note_checkbox = checked Then
 				email_body = email_body & "&emsp;&ensp;" &  "- CASE NOTE is insufficient." & "<br>"
 				add_hsr_case_note_guidelines_resource = TRUE
+			End If
+			If insufficient_intv_notes_in_ecf_checkbox = checked Then
+				email_body = email_body & "&emsp;&ensp;" &  "- Annotations are missing or incomplete, please complete annotations for the interview on the CAF.." & "<br>"
+				add_cm_05_12_03_resource = TRUE
+				add_ew_guide_to_CAF_p64_resource = TRUE
+				add_annotaction_video_resource = TRUE
 			End If
 			STATS_manualtime = STATS_manualtime + 45
 
@@ -455,13 +463,18 @@ Select Case correction_process
 		'here is where we actually add the resource informtation
 		email_body = email_body & "<p><b><i>" & "&ensp;" & "RESOURCES:" & "</b></i><br>"
 
-		If add_cm_10_18_02_resource = TRUE OR add_cm_04_04_resource = TRUE OR add_cm_04_06_resource = TRUE OR add_cm_05_12_12_resource = TRUE OR add_cm_10_resource = TRUE Then email_body = email_body & "<i>" & "&emsp;" & "Combined Manual:" & "</i><br>"
+		If add_cm_10_18_02_resource = TRUE OR add_cm_04_04_resource = TRUE OR add_cm_04_06_resource = TRUE OR add_cm_05_12_12_resource = TRUE OR add_cm_10_resource = TRUE OR add_cm_05_12_03_resource = TRUE Then email_body = email_body & "<i>" & "&emsp;" & "Combined Manual:" & "</i><br>"
 
 		If add_cm_10_18_02_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_00101802" & chr(34) & ">" & "CM 0010.18.02" & "</a>" & " Mandatory Verifications - SNAP" & "<br>"
 		If add_cm_04_04_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "http://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=cm_000404" & chr(34) & ">" & "CM 0004.04" & "</a>" & " Emergency Aid Eligibility - SNAP/Expedited Processing" & "<br>"
 		If add_cm_04_06_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "http://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=cm_000406" & chr(34) & ">" & "CM 0004.06" & "</a>" & " Emergencies - 1st Month Processing" & "<br>"
 		If add_cm_05_12_12_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_00051212" & chr(34) & ">" & "CM 0005.12.12" & "</a>" & " Application Interviews - 'Offer applicants or their authorized representatives a single interview that covers all the programs for which they apply.'" & "<br>"
+		If add_cm_05_12_03_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_00051203" & chr(34) & ">" & "CM 0005.12.03" & "</a>" & " What is a Complete Application" & "<br>"
 		If add_cm_10_resource = TRUE Then  email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_0010" & chr(34) & ">" & "CM 0010" & "</a>" & " Verification" & "<br>"
+
+		If add_ew_guide_to_CAF_p64_resource = TRUE Then email_body = email_body & "<i>" & "&emsp;" & "Other DHS Resources:" & "</i><br>"
+
+		If add_ew_guide_to_CAF_p64_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "https://www.dhssir.cty.dhs.state.mn.us/MAXIS/trntl/_layouts/15/WopiFrame2.aspx?sourcedoc=%7B3230AF4F-4FA7-448C-BAA7-506671E03A49%7D&file=An%20Eligibility%20Workers%20Guide%20to%20the%20Combined%20Application%20Form%20(With%20Answers).pdf&action=default&IsList=1&ListId=%7B032C9304-E9F4-4ED6-90A0-92F9CC18CD31%7D&ListItemId=2" & chr(34) & ">" & "An Eligibility Workers Guide to the CAF" & "</a>" & " Page 64 - Need SIR signed in to access." & "<br>"
 
 		If add_snap_id_doc_resource = TRUE OR add_hsr_case_note_guidelines_resource = TRUE OR add_client_contact_interview_qs_resource = TRUE Then email_body = email_body & "<i>" & "&emsp;" & "Internal:" & "</i><br>"
 
@@ -469,11 +482,12 @@ Select Case correction_process
 		If add_hsr_case_note_guidelines_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- HSR Manual: " & "<a href=" & chr(34) & "https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Guidelines_and_Format.aspx" & chr(34) & ">" & "Case Notes Guidelines and Format" & "</a><br>"
 		If add_client_contact_interview_qs_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- Client Contact Documents: " & "<a href=" & chr(34) & "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/Adults%20and%20Families%20Eligibility%20Documents/Cash%20and%20EGA%20interview%20questions.docx" & chr(34) & ">" & "Cash and EGA Interview Questions" & "</a><br>"
 
-		If add_exp_timeliness_video_resource = TRUE OR add_exp_identity_video_resource = TRUE OR add_exp_assets_video_resource = TRUE Then email_body = email_body & "<i>" & "&emsp;" & "Retrain Your Brain Videos:" & "</i><br>"
+		If add_exp_timeliness_video_resource = TRUE OR add_exp_identity_video_resource = TRUE OR add_exp_assets_video_resource = TRUE OR add_annotaction_video_resource = TRUE Then email_body = email_body & "<i>" & "&emsp;" & "Retrain Your Brain Videos:" & "</i><br>"
 
 		If add_exp_identity_video_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "https://web.microsoftstream.com/video/5639ccc5-02ba-47b9-a99a-fdcc321b20d6?channelId=a52b0e9b-200d-4e2c-bf78-697fd7d5cf2e" & chr(34) & ">" & "Watch 'SNAP EXP 1 - ID' | Microsoft Stream" & "</a><br>"
 		If add_exp_timeliness_video_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "https://web.microsoftstream.com/video/ef749c68-873c-4719-a6ae-ea18748efc04?channelId=a52b0e9b-200d-4e2c-bf78-697fd7d5cf2e" & chr(34) & ">" & "Watch 'SNAP EXP 2 - Timeliness' | Microsoft Stream" & "</a><br>"
 		If add_exp_assets_video_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "https://web.microsoftstream.com/video/be6bd005-b1ad-4f7c-96a6-05868e296fea?channelId=a52b0e9b-200d-4e2c-bf78-697fd7d5cf2e" & chr(34) & ">" & "Watch 'SNAP EXP 3 - Assets' | Microsoft Stream" & "</a><br>"
+		If add_annotaction_video_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "https://web.microsoftstream.com/video/4fb56128-a9ea-4dec-859a-35f8f96c7c8d" & chr(34) & ">" & "Watch 'MN.benefits.org Application Annotations' | Microsoft Stream" & "</a><br>"
 
 		If add_temp_02_10_01_resource = TRUE OR add_temp_02_10_79_resource = TRUE OR add_temp_19_152_resource = TRUE OR add_temp_16_09_resource = TRUE OR add_temp_02_08_143_resource = TRUE Then email_body = email_body & "<i>" & "&emsp;" & "TEMP Manual:" & "</i><br>"
 
@@ -552,9 +566,10 @@ Select Case correction_process
 		mf_to_FS_col 						= 25
 		case_note_maxis_mismatch_col 		= 26
 		case_note_insufficient_col 			= 27
-		other_notes_col 					= 28
-		worker_to_follow_up_col 			= 29
-		qi_worker_col 						= 30
+		intv_notes_insufficient_col			= 28
+		other_notes_col 					= 29
+		worker_to_follow_up_col 			= 30
+		qi_worker_col 						= 31
 
 		'HERE IS THE TRAKING PART - so we can save the information about what and who we emailed for corrections
 		excel_file_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP SNAP Email Corrections Data.xlsx"
@@ -596,6 +611,7 @@ Select Case correction_process
 		If snap_pending_after_mfip_closed_checkbox = checked 				Then ObjExcel.Cells(excel_row, mf_to_FS_col).Value 						= "X"
 		If maxis_coding_case_note_discrepancy_checkbox = checked			Then ObjExcel.Cells(excel_row, case_note_maxis_mismatch_col).Value 		= "X"
 		If insufficient_case_note_checkbox = checked 						Then ObjExcel.Cells(excel_row, case_note_insufficient_col).Value 		= "X"
+		If insufficient_intv_notes_in_ecf_checkbox = checked 				Then ObjExcel.Cells(excel_row, intv_notes_insufficient_col).Value 		= "X"
 		ObjExcel.Cells(excel_row, other_notes_col).Value 					= email_notes
 		If action_needed = "Case has been updated already - no action needed." Then ObjExcel.Cells(excel_row, worker_to_follow_up_col).Value 		= "NO"
 		If action_needed = "Please update the case to resolve these issues." Then ObjExcel.Cells(excel_row, worker_to_follow_up_col).Value 			= "YES"

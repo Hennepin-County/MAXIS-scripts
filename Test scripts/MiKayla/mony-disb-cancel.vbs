@@ -151,3 +151,39 @@ objExcel.Columns(i).AutoFit()
 NEXT
 STATS_counter = STATS_counter - 1
 script_end_procedure("Success! Please review the list generated.")
+
+
+
+			    'IF action_note = "Case/note updated" or revert_complete = TRUE THEN
+			    '	Call navigate_to_MAXIS_screen("SPEC", "WCOM")
+			    '	MAXIS_row = 7
+			    '	Do
+			    '		EMReadscreen todays_date, 8, MAXIS_row, 16
+			    '		EMReadscreen print_status, 8, MAXIS_row, 71
+			    '		EmReadscreen doc_description, 4, MAXIS_row, 30
+			    '		EmReadscreen prog_type, 2, MAXIS_row, 26
+			    '		IF todays_date = "" THEN
+			    '			EMWaitReady
+			    '			TRANSMIT
+			    '			spec_wcom_canceled = FALSE & "NO DATE"
+			    '		END IF
+			    '		IF todays_date = "12/17/20" THEN 'if i use 12/16/20 it works but even getting it to recognize it 'is a date failed
+			    '			IF print_status = "Canceled" THEN spec_wcom_canceled = FALSE
+			    '		  	IF print_status = "Waiting" THEN
+			    '				If doc_description	= "SEND" THEN
+			    '					IF prog_type = "FS" THEN
+			    '						EMWriteScreen "C", MAXIS_row, 13
+			    '						TRANSMIT
+			    '						spec_wcom_canceled = TRUE
+			    '					END IF
+				'				END IF
+				'			END IF
+			    '		ELSE
+			    '			MAXIS_row = MAXIS_row + 1
+			    '		END IF
+			    '	Loop until MAXIS_row = 10
+				'END IF
+			'END IF
+		'END IF
+	'END IF
+'END IF

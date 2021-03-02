@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/02/2021", "BUG FIX - error for cases with a Significant Change detail in the budget. Added a fix to move past it.", "Casey Love, Hennepin County")
 call changelog_update("11/12/2020", "Updated HSR Manual link for Data Privacy due to SharePoint Online Migration.", "Ilse Ferris, Hennepin County")
 call changelog_update("07/29/2020", "Removed the 'PRINT' default of the document at the end of the script run because we are not currently in the office.", "Casey Love, Hennepin County")
 call changelog_update("07/29/2020", "Removed the option to include income information from MAXIS in the document. The official policy and process needs to be followed for this type of information. Added a button to open the HSR Manual page.", "Casey Love, Hennepin County")
@@ -154,6 +155,8 @@ call navigate_to_MAXIS_screen("case", "curr")
   call find_variable("MFIP: ", MFIP_check, 6)
    If MFIP_check = "ACTIVE" OR MFIP_check = "APP CL" then
 		call navigate_to_MAXIS_screen("elig", "mfip")
+		EMReadScreen are_we_at_sig_change, 4, 3, 38			'If we have a SIG Change budget listed - the version thing doesn't work the same - need to see if we are and transmit past
+		If are_we_at_sig_change = "MFSC" Then transmit
 	  	EMReadScreen version, 1, 2, 12 'Reading the version, the for loop finds most recent approved.
 		For approved = version to 0 Step -1
 			EMReadScreen approved_check, 8, 3, 3

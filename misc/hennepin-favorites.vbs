@@ -666,17 +666,24 @@ FUNCTION favorite_menu(favorites_text_file_string, script_to_run)
     If num_featured_scripts <> 0 THEN dlg_height = dlg_height + 15 + (12 * num_featured_scripts)
 
 	'>>> A nice decoration for the user. If they have used Update Worker Signature, then their signature is built into the dialog display.
-	IF worker_full_name <> "" THEN
-		dlg_name = worker_full_name & "'s Favorite Scripts"
-	ELSEIF worker_signature <> "" THEN
-		dlg_name = worker_signature & "'s Favorite Scripts"
-	ELSE
-		dlg_name = "My Favorite Scripts"
-	END IF
+	' IF worker_full_name <> "" THEN
+	' 	dlg_name = worker_full_name & "'s Favorite Scripts"
+	' ELSEIF worker_signature <> "" THEN
+	' 	dlg_name = worker_signature & "'s Favorite Scripts"
+	' ELSE
+	' 	dlg_name = "My Favorite Scripts"
+	' END IF
 
 	'>>> The dialog
     Dialog1 = ""
-	BeginDialog Dialog1, 0, 0, 700, dlg_height, dlg_name & ""
+	' BeginDialog Dialog1, 0, 0, 700, dlg_height, dlg_name & ""
+	IF worker_full_name <> "" THEN
+		BeginDialog Dialog1, 0, 0, 700, dlg_height, worker_full_name & "'s Favorite Scripts"
+	ELSEIF worker_signature <> "" THEN
+		BeginDialog Dialog1, 0, 0, 700, dlg_height, worker_signature & "'s Favorite Scripts"
+	ELSE
+		BeginDialog Dialog1, 0, 0, 700, dlg_height, "My Favorite Scripts"
+	END IF
   	  ButtonGroup ButtonPressed
 
 		'>>> User's favorites
@@ -699,18 +706,24 @@ FUNCTION favorite_menu(favorites_text_file_string, script_to_run)
             for i = 0 to UBound(featured_scripts_array, 2)
                 script_keys_combine = ""
                 ' If featured_scripts_array(i).dlg_keys(0) <> "" Then script_keys_combine = join(featured_scripts_array(i).dlg_keys, ":")
-                PushButton 		10, 					vert_button_position, 	10, 		10, 			"?", 												SIR_button_placeholder
-                PushButton 		23,						vert_button_position, 	120, 		10, 			featured_scripts_array(script_name_const, i), 			button_placeholder
-                Text 			152, 				    vert_button_position, 	40, 		10, 			"-- " & featured_scripts_array(dlg_keys_const, i) & " --"
+                PushButton 		10, 					vert_button_position, 	10, 		10, 			"?", 																SIR_button_placeholder
+                PushButton 		23,						vert_button_position, 	120, 		10, 			featured_scripts_array(script_name_const, i), 						button_placeholder
+                Text 			152, 				    vert_button_position+1, 40, 		10, 			"-- " & featured_scripts_array(dlg_keys_const, i) & " --"
                 ' PushButton      175,                    vert_button_position,   10,         10,             "+",                                                add_to_favorites_button_placeholder
-                Text            190,                    vert_button_position,   450,        10,             "Featured on " & featured_scripts_array(hot_topic_date_const, i) & " --- " & featured_scripts_array(description_const, i)
-
+            If featured_scripts_array(hot_topic_url, i) = "" Then
+				Text            190,                    vert_button_position,   450,        10,             "Featured on " & featured_scripts_array(hot_topic_date_const, i) & " --- " & featured_scripts_array(description_const, i)
+			Else
+				PushButton		190, 					vert_button_position, 	90, 		10, 			"Featured on " & featured_scripts_array(hot_topic_date_const, i), 	ht_button_placeholder
+				Text            280,                    vert_button_position+1, 375,        10,             " --- " & featured_scripts_array(description_const, i)
+			End If
                 featured_scripts_array(button_const, i) = button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
-                featured_scripts_array(SIR_iinstr_btn_const, i) = SIR_button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
+                featured_scripts_array(SIR_instr_btn_const, i) = SIR_button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
+				featured_scripts_array(HT_btn_const, i) = ht_button_placeholder
 
                 vert_button_position = vert_button_position + 12
                 button_placeholder = button_placeholder + 1			'This gets passed to ButtonPressed where it can be refigured as the selected item in the array by subtracting 100
                 SIR_button_placeholder = SIR_button_placeholder + 1			'This gets passed to ButtonPressed where it can be refigured as the selected item in the array by subtracting 100
+				ht_button_placeholder = ht_button_placeholder + 1
 
             NEXT
             vert_button_position = vert_button_position + 5
@@ -738,7 +751,7 @@ FUNCTION favorite_menu(favorites_text_file_string, script_to_run)
 	                Text            185,                    vert_button_position,   450,        10,             favorite_scripts_array(description_const, i)
 
 	                favorite_scripts_array(button_const, i) = button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
-	                favorite_scripts_array(SIR_iinstr_btn_const, i) = SIR_button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
+	                favorite_scripts_array(SIR_instr_btn_const, i) = SIR_button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
 
 	                vert_button_position = vert_button_position + 12
 	                button_placeholder = button_placeholder + 1			'This gets passed to ButtonPressed where it can be refigured as the selected item in the array by subtracting 100
@@ -755,8 +768,8 @@ FUNCTION favorite_menu(favorites_text_file_string, script_to_run)
 
 		'>>> Now we increment through the new scripts, and create buttons for them
         ' MsgBox new_scripts_array(1).script_name
-        If new_scripts_array(script_name_const, 0) = "" Then
-            Text 185, vert_button_position-5, 200, 10, "*****         No new scripts added in the past 60 Days         *****"
+        If new_scripts_array(script_name_const, 1) = "" Then
+            Text 185, vert_button_position, 200, 10, "*****         No new scripts added in the past 60 Days         *****"
         Else
             Text 5, vert_button_position, 500, 10, "------------------------------------------------------------------------------ NEW SCRIPTS --------------------------------------------------------------------------------"
             vert_button_position = vert_button_position + 12
@@ -770,7 +783,7 @@ FUNCTION favorite_menu(favorites_text_file_string, script_to_run)
                 Text            185,                    vert_button_position,   450,        10,             "NEW " & new_scripts_array(release_date_const, i) & "!!! --- " & new_scripts_array(description_const, i)
 
                 new_scripts_array(button_const, i) = button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
-                new_scripts_array(SIR_iinstr_btn_const, i) = SIR_button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
+                new_scripts_array(SIR_instr_btn_const, i) = SIR_button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
 
                 vert_button_position = vert_button_position + 12
                 button_placeholder = button_placeholder + 1			'This gets passed to ButtonPressed where it can be refigured as the selected item in the array by subtracting 100
@@ -806,21 +819,22 @@ FUNCTION favorite_menu(favorites_text_file_string, script_to_run)
     	End if
 
         For i = 0 to ubound(featured_scripts_array, 2)
-            If ButtonPressed = featured_scripts_array(SIR_iinstr_btn_const, i) then call open_URL_in_browser(featured_scripts_array(instsr_URL_const, i))
-            If ButtonPressed = featured_scripts_array(button_const, i) then
+            If ButtonPressed = featured_scripts_array(SIR_instr_btn_const, i) then call open_URL_in_browser(featured_scripts_array(instsr_URL_const, i))
+			If ButtonPressed = featured_scripts_array(HT_btn_const, i) then call open_URL_in_browser(featured_scripts_array(hot_topic_url, i))
+			If ButtonPressed = featured_scripts_array(button_const, i) then
                 script_to_run = featured_scripts_array(script_URL_const, i)
                 Exit For
             End If
         Next
         For i = 0 to ubound(favorite_scripts_array, 2)
-            If ButtonPressed = favorite_scripts_array(SIR_iinstr_btn_const, i) then call open_URL_in_browser(favorite_scripts_array(instsr_URL_const, i))
+            If ButtonPressed = favorite_scripts_array(SIR_instr_btn_const, i) then call open_URL_in_browser(favorite_scripts_array(instsr_URL_const, i))
             If ButtonPressed = favorite_scripts_array(button_const, i) then
                 script_to_run = favorite_scripts_array(script_URL_const,  i)
                 Exit For
             End If
         Next
         For i = 0 to ubound(new_scripts_array, 2)
-            If ButtonPressed = new_scripts_array(SIR_iinstr_btn_const, i) then call open_URL_in_browser(new_scripts_array(instsr_URL_const, i))
+            If ButtonPressed = new_scripts_array(SIR_instr_btn_const, i) then call open_URL_in_browser(new_scripts_array(instsr_URL_const, i))
             If ButtonPressed = new_scripts_array(button_const, i) then
                 script_to_run = new_scripts_array(script_URL_const, i)
                 Exit For
@@ -939,10 +953,12 @@ const tags_const			= 4
 const dlg_keys_const		= 5
 const keywords_const		= 6
 const button_const			= 7
-const SIR_iinstr_btn_const	= 8
+const SIR_instr_btn_const	= 8
 const instsr_URL_const		= 9
 const script_URL_const		= 10
 const retirement_date_const = 11
+const HT_btn_const			= 12
+const hot_topic_url			= 13
 const hot_topic_date_const	= 15
 
 Dim favorite_scripts_array
@@ -1048,7 +1064,7 @@ FOR i = 0 TO Ubound(script_array)
     end if
 
     If IsDate(script_array(i).hot_topic_date) = TRUE Then
-        IF DateDiff("d", script_array(i).hot_topic_date, date) < 7 Then
+        IF DateDiff("d", script_array(i).hot_topic_date, date) < 60 Then
 
             ReDim Preserve featured_scripts_array(hot_topic_date_const, num_featured_scripts)
 			featured_scripts_array(script_name_const, num_featured_scripts)		= script_array(i).script_name
@@ -1062,6 +1078,7 @@ FOR i = 0 TO Ubound(script_array)
             featured_scripts_array(hot_topic_date_const, num_featured_scripts)	= script_array(i).hot_topic_date
 			featured_scripts_array(instsr_URL_const, num_featured_scripts)		= script_array(i).SharePoint_instructions_URL
 			featured_scripts_array(script_URL_const, num_featured_scripts)		= script_array(i).script_URL
+			featured_scripts_array(hot_topic_url, num_featured_scripts)			= script_array(i).hot_topic_link
 
 			num_featured_scripts = num_featured_scripts + 1
 

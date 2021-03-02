@@ -168,7 +168,7 @@ function declare_tabbed_menu(tab_selected)
                     scripts_included = scripts_included + 1
                 End If
                 If IsDate(script_array(current_script).hot_topic_date) = TRUE Then
-                    If DateDiff("d", script_array(current_script).hot_topic_date, one_month_ago) <= 0 Then
+                    If DateDiff("d", script_array(current_script).hot_topic_date, two_months_ago) <= 0 Then
                         script_array(current_script).show_script = TRUE
                         hot_topic_script_to_list = TRUE
                         scripts_included = scripts_included + 1
@@ -260,7 +260,7 @@ function declare_tabbed_menu(tab_selected)
                     dlg_len = dlg_len + 15
                 End If
                 If IsDate(script_array(current_script).hot_topic_date) = TRUE Then
-                    If DateDiff("d", script_array(current_script).hot_topic_date, one_month_ago) <= 0 Then
+                    If DateDiff("d", script_array(current_script).hot_topic_date, two_months_ago) <= 0 Then
                         dlg_len = dlg_len + 15
                     End If
                 End If
@@ -375,6 +375,7 @@ function declare_tabbed_menu(tab_selected)
                         '             If UCase(listed_tag) = UCase(tab_selected) then
                                         SIR_button_placeholder = button_placeholder + 1	'We always want this to be one more than the button_placeholder
                                         add_to_favorites_button_placeholder = button_placeholder + 2
+										ht_button_placeholder = button_placeholder + 3
                                         script_keys_combine = ""
                                         If script_array(current_script).dlg_keys(0) <> "" Then script_keys_combine = Join(script_array(current_script).dlg_keys, ":")
 
@@ -384,14 +385,19 @@ function declare_tabbed_menu(tab_selected)
                                         PushButton 		18,						vert_button_position, 	120, 		12, 			script_array(current_script).script_name, 			button_placeholder
                                         PushButton      140,                    vert_button_position,   10,         12,             "+",                                                add_to_favorites_button_placeholder
                                         Text 			150, 				    vert_button_position+1, 65, 		14, 			"-- " & script_keys_combine & " --"
-                                        Text            210,                    vert_button_position+1, 425,        14,             script_array(current_script).description
-                                        '----------
+									If script_array(current_script).hot_topic_link = "" Then
+										Text            210,                    vert_button_position+1, 425,        14,             script_array(current_script).description
+									Else
+										PushButton		210,					vert_button_position, 	15, 		12, 			"HT",												ht_button_placeholder
+										Text            225,                    vert_button_position+1, 425,        14,             script_array(current_script).description
+									End If                                        '----------
                                         vert_button_position = vert_button_position + 15	'Needs to increment the vert_button_position by 15px (used by both the text and buttons)
                                         '----------
                                         script_array(current_script).button = button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
                                         script_array(current_script).SIR_instructions_button = SIR_button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
                                         script_array(current_script).fav_add_button = add_to_favorites_button_placeholder
-                                        button_placeholder = button_placeholder + 3
+										script_array(current_script).script_btn_one = ht_button_placeholder
+                                        button_placeholder = button_placeholder + 4
 
                         '             End If
                         '         End If
@@ -452,6 +458,7 @@ function declare_tabbed_menu(tab_selected)
 							If show_this_one = TRUE Then
 	                            SIR_button_placeholder = button_placeholder + 1	'We always want this to be one more than the button_placeholder
 	                            add_to_favorites_button_placeholder = button_placeholder + 2
+								ht_button_placeholder = button_placeholder + 3
 	                            script_keys_combine = ""
 	                            If script_array(current_script).dlg_keys(0) <> "" Then script_keys_combine = Join(script_array(current_script).dlg_keys, ":")
 
@@ -461,14 +468,19 @@ function declare_tabbed_menu(tab_selected)
 	                            PushButton 		18,						vert_button_position, 	120, 		12, 			script_array(current_script).script_name, 			button_placeholder
 	                            PushButton      140,                    vert_button_position,   10,         12,             "+",                                                add_to_favorites_button_placeholder
 	                            Text 			150, 				    vert_button_position+1, 65, 		14, 			"-- " & script_keys_combine & " --"
-	                            Text            210,                    vert_button_position+1, 425,        14,             script_array(current_script).description
-	                            '----------
+							If script_array(current_script).hot_topic_link = "" Then
+								Text            210,                    vert_button_position+1, 425,        14,             script_array(current_script).description
+							Else
+								PushButton		210,					vert_button_position, 	15, 		12, 			"HT",												ht_button_placeholder
+								Text            225,                    vert_button_position+1, 425,        14,             script_array(current_script).description
+							End If	                            '----------
 	                            vert_button_position = vert_button_position + 15	'Needs to increment the vert_button_position by 15px (used by both the text and buttons)
 	                            '----------
 	                            script_array(current_script).button = button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
 	                            script_array(current_script).SIR_instructions_button = SIR_button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
 	                            script_array(current_script).fav_add_button = add_to_favorites_button_placeholder
-	                            button_placeholder = button_placeholder + 3
+								script_array(current_script).script_btn_one = ht_button_placeholder
+								button_placeholder = button_placeholder + 4
 							End If
                         End If
                     Next
@@ -480,9 +492,10 @@ function declare_tabbed_menu(tab_selected)
                     vert_button_position = vert_button_position + 10
                     For current_script = 0 to ubound(script_array)
                         If IsDate(script_array(current_script).hot_topic_date) = TRUE Then
-                            If DateDiff("d", script_array(current_script).hot_topic_date, one_month_ago) <= 0 Then
+                            If DateDiff("d", script_array(current_script).hot_topic_date, two_months_ago) <= 0 Then
                                 SIR_button_placeholder = button_placeholder + 1	'We always want this to be one more than the button_placeholder
                                 add_to_favorites_button_placeholder = button_placeholder + 2
+								ht_button_placeholder = button_placeholder + 3
                                 script_keys_combine = ""
                                 If script_array(current_script).dlg_keys(0) <> "" Then script_keys_combine = Join(script_array(current_script).dlg_keys, ":")
 
@@ -492,14 +505,20 @@ function declare_tabbed_menu(tab_selected)
                                 PushButton 		18,						vert_button_position, 	120, 		12, 			script_array(current_script).script_name, 			button_placeholder
                                 PushButton      140,                    vert_button_position,   10,         12,             "+",                                                add_to_favorites_button_placeholder
                                 Text 			150, 				    vert_button_position+1, 65, 		14, 			"-- " & script_keys_combine & " --"
-                                Text            210,                    vert_button_position+1, 425,        14,             script_array(current_script).description
+							If script_array(current_script).hot_topic_link = "" Then
+								Text            210,                    vert_button_position+1, 425,        14,             script_array(current_script).description
+							Else
+								PushButton		210,					vert_button_position, 	15, 		12, 			"HT",												ht_button_placeholder
+								Text            225,                    vert_button_position+1, 425,        14,             script_array(current_script).description
+							End If
                                 '----------
                                 vert_button_position = vert_button_position + 15	'Needs to increment the vert_button_position by 15px (used by both the text and buttons)
                                 '----------
                                 script_array(current_script).button = button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
                                 script_array(current_script).SIR_instructions_button = SIR_button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
                                 script_array(current_script).fav_add_button = add_to_favorites_button_placeholder
-                                button_placeholder = button_placeholder + 3
+								script_array(current_script).script_btn_one = ht_button_placeholder
+                                button_placeholder = button_placeholder + 4
                             End If
                         End If
                     Next
@@ -813,11 +832,11 @@ Do
         current_page = "Three"
     End If
     If ButtonPressed = dail_scrubber_instructions_btn Then
-        Call open_URL_in_browser("https://dept.hennepin.us/hsphd/sa/ews/BlueZone_Script_Instructions/DAIL/ALL%20DAIL%20SCRIPTS.docx")
+        Call open_URL_in_browser("https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/DAIL/ALL%20DAIL%20SCRIPTS.docx")
         ' leave_loop = FALSE
     End If
     If ButtonPressed = hot_topics_btn OR ButtonPressed = script_error_report_btn OR ButtonPressed = script_idea_report_btn OR ButtonPressed = script_demo_btn OR ButtonPressed = email_bzst_btn OR ButtonPressed = email_qi_btn Then
-        If ButtonPressed = hot_topics_btn Then Call open_URL_in_browser("https://dept.hennepin.us/hsphd/sa/ews/afepages/Adults%20and%20Families%20Eligibility.aspx")
+        If ButtonPressed = hot_topics_btn Then Call open_URL_in_browser("https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/SitePages/Economic_Supports_ES_Zone.aspx")
         If ButtonPressed = script_error_report_btn Then Call send_script_error
         ' If ButtonPressed = script_idea_report_btn Then
         ' If ButtonPressed = script_demo_btn Then
@@ -998,6 +1017,9 @@ Do
             call open_URL_in_browser(script_array(i).SharePoint_instructions_URL)
             ' leave_loop = FALSE
         End If
+		If ButtonPressed = script_array(i).script_btn_one then
+			call open_URL_in_browser(script_array(i).hot_topic_link)
+		End If
         If ButtonPressed = script_array(i).fav_add_button then
             ' MsgBox "Script in favorites - " & script_array(i).script_in_favorites
             If script_array(i).script_in_favorites = TRUE Then

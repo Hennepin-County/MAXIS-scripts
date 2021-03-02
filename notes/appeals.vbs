@@ -248,6 +248,7 @@ IF programs_applied_for = " " THEN programs_applied_for = replace(programs_appli
 IF additional_programs_applied_for = "" THEN additional_programs_applied_for = replace(additional_programs_applied_for, " ", "None")
 IF active_programs = " " THEN active_programs = replace(active_programs, " ", "None")
 
+IF appeal_actions = "Received" or appeal_actions = "Summary Completed" OR appeal_actions = "Pending Request" OR appeal_actions = "Reconsideration" THEN
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 286, 210, "Received - App pend: "  & programs_applied_for & additional_programs_applied_for & " Active on: "  & active_programs
@@ -330,7 +331,7 @@ IF TRANSPORT_checkbox = CHECKED THEN appeal_programs =  appeal_programs & "TRANS
 appeal_programs = trim(appeal_programs)  'trims excess spaces of appeal_programs
 If right(appeal_programs, 1) = "," THEN appeal_programs = left(appeal_programs, len(appeal_programs) - 1)
 
-IF appeal_actions = "Received" or appeal_actions = "Summary Completed" OR appeal_actions = "Pending Request" OR appeal_actions = "Reconsideration" THEN
+
     start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
     CALL write_variable_in_CASE_NOTE("-----Appeal " & appeal_actions & "-----")
     CALL write_bullet_and_variable_in_CASE_NOTE("Docket Number", docket_number)
@@ -356,22 +357,26 @@ END IF
 
 IF appeal_actions = "Hearing Information" THEN
     '-------------------------------------------------------------------------------------------------DIALOG
-    Dialog1 = "" 'Blanking out previous dialog detail
-    BeginDialog Dialog1, 0, 0, 286, 85, "Hearing Information"
+    BeginDialog Dialog1, 0, 0, 286, 110, "Hearing Information"
       EditBox 65, 5, 55, 15, hearing_date
       EditBox 225, 5, 55, 15, anticipated_date_result
-      EditBox 65, 25, 215, 15, hearing_details
-      EditBox 65, 45, 215, 15, other_notes
-      DropListBox 65, 65, 60, 15, "Select One:"+chr(9)+"Yes, in person"+chr(9)+"Yes, by phone"+chr(9)+"Did not attend", appeal_attendence
+      DropListBox 65, 25, 60, 15, "Select One:"+chr(9)+"Yes, in person"+chr(9)+"Yes, by phone"+chr(9)+"Did not attend", appeal_attendence
+      EditBox 225, 25, 55, 15, docket_number
+      EditBox 65, 45, 215, 15, hearing_details
+      EditBox 65, 65, 215, 15, other_notes
+      EditBox 65, 85, 105, 15, worker_signature
       ButtonGroup ButtonPressed
-        OkButton 175, 65, 50, 15
-        CancelButton 230, 65, 50, 15
+        OkButton 175, 85, 50, 15
+        CancelButton 230, 85, 50, 15
+      Text 5, 30, 55, 10, "Client Attended:"
+      Text 5, 50, 55, 10, "Hearing Details:"
+      Text 5, 70, 45, 10, "Other Notes:"
       Text 5, 10, 60, 10, "Date Of Hearing:"
+      Text 190, 30, 35, 10, "Docket #:"
       Text 135, 10, 85, 10, "Anticipated Decision Date:"
-      Text 5, 70, 55, 10, "Client Attended:"
-      Text 5, 30, 55, 10, "Hearing Details:"
-      Text 5, 50, 55, 10, "Other Notes:"
+      Text 5, 90, 60, 10, "Worker Signature:"
     EndDialog
+
 
     DO
         Do
@@ -403,22 +408,24 @@ END IF
 
 IF appeal_actions = "Decision Received" THEN
     '-------------------------------------------------------------------------------------------------DIALOG
-    Dialog1 = "" 'Blanking out previous dialog detail
-    BeginDialog Dialog1, 0, 0, 346, 120, "Appeal decision received"
-      EditBox 85, 10, 245, 15, disposition_of_appeal
-      EditBox 85, 35, 245, 15, actions_needed
-      EditBox 85, 60, 60, 15, date_signed_by_judge
-      DropListBox 275, 60, 55, 15, "Select One:"+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"NA", compliance_form_needed
-      EditBox 85, 90, 135, 15, worker_signature
+    BeginDialog Dialog1, 0, 0, 346, 120, "Appeal Decision Received"
+      EditBox 270, 5, 60, 15, docket_number
+      EditBox 85, 25, 245, 15, disposition_of_appeal
+      EditBox 85, 45, 245, 15, actions_needed
+      EditBox 85, 65, 60, 15, date_signed_by_judge
+      DropListBox 275, 65, 55, 15, "Select One:"+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"NA", compliance_form_needed
+      EditBox 85, 85, 135, 15, worker_signature
       ButtonGroup ButtonPressed
-    OkButton 225, 90, 50, 15
-    CancelButton 280, 90, 50, 15
-      Text 20, 95, 60, 10, "Worker Signature:"
-      Text 5, 15, 75, 10, "Disposition of appeal:"
-      Text 10, 65, 75, 10, "Date signed by judge:"
-      Text 155, 65, 115, 10, "SNAP compliance form completed:"
-      Text 25, 40, 55, 10, "Actions needed:"
+        OkButton 230, 85, 50, 15
+        CancelButton 280, 85, 50, 15
+      Text 5, 30, 75, 10, "Disposition of appeal:"
+      Text 155, 70, 115, 10, "SNAP compliance form completed:"
+      Text 5, 50, 55, 10, "Actions needed:"
+      Text 5, 90, 60, 10, "Worker Signature:"
+      Text 230, 10, 40, 10, "Docket #:"
+      Text 5, 70, 75, 10, "Date signed by judge:"
     EndDialog
+
     'Shows dialog and creates and displays an error message if worker completes things incorrectly.
     Do
         Do
@@ -481,7 +488,7 @@ IF appeal_actions = "Resolution" THEN
 
     start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
     Call write_variable_in_CASE_NOTE("-----Appeal Resolution-----")
-    CALL write_bullet_and_variable_in_CASE_NOTE("Docket Number", docket_number)
+    'CALL write_bullet_and_variable_in_CASE_NOTE("Docket Number", docket_number)
     IF Further_Action_Required_checkbox = CHECKED THEN Call write_bullet_and_variable_in_CASE_NOTE("Further Action Required", actions_taken_required)
     IF Overpayments_Required_checkbox = CHECKED THEN
         Call write_variable_in_CASE_NOTE("* Overpayments Required")
