@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/02/2021", "Update EZ Info Phone hours from 9-4 pm to 8-4:30 pm.", "Ilse Ferris, Hennepin County")
 call changelog_update("05/28/2020", "Update to the notice wording, added virtual drop box information.", "MiKayla Handley, Hennepin County")
 call changelog_update("05/13/2020", "Update to the notice wording. Information and direction for in-person interview option removed. County offices are not currently open due to the COVID-19 Peacetime Emergency.", "Casey Love, Hennepin County")
 call changelog_update("01/30/2019", "Added statistics tracking.", "Casey Love, Hennepin County")
@@ -156,7 +157,7 @@ Call write_variable_in_SPEC_MEMO("Your interview should have been completed by "
 Call write_variable_in_SPEC_MEMO("An interview is required to process your application.")
 Call write_variable_in_SPEC_MEMO(" ")
 Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at")
-Call write_variable_in_SPEC_MEMO("612-596-1300 between 9:00am and 4:00pm Monday thru Friday.")
+Call write_variable_in_SPEC_MEMO("612-596-1300 between 8:00am and 4:30pm Monday thru Friday.")
 Call write_variable_in_SPEC_MEMO(" ")
 Call write_variable_in_SPEC_MEMO("* You may be able to have SNAP benefits issued within 24 hours of the interview.")
 ' Call write_variable_in_SPEC_MEMO(" ")											'removal of in person verbiage during the COVID-19 PEACETIME STATE OF EMERGENCY
