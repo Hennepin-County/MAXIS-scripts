@@ -5418,6 +5418,17 @@ function MAXIS_dialog_navigation()
 	End if
 
 	'This part takes care of remaining navigation buttons, designed to go to a single panel.
+	If ButtonPressed = ADHI_button then call navigate_to_MAXIS_screen("case", "ADHI")
+	If ButtonPressed = CURR_button then call navigate_to_MAXIS_screen("case", "CURR")
+	If ButtonPressed = ELIG_DWP_button then call navigate_to_MAXIS_screen("elig", "DWP_")
+	If ButtonPressed = ELIG_FS_button then call navigate_to_MAXIS_screen("elig", "FS__")
+	If ButtonPressed = ELIG_GA_button then call navigate_to_MAXIS_screen("elig", "GA__")
+	If ButtonPressed = ELIG_HC_button then call navigate_to_MAXIS_screen("elig", "HC__")
+	If ButtonPressed = ELIG_MFIP_button then call navigate_to_MAXIS_screen("elig", "MFIP")
+	If ButtonPressed = ELIG_MSA_button then call navigate_to_MAXIS_screen("elig", "MSA_")
+	If ButtonPressed = ELIG_WB_button then call navigate_to_MAXIS_screen("elig", "WB__")
+	If ButtonPressed = ELIG_GRH_button then call navigate_to_MAXIS_screen("elig", "GRH_")
+	IF ButtonPressed = ELIG_SUMM_button then call navigate_to_MAXIS_screen("elig", "SUMM")
 	If ButtonPressed = ABPS_button then call navigate_to_MAXIS_screen("stat", "ABPS")
 	If ButtonPressed = ACCI_button then call navigate_to_MAXIS_screen("stat", "ACCI")
 	If ButtonPressed = ACCT_button then call navigate_to_MAXIS_screen("stat", "ACCT")
@@ -5430,7 +5441,6 @@ function MAXIS_dialog_navigation()
 	If ButtonPressed = BUSI_button then call navigate_to_MAXIS_screen("stat", "BUSI")
 	If ButtonPressed = CARS_button then call navigate_to_MAXIS_screen("stat", "CARS")
 	If ButtonPressed = CASH_button then call navigate_to_MAXIS_screen("stat", "CASH")
-    If ButtonPressed = CURR_button then call navigate_to_MAXIS_screen("case", "CURR")
 	If ButtonPressed = COEX_button then call navigate_to_MAXIS_screen("stat", "COEX")
 	If ButtonPressed = DCEX_button then call navigate_to_MAXIS_screen("stat", "DCEX")
 	If ButtonPressed = DFLN_button then call navigate_to_MAXIS_screen("stat", "DFLN")
@@ -5438,15 +5448,6 @@ function MAXIS_dialog_navigation()
 	If ButtonPressed = DISA_button then call navigate_to_MAXIS_screen("stat", "DISA")
 	If ButtonPressed = DISQ_button then call navigate_to_MAXIS_screen("stat", "DISQ")
 	If ButtonPressed = EATS_button then call navigate_to_MAXIS_screen("stat", "EATS")
-	If ButtonPressed = ELIG_DWP_button then call navigate_to_MAXIS_screen("elig", "DWP_")
-	If ButtonPressed = ELIG_FS_button then call navigate_to_MAXIS_screen("elig", "FS__")
-	If ButtonPressed = ELIG_GA_button then call navigate_to_MAXIS_screen("elig", "GA__")
-	If ButtonPressed = ELIG_HC_button then call navigate_to_MAXIS_screen("elig", "HC__")
-	If ButtonPressed = ELIG_MFIP_button then call navigate_to_MAXIS_screen("elig", "MFIP")
-	If ButtonPressed = ELIG_MSA_button then call navigate_to_MAXIS_screen("elig", "MSA_")
-	If ButtonPressed = ELIG_WB_button then call navigate_to_MAXIS_screen("elig", "WB__")
-	If ButtonPressed = ELIG_GRH_button then call navigate_to_MAXIS_screen("elig", "GRH_")
-    IF ButtonPressed = ELIG_SUMM_button then call navigate_to_MAXIS_screen("elig", "SUMM")
 	If ButtonPressed = EMMA_button then call navigate_to_MAXIS_screen("stat", "EMMA")
 	If ButtonPressed = EMPS_button then call navigate_to_MAXIS_screen("stat", "EMPS")
 	If ButtonPressed = FACI_button then call navigate_to_MAXIS_screen("stat", "FACI")
@@ -5583,11 +5584,11 @@ Function MMIS_case_number_finder(MMIS_case_number)
 End Function
 
 Function MMIS_panel_confirmation(panel_name, col)
-'--- This function confirms that a user in on the correct MMIS panel. 
+'--- This function confirms that a user in on the correct MMIS panel.
 '~~~~~ panel_name: name of the panel you are confirming as a string in ""
-'~~~~~ col: The column which to start reading the panel name. For instance, this is usually 51 or 52 in MMIS. 
-'===== Keywords: MMIS, navigate, confirm 
-	Do 
+'~~~~~ col: The column which to start reading the panel name. For instance, this is usually 51 or 52 in MMIS.
+'===== Keywords: MMIS, navigate, confirm
+	Do
 		EMReadScreen panel_check, 4, 1, col
 		If panel_check <> panel_name then Call write_value_and_transmit(panel_name, 1, 8)
 	Loop until panel_check = panel_name
@@ -5952,14 +5953,14 @@ function navigate_to_MMIS_region(group_security_selection)
 end function
 
 Function non_actionable_dails(actionable_dail)
-'--- This function used to determine if a DAIL message is actionable or non-actionable as determined by the QI Team. 
+'--- This function used to determine if a DAIL message is actionable or non-actionable as determined by the QI Team.
 '~~~~~ actionable_dail: boolean variable to determine if message is actionable or not.
 '===== Keywords: MAXIS, DAIL
     'Valuing variables used within the function
     this_month = CM_mo & " " & CM_yr
     next_month = CM_plus_1_mo & " " & CM_plus_1_yr
     CM_minus_2_mo =  right("0" & DatePart("m", DateAdd("m", -2, date)), 2)
-    
+
     actionable_dail = True    'Defaulting to True
     If instr(dail_msg, "AMT CHILD SUPP MOD/ORD") OR _
         instr(dail_msg, "AP OF CHILD REF NBR:") OR _
@@ -6042,7 +6043,7 @@ Function non_actionable_dails(actionable_dail)
         instr(dail_msg, "RSDI UPDATED - (REF") OR _
         instr(dail_msg, "SSI UPDATED - (REF") OR _
         instr(dail_msg, "SNAP ABAWD ELIGIBILITY HAS EXPIRED, APPROVE NEW ELIG RESULTS") then
-            actionable_dail = False 
+            actionable_dail = False
         '----------------------------------------------------------------------------------------------------CORRECT STAT EDITS over 5 days old
     Elseif dail_type = "STAT" or instr(dail_msg, "NEW FIAT RESULTS EXIST") then
         EmReadscreen stat_date, 8, dail_row, 39
@@ -6055,7 +6056,7 @@ Function non_actionable_dails(actionable_dail)
         If isdate(stat_date) = True then
             five_days_ago = DateAdd("d", -5, date)
             If cdate(five_days_ago) => cdate(stat_date) then
-                'messages over 5 days old are non-actionable 
+                'messages over 5 days old are non-actionable
                 actionable_dail = False
             Else
                 actionable_dail = True
