@@ -53,6 +53,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County
+call changelog_update("03/02/2021", "Update EZ Info Phone hours from 9-4 pm to 8-4:30 pm.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("08/24/2020", "Added SHIBA application and combined CA and NOTES scripts.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("06/10/2020", "Email functionality removed for Triagers.", "MiKayla Handley, Hennepin County")
 call changelog_update("05/28/2020", "Update to the notice wording, added virtual drop box information.", "MiKayla Handley, Hennepin County")
@@ -793,7 +794,7 @@ IF send_appt_ltr = TRUE THEN
     Call write_variable_in_SPEC_MEMO(" ")
     Call write_variable_in_SPEC_MEMO("** The interview must be completed by " & interview_date & ". **")
     Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at")
-    Call write_variable_in_SPEC_MEMO("612-596-1300 between 9:00am and 4:00pm Monday thru Friday.")
+    Call write_variable_in_SPEC_MEMO("612-596-1300 between 8:00am and 4:30pm Monday thru Friday.")
     Call write_variable_in_SPEC_MEMO(" ")
     Call write_variable_in_SPEC_MEMO("* You may be able to have SNAP benefits issued within 24 hours of the interview.")
     ' Call write_variable_in_SPEC_MEMO(" ")                                     'removal of in person verbiage during the COVID-19 PEACETIME STATE OF EMERGENCY
