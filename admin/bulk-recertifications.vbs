@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/02/2021", "Update EZ Info Phone hours from 9-4 pm to 8-4:30 pm.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("04/10/2019", "Updated the default for running the script in Data Only.", "Casey Love, Hennepin County")
 CALL changelog_update("07/20/2018", "Updated verbiage for Appointment Notices and NOMIs", "Casey Love, Hennepin County")
 call changelog_update("06/01/2018", "Initial version.", "Casey Love, Hennepin County")
@@ -714,7 +715,7 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                     Memo_to_display = Memo_to_display & vbNewLine & "Fadlan saxiix, taariikhdana ku qor oo soo celi waraaqaha cusboonaysiinta" & CM_plus_1_mo & "/08/" & CM_plus_1_yr & ". Waa inaad sidoo kale buuxusaa wareysiga " & programs & "-gaaga si kiisku u sii socdo."
                     Memo_to_display = Memo_to_display & vbNewLine & ""
                     Memo_to_display = Memo_to_display & vbNewLine & "*Fadlan dhammaystir wareysigaaga inta ka horreysa " & interview_end_date & "*"
-                    Memo_to_display = Memo_to_display & vbNewLine & "Si aad u dhamaystirto wareysiga telefoonka, wac laynka taleefanka EZ 612-596-1300 inta u dhaxaysa 9:00 subaxnimo ilaa 4:00 galabnimo Isniinta ilaa Jimcaha."
+                    Memo_to_display = Memo_to_display & vbNewLine & "Si aad u dhamaystirto wareysiga telefoonka, wac laynka taleefanka EZ 612-596-1300 inta u dhaxaysa 8:00 subaxnimo ilaa 4:30 galabnimo Isniinta ilaa Jimcaha."
                     Memo_to_display = Memo_to_display & vbNewLine & ""
                     Memo_to_display = Memo_to_display & vbNewLine & "* Kiiskaaga " & programs & " wuxuu xirmi doonaa " & last_day_of_recert & " haddii *"
                     Memo_to_display = Memo_to_display & vbNewLine & "* aynan helin waraaqahaaga iyo dhamaystirka wareysiga. *"
@@ -767,7 +768,7 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                     Memo_to_display = Memo_to_display & vbNewLine & ""
                     Memo_to_display = Memo_to_display & vbNewLine & "Thov kos npe, tso sij hawm thiab muaj xa cov ntawv tauj rov qab tuaj ua ntej " & CM_plus_1_mo & "/08/" & CM_plus_1_yr & ". Koj yuav tsum mus xam phaj txog koj cov kev pab " & programs & " mas thiaj li tauj tau."
                     Memo_to_display = Memo_to_display & vbNewLine & "*** Thov mus xam phaj ua ntej " & interview_end_date & ". ***"
-                    Memo_to_display = Memo_to_display & vbNewLine & "Yog xam phaj hauv xov tooj, hu rau EZ Info Line ntawm 612-596-1300 thaum 9:00am thib 4:00pm hnub Mon txog Fri."
+                    Memo_to_display = Memo_to_display & vbNewLine & "Yog xam phaj hauv xov tooj, hu rau EZ Info Line ntawm 612-596-1300 thaum 8:00am thib 4:30pm hnub Mon txog Fri."
                     Memo_to_display = Memo_to_display & vbNewLine & "** Koj cov kev pab " & programs & " yuav muab kaw thaum     **"
                     Memo_to_display = Memo_to_display & vbNewLine & "** " & last_day_of_recert & " tsis li mas peb yuav tsum tau txais koj cov**"
                     Memo_to_display = Memo_to_display & vbNewLine & "**      ntaub ntawvthiab koj txoj kev xam phaj.          **"
@@ -794,7 +795,7 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                 '     Memo_to_display = Memo_to_display & vbNewLine & "Podpishite, ukazhite datu i vernite dokumenty' o prodlenii do " & CM_plus_1_mo & "/08/" & CM_plus_1_yr & ". Vy' takzhe dolzhny' projti sobesedovanie dlya prodleniya svoego " & programs & " dela."
                 '     Memo_to_display = Memo_to_display & vbNewLine & ""
                 '     Memo_to_display = Memo_to_display & vbNewLine & "*** Pozhalujsta, projdite sobesedovanie do " & interview_end_date & ". ***"
-                '     Memo_to_display = Memo_to_display & vbNewLine & "Chtoby' zavershit' sobesedovanie po telefonu, pozvonite v Informaczionnuyu liniyu EZ po telefonu 612-596-1300 s 9:00 do 16:00 s ponedel'nika po pyatniczu."
+                '     Memo_to_display = Memo_to_display & vbNewLine & "Chtoby' zavershit' sobesedovanie po telefonu, pozvonite v Informaczionnuyu liniyu EZ po telefonu 612-596-1300 s 8:00 do 16:00 s ponedel'nika po pyatniczu."
                 '     Memo_to_display = Memo_to_display & vbNewLine & ""
                 '     Memo_to_display = Memo_to_display & vbNewLine & "**Vash delo " & programs & " zakroetsya " & last_day_of_recert & ", za**"
                 '     Memo_to_display = Memo_to_display & vbNewLine & "** isklyucheniem esli my' poluchim vashi dokumenty'  **"
@@ -821,7 +822,7 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                     Memo_to_display = Memo_to_display & vbNewLine & ""
                     Memo_to_display = Memo_to_display & vbNewLine & "  *** Please complete your interview by " & interview_end_date & ". ***"
                     Memo_to_display = Memo_to_display & vbNewLine & "To complete a phone interview, call the EZ Info Line at"
-                    Memo_to_display = Memo_to_display & vbNewLine & "612-596-1300 between 9:00am and 4:00pm Monday thru Friday."
+                    Memo_to_display = Memo_to_display & vbNewLine & "612-596-1300 between 8:00am and 4:30pm Monday thru Friday."
                     Memo_to_display = Memo_to_display & vbNewLine & ""
                     Memo_to_display = Memo_to_display & vbNewLine & "**  Your " & programs & " case will close on " & last_day_of_recert & " unless    **"
                     Memo_to_display = Memo_to_display & vbNewLine & "** we receive your paperwork and complete the interview. **"
@@ -881,7 +882,7 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                             CALL write_variable_in_SPEC_MEMO("Fadlan saxiix, taariikhdana ku qor oo soo celi waraaqaha cusboonaysiinta" & CM_plus_1_mo & "/08/" & CM_plus_1_yr & ". Waa inaad sidoo kale buuxusaa wareysiga " & programs & "-gaaga si kiisku u sii socdo.")
                             'CALL write_variable_in_SPEC_MEMO("")
                             CALL write_variable_in_SPEC_MEMO("*Fadlan dhammaystir wareysigaaga inta ka horreysa " & interview_end_date & "*")
-                            CALL write_variable_in_SPEC_MEMO("Si aad u dhamaystirto wareysiga telefoonka, wac laynka taleefanka EZ 612-596-1300 inta u dhaxaysa 9:00 subaxnimo ilaa 4:00 galabnimo Isniinta ilaa Jimcaha.")
+                            CALL write_variable_in_SPEC_MEMO("Si aad u dhamaystirto wareysiga telefoonka, wac laynka taleefanka EZ 612-596-1300 inta u dhaxaysa 8:00 subaxnimo ilaa 4:30 galabnimo Isniinta ilaa Jimcaha.")
                             'CALL write_variable_in_SPEC_MEMO("")
                             CALL write_variable_in_SPEC_MEMO("* Kiiskaaga " & programs & " wuxuu xirmi doonaa " & last_day_of_recert & " haddii *")
                             CALL write_variable_in_SPEC_MEMO("* aynan helin waraaqahaaga iyo dhamaystirka wareysiga. *")
@@ -933,7 +934,7 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                             'CALL write_variable_in_SPEC_MEMO("")
                             CALL write_variable_in_SPEC_MEMO("Thov kos npe, tso sij hawm thiab muaj xa cov ntawv tauj rov qab tuaj ua ntej " & CM_plus_1_mo & "/08/" & CM_plus_1_yr & ". Koj yuav tsum mus xam phaj txog koj cov kev pab " & programs & " mas thiaj li tauj tau.")
                             CALL write_variable_in_SPEC_MEMO("     *** Thov mus xam phaj ua ntej " & interview_end_date & ". ***")
-                            CALL write_variable_in_SPEC_MEMO("Yog xam phaj hauv xov tooj, hu rau EZ Info Line ntawm 612-596-1300 thaum 9:00am thib 4:00pm hnub Mon txog Fri.")
+                            CALL write_variable_in_SPEC_MEMO("Yog xam phaj hauv xov tooj, hu rau EZ Info Line ntawm 612-596-1300 thaum 8:00am thib 4:30pm hnub Mon txog Fri.")
                             CALL write_variable_in_SPEC_MEMO("**    Koj cov kev pab " & programs & " yuav muab kaw thaum     **")
                             CALL write_variable_in_SPEC_MEMO("** " & last_day_of_recert & " tsis li mas peb yuav tsum tau txais koj cov **")
                             CALL write_variable_in_SPEC_MEMO("**      ntaub ntawvthiab koj txoj kev xam phaj.         **")
@@ -961,7 +962,7 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                         '     CALL write_variable_in_SPEC_MEMO("Podpishite, ukazhite datu i vernite dokumenty' o prodlenii do " & CM_plus_1_mo & "/08/" & CM_plus_1_yr & ". Vy' takzhe dolzhny' projti sobesedovanie dlya prodleniya svoego " & programs & " dela.")
                         '     CALL write_variable_in_SPEC_MEMO("")
                         '     CALL write_variable_in_SPEC_MEMO("*** Pozhalujsta, projdite sobesedovanie do " & interview_end_date & ". ***")
-                        '     CALL write_variable_in_SPEC_MEMO("Chtoby' zavershit' sobesedovanie po telefonu, pozvonite v Informaczionnuyu liniyu EZ po telefonu 612-596-1300 s 9:00 do 16:00 s ponedel'nika po pyatniczu.")
+                        '     CALL write_variable_in_SPEC_MEMO("Chtoby' zavershit' sobesedovanie po telefonu, pozvonite v Informaczionnuyu liniyu EZ po telefonu 612-596-1300 s 8:00 do 16:00 s ponedel'nika po pyatniczu.")
                         '     CALL write_variable_in_SPEC_MEMO("")
                         '     CALL write_variable_in_SPEC_MEMO("**    Vash delo " & programs & " zakroetsya " & last_day_of_recert & ", za    **")
                         '     CALL write_variable_in_SPEC_MEMO("** isklyucheniem esli my' poluchim vashi dokumenty'  **")
@@ -987,7 +988,7 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                             CALL write_variable_in_SPEC_MEMO("")
                             Call write_variable_in_SPEC_MEMO("  *** Please complete your interview by " & interview_end_date & ". ***")
                             Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at")
-                            Call write_variable_in_SPEC_MEMO("612-596-1300 between 9:00am and 4:00pm Monday thru Friday.")
+                            Call write_variable_in_SPEC_MEMO("612-596-1300 between 8:00am and 4:30pm Monday thru Friday.")
                             CALL write_variable_in_SPEC_MEMO("")
                             CALL write_variable_in_SPEC_MEMO("**  Your " & programs & " case will close on " & last_day_of_recert & " unless    **")
                             CALL write_variable_in_SPEC_MEMO("** we receive your paperwork and complete the interview. **")
@@ -1184,7 +1185,7 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                             Memo_to_display = Memo_to_display & vbNewLine & ""
                             Memo_to_display = Memo_to_display & vbNewLine & "Waa inaad wareysi martaa inta ka horreysa " & last_day_of_recert & " haddii kale waxaa joogsan doona waxtarrada aad hesho."
                             Memo_to_display = Memo_to_display & vbNewLine & ""
-                            Memo_to_display = Memo_to_display & vbNewLine & "Si aad u dhamaystirto wareysiga telefoonka, wac laynka taleefanka EZ 612-596-1300 inta u dhaxaysa 9:00 subaxnimo ilaa 4:00 galabnimo Isniinta ilaa Jimcaha."
+                            Memo_to_display = Memo_to_display & vbNewLine & "Si aad u dhamaystirto wareysiga telefoonka, wac laynka taleefanka EZ 612-596-1300 inta u dhaxaysa 8:00 subaxnimo ilaa 4:30 galabnimo Isniinta ilaa Jimcaha."
                             Memo_to_display = Memo_to_display & vbNewLine & ""
 							'removal of in person verbiage during the COVID-19 PEACETIME STATE OF EMERGENCY
                             ' Memo_to_display = Memo_to_display & vbNewLine & "Haddii aad rabto inaad samaysato ballan wareysi, wac 612-596-1300. Waxa kale oo aad iman kartaa mid ka mid ah lixda xafiis ee hoos ku qoran si loo sameeyo wareysi gof ahaaneed inta u dhexeeya 8 ilaa 4:30, Isniinta ilaa jmcaha."
@@ -1235,7 +1236,7 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                             Memo_to_display = Memo_to_display & vbNewLine & ""
                             Memo_to_display = Memo_to_display & vbNewLine & "Koj yuav tsum mus xam pphaj ua ntej " & last_day_of_recert & " los yog yuav txiav koj cov kev pab."
                             Memo_to_display = Memo_to_display & vbNewLine & ""
-                            Memo_to_display = Memo_to_display & vbNewLine & "Yog xam phaj hauv xov tooj, hu rau EZ Info Line ntawm 612-596-1300 thaum 9:00am thib 4:00pm hnub Monday txog Friday."
+                            Memo_to_display = Memo_to_display & vbNewLine & "Yog xam phaj hauv xov tooj, hu rau EZ Info Line ntawm 612-596-1300 thaum 8:00am thib 4:30pm hnub Monday txog Friday."
 							'removal of in person verbiage during the COVID-19 PEACETIME STATE OF EMERGENCY
                             ' Memo_to_display = Memo_to_display & vbNewLine & "  Yog hais tias koj xav teem tuaj xam phaj, hu 612-596-1300 Koj kuj tuaj tau rau ib lub ntawm rau lub hoob kas nyob hauv qab no tuaj xam phaj tim ntej muag thaum 8 thiab 4:30, hnub Monday txog Friday."
                             ' Memo_to_display = Memo_to_display & vbNewLine & "- 7051 Brooklyn Blvd Brooklyn Center 55429"
@@ -1257,7 +1258,7 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                         '     Memo_to_display = Memo_to_display & vbNewLine & ""
                         '     Memo_to_display = Memo_to_display & vbNewLine & "Vy' dolzhny' projti sobesedovanie do " & last_day_of_recert & " ili vasha programma zakroetsya."
                         '     Memo_to_display = Memo_to_display & vbNewLine & ""
-                        '     Memo_to_display = Memo_to_display & vbNewLine & "Chtoby' projti sobesedovanie po telefonu, pozvonite v Informaczionnuyu liniyu EZ po telefonu 612-596-1300 s 9:00 do 16:00 s ponedel'nika po pyatniczu."
+                        '     Memo_to_display = Memo_to_display & vbNewLine & "Chtoby' projti sobesedovanie po telefonu, pozvonite v Informaczionnuyu liniyu EZ po telefonu 612-596-1300 s 8:00 do 16:00 s ponedel'nika po pyatniczu."
                         '     Memo_to_display = Memo_to_display & vbNewLine & ""
                         '     Memo_to_display = Memo_to_display & vbNewLine & "   Esli vy' xotite naznachit' sobesedovanie, pozvonite po telefonu 612-596-1300. Vy' takzhe mozhete obratit'sya v lyuboj iz shesti ofisov. Dlya sobesedovanie s 8 i do 4:30, s ponedel'nika po pyatniczu."
                         '     Memo_to_display = Memo_to_display & vbNewLine & "- 7051 Brooklyn Blvd Brooklyn Center 55429"
@@ -1283,7 +1284,7 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                             Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "You must have an interview by " & last_day_of_recert & " or your benefits will end. "
                             Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & ""
                             Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "To complete a phone interview, call the EZ Info Line at"
-                            Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "612-596-1300 between 9:00am and 4:00pm Monday thru Friday."
+                            Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "612-596-1300 between 8:00am and 4:30pm Monday thru Friday."
                             Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & ""
 							'removal of in person verbiage during the COVID-19 PEACETIME STATE OF EMERGENCY
                             ' Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "If you wish to schedule an interview, call 612-596-1300. You may also come to any of the six offices below for an in-person interview between 8 and 4:30, Monday thru Friday."
@@ -1335,7 +1336,7 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                                     CALL write_variable_in_SPEC_MEMO("")
                                     CALL write_variable_in_SPEC_MEMO("Waa inaad wareysi martaa inta ka horreysa " & last_day_of_recert & " haddii kale waxaa joogsan doona waxtarrada aad hesho.")
                                     CALL write_variable_in_SPEC_MEMO("")
-                                    CALL write_variable_in_SPEC_MEMO("Si aad u dhamaystirto wareysiga telefoonka, wac laynka taleefanka EZ 612-596-1300 inta u dhaxaysa 9:00 subaxnimo ilaa 4:00 galabnimo Isniinta ilaa Jimcaha.")
+                                    CALL write_variable_in_SPEC_MEMO("Si aad u dhamaystirto wareysiga telefoonka, wac laynka taleefanka EZ 612-596-1300 inta u dhaxaysa 8:00 subaxnimo ilaa 4:30 galabnimo Isniinta ilaa Jimcaha.")
                                     CALL write_variable_in_SPEC_MEMO("")
 									'removal of in person verbiage during the COVID-19 PEACETIME STATE OF EMERGENCY
                                     ' CALL write_variable_in_SPEC_MEMO("Haddii aad rabto inaad samaysato ballan wareysi, wac 612-596-1300. Waxa kale oo aad iman kartaa mid ka mid ah lixda xafiis ee hoos ku qoran si loo sameeyo wareysi gof ahaaneed inta u dhexeeya 8 ilaa 4:30, Isniinta ilaa jmcaha.")
@@ -1386,7 +1387,7 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                                     CALL write_variable_in_SPEC_MEMO("")
                                     CALL write_variable_in_SPEC_MEMO("Koj yuav tsum mus xam pphaj ua ntej " & last_day_of_recert & " los yog yuav txiav koj cov kev pab.")
                                     CALL write_variable_in_SPEC_MEMO("")
-                                    CALL write_variable_in_SPEC_MEMO("Yog xam phaj hauv xov tooj, hu rau EZ Info Line ntawm 612-596-1300 thaum 9:00am thib 4:00pm hnub Monday txog Friday.")
+                                    CALL write_variable_in_SPEC_MEMO("Yog xam phaj hauv xov tooj, hu rau EZ Info Line ntawm 612-596-1300 thaum 8:00am thib 4:30pm hnub Monday txog Friday.")
 									'removal of in person verbiage during the COVID-19 PEACETIME STATE OF EMERGENCY
                                     ' CALL write_variable_in_SPEC_MEMO("  Yog hais tias koj xav teem tuaj xam phaj, hu 612-596-1300 Koj kuj tuaj tau rau ib lub ntawm rau lub hoob kas nyob hauv qab no tuaj xam phaj tim ntej muag thaum 8 thiab 4:30, hnub Monday txog Friday.")
                                     ' Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
@@ -1409,7 +1410,7 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                                 '     CALL write_variable_in_SPEC_MEMO("")
                                 '     CALL write_variable_in_SPEC_MEMO("Vy' dolzhny' projti sobesedovanie do " & last_day_of_recert & " ili vasha programma zakroetsya.")
                                 '     CALL write_variable_in_SPEC_MEMO("")
-                                '     CALL write_variable_in_SPEC_MEMO("Chtoby' projti sobesedovanie po telefonu, pozvonite v Informaczionnuyu liniyu EZ po telefonu 612-596-1300 s 9:00 do 16:00 s ponedel'nika po pyatniczu.")
+                                '     CALL write_variable_in_SPEC_MEMO("Chtoby' projti sobesedovanie po telefonu, pozvonite v Informaczionnuyu liniyu EZ po telefonu 612-596-1300 s 8:00 do 16:00 s ponedel'nika po pyatniczu.")
                                 '     CALL write_variable_in_SPEC_MEMO("")
                                 '     CALL write_variable_in_SPEC_MEMO("   Esli vy' xotite naznachit' sobesedovanie, pozvonite po telefonu 612-596-1300. Vy' takzhe mozhete obratit'sya v lyuboj iz shesti ofisov. Dlya sobesedovanie s 8 i do 4:30, s ponedel'nika po pyatniczu.")
                                 '     Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
@@ -1435,7 +1436,7 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                                     CALL write_variable_in_SPEC_MEMO("You must have an interview by " & last_day_of_recert & " or your benefits will end. ")
                                     CALL write_variable_in_SPEC_MEMO("")
                                     Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at")
-                                    Call write_variable_in_SPEC_MEMO("612-596-1300 between 9:00am and 4:00pm Monday thru Friday.")
+                                    Call write_variable_in_SPEC_MEMO("612-596-1300 between 8:00am and 4:30pm Monday thru Friday.")
                                     CALL write_variable_in_SPEC_MEMO("")
 									'removal of in person verbiage during the COVID-19 PEACETIME STATE OF EMERGENCY
 						            ' Call write_variable_in_SPEC_MEMO("If you wish to schedule an interview, call 612-596-1300. You may also come to any of the six offices below for an in-person interview between 8 and 4:30, Monday thru Friday.")
