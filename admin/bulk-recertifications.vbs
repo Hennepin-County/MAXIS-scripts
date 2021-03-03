@@ -795,7 +795,7 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                 '     Memo_to_display = Memo_to_display & vbNewLine & "Podpishite, ukazhite datu i vernite dokumenty' o prodlenii do " & CM_plus_1_mo & "/08/" & CM_plus_1_yr & ". Vy' takzhe dolzhny' projti sobesedovanie dlya prodleniya svoego " & programs & " dela."
                 '     Memo_to_display = Memo_to_display & vbNewLine & ""
                 '     Memo_to_display = Memo_to_display & vbNewLine & "*** Pozhalujsta, projdite sobesedovanie do " & interview_end_date & ". ***"
-                '     Memo_to_display = Memo_to_display & vbNewLine & "Chtoby' zavershit' sobesedovanie po telefonu, pozvonite v Informaczionnuyu liniyu EZ po telefonu 612-596-1300 s 8:00 do 16:00 s ponedel'nika po pyatniczu."
+                '     Memo_to_display = Memo_to_display & vbNewLine & "Chtoby' zavershit' sobesedovanie po telefonu, pozvonite v Informaczionnuyu liniyu EZ po telefonu 612-596-1300 s 8:00 do 16:30 s ponedel'nika po pyatniczu."
                 '     Memo_to_display = Memo_to_display & vbNewLine & ""
                 '     Memo_to_display = Memo_to_display & vbNewLine & "**Vash delo " & programs & " zakroetsya " & last_day_of_recert & ", za**"
                 '     Memo_to_display = Memo_to_display & vbNewLine & "** isklyucheniem esli my' poluchim vashi dokumenty'  **"
@@ -962,7 +962,7 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                         '     CALL write_variable_in_SPEC_MEMO("Podpishite, ukazhite datu i vernite dokumenty' o prodlenii do " & CM_plus_1_mo & "/08/" & CM_plus_1_yr & ". Vy' takzhe dolzhny' projti sobesedovanie dlya prodleniya svoego " & programs & " dela.")
                         '     CALL write_variable_in_SPEC_MEMO("")
                         '     CALL write_variable_in_SPEC_MEMO("*** Pozhalujsta, projdite sobesedovanie do " & interview_end_date & ". ***")
-                        '     CALL write_variable_in_SPEC_MEMO("Chtoby' zavershit' sobesedovanie po telefonu, pozvonite v Informaczionnuyu liniyu EZ po telefonu 612-596-1300 s 8:00 do 16:00 s ponedel'nika po pyatniczu.")
+                        '     CALL write_variable_in_SPEC_MEMO("Chtoby' zavershit' sobesedovanie po telefonu, pozvonite v Informaczionnuyu liniyu EZ po telefonu 612-596-1300 s 8:00 do 16:30 s ponedel'nika po pyatniczu.")
                         '     CALL write_variable_in_SPEC_MEMO("")
                         '     CALL write_variable_in_SPEC_MEMO("**    Vash delo " & programs & " zakroetsya " & last_day_of_recert & ", za    **")
                         '     CALL write_variable_in_SPEC_MEMO("** isklyucheniem esli my' poluchim vashi dokumenty'  **")
@@ -1258,7 +1258,7 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                         '     Memo_to_display = Memo_to_display & vbNewLine & ""
                         '     Memo_to_display = Memo_to_display & vbNewLine & "Vy' dolzhny' projti sobesedovanie do " & last_day_of_recert & " ili vasha programma zakroetsya."
                         '     Memo_to_display = Memo_to_display & vbNewLine & ""
-                        '     Memo_to_display = Memo_to_display & vbNewLine & "Chtoby' projti sobesedovanie po telefonu, pozvonite v Informaczionnuyu liniyu EZ po telefonu 612-596-1300 s 8:00 do 16:00 s ponedel'nika po pyatniczu."
+                        '     Memo_to_display = Memo_to_display & vbNewLine & "Chtoby' projti sobesedovanie po telefonu, pozvonite v Informaczionnuyu liniyu EZ po telefonu 612-596-1300 s 8:00 do 16:30 s ponedel'nika po pyatniczu."
                         '     Memo_to_display = Memo_to_display & vbNewLine & ""
                         '     Memo_to_display = Memo_to_display & vbNewLine & "   Esli vy' xotite naznachit' sobesedovanie, pozvonite po telefonu 612-596-1300. Vy' takzhe mozhete obratit'sya v lyuboj iz shesti ofisov. Dlya sobesedovanie s 8 i do 4:30, s ponedel'nika po pyatniczu."
                         '     Memo_to_display = Memo_to_display & vbNewLine & "- 7051 Brooklyn Blvd Brooklyn Center 55429"
@@ -1410,7 +1410,7 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                                 '     CALL write_variable_in_SPEC_MEMO("")
                                 '     CALL write_variable_in_SPEC_MEMO("Vy' dolzhny' projti sobesedovanie do " & last_day_of_recert & " ili vasha programma zakroetsya.")
                                 '     CALL write_variable_in_SPEC_MEMO("")
-                                '     CALL write_variable_in_SPEC_MEMO("Chtoby' projti sobesedovanie po telefonu, pozvonite v Informaczionnuyu liniyu EZ po telefonu 612-596-1300 s 8:00 do 16:00 s ponedel'nika po pyatniczu.")
+                                '     CALL write_variable_in_SPEC_MEMO("Chtoby' projti sobesedovanie po telefonu, pozvonite v Informaczionnuyu liniyu EZ po telefonu 612-596-1300 s 8:00 do 16:30 s ponedel'nika po pyatniczu.")
                                 '     CALL write_variable_in_SPEC_MEMO("")
                                 '     CALL write_variable_in_SPEC_MEMO("   Esli vy' xotite naznachit' sobesedovanie, pozvonite po telefonu 612-596-1300. Vy' takzhe mozhete obratit'sya v lyuboj iz shesti ofisov. Dlya sobesedovanie s 8 i do 4:30, s ponedel'nika po pyatniczu.")
                                 '     Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
