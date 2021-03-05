@@ -100,7 +100,7 @@ class script_bowie
             SharePoint_instructions_URL = "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/" & UCase(category) & "/LTC%20scripts/" & UCase(category) & "%20-%20" & replace(replace(ucase(script_name) & ".docx", " - ", "%20"), " ", "%20")
 		ElseIf script_name = "Add WCOM" Then
 			SharePoint_instructions_URL = "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTICES/NOTICES%20-%20ADD%20WCOM.docx"
-		ElseIf left(script_name, 4) = "REPT" OR script_name = "Address Report" OR script_name = "DAIL Report" OR script_name = "EMPS" OR script_name = "LTC-GRH List Generator" Then
+		ElseIf left(script_name, 4) = "REPT" OR script_name = "DAIL Report" OR script_name = "EMPS" OR script_name = "LTC-GRH List Generator" Then
 			SharePoint_instructions_URL = "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/BULK/BULK%20-%20REPT%20LISTS.docx"
 		Else
             SharePoint_instructions_URL = "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/" & UCase(category) & "/" & UCase(category) & "%20-%20" & replace(ucase(script_name) & ".docx", " ", "%20")
@@ -370,19 +370,6 @@ script_array(script_num).tags                   = array("ABAWD", "Appilcation", 
 script_array(script_num).dlg_keys               = array("Cn", "Exp", "Sw")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #09/27/2018#
-script_array(script_num).hot_topic_link			= ""
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array(script_num)
-Set script_array(script_num) = new script_bowie
-script_array(script_num).script_name 			= "Address Report"																		'Script name
-script_array(script_num).description 			= "Creates a list of all addresses from a caseload(or entire county)."
-script_array(script_num).category               = "BULK"
-script_array(script_num).workflows              = ""
-script_array(script_num).tags                   = array("Reports")
-script_array(script_num).dlg_keys               = array("Ex")
-script_array(script_num).subcategory            = array("BULK LISTS")
-script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
 
 script_num = script_num + 1						'Increment by one
