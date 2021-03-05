@@ -285,26 +285,27 @@ IF trim(case_invalid_error) <> "" THEN script_end_procedure("*** NOTICE!!! ***" 
     '-------------------------------------------------------------------------------------------------DIALOG
     Dialog1 = "" 'Blanking out previous dialog detail
 	BeginDialog Dialog1, 0, 0, 566, 90, "Returned Mail Information"
-	  DropListBox 220, 15, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", address_confirmation
-	  DropListBox 500, 15, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", address_confirmation
-	  EditBox 75, 70, 205, 15, notes_on_address
-	  ButtonGroup ButtonPressed
-	    PushButton 285, 70, 50, 15, "CASE/ADHI", ADHI_button
-	    PushButton 340, 70, 70, 15, "HSR Manual/SNAP", HSR_manual_button
-	    OkButton 450, 70, 55, 15
-	    CancelButton 505, 70, 55, 15
-	  Text 10, 15, 210, 10, "Is this the address that the agency attempted to deliver mail to?"
-	  Text 15, 30, 200, 10, mail_line_one
-      Text 15, 45, 200, 10, mail_line_two
-      Text 15, 60, 205, 10, mail_city_line & ", " & mail_state_line &  ", " & mail_zip_line
-	  Text 10, 75, 65, 10, "Notes on Address:"
-	  GroupBox 285, 5, 275, 60, "Residential Address"
-	  Text 290, 15, 210, 10, "Is this the address that the agency attempted to deliver mail to?"
-	  Text 300, 30, 200, 10, resi_addr_line_one
-      Text 300, 45, 200, 10, resi_addr_line_two
-      Text 300, 60, 205, 10, resi_addr_city &  ", " & resi_addr_state &  ", "  & resi_addr_zip
-	  GroupBox 5, 5, 275, 60, "Mailing Address in Maxis"
-	EndDialog
+      DropListBox 220, 15, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", mailing_address_confirmed
+      DropListBox 500, 15, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", residential_address_confirmed
+      EditBox 75, 70, 205, 15, notes_on_address
+      ButtonGroup ButtonPressed
+        PushButton 285, 70, 50, 15, "CASE/ADHI", ADHI_button
+        PushButton 340, 70, 70, 15, "HSR Manual/SNAP", HSR_manual_button
+        OkButton 450, 70, 55, 15
+        CancelButton 505, 70, 55, 15
+      Text 10, 15, 210, 10, "Is this the address that the agency attempted to deliver mail to?"
+      Text 15, 30, 200, 10, mail_line_one
+      Text 15, 40, 200, 10, mail_line_two
+      Text 15, 50, 205, 10, mail_city_line & ", " & mail_state_line &  ", " & mail_zip_line
+      Text 10, 75, 65, 10, "Notes on Address:"
+      GroupBox 285, 5, 275, 60, "Residential Address"
+      Text 290, 15, 210, 10, "Is this the address that the agency attempted to deliver mail to?"
+      Text 295, 30, 200, 10, resi_addr_line_one
+      Text 295, 40, 200, 10, resi_addr_line_two
+      Text 295, 50, 205, 10, resi_addr_city &  ", " & resi_addr_state &  ", "  & resi_addr_zip
+      GroupBox 5, 5, 275, 60, "Mailing Address in Maxis"
+    EndDialog
+
 
     DO
         DO
@@ -364,10 +365,10 @@ IF trim(case_invalid_error) <> "" THEN script_end_procedure("*** NOTICE!!! ***" 
 		END IF
     END IF
 
+	return_mail_checkbox = CHECKED ' it is implied in the title of the script'
 	IF ADDR_actions = "Forwarding address outside MN" THEN county_code = "89 Out-of-State"
 	IF ADDR_actions = "Forwarding address in MN"  THEN
 		new_addr_state = "MN"
-		return_mail_checkbox = CHECKED
 		reservation_addr = "NO"
 		reservation_name = "N/A"
 		mets_addr_correspondence = "N/A"
@@ -531,8 +532,6 @@ IF trim(case_invalid_error) <> "" THEN script_end_procedure("*** NOTICE!!! ***" 
 	    END IF
 	END IF
 
-    '-------------------------------------------------------------------------------------------------DIALOG
-    Dialog1 = "" 'Blanking out previous dialog detail
     IF ADDR_actions = "No response received" THEN
 		CALL determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, unknown_cash_pending)'
 
@@ -555,18 +554,24 @@ IF trim(case_invalid_error) <> "" THEN script_end_procedure("*** NOTICE!!! ***" 
 
         '-------------------------------------------------------------------------------------------------DIALOG
         Dialog1 = "" 'Blanking out previous dialog detail
-        BeginDialog Dialog1, 0, 0, 166, 125, "Client Has Not Responded to Request/No Response Received"
-         EditBox 110, 5, 45, 15, date_requested
-         DropListBox 110, 25, 45, 20, "Select One:"+chr(9)+"YES"+chr(9)+"NO", ECF_reveiwed
-         EditBox 55, 85, 105, 15, other_notes
-         ButtonGroup ButtonPressed
-         OkButton 80, 105, 40, 15
-         CancelButton 120, 105, 40, 15
-         Text 5, 10, 100, 10, "Date verification(s) requested:"
-         Text 5, 95, 45, 10, "Other Notes:"
-         Text 5, 30, 105, 10, "ECF reviewed for verifications?"
-         Text 5, 45, 155, 35, "Allow the household 10 days to respond before proceeding with a termination notice and ensure that the action is appropriate for the active programs."
-        EndDialog
+		BeginDialog Dialog1, 0, 0, 361, 90, "Client Has Not Responded to Request/No Response Received"
+		  CheckBox 10, 15, 75, 10, "Returned Mail/Other", return_mail_checkbox
+		  CheckBox 10, 25, 80, 10, "Verification Request", verif_request_checkbox
+		  CheckBox 100, 15, 90, 10, "Shelter Form (DHS-2952)", SVF_checkbox
+		  CheckBox 100, 25, 100, 10, "Change Report (DHS-2402)", CRF_checkbox
+		  EditBox 310, 5, 45, 15, date_requested
+		  DropListBox 310, 25, 45, 20, "Select One:"+chr(9)+"YES"+chr(9)+"NO", ECF_reveiwed
+		  EditBox 55, 45, 145, 15, other_notes
+		  ButtonGroup ButtonPressed
+		    OkButton 260, 45, 45, 15
+		    CancelButton 310, 45, 45, 15
+		  Text 205, 15, 100, 10, "Date verification(s) requested:"
+		  Text 5, 50, 45, 10, "Other Notes:"
+		  Text 205, 30, 105, 10, "ECF reviewed for verifications?"
+		  Text 5, 70, 350, 20, "Allow the household 10 days to respond before proceeding with a termination notice and ensure that the action is appropriate for the active programs. See POLI/TEMP: TE02.08.012"
+		  GroupBox 5, 5, 195, 35, "Verification(s) Requested:"
+		EndDialog
+
 
         DO
         	DO
