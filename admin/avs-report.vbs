@@ -154,7 +154,7 @@ Function AVS_sync()
                     master_array(PMI_AAF_const, item) = trim(month_PMI)    'revaluing PMI number 
                     master_array(client_name_AAF_const, item) = trim(month_client_name) 'revaluing client name 
                     
-                    objExcel.Cells(excel_row, 19).Interior.ColorIndex = 3	'Fills the row with red    
+                    'objExcel.Cells(excel_row, 19).Interior.ColorIndex = 3	'Fills the row with red    
                     
                     master_count = master_count + 1
                     exit for 
@@ -791,7 +791,7 @@ IF AVS_option = "New Person Information" then
                             EmReadscreen DSPL_PMI, 8, 5, 44
                             objExcel.cells(excel_row, 4).Value = DSPL_PMI
                             'Read case number after finding HC case 
-                            Call write_value_and_transmit("MA", 7, 22)
+                            Call write_value_and_transmit("HC", 7, 22)
                             EmReadscreen DSPL_case_number, 8, 10, 6
                             If trim(DSPL_case_number) = "" then 
                                 Call write_value_and_transmit("AP", 7, 22)
