@@ -547,7 +547,7 @@ IF mailing_address_confirmed = "YES" or residential_address_confirmed = "YES" TH
 	    error_msg = TRIM(error_msg)
 	    IF error_msg <> "" THEN
 	    	MsgBox "*** NOTICE!!! ***" & vbNewLine & error_msg & vbNewLine
-	    	IF error_msg = "WARNING: EFFECTIVE DATE HAS CHANGED - REVIEW LIVING SITUATION" THEN
+	    	IF error_msg = "WARNING: EFFECTIVE DATE HAS CHANGED - REVIEW LIVING SITUATION" THEN 'This is the only one i dont care about'
 				TRANSMIT
 			END IF
 	    END IF
