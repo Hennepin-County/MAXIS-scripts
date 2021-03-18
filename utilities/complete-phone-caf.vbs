@@ -2464,6 +2464,7 @@ Dim qual_question_one, qual_memb_one, qual_question_two, qual_memb_two, qual_que
 'THE SCRIPT------------------------------------------------------------------------------------------------------------------------------------------------
 'Connecting to MAXIS & grabbing the case number
 EMConnect ""
+Call check_for_MAXIS(true)
 Call MAXIS_case_number_finder(MAXIS_case_number)
 application_date = date & ""
 
