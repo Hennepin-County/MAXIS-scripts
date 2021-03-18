@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/18/2021", "Updated the script to include if MSP programs are active. A true or false status will be output into column 5.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/31/2019", "Updated the script with increased handling for determining MA-EPD is open in current month, and if they are eligible for reimbursement.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2018", "Several updates to script: Users can enter more than one X number, identification of cases without an active HC span will be identified on the output spreadsheet, as will Medicare part B premiums and active MSP programs. Spreadsheet formatting updated for readability. Back end updates made to ensure password handling and transitions between MAXIS and MMIS.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
@@ -128,6 +129,10 @@ Call MAXIS_footer_month_confirmation
 
 current_month = MAXIS_footer_month & "/" & MAXIS_footer_year    'Establishing current month to check for MA-EPD elig in actual current month in ELIG/HC
 
+msp_col = 5
+prem_col = 6
+reim_elig_col = 7
+
 'Opening the Excel file
 Set objExcel = CreateObject("Excel.Application")
 objExcel.Visible = True
@@ -137,10 +142,11 @@ objExcel.Cells(1, 1).Value = "X NUMBER"						'creating columns to store the info
 objExcel.Cells(1, 2).Value = "CASE NUMBER"						'creating columns to store the information
 objExcel.Cells(1, 3).Value = "CLIENT NAME"
 objExcel.Cells(1, 4).Value = "NEXT REVW"
-objExcel.Cells(1, 5).Value = "REIMBURSEMENT ELIG?"
+objExcel.Cells(1, 5).Value = "MSP ACTIVE?"
 objExcel.Cells(1, 6).Value = "PART B PREM"
+objExcel.Cells(1, 7).Value = "REIMBURSEMENT ELIG?"
 
-FOR i = 1 to 6		'formatting the cells'
+FOR i = 1 to 7		'formatting the cells'
 	objExcel.Cells(1, i).Font.Bold = True		'bold font'
 	objExcel.Columns(i).AutoFit()				'sizing the columns'
 NEXT
@@ -188,6 +194,8 @@ excel_row = 2												'resetting excel row so script can review each case num
 DO
     back_to_SELF
 	MAXIS_case_number = objExcel.Cells(excel_row, 2).Value					'reading case number from excel spreadsheet
+    Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, unknown_cash_pending)
+    objExcel.Cells(excel_row, msp_col).Value = msp_case
 	CALL navigate_to_MAXIS_screen("ELIG", "HC")
 	hhmm_row = 8	                                                         'setting starting point to review all HH members in ELIG HC
     notes = ""
@@ -207,8 +215,8 @@ DO
             EMSearch current_month, row, col 
             If row = 0 then 
                 'For cases without current HC elig 
-                ObjExcel.Cells(excel_row, 5).Value = objExcel.Cells(excel_row, 5).Value & ("MEMB " & hh_memb_num & " DOES NOT HAVE HC ELIG covering the current month. Review. ")  
-                For col = 1 to 6
+                objExcel.Cells(excel_row, reim_elig_col).Value = objExcel.Cells(excel_row, reim_elig_col).Value & ("MEMB " & hh_memb_num & " DOES NOT HAVE HC ELIG covering the current month. Review. ")  
+                For col = 1 to 7
                     objExcel.Cells(excel_row, col).Interior.ColorIndex = 3	'Fills the row with red
                 Next
             else 
@@ -216,7 +224,7 @@ DO
 			    EMReadScreen elig_type, 2, 12, col - 2
 			    IF elig_type <> "DP" THEN										'once in those HC results it will look for DP as the elig type. DP is for MA-EPD
                     'For cases without current MA-EPD
-                    ObjExcel.Cells(excel_row, 5).Value = objExcel.Cells(excel_row, 5).Value & ("MEMB " & hh_memb_num & " NOT OPEN ON MA-EPD for "  & current_month & ". ")  
+                    objExcel.Cells(excel_row, reim_elig_col).Value = objExcel.Cells(excel_row, reim_elig_col).Value & ("MEMB " & hh_memb_num & " NOT OPEN ON MA-EPD for "  & current_month & ". ")  
                     
                     MaEPD_found = False                                         'ELIG TYPE DID NOT = DP
     				PF3															'if the MA elig results don't have DP we end up here
@@ -231,8 +239,8 @@ DO
 				    EMReadScreen pct_fpg, 4, 18, 38								'here it will check the percert of FPG client is at.
 				    pct_fpg = trim(pct_fpg)
                     If pct_fpg = "" then 
-                        objExcel.Cells(excel_row, 5).Value = objExcel.Cells(excel_row, 5).Value & ("MEMB " & hh_memb_num & " Doesn't reflect FPG % in BSUM. Review.")  'writing eligibility status in spreadsheet
-                        For col = 1 to 6
+                        objExcel.Cells(excel_row, reim_elig_col).Value = objExcel.Cells(excel_row, reim_elig_col).Value & ("MEMB " & hh_memb_num & " Doesn't reflect FPG % in BSUM. Review.")  'writing eligibility status in spreadsheet
+                        For col = 1 to 7
         	        		objExcel.Cells(excel_row, col).Interior.ColorIndex = 3	'Fills the row with red
         	            Next
                     Else     
@@ -241,10 +249,6 @@ DO
 				        	PF3														'the script will now grab that person's member number and head into memb to get that person's PMI this will be used later to check MMIS
 				        	PF3
                             'Grabbing the Medicare Part B premium 
-                            Call navigate_to_MAXIS_screen("STAT", "MEDI")
-                            Call write_value_and_transmit(hh_memb_num, 20, 76)
-                            EmReadscreen medi_premium, 8, 7, 73
-                            objExcel.Cells(excel_row, 6).Value = trim(replace(medi_premium, "_", ""))
                             'Getting PMI number 
 				        	CALL navigate_to_MAXIS_screen("STAT", "MEMB")
 				        	EMWriteScreen hh_memb_num, 20, 76
@@ -254,6 +258,12 @@ DO
 				        	DO
 				        		IF len(cl_pmi) <> 8 THEN cl_pmi = "0" & cl_pmi
 				        	LOOP UNTIL len(cl_pmi) = 8
+                            
+                            'Grabbing the Medicare Part B premium 
+                           Call navigate_to_MAXIS_screen("STAT", "MEDI")
+                           Call write_value_and_transmit(hh_memb_num, 20, 76)
+                           EmReadscreen medi_premium, 8, 7, 73
+                           objExcel.Cells(excel_row, 6).Value = trim(replace(medi_premium, "_", ""))
                             
 				        	Call navigate_to_MMIS_region("CTY ELIG STAFF/UPDATE")	'function to navigate into MMIS, select the HC realm, and enters the prior autorization area
 				        	
@@ -324,7 +334,7 @@ DO
                                         End if 
                                     End if 
                                 
-                                    If reim_elig = True then objExcel.Cells(excel_row, 5).Value = objExcel.Cells(excel_row, 5).Value & ("MEMB " & hh_memb_num & " ELIG FOR REIMBURSEMENT. " & notes)  'writing eligibility status in spreadsheet
+                                    If reim_elig = True then objExcel.Cells(excel_row, reim_elig_col).Value = objExcel.Cells(excel_row, reim_elig_col).Value & ("MEMB " & hh_memb_num & " ELIG FOR REIMBURSEMENT. " & notes)  'writing eligibility status in spreadsheet
 				        			
 				        			CALL write_value_and_transmit("RKEY", 1, 8)
 				        		END IF
@@ -354,7 +364,7 @@ DO
 	LOOP UNTIL hc_type = "  " OR this_is_the_last_page = "THIS IS THE LAST PAGE"
     
 	'Deleting the blank results to clean up the spreadsheet
-	IF objExcel.Cells(excel_row, 5).Value = "" THEN
+	IF objExcel.Cells(excel_row, reim_elig_col).Value = "" THEN
 		SET objRange = objExcel.Cells(excel_row, 1).EntireRow
 		objRange.Delete
 		excel_row = excel_row - 1
@@ -362,7 +372,7 @@ DO
 	excel_row = excel_row + 1										'the script adds 1 to the excel row to move onto the next case to evaluate
 LOOP UNTIL objExcel.Cells(excel_row, 2).Value = ""
 
-FOR i = 1 to 6							'making the columns stretch to fit the widest cell
+FOR i = 1 to 7							'making the columns stretch to fit the widest cell
 	objExcel.Columns(i).AutoFit()
 NEXT
 
