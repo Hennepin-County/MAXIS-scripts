@@ -78,13 +78,24 @@ BeginDialog Dialog1, 0, 0, 266, 130, DAIL_type & " MESSAGE PROCESSED"
   Text 5, 40, 50, 10, "Memb number:"
 EndDialog
 
-Do 
+Do
     Do
         err_msg = ""
 		Dialog Dialog1
 		cancel_confirmation
-		IF medi_checkbox = CHECKED THEN IF isdate(ELIG_date) = False then err_msg = err_msg & vbnewline & "* Enter a valid date of eligibility."
-        If (isnumeric(memb_number) = False and len(memb_number) > 2) then err_msg = err_msg & vbcr & "* Enter a valid member number."
+
+		ELIG_year = trim(ELIG_year)
+		IF medi_checkbox = CHECKED THEN
+			IF isdate(ELIG_date) = False then err_msg = err_msg & vbnewline & "* Since you indicated the client is eligible for the Medicare Buy-In, enter a valid date of eligibility."
+		ELSE
+			IF ELIG_year = "" THEN
+				err_msg = err_msg & vbnewline & "* Since you did not check the box to indicate the client is eligible for the Medicare Buy-in, you must indicate the year the client will be expected to be eligible."
+			ELSE
+				If len(ELIG_year) <> 2 Then err_msg = err_msg & vbnewline & "* Enter just the last 2 digits of the year - the script will enter the '20' at the begninning."
+			END IF
+		END IF
+
+        If (isnumeric(memb_number) = False OR len(memb_number) > 2) then err_msg = err_msg & vbcr & "* Enter a valid member number."
 		If trim(worker_signature) = "" then err_msg = err_msg & vbcr & "* Please ensure your case note is signed."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
@@ -117,10 +128,11 @@ LOOP UNTIL case_note_confirmation = vbYes
 due_date = dateadd("d", 30, date)
 IF medi_checkbox = CHECKED and ELIG_date <> "" THEN Call create_TIKL("Referral made for medicare, please check on proof of application filed. Due " & due_date & ".", 30, date, True, TIKL_note_text)
 
-IF ELIG_year <> "" THEN 
-    nov_date = "11/01/" & ELIG_year
+IF IsNumeric(ELIG_year) = TRUE THEN
+	reminder_year = ELIG_year - 1
+    nov_date = "11/01/" & reminder_year
     'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
-    Call create_TIKL("Reminder to mail the Medicare Referral for November 20" & ELIG_year & ".", 0, nov_date, False, TIKL_note_text)
+    Call create_TIKL("Reminder to mail the Medicare Referral for January 20" & ELIG_year & ".", 0, nov_date, False, TIKL_note_text)
 END IF
 
 '----------------------------------------------------------------------------the casenote
@@ -138,7 +150,7 @@ IF medi_checkbox = CHECKED and ELIG_date <> "" THEN
 ELSEIF ELIG_year <> "" THEN
 	Call write_variable_in_case_note("** Medicare Referral for M" & memb_number & " **")
 	Call write_variable_in_case_note("* Client is not eligible for the Medicare buy-in. Enrollment is not until January 20" & ELIG_year & ", unable to apply until the enrollment time.")
-	Call write_variable_in_case_note("* TIKL set to mail the Medicare Referral for November " & ELIG_year & ".")
+	Call write_variable_in_case_note("* TIKL set to mail the Medicare Referral for November 20" & reminder_year & ".")
 END IF
 IF ECF_sent_checkbox = CHECKED THEN CALL write_variable_in_case_note("* ECF reviewed.")
 CALL write_bullet_and_variable_in_case_note("Other notes", other_notes)
