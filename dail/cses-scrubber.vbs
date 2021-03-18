@@ -182,7 +182,7 @@ For MAXIS_row = 6 to 19			'<<<<<CHECK THIS AGAINST A FULL, ACTUAL FACTUAL DAIL
     End If
     EMWriteScreen "x", MAXIS_row, 3									'Puts an 'X' on the DAIL message
 	transmit														'Transmits
-
+	STATS_counter = STATS_counter + 1								'we increment the stats counter for each DAIL message
 	'READS THE TYPE
 	row = 1
 	col = 1
