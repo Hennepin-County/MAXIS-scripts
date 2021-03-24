@@ -115,8 +115,8 @@ const case_logged_const         = 8 '= "Case logged by assigned worker?"
 const case_note_date_const      = 9  '= "Case Note Date"
 const case_note_match_const     = 10 '= "Worker who made case note same as assigned worker"
 const case_note_keyword_const   = 11 '= "Does case note title contain keyword"
-const DAIL_count_const        	= 12 '= "DAIL Count"
-const DAIL_type_const        	= 13 '= "DAIL Type"
+const total_DAIL_count_const        	= 12 '= "DAIL Count"
+const action_DAIL_count_const        	= 13 '= "DAIL Type"
 const ECF_type_const            = 14 '= "EWS ECF Item Count"
 const ECF_form_const            = 15 '= "ECF Form Types"
 const oldest_APPL_date_const    = 16 '= "Oldest ECF APPL Date"
@@ -150,25 +150,25 @@ Do
         ReDim Preserve task_based_array(19, entry_record)	'This resizes the array based on the number of cases
 
 		task_based_array(date_assigned_const,      entry_record) = ""
-		'task_based_array(SSR_name_const, 		   entry_record) = ""
+		task_based_array(SSR_name_const, 		   entry_record) = ""
 		task_based_array(maxis_case_number_const,  entry_record) = MAXIS_case_number
-		task_based_array(case_name_const,          entry_record) = MAXIS_case_name
+		task_based_array(case_name_const,          entry_record) = ""
 		task_based_array(basket_const,  		   entry_record) = ""
 		task_based_array(assigned_to_const,        entry_record) = ""
-		task_based_array(worker_number_const,      entry_record) = worker_number
+		task_based_array(worker_number_const,      entry_record) = ""
 		task_based_array(do_this_const,            entry_record) = ""
 		task_based_array(case_logged_const,    	   entry_record) = ""
 		task_based_array(case_note_date_const,     entry_record) = ""
 		task_based_array(case_note_match_const,    entry_record) = ""
 		task_based_array(case_note_keyword_const,  entry_record) = ""
-		task_based_array(DAIL_count_const,         entry_record) = ""
-		task_based_array(DAIL_type_const,          entry_record) = ""
+		task_based_array(total_DAIL_count_const,   entry_record) = ""
+		task_based_array(action_DAIL_count_const,  entry_record) = ""
 		task_based_array(ECF_form_const,   		   entry_record) = ""
 		task_based_array(ECF_type_const,           entry_record) = ""
-		task_based_array(oldest_APPL_date_const,   entry_record) = trim(application_date)
-		task_based_array(prev_comments_const,      entry_record) = program_ID
-		task_based_array(case_status_const,        entry_record) = days_pending
-		task_based_array(interview_const,          entry_record) = trim(interview_date)
+		task_based_array(oldest_APPL_date_const,   entry_record) = ""
+		task_based_array(prev_comments_const,      entry_record) = ""
+		task_based_array(case_status_const,        entry_record) = ""
+		task_based_array(interview_const,          entry_record) = ""  '= "Interview Completed"
 		'making space in the array for these variables, but valuing them as "" for now
 
         entry_record = entry_record + 1			'This increments to the next entry in the array
@@ -188,33 +188,28 @@ For item = 0 to UBound(task_based_array, 2)
     days_pending        = task_based_array(days_pending_const,     item)
     application_date    = task_based_array(application_date_const, item)
 	MAXIS_case_name     = task_based_array(application_date_const, item)
-
+	date_assigned		= task_based_array(date_assigned_const,    item)
 	'setting the footer month to make the updates in'
 	CALL convert_date_into_MAXIS_footer_month(date_received, MAXIS_footer_month, MAXIS_footer_year)
 	MAXIS_footer_month_confirmation
-
-	If left(worker_number, 4) <> "X127" then                                    'Out of county cases from initial upload
-        task_based_array(case_status_const, item) = "OUT OF COUNTY CASE"
-    Else
-        Call navigate_to_MAXIS_screen("STAT", "PROG")
-        EMReadScreen priv_check, 4, 24, 14 'If it can't get into the case needs to skip - checking in PROD and INQUIRY
-        IF priv_check = "PRIV" then                                             'PRIV cases
-            EmReadscreen priv_worker, 26, 24, 46
-            task_based_array(case_status_const, item) = trim(priv_worker)
-            task_based_array(do_this_const, item) = "Privileged Cases"
-        ELSE
-            EMReadScreen county_code, 4, 21, 21                                 'Out of county cases from STAT
-            If county_code <> "X127" then
-                task_based_array(case_status_const, item) = "OUT OF COUNTY CASE"
-            End if
-		ELSE
-			EMReadScreen case_invalid_error, 72, 24, 2 'if a person enters an invalid footer month for the case the script will attempt to navigate'
-			task_based_array(case_status_const, item) = trim(case_invalid_error)
-			task_based_array(do_this_const, item) = "Error Message"
-			PF10
+    Call navigate_to_MAXIS_screen("STAT", "PROG")
+    EMReadScreen priv_check, 4, 24, 14 'If it can't get into the case needs to skip - checking in PROD and INQUIRY
+    IF priv_check = "PRIV" then                                             'PRIV cases
+        EmReadscreen priv_worker, 26, 24, 46
+        task_based_array(case_status_const, item) = trim(priv_worker)
+        task_based_array(do_this_const, item) = "Privileged Cases"
+    ELSE
+        EMReadScreen county_code, 4, 21, 21                                 'Out of county cases from STAT
+        If county_code <> "X127" then
+            task_based_array(case_status_const, item) = "OUT OF COUNTY CASE"
         End if
-
+	ELSE
+		EMReadScreen case_invalid_error, 72, 24, 2 'if a person enters an invalid footer month for the case the script will attempt to  navigate'
+		task_based_array(case_status_const, item) = trim(case_invalid_error)
+		task_based_array(do_this_const, item) = "Error Message"
+		PF10
     End if
+
 
 	'Reading the app date from PROG need to compare for over 30 days and the interview stuffs
 	EMReadScreen cash1_app_date, 8, 6, 33
@@ -234,139 +229,12 @@ For item = 0 to UBound(task_based_array, 2)
 	EMReadScreen cca_app_date, 8, 14, 33
 	cca_app_date = replace(cca_app_date, " ", "/")
 
-	'Reading the program status
-	EMReadScreen cash1_status_check, 4, 6, 74
-	EMReadScreen cash2_status_check, 4, 7, 74
-	EMReadScreen emer_status_check, 4, 8, 74
-	EMReadScreen grh_status_check, 4, 9, 74
-	EMReadScreen snap_status_check, 4, 10, 74
-	EMReadScreen ive_status_check, 4, 11, 74
-	EMReadScreen hc_status_check, 4, 12, 74
-	EMReadScreen cca_status_check, 4, 14, 74
-	'----------------------------------------------------------------------------------------------------ACTIVE program coding
-	EMReadScreen cash1_prog_check, 2, 6, 67     'Reading cash 1
-	EMReadScreen cash2_prog_check, 2, 7, 67     'Reading cash 2
-	EMReadScreen emer_prog_check, 2, 8, 67      'EMER Program
-
-	'Logic to determine if MFIP is active
-	IF cash1_prog_check = "MF" or cash1_prog_check = "GA" or cash1_prog_check = "DW" or cash1_prog_check = "MS" THEN
-		IF cash1_status_check = "ACTV" THEN cash_active = TRUE
-	END IF
-	IF cash2_prog_check = "MF" or cash2_prog_check = "GA" or cash2_prog_check = "DW" or cash2_prog_check = "MS" THEN
-		IF cash2_status_check = "ACTV" THEN cash2_active = TRUE
-	END IF
-	IF emer_prog_check = "EG" and emer_status_check = "ACTV" THEN emer_active = TRUE
-	IF emer_prog_check = "EA" and emer_status_check = "ACTV" THEN emer_active = TRUE
-
-	IF cash1_status_check = "ACTV" THEN cash_active  = TRUE
-	IF cash2_status_check = "ACTV" THEN cash2_active = TRUE
-	IF snap_status_check  = "ACTV" THEN SNAP_active  = TRUE
-	IF grh_status_check   = "ACTV" THEN grh_active   = TRUE
-	IF ive_status_check   = "ACTV" THEN IVE_active   = TRUE
-	IF hc_status_check    = "ACTV" THEN hc_active    = TRUE
-	IF cca_status_check   = "ACTV" THEN cca_active   = TRUE
-
-	active_programs = ""        'Creates a variable that lists all the active.
-	IF cash_active = TRUE or cash2_active = TRUE THEN active_programs = active_programs & "CASH, "
-	IF emer_active = TRUE THEN active_programs = active_programs & "Emergency, "
-	IF grh_active  = TRUE THEN active_programs = active_programs & "GRH, "
-	IF snap_active = TRUE THEN active_programs = active_programs & "SNAP, "
-	IF ive_active  = TRUE THEN active_programs = active_programs & "IV-E, "
-	IF hc_active   = TRUE THEN active_programs = active_programs & "HC, "
-	IF cca_active  = TRUE THEN active_programs = active_programs & "CCA"
-
-	active_programs = trim(active_programs)  'trims excess spaces of active_programs
-	If right(active_programs, 1) = "," THEN active_programs = left(active_programs, len(active_programs) - 1)
-
-	'----------------------------------------------------------------------------------------------------Pending programs
-	programs_applied_for = ""   'Creates a variable that lists all pending cases.
-	additional_programs_applied_for = ""
-	'cash I
-	IF cash1_status_check = "PEND" then
-	    If cash1_app_date = application_date THEN
-	        cash_pends = TRUE
-	        programs_applied_for = programs_applied_for & "CASH, "
-	    Else
-	        additional_programs_applied_for = additional_programs_applied_for & "CASH, "
-	    End if
-	End if
-	'cash II
-	IF cash2_status_check = "PEND" then
-	    if cash2_app_date = application_date THEN
-	        cash2_pends = TRUE
-	        programs_applied_for = programs_applied_for & "CASH, "
-	    Else
-	        additional_programs_applied_for = additional_programs_applied_for & "CASH, "
-	    End if
-	End if
-	'SNAP
-	IF snap_status_check  = "PEND" then
-	    If snap_app_date  = application_date THEN
-	        SNAP_pends = TRUE
-	        programs_applied_for = programs_applied_for & "SNAP, "
-	    else
-	        additional_programs_applied_for = additional_programs_applied_for & "SNAP, "
-	    end if
-	End if
-	'GRH
-	IF grh_status_check = "PEND" then
-	    If grh_app_date = application_date THEN
-	        grh_pends = TRUE
-	        programs_applied_for = programs_applied_for & "GRH, "
-	    else
-	        additional_programs_applied_for = additional_programs_applied_for & "GRH, "
-	    End if
-	End if
-	'I-VE
-	IF ive_status_check = "PEND" then
-	    if ive_app_date = application_date THEN
-	        IVE_pends = TRUE
-	        programs_applied_for = programs_applied_for & "IV-E, "
-	    else
-	        additional_programs_applied_for = additional_programs_applied_for & "IV-E, "
-	    End if
-	End if
-	'HC
-	IF hc_status_check = "PEND" then
-	    If hc_app_date = application_date THEN
-	        hc_pends = TRUE
-	        programs_applied_for = programs_applied_for & "HC, "
-	    else
-	        additional_programs_applied_for = additional_programs_applied_for & "HC, "
-	    End if
-	End if
-	'CCA
-	IF cca_status_check = "PEND" then
-	    If cca_app_date = application_date THEN
-	        cca_pends = TRUE
-	        programs_applied_for = programs_applied_for & "CCA, "
-	    else
-	        additional_programs_applied_for = additional_programs_applied_for & "CCA, "
-	    End if
-	End if
-	'EMER
-	If emer_status_check = "PEND" then
-	    If emer_app_date = application_date then
-	        emer_pends = TRUE
-	        IF emer_prog_check = "EG" THEN programs_applied_for = programs_applied_for & "EGA, "
-	        IF emer_prog_check = "EA" THEN programs_applied_for = programs_applied_for & "EA, "
-	    else
-	        IF emer_prog_check = "EG" THEN additional_programs_applied_for = additional_programs_applied_for & "EGA, "
-	        IF emer_prog_check = "EA" THEN additional_programs_applied_for = additional_programs_applied_for & "EA, "
-	    End if
-	End if
-
-	programs_applied_for = trim(programs_applied_for)       'trims excess spaces of programs_applied_for
-	If right(programs_applied_for, 1) = "," THEN programs_applied_for = left(programs_applied_for, len(programs_applied_for) - 1)
-
-	additional_programs_applied_for = trim(additional_programs_applied_for)       'trims excess spaces of programs_applied_for
-	If right(additional_programs_applied_for, 1) = "," THEN additional_programs_applied_for = left(additional_programs_applied_for, len(additional_programs_applied_for) - 1)
-
+' was an interview completed on the assingment day '
 	CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
     IF access_denied_check = "ACCESS DENIED" Then
         PF10
         last_name = "UNABLE TO FIND"
-        first_name = " - Access Denied"
+        first_name = ""
         mid_initial = ""
     ELSE
         EMReadscreen last_name, 25, 6, 30
@@ -374,96 +242,126 @@ For item = 0 to UBound(task_based_array, 2)
         last_name = trim(replace(last_name, "_", ""))
         first_name = trim(replace(first_name, "_", ""))
     	MAXIS_case_name = first_name & " "  & last_name
-		task_based_array(MAXIS_case_name_const, item) = MAXIS_case_name
 	END IF
+	task_based_array(MAXIS_case_name_const, item) = MAXIS_case_name
 
-        If check_case_note = True then
-            Call navigate_to_MAXIS_screen("CASE", "NOTE")
-            'starting at the 1st case note, checking the headers for the NOTES - EXPEDITED SCREENING text or the NOTES - EXPEDITED DETERMINATION text
-            MAXIS_row = 5
-            Do
-                EMReadScreen first_case_note_date, 8, 5, 6 'static reading of the case note date to determine if no case notes acutually exist.
-                If trim(first_case_note_date) = "" then
+	ONLY_create_MAXIS_friendly_date(date_assigned)
+        Call navigate_to_MAXIS_screen("CASE", "NOTE")
+        MAXIS_row = 5
+        Do
+            EMReadScreen first_case_note_date, 8, 5, 6 'static reading of the case note date to determine if no case notes acutually exist.
+            If trim(first_case_note_date) = "" then
+                case_note_found = True
+                task_based_array(case_status_const, item) = "Case Notes Do Not Exist"
+                task_based_array(do_this_const, item) = "Review"
+                exit do
+            Else
+                EMReadScreen case_note_date, 8, MAXIS_row, 6    'incremented row - reading the case note date
+
+				EMReadScreen case_note_header, 55, MAXIS_row, 25
+                case_note_header = lcase(trim(case_note_header))
+                If trim(case_note_date) = "" then
+                    case_note_found = False             'The end of the case notes has been found
+                    exit do
+                ElseIf assignment_date = case_note_date then
                     case_note_found = True
-                    task_based_array(case_status_const, item) = "Case Notes Do Not Exist"
-                    task_based_array(do_this_const, item) = "Exp Screening Req"
-                    screening_count = screening_count + 1
+                    task_based_array(case_status_const, item) = TRUE
+                    task_based_array(do_this_const, item) = TRUE
+                    task_count = task_count + 1
                     exit do
                 Else
-                    EMReadScreen case_note_date, 8, MAXIS_row, 6    'incremented row - reading the case note date
-                    EMReadScreen case_note_header, 55, MAXIS_row, 25
-                    case_note_header = lcase(trim(case_note_header))
-
-                    If trim(case_note_date) = "" then
-                        case_note_found = False             'The end of the case notes has been found
-                        exit do
-                    ElseIf instr(case_note_header, "appears expedited") or instr(case_note_header, "appears expedit") then
-                        case_note_found = True
-                        task_based_array(case_status_const, item) = "Appears Expedited"
-                        task_based_array(do_this_const, item) = "Req Exp Processing"
-                        task_count = task_count + 1
-                        exit do
-                    Elseif instr(case_note_header, "does not appear") or instr(case_note_header, "appears not expedited") then
-                        case_note_found = True
-                        task_based_array(case_status_const, item) = "Screened, Not EXP"
-                        task_based_array(do_this_const, item) = "Not Expedited"
-                        exit do
-                    Else
-                        case_note_found = False         'defaulting to false if not able to find an expedited case note
-                        MAXIS_row = MAXIS_row + 1
-                        IF MAXIS_row = 19 then
-                            PF8                         'moving to next case note page if at the end of the page
-                            MAXIS_row = 5
-                        End if
-                    END IF
+                    case_note_found = False         'defaulting to false if not able to find an expedited case note
+                    MAXIS_row = MAXIS_row + 1
+                    IF MAXIS_row = 19 then
+                        PF8                         'moving to next case note page if at the end of the page
+                        MAXIS_row = 5
+                    End if
                 END IF
-            LOOP until cdate(case_note_date) < cdate(application_date)                        'repeats until the case note date is less than the application date
+            END IF
+        LOOP until cdate(case_note_date) < cdate(application_date)                        'repeats until the case note date is less than the application date
             If case_note_found = False then
                 task_based_array(do_this_const, item) = "review this"
                 screening_count = screening_count + 1
             End if
 
-'this is where I go to dail dail ' ' NEED  TO CODE FOR IF THERE IS NO DIL USE THE CASE ON LOG '
+'this is where I go to dail dail '
 			CALL navigate_to_MAXIS_screen("DAIL", "DAIL")
 			DO
 				EMReadScreen dail_check, 4, 2, 48
 				If next_dail_check <> "DAIL" then CALL navigate_to_MAXIS_screen("DAIL", "DAIL")
-
 			Loop until dail_check = "DAIL"
+
+			DO
+				If number_of_dails = " " Then exit do		'if this space is blank the rest of the DAIL reading is skipped
+				dail_row = 5			'Because the script brings each new case to the top of the page, dail_row starts at 6.
+				DO
+					dail_type = ""
+					dail_msg = ""
+
+				    'Determining if there is a new case number...
+				    EMReadScreen maxis_case_number, 8, dail_row, 63
+				    maxis_case_number = trim(maxis_case_number)
+				    IF new_case <> "CASE NBR" THEN '...if there is NOT a new case number, the script will read the DAIL type, month, year, and message...
+						Call write_value_and_transmit("T", dail_row, 3)
+						dail_row = 6
+					ELSEIF new_case = "CASE NBR" THEN
+					    '...if the script does find that there is a new case number (indicated by "CASE NBR"), it will write a "T" in the next row and transmit, bringing that case number to the top of your DAIL
+					    Call write_value_and_transmit("T", dail_row + 1, 3)
+						dail_row = 6
+					End if
+
             Call non_actionable_dails(actionable_dail)   'Function to evaluate the DAIL messages
-			dail?
-			MORE DAIl?
-			dail_row = dail_row + 1
-			'1918125' fUNCTIOONALTIY 
-			EMReadScreen message_error, 11, 24, 2		'Cases can also NAT out for whatever reason if the no messages instruction comes up.
-			'THIS IS NOT YOUR DAIL REPORT
-			'NO MESSAGES FOR CASE 1517649 SELECTED-PF5 FOR TOP
-			If message_error = "NO MESSAGES" then
-				CALL navigate_to_MAXIS_screen("DAIL", "DAIL")
-				Call write_value_and_transmit(worker, 21, 6)
-				transmit   'transmit past 'not your dail message'
-                Call dail_type_selection
-				exit do
+			actionable_dail_count = 0 'Setting up incrementor for counting actionable DAIL messages
+			dail_row = 6			'Because the script brings each new case to the top of the page, dail_row starts at 6.
+
+			EMReadScreen DAIL_case_number, 8, dail_row - 1, 73
+			DAIL_case_number = trim(DAIL_case_number)
+			If DAIL_case_number = MAXIS_case_number then
+			    DO
+			        'Determining if there is a new case number...
+			        EMReadScreen new_case, 8, dail_row, 63
+			        new_case = trim(new_case)
+			        IF new_case <> "CASE NBR" THEN '...if there is NOT a new case number, the script will read the DAIL type, month, year, and message...
+			            Call write_value_and_transmit("T", dail_row, 3)
+			            dail_row = 6
+			        ELSEIF new_case = "CASE NBR" THEN
+			            '...if the script does find that there is a new case number (indicated by "CASE NBR"), it will write a "T" in the next row and transmit, bringing that case number to the top of your DAIL
+			            Call write_value_and_transmit("T", dail_row + 1, 3)
+			            dail_row = 6
+			        End if
+
+			        'Reading the DAIL Information
+			        EMReadScreen DAIL_case_number, 8, dail_row - 1, 73
+			        DAIL_case_number = trim(DAIL_case_number)
+			        If DAIL_case_number <> MAXIS_case_number then exit do
+
+			        EMReadScreen dail_type, 4, dail_row, 6
+
+			        EMReadScreen dail_msg, 61, dail_row, 20
+			        dail_msg = trim(dail_msg)
+
+			        EMReadScreen dail_month, 8, dail_row, 11
+			        dail_month = trim(dail_month)
+
+			        Call non_actionable_dails(actionable_dail)   'Function to evaluate the DAIL messages
+			        IF actionable_dail = True then actionable_dail_count = actionable_dail_count + 1
+
+			        dail_row = dail_row + 1
+			    LOOP
 			End if
 
-						'...going to the next page if necessary
-						EMReadScreen next_dail_check, 4, dail_row, 4
-						If trim(next_dail_check) = "" then
-							PF8
-							EMReadScreen last_page_check, 21, 24, 2
-							If last_page_check = "THIS IS THE LAST PAGE" then
-								all_done = true
-								exit do
-							Else
-								dail_row = 6
-							End if
-						End if
-					LOOP
-					IF all_done = true THEN exit do
-				LOOP
-			Next
+			'output actionable_dail_count into array
 
-        End if
+			'1918125' fUNCTIOONALTIY
+			EMReadScreen message_error, 11, 24, 2		'Cases can also NAT out for whatever reason if the no messages instruction comes up.
+
+			If message_error = "NO MESSAGES" then 'NO MESSAGES FOR CASE XXXXXXXX SELECTED-PF5 FOR TOP
+				CALL navigate_to_MAXIS_screen("DAIL", "DAIL")
+				Call write_value_and_transmit(worker, 21, 6)
+				TRANSMIT  'transmit past 'THIS IS NOT YOUR DAIL REPORT
+        		exit do
+			End if
+
     End if
 Next
 
@@ -514,8 +412,8 @@ Msgbox "Output to Excel Starting."      'warning message to whomever is running 
 	    objExcel.Cells(excel_row, 10).Value = task_based_array(case_note_date_const,    item)
 	    objExcel.Cells(excel_row, 11).Value = task_based_array(case_note_match_const,   item)
 	    objExcel.Cells(excel_row, 12).Value = task_based_array(case_note_keyword_const, item)
-	    objExcel.Cells(excel_row, 13).Value = task_based_array(DAIL_count_const,        item)
-	    objExcel.Cells(excel_row, 14).Value = task_based_array(DAIL_type_const,         item)
+	    objExcel.Cells(excel_row, 13).Value = task_based_array(total_DAIL_count_const,        item)
+	    objExcel.Cells(excel_row, 14).Value = task_based_array(action_DAIL_count_const,         item)
 	    objExcel.Cells(excel_row, 15).Value = task_based_array(ECF_form_const,   		item)
 	    objExcel.Cells(excel_row, 16).Value = task_based_array(ECF_type_const,          item)
 	    objExcel.Cells(excel_row, 17).Value = task_based_array(oldest_APPL_date_const,  item) = trim(application_date)
