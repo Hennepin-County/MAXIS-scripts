@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("03/25/2021", "Added information buttons to the dialogs.##~## ##~##There are a number of new buttons with a '!' on it that will display some tips about the policy and use of these dialogs. Click on them to find out more.##~## ##~##There are also direct links to the instruction documents on SharePoint.##~##", "Casey Love, Hennepin County")
 Call changelog_update("09/17/2020", "Update to the script to remove the functionality that would LUMP together any income in the month of application on the SNAP PIC.##~## ##~##The income will still update the SNAP PIC with income as a LUMP if for the month a job started.", "Casey Love, Hennepin County")
 Call changelog_update("09/17/2020", "The script will no longer read the Pay Frequency. This will have to be entered when entering the paycheck information.##~## ##~##We made this change because this script relys heavily on the pay frequency being correct at this point and there is not a great way to ensure accuracy otherwise.", "Casey Love, Hennepin County")
 Call changelog_update("09/17/2020", "Added some options to the 'Explanation of why we are not using 30 days of income' for SNAP. This used to be a typing field (EditBox) and now had a dropdown option but you can still type anything that explains this information. ##~## ##~##For SNAP anytime we use anything other than 30 days of income, we are required to note clearly why we used something other than 30 day of income. Now there are some common options listed.##~## ##~##If you have more options that happen regularly, please send them to us for review and we can possibly add them. Remember you can always type out the explanation as well.", "Casey Love, Hennepin County")
@@ -302,6 +303,35 @@ ReDim CASH_MONTHS_ARRAY(8, 0)
 
 Dim WEEKDAY_PAY_ARRAY()
 ReDim WEEKDAY_PAY_ARRAY(7)
+
+'Button Definitions'
+tips_and_tricks_button					= 101
+instructions_btn						= 102
+faq_btn									= 103
+quick_start_btn							= 104
+
+add_new_panel_button					= 201
+continue_to_update_button				= 202
+
+pay_frequency_tips_and_tricks_btn		= 300
+listing_checks_tips_and_tricks_btn		= 302
+add_another_check						= 303
+take_a_check_away						= 304
+list_all_checks_tips_and_checks_btn 	= 305
+initial_month_tips_and_tricks_btn		= 306
+
+calc_btn								= 401
+
+not_thirty_days_tips_and_tricks_btn		= 502
+confirm_snap_budget_tips_and_tricks_btn	= 503
+confirm_cash_budget_tips_and_tricks_btn	= 504
+confirm_hc_budget_tips_and_tricks_btn	= 505
+confirm_grh_budget_tips_and_tricks_btn	= 506
+
+open_button								= 601
+plus_button								= 602
+minus_button							= 603
+
 '===========================================================================================================================
 
 'THE SCRIPT ================================================================================================================
@@ -317,20 +347,24 @@ future_months_check = checked           'default to having th script update futu
 
 'INITIAL Dialog - case number, footer month, worker signature
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 191, 220, "Case Number"
+BeginDialog Dialog1, 0, 0, 190, 235, "Case Number"
   EditBox 90, 5, 70, 15, MAXIS_case_number
   EditBox 100, 25, 15, 15, original_month
   EditBox 120, 25, 15, 15, original_year
   CheckBox 10, 45, 140, 10, "Check here to have the script update all", future_months_check
   EditBox 5, 80, 175, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 80, 200, 50, 15
-    CancelButton 135, 200, 50, 15
+  	PushButton 140, 25, 15, 15, "!", tips_and_tricks_button
+	PushButton 15, 192, 85, 13, "FULL INSTRUCTIONS", instructions_btn
+	PushButton 100, 192, 25, 13, "FAQ", faq_btn
+	PushButton 125, 192, 50, 13, "Quick Start", quick_start_btn
+    OkButton 80, 215, 50, 15
+    CancelButton 135, 215, 50, 15
   Text 5, 10, 85, 10, "Enter your case number:"
   Text 5, 30, 90, 10, "Starting Footer Month/Year:"
   Text 20, 55, 120, 10, "future months and send through BG."
   Text 5, 70, 65, 10, "Worker Signature:"
-  GroupBox 5, 100, 180, 95, "INSTRUCTIONS - PLEASE READ!!!"
+  GroupBox 5, 100, 180, 110, "INSTRUCTIONS - PLEASE READ!!!"
   Text 10, 115, 170, 25, "This script is to help in correctly budgeting EARNED income on JOBS, BUSI, or RBIC. It will update MAXIS and CASE/NOTE the information provided. "
   Text 10, 150, 170, 40, "If a JOBS panel or BUSI panel needs to be added to MAXIS for a client or income source, the script will ask for any panels that need to be added first. Review the case now to ensure that the correct action will be taken in the correct order."
 EndDialog
@@ -349,7 +383,21 @@ Do
         original_year = trim(original_year)
         If len(original_year) <> 2 or len(original_month) <> 2 Then err_msg = err_msg & vbNewLine & "* Enter a 2 digit footer month and year."          'forcing 2 digit month and year to be entered
 
-        If err_msg <> "" Then MsgBox "-- Please resolve the following to continue --" & vbNewLine & err_msg                                             'displaying the error handling
+		If ButtonPressed = tips_and_tricks_button Then
+			tips_tricks_msg = MsgBox("*** Tips and Tricks ***" & vbNewLine & "--------------------" & vbNewLine & vbNewLine &_
+									"Selecting the starting footer month and year will determine what month the script will search for any existing JOBS panels. Select the month that has the JOBS panels you need to take action on." & vbNewLine & vbNewLine &_
+									"The Footer Month is able to be changed for each job specifically later in the script as every job is not going to have the same months to change." & vbNewLine & vbNewLine &_
+									"Remember to update JOBS in the month of change not just the current month or next month."  & vbNewLine & vbNewLine &_
+									"The script may select the footer month based on some of the information provided such as income start date or pay dates.", vbInformation, "Tips and Tricks")
+									' ""  & vbNewLine & vbNewLine &_
+			err_msg = "LOOP" & err_msg
+		End If
+		If ButtonPressed = instructions_btn Then Call open_URL_in_browser("https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/ACTIONS/ACTIONS%20-%20EARNED%20INCOME%20BUDGETING.docx")
+		If ButtonPressed = faq_btn Then Call open_URL_in_browser("https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/ACTIONS/ACTIONS%20-%20EARNED%20INCOME%20BUDGETING%20-%20FAQ.docx")
+		If ButtonPressed = quick_start_btn Then Call open_URL_in_browser("https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/ACTIONS/ACTIONS%20-%20EARNED%20INCOME%20BUDGETING%20QUICK%20START.docx")
+		If ButtonPressed = instructions_btn OR ButtonPressed = faq_btn OR ButtonPressed = quick_start_btn Then err_msg = "LOOP" & err_msg
+
+        If err_msg <> "" AND left(err_msg, 4) <> "LOOP" Then MsgBox "-- Please resolve the following to continue --" & vbNewLine & err_msg                                             'displaying the error handling
     Loop until err_msg = ""
     call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
@@ -1208,22 +1256,27 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                                           End If
                                       Next
 
-                                      Text 5, (dlg_factor * 20) + 145, 70, 10, "Anticipated Income:"
-                                      Text 80, (dlg_factor * 20) + 145, 50, 10, "Rate of Pay/Hr"
-                                      EditBox 135, (dlg_factor * 20) + 140, 50, 15, EARNED_INCOME_PANELS_ARRAY(pay_per_hr, ei_panel)
-                                      Text 190, (dlg_factor * 20) + 145, 35, 10, "Hours/Wk"
-                                      EditBox 230, (dlg_factor * 20) + 140, 40, 15, est_weekly_hrs
-                                      Text 275, (dlg_factor * 20) + 145, 65, 10, "Known Pay Date"
-                                      EditBox 340, (dlg_factor * 20) + 140, 65, 15, known_pay_date
+                                      GroupBox 205, (dlg_factor * 20) + 130, 275, 30, "Anticipated Income:"
+                                      Text 210, (dlg_factor * 20) + 145, 50, 10, "Rate of Pay/Hr"
+                                      EditBox 260, (dlg_factor * 20) + 140, 30, 15, EARNED_INCOME_PANELS_ARRAY(pay_per_hr, ei_panel)
+                                      Text 295, (dlg_factor * 20) + 145, 35, 10, "Hours/Wk"
+                                      EditBox 330, (dlg_factor * 20) + 140, 20, 15, est_weekly_hrs
+                                      Text 360, (dlg_factor * 20) + 145, 65, 10, "Known Pay Date"
+                                      EditBox 420, (dlg_factor * 20) + 140, 50, 15, known_pay_date
 
+									  Text 20, (dlg_factor * 20) + 140, 185, 20, "List ALL known/reported/verified checks with amounts above, even if not used to create a prospective budget."
                                       Text 385, (dlg_factor * 20) + 120, 85, 10, "Initial Month to Update:"
                                       EditBox 465, (dlg_factor * 20) + 115, 15, 15, EARNED_INCOME_PANELS_ARRAY(initial_month_mo, ei_panel)
                                       EditBox 485, (dlg_factor * 20) + 115, 15, 15, EARNED_INCOME_PANELS_ARRAY(initial_month_yr, ei_panel)
                                       CheckBox 510, (dlg_factor * 20) + 120, 120, 10, "Update Future Months", EARNED_INCOME_PANELS_ARRAY(update_futue_chkbx, ei_panel)
 
                                       ButtonGroup ButtonPressed
-                                        PushButton 5, (dlg_factor * 20) + 115, 15, 15, "+", add_another_check
+									    PushButton 445, 55, 15, 15, "!", pay_frequency_tips_and_tricks_btn
+										PushButton 5, 70, 15, 15, "!", listing_checks_tips_and_tricks_btn
+										PushButton 5, (dlg_factor * 20) + 115, 15, 15, "+", add_another_check
                                         PushButton 25, (dlg_factor * 20) + 115, 15, 15, "-", take_a_check_away
+										PushButton 5, (dlg_factor * 20) + 140, 15, 15, "!", list_all_checks_tips_and_checks_btn
+										PushButton 365, (dlg_factor * 20) + 115, 15, 15, "!", initial_month_tips_and_tricks_btn
                                         OkButton 550, (dlg_factor * 20) + 140, 50, 15
                                     EndDialog
 
@@ -1374,6 +1427,106 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                                         dlg_factor = dlg_factor - 1             'making the dialog smaller
                                         sm_err_msg = "LOOP" & sm_err_msg        'makes the dialog loop back without displaying an error message
                                     End If
+
+									If ButtonPressed = pay_frequency_tips_and_tricks_btn Then
+										tips_tricks_msg = MsgBox("*** Tips and Tricks ***" & vbNewLine & "----------------------------------------" & vbNewLine &_
+																"ABOUT ENTERING PAY FREQUENCY"  & vbNewLine & vbNewLine &_
+																"The script does not fill this field with the pay frequency that may be entered on the panel. This field needs to be avaluated and updated every time the script is run."  & vbNewLine & vbNewLine &_
+																"PAY FREQUENCY CODING ERRORS HAVE A HIGH RATE OF PAYMENT ACCURACY ERRORS."  & vbNewLine & vbNewLine &_
+																"There are many reason the existing code on this field in MAXIS may be incorrect and forcing this field to be manually edited every time can ensure close monitoring of this decision point."  & vbNewLine & vbNewLine &_
+																"----------------------------------------"  & vbNewLine &_
+																"This field will also determine:" & vbNewLine &_
+																"  - Anticipated Paydates" & vbNewLine &_
+																"  - Checks missing from the entry" & vbNewLine &_
+																"  - Weekday of pay (for weekly and biweekly)" & vbNewLine & vbNewLine &_
+																"Though this may make for slighly more work while interacting with this script, it will contribute to quality case work and actions.", vbInformation, "Tips and Tricks")
+										sm_err_msg = "LOOP" & sm_err_msg        'makes the dialog loop back without displaying an error message
+									End If
+									If ButtonPressed = listing_checks_tips_and_tricks_btn Then
+										tips_tricks_msg = MsgBox("*** Tips and Tricks ***          ENTERING THE LIST OF PAYCHECKS" & vbNewLine &_
+																"***** ENTER ALL CHECKS IN THE LIST *****" & vbNewLine &_
+																" - Even if the pay amount was 0." & vbNewLine &_
+																" - Even if the check will be excluded from the SNAP budget." & vbNewLine &_
+																" - Even if it was determined using YTD calculations." & vbNewLine &_
+																" - The script will look for checks missing in the series and connot continue without it." & vbNewLine & vbNewLine &_
+																"* Pay Date: This is the day pay was available to the resident - it is NOT the date/date range the income was earned." & vbNewLine &_
+																"   - Checks do NOT need to be listed in date order - the script will order them for you." & vbNewLine &_
+																"   - Dates should include the day, month, and year. The script may not correctly default the year." & vbNewLine &_
+																"   - ALL checks should be listed here, even ones that were $0, from the oldest to the newest entered." & vbNewLine & vbNewLine &_
+																"* Gross Amount: This is the listed Gross Pay for the check."  & vbNewLine &_
+																"   - DOUBLE CHECK to be sure you are not entering the NET Pay amount." & vbNewLine &_
+																"   - Include the gross of any OT, BONUS, TIPS, or SHIFT DIFFERENTIAL as a total here." & vbNewLine &_
+																"   - This can be 0." & vbNewLine &_
+																"   - You do not need to enter a '$'." & vbNewLine & vbNewLine &_
+																"* Hours: All hours associated with this paycheck." & vbNewLine &_
+																"   - Hours can be 0, or entered with decimal points (eg. 12.5)" & vbNewLine &_
+																"   - Inlcude any hours listed on the check unless duplicates (such as may be entered with shift differentials)." & vbNewLine & vbNewLine &_
+																"* Use in SNAP Budget: Check the box here to have the WHOLE check excluded from the SNAP budget." & vbNewLine &_
+																"   - This will not impact any other budgets as other programs do not have policy for excluding check from income determination." & vbNewLine &_
+																"   - The check will still be listed in CASE:NOTE to ensure the case record in ECF and MAXIS are matching." & vbNewLine &_
+																"   - Use of this chickbox requires detail entered in the next field to explain why a check will be excluded from SNAP." & vbNewLine & vbNewLine &_
+																"* If not used, explain why: Detail here about why a whole check is excluded." & vbNewLine &_
+																"   - Be as specific as possible, using full detail." & vbNewLine &_
+																"   - Avoid acronyms and smbiguous terms here." & vbNewLine & vbNewLine &_
+																"* Amount: Enter any specific amount on a check we should be excluding from the SNAP budget." & vbNewLine &_
+																"   - This would commonly be used for pay and types of hours that are unlikely to continue, such as OT, Bonus, Training, etc." & vbNewLine &_
+																"   - Enter this as a number." & vbNewLine &_
+																"   - Do not use this field for the entire GROSS amount. Use the 'Exclude' checkbox for that." & vbNewLine &_
+																"   - This is a total of the PAY to be excluded - not the hours." & vbNewLine & vbNewLine &_
+																"* Reason: Detail here about why the specific amount is excluded." & vbNewLine &_
+																"   - Be as specific as possible, using full detail." & vbNewLine &_
+																"   - Avoid acronyms and smbiguous terms here." & vbNewLine &_
+																"----------------------------------------" & vbNewLine &_
+																"Entry of the paychecks into the list here is the backbone of this script functionality. Be thorough and complete in the entry of this information.", vbInformation, "Tips and Tricks")
+
+										sm_err_msg = "LOOP" & sm_err_msg        'makes the dialog loop back without displaying an error message
+									End If
+									If ButtonPressed = list_all_checks_tips_and_checks_btn Then
+										tips_tricks_msg = MsgBox("*** Tips and Tricks ***" & vbNewLine & "----------------------------------------" & vbNewLine & vbNewLine &_
+																"ENTER ALL INCOME DETAIL RECEIVED/VERIFIED IN THIS DIALOG" & vbNewLine &_
+																"* List all of the checks in the above lists even if being excluded or the amount is $0. *" & vbNewLine &_
+																"* Enter information about anticipated pay rate and hours in the area below. *" & vbNewLine &_
+																"  - For SNAP we cannot use both but we must capture both for the notes. If both are entered, the script will guide you in chosing one to select for the prospective budget." & vbNewLine & vbNewLine &_
+																"----------------------------------------" & vbNewLine &_
+																"* Use the '+' and '-' buttons to add or remove lines to enter checks." & vbNewLine & vbNewLine &_
+																"* This information detail should match everything we received as verifications/documents." & vbNewLine &_
+																"* The CASE:NOTE is created using all of the information here and it should include everything we know." & vbNewLine &_
+																"* We have high rates of procedural and payment accuracy errors in regards to BUDGETING, CODING, and NOTING Income information. The level of accuracy and detail is handled in this script and though it may seem excessive, it meets the requirements of the programs and best serves our residents." & vbNewLine & vbNewLine &_
+																"----------------------------------------" & vbNewLine &_
+																"***** ENTER ALL CHECKS IN THE LIST *****" & vbNewLine &_
+																" - Even if the pay amount was 0." & vbNewLine &_
+																" - Even if the check will be excluded from the SNAP budget." & vbNewLine &_
+																" - Even if it was determined using YTD calculations." & vbNewLine &_
+																" - The script will look for checks missing in the series and connot continue without it." & vbNewLine & vbNewLine &_
+																"----------------------------------------" & vbNewLine &_
+																"Thank you for your attention to detail and dedication to quality and thoroughness.", vbInformation, "Tips and Tricks")
+
+																' ""  & vbNewLine & vbNewLine &_
+										sm_err_msg = "LOOP" & sm_err_msg        'makes the dialog loop back without displaying an error message
+									End If
+									If ButtonPressed = initial_month_tips_and_tricks_btn Then
+										tips_tricks_msg = MsgBox("*** Tips and Tricks ***" & vbNewLine & "----------------------------------------" & vbNewLine &_
+																"INITIAL MONTH TO UPDATE SHOULD BE THE MONTH THE CHANGE STARTED" & vbNewLine & vbNewLine &_
+																"* Date of change of income is more immportant to knowing when to update than when it is verified or reported." & vbNewLine &_
+																"   - For accuracy of our records, we should be going back to the month of change and updating the change informaiton." & vbNewLine &_
+																"   - Updating from the month of change also allows us to use MAXIS to identify potential overpayments because the income is accurate." & vbNewLine &_
+																"   - Though this may cause additional months to review and assess, this is the most complete case processing." & vbNewLine & vbNewLine &_
+																"* New Jobs should be entered in the month Income began." & vbNewLine &_
+																"   - This is not the month the work began, but the month the first pay was received." & vbNewLine &_
+																"   - Even if the start of income does not cause an overpayment, updating the case in the month income because ensures accurate case records." & vbNewLine & vbNewLine &_
+																"* Jobs that started or changed before the month of application should be updated starting in the month of application." & vbNewLine &_
+																"   - If we do not have an active status in a month, we cannot update the JOBS panel." & vbNewLine & vbNewLine &_
+																"UPDATE FUTURE MONTHS SHOULD BE CHECKED UNLESS THE INFORMATION IS SPECIFIC TO ONE MONTH ONLY" & vbNewLine &_
+																"* Most information and changes continue for multiple months." & vbNewLine &_
+																"   - It rarely makes sense to apply informaiton to only one month, changes typically continue." & vbNewLine &_
+																"   - A common reason may be when updating JOBS for HRF processing as you may only have one month of RETRO income information and it is late." & vbNewLine &_
+																"   - We know that there is functionality updates needed for handling END of employment and that is impact how this functionality changes." & vbNewLine & vbNewLine &_
+																"* If there are two different changes that affected different months, you will need to run the script twice." & vbNewLine &_
+																"   - The script cannot change the budgeting detail from month to month, it requires a new assessment and budget." & vbNewLine & vbNewLine &_
+																"Remember that is coding is for each job specifically and they do not have to match each other.", vbInformation, "Tips and Tricks")
+																' ""  & vbNewLine & vbNewLine &_
+										sm_err_msg = "LOOP" & sm_err_msg        'makes the dialog loop back without displaying an error message
+									End If
 
                                     If sm_err_msg <> "" AND left(sm_err_msg, 4) <> "LOOP" then MsgBox "Please resolve before continuing:" & vbNewLine & sm_err_msg      'shoing the error message if there is one
 
@@ -2302,265 +2455,392 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
 
                     'This is the CONFIRM BUDGET Dialog - the height has given me problems so hopefully it is working well.
                     Do          'Loop until are_we_passworded_out = False
-                        word_for_freq = ""      'for displaying in the dialog
-                        If EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "1 - One Time Per Month" Then word_for_freq = "monthly"
-                        If EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "2 - Two Times Per Month" Then word_for_freq = "semi-monthly"
-                        If EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "3 - Every Other Week" Then word_for_freq = "biweekly"
-                        If EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "4 - Every Week" Then word_for_freq = "weekly"
+						Do
+							msg_err_msg = ""
 
-                        dlg_len = 50        'starting with this dialog
-                        'FUTURE FUNCTIONALITY - maybe we add some information that summarizes what was entered on ENTER PAY Dialog - but we might not have reoom
+	                        word_for_freq = ""      'for displaying in the dialog
+	                        If EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "1 - One Time Per Month" Then word_for_freq = "monthly"
+	                        If EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "2 - Two Times Per Month" Then word_for_freq = "semi-monthly"
+	                        If EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "3 - Every Other Week" Then word_for_freq = "biweekly"
+	                        If EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "4 - Every Week" Then word_for_freq = "weekly"
 
-                        If EARNED_INCOME_PANELS_ARRAY(apply_to_SNAP, ei_panel) = checked Then       'resizing the dialog and the SNAP Groupbox if income applies to SNAP
-                            grp_len = 100 + number_of_checks_budgeted*10
-                            If number_of_checks_budgeted < 4 Then grp_len = 125
-                            If using_30_days = FALSE Then grp_len = grp_len + 35
+	                        dlg_len = 70        'starting with this dialog
+	                        'FUTURE FUNCTIONALITY - maybe we add some information that summarizes what was entered on ENTER PAY Dialog - but we might not have reoom
 
-                            dlg_len = dlg_len + grp_len + 20
-                        End If
-                        If EARNED_INCOME_PANELS_ARRAY(income_verif, ei_panel) = "? - EXPEDITED SNAP ONLY" Then      'adding size for XFS information tot be added to dialog
-                            dlg_len = dlg_len + 40
-                        End If
-                        If EARNED_INCOME_PANELS_ARRAY(apply_to_CASH, ei_panel) = checked Then       'resizing the dialog and the Cash Groupbox if income applies to Cash
-                            dlg_len = dlg_len + 20
-                            cash_grp_len = 50
-                            length_of_checks_list = cash_checks*10
-                            If cash_checks = 0 Then length_of_checks_list = (UBound(snap_anticipated_pay_array) + 1)*10
-                            If length_of_checks_list < 40 Then length_of_checks_list = 35
+	                        If EARNED_INCOME_PANELS_ARRAY(apply_to_SNAP, ei_panel) = checked Then       'resizing the dialog and the SNAP Groupbox if income applies to SNAP
+	                            grp_len = 100 + number_of_checks_budgeted*10
+	                            If number_of_checks_budgeted < 4 Then grp_len = 125
+	                            If using_30_days = FALSE Then grp_len = grp_len + 35
 
-                            cash_grp_len = cash_grp_len + length_of_checks_list
-                            dlg_len = dlg_len + cash_grp_len
-                        End If
-                        If EARNED_INCOME_PANELS_ARRAY(apply_to_HC, ei_panel) = checked Then         'resizing the dialog and the HC Groupbox if income applies to HC
-                            dlg_len = dlg_len + 20
-                            hc_grp_len = 60
-                            length_of_checks_list = cash_checks*10
-                            If length_of_checks_list < 60 Then length_of_checks_list = 60
+	                            dlg_len = dlg_len + grp_len + 5
+	                        End If
+	                        If EARNED_INCOME_PANELS_ARRAY(income_verif, ei_panel) = "? - EXPEDITED SNAP ONLY" Then      'adding size for XFS information tot be added to dialog
+	                            dlg_len = dlg_len + 40
+	                        End If
+	                        If EARNED_INCOME_PANELS_ARRAY(apply_to_CASH, ei_panel) = checked Then       'resizing the dialog and the Cash Groupbox if income applies to Cash
+	                            dlg_len = dlg_len + 5
+	                            cash_grp_len = 50
+	                            length_of_checks_list = cash_checks*10
+	                            If cash_checks = 0 Then length_of_checks_list = (UBound(snap_anticipated_pay_array) + 1)*10
+	                            If length_of_checks_list < 40 Then length_of_checks_list = 35
 
-                            hc_grp_len = hc_grp_len + length_of_checks_list
-                            dlg_len = dlg_len + hc_grp_len
-                        End If
-                        If EARNED_INCOME_PANELS_ARRAY(apply_to_GRH, ei_panel) = checked Then        'resizing the dialog and the GRH Groupbox if income applies to GRH
-                            dlg_len = dlg_len + 30
-                            grh_grp_len = 65
-                            length_of_checks_list = cash_checks*10
-                            If length_of_checks_list = 0 Then length_of_checks_list = 20
+	                            cash_grp_len = cash_grp_len + length_of_checks_list
+	                            dlg_len = dlg_len + cash_grp_len
+	                        End If
+	                        If EARNED_INCOME_PANELS_ARRAY(apply_to_HC, ei_panel) = checked Then         'resizing the dialog and the HC Groupbox if income applies to HC
+	                            dlg_len = dlg_len + 5
+	                            hc_grp_len = 60
+	                            length_of_checks_list = cash_checks*10
+	                            If length_of_checks_list < 60 Then length_of_checks_list = 60
 
-                            grh_grp_len = grh_grp_len + length_of_checks_list
-                            dlg_len = dlg_len + grh_grp_len
-                        End If
+	                            hc_grp_len = hc_grp_len + length_of_checks_list
+	                            dlg_len = dlg_len + hc_grp_len
+	                        End If
+	                        If EARNED_INCOME_PANELS_ARRAY(apply_to_GRH, ei_panel) = checked Then        'resizing the dialog and the GRH Groupbox if income applies to GRH
+	                            dlg_len = dlg_len + 5
+	                            grh_grp_len = 60
+	                            length_of_checks_list = cash_checks*10
+	                            If length_of_checks_list = 0 Then length_of_checks_list = 20
 
-                        y_pos = 35      'incrementer to move things down
-                        'CONFIRM BUDGET Dialog - mostly shows the information after being calculated for each program and makes the worker confirm this is correct
-                        Dialog1 = ""
-                        BeginDialog Dialog1, 0, 0, 421, dlg_len, "Confirm JOBS Budget"
-                          Text 10, 10, 250, 10, "JOBS " & EARNED_INCOME_PANELS_ARRAY(panel_member, ei_panel) & " " & EARNED_INCOME_PANELS_ARRAY(panel_instance, ei_panel) & " - " & EARNED_INCOME_PANELS_ARRAY(employer, ei_panel)
-                          Text 10, 20, 150, 10, "Pay Frequency - " & EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel)
-                          CheckBox 160, 20, 200, 10, "Check here to confirm this pay frequency.", confirm_pay_freq_checkbox
+	                            grh_grp_len = grh_grp_len + length_of_checks_list
+	                            dlg_len = dlg_len + grh_grp_len
+	                        End If
 
-                          If EARNED_INCOME_PANELS_ARRAY(income_verif, ei_panel) = "? - EXPEDITED SNAP ONLY" Then
-                              Text 10, y_pos, 400, 10, "THIS INCOME HAS NOT BEEN VERIFIED - '?' verification code used."
-                              Text 10, y_pos +10, 400, 10, " -- Only SNAP can be handled this way. The script will only apply SNAP budgeting functionality.-- "
-                              Text 10, y_pos + 20, 400, 10, "A note will be added that some or all of pay information is only reported by client and not verified."
-                              y_pos = y_pos + 40
-                          End If
+	                        y_pos = 35      'incrementer to move things down
+	                        'CONFIRM BUDGET Dialog - mostly shows the information after being calculated for each program and makes the worker confirm this is correct
+	                        Dialog1 = ""
+	                        BeginDialog Dialog1, 0, 0, 421, dlg_len, "Confirm JOBS Budget"
+	                          Text 10, 10, 250, 10, "JOBS " & EARNED_INCOME_PANELS_ARRAY(panel_member, ei_panel) & " " & EARNED_INCOME_PANELS_ARRAY(panel_instance, ei_panel) & " - " & EARNED_INCOME_PANELS_ARRAY(employer, ei_panel)
+	                          Text 10, 20, 150, 10, "Pay Frequency - " & EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel)
+	                          CheckBox 160, 20, 150, 10, "Check here to confirm this pay frequency.", confirm_pay_freq_checkbox
 
-                          If EARNED_INCOME_PANELS_ARRAY(apply_to_SNAP, ei_panel) = checked Then
-                              GroupBox 5, y_pos, 410, grp_len, "SNAP Budget"
+	                          If EARNED_INCOME_PANELS_ARRAY(income_verif, ei_panel) = "? - EXPEDITED SNAP ONLY" Then
+	                              Text 10, y_pos, 400, 10, "THIS INCOME HAS NOT BEEN VERIFIED - '?' verification code used."
+	                              Text 10, y_pos +10, 400, 10, " -- Only SNAP can be handled this way. The script will only apply SNAP budgeting functionality.-- "
+	                              Text 10, y_pos + 20, 400, 10, "A note will be added that some or all of pay information is only reported by client and not verified."
+	                              y_pos = y_pos + 40
+	                          End If
 
-                              Text 10, y_pos + 10, 400, 10, "Income provided covers the period " & first_date & " to " & last_date & ". This income covers " & spread_of_pay_dates & " days."
-                              If using_30_days = FALSE Then
-                                  y_pos = y_pos + 20
-								  Text 10, y_pos, 175, 10, "It appears this is not 30 days of income. Explain:"
-								  ComboBox 10, y_pos+10, 400, 15, "Type or Select"+chr(9)+"Income has just started and this is all that has been received."+chr(9)+"Hours Reduction - this is all the income since the change."+chr(9)+"Hours Increase - this is all the income since the change."+chr(9)+"Wage Reduction - this is all the income since the change."+chr(9)+"Wage Increase - this is all the income since the change."+chr(9)+"Due to how work is scheduled, this is the best representation of expected ongoing income."+chr(9)+"Client stated this income is consistent."+chr(9)+not_30_explanation, not_30_explanation
-								  y_pos = y_pos + 5
-                              End If
-                              y_pos = y_pos + 10
+	                          If EARNED_INCOME_PANELS_ARRAY(apply_to_SNAP, ei_panel) = checked Then
+	                              GroupBox 5, y_pos, 410, grp_len, "SNAP Budget"
 
-                              Text 10, y_pos + 10, 150, 10, paycheck_list_title        '"Paychecks Inclued in Budget:"'
-                              list_pos = 0      'multiplier to move the array items down
+	                              Text 10, y_pos + 10, 400, 10, "Income provided covers the period " & first_date & " to " & last_date & ". This income covers " & spread_of_pay_dates & " days."
+	                              If using_30_days = FALSE Then
+								  	  n30tnt_y_pos = y_pos + 10
+									  y_pos = y_pos + 20
+									  Text 10, y_pos, 175, 10, "It appears this is not 30 days of income. Explain:"
+									  ComboBox 10, y_pos+10, 400, 15, "Type or Select"+chr(9)+"Income has just started and this is all that has been received."+chr(9)+"Hours Reduction - this is all the income since the change."+chr(9)+"Hours Increase - this is all the income since the change."+chr(9)+"Wage Reduction - this is all the income since the change."+chr(9)+"Wage Increase - this is all the income since the change."+chr(9)+"Due to how work is scheduled, this is the best representation of expected ongoing income."+chr(9)+"Client stated this income is consistent."+chr(9)+not_30_explanation, not_30_explanation
+									  y_pos = y_pos + 5
+	                              End If
+	                              y_pos = y_pos + 10
 
-                              If EARNED_INCOME_PANELS_ARRAY(pick_one, ei_panel) = use_actual Then
-                                  ' 'this part actually looks at the income information IN ORDER
-                                  For order_number = 1 to top_of_order                        'loop through the order number lowest to highest
-                                      For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)   'then loop through all of the income information
-                                          'conditional if it is the right panel AND the order matches - then do the thing you need to do
-                                          If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel AND LIST_OF_INCOME_ARRAY(check_order, all_income) = order_number Then
-                                              If LIST_OF_INCOME_ARRAY(exclude_amount, all_income) = 0 Then Text 15, (list_pos * 10) + y_pos + 25, 160, 10, LIST_OF_INCOME_ARRAY(view_pay_date, all_income) & " - $" & LIST_OF_INCOME_ARRAY(gross_amount, all_income) & " - " & LIST_OF_INCOME_ARRAY(hours, all_income) & "hrs."
-                                              If LIST_OF_INCOME_ARRAY(exclude_amount, all_income) <> 0 Then Text 15, (list_pos * 10) + y_pos + 25, 160, 10, LIST_OF_INCOME_ARRAY(view_pay_date, all_income) & " - $" & LIST_OF_INCOME_ARRAY(gross_amount, all_income) & " - " & LIST_OF_INCOME_ARRAY(hours, all_income) & "hrs. - $" & LIST_OF_INCOME_ARRAY(exclude_amount, all_income) & " not included."
+	                              Text 10, y_pos + 10, 150, 10, paycheck_list_title        '"Paychecks Inclued in Budget:"'
+	                              list_pos = 0      'multiplier to move the array items down
 
-                                              list_pos = list_pos + 1
-                                          End If
-                                      next
-                                  next
-                              ElseIf EARNED_INCOME_PANELS_ARRAY(pick_one, ei_panel) = use_estimate Then
-                                  For each money_day in snap_anticipated_pay_array      'this is the list we made above - it has pay date and amount in each item
-                                      Text 20, (list_pos * 10) + y_pos + 25, 90, 10, money_day
-                                      list_pos = list_pos + 1
-                                  Next
-                              End If
-                              If list_pos < 3 Then list_pos = 3
+	                              If EARNED_INCOME_PANELS_ARRAY(pick_one, ei_panel) = use_actual Then
+	                                  ' 'this part actually looks at the income information IN ORDER
+	                                  For order_number = 1 to top_of_order                        'loop through the order number lowest to highest
+	                                      For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)   'then loop through all of the income information
+	                                          'conditional if it is the right panel AND the order matches - then do the thing you need to do
+	                                          If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel AND LIST_OF_INCOME_ARRAY(check_order, all_income) = order_number Then
+	                                              If LIST_OF_INCOME_ARRAY(exclude_amount, all_income) = 0 Then Text 15, (list_pos * 10) + y_pos + 25, 160, 10, LIST_OF_INCOME_ARRAY(view_pay_date, all_income) & " - $" & LIST_OF_INCOME_ARRAY(gross_amount, all_income) & " - " & LIST_OF_INCOME_ARRAY(hours, all_income) & "hrs."
+	                                              If LIST_OF_INCOME_ARRAY(exclude_amount, all_income) <> 0 Then Text 15, (list_pos * 10) + y_pos + 25, 160, 10, LIST_OF_INCOME_ARRAY(view_pay_date, all_income) & " - $" & LIST_OF_INCOME_ARRAY(gross_amount, all_income) & " - " & LIST_OF_INCOME_ARRAY(hours, all_income) & "hrs. - $" & LIST_OF_INCOME_ARRAY(exclude_amount, all_income) & " not included."
 
-                              Text 185, y_pos + 10, 200, 10, "Average hourly rate of pay: $" & EARNED_INCOME_PANELS_ARRAY(hourly_wage, ei_panel)
-                              Text 185, y_pos + 25, 200, 10, "Average " & word_for_freq & " hours: " & EARNED_INCOME_PANELS_ARRAY(snap_ave_hrs_per_pay, ei_panel)
-                              Text 185, y_pos + 40, 200, 10, "Average paycheck amount: $" & EARNED_INCOME_PANELS_ARRAY(snap_ave_inc_per_pay, ei_panel)
-                              Text 185, y_pos + 55, 200, 10, "Monthly Budgeted Income: $" & EARNED_INCOME_PANELS_ARRAY(SNAP_mo_inc, ei_panel)
-                              If EARNED_INCOME_PANELS_ARRAY(SNAP_mo_inc, ei_panel) = "?" Then       'REMOVE CODE - this should not be coming up any more - need to confirm
-                                ButtonGroup ButtonPressed
-                                    PushButton 305, y_pos + 55, 60, 10, "Calculate", calc_btn
-                              End If
-                              y_pos = y_pos + 65
-                              If list_pos > 4 Then y_pos = y_pos + ((list_pos-4) * 10)
-                              Text 10, y_pos, 400, 10, "Paychecks not included: " & list_of_excluded_pay_dates      'list of all excluded pay dates
+	                                              list_pos = list_pos + 1
+	                                          End If
+	                                      next
+	                                  next
+	                              ElseIf EARNED_INCOME_PANELS_ARRAY(pick_one, ei_panel) = use_estimate Then
+	                                  For each money_day in snap_anticipated_pay_array      'this is the list we made above - it has pay date and amount in each item
+	                                      Text 20, (list_pos * 10) + y_pos + 25, 90, 10, money_day
+	                                      list_pos = list_pos + 1
+	                                  Next
+	                              End If
+	                              If list_pos < 3 Then list_pos = 3
 
-                              CheckBox 10, y_pos + 15, 330, 10, "Check here if you confirm that this budget is correct and is the best estimate of anticipated income.", confirm_budget_checkbox
-                              Text 10, y_pos + 35, 60, 10, "Conversation with:"
-                              ComboBox 75, y_pos + 30, 60, 45, " "+chr(9)+"Client - not employee"+chr(9)+"Employee"+chr(9)+"Employer",  EARNED_INCOME_PANELS_ARRAY(spoke_with, ei_panel)
-                              Text 140, y_pos + 35, 25, 10, "clarifies"
-                              EditBox 170, y_pos + 30, 235, 15, EARNED_INCOME_PANELS_ARRAY(convo_detail, ei_panel)
-                              y_pos = y_pos + 55
-                          Else      'if income does not apply to SNAP, we have to default these to being completed
-                            confirm_budget_checkbox = checked
-                            using_30_days = TRUE
-                          End If        'If EARNED_INCOME_PANELS_ARRAY(apply_to_SNAP, ei_panel) = checked Then
+	                              Text 185, y_pos + 10, 200, 10, "Average hourly rate of pay: $" & EARNED_INCOME_PANELS_ARRAY(hourly_wage, ei_panel)
+	                              Text 185, y_pos + 25, 200, 10, "Average " & word_for_freq & " hours: " & EARNED_INCOME_PANELS_ARRAY(snap_ave_hrs_per_pay, ei_panel)
+	                              Text 185, y_pos + 40, 200, 10, "Average paycheck amount: $" & EARNED_INCOME_PANELS_ARRAY(snap_ave_inc_per_pay, ei_panel)
+	                              Text 185, y_pos + 55, 200, 10, "Monthly Budgeted Income: $" & EARNED_INCOME_PANELS_ARRAY(SNAP_mo_inc, ei_panel)
+	                              If EARNED_INCOME_PANELS_ARRAY(SNAP_mo_inc, ei_panel) = "?" Then       'REMOVE CODE - this should not be coming up any more - need to confirm
+	                                ButtonGroup ButtonPressed
+	                                    PushButton 305, y_pos + 55, 60, 10, "Calculate", calc_btn
+	                              End If
+	                              y_pos = y_pos + 65
+	                              If list_pos > 4 Then y_pos = y_pos + ((list_pos-4) * 10)
+	                              Text 10, y_pos, 400, 10, "Paychecks not included: " & list_of_excluded_pay_dates      'list of all excluded pay dates
 
-                          If EARNED_INCOME_PANELS_ARRAY(apply_to_CASH, ei_panel) = checked Then
-                              GroupBox 5, y_pos, 410, cash_grp_len, "CASH Budget"
-                              y_pos = y_pos + 15
-                              Text 10, y_pos, 400, 10, "Pay information will be entered on the RETRO side if provided. The script will not calculate an average for any Retro pay dates."
-                              Text 10, y_pos + 10, 400, 10, "For each month to be updated, the script will use actual pay information or the average for that month on the prospective side."
-                              y_pos = y_pos + 20
-                              Text 10, y_pos, 30, 10, "CHECKS"
-                              y_pos = y_pos + 10
+	                              CheckBox 10, y_pos + 15, 330, 10, "Check here if you confirm that this budget is correct and is the best estimate of anticipated income.", confirm_budget_checkbox
+								  csbtnt_y_pos = y_pos + 10
+	                              Text 10, y_pos + 35, 60, 10, "Conversation with:"
+	                              ComboBox 75, y_pos + 30, 60, 45, " "+chr(9)+"Client - not employee"+chr(9)+"Employee"+chr(9)+"Employer",  EARNED_INCOME_PANELS_ARRAY(spoke_with, ei_panel)
+	                              Text 140, y_pos + 35, 25, 10, "clarifies"
+	                              EditBox 170, y_pos + 30, 235, 15, EARNED_INCOME_PANELS_ARRAY(convo_detail, ei_panel)
+	                              y_pos = y_pos + 55
+	                          Else      'if income does not apply to SNAP, we have to default these to being completed
+	                            confirm_budget_checkbox = checked
+	                            using_30_days = TRUE
+	                          End If        'If EARNED_INCOME_PANELS_ARRAY(apply_to_SNAP, ei_panel) = checked Then
 
-                              CheckBox 190, y_pos, 220, 10, "Check here if these checks are accurate and should be entered.", confirm_checks_checkbox
-                              Text 190, y_pos + 10, 220, 10, "If this income is excluded from the Cash budget, select the reason:"
-                              DropListBox 190, y_pos + 20, 150, 15, "NONE"+chr(9)+"Caregiver under 20 - 50% in school"+chr(9)+"Child under 18 in school"+chr(9)+"Excluded Work Program"+chr(9)+"Excluded Spousal Income", income_excluded_cash_reason
+	                          If EARNED_INCOME_PANELS_ARRAY(apply_to_CASH, ei_panel) = checked Then
+	                              GroupBox 5, y_pos, 410, cash_grp_len, "CASH Budget"
+	                              y_pos = y_pos + 10
+	                              Text 10, y_pos, 400, 10, "Pay information will be entered on the RETRO side if provided. The script will not calculate an average for any Retro pay dates."
+	                              Text 10, y_pos + 10, 400, 10, "For each month to be updated, the script will use actual pay information or the average for that month on the prospective side."
+	                              y_pos = y_pos + 25
+	                              Text 10, y_pos, 30, 10, "CHECKS"
+	                              y_pos = y_pos + 10
 
-                              list_pos = 0
-                              ' 'this part actually looks at the income information IN ORDER
-                              For order_number = 1 to top_of_order                        'loop through the order number lowest to highest
-                                  For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)   'then loop through all of the income information
-                                      'conditional if it is the right panel AND the order matches - then do the thing you need to do
-                                      If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel AND LIST_OF_INCOME_ARRAY(check_order, all_income) = order_number Then
-                                          'list_of_dates = list_of_dates & vbNewLine & "Check Date: " & LIST_OF_INCOME_ARRAY(pay_date, all_income) & " Income: $" & LIST_OF_INCOME_ARRAY(gross_amount, all_income) & " Hours: " & LIST_OF_INCOME_ARRAY(hours, all_income)
-                                          Text 20, (list_pos * 10) + y_pos, 170, 10, LIST_OF_INCOME_ARRAY(view_pay_date, all_income) & " - $" & LIST_OF_INCOME_ARRAY(gross_amount, all_income) & " - " & LIST_OF_INCOME_ARRAY(hours, all_income) & "hrs."
-                                          list_pos = list_pos + 1
-                                      End If
-                                  next
-                              next
+	                              CheckBox 190, y_pos, 210, 10, "Check here if these checks are accurate and can be entered.", confirm_checks_checkbox
+	                              ccbtnt_y_pos = y_pos - 5
+								  Text 190, y_pos + 10, 220, 10, "If this income is excluded from the Cash budget, select the reason:"
+	                              DropListBox 190, y_pos + 20, 150, 15, "NONE"+chr(9)+"Caregiver under 20 - 50% in school"+chr(9)+"Child under 18 in school"+chr(9)+"Excluded Work Program"+chr(9)+"Excluded Spousal Income", income_excluded_cash_reason
 
-                              If list_pos = 0 Then
-                                  For each money_day in snap_anticipated_pay_array
-                                      money_day_date = left(money_day, 10)      'just using the date from the snap list
-                                      money_day_date = trim(money_day_date)
-                                      Text 20, (list_pos * 10) + y_pos, 170, 10, money_day_date & " - $" & EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel) & " - " & EARNED_INCOME_PANELS_ARRAY(ave_hrs_per_pay, ei_panel) & "hrs."
-                                      list_pos = list_pos + 1
-                                  Next
-                              End If
+	                              list_pos = 0
+	                              ' 'this part actually looks at the income information IN ORDER
+	                              For order_number = 1 to top_of_order                        'loop through the order number lowest to highest
+	                                  For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)   'then loop through all of the income information
+	                                      'conditional if it is the right panel AND the order matches - then do the thing you need to do
+	                                      If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel AND LIST_OF_INCOME_ARRAY(check_order, all_income) = order_number Then
+	                                          'list_of_dates = list_of_dates & vbNewLine & "Check Date: " & LIST_OF_INCOME_ARRAY(pay_date, all_income) & " Income: $" & LIST_OF_INCOME_ARRAY(gross_amount, all_income) & " Hours: " & LIST_OF_INCOME_ARRAY(hours, all_income)
+	                                          Text 20, (list_pos * 10) + y_pos, 170, 10, LIST_OF_INCOME_ARRAY(view_pay_date, all_income) & " - $" & LIST_OF_INCOME_ARRAY(gross_amount, all_income) & " - " & LIST_OF_INCOME_ARRAY(hours, all_income) & "hrs."
+	                                          list_pos = list_pos + 1
+	                                      End If
+	                                  next
+	                              next
 
-                              if list_pos < 3 Then list_pos = 3
-                              bottom_of_checks = y_pos + (list_pos * 10)
-                              y_pos = bottom_of_checks + 15
+	                              If list_pos = 0 Then
+	                                  For each money_day in snap_anticipated_pay_array
+	                                      money_day_date = left(money_day, 10)      'just using the date from the snap list
+	                                      money_day_date = trim(money_day_date)
+	                                      Text 20, (list_pos * 10) + y_pos, 170, 10, money_day_date & " - $" & EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel) & " - " & EARNED_INCOME_PANELS_ARRAY(ave_hrs_per_pay, ei_panel) & "hrs."
+	                                      list_pos = list_pos + 1
+	                                  Next
+	                              End If
 
-                          Else
-                            confirm_checks_checkbox = checked       'defaulting to this if not Cash
-                          End If            'If EARNED_INCOME_PANELS_ARRAY(apply_to_CASH, ei_panel) = checked Then
+	                              if list_pos < 3 Then list_pos = 3
+	                              bottom_of_checks = y_pos + (list_pos * 10)
+	                              y_pos = bottom_of_checks + 15
 
-                          If EARNED_INCOME_PANELS_ARRAY(apply_to_HC, ei_panel) = checked Then
-                              GroupBox 5, y_pos, 410, hc_grp_len, "Health Care Budget"
-                              y_pos = y_pos + 15
-                              Text 10, y_pos, 400, 10, "Pay information will be entered on the prospective side only, using actual or estimated pay amounts."
-                              y_pos = y_pos + 10
-                              Text 10, y_pos, 30, 10, "CHECKS"
+	                          Else
+	                            confirm_checks_checkbox = checked       'defaulting to this if not Cash
+	                          End If            'If EARNED_INCOME_PANELS_ARRAY(apply_to_CASH, ei_panel) = checked Then
 
-                              y_pos = y_pos + 10
-                              Text 150, y_pos, 250, 10, "Average amount per pay period: $" & EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel) & " - for HC Inc Est Pop-up."
+	                          If EARNED_INCOME_PANELS_ARRAY(apply_to_HC, ei_panel) = checked Then
+	                              GroupBox 5, y_pos, 410, hc_grp_len, "Health Care Budget"
+	                              y_pos = y_pos + 15
+	                              Text 10, y_pos, 400, 10, "Pay information will be entered on the prospective side only, using actual or estimated pay amounts."
+	                              y_pos = y_pos + 10
+	                              Text 10, y_pos, 30, 10, "CHECKS"
 
-                              Text 150, y_pos + 15, 200,10, "Notes about HC Budget:"
-                              EditBox 150, y_pos + 25, 250, 15, EARNED_INCOME_PANELS_ARRAY(hc_budg_notes, ei_panel)
+	                              y_pos = y_pos + 10
+	                              Text 150, y_pos, 250, 10, "Average amount per pay period: $" & EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel) & " - for HC Inc Est Pop-up."
 
-                              CheckBox 150, y_pos + 45, 200, 10, "Check here if HC needs a Retrospective Budget.", hc_retro_budget_checkbox
+	                              Text 150, y_pos + 15, 200,10, "Notes about HC Budget:"
+	                              EditBox 150, y_pos + 25, 250, 15, EARNED_INCOME_PANELS_ARRAY(hc_budg_notes, ei_panel)
 
-                              list_pos = 0
-                              ' 'this part actually looks at the income information IN ORDER
-                              For order_number = 1 to top_of_order                        'loop through the order number lowest to highest
-                                  For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)   'then loop through all of the income information
-                                      'conditional if it is the right panel AND the order matches - then do the thing you need to do
-                                      If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel AND LIST_OF_INCOME_ARRAY(check_order, all_income) = order_number Then
-                                          'list_of_dates = list_of_dates & vbNewLine & "Check Date: " & LIST_OF_INCOME_ARRAY(view_pay_date, all_income) & " Income: $" & LIST_OF_INCOME_ARRAY(gross_amount, all_income) & " Hours: " & LIST_OF_INCOME_ARRAY(hours, all_income)
-                                          Text 20, (list_pos * 10) + y_pos, 125, 10, LIST_OF_INCOME_ARRAY(view_pay_date, all_income) & " - $" & LIST_OF_INCOME_ARRAY(gross_amount, all_income) & " - " & LIST_OF_INCOME_ARRAY(hours, all_income) & "hrs."
-                                          list_pos = list_pos + 1
-                                      End If
-                                  next
-                              next
+	                              CheckBox 150, y_pos + 45, 170, 10, "Check here if HC needs a Retrospective Budget.", hc_retro_budget_checkbox
+								  hcrtnt_y_pos = y_pos + 40
+	                              list_pos = 0
+	                              ' 'this part actually looks at the income information IN ORDER
+	                              For order_number = 1 to top_of_order                        'loop through the order number lowest to highest
+	                                  For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)   'then loop through all of the income information
+	                                      'conditional if it is the right panel AND the order matches - then do the thing you need to do
+	                                      If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel AND LIST_OF_INCOME_ARRAY(check_order, all_income) = order_number Then
+	                                          'list_of_dates = list_of_dates & vbNewLine & "Check Date: " & LIST_OF_INCOME_ARRAY(view_pay_date, all_income) & " Income: $" & LIST_OF_INCOME_ARRAY(gross_amount, all_income) & " Hours: " & LIST_OF_INCOME_ARRAY(hours, all_income)
+	                                          Text 20, (list_pos * 10) + y_pos, 125, 10, LIST_OF_INCOME_ARRAY(view_pay_date, all_income) & " - $" & LIST_OF_INCOME_ARRAY(gross_amount, all_income) & " - " & LIST_OF_INCOME_ARRAY(hours, all_income) & "hrs."
+	                                          list_pos = list_pos + 1
+	                                      End If
+	                                  next
+	                              next
 
-                              bottom_of_checks = y_pos + (list_pos * 10)
-                              If list_pos < 6 Then bottom_of_checks = y_pos + 60
-                              y_pos = bottom_of_checks + 5
+	                              bottom_of_checks = y_pos + (list_pos * 10)
+	                              If list_pos < 6 Then bottom_of_checks = y_pos + 60
+	                              y_pos = bottom_of_checks + 5
 
-                              CheckBox 10, y_pos, 250, 10, "Check here if these checks and estimated pay amount are accurate.", hc_confirm_checks_checkbox
-                              y_pos = y_pos + 25
-                          Else
-                            hc_confirm_checks_checkbox = checked        'default if income does not apply to HC
-                          End If
+	                              CheckBox 10, y_pos, 230, 10, "Check here if these checks and estimated pay amount are accurate.", hc_confirm_checks_checkbox
+	                              chbtnt_y_pos = y_pos -5
+								  y_pos = y_pos + 25
+	                          Else
+	                            hc_confirm_checks_checkbox = checked        'default if income does not apply to HC
+	                          End If
 
-                          If EARNED_INCOME_PANELS_ARRAY(apply_to_GRH, ei_panel) = checked Then
-                              GroupBox 5, y_pos, 410, grh_grp_len, "GRH Budget"
-                              y_pos = y_pos + 10
+	                          If EARNED_INCOME_PANELS_ARRAY(apply_to_GRH, ei_panel) = checked Then
+	                              GroupBox 5, y_pos, 410, grh_grp_len, "GRH Budget"
+	                              y_pos = y_pos + 10
 
-                              Text 10, y_pos, 150, 10, paycheck_list_title
-                              y_pos = y_pos + 15
+	                              Text 10, y_pos, 150, 10, paycheck_list_title
+	                              y_pos = y_pos + 15
 
-                              Text 185, y_pos, 200, 10, "Average paycheck amount: $" & EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel)
-                              Text 185, y_pos + 10, 200, 10, "Monthly Budgeted Income: $" & EARNED_INCOME_PANELS_ARRAY(GRH_mo_inc, ei_panel)
+	                              Text 185, y_pos, 200, 10, "Average paycheck amount: $" & EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel)
+	                              Text 185, y_pos + 10, 200, 10, "Monthly Budgeted Income: $" & EARNED_INCOME_PANELS_ARRAY(GRH_mo_inc, ei_panel)
 
-                              list_pos = 0
-                              If EARNED_INCOME_PANELS_ARRAY(pick_one, ei_panel) = use_actual Then
-                                  Text 10, y_pos, 150, 10, "Actual Check Stubs to Enter on GRH PIC"
-                                  y_pos = y_pos + 15
-                                  ' 'this part actually looks at the income information IN ORDER
-                                  For order_number = 1 to top_of_order                        'loop through the order number lowest to highest
-                                      For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)   'then loop through all of the income information
-                                          'conditional if it is the right panel AND the order matches - then do the thing you need to do
-                                          If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel AND LIST_OF_INCOME_ARRAY(check_order, all_income) = order_number Then
-                                              'list_of_dates = list_of_dates & vbNewLine & "Check Date: " & LIST_OF_INCOME_ARRAY(view_pay_date, all_income) & " Income: $" & LIST_OF_INCOME_ARRAY(gross_amount, all_income) & " Hours: " & LIST_OF_INCOME_ARRAY(hours, all_income)
-                                              Text 15, (list_pos * 10) + y_pos, 160, 10, LIST_OF_INCOME_ARRAY(view_pay_date, all_income) & " - $" & LIST_OF_INCOME_ARRAY(gross_amount, all_income) & " - " & LIST_OF_INCOME_ARRAY(hours, all_income) & "hrs."
+	                              list_pos = 0
+	                              If EARNED_INCOME_PANELS_ARRAY(pick_one, ei_panel) = use_actual Then
+	                                  Text 10, y_pos, 150, 10, "Actual Check Stubs to Enter on GRH PIC"
+	                                  y_pos = y_pos + 15
+	                                  ' 'this part actually looks at the income information IN ORDER
+	                                  For order_number = 1 to top_of_order                        'loop through the order number lowest to highest
+	                                      For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)   'then loop through all of the income information
+	                                          'conditional if it is the right panel AND the order matches - then do the thing you need to do
+	                                          If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel AND LIST_OF_INCOME_ARRAY(check_order, all_income) = order_number Then
+	                                              'list_of_dates = list_of_dates & vbNewLine & "Check Date: " & LIST_OF_INCOME_ARRAY(view_pay_date, all_income) & " Income: $" & LIST_OF_INCOME_ARRAY(gross_amount, all_income) & " Hours: " & LIST_OF_INCOME_ARRAY(hours, all_income)
+	                                              Text 15, (list_pos * 10) + y_pos, 160, 10, LIST_OF_INCOME_ARRAY(view_pay_date, all_income) & " - $" & LIST_OF_INCOME_ARRAY(gross_amount, all_income) & " - " & LIST_OF_INCOME_ARRAY(hours, all_income) & "hrs."
 
-                                              list_pos = list_pos + 1
-                                          End If
-                                      next
-                                  next
-                                  if list_pos < 3 Then list_pos = 3
-                                  y_pos = y_pos + (list_pos * 10) + 10
-                              ElseIf EARNED_INCOME_PANELS_ARRAY(pick_one, ei_panel) = use_estimate Then
-                                  Text 10, y_pos, 150, 10, "Income Estimate Enter on GRH PIC"
+	                                              list_pos = list_pos + 1
+	                                          End If
+	                                      next
+	                                  next
+	                                  if list_pos < 3 Then list_pos = 3
+	                                  y_pos = y_pos + (list_pos * 10) + 10
+	                              ElseIf EARNED_INCOME_PANELS_ARRAY(pick_one, ei_panel) = use_estimate Then
+	                                  Text 10, y_pos, 150, 10, "Income Estimate Enter on GRH PIC"
 
-                                  Text 20, y_pos + 10, 90, 10, "Hours Per Week: " & EARNED_INCOME_PANELS_ARRAY(hrs_per_wk, ei_panel)
-                                  Text 20, y_pos + 20, 90, 10, "Rate Of Pay/Hr: $" & EARNED_INCOME_PANELS_ARRAY(hourly_wage, ei_panel)
+	                                  Text 20, y_pos + 10, 90, 10, "Hours Per Week: " & EARNED_INCOME_PANELS_ARRAY(hrs_per_wk, ei_panel)
+	                                  Text 20, y_pos + 20, 90, 10, "Rate Of Pay/Hr: $" & EARNED_INCOME_PANELS_ARRAY(hourly_wage, ei_panel)
 
-                                  For each money_day in snap_anticipated_pay_array      'this is using SNAP income information - BUGGY CODE
-                                      Text 20, (list_pos * 10) + y_pos + 30, 90, 10, money_day
-                                      list_pos = list_pos + 1
-                                  Next
-                                  if list_pos < 3 Then list_pos = 3
-                                  y_pos = y_pos + (list_pos * 10) + 10
-                              End If
-                              'FUTURE FUNCTIONALITY - add an EditBox for entering an amount for the application month ONLY that is not counted (there is a field on JOBS)
-                              CheckBox 10, y_pos, 330, 10, "Check here if you confirm that this budget is correct and is the best estimate of anticipated income.", GRH_confirm_budget_checkbox
-                              y_pos = y_pos + 20
-                          Else
-                              GRH_confirm_budget_checkbox = checked     'default if income does not apply to GRH
-                          End If
+	                                  For each money_day in snap_anticipated_pay_array      'this is using SNAP income information - BUGGY CODE
+	                                      Text 20, (list_pos * 10) + y_pos + 30, 90, 10, money_day
+	                                      list_pos = list_pos + 1
+	                                  Next
+	                                  if list_pos < 3 Then list_pos = 3
+	                                  y_pos = y_pos + (list_pos * 10) + 10
+	                              End If
+	                              'FUTURE FUNCTIONALITY - add an EditBox for entering an amount for the application month ONLY that is not counted (there is a field on JOBS)
+								  y_pos = y_pos - 15
+	                              CheckBox 10, y_pos, 330, 10, "Check here if you confirm that this budget is correct and is the best estimate of anticipated income.", GRH_confirm_budget_checkbox
+	                              cgbtnt_y_pos = y_pos - 5
+								  y_pos = y_pos + 20
+	                          Else
+	                              GRH_confirm_budget_checkbox = checked     'default if income does not apply to GRH
+	                          End If
 
-                          Text 10, y_pos, 290, 25, "       *** If the budget is incorrect, press 'OK' but leave the above boxes UNCHECKED.***     If the boxes are NOT checked, the script will bring you BACK to change the pay information on the previous dialog."
-                          y_pos = y_pos + 10
-                          ButtonGroup ButtonPressed
-                            OkButton 315, y_pos, 50, 15
-                            CancelButton 365, y_pos, 50, 15
-                        EndDialog
+	                          Text 10, y_pos, 290, 25, "       *** If the budget is incorrect, press 'OK' but leave the above boxes UNCHECKED.***     If the boxes are NOT checked, the script will bring you BACK to change the pay information on the previous dialog."
+	                          y_pos = y_pos + 10
+	                          ButtonGroup ButtonPressed
+	                            PushButton 310, 15, 15, 15, "!", pay_frequency_tips_and_tricks_btn
+								If EARNED_INCOME_PANELS_ARRAY(apply_to_SNAP, ei_panel) = checked Then
+									If using_30_days = FALSE Then PushButton 300, n30tnt_y_pos, 15, 15, "!", not_thirty_days_tips_and_tricks_btn
+									PushButton 340, csbtnt_y_pos, 15, 15, "!", confirm_snap_budget_tips_and_tricks_btn
+								End If
+								If EARNED_INCOME_PANELS_ARRAY(apply_to_CASH, ei_panel) = checked Then
+									PushButton 400, ccbtnt_y_pos, 15, 15, "!", confirm_cash_budget_tips_and_tricks_btn
 
-                        Dialog Dialog1      'calling the dialog
+								End If
+								If EARNED_INCOME_PANELS_ARRAY(apply_to_HC, ei_panel) = checked Then
+									PushButton 320, hcrtnt_y_pos, 15, 15, "!", hc_retro_budget_tips_and_tricks_btn
+									PushButton 240, chbtnt_y_pos, 15, 15, "!", confirm_hc_budget_tips_and_tricks_btn
+
+								End If
+								If EARNED_INCOME_PANELS_ARRAY(apply_to_GRH, ei_panel) = checked Then
+									PushButton 340, cgbtnt_y_pos, 15, 15, "!", confirm_grh_budget_tips_and_tricks_btn
+
+								End If
+								OkButton 315, y_pos, 50, 15
+	                            CancelButton 365, y_pos, 50, 15
+	                        EndDialog
+
+	                        Dialog Dialog1      'calling the dialog
+
+							If ButtonPressed = pay_frequency_tips_and_tricks_btn Then
+								tips_tricks_msg = MsgBox("*** Tips and Tricks ***" & vbNewLine & "----------------------------------------" & vbNewLine &_
+														"ABOUT ENTERING PAY FREQUENCY"  & vbNewLine & vbNewLine &_
+														"Even though you have entered the pay frequency on a previous dialog, the correct coding of this field is crucial to an accurate budget."  & vbNewLine & vbNewLine &_
+														"PAY FREQUENCY CODING ERRORS HAVE A HIGH RATE OF PAYMENT ACCURACY ERRORS."  & vbNewLine & vbNewLine &_
+														"There are many reason the existing code on this field in MAXIS may be incorrect and forcing this field to be manually edited every time can ensure close monitoring of this decision point."  & vbNewLine & vbNewLine &_
+														"----------------------------------------"  & vbNewLine &_
+														"This field will also determine:" & vbNewLine &_
+														"  - Anticipated Paydates" & vbNewLine &_
+														"  - Checks missing from the entry" & vbNewLine &_
+														"  - Weekday of pay (for weekly and biweekly)" & vbNewLine & vbNewLine &_
+														"Do not check this box without actually reviewing the information on this line.", vbInformation, "Tips and Tricks")
+								msg_err_msg = "LOOP"         'makes the dialog loop back without displaying an error message
+							End If
+							If ButtonPressed = not_thirty_days_tips_and_tricks_btn Then
+								tips_tricks_msg = MsgBox("*** Tips and Tricks ***" & vbNewLine & "----------------------------------------" & vbNewLine &_
+														"USING INCOME VERIFICATION THAT IS MORE OR LESS THAN 30 DAYS"  & vbNewLine & vbNewLine &_
+														"SNAP Policy used to require exactly 30 days of income verification to be sufficiently verified. This is no longer the case. While 30 days is the default, we can use any number of days from the first to last check as the correct prospective income budget. We MUST make clear why we are using something other than 30 days. This field allows for clarification of why using something OTHER than 30 days is the best budggeting decision."  & vbNewLine & vbNewLine &_
+														"Income budgeting is cause of a large portion of our errors, and many could be resolved with a clear and details CASE:NOTE on the reasoning behid the budgeting decisions applied. "  & vbNewLine & vbNewLine &_
+														"We count the 30 days by the spread of income received, not days worked." & vbNewLine &_
+														"----------------------------------------"  & vbNewLine &_
+														"Income is considered 'thirty days of income' for each pay frequency:" & vbNewLine &_
+														"  - Monthly - 30 days or fewer between first and last paychecks in the series (usually 1 check)." & vbNewLine &_
+														"  - Seemi-Monthly - Between 13 and 30 days between the first and last paychecks in the series (usually 2 checks)." & vbNewLine &_
+														"  - Biweekly - 28 days betweeen the first and last paycheecks in the series (usually 3 checks)." & vbNewLine &_
+														"  - Weekly - 28 days betweeen the first and last paycheecks in the series (usually 5 checks)." & vbNewLine & vbNewLine &_
+														"----------------------------------------"  & vbNewLine &_
+														"The field can be filled by typing in the explanation or by selecting one of the options listed in the dropdown:" & vbNewLine &_
+														"  - Income has just started and this is all that has been received." & vbNewLine &_
+														"  - Hours Reduction - this is all the income since the change." & vbNewLine &_
+														"  - Hours Increase - this is all the income since the change." & vbNewLine &_
+														"  - Wage Reduction - this is all the income since the change." & vbNewLine &_
+														"  - Wage Increase - this is all the income since the change." & vbNewLine &_
+														"  - Due to how work is scheduled, this is the best representation of expected ongoing income." & vbNewLine &_
+														"  - Client stated this income is consistent." & vbNewLine & vbNewLine &_
+														"This will require a written explanation, the more detail and clarity provided, the more likely the budget will be accepted as accurate in a review.", vbInformation, "Tips and Tricks")
+								msg_err_msg = "LOOP"         'makes the dialog loop back without displaying an error message
+							End If
+							If ButtonPressed = confirm_snap_budget_tips_and_tricks_btn Then
+								tips_tricks_msg = MsgBox("*** Tips and Tricks ***" & vbNewLine & "----------------------------------------" & vbNewLine &_
+														"CONFIRMING THE SNAP BUDGET IS CORRECT"  & vbNewLine & vbNewLine &_
+														"This check box should ONLY be checed once you have completely reviewed the SNAP budget determined by the income information "  & vbNewLine & vbNewLine &_
+														"The budget detail listed above this checkbox, in the SNAP Budget box, was created from the information entered in the previous dialog ('All Paystubs Received') and the detail associated with each paycheck/income information."  & vbNewLine &_
+														"----------------------------------------"  & vbNewLine &_
+														"If the budget looks incorrect do NOT check the box, then press 'OK'. The script will return to the previous dialog so you can change the inputs." & vbNewLine & vbNewLine &_
+														"Some of the opptions for ways to change the budget:" & vbNewLine &_
+														"  - Ensuring all checks have been listed." & vbNewLine &_
+														"  - Checking the dates and gross amounts entered." & vbNewLine &_
+														"  - Excluding or including checks listed." & vbNewLine &_
+														"  - Changing any partial exclusions." & vbNewLine & vbNewLine &_
+														"IT IS VITAL THAT WE ARE REVIEWING THE BUDGET HERE BECUASE THE SCRIPT WILL UPDATE JOBS NEXT.", vbInformation, "Tips and Tricks")
+								msg_err_msg = "LOOP"         'makes the dialog loop back without displaying an error message
+							End If
+							If ButtonPressed = confirm_cash_budget_tips_and_tricks_btn Then
+								tips_tricks_msg = MsgBox("*** Tips and Tricks ***" & vbNewLine & "----------------------------------------" & vbNewLine &_
+														"CONFIRMING THE CASH CHECKS ARE ACCURATE"  & vbNewLine & vbNewLine &_
+														"The checks listed are going to be entered exactly as listed in this dialog. It is important to ensure the gross amounts are listed correctly."  & vbNewLine & vbNewLine &_
+														"Since cash programs are budgeted retrospectively for earned income, the script enteres the entire gross amount in the retrospective side."  & vbNewLine & vbNewLine &_
+														"The script does not exclude paychecks in whole or partial since cash programs do not have policy to support the exclusion of checks."  & vbNewLine & vbNewLine &_
+														"----------------------------------------"  & vbNewLine &_
+														"If the checks looks incorrect do NOT check the box, then press 'OK'. The script will return to the previous dialog so you can change the inputs." & vbNewLine & vbNewLine &_
+														"IT IS VITAL THAT WE ARE REVIEWING THE BUDGET HERE BECUASE THE SCRIPT WILL UPDATE JOBS NEXT.", vbInformation, "Tips and Tricks")
+								msg_err_msg = "LOOP"         'makes the dialog loop back without displaying an error message
+							End If
+							If ButtonPressed = hc_retro_budget_tips_and_tricks_btn Then
+								tips_tricks_msg = MsgBox("*** Tips and Tricks ***" & vbNewLine & "----------------------------------------" & vbNewLine &_
+														"HEALTH CARE RETRO BUDGET"  & vbNewLine & vbNewLine &_
+														"The script has the ability to update JOBS with the procedure for prospective or retrospective budgeting. The default for health care budgets is to use a prospecitve budget using the pay amount listed in the HC Income Estimate Pop-Up."  & vbNewLine & vbNewLine &_
+														"The only way to force the script to update the retrospective side of the JOBS panel is to check this box"  & vbNewLine & vbNewLine &_
+														"This is typically used for Manual Monthly Spenddown cases - often LTC cases. If you are unsure if this should apply, contact Knowledge Now.", vbInformation, "Tips and Tricks")
+								msg_err_msg = "LOOP"         'makes the dialog loop back without displaying an error message
+							End If
+							If ButtonPressed = confirm_hc_budget_tips_and_tricks_btn Then
+								tips_tricks_msg = MsgBox("*** Tips and Tricks ***" & vbNewLine & "----------------------------------------" & vbNewLine &_
+														"CONFIRMING THE HC INCOME ESTIMATION AND BUDGET IS CORRECT"  & vbNewLine & vbNewLine &_
+														"The health care budget is determined by the check dates and the calculated amount of the HC Income Estimate."  & vbNewLine & vbNewLine &_
+														"The HC Income Estimate is based on the average of the provided checks."  & vbNewLine & vbNewLine &_
+														"----------------------------------------"  & vbNewLine &_
+														"If the budget looks incorrect do NOT check the box, then press 'OK'. The script will return to the previous dialog so you can change the inputs." & vbNewLine & vbNewLine &_
+														"Some of the opptions for ways to change the budget:" & vbNewLine &_
+														"  - Ensuring all checks have been listed." & vbNewLine &_
+														"  - Checking the dates and gross amounts entered." & vbNewLine & vbNewLine &_
+														"IT IS VITAL THAT WE ARE REVIEWING THE BUDGET HERE BECUASE THE SCRIPT WILL UPDATE JOBS NEXT.", vbInformation, "Tips and Tricks")
+								msg_err_msg = "LOOP"         'makes the dialog loop back without displaying an error message
+							End If
+							If ButtonPressed = confirm_grh_budget_tips_and_tricks_btn Then
+								tips_tricks_msg = MsgBox("*** Tips and Tricks ***" & vbNewLine & "----------------------------------------" & vbNewLine &_
+														"CONFIRMING THE CHECKS FOR THE GRH BUDGET IS CORRECT"  & vbNewLine & vbNewLine &_
+														"The script uses these budget details to update the main JOBS panel and the GRH pop-up."  & vbNewLine & vbNewLine &_
+														"----------------------------------------"  & vbNewLine &_
+														"If the budget looks incorrect do NOT check the box, then press 'OK'. The script will return to the previous dialog so you can change the inputs." & vbNewLine & vbNewLine &_
+														"Some of the opptions for ways to change the budget:" & vbNewLine &_
+														"  - Ensuring all checks have been listed." & vbNewLine &_
+														"  - Checking the dates and gross amounts entered." & vbNewLine & vbNewLine &_
+														"IT IS VITAL THAT WE ARE REVIEWING THE BUDGET HERE BECUASE THE SCRIPT WILL UPDATE JOBS NEXT.", vbInformation, "Tips and Tricks")
+								msg_err_msg = "LOOP"         'makes the dialog loop back without displaying an error message
+							End If
+
+						Loop until msg_err_msg = ""
 
                         Call check_for_password(are_we_passworded_out)  'we are doing password handling before error handling because of the 2 dialogs looped together
                     Loop until are_we_passworded_out = False
