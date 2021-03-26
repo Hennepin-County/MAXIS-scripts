@@ -1,15 +1,10 @@
-' PURPOSE: This script allows users to FIAT the HC determination for clients that are active on GRH or MSA...policy change means that these clients are no
-'			longer automatically eligible for MA eligibility.
-' DESIGN...
-'		1. The script must collect the MAXIS Case Number and select the individual to FIAT.
-'		2. The script must collect income information for the individual...
-'			2a. GROSS UNEARNED INCOME
-'			2b. GROSS DEEMED UNEARNED INCOME
-'			2c. EXCLUDED UNEARNED INCOME
-'		3. The script must collect asset information for the individual, determine which is COUNTED, EXCLUDED, and UNAVAILABLE.
-'   4. More stuff tbd
-
-
+'Required for statistical purposes==========================================================================================
+name_of_script = "ACTIONS - MA FIATER FOR GRH MSA.vbs"
+start_time = timer
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 480                     'manual run time in seconds
+STATS_denomination = "I"                   'C is for each CASE
+'END OF stats block=========================================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
@@ -42,6 +37,17 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+
+' PURPOSE: This script allows users to FIAT the HC determination for clients that are active on GRH or MSA...policy change means that these clients are no
+'			longer automatically eligible for MA eligibility.
+' DESIGN...
+'		1. The script must collect the MAXIS Case Number and select the individual to FIAT.
+'		2. The script must collect income information for the individual...
+'			2a. GROSS UNEARNED INCOME
+'			2b. GROSS DEEMED UNEARNED INCOME
+'			2c. EXCLUDED UNEARNED INCOME
+'		3. The script must collect asset information for the individual, determine which is COUNTED, EXCLUDED, and UNAVAILABLE.
+'   4. More stuff tbd
 
 'these variables are needed to input the values of each individual amount to the ELIG/HC FIAT
 DIM ttl_CASH_counted, ttl_CASH_excluded, ttl_CASH_unavail
