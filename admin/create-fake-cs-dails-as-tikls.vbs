@@ -55,11 +55,12 @@ If income_type <> "36" and _
    income_type <> "39" then script_end_procedure("Not on a CS message")
 
 EMReadScreen PMI_number, 8, 4, 71
-EMReadScreen case_number, 8, 20, 37
+EMReadScreen MAXIS_case_number, 8, 20, 37
 
 '<<<<LOOP ME
 EMReadScreen retro_income_date, 8, 13, 25
 EMReadScreen retro_income_amt , 8, 13, 39
+If retro_income_date = "__ __ __" OR retro_income_amt = "________" Then script_end_procedure("No retro CS amount")
 
 call navigate_to_MAXIS_screen("DAIL", "WRIT")
 write_variable_in_TIKL("$" & trim(retro_income_amt) & " of type " & income_type & " received " & replace(retro_income_date, " ", "/") & " FOR PMI:........................... " & PMI_number)
