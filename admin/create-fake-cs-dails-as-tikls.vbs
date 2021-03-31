@@ -43,7 +43,8 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
-
+'This is very limited scope for creation of these DAILs - this is specific to helping to build the DAIL cses-scrubber
+'If we want to increate the functionality (more dails) using more reading or a dialog - we would need to create a new issue for that enhancement
 EMConnect ""
 
 EMReadScreen UNEA_check, 4, 2, 48
