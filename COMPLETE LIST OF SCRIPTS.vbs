@@ -1945,6 +1945,7 @@ script_array(script_num).tags                   = array("Adult Cash", "Communica
 script_array(script_num).dlg_keys               = array("Cn", "Wrd")
 script_array(script_num).subcategory            = array("WORD DOCS")
 script_array(script_num).release_date           = #10/01/2000#
+script_array(script_num).retirement_date		= #04/01/2021#
 script_array(script_num).hot_topic_link			= ""
 
 script_num = script_num + 1							'Increment by one
