@@ -48,17 +48,7 @@ CALL changelog_update("01/15/2021", "Initial version.", "MiKayla Handley, Hennep
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-FUNCTION find_MAXIS_worker_number(x_number)
-	EMReadScreen SELF_check, 4, 2, 50		'Does this to check to see if we're on SELF screen
-	IF SELF_check = "SELF" THEN				'if on the self screen then x # is read from coordinates
-		EMReadScreen x_number, 7, 22, 8
-	ELSE
-		Call find_variable("PW: ", x_number, 7)	'if not, then the PW: variable is searched to find the worker #
-		If isnumeric(MAXIS_worker_number) = true then 	 'making sure that the worker # is a number
-			MAXIS_worker_number = x_number				'delcares the MAXIS_worker_number to be the x_number
-		End if
-	END if
-END FUNCTION
+
 'THE SCRIPT-----------------------------------------------------------------------------------------------------------
 EMConnect ""
 MAXIS_footer_month = CM_mo
@@ -115,8 +105,8 @@ const case_logged_const         = 8 '= "Case logged by assigned worker?"
 const case_note_date_const      = 9  '= "Case Note Date"
 const case_note_match_const     = 10 '= "Worker who made case note same as assigned worker"
 const case_note_keyword_const   = 11 '= "Does case note title contain keyword"
-const total_DAIL_count_const        	= 12 '= "DAIL Count"
-const action_DAIL_count_const        	= 13 '= "DAIL Type"
+const total_DAIL_count_const   	= 12 '= "DAIL Count"
+const action_DAIL_count_const   = 13 '= "DAIL Type"
 const ECF_type_const            = 14 '= "EWS ECF Item Count"
 const ECF_form_const            = 15 '= "ECF Form Types"
 const oldest_APPL_date_const    = 16 '= "Oldest ECF APPL Date"
@@ -129,7 +119,7 @@ excel_row = 5                   're-establishing the row to start based on when 
 entry_record = 0                'incrementor for the array and count
 all_case_numbers_array = "*"    'setting up string to find duplicate case numbers
 Do
-    'Reading information from the BOBI report in Excel
+    'Reading information from the Excel
     worker_number = objExcel.cells(excel_row, 6).Value
     worker_number = trim(worker_number)
 
@@ -151,7 +141,7 @@ Do
 
 		task_based_array(date_assigned_const,      entry_record) = ""
 		task_based_array(SSR_name_const, 		   entry_record) = ""
-		task_based_array(maxis_case_number_const,  entry_record) = MAXIS_case_number
+		task_based_array(maxis_case_number_const,  entry_record) = ""
 		task_based_array(case_name_const,          entry_record) = ""
 		task_based_array(basket_const,  		   entry_record) = ""
 		task_based_array(assigned_to_const,        entry_record) = ""
@@ -189,6 +179,25 @@ For item = 0 to UBound(task_based_array, 2)
     application_date    = task_based_array(application_date_const, item)
 	MAXIS_case_name     = task_based_array(application_date_const, item)
 	date_assigned		= task_based_array(date_assigned_const,    item)
+	assigned_to_name	= task_based_array(assigned_to_const,      item)
+
+	call run_from_GitHub(script_repository & "")
+
+	last_name = trim(replace(last_name, "_", ""))
+	first_name = trim(replace(first_name, "_", ""))
+	MAXIS_case_name = first_name & " "  & last_name
+	Call navigate_to_MAXIS_screen("STAT", "PROG")
+	EMReadScreen SELF_check, 4, 2, 50		'Does this to check to see if we're on SELF screen
+	IF SELF_check = "SELF" THEN				'if on the self screen then x # is read from coordinates
+		EMReadScreen x_number, 7, 22, 8
+	ELSE
+		Call find_variable("PW: ", x_number, 7)	'if not, then the PW: variable is searched to find the worker #
+		If isnumeric(MAXIS_worker_number) = true then 	 'making sure that the worker # is a number
+			MAXIS_worker_number = x_number				'delcares the MAXIS_worker_number to be the x_number
+		End if
+	END if
+
+
 	'setting the footer month to make the updates in'
 	CALL convert_date_into_MAXIS_footer_month(date_received, MAXIS_footer_month, MAXIS_footer_year)
 	MAXIS_footer_month_confirmation
@@ -245,11 +254,11 @@ For item = 0 to UBound(task_based_array, 2)
 	END IF
 	task_based_array(MAXIS_case_name_const, item) = MAXIS_case_name
 
-	ONLY_create_MAXIS_friendly_date(date_assigned)
+	CALL ONLY_create_MAXIS_friendly_date(date_assigned)
         Call navigate_to_MAXIS_screen("CASE", "NOTE")
         MAXIS_row = 5
         Do
-            EMReadScreen first_case_note_date, 8, 5, 6 'static reading of the case note date to determine if no case notes acutually exist.
+            EMReadScreen first_case_note_date, 8, 5, 6 'static reading of the case note date to determine if no case notes actually exist.
             If trim(first_case_note_date) = "" then
                 case_note_found = True
                 task_based_array(case_status_const, item) = "Case Notes Do Not Exist"
@@ -361,7 +370,6 @@ For item = 0 to UBound(task_based_array, 2)
 				TRANSMIT  'transmit past 'THIS IS NOT YOUR DAIL REPORT
         		exit do
 			End if
-
     End if
 Next
 
@@ -428,7 +436,6 @@ Msgbox "Output to Excel Starting."      'warning message to whomever is running 
         objExcel.Cells(1, i).Font.Bold = True		'bold font'
         objExcel.Columns(i).AutoFit()				'sizing the columns'
     NEXT
-
 
 objWorkbook.Save()  'saves existing workbook as same name
 objExcel.Quit

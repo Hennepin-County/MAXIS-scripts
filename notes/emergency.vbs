@@ -53,6 +53,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("04/01/2021", "Updated 200% FPG for 2021.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/12/2020", "Updated HSR Manual link for EGA policy/procedure due to SharePoint Online Migration.", "Ilse Ferris, Hennepin County")
 call changelog_update("07/30/2020", "BUG Fix: The script was getting stuck and would not continue to the note if a required field was not completed.##~##Updated so that the dialog with the missing field would appear.##~##", "Casey Love, Hennepin County")
 call changelog_update("04/01/2020", "Updated 200% FPG for 2020.", "Ilse Ferris, Hennepin County")
@@ -230,27 +231,27 @@ If EGA_screening_check = 1 then
       crisis = left(crisis, len(crisis) - 1)
     End if
 
-    'determining  200% FPG (using last year's amounts) per HH member---handles up to 20 members. Updated with 2020's FPG. Changes April 1 every year.
-	If HH_members = "1"  then monthly_standard = "2127"
-    If HH_members = "2"  then monthly_standard = "2873"
-    If HH_members = "3"  then monthly_standard = "3620"
-    If HH_members = "4"  then monthly_standard = "4367"
-    If HH_members = "5"  then monthly_standard = "5113"
-    If HH_members = "6"  then monthly_standard = "5860"
-    If HH_members = "7"  then monthly_standard = "6607"
-    If HH_members = "8"  then monthly_standard = "7353"
-    If HH_members = "9"  then monthly_standard = "8100"
-    If HH_members = "10" then monthly_standard = "8447"
-    If HH_members = "11" then monthly_standard = "9594"
-    If HH_members = "12" then monthly_standard = "10341"
-    If HH_members = "13" then monthly_standard = "11088"
-    If HH_members = "14" then monthly_standard = "11835"
-    If HH_members = "15" then monthly_standard = "12582"
-    If HH_members = "16" then monthly_standard = "13329"
-    If HH_members = "17" then monthly_standard = "14076"
-    If HH_members = "18" then monthly_standard = "14823"
-    If HH_members = "19" then monthly_standard = "15570"
-    If HH_members = "20" then monthly_standard = "16317"
+    'determining  200% FPG per HH member---handles up to 20 members. Changes April 1 every year. CM0016.18.01 - 200 Percent of FPG
+	If HH_members = "1"  then monthly_standard = "2147"
+    If HH_members = "2"  then monthly_standard = "2903"
+    If HH_members = "3"  then monthly_standard = "3660"
+    If HH_members = "4"  then monthly_standard = "4417"
+    If HH_members = "5"  then monthly_standard = "5173"
+    If HH_members = "6"  then monthly_standard = "5930"
+    If HH_members = "7"  then monthly_standard = "6687"
+    If HH_members = "8"  then monthly_standard = "7443"
+    If HH_members = "9"  then monthly_standard = "8200"
+    If HH_members = "10" then monthly_standard = "8957"
+    If HH_members = "11" then monthly_standard = "9714"
+    If HH_members = "12" then monthly_standard = "10471"
+    If HH_members = "13" then monthly_standard = "11228"
+    If HH_members = "14" then monthly_standard = "11985"
+    If HH_members = "15" then monthly_standard = "12742"
+    If HH_members = "16" then monthly_standard = "13499"
+    If HH_members = "17" then monthly_standard = "14256"
+    If HH_members = "18" then monthly_standard = "15013"
+    If HH_members = "19" then monthly_standard = "15770"
+    If HH_members = "20" then monthly_standard = "16527"
 
     seventy_percent_income = net_income * .70   'This is to determine if shel costs exceed 70% of the HH's income
 

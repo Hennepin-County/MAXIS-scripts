@@ -122,6 +122,7 @@ If basket_number = "X127EP3" then suggested_population = "ADS"
 If basket_number = "X127EP4" then suggested_population = "ADS"
 If basket_number = "X127EP5" then suggested_population = "ADS"
 If basket_number = "X127EP9" then suggested_population = "ADS"
+If basket_number = "X127F3F" then suggested_population = "ADS"  'MA-EPD ADS Basket 
 If basket_number = "X127FE5" then suggested_population = "ADS"
 If basket_number = "X127FG3" then suggested_population = "ADS"
 If basket_number = "X127FH4" then suggested_population = "ADS"
@@ -185,6 +186,7 @@ If basket_number = "X127EX7" then suggested_population = "Adults"
 If basket_number = "X127EX8" then suggested_population = "Adults"
 If basket_number = "X127EX9" then suggested_population = "Adults"
 If basket_number = "X127F3D" then suggested_population = "Adults"
+If basket_number = "X127F3P" then suggested_population = "Adults"   'MA-EPD Adults Basket
 
 If basket_number = "X127ES1" then suggested_population = "FAD"
 If basket_number = "X127ES2" then suggested_population = "FAD"
@@ -215,6 +217,7 @@ If basket_number = "X127EZ5" then suggested_population = "FAD"
 If basket_number = "X127EZ6" then suggested_population = "FAD"
 If basket_number = "X127EZ7" then suggested_population = "FAD"
 If basket_number = "X127EZ8" then suggested_population = "FAD"
+If basket_number = "X127F3K" then suggested_population = "FAD"  'MA-EPD FAD Basket
 
 If basket_number = "X127EH9" then suggested_population = "LTH"
 If basket_number = "X127EM2" then suggested_population = "LTH"
