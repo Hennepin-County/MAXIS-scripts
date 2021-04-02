@@ -10,9 +10,9 @@ STATS_denomination = "I"                   'C is for each CASE
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
 		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+			FuncLib_URL = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		Else											'Everyone else should use the release branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+			FuncLib_URL = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
 		req.open "GET", FuncLib_URL, FALSE							'Attempts to open the FuncLib_URL
@@ -28,15 +28,28 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
             StopScript
 		END IF
 	ELSE
-		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
+		FuncLib_URL = "C:\MAXIS-scripts\MASTER FUNCTIONS LIBRARY.vbs"
 		Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
 		Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
 		text_from_the_other_script = fso_command.ReadAll
 		fso_command.Close
-		Execute text_from_the_other_script
+        Execute text_from_the_other_script
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+
+
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("04/02/2021", "Initial version.", "Casey Love, Hennepin County")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
 
 ' PURPOSE: This script allows users to FIAT the HC determination for clients that are active on GRH or MSA...policy change means that these clients are no
 '			longer automatically eligible for MA eligibility.
@@ -505,59 +518,60 @@ FUNCTION calculate_assets(input_array, asset_counted_total)
 	'determining height of dialog
 	dialog_height = 115 + (20 * number_of_assets)
 
-	DO
-		asset_counted_total = 0
-		asset_excluded_total = 0
-		asset_unavailable_total = 0
-		'calculating the values of the totals...
-		FOR i = 0 TO number_of_assets
-			If isempty(input_array(i)) = FALSE Then
-				parallel_array(i, 0) = input_array(i).asset_counted_amount
-				parallel_array(i, 1) = input_array(i).asset_excluded_amount
-				parallel_array(i, 2) = input_array(i).asset_unavailable_amount
+	Do
+		DO
+			asset_counted_total = 0
+			asset_excluded_total = 0
+			asset_unavailable_total = 0
+			'calculating the values of the totals...
+			FOR i = 0 TO number_of_assets
+				If isempty(input_array(i)) = FALSE Then
+					parallel_array(i, 0) = input_array(i).asset_counted_amount
+					parallel_array(i, 1) = input_array(i).asset_excluded_amount
+					parallel_array(i, 2) = input_array(i).asset_unavailable_amount
 
-				IF isempty(parallel_array(i, 0)) = true THEN parallel_array(i, 0) = 0
-				IF isempty(parallel_array(i, 1)) = true THEN parallel_array(i, 1) = 0
-				IF isempty(parallel_array(i, 2)) = true THEN parallel_array(i, 2) = 0
+					IF isempty(parallel_array(i, 0)) = true THEN parallel_array(i, 0) = 0
+					IF isempty(parallel_array(i, 1)) = true THEN parallel_array(i, 1) = 0
+					IF isempty(parallel_array(i, 2)) = true THEN parallel_array(i, 2) = 0
 
-				asset_counted_total = asset_counted_total + (input_array(i).asset_counted_amount * 1)
-				asset_excluded_total = asset_excluded_total + (input_array(i).asset_excluded_amount * 1)
-				asset_unavailable_total = asset_unavailable_total + (input_array(i).asset_unavailable_amount * 1)
-			Else
-				asset_counted_total = 0
-				asset_excluded_total = 0
-				asset_unavailable_total = 0
-			End If
-		NEXT
+					asset_counted_total = asset_counted_total + (input_array(i).asset_counted_amount * 1)
+					asset_excluded_total = asset_excluded_total + (input_array(i).asset_excluded_amount * 1)
+					asset_unavailable_total = asset_unavailable_total + (input_array(i).asset_unavailable_amount * 1)
+				Else
+					asset_counted_total = 0
+					asset_excluded_total = 0
+					asset_unavailable_total = 0
+				End If
+			NEXT
 
-     BeginDialog Dialog1, 0, 0, 385, dialog_height, "Asset Dialog"
-       Text 10, 10, 55, 10, "ASSET PANEL"
-	   Text 75, 10, 55, 10, "COUNTED"
-	   Text 130, 10, 55, 10, "EXCLUDED"
-	   Text 185, 10, 55, 10, "UNAVAILABLE"
-	   FOR i = 0 TO number_of_assets
-	   	If isempty(input_array(i)) = FALSE Then
-	     	Text 10,  25 + (i * 20), 40, 10, input_array(i).asset_panel
-			EditBox 75,  20 + (i * 20), 40, 15, parallel_array(i, 0)
-			EditBox 130, 20 + (i * 20), 40, 15, parallel_array(i, 1)
-			EditBox 185, 20 + (i * 20), 40, 15, parallel_array(i, 2)
-		Else
-			Text 10,  25 + (i * 20), 200, 10, "This case has no asset panels in STAT."
-		End If
-       NEXT
-       Text 10, dialog_height - 40, 60, 10, "COUNTED Total:"
-       EditBox 70, dialog_height - 45, 50, 15, asset_counted_total & ""
-       Text 130, dialog_height - 40, 60, 10, "EXCLUDED Total:"
-       EditBox 195, dialog_height - 45, 50, 15, asset_excluded_total & ""
-       Text 250, dialog_height - 40, 70, 10, "UNAVAILABLE Total:"
-       EditBox 325, dialog_height - 45, 50, 15, asset_unavailable_total & ""
-       ButtonGroup ButtonPressed
-         OkButton 10, dialog_height - 20, 50, 15
-         CancelButton 60, dialog_height - 20, 50, 15
-         PushButton 320, dialog_height - 20, 55, 15, "CALCULATE", calculator_button
-     EndDialog
+		     BeginDialog Dialog1, 0, 0, 385, dialog_height, "Asset Dialog"
+		       Text 10, 10, 55, 10, "ASSET PANEL"
+			   Text 75, 10, 55, 10, "COUNTED"
+			   Text 130, 10, 55, 10, "EXCLUDED"
+			   Text 185, 10, 55, 10, "UNAVAILABLE"
+			   FOR i = 0 TO number_of_assets
+			   	If isempty(input_array(i)) = FALSE Then
+			     	Text 10,  25 + (i * 20), 40, 10, input_array(i).asset_panel
+					EditBox 75,  20 + (i * 20), 40, 15, parallel_array(i, 0)
+					EditBox 130, 20 + (i * 20), 40, 15, parallel_array(i, 1)
+					EditBox 185, 20 + (i * 20), 40, 15, parallel_array(i, 2)
+				Else
+					Text 10,  25 + (i * 20), 200, 10, "This case has no asset panels in STAT."
+				End If
+		       NEXT
+		       Text 10, dialog_height - 40, 60, 10, "COUNTED Total:"
+		       EditBox 70, dialog_height - 45, 50, 15, asset_counted_total & ""
+		       Text 130, dialog_height - 40, 60, 10, "EXCLUDED Total:"
+		       EditBox 195, dialog_height - 45, 50, 15, asset_excluded_total & ""
+		       Text 250, dialog_height - 40, 70, 10, "UNAVAILABLE Total:"
+		       EditBox 325, dialog_height - 45, 50, 15, asset_unavailable_total & ""
+		       ButtonGroup ButtonPressed
+		         OkButton 10, dialog_height - 20, 50, 15
+		         CancelButton 60, dialog_height - 20, 50, 15
+		         PushButton 320, dialog_height - 20, 55, 15, "CALCULATE", calculator_button
+		     EndDialog
 
-		DIALOG Dialog1
+			DIALOG Dialog1
 			cancel_confirmation
 			IF ButtonPressed = calculator_button THEN
 				'Changing the values of the
@@ -571,7 +585,9 @@ FUNCTION calculate_assets(input_array, asset_counted_total)
 					CALL input_array(i).set_unavailable_amount(parallel_array(i, 2))
 				NEXT
 			END IF
-	LOOP UNTIL ButtonPressed = -1
+		LOOP UNTIL ButtonPressed = -1
+		call check_for_password(are_we_passworded_out)
+	Loop until are_we_passworded_out = FALSE
 
 	'Re-Calculating the values of assets
 	asset_counted_total = 0
@@ -614,9 +630,19 @@ FUNCTION calculate_income(input_array)
 		height_multiplier = number_deemed_incomes
 	END IF
 
-	dlg_height = 105 + (20 * height_multiplier)
+	FOR i = 0 TO number_of_incomes
+	  IF InStr(input_array(i).income_category, "DEEMED") = 0 THEN
+		  deemed_income_exists = TRUE
+	  ELSEIF InStr(input_array(i).income_category, "DEEMED") <> 0 THEN
+	  	  non_deemed_income_exists = TRUE
+	  END IF
+	NEXT
 
-    BeginDialog Dialog1, 0, 0, 461, dlg_height, "Monthly Income"
+	dlg_height = 55 + (20 * height_multiplier)
+
+	If deemed_income_exists = TRUE Then dlg_width = 460
+	dlg_width = 250
+    BeginDialog Dialog1, 0, 0, dlg_width, dlg_height, "Monthly Income"
 	  client_incomes_row = 25
 	  deemed_incomes_row = 25
 	  FOR i = 0 TO number_of_incomes
@@ -636,57 +662,69 @@ FUNCTION calculate_income(input_array)
 		END IF
 	  NEXT
       ButtonGroup ButtonPressed
-        OkButton 345, (dlg_height - 20), 50, 15
-        CancelButton 395, (dlg_height - 20), 50, 15
-      GroupBox 5, 5, 250, (20 + (number_client_incomes * 20)), "Client Income"
+        OkButton dlg_width - 110, (dlg_height - 20), 50, 15
+        CancelButton dlg_width - 60, (dlg_height - 20), 50, 15
+      GroupBox 5, 5, 240, (20 + (number_client_incomes * 20)), "Client Income"
       IF number_deemed_incomes <> 0 THEN GroupBox 220, 5, 240, (20 + (number_deemed_incomes * 20)), "Deemed Income"
     EndDialog
 
-	DIALOG Dialog1
+	Do
+		DIALOG Dialog1
 		cancel_confirmation
+		call check_for_password(are_we_passworded_out)
+	Loop until are_we_passworded_out = FALSE
 END FUNCTION
 
 ' DIALOGS
-BeginDialog case_number_dialog, 0, 0, 171, 75, "Enter Case Number"
+' BeginDialog Dialog1, 0, 0, 171, 75, "Enter Case Number"
+'   EditBox 95, 10, 70, 15, maxis_case_number
+'   EditBox 95, 30, 20, 15, maxis_footer_month
+'   EditBox 125, 30, 20, 15, maxis_footer_year
+'   ButtonGroup ButtonPressed
+'     OkButton 65, 55, 50, 15
+'     CancelButton 115, 55, 50, 15
+'   Text 10, 15, 75, 10, "MAXIS Case Number"
+'   Text 10, 30, 75, 20, "Initial footer month of HC span:"
+' EndDialog
+
+'Dialog for testing'
+BeginDialog Dialog1, 0, 0, 171, 95, "Enter Case Number"
+  EditBox 95, 30, 70, 15, maxis_case_number
+  EditBox 95, 50, 20, 15, maxis_footer_month
+  EditBox 125, 50, 20, 15, maxis_footer_year
   ButtonGroup ButtonPressed
-    OkButton 65, 55, 50, 15
-    CancelButton 115, 55, 50, 15
-  Text 10, 15, 75, 10, "MAXIS Case Number"
-  EditBox 95, 10, 70, 15, maxis_case_number
-  EditBox 95, 30, 20, 15, maxis_footer_month
-  EditBox 125, 30, 20, 15, maxis_footer_year
-  Text 10, 30, 75, 20, "Initial footer month of HC span:"
+    OkButton 65, 75, 50, 15
+    CancelButton 115, 75, 50, 15
+  Text 5, 5, 125, 20, "THIS SCRIPT IS IN TESTING.       Please alert the BZST to any issues."
+  Text 10, 35, 75, 10, "MAXIS Case Number"
+  Text 10, 50, 75, 20, "Initial footer month of HC span:"
 EndDialog
 
-
+testing_run = TRUE
 ' ================ the script ====================
 EMConnect ""
 
 CALL check_for_MAXIS(true)		' checking for MAXIS
 
-row = 1																' }
-col = 1																' }
-EMSearch "Case Nbr: ", row, col										' }
-IF row <> 0 THEN 													' }
-	EMReadScreen maxis_case_number, 8, row, col + 10				' }
-	maxis_case_number = trim(maxis_case_number)						' }
-	maxis_case_number = replace(maxis_case_number, "_", "")			' }
-ELSEIF row = 0 THEN 												' }	looking for the MAXIS case number
-	EMReadScreen at_self, 4, 2, 50									' }
-	IF at_self = "SELF" THEN 										' }
-		EMReadScreen maxis_case_number, 8, 18, 43					' }
-		maxis_case_number = trim(maxis_case_number)					' }
-		maxis_case_number = replace(maxis_case_number, "_", "")		' }
-	END IF															' }
-END IF																' }
+Call MAXIS_case_number_finder(MAXIS_case_number)
+Call MAXIS_footer_finder(maxis_footer_month, maxis_footer_year)
 
-DO																				' }
-	DIALOG case_number_dialog													' }
-		cancel_confirmation														' } initial dialog
-		IF maxis_case_number = "" THEN MsgBox "Enter a MAXIS Case Number."		' }
-LOOP UNTIL maxis_case_number <> "" 												' }
+Do
+	DO																							' }
+		err_msg = ""																			' }
+																								' }
+		DIALOG Dialog1																			' }
+		cancel_confirmation																		' }
+																								' }
+		Call validate_MAXIS_case_number(err_msg, "*")											' }	initial dialog
+		Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")	' }
+																								' }
+		If err_msg <> "" Then MsgBox "*****  ERROR IN DIALOG ENTRY  *****" & vbNewLine & vbNewLine & "Please resolved the following to continue:" & vbNewLine & err_msg
+	LOOP UNTIL err_msg = ""																		' }
+	call check_for_password(are_we_passworded_out)												' }
+Loop until are_we_passworded_out = FALSE														' }
 
-CALL check_for_MAXIS(false)	'checking for MAXIS again
+Call back_to_SELF
 
 DO
 	' Getting the individual on the case
@@ -870,7 +908,9 @@ FOR hhmm_row = 8 to 19
 NEXT
 
 EMReadScreen ma_case, 4, hhmm_row, 26					' }
-IF ma_case <> "_ MA" THEN msgbox "error"				' } looking to see that the client has MA
+IF ma_case <> "_ MA" THEN 								' } looking to see that the client has MA
+	script_end_procedure_with_error_report("The script is not reading an MA span available for the person(s) selected on this case. If this is incorrect, send an erron report to the BZ Script Team for review of the code.")
+End If
 
 CALL write_value_and_transmit("X", hhmm_row, 26)		' navigating to BSUM for that client's MA
 
@@ -920,8 +960,8 @@ transmit
 PF3
 
 IF asset_counted_total >= 3000 THEN
-	MsgBox "The client appears to exceed $3,000 in counted assets." & vbNewLine &  "Follow instructions in DHS Bulletin (send DHS-4431 and TIKL for 10 days for return).", vbExclamation
-	script_end_procedure("Script ended.")
+	end_msg = "The client appears to exceed $3,000 in counted assets." & vbNewLine &  "Follow instructions in One Source."
+	script_end_procedure(end_msg)
 END IF
 
 ' ==============
@@ -1024,7 +1064,8 @@ NEXT
 '		the script checks to make sure the user did not select the same person as hc_memb
 '		then the script grabs all income information from that individual
 
-is_there_income_deeming = MsgBox ("The script has finished grabbing income information for the client." & vbNewLine & "Is there deeming income on this case?" & vbNewLine & vbTab & "Press YES to get the deemed income." & vbNewLine & vbTab & "Press NO to continue." & vbNewLine & vbTab & "Press CANCEL to stop the script.", vbYesNoCancel + vbInformation)
+is_there_income_deeming = MsgBox ("The script has finished grabbing income information for the client." & vbNewLine & "Is there deeming income on this case?" & vbNewLine & vbTab & "Press YES to get the deemed income." & vbNewLine & vbTab & "Press NO to continue." & vbNewLine & vbTab & "Press CANCEL to stop the script.", vbYesNoCancel + vbInformation, "Does this case have deeming income to include?")
+call check_for_MAXIS(false)
 IF is_there_income_deeming = vbCancel THEN
 	script_end_procedure("Script cancelled.")
 ELSEIF is_there_income_deeming = vbYes THEN
@@ -1330,4 +1371,4 @@ LOOP
 
 
 
-script_end_procedure("Success.  Please review your results before approving.")
+script_end_procedure_with_error_report("Success.  Please review your results before approving.")
