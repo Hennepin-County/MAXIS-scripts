@@ -1689,6 +1689,19 @@ script_array(script_num).hot_topic_link			= ""
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name			= "MA FIATER for GRH MSA"
+script_array(script_num).description			= "Script that will FIAT MA Eligibility to remove the ‘X’ method from the Health Care span."
+script_array(script_num).category               = "ACTIONS"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("Application", "Reviews", "Health Care", "HS/GRH", "Adult Cash")
+script_array(script_num).dlg_keys               = array("Fi")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #04/02/2021#
+script_array(script_num).hot_topic_link			= ""
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name			= "MA Inmate Application WCOM"
 script_array(script_num).description			= "Sends a WCOM on a MA notice for Inmate Applications"
 script_array(script_num).category               = "NOTICES"
