@@ -264,6 +264,204 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 
 end function
 
+
+show_pg_one_memb01_and_exp
+show_pg_one_address
+show_pg_memb_list
+
+
+update_addr
+
+function define_main_dialog()
+
+	BeginDialog Dialog1, 0, 0, 550, 385, "Full Interview Questions"
+
+	  ButtonGroup ButtonPressed
+	    If page_display = show_pg_one_memb01_and_exp Then
+
+			ComboBox 205, 10, 205, 45, all_the_clients+chr(9)+who_are_we_completing_the_form_with, who_are_we_completing_the_form_with
+			EditBox 290, 65, 50, 15, exp_q_1_income_this_month
+			EditBox 310, 85, 50, 15, exp_q_2_assets_this_month
+			EditBox 250, 105, 50, 15, exp_q_3_rent_this_month
+			CheckBox 125, 125, 30, 10, "Heat", exp_pay_heat_checkbox
+			CheckBox 160, 125, 65, 10, "Air Conditioning", exp_pay_ac_checkbox
+			CheckBox 230, 125, 45, 10, "Electricity", exp_pay_electricity_checkbox
+			CheckBox 280, 125, 35, 10, "Phone", exp_pay_phone_checkbox
+			CheckBox 325, 125, 35, 10, "None", exp_pay_none_checkbox
+			DropListBox 245, 140, 40, 45, "No"+chr(9)+"Yes", exp_migrant_seasonal_formworker_yn
+			DropListBox 365, 155, 40, 45, "No"+chr(9)+"Yes", exp_received_previous_assistance_yn
+			EditBox 80, 175, 80, 15, exp_previous_assistance_when
+			EditBox 200, 175, 85, 15, exp_previous_assistance_where
+			EditBox 320, 175, 85, 15, exp_previous_assistance_what
+			DropListBox 160, 195, 40, 45, "No"+chr(9)+"Yes", exp_pregnant_yn
+			ComboBox 255, 195, 150, 45, all_the_clients, exp_pregnant_who
+			Text 70, 15, 130, 10, "Who are you completing the form with?"
+			GroupBox 10, 50, 400, 165, "Expedited Questions - Do you need help right away?"
+			Text 20, 70, 270, 10, "1. How much income (cash or checkes) did or will your household get this month?"
+			Text 20, 90, 290, 10, "2. How much does your household (including children) have cash, checking or savings?"
+			Text 20, 110, 225, 10, "3. How much does your household pay for rent/mortgage per month?"
+			Text 30, 125, 90, 10, "What utilities do you pay?"
+			Text 20, 145, 225, 10, "4. Is anyone in your household a migrant or seasonal farm worker?"
+			Text 20, 160, 345, 10, "5. Has anyone in your household ever received cash assistance, commodities or SNAP benefits before?"
+			Text 30, 180, 50, 10, "If yes, When?"
+			Text 170, 180, 30, 10, "Where?"
+			Text 295, 180, 25, 10, "What?"
+			Text 20, 200, 135, 10, "6. Is anyone in your household pregnant?"
+			Text 210, 200, 40, 10, "If yes, who?"
+		ElseIf page_display = show_pg_one_address Then
+			If update_addr = FALSE Then
+				Text 70, 55, 305, 15, resi_addr_street_full
+				Text 70, 75, 105, 15, resi_addr_city
+				Text 205, 75, 110, 45, resi_addr_state
+				Text 340, 75, 35, 15, resi_addr_zip
+				Text 125, 95, 45, 45, reservation_yn
+				Text 245, 85, 130, 15, reservation_name
+				Text 125, 115, 45, 45, homeless_yn
+				Text 245, 115, 130, 45, living_situation
+				Text 70, 155, 305, 15, mail_addr_street_full
+				Text 70, 175, 105, 15, mail_addr_city
+				Text 205, 175, 110, 45, mail_addr_state
+				Text 340, 175, 35, 15, mail_addr_zip
+				Text 20, 225, 90, 15, phone_one_number
+				Text 125, 225, 65, 45, phone_pne_type
+				Text 20, 245, 90, 15, phone_two_number
+				Text 125, 245, 65, 45, phone_two_type
+				Text 20, 265, 90, 15, phone_three_number
+				Text 125, 265, 65, 45, phone_three_type
+				Text 325, 205, 50, 15, address_change_date
+				Text 255, 240, 120, 45, resi_addr_county
+			End If
+			If update_addr = TRUE Then
+				EditBox 70, 50, 305, 15, resi_addr_street_full
+				EditBox 70, 70, 105, 15, resi_addr_city
+				DropListBox 205, 70, 110, 45, state_list, resi_addr_state
+				EditBox 340, 70, 35, 15, resi_addr_zip
+				DropListBox 125, 90, 45, 45, "No"+chr(9)+"Yes", reservation_yn
+				EditBox 245, 90, 130, 15, reservation_name
+				DropListBox 125, 110, 45, 45, "No"+chr(9)+"Yes", homeless_yn
+				DropListBox 245, 110, 130, 45, "Select"+chr(9)+"01 - Own home, lease or roommate"+chr(9)+"02 - Family/Friends - economic hardship"+chr(9)+"03 -  servc prvdr- foster/group home"+chr(9)+"04 - Hospital/Treatment/Detox/Nursing Home"+chr(9)+"05 - Jail/Prison//Juvenile Det."+chr(9)+"06 - Hotel/Motel"+chr(9)+"07 - Emergency Shelter"+chr(9)+"08 - Place not meant for Housing"+chr(9)+"09 - Declined"+chr(9)+"10 - Unknown"+chr(9)+"Blank", living_situation
+				EditBox 70, 150, 305, 15, mail_addr_street_full
+				EditBox 70, 170, 105, 15, mail_addr_city
+				DropListBox 205, 170, 110, 45, state_list, mail_addr_state
+				EditBox 340, 170, 35, 15, mail_addr_zip
+				EditBox 20, 220, 90, 15, phone_one_number
+				DropListBox 125, 220, 65, 45, "Select One..."+chr(9)+"Cell"+chr(9)+"Home"+chr(9)+"Work"+chr(9)+"Message Only"+chr(9)+"TTY/TDD", phone_pne_type
+				EditBox 20, 240, 90, 15, phone_two_number
+				DropListBox 125, 240, 65, 45, "Select One..."+chr(9)+"Cell"+chr(9)+"Home"+chr(9)+"Work"+chr(9)+"Message Only"+chr(9)+"TTY/TDD", phone_two_type
+				EditBox 20, 260, 90, 15, phone_three_number
+				DropListBox 125, 260, 65, 45, "Select One..."+chr(9)+"Cell"+chr(9)+"Home"+chr(9)+"Work"+chr(9)+"Message Only"+chr(9)+"TTY/TDD", phone_three_type
+				EditBox 325, 200, 50, 15, address_change_date
+				DropListBox 255, 235, 120, 45, county_list, resi_addr_county
+			End If
+
+			PushButton 290, 20, 95, 15, "Update Information", update_information_btn
+			  ' PushButton 290, 20, 95, 15, "Save Information", save_information_btn
+			PushButton 325, 135, 50, 10, "CLEAR", clear_mail_addr_btn
+			PushButton 205, 220, 35, 10, "CLEAR", clear_phone_one_btn
+			PushButton 205, 240, 35, 10, "CLEAR", clear_phone_two_btn
+			PushButton 205, 260, 35, 10, "CLEAR", clear_phone_three_btn
+			Text 10, 10, 360, 10, "Review the Address informaiton known with the client. If it needs updating, press this button to make changes:"
+			GroupBox 10, 190, 235, 90, "Phone Number"
+			Text 20, 55, 45, 10, "House/Street"
+			Text 45, 75, 20, 10, "City"
+			Text 185, 75, 20, 10, "State"
+			Text 325, 75, 15, 10, "Zip"
+			Text 20, 95, 100, 10, "Do you live on a Reservation?"
+			Text 180, 95, 60, 10, "If yes, which one?"
+			Text 30, 115, 90, 10, "Client Indicates Homeless:"
+			Text 185, 115, 60, 10, "Living Situation?"
+			GroupBox 10, 35, 375, 95, "Residence Address"
+			Text 20, 155, 45, 10, "House/Street"
+			Text 45, 175, 20, 10, "City"
+			Text 185, 175, 20, 10, "State"
+			Text 325, 175, 15, 10, "Zip"
+			GroupBox 10, 125, 375, 70, "Mailing Address"
+			Text 20, 205, 50, 10, "Number"
+			Text 125, 205, 25, 10, "Type"
+			Text 255, 205, 60, 10, "Date of Change:"
+			Text 255, 225, 75, 10, "County of Residence:"
+		ElseIf page_display = show_pg_memb_list Then
+			If shown_known_pers_detail = TRUE Then
+				Text 20, 45, 105, 15, ALL_CLIENTS_ARRAY(memb_last_name, known_membs)
+				Text 130, 45, 90, 15, ALL_CLIENTS_ARRAY(memb_first_name, known_membs)
+				Text 225, 45, 70, 15, ALL_CLIENTS_ARRAY(memb_mid_name, known_membs)
+				Text 300, 45, 175, 15, ALL_CLIENTS_ARRAY(memb_other_names, known_membs)
+				If ALL_CLIENTS_ARRAY(memb_ssn_verif, known_membs) = "V - System Verified" Then
+					Text 20, 75, 70, 15, ALL_CLIENTS_ARRAY(memb_soc_sec_numb, known_membs)
+				Else
+					EditBox 20, 75, 70, 15, ALL_CLIENTS_ARRAY(memb_soc_sec_numb, known_membs)
+				End If
+				Text 95, 75, 70, 15, ALL_CLIENTS_ARRAY(memb_dob, known_membs)
+				Text 170, 75, 50, 45, ALL_CLIENTS_ARRAY(memb_gender, known_membs)
+				Text 225, 75, 140, 45, ALL_CLIENTS_ARRAY(memb_rel_to_applct, known_membs)
+				Text 370, 75, 105, 45, ALL_CLIENTS_ARRAY(memi_marriage_status, known_membs)
+				Text 20, 105, 130, 15, ALL_CLIENTS_ARRAY(memi_last_grade, known_membs)
+				Text 155, 105, 70, 15, ALL_CLIENTS_ARRAY(memi_MN_entry_date, known_membs)
+				Text 230, 105, 165, 15, ALL_CLIENTS_ARRAY(memi_former_state, known_membs)
+				Text 400, 105, 75, 45, ALL_CLIENTS_ARRAY(memi_citizen, known_membs)
+				Text 20, 135, 60, 45, ALL_CLIENTS_ARRAY(memb_interpreter, known_membs)
+				Text 90, 135, 170, 15, ALL_CLIENTS_ARRAY(memb_spoken_language, known_membs)
+				Text 90, 165, 170, 15, ALL_CLIENTS_ARRAY(memb_written_language, known_membs)
+				Text 280, 155, 40, 45, ALL_CLIENTS_ARRAY(memb_ethnicity, known_membs)
+				CheckBox 330, 155, 30, 10, "Asian", ALL_CLIENTS_ARRAY(memb_race_a_checkbox, known_membs)
+				CheckBox 330, 165, 30, 10, "Black", ALL_CLIENTS_ARRAY(memb_race_b_checkbox, known_membs)
+				CheckBox 330, 175, 120, 10, "American Indian or Alaska Native", ALL_CLIENTS_ARRAY(memb_race_n_checkbox, known_membs)
+				CheckBox 330, 185, 130, 10, "Pacific Islander and Native Hawaiian", ALL_CLIENTS_ARRAY(memb_race_p_checkbox, known_membs)
+				CheckBox 330, 195, 130, 10, "White", ALL_CLIENTS_ARRAY(memb_race_w_checkbox, known_membs)
+				CheckBox 20, 195, 50, 10, "SNAP (food)", ALL_CLIENTS_ARRAY(clt_snap_checkbox, known_membs)
+				CheckBox 75, 195, 65, 10, "Cash programs", ALL_CLIENTS_ARRAY(clt_cash_checkbox, known_membs)
+				CheckBox 145, 195, 85, 10, "Emergency Assistance", ALL_CLIENTS_ARRAY(clt_emer_checkbox, known_membs)
+				CheckBox 235, 195, 30, 10, "NONE", ALL_CLIENTS_ARRAY(clt_none_checkbox, known_membs)
+				DropListBox 15, 230, 80, 45, "Yes"+chr(9)+"No", ALL_CLIENTS_ARRAY(clt_intend_to_reside_mn, known_membs)
+				EditBox 100, 230, 205, 15, ALL_CLIENTS_ARRAY(clt_imig_status, known_membs)
+				DropListBox 310, 230, 55, 45, "No"+chr(9)+"Yes", ALL_CLIENTS_ARRAY(clt_sponsor_yn, known_membs)
+				DropListBox 15, 260, 80, 50, "Not Needed"+chr(9)+"Requested"+chr(9)+"On File", ALL_CLIENTS_ARRAY(clt_verif_yn, known_membs)
+				EditBox 100, 260, 435, 15, ALL_CLIENTS_ARRAY(clt_verif_details, known_membs)
+				EditBox 15, 290, 350, 15, ALL_CLIENTS_ARRAY(memb_notes, known_membs)
+			End If
+			If shown_known_pers_detail = FALSE Then
+
+			End If
+		ElseIf page_display =  Then
+		ElseIf page_display =  Then
+		ElseIf page_display =  Then
+	    ElseIf page_display =  Then
+		End If
+
+
+
+
+
+		If page_display <> show_pg_one Then PushButton 485, 10, 60, 13, "CAF Page 1", caf_page_one_btn
+		If page_display <> show_pg_memb_list AND page_display <> show_pg_memb_info AND  page_display <> show_pg_imig Then PushButton 485, 25, 60, 13, "CAF MEMBs", caf_membs_btn
+		If page_display <> show_q_1_2 Then PushButton 485, 40, 60, 13, "Q. 1 and 2", caf_q_1_2_btn
+		If page_display <> show_q_3 Then PushButton 485, 55, 60, 13, "Q. 3", caf_q_3_btn
+		If page_display <> show_q_4 Then PushButton 485, 70, 60, 13, "Q. 4", caf_q_4_btn
+		If page_display <> show_q_5 Then PushButton 485, 85, 60, 13, "Q. 5", caf_q_5_btn
+		If page_display <> show_q_6 Then PushButton 485, 100, 60, 13, "Q. 6", caf_q_6_btn
+		If page_display <> show_q_7 Then PushButton 485, 115, 60, 13, "Q. 7", caf_q_7_btn
+		If page_display <> show_q_8 Then PushButton 485, 130, 60, 13, "Q. 8", caf_q_8_btn
+		If page_display <> show_q_9 Then PushButton 485, 145, 60, 13, "Q. 9", caf_q_9_btn
+		If page_display <> show_q_10 Then PushButton 485, 160, 60, 13, "Q. 10", caf_q_10_btn
+		If page_display <> show_q_11 Then PushButton 485, 175, 60, 13, "Q. 11", caf_q_11_btn
+		If page_display <> show_q_12 Then PushButton 485, 190, 60, 13, "Q. 12", caf_q_12_btn
+		If page_display <> show_q_13 Then PushButton 485, 205, 60, 13, "Q. 13", caf_q_13_btn
+		If page_display <> show_q_14_15 Then PushButton 485, 220, 60, 13, "Q. 14 and 15", caf_q_14_15_btn
+		If page_display <> show_q_16_18 Then PushButton 485, 235, 60, 13, "Q. 16, 17, and 18", caf_q_16_17_18_btn
+		If page_display <> show_q_19 Then PushButton 485, 250, 60, 13, "Q. 19", caf_q_19_btn
+		If page_display <> show_q_20_21 Then PushButton 485, 265, 60, 13, "Q. 20 and 21", caf_q_20_21_btn
+		If page_display <> show_q_22 Then PushButton 485, 280, 60, 13, "Q. 22", caf_q_22_btn
+		If page_display <> show_q_23 Then PushButton 485, 295, 60, 13, "Q. 23", caf_q_23_btn
+		If page_display <> show_q_24 Then PushButton 485, 310, 60, 13, "Q. 24", caf_q_24_btn
+		If page_display <> show_qual Then PushButton 485, 325, 60, 13, "CAF QUAL Q", caf_qual_q_btn
+		If page_display <> show_pg_last Then PushButton 485, 340, 60, 13, "CAF Last Page", caf_last_page_btn
+		PushButton 415, 365, 50, 15, "NEXT", next_btn
+		PushButton 465, 365, 80, 15, "Complete Interview", finish_interview_btn
+
+	EndDialog
+
+end function
+
 function get_state_name_from_state_code(state_code, state_name, include_state_code)
     If state_code = "NB" Then state_name = "MN Newborn"							'This is the list of all the states connected to the code.
     If state_code = "FC" Then state_name = "Foreign Country"
