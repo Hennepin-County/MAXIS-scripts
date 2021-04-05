@@ -50,6 +50,8 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
+'This script will be removed or maybe updated or something when we enhance the functionality to update ADDR SHEL HEST
+
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 'Connecting to Bluezone & grabbing case number and footer year/month
 EMConnect ""
