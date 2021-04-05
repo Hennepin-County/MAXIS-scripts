@@ -712,6 +712,13 @@ EMConnect ""
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
+'NEW SCRIPT TO DEVELOP ALL THE FUNCTIONALITY
+'Will need a new script - maybe this one BUT will also need to bbe added to others;
+'  DOCS RECVD 
+'  CAF
+'  INTERVIEW
+'  something else?
+
 BeginDialog Dialog1, 0, 0, 356, 115, "Dialog"
   EditBox 65, 10, 50, 15, MAXIS_case_number
   CheckBox 135, 5, 210, 10, "Check here if the change was previously reported and panels", shelter_change_previously_reported
@@ -811,6 +818,6 @@ End If
 
 'Client Contact - maybe have a whole list of buttons on the side for different functionality
 	'Add button to indicate a change
-'Changes Reported 
+'Changes Reported
 'Docs Received
 'Interview Script
