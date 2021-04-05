@@ -66,7 +66,7 @@ EMConnect ""
 
 '--------------------------------------------------------------------------------------------'
 tasks_on_hold = FALSE
-currently_on_task = false
+currently_on_task = TRUE
 
 If currently_on_task = FALSE Then
 	If tasks_on_hold = TRUE Then
