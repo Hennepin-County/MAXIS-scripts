@@ -2831,94 +2831,94 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
         resi_city = replace(city_line, "_", "")
         resi_zip = replace(zip_line, "_", "")
 
-        If county_line = "01" Then addr_county = "01 Aitkin"
-        If county_line = "02" Then addr_county = "02 Anoka"
-        If county_line = "03" Then addr_county = "03 Becker"
-        If county_line = "04" Then addr_county = "04 Beltrami"
-        If county_line = "05" Then addr_county = "05 Benton"
-        If county_line = "06" Then addr_county = "06 Big Stone"
-        If county_line = "07" Then addr_county = "07 Blue Earth"
-        If county_line = "08" Then addr_county = "08 Brown"
-        If county_line = "09" Then addr_county = "09 Carlton"
-        If county_line = "10" Then addr_county = "10 Carver"
-        If county_line = "11" Then addr_county = "11 Cass"
-        If county_line = "12" Then addr_county = "12 Chippewa"
-        If county_line = "13" Then addr_county = "13 Chisago"
-        If county_line = "14" Then addr_county = "14 Clay"
-        If county_line = "15" Then addr_county = "15 Clearwater"
-        If county_line = "16" Then addr_county = "16 Cook"
-        If county_line = "17" Then addr_county = "17 Cottonwood"
-        If county_line = "18" Then addr_county = "18 Crow Wing"
-        If county_line = "19" Then addr_county = "19 Dakota"
-        If county_line = "20" Then addr_county = "20 Dodge"
-        If county_line = "21" Then addr_county = "21 Douglas"
-        If county_line = "22" Then addr_county = "22 Faribault"
-        If county_line = "23" Then addr_county = "23 Fillmore"
-        If county_line = "24" Then addr_county = "24 Freeborn"
-        If county_line = "25" Then addr_county = "25 Goodhue"
-        If county_line = "26" Then addr_county = "26 Grant"
-        If county_line = "27" Then addr_county = "27 Hennepin"
-        If county_line = "28" Then addr_county = "28 Houston"
-        If county_line = "29" Then addr_county = "29 Hubbard"
-        If county_line = "30" Then addr_county = "30 Isanti"
-        If county_line = "31" Then addr_county = "31 Itasca"
-        If county_line = "32" Then addr_county = "32 Jackson"
-        If county_line = "33" Then addr_county = "33 Kanabec"
-        If county_line = "34" Then addr_county = "34 Kandiyohi"
-        If county_line = "35" Then addr_county = "35 Kittson"
-        If county_line = "36" Then addr_county = "36 Koochiching"
-        If county_line = "37" Then addr_county = "37 Lac Qui Parle"
-        If county_line = "38" Then addr_county = "38 Lake"
-        If county_line = "39" Then addr_county = "39 Lake Of Woods"
-        If county_line = "40" Then addr_county = "40 Le Sueur"
-        If county_line = "41" Then addr_county = "41 Lincoln"
-        If county_line = "42" Then addr_county = "42 Lyon"
-        If county_line = "43" Then addr_county = "43 Mcleod"
-        If county_line = "44" Then addr_county = "44 Mahnomen"
-        If county_line = "45" Then addr_county = "45 Marshall"
-        If county_line = "46" Then addr_county = "46 Martin"
-        If county_line = "47" Then addr_county = "47 Meeker"
-        If county_line = "48" Then addr_county = "48 Mille Lacs"
-        If county_line = "49" Then addr_county = "49 Morrison"
-        If county_line = "50" Then addr_county = "50 Mower"
-        If county_line = "51" Then addr_county = "51 Murray"
-        If county_line = "52" Then addr_county = "52 Nicollet"
-        If county_line = "53" Then addr_county = "53 Nobles"
-        If county_line = "54" Then addr_county = "54 Norman"
-        If county_line = "55" Then addr_county = "55 Olmsted"
-        If county_line = "56" Then addr_county = "56 Otter Tail"
-        If county_line = "57" Then addr_county = "57 Pennington"
-        If county_line = "58" Then addr_county = "58 Pine"
-        If county_line = "59" Then addr_county = "59 Pipestone"
-        If county_line = "60" Then addr_county = "60 Polk"
-        If county_line = "61" Then addr_county = "61 Pope"
-        If county_line = "62" Then addr_county = "62 Ramsey"
-        If county_line = "63" Then addr_county = "63 Red Lake"
-        If county_line = "64" Then addr_county = "64 Redwood"
-        If county_line = "65" Then addr_county = "65 Renville"
-        If county_line = "66" Then addr_county = "66 Rice"
-        If county_line = "67" Then addr_county = "67 Rock"
-        If county_line = "68" Then addr_county = "68 Roseau"
-        If county_line = "69" Then addr_county = "69 St. Louis"
-        If county_line = "70" Then addr_county = "70 Scott"
-        If county_line = "71" Then addr_county = "71 Sherburne"
-        If county_line = "72" Then addr_county = "72 Sibley"
-        If county_line = "73" Then addr_county = "73 Stearns"
-        If county_line = "74" Then addr_county = "74 Steele"
-        If county_line = "75" Then addr_county = "75 Stevens"
-        If county_line = "76" Then addr_county = "76 Swift"
-        If county_line = "77" Then addr_county = "77 Todd"
-        If county_line = "78" Then addr_county = "78 Traverse"
-        If county_line = "79" Then addr_county = "79 Wabasha"
-        If county_line = "80" Then addr_county = "80 Wadena"
-        If county_line = "81" Then addr_county = "81 Waseca"
-        If county_line = "82" Then addr_county = "82 Washington"
-        If county_line = "83" Then addr_county = "83 Watonwan"
-        If county_line = "84" Then addr_county = "84 Wilkin"
-        If county_line = "85" Then addr_county = "85 Winona"
-        If county_line = "86" Then addr_county = "86 Wright"
-        If county_line = "87" Then addr_county = "87 Yellow Medicine"
-        If county_line = "89" Then addr_county = "89 Out-of-State"
+        If county_line = "01" Then addr_county = "01 - Aitkin"
+        If county_line = "02" Then addr_county = "02 - Anoka"
+        If county_line = "03" Then addr_county = "03 - Becker"
+        If county_line = "04" Then addr_county = "04 - Beltrami"
+        If county_line = "05" Then addr_county = "05 - Benton"
+        If county_line = "06" Then addr_county = "06 - Big Stone"
+        If county_line = "07" Then addr_county = "07 - Blue Earth"
+        If county_line = "08" Then addr_county = "08 - Brown"
+        If county_line = "09" Then addr_county = "09 - Carlton"
+        If county_line = "10" Then addr_county = "10 - Carver"
+        If county_line = "11" Then addr_county = "11 - Cass"
+        If county_line = "12" Then addr_county = "12 - Chippewa"
+        If county_line = "13" Then addr_county = "13 - Chisago"
+        If county_line = "14" Then addr_county = "14 - Clay"
+        If county_line = "15" Then addr_county = "15 - Clearwater"
+        If county_line = "16" Then addr_county = "16 - Cook"
+        If county_line = "17" Then addr_county = "17 - Cottonwood"
+        If county_line = "18" Then addr_county = "18 - Crow Wing"
+        If county_line = "19" Then addr_county = "19 - Dakota"
+        If county_line = "20" Then addr_county = "20 - Dodge"
+        If county_line = "21" Then addr_county = "21 - Douglas"
+        If county_line = "22" Then addr_county = "22 - Faribault"
+        If county_line = "23" Then addr_county = "23 - Fillmore"
+        If county_line = "24" Then addr_county = "24 - Freeborn"
+        If county_line = "25" Then addr_county = "25 - Goodhue"
+        If county_line = "26" Then addr_county = "26 - Grant"
+        If county_line = "27" Then addr_county = "27 - Hennepin"
+        If county_line = "28" Then addr_county = "28 - Houston"
+        If county_line = "29" Then addr_county = "29 - Hubbard"
+        If county_line = "30" Then addr_county = "30 - Isanti"
+        If county_line = "31" Then addr_county = "31 - Itasca"
+        If county_line = "32" Then addr_county = "32 - Jackson"
+        If county_line = "33" Then addr_county = "33 - Kanabec"
+        If county_line = "34" Then addr_county = "34 - Kandiyohi"
+        If county_line = "35" Then addr_county = "35 - Kittson"
+        If county_line = "36" Then addr_county = "36 - Koochiching"
+        If county_line = "37" Then addr_county = "37 - Lac Qui Parle"
+        If county_line = "38" Then addr_county = "38 - Lake"
+        If county_line = "39" Then addr_county = "39 - Lake Of Woods"
+        If county_line = "40" Then addr_county = "40 - Le Sueur"
+        If county_line = "41" Then addr_county = "41 - Lincoln"
+        If county_line = "42" Then addr_county = "42 - Lyon"
+        If county_line = "43" Then addr_county = "43 - Mcleod"
+        If county_line = "44" Then addr_county = "44 - Mahnomen"
+        If county_line = "45" Then addr_county = "45 - Marshall"
+        If county_line = "46" Then addr_county = "46 - Martin"
+        If county_line = "47" Then addr_county = "47 - Meeker"
+        If county_line = "48" Then addr_county = "48 - Mille Lacs"
+        If county_line = "49" Then addr_county = "49 - Morrison"
+        If county_line = "50" Then addr_county = "50 - Mower"
+        If county_line = "51" Then addr_county = "51 - Murray"
+        If county_line = "52" Then addr_county = "52 - Nicollet"
+        If county_line = "53" Then addr_county = "53 - Nobles"
+        If county_line = "54" Then addr_county = "54 - Norman"
+        If county_line = "55" Then addr_county = "55 - Olmsted"
+        If county_line = "56" Then addr_county = "56 - Otter Tail"
+        If county_line = "57" Then addr_county = "57 - Pennington"
+        If county_line = "58" Then addr_county = "58 - Pine"
+        If county_line = "59" Then addr_county = "59 - Pipestone"
+        If county_line = "60" Then addr_county = "60 - Polk"
+        If county_line = "61" Then addr_county = "61 - Pope"
+        If county_line = "62" Then addr_county = "62 - Ramsey"
+        If county_line = "63" Then addr_county = "63 - Red Lake"
+        If county_line = "64" Then addr_county = "64 - Redwood"
+        If county_line = "65" Then addr_county = "65 - Renville"
+        If county_line = "66" Then addr_county = "66 - Rice"
+        If county_line = "67" Then addr_county = "67 - Rock"
+        If county_line = "68" Then addr_county = "68 - Roseau"
+        If county_line = "69" Then addr_county = "69 - St. Louis"
+        If county_line = "70" Then addr_county = "70 - Scott"
+        If county_line = "71" Then addr_county = "71 - Sherburne"
+        If county_line = "72" Then addr_county = "72 - Sibley"
+        If county_line = "73" Then addr_county = "73 - Stearns"
+        If county_line = "74" Then addr_county = "74 - Steele"
+        If county_line = "75" Then addr_county = "75 - Stevens"
+        If county_line = "76" Then addr_county = "76 - Swift"
+        If county_line = "77" Then addr_county = "77 - Todd"
+        If county_line = "78" Then addr_county = "78 - Traverse"
+        If county_line = "79" Then addr_county = "79 - Wabasha"
+        If county_line = "80" Then addr_county = "80 - Wadena"
+        If county_line = "81" Then addr_county = "81 - Waseca"
+        If county_line = "82" Then addr_county = "82 - Washington"
+        If county_line = "83" Then addr_county = "83 - Watonwan"
+        If county_line = "84" Then addr_county = "84 - Wilkin"
+        If county_line = "85" Then addr_county = "85 - Winona"
+        If county_line = "86" Then addr_county = "86 - Wright"
+        If county_line = "87" Then addr_county = "87 - Yellow Medicine"
+        If county_line = "89" Then addr_county = "89 - Out-of-State"
         resi_county = addr_county
 
 		Call get_state_name_from_state_code(state_line, resi_state, TRUE)		'This function makes the state code to be the state name written out - including the code
@@ -3042,7 +3042,7 @@ function define_main_dialog()
 
 	  ButtonGroup ButtonPressed
 	    If page_display = show_pg_one_memb01_and_exp Then
-			Text 495, 12, 60, 13, "Applicant & EXP"
+			Text 490, 12, 60, 13, "Applicant and EXP"
 
 			ComboBox 205, 10, 205, 45, all_the_clients+chr(9)+who_are_we_completing_the_form_with, who_are_we_completing_the_form_with
 			EditBox 290, 65, 50, 15, exp_q_1_income_this_month
@@ -3084,18 +3084,19 @@ function define_main_dialog()
 				Text 245, 85, 130, 15, reservation_name
 				Text 125, 115, 45, 45, homeless_yn
 				Text 245, 115, 130, 45, living_situation
-				Text 70, 155, 305, 15, mail_addr_street_full
-				Text 70, 175, 105, 15, mail_addr_city
-				Text 205, 175, 110, 45, mail_addr_state
-				Text 340, 175, 35, 15, mail_addr_zip
-				Text 20, 225, 90, 15, phone_one_number
-				Text 125, 225, 65, 45, phone_pne_type
-				Text 20, 245, 90, 15, phone_two_number
-				Text 125, 245, 65, 45, phone_two_type
-				Text 20, 265, 90, 15, phone_three_number
-				Text 125, 265, 65, 45, phone_three_type
-				Text 325, 205, 50, 15, address_change_date
-				Text 255, 240, 120, 45, resi_addr_county
+				Text 70, 165, 305, 15, mail_addr_street_full
+				Text 70, 185, 105, 15, mail_addr_city
+				Text 205, 185, 110, 45, mail_addr_state
+				Text 340, 185, 35, 15, mail_addr_zip
+				Text 20, 240, 90, 15, phone_one_number
+				Text 125, 240, 65, 45, phone_pne_type
+				Text 20, 260, 90, 15, phone_two_number
+				Text 125, 260, 65, 45, phone_two_type
+				Text 20, 280, 90, 15, phone_three_number
+				Text 125, 280, 65, 45, phone_three_type
+				Text 325, 220, 50, 15, address_change_date
+				Text 255, 255, 120, 45, resi_addr_county
+				PushButton 290, 300, 95, 15, "Update Information", update_information_btn
 			End If
 			If update_addr = TRUE Then
 				EditBox 70, 50, 305, 15, resi_addr_street_full
@@ -3106,28 +3107,27 @@ function define_main_dialog()
 				EditBox 245, 90, 130, 15, reservation_name
 				DropListBox 125, 110, 45, 45, "No"+chr(9)+"Yes", homeless_yn
 				DropListBox 245, 110, 130, 45, "Select"+chr(9)+"01 - Own home, lease or roommate"+chr(9)+"02 - Family/Friends - economic hardship"+chr(9)+"03 -  servc prvdr- foster/group home"+chr(9)+"04 - Hospital/Treatment/Detox/Nursing Home"+chr(9)+"05 - Jail/Prison//Juvenile Det."+chr(9)+"06 - Hotel/Motel"+chr(9)+"07 - Emergency Shelter"+chr(9)+"08 - Place not meant for Housing"+chr(9)+"09 - Declined"+chr(9)+"10 - Unknown"+chr(9)+"Blank", living_situation
-				EditBox 70, 150, 305, 15, mail_addr_street_full
-				EditBox 70, 170, 105, 15, mail_addr_city
-				DropListBox 205, 170, 110, 45, state_list, mail_addr_state
-				EditBox 340, 170, 35, 15, mail_addr_zip
-				EditBox 20, 220, 90, 15, phone_one_number
-				DropListBox 125, 220, 65, 45, "Select One..."+chr(9)+"Cell"+chr(9)+"Home"+chr(9)+"Work"+chr(9)+"Message Only"+chr(9)+"TTY/TDD", phone_pne_type
-				EditBox 20, 240, 90, 15, phone_two_number
-				DropListBox 125, 240, 65, 45, "Select One..."+chr(9)+"Cell"+chr(9)+"Home"+chr(9)+"Work"+chr(9)+"Message Only"+chr(9)+"TTY/TDD", phone_two_type
-				EditBox 20, 260, 90, 15, phone_three_number
-				DropListBox 125, 260, 65, 45, "Select One..."+chr(9)+"Cell"+chr(9)+"Home"+chr(9)+"Work"+chr(9)+"Message Only"+chr(9)+"TTY/TDD", phone_three_type
-				EditBox 325, 200, 50, 15, address_change_date
-				DropListBox 255, 235, 120, 45, county_list, resi_addr_county
+				EditBox 70, 160, 305, 15, mail_addr_street_full
+				EditBox 70, 180, 105, 15, mail_addr_city
+				DropListBox 205, 180, 110, 45, state_list, mail_addr_state
+				EditBox 340, 180, 35, 15, mail_addr_zip
+				EditBox 20, 240, 90, 15, phone_one_number
+				DropListBox 125, 240, 65, 45, "Select One..."+chr(9)+"Cell"+chr(9)+"Home"+chr(9)+"Work"+chr(9)+"Message Only"+chr(9)+"TTY/TDD", phone_pne_type
+				EditBox 20, 260, 90, 15, phone_two_number
+				DropListBox 125, 260, 65, 45, "Select One..."+chr(9)+"Cell"+chr(9)+"Home"+chr(9)+"Work"+chr(9)+"Message Only"+chr(9)+"TTY/TDD", phone_two_type
+				EditBox 20, 280, 90, 15, phone_three_number
+				DropListBox 125, 280, 65, 45, "Select One..."+chr(9)+"Cell"+chr(9)+"Home"+chr(9)+"Work"+chr(9)+"Message Only"+chr(9)+"TTY/TDD", phone_three_type
+				EditBox 325, 220, 50, 15, address_change_date
+				DropListBox 255, 255, 120, 45, county_list, resi_addr_county
+				PushButton 290, 300, 95, 15, "Save Information", save_information_btn
 			End If
 
-			PushButton 290, 20, 95, 15, "Update Information", update_information_btn
-			  ' PushButton 290, 20, 95, 15, "Save Information", save_information_btn
-			PushButton 325, 135, 50, 10, "CLEAR", clear_mail_addr_btn
-			PushButton 205, 220, 35, 10, "CLEAR", clear_phone_one_btn
-			PushButton 205, 240, 35, 10, "CLEAR", clear_phone_two_btn
-			PushButton 205, 260, 35, 10, "CLEAR", clear_phone_three_btn
+			PushButton 325, 145, 50, 10, "CLEAR", clear_mail_addr_btn
+			PushButton 205, 240, 35, 10, "CLEAR", clear_phone_one_btn
+			PushButton 205, 260, 35, 10, "CLEAR", clear_phone_two_btn
+			PushButton 205, 280, 35, 10, "CLEAR", clear_phone_three_btn
 			Text 10, 10, 360, 10, "Review the Address informaiton known with the client. If it needs updating, press this button to make changes:"
-			GroupBox 10, 190, 235, 90, "Phone Number"
+			GroupBox 10, 35, 375, 95, "Residence Address"
 			Text 20, 55, 45, 10, "House/Street"
 			Text 45, 75, 20, 10, "City"
 			Text 185, 75, 20, 10, "State"
@@ -3136,135 +3136,140 @@ function define_main_dialog()
 			Text 180, 95, 60, 10, "If yes, which one?"
 			Text 30, 115, 90, 10, "Client Indicates Homeless:"
 			Text 185, 115, 60, 10, "Living Situation?"
-			GroupBox 10, 35, 375, 95, "Residence Address"
-			Text 20, 155, 45, 10, "House/Street"
-			Text 45, 175, 20, 10, "City"
-			Text 185, 175, 20, 10, "State"
-			Text 325, 175, 15, 10, "Zip"
-			GroupBox 10, 125, 375, 70, "Mailing Address"
-			Text 20, 205, 50, 10, "Number"
-			Text 125, 205, 25, 10, "Type"
-			Text 255, 205, 60, 10, "Date of Change:"
-			Text 255, 225, 75, 10, "County of Residence:"
+			GroupBox 10, 135, 375, 70, "Mailing Address"
+			Text 20, 165, 45, 10, "House/Street"
+			Text 45, 185, 20, 10, "City"
+			Text 185, 185, 20, 10, "State"
+			Text 325, 185, 15, 10, "Zip"
+			GroupBox 10, 210, 235, 90, "Phone Number"
+			Text 20, 225, 50, 10, "Number"
+			Text 125, 225, 25, 10, "Type"
+			Text 255, 225, 60, 10, "Date of Change:"
+			Text 255, 245, 75, 10, "County of Residence:"
 		ElseIf page_display = show_pg_memb_list Then
 			Text 495, 42, 60, 13, "CAF MEMBs"
 			If update_pers = FALSE Then
-				Text 20, 45, 105, 15, HH_MEMB_ARRAY(selected_memb).last_name
-				Text 130, 45, 90, 15, HH_MEMB_ARRAY(selected_memb).first_name
-				Text 225, 45, 70, 15, HH_MEMB_ARRAY(selected_memb).mid_initial
+				Text 70, 45, 90, 15, HH_MEMB_ARRAY(selected_memb).last_name
+				Text 165, 45, 75, 15, HH_MEMB_ARRAY(selected_memb).first_name
+				Text 245, 45, 50, 15, HH_MEMB_ARRAY(selected_memb).mid_initial
 				Text 300, 45, 175, 15, HH_MEMB_ARRAY(selected_memb).other_names
 				If HH_MEMB_ARRAY(selected_memb).ssn_verif = "V - System Verified" Then
-					Text 20, 75, 70, 15, HH_MEMB_ARRAY(selected_memb).ssn
+					Text 70, 75, 70, 15, HH_MEMB_ARRAY(selected_memb).ssn
 				Else
-					EditBox 20, 75, 70, 15, HH_MEMB_ARRAY(selected_memb).ssn
+					EditBox 70, 75, 70, 15, HH_MEMB_ARRAY(selected_memb).ssn
 				End If
-				Text 95, 75, 70, 15, HH_MEMB_ARRAY(selected_memb).date_of_birth
-				Text 170, 75, 50, 45, HH_MEMB_ARRAY(selected_memb).gender
-				Text 225, 75, 140, 45, HH_MEMB_ARRAY(selected_memb).rel_to_applcnt
+				Text 145, 75, 70, 15, HH_MEMB_ARRAY(selected_memb).date_of_birth
+				Text 220, 75, 50, 45, HH_MEMB_ARRAY(selected_memb).gender
+				Text 275, 75, 90, 45, HH_MEMB_ARRAY(selected_memb).rel_to_applcnt
 				Text 370, 75, 105, 45, HH_MEMB_ARRAY(selected_memb).marital_status
-				Text 20, 105, 130, 15, HH_MEMB_ARRAY(selected_memb).last_grade_completed
-				Text 155, 105, 70, 15, HH_MEMB_ARRAY(selected_memb).mn_entry_date
-				Text 230, 105, 165, 15, HH_MEMB_ARRAY(selected_memb).former_state
+				Text 70, 105, 110, 15, HH_MEMB_ARRAY(selected_memb).last_grade_completed
+				Text 195, 105, 70, 15, HH_MEMB_ARRAY(selected_memb).mn_entry_date
+				Text 270, 105, 135, 15, HH_MEMB_ARRAY(selected_memb).former_state
 				Text 400, 105, 75, 45, HH_MEMB_ARRAY(selected_memb).citizen
-				Text 20, 135, 60, 45, HH_MEMB_ARRAY(selected_memb).interpreter
-				Text 90, 135, 170, 15, HH_MEMB_ARRAY(selected_memb).spoken_lang
-				Text 90, 165, 170, 15, HH_MEMB_ARRAY(selected_memb).written_lang
-				Text 280, 155, 40, 45, HH_MEMB_ARRAY(selected_memb).ethnicity_yn
-				CheckBox 330, 155, 30, 10, "Asian", HH_MEMB_ARRAY(selected_memb).race_a_checkbox
-				CheckBox 330, 165, 30, 10, "Black", HH_MEMB_ARRAY(selected_memb).race_b_checkbox
-				CheckBox 330, 175, 120, 10, "American Indian or Alaska Native", HH_MEMB_ARRAY(selected_memb).race_n_checkbox
-				CheckBox 330, 185, 130, 10, "Pacific Islander and Native Hawaiian", HH_MEMB_ARRAY(selected_memb).race_p_checkbox
-				CheckBox 330, 195, 130, 10, "White", HH_MEMB_ARRAY(selected_memb).race_w_checkbox
-				CheckBox 20, 195, 50, 10, "SNAP (food)", HH_MEMB_ARRAY(selected_memb).snap_req_checkbox
-				CheckBox 75, 195, 65, 10, "Cash programs", HH_MEMB_ARRAY(selected_memb).cash_req_checkbox
-				CheckBox 145, 195, 85, 10, "Emergency Assistance", HH_MEMB_ARRAY(selected_memb).emer_req_checkbox
-				CheckBox 235, 195, 30, 10, "NONE", HH_MEMB_ARRAY(selected_memb).none_req_checkbox
-				DropListBox 15, 230, 80, 45, "Yes"+chr(9)+"No", HH_MEMB_ARRAY(selected_memb).intend_to_reside_in_mn
-				EditBox 100, 230, 205, 15, HH_MEMB_ARRAY(selected_memb).imig_status
-				DropListBox 310, 230, 55, 45, "No"+chr(9)+"Yes", HH_MEMB_ARRAY(selected_memb).clt_has_sponsor
-				DropListBox 15, 260, 80, 50, "Not Needed"+chr(9)+"Requested"+chr(9)+"On File", HH_MEMB_ARRAY(selected_memb).client_verification
-				EditBox 100, 260, 435, 15, HH_MEMB_ARRAY(selected_memb).client_verification_details
-				EditBox 15, 290, 350, 15, HH_MEMB_ARRAY(selected_memb).client_notes
-				PushButton 330, 5, 95, 15, "Update Information", update_information_btn
+				Text 70, 135, 60, 45, HH_MEMB_ARRAY(selected_memb).interpreter
+				Text 140, 135, 120, 15, HH_MEMB_ARRAY(selected_memb).spoken_lang
+				Text 140, 165, 120, 15, HH_MEMB_ARRAY(selected_memb).written_lang
+				Text 330, 145, 40, 45, HH_MEMB_ARRAY(selected_memb).ethnicity_yn
+				' CheckBox 330, 165, 30, 10, "Asian", HH_MEMB_ARRAY(selected_memb).race_a_checkbox
+				' CheckBox 330, 175, 30, 10, "Black", HH_MEMB_ARRAY(selected_memb).race_b_checkbox
+				' CheckBox 330, 185, 120, 10, "American Indian or Alaska Native", HH_MEMB_ARRAY(selected_memb).race_n_checkbox
+				' CheckBox 330, 195, 130, 10, "Pacific Islander and Native Hawaiian", HH_MEMB_ARRAY(selected_memb).race_p_checkbox
+				' CheckBox 330, 205, 130, 10, "White", HH_MEMB_ARRAY(selected_memb).race_w_checkbox
+				' CheckBox 70, 200, 50, 10, "SNAP (food)", HH_MEMB_ARRAY(selected_memb).snap_req_checkbox
+				' CheckBox 125, 200, 65, 10, "Cash programs", HH_MEMB_ARRAY(selected_memb).cash_req_checkbox
+				' CheckBox 195, 200, 85, 10, "Emergency Assistance", HH_MEMB_ARRAY(selected_memb).emer_req_checkbox
+				' CheckBox 280, 200, 30, 10, "NONE", HH_MEMB_ARRAY(selected_memb).none_req_checkbox
+				' DropListBox 15, 230, 80, 45, "Yes"+chr(9)+"No", HH_MEMB_ARRAY(selected_memb).intend_to_reside_in_mn
+				' EditBox 100, 230, 205, 15, HH_MEMB_ARRAY(selected_memb).imig_status
+				' DropListBox 310, 230, 55, 45, "No"+chr(9)+"Yes", HH_MEMB_ARRAY(selected_memb).clt_has_sponsor
+				' DropListBox 15, 260, 80, 50, "Not Needed"+chr(9)+"Requested"+chr(9)+"On File", HH_MEMB_ARRAY(selected_memb).client_verification
+				' EditBox 100, 260, 435, 15, HH_MEMB_ARRAY(selected_memb).client_verification_details
+				' EditBox 15, 290, 350, 15, HH_MEMB_ARRAY(selected_memb).client_notes
+				PushButton 385, 330, 95, 15, "Update Information", update_information_btn
 			End If
 			If update_pers = TRUE Then
-				EditBox 20, 45, 105, 15, HH_MEMB_ARRAY(selected_memb).last_name
-				EditBox 130, 45, 90, 15, HH_MEMB_ARRAY(selected_memb).first_name
-				EditBox 225, 45, 70, 15, HH_MEMB_ARRAY(selected_memb).mid_initial
+				EditBox 70, 45, 90, 15, HH_MEMB_ARRAY(selected_memb).last_name
+				EditBox 165, 45, 75, 15, HH_MEMB_ARRAY(selected_memb).first_name
+				EditBox 245, 45, 50, 15, HH_MEMB_ARRAY(selected_memb).mid_initial
 				EditBox 300, 45, 175, 15, HH_MEMB_ARRAY(selected_memb).other_names
-				EditBox 20, 75, 70, 15, HH_MEMB_ARRAY(selected_memb).ssn
-				EditBox 95, 75, 70, 15, HH_MEMB_ARRAY(selected_memb).date_of_birth
-				DropListBox 170, 75, 50, 45, ""+chr(9)+"Male"+chr(9)+"Female", HH_MEMB_ARRAY(selected_memb).gender
-				DropListBox 225, 75, 140, 45, memb_panel_relationship_list, HH_MEMB_ARRAY(selected_memb).rel_to_applcnt
+				EditBox 70, 75, 70, 15, HH_MEMB_ARRAY(selected_memb).ssn
+				EditBox 145, 75, 70, 15, HH_MEMB_ARRAY(selected_memb).date_of_birth
+				DropListBox 220, 75, 50, 45, ""+chr(9)+"Male"+chr(9)+"Female", HH_MEMB_ARRAY(selected_memb).gender
+				DropListBox 275, 75, 90, 45, memb_panel_relationship_list, HH_MEMB_ARRAY(selected_memb).rel_to_applcnt
 				DropListBox 370, 75, 105, 45, marital_status, HH_MEMB_ARRAY(selected_memb).marital_status
-				EditBox 20, 105, 130, 15, HH_MEMB_ARRAY(selected_memb).last_grade_completed
-				EditBox 155, 105, 70, 15, HH_MEMB_ARRAY(selected_memb).mn_entry_date
-				EditBox 230, 105, 165, 15, HH_MEMB_ARRAY(selected_memb).former_state
+				EditBox 70, 105, 110, 15, HH_MEMB_ARRAY(selected_memb).last_grade_completed
+				EditBox 185, 105, 70, 15, HH_MEMB_ARRAY(selected_memb).mn_entry_date
+				EditBox 260, 105, 135, 15, HH_MEMB_ARRAY(selected_memb).former_state
 				DropListBox 400, 105, 75, 45, ""+chr(9)+"Yes"+chr(9)+"No", HH_MEMB_ARRAY(selected_memb).citizen
-				DropListBox 20, 135, 60, 45, ""+chr(9)+"Yes"+chr(9)+"No", HH_MEMB_ARRAY(selected_memb).interpreter
-				EditBox 90, 135, 170, 15, HH_MEMB_ARRAY(selected_memb).spoken_lang
-				EditBox 90, 165, 170, 15, HH_MEMB_ARRAY(selected_memb).written_lang
-				DropListBox 280, 155, 40, 45, ""+chr(9)+"Yes"+chr(9)+"No", HH_MEMB_ARRAY(selected_memb).ethnicity_yn
-				CheckBox 330, 155, 30, 10, "Asian", HH_MEMB_ARRAY(selected_memb).race_a_checkbox
-				CheckBox 330, 165, 30, 10, "Black", HH_MEMB_ARRAY(selected_memb).race_b_checkbox
-				CheckBox 330, 175, 120, 10, "American Indian or Alaska Native", HH_MEMB_ARRAY(selected_memb).race_n_checkbox
-				CheckBox 330, 185, 130, 10, "Pacific Islander and Native Hawaiian", HH_MEMB_ARRAY(selected_memb).race_p_checkbox
-				CheckBox 330, 195, 130, 10, "White", HH_MEMB_ARRAY(selected_memb).race_w_checkbox
-				CheckBox 20, 195, 50, 10, "SNAP (food)", HH_MEMB_ARRAY(selected_memb).snap_req_checkbox
-				CheckBox 75, 195, 65, 10, "Cash programs", HH_MEMB_ARRAY(selected_memb).cash_req_checkbox
-				CheckBox 145, 195, 85, 10, "Emergency Assistance", HH_MEMB_ARRAY(selected_memb).emer_req_checkbox
-				CheckBox 235, 195, 30, 10, "NONE", HH_MEMB_ARRAY(selected_memb).none_req_checkbox
-				DropListBox 15, 230, 80, 45, ""+chr(9)+"Yes"+chr(9)+"No", HH_MEMB_ARRAY(selected_memb).intend_to_reside_in_mn
-				EditBox 100, 230, 205, 15, HH_MEMB_ARRAY(selected_memb).imig_status
-				DropListBox 310, 230, 55, 45, ""+chr(9)+"Yes"+chr(9)+"No", HH_MEMB_ARRAY(selected_memb).clt_has_sponsor
-				DropListBox 15, 260, 80, 50, "Not Needed"+chr(9)+"Requested"+chr(9)+"On File", HH_MEMB_ARRAY(selected_memb).client_verification
-				EditBox 100, 260, 435, 15, HH_MEMB_ARRAY(selected_memb).client_verification_details
-				EditBox 15, 290, 350, 15, HH_MEMB_ARRAY(selected_memb).client_notes
-				PushButton 330, 5, 95, 15, "Save Information", save_information_btn
+				DropListBox 70, 135, 60, 45, ""+chr(9)+"Yes"+chr(9)+"No", HH_MEMB_ARRAY(selected_memb).interpreter
+				EditBox 140, 135, 120, 15, HH_MEMB_ARRAY(selected_memb).spoken_lang
+				EditBox 140, 165, 120, 15, HH_MEMB_ARRAY(selected_memb).written_lang
+				DropListBox 330, 145, 40, 45, ""+chr(9)+"Yes"+chr(9)+"No", HH_MEMB_ARRAY(selected_memb).ethnicity_yn
+
+				PushButton 385, 330, 95, 15, "Save Information", save_information_btn
 			End If
+			CheckBox 330, 170, 30, 10, "Asian", HH_MEMB_ARRAY(selected_memb).race_a_checkbox
+			CheckBox 330, 180, 30, 10, "Black", HH_MEMB_ARRAY(selected_memb).race_b_checkbox
+			CheckBox 330, 190, 120, 10, "American Indian or Alaska Native", HH_MEMB_ARRAY(selected_memb).race_n_checkbox
+			CheckBox 330, 200, 130, 10, "Pacific Islander and Native Hawaiian", HH_MEMB_ARRAY(selected_memb).race_p_checkbox
+			CheckBox 330, 210, 130, 10, "White", HH_MEMB_ARRAY(selected_memb).race_w_checkbox
+			CheckBox 70, 210, 50, 10, "SNAP (food)", HH_MEMB_ARRAY(selected_memb).snap_req_checkbox
+			CheckBox 125, 210, 65, 10, "Cash programs", HH_MEMB_ARRAY(selected_memb).cash_req_checkbox
+			CheckBox 195, 210, 85, 10, "Emergency Assistance", HH_MEMB_ARRAY(selected_memb).emer_req_checkbox
+			CheckBox 280, 210, 30, 10, "NONE", HH_MEMB_ARRAY(selected_memb).none_req_checkbox
+			DropListBox 70, 250, 80, 45, ""+chr(9)+"Yes"+chr(9)+"No", HH_MEMB_ARRAY(selected_memb).intend_to_reside_in_mn
+			EditBox 155, 250, 205, 15, HH_MEMB_ARRAY(selected_memb).imig_status
+			DropListBox 365, 250, 55, 45, ""+chr(9)+"Yes"+chr(9)+"No", HH_MEMB_ARRAY(selected_memb).clt_has_sponsor
+			DropListBox 70, 280, 80, 50, "Not Needed"+chr(9)+"Requested"+chr(9)+"On File", HH_MEMB_ARRAY(selected_memb).client_verification
+			EditBox 155, 280, 320, 15, HH_MEMB_ARRAY(selected_memb).client_verification_details
+			EditBox 70, 310, 405, 15, HH_MEMB_ARRAY(selected_memb).client_notes
 			If HH_MEMB_ARRAY(selected_memb).ref_number = "" Then
-				GroupBox 10, 25, 475, 190, "Person " & known_membs+1
+				GroupBox 65, 25, 415, 200, "Person " & known_membs+1
+				GroupBox 65, 230, 415, 100, "Person " & known_membs+1 & " Interview Questions"
 			Else
-				GroupBox 10, 25, 475, 190, "Person " & known_membs+1 & " - MEMBER " & HH_MEMB_ARRAY(selected_memb).ref_number
+				GroupBox 65, 25, 415, 200, "Person " & known_membs+1 & " - MEMBER " & HH_MEMB_ARRAY(selected_memb).ref_number
+				GroupBox 65, 230, 415, 100, "Person " & known_membs+1 & " - MEMBER " & HH_MEMB_ARRAY(selected_memb).ref_number & " Interview Questions"
+
 			End If
 			y_pos = 35
 			For the_memb = 0 to UBound(HH_MEMB_ARRAY)
 				If the_memb = selected_memb Then
-					Text 498, y_pos + 1, 45, 10, "Person " & (the_memb + 1)
+					Text 20, y_pos + 1, 45, 10, "Person " & (the_memb + 1)
 				Else
-					PushButton 490, y_pos, 45, 10, "Person " & (the_memb + 1), HH_MEMB_ARRAY(selected_memb).button_one
+					PushButton 10, y_pos, 45, 10, "Person " & (the_memb + 1), HH_MEMB_ARRAY(the_memb).button_one
 				End If
 				y_pos = y_pos + 10
 			Next
-			PushButton 490, 230, 45, 10, "Add Person", add_person_btn
-			Text 20, 35, 50, 10, "Last Name"
-			Text 130, 35, 50, 10, "First Name"
-			Text 225, 35, 50, 10, "Middle Name"
+			y_pos = y_pos + 10
+			PushButton 10, y_pos, 45, 10, "Add Person", add_person_btn
+			Text 70, 35, 50, 10, "Last Name"
+			Text 165, 35, 50, 10, "First Name"
+			Text 245, 35, 50, 10, "Middle Name"
 			Text 300, 35, 50, 10, "Other Names"
-			Text 20, 65, 55, 10, "Soc Sec Number"
-			Text 95, 65, 45, 10, "Date of Birth"
-			Text 170, 65, 45, 10, "Gender"
-			Text 225, 65, 90, 10, "Relationship to MEMB 01"
+			Text 70, 65, 55, 10, "Soc Sec Number"
+			Text 145, 65, 45, 10, "Date of Birth"
+			Text 220, 65, 45, 10, "Gender"
+			Text 275, 65, 90, 10, "Relationship to MEMB 01"
 			Text 370, 65, 50, 10, "Marital Status"
-			Text 20, 95, 75, 10, "Last Grade Completed"
-			Text 155, 95, 55, 10, "Moved to MN on"
-			Text 230, 95, 65, 10, "Moved to MN from"
+			Text 70, 95, 75, 10, "Last Grade Completed"
+			Text 185, 95, 55, 10, "Moved to MN on"
+			Text 260, 95, 65, 10, "Moved to MN from"
 			Text 400, 95, 75, 10, "US Citizen or National"
-			Text 20, 125, 40, 10, "Interpreter?"
-			Text 90, 125, 95, 10, "Preferred Spoken Language"
-			Text 90, 155, 95, 10, "Preferred Written Language"
-			GroupBox 270, 135, 205, 75, "Demographics - OPTIONAL"
-			Text 280, 145, 35, 10, "Hispanic?"
-			Text 330, 145, 50, 10, "Race"
-			Text 20, 185, 145, 10, "Which programs is this person requesting?"
-			Text 15, 220, 80, 10, "Intends to reside in MN"
-			Text 100, 220, 65, 10, "Immigration Status"
-			Text 310, 220, 50, 10, "Sponsor?"
-			Text 15, 250, 50, 10, "Verification"
-			Text 100, 250, 65, 10, "Verification Details"
-			Text 15, 280, 50, 10, "Notes:"
+			Text 70, 125, 40, 10, "Interpreter?"
+			Text 140, 125, 95, 10, "Preferred Spoken Language"
+			Text 140, 155, 95, 10, "Preferred Written Language"
+			GroupBox 320, 125, 155, 100, "Demographics"
+			Text 330, 135, 35, 10, "Hispanic?"
+			Text 330, 160, 50, 10, "Race"
+			Text 70, 200, 145, 10, "Which programs is this person requesting?"
+			Text 70, 240, 80, 10, "Intends to reside in MN"
+			Text 155, 240, 65, 10, "Immigration Status"
+			Text 365, 240, 50, 10, "Sponsor?"
+			Text 70, 270, 50, 10, "Verification"
+			Text 155, 270, 65, 10, "Verification Details"
+			Text 70, 300, 50, 10, "Notes:"
 		ElseIf page_display = show_q_1_7 Then
-			Text 495, 57, 60, 13, "Q. 1 - 7"
+			Text 505, 57, 60, 13, "Q. 1 - 7"
 
 			DropListBox 10, 10, 60, 45, question_answers, question_1_yn
 			EditBox 120, 20, 235, 15, question_1_notes
@@ -3280,17 +3285,15 @@ function define_main_dialog()
 			EditBox 120, 225, 235, 15, question_6_notes
 			DropListBox 10, 250, 60, 45, question_answers, question_7_yn
 			EditBox 120, 280, 235, 15, question_7_notes
-			ButtonGroup ButtonPressed
-			  PushButton 360, 285, 50, 15, "Next", next_btn
-			  PushButton 360, 275, 50, 10, "Back", back_btn
-			  CancelButton 415, 285, 50, 15
-			  PushButton 380, 20, 75, 10, "ADD VERIFICATION", add_verif_1_btn
-			  PushButton 380, 55, 75, 10, "ADD VERIFICATION", add_verif_2_btn
-			  PushButton 380, 100, 75, 10, "ADD VERIFICATION", add_verif_3_btn
-			  PushButton 380, 135, 75, 10, "ADD VERIFICATION", add_verif_4_btn
-			  PushButton 380, 180, 75, 10, "ADD VERIFICATION", add_verif_5_btn
-			  PushButton 380, 225, 75, 10, "ADD VERIFICATION", add_verif_6_btn
-			  PushButton 380, 260, 75, 10, "ADD VERIFICATION", add_verif_7_btn
+
+			PushButton 380, 20, 75, 10, "ADD VERIFICATION", add_verif_1_btn
+			PushButton 380, 55, 75, 10, "ADD VERIFICATION", add_verif_2_btn
+			PushButton 380, 100, 75, 10, "ADD VERIFICATION", add_verif_3_btn
+			PushButton 380, 135, 75, 10, "ADD VERIFICATION", add_verif_4_btn
+			PushButton 380, 180, 75, 10, "ADD VERIFICATION", add_verif_5_btn
+			PushButton 380, 225, 75, 10, "ADD VERIFICATION", add_verif_6_btn
+			PushButton 380, 260, 75, 10, "ADD VERIFICATION", add_verif_7_btn
+
 			Text 80, 10, 230, 10, "1. Does everyone in your household buy, fix or eat food with you?"
 			Text 95, 25, 25, 10, "Notes:"
 			Text 360, 10, 100, 10, "Q1 - Verification - " & question_1_verif_yn
@@ -3317,7 +3320,7 @@ function define_main_dialog()
 			Text 95, 285, 25, 10, "Notes:"
 			Text 360, 250, 100, 10, "Q7 - Verification - " & question_7_verif_yn
 		ElseIf page_display = show_q_8_13 Then
-			Text 495, 72, 60, 13, "Q. 8 - 13"
+			Text 505, 72, 60, 13, "Q. 8 - 13"
 
 			DropListBox 10, 10, 60, 45, question_answers, question_8_yn
 			Text 80, 10, 290, 10, "8. Has anyone in the household had a job or been self-employed in the past 12 months?"
@@ -3431,7 +3434,7 @@ function define_main_dialog()
 			EditBox 120, y_pos, 390, 15, question_13_notes
 			y_pos = y_pos + 20
 		ElseIf page_display = show_q_14_19 Then
-			Text 495, 87, 60, 13, "Q. 14 - 19"
+			Text 505, 87, 60, 13, "Q. 14 - 19"
 
 			DropListBox 95, 20, 60, 45, question_answers, question_14_rent_yn
 			DropListBox 300, 20, 60, 45, question_answers, question_14_subsidy_yn
@@ -3457,16 +3460,14 @@ function define_main_dialog()
 			EditBox 120, 300, 390, 15, question_18_notes
 			DropListBox 10, 325, 60, 45, question_answers, question_19_yn
 			EditBox 120, 335, 390, 15, question_19_notes
-			ButtonGroup ButtonPressed
-			  PushButton 560, 355, 50, 15, "Next", next_btn
-			  PushButton 505, 360, 50, 10, "Back", back_btn
-			  CancelButton 615, 355, 50, 15
-			  PushButton 580, 20, 75, 10, "ADD VERIFICATION", add_verif_14_btn
-			  PushButton 580, 120, 75, 10, "ADD VERIFICATION", add_verif_15_btn
-			  PushButton 580, 200, 75, 10, "ADD VERIFICATION", add_verif_16_btn
-			  PushButton 580, 245, 75, 10, "ADD VERIFICATION", add_verif_17_btn
-			  PushButton 580, 290, 75, 10, "ADD VERIFICATION", add_verif_18_btn
-			  PushButton 580, 335, 75, 10, "ADD VERIFICATION", add_verif_19_btn
+
+			PushButton 580, 20, 75, 10, "ADD VERIFICATION", add_verif_14_btn
+			PushButton 580, 120, 75, 10, "ADD VERIFICATION", add_verif_15_btn
+			PushButton 580, 200, 75, 10, "ADD VERIFICATION", add_verif_16_btn
+			PushButton 580, 245, 75, 10, "ADD VERIFICATION", add_verif_17_btn
+			PushButton 580, 290, 75, 10, "ADD VERIFICATION", add_verif_18_btn
+			PushButton 580, 335, 75, 10, "ADD VERIFICATION", add_verif_19_btn
+
 			Text 80, 10, 220, 10, "14. Does your household have the following housing expenses?"
 			Text 165, 25, 70, 10, "Rent"
 			Text 370, 25, 100, 10, "Rent or Section 8 Subsidy"
@@ -3505,7 +3506,7 @@ function define_main_dialog()
 			Text 95, 340, 25, 10, "Notes:"
 			Text 560, 325, 105, 10, "Q19 - Verification - " & question_19_verif_yn
 		ElseIf page_display = show_q_20_24 Then
-			Text 495, 102, 60, 13, "Q. 20 - 24"
+			Text 505, 102, 60, 13, "Q. 20 - 24"
 
 			DropListBox 80, 25, 60, 45, question_answers, question_20_cash_yn
 			DropListBox 285, 25, 60, 45, question_answers, question_20_acct_yn
@@ -3523,15 +3524,13 @@ function define_main_dialog()
 			DropListBox 80, 220, 60, 45, question_answers, question_24_special_diet_yn
 			DropListBox 285, 220, 60, 45, question_answers, question_24_high_housing_yn
 			EditBox 120, 240, 390, 15, question_24_notes
-			ButtonGroup ButtonPressed
-			  PushButton 540, 240, 50, 15, "Next", next_btn
-			  PushButton 540, 230, 50, 10, "Back", back_btn
-			  CancelButton 595, 240, 50, 15
-			  PushButton 560, 20, 75, 10, "ADD VERIFICATION", add_verif_20_btn
-			  PushButton 560, 95, 75, 10, "ADD VERIFICATION", add_verif_21_btn
-			  PushButton 560, 130, 75, 10, "ADD VERIFICATION", add_verif_22_btn
-			  PushButton 560, 165, 75, 10, "ADD VERIFICATION", add_verif_23_btn
-			  PushButton 560, 200, 75, 10, "ADD VERIFICATION", add_verif_24_btn
+
+			PushButton 560, 20, 75, 10, "ADD VERIFICATION", add_verif_20_btn
+			PushButton 560, 95, 75, 10, "ADD VERIFICATION", add_verif_21_btn
+			PushButton 560, 130, 75, 10, "ADD VERIFICATION", add_verif_22_btn
+			PushButton 560, 165, 75, 10, "ADD VERIFICATION", add_verif_23_btn
+			PushButton 560, 200, 75, 10, "ADD VERIFICATION", add_verif_24_btn
+
 			Text 80, 10, 280, 10, "20. Does anyone in the household own, or is anyone buying, any of the following?"
 			Text 150, 30, 70, 10, "Cash"
 			Text 355, 30, 175, 10, "Bank accounts (savings, checking, debit card, etc.)"
@@ -3556,7 +3555,7 @@ function define_main_dialog()
 			Text 95, 245, 25, 10, "Notes:"
 			Text 540, 190, 105, 10, "Q24 - Verification - " & question_24_verif_yn
 		ElseIf page_display = show_qual Then
-			Text 495, 117, 60, 13, "CAF QUAL Q"
+			Text 492, 117, 60, 13, "CAF QUAL Q"
 
 			DropListBox 220, 40, 30, 45, "No"+chr(9)+"Yes", qual_question_one
 			ComboBox 340, 40, 105, 45, all_the_clients, qual_memb_one
@@ -3568,10 +3567,10 @@ function define_main_dialog()
 			ComboBox 340, 140, 105, 45, all_the_clients, qual_memb_four
 			DropListBox 220, 160, 30, 45, "No"+chr(9)+"Yes", qual_question_five
 			ComboBox 340, 160, 105, 45, all_the_clients, qual_memb_five
-			ButtonGroup ButtonPressed
-			  CancelButton 395, 185, 50, 15
-			  PushButton 340, 185, 50, 15, "Next", next_btn
-			  PushButton 285, 190, 50, 10, "Back", back_btn
+
+			PushButton 340, 185, 50, 15, "Next", next_btn
+			PushButton 285, 190, 50, 10, "Back", back_btn
+
 			Text 10, 10, 395, 15, "Qualifying Questions are listed at the end of the CAF form and are completed by the client. Indicate the answers to those questions here. If any are 'Yes' then indicate which household member to which the question refers."
 			Text 10, 40, 200, 40, "Has a court or any other civil or administrative process in Minnesota or any other state found anyone in the household guilty or has anyone been disqualified from receiving public assistance for breaking any of the rules listed in the CAF?"
 			Text 10, 80, 195, 30, "Has anyone in the household been convicted of making fraudulent statements about their place of residence to get cash or SNAP benefits from more than one state?"
@@ -3584,15 +3583,14 @@ function define_main_dialog()
 			Text 260, 140, 70, 10, "Household Member:"
 			Text 260, 160, 70, 10, "Household Member:"
 		ElseIf page_display = show_pg_last Then
-			Text 495, 132, 60, 13, "CAF Last Page"
+			Text 490, 132, 60, 13, "CAF Last Page"
 
 			EditBox 135, 50, 60, 15, caf_form_date
 			DropListBox 135, 70, 60, 45, "Select..."+chr(9)+"Yes"+chr(9)+"No", client_signed_yn
-			ButtonGroup ButtonPressed
-			  PushButton 35, 90, 105, 15, "Complete CAF Form Detail", complete_caf_questions
-			  PushButton 5, 95, 25, 10, "BACK", back_btn
-			  PushButton 10, 35, 145, 10, "Open RIGHTS AND RESPONSIBLITIES ", open_r_and_r_button
-			  CancelButton 145, 90, 50, 15
+
+			PushButton 35, 90, 105, 15, "Complete CAF Form Detail", complete_caf_questions
+			PushButton 10, 35, 145, 10, "Open RIGHTS AND RESPONSIBLITIES ", open_r_and_r_button
+
 			Text 10, 10, 160, 20, "Confirm the client is signing this form and attesting to the information provided verbally."
 			Text 70, 55, 55, 10, "CAF Form Date:"
 			Text 10, 75, 120, 10, "Cient signature accepted verbally?"
@@ -3647,209 +3645,174 @@ function define_main_dialog()
 end function
 
 function dialog_movement()
-	case_has_imig = FALSE
-	For i = 0 to Ubound(HH_MEMB_ARRAY, 1)
-		If HH_MEMB_ARRAY(i).imig_exists = TRUE Then case_has_imig = TRUE
+	' case_has_imig = FALSE
+	' MsgBox ButtonPressed
+	For i = 0 to Ubound(HH_MEMB_ARRAY)
+		' If HH_MEMB_ARRAY(i).imig_exists = TRUE Then case_has_imig = TRUE
 		' MsgBox HH_MEMB_ARRAY(i).button_one
 		If ButtonPressed = HH_MEMB_ARRAY(i).button_one Then
-			If page_display = show_pg_memb_info Then memb_selected = i
-			If page_display = show_pg_imig Then memb_selected = i
-			If page_display = show_q_12 Then memb_to_match = HH_MEMB_ARRAY(i).ref_number
-			If page_display = show_q_7 Then stwk_selected = i
-			If page_display = show_q_19 Then fmed_selected = i
+			If page_display = show_pg_memb_list Then selected_memb = i
+			' If page_display = show_pg_imig Then selected_memb = i
+			' If page_display = show_q_12 Then memb_to_match = HH_MEMB_ARRAY(i).ref_number
+			' If page_display = show_q_7 Then stwk_selected = i
+			' If page_display = show_q_19 Then fmed_selected = i
 			' If second_page_display = ssi_unea Then memb_to_match = HH_MEMB_ARRAY(i).ref_number
+			' MsgBox "Selected Memb - " & selected_memb
 		End If
 	Next
-	For i = 0 to Ubound(ASSET_ARRAY, 1)
-		' MsgBox HH_MEMB_ARRAY(i).button_one
-		If ButtonPressed = ASSET_ARRAY(i).asset_btn_one Then
-			memb_to_match = ASSET_ARRAY(i).member_ref
-			inst_to_match = ASSET_ARRAY(i).panel_instance
-		End If
-	Next
+	If ButtonPressed = update_information_btn Then
+		If page_display = show_pg_one_address Then update_addr = TRUE
+		If page_display = show_pg_memb_list Then update_pers = TRUE
+	End If
+	If ButtonPressed = save_information_btn Then
+		If page_display = show_pg_one_address Then update_addr = FALSE
+		If page_display = show_pg_memb_list Then update_pers = FALSE
+	End If
+	If ButtonPressed = clear_mail_addr_btn Then
+		' phone_one_number = ""
+		' phone_pne_type = "Select One..."
+	End If
+	If ButtonPressed = clear_phone_one_btn Then
+		phone_one_number = ""
+		phone_pne_type = "Select One..."
+	End If
+	If ButtonPressed = clear_phone_two_btn Then
+		phone_two_number = ""
+		phone_two_type = "Select One..."
+	End If
+	If ButtonPressed = clear_phone_three_btn Then
+		phone_three_number = ""
+		phone_three_type = "Select One..."
+	End If
+	' For i = 0 to Ubound(ASSET_ARRAY, 1)
+	' 	' MsgBox HH_MEMB_ARRAY(i).button_one
+	' 	If ButtonPressed = ASSET_ARRAY(i).asset_btn_one Then
+	' 		memb_to_match = ASSET_ARRAY(i).member_ref
+	' 		inst_to_match = ASSET_ARRAY(i).panel_instance
+	' 	End If
+	' Next
 	' MsgBox ButtonPressed
 	If page_display = show_pg_memb_info AND ButtonPressed = -1 Then ButtonPressed = next_memb_btn
-	If page_display = show_pg_imig AND ButtonPressed = -1 Then ButtonPressed = next_imig_btn
+	' If page_display = show_pg_imig AND ButtonPressed = -1 Then ButtonPressed = next_imig_btn
 
-	If ButtonPressed = next_imig_btn Then
-		imig_questions_step = imig_questions_step + 1
-
-		If imig_questions_step = 2 AND HH_MEMB_ARRAY(memb_selected).imig_q_2_required = FALSE Then imig_questions_step = 3
-		If imig_questions_step = 4 AND HH_MEMB_ARRAY(memb_selected).imig_q_4_required = FALSE Then imig_questions_step = 5
-		If imig_questions_step = 5 AND HH_MEMB_ARRAY(memb_selected).imig_q_5_required = FALSE Then imig_questions_step = 6
-		If imig_questions_step > 5 Then
-			ButtonPressed = next_memb_btn
-			imig_questions_step = 1
-		End If
-	End If
-	If ButtonPressed = prev_imig_btn Then
-		imig_questions_step = imig_questions_step - 1
-		If imig_questions_step = 2 AND HH_MEMB_ARRAY(memb_selected).imig_q_2_required = FALSE Then imig_questions_step = 1
-		If imig_questions_step = 5 AND HH_MEMB_ARRAY(memb_selected).imig_q_5_required = FALSE Then imig_questions_step = 4
-		If imig_questions_step = 4 AND HH_MEMB_ARRAY(memb_selected).imig_q_4_required = FALSE Then imig_questions_step = 3
-
-		If imig_questions_step < 1 Then imig_questions_step = 1
-	End If
+	' If ButtonPressed = next_imig_btn Then
+	' 	imig_questions_step = imig_questions_step + 1
+	'
+	' 	If imig_questions_step = 2 AND HH_MEMB_ARRAY(memb_selected).imig_q_2_required = FALSE Then imig_questions_step = 3
+	' 	If imig_questions_step = 4 AND HH_MEMB_ARRAY(memb_selected).imig_q_4_required = FALSE Then imig_questions_step = 5
+	' 	If imig_questions_step = 5 AND HH_MEMB_ARRAY(memb_selected).imig_q_5_required = FALSE Then imig_questions_step = 6
+	' 	If imig_questions_step > 5 Then
+	' 		ButtonPressed = next_memb_btn
+	' 		imig_questions_step = 1
+	' 	End If
+	' End If
+	' If ButtonPressed = prev_imig_btn Then
+	' 	imig_questions_step = imig_questions_step - 1
+	' 	If imig_questions_step = 2 AND HH_MEMB_ARRAY(memb_selected).imig_q_2_required = FALSE Then imig_questions_step = 1
+	' 	If imig_questions_step = 5 AND HH_MEMB_ARRAY(memb_selected).imig_q_5_required = FALSE Then imig_questions_step = 4
+	' 	If imig_questions_step = 4 AND HH_MEMB_ARRAY(memb_selected).imig_q_4_required = FALSE Then imig_questions_step = 3
+	'
+	' 	If imig_questions_step < 1 Then imig_questions_step = 1
+	' End If
 	If ButtonPressed = next_memb_btn Then
 		memb_selected = memb_selected + 1
 		If memb_selected > UBound(HH_MEMB_ARRAY, 1) Then ButtonPressed = next_btn
 	End If
-	If ButtonPressed = next_stwk_btn Then
-		stwk_selected = stwk_selected + 1
-		Do
-			If HH_MEMB_ARRAY(stwk_selected).stwk_exists = FALSE Then stwk_selected = stwk_selected + 1
-			If stwk_selected > UBound(HH_MEMB_ARRAY, 1) Then Exit Do
-		Loop Until  HH_MEMB_ARRAY(stwk_selected).stwk_exists = TRUE
-		If stwk_selected > UBound(HH_MEMB_ARRAY, 1) Then ButtonPressed = next_btn
-	End If
-	If ButtonPressed = next_fmed_btn Then
-		fmed_selected = fmed_selected + 1
-		Do
-			If HH_MEMB_ARRAY(fmed_selected).fmed_exists = FALSE Then fmed_selected = fmed_selected + 1
-			If fmed_selected > UBound(HH_MEMB_ARRAY, 1) Then Exit Do
-		Loop Until  HH_MEMB_ARRAY(fmed_selected).fmed_exists = TRUE
-		If fmed_selected > UBound(HH_MEMB_ARRAY, 1) Then ButtonPressed = next_btn
-	End If
+	' If ButtonPressed = next_stwk_btn Then
+	' 	stwk_selected = stwk_selected + 1
+	' 	Do
+	' 		If HH_MEMB_ARRAY(stwk_selected).stwk_exists = FALSE Then stwk_selected = stwk_selected + 1
+	' 		If stwk_selected > UBound(HH_MEMB_ARRAY, 1) Then Exit Do
+	' 	Loop Until  HH_MEMB_ARRAY(stwk_selected).stwk_exists = TRUE
+	' 	If stwk_selected > UBound(HH_MEMB_ARRAY, 1) Then ButtonPressed = next_btn
+	' End If
+	' If ButtonPressed = next_fmed_btn Then
+	' 	fmed_selected = fmed_selected + 1
+	' 	Do
+	' 		If HH_MEMB_ARRAY(fmed_selected).fmed_exists = FALSE Then fmed_selected = fmed_selected + 1
+	' 		If fmed_selected > UBound(HH_MEMB_ARRAY, 1) Then Exit Do
+	' 	Loop Until  HH_MEMB_ARRAY(fmed_selected).fmed_exists = TRUE
+	' 	If fmed_selected > UBound(HH_MEMB_ARRAY, 1) Then ButtonPressed = next_btn
+	' End If
 	If ButtonPressed = -1 Then ButtonPressed = next_btn
 	If ButtonPressed = next_btn Then
-		If page_display = show_pg_one Then ButtonPressed = caf_membs_btn
-		If page_display = show_pg_memb_list Then ButtonPressed = HH_memb_detail_review
-		If page_display = show_pg_memb_info AND case_has_imig = FALSE Then ButtonPressed = show_pg_imig
-		If page_display = show_pg_memb_info AND case_has_imig = TRUE Then ButtonPressed = caf_q_1_2_btn
-		If page_display = show_pg_imig Then ButtonPressed = caf_q_1_2_btn
-		If page_display = show_q_1_2 Then ButtonPressed = caf_q_3_btn
-		If page_display = show_q_3 Then ButtonPressed = caf_q_4_btn
-		If page_display = show_q_4 Then ButtonPressed = caf_q_5_btn
-		If page_display = show_q_5 Then ButtonPressed = caf_q_6_btn
-		If page_display = show_q_6 Then ButtonPressed = caf_q_7_btn
-		If page_display = show_q_7 Then ButtonPressed = caf_q_8_btn
-		If page_display = show_q_8 Then ButtonPressed = caf_q_9_btn
-		If page_display = show_q_9 Then ButtonPressed = caf_q_10_btn
-		If page_display = show_q_10 Then ButtonPressed = caf_q_11_btn
-		If page_display = show_q_11 Then ButtonPressed = caf_q_12_btn
-		If page_display = show_q_12 Then
-			If second_page_display = main_unea Then ButtonPressed = rsdi_btn
-			If second_page_display = rsdi_unea Then ButtonPressed = ssi_btn
-			If second_page_display = ssi_unea Then ButtonPressed = va_btn
-			If second_page_display = va_unea Then ButtonPressed = ui_btn
-			If second_page_display = ui_unea Then ButtonPressed = wc_btn
-			If second_page_display = wc_unea Then ButtonPressed = ret_btn
-			If second_page_display = ret_unea Then ButtonPressed = tribal_btn
-			If second_page_display = tribal_unea Then ButtonPressed = cs_btn
-			If second_page_display = cs_unea Then ButtonPressed = ss_btn
-			If second_page_display = ss_unea Then ButtonPressed = other_btn
-			If second_page_display = other_unea Then ButtonPressed = caf_q_13_btn
-		End If
-		If page_display = show_q_13 Then ButtonPressed = caf_q_14_15_btn
-		If page_display = show_q_14_15 Then ButtonPressed = caf_q_16_17_18_btn
-		If page_display = show_q_16_18 Then ButtonPressed = caf_q_19_btn
-		If page_display = show_q_19 Then ButtonPressed = caf_q_20_21_btn
-		If page_display = show_q_20_21 Then
-			If second_page_display = main_asset Then ButtonPressed = cash_btn
-			If second_page_display = cash_asset Then ButtonPressed = acct_btn
-			If second_page_display = acct_asset Then ButtonPressed = secu_btn
-			If second_page_display = secu_asset Then ButtonPressed = cars_btn
-			If second_page_display = cars_asset Then ButtonPressed = rest_btn
-			If second_page_display = rest_asset Then ButtonPressed = caf_q_22_btn
-		End If
-		If page_display = show_q_22 Then ButtonPressed = caf_q_23_btn
-		If page_display = show_q_23 Then ButtonPressed = caf_q_24_btn
-		If page_display = show_q_24 Then ButtonPressed = caf_qual_q_btn
-		If page_display = show_qual Then ButtonPressed = caf_last_page_btn
+		If page_display = show_pg_one_memb01_and_exp 	Then ButtonPressed = caf_addr_btn
+		If page_display = show_pg_one_address 			Then ButtonPressed = caf_membs_btn
+		If page_display = show_pg_memb_list 			Then ButtonPressed = caf_q_1_7_btn
+		If page_display = show_q_1_7 					Then ButtonPressed = caf_q_8_13_btn
+		If page_display = show_q_8_13 					Then ButtonPressed = caf_q_14_19_btn
+		If page_display = show_q_14_19 					Then ButtonPressed = caf_q_20_24_btn
+		If page_display = show_q_20_24 					Then ButtonPressed = caf_qual_q_btn
+		If page_display = show_qual 					Then ButtonPressed = caf_last_page_btn
+		If page_display = show_pg_last 					Then ButtonPressed = finish_interview_btn
+
+		' If page_display = show_pg_one Then ButtonPressed = caf_membs_btn
+		' If page_display = show_pg_memb_list Then ButtonPressed = HH_memb_detail_review
+		' If page_display = show_pg_memb_info AND case_has_imig = FALSE Then ButtonPressed = show_pg_imig
+		' If page_display = show_pg_memb_info AND case_has_imig = TRUE Then ButtonPressed = caf_q_1_2_btn
+		' If page_display = show_pg_imig Then ButtonPressed = caf_q_1_2_btn
+		' If page_display = show_q_1_2 Then ButtonPressed = caf_q_3_btn
+		' If page_display = show_q_3 Then ButtonPressed = caf_q_4_btn
+		' If page_display = show_q_4 Then ButtonPressed = caf_q_5_btn
+		' If page_display = show_q_5 Then ButtonPressed = caf_q_6_btn
+		' If page_display = show_q_6 Then ButtonPressed = caf_q_7_btn
+		' If page_display = show_q_7 Then ButtonPressed = caf_q_8_btn
+		' If page_display = show_q_8 Then ButtonPressed = caf_q_9_btn
+		' If page_display = show_q_9 Then ButtonPressed = caf_q_10_btn
+		' If page_display = show_q_10 Then ButtonPressed = caf_q_11_btn
+		' If page_display = show_q_11 Then ButtonPressed = caf_q_12_btn
+		' If page_display = show_q_12 Then
+		' 	If second_page_display = main_unea Then ButtonPressed = rsdi_btn
+		' 	If second_page_display = rsdi_unea Then ButtonPressed = ssi_btn
+		' 	If second_page_display = ssi_unea Then ButtonPressed = va_btn
+		' 	If second_page_display = va_unea Then ButtonPressed = ui_btn
+		' 	If second_page_display = ui_unea Then ButtonPressed = wc_btn
+		' 	If second_page_display = wc_unea Then ButtonPressed = ret_btn
+		' 	If second_page_display = ret_unea Then ButtonPressed = tribal_btn
+		' 	If second_page_display = tribal_unea Then ButtonPressed = cs_btn
+		' 	If second_page_display = cs_unea Then ButtonPressed = ss_btn
+		' 	If second_page_display = ss_unea Then ButtonPressed = other_btn
+		' 	If second_page_display = other_unea Then ButtonPressed = caf_q_13_btn
+		' End If
+		' If page_display = show_q_13 Then ButtonPressed = caf_q_14_15_btn
+		' If page_display = show_q_14_15 Then ButtonPressed = caf_q_16_17_18_btn
+		' If page_display = show_q_16_18 Then ButtonPressed = caf_q_19_btn
+		' If page_display = show_q_19 Then ButtonPressed = caf_q_20_21_btn
+		' If page_display = show_q_20_21 Then
+		' 	If second_page_display = main_asset Then ButtonPressed = cash_btn
+		' 	If second_page_display = cash_asset Then ButtonPressed = acct_btn
+		' 	If second_page_display = acct_asset Then ButtonPressed = secu_btn
+		' 	If second_page_display = secu_asset Then ButtonPressed = cars_btn
+		' 	If second_page_display = cars_asset Then ButtonPressed = rest_btn
+		' 	If second_page_display = rest_asset Then ButtonPressed = caf_q_22_btn
+		' End If
+		' If page_display = show_q_22 Then ButtonPressed = caf_q_23_btn
+		' If page_display = show_q_23 Then ButtonPressed = caf_q_24_btn
+		' If page_display = show_q_24 Then ButtonPressed = caf_qual_q_btn
+		' If page_display = show_qual Then ButtonPressed = caf_last_page_btn
 		' If page_display = show_pg_last Then ButtonPressed =
 	End If
 
 	If ButtonPressed = caf_page_one_btn Then
-		page_display = show_pg_one
+		page_display = show_pg_one_memb01_and_exp
+	End If
+	If ButtonPressed = caf_addr_btn Then
+		page_display = show_pg_one_address
 	End If
 	If ButtonPressed = caf_membs_btn Then
 		page_display = show_pg_memb_list
 	End If
-	If ButtonPressed = hh_list_btn Then
-		page_display = show_pg_memb_list
+	If ButtonPressed = caf_q_1_7_btn Then
+		page_display = show_q_1_7
 	End If
-	If ButtonPressed = HH_memb_detail_review Then
-		page_display = show_pg_memb_info
+	If ButtonPressed = caf_q_8_13_btn Then
+		page_display = show_q_8_13
 	End If
-	If ButtonPressed = hh_imig_btn Then
-		page_display = show_pg_imig
+	If ButtonPressed = caf_q_14_19_btn Then
+		page_display = show_q_14_19
 	End If
-	If ButtonPressed = caf_q_1_2_btn Then
-		page_display = show_q_1_2
-	End If
-	If ButtonPressed = caf_q_3_btn Then
-		page_display = show_q_3
-	End If
-	If ButtonPressed = caf_q_4_btn Then
-		page_display = show_q_4
-	End If
-	If ButtonPressed = caf_q_5_btn Then
-		page_display = show_q_5
-	End If
-	If ButtonPressed = caf_q_6_btn Then
-		page_display = show_q_6
-	End If
-	If ButtonPressed = caf_q_7_btn Then
-		page_display = show_q_7
-	End If
-	If ButtonPressed = caf_q_8_btn Then
-		page_display = show_q_8
-	End If
-	If ButtonPressed = caf_q_9_btn Then
-		page_display = show_q_9
-	End If
-	If ButtonPressed = caf_q_10_btn Then
-		page_display = show_q_10
-	End If
-	If ButtonPressed = caf_q_11_btn Then
-		page_display = show_q_11
-	End If
-	If ButtonPressed = caf_q_12_btn Then
-		page_display = show_q_12
-		second_page_display = main_unea
-	End If
-	If ButtonPressed = rsdi_btn 	Then second_page_display = rsdi_unea
-	If ButtonPressed = ssi_btn		Then second_page_display = ssi_unea
-	If ButtonPressed = va_btn		Then second_page_display = va_unea
-	If ButtonPressed = ui_btn		Then second_page_display = ui_unea
-	If ButtonPressed = wc_btn		Then second_page_display = wc_unea
-	If ButtonPressed = ret_btn		Then second_page_display = ret_unea
-	If ButtonPressed = tribal_btn	Then second_page_display = tribal_unea
-	If ButtonPressed = cs_btn		Then second_page_display = cs_unea
-	If ButtonPressed = ss_btn		Then second_page_display = ss_unea
-	If ButtonPressed = other_btn	Then second_page_display = other_unea
-	If ButtonPressed = main_btn		Then second_page_display = main_unea
-
-	If ButtonPressed = caf_q_13_btn Then
-		page_display = show_q_13
-	End If
-	If ButtonPressed = caf_q_14_15_btn Then
-		page_display = show_q_14_15
-	End If
-	If ButtonPressed = caf_q_16_17_18_btn Then
-		page_display = show_q_16_18
-	End If
-	If ButtonPressed = caf_q_19_btn Then
-		page_display = show_q_19
-	End If
-	If ButtonPressed = caf_q_20_21_btn Then
-		page_display = show_q_20_21
-		second_page_display = main_asset
-	End If
-	If ButtonPressed = cash_btn		Then second_page_display = cash_asset
-	If ButtonPressed = acct_btn		Then second_page_display = acct_asset
-	If ButtonPressed = secu_btn		Then second_page_display = secu_asset
-	If ButtonPressed = cars_btn		Then second_page_display = cars_asset
-	If ButtonPressed = rest_btn		Then second_page_display = rest_asset
-	If ButtonPressed = main_asset_btn		Then second_page_display = main_asset
-	If ButtonPressed = caf_q_22_btn Then
-		page_display = show_q_22
-	End If
-	If ButtonPressed = caf_q_23_btn Then
-		page_display = show_q_23
-	End If
-	If ButtonPressed = caf_q_24_btn Then
-		page_display = show_q_24
+	If ButtonPressed = caf_q_20_24_btn Then
+		page_display = show_q_20_24
 	End If
 	If ButtonPressed = caf_qual_q_btn Then
 		page_display = show_qual
@@ -3857,14 +3820,114 @@ function dialog_movement()
 	If ButtonPressed = caf_last_page_btn Then
 		page_display = show_pg_last
 	End If
-	If ButtonPressed = finish_interview_btn then leave_loop = TRUE
 
-	If page_display <> show_pg_memb_info AND page_display <> show_pg_imig Then memb_selected = ""
-	If page_display <> show_q_7 Then stwk_selected = ""
-	If page_display <> show_q_12 AND page_display <> show_q_20_21 Then memb_to_match = ""
-	If page_display <> show_q_19 Then fmed_selected = ""
 
-	If page_display <> show_q_20_21 Then inst_to_match = ""
+	' If ButtonPressed = caf_page_one_btn Then
+	' 	page_display = show_pg_one
+	' End If
+	' If ButtonPressed = caf_membs_btn Then
+	' 	page_display = show_pg_memb_list
+	' End If
+	' If ButtonPressed = hh_list_btn Then
+	' 	page_display = show_pg_memb_list
+	' End If
+	' If ButtonPressed = HH_memb_detail_review Then
+	' 	page_display = show_pg_memb_info
+	' End If
+	' If ButtonPressed = hh_imig_btn Then
+	' 	page_display = show_pg_imig
+	' End If
+	' If ButtonPressed = caf_q_1_2_btn Then
+	' 	page_display = show_q_1_2
+	' End If
+	' If ButtonPressed = caf_q_3_btn Then
+	' 	page_display = show_q_3
+	' End If
+	' If ButtonPressed = caf_q_4_btn Then
+	' 	page_display = show_q_4
+	' End If
+	' If ButtonPressed = caf_q_5_btn Then
+	' 	page_display = show_q_5
+	' End If
+	' If ButtonPressed = caf_q_6_btn Then
+	' 	page_display = show_q_6
+	' End If
+	' If ButtonPressed = caf_q_7_btn Then
+	' 	page_display = show_q_7
+	' End If
+	' If ButtonPressed = caf_q_8_btn Then
+	' 	page_display = show_q_8
+	' End If
+	' If ButtonPressed = caf_q_9_btn Then
+	' 	page_display = show_q_9
+	' End If
+	' If ButtonPressed = caf_q_10_btn Then
+	' 	page_display = show_q_10
+	' End If
+	' If ButtonPressed = caf_q_11_btn Then
+	' 	page_display = show_q_11
+	' End If
+	' If ButtonPressed = caf_q_12_btn Then
+	' 	page_display = show_q_12
+	' 	second_page_display = main_unea
+	' End If
+	' If ButtonPressed = rsdi_btn 	Then second_page_display = rsdi_unea
+	' If ButtonPressed = ssi_btn		Then second_page_display = ssi_unea
+	' If ButtonPressed = va_btn		Then second_page_display = va_unea
+	' If ButtonPressed = ui_btn		Then second_page_display = ui_unea
+	' If ButtonPressed = wc_btn		Then second_page_display = wc_unea
+	' If ButtonPressed = ret_btn		Then second_page_display = ret_unea
+	' If ButtonPressed = tribal_btn	Then second_page_display = tribal_unea
+	' If ButtonPressed = cs_btn		Then second_page_display = cs_unea
+	' If ButtonPressed = ss_btn		Then second_page_display = ss_unea
+	' If ButtonPressed = other_btn	Then second_page_display = other_unea
+	' If ButtonPressed = main_btn		Then second_page_display = main_unea
+	'
+	' If ButtonPressed = caf_q_13_btn Then
+	' 	page_display = show_q_13
+	' End If
+	' If ButtonPressed = caf_q_14_15_btn Then
+	' 	page_display = show_q_14_15
+	' End If
+	' If ButtonPressed = caf_q_16_17_18_btn Then
+	' 	page_display = show_q_16_18
+	' End If
+	' If ButtonPressed = caf_q_19_btn Then
+	' 	page_display = show_q_19
+	' End If
+	' If ButtonPressed = caf_q_20_21_btn Then
+	' 	page_display = show_q_20_21
+	' 	second_page_display = main_asset
+	' End If
+	' If ButtonPressed = cash_btn		Then second_page_display = cash_asset
+	' If ButtonPressed = acct_btn		Then second_page_display = acct_asset
+	' If ButtonPressed = secu_btn		Then second_page_display = secu_asset
+	' If ButtonPressed = cars_btn		Then second_page_display = cars_asset
+	' If ButtonPressed = rest_btn		Then second_page_display = rest_asset
+	' If ButtonPressed = main_asset_btn		Then second_page_display = main_asset
+	' If ButtonPressed = caf_q_22_btn Then
+	' 	page_display = show_q_22
+	' End If
+	' If ButtonPressed = caf_q_23_btn Then
+	' 	page_display = show_q_23
+	' End If
+	' If ButtonPressed = caf_q_24_btn Then
+	' 	page_display = show_q_24
+	' End If
+	' If ButtonPressed = caf_qual_q_btn Then
+	' 	page_display = show_qual
+	' End If
+	' If ButtonPressed = caf_last_page_btn Then
+	' 	page_display = show_pg_last
+	' End If
+	' If ButtonPressed = finish_interview_btn then leave_loop = TRUE
+	'
+	' If page_display <> show_pg_memb_info AND page_display <> show_pg_imig Then memb_selected = ""
+	' If page_display <> show_q_7 Then stwk_selected = ""
+	' If page_display <> show_q_12 AND page_display <> show_q_20_21 Then memb_to_match = ""
+	' If page_display <> show_q_19 Then fmed_selected = ""
+	'
+	' If page_display <> show_q_20_21 Then inst_to_match = ""
 
 	If ButtonPressed > 10000 Then
 		save_button = ButtonPressed
@@ -5695,6 +5758,7 @@ function read_all_the_MEMBs()
 					sibl_col = sibl_col + 4
 				End If
 			Loop until sibl_ref_nrb = "__"
+			' MsgBox "here"
 			list_of_siblings = right(list_of_siblings, len(list_of_siblings) - 1)
 			sibl_array = split(list_of_siblings, "~")
 			For each memb_sibling in sibl_array
@@ -5820,12 +5884,12 @@ function read_all_the_MEMBs()
 		Loop until child_ref_nbr = "__"
 	Next
 
-	For the_rela = 0 to UBound(ALL_HH_RELATIONSHIPS_ARRAY, 2)
-		ALL_HH_RELATIONSHIPS_ARRAY(rela_pers_one, the_rela) = ALL_HH_RELATIONSHIPS_ARRAY(rela_clt_one_ref, the_rela) & " - " & ALL_HH_RELATIONSHIPS_ARRAY(rela_clt_one_name, the_rela)
-		ALL_HH_RELATIONSHIPS_ARRAY(rela_pers_two, the_rela) = ALL_HH_RELATIONSHIPS_ARRAY(rela_clt_two_ref, the_rela) & " - " & ALL_HH_RELATIONSHIPS_ARRAY(rela_clt_two_name, the_rela)
-
-		' MsgBox "Relationship detail:" & vbNewLine & ALL_HH_RELATIONSHIPS_ARRAY(rela_pers_one, the_rela) & " is the " & ALL_HH_RELATIONSHIPS_ARRAY(rela_type, the_rela) & " of " & ALL_HH_RELATIONSHIPS_ARRAY(rela_pers_two, the_rela)
-	Next
+	' For the_rela = 0 to UBound(ALL_HH_RELATIONSHIPS_ARRAY, 2)
+	' 	ALL_HH_RELATIONSHIPS_ARRAY(rela_pers_one, the_rela) = ALL_HH_RELATIONSHIPS_ARRAY(rela_clt_one_ref, the_rela) & " - " & ALL_HH_RELATIONSHIPS_ARRAY(rela_clt_one_name, the_rela)
+	' 	ALL_HH_RELATIONSHIPS_ARRAY(rela_pers_two, the_rela) = ALL_HH_RELATIONSHIPS_ARRAY(rela_clt_two_ref, the_rela) & " - " & ALL_HH_RELATIONSHIPS_ARRAY(rela_clt_two_name, the_rela)
+	'
+	' 	' MsgBox "Relationship detail:" & vbNewLine & ALL_HH_RELATIONSHIPS_ARRAY(rela_pers_one, the_rela) & " is the " & ALL_HH_RELATIONSHIPS_ARRAY(rela_type, the_rela) & " of " & ALL_HH_RELATIONSHIPS_ARRAY(rela_pers_two, the_rela)
+	' Next
 end function
 
 function verif_details_dlg(question_number)
@@ -6391,7 +6455,7 @@ vars_filled = FALSE
 
 Call back_to_SELF
 Call restore_your_work(vars_filled)			'looking for a 'restart' run
-Call convert_date_into_MAXIS_footer_month(application_date, MAXIS_footer_month, MAXIS_footer_year)
+Call convert_date_into_MAXIS_footer_month(CAF_datestamp, MAXIS_footer_month, MAXIS_footer_year)
 If vars_filled = TRUE Then show_known_addr = TRUE		'This is a setting for the address dialog to see the view
 
 'If we already know the variables because we used 'restore your work' OR if there is no case number, we don't need to read the information from MAXIS
@@ -6464,6 +6528,7 @@ caf_qual_q_btn				= 2000
 caf_last_page_btn			= 2100
 finish_interview_btn		= 2200
 
+selected_memb = 0
 ' 'Presetting booleans for the dialog looping
 ' show_caf_pg_1_pers_dlg = TRUE
 ' show_caf_pg_1_addr_dlg = TRUE
