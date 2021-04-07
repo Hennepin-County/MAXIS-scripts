@@ -1,4 +1,4 @@
-'**********THIS IS A RAMSEY SPECIFIC SCRIPT.  IF YOU REVERSE ENGINEER THIS SCRIPT, JUST BE CAREFUL.************
+'**********THIS IS A HENNEPIN SPECIFIC SCRIPT.  IF YOU REVERSE ENGINEER THIS SCRIPT, JUST BE CAREFUL.************
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "ACTIONS - MHC ENROLLMENT.vbs"
 start_time = timer
@@ -41,6 +41,8 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("04/06/2021", "New 'disenrollment reason' option created to 'DELETE SPAN' which will allow the removal of an enrollment span using '...' to remove a span that starts in the same month as an enrollment you are trying to create.##~##", "Casey Love, Hennepin County")
+call changelog_update("04/06/2021", "Added handling for discovering a failed enrollment and allowing for a change in selections.##~##", "Casey Love, Hennepin County")
 call changelog_update("11/20/2020", "BUG FIXES AND UPDATES##~## ##~##1. Changed the NOTE so that it will not create a note if no one has actually been enrolled.##~##2. Adjusted the end script wording to be more specific about what happened. ##~##3. Changed the 'Is this Open Enrollment' question to only appear from October until the November Cutoff date. You should not see the question now until next October.##~##", "Casey Love, Hennepin County")
 call changelog_update("10/06/2020", "Added phone number field to the dialog for when the enrollment is requested by phone.", "Casey Love, Hennepin County")
 call changelog_update("09/11/2020", "This script now contains the functionality for Open Enrollment and for any other enrollment.##~## ##~##The seperate script for Open Enrollment will no longer be available.##~##", "Casey Love, Hennepin County")
@@ -55,6 +57,75 @@ call changelog_update("04/02/2019", "Initial version.", "Casey Love, Hennepin Co
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
+script_run_lowdown = ""
+Function read_detail_on_RPPH(curr_enrl_date, curr_hp_code, curr_cntrct_code_one, curr_cntrct_code_two, curr_cntrct_code_comb, curr_change_rsn_code, curr_disenrl_rsn_code, curr_hp_name, curr_chg_rsn_full, curr_disenrl_rsn_full)
+	EMReadScreen curr_enrl_date, 8, 13, 5
+	'enter managed care plan code
+	EMReadScreen curr_hp_code, 10, 13, 23
+	'enter contract code
+	EMReadScreen curr_cntrct_code_one, 2, 13, 34
+	EMReadScreen curr_cntrct_code_two, 2, 13, 37
+	'enter change reason
+	EMReadScreen curr_change_rsn_code, 2, 13, 71
+	EMReadScreen curr_disenrl_rsn_code, 2, 14, 75
+
+	MMIS_clients_array(manual_enrollment, member) = TRUE
+
+	curr_cntrct_code_comb = curr_cntrct_code_one & " " & curr_cntrct_code_two
+
+	If curr_hp_code = "A585713900" then curr_hp_name = "Health Partners"
+	If curr_hp_code = "A565813600" then curr_hp_name = "Ucare"
+	If curr_hp_code = "A405713900" then curr_hp_name = "Medica"
+	If curr_hp_code = "A065813800" then curr_hp_name = "Blue Plus"
+	If curr_hp_code = "A836618200" then curr_hp_name = "Hennepin Health PMAP"
+	If curr_hp_code = "A965713400" then curr_hp_name = "Hennepin Health SNBC"
+	If curr_change_rsn_code = "FY" Then curr_chg_rsn_full = "First year change option"
+	If curr_change_rsn_code = "HP" Then curr_chg_rsn_full = "Health plan contract end"
+	If curr_change_rsn_code = "IN" Then curr_chg_rsn_full = "Initial enrollment"
+	If curr_change_rsn_code = "MV" Then curr_chg_rsn_full = "Move"
+	If curr_change_rsn_code = "NT" Then curr_chg_rsn_full = "Ninety Day change option"
+	If curr_change_rsn_code = "OE" Then curr_chg_rsn_full = "Open enrollment"
+	If curr_change_rsn_code = "PM" Then curr_chg_rsn_full = "PMI merge"
+	If curr_change_rsn_code = "RE" Then curr_chg_rsn_full = "Reenrollment"
+	If curr_disenrl_rsn_code = "EE" Then curr_disenrl_rsn_full = "Eligibility ended"
+	If curr_disenrl_rsn_code = "EX" Then curr_disenrl_rsn_full = "Exclusion"
+	If curr_disenrl_rsn_code = "FY" Then curr_disenrl_rsn_full = "First year change option"
+	If curr_disenrl_rsn_code = "HP" Then curr_disenrl_rsn_full = "Health plan contract end"
+	If curr_disenrl_rsn_code = "JL" Then curr_disenrl_rsn_full = "Jail - Incarceration"
+	If curr_disenrl_rsn_code = "MV" Then curr_disenrl_rsn_full = "Move"
+	If curr_disenrl_rsn_code = "ND" Then curr_disenrl_rsn_full = "Loss of disability"
+	If curr_disenrl_rsn_code = "NT" Then curr_disenrl_rsn_full = "Ninety Day change option"
+	If curr_disenrl_rsn_code = "OE" Then curr_disenrl_rsn_full = "Open Enrollment"
+	If curr_disenrl_rsn_code = "PM" Then curr_disenrl_rsn_full = "PMI merge"
+	If curr_disenrl_rsn_code = "VL" Then curr_disenrl_rsn_full = "Voluntary"
+End Function
+
+function enter_detail_on_refm()
+	If enrollment_source = "Paper Enrollment Form" Then
+		'form rec'd
+		EMWriteScreen "Y", 10, 16
+		'other insurance y/n
+		EMWriteScreen insurance_yn, 11, 18
+		'preg y/n
+		EMWriteScreen pregnant_yn, 12, 19
+		'interpreter y/n
+		EMWriteScreen interpreter_yn, 13, 29
+		'interpreter type
+		if MMIS_clients_array(interp_code, member) <> "" then
+			EMWriteScreen MMIS_clients_array(interp_code, member), 13, 52
+		end if
+		'medical clinic code
+		EMWriteScreen MMIS_clients_array(med_code, member), 19, 4
+		'dental clinic code if applicable
+		EMWriteScreen MMIS_clients_array(dent_code, member), 19, 24
+		'foster care y/n
+		EMWriteScreen foster_care_yn, 21, 15
+		' msgbox "REFM updated"
+	Else
+		'form rec'd
+		EMWriteScreen "N", 10, 16
+	End If
+End Function
 
 'SCRIPT----------------------------------------------------------------------------------------------------
 EMConnect ""
@@ -302,21 +373,36 @@ NEXT
 HH_member_array = TRIM(HH_member_array)							'Cleaning up array for ease of use.
 HH_member_array = SPLIT(HH_member_array, " ")
 
-const client_name  = 0
-const client_pmi   = 1
-const current_plan = 2
-const new_plan     = 3
-const change_rsn   = 4
-const disenrol_rsn = 5
-const med_code     = 6
-const dent_code    = 7
-const contr_code   = 8
-const preg_yes 	   = 9
-const interp_code  = 10
-const enrol_sucs   = 11
+const client_name  			= 0
+const client_pmi   			= 1
+const current_plan 			= 2
+const current_plan_date		= 3
+const new_plan     			= 4
+const change_rsn   			= 5
+const disenrol_rsn 			= 6
+const med_code     			= 7
+const dent_code    			= 8
+const contr_code  			= 9
+const preg_yes 	   			= 10
+const interp_code  			= 11
+const new_plan_two 			= 12
+const contr_code_two 		= 13
+const change_rsn_two 		= 14
+const disenrol_rsn_two 		= 15
+const first_new_plan 		= 16
+const first_contr_code 		= 17
+const first_change_rsn 		= 18
+const first_disenrol_rsn 	= 19
+const manual_enrollment 	= 20
+const manual_enrollment_date	= 21
+const manual_contr_code		= 22
+const manual_new_plan		= 23
+const manual_change_rsn		= 24
+const manual_disenrol_rns	= 25
+const enrol_sucs   			= 26
 
 Dim MMIS_clients_array
-ReDim MMIS_clients_array (12, 0)
+ReDim MMIS_clients_array (enrol_sucs, 0)
 
 EMReadScreen RCIN_check, 4, 1, 49
 If RCIN_check = "RCIN" Then PF6
@@ -325,7 +411,7 @@ Call get_to_RKEY
 item = 0
 
 For each member in HH_member_array
-	ReDim Preserve MMIS_clients_array(12, item)
+	ReDim Preserve MMIS_clients_array(enrol_sucs, item)
 	EMWriteScreen "I", 2, 19
 	EMWriteScreen member, 4, 19
 	EMWriteScreen "        ", 9, 19
@@ -336,6 +422,7 @@ For each member in HH_member_array
 	last_name = trim(last_name)
 	first_name = trim(first_name)
 	MMIS_clients_array (client_name, item) = last_name & ", " & first_name
+	MMIS_clients_array(manual_enrollment, item) = FALSE
 
 	'check RPOL to see if there is other insurance available, if so worker processes manually
 	'EMWriteScreen "X", 11, 2
@@ -378,11 +465,16 @@ For each member in HH_member_array
 	IF row < 10 Then
 		If col = 18 Then
 			EMReadScreen excl_code, 2, row, 2
+			EMReadScreen hp_curr_start_date, 8, row, 9
 		ElseIf col = 45 Then
 			EMReadScreen excl_code, 2, row, 29
+			EMReadScreen hp_curr_start_date, 8, row, 36
 		ElseIf col = 72 Then
 			EMReadScreen excl_code, 2, row, 56
+			EMReadScreen hp_curr_start_date, 8, row, 63
 		End If
+		MMIS_clients_array(current_plan_date, item) = hp_curr_start_date
+
 		If excl_code = "AA" Then MMIS_clients_array(current_plan, item) = "XCL - Adoption Assistance"
 		If excl_code = "AB" Then MMIS_clients_array(current_plan, item) = "XCL - Part A or B Only"
 		If excl_code = "BB" Then MMIS_clients_array(current_plan, item) = "XCL - Blind/Disabled under 65 years"
@@ -421,6 +513,8 @@ For each member in HH_member_array
 		If hp_code = "A065813800" then MMIS_clients_array(current_plan, item) = "Blue Plus"
 		If hp_code = "A836618200" then MMIS_clients_array(current_plan, item) = "Hennepin Health PMAP"
 		If hp_code = "A965713400" then MMIS_clients_array(current_plan, item) = "Hennepin Health SNBC"
+		EMReadScreen hp_curr_start_date, 8, row, 5
+		MMIS_clients_array(current_plan_date, item) = hp_curr_start_date
 	End If
 	MMIS_clients_array(new_plan,     item) = health_plan
 	MMIS_clients_array(change_rsn,   item) = change_reason
@@ -447,14 +541,15 @@ Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 750, dlg_len, "Enrollment Information"
   Text 5, 5, 25, 10, "Name"
   Text 100, 5, 15, 10, "PMI"
-  Text 145, 5, 75, 10, "Current Plan/Exclusion"
-  Text 250, 5, 50, 10, "Medical Clinic"
-  Text 310, 5, 45, 10, "Dental Clinic"
-  Text 370, 5, 40, 10, "Health plan:"
-  Text 440, 5, 55, 10, "Contract Code:"
-  Text 500, 5, 55, 10, "Change reason:"
-  Text 565, 5, 60, 10, "Disenroll reason:"
-  Text 640, 5, 35, 10, "Pregnant?"
+  Text 143, 5, 100, 10, "Current Plan/Exclusion and the"
+  Text 240, 5, 45, 10, " Start Date"
+  Text 285, 5, 45, 10, "Med Clinic"
+  Text 340, 5, 45, 10, "Den Clinic"
+  Text 390, 5, 40, 10, "Health plan:"
+  Text 460, 5, 55, 10, "Contract Code:"
+  Text 520, 5, 55, 10, "Change reason:"
+  Text 585, 5, 60, 10, "Disenroll reason:"
+  Text 650, 5, 35, 10, "Pregnant?"
   Text 690, 5, 55, 10, "Interpreter Code"
 
   For person = 0 to Ubound(MMIS_clients_array, 2)
@@ -466,14 +561,15 @@ BeginDialog Dialog1, 0, 0, 750, dlg_len, "Enrollment Information"
 	End If
   	Text 5, (x * 20) + 25, 95, 10, MMIS_clients_array(client_name, person)
   	Text 100, (x * 20) + 25, 35, 10, MMIS_clients_array(client_pmi, person)
-  	Text 145, (x * 20) + 25, 95, 10, MMIS_clients_array(current_plan, person)
-  	EditBox 250, (x * 20) + 20, 55, 15, MMIS_clients_array(med_code, person)
-  	EditBox 310, (x * 20) + 20, 50, 15, MMIS_clients_array(dent_code, person)
-    DropListBox 370, (x * 20) + 20, 60, 15, " "+chr(9)+"Blue Plus"+chr(9)+"Health Partners"+chr(9)+"Hennepin Health PMAP"+chr(9)+"Medica"+chr(9)+"Ucare", MMIS_clients_array(new_plan, person)
-  	DropListBox 440, (x * 20) + 20, 50, 15, "MA 12"+chr(9)+"NM 12"+chr(9)+"MA 30"+chr(9)+"MA 35"+chr(9)+"IM 12", MMIS_clients_array(contr_code, person)
-	DropListBox 500, (x * 20) + 20, 60, 15, "Select one..."+chr(9)+"First year change option"+chr(9)+"Health plan contract end"+chr(9)+"Initial enrollment"+chr(9)+"Move"+chr(9)+"Ninety Day change option"+chr(9)+"Open enrollment"+chr(9)+"PMI merge"+chr(9)+"Reenrollment", MMIS_clients_array(change_rsn, person)
-  	DropListBox 565, (x * 20) + 20, 60, 15, "Select one..."+chr(9)+"Eligibility ended"+chr(9)+"Exclusion"+chr(9)+"First year change option"+chr(9)+"Health plan contract end"+chr(9)+"Jail - Incarceration"+chr(9)+"Move"+chr(9)+"Loss of disability"+chr(9)+"Ninety Day change option"+chr(9)+"Open Enrollment"+chr(9)+"PMI merge"+chr(9)+"Voluntary", MMIS_clients_array(disenrol_rsn, person)
-  	CheckBox 645, (x * 20) + 20, 25, 10, "Yes", MMIS_clients_array(preg_yes, person)
+  	Text 143, (x * 20) + 25, 95, 10, MMIS_clients_array(current_plan, person)
+	Text 240, (x * 20) + 25, 35, 10, MMIS_clients_array(current_plan_date, person)
+  	EditBox 285, (x * 20) + 20, 45, 15, MMIS_clients_array(med_code, person)
+  	EditBox 340, (x * 20) + 20, 45, 15, MMIS_clients_array(dent_code, person)
+    DropListBox 390, (x * 20) + 20, 60, 15, " "+chr(9)+"Blue Plus"+chr(9)+"Health Partners"+chr(9)+"Hennepin Health PMAP"+chr(9)+"Medica"+chr(9)+"Ucare", MMIS_clients_array(new_plan, person)
+  	DropListBox 460, (x * 20) + 20, 50, 15, "MA 12"+chr(9)+"NM 12"+chr(9)+"MA 30"+chr(9)+"MA 35"+chr(9)+"IM 12", MMIS_clients_array(contr_code, person)
+	DropListBox 520, (x * 20) + 20, 60, 15, "Select one..."+chr(9)+"First year change option"+chr(9)+"Health plan contract end"+chr(9)+"Initial enrollment"+chr(9)+"Move"+chr(9)+"Ninety Day change option"+chr(9)+"Open enrollment"+chr(9)+"PMI merge"+chr(9)+"Reenrollment", MMIS_clients_array(change_rsn, person)
+  	DropListBox 585, (x * 20) + 20, 60, 15, "Select one..."+chr(9)+"Eligibility ended"+chr(9)+"Exclusion"+chr(9)+"First year change option"+chr(9)+"Health plan contract end"+chr(9)+"Jail - Incarceration"+chr(9)+"Move"+chr(9)+"Loss of disability"+chr(9)+"Ninety Day change option"+chr(9)+"Open Enrollment"+chr(9)+"PMI merge"+chr(9)+"Voluntary"+chr(9)+"DELETE SPAN", MMIS_clients_array(disenrol_rsn, person)
+  	CheckBox 655, (x * 20) + 20, 25, 10, "Yes", MMIS_clients_array(preg_yes, person)
 	EditBox 700, (x * 20) + 20, 25, 15, MMIS_clients_array(interp_code, person)
 	x = x + 1
   Next
@@ -540,109 +636,136 @@ Do
 Loop Until err_msg = ""
 
 process_manually_message = ""
+original_enrollment_date = enrollment_date
+
+script_run_lowdown = script_run_lowdown & "Enrollment source - " & enrollment_source & vbCr
+If enrollment_source = "Phone" Then script_run_lowdown = script_run_lowdown & "Caller name: " & caller_name & " - Relationship: " & caller_rela  & vbCr
+If enrollment_source = "Paper Enrollment Form" Then script_run_lowdown = script_run_lowdown & "Form Received Date: " & form_received_date & vbCr
+
+For person = 0 to Ubound(MMIS_clients_array, 2)
+	script_run_lowdown = script_run_lowdown & "Name: " & MMIS_clients_array(client_name, person) & " - PMI: " & MMIS_clients_array(client_pmi, person) & vbCr
+	script_run_lowdown = script_run_lowdown & "Current Plan: " & MMIS_clients_array(current_plan, person) & vbCr
+	script_run_lowdown = script_run_lowdown & "New Plan: " & MMIS_clients_array(new_plan, person) & " - Contract Code: " & MMIS_clients_array(contr_code, person) & vbCr
+	script_run_lowdown = script_run_lowdown & "Change Reason: " & MMIS_clients_array(change_rsn, person) & vbCr
+	script_run_lowdown = script_run_lowdown & "Disenrollment Reason: " & MMIS_clients_array(disenrol_rsn, person) & vbCr
+	script_run_lowdown = script_run_lowdown & "---------------------------------------------" & vbCr & vbCr
+Next
 
 If MNSURE_Case = TRUE Then
 	For member = 0 to Ubound(MMIS_clients_array, 2)
-		'MMIS Codes
-		Enrollment_date = Enrollment_month & "/01/" & enrollment_year
-		'change reasons
-		If MMIS_clients_array(change_rsn, member) = "First year change option" 	then change_reason = "FY"
-		If MMIS_clients_array(change_rsn, member) = "Health plan contract end" 	then change_reason = "HP"
-		If MMIS_clients_array(change_rsn, member) = "Initial enrollment"       	then change_reason = "IN"
-		If MMIS_clients_array(change_rsn, member) = "Move"                     	then change_reason = "MV"
-		If MMIS_clients_array(change_rsn, member) = "Ninety Day change option" 	then change_reason = "NT"
-		If MMIS_clients_array(change_rsn, member) = "Open enrollment"    	  	then change_reason = "OE"
-		If MMIS_clients_array(change_rsn, member) = "PMI merge" 				then change_reason = "PM"
-		If MMIS_clients_array(change_rsn, member) = "Reenrollment" 			  	then change_reason = "RE"
-		If MMIS_clients_array(change_rsn, member) = "Select one..." 			then change_reason = ""
+		first_attempt = TRUE
+		updated_manually = FALSE
+		replace_enrollment_span = FALSE
+		enrollment_date = original_enrollment_date
+		MMIS_clients_array(first_new_plan, member) = MMIS_clients_array(new_plan, member)
+		MMIS_clients_array(first_contr_code, member) = MMIS_clients_array(contr_code, member)
+		MMIS_clients_array(first_change_rsn, member) = MMIS_clients_array(change_rsn, member)
+		MMIS_clients_array(first_disenrol_rsn, member) = MMIS_clients_array(disenrol_rsn, member)
+		Do
+			'MMIS Codes
+			'change reasons
+			If MMIS_clients_array(change_rsn, member) = "First year change option" 	then change_reason = "FY"
+			If MMIS_clients_array(change_rsn, member) = "Health plan contract end" 	then change_reason = "HP"
+			If MMIS_clients_array(change_rsn, member) = "Initial enrollment"       	then change_reason = "IN"
+			If MMIS_clients_array(change_rsn, member) = "Move"                     	then change_reason = "MV"
+			If MMIS_clients_array(change_rsn, member) = "Ninety Day change option" 	then change_reason = "NT"
+			If MMIS_clients_array(change_rsn, member) = "Open enrollment"    	  	then change_reason = "OE"
+			If MMIS_clients_array(change_rsn, member) = "PMI merge" 				then change_reason = "PM"
+			If MMIS_clients_array(change_rsn, member) = "Reenrollment" 			  	then change_reason = "RE"
+			If MMIS_clients_array(change_rsn, member) = "Select one..." 			then change_reason = ""
 
-		'Disenrollment reasons
-		If MMIS_clients_array(disenrol_rsn, member) = "Eligibility ended"        then disenrollment_reason = "EE"
-		If MMIS_clients_array(disenrol_rsn, member) = "Exclusion"                then disenrollment_reason = "EX"
-		If MMIS_clients_array(disenrol_rsn, member) = "First year change option" then disenrollment_reason = "FY"
-		If MMIS_clients_array(disenrol_rsn, member) = "Health plan contract end" then disenrollment_reason = "HP"
-		If MMIS_clients_array(disenrol_rsn, member) = "Jail - Incarceration"     then disenrollment_reason = "JL"
-		If MMIS_clients_array(disenrol_rsn, member) = "Move"                     then disenrollment_reason = "MV"
-		If MMIS_clients_array(disenrol_rsn, member) = "Loss of disability"       then disenrollment_reason = "ND"
-		If MMIS_clients_array(disenrol_rsn, member) = "Ninety Day change option" then disenrollment_reason = "NT"
-		If MMIS_clients_array(disenrol_rsn, member) = "Open Enrollment"          then disenrollment_reason = "OE"
-		If MMIS_clients_array(disenrol_rsn, member) = "PMI merge"                then disenrollment_reason = "PM"
-		If MMIS_clients_array(disenrol_rsn, member) = "Voluntary"                then disenrollment_reason = "VL"
-		If MMIS_clients_array(disenrol_rsn, member) = "Select one..."            then disenrollment_reason = ""
+			'Disenrollment reasons
+			If MMIS_clients_array(disenrol_rsn, member) = "Eligibility ended"        then disenrollment_reason = "EE"
+			If MMIS_clients_array(disenrol_rsn, member) = "Exclusion"                then disenrollment_reason = "EX"
+			If MMIS_clients_array(disenrol_rsn, member) = "First year change option" then disenrollment_reason = "FY"
+			If MMIS_clients_array(disenrol_rsn, member) = "Health plan contract end" then disenrollment_reason = "HP"
+			If MMIS_clients_array(disenrol_rsn, member) = "Jail - Incarceration"     then disenrollment_reason = "JL"
+			If MMIS_clients_array(disenrol_rsn, member) = "Move"                     then disenrollment_reason = "MV"
+			If MMIS_clients_array(disenrol_rsn, member) = "Loss of disability"       then disenrollment_reason = "ND"
+			If MMIS_clients_array(disenrol_rsn, member) = "Ninety Day change option" then disenrollment_reason = "NT"
+			If MMIS_clients_array(disenrol_rsn, member) = "Open Enrollment"          then disenrollment_reason = "OE"
+			If MMIS_clients_array(disenrol_rsn, member) = "PMI merge"                then disenrollment_reason = "PM"
+			If MMIS_clients_array(disenrol_rsn, member) = "Voluntary"                then disenrollment_reason = "VL"
+			If MMIS_clients_array(disenrol_rsn, member) = "Select one..."            then disenrollment_reason = ""
+			If MMIS_clients_array(disenrol_rsn, member) = "DELETE SPAN" Then
+				disenrollment_reason = ""
+				replace_enrollment_span = TRUE
+			End If
 
-		'REFM Codes
-		If MMIS_clients_array(preg_yes, member) = checked Then
-			pregnant_yn = "Y"
-		Else
-			pregnant_yn = "N"
-		End If
+			'REFM Codes
+			If MMIS_clients_array(preg_yes, member) = checked Then
+				pregnant_yn = "Y"
+			Else
+				pregnant_yn = "N"
+			End If
 
-		If MMIS_clients_array(interp_code, member) = "" Then
-			interpreter_yn = "N"
-		Else
-			interpreter_yn = "Y"
-		End If
+			If MMIS_clients_array(interp_code, member) = "" Then
+				interpreter_yn = "N"
+			Else
+				interpreter_yn = "Y"
+			End If
 
-		EMReadScreen MMIS_panel_check, 4, 1, 52	'checking to see if user is on the RKEY panel in MMIS. If not, then it will go to there.
-		IF MMIS_panel_check <> "RKEY" THEN
-			DO
-				PF6
-				EMReadScreen session_terminated_check, 18, 1, 7
-			LOOP until session_terminated_check = "SESSION TERMINATED"
-			'Getting back in to MMIS and transmitting past the warning screen (workers should already have accepted the warning screen when they logged themselves into MMIS the first time!)
-			EMWriteScreen "mw00", 1, 2
-			transmit
-			transmit
-			EMWriteScreen "x", 8, 3
-			transmit
-		END IF
-		'Now we are in RKEY, and it navigates into the case, transmits, and makes sure we've moved to the next screen.
-		EMWriteScreen "c", 2, 19
-		EMWriteScreen "        ", 9, 19
-		EMWriteScreen MMIS_clients_array(client_pmi, member), 4, 19
-		transmit
-		EMReadscreen RKEY_check, 4, 1, 52
-		If RKEY_check = "RKEY" then process_manually_message = process_manually_message & "PMI " & MMIS_clients_array(client_pmi, member) & " could not be accessed. The enrollment for " & MMIS_clients_array(client_name, member) & " needs to be processed manually." & vbNewLine & vbNewLine
+			If first_attempt = TRUE Then
+				Call get_to_RKEY
 
-		DO
-			'check RPOL to see if there is other insurance available, if so worker processes manually
-			EMWriteScreen "rpol", 1, 8
-			transmit
-			'making sure script got to right panel
-			EMReadScreen RPOL_check, 4, 1, 52
-			If RPOL_check <> "RPOL" then process_manually_message = process_manually_message & "Could not navigate to RPOL for PMI " & MMIS_clients_array(client_pmi, member) & ". The enrollment for " & MMIS_clients_array(client_name, member) & " needs to be processed manually." & vbNewLine & vbNewLine
-			EMreadscreen policy_number, 1, 7, 8
-            If policy_number <> " " then
+				'Now we are in RKEY, and it navigates into the case, transmits, and makes sure we've moved to the next screen.
+				EMWriteScreen "c", 2, 19
+				EMWriteScreen "        ", 9, 19
+				EMWriteScreen MMIS_clients_array(client_pmi, member), 4, 19
+				transmit
+				EMReadscreen RKEY_check, 4, 1, 52
+				If RKEY_check = "RKEY" then process_manually_message = process_manually_message & "PMI " & MMIS_clients_array(client_pmi, member) & " could not be accessed. The enrollment for " & MMIS_clients_array(client_name, member) & " needs to be processed manually." & vbNewLine & vbNewLine
 
-                Dialog1 = ""
-                BeginDialog Dialog1, 0, 0, 161, 145, "RPOL Updated"
-                  CheckBox 20, 100, 125, 10, "RPOL ended/ ready for enrollment", rpol_ended_checkbox
-                  ButtonGroup ButtonPressed
-                    OkButton 105, 125, 50, 15
-                  Text 10, 10, 145, 25, "The script has found information on RPOL. The script cannot review RPOL to determine if enrollment information can be changed. "
-                  GroupBox 10, 45, 145, 70, "REVIEW RPOL"
-                  Text 50, 60, 65, 10, "*** Check RPOL ***"
-                  Text 30, 75, 105, 15, "Review to see if the enrollment being attempted can be added."
-                EndDialog
+				rpol_attempt = 1
+				Do
+					'check RPOL to see if there is other insurance available, if so worker processes manually
+					EMWriteScreen "rpol", 1, 8
+					transmit
+					'making sure script got to right panel
+					EMReadScreen RPOL_check, 4, 1, 52
+					rpol_attempt = rpol_attempt + 1
+					If rpol_attempt = 20 Then exit do
+				Loop until RPOL_check = "RPOL"
 
-                dialog Dialog1
+				If RPOL_check <> "RPOL" then process_manually_message = process_manually_message & "Could not navigate to RPOL for PMI " & MMIS_clients_array(client_pmi, member) & ". The enrollment for " & MMIS_clients_array(client_name, member) & " needs to be processed manually." & vbNewLine & vbNewLine
+				EMreadscreen policy_number, 1, 7, 8
+	            If policy_number <> " " then
 
-                If rpol_ended_checkbox = unchecked Then process_manually_message = process_manually_message & "RPOL for PMI " & MMIS_clients_array(client_pmi, member) & " has a span listed. The enrollment for " & MMIS_clients_array(client_name, member) & "needs to be processed manually." & vbNewLine & vbNewLine
-            End If
-			'nav to RPPH
-			EMWriteScreen "rpph", 1, 8
-			transmit
+	                Dialog1 = ""
+	                BeginDialog Dialog1, 0, 0, 161, 145, "RPOL Updated"
+	                  CheckBox 20, 100, 125, 10, "RPOL ended/ ready for enrollment", rpol_ended_checkbox
+	                  ButtonGroup ButtonPressed
+	                    OkButton 105, 125, 50, 15
+	                  Text 10, 10, 145, 25, "The script has found information on RPOL. The script cannot review RPOL to determine if enrollment information can be changed. "
+	                  GroupBox 10, 45, 145, 70, "REVIEW RPOL"
+	                  Text 50, 60, 65, 10, "*** Check RPOL ***"
+	                  Text 30, 75, 105, 15, "Review to see if the enrollment being attempted can be added."
+	                EndDialog
 
-			'making sure script got to right panel
-			EMReadScreen RPPH_check, 4, 1, 52
-			If RPPH_check <> "RPPH" then process_manually_message = process_manually_message & "Could not navigate to RPPH for PMI " & MMIS_clients_array(client_pmi, member) & ". The enrollment for " & MMIS_clients_array(client_name, member) & "needs to be processed manually." & vbNewLine & vbNewLine
+	                dialog Dialog1
 
-			Enrollment_date = Enrollment_month & "/01/" & enrollment_year
+	                If rpol_ended_checkbox = unchecked Then process_manually_message = process_manually_message & "RPOL for PMI " & MMIS_clients_array(client_pmi, member) & " has a span listed. The enrollment for " & MMIS_clients_array(client_name, member) & "needs to be processed manually." & vbNewLine & vbNewLine
+	            End If
+				'nav to RPPH
+				EMWriteScreen "rpph", 1, 8
+				transmit
+
+				'making sure script got to right panel
+				EMReadScreen RPPH_check, 4, 1, 52
+				If RPPH_check <> "RPPH" then process_manually_message = process_manually_message & "Could not navigate to RPPH for PMI " & MMIS_clients_array(client_pmi, member) & ". The enrollment for " & MMIS_clients_array(client_name, member) & "needs to be processed manually." & vbNewLine & vbNewLine
+				first_attempt = FALSE
+			End If
+
 			xcl_end_date = DateAdd("d", -1, enrollment_date)
 			xcl_end_month = right("00" & DatePart("m", xcl_end_date), 2)
 			xcl_end_day   = right("00" & DatePart("d", xcl_end_date), 2)
 			xcl_end_year  = right(DatePart("yyyy", xcl_end_date), 2)
 			xcl_end_date  = xcl_end_month & "/" & xcl_end_day & "/" & xcl_end_year
+
+			enrl_month = right("00" & DatePart("m", enrollment_date), 2)
+			enrl_day   = right("00" & DatePart("d", enrollment_date), 2)
+			enrl_year  = right(DatePart("yyyy", enrollment_date), 2)
+			enrollment_date  = enrl_month & "/" & enrl_day & "/" & enrl_year
 			' msgbox enrollment_date & vbNewLine & xcl_end_date
 			'Checks for exclusion code only deletes if YY or blank, if any other span entered it stops script.
 			If left(MMIS_clients_array(current_plan, member), 3) = "XCL" Then
@@ -682,6 +805,11 @@ If MNSURE_Case = TRUE Then
 
             If process_manually_message = "" Then
     			'enter disenrollment reason
+				If replace_enrollment_span = TRUE Then
+					EMWriteScreen "...", 13, 5
+					transmit
+					call write_value_and_transmit("RPPH", 1, 8)
+				End If
                 If disenrollment_reason <> "" Then
                     EMReadScreen beg_of_curr_span, 8, 13, 5
                     If beg_of_curr_span = enrollment_date Then
@@ -704,7 +832,7 @@ If MNSURE_Case = TRUE Then
     			EMWriteScreen contract_code_part_two, 13, 37
     			'enter change reason
     			EMWriteScreen change_reason, 13, 71
-
+				' MsgBox "STOP HERE"
     			EMWaitReady 0, 0
 
     			EMReadScreen false_end, 8, 14, 14
@@ -713,56 +841,139 @@ If MNSURE_Case = TRUE Then
     				If double_check = "  " Then EMWriteScreen "...", 14, 5
     			End If
 
-    			' msgbox "RPPH updated"
+				transmit
+				EMReadScreen current_panel, 4, 1, 52
+    			EMReadScreen RPPH_error_check, 78, 24, 2
 
-    			'REFM screen
-    			EMWriteScreen "refm", 1, 8
-    			transmit
-    			EMReadScreen RPPH_error_check, 10, 24, 2
-    			If trim(RPPH_error_check) = "EXCLSN END" then
-    				Do
-                        Dialog1 = ""
-                        BeginDialog Dialog1, 0, 0, 191, 45, "Exclusion Code Error"
-                          ButtonGroup ButtonPressed
-                            OkButton 85, 25, 50, 15
-                            CancelButton 135, 25, 50, 15
-                          Text 15, 10, 155, 10, "Update the exclusion code field, then press OK."
-                        EndDialog
+				RPPH_error_check = trim(RPPH_error_check)
+				enrollment_successful = TRUE
 
-    					Dialog Dialog1
-    					cancel_confirmation
-    					transmit
-    					EMReadScreen RPPH_error_check, 10, 24, 2
-    				Loop until trim(RPPH_error_check) <> "EXCLSN END"
-    				' Msgbox "Updated the exclusion code field, then press OK."
-    				' transmit
-    			ELSEIF trim(RPPH_error_check) <> "" then
+				' MsgBox "Panel - " & current_panel & vbCr & "Error - " & RPPH_error_check
+				If current_panel <> "REFM" Then
+					enrollment_successful = FALSE
+				' ElseIf RPPH_error_check <> "" Then
 
-                    Dialog1 = ""
-                    BeginDialog Dialog1, 0, 0, 236, 110, "RPPH error detected"
-                      DropListBox 70, 50, 160, 15, "Select one..."+chr(9)+"First year change option"+chr(9)+"Health plan contract end"+chr(9)+"Initial enrollment"+chr(9)+"Move"+chr(9)+"Ninety Day change option"+chr(9)+"Open enrollment"+chr(9)+"PMI merge"+chr(9)+"Reenrollment", change_reason
-                      DropListBox 70, 65, 160, 15, "Select one..."+chr(9)+"Eligibility ended"+chr(9)+"Exclusion"+chr(9)+"First year change option"+chr(9)+"Health plan contract end"+chr(9)+"Jail - Incarceration"+chr(9)+"Move"+chr(9)+"Loss of disability"+chr(9)+"Ninety Day change option"+chr(9)+"Open Enrollment"+chr(9)+"PMI merge"+chr(9)+"Voluntary", disenrollment_reason
-                      ButtonGroup ButtonPressed
-                        OkButton 125, 85, 50, 15
-                        CancelButton 180, 85, 50, 15
-                      Text 10, 55, 55, 10, "Change reason:"
-                      Text 10, 70, 60, 10, "Disenroll reason:"
-                      ButtonGroup ButtonPressed
-                        OkButton 155, 330, 50, 15
-                      Text 15, 20, 210, 10, "* Initial enrollment is selected, but has been enrolled previously"
-                      GroupBox 5, 5, 225, 40, "An error occurred on in RPPH. Typical errors include:"
-                      Text 15, 30, 210, 10, "* Exclusion code may be the same as the enrollment date"
-                    EndDialog
+				Else
+					'updating REFM'
+					call enter_detail_on_refm
 
-    				dialog Dialog1
-    				If buttonpressed = 0 then script_end_procedure_with_error_report("Error message was not resolved. Please review enrollment information before trying the script again.")
-    				EMWriteScreen "...", 13, 5
-    				EMReadScreen false_end, 8, 14, 14
-    				If false_end = "99/99/99" Then
-    					EMReadScreen double_check, 2, 14, 5
-    					If double_check = "??" Then EMWriteScreen "...", 14, 5
-    				End If
-    			END IF
+					'nav to RPPH
+					EMWriteScreen "rpph", 1, 8
+					transmit
+
+					EMReadScreen panel_enrollment_date, 8, 13, 5
+					'enter managed care plan code
+					EMReadScreen panel_health_plan_code, 10, 13, 23
+					'enter contract code
+					EMReadScreen panel_contract_code_part_one, 2, 13, 34
+					EMReadScreen panel_contract_code_part_two, 2, 13, 37
+					'enter change reason
+					EMReadScreen panel_change_reason, 2, 13, 71
+
+					If panel_enrollment_date <> enrollment_date Then enrollment_successful = FALSE
+					If panel_health_plan_code <> health_plan_code Then enrollment_successful = FALSE
+					If panel_contract_code_part_one <> contract_code_part_one Then enrollment_successful = FALSE
+					If panel_contract_code_part_two <> contract_code_part_two Then enrollment_successful = FALSE
+					If panel_change_reason <> change_reason Then enrollment_successful = FALSE
+					' MsgBox enrollment_successful
+					If enrollment_successful = TRUE Then
+						EMWriteScreen "refm", 1, 8
+		                transmit
+					End If
+				End If
+
+				If enrollment_successful = FALSE Then
+					testing_run = TRUE
+					If new_enrol_date = "" Then new_enrol_date = enrollment_date
+					new_enrol_date = new_enrol_date & ""
+					script_run_lowdown = script_run_lowdown & "Enrollment was not successful for " & MMIS_clients_array(client_name, member) & vbCr
+
+					If MMIS_clients_array(new_plan_two, member) = "" Then MMIS_clients_array(new_plan_two, member) = MMIS_clients_array(new_plan, member)
+					If MMIS_clients_array(contr_code_two, member) = "" Then MMIS_clients_array(contr_code_two, member) = MMIS_clients_array(contr_code, member)
+					If MMIS_clients_array(change_rsn_two, member) = "" Then MMIS_clients_array(change_rsn_two, member) = MMIS_clients_array(change_rsn, member)
+					If MMIS_clients_array(disenrol_rsn_two, member) = "" Then MMIS_clients_array(disenrol_rsn_two, member) = MMIS_clients_array(disenrol_rsn, member)
+
+					BeginDialog Dialog1, 0, 0, 456, 290, "Update Enrollment Options due to MMIS Failure or Error"
+					  DropListBox 80, 185, 125, 45, "Select One..."+chr(9)+"MA"+chr(9)+"NM"+chr(9)+"IM", MMIS_clients_array(new_plan_two, member)
+					  DropListBox 250, 185, 65, 45, "Select One..."+chr(9)+"12"+chr(9)+"30"+chr(9)+"35", MMIS_clients_array (contr_code_two, member)
+					  EditBox 390, 185, 50, 15, new_enrol_date
+					  DropListBox 80, 205, 130, 45, "Select one..."+chr(9)+"First year change option"+chr(9)+"Health plan contract end"+chr(9)+"Initial enrollment"+chr(9)+"Move"+chr(9)+"Ninety Day change option"+chr(9)+"Open enrollment"+chr(9)+"PMI merge"+chr(9)+"Reenrollment", MMIS_clients_array(change_rsn_two, member)
+					  DropListBox 100, 225, 130, 45, "Select one..."+chr(9)+"Eligibility ended"+chr(9)+"Exclusion"+chr(9)+"First year change option"+chr(9)+"Health plan contract end"+chr(9)+"Jail - Incarceration"+chr(9)+"Move"+chr(9)+"Loss of disability"+chr(9)+"Ninety Day change option"+chr(9)+"Open Enrollment"+chr(9)+"PMI merge"+chr(9)+"Voluntary", MMIS_clients_array(disenrol_rsn_two, member)
+					  ButtonGroup ButtonPressed
+					    PushButton 10, 270, 135, 15, "Skip Enrollment for " & MMIS_clients_array(client_name, member), skip_enrollment_btn
+					    PushButton 160, 270, 150, 15, "Enrollment Already Updated Manually", read_manual_enrollment_btn
+					    PushButton 325, 270, 125, 15, " Retry Enrollment with Script", retry_enrollment_btn
+					  Text 10, 10, 345, 10, "The selections made for this person caused a message or error in MMIS and were not able to be updated."
+					  GroupBox 10, 25, 440, 105, "Initial Selections for " & MMIS_clients_array(client_name, member)
+					  Text 20, 45, 190, 10, "Plan to Enroll:" & MMIS_clients_array(new_plan, member)
+					  Text 215, 45, 75, 10, "ID / Desc:" & MMIS_clients_array (contr_code, member)
+					  Text 330, 45, 110, 10, "Enrollment Date:" & enrollment_date
+					  Text 20, 60, 210, 10, "Change Reason:" & MMIS_clients_array(change_rsn, member)
+					  Text 20, 75, 220, 10, "Disenrollment Reason:" & MMIS_clients_array(disenrol_rsn, member)
+					  Text 20, 90, 55, 10, "Pregnant: " & pregnant_yn
+					  Text 115, 90, 60, 10, "Interpreter: " & interpreter_yn
+					  Text 190, 90, 90, 10, "Interpreter Code:" & MMIS_clients_array(interp_code, member)
+					  Text 20, 115, 215, 10, "Current Enrollment:" & MMIS_clients_array(current_plan, member)
+					  GroupBox 10, 135, 440, 30, "MMIS Error Messages"
+					  Text 20, 150, 415, 10, RPPH_error_check
+					  GroupBox 10, 170, 440, 95, "Change Selections for " & MMIS_clients_array(client_name, member)
+					  Text 20, 190, 60, 10, "Enrollment Plan:"
+					  Text 215, 190, 35, 10, "ID / Desc:"
+					  Text 330, 190, 60, 10, "Enrollment Date:"
+					  Text 20, 210, 60, 10, "Change Reason: "
+					  Text 20, 230, 80, 10, "Disenrollment Reason:"
+					EndDialog
+
+					dialog Dialog1
+					cancel_confirmation
+
+					new_enrol_date = DateAdd("d", 0, new_enrol_date)
+					If ButtonPressed = retry_enrollment_btn Then
+						PF10
+						MMIS_clients_array(new_plan, member) = MMIS_clients_array(new_plan_two, member)
+						MMIS_clients_array(contr_code, member) = MMIS_clients_array(contr_code_two, member)
+						MMIS_clients_array(change_rsn, member) = MMIS_clients_array(change_rsn_two, member)
+						MMIS_clients_array(disenrol_rsn, member) = MMIS_clients_array(disenrol_rsn_two, member)
+
+						enrollment_date = new_enrol_date
+						script_run_lowdown = script_run_lowdown & "Button Pressed - RETRY ENROLLMENT" & vbCr
+					End If
+					If ButtonPressed = read_manual_enrollment_btn Then
+						EMReadScreen current_panel, 4, 1, 52
+
+						If current_panel = "RPPH" Then
+							Call read_detail_on_RPPH(MMIS_clients_array(manual_enrollment_date, member), panel_health_plan_code, panel_contract_code_part_one, panel_contract_code_part_two, MMIS_clients_array(manual_contr_code, member), panel_change_reason, panel_disenrollment_reason, MMIS_clients_array(manual_new_plan, member), MMIS_clients_array(manual_change_rsn, member), MMIS_clients_array(manual_disenrol_rns, member))
+
+							EMWriteScreen "refm", 1, 8
+			                transmit
+
+							call enter_detail_on_refm
+						ElseIf current_panel = "REFM" Then
+							call enter_detail_on_refm
+
+							EMWriteScreen "rpph", 1, 8
+							transmit
+
+							Call read_detail_on_RPPH(MMIS_clients_array(manual_enrollment_date, member), panel_health_plan_code, panel_contract_code_part_one, panel_contract_code_part_two, MMIS_clients_array(manual_contr_code, member), panel_change_reason, panel_disenrollment_reason, MMIS_clients_array(manual_new_plan, member), MMIS_clients_array(manual_change_rsn, member), MMIS_clients_array(manual_disenrol_rns, member))
+						End If
+						enrollment_successful = TRUE
+						MMIS_clients_array(manual_enrollment, member) = TRUE
+						PF9
+						Do
+							PF3
+							EMReadScreen where_are_we, 4, 1, 52
+						Loop until where_are_we = "RKEY"
+						script_run_lowdown = script_run_lowdown & "Button Pressed - MANUAL ENROLLMENT" & vbCr
+					End If
+					If ButtonPressed = skip_enrollment_btn Then
+						process_manually_message = process_manually_message & "Enrollment was cancelled by you when you pressed the button 'Skip Enrollment for " & MMIS_clients_array(client_name, member) & "' button on the 'Update Enrollment Options due to MMIS Failure or Error' dialog." & vbNewLine & vbNewLine & ""
+						enrollment_successful = TRUE
+						PF10
+						script_run_lowdown = script_run_lowdown & "Button Pressed - SKIP ENROLLMENT" & vbCr
+					End If
+
+					first_attempt = FALSE
+				End If
             ELSE
                 'REFM screen
                 EMWriteScreen "refm", 1, 8
@@ -773,76 +984,99 @@ If MNSURE_Case = TRUE Then
 	        If change_reason = "Select one..." then change_reason = ""
 	        If disenrollment_reason = "Select one..." then disenrollment_reason = ""
 			'making sure script got to right panel
-			EMReadScreen REFM_check, 4, 1, 52
-			If REFM_check <> "REFM" then process_manually_message = process_manually_message & "The script was unable to navigate to REFM for PMI " & MMIS_clients_array(client_pmi, member) & ". The enrollment for " & MMIS_clients_array(client_name, member) & "needs to be processed manually." & vbNewLine & vbNewLine
-		Loop until REFM_check = "REFM"
+			' EMReadScreen REFM_check, 4, 1, 52
+			' If REFM_check <> "REFM" then process_manually_message = process_manually_message & "The script was unable to navigate to REFM for PMI " & MMIS_clients_array(client_pmi, member) & ". The enrollment for " & MMIS_clients_array(client_name, member) & "needs to be processed manually." & vbNewLine & vbNewLine
+		Loop until enrollment_successful = TRUE
 
-        If enrollment_source = "Paper Enrollment Form" Then
-    		'form rec'd
-    		EMsetcursor 10, 16
-    		EMSendkey "y"
-    		'other insurance y/n
-    		EMsetcursor 11, 18
-    		EMsendkey insurance_yn
-    		'preg y/n
-    		EMsetcursor 12, 19
-    		EMsendkey pregnant_yn
-    		'interpreter y/n
-    		EMsetcursor 13, 29
-    		EMsendkey interpreter_yn
-    		'interpreter type
-    		if MMIS_clients_array(interp_code, member) <> "" then
-    			EMsetcursor 13, 52
-    			EMsendKey MMIS_clients_array(interp_code, member)
-    		end if
-    		'medical clinic code
-    		EMsetcursor 19, 4
-    		EMsendkey MMIS_clients_array(med_code, member)
-    		'dental clinic code if applicable
-    		EMsetcursor 19, 24
-    		EMsendkey MMIS_clients_array(dent_code, member)
-    		'foster care y/n
-    		EMsetcursor 21, 15
-    		EMsendkey foster_care_yn
-		    ' msgbox "REFM updated"
-        Else
-            'form rec'd
-            EMsetcursor 10, 16
-            EMSendkey "n"
-        End If
-		PF9
+        ' If enrollment_source = "Paper Enrollment Form" Then
+    	' 	'form rec'd
+    	' 	EMsetcursor 10, 16
+    	' 	EMSendkey "y"
+    	' 	'other insurance y/n
+    	' 	EMsetcursor 11, 18
+    	' 	EMsendkey insurance_yn
+    	' 	'preg y/n
+    	' 	EMsetcursor 12, 19
+    	' 	EMsendkey pregnant_yn
+    	' 	'interpreter y/n
+    	' 	EMsetcursor 13, 29
+    	' 	EMsendkey interpreter_yn
+    	' 	'interpreter type
+    	' 	if MMIS_clients_array(interp_code, member) <> "" then
+    	' 		EMsetcursor 13, 52
+    	' 		EMsendKey MMIS_clients_array(interp_code, member)
+    	' 	end if
+    	' 	'medical clinic code
+    	' 	EMsetcursor 19, 4
+    	' 	EMsendkey MMIS_clients_array(med_code, member)
+    	' 	'dental clinic code if applicable
+    	' 	EMsetcursor 19, 24
+    	' 	EMsendkey MMIS_clients_array(dent_code, member)
+    	' 	'foster care y/n
+    	' 	EMsetcursor 21, 15
+    	' 	EMsendkey foster_care_yn
+		'     ' msgbox "REFM updated"
+        ' Else
+        '     'form rec'd
+        '     EMsetcursor 10, 16
+        '     EMSendkey "n"
+        ' End If
+		'
+		' PF9
+		'
+		' 'error handling to ensure that enrollment date and exclusion dates don't conflict
+		' EMReadScreen REFM_error_check, 19, 24, 2 'checks for an inhibiting edit
+		' IF REFM_error_check <> "                   " then
+        '     IF REFM_error_check <> "INVALID KEY ENTERED" AND REFM_error_check <> "INVALID KEY PRESSED" then
+        '         EMReadScreen full_error_msg, 79, 24, 2
+        '         full_error_msg = trim(full_error_msg)
+		' 	    process_manually_message = process_manually_message & "You have entered information that is causing a warning error, or an inhibiting error for PMI "& MMIS_clients_array(client_pmi, member) & ". The enrollment for " & MMIS_clients_array(client_name, member) & ". Refer to the MMIS USER MANUAL to resolve if necessary. Full error message: " & full_error_msg & vbNewLine & vbNewLine
+		'     END IF
+        ' END IF
 
+
+		If MMIS_clients_array(manual_enrollment, member) <> TRUE Then
+			PF9
+
+			'error handling to ensure that enrollment date and exclusion dates don't conflict
+			EMReadScreen REFM_error_check, 19, 24, 2 'checks for an inhibiting edit
+			IF REFM_error_check <> "                   " then
+	            IF REFM_error_check <> "INVALID KEY ENTERED" AND REFM_error_check <> "INVALID KEY PRESSED" then
+	                EMReadScreen full_error_msg, 79, 24, 2
+	                full_error_msg = trim(full_error_msg)
+				    process_manually_message = process_manually_message & "You have entered information that is causing a warning error, or an inhibiting error for PMI "& MMIS_clients_array(client_pmi, member) & ". The enrollment for " & MMIS_clients_array(client_name, member) & ". Refer to the MMIS USER MANUAL to resolve if necessary. Full error message: " & full_error_msg & vbNewLine & vbNewLine
+			    END IF
+	        END IF
+		End If
+		' msgbox "all updated - see casenote code"
 		'Save and case note
-		pf3
+		EMReadScreen where_are_we, 4, 1, 52
+		Do While where_are_we <> "RKEY"
+			pf3
+			EMReadScreen where_are_we, 4, 1, 52
+		Loop
 
-        EMReadScreen look_for_RKEY, 4, 1, 52
-        ' MsgBox "Look for RKEY - " & look_for_RKEY
-        If look_for_RKEY <> "RKEY" Then
-            'We are going to try again to save the information
-            PF3
-            EMReadScreen REFM_error_check, 79, 24, 2 'checks for an inhibiting edit
-            REFM_error_check = trim(REFM_error_check)
-            ' MsgBox "REFM error - " & REFM_error_check
-            If REFM_error_check <> "ACTION COMPLETED" Then
-                process_manually_message = process_manually_message & "You have entered information that is causing a warning error, or an inhibiting error for PMI "& MMIS_clients_array(client_pmi, member) & ". The enrollment for " & MMIS_clients_array(client_name, member) & ". Refer to the MMIS USER MANUAL to resolve if necessary. Full error message: " & REFM_error_check & vbNewLine & vbNewLine
-                PF6
-            End If
-        End If
-
-		EMWriteScreen "c", 2, 19
+		EMWriteScreen "i", 2, 19
+        EMWriteScreen "        ", 9, 19
+        EMWriteScreen MMIS_clients_array(client_pmi, member), 4, 19
 		transmit
+		check_enrollment = TRUE
+		IF ButtonPressed = read_manual_enrollment_btn Then check_enrollment = FALSE
+		IF ButtonPressed = skip_enrollment_btn Then check_enrollment = FALSE
 		EMReadScreen rsum_enrollment, 8, 16, 20
 		EMReadScreen rsum_plan, 10, 16, 52
 		' MsgBox "RSUM date and plan: " & rsum_enrollment & " - " & rsum_plan & vbNewLine & "Coded date and plan: " & Enrollment_date & " - " & health_plan_code
 		IF rsum_enrollment = Enrollment_date AND rsum_plan = health_plan_code Then
 			MMIS_clients_array(enrol_sucs, member) = TRUE
-			' pf4
-			' pf11
-			' EMSendkey "***HMO Note*** " &  MMIS_clients_array(client_name, member) & " enrolled into " &  MMIS_clients_array(new_plan, member) & " " & Enrollment_date & " " & worker_signature
-			' pf3
+			script_run_lowdown = script_run_lowdown & "Enrollment appears successful for " & MMIS_clients_array(client_name, member) & vbCr
+		''			pf4
+		''			pf11
+		''			EMSendkey "***HMO Note*** " &  MMIS_clients_array(client_name, member) & " enrolled into " &  MMIS_clients_array(new_plan, member) & " " & Enrollment_date & " " & worker_signature
+		''			pf3
 		Else
 			failed_enrollment_message = failed_enrollment_message & vbNewLine & vbNewLine & process_manually_message
 			MMIS_clients_array(enrol_sucs, member) = FALSE
+			script_run_lowdown = script_run_lowdown & "Enrollment appears to have failed for " & MMIS_clients_array(client_name, member) & vbCr & "Process manually message:" & vbCr & process_manually_message & "-----------------" & vbCr
 		End If
 		' MsgBox process_manually_message
 		pf3
@@ -850,132 +1084,145 @@ If MNSURE_Case = TRUE Then
 			PF3
 		END IF
 		process_manually_message = ""
+
 	Next
 Else
 	For member = 0 to Ubound(MMIS_clients_array, 2)
-		'MMIS Codes
-		'change reasons
-		If MMIS_clients_array(change_rsn, member) = "First year change option" 	then change_reason = "FY"
-		If MMIS_clients_array(change_rsn, member) = "Health plan contract end" 	then change_reason = "HP"
-		If MMIS_clients_array(change_rsn, member) = "Initial enrollment"       	then change_reason = "IN"
-		If MMIS_clients_array(change_rsn, member) = "Move"                     	then change_reason = "MV"
-		If MMIS_clients_array(change_rsn, member) = "Ninety Day change option" 	then change_reason = "NT"
-		If MMIS_clients_array(change_rsn, member) = "Open enrollment"    	  	then change_reason = "OE"
-		If MMIS_clients_array(change_rsn, member) = "PMI merge" 				then change_reason = "PM"
-		If MMIS_clients_array(change_rsn, member) = "Reenrollment" 			  	then change_reason = "RE"
-		If MMIS_clients_array(change_rsn, member) = "Select one..." 			then change_reason = ""
-
-		'Disenrollment reasons
-		If MMIS_clients_array(disenrol_rsn, member) = "Eligibility ended"        then disenrollment_reason = "EE"
-		If MMIS_clients_array(disenrol_rsn, member) = "Exclusion"                then disenrollment_reason = "EX"
-		If MMIS_clients_array(disenrol_rsn, member) = "First year change option" then disenrollment_reason = "FY"
-		If MMIS_clients_array(disenrol_rsn, member) = "Health plan contract end" then disenrollment_reason = "HP"
-		If MMIS_clients_array(disenrol_rsn, member) = "Jail - Incarceration"     then disenrollment_reason = "JL"
-		If MMIS_clients_array(disenrol_rsn, member) = "Move"                     then disenrollment_reason = "MV"
-		If MMIS_clients_array(disenrol_rsn, member) = "Loss of disability"       then disenrollment_reason = "ND"
-		If MMIS_clients_array(disenrol_rsn, member) = "Ninety Day change option" then disenrollment_reason = "NT"
-		If MMIS_clients_array(disenrol_rsn, member) = "Open Enrollment"          then disenrollment_reason = "OE"
-		If MMIS_clients_array(disenrol_rsn, member) = "PMI merge"                then disenrollment_reason = "PM"
-		If MMIS_clients_array(disenrol_rsn, member) = "Voluntary"                then disenrollment_reason = "VL"
-		If MMIS_clients_array(disenrol_rsn, member) = "Select one..."            then disenrollment_reason = ""
-
-		'REFM Codes
-		If MMIS_clients_array(preg_yes, member) = checked Then
-			pregnant_yn = "Y"
-		Else
-			pregnant_yn = "N"
-		End If
-
-		If MMIS_clients_array(interp_code, member) = "" Then
-			interpreter_yn = "N"
-		Else
-			interpreter_yn = "Y"
-		End If
-
-		EMReadScreen MMIS_panel_check, 4, 1, 52	'checking to see if user is on the RKEY panel in MMIS. If not, then it will go to there.
-		IF MMIS_panel_check <> "RKEY" THEN
-			DO
-				PF6
-				EMReadScreen session_terminated_check, 18, 1, 7
-			LOOP until session_terminated_check = "SESSION TERMINATED"
-			'Getting back in to MMIS and transmitting past the warning screen (workers should already have accepted the warning screen when they logged themselves into MMIS the first time!)
-			EMWriteScreen "mw00", 1, 2
-			transmit
-			transmit
-			EMWriteScreen "x", 8, 3
-			transmit
-		END IF
-		' msgbox "At RKEY"
-		'Now we are in RKEY, and it navigates into the case, transmits, and makes sure we've moved to the next screen.
-		EMWriteScreen "c", 2, 19
-		EMWriteScreen "        ", 4, 19
-		EMWriteScreen MMIS_case_number, 9, 19
-		transmit
-		transmit
-		transmit
-		EMReadscreen RKEY_check, 4, 1, 52
-		If RKEY_check = "RKEY" then process_manually_message = process_manually_message & "PMI " & MMIS_clients_array(client_pmi, member) & " could not be accessed. The enrollment for " & MMIS_clients_array(client_name, member) & " needs to be processed manually." & vbNewLine & vbNewLine
+		first_attempt = TRUE
+		updated_manually = FALSE
+		replace_enrollment_span = FALSE
+		enrollment_date = original_enrollment_date
+		MMIS_clients_array(first_new_plan, member) = MMIS_clients_array(new_plan, member)
+		MMIS_clients_array(first_contr_code, member) = MMIS_clients_array(contr_code, member)
+		MMIS_clients_array(first_change_rsn, member) = MMIS_clients_array(change_rsn, member)
+		MMIS_clients_array(first_disenrol_rsn, member) = MMIS_clients_array(disenrol_rsn, member)
 		Do
-			row = 1
-			col = 1
-			EMSearch MMIS_clients_array(client_pmi, member), row, col
-			If row = 0 Then
-				PF8
-				EMReadScreen end_of_clts, 6, 24, 2
-				If end_of_clts = "CANNOT" Then
-					process_manually_message = process_manually_message & "PMI " & MMIS_clients_array(client_pmi, member) & " could not be found on this case. The enrollment for " &  MMIS_clients_array(client_name, member) & " needs to be processed manually." & vbNewLine & vbNewLine
-					Exit Do
-				End If
+			'MMIS Codes
+			'change reasons
+			If MMIS_clients_array(change_rsn, member) = "First year change option" 	then change_reason = "FY"
+			If MMIS_clients_array(change_rsn, member) = "Health plan contract end" 	then change_reason = "HP"
+			If MMIS_clients_array(change_rsn, member) = "Initial enrollment"       	then change_reason = "IN"
+			If MMIS_clients_array(change_rsn, member) = "Move"                     	then change_reason = "MV"
+			If MMIS_clients_array(change_rsn, member) = "Ninety Day change option" 	then change_reason = "NT"
+			If MMIS_clients_array(change_rsn, member) = "Open enrollment"    	  	then change_reason = "OE"
+			If MMIS_clients_array(change_rsn, member) = "PMI merge" 				then change_reason = "PM"
+			If MMIS_clients_array(change_rsn, member) = "Reenrollment" 			  	then change_reason = "RE"
+			If MMIS_clients_array(change_rsn, member) = "Select one..." 			then change_reason = ""
+
+			'Disenrollment reasons
+			If MMIS_clients_array(disenrol_rsn, member) = "Eligibility ended"        then disenrollment_reason = "EE"
+			If MMIS_clients_array(disenrol_rsn, member) = "Exclusion"                then disenrollment_reason = "EX"
+			If MMIS_clients_array(disenrol_rsn, member) = "First year change option" then disenrollment_reason = "FY"
+			If MMIS_clients_array(disenrol_rsn, member) = "Health plan contract end" then disenrollment_reason = "HP"
+			If MMIS_clients_array(disenrol_rsn, member) = "Jail - Incarceration"     then disenrollment_reason = "JL"
+			If MMIS_clients_array(disenrol_rsn, member) = "Move"                     then disenrollment_reason = "MV"
+			If MMIS_clients_array(disenrol_rsn, member) = "Loss of disability"       then disenrollment_reason = "ND"
+			If MMIS_clients_array(disenrol_rsn, member) = "Ninety Day change option" then disenrollment_reason = "NT"
+			If MMIS_clients_array(disenrol_rsn, member) = "Open Enrollment"          then disenrollment_reason = "OE"
+			If MMIS_clients_array(disenrol_rsn, member) = "PMI merge"                then disenrollment_reason = "PM"
+			If MMIS_clients_array(disenrol_rsn, member) = "Voluntary"                then disenrollment_reason = "VL"
+			If MMIS_clients_array(disenrol_rsn, member) = "Select one..."            then disenrollment_reason = ""
+			If MMIS_clients_array(disenrol_rsn, member) = "DELETE SPAN" Then
+				disenrollment_reason = ""
+				replace_enrollment_span = TRUE
 			End If
-		Loop until row <> 0
-		EMWriteScreen "X", row, 2
-		' msgbox "person selected"
-		transmit
-		' msgbox "at RSUM"
-		EMReadscreen RKEY_check, 4, 1, 52
-		If RKEY_check = "RKEY" then process_manually_message = process_manually_message & "PMI " & MMIS_clients_array(client_pmi, member) & " could not be accessed. The enrollment for " & MMIS_clients_array(client_name, member) & " needs to be processed manually." & vbNewLine & vbNewLine
-		' msgbox process_manually_message
 
-		DO
-			'check RPOL to see if there is other insurance available, if so worker processes manually
-			EMWriteScreen "rpol", 1, 8
-			transmit
-			'making sure script got to right panel
-			EMReadScreen RPOL_check, 4, 1, 52
-			If RPOL_check <> "RPOL" then process_manually_message = process_manually_message & "Could not navigate to RPOL for PMI " & MMIS_clients_array(client_pmi, member) & ". The enrollment for " & MMIS_clients_array(client_name, member) & "needs to be processed manually." & vbNewLine & vbNewLine
-			EMreadscreen policy_number, 1, 7, 8
-			If policy_number <> " " then
+			'REFM Codes
+			If MMIS_clients_array(preg_yes, member) = checked Then
+				pregnant_yn = "Y"
+			Else
+				pregnant_yn = "N"
+			End If
 
-                Dialog1 = ""
-                BeginDialog Dialog1, 0, 0, 161, 145, "RPOL Updated"
-                  CheckBox 20, 100, 125, 10, "RPOL ended/ ready for enrollment", rpol_ended_checkbox
-                  ButtonGroup ButtonPressed
-                    OkButton 105, 125, 50, 15
-                  Text 10, 10, 145, 25, "The script has found information on RPOL. The script cannot review RPOL to determine if enrollment information can be changed. "
-                  GroupBox 10, 45, 145, 70, "REVIEW RPOL"
-                  Text 50, 60, 65, 10, "*** Check RPOL ***"
-                  Text 30, 75, 105, 15, "Review to see if the enrollment being attempted can be added."
-                EndDialog
+			If MMIS_clients_array(interp_code, member) = "" Then
+				interpreter_yn = "N"
+			Else
+				interpreter_yn = "Y"
+			End If
 
-                dialog Dialog1
+			If first_attempt = TRUE Then
+				Call get_to_RKEY
+				' msgbox "At RKEY"
+				'Now we are in RKEY, and it navigates into the case, transmits, and makes sure we've moved to the next screen.
+				EMWriteScreen "c", 2, 19
+				EMWriteScreen "        ", 4, 19
+				EMWriteScreen MMIS_case_number, 9, 19
+				transmit
+				transmit
+				transmit
+				EMReadscreen RKEY_check, 4, 1, 52
+				If RKEY_check = "RKEY" then process_manually_message = process_manually_message & "PMI " & MMIS_clients_array(client_pmi, member) & " could not be accessed. The enrollment for " & MMIS_clients_array(client_name, member) & " needs to be processed manually." & vbNewLine & vbNewLine
+				Do
+					row = 1
+					col = 1
+					EMSearch MMIS_clients_array(client_pmi, member), row, col
+					If row = 0 Then
+						PF8
+						EMReadScreen end_of_clts, 6, 24, 2
+						If end_of_clts = "CANNOT" Then
+							process_manually_message = process_manually_message & "PMI " & MMIS_clients_array(client_pmi, member) & " could not be found on this case. The enrollment for " &  MMIS_clients_array(client_name, member) & " needs to be processed manually." & vbNewLine & vbNewLine
+							Exit Do
+						End If
+					End If
+				Loop until row <> 0
+				EMWriteScreen "X", row, 2
+				' msgbox "person selected"
+				transmit
+				' msgbox "at RSUM"
+				EMReadscreen RKEY_check, 4, 1, 52
+				If RKEY_check = "RKEY" then process_manually_message = process_manually_message & "PMI " & MMIS_clients_array(client_pmi, member) & " could not be accessed. The enrollment for " & MMIS_clients_array(client_name, member) & " needs to be processed manually." & vbNewLine & vbNewLine
+				' msgbox process_manually_message
 
-                If rpol_ended_checkbox = unchecked Then process_manually_message = process_manually_message & "RPOL for PMI " & MMIS_clients_array(client_pmi, member) & " has a span listed. The enrollment for " & MMIS_clients_array(client_name, member) & "needs to be processed manually." & vbNewLine & vbNewLine
-            End If
+				rpol_attempt = 1
+				Do
+					'check RPOL to see if there is other insurance available, if so worker processes manually
+					EMWriteScreen "rpol", 1, 8
+					transmit
+					'making sure script got to right panel
+					EMReadScreen RPOL_check, 4, 1, 52
+					rpol_attempt = rpol_attempt + 1
+					If rpol_attempt = 20 Then exit do
+				Loop until RPOL_check = "RPOL"
 
-			'nav to RPPH
-			EMWriteScreen "rpph", 1, 8
-			transmit
+				If RPOL_check <> "RPOL" then process_manually_message = process_manually_message & "Could not navigate to RPOL for PMI " & MMIS_clients_array(client_pmi, member) & ". The enrollment for " & MMIS_clients_array(client_name, member) & "needs to be processed manually." & vbNewLine & vbNewLine
+				EMreadscreen policy_number, 1, 7, 8
+				If policy_number <> " " then
 
-			'making sure script got to right panel
-			EMReadScreen RPPH_check, 4, 1, 52
-			If RPPH_check <> "RPPH" then process_manually_message = process_manually_message & "Could not navigate to RPPH for PMI " & MMIS_clients_array(client_pmi, member) & ". The enrollment for " & MMIS_clients_array(client_name, member) & "needs to be processed manually." & vbNewLine & vbNewLine
+	                Dialog1 = ""
+	                BeginDialog Dialog1, 0, 0, 161, 145, "RPOL Updated"
+	                  CheckBox 20, 100, 125, 10, "RPOL ended/ ready for enrollment", rpol_ended_checkbox
+	                  ButtonGroup ButtonPressed
+	                    OkButton 105, 125, 50, 15
+	                  Text 10, 10, 145, 25, "The script has found information on RPOL. The script cannot review RPOL to determine if enrollment information can be changed. "
+	                  GroupBox 10, 45, 145, 70, "REVIEW RPOL"
+	                  Text 50, 60, 65, 10, "*** Check RPOL ***"
+	                  Text 30, 75, 105, 15, "Review to see if the enrollment being attempted can be added."
+	                EndDialog
 
-			Enrollment_date = Enrollment_month & "/01/" & enrollment_year
+	                dialog Dialog1
+
+	                If rpol_ended_checkbox = unchecked Then process_manually_message = process_manually_message & "RPOL for PMI " & MMIS_clients_array(client_pmi, member) & " has a span listed. The enrollment for " & MMIS_clients_array(client_name, member) & "needs to be processed manually." & vbNewLine & vbNewLine
+	            End If
+				'nav to RPPH
+				EMWriteScreen "rpph", 1, 8
+				transmit
+
+				'making sure script got to right panel
+				EMReadScreen RPPH_check, 4, 1, 52
+				If RPPH_check <> "RPPH" then process_manually_message = process_manually_message & "Could not navigate to RPPH for PMI " & MMIS_clients_array(client_pmi, member) & ". The enrollment for " & MMIS_clients_array(client_name, member) & "needs to be processed manually." & vbNewLine & vbNewLine
+				first_attempt = FALSE
+			End If
+
 			xcl_end_date = DateAdd("d", -1, enrollment_date)
 			xcl_end_month = right("00" & DatePart("m", xcl_end_date), 2)
 			xcl_end_day   = right("00" & DatePart("d", xcl_end_date), 2)
 			xcl_end_year  = right(DatePart("yyyy", xcl_end_date), 2)
 			xcl_end_date  = xcl_end_month & "/" & xcl_end_day & "/" & xcl_end_year
+
+			enrl_month = right("00" & DatePart("m", enrollment_date), 2)
+			enrl_day   = right("00" & DatePart("d", enrollment_date), 2)
+			enrl_year  = right(DatePart("yyyy", enrollment_date), 2)
+			enrollment_date  = enrl_month & "/" & enrl_day & "/" & enrl_year
 			' msgbox enrollment_date & vbNewLine & xcl_end_date
 			'Checks for exclusion code only deletes if YY or blank, if any other span entered it stops script.
 			If left(MMIS_clients_array(current_plan, member), 3) = "XCL" Then
@@ -1015,7 +1262,12 @@ Else
 
             If process_manually_message = "" Then
     			'enter disenrollment reason
-                If disenrollment_reason <> "" Then
+				If replace_enrollment_span = TRUE Then
+					EMWriteScreen "...", 13, 5
+					transmit
+					call write_value_and_transmit("RPPH", 1, 8)
+				End If
+				If disenrollment_reason <> "" Then
                     EMReadScreen beg_of_curr_span, 8, 13, 5
                     If beg_of_curr_span = enrollment_date Then
                         EMWriteScreen "...", 13, 5
@@ -1037,7 +1289,7 @@ Else
     			EMWriteScreen contract_code_part_two, 13, 37
     			'enter change reason
     			EMWriteScreen change_reason, 13, 71
-
+				' MsgBox "STOP HERE"
     			EMWaitReady 0, 0
 
     			EMReadScreen false_end, 8, 14, 14
@@ -1048,47 +1300,140 @@ Else
     			'msgbox "RPPH updated"
 
     			'REFM screen
-    			EMWriteScreen "refm", 1, 8
+    			' EMWriteScreen "refm", 1, 8
     			transmit
-    			EMReadScreen RPPH_error_check, 10, 24, 2
-    			If trim(RPPH_error_check) = "EXCLSN END" then
-    				Do
-                        Dialog1 = ""
-                        BeginDialog Dialog1, 0, 0, 191, 45, "Exclusion Code Error"
-                          ButtonGroup ButtonPressed
-                            OkButton 85, 25, 50, 15
-                            CancelButton 135, 25, 50, 15
-                          Text 15, 10, 155, 10, "Update the exclusion code field, then press OK."
-                        EndDialog
+				EMReadScreen current_panel, 4, 1, 52
+    			EMReadScreen RPPH_error_check, 78, 24, 2
 
-    					Dialog Dialog1
-    					cancel_confirmation
-    					transmit
-    					EMReadScreen RPPH_error_check, 10, 24, 2
-    				Loop until trim(RPPH_error_check) <> "EXCLSN END"
-    				' Msgbox "Updated the exclusion code field, then press OK."
-    				' transmit
-    			ELSEIF trim(RPPH_error_check) <> "" then
-                    Dialog1 = ""
-                    BeginDialog Dialog1, 0, 0, 236, 110, "RPPH error detected"
-                      DropListBox 70, 50, 160, 15, "Select one..."+chr(9)+"First year change option"+chr(9)+"Health plan contract end"+chr(9)+"Initial enrollment"+chr(9)+"Move"+chr(9)+"Ninety Day change option"+chr(9)+"Open enrollment"+chr(9)+"PMI merge"+chr(9)+"Reenrollment", change_reason
-                      DropListBox 70, 65, 160, 15, "Select one..."+chr(9)+"Eligibility ended"+chr(9)+"Exclusion"+chr(9)+"First year change option"+chr(9)+"Health plan contract end"+chr(9)+"Jail - Incarceration"+chr(9)+"Move"+chr(9)+"Loss of disability"+chr(9)+"Ninety Day change option"+chr(9)+"Open Enrollment"+chr(9)+"PMI merge"+chr(9)+"Voluntary", disenrollment_reason
-                      ButtonGroup ButtonPressed
-                        OkButton 125, 85, 50, 15
-                        CancelButton 180, 85, 50, 15
-                      Text 10, 55, 55, 10, "Change reason:"
-                      Text 10, 70, 60, 10, "Disenroll reason:"
-                      ButtonGroup ButtonPressed
-                        OkButton 155, 330, 50, 15
-                      Text 15, 20, 210, 10, "* Initial enrollment is selected, but has been enrolled previously"
-                      GroupBox 5, 5, 225, 40, "An error occurred on in RPPH. Typical errors include:"
-                      Text 15, 30, 210, 10, "* Exclusion code may be the same as the enrollment date"
-                    EndDialog
+				RPPH_error_check = trim(RPPH_error_check)
+				enrollment_successful = TRUE
 
-    				dialog Dialog1
-    				If buttonpressed = 0 then script_end_procedure_with_error_report("Error message was not resolved. Please review enrollment information before trying the script again.")
-    				EMWriteScreen "...", 13, 5
-    			END IF
+				' MsgBox "Panel - " & current_panel & vbCr & "Error - " & RPPH_error_check
+				If current_panel <> "REFM" Then
+					enrollment_successful = FALSE
+				' ElseIf RPPH_error_check <> "" Then
+
+				Else
+					'updating REFM'
+					call enter_detail_on_refm
+
+					'nav to RPPH
+					EMWriteScreen "rpph", 1, 8
+					transmit
+
+					EMReadScreen panel_enrollment_date, 8, 13, 5
+					'enter managed care plan code
+					EMReadScreen panel_health_plan_code, 10, 13, 23
+					'enter contract code
+					EMReadScreen panel_contract_code_part_one, 2, 13, 34
+					EMReadScreen panel_contract_code_part_two, 2, 13, 37
+					'enter change reason
+					EMReadScreen panel_change_reason, 2, 13, 71
+
+					If panel_enrollment_date <> enrollment_date Then enrollment_successful = FALSE
+					If panel_health_plan_code <> health_plan_code Then enrollment_successful = FALSE
+					If panel_contract_code_part_one <> contract_code_part_one Then enrollment_successful = FALSE
+					If panel_contract_code_part_two <> contract_code_part_two Then enrollment_successful = FALSE
+					If panel_change_reason <> change_reason Then enrollment_successful = FALSE
+					' MsgBox enrollment_successful
+					If enrollment_successful = TRUE Then
+						EMWriteScreen "refm", 1, 8
+		                transmit
+					End If
+				End If
+
+				If enrollment_successful = FALSE Then
+					testing_run = TRUE
+					If new_enrol_date = "" Then new_enrol_date = enrollment_date
+					new_enrol_date = new_enrol_date & ""
+					script_run_lowdown = script_run_lowdown & "Enrollment was not successful for " & MMIS_clients_array(client_name, member) & vbCr
+					' MsgBox "~" & new_enrol_date & "~"
+					If MMIS_clients_array(new_plan_two, member) = "" Then MMIS_clients_array(new_plan_two, member) = MMIS_clients_array(new_plan, member)
+					If MMIS_clients_array(contr_code_two, member) = "" Then MMIS_clients_array(contr_code_two, member) = MMIS_clients_array(contr_code, member)
+					If MMIS_clients_array(change_rsn_two, member) = "" Then MMIS_clients_array(change_rsn_two, member) = MMIS_clients_array(change_rsn, member)
+					If MMIS_clients_array(disenrol_rsn_two, member) = "" Then MMIS_clients_array(disenrol_rsn_two, member) = MMIS_clients_array(disenrol_rsn, member)
+
+					BeginDialog Dialog1, 0, 0, 456, 290, "Update Enrollment Options due to MMIS Failure or Error"
+					  DropListBox 80, 185, 125, 45, "Select One..."+chr(9)+"Blue Plus"+chr(9)+"Health Partners"+chr(9)+"Hennepin Health PMAP"+chr(9)+"Medica"+chr(9)+"Ucare", MMIS_clients_array(new_plan_two, member)
+					  DropListBox 250, 185, 65, 45, "Select One..."+chr(9)+"MA 12"+chr(9)+"NM 12"+chr(9)+"MA 30"+chr(9)+"MA 35"+chr(9)+"IM 12", MMIS_clients_array (contr_code_two, member)
+					  EditBox 390, 185, 50, 15, new_enrol_date
+					  DropListBox 80, 205, 130, 45, "Select one..."+chr(9)+"First year change option"+chr(9)+"Health plan contract end"+chr(9)+"Initial enrollment"+chr(9)+"Move"+chr(9)+"Ninety Day change option"+chr(9)+"Open enrollment"+chr(9)+"PMI merge"+chr(9)+"Reenrollment", MMIS_clients_array(change_rsn_two, member)
+					  DropListBox 100, 225, 130, 45, "Select one..."+chr(9)+"Eligibility ended"+chr(9)+"Exclusion"+chr(9)+"First year change option"+chr(9)+"Health plan contract end"+chr(9)+"Jail - Incarceration"+chr(9)+"Move"+chr(9)+"Loss of disability"+chr(9)+"Ninety Day change option"+chr(9)+"Open Enrollment"+chr(9)+"PMI merge"+chr(9)+"Voluntary", MMIS_clients_array(disenrol_rsn_two, member)
+					  ButtonGroup ButtonPressed
+					    PushButton 10, 270, 135, 15, "Skip Enrollment for " & MMIS_clients_array(client_name, member), skip_enrollment_btn
+					    PushButton 160, 270, 150, 15, "Enrollment Already Updated Manually", read_manual_enrollment_btn
+					    PushButton 325, 270, 125, 15, " Retry Enrollment with Script", retry_enrollment_btn
+					  Text 10, 10, 345, 10, "The selections made for this person caused a message or error in MMIS and were not able to be updated."
+					  GroupBox 10, 25, 440, 105, "Initial Selections for " & MMIS_clients_array(client_name, member)
+					  Text 20, 45, 190, 10, "Plan to Enroll: " & MMIS_clients_array(new_plan, member)
+					  Text 215, 45, 75, 10, "ID / Desc:" & MMIS_clients_array (contr_code, member)
+					  Text 330, 45, 110, 10, "Enrollment Date: " & enrollment_date
+					  Text 20, 60, 210, 10, "Change Reason: " & MMIS_clients_array(change_rsn, member)
+					  Text 20, 75, 220, 10, "Disenrollment Reason: " & MMIS_clients_array(disenrol_rsn, member)
+					  Text 20, 90, 55, 10, "Pregnant: " & pregnant_yn
+					  Text 115, 90, 60, 10, "Interpreter: " & interpreter_yn
+					  Text 190, 90, 90, 10, "Interpreter Code: " & MMIS_clients_array(interp_code, member)
+					  Text 20, 115, 215, 10, "Current Enrollment: " & MMIS_clients_array(current_plan, member)
+					  GroupBox 10, 135, 440, 30, "MMIS Error Messages"
+					  Text 20, 150, 415, 10, RPPH_error_check
+					  GroupBox 10, 170, 440, 95, "Change Selections for " & MMIS_clients_array(client_name, member)
+					  Text 20, 190, 60, 10, "Enrollment Plan:"
+					  Text 215, 190, 35, 10, "ID / Desc:"
+					  Text 330, 190, 60, 10, "Enrollment Date:"
+					  Text 20, 210, 60, 10, "Change Reason: "
+					  Text 20, 230, 80, 10, "Disenrollment Reason:"
+					EndDialog
+
+					dialog Dialog1
+					cancel_confirmation
+
+					new_enrol_date = DateAdd("d", 0, new_enrol_date)
+					If ButtonPressed = retry_enrollment_btn Then
+						PF10
+						MMIS_clients_array(new_plan, member) = MMIS_clients_array(new_plan_two, member)
+						MMIS_clients_array(contr_code, member) = MMIS_clients_array(contr_code_two, member)
+						MMIS_clients_array(change_rsn, member) = MMIS_clients_array(change_rsn_two, member)
+						MMIS_clients_array(disenrol_rsn, member) = MMIS_clients_array(disenrol_rsn_two, member)
+
+						enrollment_date = new_enrol_date
+						script_run_lowdown = script_run_lowdown & "Button Pressed - RETRY ENROLLMENT" & vbCr
+					End If
+					If ButtonPressed = read_manual_enrollment_btn Then
+						EMReadScreen current_panel, 4, 1, 52
+
+						If current_panel = "RPPH" Then
+							Call read_detail_on_RPPH(MMIS_clients_array(manual_enrollment_date, member), panel_health_plan_code, panel_contract_code_part_one, panel_contract_code_part_two, MMIS_clients_array(manual_contr_code, member), panel_change_reason, panel_disenrollment_reason, MMIS_clients_array(manual_new_plan, member), MMIS_clients_array(manual_change_rsn, member), MMIS_clients_array(manual_disenrol_rns, member))
+
+							EMWriteScreen "refm", 1, 8
+			                transmit
+
+							call enter_detail_on_refm
+						ElseIf current_panel = "REFM" Then
+							call enter_detail_on_refm
+
+							EMWriteScreen "rpph", 1, 8
+							transmit
+
+							Call read_detail_on_RPPH(MMIS_clients_array(manual_enrollment_date, member), panel_health_plan_code, panel_contract_code_part_one, panel_contract_code_part_two, MMIS_clients_array(manual_contr_code, member), panel_change_reason, panel_disenrollment_reason, MMIS_clients_array(manual_new_plan, member), MMIS_clients_array(manual_change_rsn, member), MMIS_clients_array(manual_disenrol_rns, member))
+						End If
+						enrollment_successful = TRUE
+						MMIS_clients_array(manual_enrollment, member) = TRUE
+						PF9
+						Do
+							PF3
+							EMReadScreen where_are_we, 4, 1, 52
+						Loop until where_are_we = "RKEY"
+						script_run_lowdown = script_run_lowdown & "Button Pressed - MANUAL ENROLLMENT" & vbCr
+					End If
+					If ButtonPressed = skip_enrollment_btn Then
+						process_manually_message = process_manually_message & "Enrollment was cancelled by you when you pressed the button 'Skip Enrollment for " & MMIS_clients_array(client_name, member) & "' button on the 'Update Enrollment Options due to MMIS Failure or Error' dialog." & vbNewLine & vbNewLine & ""
+						enrollment_successful = TRUE
+						PF10
+						script_run_lowdown = script_run_lowdown & "Button Pressed - SKIP ENROLLMENT" & vbCr
+					End If
+
+					first_attempt = FALSE
+				End If
             ELSE
                 'REFM screen
                 EMWriteScreen "refm", 1, 8
@@ -1099,67 +1444,45 @@ Else
 			If change_reason = "Select one..." then change_reason = ""
 			If disenrollment_reason = "Select one..." then disenrollment_reason = ""
 			'making sure script got to right panel
-			EMReadScreen REFM_check, 4, 1, 52
-			If REFM_check <> "REFM" then process_manually_message = process_manually_message & "The script was unable to navigate to REFM for PMI " & MMIS_clients_array(client_pmi, member) & ". The enrollment for " & MMIS_clients_array(client_name, member) & "needs to be processed manually." & vbNewLine & vbNewLine
-		Loop until REFM_check = "REFM"
+			' EMReadScreen REFM_check, 4, 1, 52
+			' If REFM_check <> "REFM" then process_manually_message = process_manually_message & "The script was unable to navigate to REFM for PMI " & MMIS_clients_array(client_pmi, member) & ". The enrollment for " & MMIS_clients_array(client_name, member) & "needs to be processed manually." & vbNewLine & vbNewLine
+		Loop until enrollment_successful = TRUE
 
-        If enrollment_source = "Paper Enrollment Form" Then
-    		'form rec'd
-    		EMsetcursor 10, 16
-    		EMSendkey "y"
-    		'other insurance y/n
-    		EMsetcursor 11, 18
-    		EMsendkey insurance_yn
-    		'preg y/n
-    		EMsetcursor 12, 19
-    		EMsendkey pregnant_yn
-    		'interpreter y/n
-    		EMsetcursor 13, 29
-    		EMsendkey interpreter_yn
-    		'interpreter type
-    		if MMIS_clients_array(interp_code, member) <> "" then
-    			EMsetcursor 13, 52
-    			EMsendKey MMIS_clients_array(interp_code, member)
-    		end if
-    		'medical clinic code
-    		EMsetcursor 19, 4
-    		EMsendkey MMIS_clients_array(med_code, member)
-    		'dental clinic code if applicable
-    		EMsetcursor 19, 24
-    		EMsendkey MMIS_clients_array(dent_code, member)
-    		'foster care y/n
-    		EMsetcursor 21, 15
-    		EMsendkey foster_care_yn
-		    ' msgbox "REFM updated"
-        Else
-            'form rec'd
-            EMsetcursor 10, 16
-            EMSendkey "n"
-        End If
-		PF9
+		If MMIS_clients_array(manual_enrollment, member) <> TRUE Then
+			PF9
 
-		'error handling to ensure that enrollment date and exclusion dates don't conflict
-		EMReadScreen REFM_error_check, 19, 24, 2 'checks for an inhibiting edit
-		IF REFM_error_check <> "                   " then
-            IF REFM_error_check <> "INVALID KEY ENTERED" AND REFM_error_check <> "INVALID KEY PRESSED" then
-                EMReadScreen full_error_msg, 79, 24, 2
-                full_error_msg = trim(full_error_msg)
-			    process_manually_message = process_manually_message & "You have entered information that is causing a warning error, or an inhibiting error for PMI "& MMIS_clients_array(client_pmi, member) & ". The enrollment for " & MMIS_clients_array(client_name, member) & ". Refer to the MMIS USER MANUAL to resolve if necessary. Full error message: " & full_error_msg & vbNewLine & vbNewLine
-		    END IF
-        END IF
-
+			'error handling to ensure that enrollment date and exclusion dates don't conflict
+			EMReadScreen REFM_error_check, 19, 24, 2 'checks for an inhibiting edit
+			IF REFM_error_check <> "                   " then
+	            IF REFM_error_check <> "INVALID KEY ENTERED" AND REFM_error_check <> "INVALID KEY PRESSED" then
+	                EMReadScreen full_error_msg, 79, 24, 2
+	                full_error_msg = trim(full_error_msg)
+				    process_manually_message = process_manually_message & "You have entered information that is causing a warning error, or an inhibiting error for PMI "& MMIS_clients_array(client_pmi, member) & ". The enrollment for " & MMIS_clients_array(client_name, member) & ". Refer to the MMIS USER MANUAL to resolve if necessary. Full error message: " & full_error_msg & vbNewLine & vbNewLine
+			    END IF
+	        END IF
+		End If
 		' msgbox "all updated - see casenote code"
 		'Save and case note
-		pf3
+		EMReadScreen where_are_we, 4, 1, 52
+		Do While where_are_we <> "RKEY"
+			pf3
+			EMReadScreen where_are_we, 4, 1, 52
+		Loop
+
 		EMWriteScreen "i", 2, 19
         EMWriteScreen "        ", 9, 19
         EMWriteScreen MMIS_clients_array(client_pmi, member), 4, 19
 		transmit
+		check_enrollment = TRUE
+		IF ButtonPressed = read_manual_enrollment_btn Then check_enrollment = FALSE
+		IF ButtonPressed = skip_enrollment_btn Then check_enrollment = FALSE
 		EMReadScreen rsum_enrollment, 8, 16, 20
 		EMReadScreen rsum_plan, 10, 16, 52
+
 		' MsgBox "RSUM date and plan: " & rsum_enrollment & " - " & rsum_plan & vbNewLine & "Coded date and plan: " & Enrollment_date & " - " & health_plan_code
 		IF rsum_enrollment = Enrollment_date AND rsum_plan = health_plan_code Then
 			MMIS_clients_array(enrol_sucs, member) = TRUE
+			script_run_lowdown = script_run_lowdown & "Enrollment appears successful for " & MMIS_clients_array(client_name, member) & vbCr
 		''			pf4
 		''			pf11
 		''			EMSendkey "***HMO Note*** " &  MMIS_clients_array(client_name, member) & " enrolled into " &  MMIS_clients_array(new_plan, member) & " " & Enrollment_date & " " & worker_signature
@@ -1167,6 +1490,7 @@ Else
 		Else
 			failed_enrollment_message = failed_enrollment_message & vbNewLine & vbNewLine & process_manually_message
 			MMIS_clients_array(enrol_sucs, member) = FALSE
+			script_run_lowdown = script_run_lowdown & "Enrollment appears to have failed for " & MMIS_clients_array(client_name, member) & vbCr & "Process manually message:" & vbCr & process_manually_message & "-----------------" & vbCr
 		End If
 		' MsgBox process_manually_message
 		pf3
@@ -1239,9 +1563,11 @@ If create_case_note = TRUE Then
 	For member = 0 to Ubound(MMIS_clients_array, 2)
 		If MMIS_clients_array(enrol_sucs, member) = TRUE Then
 	        If enrollment_source = "Morning Letters" Then
-	            CALL write_variable_in_MMIS_NOTE ("- Re-enrolled " & MMIS_clients_array(client_name, member) & " in " & MMIS_clients_array(new_plan, member))
+	            If MMIS_clients_array(manual_enrollment, member) = FALSE Then CALL write_variable_in_MMIS_NOTE ("- Re-enrolled " & MMIS_clients_array(client_name, member) & " in " & MMIS_clients_array(new_plan, member))
+				If MMIS_clients_array(manual_enrollment, member) = TRUE  Then CALL write_variable_in_MMIS_NOTE ("- Re-enrolled " & MMIS_clients_array(client_name, member) & " in " & MMIS_clients_array(manual_new_plan, member) & " effective: " & MMIS_clients_array(manual_enrollment_date, member))
 	        Else
-			    CALL write_variable_in_MMIS_NOTE ("- " & MMIS_clients_array(client_name, member) & " enrolled into " & MMIS_clients_array(new_plan, member))
+				If MMIS_clients_array(manual_enrollment, member) = FALSE Then CALL write_variable_in_MMIS_NOTE ("- " & MMIS_clients_array(client_name, member) & " enrolled into " & MMIS_clients_array(new_plan, member))
+			    If MMIS_clients_array(manual_enrollment, member) = TRUE  Then CALL write_variable_in_MMIS_NOTE ("- " & MMIS_clients_array(client_name, member) & " enrolled into " & MMIS_clients_array(manual_new_plan, member) & " effective: " & MMIS_clients_array(manual_enrollment_date, member))
 	        End If
 		End If
 	Next
