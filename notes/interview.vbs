@@ -50,7 +50,2765 @@ call changelog_update("04/00/2021", "Initial version.", "Casey Love, Hennepin Co
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
+'DECLARATIONS ==============================================================================================================
+
+Dim HH_MEMB_ARRAY()
+ReDim HH_MEMB_ARRAY(0)
+
+
+
+'===========================================================================================================================
+
 'FUNCTIONS =================================================================================================================
+
+
+class mx_hh_member
+
+	public access_denied
+	public selected
+	'stuff about the members
+	public first_name
+	public last_name
+	public mid_initial
+	public other_names
+	public date_of_birth
+	public age
+	public ref_number
+	public ssn
+	public ssn_verif
+	public birthdate_verif
+	public gender
+	public id_verif
+	public rel_to_applcnt
+	public race
+	public race_a_checkbox
+	public race_b_checkbox
+	public race_n_checkbox
+	public race_p_checkbox
+	public race_w_checkbox
+	public snap_minor
+	public cash_minor
+	public written_lang
+	public spoken_lang
+	public interpreter
+	public alias_yn
+	public ethnicity_yn
+
+	public marital_status
+	public spouse_ref
+	public spouse_name
+	public last_grade_completed
+	public citizen
+	public other_st_FS_end_date
+	public in_mn_12_mo
+	public residence_verif
+	public mn_entry_date
+	public former_state
+	public intend_to_reside_in_mn
+
+	public parents_in_home
+	public parents_in_home_notes
+	public parent_one_name
+	public parent_one_type
+	public parent_one_verif
+	public parent_one_in_home
+	public parent_two_name
+	public parent_two_type
+	public parent_two_verif
+	public parent_two_in_home
+
+	public pare_exists
+	public pare_child_ref_nbr
+	public pare_child_name
+	public pare_child_member_index
+	public pare_relationship_type
+	public pare_verification
+
+	public remo_exists
+	public left_hh_date
+	public left_hh_reason
+	public left_hh_expected_return_date
+	public left_hh_expected_return_verif
+	public left_hh_actual_return_date
+	public left_hh_HC_temp_out_of_state
+	public left_hh_date_reported
+	public left_hh_12_months_or_more
+
+	public adme_exists
+	public adme_arrival_date
+	public adme_cash_date
+	public adme_emer_date
+	public adme_snap_date
+	public adme_within_12_months
+
+	public imig_exists
+	public imig_status
+	public us_entry_date
+	public imig_status_date
+	public imig_status_verif
+	public lpr_adj_from
+	public nationality
+	public nationality_detail
+	public alien_id_nbr
+	public imig_active_doc
+	public imig_recvd_doc
+	public imig_q_2_required
+	public imig_q_4_required
+	public imig_q_5_required
+	public imig_clt_current_doc
+	public imig_doc_on_file
+	public imig_save_completed
+	public imig_prev_status
+
+	public new_imig_status
+	public new_us_entry_date
+	public new_imig_status_date
+	public new_imig_status_verif
+	public new_lpr_adj_from
+	public new_nationality
+	public new_nationality_detail
+	public new_imig_active_doc
+	public new_imig_recvd_doc
+	public new_imig_clt_current_doc
+	public new_imig_doc_on_file
+	public new_imig_save_completed
+	public new_imig_prev_status
+	public new_spon_name
+	public new_spon_street
+	public new_spon_city
+	public new_spon_state
+	public new_spon_zip
+	public new_spon_phone
+	public new_spon_gross_income
+	public new_spon_income_freq
+	public new_spon_spouse_name
+	public new_spon_spouse_income
+	public new_spon_spouse_income_freq
+
+	' public ans_us_entry_date
+	' public ans_nationality
+	' public ans_nationality_detail
+	' public ans_imig_status
+	' public ans_imig_prev_status
+	' public ans_imig_status_date
+	' public ans_imig_clt_current_doc
+	' public ans_imig_doc_on_file
+	' public ans_imig_save_completed
+	' public ans_clt_has_sponsor
+	' public ans_spon_name
+	' public ans_live_with_spon
+	' public ans_spon_street
+	' public ans_spon_city
+	' public ans_spon_state
+	' public ans_spon_zip
+	' public ans_spon_phone
+	' public ans_spon_gross_income
+	' public ans_spon_income_freq
+	' public ans_spon_married_yn
+	' public ans_spon_children_yn
+	' public ans_spon_spouse_name
+	' public ans_spon_spouse_income
+	' public ans_spon_spouse_income_freq
+	' public ans_spon_numb_children
+	' public ans_spon_hh_notes
+
+	public spon_exists
+	public clt_has_sponsor
+	' public ask_about_spon
+	public spon_type
+	public spon_verif
+	public spon_name
+	public spon_street
+	public spon_city
+	public spon_state
+	public spon_zip
+	public spon_phone
+	public spon_cash_retro_income
+	public spon_cash_prosp_income
+	public spon_cash_assets
+	public spon_snap_retro_income
+	public spon_snap_prosp_income
+	public spon_snap_assets
+	public spon_spouse
+	public spon_hh_size
+	public spon_numb_children
+	public spon_possible_indigent_exemption
+	public spon_gross_income
+	public spon_spouse_income
+	public live_with_spon
+	public spon_income_freq
+	public spon_spouse_income_freq
+	public spon_married_yn
+	public spon_children_yn
+	public spon_hh_notes
+	public spon_spouse_name
+
+	public disa_exists
+	public disa_begin_date
+	public disa_end_date
+	public disa_cert_begin_date
+	public disa_cert_end_date
+	public cash_disa_status
+	public cash_disa_verif
+	public fs_disa_status
+	public fs_disa_verif
+	public hc_disa_status
+	public hc_disa_verif
+	public disa_waiver
+	public disa_1619
+	public disa_detail
+	public mof_file
+	public mof_detail
+	public mof_end_date
+	public iaa_file
+	public iaa_received_date
+	public iaa_complete
+	public disa_review
+
+	public fs_pwe
+	public wreg_exists
+
+	public schl_exists
+	public school_status
+	public school_grade
+	public school_name
+	public school_verif
+	public school_type
+	public school_district
+	public kinder_start_date
+	public grad_date
+	public grad_date_verif
+	public school_funding
+	public school_elig_status
+	public higher_ed
+
+	public stin_exists
+	public total_stin
+	public stin_type_array
+	public stin_amount_array
+	public stin_avail_date_array
+	public stin_months_cov_array
+	public stin_verif_array
+
+	public stec_exists
+	public total_stec
+	public stec_type_array
+	public stec_amount_array
+	public stec_months_cov_array
+	public stec_verif_array
+	public stec_earmarked_amount_array
+	public stec_earmarked_months_cov_array
+
+	public shel_exists
+	public shel_summary
+	public shel_hud_subsidy_yn
+	public shel_shared_yn
+	public shel_paid_to
+	public shel_retro_rent_amount
+	public shel_retro_rent_verif
+	public shel_retro_lot_rent_amount
+	public shel_retro_lot_rent_verif
+	public shel_retro_mortgage_amount
+	public shel_retro_mortgage_verif
+	public shel_retro_insurance_amount
+	public shel_retro_insurance_verif
+	public shel_retro_taxes_amount
+	public shel_retro_taxes_verif
+	public shel_retro_room_amount
+	public shel_retro_room_verif
+	public shel_retro_garage_amount
+	public shel_retro_garage_verif
+	public shel_retro_subsidy_amount
+	public shel_retro_subsidy_verif
+
+	public shel_prosp_rent_amount
+	public shel_prosp_rent_verif
+	public shel_prosp_lot_rent_amount
+	public shel_prosp_lot_rent_verif
+	public shel_prosp_mortgage_amount
+	public shel_prosp_mortgage_verif
+	public shel_prosp_insurance_amount
+	public shel_prosp_insurance_verif
+	public shel_prosp_taxes_amount
+	public shel_prosp_taxes_verif
+	public shel_prosp_room_amount
+	public shel_prosp_room_verif
+	public shel_prosp_garage_amount
+	public shel_prosp_garage_verif
+	public shel_prosp_subsidy_amount
+	public shel_prosp_subsidy_verif
+
+	public coex_exists
+	public coex_support_verif
+	public coex_support_retro_amount
+	public coex_support_prosp_amount
+	public coex_support_hc_est_amount
+	public coex_alimony_verif
+	public coex_alimony_retro_amount
+	public coex_alimony_prosp_amount
+	public coex_alimony_hc_est_amount
+	public coex_tax_dep_verif
+	public coex_tax_dep_retro_amount
+	public coex_tax_dep_prosp_amount
+	public coex_tax_dep_hc_est_amount
+	public coex_other_verif
+	public coex_other_retro_amount
+	public coex_other_prosp_amount
+	public coex_other_hc_est_amount
+	public coex_total_retro_amount
+	public coex_total_prosp_amount
+	public coex_total_hc_est_amount
+	public coex_change_in_financial_circumstances
+
+	public stwk_exists
+	public stwk_employer
+	public stwk_work_stop_date
+	public stwk_income_stop_date
+	public stwk_verification
+	public stwk_refused_employment
+	public stwk_vol_quit
+	public stwk_refused_employment_date
+	public stwk_cash_good_cause_yn
+	public stwk_grh_good_cause_yn
+	public stwk_snap_good_cause_yn
+	public stwk_snap_pwe
+	public stwk_ma_epd_extension
+	public stwk_summary
+
+	public fmed_exists
+	public fmed_miles
+	public fmed_rate
+	public fmed_milage_expense
+	public fmed_page()
+	public fmed_row()
+	public fmed_type()
+	public fmed_verif()
+	public fmed_ref()
+	public fmed_catgry()
+	public fmed_begin()
+	public fmed_end()
+	public fmed_expense()
+	public fmed_notes()
+
+	public pded_exists
+	public pded_guardian_fee
+	public pded_rep_payee_fee
+	public pded_shel_spec_need
+
+	public diet_exists
+	public diet_mf_type_one
+	public diet_mf_verif_one
+	public diet_mf_type_two
+	public diet_mf_verif_two
+	public diet_msa_type_one
+	public diet_msa_verif_one
+	public diet_msa_type_two
+	public diet_msa_verif_two
+	public diet_msa_type_three
+	public diet_msa_verif_three
+	public diet_msa_type_four
+	public diet_msa_verif_four
+	public diet_msa_type_five
+	public diet_msa_verif_five
+	public diet_msa_type_six
+	public diet_msa_verif_six
+	public diet_msa_type_seven
+	public diet_msa_verif_seven
+	public diet_msa_type_eight
+	public diet_msa_verif_eight
+
+	public checkbox_one
+	public checkbox_two
+	public checkbox_three
+	public checkbox_four
+
+	public detail_one
+	public detail_two
+	public detail_three
+	public detail_four
+
+	public button_one
+	public button_two
+	public button_three
+	public button_four
+
+	public clt_has_cs_income
+	public clt_cs_counted
+	public cs_paid_to
+	public clt_has_ss_income
+	public clt_has_BUSI
+	public clt_has_JOBS
+
+	public snap_req_checkbox
+	public cash_req_checkbox
+	public emer_req_checkbox
+	public grh_req_checkbox
+	public hc_req_checkbox
+	public none_req_checkbox
+	public client_verification
+	public client_verification_details
+	public client_notes
+
+	public property get full_name
+		full_name = first_name & " " & last_name
+	end property
+
+	Public sub define_the_member()
+
+		pare_child_ref_nbr = array("")
+		pare_child_name = array("")
+		pare_child_member_index = array("")
+		pare_relationship_type = array("")
+		pare_verification = array("")
+
+		Call navigate_to_MAXIS_screen("STAT", "MEMB")		'===============================================================================================
+		EMWriteScreen ref_number, 20, 76
+		transmit
+
+		EMReadScreen access_denied_check, 13, 24, 2         'Sometimes MEMB gets this access denied issue and we have to work around it.
+		If access_denied_check = "ACCESS DENIED" Then
+			PF10
+			last_name = "UNABLE TO FIND"
+			first_name = "Access Denied"
+			mid_initial = ""
+			access_denied = TRUE
+		Else
+			access_denied = FALSE
+			EMReadscreen last_name, 25, 6, 30
+			EMReadscreen first_name, 12, 6, 63
+			EMReadscreen mid_initial, 1, 6, 79
+			EMReadScreen age, 3, 8, 76
+
+			EMReadScreen date_of_birth, 10, 8, 42
+			EMReadScreen ssn, 11, 7, 42
+			EMReadScreen ssn_verif, 1, 7, 68
+			EMReadScreen birthdate_verif, 2, 8, 68
+			EMReadScreen gender, 1, 9, 42
+			EMReadScreen race, 30, 17, 42
+			EMReadScreen spoken_lang, 20, 12, 42
+			EMReadScreen written_lang, 29, 13, 42
+			EMReadScreen interpreter, 1, 14, 68
+			EMReadScreen alias_yn, 1, 15, 42
+			EMReadScreen ethnicity_yn, 1, 16, 68
+
+			age = trim(age)
+			If age = "" Then age = 0
+			age = age * 1
+			last_name = trim(replace(last_name, "_", ""))
+			first_name = trim(replace(first_name, "_", ""))
+			mid_initial = replace(mid_initial, "_", "")
+			EMReadScreen id_verif, 2, 9, 68
+
+			EMReadScreen rel_to_applcnt, 2, 10, 42              'reading the relationship from MEMB'
+			If rel_to_applcnt = "01" Then rel_to_applcnt = "Self"
+			If rel_to_applcnt = "02" Then rel_to_applcnt = "Spouse"
+			If rel_to_applcnt = "03" Then rel_to_applcnt = "Child"
+			If rel_to_applcnt = "04" Then rel_to_applcnt = "Parent"
+			If rel_to_applcnt = "05" Then rel_to_applcnt = "Sibling"
+			If rel_to_applcnt = "06" Then rel_to_applcnt = "Step Sibling"
+			If rel_to_applcnt = "08" Then rel_to_applcnt = "Step Child"
+			If rel_to_applcnt = "09" Then rel_to_applcnt = "Step Parent"
+			If rel_to_applcnt = "10" Then rel_to_applcnt = "Aunt"
+			If rel_to_applcnt = "11" Then rel_to_applcnt = "Uncle"
+			If rel_to_applcnt = "12" Then rel_to_applcnt = "Niece"
+			If rel_to_applcnt = "13" Then rel_to_applcnt = "Nephew"
+			If rel_to_applcnt = "14" Then rel_to_applcnt = "Cousin"
+			If rel_to_applcnt = "15" Then rel_to_applcnt = "Grandparent"
+			If rel_to_applcnt = "16" Then rel_to_applcnt = "Grandchild"
+			If rel_to_applcnt = "17" Then rel_to_applcnt = "Other Relative"
+			If rel_to_applcnt = "18" Then rel_to_applcnt = "Legal Guardian"
+			If rel_to_applcnt = "24" Then rel_to_applcnt = "Not Related"
+			If rel_to_applcnt = "25" Then rel_to_applcnt = "Live-in Attendant"
+			If rel_to_applcnt = "27" Then rel_to_applcnt = "Unknown"
+
+			If id_verif = "BC" Then id_verif = "BC - Birth Certificate"
+			If id_verif = "RE" Then id_verif = "RE - Religious Record"
+			If id_verif = "DL" Then id_verif = "DL - Drivers License/ST ID"
+			If id_verif = "DV" Then id_verif = "DV - Divorce Decree"
+			If id_verif = "AL" Then id_verif = "AL - Alien Card"
+			If id_verif = "AD" Then id_verif = "AD - Arrival//Depart"
+			If id_verif = "DR" Then id_verif = "DR - Doctor Stmt"
+			If id_verif = "PV" Then id_verif = "PV - Passport/Visa"
+			If id_verif = "OT" Then id_verif = "OT - Other Document"
+			If id_verif = "NO" Then id_verif = "NO - No Veer Prvd"
+
+			If age > 18 then
+				cash_minor = FALSE
+			Else
+				cash_minor = TRUE
+			End If
+			If age > 21 then
+				snap_minor = FALSE
+			Else
+				snap_minor = TRUE
+			End If
+
+			date_of_birth = replace(date_of_birth, " ", "/")
+			If birthdate_verif = "BC" Then birthdate_verif = "BC - Birth Certificate"
+			If birthdate_verif = "RE" Then birthdate_verif = "RE - Religious Record"
+			If birthdate_verif = "DL" Then birthdate_verif = "DL - Drivers License/State ID"
+			If birthdate_verif = "DV" Then birthdate_verif = "DV - Divorce Decree"
+			If birthdate_verif = "AL" Then birthdate_verif = "AL - Alien Card"
+			If birthdate_verif = "DR" Then birthdate_verif = "DR - Doctor Statement"
+			If birthdate_verif = "OT" Then birthdate_verif = "OT - Other Document"
+			If birthdate_verif = "PV" Then birthdate_verif = "PV - Passport/Visa"
+			If birthdate_verif = "NO" Then birthdate_verif = "NO - No Verif Provided"
+
+			ssn = replace(ssn, " ", "-")
+			if ssn = "___-__-____" Then ssn = ""
+			If ssn_verif = "A" THen ssn_verif = "A - SSN Applied For"
+			If ssn_verif = "P" THen ssn_verif = "P - SSN Provided, verif Pending"
+			If ssn_verif = "N" THen ssn_verif = "N - SSN Not Provided"
+			If ssn_verif = "V" THen ssn_verif = "V - SSN Verified via Interface"
+
+			If gender = "M" Then gender = "Male"
+			If gender = "F" Then gender = "Female"
+
+			race = trim(race)
+
+			spoken_lang = replace(replace(spoken_lang, "_", ""), "  ", " - ")
+			written_lang = trim(replace(replace(replace(written_lang, "_", ""), "  ", " - "), "(HRF)", ""))
+
+			clt_has_cs_income = FALSE
+			clt_has_ss_income = FALSE
+			clt_has_BUSI = FALSE
+			clt_has_JOBS = FALSE
+		End If
+
+		If access_denied = FALSE Then
+			Call navigate_to_MAXIS_screen("STAT", "MEMI")		'===============================================================================================
+			EMWriteScreen ref_number, 20, 76
+			transmit
+
+			EMReadScreen marital_status, 1, 7, 40
+			EMReadScreen spouse_ref, 2, 9, 49
+			EMReadScreen spouse_name, 40, 9, 52
+			EMReadScreen last_grade_completed, 2, 10, 49
+			EMReadScreen citizen, 1, 11, 49
+			EMReadScreen other_st_FS_end_date, 8, 13, 49
+			EMReadScreen in_mn_12_mo, 1, 14, 49
+			EMReadScreen residence_verif, 1, 14, 78
+			EMReadScreen mn_entry_date, 8, 15, 49
+			EMReadScreen former_state, 2, 15, 78
+
+			If marital_status = "N" Then marital_status = "N - Never Married"
+			If marital_status = "M" Then marital_status = "M - Married Living with Spouse"
+			If marital_status = "S" Then marital_status = "S - Married Living Apart"
+			If marital_status = "L" Then marital_status = "L - Legally Seperated"
+			If marital_status = "D" Then marital_status = "D - Divorced"
+			If marital_status = "W" Then marital_status = "W - Widowed"
+			If spouse_ref = "__" Then spouse_ref = ""
+			spouse_name = trim(spouse_name)
+
+			If last_grade_completed = "00" Then last_grade_completed = "Not Attended or Pre-Grade 1 - 00"
+			If last_grade_completed = "12" Then last_grade_completed = "High School Diploma or GED - 12"
+			If last_grade_completed = "13" Then last_grade_completed = "Some Post Sec Education - 13"
+			If last_grade_completed = "14" Then last_grade_completed = "High School Plus Certiificate - 14"
+			If last_grade_completed = "15" Then last_grade_completed = "Four Year Degree - 15"
+			If last_grade_completed = "16" Then last_grade_completed = "Grad Degree - 16"
+			If len(last_grade_completed) = 2 Then last_grade_completed = "Grade " & last_grade_completed
+			If citizen = "Y" Then citizen = "Yes"
+			If citizen = "N" Then citizen = "No"
+
+			other_st_FS_end_date = replace(other_st_FS_end_date, " ", "/")
+			If other_st_FS_end_date = "__/__/__" Then other_st_FS_end_date = ""
+			If in_mn_12_mo = "Y" Then in_mn_12_mo = "Yes"
+			If in_mn_12_mo = "N" Then in_mn_12_mo = "No"
+			If residence_verif = "1" Then residence_verif = "1 - Rent Receipt"
+			If residence_verif = "2" Then residence_verif = "2 - Landlord's Statement"
+			If residence_verif = "3" Then residence_verif = "3 - Utility Bill"
+			If residence_verif = "4" Then residence_verif = "4 - Other"
+			If residence_verif = "N" Then residence_verif = "N - Verif Not Provided"
+			mn_entry_date = replace(mn_entry_date, " ", "/")
+			If mn_entry_date = "__/__/__" Then mn_entry_date = ""
+			If former_state = "__" Then former_state = ""
+
+
+			Call navigate_to_MAXIS_screen("STAT", "IMIG")		'===============================================================================================
+			EMWriteScreen ref_number, 20, 76
+			transmit
+
+			EMreadScreen imig_version, 1, 2, 73
+			If imig_version = "0" Then imig_exists = FALSE
+			If imig_version = "1" Then imig_exists = TRUE
+
+			If imig_exists = TRUE Then
+				EMReadScreen imig_status_code, 2, 6, 45
+				EMReadScreen imig_status_desc, 32, 6, 48
+				EMReadScreen us_entry_date, 10, 7, 45
+				EMReadScreen imig_status_date, 10, 7, 71
+				EMReadScreen imig_status_verif, 2, 8, 45
+				EMReadScreen lpr_adj_from, 40, 9, 45
+				EMReadScreen nationality, 2, 10, 45
+				EMReadScreen alien_id_nbr, 10, 10, 71
+
+				imig_status_desc = trim(imig_status_desc)
+				imig_status = imig_status_code & " - " & imig_status_desc
+				us_entry_date = replace(us_entry_date, " ", "/")
+				imig_status_date = replace(imig_status_date, " ", "/")
+
+				If imig_status_verif = "S1" Then imig_status_verif = "S1 - SAVE Primary"
+				If imig_status_verif = "S2" Then imig_status_verif = "S2 - SAVE Secondary"
+				If imig_status_verif = "AL" Then imig_status_verif = "AL - Alien Card"
+				If imig_status_verif = "PV" Then imig_status_verif = "PV - Passport/Visa"
+				If imig_status_verif = "RE" Then imig_status_verif = "RE - Re-Entry Permit"
+				If imig_status_verif = "IM" Then imig_status_verif = "IN - INS Correspondence"
+				If imig_status_verif = "OT" Then imig_status_verif = "OT - Other Document"
+				If imig_status_verif = "NO" Then imig_status_verif = "NO - No Verif Provided"
+
+				lpr_adj_from = trim(lpr_adj_from)
+
+				If nationality = "AA" Then nationality = "AA - Amerasian"
+				If nationality = "EH" Then nationality = "EH - Ethnic Chinese"
+				If nationality = "EL" Then nationality = "EL - Ethnic Lao"
+				If nationality = "HG" Then nationality = "HG - Hmong"
+				If nationality = "KD" Then nationality = "KD - Kurd"
+				If nationality = "SJ" Then nationality = "SJ - Soviet Jew"
+				If nationality = "TT" Then nationality = "TT - Tinh"
+				If nationality = "AF" Then nationality = "AF - Afghanistan"
+				If nationality = "BK" Then nationality = "BK - Bosnia"
+				If nationality = "CB" Then nationality = "CB - Cambodia"
+				If nationality = "CH" Then nationality = "CH - China, Mainland"
+				If nationality = "CU" Then nationality = "CU - Cuba"
+				If nationality = "ES" Then nationality = "ES - El Salvador"
+				If nationality = "ER" Then nationality = "ER - Eritrea"
+				If nationality = "ET" Then nationality = "ET - Ethiopia"
+				If nationality = "GT" Then nationality = "GT - Guatemala"
+				If nationality = "HA" Then nationality = "HA - Haiti"
+				If nationality = "HO" Then nationality = "HO - Honduras"
+				If nationality = "IR" Then nationality = "IR - Iran"
+				If nationality = "IZ" Then nationality = "IZ - Iraq"
+				If nationality = "LI" Then nationality = "LI - Liberia"
+				If nationality = "MC" Then nationality = "MC - Micronesia"
+				If nationality = "MI" Then nationality = "MI - Marshall Islands"
+				If nationality = "MX" Then nationality = "MX - Mexico"
+				If nationality = "WA" Then nationality = "WA - Namibia (SW Africa)"
+				If nationality = "PK" Then nationality = "PK - Pakistan"
+				If nationality = "RP" Then nationality = "RP - Philippines"
+				If nationality = "PL" Then nationality = "PL - Poland"
+				If nationality = "RO" Then nationality = "RO - Romania"
+				If nationality = "RS" Then nationality = "RS - Russia"
+				If nationality = "SO" Then nationality = "SO - Somalia"
+				If nationality = "SF" Then nationality = "SF - South Africa"
+				If nationality = "TH" Then nationality = "TH - Thailand"
+				If nationality = "VM" Then nationality = "VM - Vietnam"
+				If nationality = "OT" Then nationality = "OT - All Others"
+
+				imig_q_2_required = TRUE
+				imig_q_4_required = TRUE
+				imig_q_5_required = TRUE
+
+			End If
+
+			Call navigate_to_MAXIS_screen("STAT", "SPON")		'===============================================================================================
+			EMWriteScreen ref_number, 20, 76
+			transmit
+
+			EMreadScreen spon_version, 1, 2, 73
+			If spon_version = "0" Then spon_exists = FALSE
+			If spon_version = "1" Then spon_exists = TRUE
+			clt_has_sponsor = "No"
+
+			If spon_exists = TRUE Then
+				clt_has_sponsor = "Yes"
+				' new_spon_name			=
+				' new_spon_street			=
+				' new_spon_city			=
+				' new_spon_state			=
+				' new_spon_zip			=
+				' new_spon_phone			=
+				' new_spon_gross_income	=
+				' new_spon_income_freq	=
+				' new_spon_spouse_name	=
+				' new_spon_spouse_income	=
+				' new_spon_spouse_income_freq =
+
+
+			End If
+			' public spon_exists
+
+			Call navigate_to_MAXIS_screen("STAT", "REMO")		'===============================================================================================
+			EMWriteScreen ref_number, 20, 76
+			transmit
+
+			EMreadScreen remo_version, 1, 2, 73
+			If remo_version = "0" Then remo_exists = FALSE
+			If remo_version = "1" Then remo_exists = TRUE
+
+			If remo_exists = TRUE Then
+				EMReadScreen left_hh_date, 8, 8, 53
+				EMReadScreen left_hh_reason, 2, 8, 71
+				EMReadScreen left_hh_expected_return_date, 8, 13, 53
+				EMReadScreen left_hh_expected_return_verif, 2, 13, 71
+				EMReadScreen left_hh_actual_return_date, 8, 14, 53
+				EMReadScreen left_hh_HC_temp_out_of_state, 1, 16, 64
+				EMReadScreen left_hh_date_reported, 8, 17, 64
+
+				left_hh_date = replace(left_hh_date, " ", "/")
+				If left_hh_date = "__/__/__" Then left_hh_date = ""
+
+				If left_hh_reason = "01" Then left_hh_reason = "01 - Death"
+				If left_hh_reason = "02" Then left_hh_reason = "02 - Moved out of Household"
+				If left_hh_reason = "03" Then left_hh_reason = "03 - Institutional Placement"
+				If left_hh_reason = "04" Then left_hh_reason = "04 - IV-E Foster Care Placement"
+				If left_hh_reason = "05" Then left_hh_reason = "05 - Non IV-E Foster Care Placement"
+				If left_hh_reason = "06" Then left_hh_reason = "06 - Illness"
+				If left_hh_reason = "07" Then left_hh_reason = "07 - Vacation or Visit"
+				If left_hh_reason = "08" Then left_hh_reason = "08 - Runaway"
+				If left_hh_reason = "09" Then left_hh_reason = "09 - Away for Education"
+				If left_hh_reason = "10" Then left_hh_reason = "10 - Relative Ill/Deceased"
+				If left_hh_reason = "11" Then left_hh_reason = "11 - Training of Employment Search"
+				If left_hh_reason = "12" Then left_hh_reason = "12 - Incarceration"
+				If left_hh_reason = "13" Then left_hh_reason = "13 - Other Allowed Return before 10th"
+				If left_hh_reason = "14" Then left_hh_reason = "14 - Non-Allowed Absent Cash"
+				If left_hh_reason = "15" Then left_hh_reason = "15 - Military Service"
+				If left_hh_reason = "16" Then left_hh_reason = "16 - Other"
+				If left_hh_reason = "__" Then left_hh_reason = ""
+
+				left_hh_expected_return_date = replace(left_hh_expected_return_date, " ", "/")
+				If left_hh_expected_return_date = "__/__/__" Then left_hh_expected_return_date = ""
+
+				If left_hh_expected_return_verif = "01" Then left_hh_expected_return_verif = "01 - Social Worker Statement"
+				If left_hh_expected_return_verif = "02" Then left_hh_expected_return_verif = "02 - Court Papers"
+				If left_hh_expected_return_verif = "03" Then left_hh_expected_return_verif = "03 - Doctor Statement"
+				If left_hh_expected_return_verif = "04" Then left_hh_expected_return_verif = "04 - Other Document"
+				If left_hh_expected_return_verif = "__" Then left_hh_expected_return_verif = ""
+
+				left_hh_actual_return_date = replace(left_hh_actual_return_date, " ", "/")
+				If left_hh_actual_return_date = "__/__/__" Then left_hh_actual_return_date = ""
+
+				If left_hh_HC_temp_out_of_state = "_" Then left_hh_HC_temp_out_of_state = ""
+
+				left_hh_date_reported = replace(left_hh_date_reported, " ", "/")
+				If left_hh_date_reported = "__/__/__" Then left_hh_date_reported = ""
+
+				If IsDate(left_hh_date) = TRUE Then
+					If DateDiff("m", left_hh_date, date) >= 12 Then
+						left_hh_12_months_or_more = TRUE
+					Else
+						left_hh_12_months_or_more = FALSE
+					End If
+				End If
+			End If
+
+			Call navigate_to_MAXIS_screen("STAT", "ADME")		'===============================================================================================
+			EMWriteScreen ref_number, 20, 76
+			transmit
+
+			EMreadScreen adme_version, 1, 2, 73
+			If adme_version = "0" Then adme_exists = FALSE
+			If adme_version = "1" Then adme_exists = TRUE
+
+			If adme_exists = TRUE Then
+				EMReadScreen adme_arrival_date, 8, 7, 38
+				EMReadScreen adme_cash_date, 8, 12, 38
+				EMReadScreen adme_emer_date, 8, 14, 38
+				EMReadScreen adme_snap_date, 8, 16, 38
+
+				adme_arrival_date = trim(adme_arrival_date)
+				If adme_arrival_date = "////////" Then adme_arrival_date = ""
+
+				adme_cash_date = replace(adme_cash_date, " ", "/")
+				If adme_cash_date = "__/__/__" Then adme_cash_date = ""
+
+				adme_emer_date = replace(adme_emer_date, " ", "/")
+				If adme_emer_date = "__/__/__" Then adme_emer_date = ""
+
+				adme_snap_date = replace(adme_snap_date, " ", "/")
+				If adme_snap_date = "__/__/__" Then adme_snap_date = ""
+
+				adme_within_12_months = FALSE
+				If IsDate(adme_arrival_date) = TRUE Then
+					If DateDiff("m", adme_arrival_date, date) < 13 Then adme_within_12_months = TRUE
+				End If
+			End If
+
+
+			Call navigate_to_MAXIS_screen("STAT", "COEX")		'===============================================================================================
+			EMWriteScreen ref_number, 20, 76
+			transmit
+
+			EMreadScreen coex_version, 1, 2, 73
+			If coex_version = "0" Then coex_exists = FALSE
+			If coex_version = "1" Then coex_exists = TRUE
+
+			If coex_exists = TRUE Then
+				EMReadScreen coex_support_verif, 1, 10, 36
+				EMReadScreen coex_support_retro_amount, 8, 10, 45
+				EMReadScreen coex_support_prosp_amount, 8, 10, 63
+
+				EMReadScreen coex_alimony_verif, 1, 11, 36
+				EMReadScreen coex_alimony_retro_amount, 8, 11, 45
+				EMReadScreen coex_alimony_prosp_amount, 8, 11, 63
+
+				EMReadScreen coex_tax_dep_verif, 1, 12, 36
+				EMReadScreen coex_tax_dep_retro_amount, 8, 12, 45
+				EMReadScreen coex_tax_dep_prosp_amount, 8, 12, 63
+
+				EMReadScreen coex_other_verif, 1, 13, 36
+				EMReadScreen coex_other_retro_amount, 8, 13, 45
+				EMReadScreen coex_other_prosp_amount, 8, 13, 63
+
+				EMReadScreen coex_total_retro_amount, 8, 15, 45
+				EMReadScreen coex_total_prosp_amount, 8, 15, 63
+
+				EMReadScreen coex_change_in_financial_circumstances, 1, 17, 61
+
+				EMWriteScreen "X", 18, 44
+				transmit
+
+				EMReadScreen coex_support_hc_est_amount, 8, 6, 38
+				EMReadScreen coex_alimony_hc_est_amount, 8, 7, 38
+				EMReadScreen coex_tax_dep_hc_est_amount, 8, 8, 38
+				EMReadScreen coex_other_hc_est_amount, 8, 9, 38
+				EMReadScreen coex_total_hc_est_amount, 8, 11, 38
+
+				PF3
+
+			End If
+
+			Call navigate_to_MAXIS_screen("STAT", "DISA")		'===============================================================================================
+			EMWriteScreen ref_number, 20, 76
+			transmit
+
+			EMreadScreen disa_version, 1, 2, 73
+			If disa_version = "0" Then disa_exists = FALSE
+			If disa_version = "1" Then disa_exists = TRUE
+
+			If disa_exists = TRUE Then
+				EMReadScreen disa_begin_date, 10, 6, 47
+				EMReadScreen disa_end_date, 10, 6, 69
+				EMReadScreen disa_cert_begin_date, 10, 7, 47
+				EMReadScreen disa_cert_end_date, 10, 7, 69
+				EMReadScreen cash_disa_status, 2, 11, 59
+				EMReadScreen cash_disa_verif, 1, 11, 69
+				EMReadScreen fs_disa_status, 2, 12, 59
+				EMReadScreen fs_disa_verif, 1, 12, 69
+				EMReadScreen hc_disa_status, 2, 13, 59
+				EMReadScreen hc_disa_verif, 1, 13, 69
+				EMReadScreen disa_waiver, 1, 14, 59
+				EMReadScreen disa_1619, 1, 16, 59
+
+				disa_begin_date = replace(disa_begin_date, " ", "/")
+				If disa_begin_date = "__/__/____" Then disa_begin_date = ""
+				disa_end_date = replace(disa_end_date, " ", "/")
+				If disa_end_date = "__/__/____" Then disa_end_date = ""
+				disa_cert_begin_date = replace(disa_cert_begin_date, " ", "/")
+				If disa_cert_begin_date = "__/__/____" Then disa_cert_begin_date = ""
+				disa_cert_end_date = replace(disa_cert_end_date, " ", "/")
+				If disa_cert_end_date = "__/__/____" Then disa_cert_end_date = ""
+
+				If hc_disa_verif = "1" OR fs_disa_verif = "1" OR cash_disa_status = "1" Then disa_detail = "DISA based on Doctor's Statement"
+				If hc_disa_verif = "2" OR fs_disa_verif = "2" OR cash_disa_status = "2" Then disa_detail = "SMRT Certified Disability"
+				If hc_disa_verif = "3" OR fs_disa_verif = "3" OR cash_disa_status = "3" Then disa_detail = "SSA Certified Disability"
+				If cash_disa_status = "7" Then disa_detail = "Disability based on Professional Statement of Need"
+
+				If cash_disa_status = "01" Then cash_disa_status = "01 - RSDI Only Disability"
+				If cash_disa_status = "02" Then cash_disa_status = "02 - RSDI Only Blindness"
+				If cash_disa_status = "03" Then cash_disa_status = "03 - SSI, SSI/RSDI Disability"
+				If cash_disa_status = "04" Then cash_disa_status = "04 - SSI, SSI/RSDI Blindness"
+				If cash_disa_status = "06" Then cash_disa_status = "06 - SMRT/SSA Pend"
+				If cash_disa_status = "08" Then cash_disa_status = "08 - SMRT Certified Blindness"
+				If cash_disa_status = "09" Then cash_disa_status = "09 - Ill/Incapacity"
+				If cash_disa_status = "10" Then cash_disa_status = "10 - SMRT Certified Disability"
+				If cash_disa_status = "__" Then cash_disa_status = ""
+				If cash_disa_verif = "1" Then cash_disa_verif = "1 - DHS 161/Dr Stmt"
+				If cash_disa_verif = "2" Then cash_disa_verif = "2 - SMRT Certified"
+				If cash_disa_verif = "3" Then cash_disa_verif = "3 - Certified for RSDI or SSI"
+				If cash_disa_verif = "6" Then cash_disa_verif = "6 - Other Document"
+				If cash_disa_verif = "7" Then cash_disa_verif = "7 - Professional Stmt of Need"
+				If cash_disa_verif = "N" Then cash_disa_verif = "N - No Verif Provided"
+
+				If fs_disa_status = "01" Then fs_disa_status = "01 - RSDI Only Disability"
+				If fs_disa_status = "02" Then fs_disa_status = "02 - RSDI Only Blindness"
+				If fs_disa_status = "03" Then fs_disa_status = "03 - SSI, SSI/RSDI Disability"
+				If fs_disa_status = "04" Then fs_disa_status = "04 - SSI, SSI/RSDI Blindness"
+				If fs_disa_status = "08" Then fs_disa_status = "08 - SMRT Certified Blindness"
+				If fs_disa_status = "09" Then fs_disa_status = "09 - Ill/Incapacity"
+				If fs_disa_status = "10" Then fs_disa_status = "10 - SMRT Certified Disability"
+				If fs_disa_status = "11" Then fs_disa_status = "11 - VA Determined Pd - 100% Disa"
+				If fs_disa_status = "12" Then fs_disa_status = "12 - VA (Other Accept Disa)"
+				If fs_disa_status = "13" Then fs_disa_status = "13 - Certified RR Retirement Disa"
+				If fs_disa_status = "14" Then fs_disa_status = "14 - Other Govt Permanent Disa"
+				If fs_disa_status = "15" Then fs_disa_status = "15 - Disability from MINE List"
+				If fs_disa_status = "16" Then fs_disa_status = "16 - Unable to Prepare Purch Own Meal"
+				If fs_disa_status = "__" Then fs_disa_status = ""
+				If fs_disa_verif = "1" Then fs_disa_verif = "1 - DHS 161/Dr Stmt"
+				If fs_disa_verif = "2" Then fs_disa_verif = "2 - SMRT Certified"
+				If fs_disa_verif = "3" Then fs_disa_verif = "3 - Certified for RSDI or SSI"
+				If fs_disa_verif = "4" Then fs_disa_verif = "4 - Receipt of HC for Disa/Blind"
+				If fs_disa_verif = "5" Then fs_disa_verif = "5 - Work Judgement"
+				If fs_disa_verif = "6" Then fs_disa_verif = "6 - Other Document"
+				If fs_disa_verif = "7" Then fs_disa_verif = "7 - Out of State Verif Pending"
+				If fs_disa_verif = "N" Then fs_disa_verif = "N - No Verif Provided"
+
+				If hc_disa_status = "01" Then hc_disa_status = "01 - RSDI Only Disability"
+				If hc_disa_status = "02" Then hc_disa_status = "02 - RSDI Only Blindness"
+				If hc_disa_status = "03" Then hc_disa_status = "03 - SSI, SSI/RSDI Disability"
+				If hc_disa_status = "04" Then hc_disa_status = "04 - SSI, SSI/RSDI Blindness"
+				If hc_disa_status = "06" Then hc_disa_status = "06 - SMRT Pend or SSA Pend"
+				If hc_disa_status = "08" Then hc_disa_status = "08 - Certified Blind"
+				If hc_disa_status = "10" Then hc_disa_status = "10 - Certified Disabled"
+				If hc_disa_status = "11" Then hc_disa_status = "11 - Special Category - Disabled Child"
+				If hc_disa_status = "20" Then hc_disa_status = "20 - TEFRA - Disabled"
+				If hc_disa_status = "21" Then hc_disa_status = "21 - TEFRA - Blind"
+				If hc_disa_status = "22" Then hc_disa_status = "22 - MA-EPD"
+				If hc_disa_status = "23" Then hc_disa_status = "23 - MA/Waiver"
+				If hc_disa_status = "24" Then hc_disa_status = "24 - SSA/SMRT Appeal Pending"
+				If hc_disa_status = "26" Then hc_disa_status = "26 - SSA/SMRT Disa Deny"
+				If hc_disa_status = "__" Then hc_disa_status = ""
+				If hc_disa_verif = "1" Then hc_disa_verif = "1 - DHS 161/Dr Stmt"
+				If hc_disa_verif = "2" Then hc_disa_verif = "2 - SMRT Certified"
+				If hc_disa_verif = "3" Then hc_disa_verif = "3 - Certified for RSDI or SSI"
+				If hc_disa_verif = "6" Then hc_disa_verif = "6 - Other Document"
+				If hc_disa_verif = "7" Then hc_disa_verif = "7 - Case Manager Determination"
+				If hc_disa_verif = "8" Then hc_disa_verif = "8 - LTC Consult Services"
+				If hc_disa_verif = "N" Then hc_disa_verif = "N - No Verif Provided"
+
+				If disa_waiver = "F" Then disa_waiver = "F - LTC CADI Conversion"
+				If disa_waiver = "G" Then disa_waiver = "G - LTC CADI DIversion"
+				If disa_waiver = "H" Then disa_waiver = "H - LTC CAC Conversion"
+				If disa_waiver = "I" Then disa_waiver = "I - LTC CAC Diversion"
+				If disa_waiver = "J" Then disa_waiver = "J - LTC EW Conversion"
+				If disa_waiver = "K" Then disa_waiver = "K - LTC EW Diversion"
+				If disa_waiver = "L" Then disa_waiver = "L - LTC TBI NF Conversion"
+				If disa_waiver = "M" Then disa_waiver = "M - LTC TBI NF Diversion"
+				If disa_waiver = "P" Then disa_waiver = "P - LTC TBI NB Conversion"
+				If disa_waiver = "Q" Then disa_waiver = "Q - LTC TBI NB Diversion"
+				If disa_waiver = "R" Then disa_waiver = "R - DD Conversion"
+				If disa_waiver = "S" Then disa_waiver = "S - DD Conversion"
+				If disa_waiver = "Y" Then disa_waiver = "Y - CSG Conversion"
+				If disa_waiver = "_" Then disa_waiver = ""
+
+				If disa_1619 = "A" Then disa_1619 = "A - 1619A Status"
+				If disa_1619 = "B" Then disa_1619 = "B - 1619B Status"
+				If disa_1619 = "N" Then disa_1619 = "N - No 1619 Status"
+				If disa_1619 = "T" Then disa_1619 = "T - 1619 Status Terminated"
+				If disa_1619 = "_" Then disa_1619 = ""
+			End If
+
+			Call navigate_to_MAXIS_screen("STAT", "WREG")		'===============================================================================================
+			EMWriteScreen ref_number, 20, 76
+			transmit
+
+			EMreadScreen wreg_version, 1, 2, 73
+			If wreg_version = "0" Then wreg_exists = FALSE
+			If wreg_version = "1" Then wreg_exists = TRUE
+
+			If wreg_exists = TRUE Then
+				EMReadScreen wreg_pwe, 1, 6, 68
+
+				If wreg_pwe = "Y" Then fs_pwe = "Yes"
+				If wreg_pwe = "N" OR wreg_pwe = "_" Then fs_pwe = "No"
+			End If
+
+
+			Call navigate_to_MAXIS_screen("STAT", "SCHL")		'===============================================================================================
+			EMWriteScreen ref_number, 20, 76
+			transmit
+
+			EMreadScreen schl_version, 1, 2, 73
+			If schl_version = "0" Then schl_exists = FALSE
+			If schl_version = "1" Then schl_exists = TRUE
+
+			If schl_exists = TRUE Then
+				EMReadScreen schl_status, 1, 6, 40
+				EMReadScreen schl_verif, 2, 6, 63
+				EMReadScreen schl_type, 2, 7, 40
+				EMReadScreen school_district, 4, 8, 40
+				EMReadScreen schl_start_date, 8, 10, 63
+				EMReadScreen schl_grad_date, 5, 11, 63
+				EMReadScreen schl_grad_verif, 2, 12, 63
+				EMReadScreen schl_fund, 1, 14, 63
+				EMReadScreen schl_elig, 2, 16, 63
+				EMReadScreen schl_higher_ed_yn, 1, 18, 63
+
+				If schl_status = "F" Then school_status = "Fulltime"
+				If schl_status = "H" Then school_status = "Halftime"
+				If schl_status = "L" Then school_status = "Less than Half "
+				If schl_status = "N" Then school_status = "Not Attending"
+
+				If schl_verif = "SC" Then school_verif = "SC - School Statement"
+				If schl_verif = "OT" Then school_verif = "OT - Other Document"
+				If schl_verif = "NO" Then school_verif = "NO - No Verif Provided"
+				If schl_verif = "__" Then school_verif = "Blank"
+
+				If schl_type = "01" Then school_type = "01 - Preschool - 6"
+				If schl_type = "11" Then school_type = "11 - 7 - 8"
+				If schl_type = "02" Then school_type = "02 - 9 - 12"
+				If schl_type = "03" Then school_type = "03 - GED Or Equiv"
+				If schl_type = "06" Then school_type = "06 - Child, Not In School"
+				If schl_type = "07" Then school_type = "07 - Individual Ed Plan/IEP"
+				If schl_type = "08" Then school_type = "08 - Post-Sec Not Grad Student"
+				If schl_type = "09" Then school_type = "09 - Post-Sec Grad Student"
+				If schl_type = "10" Then school_type = "10 - Post-Sec Tech Schl"
+				If schl_type = "12" Then school_type = "11 - Adult Basic Ed (ABE)"
+				If schl_type = "13" Then school_type = "13 - English As A 2nd Language"
+
+				If school_district = "____" Then school_district = ""
+
+				kinder_start_date = replace(schl_start_date, " ", "/")
+				If kinder_start_date = "__/__/__" Then kinder_start_date = ""
+
+				grad_date = replace(schl_grad_date, " ", "/")
+				If grad_date = "__/__" Then grad_date = ""
+
+				If schl_grad_verif = "SC" Then grad_date_verif = "SC - School Statement"
+				If schl_grad_verif = "OT" Then grad_date_verif = "OT - Other Document"
+				If schl_grad_verif = "NO" Then grad_date_verif = "NO - No Verif Provided"
+				If schl_grad_verif = "__" Then grad_date_verif = "Blank"
+
+				If schl_fund = "1" Then school_funding = "1 - Not Attending in MN"
+				If schl_fund = "2" Then school_funding = "2 - Attending Pub School"
+				If schl_fund = "3" Then school_funding = "3 - Attending private/Parochial"
+				If schl_fund = "4" Then school_funding = "4 - Not in Pre-12"
+
+				If schl_elig = "01" Then school_elig_status = "01 - Under 18 or Over 50"
+				If schl_elig = "02" Then school_elig_status = "02 - Disabled"
+				If schl_elig = "03" Then school_elig_status = "03 - Not Higher Ed or < Halftime"
+				If schl_elig = "04" Then school_elig_status = "04 - Employed 20 hrs/wk"
+				If schl_elig = "05" Then school_elig_status = "05 - Work Study Program"
+				If schl_elig = "06" Then school_elig_status = "06 - Dependant under 6"
+				If schl_elig = "07" Then school_elig_status = "07 - Dep 6-11 No Child Care"
+				If schl_elig = "09" Then school_elig_status = "09 - WIA, TAA, TRA or FSET"
+				If schl_elig = "10" Then school_elig_status = "10 - Single Parent w/ Child < 12"
+				If schl_elig = "99" Then school_elig_status = "99 - Not Eligible"
+
+				If schl_higher_ed_yn = "Y" Then higher_ed = "Yes"
+				If schl_higher_ed_yn = "N" Then higher_ed = "No"
+				If schl_higher_ed_yn = "_" Then higher_ed = "Blank"
+
+			End If
+
+			Call navigate_to_MAXIS_screen("STAT", "STIN")		'===============================================================================================
+			EMWriteScreen ref_number, 20, 76
+			transmit
+
+			EMreadScreen stin_version, 1, 2, 73
+			If stin_version = "0" Then stin_exists = FALSE
+			If stin_version = "1" Then stin_exists = TRUE
+
+			If stin_exists = TRUE Then
+				total_stin = 0
+
+				stin_type_array = ARRAY("")
+				stin_amount_array = ARRAY("")
+				stin_avail_date_array = ARRAY("")
+				stin_months_cov_array = ARRAY("")
+				stin_verif_array = ARRAY("")
+
+				stin_row = 8
+				stin_counter = 0
+				Do
+					EMReadScreen stin_type, 2, stin_row, 27
+					EMReadScreen stin_amount, 8, stin_row, 34
+					EMReadScreen stin_date, 8, stin_row, 46
+					EMReadScreen stin_month_one, 5, stin_row, 58
+					EmReadscreen stin_month_two, 5, stin_row, 67
+					EMReadScreen stin_verif, 1, stin_row, 76
+
+
+					ReDim Preserve stin_type_array(stin_counter)
+					ReDim Preserve stin_amount_array(stin_counter)
+					ReDim Preserve stin_avail_date_array(stin_counter)
+					ReDim Preserve stin_months_cov_array(stin_counter)
+					ReDim Preserve stin_verif_array(stin_counter)
+
+					If stin_type = "01" Then stin_type_array(stin_counter) = stin_type & " - Perkins Loan"
+					If stin_type = "02" Then stin_type_array(stin_counter) = stin_type & " - Stafford Loan"
+					If stin_type = "03" Then stin_type_array(stin_counter) = stin_type & " - Pell Grant"
+					If stin_type = "04" Then stin_type_array(stin_counter) = stin_type & " - BIA Grant"
+					If stin_type = "05" Then stin_type_array(stin_counter) = stin_type & " - SEOG"
+					If stin_type = "06" Then stin_type_array(stin_counter) = stin_type & " - MN State Scholarship"
+					If stin_type = "07" Then stin_type_array(stin_counter) = stin_type & " - Robert C Byrd Scholarship"
+					If stin_type = "46" Then stin_type_array(stin_counter) = stin_type & " - Plus Loan (Deferred)"
+					If stin_type = "16" Then stin_type_array(stin_counter) = stin_type & " - Plus Loan (Non-Deferred)"
+					If stin_type = "47" Then stin_type_array(stin_counter) = stin_type & " - SLS (ALAS) Loan (Deferred)"
+					If stin_type = "17" Then stin_type_array(stin_counter) = stin_type & " - SLS (ALAS) Loan (Non-Deferred)"
+					If stin_type = "08" Then stin_type_array(stin_counter) = stin_type & " - Other Title IV Deferred Income"
+					If stin_type = "09" Then stin_type_array(stin_counter) = stin_type & " - Other Title IV Grant"
+					If stin_type = "10" Then stin_type_array(stin_counter) = stin_type & " - Other Title IV Scholarship"
+					If stin_type = "11" Then stin_type_array(stin_counter) = stin_type & " - VA/GI Bill"
+					If stin_type = "51" Then stin_type_array(stin_counter) = stin_type & " - VA/GI Bill (Earmarked)"
+					If stin_type = "12" Then stin_type_array(stin_counter) = stin_type & " - Other Deferred Loan"
+					If stin_type = "52" Then stin_type_array(stin_counter) = stin_type & " - Other Deferred Loan (Earmarked)"
+					If stin_type = "13" Then stin_type_array(stin_counter) = stin_type & " - Other Grant"
+					If stin_type = "53" Then stin_type_array(stin_counter) = stin_type & " - Other Grant (Earmarked)"
+					If stin_type = "14" Then stin_type_array(stin_counter) = stin_type & " - Other Scholarship"
+					If stin_type = "54" Then stin_type_array(stin_counter) = stin_type & " - Other Scholarship (Earmarked)"
+					If stin_type = "15" Then stin_type_array(stin_counter) = stin_type & " - Other Aid"
+					If stin_type = "55" Then stin_type_array(stin_counter) = stin_type & " - Other Aid (Earmarked)"
+					If stin_type = "60" Then stin_type_array(stin_counter) = stin_type & " - MFIP Empl Svc (Earmarked)"
+					If stin_type = "61" Then stin_type_array(stin_counter) = stin_type & " - WIOA, Unearned (Earmarked)"
+					If stin_type = "18" Then stin_type_array(stin_counter) = stin_type & " - Other Exempt Loan"
+					If stin_type = "62" Then stin_type_array(stin_counter) = stin_type & " - Tribal DSARLP"
+
+					stin_amount_array(stin_counter) = trim(stin_amount)
+
+					stin_avail_date_array(stin_counter) = replace(stin_date, " ", "/")
+
+					stin_month_one = replace(stin_month_one, " ", "/")
+					stin_month_two = replace(stin_month_two, " ", "/")
+					stin_months_cov_array(stin_counter) = stin_month_one & " - " & stin_month_two
+
+					If stin_verif = "1" Then stin_verif_array(stin_counter) = stin_verif & " - Award Letter"
+					If stin_verif = "2" Then stin_verif_array(stin_counter) = stin_verif & " - DHS Financial Aid Form"
+					If stin_verif = "3" Then stin_verif_array(stin_counter) = stin_verif & " - Student Profile Bulletin"
+					If stin_verif = "4" Then stin_verif_array(stin_counter) = stin_verif & " - Pay Stubs"
+					If stin_verif = "5" Then stin_verif_array(stin_counter) = stin_verif & " - Source Document"
+					If stin_verif = "6" Then stin_verif_array(stin_counter) = stin_verif & " - Pend Out State Verif"
+					If stin_verif = "7" Then stin_verif_array(stin_counter) = stin_verif & " - Other Document"
+					If stin_verif = "N" Then stin_verif_array(stin_counter) = stin_verif & " - No Ver Prvd"
+
+					stin_amount = stin_amount * 1
+					total_stin = total_stin + stin_amount
+
+					stin_row = stin_row + 1
+					stin_counter = stin_counter + 1
+
+					If stin_row = 18 Then
+						PF20
+						EMReadscreen last_page, 9, 24, 14
+						If last_page = "LAST PAGE" Then Exit Do
+						stin_row = 8
+					End If
+					EMReadScreen next_stin_type, 2, stin_row, 27
+				Loop until next_stin_type = "__"
+
+			End If
+
+			Call navigate_to_MAXIS_screen("STAT", "STEC")		'===============================================================================================
+			EMWriteScreen ref_number, 20, 76
+			transmit
+
+			EMreadScreen stec_version, 1, 2, 73
+			If stec_version = "0" Then stec_exists = FALSE
+			If stec_version = "1" Then stec_exists = TRUE
+
+			If stec_exists = TRUE Then
+				total_stec = 0
+
+				stec_type_array = ARRAY("")
+				stec_amount_array = ARRAY("")
+				stec_months_cov_array = ARRAY("")
+				stec_verif_array = ARRAY("")
+				stec_earmarked_amount_array = ARRAY("")
+				stec_earmarked_months_cov_array = ARRAY("")
+
+				stec_row = 8
+				stec_counter = 0
+				Do
+					EMReadScreen stec_type, 2, stec_row, 25
+					EMReadScreen stec_amount, 8, stec_row, 31
+					EMReadScreen stec_month_one, 5, stec_row, 41
+					EMReadScreen stec_month_two, 5, stec_row, 48
+					EMReadScreen stec_verif, 1, stec_row, 55
+					EMReadScreen stec_earmarked_amount, 8, stec_row, 59
+					EMReadScreen stec_earmarked_month_one, 2, stec_row, 69
+					EMReadScreen stec_earmarked_month_two, 2, stec_row, 76
+
+					ReDim Preserve stec_type_array(stec_counter)
+					ReDim Preserve stec_amount_array(stec_counter)
+					ReDim Preserve stec_months_cov_array(stec_counter)
+					ReDim Preserve stec_verif_array(stec_counter)
+					ReDim Preserve stec_earmarked_amount_array(stec_counter)
+					ReDim Preserve stec_earmarked_months_cov_array(stec_counter)
+
+					If stec_type = "" Then stec_type_array(stec_counter) = stec_type & " - "
+
+					stec_amount_array(stec_counter) = trim(stec_amount)
+
+					stec_month_one = replace(stec_month_one, " ", "/")
+					stec_month_two = replace(stec_month_two, " ", "/")
+					stec_months_cov_array(stec_counter) = stec_month_one & " - " & stec_month_two
+
+					If stec_verif = "" Then stec_verif_array(stec_counter) = stec_verif & " - "
+
+					stec_earmarked_amount_array(stec_counter) = trim(stec_earmarked_amount)
+
+					stec_earmarked_month_one = replace(stec_earmarked_month_one, " ", "/")
+					stec_earmarked_month_two = replace(stec_earmarked_month_two, " ", "/")
+					stec_earmarked_months_cov_array(stec_counter) = stec_earmarked_month_one & " - " & stec_earmarked_month_two
+
+					stec_amount = stec_amount * 1
+					total_stec = total_stec + stec_amount
+
+					stec_row = stec_row + 1
+					stec_counter = stec_counter + 1
+
+					If stec_row = 17 Then
+						PF20
+						EMReadscreen last_page, 9, 24, 14
+						If last_page = "LAST PAGE" Then Exit Do
+						stec_row = 8
+					End If
+					EMReadScreen next_stec_type, 2, stec_row, 25
+				Loop until next_stec_type = "__"
+			End If
+
+			Call navigate_to_MAXIS_screen("STAT", "SHEL")		'===============================================================================================
+			EMWriteScreen ref_number, 20, 76
+			transmit
+
+			EMreadScreen shel_version, 1, 2, 73
+			If shel_version = "0" Then shel_exists = FALSE
+			If shel_version = "1" Then shel_exists = TRUE
+
+			If shel_exists = TRUE Then
+				EMReadScreen shel_hud_subsidy_yn, 1, 6, 46
+				EMReadScreen shel_shared_yn, 1, 6, 64
+
+				EMReadScreen shel_paid_to, 25, 7, 50
+
+				EMReadScreen shel_retro_rent_amount, 8, 11, 37
+				EMReadScreen shel_retro_rent_verif, 2, 11, 48
+				EMReadScreen shel_retro_lot_rent_amount, 8, 12, 37
+				EMReadScreen shel_retro_lot_rent_verif, 2, 12, 48
+				EMReadScreen shel_retro_mortgage_amount, 8, 13, 37
+				EMReadScreen shel_retro_mortgage_verif, 2, 13, 48
+				EMReadScreen shel_retro_insurance_amount, 8, 14, 37
+				EMReadScreen shel_retro_insurance_verif, 2, 14, 48
+				EMReadScreen shel_retro_taxes_amount, 8, 15, 37
+				EMReadScreen shel_retro_taxes_verif, 2, 15, 48
+				EMReadScreen shel_retro_room_amount, 8, 16, 37
+				EMReadScreen shel_retro_room_verif, 2, 16, 48
+				EMReadScreen shel_retro_garage_amount, 8, 17, 37
+				EMReadScreen shel_retro_garage_verif, 2, 17, 48
+				EMReadScreen shel_retro_subsidy_amount, 8, 18, 37
+				EMReadScreen shel_retro_subsidy_verif, 2, 18, 48
+
+				EMReadScreen shel_prosp_rent_amount, 8, 11, 56
+				EMReadScreen shel_prosp_rent_verif, 2, 11, 67
+				EMReadScreen shel_prosp_lot_rent_amount, 8, 12, 56
+				EMReadScreen shel_prosp_lot_rent_verif, 2, 12, 67
+				EMReadScreen shel_prosp_mortgage_amount, 8, 13, 56
+				EMReadScreen shel_prosp_mortgage_verif, 2, 13, 67
+				EMReadScreen shel_prosp_insurance_amount, 8, 14, 56
+				EMReadScreen shel_prosp_insurance_verif, 2, 14, 67
+				EMReadScreen shel_prosp_taxes_amount, 8, 15, 56
+				EMReadScreen shel_prosp_taxes_verif, 2, 15, 67
+				EMReadScreen shel_prosp_room_amount, 8, 16, 56
+				EMReadScreen shel_prosp_room_verif, 2, 16, 67
+				EMReadScreen shel_prosp_garage_amount, 8, 17, 56
+				EMReadScreen shel_prosp_garage_verif, 2, 17, 67
+				EMReadScreen shel_prosp_subsidy_amount, 8, 18, 56
+				EMReadScreen shel_prosp_subsidy_verif, 2, 18, 67
+
+				shel_paid_to = replace(shel_paid_to, "_", "")
+
+				shel_retro_rent_amount = trim(replace(shel_retro_rent_amount, "_", ""))
+				shel_retro_lot_rent_amount = trim(replace(shel_retro_lot_rent_amount, "_", ""))
+				shel_retro_mortgage_amount = trim(replace(shel_retro_mortgage_amount, "_", ""))
+				shel_retro_insurance_amount = trim(replace(shel_retro_insurance_amount, "_", ""))
+				shel_retro_taxes_amount = trim(replace(shel_retro_taxes_amount, "_", ""))
+				shel_retro_room_amount = trim(replace(shel_retro_room_amount, "_", ""))
+				shel_retro_garage_amount = trim(replace(shel_retro_garage_amount, "_", ""))
+				shel_retro_subsidy_amount = trim(replace(shel_retro_subsidy_amount, "_", ""))
+
+				shel_prosp_rent_amount = trim(replace(shel_prosp_rent_amount, "_", ""))
+				shel_prosp_lot_rent_amount = trim(replace(shel_prosp_lot_rent_amount, "_", ""))
+				shel_prosp_mortgage_amount = trim(replace(shel_prosp_mortgage_amount, "_", ""))
+				shel_prosp_insurance_amount = trim(replace(shel_prosp_insurance_amount, "_", ""))
+				shel_prosp_taxes_amount = trim(replace(shel_prosp_taxes_amount, "_", ""))
+				shel_prosp_room_amount = trim(replace(shel_prosp_room_amount, "_", ""))
+				shel_prosp_garage_amount = trim(replace(shel_prosp_garage_amount, "_", ""))
+				shel_prosp_subsidy_amount = trim(replace(shel_prosp_subsidy_amount, "_", ""))
+
+				If shel_prosp_rent_amount <> "" Then shel_summary = shel_summary & " Rent: $" & shel_prosp_rent_amount & " - Verif: " & shel_prosp_rent_verif & " | "
+				If shel_prosp_lot_rent_amount <> "" Then shel_summary = shel_summary & " Lot Rent: $" & shel_prosp_lot_rent_amount & " - Verif: " & shel_prosp_lot_rent_verif & " | "
+				If shel_prosp_mortgage_amount <> "" Then shel_summary = shel_summary & " Mortgage: $" & shel_prosp_mortgage_amount & " - Verif: " & shel_prosp_mortgage_verif & " | "
+				If shel_prosp_insurance_amount <> "" Then shel_summary = shel_summary & " Insurance: $" & shel_prosp_insurance_amount & " - Verif: " & shel_prosp_insurance_verif & " | "
+				If shel_prosp_taxes_amount <> "" Then shel_summary = shel_summary & " Taxes: $" & shel_prosp_taxes_amount & " - Verif: " & shel_prosp_taxes_verif & " | "
+				If shel_prosp_room_amount <> "" Then shel_summary = shel_summary & " Room: $" & shel_prosp_room_amount & " - Verif: " & shel_prosp_room_verif & " | "
+				If shel_prosp_garage_amount <> "" Then shel_summary = shel_summary & " Garage: $" & shel_prosp_garage_amount & " - Verif: " & shel_prosp_garage_verif & " | "
+				If shel_prosp_subsidy_amount <> "" Then shel_summary = shel_summary & " Subsidy: $" & shel_prosp_subsidy_amount & " - Verif: " & shel_prosp_subsidy_verif & " | "
+
+				If shel_retro_rent_verif = "SF" Then shel_retro_rent_verif = shel_retro_rent_verif & " - Shelter Form"
+				If shel_retro_rent_verif = "LE" Then shel_retro_rent_verif = shel_retro_rent_verif & " - Lease"
+				If shel_retro_rent_verif = "RE" Then shel_retro_rent_verif = shel_retro_rent_verif & " - Rent Receipts"
+				If shel_retro_rent_verif = "OT" Then shel_retro_rent_verif = shel_retro_rent_verif & " - Other Document"
+				If shel_retro_rent_verif = "NC" Then shel_retro_rent_verif = shel_retro_rent_verif & " - Not Verif, Neg Impact"
+				If shel_retro_rent_verif = "PC" Then shel_retro_rent_verif = shel_retro_rent_verif & " - Not Verif, Pos Impact"
+				If shel_retro_rent_verif = "NO" Then shel_retro_rent_verif = shel_retro_rent_verif & " - No Verif Provided"
+
+				If shel_retro_lot_rent_verif = "LE" Then shel_retro_lot_rent_verif = shel_retro_lot_rent_verif & " - Lease"
+				If shel_retro_lot_rent_verif = "RE" Then shel_retro_lot_rent_verif = shel_retro_lot_rent_verif & " - Rent Receipts"
+				If shel_retro_lot_rent_verif = "BI" Then shel_retro_lot_rent_verif = shel_retro_lot_rent_verif & " - Billing Statement"
+				If shel_retro_lot_rent_verif = "OT" Then shel_retro_lot_rent_verif = shel_retro_lot_rent_verif & " - Other Document"
+				If shel_retro_lot_rent_verif = "NC" Then shel_retro_lot_rent_verif = shel_retro_lot_rent_verif & " - Not Verif, Neg Impact"
+				If shel_retro_lot_rent_verif = "PC" Then shel_retro_lot_rent_verif = shel_retro_lot_rent_verif & " - Not Verif, Pos Impact"
+				If shel_retro_lot_rent_verif = "NO" Then shel_retro_lot_rent_verif = shel_retro_lot_rent_verif & " - No Verif Provided"
+
+				If shel_retro_mortgage_verif = "MO" Then shel_retro_mortgage_verif = shel_retro_mortgage_verif & " - Mortgage Payment"
+				If shel_retro_mortgage_verif = "CD" Then shel_retro_mortgage_verif = shel_retro_mortgage_verif & " - Contract for Deed"
+				If shel_retro_mortgage_verif = "OT" Then shel_retro_mortgage_verif = shel_retro_mortgage_verif & " - Other Document"
+				If shel_retro_mortgage_verif = "NC" Then shel_retro_mortgage_verif = shel_retro_mortgage_verif & " - Not Verif, Neg Impact"
+				If shel_retro_mortgage_verif = "PC" Then shel_retro_mortgage_verif = shel_retro_mortgage_verif & " - Not Verif, Pos Impact"
+				If shel_retro_mortgage_verif = "NO" Then shel_retro_mortgage_verif = shel_retro_mortgage_verif & " - No Verif Provided"
+
+				If shel_retro_insurance_verif = "BI" Then shel_retro_insurance_verif = shel_retro_insurance_verif & " - Billing Statement"
+				If shel_retro_insurance_verif = "OT" Then shel_retro_insurance_verif = shel_retro_insurance_verif & " - Other Document"
+				If shel_retro_insurance_verif = "NC" Then shel_retro_insurance_verif = shel_retro_insurance_verif & " - Not Verif, Neg Impact"
+				If shel_retro_insurance_verif = "PC" Then shel_retro_insurance_verif = shel_retro_insurance_verif & " - Not Verif, Pos Impact"
+				If shel_retro_insurance_verif = "NO" Then shel_retro_insurance_verif = shel_retro_insurance_verif & " - No Verif Provided"
+
+				If shel_retro_taxes_verif = "TX" Then shel_retro_taxes_verif = shel_retro_taxes_verif & " - Property Tax Statement"
+				If shel_retro_taxes_verif = "OT" Then shel_retro_taxes_verif = shel_retro_taxes_verif & " - Other Document"
+				If shel_retro_taxes_verif = "NC" Then shel_retro_taxes_verif = shel_retro_taxes_verif & " - Not Verif, Neg Impact"
+				If shel_retro_taxes_verif = "PC" Then shel_retro_taxes_verif = shel_retro_taxes_verif & " - Not Verif, Pos Impact"
+				If shel_retro_taxes_verif = "NO" Then shel_retro_taxes_verif = shel_retro_taxes_verif & " - No Verif Provided"
+
+				If shel_retro_room_verif = "SF" Then shel_retro_room_verif = shel_retro_room_verif & " - Shelter Form"
+				If shel_retro_room_verif = "LE" Then shel_retro_room_verif = shel_retro_room_verif & " - Lease"
+				If shel_retro_room_verif = "RE" Then shel_retro_room_verif = shel_retro_room_verif & " - Rent Receipts"
+				If shel_retro_room_verif = "OT" Then shel_retro_room_verif = shel_retro_room_verif & " - Other Document"
+				If shel_retro_room_verif = "NC" Then shel_retro_room_verif = shel_retro_room_verif & " - Not Verif, Neg Impact"
+				If shel_retro_room_verif = "PC" Then shel_retro_room_verif = shel_retro_room_verif & " - Not Verif, Pos Impact"
+				If shel_retro_room_verif = "NO" Then shel_retro_room_verif = shel_retro_room_verif & " - No Verif Provided"
+
+				If shel_retro_garage_verif = "SF" Then shel_retro_garage_verif = shel_retro_garage_verif & " - Shelter Form"
+				If shel_retro_garage_verif = "LE" Then shel_retro_garage_verif = shel_retro_garage_verif & " - Lease"
+				If shel_retro_garage_verif = "RE" Then shel_retro_garage_verif = shel_retro_garage_verif & " - Rent Receipts"
+				If shel_retro_garage_verif = "OT" Then shel_retro_garage_verif = shel_retro_garage_verif & " - Other Document"
+				If shel_retro_garage_verif = "NC" Then shel_retro_garage_verif = shel_retro_garage_verif & " - Not Verif, Neg Impact"
+				If shel_retro_garage_verif = "PC" Then shel_retro_garage_verif = shel_retro_garage_verif & " - Not Verif, Pos Impact"
+				If shel_retro_garage_verif = "NO" Then shel_retro_garage_verif = shel_retro_garage_verif & " - No Verif Provided"
+
+				If shel_retro_subsidy_verif = "SF" Then shel_retro_subsidy_verif = shel_retro_subsidy_verif & " - Shelter Form"
+				If shel_retro_subsidy_verif = "LE" Then shel_retro_subsidy_verif = shel_retro_subsidy_verif & " - Lease"
+				If shel_retro_subsidy_verif = "OT" Then shel_retro_subsidy_verif = shel_retro_subsidy_verif & " - Other Document"
+				If shel_retro_subsidy_verif = "NO" Then shel_retro_subsidy_verif = shel_retro_subsidy_verif & " - No Verif Provided"
+
+
+				If shel_prosp_rent_verif = "SF" Then shel_prosp_rent_verif = shel_prosp_rent_verif & " - Shelter Form"
+				If shel_prosp_rent_verif = "LE" Then shel_prosp_rent_verif = shel_prosp_rent_verif & " - Lease"
+				If shel_prosp_rent_verif = "RE" Then shel_prosp_rent_verif = shel_prosp_rent_verif & " - Rent Receipts"
+				If shel_prosp_rent_verif = "OT" Then shel_prosp_rent_verif = shel_prosp_rent_verif & " - Other Document"
+				If shel_prosp_rent_verif = "NC" Then shel_prosp_rent_verif = shel_prosp_rent_verif & " - Not Verif, Neg Impact"
+				If shel_prosp_rent_verif = "PC" Then shel_prosp_rent_verif = shel_prosp_rent_verif & " - Not Verif, Pos Impact"
+				If shel_prosp_rent_verif = "NO" Then shel_prosp_rent_verif = shel_prosp_rent_verif & " - No Verif Provided"
+
+				If shel_prosp_lot_rent_verif = "LE" Then shel_prosp_lot_rent_verif = shel_prosp_lot_rent_verif & " - Lease"
+				If shel_prosp_lot_rent_verif = "RE" Then shel_prosp_lot_rent_verif = shel_prosp_lot_rent_verif & " - Rent Receipts"
+				If shel_prosp_lot_rent_verif = "BI" Then shel_prosp_lot_rent_verif = shel_prosp_lot_rent_verif & " - Billing Statement"
+				If shel_prosp_lot_rent_verif = "OT" Then shel_prosp_lot_rent_verif = shel_prosp_lot_rent_verif & " - Other Document"
+				If shel_prosp_lot_rent_verif = "NC" Then shel_prosp_lot_rent_verif = shel_prosp_lot_rent_verif & " - Not Verif, Neg Impact"
+				If shel_prosp_lot_rent_verif = "PC" Then shel_prosp_lot_rent_verif = shel_prosp_lot_rent_verif & " - Not Verif, Pos Impact"
+				If shel_prosp_lot_rent_verif = "NO" Then shel_prosp_lot_rent_verif = shel_prosp_lot_rent_verif & " - No Verif Provided"
+
+				If shel_prosp_mortgage_verif = "MO" Then shel_prosp_mortgage_verif = shel_prosp_mortgage_verif & " - Mortgage Payment"
+				If shel_prosp_mortgage_verif = "CD" Then shel_prosp_mortgage_verif = shel_prosp_mortgage_verif & " - Contract for Deed"
+				If shel_prosp_mortgage_verif = "OT" Then shel_prosp_mortgage_verif = shel_prosp_mortgage_verif & " - Other Document"
+				If shel_prosp_mortgage_verif = "NC" Then shel_prosp_mortgage_verif = shel_prosp_mortgage_verif & " - Not Verif, Neg Impact"
+				If shel_prosp_mortgage_verif = "PC" Then shel_prosp_mortgage_verif = shel_prosp_mortgage_verif & " - Not Verif, Pos Impact"
+				If shel_prosp_mortgage_verif = "NO" Then shel_prosp_mortgage_verif = shel_prosp_mortgage_verif & " - No Verif Provided"
+
+				If shel_prosp_insurance_verif = "BI" Then shel_prosp_insurance_verif = shel_prosp_insurance_verif & " - Billing Statement"
+				If shel_prosp_insurance_verif = "OT" Then shel_prosp_insurance_verif = shel_prosp_insurance_verif & " - Other Document"
+				If shel_prosp_insurance_verif = "NC" Then shel_prosp_insurance_verif = shel_prosp_insurance_verif & " - Not Verif, Neg Impact"
+				If shel_prosp_insurance_verif = "PC" Then shel_prosp_insurance_verif = shel_prosp_insurance_verif & " - Not Verif, Pos Impact"
+				If shel_prosp_insurance_verif = "NO" Then shel_prosp_insurance_verif = shel_prosp_insurance_verif & " - No Verif Provided"
+
+				If shel_prosp_taxes_verif = "TX" Then shel_prosp_taxes_verif = shel_prosp_taxes_verif & " - Property Tax Statement"
+				If shel_prosp_taxes_verif = "OT" Then shel_prosp_taxes_verif = shel_prosp_taxes_verif & " - Other Document"
+				If shel_prosp_taxes_verif = "NC" Then shel_prosp_taxes_verif = shel_prosp_taxes_verif & " - Not Verif, Neg Impact"
+				If shel_prosp_taxes_verif = "PC" Then shel_prosp_taxes_verif = shel_prosp_taxes_verif & " - Not Verif, Pos Impact"
+				If shel_prosp_taxes_verif = "NO" Then shel_prosp_taxes_verif = shel_prosp_taxes_verif & " - No Verif Provided"
+
+				If shel_prosp_room_verif = "SF" Then shel_prosp_room_verif = shel_prosp_room_verif & " - Shelter Form"
+				If shel_prosp_room_verif = "LE" Then shel_prosp_room_verif = shel_prosp_room_verif & " - Lease"
+				If shel_prosp_room_verif = "RE" Then shel_prosp_room_verif = shel_prosp_room_verif & " - Rent Receipts"
+				If shel_prosp_room_verif = "OT" Then shel_prosp_room_verif = shel_prosp_room_verif & " - Other Document"
+				If shel_prosp_room_verif = "NC" Then shel_prosp_room_verif = shel_prosp_room_verif & " - Not Verif, Neg Impact"
+				If shel_prosp_room_verif = "PC" Then shel_prosp_room_verif = shel_prosp_room_verif & " - Not Verif, Pos Impact"
+				If shel_prosp_room_verif = "NO" Then shel_prosp_room_verif = shel_prosp_room_verif & " - No Verif Provided"
+
+				If shel_prosp_garage_verif = "SF" Then shel_prosp_garage_verif = shel_prosp_garage_verif & " - Shelter Form"
+				If shel_prosp_garage_verif = "LE" Then shel_prosp_garage_verif = shel_prosp_garage_verif & " - Lease"
+				If shel_prosp_garage_verif = "RE" Then shel_prosp_garage_verif = shel_prosp_garage_verif & " - Rent Receipts"
+				If shel_prosp_garage_verif = "OT" Then shel_prosp_garage_verif = shel_prosp_garage_verif & " - Other Document"
+				If shel_prosp_garage_verif = "NC" Then shel_prosp_garage_verif = shel_prosp_garage_verif & " - Not Verif, Neg Impact"
+				If shel_prosp_garage_verif = "PC" Then shel_prosp_garage_verif = shel_prosp_garage_verif & " - Not Verif, Pos Impact"
+				If shel_prosp_garage_verif = "NO" Then shel_prosp_garage_verif = shel_prosp_garage_verif & " - No Verif Provided"
+
+				If shel_prosp_subsidy_verif = "SF" Then shel_prosp_subsidy_verif = shel_prosp_subsidy_verif & " - Shelter Form"
+				If shel_prosp_subsidy_verif = "LE" Then shel_prosp_subsidy_verif = shel_prosp_subsidy_verif & " - Lease"
+				If shel_prosp_subsidy_verif = "OT" Then shel_prosp_subsidy_verif = shel_prosp_subsidy_verif & " - Other Document"
+				If shel_prosp_subsidy_verif = "NO" Then shel_prosp_subsidy_verif = shel_prosp_subsidy_verif & " - No Verif Provided"
+
+			End If
+
+			Call navigate_to_MAXIS_screen("STAT", "STWK")		'===============================================================================================
+			EMWriteScreen ref_number, 20, 76
+			transmit
+
+			EMreadScreen stwk_version, 1, 2, 73
+			If stwk_version = "0" Then stwk_exists = FALSE
+			If stwk_version = "1" Then stwk_exists = TRUE
+
+			If stwk_exists = TRUE Then
+				EMReadScreen stwk_employer, 30, 6, 46
+				EMReadScreen stwk_work_stop_date, 8, 7, 46
+				EMReadScreen stwk_income_stop_date, 8, 8, 46
+				EMReadScreen stwk_verification, 1, 7, 63
+				EMReadScreen stwk_refused_employment, 1, 8, 78
+				EMReadScreen stwk_vol_quit, 1, 10, 46
+				EMReadScreen stwk_refused_employment_date, 8, 10, 72
+				EMReadScreen stwk_cash_good_cause_yn, 1, 12, 52
+				EMReadScreen stwk_grh_good_cause_yn, 1, 12, 60
+				EMReadScreen stwk_snap_good_cause_yn, 1, 12, 67
+				EMReadScreen stwk_snap_pwe, 1, 14, 46
+				EMReadScreen stwk_ma_epd_extension, 1, 16, 46
+
+				stwk_employer = replace(stwk_employer, "_", "")
+				stwk_work_stop_date = replace(stwk_work_stop_date, " ", "/")
+				stwk_income_stop_date = replace(stwk_income_stop_date, " ", "/")
+				If stwk_verification = "1" Then stwk_verification = "Employers Statement"
+				If stwk_verification = "2" Then stwk_verification = "Seperation Notice"
+				If stwk_verification = "3" Then stwk_verification = "Colateral Statement"
+				If stwk_verification = "4" Then stwk_verification = "Other Document"
+				If stwk_verification = "N" Then stwk_verification = "No Verif Provided"
+				If stwk_verification = "_" Then stwk_verification = "Blank"
+				If stwk_verification = "?" Then stwk_verification = "Postponed Verif"
+				stwk_refused_employment_date = replace(stwk_refused_employment_date, " ", "/")
+				stwk_summary = "Work ended at " & stwk_employer & " on " & stwk_work_stop_date
+
+			End If
+
+			Call navigate_to_MAXIS_screen("STAT", "FMED")		'===============================================================================================
+			EMWriteScreen ref_number, 20, 76
+			transmit
+
+			EMreadScreen fmed_version, 1, 2, 73
+			If fmed_version = "0" Then fmed_exists = FALSE
+			If fmed_version = "1" Then fmed_exists = TRUE
+
+			If fmed_exists = TRUE Then
+				EMReadScreen fmed_miles, 4, 17, 34
+				EMReadScreen fmed_rate, 6, 17, 58
+				EMReadScreen fmed_milage_expense, 8, 17, 70
+
+				panel_row = 9
+				fmed_count = 0
+				scroll_page = 1
+				Do
+					EMReadScreen the_type, 2, panel_row, 25
+
+					If the_type <> "__" Then
+						' ReDim Preserve fmed_expense_array(fmed_count, fmed_notes)
+						ReDim Preserve fmed_page(fmed_count)
+						ReDim Preserve fmed_row(fmed_count)
+						ReDim Preserve fmed_type(fmed_count)
+						ReDim Preserve fmed_verif(fmed_count)
+						ReDim Preserve fmed_ref(fmed_count)
+						ReDim Preserve fmed_catgry(fmed_count)
+						ReDim Preserve fmed_begin(fmed_count)
+						ReDim Preserve fmed_end(fmed_count)
+						ReDim Preserve fmed_expense(fmed_count)
+						ReDim Preserve fmed_notes(fmed_count)
+
+						EMReadScreen the_ver, 2, panel_row, 32
+						EMReadScreen the_ref, 2, panel_row, 38
+						EMReadScreen the_cat, 1, panel_row, 44
+						EMReadScreen the_begin, 5, panel_row, 50
+						EMReadScreen the_end, 5, panel_row, 60
+						EMReadScreen the_amt, 8, panel_row, 70
+
+						fmed_page(fmed_count) = scroll_page
+						fmed_row(fmed_count) = panel_row
+
+						If the_type = "01" Then fmed_type(fmed_count) = "01 Nursing Home"
+						If the_type = "02" Then fmed_type(fmed_count) = "02 Hosp/Clinic"
+						If the_type = "03" Then fmed_type(fmed_count) = "03 Physicians"
+						If the_type = "04" Then fmed_type(fmed_count) = "04 Prescriptions"
+						If the_type = "05" Then fmed_type(fmed_count) = "05 Ins Premiums"
+						If the_type = "06" Then fmed_type(fmed_count) = "06 Dental"
+						If the_type = "07" Then fmed_type(fmed_count) = "07 Medical Trans/Flat Amount"
+						If the_type = "08" Then fmed_type(fmed_count) = "08 Vision Care"
+						If the_type = "09" Then fmed_type(fmed_count) = "09 Medicare Prem"
+						If the_type = "10" Then fmed_type(fmed_count) = "10 Mo Spdwn Amt/Waiver Oblig"
+						If the_type = "11" Then fmed_type(fmed_count) = "11 Home Care"
+						If the_type = "12" Then fmed_type(fmed_count) = "12 Medical Trans/Mileage Calc"
+						If the_type = "15" Then fmed_type(fmed_count) = "15 Medi Part D Premium"
+
+						If the_ver = "BI" Then fmed_verif(fmed_count) = "BI Billing Stmt"
+						If the_ver = "EB" Then fmed_verif(fmed_count) = "EB Expl Of Bnft (Medicare/Ins)"
+						If the_ver = "CL" Then fmed_verif(fmed_count) = "CL Client Stmt Med Trans Only"
+						If the_ver = "OS" Then fmed_verif(fmed_count) = "OS Pend Out State Verification"
+						If the_ver = "OT" Then fmed_verif(fmed_count) = "OT Other Document"
+						If the_ver = "NO" Then fmed_verif(fmed_count) = "NO No Ver Prvd"
+						If the_ver = "MX" Then fmed_verif(fmed_count) = "MX System Entered Ver By SSA"
+
+						fmed_ref(fmed_count) = the_ref
+
+						If the_cat = "1" Then fmed_catgry(fmed_count) = "1 HH Member"
+						If the_cat = "2" Then fmed_catgry(fmed_count) = "2 Former Aged/Disa HH Mbr In NF Or Hospital"
+						If the_cat = "3" Then fmed_catgry(fmed_count) = "3 Former Aged/Disa HH Decd"
+						If the_cat = "4" Then fmed_catgry(fmed_count) = "4 Other Eligible"
+
+						fmed_begin(fmed_count) = replace(the_begin, " ", "/")
+						fmed_end(fmed_count) = replace(the_end, " ", "/")
+						fmed_expense(fmed_count) = trim(the_amt)
+
+						panel_row = panel_row + 1
+						fmed_count = fmed_count + 1
+						If panel_row = 15 Then
+							pf20
+							scroll_page = scroll_page + 1
+							panel_row = 9
+							EMReadScreen end_of_list, 9, 24, 14
+							If end_of_list = "LAST PAGE" Then Exit Do
+						End If
+					End If
+				Loop until panel_type = "__"
+			End If
+
+			Call navigate_to_MAXIS_screen("STAT", "PARE")		'===============================================================================================
+			EMWriteScreen ref_number, 20, 76
+			transmit
+
+			EMreadScreen pare_version, 1, 2, 73
+			If pare_version = "0" Then pare_exists = FALSE
+			If pare_version = "1" Then pare_exists = TRUE
+
+			If pare_exists = TRUE Then
+				pare_row = 8
+				pare_array_count = 0
+
+				Do
+					EMReadScreen panel_child_ref_number, 2, pare_row, 24
+					EMReadScreen panel_child_name, 25, pare_row, 27
+					EMReadScreen panel_rela_type, 1, pare_row, 53
+					EMReadScreen panel_rela_verif, 2, pare_row, 71
+
+					If panel_child_ref_number <> "__" Then
+						ReDim preserve pare_child_ref_nbr(pare_array_count)
+						ReDim preserve pare_child_name(pare_array_count)
+						ReDim preserve pare_child_member_index(pare_array_count)
+						ReDim preserve pare_relationship_type(pare_array_count)
+						ReDim preserve pare_verification(pare_array_count)
+
+						pare_child_ref_nbr(pare_array_count) = panel_child_ref_number
+						pare_child_name(pare_array_count) = trim(panel_child_name)
+
+						' pare_child_member_index(pare_array_count)
+
+						If panel_rela_type = "1" Then pare_relationship_type(pare_array_count) = "1 - Birth/Adopted Parent"
+						If panel_rela_type = "2" Then pare_relationship_type(pare_array_count) = "2 - Stepchild"
+						If panel_rela_type = "3" Then pare_relationship_type(pare_array_count) = "3 - Grandchild"
+						If panel_rela_type = "4" Then pare_relationship_type(pare_array_count) = "4 - Relative Caregiver"
+						If panel_rela_type = "5" Then pare_relationship_type(pare_array_count) = "5 - Foster Child"
+						If panel_rela_type = "6" Then pare_relationship_type(pare_array_count) = "6 - Non-related Caregiver"
+						If panel_rela_type = "7" Then pare_relationship_type(pare_array_count) = "7 - Legal Guardian"
+						If panel_rela_type = "8" Then pare_relationship_type(pare_array_count) = "8 - Other Relative"
+
+						If panel_rela_verif = "BC" Then pare_verification(pare_array_count) = "BC - Birth Certificate"
+						If panel_rela_verif = "AR" Then pare_verification(pare_array_count) = "AR - Adoption Records"
+						If panel_rela_verif = "LG" Then pare_verification(pare_array_count) = "LG - Legal Guardian"
+						If panel_rela_verif = "RE" Then pare_verification(pare_array_count) = "RE - Religious Records"
+						If panel_rela_verif = "HR" Then pare_verification(pare_array_count) = "HR - Hospital Records"
+						If panel_rela_verif = "RP" Then pare_verification(pare_array_count) = "RP - Recognition of Parentage"
+						If panel_rela_verif = "OT" Then pare_verification(pare_array_count) = "OT - Other Verification"
+						If panel_rela_verif = "NO" Then pare_verification(pare_array_count) = "NO - No Verif Provided"
+						If panel_rela_verif = "__" Then pare_verification(pare_array_count) = "Blank"
+						If panel_rela_verif = "?_" Then pare_verification(pare_array_count) = "Delayed Verification"
+					End If
+
+					pare_row = pare_row + 1
+					pare_array_count = pare_array_count + 1
+					If pare_row = 18 Then
+						pare_row = 8
+						PF20
+						EMReadScreen end_of_list, 9, 24, 14
+						If end_of_list = "LAST PAGE" then Exit Do
+					End If
+				Loop until panel_child_ref_number = "__"
+			End If
+
+			Call navigate_to_MAXIS_screen("STAT", "PDED")		'===============================================================================================
+			EMWriteScreen ref_number, 20, 76
+			transmit
+
+			EMreadScreen pded_version, 1, 2, 73
+			If pded_version = "0" Then pded_exists = FALSE
+			If pded_version = "1" Then pded_exists = TRUE
+
+			If pded_exists = TRUE Then
+				EMReadScreen pded_guardian_fee, 8, 15, 44
+				EMReadScreen pded_rep_payee_fee, 8, 15, 70
+				EMReadScreen pded_shel_spec_need, 1, 18, 78
+
+				pded_guardian_fee = replace(pded_guardian_fee, "_", "")
+				pded_guardian_fee = trim(pded_guardian_fee)
+				' MsgBox pded_rep_payee_fee & " 1"
+				pded_rep_payee_fee = replace(pded_rep_payee_fee, "_", "")
+				pded_rep_payee_fee = trim(pded_rep_payee_fee)
+				' MsgBox pded_rep_payee_fee & " 2"
+
+				If pded_shel_spec_need = "Y" Then pded_shel_spec_need = "Yes"
+				If pded_shel_spec_need = "N" Then pded_shel_spec_need = "No"
+				If pded_shel_spec_need = "_" Then pded_shel_spec_need = ""
+			End If
+
+
+			Call navigate_to_MAXIS_screen("STAT", "DIET")		'===============================================================================================
+			EMWriteScreen ref_number, 20, 76
+			transmit
+
+			EMreadScreen diet_version, 1, 2, 73
+			If diet_version = "0" Then diet_exists = FALSE
+			If diet_version = "1" Then diet_exists = TRUE
+
+			If diet_exists = TRUE Then
+				EMReadScreen diet_mf_type_one, 2, 8, 40
+				EMReadScreen diet_mf_verif_one, 1, 8, 51
+				EMReadScreen diet_mf_type_two, 2, 9, 40
+				EMReadScreen diet_mf_verif_two, 1, 9, 51
+
+				EMReadScreen diet_msa_type_one, 2, 11, 40
+				EMReadScreen diet_msa_verif_one, 1, 11, 51
+				EMReadScreen diet_msa_type_two, 2, 12, 40
+				EMReadScreen diet_msa_verif_two, 1, 12, 51
+				EMReadScreen diet_msa_type_three, 2, 13, 40
+				EMReadScreen diet_msa_verif_three, 1, 13, 51
+				EMReadScreen diet_msa_type_four, 2, 14, 40
+				EMReadScreen diet_msa_verif_four, 1, 14, 51
+				EMReadScreen diet_msa_type_five, 2, 15, 40
+				EMReadScreen diet_msa_verif_five, 1, 15, 51
+				EMReadScreen diet_msa_type_six, 2, 16, 40
+				EMReadScreen diet_msa_verif_six, 1, 16, 51
+				EMReadScreen diet_msa_type_seven, 2, 17, 40
+				EMReadScreen diet_msa_verif_seven, 1, 17, 51
+				EMReadScreen diet_msa_type_eight, 2, 18, 40
+				EMReadScreen diet_msa_verif_eight, 1, 18, 51
+
+				If diet_mf_type_one = "01" Then diet_mf_type_one = "01 - High Protein > 79 grams/day"
+				If diet_mf_type_one = "02" Then diet_mf_type_one = "02 - Control Protein 40-60 grams/day"
+				If diet_mf_type_one = "03" Then diet_mf_type_one = "03 - Control Protein < 40 grams/day"
+				If diet_mf_type_one = "04" Then diet_mf_type_one = "04 - Lo Cholesterol"
+				If diet_mf_type_one = "05" Then diet_mf_type_one = "05 - High Residue"
+				If diet_mf_type_one = "06" Then diet_mf_type_one = "06 - Pregnancy and Lactation"
+				If diet_mf_type_one = "07" Then diet_mf_type_one = "07 - Gluten Free"
+				If diet_mf_type_one = "08" Then diet_mf_type_one = "08 - Lactose Free"
+				If diet_mf_type_one = "09" Then diet_mf_type_one = "09 - Anti-Dumping"
+				If diet_mf_type_one = "10" Then diet_mf_type_one = "10 - Hypoglycemic"
+				If diet_mf_type_one = "11" Then diet_mf_type_one = "11 - Ketogenic"
+				If diet_mf_type_one = "__" Then diet_mf_type_one = ""
+
+				If diet_mf_type_two = "01" Then diet_mf_type_two = "01 - High Protein > 79 grams/day"
+				If diet_mf_type_two = "02" Then diet_mf_type_two = "02 - Control Protein 40-60 grams/day"
+				If diet_mf_type_two = "03" Then diet_mf_type_two = "03 - Control Protein < 40 grams/day"
+				If diet_mf_type_two = "04" Then diet_mf_type_two = "04 - Lo Cholesterol"
+				If diet_mf_type_two = "05" Then diet_mf_type_two = "05 - High Residue"
+				If diet_mf_type_two = "06" Then diet_mf_type_two = "06 - Pregnancy and Lactation"
+				If diet_mf_type_two = "07" Then diet_mf_type_two = "07 - Gluten Free"
+				If diet_mf_type_two = "08" Then diet_mf_type_two = "08 - Lactose Free"
+				If diet_mf_type_two = "09" Then diet_mf_type_two = "09 - Anti-Dumping"
+				If diet_mf_type_two = "10" Then diet_mf_type_two = "10 - Hypoglycemic"
+				If diet_mf_type_two = "11" Then diet_mf_type_two = "11 - Ketogenic"
+				If diet_mf_type_two = "__" Then diet_mf_type_two = ""
+
+
+				If diet_msa_type_one = "01" Then diet_msa_type_one = "01 - High Protein > 79 grams/day"
+				If diet_msa_type_one = "02" Then diet_msa_type_one = "02 - Control Protein 40-60 grams/day"
+				If diet_msa_type_one = "03" Then diet_msa_type_one = "03 - Control Protein < 40 grams/day"
+				If diet_msa_type_one = "04" Then diet_msa_type_one = "04 - Lo Cholesterol"
+				If diet_msa_type_one = "05" Then diet_msa_type_one = "05 - High Residue"
+				If diet_msa_type_one = "06" Then diet_msa_type_one = "06 - Pregnancy and Lactation"
+				If diet_msa_type_one = "07" Then diet_msa_type_one = "07 - Gluten Free"
+				If diet_msa_type_one = "08" Then diet_msa_type_one = "08 - Lactose Free"
+				If diet_msa_type_one = "09" Then diet_msa_type_one = "09 - Anti-Dumping"
+				If diet_msa_type_one = "10" Then diet_msa_type_one = "10 - Hypoglycemic"
+				If diet_msa_type_one = "11" Then diet_msa_type_one = "11 - Ketogenic"
+				If diet_msa_type_one = "__" Then diet_msa_type_one = ""
+
+				If diet_msa_type_two = "01" Then diet_msa_type_two = "01 - High Protein > 79 grams/day"
+				If diet_msa_type_two = "02" Then diet_msa_type_two = "02 - Control Protein 40-60 grams/day"
+				If diet_msa_type_two = "03" Then diet_msa_type_two = "03 - Control Protein < 40 grams/day"
+				If diet_msa_type_two = "04" Then diet_msa_type_two = "04 - Lo Cholesterol"
+				If diet_msa_type_two = "05" Then diet_msa_type_two = "05 - High Residue"
+				If diet_msa_type_two = "06" Then diet_msa_type_two = "06 - Pregnancy and Lactation"
+				If diet_msa_type_two = "07" Then diet_msa_type_two = "07 - Gluten Free"
+				If diet_msa_type_two = "08" Then diet_msa_type_two = "08 - Lactose Free"
+				If diet_msa_type_two = "09" Then diet_msa_type_two = "09 - Anti-Dumping"
+				If diet_msa_type_two = "10" Then diet_msa_type_two = "10 - Hypoglycemic"
+				If diet_msa_type_two = "11" Then diet_msa_type_two = "11 - Ketogenic"
+				If diet_msa_type_two = "__" Then diet_msa_type_two = ""
+
+				If diet_msa_type_three = "01" Then diet_msa_type_three = "01 - High Protein > 79 grams/day"
+				If diet_msa_type_three = "02" Then diet_msa_type_three = "02 - Control Protein 40-60 grams/day"
+				If diet_msa_type_three = "03" Then diet_msa_type_three = "03 - Control Protein < 40 grams/day"
+				If diet_msa_type_three = "04" Then diet_msa_type_three = "04 - Lo Cholesterol"
+				If diet_msa_type_three = "05" Then diet_msa_type_three = "05 - High Residue"
+				If diet_msa_type_three = "06" Then diet_msa_type_three = "06 - Pregnancy and Lactation"
+				If diet_msa_type_three = "07" Then diet_msa_type_three = "07 - Gluten Free"
+				If diet_msa_type_three = "08" Then diet_msa_type_three = "08 - Lactose Free"
+				If diet_msa_type_three = "09" Then diet_msa_type_three = "09 - Anti-Dumping"
+				If diet_msa_type_three = "10" Then diet_msa_type_three = "10 - Hypoglycemic"
+				If diet_msa_type_three = "11" Then diet_msa_type_three = "11 - Ketogenic"
+				If diet_msa_type_three = "__" Then diet_msa_type_three = ""
+
+				If diet_msa_type_four = "01" Then diet_msa_type_four = "01 - High Protein > 79 grams/day"
+				If diet_msa_type_four = "02" Then diet_msa_type_four = "02 - Control Protein 40-60 grams/day"
+				If diet_msa_type_four = "03" Then diet_msa_type_four = "03 - Control Protein < 40 grams/day"
+				If diet_msa_type_four = "04" Then diet_msa_type_four = "04 - Lo Cholesterol"
+				If diet_msa_type_four = "05" Then diet_msa_type_four = "05 - High Residue"
+				If diet_msa_type_four = "06" Then diet_msa_type_four = "06 - Pregnancy and Lactation"
+				If diet_msa_type_four = "07" Then diet_msa_type_four = "07 - Gluten Free"
+				If diet_msa_type_four = "08" Then diet_msa_type_four = "08 - Lactose Free"
+				If diet_msa_type_four = "09" Then diet_msa_type_four = "09 - Anti-Dumping"
+				If diet_msa_type_four = "10" Then diet_msa_type_four = "10 - Hypoglycemic"
+				If diet_msa_type_four = "11" Then diet_msa_type_four = "11 - Ketogenic"
+				If diet_msa_type_four = "__" Then diet_msa_type_four = ""
+
+				If diet_msa_type_five = "01" Then diet_msa_type_five = "01 - High Protein > 79 grams/day"
+				If diet_msa_type_five = "02" Then diet_msa_type_five = "02 - Control Protein 40-60 grams/day"
+				If diet_msa_type_five = "03" Then diet_msa_type_five = "03 - Control Protein < 40 grams/day"
+				If diet_msa_type_five = "04" Then diet_msa_type_five = "04 - Lo Cholesterol"
+				If diet_msa_type_five = "05" Then diet_msa_type_five = "05 - High Residue"
+				If diet_msa_type_five = "06" Then diet_msa_type_five = "06 - Pregnancy and Lactation"
+				If diet_msa_type_five = "07" Then diet_msa_type_five = "07 - Gluten Free"
+				If diet_msa_type_five = "08" Then diet_msa_type_five = "08 - Lactose Free"
+				If diet_msa_type_five = "09" Then diet_msa_type_five = "09 - Anti-Dumping"
+				If diet_msa_type_five = "10" Then diet_msa_type_five = "10 - Hypoglycemic"
+				If diet_msa_type_five = "11" Then diet_msa_type_five = "11 - Ketogenic"
+				If diet_msa_type_five = "__" Then diet_msa_type_five = ""
+
+				If diet_msa_type_six = "01" Then diet_msa_type_six = "01 - High Protein > 79 grams/day"
+				If diet_msa_type_six = "02" Then diet_msa_type_six = "02 - Control Protein 40-60 grams/day"
+				If diet_msa_type_six = "03" Then diet_msa_type_six = "03 - Control Protein < 40 grams/day"
+				If diet_msa_type_six = "04" Then diet_msa_type_six = "04 - Lo Cholesterol"
+				If diet_msa_type_six = "05" Then diet_msa_type_six = "05 - High Residue"
+				If diet_msa_type_six = "06" Then diet_msa_type_six = "06 - Pregnancy and Lactation"
+				If diet_msa_type_six = "07" Then diet_msa_type_six = "07 - Gluten Free"
+				If diet_msa_type_six = "08" Then diet_msa_type_six = "08 - Lactose Free"
+				If diet_msa_type_six = "09" Then diet_msa_type_six = "09 - Anti-Dumping"
+				If diet_msa_type_six = "10" Then diet_msa_type_six = "10 - Hypoglycemic"
+				If diet_msa_type_six = "11" Then diet_msa_type_six = "11 - Ketogenic"
+				If diet_msa_type_six = "__" Then diet_msa_type_six = ""
+
+				If diet_msa_type_seven = "01" Then diet_msa_type_seven = "01 - High Protein > 79 grams/day"
+				If diet_msa_type_seven = "02" Then diet_msa_type_seven = "02 - Control Protein 40-60 grams/day"
+				If diet_msa_type_seven = "03" Then diet_msa_type_seven = "03 - Control Protein < 40 grams/day"
+				If diet_msa_type_seven = "04" Then diet_msa_type_seven = "04 - Lo Cholesterol"
+				If diet_msa_type_seven = "05" Then diet_msa_type_seven = "05 - High Residue"
+				If diet_msa_type_seven = "06" Then diet_msa_type_seven = "06 - Pregnancy and Lactation"
+				If diet_msa_type_seven = "07" Then diet_msa_type_seven = "07 - Gluten Free"
+				If diet_msa_type_seven = "08" Then diet_msa_type_seven = "08 - Lactose Free"
+				If diet_msa_type_seven = "09" Then diet_msa_type_seven = "09 - Anti-Dumping"
+				If diet_msa_type_seven = "10" Then diet_msa_type_seven = "10 - Hypoglycemic"
+				If diet_msa_type_seven = "11" Then diet_msa_type_seven = "11 - Ketogenic"
+				If diet_msa_type_seven = "__" Then diet_msa_type_seven = ""
+
+				If diet_msa_type_eight = "01" Then diet_msa_type_eight = "01 - High Protein > 79 grams/day"
+				If diet_msa_type_eight = "02" Then diet_msa_type_eight = "02 - Control Protein 40-60 grams/day"
+				If diet_msa_type_eight = "03" Then diet_msa_type_eight = "03 - Control Protein < 40 grams/day"
+				If diet_msa_type_eight = "04" Then diet_msa_type_eight = "04 - Lo Cholesterol"
+				If diet_msa_type_eight = "05" Then diet_msa_type_eight = "05 - High Residue"
+				If diet_msa_type_eight = "06" Then diet_msa_type_eight = "06 - Pregnancy and Lactation"
+				If diet_msa_type_eight = "07" Then diet_msa_type_eight = "07 - Gluten Free"
+				If diet_msa_type_eight = "08" Then diet_msa_type_eight = "08 - Lactose Free"
+				If diet_msa_type_eight = "09" Then diet_msa_type_eight = "09 - Anti-Dumping"
+				If diet_msa_type_eight = "10" Then diet_msa_type_eight = "10 - Hypoglycemic"
+				If diet_msa_type_eight = "11" Then diet_msa_type_eight = "11 - Ketogenic"
+				If diet_msa_type_eight = "__" Then diet_msa_type_eight = ""
+
+				If diet_mf_verif_one = "_" Then diet_mf_verif_one = ""
+				If diet_mf_verif_two = "_" Then diet_mf_verif_two = ""
+				If diet_msa_verif_one = "_" Then diet_msa_verif_one = ""
+				If diet_msa_verif_two = "_" Then diet_msa_verif_two = ""
+				If diet_msa_verif_three = "_" Then diet_msa_verif_three = ""
+				If diet_msa_verif_four = "_" Then diet_msa_verif_four = ""
+				If diet_msa_verif_five = "_" Then diet_msa_verif_five = ""
+				If diet_msa_verif_six = "_" Then diet_msa_verif_six = ""
+				If diet_msa_verif_seven = "_" Then diet_msa_verif_seven = ""
+				If diet_msa_verif_eight	 = "_" Then diet_msa_verif_eight = ""
+			End If
+		End If
+	end sub
+
+	public sub collect_parent_information()
+
+		If pare_exists = TRUE Then
+			' MsgBox "PARE EXISTS for " & ref_number
+			pare_row_index = 0
+			Do
+				For the_membs = 0 to UBound(HH_MEMB_ARRAY)
+					' MsgBox "REF on PARE - " & pare_child_ref_nbr(pare_row_index) & vbCr & "REF of the HH MEMB - " & HH_MEMB_ARRAY(the_membs).ref_number
+					If pare_child_ref_nbr(pare_row_index) = HH_MEMB_ARRAY(the_membs).ref_number Then
+						pare_child_member_index(pare_array_count) = the_membs
+
+						If HH_MEMB_ARRAY(the_membs).parent_one_name = "" Then
+
+							HH_MEMB_ARRAY(the_membs).parent_one_name = full_name
+							HH_MEMB_ARRAY(the_membs).parent_one_type = pare_relationship_type(pare_array_count)
+							HH_MEMB_ARRAY(the_membs).parent_one_verif = pare_verification(pare_array_count)
+							HH_MEMB_ARRAY(the_membs).parent_one_in_home = TRUE
+
+						ElseIf HH_MEMB_ARRAY(the_membs).parent_two_name = "" Then
+							HH_MEMB_ARRAY(the_membs).parent_two_name = full_name
+							HH_MEMB_ARRAY(the_membs).parent_two_type = pare_relationship_type(pare_array_count)
+							HH_MEMB_ARRAY(the_membs).parent_two_verif = pare_verification(pare_array_count)
+							HH_MEMB_ARRAY(the_membs).parent_two_in_home = TRUE
+						End If
+						' MsgBox HH_MEMB_ARRAY(the_membs).parent_one_name
+
+						Exit For
+					End If
+				Next
+				pare_row_index = pare_row_index + 1
+			Loop until pare_row_index > UBound(pare_child_ref_nbr)
+		End If
+
+		Call navigate_to_MAXIS_screen("STAT", "ABPS")
+		Do
+			abps_row = 15
+			Do
+				EMReadScreen abps_ref_nrb, 2, abps_row, 35
+				' MsgBox "REF on ABPS - " & abps_ref_nrb & vbCr & "REF of the HH MEMB - " & ref_number
+				If abps_ref_nrb = ref_number Then
+					EMReadScreen abps_last_name, 24, 10, 30
+					EMReadScreen abps_first_name, 12, 10, 63
+					EMReadScreen abps_mid_initial, 1, 10, 80
+					EMReadScreen abps_ssn, 11, 11, 30
+					EMReadScreen abps_dob, 10, 11, 60
+					EMReadScreen abps_gender, 1, 11, 80
+					EMReadScreen abps_parental_status, 1, abps_row, 53
+					EMReadScreen abps_custody, 1, abps_row, 67
+
+					abps_last_name = replace(abps_last_name, "_", "")
+					abps_first_name = replace(abps_first_name, "_", "")
+					abps_mid_initial = replace(abps_mid_initial, "_", "")
+
+					' MsgBox trim(abps_first_name) & " " & trim(abps_last_name)
+					If abps_first_name = "" AND abps_last_name = "" Then abps_first_name = "Name Unknown"
+					abps_ssn = replace(abps_ssn, "_", "")
+					abps_ssn = trim(abps_ssn)
+					abps_ssn = replace(abps_ssn, " ", "-")
+
+					abps_dob = replace(abps_dob, "_", "")
+					abps_dob = trim(abps_dob)
+					abps_dob = replace(abps_dob, " ", "/")
+
+					If parent_one_name = "" Then
+
+						parent_one_name = trim(abps_first_name) & " " & trim(abps_last_name)
+						parent_one_type = "ABSENT"
+						parent_one_verif = ""
+						parent_one_in_home = FALSE
+
+					ElseIf parent_two_name = "" Then
+						parent_two_name = trim(abps_first_name) & " " & trim(abps_last_name)
+						parent_two_type = "ABSENT"
+						parent_two_verif = ""
+						parent_two_in_home = FALSE
+					End If
+				End If
+				abps_row = abps_row + 1
+
+				If abps_row = 18 Then
+					PF20
+					abps_row = 15
+					EMReadScreen end_of_list, 9, 24, 14
+					If end_of_list = "LAST PAGE" Then Exit Do
+				End If
+			Loop until abps_ref_nrb = "__"
+			transmit
+			EMReadScreen last_abps, 7, 24, 2
+		Loop until last_abps = "ENTER A"
+
+
+	end sub
+
+	Public sub choose_the_members()
+
+	end sub
+
+	' private sub Class_Initialize()
+	' end sub
+end class
+
+
+class client_income
+
+	'about the income
+	public member_ref
+	public member_name
+	public member
+	public access_denied
+
+	public panel_name
+	public panel_instance
+
+	public unea_or_earned
+	public income_type
+	public income_type_code
+	public income_review
+	public income_verification
+	public verif_explaination
+	public income_start_date
+	public income_end_date
+	public pay_frequency
+	public pay_weekday
+	public hc_inc_est
+	public most_recent_pay_date
+	public most_recent_pay_amt
+	public income_notes
+	public pay_gross
+	public expenses_allowed
+	public expenses_not_allowed
+
+	'JOBS
+	public subsidized_income_type
+	public hourly_wage
+	public employer
+	public prosp_pay_total
+	public prosp_hours_total
+	public prosp_pay_date_one
+	public prosp_pay_wage_one
+	public prosp_pay_date_two
+	public prosp_pay_wage_two
+	public prosp_pay_date_three
+	public prosp_pay_wage_three
+	public prosp_pay_date_four
+	public prosp_pay_wage_four
+	public prosp_pay_date_five
+	public prosp_pay_wage_five
+	public prosp_average_pay
+
+	public retro_pay_total
+	public retro_hours_total
+	public retro_pay_date_one
+	public retro_pay_wage_one
+	public retro_pay_date_two
+	public retro_pay_wage_two
+	public retro_pay_date_three
+	public retro_pay_wage_three
+	public retro_pay_date_four
+	public retro_pay_wage_four
+	public retro_pay_date_five
+	public retro_pay_wage_five
+	public retro_average_pay
+
+	'BUSI
+	public prosp_net_cash_earnings
+	public prosp_gross_cash_earnings
+	public cash_earnings_verif
+	public prosp_cash_expenses
+	public cash_expense_verif
+	public retro_net_cash_earnings
+	public retro_gross_cash_earnings
+	public retro_cash_expenses
+
+	public prosp_net_ive_earnings
+	public prosp_gross_ive_earnings
+	public ive_earnings_verif
+	public prosp_ive_expenses
+	public ive_expense_verif
+
+	public prosp_net_snap_earnings
+	public prosp_gross_snap_earnings
+	public snap_earnings_verif
+	public prosp_snap_expenses
+	public snap_expense_verif
+	public retro_net_snap_earnings
+	public retro_gross_snap_earnings
+	public retro_snap_expenses
+
+	public prosp_net_hc_a_earnings
+	public prosp_gross_hc_a_earnings
+	public hc_a_earnings_verif
+	public prosp_hc_a_expenses
+	public hc_a_expense_verif
+
+	public prosp_net_hc_b_earnings
+	public prosp_gross_hc_b_earnings
+	public hc_b_earnings_verif
+	public prosp_hc_b_expenses
+	public hc_b_expense_verif
+
+	public retro_reptd_hours
+	public retro_min_wage_hours
+	public prosp_reptd_hours
+	public prosp_min_wage_hours
+
+	public self_emp_method
+	public self_emp_method_date
+
+	'UNEA
+	public claim_number
+	public cola_month
+
+
+	public sub read_member_name()
+		Call navigate_to_MAXIS_screen("STAT", "MEMB")
+		EMWriteScreen member_ref, 20, 76
+		transmit
+
+		EMReadScreen access_denied_check, 13, 24, 2         'Sometimes MEMB gets this access denied issue and we have to work around it.
+		If access_denied_check = "ACCESS DENIED" Then
+			PF10
+			last_name = "UNABLE TO FIND"
+			first_name = "Access Denied"
+			access_denied = TRUE
+		Else
+			access_denied = FALSE
+			EMReadscreen last_name, 25, 6, 30
+			EMReadscreen first_name, 12, 6, 63
+		End If
+		last_name = trim(replace(last_name, "_", ""))
+		first_name = trim(replace(first_name, "_", ""))
+
+		member_name = first_name & " " & last_name
+		member = member_ref & " - " & member_name
+		' MsgBox "~" & member & "~"
+	end sub
+
+	Public sub read_jobs_panel()
+		jobs_found = FALSE
+	end sub
+
+	Public sub read_busi_panel()
+		busi_found = FALSE
+	end sub
+
+	Public sub read_unea_panel()
+		Call navigate_to_MAXIS_screen("STAT", "UNEA")
+		EMWriteScreen member_ref, 20, 76
+		EMWriteScreen panel_instance, 20, 79
+		transmit
+
+		panel_name = "UNEA"
+		unea_or_earned = "Unearned"
+
+		EMReadScreen income_type, 2, 5, 37
+		EMReadScreen income_verification, 1, 5, 65
+		EMReadScreen income_start_date, 8, 7, 37
+		EMReadScreen income_end_date, 8, 7, 68
+
+		EmWriteScreen "X", 6, 56
+		transmit
+			EMReadScreen pay_frequency, 1, 10, 63
+			EMReadScreen hc_inc_est, 8, 9, 65
+		PF3
+
+		EMReadScreen claim_number, 15, 6, 37
+		EMReadScreen cola_month, 2, 19, 36
+
+		EMReadScreen prosp_pay_total, 8, 18, 68
+		EMReadScreen prosp_pay_date_one, 8, 13, 54
+		EMReadScreen prosp_pay_wage_one, 8, 13, 68
+		EMReadScreen prosp_pay_date_two, 8, 14, 54
+		EMReadScreen prosp_pay_wage_two, 8, 14, 68
+		EMReadScreen prosp_pay_date_three, 8, 15, 54
+		EMReadScreen prosp_pay_wage_three, 8, 15, 68
+		EMReadScreen prosp_pay_date_four, 8, 16, 54
+		EMReadScreen prosp_pay_wage_four, 8, 16, 68
+		EMReadScreen prosp_pay_date_five, 8, 17, 54
+		EMReadScreen prosp_pay_wage_five, 8, 17, 68
+
+		EMReadScreen retro_pay_total, 8, 18, 39
+		EMReadScreen retro_pay_date_one, 8, 13, 25
+		EMReadScreen retro_pay_wage_one, 8, 13, 39
+		EMReadScreen retro_pay_date_two, 8, 14, 25
+		EMReadScreen retro_pay_wage_two, 8, 14, 39
+		EMReadScreen retro_pay_date_three, 8, 15, 25
+		EMReadScreen retro_pay_wage_three, 8, 15, 39
+		EMReadScreen retro_pay_date_four, 8, 16, 25
+		EMReadScreen retro_pay_wage_four, 8, 16, 39
+		EMReadScreen retro_pay_date_five, 8, 17, 25
+		EMReadScreen retro_pay_wage_five, 8, 17, 39
+
+		income_type_code = income_type
+		If income_type = "01" Then income_type = "01 - RSDI, Disa"
+		If income_type = "02" Then income_type = "02 - RSDI, No Disa"
+		If income_type = "03" Then income_type = "03 - SSI"
+		If income_type = "06" Then income_type = "06 - Non-MN PA"
+		If income_type = "11" Then income_type = "11 - VA Disability Benefit"
+		If income_type = "12" Then income_type = "12 - VA Pension"
+		If income_type = "13" Then income_type = "13 - VA Other"
+		If income_type = "38" Then income_type = "38 - VA Aid and Attendance"
+		If income_type = "14" Then income_type = "14 - Unemployment Insurance"
+		If income_type = "15" Then income_type = "15 - Worker's Compensation"
+		If income_type = "16" Then income_type = "16 - Railroad Retirement"
+		If income_type = "17" Then income_type = "17 - Other Retirement"
+		If income_type = "18" Then income_type = "18 - Military Entitlement"
+		If income_type = "19" Then income_type = "19 - FC Child Requesting SNAP"
+		If income_type = "20" Then income_type = "20 - FC Child NOT Requesting SNAP"
+		If income_type = "21" Then income_type = "21 - FC Adult Requesting SNAP"
+		If income_type = "22" Then income_type = "22 - FC Adult NOT Requesting SNAP"
+		If income_type = "23" Then income_type = "23 - Dividends"
+		If income_type = "24" Then income_type = "24 - Interest "
+		If income_type = "25" Then income_type = "25 - Counted Gifts or Prizes"
+		If income_type = "26" Then income_type = "26 - Strike Benefit"
+		If income_type = "27" Then income_type = "27 - Contract for Deed"
+		If income_type = "28" Then income_type = "28 - Illegal Income"
+		If income_type = "29" Then income_type = "29 - Other Countable"
+		If income_type = "30" Then income_type = "30 - Not Counted - Infreq <30"
+		If income_type = "21" Then income_type = "31 - Other SNAP Only"
+		If income_type = "08" Then income_type = "08 - Direct Child Support"
+		If income_type = "35" Then income_type = "35 - Direct Spousal Support"
+		If income_type = "36" Then income_type = "36 - Disb Child Support"
+		If income_type = "37" Then income_type = "37 - Disb Spousal Support"
+		If income_type = "39" Then income_type = "39 - Disb Child Support Arrears"
+		If income_type = "40" Then income_type = "40 - Disb Spousal Support Arrears"
+		If income_type = "43" Then income_type = "43 - Disb Excess Child Support"
+		If income_type = "44" Then income_type = "44 - MSA - Excess Income for SSI"
+		If income_type = "45" Then income_type = "45 - County 88 Child Support"
+		If income_type = "46" Then income_type = "46 - County 88 Gaming"
+		If income_type = "47" Then income_type = "47 - Counted Tribal Income"
+		If income_type = "48" Then income_type = "48 - Trust Income"
+		If income_type = "49" Then income_type = "49 - Non-Recurring > $60/qtr"
+
+		If income_verification = "1" Then income_verification = "1 - Copy of Checks"
+		If income_verification = "2" Then income_verification = "2 - Award Letters"
+		If income_verification = "3" Then income_verification = "3 - System Initiated"
+		If income_verification = "4" Then income_verification = "4 - Colateral Statement"
+		If income_verification = "5" Then income_verification = "5 - Pend Out State Verif"
+		If income_verification = "6" Then income_verification = "6 - Other Document"
+		If income_verification = "7" Then income_verification = "7 - Worker Initiated"
+		If income_verification = "8" Then income_verification = "8 - RI Stubs"
+		If income_verification = "N" Then income_verification = "N - No Verif Provided"
+		' MsgBox "~" & income_verification & "~"
+		income_start_date = replace(income_start_date, " ", "/")
+		If income_start_date = "__/__/__" Then income_start_date = ""
+		income_end_date = replace(income_end_date, " ", "/")
+		If income_end_date = "__/__/__" Then income_end_date = ""
+
+		If pay_frequency = "1" Then pay_frequency = "1 - Monthly"
+		If pay_frequency = "2" Then pay_frequency = "2 - Semi-monthly"
+		If pay_frequency = "3" Then pay_frequency = "3 - Biweekly"
+		If pay_frequency = "4" Then pay_frequency = "4 - Weekly"
+		If pay_frequency = "5" Then pay_frequency = "5 - Other"
+		If pay_frequency = "_" Then pay_frequency = ""
+		hc_inc_est = trim(hc_inc_est)
+
+		'pay_weekday'
+
+		claim_number = replace(claim_number, "_", "")
+
+		If cola_month = "01" Then cola_month = "January"
+		If cola_month = "02" Then cola_month = "February"
+		If cola_month = "03" Then cola_month = "March"
+		If cola_month = "04" Then cola_month = "April"
+		If cola_month = "05" Then cola_month = "May"
+		If cola_month = "06" Then cola_month = "June"
+		If cola_month = "07" Then cola_month = "July"
+		If cola_month = "08" Then cola_month = "August"
+		If cola_month = "09" Then cola_month = "September"
+		If cola_month = "10" Then cola_month = "October"
+		If cola_month = "11" Then cola_month = "November"
+		If cola_month = "12" Then cola_month = "December"
+		If cola_month = "NA" Then cola_month = "Not Applicable"
+		If cola_month = "__" Then cola_month = "Unspecified"
+
+		prosp_pay_total = trim(prosp_pay_total)
+		prosp_pay_date_one = replace(prosp_pay_date_one, " ", "/")
+		If prosp_pay_date_one = "__/__/__" Then prosp_pay_date_one = ""
+		prosp_pay_wage_one = trim(prosp_pay_wage_one)
+		If prosp_pay_wage_one = "________" Then prosp_pay_wage_one = ""
+		prosp_pay_date_two = replace(prosp_pay_date_two, " ", "/")
+		If prosp_pay_date_two = "__/__/__" Then prosp_pay_date_two = ""
+		prosp_pay_wage_two = trim(prosp_pay_wage_two)
+		If prosp_pay_wage_two = "________" Then prosp_pay_wage_two = ""
+		prosp_pay_date_three = replace(prosp_pay_date_three, " ", "/")
+		If prosp_pay_date_three = "__/__/__" Then prosp_pay_date_three = ""
+		prosp_pay_wage_three = trim(prosp_pay_wage_three)
+		If prosp_pay_wage_three = "________" Then prosp_pay_wage_three = ""
+		prosp_pay_date_four = replace(prosp_pay_date_four, " ", "/")
+		If prosp_pay_date_four = "__/__/__" Then prosp_pay_date_four = ""
+		prosp_pay_wage_four = trim(prosp_pay_wage_four)
+		If prosp_pay_wage_four = "________" Then prosp_pay_wage_four = ""
+		prosp_pay_date_five = replace(prosp_pay_date_five, " ", "/")
+		If prosp_pay_date_five = "__/__/__" Then prosp_pay_date_five = ""
+		prosp_pay_wage_five = trim(prosp_pay_wage_five)
+		If prosp_pay_wage_five = "________" Then prosp_pay_wage_five = ""
+		total_of_prosp_pay = 0
+		number_of_checks = 0
+		If prosp_pay_wage_one <> "" Then
+			total_of_prosp_pay = total_of_prosp_pay + prosp_pay_wage_one * 1
+			number_of_checks = number_of_checks + 1
+		End If
+		If prosp_pay_wage_two <> "" Then
+			total_of_prosp_pay = total_of_prosp_pay + prosp_pay_wage_two * 1
+			number_of_checks = number_of_checks + 1
+		End If
+		If prosp_pay_wage_three <> "" Then
+			total_of_prosp_pay = total_of_prosp_pay + prosp_pay_wage_three * 1
+			number_of_checks = number_of_checks + 1
+		End If
+		If prosp_pay_wage_four <> "" Then
+			total_of_prosp_pay = total_of_prosp_pay + prosp_pay_wage_four * 1
+			number_of_checks = number_of_checks + 1
+		End If
+		If prosp_pay_wage_five <> "" Then
+			total_of_prosp_pay = total_of_prosp_pay + prosp_pay_wage_five * 1
+			number_of_checks = number_of_checks + 1
+		End If
+		If number_of_checks <> 0 Then prosp_average_pay = total_of_prosp_pay / number_of_checks
+		prosp_average_pay = prosp_average_pay & ""
+
+		retro_pay_total = trim(retro_pay_total)
+		retro_pay_date_one = replace(retro_pay_date_one, " ", "/")
+		If retro_pay_date_one = "__/__/__" Then retro_pay_date_one = ""
+		retro_pay_wage_one = trim(retro_pay_wage_one)
+		If retro_pay_wage_one = "________" Then retro_pay_wage_one = ""
+		retro_pay_date_two = replace(retro_pay_date_two, " ", "/")
+		If retro_pay_date_two = "__/__/__" Then retro_pay_date_two = ""
+		retro_pay_wage_two = trim(retro_pay_wage_two)
+		If retro_pay_wage_two = "________" Then retro_pay_wage_two = ""
+		retro_pay_date_three = replace(retro_pay_date_three, " ", "/")
+		If retro_pay_date_three = "__/__/__" Then retro_pay_date_three = ""
+		retro_pay_wage_three = trim(retro_pay_wage_three)
+		If retro_pay_wage_three = "________" Then retro_pay_wage_three = ""
+		retro_pay_date_four = replace(retro_pay_date_four, " ", "/")
+		If retro_pay_date_four = "__/__/__" Then retro_pay_date_four = ""
+		retro_pay_wage_four = trim(retro_pay_wage_four)
+		If retro_pay_wage_four = "________" Then retro_pay_wage_four = ""
+		retro_pay_date_five = replace(retro_pay_date_five, " ", "/")
+		If retro_pay_date_five = "__/__/__" Then retro_pay_date_five = ""
+		retro_pay_wage_five = trim(retro_pay_wage_five)
+		If retro_pay_wage_five = "________" Then retro_pay_wage_five = ""
+		total_of_retro_pay = 0
+		number_of_checks = 0
+		If retro_pay_wage_one <> "" Then
+			total_of_retro_pay = total_of_retro_pay + retro_pay_wage_one * 1
+			number_of_checks = number_of_checks + 1
+		End If
+		If retro_pay_wage_two <> "" Then
+			total_of_retro_pay = total_of_retro_pay + retro_pay_wage_two * 1
+			number_of_checks = number_of_checks + 1
+		End If
+		If retro_pay_wage_three <> "" Then
+			total_of_retro_pay = total_of_retro_pay + retro_pay_wage_three * 1
+			number_of_checks = number_of_checks + 1
+		End If
+		If retro_pay_wage_four <> "" Then
+			total_of_retro_pay = total_of_retro_pay + retro_pay_wage_four * 1
+			number_of_checks = number_of_checks + 1
+		End If
+		If retro_pay_wage_five <> "" Then
+			total_of_retro_pay = total_of_retro_pay + retro_pay_wage_five * 1
+			number_of_checks = number_of_checks + 1
+		End If
+		If number_of_checks <> 0 Then retro_average_pay = total_of_retro_pay / number_of_checks
+		retro_average_pay = retro_average_pay & ""
+
+		If pay_frequency = "3 - Biweekly" OR pay_frequency = "4 - Weekly" Then
+			If prosp_pay_date_five <> "" Then
+				pay_weekday = WeekdayName(weekday(prosp_pay_date_five))
+			ElseIf prosp_pay_date_four <> "" Then
+				pay_weekday = WeekdayName(weekday(prosp_pay_date_four))
+			ElseIf prosp_pay_date_three <> "" Then
+				pay_weekday = WeekdayName(weekday(prosp_pay_date_three))
+			ElseIf prosp_pay_date_two <> "" Then
+				pay_weekday = WeekdayName(weekday(prosp_pay_date_two))
+			ElseIf prosp_pay_date_one <> "" Then
+				pay_weekday = WeekdayName(weekday(prosp_pay_date_one))
+			End If
+
+		End If
+
+	end sub
+
+end class
+
+class client_assets
+
+	public member_ref
+	public member_name
+	public member
+	public access_denied
+
+	public panel_name
+	public panel_instance
+
+	public asset_btn_one
+	public asset_type
+	public account_number
+	public asset_verification
+	public asset_update_date
+	public withdraw_yn
+	public withdraw_penalty
+	public withdraw_verif
+	public count_cash_yn
+	public count_snap_yn
+	public count_hc_yn
+	public count_grh_yn
+	public count_ive_yn
+	public joint_owners_yn
+	public share_ratio
+	public next_interest_date
+
+	public cash_value
+
+	public acct_location
+	public acct_balance
+	public acct_balance_date
+
+	public cars_year
+	public cars_make
+	public cars_model
+	public cars_trade_in_value
+	public cars_loan_value
+	public cars_value_source
+	public cars_amt_owed
+	public cars_owed_verification
+	public cars_owed_date
+	public cars_use
+	public cars_hc_benefit
+
+	public secu_name
+	public secu_cash_value
+	public secu_cash_value_date
+	public secu_face_value
+
+	public rest_market_value
+	public rest_value_verification
+	public rest_amount_owed
+	public rest_owed_verification
+	public rest_owed_date
+	public rest_property_status
+	public rest_ive_repayment_agreement_date
+
+	' function access_ACCT_panel(access_type, member_name,
+
+	' account_type,
+	' account_number,
+	' account_location,
+	' account_balance,
+	' account_verification,
+	' update_date, panel_ref_numb,
+	' balance_date,
+	' withdraw_penalty,
+	' withdraw_yn,
+	' withdraw_verif_code,
+	' count_cash,
+	' count_snap,
+	' count_hc,
+	' count_grh,
+	' count_ive,
+	' joint_own_yn,
+	' share_ratio,
+	' next_interest)
+
+	' function access_CARS_panel(access_type, member_name,
+
+	' cars_type,
+	' cars_year,
+	' cars_make,
+	' cars_model,
+	' cars_verif,
+	' update_date, panel_ref_numb,
+	' cars_trade_in,
+	' cars_loan,
+	' cars_source,
+	' cars_owed,
+	' cars_owed_verif_code,
+	' cars_owed_date,
+	' cars_use,
+	' cars_hc_benefit,
+	' cars_joint_yn,
+	' cars_share)
+
+	' function access_SECU_panel(access_type, member_name,
+
+	' security_type,
+	' security_account_number,
+	' security_name,
+	' security_cash_value,
+	' security_verif,
+	' secu_update_date,
+	' panel_ref_numb,
+	' security_face_value,
+	' security_withdraw,
+	' security_withdraw_yn,
+	' security_withdraw_verif,
+	' secu_cash_yn,
+	' secu_snap_yn,
+	' secu_hc_yn,
+	' secu_grh_yn,
+	' secu_ive_yn,
+	' secu_joint,
+	' secu_ratio,
+	' security_eff_date)
+
+	' function access_REST_panel(access_type, member_name,
+
+	' rest_type,
+	' rest_verif,
+	' rest_update_date,
+	' panel_ref_numb,
+	' rest_market_value,
+	' value_verif_code,
+	' rest_amt_owed,
+	' amt_owed_verif_code,
+	' rest_eff_date,
+	' rest_status,
+	' rest_joint_yn,
+	' rest_ratio,
+	' repymt_agree_date)
+
+	public sub read_member_name()
+		Call navigate_to_MAXIS_screen("STAT", "MEMB")
+		EMWriteScreen member_ref, 20, 76
+		transmit
+
+		EMReadScreen access_denied_check, 13, 24, 2         'Sometimes MEMB gets this access denied issue and we have to work around it.
+		If access_denied_check = "ACCESS DENIED" Then
+			PF10
+			last_name = "UNABLE TO FIND"
+			first_name = "Access Denied"
+			access_denied = TRUE
+		Else
+			access_denied = FALSE
+			EMReadscreen last_name, 25, 6, 30
+			EMReadscreen first_name, 12, 6, 63
+		End If
+		last_name = trim(replace(last_name, "_", ""))
+		first_name = trim(replace(first_name, "_", ""))
+
+		member_name = first_name & " " & last_name
+		member = member_ref & " - " & member_name
+		' MsgBox "~" & member & "~"
+	end sub
+
+	public sub read_cash_panel()
+		Call navigate_to_MAXIS_screen("STAT", "CASH")
+		EMWriteScreen member_ref, 20, 76
+		EMWriteScreen panel_instance, 20, 79
+		transmit
+
+		asset_type = "CASH"
+
+		EMReadScreen cash_value, 8, 8, 39
+		cash_value = trim(cash_value)
+
+	end sub
+
+	public sub read_acct_panel()
+
+		Call navigate_to_MAXIS_screen("STAT", "ACCT")
+		EMWriteScreen member_ref, 20, 76
+		EMWriteScreen panel_instance, 20, 79
+		transmit
+
+		EMReadScreen panel_type, 2, 6, 44
+		EMReadScreen panel_number, 20, 7, 44
+		EMReadScreen acct_location, 20, 8, 44
+		EMReadScreen panel_balance, 8, 10, 46
+		EMReadScreen panel_verif_code, 1, 10, 64
+		EMReadScreen balance_date, 8, 11, 44
+		EMReadScreen withdraw_penalty, 8, 12, 46
+		EMReadScreen withdraw_yn, 1, 12, 64
+		EMReadScreen withdraw_verif_code, 1, 12, 72
+		EMReadScreen count_cash, 1, 14, 50
+		EMReadScreen count_snap, 1, 14, 57
+		EMReadScreen count_hc, 1, 14, 64
+		EMReadScreen count_grh, 1, 14, 72
+		EMReadScreen count_ive, 1, 14, 80
+		EMReadScreen joint_own_yn, 1, 15, 44
+		EMReadScreen share_ratio, 5, 15, 76
+		EMReadScreen next_interest, 5, 17, 57
+		EMReadScreen update_date, 8, 21, 55
+
+		If panel_type = "SV" Then asset_type = "SV - Savings"
+		If panel_type = "CK" Then asset_type = "CK - Checking"
+		If panel_type = "CE" Then asset_type = "CE - Certificate of Deposit"
+		If panel_type = "MM" Then asset_type = "MM - Money Market"
+		If panel_type = "DC" Then asset_type = "DC - Debit Card"
+		If panel_type = "KO" Then asset_type = "KO - Keogh Account"
+		If panel_type = "FT" Then asset_type = "FT - Fed Thrift Savings Plan"
+		If panel_type = "SL" Then asset_type = "SL - State & Local Govt"
+		If panel_type = "RA" Then asset_type = "RA - Employee Ret Annuities"
+		If panel_type = "NP" Then asset_type = "NP - Non-Profit Emmployee Ret"
+		If panel_type = "IR" Then asset_type = "IR - Indiv Ret Acct"
+		If panel_type = "RH" Then asset_type = "RH - Roth IRA"
+		If panel_type = "FR" Then asset_type = "FR - Ret Plan for Employers"
+		If panel_type = "CT" Then asset_type = "CT - Corp Ret Trust"
+		If panel_type = "RT" Then asset_type = "RT - Other Ret Fund"
+		If panel_type = "QT" Then asset_type = "QT - Qualified Tuition (529)"
+		If panel_type = "CA" Then asset_type = "CA - Coverdell SV (530)"
+		If panel_type = "OE" Then asset_type = "OE - Other Educational"
+		If panel_type = "OT" Then asset_type = "OT - Other"
+
+		account_number = replace(panel_number, "_", "")
+		acct_location =  replace(acct_location, "_", "")
+		acct_balance = trim(panel_balance)
+
+		If panel_verif_code = "1"  Then asset_verification = "1 - Bank Statement"
+		If panel_verif_code = "2"  Then asset_verification = "2 - Agcy Ver Form"
+		If panel_verif_code = "3"  Then asset_verification = "3 - Coltrl Contact"
+		If panel_verif_code = "5"  Then asset_verification = "5 - Other Document"
+		If panel_verif_code = "6"  Then asset_verification = "6 - Personal Statement"
+		If panel_verif_code = "N"  Then asset_verification = "N - No Ver Prvd"
+
+		acct_balance_date = replace(balance_date, " ", "/")
+		If acct_balance_date = "__/__/__" Then acct_balance_date = ""
+
+		withdraw_penalty = replace(withdraw_penalty, "_", "")
+		withdraw_penalty = trim(withdraw_penalty)
+		withdraw_yn = replace(withdraw_yn, "_", "")
+		If withdraw_verif_code = "1"  Then withdraw_verif = "1 - Bank Statement"
+		If withdraw_verif_code = "2"  Then withdraw_verif = "2 - Agcy Ver Form"
+		If withdraw_verif_code = "3"  Then withdraw_verif = "3 - Coltrl Contact"
+		If withdraw_verif_code = "5"  Then withdraw_verif = "5 - Other Document"
+		If withdraw_verif_code = "6"  Then withdraw_verif = "6 - Personal Statement"
+		If withdraw_verif_code = "N"  Then withdraw_verif = "N - No Ver Prvd"
+
+		count_cash_yn = replace(count_cash, "_", "")
+		count_snap_yn = replace(count_snap, "_", "")
+		count_hc_yn = replace(count_hc, "_", "")
+		count_grh_yn = replace(count_grh, "_", "")
+		count_ive_yn = replace(count_ive, "_", "")
+
+		share_ratio = replace(share_ratio, " ", "")
+
+		next_interest_date = replace(next_interest, " ", "/")
+		If next_interest_date = "__/__" Then next_interest_date = ""
+
+		asset_update_date = replace(update_date, " ", "/")
+
+	end sub
+
+	public sub read_secu_panel()
+		Call navigate_to_MAXIS_screen("STAT", "SECU")
+		EMWriteScreen member_ref, 20, 76
+		EMWriteScreen panel_instance, 20, 79
+		transmit
+
+        EMReadScreen panel_type, 2, 6, 50
+        EMReadScreen security_account_number, 12, 7, 50
+        EMReadScreen security_name, 20, 8, 50
+        EMReadScreen security_cash_value, 8, 10, 52
+        EMReadScreen security_eff_date, 8, 11, 35   'not output
+        EMReadScreen verif_code, 1, 11, 50
+        EMReadScreen security_face_value, 8, 12, 52     'not output
+        EMReadScreen security_withdraw, 8, 13, 52       'not output
+        EMReadScreen security_withdraw_yn, 1, 13, 72    'not output
+        EMReadScreen security_withdraw_verif, 1, 13, 80 'not output
+
+        EMReadScreen secu_cash_yn, 1, 15, 50    'not output
+        EMReadScreen secu_snap_yn, 1, 15, 57    'not output
+        EMReadScreen secu_hc_yn, 1, 15, 64      'not output
+        EMReadScreen secu_grh_yn, 1, 15, 72     'not output
+        EMReadScreen secu_ive_yn, 1, 15, 80     'not output
+
+        EMReadScreen secu_joint, 1, 16, 44      'not output
+        EMReadScreen secu_ratio, 5, 16, 76      'not output
+        EMReadScreen secu_update_date, 8, 21, 55
+
+        If panel_type = "LI" Then asset_type = "LI - Life Insurance"
+        If panel_type = "ST" Then asset_type = "ST - Stocks"
+        If panel_type = "BO" Then asset_type = "BO - Bonds"
+        If panel_type = "CD" Then asset_type = "CD - Ctrct for Deed"
+        If panel_type = "MO" Then asset_type = "MO - Mortgage Note"
+        If panel_type = "AN" Then asset_type = "AN - Annuity"
+        If panel_type = "OT" Then asset_type = "OT - Other"
+
+        account_number = replace(security_account_number, "_", "")
+        secu_name = replace(security_name, "_", "")
+
+        secu_cash_value = replace(security_cash_value, "_", "")
+        secu_cash_value = trim(secu_cash_value)
+
+        secu_cash_value_date = replace(security_eff_date, " ", "/")
+        If secu_cash_value_date = "__/__/__" Then secu_cash_value_date = ""
+
+        If verif_code = "1" Then asset_verification = "1 - Agency Form"
+        If verif_code = "2" Then asset_verification = "2 - Source Doc"
+        If verif_code = "3" Then asset_verification = "3 - Phone Contact"
+        If verif_code = "5" Then asset_verification = "5 - Other Document"
+        If verif_code = "6" Then asset_verification = "6 - Personal Statement"
+        If verif_code = "N" Then asset_verification = "N - No Ver Prov"
+
+        secu_face_value = replace(security_face_value, "_", "")
+        secu_face_value = trim(secu_face_value)
+
+        withdraw_penalty = replace(security_withdraw, "_", "")
+        withdraw_penalty = trim(withdraw_penalty)
+
+        withdraw_yn = replace(security_withdraw_yn, "_", "")
+
+        If security_withdraw_verif = "1" Then withdraw_verif = "1 - Agency Form"
+        If security_withdraw_verif = "2" Then withdraw_verif = "2 - Source Doc"
+        If security_withdraw_verif = "3" Then withdraw_verif = "3 - Phone Contact"
+        If security_withdraw_verif = "4" Then withdraw_verif = "4 - Other Document"
+        If security_withdraw_verif = "5" Then withdraw_verif = "5 - Personal Stmt"
+        If security_withdraw_verif = "N" Then withdraw_verif = "N - No Ver Prov"
+
+        count_cash_yn = replace(secu_cash_yn, "_", "")
+        count_snap_yn = replace(secu_snap_yn, "_", "")
+        count_hc_yn = replace(secu_hc_yn, "_", "")
+        count_grh_yn = replace(secu_grh_yn, "_", "")
+        count_ive_yn = replace(secu_ive_yn, "_", "")
+
+        joint_owners_yn = replace(secu_joint, "_", "")
+        share_ratio = replace(secu_ratio, " ", "")
+
+        asset_update_date = replace(secu_update_date, " ", "/")
+
+	end sub
+
+	public sub read_cars_panel()
+		Call navigate_to_MAXIS_screen("STAT", "CARS")
+		EMWriteScreen member_ref, 20, 76
+		EMWriteScreen panel_instance, 20, 79
+		transmit
+
+		EMReadScreen cars_type, 1, 6, 43
+		EMReadScreen cars_year, 4, 8, 31
+		EMReadScreen cars_make, 15, 8, 43
+		EMReadScreen cars_model, 15, 8, 66
+		EMReadScreen cars_trade_in, 8, 9, 45            'not output
+		EMReadScreen cars_loan, 8, 9, 62                'not output
+		EMReadScreen cars_source, 1, 9, 80              'not output
+		EMReadScreen cars_verif_code, 1, 10, 60
+		EMReadScreen cars_owed, 8, 12, 45               'not output
+		EMReadScreen cars_owed_verif_code, 1, 12, 60    'not output
+		EMReadScreen cars_owed_date, 8, 13, 43          'not output
+		EMReadScreen cars_use, 1, 15, 43                'not output
+		EMReadScreen cars_hc_benefit, 1, 15, 76         'not output
+		EMReadScreen cars_joint_yn, 1, 16, 43           'not output
+		EMReadScreen cars_share, 5, 16, 76              'not output
+		EMReadScreen cars_update, 8, 21, 55
+
+		If cars_type = "1" Then asset_type = "1 - Car"
+		If cars_type = "2" Then asset_type = "2 - Truck"
+		If cars_type = "3" Then asset_type = "3 - Van"
+		If cars_type = "4" Then asset_type = "4 - Camper"
+		If cars_type = "5" Then asset_type = "5 - Motorcycle"
+		If cars_type = "6" Then asset_type = "6 - Trailer"
+		If cars_type = "7" Then asset_type = "7 - Other"
+
+		cars_make = replace(cars_make, "_", "")
+		cars_model = replace(cars_model, "_", "")
+
+		cars_trade_in_value = replace(cars_trade_in, "_", "")
+		cars_trade_in_value = trim(cars_trade_in_value)
+
+		cars_loan_value = replace(cars_loan, "_", "")
+		cars_loan_value = trim(cars_loan_value)
+
+		If cars_source = "1" Then cars_value_source = "1 - NADA"
+		If cars_source = "2" Then cars_value_source = "2 - Appraisal Val"
+		If cars_source = "3" Then cars_value_source = "3 - Client Stmt"
+		If cars_source = "4" Then cars_value_source = "4 - Other Document"
+
+		If cars_verif_code = "1" Then asset_verification = "1 - Title"
+		If cars_verif_code = "2" Then asset_verification = "2 - License Reg"
+		If cars_verif_code = "3" Then asset_verification = "3 - DMV"
+		If cars_verif_code = "4" Then asset_verification = "4 - Purchase Agmt"
+		If cars_verif_code = "5" Then asset_verification = "5 - Other Document"
+		If cars_verif_code = "N" Then asset_verification = "N - No Ver Prvd"
+
+		cars_amt_owed = replace(cars_owed, "_", "")
+		cars_amt_owed = trim(cars_amt_owed)
+
+		If cars_owed_verif_code = "1" Then cars_owed_verification = "1 - Bank/Lending Inst Stmt"
+		If cars_owed_verif_code = "2" Then cars_owed_verification = "2 - Private Lender Stmt"
+		If cars_owed_verif_code = "3" Then cars_owed_verification = "3 - Other Document"
+		If cars_owed_verif_code = "4" Then cars_owed_verification = "4 - Pend Out State Verif"
+		If cars_owed_verif_code = "N" Then cars_owed_verification = "N - No Ver Prvd"
+
+		cars_owed_date = replace(cars_owed_date, " ", "/")
+		If cars_owed_date = "__/__/__" Then cars_owed_date = ""
+
+		If cars_use = "1" Then cars_use = "1 - Primary Vehicle"
+		If cars_use = "2" Then cars_use = "2 - Employment/Training Search"
+		If cars_use = "3" Then cars_use = "3 - Disa Transportation"
+		If cars_use = "4" Then cars_use = "4 - Income Producing"
+		If cars_use = "5" Then cars_use = "5 - Used as Home"
+		If cars_use = "7" Then cars_use = "7 - Unlicensed"
+		If cars_use = "8" Then cars_use = "8 - Other Countable"
+		If cars_use = "9" Then cars_use = "9 - Unavailable"
+		If cars_use = "0" Then cars_use = "0 - Long Distance Employment Travel"
+		If cars_use = "A" Then cars_use = "A - Carry Heating Fuel or Water"
+
+		cars_hc_benefit = replace(cars_hc_benefit, "_", "")
+		joint_owners_yn = replace(cars_joint_yn, "_", "")
+		share_ratio = replace(cars_share, " ", "")
+
+		asset_update_date = replace(cars_update, " ", "/")
+
+	end sub
+
+	public sub read_rest_panel()
+		Call navigate_to_MAXIS_screen("STAT", "REST")
+		EMWriteScreen member_ref, 20, 76
+		EMWriteScreen panel_instance, 20, 79
+		transmit
+
+        EMReadScreen type_code, 1, 6, 39
+        EMReadScreen type_verif_code, 2, 6, 62
+        EMReadScreen rest_market_value, 10, 8, 41
+        EMReadScreen value_verif_code, 2, 8, 62
+        EMReadScreen rest_amt_owed, 10, 9, 41
+        EMReadScreen amt_owed_verif_code, 2, 9, 62
+        EMReadScreen rest_eff_date, 8, 10, 39
+        EMReadScreen rest_status, 1, 12, 54
+        EMReadScreen rest_joint_yn, 1, 13, 54
+        EMReadScreen rest_ratio, 5, 14, 54
+        EMReadScreen repymt_agree_date, 8, 16, 62
+        EMReadScreen rest_update_date, 8, 21, 55
+
+        If type_code = "1" Then asset_type = "1 - House"
+        If type_code = "2" Then asset_type = "2 - Land"
+        If type_code = "3" Then asset_type = "3 - Buildings"
+        If type_code = "4" Then asset_type = "4 - Mobile Home"
+        If type_code = "5" Then asset_type = "5 - Life Estate"
+        If type_code = "6" Then asset_type = "6 - Other"
+
+        If type_verif_code = "TX" Then asset_verification = "TX - Property Tax Statement"
+        If type_verif_code = "PU" Then asset_verification = "PU - Purchase Agreement"
+        If type_verif_code = "TI" Then asset_verification = "TI - Title/Deed"
+        If type_verif_code = "CD" Then asset_verification = "CD - Contract for Deed"
+        If type_verif_code = "CO" Then asset_verification = "CO - County Record"
+        If type_verif_code = "OT" Then asset_verification = "OT - Other Document"
+        If type_verif_code = "NO" Then asset_verification = "NO - No Ver Prvd"
+
+        rest_market_value = replace(rest_market_value, "_", "")
+        rest_market_value = trim(rest_market_value)
+
+        If value_verif_code = "TX" Then rest_value_verification = "TX - Property Tax Statement"
+        If value_verif_code = "PU" Then rest_value_verification = "PU - Purchase Agreement"
+        If value_verif_code = "AP" Then rest_value_verification = "AP - Appraisal"
+        If value_verif_code = "CO" Then rest_value_verification = "CO - County Record"
+        If value_verif_code = "OT" Then rest_value_verification = "OT - Other Document"
+        If value_verif_code = "NO" Then rest_value_verification = "NO - No Ver Prvd"
+
+        rest_amount_owed = replace(rest_amt_owed, "_", "")
+        rest_amount_owed = trim(rest_amount_owed)
+
+        If amt_owed_verif_code = "MO" Then rest_owed_verification = "TI - Title/Deed"
+        If amt_owed_verif_code = "LN" Then rest_owed_verification = "CD - Contract for Deed"
+        If amt_owed_verif_code = "CD" Then rest_owed_verification = "CD - Contract for Deed"
+        If amt_owed_verif_code = "OT" Then rest_owed_verification = "OT - Other Document"
+        If amt_owed_verif_code = "NO" Then rest_owed_verification = "NO - No Ver Prvd"
+
+        rest_owed_date = replace(rest_eff_date, " ", "/")
+        If rest_owed_date = "__/__/__" Then rest_owed_date = ""
+
+        If rest_status = "1" Then rest_property_status = "1 - Home Residence"
+        If rest_status = "2" Then rest_property_status = "2 - For Sale, IV-E Rpymt Agmt"
+        If rest_status = "3" Then rest_property_status = "3 - Joint Owner, Unavailable"
+        If rest_status = "4" Then rest_property_status = "4 - Income Producing"
+        If rest_status = "5" Then rest_property_status = "5 - Future Residence"
+        If rest_status = "6" Then rest_property_status = "6 - Other"
+        If rest_status = "7" Then rest_property_status = "7 - For Sale, Unavailable"
+
+        joint_owners_yn = replace(rest_joint_yn, "_", "")
+        share_ratio = replace(rest_ratio, "_", "")
+
+        rest_ive_repayment_agreement_date = replace(repymt_agree_date, " ", "/")
+        If rest_ive_repayment_agreement_date = "__/__/__" Then rest_ive_repayment_agreement_date = ""
+
+        asset_update_date = replace(rest_update_date, " ", "/")
+
+	end sub
+
+end class
+
 
 function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_line_two, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, mail_line_one, mail_line_two, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three)
     access_type = UCase(access_type)
@@ -391,90 +3149,90 @@ function define_main_dialog()
 		ElseIf page_display = show_pg_memb_list Then
 			Text 495, 42, 60, 13, "CAF MEMBs"
 			If update_pers = FALSE Then
-				Text 20, 45, 105, 15, ALL_CLIENTS_ARRAY(memb_last_name, known_membs)
-				Text 130, 45, 90, 15, ALL_CLIENTS_ARRAY(memb_first_name, known_membs)
-				Text 225, 45, 70, 15, ALL_CLIENTS_ARRAY(memb_mid_name, known_membs)
-				Text 300, 45, 175, 15, ALL_CLIENTS_ARRAY(memb_other_names, known_membs)
-				If ALL_CLIENTS_ARRAY(memb_ssn_verif, known_membs) = "V - System Verified" Then
-					Text 20, 75, 70, 15, ALL_CLIENTS_ARRAY(memb_soc_sec_numb, known_membs)
+				Text 20, 45, 105, 15, HH_MEMB_ARRAY(selected_memb).last_name
+				Text 130, 45, 90, 15, HH_MEMB_ARRAY(selected_memb).first_name
+				Text 225, 45, 70, 15, HH_MEMB_ARRAY(selected_memb).mid_initial
+				Text 300, 45, 175, 15, HH_MEMB_ARRAY(selected_memb).other_names
+				If HH_MEMB_ARRAY(selected_memb).ssn_verif = "V - System Verified" Then
+					Text 20, 75, 70, 15, HH_MEMB_ARRAY(selected_memb).ssn
 				Else
-					EditBox 20, 75, 70, 15, ALL_CLIENTS_ARRAY(memb_soc_sec_numb, known_membs)
+					EditBox 20, 75, 70, 15, HH_MEMB_ARRAY(selected_memb).ssn
 				End If
-				Text 95, 75, 70, 15, ALL_CLIENTS_ARRAY(memb_dob, known_membs)
-				Text 170, 75, 50, 45, ALL_CLIENTS_ARRAY(memb_gender, known_membs)
-				Text 225, 75, 140, 45, ALL_CLIENTS_ARRAY(memb_rel_to_applct, known_membs)
-				Text 370, 75, 105, 45, ALL_CLIENTS_ARRAY(memi_marriage_status, known_membs)
-				Text 20, 105, 130, 15, ALL_CLIENTS_ARRAY(memi_last_grade, known_membs)
-				Text 155, 105, 70, 15, ALL_CLIENTS_ARRAY(memi_MN_entry_date, known_membs)
-				Text 230, 105, 165, 15, ALL_CLIENTS_ARRAY(memi_former_state, known_membs)
-				Text 400, 105, 75, 45, ALL_CLIENTS_ARRAY(memi_citizen, known_membs)
-				Text 20, 135, 60, 45, ALL_CLIENTS_ARRAY(memb_interpreter, known_membs)
-				Text 90, 135, 170, 15, ALL_CLIENTS_ARRAY(memb_spoken_language, known_membs)
-				Text 90, 165, 170, 15, ALL_CLIENTS_ARRAY(memb_written_language, known_membs)
-				Text 280, 155, 40, 45, ALL_CLIENTS_ARRAY(memb_ethnicity, known_membs)
-				CheckBox 330, 155, 30, 10, "Asian", ALL_CLIENTS_ARRAY(memb_race_a_checkbox, known_membs)
-				CheckBox 330, 165, 30, 10, "Black", ALL_CLIENTS_ARRAY(memb_race_b_checkbox, known_membs)
-				CheckBox 330, 175, 120, 10, "American Indian or Alaska Native", ALL_CLIENTS_ARRAY(memb_race_n_checkbox, known_membs)
-				CheckBox 330, 185, 130, 10, "Pacific Islander and Native Hawaiian", ALL_CLIENTS_ARRAY(memb_race_p_checkbox, known_membs)
-				CheckBox 330, 195, 130, 10, "White", ALL_CLIENTS_ARRAY(memb_race_w_checkbox, known_membs)
-				CheckBox 20, 195, 50, 10, "SNAP (food)", ALL_CLIENTS_ARRAY(clt_snap_checkbox, known_membs)
-				CheckBox 75, 195, 65, 10, "Cash programs", ALL_CLIENTS_ARRAY(clt_cash_checkbox, known_membs)
-				CheckBox 145, 195, 85, 10, "Emergency Assistance", ALL_CLIENTS_ARRAY(clt_emer_checkbox, known_membs)
-				CheckBox 235, 195, 30, 10, "NONE", ALL_CLIENTS_ARRAY(clt_none_checkbox, known_membs)
-				DropListBox 15, 230, 80, 45, "Yes"+chr(9)+"No", ALL_CLIENTS_ARRAY(clt_intend_to_reside_mn, known_membs)
-				EditBox 100, 230, 205, 15, ALL_CLIENTS_ARRAY(clt_imig_status, known_membs)
-				DropListBox 310, 230, 55, 45, "No"+chr(9)+"Yes", ALL_CLIENTS_ARRAY(clt_sponsor_yn, known_membs)
-				DropListBox 15, 260, 80, 50, "Not Needed"+chr(9)+"Requested"+chr(9)+"On File", ALL_CLIENTS_ARRAY(clt_verif_yn, known_membs)
-				EditBox 100, 260, 435, 15, ALL_CLIENTS_ARRAY(clt_verif_details, known_membs)
-				EditBox 15, 290, 350, 15, ALL_CLIENTS_ARRAY(memb_notes, known_membs)
+				Text 95, 75, 70, 15, HH_MEMB_ARRAY(selected_memb).date_of_birth
+				Text 170, 75, 50, 45, HH_MEMB_ARRAY(selected_memb).gender
+				Text 225, 75, 140, 45, HH_MEMB_ARRAY(selected_memb).rel_to_applcnt
+				Text 370, 75, 105, 45, HH_MEMB_ARRAY(selected_memb).marital_status
+				Text 20, 105, 130, 15, HH_MEMB_ARRAY(selected_memb).last_grade_completed
+				Text 155, 105, 70, 15, HH_MEMB_ARRAY(selected_memb).mn_entry_date
+				Text 230, 105, 165, 15, HH_MEMB_ARRAY(selected_memb).former_state
+				Text 400, 105, 75, 45, HH_MEMB_ARRAY(selected_memb).citizen
+				Text 20, 135, 60, 45, HH_MEMB_ARRAY(selected_memb).interpreter
+				Text 90, 135, 170, 15, HH_MEMB_ARRAY(selected_memb).spoken_lang
+				Text 90, 165, 170, 15, HH_MEMB_ARRAY(selected_memb).written_lang
+				Text 280, 155, 40, 45, HH_MEMB_ARRAY(selected_memb).ethnicity_yn
+				CheckBox 330, 155, 30, 10, "Asian", HH_MEMB_ARRAY(selected_memb).race_a_checkbox
+				CheckBox 330, 165, 30, 10, "Black", HH_MEMB_ARRAY(selected_memb).race_b_checkbox
+				CheckBox 330, 175, 120, 10, "American Indian or Alaska Native", HH_MEMB_ARRAY(selected_memb).race_n_checkbox
+				CheckBox 330, 185, 130, 10, "Pacific Islander and Native Hawaiian", HH_MEMB_ARRAY(selected_memb).race_p_checkbox
+				CheckBox 330, 195, 130, 10, "White", HH_MEMB_ARRAY(selected_memb).race_w_checkbox
+				CheckBox 20, 195, 50, 10, "SNAP (food)", HH_MEMB_ARRAY(selected_memb).snap_req_checkbox
+				CheckBox 75, 195, 65, 10, "Cash programs", HH_MEMB_ARRAY(selected_memb).cash_req_checkbox
+				CheckBox 145, 195, 85, 10, "Emergency Assistance", HH_MEMB_ARRAY(selected_memb).emer_req_checkbox
+				CheckBox 235, 195, 30, 10, "NONE", HH_MEMB_ARRAY(selected_memb).none_req_checkbox
+				DropListBox 15, 230, 80, 45, "Yes"+chr(9)+"No", HH_MEMB_ARRAY(selected_memb).intend_to_reside_in_mn
+				EditBox 100, 230, 205, 15, HH_MEMB_ARRAY(selected_memb).imig_status
+				DropListBox 310, 230, 55, 45, "No"+chr(9)+"Yes", HH_MEMB_ARRAY(selected_memb).clt_has_sponsor
+				DropListBox 15, 260, 80, 50, "Not Needed"+chr(9)+"Requested"+chr(9)+"On File", HH_MEMB_ARRAY(selected_memb).client_verification
+				EditBox 100, 260, 435, 15, HH_MEMB_ARRAY(selected_memb).client_verification_details
+				EditBox 15, 290, 350, 15, HH_MEMB_ARRAY(selected_memb).client_notes
 				PushButton 330, 5, 95, 15, "Update Information", update_information_btn
 			End If
 			If update_pers = TRUE Then
-				EditBox 20, 45, 105, 15, ALL_CLIENTS_ARRAY(memb_last_name, known_membs)
-				EditBox 130, 45, 90, 15, ALL_CLIENTS_ARRAY(memb_first_name, known_membs)
-				EditBox 225, 45, 70, 15, ALL_CLIENTS_ARRAY(memb_mid_name, known_membs)
-				EditBox 300, 45, 175, 15, ALL_CLIENTS_ARRAY(memb_other_names, known_membs)
-				EditBox 20, 75, 70, 15, ALL_CLIENTS_ARRAY(memb_soc_sec_numb, known_membs)
-				EditBox 95, 75, 70, 15, ALL_CLIENTS_ARRAY(memb_dob, known_membs)
-				DropListBox 170, 75, 50, 45, ""+chr(9)+"Male"+chr(9)+"Female", ALL_CLIENTS_ARRAY(memb_gender, known_membs)
-				DropListBox 225, 75, 140, 45, memb_panel_relationship_list, ALL_CLIENTS_ARRAY(memb_rel_to_applct, known_membs)
-				DropListBox 370, 75, 105, 45, marital_status, ALL_CLIENTS_ARRAY(memi_marriage_status, known_membs)
-				EditBox 20, 105, 130, 15, ALL_CLIENTS_ARRAY(memi_last_grade, known_membs)
-				EditBox 155, 105, 70, 15, ALL_CLIENTS_ARRAY(memi_MN_entry_date, known_membs)
-				EditBox 230, 105, 165, 15, ALL_CLIENTS_ARRAY(memi_former_state, known_membs)
-				DropListBox 400, 105, 75, 45, ""+chr(9)+"Yes"+chr(9)+"No", ALL_CLIENTS_ARRAY(memi_citizen, known_membs)
-				DropListBox 20, 135, 60, 45, ""+chr(9)+"Yes"+chr(9)+"No", ALL_CLIENTS_ARRAY(memb_interpreter, known_membs)
-				EditBox 90, 135, 170, 15, ALL_CLIENTS_ARRAY(memb_spoken_language, known_membs)
-				EditBox 90, 165, 170, 15, ALL_CLIENTS_ARRAY(memb_written_language, known_membs)
-				DropListBox 280, 155, 40, 45, ""+chr(9)+"Yes"+chr(9)+"No", ALL_CLIENTS_ARRAY(memb_ethnicity, known_membs)
-				CheckBox 330, 155, 30, 10, "Asian", ALL_CLIENTS_ARRAY(memb_race_a_checkbox, known_membs)
-				CheckBox 330, 165, 30, 10, "Black", ALL_CLIENTS_ARRAY(memb_race_b_checkbox, known_membs)
-				CheckBox 330, 175, 120, 10, "American Indian or Alaska Native", ALL_CLIENTS_ARRAY(memb_race_n_checkbox, known_membs)
-				CheckBox 330, 185, 130, 10, "Pacific Islander and Native Hawaiian", ALL_CLIENTS_ARRAY(memb_race_p_checkbox, known_membs)
-				CheckBox 330, 195, 130, 10, "White", ALL_CLIENTS_ARRAY(memb_race_w_checkbox, known_membs)
-				CheckBox 20, 195, 50, 10, "SNAP (food)", ALL_CLIENTS_ARRAY(clt_snap_checkbox, known_membs)
-				CheckBox 75, 195, 65, 10, "Cash programs", ALL_CLIENTS_ARRAY(clt_cash_checkbox, known_membs)
-				CheckBox 145, 195, 85, 10, "Emergency Assistance", ALL_CLIENTS_ARRAY(clt_emer_checkbox, known_membs)
-				CheckBox 235, 195, 30, 10, "NONE", ALL_CLIENTS_ARRAY(clt_none_checkbox, known_membs)
-				DropListBox 15, 230, 80, 45, ""+chr(9)+"Yes"+chr(9)+"No", ALL_CLIENTS_ARRAY(clt_intend_to_reside_mn, known_membs)
-				EditBox 100, 230, 205, 15, ALL_CLIENTS_ARRAY(clt_imig_status, known_membs)
-				DropListBox 310, 230, 55, 45, ""+chr(9)+"Yes"+chr(9)+"No", ALL_CLIENTS_ARRAY(clt_sponsor_yn, known_membs)
-				DropListBox 15, 260, 80, 50, "Not Needed"+chr(9)+"Requested"+chr(9)+"On File", ALL_CLIENTS_ARRAY(clt_verif_yn, known_membs)
-				EditBox 100, 260, 435, 15, ALL_CLIENTS_ARRAY(clt_verif_details, known_membs)
-				EditBox 15, 290, 350, 15, ALL_CLIENTS_ARRAY(memb_notes, known_membs)
+				EditBox 20, 45, 105, 15, HH_MEMB_ARRAY(selected_memb).last_name
+				EditBox 130, 45, 90, 15, HH_MEMB_ARRAY(selected_memb).first_name
+				EditBox 225, 45, 70, 15, HH_MEMB_ARRAY(selected_memb).mid_initial
+				EditBox 300, 45, 175, 15, HH_MEMB_ARRAY(selected_memb).other_names
+				EditBox 20, 75, 70, 15, HH_MEMB_ARRAY(selected_memb).ssn
+				EditBox 95, 75, 70, 15, HH_MEMB_ARRAY(selected_memb).date_of_birth
+				DropListBox 170, 75, 50, 45, ""+chr(9)+"Male"+chr(9)+"Female", HH_MEMB_ARRAY(selected_memb).gender
+				DropListBox 225, 75, 140, 45, memb_panel_relationship_list, HH_MEMB_ARRAY(selected_memb).rel_to_applcnt
+				DropListBox 370, 75, 105, 45, marital_status, HH_MEMB_ARRAY(selected_memb).marital_status
+				EditBox 20, 105, 130, 15, HH_MEMB_ARRAY(selected_memb).last_grade_completed
+				EditBox 155, 105, 70, 15, HH_MEMB_ARRAY(selected_memb).mn_entry_date
+				EditBox 230, 105, 165, 15, HH_MEMB_ARRAY(selected_memb).former_state
+				DropListBox 400, 105, 75, 45, ""+chr(9)+"Yes"+chr(9)+"No", HH_MEMB_ARRAY(selected_memb).citizen
+				DropListBox 20, 135, 60, 45, ""+chr(9)+"Yes"+chr(9)+"No", HH_MEMB_ARRAY(selected_memb).interpreter
+				EditBox 90, 135, 170, 15, HH_MEMB_ARRAY(selected_memb).spoken_lang
+				EditBox 90, 165, 170, 15, HH_MEMB_ARRAY(selected_memb).written_lang
+				DropListBox 280, 155, 40, 45, ""+chr(9)+"Yes"+chr(9)+"No", HH_MEMB_ARRAY(selected_memb).ethnicity_yn
+				CheckBox 330, 155, 30, 10, "Asian", HH_MEMB_ARRAY(selected_memb).race_a_checkbox
+				CheckBox 330, 165, 30, 10, "Black", HH_MEMB_ARRAY(selected_memb).race_b_checkbox
+				CheckBox 330, 175, 120, 10, "American Indian or Alaska Native", HH_MEMB_ARRAY(selected_memb).race_n_checkbox
+				CheckBox 330, 185, 130, 10, "Pacific Islander and Native Hawaiian", HH_MEMB_ARRAY(selected_memb).race_p_checkbox
+				CheckBox 330, 195, 130, 10, "White", HH_MEMB_ARRAY(selected_memb).race_w_checkbox
+				CheckBox 20, 195, 50, 10, "SNAP (food)", HH_MEMB_ARRAY(selected_memb).snap_req_checkbox
+				CheckBox 75, 195, 65, 10, "Cash programs", HH_MEMB_ARRAY(selected_memb).cash_req_checkbox
+				CheckBox 145, 195, 85, 10, "Emergency Assistance", HH_MEMB_ARRAY(selected_memb).emer_req_checkbox
+				CheckBox 235, 195, 30, 10, "NONE", HH_MEMB_ARRAY(selected_memb).none_req_checkbox
+				DropListBox 15, 230, 80, 45, ""+chr(9)+"Yes"+chr(9)+"No", HH_MEMB_ARRAY(selected_memb).intend_to_reside_in_mn
+				EditBox 100, 230, 205, 15, HH_MEMB_ARRAY(selected_memb).imig_status
+				DropListBox 310, 230, 55, 45, ""+chr(9)+"Yes"+chr(9)+"No", HH_MEMB_ARRAY(selected_memb).clt_has_sponsor
+				DropListBox 15, 260, 80, 50, "Not Needed"+chr(9)+"Requested"+chr(9)+"On File", HH_MEMB_ARRAY(selected_memb).client_verification
+				EditBox 100, 260, 435, 15, HH_MEMB_ARRAY(selected_memb).client_verification_details
+				EditBox 15, 290, 350, 15, HH_MEMB_ARRAY(selected_memb).client_notes
 				PushButton 330, 5, 95, 15, "Save Information", save_information_btn
 			End If
-			If ALL_CLIENTS_ARRAY(memb_ref_numb, known_membs) = "" Then
+			If HH_MEMB_ARRAY(selected_memb).ref_number = "" Then
 				GroupBox 10, 25, 475, 190, "Person " & known_membs+1
 			Else
-				GroupBox 10, 25, 475, 190, "Person " & known_membs+1 & " - MEMBER " & ALL_CLIENTS_ARRAY(memb_ref_numb, known_membs)
+				GroupBox 10, 25, 475, 190, "Person " & known_membs+1 & " - MEMBER " & HH_MEMB_ARRAY(selected_memb).ref_number
 			End If
 			y_pos = 35
-			For the_memb = 0 to UBound(ALL_CLIENTS_ARRAY, 2)
-				If the_memb = known_membs Then
+			For the_memb = 0 to UBound(HH_MEMB_ARRAY)
+				If the_memb = selected_memb Then
 					Text 498, y_pos + 1, 45, 10, "Person " & (the_memb + 1)
 				Else
-					PushButton 490, y_pos, 45, 10, "Person " & (the_memb + 1), ALL_CLIENTS_ARRAY(clt_nav_btn, the_memb)
+					PushButton 490, y_pos, 45, 10, "Person " & (the_memb + 1), HH_MEMB_ARRAY(selected_memb).button_one
 				End If
 				y_pos = y_pos + 10
 			Next
@@ -2830,6 +5588,246 @@ function dlg_signature()
 	End If
 end function
 
+function read_all_the_MEMBs()
+	CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
+
+	DO								'reads the reference number, last name, first name, and then puts it into a single string then into the array
+		EMReadscreen ref_nbr, 2, 4, 33
+		EMReadScreen access_denied_check, 13, 24, 2         'Sometimes MEMB gets this access denied issue and we have to work around it.
+		If access_denied_check = "ACCESS DENIED" Then
+			PF10
+		End If
+		If client_array <> "" Then client_array = client_array & "|" & ref_nbr
+		If client_array = "" Then client_array = client_array & ref_nbr
+		transmit      'Going to the next MEMB panel
+		Emreadscreen edit_check, 7, 24, 2 'looking to see if we are at the last member
+		member_count = member_count + 1
+	LOOP until edit_check = "ENTER A"			'the script will continue to transmit through memb until it reaches the last page and finds the ENTER A edit on the bottom row.
+	' MsgBox client_array
+	client_array = split(client_array, "|")
+
+	clt_count = 0
+
+	For each hh_clt in client_array
+
+		ReDim Preserve HH_MEMB_ARRAY(clt_count)
+		Set HH_MEMB_ARRAY(clt_count) = new mx_hh_member
+		HH_MEMB_ARRAY(clt_count).ref_number = hh_clt
+		HH_MEMB_ARRAY(clt_count).define_the_member
+		HH_MEMB_ARRAY(clt_count).button_one = 500 + clt_count
+		HH_MEMB_ARRAY(clt_count).button_two = 600 + clt_count
+		memb_droplist = memb_droplist+chr(9)+HH_MEMB_ARRAY(clt_count).ref_number & " - " & HH_MEMB_ARRAY(clt_count).full_name
+		If HH_MEMB_ARRAY(clt_count).fs_pwe = "Yes" Then the_pwe_for_this_case = HH_MEMB_ARRAY(clt_count).ref_number & " - " & HH_MEMB_ARRAY(clt_count).full_name
+
+		ReDim Preserve ALL_ANSWERS_ARRAY(ans_notes, clt_count)
+		clt_count = clt_count + 1
+	Next
+
+	For i = 0 to UBOUND(HH_MEMB_ARRAY, 1)
+		HH_MEMB_ARRAY(i).collect_parent_information
+
+		If HH_MEMB_ARRAY(i).parent_one_in_home = TRUE AND HH_MEMB_ARRAY(i).parent_two_in_home = TRUE Then
+			HH_MEMB_ARRAY(i).parents_in_home = "Both parents in the home"
+		ElseIf HH_MEMB_ARRAY(i).parent_one_in_home = FALSE AND HH_MEMB_ARRAY(i).parent_two_in_home = FALSE Then
+			HH_MEMB_ARRAY(i).parents_in_home = "Neither parent in the home"
+		ElseIf HH_MEMB_ARRAY(i).parent_one_in_home = TRUE AND HH_MEMB_ARRAY(i).parent_two_in_home = FALSE Then
+			HH_MEMB_ARRAY(i).parents_in_home = "1 parent in the home"
+		ElseIf HH_MEMB_ARRAY(i).parent_one_in_home = FALSE AND HH_MEMB_ARRAY(i).parent_two_in_home = TRUE Then
+			HH_MEMB_ARRAY(i).parents_in_home = "1 parent in the home"
+		End If
+	Next
+
+	rela_counter = 0
+	For i = 0 to UBOUND(HH_MEMB_ARRAY, 1)
+		If HH_MEMB_ARRAY(i).rel_to_applcnt <> "Self" AND HH_MEMB_ARRAY(i).rel_to_applcnt <> "Not Related" AND HH_MEMB_ARRAY(i).rel_to_applcnt <> "Live-in Attendant" AND HH_MEMB_ARRAY(i).rel_to_applcnt <> "Unknown" Then
+			ReDim Preserve ALL_HH_RELATIONSHIPS_ARRAY(rela_notes, rela_counter)
+
+			ALL_HH_RELATIONSHIPS_ARRAY(rela_clt_one_ref, rela_counter) = HH_MEMB_ARRAY(i).ref_number
+			ALL_HH_RELATIONSHIPS_ARRAY(rela_clt_one_name, rela_counter) = HH_MEMB_ARRAY(i).full_name
+			ALL_HH_RELATIONSHIPS_ARRAY(rela_clt_two_ref, rela_counter) = "01"
+			ALL_HH_RELATIONSHIPS_ARRAY(rela_clt_two_name, rela_counter) = HH_MEMB_ARRAY(0).full_name
+			ALL_HH_RELATIONSHIPS_ARRAY(rela_type, rela_counter) = HH_MEMB_ARRAY(i).rel_to_applcnt
+
+			rela_counter = rela_counter + 1
+
+			ReDim Preserve ALL_HH_RELATIONSHIPS_ARRAY(rela_notes, rela_counter)
+
+		 	' MsgBox "Member Count - " & i & vbNewLine & "Relationship - " & HH_MEMB_ARRAY(i).rel_to_applcnt
+			ALL_HH_RELATIONSHIPS_ARRAY(rela_clt_one_ref, rela_counter) = "01"
+			ALL_HH_RELATIONSHIPS_ARRAY(rela_clt_one_name, rela_counter) = HH_MEMB_ARRAY(0).full_name
+			ALL_HH_RELATIONSHIPS_ARRAY(rela_clt_two_ref, rela_counter) = HH_MEMB_ARRAY(i).ref_number
+			ALL_HH_RELATIONSHIPS_ARRAY(rela_clt_two_name, rela_counter) = HH_MEMB_ARRAY(i).full_name
+			If HH_MEMB_ARRAY(i).rel_to_applcnt = "Spouse" Then ALL_HH_RELATIONSHIPS_ARRAY(rela_type, rela_counter) = "Spouse"
+			If HH_MEMB_ARRAY(i).rel_to_applcnt = "Child" Then ALL_HH_RELATIONSHIPS_ARRAY(rela_type, rela_counter) = "Parent"
+			If HH_MEMB_ARRAY(i).rel_to_applcnt = "Parent" Then ALL_HH_RELATIONSHIPS_ARRAY(rela_type, rela_counter) = "Child"
+			If HH_MEMB_ARRAY(i).rel_to_applcnt = "Sibling" Then ALL_HH_RELATIONSHIPS_ARRAY(rela_type, rela_counter) = "Sibling"
+			If HH_MEMB_ARRAY(i).rel_to_applcnt = "Step Sibling" Then ALL_HH_RELATIONSHIPS_ARRAY(rela_type, rela_counter) = "Step Sibling"
+			If HH_MEMB_ARRAY(i).rel_to_applcnt = "Step Child" Then ALL_HH_RELATIONSHIPS_ARRAY(rela_type, rela_counter) = "Step Parent"
+			If HH_MEMB_ARRAY(i).rel_to_applcnt = "Step Parent" Then ALL_HH_RELATIONSHIPS_ARRAY(rela_type, rela_counter) = "Step Child"
+			If HH_MEMB_ARRAY(i).rel_to_applcnt = "Aunt" OR HH_MEMB_ARRAY(i).rel_to_applcnt = "Uncle" Then
+				If HH_MEMB_ARRAY(0).gender = "Female" Then ALL_HH_RELATIONSHIPS_ARRAY(rela_type, rela_counter) = "Neice"
+				If HH_MEMB_ARRAY(0).gender = "Female" Then ALL_HH_RELATIONSHIPS_ARRAY(rela_type, rela_counter) = "Nephew"
+			End If
+			If HH_MEMB_ARRAY(i).rel_to_applcnt = "Nephew" OR HH_MEMB_ARRAY(i).rel_to_applcnt = "Neice" Then
+				If HH_MEMB_ARRAY(0).gender = "Female" Then ALL_HH_RELATIONSHIPS_ARRAY(rela_type, rela_counter) = "Aunt"
+				If HH_MEMB_ARRAY(0).gender = "Female" Then ALL_HH_RELATIONSHIPS_ARRAY(rela_type, rela_counter) = "Uncle"
+			End If
+			If HH_MEMB_ARRAY(i).rel_to_applcnt = "Cousin" Then ALL_HH_RELATIONSHIPS_ARRAY(rela_type, rela_counter) = "Cousin"
+			If HH_MEMB_ARRAY(i).rel_to_applcnt = "Grandparent" Then ALL_HH_RELATIONSHIPS_ARRAY(rela_type, rela_counter) = "Grandchild"
+			If HH_MEMB_ARRAY(i).rel_to_applcnt = "Grandchild" Then ALL_HH_RELATIONSHIPS_ARRAY(rela_type, rela_counter) = "Grandparent"
+			If HH_MEMB_ARRAY(i).rel_to_applcnt = "Other Relative" Then ALL_HH_RELATIONSHIPS_ARRAY(rela_type, rela_counter) = "Other Relative"
+
+			rela_counter = rela_counter + 1
+		End If
+	Next
+
+	Call navigate_to_MAXIS_screen("STAT", "SIBL")
+
+	sibl_row = 7
+	Do
+		EMReadScreen sibl_group_nbr, 2, sibl_row, 28
+		If sibl_group_nbr <> "__" Then
+			sibl_col = 39
+			Do
+				EMReadScreen sibl_ref_nrb, 2, sibl_row, sibl_col
+				If sibl_ref_nrb <> "__" Then
+					list_of_siblings = list_of_siblings & "~" & sibl_ref_nrb
+					sibl_col = sibl_col + 4
+				End If
+			Loop until sibl_ref_nrb = "__"
+			list_of_siblings = right(list_of_siblings, len(list_of_siblings) - 1)
+			sibl_array = split(list_of_siblings, "~")
+			For each memb_sibling in sibl_array
+				For each other_sibling in sibl_array
+					If memb_sibling <> other_sibling Then
+						ReDim Preserve ALL_HH_RELATIONSHIPS_ARRAY(rela_notes, rela_counter)
+
+						ALL_HH_RELATIONSHIPS_ARRAY(rela_clt_one_ref, rela_counter) = memb_sibling
+						ALL_HH_RELATIONSHIPS_ARRAY(rela_clt_two_ref, rela_counter) = other_sibling
+						ALL_HH_RELATIONSHIPS_ARRAY(rela_type, rela_counter) = "Sibling"
+
+						For i = 0 to UBOUND(HH_MEMB_ARRAY, 1)
+							If HH_MEMB_ARRAY(i).ref_number = ALL_HH_RELATIONSHIPS_ARRAY(rela_clt_one_ref, rela_counter) Then ALL_HH_RELATIONSHIPS_ARRAY(rela_clt_one_name, rela_counter) = HH_MEMB_ARRAY(i).full_name
+							If HH_MEMB_ARRAY(i).ref_number = ALL_HH_RELATIONSHIPS_ARRAY(rela_clt_two_ref, rela_counter) Then ALL_HH_RELATIONSHIPS_ARRAY(rela_clt_two_name, rela_counter) = HH_MEMB_ARRAY(i).full_name
+						Next
+
+						rela_counter = rela_counter + 1
+					End If
+				Next
+			Next
+		End If
+		sibl_row = sibl_row + 1
+	Loop until sibl_group_nbr = "__"
+
+	Call navigate_to_MAXIS_screen("STAT", "PARE")
+
+	'Need to add a way to find relationship verifications for MEMB 01
+	EMWriteScreen HH_MEMB_ARRAY(0).ref_number, 20, 76
+	transmit
+
+
+
+	For i = 0 to UBound(HH_MEMB_ARRAY, 1)						'we start with 1 because 0 is MEMB 01 and that parental relationshipare all known because of MEMB
+		EMWriteScreen HH_MEMB_ARRAY(i).ref_number, 20, 76
+		transmit
+
+		pare_row = 8
+		Do
+			EMReadScreen child_ref_nbr, 2, pare_row, 24
+			If child_ref_nbr <> "__" Then
+				If i = 0 Then
+					For known_rela = 0 to UBound(ALL_HH_RELATIONSHIPS_ARRAY, 2)
+						If ALL_HH_RELATIONSHIPS_ARRAY(rela_clt_one_ref, known_rela) = "01" AND child_ref_nbr = ALL_HH_RELATIONSHIPS_ARRAY(rela_clt_two_ref, known_rela) THen
+							EMReadScreen pare_verif, 2, pare_row, 71
+							If pare_verif = "BC" Then ALL_HH_RELATIONSHIPS_ARRAY(rela_verif, known_rela) = "BC - Birth Certificate"
+							If pare_verif = "AR" Then ALL_HH_RELATIONSHIPS_ARRAY(rela_verif, known_rela) = "AR - Adoption Records"
+							If pare_verif = "LG" Then ALL_HH_RELATIONSHIPS_ARRAY(rela_verif, known_rela) = "LG = Legal Guardian"
+							If pare_verif = "RE" Then ALL_HH_RELATIONSHIPS_ARRAY(rela_verif, known_rela) = "RE - Religious Records"
+							If pare_verif = "HR" Then ALL_HH_RELATIONSHIPS_ARRAY(rela_verif, known_rela) = "HR - Hospital Records"
+							If pare_verif = "RP" Then ALL_HH_RELATIONSHIPS_ARRAY(rela_verif, known_rela) = "RP - Recognition of Parentage"
+							If pare_verif = "OT" Then ALL_HH_RELATIONSHIPS_ARRAY(rela_verif, known_rela) = "OT - Other Verifciation"
+							If pare_verif = "NO" Then ALL_HH_RELATIONSHIPS_ARRAY(rela_verif, known_rela) = "NO - No Verif Provided"
+						End If
+					Next
+				Else
+					EMReadScreen pare_type, 1, pare_row, 53
+					EMReadScreen pare_verif, 2, pare_row, 71
+
+					ReDim Preserve ALL_HH_RELATIONSHIPS_ARRAY(rela_notes, rela_counter)
+
+					ALL_HH_RELATIONSHIPS_ARRAY(rela_clt_one_ref, rela_counter) = HH_MEMB_ARRAY(i).ref_number
+					ALL_HH_RELATIONSHIPS_ARRAY(rela_clt_two_ref, rela_counter) = child_ref_nbr
+
+					If pare_type = "1" Then ALL_HH_RELATIONSHIPS_ARRAY(rela_type, rela_counter) = "Parent"
+					If pare_type = "2" Then ALL_HH_RELATIONSHIPS_ARRAY(rela_type, rela_counter) = "Step Parent"
+					If pare_type = "3" Then ALL_HH_RELATIONSHIPS_ARRAY(rela_type, rela_counter) = "Grandparent"
+					If pare_type = "4" Then ALL_HH_RELATIONSHIPS_ARRAY(rela_type, rela_counter) = "Relative Caregiver"
+					If pare_type = "5" Then ALL_HH_RELATIONSHIPS_ARRAY(rela_type, rela_counter) = "Foster Parent"
+					If pare_type = "6" Then ALL_HH_RELATIONSHIPS_ARRAY(rela_type, rela_counter) = "Not Related"
+					If pare_type = "7" Then ALL_HH_RELATIONSHIPS_ARRAY(rela_type, rela_counter) = "Legal Guardian"
+					If pare_type = "8" Then ALL_HH_RELATIONSHIPS_ARRAY(rela_type, rela_counter) = "Other Relative"
+
+					If pare_verif = "BC" Then ALL_HH_RELATIONSHIPS_ARRAY(rela_verif, rela_counter) = "BC - Birth Certificate"
+					If pare_verif = "AR" Then ALL_HH_RELATIONSHIPS_ARRAY(rela_verif, rela_counter) = "AR - Adoption Records"
+					If pare_verif = "LG" Then ALL_HH_RELATIONSHIPS_ARRAY(rela_verif, rela_counter) = "LG = Legal Guardian"
+					If pare_verif = "RE" Then ALL_HH_RELATIONSHIPS_ARRAY(rela_verif, rela_counter) = "RE - Religious Records"
+					If pare_verif = "HR" Then ALL_HH_RELATIONSHIPS_ARRAY(rela_verif, rela_counter) = "HR - Hospital Records"
+					If pare_verif = "RP" Then ALL_HH_RELATIONSHIPS_ARRAY(rela_verif, rela_counter) = "RP - Recognition of Parentage"
+					If pare_verif = "OT" Then ALL_HH_RELATIONSHIPS_ARRAY(rela_verif, rela_counter) = "OT - Other Verifciation"
+					If pare_verif = "NO" Then ALL_HH_RELATIONSHIPS_ARRAY(rela_verif, rela_counter) = "NO - No Verif Provided"
+
+					for x = 0 to UBound(HH_MEMB_ARRAY, 1)
+						If HH_MEMB_ARRAY(x).ref_number = ALL_HH_RELATIONSHIPS_ARRAY(rela_clt_one_ref, rela_counter) Then ALL_HH_RELATIONSHIPS_ARRAY(rela_clt_one_name, rela_counter) = HH_MEMB_ARRAY(x).full_name
+						If HH_MEMB_ARRAY(x).ref_number = ALL_HH_RELATIONSHIPS_ARRAY(rela_clt_two_ref, rela_counter) Then ALL_HH_RELATIONSHIPS_ARRAY(rela_clt_two_name, rela_counter) = HH_MEMB_ARRAY(x).full_name
+					Next
+
+					rela_counter = rela_counter + 1
+
+					ReDim Preserve ALL_HH_RELATIONSHIPS_ARRAY(rela_notes, rela_counter)
+
+					ALL_HH_RELATIONSHIPS_ARRAY(rela_clt_one_ref, rela_counter) = child_ref_nbr
+					ALL_HH_RELATIONSHIPS_ARRAY(rela_clt_two_ref, rela_counter) = HH_MEMB_ARRAY(i).ref_number
+
+					If pare_type = "1" Then ALL_HH_RELATIONSHIPS_ARRAY(rela_type, rela_counter) = "Child"
+					If pare_type = "2" Then ALL_HH_RELATIONSHIPS_ARRAY(rela_type, rela_counter) = "Step Child"
+					If pare_type = "3" Then ALL_HH_RELATIONSHIPS_ARRAY(rela_type, rela_counter) = "Grandchild"
+					If pare_type = "4" Then ALL_HH_RELATIONSHIPS_ARRAY(rela_type, rela_counter) = "Relative Caregiver"
+					If pare_type = "5" Then ALL_HH_RELATIONSHIPS_ARRAY(rela_type, rela_counter) = "Foster Child"
+					If pare_type = "6" Then ALL_HH_RELATIONSHIPS_ARRAY(rela_type, rela_counter) = "Not Related"
+					If pare_type = "7" Then ALL_HH_RELATIONSHIPS_ARRAY(rela_type, rela_counter) = "Legal Guardian"
+					If pare_type = "8" Then ALL_HH_RELATIONSHIPS_ARRAY(rela_type, rela_counter) = "Other Relative"
+
+					If pare_verif = "BC" Then ALL_HH_RELATIONSHIPS_ARRAY(rela_verif, rela_counter) = "BC - Birth Certificate"
+					If pare_verif = "AR" Then ALL_HH_RELATIONSHIPS_ARRAY(rela_verif, rela_counter) = "AR - Adoption Records"
+					If pare_verif = "LG" Then ALL_HH_RELATIONSHIPS_ARRAY(rela_verif, rela_counter) = "LG = Legal Guardian"
+					If pare_verif = "RE" Then ALL_HH_RELATIONSHIPS_ARRAY(rela_verif, rela_counter) = "RE - Religious Records"
+					If pare_verif = "HR" Then ALL_HH_RELATIONSHIPS_ARRAY(rela_verif, rela_counter) = "HR - Hospital Records"
+					If pare_verif = "RP" Then ALL_HH_RELATIONSHIPS_ARRAY(rela_verif, rela_counter) = "RP - Recognition of Parentage"
+					If pare_verif = "OT" Then ALL_HH_RELATIONSHIPS_ARRAY(rela_verif, rela_counter) = "OT - Other Verifciation"
+					If pare_verif = "NO" Then ALL_HH_RELATIONSHIPS_ARRAY(rela_verif, rela_counter) = "NO - No Verif Provided"
+
+					for x = 0 to UBound(HH_MEMB_ARRAY, 1)
+						If HH_MEMB_ARRAY(x).ref_number = ALL_HH_RELATIONSHIPS_ARRAY(rela_clt_one_ref, rela_counter) Then ALL_HH_RELATIONSHIPS_ARRAY(rela_clt_one_name, rela_counter) = HH_MEMB_ARRAY(x).full_name
+						If HH_MEMB_ARRAY(x).ref_number = ALL_HH_RELATIONSHIPS_ARRAY(rela_clt_two_ref, rela_counter) Then ALL_HH_RELATIONSHIPS_ARRAY(rela_clt_two_name, rela_counter) = HH_MEMB_ARRAY(x).full_name
+					Next
+
+					rela_counter = rela_counter + 1
+
+				End If
+			End If
+			pare_row = pare_row + 1
+
+		Loop until child_ref_nbr = "__"
+	Next
+
+	For the_rela = 0 to UBound(ALL_HH_RELATIONSHIPS_ARRAY, 2)
+		ALL_HH_RELATIONSHIPS_ARRAY(rela_pers_one, the_rela) = ALL_HH_RELATIONSHIPS_ARRAY(rela_clt_one_ref, the_rela) & " - " & ALL_HH_RELATIONSHIPS_ARRAY(rela_clt_one_name, the_rela)
+		ALL_HH_RELATIONSHIPS_ARRAY(rela_pers_two, the_rela) = ALL_HH_RELATIONSHIPS_ARRAY(rela_clt_two_ref, the_rela) & " - " & ALL_HH_RELATIONSHIPS_ARRAY(rela_clt_two_name, the_rela)
+
+		' MsgBox "Relationship detail:" & vbNewLine & ALL_HH_RELATIONSHIPS_ARRAY(rela_pers_one, the_rela) & " is the " & ALL_HH_RELATIONSHIPS_ARRAY(rela_type, the_rela) & " of " & ALL_HH_RELATIONSHIPS_ARRAY(rela_pers_two, the_rela)
+	Next
+end function
+
 function verif_details_dlg(question_number)
 	Select Case question_number
 		Case 1
@@ -3333,7 +6331,16 @@ page_display = 1
 EMConnect ""
 Call check_for_MAXIS(true)
 Call MAXIS_case_number_finder(MAXIS_case_number)
-application_date = date & ""
+CAF_datestamp = date & ""
+interview_date = date & ""
+
+Call back_to_SELF
+EMReadScreen MX_region, 10, 22, 48
+MX_region = trim(MX_region)
+If MX_region = "INQUIRY DB" Then
+	continue_in_inquiry = MsgBox("You have started this script run in INQUIRY." & vbNewLine & vbNewLine & "The script cannot complete a CASE:NOTE when run in inquiry. The functionality is limited when run in inquiry. " & vbNewLine & vbNewLine & "Would you like to continue in INQUIRY?", vbQuestion + vbYesNo, "Continue in INQUIRY")
+	If continue_in_inquiry = vbNo Then Call script_end_procedure("~PT Interview Script cancelled as it was run in inquiry.")
+End If
 
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 371, 235, "Interview Script Case number dialog"
@@ -3372,7 +6379,7 @@ Do
         Call validate_MAXIS_case_number(err_msg, "*")
 		If no_case_number_checkbox = checked Then err_msg = ""
         ' Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
-		If IsDate(application_date) = False Then err_msg = err_msg & vbCr & "* Enter the date of application."
+		If IsDate(CAF_datestamp) = False Then err_msg = err_msg & vbCr & "* Enter the date of application."
         IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 	LOOP UNTIL err_msg = ""
@@ -3385,7 +6392,6 @@ vars_filled = FALSE
 Call back_to_SELF
 Call restore_your_work(vars_filled)			'looking for a 'restart' run
 Call convert_date_into_MAXIS_footer_month(application_date, MAXIS_footer_month, MAXIS_footer_year)
-caf_form_date = application_date			'The CAF form date is defaulted to the application date
 If vars_filled = TRUE Then show_known_addr = TRUE		'This is a setting for the address dialog to see the view
 
 'If we already know the variables because we used 'restore your work' OR if there is no case number, we don't need to read the information from MAXIS
@@ -3397,213 +6403,7 @@ If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 	list_for_array = right(all_the_clients, len(all_the_clients) - 15)			'Then we create an array of the the full hh list for looping purpoases
 	full_hh_list = Split(list_for_array, chr(9))
 
-	Call back_to_SELF
-	Call navigate_to_MAXIS_screen("STAT", "MEMB")								'Going to MEMB for each person in MAXIS to read the known information.
-
-	'Now we start filling in the full client array for use in the dialogs
-	member_counter = 0		'this increments to let us add people to the array depending on the case
-	Do
-		EMReadScreen clt_ref_nbr, 2, 4, 33										'REading each person
-		EMReadScreen clt_last_name, 25, 6, 30
-		EMReadScreen clt_first_name, 12, 6, 63
-		EMReadScreen clt_age, 3, 8, 76
-
-		ReDim Preserve ALL_CLIENTS_ARRAY(memb_notes, member_counter)			'creating and adding to the array as we read all the people
-		ALL_CLIENTS_ARRAY(memb_ref_numb, member_counter) = clt_ref_nbr
-		ALL_CLIENTS_ARRAY(memb_last_name, member_counter) = replace(clt_last_name, "_", "")
-		ALL_CLIENTS_ARRAY(memb_first_name, member_counter) = replace(clt_first_name, "_", "")
-		ALL_CLIENTS_ARRAY(memb_age, member_counter) = trim(clt_age)
-
-		member_counter = member_counter + 1
-		transmit
-		EMReadScreen last_memb, 7, 24, 2
-	Loop until last_memb = "ENTER A"
-
-	Call back_to_SELF		'backing out to reset
-	Call navigate_to_MAXIS_screen("STAT", "MEMB")	'going back to MEMB
-	For case_memb = 0 to UBound(ALL_CLIENTS_ARRAY, 2)							'Looping through all of the people and gathering detail for each person.
-	    EMWriteScreen ALL_CLIENTS_ARRAY(memb_ref_numb, case_memb), 20, 76		'going to the right member
-	    transmit
-
-	    EMReadScreen clt_id_verif, 2, 9, 68										'Reading all the information from MEMB for each person
-	    EMReadScreen clt_ssn, 11, 7, 42
-	    EMReadScreen clt_ssn_verif, 1, 7, 68
-	    EMReadScreen clt_dob, 10, 8, 42
-	    EMReadScreen clt_dob_verif, 2, 8, 68
-	    EMReadScreen clt_gender, 1, 9, 42
-
-	    EMReadScreen clt_rel_to_applct, 2, 10, 42
-	    EMReadScreen clt_spkn_lang, 20, 12, 42
-	    EMReadScreen clt_wrt_lang, 29, 13, 42
-	    EMReadScreen clt_interp_need, 1, 14, 68
-	    EMReadScreen clt_alias, 1, 15, 42
-	    EMReadScreen clt_ethncty, 1, 16, 68
-	    EMReadScreen clt_race_sum, 30, 17, 42
-		PF9
-		EMReadScreen in_edit_mode, 9, 24, 11
-		If in_edit_mode <> "READ ONLY" Then
-			EMWriteScreen "X", 17, 34
-			transmit
-			EMReadScreen race_x_a, 1, 7, 12
-			EMReadScreen race_x_b, 1, 8, 12
-			EMReadScreen race_x_n, 1, 10, 12
-			EMReadScreen race_x_p, 1, 12, 12
-			EMReadScreen race_x_w, 1, 14, 12
-			EMReadScreen race_x_u, 1, 15, 12
-			PF10
-			PF10
-		End If
-
-		'Formatting all of the detail found and saving to the array
-	    If clt_id_verif = "BC" Then ALL_CLIENTS_ARRAY(memb_id_verif, case_memb) = "BC - Birth Certificate"
-	    If clt_id_verif = "RE" Then ALL_CLIENTS_ARRAY(memb_id_verif, case_memb) = "RE - Religious Record"
-	    If clt_id_verif = "DL" Then ALL_CLIENTS_ARRAY(memb_id_verif, case_memb) = "DL - Drivers Lic/St ID"
-	    If clt_id_verif = "DV" Then ALL_CLIENTS_ARRAY(memb_id_verif, case_memb) = "DV - Divorce Decree"
-	    If clt_id_verif = "AL" Then ALL_CLIENTS_ARRAY(memb_id_verif, case_memb) = "AL - Alien Card"
-	    If clt_id_verif = "AD" Then ALL_CLIENTS_ARRAY(memb_id_verif, case_memb) = "AD - Arrival/Depart"
-	    If clt_id_verif = "DR" Then ALL_CLIENTS_ARRAY(memb_id_verif, case_memb) = "DR - Doctor Stmt"
-	    If clt_id_verif = "PV" Then ALL_CLIENTS_ARRAY(memb_id_verif, case_memb) = "PV = Passport/Visa"
-	    If clt_id_verif = "OT" Then ALL_CLIENTS_ARRAY(memb_id_verif, case_memb) = "OT - Other"
-	    If clt_id_verif = "NO" Then ALL_CLIENTS_ARRAY(memb_id_verif, case_memb) = "NO - No Ver Prvd"
-	    ALL_CLIENTS_ARRAY(memb_soc_sec_numb, case_memb) = replace(clt_ssn, " ", "-")
-	    If clt_ssn_verif = "A" Then ALL_CLIENTS_ARRAY(memb_ssn_verif, case_memb) = "A - SSN Applied For"
-	    If clt_ssn_verif = "P" Then ALL_CLIENTS_ARRAY(memb_ssn_verif, case_memb) = "P - SSN Prvd, Verif Pending"
-	    If clt_ssn_verif = "N" Then ALL_CLIENTS_ARRAY(memb_ssn_verif, case_memb) = "N - SSN Not Prvd"
-	    If clt_ssn_verif = "V" Then ALL_CLIENTS_ARRAY(memb_ssn_verif, case_memb) = "V - System Verified"
-	    ALL_CLIENTS_ARRAY(memb_dob, case_memb) = replace(clt_dob, " ", "/")
-	    If clt_dob_verif = "BC" Then ALL_CLIENTS_ARRAY(memb_dob_verif, case_memb) = "BC - Birth Certificate"
-	    If clt_dob_verif = "RE" Then ALL_CLIENTS_ARRAY(memb_dob_verif, case_memb) = "RE - Religious Record"
-	    If clt_dob_verif = "DL" Then ALL_CLIENTS_ARRAY(memb_dob_verif, case_memb) = "DL - Drivers Lic/St ID"
-	    If clt_dob_verif = "DV" Then ALL_CLIENTS_ARRAY(memb_dob_verif, case_memb) = "DV - Divorce Decree"
-	    If clt_dob_verif = "AL" Then ALL_CLIENTS_ARRAY(memb_dob_verif, case_memb) = "AL - Alien Card"
-	    If clt_dob_verif = "DR" Then ALL_CLIENTS_ARRAY(memb_dob_verif, case_memb) = "DR - Doctor Stmt"
-	    If clt_dob_verif = "PV" Then ALL_CLIENTS_ARRAY(memb_dob_verif, case_memb) = "PV = Passport/Visa"
-	    If clt_dob_verif = "OT" Then ALL_CLIENTS_ARRAY(memb_dob_verif, case_memb) = "OT - Other"
-	    If clt_dob_verif = "NO" Then ALL_CLIENTS_ARRAY(memb_dob_verif, case_memb) = "NO - No Ver Prvd"
-	    If clt_gender = "F" Then ALL_CLIENTS_ARRAY(memb_gender, case_memb) = "Female"
-	    If clt_gender = "M" Then ALL_CLIENTS_ARRAY(memb_gender, case_memb) = "Male"
-	    If clt_rel_to_applct = "01" Then ALL_CLIENTS_ARRAY(memb_rel_to_applct, case_memb) = "01 Applicant"
-	    If clt_rel_to_applct = "02" Then ALL_CLIENTS_ARRAY(memb_rel_to_applct, case_memb) = "02 Spouse"
-	    If clt_rel_to_applct = "03" Then ALL_CLIENTS_ARRAY(memb_rel_to_applct, case_memb) = "03 Child"
-	    If clt_rel_to_applct = "04" Then ALL_CLIENTS_ARRAY(memb_rel_to_applct, case_memb) = "04 Parent"
-	    If clt_rel_to_applct = "05" Then ALL_CLIENTS_ARRAY(memb_rel_to_applct, case_memb) = "05 Sibling"
-	    If clt_rel_to_applct = "06" Then ALL_CLIENTS_ARRAY(memb_rel_to_applct, case_memb) = "06 Step Sibling"
-	    If clt_rel_to_applct = "08" Then ALL_CLIENTS_ARRAY(memb_rel_to_applct, case_memb) = "08 Step Child"
-	    If clt_rel_to_applct = "09" Then ALL_CLIENTS_ARRAY(memb_rel_to_applct, case_memb) = "09 Step Parent"
-	    If clt_rel_to_applct = "10" Then ALL_CLIENTS_ARRAY(memb_rel_to_applct, case_memb) = "10 Aunt"
-	    If clt_rel_to_applct = "11" Then ALL_CLIENTS_ARRAY(memb_rel_to_applct, case_memb) = "11 Uncle"
-	    If clt_rel_to_applct = "12" Then ALL_CLIENTS_ARRAY(memb_rel_to_applct, case_memb) = "12 Niece"
-	    If clt_rel_to_applct = "13" Then ALL_CLIENTS_ARRAY(memb_rel_to_applct, case_memb) = "13 Nephew"
-	    If clt_rel_to_applct = "14" Then ALL_CLIENTS_ARRAY(memb_rel_to_applct, case_memb) = "14 Cousin"
-	    If clt_rel_to_applct = "15" Then ALL_CLIENTS_ARRAY(memb_rel_to_applct, case_memb) = "15 Grandparent"
-	    If clt_rel_to_applct = "16" Then ALL_CLIENTS_ARRAY(memb_rel_to_applct, case_memb) = "16 Grandchild"
-	    If clt_rel_to_applct = "17" Then ALL_CLIENTS_ARRAY(memb_rel_to_applct, case_memb) = "17 Other Relative"
-	    If clt_rel_to_applct = "18" Then ALL_CLIENTS_ARRAY(memb_rel_to_applct, case_memb) = "18 Legal Guardian"
-	    If clt_rel_to_applct = "24" Then ALL_CLIENTS_ARRAY(memb_rel_to_applct, case_memb) = "24 Not Related"
-	    If clt_rel_to_applct = "25" Then ALL_CLIENTS_ARRAY(memb_rel_to_applct, case_memb) = "25 Live-In Attendant"
-	    If clt_rel_to_applct = "27" Then ALL_CLIENTS_ARRAY(memb_rel_to_applct, case_memb) = "27 Unknown"
-
-	    clt_spkn_lang = replace(clt_spkn_lang, "_", "")
-	    clt_spkn_lang = replace(clt_spkn_lang, "  ", " - ")
-	    ALL_CLIENTS_ARRAY(memb_spoken_language, case_memb) = trim(clt_spkn_lang)
-	    clt_wrt_lang = replace(clt_wrt_lang, "_", "")
-	    clt_wrt_lang = replace(clt_wrt_lang, "  ", " - ")
-	    clt_wrt_lang = replace(clt_wrt_lang, "(HRF)", "")
-	    ALL_CLIENTS_ARRAY(memb_written_language, case_memb) = trim(clt_wrt_lang)
-
-	    ALL_CLIENTS_ARRAY(memb_interpreter, case_memb) = clt_interp_need
-	    ALL_CLIENTS_ARRAY(memb_alias, case_memb) = clt_alias
-	    ALL_CLIENTS_ARRAY(memb_ethnicity, case_memb) = clt_ethncty
-	    ALL_CLIENTS_ARRAY(memb_race, case_memb) = trim(clt_race_sum)
-
-		If race_x_a = "X" Then race_a_checkbox = checked
-		If race_x_b = "X" Then race_b_checkbox = checked
-		If race_x_n = "X" Then race_n_checkbox = checked
-		If race_x_p = "X" Then race_p_checkbox = checked
-		If race_x_w = "X" Then race_w_checkbox = checked
-		' If race_x_u = "X" Then race_a_checkbox = checked
-	Next
-
-	Call navigate_to_MAXIS_screen("STAT", "MEMI")								'Now fgoing to MEMI to get all the detail about each person from MEMI
-	For case_memb = 0 to UBound(ALL_CLIENTS_ARRAY, 2)							'Looping through all of the people
-	    EMWriteScreen ALL_CLIENTS_ARRAY(memb_ref_numb, case_memb), 20, 76		'Going to the MEMI for this person
-	    transmit
-
-	    EMReadScreen clt_mar_status, 1, 7, 40									'Reading all the MEMI detail
-	    EMReadScreen clt_spouse, 2, 9, 49
-
-	    EMReadScreen clt_desg_spouse_yn, 1, 7, 71
-	    EMReadScreen clt_marriage_date, 8, 8, 40
-	    EMReadScreen clt_marriage_date_verif, 8, 8, 71
-
-	    EMReadScreen clt_citizen, 1, 11, 49
-	    EMReadScreen clt_cit_verif, 2, 11, 78
-	    EMReadScreen clt_last_grade, 2, 10, 49
-	    EMReadScreen clt_in_MN_12_mo, 1, 14, 49
-	    EMReadScreen clt_resi_verif, 1, 14, 78
-	    EMReadScreen clt_MN_entry_date, 8, 15, 49
-	    EMReadScreen clt_former_state, 2, 15, 78
-	    EMReadScreen clt_other_st_FS_end, 8, 13, 49
-
-		'Formatting the information read from the panel into the array
-	    If clt_mar_status = "N" Then ALL_CLIENTS_ARRAY(memi_marriage_status, case_memb) = "N Never married"
-	    If clt_mar_status = "M" Then ALL_CLIENTS_ARRAY(memi_marriage_status, case_memb) = "M Married, Living with Spouse"
-	    If clt_mar_status = "S" Then ALL_CLIENTS_ARRAY(memi_marriage_status, case_memb) = "S Married Living Apart"
-	    If clt_mar_status = "L" Then ALL_CLIENTS_ARRAY(memi_marriage_status, case_memb) = "L Legally Separated"
-	    If clt_mar_status = "D" Then ALL_CLIENTS_ARRAY(memi_marriage_status, case_memb) = "D Divorced"
-	    If clt_mar_status = "W" Then ALL_CLIENTS_ARRAY(memi_marriage_status, case_memb) = "W Widowed"
-	    ALL_CLIENTS_ARRAY(memi_spouse_ref, case_memb) = replace(clt_spouse, "_", "")
-	    If ALL_CLIENTS_ARRAY(memi_spouse_ref, case_memb) <> "" Then
-	        For all_the_people = 0 to UBOUND(ALL_CLIENTS_ARRAY, 2)
-	            If ALL_CLIENTS_ARRAY(memb_ref_nbr, all_the_people) = ALL_CLIENTS_ARRAY(memi_spouse_ref, case_memb) Then
-	                ALL_CLIENTS_ARRAY(memi_spouse_name, case_memb) = ALL_CLIENTS_ARRAY(memb_first_name, all_the_people) & " " & ALL_CLIENTS_ARRAY(memb_last_name, all_the_people)
-	            End If
-	        Next
-	    End If
-	    ALL_CLIENTS_ARRAY(memi_designated_spouse, case_memb) = replace(clt_desg_spouse_yn, "_", "")
-	    ALL_CLIENTS_ARRAY(memi_marriage_date, case_memb) = replace(clt_marriage_date, " ", "/")
-	    ALL_CLIENTS_ARRAY(memi_marriage_verif, case_memb) = replace(clt_marriage_date_verif, " ", "/")
-	    ALL_CLIENTS_ARRAY(memi_citizen, case_memb) = clt_citizen
-	    If clt_cit_verif = "BC" Then ALL_CLIENTS_ARRAY(memi_citizen_verif, case_memb) = "BC - Birth Certificate"
-	    If clt_cit_verif = "RE" Then ALL_CLIENTS_ARRAY(memi_citizen_verif, case_memb) = "RE - Religious Record"
-	    If clt_cit_verif = "NP" Then ALL_CLIENTS_ARRAY(memi_citizen_verif, case_memb) = "NP - Naturalization Papers"
-	    If clt_cit_verif = "IM" Then ALL_CLIENTS_ARRAY(memi_citizen_verif, case_memb) = "IM - Immigration Document"
-	    If clt_cit_verif = "PV" Then ALL_CLIENTS_ARRAY(memi_citizen_verif, case_memb) = "PV - Passport/Visa"
-	    If clt_cit_verif = "OT" Then ALL_CLIENTS_ARRAY(memi_citizen_verif, case_memb) = "OT - Other Document"
-	    If clt_cit_verif = "NO" Then ALL_CLIENTS_ARRAY(memi_citizen_verif, case_memb) = "NO - No Ver prvd"
-
-	    If clt_last_grade = "00" Then ALL_CLIENTS_ARRAY(memi_last_grade, case_memb) = "Pre 1st Grd"
-	    If clt_last_grade = "01" Then ALL_CLIENTS_ARRAY(memi_last_grade, case_memb) = "Grade 1"
-	    If clt_last_grade = "02" Then ALL_CLIENTS_ARRAY(memi_last_grade, case_memb) = "Grade 2"
-	    If clt_last_grade = "03" Then ALL_CLIENTS_ARRAY(memi_last_grade, case_memb) = "Grade 3"
-	    If clt_last_grade = "04" Then ALL_CLIENTS_ARRAY(memi_last_grade, case_memb) = "Grade 4"
-	    If clt_last_grade = "05" Then ALL_CLIENTS_ARRAY(memi_last_grade, case_memb) = "Grade 5"
-	    If clt_last_grade = "06" Then ALL_CLIENTS_ARRAY(memi_last_grade, case_memb) = "Grade 6"
-	    If clt_last_grade = "07" Then ALL_CLIENTS_ARRAY(memi_last_grade, case_memb) = "Grade 7"
-	    If clt_last_grade = "08" Then ALL_CLIENTS_ARRAY(memi_last_grade, case_memb) = "Grade 8"
-	    If clt_last_grade = "09" Then ALL_CLIENTS_ARRAY(memi_last_grade, case_memb) = "Grade 9"
-	    If clt_last_grade = "10" Then ALL_CLIENTS_ARRAY(memi_last_grade, case_memb) = "Grade 10"
-	    If clt_last_grade = "11" Then ALL_CLIENTS_ARRAY(memi_last_grade, case_memb) = "Grade 11"
-	    If clt_last_grade = "12" Then ALL_CLIENTS_ARRAY(memi_last_grade, case_memb) = "HS Diploma or GED"
-	    If clt_last_grade = "13" Then ALL_CLIENTS_ARRAY(memi_last_grade, case_memb) = "Some Post Sec Ed"
-	    If clt_last_grade = "14" Then ALL_CLIENTS_ARRAY(memi_last_grade, case_memb) = "High Schl Plus Cert"
-	    If clt_last_grade = "15" Then ALL_CLIENTS_ARRAY(memi_last_grade, case_memb) = "Four Yr Degree"
-	    If clt_last_grade = "16" Then ALL_CLIENTS_ARRAY(memi_last_grade, case_memb) = "Grad Degree"
-
-	    ALL_CLIENTS_ARRAY(memi_in_MN_less_12_mo, case_memb) = clt_in_MN_12_mo
-	    If ALL_CLIENTS_ARRAY(memi_in_MN_less_12_mo, case_memb) = "__/__/__" Then ALL_CLIENTS_ARRAY(memi_in_MN_less_12_mo, case_memb) = ""
-	    IF clt_resi_verif = "1" Then ALL_CLIENTS_ARRAY(memi_resi_verif, case_memb) = "1 - Rent Receipt"
-	    IF clt_resi_verif = "2" Then ALL_CLIENTS_ARRAY(memi_resi_verif, case_memb) = "2 - Landlord's Stmt"
-	    IF clt_resi_verif = "3" Then ALL_CLIENTS_ARRAY(memi_resi_verif, case_memb) = "3 - Utility Bill"
-	    IF clt_resi_verif = "4" Then ALL_CLIENTS_ARRAY(memi_resi_verif, case_memb) = "4 - Other"
-	    IF clt_resi_verif = "N" Then ALL_CLIENTS_ARRAY(memi_resi_verif, case_memb) = "N - Ver Not Prvd"
-	    ALL_CLIENTS_ARRAY(memi_MN_entry_date, case_memb) = replace(clt_MN_entry_date, " ", "/")
-	    If ALL_CLIENTS_ARRAY(memi_MN_entry_date, case_memb) = "__/__/__" Then ALL_CLIENTS_ARRAY(memi_MN_entry_date, case_memb) = ""
-	    ALL_CLIENTS_ARRAY(memi_former_state, case_memb) = replace(clt_former_state, "_", "")
-	    ALL_CLIENTS_ARRAY(memi_other_FS_end, case_memb) = replace(clt_other_st_FS_end, " ", "/")
-	    If ALL_CLIENTS_ARRAY(memi_other_FS_end, case_memb) = "__/__/__" Then ALL_CLIENTS_ARRAY(memi_other_FS_end, case_memb) = ""
-
-	Next
+	Call read_all_the_MEMBs
 
 	'Now we gather the address information that exists in MAXIS
 	Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_addr_city, resi_addr_state, resi_addr_zip, resi_addr_county, addr_verif, homeless_yn, reservation_yn, living_situation, mail_line_one, mail_line_two, mail_addr_city, mail_addr_state, mail_addr_zip, addr_eff_date, addr_future_date, phone_one_number, phone_two_number, phone_three_number, phone_pne_type, phone_two_type, phone_four_type)
