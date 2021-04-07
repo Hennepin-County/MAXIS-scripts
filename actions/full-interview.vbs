@@ -74,10 +74,18 @@ class mx_hh_member
 	public id_verif
 	public rel_to_applcnt
 	public race
+	public race_a_checkbox
+	public race_b_checkbox
+	public race_n_checkbox
+	public race_p_checkbox
+	public race_w_checkbox
 	public snap_minor
 	public cash_minor
 	public written_lang
 	public spoken_lang
+	public interpreter
+	public alias_yn
+	public ethnicity_yn
 
 	public marital_status
 	public spouse_ref
@@ -461,7 +469,9 @@ class mx_hh_member
 			EMReadScreen race, 30, 17, 42
 			EMReadScreen spoken_lang, 20, 12, 42
 			EMReadScreen written_lang, 29, 13, 42
-
+			EMReadScreen interpreter, 1, 14, 68
+			EMReadScreen alias_yn, 1, 15, 42
+			EMReadScreen ethnicity_yn, 1, 16, 68
 
 			age = trim(age)
 			If age = "" Then age = 0
