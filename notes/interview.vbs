@@ -3349,37 +3349,40 @@ function define_main_dialog()
 		ElseIf page_display = show_q_8_13 Then
 			Text 505, 72, 60, 13, "Q. 8 - 13"
 
-			DropListBox 10, 10, 60, 45, question_answers, question_8_yn
-			Text 80, 10, 290, 10, "8. Has anyone in the household had a job or been self-employed in the past 12 months?"
-			Text 540, 10, 105, 10, "Q8 - Verification - " & question_8_verif_yn
-			ButtonGroup ButtonPressed
-			  PushButton 560, 20, 75, 10, "ADD VERIFICATION", add_verif_8_btn
-			DropListBox 10, 25, 60, 45, question_answers, question_8a_yn
-			Text 90, 25, 350, 10, "a. FOR SNAP ONLY: Has anyone in the household had a job or been self-employed in the past 36 months?"
-			Text 95, 40, 25, 10, "Notes:"
-			EditBox 120, 35, 390, 15, question_8_notes
-			DropListBox 10, 55, 60, 45, question_answers, question_9_yn
-			Text 80, 55, 350, 10, "9. Does anyone in the household have a job or expect to get income from a job this month or next month?"
-			ButtonGroup ButtonPressed
-			  PushButton 430, 55, 55, 10, "ADD JOB", add_job_btn
-			Text 540, 55, 105, 10, "Q9 - Verification - " & question_9_verif_yn
-			ButtonGroup ButtonPressed
-			  PushButton 560, 65, 75, 10, "ADD VERIFICATION", add_verif_9_btn
-			y_pos = 65
+			GroupBox 5, 10, 475, 65, "8. Has anyone in the household had a job or been self-employed in the past 12 months?"
+			Text 15, 25, 40, 10, "CAF Answer"
+			DropListBox 55, 20, 35, 45, question_answers, question_8_yn
+			Text 95, 25, 25, 10, "write-in:"
+			EditBox 120, 20, 235, 15, question_8_notes
+			Text 360, 25, 110, 10, "Q8 - Verification - " & question_8_verif_yn
+			Text 15, 40, 400, 10, "a. FOR SNAP ONLY: Has anyone in the household had a job or been self-employed in the past 36 months?       CAF Answer"
+			DropListBox 415, 35, 35, 45, question_answers, question_8a_yn
+			Text 15, 60, 60, 10, "Interview Notes:"
+			EditBox 75, 55, 320, 15, question_7_interview_notes
+			PushButton 400, 60, 75, 10, "ADD VERIFICATION", add_verif_8_btn
+
+			GroupBox 5, 80, 475, 50, "9. Does anyone in the household have a job or expect to get income from a job this month or next month?"
+			Text 15, 95, 40, 10, "CAF Answer"
+			DropListBox 55, 90, 35, 45, question_answers, question_9_yn
+			Text 95, 95, 25, 10, "write-in:"
+			EditBox 120, 90, 235, 15, question_9_notes
+			Text 360, 95, 110, 10, "Q9 - Verification - " & question_9_verif_yn
+			PushButton 125, 100, 55, 10, "ADD JOB", add_job_btn
+
+			' PushButton 300, 100, 75, 10, "ADD VERIFICATION", add_verif_9_btn
+			y_pos = 115
 			' If JOBS_ARRAY(jobs_employee_name, 0) <> "" Then
 			for each_job = 0 to UBOUND(JOBS_ARRAY, 2)
 				' If JOBS_ARRAY(jobs_employer_name, each_job) <> "" AND JOBS_ARRAY(jobs_employee_name, each_job) <> "" AND JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) <> "" AND JOBS_ARRAY(jobs_hourly_wage, each_job) <> "" Then
 				If JOBS_ARRAY(jobs_employer_name, each_job) <> "" OR JOBS_ARRAY(jobs_employee_name, each_job) <> "" OR JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) <> "" OR JOBS_ARRAY(jobs_hourly_wage, each_job) <> "" Then
 
-					Text 95, y_pos, 395, 10, "Employer: " & JOBS_ARRAY(jobs_employer_name, each_job) & "  - Employee: " & JOBS_ARRAY(jobs_employee_name, each_job) & "   - Gross Monthly Earnings: $ " & JOBS_ARRAY(jobs_gross_monthly_earnings, each_job)
-					ButtonGroup ButtonPressed
-					  PushButton 495, y_pos, 20, 10, "EDIT", JOBS_ARRAY(jobs_edit_btn, each_job)
+					Text 15, y_pos, 395, 10, "Employer: " & JOBS_ARRAY(jobs_employer_name, each_job) & "  - Employee: " & JOBS_ARRAY(jobs_employee_name, each_job) & "   - Gross Monthly Earnings: $ " & JOBS_ARRAY(jobs_gross_monthly_earnings, each_job)
+					PushButton 410, y_pos, 20, 10, "EDIT", JOBS_ARRAY(jobs_edit_btn, each_job)
 					y_pos = y_pos + 10
 				End If
 			next
 			y_pos = y_pos + 10
-			Text 95, y_pos, 25, 10, "Notes:"
-			EditBox 120, y_pos - 5, 390, 15, question_9_notes
+
 			y_pos = y_pos + 15
 			DropListBox 10, y_pos, 60, 45, question_answers, question_10_yn
 			Text 80, y_pos, 430, 10, "10. Is anyone in the household self-employed or does anyone expect to get income from self-employment this month or next month?"
@@ -6707,24 +6710,24 @@ Set objSelection = objWord.Selection										'This is kind of the 'inside' of t
 objSelection.Font.Name = "Arial"											'Setting the font before typing
 objSelection.Font.Size = "16"
 objSelection.Font.Bold = TRUE
-objSelection.TypeText "CAF Information"
+objSelection.TypeText "NOTES on INTERVIEW"
 objSelection.TypeParagraph()
 objSelection.Font.Size = "14"
 objSelection.Font.Bold = FALSE
 
 If MAXIS_case_number <> "" Then objSelection.TypeText "Case Number: " & MAXIS_case_number & vbCR			'General case information
-If no_case_number_checkbox = checked Then objSelection.TypeText "New Case - no case number" & vbCr
-objSelection.TypeText "Date Completed: " & caf_form_date & vbCR
+' If no_case_number_checkbox = checked Then objSelection.TypeText "New Case - no case number" & vbCr
+objSelection.TypeText "Interview Date: " & date & vbCR
 objSelection.TypeText "DATE OF APPLICATION: " & application_date & vbCR
 objSelection.TypeText "Completed by: " & worker_name & vbCR
 objSelection.TypeText "Completed over the phone with: " & who_are_we_completing_the_form_with & vbCR
 
 'Program CAF Information
 caf_progs = ""
-for each_memb = 0 to UBOUND(ALL_CLIENTS_ARRAY, 2)
-	If ALL_CLIENTS_ARRAY(clt_snap_checkbox, each_memb) = checked AND InStr(caf_progs, "SNAP") = 0 Then caf_progs = caf_progs & ", SNAP"
-	If ALL_CLIENTS_ARRAY(clt_cash_checkbox, each_memb) = checked AND InStr(caf_progs, "Cash") = 0 Then caf_progs = caf_progs & ", Cash"
-	If ALL_CLIENTS_ARRAY(clt_emer_checkbox, each_memb) = checked AND InStr(caf_progs, "EMER") = 0 Then caf_progs = caf_progs & ", EMER"
+for each_memb = 0 to UBOUND(HH_MEMB_ARRAY)
+	If HH_MEMB_ARRAY(each_memb).snap_req_checkbox = checked AND InStr(caf_progs, "SNAP") = 0 Then caf_progs = caf_progs & ", SNAP"
+	If HH_MEMB_ARRAY(each_memb).cash_req_checkbox = checked AND InStr(caf_progs, "Cash") = 0 Then caf_progs = caf_progs & ", Cash"
+	If HH_MEMB_ARRAY(each_memb).emer_req_checkbox = checked AND InStr(caf_progs, "EMER") = 0 Then caf_progs = caf_progs & ", EMER"
 Next
 If left(caf_progs, 2) = ", " Then caf_progs = right(caf_progs, len(caf_progs)-2)
 objSelection.TypeText "CAF requesting: " & caf_progs & vbCr
@@ -6777,10 +6780,10 @@ objPers1Table.Cell(1, 3).Range.Text = "MIDDLE NAME"
 objPers1Table.Cell(1, 4).Range.Text = "OTHER NAMES YOU USE"
 
 'Adding the detail from the dialog
-objPers1Table.Cell(2, 1).Range.Text = ALL_CLIENTS_ARRAY(memb_last_name, 0)
-objPers1Table.Cell(2, 2).Range.Text = ALL_CLIENTS_ARRAY(memb_first_name, 0)
-objPers1Table.Cell(2, 3).Range.Text = ALL_CLIENTS_ARRAY(memb_mid_name, 0)
-objPers1Table.Cell(2, 4).Range.Text = ALL_CLIENTS_ARRAY(memb_other_names, 0)
+objPers1Table.Cell(2, 1).Range.Text = HH_MEMB_ARRAY(0).last_name
+objPers1Table.Cell(2, 2).Range.Text = HH_MEMB_ARRAY(0).first_name
+objPers1Table.Cell(2, 3).Range.Text = HH_MEMB_ARRAY(0).mid_initial
+objPers1Table.Cell(2, 4).Range.Text = HH_MEMB_ARRAY(0).other_names
 
 ' objPers1Table.Cell(1, 2).Borders(wdBorderBottom).LineStyle = wdLineStyleNone			'commented out code dealing with borders
 ' objPers1Table.Cell(1, 3).Borders(wdBorderBottom).LineStyle = wdLineStyleNone
@@ -6808,10 +6811,10 @@ objPers1Table.Cell(3, 2).Range.Text = "DATE OF BIRTH"
 objPers1Table.Cell(3, 3).Range.Text = "GENDER"
 objPers1Table.Cell(3, 4).Range.Text = "MARITAL STATUS"
 
-objPers1Table.Cell(4, 1).Range.Text = ALL_CLIENTS_ARRAY(memb_soc_sec_numb, 0)
-objPers1Table.Cell(4, 2).Range.Text = ALL_CLIENTS_ARRAY(memb_dob, 0)
-objPers1Table.Cell(4, 3).Range.Text = ALL_CLIENTS_ARRAY(memb_gender, 0)
-objPers1Table.Cell(4, 4).Range.Text = ALL_CLIENTS_ARRAY(memi_marriage_status, 0)
+objPers1Table.Cell(4, 1).Range.Text = HH_MEMB_ARRAY(0).ssn
+objPers1Table.Cell(4, 2).Range.Text = HH_MEMB_ARRAY(0).date_of_birth
+objPers1Table.Cell(4, 3).Range.Text = HH_MEMB_ARRAY(0).gender
+objPers1Table.Cell(4, 4).Range.Text = HH_MEMB_ARRAY(0).marital_status
 
 'Now formatting rows 5 and 6 - 5 is the header and 6 is the actual information
 For row = 5 to 6
@@ -6928,9 +6931,9 @@ objPers1Table.Cell(11, 1).Range.Text = "DO YOU NEED AN INTERPRETER?"
 objPers1Table.Cell(11, 2).Range.Text = "WHAT IS YOU PREFERRED SPOKEN LANGUAGE?"
 objPers1Table.Cell(11, 3).Range.Text = "WHAT IS YOUR PREFERRED WRITTEN LANGUAGE?"
 
-objPers1Table.Cell(12, 1).Range.Text = ALL_CLIENTS_ARRAY(memb_interpreter, 0)
-objPers1Table.Cell(12, 2).Range.Text = ALL_CLIENTS_ARRAY(memb_spoken_language, 0)
-objPers1Table.Cell(12, 3).Range.Text = ALL_CLIENTS_ARRAY(memb_written_language, 0)
+objPers1Table.Cell(12, 1).Range.Text = HH_MEMB_ARRAY(0).interpreter
+objPers1Table.Cell(12, 2).Range.Text = HH_MEMB_ARRAY(0).spoken_lang
+objPers1Table.Cell(12, 3).Range.Text = HH_MEMB_ARRAY(0).written_lang
 
 'Now formatting rows 13 and 14 - 13 is the header and 14 is the actual information
 For row = 13 to 14
@@ -6949,9 +6952,9 @@ objPers1Table.Cell(13, 1).Range.Text = "LAST SCHOOL GRADE COMPLETED"
 objPers1Table.Cell(13, 2).Range.Text = "MOST RECENTLY MOVED TO MINNESOTA"
 objPers1Table.Cell(13, 3).Range.Text = "US CITIZEN OR US NATIONAL?"
 
-objPers1Table.Cell(14, 1).Range.Text = ALL_CLIENTS_ARRAY(memi_last_grade, 0)
-objPers1Table.Cell(14, 2).Range.Text = "Date: " & ALL_CLIENTS_ARRAY(memi_MN_entry_date, 0) & "   From: " & ALL_CLIENTS_ARRAY(memi_former_state, 0)
-objPers1Table.Cell(14, 3).Range.Text = ALL_CLIENTS_ARRAY(memi_citizen, 0)
+objPers1Table.Cell(14, 1).Range.Text = HH_MEMB_ARRAY(0).last_grade_completed
+objPers1Table.Cell(14, 2).Range.Text = "Date: " & HH_MEMB_ARRAY(0).mn_entry_date & "   From: " & HH_MEMB_ARRAY(0).former_state
+objPers1Table.Cell(14, 3).Range.Text = HH_MEMB_ARRAY(0).citizen
 
 'Now formatting rows 15 and 16 - 15 is the header and 16 is the actual information
 For row = 15 to 16
@@ -6971,27 +6974,27 @@ objPers1Table.Cell(15, 2).Range.Text = "ETHNICITY"
 objPers1Table.Cell(15, 3).Range.Text = "RACE"
 
 'defining a string that lists the programs based on the checkboxes of programs from the dialog'
-If ALL_CLIENTS_ARRAY(clt_none_checkbox, 0) = checked then progs_applying_for = "NONE"
-If ALL_CLIENTS_ARRAY(clt_snap_checkbox, 0) = checked then progs_applying_for = progs_applying_for & ", SNAP"
-If ALL_CLIENTS_ARRAY(clt_cash_checkbox, 0) = checked then progs_applying_for = progs_applying_for & ", Cash"
-If ALL_CLIENTS_ARRAY(clt_emer_checkbox, 0) = checked then progs_applying_for = progs_applying_for & ", Emergency Assistance"
+If HH_MEMB_ARRAY(0).none_req_checkbox = checked then progs_applying_for = "NONE"
+If HH_MEMB_ARRAY(0).snap_req_checkbox = checked then progs_applying_for = progs_applying_for & ", SNAP"
+If HH_MEMB_ARRAY(0).cash_req_checkbox = checked then progs_applying_for = progs_applying_for & ", Cash"
+If HH_MEMB_ARRAY(0).emer_req_checkbox = checked then progs_applying_for = progs_applying_for & ", Emergency Assistance"
 If left(progs_applying_for, 2) = ", " Then progs_applying_for = right(progs_applying_for, len(progs_applying_for) - 2)
 
 'defining a string of the races that were selected from checkboxes in the dialog.
-If ALL_CLIENTS_ARRAY(memb_race_a_checkbox, 0) = checked then race_to_enter = race_to_enter & ", Asian"
-If ALL_CLIENTS_ARRAY(memb_race_b_checkbox, 0) = checked then race_to_enter = race_to_enter & ", Black"
-If ALL_CLIENTS_ARRAY(memb_race_n_checkbox, 0) = checked then race_to_enter = race_to_enter & ", American Indian or Alaska Native"
-If ALL_CLIENTS_ARRAY(memb_race_p_checkbox, 0) = checked then race_to_enter = race_to_enter & ", Pacific Islander and Native Hawaiian"
-If ALL_CLIENTS_ARRAY(memb_race_w_checkbox, 0) = checked then race_to_enter = race_to_enter & ", White"
+If HH_MEMB_ARRAY(0).race_a_checkbox = checked then race_to_enter = race_to_enter & ", Asian"
+If HH_MEMB_ARRAY(0).race_b_checkbox = checked then race_to_enter = race_to_enter & ", Black"
+If HH_MEMB_ARRAY(0).race_n_checkbox = checked then race_to_enter = race_to_enter & ", American Indian or Alaska Native"
+If HH_MEMB_ARRAY(0).race_p_checkbox = checked then race_to_enter = race_to_enter & ", Pacific Islander and Native Hawaiian"
+If HH_MEMB_ARRAY(0).race_w_checkbox = checked then race_to_enter = race_to_enter & ", White"
 If left(race_to_enter, 2) = ", " Then race_to_enter = right(race_to_enter, len(race_to_enter) - 2)
 
 objPers1Table.Cell(16, 1).Range.Text = progs_applying_for
-objPers1Table.Cell(16, 2).Range.Text = ALL_CLIENTS_ARRAY(memb_ethnicity, 0)
+objPers1Table.Cell(16, 2).Range.Text = HH_MEMB_ARRAY(0).ethnicity_yn
 objPers1Table.Cell(16, 3).Range.Text = race_to_enter
 
 objSelection.EndKey end_of_doc						'this sets the cursor to the end of the document for more writing
 
-objSelection.TypeText "NOTES: " & ALL_CLIENTS_ARRAY(memb_notes, 0) & vbCR
+objSelection.TypeText "NOTES: " & HH_MEMB_ARRAY(0).client_notes & vbCR
 
 objSelection.Font.Bold = TRUE
 objSelection.TypeText "CAF 1 - EXPEDITED QUESTIONS"
@@ -7054,20 +7057,20 @@ objSelection.TypeParagraph()						'adds a line between the table and the next in
 objSelection.Font.Bold = TRUE
 objSelection.TypeText "AGENCY USE:" & vbCr
 objSelection.Font.Bold = FALSE
-objSelection.TypeText chr(9) & "Intends to reside in MN? - " & ALL_CLIENTS_ARRAY(clt_intend_to_reside_mn, 0) & vbCr
-objSelection.TypeText chr(9) & "Has Sponsor? - " & ALL_CLIENTS_ARRAY(clt_sponsor_yn, 0) & vbCr
-objSelection.TypeText chr(9) & "Immigration Status: " & ALL_CLIENTS_ARRAY(clt_imig_status, 0) & vbCr
-objSelection.TypeText chr(9) & "Verification: " & ALL_CLIENTS_ARRAY(clt_verif_yn, 0) & vbCr
-If ALL_CLIENTS_ARRAY(clt_verif_details, 0) <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & ALL_CLIENTS_ARRAY(clt_verif_details, 0) & vbCr
+objSelection.TypeText chr(9) & "Intends to reside in MN? - " & HH_MEMB_ARRAY(0).intend_to_reside_in_mn & vbCr
+objSelection.TypeText chr(9) & "Has Sponsor? - " & HH_MEMB_ARRAY(0).clt_has_sponsor & vbCr
+objSelection.TypeText chr(9) & "Immigration Status: " & HH_MEMB_ARRAY(0).imig_status & vbCr
+objSelection.TypeText chr(9) & "Verification: " & HH_MEMB_ARRAY(0).client_verification & vbCr
+If HH_MEMB_ARRAY(0).client_verification_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & HH_MEMB_ARRAY(0).client_verification_details & vbCr
 
 'Now we have a dynamic number of tables
 'each table has to be defined with its index so we need to have a variable to increment
 table_count = 3			'table index variable
-If UBound(ALL_CLIENTS_ARRAY, 2) <> 0 Then
-	ReDim TABLE_ARRAY(UBound(ALL_CLIENTS_ARRAY, 2)-1)		'defining the table array for as many persons aas are in the household - each person gets their own table
+If UBound(HH_MEMB_ARRAY) <> 0 Then
+	ReDim TABLE_ARRAY(UBound(HH_MEMB_ARRAY)-1)		'defining the table array for as many persons aas are in the household - each person gets their own table
 	array_counters = 0		'the incrementer for the table array'
 
-	For each_member = 1 to UBound(ALL_CLIENTS_ARRAY, 2)
+	For each_member = 1 to UBound(HH_MEMB_ARRAY)
 		objSelection.TypeText "PERSON " & each_member + 1
 		Set objRange = objSelection.Range										'range is needed to create tables
 		objDoc.Tables.Add objRange, 10, 1										'This sets the rows and columns needed row then column'
@@ -7104,10 +7107,10 @@ If UBound(ALL_CLIENTS_ARRAY, 2) <> 0 Then
 		TABLE_ARRAY(array_counters).Cell(1, 3).Range.Text = "MIDDLE NAME"
 		TABLE_ARRAY(array_counters).Cell(1, 4).Range.Text = "OTHER NAMES"
 
-		TABLE_ARRAY(array_counters).Cell(2, 1).Range.Text = ALL_CLIENTS_ARRAY(memb_last_name, each_member)
-		TABLE_ARRAY(array_counters).Cell(2, 2).Range.Text = ALL_CLIENTS_ARRAY(memb_first_name, each_member)
-		TABLE_ARRAY(array_counters).Cell(2, 3).Range.Text = ALL_CLIENTS_ARRAY(memb_mid_name, each_member)
-		TABLE_ARRAY(array_counters).Cell(2, 4).Range.Text = ALL_CLIENTS_ARRAY(memb_other_names, each_member)
+		TABLE_ARRAY(array_counters).Cell(2, 1).Range.Text = HH_MEMB_ARRAY(each_member).last_name
+		TABLE_ARRAY(array_counters).Cell(2, 2).Range.Text = HH_MEMB_ARRAY(each_member).first_name
+		TABLE_ARRAY(array_counters).Cell(2, 3).Range.Text = HH_MEMB_ARRAY(each_member).mid_initial
+		TABLE_ARRAY(array_counters).Cell(2, 4).Range.Text = HH_MEMB_ARRAY(each_member).other_names
 
 		For row = 3 to 4
 			TABLE_ARRAY(array_counters).Rows(row).Cells.Split 1, 5, TRUE
@@ -7128,11 +7131,11 @@ If UBound(ALL_CLIENTS_ARRAY, 2) <> 0 Then
 		TABLE_ARRAY(array_counters).Cell(3, 4).Range.Text = "RELATIONSHIP TO YOU"
 		TABLE_ARRAY(array_counters).Cell(3, 5).Range.Text = "MARITAL STATUS"
 
-		TABLE_ARRAY(array_counters).Cell(4, 1).Range.Text = ALL_CLIENTS_ARRAY(memb_soc_sec_numb, each_member)
-		TABLE_ARRAY(array_counters).Cell(4, 2).Range.Text = ALL_CLIENTS_ARRAY(memb_dob, each_member)
-		TABLE_ARRAY(array_counters).Cell(4, 3).Range.Text = ALL_CLIENTS_ARRAY(memb_gender, each_member)
-		TABLE_ARRAY(array_counters).Cell(4, 4).Range.Text = ALL_CLIENTS_ARRAY(memb_rel_to_applct, each_member)
-		TABLE_ARRAY(array_counters).Cell(4, 5).Range.Text = Left(ALL_CLIENTS_ARRAY(memi_marriage_status, each_member), 1)
+		TABLE_ARRAY(array_counters).Cell(4, 1).Range.Text = HH_MEMB_ARRAY(each_member).ssn
+		TABLE_ARRAY(array_counters).Cell(4, 2).Range.Text = HH_MEMB_ARRAY(each_member).date_of_birth
+		TABLE_ARRAY(array_counters).Cell(4, 3).Range.Text = HH_MEMB_ARRAY(each_member).gender
+		TABLE_ARRAY(array_counters).Cell(4, 4).Range.Text = HH_MEMB_ARRAY(each_member).rel_to_applcnt
+		TABLE_ARRAY(array_counters).Cell(4, 5).Range.Text = Left(HH_MEMB_ARRAY(each_member).marital_status, 1)
 
 		For row = 5 to 6
 			TABLE_ARRAY(array_counters).Rows(row).Cells.Split 1, 3, TRUE
@@ -7149,9 +7152,9 @@ If UBound(ALL_CLIENTS_ARRAY, 2) <> 0 Then
 		TABLE_ARRAY(array_counters).Cell(5, 2).Range.Text = "WHAT IS YOU PREFERRED SPOKEN LANGUAGE?"
 		TABLE_ARRAY(array_counters).Cell(5, 3).Range.Text = "WHAT IS YOUR PREFERRED WRITTEN LANGUAGE?"
 
-		TABLE_ARRAY(array_counters).Cell(6, 1).Range.Text = ALL_CLIENTS_ARRAY(memb_interpreter, each_member)
-		TABLE_ARRAY(array_counters).Cell(6, 2).Range.Text = ALL_CLIENTS_ARRAY(memb_spoken_language, each_member)
-		TABLE_ARRAY(array_counters).Cell(6, 3).Range.Text = ALL_CLIENTS_ARRAY(memb_written_language, each_member)
+		TABLE_ARRAY(array_counters).Cell(6, 1).Range.Text = HH_MEMB_ARRAY(each_member).interpreter
+		TABLE_ARRAY(array_counters).Cell(6, 2).Range.Text = HH_MEMB_ARRAY(each_member).spoken_lang
+		TABLE_ARRAY(array_counters).Cell(6, 3).Range.Text = HH_MEMB_ARRAY(each_member).written_lang
 
 		For row = 7 to 8
 			TABLE_ARRAY(array_counters).Rows(row).Cells.Split 1, 3, TRUE
@@ -7168,9 +7171,9 @@ If UBound(ALL_CLIENTS_ARRAY, 2) <> 0 Then
 		TABLE_ARRAY(array_counters).Cell(7, 2).Range.Text = "MOST RECENTLY MOVED TO MINNESOTA"
 		TABLE_ARRAY(array_counters).Cell(7, 3).Range.Text = "US CITIZEN OR US NATIONAL?"
 
-		TABLE_ARRAY(array_counters).Cell(8, 1).Range.Text = ALL_CLIENTS_ARRAY(memi_last_grade, each_member)
-		TABLE_ARRAY(array_counters).Cell(8, 2).Range.Text = "Date: " & ALL_CLIENTS_ARRAY(memi_MN_entry_date, each_member) & "   From: " & ALL_CLIENTS_ARRAY(memi_former_state, each_member)
-		TABLE_ARRAY(array_counters).Cell(8, 3).Range.Text = ALL_CLIENTS_ARRAY(memi_citizen, each_member)
+		TABLE_ARRAY(array_counters).Cell(8, 1).Range.Text = HH_MEMB_ARRAY(each_member).last_grade_completed
+		TABLE_ARRAY(array_counters).Cell(8, 2).Range.Text = "Date: " & HH_MEMB_ARRAY(each_member).mn_entry_date & "   From: " & HH_MEMB_ARRAY(each_member).former_state
+		TABLE_ARRAY(array_counters).Cell(8, 3).Range.Text = HH_MEMB_ARRAY(each_member).citizen
 
 		For row = 9 to 10
 			TABLE_ARRAY(array_counters).Rows(row).Cells.Split 1, 3, TRUE
@@ -7188,36 +7191,36 @@ If UBound(ALL_CLIENTS_ARRAY, 2) <> 0 Then
 		TABLE_ARRAY(array_counters).Cell(9, 3).Range.Text = "RACE"
 
 		progs_applying_for = ""
-		If ALL_CLIENTS_ARRAY(clt_none_checkbox, each_member) = checked then progs_applying_for = "NONE"
-		If ALL_CLIENTS_ARRAY(clt_snap_checkbox, each_member) = checked then progs_applying_for = progs_applying_for & ", SNAP"
-		If ALL_CLIENTS_ARRAY(clt_cash_checkbox, each_member) = checked then progs_applying_for = progs_applying_for & ", Cash"
-		If ALL_CLIENTS_ARRAY(clt_emer_checkbox, each_member) = checked then progs_applying_for = progs_applying_for & ", Emergency Assistance"
+		If HH_MEMB_ARRAY(each_member).none_req_checkbox = checked then progs_applying_for = "NONE"
+		If HH_MEMB_ARRAY(each_member).snap_req_checkbox = checked then progs_applying_for = progs_applying_for & ", SNAP"
+		If HH_MEMB_ARRAY(each_member).cash_req_checkbox = checked then progs_applying_for = progs_applying_for & ", Cash"
+		If HH_MEMB_ARRAY(each_member).emer_req_checkbox = checked then progs_applying_for = progs_applying_for & ", Emergency Assistance"
 		If left(progs_applying_for, 2) = ", " Then progs_applying_for = right(progs_applying_for, len(progs_applying_for) - 2)
 
 		race_to_enter = ""
-		If ALL_CLIENTS_ARRAY(memb_race_a_checkbox, each_member) = checked then race_to_enter = race_to_enter & ", Asian"
-		If ALL_CLIENTS_ARRAY(memb_race_b_checkbox, each_member) = checked then race_to_enter = race_to_enter & ", Black"
-		If ALL_CLIENTS_ARRAY(memb_race_n_checkbox, each_member) = checked then race_to_enter = race_to_enter & ", American Indian or Alaska Native"
-		If ALL_CLIENTS_ARRAY(memb_race_p_checkbox, each_member) = checked then race_to_enter = race_to_enter & ", Pacific Islander and Native Hawaiian"
-		If ALL_CLIENTS_ARRAY(memb_race_w_checkbox, each_member) = checked then race_to_enter = race_to_enter & ", White"
+		If HH_MEMB_ARRAY(each_member).race_a_checkbox = checked then race_to_enter = race_to_enter & ", Asian"
+		If HH_MEMB_ARRAY(each_member).race_b_checkbox = checked then race_to_enter = race_to_enter & ", Black"
+		If HH_MEMB_ARRAY(each_member).race_n_checkbox = checked then race_to_enter = race_to_enter & ", American Indian or Alaska Native"
+		If HH_MEMB_ARRAY(each_member).race_p_checkbox = checked then race_to_enter = race_to_enter & ", Pacific Islander and Native Hawaiian"
+		If HH_MEMB_ARRAY(each_member).race_w_checkbox = checked then race_to_enter = race_to_enter & ", White"
 		If left(race_to_enter, 2) = ", " Then race_to_enter = right(race_to_enter, len(race_to_enter) - 2)
 
 		TABLE_ARRAY(array_counters).Cell(10, 1).Range.Text = progs_applying_for
-		TABLE_ARRAY(array_counters).Cell(10, 2).Range.Text = ALL_CLIENTS_ARRAY(memb_ethnicity, each_member)
+		TABLE_ARRAY(array_counters).Cell(10, 2).Range.Text = HH_MEMB_ARRAY(each_member).ethnicity_yn
 		TABLE_ARRAY(array_counters).Cell(10, 3).Range.Text = race_to_enter
 
 
 		objSelection.EndKey end_of_doc						'this sets the cursor to the end of the document for more writing
 
-		objSelection.TypeText "NOTES: " & ALL_CLIENTS_ARRAY(memb_notes, each_member) & vbCR
+		objSelection.TypeText "NOTES: " & HH_MEMB_ARRAY(each_member).client_notes & vbCR
 		objSelection.Font.Bold = TRUE
 		objSelection.TypeText "AGENCY USE:" & vbCr
 		objSelection.Font.Bold = FALSE
-		objSelection.TypeText chr(9) & "Intends to reside in MN? - " & ALL_CLIENTS_ARRAY(clt_intend_to_reside_mn, each_member) & vbCr
-		objSelection.TypeText chr(9) & "Has Sponsor? - " & ALL_CLIENTS_ARRAY(clt_sponsor_yn, each_member) & vbCr
-		objSelection.TypeText chr(9) & "Immigration Status: " & ALL_CLIENTS_ARRAY(clt_imig_status, each_member) & vbCr
-		objSelection.TypeText chr(9) & "Verification: " & ALL_CLIENTS_ARRAY(clt_verif_yn, each_member) & vbCr
-		If ALL_CLIENTS_ARRAY(clt_verif_details, each_member) <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & ALL_CLIENTS_ARRAY(clt_verif_details, each_member) & vbCr
+		objSelection.TypeText chr(9) & "Intends to reside in MN? - " & HH_MEMB_ARRAY(each_member).intend_to_reside_in_mn & vbCr
+		objSelection.TypeText chr(9) & "Has Sponsor? - " & HH_MEMB_ARRAY(each_member).clt_has_sponsor & vbCr
+		objSelection.TypeText chr(9) & "Immigration Status: " & HH_MEMB_ARRAY(each_member).imig_status & vbCr
+		objSelection.TypeText chr(9) & "Verification: " & HH_MEMB_ARRAY(each_member).client_verification & vbCr
+		If HH_MEMB_ARRAY(each_member).client_verification_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & HH_MEMB_ARRAY(each_member).client_verification_details & vbCr
 
 		array_counters = array_counters + 1
 	Next
@@ -7228,52 +7231,52 @@ End If
 
 'This is the rest of the verbiage from the CAF. It is not kept in tables - for the most part
 objSelection.TypeText "Q 1. Does everyone in your household buy, fix or eat food with you?" & vbCr
-objSelection.TypeText chr(9) & question_1_yn & vbCr
-If question_1_notes <> "" Then objSelection.TypeText chr(9) & "Notes: " & question_1_notes & vbCr
+objSelection.TypeText chr(9) & "CAF Answer: " & question_1_yn & vbCr
+If question_1_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_1_notes & vbCr
 If question_1_verif_yn <> "Mot Needed" AND question_1_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_1_verif_yn & vbCr
 If question_1_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_1_verif_details & vbCr
 
 objSelection.TypeText "Q 2. Is anyone in the household, who is age 60 or over or disabled, unable to buy or fix food due to a disability?" & vbCr
-objSelection.TypeText chr(9) & question_2_yn & vbCr
-If question_2_notes <> "" Then objSelection.TypeText chr(9) & "Notes: " & question_2_notes & vbCr
+objSelection.TypeText chr(9) & "CAF Answer: " & question_2_yn & vbCr
+If question_2_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_2_notes & vbCr
 If question_2_verif_yn <> "Mot Needed" AND question_2_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_2_verif_yn & vbCr
 If question_2_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_2_verif_details & vbCr
 
 objSelection.TypeText "Q 3. Is anyone in the household attending school?" & vbCr
-objSelection.TypeText chr(9) & question_3_yn & vbCr
-If question_3_notes <> "" Then objSelection.TypeText chr(9) & "Notes: " & question_3_notes & vbCr
+objSelection.TypeText chr(9) & "CAF Answer: " & question_3_yn & vbCr
+If question_3_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_3_notes & vbCr
 If question_3_verif_yn <> "Mot Needed" AND question_3_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_3_verif_yn & vbCr
 If question_3_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_3_verif_details & vbCr
 
 objSelection.TypeText "Q 4. Is anyone in your household temporarily not living in your home? (for example: vacation, foster care, treatment, hospital, job search)" & vbCr
-objSelection.TypeText chr(9) & question_4_yn & vbCr
-If question_4_notes <> "" Then objSelection.TypeText chr(9) & "Notes: " & question_4_notes & vbCr
+objSelection.TypeText chr(9) & "CAF Answer: " & question_4_yn & vbCr
+If question_4_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_4_notes & vbCr
 If question_4_verif_yn <> "Mot Needed" AND question_4_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_4_verif_yn & vbCr
 If question_4_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_4_verif_details & vbCr
 
 objSelection.TypeText "Q 5. Is anyone blind, or does anyone have a physical or mental health condition that limits the ability to work or perform daily activities?" & vbCr
-objSelection.TypeText chr(9) & question_5_yn & vbCr
-If question_5_notes <> "" Then objSelection.TypeText chr(9) & "Notes: " & question_5_notes & vbCr
+objSelection.TypeText chr(9) & "CAF Answer: " & question_5_yn & vbCr
+If question_5_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_5_notes & vbCr
 If question_5_verif_yn <> "Mot Needed" AND question_5_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_5_verif_yn & vbCr
 If question_5_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_5_verif_details & vbCr
 
 objSelection.TypeText "Q 6. Is anyone unable to work for reasons other than illness or disability?" & vbCr
-objSelection.TypeText chr(9) & question_6_yn & vbCr
-If question_6_notes <> "" Then objSelection.TypeText chr(9) & "Notes: " & question_6_notes & vbCr
+objSelection.TypeText chr(9) & "CAF Answer: " & question_6_yn & vbCr
+If question_6_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_6_notes & vbCr
 If question_6_verif_yn <> "Mot Needed" AND question_6_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_6_verif_yn & vbCr
 If question_6_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_6_verif_details & vbCr
 
 objSelection.TypeText "Q 7. In the last 60 days did anyone in the household: - Stop working or quit a job? - Refuse a job offer? - Ask to work fewer hours? - Go on strike?" & vbCr
-objSelection.TypeText chr(9) & question_7_yn & vbCr
-If question_7_notes <> "" Then objSelection.TypeText chr(9) & "Notes: " & question_7_notes & vbCr
+objSelection.TypeText chr(9) & "CAF Answer: " & question_7_yn & vbCr
+If question_7_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_7_notes & vbCr
 If question_7_verif_yn <> "Mot Needed" AND question_7_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_7_verif_yn & vbCr
 If question_7_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_7_verif_details & vbCr
 
 objSelection.TypeText "Q 8. Has anyone in the household had a job or been self-employed in the past 12 months?" & vbCr
-objSelection.TypeText chr(9) & question_8_yn & vbCr
+objSelection.TypeText chr(9) & "CAF Answer: " & question_8_yn & vbCr
 objSelection.TypeText "Q 8.a. FOR SNAP ONLY: Has anyone in the household had a job or been self-employed in the past 36 months?" & vbCr
 objSelection.TypeText chr(9) & question_8a_yn & vbCr
-If question_8_notes <> "" Then objSelection.TypeText chr(9) & "Notes: " & question_8_notes & vbCr
+If question_8_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_8_notes & vbCr
 If question_8_verif_yn <> "Mot Needed" AND question_8_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_8_verif_yn & vbCr
 If question_8_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_8_verif_details & vbCr
 
@@ -7335,21 +7338,21 @@ next
 
 If job_added = FALSE Then objSelection.TypeText chr(9) & "THERE ARE NO JOBS ENTERED." & vbCr
 
-If question_9_notes <> "" Then objSelection.TypeText chr(9) & "Notes: " & question_9_notes & vbCr
+If question_9_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_9_notes & vbCr
 If question_9_verif_yn <> "Mot Needed" AND question_10_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_9_verif_yn & vbCr
 If question_9_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_9_verif_details & vbCr
 
 objSelection.TypeText "Q 10. Is anyone in the household self-employed or does anyone expect to get income from self-employment this month or next month?" & vbCr
-objSelection.TypeText chr(9) & question_10_yn & vbCr
+objSelection.TypeText chr(9) & "CAF Answer: " & question_10_yn & vbCr
 If question_10_monthly_earnings <> "" Then objSelection.TypeText chr(9) & "Gross Monthly Earnings: " & question_10_monthly_earnings & vbCr
 If question_10_monthly_earnings = "" Then objSelection.TypeText chr(9) & "Gross Monthly Earnings: NONE LISTED" & vbCr
-If question_10_notes <> "" Then objSelection.TypeText chr(9) & "Notes: " & question_10_notes & vbCr
+If question_10_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_10_notes & vbCr
 If question_10_verif_yn <> "Mot Needed" AND question_10_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_10_verif_yn & vbCr
 If question_10_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_10_verif_details & vbCr
 
 objSelection.TypeText "Q 11. Do you expect any changes in income, expenses or work hours?" & vbCr
-objSelection.TypeText chr(9) & question_11_yn & vbCr
-If question_11_notes <> "" Then objSelection.TypeText chr(9) & "Notes: " & question_11_notes & vbCr
+objSelection.TypeText chr(9) & "CAF Answer: " & question_11_yn & vbCr
+If question_11_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_11_notes & vbCr
 If question_11_verif_yn <> "Mot Needed" AND question_11_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_11_verif_yn & vbCr
 If question_11_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_11_verif_details & vbCr
 
@@ -7451,13 +7454,13 @@ objSelection.EndKey end_of_doc						'this sets the cursor to the end of the docu
 
 array_counters = array_counters + 1
 
-If question_12_notes <> "" Then objSelection.TypeText chr(9) & "Notes: " & question_12_notes & vbCr
+If question_12_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_12_notes & vbCr
 If question_12_verif_yn <> "Mot Needed" AND question_12_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_12_verif_yn & vbCr
 If question_12_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_12_verif_details & vbCr
 
 objSelection.TypeText "Q 13. Does anyone in the household have or expect to get any loans, scholarships or grants for attending school?" & vbCr
-objSelection.TypeText chr(9) & question_13_yn & vbCr
-If question_13_notes <> "" Then objSelection.TypeText chr(9) & "Notes: " & question_13_notes & vbCr
+objSelection.TypeText chr(9) & "CAF Answer: " & question_13_yn & vbCr
+If question_13_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_13_notes & vbCr
 If question_13_verif_yn <> "Mot Needed" AND question_13_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_13_verif_yn & vbCr
 If question_13_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_13_verif_details & vbCr
 
@@ -7508,7 +7511,7 @@ objSelection.EndKey end_of_doc						'this sets the cursor to the end of the docu
 
 array_counters = array_counters + 1
 
-If question_14_notes <> "" Then objSelection.TypeText chr(9) & "Notes: " & question_14_notes & vbCr
+If question_14_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_14_notes & vbCr
 If question_14_verif_yn <> "Mot Needed" AND question_14_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_14_verif_yn & vbCr
 If question_14_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_14_verif_details & vbCr
 
@@ -7560,31 +7563,31 @@ objSelection.EndKey end_of_doc						'this sets the cursor to the end of the docu
 
 array_counters = array_counters + 1
 
-If question_15_notes <> "" Then objSelection.TypeText chr(9) & "Notes: " & question_15_notes & vbCr
+If question_15_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_15_notes & vbCr
 If question_15_verif_yn <> "Mot Needed" AND question_15_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_15_verif_yn & vbCr
 If question_15_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_15_verif_details & vbCr
 
 objSelection.TypeText "Q 16. Do you or anyone living with you have costs for care of a child(ren) because you or they are working, looking for work or going to school?" & vbCr
-objSelection.TypeText chr(9) & question_13_yn & vbCr
-If question_16_notes <> "" Then objSelection.TypeText chr(9) & "Notes: " & question_16_notes & vbCr
+objSelection.TypeText chr(9) & "CAF Answer: " & question_13_yn & vbCr
+If question_16_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_16_notes & vbCr
 If question_16_verif_yn <> "Mot Needed" AND question_16_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_16_verif_yn & vbCr
 If question_16_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_16_verif_details & vbCr
 
 objSelection.TypeText "Q 17. Do you or anyone living with you have costs for care of an ill or disabled adult because you or they are working, looking for work or going to school?" & vbCr
-objSelection.TypeText chr(9) & question_13_yn & vbCr
-If question_17_notes <> "" Then objSelection.TypeText chr(9) & "Notes: " & question_17_notes & vbCr
+objSelection.TypeText chr(9) & "CAF Answer: " & question_13_yn & vbCr
+If question_17_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_17_notes & vbCr
 If question_17_verif_yn <> "Mot Needed" AND question_17_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_17_verif_yn & vbCr
 If question_17_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_17_verif_details & vbCr
 
 objSelection.TypeText "Q 18. Does anyone in the household pay court-ordered child support, spousal support, child care support, medical support or contribute to a tax dependent who does not live in your home?" & vbCr
-objSelection.TypeText chr(9) & question_18_yn & vbCr
-If question_18_notes <> "" Then objSelection.TypeText chr(9) & "Notes: " & question_18_notes & vbCr
+objSelection.TypeText chr(9) & "CAF Answer: " & question_18_yn & vbCr
+If question_18_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_18_notes & vbCr
 If question_18_verif_yn <> "Mot Needed" AND question_18_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_18_verif_yn & vbCr
 If question_18_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_18_verif_details & vbCr
 
 objSelection.TypeText "Q 19. For SNAP only: Does anyone in the household have medical expenses? " & vbCr
-objSelection.TypeText chr(9) & question_19_yn & vbCr
-If question_19_notes <> "" Then objSelection.TypeText chr(9) & "Notes: " & question_19_notes & vbCr
+objSelection.TypeText chr(9) & "CAF Answer: " & question_19_yn & vbCr
+If question_19_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_19_notes & vbCr
 If question_19_verif_yn <> "Mot Needed" AND question_19_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_19_verif_yn & vbCr
 If question_19_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_19_verif_details & vbCr
 
@@ -7623,26 +7626,26 @@ objSelection.EndKey end_of_doc						'this sets the cursor to the end of the docu
 
 array_counters = array_counters + 1
 
-If question_20_notes <> "" Then objSelection.TypeText chr(9) & "Notes: " & question_20_notes & vbCr
+If question_20_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_20_notes & vbCr
 If question_20_verif_yn <> "Mot Needed" AND question_20_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_20_verif_yn & vbCr
 If question_20_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_20_verif_details & vbCr
 
 
 objSelection.TypeText "Q 21. For Cash programs only: Has anyone in the household given away, sold or traded anything of value in the past 12 months? (For example: Cash, Bank accounts, Stocks, Bonds, Vehicles)" & vbCr
-objSelection.TypeText chr(9) & question_21_yn & vbCr
-If question_21_notes <> "" Then objSelection.TypeText chr(9) & "Notes: " & question_21_notes & vbCr
+objSelection.TypeText chr(9) & "CAF Answer: " & question_21_yn & vbCr
+If question_21_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_21_notes & vbCr
 If question_21_verif_yn <> "Mot Needed" AND question_21_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_21_verif_yn & vbCr
 If question_21_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_21_verif_details & vbCr
 
 objSelection.TypeText "Q 22. For recertifications only: Did anyone move in or out of your home in the past 12 months?" & vbCr
-objSelection.TypeText chr(9) & question_22_yn & vbCr
-If question_22_notes <> "" Then objSelection.TypeText chr(9) & "Notes: " & question_22_notes & vbCr
+objSelection.TypeText chr(9) & "CAF Answer: " & question_22_yn & vbCr
+If question_22_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_22_notes & vbCr
 If question_22_verif_yn <> "Mot Needed" AND question_22_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_22_verif_yn & vbCr
 If question_22_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_22_verif_details & vbCr
 
 objSelection.TypeText "Q 23. For children under the age of 19, are both parents living in the home?" & vbCr
-objSelection.TypeText chr(9) & question_23_yn & vbCr
-If question_23_notes <> "" Then objSelection.TypeText chr(9) & "Notes: " & question_23_notes & vbCr
+objSelection.TypeText chr(9) & "CAF Answer: " & question_23_yn & vbCr
+If question_23_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_23_notes & vbCr
 If question_23_verif_yn <> "Mot Needed" AND question_23_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_23_verif_yn & vbCr
 If question_23_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_23_verif_details & vbCr
 
@@ -7681,7 +7684,7 @@ objSelection.EndKey end_of_doc						'this sets the cursor to the end of the docu
 
 array_counters = array_counters + 1
 
-If question_24_notes <> "" Then objSelection.TypeText chr(9) & "Notes: " & question_24_notes & vbCr
+If question_24_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_24_notes & vbCr
 If question_24_verif_yn <> "Mot Needed" AND question_24_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_24_verif_yn & vbCr
 If question_24_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_24_verif_details & vbCr
 
