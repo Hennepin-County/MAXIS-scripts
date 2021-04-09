@@ -3271,54 +3271,81 @@ function define_main_dialog()
 		ElseIf page_display = show_q_1_7 Then
 			Text 505, 57, 60, 13, "Q. 1 - 7"
 
-			DropListBox 10, 10, 60, 45, question_answers, question_1_yn
-			EditBox 120, 20, 235, 15, question_1_notes
-			DropListBox 10, 45, 60, 45, question_answers, question_2_yn
-			EditBox 120, 65, 235, 15, question_2_notes
-			DropListBox 10, 90, 60, 45, question_answers, question_3_yn
-			EditBox 120, 100, 235, 15, question_3_notes
-			DropListBox 10, 125, 60, 45, question_answers, question_4_yn
-			EditBox 120, 145, 235, 15, question_4_notes
-			DropListBox 10, 170, 60, 45, question_answers, question_5_yn
-			EditBox 120, 190, 235, 15, question_5_notes
-			DropListBox 10, 215, 60, 45, question_answers, question_6_yn
-			EditBox 120, 225, 235, 15, question_6_notes
-			DropListBox 10, 250, 60, 45, question_answers, question_7_yn
-			EditBox 120, 280, 235, 15, question_7_notes
 
-			PushButton 380, 20, 75, 10, "ADD VERIFICATION", add_verif_1_btn
-			PushButton 380, 55, 75, 10, "ADD VERIFICATION", add_verif_2_btn
-			PushButton 380, 100, 75, 10, "ADD VERIFICATION", add_verif_3_btn
-			PushButton 380, 135, 75, 10, "ADD VERIFICATION", add_verif_4_btn
-			PushButton 380, 180, 75, 10, "ADD VERIFICATION", add_verif_5_btn
-			PushButton 380, 225, 75, 10, "ADD VERIFICATION", add_verif_6_btn
-			PushButton 380, 260, 75, 10, "ADD VERIFICATION", add_verif_7_btn
 
-			Text 80, 10, 230, 10, "1. Does everyone in your household buy, fix or eat food with you?"
-			Text 95, 25, 25, 10, "Notes:"
-			Text 360, 10, 100, 10, "Q1 - Verification - " & question_1_verif_yn
-			Text 80, 45, 245, 10, "2. Is anyone in the household, who is age 60 or over or disabled, unable to "
-			Text 90, 55, 115, 10, "buy or fix food due to a disability?"
-			Text 95, 70, 25, 10, "Notes:"
-			Text 360, 45, 100, 10, "Q2 - Verification - " & question_2_verif_yn
-			Text 80, 90, 165, 10, "3. Is anyone in the household attending school?"
-			Text 95, 105, 25, 10, "Notes:"
-			Text 360, 90, 100, 10, "Q3 - Verification - " & question_3_verif_yn
-			Text 80, 125, 230, 10, "4. Is anyone in your household temporarily not living in your home?"
-			Text 90, 135, 230, 10, "(for example: vacation, foster care, treatment, hospital, job search)"
-			Text 95, 150, 25, 10, "Notes:"
-			Text 360, 125, 100, 10, "Q4 - Verification - " & question_4_verif_yn
-			Text 80, 170, 255, 10, "5. Is anyone blind, or does anyone have a physical or mental health condition"
-			Text 90, 180, 185, 10, " that limits the ability to work or perform daily activities?"
-			Text 95, 195, 25, 10, "Notes:"
-			Text 360, 170, 100, 10, "Q5 - Verification - " & question_5_verif_yn
-			Text 80, 215, 245, 10, "6. Is anyone unable to work for reasons other than illness or disability?"
-			Text 95, 230, 25, 10, "Notes:"
-			Text 360, 215, 100, 10, "Q6 - Verification - " & question_6_verif_yn
-			Text 80, 250, 170, 10, "7. In the last 60 days did anyone in the household: "
-			Text 90, 260, 165, 20, "- Stop working or quit a job?   - Refuse a job offer? - Ask to work fewer hours?   - Go on strike?"
-			Text 95, 285, 25, 10, "Notes:"
-			Text 360, 250, 100, 10, "Q7 - Verification - " & question_7_verif_yn
+			GroupBox 5, 15, 475, 50, "1. Does everyone in your household buy, fix or eat food with you?"
+			Text 15, 30, 40, 10, "CAF Answer"
+			DropListBox 55, 25, 35, 45, question_answers, question_1_yn
+			Text 95, 30, 25, 10, "write-in:"
+			EditBox 120, 25, 235, 15, question_1_notes
+			Text 360, 30, 110, 10, "Q1 - Verification - " & question_1_verif_yn
+			Text 15, 50, 60, 10, "Interview Notes:"
+			EditBox 75, 45, 320, 15, question_1_interview_notes
+			PushButton 400, 50, 75, 10, "ADD VERIFICATION", add_verif_1_btn
+
+			GroupBox 5, 65, 475, 50, "2. Is anyone in the household, who is age 60 or over or disabled, unable to buy or fix food due to a disability?"
+			' Text 20, 55, 115, 10, "buy or fix food due to a disability?"
+			Text 15, 80, 40, 10, "CAF Answer"
+			DropListBox 55, 75, 35, 45, question_answers, question_2_yn
+			Text 95, 80, 25, 10, "write-in:"
+			EditBox 120, 75, 235, 15, question_2_notes
+			Text 360, 80, 110, 10, "Q2 - Verification - " & question_2_verif_yn
+			Text 15, 100, 60, 10, "Interview Notes:"
+			EditBox 75, 95, 320, 15, question_2_interview_notes
+			PushButton 400, 100, 75, 10, "ADD VERIFICATION", add_verif_2_btn
+
+			GroupBox 5, 115, 475, 50, "3. Is anyone in the household attending school?"
+			Text 15, 130, 40, 10, "CAF Answer"
+			DropListBox 55, 125, 35, 45, question_answers, question_3_yn
+			Text 95, 130, 25, 10, "write-in:"
+			EditBox 120, 125, 235, 15, question_3_notes
+			Text 360, 130, 110, 10, "Q3 - Verification - " & question_3_verif_yn
+			Text 15, 150, 60, 10, "Interview Notes:"
+			EditBox 75, 145, 320, 15, question_3_interview_notes
+			PushButton 400, 150, 75, 10, "ADD VERIFICATION", add_verif_3_btn
+
+			GroupBox 5, 165, 475, 50, "4. Is anyone in your household temporarily not living in your home? (eg. vacation, foster care, treatment, hospital, job search)"
+			' Text 20, 135, 230, 10, "(for example: vacation, foster care, treatment, hospital, job search)"
+			Text 15, 180, 40, 10, "CAF Answer"
+			DropListBox 55, 175, 35, 45, question_answers, question_4_yn
+			Text 95, 180, 25, 10, "write-in:"
+			EditBox 120, 175, 235, 15, question_4_notes
+			Text 360, 180, 110, 10, "Q4 - Verification - " & question_4_verif_yn
+			Text 15, 200, 60, 10, "Interview Notes:"
+			EditBox 75, 195, 320, 15, question_4_interview_notes
+			PushButton 400, 200, 75, 10, "ADD VERIFICATION", add_verif_4_btn
+
+			GroupBox 5, 215, 475, 50, "5. Is anyone blind, or does anyone have a physical or mental health condition that limits the ability to work or perform daily activities?"
+			' Text 20, 180, 185, 10, " that limits the ability to work or perform daily activities?"
+			Text 15, 230, 40, 10, "CAF Answer"
+			DropListBox 55, 225, 35, 45, question_answers, question_5_yn
+			Text 95, 230, 25, 10, "write-in:"
+			EditBox 120, 225, 235, 15, question_5_notes
+			Text 360, 230, 110, 10, "Q5 - Verification - " & question_5_verif_yn
+			Text 15, 250, 60, 10, "Interview Notes:"
+			EditBox 75, 245, 320, 15, question_5_interview_notes
+			PushButton 400, 250, 75, 10, "ADD VERIFICATION", add_verif_5_btn
+
+			GroupBox 5, 265, 475, 50, "6. Is anyone unable to work for reasons other than illness or disability?"
+			Text 15, 280, 40, 10, "CAF Answer"
+			DropListBox 55, 275, 35, 45, question_answers, question_6_yn
+			Text 95, 280, 25, 10, "write-in:"
+			EditBox 120, 275, 235, 15, question_6_notes
+			Text 360, 280, 110, 10, "Q6 - Verification - " & question_6_verif_yn
+			Text 15, 300, 60, 10, "Interview Notes:"
+			EditBox 75, 295, 320, 15, question_6_interview_notes
+			PushButton 400, 300, 75, 10, "ADD VERIFICATION", add_verif_6_btn
+
+			GroupBox 5, 315, 475, 50, "7. In the last 60 days did anyone in the household: - Stop working or quit a job? - Refuse a job offer? - Ask to work fewer hours? - Go on strike?"
+			' Text 20, 315, 350, 10, "- Stop working or quit a job?   - Refuse a job offer? - Ask to work fewer hours?   - Go on strike?"
+			Text 15, 330, 40, 10, "CAF Answer"
+			DropListBox 55, 325, 35, 45, question_answers, question_7_yn
+			Text 95, 330, 25, 10, "write-in:"
+			EditBox 120, 325, 235, 15, question_7_notes
+			Text 360, 330, 110, 10, "Q7 - Verification - " & question_7_verif_yn
+			Text 15, 350, 60, 10, "Interview Notes:"
+			EditBox 75, 345, 320, 15, question_7_interview_notes
+			PushButton 400, 350, 75, 10, "ADD VERIFICATION", add_verif_7_btn
 		ElseIf page_display = show_q_8_13 Then
 			Text 505, 72, 60, 13, "Q. 8 - 13"
 
@@ -3660,6 +3687,31 @@ function dialog_movement()
 			' MsgBox "Selected Memb - " & selected_memb
 		End If
 	Next
+	If ButtonPressed = add_verif_1_btn Then Call verif_details_dlg(1)
+	If ButtonPressed = add_verif_2_btn Then Call verif_details_dlg(2)
+	If ButtonPressed = add_verif_3_btn Then Call verif_details_dlg(3)
+	If ButtonPressed = add_verif_4_btn Then Call verif_details_dlg(4)
+	If ButtonPressed = add_verif_5_btn Then Call verif_details_dlg(5)
+	If ButtonPressed = add_verif_6_btn Then Call verif_details_dlg(6)
+	If ButtonPressed = add_verif_7_btn Then Call verif_details_dlg(7)
+	If ButtonPressed = add_verif_8_btn Then Call verif_details_dlg(8)
+	If ButtonPressed = add_verif_9_btn Then Call verif_details_dlg(9)
+	If ButtonPressed = add_verif_10_btn Then Call verif_details_dlg(10)
+	If ButtonPressed = add_verif_11_btn Then Call verif_details_dlg(11)
+	If ButtonPressed = add_verif_12_btn Then Call verif_details_dlg(12)
+	If ButtonPressed = add_verif_13_btn Then Call verif_details_dlg(13)
+	If ButtonPressed = add_verif_14_btn Then Call verif_details_dlg(14)
+	If ButtonPressed = add_verif_15_btn Then Call verif_details_dlg(15)
+	If ButtonPressed = add_verif_16_btn Then Call verif_details_dlg(16)
+	If ButtonPressed = add_verif_17_btn Then Call verif_details_dlg(17)
+	If ButtonPressed = add_verif_18_btn Then Call verif_details_dlg(18)
+	If ButtonPressed = add_verif_19_btn Then Call verif_details_dlg(19)
+	If ButtonPressed = add_verif_20_btn Then Call verif_details_dlg(20)
+	If ButtonPressed = add_verif_21_btn Then Call verif_details_dlg(21)
+	If ButtonPressed = add_verif_22_btn Then Call verif_details_dlg(22)
+	If ButtonPressed = add_verif_23_btn Then Call verif_details_dlg(23)
+	If ButtonPressed = add_verif_24_btn Then Call verif_details_dlg(24)
+
 	If ButtonPressed = update_information_btn Then
 		If page_display = show_pg_one_address Then update_addr = TRUE
 		If page_display = show_pg_memb_list Then update_pers = TRUE
@@ -3928,7 +3980,7 @@ function dialog_movement()
 	' If page_display <> show_q_19 Then fmed_selected = ""
 	'
 	' If page_display <> show_q_20_21 Then inst_to_match = ""
-
+	If ButtonPressed = finish_interview_btn Then leave_loop = TRUE
 	If ButtonPressed > 10000 Then
 		save_button = ButtonPressed
 		If ButtonPressed = page_1_step_1_btn Then call explain_dialog_actions("PAGE 1", "STEP 1")
@@ -5519,11 +5571,11 @@ function dlg_page_six_assets_and_other()
 
 			If ButtonPressed = -1 Then ButtonPressed = next_btn
 
-			If ButtonPressed = add_verif_20_btn Then Call verif_details_dlg(14)
-			If ButtonPressed = add_verif_21_btn Then Call verif_details_dlg(15)
-			If ButtonPressed = add_verif_22_btn Then Call verif_details_dlg(16)
-			If ButtonPressed = add_verif_23_btn Then Call verif_details_dlg(17)
-			If ButtonPressed = add_verif_24_btn Then Call verif_details_dlg(18)
+			If ButtonPressed = add_verif_20_btn Then Call verif_details_dlg(20)
+			If ButtonPressed = add_verif_21_btn Then Call verif_details_dlg(21)
+			If ButtonPressed = add_verif_22_btn Then Call verif_details_dlg(22)
+			If ButtonPressed = add_verif_23_btn Then Call verif_details_dlg(23)
+			If ButtonPressed = add_verif_24_btn Then Call verif_details_dlg(24)
 
 
 			If ButtonPressed = back_btn Then
@@ -5993,7 +6045,7 @@ function verif_details_dlg(question_number)
 	End Select
 
 
-	BeginDialog Dialog1, 0, 0, 550, 385, "Add Verification"
+	BeginDialog Dialog1, 0, 0, 396, 95, "Add Verification"
 	  DropListBox 60, 35, 75, 45, "Not Needed"+chr(9)+"Requested"+chr(9)+"On File"+chr(9)+"Verbal Attestation", verif_selection
 	  EditBox 60, 55, 330, 15, verif_detials
 	  ButtonGroup ButtonPressed
@@ -6334,7 +6386,7 @@ marital_status = marital_status+chr(9)+"L  Legally Sep"
 marital_status = marital_status+chr(9)+"D  Divorced"
 marital_status = marital_status+chr(9)+"W  Widowed"
 
-question_answers = ""+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Not Required"
+question_answers = ""+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Blank"
 
 'Dimming all the variables because they are defined and set within functions
 Dim who_are_we_completing_the_form_with, caf_person_one, exp_q_1_income_this_month, exp_q_2_assets_this_month, exp_q_3_rent_this_month, exp_pay_heat_checkbox, exp_pay_ac_checkbox, exp_pay_electricity_checkbox, exp_pay_phone_checkbox
@@ -7661,8 +7713,11 @@ objSelection.TypeText "Verbal Signature accepted on " & caf_form_date
 file_safe_date = replace(date, "/", "-")		'dates cannot have / for a file name so we change it to a -
 'We set the file path and name based on case number and date. We can add other criteria if important.
 'This MUST have the 'pdf' file extension to work
-If MAXIS_case_number <> "" Then pdf_doc_path = t_drive & "\Eligibility Support\Assignments\CAF Forms for ECF\CAF - " & MAXIS_case_number & " on " & file_safe_date & ".pdf"
-If no_case_number_checkbox = checked Then pdf_doc_path = t_drive & "\Eligibility Support\Assignments\CAF Forms for ECF\CAF - NEW CASE " & Left(ALL_CLIENTS_ARRAY(memb_first_name, 0), 1) & ". " & ALL_CLIENTS_ARRAY(memb_last_name, 0) & " on " & file_safe_date & ".pdf"
+
+' If MAXIS_case_number <> "" Then pdf_doc_path = t_drive & "\Eligibility Support\Assignments\CAF Forms for ECF\CAF - " & MAXIS_case_number & " on " & file_safe_date & ".pdf"
+' If no_case_number_checkbox = checked Then pdf_doc_path = t_drive & "\Eligibility Support\Assignments\CAF Forms for ECF\CAF - NEW CASE " & Left(ALL_CLIENTS_ARRAY(memb_first_name, 0), 1) & ". " & ALL_CLIENTS_ARRAY(memb_last_name, 0) & " on " & file_safe_date & ".pdf"
+pdf_doc_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\TEMP - Interview Notes PDF Folder\CAF - " & MAXIS_case_number & " on " & file_safe_date & ".pdf"
+
 'Now we save the document.
 'MS Word allows us to save directly as a PDF instead of a DOC.
 'the file path must be PDF
@@ -7693,22 +7748,27 @@ If objFSO.FileExists(pdf_doc_path) = TRUE Then
 		objFSO.DeleteFile(local_changelog_path)			'DELETE
 	End If
 
-	'Now we case note!
-	Call start_a_blank_case_note
-	Call write_variable_in_CASE_NOTE("CAF Form completed via Phone")
-	Call write_variable_in_CASE_NOTE("Form information taken verbally per COVID Waiver Allowance.")
-	Call write_variable_in_CASE_NOTE("Form information taken on " & caf_form_date)
-	Call write_variable_in_CASE_NOTE("CAF for application date: " & application_date)
-	Call write_variable_in_CASE_NOTE("CAF information saved and will be added to ECF within a few days. Detail can be viewed in 'Assignments Folder'.")
+	' 'Now we case note!
+	' Call start_a_blank_case_note
+	' Call write_variable_in_CASE_NOTE("CAF Form completed via Phone")
+	' Call write_variable_in_CASE_NOTE("Form information taken verbally per COVID Waiver Allowance.")
+	' Call write_variable_in_CASE_NOTE("Form information taken on " & caf_form_date)
+	' Call write_variable_in_CASE_NOTE("CAF for application date: " & application_date)
+	' Call write_variable_in_CASE_NOTE("CAF information saved and will be added to ECF within a few days. Detail can be viewed in 'Assignments Folder'.")
+	' Call write_variable_in_CASE_NOTE("---")
+	' Call write_variable_in_CASE_NOTE(worker_signature)
+
+	Call write_variable_in_CASE_NOTE("THIS IS WHERE THE CASE NOTE GOES")
 	Call write_variable_in_CASE_NOTE("---")
 	Call write_variable_in_CASE_NOTE(worker_signature)
+
 
 	'setting the end message
 	end_msg = "Success! The information you have provided for the CAF form has been saved to the Assignments forlder so the CAF Form can be updated and added to ECF. The case can be processed using the information saved in the PDF. Additional notes and information are needed or case processing. This script has NOT updated MAXIS or added CAF processing notes."
 
 	'Now we ask if the worker would like the PDF to be opened by the script before the script closes
 	'This is helpful because they may not be familiar with where these are saved and they could work from the PDF to process the reVw
-	reopen_pdf_doc_msg = MsgBox("The information about the CAF has been saved to a PDF on the LAN to be added to the DHS form and added to ECF." & vbCr & vbCr & "Would you like the PDF Document opened to process/review?", vbQuestion + vbYesNo, "Open PDF Doc?")
+	reopen_pdf_doc_msg = MsgBox("The information about the CAF has been saved to a PDF on the LAN to be added to the DHS form and added to ECF." & vbCr & vbCr & "Would you like the PDF Document opened to process/review?", vbQuestion + vbSystemModal + vbYesNo, "Open PDF Doc?")
 	If reopen_pdf_doc_msg = vbYes Then
 		run_path = chr(34) & pdf_doc_path & chr(34)
 		wshshell.Run run_path
