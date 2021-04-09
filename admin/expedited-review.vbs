@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("04/09/2021", "Removed FAD Assignments and associated actions for the FAD assignments.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("03/02/2021", "Added Debrice Jackson to also receive emails for YET's assignments.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("12/30/2020", "Updated non-expedited count code for more accurate data.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("11/29/2020", "Updated to include Phase 1 of ES Expedited SNAP Support with DWP group.", "Ilse Ferris, Hennepin County")
@@ -247,15 +248,15 @@ objExcel = ""
 report_date = replace(date, "/", "-")   'Changing the format of the date to use as file path selection default
 file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\" & report_date & ".xlsx"
 
-BeginDialog Dialog1, 0, 0, 266, 115, "ADMIN - EXPEDITED REVIEW"
+BeginDialog Dialog1, 0, 0, 481, 90, "ADMIN - EXPEDITED REVIEW"
   ButtonGroup ButtonPressed
-    PushButton 200, 50, 50, 15, "Browse...", select_a_file_button
-    OkButton 150, 95, 50, 15
-    CancelButton 205, 95, 50, 15
-  EditBox 15, 50, 180, 15, file_selection_path
-  Text 20, 20, 235, 25, "This script should be used to review a BOBI list of pending SNAP and/or MFIP cases to ensure expedited screening and determinations are being made to ensure expedited timeliness rules are being followed."
-  Text 15, 70, 230, 15, "Select the Excel file that contains your inforamtion by selecting the 'Browse' button, and finding the file."
-  GroupBox 10, 5, 250, 85, "Using this script:"
+    PushButton 420, 40, 50, 15, "Browse...", select_a_file_button
+    OkButton 365, 60, 50, 15
+    CancelButton 420, 60, 50, 15
+  EditBox 15, 40, 400, 15, file_selection_path
+  Text 15, 20, 455, 15, "This script should be used to review a BOBI list of pending SNAP and/or MFIP cases to ensure expedited screening and determinations are being made to ensure expedited timeliness rules are being followed."
+  Text 15, 65, 335, 10, "Select the Excel file that contains your inforamtion by selecting the 'Browse' button, and finding the file."
+  GroupBox 10, 5, 465, 75, "Using this script:"
 EndDialog
 
 'dialog and dialog DO...Loop	
@@ -744,121 +745,6 @@ objExcel.ActiveWorkbook.Close
 objExcel.Application.Quit
 objExcel.Quit
 
-'------------------------------------------------------------------------------------------------------------------------------------------------------------'Needs Interview Cases
-'----------------------------------------------------------------------------------------------------NOT EXPEDITED 
-'Opening the Excel file
-Set objExcel = CreateObject("Excel.Application")
-objExcel.Visible = True
-Set objWorkbook = objExcel.Workbooks.Add()
-objExcel.DisplayAlerts = True
-
-'Changes name of Excel sheet
-ObjExcel.ActiveSheet.Name = "Not Expedited"
-
-'adding information to the Excel list from PND2
-ObjExcel.Cells(1, 1).Value = "Worker #"
-ObjExcel.Cells(1, 2).Value = "Case number"
-ObjExcel.Cells(1, 3).Value = "Prog ID"
-ObjExcel.Cells(1, 4).Value = "Days Pending"
-ObjExcel.Cells(1, 5).Value = "APPL Date"
-objExcel.Columns(5).NumberFormat = "mm/dd/yy"					'formats the date column as MM/DD/YY
-ObjExcel.Cells(1, 6).Value = "Interview Date"
-objExcel.Columns(6).NumberFormat = "mm/dd/yy"					'formats the date column as MM/DD/YY
-ObjExcel.Cells(1, 7).Value = "Notes"
- 
-Excel_row = 2
- 
-For item = 0 to UBound(expedited_array, 2)
-    If expedited_array(appears_exp_const, item) = "Not Expedited" and expedited_array(interview_date_const, item) = "" then 
-        If expedited_array(case_status_const, item) = "SNAP Application Denied" or expedited_array(case_status_const, item) = "OUT OF COUNTY CASE" then 
-            assign_case = False
-        elseif expedited_array(case_status_const, item) = "SNAP ACTIVE" and expedited_array(program_ID_const, item) = "FS" then 
-            assign_case = False 
-        else 
-            assign_case = True
-        End if 
-    Else 
-        assign_case = False 
-    End if 
-    
-    'Excluding YET (X127FA5) and 1800 (X127EF8 and X127EF9) baskets
-    If expedited_array(worker_number_const, item) = "X127FA5" or expedited_array(worker_number_const, item) = "X127EF8" or expedited_array(worker_number_const, item) = "X127EF9" then assign_case = False 
-    
-    If assign_case = True then 
-        'only assigning cases that haven't exceeded Day 30 - Those are their own assignments 
-        If expedited_array(days_pending_const, item) < 30 then 
-            objExcel.Cells(excel_row, 1).Value = expedited_array(worker_number_const,    item)
-            objExcel.Cells(excel_row, 2).Value = expedited_array(case_number_const,      item)
-            objExcel.Cells(excel_row, 3).Value = expedited_array(program_ID_const,       item)
-            objExcel.Cells(excel_row, 4).Value = expedited_array(days_pending_const,     item)
-            objExcel.Cells(excel_row, 5).Value = expedited_array(application_date_const, item)
-            objExcel.Cells(excel_row, 6).Value = expedited_array(interview_date_const,   item)
-            objExcel.Cells(excel_row, 7).Value = expedited_array(case_status_const,      item)
-            excel_row = excel_row + 1
-        End if 
-    End if 
-Next 
- 
-FOR i = 1 to 7		'formatting the cells
-    objExcel.Cells(1, i).Font.Bold = True		'bold font'
-    objExcel.Columns(i).AutoFit()				'sizing the columns'
-NEXT
-
-'----------------------------------------------------------------------------------------------------Appears Expedited 
-ObjExcel.Worksheets.Add().Name = "Appears Expedited"
-
-'adding information to the Excel list from PND2
-ObjExcel.Cells(1, 1).Value = "Worker #"
-ObjExcel.Cells(1, 2).Value = "Case number"
-ObjExcel.Cells(1, 3).Value = "Prog ID"
-ObjExcel.Cells(1, 4).Value = "Days Pending"
-ObjExcel.Cells(1, 5).Value = "APPL Date"
-objExcel.Columns(5).NumberFormat = "mm/dd/yy"					'formats the date column as MM/DD/YY
-ObjExcel.Cells(1, 6).Value = "Interview Date"
-objExcel.Columns(6).NumberFormat = "mm/dd/yy"					'formats the date column as MM/DD/YY
-ObjExcel.Cells(1, 7).Value = "Notes"
- 
-Excel_row = 2
- 
-For item = 0 to UBound(expedited_array, 2)
-    If expedited_array(appears_exp_const, item) = "Req Exp Processing" and expedited_array(interview_date_const, item) = "" then 
-        assign_case = True 
-    Else 
-        assign_case = False 
-    End if 
-    
-    'Excluding YET (X127FA5) and 1800 (X127EF8 and X127EF9) baskets
-    If expedited_array(worker_number_const, item) = "X127FA5" or expedited_array(worker_number_const, item) = "X127EF8" or expedited_array(worker_number_const, item) = "X127EF9" then assign_case = False 
-        
-    If assign_case = True then 
-        'only assigning cases that haven't exceeded Day 30 - Those are their own assignments 
-        If expedited_array(days_pending_const, item) < 30 then 
-            If expedited_array(days_pending_const, item) => 8 then
-                'Appears expedited pending days 1-7 are currently assigned to DWP
-                objExcel.Cells(excel_row, 1).Value = expedited_array(worker_number_const,    item)
-                objExcel.Cells(excel_row, 2).Value = expedited_array(case_number_const,      item)
-                objExcel.Cells(excel_row, 3).Value = expedited_array(program_ID_const,       item)
-                objExcel.Cells(excel_row, 4).Value = expedited_array(days_pending_const,     item)
-                objExcel.Cells(excel_row, 5).Value = expedited_array(application_date_const, item)
-                objExcel.Cells(excel_row, 6).Value = expedited_array(interview_date_const,   item)
-                objExcel.Cells(excel_row, 7).Value = expedited_array(case_status_const,      item)
-                excel_row = excel_row + 1
-            End if 
-        End if 
-    End if 
-Next 
- 
-FOR i = 1 to 7		'formatting the cells
-    objExcel.Cells(1, i).Font.Bold = True		'bold font'
-    objExcel.Columns(i).AutoFit()				'sizing the columns'
-NEXT
-
-'Saves and closes the most recent Excel workbook
-objExcel.ActiveWorkbook.SaveAs "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP SNAP " & report_date & ".xlsx"
-objExcel.ActiveWorkbook.Close
-objExcel.Application.Quit
-objExcel.Quit
-
 '----------------------------------------------------------------------------------------------------Appears Expedited for YET Team only X127FA5
 'Opening the Excel file
 Set objExcel = CreateObject("Excel.Application")
@@ -1151,7 +1037,6 @@ stats_report = "Screening Count: " & screening_count & vbcr & _
 "Not Expedited Count: " & not_exp_count
 
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-Call create_outlook_email("WFMTeam@hennepin.us", "Laurie.Hennen@hennepin.us", "EXP SNAP Report without Interviews is Ready. EOM.", "", "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP SNAP " & report_date & ".xlsx", True)
 Call create_outlook_email("Maslah.Jama@hennepin.us; Debrice.Jackson@hennepin.us","Laurie.Hennen@hennepin.us", "EXP SNAP Report for YET without Interviews is Ready. EOM.", "", "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP SNAP X127FA5 " & report_date & ".xlsx", True)
 Call create_outlook_email("Carlotta.Madison@hennepin.us", "Laurie.Hennen@hennepin.us", "EXP SNAP Report for 1800 without Interviews is Ready. EOM.", "", "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP SNAP 1800 " & report_date & ".xlsx", True)
 Call create_outlook_email("HSPH.EWS.Unit.Frey@hennepin.us", "", "Today's EXP SNAP reports are ready.", "Path to folder - T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project", "", True)
@@ -1160,7 +1045,7 @@ Call create_outlook_email("Ilse.Ferris@hennepin.us;Laurie.Hennen@hennepin.us",""
 
 '----------------------------------------------------------------------------------------------------Moves yesterday's files to the archive folder for the specific month
 
-array_of_archive_assigments = array("QI Expedited Review ","Pending Over 30 Days ", "EXP SNAP ", "EXP SNAP X127FA5 ", "EXP SNAP 1800 ", "EXP SNAP DWP ", "")
+array_of_archive_assigments = array("QI Expedited Review ","Pending Over 30 Days ", "EXP SNAP X127FA5 ", "EXP SNAP 1800 ", "EXP SNAP DWP ", "")
 
 previous_date = dateadd("d", -1, date)
 Call change_date_to_soonest_working_day(previous_date)       'finds the most recent previous working day for the fin
