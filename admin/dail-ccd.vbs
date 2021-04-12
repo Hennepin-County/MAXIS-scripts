@@ -216,6 +216,7 @@ For each worker in worker_array
 			stats_counter = stats_counter + 1
 
 			If instr(dail_msg, "SDX MATCH - PBEN UPDATED - MAXIS INTERFACED IAA DATE TO SSA") OR _
+               instr(dail_msg, "MEMBER HAS TURNED 60 - FSET:WORK REG HAS BEEN UPDATED") OR _
    			   instr(dail_msg, "SDX MATCH - MAXIS INTERFACED IAA DATE TO SSA") then
                add_to_excel = TRUE
             elseif instr(dail_msg, "CANCELLED DUE TO AGING") then
