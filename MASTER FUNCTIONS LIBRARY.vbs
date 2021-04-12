@@ -6045,25 +6045,21 @@ Function non_actionable_dails(actionable_dail)
         instr(dail_msg, "SSI UPDATED - (REF") OR _
         instr(dail_msg, "SNAP ABAWD ELIGIBILITY HAS EXPIRED, APPROVE NEW ELIG RESULTS") then
             actionable_dail = False
-        '----------------------------------------------------------------------------------------------------CORRECT STAT EDITS over 5 days old
+        '----------------------------------------------------------------------------------------------------STAT EDITS older than Current Date
     Elseif dail_type = "STAT" or instr(dail_msg, "NEW FIAT RESULTS EXIST") then
-        EmReadscreen stat_date, 8, dail_row, 39
+        EmReadscreen stat_date, 8, dail_row, 39     'Stat date location 
         If isdate(stat_date) = False then
-            EmReadscreen alt_stat_date, 8, dail_row, 49
+            EmReadscreen alt_stat_date, 8, dail_row, 43 'fiat results date location
             If isdate(alt_stat_date) = True then
                 stat_date = alt_stat_date
             End if
         End if
         If isdate(stat_date) = True then
-            five_days_ago = DateAdd("d", -5, date)
-            If cdate(five_days_ago) => cdate(stat_date) then
-                'messages over 5 days old are non-actionable
-                actionable_dail = False
+            If DateDiff("d", stat_date, date) > 0 then 
+                actionable_dail = False     'Deleting any messages that were not created taday 
             Else
                 actionable_dail = True
             End if
-        else
-            actionable_dail = True
         End if
     '----------------------------------------------------------------------------------------------------REMOVING PEPR messages not CM or CM + 1
     Elseif dail_type = "PEPR" then
@@ -6072,8 +6068,8 @@ Function non_actionable_dails(actionable_dail)
         Else
             actionable_dail = False ' delete the old messages
         End if
-    '----------------------------------------------------------------------------------------------------clearing elig messages older than CM
-    Elseif instr(dail_msg, "OVERPAYMENT POSSIBLE") or instr(dail_msg, "NEW FS VERSION MUST BE APPROVED") or instr(dail_msg, "APPROVE NEW ELIG RESULTS RECOUPMENT HAS INCREASED") or instr(dail_msg, "PERSON/S REQD FS NOT IN FS UNIT") then
+    '----------------------------------------------------------------------------------------------------clearing ELIG messages older than CM
+    Elseif instr(dail_msg, "OVERPAYMENT POSSIBLE") or instr(dail_msg, "DISBURSE EXPEDITED SERVICE FS") or instr(dail_msg, "NEW FS VERSION MUST BE APPROVED") or instr(dail_msg, "APPROVE NEW ELIG RESULTS RECOUPMENT HAS INCREASED") or instr(dail_msg, "PERSON/S REQD FS NOT IN FS UNIT") then
         if dail_month = this_month or dail_month = next_month then
             actionable_dail = True
         Else
@@ -6111,6 +6107,13 @@ Function non_actionable_dails(actionable_dail)
             actionable_dail = True            'Income based MEC2 messages will not be removed
         Else
             actionable_dail = False    'All other MEC2 messages can be deleted.
+        End if
+        '----------------------------------------------------------------------------------------------------SVES older than CM or CM + 1
+    Elseif dail_type = "SVES" then
+        if dail_month = this_month or dail_month = next_month then
+            actionable_dail = True
+        Else
+            actionable_dail = False ' delete the old messages
         End if
         '----------------------------------------------------------------------------------------------------TIKL
     Elseif dail_type = "TIKL" then
