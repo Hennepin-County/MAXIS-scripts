@@ -5970,7 +5970,6 @@ Function non_actionable_dails(actionable_dail)
         instr(dail_msg, "CHILD SUPP PAYMT FREQUENCY IS MONTHLY FOR CHILD REF NBR") OR _
         instr(dail_msg, "CHILD SUPP PAYMT FREQUENCY IS MONTHLY FOR CHILD REF NBR") OR _
         instr(dail_msg, "CHILD SUPP PAYMTS PD THRU THE COURT/AGENCY FOR CHILD") OR _
-        instr(dail_msg, "CS REPORTED: NEW EMPLOYER FOR CAREGIVER REF NBR") OR _
         instr(dail_msg, "IS LIVING W/CAREGIVER") OR _
         instr(dail_msg, "NAME DIFFERS W/ CS RECORDS:") OR _
         instr(dail_msg, "PATERNITY ON CHILD REF NBR") OR _
@@ -6010,7 +6009,6 @@ Function non_actionable_dails(actionable_dail)
         instr(dail_msg, "THIS APPLICATION WILL BE AUTOMATICALLY DENIED") OR _
         instr(dail_msg, "THIS CASE IS ERROR PRONE") OR _
         instr(dail_msg, "EMPL SERV REF DATE IS > 60 DAYS; CHECK ES PROVIDER RESPONSE") OR _
-        instr(dail_msg, "MEMBER HAS TURNED 60 - FSET:WORK REG HAS BEEN UPDATED") OR _
         instr(dail_msg, "LAST GRADE COMPLETED") OR _
         instr(dail_msg, "~*~*~CLIENT WAS SENT AN APPT LETTER") OR _
         instr(dail_msg, "IF CLIENT HAS NOT COMPLETED RECERT, APPL CAF FOR") OR _
@@ -6030,7 +6028,6 @@ Function non_actionable_dails(actionable_dail)
         instr(dail_msg, "SNAP: REIN STATUS - NOT AUTO-APPROVED") OR _
         instr(dail_msg, "SNAP: APPROVED VERSION ALREADY EXISTS - NOT AUTO-APPROVED") OR _
         instr(dail_msg, "SNAP: AUTO-APPROVED - PREVIOUS UNAPPROVED VERSION EXISTS") OR _
-        instr(dail_msg, "CASE NOT AUTO-APPROVED HRF/SR/RECERT DUE") OR _
         instr(dail_msg, "MFIP MASS CHANGE AUTO-APPROVED AN UNUSUAL INCREASE") OR _
         instr(dail_msg, "MFIP MASS CHANGE AUTO-APPROVED CASE WITH SANCTION") OR _
         instr(dail_msg, "DWP MASS CHANGE AUTO-APPROVED AN UNUSUAL INCREASE") OR _
@@ -6039,7 +6036,6 @@ Function non_actionable_dails(actionable_dail)
         instr(dail_msg, "SDX INFORMATION HAS BEEN STORED - CHECK INFC") OR _
         instr(dail_msg, "BENDEX INFORMATION HAS BEEN STORED - CHECK INFC") OR _
         instr(dail_msg, "- TRANS #") OR _
-        instr(dail_msg, "PERSON/S REQD SNAP NOT IN SNAP UNIT") OR _
         instr(dail_msg, "RSDI UPDATED - (REF") OR _
         instr(dail_msg, "SSI UPDATED - (REF") OR _
         instr(dail_msg, "SNAP ABAWD ELIGIBILITY HAS EXPIRED, APPROVE NEW ELIG RESULTS") then
@@ -6072,7 +6068,7 @@ Function non_actionable_dails(actionable_dail)
             actionable_dail = False ' delete the old messages
         End if
     '----------------------------------------------------------------------------------------------------clearing elig messages older than CM
-    Elseif instr(dail_msg, "OVERPAYMENT POSSIBLE") or inStr(dail_msg, "DISBURSE EXPEDITED SERVICE") or instr(dail_msg, "NEW FIAT RESULTS EXIST") or instr(dail_msg, "NEW FS VERSION MUST BE APPROVED") or instr(dail_msg, "APPROVE NEW ELIG RESULTS RECOUPMENT HAS INCREASED") or instr(dail_msg, "PERSON/S REQD FS NOT IN FS UNIT") then
+    Elseif instr(dail_msg, "OVERPAYMENT POSSIBLE") or instr(dail_msg, "NEW FS VERSION MUST BE APPROVED") or instr(dail_msg, "APPROVE NEW ELIG RESULTS RECOUPMENT HAS INCREASED") or instr(dail_msg, "PERSON/S REQD FS NOT IN FS UNIT") then
         if dail_month = this_month or dail_month = next_month then
             actionable_dail = True
         Else
