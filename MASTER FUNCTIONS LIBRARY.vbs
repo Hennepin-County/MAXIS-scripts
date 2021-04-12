@@ -5971,6 +5971,8 @@ Function non_actionable_dails(actionable_dail)
         instr(dail_msg, "CHILD SUPP PAYMT FREQUENCY IS MONTHLY FOR CHILD REF NBR") OR _
         instr(dail_msg, "CHILD SUPP PAYMTS PD THRU THE COURT/AGENCY FOR CHILD") OR _
         instr(dail_msg, "IS LIVING W/CAREGIVER") OR _
+        instr(dail_msg, "IS COOPERATING WITH CHILD SUPPORT") OR _
+        instr(dail_msg, "IS NOT COOPERATING WITH CHILD SUPPORT") OR _
         instr(dail_msg, "NAME DIFFERS W/ CS RECORDS:") OR _
         instr(dail_msg, "PATERNITY ON CHILD REF NBR") OR _
         instr(dail_msg, "REPORTED NAME CHG TO:") OR _
@@ -6016,6 +6018,8 @@ Function non_actionable_dails(actionable_dail)
         instr(dail_msg, "PERSON HAS A RENEWAL OR HRF DUE. STAT UPDATES") OR _
         instr(dail_msg, "PERSON HAS HC RENEWAL OR HRF DUE") OR _
         instr(dail_msg, "GA: REVIEW DUE FOR JANUARY - NOT AUTO") OR _
+        instr(dail_msg, "GA: STATUS IS PENDING - NOT AUTO-APPROVED") OR _
+        instr(dail_msg, "GA: STATUS IS REIN OR SUSPEND - NOT AUTO-APPROVED") OR _
         instr(dail_msg, "GRH: REVIEW DUE - NOT AUTO") or _
         instr(dail_msg, "GRH: APPROVED VERSION EXISTS FOR JANUARY - NOT AUTO-APPROVED") OR _
         instr(dail_msg, "HEALTH CARE IS IN REINSTATE OR PENDING STATUS") OR _
@@ -6028,6 +6032,7 @@ Function non_actionable_dails(actionable_dail)
         instr(dail_msg, "SNAP: REIN STATUS - NOT AUTO-APPROVED") OR _
         instr(dail_msg, "SNAP: APPROVED VERSION ALREADY EXISTS - NOT AUTO-APPROVED") OR _
         instr(dail_msg, "SNAP: AUTO-APPROVED - PREVIOUS UNAPPROVED VERSION EXISTS") OR _
+        instr(dail_msg, "SSN DIFFERS W/ CS RECORDS") OR _
         instr(dail_msg, "MFIP MASS CHANGE AUTO-APPROVED AN UNUSUAL INCREASE") OR _
         instr(dail_msg, "MFIP MASS CHANGE AUTO-APPROVED CASE WITH SANCTION") OR _
         instr(dail_msg, "DWP MASS CHANGE AUTO-APPROVED AN UNUSUAL INCREASE") OR _
