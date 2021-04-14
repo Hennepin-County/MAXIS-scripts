@@ -3022,14 +3022,71 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 
 end function
 
+function access_AREP_panel(access_type, arep_name, arep_addr_street, arep_addr_city, arep_addr_state, arep_addr_zip, arep_phone_one, arep_ext_one, arep_phone_two, arep_ext_two, forms_to_arep, mmis_mail_to_arep)
 
+	Call navigate_to_MAXIS_screen("STAT", "AREP")
+
+	EMReadScreen arep_name, 37, 4, 32
+	arep_name = replace(arep_name, "_", "")
+	If arep_name <> "" Then
+		EMReadScreen arep_street_one, 22, 5, 32
+		EMReadScreen arep_street_two, 22, 6, 32
+		EMReadScreen arep_addr_city, 15, 7, 32
+		EMReadScreen arep_addr_state, 2, 7, 55
+		EMReadScreen arep_addr_zip, 5, 7, 64
+
+		arep_street_one = replace(arep_street_one, "_", "")
+		arep_street_two = replace(arep_street_two, "_", "")
+		arep_addr_street = arep_street_one & " " & arep_street_two
+		arep_addr_street = trim( arep_addr_street)
+		arep_addr_city = replace(arep_addr_city, "_", "")
+		arep_addr_state = replace(arep_addr_state, "_", "")
+		arep_addr_zip = replace(arep_addr_zip, "_", "")
+
+		state_array = split(state_list, chr(9))
+		For each state_item in state_array
+			If arep_addr_state = left(state_item, 2) Then
+				arep_addr_state = state_item
+			End If
+		Next
+
+		EMReadScreen arep_phone_one, 14, 8, 34
+		EMReadScreen arep_ext_one, 3, 8, 55
+		EMReadScreen arep_phone_two, 14, 9, 34
+		EMReadScreen arep_ext_two, 3, 8, 55
+
+		arep_phone_one = replace(arep_phone_one, ")", "")
+		arep_phone_one = replace(arep_phone_one, "  ", "-")
+		arep_phone_one = replace(arep_phone_one, " ", "-")
+		If arep_phone_one = "___-___-____" Then arep_phone_one = ""
+
+		arep_phone_two = replace(arep_phone_two, ")", "")
+		arep_phone_two = replace(arep_phone_two, "  ", "-")
+		arep_phone_two = replace(arep_phone_two, " ", "-")
+		If arep_phone_two = "___-___-____" Then arep_phone_two = ""
+
+		arep_ext_one = replace(arep_ext_one, "_", "")
+		arep_ext_two = replace(arep_ext_two, "_", "")
+
+		EMReadScreen forms_to_arep, 1, 10, 45
+		EMReadScreen mmis_mail_to_arep, 1, 10, 77
+
+	End If
+
+end function
+
+function add_new_HH_MEMB()
+
+
+
+end function
 ' show_pg_one_memb01_and_exp
 ' show_pg_one_address
 ' show_pg_memb_list
-' show_q_1_7
-' show_q_8_13
-' show_q_14_19
-' show_q_20_24
+' show_q_1_6
+' show_q_7_11
+' show_q_14_15
+' show_q_21_24
 ' show_qual
 ' show_pg_last
 '
@@ -3038,43 +3095,67 @@ end function
 
 function define_main_dialog()
 
-	BeginDialog Dialog1, 0, 0, 550, 385, "Full Interview Questions"
+	BeginDialog Dialog1, 0, 0, 555, 385, "Full Interview Questions"
 
 	  ButtonGroup ButtonPressed
 	    If page_display = show_pg_one_memb01_and_exp Then
-			Text 490, 12, 60, 13, "Applicant and EXP"
+			Text 487, 12, 60, 13, "Applicant and EXP"
 
-			ComboBox 205, 10, 205, 45, all_the_clients+chr(9)+who_are_we_completing_the_form_with, who_are_we_completing_the_form_with
-			EditBox 290, 65, 50, 15, exp_q_1_income_this_month
-			EditBox 310, 85, 50, 15, exp_q_2_assets_this_month
-			EditBox 250, 105, 50, 15, exp_q_3_rent_this_month
-			CheckBox 125, 125, 30, 10, "Heat", exp_pay_heat_checkbox
-			CheckBox 160, 125, 65, 10, "Air Conditioning", exp_pay_ac_checkbox
-			CheckBox 230, 125, 45, 10, "Electricity", exp_pay_electricity_checkbox
-			CheckBox 280, 125, 35, 10, "Phone", exp_pay_phone_checkbox
-			CheckBox 325, 125, 35, 10, "None", exp_pay_none_checkbox
-			DropListBox 245, 140, 40, 45, "No"+chr(9)+"Yes", exp_migrant_seasonal_formworker_yn
-			DropListBox 365, 155, 40, 45, "No"+chr(9)+"Yes", exp_received_previous_assistance_yn
-			EditBox 80, 175, 80, 15, exp_previous_assistance_when
-			EditBox 200, 175, 85, 15, exp_previous_assistance_where
-			EditBox 320, 175, 85, 15, exp_previous_assistance_what
-			DropListBox 160, 195, 40, 45, "No"+chr(9)+"Yes", exp_pregnant_yn
-			ComboBox 255, 195, 150, 45, all_the_clients, exp_pregnant_who
-			Text 70, 15, 130, 10, "Who are you completing the form with?"
-			GroupBox 10, 50, 400, 165, "Expedited Questions - Do you need help right away?"
-			Text 20, 70, 270, 10, "1. How much income (cash or checkes) did or will your household get this month?"
-			Text 20, 90, 290, 10, "2. How much does your household (including children) have cash, checking or savings?"
-			Text 20, 110, 225, 10, "3. How much does your household pay for rent/mortgage per month?"
-			Text 30, 125, 90, 10, "What utilities do you pay?"
-			Text 20, 145, 225, 10, "4. Is anyone in your household a migrant or seasonal farm worker?"
-			Text 20, 160, 345, 10, "5. Has anyone in your household ever received cash assistance, commodities or SNAP benefits before?"
-			Text 30, 180, 50, 10, "If yes, When?"
-			Text 170, 180, 30, 10, "Where?"
-			Text 295, 180, 25, 10, "What?"
-			Text 20, 200, 135, 10, "6. Is anyone in your household pregnant?"
-			Text 210, 200, 40, 10, "If yes, who?"
+			ComboBox 120, 10, 205, 45, all_the_clients+chr(9)+who_are_we_completing_the_form_with, who_are_we_completing_the_form_with
+		    EditBox 305, 45, 50, 15, exp_q_1_income_this_month
+		    EditBox 305, 65, 50, 15, exp_q_2_assets_this_month
+		    EditBox 305, 85, 50, 15, exp_q_3_rent_this_month
+		    CheckBox 120, 105, 30, 10, "Heat", caf_exp_pay_heat_checkbox
+		    CheckBox 155, 105, 65, 10, "Air Conditioning", caf_exp_pay_ac_checkbox
+		    CheckBox 225, 105, 45, 10, "Electricity", caf_exp_pay_electricity_checkbox
+		    CheckBox 275, 105, 35, 10, "Phone", caf_exp_pay_phone_checkbox
+		    CheckBox 320, 105, 35, 10, "None", caf_exp_pay_none_checkbox
+		    DropListBox 240, 120, 40, 45, "No"+chr(9)+"Yes", exp_migrant_seasonal_formworker_yn
+		    DropListBox 360, 135, 40, 45, "No"+chr(9)+"Yes", exp_received_previous_assistance_yn
+		    EditBox 75, 155, 80, 15, exp_previous_assistance_when
+		    EditBox 195, 155, 85, 15, exp_previous_assistance_where
+		    EditBox 315, 155, 85, 15, exp_previous_assistance_what
+		    DropListBox 155, 175, 40, 45, "No"+chr(9)+"Yes", exp_pregnant_yn
+		    ComboBox 250, 175, 150, 45, all_the_clients, exp_pregnant_who
+		    Text 10, 15, 110, 10, "Who are you interviewing with?"
+		    GroupBox 5, 35, 400, 160, "Expedited Questions -CAF Answers"
+		    Text 15, 50, 270, 10, "1. How much income (cash or checkes) did or will your household get this month?"
+		    Text 15, 70, 290, 10, "2. How much does your household (including children) have cash, checking or savings?"
+		    Text 15, 90, 225, 10, "3. How much does your household pay for rent/mortgage per month?"
+		    Text 25, 105, 90, 10, "What utilities do you pay?"
+		    Text 15, 125, 225, 10, "4. Is anyone in your household a migrant or seasonal farm worker?"
+		    Text 15, 140, 345, 10, "5. Has anyone in your household ever received cash assistance, commodities or SNAP benefits before?"
+		    Text 25, 160, 50, 10, "If yes, When?"
+		    Text 165, 160, 30, 10, "Where?"
+		    Text 290, 160, 25, 10, "What?"
+		    Text 15, 180, 135, 10, "6. Is anyone in your household pregnant?"
+		    Text 205, 180, 45, 10, "If yes, who?"
+			GroupBox 5, 200, 475, 160, "Expedited Determination"
+		    Text 15, 210, 190, 10, "Confirm the Income received in the application month. "
+		    Text 20, 220, 230, 10, "What is the total of the income recevied in the month of application?"
+		    EditBox 250, 215, 55, 15, intv_app_month_income
+		    PushButton 320, 215, 145, 15, "Client is unsure of App Month Income", exp_income_guidance_btn
+		    Text 15, 240, 115, 10, "Confirm the Assets the client has."
+		    Text 20, 250, 245, 10, "Use the best detail of assets the client has available. Liquid Asset amount?"
+		    EditBox 270, 245, 50, 15, intv_app_month_asset
+		    Text 15, 270, 195, 10, "Confirm Expenses the client has in the application month."
+		    Text 20, 280, 180, 10, "What is the housing expense? (Rent, Mortgage, ectc.)"
+		    EditBox 210, 275, 50, 15, intv_app_month_housing_expense
+		    Text 20, 295, 115, 10, "What utilities expenses exist?"
+		    CheckBox 130, 295, 30, 10, "Heat", intv_exp_pay_heat_checkbox
+		    CheckBox 165, 295, 65, 10, "Air Conditioning", intv_exp_pay_ac_checkbox
+		    CheckBox 235, 295, 45, 10, "Electricity", intv_exp_pay_electricity_checkbox
+		    CheckBox 285, 295, 35, 10, "Phone", intv_exp_pay_phone_checkbox
+		    CheckBox 330, 295, 35, 10, "None", intv_exp_pay_none_checkbox
+		    Text 15, 315, 105, 10, "Do we have an ID verification?"
+		    DropListBox 125, 310, 45, 45, "No"+chr(9)+"Yes", id_verif_on_file
+		    Text 195, 315, 165, 10, "Check ECF, SOL-Q, and check in with the client."
+		    Text 15, 330, 240, 10, "Is the household active SNAP in another state for the application month?"
+		    DropListBox 255, 325, 45, 45, "No"+chr(9)+"Yes", snap_active_in_other_state
+		    Text 15, 345, 270, 10, "Was the last SNAP benefit for this case 'Expedited' with postponed verifications?"
+		    DropListBox 285, 340, 45, 45, "No"+chr(9)+"Yes", last_snap_was_exp
 		ElseIf page_display = show_pg_one_address Then
-			Text 495, 27, 60, 13, "CAF ADDR"
+			Text 500, 27, 60, 13, "CAF ADDR"
 			If update_addr = FALSE Then
 				Text 70, 55, 305, 15, resi_addr_street_full
 				Text 70, 75, 105, 15, resi_addr_city
@@ -3148,6 +3229,9 @@ function define_main_dialog()
 			Text 255, 245, 75, 10, "County of Residence:"
 		ElseIf page_display = show_pg_memb_list Then
 			Text 495, 42, 60, 13, "CAF MEMBs"
+			Text 10, 5, 400, 10, "Review information for ALL household members, ensuring the information is accurate."
+			Text 10, 15, 400, 10, "You must click on each Person button below and on the left to view each person."
+
 			If update_pers = FALSE Then
 				Text 70, 45, 90, 15, HH_MEMB_ARRAY(selected_memb).last_name
 				Text 165, 45, 75, 15, HH_MEMB_ARRAY(selected_memb).first_name
@@ -3268,324 +3352,637 @@ function define_main_dialog()
 			Text 70, 270, 50, 10, "Verification"
 			Text 155, 270, 65, 10, "Verification Details"
 			Text 70, 300, 50, 10, "Notes:"
-		ElseIf page_display = show_q_1_7 Then
-			Text 505, 57, 60, 13, "Q. 1 - 7"
+		ElseIf page_display = show_q_1_6 Then
+			Text 510, 57, 60, 13, "Q. 1 - 6"
+			y_pos = 10
 
+			GroupBox 5, y_pos, 475, 55, "1. Does everyone in your household buy, fix or eat food with you?"
+			y_pos = y_pos + 20
+			Text 15, y_pos, 40, 10, "CAF Answer"
+			DropListBox 55, y_pos - 5, 35, 45, question_answers, question_1_yn
+			Text 95, y_pos, 25, 10, "write-in:"
+			If question_1_verif_yn = "" Then
+				EditBox 120, y_pos - 5, 355, 15, question_1_notes
+			Else
+				EditBox 120, y_pos - 5, 235, 15, question_1_notes
+				Text 360, y_pos, 110, 10, "Q1 - Verification - " & question_1_verif_yn
+			End If
+			y_pos = y_pos + 20
+			Text 15, y_pos, 60, 10, "Interview Notes:"
+			EditBox 75, y_pos - 5, 320, 15, question_1_interview_notes
+			PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", add_verif_1_btn
+			y_pos = y_pos + 20
 
-
-			GroupBox 5, 15, 475, 50, "1. Does everyone in your household buy, fix or eat food with you?"
-			Text 15, 30, 40, 10, "CAF Answer"
-			DropListBox 55, 25, 35, 45, question_answers, question_1_yn
-			Text 95, 30, 25, 10, "write-in:"
-			EditBox 120, 25, 235, 15, question_1_notes
-			Text 360, 30, 110, 10, "Q1 - Verification - " & question_1_verif_yn
-			Text 15, 50, 60, 10, "Interview Notes:"
-			EditBox 75, 45, 320, 15, question_1_interview_notes
-			PushButton 400, 50, 75, 10, "ADD VERIFICATION", add_verif_1_btn
-
-			GroupBox 5, 65, 475, 50, "2. Is anyone in the household, who is age 60 or over or disabled, unable to buy or fix food due to a disability?"
+			GroupBox 5, y_pos, 475, 55, "2. Is anyone in the household, who is age 60 or over or disabled, unable to buy or fix food due to a disability?"
+			y_pos = y_pos + 20
 			' Text 20, 55, 115, 10, "buy or fix food due to a disability?"
-			Text 15, 80, 40, 10, "CAF Answer"
-			DropListBox 55, 75, 35, 45, question_answers, question_2_yn
-			Text 95, 80, 25, 10, "write-in:"
-			EditBox 120, 75, 235, 15, question_2_notes
-			Text 360, 80, 110, 10, "Q2 - Verification - " & question_2_verif_yn
-			Text 15, 100, 60, 10, "Interview Notes:"
-			EditBox 75, 95, 320, 15, question_2_interview_notes
-			PushButton 400, 100, 75, 10, "ADD VERIFICATION", add_verif_2_btn
+			Text 15, y_pos, 40, 10, "CAF Answer"
+			DropListBox 55, y_pos - 5, 35, 45, question_answers, question_2_yn
+			Text 95, y_pos, 25, 10, "write-in:"
+			If question_2_verif_yn = "" Then
+				EditBox 120, y_pos - 5, 355, 15, question_2_notes
+			Else
+				EditBox 120, y_pos - 5, 235, 15, question_2_notes
+				Text 360, y_pos, 110, 10, "Q2 - Verification - " & question_2_verif_yn
+			End If
+			y_pos = y_pos + 20
+			Text 15, y_pos, 60, 10, "Interview Notes:"
+			EditBox 75, y_pos - 5, 320, 15, question_2_interview_notes
+			PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", add_verif_2_btn
+			y_pos = y_pos + 20
 
-			GroupBox 5, 115, 475, 50, "3. Is anyone in the household attending school?"
-			Text 15, 130, 40, 10, "CAF Answer"
-			DropListBox 55, 125, 35, 45, question_answers, question_3_yn
-			Text 95, 130, 25, 10, "write-in:"
-			EditBox 120, 125, 235, 15, question_3_notes
-			Text 360, 130, 110, 10, "Q3 - Verification - " & question_3_verif_yn
-			Text 15, 150, 60, 10, "Interview Notes:"
-			EditBox 75, 145, 320, 15, question_3_interview_notes
-			PushButton 400, 150, 75, 10, "ADD VERIFICATION", add_verif_3_btn
+			GroupBox 5, y_pos, 475, 55, "3. Is anyone in the household attending school?"
+			y_pos = y_pos + 20
+			Text 15, y_pos, 40, 10, "CAF Answer"
+			DropListBox 55, y_pos - 5, 35, 45, question_answers, question_3_yn
+			Text 95, y_pos, 25, 10, "write-in:"
+			If question_3_verif_yn = "" Then
+				EditBox 120, y_pos - 5, 355, 15, question_3_notes
+			Else
+				EditBox 120, y_pos - 5, 235, 15, question_3_notes
+				Text 360, y_pos, 110, 10, "Q3 - Verification - " & question_3_verif_yn
+			End If
+			y_pos = y_pos + 20
+			Text 15, y_pos, 60, 10, "Interview Notes:"
+			EditBox 75, y_pos - 5, 320, 15, question_3_interview_notes
+			PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", add_verif_3_btn
+			y_pos = y_pos + 20
 
-			GroupBox 5, 165, 475, 50, "4. Is anyone in your household temporarily not living in your home? (eg. vacation, foster care, treatment, hospital, job search)"
+			GroupBox 5, y_pos, 475, 55, "4. Is anyone in your household temporarily not living in your home? (eg. vacation, foster care, treatment, hospital, job search)"
+			y_pos = y_pos + 20
 			' Text 20, 135, 230, 10, "(for example: vacation, foster care, treatment, hospital, job search)"
-			Text 15, 180, 40, 10, "CAF Answer"
-			DropListBox 55, 175, 35, 45, question_answers, question_4_yn
-			Text 95, 180, 25, 10, "write-in:"
-			EditBox 120, 175, 235, 15, question_4_notes
-			Text 360, 180, 110, 10, "Q4 - Verification - " & question_4_verif_yn
-			Text 15, 200, 60, 10, "Interview Notes:"
-			EditBox 75, 195, 320, 15, question_4_interview_notes
-			PushButton 400, 200, 75, 10, "ADD VERIFICATION", add_verif_4_btn
+			Text 15, y_pos, 40, 10, "CAF Answer"
+			DropListBox 55, y_pos - 5, 35, 45, question_answers, question_4_yn
+			Text 95, y_pos, 25, 10, "write-in:"
+			If question_4_verif_yn = "" Then
+				EditBox 120, y_pos - 5, 355, 15, question_4_notes
+			Else
+				EditBox 120, y_pos - 5, 235, 15, question_4_notes
+				Text 360, y_pos, 110, 10, "Q4 - Verification - " & question_4_verif_yn
+			End If
+			y_pos = y_pos + 20
+			Text 15, y_pos, 60, 10, "Interview Notes:"
+			EditBox 75, y_pos - 5, 320, 15, question_4_interview_notes
+			PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", add_verif_4_btn
+			y_pos = y_pos + 20
 
-			GroupBox 5, 215, 475, 50, "5. Is anyone blind, or does anyone have a physical or mental health condition that limits the ability to work or perform daily activities?"
+			GroupBox 5, y_pos, 475, 55, "5. Is anyone blind, or does anyone have a physical or mental health condition that limits the ability to work or perform daily activities?"
+			y_pos = y_pos + 20
 			' Text 20, 180, 185, 10, " that limits the ability to work or perform daily activities?"
-			Text 15, 230, 40, 10, "CAF Answer"
-			DropListBox 55, 225, 35, 45, question_answers, question_5_yn
-			Text 95, 230, 25, 10, "write-in:"
-			EditBox 120, 225, 235, 15, question_5_notes
-			Text 360, 230, 110, 10, "Q5 - Verification - " & question_5_verif_yn
-			Text 15, 250, 60, 10, "Interview Notes:"
-			EditBox 75, 245, 320, 15, question_5_interview_notes
-			PushButton 400, 250, 75, 10, "ADD VERIFICATION", add_verif_5_btn
+			Text 15, y_pos, 40, 10, "CAF Answer"
+			DropListBox 55, y_pos - 5, 35, 45, question_answers, question_5_yn
+			Text 95, y_pos, 25, 10, "write-in:"
+			If question_5_verif_yn = "" Then
+				EditBox 120, y_pos - 5, 355, 15, question_5_notes
+			Else
+				EditBox 120, y_pos - 5, 235, 15, question_5_notes
+				Text 360, y_pos, 110, 10, "Q5 - Verification - " & question_5_verif_yn
+			End If
+			y_pos = y_pos + 20
+			Text 15, y_pos, 60, 10, "Interview Notes:"
+			EditBox 75, y_pos - 5, 320, 15, question_5_interview_notes
+			PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", add_verif_5_btn
+			y_pos = y_pos + 20
 
-			GroupBox 5, 265, 475, 50, "6. Is anyone unable to work for reasons other than illness or disability?"
-			Text 15, 280, 40, 10, "CAF Answer"
-			DropListBox 55, 275, 35, 45, question_answers, question_6_yn
-			Text 95, 280, 25, 10, "write-in:"
-			EditBox 120, 275, 235, 15, question_6_notes
-			Text 360, 280, 110, 10, "Q6 - Verification - " & question_6_verif_yn
-			Text 15, 300, 60, 10, "Interview Notes:"
-			EditBox 75, 295, 320, 15, question_6_interview_notes
-			PushButton 400, 300, 75, 10, "ADD VERIFICATION", add_verif_6_btn
+			GroupBox 5, y_pos, 475, 55, "6. Is anyone unable to work for reasons other than illness or disability?"
+			y_pos = y_pos + 20
+			Text 15, y_pos, 40, 10, "CAF Answer"
+			DropListBox 55, y_pos - 5, 35, 45, question_answers, question_6_yn
+			Text 95, y_pos, 25, 10, "write-in:"
+			If question_6_verif_yn = "" Then
+				EditBox 120, y_pos - 5, 355, 15, question_6_notes
+			Else
+				EditBox 120, y_pos - 5, 235, 15, question_6_notes
+				Text 360, y_pos, 110, 10, "Q6 - Verification - " & question_6_verif_yn
+			End If
+			y_pos = y_pos + 20
+			Text 15, y_pos, 60, 10, "Interview Notes:"
+			EditBox 75, y_pos - 5, 320, 15, question_6_interview_notes
+			PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", add_verif_6_btn
+			y_pos = y_pos + 20
 
-			GroupBox 5, 315, 475, 50, "7. In the last 60 days did anyone in the household: - Stop working or quit a job? - Refuse a job offer? - Ask to work fewer hours? - Go on strike?"
+		ElseIf page_display = show_q_7_11 Then
+			Text 508, 72, 60, 13, "Q. 7 - 11"
+			y_pos = 10
+
+			GroupBox 5, y_pos, 475, 55, "7. In the last 60 days did anyone in the household: - Stop working or quit a job? - Refuse a job offer? - Ask to work fewer hours? - Go on strike?"
 			' Text 20, 315, 350, 10, "- Stop working or quit a job?   - Refuse a job offer? - Ask to work fewer hours?   - Go on strike?"
-			Text 15, 330, 40, 10, "CAF Answer"
-			DropListBox 55, 325, 35, 45, question_answers, question_7_yn
-			Text 95, 330, 25, 10, "write-in:"
-			EditBox 120, 325, 235, 15, question_7_notes
-			Text 360, 330, 110, 10, "Q7 - Verification - " & question_7_verif_yn
-			Text 15, 350, 60, 10, "Interview Notes:"
-			EditBox 75, 345, 320, 15, question_7_interview_notes
-			PushButton 400, 350, 75, 10, "ADD VERIFICATION", add_verif_7_btn
-		ElseIf page_display = show_q_8_13 Then
-			Text 505, 72, 60, 13, "Q. 8 - 13"
+			y_pos = y_pos + 20
+			Text 15, y_pos, 40, 10, "CAF Answer"
+			DropListBox 55, y_pos - 5, 35, 45, question_answers, question_7_yn
+			Text 95, y_pos, 25, 10, "write-in:"
+			If question_7_verif_yn = "" Then
+				EditBox 120, y_pos - 5, 355, 15, question_7_notes
+			Else
+				EditBox 120, y_pos - 5, 235, 15, question_7_notes
+				Text 360, y_pos, 110, 10, "Q7 - Verification - " & question_7_verif_yn
+			End If
+			y_pos = y_pos + 20
+			Text 15, y_pos, 60, 10, "Interview Notes:"
+			EditBox 75, y_pos - 5, 320, 15, question_7_interview_notes
+			PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", add_verif_7_btn
+			y_pos = y_pos + 20
 
-			GroupBox 5, 10, 475, 65, "8. Has anyone in the household had a job or been self-employed in the past 12 months?"
-			Text 15, 25, 40, 10, "CAF Answer"
-			DropListBox 55, 20, 35, 45, question_answers, question_8_yn
-			Text 95, 25, 25, 10, "write-in:"
-			EditBox 120, 20, 235, 15, question_8_notes
-			Text 360, 25, 110, 10, "Q8 - Verification - " & question_8_verif_yn
-			Text 15, 40, 400, 10, "a. FOR SNAP ONLY: Has anyone in the household had a job or been self-employed in the past 36 months?       CAF Answer"
-			DropListBox 415, 35, 35, 45, question_answers, question_8a_yn
-			Text 15, 60, 60, 10, "Interview Notes:"
-			EditBox 75, 55, 320, 15, question_7_interview_notes
-			PushButton 400, 60, 75, 10, "ADD VERIFICATION", add_verif_8_btn
+			GroupBox 5, y_pos, 475, 65, "8. Has anyone in the household had a job or been self-employed in the past 12 months?"
+			y_pos = y_pos + 20
+			Text 15, y_pos, 40, 10, "CAF Answer"
+			DropListBox 55, y_pos - 5, 35, 45, question_answers, question_8_yn
+			Text 95, y_pos, 25, 10, "write-in:"
+			If question_8_verif_yn = "" Then
+				EditBox 120, y_pos - 5, 355, 15, question_8_notes
+			Else
+				EditBox 120, y_pos - 5, 235, 15, question_8_notes
+				Text 360, y_pos, 110, 10, "Q8 - Verification - " & question_8_verif_yn
+			End If
+			y_pos = y_pos + 20
+			Text 15, y_pos, 400, 10, "a. FOR SNAP ONLY: Has anyone in the household had a job or been self-employed in the past 36 months?       CAF Answer"
+			DropListBox 415, y_pos - 5, 35, 45, question_answers, question_8a_yn
+			y_pos = y_pos + 15
+			Text 15, y_pos, 60, 10, "Interview Notes:"
+			EditBox 75, y_pos - 5, 320, 15, question_8_interview_notes
+			PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", add_verif_8_btn
+			y_pos = y_pos + 25
 
-			GroupBox 5, 80, 475, 50, "9. Does anyone in the household have a job or expect to get income from a job this month or next month?"
-			Text 15, 95, 40, 10, "CAF Answer"
-			DropListBox 55, 90, 35, 45, question_answers, question_9_yn
-			Text 95, 95, 25, 10, "write-in:"
-			EditBox 120, 90, 235, 15, question_9_notes
-			Text 360, 95, 110, 10, "Q9 - Verification - " & question_9_verif_yn
-			PushButton 125, 100, 55, 10, "ADD JOB", add_job_btn
+			grp_len = 35
+			for each_job = 0 to UBOUND(JOBS_ARRAY, 2)
+				' If JOBS_ARRAY(jobs_employer_name, each_job) <> "" AND JOBS_ARRAY(jobs_employee_name, each_job) <> "" AND JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) <> "" AND JOBS_ARRAY(jobs_hourly_wage, each_job) <> "" Then
+				If JOBS_ARRAY(jobs_employer_name, each_job) <> "" OR JOBS_ARRAY(jobs_employee_name, each_job) <> "" OR JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) <> "" OR JOBS_ARRAY(jobs_hourly_wage, each_job) <> "" Then grp_len = grp_len + 20
+			next
+			GroupBox 5, y_pos, 475, grp_len, "9. Does anyone in the household have a job or expect to get income from a job this month or next month?"
+			PushButton 425, y_pos, 55, 10, "ADD JOB", add_job_btn
+			y_pos = y_pos + 20
+			Text 15, y_pos, 40, 10, "CAF Answer"
+			DropListBox 55, y_pos - 5, 35, 45, question_answers, question_9_yn
+			Text 95, y_pos, 25, 10, "write-in:"
+			EditBox 120, y_pos - 5, 350, 15, question_9_notes
+			' Text 360, y_pos, 110, 10, "Q9 - Verification - " & question_9_verif_yn
+			' y_pos = y_pos + 20
 
 			' PushButton 300, 100, 75, 10, "ADD VERIFICATION", add_verif_9_btn
-			y_pos = 115
+			' y_pos = 110
 			' If JOBS_ARRAY(jobs_employee_name, 0) <> "" Then
+			First_job = TRUE
 			for each_job = 0 to UBOUND(JOBS_ARRAY, 2)
 				' If JOBS_ARRAY(jobs_employer_name, each_job) <> "" AND JOBS_ARRAY(jobs_employee_name, each_job) <> "" AND JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) <> "" AND JOBS_ARRAY(jobs_hourly_wage, each_job) <> "" Then
 				If JOBS_ARRAY(jobs_employer_name, each_job) <> "" OR JOBS_ARRAY(jobs_employee_name, each_job) <> "" OR JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) <> "" OR JOBS_ARRAY(jobs_hourly_wage, each_job) <> "" Then
-
-					Text 15, y_pos, 395, 10, "Employer: " & JOBS_ARRAY(jobs_employer_name, each_job) & "  - Employee: " & JOBS_ARRAY(jobs_employee_name, each_job) & "   - Gross Monthly Earnings: $ " & JOBS_ARRAY(jobs_gross_monthly_earnings, each_job)
-					PushButton 410, y_pos, 20, 10, "EDIT", JOBS_ARRAY(jobs_edit_btn, each_job)
+					If First_job = TRUE Then y_pos = y_pos + 20
+					First_job = FALSE
+					If JOBS_ARRAY(verif_yn, each_job) = "" Then Text 15, y_pos, 395, 10, "Employer: " & JOBS_ARRAY(jobs_employer_name, each_job) & "  - Employee: " & JOBS_ARRAY(jobs_employee_name, each_job) & "   - Gross Monthly Earnings: $ " & JOBS_ARRAY(jobs_gross_monthly_earnings, each_job)
+					If JOBS_ARRAY(verif_yn, each_job) <> "" Then Text 15, y_pos, 395, 10, "Employer: " & JOBS_ARRAY(jobs_employer_name, each_job) & "  - Employee: " & JOBS_ARRAY(jobs_employee_name, each_job) & "   - Gross Monthly Earnings: $ " & JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) & "   - Verification - " & JOBS_ARRAY(verif_yn, each_job)
+					PushButton 450, y_pos, 20, 10, "EDIT", JOBS_ARRAY(jobs_edit_btn, each_job)
 					y_pos = y_pos + 10
 				End If
 			next
-			y_pos = y_pos + 10
-
+			If First_job = TRUE Then y_pos = y_pos + 10
 			y_pos = y_pos + 15
-			DropListBox 10, y_pos, 60, 45, question_answers, question_10_yn
-			Text 80, y_pos, 430, 10, "10. Is anyone in the household self-employed or does anyone expect to get income from self-employment this month or next month?"
-			Text 540, y_pos, 105, 10, "Q10 - Verification - " & question_10_verif_yn
-			y_pos = y_pos + 10
-			ButtonGroup ButtonPressed
-			  PushButton 560, y_pos, 75, 10, "ADD VERIFICATION", add_verif_10_btn
-			Text 95, y_pos, 85, 10, "Gross Monthly Earnings:"
-			Text 185, y_pos, 25, 10, "Notes:"
-			y_pos = y_pos + 10
-			EditBox 95, y_pos, 80, 15, question_10_monthly_earnings
-			EditBox 185, y_pos, 325, 15, question_10_notes
+
+			GroupBox 5, y_pos, 475, 55, "10. Is anyone in the household self-employed or does anyone expect to get income from self-employment this month or next month?"
 			y_pos = y_pos + 20
-			DropListBox 10, y_pos, 60, 45, question_answers, question_11_yn
-			Text 80, y_pos, 255, 10, "11. Do you expect any changes in income, expenses or work hours?"
-			Text 540, y_pos, 105, 10, "Q11 - Verification - " & question_11_verif_yn
-			y_pos = y_pos + 10
-			ButtonGroup ButtonPressed
-			  PushButton 560, y_pos, 75, 10, "ADD VERIFICATION", add_verif_11_btn
-			Text 95, y_pos + 5, 25, 10, "Notes:"
-			EditBox 120, y_pos, 390, 15, question_11_notes
+			Text 15, y_pos, 40, 10, "CAF Answer"
+			DropListBox 55, y_pos - 5, 35, 45, question_answers, question_10_yn
+			Text 95, y_pos, 50, 10, "Gross Earnings:"
+			EditBox 145, y_pos - 5, 35, 15, question_10_monthly_earnings
+			Text 180, y_pos, 25, 10, "write-in:"
+			If question_10_verif_yn = "" Then
+				EditBox 205, y_pos - 5, 270, 15, question_10_notes
+			Else
+				EditBox 205, y_pos - 5, 150, 15, question_10_notes
+				Text 360, y_pos, 105, 10, "Q10 - Verification - " & question_10_verif_yn
+			End If
+			y_pos = y_pos + 20
+			Text 15, y_pos, 60, 10, "Interview Notes:"
+			EditBox 75, y_pos - 5, 320, 15, question_10_interview_notes
+			PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", add_verif_10_btn
+			y_pos = y_pos + 20
+
+			GroupBox 5, y_pos, 475, 55, "11. Do you expect any changes in income, expenses or work hours?"
+			y_pos = y_pos + 20
+			Text 15, y_pos, 40, 10, "CAF Answer"
+			DropListBox 55, y_pos - 5, 35, 45, question_answers, question_11_yn
+			Text 95, y_pos, 25, 10, "write-in:"
+			If question_11_verif_yn = "" Then
+				EditBox 120, y_pos - 5, 355, 15, question_11_notes
+			Else
+				EditBox 120, y_pos - 5, 235, 15, question_11_notes
+				Text 360, y_pos, 110, 10, "Q11 - Verification - " & question_11_verif_yn
+			End If
+			y_pos = y_pos + 20
+			Text 15, y_pos, 60, 10, "Interview Notes:"
+			EditBox 75, y_pos - 5, 320, 15, question_11_interview_notes
+			PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", add_verif_11_btn
 			y_pos = y_pos + 25
-			Text 80, y_pos, 75, 10, "Pricipal Wage Earner"
-			DropListBox 155, y_pos - 5, 175, 45, all_the_clients, pwe_selection
+
+			Text 5, y_pos, 75, 10, "Pricipal Wage Earner"
+			DropListBox 85, y_pos - 5, 175, 45, all_the_clients, pwe_selection
 			y_pos = y_pos + 10
-			Text 80, y_pos + 5, 370, 10, "12. Has anyone in the household applied for or does anyone get any of the following type of income each month?"
-			Text 540, y_pos, 105, 10, "Q12 - Verification - " & question_12_verif_yn
-			y_pos = y_pos + 10
-			ButtonGroup ButtonPressed
-			  PushButton 560, y_pos, 75, 10, "ADD VERIFICATION", add_verif_12_btn
-			y_pos = y_pos + 10
-			DropListBox 80, y_pos, 60, 45, question_answers, question_12_rsdi_yn
-			Text 150, y_pos + 5, 70, 10, "RSDI                      $"
-			EditBox 220, y_pos, 35, 15, question_12_rsdi_amt
-			DropListBox 305, y_pos, 60, 45, question_answers, question_12_ssi_yn
-			Text 375, y_pos + 5, 85, 10, "SSI                                 $"
-			EditBox 460, y_pos, 35, 15, question_12_ssi_amt
-			y_pos = y_pos + 15
-			DropListBox 80, y_pos, 60, 45, question_answers, question_12_va_yn
-			Text 150, y_pos + 5, 70, 10, "VA                          $"
-			EditBox 220, y_pos, 35, 15, question_12_va_amt
-			DropListBox 305, y_pos, 60, 45, question_answers, question_12_ui_yn
-			Text 375, y_pos + 5, 85, 10, "Unemployment Ins          $"
-			EditBox 460, y_pos, 35, 15, question_12_ui_amt
-			y_pos = y_pos + 15
-			DropListBox 80, y_pos, 60, 45, question_answers, question_12_wc_yn
-			Text 150, y_pos + 5, 70, 10, "Workers Comp       $"
-			EditBox 220, y_pos, 35, 15, question_12_wc_amt
-			DropListBox 305, y_pos, 60, 45, question_answers, question_12_ret_yn
-			Text 375, y_pos + 5, 85, 10, "Retirement Ben.              $"
-			EditBox 460, y_pos, 35, 15, question_12_ret_amt
-			y_pos = y_pos + 15
-			DropListBox 80, y_pos, 60, 45, question_answers, question_12_trib_yn
-			Text 150, y_pos + 5, 70, 10, "Tribal Payments      $"
-			EditBox 220, y_pos, 35, 15, question_12_trib_amt
-			DropListBox 305, y_pos, 60, 45, question_answers, question_12_cs_yn
-			Text 375, y_pos + 5, 85, 10, "Child/Spousal Support    $"
-			EditBox 460, y_pos, 35, 15, question_12_cs_amt
-			y_pos = y_pos + 15
-			DropListBox 80, y_pos, 60, 45, question_answers, question_12_other_yn
-			Text 150, y_pos + 5, 110, 10, "Other unearned income          $"
-			EditBox 250, y_pos, 35, 15, question_12_other_amt
+
+
+		ElseIf page_display = show_q_12_13 Then
+			Text 505, 87, 60, 13, "Q. 12 - 13"
+			y_pos = 10
+
+			GroupBox 5, y_pos, 475, 125, "12. Has anyone in the household applied for or does anyone get any of the following type of income each month?"
+			' y_pos = y_pos + 15
+
 			y_pos = y_pos + 20
-			Text 95, y_pos + 5, 25, 10, "Notes:"
-			EditBox 120, y_pos, 390, 15, question_12_notes
+			col_1_1 = 15
+			col_1_2 = 55
+			col_1_3 = 115
+
+			col_2_1 = 165
+			col_2_2 = 205
+			col_2_3 = 260
+
+			col_3_1 = 320
+			col_3_2 = 360
+			col_3_3 = 430
+
+			Text 	col_1_1, 		y_pos, 40, 10, "CAF Answer"
+			Text 	col_1_3 - 3, 	y_pos, 40, 10, "CAF Amount"
+			Text 	col_2_1, 		y_pos, 40, 10, "CAF Answer"
+			Text 	col_2_3 - 3, 	y_pos, 40, 10, "CAF Amount"
+			Text 	col_3_1, 		y_pos, 40, 10, "CAF Answer"
+			Text 	col_3_3 - 3, 	y_pos, 40, 10, "CAF Amount"
+			y_pos = y_pos + 15
+
+			DropListBox 	col_1_1, 	y_pos, 		35, 45, question_answers, question_12_rsdi_yn
+			Text 			col_1_2, 	y_pos + 5, 	60, 10, "RSDI                  $"
+			EditBox 		col_1_3,	y_pos, 		35, 15, question_12_rsdi_amt
+			DropListBox 	col_2_1, 	y_pos, 		35, 45, question_answers, question_12_ssi_yn
+			Text 			col_2_2, 	y_pos + 5, 	60, 10, "SSI                $"
+			EditBox 		col_2_3, 	y_pos, 		35, 15, question_12_ssi_amt
+			DropListBox 	col_3_1, 	y_pos, 		35, 45, question_answers, question_12_va_yn
+			Text 			col_3_2, 	y_pos + 5, 	70, 10, "VA                          $"
+			EditBox 		col_3_3, 	y_pos, 		35, 15, question_12_va_amt
+			y_pos = y_pos + 15
+
+			DropListBox 	col_1_1, 	y_pos, 		35, 45, question_answers, question_12_ui_yn
+			Text 			col_1_2, 	y_pos + 5, 	60, 10, "UI                       $"
+			EditBox 		col_1_3, 	y_pos, 		35, 15, question_12_ui_amt
+			DropListBox 	col_2_1, 	y_pos, 		35, 45, question_answers, question_12_wc_yn
+			Text 			col_2_2, 	y_pos + 5, 	60, 10, "WC                $"
+			EditBox 		col_2_3, 	y_pos, 		35, 15, question_12_wc_amt
+			DropListBox 	col_3_1, 	y_pos, 		35, 45, question_answers, question_12_ret_yn
+			Text 			col_3_2, 	y_pos + 5, 	85, 10, "Retirement Ben.     $"
+			EditBox 		col_3_3, 	y_pos, 		35, 15, question_12_ret_amt
+			y_pos = y_pos + 15
+
+			DropListBox 	col_1_1, 	y_pos, 		35, 45, question_answers, question_12_trib_yn
+			Text 			col_1_2, 	y_pos + 5, 	60, 10, "Tribal Payments  $"
+			EditBox 		col_1_3, 	y_pos, 		35, 15, question_12_trib_amt
+			DropListBox 	col_2_1, 	y_pos, 		35, 45, question_answers, question_12_cs_yn
+			Text 			col_2_2, 	y_pos + 5, 	60, 10, "CSES             $"
+			EditBox 		col_2_3,	y_pos, 		35, 15, question_12_cs_amt
+			DropListBox 	col_3_1, 	y_pos, 		35, 45, question_answers, question_12_other_yn
+			Text 			col_3_2, 	y_pos + 5, 	110, 10, "Other unearned       $"
+			EditBox 		col_3_3, 	y_pos, 		35, 15, question_12_other_amt
 			y_pos = y_pos + 25
-			DropListBox 10, y_pos, 60, 45, question_answers, question_13_yn
-			Text 0, 0, 0, 0, ""
-			Text 0, 0, 0, 0, ""
-			Text 0, 0, 0, 0, ""
-			Text 0, 0, 0, 0, ""
-			Text 0, 0, 0, 0, ""
-			Text 80, y_pos, 400, 10, "13. Does anyone in the household have or expect to get any loans, scholarships or grants for attending school?"
-			Text 540, y_pos, 105, 10, "Q13 - Verification - " & question_13_verif_yn
-			y_pos = y_pos + 10
-			ButtonGroup ButtonPressed
-			  PushButton 560, y_pos, 75, 10, "ADD VERIFICATION", add_verif_13_btn
-			Text 95, y_pos + 5, 25, 10, "Notes:"
-			EditBox 120, y_pos, 390, 15, question_13_notes
+
+			Text 15, y_pos, 25, 10, "Write-in:"
+			If question_12_verif_yn = "" Then
+				EditBox 40, y_pos - 5, 435, 15, question_12_notes
+			Else
+				EditBox 40, y_pos - 5, 315, 15, question_12_notes
+				Text 360, y_pos, 110, 10, "Q12 - Verification - " & question_12_verif_yn
+			End If
+			' Text 360, y_pos, 105, 10, "Q10 - Verification - " & question_10_verif_yn
 			y_pos = y_pos + 20
-		ElseIf page_display = show_q_14_19 Then
-			Text 505, 87, 60, 13, "Q. 14 - 19"
+			Text 15, y_pos, 60, 10, "Interview Notes:"
+			EditBox 75, y_pos - 5, 320, 15, question_12_interview_notes
+			PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", add_verif_12_btn
+			y_pos = y_pos + 25
 
-			DropListBox 95, 20, 60, 45, question_answers, question_14_rent_yn
-			DropListBox 300, 20, 60, 45, question_answers, question_14_subsidy_yn
-			DropListBox 95, 35, 60, 45, question_answers, question_14_mortgage_yn
-			DropListBox 300, 35, 60, 45, question_answers, question_14_association_yn
-			DropListBox 95, 50, 60, 45, question_answers, question_14_insurance_yn
-			DropListBox 300, 50, 60, 45, question_answers, question_14_room_yn
-			DropListBox 95, 65, 60, 45, question_answers, question_14_taxes_yn
-			EditBox 135, 85, 390, 15, question_14_notes
-			DropListBox 95, 120, 60, 45, question_answers, question_15_heat_ac_yn
-			DropListBox 265, 120, 60, 45, question_answers, question_15_electricity_yn
-			DropListBox 415, 120, 60, 45, question_answers, question_15_cooking_fuel_yn
-			DropListBox 95, 135, 60, 45, question_answers, question_15_water_and_sewer_yn
-			DropListBox 265, 135, 60, 45, question_answers, question_15_garbage_yn
-			DropListBox 415, 135, 60, 45, question_answers, question_15_phone_yn
-			DropListBox 95, 150, 60, 45, question_answers, question_15_liheap_yn
-			EditBox 120, 165, 390, 15, question_15_notes
-			DropListBox 10, 190, 60, 45, question_answers, question_16_yn
-			EditBox 120, 210, 390, 15, question_16_notes
-			DropListBox 10, 235, 60, 45, question_answers, question_17_yn
-			EditBox 120, 255, 390, 15, question_17_notes
-			DropListBox 10, 280, 60, 45, question_answers, question_18_yn
-			EditBox 120, 300, 390, 15, question_18_notes
-			DropListBox 10, 325, 60, 45, question_answers, question_19_yn
-			EditBox 120, 335, 390, 15, question_19_notes
+			' Text 0, 0, 0, 0, ""
+			' Text 0, 0, 0, 0, ""
+			' Text 0, 0, 0, 0, ""
+			' Text 0, 0, 0, 0, ""
+			' Text 0, 0, 0, 0, ""
+			GroupBox 5, y_pos, 475, 55, "13. Does anyone in the household have or expect to get any loans, scholarships or grants for attending school?"
+			y_pos = y_pos + 20
+			Text 15, y_pos, 40, 10, "CAF Answer"
+			DropListBox 55, y_pos - 5, 35, 45, question_answers, question_13_yn
+			Text 95, y_pos, 25, 10, "write-in:"
+			If question_13_verif_yn = "" Then
+				EditBox 120, y_pos - 5, 355, 15, question_13_notes
+			Else
+				EditBox 120, y_pos - 5, 235, 15, question_13_notes
+				Text 360, y_pos, 110, 10, "Q13 - Verification - " & question_13_verif_yn
+			End If
+			y_pos = y_pos + 20
 
-			PushButton 580, 20, 75, 10, "ADD VERIFICATION", add_verif_14_btn
-			PushButton 580, 120, 75, 10, "ADD VERIFICATION", add_verif_15_btn
-			PushButton 580, 200, 75, 10, "ADD VERIFICATION", add_verif_16_btn
-			PushButton 580, 245, 75, 10, "ADD VERIFICATION", add_verif_17_btn
-			PushButton 580, 290, 75, 10, "ADD VERIFICATION", add_verif_18_btn
-			PushButton 580, 335, 75, 10, "ADD VERIFICATION", add_verif_19_btn
+			Text 15, y_pos, 60, 10, "Interview Notes:"
+			EditBox 75, y_pos - 5, 320, 15, question_13_interview_notes
+			PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", add_verif_13_btn
+			y_pos = y_pos + 20
 
-			Text 80, 10, 220, 10, "14. Does your household have the following housing expenses?"
-			Text 165, 25, 70, 10, "Rent"
-			Text 370, 25, 100, 10, "Rent or Section 8 Subsidy"
-			Text 165, 40, 125, 10, "Mortgage/contract for deed payment"
-			Text 370, 40, 70, 10, "Association fees"
-			Text 165, 55, 85, 10, "Homeowner's insurance"
-			Text 370, 55, 70, 10, "Room and/or board"
-			Text 165, 70, 100, 10, "Real estate taxes"
-			Text 110, 90, 25, 10, "Notes:"
-			Text 560, 10, 105, 10, "Q14 - Verification - " & question_14_verif_yn
-			Text 80, 110, 290, 10, "15. Does your household have the following utility expenses any time during the year? "
-			Text 165, 125, 85, 10, "Heating/air conditioning"
-			Text 335, 125, 70, 10, "Electricity"
-			Text 485, 125, 70, 10, "Cooking fuel"
-			Text 165, 140, 75, 10, "Water and sewer"
-			Text 335, 140, 60, 10, "Garbage removal"
-			Text 485, 140, 70, 10, "Phone/cell phone"
-			Text 165, 155, 375, 10, "Did you or anyone in your household receive LIHEAP (energy assistance) of more than $20 in the past 12 months?"
-			Text 95, 170, 25, 10, "Notes:"
-			Text 560, 110, 105, 10, "Q15 - Verification - " & question_15_verif_yn
-			Text 80, 190, 345, 10, "16. Do you or anyone living with you have costs for care of a child(ren) because you or they are working,"
-			Text 95, 200, 125, 10, "looking for work or going to school?"
-			Text 95, 215, 25, 10, "Notes:"
-			Text 560, 190, 105, 10, "Q16 - Verification - " & question_16_verif_yn
-			Text 80, 235, 380, 10, "17. Do you or anyone living with you have costs for care of an ill or disabled adult because you or they are working,"
-			Text 95, 245, 125, 10, "looking for work or going to school?"
-			Text 95, 260, 25, 10, "Notes:"
-			Text 560, 235, 105, 10, "Q17 - Verification - " & question_17_verif_yn
-			Text 80, 280, 430, 10, "18. Does anyone in the household pay court-ordered child support, spousal support, child care support, medical support"
-			Text 95, 290, 215, 10, "or contribute to a tax dependent who does not live in your home?"
-			Text 95, 305, 25, 10, "Notes:"
-			Text 0, 0, 0, 0, ""
-			Text 0, 0, 0, 0, ""
-			Text 560, 280, 105, 10, "Q18 - Verification - " & question_18_verif_yn
-			Text 80, 325, 255, 10, "19. For SNAP only: Does anyone in the household have medical expenses? "
-			Text 95, 340, 25, 10, "Notes:"
-			Text 560, 325, 105, 10, "Q19 - Verification - " & question_19_verif_yn
-		ElseIf page_display = show_q_20_24 Then
-			Text 505, 102, 60, 13, "Q. 20 - 24"
+		ElseIf page_display = show_q_14_15 Then
+			Text 505, 102, 60, 13, "Q. 14 - 15"
+			y_pos = 10
 
-			DropListBox 80, 25, 60, 45, question_answers, question_20_cash_yn
-			DropListBox 285, 25, 60, 45, question_answers, question_20_acct_yn
-			DropListBox 80, 40, 60, 45, question_answers, question_20_secu_yn
-			DropListBox 285, 40, 60, 45, question_answers, question_20_cars_yn
-			EditBox 120, 60, 390, 15, question_20_notes
-			DropListBox 10, 85, 60, 45, question_answers, question_21_yn
-			EditBox 120, 95, 390, 15, question_21_notes
-			DropListBox 10, 120, 60, 45, question_answers, question_22_yn
-			EditBox 120, 130, 390, 15, question_22_notes
-			DropListBox 10, 155, 60, 45, question_answers, question_23_yn
-			EditBox 120, 165, 390, 15, question_23_notes
-			DropListBox 80, 205, 60, 45, question_answers, question_24_rep_payee_yn
-			DropListBox 285, 205, 60, 45, question_answers, question_24_guardian_fees_yn
-			DropListBox 80, 220, 60, 45, question_answers, question_24_special_diet_yn
-			DropListBox 285, 220, 60, 45, question_answers, question_24_high_housing_yn
-			EditBox 120, 240, 390, 15, question_24_notes
+			GroupBox 5, 10, 475, 130, "14. Does your household have the following housing expenses?"
+			y_pos = y_pos + 15
+			col_1_1 = 15
+			col_1_2 = 85
+			col_2_1 = 220
+			col_2_2 = 290
 
-			PushButton 560, 20, 75, 10, "ADD VERIFICATION", add_verif_20_btn
-			PushButton 560, 95, 75, 10, "ADD VERIFICATION", add_verif_21_btn
-			PushButton 560, 130, 75, 10, "ADD VERIFICATION", add_verif_22_btn
-			PushButton 560, 165, 75, 10, "ADD VERIFICATION", add_verif_23_btn
-			PushButton 560, 200, 75, 10, "ADD VERIFICATION", add_verif_24_btn
+			Text 	col_1_1, 		y_pos, 40, 10, "CAF Answer"
+			Text 	col_2_1, 		y_pos, 40, 10, "CAF Answer"
+			y_pos = y_pos + 15
 
-			Text 80, 10, 280, 10, "20. Does anyone in the household own, or is anyone buying, any of the following?"
-			Text 150, 30, 70, 10, "Cash"
-			Text 355, 30, 175, 10, "Bank accounts (savings, checking, debit card, etc.)"
-			Text 150, 45, 125, 10, "Stocks, bonds, annuities, 401k, etc."
-			Text 355, 45, 180, 10, "Vehicles (cars, trucks, motorcycles, campers, trailers)"
-			Text 95, 65, 25, 10, "Notes:"
-			Text 540, 10, 105, 10, "Q20 - Verification - " & question_20_verif_yn
-			Text 80, 85, 420, 10, "21. For Cash programs only: Has anyone in the household given away, sold or traded anything of value in the past 12 months? "
-			Text 95, 100, 25, 10, "Notes:"
-			Text 540, 85, 105, 10, "Q21 - Verification - " & question_21_verif_yn
-			Text 80, 120, 305, 10, "22. For recertifications only: Did anyone move in or out of your home in the past 12 months?"
-			Text 95, 135, 25, 10, "Notes:"
-			Text 540, 120, 105, 10, "Q22 - Verification - " & question_22_verif_yn
-			Text 80, 155, 250, 10, "23. For children under the age of 19, are both parents living in the home?"
-			Text 95, 170, 25, 10, "Notes:"
-			Text 540, 155, 105, 10, "Q23 - Verification - " & question_23_verif_yn
-			Text 80, 190, 325, 10, "24. For MSA recipients only: Does anyone in the household have any of the following expenses?"
-			Text 150, 210, 95, 10, "Representative Payee fees"
-			Text 355, 210, 105, 10, "Guardian Conservator fees"
-			Text 150, 225, 125, 10, "Physician-perscribed special diet"
-			Text 355, 225, 105, 10, "High housing costs"
-			Text 95, 245, 25, 10, "Notes:"
-			Text 540, 190, 105, 10, "Q24 - Verification - " & question_24_verif_yn
+			DropListBox 	col_1_1, y_pos - 5, 60, 45, question_answers, question_14_rent_yn
+			Text 			col_1_2, y_pos, 	70, 10, "Rent"
+			DropListBox 	col_2_1, y_pos - 5, 60, 45, question_answers, question_14_subsidy_yn
+			Text 			col_2_2, y_pos, 	100, 10, "Rent or Section 8 Subsidy"
+			y_pos = y_pos + 15
+
+			DropListBox 	col_1_1, y_pos - 5, 60, 45, question_answers, question_14_mortgage_yn
+			Text 			col_1_2, y_pos, 	125, 10, "Mortgage/contract for deed payment"
+			DropListBox 	col_2_1, y_pos - 5, 60, 45, question_answers, question_14_association_yn
+			Text 			col_2_2, y_pos, 	70, 10, "Association fees"
+			y_pos = y_pos + 15
+
+			DropListBox 	col_1_1, y_pos - 5, 60, 45, question_answers, question_14_insurance_yn
+			Text 			col_1_2, y_pos, 	85, 10, "Homeowner's insurance"
+			DropListBox 	col_2_1, y_pos - 5, 60, 45, question_answers, question_14_room_yn
+			Text 			col_2_2, y_pos, 	70, 10, "Room and/or board"
+			y_pos = y_pos + 15
+
+			DropListBox 	col_1_1, y_pos - 5, 60, 45, question_answers, question_14_taxes_yn
+			Text 			col_1_2, y_pos, 	100, 10, "Real estate taxes"
+			y_pos = y_pos + 20
+
+			Text 15, y_pos, 25, 10, "Write-in:"
+			If question_14_verif_yn = "" Then
+				EditBox 40, y_pos - 5, 435, 15, question_14_notes
+			Else
+				EditBox 40, y_pos - 5, 315, 15, question_14_notes
+				Text 360, y_pos, 110, 10, "Q14 - Verification - " & question_14_verif_yn
+			End If
+			y_pos = y_pos + 20
+
+			Text 15, y_pos, 60, 10, "Interview Notes:"
+			EditBox 75, y_pos - 5, 320, 15, question_14_interview_notes
+			PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", add_verif_14_btn
+			y_pos = y_pos + 25
+
+
+			GroupBox 5, y_pos, 475, 120, "15. Does your household have the following utility expenses any time during the year? "
+			y_pos = y_pos + 15
+
+			col_1_1 = 15
+			col_1_2 = 85
+
+			col_2_1 = 185
+			col_2_2 = 255
+
+			col_3_1 = 335
+			col_3_2 = 405
+
+			Text 	col_1_1, 		y_pos, 40, 10, "CAF Answer"
+			Text 	col_2_1, 		y_pos, 40, 10, "CAF Answer"
+			Text 	col_3_1, 		y_pos, 40, 10, "CAF Answer"
+			y_pos = y_pos + 15
+
+			DropListBox 	col_1_1, y_pos - 5, 35, 45, question_answers, question_15_heat_ac_yn
+			Text 			col_1_2, y_pos, 	85, 10, "Heating/air conditioning"
+			DropListBox 	col_2_1, y_pos - 5, 35, 45, question_answers, question_15_electricity_yn
+			Text 			col_2_2, y_pos, 	70, 10, "Electricity"
+			DropListBox 	col_3_1, y_pos - 5, 35, 45, question_answers, question_15_cooking_fuel_yn
+			Text 			col_3_2, y_pos, 	70, 10, "Cooking fuel"
+			y_pos = y_pos + 15
+
+			DropListBox 	col_1_1, y_pos - 5, 35, 45, question_answers, question_15_water_and_sewer_yn
+			Text 			col_1_2, y_pos, 	75, 10, "Water and sewer"
+			DropListBox 	col_2_1, y_pos - 5, 35, 45, question_answers, question_15_garbage_yn
+			Text 			col_2_2, y_pos, 	60, 10, "Garbage removal"
+			DropListBox 	col_3_1, y_pos - 5, 35, 45, question_answers, question_15_phone_yn
+			Text 			col_3_2, y_pos, 	70, 10, "Phone/cell phone"
+			y_pos = y_pos + 15
+
+			DropListBox 	col_1_1, y_pos - 5, 35, 45, question_answers, question_15_liheap_yn
+			Text 			col_1_2, y_pos, 375, 10, "Did you or anyone in your household receive LIHEAP (energy assistance) of more than $20 in the past 12 months?"
+			y_pos = y_pos + 20
+
+			Text 15, y_pos, 25, 10, "Write-in:"
+			If question_15_verif_yn = "" Then
+				EditBox 40, y_pos - 5, 435, 15, question_15_notes
+			Else
+				EditBox 40, y_pos - 5, 315, 15, question_15_notes
+				Text 360, y_pos, 110, 10, "Q15 - Verification - " & question_15_verif_yn
+			End If
+			y_pos = y_pos + 20
+
+			Text 15, y_pos, 60, 10, "Interview Notes:"
+			EditBox 75, y_pos - 5, 320, 15, question_15_interview_notes
+			PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", add_verif_15_btn
+
+		ElseIf page_display = show_q_16_20 Then
+			Text 505, 117, 60, 13, "Q. 16 - 20"
+			y_pos = 10
+
+			GroupBox 5, y_pos, 475, 55, "16. Do you or anyone living with you have costs for care of a child(ren) because you or they are working, looking for work or going to school?"
+			' Text 95, 200, 125, 10, "looking for work or going to school?"
+			y_pos = y_pos + 20
+			Text 		15, y_pos, 		40, 10, "CAF Answer"
+			DropListBox 55, y_pos - 5, 	35, 45, question_answers, question_16_yn
+			Text 		95, y_pos, 		25, 10, "write-in:"
+			If question_16_verif_yn = "" Then
+				EditBox 	120, y_pos - 5, 355, 15, question_16_notes
+			Else
+				EditBox 	120, y_pos - 5, 235, 15, question_16_notes
+				Text 		360, y_pos, 	110, 10, "Q16 - Verification - " & question_16_verif_yn
+			End If
+			y_pos = y_pos + 20
+			Text 		15, y_pos, 		60, 10, "Interview Notes:"
+			EditBox 	75, y_pos - 5, 	320, 15, question_16_interview_notes
+			PushButton 	400, y_pos, 	75, 10, "ADD VERIFICATION", add_verif_16_btn
+			y_pos = y_pos + 20
+
+			GroupBox 5, y_pos, 475, 55, "17. Does anyone have costs for care of an ill/disabled adult because you or they are working, looking for work or going to school?"
+			' Text 95, 245, 125, 10, "looking for work or going to school?"
+			y_pos = y_pos + 20
+			Text 		15, y_pos, 		40, 10, "CAF Answer"
+			DropListBox 55, y_pos - 5, 	35, 45, question_answers, question_17_yn
+			Text 		95, y_pos, 		25, 10, "write-in:"
+			If question_17_verif_yn = "" Then
+				EditBox 	120, y_pos - 5, 355, 15, question_17_notes
+			Else
+				EditBox 	120, y_pos - 5, 235, 15, question_17_notes
+				Text 		360, y_pos, 	110, 10, "Q17 - Verification - " & question_17_verif_yn
+			End If
+			y_pos = y_pos + 20
+			Text 		15, y_pos, 		60, 10, "Interview Notes:"
+			EditBox 	75, y_pos - 5, 	320, 15, question_17_interview_notes
+			PushButton 	400, y_pos, 	75, 10, "ADD VERIFICATION", add_verif_17_btn
+			y_pos = y_pos + 20
+
+			GroupBox 5, y_pos, 475, 55, "18. Does anyone in the household pay support, or contribute to a tax dependent who does not live in your home?"
+			' Text 95, 290, 215, 10, "or contribute to a tax dependent who does not live in your home?"
+			y_pos = y_pos + 20
+			Text 		15, y_pos, 		40, 10, "CAF Answer"
+			DropListBox 55, y_pos - 5, 	35, 45, question_answers, question_18_yn
+			Text 		95, y_pos, 		25, 10, "write-in:"
+			If question_18_verif_yn = "" Then
+				EditBox 	120, y_pos - 5, 355, 15, question_18_notes
+			Else
+				EditBox 	120, y_pos - 5, 235, 15, question_18_notes
+				Text 		360, y_pos, 	110, 10, "Q18 - Verification - " & question_18_verif_yn
+			End If
+			y_pos = y_pos + 20
+			Text 		15, y_pos, 		60, 10, "Interview Notes:"
+			EditBox 	75, y_pos - 5, 	320, 15, question_18_interview_notes
+			PushButton 	400, y_pos, 	75, 10, "ADD VERIFICATION", add_verif_18_btn
+			y_pos = y_pos + 20
+
+			' Text 0, 0, 0, 0, ""
+			' Text 0, 0, 0, 0, ""
+			GroupBox 5, y_pos, 475, 55, "19. For SNAP only: Does anyone in the household have medical expenses? "
+			y_pos = y_pos + 20
+			Text 		15, y_pos, 		40, 10, "CAF Answer"
+			DropListBox 55, y_pos - 5, 	35, 45, question_answers, question_19_yn
+			Text 		95, y_pos, 		25, 10, "write-in:"
+			If question_19_verif_yn = "" Then
+				EditBox 	120, y_pos - 5, 355, 15, question_19_notes
+			Else
+				EditBox 	120, y_pos - 5, 235, 15, question_19_notes
+				Text 		360, y_pos, 	110, 10, "Q19 - Verification - " & question_19_verif_yn
+			End If
+			y_pos = y_pos + 20
+			Text 		15, y_pos, 60, 	10, "Interview Notes:"
+			EditBox 	75, y_pos - 5, 	320, 15, question_19_interview_notes
+			PushButton 	400, y_pos, 	75, 10, "ADD VERIFICATION", add_verif_19_btn
+			y_pos = y_pos + 20
+
+			GroupBox 5, y_pos, 475, 100, "20. Does anyone in the household own, or is anyone buying, any of the following?"
+			y_pos = y_pos + 10
+			col_1_1 = 25
+			col_1_2 = 90
+			col_2_1 = 230
+			col_2_2 = 295
+
+			Text 	col_1_1, 		y_pos, 40, 10, "CAF Answer"
+			Text 	col_2_1, 		y_pos, 40, 10, "CAF Answer"
+			y_pos = y_pos + 15
+
+			DropListBox 	col_1_1, y_pos - 5, 60, 45, question_answers, question_20_cash_yn
+			Text 			col_1_2, y_pos, 	70, 10, "Cash"
+			DropListBox 	col_2_1, y_pos - 5, 60, 45, question_answers, question_20_acct_yn
+			Text 			col_2_2, y_pos, 	175, 10, "Bank accounts (savings, checking, debit card, etc.)"
+			y_pos = y_pos + 15
+
+			DropListBox 	col_1_1, y_pos - 5, 60, 45, question_answers, question_20_secu_yn
+			Text 			col_1_2, y_pos, 	125, 10, "Stocks, bonds, annuities, 401k, etc."
+			DropListBox 	col_2_1, y_pos - 5, 60, 45, question_answers, question_20_cars_yn
+			Text 			col_2_2, y_pos, 	180, 10, "Vehicles (cars, trucks, motorcycles, campers, trailers)"
+			y_pos = y_pos + 20
+
+			Text 15, y_pos, 25, 10, "Write-in:"
+			If question_20_verif_yn = "" Then
+				EditBox 40, y_pos - 5, 435, 15, question_20_notes
+			Else
+				EditBox 40, y_pos - 5, 315, 15, question_20_notes
+				Text 360, y_pos, 110, 10, "Q20 - Verification - " & question_20_verif_yn
+			End If
+			y_pos = y_pos + 20
+			Text 15, y_pos, 60, 10, "Interview Notes:"
+			EditBox 75, y_pos - 5, 320, 15, question_20_interview_notes
+			PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", add_verif_20_btn
+			y_pos = y_pos + 25
+
+		ElseIf page_display = show_q_21_24 Then
+			Text 505, 132, 60, 13, "Q. 21 - 24"
+			y_pos = 10
+
+			GroupBox 5, y_pos, 475, 55, "21. For Cash programs only: Has anyone in the household given away, sold or traded anything of value in the past 12 months? "
+			y_pos = y_pos + 20
+			Text 15, y_pos, 40, 10, "CAF Answer"
+			DropListBox 55, y_pos - 5, 35, 45, question_answers, question_21_yn
+			Text 95, y_pos, 25, 10, "Write-in:"
+			If question_21_verif_yn = "" Then
+				EditBox 120, y_pos - 5, 355, 15, question_21_notes
+			Else
+				EditBox 120, y_pos - 5, 235, 15, question_21_notes
+				Text 360, y_pos, 110, 10, "Q21 - Verification - " & question_21_verif_yn
+			End If
+			y_pos = y_pos + 20
+			Text 15, y_pos, 60, 10, "Interview Notes:"
+			EditBox 75, y_pos - 5, 320, 15, question_21_interview_notes
+			PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", add_verif_21_btn
+			y_pos = y_pos + 25
+
+			GroupBox 5, y_pos, 475, 55, "22. For recertifications only: Did anyone move in or out of your home in the past 12 months?"
+			y_pos = y_pos + 20
+			Text 15, y_pos, 40, 10, "CAF Answer"
+			DropListBox 55, y_pos - 5, 35, 45, question_answers, question_22_yn
+			Text 95, y_pos, 25, 10, "Write-in:"
+			If question_22_verif_yn = "" Then
+				EditBox 120, y_pos - 5, 355, 15, question_22_notes
+			Else
+				EditBox 120, y_pos - 5, 235, 15, question_22_notes
+				Text 360, y_pos, 110, 10, "Q22 - Verification - " & question_22_verif_yn
+			End If
+			y_pos = y_pos + 20
+			Text 15, y_pos, 60, 10, "Interview Notes:"
+			EditBox 75, y_pos - 5, 320, 15, question_22_interview_notes
+			PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", add_verif_22_btn
+			y_pos = y_pos + 25
+
+			GroupBox 5, y_pos, 475, 55, "23. For children under the age of 19, are both parents living in the home?"
+			y_pos = y_pos + 20
+			Text 15, y_pos, 40, 10, "CAF Answer"
+			DropListBox 55, y_pos - 5, 35, 45, question_answers, question_23_yn
+			Text 95, y_pos, 25, 10, "Write-in:"
+			If question_23_verif_yn = "" Then
+				EditBox 120, y_pos - 5, 355, 15, question_23_notes
+			Else
+	 			EditBox 120, y_pos - 5, 235, 15, question_23_notes
+				Text 360, y_pos, 110, 10, "Q23 - Verification - " & question_23_verif_yn
+			End If
+			y_pos = y_pos + 20
+			Text 15, y_pos, 60, 10, "Interview Notes:"
+			EditBox 75, y_pos - 5, 320, 15, question_23_interview_notes
+			PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", add_verif_23_btn
+			y_pos = y_pos + 25
+
+			GroupBox 5, y_pos, 475, 100, "24. For MSA recipients only: Does anyone in the household have any of the following expenses?"
+			y_pos = y_pos + 10
+
+			col_1_1 = 25
+			col_1_2 = 90
+			col_2_1 = 230
+			col_2_2 = 295
+
+			Text 	col_1_1, 		y_pos, 40, 10, "CAF Answer"
+			Text 	col_2_1, 		y_pos, 40, 10, "CAF Answer"
+			y_pos = y_pos + 15
+
+			DropListBox col_1_1, y_pos - 5, 60, 45, question_answers, question_24_rep_payee_yn
+			Text 		col_1_2, y_pos, 	95, 10, "Representative Payee fees"
+			DropListBox col_2_1, y_pos - 5, 60, 45, question_answers, question_24_guardian_fees_yn
+			Text 		col_2_2, y_pos, 	105, 10, "Guardian Conservator fees"
+			y_pos = y_pos + 15
+
+			DropListBox col_1_1, y_pos - 5, 60, 45, question_answers, question_24_special_diet_yn
+			Text 		col_1_2, y_pos, 	125, 10, "Physician-perscribed special diet"
+			DropListBox col_2_1, y_pos - 5, 60, 45, question_answers, question_24_high_housing_yn
+			Text 		col_2_2, y_pos, 	105, 10, "High housing costs"
+			y_pos = y_pos + 20
+
+			Text 15, y_pos, 25, 10, "Write-in:"
+			If question_24_verif_yn = "" Then
+				EditBox 40, y_pos - 5, 435, 15, question_24_notes
+			Else
+				EditBox 40, y_pos - 5, 315, 15, question_24_notes
+				Text 360, y_pos, 110, 10, "Q24 - Verification - " & question_24_verif_yn
+			End If
+			y_pos = y_pos + 20
+			Text 15, y_pos, 60, 10, "Interview Notes:"
+			EditBox 75, y_pos - 5, 320, 15, question_24_interview_notes
+			PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", add_verif_24_btn
+
 		ElseIf page_display = show_qual Then
-			Text 492, 117, 60, 13, "CAF QUAL Q"
+			Text 497, 147, 60, 13, "CAF QUAL Q"
 
 			DropListBox 220, 40, 30, 45, "No"+chr(9)+"Yes", qual_question_one
 			ComboBox 340, 40, 105, 45, all_the_clients, qual_memb_one
@@ -3597,9 +3994,6 @@ function define_main_dialog()
 			ComboBox 340, 140, 105, 45, all_the_clients, qual_memb_four
 			DropListBox 220, 160, 30, 45, "No"+chr(9)+"Yes", qual_question_five
 			ComboBox 340, 160, 105, 45, all_the_clients, qual_memb_five
-
-			PushButton 340, 185, 50, 15, "Next", next_btn
-			PushButton 285, 190, 50, 10, "Back", back_btn
 
 			Text 10, 10, 395, 15, "Qualifying Questions are listed at the end of the CAF form and are completed by the client. Indicate the answers to those questions here. If any are 'Yes' then indicate which household member to which the question refers."
 			Text 10, 40, 200, 40, "Has a court or any other civil or administrative process in Minnesota or any other state found anyone in the household guilty or has anyone been disqualified from receiving public assistance for breaking any of the rules listed in the CAF?"
@@ -3613,43 +4007,81 @@ function define_main_dialog()
 			Text 260, 140, 70, 10, "Household Member:"
 			Text 260, 160, 70, 10, "Household Member:"
 		ElseIf page_display = show_pg_last Then
-			Text 490, 132, 60, 13, "CAF Last Page"
+			Text 495, 162, 60, 13, "CAF Last Page"
 
-			EditBox 135, 50, 60, 15, caf_form_date
-			DropListBox 135, 70, 60, 45, "Select..."+chr(9)+"Yes"+chr(9)+"No", client_signed_yn
+			GroupBox 5, 10, 475, 100, "Confirm Authorized Representative"
 
-			PushButton 35, 90, 105, 15, "Complete CAF Form Detail", complete_caf_questions
-			PushButton 10, 35, 145, 10, "Open RIGHTS AND RESPONSIBLITIES ", open_r_and_r_button
+			If arep_in_MAXIS = TRUE Then Text 15, 25, 120, 10, "Current Authorized Representative"
+			If arep_in_MAXIS = FALSE Then Text 15, 25, 120, 10, "There is no Authorized Representative"
 
-			Text 10, 10, 160, 20, "Confirm the client is signing this form and attesting to the information provided verbally."
-			Text 70, 55, 55, 10, "CAF Form Date:"
-			Text 10, 75, 120, 10, "Cient signature accepted verbally?"
+			If update_arep = FALSE Then
+				Text 85, 55, 170, 15, arep_name
+				Text 260, 55, 120, 45, arep_relationship
+				Text 385, 55, 85, 15, arep_phone_number
+				Text 85, 90, 170, 15, arep_addr_street
+				Text 260, 90, 85, 15, arep_addr_city
+				Text 350, 90, 65, 45, arep_addr_state
+				Text 420, 90, 50, 15, arep_addr_zip
+				PushButton 385, 20, 85, 15, "Update AREP Detail", update_information_btn
+			End If
+
+			If update_arep = TRUE Then
+				EditBox 85, 50, 170, 15, arep_name
+				ComboBox 260, 50, 120, 45, "", arep_relationship
+				EditBox 385, 50, 85, 15, arep_phone_one
+				EditBox 85, 85, 170, 15, arep_addr_street
+				EditBox 260, 85, 85, 15, arep_addr_city
+				DropListBox 350, 85, 65, 45, state_list, arep_addr_state
+				EditBox 420, 85, 50, 15, arep_addr_zip
+				PushButton 385, 20, 85, 15, "Save AREP Detail", save_information_btn
+			End If
+
+		    Text 85, 40, 45, 10, "AREP Name"
+			Text 260, 40, 50, 10, "Relationship"
+			Text 385, 40, 50, 10, "Phone Number"
+			Text 85, 75, 35, 10, "Address"
+			Text 260, 75, 25, 10, "City"
+			Text 350, 75, 25, 10, "State"
+			Text 420, 75, 35, 10, "Zip Code"
+		    CheckBox 10, 50, 55, 10, "Fill out forms", arep_complete_forms_checkbox
+		    CheckBox 10, 65, 50, 10, "Get notices", arep_get_notices_checkbox
+		    CheckBox 10, 80, 65, 10, "Get and use my", arep_use_SNAP_checkbox
+		    Text 20, 90, 50, 10, "SNAP benefits"
+
+		    GroupBox 5, 115, 475, 105, "Signatures"
+		    Text 10, 135, 90, 10, "Signature of Primary Adult"
+		    ComboBox 105, 130, 110, 45, "Select or Type"+chr(9)+"Signature Completed"+chr(9)+"Blank"+chr(9)+"Accepted Verbally"+chr(9)+"Not Required"+chr(9)+signature_detail, signature_detail
+		    Text 220, 135, 25, 10, "person"
+		    ComboBox 250, 130, 115, 45, all_the_clients+chr(9)+signature_person, signature_person
+		    Text 375, 135, 20, 10, "date"
+		    EditBox 400, 130, 50, 15, signature_date
+		    Text 10, 155, 90, 10, "Signature of Other Adult"
+		    ComboBox 105, 150, 110, 45, "Select or Type"+chr(9)+"Signature Completed"+chr(9)+"Blank"+chr(9)+"Accepted Verbally"+chr(9)+"Not Required"+chr(9)+second_signature_detail, second_signature_detail
+		    Text 220, 155, 25, 10, "person"
+		    ComboBox 250, 150, 115, 45, all_the_clients+chr(9)+second_signature_person, second_signature_person
+		    Text 375, 155, 20, 10, "date"
+		    EditBox 400, 150, 50, 15, second_signature_date
+
+			Text 270, 180, 120, 10, "Cient signature accepted verbally?"
+			DropListBox 390, 175, 60, 45, "Select..."+chr(9)+"Yes"+chr(9)+"No", client_signed_verbally_yn
+			Text 335, 200, 50, 10, "Interview Date:"
+			EditBox 390, 195, 60, 15, interview_date
+
+			GroupBox 5, 225, 475, 115, "Benefit Detail"
 	    ' ElseIf page_display =  Then
 		End If
 
 
-		' show_pg_one_memb01_and_exp
-		' show_pg_one_address
-		' show_pg_memb_list
-		' show_q_1_7
-		' show_q_8_13
-		' show_q_14_19
-		' show_q_20_24
-		' show_qual
-		' show_pg_last
-		'
-		' update_addr
-		' update_pers
-
-
-		If page_display <> show_pg_one_memb01_and_exp 	Then PushButton 485, 10, 60, 13, "Applicant & EXP", caf_page_one_btn
-		If page_display <> show_pg_one_address 			Then PushButton 485, 25, 60, 13, "CAF ADDR", caf_addr_btn
+		If page_display <> show_pg_one_memb01_and_exp 	Then PushButton 485, 10, 65, 13, "Applicant and EXP", caf_page_one_btn
+		If page_display <> show_pg_one_address 			Then PushButton 485, 25, 65, 13, "CAF ADDR", caf_addr_btn
 		' If page_display <> show_pg_memb_list AND page_display <> show_pg_memb_info AND  page_display <> show_pg_imig Then PushButton 485, 25, 60, 13, "CAF MEMBs", caf_membs_btn
-		If page_display <> show_pg_memb_list 			Then PushButton 485, 40, 60, 13, "CAF MEMBs", caf_membs_btn
-		If page_display <> show_q_1_7 					Then PushButton 485, 55, 60, 13, "Q. 1 - 7", caf_q_1_7_btn
-		If page_display <> show_q_8_13 					Then PushButton 485, 70, 60, 13, "Q. 8 - 13", caf_q_8_13_btn
-		If page_display <> show_q_14_19 				Then PushButton 485, 85, 60, 13, "Q. 14 - 19", caf_q_14_19_btn
-		If page_display <> show_q_20_24 				Then PushButton 485, 100, 60, 13, "Q. 20 - 24", caf_q_20_24_btn
+		If page_display <> show_pg_memb_list 			Then PushButton 485, 40, 65, 13, "CAF MEMBs", caf_membs_btn
+		If page_display <> show_q_1_6 					Then PushButton 485, 55, 65, 13, "Q. 1 - 6", caf_q_1_6_btn
+		If page_display <> show_q_7_11 					Then PushButton 485, 70, 65, 13, "Q. 7 - 11", caf_q_7_11_btn
+		If page_display <> show_q_12_13 				Then PushButton 485, 85, 65, 13, "Q. 12 - 13", caf_q_12_13_btn
+		If page_display <> show_q_14_15 				Then PushButton 485, 100, 65, 13, "Q. 14 - 15", caf_q_14_15_btn
+		If page_display <> show_q_16_20 				Then PushButton 485, 115, 65, 13, "Q. 16 - 20", caf_q_16_20_btn
+		If page_display <> show_q_21_24 				Then PushButton 485, 130, 65, 13, "Q. 21 - 24", caf_q_21_24_btn
 		' If page_display <> show_q_6 Then PushButton 485, 100, 60, 13, "Q. 6", caf_q_6_btn
 		' If page_display <> show_q_7 Then PushButton 485, 115, 60, 13, "Q. 7", caf_q_7_btn
 		' If page_display <> show_q_8 Then PushButton 485, 130, 60, 13, "Q. 8", caf_q_8_btn
@@ -3665,8 +4097,8 @@ function define_main_dialog()
 		' If page_display <> show_q_22 Then PushButton 485, 280, 60, 13, "Q. 22", caf_q_22_btn
 		' If page_display <> show_q_23 Then PushButton 485, 295, 60, 13, "Q. 23", caf_q_23_btn
 		' If page_display <> show_q_24 Then PushButton 485, 310, 60, 13, "Q. 24", caf_q_24_btn
-		If page_display <> show_qual 					Then PushButton 485, 115, 60, 13, "CAF QUAL Q", caf_qual_q_btn
-		If page_display <> show_pg_last 				Then PushButton 485, 130, 60, 13, "CAF Last Page", caf_last_page_btn
+		If page_display <> show_qual 					Then PushButton 485, 145, 65, 13, "CAF QUAL Q", caf_qual_q_btn
+		If page_display <> show_pg_last 				Then PushButton 485, 160, 65, 13, "CAF Last Page", caf_last_page_btn
 		PushButton 415, 365, 50, 15, "NEXT", next_btn
 		PushButton 465, 365, 80, 15, "Complete Interview", finish_interview_btn
 
@@ -3715,13 +4147,38 @@ function dialog_movement()
 	If ButtonPressed = add_verif_23_btn Then Call verif_details_dlg(23)
 	If ButtonPressed = add_verif_24_btn Then Call verif_details_dlg(24)
 
+	If ButtonPressed = add_job_btn Then
+		another_job = ""
+		count = 0
+		for each_job = 0 to UBOUND(JOBS_ARRAY, 2)
+			count = count + 1
+			If JOBS_ARRAY(jobs_employer_name, each_job) = "" AND JOBS_ARRAY(jobs_employee_name, each_job) = "" AND JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) = "" AND JOBS_ARRAY(jobs_hourly_wage, each_job) = "" Then
+				another_job = each_job
+			End If
+		Next
+		If another_job = "" Then
+			another_job = count
+			ReDim Preserve JOBS_ARRAY(jobs_notes, another_job)
+		End If
+		Call jobs_details_dlg(another_job)
+	End If
+
+	for each_job = 0 to UBOUND(JOBS_ARRAY, 2)
+		If ButtonPressed = JOBS_ARRAY(jobs_edit_btn, each_job) Then
+			Call jobs_details_dlg(each_job)
+		End If
+	next
+
 	If ButtonPressed = update_information_btn Then
 		If page_display = show_pg_one_address Then update_addr = TRUE
 		If page_display = show_pg_memb_list Then update_pers = TRUE
+		If page_display = show_pg_last Then update_arep = TRUE
 	End If
 	If ButtonPressed = save_information_btn Then
 		If page_display = show_pg_one_address Then update_addr = FALSE
 		If page_display = show_pg_memb_list Then update_pers = FALSE
+		If page_display = show_pg_last Then update_arep = FALSE
+
 	End If
 	If ButtonPressed = clear_mail_addr_btn Then
 		' phone_one_number = ""
@@ -3789,15 +4246,30 @@ function dialog_movement()
 	' 	Loop Until  HH_MEMB_ARRAY(fmed_selected).fmed_exists = TRUE
 	' 	If fmed_selected > UBound(HH_MEMB_ARRAY, 1) Then ButtonPressed = next_btn
 	' End If
+	If ButtonPressed = add_person_btn Then
+		last_clt = UBound(HH_MEMB_ARRAY)
+		new_clt = last_clt + 1
+		ReDim Preserve HH_MEMB_ARRAY(new_clt)
+		Set HH_MEMB_ARRAY(new_clt) = new mx_hh_member
+		HH_MEMB_ARRAY(new_clt).button_one = 500 + new_clt
+		HH_MEMB_ARRAY(new_clt).button_two = 600 + new_clt
+		selected_memb = new_clt
+		update_pers = TRUE
+	End If
+	If ButtonPressed = exp_income_guidance_btn Then
+		call guide_through_app_month_income
+	End If
 	If ButtonPressed = -1 Then ButtonPressed = next_btn
 	If ButtonPressed = next_btn Then
 		If page_display = show_pg_one_memb01_and_exp 	Then ButtonPressed = caf_addr_btn
 		If page_display = show_pg_one_address 			Then ButtonPressed = caf_membs_btn
-		If page_display = show_pg_memb_list 			Then ButtonPressed = caf_q_1_7_btn
-		If page_display = show_q_1_7 					Then ButtonPressed = caf_q_8_13_btn
-		If page_display = show_q_8_13 					Then ButtonPressed = caf_q_14_19_btn
-		If page_display = show_q_14_19 					Then ButtonPressed = caf_q_20_24_btn
-		If page_display = show_q_20_24 					Then ButtonPressed = caf_qual_q_btn
+		If page_display = show_pg_memb_list 			Then ButtonPressed = caf_q_1_6_btn
+		If page_display = show_q_1_6 					Then ButtonPressed = caf_q_7_11_btn
+		If page_display = show_q_7_11 					Then ButtonPressed = caf_q_12_13_btn
+		If page_display = show_q_12_13 					Then ButtonPressed = caf_q_14_15_btn
+		If page_display = show_q_14_15 					Then ButtonPressed = caf_q_16_20_btn
+		If page_display = show_q_16_20 					Then ButtonPressed = caf_q_21_24_btn
+		If page_display = show_q_21_24 					Then ButtonPressed = caf_qual_q_btn
 		If page_display = show_qual 					Then ButtonPressed = caf_last_page_btn
 		If page_display = show_pg_last 					Then ButtonPressed = finish_interview_btn
 
@@ -3857,17 +4329,23 @@ function dialog_movement()
 	If ButtonPressed = caf_membs_btn Then
 		page_display = show_pg_memb_list
 	End If
-	If ButtonPressed = caf_q_1_7_btn Then
-		page_display = show_q_1_7
+	If ButtonPressed = caf_q_1_6_btn Then
+		page_display = show_q_1_6
 	End If
-	If ButtonPressed = caf_q_8_13_btn Then
-		page_display = show_q_8_13
+	If ButtonPressed = caf_q_7_11_btn Then
+		page_display = show_q_7_11
 	End If
-	If ButtonPressed = caf_q_14_19_btn Then
-		page_display = show_q_14_19
+	If ButtonPressed = caf_q_12_13_btn Then
+		page_display = show_q_12_13
 	End If
-	If ButtonPressed = caf_q_20_24_btn Then
-		page_display = show_q_20_24
+	If ButtonPressed = caf_q_14_15_btn Then
+		page_display = show_q_14_15
+	End If
+	If ButtonPressed = caf_q_16_20_btn Then
+		page_display = show_q_16_20
+	End If
+	If ButtonPressed = caf_q_21_24_btn Then
+		page_display = show_q_21_24
 	End If
 	If ButtonPressed = caf_qual_q_btn Then
 		page_display = show_qual
@@ -4054,6 +4532,41 @@ function get_state_name_from_state_code(state_code, state_name, include_state_co
 
     If include_state_code = TRUE Then state_name = state_code & " " & state_name	'This adds the code to the state name if seelected
 end function
+
+function guide_through_app_month_income()
+	Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 451, 350, "Questions to Guide Determination of Income in Month of Application "
+	  Text 10, 5, 435, 10, "These questions will help you to guide the resident through understanding what income we need to count for the month of application."
+	  Text 10, 20, 150, 10, "FIRST - Explain to the resident these things:"
+	  Text 25, 30, 410, 10, "- Income in the App Month is used to determine if we can get your some SNAP benefits right away - an EXPEDITED Issuance."
+	  Text 25, 40, 410, 10, "- We just need a best estimate of this income - it doesn't have to be exact. There is no penalty for getting this detail incorrect."
+	  Text 25, 50, 410, 10, "- I can help you walk through your income sources."
+	  Text 25, 60, 350, 10, "-  We need you to answer these questions to complete the interview for your application for SNAP benefits."
+	  GroupBox 5, 75, 440, 105, "JOBS Income: For every Job in the Household"
+	  Text 15, 90, 200, 10, "How many paychecks have you receivied in MM/YY so far?"
+	  Text 30, 105, 170, 10, "How much were all of the checks for, before taxes?"
+	  Text 15, 120, 215, 10, "How many paychecks do you still expect to receive in MM/YY?"
+	  Text 30, 135, 225, 10, "How many hours a week did you or will you work for these checks?"
+	  Text 30, 150, 120, 10, "What is your rate of pay per hour?"
+	  Text 30, 165, 255, 10, "Do you get tips/commission/bonuses? How much do you expect those to be?"
+	  GroupBox 5, 185, 440, 90, "BUSI Income: For each self employment in the Household"
+	  Text 15, 200, 235, 10, "How much do you typically receive in a month of this self employment?"
+	  Text 15, 215, 275, 10, "Is your self employment based on a contract or contracts? And how are they paid?"
+	  Text 15, 230, 305, 10, "If this is hard to determine, how much to you make in any other period (year, week, quarter)?"
+	  Text 30, 245, 200, 10, "Is this consistent over the period or from period to period?"
+	  Text 30, 260, 115, 10, "If it is not, what are the variations?"
+	  GroupBox 5, 280, 440, 45, "UNEA Income: For each other source of income in the Household"
+	  Text 15, 295, 200, 10, "How often and how much do you receive from each source?"
+	  Text 15, 310, 230, 10, "If this is irregular, what have you gotten for the past couple months?"
+	  Text 5, 330, 380, 10, "After calculating all of these income questions, repeat the amount and each source and confirm that it seems close."
+	  ButtonGroup ButtonPressed
+	    PushButton 395, 330, 50, 15, "Return", return_btn
+	EndDialog
+
+	dialog Dialog1
+
+end function
+
 
 function split_phone_number_into_parts(phone_variable, phone_left, phone_mid, phone_right)
 'This function is to take the information provided as a phone number and split it up into the 3 parts
@@ -5224,7 +5737,7 @@ function dlg_page_four_income()
 			next
 
 			Dialog1 = ""
-			BeginDialog Dialog1, 0, 0, 650, dlg_len, "What kinds of income do you have?"
+			BeginDialog Dialog1, 0, 0, 655, dlg_len, "What kinds of income do you have?"
 			  DropListBox 10, 10, 60, 45, question_answers, question_8_yn
 			  Text 80, 10, 290, 10, "8. Has anyone in the household had a job or been self-employed in the past 12 months?"
 			  Text 540, 10, 105, 10, "Q8 - Verification - " & question_8_verif_yn
@@ -6045,6 +6558,10 @@ function verif_details_dlg(question_number)
 			verif_selection = question_24_verif_yn
 			verif_detials = question_24_verif_details
 			question_words = "24. For MSA recipients only: Does anyone in the household have any of the following expenses?"
+		Case 25
+			verif_selection = JOBS_ARRAY(verif_yn, this_jobs)
+			verif_detials = JOBS_ARRAY(verif_details, this_jobs)
+			question_words = "9.  Does anyone in the household have a job or expect to get income from a job this month or next month? Enter verification for "	& JOBS_ARRAY(jobs_employer_name, this_jobs)
 	End Select
 
 
@@ -6141,6 +6658,9 @@ function verif_details_dlg(question_number)
 		Case 24
 			question_24_verif_yn = verif_selection
 			question_24_verif_details = verif_detials
+		Case 25
+			JOBS_ARRAY(verif_yn, this_jobs) = verif_selection
+			JOBS_ARRAY(verif_details, this_jobs) = verif_detials
 	End Select
 
 end function
@@ -6149,26 +6669,32 @@ function jobs_details_dlg(this_jobs)
 	Do
 		pick_a_client = replace(all_the_clients, "Select or Type", "Select One...")
 		Dialog1 = ""
-		BeginDialog Dialog1, 0, 0, 321, 130, "Add Job"
+		BeginDialog Dialog1, 0, 0, 321, 165, "Add Job"
 		  DropListBox 10, 35, 135, 45, pick_a_client+chr(9)+"", JOBS_ARRAY(jobs_employee_name, this_jobs)
 		  EditBox 150, 35, 60, 15, JOBS_ARRAY(jobs_hourly_wage, this_jobs)
 		  EditBox 215, 35, 100, 15, JOBS_ARRAY(jobs_gross_monthly_earnings, this_jobs)
 		  EditBox 10, 65, 305, 15, JOBS_ARRAY(jobs_employer_name, this_jobs)
-		  EditBox 35, 90, 280, 15, JOBS_ARRAY(jobs_notes, this_jobs)
+		  EditBox 10, 95, 305, 15, JOBS_ARRAY(jobs_notes, this_jobs)
+		  EditBox 10, 125, 305, 15, JOBS_ARRAY(jobs_intv_notes, this_jobs)
+
 		  ButtonGroup ButtonPressed
-		    PushButton 265, 110, 50, 15, "Return", return_btn
+		    PushButton 265, 145, 50, 15, "Return", return_btn
+			PushButton 120, 150, 75, 10, "ADD VERIFICATION", add_verif_jobs_btn
 		    PushButton 265, 10, 50, 10, "CLEAR", clear_job_btn
 		  Text 10, 10, 100, 10, "Enter Job Details/Information"
 		  Text 10, 25, 70, 10, "EMPLOYEE NAME:"
 		  Text 150, 25, 60, 10, "HOURLY WAGE:"
 		  Text 215, 25, 105, 10, "GROSS MONTHLY EARNINGS:"
 		  Text 10, 55, 110, 10, "EMPLOYER/BUSINESS NAME:"
-		  Text 10, 95, 25, 10, "Notes:"
+		  Text 10, 85, 110, 10, "CAF WRITE-IN INFORMATION:"
+		  Text 10, 115, 85, 10, "INTERVIEW NOTES:"
+		  Text 10, 150, 110, 10, "JOB Verification - " & JOBS_ARRAY(verif_yn, this_jobs)
 		EndDialog
 
 
 		dialog Dialog1
 		If ButtonPressed = -1 Then ButtonPressed = return_btn
+		If ButtonPressed = add_verif_jobs_btn Then Call verif_details_dlg(25)
 		If ButtonPressed = clear_job_btn Then
 			JOBS_ARRAY(jobs_employee_name, this_jobs) = ""
 			JOBS_ARRAY(jobs_hourly_wage, this_jobs) = ""
@@ -6292,7 +6818,10 @@ const jobs_hourly_wage 				= 1
 const jobs_gross_monthly_earnings	= 2
 const jobs_employer_name 			= 3
 const jobs_edit_btn					= 4
-const jobs_notes 					= 5
+const jobs_intv_notes				= 5
+const verif_yn						= 6
+const verif_details					= 7
+const jobs_notes 					= 8
 
 Const end_of_doc = 6			'This is for word document ennumeration
 
@@ -6303,61 +6832,8 @@ Dim JOBS_ARRAY
 ReDim ALL_CLIENTS_ARRAY(memb_notes, 0)
 ReDim JOBS_ARRAY(jobs_notes, 0)
 
+Call remove_dash_from_droplist(state_list)
 'These are all the definitions for droplists
-state_list = "Select One..."
-state_list = state_list+chr(9)+"AL Alabama"
-state_list = state_list+chr(9)+"AK Alaska"
-state_list = state_list+chr(9)+"AZ Arizona"
-state_list = state_list+chr(9)+"AR Arkansas"
-state_list = state_list+chr(9)+"CA California"
-state_list = state_list+chr(9)+"CO Colorado"
-state_list = state_list+chr(9)+"CT Connecticut"
-state_list = state_list+chr(9)+"DE Delaware"
-state_list = state_list+chr(9)+"DC District Of Columbia"
-state_list = state_list+chr(9)+"FL Florida"
-state_list = state_list+chr(9)+"GA Georgia"
-state_list = state_list+chr(9)+"HI Hawaii"
-state_list = state_list+chr(9)+"ID Idaho"
-state_list = state_list+chr(9)+"IL Illnois"
-state_list = state_list+chr(9)+"IN Indiana"
-state_list = state_list+chr(9)+"IA Iowa"
-state_list = state_list+chr(9)+"KS Kansas"
-state_list = state_list+chr(9)+"KY Kentucky"
-state_list = state_list+chr(9)+"LA Louisiana"
-state_list = state_list+chr(9)+"ME Maine"
-state_list = state_list+chr(9)+"MD Maryland"
-state_list = state_list+chr(9)+"MA Massachusetts"
-state_list = state_list+chr(9)+"MI Michigan"
-state_list = state_list+chr(9)+"MN Minnesota"
-state_list = state_list+chr(9)+"MS Mississippi"
-state_list = state_list+chr(9)+"MO Missouri"
-state_list = state_list+chr(9)+"MT Montana"
-state_list = state_list+chr(9)+"NE Nebraska"
-state_list = state_list+chr(9)+"NV Nevada"
-state_list = state_list+chr(9)+"NH New Hampshire"
-state_list = state_list+chr(9)+"NJ New Jersey"
-state_list = state_list+chr(9)+"NM New Mexico"
-state_list = state_list+chr(9)+"NY New York"
-state_list = state_list+chr(9)+"NC North Carolina"
-state_list = state_list+chr(9)+"ND North Dakota"
-state_list = state_list+chr(9)+"OH Ohio"
-state_list = state_list+chr(9)+"OK Oklahoma"
-state_list = state_list+chr(9)+"OR Oregon"
-state_list = state_list+chr(9)+"PA Pennsylvania"
-state_list = state_list+chr(9)+"RI Rhode Island"
-state_list = state_list+chr(9)+"SC South Carolina"
-state_list = state_list+chr(9)+"SD South Dakota"
-state_list = state_list+chr(9)+"TN Tennessee"
-state_list = state_list+chr(9)+"TX Texas"
-state_list = state_list+chr(9)+"UT Utah"
-state_list = state_list+chr(9)+"VT Vermont"
-state_list = state_list+chr(9)+"VA Virginia"
-state_list = state_list+chr(9)+"WA Washington"
-state_list = state_list+chr(9)+"WV West Virginia"
-state_list = state_list+chr(9)+"WI Wisconsin"
-state_list = state_list+chr(9)+"WY Wyoming"
-state_list = state_list+chr(9)+"PR Puerto Rico"
-state_list = state_list+chr(9)+"VI Virgin Islands"
 
 memb_panel_relationship_list = "Select One..."
 memb_panel_relationship_list = memb_panel_relationship_list+chr(9)+"01 Applicant"
@@ -6429,18 +6905,20 @@ Dim question_24_yn, question_24_notes, question_24_verif_yn, question_24_verif_d
 Dim question_24_rep_payee_yn, question_24_guardian_fees_yn, question_24_special_diet_yn, question_24_high_housing_yn
 Dim qual_question_one, qual_memb_one, qual_question_two, qual_memb_two, qual_question_three, qual_memb_there, qual_question_four, qual_memb_four, qual_question_five, qual_memb_five
 
-Dim show_pg_one_memb01_and_exp, show_pg_one_address, show_pg_memb_list, show_q_1_7
-Dim show_q_8_13, show_q_14_19, show_q_20_24, show_qual, show_pg_last
+Dim show_pg_one_memb01_and_exp, show_pg_one_address, show_pg_memb_list, show_q_1_6
+Dim show_q_7_11, show_q_14_15, show_q_21_24, show_qual, show_pg_last
 
 show_pg_one_memb01_and_exp	= 1
 show_pg_one_address			= 2
 show_pg_memb_list			= 3
-show_q_1_7					= 4
-show_q_8_13					= 5
-show_q_14_19				= 6
-show_q_20_24				= 7
-show_qual					= 8
-show_pg_last				= 9
+show_q_1_6					= 4
+show_q_7_11					= 5
+show_q_12_13				= 6
+show_q_14_15				= 7
+show_q_16_20				= 8
+show_q_21_24				= 9
+show_qual					= 10
+show_pg_last				= 11
 
 update_addr = FALSE
 update_pers = FALSE
@@ -6462,17 +6940,17 @@ If MX_region = "INQUIRY DB" Then
 End If
 
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 371, 235, "Interview Script Case number dialog"
-  EditBox 105, 90, 60, 15, MAXIS_case_number
-  EditBox 105, 110, 50, 15, CAF_datestamp
-  DropListBox 105, 130, 140, 15, "Select One:"+chr(9)+"CAF (DHS-5223)"+chr(9)+"SNAP App for Srs (DHS-5223F)"+chr(9)+"ApplyMN"+chr(9)+"Combined AR for Certain Pops (DHS-3727)"+chr(9)+"CAF Addendum (DHS-5223C)", CAF_form
-  CheckBox 110, 165, 30, 10, "CASH", CASH_on_CAF_checkbox
-  CheckBox 150, 165, 35, 10, "SNAP", SNAP_on_CAF_checkbox
-  CheckBox 190, 165, 35, 10, "EMER", EMER_on_CAF_checkbox
+BeginDialog Dialog1, 0, 0, 371, 330, "Interview Script Case number dialog"
+  EditBox 105, 85, 60, 15, MAXIS_case_number
+  EditBox 105, 105, 50, 15, CAF_datestamp
+  DropListBox 105, 125, 140, 15, "Select One:"+chr(9)+"CAF (DHS-5223)"+chr(9)+"SNAP App for Srs (DHS-5223F)"+chr(9)+"ApplyMN"+chr(9)+"Combined AR for Certain Pops (DHS-3727)"+chr(9)+"CAF Addendum (DHS-5223C)", CAF_form
+  CheckBox 110, 160, 30, 10, "CASH", CASH_on_CAF_checkbox
+  CheckBox 150, 160, 35, 10, "SNAP", SNAP_on_CAF_checkbox
+  CheckBox 190, 160, 35, 10, "EMER", EMER_on_CAF_checkbox
   ButtonGroup ButtonPressed
-    OkButton 260, 215, 50, 15
-    CancelButton 315, 215, 50, 15
-    PushButton 125, 215, 15, 15, "!", tips_and_tricks_button
+    OkButton 260, 310, 50, 15
+    CancelButton 315, 310, 50, 15
+    PushButton 125, 310, 15, 15, "!", tips_and_tricks_button
   Text 10, 10, 360, 10, "Start this script at the beginning of the interview and keep it running during the entire course of the interview."
   Text 10, 20, 60, 10, "This script will:"
   Text 20, 30, 170, 10, "- Guide you through all of the interview questions."
@@ -6480,13 +6958,20 @@ BeginDialog Dialog1, 0, 0, 371, 235, "Interview Script Case number dialog"
   Text 20, 50, 260, 10, "- Create a document of the interview answers to be saved in the ECF Case File."
   Text 20, 60, 245, 10, "- Provide verbiage guidance for consistent resident interview experience."
   Text 20, 70, 260, 10, "- Store the interview date, time, and legth in a database (an FNS requirement)."
-  Text 50, 95, 50, 10, "Case number:"
-  Text 10, 115, 90, 10, "Date Application Received:"
-  Text 40, 135, 60, 10, "Actual CAF Form:"
-  GroupBox 105, 150, 125, 30, "Programs marked on CAF"
-  Text 145, 220, 105, 10, "Look for me for Tips and Tricks!"
-  Text 15, 185, 315, 10, "How do you want to be alerted to updates needed to answers/information in following dialogs?"
-  DropListBox 25, 195, 295, 45, "Alert at the time you attempt to leave the dialog."+chr(9)+"Alert only once completing and leaving the final dialog.", select_err_msg_handling
+  Text 50, 90, 50, 10, "Case number:"
+  Text 10, 110, 90, 10, "Date Application Received:"
+  Text 40, 130, 60, 10, "Actual CAF Form:"
+  GroupBox 105, 145, 125, 30, "Programs marked on CAF"
+  Text 145, 315, 105, 10, "Look for me for Tips and Tricks!"
+  Text 20, 280, 315, 10, "How do you want to be alerted to updates needed to answers/information in following dialogs?"
+  DropListBox 25, 290, 295, 45, "Alert at the time you attempt to leave the dialog."+chr(9)+"Alert only once completing and leaving the final dialog.", select_err_msg_handling
+  GroupBox 10, 175, 355, 130, "How to interact with this Script"
+  Text 20, 200, 335, 20, "The script will have a place to enter the answer from the CAF; a 'yes/no/blank' field plus an 'open' field to enter exactly what the CAF has listed on it."
+  Text 30, 220, 305, 10, "Entering information in these fields should happen as you discuss this answer with the client."
+  Text 30, 230, 315, 10, "The script will consider that question to have 'confirmed response' if these fields are completed."
+  Text 20, 245, 340, 20, "Entering detail in 'Interview Notes' should happen for any information the client provides verbally upon discussion of that question. "
+  Text 30, 265, 330, 10, "All detail should be entered in this field because it is important we are capturing the full conversation."
+  Text 70, 185, 220, 10, "You should have this script running DURING the entire interview."
 EndDialog
 'Showing the case number dialog
 Do
@@ -6531,6 +7016,16 @@ If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 	mail_addr_street_full = mail_line_one & " " & mail_line_two
 	mail_addr_street_full = trim(mail_addr_street_full)
 
+	arep_in_MAXIS = FALSE
+	update_arep = TRUE
+	Call access_AREP_panel(access_type, arep_name, arep_addr_street, arep_addr_city, arep_addr_state, arep_addr_zip, arep_phone_one, arep_ext_one, arep_phone_two, arep_ext_two, forms_to_arep, mmis_mail_to_arep)
+	If arep_name <> "" Then
+		arep_in_MAXIS = TRUE
+		update_arep = FALSE
+		arep_complete_forms_checkbox = checked
+	End If
+	If forms_to_arep = "Y" Then arep_get_notices_checkbox = checked
+
 	show_known_addr = TRUE
 End If
 
@@ -6558,7 +7053,8 @@ add_verif_10_btn			= 1072
 add_verif_11_btn			= 1073
 add_verif_12_btn			= 1074
 add_verif_12_btn			= 1075
-add_job_btn					= 1076
+add_verif_13_btn			= 1076
+add_job_btn					= 1077
 add_verif_14_btn			= 1080
 add_verif_15_btn			= 1081
 add_verif_16_btn			= 1082
@@ -6570,18 +7066,29 @@ add_verif_21_btn			= 1091
 add_verif_22_btn			= 1092
 add_verif_23_btn			= 1093
 add_verif_24_btn			= 1094
+add_verif_jobs_btn			= 1095
 clear_job_btn				= 1100
 open_r_and_r_button 		= 1200
 caf_page_one_btn			= 1300
 caf_addr_btn				= 1400
 caf_membs_btn				= 1500
-caf_q_1_7_btn				= 1600
-caf_q_8_13_btn				= 1700
-caf_q_14_19_btn				= 1800
-caf_q_20_24_btn				= 1900
-caf_qual_q_btn				= 2000
-caf_last_page_btn			= 2100
-finish_interview_btn		= 2200
+caf_q_1_6_btn				= 1600
+caf_q_7_11_btn				= 1700
+caf_q_12_13_btn				= 1800
+caf_q_14_15_btn				= 1900
+caf_q_16_20_btn				= 2000
+caf_q_21_24_btn				= 2100
+caf_qual_q_btn				= 2200
+caf_last_page_btn			= 2300
+finish_interview_btn		= 2400
+exp_income_guidance_btn 	= 2500
+return_btn 					= 900
+
+btn_placeholder = 4000
+for each_job = 0 to UBOUND(JOBS_ARRAY, 2)
+	JOBS_ARRAY(jobs_edit_btn, each_job) = btn_placeholder
+	btn_placeholder = btn_placeholder + 1
+next
 
 selected_memb = 0
 ' 'Presetting booleans for the dialog looping
@@ -6696,6 +7203,79 @@ Do
 	Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = FALSE
 
+Do
+	Do
+		err_msg = ""
+
+		Dialog1 = Empty
+		BeginDialog Dialog1, 0, 0, 550, 385, "Full Interview Questions"
+		  ButtonGroup ButtonPressed
+		    PushButton 465, 365, 80, 15, "Continue", continue_btn
+		  Text 10, 10, 160, 10, "READ the complete text here to the client:"
+		  GroupBox 10, 25, 530, 325, "Rights and Responsibilities Text"
+		  Text 20, 35, 505, 25, "Note: Cash on an Electronic Benefit Transfer (EBT) card is provided to help families meet their basic needs, including: food, shelter, clothing, utilities and transportation. These funds are provided until families can support themselves. It is illegal for an EBT user to buy or attempt to buy tobacco products or alcohol with the EBT card. If you do, it is fraud and you will be removed from the program. Do not use an EBT card at a gambling establishment or "
+		  Text 20, 60, 490, 10, "retail establishment, which provides adult-orientated entertainment in which performers disrobe or perform in an unclothed state for entertainment."
+		  Text 20, 80, 215, 155, "- If you receive cash assistance and/or child care assistance, you must report changes which may affect your benefits to the county agency within 10 days after the change has occurred. If you receive"
+		  Text 10, 360, 210, 10, "Confirm you have read the rights and responsibilities to the client:"
+		  DropListBox 220, 355, 150, 45, "Enter confirmation"+chr(9)+"YES! R&R have been read"+chr(9)+"No, I could not complete this", confirm_r_and_r_read
+		EndDialog
+
+		dialog Dialog1
+	Loop until err_msg = ""
+	Call check_for_password(are_we_passworded_out)
+Loop until are_we_passworded_out = FALSE
+
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 206, 265, "Resources MEMO"
+  ButtonGroup ButtonPressed
+    PushButton 150, 25, 50, 10, "Check All", check_all_button
+  CheckBox 10, 40, 145, 10, "Client Email Submission/Virtual Dropbox", client_virtual_dropox_checkbox
+  CheckBox 10, 55, 140, 10, "Community Action Partnership - CAP", cap_checkbox
+  CheckBox 10, 70, 115, 10, "DHS MMIS Recipient HelpDesk", MMIS_helpdesk_checkbox
+  CheckBox 10, 85, 180, 10, "DHS MNSure Helpdesk   * NOT FOR MA CLIENTS", MNSURE_helpdesk_checkbox
+  CheckBox 10, 100, 145, 10, "Disability Hub (Disability Linkage Line)", disability_hub_checkbox
+  CheckBox 10, 115, 125, 10, "Emergency Mental Health Services", emer_mental_health_checkbox
+  CheckBox 10, 130, 175, 10, "Emergency Food Shelf Network (The Food Group)", emer_food_network_checkbox
+  CheckBox 10, 145, 50, 10, "Front Door", front_door_checkbox
+  CheckBox 10, 160, 75, 10, "Senior Linkage Line", sr_linkage_line_checkbox
+  CheckBox 10, 175, 130, 10, "United Way First Call for Help (211)", united_way_checkbox
+  CheckBox 10, 190, 60, 10, "Xcel Energy", xcel_checkbox
+  Text 5, 5, 195, 20, "Does the client need any additional resources or supports. Check any that the client may need."
+  ButtonGroup ButtonPressed
+    PushButton 150, 245, 50, 15, "Continue", continue_btn
+  Text 10, 210, 185, 35, "When you press continue, the script will display these resources for you to give them verbally to the client. It will then send a MEMO or create a Word Doc to provide to the client in writing."
+EndDialog
+'This Do...loop shows the appointment letter dialog, and contains logic to require most fields.
+
+DO
+	Do
+		err_msg = ""
+		Dialog Dialog1
+		' If ButtonPressed = cancel then stopscript
+        ' If cap_checkbox = unchecked AND emer_mental_health_checkbox = unchecked AND MMIS_helpdesk_checkbox = unchecked AND MNSURE_helpdesk_checkbox = unchecked AND disability_hub_checkbox = unchecked AND emer_food_network_checkbox = unchecked AND front_door_checkbox = unchecked AND sr_linkage_line_checkbox = unchecked AND united_way_checkbox = unchecked AND xcel_checkbox = unchecked Then err_msg = err_msg & vbNewLine & "You must select at least one resource."
+		' If isnumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & "You must fill in a valid case number." & vbNewLine
+		' If worker_signature = "" then err_msg = err_msg & "You must sign your case note." & vbNewLine
+        ' If ButtonPressed = check_all_button Then
+        '     err_msg = "LOOP" & err_msg
+		'
+		' 	client_virtual_dropox_checkbox = checked
+        '     cap_checkbox = checked
+        '     MMIS_helpdesk_checkbox = checked
+        '     MNSURE_helpdesk_checkbox = checked
+        '     disability_hub_checkbox = checked
+        '     emer_food_network_checkbox = checked
+        '     emer_mental_health_checkbox = checked
+        '     front_door_checkbox = checked
+        '     sr_linkage_line_checkbox = checked
+        '     united_way_checkbox = checked
+        '     xcel_checkbox = checked
+        ' End If
+		' IF err_msg <> "" AND left(err_msg, 4) <> "LOOP" THEN msgbox err_msg
+	Loop until err_msg = ""
+	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+LOOP UNTIL are_we_passworded_out = false
+
+script_end_procedure("At this point the script will create a PDF with all of the interview notes to save to ECF, enter a comprehensive CASE:NOTE, and update PROG or REVW with the interview date. Future enhancements will add more actions functionality.")
 '****writing the word document
 Set objWord = CreateObject("Word.Application")
 
