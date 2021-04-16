@@ -3093,6 +3093,20 @@ end function
 ' update_addr
 ' update_pers
 
+function check_for_errors()
+	' page_display = show_pg_one_memb01_and_exp
+	If who_are_we_completing_the_interview_with = "Select or Type" Then err_msg = err_msg & vbNewLine & "* PICK A PERSON"
+	' If  =  Then err_msg = err_msg & vbNewLine & "* "
+	' If  =  Then err_msg = err_msg & vbNewLine & "* "
+	' If  =  Then err_msg = err_msg & vbNewLine & "* "
+	' If  =  Then err_msg = err_msg & vbNewLine & "* "
+	' If  =  Then err_msg = err_msg & vbNewLine & "* "
+	' If  =  Then err_msg = err_msg & vbNewLine & "* "
+	' If  =  Then err_msg = err_msg & vbNewLine & "* "
+
+
+end function
+
 function define_main_dialog()
 
 	BeginDialog Dialog1, 0, 0, 555, 385, "Full Interview Questions"
@@ -3101,7 +3115,7 @@ function define_main_dialog()
 	    If page_display = show_pg_one_memb01_and_exp Then
 			Text 487, 12, 60, 13, "Applicant and EXP"
 
-			ComboBox 120, 10, 205, 45, all_the_clients+chr(9)+who_are_we_completing_the_form_with, who_are_we_completing_the_form_with
+			ComboBox 120, 10, 205, 45, all_the_clients+chr(9)+who_are_we_completing_the_interview_with, who_are_we_completing_the_interview_with
 		    EditBox 305, 45, 50, 15, exp_q_1_income_this_month
 		    EditBox 305, 65, 50, 15, exp_q_2_assets_this_month
 		    EditBox 305, 85, 50, 15, exp_q_3_rent_this_month
@@ -4068,6 +4082,11 @@ function define_main_dialog()
 			EditBox 390, 195, 60, 15, interview_date
 
 			GroupBox 5, 225, 475, 115, "Benefit Detail"
+			' appears_expedited
+			' expedited_delay_info
+			' expedited_info_does_not_match
+			' mismatch_explanation
+
 	    ' ElseIf page_display =  Then
 		End If
 
@@ -4543,7 +4562,7 @@ function guide_through_app_month_income()
 	  Text 25, 50, 410, 10, "- I can help you walk through your income sources."
 	  Text 25, 60, 350, 10, "-  We need you to answer these questions to complete the interview for your application for SNAP benefits."
 	  GroupBox 5, 75, 440, 105, "JOBS Income: For every Job in the Household"
-	  Text 15, 90, 200, 10, "How many paychecks have you receivied in MM/YY so far?"
+	  Text 15, 90, 200, 10, "How many paychecks have you received in MM/YY so far?"
 	  Text 30, 105, 170, 10, "How much were all of the checks for, before taxes?"
 	  Text 15, 120, 215, 10, "How many paychecks do you still expect to receive in MM/YY?"
 	  Text 30, 135, 225, 10, "How many hours a week did you or will you work for these checks?"
@@ -4642,7 +4661,7 @@ function save_your_work()
 
 			'Write the contents of the text file
 			objTextStream.WriteLine "PRE - ATC - " & all_the_clients
-			objTextStream.WriteLine "PRE - WHO - " & who_are_we_completing_the_form_with
+			objTextStream.WriteLine "PRE - WHO - " & who_are_we_completing_the_interview_with
 
 			objTextStream.WriteLine "EXP - 1 - " & exp_q_1_income_this_month
 			objTextStream.WriteLine "EXP - 2 - " & exp_q_2_assets_this_month
@@ -4908,7 +4927,7 @@ function restore_your_work(vars_filled)
 				For Each text_line in saved_caf_details
 					' MsgBox "~" & left(text_line, 9) & "~"
 					' MsgBox text_line
-					If left(text_line, 9) = "PRE - WHO" Then who_are_we_completing_the_form_with = Mid(text_line, 13)
+					If left(text_line, 9) = "PRE - WHO" Then who_are_we_completing_the_interview_with = Mid(text_line, 13)
 					If left(text_line, 9) = "PRE - ATC" Then all_the_clients = Mid(text_line, 13)
 					If left(text_line, 7) = "EXP - 1" Then exp_q_1_income_this_month = Mid(text_line, 11)
 					If left(text_line, 7) = "EXP - 2" Then exp_q_2_assets_this_month = Mid(text_line, 11)
@@ -5173,1050 +5192,6 @@ function restore_your_work(vars_filled)
 			End If
 		End If
 	End With
-end function
-
-'THESE FUNCTIONS ARE ALL THE INDIVIDUAL DIALOGS WITHIN THE MAIN DIALOG LOOP
-function dlg_page_one_pers_and_exp()
-	go_back = FALSE
-	Do
-		Do
-			err_msg = ""
-			Dialog1 = ""
-			BeginDialog Dialog1, 0, 0, 416, 240, "CAF Person and Expedited"
-			  ComboBox 205, 10, 205, 45, all_the_clients+chr(9)+who_are_we_completing_the_form_with, who_are_we_completing_the_form_with
-			  EditBox 290, 65, 50, 15, exp_q_1_income_this_month
-			  EditBox 310, 85, 50, 15, exp_q_2_assets_this_month
-			  EditBox 250, 105, 50, 15, exp_q_3_rent_this_month
-			  CheckBox 125, 125, 30, 10, "Heat", exp_pay_heat_checkbox
-			  CheckBox 160, 125, 65, 10, "Air Conditioning", exp_pay_ac_checkbox
-			  CheckBox 230, 125, 45, 10, "Electricity", exp_pay_electricity_checkbox
-			  CheckBox 280, 125, 35, 10, "Phone", exp_pay_phone_checkbox
-			  CheckBox 325, 125, 35, 10, "None", exp_pay_none_checkbox
-			  DropListBox 245, 140, 40, 45, "No"+chr(9)+"Yes", exp_migrant_seasonal_formworker_yn
-			  DropListBox 365, 155, 40, 45, "No"+chr(9)+"Yes", exp_received_previous_assistance_yn
-			  EditBox 80, 175, 80, 15, exp_previous_assistance_when
-			  EditBox 200, 175, 85, 15, exp_previous_assistance_where
-			  EditBox 320, 175, 85, 15, exp_previous_assistance_what
-			  DropListBox 160, 195, 40, 45, "No"+chr(9)+"Yes", exp_pregnant_yn
-			  ComboBox 255, 195, 150, 45, all_the_clients, exp_pregnant_who
-			  ButtonGroup ButtonPressed
-				PushButton 305, 220, 50, 15, "Next", next_btn
-			    CancelButton 360, 220, 50, 15
-			  Text 70, 15, 130, 10, "Who are you completing the form with?"
-			  GroupBox 10, 50, 400, 165, "Expedited Questions - Do you need help right away?"
-			  Text 20, 70, 270, 10, "1. How much income (cash or checkes) did or will your household get this month?"
-			  Text 20, 90, 290, 10, "2. How much does your household (including children) have cash, checking or savings?"
-			  Text 20, 110, 225, 10, "3. How much does your household pay for rent/mortgage per month?"
-			  Text 30, 125, 90, 10, "What utilities do you pay?"
-			  Text 20, 145, 225, 10, "4. Is anyone in your household a migrant or seasonal farm worker?"
-			  Text 20, 160, 345, 10, "5. Has anyone in your household ever received cash assistance, commodities or SNAP benefits before?"
-			  Text 30, 180, 50, 10, "If yes, When?"
-			  Text 170, 180, 30, 10, "Where?"
-			  Text 295, 180, 25, 10, "What?"
-			  Text 20, 200, 135, 10, "6. Is anyone in your household pregnant?"
-			  Text 210, 200, 40, 10, "If yes, who?"
-			EndDialog
-
-			dialog Dialog1
-			cancel_confirmation
-
-			'ADD ERROR HANDLING HERE
-
-			If ButtonPressed = -1 Then ButtonPressed = next_btn
-
-		Loop until ButtonPressed = next_btn
-	Loop until err_msg = ""
-	If exp_pregnant_who = "Select or Type" Then exp_pregnant_who = ""
-
-	show_caf_pg_1_pers_dlg = FALSE
-	caf_pg_1_pers_dlg_cleared = TRUE
-end function
-
-
-function dlg_page_one_address()
-
-	If resi_addr_street_full = blank Then show_known_addr = FALSE
-	If resi_addr_county = "" Then resi_addr_county = "27 Hennepin"
-	go_back = FALSE
-	Do
-		Do
-			err_msg = ""
-			Dialog1 = ""
-
-			If show_known_addr = TRUE Then
-				BeginDialog Dialog1, 0, 0, 391, 285, "CAF Address"
-				  Text 70, 55, 305, 15, resi_addr_street_full
-				  Text 70, 75, 105, 15, resi_addr_city
-				  Text 205, 75, 110, 45, resi_addr_state
-				  Text 340, 75, 35, 15, resi_addr_zip
-				  Text 125, 95, 45, 45, reservation_yn
-				  Text 245, 85, 130, 15, reservation_name
-				  Text 125, 115, 45, 45, homeless_yn
-				  Text 245, 115, 130, 45, living_situation
-				  Text 70, 155, 305, 15, mail_addr_street_full
-				  Text 70, 175, 105, 15, mail_addr_city
-				  Text 205, 175, 110, 45, mail_addr_state
-				  Text 340, 175, 35, 15, mail_addr_zip
-				  Text 20, 225, 90, 15, phone_one_number
-				  Text 125, 225, 65, 45, phone_pne_type
-				  Text 20, 245, 90, 15, phone_two_number
-				  Text 125, 245, 65, 45, phone_two_type
-				  Text 20, 265, 90, 15, phone_three_number
-				  Text 125, 265, 65, 45, phone_three_type
-				  Text 325, 205, 50, 15, address_change_date
-				  Text 255, 240, 120, 45, resi_addr_county
-				  ButtonGroup ButtonPressed
-					PushButton 280, 265, 50, 15, "Next", next_btn
-					PushButton 280, 253, 50, 10, "Back", back_btn
-				    CancelButton 335, 265, 50, 15
-				    PushButton 290, 20, 95, 15, "Update Information", update_information_btn
-					' PushButton 290, 20, 95, 15, "Save Information", save_information_btn
-				    PushButton 325, 135, 50, 10, "CLEAR", clear_mail_addr_btn
-					PushButton 205, 220, 35, 10, "CLEAR", clear_phone_one_btn
-				    PushButton 205, 240, 35, 10, "CLEAR", clear_phone_two_btn
-				    PushButton 205, 260, 35, 10, "CLEAR", clear_phone_three_btn
-				  Text 10, 10, 360, 10, "Review the Address informaiton known with the client. If it needs updating, press this button to make changes:"
-				  GroupBox 10, 190, 235, 90, "Phone Number"
-				  Text 20, 55, 45, 10, "House/Street"
-				  Text 45, 75, 20, 10, "City"
-				  Text 185, 75, 20, 10, "State"
-				  Text 325, 75, 15, 10, "Zip"
-				  Text 20, 95, 100, 10, "Do you live on a Reservation?"
-				  Text 180, 95, 60, 10, "If yes, which one?"
-				  Text 30, 115, 90, 10, "Client Indicates Homeless:"
-				  Text 185, 115, 60, 10, "Living Situation?"
-				  GroupBox 10, 35, 375, 95, "Residence Address"
-				  Text 20, 155, 45, 10, "House/Street"
-				  Text 45, 175, 20, 10, "City"
-				  Text 185, 175, 20, 10, "State"
-				  Text 325, 175, 15, 10, "Zip"
-				  GroupBox 10, 125, 375, 70, "Mailing Address"
-				  Text 20, 205, 50, 10, "Number"
-				  Text 125, 205, 25, 10, "Type"
-				  Text 255, 205, 60, 10, "Date of Change:"
-				  Text 255, 225, 75, 10, "County of Residence:"
-				EndDialog
-			End If
-
-			If show_known_addr = FALSE Then
-				BeginDialog Dialog1, 0, 0, 391, 285, "CAF Address"
-				  EditBox 70, 50, 305, 15, resi_addr_street_full
-				  EditBox 70, 70, 105, 15, resi_addr_city
-				  DropListBox 205, 70, 110, 45, state_list, resi_addr_state
-				  EditBox 340, 70, 35, 15, resi_addr_zip
-				  DropListBox 125, 90, 45, 45, "No"+chr(9)+"Yes", reservation_yn
-				  EditBox 245, 90, 130, 15, reservation_name
-				  DropListBox 125, 110, 45, 45, "No"+chr(9)+"Yes", homeless_yn
-				  DropListBox 245, 110, 130, 45, "Select"+chr(9)+"01 - Own home, lease or roommate"+chr(9)+"02 - Family/Friends - economic hardship"+chr(9)+"03 -  servc prvdr- foster/group home"+chr(9)+"04 - Hospital/Treatment/Detox/Nursing Home"+chr(9)+"05 - Jail/Prison//Juvenile Det."+chr(9)+"06 - Hotel/Motel"+chr(9)+"07 - Emergency Shelter"+chr(9)+"08 - Place not meant for Housing"+chr(9)+"09 - Declined"+chr(9)+"10 - Unknown"+chr(9)+"Blank", living_situation
-				  EditBox 70, 150, 305, 15, mail_addr_street_full
-				  EditBox 70, 170, 105, 15, mail_addr_city
-				  DropListBox 205, 170, 110, 45, state_list, mail_addr_state
-				  EditBox 340, 170, 35, 15, mail_addr_zip
-				  EditBox 20, 220, 90, 15, phone_one_number
-				  DropListBox 125, 220, 65, 45, "Select One..."+chr(9)+"Cell"+chr(9)+"Home"+chr(9)+"Work"+chr(9)+"Message Only"+chr(9)+"TTY/TDD", phone_pne_type
-				  EditBox 20, 240, 90, 15, phone_two_number
-				  DropListBox 125, 240, 65, 45, "Select One..."+chr(9)+"Cell"+chr(9)+"Home"+chr(9)+"Work"+chr(9)+"Message Only"+chr(9)+"TTY/TDD", phone_two_type
-				  EditBox 20, 260, 90, 15, phone_three_number
-				  DropListBox 125, 260, 65, 45, "Select One..."+chr(9)+"Cell"+chr(9)+"Home"+chr(9)+"Work"+chr(9)+"Message Only"+chr(9)+"TTY/TDD", phone_three_type
-				  EditBox 325, 200, 50, 15, address_change_date
-				  DropListBox 255, 235, 120, 45, county_list, resi_addr_county
-				  ButtonGroup ButtonPressed
-					PushButton 280, 265, 50, 15, "Next", next_btn
-					PushButton 280, 253, 50, 10, "Back", back_btn
-				    CancelButton 335, 265, 50, 15
-				    ' PushButton 290, 20, 95, 15, "Update Information", update_information_btn
-					PushButton 290, 20, 95, 15, "Save Information", save_information_btn
-				    PushButton 325, 135, 50, 10, "CLEAR", clear_mail_addr_btn
-				    PushButton 205, 220, 35, 10, "CLEAR", clear_phone_one_btn
-				    PushButton 205, 240, 35, 10, "CLEAR", clear_phone_two_btn
-				    PushButton 205, 260, 35, 10, "CLEAR", clear_phone_three_btn
-				  Text 10, 10, 360, 10, "Review the Address informaiton known with the client. If it needs updating, press this button to make changes:"
-				  GroupBox 10, 190, 235, 90, "Phone Number"
-				  Text 20, 55, 45, 10, "House/Street"
-				  Text 45, 75, 20, 10, "City"
-				  Text 185, 75, 20, 10, "State"
-				  Text 325, 75, 15, 10, "Zip"
-				  Text 20, 95, 100, 10, "Do you live on a Reservation?"
-				  Text 180, 95, 60, 10, "If yes, which one?"
-				  Text 30, 115, 90, 10, "Client Indicates Homeless:"
-				  Text 185, 115, 60, 10, "Living Situation?"
-				  GroupBox 10, 35, 375, 95, "Residence Address"
-				  Text 20, 155, 45, 10, "House/Street"
-				  Text 45, 175, 20, 10, "City"
-				  Text 185, 175, 20, 10, "State"
-				  Text 325, 175, 15, 10, "Zip"
-				  GroupBox 10, 125, 375, 70, "Mailing Address"
-				  Text 20, 205, 50, 10, "Number"
-				  Text 125, 205, 25, 10, "Type"
-				  Text 255, 205, 60, 10, "Date of Change:"
-				  Text 255, 225, 75, 10, "County of Residence:"
-				EndDialog
-			End If
-
-			dialog Dialog1
-			cancel_confirmation
-
-			'ADD ERROR HANDLING HERE
-			Call validate_phone_number(err_msg, "*", phone_one_number, TRUE)
-			Call validate_phone_number(err_msg, "*", phone_two_number, TRUE)
-			Call validate_phone_number(err_msg, "*", phone_three_number, TRUE)
-
-			If ButtonPressed = -1 Then ButtonPressed = next_btn
-
-			If ButtonPressed = update_information_btn Then show_known_addr = FALSE
-			If ButtonPressed = save_information_btn Then show_known_addr = TRUE
-			If ButtonPressed = clear_mail_addr_btn Then
-				mail_addr_street_full = ""
-				mail_addr_city = ""
-				mail_addr_state = "Select One..."
-				mail_addr_zip = ""
-			End If
-			If ButtonPressed = clear_phone_one_btn Then
-				phone_one_number = ""
-				phone_pne_type = "Select One..."
-			End If
-			If ButtonPressed = clear_phone_two_btn Then
-				phone_two_number = ""
-				phone_two_type = "Select One..."
-			End If
-			If ButtonPressed = clear_phone_three_btn Then
-				phone_three_number = ""
-				phone_three_type = "Select One..."
-			End If
-			If ButtonPressed = back_btn Then
-				go_back = TRUE
-				ButtonPressed = next_btn
-				err_msg = ""
-				show_caf_pg_1_pers_dlg = TRUE
-			End If
-
-		Loop until ButtonPressed = next_btn
-		If err_msg <> "" Then MsgBox "*** Please Resolve to Continue ***" & vbNewLine & err_msg
-	Loop until err_msg = ""
-
-	If go_back = FALSE Then
-		show_caf_pg_1_addr_dlg = FALSE
-		caf_pg_1_addr_dlg_cleared = TRUE
-	End If
-end function
-
-function dlg_page_two_household_comp()
-
-	known_membs = 0
-	shown_known_pers_detail = TRUE
-	If ALL_CLIENTS_ARRAY(memb_last_name, known_membs) = "" Then shown_known_pers_detail = FALSE
-	go_back = FALSE
-	Do
-		Do
-			btn_placeholder = 3001
-			For the_memb = 0 to UBound(ALL_CLIENTS_ARRAY, 2)
-				ALL_CLIENTS_ARRAY(clt_nav_btn, the_memb) = btn_placeholder
-				btn_placeholder = btn_placeholder + 1
-			Next
-
-			err_msg = ""
-			Dialog1 = ""
-
-			If shown_known_pers_detail = TRUE Then
-				BeginDialog Dialog1, 0, 0, 550, 385, "Household Member Information"
-				  Text 20, 45, 105, 15, ALL_CLIENTS_ARRAY(memb_last_name, known_membs)
-				  Text 130, 45, 90, 15, ALL_CLIENTS_ARRAY(memb_first_name, known_membs)
-				  Text 225, 45, 70, 15, ALL_CLIENTS_ARRAY(memb_mid_name, known_membs)
-				  Text 300, 45, 175, 15, ALL_CLIENTS_ARRAY(memb_other_names, known_membs)
-				  If ALL_CLIENTS_ARRAY(memb_ssn_verif, known_membs) = "V - System Verified" Then
-					  Text 20, 75, 70, 15, ALL_CLIENTS_ARRAY(memb_soc_sec_numb, known_membs)
-				  Else
-					  EditBox 20, 75, 70, 15, ALL_CLIENTS_ARRAY(memb_soc_sec_numb, known_membs)
-				  End If
-				  Text 95, 75, 70, 15, ALL_CLIENTS_ARRAY(memb_dob, known_membs)
-				  Text 170, 75, 50, 45, ALL_CLIENTS_ARRAY(memb_gender, known_membs)
-				  Text 225, 75, 140, 45, ALL_CLIENTS_ARRAY(memb_rel_to_applct, known_membs)
-				  Text 370, 75, 105, 45, ALL_CLIENTS_ARRAY(memi_marriage_status, known_membs)
-				  Text 20, 105, 130, 15, ALL_CLIENTS_ARRAY(memi_last_grade, known_membs)
-				  Text 155, 105, 70, 15, ALL_CLIENTS_ARRAY(memi_MN_entry_date, known_membs)
-				  Text 230, 105, 165, 15, ALL_CLIENTS_ARRAY(memi_former_state, known_membs)
-				  Text 400, 105, 75, 45, ALL_CLIENTS_ARRAY(memi_citizen, known_membs)
-				  Text 20, 135, 60, 45, ALL_CLIENTS_ARRAY(memb_interpreter, known_membs)
-				  Text 90, 135, 170, 15, ALL_CLIENTS_ARRAY(memb_spoken_language, known_membs)
-				  Text 90, 165, 170, 15, ALL_CLIENTS_ARRAY(memb_written_language, known_membs)
-				  Text 280, 155, 40, 45, ALL_CLIENTS_ARRAY(memb_ethnicity, known_membs)
-				  CheckBox 330, 155, 30, 10, "Asian", ALL_CLIENTS_ARRAY(memb_race_a_checkbox, known_membs)
-				  CheckBox 330, 165, 30, 10, "Black", ALL_CLIENTS_ARRAY(memb_race_b_checkbox, known_membs)
-				  CheckBox 330, 175, 120, 10, "American Indian or Alaska Native", ALL_CLIENTS_ARRAY(memb_race_n_checkbox, known_membs)
-				  CheckBox 330, 185, 130, 10, "Pacific Islander and Native Hawaiian", ALL_CLIENTS_ARRAY(memb_race_p_checkbox, known_membs)
-				  CheckBox 330, 195, 130, 10, "White", ALL_CLIENTS_ARRAY(memb_race_w_checkbox, known_membs)
-				  CheckBox 20, 195, 50, 10, "SNAP (food)", ALL_CLIENTS_ARRAY(clt_snap_checkbox, known_membs)
-				  CheckBox 75, 195, 65, 10, "Cash programs", ALL_CLIENTS_ARRAY(clt_cash_checkbox, known_membs)
-				  CheckBox 145, 195, 85, 10, "Emergency Assistance", ALL_CLIENTS_ARRAY(clt_emer_checkbox, known_membs)
-				  CheckBox 235, 195, 30, 10, "NONE", ALL_CLIENTS_ARRAY(clt_none_checkbox, known_membs)
-				  DropListBox 15, 230, 80, 45, "Yes"+chr(9)+"No", ALL_CLIENTS_ARRAY(clt_intend_to_reside_mn, known_membs)
-				  EditBox 100, 230, 205, 15, ALL_CLIENTS_ARRAY(clt_imig_status, known_membs)
-				  DropListBox 310, 230, 55, 45, "No"+chr(9)+"Yes", ALL_CLIENTS_ARRAY(clt_sponsor_yn, known_membs)
-				  DropListBox 15, 260, 80, 50, "Not Needed"+chr(9)+"Requested"+chr(9)+"On File", ALL_CLIENTS_ARRAY(clt_verif_yn, known_membs)
-				  EditBox 100, 260, 435, 15, ALL_CLIENTS_ARRAY(clt_verif_details, known_membs)
-				  EditBox 15, 290, 350, 15, ALL_CLIENTS_ARRAY(memb_notes, known_membs)
-				  ButtonGroup ButtonPressed
-					PushButton 430, 290, 50, 15, "Next", next_btn
-					PushButton 375, 295, 50, 10, "Back", back_btn
-					CancelButton 485, 290, 50, 15
-					PushButton 330, 5, 95, 15, "Update Information", update_information_btn
-					' PushButton 330, 5, 95, 15, "Save Information", save_information_btn
-					y_pos = 35
-					For the_memb = 0 to UBound(ALL_CLIENTS_ARRAY, 2)
-						If the_memb = known_membs Then
-							Text 498, y_pos + 1, 45, 10, "Person " & (the_memb + 1)
-						Else
-							PushButton 490, y_pos, 45, 10, "Person " & (the_memb + 1), ALL_CLIENTS_ARRAY(clt_nav_btn, the_memb)
-						End If
-						y_pos = y_pos + 10
-					Next
-					PushButton 490, 230, 45, 10, "Add Person", add_person_btn
-				  Text 10, 10, 315, 10, "Known Member in MAXIS - current information. If there are changes, press this button to update:"
-				  If ALL_CLIENTS_ARRAY(memb_ref_numb, known_membs) = "" Then
-					  GroupBox 10, 25, 475, 190, "Person " & known_membs+1
-				  Else
-					  GroupBox 10, 25, 475, 190, "Person " & known_membs+1 & " - MEMBER " & ALL_CLIENTS_ARRAY(memb_ref_numb, known_membs)
-				  End If
-				  Text 20, 35, 50, 10, "Last Name"
-				  Text 130, 35, 50, 10, "First Name"
-				  Text 225, 35, 50, 10, "Middle Name"
-				  Text 300, 35, 50, 10, "Other Names"
-				  Text 20, 65, 55, 10, "Soc Sec Number"
-				  Text 95, 65, 45, 10, "Date of Birth"
-				  Text 170, 65, 45, 10, "Gender"
-				  Text 225, 65, 90, 10, "Relationship to MEMB 01"
-				  Text 370, 65, 50, 10, "Marital Status"
-				  Text 20, 95, 75, 10, "Last Grade Completed"
-				  Text 155, 95, 55, 10, "Moved to MN on"
-				  Text 230, 95, 65, 10, "Moved to MN from"
-				  Text 400, 95, 75, 10, "US Citizen or National"
-				  Text 20, 125, 40, 10, "Interpreter?"
-				  Text 90, 125, 95, 10, "Preferred Spoken Language"
-				  Text 90, 155, 95, 10, "Preferred Written Language"
-				  GroupBox 270, 135, 205, 75, "Demographics - OPTIONAL"
-				  Text 280, 145, 35, 10, "Hispanic?"
-				  Text 330, 145, 50, 10, "Race"
-				  Text 20, 185, 145, 10, "Which programs is this person requesting?"
-				  Text 15, 220, 80, 10, "Intends to reside in MN"
-				  Text 100, 220, 65, 10, "Immigration Status"
-				  Text 310, 220, 50, 10, "Sponsor?"
-				  Text 15, 250, 50, 10, "Verification"
-				  Text 100, 250, 65, 10, "Verification Details"
-				  Text 15, 280, 50, 10, "Notes:"
-				EndDialog
-
-			End If
-
-			If shown_known_pers_detail = FALSE Then
-
-				BeginDialog Dialog1, 0, 0, 550, 385, "Household Member Information"
-				  EditBox 20, 45, 105, 15, ALL_CLIENTS_ARRAY(memb_last_name, known_membs)
-				  EditBox 130, 45, 90, 15, ALL_CLIENTS_ARRAY(memb_first_name, known_membs)
-				  EditBox 225, 45, 70, 15, ALL_CLIENTS_ARRAY(memb_mid_name, known_membs)
-				  EditBox 300, 45, 175, 15, ALL_CLIENTS_ARRAY(memb_other_names, known_membs)
-				  EditBox 20, 75, 70, 15, ALL_CLIENTS_ARRAY(memb_soc_sec_numb, known_membs)
-				  EditBox 95, 75, 70, 15, ALL_CLIENTS_ARRAY(memb_dob, known_membs)
-				  DropListBox 170, 75, 50, 45, ""+chr(9)+"Male"+chr(9)+"Female", ALL_CLIENTS_ARRAY(memb_gender, known_membs)
-				  DropListBox 225, 75, 140, 45, memb_panel_relationship_list, ALL_CLIENTS_ARRAY(memb_rel_to_applct, known_membs)
-				  DropListBox 370, 75, 105, 45, marital_status, ALL_CLIENTS_ARRAY(memi_marriage_status, known_membs)
-				  EditBox 20, 105, 130, 15, ALL_CLIENTS_ARRAY(memi_last_grade, known_membs)
-				  EditBox 155, 105, 70, 15, ALL_CLIENTS_ARRAY(memi_MN_entry_date, known_membs)
-				  EditBox 230, 105, 165, 15, ALL_CLIENTS_ARRAY(memi_former_state, known_membs)
-				  DropListBox 400, 105, 75, 45, ""+chr(9)+"Yes"+chr(9)+"No", ALL_CLIENTS_ARRAY(memi_citizen, known_membs)
-				  DropListBox 20, 135, 60, 45, ""+chr(9)+"Yes"+chr(9)+"No", ALL_CLIENTS_ARRAY(memb_interpreter, known_membs)
-				  EditBox 90, 135, 170, 15, ALL_CLIENTS_ARRAY(memb_spoken_language, known_membs)
-				  EditBox 90, 165, 170, 15, ALL_CLIENTS_ARRAY(memb_written_language, known_membs)
-				  DropListBox 280, 155, 40, 45, ""+chr(9)+"Yes"+chr(9)+"No", ALL_CLIENTS_ARRAY(memb_ethnicity, known_membs)
-				  CheckBox 330, 155, 30, 10, "Asian", ALL_CLIENTS_ARRAY(memb_race_a_checkbox, known_membs)
-				  CheckBox 330, 165, 30, 10, "Black", ALL_CLIENTS_ARRAY(memb_race_b_checkbox, known_membs)
-				  CheckBox 330, 175, 120, 10, "American Indian or Alaska Native", ALL_CLIENTS_ARRAY(memb_race_n_checkbox, known_membs)
-				  CheckBox 330, 185, 130, 10, "Pacific Islander and Native Hawaiian", ALL_CLIENTS_ARRAY(memb_race_p_checkbox, known_membs)
-				  CheckBox 330, 195, 130, 10, "White", ALL_CLIENTS_ARRAY(memb_race_w_checkbox, known_membs)
-				  CheckBox 20, 195, 50, 10, "SNAP (food)", ALL_CLIENTS_ARRAY(clt_snap_checkbox, known_membs)
-				  CheckBox 75, 195, 65, 10, "Cash programs", ALL_CLIENTS_ARRAY(clt_cash_checkbox, known_membs)
-				  CheckBox 145, 195, 85, 10, "Emergency Assistance", ALL_CLIENTS_ARRAY(clt_emer_checkbox, known_membs)
-				  CheckBox 235, 195, 30, 10, "NONE", ALL_CLIENTS_ARRAY(clt_none_checkbox, known_membs)
-				  DropListBox 15, 230, 80, 45, ""+chr(9)+"Yes"+chr(9)+"No", ALL_CLIENTS_ARRAY(clt_intend_to_reside_mn, known_membs)
-				  EditBox 100, 230, 205, 15, ALL_CLIENTS_ARRAY(clt_imig_status, known_membs)
-				  DropListBox 310, 230, 55, 45, ""+chr(9)+"Yes"+chr(9)+"No", ALL_CLIENTS_ARRAY(clt_sponsor_yn, known_membs)
-				  DropListBox 15, 260, 80, 50, "Not Needed"+chr(9)+"Requested"+chr(9)+"On File", ALL_CLIENTS_ARRAY(clt_verif_yn, known_membs)
-				  EditBox 100, 260, 435, 15, ALL_CLIENTS_ARRAY(clt_verif_details, known_membs)
-				  EditBox 15, 290, 350, 15, ALL_CLIENTS_ARRAY(memb_notes, known_membs)
-				  ButtonGroup ButtonPressed
-				    PushButton 430, 290, 50, 15, "Next", next_btn
-					PushButton 375, 295, 50, 10, "Back", back_btn
-				    CancelButton 485, 290, 50, 15
-				    ' PushButton 330, 5, 95, 15, "Update Information", update_information_btn
-					PushButton 330, 5, 95, 15, "Save Information", save_information_btn
-					y_pos = 35
-					For the_memb = 0 to UBound(ALL_CLIENTS_ARRAY, 2)
-						PushButton 490, y_pos, 45, 10, "Person " & (the_memb + 1), ALL_CLIENTS_ARRAY(clt_nav_btn, the_memb)
-						y_pos = y_pos + 10
-					Next
-				    PushButton 490, 230, 45, 10, "Add Person", add_person_btn
-				  Text 10, 10, 315, 10, "Known Member in MAXIS - current information. If there are changes, press this button to update:"
-				  GroupBox 10, 25, 475, 190, "MEMBER " &  ALL_CLIENTS_ARRAY(memb_ref_numb, known_membs)
-				  Text 20, 35, 50, 10, "Last Name"
-				  Text 130, 35, 50, 10, "First Name"
-				  Text 225, 35, 50, 10, "Middle Name"
-				  Text 300, 35, 50, 10, "Other Names"
-				  Text 20, 65, 55, 10, "Soc Sec Number"
-				  Text 95, 65, 45, 10, "Date of Birth"
-				  Text 170, 65, 45, 10, "Gender"
-				  Text 225, 65, 90, 10, "Relationship to MEMB 01"
-				  Text 370, 65, 50, 10, "Marital Status"
-				  Text 20, 95, 75, 10, "Last Grade Completed"
-				  Text 155, 95, 55, 10, "Moved to MN on"
-				  Text 230, 95, 65, 10, "Moved to MN from"
-				  Text 400, 95, 75, 10, "US Citizen or National"
-				  Text 20, 125, 40, 10, "Interpreter?"
-				  Text 90, 125, 95, 10, "Preferred Spoken Language"
-				  Text 90, 155, 95, 10, "Preferred Written Language"
-				  GroupBox 270, 135, 205, 75, "Demographics - OPTIONAL"
-				  Text 280, 145, 35, 10, "Hispanic?"
-				  Text 330, 145, 50, 10, "Race"
-				  Text 20, 185, 145, 10, "Which programs is this person requesting?"
-				  Text 15, 220, 80, 10, "Intends to reside in MN"
-				  Text 100, 220, 65, 10, "Immigration Status"
-				  Text 310, 220, 50, 10, "Sponsor?"
-				  Text 15, 250, 50, 10, "Verification"
-				  Text 100, 250, 65, 10, "Verification Details"
-				  Text 15, 280, 50, 10, "Notes:"
-				EndDialog
-
-			End If
-
-			dialog Dialog1
-			cancel_confirmation
-
-			'ADD ERROR HANDLING HERE
-
-			If ButtonPressed = -1 Then ButtonPressed = next_btn
-
-			If ButtonPressed = next_btn Then
-				known_membs = known_membs + 1
-				If known_membs =< UBound(ALL_CLIENTS_ARRAY, 2) Then ButtonPressed = ""
-			End If
-			If ButtonPressed = update_information_btn Then shown_known_pers_detail = FALSE
-			If ButtonPressed = save_information_btn Then shown_known_pers_detail = TRUE
-			For the_memb = 0 to UBound(ALL_CLIENTS_ARRAY, 2)
-				If ButtonPressed = ALL_CLIENTS_ARRAY(clt_nav_btn, the_memb) Then known_membs = the_memb
-			Next
-			If ButtonPressed = add_person_btn Then
-				last_clt = UBound(ALL_CLIENTS_ARRAY, 2)
-				new_clt = last_clt + 1
-				ReDim Preserve ALL_CLIENTS_ARRAY(memb_notes, new_clt)
-				known_membs = new_clt
-			End If
-			If ButtonPressed = back_btn Then
-				If known_membs = 0 Then
-					go_back = TRUE
-					ButtonPressed = next_btn
-					err_msg = ""
-					show_caf_pg_1_addr_dlg = TRUE
-				Else
-					known_membs = known_membs - 1
-				End If
-			End If
-
-		Loop until ButtonPressed = next_btn
-		If err_msg <> "" Then MsgBox "*** Please Resolve to Continue ***" & vbNewLine & err_msg
-	Loop until err_msg = ""
-
-	If go_back = FALSE Then
-		show_caf_pg_2_hhcomp_dlg = FALSE
-		caf_pg_2_hhcomp_dlg_cleared = TRUE
-	End If
-
-end function
-
-function dlg_page_three_household_info()
-	go_back = FALSE
-	Do
-		Do
-			err_msg = ""
-			Dialog1 = ""
-			BeginDialog Dialog1, 0, 0, 550, 385, "Tell Us About Your Household"
-			  DropListBox 10, 10, 60, 45, question_answers, question_1_yn
-			  EditBox 120, 20, 235, 15, question_1_notes
-			  DropListBox 10, 45, 60, 45, question_answers, question_2_yn
-			  EditBox 120, 65, 235, 15, question_2_notes
-			  DropListBox 10, 90, 60, 45, question_answers, question_3_yn
-			  EditBox 120, 100, 235, 15, question_3_notes
-			  DropListBox 10, 125, 60, 45, question_answers, question_4_yn
-			  EditBox 120, 145, 235, 15, question_4_notes
-			  DropListBox 10, 170, 60, 45, question_answers, question_5_yn
-			  EditBox 120, 190, 235, 15, question_5_notes
-			  DropListBox 10, 215, 60, 45, question_answers, question_6_yn
-			  EditBox 120, 225, 235, 15, question_6_notes
-			  DropListBox 10, 250, 60, 45, question_answers, question_7_yn
-			  EditBox 120, 280, 235, 15, question_7_notes
-			  ButtonGroup ButtonPressed
-			    PushButton 360, 285, 50, 15, "Next", next_btn
-			    PushButton 360, 275, 50, 10, "Back", back_btn
-			    CancelButton 415, 285, 50, 15
-			    PushButton 380, 20, 75, 10, "ADD VERIFICATION", add_verif_1_btn
-			    PushButton 380, 55, 75, 10, "ADD VERIFICATION", add_verif_2_btn
-			    PushButton 380, 100, 75, 10, "ADD VERIFICATION", add_verif_3_btn
-			    PushButton 380, 135, 75, 10, "ADD VERIFICATION", add_verif_4_btn
-			    PushButton 380, 180, 75, 10, "ADD VERIFICATION", add_verif_5_btn
-			    PushButton 380, 225, 75, 10, "ADD VERIFICATION", add_verif_6_btn
-			    PushButton 380, 260, 75, 10, "ADD VERIFICATION", add_verif_7_btn
-			  Text 80, 10, 230, 10, "1. Does everyone in your household buy, fix or eat food with you?"
-			  Text 95, 25, 25, 10, "Notes:"
-			  Text 360, 10, 100, 10, "Q1 - Verification - " & question_1_verif_yn
-			  Text 80, 45, 245, 10, "2. Is anyone in the household, who is age 60 or over or disabled, unable to "
-			  Text 90, 55, 115, 10, "buy or fix food due to a disability?"
-			  Text 95, 70, 25, 10, "Notes:"
-			  Text 360, 45, 100, 10, "Q2 - Verification - " & question_2_verif_yn
-			  Text 80, 90, 165, 10, "3. Is anyone in the household attending school?"
-			  Text 95, 105, 25, 10, "Notes:"
-			  Text 360, 90, 100, 10, "Q3 - Verification - " & question_3_verif_yn
-			  Text 80, 125, 230, 10, "4. Is anyone in your household temporarily not living in your home?"
-			  Text 90, 135, 230, 10, "(for example: vacation, foster care, treatment, hospital, job search)"
-			  Text 95, 150, 25, 10, "Notes:"
-			  Text 360, 125, 100, 10, "Q4 - Verification - " & question_4_verif_yn
-			  Text 80, 170, 255, 10, "5. Is anyone blind, or does anyone have a physical or mental health condition"
-			  Text 90, 180, 185, 10, " that limits the ability to work or perform daily activities?"
-			  Text 95, 195, 25, 10, "Notes:"
-			  Text 360, 170, 100, 10, "Q5 - Verification - " & question_5_verif_yn
-			  Text 80, 215, 245, 10, "6. Is anyone unable to work for reasons other than illness or disability?"
-			  Text 95, 230, 25, 10, "Notes:"
-			  Text 360, 215, 100, 10, "Q6 - Verification - " & question_6_verif_yn
-			  Text 80, 250, 170, 10, "7. In the last 60 days did anyone in the household: "
-			  Text 90, 260, 165, 20, "- Stop working or quit a job?   - Refuse a job offer? - Ask to work fewer hours?   - Go on strike?"
-			  Text 95, 285, 25, 10, "Notes:"
-			  Text 360, 250, 100, 10, "Q7 - Verification - " & question_7_verif_yn
-			EndDialog
-
-			dialog Dialog1
-			cancel_confirmation
-
-			'ADD ERROR HANDLING HERE
-
-			If ButtonPressed = -1 Then ButtonPressed = next_btn
-
-			If ButtonPressed = add_verif_1_btn Then Call verif_details_dlg(1)
-			If ButtonPressed = add_verif_2_btn Then Call verif_details_dlg(2)
-			If ButtonPressed = add_verif_3_btn Then Call verif_details_dlg(3)
-			If ButtonPressed = add_verif_4_btn Then Call verif_details_dlg(4)
-			If ButtonPressed = add_verif_5_btn Then Call verif_details_dlg(5)
-			If ButtonPressed = add_verif_6_btn Then Call verif_details_dlg(6)
-			If ButtonPressed = add_verif_7_btn Then Call verif_details_dlg(7)
-
-			If ButtonPressed = back_btn Then
-				go_back = TRUE
-				ButtonPressed = next_btn
-				err_msg = ""
-				show_caf_pg_2_hhcomp_dlg = TRUE
-			End If
-
-		Loop until ButtonPressed = next_btn
-		If err_msg <> "" Then MsgBox "*** Please Resolve to Continue ***" & vbNewLine & err_msg
-	Loop until err_msg = ""
-
-	If go_back = FALSE Then
-		show_caf_pg_3_hhinfo_dlg = FALSE
-		caf_pg_3_hhinfo_dlg_cleared = TRUE
-	End If
-
-end function
-
-function dlg_page_four_income()
-	go_back = FALSE
-	Do
-		Do
-			err_msg = ""
-
-			btn_placeholder = 4000
-			dlg_len = 350
-			for each_job = 0 to UBOUND(JOBS_ARRAY, 2)
-				JOBS_ARRAY(jobs_edit_btn, each_job) = btn_placeholder
-				btn_placeholder = btn_placeholder + 1
-				If JOBS_ARRAY(jobs_employer_name, each_job) <> "" OR JOBS_ARRAY(jobs_employee_name, each_job) <> "" OR JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) <> "" OR JOBS_ARRAY(jobs_hourly_wage, each_job) <> "" Then dlg_len = dlg_len + 10
-			next
-
-			Dialog1 = ""
-			BeginDialog Dialog1, 0, 0, 655, dlg_len, "What kinds of income do you have?"
-			  DropListBox 10, 10, 60, 45, question_answers, question_8_yn
-			  Text 80, 10, 290, 10, "8. Has anyone in the household had a job or been self-employed in the past 12 months?"
-			  Text 540, 10, 105, 10, "Q8 - Verification - " & question_8_verif_yn
-			  ButtonGroup ButtonPressed
-			    PushButton 560, 20, 75, 10, "ADD VERIFICATION", add_verif_8_btn
-			  DropListBox 10, 25, 60, 45, question_answers, question_8a_yn
-			  Text 90, 25, 350, 10, "a. FOR SNAP ONLY: Has anyone in the household had a job or been self-employed in the past 36 months?"
-			  Text 95, 40, 25, 10, "Notes:"
-			  EditBox 120, 35, 390, 15, question_8_notes
-			  DropListBox 10, 55, 60, 45, question_answers, question_9_yn
-			  Text 80, 55, 350, 10, "9. Does anyone in the household have a job or expect to get income from a job this month or next month?"
-			  ButtonGroup ButtonPressed
-			    PushButton 430, 55, 55, 10, "ADD JOB", add_job_btn
-			  Text 540, 55, 105, 10, "Q9 - Verification - " & question_9_verif_yn
-			  ButtonGroup ButtonPressed
-			    PushButton 560, 65, 75, 10, "ADD VERIFICATION", add_verif_9_btn
-			  y_pos = 65
-			  ' If JOBS_ARRAY(jobs_employee_name, 0) <> "" Then
-			  for each_job = 0 to UBOUND(JOBS_ARRAY, 2)
-				  ' If JOBS_ARRAY(jobs_employer_name, each_job) <> "" AND JOBS_ARRAY(jobs_employee_name, each_job) <> "" AND JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) <> "" AND JOBS_ARRAY(jobs_hourly_wage, each_job) <> "" Then
-				  If JOBS_ARRAY(jobs_employer_name, each_job) <> "" OR JOBS_ARRAY(jobs_employee_name, each_job) <> "" OR JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) <> "" OR JOBS_ARRAY(jobs_hourly_wage, each_job) <> "" Then
-
-					  Text 95, y_pos, 395, 10, "Employer: " & JOBS_ARRAY(jobs_employer_name, each_job) & "  - Employee: " & JOBS_ARRAY(jobs_employee_name, each_job) & "   - Gross Monthly Earnings: $ " & JOBS_ARRAY(jobs_gross_monthly_earnings, each_job)
-					  ButtonGroup ButtonPressed
-					    PushButton 495, y_pos, 20, 10, "EDIT", JOBS_ARRAY(jobs_edit_btn, each_job)
-					  y_pos = y_pos + 10
-				  End If
-			  next
-			  y_pos = y_pos + 10
-			  Text 95, y_pos, 25, 10, "Notes:"
-			  EditBox 120, y_pos - 5, 390, 15, question_9_notes
-			  y_pos = y_pos + 15
-			  DropListBox 10, y_pos, 60, 45, question_answers, question_10_yn
-			  Text 80, y_pos, 430, 10, "10. Is anyone in the household self-employed or does anyone expect to get income from self-employment this month or next month?"
-			  Text 540, y_pos, 105, 10, "Q10 - Verification - " & question_10_verif_yn
-			  y_pos = y_pos + 10
-			  ButtonGroup ButtonPressed
-			    PushButton 560, y_pos, 75, 10, "ADD VERIFICATION", add_verif_10_btn
-			  Text 95, y_pos, 85, 10, "Gross Monthly Earnings:"
-			  Text 185, y_pos, 25, 10, "Notes:"
-			  y_pos = y_pos + 10
-			  EditBox 95, y_pos, 80, 15, question_10_monthly_earnings
-			  EditBox 185, y_pos, 325, 15, question_10_notes
-			  y_pos = y_pos + 20
-			  DropListBox 10, y_pos, 60, 45, question_answers, question_11_yn
-			  Text 80, y_pos, 255, 10, "11. Do you expect any changes in income, expenses or work hours?"
-			  Text 540, y_pos, 105, 10, "Q11 - Verification - " & question_11_verif_yn
-			  y_pos = y_pos + 10
-			  ButtonGroup ButtonPressed
-			    PushButton 560, y_pos, 75, 10, "ADD VERIFICATION", add_verif_11_btn
-			  Text 95, y_pos + 5, 25, 10, "Notes:"
-			  EditBox 120, y_pos, 390, 15, question_11_notes
-			  y_pos = y_pos + 25
-			  Text 80, y_pos, 75, 10, "Pricipal Wage Earner"
-			  DropListBox 155, y_pos - 5, 175, 45, all_the_clients, pwe_selection
-			  y_pos = y_pos + 10
-			  Text 80, y_pos + 5, 370, 10, "12. Has anyone in the household applied for or does anyone get any of the following type of income each month?"
-			  Text 540, y_pos, 105, 10, "Q12 - Verification - " & question_12_verif_yn
-			  y_pos = y_pos + 10
-			  ButtonGroup ButtonPressed
-			    PushButton 560, y_pos, 75, 10, "ADD VERIFICATION", add_verif_12_btn
-			  y_pos = y_pos + 10
-			  DropListBox 80, y_pos, 60, 45, question_answers, question_12_rsdi_yn
-			  Text 150, y_pos + 5, 70, 10, "RSDI                      $"
-			  EditBox 220, y_pos, 35, 15, question_12_rsdi_amt
-			  DropListBox 305, y_pos, 60, 45, question_answers, question_12_ssi_yn
-			  Text 375, y_pos + 5, 85, 10, "SSI                                 $"
-			  EditBox 460, y_pos, 35, 15, question_12_ssi_amt
-			  y_pos = y_pos + 15
-			  DropListBox 80, y_pos, 60, 45, question_answers, question_12_va_yn
-			  Text 150, y_pos + 5, 70, 10, "VA                          $"
-			  EditBox 220, y_pos, 35, 15, question_12_va_amt
-			  DropListBox 305, y_pos, 60, 45, question_answers, question_12_ui_yn
-			  Text 375, y_pos + 5, 85, 10, "Unemployment Ins          $"
-			  EditBox 460, y_pos, 35, 15, question_12_ui_amt
-			  y_pos = y_pos + 15
-			  DropListBox 80, y_pos, 60, 45, question_answers, question_12_wc_yn
-			  Text 150, y_pos + 5, 70, 10, "Workers Comp       $"
-			  EditBox 220, y_pos, 35, 15, question_12_wc_amt
-			  DropListBox 305, y_pos, 60, 45, question_answers, question_12_ret_yn
-			  Text 375, y_pos + 5, 85, 10, "Retirement Ben.              $"
-			  EditBox 460, y_pos, 35, 15, question_12_ret_amt
-			  y_pos = y_pos + 15
-			  DropListBox 80, y_pos, 60, 45, question_answers, question_12_trib_yn
-			  Text 150, y_pos + 5, 70, 10, "Tribal Payments      $"
-			  EditBox 220, y_pos, 35, 15, question_12_trib_amt
-			  DropListBox 305, y_pos, 60, 45, question_answers, question_12_cs_yn
-			  Text 375, y_pos + 5, 85, 10, "Child/Spousal Support    $"
-			  EditBox 460, y_pos, 35, 15, question_12_cs_amt
-			  y_pos = y_pos + 15
-			  DropListBox 80, y_pos, 60, 45, question_answers, question_12_other_yn
-			  Text 150, y_pos + 5, 110, 10, "Other unearned income          $"
-			  EditBox 250, y_pos, 35, 15, question_12_other_amt
-			  y_pos = y_pos + 20
-			  Text 95, y_pos + 5, 25, 10, "Notes:"
-			  EditBox 120, y_pos, 390, 15, question_12_notes
-			  y_pos = y_pos + 25
-			  DropListBox 10, y_pos, 60, 45, question_answers, question_13_yn
-			  Text 0, 0, 0, 0, ""
-			  Text 0, 0, 0, 0, ""
-			  Text 0, 0, 0, 0, ""
-			  Text 0, 0, 0, 0, ""
-			  Text 0, 0, 0, 0, ""
-			  Text 80, y_pos, 400, 10, "13. Does anyone in the household have or expect to get any loans, scholarships or grants for attending school?"
-			  Text 540, y_pos, 105, 10, "Q13 - Verification - " & question_13_verif_yn
-			  y_pos = y_pos + 10
-			  ButtonGroup ButtonPressed
-				PushButton 560, y_pos, 75, 10, "ADD VERIFICATION", add_verif_13_btn
-			  Text 95, y_pos + 5, 25, 10, "Notes:"
-			  EditBox 120, y_pos, 390, 15, question_13_notes
-			  y_pos = y_pos + 20
-			  ButtonGroup ButtonPressed
-			    PushButton 540, y_pos, 50, 15, "Next", next_btn
-			    PushButton 485, y_pos + 5, 50, 10, "Back", back_btn
-			    CancelButton 595, y_pos, 50, 15
-			EndDialog
-
-			dialog Dialog1
-			cancel_confirmation
-
-			'ADD ERROR HANDLING HERE
-
-			If ButtonPressed = -1 Then ButtonPressed = next_btn
-
-			If ButtonPressed = add_verif_8_btn Then Call verif_details_dlg(8)
-			If ButtonPressed = add_verif_9_btn Then Call verif_details_dlg(9)
-			If ButtonPressed = add_verif_10_btn Then Call verif_details_dlg(10)
-			If ButtonPressed = add_verif_11_btn Then Call verif_details_dlg(11)
-			If ButtonPressed = add_verif_12_btn Then Call verif_details_dlg(12)
-			If ButtonPressed = add_verif_13_btn Then Call verif_details_dlg(13)
-
-			If ButtonPressed = add_job_btn Then
-				another_job = ""
-				count = 0
-				for each_job = 0 to UBOUND(JOBS_ARRAY, 2)
-					count = count + 1
-					If JOBS_ARRAY(jobs_employer_name, each_job) = "" AND JOBS_ARRAY(jobs_employee_name, each_job) = "" AND JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) = "" AND JOBS_ARRAY(jobs_hourly_wage, each_job) = "" Then
-						another_job = each_job
-					End If
-				Next
-				If another_job = "" Then
-					another_job = count
-					ReDim Preserve JOBS_ARRAY(jobs_notes, another_job)
-				End If
-				Call jobs_details_dlg(another_job)
-			End If
-
-			for each_job = 0 to UBOUND(JOBS_ARRAY, 2)
-				If ButtonPressed = JOBS_ARRAY(jobs_edit_btn, each_job) Then
-					Call jobs_details_dlg(each_job)
-				End If
-			next
-
-			If ButtonPressed = back_btn Then
-				go_back = TRUE
-				ButtonPressed = next_btn
-				err_msg = ""
-				show_caf_pg_3_hhinfo_dlg = TRUE
-			End If
-
-		Loop until ButtonPressed = next_btn
-		If err_msg <> "" Then MsgBox "*** Please Resolve to Continue ***" & vbNewLine & err_msg
-	Loop until err_msg = ""
-
-	If go_back = FALSE Then
-		show_caf_pg_4_income_dlg = FALSE
-		caf_pg_4_income_dlg_cleared = TRUE
-	End If
-
-end function
-
-function dlg_page_five_expenses()
-	go_back = FALSE
-	Do
-		Do
-			err_msg = ""
-			Dialog1 = ""
-
-			BeginDialog Dialog1, 0, 0, 550, 385, "What kinds of expenses do you have?"
-			  DropListBox 95, 20, 60, 45, question_answers, question_14_rent_yn
-			  DropListBox 300, 20, 60, 45, question_answers, question_14_subsidy_yn
-			  DropListBox 95, 35, 60, 45, question_answers, question_14_mortgage_yn
-			  DropListBox 300, 35, 60, 45, question_answers, question_14_association_yn
-			  DropListBox 95, 50, 60, 45, question_answers, question_14_insurance_yn
-			  DropListBox 300, 50, 60, 45, question_answers, question_14_room_yn
-			  DropListBox 95, 65, 60, 45, question_answers, question_14_taxes_yn
-			  EditBox 135, 85, 390, 15, question_14_notes
-			  DropListBox 95, 120, 60, 45, question_answers, question_15_heat_ac_yn
-			  DropListBox 265, 120, 60, 45, question_answers, question_15_electricity_yn
-			  DropListBox 415, 120, 60, 45, question_answers, question_15_cooking_fuel_yn
-			  DropListBox 95, 135, 60, 45, question_answers, question_15_water_and_sewer_yn
-			  DropListBox 265, 135, 60, 45, question_answers, question_15_garbage_yn
-			  DropListBox 415, 135, 60, 45, question_answers, question_15_phone_yn
-			  DropListBox 95, 150, 60, 45, question_answers, question_15_liheap_yn
-			  EditBox 120, 165, 390, 15, question_15_notes
-			  DropListBox 10, 190, 60, 45, question_answers, question_16_yn
-			  EditBox 120, 210, 390, 15, question_16_notes
-			  DropListBox 10, 235, 60, 45, question_answers, question_17_yn
-			  EditBox 120, 255, 390, 15, question_17_notes
-			  DropListBox 10, 280, 60, 45, question_answers, question_18_yn
-			  EditBox 120, 300, 390, 15, question_18_notes
-			  DropListBox 10, 325, 60, 45, question_answers, question_19_yn
-			  EditBox 120, 335, 390, 15, question_19_notes
-			  ButtonGroup ButtonPressed
-			    PushButton 560, 355, 50, 15, "Next", next_btn
-			    PushButton 505, 360, 50, 10, "Back", back_btn
-			    CancelButton 615, 355, 50, 15
-			    PushButton 580, 20, 75, 10, "ADD VERIFICATION", add_verif_14_btn
-			    PushButton 580, 120, 75, 10, "ADD VERIFICATION", add_verif_15_btn
-			    PushButton 580, 200, 75, 10, "ADD VERIFICATION", add_verif_16_btn
-			    PushButton 580, 245, 75, 10, "ADD VERIFICATION", add_verif_17_btn
-			    PushButton 580, 290, 75, 10, "ADD VERIFICATION", add_verif_18_btn
-			    PushButton 580, 335, 75, 10, "ADD VERIFICATION", add_verif_19_btn
-			  Text 80, 10, 220, 10, "14. Does your household have the following housing expenses?"
-			  Text 165, 25, 70, 10, "Rent"
-			  Text 370, 25, 100, 10, "Rent or Section 8 Subsidy"
-			  Text 165, 40, 125, 10, "Mortgage/contract for deed payment"
-			  Text 370, 40, 70, 10, "Association fees"
-			  Text 165, 55, 85, 10, "Homeowner's insurance"
-			  Text 370, 55, 70, 10, "Room and/or board"
-			  Text 165, 70, 100, 10, "Real estate taxes"
-			  Text 110, 90, 25, 10, "Notes:"
-			  Text 560, 10, 105, 10, "Q14 - Verification - " & question_14_verif_yn
-			  Text 80, 110, 290, 10, "15. Does your household have the following utility expenses any time during the year? "
-			  Text 165, 125, 85, 10, "Heating/air conditioning"
-			  Text 335, 125, 70, 10, "Electricity"
-			  Text 485, 125, 70, 10, "Cooking fuel"
-			  Text 165, 140, 75, 10, "Water and sewer"
-			  Text 335, 140, 60, 10, "Garbage removal"
-			  Text 485, 140, 70, 10, "Phone/cell phone"
-			  Text 165, 155, 375, 10, "Did you or anyone in your household receive LIHEAP (energy assistance) of more than $20 in the past 12 months?"
-			  Text 95, 170, 25, 10, "Notes:"
-			  Text 560, 110, 105, 10, "Q15 - Verification - " & question_15_verif_yn
-			  Text 80, 190, 345, 10, "16. Do you or anyone living with you have costs for care of a child(ren) because you or they are working,"
-			  Text 95, 200, 125, 10, "looking for work or going to school?"
-			  Text 95, 215, 25, 10, "Notes:"
-			  Text 560, 190, 105, 10, "Q16 - Verification - " & question_16_verif_yn
-			  Text 80, 235, 380, 10, "17. Do you or anyone living with you have costs for care of an ill or disabled adult because you or they are working,"
-			  Text 95, 245, 125, 10, "looking for work or going to school?"
-			  Text 95, 260, 25, 10, "Notes:"
-			  Text 560, 235, 105, 10, "Q17 - Verification - " & question_17_verif_yn
-			  Text 80, 280, 430, 10, "18. Does anyone in the household pay court-ordered child support, spousal support, child care support, medical support"
-			  Text 95, 290, 215, 10, "or contribute to a tax dependent who does not live in your home?"
-			  Text 95, 305, 25, 10, "Notes:"
-			  Text 0, 0, 0, 0, ""
-			  Text 0, 0, 0, 0, ""
-			  Text 560, 280, 105, 10, "Q18 - Verification - " & question_18_verif_yn
-			  Text 80, 325, 255, 10, "19. For SNAP only: Does anyone in the household have medical expenses? "
-			  Text 95, 340, 25, 10, "Notes:"
-			  Text 560, 325, 105, 10, "Q19 - Verification - " & question_19_verif_yn
-			EndDialog
-
-			dialog Dialog1
-			cancel_confirmation
-
-			'ADD ERROR HANDLING HERE
-
-			If ButtonPressed = -1 Then ButtonPressed = next_btn
-
-			If ButtonPressed = add_verif_14_btn Then Call verif_details_dlg(14)
-			If ButtonPressed = add_verif_15_btn Then Call verif_details_dlg(15)
-			If ButtonPressed = add_verif_16_btn Then Call verif_details_dlg(16)
-			If ButtonPressed = add_verif_17_btn Then Call verif_details_dlg(17)
-			If ButtonPressed = add_verif_18_btn Then Call verif_details_dlg(18)
-			If ButtonPressed = add_verif_19_btn Then Call verif_details_dlg(19)
-
-
-			If ButtonPressed = back_btn Then
-				go_back = TRUE
-				ButtonPressed = next_btn
-				err_msg = ""
-				show_caf_pg_4_income_dlg = TRUE
-			End If
-
-		Loop until ButtonPressed = next_btn
-		If err_msg <> "" Then MsgBox "*** Please Resolve to Continue ***" & vbNewLine & err_msg
-	Loop until err_msg = ""
-
-	If go_back = FALSE Then
-		show_caf_pg_5_expenses_dlg = FALSE
-		caf_pg_5_expenses_dlg_cleared = TRUE
-	End If
-
-end function
-
-function dlg_page_six_assets_and_other()
-	go_back = FALSE
-	Do
-		Do
-			err_msg = ""
-			Dialog1 = ""
-			BeginDialog Dialog1, 0, 0, 550, 385, "What do you own? Other Information"
-			  DropListBox 80, 25, 60, 45, question_answers, question_20_cash_yn
-			  DropListBox 285, 25, 60, 45, question_answers, question_20_acct_yn
-			  DropListBox 80, 40, 60, 45, question_answers, question_20_secu_yn
-			  DropListBox 285, 40, 60, 45, question_answers, question_20_cars_yn
-			  EditBox 120, 60, 390, 15, question_20_notes
-			  DropListBox 10, 85, 60, 45, question_answers, question_21_yn
-			  EditBox 120, 95, 390, 15, question_21_notes
-			  DropListBox 10, 120, 60, 45, question_answers, question_22_yn
-			  EditBox 120, 130, 390, 15, question_22_notes
-			  DropListBox 10, 155, 60, 45, question_answers, question_23_yn
-			  EditBox 120, 165, 390, 15, question_23_notes
-			  DropListBox 80, 205, 60, 45, question_answers, question_24_rep_payee_yn
-			  DropListBox 285, 205, 60, 45, question_answers, question_24_guardian_fees_yn
-			  DropListBox 80, 220, 60, 45, question_answers, question_24_special_diet_yn
-			  DropListBox 285, 220, 60, 45, question_answers, question_24_high_housing_yn
-			  EditBox 120, 240, 390, 15, question_24_notes
-			  ButtonGroup ButtonPressed
-			    PushButton 540, 240, 50, 15, "Next", next_btn
-			    PushButton 540, 230, 50, 10, "Back", back_btn
-			    CancelButton 595, 240, 50, 15
-			    PushButton 560, 20, 75, 10, "ADD VERIFICATION", add_verif_20_btn
-			    PushButton 560, 95, 75, 10, "ADD VERIFICATION", add_verif_21_btn
-			    PushButton 560, 130, 75, 10, "ADD VERIFICATION", add_verif_22_btn
-			    PushButton 560, 165, 75, 10, "ADD VERIFICATION", add_verif_23_btn
-			    PushButton 560, 200, 75, 10, "ADD VERIFICATION", add_verif_24_btn
-			  Text 80, 10, 280, 10, "20. Does anyone in the household own, or is anyone buying, any of the following?"
-			  Text 150, 30, 70, 10, "Cash"
-			  Text 355, 30, 175, 10, "Bank accounts (savings, checking, debit card, etc.)"
-			  Text 150, 45, 125, 10, "Stocks, bonds, annuities, 401k, etc."
-			  Text 355, 45, 180, 10, "Vehicles (cars, trucks, motorcycles, campers, trailers)"
-			  Text 95, 65, 25, 10, "Notes:"
-			  Text 540, 10, 105, 10, "Q20 - Verification - " & question_20_verif_yn
-			  Text 80, 85, 420, 10, "21. For Cash programs only: Has anyone in the household given away, sold or traded anything of value in the past 12 months? "
-			  Text 95, 100, 25, 10, "Notes:"
-			  Text 540, 85, 105, 10, "Q21 - Verification - " & question_21_verif_yn
-			  Text 80, 120, 305, 10, "22. For recertifications only: Did anyone move in or out of your home in the past 12 months?"
-			  Text 95, 135, 25, 10, "Notes:"
-			  Text 540, 120, 105, 10, "Q22 - Verification - " & question_22_verif_yn
-			  Text 80, 155, 250, 10, "23. For children under the age of 19, are both parents living in the home?"
-			  Text 95, 170, 25, 10, "Notes:"
-			  Text 540, 155, 105, 10, "Q23 - Verification - " & question_23_verif_yn
-			  Text 80, 190, 325, 10, "24. For MSA recipients only: Does anyone in the household have any of the following expenses?"
-			  Text 150, 210, 95, 10, "Representative Payee fees"
-			  Text 355, 210, 105, 10, "Guardian Conservator fees"
-			  Text 150, 225, 125, 10, "Physician-perscribed special diet"
-			  Text 355, 225, 105, 10, "High housing costs"
-			  Text 95, 245, 25, 10, "Notes:"
-			  Text 540, 190, 105, 10, "Q24 - Verification - " & question_24_verif_yn
-			EndDialog
-
-			dialog Dialog1
-			cancel_confirmation
-
-			'ADD ERROR HANDLING HERE
-
-			If ButtonPressed = -1 Then ButtonPressed = next_btn
-
-			If ButtonPressed = add_verif_20_btn Then Call verif_details_dlg(20)
-			If ButtonPressed = add_verif_21_btn Then Call verif_details_dlg(21)
-			If ButtonPressed = add_verif_22_btn Then Call verif_details_dlg(22)
-			If ButtonPressed = add_verif_23_btn Then Call verif_details_dlg(23)
-			If ButtonPressed = add_verif_24_btn Then Call verif_details_dlg(24)
-
-
-			If ButtonPressed = back_btn Then
-				go_back = TRUE
-				ButtonPressed = next_btn
-				err_msg = ""
-				show_caf_pg_5_expenses_dlg = TRUE
-			End If
-
-		Loop until ButtonPressed = next_btn
-		If err_msg <> "" Then MsgBox "*** Please Resolve to Continue ***" & vbNewLine & err_msg
-	Loop until err_msg = ""
-
-	If go_back = FALSE Then
-		show_caf_pg_6_other_dlg = FALSE
-		caf_pg_6_other_dlg_cleared = TRUE
-	End If
-end function
-
-
-function dlg_qualifying_questions()
-	go_back = FALSE
-	Do
-		Do
-			err_msg = ""
-			BeginDialog Dialog1, 0, 0, 550, 385, "CAF Qualifying Questions"
-			  DropListBox 220, 40, 30, 45, "No"+chr(9)+"Yes", qual_question_one
-			  ComboBox 340, 40, 105, 45, all_the_clients, qual_memb_one
-			  DropListBox 220, 80, 30, 45, "No"+chr(9)+"Yes", qual_question_two
-			  ComboBox 340, 80, 105, 45, all_the_clients, qual_memb_two
-			  DropListBox 220, 110, 30, 45, "No"+chr(9)+"Yes", qual_question_three
-			  ComboBox 340, 110, 105, 45, all_the_clients, qual_memb_there
-			  DropListBox 220, 140, 30, 45, "No"+chr(9)+"Yes", qual_question_four
-			  ComboBox 340, 140, 105, 45, all_the_clients, qual_memb_four
-			  DropListBox 220, 160, 30, 45, "No"+chr(9)+"Yes", qual_question_five
-			  ComboBox 340, 160, 105, 45, all_the_clients, qual_memb_five
-			  ButtonGroup ButtonPressed
-			    CancelButton 395, 185, 50, 15
-			    PushButton 340, 185, 50, 15, "Next", next_btn
-			    PushButton 285, 190, 50, 10, "Back", back_btn
-			  Text 10, 10, 395, 15, "Qualifying Questions are listed at the end of the CAF form and are completed by the client. Indicate the answers to those questions here. If any are 'Yes' then indicate which household member to which the question refers."
-			  Text 10, 40, 200, 40, "Has a court or any other civil or administrative process in Minnesota or any other state found anyone in the household guilty or has anyone been disqualified from receiving public assistance for breaking any of the rules listed in the CAF?"
-			  Text 10, 80, 195, 30, "Has anyone in the household been convicted of making fraudulent statements about their place of residence to get cash or SNAP benefits from more than one state?"
-			  Text 10, 110, 195, 30, "Is anyone in your household hiding or running from the law to avoid prosecution being taken into custody, or to avoid going to jail for a felony?"
-			  Text 10, 140, 195, 20, "Has anyone in your household been convicted of a drug felony in the past 10 years?"
-			  Text 10, 160, 195, 20, "Is anyone in your household currently violating a condition of parole, probation or supervised release?"
-			  Text 260, 40, 70, 10, "Household Member:"
-			  Text 260, 80, 70, 10, "Household Member:"
-			  Text 260, 110, 70, 10, "Household Member:"
-			  Text 260, 140, 70, 10, "Household Member:"
-			  Text 260, 160, 70, 10, "Household Member:"
-			EndDialog
-
-			dialog Dialog1
-
-			cancel_confirmation
-
-			If ButtonPressed = -1 Then ButtonPressed = next_btn
-
-			If ButtonPressed = back_btn Then
-				go_back = TRUE
-				ButtonPressed = next_btn
-				err_msg = ""
-				show_caf_pg_5_expenses_dlg = TRUE
-			End If
-		Loop until ButtonPressed = next_btn
-		If err_msg <> "" Then MsgBox "*** Please Resolve to Continue ***" & vbNewLine & err_msg
-	Loop until err_msg = ""
-
-	If go_back = FALSE Then
-		show_caf_qual_questions_dlg = FALSE
-		caf_caf_qual_questions_dlg_cleared = TRUE
-	End If
-
-end function
-
-
-function dlg_signature()
-	go_back = FALSE
-	Do
-		Do
-			err_msg = ""
-
-			Dialog1 = ""
-			BeginDialog Dialog1, 0, 0, 550, 385, "Form dates and signatures"
-			  EditBox 135, 50, 60, 15, caf_form_date
-			  DropListBox 135, 70, 60, 45, "Select..."+chr(9)+"Yes"+chr(9)+"No", client_signed_yn
-			  ButtonGroup ButtonPressed
-			    PushButton 35, 90, 105, 15, "Complete CAF Form Detail", complete_caf_questions
-			    PushButton 5, 95, 25, 10, "BACK", back_btn
-			    PushButton 10, 35, 145, 10, "Open RIGHTS AND RESPONSIBLITIES ", open_r_and_r_button
-			    CancelButton 145, 90, 50, 15
-			  Text 10, 10, 160, 20, "Confirm the client is signing this form and attesting to the information provided verbally."
-			  Text 70, 55, 55, 10, "CAF Form Date:"
-			  Text 10, 75, 120, 10, "Cient signature accepted verbally?"
-			EndDialog
-
-			dialog Dialog1
-
-			cancel_confirmation
-
-			If ButtonPressed = -1 Then ButtonPressed = complete_caf_questions
-			If ButtonPressed = open_r_and_r_button Then open_URL_in_browser("https://edocs.dhs.state.mn.us/lfserver/Public/DHS-4163-ENG")
-
-			If IsDate(caf_form_date) = FALSE Then
-				err_msg = err_msg & vbNewLine & "* Enter a valid date for the date the form was received."
-			Else
-				If DateDiff("d", date, caf_form_date) > 0 Then err_msg = err_msg & vbNewLine & "* The date of the CAF form is listed as a future date, a form cannot be listed as received inthe future, please review the form date."
-			End If
-			If client_signed_yn = "Select..." Then err_msg = err_msg & vbNewLine & "* Indicate if the client has signed the form correctly by selecting 'yes' or 'no'."
-
-			If ButtonPressed = back_btn Then
-				go_back = TRUE
-				ButtonPressed = complete_caf_questions
-				err_msg = ""
-				show_caf_qual_questions_dlg = TRUE
-			End If
-		Loop until ButtonPressed = complete_caf_questions
-		If err_msg <> "" Then MsgBox "*** Please Resolve to Continue ***" & vbNewLine & err_msg
-	Loop until err_msg = ""
-
-	If go_back = FALSE Then
-		show_caf_sig_dlg = FALSE
-		caf_sig_dlg_cleared = TRUE
-	End If
 end function
 
 function read_all_the_MEMBs()
@@ -6868,40 +5843,40 @@ marital_status = marital_status+chr(9)+"W  Widowed"
 question_answers = ""+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Blank"
 
 'Dimming all the variables because they are defined and set within functions
-Dim who_are_we_completing_the_form_with, caf_person_one, exp_q_1_income_this_month, exp_q_2_assets_this_month, exp_q_3_rent_this_month, exp_pay_heat_checkbox, exp_pay_ac_checkbox, exp_pay_electricity_checkbox, exp_pay_phone_checkbox
+Dim who_are_we_completing_the_interview_with, caf_person_one, exp_q_1_income_this_month, exp_q_2_assets_this_month, exp_q_3_rent_this_month, exp_pay_heat_checkbox, exp_pay_ac_checkbox, exp_pay_electricity_checkbox, exp_pay_phone_checkbox
 Dim exp_pay_none_checkbox, exp_migrant_seasonal_formworker_yn, exp_received_previous_assistance_yn, exp_previous_assistance_when, exp_previous_assistance_where, exp_previous_assistance_what, exp_pregnant_yn, exp_pregnant_who, resi_addr_street_full
 Dim resi_addr_city, resi_addr_state, resi_addr_zip, reservation_yn, reservation_name, homeless_yn, living_situation, mail_addr_street_full, mail_addr_city, mail_addr_state, mail_addr_zip, phone_one_number, phone_pne_type, phone_two_number
 Dim phone_two_type, phone_three_number, phone_three_type, address_change_date, resi_addr_county, caf_form_date, all_the_clients, err_msg
 
-Dim question_1_yn, question_1_notes, question_1_verif_yn, question_1_verif_details
-Dim question_2_yn, question_2_notes, question_2_verif_yn, question_2_verif_details
-Dim question_3_yn, question_3_notes, question_3_verif_yn, question_3_verif_details
-Dim question_4_yn, question_4_notes, question_4_verif_yn, question_4_verif_details
-Dim question_5_yn, question_5_notes, question_5_verif_yn, question_5_verif_details
-Dim question_6_yn, question_6_notes, question_6_verif_yn, question_6_verif_details
-Dim question_7_yn, question_7_notes, question_7_verif_yn, question_7_verif_details
-Dim question_8_yn, question_8a_yn, question_8_notes, question_8_verif_yn, question_8_verif_details
-Dim question_9_yn, question_9_notes, question_9_verif_yn, question_9_verif_details
-Dim question_10_yn, question_10_notes, question_10_verif_yn, question_10_verif_details, question_10_monthly_earnings
-Dim question_11_yn, question_11_notes, question_11_verif_yn, question_11_verif_details
+Dim question_1_yn, question_1_notes, question_1_verif_yn, question_1_verif_details, question_1_interview_notes
+Dim question_2_yn, question_2_notes, question_2_verif_yn, question_2_verif_details, question_2_interview_notes
+Dim question_3_yn, question_3_notes, question_3_verif_yn, question_3_verif_details, question_3_interview_notes
+Dim question_4_yn, question_4_notes, question_4_verif_yn, question_4_verif_details, question_4_interview_notes
+Dim question_5_yn, question_5_notes, question_5_verif_yn, question_5_verif_details, question_5_interview_notes
+Dim question_6_yn, question_6_notes, question_6_verif_yn, question_6_verif_details, question_6_interview_notes
+Dim question_7_yn, question_7_notes, question_7_verif_yn, question_7_verif_details, question_7_interview_notes
+Dim question_8_yn, question_8a_yn, question_8_notes, question_8_verif_yn, question_8_verif_details, question_8_interview_notes
+Dim question_9_yn, question_9_notes, question_9_verif_yn, question_9_verif_details, question_9_interview_notes
+Dim question_10_yn, question_10_notes, question_10_verif_yn, question_10_verif_details, question_10_monthly_earnings, question_10_interview_notes
+Dim question_11_yn, question_11_notes, question_11_verif_yn, question_11_verif_details, question_11_interview_notes
 Dim pwe_selection
-Dim question_12_yn, question_12_notes, question_12_verif_yn, question_12_verif_details
+Dim question_12_yn, question_12_notes, question_12_verif_yn, question_12_verif_details, question_12_interview_notes
 Dim question_12_rsdi_yn, question_12_rsdi_amt, question_12_ssi_yn, question_12_ssi_amt,  question_12_va_yn, question_12_va_amt, question_12_ui_yn, question_12_ui_amt, question_12_wc_yn, question_12_wc_amt, question_12_ret_yn, question_12_ret_amt, question_12_trib_yn, question_12_trib_amt, question_12_cs_yn, question_12_cs_amt, question_12_other_yn, question_12_other_amt
-Dim question_13_yn, question_13_notes, question_13_verif_yn, question_13_verif_details
-Dim question_14_yn, question_14_notes, question_14_verif_yn, question_14_verif_details
+Dim question_13_yn, question_13_notes, question_13_verif_yn, question_13_verif_details, question_13_interview_notes
+Dim question_14_yn, question_14_notes, question_14_verif_yn, question_14_verif_details, question_14_interview_notes
 Dim question_14_rent_yn, question_14_subsidy_yn, question_14_mortgage_yn, question_14_association_yn, question_14_insurance_yn, question_14_room_yn, question_14_taxes_yn
-Dim question_15_yn, question_15_notes, question_15_verif_yn, question_15_verif_details
+Dim question_15_yn, question_15_notes, question_15_verif_yn, question_15_verif_details, question_15_interview_notes
 Dim question_15_heat_ac_yn, question_15_electricity_yn, question_15_cooking_fuel_yn, question_15_water_and_sewer_yn, question_15_garbage_yn, question_15_phone_yn, question_15_liheap_yn
-Dim question_16_yn, question_16_notes, question_16_verif_yn, question_16_verif_details
-Dim question_17_yn, question_17_notes, question_17_verif_yn, question_17_verif_details
-Dim question_18_yn, question_18_notes, question_18_verif_yn, question_18_verif_details
-Dim question_19_yn, question_19_notes, question_19_verif_yn, question_19_verif_details
-Dim question_20_yn, question_20_notes, question_20_verif_yn, question_20_verif_details
+Dim question_16_yn, question_16_notes, question_16_verif_yn, question_16_verif_details, question_16_interview_notes
+Dim question_17_yn, question_17_notes, question_17_verif_yn, question_17_verif_details, question_17_interview_notes
+Dim question_18_yn, question_18_notes, question_18_verif_yn, question_18_verif_details, question_18_interview_notes
+Dim question_19_yn, question_19_notes, question_19_verif_yn, question_19_verif_details, question_19_interview_notes
+Dim question_20_yn, question_20_notes, question_20_verif_yn, question_20_verif_details, question_20_interview_notes
 Dim question_20_cash_yn, question_20_acct_yn, question_20_secu_yn, question_20_cars_yn
-Dim question_21_yn, question_21_notes, question_21_verif_yn, question_21_verif_details
-Dim question_22_yn, question_22_notes, question_22_verif_yn, question_22_verif_details
-Dim question_23_yn, question_23_notes, question_23_verif_yn, question_23_verif_details
-Dim question_24_yn, question_24_notes, question_24_verif_yn, question_24_verif_details
+Dim question_21_yn, question_21_notes, question_21_verif_yn, question_21_verif_details, question_21_interview_notes
+Dim question_22_yn, question_22_notes, question_22_verif_yn, question_22_verif_details, question_22_interview_notes
+Dim question_23_yn, question_23_notes, question_23_verif_yn, question_23_verif_details, question_23_interview_notes
+Dim question_24_yn, question_24_notes, question_24_verif_yn, question_24_verif_details, question_24_interview_notes
 Dim question_24_rep_payee_yn, question_24_guardian_fees_yn, question_24_special_diet_yn, question_24_high_housing_yn
 Dim qual_question_one, qual_memb_one, qual_question_two, qual_memb_two, qual_question_three, qual_memb_there, qual_question_four, qual_memb_four, qual_question_five, qual_memb_five
 
@@ -6930,6 +5905,7 @@ Call check_for_MAXIS(true)
 Call MAXIS_case_number_finder(MAXIS_case_number)
 CAF_datestamp = date & ""
 interview_date = date & ""
+show_err_msg_during_movement = ""
 
 Call back_to_SELF
 EMReadScreen MX_region, 10, 22, 48
@@ -6964,7 +5940,7 @@ BeginDialog Dialog1, 0, 0, 371, 330, "Interview Script Case number dialog"
   GroupBox 105, 145, 125, 30, "Programs marked on CAF"
   Text 145, 315, 105, 10, "Look for me for Tips and Tricks!"
   Text 20, 280, 315, 10, "How do you want to be alerted to updates needed to answers/information in following dialogs?"
-  DropListBox 25, 290, 295, 45, "Alert at the time you attempt to leave the dialog."+chr(9)+"Alert only once completing and leaving the final dialog.", select_err_msg_handling
+  DropListBox 25, 290, 295, 45, "Alert at the time you attempt to save each page of the dialog."+chr(9)+"Alert only once completing and leaving the final dialog.", select_err_msg_handling
   GroupBox 10, 175, 355, 130, "How to interact with this Script"
   Text 20, 200, 335, 20, "The script will have a place to enter the answer from the CAF; a 'yes/no/blank' field plus an 'open' field to enter exactly what the CAF has listed on it."
   Text 30, 220, 305, 10, "Entering information in these fields should happen as you discuss this answer with the client."
@@ -6990,6 +5966,9 @@ Do
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
 
+If select_err_msg_handling = "Alert at the time you attempt to save each page of the dialog." Then show_err_msg_during_movement = TRUE
+If select_err_msg_handling = "Alert only once completing and leaving the final dialog." Then show_err_msg_during_movement = FALSE
+
 show_known_addr = FALSE
 vars_filled = FALSE
 
@@ -6997,6 +5976,8 @@ Call back_to_SELF
 Call restore_your_work(vars_filled)			'looking for a 'restart' run
 Call convert_date_into_MAXIS_footer_month(CAF_datestamp, MAXIS_footer_month, MAXIS_footer_year)
 If vars_filled = TRUE Then show_known_addr = TRUE		'This is a setting for the address dialog to see the view
+
+Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, unknown_cash_pending)
 
 'If we already know the variables because we used 'restore your work' OR if there is no case number, we don't need to read the information from MAXIS
 If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
@@ -7028,7 +6009,6 @@ If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 
 	show_known_addr = TRUE
 End If
-
 
 'Giving the buttons specific unumerations so they don't think they are eachother
 next_btn					= 1000
@@ -7089,7 +6069,7 @@ for each_job = 0 to UBOUND(JOBS_ARRAY, 2)
 	JOBS_ARRAY(jobs_edit_btn, each_job) = btn_placeholder
 	btn_placeholder = btn_placeholder + 1
 next
-
+interview_date = date
 selected_memb = 0
 ' 'Presetting booleans for the dialog looping
 ' show_caf_pg_1_pers_dlg = TRUE
@@ -7167,33 +6147,38 @@ selected_memb = 0
 Do
 	Do
 
-		' MsgBox page_display
-		Dialog1 = Empty
-		call define_main_dialog
+		Do
+			' MsgBox page_display
+			Dialog1 = Empty
+			call define_main_dialog
 
-		err_msg = ""
+			err_msg = ""
 
-		prev_page = page_display
+			prev_page = page_display
 
 
-		dialog Dialog1
-		cancel_confirmation
-		' MsgBox  HH_MEMB_ARRAY(0).ans_imig_status
-		If err_msg <> "" Then MsgBox "*** Please resolve to Continue: ***" & vbNewLine & err_msg
+			dialog Dialog1
+			cancel_confirmation
+			' MsgBox  HH_MEMB_ARRAY(0).ans_imig_status
+			Call check_for_errors
 
-		' Call assess_imig_questions
-		' call save_entered_information
-		' For i = 0 to UBound(HH_MEMB_ARRAY)
-		' 	If page_display = show_pg_imig Then
-		' 		' HH_MEMB_ARRAY(i).save_entered_information
-		' 		HH_MEMB_ARRAY(i).assess_imig_questions
-		' 	End If
-		' next
+			If show_err_msg_during_movement = FALSE AND ButtonPressed <> finish_interview_btn Then err_msg = ""
 
-		If page_display <> prev_page Then
-			'ADD FUNCTIONS HERE TO EVALUATE THE COMPLETION OF EACH PAGE
-		End If
+			If err_msg <> "" Then MsgBox "*** Please resolve to Continue: ***" & vbNewLine & err_msg
 
+			' Call assess_imig_questions
+			' call save_entered_information
+			' For i = 0 to UBound(HH_MEMB_ARRAY)
+			' 	If page_display = show_pg_imig Then
+			' 		' HH_MEMB_ARRAY(i).save_entered_information
+			' 		HH_MEMB_ARRAY(i).assess_imig_questions
+			' 	End If
+			' next
+
+			If page_display <> prev_page Then
+				'ADD FUNCTIONS HERE TO EVALUATE THE COMPLETION OF EACH PAGE
+			End If
+		Loop until err_msg = ""
 		' MsgBox "ButtonPressed - " & ButtonPressed
 
 		call dialog_movement
@@ -7297,10 +6282,97 @@ objSelection.Font.Bold = FALSE
 
 If MAXIS_case_number <> "" Then objSelection.TypeText "Case Number: " & MAXIS_case_number & vbCR			'General case information
 ' If no_case_number_checkbox = checked Then objSelection.TypeText "New Case - no case number" & vbCr
-objSelection.TypeText "Interview Date: " & date & vbCR
-objSelection.TypeText "DATE OF APPLICATION: " & application_date & vbCR
+objSelection.TypeText "Interview Date: " & interview_date & vbCR
+objSelection.TypeText "DATE OF APPLICATION: " & CAF_datestamp & vbCR
 objSelection.TypeText "Completed by: " & worker_name & vbCR
-objSelection.TypeText "Completed over the phone with: " & who_are_we_completing_the_form_with & vbCR
+objSelection.TypeText "Interview completed with: " & who_are_we_completing_the_interview_with & vbCR
+objSelection.TypeText "Interview length: " & timer-start_time & vbCR
+objSelection.TypeText "Case Status at the time of interview: " & vbCR
+If case_active = TRUE Then
+	objSelection.TypeText "   Case is ACTIVE" & vbCR
+ElseIf case_pending = TRUE Then
+	objSelection.TypeText "   Case is PENDING" & vbCR
+Else
+	objSelection.TypeText "   Case is INACTIVE" & vbCR
+End If
+
+Set objRange = objSelection.Range					'range is needed to create tables
+objDoc.Tables.Add objRange, 7, 3					'This sets the rows and columns needed row then column
+'This table starts with 1 column - other columns are added after we split some of the cells
+set objProgStatusTable = objDoc.Tables(1)		'Creates the table with the specific index'
+
+objProgStatusTable.AutoFormat(16)							'This adds the borders to the table and formats it
+objProgStatusTable.Columns(1).Width = 150					'This sets the width of the table.
+objProgStatusTable.Columns(2).Width = 200					'This sets the width of the table.
+objProgStatusTable.Columns(3).Width = 150					'This sets the width of the table.
+
+' objProgStatusTable.Cell(row, col).Range.Text =
+
+objProgStatusTable.Cell(1, 1).Range.Text = "Program"
+objProgStatusTable.Cell(1, 2).Range.Text = "Status"
+objProgStatusTable.Cell(1, 3).Range.Text = "Detail"
+
+objProgStatusTable.Cell(2, 1).Range.Text = "SNAP"
+objProgStatusTable.Cell(2, 2).Range.Text = snap_case
+' objProgStatusTable.Cell(2, 3).Range.Text =
+cash_col = 3
+' If
+If mfip_case = True Then
+	If cash_col = 3 Then objProgStatusTable.Cell(3, 1).Range.Text = "CASH 1"
+	If cash_col = 4 Then objProgStatusTable.Cell(4, 1).Range.Text = "CASH 2"
+	objProgStatusTable.Cell(cash_col, 2).Range.Text = mfip_case
+	objProgStatusTable.Cell(cash_col, 3).Range.Text = "MFIP"
+	cash_col = cash_col + 1
+End If
+If dwp_case = True Then
+	If cash_col = 3 Then objProgStatusTable.Cell(3, 1).Range.Text = "CASH 1"
+	If cash_col = 4 Then objProgStatusTable.Cell(4, 1).Range.Text = "CASH 2"
+	objProgStatusTable.Cell(cash_col, 2).Range.Text = dwp_case
+	objProgStatusTable.Cell(cash_col, 3).Range.Text = "DWP"
+	cash_col = cash_col + 1
+End If
+If ga_case = True Then
+	If cash_col = 3 Then objProgStatusTable.Cell(3, 1).Range.Text = "CASH 1"
+	If cash_col = 4 Then objProgStatusTable.Cell(4, 1).Range.Text = "CASH 2"
+	objProgStatusTable.Cell(cash_col, 2).Range.Text = ga_case
+	objProgStatusTable.Cell(cash_col, 3).Range.Text = "GA"
+	cash_col = cash_col + 1
+End If
+If msa_case = True Then
+	If cash_col = 3 Then objProgStatusTable.Cell(3, 1).Range.Text = "CASH 1"
+	If cash_col = 4 Then objProgStatusTable.Cell(4, 1).Range.Text = "CASH 2"
+	objProgStatusTable.Cell(cash_col, 2).Range.Text = msa_case
+	objProgStatusTable.Cell(cash_col, 3).Range.Text = "MSA"
+	cash_col = cash_col + 1
+End If
+If unknown_cash_pending = True Then
+	If cash_col = 3 Then objProgStatusTable.Cell(3, 1).Range.Text = "CASH 1"
+	If cash_col = 4 Then objProgStatusTable.Cell(4, 1).Range.Text = "CASH 2"
+	objProgStatusTable.Cell(cash_col, 2).Range.Text = unknown_cash_pending
+	objProgStatusTable.Cell(cash_col, 3).Range.Text = "CASH"
+	cash_col = cash_col + 1
+End If
+If cash_col = 3 Then
+	objProgStatusTable.Cell(3, 1).Range.Text = "CASH 1"
+	objProgStatusTable.Cell(cash_col, 2).Range.Text = "NONE"
+	objProgStatusTable.Cell(cash_col, 3).Range.Text = ""
+	cash_col = cash_col + 1
+End If
+If cash_col = 4 Then
+	objProgStatusTable.Cell(4, 1).Range.Text = "CASH 2"
+	objProgStatusTable.Cell(cash_col, 2).Range.Text = "NONE"
+	objProgStatusTable.Cell(cash_col, 3).Range.Text = ""
+	cash_col = cash_col + 1
+End If
+
+objProgStatusTable.Cell(5, 1).Range.Text = "GRH"
+objProgStatusTable.Cell(5, 2).Range.Text = grh_case
+
+objProgStatusTable.Cell(6, 1).Range.Text = "MA"
+objProgStatusTable.Cell(6, 2).Range.Text = ma_case
+
+objProgStatusTable.Cell(7, 1).Range.Text = "MSA"
+objProgStatusTable.Cell(7, 2).Range.Text = msp_case
 
 'Program CAF Information
 caf_progs = ""
@@ -7310,7 +6382,7 @@ for each_memb = 0 to UBOUND(HH_MEMB_ARRAY)
 	If HH_MEMB_ARRAY(each_memb).emer_req_checkbox = checked AND InStr(caf_progs, "EMER") = 0 Then caf_progs = caf_progs & ", EMER"
 Next
 If left(caf_progs, 2) = ", " Then caf_progs = right(caf_progs, len(caf_progs)-2)
-objSelection.TypeText "CAF requesting: " & caf_progs & vbCr
+objSelection.TypeText "PROGRAMS REQUESTED ON CAF: " & caf_progs & vbCr
 objSelection.Font.Size = "11"
 
 
@@ -7321,11 +6393,11 @@ objSelection.Font.Size = "11"
 	' wdAdjustSameWidth		3	Adjusts the left edge of the first column, preserving the position of the right edge of the table by setting the widths of all the cells in the specified row or rows to the same value.
 
 
-objSelection.TypeText "PERSON 1"
+objSelection.TypeText "PERSON 1 Information - Confirmed in the Interview"
 Set objRange = objSelection.Range					'range is needed to create tables
 objDoc.Tables.Add objRange, 16, 1					'This sets the rows and columns needed row then column
 'This table starts with 1 column - other columns are added after we split some of the cells
-set objPers1Table = objDoc.Tables(1)		'Creates the table with the specific index'
+set objPers1Table = objDoc.Tables(2)		'Creates the table with the specific index'
 'This table will be formatted to look similar to the structure of CAF Page 1
 
 objPers1Table.AutoFormat(16)							'This adds the borders to the table and formats it
@@ -7411,13 +6483,17 @@ For col = 1 to 4
 	objPers1Table.Cell(6, col).Range.Font.Size = 12
 Next
 'Adding the words to rows 5 and 6
-objPers1Table.Cell(5, 1).Range.Text = "ADDRESS WHERE YOU LIVE"
+objPers1Table.Cell(5, 1).Range.Text = "RESIDENCE ADDRESS - Confirmed in the Interview"
 ' objPers1Table.Cell(5, 2).Range.Text = "APT. NUMBER"
 objPers1Table.Cell(5, 2).Range.Text = "CITY"
 objPers1Table.Cell(5, 3).Range.Text = "STATE"
 objPers1Table.Cell(5, 4).Range.Text = "ZIP CODE"
 
-objPers1Table.Cell(6, 1).Range.Text = resi_addr_street_full
+If homeless_yn = "Yes" Then
+	objPers1Table.Cell(6, 1).Range.Text = resi_addr_street_full & " - HOMELESS - "
+Else
+	objPers1Table.Cell(6, 1).Range.Text = resi_addr_street_full
+End If
 ' objPers1Table.Cell(6, 2).Range.Text = ""
 objPers1Table.Cell(6, 2).Range.Text = resi_addr_city
 objPers1Table.Cell(6, 3).Range.Text = LEFT(resi_addr_state, 2)
@@ -7573,14 +6649,16 @@ objPers1Table.Cell(16, 2).Range.Text = HH_MEMB_ARRAY(0).ethnicity_yn
 objPers1Table.Cell(16, 3).Range.Text = race_to_enter
 
 objSelection.EndKey end_of_doc						'this sets the cursor to the end of the document for more writing
+objSelection.TypeParagraph()						'adds a line between the table and the next information
 
-objSelection.TypeText "NOTES: " & HH_MEMB_ARRAY(0).client_notes & vbCR
+objSelection.TypeText "LIVING SITUATION: " & living_situation & vbCR
+objSelection.TypeText "INTERVIEW NOTES: " & HH_MEMB_ARRAY(0).client_notes & vbCR
 
-objSelection.Font.Bold = TRUE
-objSelection.TypeText "CAF 1 - EXPEDITED QUESTIONS"
+' objSelection.Font.Bold = TRUE
+objSelection.TypeText "CAF 1 - EXPEDITED QUESTIONS from the CAF"
 Set objRange = objSelection.Range					'range is needed to create tables
 objDoc.Tables.Add objRange, 8, 2					'This sets the rows and columns needed row then column'
-set objEXPTable = objDoc.Tables(2)		'Creates the table with the specific index'
+set objEXPTable = objDoc.Tables(3)		'Creates the table with the specific index'
 
 objEXPTable.AutoFormat(16)							'This adds the borders to the table and formats it
 objEXPTable.Columns(1).Width = 375					'Setting the widths of the columns
@@ -7630,12 +6708,45 @@ If exp_pregnant_who <> "" Then
 Else
 	objEXPTable.Cell(8, 2).Range.Text = exp_pregnant_yn
 End If
+objSelection.TypeParagraph()						'adds a line between the table and the next information
+objSelection.Font.Bold = TRUE
+objSelection.TypeText "EXPEDITED Interview Answers:" & vbCr
+objSelection.Font.Bold = FALSE
+If appears_expedited = True Then
+	objSelection.TypeText "Based on income information this case APPEARS ELIGIBLE FOR EXPEDITED SNAP." & vbCr
+Else
+	objSelection.TypeText "This case does not appear eligible for expedited SNAP based on the income information." & vbCr
+End If
+total_expenses = 0
+utilities_cost = 0
+If intv_exp_pay_heat_checkbox = checked OR intv_exp_pay_ac_checkbox = checked Then
+	utilities_cost = 496
+Else
+	If intv_exp_pay_electricity_checkbox = checked Then utilities_cost = utilities_cost + 154
+	If intv_exp_pay_phone_checkbox = checked Then utilities_cost = utilities_cost + 56
+End If
+total_expenses = intv_app_month_housing_expense + utilities_cost
+
+objSelection.TypeText chr(9) & "Income in the month of application: " & intv_app_month_income & vbCr
+objSelection.TypeText chr(9) & "Assets in the month of application: " & intv_app_month_asset & vbCr
+objSelection.TypeText chr(9) & "Expenses in the month of application: " & total_expenses & vbCr
+objSelection.TypeText chr(9) & chr(9) & "Housing expense in the month of application: " & intv_app_month_housing_expense & vbCr
+objSelection.TypeText chr(9) & chr(9) & "Utilities in the month of application: " & utilities_cost & vbCr
+If appears_expedited = True Then
+	If id_verif_on_file = "No" OR snap_active_in_other_state = "Yes" OR last_snap_was_exp = "Yes" Then
+		objSelection.TypeText chr(9) & "Expedited Approval must be delayed:" & vbCr
+		objSelection.TypeText chr(9) & chr(9) & "Detail: " & expedited_delay_info & vbCr
+		If id_verif_on_file = "No" Then 			objSelection.TypeText chr(9) & chr(9) & "" & vbCr
+		If snap_active_in_other_state = "Yes" Then 	objSelection.TypeText chr(9) & chr(9) & "" & vbCr
+		If last_snap_was_exp = "Yes" Then 			objSelection.TypeText chr(9) & chr(9) & "" & vbCr
+	End If
+End If
 
 objSelection.EndKey end_of_doc						'this sets the cursor to the end of the document for more writing
 objSelection.TypeParagraph()						'adds a line between the table and the next information
 
 objSelection.Font.Bold = TRUE
-objSelection.TypeText "AGENCY USE:" & vbCr
+objSelection.TypeText "Interview Answers:" & vbCr
 objSelection.Font.Bold = FALSE
 objSelection.TypeText chr(9) & "Intends to reside in MN? - " & HH_MEMB_ARRAY(0).intend_to_reside_in_mn & vbCr
 objSelection.TypeText chr(9) & "Has Sponsor? - " & HH_MEMB_ARRAY(0).clt_has_sponsor & vbCr
@@ -7645,7 +6756,7 @@ If HH_MEMB_ARRAY(0).client_verification_details <> "" Then objSelection.TypeText
 
 'Now we have a dynamic number of tables
 'each table has to be defined with its index so we need to have a variable to increment
-table_count = 3			'table index variable
+table_count = 4			'table index variable
 If UBound(HH_MEMB_ARRAY) <> 0 Then
 	ReDim TABLE_ARRAY(UBound(HH_MEMB_ARRAY)-1)		'defining the table array for as many persons aas are in the household - each person gets their own table
 	array_counters = 0		'the incrementer for the table array'
@@ -7792,10 +6903,10 @@ If UBound(HH_MEMB_ARRAY) <> 0 Then
 
 		objSelection.EndKey end_of_doc						'this sets the cursor to the end of the document for more writing
 
-		objSelection.TypeText "NOTES: " & HH_MEMB_ARRAY(each_member).client_notes & vbCR
-		objSelection.Font.Bold = TRUE
-		objSelection.TypeText "AGENCY USE:" & vbCr
-		objSelection.Font.Bold = FALSE
+		objSelection.TypeText "INTERVIEW NOTES: " & HH_MEMB_ARRAY(each_member).client_notes & vbCR
+		' objSelection.Font.Bold = TRUE
+		' objSelection.TypeText "AGENCY USE:" & vbCr
+		' objSelection.Font.Bold = FALSE
 		objSelection.TypeText chr(9) & "Intends to reside in MN? - " & HH_MEMB_ARRAY(each_member).intend_to_reside_in_mn & vbCr
 		objSelection.TypeText chr(9) & "Has Sponsor? - " & HH_MEMB_ARRAY(each_member).clt_has_sponsor & vbCr
 		objSelection.TypeText chr(9) & "Immigration Status: " & HH_MEMB_ARRAY(each_member).imig_status & vbCr
@@ -7815,42 +6926,70 @@ objSelection.TypeText chr(9) & "CAF Answer: " & question_1_yn & vbCr
 If question_1_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_1_notes & vbCr
 If question_1_verif_yn <> "Mot Needed" AND question_1_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_1_verif_yn & vbCr
 If question_1_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_1_verif_details & vbCr
+If question_1_yn <> "" OR trim(question_1_notes) <> "" Then
+	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview"
+	If question_1_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_1_interview_notes
+End If
 
 objSelection.TypeText "Q 2. Is anyone in the household, who is age 60 or over or disabled, unable to buy or fix food due to a disability?" & vbCr
 objSelection.TypeText chr(9) & "CAF Answer: " & question_2_yn & vbCr
 If question_2_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_2_notes & vbCr
 If question_2_verif_yn <> "Mot Needed" AND question_2_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_2_verif_yn & vbCr
 If question_2_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_2_verif_details & vbCr
+If question_2_yn <> "" OR trim(question_2_notes) <> "" Then
+	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview"
+	If question_2_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_2_interview_notes
+End If
 
 objSelection.TypeText "Q 3. Is anyone in the household attending school?" & vbCr
 objSelection.TypeText chr(9) & "CAF Answer: " & question_3_yn & vbCr
 If question_3_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_3_notes & vbCr
 If question_3_verif_yn <> "Mot Needed" AND question_3_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_3_verif_yn & vbCr
 If question_3_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_3_verif_details & vbCr
+If question_3_yn <> "" OR trim(question_3_notes) <> "" Then
+	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview"
+	If question_3_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_3_interview_notes
+End If
 
 objSelection.TypeText "Q 4. Is anyone in your household temporarily not living in your home? (for example: vacation, foster care, treatment, hospital, job search)" & vbCr
 objSelection.TypeText chr(9) & "CAF Answer: " & question_4_yn & vbCr
 If question_4_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_4_notes & vbCr
 If question_4_verif_yn <> "Mot Needed" AND question_4_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_4_verif_yn & vbCr
 If question_4_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_4_verif_details & vbCr
+If question_4_yn <> "" OR trim(question_4_notes) <> "" Then
+	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview"
+	If question_4_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_4_interview_notes
+End If
 
 objSelection.TypeText "Q 5. Is anyone blind, or does anyone have a physical or mental health condition that limits the ability to work or perform daily activities?" & vbCr
 objSelection.TypeText chr(9) & "CAF Answer: " & question_5_yn & vbCr
 If question_5_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_5_notes & vbCr
 If question_5_verif_yn <> "Mot Needed" AND question_5_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_5_verif_yn & vbCr
 If question_5_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_5_verif_details & vbCr
+If question_5_yn <> "" OR trim(question_5_notes) <> "" Then
+	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview"
+	If question_5_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_5_interview_notes
+End If
 
 objSelection.TypeText "Q 6. Is anyone unable to work for reasons other than illness or disability?" & vbCr
 objSelection.TypeText chr(9) & "CAF Answer: " & question_6_yn & vbCr
 If question_6_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_6_notes & vbCr
 If question_6_verif_yn <> "Mot Needed" AND question_6_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_6_verif_yn & vbCr
 If question_6_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_6_verif_details & vbCr
+If question_6_yn <> "" OR trim(question_6_notes) <> "" Then
+	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview"
+	If question_6_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_6_interview_notes
+End If
 
 objSelection.TypeText "Q 7. In the last 60 days did anyone in the household: - Stop working or quit a job? - Refuse a job offer? - Ask to work fewer hours? - Go on strike?" & vbCr
 objSelection.TypeText chr(9) & "CAF Answer: " & question_7_yn & vbCr
 If question_7_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_7_notes & vbCr
 If question_7_verif_yn <> "Mot Needed" AND question_7_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_7_verif_yn & vbCr
 If question_7_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_7_verif_details & vbCr
+If question_7_yn <> "" OR trim(question_7_notes) <> "" Then
+	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview"
+	If question_7_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_7_interview_notes
+End If
 
 objSelection.TypeText "Q 8. Has anyone in the household had a job or been self-employed in the past 12 months?" & vbCr
 objSelection.TypeText chr(9) & "CAF Answer: " & question_8_yn & vbCr
@@ -7859,9 +6998,13 @@ objSelection.TypeText chr(9) & question_8a_yn & vbCr
 If question_8_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_8_notes & vbCr
 If question_8_verif_yn <> "Mot Needed" AND question_8_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_8_verif_yn & vbCr
 If question_8_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_8_verif_details & vbCr
+If question_8_yn <> "" OR trim(question_8_notes) <> "" Then
+	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview"
+	If question_8_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_8_interview_notes
+End If
 
 objSelection.TypeText "Q 9. Does anyone in the household have a job or expect to get income from a job this month or next month?" & vbCr
-
+objSelection.TypeText chr(9) & "CAF Answer: " & question_9_yn & vbCr
 job_added = FALSE
 for each_job = 0 to UBOUND(JOBS_ARRAY, 2)
 	If JOBS_ARRAY(jobs_employer_name, each_job) <> "" OR JOBS_ARRAY(jobs_employee_name, each_job) <> "" OR JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) <> "" OR JOBS_ARRAY(jobs_hourly_wage, each_job) <> "" Then
@@ -7870,18 +7013,19 @@ for each_job = 0 to UBOUND(JOBS_ARRAY, 2)
 		all_the_tables = UBound(TABLE_ARRAY) + 1
 		ReDim Preserve TABLE_ARRAY(all_the_tables)
 		Set objRange = objSelection.Range					'range is needed to create tables
-		objDoc.Tables.Add objRange, 4, 1					'This sets the rows and columns needed row then column'
+		objDoc.Tables.Add objRange, 8, 1					'This sets the rows and columns needed row then column'
 		set TABLE_ARRAY(array_counters) = objDoc.Tables(table_count)		'Creates the table with the specific index'
 		table_count = table_count + 1
 
 		TABLE_ARRAY(array_counters).AutoFormat(16)							'This adds the borders to the table and formats it
 		TABLE_ARRAY(array_counters).Columns(1).Width = 400
 
-		TABLE_ARRAY(array_counters).Cell(1, 1).SetHeight 10, 2
-		TABLE_ARRAY(array_counters).Cell(3, 1).SetHeight 10, 2
-
-		TABLE_ARRAY(array_counters).Cell(2, 1).SetHeight 15, 2
-		TABLE_ARRAY(array_counters).Cell(4, 1).SetHeight 15, 2
+		for row = 1 to 7 Step 2
+			TABLE_ARRAY(array_counters).Cell(row, 1).SetHeight 10, 2
+		Next
+		for row = 2 to 8 Step 2
+			TABLE_ARRAY(array_counters).Cell(row, 1).SetHeight 15, 2
+		Next
 
 		For row = 1 to 2
 			TABLE_ARRAY(array_counters).Rows(row).Cells.Split 1, 3, TRUE
@@ -7907,20 +7051,26 @@ for each_job = 0 to UBOUND(JOBS_ARRAY, 2)
 		TABLE_ARRAY(array_counters).Cell(3, 1).Range.Text = "EMPLOYER/BUSINESS NAME"
 		TABLE_ARRAY(array_counters).Cell(4, 1).Range.Text = JOBS_ARRAY(jobs_employer_name, each_job)
 
+		TABLE_ARRAY(array_counters).Cell(5, 1).Range.Text = "CAF NOTES"
+		TABLE_ARRAY(array_counters).Cell(6, 1).Range.Text = JOBS_ARRAY(jobs_notes, each_job)
+
+		TABLE_ARRAY(array_counters).Cell(7, 1).Range.Text = "INTERVIEW NOTES"
+		TABLE_ARRAY(array_counters).Cell(8, 1).Range.Text = JOBS_ARRAY(jobs_intv_notes, each_job)
+
 		objSelection.EndKey end_of_doc						'this sets the cursor to the end of the document for more writing
 		' objSelection.TypeParagraph()						'adds a line between the table and the next information
 
 		array_counters = array_counters + 1
 
-		objSelection.TypeText "NOTES: " & JOBS_ARRAY(jobs_notes, each_job) & vbCR
+		objSelection.TypeText "Verification: " & JOBS_ARRAY(verif_yn, each_job) & " - " & JOBS_ARRAY(verif_details, each_job) & vbCR
 	End If
 next
 
 If job_added = FALSE Then objSelection.TypeText chr(9) & "THERE ARE NO JOBS ENTERED." & vbCr
 
 If question_9_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_9_notes & vbCr
-If question_9_verif_yn <> "Mot Needed" AND question_10_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_9_verif_yn & vbCr
-If question_9_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_9_verif_details & vbCr
+' If question_9_verif_yn <> "Mot Needed" AND question_10_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_9_verif_yn & vbCr
+' If question_9_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_9_verif_details & vbCr
 
 objSelection.TypeText "Q 10. Is anyone in the household self-employed or does anyone expect to get income from self-employment this month or next month?" & vbCr
 objSelection.TypeText chr(9) & "CAF Answer: " & question_10_yn & vbCr
@@ -7929,12 +7079,20 @@ If question_10_monthly_earnings = "" Then objSelection.TypeText chr(9) & "Gross 
 If question_10_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_10_notes & vbCr
 If question_10_verif_yn <> "Mot Needed" AND question_10_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_10_verif_yn & vbCr
 If question_10_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_10_verif_details & vbCr
+If question_10_yn <> "" OR trim(question_10_notes) <> "" Then
+	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview"
+	If question_10_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_10_interview_notes
+End If
 
 objSelection.TypeText "Q 11. Do you expect any changes in income, expenses or work hours?" & vbCr
 objSelection.TypeText chr(9) & "CAF Answer: " & question_11_yn & vbCr
 If question_11_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_11_notes & vbCr
 If question_11_verif_yn <> "Mot Needed" AND question_11_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_11_verif_yn & vbCr
 If question_11_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_11_verif_details & vbCr
+If question_11_yn <> "" OR trim(question_11_notes) <> "" Then
+	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview"
+	If question_11_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_11_interview_notes
+End If
 
 objSelection.Font.Bold = TRUE
 objSelection.TypeText "Principal Wage Earner (PWE)" & vbCr
@@ -8037,12 +7195,40 @@ array_counters = array_counters + 1
 If question_12_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_12_notes & vbCr
 If question_12_verif_yn <> "Mot Needed" AND question_12_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_12_verif_yn & vbCr
 If question_12_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_12_verif_details & vbCr
+q_12_answered = FALSE
+If question_12_rsdi_yn <> "" Then q_12_answered = TRUE
+If question_12_rsdi_amt <> "" Then q_12_answered = TRUE
+If question_12_ssi_yn <> "" Then q_12_answered = TRUE
+If question_12_ssi_amt <> "" Then q_12_answered = TRUE
+If question_12_va_yn <> "" Then q_12_answered = TRUE
+If question_12_va_amt <> "" Then q_12_answered = TRUE
+If question_12_ui_yn <> "" Then q_12_answered = TRUE
+If question_12_ui_amt <> "" Then q_12_answered = TRUE
+If question_12_wc_yn <> "" Then q_12_answered = TRUE
+If question_12_wc_amt <> "" Then q_12_answered = TRUE
+If question_12_ret_yn <> "" Then q_12_answered = TRUE
+If question_12_ret_amt <> "" Then q_12_answered = TRUE
+If question_12_trib_yn <> "" Then q_12_answered = TRUE
+If question_12_trib_amt <> "" Then q_12_answered = TRUE
+If question_12_cs_yn <> "" Then q_12_answered = TRUE
+If question_12_cs_amt <> "" Then q_12_answered = TRUE
+If question_12_other_yn <> "" Then q_12_answered = TRUE
+If question_12_other_amt <> "" Then q_12_answered = TRUE
+If question_12_notes <> "" Then q_12_answered = TRUE
+If q_12_answered = TRUE  Then
+	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview"
+	If question_12_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_12_interview_notes
+End If
 
 objSelection.TypeText "Q 13. Does anyone in the household have or expect to get any loans, scholarships or grants for attending school?" & vbCr
 objSelection.TypeText chr(9) & "CAF Answer: " & question_13_yn & vbCr
 If question_13_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_13_notes & vbCr
 If question_13_verif_yn <> "Mot Needed" AND question_13_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_13_verif_yn & vbCr
 If question_13_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_13_verif_details & vbCr
+If question_13_yn <> "" OR trim(question_13_notes) <> "" Then
+	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview"
+	If question_13_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_13_interview_notes
+End If
 
 objSelection.TypeText "Q 14. Does your household have the following housing expenses?" & vbCr
 all_the_tables = UBound(TABLE_ARRAY) + 1
@@ -8094,6 +7280,18 @@ array_counters = array_counters + 1
 If question_14_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_14_notes & vbCr
 If question_14_verif_yn <> "Mot Needed" AND question_14_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_14_verif_yn & vbCr
 If question_14_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_14_verif_details & vbCr
+q_14_answered = FALSE
+If question_14_rent_yn <> "" Then q_14_answered = TRUE
+If question_14_subsidy_yn <> "" Then q_14_answered = TRUE
+If question_14_mortgage_yn <> "" Then q_14_answered = TRUE
+If question_14_association_yn <> "" Then q_14_answered = TRUE
+If question_14_insurance_yn <> "" Then q_14_answered = TRUE
+If question_14_room_yn <> "" Then q_14_answered = TRUE
+If question_14_taxes_yn <> "" Then q_14_answered = TRUE
+If q_14_answered = TRUE  Then
+	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview"
+	If question_14_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_14_interview_notes
+End If
 
 objSelection.TypeText "Q 15. Does your household have the following utility expenses any time during the year?" & vbCr
 all_the_tables = UBound(TABLE_ARRAY) + 1
@@ -8146,30 +7344,58 @@ array_counters = array_counters + 1
 If question_15_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_15_notes & vbCr
 If question_15_verif_yn <> "Mot Needed" AND question_15_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_15_verif_yn & vbCr
 If question_15_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_15_verif_details & vbCr
+q_15_answered = FALSE
+If question_15_heat_ac_yn <> "" Then q_15_answered = TRUE
+If question_15_electricity_yn <> "" Then q_15_answered = TRUE
+If question_15_cooking_fuel_yn <> "" Then q_15_answered = TRUE
+If question_15_water_and_sewer_yn <> "" Then q_15_answered = TRUE
+If question_15_garbage_yn <> "" Then q_15_answered = TRUE
+If question_15_phone_yn <> "" Then q_15_answered = TRUE
+If question_15_liheap_yn <> "" Then q_15_answered = TRUE
+If q_15_answered = TRUE  Then
+	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview"
+	If question_15_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_15_interview_notes
+End If
 
 objSelection.TypeText "Q 16. Do you or anyone living with you have costs for care of a child(ren) because you or they are working, looking for work or going to school?" & vbCr
-objSelection.TypeText chr(9) & "CAF Answer: " & question_13_yn & vbCr
+objSelection.TypeText chr(9) & "CAF Answer: " & question_16_yn & vbCr
 If question_16_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_16_notes & vbCr
 If question_16_verif_yn <> "Mot Needed" AND question_16_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_16_verif_yn & vbCr
 If question_16_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_16_verif_details & vbCr
+If question_16_yn <> "" OR trim(question_16_notes) <> "" Then
+	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview"
+	If question_16_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_16_interview_notes
+End If
 
 objSelection.TypeText "Q 17. Do you or anyone living with you have costs for care of an ill or disabled adult because you or they are working, looking for work or going to school?" & vbCr
-objSelection.TypeText chr(9) & "CAF Answer: " & question_13_yn & vbCr
+objSelection.TypeText chr(9) & "CAF Answer: " & question_17_yn & vbCr
 If question_17_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_17_notes & vbCr
 If question_17_verif_yn <> "Mot Needed" AND question_17_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_17_verif_yn & vbCr
 If question_17_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_17_verif_details & vbCr
+If question_17_yn <> "" OR trim(question_17_notes) <> "" Then
+	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview"
+	If question_17_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_17_interview_notes
+End If
 
 objSelection.TypeText "Q 18. Does anyone in the household pay court-ordered child support, spousal support, child care support, medical support or contribute to a tax dependent who does not live in your home?" & vbCr
 objSelection.TypeText chr(9) & "CAF Answer: " & question_18_yn & vbCr
 If question_18_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_18_notes & vbCr
 If question_18_verif_yn <> "Mot Needed" AND question_18_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_18_verif_yn & vbCr
 If question_18_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_18_verif_details & vbCr
+If question_18_yn <> "" OR trim(question_18_notes) <> "" Then
+	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview"
+	If question_18_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_18_interview_notes
+End If
 
 objSelection.TypeText "Q 19. For SNAP only: Does anyone in the household have medical expenses? " & vbCr
 objSelection.TypeText chr(9) & "CAF Answer: " & question_19_yn & vbCr
 If question_19_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_19_notes & vbCr
 If question_19_verif_yn <> "Mot Needed" AND question_19_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_19_verif_yn & vbCr
 If question_19_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_19_verif_details & vbCr
+If question_19_yn <> "" OR trim(question_19_notes) <> "" Then
+	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview"
+	If question_19_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_19_interview_notes
+End If
 
 objSelection.TypeText "Q 20. Does anyone in the household own, or is anyone buying, any of the following? Check yes or no for each item. " & vbCr
 all_the_tables = UBound(TABLE_ARRAY) + 1
@@ -8209,25 +7435,45 @@ array_counters = array_counters + 1
 If question_20_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_20_notes & vbCr
 If question_20_verif_yn <> "Mot Needed" AND question_20_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_20_verif_yn & vbCr
 If question_20_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_20_verif_details & vbCr
-
+q_20_answered = FALSE
+If question_20_cash_yn <> "" Then q_20_answered = TRUE
+If question_20_acct_yn <> "" Then q_20_answered = TRUE
+If question_20_secu_yn <> "" Then q_20_answered = TRUE
+If question_20_cars_yn <> "" Then q_20_answered = TRUE
+If q_20_answered = TRUE  Then
+	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview"
+	If question_20_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_20_interview_notes
+End If
 
 objSelection.TypeText "Q 21. For Cash programs only: Has anyone in the household given away, sold or traded anything of value in the past 12 months? (For example: Cash, Bank accounts, Stocks, Bonds, Vehicles)" & vbCr
 objSelection.TypeText chr(9) & "CAF Answer: " & question_21_yn & vbCr
 If question_21_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_21_notes & vbCr
 If question_21_verif_yn <> "Mot Needed" AND question_21_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_21_verif_yn & vbCr
 If question_21_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_21_verif_details & vbCr
+If question_21_yn <> "" OR trim(question_21_notes) <> "" Then
+	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview"
+	If question_21_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_21_interview_notes
+End If
 
 objSelection.TypeText "Q 22. For recertifications only: Did anyone move in or out of your home in the past 12 months?" & vbCr
 objSelection.TypeText chr(9) & "CAF Answer: " & question_22_yn & vbCr
 If question_22_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_22_notes & vbCr
 If question_22_verif_yn <> "Mot Needed" AND question_22_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_22_verif_yn & vbCr
 If question_22_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_22_verif_details & vbCr
+If question_22_yn <> "" OR trim(question_22_notes) <> "" Then
+	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview"
+	If question_22_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_22_interview_notes
+End If
 
 objSelection.TypeText "Q 23. For children under the age of 19, are both parents living in the home?" & vbCr
 objSelection.TypeText chr(9) & "CAF Answer: " & question_23_yn & vbCr
 If question_23_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_23_notes & vbCr
 If question_23_verif_yn <> "Mot Needed" AND question_23_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_23_verif_yn & vbCr
 If question_23_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_23_verif_details & vbCr
+If question_23_yn <> "" OR trim(question_23_notes) <> "" Then
+	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview"
+	If question_23_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_23_interview_notes
+End If
 
 objSelection.TypeText "Q 24. For MSA recipients only: Does anyone in the household have any of the following expenses?" & vbCr
 all_the_tables = UBound(TABLE_ARRAY) + 1
@@ -8267,6 +7513,15 @@ array_counters = array_counters + 1
 If question_24_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In: " & question_24_notes & vbCr
 If question_24_verif_yn <> "Mot Needed" AND question_24_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_24_verif_yn & vbCr
 If question_24_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_24_verif_details & vbCr
+q_24_answered = FALSE
+If question_24_rep_payee_yn <> "" Then q_24_answered = TRUE
+If question_24_guardian_fees_yn <> "" Then q_24_answered = TRUE
+If question_24_special_diet_yn <> "" Then q_24_answered = TRUE
+If question_24_high_housing_yn <> "" Then q_24_answered = TRUE
+If q_24_answered = TRUE  Then
+	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview"
+	If question_24_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_24_interview_notes
+End If
 
 objSelection.TypeText "CAF QUALIFYING QUESTIONS" & vbCr
 
