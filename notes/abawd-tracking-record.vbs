@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("04/19/2021", "Removed SNAP Banked Months information as it is no longer valid.", "Ilse Ferris, Hennepin County")
 call changelog_update("07/17/2017", "Initial version.", "Ilse Ferris, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -103,25 +104,23 @@ EMReadScreen ATR_line_four, 52, 10, 12
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 361, 155, "ABAWD Tracking Record for MEMB " & member_number
+BeginDialog Dialog1, 0, 0, 356, 125, "ABAWD Tracking Record for MEMB  & member_number"
   EditBox 65, 20, 280, 15, ABAWD_months
   EditBox 65, 40, 280, 15, second_months
-  EditBox 65, 60, 280, 15, banked_months
-  EditBox 65, 95, 280, 15, deleted_months
-  EditBox 65, 115, 280, 15, other_notes
-  EditBox 65, 135, 175, 15, worker_signature
+  EditBox 65, 65, 280, 15, deleted_months
+  EditBox 65, 85, 280, 15, other_notes
+  EditBox 65, 105, 175, 15, worker_signature
   ButtonGroup ButtonPressed
-	OkButton 245, 135, 50, 15
-	CancelButton 295, 135, 50, 15
+    OkButton 245, 105, 50, 15
+    CancelButton 295, 105, 50, 15
   Text 25, 45, 40, 10, "Second set:"
   Text 10, 25, 55, 10, "ABAWD months:"
-  Text 20, 120, 45, 10, "Other Notes:"
-  Text 10, 65, 55, 10, "Banked months:"
-  GroupBox 5, 5, 350, 85, "Please list all counted months, and the reason (if applicable)"
-  Text 65, 75, 255, 10, "NOTE: Banked months for 01/16 to 09/16 were counted on the tracking record. "
-  Text 5, 140, 60, 10, "Worker Signature:"
-  Text 10, 100, 55, 10, "Deleted months:"
+  Text 20, 90, 45, 10, "Other Notes:"
+  GroupBox 5, 5, 345, 55, "Please detail information about this resident's ABAWD Tracking Record below:"
+  Text 5, 110, 60, 10, "Worker Signature:"
+  Text 10, 70, 55, 10, "Deleted months:"
 EndDialog
+
 'the dialog
 Do
 	Do
@@ -149,7 +148,6 @@ call write_variable_in_CASE_NOTE(ATR_line_three)
 call write_variable_in_CASE_NOTE(ATR_line_four)
 call write_bullet_and_variable_in_CASE_NOTE("ABAWD months", ABAWD_months)
 call write_bullet_and_variable_in_CASE_NOTE("2nd set ABAWD months", Second_months)
-call write_bullet_and_variable_in_CASE_NOTE("Banked months", Banked_months)
 call write_bullet_and_variable_in_CASE_NOTE("Deleted months", deleted_months)
 call write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
 call write_variable_in_CASE_NOTE("---")
