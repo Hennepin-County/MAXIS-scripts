@@ -151,6 +151,7 @@ DO
     		ELSE
     			EMReadScreen addr_line_01, 22, 6, 43
 				EMReadScreen addr_line_02, 22, 7, 43
+				'navigating to the next filter'
     	    	Call navigate_to_MAXIS_screen("STAT", "ALTP")
     	    	EMReadScreen altp_addr_line_01, 22, 12, 37'if panel does not exist it will not match'
 				EMReadScreen altp_addr_line_02, 22, 13, 37
@@ -173,7 +174,7 @@ DO
 			END IF
 		END IF
 	END IF
-	IF update_case = TRUE or action_taken = "revert" THEN
+	IF update_case = TRUE THEN
 		Call navigate_to_MAXIS_screen("MONY", "DISB")
 	   	EMReadscreen payment_method, 2, 5, 35
 		EMReadscreen worker_mail_preference, 2, 9, 35
@@ -216,13 +217,12 @@ DO
 					EMReadScreen error_message, 75, 24, 2   'checking the bottom for an error message
 					error_message = trim(error_message)
 				ELSEIF error_message <> "" THEN      'if there is anything here - assume an error
-					update_case = FALSE
-					action_note = error_message
+					action_note = "REVIEW"
 					PF10
 				ELSE
 					action_note = "revert complete"
 				END IF
-			    revert_complete = TRUE
+			    revert_complete = "TRUE"
 		ELSEIF worker_mail_preference = "RG" and action_taken = "revert" THEN
 			    revert_complete = "N/A"
 			    action_note = "already reverted " & replace(updated_mony_disb_date, " ", "/")
@@ -234,35 +234,35 @@ DO
 	        CALL write_variable_in_CASE_NOTE("VIA BULK SCRIPT")
         	    PF3 'saving the case note
      	    	action_note = "casenote complete"
-			Call navigate_to_MAXIS_screen("SPEC", "WCOM")
-			row = 7                             'Defining row and col for the search feature.
-			actual_date = date
-			Call ONLY_create_MAXIS_friendly_date(actual_date)
-			Do
-				EMReadscreen todays_date, 8, row, 16
-				EMReadScreen notice_description, 11, row, 30  '(title is “Send Notice”)
-				IF todays_date = "" THEN
-			  		print_status = "no notice"
-				    EXIT DO
-				END IF
-			    IF todays_date = actual_date THEN
-				   	IF notice_description = "Send Notice" THEN
-						EMWriteScreen "C", row, 13
-			       		TRANSMIT
-				    	EMReadscreen print_status, 8, row, 71
-			       		IF print_status <>  "Canceled"  THEN print_status "REVIEW"
-						IF print_status =  "Canceled"  THEN
-							action_note = "case/note & spec/wcom complete"
-							exit do
-						END IF
-					ELSE
-					    row = row + 1
-					END IF
-			    ELSE
-			       	row = row + 1
-			    END IF
-			Loop until row = 10
 		END IF
+		Call navigate_to_MAXIS_screen("SPEC", "WCOM")
+		row = 7                             'Defining row and col for the search feature.
+		actual_date = date
+		Call ONLY_create_MAXIS_friendly_date(actual_date)
+		Do
+			EMReadscreen todays_date, 8, row, 16
+			EMReadScreen notice_description, 11, row, 30  '(title is “Send Notice”)
+			IF todays_date = "" THEN
+		  		print_status = "no notice"
+			    EXIT DO
+			END IF
+		    IF todays_date = actual_date THEN
+			   	IF notice_description = "Send Notice" THEN
+					EMWriteScreen "C", row, 13
+		       		TRANSMIT
+			    	EMReadscreen print_status, 8, row, 71
+		       		IF print_status <>  "Canceled"  THEN print_status "REVIEW"
+					IF print_status =  "Canceled"  THEN
+						action_note = "case/note & spec/wcom complete"
+						exit do
+					END IF
+				ELSE
+				    row = row + 1
+				END IF
+		    ELSE
+		       	row = row + 1
+		    END IF
+		Loop until row = 10
 	END IF
 	amount_cashout = objExcel.cells(excel_row, 2).Value
 	objExcel.Cells(excel_row,  3).Value = trim(case_active) 'true/false based on case status
