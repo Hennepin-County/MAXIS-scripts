@@ -91,25 +91,6 @@ EMConnect ""
 call maxis_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(initial_month, initial_year)
 
-'inhibits users from these counties from using the script as they are exempt counties.
-If worker_county_code = "x101" OR _
-	worker_county_code = "x111" OR _
-	worker_county_code = "x115" OR _
-	worker_county_code = "x129" OR _
-	worker_county_code = "x131" OR _
-	worker_county_code = "x133" OR _
-	worker_county_code = "x136" OR _
-	worker_county_code = "x139" OR _
-	worker_county_code = "x144" OR _
-	worker_county_code = "x145" OR _
-	worker_county_code = "x148" OR _
-	worker_county_code = "x149" OR _
-	worker_county_code = "x154" OR _
-	worker_county_code = "x158" OR _
-	worker_county_code = "x180" THEN
-	script_end_procedure ("Your agency is exempt from ABAWD work requirements. SNAP banked months are not available to your recipients.")
-END IF
-
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 251, 165, "ABAWD FIATer"
   EditBox 120, 10, 60, 15, MAXIS_case_number
@@ -121,7 +102,7 @@ BeginDialog Dialog1, 0, 0, 251, 165, "ABAWD FIATer"
   Text 65, 15, 50, 10, "Case Number:"
   Text 20, 35, 100, 10, "Initial month/year of package:"
   GroupBox 5, 75, 240, 85, "ABAWD FIATer"
-  Text 10, 90, 230, 35, "This FIATer is to be used when a client has ABAWD months in their 36 month lookback period available, but there are extra months coded on the ABAWD tracking record due to banked months or 2nd set eligibilty, and the case is failing the 'ABAWD - 3/36 MONTH' person test. "
+  Text 10, 90, 230, 35, "This FIATer is to be used when a client has ABAWD months in their 36 month lookback period available, but there are extra months coded on the ABAWD tracking record due to 2nd set eligibilty, and the case is failing the 'ABAWD - 3/36 MONTH' person test. "
   Text 10, 135, 225, 20, " See POLI/TEMP TE02.06.02 'Known problems affecting SNAP elig' for detailed information."
 EndDialog
 
