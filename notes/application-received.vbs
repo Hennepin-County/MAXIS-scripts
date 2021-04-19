@@ -128,6 +128,9 @@ Do
 	Loop until err_msg = ""
 CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
+
+MAXIS_background_check
+
 '---------------------------------------------------------------------------------------------'pending & active programs information
 'information gathering to auto-populate the application date
 
