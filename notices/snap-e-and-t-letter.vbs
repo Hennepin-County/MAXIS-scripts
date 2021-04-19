@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("04/19/2021", "Removed Banked Months option for referral. Temporarily removed ABAWD and ABAWD 2nd set for referral option during federal ABAWD waiver.", "Ilse Ferris, Hennepin County")
 call changelog_update("02/13/2019", "Added all 2019 county holidays as unavailable orientation dates to select.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/17/2018", "Added functionality to block Christmas Day and New Year's day as potential orientation dates.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/04/2018", "Updated orientation letter functionality to send SPEC/MEMO. SPEC/LETR retired on 12/01/18.", "Ilse Ferris, Hennepin County")
@@ -85,7 +86,8 @@ BeginDialog Dialog1, 0, 0, 456, 130, "SNAP E&T Appointment Letter"
   EditBox 100, 10, 55, 15, MAXIS_case_number
   EditBox 220, 10, 75, 15, member_number
   DropListBox 100, 35, 195, 15, "Select one..."+chr(9)+"Somali-language (Sabathani, next Tuesday @ 2:00 p.m.)"+chr(9)+"Central NE (HSB, next Wednesday @ 2:00 p.m.)"+chr(9)+"North (HSB, next Wednesday @ 10:00 a.m.)"+chr(9)+"Northwest(Brookdale, next Monday @ 2:00 p.m.)"+chr(9)+"South Mpls (Sabathani, next Tuesday @ 10:00 a.m.)"+chr(9)+"South Suburban (Sabathani, next Tuesday @ 10:00 a.m.)"+chr(9)+"West (Sabathani, next Tuesday @ 10:00 a.m.)", interview_location
-  DropListBox 100, 60, 110, 15, "Select one..."+chr(9)+"ABAWD (3/36 mo.)"+chr(9)+"ABAWD 2nd Set"+chr(9)+"Banked months"+chr(9)+"Other referral"+chr(9)+"Student"+chr(9)+"Working with CBO", manual_referral
+  DropListBox 100, 60, 110, 15, "Select one..."+chr(9)+"Other referral"+chr(9)+"Student"+chr(9)+"Working with CBO", manual_referral
+  'DropListBox 100, 60, 110, 15, "Select one..."+chr(9)+"ABAWD (3/36 mo.)"+chr(9)+"ABAWD 2nd Set"+chr(9)+"Other referral"+chr(9)+"Student"+chr(9)+"Working with CBO", manual_referral
   EditBox 100, 80, 195, 15, other_referral_notes
   EditBox 100, 105, 85, 15, worker_signature
   ButtonGroup ButtonPressed
@@ -245,9 +247,7 @@ For each member_number in member_array
 
     'Ensuring that the ABAWD_status is "13" for banked months manual referral recipients
     EMReadScreen ABAWD_status, 2, 13, 50
-    If manual_referral = "Banked months" then
-        if ABAWD_status <> "13" then script_end_procedure("Member " & member_number & " is not coded as a banked months recipient. The script will now end.")
-    Elseif manual_referral = "ABAWD 2nd Set" then
+    If manual_referral = "ABAWD 2nd Set" then
         if ABAWD_status <> "11" then script_end_procedure("Member " & member_number & " is not coded as ABAWD 2nd set. The script will now end.")
     Elseif manual_referral = "ABAWD (3/36 mo.)" then
         if ABAWD_status <> "10" then script_end_procedure("Member " & member_number & " is not coded as ABAWD. The script will now end.")
@@ -270,7 +270,7 @@ Next
 For each member_number in member_array
     'The CASE/NOTE----------------------------------------------------------------------------------------------------
     start_a_blank_CASE_NOTE         'Navigates to a blank case note
-    CALL write_variable_in_case_note("***SNAP E&T Appointment Letter Sent for MEMB " & member_number & " ***")
+    CALL write_variable_in_case_note("***SNAP E&T Appointment Letter Sent for MEMB " & member_number & "***")
     Call write_variable_in_case_note("* Member referred to E&T: #" &  member_number & ", " & client_name)
     CALL write_bullet_and_variable_in_case_note("Appointment date", appointment_date)
     CALL write_bullet_and_variable_in_case_note("Appointment time", appointment_time_prefix_editbox & ":" & appointment_time_post_editbox & " " & AM_PM)
@@ -313,9 +313,7 @@ Next
 'Manual referral creation if banked months are used
 Call navigate_to_MAXIS_screen("INFC", "WF1M")			'navigates to WF1M to create the manual referral'
 EMWriteScreen "99", 4, 47								'this is the manual referral code that DHS has approved
-If manual_referral = "Banked months" then
-	EMWriteScreen "Banked ABAWD month referral, initial month - Voluntary", 17, 6	'DHS wants these referrals marked, this marks them
-ELSEIF manual_referral = "Student" then
+IF manual_referral = "Student" then
 	EMWriteScreen "Student", 17, 6
 ELSEIF manual_referral = "Working with CBO" then
 	EMWriteScreen "Working with Community Based Organization", 17, 6
@@ -351,5 +349,5 @@ EMWriteScreen appointment_date & ", " & appointment_time_prefix_editbox & ":" & 
 PF3
 Call write_value_and_transmit("Y", 11, 64)		'Y to confirm save and saves referral
 
-script_end_procedure("Your orientation letter, WF1M (manual) referral and case note have been created. Navigate to SPEC/MEMO if you want to review the notice sent to the client." & _
-vbNewLine & vbNewLine & "Please ensure that you have sent the form ""ABAWD FS RULES"" to the client.")
+script_end_procedure("Your orientation letter, WF1M (manual) referral and case note have been created. Navigate to SPEC/MEMO if you want to review the notice sent to the client.")
+'vbNewLine & vbNewLine & "Please ensure that you have sent the form ""ABAWD FS RULES"" to the client.")
