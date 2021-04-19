@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("04/19/2021", "Changed name of field from ABAWD/2ND SET/BANKED INFO to COUNTED ABAWD MONTHS INFO. Also made field optional during federal ABAWD waiver.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("09/07/2018", "Added 2nd set to the ABAWD/Banked Months information field.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("12/29/2017", "Coordinates for sending MEMO's has changed in SPEC/MEMO. Updated script to support change.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/11/2017", "Added ABAWD/Banked Months information field to be completed when users are closing SNAP. Hennepin users only: Added option to send probate information via SPEC/MEMO if a HC notice is not found.", "Ilse Ferris, Hennepin County")
@@ -88,7 +89,7 @@ BeginDialog Dialog1, 0, 0, 481, 265, "Closed Programs"
   EditBox 70, 25, 55, 15, closure_date
   EditBox 85, 45, 180, 15, reason_for_closure
   EditBox 110, 65, 155, 15, verifs_needed
-  EditBox 110, 85, 155, 15, ABAWD_BankedMonths
+  EditBox 110, 85, 155, 15, counted_ABAWD_months
   EditBox 175, 105, 90, 15, open_progs
   CheckBox 10, 140, 210, 10, "Case is at cash/SNAP renewal (monthy, six-month, annual)", CSR_check
   CheckBox 10, 155, 115, 10, "Case is at HC annual renewal.", HC_ER_check
@@ -100,12 +101,12 @@ BeginDialog Dialog1, 0, 0, 481, 265, "Closed Programs"
   CheckBox 15, 240, 120, 10, "Sent DHS-5181 to Case Manager", sent_5181_check
   CheckBox 280, 205, 90, 10, "WCOM Added To Notice:", WCOM_check
   CheckBox 280, 220, 65, 10, "Updated MMIS?", updated_MMIS_check
-  EditBox 260, 240, 105, 15, worker_signature
+  EditBox 215, 240, 150, 15, worker_signature
   ButtonGroup ButtonPressed
-	OkButton 370, 240, 50, 15
-	CancelButton 425, 240, 50, 15
-	PushButton 385, 175, 50, 10, "HCPM - EPM", HC_EPM_Button
-	PushButton 375, 205, 50, 10, "SPEC/WCOM", SPEC_WCOM_button
+    OkButton 370, 240, 50, 15
+    CancelButton 425, 240, 50, 15
+    PushButton 385, 175, 50, 10, "HCPM - EPM", HC_EPM_Button
+    PushButton 375, 205, 50, 10, "SPEC/WCOM", SPEC_WCOM_button
   Text 10, 30, 55, 10, "Date Of Closure:"
   Text 10, 50, 70, 10, "Reason For Closure:"
   Text 10, 70, 100, 10, "Verifications/Info Still Needed:"
@@ -118,11 +119,12 @@ BeginDialog Dialog1, 0, 0, 481, 265, "Closed Programs"
   GroupBox 280, 130, 195, 65, "IMPORTANT - Note for HC: "
   Text 10, 10, 50, 10, "Case Number:"
   Text 285, 140, 180, 25, "This script does not case note REIN dates for HC, due to the ever changing nature of these programs at this time. Please refer to current policy. "
-  Text 195, 245, 60, 10, "Worker Signature: "
+  Text 155, 245, 60, 10, "Worker Signature: "
   Text 285, 175, 95, 10, "For more information refer to:"
   Text 130, 10, 50, 10, "Progs Closed:"
-  Text 10, 90, 100, 10, "ABAWD/2nd Set/Banked info: "
+  Text 10, 90, 100, 10, "Counted ABAWD Months Info:"
 EndDialog
+
 'Dialog starts: includes nav button for SPEC/WCOM, validates the date of closure, confirms that date of closure is last day of a month, checks that a program was selected for closure, and navigates to CASE/NOTE
 DO
 	DO
@@ -142,7 +144,7 @@ DO
 		If Sanction_checkbox = 1 and trim(sanction_months) = "" then err_msg = err_msg & vbNewline & "* Enter the number of sanction months."
 		IF (Sanction_checkbox <> 1 AND sanction_months <> "") THEN err_msg = err_msg & vbNewline & "* Check the box for sanction, or remove the number of sanction months."
 		If SNAP_check = 0 and HC_check = 0 and cash_check = 0 THEN err_msg = err_msg & vbNewline & "* Select a program(s) to close."
-		If SNAP_check = 1 and trim(ABAWD_BankedMonths) = "" then err_msg = err_msg & vbNewline & "* Please enter ABAWD info, or banked months info if applicable."
+		'If SNAP_check = 1 and trim(counted_ABAWD_months) = "" then err_msg = err_msg & vbNewline & "* Please enter counted ABAWD months information if applicable."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
@@ -296,7 +298,7 @@ IF death_check = 1 AND snap_check = 1 THEN call write_bullet_and_variable_in_cas
 IF death_check = 1 AND cash_check = 1 THEN call write_bullet_and_variable_in_case_note("CASH Closure Date", closure_date)
 call write_bullet_and_variable_in_case_note("Reason for closure", reason_for_closure)
 Call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)
-Call write_bullet_and_variable_in_case_note("ABAWD/Banked Months info", ABAWD_BankedMonths)
+Call write_bullet_and_variable_in_case_note("Counted ABAWD Months Info", counted_ABAWD_months)
 If updated_MMIS_check = 1 then call write_variable_in_case_note("* Updated MMIS.")
 If WCOM_check = 1 then call write_variable_in_case_note("* Added WCOM to notice.")
 If CSR_check = 1 then call write_bullet_and_variable_in_case_note("Case is at renewal", "Client has an additional month to turn in the document and any required proofs.")
