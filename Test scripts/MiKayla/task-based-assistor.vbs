@@ -615,6 +615,7 @@ Function HSR_LIST
     IF assigned_to = "Lauren A John" THEN worker_number = "X127ZAJ"
     IF assigned_to = "Amy N Kelvie" THEN worker_number =  "X127ZAK"
     IF assigned_to = "Darren Konsor" THEN worker_number = "X127ZAL"
+	IF worker_number = "" THEN worker_number = "REVIEW"
 END FUNCTION
     'THE SCRIPT-----------------------------------------------------------------------------------------------------------
 EMConnect ""
@@ -634,7 +635,7 @@ BeginDialog Dialog1, 0, 0, 266, 115, "TASK BASED REVIEW"
     OkButton 150, 95, 50, 15
     CancelButton 205, 95, 50, 15
   EditBox 15, 50, 180, 15, file_selection_path
-  Text 20, 20, 235, 25, "This script should be used for task based review on a list of pending SNAP and/or MFIP cases."
+  Text 20, 20, 235, 25, "This script should be used for task based review on a list of cases."
   Text 15, 70, 230, 15, "Select the Excel file that contains your information by selecting the 'Browse' button, and finding the file."
   GroupBox 10, 5, 250, 85, "Using this script:"
 EndDialog
@@ -657,308 +658,179 @@ Call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens 
 'objExcel.worksheets("Report 1").Activate                                 'Activates the initial BOBI report
 
 'Establishing array
-DIM task_based_array()           'Declaring the array
-ReDim task_based_array(18, 0)     'Resizing the array
-'Creating constants to value the array elements
+DIM task_based_array()           'Declaring the array this is what this list is
+ReDim task_based_array(interview_const, 0)     'Resizing the array 'that ,list is goign to have 20 parameter but to start with there is only one paparmeter it gets complicated - grid'
+'for each row the column is going to be the same information type
+'Creating constants to value the array elements this is why we create constants
 const date_assigned_const       = 0 '= "Date Assigned"
-const SSR_name_const	        = 1 '= "SSR Name"
-const maxis_case_number_const 	= 2 '= "Case Number"
+const excel_row_const			= 1 '=
+const maxis_case_number_const 	= 2 '= "Case Number" - pretend this means 2
 const case_name_const       	= 3 '= "Case Name"
-const basket_const  			= 4 '= "Basket"
-const assigned_to_const    		= 5 '= "Assigned to"
-const worker_number_const       = 6 '= "Assigned Worker X127#"
-const do_this_const        		= 7 '= "Does worker log indicate they could work the case?"
-const case_logged_const         = 8 '= "Case logged by assigned worker?"
-const case_note_date_const      = 9  '= "Case Note Date"
-const case_note_match_const     = 10 '= "Worker who made case note same as assigned worker"
-const case_note_keyword_const   = 11 '= "Does case note title contain keyword"
-const total_DAIL_count_const   	= 12 '= "DAIL Count"
-const action_DAIL_count_const   = 13 '= "DAIL Type"
-const ECF_type_const            = 14 '= "EWS ECF Item Count"
-const ECF_form_const            = 15 '= "ECF Form Types"
-const oldest_APPL_date_const    = 16 '= "Oldest ECF APPL Date"
-const prev_comments_const       = 17 '= "Comments"
-const case_status_const 		= 18 '= "Pending over 30 days"
-const interview_const           = 19 '= "Interview Completed"
+const assigned_to_const    		= 4 '= "Assigned to"
+const worker_number_const       = 5 '= "Assigned Worker X127#"
+const case_note_count_const     = 6 '=
+const DAIL_count_const   		= 7 '= "DAIL Count"
+const case_status_const 		= 8 '=
+const interview_const           = 9 '= "Interview Completed"
+
+const excel_col_date_assigned 	= 1
+const excel_col_case_number 	= 3
+const excel_col_assigned_to 	= 6
+const excel_col_case_name 		= 4
+const excel_col_worker_number	= 7
+const excel_col_case_note_count	= 11
+const excel_col_DAIL_count		= 14
+const excel_col_case_status 	= 19
+const excel_col_interview		= 20
 
 'Now the script adds all the clients on the excel list into an array
-excel_row = 5                   're-establishing the row to start based on when Report 1 starts
+excel_row = 2                   're-establishing the row to start based on when picking up the information
 entry_record = 0                'incrementor for the array and count
-all_case_numbers_array = "*"    'setting up string to find duplicate case numbers
-Do
+
+Do 'purpose is to read each excel row and to add intoo each excell array '
     'Reading information from the Excel
-    worker_number = objExcel.cells(excel_row, 6).Value
-    worker_number = trim(worker_number)
-
-    MAXIS_case_number = objExcel.cells(excel_row, 2).Value
+    MAXIS_case_number = objExcel.cells(excel_row, excel_col_case_number).Value
     MAXIS_case_number = trim(MAXIS_case_number)
-    If MAXIS_case_number = "" then exit do
+    IF MAXIS_case_number = "" then exit do
 
-    application_date = objExcel.cells(excel_row, 15).Value
-    interview_date   = objExcel.cells(excel_row, 19).Value
-
-    days_pending = datediff("D", application_date, date)
-
-    'If the case number is found in the string of case numbers, it's not added again.
-    If instr(all_case_numbers_array, "*" & MAXIS_case_number & "*") then
-        add_to_array = False
-    Else
-        'Adding client information to the array
-        ReDim Preserve task_based_array(19, entry_record)	'This resizes the array based on the number of cases
-
-		task_based_array(date_assigned_const,      entry_record) = ""
-		task_based_array(SSR_name_const, 		   entry_record) = ""
-		task_based_array(maxis_case_number_const,  entry_record) = ""
-		task_based_array(case_name_const,          entry_record) = ""
-		task_based_array(basket_const,  		   entry_record) = ""
-		task_based_array(assigned_to_const,        entry_record) = ""
-		task_based_array(worker_number_const,      entry_record) = ""
-		task_based_array(do_this_const,            entry_record) = ""
-		task_based_array(case_logged_const,    	   entry_record) = ""
-		task_based_array(case_note_count_const,     entry_record) = ""
-		task_based_array(case_note_date_const,     entry_record) = ""
-		task_based_array(case_note_match_const,    entry_record) = ""
-		task_based_array(case_note_keyword_const,  entry_record) = ""
-		task_based_array(total_DAIL_count_const,   entry_record) = ""
-		task_based_array(DAIL_count_const,         entry_record) = ""
-		task_based_array(ECF_form_const,   		   entry_record) = ""
-		task_based_array(ECF_type_const,           entry_record) = ""
-		task_based_array(oldest_APPL_date_const,   entry_record) = ""
-		task_based_array(prev_comments_const,      entry_record) = ""
-		task_based_array(case_status_const,        entry_record) = ""
-		task_based_array(interview_const,          entry_record) = ""  '= "Interview Completed"
+            'Adding client information to the array
+    ReDim Preserve task_based_array(interview_const, entry_record)	'This resizes the array based on the number of cases
+		task_based_array(date_assigned_const,      entry_record) = trim(objExcel.cells(excel_row, excel_col_date_assigned).Value)
+		task_based_array(maxis_case_number_const,  entry_record) = MAXIS_case_number
+		task_based_array(assigned_to_const,        entry_record) = trim(objExcel.cells(excel_row, excel_col_assigned_to).Value)
+		task_based_array(excel_row_const,          entry_record) = excel_row
 		'making space in the array for these variables, but valuing them as "" for now
-
         entry_record = entry_record + 1			'This increments to the next entry in the array
         stats_counter = stats_counter + 1       'Increment for stats counter
-    End if
     excel_row = excel_row + 1
 Loop
 
 back_to_self                            'resetting MAXIS back to self before getting started
 Call MAXIS_footer_month_confirmation	'ensuring we are in the correct footer month/year
-
+worker_number = "" 'clearing for the function'
 'Loading of cases is complete. Reviewing the cases in the array.
 For item = 0 to UBound(task_based_array, 2)
-    worker_number       = task_based_array(worker_number_const,    item)     're-valuing array variables
-    MAXIS_case_number   = task_based_array(case_number_const,      item)
-    program_ID          = task_based_array(program_ID_const,       item)
-    days_pending        = task_based_array(days_pending_const,     item)
-    application_date    = task_based_array(application_date_const, item)
-	MAXIS_case_name     = task_based_array(application_date_const, item)
+
+    MAXIS_case_number   = task_based_array(maxis_case_number_const, item)
 	date_assigned		= task_based_array(date_assigned_const,    item)
 	assigned_to     	= task_based_array(assigned_to_const,      item)
-	case_note_count		= task_based_array(case_note_count_const,  item)
-	DAIL_count   		= task_based_array(DAIL_count_const,       item)
-	CALL HSR_LIST 'this will get our worker number and name '
-
+	'MsgBox "assigned_to ~" & assigned_to & "~"
+	CALL HSR_LIST 'this will get our worker number and name defines worker_number'
+	'MsgBox "worker_number ~" & worker_number & "~"
+	task_based_array(worker_number_const,      item) = worker_number ' saves it to our array '
+	worker_number = "" 'clearing for the function'
 	'setting the footer month to make the updates in'
-	CALL convert_date_into_MAXIS_footer_month(date_received, MAXIS_footer_month, MAXIS_footer_year)
+	CALL convert_date_into_MAXIS_footer_month(date_assigned, MAXIS_footer_month, MAXIS_footer_year)
 	CALL MAXIS_footer_month_confirmation
-    Call navigate_to_MAXIS_screen("STAT", "PROG")
-    	EMReadScreen priv_check, 4, 24, 14 'If it can't get into the case needs to skip - checking in PROD and INQUIRY
-    IF priv_check = "PRIV" then                                             'PRIV cases
-        EMReadscreen priv_worker, 26, 24, 46
-        task_based_array(case_status_const, item) = trim(priv_worker)
-        task_based_array(do_this_const, item) = "Privileged Cases"
-    ELSE
-        EMReadScreen county_code, 4, 21, 21                                 'Out of county cases from STAT
-        If county_code <> "X127" then
-            task_based_array(case_status_const, item) = "OUT OF COUNTY CASE"
-        End if
-	'ELSE
-		'EMReadScreen case_invalid_error, 72, 24, 2 'if a person enters an invalid footer month for the case the script will attempt to  navigate'
-		'task_based_array(case_status_const, item) = trim(case_invalid_error)
-		'task_based_array(do_this_const, item) = "Error Message"
-		'PF10
-	END IF
-	'Reading the app date from PROG need to compare for over 30 days and the interview stuffs
-	EMReadScreen cash1_app_date, 8, 6, 33
-	cash1_app_date = replace(cash1_app_date, " ", "/")
-	EMReadScreen cash2_app_date, 8, 7, 33
-	cash2_app_date = replace(cash2_app_date, " ", "/")
-	EMReadScreen emer_app_date, 8, 8, 33
-	emer_app_date = replace(emer_app_date, " ", "/")
-	EMReadScreen grh_app_date, 8, 9, 33
-	grh_app_date = replace(grh_app_date, " ", "/")
-	EMReadScreen snap_app_date, 8, 10, 33
-	snap_app_date = replace(snap_app_date, " ", "/")
-	EMReadScreen ive_app_date, 8, 11, 33
-	ive_app_date = replace(ive_app_date, " ", "/")
-	EMReadScreen hc_app_date, 8, 12, 33
-	hc_app_date = replace(hc_app_date, " ", "/")
-	EMReadScreen cca_app_date, 8, 14, 33
-	cca_app_date = replace(cca_app_date, " ", "/")
-
-' was an interview completed on the assingment day '
-	CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
-    IF access_denied_check = "ACCESS DENIED" Then
-        PF10
-        last_name = "UNABLE TO FIND"
-        first_name = ""
-        mid_initial = ""
-    ELSE
-        EMReadscreen last_name, 25, 6, 30
-        EMReadscreen first_name, 12, 6, 63
-        last_name = trim(replace(last_name, "_", ""))
-        first_name = trim(replace(first_name, "_", ""))
-    	MAXIS_case_name = first_name & " "  & last_name
-	END IF
-	task_based_array(MAXIS_case_name_const, item) = MAXIS_case_name
-
 	CALL ONLY_create_MAXIS_friendly_date(date_assigned)
-    CALL navigate_to_MAXIS_screen("CASE", "NOTE")
+	CALL navigate_to_MAXIS_screen("CASE", "NOTE")
     MAXIS_row = 5                      'Defining row for the search feature.
 	case_note_count = 0			'setting to zero'
 	interview_done = False
 
-	Call ONLY_create_MAXIS_friendly_date(date_assigned)
-	Do
-		EMReadscreen case_note_date, 8, MAXIS_row, 6
-		If trim(case_note_date) = "" then
-			exit do
-		Else
-			IF case_note_date = date_assigned THEN
-				EMReadScreen case_note_worker_number, 7, MAXIS_row, 16
-				IF worker_number = case_note_worker_number THEN
-					case_note_count = case_note_count + 1
-					EMReadScreen case_note_header, 55, MAXIS_row, 25
-                	case_note_header = lcase(trim(case_note_header))
-					If instr(case_note_header, "Interview Completed") then interview_done = True 	'TODO: check the string for case ntoe header & output results to array & excel
-                END IF
-            End if
-		END IF
+    EMReadScreen priv_check, 4, 24, 14 'If it can't get into the case needs to skip - checking in PROG and INQUIRY
+	EMReadScreen county_code, 4, 21, 14                             'Out of county cases from STAT
+	EMReadScreen case_invalid_error, 72, 24, 2 'if a person enters an invalid footer month for the case the script will attempt to  navigate'
+    IF priv_check = "PRIV" then                                             'PRIV cases
+        EMReadscreen priv_worker, 26, 24, 46
+        task_based_array(case_status_const, item) = trim(priv_worker)
+    ELSEIf county_code <> "X127" then
+        task_based_array(case_status_const, item) = "OUT OF COUNTY CASE"
+    ELSEIF instr(case_invalid_error, "IS INVALID") THEN  'CASE xxxxxxxx IS INVALID FOR PERIOD 12/99
+		task_based_array(case_status_const, item) = trim(case_invalid_error)
+	ELSE
+		EMReadScreen MAXIS_case_name, 27, 21, 40
+		'MsgBox "MAXIS_case_name ~" & MAXIS_case_name & "~"
+		task_based_array(case_name_const, item) = trim(MAXIS_case_name)
+    	Do
+    		EMReadscreen case_note_date, 8, MAXIS_row, 6
+    		If trim(case_note_date) = "" then
+    			exit do
+    		Else
+    			IF case_note_date = date_assigned THEN
+    				EMReadScreen case_note_worker_number, 7, MAXIS_row, 16
+    				IF worker_number = case_note_worker_number THEN
+    					case_note_count = case_note_count + 1
+    					EMReadScreen case_note_header, 55, MAXIS_row, 25
+                    	case_note_header = lcase(trim(case_note_header))
+    					If instr(case_note_header, "Interview Completed") then task_based_array(interview_const, item) = "TRUE"
+                    END IF
+                End if
+    		END IF
+    	    MAXIS_row = MAXIS_row + 1
+    		IF MAXIS_row = 19 then
+                PF8                         'moving to next case note page if at the end of the page
+                MAXIS_row = 5
+    		End if
+        LOOP until cdate(case_note_date) < cdate(date_assigned)                        'repeats until the case note date is less than the assignment date
+    	task_based_array(case_note_count_const, item) = case_note_count
 
-	    MAXIS_row = MAXIS_row + 1
-		IF MAXIS_row = 19 then
-            PF8                         'moving to next case note page if at the end of the page
-            MAXIS_row = 5
-		End if
-    LOOP until cdate(case_note_date) < cdate(date_assigned)                        'repeats until the case note date is less than the assignment date
+    	CALL navigate_to_MAXIS_screen("DAIL", "DAIL")
+    	DO
+    		EMReadScreen dail_check, 4, 2, 48
+    		If next_dail_check <> "DAIL" then CALL navigate_to_MAXIS_screen("DAIL", "DAIL")
+    	Loop until dail_check = "DAIL"
 
-	CALL navigate_to_MAXIS_screen("DAIL", "DAIL")
-	DO
-		EMReadScreen dail_check, 4, 2, 48
-		If next_dail_check <> "DAIL" then CALL navigate_to_MAXIS_screen("DAIL", "DAIL")
-	Loop until dail_check = "DAIL"
+    	DAIL_count = 0	'these are the actionable DAIL counts only
+    	dail_row = 5			'Because the script brings each new case to the top of the page, dail_row starts at 6.
+    	DO
+    		EmReadscreen number_of_dails, 1, 3, 67	'Reads where there count of dAILS is listed
+    		If number_of_dails = " " Then exit do		'if this space is blank the rest of the DAIL reading is skipped
 
-	DAIL_count = 0	'these are the actionable DAIL counts only
-	dail_row = 5			'Because the script brings each new case to the top of the page, dail_row starts at 6.
-	DO
-		EmReadscreen number_of_dails, 1, 3, 67	'Reads where there count of dAILS is listed
-		If number_of_dails = " " Then exit do		'if this space is blank the rest of the DAIL reading is skipped
+    		EMReadScreen DAIL_case_number, 8, dail_row, 73
+    		DAIL_case_number = trim(DAIL_case_number)
+    		If DAIL_case_number <> MAXIS_case_number then exit do
 
-		EMReadScreen DAIL_case_number, 8, dail_row, 73
-		DAIL_case_number = trim(DAIL_case_number)
-		If DAIL_case_number <> MAXIS_case_number then exit do
+    	    'Determining if there is a new case number...
+    	    EMReadScreen new_case, 8, dail_row, 63
+    	    new_case = trim(new_case)
+    	    IF new_case <> "CASE NBR" THEN '...if there is NOT a new case number, the script will read the DAIL type, month, year, and message...
+    	        Call write_value_and_transmit("T", dail_row, 3)
+    	        dail_row = 6
+    	    ELSEIF new_case = "CASE NBR" THEN
+    	        '...if the script does find that there is a new case number (indicated by "CASE NBR"), it will write a "T" in the next row and transmit, bringing that case number to the top of your DAIL
+    	        Call write_value_and_transmit("T", dail_row + 1, 3)
+    	        dail_row = 6
+    	    End if
 
-	    'Determining if there is a new case number...
-	    EMReadScreen new_case, 8, dail_row, 63
-	    new_case = trim(new_case)
-	    IF new_case <> "CASE NBR" THEN '...if there is NOT a new case number, the script will read the DAIL type, month, year, and message...
-	        Call write_value_and_transmit("T", dail_row, 3)
-	        dail_row = 6
-	    ELSEIF new_case = "CASE NBR" THEN
-	        '...if the script does find that there is a new case number (indicated by "CASE NBR"), it will write a "T" in the next row and transmit, bringing that case number to the top of your DAIL
-	        Call write_value_and_transmit("T", dail_row + 1, 3)
-	        dail_row = 6
-	    End if
+    	    EMReadScreen dail_type, 4, dail_row, 6
 
-	    EMReadScreen dail_type, 4, dail_row, 6
+    	    EMReadScreen dail_msg, 61, dail_row, 20
+    	    dail_msg = trim(dail_msg)
 
-	    EMReadScreen dail_msg, 61, dail_row, 20
-	    dail_msg = trim(dail_msg)
+    	    EMReadScreen dail_month, 8, dail_row, 11
+    	    dail_month = trim(dail_month)
 
-	    EMReadScreen dail_month, 8, dail_row, 11
-	    dail_month = trim(dail_month)
+    	    Call non_actionable_dails(actionable_dail)   'Function to evaluate the DAIL messages
+    	    IF actionable_dail = True then dail_count = dail_count + 1
 
-	    Call non_actionable_dails(actionable_dail)   'Function to evaluate the DAIL messages
-	    IF actionable_dail = True then dail_count = dail_count + 1
+    	    dail_row = dail_row + 1
+    	Loop
 
-	    dail_row = dail_row + 1
-	Loop
-
-	'TODO: output dail_count into array
-
-	'1918125' fUNCTIOONALTIY
-	EMReadScreen message_error, 11, 24, 2		'Cases can also NAT out for whatever reason if the no messages instruction comes up.
-
-	If message_error = "NO MESSAGES" then 'NO MESSAGES FOR CASE XXXXXXXX SELECTED-PF5 FOR TOP
-		CALL navigate_to_MAXIS_screen("DAIL", "DAIL")
-		Call write_value_and_transmit(worker, 21, 6)
-		TRANSMIT  'transmit past 'THIS IS NOT YOUR DAIL REPORT
-    	exit do
-	End if
-    'End if
+		task_based_array(DAIL_count_const, item)  = DAIL_count
+	END IF
+	Call back_to_self
 Next
 
-'Excel output of cases and information in their applicable categories - PRIV, Req EXP Processing, Exp Screening Required, Not Expedited
-Msgbox "Output to Excel Starting."      'warning message to whomever is running the script
+objExcel.Columns(1).NumberFormat = "mm/dd/yy"					'formats the date column as MM/DD/YY
+objExcel.Columns(10).NumberFormat = "mm/dd/yy"					'formats the date column as MM/DD/YY
+objExcel.Columns(17).NumberFormat = "mm/dd/yy"					'formats the date column as MM/DD/YY
 
-'time line of actual runs
-'todo save as copy and see how long it takes to run their actual list'
+For item = 0 to UBound(task_based_array, 2)
+	excel_row = task_based_array(excel_row_const,          item)
+    objExcel.Cells(excel_row, excel_col_case_name).Value  = task_based_array(case_name_const,         item)
+    objExcel.Cells(excel_row, excel_col_worker_number).Value  = task_based_array(worker_number_const,     item)
+    objExcel.Cells(excel_row, excel_col_case_note_count).Value = task_based_array(case_note_count_const,   item)
+    objExcel.Cells(excel_row, excel_col_DAIL_count).Value = task_based_array(DAIL_count_const,        item)
+    objExcel.Cells(excel_row, excel_col_case_status).Value = task_based_array(case_status_const,       item)
+    objExcel.Cells(excel_row, excel_col_interview).Value = task_based_array(interview_const,         item)
+Next
 
-    ObjExcel.Worksheets.Add().Name = task_status
-	ObjExcel.Cells(1, 1).Value = "Date Assigned"
-	ObjExcel.Cells(1, 2).Value = "SSR Name"
-	ObjExcel.Cells(1, 3).Value = "Case Number"
-	ObjExcel.Cells(1, 4).Value = "Case Name"
-	ObjExcel.Cells(1, 5).Value = "Basket"
-	ObjExcel.Cells(1, 6).Value = "Assigned to"
-	ObjExcel.Cells(1, 7).Value = "Assigned Worker X127#"
-	ObjExcel.Cells(1, 8).Value = "Does worker log indicate they could work the case?"
-	ObjExcel.Cells(1, 9).Value = "Case logged by assigned worker?"
-	ObjExcel.Cells(1, 10).Value = "Case Note Date"
-	ObjExcel.Cells(1, 11).Value = "Worker who made case note same as assigned worker"
-	ObjExcel.Cells(1, 12).Value = "Does case note title contain keyword"
-	ObjExcel.Cells(1, 13).Value = "DAIL Count"
-	ObjExcel.Cells(1, 14).Value = "DAIL Type"
-	ObjExcel.Cells(1, 15).Value = "EWS ECF Item Count"
-	ObjExcel.Cells(1, 16).Value = "ECF Form Types"
-	ObjExcel.Cells(1, 17).Value = "Oldest ECF APPL Date"
-	ObjExcel.Cells(1, 18).Value = "Comments"
-	ObjExcel.Cells(1, 19).Value = "Pending over 30 days"
-	ObjExcel.Cells(1, 20).Value = "Interview Completed"
 
-	objExcel.Columns(1).NumberFormat = "mm/dd/yy"					'formats the date column as MM/DD/YY
-    objExcel.Columns(10).NumberFormat = "mm/dd/yy"					'formats the date column as MM/DD/YY
-    objExcel.Columns(17).NumberFormat = "mm/dd/yy"					'formats the date column as MM/DD/YY
+FOR i = 1 to 20							'formatting the cells'
+	objExcel.Columns(i).AutoFit()		'sizing the columns'
+NEXT
 
-    Excel_row = 2
+STATS_counter = STATS_counter - 1         'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
 
-    For item = 0 to UBound(task_based_array, 2)
-	    objExcel.Cells(excel_row, 1).Value = task_based_array(date_assigned_const,      item)
-	    objExcel.Cells(excel_row, 2).Value = task_based_array(SSR_name_const, 		    item)
-	    objExcel.Cells(excel_row, 3).Value = task_based_array(maxis_case_number_const,  item) = MAXIS_case_number
-	    objExcel.Cells(excel_row, 4).Value = task_based_array(case_name_const,          item) = MAXIS_case_name
-	    objExcel.Cells(excel_row, 5).Value = task_based_array(basket_const,  		    item) = ""
-	    objExcel.Cells(excel_row, 6).Value = task_based_array(assigned_to_const,        item) = ""
-	    objExcel.Cells(excel_row, 7).Value = task_based_array(worker_number_const,      item) = worker_number
-	    objExcel.Cells(excel_row, 8).Value = task_based_array(do_this_const,            item)
-	    objExcel.Cells(excel_row, 9).Value = task_based_array(case_logged_const,    	item)
-	    objExcel.Cells(excel_row, 10).Value = task_based_array(case_note_date_const,    item)
-	    objExcel.Cells(excel_row, 11).Value = task_based_array(case_note_match_const,   item)
-	    objExcel.Cells(excel_row, 12).Value = task_based_array(case_note_keyword_const, item)
-	    objExcel.Cells(excel_row, 13).Value = task_based_array(total_DAIL_count_const,  item)
-	    objExcel.Cells(excel_row, 14).Value = task_based_array(action_DAIL_count_const, item)
-	    objExcel.Cells(excel_row, 15).Value = task_based_array(ECF_form_const,   		item)
-	    objExcel.Cells(excel_row, 16).Value = task_based_array(ECF_type_const,          item)
-	    objExcel.Cells(excel_row, 17).Value = task_based_array(oldest_APPL_date_const,  item) = trim(application_date)
-	    objExcel.Cells(excel_row, 18).Value = task_based_array(prev_comments_const,     item) = program_ID
-	    objExcel.Cells(excel_row, 19).Value = task_based_array(case_status_const,       item) = days_pending
-	    objExcel.Cells(excel_row, 20).Value = task_based_array(interview_const,         item) = trim(interview_date)
-	    'making space in the array for these variables, but valuing them as "" for now
-        excel_row = excel_row + 1
-    Next
-
-    FOR i = 1 to 8		'formatting the cells
-        objExcel.Cells(1, i).Font.Bold = True		'bold font'
-        objExcel.Columns(i).AutoFit()				'sizing the columns'
-    NEXT
-
-objWorkbook.Save()  'saves existing workbook as same name
-objExcel.Quit
-
-'logging usage stats
-STATS_counter = STATS_counter - 1  'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
-script_end_procedure("Success, the run is complete. The workbook has been saved.")
+script_end_procedure("Success!!")
