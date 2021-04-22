@@ -3438,7 +3438,7 @@ function autofill_editbox_from_MAXIS(HH_member_array, panel_read_from, variable_
 	END IF
 	If read_abawd_status = "11" THEN  abawd_status = "ABAWD = Using second set of ABAWD months. Counted second set months: " & second_set_info_list & "."
 	If read_abawd_status = "12" THEN  abawd_status = "ABAWD = RCA or GA recip."
-	If read_abawd_status = "13" THEN  abawd_status = "ABAWD = ABAWD banked months."
+	'If read_abawd_status = "13" THEN  abawd_status = "ABAWD = ABAWD banked months."
 	If read_abawd_status = "__" THEN  abawd_status = "ABAWD = blank"
 
 	variable_written_to = variable_written_to & "Member " & HH_member & "- " & WREG_status & ", " & abawd_status & "; "

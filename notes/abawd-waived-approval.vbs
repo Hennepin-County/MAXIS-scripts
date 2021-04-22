@@ -72,7 +72,6 @@ BeginDialog Dialog1, 0, 0, 126, 100, "Case Number Dialog"
     CancelButton 70, 80, 50, 15
   Text 10, 40, 50, 10, "Case Number:"
   Text 10, 60, 65, 10, "Month of Approval"
-  Text 10, 5, 100, 25, "SNAP Approved as eligible with at least one member with Banked Months."
   Text 10, 5, 100, 25, "SNAP Approved with ABAWD coded in a waivered area."
 EndDialog
 
@@ -722,4 +721,4 @@ Do
     Call convert_date_into_MAXIS_footer_month(next_month, MAXIS_footer_month, MAXIS_footer_year)
 Loop until MAXIS_footer_month = CM_plus_2_mo AND MAXIS_footer_year = CM_plus_2_yr
 
-script_end_procedure_with_error_report("Scuccess! The script has noted information about a case subject to the Banked Month BLITZ process. As this is a new script, please report any issue, concern, bug, or enhancement and we will review and update as we can.")
+script_end_procedure_with_error_report("Success! The script has noted information about a case subject to the Federal ABAWD Waiver. As this is a new script, please report any issue, concern, bug, or enhancement and we will review and update as we can.")

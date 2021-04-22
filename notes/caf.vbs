@@ -1795,7 +1795,7 @@ function update_wreg_and_abawd_notes()
                 If left(ALL_MEMBERS_ARRAY(clt_wreg_status, each_member), 2) = "30" Then
                     If left(ALL_MEMBERS_ARRAY(clt_abawd_status, each_member), 2) = "10" Then clt_currently_is = "ABAWD"
                     If left(ALL_MEMBERS_ARRAY(clt_abawd_status, each_member), 2) = "11" Then clt_currently_is = "SECOND SET"
-                    If left(ALL_MEMBERS_ARRAY(clt_abawd_status, each_member), 2) = "13" Then clt_currently_is = "BANKED"
+                    'If left(ALL_MEMBERS_ARRAY(clt_abawd_status, each_member), 2) = "13" Then clt_currently_is = "BANKED"
                 End If
                 If clt_currently_is <> "" Then
                     full_abawd_info = full_abawd_info & " currently using " & clt_currently_is & " months."
@@ -1804,7 +1804,7 @@ function update_wreg_and_abawd_notes()
                 If ALL_MEMBERS_ARRAY(numb_abawd_used, each_member) <> "" OR trim(ALL_MEMBERS_ARRAY(list_abawd_mo, each_member)) <> "" Then full_abawd_info = full_abawd_info & "; ABAWD months used: " & ALL_MEMBERS_ARRAY(numb_abawd_used, each_member) & " - " & ALL_MEMBERS_ARRAY(list_abawd_mo, each_member)
                 If trim(ALL_MEMBERS_ARRAY(first_second_set, each_member)) <> "" Then full_abawd_info = full_abawd_info & "; 2nd Set used starting: " & ALL_MEMBERS_ARRAY(first_second_set, each_member)
                 If trim(ALL_MEMBERS_ARRAY(explain_no_second, each_member)) <> "" Then full_abawd_info = full_abawd_info & "; 2nd Set not available due to: " & ALL_MEMBERS_ARRAY(explain_no_second, each_member)
-                If trim(ALL_MEMBERS_ARRAY(numb_banked_mo, each_member)) <> "" Then full_abawd_info = full_abawd_info & "; Banked months used: " & ALL_MEMBERS_ARRAY(numb_banked_mo, each_member)
+                'If trim(ALL_MEMBERS_ARRAY(numb_banked_mo, each_member)) <> "" Then full_abawd_info = full_abawd_info & "; Banked months used: " & ALL_MEMBERS_ARRAY(numb_banked_mo, each_member)
                 If trim(ALL_MEMBERS_ARRAY(clt_abawd_notes, each_member)) <> "" Then full_abawd_info = full_abawd_info & "; Notes: " & ALL_MEMBERS_ARRAY(clt_abawd_notes, each_member)
                 full_abawd_info = full_abawd_info & "; "
             End If
@@ -4643,7 +4643,7 @@ Do
                                       Text 15, y_pos, 70, 10, "FSET WREG Status:"
                                       DropListBox 90, y_pos - 5, 130, 45, " "+chr(9)+"03  Unfit for Employment"+chr(9)+"04  Responsible for Care of Another"+chr(9)+"05  Age 60+"+chr(9)+"06  Under Age 16"+chr(9)+"07  Age 16-17, live w/ parent"+chr(9)+"08  Care of Child <6"+chr(9)+"09  Employed 30+ hrs/wk"+chr(9)+"10  Matching Grant"+chr(9)+"11  Unemployment Insurance"+chr(9)+"12  Enrolled in School/Training"+chr(9)+"13  CD Program"+chr(9)+"14  Receiving MFIP"+chr(9)+"20  Pend/Receiving DWP"+chr(9)+"15  Age 16-17 not live w/ Parent"+chr(9)+"16  50-59 Years Old"+chr(9)+"21  Care child < 18"+chr(9)+"17  Receiving RCA or GA"+chr(9)+"30  FSET Participant"+chr(9)+"02  Fail FSET Coop"+chr(9)+"33  Non-coop being referred"+chr(9)+"Blank", ALL_MEMBERS_ARRAY(clt_wreg_status, each_member)
                                       Text 230, y_pos, 55, 10, "ABAWD Status:"
-                                      DropListBox 285, y_pos - 5, 110, 45, " "+chr(9)+"01  WREG Exempt"+chr(9)+"02  Under Age 18"+chr(9)+"03  Age 50+"+chr(9)+"04  Caregiver of Minor Child"+chr(9)+"05  Pregnant"+chr(9)+"06  Employed 20+ hrs/wk"+chr(9)+"07  Work Experience"+chr(9)+"08  Other E and T"+chr(9)+"09  Waivered Area"+chr(9)+"10  ABAWD Counted"+chr(9)+"11  Second Set"+chr(9)+"12  RCA or GA Participant"+chr(9)+"13  ABAWD Banked Months"+chr(9)+"Blank", ALL_MEMBERS_ARRAY(clt_abawd_status, each_member)
+                                      DropListBox 285, y_pos - 5, 110, 45, " "+chr(9)+"01  WREG Exempt"+chr(9)+"02  Under Age 18"+chr(9)+"03  Age 50+"+chr(9)+"04  Caregiver of Minor Child"+chr(9)+"05  Pregnant"+chr(9)+"06  Employed 20+ hrs/wk"+chr(9)+"07  Work Experience"+chr(9)+"08  Other E and T"+chr(9)+"09  Waivered Area"+chr(9)+"10  ABAWD Counted"+chr(9)+"11  Second Set"+chr(9)+"12  RCA or GA Participant"+chr(9)+"Blank", ALL_MEMBERS_ARRAY(clt_abawd_status, each_member)
                                       CheckBox 405, y_pos - 5, 130, 10, "Check here if this person is the PWE", ALL_MEMBERS_ARRAY(pwe_checkbox, each_member)
                                       y_pos = y_pos + 20
                                       Text 15, y_pos, 145, 10, "Number of ABAWD months used in past 36:"
@@ -4656,10 +4656,10 @@ Do
                                       Text 205, y_pos, 130, 10, "If NOT Eligible for Second Set, Explain:"
                                       EditBox 335, y_pos - 5, 200, 15, ALL_MEMBERS_ARRAY(explain_no_second, each_member)
                                       y_pos = y_pos + 20
-                                      Text 15, y_pos, 115, 10, "Number of BANKED months used:"
-                                      EditBox 130, y_pos - 5, 25, 15, ALL_MEMBERS_ARRAY(numb_banked_mo, each_member)
-                                      Text 170, y_pos, 45, 10, "Other Notes:"
-                                      EditBox 220, y_pos - 5, 315, 15, ALL_MEMBERS_ARRAY(clt_abawd_notes, each_member)
+                                      'Text 15, y_pos, 115, 10, "Number of BANKED months used:"
+                                      'EditBox 130, y_pos - 5, 25, 15, ALL_MEMBERS_ARRAY(numb_banked_mo, each_member)
+                                      Text 15, y_pos, 45, 10, "Other Notes:"
+                                      EditBox 60, y_pos - 5, 475, 15, ALL_MEMBERS_ARRAY(clt_abawd_notes, each_member)
 
                                       y_pos = y_pos + 15
                                     End If
