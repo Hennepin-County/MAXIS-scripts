@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("04/22/2021", "Updated reason for closure field to be a mandatory field.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("04/19/2021", "Changed name of field from ABAWD/2ND SET/BANKED INFO to COUNTED ABAWD MONTHS INFO. Also made field optional during federal ABAWD waiver.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("09/07/2018", "Added 2nd set to the ABAWD/Banked Months information field.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("12/29/2017", "Coordinates for sending MEMO's has changed in SPEC/MEMO. Updated script to support change.", "Ilse Ferris, Hennepin County")
@@ -139,7 +140,8 @@ DO
 			If isdate(closure_date) = False THEN msgbox "* Enter a valid date of closure (MM/DD/YYYY)."	'This condition is here instead of in the next do loop
 		Loop until isdate(closure_date) = True
 		If datepart("d", dateadd("d", 1, closure_date)) <> 1 THEN err_msg = err_msg & vbNewline & "* Enter the last date of eligibility(valid date of closure), which for an open case, should be the last day of the month. If this is a denial, use the denial script."
-		IF (death_check = 1 AND isdate(hc_close_for_death_date) = FALSE) THEN err_msg = err_msg & vbNewline & "* Enter the client's date of death."
+		If (reason_for_closure) = "" THEN err_msg = err_msg & vbNewline & "* Enter in detail the reason for closure."
+        IF (death_check = 1 AND isdate(hc_close_for_death_date) = FALSE) THEN err_msg = err_msg & vbNewline & "* Enter the client's date of death."
 		IF (death_check <> 1 AND hc_close_for_death_date <> "") THEN err_msg = err_msg & vbNewline & "* Check the box for client death, remove the client's date of death."
 		If Sanction_checkbox = 1 and trim(sanction_months) = "" then err_msg = err_msg & vbNewline & "* Enter the number of sanction months."
 		IF (Sanction_checkbox <> 1 AND sanction_months <> "") THEN err_msg = err_msg & vbNewline & "* Check the box for sanction, or remove the number of sanction months."
