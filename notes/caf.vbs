@@ -4656,10 +4656,10 @@ Do
                                       Text 205, y_pos, 130, 10, "If NOT Eligible for Second Set, Explain:"
                                       EditBox 335, y_pos - 5, 200, 15, ALL_MEMBERS_ARRAY(explain_no_second, each_member)
                                       y_pos = y_pos + 20
-                                      Text 15, y_pos, 115, 10, "Number of BANKED months used:"
-                                      EditBox 130, y_pos - 5, 25, 15, ALL_MEMBERS_ARRAY(numb_banked_mo, each_member)
-                                      Text 170, y_pos, 45, 10, "Other Notes:"
-                                      EditBox 220, y_pos - 5, 315, 15, ALL_MEMBERS_ARRAY(clt_abawd_notes, each_member)
+                                      'Text 15, y_pos, 115, 10, "Number of BANKED months used:"
+                                      'EditBox 130, y_pos - 5, 25, 15, ALL_MEMBERS_ARRAY(numb_banked_mo, each_member)
+                                      Text 15, y_pos, 45, 10, "Other Notes:"
+                                      EditBox 60, y_pos - 5, 475, 15, ALL_MEMBERS_ARRAY(clt_abawd_notes, each_member)
 
                                       y_pos = y_pos + 15
                                     End If
