@@ -2349,7 +2349,7 @@ BeginDialog Dialog1, 0, 0, 281, 235, "CAF Script Case number dialog"
   CheckBox 10, 85, 30, 10, "CASH", CASH_on_CAF_checkbox
   CheckBox 50, 85, 35, 10, "SNAP", SNAP_on_CAF_checkbox
   CheckBox 90, 85, 35, 10, "EMER", EMER_on_CAF_checkbox
-  DropListBox 135, 85, 140, 15, "Select One:"+chr(9)+"CAF (DHS-5223)"+chr(9)+"SNAP App for Srs (DHS-5223F)"+chr(9)+"ApplyMN"+chr(9)+"Combined AR for Certain Pops (DHS-3727)"+chr(9)+"CAF Addendum (DHS-5223C)", CAF_form
+  DropListBox 135, 85, 140, 15, "Select One:"+chr(9)+"CAF (DHS-5223)"+chr(9)+"HUF (DHS-8107)"+chr(9)+"SNAP App for Srs (DHS-5223F)"+chr(9)+"ApplyMN"+chr(9)+"Combined AR for Certain Pops (DHS-3727)"+chr(9)+"CAF Addendum (DHS-5223C)", CAF_form
   EditBox 40, 130, 220, 15, cash_other_req_detail
   EditBox 40, 150, 220, 15, snap_other_req_detail
   EditBox 40, 170, 220, 15, emer_other_req_detail
@@ -2581,10 +2581,12 @@ If cash_checkbox = checked OR snap_checkbox = checked OR hc_checkbox = checked T
             If cash_checkbox = checked Then
                 If the_process_for_cash = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select if the CASH program is at application or recertification."
                 If the_process_for_cash = "Recertification" AND (len(cash_recert_mo) <> 2 or len(cash_recert_yr) <> 2) Then err_msg = err_msg & vbNewLine & "* For CASH at recertification, enter the footer month and year the of the recertification."
+                If CAF_form = "HUF (DHS-8107)" AND the_process_for_cash = "Application" then err_msg = err_msg & vbNewLine & "* An application for Cash cannot be processed using the HUF (Household Update Form). If you have a CAF type document, restart the script and select that form type. Otherwise you should select 'Recertification' for Cash."
             End If
             If snap_checkbox = checked Then
                 If the_process_for_snap = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select if the SNAP program is at application or recertification."
                 If the_process_for_snap = "Recertification" AND (len(snap_recert_mo) <> 2 or len(snap_recert_yr) <> 2) Then err_msg = err_msg & vbNewLine & "* For SNAP at recertification, enter the footer month and year the of the recertification."
+                If CAF_form = "HUF (DHS-8107)" AND the_process_for_snap = "Application" then err_msg = err_msg & vbNewLine & "* An application for SNAP cannot be processed using the HUF (Household Update Form). If you have a CAF type document, restart the script and select that form type. Otherwise you should select 'Recertification' for SNAP."
             End If
             If HC_checkbox = checked Then
                 If the_process_for_hc = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select if the Health Care program is at application or recertification."
@@ -6466,7 +6468,11 @@ End If
 'Navigates to case note, and checks to make sure we aren't in inquiry.
 Call start_a_blank_CASE_NOTE
 
-CALL write_variable_in_CASE_NOTE(CAF_datestamp & " CAF for " & prog_and_type_list & CAF_status)
+If CAF_form = "HUF (DHS-8107)" Then
+    CALL write_variable_in_CASE_NOTE(CAF_datestamp & " HUF for " & prog_and_type_list & CAF_status)
+Else
+    CALL write_variable_in_CASE_NOTE(CAF_datestamp & " CAF for " & prog_and_type_list & CAF_status)
+End If
 Call write_bullet_and_variable_in_CASE_NOTE("Form Received", CAF_form)
 'Programs requested
 If interview_note = FALSE Then
