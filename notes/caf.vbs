@@ -2719,44 +2719,22 @@ If IsDate(CAF_datestamp) = False Then
     LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 End If
 
-
-check_the_array = FALSE
+'THIS IS HANDLING SPECIFICALLY AROUND THE ALLOWANCE TO WAIVE INTERVIEWS FOR RENEWALS IN EFFECT STARTING FOR 04/21 REVW
 check_for_waived_interview = FALSE
-If the_process_for_cash = "Recertification" OR the_process_for_snap = "Recertification" Then
-    ' If (cash_recert_mo = "09" AND cash_recert_yr = "20") OR (snap_recert_mo = "09" AND snap_recert_yr = "20") Then
-    '     check_the_array = TRUE
-    '     month_to_pull = 9
-    ' End If
-    If the_process_for_snap = "Recertification" Then check_for_waived_interview = TRUE
-    If the_process_for_cash = "Recertification" AND type_of_cash = "Family" Then check_for_waived_interview = TRUE
-    If (cash_recert_mo = "10" AND cash_recert_yr = "20") OR (snap_recert_mo = "10" AND snap_recert_yr = "20") Then
-        check_the_array = TRUE
-        month_to_pull = 10
-    End If
-    If (cash_recert_mo = "11" AND cash_recert_yr = "20") OR (snap_recert_mo = "11" AND snap_recert_yr = "20") Then
-        check_the_array = TRUE
-        month_to_pull = 11
-    End If
-    If (cash_recert_mo = "12" AND cash_recert_yr = "20") OR (snap_recert_mo = "12" AND snap_recert_yr = "20") Then
-        check_the_array = TRUE
-        month_to_pull = 12
-    End If
-    If (cash_recert_mo = "01" AND cash_recert_yr = "21") OR (snap_recert_mo = "01" AND snap_recert_yr = "21") Then
-        check_the_array = TRUE
-        month_to_pull = 1
-    End If
-    If (cash_recert_mo = "02" AND cash_recert_yr = "21") OR (snap_recert_mo = "02" AND snap_recert_yr = "21") Then
-        check_the_array = TRUE
-        month_to_pull = 2
-    End If
-End If
-
+interview_waived = FALSE
 interview_required = FALSE
+
+If the_process_for_snap = "Recertification" Then check_for_waived_interview = TRUE
+If the_process_for_cash = "Recertification" AND type_of_cash = "Family" Then check_for_waived_interview = TRUE
+
 If SNAP_checkbox = checked OR family_cash = TRUE OR CAF_type = "Application" then interview_required = TRUE
 
-If check_for_waived_interview = TRUE Then
-    interview_is_being_waived = MsgBox("Recertifications can be processed without an interview per DHS." & vbNewLine & vbNewLine & " --- Are you waiving the interview? ---" & vbNewLine & vbNewLine & "clicking 'YES' will will prevent the script from requiring Interview Detail.", vbquestion + vbYesNo, "")
-    If interview_is_being_waived = vbYes Then interview_required = FALSE
+If check_for_waived_interview = TRUE AND interview_required = TRUE Then
+    interview_is_being_waived = MsgBox("Renewals can be processed without an interview per DHS." & vbNewLine & vbNewLine & " --- Are you waiving the interview? ---" & vbNewLine & vbNewLine & "clicking 'YES' will will prevent the script from requiring Interview Detail.", vbquestion + vbYesNo, "")
+    If interview_is_being_waived = vbYes Then
+        interview_required = FALSE
+        interview_waived = TRUE
+    End If
 End If
 
 MAXIS_case_number = trim(MAXIS_case_number)
@@ -5520,7 +5498,7 @@ If CAF_type = "Application" Then        'Interview date is not on PROG for recer
 End If
 
 If the_process_for_cash = "Recertification" OR the_process_for_snap = "Recertification" Then
-    If interview_required = TRUE or interview_is_being_waived = vbYes Then
+    If interview_required = TRUE or interview_waived = TRUE Then
         revw_panel_update_needed = FALSE
         Call Navigate_to_MAXIS_screen("STAT", "REVW")
         EMReadScreen STAT_REVW_caf_date, 8, 13, 37
@@ -5529,7 +5507,7 @@ If the_process_for_cash = "Recertification" OR the_process_for_snap = "Recertifi
         If STAT_REVW_intvw_date = "__ __ __" Then revw_panel_update_needed = TRUE
 
         If revw_panel_update_needed = TRUE Then
-            If interview_is_being_waived = vbYes AND trim(interview_date) = "" Then interview_date = date
+            If interview_waived = TRUE AND trim(interview_date) = "" Then interview_date = date
             EMReadScreen cash_stat_revw_status, 1, 7, 40
             EMReadScreen snap_stat_revw_status, 1, 7, 60
 
@@ -6329,6 +6307,24 @@ interview_note = FALSE
 'Interview Incomfation Detail Case Note
 'Navigates to case note, and checks to make sure we aren't in inquiry.
 ' If SNAP_checkbox = checked OR family_cash = TRUE OR CAF_type = "Application" then
+If interview_waived = TRUE Then
+    Call start_a_blank_CASE_NOTE
+
+    CALL write_variable_in_CASE_NOTE("Interview for the Renewal was WAIVED")
+    CALL write_variable_in_CASE_NOTE("---")
+    If the_process_for_snap = "Recertification" Then CALL write_variable_in_CASE_NOTE("Interview for SNAP RENEWAL has been waived.")
+    If the_process_for_snap = "Recertification" AND family_cash = TRUE Then CALL write_variable_in_CASE_NOTE("Interview for MFIP RENEWAL has been waived.")
+    CALL write_variable_in_CASE_NOTE("---")
+    CALL write_variable_in_CASE_NOTE("***A Waiver has been granted allowing:")
+    CALL write_variable_in_CASE_NOTE("  - Processing of SNAP Annual Renewals to match the process of Six-Month")
+    CALL write_variable_in_CASE_NOTE("    Renewals, which do not require interviews.")
+    CALL write_variable_in_CASE_NOTE("  - Waiving of Interviews for MFIP cases in some situations.")
+    CALL write_variable_in_CASE_NOTE("-- THIS WAIVER CANNOT APPLY TO NEW PROGRAM APPLICATIONS --")
+    CALL write_variable_in_CASE_NOTE("Details can be seen in a SIR announcement on 4/14/2021")
+    CALL write_variable_in_CASE_NOTE("---")
+    CALL write_variable_in_CASE_NOTE(worker_signature)
+End If
+
 If interview_required = TRUE Then
     interview_note = TRUE
     Call start_a_blank_CASE_NOTE
@@ -6853,6 +6849,6 @@ END IF
 
 end_msg = "Success! CAF has been successfully noted. Please remember to run the Approved Programs, Closed Programs, or Denied Programs scripts if  results have been APP'd."
 If do_not_update_prog = 1 Then end_msg = end_msg & vbNewLine & vbNewLine & "It was selected that PROG would NOT be updated because " & no_update_reason
-If interview_is_being_waived = vbYes Then end_msg = "INTERVIEW WAIVED" & vbCR & vbCr & end_msg
+If interview_waived = TRUE Then end_msg = "INTERVIEW WAIVED" & vbCR & vbCr & end_msg
 
 script_end_procedure_with_error_report(end_msg)
