@@ -90,6 +90,8 @@ function start_a_new_spec_memo_and_continue(success_var)
 	col = 1
 	EMSearch "SOCWKR", row, col         'Row and col are variables which change from their above declarations if "SOCWKR" string is found.
 	IF row > 4 THEN                     'If it isn't 4, that means it was found.
+		EMReadScreen this_is_it, 60, row, col
+		MsgBox "SOCWKR found!" & vbNewLine & "ROW - " & row & vbNewLine & "COL - " & col & vbNewLine & "~" & this_is_it & "~"
 	    swkr_row = row                                          'Logs the row it found the SOCWKR string as swkr_row
 	    call navigate_to_MAXIS_screen("STAT", "SWKR")         'Navigates to STAT/SWKR to check and see if forms go to the SWKR
 	    EMReadscreen forms_to_swkr, 1, 15, 63                'Reads for the "Forms to SWKR?" Y/N response on the panel.
@@ -1863,9 +1865,6 @@ ElseIf renewal_option = "Send Appointment Letters" Then
 		objExcel.Columns(i).AutoFit()				'sizing the columns'
 	NEXT
 
-	forms_to_swkr = ""
-    forms_to_arep = ""
-
 	today_mo = DatePart("m", date)
 	today_mo = right("00" & today_mo, 2)
 
@@ -1881,6 +1880,8 @@ ElseIf renewal_option = "Send Appointment Letters" Then
 	excel_row = "2"		'starts at row 2'
 	Do
 		MAXIS_case_number 	= trim(ObjExcel.Cells(excel_row,  2).Value)			'getting the case number from the spreadsheet
+		forms_to_arep = ""
+		forms_to_swkr = ""
 
 		Call read_boolean_from_excel(ObjExcel.Cells(excel_row,  3).Value, er_with_intherview)
 		Call read_boolean_from_excel(objExcel.cells(excel_row,  6).value, MFIP_status)
