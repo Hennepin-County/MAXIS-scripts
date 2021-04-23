@@ -50,6 +50,58 @@ call changelog_update("10/15/2020", "Initial version.", "Ilse Ferris, Hennepin C
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
+function read_boolean_from_excel(excel_place, script_variable)
+'--- This function Will take the information in from the Excel cell and reformat it so that the script can use the information as a boolean
+'~~~~~ excel_place: the cell value code - using 'objexcel.cells(r,c).value' format/information
+'~~~~~ script_variable: whatever variable you want to use to store the information from this Excel location - this CAN be an array position.
+'===== Keywords: MAXIS, Excel, output, boolean
+	script_variable = trim(excel_place)
+	script_variable = UCase(script_variable)
+
+	If script_variable = "TRUE" Then script_variable = True
+	If script_variable = "FALSE" Then script_variable = False
+	'If this is not TRUE or FALSE, then it will just output what was in the cell all uppercase
+end function
+
+'defining this function here because it needs to not end the script if a MEMO fails.
+function start_a_new_spec_memo_and_continue(success_var)
+'--- This function navigates user to SPEC/MEMO and starts a new SPEC/MEMO, selecting client, AREP, and SWKR if appropriate
+'===== Keywords: MAXIS, notice, navigate, edit
+    success_var = True
+	call navigate_to_MAXIS_screen("SPEC", "MEMO")				'Navigating to SPEC/MEMO
+
+	PF5															'Creates a new MEMO. If it's unable the script will stop.
+	EMReadScreen memo_display_check, 12, 2, 33
+	If memo_display_check = "Memo Display" then success_var = False
+
+	'Checking for an AREP. If there's an AREP it'll navigate to STAT/AREP, check to see if the forms go to the AREP. If they do, it'll write X's in those fields below.
+	row = 4                             'Defining row and col for the search feature.
+	col = 1
+	EMSearch "ALTREP", row, col         'Row and col are variables which change from their above declarations if "ALTREP" string is found.
+	IF row > 4 THEN                     'If it isn't 4, that means it was found.
+	    arep_row = row                                          'Logs the row it found the ALTREP string as arep_row
+	    call navigate_to_MAXIS_screen("STAT", "AREP")           'Navigates to STAT/AREP to check and see if forms go to the AREP
+	    EMReadscreen forms_to_arep, 1, 10, 45                   'Reads for the "Forms to AREP?" Y/N response on the panel.
+	    call navigate_to_MAXIS_screen("SPEC", "MEMO")           'Navigates back to SPEC/MEMO
+	    PF5                                                     'PF5s again to initiate the new memo process
+	END IF
+	'Checking for SWKR
+	row = 4                             'Defining row and col for the search feature.
+	col = 1
+	EMSearch "SOCWKR", row, col         'Row and col are variables which change from their above declarations if "SOCWKR" string is found.
+	IF row > 4 THEN                     'If it isn't 4, that means it was found.
+	    swkr_row = row                                          'Logs the row it found the SOCWKR string as swkr_row
+	    call navigate_to_MAXIS_screen("STAT", "SWKR")         'Navigates to STAT/SWKR to check and see if forms go to the SWKR
+	    EMReadscreen forms_to_swkr, 1, 15, 63                'Reads for the "Forms to SWKR?" Y/N response on the panel.
+	    call navigate_to_MAXIS_screen("SPEC", "MEMO")         'Navigates back to SPEC/MEMO
+	    PF5                                           'PF5s again to initiate the new memo process
+	END IF
+	EMWriteScreen "x", 5, 12                                        'Initiates new memo to client
+	IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 12     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
+	IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 12     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
+	transmit                                                        'Transmits to start the memo writing process
+end function
+
 'This is a script specific function and will not work outside of this script.
 function read_case_details_for_review_report(incrementor_var)
 	Call navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv) 'function to check PRIV status
@@ -1726,8 +1778,8 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 	run_time = timer - query_start_time
 	end_msg = "Case details have been added to the Review Report" & vbCr & vbCr & "Run time: " & run_time & " seconds."
 ElseIf renewal_option = "Send Appointment Letters" Then
-	MAXIS_footer_month = REPT_month							'Setting the footer month and year based on the review month. We do not run statistics in CM + 2
-	MAXIS_footer_year = REPT_year
+	MAXIS_footer_month = CM_mo							'Setting the footer month and year based on the review month. We do not run statistics in CM + 2
+	MAXIS_footer_year = CM_yr
 
 	'This is where the review report is currently saved.
 	excel_file_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\Renewals\" & report_date & " Review Report.xlsx"
@@ -1829,10 +1881,18 @@ ElseIf renewal_option = "Send Appointment Letters" Then
 	excel_row = "2"		'starts at row 2'
 	Do
 		MAXIS_case_number 	= trim(ObjExcel.Cells(excel_row,  2).Value)			'getting the case number from the spreadsheet
-		er_with_intherview 	= trim(ObjExcel.Cells(excel_row,  3).Value)
-		MFIP_status 		= trim(objExcel.cells(excel_row,  6).value)
-		SNAP_status 		= trim(objExcel.cells(excel_row, 13).value)
 
+		Call read_boolean_from_excel(ObjExcel.Cells(excel_row,  3).Value, er_with_intherview)
+		Call read_boolean_from_excel(objExcel.cells(excel_row,  6).value, MFIP_status)
+		Call read_boolean_from_excel(objExcel.cells(excel_row, 13).value, SNAP_status)
+
+		' If er_with_intherview = True Then
+		' 	MsgBox er_with_intherview & vbNewLine & "READING AS A BOOLEAN and TRUE"
+		' ElseIf er_with_intherview = False Then
+		' 	MsgBox er_with_intherview & vbNewLine & "READING AS A BOOLEAN and FALSE"
+		' Else
+		' 	MsgBox er_with_intherview & vbNewLine & "Sad"
+		' End If
 		If MFIP_status = True and SNAP_status = True Then programs = "MFIP/SNAP"
 		If MFIP_status = True Then programs = "MFIP"
 		If SNAP_status = True Then programs = "SNAP"
@@ -1842,6 +1902,7 @@ ElseIf renewal_option = "Send Appointment Letters" Then
 
 		If er_with_intherview = True Then
 			'Writing the SPEC MEMO - dates will be input from the determination made earlier.
+			' MsgBox "We're writing a MEMO here"
 			Call start_a_new_spec_memo_and_continue(memo_started)
 
 			IF memo_started = True THEN         'The function will return this as FALSE if PF5 does not move past MEMO DISPLAY
@@ -1948,46 +2009,39 @@ ElseIf renewal_option = "Send Appointment Letters" Then
 	ObjExcel.Worksheets.Add().Name = sheet_name
 	entry_row = 1
 
-	objExcel.Cells(entry_row, 1).Value       = "Appointment Notices run on:"     'Date and time the script was completed
+	objExcel.Cells(entry_row, 1).Value      = "Appointment Notices run on:"     'Date and time the script was completed
     objExcel.Cells(entry_row, 1).Font.Bold 	= TRUE
-    objExcel.Cells(entry_row, 2).Value              = now
+    objExcel.Cells(entry_row, 2).Value      = now
     entry_row = entry_row + 1
 
-    objExcel.Cells(entry_row, 1).Value       = "Runtime (in seconds)"            'Enters the amount of time it took the script to run
+    objExcel.Cells(entry_row, 1).Value      = "Runtime (in seconds)"            'Enters the amount of time it took the script to run
     objExcel.Cells(entry_row, 1).Font.Bold 	= TRUE
-    objExcel.Cells(entry_row, 2).Value              = timer - query_start_time
+    objExcel.Cells(entry_row, 2).Value      = timer - query_start_time
     entry_row = entry_row + 1
 
-    objExcel.Cells(entry_row, 1).Value       = "Total Cases assesed"             'All cases from the spreadsheet
+    objExcel.Cells(entry_row, 1).Value      = "Total Cases assesed"             'All cases from the spreadsheet
     objExcel.Cells(entry_row, 1).Font.Bold 	= TRUE
-    objExcel.Cells(entry_row, 2).Value              = excel_row - 2
+    objExcel.Cells(entry_row, 2).Value    	= excel_row - 2
     entry_row = entry_row + 1
 
-	objExcel.Cells(entry_row, 1).Value       = "Total Cases with ER Interview"             'All cases from the spreadsheet
+	objExcel.Cells(entry_row, 1).Value      = "Total Cases with ER Interview"             'All cases from the spreadsheet
 	objExcel.Cells(entry_row, 1).Font.Bold 	= TRUE
-	objExcel.Cells(entry_row, 2).Value              = "=COUNTIFS(Table1[Interview ER],"&is_true&")"
+	objExcel.Cells(entry_row, 2).Value      = "=COUNTIFS(Table1[Interview ER],"&is_true&")"
 	total_row = entry_row
 	entry_row = entry_row + 1
 
     if successful_notices = "" then successful_notices = 0
-    objExcel.Cells(entry_row, 1).Value       = "Appointment Notices Sent"        'number of notices that were successful
+    objExcel.Cells(entry_row, 1).Value      = "Appointment Notices Sent"        'number of notices that were successful
     objExcel.Cells(entry_row, 1).Font.Bold 	= TRUE
-	objExcel.Cells(entry_row, 2).Value              = "=COUNTIFS(Table1[APPT NOTC on " & date_header & "]," & Chr(34) & "Y" & Chr(34) & ")"                'This was incremented on the For Next loop where the memos were written
+	objExcel.Cells(entry_row, 2).Value      = "=COUNTIFS(Table1[APPT NOTC on " & date_header & "]," & Chr(34) & "Y" & Chr(34) & ")"                'This was incremented on the For Next loop where the memos were written
     appt_row = entry_row
     entry_row = entry_row + 1
 
-    objExcel.Cells(entry_row, 1).Value       = "Percentage successful"           'calculation of the percent of successful notices
+    objExcel.Cells(entry_row, 1).Value      = "Percentage successful"           'calculation of the percent of successful notices
     objExcel.Cells(entry_row, 1).Font.Bold 	= TRUE
-    objExcel.Cells(entry_row, 2).Value              = "=B" & appt_row & "/B" & total_row
-    objExcel.Cells(entry_row, 2).NumberFormat       = "0.00%"		'Formula should be percent
+    objExcel.Cells(entry_row, 2).Value      = "=B" & appt_row & "/B" & total_row
+    objExcel.Cells(entry_row, 2).NumberFormat = "0.00%"		'Formula should be percent
     entry_row = entry_row + 1
-
-
-
-
-
-
-
 
 
 
