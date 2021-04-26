@@ -2993,7 +2993,7 @@ Do
                                               ComboBox 90, 45, 150, 45, interview_memb_list+chr(9)+interview_with, interview_with
                                               ButtonGroup ButtonPressed
                                                 PushButton 240, 45, 15, 15, "!", tips_and_tricks_interview_button
-                                              EditBox 335, 45, 125, 15, arep_id_info
+                                              If interview_required = TRUE Then EditBox 335, 45, 125, 15, arep_id_info
 
                                               Text 5, 65, 450, 10, "Member Name                         ID Type                              Detail                                                                                   Required"
                                               y_pos = 80
