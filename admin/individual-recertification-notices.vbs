@@ -101,7 +101,8 @@ BeginDialog Dialog1, 0, 0, 181, 85, "Select the Notice to Send"
   EditBox 45, 25, 130, 15, worker_signature
   'DropListBox 5, 45, 100, 45, "Select One..."+chr(9)+"RECERT - APPT Notice"+chr(9)+"RECERT - NOMI"+chr(9)+"RECERT - VERIFS"+chr(9)+"APPLICATION - APPT Notice"+chr(9)+"APPLICATION - NOMI", memo_to_send
   DropListBox 5, 45, 100, 45, "Select One..."+chr(9)+"RECERT - APPT Notice"+chr(9)+"RECERT - NOMI", memo_to_send
-  DropListBox 5, 65, 100, 45, "English"+chr(9)+"Somali"+chr(9)+"Spanish"+chr(9)+"Hmong"+chr(9)+"Russian", select_language
+  DropListBox 5, 65, 100, 45, "English", select_language
+  ' DropListBox 5, 65, 100, 45, "English"+chr(9)+"Somali"+chr(9)+"Spanish"+chr(9)+"Hmong"+chr(9)+"Russian", select_language
   ButtonGroup ButtonPressed
     OkButton 125, 45, 50, 15
     CancelButton 125, 65, 50, 15
@@ -318,7 +319,8 @@ If memo_to_send = "RECERT - APPT Notice" Then
             'MsgBox "ENGLISH"
             CALL write_variable_in_SPEC_MEMO("The Department of Human Services sent you a packet of paperwork. This paperwork is to renew your " & programs & " case.")
             CALL write_variable_in_SPEC_MEMO("")
-            CALL write_variable_in_SPEC_MEMO("Please sign, date and return the renewal paperwork by " & CM_plus_1_mo & "/08/" & CM_plus_1_yr & ". You must also complete an interview for your " & programs & " case to continue.")
+            'CALL write_variable_in_SPEC_MEMO("Please sign, date and return the renewal paperwork by " & CM_plus_1_mo & "/08/" & CM_plus_1_yr & ". You must also complete an interview for your " & programs & " case to continue.")
+			CALL write_variable_in_SPEC_MEMO("Please sign, date and return the renewal paperwork by " & CM_plus_1_mo & "/08/" & CM_plus_1_yr & ". You may need to complete an interview for your " & programs & " case to continue.")
             CALL write_variable_in_SPEC_MEMO("")
             Call write_variable_in_SPEC_MEMO("  *** Please complete your interview by " & interview_end_date & ". ***")
             Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at")
