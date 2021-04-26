@@ -50,19 +50,6 @@ call changelog_update("10/15/2020", "Initial version.", "Ilse Ferris, Hennepin C
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-function read_boolean_from_excel(excel_place, script_variable)
-'--- This function Will take the information in from the Excel cell and reformat it so that the script can use the information as a boolean
-'~~~~~ excel_place: the cell value code - using 'objexcel.cells(r,c).value' format/information
-'~~~~~ script_variable: whatever variable you want to use to store the information from this Excel location - this CAN be an array position.
-'===== Keywords: MAXIS, Excel, output, boolean
-	script_variable = trim(excel_place)
-	script_variable = UCase(script_variable)
-
-	If script_variable = "TRUE" Then script_variable = True
-	If script_variable = "FALSE" Then script_variable = False
-	'If this is not TRUE or FALSE, then it will just output what was in the cell all uppercase
-end function
-
 'defining this function here because it needs to not end the script if a MEMO fails.
 function start_a_new_spec_memo_and_continue(success_var)
 '--- This function navigates user to SPEC/MEMO and starts a new SPEC/MEMO, selecting client, AREP, and SWKR if appropriate
