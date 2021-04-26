@@ -41,6 +41,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("04/26/2021", "Phone Number field is changed to a COMBOBOX which will allow you to select a phone number from a list based on what has been entered in and listed on RCAD in MMIS. This field can still be typed in, to allow for entry of a number not known to the system.##~##", "Casey Love, Hennepin County")
 call changelog_update("04/06/2021", "New 'disenrollment reason' option created to 'DELETE SPAN' which will allow the removal of an enrollment span using '...' to remove a span that starts in the same month as an enrollment you are trying to create.##~##", "Casey Love, Hennepin County")
 call changelog_update("04/06/2021", "Added handling for discovering a failed enrollment and allowing for a change in selections.##~##", "Casey Love, Hennepin County")
 call changelog_update("11/20/2020", "BUG FIXES AND UPDATES##~## ##~##1. Changed the NOTE so that it will not create a note if no one has actually been enrolled.##~##2. Adjusted the end script wording to be more specific about what happened. ##~##3. Changed the 'Is this Open Enrollment' question to only appear from October until the November Cutoff date. You should not see the question now until next October.##~##", "Casey Love, Hennepin County")
@@ -288,6 +289,32 @@ Call clear_line_of_text(9, 69)
 
 EMWriteScreen MMIS_case_number, 9, 19
 transmit
+'Now we are at RCAD
+'We are going to grab the phone numbers while we are here.
+phone_droplist = "Select or Type"
+EMReadScreen phone_one, 12, 10, 30
+phone_one = trim(phone_one)
+phone_one = "(" & phone_one
+If phone_one = "(-" Then phone_one = ""
+phone_one = replace(phone_one, " ", ")")
+If phone_one <> "" Then phone_droplist = phone_droplist+chr(9)+phone_one
+
+EMReadScreen phone_two, 16, 11, 17
+phone_two = trim(phone_two)
+phone_two = "(" & phone_two
+If phone_two = "(-" Then phone_two = ""
+phone_two = replace(phone_two, " ", ")")
+If phone_two <> "" Then phone_droplist = phone_droplist+chr(9)+phone_two
+
+EMReadScreen phone_three, 16, 12, 17
+phone_three = trim(phone_three)
+phone_three = "(" & phone_three
+If phone_three = "(-" Then phone_three = ""
+phone_three = replace(phone_three, " ", ")")
+If phone_three <> "" Then phone_droplist = phone_droplist+chr(9)+phone_three
+
+
+'Now we continue to RCIN
 transmit
 transmit
 EMReadscreen RCIN_check, 4, 1, 49
@@ -586,7 +613,7 @@ BeginDialog Dialog1, 0, 0, 750, dlg_len, "Enrollment Information"
       CheckBox 305, (x * 20) + 50, 30, 10, "Used", used_interpreter_checkbox
 	  Text 305, (x * 20) + 60, 70, 10, "Interpreter"
 	  Text 350, (x * 20) + 60, 80, 10, "Phone Number of Caller"
-	  EditBox 430, (x * 20) + 55, 100, 15, phone_number_of_caller
+	  ComboBox 430, (x * 20) + 55, 100, 15, phone_droplist, phone_number_of_caller
       x = x + 1
   End If
   If enrollment_source = "Paper Enrollment Form" Then
