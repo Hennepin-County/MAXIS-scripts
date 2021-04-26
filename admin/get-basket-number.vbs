@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("04/26/2021", "Updated ADAD and FAD basket numbers to reflect current baskets.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/27/2020", "Updated basket numbers to reflect current baskets.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/12/2019", "Initial version.", "Ilse Ferris, Hennepin County")
 
@@ -116,53 +117,54 @@ DO
 	ObjExcel.Cells(excel_row, basket_col).Value = basket
 
     '----------------------------------------------------------------------------------------------------ADS
-    If basket = "X127EJ6" then population_type = "ADS"		'Central/NE
-    If basket = "X127FE5" then population_type = "ADS"		'Central/NE
-    If basket = "X127EK1" then population_type = "ADS"		'Central/NE
-    If basket = "X127EK2" then population_type = "ADS"		'Central/NE
-    If basket = "X127EJ7" then population_type = "ADS"		'Central/NE
-    If basket = "X127EJ8" then population_type = "ADS"		'Central/NE
-    If basket = "X127EK3" then population_type = "ADS"		'Central/NE
-
-    If basket = "X127EH6" then population_type = "ADS"		'North Mpls
-    If basket = "X127EM1" then population_type = "ADS"		'North Mpls
-    If basket = "X127FI7" then population_type = "ADS"		'North Mpls
-    
-    If basket = "X127EK4" then population_type = "ADS"		'Northwest
-    If basket = "X127EK5" then population_type = "ADS"		'Northwest
-    If basket = "X127FH5" then population_type = "ADS"		'Northwest
-    If basket = "X127EN7" then population_type = "ADS"		'Northwest
-    If basket = "X127EK6" then population_type = "ADS"		'Northwest
-    If basket = "X127EK9" then population_type = "ADS"		'Northwest
-    
-    If basket = "X127EM7" then population_type = "ADS"		'South Mpls
-    If basket = "X127FI2" then population_type = "ADS"		'South Mpls
-    If basket = "X127FG3" then population_type = "ADS"		'South Mpls
-    If basket = "X127EM8" then population_type = "ADS"		'South Mpls
-    If basket = "X127EM9" then population_type = "ADS"		'South Mpls
-    If basket = "X127EJ4" then population_type = "ADS"		'South Mpls
-    If basket = "X127EJ5" then population_type = "ADS"		'South Mpls
-    
     If basket = "X127EF8" then population_type = "1800"     '1800
     If basket = "X127EF9" then population_type = "1800"     '1800
     If basket = "X127EG9" then population_type = "1800"     '1800
     If basket = "X127EG0" then population_type = "1800"     '1800
     
-    If basket = "X127EH1" then population_type = "ADS"		'South Suburban
-    If basket = "X127EH7" then population_type = "ADS"		'South Suburban
-    If basket = "X127EH2" then population_type = "ADS"		'South Suburban
-    If basket = "X127EH3" then population_type = "ADS"		'South Suburban
-    If basket = "X127EN6" then population_type = "ADS"		'South Suburban
-    If basket = "X127FH4" then population_type = "ADS"		'South Suburban
-    
-    If basket = "X127EP3" then population_type = "ADS"		'West
-    If basket = "X127EP4" then population_type = "ADS"		'West
-    If basket = "X127EP5" then population_type = "ADS"		'West
-    If basket = "X127EP9" then population_type = "ADS"		'West
-    If basket = "X127F3U" then population_type = "ADS"		'West
-    If basket = "X127F3V" then population_type = "ADS"		'West
+    If basket = "X127EJ6" then population_type = "ADS"	
+    If basket = "X127FE5" then population_type = "ADS"	
+    If basket = "X127EK1" then population_type = "ADS"	
+    If basket = "X127EK2" then population_type = "ADS"	
+    If basket = "X127EJ7" then population_type = "ADS"	
+    If basket = "X127EJ8" then population_type = "ADS"	
+    If basket = "X127EK3" then population_type = "ADS"	
+    If basket = "X127EH6" then population_type = "ADS"	
+    If basket = "X127EM1" then population_type = "ADS"	
+    If basket = "X127FI7" then population_type = "ADS"	
+    If basket = "X127EK4" then population_type = "ADS"	
+    If basket = "X127EK5" then population_type = "ADS"	
+    If basket = "X127FH5" then population_type = "ADS"	
+    If basket = "X127EK6" then population_type = "ADS"	
+    If basket = "X127EK9" then population_type = "ADS"	
+    If basket = "X127EM7" then population_type = "ADS"	
+    If basket = "X127FI2" then population_type = "ADS"	
+    If basket = "X127FG3" then population_type = "ADS"	
+    If basket = "X127EM8" then population_type = "ADS"	
+    If basket = "X127EM9" then population_type = "ADS"	
+    If basket = "X127EJ4" then population_type = "ADS"	
+    If basket = "X127EJ5" then population_type = "ADS"	    
+    If basket = "X127EH1" then population_type = "ADS"
+    If basket = "X127EH7" then population_type = "ADS"
+    If basket = "X127EH2" then population_type = "ADS"
+    If basket = "X127EH3" then population_type = "ADS"
+    If basket = "X127EN6" then population_type = "ADS"
+    If basket = "X127FH4" then population_type = "ADS"
+    If basket = "X127EP3" then population_type = "ADS"
+    If basket = "X127EP4" then population_type = "ADS"
+    If basket = "X127EP5" then population_type = "ADS"
+    If basket = "X127EP9" then population_type = "ADS"
+    If basket = "X127F3U" then population_type = "ADS"
+    If basket = "X127F3V" then population_type = "ADS"
     
     '----------------------------------------------------------------------------------------------------Adults     
+    If basket = "X127ED8" then population_type = "Adults"
+    If basket = "X127EG4" then population_type = "Adults"
+    If basket = "X127EH8" then population_type = "Adults"
+    If basket = "X127EN5" then population_type = "Adults"
+    If basket = "X127EP6" then population_type = "Adults"
+    If basket = "X127EP7" then population_type = "Adults"
+    If basket = "X127EQ3" then population_type = "Adults"
     If basket = "X127EE1" then population_type = "Adults"
     If basket = "X127EE2" then population_type = "Adults"
     If basket = "X127EE3" then population_type = "Adults"
@@ -170,6 +172,7 @@ DO
     If basket = "X127EE5" then population_type = "Adults"
     If basket = "X127EE6" then population_type = "Adults"
     If basket = "X127EE7" then population_type = "Adults"
+    If basket = "X127EL1" then population_type = "Adults"
     If basket = "X127EL2" then population_type = "Adults"
     If basket = "X127EL3" then population_type = "Adults"
     If basket = "X127EL4" then population_type = "Adults"
@@ -182,50 +185,33 @@ DO
     If basket = "X127EN2" then population_type = "Adults"
     If basket = "X127EN3" then population_type = "Adults"
     If basket = "X127EN4" then population_type = "Adults"
+    If basket = "X127EN7" then population_type = "Adults"
     If basket = "X127EQ1" then population_type = "Adults"
     If basket = "X127EQ4" then population_type = "Adults"
     If basket = "X127EQ5" then population_type = "Adults"
     If basket = "X127EQ8" then population_type = "Adults"
     If basket = "X127EQ9" then population_type = "Adults"
-    If basket = "X127EN5" then population_type = "Adults"
-    If basket = "X127EG4" then population_type = "Adults"
-    If basket = "X127ED8" then population_type = "Adults"
-    If basket = "X127EH8" then population_type = "Adults"
-    If basket = "X127EQ3" then population_type = "Adults"
-    If basket = "X127EQ2" then population_type = "Adults"
-    If basket = "X127EG5" then population_type = "Adults"
-    If basket = "X127EJ1" then population_type = "Adults"
-    If basket = "X127EH9" then population_type = "Adults"
-    If basket = "X127EM2" then population_type = "Adults"
-    If basket = "X127FE6" then population_type = "Adults"
-    If basket = "X127F3D" then population_type = "Adults"
     
     '----------------------------------------------------------------------------------------------------Families
-    If basket = "X127ES4" then population_type = "Families"
-    If basket = "X127ET1" then population_type = "Families"
-    If basket = "X127ES7" then population_type = "Families"
-    If basket = "X127ES5" then population_type = "Families"
-    If basket = "X127ET3" then population_type = "Families"
-    If basket = "X127ET7" then population_type = "Families"
-    If basket = "X127ES9" then population_type = "Families"
-    If basket = "X127ET5" then population_type = "Families"
-    If basket = "X127ES2" then population_type = "Families"
-    If basket = "X127ET2" then population_type = "Families"
-    If basket = "X127ET4" then population_type = "Families"
-    If basket = "X127ES6" then population_type = "Families"
-    If basket = "X127ET6" then population_type = "Families"
-    If basket = "X127ES1" then population_type = "Families"
-    If basket = "X127ET9" then population_type = "Families"
-    If basket = "X127ET8" then population_type = "Families"
-    If basket = "X127ES8" then population_type = "Families"
-    If basket = "X127ES3" then population_type = "Families"
-    If basket = "X127F3H" then population_type = "Families"
-    If basket = "X127F4E" then population_type = "Families"
-    If basket = "X127EZ2" then population_type = "Families"
-    If basket = "X127EZ7" then population_type = "Families"
-    If basket = "X127FB7" then population_type = "Families"
-    If basket = "X127EZ5" then population_type = "Families"
-
+    If basket ="X127ET9" then population_type = "Families"
+    If basket ="X127ET8" then population_type = "Families"
+    If basket ="X127ES8" then population_type = "Families"
+    If basket ="X127ES3" then population_type = "Families"
+    If basket ="X127ES1" then population_type = "Families"
+    If basket ="X127ES2" then population_type = "Families"
+    If basket ="X127ES4" then population_type = "Families"
+    If basket ="X127ES5" then population_type = "Families"
+    If basket ="X127ES6" then population_type = "Families"
+    If basket ="X127ES7" then population_type = "Families"
+    If basket ="X127ES9" then population_type = "Families"
+    If basket ="X127ET1" then population_type = "Families"
+    If basket ="X127ET2" then population_type = "Families"
+    If basket ="X127ET3" then population_type = "Families"
+    If basket ="X127ET4" then population_type = "Families"
+    If basket ="X127ET5" then population_type = "Families"
+    If basket ="X127ET6" then population_type = "Families"
+    If basket ="X127ET7" then population_type = "Families"
+    
     '----------------------------------------------------------------------------------------------------DWP
     If basket = "X127FE7" then population_type = "DWP"
     If basket = "X127FE8" then population_type = "DWP"
