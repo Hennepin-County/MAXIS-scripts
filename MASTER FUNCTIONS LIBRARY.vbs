@@ -6048,7 +6048,7 @@ Function non_actionable_dails(actionable_dail)
             actionable_dail = False
         '----------------------------------------------------------------------------------------------------STAT EDITS older than Current Date
     Elseif dail_type = "STAT" or instr(dail_msg, "NEW FIAT RESULTS EXIST") then
-        EmReadscreen stat_date, 8, dail_row, 39     'Stat date location 
+        EmReadscreen stat_date, 8, dail_row, 39     'Stat date location
         If isdate(stat_date) = False then
             EmReadscreen alt_stat_date, 8, dail_row, 43 'fiat results date location
             If isdate(alt_stat_date) = True then
@@ -6056,8 +6056,8 @@ Function non_actionable_dails(actionable_dail)
             End if
         End if
         If isdate(stat_date) = True then
-            If DateDiff("d", stat_date, date) > 0 then 
-                actionable_dail = False     'Deleting any messages that were not created taday 
+            If DateDiff("d", stat_date, date) > 0 then
+                actionable_dail = False     'Deleting any messages that were not created taday
             Else
                 actionable_dail = True
             End if
@@ -6330,6 +6330,19 @@ function proceed_confirmation(result_of_msgbox)
 		If proceed_confirm = vbYes then result_of_msgbox = TRUE
 		If proceed_confirm = vbNo then result_of_msgbox = FALSE
 	End if
+end function
+
+function read_boolean_from_excel(excel_place, script_variable)
+'--- This function Will take the information in from the Excel cell and reformat it so that the script can use the information as a boolean
+'~~~~~ excel_place: the cell value code - using 'objexcel.cells(r,c).value' format/information
+'~~~~~ script_variable: whatever variable you want to use to store the information from this Excel location - this CAN be an array position.
+'===== Keywords: MAXIS, Excel, output, boolean
+	script_variable = trim(excel_place)
+	script_variable = UCase(script_variable)
+
+	If script_variable = "TRUE" Then script_variable = True
+	If script_variable = "FALSE" Then script_variable = False
+	'If this is not TRUE or FALSE, then it will just output what was in the cell all uppercase
 end function
 
 function run_another_script(script_path)
