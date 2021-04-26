@@ -50,6 +50,60 @@ call changelog_update("10/15/2020", "Initial version.", "Ilse Ferris, Hennepin C
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
+function read_boolean_from_excel(excel_place, script_variable)
+'--- This function Will take the information in from the Excel cell and reformat it so that the script can use the information as a boolean
+'~~~~~ excel_place: the cell value code - using 'objexcel.cells(r,c).value' format/information
+'~~~~~ script_variable: whatever variable you want to use to store the information from this Excel location - this CAN be an array position.
+'===== Keywords: MAXIS, Excel, output, boolean
+	script_variable = trim(excel_place)
+	script_variable = UCase(script_variable)
+
+	If script_variable = "TRUE" Then script_variable = True
+	If script_variable = "FALSE" Then script_variable = False
+	'If this is not TRUE or FALSE, then it will just output what was in the cell all uppercase
+end function
+
+'defining this function here because it needs to not end the script if a MEMO fails.
+function start_a_new_spec_memo_and_continue(success_var)
+'--- This function navigates user to SPEC/MEMO and starts a new SPEC/MEMO, selecting client, AREP, and SWKR if appropriate
+'===== Keywords: MAXIS, notice, navigate, edit
+    success_var = True
+	call navigate_to_MAXIS_screen("SPEC", "MEMO")				'Navigating to SPEC/MEMO
+
+	PF5															'Creates a new MEMO. If it's unable the script will stop.
+	EMReadScreen memo_display_check, 12, 2, 33
+	If memo_display_check = "Memo Display" then success_var = False
+
+	'Checking for an AREP. If there's an AREP it'll navigate to STAT/AREP, check to see if the forms go to the AREP. If they do, it'll write X's in those fields below.
+	row = 4                             'Defining row and col for the search feature.
+	col = 1
+	EMSearch "ALTREP", row, col         'Row and col are variables which change from their above declarations if "ALTREP" string is found.
+	IF row > 4 THEN                     'If it isn't 4, that means it was found.
+	    arep_row = row                                          'Logs the row it found the ALTREP string as arep_row
+	    call navigate_to_MAXIS_screen("STAT", "AREP")           'Navigates to STAT/AREP to check and see if forms go to the AREP
+	    EMReadscreen forms_to_arep, 1, 10, 45                   'Reads for the "Forms to AREP?" Y/N response on the panel.
+	    call navigate_to_MAXIS_screen("SPEC", "MEMO")           'Navigates back to SPEC/MEMO
+	    PF5                                                     'PF5s again to initiate the new memo process
+	END IF
+	'Checking for SWKR
+	row = 4                             'Defining row and col for the search feature.
+	col = 1
+	EMSearch "SOCWKR", row, col         'Row and col are variables which change from their above declarations if "SOCWKR" string is found.
+	IF row > 4 THEN                     'If it isn't 4, that means it was found.
+		EMReadScreen this_is_it, 60, row, col
+		MsgBox "SOCWKR found!" & vbNewLine & "ROW - " & row & vbNewLine & "COL - " & col & vbNewLine & "~" & this_is_it & "~"
+	    swkr_row = row                                          'Logs the row it found the SOCWKR string as swkr_row
+	    call navigate_to_MAXIS_screen("STAT", "SWKR")         'Navigates to STAT/SWKR to check and see if forms go to the SWKR
+	    EMReadscreen forms_to_swkr, 1, 15, 63                'Reads for the "Forms to SWKR?" Y/N response on the panel.
+	    call navigate_to_MAXIS_screen("SPEC", "MEMO")         'Navigates back to SPEC/MEMO
+	    PF5                                           'PF5s again to initiate the new memo process
+	END IF
+	EMWriteScreen "x", 5, 12                                        'Initiates new memo to client
+	IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 12     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
+	IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 12     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
+	transmit                                                        'Transmits to start the memo writing process
+end function
+
 'This is a script specific function and will not work outside of this script.
 function read_case_details_for_review_report(incrementor_var)
 	Call navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv) 'function to check PRIV status
@@ -266,7 +320,7 @@ CM_plus_two_checkbox = 1    'defaulting the check box to checked
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 186, 85, "Review Report"
   ' DropListBox 90, 35, 90, 15, "Select one..."+chr(9)+"Create Renewal Report"+chr(9)+"Discrepancy Run", renewal_option
-  DropListBox 90, 35, 90, 15, "Select one..."+chr(9)+"Create Renewal Report"+chr(9)+"Discrepancy Run"+chr(9)+"Collect Statistics"+chr(9)+"Create Worklist", renewal_option
+  DropListBox 90, 35, 90, 15, "Select one..."+chr(9)+"Create Renewal Report"+chr(9)+"Discrepancy Run"+chr(9)+"Collect Statistics"+chr(9)+"Send Appointment Letters"+chr(9)+"Create Worklist", renewal_option
   ButtonGroup ButtonPressed
     OkButton 95, 65, 40, 15
     CancelButton 140, 65, 40, 15
@@ -1725,6 +1779,273 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 
 	run_time = timer - query_start_time
 	end_msg = "Case details have been added to the Review Report" & vbCr & vbCr & "Run time: " & run_time & " seconds."
+ElseIf renewal_option = "Send Appointment Letters" Then
+	MAXIS_footer_month = CM_mo							'Setting the footer month and year based on the review month. We do not run statistics in CM + 2
+	MAXIS_footer_year = CM_yr
+
+	'This is where the review report is currently saved.
+	excel_file_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\Renewals\" & report_date & " Review Report.xlsx"
+
+	'Initial Dialog which requests a file path for the excel file
+	Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 361, 65, "On Demand Recertifications - Send Appointment Notices"
+	  EditBox 130, 20, 175, 15, excel_file_path
+	  ButtonGroup ButtonPressed
+		PushButton 310, 20, 45, 15, "Browse...", select_a_file_button
+		OkButton 250, 45, 50, 15
+		CancelButton 305, 45, 50, 15
+	  Text 10, 10, 170, 10, "Select the recert fle from the Review Report original run"
+	  Text 10, 25, 120, 10, "Select an Excel file for recert cases:"
+	EndDialog
+
+	'Show file path dialog
+	Do
+		Dialog Dialog1
+		cancel_confirmation
+		If ButtonPressed = select_a_file_button then call file_selection_system_dialog(excel_file_path, ".xlsx")
+	Loop until ButtonPressed = OK and excel_file_path <> ""
+
+	'Opens Excel file here, as it needs to populate the dialog with the details from the spreadsheet.
+	call excel_open(excel_file_path, True, True, ObjExcel, objWorkbook)
+
+	'Finding all of the worksheets available in the file. We will likely open up the main 'Review Report' so the script will default to that one.
+	For Each objWorkSheet In objWorkbook.Worksheets
+		If instr(objWorkSheet.Name, "Sheet") = 0 and objWorkSheet.Name <> "controls" then scenario_list = scenario_list & chr(9) & objWorkSheet.Name
+	Next
+	scenario_dropdown = report_date & " Review Report"
+
+	'Dialog to select worksheet
+	'DIALOG is defined here so that the dropdown can be populated with the above code
+	Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 151, 75, "Select the Worksheet"
+	  DropListBox 5, 35, 140, 15, "Select One..." & scenario_list, scenario_dropdown
+	  ButtonGroup ButtonPressed
+	    OkButton 40, 55, 50, 15
+	    CancelButton 95, 55, 50, 15
+	  Text 5, 10, 130, 20, "Select the correct worksheet to run for review statistics:"
+	EndDialog
+
+	'Shows the dialog to select the correct worksheet
+	Do
+		Do
+		    Dialog Dialog1
+		    cancel_without_confirmation
+		Loop until scenario_dropdown <> "Select One..."
+		call check_for_password(are_we_passworded_out)
+	Loop until are_we_passworded_out = FALSE
+
+	'Activates worksheet based on user selection
+	objExcel.worksheets(scenario_dropdown).Activate
+
+	'Finding the last column that has something in it so we can add to the end.
+	col_to_use = 0
+	Do
+		col_to_use = col_to_use + 1
+		col_header = trim(ObjExcel.Cells(1, col_to_use).Value)
+	Loop until col_header = ""
+	last_col_letter = convert_digit_to_excel_column(col_to_use)
+
+	'Insert columns in excel for additional information to be added
+	column_end = last_col_letter & "1"
+	Set objRange = objExcel.Range(column_end).EntireColumn
+
+	objRange.Insert(xlShiftToRight)			'We neeed one more columns
+
+	notc_col = col_to_use		'Setting the column to individual variables so we enter the found information in the right place
+
+	date_month = DatePart("m", date)		'Creating a variable to enter in the column headers
+	date_day = DatePart("d", date)
+	date_header = date_month & "-" & date_day
+
+	ObjExcel.Cells(1, notc_col).Value = "APPT NOTC on " & date_header & ""			'creating the column headers for the statistics information for the day of the run.
+
+	FOR i = col_to_use to col_to_use + 5									'formatting the cells'
+		objExcel.Cells(1, i).Font.Bold = True		'bold font'
+		ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
+		objExcel.Columns(i).AutoFit()				'sizing the columns'
+	NEXT
+
+	today_mo = DatePart("m", date)
+	today_mo = right("00" & today_mo, 2)
+
+	today_day = DatePart("d", date)
+	today_day = right("00" & today_day, 2)
+
+	today_yr = DatePart("yyyy", date)
+	today_yr = right(today_yr, 2)
+	today_date = today_mo & "/" & today_day & "/" & today_yr
+	call back_to_SELF
+
+	'Now we loop through the whole Excel List and sending notices on the right cases
+	excel_row = "2"		'starts at row 2'
+	Do
+		MAXIS_case_number 	= trim(ObjExcel.Cells(excel_row,  2).Value)			'getting the case number from the spreadsheet
+		forms_to_arep = ""
+		forms_to_swkr = ""
+
+		Call read_boolean_from_excel(ObjExcel.Cells(excel_row,  3).Value, er_with_intherview)
+		Call read_boolean_from_excel(objExcel.cells(excel_row,  6).value, MFIP_status)
+		Call read_boolean_from_excel(objExcel.cells(excel_row, 13).value, SNAP_status)
+
+		' If er_with_intherview = True Then
+		' 	MsgBox er_with_intherview & vbNewLine & "READING AS A BOOLEAN and TRUE"
+		' ElseIf er_with_intherview = False Then
+		' 	MsgBox er_with_intherview & vbNewLine & "READING AS A BOOLEAN and FALSE"
+		' Else
+		' 	MsgBox er_with_intherview & vbNewLine & "Sad"
+		' End If
+		If MFIP_status = True and SNAP_status = True Then programs = "MFIP/SNAP"
+		If MFIP_status = True Then programs = "MFIP"
+		If SNAP_status = True Then programs = "SNAP"
+		interview_end_date = CM_plus_1_mo & "/15/" & CM_plus_1_yr
+		last_day_of_recert = CM_plus_2_mo & "/01/" & CM_plus_2_yr
+	    last_day_of_recert = dateadd("D", -1, last_day_of_recert)
+
+		If er_with_intherview = True Then
+			'Writing the SPEC MEMO - dates will be input from the determination made earlier.
+			' MsgBox "We're writing a MEMO here"
+			Call start_a_new_spec_memo_and_continue(memo_started)
+
+			IF memo_started = True THEN         'The function will return this as FALSE if PF5 does not move past MEMO DISPLAY
+
+				CALL write_variable_in_SPEC_MEMO("The Department of Human Services sent you a packet of paperwork. This paperwork is to renew your " & programs & " case.")
+				CALL write_variable_in_SPEC_MEMO("")
+				' CALL write_variable_in_SPEC_MEMO("Please sign, date and return the renewal paperwork by " & CM_plus_1_mo & "/08/" & CM_plus_1_yr & ". You must also complete an interview for your " & programs & " case to continue.")
+				CALL write_variable_in_SPEC_MEMO("Please sign, date and return the renewal paperwork by " & CM_plus_1_mo & "/08/" & CM_plus_1_yr & ". You may need to complete an interview for your " & programs & " case to continue.")
+				CALL write_variable_in_SPEC_MEMO("")
+				' Call write_variable_in_SPEC_MEMO("  *** Please complete your interview by " & interview_end_date & ". ***")
+				Call write_variable_in_SPEC_MEMO("  *** If required, complete your interview by " & interview_end_date & ". ***")
+				Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at")
+				Call write_variable_in_SPEC_MEMO("612-596-1300 between 8:00am and 4:30pm Monday thru Friday.")
+				CALL write_variable_in_SPEC_MEMO("")
+				CALL write_variable_in_SPEC_MEMO("**  Your " & programs & " case will close on " & last_day_of_recert & " unless    **")
+				CALL write_variable_in_SPEC_MEMO("** we receive your paperwork and complete the interview. **")
+				CALL write_variable_in_SPEC_MEMO("")
+				'removal of in person verbiage during the COVID-19 PEACETIME STATE OF EMERGENCY
+				' Call write_variable_in_SPEC_MEMO("If you wish to schedule an interview, call 612-596-1300. You may also come to any of the six offices below for an in-person interview between 8 and 4:30, Monday thru Friday.")
+				' Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
+				' Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
+				' Call write_variable_in_SPEC_MEMO("- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 ")
+				' Call write_variable_in_SPEC_MEMO("- 1001 Plymouth Ave N Minneapolis 55411")
+				' Call write_variable_in_SPEC_MEMO("- 525 Portland Ave S Minneapolis 55415")
+				' Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
+				' Call write_variable_in_SPEC_MEMO("(Hours are M - F 8-4:30 unless otherwise noted)")
+				' Call write_variable_in_SPEC_MEMO(" ")
+				CALL write_variable_in_SPEC_MEMO("You now have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. To obtain information about your case please contact your worker. EMAIL: hhsews@hennepin.us ")
+				Call write_variable_in_SPEC_MEMO(" ")
+				CALL write_variable_in_SPEC_MEMO("Domestic violence brochures are available at this website: https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG. You can also request a paper copy.")
+
+				PF4         'Submit the MEMO
+
+				memo_row = 7                                            'Setting the row for the loop to read MEMOs
+				ObjExcel.Cells(excel_row, notc_col).Value = "N"         'Defaulting this to 'N'
+				Do
+					EMReadScreen create_date, 8, memo_row, 19                 'Reading the date of each memo and the status
+					EMReadScreen print_status, 7, memo_row, 67
+					If create_date = today_date AND print_status = "Waiting" Then   'MEMOs created today and still waiting is likely our MEMO.
+						ObjExcel.Cells(excel_row, notc_col).Value = "Y"             'If we've found this then no reason to keep looking.
+						successful_notices = successful_notices + 1                 'For statistical purposes
+						Exit Do
+					End If
+
+					memo_row = memo_row + 1           'Looking at next row'
+				Loop Until create_date = "        "
+
+			ELSE
+				ObjExcel.Cells(excel_row, notc_col).Value = "N"         'Setting this as N if the MEMO failed
+				call back_to_SELF
+			END IF
+		Else
+			ObjExcel.Cells(excel_row, notc_col).Value = "N/A"
+		End If
+
+		If ObjExcel.Cells(excel_row, notc_col).Value = "Y" Then
+
+			Call start_a_new_spec_memo_and_continue(memo_started)   'Starting a MEMO to send information about verifications
+
+			IF memo_started = True THEN
+
+				CALL write_variable_in_SPEC_MEMO("As a part of the Renewal Process we must receive recent verification of your information. To speed the renewal process, please send proofs with your renewal paperwork.")
+				CALL write_variable_in_SPEC_MEMO("")
+				CALL write_variable_in_SPEC_MEMO(" * Examples of income proofs: paystubs, employer statement,")
+				CALL write_variable_in_SPEC_MEMO("   income reports, business ledgers, income tax forms, etc.")
+				CALL write_variable_in_SPEC_MEMO("   *If a job has ended, send proof of the end of employment")
+				CALL write_variable_in_SPEC_MEMO("   and last pay.")
+				CALL write_variable_in_SPEC_MEMO("")
+				CALL write_variable_in_SPEC_MEMO(" * Examples of housing cost proofs(if changed): rent/house")
+				CALL write_variable_in_SPEC_MEMO("   payment receipt, mortgage, lease, subsidy, etc.")
+				CALL write_variable_in_SPEC_MEMO("")
+				CALL write_variable_in_SPEC_MEMO(" * Examples of medical cost proofs(if changed):")
+				CALL write_variable_in_SPEC_MEMO("   prescription and medical bills, etc.")
+				CALL write_variable_in_SPEC_MEMO("")
+				CALL write_variable_in_SPEC_MEMO("You now have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. To obtain information about your case please contact your worker. EMAIL: hhsews@hennepin.us ")
+				CALL write_variable_in_SPEC_MEMO("If you have questions about the type of verifications needed, call 612-596-1300 and someone will assist you.")
+
+				PF4 'Submit the MEMO'
+
+
+			End If
+
+			start_a_blank_case_note
+			EMSendKey("*** Notice of " & programs & " Recertification Interview Sent ***")
+			CALL write_variable_in_case_note("* A notice has been sent to client with detail about how to call in for an interview.")
+			CALL write_variable_in_case_note("* Client must submit paperwork and call 612-596-1300 to complete interview.")
+			If forms_to_arep = "Y" then call write_variable_in_case_note("* Copy of notice sent to AREP.")
+			If forms_to_swkr = "Y" then call write_variable_in_case_note("* Copy of notice sent to Social Worker.")
+			call write_variable_in_case_note("---")
+			CALL write_variable_in_case_note("Link to Domestic Violence Brochure sent to client in SPEC/MEMO as a part of interview notice.")
+			call write_variable_in_case_note("---")
+			call write_variable_in_case_note(worker_signature)
+
+			PF3
+		End If
+
+		excel_row = excel_row + 1
+	Loop until MAXIS_case_number = ""
+
+	is_true = chr(34)&"TRUE"&chr(34)
+
+	'Going to another sheet, to enter worker-specific statistics and naming it
+	sheet_name = "APPT NOTC on " & date_month & "-" & date_day
+	ObjExcel.Worksheets.Add().Name = sheet_name
+	entry_row = 1
+
+	objExcel.Cells(entry_row, 1).Value      = "Appointment Notices run on:"     'Date and time the script was completed
+    objExcel.Cells(entry_row, 1).Font.Bold 	= TRUE
+    objExcel.Cells(entry_row, 2).Value      = now
+    entry_row = entry_row + 1
+
+    objExcel.Cells(entry_row, 1).Value      = "Runtime (in seconds)"            'Enters the amount of time it took the script to run
+    objExcel.Cells(entry_row, 1).Font.Bold 	= TRUE
+    objExcel.Cells(entry_row, 2).Value      = timer - query_start_time
+    entry_row = entry_row + 1
+
+    objExcel.Cells(entry_row, 1).Value      = "Total Cases assesed"             'All cases from the spreadsheet
+    objExcel.Cells(entry_row, 1).Font.Bold 	= TRUE
+    objExcel.Cells(entry_row, 2).Value    	= excel_row - 2
+    entry_row = entry_row + 1
+
+	objExcel.Cells(entry_row, 1).Value      = "Total Cases with ER Interview"             'All cases from the spreadsheet
+	objExcel.Cells(entry_row, 1).Font.Bold 	= TRUE
+	objExcel.Cells(entry_row, 2).Value      = "=COUNTIFS(Table1[Interview ER],"&is_true&")"
+	total_row = entry_row
+	entry_row = entry_row + 1
+
+    if successful_notices = "" then successful_notices = 0
+    objExcel.Cells(entry_row, 1).Value      = "Appointment Notices Sent"        'number of notices that were successful
+    objExcel.Cells(entry_row, 1).Font.Bold 	= TRUE
+	objExcel.Cells(entry_row, 2).Value      = "=COUNTIFS(Table1[APPT NOTC on " & date_header & "]," & Chr(34) & "Y" & Chr(34) & ")"                'This was incremented on the For Next loop where the memos were written
+    appt_row = entry_row
+    entry_row = entry_row + 1
+
+    objExcel.Cells(entry_row, 1).Value      = "Percentage successful"           'calculation of the percent of successful notices
+    objExcel.Cells(entry_row, 1).Font.Bold 	= TRUE
+    objExcel.Cells(entry_row, 2).Value      = "=B" & appt_row & "/B" & total_row
+    objExcel.Cells(entry_row, 2).NumberFormat = "0.00%"		'Formula should be percent
+    entry_row = entry_row + 1
+
+
+
 ElseIf renewal_option = "Create Worklist" Then
 
 	MAXIS_footer_month = REPT_month							'Setting the footer month and year based on the review month. We do not run statistics in CM + 2
