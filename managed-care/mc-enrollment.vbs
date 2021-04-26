@@ -41,6 +41,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("04/26/2021", "Script can now end 'HH' Exclusions for PMAP.##~##", "Casey Love, Hennepin County")
 call changelog_update("04/26/2021", "Phone Number field is changed to a COMBOBOX which will allow you to select a phone number from a list based on what has been entered in and listed on RCAD in MMIS. This field can still be typed in, to allow for entry of a number not known to the system.##~##", "Casey Love, Hennepin County")
 call changelog_update("04/06/2021", "New 'disenrollment reason' option created to 'DELETE SPAN' which will allow the removal of an enrollment span using '...' to remove a span that starts in the same month as an enrollment you are trying to create.##~##", "Casey Love, Hennepin County")
 call changelog_update("04/06/2021", "Added handling for discovering a failed enrollment and allowing for a change in selections.##~##", "Casey Love, Hennepin County")
@@ -796,7 +797,7 @@ If MNSURE_Case = TRUE Then
 			' msgbox enrollment_date & vbNewLine & xcl_end_date
 			'Checks for exclusion code only deletes if YY or blank, if any other span entered it stops script.
 			If left(MMIS_clients_array(current_plan, member), 3) = "XCL" Then
-				If MMIS_clients_array(current_plan, member) = "XCL - Delayed Decision" Then
+				If MMIS_clients_array(current_plan, member) = "XCL - Delayed Decision" OR MMIS_clients_array(current_plan, member) = "XCL - Private HMO Coverage" Then
 					row = 1
 					col = 1
 					EMSearch "99/99/99", row, col
@@ -1253,7 +1254,7 @@ Else
 			' msgbox enrollment_date & vbNewLine & xcl_end_date
 			'Checks for exclusion code only deletes if YY or blank, if any other span entered it stops script.
 			If left(MMIS_clients_array(current_plan, member), 3) = "XCL" Then
-				If MMIS_clients_array(current_plan, member) = "XCL - Delayed Decision" Then
+				If MMIS_clients_array(current_plan, member) = "XCL - Delayed Decision" OR MMIS_clients_array(current_plan, member) = "XCL - Private HMO Coverage" Then
 					row = 1
 					col = 1
 					EMSearch "99/99/99", row, col
