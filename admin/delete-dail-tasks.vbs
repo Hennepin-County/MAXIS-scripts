@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("04/26/2021", "Removed emailing Todd Bennington per request.", "Ilse Ferris, Hennepin County")
 call changelog_update("02/10/2021", "Initial version.", "Ilse Ferris, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -105,6 +106,6 @@ objRecordSet.Open "DELETE FROM EWS.DAILDecimator",objConnection, adOpenStatic, a
 objConnection.Close
 
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-Call create_outlook_email("Faughn.Ramisch-Church@hennepin.us;Todd.Bennington@hennepin.us", "Ilse.Ferris@hennepin.us", "Task-Based Assignment DAIL Messages deleted in SQL Table by " & windows_user_ID & ": " & the_person_running_the_script & ". EOM.", "", "", True)
+Call create_outlook_email("Faughn.Ramisch-Church@hennepin.us", "Ilse.Ferris@hennepin.us", "Task-Based Assignment DAIL Messages deleted in SQL Table by " & windows_user_ID & ": " & the_person_running_the_script & ". EOM.", "", "", True)
 
 script_end_procedure("Success! The database has been deleted.")
