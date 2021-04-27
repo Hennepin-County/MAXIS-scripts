@@ -50,6 +50,7 @@ call changelog_update("03/23/2021", "Initial version.", "Ilse Ferris, Hennepin C
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
+'TODO: Carry over other notes area into asset dialog 
 'TODO: Out of county case handling
 'TODO: Figure out back and next buttons functionality
 'TODO: Start instructions
@@ -106,6 +107,7 @@ MAXIS_background_check
 Call navigate_to_MAXIS_screen_review_PRIV("STAT", "PROG", is_this_priv)
 If is_this_priv = True then script_end_procedure("This case is privilged, and you do not have access. The script will now end.")
 
+'Adding supports for users who are using the AVS incorrectly to verify assets for other programs besides HC. 
 EmReadscreen HC_status, 4, 12, 74 
 If HC_status = "PEND" or HC_status = "ACTV" or HC_status = "REIN" then 
     HC_pending = True 
@@ -306,7 +308,7 @@ Do
     End if 
 
     Dialog1 = ""
-    BeginDialog Dialog1, 0, 0, 200, 125, "AVS Member Selection Dialog"
+    BeginDialog Dialog1, 0, 0, 200, (50 + (item * 20)), "AVS Member Selection Dialog"
         Text 5, 5, 180, 10, selection_text
         ButtonGroup ButtonPressed
         PushButton 170, 0, 10, 15, "!", help_button
@@ -314,8 +316,8 @@ Do
             If avs_members_array(checked_const, item) = 1 then checkbox 15, (20 + (item * 20)), 100, 15, avs_members_array(member_info_const, item), avs_members_array(checked_const, item)         
         Next 
         ButtonGroup ButtonPressed
-        OkButton 85, 105, 45, 15
-        CancelButton 135, 105, 45, 15
+        OkButton 85, (30 + (item * 20)), 45, 15
+        CancelButton 135, (30 + (item * 20)), 45, 15
     EndDialog
     
     'Member selection Dialog 
