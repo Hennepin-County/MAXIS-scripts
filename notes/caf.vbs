@@ -5917,8 +5917,8 @@ If interview_waived = TRUE Then
 
     CALL write_variable_in_CASE_NOTE("Interview for the Renewal was WAIVED")
     CALL write_variable_in_CASE_NOTE("---")
-    If the_process_for_snap = "Recertification" Then CALL write_variable_in_CASE_NOTE("Interview for SNAP RENEWAL has been waived for " & snap_recert_mo & "/" & snap_recert_yr ".")
-    If the_process_for_cash = "Recertification" AND family_cash = TRUE Then CALL write_variable_in_CASE_NOTE("Interview for MFIP RENEWAL has been waived for " & cash_recert_mo & "/" &  cash_recert_yr".")
+    If the_process_for_snap = "Recertification" Then CALL write_variable_in_CASE_NOTE("Interview for the " & snap_recert_mo & "/" & snap_recert_yr & " SNAP RENEWAL has been waived.")
+    If the_process_for_cash = "Recertification" AND family_cash = TRUE Then CALL write_variable_in_CASE_NOTE("Interview for the " & cash_recert_mo & "/" &  cash_recert_yr & " MFIP RENEWAL has been waived.")
     CALL write_variable_in_CASE_NOTE("---")
     CALL write_variable_in_CASE_NOTE("***A Waiver has been granted allowing:")
     CALL write_variable_in_CASE_NOTE("  - Processing of SNAP Annual Renewals to match the process of Six-Month")
