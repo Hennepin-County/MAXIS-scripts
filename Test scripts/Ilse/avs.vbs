@@ -51,7 +51,6 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 'TODO: Out of county case handling
-'TODO: if AVS results have unverified or unreported assets then verifications should be sent and set 10 day TIKL, case note verif was sent. Ask Kerry: Is there specific text for the TIKL or the verif request in this instance?
 'TODO: Figure out back and next buttons functionality
 'TODO: Start instructions
 'TODO: Time study
@@ -64,11 +63,6 @@ closing_msg = "Success! Your AVS case note has been created. Please review for a
 
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
-
-'initial_option = "AVS Forms"     'Testing code
-initial_option = "AVS Submission/Results" 'Testing code
-HC_process = "Application"      'Testing code 
-MAXIS_case_number = "299320"    'Testing code 
 
 '----------------------------------------------------------------------------------------------------Initial dialog 
 initial_help_text = "*** What is the AVS? ***" & vbNewLine & "--------------------" & vbNewLine & vbNewLine & _
@@ -261,6 +255,7 @@ Next
 '        msgbox "applicant: " & avs_members_array(member_name_const, item) & vbcr & "HC type: " & avs_members_array(applicant_type_const, item) 
 '    End if 
 'Next
+
 Do
     If confirm_msgbox = vbYes then 
         For item = 0 to ubound(avs_members_array, 2)
@@ -422,31 +417,6 @@ Do
         Call check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
     Loop until are_we_passworded_out = false					'loops until user passwords back in
         
-    'Determining if TIKL and verif request form info will be created - This will happen if initial_option = "AVS Forms" AND forms_status_const = "Initial Request"
-    Set_TIKL = False    
-    verif_request = False 
-    For i = 0 to ubound(avs_members_array, 2)
-        If avs_members_array(forms_status_const, i) = "Initial Request" then 
-            Set_TIKL = True 
-            verif_request = True
-            Exit For
-        End if     
-    Next     
-    
-    'giving users the option to create another TIKL if the initial forms are incomplete. 
-    For i = 0 to ubound(avs_members_array, 2)
-        If avs_members_array(forms_status_const, i) = "Received - Incomplete" then 
-            TIKL_msgbox = msgbox("Do you wish to send another verification requesting a completed AVS form?" & vbcr & vbcr & "Selecting YES will create another 10-day TIKL and case note that a verification request is being sent.", vbQuestion + vbYesNo, "Set another TIKL?")
-            If TIKL_msgbox = vbYes then set_another_TIKL = True
-            If TIKL_msgbox = vbNo then set_another_TIKL = False  
-            Exit for    
-        End if
-    Next  
-     
-    'set_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
-    If set_TIKL = True then Call create_TIKL("DHS-7823 - AVS Auth Form(s) have been requested for this case. Review ECF and case notes, and take applicable actions.", 10, date, False, TIKL_note_text)
-    If set_another_TIKL = True then Call create_TIKL("An updated DHS-7823 - AVS Auth Form(s) has been requested for this case. Review ECF and case notes, and take applicable actions.", 10, date, False, TIKL_note_text)        
-    
     For item = 0 to ubound(avs_members_array, 2)
         If avs_members_array(avs_status_const, item) = "Review Results" or avs_members_array(avs_status_const, item) = "Results After Decision" then 
             'avs results information if any mambers meets review resutls or results after decision 
@@ -491,8 +461,8 @@ Do
                     End if 
                     If avs_members_array(ECF_const, item) = "Select one..." then err_msg = err_msg & vbcr & "* Was the AVS report submitted to ECF for the case file?"
                     If (avs_members_array(avs_results_const, item) = "No" or avs_members_array(accounts_verified_const, item) = "No") AND _
-                    trim(avs_members_array(avs_returned_no_const, item) = "") then err_msg = err_msg & vbcr & "* Explain answering 'No' to one or more questions in the dialog."
-                    If avs_members_array(unreported_assets_const, item) = "Yes" AND trim(avs_members_array(avs_returned_no_const, item) = "") then err_msg = err_msg & vbcr & "* Explain answering 'Yes' to unreported asset in the 'other '"
+                    trim(avs_members_array(avs_returned_no_const, item) = "") then err_msg = err_msg & vbcr & "* Explain answering 'No' to one or more questions in the dialog in the 'asset notes' field."
+                    If avs_members_array(unreported_assets_const, item) = "Yes" AND trim(avs_members_array(avs_returned_no_const, item) = "") then err_msg = err_msg & vbcr & "* Explain answering 'Yes' to unreported asset in the 'asset notes' field."
                     
                     IF err_msg <> "" AND left(err_msg, 4) <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect    
                 LOOP UNTIL err_msg = ""			
@@ -501,6 +471,48 @@ Do
         End if 
     Next
     
+    '----------------------------------------------------------------------------------------------------Conditional statements for actions and case noting 
+    'Determining if TIKL and verif request form info will be created - This will happen if initial_option = "AVS Forms" AND forms_status_const = "Initial Request"
+    Set_TIKL = False    
+    verif_request = False 
+    For i = 0 to ubound(avs_members_array, 2)
+        If avs_members_array(forms_status_const, i) = "Initial Request" then 
+            Set_TIKL = True 
+            verif_request = True
+            Exit For
+        End if     
+    Next     
+    
+    'giving users the option to create another TIKL if the initial forms are incomplete. 
+    For i = 0 to ubound(avs_members_array, 2)
+        If avs_members_array(forms_status_const, i) = "Received - Incomplete" then 
+            TIKL_msgbox = msgbox("Do you wish to send another verification requesting a completed AVS form?" & vbcr & vbcr & "Selecting YES will create another 10-day TIKL and case note that a verification request is being sent.", vbQuestion + vbYesNo, "Set another TIKL?")
+            If TIKL_msgbox = vbYes then 
+                set_another_TIKL = True
+                verif_request = True 
+            End if 
+            If TIKL_msgbox = vbNo then set_another_TIKL = False  
+            Exit for    
+        End if
+    Next  
+    
+    'Sending verif request for un reported assets found in the AVS system for the "AVS Submission/Results" option 
+    set_asset_TIKL = False 
+    If initial_option = "AVS Submission/Results" then 
+        For i = 0 to ubound(avs_members_array, 2)
+            If avs_members_array(unreported_assets_const, i) = "Yes" then 
+                set_asset_TIKL = True
+                Exit for 
+            End if
+        Next  
+    End if
+     
+    'set_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
+    If set_TIKL = True then Call create_TIKL("DHS-7823 - AVS Auth Form(s) have been requested for this case. Review ECF and case notes, and take applicable actions.", 10, date, False, TIKL_note_text)
+    If set_another_TIKL = True then Call create_TIKL("An updated DHS-7823 - AVS Auth Form(s) has been requested for this case. Review ECF and case notes, and take applicable actions.", 10, date, False, TIKL_note_text)  
+    If set_asset_TIKL = True then Call create_TIKL("AVS unreported asset verification requested for the case. Review ECF and case notes, and take applicable actions.", 10, date, False, TIKL_note_text)  
+    
+    'Adding closing message if the "AVS Submission/Results" option is selected and the AVS status is results after decision. 
     If initial_option = "AVS Submission/Results" then 
         For i = 0 to ubound(avs_members_array, 2)
             If avs_members_array(avs_status_const, i) = "Results After Decision" then closing_msg = closing_msg & vbcr & "Please review eligibility results to see if health care eligibility needs to be redetermined."
@@ -566,7 +578,14 @@ Do
     
     If verif_request = True then Call write_variable_in_CASE_NOTE("* Verification request sent to via ECF.")
     If set_TIKL = true then Call write_variable_in_case_note(TIKL_note_text)
-    If set_another_TIKL = true then Call write_variable_in_case_note(TIKL_note_text)
+    If set_another_TIKL = true then 
+        Call write_variable_in_case_note(TIKL_note_text)
+        Call write_variable_in_CASE_NOTE("* Sent verification request to complete the incomplete AVS form in ECF.")
+    End if 
+    If set_asset_TIKL = True then 
+        Call write_variable_in_case_note(TIKL_note_text)
+        Call write_variable_in_CASE_NOTE("* Sent verification request for unreported assets in ECF.")
+    End if 
     Call write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes) 
     Call write_variable_in_CASE_NOTE("---") 
     Call write_variable_in_CASE_NOTE(worker_signature) 
