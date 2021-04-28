@@ -41,6 +41,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("04/28/2021", "New functionality added!##~## ##~##Script will now read RCAS for the SVC LOC to ensure the case is handled by Hennepin County. This functionality is BRAND NEW and in testing. Tell us is there are any issues (the script preventing you from working on any cases that you can update or not correctly finding cases that you CAN'T update.) We won't know if we are looking for the right information or evaluating it correctly until we try it out.##~##", "Casey Love, Hennepin County")
 call changelog_update("04/26/2021", "Script can now end 'HH' Exclusions for PMAP.##~##", "Casey Love, Hennepin County")
 call changelog_update("04/26/2021", "Phone Number field is changed to a COMBOBOX which will allow you to select a phone number from a list based on what has been entered in and listed on RCAD in MMIS. This field can still be typed in, to allow for entry of a number not known to the system.##~##", "Casey Love, Hennepin County")
 call changelog_update("04/06/2021", "New 'disenrollment reason' option created to 'DELETE SPAN' which will allow the removal of an enrollment span using '...' to remove a span that starts in the same month as an enrollment you are trying to create.##~##", "Casey Love, Hennepin County")
@@ -371,6 +372,25 @@ FOR x = 0 to total_clients				'using a dummy array to build in the autofilled ch
 		EMReadScreen end_rcin, 6, 24, 2
 	Loop until end_rcin = "CANNOT"
 NEXT
+
+EMWriteScreen "X", 11, 2
+transmit
+EMWriteScreen "RCAS", 1, 8
+transmit
+rcas_row = 9
+Do
+	EMReadScreen rcas_case_numb, 8, rcas_row, 8
+	' MsgBox rcas_case_numb
+	If rcas_case_numb = MMIS_case_number Then
+		EMReadScreen svc_loc, 3, rcas_row, 57
+		EMReadScreen rcas_case_type, 1, rcas_row, 39
+		' MsgBox "Servicing County - " & svc_loc & vbNewLine & "Type - " & rcas_case_type
+		If svc_loc <> "027" Then script_end_procedure("It appears this case is either not serviced in Hennepin County. The script will now end as MMIS cannot be updated by a Hennepin County worker.")
+		' If rcas_case_type <> "D" AND rcas_case_type <> "M" Then script_end_procedure("It appears this case is a case type not County Administered. The script will now end as MMIS cannot be updated by a Hennepin County worker.")
+	End If
+	rcas_row = rcas_row + 1
+Loop until rcas_case_numb = "        "
+PF3
 
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 250, (35 + (total_clients * 15)), "HH Member Dialog"   'Creates the dynamic dialog. The height will change based on the number of clients it finds.
@@ -921,39 +941,55 @@ If MNSURE_Case = TRUE Then
 					If MMIS_clients_array(change_rsn_two, member) = "" Then MMIS_clients_array(change_rsn_two, member) = MMIS_clients_array(change_rsn, member)
 					If MMIS_clients_array(disenrol_rsn_two, member) = "" Then MMIS_clients_array(disenrol_rsn_two, member) = MMIS_clients_array(disenrol_rsn, member)
 
-					BeginDialog Dialog1, 0, 0, 456, 290, "Update Enrollment Options due to MMIS Failure or Error"
-					  DropListBox 80, 185, 125, 45, "Select One..."+chr(9)+"MA"+chr(9)+"NM"+chr(9)+"IM", MMIS_clients_array(new_plan_two, member)
-					  DropListBox 250, 185, 65, 45, "Select One..."+chr(9)+"12"+chr(9)+"30"+chr(9)+"35", MMIS_clients_array (contr_code_two, member)
-					  EditBox 390, 185, 50, 15, new_enrol_date
-					  DropListBox 80, 205, 130, 45, "Select one..."+chr(9)+"First year change option"+chr(9)+"Health plan contract end"+chr(9)+"Initial enrollment"+chr(9)+"Move"+chr(9)+"Ninety Day change option"+chr(9)+"Open enrollment"+chr(9)+"PMI merge"+chr(9)+"Reenrollment", MMIS_clients_array(change_rsn_two, member)
-					  DropListBox 100, 225, 130, 45, "Select one..."+chr(9)+"Eligibility ended"+chr(9)+"Exclusion"+chr(9)+"First year change option"+chr(9)+"Health plan contract end"+chr(9)+"Jail - Incarceration"+chr(9)+"Move"+chr(9)+"Loss of disability"+chr(9)+"Ninety Day change option"+chr(9)+"Open Enrollment"+chr(9)+"PMI merge"+chr(9)+"Voluntary", MMIS_clients_array(disenrol_rsn_two, member)
-					  ButtonGroup ButtonPressed
-					    PushButton 10, 270, 135, 15, "Skip Enrollment for " & MMIS_clients_array(client_name, member), skip_enrollment_btn
-					    PushButton 160, 270, 150, 15, "Enrollment Already Updated Manually", read_manual_enrollment_btn
-					    PushButton 325, 270, 125, 15, " Retry Enrollment with Script", retry_enrollment_btn
-					  Text 10, 10, 345, 10, "The selections made for this person caused a message or error in MMIS and were not able to be updated."
-					  GroupBox 10, 25, 440, 105, "Initial Selections for " & MMIS_clients_array(client_name, member)
-					  Text 20, 45, 190, 10, "Plan to Enroll:" & MMIS_clients_array(new_plan, member)
-					  Text 215, 45, 75, 10, "ID / Desc:" & MMIS_clients_array (contr_code, member)
-					  Text 330, 45, 110, 10, "Enrollment Date:" & enrollment_date
-					  Text 20, 60, 210, 10, "Change Reason:" & MMIS_clients_array(change_rsn, member)
-					  Text 20, 75, 220, 10, "Disenrollment Reason:" & MMIS_clients_array(disenrol_rsn, member)
-					  Text 20, 90, 55, 10, "Pregnant: " & pregnant_yn
-					  Text 115, 90, 60, 10, "Interpreter: " & interpreter_yn
-					  Text 190, 90, 90, 10, "Interpreter Code:" & MMIS_clients_array(interp_code, member)
-					  Text 20, 115, 215, 10, "Current Enrollment:" & MMIS_clients_array(current_plan, member)
-					  GroupBox 10, 135, 440, 30, "MMIS Error Messages"
-					  Text 20, 150, 415, 10, RPPH_error_check
-					  GroupBox 10, 170, 440, 95, "Change Selections for " & MMIS_clients_array(client_name, member)
-					  Text 20, 190, 60, 10, "Enrollment Plan:"
-					  Text 215, 190, 35, 10, "ID / Desc:"
-					  Text 330, 190, 60, 10, "Enrollment Date:"
-					  Text 20, 210, 60, 10, "Change Reason: "
-					  Text 20, 230, 80, 10, "Disenrollment Reason:"
-					EndDialog
+					Do
+						err_msg = ""
 
-					dialog Dialog1
-					cancel_confirmation
+						BeginDialog Dialog1, 0, 0, 456, 290, "Update Enrollment Options due to MMIS Failure or Error"
+						  DropListBox 80, 185, 125, 45, "Select One..."+chr(9)+"Blue Plus"+chr(9)+"Health Partners"+chr(9)+"Hennepin Health PMAP"+chr(9)+"Medica"+chr(9)+"Ucare", MMIS_clients_array(new_plan_two, member)
+						  DropListBox 250, 185, 65, 45, "Select One..."+chr(9)+"MA 12"+chr(9)+"NM 12"+chr(9)+"MA 30"+chr(9)+"MA 35"+chr(9)+"IM 12", MMIS_clients_array (contr_code_two, member)
+						  EditBox 390, 185, 50, 15, new_enrol_date
+						  DropListBox 80, 205, 130, 45, "Select one..."+chr(9)+"First year change option"+chr(9)+"Health plan contract end"+chr(9)+"Initial enrollment"+chr(9)+"Move"+chr(9)+"Ninety Day change option"+chr(9)+"Open enrollment"+chr(9)+"PMI merge"+chr(9)+"Reenrollment", MMIS_clients_array(change_rsn_two, member)
+						  DropListBox 100, 225, 130, 45, "Select one..."+chr(9)+"Eligibility ended"+chr(9)+"Exclusion"+chr(9)+"First year change option"+chr(9)+"Health plan contract end"+chr(9)+"Jail - Incarceration"+chr(9)+"Move"+chr(9)+"Loss of disability"+chr(9)+"Ninety Day change option"+chr(9)+"Open Enrollment"+chr(9)+"PMI merge"+chr(9)+"Voluntary", MMIS_clients_array(disenrol_rsn_two, member)
+						  ButtonGroup ButtonPressed
+						    PushButton 10, 270, 135, 15, "Skip Enrollment for " & MMIS_clients_array(client_name, member), skip_enrollment_btn
+						    PushButton 160, 270, 150, 15, "Enrollment Already Updated Manually", read_manual_enrollment_btn
+						    PushButton 325, 270, 125, 15, " Retry Enrollment with Script", retry_enrollment_btn
+						  Text 10, 10, 345, 10, "The selections made for this person caused a message or error in MMIS and were not able to be updated."
+						  GroupBox 10, 25, 440, 105, "Initial Selections for " & MMIS_clients_array(client_name, member)
+						  Text 20, 45, 190, 10, "Plan to Enroll:" & MMIS_clients_array(new_plan, member)
+						  Text 215, 45, 75, 10, "ID / Desc:" & MMIS_clients_array (contr_code, member)
+						  Text 330, 45, 110, 10, "Enrollment Date:" & enrollment_date
+						  Text 20, 60, 210, 10, "Change Reason:" & MMIS_clients_array(change_rsn, member)
+						  Text 20, 75, 220, 10, "Disenrollment Reason:" & MMIS_clients_array(disenrol_rsn, member)
+						  Text 20, 90, 55, 10, "Pregnant: " & pregnant_yn
+						  Text 115, 90, 60, 10, "Interpreter: " & interpreter_yn
+						  Text 190, 90, 90, 10, "Interpreter Code:" & MMIS_clients_array(interp_code, member)
+						  Text 20, 115, 215, 10, "Current Enrollment:" & MMIS_clients_array(current_plan, member)
+						  GroupBox 10, 135, 440, 30, "MMIS Error Messages"
+						  Text 20, 150, 415, 10, RPPH_error_check
+						  GroupBox 10, 170, 440, 95, "Change Selections for " & MMIS_clients_array(client_name, member)
+						  Text 20, 190, 60, 10, "Enrollment Plan:"
+						  Text 215, 190, 35, 10, "ID / Desc:"
+						  Text 330, 190, 60, 10, "Enrollment Date:"
+						  Text 20, 210, 60, 10, "Change Reason: "
+						  Text 20, 230, 80, 10, "Disenrollment Reason:"
+						EndDialog
+
+						dialog Dialog1
+						cancel_confirmation
+
+						If ButtonPressed = retry_enrollment_btn Then
+
+							If MMIS_clients_array(new_plan_two, member) = "Select One..." Then err_msg = err_msg & vbNewLine & "*  Select which plan you need to enroll " & MMIS_clients_array(client_name, person) & "into."
+							If MMIS_clients_array (contr_code_two, member) = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select the product ID and description for enrollment."
+							If MMIS_clients_array(change_rsn_two, member) = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select a reason to enroll  " & MMIS_clients_array(client_name, person) & " into a new plan."
+							If left(MMIS_clients_array(current_plan, person), 3) <> "XCL" AND trim(MMIS_clients_array(current_plan, person)) <> "" Then
+								If MMIS_clients_array(disenrol_rsn_two, member) = "Select One..." Then err_msg = err_msg & vbNewLine & "* Since " & MMIS_clients_array(client_name, person) & " is currently on a health plan, please select a disenrollment reason for the " & MMIS_clients_array(current_plan, person) & " plan."
+							End If
+							If err_msg <> "" THen MsgBox "Please resovle to continue:" & vbNewLine & err_msg
+
+						End If
+					Loop until err_msg = ""
 
 					new_enrol_date = DateAdd("d", 0, new_enrol_date)
 					If ButtonPressed = retry_enrollment_btn Then
@@ -1381,39 +1417,55 @@ Else
 					If MMIS_clients_array(change_rsn_two, member) = "" Then MMIS_clients_array(change_rsn_two, member) = MMIS_clients_array(change_rsn, member)
 					If MMIS_clients_array(disenrol_rsn_two, member) = "" Then MMIS_clients_array(disenrol_rsn_two, member) = MMIS_clients_array(disenrol_rsn, member)
 
-					BeginDialog Dialog1, 0, 0, 456, 290, "Update Enrollment Options due to MMIS Failure or Error"
-					  DropListBox 80, 185, 125, 45, "Select One..."+chr(9)+"Blue Plus"+chr(9)+"Health Partners"+chr(9)+"Hennepin Health PMAP"+chr(9)+"Medica"+chr(9)+"Ucare", MMIS_clients_array(new_plan_two, member)
-					  DropListBox 250, 185, 65, 45, "Select One..."+chr(9)+"MA 12"+chr(9)+"NM 12"+chr(9)+"MA 30"+chr(9)+"MA 35"+chr(9)+"IM 12", MMIS_clients_array (contr_code_two, member)
-					  EditBox 390, 185, 50, 15, new_enrol_date
-					  DropListBox 80, 205, 130, 45, "Select one..."+chr(9)+"First year change option"+chr(9)+"Health plan contract end"+chr(9)+"Initial enrollment"+chr(9)+"Move"+chr(9)+"Ninety Day change option"+chr(9)+"Open enrollment"+chr(9)+"PMI merge"+chr(9)+"Reenrollment", MMIS_clients_array(change_rsn_two, member)
-					  DropListBox 100, 225, 130, 45, "Select one..."+chr(9)+"Eligibility ended"+chr(9)+"Exclusion"+chr(9)+"First year change option"+chr(9)+"Health plan contract end"+chr(9)+"Jail - Incarceration"+chr(9)+"Move"+chr(9)+"Loss of disability"+chr(9)+"Ninety Day change option"+chr(9)+"Open Enrollment"+chr(9)+"PMI merge"+chr(9)+"Voluntary", MMIS_clients_array(disenrol_rsn_two, member)
-					  ButtonGroup ButtonPressed
-					    PushButton 10, 270, 135, 15, "Skip Enrollment for " & MMIS_clients_array(client_name, member), skip_enrollment_btn
-					    PushButton 160, 270, 150, 15, "Enrollment Already Updated Manually", read_manual_enrollment_btn
-					    PushButton 325, 270, 125, 15, " Retry Enrollment with Script", retry_enrollment_btn
-					  Text 10, 10, 345, 10, "The selections made for this person caused a message or error in MMIS and were not able to be updated."
-					  GroupBox 10, 25, 440, 105, "Initial Selections for " & MMIS_clients_array(client_name, member)
-					  Text 20, 45, 190, 10, "Plan to Enroll: " & MMIS_clients_array(new_plan, member)
-					  Text 215, 45, 75, 10, "ID / Desc:" & MMIS_clients_array (contr_code, member)
-					  Text 330, 45, 110, 10, "Enrollment Date: " & enrollment_date
-					  Text 20, 60, 210, 10, "Change Reason: " & MMIS_clients_array(change_rsn, member)
-					  Text 20, 75, 220, 10, "Disenrollment Reason: " & MMIS_clients_array(disenrol_rsn, member)
-					  Text 20, 90, 55, 10, "Pregnant: " & pregnant_yn
-					  Text 115, 90, 60, 10, "Interpreter: " & interpreter_yn
-					  Text 190, 90, 90, 10, "Interpreter Code: " & MMIS_clients_array(interp_code, member)
-					  Text 20, 115, 215, 10, "Current Enrollment: " & MMIS_clients_array(current_plan, member)
-					  GroupBox 10, 135, 440, 30, "MMIS Error Messages"
-					  Text 20, 150, 415, 10, RPPH_error_check
-					  GroupBox 10, 170, 440, 95, "Change Selections for " & MMIS_clients_array(client_name, member)
-					  Text 20, 190, 60, 10, "Enrollment Plan:"
-					  Text 215, 190, 35, 10, "ID / Desc:"
-					  Text 330, 190, 60, 10, "Enrollment Date:"
-					  Text 20, 210, 60, 10, "Change Reason: "
-					  Text 20, 230, 80, 10, "Disenrollment Reason:"
-					EndDialog
+					Do
+						err_msg = ""
 
-					dialog Dialog1
-					cancel_confirmation
+						BeginDialog Dialog1, 0, 0, 456, 290, "Update Enrollment Options due to MMIS Failure or Error"
+						  DropListBox 80, 185, 125, 45, "Select One..."+chr(9)+"Blue Plus"+chr(9)+"Health Partners"+chr(9)+"Hennepin Health PMAP"+chr(9)+"Medica"+chr(9)+"Ucare", MMIS_clients_array(new_plan_two, member)
+						  DropListBox 250, 185, 65, 45, "Select One..."+chr(9)+"MA 12"+chr(9)+"NM 12"+chr(9)+"MA 30"+chr(9)+"MA 35"+chr(9)+"IM 12", MMIS_clients_array (contr_code_two, member)
+						  EditBox 390, 185, 50, 15, new_enrol_date
+						  DropListBox 80, 205, 130, 45, "Select one..."+chr(9)+"First year change option"+chr(9)+"Health plan contract end"+chr(9)+"Initial enrollment"+chr(9)+"Move"+chr(9)+"Ninety Day change option"+chr(9)+"Open enrollment"+chr(9)+"PMI merge"+chr(9)+"Reenrollment", MMIS_clients_array(change_rsn_two, member)
+						  DropListBox 100, 225, 130, 45, "Select one..."+chr(9)+"Eligibility ended"+chr(9)+"Exclusion"+chr(9)+"First year change option"+chr(9)+"Health plan contract end"+chr(9)+"Jail - Incarceration"+chr(9)+"Move"+chr(9)+"Loss of disability"+chr(9)+"Ninety Day change option"+chr(9)+"Open Enrollment"+chr(9)+"PMI merge"+chr(9)+"Voluntary", MMIS_clients_array(disenrol_rsn_two, member)
+						  ButtonGroup ButtonPressed
+						    PushButton 10, 270, 135, 15, "Skip Enrollment for " & MMIS_clients_array(client_name, member), skip_enrollment_btn
+						    PushButton 160, 270, 150, 15, "Enrollment Already Updated Manually", read_manual_enrollment_btn
+						    PushButton 325, 270, 125, 15, " Retry Enrollment with Script", retry_enrollment_btn
+						  Text 10, 10, 345, 10, "The selections made for this person caused a message or error in MMIS and were not able to be updated."
+						  GroupBox 10, 25, 440, 105, "Initial Selections for " & MMIS_clients_array(client_name, member)
+						  Text 20, 45, 190, 10, "Plan to Enroll:" & MMIS_clients_array(new_plan, member)
+						  Text 215, 45, 75, 10, "ID / Desc:" & MMIS_clients_array (contr_code, member)
+						  Text 330, 45, 110, 10, "Enrollment Date:" & enrollment_date
+						  Text 20, 60, 210, 10, "Change Reason:" & MMIS_clients_array(change_rsn, member)
+						  Text 20, 75, 220, 10, "Disenrollment Reason:" & MMIS_clients_array(disenrol_rsn, member)
+						  Text 20, 90, 55, 10, "Pregnant: " & pregnant_yn
+						  Text 115, 90, 60, 10, "Interpreter: " & interpreter_yn
+						  Text 190, 90, 90, 10, "Interpreter Code:" & MMIS_clients_array(interp_code, member)
+						  Text 20, 115, 215, 10, "Current Enrollment:" & MMIS_clients_array(current_plan, member)
+						  GroupBox 10, 135, 440, 30, "MMIS Error Messages"
+						  Text 20, 150, 415, 10, RPPH_error_check
+						  GroupBox 10, 170, 440, 95, "Change Selections for " & MMIS_clients_array(client_name, member)
+						  Text 20, 190, 60, 10, "Enrollment Plan:"
+						  Text 215, 190, 35, 10, "ID / Desc:"
+						  Text 330, 190, 60, 10, "Enrollment Date:"
+						  Text 20, 210, 60, 10, "Change Reason: "
+						  Text 20, 230, 80, 10, "Disenrollment Reason:"
+						EndDialog
+
+						dialog Dialog1
+						cancel_confirmation
+
+						If ButtonPressed = retry_enrollment_btn Then
+
+							If MMIS_clients_array(new_plan_two, member) = "Select One..." Then err_msg = err_msg & vbNewLine & "*  Select which plan you need to enroll " & MMIS_clients_array(client_name, person) & "into."
+							If MMIS_clients_array (contr_code_two, member) = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select the product ID and description for enrollment."
+							If MMIS_clients_array(change_rsn_two, member) = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select a reason to enroll  " & MMIS_clients_array(client_name, person) & " into a new plan."
+							If left(MMIS_clients_array(current_plan, person), 3) <> "XCL" AND trim(MMIS_clients_array(current_plan, person)) <> "" Then
+								If MMIS_clients_array(disenrol_rsn_two, member) = "Select One..." Then err_msg = err_msg & vbNewLine & "* Since " & MMIS_clients_array(client_name, person) & " is currently on a health plan, please select a disenrollment reason for the " & MMIS_clients_array(current_plan, person) & " plan."
+							End If
+							If err_msg <> "" THen MsgBox "Please resovle to continue:" & vbNewLine & err_msg
+
+						End If
+					Loop until err_msg = ""
 
 					new_enrol_date = DateAdd("d", 0, new_enrol_date)
 					If ButtonPressed = retry_enrollment_btn Then
