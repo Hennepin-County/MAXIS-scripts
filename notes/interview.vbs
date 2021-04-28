@@ -5919,7 +5919,7 @@ Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 371, 330, "Interview Script Case number dialog"
   EditBox 105, 85, 60, 15, MAXIS_case_number
   EditBox 105, 105, 50, 15, CAF_datestamp
-  DropListBox 105, 125, 140, 15, "Select One:"+chr(9)+"CAF (DHS-5223)"+chr(9)+"SNAP App for Srs (DHS-5223F)"+chr(9)+"ApplyMN"+chr(9)+"Combined AR for Certain Pops (DHS-3727)"+chr(9)+"CAF Addendum (DHS-5223C)", CAF_form
+  DropListBox 105, 125, 140, 15, "Select One:"+chr(9)+"CAF (DHS-5223)"+chr(9)+"HUF (DHS-8107)"+chr(9)+"SNAP App for Srs (DHS-5223F)"+chr(9)+"ApplyMN"+chr(9)+"Combined AR for Certain Pops (DHS-3727)"+chr(9)+"CAF Addendum (DHS-5223C)", CAF_form
   CheckBox 110, 160, 30, 10, "CASH", CASH_on_CAF_checkbox
   CheckBox 150, 160, 35, 10, "SNAP", SNAP_on_CAF_checkbox
   CheckBox 190, 160, 35, 10, "EMER", EMER_on_CAF_checkbox
@@ -5989,6 +5989,26 @@ If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 	full_hh_list = Split(list_for_array, chr(9))
 
 	Call read_all_the_MEMBs
+
+	For the_members = 0 to UBound(HH_MEMB_ARRAY)
+		HH_MEMB_ARRAY(the_members).race_a_checkbox = unchecked
+		HH_MEMB_ARRAY(the_members).race_b_checkbox = unchecked
+		HH_MEMB_ARRAY(the_members).race_n_checkbox = unchecked
+		HH_MEMB_ARRAY(the_members).race_p_checkbox = unchecked
+		HH_MEMB_ARRAY(the_members).race_w_checkbox = unchecked
+		HH_MEMB_ARRAY(the_members).snap_req_checkbox = unchecked
+		If SNAP_on_CAF_checkbox = checked Then HH_MEMB_ARRAY(the_members).snap_req_checkbox = checked
+		HH_MEMB_ARRAY(the_members).cash_req_checkbox = unchecked
+		If CASH_on_CAF_checkbox = checked Then HH_MEMB_ARRAY(the_members).cash_req_checkbox = checked
+		HH_MEMB_ARRAY(the_members).emer_req_checkbox = unchecked
+		If EMER_on_CAF_checkbox = checked Then HH_MEMB_ARRAY(the_members).emer_req_checkbox = checked
+		HH_MEMB_ARRAY(the_members).none_req_checkbox = unchecked
+		HH_MEMB_ARRAY(the_members).intend_to_reside_in_mn = ""
+		HH_MEMB_ARRAY(the_members).clt_has_sponsor = ""
+		HH_MEMB_ARRAY(the_members).client_verification = ""
+		HH_MEMB_ARRAY(the_members).client_verification_details = ""
+		HH_MEMB_ARRAY(the_members).client_notes = ""
+	Next
 
 	'Now we gather the address information that exists in MAXIS
 	Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_addr_city, resi_addr_state, resi_addr_zip, resi_addr_county, addr_verif, homeless_yn, reservation_yn, living_situation, mail_line_one, mail_line_two, mail_addr_city, mail_addr_state, mail_addr_zip, addr_eff_date, addr_future_date, phone_one_number, phone_two_number, phone_three_number, phone_pne_type, phone_two_type, phone_four_type)
@@ -6260,7 +6280,7 @@ DO
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
 
-script_end_procedure("At this point the script will create a PDF with all of the interview notes to save to ECF, enter a comprehensive CASE:NOTE, and update PROG or REVW with the interview date. Future enhancements will add more actions functionality.")
+' script_end_procedure("At this point the script will create a PDF with all of the interview notes to save to ECF, enter a comprehensive CASE:NOTE, and update PROG or REVW with the interview date. Future enhancements will add more actions functionality.")
 '****writing the word document
 Set objWord = CreateObject("Word.Application")
 
@@ -6286,7 +6306,8 @@ objSelection.TypeText "Interview Date: " & interview_date & vbCR
 objSelection.TypeText "DATE OF APPLICATION: " & CAF_datestamp & vbCR
 objSelection.TypeText "Completed by: " & worker_name & vbCR
 objSelection.TypeText "Interview completed with: " & who_are_we_completing_the_interview_with & vbCR
-objSelection.TypeText "Interview length: " & timer-start_time & vbCR
+length_of_interview = (timer-start_time)/60
+objSelection.TypeText "Interview length: " & length_of_interview & " minutes" & vbCR
 objSelection.TypeText "Case Status at the time of interview: " & vbCR
 If case_active = TRUE Then
 	objSelection.TypeText "   Case is ACTIVE" & vbCR
@@ -6373,6 +6394,8 @@ objProgStatusTable.Cell(6, 2).Range.Text = ma_case
 
 objProgStatusTable.Cell(7, 1).Range.Text = "MSA"
 objProgStatusTable.Cell(7, 2).Range.Text = msp_case
+
+objSelection.EndKey end_of_doc						'this sets the cursor to the end of the document for more writing
 
 'Program CAF Information
 caf_progs = ""
@@ -6927,8 +6950,8 @@ If question_1_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In
 If question_1_verif_yn <> "Mot Needed" AND question_1_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_1_verif_yn & vbCr
 If question_1_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_1_verif_details & vbCr
 If question_1_yn <> "" OR trim(question_1_notes) <> "" Then
-	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview"
-	If question_1_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_1_interview_notes
+	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview" & vbCR
+	If question_1_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_1_interview_notes & vbCR
 End If
 
 objSelection.TypeText "Q 2. Is anyone in the household, who is age 60 or over or disabled, unable to buy or fix food due to a disability?" & vbCr
@@ -6937,8 +6960,8 @@ If question_2_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In
 If question_2_verif_yn <> "Mot Needed" AND question_2_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_2_verif_yn & vbCr
 If question_2_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_2_verif_details & vbCr
 If question_2_yn <> "" OR trim(question_2_notes) <> "" Then
-	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview"
-	If question_2_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_2_interview_notes
+	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview" & vbCR
+	If question_2_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_2_interview_notes & vbCR
 End If
 
 objSelection.TypeText "Q 3. Is anyone in the household attending school?" & vbCr
@@ -6947,8 +6970,8 @@ If question_3_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In
 If question_3_verif_yn <> "Mot Needed" AND question_3_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_3_verif_yn & vbCr
 If question_3_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_3_verif_details & vbCr
 If question_3_yn <> "" OR trim(question_3_notes) <> "" Then
-	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview"
-	If question_3_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_3_interview_notes
+	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview" & vbCR
+	If question_3_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_3_interview_notes & vbCR
 End If
 
 objSelection.TypeText "Q 4. Is anyone in your household temporarily not living in your home? (for example: vacation, foster care, treatment, hospital, job search)" & vbCr
@@ -6957,8 +6980,8 @@ If question_4_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In
 If question_4_verif_yn <> "Mot Needed" AND question_4_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_4_verif_yn & vbCr
 If question_4_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_4_verif_details & vbCr
 If question_4_yn <> "" OR trim(question_4_notes) <> "" Then
-	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview"
-	If question_4_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_4_interview_notes
+	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview" & vbCR
+	If question_4_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_4_interview_notes & vbCR
 End If
 
 objSelection.TypeText "Q 5. Is anyone blind, or does anyone have a physical or mental health condition that limits the ability to work or perform daily activities?" & vbCr
@@ -6967,8 +6990,8 @@ If question_5_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In
 If question_5_verif_yn <> "Mot Needed" AND question_5_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_5_verif_yn & vbCr
 If question_5_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_5_verif_details & vbCr
 If question_5_yn <> "" OR trim(question_5_notes) <> "" Then
-	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview"
-	If question_5_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_5_interview_notes
+	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview" & vbCR
+	If question_5_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_5_interview_notes & vbCR
 End If
 
 objSelection.TypeText "Q 6. Is anyone unable to work for reasons other than illness or disability?" & vbCr
@@ -6977,8 +7000,8 @@ If question_6_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In
 If question_6_verif_yn <> "Mot Needed" AND question_6_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_6_verif_yn & vbCr
 If question_6_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_6_verif_details & vbCr
 If question_6_yn <> "" OR trim(question_6_notes) <> "" Then
-	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview"
-	If question_6_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_6_interview_notes
+	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview" & vbCR
+	If question_6_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_6_interview_notes & vbCR
 End If
 
 objSelection.TypeText "Q 7. In the last 60 days did anyone in the household: - Stop working or quit a job? - Refuse a job offer? - Ask to work fewer hours? - Go on strike?" & vbCr
@@ -6987,8 +7010,8 @@ If question_7_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In
 If question_7_verif_yn <> "Mot Needed" AND question_7_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_7_verif_yn & vbCr
 If question_7_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_7_verif_details & vbCr
 If question_7_yn <> "" OR trim(question_7_notes) <> "" Then
-	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview"
-	If question_7_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_7_interview_notes
+	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview" & vbCR
+	If question_7_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_7_interview_notes & vbCR
 End If
 
 objSelection.TypeText "Q 8. Has anyone in the household had a job or been self-employed in the past 12 months?" & vbCr
@@ -6999,8 +7022,8 @@ If question_8_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-In
 If question_8_verif_yn <> "Mot Needed" AND question_8_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_8_verif_yn & vbCr
 If question_8_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_8_verif_details & vbCr
 If question_8_yn <> "" OR trim(question_8_notes) <> "" Then
-	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview"
-	If question_8_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_8_interview_notes
+	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview" & vbCR
+	If question_8_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_8_interview_notes & vbCR
 End If
 
 objSelection.TypeText "Q 9. Does anyone in the household have a job or expect to get income from a job this month or next month?" & vbCr
@@ -7080,8 +7103,8 @@ If question_10_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-I
 If question_10_verif_yn <> "Mot Needed" AND question_10_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_10_verif_yn & vbCr
 If question_10_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_10_verif_details & vbCr
 If question_10_yn <> "" OR trim(question_10_notes) <> "" Then
-	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview"
-	If question_10_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_10_interview_notes
+	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview" & vbCR
+	If question_10_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_10_interview_notes & vbCR
 End If
 
 objSelection.TypeText "Q 11. Do you expect any changes in income, expenses or work hours?" & vbCr
@@ -7090,8 +7113,8 @@ If question_11_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-I
 If question_11_verif_yn <> "Mot Needed" AND question_11_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_11_verif_yn & vbCr
 If question_11_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_11_verif_details & vbCr
 If question_11_yn <> "" OR trim(question_11_notes) <> "" Then
-	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview"
-	If question_11_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_11_interview_notes
+	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview" & vbCR
+	If question_11_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_11_interview_notes & vbCR
 End If
 
 objSelection.Font.Bold = TRUE
@@ -7216,8 +7239,8 @@ If question_12_other_yn <> "" Then q_12_answered = TRUE
 If question_12_other_amt <> "" Then q_12_answered = TRUE
 If question_12_notes <> "" Then q_12_answered = TRUE
 If q_12_answered = TRUE  Then
-	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview"
-	If question_12_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_12_interview_notes
+	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview" & vbCR
+	If question_12_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_12_interview_notes & vbCR
 End If
 
 objSelection.TypeText "Q 13. Does anyone in the household have or expect to get any loans, scholarships or grants for attending school?" & vbCr
@@ -7226,8 +7249,8 @@ If question_13_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-I
 If question_13_verif_yn <> "Mot Needed" AND question_13_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_13_verif_yn & vbCr
 If question_13_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_13_verif_details & vbCr
 If question_13_yn <> "" OR trim(question_13_notes) <> "" Then
-	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview"
-	If question_13_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_13_interview_notes
+	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview" & vbCR
+	If question_13_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_13_interview_notes & vbCR
 End If
 
 objSelection.TypeText "Q 14. Does your household have the following housing expenses?" & vbCr
@@ -7289,8 +7312,8 @@ If question_14_insurance_yn <> "" Then q_14_answered = TRUE
 If question_14_room_yn <> "" Then q_14_answered = TRUE
 If question_14_taxes_yn <> "" Then q_14_answered = TRUE
 If q_14_answered = TRUE  Then
-	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview"
-	If question_14_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_14_interview_notes
+	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview" & vbCR
+	If question_14_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_14_interview_notes & vbCR
 End If
 
 objSelection.TypeText "Q 15. Does your household have the following utility expenses any time during the year?" & vbCr
@@ -7353,8 +7376,8 @@ If question_15_garbage_yn <> "" Then q_15_answered = TRUE
 If question_15_phone_yn <> "" Then q_15_answered = TRUE
 If question_15_liheap_yn <> "" Then q_15_answered = TRUE
 If q_15_answered = TRUE  Then
-	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview"
-	If question_15_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_15_interview_notes
+	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview" & vbCR
+	If question_15_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_15_interview_notes & vbCR
 End If
 
 objSelection.TypeText "Q 16. Do you or anyone living with you have costs for care of a child(ren) because you or they are working, looking for work or going to school?" & vbCr
@@ -7363,8 +7386,8 @@ If question_16_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-I
 If question_16_verif_yn <> "Mot Needed" AND question_16_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_16_verif_yn & vbCr
 If question_16_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_16_verif_details & vbCr
 If question_16_yn <> "" OR trim(question_16_notes) <> "" Then
-	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview"
-	If question_16_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_16_interview_notes
+	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview" & vbCR
+	If question_16_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_16_interview_notes & vbCR
 End If
 
 objSelection.TypeText "Q 17. Do you or anyone living with you have costs for care of an ill or disabled adult because you or they are working, looking for work or going to school?" & vbCr
@@ -7373,8 +7396,8 @@ If question_17_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-I
 If question_17_verif_yn <> "Mot Needed" AND question_17_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_17_verif_yn & vbCr
 If question_17_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_17_verif_details & vbCr
 If question_17_yn <> "" OR trim(question_17_notes) <> "" Then
-	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview"
-	If question_17_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_17_interview_notes
+	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview" & vbCR
+	If question_17_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_17_interview_notes & vbCR
 End If
 
 objSelection.TypeText "Q 18. Does anyone in the household pay court-ordered child support, spousal support, child care support, medical support or contribute to a tax dependent who does not live in your home?" & vbCr
@@ -7383,8 +7406,8 @@ If question_18_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-I
 If question_18_verif_yn <> "Mot Needed" AND question_18_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_18_verif_yn & vbCr
 If question_18_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_18_verif_details & vbCr
 If question_18_yn <> "" OR trim(question_18_notes) <> "" Then
-	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview"
-	If question_18_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_18_interview_notes
+	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview" & vbCR
+	If question_18_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_18_interview_notes & vbCR
 End If
 
 objSelection.TypeText "Q 19. For SNAP only: Does anyone in the household have medical expenses? " & vbCr
@@ -7393,8 +7416,8 @@ If question_19_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-I
 If question_19_verif_yn <> "Mot Needed" AND question_19_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_19_verif_yn & vbCr
 If question_19_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_19_verif_details & vbCr
 If question_19_yn <> "" OR trim(question_19_notes) <> "" Then
-	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview"
-	If question_19_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_19_interview_notes
+	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview" & vbCR
+	If question_19_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_19_interview_notes & vbCR
 End If
 
 objSelection.TypeText "Q 20. Does anyone in the household own, or is anyone buying, any of the following? Check yes or no for each item. " & vbCr
@@ -7441,8 +7464,8 @@ If question_20_acct_yn <> "" Then q_20_answered = TRUE
 If question_20_secu_yn <> "" Then q_20_answered = TRUE
 If question_20_cars_yn <> "" Then q_20_answered = TRUE
 If q_20_answered = TRUE  Then
-	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview"
-	If question_20_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_20_interview_notes
+	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview" & vbCR
+	If question_20_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_20_interview_notes & vbCR
 End If
 
 objSelection.TypeText "Q 21. For Cash programs only: Has anyone in the household given away, sold or traded anything of value in the past 12 months? (For example: Cash, Bank accounts, Stocks, Bonds, Vehicles)" & vbCr
@@ -7451,8 +7474,8 @@ If question_21_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-I
 If question_21_verif_yn <> "Mot Needed" AND question_21_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_21_verif_yn & vbCr
 If question_21_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_21_verif_details & vbCr
 If question_21_yn <> "" OR trim(question_21_notes) <> "" Then
-	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview"
-	If question_21_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_21_interview_notes
+	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview" & vbCR
+	If question_21_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_21_interview_notes & vbCR
 End If
 
 objSelection.TypeText "Q 22. For recertifications only: Did anyone move in or out of your home in the past 12 months?" & vbCr
@@ -7461,8 +7484,8 @@ If question_22_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-I
 If question_22_verif_yn <> "Mot Needed" AND question_22_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_22_verif_yn & vbCr
 If question_22_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_22_verif_details & vbCr
 If question_22_yn <> "" OR trim(question_22_notes) <> "" Then
-	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview"
-	If question_22_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_22_interview_notes
+	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview" & vbCR
+	If question_22_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_22_interview_notes & vbCR
 End If
 
 objSelection.TypeText "Q 23. For children under the age of 19, are both parents living in the home?" & vbCr
@@ -7471,8 +7494,8 @@ If question_23_notes <> "" Then objSelection.TypeText chr(9) & "CAF Info Write-I
 If question_23_verif_yn <> "Mot Needed" AND question_23_verif_yn <> "" Then objSelection.TypeText chr(9) & "Verification: " & question_23_verif_yn & vbCr
 If question_23_verif_details <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & question_23_verif_details & vbCr
 If question_23_yn <> "" OR trim(question_23_notes) <> "" Then
-	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview"
-	If question_23_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_23_interview_notes
+	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview" & vbCR
+	If question_23_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_23_interview_notes & vbCR
 End If
 
 objSelection.TypeText "Q 24. For MSA recipients only: Does anyone in the household have any of the following expenses?" & vbCr
@@ -7519,8 +7542,8 @@ If question_24_guardian_fees_yn <> "" Then q_24_answered = TRUE
 If question_24_special_diet_yn <> "" Then q_24_answered = TRUE
 If question_24_high_housing_yn <> "" Then q_24_answered = TRUE
 If q_24_answered = TRUE  Then
-	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview"
-	If question_24_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_24_interview_notes
+	objSelection.TypeText chr(9) & "CAF Answer Confirmed during the Interview" & vbCR
+	If question_24_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_24_interview_notes & vbCR
 End If
 
 objSelection.TypeText "CAF QUALIFYING QUESTIONS" & vbCr
@@ -7571,23 +7594,23 @@ If objFSO.FileExists(pdf_doc_path) = TRUE Then
 	objDoc.Close wdDoNotSaveChanges
 	objWord.Quit						'close Word Application instance we opened. (any other word instances will remain)
 
-	'Needs to determine MyDocs directory before proceeding.
-	Set wshshell = CreateObject("WScript.Shell")
-	user_myDocs_folder = wshShell.SpecialFolders("MyDocuments") & "\"
-	'this is the file for the 'save your work' functionality.
-	If MAXIS_case_number <> "" Then
-		local_changelog_path = user_myDocs_folder & "caf-answers-" & MAXIS_case_number & "-info.txt"
-	Else
-		local_changelog_path = user_myDocs_folder & "caf-answers-new-case-info.txt"
-	End If
-
-	'we are checking the save your work text file. If it exists we need to delete it because we don't want to save that information locally.
-	If objFSO.FileExists(local_changelog_path) = True then
-		objFSO.DeleteFile(local_changelog_path)			'DELETE
-	End If
+	' 'Needs to determine MyDocs directory before proceeding.
+	' Set wshshell = CreateObject("WScript.Shell")
+	' user_myDocs_folder = wshShell.SpecialFolders("MyDocuments") & "\"
+	' 'this is the file for the 'save your work' functionality.
+	' If MAXIS_case_number <> "" Then
+	' 	local_changelog_path = user_myDocs_folder & "caf-answers-" & MAXIS_case_number & "-info.txt"
+	' Else
+	' 	local_changelog_path = user_myDocs_folder & "caf-answers-new-case-info.txt"
+	' End If
+	'
+	' 'we are checking the save your work text file. If it exists we need to delete it because we don't want to save that information locally.
+	' If objFSO.FileExists(local_changelog_path) = True then
+	' 	objFSO.DeleteFile(local_changelog_path)			'DELETE
+	' End If
 
 	' 'Now we case note!
-	' Call start_a_blank_case_note
+	Call start_a_blank_case_note
 	' Call write_variable_in_CASE_NOTE("CAF Form completed via Phone")
 	' Call write_variable_in_CASE_NOTE("Form information taken verbally per COVID Waiver Allowance.")
 	' Call write_variable_in_CASE_NOTE("Form information taken on " & caf_form_date)
@@ -7602,7 +7625,7 @@ If objFSO.FileExists(pdf_doc_path) = TRUE Then
 
 
 	'setting the end message
-	end_msg = "Success! The information you have provided for the CAF form has been saved to the Assignments forlder so the CAF Form can be updated and added to ECF. The case can be processed using the information saved in the PDF. Additional notes and information are needed or case processing. This script has NOT updated MAXIS or added CAF processing notes."
+	end_msg = "Success! The information you have provided about the interview and all of the notes have been saved in a PDF. This PDF will be uploaded to ECF by SSR staff for Case # " & MAXIS_case_number & " and will remain in the CASE RECORD. CASE:NOTES have also been entered with the full interview detail."
 
 	'Now we ask if the worker would like the PDF to be opened by the script before the script closes
 	'This is helpful because they may not be familiar with where these are saved and they could work from the PDF to process the reVw
