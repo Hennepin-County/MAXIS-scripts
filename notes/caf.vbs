@@ -5935,7 +5935,7 @@ If interview_required = TRUE Then
     Call start_a_blank_CASE_NOTE
 
     CALL write_variable_in_CASE_NOTE("~ Interview Completed on " & interview_date & " ~")
-    Call write_bullet_and_variable_in_CASE_NOTE("CAF Datestamp", caf_datestamp)
+    Call write_bullet_and_variable_in_CASE_NOTE("Form Datestamp", caf_datestamp)
     Call write_variable_in_CASE_NOTE("* Interview details:")
 
     Call write_variable_with_indent_in_CASE_NOTE("Conducted via " & interview_type)
