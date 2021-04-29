@@ -58,6 +58,7 @@ changelog_display
 'TODO: stats increment counter
 'TODO: Comment code
 'TODO: Hot Topics
+'TODO: Remove testing code 
 
 '----------------------------------------------------------------------------------------------------The script
 closing_msg = "Success! Your AVS case note has been created. Please review for accuracy & any additional information."
@@ -65,7 +66,8 @@ closing_msg = "Success! Your AVS case note has been created. Please review for a
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
 
-msgbox "Oh hi there! 1"
+HC_process = "Application"  'testing code
+msgbox "Oh hi there! 3"     'testing code
 '----------------------------------------------------------------------------------------------------Initial dialog
 initial_help_text = "*** What is the AVS? ***" & vbNewLine & "--------------------" & vbNewLine & vbNewLine & _
 "The Account Validation Service (AVS) is a web-based service that provides information about some accounts held in financial institutions. It does not provide information on property assets such as cars or homes. AVS must be used once at application, and when a person changes to a Medical Assistance for People Who Are Age 65 or Older and People Who Are Blind or Have a Disability (MA-ABD) basis of eligibility and are subject to an asset test." & vbNewLine & vbNewLine & _
@@ -163,12 +165,16 @@ DO								'reads the reference number, last name, first name, and then puts it i
     If client_ssn = "___ __ ____" then
         client_ssn = ""
         'Folks who have no ssn are not required to submit an AVS inquiry
-        If initial_option = "AVS Submission/Results" then avs_members_array(request_type_const, avs_membs) = "N/A - No SSN"
     Else
         client_ssn = replace(client_ssn, " ", "")
     End if
 
     If trim(client_age) < "21" then add_to_array = False  'under 21 are not required to sign per EPM 2.3.3.2.1 Asset Limits
+    If add_to_array = True then
+        If client_ssn = "" then 
+            If initial_option = "AVS Submission/Results" then avs_members_array(request_type_const, avs_membs) = "N/A - No SSN"
+        End if
+    End if 
 
     If add_to_array = True then
         ReDim Preserve avs_members_array(additional_info_const, avs_membs)
@@ -234,7 +240,7 @@ For item = 0 to Ubound(avs_members_array, 2)
                     If avs_members_array(marital_status_const, item) = "M" then
                         avs_members_array(applicant_type_const, item) = "Applying/Spouse"
                     Else
-                        avs_members_array(applicant_type_const,      item) = "Applying"
+                        avs_members_array(applicant_type_const, item) = "Applying"
                     End if
                     exit do
                 Elseif applicant_type = "N" then
@@ -242,7 +248,7 @@ For item = 0 to Ubound(avs_members_array, 2)
                     If avs_members_array(marital_status_const, item) = "M" then
                         avs_members_array(applicant_type_const, item) = "Spouse"
                     Else
-                        avs_members_array(applicant_type_const,      item) = "Not Applying"
+                        avs_members_array(applicant_type_const, item) = "Not Applying"
                     End if
                     exit do
                 End if
@@ -316,7 +322,7 @@ Do
         ButtonGroup ButtonPressed
         PushButton 170, 0, 10, 15, "!", help_button
         For item = 0 to UBound(avs_members_array, 2)									'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
-            If avs_members_array(checked_const, item) = 1 then checkbox 15, (20 + (item * 20)), 100, 15, avs_members_array(member_info_const, item), avs_members_array(checked_const, item)
+            If avs_members_array(checked_const, item) = 1 then checkbox 15, (20 + (item * 20)), 130, 15, avs_members_array(member_info_const, item), avs_members_array(checked_const, item)
         Next
         ButtonGroup ButtonPressed
         OkButton 85, (30 + (item * 20)), 45, 15
@@ -342,27 +348,46 @@ Do
             If checked_count = 0 then err_msg = err_msg & vbcr & "* Select all persons responsible for signing the AVS form."
             IF err_msg <> "" AND left(err_msg, 4) <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
         LOOP UNTIL err_msg = ""									'loops until all errors are resolved
-
-        'TODO: Is this necessary anymore?
-        'Revaluing the checked or selected names based on the user selection in the dialog
-        FOR item = 0 to UBound(avs_members_array, 2)										'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
-            If avs_members_array(checked_const, item) = 0 then avs_members_array(checked_const, item) = 0
-        NEXT
-
         CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
     Loop until are_we_passworded_out = false					'loops until user passwords back in
 
+
+    resize_counter = 0
+    For item = 0 to UBound(avs_members_array, 2)
+        If avs_members_array(checked_const, item) = 1 Then 
+            avs_members_array(member_number_const     , resize_counter) = avs_members_array(member_number_const     , item)
+            avs_members_array(member_info_const       , resize_counter) = avs_members_array(member_info_const       , item)
+            avs_members_array(member_name_const       , resize_counter) = avs_members_array(member_name_const       , item)
+            avs_members_array(marital_status_const    , resize_counter) = avs_members_array(marital_status_const    , item)
+            avs_members_array(checked_const           , resize_counter) = avs_members_array(checked_const           , item)
+            avs_members_array(hc_applicant_const      , resize_counter) = avs_members_array(hc_applicant_const      , item)
+            avs_members_array(applicant_type_const    , resize_counter) = avs_members_array(applicant_type_const    , item)
+            avs_members_array(forms_status_const      , resize_counter) = avs_members_array(forms_status_const      , item)
+            avs_members_array(avs_status_const        , resize_counter) = avs_members_array(avs_status_const        , item)
+            avs_members_array(request_type_const      , resize_counter) = avs_members_array(request_type_const      , item)
+            avs_members_array(avs_results_const       , resize_counter) = avs_members_array(avs_results_const       , item)
+            avs_members_array(avs_returned_no_const   , resize_counter) = avs_members_array(avs_returned_no_const   , item)
+            avs_members_array(avs_date_const          , resize_counter) = avs_members_array(avs_date_const          , item)
+            avs_members_array(accounts_verified_const , resize_counter) = avs_members_array(accounts_verified_const , item)
+            avs_members_array(unreported_assets_const , resize_counter) = avs_members_array(unreported_assets_const , item)
+            avs_members_array(ECF_const               , resize_counter) = avs_members_array(ECF_const               , item)
+            avs_members_array(additional_info_const   , resize_counter) = avs_members_array(additional_info_const   , item)
+            resize_counter = resize_counter + 1
+        End If 
+    Next 
+    resize_counter = resize_counter - 1
+    ReDim Preserve avs_members_array(additional_info_const, resize_counter)
     '----------------------------------------------------------------------------------------------------Adding in information about the AVS Members selected
     Dialog1 = ""
-    BeginDialog Dialog1, 0, 0, 575, (115 + (avs_membs * 15)), "AVS Member Information Dialog"
-      GroupBox 10, 5, 550, (60 + (avs_membs * 15)), "Complete the following information for required AVS members:"
+    BeginDialog Dialog1, 0, 0, 575, (115 + (checked_count * 15)), "AVS Member Information Dialog"
+      GroupBox 10, 5, 550, (60 + (checked_count * 15)), "Complete the following information for required AVS members:"
       ButtonGroup ButtonPressed
         PushButton 215, 0, 10, 15, "!", help_button_1
       Text 20, 25, 520, 10, "----------AVS Member--------------------------------" & type_text & " Type---------------------------" & dialog_text & " Status-------------------" & dialog_text & " Sent/Rec'd Date-------------------Additional Information----------------"
       ButtonGroup ButtonPressed
         PushButton 400, 20, 10, 15, "!", help_button_2
         For item = 0 to UBound(avs_members_array, 2)									'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
-            If avs_members_array(checked_const, item) = 1 then
+            'If avs_members_array(checked_const, item) = 1 then
                 y_pos = (50 + item * 20)
                 Text 20, y_pos, 110, 15, avs_members_array(member_info_const, item)
                 If initial_option = "AVS Forms" then
@@ -371,12 +396,12 @@ Do
                 End if
 
                 If initial_option = "AVS Submission/Results" then
-                        DropListBox 120, y_pos - 5, 90, 15, "Select one..."+chr(9)+"BI - Brain Injury Waiver"+chr(9)+"BX - Blind"+chr(9)+"CA - CAC Waiver"+chr(9)+"CD - CADI Waiver"+chr(9)+"DD - DD Waiver"+chr(9)+"DP - MA-EPD"+chr(9)+"DX - Disability"+chr(9)+"EH - EMA"+chr(9)+"EW - Elderly Waiver"+chr(9)+"EX - 65 and Older"+chr(9)+"LC - Long Term Care"+chr(9)+"MP - QMB/SLMB Only"+chr(9)+"N/A - No SSN"+chr(9)+"N/A - Not Applying"+chr(9)+"N/A - Not Deeming"+chr(9)+"N/A - PRIV"+chr(9)+"QI - QI"+chr(9)+"QW     - QWD", avs_members_array(request_type_const, item)
+                        DropListBox 125, y_pos - 5, 90, 15, "Select one..."+chr(9)+"BI - Brain Injury Waiver"+chr(9)+"BX - Blind"+chr(9)+"CA - CAC Waiver"+chr(9)+"CD - CADI Waiver"+chr(9)+"DD - DD Waiver"+chr(9)+"DP - MA-EPD"+chr(9)+"DX - Disability"+chr(9)+"EH - EMA"+chr(9)+"EW - Elderly Waiver"+chr(9)+"EX - 65 and Older"+chr(9)+"LC - Long Term Care"+chr(9)+"MP - QMB/SLMB Only"+chr(9)+"N/A - No SSN"+chr(9)+"N/A - Not Applying"+chr(9)+"N/A - Not Deeming"+chr(9)+"N/A - PRIV"+chr(9)+"QI - QI"+chr(9)+"QW - QWD", avs_members_array(request_type_const, item)
                     DropListBox 225, y_pos - 5, 90, 15, "Select one..."+chr(9)+"Submitting a Request"+chr(9)+"Review Results"+chr(9)+"Results After Decision", avs_members_array(avs_status_const, item)
                 End if
                 EditBox 330, y_pos - 5, 50, 15, avs_members_array(avs_date_const, item)
                 EditBox 390, y_pos - 5, 160, 15, avs_members_array(additional_info_const, item)
-            End if
+            'End if
         Next
         y_pos = (80 + item * 15)
         Text 15, y_pos, 45, 15, "Other Notes:"
@@ -536,7 +561,7 @@ Do
     Call write_variable_in_CASE_NOTE("-----")
     'HH member array output
     For item = 0 to ubound(avs_members_array, 2)
-        If avs_members_array(checked_const, item) = 1 then
+        'If avs_members_array(checked_const, item) = 1 then
             Call write_bullet_and_variable_in_CASE_NOTE("Name", avs_members_array(member_info_const, item))
 
             If initial_option = "AVS Forms" then
@@ -578,7 +603,7 @@ Do
                 Call write_bullet_and_variable_in_CASE_NOTE ("Asset Notes", avs_members_array(avs_returned_no_const, item))
                 Call write_variable_in_CASE_NOTE("-----")
             End if
-        End if
+        'End if
     Next
 
     If verif_request = True then Call write_variable_in_CASE_NOTE("* Verification request sent to via ECF.")
