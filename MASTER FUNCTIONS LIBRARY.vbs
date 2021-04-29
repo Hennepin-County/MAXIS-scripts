@@ -424,6 +424,7 @@ END WITH
 'This is used in arrays that specify functionality to specific workers
 Set objNet = CreateObject("WScript.NetWork")
 windows_user_ID = objNet.UserName
+user_ID_for_validation = ucase(windows_user_ID)
 
 '----------------------------------------------------------------------------------------------------Email addresses for the teams
 IF current_worker_number =	"X127F3P" 	THEN email_address = "HSPH.ES.MA.EPD.Adult@hennepin.us"
