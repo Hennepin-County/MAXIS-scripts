@@ -65,6 +65,7 @@ closing_msg = "Success! Your AVS case note has been created. Please review for a
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
 
+msgbox "Oh hi there! 1"
 '----------------------------------------------------------------------------------------------------Initial dialog
 initial_help_text = "*** What is the AVS? ***" & vbNewLine & "--------------------" & vbNewLine & vbNewLine & _
 "The Account Validation Service (AVS) is a web-based service that provides information about some accounts held in financial institutions. It does not provide information on property assets such as cars or homes. AVS must be used once at application, and when a person changes to a Medical Assistance for People Who Are Age 65 or Older and People Who Are Blind or Have a Disability (MA-ABD) basis of eligibility and are subject to an asset test." & vbNewLine & vbNewLine & _
@@ -76,7 +77,7 @@ BeginDialog Dialog1, 0, 0, 186, 85, "AVS Initial Selection Dialog"
   ButtonGroup ButtonPressed
   PushButton 135, 10, 10, 15, "!", initial_help_button
   DropListBox 75, 30, 105, 15, "Select one..."+chr(9)+"AVS Forms"+chr(9)+"AVS Submission/Results", initial_option
-  DropListBox 75, 45, 105, 15, "Select one..."+chr(9)+"Application"+chr(9)+"Change in Basis to MA-ABD", HC_process
+  DropListBox 75, 45, 105, 15, "Select one..."+chr(9)+"Application"+chr(9)+"Renewal", HC_process
   ButtonGroup ButtonPressed
     OkButton 75, 65, 40, 15
     CancelButton 120, 65, 40, 15
@@ -102,6 +103,8 @@ DO
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+If HC_process = "Renewal" then script_end_procedure("The AVS system is not required at renewals at this time. The script will now end.")
 
 MAXIS_background_check
 Call navigate_to_MAXIS_screen_review_PRIV("STAT", "PROG", is_this_priv)
