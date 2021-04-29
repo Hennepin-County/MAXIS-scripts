@@ -204,10 +204,6 @@ subcategory_array = array()
 subcategory_string = ""
 subcategory_selected = "# - D"
 
-
-Set objNet = CreateObject("WScript.NetWork")
-windows_user_ID = objNet.UserName
-user_ID_for_validation = ucase(windows_user_ID)
 'Displays the dialog
 ' dialog1 = 1
 dialog1 = ""
