@@ -160,7 +160,7 @@ DO								'reads the reference number, last name, first name, and then puts it i
     If client_ssn = "___ __ ____" then
         client_ssn = ""
         'Folks who have no ssn are not required to submit an AVS inquiry
-        If client_ssn = "" then avs_members_array(request_type_const, avs_membs) = "N/A - No SSN"
+        If initial_option = "AVS Submission/Results" then avs_members_array(request_type_const, avs_membs) = "N/A - No SSN"
     Else
         client_ssn = replace(client_ssn, " ", "")
     End if
