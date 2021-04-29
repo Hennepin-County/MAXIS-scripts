@@ -457,7 +457,7 @@ Do
                 DropListBox 90, 20, 55, 15, "Select one..."+chr(9)+"Yes"+chr(9)+"No", avs_members_array(accounts_verified_const, item)
                 If avs_members_array(avs_status_const, item) = "Review Results" then
                     Text 160, 25, 95, 10, "AVS Case Status for Member:"
-                    DropListBox 260, 20, 80, 15, "Select one..."+chr(9)+"Close/Withdrawn"+chr(9)+"Eligible"+chr(9)+"Ineligible"+chr(9)+"Review in Progress"+chr(9)+"Transfer Penalty", avs_members_array(avs_results_const, item)
+                    DropListBox 260, 20, 80, 15, "Select one..."+chr(9)+"Close/Withdrawn"+chr(9)+"Eligible"+chr(9)+"Ineligible"+chr(9)+"N/A"+chr(9)+"Review in Progress"+chr(9)+"Transfer Penalty", avs_members_array(avs_results_const, item)
                 Elseif avs_members_array(avs_status_const, item) = "Results After Decision" then
                     Text 155, 25, 120, 10, "Accts after decision cleared in AVS?"
                     DropListBox 275, 20, 65, 12, "Select one..."+chr(9)+"Yes"+chr(9)+"No", avs_members_array(avs_results_const, item)
@@ -489,6 +489,7 @@ Do
                             err_msg = err_msg & vbcr & "* Have accounts after decicion in AVS been cleared?"
                         End if
                     End if
+                    IF avs_members_array(avs_results_const, item) = "N/A" and trim(avs_members_array(avs_returned_no_const, item) = "") then err_msg = err_msg & vbcr & "* Enter the reason for the AVS Case Status was marked N/A."
                     If avs_members_array(ECF_const, item) = "Select one..." then err_msg = err_msg & vbcr & "* Was the AVS report submitted to ECF for the case file?"
                     If (avs_members_array(avs_results_const, item) = "No" or avs_members_array(accounts_verified_const, item) = "No") AND _
                     trim(avs_members_array(avs_returned_no_const, item) = "") then err_msg = err_msg & vbcr & "* Explain answering 'No' to one or more questions in the dialog in the 'asset notes' field."
