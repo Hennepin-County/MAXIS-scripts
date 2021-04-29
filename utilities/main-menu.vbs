@@ -105,6 +105,8 @@ Function declare_main_menu_dialog(script_category)
             If IsDate(script_array(current_script).retirement_date) = TRUE Then
                 If DateDiff("d", date, script_array(current_script).retirement_date) =< 0 Then script_array(current_script).show_script = FALSE
             End If
+			Call script_array(current_script).show_button(see_the_button)
+			If see_the_button = FALSE Then script_array(current_script).show_script = FALSE
 
             If script_array(current_script).show_script = TRUE Then dlg_len = dlg_len + 15
         End if
