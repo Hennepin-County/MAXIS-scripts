@@ -50,7 +50,6 @@ call changelog_update("03/23/2021", "Initial version.", "Ilse Ferris, Hennepin C
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'TODO: Carry over other notes area into asset dialog
 'TODO: Out of county case handling
 'TODO: Figure out back and next buttons functionality
 'TODO: Start instructions
@@ -69,7 +68,7 @@ EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
 
 HC_process = "Application"  'testing code
-msgbox "Oh hi there! 4"     'testing code
+msgbox "Oh hi there! 5"     'testing code
 '----------------------------------------------------------------------------------------------------Initial dialog
 initial_help_text = "*** What is the AVS? ***" & vbNewLine & "--------------------" & vbNewLine & vbNewLine & _
 "The Account Validation Service (AVS) is a web-based service that provides information about some accounts held in financial institutions. It does not provide information on property assets such as cars or homes. AVS must be used once at application, and when a person changes to a Medical Assistance for People Who Are Age 65 or Older and People Who Are Blind or Have a Disability (MA-ABD) basis of eligibility and are subject to an asset test." & vbNewLine & vbNewLine & _
@@ -232,12 +231,8 @@ For item = 0 to Ubound(avs_members_array, 2)
         Do
             EmReadscreen type_memb_number, 2, row, 3
             EmReadscreen applicant_type, 1, row, 37
-            'msgbox  "row: " & row & vbcr & _
-            '        "memb #: " & type_memb_number & vbcr & _
-            '        "hc type: " & applicant_type
             If type_memb_number = avs_members_array(member_number_const, item) then
                 If applicant_type = "Y" then
-                    'msgbox "match"
                     avs_members_array(hc_applicant_const, item) = True
                     If avs_members_array(marital_status_const, item) = "M" then
                         avs_members_array(applicant_type_const, item) = "Applying/Spouse"
@@ -461,7 +456,7 @@ Do
                 DropListBox 275, 40, 65, 15, "Select one..."+chr(9)+"Yes"+chr(9)+"No", avs_members_array(ECF_const, item)
                 Text 15, 65, 40, 10, "Asset notes:"
                 EditBox 60, 60, 280, 15, avs_members_array(avs_returned_no_const, item)
-                Text 5, 95, 45, 10, "Other Notes:"
+                Text 10, 95, 45, 10, "Other Notes:"
                 EditBox 55, 90, 200, 15, other_notes
                 ButtonGroup ButtonPressed
                 'PushButton 220, 140, 30, 10, "Back", back_button
@@ -498,16 +493,29 @@ Do
 
     '----------------------------------------------------------------------------------------------------Conditional statements for actions and case noting
     'Determining if TIKL and verif request form info will be created - This will happen if initial_option = "AVS Forms" AND forms_status_const = "Initial Request"
-    Set_TIKL = False
+    set_form_TIKL = False
     verif_request = False
     For i = 0 to ubound(avs_members_array, 2)
         If avs_members_array(forms_status_const, i) = "Initial Request" then
-            Set_TIKL = True
+            set_form_TIKL = True
             verif_request = True
             Exit For
         End if
     Next
 
+    'Determining if TIKL and verif request form info will be created - This will happen if initial_option = "AVS Forms" AND forms_status_const = "Initial Request"
+    
+    
+    set_AVS_TIKL = False
+    If initial_option = "AVS Submission/Results" then
+        For i = 0 to ubound(avs_members_array, 2)
+            If avs_members_array(avs_status_const, i) = "Submitting a Request" then 
+                set_AVS_TIKL = True
+                Exit for
+            End if
+        Next
+    End if
+    
     'giving users the option to create another TIKL if the initial forms are incomplete.
     For i = 0 to ubound(avs_members_array, 2)
         If avs_members_array(forms_status_const, i) = "Received - Incomplete" then
@@ -532,8 +540,9 @@ Do
         Next
     End if
 
-    'set_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
-    If set_TIKL = True then Call create_TIKL("DHS-7823 - AVS Auth Form(s) have been requested for this case. Review ECF and case notes, and take applicable actions.", 10, date, False, TIKL_note_text)
+    'Call create_TIKLL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
+    If set_form_TIKL = True then Call create_TIKL("DHS-7823 - AVS Auth Form(s) have been requested for this case. Review ECF and case notes, and take applicable actions.", 10, date, False, TIKL_note_text)
+    If set_AVS_TIKL = True then Call create_TIKL("AVS 10-day check is due.", 10, date, False, TIKL_note_text)
     If set_another_TIKL = True then Call create_TIKL("An updated DHS-7823 - AVS Auth Form(s) has been requested for this case. Review ECF and case notes, and take applicable actions.", 10, date, False, TIKL_note_text)
     If set_asset_TIKL = True then Call create_TIKL("AVS unreported asset verification requested for the case. Review ECF and case notes, and take applicable actions.", 10, date, False, TIKL_note_text)
 
@@ -601,7 +610,8 @@ Do
     Next
 
     If verif_request = True then Call write_variable_in_CASE_NOTE("* Verification request sent to via ECF.")
-    If set_TIKL = true then Call write_variable_in_case_note(TIKL_note_text)
+    If set_form_TIKL = True then Call write_variable_in_case_note(TIKL_note_text)
+    If set_AVS_TIKL = True then Call write_variable_in_CASE_NOTE("* AVS request submitted in AVS portal. TIKL set for 10 day check.") 'This is the verbiage for the case note from the HSR manual.
     If set_another_TIKL = true then
         Call write_variable_in_case_note(TIKL_note_text)
         Call write_variable_in_CASE_NOTE("* Sent verification request to complete the incomplete AVS form in ECF.")
