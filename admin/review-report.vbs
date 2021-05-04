@@ -2378,7 +2378,7 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 
 	run_time = timer - query_start_time
 	end_msg = "Case details have been added to the Review Report" & vbCr & vbCr & "Run time: " & run_time & " seconds."
-	
+
 ElseIf renewal_option = "Send Appointment Letters" Then
 	MAXIS_footer_month = CM_mo							'Setting the footer month and year based on the review month. We do not run statistics in CM + 2
 	MAXIS_footer_year = CM_yr
@@ -2442,28 +2442,38 @@ ElseIf renewal_option = "Send Appointment Letters" Then
 	Do
 		col_to_use = col_to_use + 1
 		col_header = trim(ObjExcel.Cells(1, col_to_use).Value)
+		If col_header = "APPT NOTC Sent" Then notc_col = col_to_use
+		If col_header = "APPT NOTC Date" Then notc_date_col = col_to_use
 	Loop until col_header = ""
-	last_col_letter = convert_digit_to_excel_column(col_to_use)
 
-	'Insert columns in excel for additional information to be added
-	column_end = last_col_letter & "1"
-	Set objRange = objExcel.Range(column_end).EntireColumn
+	' MsgBox "NOTC Col - " & notc_col & vbCr & "NOTC Date Col - " & notc_date_col
+	If notc_col = "" OR notc_date_col = "" Then
+		last_col_letter = convert_digit_to_excel_column(col_to_use)
 
-	objRange.Insert(xlShiftToRight)			'We neeed one more columns
+		'Insert columns in excel for additional information to be added
+		column_end = last_col_letter & "1"
+		Set objRange = objExcel.Range(column_end).EntireColumn
 
-	notc_col = col_to_use		'Setting the column to individual variables so we enter the found information in the right place
+		If notc_col = "" Then
+			objRange.Insert(xlShiftToRight)			'We neeed one more columns
+			notc_col = col_to_use		'Setting the column to individual variables so we enter the found information in the right place
+			col_to_use = col_to_use + 1
 
-	date_month = DatePart("m", date)		'Creating a variable to enter in the column headers
-	date_day = DatePart("d", date)
-	date_header = date_month & "-" & date_day
+			ObjExcel.Cells(1, notc_col).Value = "APPT NOTC Sent"			'creating the column headers for the statistics information for the day of the run.
+			objExcel.Cells(1, notc_col).Font.Bold = True		'bold font'
+			ObjExcel.columns(notc_col).NumberFormat = "@" 		'formatting as text
+			ObjExcel.columns(notc_col).AutoFit() 				'sizing the columns'
+		End If
+		If notc_date_col = "" Then
+			objRange.Insert(xlShiftToRight)			'We neeed one more columns
+			notc_date_col = col_to_use		'Setting the column to individual variables so we enter the found information in the right place
 
-	ObjExcel.Cells(1, notc_col).Value = "APPT NOTC on " & date_header & ""			'creating the column headers for the statistics information for the day of the run.
-
-	FOR i = col_to_use to col_to_use + 5									'formatting the cells'
-		objExcel.Cells(1, i).Font.Bold = True		'bold font'
-		ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
-		objExcel.Columns(i).AutoFit()				'sizing the columns'
-	NEXT
+			ObjExcel.Cells(1, notc_date_col).Value = "APPT NOTC Date"			'creating the column headers for the statistics information for the day of the run.
+			objExcel.Cells(1, notc_date_col).Font.Bold = True		'bold font'
+			ObjExcel.columns(notc_date_col).NumberFormat = "m/d/yy" 		'formatting as text
+			ObjExcel.columns(notc_date_col).AutoFit() 						'fsizing the columns'
+		End If
+	End If
 
 	today_mo = DatePart("m", date)
 	today_mo = right("00" & today_mo, 2)
@@ -2479,173 +2489,191 @@ ElseIf renewal_option = "Send Appointment Letters" Then
 	'Now we loop through the whole Excel List and sending notices on the right cases
 	excel_row = "2"		'starts at row 2'
 	Do
+		notc_col_info = trim(ObjExcel.Cells(excel_row, notc_col).Value)
 		MAXIS_case_number 	= trim(ObjExcel.Cells(excel_row,  2).Value)			'getting the case number from the spreadsheet
-		forms_to_arep = ""
-		forms_to_swkr = ""
+		' MsgBox "row - " & excel_row & vbCr & "col - " & notc_col & vbCr & "val - *" & notc_col_info & "*"
+		If notc_col_info = "" AND MAXIS_case_number <> "" Then
+			' MsgBox excel_row
+			forms_to_arep = ""
+			forms_to_swkr = ""
 
-		Call read_boolean_from_excel(ObjExcel.Cells(excel_row,  3).Value, er_with_intherview)
-		Call read_boolean_from_excel(objExcel.cells(excel_row,  6).value, MFIP_status)
-		Call read_boolean_from_excel(objExcel.cells(excel_row, 13).value, SNAP_status)
+			Call read_boolean_from_excel(ObjExcel.Cells(excel_row,  3).Value, er_with_intherview)
+			Call read_boolean_from_excel(objExcel.cells(excel_row,  6).value, MFIP_status)
+			Call read_boolean_from_excel(objExcel.cells(excel_row, 13).value, SNAP_status)
 
-		' If er_with_intherview = True Then
-		' 	MsgBox er_with_intherview & vbNewLine & "READING AS A BOOLEAN and TRUE"
-		' ElseIf er_with_intherview = False Then
-		' 	MsgBox er_with_intherview & vbNewLine & "READING AS A BOOLEAN and FALSE"
-		' Else
-		' 	MsgBox er_with_intherview & vbNewLine & "Sad"
-		' End If
-		If MFIP_status = True and SNAP_status = True Then programs = "MFIP/SNAP"
-		If MFIP_status = True Then programs = "MFIP"
-		If SNAP_status = True Then programs = "SNAP"
-		interview_end_date = CM_plus_1_mo & "/15/" & CM_plus_1_yr
-		last_day_of_recert = CM_plus_2_mo & "/01/" & CM_plus_2_yr
-	    last_day_of_recert = dateadd("D", -1, last_day_of_recert)
+			If MFIP_status = True and SNAP_status = True Then programs = "MFIP/SNAP"
+			If MFIP_status = True Then programs = "MFIP"
+			If SNAP_status = True Then programs = "SNAP"
+			interview_end_date = CM_plus_1_mo & "/15/" & CM_plus_1_yr
+			last_day_of_recert = CM_plus_2_mo & "/01/" & CM_plus_2_yr
+		    last_day_of_recert = dateadd("D", -1, last_day_of_recert)
 
-		If er_with_intherview = True Then
-			'Writing the SPEC MEMO - dates will be input from the determination made earlier.
-			' MsgBox "We're writing a MEMO here"
-			Call start_a_new_spec_memo_and_continue(memo_started)
+			If er_with_intherview = True Then
+				'Writing the SPEC MEMO - dates will be input from the determination made earlier.
+				' MsgBox "We're writing a MEMO here"
+				Call start_a_new_spec_memo_and_continue(memo_started)
 
-			IF memo_started = True THEN         'The function will return this as FALSE if PF5 does not move past MEMO DISPLAY
+				IF memo_started = True THEN         'The function will return this as FALSE if PF5 does not move past MEMO DISPLAY
 
-				CALL write_variable_in_SPEC_MEMO("The Department of Human Services sent you a packet of paperwork. This paperwork is to renew your " & programs & " case.")
-				CALL write_variable_in_SPEC_MEMO("")
-				' CALL write_variable_in_SPEC_MEMO("Please sign, date and return the renewal paperwork by " & CM_plus_1_mo & "/08/" & CM_plus_1_yr & ". You must also complete an interview for your " & programs & " case to continue.")
-				CALL write_variable_in_SPEC_MEMO("Please sign, date and return the renewal paperwork by " & CM_plus_1_mo & "/08/" & CM_plus_1_yr & ". You may need to complete an interview for your " & programs & " case to continue.")
-				CALL write_variable_in_SPEC_MEMO("")
-				' Call write_variable_in_SPEC_MEMO("  *** Please complete your interview by " & interview_end_date & ". ***")
-				Call write_variable_in_SPEC_MEMO("  *** If required, complete your interview by " & interview_end_date & ". ***")
-				Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at")
-				Call write_variable_in_SPEC_MEMO("612-596-1300 between 8:00am and 4:30pm Monday thru Friday.")
-				CALL write_variable_in_SPEC_MEMO("")
-				CALL write_variable_in_SPEC_MEMO("**  Your " & programs & " case will close on " & last_day_of_recert & " unless    **")
-				CALL write_variable_in_SPEC_MEMO("** we receive your paperwork and complete the interview. **")
-				CALL write_variable_in_SPEC_MEMO("")
-				'removal of in person verbiage during the COVID-19 PEACETIME STATE OF EMERGENCY
-				' Call write_variable_in_SPEC_MEMO("If you wish to schedule an interview, call 612-596-1300. You may also come to any of the six offices below for an in-person interview between 8 and 4:30, Monday thru Friday.")
-				' Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
-				' Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
-				' Call write_variable_in_SPEC_MEMO("- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 ")
-				' Call write_variable_in_SPEC_MEMO("- 1001 Plymouth Ave N Minneapolis 55411")
-				' Call write_variable_in_SPEC_MEMO("- 525 Portland Ave S Minneapolis 55415")
-				' Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
-				' Call write_variable_in_SPEC_MEMO("(Hours are M - F 8-4:30 unless otherwise noted)")
-				' Call write_variable_in_SPEC_MEMO(" ")
-				CALL write_variable_in_SPEC_MEMO("You now have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. To obtain information about your case please contact your worker. EMAIL: hhsews@hennepin.us ")
-				Call write_variable_in_SPEC_MEMO(" ")
-				CALL write_variable_in_SPEC_MEMO("Domestic violence brochures are available at this website: https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG. You can also request a paper copy.")
+					CALL write_variable_in_SPEC_MEMO("The Department of Human Services sent you a packet of paperwork. This paperwork is to renew your " & programs & " case.")
+					CALL write_variable_in_SPEC_MEMO("")
+					' CALL write_variable_in_SPEC_MEMO("Please sign, date and return the renewal paperwork by " & CM_plus_1_mo & "/08/" & CM_plus_1_yr & ". You must also complete an interview for your " & programs & " case to continue.")
+					CALL write_variable_in_SPEC_MEMO("Please sign, date and return the renewal paperwork by " & CM_plus_1_mo & "/08/" & CM_plus_1_yr & ". You may need to complete an interview for your " & programs & " case to continue.")
+					CALL write_variable_in_SPEC_MEMO("")
+					' Call write_variable_in_SPEC_MEMO("  *** Please complete your interview by " & interview_end_date & ". ***")
+					Call write_variable_in_SPEC_MEMO("  *** If required, complete your interview by " & interview_end_date & ". ***")
+					Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at")
+					Call write_variable_in_SPEC_MEMO("612-596-1300 between 8:00am and 4:30pm Monday thru Friday.")
+					CALL write_variable_in_SPEC_MEMO("")
+					CALL write_variable_in_SPEC_MEMO("**  Your " & programs & " case will close on " & last_day_of_recert & " unless    **")
+					CALL write_variable_in_SPEC_MEMO("** we receive your paperwork and complete the interview. **")
+					CALL write_variable_in_SPEC_MEMO("")
+					'removal of in person verbiage during the COVID-19 PEACETIME STATE OF EMERGENCY
+					' Call write_variable_in_SPEC_MEMO("If you wish to schedule an interview, call 612-596-1300. You may also come to any of the six offices below for an in-person interview between 8 and 4:30, Monday thru Friday.")
+					' Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
+					' Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
+					' Call write_variable_in_SPEC_MEMO("- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 ")
+					' Call write_variable_in_SPEC_MEMO("- 1001 Plymouth Ave N Minneapolis 55411")
+					' Call write_variable_in_SPEC_MEMO("- 525 Portland Ave S Minneapolis 55415")
+					' Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
+					' Call write_variable_in_SPEC_MEMO("(Hours are M - F 8-4:30 unless otherwise noted)")
+					' Call write_variable_in_SPEC_MEMO(" ")
+					CALL write_variable_in_SPEC_MEMO("You now have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. To obtain information about your case please contact your worker. EMAIL: hhsews@hennepin.us ")
+					Call write_variable_in_SPEC_MEMO(" ")
+					CALL write_variable_in_SPEC_MEMO("Domestic violence brochures are available at this website: https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG. You can also request a paper copy.")
 
-				PF4         'Submit the MEMO
+					PF4         'Submit the MEMO
 
-				memo_row = 7                                            'Setting the row for the loop to read MEMOs
-				ObjExcel.Cells(excel_row, notc_col).Value = "N"         'Defaulting this to 'N'
-				Do
-					EMReadScreen create_date, 8, memo_row, 19                 'Reading the date of each memo and the status
-					EMReadScreen print_status, 7, memo_row, 67
-					If create_date = today_date AND print_status = "Waiting" Then   'MEMOs created today and still waiting is likely our MEMO.
-						ObjExcel.Cells(excel_row, notc_col).Value = "Y"             'If we've found this then no reason to keep looking.
-						successful_notices = successful_notices + 1                 'For statistical purposes
-						Exit Do
-					End If
+					memo_row = 7                                            'Setting the row for the loop to read MEMOs
+					ObjExcel.Cells(excel_row, notc_col).Value = "N"         'Defaulting this to 'N'
+					Do
+						EMReadScreen create_date, 8, memo_row, 19                 'Reading the date of each memo and the status
+						EMReadScreen print_status, 7, memo_row, 67
+						If create_date = today_date AND print_status = "Waiting" Then   'MEMOs created today and still waiting is likely our MEMO.
+							ObjExcel.Cells(excel_row, notc_col).Value = "Y"             'If we've found this then no reason to keep looking.
+							ObjExcel.Cells(excel_row, notc_date_col).Value = today_date        'If we've found this then no reason to keep looking.
+							successful_notices = successful_notices + 1                 'For statistical purposes
+							Exit Do
+						End If
 
-					memo_row = memo_row + 1           'Looking at next row'
-				Loop Until create_date = "        "
+						memo_row = memo_row + 1           'Looking at next row'
+					Loop Until create_date = "        "
 
-			ELSE
-				ObjExcel.Cells(excel_row, notc_col).Value = "N"         'Setting this as N if the MEMO failed
-				call back_to_SELF
-			END IF
-		Else
-			ObjExcel.Cells(excel_row, notc_col).Value = "N/A"
-		End If
-
-		If ObjExcel.Cells(excel_row, notc_col).Value = "Y" Then
-
-			Call start_a_new_spec_memo_and_continue(memo_started)   'Starting a MEMO to send information about verifications
-
-			IF memo_started = True THEN
-
-				CALL write_variable_in_SPEC_MEMO("As a part of the Renewal Process we must receive recent verification of your information. To speed the renewal process, please send proofs with your renewal paperwork.")
-				CALL write_variable_in_SPEC_MEMO("")
-				CALL write_variable_in_SPEC_MEMO(" * Examples of income proofs: paystubs, employer statement,")
-				CALL write_variable_in_SPEC_MEMO("   income reports, business ledgers, income tax forms, etc.")
-				CALL write_variable_in_SPEC_MEMO("   *If a job has ended, send proof of the end of employment")
-				CALL write_variable_in_SPEC_MEMO("   and last pay.")
-				CALL write_variable_in_SPEC_MEMO("")
-				CALL write_variable_in_SPEC_MEMO(" * Examples of housing cost proofs(if changed): rent/house")
-				CALL write_variable_in_SPEC_MEMO("   payment receipt, mortgage, lease, subsidy, etc.")
-				CALL write_variable_in_SPEC_MEMO("")
-				CALL write_variable_in_SPEC_MEMO(" * Examples of medical cost proofs(if changed):")
-				CALL write_variable_in_SPEC_MEMO("   prescription and medical bills, etc.")
-				CALL write_variable_in_SPEC_MEMO("")
-				CALL write_variable_in_SPEC_MEMO("You now have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. To obtain information about your case please contact your worker. EMAIL: hhsews@hennepin.us ")
-				CALL write_variable_in_SPEC_MEMO("If you have questions about the type of verifications needed, call 612-596-1300 and someone will assist you.")
-
-				PF4 'Submit the MEMO'
-
-
+				ELSE
+					ObjExcel.Cells(excel_row, notc_col).Value = "N"         'Setting this as N if the MEMO failed
+					call back_to_SELF
+				END IF
+			Else
+				ObjExcel.Cells(excel_row, notc_col).Value = "N/A"
 			End If
 
-			start_a_blank_case_note
-			EMSendKey("*** Notice of " & programs & " Recertification Interview Sent ***")
-			CALL write_variable_in_case_note("* A notice has been sent to client with detail about how to call in for an interview.")
-			CALL write_variable_in_case_note("* Client must submit paperwork and call 612-596-1300 to complete interview.")
-			If forms_to_arep = "Y" then call write_variable_in_case_note("* Copy of notice sent to AREP.")
-			If forms_to_swkr = "Y" then call write_variable_in_case_note("* Copy of notice sent to Social Worker.")
-			call write_variable_in_case_note("---")
-			CALL write_variable_in_case_note("Link to Domestic Violence Brochure sent to client in SPEC/MEMO as a part of interview notice.")
-			call write_variable_in_case_note("---")
-			call write_variable_in_case_note(worker_signature)
+			If ObjExcel.Cells(excel_row, notc_col).Value = "Y" Then
 
-			PF3
+				Call start_a_new_spec_memo_and_continue(memo_started)   'Starting a MEMO to send information about verifications
+
+				IF memo_started = True THEN
+
+					CALL write_variable_in_SPEC_MEMO("As a part of the Renewal Process we must receive recent verification of your information. To speed the renewal process, please send proofs with your renewal paperwork.")
+					CALL write_variable_in_SPEC_MEMO("")
+					CALL write_variable_in_SPEC_MEMO(" * Examples of income proofs: paystubs, employer statement,")
+					CALL write_variable_in_SPEC_MEMO("   income reports, business ledgers, income tax forms, etc.")
+					CALL write_variable_in_SPEC_MEMO("   *If a job has ended, send proof of the end of employment")
+					CALL write_variable_in_SPEC_MEMO("   and last pay.")
+					CALL write_variable_in_SPEC_MEMO("")
+					CALL write_variable_in_SPEC_MEMO(" * Examples of housing cost proofs(if changed): rent/house")
+					CALL write_variable_in_SPEC_MEMO("   payment receipt, mortgage, lease, subsidy, etc.")
+					CALL write_variable_in_SPEC_MEMO("")
+					CALL write_variable_in_SPEC_MEMO(" * Examples of medical cost proofs(if changed):")
+					CALL write_variable_in_SPEC_MEMO("   prescription and medical bills, etc.")
+					CALL write_variable_in_SPEC_MEMO("")
+					CALL write_variable_in_SPEC_MEMO("You now have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. To obtain information about your case please contact your worker. EMAIL: hhsews@hennepin.us ")
+					CALL write_variable_in_SPEC_MEMO("If you have questions about the type of verifications needed, call 612-596-1300 and someone will assist you.")
+
+					PF4 'Submit the MEMO'
+
+
+				End If
+
+				start_a_blank_case_note
+				EMSendKey("*** Notice of " & programs & " Recertification Interview Sent ***")
+				CALL write_variable_in_case_note("* A notice has been sent to client with detail about how to call in for an interview.")
+				CALL write_variable_in_case_note("* Client must submit paperwork and call 612-596-1300 to complete interview.")
+				If forms_to_arep = "Y" then call write_variable_in_case_note("* Copy of notice sent to AREP.")
+				If forms_to_swkr = "Y" then call write_variable_in_case_note("* Copy of notice sent to Social Worker.")
+				call write_variable_in_case_note("---")
+				CALL write_variable_in_case_note("Link to Domestic Violence Brochure sent to client in SPEC/MEMO as a part of interview notice.")
+				call write_variable_in_case_note("---")
+				call write_variable_in_case_note(worker_signature)
+
+				PF3
+			End If
 		End If
-
 		excel_row = excel_row + 1
 	Loop until MAXIS_case_number = ""
+	MsgBox "Done with looping"
 
-	is_true = chr(34)&"TRUE"&chr(34)
+	worksheet_found = FALSE
+	'Finding all of the worksheets available in the file. We will likely open up the main 'Review Report' so the script will default to that one.
+	For Each objWorkSheet In objWorkbook.Worksheets
+		If instr(objWorkSheet.Name, "APPT NOTC") <> 0 Then
+			objExcel.objWorkSheet.Activate
+			worksheet_found = TRUE
+		End If
+	Next
 
-	'Going to another sheet, to enter worker-specific statistics and naming it
-	sheet_name = "APPT NOTC on " & date_month & "-" & date_day
-	ObjExcel.Worksheets.Add().Name = sheet_name
-	entry_row = 1
+	If worksheet_found = FALSE Then
+		'Going to another sheet, to enter worker-specific statistics and naming it
+		sheet_name = "APPT NOTC"
+		ObjExcel.Worksheets.Add().Name = sheet_name
 
-	objExcel.Cells(entry_row, 1).Value      = "Appointment Notices run on:"     'Date and time the script was completed
-    objExcel.Cells(entry_row, 1).Font.Bold 	= TRUE
-    objExcel.Cells(entry_row, 2).Value      = now
-    entry_row = entry_row + 1
+		entry_row = 1
 
-    objExcel.Cells(entry_row, 1).Value      = "Runtime (in seconds)"            'Enters the amount of time it took the script to run
-    objExcel.Cells(entry_row, 1).Font.Bold 	= TRUE
-    objExcel.Cells(entry_row, 2).Value      = timer - query_start_time
-    entry_row = entry_row + 1
+		objExcel.Cells(entry_row, 1).Value      = "Appointment Notices run on:"     'Date and time the script was completed
+	    objExcel.Cells(entry_row, 1).Font.Bold 	= TRUE
+	    objExcel.Cells(entry_row, 2).Value      = now
+	    entry_row = entry_row + 1
 
-    objExcel.Cells(entry_row, 1).Value      = "Total Cases assesed"             'All cases from the spreadsheet
-    objExcel.Cells(entry_row, 1).Font.Bold 	= TRUE
-    objExcel.Cells(entry_row, 2).Value    	= excel_row - 2
-    entry_row = entry_row + 1
+	    objExcel.Cells(entry_row, 1).Value      = "Runtime (in seconds)"            'Enters the amount of time it took the script to run
+	    objExcel.Cells(entry_row, 1).Font.Bold 	= TRUE
+	    objExcel.Cells(entry_row, 2).Value      = timer - query_start_time
+	    entry_row = entry_row + 1
 
-	objExcel.Cells(entry_row, 1).Value      = "Total Cases with ER Interview"             'All cases from the spreadsheet
-	objExcel.Cells(entry_row, 1).Font.Bold 	= TRUE
-	objExcel.Cells(entry_row, 2).Value      = "=COUNTIFS(Table1[Interview ER],"&is_true&")"
-	total_row = entry_row
-	entry_row = entry_row + 1
+	    objExcel.Cells(entry_row, 1).Value      = "Total Cases assesed"             'All cases from the spreadsheet
+	    objExcel.Cells(entry_row, 1).Font.Bold 	= TRUE
+	    objExcel.Cells(entry_row, 2).Value    	= excel_row - 2
+	    entry_row = entry_row + 1
 
-    if successful_notices = "" then successful_notices = 0
-    objExcel.Cells(entry_row, 1).Value      = "Appointment Notices Sent"        'number of notices that were successful
-    objExcel.Cells(entry_row, 1).Font.Bold 	= TRUE
-	objExcel.Cells(entry_row, 2).Value      = "=COUNTIFS(Table1[APPT NOTC on " & date_header & "]," & Chr(34) & "Y" & Chr(34) & ")"                'This was incremented on the For Next loop where the memos were written
-    appt_row = entry_row
-    entry_row = entry_row + 1
+		objExcel.Cells(entry_row, 1).Value      = "Total Cases with ER Interview"             'All cases from the spreadsheet
+		objExcel.Cells(entry_row, 1).Font.Bold 	= TRUE
+		objExcel.Cells(entry_row, 2).Value      = "=COUNTIFS(Table1[Interview ER],"&is_true&")"
+		total_row = entry_row
+		entry_row = entry_row + 1
 
-    objExcel.Cells(entry_row, 1).Value      = "Percentage successful"           'calculation of the percent of successful notices
-    objExcel.Cells(entry_row, 1).Font.Bold 	= TRUE
-    objExcel.Cells(entry_row, 2).Value      = "=B" & appt_row & "/B" & total_row
-    objExcel.Cells(entry_row, 2).NumberFormat = "0.00%"		'Formula should be percent
-    entry_row = entry_row + 1
+	    if successful_notices = "" then successful_notices = 0
+	    objExcel.Cells(entry_row, 1).Value      = "Appointment Notices Sent"        'number of notices that were successful
+	    objExcel.Cells(entry_row, 1).Font.Bold 	= TRUE
+		objExcel.Cells(entry_row, 2).Value      = "=COUNTIFS(Table1[APPT NOTC Sent]," & Chr(34) & "Y" & Chr(34) & ")"                'This was incremented on the For Next loop where the memos were written
+	    appt_row = entry_row
+	    entry_row = entry_row + 1
 
+	    objExcel.Cells(entry_row, 1).Value      = "Percentage successful"           'calculation of the percent of successful notices
+	    objExcel.Cells(entry_row, 1).Font.Bold 	= TRUE
+	    objExcel.Cells(entry_row, 2).Value      = "=B" & appt_row & "/B" & total_row
+	    objExcel.Cells(entry_row, 2).NumberFormat = "0.00%"		'Formula should be percent
+	    entry_row = entry_row + 1
+	End If
 
+	date_stats_row = 1
+	Do
+		in_the_cell = trim(objExcel.Cells(date_stats_row, 1).Value)
+		date_stats_row = date_stats_row + 1
+	Loop until in_the_cell = ""
 
+	objExcel.Cells(date_stats_row, 1).Value      = "Appointment Notices Sent on " & today_date        'number of notices that were successful
+	objExcel.Cells(date_stats_row, 1).Font.Bold 	= TRUE
+	objExcel.Cells(date_stats_row, 2).Value      = "=COUNTIFS(Table1[APPT NOTC Date]," & Chr(34) & today_date & Chr(34) & ")"                'This was incremented on the For Next loop where the memos were written
+
+	end_msg = "NOTICES have been sent on " & successful_notices & " cases today. Information added to the Review Report Excel document."
 ElseIf renewal_option = "Create Worklist" Then
 
 	MAXIS_footer_month = REPT_month							'Setting the footer month and year based on the review month. We do not run statistics in CM + 2
