@@ -50,8 +50,6 @@ call changelog_update("03/23/2021", "Initial version.", "Ilse Ferris, Hennepin C
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'TODO: Out of county case handling
-'TODO: Figure out back and next buttons functionality
 'TODO: Start instructions
 'TODO: Time study
 'TODO: stats increment counter
@@ -59,7 +57,6 @@ changelog_display
 'TODO: Hot Topics
 'TODO: Remove testing code 
 'TODO: HC pending or recently denied
-'WFC041 'Kerry worker number
 
 '----------------------------------------------------------------------------------------------------The script
 closing_msg = "Success! Your AVS case note has been created. Please review for accuracy & any additional information."
@@ -110,19 +107,14 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 If HC_process = "Renewal" then script_end_procedure("The AVS system is not required at renewals at this time. The script will now end.")
 
 MAXIS_background_check
-Call navigate_to_MAXIS_screen_review_PRIV("STAT", "PROG", is_this_priv)
+Call navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", is_this_priv)
 If is_this_priv = True then script_end_procedure("This case is privilged, and you do not have access. The script will now end.")
 
-' 'Adding supports for users who are using the AVS incorrectly to verify assets for other programs besides HC. 
-' EmReadscreen HC_status, 4, 12, 74
-' If HC_status = "PEND" or HC_status = "ACTV" or HC_status = "REIN" then
-'     HC_pending = True
-' Else
-'     script_end_procedure("This case is not acitve, pending or in reinstatement status. An AVS should only be run on acitve or pending health care cases with an asset test. The script will now end.")
-' End if
+EmReadscreen county_code, 4, 21, 21
+If county_code <> UCASE(worker_county_code) then script_end_procedure("This case is an out-of-county case, and cannot be case noted. The script will now end.")
 
 '----------------------------------------------------------------------------------------------------Gathering the member/AREP/Sponsor information for signature selection array
-Call navigate_to_MAXIS_screen("STAT", "MEMB")
+'Call navigate_to_MAXIS_screen("STAT", "MEMB")
 'Setting up main array
 avs_membs = 0
 Dim avs_members_array()
