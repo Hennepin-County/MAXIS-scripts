@@ -257,6 +257,7 @@ function read_case_details_for_review_report(incrementor_var)
 	End if
 end function
 
+'This is a script specific function and will not work outside of this script.
 function enter_excel_headers(ObjExcel)
 	ObjExcel.Cells(1, t1_row_titles).Value = "REVW Type"
 	ObjExcel.Cells(1, t1_er_w_intv).Value = "ER with Interview"
@@ -350,7 +351,9 @@ function enter_excel_headers(ObjExcel)
 	Loop until DateDiff("d", the_date, date) < 0
 end function
 
+'DECLARATIONS TO MAKE ===============================================================================================
 
+'Column numbers for EXCEL for the STATISTICS Gathering - Numbers and Letters if needed
 t1_row_titles			= 1
 t1_row_titles_letter = convert_digit_to_excel_column(t1_row_titles)
 t1_er_w_intv			= 2
@@ -363,7 +366,6 @@ t1_priv					= 5
 t1_priv_letter = convert_digit_to_excel_column(t1_priv)
 t1_total 				= 6
 t1_total_letter = convert_digit_to_excel_column(t1_total)
-
 
 t2_dates				= 8
 t2_dates_letter = convert_digit_to_excel_column(t2_dates)
@@ -380,8 +382,6 @@ t2_total_app_count_letter = convert_digit_to_excel_column(t2_total_app_count)
 t3_revw_types			= 18
 t3_progs				= 19
 t3_progs_letter = convert_digit_to_excel_column(t3_progs)
-
-' t3_progs_ltr			= "S"
 t3_apps_recvd_count		= 20
 t3_apps_recvd_count_letter = convert_digit_to_excel_column(t3_apps_recvd_count)
 t3_apps_recvd_percent	= 21
@@ -419,12 +419,13 @@ t3_totals_count_letter = convert_digit_to_excel_column(t3_totals_count)
 output_headers			= 40
 output_data				= 41
 
-
+'strings for use in Excel formulas
 is_not_blank = chr(34) & "<>" & chr(34)
 is_blank = chr(34) & chr(34)
 is_true = chr(34)&"TRUE"&chr(34)
 is_false = chr(34)&"FALSE"&chr(34)
 
+'These are the constants that we need to create tables in Excel
 Const xlSrcRange = 1
 Const xlYes = 1
 
@@ -472,6 +473,8 @@ ReDim review_array(notes_const, 0)       're-establihing size of array.
 EMConnect ""		'Connects to BlueZone
 all_workers_check = 1		'defaulting the check box to checked
 CM_plus_two_checkbox = 1    'defaulting the check box to checked
+today_day = DatePart("d", date)
+If today_day < 16 Then CM_plus_two_checkbox = unchecked
 
 'DISPLAYS DIALOG
 Dialog1 = ""
@@ -989,16 +992,20 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 	'This is where the review report is currently saved.
 	excel_file_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\Renewals\" & report_date & " Review Report.xlsx"
 
+	tomorrow = DateAdd("d", 1, date)
+	If tomorrow_day = DatePart("d", tomorrow) = 1 Then last_day_checkbox = checked
+
 	'Initial Dialog which requests a file path for the excel file
 	Dialog1 = ""
-	BeginDialog Dialog1, 0, 0, 361, 70, "On Demand Recertifications"
-	  EditBox 130, 20, 175, 15, excel_file_path
+	BeginDialog Dialog1, 0, 0, 361, 65, "On Demand Recertifications"
 	  ButtonGroup ButtonPressed
+	  	EditBox 130, 20, 175, 15, excel_file_path
 	    PushButton 310, 20, 45, 15, "Browse...", select_a_file_button
+	  	CheckBox 10, 45, 205, 10, "Check here if this is the LAST Day of the processing month.", last_day_checkbox
 	    OkButton 250, 45, 50, 15
 	    CancelButton 305, 45, 50, 15
-	  Text 10, 10, 170, 10, "Select the recert fle from the Review Report original run"
-	  Text 10, 25, 120, 10, "Select an Excel file for recert cases:"
+	  	Text 10, 10, 170, 10, "Select the recert fle from the Review Report original run"
+	  	Text 10, 25, 120, 10, "Select an Excel file for recert cases:"
 	EndDialog
 
 	'Show file path dialog
@@ -1087,6 +1094,17 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 	'Stats option ignores the 'list of workers' since it works off of an existing Excel, it needs to pull all of the workers
 	call create_array_of_all_active_x_numbers_in_county(worker_array, two_digit_county_code)
 
+	new_array_string = ""
+	For each worker in worker_array
+		save_worker_numb = TRUE
+		If worker = "X127V83" Then save_worker_numb = FALSE
+		If worker = "X127VS2" Then save_worker_numb = FALSE
+		If worker = "X127V51" Then save_worker_numb = FALSE
+		If save_worker_numb = TRUE Then new_array_string = new_array_string & " " & worker
+	Next
+	new_array_string = trim(new_array_string)
+	worker_array = split(new_array_string, " ")
+
 	recert_cases = 0	            'incrementor for the array
 
 	back_to_self    'We need to get back to SELF and manually update the footer month
@@ -1160,17 +1178,19 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 		found_in_array = FALSE													'variale to identify if we have found this case in our array
 		'Here we look through the entire array until we find a match
 		For revs_item = 0 to UBound(review_array, 2)
-			If case_number_to_check = review_array(case_number_const, revs_item) Then		'if the case numbers match we have found our case.
-				'Entering information from the array into the excel spreadsheet
-				If review_array(CASH_revw_status_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, cash_stat_excel_col).Value = review_array(CASH_revw_status_const, revs_item)
-				If review_array(SNAP_revw_status_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, snap_stat_excel_col).Value = review_array(SNAP_revw_status_const, revs_item)
-				If review_array(HC_revw_status_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, hc_stat_excel_col).Value = review_array(HC_revw_status_const, revs_item)
-				If review_array(HC_MAGI_code_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, magi_stat_excel_col).Value = review_array(HC_MAGI_code_const, revs_item)
-				If review_array(review_recvd_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, recvd_date_excel_col).Value = review_array(review_recvd_const, revs_item)
-				If review_array(interview_date_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, intvw_date_excel_col).Value = review_array(interview_date_const, revs_item)
-				found_in_array = TRUE			'this lets the script know that this case was found in the array
-				review_array(saved_to_excel_const, revs_item) = TRUE
-				Exit For						'if we found a match, we should stop looking
+			If review_array(saved_to_excel_const, revs_item) = FALSE Then
+				If case_number_to_check = review_array(case_number_const, revs_item) Then		'if the case numbers match we have found our case.
+					'Entering information from the array into the excel spreadsheet
+					If review_array(CASH_revw_status_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, cash_stat_excel_col).Value = review_array(CASH_revw_status_const, revs_item)
+					If review_array(SNAP_revw_status_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, snap_stat_excel_col).Value = review_array(SNAP_revw_status_const, revs_item)
+					If review_array(HC_revw_status_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, hc_stat_excel_col).Value = review_array(HC_revw_status_const, revs_item)
+					If review_array(HC_MAGI_code_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, magi_stat_excel_col).Value = review_array(HC_MAGI_code_const, revs_item)
+					If review_array(review_recvd_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, recvd_date_excel_col).Value = review_array(review_recvd_const, revs_item)
+					If review_array(interview_date_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, intvw_date_excel_col).Value = review_array(interview_date_const, revs_item)
+					found_in_array = TRUE			'this lets the script know that this case was found in the array
+					review_array(saved_to_excel_const, revs_item) = TRUE
+					Exit For						'if we found a match, we should stop looking
+				End If
 			End If
 		Next
 		'if the case was not found in the array, we need to look in STAT for the information
@@ -1261,23 +1281,25 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 		End If
 	Next
 
-	'Going to another sheet, to enter worker-specific statistics and naming it
+	'Going to another sheet, to enter statistics for the entire Renewal load
 	sheet_name = "Statistics from " & date_month & "-" & date_day
 	ObjExcel.Worksheets.Add().Name = sheet_name
-	this_is_what_this_says = ""
 
+	'HERE WE open a new Excel document so we can save the stats counts for uyse in report outs
+	'The Review Report Excel will use Excel formulas and the data on the main Review Report Table to calculate the counts and percentages
+	'The new Excel - the Stats Excel will just pull the value from the calculation that Excel completes
 
-	'HERE WE ARE GOING TO MAE A NEW THING.
 	'Opening the Excel file
 	Set objStatsExcel = CreateObject("Excel.Application")
 	objStatsExcel.Visible = True
 	Set objStatsWorkbook = objStatsExcel.Workbooks.Add()
-	objStatsExcel.DisplayAlerts = FALSE
+	objStatsExcel.DisplayAlerts = FALSE		'This is off because we are saving over an existing file and Excel will alert and we need those to be off
 
+	'This function just enters the header information - which is exactly the same for each sheet
 	Call enter_excel_headers(ObjExcel)
 	Call enter_excel_headers(objStatsExcel)
 
-
+	'Now we enter all theformulas and counts in the stats areas
 	ObjExcel.Cells(2, t1_er_w_intv).Value = "=COUNTIFS(Table1[Interview ER],"&is_true&")"
 	ObjExcel.Cells(3, t1_er_w_intv).Value = "=COUNTIFS(Table1[Interview ER],"&is_true&",Table1[CAF Date ("&date_header&")],"&is_not_blank&")"
 	ObjExcel.Cells(4, t1_er_w_intv).Value = "=COUNTIFS(Table1[Interview ER],"&is_true&",Table1[CAF Date ("&date_header&")],"&is_blank&")"
@@ -1287,8 +1309,6 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 	ObjExcel.Cells(7, t1_er_w_intv).Value = "=COUNTIFS(Table1[Interview ER],"&is_true&",Table1[Intvw Date ("&date_header&")],"&is_blank&")"
 	ObjExcel.Cells(8, t1_er_w_intv).Value = "=" & t1_er_w_intv_letter & "6/" & t1_er_w_intv_letter & "2"
 	ObjExcel.Cells(8, t1_er_w_intv).NumberFormat = "0.00%"
-
-
 
 	ObjExcel.Cells(2, t1_er_no_intv).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&")"
 	ObjExcel.Cells(3, t1_er_no_intv).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CAF Date ("&date_header&")],"&is_not_blank&")"
@@ -1321,8 +1341,6 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 	ObjExcel.Cells(7, t1_total).Value = "=COUNTIFS(Table1[Intvw Date ("&date_header&")],"&is_blank&")"
 	ObjExcel.Cells(8, t1_total).Value = "=" & t1_total_letter & "3/" & t1_total_letter & "2"
 	ObjExcel.Cells(8, t1_total).NumberFormat = "0.00%"
-
-
 
 	objStatsExcel.Cells(2, t1_er_w_intv).Value = ObjExcel.Cells(2, t1_er_w_intv).Value
 	objStatsExcel.Cells(3, t1_er_w_intv).Value = ObjExcel.Cells(3, t1_er_w_intv).Value
@@ -1366,8 +1384,6 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 	objStatsExcel.Cells(8, t1_total).Value = ObjExcel.Cells(8, t1_total).Value
 	objStatsExcel.Cells(8, t1_total).NumberFormat = "0.00%"
 
-
-
 	stats_row = 2
 	Do
 		ObjExcel.Cells(stats_row, t2_er_w_intv_app_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[Intvw Date ("&date_header&")], " & t2_dates_letter &stats_row&")"
@@ -1398,13 +1414,6 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 		next_row_date = ObjExcel.Cells(stats_row, t2_dates).Value
 	Loop until next_row_date = ""
 	ObjExcel.columns(t2_dates).AutoFit()
-
-
-
-
-
-
-
 
 	ObjExcel.Cells(2, t3_totals_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_true&")"
 	ObjExcel.Cells(3, t3_totals_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_true&",Table1[CASH ("&date_header&")], "&is_not_blank&")"
@@ -1492,7 +1501,6 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 	ObjExcel.Cells(3, t3_revw_d_percent).NumberFormat = "0.00%"
 	ObjExcel.Cells(4, t3_revw_d_percent).NumberFormat = "0.00%"
 
-
 	ObjExcel.Cells(5, t3_totals_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&")"
 	ObjExcel.Cells(6, t3_totals_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CASH ("&date_header&")], "&is_not_blank&")"
 	ObjExcel.Cells(7, t3_totals_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[SNAP ("&date_header&")], "&is_not_blank&")"
@@ -1569,7 +1577,6 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 	ObjExcel.Cells(5, t3_revw_d_percent).NumberFormat = "0.00%"
 	ObjExcel.Cells(6, t3_revw_d_percent).NumberFormat = "0.00%"
 	ObjExcel.Cells(7, t3_revw_d_percent).NumberFormat = "0.00%"
-
 
 	ObjExcel.Cells(8, t3_totals_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&")"
 	ObjExcel.Cells(9, t3_totals_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[CASH ("&date_header&")], "&is_not_blank&")"
@@ -1648,7 +1655,6 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 	ObjExcel.Cells(8, t3_revw_d_percent).NumberFormat = "0.00%"
 	ObjExcel.Cells(9, t3_revw_d_percent).NumberFormat = "0.00%"
 	ObjExcel.Cells(10, t3_revw_d_percent).NumberFormat = "0.00%"
-
 
 	ObjExcel.Cells(11, t3_totals_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&")"
 	ObjExcel.Cells(12, t3_totals_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[CASH ("&date_header&")], "&is_not_blank&")"
@@ -1736,7 +1742,6 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 	ObjExcel.Cells(12, t3_revw_d_percent).NumberFormat = "0.00%"
 	ObjExcel.Cells(13, t3_revw_d_percent).NumberFormat = "0.00%"
 
-
 	ObjExcel.Cells(14, t3_totals_count).Value = "=COUNTA(Table1[Case number])"
 	ObjExcel.Cells(15, t3_totals_count).Value = "=COUNTIFS(Table1[CASH ("&date_header&")], "&is_not_blank&")"
 	ObjExcel.Cells(16, t3_totals_count).Value = "=COUNTIFS(Table1[SNAP ("&date_header&")], "&is_not_blank&")"
@@ -1822,12 +1827,6 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 	ObjExcel.Cells(14, t3_revw_d_percent).NumberFormat = "0.00%"
 	ObjExcel.Cells(15, t3_revw_d_percent).NumberFormat = "0.00%"
 	ObjExcel.Cells(16, t3_revw_d_percent).NumberFormat = "0.00%"
-
-
-
-
-
-
 
 	objStatsExcel.Cells(2, t3_totals_count).Value = ObjExcel.Cells(2, t3_totals_count).Value
 	objStatsExcel.Cells(3, t3_totals_count).Value = ObjExcel.Cells(3, t3_totals_count).Value
@@ -1993,7 +1992,6 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 	objStatsExcel.Cells(6, t3_revw_d_percent).NumberFormat = "0.00%"
 	objStatsExcel.Cells(7, t3_revw_d_percent).NumberFormat = "0.00%"
 
-
 	objStatsExcel.Cells(8, t3_totals_count).Value = ObjExcel.Cells(8, t3_totals_count).Value
 	objStatsExcel.Cells(9, t3_totals_count).Value = ObjExcel.Cells(9, t3_totals_count).Value
 	objStatsExcel.Cells(10, t3_totals_count).Value = ObjExcel.Cells(10, t3_totals_count).Value
@@ -2070,7 +2068,6 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 	objStatsExcel.Cells(8, t3_revw_d_percent).NumberFormat = "0.00%"
 	objStatsExcel.Cells(9, t3_revw_d_percent).NumberFormat = "0.00%"
 	objStatsExcel.Cells(10, t3_revw_d_percent).NumberFormat = "0.00%"
-
 
 	objStatsExcel.Cells(11, t3_totals_count).Value = ObjExcel.Cells(11, t3_totals_count).Value
 	objStatsExcel.Cells(12, t3_totals_count).Value = ObjExcel.Cells(12, t3_totals_count).Value
@@ -2158,7 +2155,6 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 	objStatsExcel.Cells(12, t3_revw_d_percent).NumberFormat = "0.00%"
 	objStatsExcel.Cells(13, t3_revw_d_percent).NumberFormat = "0.00%"
 
-
 	objStatsExcel.Cells(14, t3_totals_count).Value = ObjExcel.Cells(14, t3_totals_count).Value
 	objStatsExcel.Cells(15, t3_totals_count).Value = ObjExcel.Cells(15, t3_totals_count).Value
 	objStatsExcel.Cells(16, t3_totals_count).Value = ObjExcel.Cells(16, t3_totals_count).Value
@@ -2245,7 +2241,7 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 	objStatsExcel.Cells(15, t3_revw_d_percent).NumberFormat = "0.00%"
 	objStatsExcel.Cells(16, t3_revw_d_percent).NumberFormat = "0.00%"
 
-
+	'Resizing all of the columns to autofit
 	For xl_col = 1 to t3_totals_count
 		ObjExcel.columns(xl_col).AutoFit()
 	Next
@@ -2253,20 +2249,47 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 		objStatsExcel.columns(xl_col).AutoFit()
 	Next
 
+	'Setting the Ranges for each of the 3 tables
 	table1Range = t1_row_titles_letter & "1:" & t1_total_letter & "8"
 	table2Range = t2_dates_letter & "1:" & t2_total_app_count_letter & last_row
 	table3Range = t3_progs_letter & "1:" & t3_totals_count_letter & "16"
 
-	' Set tableRange = Selection.CurrentRegion
-	' ObjExcel.ActiveSheet.ListObjects.Add(SourceType:=xlSrcRange, Source:=tableRange, xlListObjectHasHeaders:=xlYes).Name = tableName
+	'This is how we make a range of cells into a table.
+	'The ADD Method creates the table and Full Detail can be found here - https://docs.microsoft.com/en-us/office/vba/api/excel.listobjects.add
+	'This is a fairly simple use of this functionality and probably has a lot more to it than is exemplified here and the methods/properties can be found:
+		'https://docs.microsoft.com/en-us/office/vba/api/excel.listobject
 	ObjExcel.ActiveSheet.ListObjects.Add(xlSrcRange, table1Range, xlYes).Name = "AppsANDIntvwTable"
 	ObjExcel.ActiveSheet.ListObjects.Add(xlSrcRange, table2Range, xlYes).Name = "DateCountTable"
 	ObjExcel.ActiveSheet.ListObjects.Add(xlSrcRange, table3Range, xlYes).Name = "REVWStatusTable"
 
+	'xlSrcRange is a constant that needs to be set in the script and is '1' which sets the source of the information to a range of cells for defining the table
+		'Other documentation and information about this option can be found here - https://docs.microsoft.com/en-us/office/vba/api/excel.xllistobjectsourcetype
+		' XlListObjectSourceType enumeration (Excel)
+		' NAME				VALUE		DESCRIPTION
+		' xlSrcExternal		0			External data source (Microsoft SharePoint Foundation site).
+		' xlSrcModel		4			PowerPivot Model
+		' xlSrcQuery		3			Query
+		' xlSrcRange		1			Range
+		' xlSrcXml			2			XML
+	'xlYes is a constant that needs to be set in the script and is '1' which inidcates that the data source has headers.
+		'Other documentation and information about this option can be found here - https://docs.microsoft.com/en-us/office/vba/api/excel.xlyesnoguess
+		' XLYESNOGUESS ENUMERATION (EXCEL)
+		' NAME		VALUE	DESCRIPTION
+		' xlGuess	0		Excel determines whether there is a header, and where it is, if there is one.
+		' xlNo		2		Default. The entire range should be sorted.
+		' xlYes		1		The entire range should not be sorted.
+
+	'This is how you can use the property 'TableStyle' to set the visuals of the table. The words here can be found IN EXCEL by hovering over the table styles to see how they are called - these 3 below work.
+	' ObjExcel.ActiveSheet.ListObjects("AppsANDIntvwTable").TableStyle = "TableStyleDark9"
+	' ObjExcel.ActiveSheet.ListObjects("DateCountTable").TableStyle = "TableStyleDark10"
+	' ObjExcel.ActiveSheet.ListObjects("REVWStatusTable").TableStyle = "TableStyleDark11"
+
+	'Now we make more tables for the other excel
 	objStatsExcel.ActiveSheet.ListObjects.Add(xlSrcRange, table1Range, xlYes).Name = "Table1"
 	objStatsExcel.ActiveSheet.ListObjects.Add(xlSrcRange, table2Range, xlYes).Name = "Table2"
 	objStatsExcel.ActiveSheet.ListObjects.Add(xlSrcRange, table3Range, xlYes).Name = "Table3"
 
+	' 'https://docs.microsoft.com/en-us/office/vba/api/excel.xlcolorindex - This is where you find all the excel numbers to use are.
 	ObjExcel.Range(t3_apps_recvd_count_letter 	& "2:" & t3_intvs_percent_letter 		& "2").Interior.ColorIndex = 6
 	ObjExcel.Range(t3_revw_a_count_letter 		& "2:" & t3_revw_a_percent_letter 		& "2").Interior.ColorIndex = 6
 	ObjExcel.Range(t3_totals_count_letter 		& "2:" & t3_totals_count_letter 		& "2").Interior.ColorIndex = 6
@@ -2304,6 +2327,7 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 	ObjExcel.columns(output_headers).AutoFit()
 	ObjExcel.columns(output_data).AutoFit()
 
+	objWorkbook.Save
 
 	'Query date/time/runtime info
 	objStatsExcel.Cells(1, output_headers).Font.Bold = TRUE
@@ -2318,13 +2342,12 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 
 
 	objStatsExcel.ActiveWorkbook.SaveAs "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\Recertification Statistics\Data\" & report_date & " Renewal Data.xlsx"
+	If last_day_checkbox = checked Then objStatsExcel.ActiveWorkbook.SaveAs "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\Recertification Statistics\Data\Last Processing Day for " & report_date & " Renewal Data.xlsx"
 
+	'HERE WE NEED TO CLOSE THE NEW SHEETS
+	ObjStatsExcel.Quit
 
-	' Call write_review_report_stats(ObjExcel, "Table1", "AppsANDIntvwTable", "DateCountTable", "REVWStatusTable")
-
-
-
-	' 'https://docs.microsoft.com/en-us/office/vba/api/excel.xlcolorindex - This is where you find all the excel numbers to use are.
+	' WE AREN'T USING THIS BUT I AM SAVING THIS CODE BECAUSE IT IS THE ONLY PLACE WE HAVE THE BORDER FUNCTIONS INFORMATION
 	' border_array = array("B1:C"&last_row, "D1:D"&last_row, "E1:E"&last_row, "F1:G"&last_row, "H1:I"&last_row, "A2:I2", "A3:I5", "A6:I8", "B10:I10", "K3:AE5", "K6:AE8", "K9:AE11", "K12:AE14", "K15:AE17", "M1:N17", "O1:P17",_
 	'  					 "Q1:R17", "S1:T17", "U1:V17", "W1:X17", "Y1:Z17", "AA1:AB17", "AC1:AD17", "AE1:AE17")
 	'
@@ -2352,28 +2375,10 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 	' 		End With
 	' 	End With
 	' Next
-	'
-	' For xl_col = 1 to 34
-	' 	ObjExcel.columns(xl_col).AutoFit()
-	' Next
-
-
-
-
-	' objStatsExcel.Cells(2, 2).Value = ObjExcel.Cells(2, 2).Value
-
-	' objStatsExcel.Cells(2, 2).Value = this_is_what_this_says
-	MsgBox "Pause"
-	' Call write_review_report_stats(objStatsExcel, "[" & info_sheet_name & "]Table1", "Table1", "Table2", "Table3")
-
-
-
-	' [Workbook_name]Sheet_name!Cell_address
-	' =SUM([Sales.xlsx]Jan!B2:B5)
-	' =SUM(D:\Reports\[Sales.xlsx]Jan!B2:B5)
 
 	run_time = timer - query_start_time
 	end_msg = "Case details have been added to the Review Report" & vbCr & vbCr & "Run time: " & run_time & " seconds."
+	
 ElseIf renewal_option = "Send Appointment Letters" Then
 	MAXIS_footer_month = CM_mo							'Setting the footer month and year based on the review month. We do not run statistics in CM + 2
 	MAXIS_footer_year = CM_yr
