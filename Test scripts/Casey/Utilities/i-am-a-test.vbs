@@ -340,7 +340,7 @@ function MFIP_cert_length_details(verbal_attestation, attestation_verif_array)
             note_row = 5        'these always need to be reset when looking at Case note
             note_date = ""
             note_title = ""
-			previously_set_to_6_months = FALSE			
+			previously_set_to_6_months = FALSE
             Do                  'this do-loop moves down the list of case notes - looking at each row in MAXIS
                 EMReadScreen note_date, 8, note_row, 6      'reading the date of the row
                 EMReadScreen note_title, 55, note_row, 25   'reading the header of the note
@@ -365,23 +365,23 @@ function MFIP_cert_length_details(verbal_attestation, attestation_verif_array)
 
 		End If
 
-		Call start_a_blank_CASE_NOTE
-		If verbal_attestation = TRUE Then
-			Call write_variable_in_CASE_NOTE("MFIP Certification Period set for 6 MONTHS due Verification by Attestation")
-			Call write_variable_in_CASE_NOTE()
-			Call write_variable_in_CASE_NOTE()
-			Call write_variable_in_CASE_NOTE("---")
-			Call write_variable_in_CASE_NOTE(worker_signature)
-		End If
-
-		If verbal_attestation = FALSE Then
-			Call write_variable_in_CASE_NOTE("MFIP Certification Period set for 12 MONTHS since Verifs have been Received")
-			Call write_variable_in_CASE_NOTE()
-			Call write_variable_in_CASE_NOTE()
-			Call write_variable_in_CASE_NOTE("---")
-			Call write_variable_in_CASE_NOTE(worker_signature)
-
-		End If
+		' Call start_a_blank_CASE_NOTE
+		' If verbal_attestation = TRUE Then
+		' 	Call write_variable_in_CASE_NOTE("MFIP Certification Period set for 6 MONTHS due Verification by Attestation")
+		' 	Call write_variable_in_CASE_NOTE()
+		' 	Call write_variable_in_CASE_NOTE()
+		' 	Call write_variable_in_CASE_NOTE("---")
+		' 	Call write_variable_in_CASE_NOTE(worker_signature)
+		' End If
+		'
+		' If verbal_attestation = FALSE Then
+		' 	Call write_variable_in_CASE_NOTE("MFIP Certification Period set for 12 MONTHS since Verifs have been Received")
+		' 	Call write_variable_in_CASE_NOTE()
+		' 	Call write_variable_in_CASE_NOTE()
+		' 	Call write_variable_in_CASE_NOTE("---")
+		' 	Call write_variable_in_CASE_NOTE(worker_signature)
+		'
+		' End If
 
 	End If
 
