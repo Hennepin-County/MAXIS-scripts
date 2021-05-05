@@ -517,6 +517,34 @@ Else
     REPT_year  = CM_plus_1_yr
 End if
 
+'Stats option ignores the 'list of workers' since it works off of an existing Excel, it needs to pull all of the workers
+If all_workers_check = checked then
+	call create_array_of_all_active_x_numbers_in_county(worker_array, two_digit_county_code)
+
+	new_array_string = ""
+	For each worker in worker_array
+		save_worker_numb = TRUE
+		If worker = "X127V83" Then save_worker_numb = FALSE
+		If worker = "X127VS2" Then save_worker_numb = FALSE
+		If worker = "X127V51" Then save_worker_numb = FALSE
+		If save_worker_numb = TRUE Then new_array_string = new_array_string & " " & worker
+	Next
+	new_array_string = trim(new_array_string)
+	worker_array = split(new_array_string, " ")
+Else
+	x1s_from_dialog = split(worker_number, ",")	'Splits the worker array based on commas
+	'formatting array
+	For each x1_number in x1s_from_dialog
+		If worker_array = "" then
+			worker_array = trim(x1_number)		'replaces worker_county_code if found in the typed x1 number
+		Else
+			worker_array = worker_array & ", " & trim(ucase(x1_number)) 'replaces worker_county_code if found in the typed x1 number
+		End if
+	Next
+	'Split worker_array
+	worker_array = split(worker_array, ", ")
+End if
+
 If renewal_option = "Collect Statistics" OR renewal_option = "Create Worklist" Then
 
 	'If we are collecting statistics, we may be running on a current or past month, we need to clarify which month we are looking at.'
@@ -598,23 +626,6 @@ If renewal_option = "Create Renewal Report" then
 	End If
 
 	If new_run_radio = checked then
-	    'If all workers are selected, the script will go to REPT/USER, and load all of the workers into an array. Otherwise it'll create a single-object "array" just for simplicity of code.
-	    If all_workers_check = checked then
-	    	call create_array_of_all_active_x_numbers_in_county(worker_array, two_digit_county_code)
-	    Else
-	    	x1s_from_dialog = split(worker_number, ",")	'Splits the worker array based on commas
-	    	'formatting array
-	    	For each x1_number in x1s_from_dialog
-	    		If worker_array = "" then
-	    			worker_array = trim(x1_number)		'replaces worker_county_code if found in the typed x1 number
-	    		Else
-	    			worker_array = worker_array & ", " & trim(ucase(x1_number)) 'replaces worker_county_code if found in the typed x1 number
-	    		End if
-	    	Next
-	    	'Split worker_array
-	    	worker_array = split(worker_array, ", ")
-	    End if
-
 	    'Opening the Excel file, (now that the dialog is done)
 	    Set objExcel = CreateObject("Excel.Application")
 	    objExcel.Visible = True
@@ -1090,20 +1101,6 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 		ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
 		objExcel.Columns(i).AutoFit()				'sizing the columns'
 	NEXT
-
-	'Stats option ignores the 'list of workers' since it works off of an existing Excel, it needs to pull all of the workers
-	call create_array_of_all_active_x_numbers_in_county(worker_array, two_digit_county_code)
-
-	new_array_string = ""
-	For each worker in worker_array
-		save_worker_numb = TRUE
-		If worker = "X127V83" Then save_worker_numb = FALSE
-		If worker = "X127VS2" Then save_worker_numb = FALSE
-		If worker = "X127V51" Then save_worker_numb = FALSE
-		If save_worker_numb = TRUE Then new_array_string = new_array_string & " " & worker
-	Next
-	new_array_string = trim(new_array_string)
-	worker_array = split(new_array_string, " ")
 
 	recert_cases = 0	            'incrementor for the array
 
@@ -2732,9 +2729,6 @@ ElseIf renewal_option = "Create Worklist" Then
 
 	'Activates worksheet based on user selection
 	objExcel.worksheets(scenario_dropdown).Activate
-
-	'Stats option ignores the 'list of workers' since it works off of an existing Excel, it needs to pull all of the workers
-	call create_array_of_all_active_x_numbers_in_county(worker_array, two_digit_county_code)
 
 	recert_cases = 0	            'incrementor for the array
 
