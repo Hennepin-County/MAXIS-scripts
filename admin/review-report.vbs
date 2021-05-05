@@ -480,7 +480,7 @@ If today_day < 16 Then CM_plus_two_checkbox = unchecked
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 186, 85, "Review Report"
   ' DropListBox 90, 35, 90, 15, "Select one..."+chr(9)+"Create Renewal Report"+chr(9)+"Discrepancy Run", renewal_option
-  DropListBox 90, 35, 90, 15, "Select one..."+chr(9)+"Create Renewal Report"+chr(9)+"Discrepancy Run"+chr(9)+"Collect Statistics"+chr(9)+"Send Appointment Letters"+chr(9)+"Create Worklist", renewal_option
+  DropListBox 90, 35, 90, 15, "Select one..."+chr(9)+"Create Renewal Report"+chr(9)+"Discrepancy Run"+chr(9)+"Collect Statistics"+chr(9)+"Send Appointment Letters"+chr(9)+"Send NOMIs"+chr(9)+"Create Worklist", renewal_option
   ButtonGroup ButtonPressed
     OkButton 95, 65, 40, 15
     CancelButton 140, 65, 40, 15
@@ -3070,7 +3070,7 @@ ElseIf renewal_option = "Create Worklist" Then
 
 	end_msg = "An Excel Workbook has been created with two lists of work:" & vbCr & vbCr & "The script found:" & vbCr & "  - " & er_case_to_work &" ER cases with no CAF entered in MAXIS" & vbCr & "  - " & sr_case_to_work &" SR cases with no CSR entered in MAXIS"
 Else
-    end_msg = "No discrepancy report available yet."
+    end_msg = "Report available yet."
 End if
 
 STATS_counter = STATS_counter - 1
