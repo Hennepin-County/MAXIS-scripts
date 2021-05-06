@@ -65,7 +65,7 @@ EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
 
 HC_process = "Application"  'testing code
-msgbox "Oh hi there! 5"     'testing code
+msgbox "Oh hi there! 6"     'testing code
 '----------------------------------------------------------------------------------------------------Initial dialog
 initial_help_text = "*** What is the AVS? ***" & vbNewLine & "--------------------" & vbNewLine & vbNewLine & _
 "The Account Validation Service (AVS) is a web-based service that provides information about some accounts held in financial institutions. It does not provide information on property assets such as cars or homes. AVS must be used once at application, and when a person changes to a Medical Assistance for People Who Are Age 65 or Older and People Who Are Blind or Have a Disability (MA-ABD) basis of eligibility and are subject to an asset test." & vbNewLine & vbNewLine & _
@@ -252,7 +252,8 @@ Do
     'Blanking out variables for the array to start the AVS Submission process 
     If confirm_msgbox = vbYes then
         For item = 0 to ubound(avs_members_array, 2)
-             avs_members_array(forms_status_const,     item) = ""
+            run_initial_option = False
+            avs_members_array(forms_status_const,     item) = ""
             avs_members_array(avs_status_const,        item) = ""
             avs_members_array(request_type_const,      item) = ""
             avs_members_array(avs_results_const,       item) = ""
@@ -626,7 +627,7 @@ Do
                 PF3 ' to save case note
                 run_initial_option = True
                 initial_option = "AVS Submission/Results"
-                msgbox initial_option
+                'msgbox initial_option
             End if
             exit for
         End if
