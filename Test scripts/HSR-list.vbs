@@ -571,3 +571,10 @@ Function HSR_LIST
  	assigned_to = trim(assigned_to)
 	IF worker_number = "" THEN worker_number = "REVIEW"
 END FUNCTION
+
+'OS list
+'Adrian Andres, Cody Ross, Edward Ukatu, Elmi Elmi, Mohsin Hashi, Joseph Brewer, Kiarah Ray, Lori Clayton, Michele Price, Natasha Williams, Rebecca Hemmans, Renee McGrath, Rey Gonzalez-Perez, Sumaya Omar, Thomas Anderson, Wanda Baker
+
+
+'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
+IF MiKayla_needs_to_know_this <> "" THEN CALL create_outlook_email("mikayla.handley@Hennepin.us", "", "Name not found task based list", MiKayla_needs_to_know_this, "", TRUE)
