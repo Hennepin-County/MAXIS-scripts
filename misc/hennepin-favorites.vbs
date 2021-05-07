@@ -664,6 +664,7 @@ FUNCTION favorite_menu(favorites_text_file_string, script_to_run)
 	'>>> Adjusting the height if the user has fewer scripts selected (in the left column) than what is "new" (in the right column).
 	If num_of_new_scripts <> 0 THEN dlg_height = dlg_height + 15 + (12 * num_of_new_scripts)
     If num_featured_scripts <> 0 THEN dlg_height = dlg_height + 15 + (12 * num_featured_scripts)
+	If num_test_scripts <> 0 THEN dlg_height = dlg_height + 15 + (12 * num_test_scripts)
 
 	'>>> A nice decoration for the user. If they have used Update Worker Signature, then their signature is built into the dialog display.
 	' IF worker_full_name <> "" THEN
@@ -728,6 +729,35 @@ FUNCTION favorite_menu(favorites_text_file_string, script_to_run)
             NEXT
             vert_button_position = vert_button_position + 5
         End If
+
+		If testing_scripts_array(script_name_const, 0) <> "" Then
+			GroupBox 5, vert_button_position, 690, 15 + (12 * num_test_scripts), "TESTING SCRIPTS - These scripts are in testing for you."
+			vert_button_position = vert_button_position + 12
+			for i = 0 to UBound(testing_scripts_array, 2)
+				script_keys_combine = ""
+				' If testing_scripts_array(i).dlg_keys(0) <> "" Then script_keys_combine = join(testing_scripts_array(i).dlg_keys, ":")
+				PushButton 		10, 					vert_button_position, 	10, 		10, 			"?", 																SIR_button_placeholder
+				PushButton 		23,						vert_button_position, 	120, 		10, 			testing_scripts_array(script_name_const, i), 						button_placeholder
+				Text 			152, 				    vert_button_position+1, 40, 		10, 			"-- " & testing_scripts_array(dlg_keys_const, i) & " --"
+				' PushButton      175,                    vert_button_position,   10,         10,             "+",                                                add_to_favorites_button_placeholder
+			If testing_scripts_array(hot_topic_url, i) = "" Then
+				Text            190,                    vert_button_position,   450,        10,             "Featured on " & testing_scripts_array(hot_topic_date_const, i) & " --- " & testing_scripts_array(description_const, i)
+			Else
+				PushButton		190, 					vert_button_position, 	90, 		10, 			"Featured on " & testing_scripts_array(hot_topic_date_const, i), 	ht_button_placeholder
+				Text            280,                    vert_button_position+1, 375,        10,             " --- " & testing_scripts_array(description_const, i)
+			End If
+				testing_scripts_array(button_const, i) = button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
+				testing_scripts_array(SIR_instr_btn_const, i) = SIR_button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
+				testing_scripts_array(HT_btn_const, i) = ht_button_placeholder
+
+				vert_button_position = vert_button_position + 12
+				button_placeholder = button_placeholder + 1			'This gets passed to ButtonPressed where it can be refigured as the selected item in the array by subtracting 100
+				SIR_button_placeholder = SIR_button_placeholder + 1			'This gets passed to ButtonPressed where it can be refigured as the selected item in the array by subtracting 100
+				ht_button_placeholder = ht_button_placeholder + 1
+
+			NEXT
+			vert_button_position = vert_button_position + 5
+		End If
 
         Text 5, vert_button_position, 500, 10, "---------------------------------------------------------------------- FAVORITE SCRIPTS ------------------------------------------------------------------------"
         vert_button_position = vert_button_position + 12
@@ -967,6 +997,9 @@ ReDim favorite_scripts_array(hot_topic_date_const, 0)
 Dim featured_scripts_array
 ReDim featured_scripts_array(hot_topic_date_const, 0)
 
+Dim testing_scripts_array
+ReDim testing_scripts_array(hot_topic_date_const, 0)
+
 Dim new_scripts_array
 ReDim new_scripts_array(hot_topic_date_const, 0)
 
@@ -1030,6 +1063,7 @@ favorited_scripts_array = ""
 '>>> Building the array of new scripts
 num_of_new_scripts = 0
 num_featured_scripts = 0
+num_test_scripts = 0
 ' Dim featured_scripts_array()
 ' Dim new_scripts_array()
 ' ReDim featured_scripts_array(1)
@@ -1084,6 +1118,27 @@ FOR i = 0 TO Ubound(script_array)
 
         End If
     End If
+
+	If script_array(i).in_testing = TRUE Then
+		Call script_array(i).show_button(see_the_button)
+		If see_the_button = TRUE Then
+			ReDim Preserve testing_scripts_array(hot_topic_date_const, num_test_scripts)
+			testing_scripts_array(script_name_const, num_test_scripts)		= script_array(i).script_name
+			testing_scripts_array(category_const, num_test_scripts)		= script_array(i).category
+			testing_scripts_array(description_const, num_test_scripts)		= script_array(i).description
+			testing_scripts_array(release_date_const, num_test_scripts)	= script_array(i).release_date
+			testing_scripts_array(retirement_date_const, num_test_scripts)	= script_array(i).retirement_date
+			testing_scripts_array(tags_const, num_test_scripts)		    = join(script_array(i).tags, "~")
+			testing_scripts_array(dlg_keys_const, num_test_scripts)		= join(script_array(i).dlg_keys, ":")
+			testing_scripts_array(keywords_const, num_test_scripts)		= script_array(i).keywords
+			testing_scripts_array(hot_topic_date_const, num_test_scripts)	= script_array(i).hot_topic_date
+			testing_scripts_array(instsr_URL_const, num_test_scripts)		= script_array(i).SharePoint_instructions_URL
+			testing_scripts_array(script_URL_const, num_test_scripts)		= script_array(i).script_URL
+			testing_scripts_array(hot_topic_url, num_test_scripts)			= script_array(i).hot_topic_link
+
+			num_test_scripts = num_test_scripts + 1
+		End If
+	End If
     ' If num_featured_scripts = 0 Then SET featured_scripts_array(1) = NEW script_bowie
     ' If num_of_new_scripts = 0 Then SET new_scripts_array(1) = NEW script_bowie
 NEXT
