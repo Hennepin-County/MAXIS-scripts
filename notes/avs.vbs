@@ -64,8 +64,7 @@ closing_msg = "Success! Your AVS case note has been created. Please review for a
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
 
-HC_process = "Application"  'testing code
-msgbox "Oh hi there! 6"     'testing code
+msgbox "Oh hi there! 7"     'testing code
 '----------------------------------------------------------------------------------------------------Initial dialog
 initial_help_text = "*** What is the AVS? ***" & vbNewLine & "--------------------" & vbNewLine & vbNewLine & _
 "The Account Validation Service (AVS) is a web-based service that provides information about some accounts held in financial institutions. It does not provide information on property assets such as cars or homes. AVS must be used once at application, and when a person changes to a Medical Assistance for People Who Are Age 65 or Older and People Who Are Blind or Have a Disability (MA-ABD) basis of eligibility and are subject to an asset test." & vbNewLine & vbNewLine & _
@@ -271,10 +270,11 @@ Do
         selection_text = "Select all members REQUIRED to sign AVS form(s):"
         type_text = "Applicant"
         dialog_text = "Forms"
-        help_button_text = "*** Who Needs to Sign the Authorization Form ***" & vbNewLine & "--------------------" & vbNewLine & vbNewLine & "Information source: DHS-7823 Form - Authorization to Obtain Financial Information from the Account Validation Service (AVS)." & vbcr & vbcr & _
+        help_button_text = "*** Who Needs to Sign the Authorization Form ***" & vbNewLine & "--------------------" & vbcr & vbcr & _
         "- People who are applying for or enrolled in MA for people who are age 65 or older, blind or have a disability," & vbNewLine & vbNewLine & _
         "- The person's spouse, unless the person is applying for or enrolled in MA-EPD, or the person has one of the following waivers: Brain Injury (BI), Community Alternative Care (CAC), Community Access for Disability Inclusion (CADI), and Developmental Disabilities (DD)." & vbNewLine & vbNewLine & _
-        "- The sponsor of the person or the person's spouse. A sponsor is someone who signed an Affidavit of Support (USCIS I-864) as a condition of the person's or his or her spouse's entry to the country."
+        "- The sponsor of the person or the person's spouse. A sponsor is someone who signed an Affidavit of Support (USCIS I-864) as a condition of the person's or his or her spouse's entry to the country." & vbNewLine & vbNewLine & _
+        "Information Source: DHS-7823 Form - Authorization to Obtain Financial Information from the Account Validation Service (AVS)."
 
         help_button_2_text = "*** What date should I enter here? ***" & vbNewLine & "--------------------" & vbNewLine & vbNewLine & _
         "The Form Status will determine what you will enter in this field." & vbNewLine & vbNewLine & _
@@ -288,11 +288,12 @@ Do
         type_text = "Request"
         dialog_text = "AVS"
 
-        help_button_text = "*** Who Needs to Sign the Authorization Form ***" & vbNewLine & "--------------------" & vbNewLine & vbNewLine & "Information source: DHS-7823 Form - Authorization to Obtain Financial Information from the Account Validation Service (AVS)." & vbcr & vbcr & _
+        help_button_text = "*** Who Needs to Sign the Authorization Form ***" & vbNewLine & "--------------------" & vbcr & vbcr & _
         "- People who are applying for or enrolled in MA for people who are age 65 or older, blind or have a disability," & vbNewLine & vbNewLine & _
         "- The person's spouse, unless the person is applying for or enrolled in MA-EPD, or the person has one of the following waivers: Brain Injury (BI), Community Alternative Care (CAC), Community Access for Disability Inclusion (CADI), and Developmental Disabilities (DD)." & vbNewLine & vbNewLine & _
-        "- The sponsor of the person or the person's spouse. A sponsor is someone who signed an Affidavit of Support (USCIS I-864) as a condition of the person's or his or her spouse's entry to the country."
-
+        "- The sponsor of the person or the person's spouse. A sponsor is someone who signed an Affidavit of Support (USCIS I-864) as a condition of the person's or his or her spouse's entry to the country." & vbNewLine & vbNewLine & _
+        "Information Source: DHS-7823 Form - Authorization to Obtain Financial Information from the Account Validation Service (AVS)."
+        
         help_button_2_text = "*** What date should I enter here? ***" & vbNewLine & "--------------------" & vbNewLine & vbNewLine & _
         "The AVS Status will determine what you will enter in this field. These will usually be the current date." & vbNewLine & vbNewLine & _
         "- Submitting a Request: Enter the date the request was sent in the AVS system." & vbNewLine & _
@@ -366,20 +367,20 @@ Do
       GroupBox 10, 5, 550, (60 + (checked_count * 15)), "Complete the following information for required AVS members:"
       ButtonGroup ButtonPressed
         PushButton 215, 0, 10, 15, "!", help_button_1
-      Text 20, 25, 520, 10, "----------AVS Member--------------------------------" & type_text & " Type---------------------------" & dialog_text & " Status-------------------" & dialog_text & " Sent/Rec'd Date-------------------Additional Information----------------"
+      Text 20, 25, 520, 10, "----------AVS Member-------------------------------------" & type_text & " Type----------------------" & dialog_text & " Status-------------------" & dialog_text & " Sent/Rec'd Date-------------------Person-Based Info----------------"
       ButtonGroup ButtonPressed
         PushButton 400, 20, 10, 15, "!", help_button_2
         For item = 0 to UBound(avs_members_array, 2)									'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
             y_pos = (50 + item * 20)
-            Text 20, y_pos, 110, 15, avs_members_array(member_info_const, item)
+            Text 20, y_pos, 130, 15, avs_members_array(member_info_const, item)
             If initial_option = "AVS Forms" then
-                DropListBox 130, y_pos - 5, 70, 15, "Select one..."+chr(9)+"Applying"+chr(9)+"Applying/Spouse"+chr(9)+"Deeming"+chr(9)+"Not Applying"+chr(9)+"Spouse", avs_members_array(applicant_type_const, item)
+                DropListBox 150, y_pos - 5, 70, 15, "Select one..."+chr(9)+"Applying"+chr(9)+"Applying/Spouse"+chr(9)+"Deeming"+chr(9)+"Not Applying"+chr(9)+"Spouse", avs_members_array(applicant_type_const, item)
                 DropListBox 225, y_pos - 5, 90, 15, "Select one..."+chr(9)+"Initial Request"+chr(9)+"Not Received"+chr(9)+"Received - Complete"+chr(9)+"Received - Incomplete", avs_members_array(forms_status_const, item)
             End if
 
             If initial_option = "AVS Submission/Results" then
-                    DropListBox 125, y_pos - 5, 90, 15, "Select one..."+chr(9)+"BI - Brain Injury Waiver"+chr(9)+"BX - Blind"+chr(9)+"CA - CAC Waiver"+chr(9)+"CD - CADI Waiver"+chr(9)+"DD - DD Waiver"+chr(9)+"DP - MA-EPD"+chr(9)+"DX - Disability"+chr(9)+"EH - EMA"+chr(9)+"EW - Elderly Waiver"+chr(9)+"EX - 65 and Older"+chr(9)+"LC - Long Term Care"+chr(9)+"MP - QMB/SLMB Only"+chr(9)+"N/A - No SSN"+chr(9)+"N/A - Not Applying"+chr(9)+"N/A - Not Deeming"+chr(9)+"N/A - PRIV"+chr(9)+"QI -QI"+chr(9)+"QW - QWD", avs_members_array(request_type_const, item)
-                DropListBox 225, y_pos - 5, 90, 15, "Select one..."+chr(9)+"Submitting a Request"+chr(9)+"Review Results"+chr(9)+"Results After Decision", avs_members_array(avs_status_const, item)
+                    DropListBox 135, y_pos - 5, 90, 15, "Select one..."+chr(9)+"BI - Brain Injury Waiver"+chr(9)+"BX - Blind"+chr(9)+"CA - CAC Waiver"+chr(9)+"CD - CADI Waiver"+chr(9)+"DD - DD Waiver"+chr(9)+"DP - MA-EPD"+chr(9)+"DX - Disability"+chr(9)+"EH - EMA"+chr(9)+"EW - Elderly Waiver"+chr(9)+"EX - 65 and Older"+chr(9)+"LC - Long Term Care"+chr(9)+"MP - QMB/SLMB Only"+chr(9)+"N/A - No SSN"+chr(9)+"N/A - Not Applying"+chr(9)+"N/A - Not Deeming"+chr(9)+"N/A - PRIV"+chr(9)+"QI -QI"+chr(9)+"QW - QWD", avs_members_array(request_type_const, item)
+                DropListBox 235, y_pos - 5, 90, 15, "Select one..."+chr(9)+"Submitting a Request"+chr(9)+"Review Results"+chr(9)+"Results After Decision", avs_members_array(avs_status_const, item)
             End if
             EditBox 330, y_pos - 5, 50, 15, avs_members_array(avs_date_const, item)
             EditBox 390, y_pos - 5, 160, 15, avs_members_array(additional_info_const, item)
@@ -512,7 +513,7 @@ Do
     'giving users the option to create another TIKL if the initial forms are incomplete.
     For i = 0 to ubound(avs_members_array, 2)
         If avs_members_array(forms_status_const, i) = "Received - Incomplete" then
-            TIKL_msgbox = msgbox("Do you wish to send another verification requesting a completed AVS form?" & vbcr & vbcr & "Selecting YES will create another 10-day TIKL and case note that a verification request is being sent.", vbQuestion + vbYesNo, "Set another TIKL?")
+            TIKL_msgbox = msgbox("Will you be sending another verification request for a completed AVS form?" & vbcr & vbcr & "Selecting YES will create another 10-day TIKL and case note that a verification request is being sent.", vbQuestion + vbYesNo, "Set another TIKL?")
             If TIKL_msgbox = vbYes then
                 set_another_TIKL = True
                 verif_request = True
