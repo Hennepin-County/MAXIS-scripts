@@ -2,7 +2,7 @@
 name_of_script = "NOTES - AVS.vbs"
 start_time = timer
 STATS_counter = 1
-STATS_manualtime = 120
+STATS_manualtime = 240
 STATS_denominatinon = "I"
 'END OF STATS BLOCK===========================================================================================
 
@@ -44,22 +44,17 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("03/23/2021", "Initial version.", "Ilse Ferris, Hennepin County")
+call changelog_update("05/10/2021", "Initial version.", "Ilse Ferris, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'TODO: Time study
-'TODO: stats increment counter
-'TODO: Comment code
-'TODO: Hot Topics
 '----------------------------------------------------------------------------------------------------The script
-closing_msg = "Success! Your AVS case note has been created. Please review for accuracy & any additional information."
-
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
-HC_process = "Application" 
+HC_process = "Application"  'Defaulting - This is only viable option currently 
+closing_msg = "Success! Your AVS case note has been created. Please review for accuracy & any additional information."  'initial closing message. This may increment based on options selected. 
 
 '----------------------------------------------------------------------------------------------------Initial dialog
 initial_help_text = "*** What is the AVS? ***" & vbNewLine & "--------------------" & vbNewLine & vbNewLine & _
@@ -88,7 +83,7 @@ DO
 		dialog Dialog1
 		cancel_without_confirmation              'new function that will cancel, collect stats, but not give user option to confirm ending script.
         If ButtonPressed = initial_help_button then
-            tips_tricks_msg = MsgBox(initial_help_text, vbInformation, "Tips and Tricks") 'see help_button_text above for details of the text
+            tips_tricks_msg = MsgBox(initial_help_text, vbInformation, "Tips and Tricks") 'see initial_help_text above for details of the text
             err_msg = "LOOP" & err_msg
         End if
 		If (isnumeric(MAXIS_case_number) = False and len(MAXIS_case_number) <> 8) then err_msg = err_msg & vbcr & "* Enter a valid MAXIS Case Number."
@@ -99,22 +94,20 @@ DO
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-If HC_process = "Renewal" then script_end_procedure("The AVS system is not required at renewals at this time. The script will now end.")
+If HC_process = "Renewal" then script_end_procedure("The AVS system is not required at renewals at this time. The script will now end.") 'Issue #311 will address this 
 
-MAXIS_background_check
-Call navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", is_this_priv)
+MAXIS_background_check  
+Call navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", is_this_priv) 
 If is_this_priv = True then script_end_procedure("This case is privilged, and you do not have access. The script will now end.")
 
 EmReadscreen county_code, 4, 21, 21
 If county_code <> UCASE(worker_county_code) then script_end_procedure("This case is an out-of-county case, and cannot be case noted. The script will now end.")
 
 '----------------------------------------------------------------------------------------------------Gathering the member/AREP/Sponsor information for signature selection array
-'Call navigate_to_MAXIS_screen("STAT", "MEMB")
 'Setting up main array
-avs_membs = 0
+avs_membs = 0       'incrementor for array 
 Dim avs_members_array()
-ReDim avs_members_array(additional_info_const, 0)
-
+ReDim avs_members_array(additional_info_const, 0)   'redimmied to the size of the last constant 
 const member_number_const      = 0
 const member_info_const        = 1
 const member_name_const        = 2
@@ -131,10 +124,10 @@ const avs_date_const           = 12
 const accounts_verified_const  = 13
 const unreported_assets_const  = 14
 const ECF_const                = 15
-const additional_info_const    = 16
+const additional_info_const    = 16 
 
 add_to_array = False    'defaulting to false
-DO								'reads the reference number, last name, first name, and then puts it into a single string then into the array
+DO						
 	EMReadscreen ref_nbr, 2, 4, 33
 	EMReadscreen last_name, 25, 6, 30
 	EMReadscreen first_name, 12, 6, 63
@@ -160,12 +153,12 @@ DO								'reads the reference number, last name, first name, and then puts it i
     If trim(client_age) < "21" then add_to_array = False  'under 21 are not required to sign per EPM 2.3.3.2.1 Asset Limits
     If add_to_array = True then
         If client_ssn = "" then 
-            If initial_option = "AVS Submission/Results" then avs_members_array(request_type_const, avs_membs) = "N/A - No SSN"
+            If initial_option = "AVS Submission/Results" then avs_members_array(request_type_const, avs_membs) = "N/A - No SSN" 'NO SSN need to sign forms, but we just need to case note AVS Submission exemption 
         End if
     End if 
 
     If add_to_array = True then
-        ReDim Preserve avs_members_array(additional_info_const, avs_membs)
+        ReDim Preserve avs_members_array(additional_info_const, avs_membs)  'redimmied to the size of the last constant 
         avs_members_array(member_info_const,    avs_membs) = ref_nbr & " " & last_name & first_name
         avs_members_array(member_number_const,  avs_membs) = ref_nbr
         avs_members_array(member_name_const,    avs_membs) = first_name & "" & last_name
@@ -179,7 +172,7 @@ LOOP until edit_check = "ENTER A"			'the script will continue to transmit throug
 'Handling in case no members are idenified as needing the form. Helping to reduce errors for workers.
 If avs_membs = 0 then script_end_procedure_with_error_report("No members on this case are required by policy to sign the AVS form. Please review case if necessary.")
 
-Call navigate_to_MAXIS_screen("STAT", "MEMI")
+Call navigate_to_MAXIS_screen("STAT", "MEMI")   'Finding marital status to add to array
 For item = 0 to Ubound(avs_members_array, 2)
     EmWriteScreen avs_members_array(member_number_const, item), 20, 76
     transmit
@@ -208,6 +201,7 @@ Do
     EMReadScreen last_panel, 5, 24, 2
 Loop until last_panel = "ENTER"	'This means that there are no other faci panels
 
+'STAT/TYPE info is to help default some of the initial options for the applicant type. 
 Call navigate_to_MAXIS_screen("STAT", "TYPE")
 For item = 0 to Ubound(avs_members_array, 2)
     If avs_members_array(hc_applicant_const, item) = "" then
@@ -242,7 +236,7 @@ For item = 0 to Ubound(avs_members_array, 2)
 Next
 
 Do
-    'Blanking out variables for the array to start the AVS Submission process 
+    'Blanking out variables for the array to start the AVS Submission process. This is a valid option for users to select is the AVS Forms process is selected, and the form(s) are returned complete. 
     If confirm_msgbox = vbYes then
         For item = 0 to ubound(avs_members_array, 2)
             run_initial_option = False
@@ -343,13 +337,14 @@ Do
             avs_members_array(avs_status_const        , resize_counter) = avs_members_array(avs_status_const        , item)
             avs_members_array(request_type_const      , resize_counter) = avs_members_array(request_type_const      , item)
             avs_members_array(avs_results_const       , resize_counter) = avs_members_array(avs_results_const       , item)
-            avs_members_array(avs_returned_notes_const   , resize_counter) = avs_members_array(avs_returned_notes_const   , item)
+            avs_members_array(avs_returned_notes_const, resize_counter) = avs_members_array(avs_returned_notes_const, item)
             avs_members_array(avs_date_const          , resize_counter) = avs_members_array(avs_date_const          , item)
             avs_members_array(accounts_verified_const , resize_counter) = avs_members_array(accounts_verified_const , item)
             avs_members_array(unreported_assets_const , resize_counter) = avs_members_array(unreported_assets_const , item)
             avs_members_array(ECF_const               , resize_counter) = avs_members_array(ECF_const               , item)
             avs_members_array(additional_info_const   , resize_counter) = avs_members_array(additional_info_const   , item)
             resize_counter = resize_counter + 1
+            STATS_counter = STATS_counter + 1
         End If 
     Next 
     resize_counter = resize_counter - 1
@@ -363,11 +358,12 @@ Do
         For item = 0 to UBound(avs_members_array, 2)									'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
             y_pos = (50 + item * 20)
             Text 20, y_pos, 130, 15, avs_members_array(member_info_const, item)
+            'AVS Forms selections 
             If initial_option = "AVS Forms" then
                 DropListBox 150, y_pos - 5, 70, 15, "Select one..."+chr(9)+"Applying"+chr(9)+"Applying/Spouse"+chr(9)+"Deeming"+chr(9)+"Not Applying"+chr(9)+"Spouse", avs_members_array(applicant_type_const, item)
                 DropListBox 225, y_pos - 5, 90, 15, "Select one..."+chr(9)+"Initial Request"+chr(9)+"Not Received"+chr(9)+"Received - Complete"+chr(9)+"Received - Incomplete", avs_members_array(forms_status_const, item)
             End if
-
+            'AVS Submission/Results selections 
             If initial_option = "AVS Submission/Results" then
                     DropListBox 135, y_pos - 5, 90, 15, "Select one..."+chr(9)+"BI - Brain Injury Waiver"+chr(9)+"BX - Blind"+chr(9)+"CA - CAC Waiver"+chr(9)+"CD - CADI Waiver"+chr(9)+"DD - DD Waiver"+chr(9)+"DP - MA-EPD"+chr(9)+"DX - Disability"+chr(9)+"EH - EMA"+chr(9)+"EW - Elderly Waiver"+chr(9)+"EX - 65 and Older"+chr(9)+"LC - Long Term Care"+chr(9)+"MP - QMB/SLMB Only"+chr(9)+"N/A - No SSN"+chr(9)+"N/A - Not Applying"+chr(9)+"N/A - Not Deeming"+chr(9)+"N/A - PRIV"+chr(9)+"QI -QI"+chr(9)+"QW - QWD", avs_members_array(request_type_const, item)
                 DropListBox 235, y_pos - 5, 90, 15, "Select one..."+chr(9)+"Submitting a Request"+chr(9)+"Review Results"+chr(9)+"Results After Decision", avs_members_array(avs_status_const, item)
@@ -404,11 +400,13 @@ Do
 
             'mandatory fields for all AVS_membs
             FOR item = 0 to UBound(avs_members_array, 2)
+                'AVS Forms mandatory fields 
                 If initial_option = "AVS Forms" then
                     If avs_members_array(applicant_type_const, item) = "Select one..." then err_msg = err_msg & vbcr & "* Enter the Applicant Type for: " & avs_members_array(member_info_const, item)
                     If avs_members_array(forms_status_const, item) = "Select one..." then err_msg = err_msg & vbcr & "* Enter the forms status for: " & avs_members_array(member_info_const, item)
                     If (avs_members_array(forms_status_const, item) = "Received - Incomplete" and trim(avs_members_array(additional_info_const, item)) = "") then err_msg = err_msg & vbcr & "* Enter the reason the AVS form is incomplete for: " & avs_members_array(member_info_const, item) & " in the 'additional information' field."
                 End if
+                'AVS Submission/Results mandatory fields 
                 If initial_option = "AVS Submission/Results" then
                     If avs_members_array(request_type_const, item) = "Select one..." then err_msg = err_msg & vbcr & "* Enter the request type for: " & avs_members_array(member_info_const, item)
                     If avs_members_array(avs_status_const, item) = "Select one..." then err_msg = err_msg & vbcr & "* Enter the request type for: " & avs_members_array(member_info_const, item)
@@ -421,17 +419,21 @@ Do
         Call check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
     Loop until are_we_passworded_out = false					'loops until user passwords back in
 
+    '----------------------------------------------------------------------------------------------------ASSET DIALOG: for AVS Submission/Results members who have returned AVS results. 
     For item = 0 to ubound(avs_members_array, 2)
         If avs_members_array(avs_status_const, item) = "Review Results" or avs_members_array(avs_status_const, item) = "Results After Decision" then
+            STATS_counter = STATS_counter + 1
             'avs results information if any mambers meets review resutls or results after decision
             Dialog1 = ""
             BeginDialog Dialog1, 0, 0, 351, 110, "Asset Information Dialog"
                 GroupBox 5, 5, 340, 80, avs_members_array(avs_status_const, item) & " for "  & avs_members_array(member_info_const, item) & ":"
                 Text 10, 25, 75, 10, "All accounts verified?"
                 DropListBox 90, 20, 55, 15, "Select one..."+chr(9)+"Yes"+chr(9)+"No", avs_members_array(accounts_verified_const, item)
+                'Review Results selections 
                 If avs_members_array(avs_status_const, item) = "Review Results" then
                     Text 160, 25, 95, 10, "AVS Case Status for Member:"
                     DropListBox 260, 20, 80, 15, "Select one..."+chr(9)+"Close/Withdrawn"+chr(9)+"Eligible"+chr(9)+"Ineligible"+chr(9)+"N/A"+chr(9)+"Review in Progress"+chr(9)+"Transfer Penalty", avs_members_array(avs_results_const, item)
+                'Results After Decision selections 
                 Elseif avs_members_array(avs_status_const, item) = "Results After Decision" then
                     Text 155, 25, 120, 10, "Accts after decision cleared in AVS?"
                     DropListBox 275, 20, 65, 12, "Select one..."+chr(9)+"Yes"+chr(9)+"No", avs_members_array(avs_results_const, item)
@@ -460,7 +462,6 @@ Do
                     If avs_members_array(accounts_verified_const, item) = "No" AND trim(avs_members_array(avs_returned_notes_const, item) = "") then err_msg = err_msg & vbcr & "* Explain answering 'No' to all accounts verified in the 'asset notes' field."
                     If avs_members_array(unreported_assets_const, item) = "Yes" AND trim(avs_members_array(avs_returned_notes_const, item) = "") then err_msg = err_msg & vbcr & "* Explain answering 'Yes' to unreported asset in the 'asset notes' field."
                     If avs_members_array(ECF_const, item) = "Select one..." then err_msg = err_msg & vbcr & "* Was the AVS report submitted to ECF for the case file?"
-                    'error message variable based on option
                     'Review Results option
                     If avs_members_array(avs_status_const, item) = "Review Results" then
                         If avs_members_array(avs_results_const, item) = "Select one..." then err_msg = err_msg & vbcr & "* Enter the AVS Case Status for the member."
@@ -557,11 +558,10 @@ Do
 
     Call write_variable_in_CASE_NOTE("The following info is in regards to AVS members required to sign AVS Forms:")
     Call write_variable_in_CASE_NOTE("-----")
-    'HH member array output
+    'AVS member array output
     For item = 0 to ubound(avs_members_array, 2)
-    
         Call write_bullet_and_variable_in_CASE_NOTE("Name", avs_members_array(member_info_const, item))
-
+        'AVS Forms selections
         If initial_option = "AVS Forms" then
             Call write_bullet_and_variable_in_CASE_NOTE("Applicant Type", avs_members_array(applicant_type_const, item))
             Call write_bullet_and_variable_in_CASE_NOTE("AVS Form Status", avs_members_array(forms_status_const, item))
@@ -575,11 +575,11 @@ Do
             End if
             Call write_bullet_and_variable_in_CASE_NOTE("AVS Forms " & forms_text & " Date", avs_members_array(avs_date_const, item))
         End if
-
+        'AVS Submission/Resutls selections 
         If initial_option = "AVS Submission/Results" then
             Call write_bullet_and_variable_in_CASE_NOTE("Request Type", avs_members_array(request_type_const, item))
             Call write_bullet_and_variable_in_CASE_NOTE("AVS Status", avs_members_array(avs_status_const, item))
-            'text for next case note variable
+            'text for next dates for the case note variable
             If avs_members_array(avs_status_const, item) = "Submitting a Request" then
                 status_text = "Sent"
             Else
@@ -588,7 +588,7 @@ Do
             Call write_bullet_and_variable_in_CASE_NOTE("AVS " & status_text & " Date", avs_members_array(avs_date_const, item))
         End if
         Call write_bullet_and_variable_in_CASE_NOTE("Additional Information", avs_members_array(additional_info_const, item))
-
+        'Asset Dialog Information
         If avs_members_array(avs_status_const, item) = "Review Results" or avs_members_array(avs_status_const, item) = "Results After Decision" then
             Call write_bullet_and_variable_in_CASE_NOTE ("All Accounts Verified", avs_members_array(accounts_verified_const, item))
             Call write_bullet_and_variable_in_CASE_NOTE ("Unreported Assets", avs_members_array(unreported_assets_const, item))
@@ -659,4 +659,5 @@ If verif_request = True then
     closing_msg = closing_msg & vbcr & "Remember to send your verification request in ECF with the correct verbiage." & vbcr & vbcr & "This verbiage has been outputted to a Word document for your convenience."
 End if
 
+STATS_counter = STATS_counter - 1   'removing increment as we start with 1. 
 script_end_procedure_with_error_report(closing_msg)
