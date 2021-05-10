@@ -63,6 +63,7 @@ closing_msg = "Success! Your AVS case note has been created. Please review for a
 
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
+HC_process = "Application" 
 
 msgbox "Oh hi there! 7"     'testing code
 '----------------------------------------------------------------------------------------------------Initial dialog
@@ -130,7 +131,7 @@ const forms_status_const       = 7
 const avs_status_const         = 8
 const request_type_const       = 9
 const avs_results_const        = 10
-const avs_returned_no_const    = 11
+const avs_returned_notes_const = 11
 const avs_date_const           = 12
 const accounts_verified_const  = 13
 const unreported_assets_const  = 14
@@ -252,16 +253,16 @@ Do
     If confirm_msgbox = vbYes then
         For item = 0 to ubound(avs_members_array, 2)
             run_initial_option = False
-            avs_members_array(forms_status_const,     item) = ""
-            avs_members_array(avs_status_const,        item) = ""
-            avs_members_array(request_type_const,      item) = ""
-            avs_members_array(avs_results_const,       item) = ""
-            avs_members_array(avs_returned_no_const,   item) = ""
-            avs_members_array(avs_date_const,          item) = ""
-            avs_members_array(accounts_verified_const, item) = ""
-            avs_members_array(unreported_assets_const, item) = ""
-            avs_members_array(ECF_const,               item) = ""
-            avs_members_array(additional_info_const,   item) = ""
+            avs_members_array(forms_status_const,       item) = ""
+            avs_members_array(avs_status_const,         item) = ""
+            avs_members_array(request_type_const,       item) = ""
+            avs_members_array(avs_results_const,        item) = ""
+            avs_members_array(avs_returned_notes_const, item) = ""
+            avs_members_array(avs_date_const,           item) = ""
+            avs_members_array(accounts_verified_const,  item) = ""
+            avs_members_array(unreported_assets_const,  item) = ""
+            avs_members_array(ECF_const,                item) = ""
+            avs_members_array(additional_info_const,    item) = ""
         Next
     End if
     '----------------------------------------------------------------------------------------------------SELECTING AVS MEMBERS: Based on who is required to sign form/submit AVS
@@ -350,7 +351,7 @@ Do
             avs_members_array(avs_status_const        , resize_counter) = avs_members_array(avs_status_const        , item)
             avs_members_array(request_type_const      , resize_counter) = avs_members_array(request_type_const      , item)
             avs_members_array(avs_results_const       , resize_counter) = avs_members_array(avs_results_const       , item)
-            avs_members_array(avs_returned_no_const   , resize_counter) = avs_members_array(avs_returned_no_const   , item)
+            avs_members_array(avs_returned_notes_const   , resize_counter) = avs_members_array(avs_returned_notes_const   , item)
             avs_members_array(avs_date_const          , resize_counter) = avs_members_array(avs_date_const          , item)
             avs_members_array(accounts_verified_const , resize_counter) = avs_members_array(accounts_verified_const , item)
             avs_members_array(unreported_assets_const , resize_counter) = avs_members_array(unreported_assets_const , item)
@@ -449,7 +450,7 @@ Do
                 Text 170, 45, 100, 10, "AVS Report submitted to ECF?"
                 DropListBox 275, 40, 65, 15, "Select one..."+chr(9)+"Yes"+chr(9)+"No", avs_members_array(ECF_const, item)
                 Text 15, 65, 40, 10, "Asset notes:"
-                EditBox 60, 60, 280, 15, avs_members_array(avs_returned_no_const, item)
+                EditBox 60, 60, 280, 15, avs_members_array(avs_returned_notes_const, item)
                 Text 10, 95, 45, 10, "Other Notes:"
                 EditBox 55, 90, 200, 15, other_notes
                 ButtonGroup ButtonPressed
@@ -465,19 +466,21 @@ Do
                     cancel_confirmation
                     IF avs_members_array(accounts_verified_const, item) = "Select one..." then err_msg = err_msg & vbcr & "* Have all accounts been verified?"
                     If avs_members_array(unreported_assets_const, item) = "Select one..." then err_msg = err_msg & vbcr & "* Were there unreported accounts?"
-                    'error message variable based on option
-                    If avs_members_array(avs_results_const, item) = "Select one..." then
-                        If avs_members_array(avs_status_const, item) = "Review Results" then
-                            err_msg = err_msg & vbcr & "* Enter the AVS Case Status for the member."
-                        Elseif avs_members_array(avs_status_const, item) = "Results After Decision" then
-                            err_msg = err_msg & vbcr & "* Have accounts after decicion in AVS been cleared?"
-                        End if
-                    End if
-                    IF avs_members_array(avs_results_const, item) = "N/A" and trim(avs_members_array(avs_returned_no_const, item) = "") then err_msg = err_msg & vbcr & "* Enter the reason for the AVS Case Status was marked N/A."
+                    If avs_members_array(accounts_verified_const, item) = "No" AND trim(avs_members_array(avs_returned_notes_const, item) = "") then err_msg = err_msg & vbcr & "* Explain answering 'No' to all accounts verified in the 'asset notes' field."
+                    If avs_members_array(unreported_assets_const, item) = "Yes" AND trim(avs_members_array(avs_returned_notes_const, item) = "") then err_msg = err_msg & vbcr & "* Explain answering 'Yes' to unreported asset in the 'asset notes' field."
                     If avs_members_array(ECF_const, item) = "Select one..." then err_msg = err_msg & vbcr & "* Was the AVS report submitted to ECF for the case file?"
-                    If (avs_members_array(avs_results_const, item) = "No" or avs_members_array(accounts_verified_const, item) = "No") AND _
-                    trim(avs_members_array(avs_returned_no_const, item) = "") then err_msg = err_msg & vbcr & "* Explain answering 'No' to one or more questions in the dialog in the 'asset notes' field."
-                    If avs_members_array(unreported_assets_const, item) = "Yes" AND trim(avs_members_array(avs_returned_no_const, item) = "") then err_msg = err_msg & vbcr & "* Explain answering 'Yes' to unreported asset in the 'asset notes' field."
+                    'error message variable based on option
+                    'Review Results option
+                    If avs_members_array(avs_status_const, item) = "Review Results" then
+                        If avs_members_array(avs_results_const, item) = "Select one..." then err_msg = err_msg & vbcr & "* Enter the AVS Case Status for the member."
+                        If avs_members_array(avs_results_const, item) = "N/A" and trim(avs_members_array(avs_returned_notes_const, item) = "") then err_msg = err_msg & vbcr & "* Enter the reason for the AVS Case Status was marked N/A."
+                        If (avs_members_array(ECF_const, item) = "No" and avs_members_array(avs_results_const, item) = "Close/Withdrawn" or avs_members_array(avs_results_const, item) = "Eligible" or avs_members_array(avs_results_const, item) = "Transfer Penalty") then err_msg = err_msg & vbcr & "* AVS Reports must be submitted to ECF unless the AVS status is N/A or Results in Progress."
+                    End if 
+                    'Results after decision options
+                    IF avs_members_array(avs_status_const, item) = "Results After Decision" then
+                        If avs_members_array(avs_results_const, item) = "Select one..." then err_msg = err_msg & vbcr & "* Have accounts after decision in AVS been cleared?"
+                        If avs_members_array(avs_results_const, item) = "No" AND trim(avs_members_array(avs_returned_notes_const, item) = "") then err_msg = err_msg & vbcr & "* Explain answering 'No' to Accts after decision cleared in AVS in the 'asset notes' field."
+                    End if 
                     IF err_msg <> "" AND left(err_msg, 4) <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
                 LOOP UNTIL err_msg = ""
                 Call check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -498,8 +501,6 @@ Do
     Next
 
     'Determining if TIKL and verif request form info will be created - This will happen if initial_option = "AVS Forms" AND forms_status_const = "Initial Request"
-    
-    
     set_AVS_TIKL = False
     If initial_option = "AVS Submission/Results" then
         For i = 0 to ubound(avs_members_array, 2)
@@ -598,7 +599,7 @@ Do
                 Call write_bullet_and_variable_in_CASE_NOTE ("Accts after decision cleared in AVS?", avs_members_array(avs_results_const, item))
             End if
             Call write_bullet_and_variable_in_CASE_NOTE ("AVS Report Submitted to ECF?", avs_members_array(ECF_const, item))
-            Call write_bullet_and_variable_in_CASE_NOTE ("Asset Notes", avs_members_array(avs_returned_no_const, item))
+            Call write_bullet_and_variable_in_CASE_NOTE ("Asset Notes", avs_members_array(avs_returned_notes_const, item))
             Call write_variable_in_CASE_NOTE("-----")
         End if
     Next
@@ -615,7 +616,6 @@ Do
         Call write_variable_in_CASE_NOTE("* Sent verification request for unreported assets in ECF.")
     End if
     Call write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
-    Call write_variable_in_CASE_NOTE("---")
     Call write_variable_in_CASE_NOTE(worker_signature)
 
     'Providing the option to run the avs option
