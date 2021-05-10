@@ -50,14 +50,10 @@ call changelog_update("03/23/2021", "Initial version.", "Ilse Ferris, Hennepin C
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'TODO: Start instructions
 'TODO: Time study
 'TODO: stats increment counter
 'TODO: Comment code
 'TODO: Hot Topics
-'TODO: Remove testing code 
-'TODO: HC pending or recently denied
-
 '----------------------------------------------------------------------------------------------------The script
 closing_msg = "Success! Your AVS case note has been created. Please review for accuracy & any additional information."
 
@@ -65,7 +61,6 @@ EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
 HC_process = "Application" 
 
-msgbox "Oh hi there! 7"     'testing code
 '----------------------------------------------------------------------------------------------------Initial dialog
 initial_help_text = "*** What is the AVS? ***" & vbNewLine & "--------------------" & vbNewLine & vbNewLine & _
 "The Account Validation Service (AVS) is a web-based service that provides information about some accounts held in financial institutions. It does not provide information on property assets such as cars or homes. AVS must be used once at application, and when a person changes to a Medical Assistance for People Who Are Age 65 or Older and People Who Are Blind or Have a Disability (MA-ABD) basis of eligibility and are subject to an asset test." & vbNewLine & vbNewLine & _
@@ -189,7 +184,6 @@ For item = 0 to Ubound(avs_members_array, 2)
     EmWriteScreen avs_members_array(member_number_const, item), 20, 76
     transmit
     EmReadscreen marital_status, 1, 7, 40
-    'msgbox marital_status
     avs_members_array(marital_status_const, item) = marital_status
 Next
 
@@ -217,7 +211,6 @@ Loop until last_panel = "ENTER"	'This means that there are no other faci panels
 Call navigate_to_MAXIS_screen("STAT", "TYPE")
 For item = 0 to Ubound(avs_members_array, 2)
     If avs_members_array(hc_applicant_const, item) = "" then
-        'msgbox avs_members_array(member_name_const, item)
         'adding TYPE Information to be output into the dialog and case note
         row = 6
         Do
@@ -329,7 +322,6 @@ Do
             FOR item = 0 to UBound(avs_members_array, 2)										'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
                 If avs_members_array(checked_const, item) = 1 then checked_count = checked_count + 1 'Ignores and blank scanned in persons/strings to avoid a blank checkbox
             NEXT
-            'msgbox "checked count: " & checked_count
             If checked_count = 0 then err_msg = err_msg & vbcr & "* Select all persons responsible for signing the AVS form."
             IF err_msg <> "" AND left(err_msg, 4) <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
         LOOP UNTIL err_msg = ""									'loops until all errors are resolved
@@ -362,15 +354,12 @@ Do
     Next 
     resize_counter = resize_counter - 1
     ReDim Preserve avs_members_array(additional_info_const, resize_counter) 'rediming the array to move forward with the selected members. 
+    
     '----------------------------------------------------------------------------------------------------Adding in information about the AVS Members selected
     Dialog1 = ""
     BeginDialog Dialog1, 0, 0, 575, (115 + (checked_count * 15)), "AVS Member Information Dialog"
       GroupBox 10, 5, 550, (60 + (checked_count * 15)), "Complete the following information for required AVS members:"
-      ButtonGroup ButtonPressed
-        PushButton 215, 0, 10, 15, "!", help_button_1
       Text 20, 25, 520, 10, "----------AVS Member-------------------------------------" & type_text & " Type----------------------" & dialog_text & " Status-------------------" & dialog_text & " Sent/Rec'd Date-------------------Person-Based Info----------------"
-      ButtonGroup ButtonPressed
-        PushButton 400, 20, 10, 15, "!", help_button_2
         For item = 0 to UBound(avs_members_array, 2)									'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
             y_pos = (50 + item * 20)
             Text 20, y_pos, 130, 15, avs_members_array(member_info_const, item)
@@ -394,6 +383,8 @@ Do
         ButtonGroup ButtonPressed
           OkButton 475, (75 + (item * 15)), 40, 15
           CancelButton 515, (75 + (item * 15)), 40, 15
+          PushButton 215, 0, 10, 15, "!", help_button_1   
+          PushButton 400, 20, 10, 15, "!", help_button_2
       EndDialog
 
       'Member selection Dialog
@@ -474,7 +465,9 @@ Do
                     If avs_members_array(avs_status_const, item) = "Review Results" then
                         If avs_members_array(avs_results_const, item) = "Select one..." then err_msg = err_msg & vbcr & "* Enter the AVS Case Status for the member."
                         If avs_members_array(avs_results_const, item) = "N/A" and trim(avs_members_array(avs_returned_notes_const, item) = "") then err_msg = err_msg & vbcr & "* Enter the reason for the AVS Case Status was marked N/A."
-                        If (avs_members_array(ECF_const, item) = "No" and avs_members_array(avs_results_const, item) = "Close/Withdrawn" or avs_members_array(avs_results_const, item) = "Eligible" or avs_members_array(avs_results_const, item) = "Transfer Penalty") then err_msg = err_msg & vbcr & "* AVS Reports must be submitted to ECF unless the AVS status is N/A or Results in Progress."
+                        If avs_members_array(ECF_const, item) = "No" then 
+                            If avs_members_array(avs_results_const, item) = "Close/Withdrawn" or avs_members_array(avs_results_const, item) = "Eligible" or avs_members_array(avs_results_const, item) = "Transfer Penalty" then err_msg = err_msg & vbcr & "* AVS Reports must be submitted to ECF unless the AVS status is N/A or Results in Progress."
+                        End if
                     End if 
                     'Results after decision options
                     IF avs_members_array(avs_status_const, item) = "Results After Decision" then
@@ -550,13 +543,19 @@ Do
 
     '----------------------------------------------------------------------------------------------------The case note
     'Information for the case note
-    If initial_option = "AVS Forms" then case_note_header = "--AVS Forms for " & HC_process & " Information--"
-    If initial_option = "AVS Submission/Results" then case_note_header = "--AVS System Request for " & HC_process & " Information--"
+    If resize_counter = 0 then 'custom header  for single person cases 
+        If initial_option = "AVS Form" then case_note_header = "--AVS Forms " & avs_members_array(forms_status_const, 0) & " for " & HC_process & "--"
+        If initial_option = "AVS Submission/Results" then case_note_header = "--AVS System Request " & avs_members_array(avs_status_const, 0) & " for " & HC_process & "--"
+    Else 
+        'generic header if more than one member case noting 
+        If initial_option = "AVS Forms" then case_note_header = "--AVS Forms for " & HC_process & " Information--"
+        If initial_option = "AVS Submission/Results" then case_note_header = "--AVS System Request for " & avs_members_array(forms_status_const, 0) & " for " & HC_process & " Information--"
+    End if 
 
     start_a_blank_CASE_NOTE
     Call write_variable_in_CASE_NOTE(case_note_header)
 
-    Call write_variable_in_CASE_NOTE("The following information is in regards to AVS members required to sign the AVS Forms:")
+    Call write_variable_in_CASE_NOTE("The following info is in regards to AVS members required to sign AVS Forms:")
     Call write_variable_in_CASE_NOTE("-----")
     'HH member array output
     For item = 0 to ubound(avs_members_array, 2)
@@ -616,6 +615,7 @@ Do
         Call write_variable_in_CASE_NOTE("* Sent verification request for unreported assets in ECF.")
     End if
     Call write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
+    Call write_variable_in_CASE_NOTE("---")
     Call write_variable_in_CASE_NOTE(worker_signature)
 
     'Providing the option to run the avs option
@@ -628,7 +628,6 @@ Do
                 PF3 ' to save case note
                 run_initial_option = True
                 initial_option = "AVS Submission/Results"
-                'msgbox initial_option
             End if
             exit for
         End if
