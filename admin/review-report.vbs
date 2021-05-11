@@ -2607,13 +2607,12 @@ ElseIf renewal_option = "Send Appointment Letters" Then
 		End If
 		excel_row = excel_row + 1
 	Loop until MAXIS_case_number = ""
-	MsgBox "Done with looping"
 
 	worksheet_found = FALSE
 	'Finding all of the worksheets available in the file. We will likely open up the main 'Review Report' so the script will default to that one.
 	For Each objWorkSheet In objWorkbook.Worksheets
 		If instr(objWorkSheet.Name, "APPT NOTC") <> 0 Then
-			objExcel.objWorkSheet.Activate
+			objWorkSheet.Activate
 			worksheet_found = TRUE
 		End If
 	Next
@@ -2660,10 +2659,10 @@ ElseIf renewal_option = "Send Appointment Letters" Then
 	    entry_row = entry_row + 1
 	End If
 
-	date_stats_row = 1
+	date_stats_row = 0
 	Do
-		in_the_cell = trim(objExcel.Cells(date_stats_row, 1).Value)
 		date_stats_row = date_stats_row + 1
+		in_the_cell = trim(objExcel.Cells(date_stats_row, 1).Value)
 	Loop until in_the_cell = ""
 
 	objExcel.Cells(date_stats_row, 1).Value      = "Appointment Notices Sent on " & today_date        'number of notices that were successful
