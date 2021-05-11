@@ -6531,6 +6531,7 @@ Do
 
 		dialog Dialog1
 
+		cancel_confirmation
 		For the_memb = 0 to UBound(HH_MEMB_ARRAY, 2)
 			If ButtonPressed = HH_MEMB_ARRAY(button_one, the_memb) OR ButtonPressed = HH_MEMB_ARRAY(button_two, the_memb) Then
 				err_msg = err_msg & "LOOP"
@@ -6553,6 +6554,9 @@ Do
 	Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = FALSE
 
+call back_to_SELF
+
+'CLIENT RESPONSIBILITEIS
 Do
 	Do
 		err_msg = ""
@@ -6561,19 +6565,223 @@ Do
 		BeginDialog Dialog1, 0, 0, 550, 385, "Full Interview Questions"
 		  ButtonGroup ButtonPressed
 		    PushButton 465, 365, 80, 15, "Continue", continue_btn
-		  Text 10, 10, 160, 10, "READ the complete text here to the client:"
-		  GroupBox 10, 25, 530, 325, "Rights and Responsibilities Text"
-		  Text 20, 35, 505, 25, "Note: Cash on an Electronic Benefit Transfer (EBT) card is provided to help families meet their basic needs, including: food, shelter, clothing, utilities and transportation. These funds are provided until families can support themselves. It is illegal for an EBT user to buy or attempt to buy tobacco products or alcohol with the EBT card. If you do, it is fraud and you will be removed from the program. Do not use an EBT card at a gambling establishment or "
-		  Text 20, 60, 490, 10, "retail establishment, which provides adult-orientated entertainment in which performers disrobe or perform in an unclothed state for entertainment."
-		  Text 20, 80, 215, 155, "- If you receive cash assistance and/or child care assistance, you must report changes which may affect your benefits to the county agency within 10 days after the change has occurred. If you receive"
-		  Text 10, 360, 210, 10, "Confirm you have read the rights and responsibilities to the client:"
-		  DropListBox 220, 355, 150, 45, "Enter confirmation"+chr(9)+"YES! R&R have been read"+chr(9)+"No, I could not complete this", confirm_r_and_r_read
+		  Text 10, 10, 160, 10, "REVIEW the information listedd here to the client:"
+		  GroupBox 10, 25, 530, 335, "Rights and Responsibilities Text"
+		  Text 20, 35, 505, 35, "Note: Cash on an Electronic Benefit Transfer (EBT) card is provided to help families meet their basic needs, including: food, shelter, clothing, utilities and transportation. These funds are provided until families can support themselves. It is illegal for an EBT user to buy or attempt to buy tobacco products or alcohol with the EBT card. If you do, it is fraud and you will be removed from the program. Do not use an EBT card at a gambling establishment or retail establishment, which provides adult-orientated entertainment in which performers disrobe or perform in an unclothed state for entertainment."
+		  Text 20, 70, 275, 50, "- If you receive cash assistance and/or child care assistance, you must report changes which may affect your benefits to the county agency within 10 days after the change has occurred. If you receive Supplemental Nutrition Assistance Program (SNAP) benefits, report changes by the 10th of the month following the month of the change. Each program may have different requirements for reporting changes. Talk to your caseworker about what you must report."
+
+		  Text 20, 120, 275, 10, "You may be required to report changes in:"
+		  Text 20, 130, 275, 20, "-Employment - starting or stopping a job or business; change in hours, earnings or expenses"
+		  Text 20, 150, 275, 25, "- Income - receipt or change in child support, Social Security, veteran benefits, unemployment insurance, inheritance or insurance benefits"
+		  Text 20, 170, 275, 20, "- Property - purchase, sale or transfer of a house, car or other items of value, or if you receive an inheritance or settlement"
+		  Text 20, 190, 275, 20, "- Household - When a person dies or becomes disabled, moves in or out of your home or temporarily leaves; pregnancy; birth of a child."
+		  Text 20, 210, 275, 10, "- Citizenship or immigration status"
+		  Text 20, 220, 275, 10, "- Address"
+		  Text 20, 230, 275, 10, "- Housing costs and/or rent subsidy"
+		  Text 20, 240, 275, 10, "- Utility costs"
+		  Text 20, 250, 275, 10, "- Filing a lawsuit"
+		  Text 20, 260, 275, 10, "- Absent parent custody or visits"
+		  Text 20, 270, 275, 10, "- Drug felony conviction"
+		  Text 20, 280, 275, 10, "- Marriage, separation or divorce"
+		  Text 20, 290, 275, 10, "- School attendance"
+		  Text 20, 300, 275, 10, "- Health insurance coverage and premiums"
+		  Text 20, 315, 275, 20, "Note: If you change child care providers, you must tell your child care worker and provider at least 15 days before the change goes into effect."
+
+		  Text 15, 345, 520, 10, "If you have any questions or are unsure about any reporting rules, contact your worker. If your worker is not available, leave a message so the worker can get back to you."
+
+		  Text 310, 70, 225, 35, "- The county, state or federal agency may check any of the information you provide. To obtain some forms of information we must have your signed consent. If you don't allow the county to confirm your information, you might not receive assistance."
+		  Text 310, 105, 225, 35, "- If you give us information you know is untrue, withhold information or do not report as required, or we discover your information is untrue, you may be investigated for fraud. This may result in you being disqualified from receiving benefits, charged criminally, or both."
+		  Text 310, 140, 225, 50, "- The state or federal quality control agency may randomly choose your case for review. They will review statements you provided and will check to see if your eligibility was figured correctly. The state may seek information from other sources and will inform you about any contact they intend to make. If you do not cooperate, your benefits may stop."
+		  Text 310, 195, 225, 10, "- Cooperation requirements:"
+		  Text 310, 205, 225, 45, "- If the county approves you for the Minnesota Family Investment Program (MFIP) or the Diversionary Work Program (DWP), you must cooperate with employment services, unless you are exempt. You must develop and sign an employment plan or your DWP application will be denied."
+		  Text 310, 250, 225, 55, "- To receive MFIP, DWP, and/or child care assistance, you must cooperate with child support enforcement for all children in your household. You have the right to claim 'good cause' for not cooperating with child support enforcement. Yo must assign your child support to the state of Minnesota for all eligible children. If you do not cooperate or assign your child support, benefits will be denied or terminated."
+		  Text 310, 305, 225, 30, "After the county approves your MFIP or DWP, if you receive child support directly from the noncustodial parent, you must report it to your worker."
+
+		  Text 10, 370, 210, 10, "Confirm you have reviewed client responsibilities:"
+		  DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! Responsibilities Discussed"+chr(9)+"No, I could not complete this", confirm_resp_read
 		EndDialog
 
 		dialog Dialog1
+
+		cancel_confirmation
 	Loop until err_msg = ""
 	Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = FALSE
+
+'CLIENT RIGHTS
+Do
+	Do
+		err_msg = ""
+
+		Dialog1 = ""
+		BeginDialog Dialog1, 0, 0, 550, 385, "Full Interview Questions"
+		  ButtonGroup ButtonPressed
+		    PushButton 465, 365, 80, 15, "Continue", continue_btn
+		  Text 10, 10, 160, 10, "REVIEW the information listedd here to the client:"
+		  GroupBox 10, 25, 530, 335, "Rights and Responsibilities Text"
+
+		  Text 275, 35, 150, 10, "Your Rights"
+
+		  Text 20, 50, 275, 30, "- Your right to privacy. Your private information, including your health information, is protected by state and federal laws. Your worker has given you a Notice of Privacy Practices (DHS-3979) information sheet explaining these rights."
+		  Text 20, 85, 275, 10, "- You have the right to reapply at any time if your benefits stop."
+		  Text 20, 95, 275, 20, "- You have the right to receive a paper OR electronic copy of your SNAP application."
+		  Text 20, 105, 275, 25, "- You have the right to know why, if we have not processed your application within:"
+		  Text 30, 115, 265, 20, "- 30 days for cash, SNAP and child care assistance"
+		  Text 30, 125, 265, 20, "- 60 days for cash related to disability."
+		  Text 20, 135, 275, 25, "- You have the right to know the rules of the program you are applying for and for the agency to tell you how your benefit amount was figured."
+		  Text 20, 155, 275, 10, "- You have the right to choose where and with whom you live."
+		  Text 20, 165, 275, 45, "- Expenses. You have the right to report expenses such as shelter, utilities, child care, child support or medical costs. These expenses may affect the amount of Supplemental Nutrition Assistance Program (SNAP) benefits that you receive. Failure to report or verify certain expenses listed will be a statement by your household that you do not want a deduction for the unreported expenses."
+
+		  Text 310, 50, 225, 35, "For SNAP, you may appeal within 90 days by writing or calling the county or the State Appeals Office. You may represent yourself at the hearing, or you may have someone (an attorney, relative, friend or another person) speak for you."
+		  Text 310, 90, 225, 50, "If you wish your assistance to continue until the hearing, you must appeal before the date of the proposed action or within 10 days after the date the agency notice was mailed, whichever is later. Ask your county or tribal worker to explain how the timing of your appeal could affect your present or future assistance."
+		  Text 310, 140, 225, 20, "- Access to free legal services. Contact your worker for information on free legal services."
+		  Text 310, 165, 225, 80, "- Appeal rights. If you are unhappy with the action taken or feel the agency did not act on your request for assistance, you may appeal. For cash, child care assistance and health care, you may appeal within 30 days from the date you receive the notice by writing to the county or tribal agency, or directly to the State Appeals Office at the Minnesota Department of Human Services, PO Box 64941, St. Paul, MN 55164-0941. (If you show good cause for not appealing your cash and health care within 30 days, the agency can accept your appeal for up to 90 days from the date you receive the notice.)"
+
+		  Text 10, 370, 150, 10, "Confirm you have reviewed client rights:"
+		  DropListBox 160, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! Rights Discussedd"+chr(9)+"No, I could not complete this", confirm_rights_read
+		EndDialog
+
+		dialog Dialog1
+
+		cancel_confirmation
+	Loop until err_msg = ""
+	Call check_for_password(are_we_passworded_out)
+Loop until are_we_passworded_out = FALSE
+
+case_number_last_digit = right(MAXIS_case_number, 1)
+case_number_last_digit = case_number_last_digit * 1
+If case_number_last_digit = 4 Then snap_day_of_issuance = "4th"
+If case_number_last_digit = 5 Then snap_day_of_issuance = "5th"
+If case_number_last_digit = 6 Then snap_day_of_issuance = "6th"
+If case_number_last_digit = 7 Then snap_day_of_issuance = "7th"
+If case_number_last_digit = 8 Then snap_day_of_issuance = "8th"
+If case_number_last_digit = 9 Then snap_day_of_issuance = "9th"
+If case_number_last_digit = 0 Then snap_day_of_issuance = "10th"
+If case_number_last_digit = 1 Then snap_day_of_issuance = "11th"
+If case_number_last_digit = 2 Then snap_day_of_issuance = "12th"
+If case_number_last_digit = 3 Then snap_day_of_issuance = "13th"
+If case_number_last_digit MOD 2 = 1 Then cash_day_of_issuance = "2nd to last day"		'ODD Number
+If case_number_last_digit MOD 2 = 0 Then cash_day_of_issuance = "last day"		'EVEN Number
+If cash_type = "ADULT" Then cash_day_of_issuance = "first day"
+
+'EBT RESPONSIBILITIES AND USAGE
+Do
+	Do
+		err_msg = ""
+
+		Dialog1 = ""
+		BeginDialog Dialog1, 0, 0, 550, 385, "Full Interview Questions"
+		  ButtonGroup ButtonPressed
+		    PushButton 465, 365, 80, 15, "Continue", continue_btn
+		  Text 10, 10, 160, 10, "REVIEW the information listedd here to the client:"
+		  GroupBox 10, 25, 530, 335, "EBT Information"
+		  Text 20, 35, 275, 10, "For Cash and Supplemental Nutrition Assistance Program (SNAP) benefits:"
+		  Text 30, 45, 265, 25, "- Each time you use your Electronic Benefits Transfer (EBT) card or sign your check, you state that you have informed the county or tribal agency about any changes in your situation that may affect your benefits."
+		  Text 30, 75, 265, 25, "- Each time your EBT card is used, we assume you have received your cash or SNAP benefits, unless you reported your card lost or stolen to the county or tribal agency."
+
+		  Text 20, 105, 275, 25, "The standard way to get your benefits to you is through issuance on an EBT card. For cash benefits, there may be other options such as a vendor payment or direct deposit. If you want more information about these options, please let us know."
+
+		  Text 20, 140, 275, 10, "EBT card balances and information can be found:"
+		  Text 30, 150, 265, 10, "- Call customer service, 24 hours a day / 7 days a week - Toll-free: 888-997-2227"
+		  Text 30, 160, 265, 25, "- Go to www.ebtEDGE.com - Under EBT Cardholders, click on 'More Information' and log in using your user ID and password."
+		  ' Text 20, 105, 275, 25, ""
+
+		  GroupBox 10, 190, 290, 75, "Your EBT Issuances"
+		  Text 20, 205, 275, 10, "If approved, your SNAP benefits will regularly be issued on the " & snap_day_of_issuance & " of the month."
+		  Text 20, 220, 275, 10, "If approved, your CASH benefits will regularly be issued on the " & cash_day_of_issuance & " of the month."
+		  Text 20, 235, 275, 20, "*** Due to processing changes or delay in receipt of information issuances days may change, you should access EBT information directly to ensure benefits are available."
+
+
+		  Text 310, 35, 225, 10, "Do you already have an EBT card for this case?"
+		  ComboBox 310, 45, 225, 45, "Select or Type"+chr(9)+"Yes - I have my card."+chr(9)+"No - I used to but I've lost it."+chr(9)+"No - I never had a card for this case"+chr(9)+case_card_info, case_card_info
+
+		  Text 310, 65, 225, 10, "Do you know how to use an EBT card?"
+		  DropListBox 310, 75, 225, 45, "Select One..."+chr(9)+"Yes"+chr(9)+"No", clt_knows_how_to_use_ebt_card
+
+		  Text 10, 370, 210, 10, "Confirm you have reviewed EBT Information:"
+		  DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! EBT Basics Discussed"+chr(9)+"No, I could not complete this", confirm_ebt_read
+		EndDialog
+
+		dialog Dialog1
+
+		cancel_confirmation
+	Loop until err_msg = ""
+	Call check_for_password(are_we_passworded_out)
+Loop until are_we_passworded_out = FALSE
+
+
+If clt_knows_how_to_use_ebt_card = "No" then
+
+	Do
+		Do
+			err_msg = ""
+
+			Dialog1 = ""
+			BeginDialog Dialog1, 0, 0, 550, 385, "Full Interview Questions"
+			  ButtonGroup ButtonPressed
+			    PushButton 465, 365, 80, 15, "Continue", continue_btn
+			  Text 10, 5, 160, 10, "REVIEW the information listedd here to the client:"
+			  GroupBox 10, 15, 530, 340, "How to Use Your Minnesota EBT Card"
+			  Text 185, 25, 345, 10, "Your EBT card is a safe, convenient and easy way for you to get your cash and food benefits each month."
+			  Text 10, 370, 210, 10, "Confirm you have reviewed How to Use EBT Information:"
+			  DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! EBT Detail Discussed"+chr(9)+"No, I could not complete this", confirm_ebt_how_to_read
+			  ButtonGroup ButtonPressed
+			    PushButton 440, 5, 100, 13, "Open DHS 3315A", open_ebt_brochure_btn
+			  Text 20, 30, 65, 10, "How to get a card:"
+			  Text 25, 40, 305, 10, "- Your first card will be mailed to you within 2 business days of your benefits being approved."
+			  Text 25, 50, 130, 10, "- Replacement cards are also mailed."
+			  Text 40, 60, 170, 10, "Call 1-888-997-2227 to request a replacement card"
+			  Text 40, 70, 170, 10, "Cards take about 5 business days to arrive."
+			  Text 40, 80, 275, 10, "There is a $2 charge for all replacement cards, which is reduced from your benefit."
+			  Text 25, 90, 230, 20, "NOTE: If you have cash benefits, you will be issued a card that has your name on it. SNAP only cases to not have names on the EBT card."
+			  Text 20, 115, 85, 10, "Where to use your card:"
+			  Text 25, 125, 120, 10, "At a store 'point-of-sale' machine."
+			  Text 25, 135, 75, 10, "At an ATM (Cash Only)"
+			  Text 25, 145, 140, 10, "At a check cashing business (Cash Only)"
+			  Text 365, 45, 80, 10, "Keep your card safe"
+			  Text 375, 55, 120, 10, "Lost benefits will not be replaced."
+			  Text 375, 65, 155, 15, "Do not leave your card lying around or lose it, treat it like a debit card or cash."
+			  Text 365, 90, 110, 10, "Do not throw your card away"
+			  Text 375, 105, 150, 20, "The same card will be used every month for as long as you have benefits."
+			  Text 375, 130, 155, 20, "Even if your cases closes and reopens in the future the same card may be used."
+			  Text 365, 155, 145, 10, "Misuse of your EBT Card is Unlawful"
+			  Text 370, 170, 160, 20, "- Selling your card or PIN to others may result in criminal charges and your benefits may end."
+			  Text 370, 190, 165, 20, "- Attempting to buy tobacco products or alcoholic beverages with your EBT Card is considered fraud."
+			  Text 370, 210, 165, 20, "- Repeated loss of your card may cause a fraud investigation to be opened on you."
+			  Text 20, 165, 105, 10, "How to get or change your PIN:"
+			  Text 25, 180, 135, 10, "- Call customer service at 888-997-2227"
+			  Text 25, 190, 165, 10, "- Visit your county or tribal human services office"
+			  Text 25, 200, 195, 10, "- Visit the ebtEDGE cardholder portal www.ebtEDGE.com"
+			  Text 25, 210, 195, 20, "- Access the ebtEDGE mobile application, www.FISGLOBal.COM/EBTEDGEMOBILE"
+			  Text 20, 230, 145, 20, "4 failed attepts to enter your PIN will lock your card until 12:01 am the next day."
+			  Text 20, 255, 185, 10, "Register to receive EBT Information by Text Message"
+			  Text 35, 325, 135, 10, "- Current Balance (text 'BAL' to 42265)"
+			  Text 35, 335, 145, 10, "- Last 5 transactions  (text 'MINI' to 42265)"
+			  Text 25, 265, 135, 10, "1. Go to www.ebtEDGE.com and log in"
+			  Text 25, 275, 80, 10, "2. Select 'EBT Account'"
+			  Text 25, 285, 205, 10, "3. Select 'Messaging Registration' under the Account Services menu"
+			  Text 25, 295, 140, 10, "4. Enter your mobile (cell) phone number."
+			  Text 25, 305, 230, 10, "5. Check the box next to SMS Balance, then click the 'Update' button."
+			  Text 25, 315, 190, 10, "6. Use the same mobil number and text for information:"
+			EndDialog
+
+			dialog Dialog1
+
+			If ButtonPressed = open_ebt_brochure_btn Then
+				err_msg = "LOOP"
+				run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3315A-ENG"
+			End If
+
+			cancel_confirmation
+		Loop until err_msg = ""
+		Call check_for_password(are_we_passworded_out)
+	Loop until are_we_passworded_out = FALSE
+
+End If
+'NOTICE OF PRIVACY PRACTICES
+
+
+
 
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 206, 265, "Resources MEMO"
