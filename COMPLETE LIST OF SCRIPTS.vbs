@@ -463,8 +463,8 @@ script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #04/27/2021#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).in_testing				= TRUE
-script_array(script_num).testing_category		= "GROUP"
-script_array(script_num).testing_criteria		= array("QI")
+script_array(script_num).testing_category		= "ALL"
+script_array(script_num).testing_criteria		= array("")
 
 script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
