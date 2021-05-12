@@ -259,21 +259,21 @@ end function
 
 'This is a script specific function and will not work outside of this script.
 function enter_excel_headers(ObjExcel)
-	ObjExcel.Cells(1, t1_row_titles).Value = "REVW Type"
-	ObjExcel.Cells(1, t1_er_w_intv).Value = "ER with Interview"
-	ObjExcel.Cells(1, t1_er_no_intv).Value = "ER - No Interview"
-	ObjExcel.Cells(1, t1_csr).Value = "CSR"
-	ObjExcel.Cells(1, t1_priv).Value = "PRIV"
-	ObjExcel.Cells(1, t1_total).Value = "Total"
+	ObjExcel.Cells(t1_row_titles, t1_REVW_type).Value = "REVW Type"
+	ObjExcel.Cells(t1_er_w_intv, t1_REVW_type).Value = "ER with Interview"
+	ObjExcel.Cells(t1_er_no_intv, t1_REVW_type).Value = "ER - No Interview"
+	ObjExcel.Cells(t1_csr, t1_REVW_type).Value = "CSR"
+	ObjExcel.Cells(t1_priv, t1_REVW_type).Value = "PRIV"
+	ObjExcel.Cells(t1_total, t1_REVW_type).Value = "Total"
 
-	ObjExcel.Cells(2, t1_row_titles).Value = "All"
-	ObjExcel.Cells(3, t1_row_titles).Value = "Apps Received"
-	ObjExcel.Cells(4, t1_row_titles).Value = "No App in MX"
-	ObjExcel.Cells(5, t1_row_titles).Value = "Percent Received"
-	ObjExcel.Cells(6, t1_row_titles).Value = "Interview Completed"
-	ObjExcel.Cells(7, t1_row_titles).Value = "No Interview"
-	ObjExcel.Cells(8, t1_row_titles).Value = "Percent of Interviews Done"
-	For i = t1_er_w_intv to t1_total
+	ObjExcel.Cells(t1_row_titles, t1_all_count).Value = "All"
+	ObjExcel.Cells(t1_row_titles, t1_apps_revd_count).Value = "Apps Received"
+	ObjExcel.Cells(t1_row_titles, t1_no_app_count).Value = "No App in MX"
+	ObjExcel.Cells(t1_row_titles, t1_app_percent_count).Value = "Percent Received"
+	ObjExcel.Cells(t1_row_titles, t1_interview_count).Value = "Interview Completed"
+	ObjExcel.Cells(t1_row_titles, t1_no_intvw_count).Value = "No Interview"
+	ObjExcel.Cells(t1_row_titles, t1_intvw_percent).Value = "Percent of Interviews Done"
+	For i = t1_row_titles to t1_total
 		ObjExcel.Cells(i, 1).Font.Bold = TRUE
 	Next
 
@@ -353,7 +353,7 @@ end function
 
 'DECLARATIONS TO MAKE ===============================================================================================
 
-'Column numbers for EXCEL for the STATISTICS Gathering - Numbers and Letters if needed
+'Row numbers for EXCEL for the STATISTICS Gathering - Numbers and Letters if needed
 t1_row_titles			= 1
 t1_row_titles_letter = convert_digit_to_excel_column(t1_row_titles)
 t1_er_w_intv			= 2
@@ -367,57 +367,78 @@ t1_priv_letter = convert_digit_to_excel_column(t1_priv)
 t1_total 				= 6
 t1_total_letter = convert_digit_to_excel_column(t1_total)
 
-t2_dates				= 8
+
+'Column numbers for EXCEL for the STATISTICS Gathering - Numbers and Letters if needed
+t1_REVW_type		= 1
+t1_REVW_type_letter = convert_digit_to_excel_column(t1_REVW_type)
+t1_all_count 		= 2
+t1_all_count_letter = convert_digit_to_excel_column(t1_all_count)
+t1_apps_revd_count	= 3
+t1_apps_revd_count_letter = convert_digit_to_excel_column(t1_apps_revd_count)
+t1_no_app_count 	= 4
+t1_no_app_count_letter = convert_digit_to_excel_column(t1_no_app_count)
+t1_app_percent_count = 5
+t1_app_percent_count_letter = convert_digit_to_excel_column(t1_app_percent_count)
+t1_interview_count	= 6
+t1_interview_count_letter = convert_digit_to_excel_column(t1_interview_count)
+t1_no_intvw_count	= 7
+t1_no_intvw_count_letter = convert_digit_to_excel_column(t1_no_intvw_count)
+t1_intvw_percent	= 8
+t1_intvw_percent_letter = convert_digit_to_excel_column(t1_intvw_percent)
+
+
+
+t2_dates				= 10
 t2_dates_letter = convert_digit_to_excel_column(t2_dates)
-t2_er_w_intv_intv_count	= 9
-t2_er_w_intv_app_count	= 10
-t2_er_no_intv_app_count	= 11
-t2_csr_app_count		= 12
-t2_priv_intv_count		= 13
-t2_priv_app_count		= 14
-t2_total_intv_count		= 15
-t2_total_app_count		= 16
+t2_er_w_intv_intv_count	= 11
+t2_er_w_intv_app_count	= 12
+t2_er_no_intv_app_count	= 13
+t2_csr_app_count		= 14
+t2_priv_intv_count		= 15
+t2_priv_app_count		= 16
+t2_total_intv_count		= 17
+t2_total_app_count		= 18
 t2_total_app_count_letter = convert_digit_to_excel_column(t2_total_app_count)
 
-t3_revw_types			= 18
-t3_progs				= 19
+t3_revw_types			= 20
+t3_progs				= 21
 t3_progs_letter = convert_digit_to_excel_column(t3_progs)
-t3_apps_recvd_count		= 20
+t3_apps_recvd_count		= 22
 t3_apps_recvd_count_letter = convert_digit_to_excel_column(t3_apps_recvd_count)
-t3_apps_recvd_percent	= 21
+t3_apps_recvd_percent	= 23
 t3_iapps_recvd_percent_letter = convert_digit_to_excel_column(t3_apps_recvd_percent)
-t3_intvs_count			= 22
+t3_intvs_count			= 24
 t3_intvs_count_letter = convert_digit_to_excel_column(t3_intvs_count)
-t3_intvs_percent		= 23
+t3_intvs_percent		= 25
 t3_intvs_percent_letter = convert_digit_to_excel_column(t3_intvs_percent)
-t3_revw_i_count			= 24
+t3_revw_i_count			= 26
 t3_revw_i_count_letter = convert_digit_to_excel_column(t3_revw_i_count)
-t3_revw_i_percent		= 25
+t3_revw_i_percent		= 27
 t3_revw_i_percent_letter = convert_digit_to_excel_column(t3_revw_i_percent)
-t3_revw_u_count			= 26
+t3_revw_u_count			= 28
 t3_revw_u_count_letter = convert_digit_to_excel_column(t3_revw_u_count)
-t3_revw_u_percent		= 27
-t3_revw_n_count			= 28
+t3_revw_u_percent		= 29
+t3_revw_n_count			= 30
 t3_revw_n_count_letter = convert_digit_to_excel_column(t3_revw_n_count)
-t3_revw_n_percent		= 29
-t3_revw_a_count			= 30
+t3_revw_n_percent		= 31
+t3_revw_a_count			= 32
 t3_revw_a_count_letter = convert_digit_to_excel_column(t3_revw_a_count)
-t3_revw_a_percent		= 31
+t3_revw_a_percent		= 33
 t3_revw_a_percent_letter = convert_digit_to_excel_column(t3_revw_a_percent)
-t3_revw_o_count			= 32
+t3_revw_o_count			= 34
 t3_revw_o_count_letter = convert_digit_to_excel_column(t3_revw_o_count)
-t3_revw_o_percent		= 33
-t3_revw_t_count			= 34
+t3_revw_o_percent		= 35
+t3_revw_t_count			= 36
 t3_revw_t_count_letter = convert_digit_to_excel_column(t3_revw_t_count)
-t3_revw_t_percent		= 35
-t3_revw_d_count			= 36
+t3_revw_t_percent		= 37
+t3_revw_d_count			= 38
 t3_revw_d_count_letter = convert_digit_to_excel_column(t3_revw_d_count)
-t3_revw_d_percent		= 37
-t3_totals_count			= 38
+t3_revw_d_percent		= 39
+t3_totals_count			= 40
 t3_totals_count_letter = convert_digit_to_excel_column(t3_totals_count)
 
-output_headers			= 40
-output_data				= 41
+output_headers			= 42
+output_data				= 43
 
 'strings for use in Excel formulas
 is_not_blank = chr(34) & "<>" & chr(34)
@@ -1297,89 +1318,89 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 	Call enter_excel_headers(objStatsExcel)
 
 	'Now we enter all theformulas and counts in the stats areas
-	ObjExcel.Cells(2, t1_er_w_intv).Value = "=COUNTIFS(Table1[Interview ER],"&is_true&")"
-	ObjExcel.Cells(3, t1_er_w_intv).Value = "=COUNTIFS(Table1[Interview ER],"&is_true&",Table1[CAF Date ("&date_header&")],"&is_not_blank&")"
-	ObjExcel.Cells(4, t1_er_w_intv).Value = "=COUNTIFS(Table1[Interview ER],"&is_true&",Table1[CAF Date ("&date_header&")],"&is_blank&")"
-	ObjExcel.Cells(5, t1_er_w_intv).Value = "=" & t1_er_w_intv_letter & "3/" & t1_er_w_intv_letter & "2"
-	ObjExcel.Cells(5, t1_er_w_intv).NumberFormat = "0.00%"
-	ObjExcel.Cells(6, t1_er_w_intv).Value = "=COUNTIFS(Table1[Interview ER],"&is_true&",Table1[Intvw Date ("&date_header&")],"&is_not_blank&")"
-	ObjExcel.Cells(7, t1_er_w_intv).Value = "=COUNTIFS(Table1[Interview ER],"&is_true&",Table1[Intvw Date ("&date_header&")],"&is_blank&")"
-	ObjExcel.Cells(8, t1_er_w_intv).Value = "=" & t1_er_w_intv_letter & "6/" & t1_er_w_intv_letter & "2"
-	ObjExcel.Cells(8, t1_er_w_intv).NumberFormat = "0.00%"
+	ObjExcel.Cells(t1_er_w_intv, t1_all_count).Value 				= "=COUNTIFS(Table1[Interview ER],"&is_true&")"
+	ObjExcel.Cells(t1_er_w_intv, t1_apps_revd_count).Value 			= "=COUNTIFS(Table1[Interview ER],"&is_true&",Table1[CAF Date ("&date_header&")],"&is_not_blank&")"
+	ObjExcel.Cells(t1_er_w_intv, t1_no_app_count).Value 			= "=COUNTIFS(Table1[Interview ER],"&is_true&",Table1[CAF Date ("&date_header&")],"&is_blank&")"
+	ObjExcel.Cells(t1_er_w_intv, t1_app_percent_count).Value 		= "=" & t1_apps_revd_count_letter & t1_er_w_intv &"/" & t1_all_count_letter & t1_er_w_intv
+	ObjExcel.Cells(t1_er_w_intv, t1_app_percent_count).NumberFormat = "0.00%"
+	ObjExcel.Cells(t1_er_w_intv, t1_interview_count).Value 			= "=COUNTIFS(Table1[Interview ER],"&is_true&",Table1[Intvw Date ("&date_header&")],"&is_not_blank&")"
+	ObjExcel.Cells(t1_er_w_intv, t1_no_intvw_count).Value 			= "=COUNTIFS(Table1[Interview ER],"&is_true&",Table1[Intvw Date ("&date_header&")],"&is_blank&")"
+	ObjExcel.Cells(t1_er_w_intv, t1_intvw_percent).Value 			= "=" & t1_interview_count_letter & t1_er_w_intv &"/" & t1_all_count_letter & t1_er_w_intv
+	ObjExcel.Cells(t1_er_w_intv, t1_intvw_percent).NumberFormat 	= "0.00%"
 
-	ObjExcel.Cells(2, t1_er_no_intv).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&")"
-	ObjExcel.Cells(3, t1_er_no_intv).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CAF Date ("&date_header&")],"&is_not_blank&")"
-	ObjExcel.Cells(4, t1_er_no_intv).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CAF Date ("&date_header&")],"&is_blank&")"
-	ObjExcel.Cells(5, t1_er_no_intv).Value = "=" & t1_er_no_intv_letter & "3/" & t1_er_no_intv_letter & "2"
-	ObjExcel.Cells(5, t1_er_no_intv).NumberFormat = "0.00%"
+	ObjExcel.Cells(t1_er_no_intv, t1_all_count).Value 				= "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&")"
+	ObjExcel.Cells(t1_er_no_intv, t1_apps_revd_count).Value 		= "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CAF Date ("&date_header&")],"&is_not_blank&")"
+	ObjExcel.Cells(t1_er_no_intv, t1_no_app_count).Value 			= "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CAF Date ("&date_header&")],"&is_blank&")"
+	ObjExcel.Cells(t1_er_no_intv, t1_app_percent_count).Value 		= "=" & t1_apps_revd_count_letter & t1_er_no_intv &"/" & t1_all_count_letter & t1_er_no_intv
+	ObjExcel.Cells(t1_er_no_intv, t1_app_percent_count).NumberFormat = "0.00%"
 
-	ObjExcel.Cells(2, t1_csr).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&")"
-	ObjExcel.Cells(3, t1_csr).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[CAF Date ("&date_header&")],"&is_not_blank&")"
-	ObjExcel.Cells(4, t1_csr).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[CAF Date ("&date_header&")],"&is_blank&")"
-	ObjExcel.Cells(5, t1_csr).Value = "=" & t1_csr_letter & "3/" & t1_csr_letter & "2"
-	ObjExcel.Cells(5, t1_csr).NumberFormat = "0.00%"
+	ObjExcel.Cells(t1_csr, t1_all_count).Value 						= "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&")"
+	ObjExcel.Cells(t1_csr, t1_apps_revd_count).Value 				= "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[CAF Date ("&date_header&")],"&is_not_blank&")"
+	ObjExcel.Cells(t1_csr, t1_no_app_count).Value 					= "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[CAF Date ("&date_header&")],"&is_blank&")"
+	ObjExcel.Cells(t1_csr, t1_app_percent_count).Value 				= "=" & t1_apps_revd_count_letter & t1_csr &"/" & t1_all_count_letter & t1_csr
+	ObjExcel.Cells(t1_csr, t1_app_percent_count).NumberFormat 		= "0.00%"
 
-	ObjExcel.Cells(2, t1_priv).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&")"
-	ObjExcel.Cells(3, t1_priv).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[CAF Date ("&date_header&")],"&is_not_blank&")"
-	ObjExcel.Cells(4, t1_priv).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[CAF Date ("&date_header&")],"&is_blank&")"
-	ObjExcel.Cells(5, t1_priv).Value = "=" & t1_priv_letter & "3/" & t1_priv_letter & "2"
-	ObjExcel.Cells(5, t1_priv).NumberFormat = "0.00%"
-	ObjExcel.Cells(6, t1_priv).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[Intvw Date ("&date_header&")],"&is_not_blank&")"
-	ObjExcel.Cells(7, t1_priv).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[Intvw Date ("&date_header&")],"&is_blank&")"
-	ObjExcel.Cells(8, t1_priv).Value = "=" & t1_priv_letter & "3/" & t1_priv_letter & "2"
-	ObjExcel.Cells(8, t1_priv).NumberFormat = "0.00%"
+	ObjExcel.Cells(t1_priv, t1_all_count).Value 					= "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&")"
+	ObjExcel.Cells(t1_priv, t1_apps_revd_count).Value 				= "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[CAF Date ("&date_header&")],"&is_not_blank&")"
+	ObjExcel.Cells(t1_priv, t1_no_app_count).Value 					= "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[CAF Date ("&date_header&")],"&is_blank&")"
+	ObjExcel.Cells(t1_priv, t1_app_percent_count).Value 			= "=" & t1_apps_revd_count_letter & t1_priv &"/" & t1_all_count_letter & t1_priv
+	ObjExcel.Cells(t1_priv, t1_app_percent_count).NumberFormat 		= "0.00%"
+	ObjExcel.Cells(t1_priv, t1_interview_count).Value 				= "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[Intvw Date ("&date_header&")],"&is_not_blank&")"
+	ObjExcel.Cells(t1_priv, t1_no_intvw_count).Value 				= "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[Intvw Date ("&date_header&")],"&is_blank&")"
+	ObjExcel.Cells(t1_priv, t1_intvw_percent).Value 				= "=" & t1_interview_count_letter & t1_priv &"/" & t1_all_count_letter & t1_priv
+	ObjExcel.Cells(t1_priv, t1_intvw_percent).NumberFormat 			= "0.00%"
 
-	ObjExcel.Cells(2, t1_total).Value = "=COUNTA(Table1[Case number])"
-	ObjExcel.Cells(3, t1_total).Value = "=COUNTIFS(Table1[CAF Date ("&date_header&")], "&is_not_blank&")"
-	ObjExcel.Cells(4, t1_total).Value = "=COUNTIFS(Table1[CAF Date ("&date_header&")], "&is_blank&")"
-	ObjExcel.Cells(5, t1_total).Value = "=" & t1_total_letter & "3/" & t1_total_letter & "2"
-	ObjExcel.Cells(5, t1_total).NumberFormat = "0.00%"
-	ObjExcel.Cells(6, t1_total).Value = "=COUNTIFS(Table1[Intvw Date ("&date_header&")],"&is_not_blank&")"
-	ObjExcel.Cells(7, t1_total).Value = "=COUNTIFS(Table1[Intvw Date ("&date_header&")],"&is_blank&")"
-	ObjExcel.Cells(8, t1_total).Value = "=" & t1_total_letter & "3/" & t1_total_letter & "2"
-	ObjExcel.Cells(8, t1_total).NumberFormat = "0.00%"
+	ObjExcel.Cells(t1_total, t1_all_count).Value 					= "=COUNTA(Table1[Case number])"
+	ObjExcel.Cells(t1_total, t1_apps_revd_count).Value 				= "=COUNTIFS(Table1[CAF Date ("&date_header&")], "&is_not_blank&")"
+	ObjExcel.Cells(t1_total, t1_no_app_count).Value 				= "=COUNTIFS(Table1[CAF Date ("&date_header&")], "&is_blank&")"
+	ObjExcel.Cells(t1_total, t1_app_percent_count).Value 			= "=" & t1_apps_revd_count_letter & t1_total &"/" & t1_all_count_letter & t1_total
+	ObjExcel.Cells(t1_total, t1_app_percent_count).NumberFormat 	= "0.00%"
+	ObjExcel.Cells(t1_total, t1_interview_count).Value 				= "=COUNTIFS(Table1[Intvw Date ("&date_header&")],"&is_not_blank&")"
+	ObjExcel.Cells(t1_total, t1_no_intvw_count).Value 				= "=COUNTIFS(Table1[Intvw Date ("&date_header&")],"&is_blank&")"
+	ObjExcel.Cells(t1_total, t1_intvw_percent).Value 				= "=" & t1_interview_count_letter & t1_total &"/" & t1_all_count_letter & t1_total
+	ObjExcel.Cells(t1_total, t1_intvw_percent).NumberFormat 		= "0.00%"
 
-	objStatsExcel.Cells(2, t1_er_w_intv).Value = ObjExcel.Cells(2, t1_er_w_intv).Value
-	objStatsExcel.Cells(3, t1_er_w_intv).Value = ObjExcel.Cells(3, t1_er_w_intv).Value
-	objStatsExcel.Cells(4, t1_er_w_intv).Value = ObjExcel.Cells(4, t1_er_w_intv).Value
-	objStatsExcel.Cells(5, t1_er_w_intv).Value = ObjExcel.Cells(5, t1_er_w_intv).Value
-	objStatsExcel.Cells(5, t1_er_w_intv).NumberFormat = "0.00%"
-	objStatsExcel.Cells(6, t1_er_w_intv).Value = ObjExcel.Cells(6, t1_er_w_intv).Value
-	objStatsExcel.Cells(7, t1_er_w_intv).Value = ObjExcel.Cells(7, t1_er_w_intv).Value
-	objStatsExcel.Cells(8, t1_er_w_intv).Value = ObjExcel.Cells(8, t1_er_w_intv).Value
-	objStatsExcel.Cells(8, t1_er_w_intv).NumberFormat = "0.00%"
+	objStatsExcel.Cells(t1_er_w_intv, t1_all_count).Value 					= ObjExcel.Cells(t1_er_w_intv, t1_all_count).Value
+	objStatsExcel.Cells(t1_er_w_intv, t1_apps_revd_count).Value 			= ObjExcel.Cells(t1_er_w_intv, t1_apps_revd_count).Value
+	objStatsExcel.Cells(t1_er_w_intv, t1_no_app_count).Value 				= ObjExcel.Cells(t1_er_w_intv, t1_no_app_count).Value
+	objStatsExcel.Cells(t1_er_w_intv, t1_app_percent_count).Value 			= ObjExcel.Cells(t1_er_w_intv, t1_app_percent_count).Value
+	objStatsExcel.Cells(t1_er_w_intv, t1_app_percent_count).NumberFormat 	= "0.00%"
+	objStatsExcel.Cells(t1_er_w_intv, t1_interview_count).Value 			= ObjExcel.Cells(t1_er_w_intv, t1_interview_count).Value
+	objStatsExcel.Cells(t1_er_w_intv, t1_no_intvw_count).Value 				= ObjExcel.Cells(t1_er_w_intv, t1_no_intvw_count).Value
+	objStatsExcel.Cells(t1_er_w_intv, t1_intvw_percent).Value 				= ObjExcel.Cells(t1_er_w_intv, t1_intvw_percent).Value
+	objStatsExcel.Cells(t1_er_w_intv, t1_intvw_percent).NumberFormat 		= "0.00%"
 
-	objStatsExcel.Cells(2, t1_er_no_intv).Value = ObjExcel.Cells(2, t1_er_no_intv).Value
-	objStatsExcel.Cells(3, t1_er_no_intv).Value = ObjExcel.Cells(3, t1_er_no_intv).Value
-	objStatsExcel.Cells(4, t1_er_no_intv).Value = ObjExcel.Cells(4, t1_er_no_intv).Value
-	objStatsExcel.Cells(5, t1_er_no_intv).Value = ObjExcel.Cells(5, t1_er_no_intv).Value
-	objStatsExcel.Cells(5, t1_er_no_intv).NumberFormat = "0.00%"
+	objStatsExcel.Cells(t1_er_no_intv, t1_all_count).Value 					= ObjExcel.Cells(t1_er_no_intv, t1_all_count).Value
+	objStatsExcel.Cells(t1_er_no_intv, t1_apps_revd_count).Value 			= ObjExcel.Cells(t1_er_no_intv, t1_apps_revd_count).Value
+	objStatsExcel.Cells(t1_er_no_intv, t1_no_app_count).Value 				= ObjExcel.Cells(t1_er_no_intv, t1_no_app_count).Value
+	objStatsExcel.Cells(t1_er_no_intv, t1_app_percent_count).Value 			= ObjExcel.Cells(t1_er_no_intv, t1_app_percent_count).Value
+	objStatsExcel.Cells(t1_er_no_intv, t1_app_percent_count).NumberFormat 	= "0.00%"
 
-	objStatsExcel.Cells(2, t1_csr).Value = ObjExcel.Cells(2, t1_csr).Value
-	objStatsExcel.Cells(3, t1_csr).Value = ObjExcel.Cells(3, t1_csr).Value
-	objStatsExcel.Cells(4, t1_csr).Value = ObjExcel.Cells(4, t1_csr).Value
-	objStatsExcel.Cells(5, t1_csr).Value = ObjExcel.Cells(5, t1_csr).Value
-	objStatsExcel.Cells(5, t1_csr).NumberFormat = "0.00%"
+	objStatsExcel.Cells(t1_csr, t1_all_count).Value 						= ObjExcel.Cells(t1_csr, t1_all_count).Value
+	objStatsExcel.Cells(t1_csr, t1_apps_revd_count).Value 					= ObjExcel.Cells(t1_csr, t1_apps_revd_count).Value
+	objStatsExcel.Cells(t1_csr, t1_no_app_count).Value 						= ObjExcel.Cells(t1_csr, t1_no_app_count).Value
+	objStatsExcel.Cells(t1_csr, t1_app_percent_count).Value 				= ObjExcel.Cells(t1_csr, t1_app_percent_count).Value
+	objStatsExcel.Cells(t1_csr, t1_app_percent_count).NumberFormat 			= "0.00%"
 
-	objStatsExcel.Cells(2, t1_priv).Value = ObjExcel.Cells(2, t1_priv).Value
-	objStatsExcel.Cells(3, t1_priv).Value = ObjExcel.Cells(3, t1_priv).Value
-	objStatsExcel.Cells(4, t1_priv).Value = ObjExcel.Cells(4, t1_priv).Value
-	objStatsExcel.Cells(5, t1_priv).Value = ObjExcel.Cells(5, t1_priv).Value
-	objStatsExcel.Cells(5, t1_priv).NumberFormat = "0.00%"
-	objStatsExcel.Cells(6, t1_priv).Value = ObjExcel.Cells(6, t1_priv).Value
-	objStatsExcel.Cells(7, t1_priv).Value = ObjExcel.Cells(7, t1_priv).Value
-	objStatsExcel.Cells(8, t1_priv).Value = ObjExcel.Cells(8, t1_priv).Value
-	objStatsExcel.Cells(8, t1_priv).NumberFormat = "0.00%"
+	objStatsExcel.Cells(t1_priv, t1_all_count).Value 						= ObjExcel.Cells(t1_priv, t1_all_count).Value
+	objStatsExcel.Cells(t1_priv, t1_apps_revd_count).Value 					= ObjExcel.Cells(t1_priv, t1_apps_revd_count).Value
+	objStatsExcel.Cells(t1_priv, t1_no_app_count).Value 					= ObjExcel.Cells(t1_priv, t1_no_app_count).Value
+	objStatsExcel.Cells(t1_priv, t1_app_percent_count).Value 				= ObjExcel.Cells(t1_priv, t1_app_percent_count).Value
+	objStatsExcel.Cells(t1_priv, t1_app_percent_count).NumberFormat 		= "0.00%"
+	objStatsExcel.Cells(t1_priv, t1_interview_count).Value 					= ObjExcel.Cells(t1_priv, t1_interview_count).Value
+	objStatsExcel.Cells(t1_priv, t1_no_intvw_count).Value 					= ObjExcel.Cells(t1_priv, t1_no_intvw_count).Value
+	objStatsExcel.Cells(t1_priv, t1_intvw_percent).Value 					= ObjExcel.Cells(t1_priv, t1_intvw_percent).Value
+	objStatsExcel.Cells(t1_priv, t1_intvw_percent).NumberFormat 			= "0.00%"
 
-	objStatsExcel.Cells(2, t1_total).Value = ObjExcel.Cells(2, t1_total).Value
-	objStatsExcel.Cells(3, t1_total).Value = ObjExcel.Cells(3, t1_total).Value
-	objStatsExcel.Cells(4, t1_total).Value = ObjExcel.Cells(4, t1_total).Value
-	objStatsExcel.Cells(5, t1_total).Value = ObjExcel.Cells(5, t1_total).Value
-	objStatsExcel.Cells(5, t1_total).NumberFormat = "0.00%"
-	objStatsExcel.Cells(6, t1_total).Value = ObjExcel.Cells(6, t1_total).Value
-	objStatsExcel.Cells(7, t1_total).Value = ObjExcel.Cells(7, t1_total).Value
-	objStatsExcel.Cells(8, t1_total).Value = ObjExcel.Cells(8, t1_total).Value
-	objStatsExcel.Cells(8, t1_total).NumberFormat = "0.00%"
+	objStatsExcel.Cells(t1_total, t1_all_count).Value 						= ObjExcel.Cells(t1_total, t1_all_count).Value
+	objStatsExcel.Cells(t1_total, t1_apps_revd_count).Value 				= ObjExcel.Cells(t1_total, t1_apps_revd_count).Value
+	objStatsExcel.Cells(t1_total, t1_no_app_count).Value 					= ObjExcel.Cells(t1_total, t1_no_app_count).Value
+	objStatsExcel.Cells(t1_total, t1_app_percent_count).Value 				= ObjExcel.Cells(t1_total, t1_app_percent_count).Value
+	objStatsExcel.Cells(t1_total, t1_app_percent_count).NumberFormat 		= "0.00%"
+	objStatsExcel.Cells(t1_total, t1_interview_count).Value 				= ObjExcel.Cells(t1_total, t1_interview_count).Value
+	objStatsExcel.Cells(t1_total, t1_no_intvw_count).Value 					= ObjExcel.Cells(t1_total, t1_no_intvw_count).Value
+	objStatsExcel.Cells(t1_total, t1_intvw_percent).Value 					= ObjExcel.Cells(t1_total, t1_intvw_percent).Value
+	objStatsExcel.Cells(t1_total, t1_intvw_percent).NumberFormat 			= "0.00%"
 
 	stats_row = 2
 	Do
@@ -2247,7 +2268,7 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 	Next
 
 	'Setting the Ranges for each of the 3 tables
-	table1Range = t1_row_titles_letter & "1:" & t1_total_letter & "8"
+	table1Range = t1_REVW_type_letter & "1:" & t1_intvw_percent_letter & "6"
 	table2Range = t2_dates_letter & "1:" & t2_total_app_count_letter & last_row
 	table3Range = t3_progs_letter & "1:" & t3_totals_count_letter & "16"
 
