@@ -6778,8 +6778,86 @@ If clt_knows_how_to_use_ebt_card = "No" then
 	Loop until are_we_passworded_out = FALSE
 
 End If
-'NOTICE OF PRIVACY PRACTICES
 
+
+'NOTICE OF PRIVACY PRACTICES
+Do
+	Do
+		err_msg = ""
+
+		Dialog1 = ""
+		BeginDialog Dialog1, 0, 0, 550, 385, "Full Interview Questions"
+		  ButtonGroup ButtonPressed
+		    PushButton 465, 365, 80, 15, "Continue", continue_btn
+		  Text 10, 5, 160, 10, "REVIEW the information listedd here to the client:"
+		  GroupBox 10, 15, 530, 345, "Notice of Privacy Practices"
+		  Text 20, 25, 505, 35, "This notice tells how private information about you may be used and disclosed and how you can get this information. Please review it carefully."
+		  Text 15, 35, 275, 10, "Why do we ask for this information?"
+		  Text 15, 45, 275, 10, "In order to determine whether and how we can help you, we collect information:"
+		  Text 17, 55, 3, 10, "-"
+		  Text 20, 55, 275, 10, "To tell you apart from other people with the same or similar name"
+		  Text 17, 65, 3, 10, "-"
+		  Text 20, 65, 275, 10, "To decide what you are eligible for"
+		  Text 17, 75, 3, 10, "-"
+		  Text 20, 75, 275, 20, "To help you get medical, mental health, financial or social services and decide if you can pay for some services"
+		  Text 17, 95, 3, 10, "-"
+		  Text 20, 95, 275, 10, "To decide if you or your family need protective services"
+		  Text 17, 105, 3, 10, "-"
+		  Text 20, 105, 275, 10, "To decide about out-of-home care and in-home care for you or your children"
+		  Text 17, 115, 3, 10, "-"
+		  Text 20, 115, 275, 10, "To investigate the accuracy of the information in your application"
+		  Text 15, 125, 275, 20, "After we have begun to provide services or support to you, we may collect additional information:"
+		  Text 17, 140, 3, 10, "-"
+		  Text 20, 140, 275, 10, "To make reports, do research, do audits, and evaluate our programs"
+		  Text 17, 150, 3, 10, "-"
+		  Text 20, 150, 275, 10, "To investigate reports of people who may lie about the help they need"
+		  Text 17, 160, 3, 10, "-"
+		  Text 20, 160, 275, 20, "To collect money from other agencies, like insurance companies, if they should pay for your care"
+		  Text 17, 175, 3, 10, "-"
+		  Text 20, 175, 275, 10, "To collect money from the state or federal government for help we give you."
+		  Text 17, 185, 3, 10, "-"
+		  Text 20, 185, 275, 20, "When your or your family's circumstances change and you are required to report the change (see Client Responsibilities and Rights - DHS-4163)"
+		  Text 15, 210, 275, 10, "Why do we ask you for your Social Security number?"
+		  Text 20, 220, 275, 75, "We need your Social Security number to give you medical assistance, some kinds of financial help, or child support enforcement services (42 CFR 435.910 [2006]; Minn. Stat. 256D.03, subd.3(h); Minn. Stat.256L.04, subd. 1a; 45 CFR 205.52 [2001]; 42 USC 666; 45 CFR 303.30 [2001]). We also need your Social Security Number to verify identity and prevent duplication of state and federal benefits. Additionally, your Social Security Number is used to conduct computer data matches with collaborative, nonprofit and private agencies to verify income, resources, or other information that may affect your eligibility and/or benefits."
+		  Text 20, 285, 275, 10, "You do not have to give us the Social Security Number:"
+		  Text 22, 295, 3, 10, "-"
+		  Text 25, 295, 275, 10, "For persons in your home who are not applying for coverage"
+		  Text 22, 305, 3, 10, "-"
+		  Text 25, 305, 275, 10, "If you have religious objections"
+		  Text 22, 315, 3, 10, "-"
+		  Text 25, 315, 500, 10, "If you are not a United States citizen and are applying for Emergency Medical Assistance only"
+		  Text 22, 325, 3, 10, "-"
+		  Text 25, 325, 500, 20, "If you are from another country, in the United States on a temporary basis and do not have permission from the United States Citizenship and Immigration Services to live in the United States permanently"
+		  Text 22, 345, 3, 10, "-"
+		  Text 25, 345, 500, 10, "If you are living in the United States without the knowledge or approval of the U.S. Citizenship and Immigration Services."
+		  Text 305, 35, 225, 10, "Do you have to answer the questions we ask?"
+		  Text 310, 45, 225, 45, "You do not have to give us your personal information. Without the information, we may not be able to help you. If you give us wrong information on purpose, you can be investigated and charged with fraud."
+		  Text 305, 90, 225, 10, "With whom may we share information?"
+		  Text 305, 100, 225, 35, "We will only share information about you as needed and as allowed or required by law. We may share your information with the following agencies or persons who need the information to do their jobs:"
+		  Text 307, 125, 3, 10, "-"
+		  Text 310, 125, 225, 35, "Employees or volunteers with other state, county, local, federal, collaborative, nonprofit and private agencies"
+		  Text 307, 145, 3, 10, "-"
+		  Text 310, 145, 225, 35, "Researchers, auditors, investigators, and others who do quality of care reviews and studies or commence prosecutions or legal actions related to managing the human services programs."
+		  Text 307, 170, 3, 10, "-"
+		  Text 310, 170, 225, 35, "Court officials, county attorney, attorney general, other law enforcement officials, child support officials, and child protection and fraud investigators"
+		  Text 307, 195, 3, 10, "-"
+		  Text 310, 195, 225, 10, "Human services offices, including child support enforcement offices"
+		  Text 307, 205, 3, 10, "-"
+		  Text 310, 205, 225, 20, "Governmental agencies in other states administering public benefits programs"
+		  Text 307, 225, 3, 10, "-"
+		  Text 310, 225, 225, 20, "Health care providers, including mental health agencies and drug and alcohol treatment facilities"
+		  Text 307, 245, 3, 10, "-"
+		  Text 310, 245, 225, 20, "Health care insurers, health care agencies, managed care organizations and others who pay for your care"
+		  Text 10, 370, 210, 10, "Confirm you have reviewed Privacy Practices:"
+		  DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! Responsibilities Discussed"+chr(9)+"No, I could not complete this", confirm_npp_read
+		EndDialog
+
+		dialog Dialog1
+
+		cancel_confirmation
+	Loop until err_msg = ""
+	Call check_for_password(are_we_passworded_out)
+Loop until are_we_passworded_out = FALSE
 
 
 
