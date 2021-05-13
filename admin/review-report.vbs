@@ -537,6 +537,95 @@ Else
     REPT_month = CM_plus_1_mo
     REPT_year  = CM_plus_1_yr
 End if
+report_date = REPT_month & "-" & REPT_year  'establishing review date
+
+open_existing_review_report = FALSE
+If renewal_option <> "Create Renewal Report" Then open_existing_review_report = TRUE
+
+If open_existing_review_report = TRUE Then
+
+	'If we are collecting statistics, we may be running on a current or past month, we need to clarify which month we are looking at.'
+	Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 115, 55, "Select REVW Month for Information"
+	  EditBox 75, 10, 15, 15, REPT_month
+	  EditBox 95, 10, 15, 15, REPT_year
+	  Text 10, 10, 60, 20, "Which REVW Month?"
+	  ButtonGroup ButtonPressed
+		OkButton 25, 35, 40, 15
+		CancelButton 70, 35, 40, 15
+	EndDialog
+
+	Do
+		Do
+			err_msg = ""
+
+			dialog Dialog1
+			cancel_without_confirmation
+
+		Loop Until err_msg = ""
+		Call check_for_password(are_we_passworded_out)
+	Loop until are_we_passworded_out = FALSE
+
+	report_date = REPT_month & "-" & REPT_year  'establishing review date
+
+	'This is where the review report is currently saved.
+	excel_file_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\Renewals\" & report_date & " Review Report.xlsx"
+
+	tomorrow = DateAdd("d", 1, date)
+	If tomorrow_day = DatePart("d", tomorrow) = 1 Then last_day_checkbox = checked
+
+	'Initial Dialog which requests a file path for the excel file
+	Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 361, 65, "On Demand Recertifications - Send Appointment Notices"
+	  EditBox 130, 20, 175, 15, excel_file_path
+	  ButtonGroup ButtonPressed
+		PushButton 310, 20, 45, 15, "Browse...", select_a_file_button
+		If renewal_option = "Collect Statistics" Then CheckBox 10, 45, 205, 10, "Check here if this is the LAST Day of the processing month.", last_day_checkbox
+		OkButton 250, 45, 50, 15
+		CancelButton 305, 45, 50, 15
+	  Text 10, 10, 170, 10, "Select the recert fle from the Review Report original run"
+	  Text 10, 25, 120, 10, "Select an Excel file for recert cases:"
+	EndDialog
+
+	'Show file path dialog
+	Do
+		Dialog Dialog1
+		cancel_confirmation
+		If ButtonPressed = select_a_file_button then call file_selection_system_dialog(excel_file_path, ".xlsx")
+	Loop until ButtonPressed = OK and excel_file_path <> ""
+
+	'Opens Excel file here, as it needs to populate the dialog with the details from the spreadsheet.
+	call excel_open(excel_file_path, True, True, ObjExcel, objWorkbook)
+
+	'Finding all of the worksheets available in the file. We will likely open up the main 'Review Report' so the script will default to that one.
+	For Each objWorkSheet In objWorkbook.Worksheets
+		If instr(objWorkSheet.Name, "Sheet") = 0 and objWorkSheet.Name <> "controls" then scenario_list = scenario_list & chr(9) & objWorkSheet.Name
+	Next
+	scenario_dropdown = report_date & " Review Report"
+
+	'Dialog to select worksheet
+	'DIALOG is defined here so that the dropdown can be populated with the above code
+	Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 151, 75, "Select the Worksheet"
+	  DropListBox 5, 35, 140, 15, "Select One..." & scenario_list, scenario_dropdown
+	  ButtonGroup ButtonPressed
+		OkButton 40, 55, 50, 15
+		CancelButton 95, 55, 50, 15
+	  Text 5, 10, 130, 20, "Select the correct worksheet to run for review statistics:"
+	EndDialog
+
+	'Shows the dialog to select the correct worksheet
+	Do
+		Do
+			Dialog Dialog1
+			cancel_without_confirmation
+		Loop until scenario_dropdown <> "Select One..."
+		call check_for_password(are_we_passworded_out)
+	Loop until are_we_passworded_out = FALSE
+
+	'Activates worksheet based on user selection
+	objExcel.worksheets(scenario_dropdown).Activate
+End If
 
 'Stats option ignores the 'list of workers' since it works off of an existing Excel, it needs to pull all of the workers
 If all_workers_check = checked then
@@ -566,32 +655,39 @@ Else
 	worker_array = split(worker_array, ", ")
 End if
 
-If renewal_option = "Collect Statistics" OR renewal_option = "Create Worklist" Then
+If renewal_option = "Send NOMIs" then
 
-	'If we are collecting statistics, we may be running on a current or past month, we need to clarify which month we are looking at.'
-	Dialog1 = ""
-	BeginDialog Dialog1, 0, 0, 115, 55, "Select REVW Month for Statistics"
-	  EditBox 75, 10, 15, 15, REPT_month
-	  EditBox 95, 10, 15, 15, REPT_year
-	  Text 10, 10, 60, 20, "Which REVW Month?"
-	  ButtonGroup ButtonPressed
-	    OkButton 25, 35, 40, 15
-	    CancelButton 70, 35, 40, 15
-	EndDialog
+	call back_to_self
+	EMReadScreen mx_region, 10, 22, 48
 
+	If mx_region = "INQUIRY DB" Then
+		continue_in_inquiry = MsgBox("It appears you are attempting to have the script send notices for these cases." & vbNewLine & vbNewLine & "However, you appear to be in MAXIS Inquiry." &vbNewLine & "*************************" & vbNewLine & "Do you want to continue?", vbQuestion + vbYesNo, "Confirm Inquiry")
+		If continue_in_inquiry = vbNo Then script_end_procedure("Live script run was attempted in Inquiry and aborted.")
+	End If
+
+	date_month = DatePart("m", date)		'Creating a variable to enter in the column headers
+	date_day = DatePart("d", date)
+	date_header = date_month & "/" & date_day
+
+	col_to_use = 1
 	Do
-		Do
-			err_msg = ""
+		col_header = trim(ObjExcel.Cells(1, col_to_use).Value)
 
-			dialog Dialog1
-			cancel_without_confirmation
+		If col_header = "CASH (" & date_header & ")" Then cash_stat_excel_col = col_to_use
+		If col_header = "SNAP (" & date_header & ")" Then snap_stat_excel_col = col_to_use
+		If col_header = "HC (" & date_header & ")" Then hc_stat_excel_col = col_to_use
+		If col_header = "MAGI (" & date_header & ")" Then magi_stat_excel_col = col_to_use
+		If col_header = "CAF Date (" & date_header & ")" Then recvd_date_excel_col = col_to_use
+		If col_header = "Intvw Date (" & date_header & ")" Then intvw_date_excel_col = col_to_use
 
-		Loop Until err_msg = ""
-		Call check_for_password(are_we_passworded_out)
-	Loop until are_we_passworded_out = FALSE
+		col_to_use = col_to_use + 1
+	Loop until col_header = ""
+
+	If cash_stat_excel_col = "" Then
+		renewal_option = "Collect Statistics"
+		original_renewal_option = "Send NOMIs"
+	End If
 End If
-
-report_date = REPT_month & "-" & REPT_year  'establishing review date
 
 If renewal_option = "Create Renewal Report" then
 	review_report_file_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\Renewals\" & report_date & " Review Report.xlsx"
@@ -1021,64 +1117,8 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 		MAXIS_footer_month = REPT_month							'Setting the footer month and year based on the review month. We do not run statistics in CM + 2
 		MAXIS_footer_year = REPT_year
 	End If
-	'This is where the review report is currently saved.
-	excel_file_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\Renewals\" & report_date & " Review Report.xlsx"
 
-	tomorrow = DateAdd("d", 1, date)
-	If tomorrow_day = DatePart("d", tomorrow) = 1 Then last_day_checkbox = checked
-
-	'Initial Dialog which requests a file path for the excel file
-	Dialog1 = ""
-	BeginDialog Dialog1, 0, 0, 361, 65, "On Demand Recertifications"
-	  ButtonGroup ButtonPressed
-	  	EditBox 130, 20, 175, 15, excel_file_path
-	    PushButton 310, 20, 45, 15, "Browse...", select_a_file_button
-	  	CheckBox 10, 45, 205, 10, "Check here if this is the LAST Day of the processing month.", last_day_checkbox
-	    OkButton 250, 45, 50, 15
-	    CancelButton 305, 45, 50, 15
-	  	Text 10, 10, 170, 10, "Select the recert fle from the Review Report original run"
-	  	Text 10, 25, 120, 10, "Select an Excel file for recert cases:"
-	EndDialog
-
-	'Show file path dialog
-	Do
-		Dialog Dialog1
-		cancel_confirmation
-		If ButtonPressed = select_a_file_button then call file_selection_system_dialog(excel_file_path, ".xlsx")
-	Loop until ButtonPressed = OK and excel_file_path <> ""
-
-	'Opens Excel file here, as it needs to populate the dialog with the details from the spreadsheet.
-	call excel_open(excel_file_path, True, True, ObjExcel, objWorkbook)
 	info_sheet_name = replace(excel_file_path, t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\Renewals\", "")
-
-	'Finding all of the worksheets available in the file. We will likely open up the main 'Review Report' so the script will default to that one.
-	For Each objWorkSheet In objWorkbook.Worksheets
-		If instr(objWorkSheet.Name, "Sheet") = 0 and objWorkSheet.Name <> "controls" then scenario_list = scenario_list & chr(9) & objWorkSheet.Name
-	Next
-	scenario_dropdown = report_date & " Review Report"
-
-	'Dialog to select worksheet
-	'DIALOG is defined here so that the dropdown can be populated with the above code
-	Dialog1 = ""
-	BeginDialog Dialog1, 0, 0, 151, 75, "Select the Worksheet"
-	  DropListBox 5, 35, 140, 15, "Select One..." & scenario_list, scenario_dropdown
-	  ButtonGroup ButtonPressed
-	    OkButton 40, 55, 50, 15
-	    CancelButton 95, 55, 50, 15
-	  Text 5, 10, 130, 20, "Select the correct worksheet to run for review statistics:"
-	EndDialog
-
-	'Shows the dialog to select the correct worksheet
-	Do
-		Do
-		    Dialog Dialog1
-		    cancel_without_confirmation
-		Loop until scenario_dropdown <> "Select One..."
-		call check_for_password(are_we_passworded_out)
-	Loop until are_we_passworded_out = FALSE
-
-	'Activates worksheet based on user selection
-	objExcel.worksheets(scenario_dropdown).Activate
 
 	'Finding the last column that has something in it so we can add to the end.
 	col_to_use = 0
@@ -2397,63 +2437,11 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 	run_time = timer - query_start_time
 	end_msg = "Case details have been added to the Review Report" & vbCr & vbCr & "Run time: " & run_time & " seconds."
 
+	If original_renewal_option = "Send NOMIs" Then renewal_option = "Send NOMIs"
+
 ElseIf renewal_option = "Send Appointment Letters" Then
 	MAXIS_footer_month = CM_mo							'Setting the footer month and year based on the review month. We do not run statistics in CM + 2
 	MAXIS_footer_year = CM_yr
-
-	'This is where the review report is currently saved.
-	excel_file_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\Renewals\" & report_date & " Review Report.xlsx"
-
-	'Initial Dialog which requests a file path for the excel file
-	Dialog1 = ""
-	BeginDialog Dialog1, 0, 0, 361, 65, "On Demand Recertifications - Send Appointment Notices"
-	  EditBox 130, 20, 175, 15, excel_file_path
-	  ButtonGroup ButtonPressed
-		PushButton 310, 20, 45, 15, "Browse...", select_a_file_button
-		OkButton 250, 45, 50, 15
-		CancelButton 305, 45, 50, 15
-	  Text 10, 10, 170, 10, "Select the recert fle from the Review Report original run"
-	  Text 10, 25, 120, 10, "Select an Excel file for recert cases:"
-	EndDialog
-
-	'Show file path dialog
-	Do
-		Dialog Dialog1
-		cancel_confirmation
-		If ButtonPressed = select_a_file_button then call file_selection_system_dialog(excel_file_path, ".xlsx")
-	Loop until ButtonPressed = OK and excel_file_path <> ""
-
-	'Opens Excel file here, as it needs to populate the dialog with the details from the spreadsheet.
-	call excel_open(excel_file_path, True, True, ObjExcel, objWorkbook)
-
-	'Finding all of the worksheets available in the file. We will likely open up the main 'Review Report' so the script will default to that one.
-	For Each objWorkSheet In objWorkbook.Worksheets
-		If instr(objWorkSheet.Name, "Sheet") = 0 and objWorkSheet.Name <> "controls" then scenario_list = scenario_list & chr(9) & objWorkSheet.Name
-	Next
-	scenario_dropdown = report_date & " Review Report"
-
-	'Dialog to select worksheet
-	'DIALOG is defined here so that the dropdown can be populated with the above code
-	Dialog1 = ""
-	BeginDialog Dialog1, 0, 0, 151, 75, "Select the Worksheet"
-	  DropListBox 5, 35, 140, 15, "Select One..." & scenario_list, scenario_dropdown
-	  ButtonGroup ButtonPressed
-	    OkButton 40, 55, 50, 15
-	    CancelButton 95, 55, 50, 15
-	  Text 5, 10, 130, 20, "Select the correct worksheet to run for review statistics:"
-	EndDialog
-
-	'Shows the dialog to select the correct worksheet
-	Do
-		Do
-		    Dialog Dialog1
-		    cancel_without_confirmation
-		Loop until scenario_dropdown <> "Select One..."
-		call check_for_password(are_we_passworded_out)
-	Loop until are_we_passworded_out = FALSE
-
-	'Activates worksheet based on user selection
-	objExcel.worksheets(scenario_dropdown).Activate
 
 	'Finding the last column that has something in it so we can add to the end.
 	col_to_use = 0
@@ -2613,7 +2601,7 @@ ElseIf renewal_option = "Send Appointment Letters" Then
 				End If
 
 				start_a_blank_case_note
-				EMSendKey("*** Notice of " & programs & " Recertification Interview Sent ***")
+				CALL write_variable_in_CASE_NOTE("*** Notice of " & programs & " Recertification Interview Sent ***")
 				CALL write_variable_in_case_note("* A notice has been sent to client with detail about how to call in for an interview.")
 				CALL write_variable_in_case_note("* Client must submit paperwork and call 612-596-1300 to complete interview.")
 				If forms_to_arep = "Y" then call write_variable_in_case_note("* Copy of notice sent to AREP.")
@@ -2632,7 +2620,7 @@ ElseIf renewal_option = "Send Appointment Letters" Then
 	worksheet_found = FALSE
 	'Finding all of the worksheets available in the file. We will likely open up the main 'Review Report' so the script will default to that one.
 	For Each objWorkSheet In objWorkbook.Worksheets
-		If instr(objWorkSheet.Name, "APPT NOTC") <> 0 Then
+		If instr(objWorkSheet.Name, "NOTICES") <> 0 Then
 			objWorkSheet.Activate
 			worksheet_found = TRUE
 		End If
@@ -2640,7 +2628,7 @@ ElseIf renewal_option = "Send Appointment Letters" Then
 
 	If worksheet_found = FALSE Then
 		'Going to another sheet, to enter worker-specific statistics and naming it
-		sheet_name = "APPT NOTC"
+		sheet_name = "NOTICES"
 		ObjExcel.Worksheets.Add().Name = sheet_name
 
 		entry_row = 1
@@ -2691,64 +2679,11 @@ ElseIf renewal_option = "Send Appointment Letters" Then
 	objExcel.Cells(date_stats_row, 2).Value      = "=COUNTIFS(Table1[APPT NOTC Date]," & Chr(34) & today_date & Chr(34) & ")"                'This was incremented on the For Next loop where the memos were written
 
 	end_msg = "NOTICES have been sent on " & successful_notices & " cases today. Information added to the Review Report Excel document."
+
 ElseIf renewal_option = "Create Worklist" Then
 
 	MAXIS_footer_month = REPT_month							'Setting the footer month and year based on the review month. We do not run statistics in CM + 2
 	MAXIS_footer_year = REPT_year
-
-	'This is where the review report is currently saved.
-	excel_file_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\Renewals\" & report_date & " Review Report.xlsx"
-
-	'Initial Dialog which requests a file path for the excel file
-	Dialog1 = ""
-	BeginDialog Dialog1, 0, 0, 361, 70, "On Demand Recertifications"
-	  EditBox 130, 20, 175, 15, excel_file_path
-	  ButtonGroup ButtonPressed
-		PushButton 310, 20, 45, 15, "Browse...", select_a_file_button
-		OkButton 250, 45, 50, 15
-		CancelButton 305, 45, 50, 15
-	  Text 10, 10, 170, 10, "Select the recert fle from the Review Report original run"
-	  Text 10, 25, 120, 10, "Select an Excel file for recert cases:"
-	EndDialog
-
-	'Show file path dialog
-	Do
-		Dialog Dialog1
-		cancel_confirmation
-		If ButtonPressed = select_a_file_button then call file_selection_system_dialog(excel_file_path, ".xlsx")
-	Loop until ButtonPressed = OK and excel_file_path <> ""
-
-	'Opens Excel file here, as it needs to populate the dialog with the details from the spreadsheet.
-	call excel_open(excel_file_path, True, True, ObjExcel, objWorkbook)
-
-	'Finding all of the worksheets available in the file. We will likely open up the main 'Review Report' so the script will default to that one.
-	For Each objWorkSheet In objWorkbook.Worksheets
-		If instr(objWorkSheet.Name, "Sheet") = 0 and objWorkSheet.Name <> "controls" then scenario_list = scenario_list & chr(9) & objWorkSheet.Name
-	Next
-	scenario_dropdown = report_date & " Review Report"
-
-	'Dialog to select worksheet
-	'DIALOG is defined here so that the dropdown can be populated with the above code
-	Dialog1 = ""
-	BeginDialog Dialog1, 0, 0, 151, 75, "Select the Worksheet"
-	  DropListBox 5, 35, 140, 15, "Select One..." & scenario_list, scenario_dropdown
-	  ButtonGroup ButtonPressed
-		OkButton 40, 55, 50, 15
-		CancelButton 95, 55, 50, 15
-	  Text 5, 10, 130, 20, "Select the correct worksheet to run for review statistics:"
-	EndDialog
-
-	'Shows the dialog to select the correct worksheet
-	Do
-		Do
-			Dialog Dialog1
-			cancel_without_confirmation
-		Loop until scenario_dropdown <> "Select One..."
-		call check_for_password(are_we_passworded_out)
-	Loop until are_we_passworded_out = FALSE
-
-	'Activates worksheet based on user selection
-	objExcel.worksheets(scenario_dropdown).Activate
 
 	recert_cases = 0	            'incrementor for the array
 
@@ -3083,9 +3018,240 @@ ElseIf renewal_option = "Create Worklist" Then
 	Next
 
 	end_msg = "An Excel Workbook has been created with two lists of work:" & vbCr & vbCr & "The script found:" & vbCr & "  - " & er_case_to_work &" ER cases with no CAF entered in MAXIS" & vbCr & "  - " & sr_case_to_work &" SR cases with no CSR entered in MAXIS"
-Else
-    end_msg = "Report available yet."
+ElseIf renewal_option <> "Send NOMIs" Then
+    end_msg = "Report not available yet."
 End if
+
+If renewal_option = "Send NOMIs" Then
+
+	MAXIS_footer_month = CM_plus_1_mo							'Setting the footer month and year based on the review month. We do not run statistics in CM + 2
+	MAXIS_footer_year = CM_plus_1_yr
+
+	'creating a last day of recert variable - for NOMI this is the last day of the current month - which is determined here
+	last_day_of_recert = CM_plus_1_mo & "/01/" & CM_plus_1_yr
+	last_day_of_recert = dateadd("D", -1, last_day_of_recert)
+
+	'creating the interview deadline date - this was the last day provided in the appointment notice
+	interview_deadline_date = CM_mo & "/15/" & CM_yr
+
+	'creating the response deadline date - this is the day client must respond by in order to prevent case closure
+	response_deadline_date = CM_plus_1_mo & "/01/" & CM_plus_1_yr
+	response_deadline_date = dateadd("D", -11, last_day_of_recert)
+
+	'Activates worksheet based on user selection
+	objExcel.worksheets(scenario_dropdown).Activate
+
+	'Finding the last column that has something in it so we can add to the end.
+	col_to_use = 0
+	Do
+		col_to_use = col_to_use + 1
+		col_header = trim(ObjExcel.Cells(1, col_to_use).Value)
+		If col_header = "NOMI Sent" Then notc_col = col_to_use
+		If col_header = "NOMI Date" Then notc_date_col = col_to_use
+		If col_header = "APPT NOTC Sent" Then appt_notc_col = col_to_use
+		If col_header = "APPT NOTC Date" Then last_apt_notc_col = col_to_use
+	Loop until col_header = ""
+
+	' MsgBox "NOTC Col - " & notc_col & vbCr & "NOTC Date Col - " & notc_date_col
+	If notc_col = "" OR notc_date_col = "" Then
+		last_apt_notc_col_letter = convert_digit_to_excel_column(last_apt_notc_col)
+
+		'Insert columns in excel for additional information to be added
+		column_place = last_apt_notc_col_letter & "1"
+		Set objRange = objExcel.Range(column_end).EntireColumn
+
+		If notc_date_col = "" Then
+			objRange.Insert(xlShiftToRight)			'We neeed one more columns
+			notc_date_col = col_to_use		'Setting the column to individual variables so we enter the found information in the right place
+
+			ObjExcel.Cells(1, notc_date_col).Value = "NOMI Date"			'creating the column headers for the statistics information for the day of the run.
+			objExcel.Cells(1, notc_date_col).Font.Bold = True		'bold font'
+			ObjExcel.columns(notc_date_col).NumberFormat = "m/d/yy" 		'formatting as text
+			ObjExcel.columns(notc_date_col).AutoFit() 						'fsizing the columns'
+		End If
+		If notc_col = "" Then
+			objRange.Insert(xlShiftToRight)			'We neeed one more columns
+			notc_col = col_to_use		'Setting the column to individual variables so we enter the found information in the right place
+			col_to_use = col_to_use + 1
+
+			ObjExcel.Cells(1, notc_col).Value = "NOMI Sent"			'creating the column headers for the statistics information for the day of the run.
+			objExcel.Cells(1, notc_col).Font.Bold = True		'bold font'
+			ObjExcel.columns(notc_col).NumberFormat = "@" 		'formatting as text
+			ObjExcel.columns(notc_col).AutoFit() 				'sizing the columns'
+		End If
+
+	End If
+
+	today_mo = DatePart("m", date)
+	today_mo = right("00" & today_mo, 2)
+
+	today_day = DatePart("d", date)
+	today_day = right("00" & today_day, 2)
+
+	today_yr = DatePart("yyyy", date)
+	today_yr = right(today_yr, 2)
+	today_date = today_mo & "/" & today_day & "/" & today_yr
+
+	'Now we loop through the whole Excel List and sending notices on the right cases
+	excel_row = "2"		'starts at row 2'
+	Do
+		notc_col_info = trim(ObjExcel.Cells(excel_row, notc_col).Value)
+		MAXIS_case_number 	= trim(ObjExcel.Cells(excel_row,  2).Value)			'getting the case number from the spreadsheet
+		' MsgBox "row - " & excel_row & vbCr & "col - " & notc_col & vbCr & "val - *" & notc_col_info & "*"
+		If notc_col_info = "" AND MAXIS_case_number <> "" Then
+			' MsgBox excel_row
+			forms_to_arep = ""
+			forms_to_swkr = ""
+
+			Call read_boolean_from_excel(ObjExcel.Cells(excel_row,  3).Value, er_with_intherview)
+			Call read_boolean_from_excel(objExcel.cells(excel_row,  6).value, MFIP_status)
+			Call read_boolean_from_excel(objExcel.cells(excel_row, 13).value, SNAP_status)
+
+			appt_notc_sent = trim(ObjExcel.Cells(excel_row, appt_notc_col).Value)
+			interview_date_as_of_today = trim(ObjExcel.Cells(excel_row, intvw_date_excel_col).Value)
+			caf_date_as_of_today = trim(ObjExcel.Cells(excel_row, recvd_date_excel_col).Value)
+
+			If MFIP_status = True and SNAP_status = True Then programs = "MFIP/SNAP"
+			If MFIP_status = True Then programs = "MFIP"
+			If SNAP_status = True Then programs = "SNAP"
+
+			If er_with_intherview = True AND interview_date_as_of_today = "" AND appt_notc_sent = "Y" Then
+
+				Call start_a_new_spec_memo_and_continue(memo_started)
+
+				IF memo_started = True THEN         'The function will return this as FALSE if PF5 does not move past MEMO DISPLAY
+
+					if caf_date_as_of_today <> "" then CALL write_variable_in_SPEC_MEMO("We received your Recertification Paperwork on " & caf_date_as_of_today & ".")
+					if caf_date_as_of_today = "" then CALL write_variable_in_SPEC_MEMO("Your Recertification Paperwork has not yet been received.")
+					CALL write_variable_in_SPEC_MEMO("")
+					' CALL write_variable_in_SPEC_MEMO("You must have an interview by " & last_day_of_recert & " or your benefits will end. ")
+					CALL write_variable_in_SPEC_MEMO("You may still need an interview by " & last_day_of_recert & " or your benefits will end. ")
+					CALL write_variable_in_SPEC_MEMO("")
+					Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at")
+					Call write_variable_in_SPEC_MEMO("612-596-1300 between 8:00am and 4:30pm Monday thru Friday.")
+					CALL write_variable_in_SPEC_MEMO("")
+					'removal of in person verbiage during the COVID-19 PEACETIME STATE OF EMERGENCY
+					' Call write_variable_in_SPEC_MEMO("If you wish to schedule an interview, call 612-596-1300. You may also come to any of the six offices below for an in-person interview between 8 and 4:30, Monday thru Friday.")
+					' Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
+					' Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
+					' Call write_variable_in_SPEC_MEMO("- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 ")
+					' Call write_variable_in_SPEC_MEMO("- 1001 Plymouth Ave N Minneapolis 55411")
+					' Call write_variable_in_SPEC_MEMO("- 525 Portland Ave S Minneapolis 55415")
+					' Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
+					' Call write_variable_in_SPEC_MEMO("(Hours are M - F 8-4:30 unless otherwise noted)")
+					CALL write_variable_in_SPEC_MEMO("You now have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. To obtain information about your case please contact your worker. EMAIL: hhsews@hennepin.us ")
+					CALL write_variable_in_SPEC_MEMO("")
+					CALL write_variable_in_SPEC_MEMO("  ** If we do not hear from you by " & last_day_of_recert & "  **")
+					CALL write_variable_in_SPEC_MEMO("  **   your benefits will end on " & last_day_of_recert & ".   **")
+
+
+					PF4         'Submit the MEMO
+
+					memo_row = 7                                            'Setting the row for the loop to read MEMOs
+					ObjExcel.Cells(excel_row, notc_col).Value = "N"         'Defaulting this to 'N'
+					Do
+						EMReadScreen create_date, 8, memo_row, 19                 'Reading the date of each memo and the status
+						EMReadScreen print_status, 7, memo_row, 67
+						If create_date = today_date AND print_status = "Waiting" Then   'MEMOs created today and still waiting is likely our MEMO.
+							ObjExcel.Cells(excel_row, notc_col).Value = "Y"             'If we've found this then no reason to keep looking.
+							ObjExcel.Cells(excel_row, notc_date_col).Value = today_date        'If we've found this then no reason to keep looking.
+							successful_notices = successful_notices + 1                 'For statistical purposes
+							Exit Do
+						End If
+
+						memo_row = memo_row + 1           'Looking at next row'
+					Loop Until create_date = "        "
+				ELSE
+					ObjExcel.Cells(excel_row, notc_col).Value = "N"         'Setting this as N if the MEMO failed
+					call back_to_SELF
+				END IF
+
+
+				If ObjExcel.Cells(excel_row, notc_col).Value = "Y" Then
+
+					start_a_blank_case_note
+					CALL write_variable_in_CASE_NOTE("*** NOMI Sent for SNAP Recertification***")
+					if caf_date_as_of_today <> "" then CALL write_variable_in_CASE_NOTE("* Recertification app received on " & caf_date_as_of_today)
+					if caf_date_as_of_today = "" then CALL write_variable_in_CASE_NOTE("* Recertification app has NOT been received. Client must submit paperwork.")
+					CALL write_variable_in_CASE_NOTE("* A notice was previously sent to client with detail about how to call in for an interview.")
+					CALL write_variable_in_CASE_NOTE("* Client must call 612-596-1300 to complete interview.")
+					If forms_to_arep = "Y" then CALL write_variable_in_CASE_NOTE("* Copy of notice sent to AREP.")
+					If forms_to_swkr = "Y" then CALL write_variable_in_CASE_NOTE("* Copy of notice sent to Social Worker.")
+					call write_variable_in_case_note("---")
+					call write_variable_in_case_note(worker_signature)
+
+					PF3
+				End If
+
+			ElseIf er_with_intherview = True AND appt_notc_sent <> "Y" Then
+				ObjExcel.Cells(excel_row, notc_col).Value = "Check APPT NOTC"
+			ElseIf er_with_intherview = True AND interview_date_as_of_today <> "" Then
+				ObjExcel.Cells(excel_row, notc_col).Value = "INTV Done"
+			ElseIf er_with_intherview = False Then
+				ObjExcel.Cells(excel_row, notc_col).Value = "N/A"
+			End If
+		End If
+		excel_row = excel_row + 1
+	Loop until MAXIS_case_number = ""
+
+	'Finding all of the worksheets available in the file. We will likely open up the main 'Review Report' so the script will default to that one.
+	For Each objWorkSheet In objWorkbook.Worksheets
+		If objWorkSheet.Name = "NOTICES" Then
+			objWorkSheet.Activate
+			Exit For
+		End If
+	Next
+
+	entry_row = 1
+
+	objExcel.Cells(entry_row, 4).Value      = "NOMIs run on:"     'Date and time the script was completed
+	objExcel.Cells(entry_row, 4).Font.Bold 	= TRUE
+	objExcel.Cells(entry_row, 5).Value      = now
+	entry_row = entry_row + 1
+
+	objExcel.Cells(entry_row, 4).Value      = "Runtime (in seconds)"            'Enters the amount of time it took the script to run
+	objExcel.Cells(entry_row, 4).Font.Bold 	= TRUE
+	objExcel.Cells(entry_row, 5).Value      = timer - query_start_time
+	entry_row = entry_row + 1
+
+	objExcel.Cells(entry_row, 4).Value      = "Total Cases assesed"             'All cases from the spreadsheet
+	objExcel.Cells(entry_row, 4).Font.Bold 	= TRUE
+	objExcel.Cells(entry_row, 5).Value    	= excel_row - 2
+	entry_row = entry_row + 1
+
+	objExcel.Cells(entry_row, 4).Value      = "Total Cases with ER Interview"             'All cases from the spreadsheet
+	objExcel.Cells(entry_row, 4).Font.Bold 	= TRUE
+	objExcel.Cells(entry_row, 5).Value      = "=COUNTIFS(Table1[Interview ER],"&is_true&")"
+	total_row = entry_row
+	entry_row = entry_row + 1
+
+	if successful_notices = "" then successful_notices = 0
+	objExcel.Cells(entry_row, 4).Value      = "NOMIs Sent"        'number of notices that were successful
+	objExcel.Cells(entry_row, 4).Font.Bold 	= TRUE
+	objExcel.Cells(entry_row, 5).Value      = "=COUNTIFS(Table1[NOMI Sent]," & Chr(34) & "Y" & Chr(34) & ")"                'This was incremented on the For Next loop where the memos were written
+	appt_row = entry_row
+	entry_row = entry_row + 1
+
+	objExcel.Cells(entry_row, 4).Value      = "Percentage INTV Cases with NOMIs"           'calculation of the percent of successful notices
+	objExcel.Cells(entry_row, 4).Font.Bold 	= TRUE
+	objExcel.Cells(entry_row, 5).Value      = "=B" & appt_row & "/B" & total_row
+	objExcel.Cells(entry_row, 5).NumberFormat = "0.00%"		'Formula should be percent
+	entry_row = entry_row + 1
+
+	objExcel.Cells(entry_row, 4).Value      = "Interviews Completed"        'number of notices that were successful
+	objExcel.Cells(entry_row, 4).Font.Bold 	= TRUE
+	objExcel.Cells(entry_row, 5).Value      = "=COUNTIFS(Table1[NOMI Sent]," & Chr(34) & "INTV Done" & Chr(34) & ")"                'This was incremented on the For Next loop where the memos were written
+	intv_row = entry_row
+	entry_row = entry_row + 1
+
+	objExcel.Cells(entry_row, 4).Value      = "Percentage INTV Done"           'calculation of the percent of successful notices
+	objExcel.Cells(entry_row, 4).Font.Bold 	= TRUE
+	objExcel.Cells(entry_row, 5).Value      = "=B" & intv_row & "/B" & total_row
+	objExcel.Cells(entry_row, 5).NumberFormat = "0.00%"		'Formula should be percent
+	entry_row = entry_row + 1
+
+	end_msg = end_msg & vbCr & vbCr & "NOMIs have been sent on " & successful_notices & " cases today. Information added to the Review Report Excel Document"
+End If
 
 STATS_counter = STATS_counter - 1
 script_end_procedure(end_msg)
