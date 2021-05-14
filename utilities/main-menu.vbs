@@ -66,11 +66,11 @@ Function declare_main_menu_dialog(script_category)
 				If listed_subcategory <> "" and InStr(subcategory_list, ucase(listed_subcategory)) = 0 then subcategory_list = subcategory_list & "|" & ucase(listed_subcategory)	'...if the listed subcategory isn't blank and isn't already in the list, then add it to our handy-dandy list.
 			Next
 		End if
-		'Adds a "NEW!!!" notification to the description if the script is from the last two months.
-		If DateDiff("m", script_array(current_script).release_date, DateAdd("m", -2, date)) <= 0 then
-			script_array(current_script).description = "NEW " & script_array(current_script).release_date & "!!! --- " & script_array(current_script).description
-			script_array(current_script).release_date = "12/12/1999" 'backs this out and makes it really old so it doesn't repeat each time the dialog loops. This prevents NEW!!!... from showing multiple times in the description.
-		End if
+		' 'Adds a "NEW!!!" notification to the description if the script is from the last two months.
+		' If DateDiff("m", script_array(current_script).release_date, DateAdd("m", -2, date)) <= 0 then
+		' 	script_array(current_script).description = "NEW " & script_array(current_script).release_date & "!!! --- " & script_array(current_script).description
+		' 	script_array(current_script).release_date = "12/12/1999" 'backs this out and makes it really old so it doesn't repeat each time the dialog loops. This prevents NEW!!!... from showing multiple times in the description.
+		' End if
 
 	Next
 
