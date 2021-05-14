@@ -1,7 +1,7 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "NOTES - MAIN MENU.vbs"
 start_time = timer
-
+run_locally = TRUE
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
@@ -66,15 +66,15 @@ End class
 
 Function declare_main_menu_dialog(script_category)
 
-	'Runs through each script in the array and generates a list of subcategories based on the category located in the function. Also modifies the script description if it's from the last two months, to include a "NEW!!!" notification.
-	For current_script = 0 to ubound(script_array)
-		'Adds a "NEW!!!" notification to the description if the script is from the last two months.
-		If DateDiff("m", script_array(current_script).release_date, DateAdd("m", -2, date)) <= 0 then
-			script_array(current_script).description = "NEW " & script_array(current_script).release_date & "!!! --- " & script_array(current_script).description
-			script_array(current_script).release_date = "12/12/1999" 'backs this out and makes it really old so it doesn't repeat each time the dialog loops. This prevents NEW!!!... from showing multiple times in the description.
-		End if
-
-	Next
+	' 'Runs through each script in the array and generates a list of subcategories based on the category located in the function. Also modifies the script description if it's from the last two months, to include a "NEW!!!" notification.
+	' For current_script = 0 to ubound(script_array)
+	' 	'Adds a "NEW!!!" notification to the description if the script is from the last two months.
+	' 	If DateDiff("m", script_array(current_script).release_date, DateAdd("m", -2, date)) <= 0 then
+	' 		script_array(current_script).description = "NEW " & script_array(current_script).release_date & "!!! --- " & script_array(current_script).description
+	' 		script_array(current_script).release_date = "12/12/1999" 'backs this out and makes it really old so it doesn't repeat each time the dialog loops. This prevents NEW!!!... from showing multiple times in the description.
+	' 	End if
+	'
+	' Next
 
     dlg_len = 60
     For current_script = 0 to ubound(script_array)
