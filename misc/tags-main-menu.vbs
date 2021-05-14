@@ -151,7 +151,7 @@ function declare_tabbed_menu(tab_selected)
                     If script_array(current_script).show_script = TRUE Then
                         Call script_array(current_script).show_button(use_this_button)
                         If use_this_button = FALSE Then script_array(current_script).show_script = FALSE
-                        If script_array(current_script).in_testing = TRUE Then script_array(current_script).description = "IN TESTING - " & script_array(current_script).description
+                        ' If script_array(current_script).in_testing = TRUE Then script_array(current_script).description = "IN TESTING - " & script_array(current_script).description
                         ' MsgBox script_array(current_script).script_name & vbNewLine & "Use this button - " & use_this_button & vbNewLine & "show script - " & script_array(current_script).show_script
                     End If
                 Else
@@ -183,7 +183,7 @@ function declare_tabbed_menu(tab_selected)
                         script_array(current_script).show_script = TRUE
                         Call script_array(current_script).show_button(use_this_button)
                         If use_this_button = FALSE Then script_array(current_script).show_script = FALSE
-                        If script_array(current_script).in_testing = TRUE Then script_array(current_script).description = "IN TESTING - " & script_array(current_script).description
+                        ' If script_array(current_script).in_testing = TRUE Then script_array(current_script).description = "IN TESTING - " & script_array(current_script).description
                     End If
                 Next
                 ' MsgBox script_array(current_script).show_script
@@ -202,7 +202,7 @@ function declare_tabbed_menu(tab_selected)
                 If script_array(current_script).show_script = TRUE Then
                     Call script_array(current_script).show_button(use_this_button)
                     If use_this_button = FALSE Then script_array(current_script).show_script = FALSE
-                    If script_array(current_script).in_testing = TRUE Then script_array(current_script).description = "IN TESTING - " & script_array(current_script).description
+                    ' If script_array(current_script).in_testing = TRUE Then script_array(current_script).description = "IN TESTING - " & script_array(current_script).description
                 End If
                 ' MsgBox script_array(current_script).show_script
             ElseIf task_menu = TRUE Then
@@ -214,7 +214,7 @@ function declare_tabbed_menu(tab_selected)
                         script_array(current_script).show_script = TRUE
                         Call script_array(current_script).show_button(use_this_button)
                         If use_this_button = FALSE Then script_array(current_script).show_script = FALSE
-                        If script_array(current_script).in_testing = TRUE Then script_array(current_script).description = "IN TESTING - " & script_array(current_script).description
+                        ' If script_array(current_script).in_testing = TRUE Then script_array(current_script).description = "IN TESTING - " & script_array(current_script).description
                     End If
                 Next
                 ' MsgBox script_array(current_script).show_script
@@ -242,10 +242,10 @@ function declare_tabbed_menu(tab_selected)
             '     Next
             ' End if
             'Adds a "NEW!!!" notification to the description if the script is from the last two months.
-            If DateDiff("m", script_array(current_script).release_date, DateAdd("m", -2, date)) <= 0 then
-                If left(script_array(current_script).description, 3) <> "NEW" Then script_array(current_script).description = "NEW " & script_array(current_script).release_date & "!!! --- " & script_array(current_script).description
-                ' script_array(current_script).release_date = "12/12/1999" 'backs this out and makes it really old so it doesn't repeat each time the dialog loops. This prevents NEW!!!... from showing multiple times in the description.
-            End if
+            ' If DateDiff("m", script_array(current_script).release_date, DateAdd("m", -2, date)) <= 0 then
+            '     If left(script_array(current_script).description, 3) <> "NEW" Then script_array(current_script).description = "NEW " & script_array(current_script).release_date & "!!! --- " & script_array(current_script).description
+            '     ' script_array(current_script).release_date = "12/12/1999" 'backs this out and makes it really old so it doesn't repeat each time the dialog loops. This prevents NEW!!!... from showing multiple times in the description.
+            ' End if
 
         Next
 
