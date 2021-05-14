@@ -56,6 +56,23 @@ Call MAXIS_case_number_finder(MAXIS_case_number)
 HC_process = "Application"  'Defaulting - This is only viable option currently 
 closing_msg = "Success! Your AVS case note has been created. Please review for accuracy & any additional information."  'initial closing message. This may increment based on options selected. 
 
+'Adding case number if using the script from the DAIL scrubber
+If MAXIS_case_number = "" then 
+    EmReadscreen DAIL_panel, 4, 2, 48
+    If DAIL_panel = "DAIL" then 
+        EmReadscreen MAXIS_case_number, 8, 5, 73
+        MAXIS_case_number = trim(MAXIS_case_number)
+        'Defauling initial option based on the dail message. 
+        EMReadScreen full_message, 60, 6, 20
+        full_message = trim(full_message)
+        If Instr(full_message, "AVS 10-DAY CHECK IS DUE") then 
+            initial_option = "AVS Submission/Results" 
+        else
+            initial_option = "AVS Forms"
+        End if 
+    End if 
+End if 
+
 '----------------------------------------------------------------------------------------------------Initial dialog
 initial_help_text = "*** What is the AVS? ***" & vbNewLine & "--------------------" & vbNewLine & vbNewLine & _
 "The Account Validation Service (AVS) is a web-based service that provides information about some accounts held in financial institutions. It does not provide information on property assets such as cars or homes. AVS must be used once at application, and when a person changes to a Medical Assistance for People Who Are Age 65 or Older and People Who Are Blind or Have a Disability (MA-ABD) basis of eligibility and are subject to an asset test." & vbNewLine & vbNewLine & _
