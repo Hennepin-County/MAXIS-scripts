@@ -131,6 +131,14 @@ IF twelve_mo_contact_check = "IF SNAP IS OPEN, REVIEW TO SEE IF 12 MONTH CONTACT
 	run_from_GitHub(script_repository & "notices/12-month-contact.vbs")
 END IF
 
+'Run NOTES - AVS 
+If Instr(full_message, "AN UPDATED DHS-7823 - AVS AUTH FORM(S) HAS BEEN REQUESTED") OR _
+   Instr(full_message, "AVS 10-DAY CHECK IS DUE") OR _
+   Instr(full_message, "DHS-7823 - AVS AUTH FORM(S) HAVE BEEN REQUESTED FOR THIS") then 
+   match_found = True 
+   run_from_GitHub(script_repository & "notes/avs.vbs")
+ End if 
+   
 'RSDI/BENDEX info received by agency (loads BNDX SCRUBBER)
 EMReadScreen BENDEX_check, 47, 6, 30
 If BENDEX_check = "BENDEX INFORMATION HAS BEEN STORED - CHECK INFC" then
