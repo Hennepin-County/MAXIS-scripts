@@ -53,7 +53,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County
-CALL changelog_update("03/10/2021", "#117 Update to resolution dialog handling.", "MiKayla Handley, Hennepin County")
+CALL changelog_update("05/14/2021", "#410 Update to resolove bug with N/A and case notes.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("02/22/2021", "#117 Update to dialog for received handling. Added mandatory explanation for continuation of pre-appeal benefits.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("01/20/2021", "Initial version.", "MiKayla Handley, Hennepin County")
 
@@ -149,7 +149,7 @@ IF appeal_actions = "Received" THEN
 
     active_programs = ""        'Creates a variable that lists all the active.
     IF cash_active = TRUE or cash2_active = TRUE THEN active_programs = active_programs & "CASH, "
-    IF emer_active = TRUE THEN active_programs = active_programs & "Emergency, "
+    IF emer_active = TRUE THEN active_programs = active_programs & "EMERGENCY, "
     IF grh_active  = TRUE THEN active_programs = active_programs & "GRH, "
     IF snap_active = TRUE THEN active_programs = active_programs & "SNAP, "
     IF ive_active  = TRUE THEN active_programs = active_programs & "IV-E, "
@@ -301,6 +301,7 @@ IF appeal_actions = "Received" THEN
     	    IF how_appeal_rcvd_dropdown = "Select One:" THEN  err_msg = err_msg & vbNewLine & "* Please select how the appeal was received."
             IF appeal_action_dropdown = "Other" and other_notes = "" THEN  err_msg = err_msg & vbNewLine & "* Please advise what the appeal action was in other notes."
     	    IF docket_number = "" THEN err_msg = err_msg & vbNewLine & "* Please enter the docket number, if unknown enter N/A."
+            'IF claim_number = "" THEN err_msg = err_msg & vbNewLine & "* Please enter the Claim number from CCOL, if unknown enter N/A."
             IF benefits_continuing_dropdown = "Select:" then err_msg = err_msg & vbNewLine & "* Please select if the benefits will be continuing and explain your decision."
             IF benefits_continuing_explanation = "" then err_msg = err_msg & vbNewLine & "* Please advise why the benefits will or will not be continuing at pre-appeal level."
             IF proofs_attachments = "" then err_msg = err_msg & vbNewLine & "* Please advise what proofs or information has been provided."
@@ -317,21 +318,20 @@ IF appeal_actions = "Received" THEN
     IF snap_appeal_checkbox = CHECKED THEN appeal_programs = appeal_programs & "SNAP, "
     IF grh_appeal_checkbox = CHECKED THEN appeal_programs = appeal_programs & "GRH, "
     IF hc_appeal_checkbox = CHECKED THEN appeal_programs = appeal_programs & "HC, "
-    IF emer_appeal_checkbox = CHECKED THEN appeal_programs = appeal_programs & "Emergency, "
-    IF cca_appeal_checkbox = CHECKED THEN appeal_programs = appeal_programs & "CCA"
+    IF emer_appeal_checkbox = CHECKED THEN appeal_programs = appeal_programs & "EMERGENCY, "
+    IF cca_appeal_checkbox = CHECKED THEN appeal_programs = appeal_programs & "CCA, "
     IF ive_appeal_checkbox = CHECKED THEN appeal_programs = appeal_programs & "IV-E, "
-    IF ot_appeal_checkbox = CHECKED THEN appeal_programs = appeal_programs & "Other, "
-    IF BURIAL_ASSIST_checkbox = CHECKED THEN appeal_programs =  appeal_programs & "BURIAL ASSISTANCE,"
-    IF REVENUE_RECAP_checkbox = CHECKED THEN appeal_programs =  appeal_programs & "REVENUE RECAPTURE,"
-    IF SANCTION_checkbox = CHECKED THEN appeal_programs =  appeal_programs & "SANCTION,"
-    IF TRANSPORT_checkbox = CHECKED THEN appeal_programs =  appeal_programs & "TRANSPORT,"
-
+    IF BURIAL_ASSIST_checkbox = CHECKED THEN appeal_programs =  appeal_programs & "BURIAL ASSISTANCE, "
+    IF REVENUE_RECAP_checkbox = CHECKED THEN appeal_programs =  appeal_programs & "REVENUE RECAPTURE, "
+    IF SANCTION_checkbox = CHECKED THEN appeal_programs =  appeal_programs & "SANCTION, "
+    IF TRANSPORT_checkbox = CHECKED THEN appeal_programs =  appeal_programs & "TRANSPORT, "
+    IF ot_appeal_checkbox = CHECKED THEN appeal_programs = appeal_programs & "Other:, "
     appeal_programs = trim(appeal_programs)  'trims excess spaces of appeal_programs
     If right(appeal_programs, 1) = "," THEN appeal_programs = left(appeal_programs, len(appeal_programs) - 1)
         start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
         CALL write_variable_in_CASE_NOTE("-----Appeal " & appeal_actions & "-----")
         CALL write_bullet_and_variable_in_CASE_NOTE("Docket Number", docket_number)
-        CALL write_bullet_and_variable_in_CASE_NOTE("Claim(s) Number", claim_number)
+        'CALL write_bullet_and_variable_in_CASE_NOTE("Claim(s) Number", claim_number)
         CALL write_bullet_and_variable_in_CASE_NOTE("Date appeal request received", date_appeal_received)
         CALL write_bullet_and_variable_in_CASE_NOTE("How appeal request received", how_appeal_rcvd_dropdown)
         CALL write_bullet_and_variable_in_CASE_NOTE("Effective date of action being appealed", effective_date)
@@ -340,15 +340,13 @@ IF appeal_actions = "Received" THEN
         CALL write_bullet_and_variable_in_CASE_NOTE("Benefits continuing at pre-appeal level", benefits_continuing_dropdown)
         CALL write_bullet_and_variable_in_CASE_NOTE("Explanation", benefits_continuing_explanation)
         CALL write_bullet_and_variable_in_CASE_NOTE("Proofs/attachments", proofs_attachments)
-        CALL write_bullet_and_variable_in_CASE_NOTE ("Other Notes", other_notes)
-        CALL write_variable_in_CASE_NOTE ("---")
-        CALL write_bullet_and_variable_in_CASE_NOTE ("Application Pending", programs_applied_for)
-        CALL write_bullet_and_variable_in_CASE_NOTE ("Pended on", application_date)
-        CALL write_bullet_and_variable_in_CASE_NOTE ("Other Pending Programs", additional_programs_applied_for)
-        CALL write_bullet_and_variable_in_CASE_NOTE ("Active Programs", active_programs)
-        CALL write_variable_in_CASE_NOTE ("---")
-        CALL write_variable_in_CASE_NOTE (worker_signature)
-        PF3 ' to save CaseNote
+        CALL write_bullet_and_variable_in_CASE_NOTE("Other Notes", other_notes)
+        CALL write_bullet_and_variable_in_CASE_NOTE("Application Pending", programs_applied_for)
+        CALL write_bullet_and_variable_in_CASE_NOTE("Pended on", application_date)
+        CALL write_bullet_and_variable_in_CASE_NOTE("Other Pending Programs", additional_programs_applied_for)
+        CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", active_programs)
+        CALL write_variable_in_CASE_NOTE("---")
+        CALL write_variable_in_CASE_NOTE(worker_signature)
     END IF
 
 IF appeal_actions = "Pending Request"  THEN
@@ -375,6 +373,7 @@ IF appeal_actions = "Pending Request"  THEN
             err_msg = ""
             Dialog Dialog1
             cancel_confirmation
+            IF docket_number = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a docket number or enter N/A if unknown."
             IF isdate(date_requested) = false THEN err_msg = err_msg & vbNewLine & "* Please complete date of hearing."
             IF verification_needed = "" THEN err_msg = err_msg & vbNewLine & "* Please enter the pending verifications"
             IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "* Please enter your worker signature."
@@ -391,16 +390,15 @@ IF appeal_actions = "Pending Request"  THEN
     Call write_bullet_and_variable_in_CASE_NOTE("Other Notes", other_notes)
     Call write_variable_in_CASE_NOTE ("---")
     Call write_variable_in_CASE_NOTE(worker_signature)
-    PF3
 END IF
 
 IF appeal_actions = "Summary Completed"  THEN
     '-------------------------------------------------------------------------------------------------DIALOG
     Dialog1 = "" 'Blanking out previous dialog detail
     BeginDialog Dialog1, 0, 0, 276, 85, "Appeal Summary Completed"
-      EditBox 60, 5, 50, 15, docket_number
+      EditBox 65, 5, 50, 15, docket_number
       EditBox 210, 5, 60, 15, date_appeal_rcvd
-      EditBox 60, 25, 50, 15, claim_number
+      EditBox 65, 25, 50, 15, claim_number
       EditBox 210, 25, 60, 15, effective_date
       EditBox 95, 45, 175, 15, action_client_is_appealing
       EditBox 70, 65, 115, 15, worker_signature
@@ -409,20 +407,19 @@ IF appeal_actions = "Summary Completed"  THEN
         CancelButton 230, 65, 40, 15
       Text 135, 10, 75, 10, "Date appeal received:"
       Text 130, 30, 80, 10, "Effective date of action:"
-      Text 5, 30, 50, 10, "Claim number:"
+      Text 5, 30, 60, 10, "Claim number(s):"
       Text 5, 50, 85, 10, "Action client is appealing:"
       Text 5, 10, 55, 10, "Docket number:"
       Text 5, 70, 60, 10, "Worker signature:"
     EndDialog
-
 
     Do
         Do
             err_msg = ""
             Dialog Dialog1
             cancel_confirmation
-            IF IsNumeric(docket_number) = false THEN err_msg = err_msg & vbNewLine & "* Please enter a valid claim number or enter N/A if unknown."
-            IF IsNumeric(claim_number) = false THEN err_msg = err_msg & vbNewLine & "* Please enter a valid claim number."
+            IF docket_number = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a valid docket number or enter N/A if unknown."
+            'IF IsNumeric(claim_number) = false THEN err_msg = err_msg & vbNewLine & "* Please enter a valid claim number."
             IF Isdate(date_appeal_rcvd) = false THEN err_msg = err_msg & vbNewLine & "* Please enter a date for the appeal."
             IF Isdate(effective_date) = false THEN err_msg = err_msg & vbNewLine & "* Please enter the effective date."
             IF action_client_is_appealing = "" THEN err_msg = err_msg & vbNewLine & "* Please enter action that client is appealing."
@@ -434,11 +431,11 @@ IF appeal_actions = "Summary Completed"  THEN
     start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
     Call write_variable_in_CASE_NOTE("-----Appeal Summary Completed-----")
     Call write_bullet_and_variable_in_CASE_NOTE("Docket number:", docket_number)
+    CALL write_bullet_and_variable_in_CASE_NOTE("Claim(s) number", claim_number)
     Call write_bullet_and_variable_in_CASE_NOTE("Date appeal request received:", date_appeal_rcvd)
     Call write_bullet_and_variable_in_CASE_NOTE("Effective date of action being appealed:", effective_date)
     Call write_bullet_and_variable_in_CASE_NOTE("Action client is appealing:", action_client_is_appealing)
     Call write_variable_in_CASE_NOTE(worker_signature)
-    PF3
 END IF
 
 IF appeal_actions = "Reconsideration" THEN
@@ -484,13 +481,12 @@ IF appeal_actions = "Reconsideration" THEN
     Call write_variable_in_CASE_NOTE("-----Reconsideration-----")
     CALL write_bullet_and_variable_in_CASE_NOTE("Docket Number", docket_number)
     Call write_bullet_and_variable_in_CASE_NOTE("Date Of Hearing", hearing_date)
-    Call write_bullet_and_variable_in_CASE_NOTE("Did Client Attend The Appeal", appeal_attendence)
-    Call write_bullet_and_variable_in_CASE_NOTE("Hearing Details", hearing_details)
+    Call write_bullet_and_variable_in_CASE_NOTE("Did client attend the appeal", appeal_attendence)
+    Call write_bullet_and_variable_in_CASE_NOTE("Hearing details", hearing_details)
     Call write_bullet_and_variable_in_CASE_NOTE("Anticipated date of decision", anticipated_date_result)
     Call write_bullet_and_variable_in_CASE_NOTE("Other Notes", other_notes)
     Call write_variable_in_CASE_NOTE ("---")
     Call write_variable_in_CASE_NOTE(worker_signature)
-    PF3
 END IF
 
 IF appeal_actions = "Hearing Information" THEN
@@ -541,29 +537,29 @@ IF appeal_actions = "Hearing Information" THEN
     Call write_bullet_and_variable_in_CASE_NOTE("Other Notes", other_notes)
     Call write_variable_in_CASE_NOTE ("---")
     Call write_variable_in_CASE_NOTE(worker_signature)
-    PF3
 END IF
 
 IF appeal_actions = "Decision Received" THEN
 '-------------------------------------------------------------------------------------------------DIALOG
     Dialog1 = "" 'Blanking out previous dialog detail
-    BeginDialog Dialog1, 0, 0, 346, 120, "Appeal Decision Received"
+    BeginDialog Dialog1, 0, 0, 336, 105, "Appeal Decision Received"
       EditBox 270, 5, 60, 15, docket_number
       EditBox 85, 25, 245, 15, disposition_of_appeal
       EditBox 85, 45, 245, 15, actions_needed
       EditBox 85, 65, 60, 15, date_signed_by_judge
-      DropListBox 275, 65, 55, 15, "Select One:"+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"NA", compliance_form_needed
+      DropListBox 275, 65, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO"+chr(9)+"N/A", compliance_form_needed
       EditBox 85, 85, 135, 15, worker_signature
       ButtonGroup ButtonPressed
         OkButton 230, 85, 50, 15
         CancelButton 280, 85, 50, 15
-      Text 5, 30, 75, 10, "Disposition of appeal:"
-      Text 155, 70, 115, 10, "SNAP compliance form completed:"
-      Text 5, 50, 55, 10, "Actions needed:"
-      Text 5, 90, 60, 10, "Worker Signature:"
       Text 230, 10, 40, 10, "Docket #:"
+      Text 5, 30, 75, 10, "Disposition of appeal:"
+      Text 5, 50, 55, 10, "Actions needed:"
       Text 5, 70, 75, 10, "Date signed by judge:"
+      Text 155, 70, 115, 10, "SNAP compliance form completed:"
+      Text 5, 90, 60, 10, "Worker Signature:"
     EndDialog
+
 
     'Shows dialog and creates and displays an error message if worker completes things incorrectly.
     Do
@@ -590,52 +586,56 @@ IF appeal_actions = "Decision Received" THEN
      Call write_bullet_and_variable_in_CASE_NOTE("Date signed by judge", date_signed_by_judge)
      Call write_variable_in_CASE_NOTE ("---")
      Call write_variable_in_CASE_NOTE(worker_signature)
-     PF3
 END IF
 
 IF appeal_actions = "Resolution" THEN
     '-------------------------------------------------------------------------------------------------DIALOG
-    Dialog1 = "" 'Blanking out previous dialog detail "TODO change to yes/no dropdown"
-    BeginDialog Dialog1, 0, 0, 231, 195, "Appeal Resolution"
-      EditBox 130, 30, 40, 15, overpayment_amount
-      DropListBox 185, 15, 35, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", Further_Action_Required_yn_dropdown
-      DropListBox 185, 30, 35, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", Overpayments_Required_yn_dropdown
-      DropListBox 185, 45, 35, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", Confirmed_Resolution_yn_dropdown
-      DropListBox 185, 60, 35, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", Withdraw_with_Appellant_yn_dropdown
-      DropListBox 185, 75, 35, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", Notified_EWS_Withdraw_yn_dropdown
-      DropListBox 185, 90, 35, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", Referred_Appellant_yn_dropdown
-      EditBox 95, 115, 130, 15, actions_taken_required
-      EditBox 50, 135, 175, 15, other_notes
-      EditBox 110, 155, 115, 15, worker_signature
+    Dialog1 = "" 'Blanking out previous dialog detail
+    BeginDialog Dialog1, 0, 0, 231, 215, "Appeal Resolution"
+      DropListBox 180, 15, 40, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO"+chr(9)+"N/A", Further_Action_Required_dropdown
+      DropListBox 180, 30, 40, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO"+chr(9)+"N/A", Overpayments_Required_dropdown
+      EditBox 95, 45, 40, 15, claim_number
+      EditBox 180, 45, 40, 15, overpayment_amount
+      DropListBox 180, 65, 40, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO"+chr(9)+"N/A", Confirmed_Resolution_dropdown
+      DropListBox 180, 80, 40, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO"+chr(9)+"N/A", Withdrawn_with_appellant_dropdown
+      DropListBox 180, 95, 40, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO"+chr(9)+"N/A", Notified_EWS_Withdraw_dropdown
+      DropListBox 180, 110, 40, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO"+chr(9)+"N/A", Referred_Appellant_dropdown
+      EditBox 95, 135, 130, 15, actions_taken_required
+      EditBox 50, 155, 175, 15, other_notes
+      EditBox 95, 175, 130, 15, worker_signature
       ButtonGroup ButtonPressed
-        OkButton 135, 175, 45, 15
-        CancelButton 180, 175, 45, 15
-      Text 10, 65, 85, 10, "Withdrawn with Appellant:"
-      Text 10, 80, 125, 10, "Notified Hennepin EWS of Withdrawl:"
-      Text 10, 95, 170, 10, "Referred Appellant to DHS Appeals 651-431-3600:"
+        OkButton 130, 195, 45, 15
+        CancelButton 180, 195, 45, 15
+      Text 10, 85, 85, 10, "Withdrawn with Appellant:"
+      Text 10, 100, 125, 10, "Notified Hennepin EWS of Withdrawl:"
+      Text 10, 115, 170, 10, "Referred Appellant to DHS Appeals 651-431-3600:"
       Text 10, 20, 80, 10, "Further Action Required:"
-      Text 5, 140, 45, 10, "Other Notes:"
-      Text 100, 35, 30, 10, "Amount:"
+      Text 5, 160, 45, 10, "Other Notes:"
+      Text 150, 50, 30, 10, "Amount:"
       Text 10, 35, 85, 10, "Overpayments Required:"
-      Text 5, 120, 85, 10, "Actions Taken/Required:"
-      GroupBox 5, 5, 220, 105, "Select to Confirm"
-      Text 10, 50, 95, 10, "Confirmed Resolution:"
-      Text 5, 160, 65, 10, "Worker Signature:"
+      Text 5, 140, 85, 10, "Actions Taken/Required:"
+      GroupBox 5, 5, 220, 125, "Select to Confirm:"
+      Text 10, 70, 80, 10, "Confirmed Resolution:"
+      Text 5, 180, 65, 10, "Worker Signature:"
+      Text 35, 50, 60, 10, "Claim(s) Number:"
     EndDialog
+
 
     Do
         DO
             err_msg = ""
             Dialog Dialog1
             cancel_confirmation
-            IF Further_Action_Required_yn_dropdown = "Select:" THEN err_msg = err_msg & vbNewLine & "* Please select YES or NO what action is needed by caseworker."
-            IF Overpayments_Required_yn_dropdown = "Select:" THEN err_msg = err_msg & vbNewLine & "* Please select YES or NO if there is an overpayment required."
-            IF Confirmed_Resolution_yn_dropdown = "Select:" THEN err_msg = err_msg & vbNewLine & "* Please select YES or NO if the resolution has been confirmed."
-            IF Withdraw_with_Appellant_yn_dropdown = "Select:" THEN err_msg = err_msg & vbNewLine & "* Please select YES or NO if the withdrawl was done with the appellant."
-            IF Notified_EWS_Withdraw_yn_dropdown = "Select:" THEN err_msg = err_msg & vbNewLine & "* Please select YES or NO if ES has been notified."
-            IF Referred_Appellant_yn_dropdown = "Select:" THEN err_msg = err_msg & vbNewLine & "* Please select YES or NO if appellant has been referred."
-            IF Further_Action_Required_yn_dropdown = "YES" and actions_taken_required = "" THEN err_msg = err_msg & vbNewLine & "Please enter what action is needed by caseworker."
-            IF Overpayments_Required_yn_dropdown = "YES" and overpayment_amount = "" THEN err_msg = err_msg & vbNewLine & "Please enter the amount of the overpayment, if unknown enter N/A."
+            'IF IsNumeric(claim_number) = false THEN err_msg = err_msg & vbNewLine & "* Please enter a valid claim number."
+            'IF IsNumeric(amount) = false THEN err_msg = err_msg & vbNewLine & "* Please enter a valid claim amount." blanked out because they are not always there
+            IF Further_Action_Required_dropdown = "Select:" THEN err_msg = err_msg & vbNewLine & "* Please select YES or NO what action is needed by caseworker."
+            IF Overpayments_Required_dropdown = "Select:" THEN err_msg = err_msg & vbNewLine & "* Please select YES or NO if there is an overpayment required."
+            IF Confirmed_Resolution_dropdown = "Select:" THEN err_msg = err_msg & vbNewLine & "* Please select YES or NO if the resolution has been confirmed."
+            IF Withdrawn_with_appellant_dropdown = "Select:" THEN err_msg = err_msg & vbNewLine & "* Please select YES or NO if the withdrawl was done with the appellant."
+            IF Notified_EWS_Withdraw_dropdown = "Select:" THEN err_msg = err_msg & vbNewLine & "* Please select YES or NO if ES has been notified."
+            IF Referred_Appellant_dropdown = "Select:" THEN err_msg = err_msg & vbNewLine & "* Please select YES or NO if appellant has been referred."
+            IF Further_Action_Required_dropdown = "YES" and actions_taken_required = "" THEN err_msg = err_msg & vbNewLine & "Please enter what action is needed by caseworker."
+            IF Overpayments_Required_dropdown = "YES" and overpayment_amount = "" THEN err_msg = err_msg & vbNewLine & "Please enter the amount of the overpayment, if unknown enter N/A."
             IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "* Please enter your worker signature."
             IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
         Loop until err_msg = ""
@@ -644,18 +644,18 @@ IF appeal_actions = "Resolution" THEN
 
     start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
     Call write_variable_in_CASE_NOTE("-----Appeal Resolution-----")
-    IF Overpayments_Required_yn_dropdown = "YES" THEN
+    IF Overpayments_Required_dropdown = "YES" THEN
         Call write_variable_in_CASE_NOTE("* Overpayments Required")
+        CALL write_bullet_and_variable_in_CASE_NOTE("Claim(s) Number", claim_number)
         Call write_bullet_and_variable_in_CASE_NOTE("Overpayment Amount", overpayment_amount)
     END IF
-    IF Confirmed_Resolution_yn_dropdown = "YES" THEN Call write_variable_in_CASE_NOTE("* Confirmed Resolution")
-    IF Withdraw_with_Appellant_yn_dropdown = "YES"  THEN Call write_variable_in_CASE_NOTE("* Withdrawn with Appellant")
-    IF Notified_EWS_Withdraw_yn_dropdown = "YES"  THEN Call write_variable_in_CASE_NOTE("* Notified Hennepin EWS of Withdrawl")
-    IF Referred_Appellant_yn_dropdown = "YES"  THEN Call write_variable_in_CASE_NOTE("* Referred Appellant to DHS Appeals 651-431-3600")
-    IF actions_taken_required <> "" THEN Call write_bullet_and_variable_in_CASE_NOTE("Actions Taken/Required:", actions_taken_required)
+    Call write_bullet_and_variable_in_CASE_NOTE("Confirmed Resolution", Confirmed_Resolution_dropdown)
+    Call write_bullet_and_variable_in_CASE_NOTE("Withdrawn with Appellant", Withdrawn_with_appellant_dropdown)
+    Call write_bullet_and_variable_in_CASE_NOTE("Notified Hennepin EWS of Withdrawl", Notified_EWS_Withdraw_dropdown )
+    Call write_bullet_and_variable_in_CASE_NOTE("Referred Appellant to DHS Appeals 651-431-3600", Referred_Appellant_dropdown)
+    Call write_bullet_and_variable_in_CASE_NOTE("Actions Taken/Required", actions_taken_required)
     Call write_bullet_and_variable_in_CASE_NOTE("Other Notes", other_notes)
     Call write_variable_in_CASE_NOTE ("---")
     call write_variable_in_CASE_NOTE(worker_signature)
-    PF3
 END IF
 script_end_procedure_with_error_report("Success! CASE/NOTE has been updated please review to ensure information was noted correctly.")
