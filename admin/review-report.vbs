@@ -78,7 +78,6 @@ function start_a_new_spec_memo_and_continue(success_var)
 	EMSearch "SOCWKR", row, col         'Row and col are variables which change from their above declarations if "SOCWKR" string is found.
 	IF row > 4 THEN                     'If it isn't 4, that means it was found.
 		EMReadScreen this_is_it, 60, row, col
-		MsgBox "SOCWKR found!" & vbNewLine & "ROW - " & row & vbNewLine & "COL - " & col & vbNewLine & "~" & this_is_it & "~"
 	    swkr_row = row                                          'Logs the row it found the SOCWKR string as swkr_row
 	    call navigate_to_MAXIS_screen("STAT", "SWKR")         'Navigates to STAT/SWKR to check and see if forms go to the SWKR
 	    EMReadscreen forms_to_swkr, 1, 15, 63                'Reads for the "Forms to SWKR?" Y/N response on the panel.
@@ -672,7 +671,6 @@ If renewal_option = "Send NOMIs" then
 	col_to_use = 1
 	Do
 		col_header = trim(ObjExcel.Cells(1, col_to_use).Value)
-
 		If col_header = "CASH (" & date_header & ")" Then cash_stat_excel_col = col_to_use
 		If col_header = "SNAP (" & date_header & ")" Then snap_stat_excel_col = col_to_use
 		If col_header = "HC (" & date_header & ")" Then hc_stat_excel_col = col_to_use
@@ -3023,7 +3021,6 @@ ElseIf renewal_option <> "Send NOMIs" Then
 End if
 
 If renewal_option = "Send NOMIs" Then
-
 	MAXIS_footer_month = CM_plus_1_mo							'Setting the footer month and year based on the review month. We do not run statistics in CM + 2
 	MAXIS_footer_year = CM_plus_1_yr
 
@@ -3049,7 +3046,7 @@ If renewal_option = "Send NOMIs" Then
 		If col_header = "NOMI Sent" Then notc_col = col_to_use
 		If col_header = "NOMI Date" Then notc_date_col = col_to_use
 		If col_header = "APPT NOTC Sent" Then appt_notc_col = col_to_use
-		If col_header = "APPT NOTC Date" Then last_apt_notc_col = col_to_use
+		If col_header = "APPT NOTC Date" Then last_apt_notc_col = col_to_use + 1
 	Loop until col_header = ""
 
 	' MsgBox "NOTC Col - " & notc_col & vbCr & "NOTC Date Col - " & notc_date_col
@@ -3058,11 +3055,14 @@ If renewal_option = "Send NOMIs" Then
 
 		'Insert columns in excel for additional information to be added
 		column_place = last_apt_notc_col_letter & "1"
-		Set objRange = objExcel.Range(column_end).EntireColumn
+		Set objRange = objExcel.Range(column_place).EntireColumn
+
+		If notc_date_col = "" Then objRange.Insert(xlShiftToRight)			'We neeed one more columns
+		If notc_col = "" Then objRange.Insert(xlShiftToRight)			'We neeed one more columns
 
 		If notc_date_col = "" Then
-			objRange.Insert(xlShiftToRight)			'We neeed one more columns
-			notc_date_col = col_to_use		'Setting the column to individual variables so we enter the found information in the right place
+			' objRange.Insert(xlShiftToRight)			'We neeed one more columns
+			notc_date_col = last_apt_notc_col + 1		'Setting the column to individual variables so we enter the found information in the right place
 
 			ObjExcel.Cells(1, notc_date_col).Value = "NOMI Date"			'creating the column headers for the statistics information for the day of the run.
 			objExcel.Cells(1, notc_date_col).Font.Bold = True		'bold font'
@@ -3070,9 +3070,9 @@ If renewal_option = "Send NOMIs" Then
 			ObjExcel.columns(notc_date_col).AutoFit() 						'fsizing the columns'
 		End If
 		If notc_col = "" Then
-			objRange.Insert(xlShiftToRight)			'We neeed one more columns
-			notc_col = col_to_use		'Setting the column to individual variables so we enter the found information in the right place
-			col_to_use = col_to_use + 1
+			' objRange.Insert(xlShiftToRight)			'We neeed one more columns
+			notc_col = last_apt_notc_col 		'Setting the column to individual variables so we enter the found information in the right place
+			' col_to_use = col_to_use + 1
 
 			ObjExcel.Cells(1, notc_col).Value = "NOMI Sent"			'creating the column headers for the statistics information for the day of the run.
 			objExcel.Cells(1, notc_col).Font.Bold = True		'bold font'
@@ -3081,6 +3081,10 @@ If renewal_option = "Send NOMIs" Then
 		End If
 
 	End If
+	' MsgBox "NOMI Sent Col - " & notc_col & vbCr &_
+	' 	   "NOMI Date Col - " & notc_date_col & vbCr &_
+	' 	   "APPT Sent Col - " & appt_notc_col & vbCr &_
+	' 	   "APPT Date Col - " & last_apt_notc_col
 
 	today_mo = DatePart("m", date)
 	today_mo = right("00" & today_mo, 2)
@@ -3115,8 +3119,8 @@ If renewal_option = "Send NOMIs" Then
 			If MFIP_status = True Then programs = "MFIP"
 			If SNAP_status = True Then programs = "SNAP"
 
-			If er_with_intherview = True AND interview_date_as_of_today = "" AND appt_notc_sent = "Y" Then
-
+			' If er_with_intherview = True AND interview_date_as_of_today = "" AND appt_notc_sent = "Y" Then						'USING DIFFERENT CRITERA DUE TO WAIVED INTVW FOR SNAP DURING COVID-19'
+			If er_with_intherview = True AND interview_date_as_of_today = "" AND appt_notc_sent = "Y" AND MFIP_status = True Then
 				Call start_a_new_spec_memo_and_continue(memo_started)
 
 				IF memo_started = True THEN         'The function will return this as FALSE if PF5 does not move past MEMO DISPLAY
@@ -3170,7 +3174,7 @@ If renewal_option = "Send NOMIs" Then
 				If ObjExcel.Cells(excel_row, notc_col).Value = "Y" Then
 
 					start_a_blank_case_note
-					CALL write_variable_in_CASE_NOTE("*** NOMI Sent for SNAP Recertification***")
+					CALL write_variable_in_CASE_NOTE("*** NOMI Sent for " & programs & " Recertification***")
 					if caf_date_as_of_today <> "" then CALL write_variable_in_CASE_NOTE("* Recertification app received on " & caf_date_as_of_today)
 					if caf_date_as_of_today = "" then CALL write_variable_in_CASE_NOTE("* Recertification app has NOT been received. Client must submit paperwork.")
 					CALL write_variable_in_CASE_NOTE("* A notice was previously sent to client with detail about how to call in for an interview.")
@@ -3183,6 +3187,8 @@ If renewal_option = "Send NOMIs" Then
 					PF3
 				End If
 
+			ElseIf er_with_intherview = True  AND MFIP_status = FALSE Then
+				ObjExcel.Cells(excel_row, notc_col).Value = "Not MFIP"
 			ElseIf er_with_intherview = True AND appt_notc_sent <> "Y" Then
 				ObjExcel.Cells(excel_row, notc_col).Value = "Check APPT NOTC"
 			ElseIf er_with_intherview = True AND interview_date_as_of_today <> "" Then
@@ -3234,7 +3240,7 @@ If renewal_option = "Send NOMIs" Then
 
 	objExcel.Cells(entry_row, 4).Value      = "Percentage INTV Cases with NOMIs"           'calculation of the percent of successful notices
 	objExcel.Cells(entry_row, 4).Font.Bold 	= TRUE
-	objExcel.Cells(entry_row, 5).Value      = "=B" & appt_row & "/B" & total_row
+	objExcel.Cells(entry_row, 5).Value      = "=E" & appt_row & "/E" & total_row
 	objExcel.Cells(entry_row, 5).NumberFormat = "0.00%"		'Formula should be percent
 	entry_row = entry_row + 1
 
@@ -3246,10 +3252,12 @@ If renewal_option = "Send NOMIs" Then
 
 	objExcel.Cells(entry_row, 4).Value      = "Percentage INTV Done"           'calculation of the percent of successful notices
 	objExcel.Cells(entry_row, 4).Font.Bold 	= TRUE
-	objExcel.Cells(entry_row, 5).Value      = "=B" & intv_row & "/B" & total_row
+	objExcel.Cells(entry_row, 5).Value      = "=E" & intv_row & "/E" & total_row
 	objExcel.Cells(entry_row, 5).NumberFormat = "0.00%"		'Formula should be percent
 	entry_row = entry_row + 1
 
+	ObjExcel.columns(4).AutoFit()
+	ObjExcel.columns(5).AutoFit()
 	end_msg = end_msg & vbCr & vbCr & "NOMIs have been sent on " & successful_notices & " cases today. Information added to the Review Report Excel Document"
 End If
 
