@@ -5967,7 +5967,7 @@ If interview_required = TRUE Then
     Else
         CAF_progs = "None"
     End If
-    Call write_bullet_and_variable_in_CASE_NOTE("Programs requested ON CAF", CAF_progs)
+    Call write_bullet_and_variable_in_CASE_NOTE("Programs requested in writing on the form", CAF_progs)
     Call write_bullet_and_variable_in_CASE_NOTE("Cash requested", cash_other_req_detail)
     Call write_bullet_and_variable_in_CASE_NOTE("SNAP requested", snap_other_req_detail)
     Call write_bullet_and_variable_in_CASE_NOTE("EMER requested", emer_other_req_detail)
@@ -6054,7 +6054,7 @@ End If
 If qual_questions_yes = TRUE Then
     Call start_a_blank_CASE_NOTE
 
-    Call write_variable_in_CASE_NOTE("CAF Qualifying Questions had an answer of 'YES' for at least one question")
+    Call write_variable_in_CASE_NOTE("Qualifying Questions had an answer of 'YES' for at least one question")
     If qual_question_one = "Yes" Then Call write_bullet_and_variable_in_CASE_NOTE("Fraud/DISQ for IPV (program violation)", qual_memb_one)
     If qual_question_two = "Yes" Then Call write_bullet_and_variable_in_CASE_NOTE("SNAP in more than One State", qual_memb_two)
     If qual_question_three = "Yes" Then Call write_bullet_and_variable_in_CASE_NOTE("Fleeing Felon", qual_memb_three)
@@ -6085,7 +6085,7 @@ If interview_note = FALSE Then
     Else
         CAF_progs = "None"
     End If
-    Call write_bullet_and_variable_in_CASE_NOTE("Programs requested ON CAF", CAF_progs)
+    Call write_bullet_and_variable_in_CASE_NOTE("Programs requested in writing on the form", CAF_progs)
     Call write_bullet_and_variable_in_CASE_NOTE("Cash requested", cash_other_req_detail)
     Call write_bullet_and_variable_in_CASE_NOTE("SNAP requested", snap_other_req_detail)
     Call write_bullet_and_variable_in_CASE_NOTE("EMER requested", emer_other_req_detail)
@@ -6436,7 +6436,7 @@ IF client_delay_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* PND2
 If TIKL_checkbox Then CALL write_variable_in_CASE_NOTE("* TIKL set to take action on " & DateAdd("d", 30, CAF_datestamp))
 If client_delay_TIKL_checkbox Then CALL write_variable_in_CASE_NOTE("* TIKL set to update PND2 for Client Delay on " & DateAdd("d", 10, CAF_datestamp))
 
-If qual_questions_yes = FALSE Then Call write_variable_in_CASE_NOTE("* All CAF Qualifying Questions answered 'No'.")
+If qual_questions_yes = FALSE Then Call write_variable_in_CASE_NOTE("* All Qualifying Questions answered 'No'.")
 Call write_bullet_and_variable_in_CASE_NOTE("Notes", other_notes)
 If trim(verifs_needed) <> "" Then Call write_variable_in_CASE_NOTE("** VERIFICATIONS REQUESTED - See previous case note for detail")
 ' IF move_verifs_needed = False THEN CALL write_bullet_and_variable_in_CASE_NOTE("Verifs needed", verifs_needed)			'IF global variable move_verifs_needed = False (on FUNCTIONS FILE), it'll case note at the bottom.
@@ -6452,7 +6452,7 @@ IF SNAP_recert_is_likely_24_months = TRUE THEN					'if we determined on stat/rev
 	END IF
 END IF
 
-end_msg = "Success! CAF has been successfully noted. Please remember to run the Approved Programs, Closed Programs, or Denied Programs scripts if  results have been APP'd."
+end_msg = "Success! " & CAF_form & " has been successfully noted. Please remember to run the Approved Programs, Closed Programs, or Denied Programs scripts if  results have been APP'd."
 If do_not_update_prog = 1 Then end_msg = end_msg & vbNewLine & vbNewLine & "It was selected that PROG would NOT be updated because " & no_update_reason
 If interview_waived = TRUE Then end_msg = "INTERVIEW WAIVED" & vbCR & vbCr & end_msg
 
