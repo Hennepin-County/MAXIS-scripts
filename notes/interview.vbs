@@ -8271,3 +8271,27 @@ Else
 End If
 
 Call script_end_procedure_with_error_report(end_msg)
+
+
+
+'POLICY NOTES
+'
+' Here is what Ann from Internal Services said about additional training:
+'
+' There is a training in IPAM that covers how to interview and covers annotating.
+'
+' Per CM
+' WHAT IS A COMPLETE APPLICATION (state.mn.us)
+' https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=cm_00051203
+' obtain the answers from the client at the time of the interview and clearly document the information provided.
+'
+' APPLICATION INTERVIEWS (state.mn.us)
+' https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=cm_00051212
+' Nothing mentioned in this section either
+'
+' IPAM
+' An Eligibility Workers Guide to the Combined Application Form (With Answers).pdf (state.mn.us)
+' https://www.dhssir.cty.dhs.state.mn.us/MAXIS/trntl/_layouts/15/WopiFrame.aspx?sourcedoc=%7B3230AF4F-4FA7-448C-BAA7-506671E03A49%7D&file=An%20Eligibility%20Workers%20Guide%20to%20the%20Combined%20Application%20Form%20(With%20Answers).pdf&action=default&IsList=1&ListId=%7B032C9304-E9F4-4ED6-90A0-92F9CC18CD31%7D&ListItemId=2
+' Answer section page 64
+' 1) On what form do you record information from the interview?
+' Information from the interview must be recorded on the CAF and in MAXIS CASE/NOTES, in sufficient detail for other workers and supervisors to follow the adequacy of the certification process and the accuracy of your decisions.
