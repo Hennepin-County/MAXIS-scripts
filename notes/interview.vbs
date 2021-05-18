@@ -6807,16 +6807,16 @@ Do
 		  Text 17, 115, 3, 10, "-"
 		  Text 20, 115, 275, 10, "To investigate the accuracy of the information in your application"
 		  Text 15, 125, 275, 20, "After we have begun to provide services or support to you, we may collect additional information:"
-		  Text 17, 140, 3, 10, "-"
-		  Text 20, 140, 275, 10, "To make reports, do research, do audits, and evaluate our programs"
-		  Text 17, 150, 3, 10, "-"
-		  Text 20, 150, 275, 10, "To investigate reports of people who may lie about the help they need"
-		  Text 17, 160, 3, 10, "-"
-		  Text 20, 160, 275, 20, "To collect money from other agencies, like insurance companies, if they should pay for your care"
-		  Text 17, 175, 3, 10, "-"
-		  Text 20, 175, 275, 10, "To collect money from the state or federal government for help we give you."
-		  Text 17, 185, 3, 10, "-"
-		  Text 20, 185, 275, 20, "When your or your family's circumstances change and you are required to report the change (see Client Responsibilities and Rights - DHS-4163)"
+		  Text 17, 145, 3, 10, "-"
+		  Text 20, 145, 275, 10, "To make reports, do research, do audits, and evaluate our programs"
+		  Text 17, 155, 3, 10, "-"
+		  Text 20, 155, 275, 10, "To investigate reports of people who may lie about the help they need"
+		  Text 17, 165, 3, 10, "-"
+		  Text 20, 165, 275, 20, "To collect money from other agencies, like insurance companies, if they should pay for your care"
+		  Text 17, 180, 3, 10, "-"
+		  Text 20, 180, 275, 10, "To collect money from the state or federal government for help we give you."
+		  Text 17, 190, 3, 10, "-"
+		  Text 20, 190, 275, 20, "When your or your family's circumstances change and you are required to report the change (see Client Responsibilities and Rights - DHS-4163)"
 		  Text 15, 210, 275, 10, "Why do we ask you for your Social Security number?"
 		  Text 20, 220, 275, 75, "We need your Social Security number to give you medical assistance, some kinds of financial help, or child support enforcement services (42 CFR 435.910 [2006]; Minn. Stat. 256D.03, subd.3(h); Minn. Stat.256L.04, subd. 1a; 45 CFR 205.52 [2001]; 42 USC 666; 45 CFR 303.30 [2001]). We also need your Social Security Number to verify identity and prevent duplication of state and federal benefits. Additionally, your Social Security Number is used to conduct computer data matches with collaborative, nonprofit and private agencies to verify income, resources, or other information that may affect your eligibility and/or benefits."
 		  Text 20, 285, 275, 10, "You do not have to give us the Social Security Number:"
@@ -6828,35 +6828,35 @@ Do
 		  Text 25, 315, 500, 10, "If you are not a United States citizen and are applying for Emergency Medical Assistance only"
 		  Text 22, 325, 3, 10, "-"
 		  Text 25, 325, 500, 20, "If you are from another country, in the United States on a temporary basis and do not have permission from the United States Citizenship and Immigration Services to live in the United States permanently"
-		  Text 22, 345, 3, 10, "-"
-		  Text 25, 345, 500, 10, "If you are living in the United States without the knowledge or approval of the U.S. Citizenship and Immigration Services."
+		  Text 22, 342, 3, 10, "-"
+		  Text 25, 342, 500, 10, "If you are living in the United States without the knowledge or approval of the U.S. Citizenship and Immigration Services."
 		  Text 305, 35, 225, 10, "Do you have to answer the questions we ask?"
-		  Text 310, 45, 225, 45, "You do not have to give us your personal information. Without the information, we may not be able to help you. If you give us wrong information on purpose, you can be investigated and charged with fraud."
-		  Text 305, 90, 225, 10, "With whom may we share information?"
-		  Text 305, 100, 225, 35, "We will only share information about you as needed and as allowed or required by law. We may share your information with the following agencies or persons who need the information to do their jobs:"
-		  Text 307, 125, 3, 10, "-"
-		  Text 310, 125, 225, 35, "Employees or volunteers with other state, county, local, federal, collaborative, nonprofit and private agencies"
-		  Text 307, 145, 3, 10, "-"
-		  Text 310, 145, 225, 35, "Researchers, auditors, investigators, and others who do quality of care reviews and studies or commence prosecutions or legal actions related to managing the human services programs."
-		  Text 307, 170, 3, 10, "-"
-		  Text 310, 170, 225, 35, "Court officials, county attorney, attorney general, other law enforcement officials, child support officials, and child protection and fraud investigators"
-		  Text 307, 195, 3, 10, "-"
-		  Text 310, 195, 225, 10, "Human services offices, including child support enforcement offices"
-		  Text 307, 205, 3, 10, "-"
-		  Text 310, 205, 225, 20, "Governmental agencies in other states administering public benefits programs"
-		  Text 307, 225, 3, 10, "-"
-		  Text 310, 225, 225, 20, "Health care providers, including mental health agencies and drug and alcohol treatment facilities"
-		  Text 307, 245, 3, 10, "-"
-		  Text 310, 245, 225, 20, "Health care insurers, health care agencies, managed care organizations and others who pay for your care"
-		  Text 307, 265, 3, 10, "-"
-		  Text 310, 265, 225, 10, "Guardians, conservators or persons with power of attorney"
-		  Text 307, 275, 3, 10, "-"
-		  Text 310, 275, 225, 20, "Coroners and medical investigators if you die and they investigate your death"
-		  Text 307, 295, 3, 10, "-"
-		  Text 310, 295, 225, 20, "Credit bureaus, creditors or collection agencies if you do not pay fees you owe to us for services"
-		  Text 307, 315, 3, 10, "-"
-		  Text 310, 315, 225, 10, "Anyone else to whom the law says we must or can give the information"
-		  Text 10, 370, 210, 10, "Confirm you have reviewed Privacy Practices:"
+		  Text 310, 45, 240, 45, "You do not have to give us your personal information. Without the information, we may not be able to help you. If you give us wrong information on purpose, you can be investigated and charged with fraud."
+		  Text 305, 75, 225, 10, "With whom may we share information?"
+		  Text 305, 85, 225, 35, "We will only share information about you as needed and as allowed or required by law. We may share your information with the following agencies or persons who need the information to do their jobs:"
+		  Text 307, 110, 3, 10, "-"
+		  Text 310, 110, 225, 35, "Employees or volunteers with other state, county, local, federal, collaborative, nonprofit and private agencies"
+		  Text 307, 130, 3, 10, "-"
+		  Text 310, 130, 225, 35, "Researchers, auditors, investigators, and others who do quality of care reviews and studies or commence prosecutions or legal actions related to managing the human services programs."
+		  Text 307, 155, 3, 10, "-"
+		  Text 310, 155, 225, 35, "Court officials, county attorney, attorney general, other law enforcement officials, child support officials, and child protection and fraud investigators"
+		  Text 307, 180, 3, 10, "-"
+		  Text 310, 180, 225, 10, "Human services offices, including child support enforcement offices"
+		  Text 307, 190, 3, 10, "-"
+		  Text 310, 190, 225, 20, "Governmental agencies in other states administering public benefits programs"
+		  Text 307, 210, 3, 10, "-"
+		  Text 310, 210, 225, 20, "Health care providers, including mental health agencies and drug and alcohol treatment facilities"
+		  Text 307, 230, 3, 10, "-"
+		  Text 310, 230, 225, 20, "Health care insurers, health care agencies, managed care organizations and others who pay for your care"
+		  Text 307, 250, 3, 10, "-"
+		  Text 310, 250, 225, 10, "Guardians, conservators or persons with power of attorney"
+		  Text 307, 260, 3, 10, "-"
+		  Text 310, 260, 225, 20, "Coroners and medical investigators if you die and they investigate your death"
+		  Text 307, 280, 3, 10, "-"
+		  Text 310, 280, 225, 20, "Credit bureaus, creditors or collection agencies if you do not pay fees you owe to us for services"
+		  Text 307, 300, 3, 10, "-"
+		  Text 310, 300, 225, 10, "Anyone else to whom the law says we must or can give the information"
+		  Text 10, 370, 210, 10, "Confirm you have reviewed Privacy Practices Information:"
 		  DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! Notice of Privacy Information Discussed"+chr(9)+"No, I could not complete this", confirm_npp_info_read
 		EndDialog
 
@@ -6876,82 +6876,85 @@ Do
 		  ButtonGroup ButtonPressed
 		    PushButton 465, 365, 80, 15, "Continue", continue_btn
 		  Text 10, 5, 160, 10, "REVIEW the information listedd here to the client:"
-		  GroupBox 10, 15, 530, 345, "Notice of Privacy Practices - About the Information you give us"
+		  GroupBox 10, 15, 530, 345, "Notice of Privacy Practices - Rights"
 		  Text 20, 25, 505, 35, "This notice tells how private information about you may be used and disclosed and how you can get this information. Please review it carefully."
-		  Text 15, 35, 275, 10, "Why do we ask for this information?"
-		  Text 15, 45, 275, 10, "In order to determine whether and how we can help you, we collect information:"
-		  Text 17, 55, 3, 10, "-"
-		  Text 20, 55, 275, 10, "To tell you apart from other people with the same or similar name"
-		  Text 17, 65, 3, 10, "-"
-		  Text 20, 65, 275, 10, "To decide what you are eligible for"
-		  Text 17, 75, 3, 10, "-"
-		  Text 20, 75, 275, 20, "To help you get medical, mental health, financial or social services and decide if you can pay for some services"
-		  Text 17, 95, 3, 10, "-"
-		  Text 20, 95, 275, 10, "To decide if you or your family need protective services"
-		  Text 17, 105, 3, 10, "-"
-		  Text 20, 105, 275, 10, "To decide about out-of-home care and in-home care for you or your children"
-		  Text 17, 115, 3, 10, "-"
-		  Text 20, 115, 275, 10, "To investigate the accuracy of the information in your application"
-		  Text 15, 125, 275, 20, "After we have begun to provide services or support to you, we may collect additional information:"
-		  Text 17, 140, 3, 10, "-"
-		  Text 20, 140, 275, 10, "To make reports, do research, do audits, and evaluate our programs"
+		  Text 15, 40, 275, 10, "What are your rights regarding the information we have about you?"
+		  Text 17, 50, 3, 10, "-"
+		  Text 20, 50, 275, 20, "You and people you have given permission to may see and copy private information we have about you. You may have to pay for the copies."
+		  Text 17, 70, 3, 10, "-"
+		  Text 20, 70, 275, 40, "You may question if the information we have about you is correct. Send your concerns in writing. Tell us why the information is wrong or not complete. Send your own explanation of the information you do not agree with. We will attach your explanation any time information is shared with another agency."
+		  Text 17, 110, 3, 10, "-"
+		  Text 20, 110, 275, 30, "You have the right to ask us in writing to share information with you in a certain way or in a certain place. For example, you may ask us to send health information to your work address instead of your home address. If we find that your request is reasonable, we will grant it."
 		  Text 17, 150, 3, 10, "-"
-		  Text 20, 150, 275, 10, "To investigate reports of people who may lie about the help they need"
-		  Text 17, 160, 3, 10, "-"
-		  Text 20, 160, 275, 20, "To collect money from other agencies, like insurance companies, if they should pay for your care"
-		  Text 17, 175, 3, 10, "-"
-		  Text 20, 175, 275, 10, "To collect money from the state or federal government for help we give you."
-		  Text 17, 185, 3, 10, "-"
-		  Text 20, 185, 275, 20, "When your or your family's circumstances change and you are required to report the change (see Client Responsibilities and Rights - DHS-4163)"
-		  Text 15, 210, 275, 10, "Why do we ask you for your Social Security number?"
-		  Text 20, 220, 275, 75, "We need your Social Security number to give you medical assistance, some kinds of financial help, or child support enforcement services (42 CFR 435.910 [2006]; Minn. Stat. 256D.03, subd.3(h); Minn. Stat.256L.04, subd. 1a; 45 CFR 205.52 [2001]; 42 USC 666; 45 CFR 303.30 [2001]). We also need your Social Security Number to verify identity and prevent duplication of state and federal benefits. Additionally, your Social Security Number is used to conduct computer data matches with collaborative, nonprofit and private agencies to verify income, resources, or other information that may affect your eligibility and/or benefits."
-		  Text 20, 285, 275, 10, "You do not have to give us the Social Security Number:"
-		  Text 22, 295, 3, 10, "-"
-		  Text 25, 295, 275, 10, "For persons in your home who are not applying for coverage"
-		  Text 22, 305, 3, 10, "-"
-		  Text 25, 305, 275, 10, "If you have religious objections"
-		  Text 22, 315, 3, 10, "-"
-		  Text 25, 315, 500, 10, "If you are not a United States citizen and are applying for Emergency Medical Assistance only"
-		  Text 22, 325, 3, 10, "-"
-		  Text 25, 325, 500, 20, "If you are from another country, in the United States on a temporary basis and do not have permission from the United States Citizenship and Immigration Services to live in the United States permanently"
-		  Text 22, 345, 3, 10, "-"
-		  Text 25, 345, 500, 10, "If you are living in the United States without the knowledge or approval of the U.S. Citizenship and Immigration Services."
-		  Text 305, 35, 225, 10, "Do you have to answer the questions we ask?"
-		  Text 310, 45, 225, 45, "You do not have to give us your personal information. Without the information, we may not be able to help you. If you give us wrong information on purpose, you can be investigated and charged with fraud."
-		  Text 305, 90, 225, 10, "With whom may we share information?"
-		  Text 305, 100, 225, 35, "We will only share information about you as needed and as allowed or required by law. We may share your information with the following agencies or persons who need the information to do their jobs:"
-		  Text 307, 125, 3, 10, "-"
-		  Text 310, 125, 225, 35, "Employees or volunteers with other state, county, local, federal, collaborative, nonprofit and private agencies"
-		  Text 307, 145, 3, 10, "-"
-		  Text 310, 145, 225, 35, "Researchers, auditors, investigators, and others who do quality of care reviews and studies or commence prosecutions or legal actions related to managing the human services programs."
-		  Text 307, 170, 3, 10, "-"
-		  Text 310, 170, 225, 35, "Court officials, county attorney, attorney general, other law enforcement officials, child support officials, and child protection and fraud investigators"
-		  Text 307, 195, 3, 10, "-"
-		  Text 310, 195, 225, 10, "Human services offices, including child support enforcement offices"
-		  Text 307, 205, 3, 10, "-"
-		  Text 310, 205, 225, 20, "Governmental agencies in other states administering public benefits programs"
-		  Text 307, 225, 3, 10, "-"
-		  Text 310, 225, 225, 20, "Health care providers, including mental health agencies and drug and alcohol treatment facilities"
-		  Text 307, 245, 3, 10, "-"
-		  Text 310, 245, 225, 20, "Health care insurers, health care agencies, managed care organizations and others who pay for your care"
-		  Text 307, 255, 3, 10, "-"
-		  Text 310, 255, 225, 20, "Guardians, conservators or persons with power of attorney"
-		  Text 307, 265, 3, 10, "-"
-		  Text 310, 265, 225, 20, "Coroners and medical investigators if you die and they investigate your death"
-		  Text 307, 275, 3, 10, "-"
-		  Text 310, 275, 225, 20, "Credit bureaus, creditors or collection agencies if you do not pay fees you owe to us for services"
-		  Text 307, 285, 3, 10, "-"
-		  Text 310, 285, 225, 20, "Anyone else to whom the law says we must or can give the information"
-		  Text 10, 370, 210, 10, "Confirm you have reviewed Privacy Practices:"
-		  DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! Notice of Privacy Information Discussed"+chr(9)+"No, I could not complete this", confirm_npp_info_read
+		  Text 20, 150, 275, 20, "You have the right to ask us to limit or restrict the way that we use or disclose your information, but we are not required to agree to this request."
+		  Text 17, 170, 3, 10, "-"
+		  Text 20, 170, 275, 20, "If you do not understand the information, ask your worker to explain it to you. You can ask the Minnesota Department of Human Services for another copy of this notice."
+
+		  Text 15, 200, 150, 10, "What privacy rights do children have?"
+		  Text 20, 215, 490, 50, "If you are under 18, when parental consent for medical treatment is not required, information will not be shown to parents unless the health care provider believes not sharing the information would risk your health. Parents may see other information about you and let others see this information, unless you have asked that this information not be shared with your parents. You must ask for this in writing and say what information you do not want to share and why. If the agency agrees that sharing the information is not in your best interest, the information will not be shared with your parents. If the agency does not agree, the information may be shared with your parents if they ask for it."
+		  Text 15, 270, 275, 10, "What if you believe your privacy rights have been violated?"
+		  Text 20, 285, 490, 20, "If you think that the Minnesota Department of Human Services has violated your privacy rights, you may send a written complaint to the U.S. Department of Health and Human Services to the address below:"
+		  Text 20, 305, 275, 10, "Minnesota Department of Human Services"
+		  Text 20, 315, 275, 10, "Attn: Privacy Official"
+		  Text 20, 325, 275, 10, "PO Box 64998"
+		  Text 20, 335, 275, 10, "St. Paul, MN 55164-0998"
+
+		  Text 305, 40, 225, 10, "What are our responsibilities?"
+		  Text 307, 50, 3, 10, "-"
+		  Text 310, 50, 225, 20, "We must protect the privacy of your private information according to the terms of this notice."
+		  Text 307, 70, 3, 10, "-"
+		  Text 310, 70, 225, 40, "We may not use your information for reasons other than the reasons listed on this form or share your information with individuals and agencies other than those listed on this form unless you tell us in writing that we can."
+		  Text 307, 110, 3, 10, "-"
+		  Text 310, 110, 225, 40, "We must follow the terms of this notice, but we may change our privacy policy because privacy laws change. We will put changes to our privacy rules on our website at: http://edocs.dhs.state.mn.us/lfserver/Public/DHS-3979-ENG"
+		  ButtonGroup ButtonPressed
+		    PushButton 310, 150, 100, 13, "Open DHS 3979", open_npp_doc
+		  Text 10, 370, 210, 10, "Confirm you have reviewed Privacy Practices Rights:"
+		  DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! Notice of Privacy Rights Discussed"+chr(9)+"No, I could not complete this", confirm_npp_rights_read
 		EndDialog
 
 		dialog Dialog1
+
+		If ButtonPressed = open_ebt_brochure_btn Then
+			err_msg = "LOOP"
+			run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-3979-ENG"
+		End If
 
 		cancel_confirmation
 	Loop until err_msg = ""
 	Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = FALSE
+
+'NOTICE ABOUT IEVS
+
+'APPEAL RIGHTS
+
+'CIVIL RIGHTS NOTICE AND COMPLAINTS
+
+'COVER LETTER
+
+'PROGRAM INFORMATION FOR CASH, FOOD, CHILD CARE - 2920
+
+'DOMESTIC VIOLENCE INFORMATION - 3477
+
+'DO YOU HAVE A DISABILITY - 4133
+
+'REPORTING
+
+'Additional Important Information.
+
+'Penalty Warnings.
+
+'Employment Services Registration.
+
+'Supplemental Nutrition Assistance Program reporting responsibilities (DHS-2625).
+
+'Facts on Voluntarily Quitting Your Job If You Are on the Supplemental Nutrition Assistance Program (SNAP) (DHS-2707).
+
+'Work Registration Notice (DHS-7635).
+
+
+
+
 
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 206, 265, "Resources MEMO"
