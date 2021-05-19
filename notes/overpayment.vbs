@@ -489,7 +489,7 @@ IF claim_actions = "Intial Overpayment/Claim" THEN
     PF3 'to save casenote'
 
     IF HC_claim_number <> "" THEN
-    	EmWriteScreen "x", 5, 3
+    	EMWriteScreen "x", 5, 3
     	TRANSMIT
     	note_row = 4			'Beginning of the case notes
     	Do 						'Read each line
@@ -611,6 +611,24 @@ IF claim_actions = "Requested Claim Adjustment" THEN
 	CALL write_variable_in_CASE_NOTE(worker_signature)
 	PF3
 
+	EMWriteScreen "x", 5, 3
+	TRANSMIT
+	note_row = 4			'Beginning of the case notes
+	Do 						'Read each line
+		EMReadScreen note_line, 76, note_row, 3
+		note_line = trim(note_line)
+		If trim(note_line) = "" Then Exit Do		'Any blank line indicates the end of the case note because there can be no blank lines in a note
+		message_array = message_array & note_line & vbcr		'putting the lines together
+		note_row = note_row + 1
+		If note_row = 18 then 									'End of a single page of the case note
+			EMReadScreen next_page, 7, note_row, 3
+			If next_page = "More: +" Then 						'This indicates there is another page of the case note
+				PF8												'goes to the next line and resets the row to read'\
+				note_row = 4
+			End If
+		End If
+	Loop until next_page = "More:  " OR next_page = "       "	'No more pages
+	'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
 	'---------------------------------------------------------------writing the CCOL case note'
     msgbox "Navigating to CCOL to add case note, please contact the BlueZone Scripts Team with any concerns."
     Call navigate_to_MAXIS_screen("CCOL", "CLSM")
@@ -637,5 +655,7 @@ IF claim_actions = "Requested Claim Adjustment" THEN
 	CALL write_variable_in_CCOL_note_test("----- ----- -----")
 	CALL write_variable_in_CCOL_note_test(worker_signature)
 	PF3
+	'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
+	CALL create_outlook_email("HSPH.FIN.Unit.AR.Spaulding@hennepin.us", "","Requested Claim Adjustment " &  MAXIS_case_number & " Member # " & memb_number & " Discovery date: " & discovery_date & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number, "CASE NOTE" & vbcr & message_array,"", False)
 END IF
 script_end_procedure_with_error_report("Overpayment case note entered and copied to CCOL please review case note to ensure accuracy.")
