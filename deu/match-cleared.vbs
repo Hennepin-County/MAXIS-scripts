@@ -118,7 +118,7 @@ Else
 	first_name = trim(replace(first_name, "_", "")) & " "
 	mid_initial = replace(mid_initial, "_", "")
 End If
-	EMReadscreen MEMB_number, 3, 4, 33
+	EMReadscreen MEMB_number, 2, 4, 33
 	EMReadscreen last_name, 25, 6, 30
 	EMReadscreen first_name, 12, 6, 63
 	EMReadscreen mid_initial, 1, 6, 79
