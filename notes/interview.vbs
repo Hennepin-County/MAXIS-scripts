@@ -6579,6 +6579,7 @@ Do
 		BeginDialog Dialog1, 0, 0, 550, 385, "Full Interview Questions"
 		  ButtonGroup ButtonPressed
 		    PushButton 465, 365, 80, 15, "Continue", continue_btn
+			PushButton 430, 22, 100, 13, "Open DHS 4163", open_r_and_r_btn
 		  Text 10, 10, 160, 10, "REVIEW the information listedd here to the client:"
 		  GroupBox 10, 25, 530, 335, "Rights and Responsibilities Text"
 		  Text 20, 35, 505, 35, "Note: Cash on an Electronic Benefit Transfer (EBT) card is provided to help families meet their basic needs, including: food, shelter, clothing, utilities and transportation. These funds are provided until families can support themselves. It is illegal for an EBT user to buy or attempt to buy tobacco products or alcohol with the EBT card. If you do, it is fraud and you will be removed from the program. Do not use an EBT card at a gambling establishment or retail establishment, which provides adult-orientated entertainment in which performers disrobe or perform in an unclothed state for entertainment."
@@ -6601,7 +6602,7 @@ Do
 		  Text 20, 300, 275, 10, "- Health insurance coverage and premiums"
 		  Text 20, 315, 275, 20, "Note: If you change child care providers, you must tell your child care worker and provider at least 15 days before the change goes into effect."
 
-		  Text 15, 345, 520, 10, "If you have any questions or are unsure about any reporting rules, contact your worker. If your worker is not available, leave a message so the worker can get back to you."
+		  Text 15, 335, 520, 10, "If you have any questions or are unsure about any reporting rules, contact your worker. If your worker is not available, leave a message so the worker can get back to you."
 
 		  Text 310, 70, 225, 35, "- The county, state or federal agency may check any of the information you provide. To obtain some forms of information we must have your signed consent. If you don't allow the county to confirm your information, you might not receive assistance."
 		  Text 310, 105, 225, 35, "- If you give us information you know is untrue, withhold information or do not report as required, or we discover your information is untrue, you may be investigated for fraud. This may result in you being disqualified from receiving benefits, charged criminally, or both."
@@ -6616,8 +6617,12 @@ Do
 		EndDialog
 
 		dialog Dialog1
-
 		cancel_confirmation
+
+		If ButtonPressed = open_r_and_r_btn Then
+			err_msg = "LOOP"
+			run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://edocs.dhs.state.mn.us/lfserver/Public/DHS-4163-ENG"
+		End If
 	Loop until err_msg = ""
 	Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = FALSE
@@ -6631,6 +6636,7 @@ Do
 		BeginDialog Dialog1, 0, 0, 550, 385, "Full Interview Questions"
 		  ButtonGroup ButtonPressed
 		    PushButton 465, 365, 80, 15, "Continue", continue_btn
+			PushButton 430, 22, 100, 13, "Open DHS 4163", open_r_and_r_btn
 		  Text 10, 10, 160, 10, "REVIEW the information listedd here to the client:"
 		  GroupBox 10, 25, 530, 335, "Rights and Responsibilities Text"
 
@@ -6656,6 +6662,11 @@ Do
 		EndDialog
 
 		dialog Dialog1
+
+		If ButtonPressed = open_r_and_r_btn Then
+			err_msg = "LOOP"
+			run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://edocs.dhs.state.mn.us/lfserver/Public/DHS-4163-ENG"
+		End If
 
 		cancel_confirmation
 	Loop until err_msg = ""
@@ -6803,6 +6814,7 @@ Do
 		BeginDialog Dialog1, 0, 0, 550, 385, "Full Interview Questions"
 		  ButtonGroup ButtonPressed
 		    PushButton 465, 365, 80, 15, "Continue", continue_btn
+			PushButton 440, 5, 100, 13, "Open DHS 3979", open_npp_doc
 		  Text 10, 5, 160, 10, "REVIEW the information listedd here to the client:"
 		  GroupBox 10, 15, 530, 345, "Notice of Privacy Practices - About the Information you give us"
 		  Text 20, 25, 505, 35, "This notice tells how private information about you may be used and disclosed and how you can get this information. Please review it carefully."
@@ -6876,6 +6888,11 @@ Do
 
 		dialog Dialog1
 
+		If ButtonPressed = open_npp_doc Then
+			err_msg = "LOOP"
+			run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3979-ENG"
+		End If
+
 		cancel_confirmation
 	Loop until err_msg = ""
 	Call check_for_password(are_we_passworded_out)
@@ -6889,6 +6906,7 @@ Do
 		BeginDialog Dialog1, 0, 0, 550, 385, "Full Interview Questions"
 		  ButtonGroup ButtonPressed
 		    PushButton 465, 365, 80, 15, "Continue", continue_btn
+			PushButton 440, 5, 100, 13, "Open DHS 3979", open_npp_doc
 		  Text 10, 5, 160, 10, "REVIEW the information listedd here to the client:"
 		  GroupBox 10, 15, 530, 345, "Notice of Privacy Practices - Rights"
 		  Text 20, 25, 505, 35, "This notice tells how private information about you may be used and disclosed and how you can get this information. Please review it carefully."
@@ -6920,8 +6938,8 @@ Do
 		  Text 310, 70, 225, 40, "We may not use your information for reasons other than the reasons listed on this form or share your information with individuals and agencies other than those listed on this form unless you tell us in writing that we can."
 		  Text 307, 110, 3, 10, "-"
 		  Text 310, 110, 225, 40, "We must follow the terms of this notice, but we may change our privacy policy because privacy laws change. We will put changes to our privacy rules on our website at: http://edocs.dhs.state.mn.us/lfserver/Public/DHS-3979-ENG"
-		  ButtonGroup ButtonPressed
-		    PushButton 310, 150, 100, 13, "Open DHS 3979", open_npp_doc
+		  ' ButtonGroup ButtonPressed
+		  '   PushButton 310, 150, 100, 13, "Open DHS 3979", open_npp_doc
 		  Text 10, 370, 210, 10, "Confirm you have reviewed Privacy Practices Rights:"
 		  DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! Notice of Privacy Rights Discussed"+chr(9)+"No, I could not complete this", confirm_npp_rights_read
 		EndDialog
@@ -7291,7 +7309,7 @@ Do
 
 		If ButtonPressed = open_DV_doc Then
 			err_msg = "LOOP"
-			run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-3353-ENG"
+			run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG"
 		End If
 
 		cancel_confirmation
@@ -7371,19 +7389,27 @@ Do
 
 		Dialog1 = ""
 		BeginDialog Dialog1, 0, 0, 550, 385, "Full Interview Questions"
-		  ButtonGroup ButtonPressed
-		    PushButton 20, 105, 100, 13, "Open DHS 2647", open_cs_2647_doc
-			PushButton 20, 205, 100, 13, "Open DHS 2929", open_cs_2929_doc
-			PushButton 20, 305, 100, 13, "Open DHS 3323", open_cs_3323_doc
-		    PushButton 465, 365, 80, 15, "Continue", continue_btn
+
 		  Text 10, 5, 160, 10, "REVIEW the information listedd here to the client:"
 		  GroupBox 10, 15, 530, 345, "MFIP Cases"
 
 		  GroupBox 10, 25, 530, 95, "Reporting Responsibilities for MFIP Households (DHS-2647)"
+		  Text 15, 40, 505, 10, "Changes you must report: Anything that could impact eligibility. Particularly: Income, Assets, Household Comp"
+		  Text 15, 50, 505, 10, "When do Changes need to be Reported: On the monthly Household Report Form, if you do not have one, within 10 days of the change"
+		  Text 15, 60, 505, 10, "How to report Changes: On any Report Form or call the county."
 		  GroupBox 10, 125, 530, 95, "Notice of Requirement to Attend MFIP Overview (DHS-2929)"
+		  Text 15, 140, 505, 10, "All MFIP caregivers are required to attend an MFIP overview and participate in Employment Services."
+		  Text 15, 150, 505, 10, "If you do not go to your scheduled overview meeting without good reason, your MFIP grant may be reduced until you go to the meeting."
+		  Text 15, 160, 505, 10, "Call the contact person above if you: - Need child care or help getting to the meeting - Have problems attending the meeting."
 		  GroupBox 10, 225, 530, 95, "Family Violence Referral (DHS-3323)"
-
-
+		  Text 15, 240, 505, 10, "If you, or someone in your home is a victim of domestic abuse the county can help you."
+		  Text 15, 250, 505, 10, "You can also call the National Domestic Violence Hot Line at (800) 799-7233 or Legal Aid at (888) 354-5522."
+		  Text 15, 260, 505, 20, "Some of the Minnesota Family Investment Program (MFIP) rules do not apply to domestic abuse victims. You must tell us about the abuse and have a special employment plan that includes activities to help keep your family safe. Please talk to your worker or an advocate if you want to know about this."
+		  ButtonGroup ButtonPressed
+		    PushButton 465, 365, 80, 15, "Continue", continue_btn
+		    PushButton 430, 22, 100, 13, "Open DHS 2647", open_cs_2647_doc
+			PushButton 430, 122, 100, 13, "Open DHS 2929", open_cs_2929_doc
+			PushButton 430, 222, 100, 13, "Open DHS 3323", open_cs_3323_doc
 		  Text 10, 370, 210, 10, "Confirm you have reviewed Hennepin County Information Information:"
 		  DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! Cover Letter Discussed"+chr(9)+"No, I could not complete this", confirm_cover_letter_read
 		EndDialog
@@ -7415,20 +7441,28 @@ Do
 
 		Dialog1 = ""
 		BeginDialog Dialog1, 0, 0, 550, 385, "Full Interview Questions"
-		  ButtonGroup ButtonPressed
-		    PushButton 20, 105, 100, 13, "Open DHS 3393", open_cs_3393_doc
-			PushButton 20, 205, 100, 13, "Open DHS 3163B", open_cs_3163B_doc
-			PushButton 20, 305, 100, 13, "Open DHS 2338", open_cs_2338_doc
-			PushButton 20, 340, 100, 13, "Open DHS 5561", open_cs_5561_doc
-		    PushButton 465, 365, 80, 15, "Continue", continue_btn
 		  Text 10, 5, 160, 10, "REVIEW the information listedd here to the client:"
 		  GroupBox 10, 15, 530, 345, "MFIP Case with at least 1 ABPS - Child Support Information"
 
 		  GroupBox 10, 25, 530, 95, "Understanding Child Support - A Handbook for Parents (DHS-3393)"
+		  Text 15, 40, 505, 20, "Every child needs financial and emotional support. Every child has the right to this support from both parents. Devoted parents can be loving and supportive forces in a child's life. Even when parents do not live together, they need to work together to support their child."
+		  Text 15, 60, 505, 20, "Minnesoda Child Support and Hennepin County Child Support provide support and guidance. The Handbook 'Understanding Child Support' provides information about the details of these programs."
 		  GroupBox 10, 125, 530, 95, "Referral to Support and Collections (DHS-3163B)"
+		  Text 15, 140, 505, 10, "Purpose of form: The child support agency will use the information you give to help collect support."
+		  Text 15, 150, 505, 20, "How to complete this form: Fill in each blank. If there are boxes, check the box or boxes that fit your situation. Complete a separate form for each parent or alleged parent other than yourself."
+		  Text 15, 170, 505, 20, "Please read the booklet 'Understanding Child Support: A Handbook for Parents' (DHS-3393) before signing. The booklet explains information about the child support services you may be receiving."
 		  GroupBox 10, 225, 530, 95, "Cooperation with Child Support Enforcement (DHS-2338)"
+		  Text 15, 240, 505, 10, "This notice explains your rights and responsibilities for cooperating with the MN Department of Human Services, Child Support Division."
+		  Text 15, 250, 505, 10, "Cooperation with the child support agency includes answering questions, filling out forms, and appearing at appointments and/or court hearings."
+		  Text 15, 260, 505, 40, "This notice also explains how you make a 'good cause claim' that gives you the right not to cooperate if your claim is granted. If you choose to claim good cause and your county child support agency is currently collecting your child support payments, the county will immediately stop collecting those payments for the child(ren) you name on the attached form. The county will stop providing all child support services until it makes a decision on your good cause claim. If you are granted a good cause exemption, the child support agency will close your case."
 		  GroupBox 10, 325, 530, 40, "If Non-Custodial Caregiver - MFIP Child Only Assistance (DHS-5561)"
-
+		  Text 15, 335, 505, 30, "The Minnesota Department of Human Services has assistance programs available to help children who are cared for and supported by their relatives. This brochure answers some frequently asked questions relatives may have about the Minnesota Family Investment Program (MFIP)"
+		  ButtonGroup ButtonPressed
+		    PushButton 465, 365, 80, 15, "Continue", continue_btn
+		    PushButton 430, 22, 100, 13, "Open DHS 3393", open_cs_3393_doc
+			PushButton 430, 122, 100, 13, "Open DHS 3163B", open_cs_3163B_doc
+			PushButton 430, 222, 100, 13, "Open DHS 2338", open_cs_2338_doc
+			PushButton 430, 322, 100, 13, "Open DHS 5561", open_cs_5561_doc
 
 		  Text 10, 370, 210, 10, "Confirm you have reviewed Hennepin County Information Information:"
 		  DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! Cover Letter Discussed"+chr(9)+"No, I could not complete this", confirm_cover_letter_read
@@ -7460,18 +7494,28 @@ Do
 
 		Dialog1 = ""
 		BeginDialog Dialog1, 0, 0, 550, 385, "Full Interview Questions"
-		  ButtonGroup ButtonPressed
-		    PushButton 20, 105, 100, 13, "Open DHS 2961", open_cs_2961_doc
-			PushButton 20, 205, 100, 13, "Open DHS 2887", open_cs_2887_doc
-			PushButton 20, 305, 100, 13, "Open DHS 3238", open_cs_3238_doc
-		    PushButton 465, 365, 80, 15, "Continue", continue_btn
 		  Text 10, 5, 160, 10, "REVIEW the information listedd here to the client:"
 		  GroupBox 10, 15, 530, 345, "MFIP Case Minor Caregiver Cases"
 
 		  GroupBox 10, 25, 530, 95, "Notice of Requirement to Attend School (DHS-2961)"
+		  Text 15, 40, 505, 10, "This form tells you that, unless you are exempt, you must attend school and what will happen if you do not go to school."
+		  Text 15, 50, 505, 20, "The first step is for us to complete an assessment with you. We will review your educational progress, needs, literacy level, family circumstances, skills, and work experience. We will see if you need child care or other services so you can go to school."
+		  Text 15, 70, 505, 10, "If you do not cooperate or do not attend school, without good cause, we will send you a notice. This notice will tell you that your MFIP grant may be reduced. "
 		  GroupBox 10, 125, 530, 95, "Graduate to Independence - MFIP Teen Parent Informational Brochure (DHS-2887)"
+		  Text 15, 140, 505, 20, "If you are a teen parent under the age of 20, and do not have a high school diploma or an equivalent, you are expected to attend an approved educational program to qualify for the Minnesota Family Investment Program."
+		  Text 15, 160, 505, 20, "Earning your diploma is the first step in getting ready for a job. County human services staff will help you with counseling, child care, and transportation so you can go to school. They will also help you find a school program that is best for you."
+		  Text 15, 180, 505, 10, "If you fail to attend school, without good cause, your human services worker will reduce your grant by 10 percent or more of your standard of need."
 		  GroupBox 10, 225, 530, 95, "MFIP for Minor Caregivers (DHS-3238)"
-
+		  Text 15, 240, 505, 20, "You are a minor caregiver if: "
+		  Text 25, 250, 505, 20, "- You are younger than 18 - You have never been married - You are not emancipated and - You are the parent of a child(ren) living in the same household."
+		  Text 15, 260, 505, 10, "If you are a minor caregiver, to receive benefits and services, you must be living: "
+		  Text 25, 270, 505, 20, "- With a parent or with an adult relative caregiver or with a legal guardian or - In an agency-approved living arrangement."
+		  Text 15, 280, 505, 10, "A social worker must approve any exception(s) to your living arrangement."
+		  ButtonGroup ButtonPressed
+		  	PushButton 465, 365, 80, 15, "Continue", continue_btn
+		    PushButton 430, 22, 100, 13, "Open DHS 2961", open_cs_2961_doc
+			PushButton 430, 122, 100, 13, "Open DHS 2887", open_cs_2887_doc
+			PushButton 430, 222, 100, 13, "Open DHS 3238", open_cs_3238_doc
 
 		  Text 10, 370, 210, 10, "Confirm you have reviewed Hennepin County Information Information:"
 		  DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! Cover Letter Discussed"+chr(9)+"No, I could not complete this", confirm_cover_letter_read
@@ -7481,7 +7525,7 @@ Do
 
 		If ButtonPressed = open_cs_2961_doc OR ButtonPressed = open_cs_2887_doc OR ButtonPressed = open_cs_3238_doc Then
 			err_msg = "LOOP"
-			If ButtonPressed = open_cs_2961_doc Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-2961-ENG"
+			If ButtonPressed = open_cs_2961_doc Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://edocs.dhs.state.mn.us/lfserver/Legacy/DHS-2961-ENG"
 			If ButtonPressed = open_cs_2887_doc Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-2887-ENG"
 			If ButtonPressed = open_cs_3238_doc Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-3238-ENG"
 		End If
@@ -7504,18 +7548,26 @@ Do
 
 		Dialog1 = ""
 		BeginDialog Dialog1, 0, 0, 550, 385, "Full Interview Questions"
-		  ButtonGroup ButtonPressed
-		    PushButton 20, 105, 100, 13, "Open DHS 2625", open_cs_2625_doc
-			PushButton 20, 205, 100, 13, "Open DHS 2707", open_cs_2707_doc
-			PushButton 20, 305, 100, 13, "Open DHS 7635", open_cs_7635_doc
-		    PushButton 465, 365, 80, 15, "Continue", continue_btn
 		  Text 10, 5, 160, 10, "REVIEW the information listedd here to the client:"
 		  GroupBox 10, 15, 530, 345, "SNAP Case"
 
 		  GroupBox 10, 25, 530, 95, "Supplemental Nutrition Assistance Program reporting responsibilities (DHS-2625)"
+		  Text 15, 40, 505, 10, "There are the three reporting types used by SNAP: Six-month reporting, Change reporting, Monthly reporting"
+		  Text 15, 50, 505, 10, "You are _____________ Reporting. This means you must report:"
+		  Text 15, 60, 505, 10, "Complete a renewal every six months. Report changes in income over 130% FPG ($XXXX) by the 10th of the month followwing the month of change."
 		  GroupBox 10, 125, 530, 95, "Facts on Voluntarily Quitting Your Job If You Are on SNAP (DHS-2707)"
+		  Text 15, 140, 505, 10, "If you or someone else in your household has a job and quits without a good reason, your household might not get SNAP benefits."
+		  Text 15, 150, 505, 20, "The penalty does not apply if the person who quit a job: "
+		  Text 25, 160, 505, 20, "- Was fired, or forced to leave the job, or had hours cut back by the employer - Was self-employed - Left a job that was less than 30 hours per week"
+		  Text 15, 170, 505, 10, "The penalty also does not apply if you can prove the person had 'good reason' to quit the job. The form has some examples of 'good reasons'."
 		  GroupBox 10, 225, 530, 95, "Work Registration Notice (DHS-7635)"
-
+		  Text 15, 240, 505, 10, "In order to be eligible for benefits you must cooperate in any efforts regarding work registration. "
+		  Text 15, 250, 505, 10, "If you do not follow any of the work requirements listed above your benefit smay end."
+		  ButtonGroup ButtonPressed
+		    PushButton 465, 365, 80, 15, "Continue", continue_btn
+		    PushButton 430, 22, 100, 13, "Open DHS 2625", open_cs_2625_doc
+			PushButton 430, 122, 100, 13, "Open DHS 2707", open_cs_2707_doc
+			PushButton 430, 222, 100, 13, "Open DHS 7635", open_cs_7635_doc
 
 		  Text 10, 370, 210, 10, "Confirm you have reviewed Hennepin County Information Information:"
 		  DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! Cover Letter Discussed"+chr(9)+"No, I could not complete this", confirm_cover_letter_read
@@ -7594,6 +7646,73 @@ DO
 	Loop until err_msg = ""
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
+
+
+
+Do
+	Do
+		err_msg = ""
+
+		Dialog1 = ""
+		BeginDialog Dialog1, 0, 0, 550, 385, "Full Interview Questions"
+		  Text 10, 10, 500, 10, "The Interview Information has been completed. Review the information and next steps with the client."
+		  GroupBox 10, 20, 530, 340, "CASE INTERVIEW WRAP UP"
+
+		  Text 15, 30, 505, 10, "Programs being Requested/Renewed:"
+		  Text 20, 40, 505, 10, "SNAP"
+		  Text 20, 50, 505, 10, "Cash - MFIP"
+		  Text 20, 60, 505, 10, "Housing Support - GRH"
+		  Text 15, 75, 505, 10, "Next Steps:"
+		  Text 20, 85, 505, 10, "We need verifications before we can make a determination on your case. Are you clear on what those are? You will also receive a notice in the mail."
+		  Text 20, 95, 505, 10, "If you need an EBT Card - call or go in."
+		  Text 20, 105, 505, 10, "I will be processing your case. "
+		  Text 25, 115, 505, 10, "APPLICATION - the benefits are typically available the day after appproval. "
+		  Text 25, 125, 505, 10, "RECERT - the benefits should be available on your regular day."
+		  Text 20, 135, 505, 10, "Watch your mail for approval notices to see the benefit amount."
+		  Text 15, 150, 505, 10, "Your address and phone number are our best way to contact you."
+		  Text 20, 160, 505, 10, "It is vital that you let us know if you address or phone number has changed"
+		  Text 20, 170, 505, 10, "You may miss important requests or notices if we have an old address."
+		  Text 20, 180, 505, 10, "Our mail does not forward to address changes, so we need to know the correct address for you"
+		  Text 15, 195, 505, 10, "Please be sure to follow program rules and requirements"
+		  Text 20, 205, 505, 10, "Failure to report changes and information timely can have negative impacts:"
+		  Text 25, 215, 505, 10, "End of benefits"
+		  Text 25, 225, 505, 10, "Overpayments"
+		  Text 25, 235, 505, 10, "Future ineligibility"
+		  Text 20, 245, 505, 10, "We receive information from other sources about you and may impact your eligibility and benefit level."
+		  Text 20, 255, 505, 10, "If you are unsure of program rules and requirements, the forms we reviewed earlier can always be resent, or you can call us with questions."
+		  Text 15, 270, 505, 10, "Contact to Hennepin County"
+		  Text 20, 280, 505, 10, "By Phone - 612-596-1300. The phone lines are open Monday - Friday 8:00 - 4:30"
+		  Text 20, 290, 505, 10, "In person - at one of six regional hubs"
+		  Text 20, 300, 505, 10, "Online - InfoKeep"
+
+		  ButtonGroup ButtonPressed
+		    PushButton 465, 365, 80, 15, "Continue", continue_btn
+		    ' PushButton 430, 22, 100, 13, "Open DHS 2625", open_cs_2625_doc
+			' PushButton 430, 122, 100, 13, "Open DHS 2707", open_cs_2707_doc
+			' PushButton 430, 222, 100, 13, "Open DHS 7635", open_cs_7635_doc
+
+		  Text 10, 370, 210, 10, "Confirm you have reviewed Hennepin County Information Information:"
+		  DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! Recap Discussed"+chr(9)+"No, I could not complete this", confirm_recap_read
+		EndDialog
+
+		dialog Dialog1
+
+		' If ButtonPressed = open_cs_2625_doc OR ButtonPressed = open_cs_2707_doc OR ButtonPressed = open_cs_7635_doc Then
+		' 	err_msg = "LOOP"
+		' 	If ButtonPressed = open_cs_2625_doc Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-2625-ENG"
+		' 	If ButtonPressed = open_cs_2707_doc Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-2707-ENG"
+		' 	If ButtonPressed = open_cs_7635_doc Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-7635-ENG"
+		' End If
+
+		cancel_confirmation
+	Loop until err_msg = ""
+	Call check_for_password(are_we_passworded_out)
+Loop until are_we_passworded_out = FALSE
+
+interview_time = timer - start_time
+interview_time = interview_time/60
+interview_time = Round(interview_time, 2)
+complete_interview_msg = MsgBox("This interview is now completed and has taken " & interview_time & " minutes." & vbCr & vbCr & "The script will now create your interview notes in a PDF and enter CASE:NOTE(s) as needed.", vbInformation, "Interview Completed")
 
 ' script_end_procedure("At this point the script will create a PDF with all of the interview notes to save to ECF, enter a comprehensive CASE:NOTE, and update PROG or REVW with the interview date. Future enhancements will add more actions functionality.")
 '****writing the word document
