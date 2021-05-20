@@ -646,7 +646,6 @@ IF claim_actions = "Requested Claim Adjustment" THEN
     END IF
 
 	Call write_variable_in_CCOL_note_test("Requested Claim Adjustment")
-	CALL write_bullet_and_variable_in_CCOL_note_test("Discovery date", discovery_date)
 	CALL write_variable_in_CCOL_note_test("* Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number)
 	CALL write_bullet_and_variable_in_CCOL_note_test("Original Amount", original_claim_amount)
 	Call write_bullet_and_variable_in_CCOL_note_test("Correct Amount", corrected_claim_amount)
@@ -656,6 +655,6 @@ IF claim_actions = "Requested Claim Adjustment" THEN
 	CALL write_variable_in_CCOL_note_test(worker_signature)
 	PF3
 	'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-	CALL create_outlook_email("HSPH.FIN.Unit.AR.Spaulding@hennepin.us", "","Requested Claim Adjustment " &  MAXIS_case_number & " Member # " & memb_number & " Discovery date: " & discovery_date & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number, "CASE NOTE" & vbcr & message_array,"", False)
+	CALL create_outlook_email("HSPH.FIN.Unit.AR.Spaulding@hennepin.us", "","Requested Claim Adjustment " &  MAXIS_case_number & " Member # " & memb_number & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number, "CASE NOTE" & vbcr & message_array,"", False)
 END IF
 script_end_procedure_with_error_report("Overpayment case note entered and copied to CCOL please review case note to ensure accuracy.")
