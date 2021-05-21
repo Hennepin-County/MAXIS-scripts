@@ -3151,9 +3151,70 @@ end function
 ' update_addr
 ' update_pers
 
-function check_for_errors()
+full_err_msg = full_err_msg & "~!~" & "1^* CAF DATESTAMP ##~##   - Enter a valid date for the CAF datestamp.##~##"
+
+function check_for_errors(interview_questions_clear)
 	' page_display = show_pg_one_memb01_and_exp
-	If who_are_we_completing_the_interview_with = "Select or Type" Then err_msg = err_msg & vbNewLine & "* PICK A PERSON"
+	' If current_listing = "1"  Then tagline = ": Applicant and EXP"        'Adding a specific tagline to the header for the errors
+	who_are_we_completing_the_interview_with = trim(who_are_we_completing_the_interview_with)
+	If who_are_we_completing_the_interview_with = "Select or Type" Or who_are_we_completing_the_interview_with = "" Then err_msg = err_msg & "~!~" & "1^* Who are you interviewing with?##~##   - Select or enter the name of the person you are completing the interview with.##~##"
+	If SNAP_Pending = TRUE OR SNAP_Inactive = TRUE Then
+		intv_app_month_income = trim(intv_app_month_income)
+		intv_app_month_asset = trim()
+		intv_app_month_housing_expense = trim()
+
+		If intv_app_month_income = "" Then intv_app_month_income = 0
+		If intv_app_month_asset = "" Then intv_app_month_asset = 0
+		If intv_app_month_housing_expense = "" Then intv_app_month_housing_expense = 0
+
+		If IsNumeric(intv_app_month_income) = False Then err_msg = err_msg & "~!~" & "1^* What is the total of the income received in the month of application?##~##   - Enter the amount of income in the month of application as a number. We MUST gather the income in the application month.##~##"
+		If IsNumeric(intv_app_month_asset) = False Then err_msg = err_msg & "~!~" & "1^* Use the best detail of assets the client has available. Liquid Asset amount?##~##   - Enter the total assets in the month of application as a number. We MUST gather the assets in the application month.##~##"
+		If IsNumeric(intv_app_month_housing_expense) = False Then err_msg = err_msg & "~!~" & "1^* What is the housing expense (Rend, Mortgage, etc)##~##   - Enter the rent/mortgage in the month of application as a number. We MUST gather the expenses in the application month.##~##"
+
+		'If Interview utilities have no checkmarks - then we need a checkmoark - if none - then check none
+		'If non is checked and others are checked - we need to resolve
+	End If
+
+
+	' If current_listing = "2"  Then tagline = ": CAF ADDR"
+		'If living situation is 'Blank' or 'Unknown' - ask it and update
+
+	' If current_listing = "3"  Then tagline = ": CAF MEMBs"
+		'If IMIG Statis is not blank - require sponsor information
+		'require 'intends to reside in MN
+		'ID for 01? Other caregiver?
+
+	' If current_listing = "4"  Then tagline = ": Q. 1- 6"
+		'if children in home - school notes need detail
+
+	' If current_listing = "5"  Then tagline = ": Q. 7 - 11"
+		'if SNAP - must select PWE'
+
+	' If current_listing = "6"  Then tagline = ": Q. 12 - 13"
+
+	' If current_listing = "7"  Then tagline = ": Q. 14 - 15"
+
+	' If current_listing = "8"  Then tagline = ": Q. 16 - 20"
+
+	' If current_listing = "9"  Then tagline = ": Q. 21 - 24"
+
+	' If current_listing = "10" Then tagline = ": CAF QUAL Q"
+		'if any question is 'Yes' Then must have a person selected
+
+	' If current_listing = "11" Then tagline = ": CAF Last Page"
+		'Both signatures - cannot be select or type or blank
+		'If signatires are signed or verbal - then person and date must be completed
+		'Interview date must be a date and not in the future
+		'THERE WILL BE MORE ONCE THE BENEFIT DETAILS ARE ENTERED
+
+	' If current_listing = "12" Then tagline = ": Discrepancies"
+		'If no phone number - confirm no phone number
+		'If homeless and no mailing address - confirm and explain about mail
+		'If out of county - confirm and explain transfer
+		'rent on CAF1 and Q14 do not match
+		'utilities on CAF1 and Q15 do not match
+	'
+	'
 	' If  =  Then err_msg = err_msg & vbNewLine & "* "
 	' If  =  Then err_msg = err_msg & vbNewLine & "* "
 	' If  =  Then err_msg = err_msg & vbNewLine & "* "
@@ -4056,15 +4117,15 @@ function define_main_dialog()
 		ElseIf page_display = show_qual Then
 			Text 497, 147, 60, 13, "CAF QUAL Q"
 
-			DropListBox 220, 40, 30, 45, "No"+chr(9)+"Yes", qual_question_one
+			DropListBox 220, 40, 30, 45, "?"+chr(9)+"No"+chr(9)+"Yes", qual_question_one
 			ComboBox 340, 40, 105, 45, all_the_clients, qual_memb_one
-			DropListBox 220, 80, 30, 45, "No"+chr(9)+"Yes", qual_question_two
+			DropListBox 220, 80, 30, 45, "?"+chr(9)+"No"+chr(9)+"Yes", qual_question_two
 			ComboBox 340, 80, 105, 45, all_the_clients, qual_memb_two
-			DropListBox 220, 110, 30, 45, "No"+chr(9)+"Yes", qual_question_three
+			DropListBox 220, 110, 30, 45, "?"+chr(9)+"No"+chr(9)+"Yes", qual_question_three
 			ComboBox 340, 110, 105, 45, all_the_clients, qual_memb_there
-			DropListBox 220, 140, 30, 45, "No"+chr(9)+"Yes", qual_question_four
+			DropListBox 220, 140, 30, 45, "?"+chr(9)+"No"+chr(9)+"Yes", qual_question_four
 			ComboBox 340, 140, 105, 45, all_the_clients, qual_memb_four
-			DropListBox 220, 160, 30, 45, "No"+chr(9)+"Yes", qual_question_five
+			DropListBox 220, 160, 30, 45, "?"+chr(9)+"No"+chr(9)+"Yes", qual_question_five
 			ComboBox 340, 160, 105, 45, all_the_clients, qual_memb_five
 
 			Text 10, 10, 395, 15, "Qualifying Questions are listed at the end of the CAF form and are completed by the client. Indicate the answers to those questions here. If any are 'Yes' then indicate which household member to which the question refers."
@@ -4083,8 +4144,8 @@ function define_main_dialog()
 
 			GroupBox 5, 10, 475, 100, "Confirm Authorized Representative"
 
-			If arep_in_MAXIS = TRUE Then Text 15, 25, 120, 10, "Current Authorized Representative"
-			If arep_in_MAXIS = FALSE Then Text 15, 25, 120, 10, "There is no Authorized Representative"
+			If arep_in_MAXIS = TRUE Then Text 15, 25, 300, 10, "Current Authorized Representative"
+			If arep_in_MAXIS = FALSE Then Text 15, 25, 300, 10, "There is no Authorized Representative"
 
 			If update_arep = FALSE Then
 				Text 85, 55, 170, 15, arep_name
@@ -4098,6 +4159,7 @@ function define_main_dialog()
 			End If
 
 			If update_arep = TRUE Then
+				If arep_addr_state = "" Then arep_addr_state = "MN Minnesota"
 				EditBox 85, 50, 170, 15, arep_name
 				ComboBox 260, 50, 120, 45, "", arep_relationship
 				EditBox 385, 50, 85, 15, arep_phone_one
@@ -4140,12 +4202,27 @@ function define_main_dialog()
 			EditBox 390, 195, 60, 15, interview_date
 
 			GroupBox 5, 225, 475, 115, "Benefit Detail"
-			' appears_expedited
-			' expedited_delay_info
-			' expedited_info_does_not_match
-			' mismatch_explanation
+			If interview_questions_clear = False Then
+				Text 15, 240, 450, 10, "ADDITIONAL QUESTIONS BEFORE ASSESMENT CAN BE MADE."
+			Else
+				y_pos = 235
+				' appears_expedited
+				' expedited_delay_info
+				If snap_active =- True Then
+					Text 15, y_pos, 450, 10, "SNAP is active on this case - Expedited Determination not needed."
+				ElseIf case_is_expedited = True Then
 
-	    ' ElseIf page_display =  Then
+				Else
+
+				End If
+				' expedited_info_does_not_match
+				' mismatch_explanation
+			End If
+	    ElseIf page_display = discrepancy_questions Then
+
+
+		' ElseIf page_display =  Then
+
 		End If
 
 
@@ -4176,6 +4253,9 @@ function define_main_dialog()
 		' If page_display <> show_q_24 Then PushButton 485, 310, 60, 13, "Q. 24", caf_q_24_btn
 		If page_display <> show_qual 					Then PushButton 485, 145, 65, 13, "CAF QUAL Q", caf_qual_q_btn
 		If page_display <> show_pg_last 				Then PushButton 485, 160, 65, 13, "CAF Last Page", caf_last_page_btn
+		If discrepancies_exist = True Then
+			If page_display <> discrepancy_questions 	Then PushButton 485, 175, 65, 13, "Discrepancies", discrepancy_questions_btn
+		End If
 		PushButton 415, 365, 50, 15, "NEXT", next_btn
 		PushButton 465, 365, 80, 15, "Complete Interview", finish_interview_btn
 
@@ -4547,6 +4627,84 @@ function dialog_movement()
 		ButtonPressed = save_button
 	End If
 
+end function
+
+function display_errors(the_err_msg, execute_nav)
+    If the_err_msg <> "" Then       'If the error message is blank - there is nothing to show.
+        If left(the_err_msg, 3) = "~!~" Then the_err_msg = right(the_err_msg, len(the_err_msg) - 3)     'Trimming the message so we don't have a blank array item
+        err_array = split(the_err_msg, "~!~")           'making the list of errors an array.
+
+        error_message = ""                              'blanking out variables
+        msg_header = ""
+        for each message in err_array                   'going through each error message to order them and add headers'
+            current_listing = left(message, 1)          'This is the dialog the error came from
+            If current_listing <> msg_header Then                   'this is comparing to the dialog from the last message - if they don't match, we need a new header entered
+                If current_listing = "1"  Then tagline = ": Applicant and EXP"        'Adding a specific tagline to the header for the errors
+                If current_listing = "2"  Then tagline = ": CAF ADDR"
+                If current_listing = "3"  Then tagline = ": CAF MEMBs"
+                If current_listing = "4"  Then tagline = ": Q. 1- 6"
+                If current_listing = "5"  Then tagline = ": Q. 7 - 11"
+                If current_listing = "6"  Then tagline = ": Q. 12 - 13"
+                If current_listing = "7"  Then tagline = ": Q. 14 - 15"
+				If current_listing = "8"  Then tagline = ": Q. 16 - 20"
+				If current_listing = "9"  Then tagline = ": Q. 21 - 24"
+				If current_listing = "10" Then tagline = ": CAF QUAL Q"
+                If current_listing = "11" Then tagline = ": CAF Last Page"
+				If current_listing = "12" Then tagline = ": Discrepancies"
+                error_message = error_message & vbNewLine & vbNewLine & "----- Dialog " & current_listing & tagline & " -------"    'This is the header verbiage being added to the message text.
+            End If
+            if msg_header = "" Then back_to_dialog = current_listing
+            msg_header = current_listing        'setting for the next loop
+
+            message = replace(message, "##~##", vbCR)       'This is notation used in the creation of the message to indicate where we want to have a new line.'
+
+            error_message = error_message & vbNewLine & right(message, len(message) - 2)        'Adding the error information to the message list.
+        Next
+
+        'This is the display of all of the messages.
+        view_errors = MsgBox("In order to complete the script and CASE/NOTE, additional details need to be added or refined. Please review and update." & vbNewLine & error_message, vbCritical, "Review detail required in Dialogs")
+
+        'The function can be operated without moving to a different dialog or not. The only time this will be activated is at the end of dialog 8.
+        If execute_nav = TRUE Then
+            If back_to_dialog = "1" Then ButtonPressed = dlg_one_button         'This calls another function to go to the first dialog that had an error
+            If back_to_dialog = "2" Then ButtonPressed = dlg_two_button
+            If back_to_dialog = "3" Then ButtonPressed = dlg_three_button
+            If back_to_dialog = "4" Then ButtonPressed = dlg_four_button
+            If back_to_dialog = "5" Then ButtonPressed = dlg_five_button
+            If back_to_dialog = "6" Then ButtonPressed = dlg_six_button
+            If back_to_dialog = "7" Then ButtonPressed = dlg_seven_button
+            If back_to_dialog = "8" Then ButtonPressed = dlg_eight_button
+
+            Call assess_button_pressed          'this is where the navigation happens
+        End If
+    End If
+End Function
+
+function evaluate_for_expedited(app_month_income, app_month_assets, app_month_housing_cost, heat_checkbox, air_checkbox, electric_checkbox, phone_checkbox, app_month_utilities_cost, app_month_expenses, case_is_expedited)
+	If heat_checkbox = checked OR air_checkbox = checked Then
+		app_month_utilities_cost = 496
+	ElseIf electric_checkbox = checked AND phone_checkbox = checked Then
+		app_month_utilities_cost = 210
+	ElseIf electric_checkbox = checked Then
+		app_month_utilities_cost = 154
+	ElseIf phone_checkbox = checked Then
+		app_month_utilities_cost = 56
+	End If
+	If app_month_housing_cost = "" Then app_month_housing_cost = 0
+	app_month_housing_cost = app_month_housing_cost * 1
+	app_month_expenses = app_month_utilities_cost + app_month_housing_cost
+
+	If app_month_income = "" Then app_month_income = 0
+	app_month_income = app_month_income * 1
+
+	If app_month_assets = "" Then app_month_assets = 0
+	app_month_assets = app_month_assets * 1
+
+	income_and_assets = app_month_income + app_month_assets
+
+	case_is_expedited = False
+	If app_month_income < 150 AND app_month_assets <= 100 Then case_is_expedited = True
+	If income_and_assets < app_month_expenses Then case_is_expedited = True
 end function
 
 function get_state_name_from_state_code(state_code, state_name, include_state_code)
@@ -4977,9 +5135,9 @@ function save_your_work()
 			objTextStream.WriteLine "AREP - 05 - " & arep_addr_city
 			objTextStream.WriteLine "AREP - 06 - " & arep_addr_state
 			objTextStream.WriteLine "AREP - 07 - " & arep_addr_zip
-			objTextStream.WriteLine "AREP - 08 - " & arep_complete_forms_checkbox
-			objTextStream.WriteLine "AREP - 09 - " & arep_get_notices_checkbox
-			objTextStream.WriteLine "AREP - 10 - " & arep_use_SNAP_checkbox
+			If arep_complete_forms_checkbox = checked Then objTextStream.WriteLine "AREP - 08"
+			If arep_get_notices_checkbox = checked Then objTextStream.WriteLine "AREP - 09"
+			If arep_use_SNAP_checkbox = checked Then objTextStream.WriteLine "AREP - 10"
 			objTextStream.WriteLine "SIG - 01 - " & signature_person
 			objTextStream.WriteLine "SIG - 02 - " & signature_date
 			objTextStream.WriteLine "SIG - 03 - " & second_signature_person
@@ -5358,9 +5516,9 @@ function restore_your_work(vars_filled)
 					If left(text_line, 9) = "AREP - 05" Then arep_addr_city = Mid(text_line, 13)
 					If left(text_line, 9) = "AREP - 06" Then arep_addr_state = Mid(text_line, 13)
 					If left(text_line, 9) = "AREP - 07" Then arep_addr_zip = Mid(text_line, 13)
-					If left(text_line, 9) = "AREP - 08" Then arep_complete_forms_checkbox = Mid(text_line, 13)
-					If left(text_line, 9) = "AREP - 09" Then arep_get_notices_checkbox = Mid(text_line, 13)
-					If left(text_line, 9) = "AREP - 10" Then arep_use_SNAP_checkbox = Mid(text_line, 13)
+					If left(text_line, 9) = "AREP - 08" Then arep_complete_forms_checkbox = checked
+					If left(text_line, 9) = "AREP - 09" Then arep_get_notices_checkbox = checked
+					If left(text_line, 9) = "AREP - 10" Then arep_use_SNAP_checkbox = checked
 
 					If left(text_line, 8) = "SIG - 01" Then signature_person = Mid(text_line, 12)
 					If left(text_line, 8) = "SIG - 02" Then signature_date = Mid(text_line, 12)
@@ -6166,7 +6324,7 @@ Dim question_24_rep_payee_yn, question_24_guardian_fees_yn, question_24_special_
 Dim qual_question_one, qual_memb_one, qual_question_two, qual_memb_two, qual_question_three, qual_memb_there, qual_question_four, qual_memb_four, qual_question_five, qual_memb_five
 
 Dim show_pg_one_memb01_and_exp, show_pg_one_address, show_pg_memb_list, show_q_1_6
-Dim show_q_7_11, show_q_14_15, show_q_21_24, show_qual, show_pg_last
+Dim show_q_7_11, show_q_14_15, show_q_21_24, show_qual, show_pg_last, discrepancy_questions
 
 show_pg_one_memb01_and_exp	= 1
 show_pg_one_address			= 2
@@ -6183,6 +6341,7 @@ show_pg_last				= 11
 update_addr = FALSE
 update_pers = FALSE
 page_display = 1
+discrepancies_exist = False
 'THE SCRIPT------------------------------------------------------------------------------------------------------------------------------------------------
 'Connecting to MAXIS & grabbing the case number
 EMConnect ""
@@ -6578,6 +6737,7 @@ caf_qual_q_btn				= 2200
 caf_last_page_btn			= 2300
 finish_interview_btn		= 2400
 exp_income_guidance_btn 	= 2500
+discrepancy_questions_btn	= 2600
 return_btn 					= 900
 
 btn_placeholder = 4000
@@ -6665,9 +6825,9 @@ selected_memb = 0
 ' 	If show_caf_sig_dlg = TRUE Then Call dlg_signature
 ' Loop until show_caf_sig_dlg = FALSE
 ' save_your_work
+interview_questions_clear = False
 Do
 	Do
-
 		Do
 			' MsgBox page_display
 			Dialog1 = Empty
@@ -6682,7 +6842,7 @@ Do
 			cancel_confirmation
 			' MsgBox  HH_MEMB_ARRAY(0).ans_imig_status
 			save_your_work
-			Call check_for_errors
+			Call check_for_errors(interview_questions_clear)
 
 			If show_err_msg_during_movement = FALSE AND ButtonPressed <> finish_interview_btn Then err_msg = ""
 
