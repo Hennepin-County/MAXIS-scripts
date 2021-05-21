@@ -627,32 +627,34 @@ If open_existing_review_report = TRUE Then
 End If
 
 'Stats option ignores the 'list of workers' since it works off of an existing Excel, it needs to pull all of the workers
-If all_workers_check = checked then
-	call create_array_of_all_active_x_numbers_in_county(worker_array, two_digit_county_code)
+If renewal_option <> "Send Appointment Letters" Then
+	If all_workers_check = checked then
+		call create_array_of_all_active_x_numbers_in_county(worker_array, two_digit_county_code)
 
-	new_array_string = ""
-	For each worker in worker_array
-		save_worker_numb = TRUE
-		If worker = "X127V83" Then save_worker_numb = FALSE
-		If worker = "X127VS2" Then save_worker_numb = FALSE
-		If worker = "X127V51" Then save_worker_numb = FALSE
-		If save_worker_numb = TRUE Then new_array_string = new_array_string & " " & worker
-	Next
-	new_array_string = trim(new_array_string)
-	worker_array = split(new_array_string, " ")
-Else
-	x1s_from_dialog = split(worker_number, ",")	'Splits the worker array based on commas
-	'formatting array
-	For each x1_number in x1s_from_dialog
-		If worker_array = "" then
-			worker_array = trim(x1_number)		'replaces worker_county_code if found in the typed x1 number
-		Else
-			worker_array = worker_array & ", " & trim(ucase(x1_number)) 'replaces worker_county_code if found in the typed x1 number
-		End if
-	Next
-	'Split worker_array
-	worker_array = split(worker_array, ", ")
-End if
+		new_array_string = ""
+		For each worker in worker_array
+			save_worker_numb = TRUE
+			If worker = "X127V83" Then save_worker_numb = FALSE
+			If worker = "X127VS2" Then save_worker_numb = FALSE
+			If worker = "X127V51" Then save_worker_numb = FALSE
+			If save_worker_numb = TRUE Then new_array_string = new_array_string & " " & worker
+		Next
+		new_array_string = trim(new_array_string)
+		worker_array = split(new_array_string, " ")
+	Else
+		x1s_from_dialog = split(worker_number, ",")	'Splits the worker array based on commas
+		'formatting array
+		For each x1_number in x1s_from_dialog
+			If worker_array = "" then
+				worker_array = trim(x1_number)		'replaces worker_county_code if found in the typed x1 number
+			Else
+				worker_array = worker_array & ", " & trim(ucase(x1_number)) 'replaces worker_county_code if found in the typed x1 number
+			End if
+		Next
+		'Split worker_array
+		worker_array = split(worker_array, ", ")
+	End if
+End If
 
 If renewal_option = "Send NOMIs" then
 
@@ -2500,19 +2502,54 @@ ElseIf renewal_option = "Send Appointment Letters" Then
 			' MsgBox excel_row
 			forms_to_arep = ""
 			forms_to_swkr = ""
+			programs = ""
+			intvw_programs = ""
+			renewal_guidance_needed = False
+			renewal_guidance_confirmed = False
 
 			Call read_boolean_from_excel(ObjExcel.Cells(excel_row,  3).Value, er_with_intherview)
 			Call read_boolean_from_excel(objExcel.cells(excel_row,  6).value, MFIP_status)
+			Call read_boolean_from_excel(objExcel.cells(excel_row,  7).value, DWP_status)
+			Call read_boolean_from_excel(objExcel.cells(excel_row,  8).value, GA_status)
+			Call read_boolean_from_excel(objExcel.cells(excel_row,  9).value, MSA_status)
+			Call read_boolean_from_excel(objExcel.cells(excel_row, 10).value, GRH_status)
 			Call read_boolean_from_excel(objExcel.cells(excel_row, 13).value, SNAP_status)
 
-			If MFIP_status = True and SNAP_status = True Then programs = "MFIP/SNAP"
-			If MFIP_status = True Then programs = "MFIP"
-			If SNAP_status = True Then programs = "SNAP"
+			REPT_full = REPT_month & "/" & REPT_year
+			CASH_SR_Info = trim(objExcel.cells(excel_row, 11).value)
+			CASH_ER_Info = trim(objExcel.cells(excel_row, 12).value)
+			SNAP_SR_Info = trim(objExcel.cells(excel_row, 14).value)
+			SNAP_ER_Info = trim(objExcel.cells(excel_row, 15).value)
+
+			If MFIP_status = True and SNAP_status = True Then
+				intvw_programs = "MFIP/SNAP"
+			ElseIf MFIP_status = True Then
+				intvw_programs = "MFIP"
+			ElseIf SNAP_status = True Then
+				intvw_programs = "SNAP"
+			End If
+			If CASH_ER_Info = REPT_full then
+				If MFIP_status = True Then programs = programs & "/MFIP"
+				If DWP_status = True Then programs = programs & "/DWP"
+				If GA_status = True Then programs = programs & "/GA"
+				If MSA_status = True Then programs = programs & "/MSA"
+			End If
+			If CASH_SR_Info = REPT_full OR CASH_ER_Info = REPT_full then
+				If GRH_status = True Then programs = programs & "/GRH"
+			End If
+			If SNAP_SR_Info = REPT_full OR SNAP_ER_Info = REPT_full then
+				If SNAP_status = True Then programs = programs & "/SNAP"
+			End If
+			If left(programs, 1) = "/" Then programs = right(programs, len(programs)-1)
+
 			interview_end_date = CM_plus_1_mo & "/15/" & CM_plus_1_yr
 			last_day_of_recert = CM_plus_2_mo & "/01/" & CM_plus_2_yr
 		    last_day_of_recert = dateadd("D", -1, last_day_of_recert)
 
-			If er_with_intherview = True Then
+			notes_info = Trim(ObjExcel.cells(excel_row, 25).value)
+
+			' If er_with_intherview = True Then
+			If er_with_intherview = True AND MFIP_status = True Then
 				'Writing the SPEC MEMO - dates will be input from the determination made earlier.
 				' MsgBox "We're writing a MEMO here"
 				Call start_a_new_spec_memo_and_continue(memo_started)
@@ -2521,8 +2558,8 @@ ElseIf renewal_option = "Send Appointment Letters" Then
 
 					CALL write_variable_in_SPEC_MEMO("The Department of Human Services sent you a packet of paperwork. This paperwork is to renew your " & programs & " case.")
 					CALL write_variable_in_SPEC_MEMO("")
-					' CALL write_variable_in_SPEC_MEMO("Please sign, date and return the renewal paperwork by " & CM_plus_1_mo & "/08/" & CM_plus_1_yr & ". You must also complete an interview for your " & programs & " case to continue.")
-					CALL write_variable_in_SPEC_MEMO("Please sign, date and return the renewal paperwork by " & CM_plus_1_mo & "/08/" & CM_plus_1_yr & ". You may need to complete an interview for your " & programs & " case to continue.")
+					' CALL write_variable_in_SPEC_MEMO("Please sign, date and return the renewal paperwork by " & CM_plus_1_mo & "/08/" & CM_plus_1_yr & ". You must also complete an interview for your " & intvw_programs & " case to continue.")
+					CALL write_variable_in_SPEC_MEMO("Please sign, date and return the renewal paperwork by " & CM_plus_1_mo & "/08/" & CM_plus_1_yr & ". You may need to complete an interview for your " & intvw_programs & " case to continue.")
 					CALL write_variable_in_SPEC_MEMO("")
 					' Call write_variable_in_SPEC_MEMO("  *** Please complete your interview by " & interview_end_date & ". ***")
 					Call write_variable_in_SPEC_MEMO("  *** If required, complete your interview by " & interview_end_date & ". ***")
@@ -2567,15 +2604,22 @@ ElseIf renewal_option = "Send Appointment Letters" Then
 					ObjExcel.Cells(excel_row, notc_col).Value = "N"         'Setting this as N if the MEMO failed
 					call back_to_SELF
 				END IF
+				' ObjExcel.Cells(excel_row, 25).Value = "All progs - " & programs & " : INTVW Progs - " & intvw_programs
 			Else
 				ObjExcel.Cells(excel_row, notc_col).Value = "N/A"
+				renewal_guidance_needed = True
+				If notes_info = "PRIV Case." then renewal_guidance_needed = False
 			End If
 
-			If ObjExcel.Cells(excel_row, notc_col).Value = "Y" Then
+			If ObjExcel.Cells(excel_row, notc_col).Value = "Y" OR renewal_guidance_needed = True Then
 
 				Call start_a_new_spec_memo_and_continue(memo_started)   'Starting a MEMO to send information about verifications
 
 				IF memo_started = True THEN
+					If renewal_guidance_needed = True Then
+						CALL write_variable_in_SPEC_MEMO("The Department of Human Services sent you a packet of paperwork. This paperwork is to renew your " & programs & " case and is due by " & CM_plus_1_mo & "/08/" & CM_plus_1_yr & ".")
+						' CALL write_variable_in_SPEC_MEMO("")
+					End If
 
 					CALL write_variable_in_SPEC_MEMO("As a part of the Renewal Process we must receive recent verification of your information. To speed the renewal process, please send proofs with your renewal paperwork.")
 					CALL write_variable_in_SPEC_MEMO("")
@@ -2590,25 +2634,52 @@ ElseIf renewal_option = "Send Appointment Letters" Then
 					CALL write_variable_in_SPEC_MEMO(" * Examples of medical cost proofs(if changed):")
 					CALL write_variable_in_SPEC_MEMO("   prescription and medical bills, etc.")
 					CALL write_variable_in_SPEC_MEMO("")
-					CALL write_variable_in_SPEC_MEMO("You now have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. To obtain information about your case please contact your worker. EMAIL: hhsews@hennepin.us ")
-					CALL write_variable_in_SPEC_MEMO("If you have questions about the type of verifications needed, call 612-596-1300 and someone will assist you.")
+					If renewal_guidance_needed = False Then CALL write_variable_in_SPEC_MEMO("If you have questions about the type of verifications needed, call 612-596-1300 and someone will assist you.")
+					If renewal_guidance_needed = True Then
+						CALL write_variable_in_SPEC_MEMO("You now have an option to return documents to Hennepin County by email. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. To obtain information about your case please contact your worker. EMAIL: hhsews@hennepin.us ")
+						CALL write_variable_in_SPEC_MEMO("")
+						CALL write_variable_in_SPEC_MEMO("Once we receive and process your renewal paperwork, you will receive information BY MAIL with possible follow up or actions taken on your case. Call 612-596-1300 if you have additional questions.")
+					End If
 
 					PF4 'Submit the MEMO'
 
+					If renewal_guidance_needed = True Then
+						memo_row = 7                                            'Setting the row for the loop to read MEMOs
+						Do
+							EMReadScreen create_date, 8, memo_row, 19                 'Reading the date of each memo and the status
+							EMReadScreen print_status, 7, memo_row, 67
+							If create_date = today_date AND print_status = "Waiting" Then   'MEMOs created today and still waiting is likely our MEMO.
+								renewal_guidance_confirmed = True
+								ObjExcel.Cells(excel_row, notc_col).Value = "RG"
+								' ObjExcel.Cells(excel_row, 25).Value = "All progs - " & programs & " : INTVW Progs - " & intvw_programs
+								Exit Do
+							End If
 
+							memo_row = memo_row + 1           'Looking at next row'
+						Loop Until create_date = "        "
+					End If
 				End If
 
-				start_a_blank_case_note
-				CALL write_variable_in_CASE_NOTE("*** Notice of " & programs & " Recertification Interview Sent ***")
-				CALL write_variable_in_case_note("* A notice has been sent to client with detail about how to call in for an interview.")
-				CALL write_variable_in_case_note("* Client must submit paperwork and call 612-596-1300 to complete interview.")
-				If forms_to_arep = "Y" then call write_variable_in_case_note("* Copy of notice sent to AREP.")
-				If forms_to_swkr = "Y" then call write_variable_in_case_note("* Copy of notice sent to Social Worker.")
-				call write_variable_in_case_note("---")
-				CALL write_variable_in_case_note("Link to Domestic Violence Brochure sent to client in SPEC/MEMO as a part of interview notice.")
-				call write_variable_in_case_note("---")
-				call write_variable_in_case_note(worker_signature)
-
+				If ObjExcel.Cells(excel_row, notc_col).Value = "Y" Then
+					start_a_blank_case_note
+					CALL write_variable_in_CASE_NOTE("*** Notice of " & intvw_programs & " Recertification Interview Sent ***")
+					CALL write_variable_in_case_note("* A notice has been sent to client with detail about how to call in for an interview.")
+					CALL write_variable_in_case_note("* Client must submit paperwork and call 612-596-1300 to complete interview.")
+					If forms_to_arep = "Y" then call write_variable_in_case_note("* Copy of notice sent to AREP.")
+					If forms_to_swkr = "Y" then call write_variable_in_case_note("* Copy of notice sent to Social Worker.")
+					call write_variable_in_case_note("---")
+					CALL write_variable_in_case_note("Link to Domestic Violence Brochure sent to client in SPEC/MEMO as a part of interview notice.")
+					call write_variable_in_case_note("---")
+					call write_variable_in_case_note(worker_signature)
+				ElseIf renewal_guidance_confirmed = True Then
+					start_a_blank_case_note
+					CALL write_variable_in_CASE_NOTE("Notice sent for " & programs & " Renewal Guidance")
+					Call write_variable_in_case_note("* A reneal is due for this case for " & REPT_month & "/" & REPT_year)
+					Call write_variable_in_case_note("* Reminder notice sent with forms due date and verification options.")
+					Call write_variable_in_case_note("  -This is NOT an official verification request.-")
+					Call write_variable_in_case_note("---")
+					Call write_variable_in_case_note(worker_signature)
+				End If
 				PF3
 			End If
 		End If
@@ -2649,6 +2720,12 @@ ElseIf renewal_option = "Send Appointment Letters" Then
 		objExcel.Cells(entry_row, 1).Value      = "Total Cases with ER Interview"             'All cases from the spreadsheet
 		objExcel.Cells(entry_row, 1).Font.Bold 	= TRUE
 		objExcel.Cells(entry_row, 2).Value      = "=COUNTIFS(Table1[Interview ER],"&is_true&")"
+		' total_row = entry_row
+		entry_row = entry_row + 1
+
+		objExcel.Cells(entry_row, 1).Value      = "Total MFIP Cases with ER Interview"             'All cases from the spreadsheet
+		objExcel.Cells(entry_row, 1).Font.Bold 	= TRUE
+		objExcel.Cells(entry_row, 2).Value      = "=COUNTIFS(Table1[Interview ER],"&is_true&",Table1[MFIP Status],"&is_true&")"
 		total_row = entry_row
 		entry_row = entry_row + 1
 
@@ -2664,6 +2741,12 @@ ElseIf renewal_option = "Send Appointment Letters" Then
 	    objExcel.Cells(entry_row, 2).Value      = "=B" & appt_row & "/B" & total_row
 	    objExcel.Cells(entry_row, 2).NumberFormat = "0.00%"		'Formula should be percent
 	    entry_row = entry_row + 1
+
+		objExcel.Cells(entry_row, 1).Value      = "Renewal Guidance Notices Sent"           'calculation of the percent of successful notices
+		objExcel.Cells(entry_row, 1).Font.Bold 	= TRUE
+		objExcel.Cells(entry_row, 2).Value      = "=COUNTIFS(Table1[APPT NOTC Sent]," & Chr(34) & "RG" & Chr(34) & ")"
+		' objExcel.Cells(entry_row, 2).NumberFormat = "0.00%"		'Formula should be percent
+		entry_row = entry_row + 1
 	End If
 
 	date_stats_row = 0
@@ -2675,6 +2758,9 @@ ElseIf renewal_option = "Send Appointment Letters" Then
 	objExcel.Cells(date_stats_row, 1).Value      = "Appointment Notices Sent on " & today_date        'number of notices that were successful
 	objExcel.Cells(date_stats_row, 1).Font.Bold 	= TRUE
 	objExcel.Cells(date_stats_row, 2).Value      = "=COUNTIFS(Table1[APPT NOTC Date]," & Chr(34) & today_date & Chr(34) & ")"                'This was incremented on the For Next loop where the memos were written
+
+	objExcel.Columns(1).AutoFit()
+	objExcel.Columns(2).AutoFit()
 
 	end_msg = "NOTICES have been sent on " & successful_notices & " cases today. Information added to the Review Report Excel document."
 
@@ -3106,18 +3192,38 @@ If renewal_option = "Send NOMIs" Then
 			' MsgBox excel_row
 			forms_to_arep = ""
 			forms_to_swkr = ""
+			er_with_intherview = False
+			MFIP_status = False
+			SNAP_status = False
+			appt_notc_sent = ""
+			interview_date_as_of_today = ""
+			caf_date_as_of_today = ""
+			' programs = ""
 
 			Call read_boolean_from_excel(ObjExcel.Cells(excel_row,  3).Value, er_with_intherview)
-			Call read_boolean_from_excel(objExcel.cells(excel_row,  6).value, MFIP_status)
-			Call read_boolean_from_excel(objExcel.cells(excel_row, 13).value, SNAP_status)
+			Call read_boolean_from_excel(ObjExcel.cells(excel_row,  6).value, MFIP_status)
+			Call read_boolean_from_excel(ObjExcel.cells(excel_row, 13).value, SNAP_status)
+
+			notes_info = Trim(ObjExcel.cells(excel_row, 25).value)
+			in_county = True
+			If notes_info <> "PRIV Case." then
+				Call back_to_SELF
+				Call navigate_to_MAXIS_screen("CASE", "CURR")
+				EMReadscreen curr_primary_worker, 4, 21, 14
+				If curr_primary_worker <> "X127" Then in_county = False
+			End If
 
 			appt_notc_sent = trim(ObjExcel.Cells(excel_row, appt_notc_col).Value)
 			interview_date_as_of_today = trim(ObjExcel.Cells(excel_row, intvw_date_excel_col).Value)
 			caf_date_as_of_today = trim(ObjExcel.Cells(excel_row, recvd_date_excel_col).Value)
 
-			If MFIP_status = True and SNAP_status = True Then programs = "MFIP/SNAP"
-			If MFIP_status = True Then programs = "MFIP"
-			If SNAP_status = True Then programs = "SNAP"
+			' If MFIP_status = True and SNAP_status = True Then
+			' 	programs = "MFIP/SNAP"
+			' ElseIf MFIP_status = True Then
+			' 	programs = "MFIP"
+			' ElseIf SNAP_status = True Then
+			' 	programs = "SNAP"
+			' End If
 
 			' If er_with_intherview = True AND interview_date_as_of_today = "" AND appt_notc_sent = "Y" Then						'USING DIFFERENT CRITERA DUE TO WAIVED INTVW FOR SNAP DURING COVID-19'
 			If er_with_intherview = True AND interview_date_as_of_today = "" AND appt_notc_sent = "Y" AND MFIP_status = True Then
@@ -3174,7 +3280,7 @@ If renewal_option = "Send NOMIs" Then
 				If ObjExcel.Cells(excel_row, notc_col).Value = "Y" Then
 
 					start_a_blank_case_note
-					CALL write_variable_in_CASE_NOTE("*** NOMI Sent for " & programs & " Recertification***")
+					CALL write_variable_in_CASE_NOTE("*** NOMI Sent for " & REPT_month & "/" & REPT_year & " Recertification***")
 					if caf_date_as_of_today <> "" then CALL write_variable_in_CASE_NOTE("* Recertification app received on " & caf_date_as_of_today)
 					if caf_date_as_of_today = "" then CALL write_variable_in_CASE_NOTE("* Recertification app has NOT been received. Client must submit paperwork.")
 					CALL write_variable_in_CASE_NOTE("* A notice was previously sent to client with detail about how to call in for an interview.")
@@ -3187,14 +3293,16 @@ If renewal_option = "Send NOMIs" Then
 					PF3
 				End If
 
-			ElseIf er_with_intherview = True  AND MFIP_status = FALSE Then
+			ElseIf er_with_intherview = True  AND MFIP_status = False Then
 				ObjExcel.Cells(excel_row, notc_col).Value = "Not MFIP"
-			ElseIf er_with_intherview = True AND appt_notc_sent <> "Y" Then
-				ObjExcel.Cells(excel_row, notc_col).Value = "Check APPT NOTC"
 			ElseIf er_with_intherview = True AND interview_date_as_of_today <> "" Then
 				ObjExcel.Cells(excel_row, notc_col).Value = "INTV Done"
+			ElseIf er_with_intherview = True AND MFIP_status = TRUE AND appt_notc_sent <> "Y" Then
+				ObjExcel.Cells(excel_row, notc_col).Value = "Check APPT NOTC"
 			ElseIf er_with_intherview = False Then
 				ObjExcel.Cells(excel_row, notc_col).Value = "N/A"
+			ElseIf in_county = False Then
+				ObjExcel.Cells(excel_row, notc_col).Value = "Out of County - " & right(curr_primary_worker, 2)
 			End If
 		End If
 		excel_row = excel_row + 1
