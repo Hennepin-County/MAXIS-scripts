@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("05/21/2021", "Added supports to pull the case number when using the script from the DAIL scrubber.", "Ilse Ferris, Hennepin County")
 call changelog_update("05/28/2020", "Update to the notice wording, added virtual drop box information.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("12/29/2017", "Coordinates for sending MEMO's has changed in SPEC/MEMO. Updated script to support change.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
@@ -56,6 +57,15 @@ changelog_display
 'grabbing case number & connecting to MAXIS
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
+
+'Adding case number if using the script from the DAIL scrubber
+If MAXIS_case_number = "" then 
+    EmReadscreen DAIL_panel, 4, 2, 48
+    If DAIL_panel = "DAIL" then 
+        EmReadscreen MAXIS_case_number, 8, 5, 73
+        MAXIS_case_number = trim(MAXIS_case_number)
+    End if 
+End if 
 
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 161, 61, "Case number"
