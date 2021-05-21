@@ -34,18 +34,6 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'This block is to lock out non-testers from using TAGS.
-testers_script_list_URL = t_drive & "\Eligibility Support\Scripts\Script Files\COMPLETE LIST OF TESTERS.vbs"        'Opening the list of testers - which is saved locally for security
-Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-Set fso_command = run_another_script_fso.OpenTextFile(testers_script_list_URL)
-text_from_the_other_script = fso_command.ReadAll
-fso_command.Close
-Execute text_from_the_other_script
-
-Set objNet = CreateObject("WScript.NetWork")
-windows_user_ID = objNet.UserName
-user_ID_for_validation = ucase(windows_user_ID)
-
 tester_found = FALSE
 qi_staff = FALSE
 bz_staff = FALSE
