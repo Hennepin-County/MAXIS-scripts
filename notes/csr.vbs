@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("05/21/2021", "Updated browser to default when opening SIR from Internet Explorer to Edge.", "Ilse Ferris")
 call changelog_update("03/01/2020", "Updated TIKL functionality and TIKL text in the case note.", "Ilse Ferris")
 call changelog_update("12/21/2019", "Updated the script to carry the Footer Month and Year to the MA Approval case note when 'Processing Paperless IR' is checked for an LTC case.", "Casey Love, Hennepin County")
 Call changelog_update("03/06/2019", "Added 2 new options to the Notes on Income button to support referencing CASE/NOTE made by Earned Income Budgeting.", "Casey Love, Hennepin County")
@@ -224,7 +225,7 @@ DO
 
 					DIALOG Dialog1
 					cancel_confirmation
-					If ButtonPressed = SIR_mail_button then run "C:\Program Files\Internet Explorer\iexplore.exe https://www.dhssir.cty.dhs.state.mn.us/Pages/Default.aspx"
+					If ButtonPressed = SIR_mail_button then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhssir.cty.dhs.state.mn.us/Pages/Default.aspx"
 					'If next_button = pressed THEN msgbox next_button
 					If ButtonPressed = income_notes_button Then
 					    '-------------------------------------------------------------------------------------------------DIALOG
@@ -330,7 +331,7 @@ DO
 				    EndDialog
 					Dialog Dialog1
 					cancel_confirmation
-					IF ButtonPressed = SIR_mail_button THEN run "C:\Program Files\Internet Explorer\iexplore.exe https://www.dhssir.cty.dhs.state.mn.us/Pages/Default.aspx"
+					IF ButtonPressed = SIR_mail_button THEN run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhssir.cty.dhs.state.mn.us/Pages/Default.aspx"
 				LOOP UNTIL ButtonPressed <> no_cancel_button
 				MAXIS_dialog_navigation
 			LOOP UNTIL ButtonPressed = -1 OR ButtonPressed = previous_button

@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("05/21/2021", "Updated browser to default when opening SIR from Internet Explorer to Edge.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/20/2020", "Updated link to REQUEST TO APPL use form on SharePoint.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/04/2019", "Added checkbox reminders to support Request to APPL and MA Transition Communication Form proces.", "Ilse Ferris, Hennepin County")
 call changelog_update("07/05/2019", "MAXIS to METS Transition option updated to support METS Affliated cases.", "Ilse Ferris, Hennepin County")
@@ -374,7 +375,7 @@ Call write_variable_in_CASE_NOTE(worker_signature)
 
 If initial_option = "1. Non-MAGI referral" then
     navigate_decision = Msgbox("Do you want to open a Request to APPL useform?", vbQuestion + vbYesNo, "Navigate to Useform?")
-    If navigate_decision = vbYes then run "C:\Program Files\Internet Explorer\iexplore.exe http://aem.hennepin.us/rest/services/HennepinCounty/Processes/ServletRenderForm:1.0?formName=HSPH5004_1-0.xdp&interactive=1" 
+    If navigate_decision = vbYes then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://aem.hennepin.us/rest/services/HennepinCounty/Processes/ServletRenderForm:1.0?formName=HSPH5004_1-0.xdp&interactive=1" 
     If navigate_decision = vbNo then navigate_to_form = False
 End if
 
