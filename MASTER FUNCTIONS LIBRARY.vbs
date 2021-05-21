@@ -74,6 +74,21 @@ OK = -1			'Value for OK button in dialogs
 blank = ""
 t_drive = "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team"
 
+'LOADING LIST OF TESTERS====================================================================================================
+tester_list_URL = t_drive & "\Eligibility Support\Scripts\Script Files\COMPLETE LIST OF TESTERS.vbs"        'Opening the list of testers - which is saved locally for security
+Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
+Set fso_command = run_another_script_fso.OpenTextFile(tester_list_URL)
+text_from_the_other_script = fso_command.ReadAll
+fso_command.Close
+Execute text_from_the_other_script
+'END LIST OF TESTERS BLOCK==================================================================================================
+
+'The following code looks to find the user name of the user running the script---------------------------------------------------------------------------------------------
+'This is used in arrays that specify functionality to specific workers
+Set objNet = CreateObject("WScript.NetWork")
+windows_user_ID = objNet.UserName
+user_ID_for_validation = ucase(windows_user_ID)
+
 'Global function to actually RUN'
 Call confirm_tester_information
 
@@ -419,12 +434,6 @@ With (CreateObject("Scripting.FileSystemObject"))															'Creating an FSO
 		worker_sig_command.Close																			'Closes the file
 	END IF
 END WITH
-
-'The following code looks to find the user name of the user running the script---------------------------------------------------------------------------------------------
-'This is used in arrays that specify functionality to specific workers
-Set objNet = CreateObject("WScript.NetWork")
-windows_user_ID = objNet.UserName
-user_ID_for_validation = ucase(windows_user_ID)
 
 '----------------------------------------------------------------------------------------------------Email addresses for the teams
 IF current_worker_number =	"X127F3P" 	THEN email_address = "HSPH.ES.MA.EPD.Adult@hennepin.us"
@@ -3791,16 +3800,6 @@ end function
 function confirm_tester_information()
 '--- Ask a tester to confirm the details we have for them. THIS FUNCTION IS CALLED IN THE FUNCTIONS LIBRARY
 '===== Keywords: Testing, Infrastucture
-	script_list_URL = t_drive & "\Eligibility Support\Scripts\Script Files\COMPLETE LIST OF TESTERS.vbs"        'Opening the list of testers - which is saved locally for security
-    Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-    Set fso_command = run_another_script_fso.OpenTextFile(script_list_URL)
-    text_from_the_other_script = fso_command.ReadAll
-    fso_command.Close
-    Execute text_from_the_other_script
-
-    Set objNet = CreateObject("WScript.NetWork")            'Getting the script user's windows ID
-    windows_user_ID = objNet.UserName
-    user_ID_for_validation = ucase(windows_user_ID)
 
     'Now the script will look to see if this user is a tester that needs their information confirmed.
     Leave_Confirmation = FALSE                              'This will allow the user to cancel the update if they desire
@@ -7059,17 +7058,6 @@ function select_testing_file(selection_type, the_selection, file_path, file_bran
 '~~~~~ file_branch: which branch the file is in
 '~~~~~ force_error_reporting: should the in-script error reporting automatically happen
 '===== Keywords: MAXIS, PRISM, production, clear
-
-    script_list_URL = t_drive & "\Eligibility Support\Scripts\Script Files\COMPLETE LIST OF TESTERS.vbs"        'Opening the list of testers - which is saved locally for security
-    Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-    Set fso_command = run_another_script_fso.OpenTextFile(script_list_URL)
-    text_from_the_other_script = fso_command.ReadAll
-    fso_command.Close
-    Execute text_from_the_other_script
-
-    Set objNet = CreateObject("WScript.NetWork")
-    windows_user_ID = objNet.UserName
-    user_ID_for_validation = ucase(windows_user_ID)
 
     run_testing_file = FALSE
     If Instr(the_selection, ",") <> 0 Then
