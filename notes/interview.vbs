@@ -93,20 +93,20 @@ const client_verification			= 36
 const client_verification_details	= 37
 const client_notes					= 38
 const intend_to_reside_in_mn		= 39
-const race_a_checkbox				= 41
-const race_b_checkbox				= 42
-const race_n_checkbox				= 43
-const race_p_checkbox				= 44
-const race_w_checkbox				= 45
-const snap_req_checkbox				= 46
-const cash_req_checkbox				= 47
-const emer_req_checkbox				= 48
-const none_req_checkbox				= 49
-const ssn_no_space					= 50
-const edrs_msg						= 51
-const edrs_match					= 52
-const edrs_notes 					= 53
-const last_const					= 54
+const race_a_checkbox				= 40
+const race_b_checkbox				= 41
+const race_n_checkbox				= 42
+const race_p_checkbox				= 43
+const race_w_checkbox				= 44
+const snap_req_checkbox				= 45
+const cash_req_checkbox				= 46
+const emer_req_checkbox				= 47
+const none_req_checkbox				= 48
+const ssn_no_space					= 49
+const edrs_msg						= 50
+const edrs_match					= 51
+const edrs_notes 					= 52
+const last_const					= 53
 
 Dim HH_MEMB_ARRAY()
 ReDim HH_MEMB_ARRAY(last_const, 0)
@@ -3720,7 +3720,7 @@ function define_main_dialog()
 			' Text 360, y_pos, 105, 10, "Q10 - Verification - " & question_10_verif_yn
 			y_pos = y_pos + 20
 			Text 15, y_pos, 60, 10, "Interview Notes:"
-			EditBox 75, y_pos - 5, 320, 15, question_12_interview_notes
+			EditBox 75, y_pos - 5, 320, 15, question_11_interview_notes
 			PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", add_verif_12_btn
 			y_pos = y_pos + 25
 
@@ -4691,9 +4691,7 @@ function save_your_work()
 
 	'Now determines name of file
 	If MAXIS_case_number <> "" Then
-		local_changelog_path = user_myDocs_folder & "caf-answers-" & MAXIS_case_number & "-info.txt"
-	Else
-		local_changelog_path = user_myDocs_folder & "caf-answers-new-case-info.txt"
+		local_changelog_path = user_myDocs_folder & "interview-answers-" & MAXIS_case_number & "-info.txt"
 	End If
 	Const ForReading = 1
 	Const ForWriting = 2
@@ -4724,11 +4722,11 @@ function save_your_work()
 			objTextStream.WriteLine "EXP - 1 - " & exp_q_1_income_this_month
 			objTextStream.WriteLine "EXP - 2 - " & exp_q_2_assets_this_month
 			objTextStream.WriteLine "EXP - 3 - RENT - " & exp_q_3_rent_this_month
-			objTextStream.WriteLine "EXP - 3 - HEAT - " & exp_pay_heat_checkbox
-			objTextStream.WriteLine "EXP - 3 - ACON - " & exp_pay_ac_checkbox
-			objTextStream.WriteLine "EXP - 3 - ELEC - " & exp_pay_electricity_checkbox
-			objTextStream.WriteLine "EXP - 3 - PHON - " & exp_pay_phone_checkbox
-			objTextStream.WriteLine "EXP - 3 - NONE - " & exp_pay_none_checkbox
+			If caf_exp_pay_heat_checkbox = checked 			Then objTextStream.WriteLine "EXP - 3 - HEAT"
+			If caf_exp_pay_ac_checkbox = checked 			Then objTextStream.WriteLine "EXP - 3 - ACON"
+			If caf_exp_pay_electricity_checkbox = checked 	Then objTextStream.WriteLine "EXP - 3 - ELEC"
+			If caf_exp_pay_phone_checkbox = checked 		Then objTextStream.WriteLine "EXP - 3 - PHON"
+			If caf_exp_pay_none_checkbox = checked 			Then objTextStream.WriteLine "EXP - 3 - NONE"
 			objTextStream.WriteLine "EXP - 4 - " & exp_migrant_seasonal_formworker_yn
 			objTextStream.WriteLine "EXP - 5 - PREV - " & exp_received_previous_assistance_yn
 			objTextStream.WriteLine "EXP - 5 - WHEN - " & exp_previous_assistance_when
@@ -4736,6 +4734,17 @@ function save_your_work()
 			objTextStream.WriteLine "EXP - 5 - WHAT - " & exp_previous_assistance_what
 			objTextStream.WriteLine "EXP - 6 - PREG - " & exp_pregnant_yn
 			objTextStream.WriteLine "EXP - 6 - WHO? - " & exp_pregnant_who
+			objTextStream.WriteLine "EXP - INTVW - INCM - " & intv_app_month_income
+			objTextStream.WriteLine "EXP - INTVW - ASST - " & intv_app_month_asset
+			objTextStream.WriteLine "EXP - INTVW - RENT - " & intv_app_month_housing_expense
+			If intv_exp_pay_heat_checkbox = checked 		Then objTextStream.WriteLine "EXP - INTVW - HEAT"
+			If intv_exp_pay_ac_checkbox = checked 			Then objTextStream.WriteLine "EXP - INTVW - ACON"
+			If intv_exp_pay_electricity_checkbox = checked 	Then objTextStream.WriteLine "EXP - INTVW - ELEC"
+			If intv_exp_pay_phone_checkbox = checked 		Then objTextStream.WriteLine "EXP - INTVW - PHON"
+			If intv_exp_pay_none_checkbox = checked 		Then objTextStream.WriteLine "EXP - INTVW - NONE"
+			objTextStream.WriteLine "EXP - INTVW - ID - " & id_verif_on_file
+			objTextStream.WriteLine "EXP - INTVW - 89 - " & snap_active_in_other_state
+			objTextStream.WriteLine "EXP - INTVW - EXP - " & last_snap_was_exp
 
 			objTextStream.WriteLine "ADR - RESI - STR - " & resi_addr_street_full
 			objTextStream.WriteLine "ADR - RESI - CIT - " & resi_addr_city
@@ -4768,41 +4777,49 @@ function save_your_work()
 			objTextStream.WriteLine "01N - " & question_1_notes
 			objTextStream.WriteLine "01V - " & question_1_verif_yn
 			objTextStream.WriteLine "01D - " & question_1_verif_details
+			objTextStream.WriteLine "01I - " & question_1_interview_notes
 
 			objTextStream.WriteLine "02A - " & question_2_yn
 			objTextStream.WriteLine "02N - " & question_2_notes
 			objTextStream.WriteLine "02V - " & question_2_verif_yn
 			objTextStream.WriteLine "02D - " & question_2_verif_details
+			objTextStream.WriteLine "02I - " & question_2_interview_notes
 
 			objTextStream.WriteLine "03A - " & question_3_yn
 			objTextStream.WriteLine "03N - " & question_3_notes
 			objTextStream.WriteLine "03V - " & question_3_verif_yn
 			objTextStream.WriteLine "03D - " & question_3_verif_details
+			objTextStream.WriteLine "03I - " & question_3_interview_notes
 
 			objTextStream.WriteLine "04A - " & question_4_yn
 			objTextStream.WriteLine "04N - " & question_4_notes
 			objTextStream.WriteLine "04V - " & question_4_verif_yn
 			objTextStream.WriteLine "04D - " & question_4_verif_details
+			objTextStream.WriteLine "04I - " & question_4_interview_notes
 
 			objTextStream.WriteLine "05A - " & question_5_yn
 			objTextStream.WriteLine "05N - " & question_5_notes
 			objTextStream.WriteLine "05V - " & question_5_verif_yn
 			objTextStream.WriteLine "05D - " & question_5_verif_details
+			objTextStream.WriteLine "05I - " & question_5_interview_notes
 
 			objTextStream.WriteLine "06A - " & question_6_yn
 			objTextStream.WriteLine "06N - " & question_6_notes
 			objTextStream.WriteLine "06V - " & question_6_verif_yn
 			objTextStream.WriteLine "06D - " & question_6_verif_details
+			objTextStream.WriteLine "06I - " & question_6_interview_notes
 
 			objTextStream.WriteLine "07A - " & question_7_yn
 			objTextStream.WriteLine "07N - " & question_7_notes
 			objTextStream.WriteLine "07V - " & question_7_verif_yn
 			objTextStream.WriteLine "07D - " & question_7_verif_details
+			objTextStream.WriteLine "07I - " & question_7_interview_notes
 
 			objTextStream.WriteLine "08A - " & question_8_yn
 			objTextStream.WriteLine "08N - " & question_8_notes
 			objTextStream.WriteLine "08V - " & question_8_verif_yn
 			objTextStream.WriteLine "08D - " & question_8_verif_details
+			objTextStream.WriteLine "08I - " & question_8_interview_notes
 
 			objTextStream.WriteLine "09A - " & question_9_yn
 			objTextStream.WriteLine "09N - " & question_9_notes
@@ -4814,31 +4831,45 @@ function save_your_work()
 			objTextStream.WriteLine "10V - " & question_10_verif_yn
 			objTextStream.WriteLine "10D - " & question_10_verif_details
 			objTextStream.WriteLine "10G - " & question_10_monthly_earnings
+			objTextStream.WriteLine "10I - " & question_10_interview_notes
 
 			objTextStream.WriteLine "11A - " & question_11_yn
 			objTextStream.WriteLine "11N - " & question_11_notes
 			objTextStream.WriteLine "11V - " & question_11_verif_yn
 			objTextStream.WriteLine "11D - " & question_11_verif_details
+			objTextStream.WriteLine "11I - " & question_11_interview_notes
 
 			objTextStream.WriteLine "PWE - " & pwe_selection
 
-			objTextStream.WriteLine "12A - RS - " & question_12_yn
-			objTextStream.WriteLine "12A - SS - " & question_12_yn
-			objTextStream.WriteLine "12A - VA - " & question_12_yn
-			objTextStream.WriteLine "12A - UI - " & question_12_yn
-			objTextStream.WriteLine "12A - WC - " & question_12_yn
-			objTextStream.WriteLine "12A - RT - " & question_12_yn
-			objTextStream.WriteLine "12A - TP - " & question_12_yn
-			objTextStream.WriteLine "12A - CS - " & question_12_yn
-			objTextStream.WriteLine "12A - OT - " & question_12_yn
+			objTextStream.WriteLine "12A - RS - " & question_12_rsdi_yn
+			objTextStream.WriteLine "12$ - RS - " & question_12_rsdi_amt
+			objTextStream.WriteLine "12A - SS - " & question_12_ssi_yn
+			objTextStream.WriteLine "12$ - SS - " & question_12_ssi_amt
+			objTextStream.WriteLine "12A - VA - " & question_12_va_yn
+			objTextStream.WriteLine "12$ - VA - " & question_12_va_amt
+			objTextStream.WriteLine "12A - UI - " & question_12_ui_yn
+			objTextStream.WriteLine "12$ - UI - " & question_12_ui_amt
+			objTextStream.WriteLine "12A - WC - " & question_12_wc_yn
+			objTextStream.WriteLine "12$ - WC - " & question_12_wc_amt
+			objTextStream.WriteLine "12A - RT - " & question_12_ret_yn
+			objTextStream.WriteLine "12$ - RT - " & question_12_ret_amt
+			objTextStream.WriteLine "12A - TP - " & question_12_trib_yn
+			objTextStream.WriteLine "12$ - TP - " & question_12_trib_amt
+			objTextStream.WriteLine "12A - CS - " & question_12_cs_yn
+			objTextStream.WriteLine "12$ - CS - " & question_12_cs_amt
+			objTextStream.WriteLine "12A - OT - " & question_12_other_yn
+			objTextStream.WriteLine "12$ - OT - " & question_12_other_amt
+			objTextStream.WriteLine "12A - " & q_12_answered
 			objTextStream.WriteLine "12N - " & question_12_notes
 			objTextStream.WriteLine "12V - " & question_12_verif_yn
 			objTextStream.WriteLine "12D - " & question_12_verif_details
+			objTextStream.WriteLine "12I - " & question_12_interview_notes
 
 			objTextStream.WriteLine "13A - " & question_13_yn
 			objTextStream.WriteLine "13N - " & question_13_notes
 			objTextStream.WriteLine "13V - " & question_13_verif_yn
 			objTextStream.WriteLine "13D - " & question_13_verif_details
+			objTextStream.WriteLine "13I - " & question_13_interview_notes
 
 			objTextStream.WriteLine "14A - RT - " &  question_14_rent_yn
 			objTextStream.WriteLine "14A - SB - " &  question_14_subsidy_yn
@@ -4847,9 +4878,11 @@ function save_your_work()
 			objTextStream.WriteLine "14A - IN - " &  question_14_insurance_yn
 			objTextStream.WriteLine "14A - RM - " &  question_14_room_yn
 			objTextStream.WriteLine "14A - TX - " &  question_14_taxes_yn
+			objTextStream.WriteLine "14A - " & q_14_answered
 			objTextStream.WriteLine "14N - " & question_14_notes
 			objTextStream.WriteLine "14V - " & question_14_verif_yn
 			objTextStream.WriteLine "14D - " & question_14_verif_details
+			objTextStream.WriteLine "14I - " & question_14_interview_notes
 
 			objTextStream.WriteLine "15A - HA - " & question_15_heat_ac_yn
 			objTextStream.WriteLine "15A - EL - " & question_15_electricity_yn
@@ -4858,60 +4891,73 @@ function save_your_work()
 			objTextStream.WriteLine "15A - GR - " & question_15_garbage_yn
 			objTextStream.WriteLine "15A - PN - " & question_15_phone_yn
 			objTextStream.WriteLine "15A - LP - " & question_15_liheap_yn
+			objTextStream.WriteLine "15A - " & q_15_answered
 			objTextStream.WriteLine "15N - " & question_15_notes
 			objTextStream.WriteLine "15V - " & question_15_verif_yn
 			objTextStream.WriteLine "15D - " & question_15_verif_details
+			objTextStream.WriteLine "15I - " & question_15_interview_notes
 
 			objTextStream.WriteLine "16A - " & question_16_yn
 			objTextStream.WriteLine "16N - " & question_16_notes
 			objTextStream.WriteLine "16V - " & question_16_verif_yn
 			objTextStream.WriteLine "16D - " & question_16_verif_details
+			objTextStream.WriteLine "16I - " & question_16_interview_notes
 
 			objTextStream.WriteLine "17A - " & question_17_yn
 			objTextStream.WriteLine "17N - " & question_17_notes
 			objTextStream.WriteLine "17V - " & question_17_verif_yn
 			objTextStream.WriteLine "17D - " & question_17_verif_details
+			objTextStream.WriteLine "17I - " & question_17_interview_notes
 
 			objTextStream.WriteLine "18A - " & question_18_yn
 			objTextStream.WriteLine "18N - " & question_18_notes
 			objTextStream.WriteLine "18V - " & question_18_verif_yn
 			objTextStream.WriteLine "18D - " & question_18_verif_details
+			objTextStream.WriteLine "18I - " & question_18_interview_notes
 
 			objTextStream.WriteLine "19A - " & question_19_yn
 			objTextStream.WriteLine "19N - " & question_19_notes
 			objTextStream.WriteLine "19V - " & question_19_verif_yn
 			objTextStream.WriteLine "19D - " & question_19_verif_details
+			objTextStream.WriteLine "19I - " & question_19_interview_notes
 
 			objTextStream.WriteLine "20A - CA - " & question_20_cash_yn
 			objTextStream.WriteLine "20A - AC - " & question_20_acct_yn
 			objTextStream.WriteLine "20A - SE - " & question_20_secu_yn
 			objTextStream.WriteLine "20A - CR - " & question_20_cars_yn
+			objTextStream.WriteLine "20A - " & q_20_answered
 			objTextStream.WriteLine "20N - " & question_20_notes
 			objTextStream.WriteLine "20V - " & question_20_verif_yn
 			objTextStream.WriteLine "20D - " & question_20_verif_details
+			objTextStream.WriteLine "20I - " & question_20_interview_notes
 
 			objTextStream.WriteLine "21A - " & question_21_yn
 			objTextStream.WriteLine "21N - " & question_21_notes
 			objTextStream.WriteLine "21V - " & question_21_verif_yn
 			objTextStream.WriteLine "21D - " & question_21_verif_details
+			objTextStream.WriteLine "21I - " & question_21_interview_notes
 
 			objTextStream.WriteLine "22A - " & question_22_yn
 			objTextStream.WriteLine "22N - " & question_22_notes
 			objTextStream.WriteLine "22V - " & question_22_verif_yn
 			objTextStream.WriteLine "22D - " & question_22_verif_details
+			objTextStream.WriteLine "22I - " & question_22_interview_notes
 
 			objTextStream.WriteLine "23A - " & question_23_yn
 			objTextStream.WriteLine "23N - " & question_23_notes
 			objTextStream.WriteLine "23V - " & question_23_verif_yn
 			objTextStream.WriteLine "23D - " & question_23_verif_details
+			objTextStream.WriteLine "23I - " & question_23_interview_notes
 
 			objTextStream.WriteLine "24A - RP - " & question_24_rep_payee_yn
 			objTextStream.WriteLine "24A - GF - " & question_24_guardian_fees_yn
 			objTextStream.WriteLine "24A - SD - " & question_24_special_diet_yn
 			objTextStream.WriteLine "24A - HH - " & question_24_high_housing_yn
+			objTextStream.WriteLine "24A - " & q_24_answered
 			objTextStream.WriteLine "24N - " & question_24_notes
 			objTextStream.WriteLine "24V - " & question_24_verif_yn
 			objTextStream.WriteLine "24D - " & question_24_verif_details
+			objTextStream.WriteLine "24I - " & question_24_interview_notes
 
 			objTextStream.WriteLine "QQ1A - " & qual_question_one
 			objTextStream.WriteLine "QQ1M - " & qual_memb_one
@@ -4924,12 +4970,78 @@ function save_your_work()
 			objTextStream.WriteLine "QQ5A - " & qual_question_five
 			objTextStream.WriteLine "QQ5M - " & qual_memb_five
 
-			For known_membs = 0 to UBound(ALL_CLIENTS_ARRAY, 2)
-				objTextStream.WriteLine "ARR - ALL_CLIENTS_ARRAY - " & ALL_CLIENTS_ARRAY(memb_last_name, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_first_name, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_mid_name, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_other_names, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_ssn_verif, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_soc_sec_numb, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_dob, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_gender, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_rel_to_applct, known_membs)&"~"&ALL_CLIENTS_ARRAY(memi_marriage_status, known_membs)&"~"&ALL_CLIENTS_ARRAY(memi_last_grade, known_membs)&"~"&ALL_CLIENTS_ARRAY(memi_MN_entry_date, known_membs)&"~"&ALL_CLIENTS_ARRAY(memi_former_state, known_membs)&"~"&ALL_CLIENTS_ARRAY(memi_citizen, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_interpreter, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_spoken_language, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_written_language, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_ethnicity, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_race_a_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_race_b_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_race_n_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_race_p_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_race_w_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_snap_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_cash_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_emer_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_none_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_intend_to_reside_mn, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_imig_status, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_sponsor_yn, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_verif_yn, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_verif_details, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_notes, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_ref_numb, known_membs)
+			objTextStream.WriteLine "AREP - 01 - " & arep_name
+			objTextStream.WriteLine "AREP - 02 - " & arep_relationship
+			objTextStream.WriteLine "AREP - 03 - " & arep_phone_number
+			objTextStream.WriteLine "AREP - 04 - " & arep_addr_street
+			objTextStream.WriteLine "AREP - 05 - " & arep_addr_city
+			objTextStream.WriteLine "AREP - 06 - " & arep_addr_state
+			objTextStream.WriteLine "AREP - 07 - " & arep_addr_zip
+			objTextStream.WriteLine "AREP - 08 - " & arep_complete_forms_checkbox
+			objTextStream.WriteLine "AREP - 09 - " & arep_get_notices_checkbox
+			objTextStream.WriteLine "AREP - 10 - " & arep_use_SNAP_checkbox
+			objTextStream.WriteLine "SIG - 01 - " & signature_person
+			objTextStream.WriteLine "SIG - 02 - " & signature_date
+			objTextStream.WriteLine "SIG - 03 - " & second_signature_person
+			objTextStream.WriteLine "SIG - 04 - " & second_signature_date
+			objTextStream.WriteLine "SIG - 05 - " & client_signed_verbally_yn
+			objTextStream.WriteLine "SIG - 06 - " & interview_date
+
+			objTextStream.WriteLine "FORM - 01 - " & confirm_resp_read
+			objTextStream.WriteLine "FORM - 02 - " & confirm_rights_read
+			objTextStream.WriteLine "FORM - 03 - " & confirm_ebt_read
+			objTextStream.WriteLine "FORM - 04 - " & confirm_ebt_how_to_read
+			objTextStream.WriteLine "FORM - 05 - " & confirm_npp_info_read
+			objTextStream.WriteLine "FORM - 06 - " & confirm_npp_rights_read
+			objTextStream.WriteLine "FORM - 07 - " & confirm_appeal_rights_read
+			objTextStream.WriteLine "FORM - 08 - " & confirm_civil_rights_read
+			objTextStream.WriteLine "FORM - 09 - " & confirm_cover_letter_read
+			objTextStream.WriteLine "FORM - 10 - " & confirm_program_information_read
+			objTextStream.WriteLine "FORM - 11 - " & confirm_DV_read
+			objTextStream.WriteLine "FORM - 12 - " & confirm_disa_read
+			objTextStream.WriteLine "FORM - 13 - " & confirm_mfip_forms_read
+			objTextStream.WriteLine "FORM - 14 - " & confirm_mfip_cs_read
+			objTextStream.WriteLine "FORM - 15 - " & confirm_minor_mfip_read
+			objTextStream.WriteLine "FORM - 16 - " & confirm_snap_forms_read
+			objTextStream.WriteLine "FORM - 17 - " & confirm_recap_read
+
+			For known_membs = 0 to UBound(HH_MEMB_ARRAY, 2)
+				' objTextStream.WriteLine "ARR - ALL_CLIENTS_ARRAY - " & ALL_CLIENTS_ARRAY(memb_last_name, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_first_name, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_mid_name, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_other_names, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_ssn_verif, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_soc_sec_numb, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_dob, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_gender, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_rel_to_applct, known_membs)&"~"&ALL_CLIENTS_ARRAY(memi_marriage_status, known_membs)&"~"&ALL_CLIENTS_ARRAY(memi_last_grade, known_membs)&"~"&ALL_CLIENTS_ARRAY(memi_MN_entry_date, known_membs)&"~"&ALL_CLIENTS_ARRAY(memi_former_state, known_membs)&"~"&ALL_CLIENTS_ARRAY(memi_citizen, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_interpreter, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_spoken_language, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_written_language, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_ethnicity, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_race_a_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_race_b_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_race_n_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_race_p_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_race_w_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_snap_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_cash_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_emer_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_none_checkbox, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_intend_to_reside_mn, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_imig_status, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_sponsor_yn, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_verif_yn, known_membs)&"~"&ALL_CLIENTS_ARRAY(clt_verif_details, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_notes, known_membs)&"~"&ALL_CLIENTS_ARRAY(memb_ref_numb, known_membs)
+				race_a_info = ""
+				race_b_info = ""
+				race_n_info = ""
+				race_p_info = ""
+				race_w_info = ""
+				prog_s_info = ""
+				prog_c_info = ""
+				prog_e_info = ""
+				prog_n_info = ""
+
+				If HH_MEMB_ARRAY(race_a_checkbox, known_membs) = checked Then race_a_info = "YES"
+				If HH_MEMB_ARRAY(race_b_checkbox, known_membs) = checked Then race_b_info = "YES"
+				If HH_MEMB_ARRAY(race_n_checkbox, known_membs) = checked Then race_n_info = "YES"
+				If HH_MEMB_ARRAY(race_p_checkbox, known_membs) = checked Then race_p_info = "YES"
+				If HH_MEMB_ARRAY(race_w_checkbox, known_membs) = checked Then race_w_info = "YES"
+				If HH_MEMB_ARRAY(snap_req_checkbox, known_membs) = checked Then prog_s_info = "YES"
+				If HH_MEMB_ARRAY(cash_req_checkbox, known_membs) = checked Then prog_c_info = "YES"
+				If HH_MEMB_ARRAY(emer_req_checkbox, known_membs) = checked Then prog_e_info = "YES"
+				If HH_MEMB_ARRAY(none_req_checkbox, known_membs) = checked Then prog_n_info = "YES"
+
+				objTextStream.WriteLine "ARR - HH_MEMB_ARRAY - " & HH_MEMB_ARRAY(ref_number, known_membs)&"~"&HH_MEMB_ARRAY(access_denied, known_membs)&"~"&HH_MEMB_ARRAY(full_name_const, known_membs)&"~"&HH_MEMB_ARRAY(last_name_const, known_membs)&"~"&_
+				HH_MEMB_ARRAY(first_name_const, known_membs)&"~"&HH_MEMB_ARRAY(mid_initial, known_membs)&"~"&HH_MEMB_ARRAY(age, known_membs)&"~"&HH_MEMB_ARRAY(date_of_birth, known_membs)&"~"&HH_MEMB_ARRAY(ssn, known_membs)&"~"&HH_MEMB_ARRAY(ssn_verif, known_membs)&"~"&_
+				HH_MEMB_ARRAY(birthdate_verif, known_membs)&"~"&HH_MEMB_ARRAY(gender, known_membs)&"~"&HH_MEMB_ARRAY(race, known_membs)&"~"&HH_MEMB_ARRAY(spoken_lang, known_membs)&"~"&HH_MEMB_ARRAY(written_lang, known_membs)&"~"&HH_MEMB_ARRAY(interpreter, known_membs)&"~"&_
+				HH_MEMB_ARRAY(alias_yn, known_membs)&"~"&HH_MEMB_ARRAY(ethnicity_yn, known_membs)&"~"&HH_MEMB_ARRAY(id_verif, known_membs)&"~"&HH_MEMB_ARRAY(rel_to_applcnt, known_membs)&"~"&HH_MEMB_ARRAY(cash_minor, known_membs)&"~"&HH_MEMB_ARRAY(snap_minor, known_membs)&"~"&_
+				HH_MEMB_ARRAY(marital_status, known_membs)&"~"&HH_MEMB_ARRAY(spouse_ref, known_membs)&"~"&HH_MEMB_ARRAY(spouse_name, known_membs)&"~"&HH_MEMB_ARRAY(last_grade_completed, known_membs)&"~"&HH_MEMB_ARRAY(citizen, known_membs)&"~"&_
+				HH_MEMB_ARRAY(other_st_FS_end_date, known_membs)&"~"&HH_MEMB_ARRAY(in_mn_12_mo, known_membs)&"~"&HH_MEMB_ARRAY(residence_verif, known_membs)&"~"&HH_MEMB_ARRAY(mn_entry_date, known_membs)&"~"&HH_MEMB_ARRAY(former_state, known_membs)&"~"&_
+				HH_MEMB_ARRAY(fs_pwe, known_membs)&"~"&HH_MEMB_ARRAY(button_one, known_membs)&"~"&HH_MEMB_ARRAY(button_two, known_membs)&"~"&HH_MEMB_ARRAY(clt_has_sponsor, known_membs)&"~"&HH_MEMB_ARRAY(client_verification, known_membs)&"~"&_
+				HH_MEMB_ARRAY(client_verification_details, known_membs)&"~"&HH_MEMB_ARRAY(client_notes, known_membs)&"~"&HH_MEMB_ARRAY(intend_to_reside_in_mn, known_membs)&"~"&race_a_info&"~"&race_b_info&"~"&race_n_info&"~"&race_p_info&"~"&race_w_info&"~"&prog_s_info&"~"&prog_c_info&"~"&_
+				prog_e_info&"~"&prog_n_info&"~"&HH_MEMB_ARRAY(ssn_no_space, known_membs)&"~"&HH_MEMB_ARRAY(edrs_msg, known_membs)&"~"&HH_MEMB_ARRAY(edrs_match, known_membs)&"~"&_
+				HH_MEMB_ARRAY(edrs_notes, known_membs)&"~"&HH_MEMB_ARRAY(last_const, known_membs)
 			Next
 
 			for this_jobs = 0 to UBOUND(JOBS_ARRAY, 2)
-				objTextStream.WriteLine "ARR - JOBS_ARRAY - " & JOBS_ARRAY(jobs_employee_name, this_jobs)&"~"&JOBS_ARRAY(jobs_hourly_wage, this_jobs)&"~"&JOBS_ARRAY(jobs_gross_monthly_earnings, this_jobs)&"~"&JOBS_ARRAY(jobs_employer_name, this_jobs)&"~"&JOBS_ARRAY(jobs_notes, this_jobs)
+				objTextStream.WriteLine "ARR - JOBS_ARRAY - " & JOBS_ARRAY(jobs_employee_name, this_jobs)&"~"&JOBS_ARRAY(jobs_hourly_wage, this_jobs)&"~"&JOBS_ARRAY(jobs_gross_monthly_earnings, this_jobs)&"~"&_
+				JOBS_ARRAY(jobs_employer_name, this_jobs)&"~"&JOBS_ARRAY(jobs_edit_btn, this_jobs)&"~"&JOBS_ARRAY(jobs_intv_notes, this_jobs)&"~"&JOBS_ARRAY(verif_yn, this_jobs)&"~"&JOBS_ARRAY(verif_details, this_jobs)&"~"&JOBS_ARRAY(jobs_notes, this_jobs)
 			Next
 
 			'Close the object so it can be opened again shortly
@@ -4949,8 +5061,7 @@ function restore_your_work(vars_filled)
 	user_myDocs_folder = wshShell.SpecialFolders("MyDocuments") & "\"
 
 	'Now determines name of file
-	If MAXIS_case_number <> "" Then local_changelog_path = user_myDocs_folder & "caf-answers-" & MAXIS_case_number & "-info.txt"
-	If no_case_number_checkbox = checked Then local_changelog_path = user_myDocs_folder & "caf-answers-new-case-info.txt"
+	local_changelog_path = user_myDocs_folder & "interview-answers-" & MAXIS_case_number & "-info.txt"
 
 	Const ForReading = 1
 	Const ForWriting = 2
@@ -4983,18 +5094,18 @@ function restore_your_work(vars_filled)
 				known_membs = 0
 				known_jobs = 0
 				For Each text_line in saved_caf_details
-					' MsgBox "~" & left(text_line, 9) & "~"
+					' MsgBox "~" & left(text_line, 9) & "~" & vbCr & text_line
 					' MsgBox text_line
 					If left(text_line, 9) = "PRE - WHO" Then who_are_we_completing_the_interview_with = Mid(text_line, 13)
 					If left(text_line, 9) = "PRE - ATC" Then all_the_clients = Mid(text_line, 13)
 					If left(text_line, 7) = "EXP - 1" Then exp_q_1_income_this_month = Mid(text_line, 11)
 					If left(text_line, 7) = "EXP - 2" Then exp_q_2_assets_this_month = Mid(text_line, 11)
 					If left(text_line, 14) = "EXP - 3 - RENT" Then exp_q_3_rent_this_month = Mid(text_line, 18)
-					If left(text_line, 14) = "EXP - 3 - HEAT" Then exp_pay_heat_checkbox = Mid(text_line, 18)
-					If left(text_line, 14) = "EXP - 3 - ACON" Then exp_pay_ac_checkbox = Mid(text_line, 18)
-					If left(text_line, 14) = "EXP - 3 - ELEC" Then exp_pay_electricity_checkbox = Mid(text_line, 18)
-					If left(text_line, 14) = "EXP - 3 - PHON" Then exp_pay_phone_checkbox = Mid(text_line, 18)
-					If left(text_line, 14) = "EXP - 3 - NONE" Then exp_pay_none_checkbox = Mid(text_line, 18)
+					If left(text_line, 14) = "EXP - 3 - HEAT" Then caf_exp_pay_heat_checkbox = checked
+					If left(text_line, 14) = "EXP - 3 - ACON" Then caf_exp_pay_ac_checkbox = checked
+					If left(text_line, 14) = "EXP - 3 - ELEC" Then caf_exp_pay_electricity_checkbox = checked
+					If left(text_line, 14) = "EXP - 3 - PHON" Then caf_exp_pay_phone_checkbox = checked
+					If left(text_line, 14) = "EXP - 3 - NONE" Then caf_exp_pay_none_checkbox = checked
 					If left(text_line, 7) = "EXP - 4" Then exp_migrant_seasonal_formworker_yn = Mid(text_line, 11)
 					If left(text_line, 14) = "EXP - 5 - PREV" Then exp_received_previous_assistance_yn = Mid(text_line, 18)
 					If left(text_line, 14) = "EXP - 5 - WHEN" Then exp_previous_assistance_when = Mid(text_line, 18)
@@ -5002,6 +5113,19 @@ function restore_your_work(vars_filled)
 					If left(text_line, 14) = "EXP - 5 - WHAT" Then exp_previous_assistance_what = Mid(text_line, 18)
 					If left(text_line, 14) = "EXP - 6 - PREG" Then exp_pregnant_yn = Mid(text_line, 18)
 					If left(text_line, 14) = "EXP - 6 - WHO?" Then exp_pregnant_who = Mid(text_line, 18)
+
+					If left(text_line, 18) = "EXP - INTVW - INCM" Then intv_app_month_income = Mid(text_line, 22)
+					If left(text_line, 18) = "EXP - INTVW - ASST" Then intv_app_month_asset = Mid(text_line, 22)
+					If left(text_line, 18) = "EXP - INTVW - RENT" Then intv_app_month_housing_expense = Mid(text_line, 22)
+					If left(text_line, 18) = "EXP - INTVW - HEAT" Then intv_exp_pay_heat_checkbox = checked
+					If left(text_line, 18) = "EXP - INTVW - ACON" Then intv_exp_pay_ac_checkbox = checked
+					If left(text_line, 18) = "EXP - INTVW - ELEC" Then intv_exp_pay_electricity_checkbox = checked
+					If left(text_line, 18) = "EXP - INTVW - PHON" Then intv_exp_pay_phone_checkbox = checked
+					If left(text_line, 18) = "EXP - INTVW - NONE" Then intv_exp_pay_none_checkbox = checked
+					If left(text_line, 16) = "EXP - INTVW - ID" Then id_verif_on_file = Mid(text_line, 20)
+					If left(text_line, 16) = "EXP - INTVW - 89" Then snap_active_in_other_state = Mid(text_line, 20)
+					If left(text_line, 17) = "EXP - INTVW - EXP" Then last_snap_was_exp = Mid(text_line, 21)
+
 					If left(text_line, 3) = "ADR" Then
 						' MsgBox "~" & mid(text_line, 7, 10) & "~"
 						If mid(text_line, 7, 10) = "RESI - STR" Then resi_addr_street_full = MID(text_line, 20)
@@ -5034,41 +5158,49 @@ function restore_your_work(vars_filled)
 					If left(text_line, 3) = "01N" Then question_1_notes = Mid(text_line, 7)
 					If left(text_line, 3) = "01V" Then question_1_verif_yn = Mid(text_line, 7)
 					If left(text_line, 3) = "01D" Then question_1_verif_details = Mid(text_line, 7)
+					If left(text_line, 3) = "01I" Then question_1_interview_notes = Mid(text_line, 7)
 
 					If left(text_line, 3) = "02A" Then question_2_yn = Mid(text_line, 7)
 					If left(text_line, 3) = "02N" Then question_2_notes = Mid(text_line, 7)
 					If left(text_line, 3) = "02V" Then question_2_verif_yn = Mid(text_line, 7)
 					If left(text_line, 3) = "02D" Then question_2_verif_details = Mid(text_line, 7)
+					If left(text_line, 3) = "02I" Then question_2_interview_notes = Mid(text_line, 7)
 
 					If left(text_line, 3) = "03A" Then question_3_yn = Mid(text_line, 7)
 					If left(text_line, 3) = "03N" Then question_3_notes = Mid(text_line, 7)
 					If left(text_line, 3) = "03V" Then question_3_verif_yn = Mid(text_line, 7)
 					If left(text_line, 3) = "03D" Then question_3_verif_details = Mid(text_line, 7)
+					If left(text_line, 3) = "03I" Then question_3_interview_notes = Mid(text_line, 7)
 
 					If left(text_line, 3) = "04A" Then question_4_yn = Mid(text_line, 7)
 					If left(text_line, 3) = "04N" Then question_4_notes = Mid(text_line, 7)
 					If left(text_line, 3) = "04V" Then question_4_verif_yn = Mid(text_line, 7)
 					If left(text_line, 3) = "04D" Then question_4_verif_details = Mid(text_line, 7)
+					If left(text_line, 3) = "04I" Then question_4_interview_notes = Mid(text_line, 7)
 
 					If left(text_line, 3) = "05A" Then question_5_yn = Mid(text_line, 7)
 					If left(text_line, 3) = "05N" Then question_5_notes = Mid(text_line, 7)
 					If left(text_line, 3) = "05V" Then question_5_verif_yn = Mid(text_line, 7)
 					If left(text_line, 3) = "05D" Then question_5_verif_details = Mid(text_line, 7)
+					If left(text_line, 3) = "05I" Then question_5_interview_notes = Mid(text_line, 7)
 
 					If left(text_line, 3) = "06A" Then question_6_yn = Mid(text_line, 7)
 					If left(text_line, 3) = "06N" Then question_6_notes = Mid(text_line, 7)
 					If left(text_line, 3) = "06V" Then question_6_verif_yn = Mid(text_line, 7)
 					If left(text_line, 3) = "06D" Then question_6_verif_details = Mid(text_line, 7)
+					If left(text_line, 3) = "06I" Then question_6_interview_notes = Mid(text_line, 7)
 
 					If left(text_line, 3) = "07A" Then question_7_yn = Mid(text_line, 7)
 					If left(text_line, 3) = "07N" Then question_7_notes = Mid(text_line, 7)
 					If left(text_line, 3) = "07V" Then question_7_verif_yn = Mid(text_line, 7)
 					If left(text_line, 3) = "07D" Then question_7_verif_details = Mid(text_line, 7)
+					If left(text_line, 3) = "07I" Then question_7_interview_notes = Mid(text_line, 7)
 
 					If left(text_line, 3) = "08A" Then question_8_yn = Mid(text_line, 7)
 					If left(text_line, 3) = "08N" Then question_8_notes = Mid(text_line, 7)
 					If left(text_line, 3) = "08V" Then question_8_verif_yn = Mid(text_line, 7)
 					If left(text_line, 3) = "08D" Then question_8_verif_details = Mid(text_line, 7)
+					If left(text_line, 3) = "08I" Then question_8_interview_notes = Mid(text_line, 7)
 
 					If left(text_line, 3) = "09A" Then question_9_yn = Mid(text_line, 7)
 					If left(text_line, 3) = "09N" Then question_9_notes = Mid(text_line, 7)
@@ -5080,31 +5212,45 @@ function restore_your_work(vars_filled)
 					If left(text_line, 3) = "10V" Then question_10_verif_yn = Mid(text_line, 7)
 					If left(text_line, 3) = "10D" Then question_10_verif_details = Mid(text_line, 7)
 					If left(text_line, 3) = "10G" Then question_10_monthly_earnings = Mid(text_line, 7)
+					If left(text_line, 3) = "10I" Then question_10_interview_notes = Mid(text_line, 7)
 
 					If left(text_line, 3) = "11A" Then question_11_yn = Mid(text_line, 7)
 					If left(text_line, 3) = "11N" Then question_11_notes = Mid(text_line, 7)
 					If left(text_line, 3) = "11V" Then question_11_verif_yn = Mid(text_line, 7)
 					If left(text_line, 3) = "11D" Then question_11_verif_details = Mid(text_line, 7)
+					If left(text_line, 3) = "11I" Then question_11_interview_notes = Mid(text_line, 7)
 
 					If left(text_line, 3) = "PWE" Then pwe_selection = Mid(text_line, 7)
 
-					If left(text_line, 8) = "12A - RS" Then question_12_yn = Mid(text_line, 12)
-					If left(text_line, 8) = "12A - SS" Then question_12_yn = Mid(text_line, 12)
-					If left(text_line, 8) = "12A - VA" Then question_12_yn = Mid(text_line, 12)
-					If left(text_line, 8) = "12A - UI" Then question_12_yn = Mid(text_line, 12)
-					If left(text_line, 8) = "12A - WC" Then question_12_yn = Mid(text_line, 12)
-					If left(text_line, 8) = "12A - RT" Then question_12_yn = Mid(text_line, 12)
-					If left(text_line, 8) = "12A - TP" Then question_12_yn = Mid(text_line, 12)
-					If left(text_line, 8) = "12A - CS" Then question_12_yn = Mid(text_line, 12)
-					If left(text_line, 8) = "12A - OT" Then question_12_yn = Mid(text_line, 12)
+					If left(text_line, 8) = "12A - RS" Then question_12_rsdi_yn = Mid(text_line, 12)
+					If left(text_line, 8) = "12$ - RS" Then question_12_rsdi_amt = Mid(text_line, 12)
+					If left(text_line, 8) = "12A - SS" Then question_12_ssi_yn = Mid(text_line, 12)
+					If left(text_line, 8) = "12$ - SS" Then question_12_ssi_amt = Mid(text_line, 12)
+					If left(text_line, 8) = "12A - VA" Then question_12_va_yn = Mid(text_line, 12)
+					If left(text_line, 8) = "12$ - VA" Then question_12_va_amt = Mid(text_line, 12)
+					If left(text_line, 8) = "12A - UI" Then question_12_ui_yn = Mid(text_line, 12)
+					If left(text_line, 8) = "12$ - UI" Then question_12_ui_amt = Mid(text_line, 12)
+					If left(text_line, 8) = "12A - WC" Then question_12_wc_yn = Mid(text_line, 12)
+					If left(text_line, 8) = "12$ - WC" Then question_12_wc_amt = Mid(text_line, 12)
+					If left(text_line, 8) = "12A - RT" Then question_12_ret_yn = Mid(text_line, 12)
+					If left(text_line, 8) = "12$ - RT" Then question_12_ret_amt = Mid(text_line, 12)
+					If left(text_line, 8) = "12A - TP" Then question_12_trib_yn = Mid(text_line, 12)
+					If left(text_line, 8) = "12$ - TP" Then question_12_trib_amt = Mid(text_line, 12)
+					If left(text_line, 8) = "12A - CS" Then question_12_cs_yn = Mid(text_line, 12)
+					If left(text_line, 8) = "12$ - CS" Then question_12_cs_amt = Mid(text_line, 12)
+					If left(text_line, 8) = "12A - OT" Then question_12_other_yn = Mid(text_line, 12)
+					If left(text_line, 8) = "12$ - OT" Then question_12_other_amt = Mid(text_line, 12)
+					If left(text_line, 3) = "12A" Then q_12_answered = Mid(text_line, 7)
 					If left(text_line, 3) = "12N" Then question_12_notes = Mid(text_line, 7)
 					If left(text_line, 3) = "12V" Then question_12_verif_yn = Mid(text_line, 7)
 					If left(text_line, 3) = "12D" Then question_12_verif_details = Mid(text_line, 7)
+					If left(text_line, 3) = "12I" Then question_12_interview_notes = Mid(text_line, 7)
 
 					If left(text_line, 3) = "13A" Then question_13_yn = Mid(text_line, 7)
 					If left(text_line, 3) = "13N" Then question_13_notes = Mid(text_line, 7)
 					If left(text_line, 3) = "13V" Then question_13_verif_yn = Mid(text_line, 7)
 					If left(text_line, 3) = "13D" Then question_13_verif_details = Mid(text_line, 7)
+					If left(text_line, 3) = "13I" Then question_13_interview_notes = Mid(text_line, 7)
 
 					If left(text_line, 8) = "14A - RT" Then  question_14_rent_yn = Mid(text_line, 12)
 					If left(text_line, 8) = "14A - SB" Then  question_14_subsidy_yn = Mid(text_line, 12)
@@ -5113,9 +5259,11 @@ function restore_your_work(vars_filled)
 					If left(text_line, 8) = "14A - IN" Then  question_14_insurance_yn = Mid(text_line, 12)
 					If left(text_line, 8) = "14A - RM" Then  question_14_room_yn = Mid(text_line, 12)
 					If left(text_line, 8) = "14A - TX" Then  question_14_taxes_yn = Mid(text_line, 12)
+					If left(text_line, 3) = "14A" Then q_14_answered = Mid(text_line, 7)
 					If left(text_line, 3) = "14N" Then question_14_notes = Mid(text_line, 7)
 					If left(text_line, 3) = "14V" Then question_14_verif_yn = Mid(text_line, 7)
 					If left(text_line, 3) = "14D" Then question_14_verif_details = Mid(text_line, 7)
+					If left(text_line, 3) = "14I" Then question_14_interview_notes = Mid(text_line, 7)
 
 					If left(text_line, 8) = "15A - HA" Then question_15_heat_ac_yn = Mid(text_line, 12)
 					If left(text_line, 8) = "15A - EL" Then question_15_electricity_yn = Mid(text_line, 12)
@@ -5124,60 +5272,73 @@ function restore_your_work(vars_filled)
 					If left(text_line, 8) = "15A - GR" Then question_15_garbage_yn = Mid(text_line, 12)
 					If left(text_line, 8) = "15A - PN" Then question_15_phone_yn = Mid(text_line, 12)
 					If left(text_line, 8) = "15A - LP" Then question_15_liheap_yn = Mid(text_line, 12)
+					If left(text_line, 3) = "15A" Then q_15_answered = Mid(text_line, 7)
 					If left(text_line, 3) = "15N" Then question_15_notes = Mid(text_line, 7)
 					If left(text_line, 3) = "15V" Then question_15_verif_yn = Mid(text_line, 7)
 					If left(text_line, 3) = "15D" Then question_15_verif_details = Mid(text_line, 7)
+					If left(text_line, 3) = "15I" Then question_15_interview_notes = Mid(text_line, 7)
 
 					If left(text_line, 3) = "16A" Then question_16_yn = Mid(text_line, 7)
 					If left(text_line, 3) = "16N" Then question_16_notes = Mid(text_line, 7)
 					If left(text_line, 3) = "16V" Then question_16_verif_yn = Mid(text_line, 7)
 					If left(text_line, 3) = "16D" Then question_16_verif_details = Mid(text_line, 7)
+					If left(text_line, 3) = "16I" Then question_16_interview_notes = Mid(text_line, 7)
 
 					If left(text_line, 3) = "17A" Then question_17_yn = Mid(text_line, 7)
 					If left(text_line, 3) = "17N" Then question_17_notes = Mid(text_line, 7)
 					If left(text_line, 3) = "17V" Then question_17_verif_yn = Mid(text_line, 7)
 					If left(text_line, 3) = "17D" Then question_17_verif_details = Mid(text_line, 7)
+					If left(text_line, 3) = "17I" Then question_17_interview_notes = Mid(text_line, 7)
 
 					If left(text_line, 3) = "18A" Then question_18_yn = Mid(text_line, 7)
 					If left(text_line, 3) = "18N" Then question_18_notes = Mid(text_line, 7)
 					If left(text_line, 3) = "18V" Then question_18_verif_yn = Mid(text_line, 7)
 					If left(text_line, 3) = "18D" Then question_18_verif_details = Mid(text_line, 7)
+					If left(text_line, 3) = "18I" Then question_18_interview_notes = Mid(text_line, 7)
 
 					If left(text_line, 3) = "19A" Then question_19_yn = Mid(text_line, 7)
 					If left(text_line, 3) = "19N" Then question_19_notes = Mid(text_line, 7)
 					If left(text_line, 3) = "19V" Then question_19_verif_yn = Mid(text_line, 7)
 					If left(text_line, 3) = "19D" Then question_19_verif_details = Mid(text_line, 7)
+					If left(text_line, 3) = "19I" Then question_19_interview_notes = Mid(text_line, 7)
 
 					If left(text_line, 8) = "20A - CA" Then question_20_cash_yn = Mid(text_line, 12)
 					If left(text_line, 8) = "20A - AC" Then question_20_acct_yn = Mid(text_line, 12)
 					If left(text_line, 8) = "20A - SE" Then question_20_secu_yn = Mid(text_line, 12)
 					If left(text_line, 8) = "20A - CR" Then question_20_cars_yn = Mid(text_line, 12)
+					If left(text_line, 3) = "20A" Then q_20_answered = Mid(text_line, 7)
 					If left(text_line, 3) = "20N" Then question_20_notes = Mid(text_line, 7)
 					If left(text_line, 3) = "20V" Then question_20_verif_yn = Mid(text_line, 7)
 					If left(text_line, 3) = "20D" Then question_20_verif_details = Mid(text_line, 7)
+					If left(text_line, 3) = "20I" Then question_20_interview_notes = Mid(text_line, 7)
 
 					If left(text_line, 3) = "21A" Then question_21_yn = Mid(text_line, 7)
 					If left(text_line, 3) = "21N" Then question_21_notes = Mid(text_line, 7)
 					If left(text_line, 3) = "21V" Then question_21_verif_yn = Mid(text_line, 7)
 					If left(text_line, 3) = "21D" Then question_21_verif_details = Mid(text_line, 7)
+					If left(text_line, 3) = "21I" Then question_21_interview_notes = Mid(text_line, 7)
 
 					If left(text_line, 3) = "22A" Then question_22_yn = Mid(text_line, 7)
 					If left(text_line, 3) = "22N" Then question_22_notes = Mid(text_line, 7)
 					If left(text_line, 3) = "22V" Then question_22_verif_yn = Mid(text_line, 7)
 					If left(text_line, 3) = "22D" Then question_22_verif_details = Mid(text_line, 7)
+					If left(text_line, 3) = "22I" Then question_22_interview_notes = Mid(text_line, 7)
 
 					If left(text_line, 3) = "23A" Then question_23_yn = Mid(text_line, 7)
 					If left(text_line, 3) = "23N" Then question_23_notes = Mid(text_line, 7)
 					If left(text_line, 3) = "23V" Then question_23_verif_yn = Mid(text_line, 7)
 					If left(text_line, 3) = "23D" Then question_23_verif_details = Mid(text_line, 7)
+					If left(text_line, 3) = "23I" Then question_23_interview_notes = Mid(text_line, 7)
 
 					If left(text_line, 8) = "24A - RP" Then question_24_rep_payee_yn = Mid(text_line, 12)
 					If left(text_line, 8) = "24A - GF" Then question_24_guardian_fees_yn = Mid(text_line, 12)
 					If left(text_line, 8) = "24A - SD" Then question_24_special_diet_yn = Mid(text_line, 12)
 					If left(text_line, 8) = "24A - HH" Then question_24_high_housing_yn = Mid(text_line, 12)
+					If left(text_line, 3) = "24A" Then q_24_answered = Mid(text_line, 7)
 					If left(text_line, 3) = "24N" Then question_24_notes = Mid(text_line, 7)
 					If left(text_line, 3) = "24V" Then question_24_verif_yn = Mid(text_line, 7)
 					If left(text_line, 3) = "24D" Then question_24_verif_details = Mid(text_line, 7)
+					If left(text_line, 3) = "24I" Then question_24_interview_notes = Mid(text_line, 7)
 
 					If left(text_line, 4) = "QQ1A" Then qual_question_one = Mid(text_line, 8)
 					If left(text_line, 4) = "QQ1M" Then qual_memb_one = Mid(text_line, 8)
@@ -5190,47 +5351,105 @@ function restore_your_work(vars_filled)
 					If left(text_line, 4) = "QQ5A" Then qual_question_five = Mid(text_line, 8)
 					If left(text_line, 4) = "QQ5M" Then qual_memb_five = Mid(text_line, 8)
 
+					If left(text_line, 9) = "AREP - 01" Then arep_name = Mid(text_line, 13)
+					If left(text_line, 9) = "AREP - 02" Then arep_relationship = Mid(text_line, 13)
+					If left(text_line, 9) = "AREP - 03" Then arep_phone_number = Mid(text_line, 13)
+					If left(text_line, 9) = "AREP - 04" Then arep_addr_street = Mid(text_line, 13)
+					If left(text_line, 9) = "AREP - 05" Then arep_addr_city = Mid(text_line, 13)
+					If left(text_line, 9) = "AREP - 06" Then arep_addr_state = Mid(text_line, 13)
+					If left(text_line, 9) = "AREP - 07" Then arep_addr_zip = Mid(text_line, 13)
+					If left(text_line, 9) = "AREP - 08" Then arep_complete_forms_checkbox = Mid(text_line, 13)
+					If left(text_line, 9) = "AREP - 09" Then arep_get_notices_checkbox = Mid(text_line, 13)
+					If left(text_line, 9) = "AREP - 10" Then arep_use_SNAP_checkbox = Mid(text_line, 13)
+
+					If left(text_line, 8) = "SIG - 01" Then signature_person = Mid(text_line, 12)
+					If left(text_line, 8) = "SIG - 02" Then signature_date = Mid(text_line, 12)
+					If left(text_line, 8) = "SIG - 03" Then second_signature_person = Mid(text_line, 12)
+					If left(text_line, 8) = "SIG - 04" Then second_signature_date = Mid(text_line, 12)
+					If left(text_line, 8) = "SIG - 05" Then client_signed_verbally_yn = Mid(text_line, 12)
+					If left(text_line, 8) = "SIG - 06" Then interview_date = Mid(text_line, 12)
+
+					If left(text_line, 9) = "FORM - 01" Then confirm_resp_read = Mid(text_line, 13)
+					If left(text_line, 9) = "FORM - 02" Then confirm_rights_read = Mid(text_line, 13)
+					If left(text_line, 9) = "FORM - 03" Then confirm_ebt_read = Mid(text_line, 13)
+					If left(text_line, 9) = "FORM - 04" Then confirm_ebt_how_to_read = Mid(text_line, 13)
+					If left(text_line, 9) = "FORM - 05" Then confirm_npp_info_read = Mid(text_line, 13)
+					If left(text_line, 9) = "FORM - 06" Then confirm_npp_rights_read = Mid(text_line, 13)
+					If left(text_line, 9) = "FORM - 07" Then confirm_appeal_rights_read = Mid(text_line, 13)
+					If left(text_line, 9) = "FORM - 08" Then confirm_civil_rights_read = Mid(text_line, 13)
+					If left(text_line, 9) = "FORM - 09" Then confirm_cover_letter_read = Mid(text_line, 13)
+					If left(text_line, 9) = "FORM - 10" Then confirm_program_information_read = Mid(text_line, 13)
+					If left(text_line, 9) = "FORM - 11" Then confirm_DV_read = Mid(text_line, 13)
+					If left(text_line, 9) = "FORM - 12" Then confirm_disa_read = Mid(text_line, 13)
+					If left(text_line, 9) = "FORM - 13" Then confirm_mfip_forms_read = Mid(text_line, 13)
+					If left(text_line, 9) = "FORM - 14" Then confirm_mfip_cs_read = Mid(text_line, 13)
+					If left(text_line, 9) = "FORM - 15" Then confirm_minor_mfip_read = Mid(text_line, 13)
+					If left(text_line, 9) = "FORM - 16" Then confirm_snap_forms_read = Mid(text_line, 13)
+					If left(text_line, 9) = "FORM - 17" Then confirm_recap_read = Mid(text_line, 13)
+
+
 					' If left(text_line, 4) = "QQ1A" Then qual_question_one = Mid(text_line, 8)
 
 					If left(text_line, 3) = "ARR" Then
-						If MID(text_line, 7, 17) = "ALL_CLIENTS_ARRAY" Then
-							array_info = Mid(text_line, 27)
+						If MID(text_line, 7, 13) = "HH_MEMB_ARRAY" Then
+							array_info = Mid(text_line, 23)
 							array_info = split(array_info, "~")
-							ReDim Preserve ALL_CLIENTS_ARRAY(memb_notes, known_membs)
-							ALL_CLIENTS_ARRAY(memb_last_name, known_membs) 				= array_info(0)
-							ALL_CLIENTS_ARRAY(memb_first_name, known_membs) 			= array_info(1)
-							ALL_CLIENTS_ARRAY(memb_mid_name, known_membs) 				= array_info(2)
-							ALL_CLIENTS_ARRAY(memb_other_names, known_membs) 			= array_info(3)
-							ALL_CLIENTS_ARRAY(memb_ssn_verif, known_membs) 				= array_info(4)
-							ALL_CLIENTS_ARRAY(memb_soc_sec_numb, known_membs) 			= array_info(5)
-							ALL_CLIENTS_ARRAY(memb_dob, known_membs) 					= array_info(6)
-							ALL_CLIENTS_ARRAY(memb_gender, known_membs) 				= array_info(7)
-							ALL_CLIENTS_ARRAY(memb_rel_to_applct, known_membs) 			= array_info(8)
-							ALL_CLIENTS_ARRAY(memi_marriage_status, known_membs) 		= array_info(9)
-							ALL_CLIENTS_ARRAY(memi_last_grade, known_membs) 			= array_info(10)
-							ALL_CLIENTS_ARRAY(memi_MN_entry_date, known_membs) 			= array_info(11)
-							ALL_CLIENTS_ARRAY(memi_former_state, known_membs) 			= array_info(12)
-							ALL_CLIENTS_ARRAY(memi_citizen, known_membs) 				= array_info(13)
-							ALL_CLIENTS_ARRAY(memb_interpreter, known_membs) 			= array_info(14)
-							ALL_CLIENTS_ARRAY(memb_spoken_language, known_membs) 		= array_info(15)
-							ALL_CLIENTS_ARRAY(memb_written_language, known_membs) 		= array_info(16)
-							ALL_CLIENTS_ARRAY(memb_ethnicity, known_membs) 				= array_info(17)
-							ALL_CLIENTS_ARRAY(memb_race_a_checkbox, known_membs) 		= array_info(18)
-							ALL_CLIENTS_ARRAY(memb_race_b_checkbox, known_membs) 		= array_info(19)
-							ALL_CLIENTS_ARRAY(memb_race_n_checkbox, known_membs) 		= array_info(20)
-							ALL_CLIENTS_ARRAY(memb_race_p_checkbox, known_membs) 		= array_info(21)
-							ALL_CLIENTS_ARRAY(memb_race_w_checkbox, known_membs) 		= array_info(22)
-							ALL_CLIENTS_ARRAY(clt_snap_checkbox, known_membs) 			= array_info(23)
-							ALL_CLIENTS_ARRAY(clt_cash_checkbox, known_membs) 			= array_info(24)
-							ALL_CLIENTS_ARRAY(clt_emer_checkbox, known_membs) 			= array_info(25)
-							ALL_CLIENTS_ARRAY(clt_none_checkbox, known_membs) 			= array_info(26)
-							ALL_CLIENTS_ARRAY(clt_intend_to_reside_mn, known_membs) 	= array_info(27)
-							ALL_CLIENTS_ARRAY(clt_imig_status, known_membs) 			= array_info(28)
-							ALL_CLIENTS_ARRAY(clt_sponsor_yn, known_membs) 				= array_info(29)
-							ALL_CLIENTS_ARRAY(clt_verif_yn, known_membs) 				= array_info(30)
-							ALL_CLIENTS_ARRAY(clt_verif_details, known_membs) 			= array_info(31)
-							ALL_CLIENTS_ARRAY(memb_notes, known_membs) 					= array_info(32)
-							ALL_CLIENTS_ARRAY(memb_ref_numb, known_membs) 				= array_info(33)
+							ReDim Preserve HH_MEMB_ARRAY(last_const, known_membs)
+							HH_MEMB_ARRAY(ref_number, known_membs)					= array_info(0)
+							HH_MEMB_ARRAY(access_denied, known_membs)				= array_info(1)
+							HH_MEMB_ARRAY(full_name_const, known_membs)				= array_info(2)
+							HH_MEMB_ARRAY(last_name_const, known_membs)				= array_info(3)
+							HH_MEMB_ARRAY(first_name_const, known_membs)			= array_info(4)
+							HH_MEMB_ARRAY(mid_initial, known_membs)					= array_info(5)
+							HH_MEMB_ARRAY(age, known_membs)							= array_info(6)
+							HH_MEMB_ARRAY(date_of_birth, known_membs)				= array_info(7)
+							HH_MEMB_ARRAY(ssn, known_membs)							= array_info(8)
+							HH_MEMB_ARRAY(ssn_verif, known_membs)					= array_info(9)
+							HH_MEMB_ARRAY(birthdate_verif, known_membs)				= array_info(10)
+							HH_MEMB_ARRAY(gender, known_membs)						= array_info(11)
+							HH_MEMB_ARRAY(race, known_membs)						= array_info(12)
+							HH_MEMB_ARRAY(spoken_lang, known_membs)					= array_info(13)
+							HH_MEMB_ARRAY(written_lang, known_membs)				= array_info(14)
+							HH_MEMB_ARRAY(interpreter, known_membs)					= array_info(15)
+							HH_MEMB_ARRAY(alias_yn, known_membs)					= array_info(16)
+							HH_MEMB_ARRAY(ethnicity_yn, known_membs)				= array_info(17)
+							HH_MEMB_ARRAY(id_verif, known_membs)					= array_info(18)
+							HH_MEMB_ARRAY(rel_to_applcnt, known_membs)				= array_info(19)
+							HH_MEMB_ARRAY(cash_minor, known_membs)					= array_info(20)
+							HH_MEMB_ARRAY(snap_minor, known_membs)					= array_info(21)
+							HH_MEMB_ARRAY(marital_status, known_membs)				= array_info(22)
+							HH_MEMB_ARRAY(spouse_ref, known_membs)					= array_info(23)
+							HH_MEMB_ARRAY(spouse_name, known_membs)					= array_info(24)
+							HH_MEMB_ARRAY(last_grade_completed, known_membs) 		= array_info(25)
+							HH_MEMB_ARRAY(citizen, known_membs)						= array_info(26)
+							HH_MEMB_ARRAY(other_st_FS_end_date, known_membs) 		= array_info(27)
+							HH_MEMB_ARRAY(in_mn_12_mo, known_membs)					= array_info(28)
+							HH_MEMB_ARRAY(residence_verif, known_membs)				= array_info(29)
+							HH_MEMB_ARRAY(mn_entry_date, known_membs)				= array_info(30)
+							HH_MEMB_ARRAY(former_state, known_membs)				= array_info(31)
+							HH_MEMB_ARRAY(fs_pwe, known_membs)						= array_info(32)
+							HH_MEMB_ARRAY(button_one, known_membs)					= array_info(33)
+							HH_MEMB_ARRAY(button_two, known_membs)					= array_info(34)
+							HH_MEMB_ARRAY(clt_has_sponsor, known_membs)				= array_info(35)
+							HH_MEMB_ARRAY(client_verification, known_membs)			= array_info(36)
+							HH_MEMB_ARRAY(client_verification_details, known_membs)	= array_info(37)
+							HH_MEMB_ARRAY(client_notes, known_membs)				= array_info(38)
+							HH_MEMB_ARRAY(intend_to_reside_in_mn, known_membs)		= array_info(39)
+							If array_info(40) = "YES" Then HH_MEMB_ARRAY(race_a_checkbox, known_membs) = checked
+							If array_info(41) = "YES" Then HH_MEMB_ARRAY(race_b_checkbox, known_membs) = checked
+							If array_info(42) = "YES" Then HH_MEMB_ARRAY(race_n_checkbox, known_membs) = checked
+							If array_info(43) = "YES" Then HH_MEMB_ARRAY(race_p_checkbox, known_membs) = checked
+							If array_info(44) = "YES" Then HH_MEMB_ARRAY(race_w_checkbox, known_membs) = checked
+							If array_info(45) = "YES" Then HH_MEMB_ARRAY(snap_req_checkbox, known_membs) = checked
+							If array_info(46) = "YES" Then HH_MEMB_ARRAY(cash_req_checkbox, known_membs) = checked
+							If array_info(47) = "YES" Then HH_MEMB_ARRAY(emer_req_checkbox, known_membs) = checked
+							If array_info(48) = "YES" Then HH_MEMB_ARRAY(none_req_checkbox, known_membs) = checked
+							HH_MEMB_ARRAY(ssn_no_space, known_membs)				= array_info(49)
+							HH_MEMB_ARRAY(edrs_msg, known_membs)					= array_info(50)
+							HH_MEMB_ARRAY(edrs_match, known_membs)					= array_info(51)
+							HH_MEMB_ARRAY(edrs_notes, known_membs) 					= array_info(52)
+							HH_MEMB_ARRAY(last_const, known_membs)					= array_info(53)
+
 							known_membs = known_membs + 1
 						End If
 
@@ -5240,9 +5459,13 @@ function restore_your_work(vars_filled)
 							ReDim Preserve JOBS_ARRAY(jobs_notes, known_jobs)
 							JOBS_ARRAY(jobs_employee_name, known_jobs) 			= array_info(0)
 							JOBS_ARRAY(jobs_hourly_wage, known_jobs) 			= array_info(1)
-							JOBS_ARRAY(jobs_gross_monthly_earnings, known_jobs) = array_info(2)
+							JOBS_ARRAY(jobs_gross_monthly_earnings, known_jobs)	= array_info(2)
 							JOBS_ARRAY(jobs_employer_name, known_jobs) 			= array_info(3)
-							JOBS_ARRAY(jobs_notes, known_jobs) 					= array_info(4)
+							JOBS_ARRAY(jobs_edit_btn, known_jobs)				= array_info(4)
+							JOBS_ARRAY(jobs_intv_notes, known_jobs)				= array_info(5)
+							JOBS_ARRAY(verif_yn, known_jobs)					= array_info(6)
+							JOBS_ARRAY(verif_details, known_jobs)				= array_info(7)
+							JOBS_ARRAY(jobs_notes, known_jobs) 					= array_info(8)
 							known_jobs = known_jobs + 1
 						End If
 					End If
@@ -5903,10 +6126,12 @@ marital_status_list = marital_status_list+chr(9)+"W  Widowed"
 question_answers = ""+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Blank"
 
 'Dimming all the variables because they are defined and set within functions
-Dim who_are_we_completing_the_interview_with, caf_person_one, exp_q_1_income_this_month, exp_q_2_assets_this_month, exp_q_3_rent_this_month, exp_pay_heat_checkbox, exp_pay_ac_checkbox, exp_pay_electricity_checkbox, exp_pay_phone_checkbox
+Dim who_are_we_completing_the_interview_with, caf_person_one, exp_q_1_income_this_month, exp_q_2_assets_this_month, exp_q_3_rent_this_month, caf_exp_pay_heat_checkbox, caf_exp_pay_ac_checkbox, caf_exp_pay_electricity_checkbox, caf_exp_pay_phone_checkbox
 Dim exp_pay_none_checkbox, exp_migrant_seasonal_formworker_yn, exp_received_previous_assistance_yn, exp_previous_assistance_when, exp_previous_assistance_where, exp_previous_assistance_what, exp_pregnant_yn, exp_pregnant_who, resi_addr_street_full
 Dim resi_addr_city, resi_addr_state, resi_addr_zip, reservation_yn, reservation_name, homeless_yn, living_situation, mail_addr_street_full, mail_addr_city, mail_addr_state, mail_addr_zip, phone_one_number, phone_pne_type, phone_two_number
 Dim phone_two_type, phone_three_number, phone_three_type, address_change_date, resi_addr_county, caf_form_date, all_the_clients, err_msg
+Dim intv_app_month_income, intv_app_month_asset, intv_app_month_housing_expense, intv_exp_pay_heat_checkbox, intv_exp_pay_ac_checkbox, intv_exp_pay_electricity_checkbox, intv_exp_pay_phone_checkbox, intv_exp_pay_none_checkbox
+Dim id_verif_on_file, snap_active_in_other_state, last_snap_was_exp
 
 Dim question_1_yn, question_1_notes, question_1_verif_yn, question_1_verif_details, question_1_interview_notes
 Dim question_2_yn, question_2_notes, question_2_verif_yn, question_2_verif_details, question_2_interview_notes
@@ -6026,16 +6251,6 @@ Do
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
 
-'Needs to determine MyDocs directory before proceeding.
-Set wshshell = CreateObject("WScript.Shell")
-Set WshShell = CreateObject("WScript.Shell")
-
-user_myDocs_folder = WshShell.SpecialFolders("MyDocuments") & "\"
-intvw_msg_file = user_myDocs_folder & "interview message.txt"
-
-Set oExec = WshShell.Exec("notepad " & intvw_msg_file)
-
-
 
 If select_err_msg_handling = "Alert at the time you attempt to save each page of the dialog." Then show_err_msg_during_movement = TRUE
 If select_err_msg_handling = "Alert only once completing and leaving the final dialog." Then show_err_msg_during_movement = FALSE
@@ -6052,6 +6267,13 @@ Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending,
 
 'If we already know the variables because we used 'restore your work' OR if there is no case number, we don't need to read the information from MAXIS
 If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
+	'Needs to determine MyDocs directory before proceeding.
+	Set WshShell = CreateObject("WScript.Shell")
+
+	user_myDocs_folder = WshShell.SpecialFolders("MyDocuments") & "\"
+	intvw_msg_file = user_myDocs_folder & "interview message.txt"
+
+	Set oExec = WshShell.Exec("notepad " & intvw_msg_file)
 
 	Call back_to_SELF
 
@@ -6246,9 +6468,6 @@ If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 
 		End If
 
-
-		HH_MEMB_ARRAY(button_one, clt_count) = 500 + clt_count
-		HH_MEMB_ARRAY(button_two, clt_count) = 600 + clt_count
 		memb_droplist = memb_droplist+chr(9)+HH_MEMB_ARRAY(ref_number, clt_count) & " - " & HH_MEMB_ARRAY(full_name_const, clt_count)
 		If HH_MEMB_ARRAY(fs_pwe, clt_count) = "Yes" Then the_pwe_for_this_case = HH_MEMB_ARRAY(ref_number, clt_count) & " - " & HH_MEMB_ARRAY(full_name_const, clt_count)
 
@@ -6302,6 +6521,9 @@ If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 	If forms_to_arep = "Y" Then arep_get_notices_checkbox = checked
 
 	show_known_addr = TRUE
+
+	MsgBox "Press 'OK' when you have explained the interview to the resident."
+	oExec.Terminate()
 End If
 
 'Giving the buttons specific unumerations so they don't think they are eachother
@@ -6363,11 +6585,14 @@ for each_job = 0 to UBOUND(JOBS_ARRAY, 2)
 	JOBS_ARRAY(jobs_edit_btn, each_job) = btn_placeholder
 	btn_placeholder = btn_placeholder + 1
 next
+For btn_count = 0 to UBound(HH_MEMB_ARRAY, 2)
+	HH_MEMB_ARRAY(button_one, btn_count) = 500 + btn_count
+	HH_MEMB_ARRAY(button_two, btn_count) = 600 + btn_count
+Next
 interview_date = date
 selected_memb = 0
 
-MsgBox "Press 'OK' when you have explained the interview to the resident."
-oExec.Terminate()
+
 ' 'Presetting booleans for the dialog looping
 ' show_caf_pg_1_pers_dlg = TRUE
 ' show_caf_pg_1_addr_dlg = TRUE
@@ -6440,7 +6665,6 @@ oExec.Terminate()
 ' 	If show_caf_sig_dlg = TRUE Then Call dlg_signature
 ' Loop until show_caf_sig_dlg = FALSE
 ' save_your_work
-
 Do
 	Do
 
@@ -6457,6 +6681,7 @@ Do
 			dialog Dialog1
 			cancel_confirmation
 			' MsgBox  HH_MEMB_ARRAY(0).ans_imig_status
+			save_your_work
 			Call check_for_errors
 
 			If show_err_msg_during_movement = FALSE AND ButtonPressed <> finish_interview_btn Then err_msg = ""
@@ -7410,8 +7635,8 @@ Do
 		    PushButton 430, 22, 100, 13, "Open DHS 2647", open_cs_2647_doc
 			PushButton 430, 122, 100, 13, "Open DHS 2929", open_cs_2929_doc
 			PushButton 430, 222, 100, 13, "Open DHS 3323", open_cs_3323_doc
-		  Text 10, 370, 210, 10, "Confirm you have reviewed Hennepin County Information Information:"
-		  DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! Cover Letter Discussed"+chr(9)+"No, I could not complete this", confirm_cover_letter_read
+		  Text 10, 370, 210, 10, "Confirm you have reviewed MFIP Specific Information:"
+		  DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! MFIP Forms Discussed"+chr(9)+"No, I could not complete this", confirm_mfip_forms_read
 		EndDialog
 
 		dialog Dialog1
@@ -7464,8 +7689,8 @@ Do
 			PushButton 430, 222, 100, 13, "Open DHS 2338", open_cs_2338_doc
 			PushButton 430, 322, 100, 13, "Open DHS 5561", open_cs_5561_doc
 
-		  Text 10, 370, 210, 10, "Confirm you have reviewed Hennepin County Information Information:"
-		  DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! Cover Letter Discussed"+chr(9)+"No, I could not complete this", confirm_cover_letter_read
+		  Text 10, 370, 210, 10, "Confirm you have reviewed MFIP Child Support Information:"
+		  DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! MFIP Child Support Discussed"+chr(9)+"No, I could not complete this", confirm_mfip_cs_read
 		EndDialog
 
 		dialog Dialog1
@@ -7517,8 +7742,8 @@ Do
 			PushButton 430, 122, 100, 13, "Open DHS 2887", open_cs_2887_doc
 			PushButton 430, 222, 100, 13, "Open DHS 3238", open_cs_3238_doc
 
-		  Text 10, 370, 210, 10, "Confirm you have reviewed Hennepin County Information Information:"
-		  DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! Cover Letter Discussed"+chr(9)+"No, I could not complete this", confirm_cover_letter_read
+		  Text 10, 370, 210, 10, "Confirm you have reviewed MFIP Minor Caregiver Information:"
+		  DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! MFIP Minor Caregiver Discussed"+chr(9)+"No, I could not complete this", confirm_minor_mfip_read
 		EndDialog
 
 		dialog Dialog1
@@ -7569,8 +7794,8 @@ Do
 			PushButton 430, 122, 100, 13, "Open DHS 2707", open_cs_2707_doc
 			PushButton 430, 222, 100, 13, "Open DHS 7635", open_cs_7635_doc
 
-		  Text 10, 370, 210, 10, "Confirm you have reviewed Hennepin County Information Information:"
-		  DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! Cover Letter Discussed"+chr(9)+"No, I could not complete this", confirm_cover_letter_read
+		  Text 10, 370, 210, 10, "Confirm you have reviewed SNAP Specific Information:"
+		  DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! SNAP Forms Discussed"+chr(9)+"No, I could not complete this", confirm_snap_forms_read
 		EndDialog
 
 		dialog Dialog1
