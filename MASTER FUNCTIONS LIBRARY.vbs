@@ -4435,10 +4435,11 @@ function date_array_generator(initial_month, initial_year, date_array)
 	date_array = split(date_list, "|")
 end function
 
-function determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, unknown_cash_pending)
+function determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status)
 '--- Function used to return booleans on case and program status based on CASE CURR information. There is no input informat but MAXIS_case_number needs to be defined.
 '~~~~~ case_active: Outputs BOOLEAN of if the case is active in any MAXIS program
 '~~~~~ case_pending: Outputs BOOLEAN of if the case is pending for any MAXIS Program
+'~~~~~ case_rein: Outputs BOOLEAN of if the case is in REIN for any MAXIS Program
 '~~~~~ family_cash_case: Outputs BOOLEAN of if the case is active or pending for any family cash program (MFIP or DWP)
 '~~~~~ mfip_case: Outputs BOOLEAN of if the case is active or pending MFIP
 '~~~~~ dwp_case: Outputs BOOLEAN of if the case is active or pending DWP
@@ -4450,6 +4451,15 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
 '~~~~~ ma_case: Outputs BOOLEAN of if the case is active or pending MA
 '~~~~~ msp_case: Outputs BOOLEAN of if the case is active or pending any MSP
 '~~~~~ unknown_cash_pending: BOOLEAN of if the case has a general 'CASH' program pending but it has not been defined
+'~~~~~ unknown_hc_pending: BOOLEAN of if the case has a general 'HC' program pending but it has not been defined
+'~~~~~ ga_status: Outputs the program status for GA - will be one of these four options (ACTIVE, INACTIVE, PENDING, REIN)
+'~~~~~ msa_status: Outputs the program status for MSA - will be one of these four options (ACTIVE, INACTIVE, PENDING, REIN)
+'~~~~~ mfip_status: Outputs the program status for MFIP - will be one of these four options (ACTIVE, INACTIVE, PENDING, REIN)
+'~~~~~ dwp_status: Outputs the program status for DWP - will be one of these four options (ACTIVE, INACTIVE, PENDING, REIN)
+'~~~~~ grh_status: Outputs the program status for GRH - will be one of these four options (ACTIVE, INACTIVE, PENDING, REIN)
+'~~~~~ snap_status: Outputs the program status for SNAP - will be one of these four options (ACTIVE, INACTIVE, PENDING, REIN)
+'~~~~~ ma_status: Outputs the program status for MA - will be one of these four options (ACTIVE, INACTIVE, PENDING, REIN)
+'~~~~~ msp_status: Outputs the program status for MSP - will be one of these four options (ACTIVE, INACTIVE, PENDING, REIN)
 '===== Keywords: MAXIS, case status, output, status
     Call navigate_to_MAXIS_screen("CASE", "CURR")           'First the function will navigate to CASE/CURR so the inofrmation discovered is based on current status
     family_cash_case = FALSE                                'defaulting all of the booleans
@@ -4464,7 +4474,18 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
     msp_case = FALSE
     case_active = FALSE
     case_pending = FALSE
+	case_rein = FALSE
     unknown_cash_pending = FALSE
+	unknown_hc_pending = FALSE
+	ga_status = "INACTIVE"
+	msa_status = "INACTIVE"
+	mfip_status = "INACTIVE"
+	dwp_status = "INACTIVE"
+	grh_status = "INACTIVE"
+	snap_status = "INACTIVE"
+	ma_status = "INACTIVE"
+	msp_status = "INACTIVE"
+
     'The function will use the same functionality for each program and search CASE:CURR to find the program deader for detail about the status.
     'If 'ACTIVE', 'APP CLOSE', 'APP OPEN', or 'PENDING' is listed after the header the function will mark the boolean for that program as 'TRUE'
     'If 'ACTIVE', 'APP CLOSE', or 'APP OPEN' is listed, the function will mark case_active as TRUE
@@ -4478,11 +4499,18 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
         If fs_status = "ACTIVE" or fs_status = "APP CLOSE" or fs_status = "APP OPEN" Then
             snap_case = TRUE
             case_active = TRUE
+			snap_status = "ACTIVE"
         End If
         If fs_status = "PENDING" Then
             snap_case = TRUE
             case_pending = TRUE
-        ENd If
+			snap_status = "PENDING"
+        End If
+		If left(fs_status, 4) = "REIN" Then
+			snap_case = TRUE
+			case_rein = TRUE
+			snap_status = "REIN"
+		End If
     End If
     row = 1                                             'Looking for GRH information
     col = 1
@@ -4493,12 +4521,19 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
         If grh_status = "ACTIVE" or grh_status = "APP CLOSE" or grh_status = "APP OPEN" Then
             grh_case = TRUE
             case_active = TRUE
+			grh_status = "ACTIVE"
         End If
         If grh_status = "PENDING" Then
             grh_case = TRUE
             case_pending = TRUE
+			grh_status = "PENDING"
         ENd If
-    End If
+		If left(grh_status, 4) = "REIN" Then
+			snap_case = TRUE
+			case_rein = TRUE
+			grh_status = "REIN"
+		End If
+	End If
     row = 1                                             'Looking for MSA information
     col = 1
     EMSearch "MSA:", row, col
@@ -4509,13 +4544,20 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
             msa_case = TRUE
             adult_cash_case = TRUE
             case_active = TRUE
+			msa_status = "ACTIVE"
         End If
         If ms_status = "PENDING" Then
             msa_case = TRUE
             adult_cash_case = TRUE
             case_pending = TRUE
+			msa_status = "PENDING"
         ENd If
-    End If
+		If left(fs_status, 4) = "REIN" Then
+			snap_case = TRUE
+			case_rein = TRUE
+			snap_status = "REIN"
+		End If
+	End If
     row = 1                                             'Looking for GA information
     col = 1
     EMSearch "GA:", row, col
@@ -4526,13 +4568,20 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
             ga_case = TRUE
             adult_cash_case = TRUE
             case_active = TRUE
+			ga_status = "ACTIVE"
         End If
         If ga_status = "PENDING" Then
             ga_case = TRUE
             adult_cash_case = TRUE
             case_pending = TRUE
+			ga_status = "PENDING"
         ENd If
-    End If
+		If left(ga_status, 4) = "REIN" Then
+			snap_case = TRUE
+			case_rein = TRUE
+			ga_status = "REIN"
+		End If
+	End If
     row = 1                                             'Looking for DWP information
     col = 1
     EMSearch "DWP:", row, col
@@ -4543,13 +4592,20 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
             dwp_case = TRUE
             family_cash_case = TRUE
             case_active = TRUE
+			dwp_status = "ACTIVE"
         End If
         If dw_status = "PENDING" Then
             dwp_case = TRUE
             family_cash_case = TRUE
             case_pending = TRUE
+			dwp_status = "PENDING"
         ENd If
-    End If
+		If left(dw_status, 4) = "REIN" Then
+			snap_case = TRUE
+			case_rein = TRUE
+			dwp_status = "REIN"
+		End If
+	End If
     row = 1                                             'Looking for MFIP information
     col = 1
     EMSearch "MFIP:", row, col
@@ -4560,13 +4616,20 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
             mfip_case = TRUE
             family_cash_case = TRUE
             case_active = TRUE
+			mfip_status = "ACTIVE"
         End If
         If mf_status = "PENDING" Then
             mfip_case = TRUE
             family_cash_case = TRUE
             case_pending = TRUE
+			mfip_status = "PENDING"
         ENd If
-    End If
+		If left(mf_status, 4) = "REIN" Then
+			snap_case = TRUE
+			case_rein = TRUE
+			mfip_status = "REIN"
+		End If
+	End If
     row = 1                                                 'Looking for a general 'Cash' header which means any kind of cash could be pending
     col = 1
     EMSearch "Cash:", row, col
@@ -4575,6 +4638,17 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
         cash_status = trim(cash_status)
         If cash_status = "PENDING" Then
             unknown_cash_pending = TRUE
+            case_pending = TRUE
+        ENd If
+    End If
+	row = 1                                                 'Looking for a general 'Cash' header which means any kind of cash could be pending
+    col = 1
+    EMSearch "HC:", row, col
+    If row <> 0 Then
+        EMReadScreen hc_status, 9, row, col + 4
+        hc_status = trim(hc_status)
+        If hc_status = "PENDING" Then
+            unknown_hc_pending = TRUE
             case_pending = TRUE
         ENd If
     End If
@@ -4587,12 +4661,19 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
         If ma_status = "ACTIVE" or ma_status = "APP CLOSE" or ma_status = "APP OPEN" Then
             ma_case = TRUE
             case_active = TRUE
+			ma_status = "ACTIVE"
         End If
         If ma_status = "PENDING" Then
             ma_case = TRUE
             case_pending = TRUE
-        ENd If
-    End If
+			ma_status = "PENDING"
+        End If
+		If left(ma_status, 4) = "REIN" Then
+			snap_case = TRUE
+			case_rein = TRUE
+			ma_status = "REIN"
+		End If
+	End If
     'MSA programs have different headers so we need to search for them all seperately'
     row = 1                                             'Looking for QMB information for MSA programs
     col = 1
@@ -4603,11 +4684,18 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
         If qm_status = "ACTIVE" or qm_status = "APP CLOSE" or qm_status = "APP OPEN" Then
             msp_case = TRUE
             case_active = TRUE
+			msp_status = "ACTIVE"
         End If
         If qm_status = "PENDING" Then
             msp_case = TRUE
             case_pending = TRUE
-        ENd If
+			msp_status = "PENDING"
+        End If
+		If left(qm_status, 4) = "REIN" Then
+			snap_case = TRUE
+			case_rein = TRUE
+			msp_status = "REIN"
+		End If
     End If
     row = 1                                             'Looking for SLMB information for MSA programs
     col = 1
@@ -4618,11 +4706,18 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
         If sl_status = "ACTIVE" or sl_status = "APP CLOSE" or sl_status = "APP OPEN" Then
             msp_case = TRUE
             case_active = TRUE
+			msp_status = "ACTIVE"
         End If
         If sl_status = "PENDING" Then
             msp_case = TRUE
             case_pending = TRUE
-        ENd If
+			msp_status = "PENDING"
+        End If
+		If left(sl_status, 4) = "REIN" Then
+			snap_case = TRUE
+			case_rein = TRUE
+			msp_status = "REIN"
+		End If
     End If
     row = 1                                             'Looking for QI information for MSA programs
     col = 1
@@ -4633,11 +4728,18 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
         If qm_status = "ACTIVE" or qm_status = "APP CLOSE" or qm_status = "APP OPEN" Then
             msp_case = TRUE
             case_active = TRUE
+			msp_status = "ACTIVE"
         End If
         If qm_status = "PENDING" Then
             msp_case = TRUE
             case_pending = TRUE
-        ENd If
+			msp_status = "PENDING"
+        End If
+		If left(qm_status, 4) = "REIN" Then
+			snap_case = TRUE
+			case_rein = TRUE
+			msp_status = "REIN"
+		End If
     End If
 End Function
 
