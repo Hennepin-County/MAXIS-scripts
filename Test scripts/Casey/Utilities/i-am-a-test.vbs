@@ -228,207 +228,207 @@ END IF
 ' Call confirm_tester_information
 
 
-function MFIP_cert_length_details(verbal_attestation, attestation_verif_array)
-' This script requires
-'~~~~~ verbal_attestation: BOOLEAN - that idetifies if ANY verbal attestation was used
-
-	Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, unknown_cash_pending)
-	ReDim attestation_verif_array(0)
-	If mfip_case = TRUE Then
-		Call navigate_to_MAXIS_screen("STAT", "REVW")
-		EMReadScreen ER_Month, 2, 9, 37
-		EMReadScreen ER_Year, 2, 9, 43
-		If snap_case = TRUE Then
-			EmWriteScreen "X", 5, 58
-			transmit
-			EMReadScreen SNAP_ER_Month, 2, 9, 64
-			EMReadScreen SNAP_ER_Year, 2, 9, 70
-			transmit
-		End If
-
-		Do
-			err_msg = ""
-			If verif_by_attestation_yn = "" Then
-				BeginDialog Dialog1, 0, 0, 256, 30, "Verification by Attestation Details"
-			Else
-				dlg_len = 155
-				If attestation_verif_array(0) <> "" Then dlg_len = dlg_len + ((UBound(attestation_verif_array)+1) * 15)
-				If verbal_attestation = FALSE Then dlg_len = 100
-
-				BeginDialog Dialog1, 0, 0, 256, dlg_len, "Verification by Attestation Details"
-			End If
-
-			  ButtonGroup ButtonPressed
-			    Text 10, 15, 140, 10, "Were ANY verifications by ATTESTATION?"
-			    DropListBox 155, 10, 40, 45, "?"+chr(9)+"Yes"+chr(9)+"No", verif_by_attestation_yn
-			    If verif_by_attestation_yn = "" Then PushButton 210, 10, 40, 15, "Enter", enter_btn
-				If verbal_attestation = TRUE Then
-					Text 10, 35, 240, 20, "Since verbal attestation has been used to approve MFIP for this case, list all the verifications that we did NOT receive full required documentation:"
-				    ' Text 20, 60, 235, 10, "VERIF DETIL HERE"
-
-					y_pos = 60
-					If attestation_verif_array(0) <> "" Then
-						For each item in attestation_verif_array
-							Text 20, y_pos, 235, 10, "- " & item
-							y_pos = y_pos + 15
-						Next
-					End If
-
-					Text 15, y_pos, 90, 10, "Enter a single verification:"
-					y_pos = y_pos + 10
-					EditBox 15, y_pos, 230, 15, verif_entry
-					y_pos = y_pos + 20
-				    PushButton 145, y_pos, 100, 10, "SAVE THIS VERIFICATION", save_verif_button
-					y_pos = y_pos + 25
-				    Text 10, y_pos, 125, 10, "Current or Upcoming Renewal Month:"
-				    EditBox 140, y_pos - 5, 15, 15, ER_Month
-				    EditBox 160, y_pos - 5, 15, 15, ER_Year
-				    Text 180, y_pos, 30, 10, "(MM YY)"
-					y_pos = y_pos + 20
-					PushButton 120, y_pos, 130, 15, "Finish Saving Attestation Information", finish_btn
-				End If
-
-				If verbal_attestation = FALSE Then
-					Text 10, 35, 225, 20, "Since all verifications have been received according to 'non-waiver' policy, confirm the renewal month."
-				    Text 10, 60, 125, 10, "Current or Upcoming Renewal Month:"
-				    EditBox 140, 55, 15, 15, ER_Month
-				    EditBox 160, 55, 15, 15, ER_Year
-				    Text 180, 60, 30, 10, "(MM YY)"
-				    PushButton 120, 80, 130, 15, "Finish Cert Period Assesment", finish_btn
-				End If
-			EndDialog
-
-			Dialog Dialog1
-
-			If verif_by_attestation_yn = "Yes" Then verbal_attestation = TRUE
-			If verif_by_attestation_yn = "No" Then verbal_attestation = FALSE
-
-			verif_entry = trim(verif_entry)
-			If verif_entry <> "" Then
-				If attestation_verif_array(0) = "" Then
-					next_verif = 0
-				Else
-					next_verif = UBound(attestation_verif_array) + 1
-					ReDim Preserve attestation_verif_array(next_verif)
-				End If
-				attestation_verif_array(next_verif) = verif_entry
-				verif_entry = ""
-			End If
-
-			If ButtonPressed <> finish_btn Then err_msg = "LOOP"
-
-		Loop until err_msg = ""
-
-		how_far_away_is_the_next_REVW = ""
-		next_REVW_date = ER_Month & "/1/" & ER_Year
-		next_REVW_date = DateAdd("d", 0, next_REVW_date)
-
-		how_far_away_is_the_next_REVW = DateDiff("m", date, next_REVW_date)
-		MsgBox how_far_away_is_the_next_REVW
-
-		before_er_cutoff = FALSE
-		current_day = DatePart("d", date)
-		If current_day < 16 Then before_er_cutoff = TRUE
-
-		If verbal_attestation = FALSE AND how_far_away_is_the_next_REVW < 8 Then
-
-			Call Navigate_to_MAXIS_screen("CASE", "NOTE")
-
-
-			first_day_of_this_process = #4/15/2021#
-
-            note_row = 5        'these always need to be reset when looking at Case note
-            note_date = ""
-            note_title = ""
-			previously_set_to_6_months = FALSE
-            Do                  'this do-loop moves down the list of case notes - looking at each row in MAXIS
-                EMReadScreen note_date, 8, note_row, 6      'reading the date of the row
-                EMReadScreen note_title, 55, note_row, 25   'reading the header of the note
-                note_title = trim(note_title)               'trim it down
-
-                'if the note headers match any of the following then we can know if a face to face is needed or not - then we add that detail to the ARRAY
-                If trim(note_title) = "MFIP Certification Period set for 6 MONTHS due Verification by Attestation" Then
-					previously_set_to_6_months = TRUE
-					Exit Do
-				End If
-				If trim(note_title) = "MFIP Certification Period set for 12 MONTHS since Verifs have been Received" Then Exit Do
-
-                IF note_date = "        " then Exit Do      'if the case is new, we will hit blank note dates and we don't need to read any further
-                note_row = note_row + 1                     'going to the next row to look at the next notws
-                IF note_row = 19 THEN                       'if we have reached the end of the list of case notes then we will go to the enxt page of notes
-                    PF8
-                    note_row = 5
-                END IF
-                EMReadScreen next_note_date, 8, note_row, 6 'looking at the next note date
-                IF next_note_date = "        " then Exit Do
-            Loop until datevalue(next_note_date) < first_day_of_this_process 'looking ahead at the next case note kicking out the dates before app'
-
-		End If
-
-		' Call start_a_blank_CASE_NOTE
-		' If verbal_attestation = TRUE Then
-		' 	Call write_variable_in_CASE_NOTE("MFIP Certification Period set for 6 MONTHS due Verification by Attestation")
-		' 	Call write_variable_in_CASE_NOTE()
-		' 	Call write_variable_in_CASE_NOTE()
-		' 	Call write_variable_in_CASE_NOTE("---")
-		' 	Call write_variable_in_CASE_NOTE(worker_signature)
-		' End If
-		'
-		' If verbal_attestation = FALSE Then
-		' 	Call write_variable_in_CASE_NOTE("MFIP Certification Period set for 12 MONTHS since Verifs have been Received")
-		' 	Call write_variable_in_CASE_NOTE()
-		' 	Call write_variable_in_CASE_NOTE()
-		' 	Call write_variable_in_CASE_NOTE("---")
-		' 	Call write_variable_in_CASE_NOTE(worker_signature)
-		'
-		' End If
-
-	End If
-
-
-end function
-
-
-BeginDialog Dialog1, 0, 0, 256, 170, "Verbal Attestation Details"
-  Text 10, 15, 140, 10, "Were ANY verifications by ATTESTATION?"
-  DropListBox 150, 10, 40, 45, "", verif_by_attestation_yn
-  Text 10, 35, 240, 20, "Since verbal attestation has been used to approve MFIP for this case, list all the verifications that we did NOT receive full required documentation:"
-  Text 20, 60, 235, 10, "VERIF DETIL HERE"
-  Text 15, 75, 90, 10, "Enter a single verification:"
-  EditBox 15, 85, 230, 15, Edit1
-  ButtonGroup ButtonPressed
-    PushButton 145, 105, 100, 10, "SAVE THIS VERIFICATION", save_verif_button
-  Text 10, 130, 125, 10, "Current or Upcoming Renewal Month:"
-  EditBox 140, 125, 15, 15, Edit2
-  EditBox 160, 125, 15, 15, Edit3
-  Text 180, 130, 30, 10, "(MM YY)"
-  ButtonGroup ButtonPressed
-    PushButton 95, 150, 155, 15, "Finish Saving Verbal Attestation Information", finish_btn
-EndDialog
-
-BeginDialog Dialog1, 0, 0, 256, 155, "Verbal Attestation Details"
-  Text 10, 15, 140, 10, "Were ANY verifications by ATTESTATION?"
-  DropListBox 150, 10, 40, 45, "", verif_by_attestation_yn
-  Text 10, 35, 240, 20, "Since verbal attestation has been used to approve MFIP for this case, list all the verifications that we did NOT receive full required documentation:"
-  Text 15, 60, 90, 10, "Enter a single verification:"
-  EditBox 15, 70, 230, 15, Edit1
-  ButtonGroup ButtonPressed
-    PushButton 145, 90, 100, 10, "SAVE THIS VERIFICATION", save_verif_button
-  Text 10, 115, 125, 10, "Current or Upcoming Renewal Month:"
-  EditBox 140, 110, 15, 15, Edit2
-  EditBox 160, 110, 15, 15, Edit3
-  Text 180, 115, 30, 10, "(MM YY)"
-  ButtonGroup ButtonPressed
-    PushButton 95, 135, 155, 15, "Finish Saving Verbal Attestation Information", finish_btn
-EndDialog
-
-MAXIS_case_number = "1529051"
-MAXIS_footer_month = "04"
-MAXIS_footer_year = "21"
-
-Call MFIP_cert_length_details(verbal_attestation, attestation_verif_array)
-
-
+' function MFIP_cert_length_details(verbal_attestation, attestation_verif_array)
+' ' This script requires
+' '~~~~~ verbal_attestation: BOOLEAN - that idetifies if ANY verbal attestation was used
+'
+' 	Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, unknown_cash_pending)
+' 	ReDim attestation_verif_array(0)
+' 	If mfip_case = TRUE Then
+' 		Call navigate_to_MAXIS_screen("STAT", "REVW")
+' 		EMReadScreen ER_Month, 2, 9, 37
+' 		EMReadScreen ER_Year, 2, 9, 43
+' 		If snap_case = TRUE Then
+' 			EmWriteScreen "X", 5, 58
+' 			transmit
+' 			EMReadScreen SNAP_ER_Month, 2, 9, 64
+' 			EMReadScreen SNAP_ER_Year, 2, 9, 70
+' 			transmit
+' 		End If
+'
+' 		Do
+' 			err_msg = ""
+' 			If verif_by_attestation_yn = "" Then
+' 				BeginDialog Dialog1, 0, 0, 256, 30, "Verification by Attestation Details"
+' 			Else
+' 				dlg_len = 155
+' 				If attestation_verif_array(0) <> "" Then dlg_len = dlg_len + ((UBound(attestation_verif_array)+1) * 15)
+' 				If verbal_attestation = FALSE Then dlg_len = 100
+'
+' 				BeginDialog Dialog1, 0, 0, 256, dlg_len, "Verification by Attestation Details"
+' 			End If
+'
+' 			  ButtonGroup ButtonPressed
+' 			    Text 10, 15, 140, 10, "Were ANY verifications by ATTESTATION?"
+' 			    DropListBox 155, 10, 40, 45, "?"+chr(9)+"Yes"+chr(9)+"No", verif_by_attestation_yn
+' 			    If verif_by_attestation_yn = "" Then PushButton 210, 10, 40, 15, "Enter", enter_btn
+' 				If verbal_attestation = TRUE Then
+' 					Text 10, 35, 240, 20, "Since verbal attestation has been used to approve MFIP for this case, list all the verifications that we did NOT receive full required documentation:"
+' 				    ' Text 20, 60, 235, 10, "VERIF DETIL HERE"
+'
+' 					y_pos = 60
+' 					If attestation_verif_array(0) <> "" Then
+' 						For each item in attestation_verif_array
+' 							Text 20, y_pos, 235, 10, "- " & item
+' 							y_pos = y_pos + 15
+' 						Next
+' 					End If
+'
+' 					Text 15, y_pos, 90, 10, "Enter a single verification:"
+' 					y_pos = y_pos + 10
+' 					EditBox 15, y_pos, 230, 15, verif_entry
+' 					y_pos = y_pos + 20
+' 				    PushButton 145, y_pos, 100, 10, "SAVE THIS VERIFICATION", save_verif_button
+' 					y_pos = y_pos + 25
+' 				    Text 10, y_pos, 125, 10, "Current or Upcoming Renewal Month:"
+' 				    EditBox 140, y_pos - 5, 15, 15, ER_Month
+' 				    EditBox 160, y_pos - 5, 15, 15, ER_Year
+' 				    Text 180, y_pos, 30, 10, "(MM YY)"
+' 					y_pos = y_pos + 20
+' 					PushButton 120, y_pos, 130, 15, "Finish Saving Attestation Information", finish_btn
+' 				End If
+'
+' 				If verbal_attestation = FALSE Then
+' 					Text 10, 35, 225, 20, "Since all verifications have been received according to 'non-waiver' policy, confirm the renewal month."
+' 				    Text 10, 60, 125, 10, "Current or Upcoming Renewal Month:"
+' 				    EditBox 140, 55, 15, 15, ER_Month
+' 				    EditBox 160, 55, 15, 15, ER_Year
+' 				    Text 180, 60, 30, 10, "(MM YY)"
+' 				    PushButton 120, 80, 130, 15, "Finish Cert Period Assesment", finish_btn
+' 				End If
+' 			EndDialog
+'
+' 			Dialog Dialog1
+'
+' 			If verif_by_attestation_yn = "Yes" Then verbal_attestation = TRUE
+' 			If verif_by_attestation_yn = "No" Then verbal_attestation = FALSE
+'
+' 			verif_entry = trim(verif_entry)
+' 			If verif_entry <> "" Then
+' 				If attestation_verif_array(0) = "" Then
+' 					next_verif = 0
+' 				Else
+' 					next_verif = UBound(attestation_verif_array) + 1
+' 					ReDim Preserve attestation_verif_array(next_verif)
+' 				End If
+' 				attestation_verif_array(next_verif) = verif_entry
+' 				verif_entry = ""
+' 			End If
+'
+' 			If ButtonPressed <> finish_btn Then err_msg = "LOOP"
+'
+' 		Loop until err_msg = ""
+'
+' 		how_far_away_is_the_next_REVW = ""
+' 		next_REVW_date = ER_Month & "/1/" & ER_Year
+' 		next_REVW_date = DateAdd("d", 0, next_REVW_date)
+'
+' 		how_far_away_is_the_next_REVW = DateDiff("m", date, next_REVW_date)
+' 		MsgBox how_far_away_is_the_next_REVW
+'
+' 		before_er_cutoff = FALSE
+' 		current_day = DatePart("d", date)
+' 		If current_day < 16 Then before_er_cutoff = TRUE
+'
+' 		If verbal_attestation = FALSE AND how_far_away_is_the_next_REVW < 8 Then
+'
+' 			Call Navigate_to_MAXIS_screen("CASE", "NOTE")
+'
+'
+' 			first_day_of_this_process = #4/15/2021#
+'
+'             note_row = 5        'these always need to be reset when looking at Case note
+'             note_date = ""
+'             note_title = ""
+' 			previously_set_to_6_months = FALSE
+'             Do                  'this do-loop moves down the list of case notes - looking at each row in MAXIS
+'                 EMReadScreen note_date, 8, note_row, 6      'reading the date of the row
+'                 EMReadScreen note_title, 55, note_row, 25   'reading the header of the note
+'                 note_title = trim(note_title)               'trim it down
+'
+'                 'if the note headers match any of the following then we can know if a face to face is needed or not - then we add that detail to the ARRAY
+'                 If trim(note_title) = "MFIP Certification Period set for 6 MONTHS due Verification by Attestation" Then
+' 					previously_set_to_6_months = TRUE
+' 					Exit Do
+' 				End If
+' 				If trim(note_title) = "MFIP Certification Period set for 12 MONTHS since Verifs have been Received" Then Exit Do
+'
+'                 IF note_date = "        " then Exit Do      'if the case is new, we will hit blank note dates and we don't need to read any further
+'                 note_row = note_row + 1                     'going to the next row to look at the next notws
+'                 IF note_row = 19 THEN                       'if we have reached the end of the list of case notes then we will go to the enxt page of notes
+'                     PF8
+'                     note_row = 5
+'                 END IF
+'                 EMReadScreen next_note_date, 8, note_row, 6 'looking at the next note date
+'                 IF next_note_date = "        " then Exit Do
+'             Loop until datevalue(next_note_date) < first_day_of_this_process 'looking ahead at the next case note kicking out the dates before app'
+'
+' 		End If
+'
+' 		' Call start_a_blank_CASE_NOTE
+' 		' If verbal_attestation = TRUE Then
+' 		' 	Call write_variable_in_CASE_NOTE("MFIP Certification Period set for 6 MONTHS due Verification by Attestation")
+' 		' 	Call write_variable_in_CASE_NOTE()
+' 		' 	Call write_variable_in_CASE_NOTE()
+' 		' 	Call write_variable_in_CASE_NOTE("---")
+' 		' 	Call write_variable_in_CASE_NOTE(worker_signature)
+' 		' End If
+' 		'
+' 		' If verbal_attestation = FALSE Then
+' 		' 	Call write_variable_in_CASE_NOTE("MFIP Certification Period set for 12 MONTHS since Verifs have been Received")
+' 		' 	Call write_variable_in_CASE_NOTE()
+' 		' 	Call write_variable_in_CASE_NOTE()
+' 		' 	Call write_variable_in_CASE_NOTE("---")
+' 		' 	Call write_variable_in_CASE_NOTE(worker_signature)
+' 		'
+' 		' End If
+'
+' 	End If
+'
+'
+' end function
+'
+'
+' BeginDialog Dialog1, 0, 0, 256, 170, "Verbal Attestation Details"
+'   Text 10, 15, 140, 10, "Were ANY verifications by ATTESTATION?"
+'   DropListBox 150, 10, 40, 45, "", verif_by_attestation_yn
+'   Text 10, 35, 240, 20, "Since verbal attestation has been used to approve MFIP for this case, list all the verifications that we did NOT receive full required documentation:"
+'   Text 20, 60, 235, 10, "VERIF DETIL HERE"
+'   Text 15, 75, 90, 10, "Enter a single verification:"
+'   EditBox 15, 85, 230, 15, Edit1
+'   ButtonGroup ButtonPressed
+'     PushButton 145, 105, 100, 10, "SAVE THIS VERIFICATION", save_verif_button
+'   Text 10, 130, 125, 10, "Current or Upcoming Renewal Month:"
+'   EditBox 140, 125, 15, 15, Edit2
+'   EditBox 160, 125, 15, 15, Edit3
+'   Text 180, 130, 30, 10, "(MM YY)"
+'   ButtonGroup ButtonPressed
+'     PushButton 95, 150, 155, 15, "Finish Saving Verbal Attestation Information", finish_btn
+' EndDialog
+'
+' BeginDialog Dialog1, 0, 0, 256, 155, "Verbal Attestation Details"
+'   Text 10, 15, 140, 10, "Were ANY verifications by ATTESTATION?"
+'   DropListBox 150, 10, 40, 45, "", verif_by_attestation_yn
+'   Text 10, 35, 240, 20, "Since verbal attestation has been used to approve MFIP for this case, list all the verifications that we did NOT receive full required documentation:"
+'   Text 15, 60, 90, 10, "Enter a single verification:"
+'   EditBox 15, 70, 230, 15, Edit1
+'   ButtonGroup ButtonPressed
+'     PushButton 145, 90, 100, 10, "SAVE THIS VERIFICATION", save_verif_button
+'   Text 10, 115, 125, 10, "Current or Upcoming Renewal Month:"
+'   EditBox 140, 110, 15, 15, Edit2
+'   EditBox 160, 110, 15, 15, Edit3
+'   Text 180, 115, 30, 10, "(MM YY)"
+'   ButtonGroup ButtonPressed
+'     PushButton 95, 135, 155, 15, "Finish Saving Verbal Attestation Information", finish_btn
+' EndDialog
+'
+' MAXIS_case_number = "1529051"
+' MAXIS_footer_month = "04"
+' MAXIS_footer_year = "21"
+'
+' Call MFIP_cert_length_details(verbal_attestation, attestation_verif_array)
+'
+'
 
 
 
@@ -643,9 +643,9 @@ Call MFIP_cert_length_details(verbal_attestation, attestation_verif_array)
 '
 ' 'SCRIPT ====================================================================================================================
 ' 'Connects to BlueZone
-' EMConnect ""
-'
-' Call MAXIS_case_number_finder(MAXIS_case_number)
+EMConnect ""
+
+Call MAXIS_case_number_finder(MAXIS_case_number)
 '
 ' Call navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", memb_priv)
 '
@@ -657,10 +657,12 @@ Call MFIP_cert_length_details(verbal_attestation, attestation_verif_array)
 '
 ' call script_end_procedure("DONE")
 '
-' Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, unknown_cash_pending)
-' Call script_end_procedure("Case Information" & vbNewLine & vbNewLine & "Case Active - " & case_active & vbNewLine & "Case Pending - " & case_pending & vbNewLine & "Family Cash - " & family_cash_case & vbNewLine &_
-'        "MFIP - " & mfip_case & vbNewLine & "DWP - " & dwp_case & vbNewLine & "Adult Cash - " & adult_cash_case & vbNewLine & "GA - " & ga_case & vbNewLine & "MSA - " & msa_case & vbNewLine & "GRH - " & grh_case & vbNewLine &_
-'        "SNAP - " & snap_case & vbNewLine & "MA - " & ma_case & vbNewLine & "MSP - " & msp_case & vbNewLine & "CASH Pend - " & unknown_cash_pending)
+Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status)
+Call script_end_procedure("Case Information" & vbNewLine & vbNewLine & "Case Active - " & case_active & vbNewLine & "Case Pending - " & case_pending & vbNewLine & "Case REIN - " & case_rein & vbNewLine & "Family Cash - " & family_cash_case & vbNewLine &_
+       "MFIP - " & mfip_case & vbNewLine & "DWP - " & dwp_case & vbNewLine & "Adult Cash - " & adult_cash_case & vbNewLine & "GA - " & ga_case & vbNewLine & "MSA - " & msa_case & vbNewLine & "GRH - " & grh_case & vbNewLine &_
+       "SNAP - " & snap_case & vbNewLine & "MA - " & ma_case & vbNewLine & "MSP - " & msp_case & vbNewLine & "CASH Pend - " & unknown_cash_pending & vbNewLine & "HC Pend - " & unknown_hc_pending & vbNewLine & "GA Status - " & ga_status & vbNewLine &_
+	   "MSA Status - " & msa_status & vbNewLine & "MFIP Status - " & mfip_status & vbNewLine & "DWP Status - " & dwp_status & vbNewLine & "GRH Status - " & grh_status & vbNewLine & "SNAP Status - " & snap_status & vbNewLine &_
+	   "MA Status - " & ma_status & vbNewLine & "MSP Status - " & msp_status)
 ' 'Initial Dialog to determine the excel file to use, column with case numbers, and which process should be run
 ' 'Show initial dialog
 ' Do
