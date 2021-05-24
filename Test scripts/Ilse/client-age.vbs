@@ -56,7 +56,7 @@ EMConnect ""		'Connects to BlueZone
 '            Days = DateDiff("d", ThisMonth, Date)
 '        End If
 '    Loop
-'    
+'
 '    age_of_client = Years
 '    If client_months_and_days = True then age_of_client = age_of_client & "y/" & Months & "m/" & Days & "/d"
 'End Function
@@ -108,16 +108,16 @@ update_count = 0
 Do
 	client_DOB = ObjExcel.Cells(excel_row, 5).Value
 	client_DOB = trim(client_DOB)
-    
+
     MAXIS_case_number = ObjExcel.Cells(excel_row, 2).Value
 	MAXIS_case_number = trim(MAXIS_case_number)
-    
-    Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, unknown_cash_pending)
-    If snap_case = True then 
-        ObjExcel.Cells(excel_row, 9).Value = True 
-    Else 
-        ObjExcel.Cells(excel_row, 9).Value = False 
-    End if 
+
+	Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status)
+    If snap_case = True then
+        ObjExcel.Cells(excel_row, 9).Value = True
+    Else
+        ObjExcel.Cells(excel_row, 9).Value = False
+    End if
 
     'Dim CurrentDate, Years, ThisYear, Months, ThisMonth, Days
     CurrentDate = CDate(client_DOB)
