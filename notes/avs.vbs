@@ -167,7 +167,7 @@ DO
         client_ssn = replace(client_ssn, " ", "")
     End if
 
-    If trim(client_age) < "21" then add_to_array = False  'under 21 are not required to sign per EPM 2.3.3.2.1 Asset Limits
+    If trim(client_age) < 21 then add_to_array = False  'under 21 are not required to sign per EPM 2.3.3.2.1 Asset Limits
     If add_to_array = True then
         If client_ssn = "" then 
             If initial_option = "AVS Submission/Results" then avs_members_array(request_type_const, avs_membs) = "N/A - No SSN" 'NO SSN need to sign forms, but we just need to case note AVS Submission exemption 
