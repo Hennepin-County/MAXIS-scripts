@@ -62,15 +62,15 @@ function navigate_to_MAXIS_test(maxis_mode)
         EMReadScreen MAI_check, 3, 1, 33
         If MAI_check <> "MAI" then EMWaitReady 1, 1
     Loop until MAI_check = "MAI"
-    
-    IF maxis_mode = "PRODUCTION" then 
+
+    IF maxis_mode = "PRODUCTION" then
         row = 6
         selection_code = 1
-    elseif maxis_mode = "INQUIRY DB" then 
+    elseif maxis_mode = "INQUIRY DB" then
         row = 7
         selection_code = 2
-    End if 
-    
+    End if
+
     EMReadScreen region_check, 7, row, 15
     IF region_check = "RUNNING" THEN
         Call write_value_and_transmit(selection_code, 2, 15)
@@ -86,12 +86,12 @@ function navigate_to_MAXIS_test(maxis_mode)
             EMReadScreen region_check, 7, 6, 15
             IF region_check = "RUNNING" THEN
                 Call write_value_and_transmit(selection_code, 2, 15)
-            Else 
+            Else
                 script_end_procedure("This script will now stop. Error occurred switching between MAXIS and MMIS.")
             END IF
         END IF
     END IF
-end function 
+end function
 
 get_county_code     'Checks for county info from global variables, or asks if it is not already defined.
 
@@ -112,7 +112,7 @@ BeginDialog Dialog1, 0, 0, 211, 65, "Find MA-EPD Medicare CEI"
   Text 5, 15, 115, 10, "X Numbers, seperated by comma:"
   Text 10, 30, 200, 10, "This script will check REPT/ACTV for the selected X numbers."
 EndDialog
-Do 
+Do
     DO
     	err_msg = ""								'err message handling to loop until the user has entered the proper information
     	Dialog Dialog1
@@ -123,8 +123,8 @@ Do
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-MAXIS_footer_month = CM_mo              'ensuring that we're looking in current month/year for MA-EPD information 
-MAXIS_footer_year = CM_yr 
+MAXIS_footer_month = CM_mo              'ensuring that we're looking in current month/year for MA-EPD information
+MAXIS_footer_year = CM_yr
 Call MAXIS_footer_month_confirmation
 
 current_month = MAXIS_footer_month & "/" & MAXIS_footer_year    'Establishing current month to check for MA-EPD elig in actual current month in ELIG/HC
@@ -161,9 +161,9 @@ worker_number_array = split(x_number, ",")
 For each worker in worker_number_array
     worker = trim(worker)
 	If worker = "" then exit for
-	
-    Call write_value_and_transmit(worker, 21, 13) 
-    
+
+    Call write_value_and_transmit(worker, 21, 13)
+
     DO
     	EMReadScreen last_page, 21, 24, 2											'checking to see if this is the last page, if it is the loop can end.
     	DO
@@ -187,69 +187,69 @@ For each worker in worker_number_array
     	rept_row = 7											'resetting the row to the top of the page.
     	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
     LOOP UNTIL last_page = "THIS IS THE LAST PAGE"
-Next 
+Next
 
 back_to_self
 excel_row = 2												'resetting excel row so script can review each case number found in previous loops.
 DO
     back_to_SELF
 	MAXIS_case_number = objExcel.Cells(excel_row, 2).Value					'reading case number from excel spreadsheet
-    Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, unknown_cash_pending)
+    Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status)
     objExcel.Cells(excel_row, msp_col).Value = msp_case
 	CALL navigate_to_MAXIS_screen("ELIG", "HC")
 	hhmm_row = 8	                                                         'setting starting point to review all HH members in ELIG HC
     notes = ""
-    MaEPD_found = "" 														
+    MaEPD_found = ""
 	DO																		'the script will now navigate to ELIG HC and begin to search for MA caes with DP as the elig type.
 		EMReadScreen hc_type, 2, hhmm_row, 28
 		IF hc_type = "MA" THEN												'if it finds MA as the HC type it will go into those results
             EMReadScreen hh_memb_num, 2, hhmm_row, 3
-			'Identifies unapproved versions of HC 
+			'Identifies unapproved versions of HC
             EmReadscreen approval_code, 6, 8, 68
             If trim(approval_code) = "UNAPP" then Call write_value_and_transmit("D", hhmm_row, 26)
-            
+
             Call write_value_and_transmit("X", hhmm_row, 26)
 			'start looking for current month budget results
             row = 6
             col = 19
-            EMSearch current_month, row, col 
-            If row = 0 then 
-                'For cases without current HC elig 
-                objExcel.Cells(excel_row, reim_elig_col).Value = objExcel.Cells(excel_row, reim_elig_col).Value & ("MEMB " & hh_memb_num & " DOES NOT HAVE HC ELIG covering the current month. Review. ")  
+            EMSearch current_month, row, col
+            If row = 0 then
+                'For cases without current HC elig
+                objExcel.Cells(excel_row, reim_elig_col).Value = objExcel.Cells(excel_row, reim_elig_col).Value & ("MEMB " & hh_memb_num & " DOES NOT HAVE HC ELIG covering the current month. Review. ")
                 For col = 1 to 7
                     objExcel.Cells(excel_row, col).Interior.ColorIndex = 3	'Fills the row with red
                 Next
-            else 
+            else
                  'Chekcing for MA-EPD results in the current month
 			    EMReadScreen elig_type, 2, 12, col - 2
 			    IF elig_type <> "DP" THEN										'once in those HC results it will look for DP as the elig type. DP is for MA-EPD
                     'For cases without current MA-EPD
-                    objExcel.Cells(excel_row, reim_elig_col).Value = objExcel.Cells(excel_row, reim_elig_col).Value & ("MEMB " & hh_memb_num & " NOT OPEN ON MA-EPD for "  & current_month & ". ")  
-                    
+                    objExcel.Cells(excel_row, reim_elig_col).Value = objExcel.Cells(excel_row, reim_elig_col).Value & ("MEMB " & hh_memb_num & " NOT OPEN ON MA-EPD for "  & current_month & ". ")
+
                     MaEPD_found = False                                         'ELIG TYPE DID NOT = DP
     				PF3															'if the MA elig results don't have DP we end up here
-    				hhmm_row = hhmm_row + 1	                                    'adding to the read row since we have finished evaluating this particular HH member.        
-                else 
-                    MaEPD_found = True 									  
-                End if 
-                
-                If MaEPD_found = True then 
-                    'Heading into the budget 
+    				hhmm_row = hhmm_row + 1	                                    'adding to the read row since we have finished evaluating this particular HH member.
+                else
+                    MaEPD_found = True
+                End if
+
+                If MaEPD_found = True then
+                    'Heading into the budget
                     Call write_value_and_transmit("X", 9, col + 2)
 				    EMReadScreen pct_fpg, 4, 18, 38								'here it will check the percert of FPG client is at.
 				    pct_fpg = trim(pct_fpg)
-                    If pct_fpg = "" then 
+                    If pct_fpg = "" then
                         objExcel.Cells(excel_row, reim_elig_col).Value = objExcel.Cells(excel_row, reim_elig_col).Value & ("MEMB " & hh_memb_num & " Doesn't reflect FPG % in BSUM. Review.")  'writing eligibility status in spreadsheet
                         For col = 1 to 7
         	        		objExcel.Cells(excel_row, col).Interior.ColorIndex = 3	'Fills the row with red
         	            Next
-                    Else     
+                    Else
                         pct_fpg = pct_fpg * 1
 				        IF pct_fpg < 201 THEN										'If the client is 200% or under they may eligible for reimbursement
 				        	PF3														'the script will now grab that person's member number and head into memb to get that person's PMI this will be used later to check MMIS
 				        	PF3
-                            'Grabbing the Medicare Part B premium 
-                            'Getting PMI number 
+                            'Grabbing the Medicare Part B premium
+                            'Getting PMI number
 				        	CALL navigate_to_MAXIS_screen("STAT", "MEMB")
 				        	EMWriteScreen hh_memb_num, 20, 76
 				        	transmit
@@ -258,15 +258,15 @@ DO
 				        	DO
 				        		IF len(cl_pmi) <> 8 THEN cl_pmi = "0" & cl_pmi
 				        	LOOP UNTIL len(cl_pmi) = 8
-                            
-                            'Grabbing the Medicare Part B premium 
+
+                            'Grabbing the Medicare Part B premium
                            Call navigate_to_MAXIS_screen("STAT", "MEDI")
                            Call write_value_and_transmit(hh_memb_num, 20, 76)
                            EmReadscreen medi_premium, 8, 7, 73
                            objExcel.Cells(excel_row, 6).Value = trim(replace(medi_premium, "_", ""))
-                            
+
 				        	Call navigate_to_MMIS_region("CTY ELIG STAFF/UPDATE")	'function to navigate into MMIS, select the HC realm, and enters the prior autorization area
-				        	
+
                             DO
 				        		EMReadScreen RKEY, 4, 1, 52
 				        		IF RKEY <> "RKEY" THEN EMWaitReady 0, 0
@@ -314,28 +314,28 @@ DO
 				        			EMReadScreen accrete_date, 8, 5, 66
 				        			EMReadScreen delete_date, 8, 6, 65
 				        			accrete_date = replace(accrete_date, " ", "")
-                                    
+
                                     EMReadScreen accrete_date_two, 8, 5, 33
                                     EMReadScreen delete_date_two, 8, 6, 32
                                     accrete_date_two = replace(accrete_date_two, " ", "")
 
 				        			IF (accrete_date = "" and accrete_date_two = "") then
-                                        reim_elig = True 
+                                        reim_elig = True
                                     elseif (accrete_date <> "" AND delete_date = "99/99/99") THEN				'if the PMI is found to be open on MA-EPD, under 200% open on medicare and they don't have an end date on the delete date (rbyb) the script marks them as eligible for reimbursement.
-                                        reim_elig = false 
-                                    else 
+                                        reim_elig = false
+                                    else
                                         'Some cases that have opened & closed on MSP OR new MSP cases will have the accrete/delete information here.
-                                        IF (accrete_date_two = "") then 
-                                            reim_elig = True 
-                                        elseif (accrete_date_two <> "" AND isdate(delete_date_two) = true) then 
+                                        IF (accrete_date_two = "") then
+                                            reim_elig = True
+                                        elseif (accrete_date_two <> "" AND isdate(delete_date_two) = true) then
                                             reim_elig = True 'this handling is for cases that have closed on the buy in previously, but it has restarted
-                                        else 
+                                        else
                                             reim_elig = False
-                                        End if 
-                                    End if 
-                                
+                                        End if
+                                    End if
+
                                     If reim_elig = True then objExcel.Cells(excel_row, reim_elig_col).Value = objExcel.Cells(excel_row, reim_elig_col).Value & ("MEMB " & hh_memb_num & " ELIG FOR REIMBURSEMENT. " & notes)  'writing eligibility status in spreadsheet
-				        			
+
 				        			CALL write_value_and_transmit("RKEY", 1, 8)
 				        		END IF
 				        	ELSE
@@ -351,8 +351,8 @@ DO
 				        	LOOP UNTIL at_hhmm = "HHMM"
 				        	hhmm_row = hhmm_row + 1									'adding to the read row since we have finished evaluating this particular HH member.
 				        END IF
-                    End if 
-                End if 
+                    End if
+                End if
 			END IF
 		ELSE
 			hhmm_row = hhmm_row + 1											'If the elig/hc results aren't MA we end up here and add to the read row since we have finished evaluating this particular HH member.
@@ -362,7 +362,7 @@ DO
 			EMReadScreen this_is_the_last_page, 21, 24, 2					'if the script has read everyone on a page and PF8'd and reached the last page the script is done evaulating this case
 		END IF
 	LOOP UNTIL hc_type = "  " OR this_is_the_last_page = "THIS IS THE LAST PAGE"
-    
+
 	'Deleting the blank results to clean up the spreadsheet
 	IF objExcel.Cells(excel_row, reim_elig_col).Value = "" THEN
 		SET objRange = objExcel.Cells(excel_row, 1).EntireRow
