@@ -561,26 +561,34 @@ IF claim_actions = "Intial Overpayment/Claim" THEN
 END IF
 
 IF claim_actions = "Requested Claim Adjustment" THEN
-    BeginDialog Dialog1, 0, 0, 226, 125, "Requested Claim Adjustment"
-      EditBox 60, 5, 50, 15, claim_number
-      EditBox 180, 5, 40, 15, original_claim_amount
-      EditBox 180, 25, 40, 15, corrected_claim_amount
-      EditBox 60, 45, 35, 15, OP_from
-      EditBox 115, 45, 35, 15, OP_to
-      EditBox 80, 65, 140, 15, reason_correction
-      EditBox 60, 85, 160, 15, other_notes
+    BeginDialog Dialog1, 0, 0, 221, 165, "Requested Claim Adjustment"
+      EditBox 65, 5, 50, 15, claim_number
+      EditBox 75, 25, 40, 15, original_claim_amount
+      EditBox 175, 25, 40, 15, corrected_claim_amount
+      EditBox 75, 45, 40, 15, adjustment_amount
+      EditBox 125, 65, 35, 15, OP_from
+      EditBox 180, 65, 35, 15, OP_to
+      EditBox 90, 85, 125, 15, reason_correction
+      EditBox 90, 105, 125, 15, requested_verif
+      EditBox 50, 125, 165, 15, other_notes
+      CheckBox 170, 10, 50, 10, "MFIP Claim", MFIP_Claim_checkbox
       ButtonGroup ButtonPressed
-        OkButton 135, 105, 40, 15
-        CancelButton 180, 105, 40, 15
+        OkButton 115, 145, 50, 15
+        CancelButton 170, 145, 45, 15
+      Text 5, 130, 45, 10, "Other notes:"
+      Text 100, 70, 20, 10, "From:"
+      Text 165, 70, 15, 10, "To:"
+      Text 5, 90, 75, 10, "Reason for correction:"
+      Text 130, 55, 35, 10, "(MM/YY)"
       Text 5, 10, 50, 10, "Claim number:"
-      Text 120, 10, 55, 10, "Original Amount:"
+      Text 185, 55, 35, 10, "(MM/YY)"
       Text 120, 30, 55, 10, "Correct Amount:"
-      Text 5, 90, 45, 10, "Other notes:"
-      Text 5, 50, 50, 10, "Period    From:"
-      Text 100, 50, 15, 10, "To:"
-      Text 5, 70, 75, 10, "Reason for correction:"
-      Text 60, 35, 35, 10, "(MM/YY)"
+      Text 5, 50, 65, 10, "Adjustment Amount:"
+      Text 5, 70, 50, 10, "Correct Period"
+      Text 5, 30, 55, 10, "Original Amount:"
+      Text 5, 110, 80, 10, "Requested verifications:"
     EndDialog
+
 
 	Do
 		Do
@@ -598,15 +606,59 @@ IF claim_actions = "Requested Claim Adjustment" THEN
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 	LOOP UNTIL are_we_passworded_out = false
 
+	IF MFIP_Claim_checkbox = CHECKED THEN
+	    BeginDialog Dialog1, 0, 0, 276, 125, "ORIGINAL MFIP AMOUNT"
+	      EditBox 90, 20, 40, 15, tanf_elig_cash
+	      EditBox 90, 40, 40, 15, tanf_housing_grant
+	      EditBox 90, 60, 40, 15, federal_food
+	      EditBox 230, 20, 40, 15, state_funds_cash
+	      EditBox 230, 40, 40, 15, state_housing_grant
+	      EditBox 230, 60, 40, 15, state_food
+	      EditBox 135, 85, 40, 15, total_amount
+	      ButtonGroup ButtonPressed
+	        OkButton 170, 105, 50, 15
+	        CancelButton 225, 105, 45, 15
+	      Text 140, 65, 60, 10, "STATE FOOD:"
+	      Text 105, 90, 30, 10, "TOTAL:"
+	      Text 85, 5, 90, 10, "ORIGINAL MFIP AMOUNT"
+	      Text 140, 25, 75, 10, "STATE FUNDS CASH:"
+	      Text 5, 45, 85, 10, "TANF HOUSING GRANT:"
+	      Text 5, 65, 60, 10, "FEDERAL FOOD:"
+	      Text 5, 25, 65, 10, "TANF ELIG CASH:"
+	      Text 140, 45, 90, 10, "STATE HOUSING GRANT:"
+	    EndDialog
+
+
+		Do
+			Do
+				err_msg = ""
+				Dialog Dialog1
+				cancel_without_confirmation
+		      	IF IsNumeric(total_amount) = false THEN err_msg = err_msg & vbNewLine & "* Please enter the total amount."
+				IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+			Loop until err_msg = ""
+		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+		LOOP UNTIL are_we_passworded_out = false
+	END IF
+
 	'-----------------------------------------------------------------------------------------CASENOTE
     start_a_blank_CASE_NOTE
     Call write_variable_in_CASE_NOTE("Requested Claim Adjustment")
-    CALL write_bullet_and_variable_in_CASE_NOTE("Discovery date", discovery_date)
     CALL write_variable_in_CASE_NOTE("* Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number)
 	CALL write_bullet_and_variable_in_CASE_NOTE("Original Amount", original_claim_amount)
 	Call write_bullet_and_variable_in_CASE_NOTE("Correct Amount",  corrected_claim_amount)
+	Call write_bullet_and_variable_in_CASE_NOTE("Adjustment Amount",  adjustment_amount)
 	Call write_bullet_and_variable_in_CASE_NOTE("Reason for correction", reason_correction)
+	Call write_bullet_and_variable_in_CASE_NOTE("Requested verifications", requested_verif)
 	Call write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
+	CALL write_variable_in_CASE_NOTE("----- ----- -----")
+	Call write_bullet_and_variable_in_CASE_NOTE("TANF Cash", tanf_elig_cash)
+	Call write_bullet_and_variable_in_CASE_NOTE("TANF Housing Grant", tanf_housing_grant)
+	Call write_bullet_and_variable_in_CASE_NOTE("Federal Food", federal_food)
+	Call write_bullet_and_variable_in_CASE_NOTE("State Cash", state_funds_cash)
+	Call write_bullet_and_variable_in_CASE_NOTE("State Housing", state_housing_grant)
+	Call write_bullet_and_variable_in_CASE_NOTE("State Food", state_food)
+	Call write_bullet_and_variable_in_CASE_NOTE("Total", total_amount)
 	CALL write_variable_in_CASE_NOTE("----- ----- -----")
 	CALL write_variable_in_CASE_NOTE(worker_signature)
 	PF3
@@ -649,9 +701,18 @@ IF claim_actions = "Requested Claim Adjustment" THEN
 	CALL write_variable_in_CCOL_note_test("* Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number)
 	CALL write_bullet_and_variable_in_CCOL_note_test("Original Amount", original_claim_amount)
 	Call write_bullet_and_variable_in_CCOL_note_test("Correct Amount", corrected_claim_amount)
+	Call write_bullet_and_variable_in_CCOL_note_test("Adjustment Amount",  adjustment_amount)
 	Call write_bullet_and_variable_in_CCOL_note_test("Reason for correction", reason_correction)
+	Call write_bullet_and_variable_in_CCOL_note_test("Requested verifications", requested_verif)
 	Call write_bullet_and_variable_in_CCOL_note_test("Other notes", other_notes)
 	CALL write_variable_in_CCOL_note_test("----- ----- -----")
+	Call write_bullet_and_variable_in_CCOL_note_test("TANF Cash", tanf_elig_cash)
+	Call write_bullet_and_variable_in_CCOL_note_test("TANF Housing Grant", tanf_housing_grant)
+	Call write_bullet_and_variable_in_CCOL_note_test("Federal Food", federal_food)
+	Call write_bullet_and_variable_in_CCOL_note_test("State Cash", state_funds_cash)
+	Call write_bullet_and_variable_in_CCOL_note_test("State Housing", state_housing_grant)
+	Call write_bullet_and_variable_in_CCOL_note_test("State Food", state_food)
+	Call write_bullet_and_variable_in_CCOL_note_test("Total", total_amount)
 	CALL write_variable_in_CCOL_note_test(worker_signature)
 	PF3
 	'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
