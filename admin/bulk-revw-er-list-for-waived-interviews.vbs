@@ -338,7 +338,7 @@ For er_case = 0 To UBound(ER_CASES_ARRAY, 2)
 	' 	If ER_CASES_ARRAY(cash_er_tf_const, er_case) = TRUE Then
 			MAXIS_case_number = ER_CASES_ARRAY(case_nbr_const, er_case)
 
-			Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, unknown_cash_pending)
+			Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status)
 			' If mfip_case = TRUE Then ER_CASES_ARRAY(poss_waived_intv_tf_const, er_case) = FALSE
 
 			If mfip_case = TRUE THen ER_CASES_ARRAY(cash_prog_const, er_case) = ER_CASES_ARRAY(cash_prog_const, er_case) & ", MFIP"
