@@ -607,7 +607,7 @@ IF claim_actions = "Requested Claim Adjustment" THEN
 	LOOP UNTIL are_we_passworded_out = false
 
 	IF MFIP_Claim_checkbox = CHECKED THEN
-	    BeginDialog Dialog1, 0, 0, 276, 125, "ORIGINAL MFIP AMOUNT"
+	    BeginDialog Dialog1, 0, 0, 276, 125, "MFIP Amount Adjustment "
 	      EditBox 90, 20, 40, 15, tanf_elig_cash
 	      EditBox 90, 40, 40, 15, tanf_housing_grant
 	      EditBox 90, 60, 40, 15, federal_food
@@ -620,7 +620,7 @@ IF claim_actions = "Requested Claim Adjustment" THEN
 	        CancelButton 225, 105, 45, 15
 	      Text 140, 65, 60, 10, "STATE FOOD:"
 	      Text 105, 90, 30, 10, "TOTAL:"
-	      Text 85, 5, 90, 10, "ORIGINAL MFIP AMOUNT"
+	      Text 85, 5, 90, 10, "MFIP AMOUNT"
 	      Text 140, 25, 75, 10, "STATE FUNDS CASH:"
 	      Text 5, 45, 85, 10, "TANF HOUSING GRANT:"
 	      Text 5, 65, 60, 10, "FEDERAL FOOD:"
