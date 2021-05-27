@@ -3811,6 +3811,28 @@ function confirm_tester_information()
 
                 If confirm_testing_now = vbYes Then     'If they select 'Yes' the script will run the dialogs to confirm information
                     show_initial_dialog = TRUE          'this is set to show the initial dialog because there are 2 dialogs that loop together and once we pass the first, we don't want to see it again
+					for each user_prog in tester.tester_programs
+						If user_prog = "SNAP" Then snap_checkbox = checked
+						If user_prog = "GA" Then ga_checkbox = checked
+						If user_prog = "MSA" Then msa_checkbox = checked
+						If user_prog = "MFIP" Then mfip_checkbox = checked
+						If user_prog = "DWP" Then dwp_checkbox = checked
+						If user_prog = "GRH" Then grh_checkbox = checked
+						If user_prog = "IMD" Then imd_checkbox = checked
+						If user_prog = "MA" Then ma_checkbox = checked
+						If user_prog = "MA-EPD" Then ma_epd_checkbox = checked
+						If user_prog = "LTC" Then ltc_checkbox = checked
+						If user_prog = "EA" Then ea_checkbox = checked
+						If user_prog = "EGA" Then ega_checkbox = checked
+						If user_prog = "LTH" Then lth_checkbox = checked
+					next
+					for each user_grp in tester.tester_groups
+						If user_grp = "PSS" Then pss_checkbox = checked
+						If user_grp = "QI" Then qi_checkbox = checked
+						If user_grp = "YET" Then yet_checkbox = checked
+						If user_grp = "AVS" Then avs_checkbox = checked
+						If user_grp = "Sanctions" Then sanc_checkbox = checked
+					next
                     Do
                         Do
                             err_msg = ""
@@ -3830,38 +3852,55 @@ function confirm_tester_information()
                                     If tester.tester_region = "" Then region_action = "Incorrect - Change"
 
                                     the_dialog = ""        'reset for safety
-                                    BeginDialog the_dialog, 0, 0, 370, 215, "Detailed Tester Information"      'first dialog just lists the properties we already know
-                                      ButtonGroup ButtonPressed
-                                        OkButton 310, 195, 50, 15
-                                      Text 60, 15, 40, 10, "First Name:"
-                                      Text 60, 35, 40, 10, "Last Name:"
-                                      Text 50, 55, 50, 10, "Email Address:"
-                                      Text 10, 75, 90, 10, "Hennepin County ID (WF#):"
-                                      Text 40, 95, 60, 10, "MAXIS X-Number:"
-                                      Text 40, 115, 60, 10, "Supervisor Name:"
-                                      Text 40, 135, 60, 10, "Population/Team:"
-                                      Text 70, 155, 25, 10, "Region:"
-                                      Text 70, 175, 25, 10, "Groups:"
-                                      Text 110, 15, 105, 10, tester.tester_first_name
-                                      Text 110, 35, 105, 10, tester.tester_last_name
-                                      Text 110, 55, 140, 10, tester.tester_email
-                                      Text 110, 75, 60, 10, tester.tester_id_number
-                                      Text 110, 95, 60, 10, tester.tester_x_number
-                                      Text 110, 115, 150, 10, tester.tester_supervisor_name
-                                      Text 110, 135, 60, 10, tester.tester_population
-                                      Text 110, 155, 60, 10, tester.tester_region
-                                      Text 110, 175, 150, 10, Join(tester.tester_groups, ",")
-                                      DropListBox 280, 10, 80, 45, "Correct"+chr(9)+"Incorrect - Change", first_name_action
-                                      DropListBox 280, 30, 80, 45, "Correct"+chr(9)+"Incorrect - Change", last_name_action
-                                      DropListBox 280, 50, 80, 45, "Correct"+chr(9)+"Incorrect - Change", email_action
-                                      DropListBox 280, 70, 80, 45, "Correct"+chr(9)+"Incorrect - Change", id_number_action
-                                      DropListBox 280, 90, 80, 45, "Correct"+chr(9)+"Incorrect - Change", x_number_action
-                                      DropListBox 280, 110, 80, 45, "Correct"+chr(9)+"Incorrect - Change", supervisor_action
-                                      DropListBox 280, 130, 80, 45, "Correct"+chr(9)+"Incorrect - Change", population_action
-                                      DropListBox 280, 150, 80, 45, "Correct"+chr(9)+"Incorrect - Change", region_action
-                                      DropListBox 280, 170, 80, 45, "Correct"+chr(9)+"Incorrect - Change", groups_action
-                                      Text 10, 195, 130, 15, "Please reach out to the BlueZone Script team with any questions."
-                                    EndDialog
+
+									BeginDialog the_dialog, 0, 0, 371, 260, "Detailed Tester Information"      'first dialog just lists the properties
+									  ButtonGroup ButtonPressed
+									    OkButton 315, 240, 50, 15
+									  Text 60, 15, 40, 10, "First Name:"
+									  Text 60, 35, 40, 10, "Last Name:"
+									  Text 50, 55, 50, 10, "Email Address:"
+									  Text 10, 75, 90, 10, "Hennepin County ID (WF#):"
+									  Text 40, 95, 60, 10, "MAXIS X-Number:"
+									  Text 40, 115, 60, 10, "Supervisor Name:"
+									  Text 40, 135, 60, 10, "Population/Team:"
+									  Text 110, 15, 105, 10, tester.tester_first_name
+									  Text 110, 35, 105, 10, tester.tester_last_name
+									  Text 110, 55, 140, 10, tester.tester_email
+									  Text 110, 75, 60, 10, tester.tester_id_number
+									  Text 110, 95, 60, 10, tester.tester_x_number
+									  Text 110, 115, 150, 10, tester.tester_supervisor_name
+									  Text 110, 135, 60, 10, tester.tester_population
+									  DropListBox 285, 10, 80, 45, "Correct"+chr(9)+"Incorrect - Change", first_name_action
+									  DropListBox 285, 30, 80, 45, "Correct"+chr(9)+"Incorrect - Change", last_name_action
+									  DropListBox 285, 50, 80, 45, "Correct"+chr(9)+"Incorrect - Change", email_action
+									  DropListBox 285, 70, 80, 45, "Correct"+chr(9)+"Incorrect - Change", id_number_action
+									  DropListBox 285, 90, 80, 45, "Correct"+chr(9)+"Incorrect - Change", x_number_action
+									  DropListBox 285, 110, 80, 45, "Correct"+chr(9)+"Incorrect - Change", supervisor_action
+									  DropListBox 285, 130, 80, 45, "Correct"+chr(9)+"Incorrect - Change", population_action
+									  Text 10, 240, 130, 15, "Please reach out to the BlueZone Script team with any questions."
+									  CheckBox 110, 160, 30, 10, "SNAP", snap_checkbox
+									  CheckBox 145, 160, 25, 10, "GA", ga_checkbox
+									  CheckBox 145, 170, 25, 10, "MSA", msa_checkbox
+									  CheckBox 175, 160, 30, 10, "MFIP", mfip_checkbox
+									  CheckBox 175, 170, 30, 10, "DWP", dwp_checkbox
+									  CheckBox 210, 160, 25, 10, "GRH", grh_checkbox
+									  CheckBox 210, 170, 25, 10, "IMD", imd_checkbox
+									  CheckBox 240, 160, 25, 10, "MA", ma_checkbox
+									  CheckBox 265, 160, 40, 10, "MA-EPD", ma_epd_checkbox
+									  CheckBox 265, 170, 25, 10, "LTC", ltc_checkbox
+									  CheckBox 305, 160, 25, 10, "EA", ea_checkbox
+									  CheckBox 305, 170, 25, 10, "EGA", ega_checkbox
+									  CheckBox 335, 160, 25, 10, "LTH", lth_checkbox
+									  CheckBox 110, 200, 25, 10, "PSS", pss_checkbox
+									  CheckBox 145, 200, 25, 10, "QI", qi_checkbox
+									  CheckBox 175, 200, 25, 10, "YET", yet_checkbox
+									  CheckBox 210, 200, 50, 10, "AVS Access", avs_checkbox
+									  CheckBox 265, 200, 45, 10, "Sanctions", sanc_checkbox
+									  Text 110, 220, 115, 10, "List any other processing groups:"
+									  EditBox 225, 215, 135, 15, other_groups_reported
+									  GroupBox 40, 150, 325, 35, "Programs"
+									  GroupBox 40, 190, 325, 45, "Groups"
+									EndDialog
 
                                     Dialog the_dialog          'showing the dialog
                                     If ButtonPressed = 0 Then       'cancelling the confirmation functionality without cancelling the script run
@@ -3869,6 +3908,7 @@ function confirm_tester_information()
                                         Leave_Confirmation = TRUE
                                         Exit Do
                                     End If
+
 
                                     'These properties MUST be filled in and if they are blank, we need to know what they are - mandatory fields
                                     If tester.tester_first_name = "" AND first_name_action <> "Incorrect - Change" Then err_msg = err_msg & vbNewLine & "* Since FIRST NAME is blank, this information must be updated. Select 'Incorrect - Change' for First Name."
@@ -3901,9 +3941,9 @@ function confirm_tester_information()
 
                             the_dialog = ""        'resetting for safetly
                             If update_information = TRUE Then                   'If a change was indicated in dialog 1, we show this  new dialog with the update fields
-                                BeginDialog the_dialog, 0, 0, 265, 215, "Detailed Tester Information"
+                                BeginDialog the_dialog, 0, 0, 371, 260, "Detailed Tester Information"
                                   ButtonGroup ButtonPressed
-                                    OkButton 210, 195, 50, 15
+                                    OkButton 315, 240, 50, 15
                                   Text 60, 15, 40, 10, "First Name:"
                                   Text 60, 35, 40, 10, "Last Name:"
                                   Text 50, 55, 50, 10, "Email Address:"
@@ -3911,9 +3951,8 @@ function confirm_tester_information()
                                   Text 40, 95, 60, 10, "MAXIS X-Number:"
                                   Text 40, 115, 60, 10, "Supervisor Name:"
                                   Text 40, 135, 60, 10, "Population/Team:"
-                                  Text 70, 155, 25, 10, "Region:"
-                                  Text 70, 175, 25, 10, "Groups:"
-                                  Text 10, 195, 130, 15, "Please reach out to the BlueZone Script team with any questions."
+
+                                  Text 10, 240, 130, 15, "Please reach out to the BlueZone Script team with any questions."
                                   If first_name_action = "Incorrect - Change" Then
                                     new_first_name = tester.tester_first_name
                                     EditBox 110, 10, 105, 15, new_first_name
@@ -3956,18 +3995,28 @@ function confirm_tester_information()
                                   Else
                                     Text 110, 135, 60, 10, tester.tester_population
                                   End If
-                                  If region_action = "Incorrect - Change" Then
-                                    new_region = tester.tester_region
-                                    EditBox 110, 150, 60, 15, new_region
-                                  Else
-                                    Text 110, 155, 60, 10, tester.tester_region
-                                  End If
-                                  If groups_action = "Incorrect - Change" Then
-                                    new_groups = join(tester.tester_groups)
-                                    EditBox 110, 170, 150, 15, new_groups
-                                  Else
-                                    Text 110, 175, 150, 10, Join(tester.tester_groups, ",")
-                                  End If
+								  CheckBox 110, 160, 30, 10, "SNAP", snap_checkbox
+								  CheckBox 145, 160, 25, 10, "GA", ga_checkbox
+								  CheckBox 145, 170, 25, 10, "MSA", msa_checkbox
+								  CheckBox 175, 160, 30, 10, "MFIP", mfip_checkbox
+								  CheckBox 175, 170, 30, 10, "DWP", dwp_checkbox
+								  CheckBox 210, 160, 25, 10, "GRH", grh_checkbox
+								  CheckBox 210, 170, 25, 10, "IMD", imd_checkbox
+								  CheckBox 240, 160, 25, 10, "MA", ma_checkbox
+								  CheckBox 265, 160, 40, 10, "MA-EPD", ma_epd_checkbox
+								  CheckBox 265, 170, 25, 10, "LTC", ltc_checkbox
+								  CheckBox 305, 160, 25, 10, "EA", ea_checkbox
+								  CheckBox 305, 170, 25, 10, "EGA", ega_checkbox
+								  CheckBox 335, 160, 25, 10, "LTH", lth_checkbox
+								  CheckBox 110, 200, 25, 10, "PSS", pss_checkbox
+								  CheckBox 145, 200, 25, 10, "QI", qi_checkbox
+								  CheckBox 175, 200, 25, 10, "YET", yet_checkbox
+								  CheckBox 210, 200, 50, 10, "AVS Access", avs_checkbox
+								  CheckBox 265, 200, 45, 10, "Sanctions", sanc_checkbox
+								  Text 110, 220, 115, 10, "List any other processing groups:"
+								  EditBox 225, 215, 135, 15, other_groups_reported
+								  GroupBox 40, 150, 325, 35, "Programs"
+								  GroupBox 40, 190, 325, 45, "Groups"
                                 EndDialog
 
                                 Dialog the_dialog
@@ -3985,6 +4034,7 @@ function confirm_tester_information()
                                 If new_x_number = "" AND x_number_action = "Incorrect - Change" Then err_msg = err_msg & vbNewLine & "* MAXIS ID  (X-NUMBER) is blank, this information is required for testers. Update the detail for X-Number."
                                 If new_supervisor_name = "" AND supervisor_action = "Incorrect - Change" Then err_msg = err_msg & vbNewLine & "* SUPERVISOR is blank, this information is required for testers. Update the detail for Supervisor."
                                 If new_population = "" AND population_action = "Incorrect - Change" Then err_msg = err_msg & vbNewLine & "* POPULATION is blank, this information is required for testers. Update the detail for Population."
+								If snap_checkbox = unchecked AND ga_checkbox = unchecked AND msa_checkbox = unchecked AND mfip_checkbox = unchecked AND dwp_checkbox = unchecked AND grh_checkbox = unchecked AND imd_checkbox = unchecked AND ma_checkbox = unchecked AND ma_epd_checkbox = unchecked AND ltc_checkbox = unchecked AND ea_checkbox = unchecked AND ega_checkbox = unchecked AND lth_checkbox = unchecked Then err_msg = err_msg & vbNewLine & "* You must select at least one program that you work in."
                                 ' If new_region = "" AND region_action = "Incorrect - Change" Then err_msg = err_msg & vbNewLine & "* Since  is blank, this information is required for testers. Update the detail for ."
 
                                 If err_msg <> "" Then MsgBox "Please Resolve to Continue:" & vbNewLine &  err_msg
@@ -4012,6 +4062,48 @@ function confirm_tester_information()
                     Else
                         Message_Information = Message_Information & vbNewLine & "No updates indicated - tester information for " & tester.tester_full_name & " is correct and can be updated as confirmed."
                     End If
+					Message_Information = Message_Information & vbNewLine & vbNewLine & "PROGRAMS:"
+
+					Message_Information = Message_Information & vbNewLine & "SNAP - "
+					If snap_checkbox = checked Then Message_Information = Message_Information & "YES"
+					Message_Information = Message_Information & vbNewLine & "GA - "
+					If ga_checkbox = checked Then Message_Information = Message_Information & "YES"
+					Message_Information = Message_Information & vbNewLine & "MSA - "
+					If msa_checkbox = checked Then Message_Information = Message_Information & "YES"
+					Message_Information = Message_Information & vbNewLine & "MFIP - "
+					If mfip_checkbox = checked Then Message_Information = Message_Information & "YES"
+					Message_Information = Message_Information & vbNewLine & "DWP - "
+					If dwp_checkbox = checked Then Message_Information = Message_Information & "YES"
+					Message_Information = Message_Information & vbNewLine & "GRH - "
+					If grh_checkbox = checked Then Message_Information = Message_Information & "YES"
+					Message_Information = Message_Information & vbNewLine & "IMD - "
+					If imd_checkbox = checked Then Message_Information = Message_Information & "YES"
+					Message_Information = Message_Information & vbNewLine & "MA - "
+					If ma_checkbox = checked Then Message_Information = Message_Information & "YES"
+					Message_Information = Message_Information & vbNewLine & "MA-EPD - "
+					If ma_epd_checkbox = checked Then Message_Information = Message_Information & "YES"
+					Message_Information = Message_Information & vbNewLine & "LTC - "
+					If ltc_checkbox = checked Then Message_Information = Message_Information & "YES"
+					Message_Information = Message_Information & vbNewLine & "EA - "
+					If ea_checkbox = checked Then Message_Information = Message_Information & "YES"
+					Message_Information = Message_Information & vbNewLine & "EGA - "
+					If ega_checkbox = checked Then Message_Information = Message_Information & "YES"
+					Message_Information = Message_Information & vbNewLine & "LTH - "
+					If lth_checkbox = checked Then Message_Information = Message_Information & "YES"
+
+					Message_Information = Message_Information & vbNewLine & vbNewLine & "GROUPS:"
+
+					Message_Information = Message_Information & vbNewLine & "PSS - "
+					If pss_checkbox = checked Then Message_Information = Message_Information & "YES"
+					Message_Information = Message_Information & vbNewLine & "QI - "
+					If qi_checkbox = checked Then Message_Information = Message_Information & "YES"
+					Message_Information = Message_Information & vbNewLine & "YET - "
+					If yet_checkbox = checked Then Message_Information = Message_Information & "YES"
+					Message_Information = Message_Information & vbNewLine & "AVS - "
+					If avs_checkbox = checked Then Message_Information = Message_Information & "YES"
+					Message_Information = Message_Information & vbNewLine & "SANCTION - "
+					If sanc_checkbox = checked Then Message_Information = Message_Information & "YES"
+					If Trim(other_groups_reported) <> "" Then Message_Information = Message_Information & vbNewLine & "Other Groups: " & other_groups_reported
 
                     Message_Information = Message_Information & vbNewLine & vbNewLine & "Thank you for taking the time to confirm your information. We will update your information in the script records and you will no longer be asked to confirm your information. (We have to do this manually so there may be a delay but we will update as soon as we are able.)" & vbNewLine
                     tester.send_tester_email FALSE, Message_Information         ''sending the email
