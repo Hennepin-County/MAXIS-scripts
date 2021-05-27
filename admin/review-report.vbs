@@ -50,6 +50,104 @@ call changelog_update("10/15/2020", "Initial version.", "Ilse Ferris, Hennepin C
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
+function add_autoclose_case_note(revw_status_cash, revw_status_snap, revw_status_hc, revw_form_date, revw_intvw_date)
+	If add_case_note = True Then
+		Call navigate_to_MAXIS_screen("CASE", "NOTE")
+		EMReadScreen pw_county, 2, 21, 16
+		If pw_county = "27" Then
+			autoclosed_programs = ""
+			cash_1_autoclosed = ""
+			cash_2_autoclosed = ""
+			snap_autoclosed = ""
+			hc_autoclosed = ""
+
+			Call read_boolean_from_excel(objExcel.cells(excel_row,  6).value, MFIP_status)
+			Call read_boolean_from_excel(objExcel.cells(excel_row,  7).value, DWP_status)
+			Call read_boolean_from_excel(objExcel.cells(excel_row,  8).value, GA_status)
+			Call read_boolean_from_excel(objExcel.cells(excel_row,  9).value, MSA_status)
+			Call read_boolean_from_excel(objExcel.cells(excel_row, 10).value, GRH_status)
+			Call read_boolean_from_excel(objExcel.cells(excel_row, 13).value, SNAP_status)
+
+			REPT_full = REPT_month & "/" & REPT_year
+			CASH_SR_Info = trim(objExcel.cells(excel_row, 11).value)
+			CASH_ER_Info = trim(objExcel.cells(excel_row, 12).value)
+			SNAP_SR_Info = trim(objExcel.cells(excel_row, 14).value)
+			SNAP_ER_Info = trim(objExcel.cells(excel_row, 15).value)
+
+			If revw_status_cash = "T" Then
+				If CASH_ER_Info = REPT_full then
+					If MFIP_status = True Then
+						autoclosed_programs = autoclosed_programs & "/MFIP"
+						If cash_1_autoclosed = "" Then cash_1_autoclosed = "MFIP ER"
+						If cash_1_autoclosed <> "" Then cash_2_autoclosed = "MFIP ER"
+					End If
+					If DWP_status = True Then
+						autoclosed_programs = autoclosed_programs & "/DWP"
+						If cash_1_autoclosed = "" Then cash_1_autoclosed = "DWP ER"
+						If cash_1_autoclosed <> "" Then cash_2_autoclosed = "DWP ER"
+					End If
+					If GA_status = True Then
+						autoclosed_programs = autoclosed_programs & "/GA"
+						If cash_1_autoclosed = "" Then cash_1_autoclosed = "GA ER"
+						If cash_1_autoclosed <> "" Then cash_2_autoclosed = "GA ER"
+					End If
+					If MSA_status = True Then
+						autoclosed_programs = autoclosed_programs & "/MSA"
+						If cash_1_autoclosed = "" Then cash_1_autoclosed = "MSA ER"
+						If cash_1_autoclosed <> "" Then cash_2_autoclosed = "MSA ER"
+					End If
+					If GRH_status = True Then
+						autoclosed_programs = autoclosed_programs & "/GRH"
+						If cash_1_autoclosed = "" Then cash_1_autoclosed = "GRH ER"
+						If cash_1_autoclosed <> "" Then cash_2_autoclosed = "GRH ER"
+					End If
+				End If
+				If CASH_SR_Info = REPT_full then
+					If GRH_status = True Then
+						autoclosed_programs = autoclosed_programs & "/GRH"
+						If cash_1_autoclosed = "" Then cash_1_autoclosed = "GRH SR"
+						If cash_1_autoclosed <> "" Then cash_2_autoclosed = "GRH SR"
+					End If
+				End If
+			End If
+			If revw_status_snap = "T" Then
+				If SNAP_SR_Info = REPT_full AND  SNAP_status = True Then
+					autoclosed_programs = autoclosed_programs & "/SNAP"
+					If snap_autoclosed = "" Then snap_autoclosed = "GRH SR"
+				End If
+				If SNAP_ER_Info = REPT_full AND SNAP_status = True Then
+					autoclosed_programs = autoclosed_programs & "/SNAP"
+					If snap_autoclosed = "" Then snap_autoclosed = "GRH ER"
+				End If
+			End If
+			' 'HC Cases not set up yet as no REVWs and we cannot test
+			' If revw_status_hc = "T" Then
+			' End If
+
+			If autoclosed_programs <> "" Then
+				If left(autoclosed_programs, 1) = "/" Then autoclosed_programs = right(autoclosed_programs, len(autoclosed_programs)-1)
+				Call start_a_blank_case_note
+
+				Call write_variable_in_CASE_NOTE(autoclosed_programs & " AUTOCLOSED eff " & REPT_month & "/" & REPT_year & " for Incomplete REVW")
+				Call write_variable_in_CASE_NOTE("Renewals Terminated:")
+				If cash_1_autoclosed <> "" Then Call write_variable_in_CASE_NOTE("    " & REPT_month & "/" & REPT_year & " " & cash_1_autoclosed)
+				If cash_2_autoclosed <> "" Then Call write_variable_in_CASE_NOTE("    " & REPT_month & "/" & REPT_year & " " & cash_2_autoclosed)
+				If snap_autoclosed <> "" Then Call write_variable_in_CASE_NOTE("    " & REPT_month & "/" & REPT_year & " " & snap_autoclosed)
+				If hc_autoclosed <> "" Then Call write_variable_in_CASE_NOTE("    " & REPT_month & "/" & REPT_year & " " & hc_autoclosed)
+				If revw_form_date <> "" Then Call write_variable_in_CASE_NOTE("Renewal Form Received on " & revw_form_date)
+				If revw_intvw_date <> "" Then Call write_variable_in_CASE_NOTE("Interview Completed on " & revw_intvw_date )
+				Call write_variable_in_CASE_NOTE("Review case to determine additional actions to be taken.")
+				Call write_variable_in_CASE_NOTE("---")
+				Call write_variable_in_CASE_NOTE(worker_signature)
+				PF3
+
+				ObjExcel.Cells(excel_row, closure_note_col) = "Yes"
+			End If
+		End If
+		Call back_to_SELF
+	End If
+end function
+
 'defining this function here because it needs to not end the script if a MEMO fails.
 function start_a_new_spec_memo_and_continue(success_var)
 '--- This function navigates user to SPEC/MEMO and starts a new SPEC/MEMO, selecting client, AREP, and SWKR if appropriate
@@ -495,18 +593,23 @@ all_workers_check = 1		'defaulting the check box to checked
 CM_plus_two_checkbox = 1    'defaulting the check box to checked
 today_day = DatePart("d", date)
 If today_day < 16 Then CM_plus_two_checkbox = unchecked
+add_case_note = False
+If Weekday(date) = 2 Then renewal_option = "Collect Statistics"
+If today_day = 16 Then renewal_option = "Create Renewal Report"
+If today_day = 18 Then renewal_option = "Send Appointment Letters"
+If today_day = 15 Then renewal_option = "Send NOMIs"
+If today_day = 1 Then renewal_option = "End of Processing Month"
 
 'DISPLAYS DIALOG
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 186, 85, "Review Report"
-  ' DropListBox 90, 35, 90, 15, "Select one..."+chr(9)+"Create Renewal Report"+chr(9)+"Discrepancy Run", renewal_option
-  DropListBox 90, 35, 90, 15, "Select one..."+chr(9)+"Create Renewal Report"+chr(9)+"Discrepancy Run"+chr(9)+"Collect Statistics"+chr(9)+"Send Appointment Letters"+chr(9)+"Send NOMIs"+chr(9)+"Create Worklist", renewal_option
+  DropListBox 90, 35, 90, 15, "Select one..."+chr(9)+"Create Renewal Report"+chr(9)+"Discrepancy Run"+chr(9)+"Collect Statistics"+chr(9)+"Send Appointment Letters"+chr(9)+"Send NOMIs"+chr(9)+"End of Processing Month"+chr(9)+"Create Worklist", renewal_option
+  CheckBox 5, 55, 70, 10, "Select all agency.", all_workers_check
+  CheckBox 5, 70, 70, 10, "Select for CM + 2.", CM_plus_two_checkbox
   ButtonGroup ButtonPressed
     OkButton 95, 65, 40, 15
     CancelButton 140, 65, 40, 15
   EditBox 70, 5, 110, 15, worker_number
-  CheckBox 5, 55, 70, 10, "Select all agency.", all_workers_check
-  CheckBox 5, 70, 70, 10, "Select for CM + 2.", CM_plus_two_checkbox
   Text 5, 20, 175, 10, "Enter the fulll 7-digit worker #(s), comma separated."
   Text 5, 40, 85, 10, "Select a reporting option:"
   Text 5, 10, 60, 10, "Worker number(s):"
@@ -528,6 +631,20 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'Starting the query start time (for the query runtime at the end)
 query_start_time = timer
+
+'The End of Processing Month option is mostly 'collecting statistics' just with adding a CNOTE
+If renewal_option = "End of Processing Month" Then
+	renewal_option = "Collect Statistics"
+	add_case_note = True
+	last_day_checkbox = checked
+	call back_to_self
+	EMReadScreen mx_region, 10, 22, 48
+
+	If mx_region = "INQUIRY DB" Then
+		continue_in_inquiry = MsgBox("It appears you are attempting to have the script send notices for these cases." & vbNewLine & vbNewLine & "However, you appear to be in MAXIS Inquiry." &vbNewLine & "*************************" & vbNewLine & "Do you want to continue?", vbQuestion + vbYesNo, "Confirm Inquiry")
+		If continue_in_inquiry = vbNo Then script_end_procedure("Live script run was attempted in Inquiry and aborted.")
+	End If
+End If
 
 If CM_plus_two_checkbox = 1 then
     REPT_month = CM_plus_2_mo
@@ -570,8 +687,6 @@ If open_existing_review_report = TRUE Then
 	'This is where the review report is currently saved.
 	excel_file_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\Renewals\" & report_date & " Review Report.xlsx"
 
-	tomorrow = DateAdd("d", 1, date)
-	If tomorrow_day = DatePart("d", tomorrow) = 1 Then last_day_checkbox = checked
 
 	'Initial Dialog which requests a file path for the excel file
 	Dialog1 = ""
@@ -579,7 +694,7 @@ If open_existing_review_report = TRUE Then
 	  EditBox 130, 20, 175, 15, excel_file_path
 	  ButtonGroup ButtonPressed
 		PushButton 310, 20, 45, 15, "Browse...", select_a_file_button
-		If renewal_option = "Collect Statistics" Then CheckBox 10, 45, 205, 10, "Check here if this is the LAST Day of the processing month.", last_day_checkbox
+		If renewal_option = "Collect Statistics" Then CheckBox 10, 45, 205, 10, "Check here if this is the END of the processing month.", last_day_checkbox
 		OkButton 250, 45, 50, 15
 		CancelButton 305, 45, 50, 15
 	  Text 10, 10, 170, 10, "Select the recert fle from the Review Report original run"
@@ -1163,6 +1278,18 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 		objExcel.Columns(i).AutoFit()				'sizing the columns'
 	NEXT
 
+	If add_case_note = True Then
+		closure_note_col = col_to_use + 6
+
+		end_col_letter = convert_digit_to_excel_column(closure_note_col)
+		end_col = last_col_letter & "1"
+		Set objRange = objExcel.Range(end_col).EntireColumn
+		objRange.Insert(xlShiftToRight)			'We neeed six more column
+
+		ObjExcel.Cells(1, closure_note_col).Value = "Close Note"
+	End If
+
+
 	recert_cases = 0	            'incrementor for the array
 
 	back_to_self    'We need to get back to SELF and manually update the footer month
@@ -1234,6 +1361,7 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 	Do
 		case_number_to_check = trim(ObjExcel.Cells(excel_row, 2).Value)			'getting the case number from the spreadsheet
 		found_in_array = FALSE													'variale to identify if we have found this case in our array
+		MAXIS_case_number = case_number_to_check		'setting the case number for NAV functions
 		'Here we look through the entire array until we find a match
 		For revs_item = 0 to UBound(review_array, 2)
 			If review_array(saved_to_excel_const, revs_item) = FALSE Then
@@ -1247,6 +1375,9 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 					If review_array(interview_date_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, intvw_date_excel_col).Value = review_array(interview_date_const, revs_item)
 					found_in_array = TRUE			'this lets the script know that this case was found in the array
 					review_array(saved_to_excel_const, revs_item) = TRUE
+
+					Call add_autoclose_case_note(review_array(CASH_revw_status_const, revs_item), review_array(SNAP_revw_status_const, revs_item), review_array(HC_revw_status_const, revs_item), review_array(review_recvd_const, revs_item), review_array(interview_date_const, revs_item))
+
 					Exit For						'if we found a match, we should stop looking
 				End If
 			End If
@@ -1255,7 +1386,7 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 		If found_in_array = FALSE AND case_number_to_check <> "" Then
 			Call check_for_MAXIS(FALSE)		'making sure we haven't passworded out
 
-			MAXIS_case_number = case_number_to_check		'setting the case number for NAV functions
+			' MAXIS_case_number = case_number_to_check		'setting the case number for NAV functions
 			call navigate_to_MAXIS_screen_review_PRIV("STAT", "REVW", is_this_priv)		'Go to STAT REVW and be sure the case is not privleged.
 			If is_this_priv = FALSE Then
 				EMReadScreen recvd_date, 8, 13, 37										'Reading the CAF Received Date and format
@@ -1278,6 +1409,9 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 				If hc_review_status <> "" Then ObjExcel.Cells(excel_row, hc_stat_excel_col).Value = hc_review_status
 				If recvd_date <> "" Then ObjExcel.Cells(excel_row, recvd_date_excel_col).Value = recvd_date
 				If interview_date <> "" Then ObjExcel.Cells(excel_row, intvw_date_excel_col).Value = interview_date
+
+				Call add_autoclose_case_note(cash_review_status, snap_review_status, hc_review_status, recvd_date, interview_date)
+
 			End If
 
 			Call back_to_SELF		'Back out in case we need to look into another case.
@@ -1334,6 +1468,8 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 			If review_array(interview_date_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, intvw_date_excel_col).Value = review_array(interview_date_const, revs_item)
 			ObjExcel.Range(ObjExcel.Cells(excel_row, 1), ObjExcel.Cells(excel_row, intvw_date_excel_col)).Interior.ColorIndex = 6
 			Call back_to_SELF		'Back out in case we need to look into another case.
+
+			Call add_autoclose_case_note(review_array(CASH_revw_status_const, revs_item), review_array(SNAP_revw_status_const, revs_item), review_array(HC_revw_status_const, revs_item), review_array(review_recvd_const, revs_item), review_array(interview_date_const, revs_item))
 
 			excel_row = excel_row + 1		'going to the next excel
 		End If
