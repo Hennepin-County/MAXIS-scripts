@@ -237,6 +237,16 @@ class script_bowie
                                 Next
                             Next
                             selected_group = selection
+						Case "PROGRAM" ' ADD OPTION FOR the_selection to be an array'
+							For each prog in tester.tester_programs
+								For each selection in testing_criteria
+									selection = trim(selection)
+									If UCase(selection) = UCase(prog) Then see_the_button = TRUE
+									' MsgBox "Group - " & group & vbNewLine & "Selection - " & selection & vbNewLine & "see the button - " & see_the_button
+									selected_prog = prog
+								Next
+							Next
+							selected_prog = selection							
                         Case "REGION"
                             For each selection in testing_criteria
                                 selection = trim(selection)
