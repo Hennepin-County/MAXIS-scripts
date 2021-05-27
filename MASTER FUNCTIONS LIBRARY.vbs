@@ -7280,7 +7280,15 @@ function select_testing_file(selection_type, the_selection, file_path, file_bran
                         selection = trim(selection)
                         If UCase(selection) = UCase(tester.tester_region) Then run_testing_file = TRUE
                     Next
-                Case "POPULATION"
+                Case "PROGRAM"
+					For each prog in tester.tester_programs
+						For each selection in selection_array
+							selection = trim(selection)
+							If UCase(selection) = UCase(prog) Then run_testing_file = TRUE
+							selected_prog = prog
+						Next
+					Next
+				Case "POPULATION"
                     For each selection in selection_array
                         selection = trim(selection)
                         If UCase(selection) = UCase(tester.tester_population) Then run_testing_file = TRUE
@@ -7293,7 +7301,7 @@ function select_testing_file(selection_type, the_selection, file_path, file_bran
                     body_text = "The call of the function select_testing_file is using an invalid selection_type."
                     body_text = body_text & vbCr & "On script - " & name_of_script & "."
                     body_text = body_text & vbCr & "The selection type of - " & selection_type & " was entered into the function call"
-                    body_text = body_text & vbCr & "The only valid options are: ALL, SCRIPT, GROUP, POPULATION, or REGION"
+                    body_text = body_text & vbCr & "The only valid options are: ALL, SCRIPT, GROUP, PROGRAM, POPULATION, or REGION"
                     body_text = body_text & vbCr & "Review the script file particularly the call for the function select_testing_file."
                     Call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", "FUNCTION ERROR - select_testing_file for " & name_of_script, body_text, "", TRUE)
             End Select
