@@ -51,33 +51,35 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 function add_autoclose_case_note(revw_status_cash, revw_status_snap, revw_status_hc, revw_form_date, revw_intvw_date)
-	If add_case_note = True Then
+	If add_case_note = True Then		'only run the details here if we are running the 'end of month processing'
 		If revw_status_cash = "T" OR revw_status_cash = "I" OR revw_status_cash = "U" OR revw_status_snap = "T" OR revw_status_snap = "I" OR revw_status_snap = "U" Then
-			Call navigate_to_MAXIS_screen("CASE", "NOTE")
-			EMReadScreen pw_county, 2, 21, 16
+		'We only care if the review has been terminated by the system, which is only indicated if the REVW status is T, I or U'
+			Call navigate_to_MAXIS_screen("CASE", "NOTE")						'navigating to CASE:NOTE now
+			EMReadScreen pw_county, 2, 21, 16									'reading to make sure this is still in Hennepin Country
 			If pw_county = "27" Then
-				autoclosed_programs = ""
+				autoclosed_programs = ""										'resetting variables
 				cash_1_autoclosed = ""
 				cash_2_autoclosed = ""
 				snap_autoclosed = ""
 				hc_autoclosed = ""
 				n_code_programs = ""
 
-				Call read_boolean_from_excel(objExcel.cells(excel_row,  6).value, MFIP_status)
+				Call read_boolean_from_excel(objExcel.cells(excel_row,  6).value, MFIP_status)		'reading the program status information from the Review Report information
 				Call read_boolean_from_excel(objExcel.cells(excel_row,  7).value, DWP_status)
 				Call read_boolean_from_excel(objExcel.cells(excel_row,  8).value, GA_status)
 				Call read_boolean_from_excel(objExcel.cells(excel_row,  9).value, MSA_status)
 				Call read_boolean_from_excel(objExcel.cells(excel_row, 10).value, GRH_status)
 				Call read_boolean_from_excel(objExcel.cells(excel_row, 13).value, SNAP_status)
 
-				REPT_full = REPT_month & "/" & REPT_year
+				REPT_full = REPT_month & "/" & REPT_year						'creating a string from the review month and year for comparing the information in the REVW columns of the Review Report
 				CASH_SR_Info = trim(objExcel.cells(excel_row, 11).value)
 				CASH_ER_Info = trim(objExcel.cells(excel_row, 12).value)
 				SNAP_SR_Info = trim(objExcel.cells(excel_row, 14).value)
 				SNAP_ER_Info = trim(objExcel.cells(excel_row, 15).value)
 
+				'CASH is first - if the status is T, I, or U - we are going to look at program status to firgure out which program of cash that it actually is
 				If revw_status_cash = "T" OR revw_status_cash = "I" OR revw_status_cash = "U" Then
-					If CASH_ER_Info = REPT_full then
+					If CASH_ER_Info = REPT_full then		'These programs are only ER
 						If MFIP_status = True Then
 							autoclosed_programs = autoclosed_programs & "/MFIP"
 							If cash_1_autoclosed = "" Then cash_1_autoclosed = "MFIP ER"
@@ -99,7 +101,7 @@ function add_autoclose_case_note(revw_status_cash, revw_status_snap, revw_status
 							If cash_1_autoclosed <> "" Then cash_2_autoclosed = "MSA ER"
 						End If
 					End If
-					If GRH_status = True AND (CASH_SR_Info = REPT_full OR CASH_ER_Info = REPT_full) Then
+					If GRH_status = True AND (CASH_SR_Info = REPT_full OR CASH_ER_Info = REPT_full) Then		'GRH could be ER or SR
 						If GRH_status = True Then
 							autoclosed_programs = autoclosed_programs & "/GRH"
 							If CASH_SR_Info = REPT_full Then
@@ -107,23 +109,25 @@ function add_autoclose_case_note(revw_status_cash, revw_status_snap, revw_status
 								If cash_1_autoclosed <> "" Then cash_2_autoclosed = "GRH SR"
 							End If
 							If CASH_ER_Info = REPT_full Then
-								If cash_1_autoclosed = "" Then cash_1_autoclosed = "GRH ER"
+								If cash_1_autoclosed = "" Then cash_1_autoclosed = "GRH ER"						'ER will overwrite SR because it is higher on the heirarchy
 								If cash_1_autoclosed <> "" Then cash_2_autoclosed = "GRH ER"
 							End If
 						End If
 					End If
 				End If
+				'Now looking at SNAP if the review status is T, I, or '
 				If revw_status_snap = "T" OR revw_status_snap = "I" OR revw_status_snap = "U" Then
 					If SNAP_status = True AND (SNAP_SR_Info = REPT_full OR SNAP_ER_Info = REPT_full) Then
 						autoclosed_programs = autoclosed_programs & "/SNAP"
 						If SNAP_SR_Info = REPT_full Then snap_autoclosed = "SNAP SR"
-						If SNAP_ER_Info = REPT_full Then snap_autoclosed = "SNAP ER"
+						If SNAP_ER_Info = REPT_full Then snap_autoclosed = "SNAP ER"							'ER will overwirte SR
 					End If
 				End If
 				' 'HC Cases not set up yet as no REVWs and we cannot test
 				' If revw_status_hc = "T" Then
 				' End If
 
+				'Now we check for any programs that have an 'N' as the review status so we can add a line about a program that may not be active.
 				If revw_status_cash = "N" Then
 					If MFIP_status = True Then n_code_programs = n_code_programs & "/MFIP"
 					If DWP_status = True Then n_code_programs = n_code_programs & "/DWP"
@@ -133,6 +137,7 @@ function add_autoclose_case_note(revw_status_cash, revw_status_snap, revw_status
 				End If
 				If revw_status_snap = "N" Then n_code_programs = n_code_programs & "/SNAP"
 
+				'If there is at least one 'autoclosed' program, we are going to enter the note.
 				If autoclosed_programs <> "" Then
 					If left(autoclosed_programs, 1) = "/" Then autoclosed_programs = right(autoclosed_programs, len(autoclosed_programs)-1)
 					If left(n_code_programs, 1) = "/" Then n_code_programs = right(n_code_programs, len(n_code_programs)-1)
@@ -151,11 +156,12 @@ function add_autoclose_case_note(revw_status_cash, revw_status_snap, revw_status
 					Call write_variable_in_CASE_NOTE("---")
 					Call write_variable_in_CASE_NOTE(worker_signature)
 					' MsgBox "Look here"
-					PF3
+					PF3															'saving the CASE:NOTE
 
+					' Adding the note informaiton to the Review Report Excel
 					ObjExcel.Cells(excel_row, closure_note_col) = "Yes"
 					ObjExcel.Cells(excel_row, closure_progs_col) = autoclosed_programs
-
+					' ObjExcel.Cells(excel_row, closure_progs_col+1) = n_code_programs
 					' Msgbox "check"
 				End If
 			End If
@@ -1296,21 +1302,14 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 		objExcel.Columns(i).AutoFit()				'sizing the columns'
 	NEXT
 
+	'This is for th end of processing month option - it needs 2 additional columns.
 	If add_case_note = True Then
 		closure_note_col = col_to_use + 6
-
-		' end_col_letter = convert_digit_to_excel_column(closure_note_col)
-		' end_col = last_col_letter & "1"
-		' Set objRange = objExcel.Range(end_col).EntireColumn
-		' objRange.Insert(xlShiftToRight)			'We neeed six more column
-
 		ObjExcel.Cells(1, closure_note_col).Value = "Close Note"
 
 		closure_progs_col = col_to_use + 7
 		ObjExcel.Cells(1, closure_progs_col).Value = "Progs Closed"
-
 	End If
-
 
 	recert_cases = 0	            'incrementor for the array
 
