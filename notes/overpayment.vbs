@@ -293,7 +293,6 @@ IF claim_actions = "Intial Overpayment/Claim" THEN
       EditBox 70, 220, 160, 15, EVF_used
       EditBox 310, 220, 45, 15, income_rcvd_date
       EditBox 70, 240, 285, 15, Reason_OP
-      'CheckBox 5, 265, 240, 10, "DHS 2776E Cash (agency) Error OP Worksheet form completed in ECF", ECF_checkbox
        Text 5, 10, 55, 10, "Discovery date:"
        Text 110, 10, 30, 10, "Memb #:"
        Text 165, 10, 70, 10, "Other resp. memb #:"
@@ -349,7 +348,6 @@ IF claim_actions = "Intial Overpayment/Claim" THEN
         	IF MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* Enter a valid case number."
         	IF fraud_referral = "Select:" THEN err_msg = err_msg & vbnewline & "* You must select a fraud referral entry."
         	IF trim(Reason_OP) = "" or len(Reason_OP) < 5 THEN err_msg = err_msg & vbnewline & "* You must enter a reason for the overpayment please provide as much detail as possible (min 5)."
-        	'IF OP_program = "Select:"THEN err_msg = err_msg & vbNewLine &  "* Please enter the program for the overpayment."
         	IF OP_program_II <> "Select:" THEN
 				IF OP_from_II = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the period the overpayment occurred, from month and year (MM/YY)."
 				IF OP_to_II = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the period the overpayment occurred, to month and year (MM/YY)."
@@ -373,17 +371,14 @@ IF claim_actions = "Intial Overpayment/Claim" THEN
             		IF HC_to = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the month and year overpayment ended."
             		IF HC_claim_amount = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the amount of claim."
             	END IF
-            	IF EVF_used = "" then err_msg = err_msg & vbNewLine & "* Please enter verification used for the income received. If no verification was received enter N/A."
-            	'IF isdate(income_rcvd_date) = False or income_rcvd_date = "" then err_msg = err_msg & vbNewLine & "* Please enter a valid date for the income received."
-            	' IF ECF_checkbox = UNCHECKED and OP_program = "MF" THEN err_msg = err_msg & vbNewLine &  "* Please ensure you are entering the FS OP Determination form in ECF and check the appropriate box."
-            	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+            IF EVF_used = "" then err_msg = err_msg & vbNewLine & "* Please enter verification used for the income received. If no verification was received enter N/A."
+            IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
         LOOP UNTIL err_msg = ""
         CALL check_for_password(are_we_passworded_out)
     Loop until are_we_passworded_out = False
 	'---------------------------------------------------------------------------------------------'client information
 	CALL navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", is_this_priv)
 	IF is_this_priv = TRUE THEN script_end_procedure("This case is privileged, the script will now end.")
-
     EMwritescreen MEMB_number, 20, 76
 	TRANSMIT
 	EMReadscreen panel_MEMB_number, 2, 4, 33
@@ -392,12 +387,10 @@ IF claim_actions = "Intial Overpayment/Claim" THEN
 	EMReadscreen last_name, 25, 6, 30
 	EMReadscreen first_name, 12, 6, 63
 	EMReadscreen mid_initial, 1, 6, 79
-
 	last_name = trim(replace(last_name, "_", ""))
 	first_name = trim(replace(first_name, "_", ""))
 	mid_initial = replace(mid_initial, "_", "")
 	client_name = MEMB_number & " - " & last_name &  ", " & first_name & " " & mid_initial
-	'MsgBox client_name
     client_name = trim(client_name)
     '-----------------------------------------------------------------------------------------CASENOTE
     IF OP_program = "FS" or OP_program_II = "FS" or OP_program_III = "FS" or OP_program_IV = "FS" or OP_program = "MF" or OP_program_II = "MF" or OP_program_III = "MF" or OP_program_IV = "MF" THEN
@@ -408,7 +401,6 @@ IF claim_actions = "Intial Overpayment/Claim" THEN
     	If panel_number = "0" then
     		EMWriteScreen "NN", 20,79
     		TRANSMIT
-    		'CHECKING FOR MAXIS PROGRAMS ARE INACTIVE'
     		EmReadScreen MISC_error_check,  74, 24, 02
     		IF trim(MISC_error_check) = "" THEN
     			case_note_only = FALSE
@@ -483,7 +475,6 @@ IF claim_actions = "Intial Overpayment/Claim" THEN
     CALL write_bullet_and_variable_in_case_note("Date verification received", income_rcvd_date)
     CALL write_bullet_and_variable_in_case_note("Reason for overpayment", Reason_OP)
     CALL write_bullet_and_variable_in_case_note("Other responsible member(s)", OT_resp_memb)
-    'IF ECF_checkbox = CHECKED THEN CALL write_variable_in_CASE_NOTE("* DHS 2776E – Agency Cash Error Overpayment Worksheet form completed in ECF")
     CALL write_variable_in_CASE_NOTE("----- ----- -----")
     CALL write_variable_in_CASE_NOTE(worker_signature)
     PF3 'to save casenote'
@@ -554,7 +545,6 @@ IF claim_actions = "Intial Overpayment/Claim" THEN
     CALL write_bullet_and_variable_in_CCOL_note_test("Date verification received", income_rcvd_date)
     CALL write_bullet_and_variable_in_CCOL_note_test("Reason for overpayment", Reason_OP)
     CALL write_bullet_and_variable_in_CCOL_note_test("Other responsible member(s)", OT_resp_memb)
-    IF ECF_checkbox = CHECKED THEN CALL write_variable_in_CCOL_note_test("* DHS 2776E - Agency Cash Error Overpayment Worksheet form completed in ECF")
     CALL write_variable_in_CCOL_note_test("----- ----- -----")
     CALL write_variable_in_CCOL_note_test(worker_signature)
     PF3 'to save casenote'
@@ -627,7 +617,6 @@ IF claim_actions = "Requested Claim Adjustment" THEN
 	      Text 5, 25, 65, 10, "TANF ELIG CASH:"
 	      Text 140, 45, 90, 10, "STATE HOUSING GRANT:"
 	    EndDialog
-
 
 		Do
 			Do
