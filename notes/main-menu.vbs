@@ -132,8 +132,9 @@ Function declare_main_menu_dialog(script_category)
             If script_array(current_script).show_script = TRUE Then dlg_len = dlg_len + 15
         End If
     next
+	If ButtonPressed = menu_imig_button Then dlg_len = dlg_len + 10
 
-	BeginDialog dialog1, 0, 0, 600, dlg_len, script_category & " scripts main menu dialog"
+	BeginDialog dialog1, 0, 0, 650, dlg_len, script_category & " scripts main menu dialog"
 	 	Text 5, 5, 435, 10, script_category & " scripts main menu: select the script to run from the choices below."
 	  	ButtonGroup ButtonPressed
 
@@ -179,7 +180,7 @@ Function declare_main_menu_dialog(script_category)
 
 		next
 
-		CancelButton 540, dlg_len - 20, 50, 15
+		CancelButton 590, dlg_len - 20, 50, 15
 	EndDialog
 End function
 
