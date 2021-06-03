@@ -154,6 +154,8 @@ function add_autoclose_case_note(revw_status_cash, revw_status_snap, revw_status
 					Call write_variable_in_CASE_NOTE("Review case to determine additional actions to be taken.")
 					If n_code_programs <> "" Then Call write_variable_in_CASE_NOTE("Check previous CASE:NOTE information for status about: " & n_code_programs)
 					Call write_variable_in_CASE_NOTE("---")
+					Call write_variable_in_CASE_NOTE("This is an automated process to NOTE a system action and no manual review of the case was completed. The programs autoclosed because the renewal process was incomplete, no action taken at county level.")
+					Call write_variable_in_CASE_NOTE("---")
 					Call write_variable_in_CASE_NOTE(worker_signature)
 					' MsgBox "Look here"
 					PF3															'saving the CASE:NOTE
