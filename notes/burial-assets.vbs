@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("06/03/2021", "Removed program selection and associated program selection information. Health Care is the only applicable program to evaluate burial assets.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -476,48 +477,45 @@ insurance_policy_number = "none"			'establishing value of the variable
 'calling the initial dialog
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 311, 420, "Burial Assets"
+BeginDialog Dialog1, 0, 0, 311, 330, "Burial Assets"
   EditBox 95, 25, 60, 15, MAXIS_case_number
   EditBox 225, 25, 30, 15, hh_member
-  DropListBox 165, 45, 90, 15, "Select one..."+chr(9)+"GA"+chr(9)+"Health Care"+chr(9)+"MFIP/DWP"+chr(9)+"MSA/GRH", programs
-  EditBox 135, 65, 120, 15, worker_signature
-  DropListBox 110, 105, 60, 15, "None"+chr(9)+"CD"+chr(9)+"Money Market"+chr(9)+"Stock"+chr(9)+"Bond", type_of_designated_account
-  EditBox 240, 105, 60, 15, account_identifier
-  EditBox 180, 130, 120, 15, why_not_seperated
-  EditBox 90, 155, 65, 15, account_create_date
-  EditBox 225, 155, 75, 15, counted_value_designated
-  EditBox 70, 180, 230, 15, BFE_information_designated
-  EditBox 65, 230, 80, 15, insurance_policy_number
-  EditBox 220, 230, 80, 15, insurance_create_date
-  EditBox 80, 255, 220, 15, insurance_company
-  EditBox 105, 280, 60, 15, insurance_csv
-  EditBox 235, 280, 65, 15, insurance_counted_value
-  EditBox 75, 305, 225, 15, insurance_BFE_steps_info
+  EditBox 135, 45, 120, 15, worker_signature
+  DropListBox 110, 85, 60, 15, "None"+chr(9)+"CD"+chr(9)+"Money Market"+chr(9)+"Stock"+chr(9)+"Bond", type_of_designated_account
+  EditBox 240, 85, 60, 15, account_identifier
+  EditBox 180, 110, 120, 15, why_not_seperated
+  EditBox 90, 135, 65, 15, account_create_date
+  EditBox 225, 135, 75, 15, counted_value_designated
+  EditBox 70, 160, 230, 15, BFE_information_designated
+  EditBox 65, 205, 80, 15, insurance_policy_number
+  EditBox 220, 205, 80, 15, insurance_create_date
+  EditBox 80, 230, 220, 15, insurance_company
+  EditBox 105, 260, 60, 15, insurance_csv
+  EditBox 235, 255, 65, 15, insurance_counted_value
+  EditBox 75, 280, 225, 15, insurance_BFE_steps_info
   ButtonGroup ButtonPressed
-	PushButton 195, 375, 50, 15, "Next", open_dialog_next_button
-	CancelButton 250, 375, 50, 15
+    PushButton 200, 310, 50, 15, "Next", open_dialog_next_button
+    CancelButton 255, 310, 50, 15
   Text 40, 30, 50, 10, "Case Number:"
   Text 175, 30, 45, 10, "HH Member:"
-  Text 40, 70, 95, 10, "Please sign your case note:"
-  GroupBox 5, 90, 300, 110, "Designated Account Information"
-  Text 10, 110, 95, 10, "Type of designated account:"
-  Text 180, 110, 60, 10, "Account Identifier:"
-  Text 10, 135, 170, 10, "Reason funds could not be separated as applicable:"
-  Text 10, 160, 75, 10, "Date Account Created:"
-  Text 170, 160, 50, 10, "Counted value:"
-  Text 10, 185, 55, 10, "BFE information:"
-  GroupBox 5, 215, 300, 110, "Non-Term Life Insurance Information"
-  Text 10, 235, 50, 10, "Policy Number:"
-  Text 10, 260, 70, 10, "Insurance Company:"
-  Text 150, 235, 70, 10, "Date Policy Created:"
-  Text 10, 285, 90, 10, "CSV/FV Designated to BFE:"
-  Text 180, 285, 50, 10, "Counted Value:"
-  Text 10, 310, 65, 10, "Info/Steps on BFE:"
-  Text 40, 50, 125, 10, "Program asset is being evaluated for"
-  GroupBox 35, 5, 230, 80, "Case and Worker Information"
-  Text 25, 350, 260, 20, "Please refer to CM 0015.21 (burial funds) and CM 0015.24 (burial contracts) for information on how to evaluate burial assets for each program."
-  GroupBox 5, 335, 300, 65, "Each program evaluates burial assets differently"
+  Text 40, 50, 95, 10, "Please sign your case note:"
+  GroupBox 5, 70, 300, 110, "Designated Account Information"
+  Text 10, 90, 95, 10, "Type of designated account:"
+  Text 180, 90, 60, 10, "Account Identifier:"
+  Text 10, 115, 170, 10, "Reason funds could not be separated as applicable:"
+  Text 10, 140, 75, 10, "Date Account Created:"
+  Text 170, 140, 50, 10, "Counted value:"
+  Text 10, 165, 55, 10, "BFE information:"
+  GroupBox 5, 190, 300, 110, "Non-Term Life Insurance Information"
+  Text 10, 210, 50, 10, "Policy Number:"
+  Text 10, 235, 70, 10, "Insurance Company:"
+  Text 150, 210, 70, 10, "Date Policy Created:"
+  Text 10, 260, 90, 10, "CSV/FV Designated to BFE:"
+  Text 180, 260, 50, 10, "Counted Value:"
+  Text 10, 285, 65, 10, "Info/Steps on BFE:"
+  GroupBox 35, 5, 230, 60, "Case and Worker Information"
 EndDialog
+
 DO
     err_msg = "" 					'established the perimeter that err_msg = ""
 	Dialog Dialog1		'calls the initial dialog
@@ -526,7 +524,6 @@ DO
 	"Designated Account Counted Value is not a number. Do not include letters or special characters."
 	IF insurance_policy_number <> "none" AND isnumeric(insurance_counted_value) = FALSE THEN err_msg = err_msg & vbNewLine & _
 	"Insurance Counted Value is not a number. Do not include letters or special characters."
-	If programs = "Select one..." then err_msg = err_msg & vbNewLine & "* Select the program that you are evaluating this asset for."
 	IF hh_member = "" then err_msg = err_msg & vbNewLine & "* Enter a HH member."
 	If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 	If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
@@ -591,7 +588,7 @@ DIM MAXIS_col
 
 'first section of case note is dependant on what types of designated accounts were chosen.
 start_a_blank_CASE_NOTE
-CALL write_variable_in_case_note( "**BURIAL ASSETS -- Memb " & hh_member & " for " & programs & "**")
+CALL write_variable_in_case_note( "**BURIAL ASSETS -- Memb " & hh_member & "**")
 IF type_of_designated_account <> "None" then
 	call write_variable_in_case_note("---Designated Account----")
 	call write_bullet_and_variable_in_case_note("Type of designated account", type_of_designated_account)
