@@ -2030,6 +2030,7 @@ script_array(script_num).tags                   = array("BZ", "Monthly Tasks")
 script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
+script_array(script_num).retirement_date		= #06/03/2021#
 script_array(script_num).hot_topic_link			= ""
 
 script_num = script_num + 1						'Increment by one
