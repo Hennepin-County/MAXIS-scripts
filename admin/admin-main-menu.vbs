@@ -129,10 +129,13 @@ Function declare_main_menu_dialog(script_category)
             'Accounts for scripts without subcategories
             If subcategory_string = "" then subcategory_string = "MAIN"		'<<<THIS COULD BE A PROPERTY OF THE CLASS
 
+			If ButtonPressed = menu_admin_button Then script_array(current_script).show_script = TRUE
             For each group in script_array(current_script).tags
                 ' MsgBox script_array(current_script).script_name & vbNewLine & group
                 If ButtonPressed = menu_admin_button Then
-                    If group = "" Then script_array(current_script).show_script = TRUE
+					If group = "QI" Then script_array(current_script).show_script = False
+					If group = "BZ" Then script_array(current_script).show_script = False
+                    If group = "Monthly Tasks" Then script_array(current_script).show_script = False
                     show_question_mark = TRUE
                 ElseIf ButtonPressed = menu_QI_button Then
                     If group = "QI" Then script_array(current_script).show_script = TRUE
