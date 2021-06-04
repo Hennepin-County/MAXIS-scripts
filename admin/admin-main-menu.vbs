@@ -62,6 +62,15 @@ call changelog_update("11/30/2017", "Initial version.", "Ilse Ferris, Hennepin C
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
+button_placeholder 			= 24601
+subcat_button_placeholder 	= 1701
+menu_admin_button           = 110
+menu_QI_button              = 120
+menu_BZ_button              = 130
+menu_monthly_tasks_button   = 140
+
+ButtonPressed = menu_admin_button
+show_question_mark = TRUE
 
 testers_script_list_URL = t_drive & "\Eligibility Support\Scripts\Script Files\COMPLETE LIST OF TESTERS.vbs"        'Opening the list of testers - which is saved locally for security
 Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
@@ -104,7 +113,6 @@ For each tester in tester_array
     End If
 Next
 
-
 Function declare_main_menu_dialog(script_category)
 
 	' 'Runs through each script in the array and generates a list of subcategories based on the category located in the function. Also modifies the script description if it's from the last two months, to include a "NEW!!!" notification.
@@ -118,6 +126,10 @@ Function declare_main_menu_dialog(script_category)
 	' Next
 
     ' MsgBox "In fn - " & ButtonPressed
+	show_admin_btn = True
+	show_qi_btn = True
+	show_bz_btn = True
+	show_month_btn = True
 
     dlg_len = 60
     For current_script = 0 to ubound(script_array)
@@ -137,16 +149,20 @@ Function declare_main_menu_dialog(script_category)
 					If group = "BZ" Then script_array(current_script).show_script = False
                     If group = "Monthly Tasks" Then script_array(current_script).show_script = False
                     show_question_mark = TRUE
+					show_admin_btn = False
                 ElseIf ButtonPressed = menu_QI_button Then
                     If group = "QI" Then script_array(current_script).show_script = TRUE
                     show_question_mark = FALSE
+					show_qi_btn = False
                 ElseIf ButtonPressed = menu_BZ_button Then
                     If group = "BZ" Then script_array(current_script).show_script = TRUE
                     If group = "Monthly Tasks" Then script_array(current_script).show_script = FALSE
                     show_question_mark = FALSE
+					show_bz_btn = False
                 ElseIf ButtonPressed = menu_monthly_tasks_button Then
                     If group = "Monthly Tasks" Then script_array(current_script).show_script = TRUE
                     show_question_mark = FALSE
+					show_month_btn = False
                 End If
                 ' MsgBox script_array(current_script).show_script
             Next
@@ -159,7 +175,6 @@ Function declare_main_menu_dialog(script_category)
         End if
     next
 
-
 	BeginDialog dialog1, 0, 0, 600, dlg_len, script_category & " scripts main menu dialog"
 	 	Text 5, 5, 435, 10, script_category & " scripts main menu: select the script to run from the choices below."
 	  	ButtonGroup ButtonPressed
@@ -168,16 +183,32 @@ Function declare_main_menu_dialog(script_category)
 		'SUBCATEGORY HANDLING--------------------------------------------
 
             'Displays the button and text description-----------------------------------------------------------------------------------------------------------------------------
-    		'FUNCTION		HORIZ. ITEM POSITION	VERT. ITEM POSITION		ITEM WIDTH	ITEM HEIGHT		ITEM TEXT/LABEL				BUTTON VARIABLE
+    			'FUNCTION		HORIZ. ITEM POSITION	VERT. ITEM POSITION		ITEM WIDTH	ITEM HEIGHT		ITEM TEXT/LABEL				BUTTON VARIABLE
         If qi_staff = TRUE OR bz_staff = TRUE Then
-        	PushButton 		5,                      20, 					50, 		15, 			"ADMIN", 					menu_admin_button
+        	If show_admin_btn = False  Then
+				Text 			21,                     23, 					50, 		10, 			"ADMIN"
+			Else
+				PushButton 		5,                      20, 					50, 		15, 			"ADMIN", 					menu_admin_button
+			End If
         End If
         If qi_staff = TRUE Then
-            PushButton 		65,                     20, 					40, 		15, 			"QI", 					    menu_QI_button
+            If show_qi_btn  = False Then
+				Text 			83,                     23, 					20, 		10, 			"QI"
+			Else
+				PushButton 		65,                     20, 					40, 		15, 			"QI", 					    menu_QI_button
+			End If
         End If
         If bz_staff = TRUE Then
-            PushButton 		105,                    20, 					40, 		15, 			"BZ", 					    menu_BZ_button
-            PushButton 		145,                    20, 					60, 		15, 			"Monthly Tasks", 			menu_monthly_tasks_button
+            If show_bz_btn = False Then
+				Text 			120,                    23, 					20, 		10, 			"BZ"
+			Else
+				PushButton 		105,                    20, 					40, 		15, 			"BZ", 					    menu_BZ_button
+			End If
+            If show_month_btn = False Then
+				Text 			150,                    23, 					60, 		10, 			"Monthly Tasks"
+			Else
+				PushButton 		145,                    20, 					60, 		15, 			"Monthly Tasks", 			menu_monthly_tasks_button
+			End If
         End If
 
 
@@ -221,15 +252,7 @@ End function
 '	property for each script item. This allows it to both escape the Function and resize
 '	near infinitely. We use dummy numbers for the other selector buttons for much the same reason,
 '	to force the value of ButtonPressed to hold in near infinite iterations.
-button_placeholder 			= 24601
-subcat_button_placeholder 	= 1701
-menu_admin_button           = 110
-menu_QI_button              = 120
-menu_BZ_button              = 130
-menu_monthly_tasks_button   = 140
 
-ButtonPressed = menu_admin_button
-show_question_mark = TRUE
 
 dialog1 = ""
 'Displays the dialog
@@ -237,6 +260,7 @@ Do
     last_button = ButtonPressed
     ' MsgBox "Before - " & ButtonPressed
 
+	dialog1 = ""
 	'Creates the dialog
 	call declare_main_menu_dialog("Admin")
 
