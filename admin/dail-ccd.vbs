@@ -1,5 +1,5 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "ADMIN - DAIL CASE NOTE CAPTURE.vbs"
+name_of_script = "ADMIN - DAIL CCD.vbs"
 start_time = timer
 STATS_counter = 1                       'sets the stats counter at one
 STATS_manualtime = 30
@@ -86,7 +86,7 @@ decimator_folder = replace(this_month, " ", "-") & " DAIL Decimator"
 report_date = replace(date, "/", "-")
 
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 266, 95, "DAIL CASE NOTE CAPTURE"
+BeginDialog Dialog1, 0, 0, 266, 95, "DAIL CAPTURE, CASE NOTE, DELETE (CCD)"
   EditBox 80, 55, 180, 15, worker_number
   CheckBox 15, 80, 135, 10, "Check here to process for all workers.", all_workers_check
   ButtonGroup ButtonPressed
