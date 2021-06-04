@@ -1,5 +1,5 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "TEST - MAIN MENU.vbs"
+name_of_script = "TAGS - MAIN MENU.vbs"
 start_time = timer
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
