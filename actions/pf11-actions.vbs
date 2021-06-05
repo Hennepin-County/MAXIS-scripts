@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("06/04/2021", "Updated to add option for HC REVW Dates need update GitHub Issue #168.", "MiKayla Handley, Hennepin County")
 call changelog_update("08/07/2020", "Updated to review CASE/NOTE for previous PF11 request.", "MiKayla Handley, Hennepin County")
 call changelog_update("07/20/2019", "Per DHS Bulletin #18-69-02C, updated New Spouse Income handling and case note.", "MiKayla Handley, Hennepin County")
 call changelog_update("05/13/2019", "Initial version.", "MiKayla Handley, Hennepin County")
@@ -55,38 +56,43 @@ changelog_display
 'THE SCRIPT=================================================================================================================
 'Connecting to MAXIS, and grabbing the case number and footer month'
 EMConnect ""
-'call back_to_self
-Call check_for_maxis(FALSE) 'checking for passord out, brings up dialog'
-Call MAXIS_case_number_finder(MAXIS_case_number)
+
+CALL check_for_maxis(FALSE) 'checking for passord out, brings up dialog'
+CALL MAXIS_case_number_finder(MAXIS_case_number)
 CALL MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+
 If MAXIS_case_number <> "" Then 		'If a case number is found the script will get the list of
 	Call Generate_Client_List(HH_Memb_DropDown, "Select One:")
 End If
 'Running the dialog for case number and client
 Do
 	err_msg = ""
-	'intial dialog for user to select a SMRT action
     Dialog1 = ""
-	BeginDialog Dialog1, 0, 0, 196, 140, "PF11 Action"
-	  EditBox 55, 5, 40, 15, maxis_case_number
-	  DropListBox 75, 25, 115, 15, HH_Memb_DropDown, clt_to_update
-	  DropListBox 75, 45, 115, 15, "Select One:"+chr(9)+"PMI Merge Request"+chr(9)+"Non-Actionable DAIL Removal"+chr(9)+"Case Note Removal Request"+chr(9)+"MFIP New Spouse Income"+chr(9)+"New Spouse Income Determination"+chr(9)+"Other", PF11_actions
-	  Text 5, 85, 185, 20, "The system being down, issuance problems, or any type     of emergency should NOT be reported via a PF11."
-	  EditBox 75, 65, 115, 15, worker_signature
+	BeginDialog Dialog1, 0, 0, 201, 220, "PF11 Action"
+	  EditBox 55, 5, 45, 15, MAXIS_case_number
+	  DropListBox 80, 25, 115, 15, HH_Memb_DropDown, clt_to_update
+	  DropListBox 80, 45, 115, 15, "Select One:"+chr(9)+"PMI Merge Request"+chr(9)+"Non-Actionable DAIL Removal"+chr(9)+"Case Note Removal Request"+chr(9)+"MFIP New Spouse Income"+chr(9)+"New Spouse Income Determination"+chr(9)+"Unable to update HC REVW dates"+chr(9)+"Other", PF11_actions
+	  EditBox 80, 65, 115, 15, worker_signature
 	  ButtonGroup ButtonPressed
-	    OkButton 95, 120, 45, 15
-	    CancelButton 145, 120, 45, 15
-	    PushButton 105, 5, 85, 15, "HH MEMB SEARCH", search_button
+	    OkButton 100, 125, 45, 15
+	    CancelButton 150, 125, 45, 15
+	  CheckBox 15, 105, 160, 10, "Please check here if a PF11 is not required,", no_pf11_checkbox
 	  Text 5, 10, 45, 10, "Case number:"
 	  Text 5, 30, 70, 10, "Household member:"
-	  Text 5, 50, 50, 10, "Select Action:"
+	  Text 5, 50, 50, 10, "Select action:"
 	  Text 5, 70, 60, 10, "Worker signature:"
-	  CheckBox 15, 105, 155, 10, "Please check here if a PF11 is not required. ", no_pf11_checkbox
+	  Text 5, 85, 185, 20, "The system being down, issuance problems, or any type     of emergency should NOT be reported via a PF11."
+	  Text 40, 115, 90, 10, "but a case note is needed."
+	  ButtonGroup ButtonPressed
+	    PushButton 110, 5, 85, 15, "HH MEMB SEARCH", search_button
+	  Text 10, 160, 185, 50, "On the SELF menu and type TASK. If you have the task number enter it and it will take you directly into the PF11. If you do not have the task number or wish to look at a list of all the PF11s you have created, change the Option in TASK from T-task to a C-creator.  By placing an X next to a PF11 listed you will be able to view it."
+	  GroupBox 5, 150, 190, 65, "How to check a PF11 status:"
 	EndDialog
 
+
 	Dialog Dialog1
-	If ButtonPressed = cancel Then StopScript
-	If ButtonPressed = search_button Then
+	IF ButtonPressed = cancel Then StopScript
+	IF ButtonPressed = search_button Then
 		If MAXIS_case_number = "" Then
 			MsgBox "Cannot search without a case number, please try again."
 		Else
@@ -95,24 +101,24 @@ Do
 			err_msg = err_msg & "Start Over"
 		End If
 	End If
-	If MAXIS_case_number = "" Then err_msg = err_msg & vbNewLine & "You must enter a valid case number."
+	IF MAXIS_case_number = "" Then err_msg = err_msg & vbNewLine & "You must enter a valid case number."
 	IF PF11_actions <> "Non-Actionable DAIL Removal" THEN
-	 	IF clt_to_update = "Select One:" Then err_msg = err_msg & vbNewLine & "Please pick a client to update."
+	 	IF clt_to_update = "Select One:" Then err_msg = err_msg & vbNewLine & "Please select a client to update."
 	END IF
 	IF PF11_actions = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please select the action you wish to take."
-	If trim(worker_signature) = "" THEN err_msg = err_msg & vbNewLine & "Enter your worker signature."
-	If err_msg <> "" AND left(err_msg, 10) <> "Start Over" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
+	IF trim(worker_signature) = "" THEN err_msg = err_msg & vbNewLine & "Enter your worker signature."
+	IF err_msg <> "" AND left(err_msg, 10) <> "Start Over" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
 Loop until err_msg = ""
 
 IF PF11_actions = "Non-Actionable DAIL Removal" THEN
 	Call Navigate_to_MAXIS_screen ("DAIL", "DAIL")
     Dialog1 = ""
     BeginDialog Dialog1, 0, 0, 316, 85, "Non-Actionable DAIL Removal"
-	  EditBox 45, 5, 35, 15, dail_date
-	  EditBox 110, 5, 200, 15, dail_message
+	  EditBox 45, 5, 35, 15, message_date
+	  EditBox 110, 5, 200, 15, message_to_use
 	  EditBox 110, 25, 200, 15, request_reason
 	  EditBox 55, 45, 255, 15, other_notes
-	  EditBox 110, 65, 36, 15, worker_xnumber
+	  EditBox 110, 65, 36, 15, worker_number
 	  ButtonGroup ButtonPressed
 	    OkButton 205, 65, 50, 15
 	    CancelButton 260, 65, 50, 15
@@ -127,11 +133,11 @@ IF PF11_actions = "Non-Actionable DAIL Removal" THEN
     	Do
     		err_msg = ""
     		Dialog Dialog1
-    		IF ButtonPressed = 0 then StopScript
-    		IF dail_date = "" THEN err_msg = err_msg & vbNewLine & "Please enter a dail date."
-			IF dail_message = "" THEN err_msg = err_msg & vbNewLine & "Please enter a dail. This can be done via copy and paste."
+    		cancel_without_confirmation
+    		IF message_date = "" THEN err_msg = err_msg & vbNewLine & "Please enter a dail date."
+			IF message_to_use = "" THEN err_msg = err_msg & vbNewLine & "Please enter a dail. This can be done via copy and paste."
 			IF request_reason = "" THEN err_msg = err_msg & vbNewLine & "Please enter a request reason."
-			IF worker_xnumber = len(worker_xnumber) > 3 then err_msg = err_msg & vbNewLine & "Please enter the worker X127 number. Must be last 3 digits."
+			IF worker_number = len(worker_number) > 3 then err_msg = err_msg & vbNewLine & "Please enter the worker X127 number. Must be last 3 digits."
     		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
     	Loop until err_msg = ""
      Call check_for_password(are_we_passworded_out)
@@ -142,11 +148,11 @@ IF PF11_actions = "Case Note Removal Request" THEN ' this does not leave a case 
 	Call Navigate_to_MAXIS_screen ("CASE", "NOTE")
     Dialog1 = ""
     BeginDialog Dialog1, 0, 0, 316, 85, "Case Note Removal Request"
-      EditBox 45, 5, 35, 15, dail_date
-      EditBox 120, 5, 190, 15, dail_message
+      EditBox 45, 5, 35, 15, message_date
+      EditBox 120, 5, 190, 15, message_to_use
       EditBox 75, 25, 235, 15, request_reason
       EditBox 50, 45, 260, 15, other_notes
-      EditBox 110, 65, 40, 15, worker_xnumber
+      EditBox 110, 65, 40, 15, worker_number
       ButtonGroup ButtonPressed
         OkButton 205, 65, 50, 15
         CancelButton 260, 65, 50, 15
@@ -161,11 +167,11 @@ IF PF11_actions = "Case Note Removal Request" THEN ' this does not leave a case 
     	Do
     		err_msg = ""
     		Dialog Dialog1
-    		IF ButtonPressed = 0 then StopScript
-    		IF dail_date = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a dail date."
-			IF dail_message = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a dail. This can be copy and paste."
-			IF request_reason = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a request reason."
-			IF worker_xnumber = "" or len(worker_xnumber) > 3 then err_msg = err_msg & vbNewLine & "* Please enter the worker X127 number. Must be last 3 digits."
+    		cancel_without_confirmation
+    		IF message_date = "" THEN err_msg = err_msg & vbNewLine & "Please enter the case note date."
+			IF message_to_use = "" THEN err_msg = err_msg & vbNewLine & "Please enter the case note header. This can be copy and paste."
+			IF request_reason = "" THEN err_msg = err_msg & vbNewLine & "Please enter a request reason."
+			IF worker_number = "" or len(worker_number) > 3 then err_msg = err_msg & vbNewLine & "Please enter the worker X127 number. Must be last 3 digits."
     		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
     	Loop until err_msg = ""
      Call check_for_password(are_we_passworded_out)
@@ -178,13 +184,13 @@ IF PF11_actions = "Other" THEN
       EditBox 70, 10, 240, 15, request_reason
       EditBox 70, 30, 240, 15, other_notes
       EditBox 70, 50, 240, 15, action_taken
-      EditBox 70, 70, 60, 15, worker_xnumber
+      EditBox 70, 70, 60, 15, worker_number
       ButtonGroup ButtonPressed
         OkButton 205, 70, 50, 15
         CancelButton 260, 70, 50, 15
       Text 5, 15, 60, 10, "Describe Problem:"
       Text 25, 35, 45, 10, "Other Notes:"
-      Text 15, 55, 50, 10, " Actions Taken:"
+      Text 15, 55, 50, 10, "Actions Taken:"
       Text 10, 75, 55, 10, "Worker Number:"
       Text 5, 95, 230, 10, "While the dialog box is open navigate to the panel you wish to report."
     EndDialog
@@ -193,9 +199,9 @@ IF PF11_actions = "Other" THEN
     	Do
     		err_msg = ""
     		Dialog Dialog1
-    		if ButtonPressed = 0 then StopScript
+    		cancel_without_confirmation
 			IF request_reason = "" THEN err_msg = err_msg & vbNewLine & "Please enter a request reason."
-    		IF worker_xnumber = "" or len(worker_xnumber) > 3 then err_msg = err_msg & vbNewLine & "Please enter the worker X127 number. Must be last 3 digits."
+    		IF worker_number = "" or len(worker_number) > 3 then err_msg = err_msg & vbNewLine & "Please enter the worker X127 number. Must be last 3 digits."
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
 		Loop until err_msg = ""
      Call check_for_password(are_we_passworded_out)
@@ -204,7 +210,6 @@ END If
 
 If PF11_actions = "PMI Merge Request" or PF11_actions = "MFIP New Spouse Income" or PF11_actions = "New Spouse Income Determination" THEN
 	six_months_prior = DateAdd("m", -6, date) 'will set the date 6 months prior to the run date '
-	'MsgBox six_months_prior
 	'handling to prevent duplicate case notes or PF11 requests'
 	Call Navigate_to_MAXIS_screen ("CASE", "NOTE")
 	note_row = 5        'these always need to be reset when looking at Case note
@@ -214,7 +219,6 @@ If PF11_actions = "PMI Merge Request" or PF11_actions = "MFIP New Spouse Income"
 		EMReadScreen note_date, 8, note_row, 6
 		EMReadScreen note_title, 55, note_row, 25
 		note_title = trim(note_title)
-		'msgbox note_title
 		IF left(note_title, 14) = "PF11 Requested" or left(note_title, 25) = "***PMI MERGE REQUESTED***" THEN
 		    DO
 		    	prog_confirmation = MsgBox("*** NOTICE!***" & vbNewLine & "a PF11 was already requested on: " & note_date & vbNewLine & "please do not send a duplicate request." & vbNewLine & "Select YES to continue NO to exit the script.", vbYesNo, "Possible Duplicate Request")
@@ -318,7 +322,7 @@ IF PF11_actions = "MFIP New Spouse Income" then
 		Do
 			err_msg = ""
 			Dialog Dialog1
-			IF ButtonPressed = 0 then StopScript
+			cancel_without_confirmation
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
 		Loop until err_msg = ""
 		Call check_for_password(are_we_passworded_out)
@@ -332,7 +336,7 @@ IF PF11_actions = "MFIP New Spouse Income" then
 	  EditBox 70, 65, 75, 15, verif_used
 	  EditBox 85, 85, 60, 15, total_income
 	  EditBox 120, 105, 25, 15, household_size
-	  EditBox 90, 125, 55, 15, worker_number
+	  EditBox 90, 125, 55, 15, worker_phone_number
 	  ButtonGroup ButtonPressed
 	    OkButton 50, 195, 45, 15
 	    CancelButton 100, 195, 45, 15
@@ -350,14 +354,14 @@ IF PF11_actions = "MFIP New Spouse Income" then
     	Do
     		err_msg = ""
     		Dialog Dialog1
-    		IF ButtonPressed = 0 then StopScript
-			IF new_spouse_income = "" THEN err_msg = err_msg & vbNewLine & "* Please enter the the new spouse income."
-			IF marriage_date = "" THEN err_msg = err_msg & vbNewLine & "* Please enter the date of marriage."
-			IF marriage_date_verified = "" THEN err_msg = err_msg & vbNewLine & "* Please enter the date marriage was verified."
-			IF verif_used = "" THEN err_msg = err_msg & vbNewLine & "* Please enter the verificaton of marriage used."
-			IF total_income = "" THEN err_msg = err_msg & vbNewLine & "* Please enter the total income."
-			IF household_size = "" THEN err_msg = err_msg & vbNewLine & "* Please enter the HH size."
-			IF worker_number = "" then err_msg = err_msg & vbNewLine & "* Please enter the worker's phone number."
+    		cancel_without_confirmation
+			IF new_spouse_income = "" THEN err_msg = err_msg & vbNewLine & "Please enter the the new spouse income."
+			IF marriage_date = "" THEN err_msg = err_msg & vbNewLine & "Please enter the date of marriage."
+			IF marriage_date_verified = "" THEN err_msg = err_msg & vbNewLine & "Please enter the date marriage was verified."
+			IF verif_used = "" THEN err_msg = err_msg & vbNewLine & "Please enter the verificaton of marriage used."
+			IF total_income = "" THEN err_msg = err_msg & vbNewLine & "Please enter the total income."
+			IF household_size = "" THEN err_msg = err_msg & vbNewLine & "Please enter the Household size."
+			IF worker_phone_number = "" then err_msg = err_msg & vbNewLine & "Please enter the worker's phone number."
     		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
     	Loop until err_msg = ""
     	Call check_for_password(are_we_passworded_out)
@@ -395,7 +399,7 @@ IF PF11_actions = "New Spouse Income Determination" THEN
     	Do
     		err_msg = ""
     		Dialog Dialog1
-    		if ButtonPressed = 0 then StopScript
+    		cancel_without_confirmation
             IF new_spouse_income = "" THEN err_msg = err_msg & vbNewLine & "* Please enter the the new spouse income."
             IF marriage_date = "" THEN err_msg = err_msg & vbNewLine & "* Please enter the date of marriage."
             IF marriage_date_verified = "" THEN err_msg = err_msg & vbNewLine & "* Please enter the date marriage was verified."
@@ -412,47 +416,67 @@ IF PF11_actions = "New Spouse Income Determination" THEN
     LOOP UNTIL check_for_password(are_we_passworded_out) = False
 END If
 
-'Found in CM 17.11 calculation of 275%'
-'IF household_size = 1 THEN income_limit = $2,782
-'IF household_size = 2 THEN income_limit = $3,772
-'IF household_size = 3 THEN income_limit = $4,762
-'IF household_size = 4 THEN income_limit = $5,752
-'IF household_size = 5 THEN income_limit = $6,742
-'IF household_size = 6 THEN income_limit = $7,731
-'IF household_size = 7 THEN income_limit = $8,722
-'IF household_size = 8 THEN income_limit = $9,712
-'IF household_size = 9 THEN income_limit = $10,702
-'IF household_size = 10 THEN income_limit = $11,692
-'IF household_size > 10 THEN income_limit = 11,692 + (990 * (household_size- 8))
-'valid_through_date = #10/01/2019#
+IF PF11_actions = "Unable to update HC REVW dates" THEN
+	Call Navigate_to_MAXIS_screen ("DAIL", "DAIL")
+    Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 316, 95, "Unable to update HC REVW dates"
+	  EditBox 60, 5, 35, 15, message_date
+	  EditBox 185, 5, 125, 15, date_edit
+	  EditBox 60, 25, 125, 15, other_notes
+	  EditBox 270, 25, 40, 15, worker_number
+	  ButtonGroup ButtonPressed
+	    OkButton 205, 60, 50, 15
+	    CancelButton 260, 60, 50, 15
+	  Text 5, 10, 50, 10, "Review Date:"
+	  Text 100, 10, 80, 10, "Last Review Date Edit:"
+	  Text 5, 30, 45, 10, "Other Notes:"
+	  Text 215, 30, 55, 10, "Worker X127 #:"
+	  Text 5, 50, 185, 10, "This will send a PF11 for MNIT to update the review date"
+	  Text 5, 65, 175, 10, "This information can be found directly in OneSource"
+	  Text 5, 80, 235, 10, "Review SIR Email for a response when this process is complete."
+	EndDialog
+
+    Do
+    	Do
+    		err_msg = ""
+    		Dialog Dialog1
+    		cancel_without_confirmation
+    		IF message_date = "" THEN err_msg = err_msg & vbNewLine & "Please enter a dail date."
+			IF date_edit = "" THEN err_msg = err_msg & vbNewLine & "Please enter the edit you recieved when trying to change the REVW date. This can be done via copy and paste."
+			IF worker_number = len(worker_number) > 3 then err_msg = err_msg & vbNewLine & "Please enter the worker X127 number. Must be last 3 digits."
+    		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+    	Loop until err_msg = ""
+     Call check_for_password(are_we_passworded_out)
+    LOOP UNTIL check_for_password(are_we_passworded_out) = False
+END If
 
 IF PF11_actions <> "New Spouse Income Determination" and no_pf11_checkbox = UNCHECKED THEN
  	PF11
 	'Problem.Reporting
 	EMReadScreen nav_check, 4, 1, 27
 	IF nav_check = "Prob" THEN
-    	IF PF11_actions = "Case Note Removal Request" or PF11_actions = "Non-Actionable DAIL Removal" or PF11_actions = "Other" THEN
-    	    EMWriteScreen PF11_actions & " for case number: " & maxis_case_number, 05, 07
-    	    EMWriteScreen "Date: " & dail_date, 06, 07
-    	    IF PF11_actions = "Case Note Removal Request" THEN EMWriteScreen "Case Note: " & dail_message, 07, 07
-    	    IF PF11_actions = "Non-Actionable DAIL Removal" THEN EMWriteScreen "DAIL: " & dail_message, 07, 07
+    	IF PF11_actions = "Case Note Removal Request" or PF11_actions = "Non-Actionable DAIL Removal" or PF11_actions = "Other" or PF11_actions = "Unable to update HC REVW dates" THEN
+    	    EMWriteScreen PF11_actions & " for case number: " & MAXIS_case_number, 05, 07
+    	    EMWriteScreen "Date: " & message_date, 06, 07
+    	    IF PF11_actions = "Case Note Removal Request" THEN EMWriteScreen "Case Note: " & message_to_use, 07, 07
+    	    IF PF11_actions = "Non-Actionable DAIL Removal" THEN EMWriteScreen "DAIL: " & message_to_use, 07, 07
     		IF PF11_actions = "Non-Actionable DAIL Removal" THEN EMWriteScreen "Other error to report:", 08, 07
-    	    EMWriteScreen "Reason for request: " & request_reason, 09, 07
-    		EMWriteScreen "Worker number: X127" & worker_xnumber , 10, 07
+			IF PF11_actions = "Unable to update HC REVW dates" THEN
+				EMWriteScreen "Last Review Date Edit: " & date_edit, 08, 07
+				EMWriteScreen "Other notes: " & other_notes, 09, 07
+			END IF
+    	    IF request_reason <> "" THEN EMWriteScreen "Reason for request: " & request_reason, 09, 07
+    		EMWriteScreen "Worker number: X127" & worker_number , 10, 07
     	END IF
     	IF PF11_actions = "PMI Merge Request" THEN
-    		EMWriteScreen "PMI merge request for case number: " & maxis_case_number, 05, 07
-    		'msgbox "are we writing"
-    		'EMWriteScreen client_SSN, 06, 07
+    		EMWriteScreen "PMI merge request for case number: " & MAXIS_case_number, 05, 07
     		EMWriteScreen "Current case PMI number: " & PMI_number, 06, 07
     		IF PMI_number_two <> "" THEN EMWriteScreen "Duplicate PMI number: " & PMI_number_two, 07, 07
-    		'msgbox PMI_number
     		EMWriteScreen "Reason for request: " & reason_request_dropdown, 08, 07
-    		'msgbox reason_request_dropdown
     		IF second_case_number <> "" THEN EMWriteScreen "Associated case number: " & second_case_number, 09, 07
     	END IF
     	If PF11_actions = "MFIP New Spouse Income" then
-			EMWriteScreen PF11_actions & " for case number: " & maxis_case_number, 05, 07
+			EMWriteScreen PF11_actions & " for case number: " & MAXIS_case_number, 05, 07
 			EMWriteScreen "Designated Spouse: " & client_first_name & " " & client_last_name, 06, 07
 			EMWriteScreen "Designated Spouse Ref Number: " & MEMB_number, 07, 07
 			EMWriteScreen "New Spouse Income Effective: " & new_spouse_income, 08, 07
@@ -463,48 +487,50 @@ IF PF11_actions <> "New Spouse Income Determination" and no_pf11_checkbox = UNCH
 			EMWriteScreen "HH Size: " & household_size, 13, 07
 			EMWriteScreen "Worker Number: " & worker_number, 14, 07
     	END IF
-
-    	'msgbox "test"
     	TRANSMIT
     	EMReadScreen task_number, 7, 3, 27
-    	'msgbox task_number
     	TRANSMIT
-
-    	'back_to_self
     	PF3 ''-self'
     	PF3 '- MEMB'
     ELSE
 		script_end_procedure_with_error_report("Could not reach PF11." & PF11_actions & " has not been sent.")
 	END IF
 END IF
+
 reminder_date = dateadd("d", 5, date)
-IF PF11_actions = "PMI Merge Request" or PF11_actions = "Non-Actionable DAIL Removal" or PF11_actions = "MFIP New Spouse Income" or PF11_actions = "New Spouse Income Determination" or PF11_actions = "Other" THEN
-'IF PF11_actions <> "Case Note Removal Request" or PF11_actions <> "New Spouse Income Determination" THEN
-	outlook_reminder = True
+Call change_date_to_soonest_working_day(reminder_date)
+
+IF PF11_actions = "PMI Merge Request" or PF11_actions = "Non-Actionable DAIL Removal" or PF11_actions = "MFIP New Spouse Income" or PF11_actions = "New Spouse Income Determination" or PF11_actions = "Other" or PF11_actions = "Unable to update HC REVW dates" THEN
 	CALL start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
 	IF PF11_actions = "PMI Merge Request"  THEN CALL write_variable_in_case_note("PF11 Requested " & PF11_actions & " for M" & MEMB_number)
-	IF PF11_actions = "Non-Actionable DAIL Removal" or PF11_actions = "Other" THEN CALL write_variable_in_case_note("PF11 Requested " & PF11_actions)
-	IF PF11_actions = "Non-Actionable DAIL Removal" or PF11_actions = "Other" or PF11_actions = "PMI Merge Request"  THEN
+	IF PF11_actions = "Non-Actionable DAIL Removal" or PF11_actions = "Other" or PF11_actions = "Unable to update HC REVW dates"  THEN CALL write_variable_in_case_note("PF11 Requested " & PF11_actions)
+	IF PF11_actions = "Non-Actionable DAIL Removal" or PF11_actions = "Other" or PF11_actions = "PMI Merge Request" or PF11_actions = "Unable to update HC REVW dates"  THEN
 	    CALL write_bullet_and_variable_in_CASE_NOTE("Reason for request", reason_request_dropdown)
 	    CALL write_bullet_and_variable_in_CASE_NOTE("Reason for request", request_reason)
 	    CALL write_bullet_and_variable_in_CASE_NOTE("Task number", task_number)
 	    CALL write_bullet_and_variable_in_CASE_NOTE("Requested for", client_info)
-	    CALL write_bullet_and_variable_in_CASE_NOTE("Message", dail_message)
+	    CALL write_bullet_and_variable_in_CASE_NOTE("Message", message_to_use)
+		CALL write_bullet_and_variable_in_CASE_NOTE("Review Date", message_date)
+		CALL write_bullet_and_variable_in_CASE_NOTE("Last Review Date Edit", date_edit)
+		IF PF11_actions = "Unable to update HC REVW dates"  THEN
+			CALL write_variable_in_CASE_NOTE("Sent a PF11 for MNIT to update the review date")
+			CALL write_variable_in_CASE_NOTE("This information can be found directly in OneSource")
+			CALL write_variable_in_CASE_NOTE("SIR Email will be reviewed for a response when this process is complete.")
+		END IF
 	    If PMI_number <> "" THEN Call write_bullet_and_variable_in_CASE_NOTE("PMI number", PMI_number)
 	    If PMI_number_two <> "" then Call write_bullet_and_variable_in_CASE_NOTE("Duplicate PMI number", PMI_number_two)
 	    CALL write_bullet_and_variable_in_CASE_NOTE("Associated case number", second_case_number)
 	    CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
 	    CALL write_bullet_and_variable_in_CASE_NOTE("Actions taken", action_taken)
-	    If outlook_reminder = True then call write_bullet_and_variable_in_CASE_NOTE("Outlook reminder set for", reminder_date)
+	    call write_bullet_and_variable_in_CASE_NOTE("Outlook reminder set for", reminder_date)
 	    CALL write_variable_in_CASE_NOTE ("---")
 	    CALL write_variable_in_CASE_NOTE(worker_signature)
 	    PF3
 	END IF
 	IF  PF11_actions = "MFIP New Spouse Income" and no_pf11_checkbox = UNCHECKED THEN
-		'CALL start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
-		CALL write_variable_in_case_note(PF11_actions & " for M" & MEMB_number) 	''---Determination MFIP New Spouse Income for M19---
+		CALL write_variable_in_case_note(PF11_actions & " for M" & MEMB_number)
 		CALL write_bullet_and_variable_in_CASE_NOTE("PF11 Sent - Task number", task_number)
-		CALL write_bullet_and_variable_in_CASE_NOTE("Marriage Date", dail_date)
+		CALL write_bullet_and_variable_in_CASE_NOTE("Marriage Date", message_date)
 	    CALL write_bullet_and_variable_in_CASE_NOTE("New Spouse Income Effective", new_spouse_income)
 	    CALL write_bullet_and_variable_in_CASE_NOTE("Marriage Date", marriage_date)
 	    CALL write_bullet_and_variable_in_CASE_NOTE("Date Marriage Was Verified", marriage_date_verified)
@@ -514,16 +540,15 @@ IF PF11_actions = "PMI Merge Request" or PF11_actions = "Non-Actionable DAIL Rem
 	    CALL write_bullet_and_variable_in_CASE_NOTE("275% FPG Amount", income_limit)
 	    CALL write_bullet_and_variable_in_CASE_NOTE("275% FPG New Spouse Income Test", income_test_dropdown)
 	    CALL write_bullet_and_variable_in_CASE_NOTE("DS income not counted eff", date_income_not_counted)
-		If outlook_reminder = True then call write_bullet_and_variable_in_CASE_NOTE("Outlook reminder set for", reminder_date)
+		call write_bullet_and_variable_in_CASE_NOTE("Outlook reminder set for", reminder_date)
 		CALL write_variable_in_CASE_NOTE ("---")
 		CALL write_variable_in_CASE_NOTE(worker_signature)
 		PF3
 	END IF
 
 	IF  PF11_actions = "MFIP New Spouse Income" and no_pf11_checkbox = CHECKED THEN
-		'CALL start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
-		CALL write_variable_in_case_note(PF11_actions & " for M" & MEMB_number) 	''---Determination MFIP New Spouse Income for M19---
-		CALL write_bullet_and_variable_in_CASE_NOTE("Marriage Date", dail_date)
+		CALL write_variable_in_case_note(PF11_actions & " for M" & MEMB_number)
+		CALL write_bullet_and_variable_in_CASE_NOTE("Marriage Date", message_date)
 		CALL write_bullet_and_variable_in_CASE_NOTE("New Spouse Income Effective", new_spouse_income)
 		CALL write_bullet_and_variable_in_CASE_NOTE("Marriage Date", marriage_date)
 		CALL write_bullet_and_variable_in_CASE_NOTE("Date Marriage Was Verified", marriage_date_verified)
@@ -533,17 +558,13 @@ IF PF11_actions = "PMI Merge Request" or PF11_actions = "Non-Actionable DAIL Rem
 		CALL write_bullet_and_variable_in_CASE_NOTE("275% FPG Amount", income_limit)
 		CALL write_bullet_and_variable_in_CASE_NOTE("275% FPG New Spouse Income Test", income_test_dropdown)
 		CALL write_bullet_and_variable_in_CASE_NOTE("DS income not counted eff", date_income_not_counted)
-		If outlook_reminder = True then call write_bullet_and_variable_in_CASE_NOTE("Outlook reminder set for", reminder_date)
+		call write_bullet_and_variable_in_CASE_NOTE("Outlook reminder set for", reminder_date)
 		CALL write_variable_in_CASE_NOTE ("---")
 		CALL write_variable_in_CASE_NOTE(worker_signature)
 		PF3
 	END IF
-    IF outlook_reminder = True then
-        'Outlook appointment is created in prior to the case note being created
-        'Call create_outlook_appointment(appt_date, appt_start_time, appt_end_time, appt_subject, appt_body, appt_location, appt_reminder, appt_category)
-        Call create_outlook_appointment(reminder_date, "08:00 AM", "08:00 AM", "PF11 check: " & PF11_actions & " for " & MAXIS_case_number, "", "", TRUE, 5, "")
-        outlook_reminder = True
-	END IF
+    'Call create_outlook_appointment(appt_date, appt_start_time, appt_end_time, appt_subject, appt_body, appt_location, appt_reminder, reminder_in_minutes, appt_category)
+    Call create_outlook_appointment(reminder_date, "08:00 AM", "08:00 AM", "PF11 check: " & PF11_actions & " for " & MAXIS_case_number, "", "", TRUE, 5, "")
 END IF
 
 IF PF11_actions = "New Spouse Income Determination" THEN
@@ -564,4 +585,4 @@ IF PF11_actions = "New Spouse Income Determination" THEN
 	PF3
 END IF
 
-script_end_procedure_with_error_report("It worked! " & PF11_actions & " has been sent or case noted.")
+script_end_procedure_with_error_report("It worked! " & PF11_actions & " has been sent and/or case noted.")
