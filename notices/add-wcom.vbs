@@ -1,5 +1,5 @@
 'GATHERING STATS----------------------------------------------------------------------------------------------------
-name_of_script = "NOTICES - SELECT WCOM.vbs"
+name_of_script = "NOTICES - ADD WCOM.vbs"
 start_time = timer
 STATS_counter = 1                          'sets the stats counter at one
 STATS_manualtime = 120                               'manual run time in seconds
