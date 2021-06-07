@@ -1,5 +1,5 @@
 'Required for statistical purposes==========================================================================================
-name_of_script = "ACTIONS - Submit Script Idea.vbs"
+name_of_script = "ACTIONS - Report to the BZST.vbs"
 start_time = timer
 STATS_counter = 1                     	'sets the stats counter at one
 STATS_manualtime = 0                	'manual run time in seconds
