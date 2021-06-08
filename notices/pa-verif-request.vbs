@@ -385,7 +385,7 @@ Do
 		Dialog1 = ""
 		BeginDialog Dialog1, 0, 0, 301, 130, "Verification of Public Assistance"
 		  EditBox 85, 50, 60, 15, MAXIS_case_number
-		  DropListBox 85, 70, 210, 45, "Resident on the Phone (or AREP)"+chr(9)+"Resident in Person (or AREP)"+chr(9)+"PHA (Public Housing form)"+chr(9)+"Request of Medical Payment History (from Resident or AREP)", contact_type
+		  DropListBox 85, 70, 210, 45, "Resident on the Phone (or AREP)"+chr(9)+"Resident in Person (or AREP)"+chr(9)+"Resend TAX Notice of Cash Benefit"+chr(9)+"PHA (Public Housing form)"+chr(9)+"Request of Medical Payment History (from Resident or AREP)"+chr(9)+"Documents from ECF", contact_type
 		  EditBox 85, 90, 210, 15, worker_signature
 		  ButtonGroup ButtonPressed
 		    OkButton 195, 110, 50, 15
@@ -412,11 +412,47 @@ Do
 Loop until are_we_passworded_out = False
 
 If contact_type = "PHA (Public Housing form)" Then
+	run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Verification-of-public-assistance.aspx"
+	end_msg = "Requests from PHA (Public Housing Agency) of a residents Cash Assistance have a special process." & vbCr & vbCr &_
+			  "THESE ARE HANDLED BY Hazel Haynes and Tammy Richert." & vbCr & "---------------------------------------" & vbCr &_
+			  "The script has opened the correct HSR Manual page in Edge and you can view the specific procedure under the header 'Cash (requested by Public Housing Agency)'." & vbCr & vbCr &_
+			  "You should not use WCOM or MEMO to provide Cash Benefit Verification to PHA." & vbCr &_
+			  "For additional questions or clarification, contact Knowledge Now."
+	 script_end_procedure(end_msg)
 End If
 If contact_type = "Request of Medical Payment History (from Resident or AREP)" Then
+	run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Verification-of-public-assistance.aspx"
+	run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://edocs.mn.gov/forms/DHS-2133-ENG"
+	end_msg = "Requests of Medical Payment History have a specific DHS Webform (2133) for completion." & vbCr & vbCr &_
+			  "THESE ARE NOT HANDLED BY HENNEPIN COUNTY DIRECTLY" & vbCr & "---------------------------------------" & vbCr &_
+			  "The script has opened the correct HSR Manual page in Edge as well as the page for the DHS Webform 2133. " & vbCr & vbCr &_
+			  "Payment history is kept for 36 months, medical requests can only be made for medical claims paid within three years."
+	 script_end_procedure(end_msg)
 End If
 If contact_type = "Documents from ECF" Then
+	run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Data_Privacy.aspx"
+	end_msg = "Most requests for documents must be handled by the ROI Team" & vbCr & vbCr &_
+			  "The client should contact this team by phone or the data request portal:" & vbCr &_
+			  "  - Phone: 612-543-4887" & vbCr &_
+			  "  - Online Data Request Portal: www.hennepin.us/datarequest" &vbCr &_
+			  "    (this requires users to create a login)" & vbCr & "---------------------------------------" & vbCr &_
+			  "Full procedural information from the HSR Manual has opened in Edge for you to review." & vbCr &_
+			  "---------------------------------------" & vbCr &_
+			  "Once the caller's identity has been verified through other means, you can as an HSR:" & vbCr &_
+			  "  - Provide verbal incformation from an ECF Case file for:" &vbCr &_
+			  "     - Social Security Card Number" & vbCr &_
+			  "     - State Issued ID Number" & vbCr &_
+			  "     - Case Number" & vbCr &_
+			  "  - Send documents from ECF of:" &vbCr &_
+			  "     - Copy of Birth Certificate" & vbCr &_
+			  "     - Copy of Government Issued Immigration Document" & vbCr &_
+			  "     - Work Number/Equifax Verifications" & vbCr &_
+			  "     THESE ARE THE ONLY DOCUMENTS HSRS MAY SEND FROM ECF - WITH NO EXCEPTIONS" & vbCr &_
+			  "  - Send Benefit information from MAXIS. (This Script can assist with this process but you must select 'Resident on the Phone' or 'Resident in Person' in the first Dialog.)" &vbCr &_
+			  "For additional questions or clarification, contact the ROI Team at HSPH.ROI.POD@hennepin.us."
+	 script_end_procedure(end_msg)
 End If
+'ADD OPTION FOR RESENDING A TAX NOTICE'
 
 
 Call back_to_SELF
