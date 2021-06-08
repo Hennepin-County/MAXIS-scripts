@@ -168,6 +168,64 @@ function leave_notice_text(ask_first)
 	End If
 end function
 
+function sort_dates(dates_array)
+'--- Takes an array of dates and reorders them to be chronological.
+'~~~~~ dates_array: an array of dates only
+'===== Keywords: MAXIS, date, order, list, array
+    dim ordered_dates ()
+    redim ordered_dates(0)
+    original_array_items_used = "~"
+    days =  0
+    do
+
+        prev_date = ""
+        original_array_index = 0
+        for each thing in dates_array
+            check_this_date = TRUE
+            new_array_index = 0
+            For each known_date in ordered_dates
+                if known_date = thing Then check_this_date = FALSE
+                new_array_index = new_array_index + 1
+                ' MsgBox "known dates is " & known_date & vbNewLine & "thing is " & thing & vbNewLine & "match - " & check_this_date
+            next
+            ' MsgBox "known dates is " & known_date & vbNewLine & "thing is " & thing & vbNewLine & "check this date - " & check_this_date
+            if check_this_date = TRUE Then
+                if prev_date = "" Then
+                    prev_date = thing
+                    index_used = original_array_index
+                Else
+                    if DateDiff("d", prev_date, thing) < 0 then
+                        prev_date = thing
+                        index_used = original_array_index
+                    end if
+                end if
+            end if
+            original_array_index = original_array_index + 1
+        next
+        if prev_date <> "" Then
+            redim preserve ordered_dates(days)
+            ordered_dates(days) = prev_date
+            original_array_items_used = original_array_items_used & index_used & "~"
+            days = days + 1
+        end if
+        counter = 0
+        For each thing in dates_array
+            If InStr(original_array_items_used, "~" & counter & "~") = 0 Then
+                For each new_date_thing in ordered_dates
+                    If thing = new_date_thing Then
+                        original_array_items_used = original_array_items_used & counter & "~"
+                        days = days + 1
+                    End If
+                Next
+            End If
+            counter = counter + 1
+        Next
+        ' MsgBox "Ordered Dates array - " & join(ordered_dates, ", ") & vbCR & "days - " & days & vbCR & "Ubound - " & UBOUND(dates_array) & vbCR & "used list - " & original_array_items_used
+    loop until days > UBOUND(dates_array)
+
+    dates_array = ordered_dates
+end function
+
 function Select_New_WCOM(notices_array, selected_const, information_const, WCOM_row_const, case_number_known, allow_wcom, allow_memo, notc_month, notc_year, no_notices, specific_prog, allow_multiple_notc, allow_cancel)
 	If allow_wcom = True AND allow_memo = True Then
 		notice_panel = "Select One..."
@@ -1292,7 +1350,14 @@ End If
 
 Call back_to_SELF
 
-Dim snap_issuance_array()
+const grant_amount_const 	= 0
+const benefit_month_const	= 1
+const note_message_const	= 2
+const benefit_month_as_date_const = 3
+const last_const			= 4
+
+Dim SNAP_ISSUANCE_ARRAY()
+ReDim SNAP_ISSUANCE_ARRAY(last_const, 0)
 Dim ga_issuance_array()
 Dim msa_issuance_array()
 Dim mfip_issuance_array()
@@ -1303,11 +1368,19 @@ If create_memo = True Then
 	Call navigate_to_MAXIS_screen("MONY", "INQX")
 
 	If snap_verification_method = "Create New MEMO with range of Months" Then
+		first_date_of_range = replace(snap_start_month, "/", "/01/")
+		first_date_of_range = DateAdd("d", 0, first_date_of_range)
+		last_date_of_range = replace(snap_end_month, "/", "/01/")
+		last_date_of_range = DateAdd("d", 0, last_date_of_range)
+
 		EMWriteScreen "X", 9, 5		'This is the SNAP place
 		EMWriteScreen left(snap_start_month, 2), 6, 38
 		EMWriteScreen right(snap_start_month, 2), 6, 41
-		EMWriteScreen left(snap_end_month, 2), 6, 53
-		EMWriteScreen right(snap_end_month, 2), 6, 56
+		' EMWriteScreen left(snap_end_month, 2), 6, 53
+		' EMWriteScreen right(snap_end_month, 2), 6, 56
+		EMWriteScreen CM_plus_1_mo, 6, 53
+		EMWriteScreen CM_plus_1_yr, 6, 56
+
 		transmit
 
 		inqx_row = 6
@@ -1317,38 +1390,72 @@ If create_memo = True Then
 			EMReadScreen tran_amount, 8, inqx_row, 38
 			EMReadScreen from_month, 2, inqx_row, 62
 			EMReadScreen from_year, 2, inqx_row, 68
+			EMReadScreen from_date, 8, inqx_row, 62
+
 			issued_date = trim(issued_date)
 			tran_amount = trim(tran_amount)
 
 			If issued_date <> "" Then
+				from_date = DateAdd("d", 0, from_date)
+				If DateDiff("d", from_date, first_date_of_range) <= 0 AND DateDiff("d", from_date, last_date_of_range) >= 0 Then
 
-				If prev_month = from_month AND prev_year = from_year Then
-					msg_counter = msg_counter - 1
-					prev_amount = prev_amount * 1
+					benefit_month = from_month & "/" & from_year
 					tran_amount = tran_amount * 1
-					total_amount = prev_amount + tran_amount
-					total_amount = left(total_amount & "        ", 8)
-
-					snap_issuance_array(msg_counter) = "$ " & total_amount & " issued for " & from_month & "/" & from_year
-					prev_amount = trim(total_amount)
-				Else
-					ReDim Preserve snap_issuance_array(msg_counter)
-					tran_amount = left(tran_amount & "        ", 8)
-
-					snap_issuance_array(msg_counter) = "$ " & tran_amount & " issued for " & from_month & "/" & from_year
-					prev_amount = trim(tran_amount)
+					ammount_added_in = False
+					For each_known_issuance = 0 to UBound(SNAP_ISSUANCE_ARRAY, 2)
+						If benefit_month = SNAP_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance) Then
+							SNAP_ISSUANCE_ARRAY(grant_amount_const, each_known_issuance) = SNAP_ISSUANCE_ARRAY(grant_amount_const, each_known_issuance) + tran_amount
+							ammount_added_in = True
+						End If
+					Next
+					If ammount_added_in = False Then
+						ReDim Preserve SNAP_ISSUANCE_ARRAY(last_const, msg_counter)
+						SNAP_ISSUANCE_ARRAY(benefit_month_const, msg_counter) = benefit_month
+						SNAP_ISSUANCE_ARRAY(grant_amount_const, msg_counter) = tran_amount
+						'maybe add the 'from_date' into benefit_month_as_date' so that we don't hvae to do more handling down below
+						msg_counter = msg_counter + 1
+					End If
 				End If
-				msg_counter = msg_counter + 1
-
-
-				prev_month = from_month
-				prev_year = from_year
 			End If
 
 			inqx_row = inqx_row + 1
+			If inqx_row = 18 Then
+				PF8
+				inqx_row = 6
+				EMreadScreen end_of_list, 9, 24, 14
+				if end_of_list = "LAST PAGE" Then Exit Do
+			End If
 			'NEED TO ADD 'INQX' line limit
 			'Need to look up display limitations'
 		Loop until issued_date = ""
+		dates_array = ""
+		For each_known_issuance = 0 to UBound(SNAP_ISSUANCE_ARRAY, 2)
+			total_amount = left(SNAP_ISSUANCE_ARRAY(grant_amount_const, each_known_issuance) & "        ", 8)
+			SNAP_ISSUANCE_ARRAY(note_message_const, each_known_issuance) = "$ " & total_amount & " issued for " & SNAP_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance)
+			SNAP_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance) = replace(SNAP_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance), "/", "/01/")
+			SNAP_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance) = DateAdd("d", 0, SNAP_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance))
+			dates_array = dates_array & "~" & SNAP_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)
+		Next
+		If left(dates_array, 1) = "~" Then dates_array = right(dates_array, len(dates_array) - 1)
+		If Instr(dates_array, "~") = 0 Then
+			dates_array = Array(dates_array)
+		Else
+			dates_array = split(dates_array, "~")
+		End If
+		Call sort_dates(dates_array)
+		' MsgBox Join(dates_array, " - ")
+		for each ordered_date in dates_array
+			For each_known_issuance = 0 to UBound(SNAP_ISSUANCE_ARRAY, 2)
+				If DateDiff("d", ordered_date, SNAP_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)) = 0 Then
+					msg_display = msg_display & vbCr & SNAP_ISSUANCE_ARRAY(note_message_const, each_known_issuance)
+					' Call write_variable_in_SPEC_MEMO(SNAP_ISSUANCE_ARRAY(note_message_const, each_known_issuance))
+					' Call write_variable_in_CASE_NOTE(SNAP_ISSUANCE_ARRAY(note_message_const, each_known_issuance))
+				End If
+			Next
+		Next
+
+		MsgBox "This is the list" & msg_display
+
 	End If
 	If ga_verification_method = "Create New MEMO with range of Months" Then
 		EMWriteScreen "X", 11, 5		'This is the GA place
@@ -1401,6 +1508,51 @@ End If
 
 
 MsgBox "STOP HERE"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
