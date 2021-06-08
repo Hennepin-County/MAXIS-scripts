@@ -59,7 +59,7 @@ Function dail_selection
 	transmit
 	EMWriteScreen "_", 7, 39		'clears the all selection
     EmWriteScreen "X", 8, 39        'Selects COLA
-    'EmWriteScreen "X", 13, 39       'Selects INFO as some COLA messages are there.
+    EmWriteScreen "X", 13, 39       'Selects INFO as some COLA messages are there.
     transmit
 End Function
 
@@ -188,7 +188,6 @@ For each worker in worker_array
             '----------------------------------------------------------------------------------------------------January COLA messages
             If instr(dail_msg, "GA: NEW PERSONAL NEEDS STANDARD AUTO-APPROVED FOR JANUARY") or _
                 instr(dail_msg, "GRH: NEW VERSION AUTO-APPROVED") or _
-                instr(dail_msg, "NEW MSA ELIG AUTO") or _
                 instr(dail_msg, "NEW MSA ELIG AUTO-APPROVED") or _
                 instr(dail_msg, "SNAP: NEW VERSION AUTO-APPROVED") or _
                 instr(dail_msg, "SNAP: AUTO-APPROVED - PREVIOUS UNAPPROVED VERSION EXISTS") or _
@@ -197,32 +196,7 @@ For each worker in worker_array
             Else
                 add_to_excel = False
             End if
-
-            ''----------------------------------------------------------------------------------------------------March COLA messages
-            'ElseIf instr(dail_msg, "SNAP: APPROVED VERSION ALREADY EXISTS - NOT AUTO-APPROVED") then
-			'	add_to_excel = True
-            'Elseif instr(dail_msg, "SNAP: RECERTIFICATION DUE - NOT AUTO-APPROVED") then
-			'	add_to_excel = True
-            'Elseif instr(dail_msg, "SNAP: AUTO-APPROVED - PREVIOUS UNAPPROVED VERSION EXISTS") then
-    		'	add_to_excel = True
-            'Elseif instr(dail_msg, "SNAP: HRF DUE - NOT AUTO-APPROVED") then
-    		'	add_to_excel = True
-            'Elseif instr(dail_msg, "SNAP: NEW ELIG AUTO-APPROVED") then
-        	'	add_to_excel = True
-            'Elseif instr(dail_msg, "SNAP: NEW VERSION AUTO-APPROVED") then
-            '	add_to_excel = True
-            'Elseif instr(dail_msg, "NEW MFIP ELIG AUTO-APPROVED") then
-    		'	add_to_excel = True
-            'Elseif instr(dail_msg, "MFIP RECERT DUE - NOT AUTO-APPROVED") then
-        	'	add_to_excel = True
-            'Elseif instr(dail_msg, "MFIP HRF DUE - NOT AUTO-APPROVED") then
-    		'	add_to_excel = True
-            'Elseif instr(dail_msg, "APPROVED MFIP VERSION EXISTS - NOT AUTO-APPROVED") then
-            '    add_to_excel = True
-            'Else
-            '    add_to_excel = False
-            'End if
-
+            
 			IF add_to_excel = True then
 				EMReadScreen maxis_case_number, 8, dail_row - 1, 73
 				EMReadScreen dail_month, 8, dail_row, 11
@@ -239,7 +213,6 @@ For each worker in worker_array
 				If other_worker_error = "** WARNING **" then transmit
 				deleted_dails = deleted_dails + 1
 			else
-				add_to_excel = False
 				dail_row = dail_row + 1
 			End if
 
