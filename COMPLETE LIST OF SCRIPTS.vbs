@@ -54,6 +54,7 @@ class script_bowie
     public testing_criteria         'ARRAY list which of the category is being used
 	public script_checkbox_one
 	public script_btn_one
+	public used_for_elig
     ' public stats_denomination_type
     ' public stats_manual_time_listed
     ' public stats_increments
@@ -334,6 +335,7 @@ script_array(script_num).subcategory            = array("")
 script_array(script_num).keywords               = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)
@@ -347,6 +349,7 @@ script_array(script_num).dlg_keys               = array("Ex", "Ev")
 script_array(script_num).subcategory            = array("ENHANCED LISTS")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -360,6 +363,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Sm")
 script_array(script_num).subcategory            = array("SNAP")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)
@@ -373,6 +377,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Up")
 script_array(script_num).subcategory            = array("ABAWD")
 script_array(script_num).release_date           = #09/25/2017#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)
@@ -387,6 +392,7 @@ script_array(script_num).subcategory            = array("ABAWD")
 script_array(script_num).release_date           = #01/17/2017#
 script_array(script_num).retirement_date        = #06/03/2020#					'Script removed during the COVID-19 PEACETIME STATE OF EMERGENCY
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= True
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -400,6 +406,7 @@ script_array(script_num).dlg_keys               = array("Ev")
 script_array(script_num).subcategory            = array("ABAWD")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array(script_num)   'Resets the array to add one more element to it
@@ -413,6 +420,7 @@ script_array(script_num).dlg_keys               = array("Ex")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -426,6 +434,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Ev")
 script_array(script_num).subcategory            = array("ABAWD")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -439,6 +448,7 @@ script_array(script_num).dlg_keys               = array("Cn")
 script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
 script_array(script_num).release_date           = #09/25/2017#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 'script added during the COVID-19 PEACETIME STATE OF EMERGENCY
 script_num = script_num + 1						'Increment by one
@@ -453,6 +463,7 @@ script_array(script_num).dlg_keys               = array("Cn")
 script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
 script_array(script_num).release_date           = #09/25/2017#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -466,6 +477,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Up")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #08/13/2018#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -479,6 +491,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Exp", "Sw")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #09/27/2018#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -492,6 +505,7 @@ script_array(script_num).dlg_keys               = array("Cn")
 script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
 script_array(script_num).release_date           = #12/12/2016#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -506,6 +520,7 @@ script_array(script_num).subcategory            = array("")  '<<Temporarily remo
 script_array(script_num).release_date           = #12/12/2016#
 script_array(script_num).hot_topic_date			= #1/19/2021#
 script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/SitePages/NOTES-%E2%80%93-APPLICATION-CHECK-enhancement.aspx"
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -519,6 +534,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Exp", "Oe", "Sm")
 script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -532,6 +548,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Exp")
 script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= True
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -545,6 +562,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Tk")
 script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
 script_array(script_num).release_date           = #01/19/2017#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array(script_num)   'Resets the array to add one more element to it
@@ -558,6 +576,7 @@ script_array(script_num).dlg_keys               = array("Ex")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -571,6 +590,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Tk", "Wrd")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #04/27/2021#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 script_array(script_num).in_testing				= TRUE
 script_array(script_num).testing_category		= "ALL"
 script_array(script_num).testing_criteria		= array("")
@@ -587,6 +607,7 @@ script_array(script_num).dlg_keys               = array("Ex", "Cn")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1							   'Increment by one
 ReDim Preserve script_array(script_num)	    'Resets the array to add one more element to it
@@ -600,6 +621,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Tk")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 ' script_num = script_num + 1							   'Increment by one
 ' ReDim Preserve script_array(script_num)	    'Resets the array to add one more element to it
@@ -620,6 +642,7 @@ script_array(script_num).dlg_keys               = array("Up")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)
@@ -633,6 +656,7 @@ script_array(script_num).dlg_keys               = array("Ev")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array(script_num)	'Resets the array to add one more element to it
@@ -646,6 +670,7 @@ script_array(script_num).dlg_keys               = array("Up", "Ex", "Ev")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1							   'Increment by one
 ReDim Preserve script_array(script_num)	    'Resets the array to add one more element to it
@@ -659,6 +684,7 @@ script_array(script_num).dlg_keys               = array("Ex")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -672,6 +698,7 @@ script_array(script_num).dlg_keys               = array("Cn")
 script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -685,6 +712,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Exp", "Tk", "Up")
 script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1					'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -698,6 +726,7 @@ script_array(script_num).dlg_keys               = array("Ev")
 script_array(script_num).subcategory            = array("TOOL")
 script_array(script_num).release_date           = #08/10/2018#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -711,6 +740,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Tk")
 script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
 script_array(script_num).release_date           = #10/24/2016#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -724,6 +754,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Ex")
 script_array(script_num).subcategory            = array("BULK ACTIONS")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -737,6 +768,7 @@ script_array(script_num).dlg_keys               = array("Ex", "Up", "Cn", "Sm")
 script_array(script_num).subcategory            = array("BULK ACTIONS")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -750,6 +782,7 @@ script_array(script_num).dlg_keys               = array("Cn")
 script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -763,6 +796,7 @@ script_array(script_num).dlg_keys               = array("Cn")
 script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -776,6 +810,7 @@ script_array(script_num).dlg_keys               = array("Ev")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -789,6 +824,7 @@ script_array(script_num).dlg_keys               = array("Ex", "Ev")
 script_array(script_num).subcategory            = array("ENHANCED LISTS")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -802,6 +838,7 @@ script_array(script_num).dlg_keys               = array("Cn")
 script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -815,6 +852,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Tk", "Up")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #09/25/2017#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -828,6 +866,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Tk")
 script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array(script_num)	'Resets the array to add one more element to it
@@ -841,6 +880,7 @@ script_array(script_num).dlg_keys               = array("Ex", "Up", "Ev")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -854,6 +894,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Sw")
 script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= True
 
 script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -867,6 +908,7 @@ script_array(script_num).dlg_keys               = array("Ex", "Up", "Cn")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1							   'Increment by one
 ReDim Preserve script_array(script_num)	    'Resets the array to add one more element to it
@@ -880,6 +922,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Wrd")
 script_array(script_num).subcategory            = array("TOOL")
 script_array(script_num).release_date           = #11/24/2020#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1							   'Increment by one
 ReDim Preserve script_array(script_num)	    'Resets the array to add one more element to it
@@ -893,6 +936,7 @@ script_array(script_num).dlg_keys               = array("Oe")
 script_array(script_num).subcategory            = array("TOOL", "POLICY")
 script_array(script_num).release_date           = #08/19/2020#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1							   'Increment by one
 ReDim Preserve script_array(script_num)	    'Resets the array to add one more element to it
@@ -906,6 +950,7 @@ script_array(script_num).dlg_keys               = array("Ex")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1							   'Increment by one
 ReDim Preserve script_array(script_num)	    'Resets the array to add one more element to it
@@ -919,6 +964,7 @@ script_array(script_num).dlg_keys               = array("Ex")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -932,6 +978,7 @@ script_array(script_num).dlg_keys               = array("Ex", "Ev")
 script_array(script_num).subcategory            = array("ABAWD")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -945,6 +992,7 @@ script_array(script_num).dlg_keys               = array("Tk")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #03/19/2021#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1
 ReDim Preserve script_array(script_num)
@@ -958,6 +1006,7 @@ script_array(script_num).dlg_keys               = array("Up", "Cn", "Sm")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -971,6 +1020,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Tk")
 script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -984,6 +1034,7 @@ script_array(script_num).dlg_keys               = array("Ex", "Up", "Cn")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -997,6 +1048,7 @@ script_array(script_num).dlg_keys               = array("Ex", "Up", "Cn")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1010,6 +1062,7 @@ script_array(script_num).dlg_keys               = array("Ex")
 script_array(script_num).subcategory            = array("BULK LISTS")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1023,6 +1076,7 @@ script_array(script_num).dlg_keys               = array("Cn")
 script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
 script_array(script_num).release_date           = #04/25/2016#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -1036,6 +1090,7 @@ script_array(script_num).dlg_keys               = array("Oe")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #02/11/2021#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1049,6 +1104,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Sw")
 script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= True
 
 script_num = script_num + 1							   'Increment by one
 ReDim Preserve script_array(script_num)	    'Resets the array to add one more element to it
@@ -1062,6 +1118,7 @@ script_array(script_num).dlg_keys               = array("Cn")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #06/01/2020#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1075,6 +1132,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Tk", "Up")
 script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1088,6 +1146,7 @@ script_array(script_num).dlg_keys               = array("Cn")
 script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1							   'Increment by one
 ReDim Preserve script_array(script_num)	    'Resets the array to add one more element to it
@@ -1101,6 +1160,7 @@ script_array(script_num).dlg_keys               = array("Ex", "Cn", "Up")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1115,6 +1175,7 @@ script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).retirement_date        = #06/04/2020#					'script removed during the COVID-19 PEACETIME STATE OF EMERGENCY
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1128,6 +1189,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Exp", "Up")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #03/05/2019#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1141,6 +1203,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Tk")
 script_array(script_num).subcategory            = array("E-L")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1154,6 +1217,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Sm")
 script_array(script_num).subcategory            = array("HEALTH CARE", "SNAP", "Cash")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1167,6 +1231,7 @@ script_array(script_num).dlg_keys               = array("Cn")
 script_array(script_num).subcategory            = array("E-L")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1180,6 +1245,7 @@ script_array(script_num).dlg_keys               = array("Ex")
 script_array(script_num).subcategory            = array("BULK LISTS")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1193,6 +1259,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Tk", "Up")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #11/03/2016#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1206,6 +1273,7 @@ script_array(script_num).dlg_keys               = array("Oe", "Oa")
 script_array(script_num).subcategory            = array("TOOL", "POLICY")
 script_array(script_num).release_date           = #08/10/2020#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1219,6 +1287,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Exp", "Ev")
 script_array(script_num).subcategory            = array("E-L")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -1232,6 +1301,7 @@ script_array(script_num).dlg_keys               = array("Ev", "Ex", "Oe")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1245,6 +1315,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Exp", "Ev")
 script_array(script_num).subcategory            = array("E-L")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1258,6 +1329,7 @@ script_array(script_num).dlg_keys               = array("Fi")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #09/25/2017#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= True
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1271,6 +1343,7 @@ script_array(script_num).dlg_keys               = array("Ex", "Ev")
 script_array(script_num).subcategory            = array("ENHANCED LISTS")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1284,6 +1357,7 @@ script_array(script_num).dlg_keys               = array("Ex", "Ev")
 script_array(script_num).subcategory            = array("ENHANCED LISTS")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1
 ReDim Preserve script_array(script_num)
@@ -1297,6 +1371,7 @@ script_array(script_num).dlg_keys               = array("Ev")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #12/09/2020#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1310,6 +1385,7 @@ script_array(script_num).dlg_keys               = array("Cn")
 script_array(script_num).subcategory            = array("E-L")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1323,6 +1399,7 @@ script_array(script_num).dlg_keys               = array("Ex", "Ev")
 script_array(script_num).subcategory            = array("ENHANCED LISTS")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -1336,6 +1413,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Tk", "Up")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #11/03/2016#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -1349,6 +1427,7 @@ script_array(script_num).dlg_keys               = array("Ex", "Ev")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1362,6 +1441,7 @@ script_array(script_num).dlg_keys               = array("Cn")
 script_array(script_num).subcategory            = array("E-L")
 script_array(script_num).release_date           = #10/20/2017#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -1375,6 +1455,7 @@ script_array(script_num).dlg_keys               = array("Ex", "Ev")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1388,6 +1469,7 @@ script_array(script_num).dlg_keys               = array("Cn")
 script_array(script_num).subcategory            = array("E-L")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1401,6 +1483,7 @@ script_array(script_num).dlg_keys               = array("Ex", "Ev")
 script_array(script_num).subcategory            = array("ENHANCED LISTS")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1414,6 +1497,7 @@ script_array(script_num).dlg_keys               = array("Cn")
 script_array(script_num).subcategory            = array("E-L")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1427,6 +1511,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Tk")
 script_array(script_num).subcategory            = array("E-L")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1440,6 +1525,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Sm")
 script_array(script_num).subcategory            = array("E-L")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1453,6 +1539,7 @@ script_array(script_num).dlg_keys               = array("Ex", "Ev")
 script_array(script_num).subcategory            = array("ENHANCED LISTS")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1466,6 +1553,7 @@ script_array(script_num).dlg_keys               = array("Cn")
 script_array(script_num).subcategory            = array("E-L")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1479,6 +1567,7 @@ script_array(script_num).dlg_keys               = array("Cn")
 script_array(script_num).subcategory            = array("IMIG")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1492,6 +1581,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Ev")
 script_array(script_num).subcategory            = array("IMIG")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1505,6 +1595,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Up", "Oe", "Oa")
 script_array(script_num).subcategory            = array("IMIG")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -1518,6 +1609,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Sm")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -1531,6 +1623,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Sm")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array(script_num)	'Resets the array to add one more element to it
@@ -1544,6 +1637,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Sm")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -1557,6 +1651,7 @@ script_array(script_num).dlg_keys               = array("Up")
 script_array(script_num).subcategory            = array("MAXIS")
 script_array(script_num).release_date           = #05/15/2020#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 ' script_num = script_num + 1								'Increment by one
 ' ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -1587,6 +1682,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Oa")
 script_array(script_num).subcategory            = array("E-L")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1601,6 +1697,7 @@ script_array(script_num).subcategory            = array("E-L")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).retirement_date        = #05/12/2020#					'script removed during the COVID-19 PEACETIME STATE OF EMERGENCY
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array(script_num)	'Resets the array to add one more element to it
@@ -1614,6 +1711,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Up", "Tk")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -1627,6 +1725,7 @@ script_array(script_num).dlg_keys               = array("Ev", "Ex")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -1640,6 +1739,7 @@ script_array(script_num).dlg_keys               = array("Oe")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #08/11/2020#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1653,6 +1753,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Up")
 script_array(script_num).subcategory            = array("LTC")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1666,6 +1767,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Tk", "Up")
 script_array(script_num).subcategory            = array("LTC")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1679,6 +1781,7 @@ script_array(script_num).dlg_keys               = array("Cn")
 script_array(script_num).subcategory            = array("LTC")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1692,6 +1795,7 @@ script_array(script_num).dlg_keys               = array("Cn")
 script_array(script_num).subcategory            = array("LTC")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1705,6 +1809,7 @@ script_array(script_num).dlg_keys               = array("Cn")
 script_array(script_num).subcategory            = array("LTC")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1718,6 +1823,7 @@ script_array(script_num).dlg_keys               = array("Cn")
 script_array(script_num).subcategory            = array("LTC")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1731,6 +1837,7 @@ script_array(script_num).dlg_keys               = array("Cn")
 script_array(script_num).subcategory            = array("LTC")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1744,6 +1851,7 @@ script_array(script_num).dlg_keys               = array("Cn")
 script_array(script_num).subcategory            = array("LTC")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1757,6 +1865,7 @@ script_array(script_num).dlg_keys               = array("Cn")
 script_array(script_num).subcategory            = array("LTC")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1770,6 +1879,7 @@ script_array(script_num).dlg_keys               = array("Sm")
 script_array(script_num).subcategory            = array("HEALTH CARE")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1783,6 +1893,7 @@ script_array(script_num).dlg_keys               = array("Fi")
 script_array(script_num).subcategory            = array("LTC")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= True
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1796,6 +1907,7 @@ script_array(script_num).dlg_keys               = array("Fi")
 script_array(script_num).subcategory            = array("LTC")
 script_array(script_num).release_date           = #05/23/2016#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= True
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1809,6 +1921,7 @@ script_array(script_num).dlg_keys               = array("Ex")
 script_array(script_num).subcategory            = array("BULK LISTS")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1822,6 +1935,7 @@ script_array(script_num).dlg_keys               = array("Fi")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #04/02/2021#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= True
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1835,6 +1949,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Sw")
 script_array(script_num).subcategory            = array("HEALTH CARE")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1848,6 +1963,7 @@ script_array(script_num).dlg_keys               = array("Fi")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= True
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1861,6 +1977,7 @@ script_array(script_num).dlg_keys               = array("Sw")
 script_array(script_num).subcategory            = array("HEALTH CARE")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array(script_num)	'Resets the array to add one more element to it
@@ -1874,6 +1991,7 @@ script_array(script_num).dlg_keys               = array("Ev", "Ex")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1							   'Increment by one
 ReDim Preserve script_array(script_num)	   'Resets the array to add one more element to it
@@ -1887,6 +2005,7 @@ script_array(script_num).dlg_keys               = array("Ex", "Sm")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1900,6 +2019,7 @@ script_array(script_num).dlg_keys               = array("Sm", "Wrd")
 script_array(script_num).subcategory            = array("WORD DOCS")
 script_array(script_num).release_date           = #02/21/2018#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1913,6 +2033,7 @@ script_array(script_num).dlg_keys               = array("Sw")
 script_array(script_num).subcategory            = array("HEALTH CARE")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1926,6 +2047,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Oe")
 script_array(script_num).subcategory            = array("M-Z")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1939,6 +2061,7 @@ script_array(script_num).dlg_keys               = array("Ex", "Ev")
 script_array(script_num).subcategory            = array("ENHANCED LISTS")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1952,6 +2075,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Sw", "Tk", "Up")
 script_array(script_num).subcategory            = array("M-Z")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -1965,6 +2089,7 @@ script_array(script_num).dlg_keys               = array("Fi", "Ev")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= True
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1978,6 +2103,7 @@ script_array(script_num).dlg_keys               = array("Cn")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1991,6 +2117,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Up")
 script_array(script_num).subcategory            = array("M-Z")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -2005,6 +2132,7 @@ script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).retirement_date		= #09/25/2020#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array(script_num)		 'Resets the array to add one more element to it
@@ -2018,6 +2146,7 @@ script_array(script_num).dlg_keys               = array("Ex", "Ev", "Sm", "Cn")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array(script_num)   'Resets the array to add one more element to it
@@ -2032,6 +2161,7 @@ script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).retirement_date		= #06/03/2021#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -2045,6 +2175,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Tk")
 script_array(script_num).subcategory            = array("M-Z")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -2058,6 +2189,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Wrd")
 script_array(script_num).subcategory            = array("WORD DOCS")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -2071,6 +2203,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Oe", "Up")
 script_array(script_num).subcategory            = array("M-Z")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -2085,6 +2218,7 @@ script_array(script_num).subcategory            = array("WORD DOCS")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).retirement_date		= #04/01/2021#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array(script_num)	'Resets the array to add one more element to it
@@ -2098,6 +2232,7 @@ script_array(script_num).dlg_keys               = array("Ex", "Up", "Ev", "Tk")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -2111,6 +2246,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Up", "Oa")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #07/01/2019#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -2124,6 +2260,7 @@ script_array(script_num).dlg_keys               = array("Ex")
 script_array(script_num).subcategory            = array("MAXIS", "POLICY")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -2137,6 +2274,7 @@ script_array(script_num).dlg_keys               = array("Wrd")
 script_array(script_num).subcategory            = array("MAXIS", "POLICY")
 script_array(script_num).release_date           = #01/08/2019#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -2150,6 +2288,7 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 script_array(script_num).retirement_date		= #6/2/2021#
 
 script_num = script_num + 1						'Increment by one
@@ -2164,6 +2303,7 @@ script_array(script_num).dlg_keys               = array("Cn")
 script_array(script_num).subcategory            = array("M-Z")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1					'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -2177,6 +2317,7 @@ script_array(script_num).dlg_keys               = array("Oe", "Cn")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #03/06/2020#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array(script_num)		 'Resets the array to add one more element to it
@@ -2190,6 +2331,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Sw", "Oa")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -2203,6 +2345,7 @@ script_array(script_num).dlg_keys               = array("Cn")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -2216,6 +2359,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Tk", "Up")
 script_array(script_num).subcategory            = array("M-Z")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -2229,6 +2373,7 @@ script_array(script_num).dlg_keys               = array("Oe")
 script_array(script_num).subcategory            = array("TOOL", "MAXIS", "POLICY")
 script_array(script_num).release_date           = #08/01/2020#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -2242,6 +2387,7 @@ script_array(script_num).dlg_keys               = array("Ex")
 script_array(script_num).subcategory            = array("BULK LISTS")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -2255,6 +2401,7 @@ script_array(script_num).dlg_keys               = array("Ex")
 script_array(script_num).subcategory            = array("BULK LISTS")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -2268,6 +2415,7 @@ script_array(script_num).dlg_keys               = array("Ex")
 script_array(script_num).subcategory            = array("BULK LISTS")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -2281,6 +2429,7 @@ script_array(script_num).dlg_keys               = array("Ex")
 script_array(script_num).subcategory            = array("BULK LISTS")
 script_array(script_num).release_date           = #06/27/2016#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -2294,6 +2443,7 @@ script_array(script_num).dlg_keys               = array("Ex")
 script_array(script_num).subcategory            = array("BULK LISTS")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -2307,6 +2457,7 @@ script_array(script_num).dlg_keys               = array("Ex")
 script_array(script_num).subcategory            = array("BULK LISTS")
 script_array(script_num).release_date           = #06/27/2016#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -2320,6 +2471,7 @@ script_array(script_num).dlg_keys               = array("Ex")
 script_array(script_num).subcategory            = array("BULK LISTS")
 script_array(script_num).release_date           = #06/27/2016#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -2333,6 +2485,7 @@ script_array(script_num).dlg_keys               = array("Ex")
 script_array(script_num).subcategory            = array("BULK LISTS")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -2346,6 +2499,7 @@ script_array(script_num).dlg_keys               = array("Ex")
 script_array(script_num).subcategory            = array("BULK LISTS")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -2359,6 +2513,7 @@ script_array(script_num).dlg_keys               = array("Ex")
 script_array(script_num).subcategory            = array("BULK LISTS")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -2372,6 +2527,7 @@ script_array(script_num).dlg_keys               = array("Ex")
 script_array(script_num).subcategory            = array("BULK LISTS")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -2385,6 +2541,7 @@ script_array(script_num).dlg_keys               = array("Ex")
 script_array(script_num).subcategory            = array("BULK LISTS")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -2398,6 +2555,7 @@ script_array(script_num).dlg_keys               = array("Oe")
 script_array(script_num).subcategory            = array("TOOL", "MAXIS")
 script_array(script_num).release_date           = #08/19/2020#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array(script_num)   'Resets the array to add one more element to it
@@ -2411,6 +2569,7 @@ script_array(script_num).dlg_keys               = array("Up", "Ex", "Ev")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -2424,6 +2583,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Sm", "Wrd")
 script_array(script_num).subcategory            = array("HEALTH CARE", "SNAP", "Cash")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array(script_num)   'Resets the array to add one more element to it
@@ -2437,6 +2597,7 @@ script_array(script_num).dlg_keys               = array("Ex", "Ev", "Cn", "Sm")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/20/2020#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -2450,6 +2611,7 @@ script_array(script_num).dlg_keys               = array("Ex", "Ev")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array(script_num)	'Resets the array to add one more element to it
@@ -2463,6 +2625,7 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -2476,6 +2639,7 @@ script_array(script_num).dlg_keys               = array("Ex", "Ev")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -2489,6 +2653,7 @@ script_array(script_num).dlg_keys               = array("Oe", "Ex")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #07/21/2020#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -2502,6 +2667,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Up")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -2515,6 +2681,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Up")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -2528,6 +2695,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Tk", "Sm")
 script_array(script_num).subcategory            = array("M-Z")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -2541,6 +2709,7 @@ script_array(script_num).dlg_keys               = array("Cn")
 script_array(script_num).subcategory            = array("M-Z")
 script_array(script_num).release_date           = #01/19/2017#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -2554,6 +2723,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Sm", "Up")
 script_array(script_num).subcategory            = array("SNAP")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -2567,6 +2737,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Up", "Sm")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -2580,6 +2751,7 @@ script_array(script_num).dlg_keys               = array("Ex", "Ev")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #05/06/2021#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -2593,6 +2765,7 @@ script_array(script_num).dlg_keys               = array("Ev")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #02/11/2021#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1							   'Increment by one
 ReDim Preserve script_array(script_num)	    'Resets the array to add one more element to it
@@ -2606,6 +2779,7 @@ script_array(script_num).dlg_keys               = array("Up", "Fi", "Ex")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array(script_num)	'Resets the array to add one more element to it
@@ -2619,6 +2793,7 @@ script_array(script_num).dlg_keys               = array("Up", "Cn", "Sm", "Ex")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1							   'Increment by one
 ReDim Preserve script_array(script_num)	    'Resets the array to add one more element to it
@@ -2632,6 +2807,7 @@ script_array(script_num).dlg_keys               = array("Up")
 script_array(script_num).subcategory            = array("TOOL", "MAXIS")
 script_array(script_num).release_date           = #07/17/2020#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -2645,6 +2821,7 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("TOOL")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -2658,6 +2835,7 @@ script_array(script_num).dlg_keys               = array("Cn")
 script_array(script_num).subcategory            = array("M-Z")
 script_array(script_num).release_date           = #09/25/2017#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -2671,6 +2849,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Tk")
 script_array(script_num).subcategory            = array("M-Z")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -2684,6 +2863,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Wrd")
 script_array(script_num).subcategory            = array("WORD DOCS")
 script_array(script_num).release_date			= #04/25/2016#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -2697,6 +2877,7 @@ script_array(script_num).dlg_keys               = array("Ev")
 script_array(script_num).subcategory            = array("MAXIS")
 script_array(script_num).release_date           = #04/17/2019#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -2711,6 +2892,7 @@ script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/14/2020#
 script_array(script_num).retirement_date		= #11/12/2020#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -2724,6 +2906,7 @@ script_array(script_num).dlg_keys               = array("Ex", "Ev")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -2737,6 +2920,7 @@ script_array(script_num).dlg_keys               = array("Ex", "Oe")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #06/05/2020#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -2750,6 +2934,7 @@ script_array(script_num).dlg_keys               = array("Ex")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 
 
@@ -2767,6 +2952,7 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -2780,6 +2966,7 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -2793,6 +2980,7 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -2806,6 +2994,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Tk")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #05/01/2019#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -2819,6 +3008,7 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -2832,6 +3022,7 @@ script_array(script_num).dlg_keys               = array("Cn")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -2845,6 +3036,7 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 ' script_num = script_num + 1						'Increment by one
 ' ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -2870,6 +3062,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Up")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #08/22/2016#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -2883,6 +3076,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Tk")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -2896,6 +3090,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Up")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #09/30/2016#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -2909,6 +3104,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Up")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #09/30/2016#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -2922,6 +3118,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Sm")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -2935,6 +3132,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Tk", "Up")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #05/01/2019#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -2948,6 +3146,7 @@ script_array(script_num).dlg_keys               = array("Up")
 script_array(script_num).subcategory            = array("LTC")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -2961,6 +3160,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Tk")
 script_array(script_num).subcategory            = array("LTC")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -2974,6 +3174,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Tk", "Up")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -2987,6 +3188,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Tk", "Up")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -3000,6 +3202,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Sm", "Tk")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #05/01/2019#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -3013,6 +3216,7 @@ script_array(script_num).dlg_keys               = array("Cn")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #12/01/2017#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -3026,6 +3230,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Exp")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -3039,6 +3244,7 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -3052,6 +3258,7 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -3065,6 +3272,7 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/04/2016#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 
 
@@ -3084,6 +3292,7 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -3097,6 +3306,7 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -3110,6 +3320,7 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -3123,6 +3334,7 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -3136,6 +3348,7 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -3149,6 +3362,7 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -3162,6 +3376,7 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -3175,6 +3390,7 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -3188,6 +3404,7 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -3201,6 +3418,7 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -3214,6 +3432,7 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -3227,6 +3446,7 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -3240,6 +3460,7 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -3253,6 +3474,7 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -3266,6 +3488,7 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -3279,6 +3502,7 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -3292,6 +3516,7 @@ script_array(script_num).dlg_keys               = array("Cn")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #12/07/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -3305,6 +3530,7 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -3318,6 +3544,7 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -3331,6 +3558,7 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -3344,6 +3572,7 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -3357,6 +3586,7 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -3370,6 +3600,7 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -3383,6 +3614,7 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -3396,6 +3628,7 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -3409,6 +3642,7 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -3422,6 +3656,7 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -3435,6 +3670,7 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -3448,6 +3684,7 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -3461,6 +3698,7 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -3474,6 +3712,7 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -3487,6 +3726,7 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -3500,6 +3740,7 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -3513,6 +3754,7 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -3526,6 +3768,7 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -3539,6 +3782,7 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -3552,6 +3796,7 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -3565,6 +3810,7 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -3578,6 +3824,7 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -3591,6 +3838,7 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -3604,6 +3852,7 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -3617,6 +3866,7 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1					'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -3630,6 +3880,7 @@ script_array(script_num).dlg_keys               = array("Oe", "Cn")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #11/25/2020#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -3643,6 +3894,7 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -3656,6 +3908,7 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 
 
 ' for test_thing = 0 to UBound(script_array)
