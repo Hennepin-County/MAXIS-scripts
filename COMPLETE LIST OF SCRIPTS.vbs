@@ -3302,10 +3302,6 @@ script_array(script_num).release_date           = #10/04/2016#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 
-
-
-
-
 'NAV SCRIPTS=====================================================================================================================================
 
 script_num = script_num + 1						'Increment by one
@@ -3319,6 +3315,20 @@ script_array(script_num).tags                   = array("Navigation")
 script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "CASE-PERS"
+' script_array(script_num).description 			= ""
+script_array(script_num).category               = "NAV"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("Navigation")
+script_array(script_num).dlg_keys               = array("")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #06/08/2021#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 
@@ -3396,6 +3406,20 @@ script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name 			= "STAT-ADDR"
+' script_array(script_num).description 			= ""
+script_array(script_num).category               = "NAV"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("Navigation")
+script_array(script_num).dlg_keys               = array("")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "STAT-MEMB"
 ' script_array(script_num).description 			= ""
 script_array(script_num).category               = "NAV"
 script_array(script_num).workflows              = ""
