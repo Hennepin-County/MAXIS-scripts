@@ -419,7 +419,6 @@ IF appeal_actions = "Summary Completed"  THEN
             Dialog Dialog1
             cancel_confirmation
             IF docket_number = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a valid docket number or enter N/A if unknown."
-            'IF IsNumeric(claim_number) = false THEN err_msg = err_msg & vbNewLine & "* Please enter a valid claim number."
             IF Isdate(date_appeal_rcvd) = false THEN err_msg = err_msg & vbNewLine & "* Please enter a date for the appeal."
             IF Isdate(effective_date) = false THEN err_msg = err_msg & vbNewLine & "* Please enter the effective date."
             IF action_client_is_appealing = "" THEN err_msg = err_msg & vbNewLine & "* Please enter action that client is appealing."
@@ -430,11 +429,11 @@ IF appeal_actions = "Summary Completed"  THEN
 
     start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
     Call write_variable_in_CASE_NOTE("-----Appeal Summary Completed-----")
-    Call write_bullet_and_variable_in_CASE_NOTE("Docket number:", docket_number)
+    Call write_bullet_and_variable_in_CASE_NOTE("Docket number", docket_number)
     CALL write_bullet_and_variable_in_CASE_NOTE("Claim(s) number", claim_number)
-    Call write_bullet_and_variable_in_CASE_NOTE("Date appeal request received:", date_appeal_rcvd)
-    Call write_bullet_and_variable_in_CASE_NOTE("Effective date of action being appealed:", effective_date)
-    Call write_bullet_and_variable_in_CASE_NOTE("Action client is appealing:", action_client_is_appealing)
+    Call write_bullet_and_variable_in_CASE_NOTE("Date appeal request received", date_appeal_rcvd)
+    Call write_bullet_and_variable_in_CASE_NOTE("Effective date of action being appealed", effective_date)
+    Call write_bullet_and_variable_in_CASE_NOTE("Action client is appealing", action_client_is_appealing)
     Call write_variable_in_CASE_NOTE(worker_signature)
 END IF
 
