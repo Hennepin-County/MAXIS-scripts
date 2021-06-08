@@ -2134,6 +2134,20 @@ script_array(script_num).retirement_date		= #09/25/2020#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "On Demand Notes"
+' script_array(script_num).description 			= "Creates some case notes and assists with emails on reoccuring process issues."
+script_array(script_num).category               = "ADMIN"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("QI", "SNAP", "MFIP", "DWP", "Adult Cash", "HS/GRH")
+script_array(script_num).dlg_keys               = array("Cn")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #12/07/2000#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+
 script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array(script_num)		 'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie	 'Set this array element to be a new script. Script details below...
@@ -2823,6 +2837,20 @@ script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 
+script_num = script_num + 1					'Increment by one
+ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "VA Verification Request"
+' script_array(script_num).description 			= "Creates an email requesting VA Benefits."
+script_array(script_num).category               = "UTILITIES"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("Income", "Applications", "Reviews", "Utility", "SNAP", "MFIP", "DWP", "Adult Cash", "HS/GRH", "Health Care", "EMER")
+script_array(script_num).dlg_keys               = array("Oe", "Cn")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #11/25/2020#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
@@ -3353,20 +3381,6 @@ script_array(script_num).used_for_elig			= False
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
-script_array(script_num).script_name 			= "On Demand Notes"
-' script_array(script_num).description 			= "Creates some case notes and assists with emails on reoccuring process issues."
-script_array(script_num).category               = "ADMIN"
-script_array(script_num).workflows              = ""
-script_array(script_num).tags                   = array("QI", "SNAP", "MFIP", "DWP", "Adult Cash", "HS/GRH")
-script_array(script_num).dlg_keys               = array("Cn")
-script_array(script_num).subcategory            = array("")
-script_array(script_num).release_date           = #12/07/2000#
-script_array(script_num).hot_topic_link			= ""
-script_array(script_num).used_for_elig			= False
-
-script_num = script_num + 1						'Increment by one
-ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
-Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name 			= "POLI-TEMP"
 ' script_array(script_num).description 			= ""
 script_array(script_num).category               = "NAV"
@@ -3392,20 +3406,6 @@ script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 
-script_num = script_num + 1					'Increment by one
-ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
-Set script_array(script_num) = new script_bowie'Set this array element to be a new script_bowie. Script details below...
-script_array(script_num).script_name 			= "VA Verification Request"
-' script_array(script_num).description 			= "Creates an email requesting VA Benefits."
-script_array(script_num).category               = "UTILITIES"
-script_array(script_num).workflows              = ""
-script_array(script_num).tags                   = array("Income", "Applications", "Reviews", "Utility", "SNAP", "MFIP", "DWP", "Adult Cash", "HS/GRH", "Health Care", "EMER")
-script_array(script_num).dlg_keys               = array("Oe", "Cn")
-script_array(script_num).subcategory            = array("")
-script_array(script_num).release_date           = #11/25/2020#
-script_array(script_num).hot_topic_link			= ""
-script_array(script_num).used_for_elig			= False
-
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
@@ -3419,7 +3419,6 @@ script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
-
 
 ' for test_thing = 0 to UBound(script_array)
 ' 	MsgBox script_array(test_thing).description
