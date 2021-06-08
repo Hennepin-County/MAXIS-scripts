@@ -810,7 +810,7 @@ FUNCTION favorite_menu(favorites_text_file_string, script_to_run)
                 PushButton 		18,						vert_button_position, 	120, 		10, 			new_scripts_array(script_name_const, i), 			button_placeholder
                 Text 			143, 				    vert_button_position, 	40, 		10, 			"-- " & new_scripts_array(dlg_keys_const, i) & " --"
                 ' PushButton      175,                    vert_button_position,   10,         10,             "+",                                                add_to_favorites_button_placeholder
-                Text            185,                    vert_button_position,   450,        10,             "NEW " & new_scripts_array(release_date_const, i) & "!!! --- " & new_scripts_array(description_const, i)
+                Text            185,                    vert_button_position,   450,        10,             new_scripts_array(description_const, i)
 
                 new_scripts_array(button_const, i) = button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
                 new_scripts_array(SIR_instr_btn_const, i) = SIR_button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
