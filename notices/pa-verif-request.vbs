@@ -56,6 +56,1359 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
+
+function check_if_mmis_in_session(mmis_running, maxis_region)
+'--- This function is to be used when navigating to MMIS from another function in BlueZone (MAXIS, PRISM, INFOPAC, etc.)
+'~~~~~ group_security_selection: region of MMIS to access - programed options are "CTY ELIG STAFF/UPDATE", "GRH UPDATE", "GRH INQUIRY", "MMIS MCRE"
+'===== Keywords: MMIS, navigate
+	attn
+	Do
+		EMReadScreen MAI_check, 3, 1, 33
+		If MAI_check <> "MAI" then EMWaitReady 1, 1
+	Loop until MAI_check = "MAI"
+
+	EMReadScreen mmis_check, 7, 15, 15
+	IF mmis_check = "RUNNING" THEN
+		mmis_running = True
+	ELSE
+		EMConnect"A"
+		attn
+		EMReadScreen mmis_check, 7, 15, 15
+		IF mmis_check = "RUNNING" THEN
+			mmis_running = True
+		ELSE
+			EMConnect"B"
+			attn
+			EMReadScreen mmis_b_check, 7, 15, 15
+			IF mmis_b_check <> "RUNNING" THEN
+				mmis_running = False
+			ELSE
+				mmis_running = True
+			END IF
+		END IF
+	END IF
+	If maxis_region = "PRODUCTION" Then EMWriteScreen "1", 2, 15
+	If maxis_region = "INQUIRY DB" Then EMWriteScreen "2", 2, 15
+	If maxis_region = "TRAINING" Then EMWriteScreen "3", 2, 15
+	transmit
+end function
+
+
+Function Create_List_Of_Notices(notice_panel, notices_array, selected_const, information_const, WCOM_row_const, no_notices, specific_prog)
+	Erase notices_array
+	no_notices = FALSE
+	If notice_panel = "WCOM" Then
+		wcom_row = 7
+		array_counter = 0
+		Do
+			EMReadScreen notice_prog, 2,  wcom_row, 26
+			save_this_notc = True
+			If specific_prog <> "" Then
+				If notice_prog <> specific_prog Then save_this_notc = False
+			End If
+			If save_this_notc = True Then
+				ReDim Preserve notices_array(3, array_counter)
+				EMReadScreen notice_date, 8,  wcom_row, 16
+				EMReadScreen notice_info, 31, wcom_row, 30
+				EMReadScreen notice_stat, 8,  wcom_row, 71
+
+				notice_date = trim(notice_date)
+				notice_prog = trim(notice_prog)
+				notice_info = trim(notice_info)
+				notice_stat = trim(notice_stat)
+
+				notices_array(selected_const,    array_counter) = unchecked
+				notices_array(information_const, array_counter) = notice_info & " - " & notice_prog & " - " & notice_date & " - Status: " & notice_stat
+				notices_array(WCOM_row_const,    array_counter) = wcom_row
+
+				array_counter = array_counter + 1
+			End If
+			wcom_row = wcom_row + 1
+
+			EMReadScreen next_notice, 4, wcom_row, 30
+			next_notice = trim(next_notice)
+
+		Loop until next_notice = ""
+	End If
+
+	If notice_panel = "MEMO" Then
+		memo_row = 7
+		array_counter = 0
+		Do
+			ReDim Preserve notices_array(3, array_counter)
+			EMReadScreen notice_date, 8,  memo_row, 19
+			EMReadScreen notice_info, 31, memo_row, 29
+			EMReadScreen notice_stat, 8,  memo_row, 67
+
+			notice_date = trim(notice_date)
+			notice_info = trim(notice_info)
+			notice_stat = trim(notice_stat)
+
+			notices_array(selected_const,    array_counter) = unchecked
+			notices_array(information_const, array_counter) = notice_info & " - " & notice_date & " - Status: " & notice_stat
+			notices_array(WCOM_row_const,    array_counter) = memo_row
+
+			array_counter = array_counter + 1
+			memo_row = memo_row + 1
+
+			EMReadScreen next_notice, 4, memo_row, 30
+			next_notice = trim(next_notice)
+
+		Loop until next_notice = ""
+	End If
+	If array_counter = 0 Then no_notices = TRUE
+End Function
+
+function leave_notice_text(ask_first)
+	EMReadScreen notice_indicator, 6, 2, 72
+
+	If notice_indicator = "FMINFO" Then
+		If ask_first = True Then ask_to_leave_msg = MsgBox("It appears we are in a notice text, in order to contine, we must leave th notice text." & vbCr & vbCr & "Is it alright to leave to notice text now?", vbQuestion + vbYesNo, "Leave Notice Text")
+		If ask_to_leave_msg = vbYes OR ask_first = False Then  PF3
+	End If
+end function
+
+function Select_New_WCOM(notices_array, selected_const, information_const, WCOM_row_const, case_number_known, allow_wcom, allow_memo, notc_month, notc_year, no_notices, specific_prog, allow_multiple_notc, allow_cancel)
+	If allow_wcom = True AND allow_memo = True Then
+		notice_panel = "Select One..."
+	ElseIf allow_wcom = True Then
+		notice_panel = "WCOM"
+	ElseIf allow_memo = True Then
+		notice_panel = "MEMO"
+	End If
+	Do
+	    Do
+	    	err_msg = ""
+
+	    	dlg_y_pos = 85
+	    	dlg_length = 145
+			If no_notices = False Then dlg_length = dlg_length + (UBound(notices_array, 2) * 20)
+
+	        Dialog1 = ""
+	    	BeginDialog Dialog1, 0, 0, 205, dlg_length, "Notices to Print"
+	    	  Text 5, 10, 50, 10, "Case Number"
+	    	  If case_number_known = False Then EditBox 65, 5, 50, 15, MAXIS_case_number
+			  If case_number_known = True Then Text 65, 10, 50, 15, MAXIS_case_number
+	    	  Text 5, 30, 130, 10, "Where is the notice you want to print?"
+	    	  If allow_wcom = True AND allow_memo = True Then
+			      DropListBox 140, 25, 60, 45, "Select One..."+chr(9)+"WCOM"+chr(9)+"MEMO", notice_panel
+			  ElseIf allow_wcom = True Then
+			  	  DropListBox 140, 25, 60, 45, "Select One..."+chr(9)+"WCOM", notice_panel
+			  ElseIf allow_memo = True Then
+			  	  DropListBox 140, 25, 60, 45, "Select One..."+chr(9)+"MEMO", notice_panel
+			  End If
+	    	  Text 5, 50, 120, 10, "In which month was the notice sent?"
+	    	  EditBox 140, 45, 20, 15, notc_month
+	    	  EditBox 165, 45, 20, 15, notc_year
+	    	  ButtonGroup ButtonPressed
+	    	    PushButton 60, 70, 50, 10, "Find Notices", find_notices_button
+	    	  If no_notices = FALSE Then
+	    		  For notices_listed = 0 to UBound(notices_array, 2)
+	    		  	CheckBox 10, dlg_y_pos, 185, 10, notices_array(information_const, notices_listed), notices_array(selected_const, notices_listed)
+	    			dlg_y_pos = dlg_y_pos + 15
+	    		  Next
+	    	  Else
+	    	  	  Text 10, dlg_y_pos, 185, 10, "**No Notices could be found here.**"
+	    		  dlg_y_pos = dlg_y_pos + 15
+	    	  End If
+	    	  dlg_y_pos = dlg_y_pos + 5
+	    	  If case_number_known = False Then EditBox 75, dlg_y_pos, 125, 15, worker_signature
+			  If case_number_known = True Then Text 80, dlg_y_pos, 125, 15, worker_signature
+	    	  dlg_y_pos = dlg_y_pos + 5
+	    	  Text 5, dlg_y_pos, 60, 10, "Worker Signature:"
+	    	  dlg_y_pos = dlg_y_pos + 15
+	    	  If allow_cancel = True Then
+				  ButtonGroup ButtonPressed
+		    	    OkButton 100, dlg_y_pos, 50, 15
+		    	    CancelButton 150, dlg_y_pos, 50, 15
+			  Else
+				  ButtonGroup ButtonPressed
+					OkButton 150, dlg_y_pos, 50, 15
+			  End If
+	    	  dlg_y_pos = dlg_y_pos + 5
+	    	  If case_number_known = False Then CheckBox 5, dlg_y_pos, 90, 10, "Check here to case note.", case_note_check
+	    	EndDialog
+
+	    	Dialog Dialog1
+	    	If allow_cancel = True Then cancel_confirmation
+
+	    	notice_selected = FALSE
+			If no_notices = False Then
+		    	For notice_to_print = 0 to UBound(notices_array, 2)
+		    		If notices_array(selected_const, notice_to_print) = checked Then
+						If allow_multiple_notc = False AND notice_selected = TRUE AND InStr(err_msg, "One one NOTICE can be selected.") = 0 Then err_msg = err_msg & vbNewLine &  "- One one NOTICE can be selected."
+						notice_selected = TRUE
+					End If
+		    	Next
+			End If
+
+			If case_number_known = False Then
+	    		If MAXIS_case_number = "" Then err_msg = err_msg & vbNewLine & "- Enter a Case Number."
+			End If
+	    	If notice_panel = "Select One..." Then err_msg = err_msg & vbNewLine & "- Select where the notice to print is."
+	    	If notc_month = "" or notc_year = "" Then err_msg = err_msg & vbNewLine & "- Enter footer month and year."
+	    	If notice_selected = False Then err_msg = err_msg & vbNewLine & "- Select a notice to be copied to a Word Document."
+
+
+	    	If ButtonPressed = find_notices_button then
+	    		If notice_panel <> "Select One..." AND MAXIS_case_number <> "" AND notc_month <> "" AND notc_year <> "" Then
+	    			Call navigate_to_MAXIS_screen ("SPEC", notice_panel)
+	    			If notice_panel = "MEMO" then
+	    				EMWriteScreen notc_month, 3, 48
+	    				EMWriteScreen MAXIS_footer_year, 3, 53
+	    			ElseIf notice_panel = "WCOM" Then
+	    				EMWriteScreen notc_month, 3, 46
+	    				EMWriteScreen notc_year, 3, 51
+	    			End If
+	    			transmit
+					Call Create_List_Of_Notices(notice_panel, notices_array, selected_const, information_const, WCOM_row_const, no_notices, specific_prog)
+	    			err_msg = "LOOP"
+	    		Else
+	    			err_msg = err_msg & vbNewLine & "!!! Cannot read a list of notices without a panel selected, a case number entered, and footer month & year entered !!!"
+	    		End If
+	    	End If
+
+	    	If err_msg <> "" AND left(err_msg, 4) <> "LOOP" Then MsgBox "*** Please resolve to continue ***" & vbNewLine & err_msg
+
+	    Loop Until err_msg = ""
+	    Call check_for_password(are_we_passworded_out)
+	Loop until are_we_passworded_out = FALSE
+end function
+
+'WHAT DO WE NEED TO START WITH?
+'Gather the Case Number
+'Determine Contact Type
+'Determine which programs are being requested
+	'If HC - determine the individual the request is for
+'If HC - determine if MAXIS or METS
+'Determine if we need Current Benefit or Issuance over a Time period.
+
+
+'WHAT SHOULD THE SCRIPT DO?
+'Resend an ELIGIBILITY NOTICE
+'Create Word Doc of the ELIGIBILITY NOTICE
+'Create a SPEC/MEMO with information requested
+'Create Word Doc of the SPEC/MEMO
+'Note the information requested and how provided.
+
+
+'FIRST DIALOG - CN & Contact type - this will NOT be in a function since if placed in another script - this will already be known
+'Ask if the request is from PHA
+'Ask if the request is for medical payment history'
+
+
+'Script will review case to determine:
+'program status
+'Most recent ELIG NOTICE
+'Current benefit amount
+'Determine in MMIS is running
+
+
+'SECOND DIALOG - display the found information
+'ask the questions about what is needed and how to outpuut
+
+'CREATE NOTICES OR RESEND
+
+'NOTING
+
+EMConnect ""
+
+Call MAXIS_case_number_finder(MAXIS_case_number)
+MAXIS_footer_month = CM_plus_1_mo
+MAXIS_footer_year = CM_plus_1_yr
+clt_in_person = FALSE
+check_for_MAXIS(False)
+
+
+Do
+	Do
+		err_msg = ""
+
+		Dialog1 = ""
+		BeginDialog Dialog1, 0, 0, 301, 130, "Verification of Public Assistance"
+		  EditBox 85, 50, 60, 15, MAXIS_case_number
+		  DropListBox 85, 70, 210, 45, "Resident on the Phone (or AREP)"+chr(9)+"Resident in Person (or AREP)"+chr(9)+"PHA (Public Housing form)"+chr(9)+"Request of Medical Payment History (from Resident or AREP)", contact_type
+		  EditBox 85, 90, 210, 15, worker_signature
+		  ButtonGroup ButtonPressed
+		    OkButton 195, 110, 50, 15
+		    CancelButton 245, 110, 50, 15
+		    PushButton 120, 30, 175, 15, "HSR Manual for Verification of Public Assistance", verif_pa_hsr_manual_btn
+		  Text 10, 10, 290, 20, "PA Verif Request script will assist you in following the procedure for Client Requests of their Public Assistance benefits. Details of this process can be found in the HSR Manual."
+		  Text 30, 55, 50, 10, "Case Number:"
+		  Text 15, 75, 65, 10, "Source of Request:"
+		  Text 20, 95, 60, 10, "Worker Signature:"
+		EndDialog
+
+		dialog Dialog1
+		cancel_without_confirmation
+
+		Call validate_MAXIS_case_number(err_msg, "*")
+		If ButtonPressed = verif_pa_hsr_manual_btn Then
+			run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Verification-of-public-assistance.aspx"
+			err_msg = "LOOP"
+		End If
+
+		If err_msg <> "LOOP" and err_msg <> "" Then MsgBox "****** NOTICE ******" & vbCr & vbCr & "Please resolve to continue:" & vbCr & err_msg
+	Loop until err_msg = ""
+	Call check_for_password(are_we_passworded_out)
+Loop until are_we_passworded_out = False
+
+If contact_type = "PHA (Public Housing form)" Then
+End If
+If contact_type = "Request of Medical Payment History (from Resident or AREP)" Then
+End If
+If contact_type = "Documents from ECF" Then
+End If
+
+
+Call back_to_SELF
+EMReadScreen MX_region, 12, 22, 48
+MX_region = trim(MX_region)
+If MX_region = "INQUIRY DB" Then
+    continue_in_inquiry = MsgBox("It appears you are in INQUIRY. Income information cannot be saved to STAT and a CASE/NOTE cannot be created." & vbNewLine & vbNewLine & "Do you wish to continue?", vbQuestion + vbYesNo, "Continue in Inquiry?")
+    If continue_in_inquiry = vbNo Then script_end_procedure("Script ended since it was started in Inquiry.")
+End If
+' Call check_if_mmis_in_session(mmis_running, MX_region)
+
+If contact_type = "Resident in Person (or AREP)" Then clt_in_person = True
+
+Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status)
+
+If ga_status = "ACTIVE" Then
+
+	Call navigate_to_MAXIS_screen("MONY", "INQB")
+	inqb_row = 6
+	Do
+		EMReadScreen inqb_program, 2, inqb_row, 23
+		If inqb_program = "GA" Then
+			EMReadScreen ga_amount, 10, 6, 38
+			ga_amount = trim(ga_amount)
+			Exit Do
+		End If
+		inqb_row = inqb_row + 1
+	Loop until inqb_program = "  "
+
+	Call back_to_SELF
+
+ 	Call navigate_to_MAXIS_screen("ELIG", "GA")
+	EMWriteScreen "99", 20, 78
+	transmit
+
+	'This brings up the cash versions of eligibilty results to search for approved versions
+	status_row = 7
+	Do
+		EMReadScreen app_status, 8, status_row, 50
+		' If trim(app_status) = "" then script_end_procedure("No approved eligibility results exists in " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". Please review case.")
+		If app_status = "UNAPPROV" Then status_row = status_row + 1
+	Loop until  app_status = "APPROVED" or trim(app_status) = ""
+	EMReadScreen ga_approved_date, 8, status_row, 26
+	ga_approved_date = DateAdd("m", 1, ga_approved_date)
+	ga_month = right("00" & DatePart("m", ga_approved_date), 2)
+	ga_year = right(DatePart("yyyy", ga_approved_date), 2)
+
+	Call back_to_SELF
+
+	Call navigate_to_MAXIS_screen("SPEC", "WCOM")
+	EMWriteScreen ga_month, 3, 46
+	EMWriteScreen ga_year, 3, 51
+	transmit
+
+	wcom_row = 7
+	Do
+		EMReadScreen prg_typ, 2, wcom_row, 26
+		EMReadScreen notc_title, 30, wcom_row, 30
+
+		If prg_typ = "GA" AND InStr(notc_title, "ELIG") <> 0 Then
+			ga_wcom_row = wcom_row
+			ga_wcom_position = wcom_row - 6
+
+			EMReadScreen notice_date, 8,  wcom_row, 16
+			EMReadScreen notice_prog, 2,  wcom_row, 26
+			EMReadScreen notice_info, 31, wcom_row, 30
+			EMReadScreen notice_stat, 8,  wcom_row, 71
+
+			notice_date = trim(notice_date)
+			notice_prog = trim(notice_prog)
+			notice_info = trim(notice_info)
+			notice_stat = trim(notice_stat)
+
+			ga_wcom_text = notice_info & " - " & notice_prog & " - " & notice_date & " - Status: " & notice_stat
+		End If
+		wcom_row = wcom_row + 1
+	Loop until prg_typ = "  " OR ga_wcom_text <> ""
+	If ga_wcom_text = "" Then ga_wcom_text = "NO WCOM Found"
+
+End If
+
+If msa_status = "ACTIVE" Then
+	Call navigate_to_MAXIS_screen("MONY", "INQB")
+	inqb_row = 6
+	Do
+		EMReadScreen inqb_program, 2, inqb_row, 23
+		If inqb_program = "MS" Then
+			EMReadScreen msa_amount, 10, 6, 38
+			msa_amount = trim(msa_amount)
+			Exit Do
+		End If
+		inqb_row = inqb_row + 1
+	Loop until inqb_program = "  "
+
+	Call back_to_SELF
+
+	Call navigate_to_MAXIS_screen("ELIG", "MSA")
+	EMWriteScreen "99", 20, 79
+	transmit
+
+	'This brings up the cash versions of eligibilty results to search for approved versions
+	status_row = 7
+	Do
+		EMReadScreen app_status, 8, status_row, 50
+		' If trim(app_status) = "" then script_end_procedure("No approved eligibility results exists in " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". Please review case.")
+		If app_status = "UNAPPROV" Then status_row = status_row + 1
+	Loop until  app_status = "APPROVED" or trim(app_status) = ""
+	EMReadScreen msa_approved_date, 8, status_row, 26
+	msa_approved_date = DateAdd("m", 1, msa_approved_date)
+	msa_month = right("00" & DatePart("m", msa_approved_date), 2)
+	msa_year = right(DatePart("yyyy", msa_approved_date), 2)
+	transmit
+
+	Call back_to_SELF
+
+	Call navigate_to_MAXIS_screen("SPEC", "WCOM")
+	EMWriteScreen msa_month, 3, 46
+	EMWriteScreen msa_year, 3, 51
+	transmit
+
+	wcom_row = 7
+	Do
+		EMReadScreen prg_typ, 2, wcom_row, 26
+		EMReadScreen notc_title, 30, wcom_row, 30
+
+		If prg_typ = "MS" AND InStr(notc_title, "ELIG") <> 0 Then
+			ga_wcom_row = wcom_row
+			ga_wcom_position = wcom_row - 6
+
+			EMReadScreen notice_date, 8,  wcom_row, 16
+			EMReadScreen notice_prog, 2,  wcom_row, 26
+			EMReadScreen notice_info, 31, wcom_row, 30
+			EMReadScreen notice_stat, 8,  wcom_row, 71
+
+			notice_date = trim(notice_date)
+			notice_prog = trim(notice_prog)
+			notice_info = trim(notice_info)
+			notice_stat = trim(notice_stat)
+
+			msa_wcom_text = notice_info & " - " & notice_prog & " - " & notice_date & " - Status: " & notice_stat
+		End If
+		wcom_row = wcom_row + 1
+	Loop until prg_typ = "  " OR msa_wcom_text <> ""
+	If msa_wcom_text = "" Then msa_wcom_text = "NO WCOM Found"
+End If
+
+If mfip_status = "ACTIVE" Then
+	Call navigate_to_MAXIS_screen("MONY", "INQB")
+	inqb_row = 6
+	Do
+		EMReadScreen inqb_program, 2, inqb_row, 23
+		If inqb_program = "MF" Then
+			EMReadScreen mfip_amount, 10, 6, 38
+			mfip_amount = trim(mfip_amount)
+			Exit Do
+		End If
+		inqb_row = inqb_row + 1
+	Loop until inqb_program = "  "
+
+	Call back_to_SELF
+
+	Call navigate_to_MAXIS_screen("ELIG", "MFIP")
+	EMWriteScreen "99", 20, 79
+	transmit
+
+	'This brings up the cash versions of eligibilty results to search for approved versions
+	status_row = 7
+	Do
+		EMReadScreen app_status, 8, status_row, 50
+		' If trim(app_status) = "" then script_end_procedure("No approved eligibility results exists in " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". Please review case.")
+		If app_status = "UNAPPROV" Then status_row = status_row + 1
+	Loop until  app_status = "APPROVED" or trim(app_status) = ""
+	EMReadScreen mfip_approved_date, 8, status_row, 26
+	mfip_approved_date = DateAdd("m", 1, mfip_approved_date)
+	mfip_month = right("00" & DatePart("m", mfip_approved_date), 2)
+	mfip_year = right(DatePart("yyyy", mfip_approved_date), 2)
+	transmit
+
+	Call back_to_SELF
+
+	Call navigate_to_MAXIS_screen("SPEC", "WCOM")
+	EMWriteScreen mfip_month, 3, 46
+	EMWriteScreen mfip_year, 3, 51
+	transmit
+
+	wcom_row = 7
+	Do
+		EMReadScreen prg_typ, 2, wcom_row, 26
+		EMReadScreen notc_title, 30, wcom_row, 30
+
+		If prg_typ = "MF" AND InStr(notc_title, "ELIG") <> 0 Then
+			ga_wcom_row = wcom_row
+			ga_wcom_position = wcom_row - 6
+
+			EMReadScreen notice_date, 8,  wcom_row, 16
+			EMReadScreen notice_prog, 2,  wcom_row, 26
+			EMReadScreen notice_info, 31, wcom_row, 30
+			EMReadScreen notice_stat, 8,  wcom_row, 71
+
+			notice_date = trim(notice_date)
+			notice_prog = trim(notice_prog)
+			notice_info = trim(notice_info)
+			notice_stat = trim(notice_stat)
+
+			mfip_wcom_text = notice_info & " - " & notice_prog & " - " & notice_date & " - Status: " & notice_stat
+		End If
+		wcom_row = wcom_row + 1
+	Loop until prg_typ = "  " OR mfip_wcom_text <> ""
+	If mfip_wcom_text = "" Then mfip_wcom_text = "NO WCOM Found"
+End If
+If dwp_status = "ACTIVE" Then
+End If
+
+'If grh_status,
+If snap_status = "ACTIVE" Then
+	Call navigate_to_MAXIS_screen("MONY", "INQB")
+	inqb_row = 6
+	Do
+		EMReadScreen inqb_program, 2, inqb_row, 23
+		If inqb_program = "FS" Then
+			EMReadScreen snap_amount, 10, 6, 38
+			snap_amount = trim(snap_amount)
+			Exit Do
+		End If
+		inqb_row = inqb_row + 1
+	Loop until inqb_program = "  "
+
+	Call back_to_SELF
+
+	Call navigate_to_MAXIS_screen("ELIG", "FS")
+	EMWriteScreen "99", 19, 78
+	transmit
+
+	'This brings up the cash versions of eligibilty results to search for approved versions
+	status_row = 7
+	Do
+		EMReadScreen app_status, 8, status_row, 50
+		' If trim(app_status) = "" then script_end_procedure("No approved eligibility results exists in " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". Please review case.")
+		If app_status = "UNAPPROV" Then status_row = status_row + 1
+	Loop until  app_status = "APPROVED" or trim(app_status) = ""
+	EMReadScreen snap_approved_date, 8, status_row, 26
+	snap_approved_date = DateAdd("m", 1, snap_approved_date)
+	snap_month = right("00" & DatePart("m", snap_approved_date), 2)
+	snap_year = right(DatePart("yyyy", snap_approved_date), 2)
+
+	Call back_to_SELF
+
+	Call navigate_to_MAXIS_screen("SPEC", "WCOM")
+	EMWriteScreen snap_month, 3, 46
+	EMWriteScreen snap_year, 3, 51
+	transmit
+
+	wcom_row = 7
+	Do
+		EMReadScreen prg_typ, 2, wcom_row, 26
+		EMReadScreen notc_title, 30, wcom_row, 30
+
+		If prg_typ = "FS" AND InStr(notc_title, "ELIG") <> 0 Then
+			snap_wcom_row = wcom_row
+			snap_wcom_position = wcom_row - 6
+			EMReadScreen notice_date, 8,  wcom_row, 16
+			EMReadScreen notice_prog, 2,  wcom_row, 26
+			EMReadScreen notice_info, 31, wcom_row, 30
+			EMReadScreen notice_stat, 8,  wcom_row, 71
+
+			notice_date = trim(notice_date)
+			notice_prog = trim(notice_prog)
+			notice_info = trim(notice_info)
+			notice_stat = trim(notice_stat)
+
+			snap_wcom_text = notice_info & " - " & notice_prog & " - " & notice_date & " - Status: " & notice_stat
+		End If
+		wcom_row = wcom_row + 1
+	Loop until prg_typ = "  " OR snap_wcom_text <> ""
+	If snap_wcom_text = "" Then snap_wcom_text = "NO WCOM Found"
+End If
+
+If ma_status = "ACTIVE" OR msp_status = "ACTIVE" Then
+End If
+
+snap_prog_history_exists = False
+ga_prog_history_exists = False
+msa_prog_history_exists = False
+mfip_prog_history_exists = False
+dwp_prog_history_exists = False
+grh_prog_history_exists = False
+
+Call navigate_to_MAXIS_screen("CASE", "CURR")
+EMWriteScreen "X", 4, 9
+transmit
+
+If snap_status <> "ACTIVE" Then
+	EMWriteScreen "FS", 3, 19
+	transmit
+
+	hist_row = 8
+	Do
+		EMReadScreen prog_hist_status, 6, hist_row, 38
+		If prog_hist_status = "ACTIVE" Then snap_prog_history_exists = True
+		hist_row = hist_row + 1
+		If hist_row = 18 Then
+			PF8
+			hist_row = 8
+			EMReadScreen end_of_list, 9, 24, 14
+			If end_of_list = "LAST PAGE" then Exit Do
+		End If
+	Loop until prog_hist_status = "      " OR prog_hist_status = "ACTIVE"
+End If
+If ga_status <> "ACTIVE" Then
+	EMWriteScreen "GA", 3, 19
+	transmit
+
+	hist_row = 8
+	Do
+		EMReadScreen prog_hist_status, 6, hist_row, 38
+		If prog_hist_status = "ACTIVE" Then ga_prog_history_exists = True
+		hist_row = hist_row + 1
+		If hist_row = 18 Then
+			PF8
+			hist_row = 8
+			EMReadScreen end_of_list, 9, 24, 14
+			If end_of_list = "LAST PAGE" then Exit Do
+		End If
+	Loop until prog_hist_status = "      " OR prog_hist_status = "ACTIVE"
+End If
+If msa_status <> "ACTIVE" Then
+	EMWriteScreen "MS", 3, 19
+	transmit
+
+	hist_row = 8
+	Do
+		EMReadScreen prog_hist_status, 6, hist_row, 38
+		If prog_hist_status = "ACTIVE" Then msa_prog_history_exists = True
+		hist_row = hist_row + 1
+		If hist_row = 18 Then
+			PF8
+			hist_row = 8
+			EMReadScreen end_of_list, 9, 24, 14
+			If end_of_list = "LAST PAGE" then Exit Do
+		End If
+	Loop until prog_hist_status = "      " OR prog_hist_status = "ACTIVE"
+End If
+If mfip_status <> "ACTIVE" Then
+	EMWriteScreen "MF", 3, 19
+	transmit
+
+	hist_row = 8
+	Do
+		EMReadScreen prog_hist_status, 6, hist_row, 38
+		If prog_hist_status = "ACTIVE" Then mfip_prog_history_exists = True
+		hist_row = hist_row + 1
+		If hist_row = 18 Then
+			PF8
+			hist_row = 8
+			EMReadScreen end_of_list, 9, 24, 14
+			If end_of_list = "LAST PAGE" then Exit Do
+		End If
+	Loop until prog_hist_status = "      " OR prog_hist_status = "ACTIVE"
+End If
+If dwp_status <> "ACTIVE" Then
+	EMWriteScreen "DW", 3, 19
+	transmit
+
+	hist_row = 8
+	Do
+		EMReadScreen prog_hist_status, 6, hist_row, 38
+		If prog_hist_status = "ACTIVE" Then dwp_prog_history_exists = True
+		hist_row = hist_row + 1
+		If hist_row = 18 Then
+			PF8
+			hist_row = 8
+			EMReadScreen end_of_list, 9, 24, 14
+			If end_of_list = "LAST PAGE" then Exit Do
+		End If
+	Loop until prog_hist_status = "      " OR prog_hist_status = "ACTIVE"
+End If
+If grh_status <> "ACTIVE" Then
+	EMWriteScreen "GR", 3, 19
+	transmit
+
+	hist_row = 8
+	Do
+		EMReadScreen prog_hist_status, 6, hist_row, 38
+		If prog_hist_status = "ACTIVE" Then grh_prog_history_exists = True
+		hist_row = hist_row + 1
+		If hist_row = 18 Then
+			PF8
+			hist_row = 8
+			EMReadScreen end_of_list, 9, 24, 14
+			If end_of_list = "LAST PAGE" then Exit Do
+		End If
+	Loop until prog_hist_status = "      " OR prog_hist_status = "ACTIVE"
+End If
+Call back_to_SELF
+' MsgBox "GA" & vbCr & "GA Amount - " & ga_amount & vbCr & "GA WCOM row - " & ga_wcom_row & vbCr & "GA WCOM position - "  & ga_wcom_position & vbCr &  "GA WCOM:" & vbCr & ga_wcom_text & vbCr & vbCr &_
+	 ' "SNAP" & vbCr & "FS Amount - " & snap_amount & vbCr & "FS WCOM row - " & snap_wcom_row & vbCr & "FS WCOM position - "  & snap_wcom_position & vbCr &  "FS WCOM:" & vbCr & snap_wcom_text
+
+snap_change_wcom_btn = 1010
+ga_change_wcom_btn   = 1020
+msa_change_wcom_btn  = 1030
+mfip_change_wcom_btn = 1040
+dwp_change_wcom_btn  = 1050
+grh_change_wcom_btn  = 1060
+hc_change_wcom_btn   = 1070
+
+snap_wcom_btn = 110
+ga_wcom_btn   = 120
+msa_wcom_btn  = 130
+mfip_wcom_btn = 140
+dwp_wcom_btn  = 150
+grh_wcom_btn  = 160
+hc_wcom_btn   = 170
+
+snap_program_history_button = 51
+ga_program_history_button 	= 52
+msa_program_history_button 	= 53
+mfip_program_history_button = 54
+dwp_program_history_button 	= 55
+grh_program_history_button 	= 56
+hc_program_history_button 	= 57
+
+Dim notices_array()
+ReDim notices_array(3,0)
+
+Const selected = 0
+Const information = 1
+Const WCOM_search_row = 2
+
+ Do
+ 	Do
+ 		err_msg = ""
+		y_pos = 30
+
+ 		Dialog1 = ""
+		BeginDialog Dialog1, 0, 0, 551, 385, "Verification of Public Assistance"
+		  ButtonGroup ButtonPressed
+			If snap_status = "ACTIVE" Then
+				GroupBox 15, y_pos, 450, 75, "SNAP"
+				y_pos = y_pos + 15
+				Text 20, y_pos, 120, 10, "SNAP Assistance Verification to be sent via "
+				DropListBox 140, y_pos - 5, 200, 45, "Select One..."+chr(9)+"Resend WCOM - Eligibility Notice"+chr(9)+"Create New MEMO with range of Months"+chr(9)+"No Verification of SNAP Needed", snap_verification_method
+				y_pos = y_pos + 10
+				Text 25, y_pos, 200, 10, "SNAP current benefit amount appears to be $" & snap_amount & "."
+				y_pos = y_pos + 10
+				Text 25, y_pos, 400, 10, "Most recent SNAP Eligibility Notice appears to have been sent for benefit month: " & snap_month & "/" & snap_year & ". WCOM Information:"
+				y_pos = y_pos + 10
+				Text 30, y_pos, 200, 10, snap_wcom_text
+				PushButton 225, y_pos, 100, 10, "Go To this WCOM", snap_wcom_btn
+				PushButton 330, y_pos, 100, 10, "Select Different WCOM", snap_change_wcom_btn
+				y_pos = y_pos + 15
+				Text 25, y_pos, 105, 10, "Date range of issuance needed:"
+				EditBox 130, y_pos - 5, 30, 15, snap_start_month
+				Text 160, y_pos, 5, 10, "---"
+				EditBox 165, y_pos - 5, 30, 15, snap_end_month
+				Text 200, y_pos, 100, 10, "(use mm/yy format)"
+				y_pos = y_pos + 15
+			End If
+			If ga_status = "ACTIVE" Then
+				GroupBox 15, y_pos, 450, 75, "GA"
+				y_pos = y_pos + 15
+				Text 20, y_pos, 120, 10, "GA Assistance Verification to be sent via "
+				DropListBox 140, y_pos - 5, 200, 45, "Select One..."+chr(9)+"Resend WCOM - Eligibility Notice"+chr(9)+"Create New MEMO with range of Months"+chr(9)+"No Verification of GA Needed", ga_verification_method
+				y_pos = y_pos + 10
+				Text 25, y_pos, 200, 10, "GA current benefit amount appears to be $" & ga_amount & "."
+				y_pos = y_pos + 10
+				Text 25, y_pos, 400, 10, "Most recent GA Eligibility Notice appears to have been sent for benefit month: " & ga_month & "/" & ga_year & ". WCOM Information:"
+				y_pos = y_pos + 10
+				Text 30, y_pos, 200, 10, ga_wcom_text
+				PushButton 225, y_pos, 100, 10, "Go To WCOM", ga_wcom_btn
+				PushButton 330, y_pos, 100, 10, "Select Different WCOM", ga_change_wcom_btn
+				y_pos = y_pos + 15
+				Text 25, y_pos, 105, 10, "Date range of issuance needed:"
+				EditBox 130, y_pos - 5, 30, 15, ga_start_month
+				Text 160, y_pos, 5, 10, "---"
+				EditBox 165, y_pos - 5, 30, 15,ga_end_month
+				Text 200, y_pos, 100, 10, "(use mm/yy format)"
+				y_pos = y_pos + 15
+			End If
+			If msa_status = "ACTIVE" Then
+				GroupBox 15, y_pos, 450, 75, "MSA"
+				y_pos = y_pos + 15
+				Text 20, y_pos, 120, 10, "MSA Assistance Verification to be sent via "
+				DropListBox 140, y_pos - 5, 200, 45, "Select One..."+chr(9)+"Resend WCOM - Eligibility Notice"+chr(9)+"Create New MEMO with range of Months"+chr(9)+"No Verification of MSA Needed", msa_verification_method
+				y_pos = y_pos + 10
+				Text 25, y_pos, 200, 10, "MSA current benefit amount appears to be $" & msa_amount & "."
+				y_pos = y_pos + 10
+				Text 25, y_pos, 400, 10, "Most recent MSA Eligibility Notice appears to have been sent for benefit month: " & msa_month & "/" & msa_year & ". WCOM Information:"
+				y_pos = y_pos + 10
+				Text 30, y_pos, 200, 10, msa_wcom_text
+				PushButton 225, y_pos, 100, 10, "Go To WCOM", msa_wcom_btn
+				PushButton 330, y_pos, 100, 10, "Select Different WCOM", msa_change_wcom_btn
+				y_pos = y_pos + 15
+				Text 25, y_pos, 105, 10, "Date range of issuance needed:"
+				EditBox 130, y_pos - 5, 30, 15, msa_start_month
+				Text 160, y_pos, 5, 10, "---"
+				EditBox 165, y_pos - 5, 30, 15,msa_end_month
+				Text 200, y_pos, 100, 10, "(use mm/yy format)"
+				y_pos = y_pos + 15
+			End If
+			If mfip_status = "ACTIVE" Then
+				GroupBox 15, y_pos, 450, 75, "MFIP"
+				y_pos = y_pos + 15
+				Text 20, y_pos, 120, 10, "MFIP Assistance Verification to be sent via "
+				DropListBox 140, y_pos - 5, 200, 45, "Select One..."+chr(9)+"Resend WCOM - Eligibility Notice"+chr(9)+"Create New MEMO with range of Months"+chr(9)+"No Verification of MFIP Needed", mfip_verification_method
+				y_pos = y_pos + 10
+				Text 25, y_pos, 200, 10, "MFIP current benefit amount appears to be $" & mfip_amount & "."
+				y_pos = y_pos + 10
+				Text 25, y_pos, 400, 10, "Most recent MFIP Eligibility Notice appears to have been sent for benefit month: " & mfip_month & "/" & mfip_year & ". WCOM Information:"
+				y_pos = y_pos + 10
+				Text 30, y_pos, 200, 10, mfip_wcom_text
+				PushButton 225, y_pos, 100, 10, "Go To WCOM", mfip_wcom_btn
+				PushButton 330, y_pos, 100, 10, "Select Different WCOM", mfip_change_wcom_btn
+				y_pos = y_pos + 15
+				Text 25, y_pos, 105, 10, "Date range of issuance needed:"
+				EditBox 130, y_pos - 5, 30, 15, mfip_start_month
+				Text 160, y_pos, 5, 10, "---"
+				EditBox 165, y_pos - 5, 30, 15,mfip_end_month
+				Text 200, y_pos, 100, 10, "(use mm/yy format)"
+				y_pos = y_pos + 15
+			End If
+			If dwp_status = "ACTIVE" Then
+			End If
+			If grh_status = "ACTIVE" Then
+			End If
+			If ma_status = "ACTIVE" OR msp_status = "ACTIVE" Then
+			End If
+			' Text 20, 300, 200, 10, "Select the method of Notification:"
+			' DropListBox 225, 295, 100, 45, "Select One..."+chr(9)+"Resend Eligibility Notices"+chr(9)+"Create new WCOM with Details", verification_method_selection
+			y_pos = y_pos + 5
+
+			If snap_status <> "ACTIVE" Then
+				If snap_prog_history_exists = True Then
+					Text 20, y_pos, 100, 10, "SNAP is NOT currently Active"
+					PushButton 120, y_pos-2, 100, 13, "View SNAP Program History", snap_program_history_button
+					y_pos = y_pos + 15
+					CheckBox 25, y_pos, 210, 10, "Check here to include amounts of SNAP benefits issued from ", snap_not_actv_memo_for_old_beneftis_checkbox
+					EditBox 235, y_pos - 5, 30, 15, snap_start_month
+					Text 265, y_pos, 5, 10, "---"
+					EditBox 270, y_pos - 5, 30, 15, snap_end_month
+					Text 305, y_pos, 100, 10, "(use mm/yy format)"
+					y_pos = y_pos + 15
+				Else
+					Text 20, y_pos, 300, 10, "SNAP is NOT currently Active and there is no ACTIVE Program history for this case."
+					y_pos = y_pos + 15
+				End If
+			End If
+			If ga_status <> "ACTIVE" Then
+				If ga_prog_history_exists = True Then
+					Text 20, y_pos, 100, 10, "GA is NOT currently Active"
+					PushButton 120, y_pos-2, 100, 13, "View GA Program History", ga_program_history_button
+					y_pos = y_pos + 15
+					CheckBox 25, y_pos, 210, 10, "Check here to include amounts of GA benefits issued from ", ga_not_actv_memo_for_old_beneftis_checkbox
+					EditBox 235, y_pos - 5, 30, 15, ga_start_month
+					Text 265, y_pos, 5, 10, "---"
+					EditBox 270, y_pos - 5, 30, 15, ga_end_month
+					Text 305, y_pos, 100, 10, "(use mm/yy format)"
+					y_pos = y_pos + 15
+				Else
+					Text 20, y_pos, 300, 10, "GA is NOT currently Active and there is no ACTIVE Program history for this case."
+					y_pos = y_pos + 15
+				End If
+			End If
+			If msa_status <> "ACTIVE" Then
+				If msa_prog_history_exists = True Then
+					Text 20, y_pos, 100, 10, "MSA is NOT currently Active"
+					PushButton 120, y_pos-2, 100, 13, "View MSA Program History", msa_program_history_button
+					y_pos = y_pos + 15
+					CheckBox 25, y_pos, 210, 10, "Check here to include amounts of MSA benefits issued from ", msa_not_actv_memo_for_old_beneftis_checkbox
+					EditBox 235, y_pos - 5, 30, 15, msa_start_month
+					Text 265, y_pos, 5, 10, "---"
+					EditBox 270, y_pos - 5, 30, 15, msa_end_month
+					Text 305, y_pos, 100, 10, "(use mm/yy format)"
+					y_pos = y_pos + 15
+				Else
+					Text 20, y_pos, 300, 10, "MSA is NOT currently Active and there is no ACTIVE Program history for this case."
+					y_pos = y_pos + 15
+				End If
+			End If
+			If mfip_status <> "ACTIVE" Then
+				If mfip_prog_history_exists = True Then
+					Text 20, y_pos, 100, 10, "MFIP is NOT currently Active"
+					PushButton 120, y_pos-2, 100, 13, "View MFIP Program History", mfip_program_history_button
+					y_pos = y_pos + 15
+					CheckBox 25, y_pos, 210, 10, "Check here to include amounts of MFIP benefits issued from ", mfip_not_actv_memo_for_old_beneftis_checkbox
+					EditBox 235, y_pos - 5, 30, 15, mfip_start_month
+					Text 265, y_pos, 5, 10, "---"
+					EditBox 270, y_pos - 5, 30, 15, mfip_end_month
+					Text 305, y_pos, 100, 10, "(use mm/yy format)"
+					y_pos = y_pos + 15
+				Else
+					Text 20, y_pos, 300, 10, "MFIP is NOT currently Active and there is no ACTIVE Program history for this case."
+					y_pos = y_pos + 15
+				End If
+			End If
+			If dwp_status <> "ACTIVE" Then
+				If dwp_prog_history_exists = True Then
+					Text 20, y_pos, 100, 10, "DWP is NOT currently Active"
+					PushButton 120, y_pos-2, 100, 13, "View DWP Program History", dwp_program_history_button
+					y_pos = y_pos + 15
+					CheckBox 25, y_pos, 210, 10, "Check here to include amounts of DWP benefits issued from ", dwp_not_actv_memo_for_old_beneftis_checkbox
+					EditBox 235, y_pos - 5, 30, 15, dwp_start_month
+					Text 265, y_pos, 5, 10, "---"
+					EditBox 270, y_pos - 5, 30, 15, dwp_end_month
+					Text 305, y_pos, 100, 10, "(use mm/yy format)"
+					y_pos = y_pos + 15
+				Else
+					Text 20, y_pos, 300, 10, "DWP is NOT currently Active and there is no ACTIVE Program history for this case."
+					y_pos = y_pos + 15
+				End If
+			End If
+			If grh_status <> "ACTIVE" Then
+				If grh_prog_history_exists = True Then
+					Text 20, y_pos, 100, 10, "GRH is NOT currently Active"
+					PushButton 120, y_pos-2, 100, 13, "View GRH Program History", grh_program_history_button
+					y_pos = y_pos + 15
+					CheckBox 25, y_pos, 210, 10, "Check here to include amounts of GRH benefits issued from ", grh_not_actv_memo_for_old_beneftis_checkbox
+					EditBox 235, y_pos - 5, 30, 15, grh_start_month
+					Text 265, y_pos, 5, 10, "---"
+					EditBox 270, y_pos - 5, 30, 15, grh_end_month
+					Text 305, y_pos, 100, 10, "(use mm/yy format)"
+					y_pos = y_pos + 15
+				Else
+					Text 20, y_pos, 300, 10, "GRH is NOT currently Active and there is no ACTIVE Program history for this case."
+					y_pos = y_pos + 15
+				End If
+			End If
+			If ma_status <> "ACTIVE" AND msp_status <> "ACTIVE" Then
+			End If
+
+
+			OkButton 445, 365, 50, 15
+			CancelButton 495, 365, 50, 15
+			PushButton 35, 345, 25, 10, "CURR", CASE_CURR_button
+		    PushButton 60, 345, 25, 10, "PERS", CASE_PERS_button
+		    PushButton 85, 345, 25, 10, "NOTE", CASE_NOTE_button
+		    PushButton 160, 345, 25, 10, "XFER", SPEC_XFER_button
+		    PushButton 185, 345, 25, 10, "WCOM", SPEC_WCOM_button
+		    PushButton 210, 345, 25, 10, "MEMO", SPEC_MEMO_button
+		    PushButton 35, 355, 25, 10, "PROG", PROG_button
+		    PushButton 60, 355, 25, 10, "MEMB", MEMB_button
+		    PushButton 85, 355, 25, 10, "REVW", REVW_button
+		    PushButton 160, 355, 25, 10, "INQB", MONY_INQB_button
+		    PushButton 185, 355, 25, 10, "INQD", MONY_INQB_button
+		    PushButton 210, 355, 25, 10, "INQX", MONY_INQB_button
+		    PushButton 35, 365, 25, 10, "SNAP", ELIG_FS_button
+		    PushButton 60, 365, 25, 10, "MFIP", ELIG_MFIP_button
+		    PushButton 85, 365, 25, 10, "DWP", ELIG_DWP_button
+		    PushButton 110, 365, 25, 10, "GA", ELIG_GA_button
+		    PushButton 135, 365, 25, 10, "MSA", ELIG_MSA_button
+		    PushButton 160, 365, 25, 10, "GRH", ELIG_GRH_button
+		    PushButton 185, 365, 25, 10, "HC", ELIG_HC_button
+		    PushButton 210, 365, 25, 10, "SUMM", ELIG_SUMM_button
+		    PushButton 235, 365, 25, 10, "DENY", ELIG_DENY_button
+		  Text 250, 5, 290, 10, "NOTICE Information for Verification of Public Assistance for Case # " & MAXIS_case_number
+		  GroupBox 5, 15, 470, 315, "Details"
+		  GroupBox 5, 335, 390, 45, "Navigation"
+		  Text 10, 345, 25, 10, "CASE/"
+		  Text 135, 345, 25, 10, "SPEC/"
+		  Text 10, 355, 25, 10, "STAT/"
+		  Text 10, 365, 20, 10, "ELIG/"
+		  Text 135, 355, 25, 10, "MONY/"
+		EndDialog
+
+		dialog Dialog1
+		cancel_confirmation
+		MAXIS_dialog_navigation
+		Call leave_notice_text(False)
+
+		If ButtonPressed > 1000 Then
+			If ButtonPressed = snap_change_wcom_btn Then
+				selected_prog = "FS"
+				notc_month = snap_month
+				notc_year = snap_year
+			End If
+			If ButtonPressed = ga_change_wcom_btn Then
+				selected_prog = "GA"
+				notc_month = ga_month
+				notc_year = ga_year
+			End If
+			If ButtonPressed = msa_change_wcom_btn Then
+				selected_prog = "MS"
+				notc_month = msa_month
+				notc_year = msa_year
+			End If
+			If ButtonPressed = mfip_change_wcom_btn Then
+				selected_prog = "MF"
+				notc_month = mfip_month
+				notc_year = mfip_year
+			End If
+
+			Call Create_List_Of_Notices("WCOM", notices_array, selected, information, WCOM_search_row, no_notices, selected_prog)
+
+			Call Select_New_WCOM(notices_array, selected, information, WCOM_search_row, True, 		True, False, notc_month, notc_year, no_notices, selected_prog, False, False)
+
+			for each_notc = 0 to UBound(notices_array, 2)
+				If notices_array(selected, each_notc) = checked Then
+					If selected_prog = "FS" Then
+						snap_month = notc_month
+						snap_year = notc_year
+						snap_wcom_text = notices_array(information, each_notc)
+						snap_wcom_row = notices_array(WCOM_search_row, each_notc)
+						snap_wcom_position = snap_wcom_row - 6
+					End If
+					If selected_prog = "GA" Then
+						ga_month = notc_month
+						ga_year = notc_year
+						ga_wcom_text = notices_array(information, each_notc)
+						ga_wcom_row = notices_array(WCOM_search_row, each_notc)
+						ga_wcom_position = ga_wcom_row - 6
+					End If
+					If selected_prog = "MS" Then
+						msa_month = notc_month
+						msa_year = notc_year
+						msa_wcom_text = notices_array(information, each_notc)
+						msa_wcom_row = notices_array(WCOM_search_row, each_notc)
+						msa_wcom_position = msa_wcom_row - 6
+					End If
+					If selected_prog = "MF" Then
+						mfip_month = notc_month
+						mfip_year = notc_year
+						mfip_wcom_text = notices_array(information, each_notc)
+						mfip_wcom_row = notices_array(WCOM_search_row, each_notc)
+						mfip_wcom_position = mfip_wcom_row - 6
+					End If
+				End If
+			next
+			err_msg = "LOOP"
+		End If
+		selected_prog = ""
+
+		If ButtonPressed < 1000 AND ButtonPressed > 100 Then
+			If ButtonPressed = snap_wcom_btn Then
+				wcom_row_to_open = snap_wcom_row
+				wcom_month = snap_month
+				wcom_year = snap_year
+			End If
+			If ButtonPressed = ga_wcom_btn Then
+				wcom_row_to_open = ga_wcom_row
+				wcom_month = ga_month
+				wcom_year = ga_year
+			End If
+			If ButtonPressed = msa_wcom_btn Then
+				wcom_row_to_open = msa_wcom_row
+				wcom_month = msa_month
+				wcom_year = msa_year
+			End If
+			If ButtonPressed = mfip_wcom_btn Then
+				wcom_row_to_open = mfip_wcom_row
+				wcom_month = mfip_month
+				wcom_year = mfip_year
+			End If
+
+			Call navigate_to_MAXIS_screen("SPEC", "WCOM")
+			EMWriteScreen wcom_month, 3, 46
+			EMWriteScreen wcom_year, 3, 51
+			transmit
+			EMWriteScreen "X", wcom_row_to_open, 13
+			open_wcom = MsgBox("The WCOM Notice has been selected." & vbCr & vbCr & "Would you like to open the notice?", vbQuestion + vbYesNo, "WCOM selected")
+			If open_wcom = vbYes Then
+				transmit
+			Else
+				EMWriteScreen " ", wcom_row_to_open, 13
+			End If
+
+			err_msg = "LOOP"
+		End If
+
+		If ButtonPressed > 50 AND ButtonPressed < 100 Then
+			If ButtonPressed = snap_program_history_button Then prog_to_search = "FS"
+			If ButtonPressed = ga_program_history_button Then prog_to_search = "GA"
+			If ButtonPressed = msa_program_history_button Then prog_to_search = "MS"
+			If ButtonPressed = mfip_program_history_button Then prog_to_search = "MF"
+			If ButtonPressed = dwp_program_history_button Then prog_to_search = "DW"
+			If ButtonPressed = grh_program_history_button Then prog_to_search = "GR"
+			If ButtonPressed = hc_program_history_button Then
+				'WAY MORE STUFF GOES HERE
+			End If
+
+			Call navigate_to_MAXIS_screen("CASE", "CURR")
+			EMWriteScreen "X", 4, 9
+			transmit
+			EMWriteScreen prog_to_search, 3, 19
+			transmit
+
+			err_msg = "LOOP"
+		End If
+
+		If err_msg <> "LOOP" Then
+			snap_start_month = trim(snap_start_month)
+			snap_end_month = trim(snap_end_month)
+			ga_start_month = trim(ga_start_month)
+			ga_end_month = trim(ga_end_month)
+			msa_start_month = trim(msa_start_month)
+			msa_end_month = trim(msa_end_month)
+			mfip_start_month = trim(mfip_start_month)
+			mfip_end_month = trim(mfip_end_month)
+			dwp_start_month = trim(dwp_start_month)
+			dwp_end_month = trim(dwp_end_month)
+			grh_start_month = trim(grh_start_month)
+			grh_end_month = trim(grh_end_month)
+
+			If snap_status = "ACTIVE" Then
+				If snap_verification_method = "Select One..." Then err_msg = err_msg & vbNewLine & "* Since SNAP is active, indicate if Verification of SNAP benefits is needed, and if so, which method works best."
+				If snap_verification_method = "Resend WCOM - Eligibility Notice" AND snap_wcom_text = "No WCOM Found" then err_msg = err_msg & vbNewLine & "* Since you are selecting a WCOM to be resent as verification of SNAP, use the 'Select Different WCOM' button to select the correct WCOM since none was found."
+				If snap_verification_method = "Create New MEMO with range of Months" Then
+				 	If len(snap_start_month) <> 5 OR Mid(snap_start_month, 3, 1) <> "/" OR len(snap_end_month) <> 5 OR Mid(snap_end_month, 3, 1) <> "/" Then err_msg = err_msg & vbNewLine & "* Since you are creating a MEMO of SNAP issuance history to be sent as verification of Active SNAP, enter a start and end month in the 'mm/yy' format."
+				End If
+			End If
+			If ga_status = "ACTIVE" Then
+				If ga_verification_method = "Select One..." Then err_msg = err_msg & vbNewLine & "* Since GA is active, indicate if Verification of GA benefits is needed, and if so, which method works best."
+				If ga_verification_method = "Resend WCOM - Eligibility Notice" AND ga_wcom_text = "No WCOM Found" then err_msg = err_msg & vbNewLine & "* Since you are selecting a WCOM to be resent as verification of GA, use the 'Select Different WCOM' button to select the correct WCOM since none was found."
+				If ga_verification_method = "Create New MEMO with range of Months" Then
+				 	If len(ga_start_month) <> 5 OR Mid(ga_start_month, 3, 1) <> "/" OR len(ga_end_month) <> 5 OR Mid(ga_end_month, 3, 1) <> "/" Then err_msg = err_msg & vbNewLine & "* Since you are creating a MEMO of GA issuance history to be sent as verification of Active GA, enter a start and end month in the 'mm/yy' format."
+				End If
+			End If
+			If msa_status = "ACTIVE" Then
+				If msa_verification_method = "Select One..." Then err_msg = err_msg & vbNewLine & "* Since MSA is active, indicate if Verification of MSA benefits is needed, and if so, which method works best."
+				If msa_verification_method = "Resend WCOM - Eligibility Notice" AND msa_wcom_text = "No WCOM Found" then err_msg = err_msg & vbNewLine & "* Since you are selecting a WCOM to be resent as verification of MSA, use the 'Select Different WCOM' button to select the correct WCOM since none was found."
+				If msa_verification_method = "Create New MEMO with range of Months" Then
+				 	If len(msa_start_month) <> 5 OR Mid(msa_start_month, 3, 1) <> "/" OR len(msa_end_month) <> 5 OR Mid(msa_end_month, 3, 1) <> "/" Then err_msg = err_msg & vbNewLine & "* Since you are creating a MEMO of MSA issuance history to be sent as verification of Active MSA, enter a start and end month in the 'mm/yy' format."
+				End If
+			End If
+			If mfip_status = "ACTIVE" Then
+				If mfip_verification_method = "Select One..." Then err_msg = err_msg & vbNewLine & "* Since MFIP is active, indicate if Verification of MFIP benefits is needed, and if so, which method works best."
+				If mfip_verification_method = "Resend WCOM - Eligibility Notice" AND mfip_wcom_text = "No WCOM Found" then err_msg = err_msg & vbNewLine & "* Since you are selecting a WCOM to be resent as verification of MFIP, use the 'Select Different WCOM' button to select the correct WCOM since none was found."
+				If mfip_verification_method = "Create New MEMO with range of Months" Then
+				 	If len(mfip_start_month) <> 5 OR Mid(mfip_start_month, 3, 1) <> "/" OR len(mfip_end_month) <> 5 OR Mid(mfip_end_month, 3, 1) <> "/" Then err_msg = err_msg & vbNewLine & "* Since you are creating a MEMO of MFIP issuance history to be sent as verification of Active MFIP, enter a start and end month in the 'mm/yy' format."
+				End If
+			End If
+			If dwp_status = "ACTIVE" Then
+			 	If dwp_verification_method = "Select One..." Then err_msg = err_msg & vbNewLine & "* Since DWP is active, indicate if Verification of DWP benefits is needed, and if so, which method works best."
+				If dwp_verification_method = "Resend WCOM - Eligibility Notice" AND dwp_wcom_text = "No WCOM Found" then err_msg = err_msg & vbNewLine & "* Since you are selecting a WCOM to be resent as verification of DWP, use the 'Select Different WCOM' button to select the correct WCOM since none was found."
+				If dwp_verification_method = "Create New MEMO with range of Months" Then
+				 	If len(dwp_start_month) <> 5 OR Mid(dwp_start_month, 3, 1) <> "/" OR len(dwp_end_month) <> 5 OR Mid(dwp_end_month, 3, 1) <> "/" Then err_msg = err_msg & vbNewLine & "* Since you are creating a MEMO of DWP issuance history to be sent as verification of Active DWP, enter a start and end month in the 'mm/yy' format."
+				End If
+			End If
+			If grh_status = "ACTIVE" Then
+			 	If grh_verification_method = "Select One..." Then err_msg = err_msg & vbNewLine & "* Since GRH is active, indicate if Verification of GRH benefits is needed, and if so, which method works best."
+				If grh_verification_method = "Resend WCOM - Eligibility Notice" AND grh_wcom_text = "No WCOM Found" then err_msg = err_msg & vbNewLine & "* Since you are selecting a WCOM to be resent as verification of GRH, use the 'Select Different WCOM' button to select the correct WCOM since none was found."
+				If grh_verification_method = "Create New MEMO with range of Months" Then
+				 	If len(grh_start_month) <> 5 OR Mid(grh_start_month, 3, 1) <> "/" OR len(grh_end_month) <> 5 OR Mid(grh_end_month, 3, 1) <> "/" Then err_msg = err_msg & vbNewLine & "* Since you are creating a MEMO of GRH issuance history to be sent as verification of Active GRH, enter a start and end month in the 'mm/yy' format."
+				End If
+			End If
+
+			If snap_not_actv_memo_for_old_beneftis_checkbox = checked Then
+				If len(snap_start_month) <> 5 OR Mid(snap_start_month, 3, 1) <> "/" OR len(snap_end_month) <> 5 OR Mid(snap_end_month, 3, 1) <> "/" Then err_msg = err_msg & vbNewLine & "* Since you are creating a MEMO of SNAP issuance history to be sent as verification of Previous SNAP Eligibility, enter a start and end month in the 'mm/yy' format."
+			End If
+			If ga_not_actv_memo_for_old_beneftis_checkbox = checked Then
+				If len(ga_start_month) <> 5 OR Mid(ga_start_month, 3, 1) <> "/" OR len(ga_end_month) <> 5 OR Mid(ga_end_month, 3, 1) <> "/" Then err_msg = err_msg & vbNewLine & "* Since you are creating a MEMO of GA issuance history to be sent as verification of Previous GA Eligibility, enter a start and end month in the 'mm/yy' format."
+			End If
+			If msa_not_actv_memo_for_old_beneftis_checkbox = checked Then
+				If len(msa_start_month) <> 5 OR Mid(msa_start_month, 3, 1) <> "/" OR len(msa_end_month) <> 5 OR Mid(msa_end_month, 3, 1) <> "/" Then err_msg = err_msg & vbNewLine & "* Since you are creating a MEMO of MSA issuance history to be sent as verification of Previous MSA Eligibility, enter a start and end month in the 'mm/yy' format."
+			End If
+			If mfip_not_actv_memo_for_old_beneftis_checkbox = checked Then
+				If len(mfip_start_month) <> 5 OR Mid(mfip_start_month, 3, 1) <> "/" OR len(mfip_end_month) <> 5 OR Mid(mfip_end_month, 3, 1) <> "/" Then err_msg = err_msg & vbNewLine & "* Since you are creating a MEMO of MFIP issuance history to be sent as verification of Previous MFIP Eligibility, enter a start and end month in the 'mm/yy' format."
+			End If
+			If dwp_not_actv_memo_for_old_beneftis_checkbox = checked Then
+				If len(dwp_start_month) <> 5 OR Mid(dwp_start_month, 3, 1) <> "/" OR len(dwp_end_month) <> 5 OR Mid(dwp_end_month, 3, 1) <> "/" Then err_msg = err_msg & vbNewLine & "* Since you are creating a MEMO of DWP issuance history to be sent as verification of Previous DWP Eligibility, enter a start and end month in the 'mm/yy' format."
+			End If
+			If grh_not_actv_memo_for_old_beneftis_checkbox = checked Then
+				If len(grh_start_month) <> 5 OR Mid(grh_start_month, 3, 1) <> "/" OR len(grh_end_month) <> 5 OR Mid(grh_end_month, 3, 1) <> "/" Then err_msg = err_msg & vbNewLine & "* Since you are creating a MEMO of GRH issuance history to be sent as verification of Previous GRH Eligibility, enter a start and end month in the 'mm/yy' format."
+			End If
+
+			If err_msg <> "" Then MsgBox "****** NOTICE ******" & vbCr & vbCr & "Please resolve to continue:" & vbCr & err_msg
+		End If
+	Loop until err_msg = ""
+	Call check_for_password(are_we_passworded_out)
+Loop until are_we_passworded_out = False
+
+'Go look to see if AREP Needs Mail
+'Go look if SWKR needs Mail
+'Need to add handling to check ADDRESS
+'Need to add handling for OTHER and AREP and SWKR to see if they should be included.
+
+create_memo = False
+If snap_verification_method = "Create New MEMO with range of Months" Then create_memo = True
+If ga_verification_method = "Create New MEMO with range of Months" Then create_memo = True
+If msa_verification_method = "Create New MEMO with range of Months" Then create_memo = True
+If mfip_verification_method = "Create New MEMO with range of Months" Then create_memo = True
+If dwp_verification_method = "Create New MEMO with range of Months" Then create_memo = True
+If grh_verification_method = "Create New MEMO with range of Months" Then create_memo = True
+
+resend_wcom = False
+If snap_verification_method = "Resend WCOM - Eligibility Notice" Then resend_wcom = True
+If ga_verification_method = "Resend WCOM - Eligibility Notice" Then resend_wcom = True
+If msa_verification_method = "Resend WCOM - Eligibility Notice" Then resend_wcom = True
+If mfip_verification_method = "Resend WCOM - Eligibility Notice" Then resend_wcom = True
+If dwp_verification_method = "Resend WCOM - Eligibility Notice" Then resend_wcom = True
+If grh_verification_method = "Resend WCOM - Eligibility Notice" Then resend_wcom = True
+
+
+snap_resent_wcom = False
+
+If resend_wcom = True Then
+
+	Call navigate_to_MAXIS_screen("SPEC", "WCOM")
+
+	If snap_verification_method = "Resend WCOM - Eligibility Notice" Then
+		EMWriteScreen snap_month, 3, 46
+		EMWriteScreen snap_year, 3, 51
+		transmit
+		EMWriteScreen "A", snap_wcom_row, 13
+		transmit
+		EMWriteScreen "X", 5, 12 		'This is the CLIENT Row
+		' EMWriteScreen "X", 6, 12		'This is the OTHER Row - need handling
+		' EMWriteScreen "X", ?, 12 		'AREP
+		' EMWriteScreen "X", ?, 12		'SWKR
+		transmit
+
+		EMReadScreen check_for_resent, 6, snap_wcom_row, 3
+		EMReadScreen check_for_waiting, 6, snap_wcom_row, 71
+
+		If check_for_resent = "ReSent" and check_for_waiting = "Waiting" Then snap_resent_wcom = True
+	End If
+	If ga_verification_method = "Resend WCOM - Eligibility Notice" Then
+
+	End If
+	If msa_verification_method = "Resend WCOM - Eligibility Notice" Then
+
+	End If
+	If mfip_verification_method = "Resend WCOM - Eligibility Notice" Then
+
+	End If
+	If dwp_verification_method = "Resend WCOM - Eligibility Notice" Then
+
+	End If
+	If grh_verification_method = "Resend WCOM - Eligibility Notice" Then
+
+	End If
+End If
+
+Call back_to_SELF
+
+Dim snap_issuance_array()
+Dim ga_issuance_array()
+Dim msa_issuance_array()
+Dim mfip_issuance_array()
+Dim dwp_issuance_array()
+Dim grh_issuance_array()
+
+If create_memo = True Then
+	Call navigate_to_MAXIS_screen("MONY", "INQX")
+
+	If snap_verification_method = "Create New MEMO with range of Months" Then
+		EMWriteScreen "X", 9, 5		'This is the SNAP place
+		EMWriteScreen left(snap_start_month, 2), 6, 38
+		EMWriteScreen right(snap_start_month, 2), 6, 41
+		EMWriteScreen left(snap_end_month, 2), 6, 53
+		EMWriteScreen right(snap_end_month, 2), 6, 56
+		transmit
+
+		inqx_row = 6
+		msg_counter = 0
+		Do
+			EMReadScreen issued_date, 8, inqx_row, 7
+			EMReadScreen tran_amount, 8, inqx_row, 38
+			EMReadScreen from_month, 2, inqx_row, 62
+			EMReadScreen from_year, 2, inqx_row, 68
+			issued_date = trim(issued_date)
+			tran_amount = trim(tran_amount)
+
+			If issued_date <> "" Then
+
+				If prev_month = from_month AND prev_year = from_year Then
+					msg_counter = msg_counter - 1
+					prev_amount = prev_amount * 1
+					tran_amount = tran_amount * 1
+					total_amount = prev_amount + tran_amount
+					total_amount = left(total_amount & "        ", 8)
+
+					snap_issuance_array(msg_counter) = "$ " & total_amount & " issued for " & from_month & "/" & from_year
+					prev_amount = trim(total_amount)
+				Else
+					ReDim Preserve snap_issuance_array(msg_counter)
+					tran_amount = left(tran_amount & "        ", 8)
+
+					snap_issuance_array(msg_counter) = "$ " & tran_amount & " issued for " & from_month & "/" & from_year
+					prev_amount = trim(tran_amount)
+				End If
+				msg_counter = msg_counter + 1
+
+
+				prev_month = from_month
+				prev_year = from_year
+			End If
+
+			inqx_row = inqx_row + 1
+			'NEED TO ADD 'INQX' line limit
+			'Need to look up display limitations'
+		Loop until issued_date = ""
+	End If
+	If ga_verification_method = "Create New MEMO with range of Months" Then
+		EMWriteScreen "X", 11, 5		'This is the GA place
+		EMWriteScreen left(ga_start_month, 2), 6, 38
+		EMWriteScreen right(ga_start_month, 2), 6, 41
+		EMWriteScreen left(ga_end_month, 2), 6, 53
+		EMWriteScreen right(ga_end_month, 2), 6, 56
+		transmit
+
+	End If
+	If msa_verification_method = "Create New MEMO with range of Months" Then
+		EMWriteScreen "X", 13, 50		'This is the MSA place
+		EMWriteScreen left(msa_start_month, 2), 6, 38
+		EMWriteScreen right(msa_start_month, 2), 6, 41
+		EMWriteScreen left(msa_end_month, 2), 6, 53
+		EMWriteScreen right(msa_end_month, 2), 6, 56
+		transmit
+
+	End If
+	If mfip_verification_method = "Create New MEMO with range of Months" Then
+		EMWriteScreen "X", 10, 5		'This is the MFIP place
+		EMWriteScreen left(mfip_start_month, 2), 6, 38
+		EMWriteScreen right(mfip_start_month, 2), 6, 41
+		EMWriteScreen left(mfip_end_month, 2), 6, 53
+		EMWriteScreen right(mfip_end_month, 2), 6, 56
+		transmit
+
+	End If
+	If dwp_verification_method = "Create New MEMO with range of Months" Then
+		EMWriteScreen "X", 17, 50		'This is the DWO place
+		EMWriteScreen left(dwp_start_month, 2), 6, 38
+		EMWriteScreen right(dwp_start_month, 2), 6, 41
+		EMWriteScreen left(dwp_end_month, 2), 6, 53
+		EMWriteScreen right(dwp_end_month, 2), 6, 56
+		transmit
+
+	End If
+	If grh_verification_method = "Create New MEMO with range of Months" Then
+		EMWriteScreen "X", 16, 50		'This is the GRH place
+		EMWriteScreen left(grh_start_month, 2), 6, 38
+		EMWriteScreen right(grh_start_month, 2), 6, 41
+		EMWriteScreen left(grh_end_month, 2), 6, 53
+		EMWriteScreen right(grh_end_month, 2), 6, 56
+		transmit
+
+	End If
+End If
+
+
+
+
+MsgBox "STOP HERE"
+
+
+
+
+
+
+
+
 'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
 next_month = dateadd("m", + 1, date)
 MAXIS_footer_month = datepart("m", next_month)
