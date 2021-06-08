@@ -167,7 +167,7 @@ DO
         client_ssn = replace(client_ssn, " ", "")
     End if
 
-    If trim(client_age) < "21" then add_to_array = False  'under 21 are not required to sign per EPM 2.3.3.2.1 Asset Limits
+    If trim(client_age) < 21 then add_to_array = False  'under 21 are not required to sign per EPM 2.3.3.2.1 Asset Limits
     If add_to_array = True then
         If client_ssn = "" then 
             If initial_option = "AVS Submission/Results" then avs_members_array(request_type_const, avs_membs) = "N/A - No SSN" 'NO SSN need to sign forms, but we just need to case note AVS Submission exemption 
@@ -383,7 +383,7 @@ Do
             'AVS Submission/Results selections 
             If initial_option = "AVS Submission/Results" then
                     DropListBox 135, y_pos - 5, 90, 15, "Select one..."+chr(9)+"BI - Brain Injury Waiver"+chr(9)+"BX - Blind"+chr(9)+"CA - CAC Waiver"+chr(9)+"CD - CADI Waiver"+chr(9)+"DD - DD Waiver"+chr(9)+"DP - MA-EPD"+chr(9)+"DX - Disability"+chr(9)+"EH - EMA"+chr(9)+"EW - Elderly Waiver"+chr(9)+"EX - 65 and Older"+chr(9)+"LC - Long Term Care"+chr(9)+"MP - QMB/SLMB Only"+chr(9)+"N/A - No SSN"+chr(9)+"N/A - Not Applying"+chr(9)+"N/A - Not Deeming"+chr(9)+"N/A - PRIV"+chr(9)+"QI -QI"+chr(9)+"QW - QWD", avs_members_array(request_type_const, item)
-                DropListBox 235, y_pos - 5, 90, 15, "Select one..."+chr(9)+"Submitting a Request"+chr(9)+"Review Results"+chr(9)+"Results After Decision", avs_members_array(avs_status_const, item)
+                DropListBox 235, y_pos - 5, 90, 15, "Select one..."+chr(9)+"N/A"+chr(9)+"Submitting a Request"+chr(9)+"Review Results"+chr(9)+"Results After Decision", avs_members_array(avs_status_const, item)
             End if
             EditBox 330, y_pos - 5, 50, 15, avs_members_array(avs_date_const, item)
             EditBox 390, y_pos - 5, 160, 15, avs_members_array(additional_info_const, item)
@@ -427,6 +427,10 @@ Do
                 If initial_option = "AVS Submission/Results" then
                     If avs_members_array(request_type_const, item) = "Select one..." then err_msg = err_msg & vbcr & "* Enter the request type for: " & avs_members_array(member_info_const, item)
                     If avs_members_array(avs_status_const, item) = "Select one..." then err_msg = err_msg & vbcr & "* Enter the request type for: " & avs_members_array(member_info_const, item)
+                    If avs_members_array(avs_status_const, item) = "N/A" then 
+                        If left(avs_members_array(request_type_const, item), 3) <> "N/A" then err_msg = err_msg & vbcr & "* N/A is only a valid AVS status or process if the request type is also N/A."
+                        If avs_members_array(additional_info_const, item) = "" then err_msg = err_msg & vbcr & "* Enter reason that N/A is the AVS Status or processed selected."
+                    End if 
                 End if
                 If trim(avs_members_array(avs_date_const, item)) = "" or isdate(avs_members_array(avs_date_const, item)) = False then err_msg = err_msg & vbcr & "* Enter the " & dialog_text & " status date for: " & avs_members_array(member_info_const, item)
             NEXT

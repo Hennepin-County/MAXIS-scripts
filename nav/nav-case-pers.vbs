@@ -1,9 +1,9 @@
 'Required for statistical purposes==========================================================================================
-name_of_script = "NOTICES - 12 MO CONTACT.vbs"
+name_of_script = "NAV - CASE-PERS.vbs"
 start_time = timer
 STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 90                               'manual run time in seconds
-STATS_denomination = "C"       'C is for each CASE
+STATS_manualtime = 10                      'manual run time in seconds
+STATS_denomination = "C"                   'C is for each CASE
 'END OF stats block=========================================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
@@ -44,60 +44,31 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("05/21/2021", "Added supports to pull the case number when using the script from the DAIL scrubber.", "Ilse Ferris, Hennepin County")
-call changelog_update("05/28/2020", "Update to the notice wording, added virtual drop box information.", "MiKayla Handley, Hennepin County")
-CALL changelog_update("12/29/2017", "Coordinates for sending MEMO's has changed in SPEC/MEMO. Updated script to support change.", "Ilse Ferris, Hennepin County")
-call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+call changelog_update("06/02/2021", "Initial version.", "Casey Love, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'THE SCRIPT----------------------------------------------------------------------------------------------------
-'grabbing case number & connecting to MAXIS
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
 
-'Adding case number if using the script from the DAIL scrubber
-If MAXIS_case_number = "" then 
-    EmReadscreen DAIL_panel, 4, 2, 48
-    If DAIL_panel = "DAIL" then 
-        EmReadscreen MAXIS_case_number, 8, 5, 73
-        MAXIS_case_number = trim(MAXIS_case_number)
-    End if 
-End if 
+If MAXIS_case_number = "" then
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 161, 42, "Case number"
+      EditBox 95, 0, 60, 15, MAXIS_case_number
+      ButtonGroup ButtonPressed
+        OkButton 25, 20, 50, 15
+        CancelButton 85, 20, 50, 15
+      Text 5, 5, 85, 10, "Enter your case number:"
+    EndDialog
 
-Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 161, 61, "Case number"
-  Text 5, 5, 85, 10, "Enter your case number:"
-  EditBox 95, 0, 60, 15, MAXIS_case_number
-  Text 5, 25, 70, 10, "Sign your case note:"
-  EditBox 80, 20, 75, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 25, 40, 50, 15
-    CancelButton 85, 40, 50, 15
-EndDialog
+	Dialog Dialog1
+	cancel_confirmation
+END IF
 
-Do
-	dialog Dialog1
-	If ButtonPressed = 0 then StopScript
-	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
-LOOP UNTIL are_we_passworded_out = false
-
-'THE MEMO----------------------------------------------------------------------------------------------------
-Call start_a_new_spec_memo
-
-Call write_variable_in_SPEC_MEMO("************************************************************")
-Call write_variable_in_SPEC_MEMO("This notice is to remind you to report changes to your county worker by the 10th of the month following the month of the change. Changes that must be reported are address, people in your household, income, shelter costs and other changes such as legal obligation to pay child support. If you don't know whether to report a change, contact your county worker.")
-CALL write_variable_in_SPEC_MEMO("You now have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. To obtain information about your case please contact your worker. EMAIL: hhsews@hennepin.us ")
-Call write_variable_in_SPEC_MEMO("************************************************************")
-PF4
-
-'THE CASE NOTE
-Call start_a_blank_CASE_NOTE
-Call write_variable_in_CASE_NOTE("Sent 12 month contact letter via SPEC/MEMO on " & date)
-
-Call write_variable_in_CASE_NOTE("---")
-Call write_variable_in_CASE_NOTE(worker_signature)
-
+'It sends an enter to force the screen to refresh, in order to check for a password prompt.
+transmit
+Call check_for_MAXIS(True) 'Checks for an active MAXIS session
+Call navigate_to_MAXIS_screen("CASE", "PERS") 'Navigates to CASE/NOTE
 script_end_procedure("")

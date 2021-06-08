@@ -152,7 +152,7 @@ Do
 		Call navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv)
 		If is_this_priv = FALSE Then
 			'Reading case status and county
-			CALL determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, unknown_cash_pending)
+			Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status)
 			EMReadScreen current_pw_county, 2, 21, 16
 
 			'Adding the case information to the Excel Row

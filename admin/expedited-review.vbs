@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("06/03/2021", "Updated T drive file path to more stable LOBROOT path.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("04/09/2021", "Removed FAD Assignments and associated actions for the FAD assignments.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("03/02/2021", "Added Debrice Jackson to also receive emails for YET's assignments.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("12/30/2020", "Updated non-expedited count code for more accurate data.", "Ilse Ferris, Hennepin County")
@@ -143,7 +144,8 @@ master_note_record = 0    'incrementer for the array
 previous_date = dateadd("d", -1, date)
 Call change_date_to_soonest_working_day(previous_date)       'finds the most recent previous working day for the file names
 file_date = replace(previous_date, "/", "-")   'Changing the format of the date to use as file path selection default
-file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\QI Expedited Review " & file_date & ".xlsx" 'single assignment file
+file_selection_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\QI Expedited Review " & file_date & ".xlsx" 'single assignment file
+
 
 If objExcel = "" Then Call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
 
@@ -196,7 +198,7 @@ objExcel = ""
 previous_date = dateadd("d", -1, date)
 Call change_date_to_soonest_working_day(previous_date)       'finds the most recent previous working day for the fin
 file_date = replace(previous_date, "/", "-")   'Changing the format of the date to use as file path selection default
-previous_file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\" & file_date & ".xlsx"
+previous_file_selection_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\" & file_date & ".xlsx"
 
 If objExcel = "" Then Call excel_open(previous_file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
 
@@ -246,7 +248,7 @@ objExcel = ""
 
 ''----------------------------------------------------------------------------------------------------The current day's assignment 
 report_date = replace(date, "/", "-")   'Changing the format of the date to use as file path selection default
-file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\" & report_date & ".xlsx"
+file_selection_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\" & report_date & ".xlsx"
 
 BeginDialog Dialog1, 0, 0, 481, 90, "ADMIN - EXPEDITED REVIEW"
   ButtonGroup ButtonPressed
@@ -597,7 +599,7 @@ FOR i = 1 to 8		'formatting the cells
 NEXT
 
 'Saves and closes the most recent Excel workbook
-objExcel.ActiveWorkbook.SaveAs "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\Pending Over 30 Days " & report_date & ".xlsx"
+objExcel.ActiveWorkbook.SaveAs t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\Pending Over 30 Days " & report_date & ".xlsx"
 objExcel.ActiveWorkbook.Close
 objExcel.Application.Quit
 objExcel.Quit
@@ -740,7 +742,7 @@ FOR i = 1 to 18		'formatting the cells
 NEXT
 
 'Saves and closes the most recent Excel workbook
-objExcel.ActiveWorkbook.SaveAs "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\QI Expedited Review " & report_date & ".xlsx"
+objExcel.ActiveWorkbook.SaveAs t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\QI Expedited Review " & report_date & ".xlsx"
 objExcel.ActiveWorkbook.Close
 objExcel.Application.Quit
 objExcel.Quit
@@ -803,7 +805,7 @@ FOR i = 1 to 7		'formatting the cells
 NEXT
 
 'Saves and closes the most recent Excel workbook
-objExcel.ActiveWorkbook.SaveAs "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP SNAP X127FA5 " & report_date & ".xlsx"
+objExcel.ActiveWorkbook.SaveAs t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP SNAP X127FA5 " & report_date & ".xlsx"
 objExcel.ActiveWorkbook.Close
 objExcel.Application.Quit
 objExcel.Quit
@@ -866,7 +868,7 @@ FOR i = 1 to 7		'formatting the cells
 NEXT
 
 'Saves and closes the most recent Excel workbook
-objExcel.ActiveWorkbook.SaveAs "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP SNAP 1800 " & report_date & ".xlsx"
+objExcel.ActiveWorkbook.SaveAs t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP SNAP 1800 " & report_date & ".xlsx"
 objExcel.ActiveWorkbook.Close
 objExcel.Application.Quit
 objExcel.Quit
@@ -1026,7 +1028,7 @@ FOR i = 1 to 7		'formatting the cells
 NEXT
 
 'Saves and closes the most recent Excel workbook
-objExcel.ActiveWorkbook.SaveAs "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP SNAP DWP " & report_date & ".xlsx"
+objExcel.ActiveWorkbook.SaveAs t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP SNAP DWP " & report_date & ".xlsx"
 objExcel.ActiveWorkbook.Close
 objExcel.Application.Quit
 objExcel.Quit
@@ -1052,11 +1054,11 @@ Call change_date_to_soonest_working_day(previous_date)       'finds the most rec
 file_date = replace(previous_date, "/", "-")   'Changing the format of the date to use as file path selection default
 archive_folder = right("0" & DatePart("m", file_date), 2) & "-" & DatePart("yyyy", file_date)
 
-archive_files = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\" & archive_folder
+archive_files = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\" & archive_folder
 
 Set objFSO = CreateObject("Scripting.FileSystemObject")
 For each assignment in array_of_archive_assigments
-    file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\" & assignment & file_date & ".xlsx"
+    file_selection_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\" & assignment & file_date & ".xlsx"
     objFSO.MoveFile file_selection_path , archive_files & "\" & assignment & file_date & ".xlsx"    'moving each file to the archive file
 Next 
 

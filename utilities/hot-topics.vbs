@@ -1,10 +1,6 @@
-'Required for statistical purposes==========================================================================================
-name_of_script = "NAV - POSTPONED ACTIONS TRACKING.vbs"
+'STATS GATHERING--------------------------------------------------------------------------------------------------------------
+name_of_script = "UTILITIES - HOT TOPICS.vbs"
 start_time = timer
-STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 10                      'manual run time in seconds
-STATS_denomination = "C"                   'C is for each CASE
-'END OF stats block=========================================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
@@ -44,38 +40,13 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("06/04/2021", "Updated to HC only per GitHub Issue #378", "MiKayla Handley, Hennepin County")
-call changelog_update("03/23/2020", "Initial version.", "Ilse Ferris, Hennepin County")
+call changelog_update("06/02/2021", "Initial version.", "Casey Love, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-'THIS SCRIPT IS NOT BEING ACCESSED FROM GITHUB - there is a LOCAL FILE - use that for updates/action.'
-EMConnect ""
-Call MAXIS_case_number_finder(MAXIS_case_number)
 
-BeginDialog Dialog1, 0, 0, 216, 90, "Postponed Actions Required"
-  EditBox 115, 50, 55, 15, MAXIS_case_number
-  ButtonGroup ButtonPressed
-    OkButton 70, 70, 40, 15
-    CancelButton 115, 70, 40, 15
-  Text 30, 55, 80, 10, "Enter the Case Number:"
-  GroupBox 5, 5, 210, 40, "When to use this script: HC cases only"
-  Text 10, 15, 200, 25, "Use this script if verifications and/or actions are required, but are postponed temporarily due to COVID-19 Emergency Executive Orders."
-EndDialog
+Call open_URL_in_browser("https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/SitePages/Economic_Supports_ES_Zone.aspx")
 
-Do
-	err_msg = ""
-    Dialog Dialog1
-	Cancel_without_confirmation
-    Call validate_MAXIS_case_number(err_msg, "*")
-    IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
-LOOP UNTIL err_msg = ""
-
-CALL determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status)
-
-IF ma_case = TRUE or unknown_hc_pending = TRUE or ma_status = TRUE THEN
-	script_end_procedure("Success! Your case number, " & MAXIS_case_number & ", has been captured for future follow up.")
-ELSE
-	script_end_procedure("This script can only be used for Health Care cases please see HSR manual for updates or contact Knowledge Now with questions.")
-END IF
+'Script ends
+script_end_procedure("")

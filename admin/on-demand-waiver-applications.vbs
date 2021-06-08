@@ -224,7 +224,7 @@ function convert_date_to_day_first(date_to_convert, date_to_output)
 end function
 
 'THE SCRIPT-------------------------------------------------------------------------------------------------------------------------
-EMConnect ""		'Connects to BlueZone
+EMConnect ""
 'Grabbing the worker's X number.
 CALL find_variable("User: ", worker_number, 7)
 
@@ -239,55 +239,48 @@ MAXIS_footer_year = CM_plus_1_yr
 ' CM_minus_1_mo = right("0" & DatePart("m", DateAdd("m", -1, date)), 2)
 ' CM_minus_1_yr = right(DatePart("yyyy", DateAdd("m", -1, date)), 2)
 
-'current_date = date
-'Call ONLY_create_MAXIS_friendly_date(current_date)			'reformatting the dates to be MM/DD/YY format to measure against the panel dates
-
 'Opens the current day's list
+
+current_date = date
+
+'Call ONLY_create_MAXIS_friendly_date(current_date)			'reformatting the dates to be MM/DD/YY format to measure against the panel dates
+file_date = replace(current_date, "/", "-")   'Changing the format of the date to use as file path selection default
+daily_case_list_folder = right("0" & DatePart("m", file_date), 2) & "-" & DatePart("yyyy", file_date)
+file_selection_path = t_drive & "/Eligibility Support/Restricted/QI - Quality Improvement/REPORTS/On Demand Waiver/Daily case lists/" & daily_case_list_folder & "/" & file_date & ".xlsx" 'single assignment file
+
+'The dialog is defined in the loop as it can change as buttons are pressed
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 316, 175, "Select the source file"
+  EditBox 5, 125, 260, 15, file_selection_path
+  ButtonGroup ButtonPressed
+    PushButton 270, 125, 40, 15, "Browse...", select_a_file_button
+    OkButton 205, 155, 50, 15
+    CancelButton 260, 155, 50, 15
+  Text 5, 5, 305, 25, "This script will send Appointment Notices and NOMIs or update for denials when no interview has been completed. Once an interview has taken place, this script no longer takes action on the case."
+  Text 5, 35, 255, 10, "Cases with an interview completed should have the interview listed on PROG."
+  Text 5, 50, 310, 10, "An Appointment Notice will be sent on any case without a case note of appointment notice sent."
+  Text 5, 65, 300, 10, "A NOMI will be sent once the appointment date indicated on Appointment Notice has passed."
+  Text 5, 80, 305, 20, "A denial will be indicated when a case reaches day 30 (unless the NOMI did not go out until day 30 or after)."
+  Text 10, 105, 295, 15, "Click the BROWSE button and select the BOBI report for today. Once selected, click 'OK'. There will be no additional input needed until the script run is complete."
+  Text 5, 150, 160, 20, "Reminder, do not use Excel during the time the script is running. The script needs to use Excel."
+EndDialog
+
 'dialog and dialog DO...Loop
 Do
-	Do
-		'The dialog is defined in the loop as it can change as buttons are pressed
-        Dialog1 = ""
-        BeginDialog Dialog1, 0, 0, 316, 175, "Select the source file"
-          EditBox 5, 125, 260, 15, file_selection_path
-          ButtonGroup ButtonPressed
-            PushButton 270, 125, 40, 15, "Browse...", select_a_file_button
-            OkButton 205, 155, 50, 15
-            CancelButton 260, 155, 50, 15
-          Text 5, 5, 305, 25, "This script will send Appointment Notices and NOMIs or update for denials when no interview has been completed. Once an interview has taken place, this script no longer takes action on the case."
-          Text 5, 35, 255, 10, "Cases with an interview completed should have the interview listed on PROG."
-          Text 5, 50, 310, 10, "An Appointment Notice will be sent on any case without a case note of appointment notice sent."
-          Text 5, 65, 300, 10, "A NOMI will be sent once the appointment date indicated on Appointment Notice has passed."
-          Text 5, 80, 305, 20, "A denial will be indicated when a case reaches day 30 (unless the NOMI did not go out until day 30 or after)."
-          Text 10, 105, 295, 15, "Click the BROWSE button and select the BOBI report for today. Once selected, click 'OK'. There will be no additional input needed until the script run is complete."
-          Text 5, 150, 160, 20, "Reminder, do not use Excel during the time the script is running. The script needs to use Excel."
-        EndDialog
-
-		err_msg = ""
-		Dialog Dialog1
-		cancel_without_confirmation
-		If ButtonPressed = select_a_file_button then
-			If file_selection_path <> "" then 'This is handling for if the BROWSE button is pushed more than once'
-				objExcel.Quit 'Closing the Excel file that was opened on the first push'
-				objExcel = "" 	'Blanks out the previous file path'
-			End If
-			call file_selection_system_dialog(file_selection_path, ".xlsx") 'allows the user to select the file'
-            If file_selection_path = "" then
-                err_msg = err_msg & vbNewLine & "Use the Browse Button to select the file that has your client data"
-            Else
-                If objExcel <> "" Then          'If there is already an excel sheet open and the browse button is pressed again - the first excel is closed and blanked out so a new one can be entered.
-                    objExcel.quit
-                    objExcel = ""
-                End If
-                call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
-                err_msg = err_m & vbNewLine & "Be sure the correct Excel file opened."
-            End If
-		End If
-
-		If err_msg <> "" Then MsgBox err_msg      'Display the error message
-	Loop until err_msg = ""
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    Do
+        err_msg = ""
+        dialog Dialog1
+        cancel_without_confirmation
+        If ButtonPressed = select_a_file_button then call file_selection_system_dialog(file_selection_path, ".xlsx")
+        If trim(file_selection_path) = "" then err_msg = err_msg & vbcr & "* Select a file to continue."
+        If err_msg <> "" Then MsgBox err_msg
+    Loop until err_msg = ""
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+'Opening today's list
+Call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file
+objExcel.worksheets("Report 1").Activate                                 'Activates the initial BOBI report
 
 call back_to_self
 EMReadScreen mx_region, 10, 22, 48
@@ -442,11 +435,10 @@ objExcel.quit       'Once the array is created - we no longer need this Excel sh
 'Opens the working excel spreadsheet.
 'This file path is hard coded because it is always the same file
 'working_excel_file_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Projects\On Demand Waiver\Files for testing new application rewrite\Working Excel.xlsx"
-working_excel_file_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\Working Excel.xlsx"     'THIS IS THE REAL ONE
+working_excel_file_path = t_drive & "/Eligibility Support/Restricted/QI - Quality Improvement/REPORTS/On Demand Waiver/Working Excel.xlsx"   'THIS IS THE REAL ONE
 
 'Opens Excel file here, as it needs to populate the dialog with the details from the spreadsheet.
 call excel_open(working_excel_file_path, True, True, ObjWorkExcel, objWorkWorkbook)
-
 
 'ARRAY of all the cases that are on the working spreadsheet (this is essentially the spreadsheet doumped into a script array for use)
 Dim ALL_PENDING_CASES_ARRAY()

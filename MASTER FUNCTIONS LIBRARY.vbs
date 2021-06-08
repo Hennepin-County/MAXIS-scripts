@@ -74,6 +74,21 @@ OK = -1			'Value for OK button in dialogs
 blank = ""
 t_drive = "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team"
 
+'LOADING LIST OF TESTERS====================================================================================================
+tester_list_URL = t_drive & "\Eligibility Support\Scripts\Script Files\COMPLETE LIST OF TESTERS.vbs"        'Opening the list of testers - which is saved locally for security
+Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
+Set fso_command = run_another_script_fso.OpenTextFile(tester_list_URL)
+text_from_the_other_script = fso_command.ReadAll
+fso_command.Close
+Execute text_from_the_other_script
+'END LIST OF TESTERS BLOCK==================================================================================================
+
+'The following code looks to find the user name of the user running the script---------------------------------------------------------------------------------------------
+'This is used in arrays that specify functionality to specific workers
+Set objNet = CreateObject("WScript.NetWork")
+windows_user_ID = objNet.UserName
+user_ID_for_validation = ucase(windows_user_ID)
+
 'Global function to actually RUN'
 Call confirm_tester_information
 
@@ -82,7 +97,7 @@ time_array_15_min = array("7:00 AM", "7:15 AM", "7:30 AM", "7:45 AM", "8:00 AM",
 time_array_30_min = array("7:00 AM", "7:30 AM", "8:00 AM", "8:30 AM", "9:00 AM", "9:30 AM", "10:00 AM", "10:30 AM", "11:00 AM", "11:30 AM", "12:00 PM", "12:30 PM", "1:00 PM", "1:30 PM", "2:00 PM", "2:30 PM", "3:00 PM", "3:30 PM", "4:00 PM", "4:30 PM", "5:00 PM", "5:30 PM", "6:00 PM")
 
 'Array of all the upcoming holidays
-HOLIDAYS_ARRAY = Array(#11/11/20#, #11/26/20#, #11/27/20#, #12/25/20#, #1/1/21#, #1/18/21#, #2/15/21#, #5/31/21#, #7/5/21#, #9/6/21#, #11/11/21#, #11/25/21#, #11/26/21#, #12/24/21#, #12/31/21#)
+HOLIDAYS_ARRAY = Array(#11/11/20#, #11/26/20#, #11/27/20#, #12/25/20#, #1/1/21#, #1/18/21#, #2/15/21#, #5/31/21#, #6/18/21#, #7/5/21#, #9/6/21#, #11/11/21#, #11/25/21#, #11/26/21#, #12/24/21#, #12/31/21#)
 
 'Determines CM and CM+1 month and year using the two rightmost chars of both the month and year. Adds a "0" to all months, which will only pull over if it's a single-digit-month
 Dim CM_mo, CM_yr, CM_plus_1_mo, CM_plus_1_yr, CM_plus_2_mo, CM_plus_2_yr
@@ -419,12 +434,6 @@ With (CreateObject("Scripting.FileSystemObject"))															'Creating an FSO
 		worker_sig_command.Close																			'Closes the file
 	END IF
 END WITH
-
-'The following code looks to find the user name of the user running the script---------------------------------------------------------------------------------------------
-'This is used in arrays that specify functionality to specific workers
-Set objNet = CreateObject("WScript.NetWork")
-windows_user_ID = objNet.UserName
-user_ID_for_validation = ucase(windows_user_ID)
 
 '----------------------------------------------------------------------------------------------------Email addresses for the teams
 IF current_worker_number =	"X127F3P" 	THEN email_address = "HSPH.ES.MA.EPD.Adult@hennepin.us"
@@ -3791,16 +3800,6 @@ end function
 function confirm_tester_information()
 '--- Ask a tester to confirm the details we have for them. THIS FUNCTION IS CALLED IN THE FUNCTIONS LIBRARY
 '===== Keywords: Testing, Infrastucture
-	script_list_URL = t_drive & "\Eligibility Support\Scripts\Script Files\COMPLETE LIST OF TESTERS.vbs"        'Opening the list of testers - which is saved locally for security
-    Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-    Set fso_command = run_another_script_fso.OpenTextFile(script_list_URL)
-    text_from_the_other_script = fso_command.ReadAll
-    fso_command.Close
-    Execute text_from_the_other_script
-
-    Set objNet = CreateObject("WScript.NetWork")            'Getting the script user's windows ID
-    windows_user_ID = objNet.UserName
-    user_ID_for_validation = ucase(windows_user_ID)
 
     'Now the script will look to see if this user is a tester that needs their information confirmed.
     Leave_Confirmation = FALSE                              'This will allow the user to cancel the update if they desire
@@ -3812,6 +3811,28 @@ function confirm_tester_information()
 
                 If confirm_testing_now = vbYes Then     'If they select 'Yes' the script will run the dialogs to confirm information
                     show_initial_dialog = TRUE          'this is set to show the initial dialog because there are 2 dialogs that loop together and once we pass the first, we don't want to see it again
+					for each user_prog in tester.tester_programs
+						If user_prog = "SNAP" Then snap_checkbox = checked
+						If user_prog = "GA" Then ga_checkbox = checked
+						If user_prog = "MSA" Then msa_checkbox = checked
+						If user_prog = "MFIP" Then mfip_checkbox = checked
+						If user_prog = "DWP" Then dwp_checkbox = checked
+						If user_prog = "GRH" Then grh_checkbox = checked
+						If user_prog = "IMD" Then imd_checkbox = checked
+						If user_prog = "MA" Then ma_checkbox = checked
+						If user_prog = "MA-EPD" Then ma_epd_checkbox = checked
+						If user_prog = "LTC" Then ltc_checkbox = checked
+						If user_prog = "EA" Then ea_checkbox = checked
+						If user_prog = "EGA" Then ega_checkbox = checked
+						If user_prog = "LTH" Then lth_checkbox = checked
+					next
+					for each user_grp in tester.tester_groups
+						If user_grp = "PSS" Then pss_checkbox = checked
+						If user_grp = "QI" Then qi_checkbox = checked
+						If user_grp = "YET" Then yet_checkbox = checked
+						If user_grp = "AVS" Then avs_checkbox = checked
+						If user_grp = "Sanctions" Then sanc_checkbox = checked
+					next
                     Do
                         Do
                             err_msg = ""
@@ -3831,38 +3852,55 @@ function confirm_tester_information()
                                     If tester.tester_region = "" Then region_action = "Incorrect - Change"
 
                                     the_dialog = ""        'reset for safety
-                                    BeginDialog the_dialog, 0, 0, 370, 215, "Detailed Tester Information"      'first dialog just lists the properties we already know
-                                      ButtonGroup ButtonPressed
-                                        OkButton 310, 195, 50, 15
-                                      Text 60, 15, 40, 10, "First Name:"
-                                      Text 60, 35, 40, 10, "Last Name:"
-                                      Text 50, 55, 50, 10, "Email Address:"
-                                      Text 10, 75, 90, 10, "Hennepin County ID (WF#):"
-                                      Text 40, 95, 60, 10, "MAXIS X-Number:"
-                                      Text 40, 115, 60, 10, "Supervisor Name:"
-                                      Text 40, 135, 60, 10, "Population/Team:"
-                                      Text 70, 155, 25, 10, "Region:"
-                                      Text 70, 175, 25, 10, "Groups:"
-                                      Text 110, 15, 105, 10, tester.tester_first_name
-                                      Text 110, 35, 105, 10, tester.tester_last_name
-                                      Text 110, 55, 140, 10, tester.tester_email
-                                      Text 110, 75, 60, 10, tester.tester_id_number
-                                      Text 110, 95, 60, 10, tester.tester_x_number
-                                      Text 110, 115, 150, 10, tester.tester_supervisor_name
-                                      Text 110, 135, 60, 10, tester.tester_population
-                                      Text 110, 155, 60, 10, tester.tester_region
-                                      Text 110, 175, 150, 10, Join(tester.tester_groups, ",")
-                                      DropListBox 280, 10, 80, 45, "Correct"+chr(9)+"Incorrect - Change", first_name_action
-                                      DropListBox 280, 30, 80, 45, "Correct"+chr(9)+"Incorrect - Change", last_name_action
-                                      DropListBox 280, 50, 80, 45, "Correct"+chr(9)+"Incorrect - Change", email_action
-                                      DropListBox 280, 70, 80, 45, "Correct"+chr(9)+"Incorrect - Change", id_number_action
-                                      DropListBox 280, 90, 80, 45, "Correct"+chr(9)+"Incorrect - Change", x_number_action
-                                      DropListBox 280, 110, 80, 45, "Correct"+chr(9)+"Incorrect - Change", supervisor_action
-                                      DropListBox 280, 130, 80, 45, "Correct"+chr(9)+"Incorrect - Change", population_action
-                                      DropListBox 280, 150, 80, 45, "Correct"+chr(9)+"Incorrect - Change", region_action
-                                      DropListBox 280, 170, 80, 45, "Correct"+chr(9)+"Incorrect - Change", groups_action
-                                      Text 10, 195, 130, 15, "Please reach out to the BlueZone Script team with any questions."
-                                    EndDialog
+
+									BeginDialog the_dialog, 0, 0, 371, 260, "Detailed Tester Information"      'first dialog just lists the properties
+									  ButtonGroup ButtonPressed
+									    OkButton 315, 240, 50, 15
+									  Text 60, 15, 40, 10, "First Name:"
+									  Text 60, 35, 40, 10, "Last Name:"
+									  Text 50, 55, 50, 10, "Email Address:"
+									  Text 10, 75, 90, 10, "Hennepin County ID (WF#):"
+									  Text 40, 95, 60, 10, "MAXIS X-Number:"
+									  Text 40, 115, 60, 10, "Supervisor Name:"
+									  Text 40, 135, 60, 10, "Population/Team:"
+									  Text 110, 15, 105, 10, tester.tester_first_name
+									  Text 110, 35, 105, 10, tester.tester_last_name
+									  Text 110, 55, 140, 10, tester.tester_email
+									  Text 110, 75, 60, 10, tester.tester_id_number
+									  Text 110, 95, 60, 10, tester.tester_x_number
+									  Text 110, 115, 150, 10, tester.tester_supervisor_name
+									  Text 110, 135, 60, 10, tester.tester_population
+									  DropListBox 285, 10, 80, 45, "Correct"+chr(9)+"Incorrect - Change", first_name_action
+									  DropListBox 285, 30, 80, 45, "Correct"+chr(9)+"Incorrect - Change", last_name_action
+									  DropListBox 285, 50, 80, 45, "Correct"+chr(9)+"Incorrect - Change", email_action
+									  DropListBox 285, 70, 80, 45, "Correct"+chr(9)+"Incorrect - Change", id_number_action
+									  DropListBox 285, 90, 80, 45, "Correct"+chr(9)+"Incorrect - Change", x_number_action
+									  DropListBox 285, 110, 80, 45, "Correct"+chr(9)+"Incorrect - Change", supervisor_action
+									  DropListBox 285, 130, 80, 45, "Correct"+chr(9)+"Incorrect - Change", population_action
+									  Text 10, 240, 130, 15, "Please reach out to the BlueZone Script team with any questions."
+									  CheckBox 110, 160, 30, 10, "SNAP", snap_checkbox
+									  CheckBox 145, 160, 25, 10, "GA", ga_checkbox
+									  CheckBox 145, 170, 25, 10, "MSA", msa_checkbox
+									  CheckBox 175, 160, 30, 10, "MFIP", mfip_checkbox
+									  CheckBox 175, 170, 30, 10, "DWP", dwp_checkbox
+									  CheckBox 210, 160, 25, 10, "GRH", grh_checkbox
+									  CheckBox 210, 170, 25, 10, "IMD", imd_checkbox
+									  CheckBox 240, 160, 25, 10, "MA", ma_checkbox
+									  CheckBox 265, 160, 40, 10, "MA-EPD", ma_epd_checkbox
+									  CheckBox 265, 170, 25, 10, "LTC", ltc_checkbox
+									  CheckBox 305, 160, 25, 10, "EA", ea_checkbox
+									  CheckBox 305, 170, 25, 10, "EGA", ega_checkbox
+									  CheckBox 335, 160, 25, 10, "LTH", lth_checkbox
+									  CheckBox 110, 200, 25, 10, "PSS", pss_checkbox
+									  CheckBox 145, 200, 25, 10, "QI", qi_checkbox
+									  CheckBox 175, 200, 25, 10, "YET", yet_checkbox
+									  CheckBox 210, 200, 50, 10, "AVS Access", avs_checkbox
+									  CheckBox 265, 200, 45, 10, "Sanctions", sanc_checkbox
+									  Text 110, 220, 115, 10, "List any other processing groups:"
+									  EditBox 225, 215, 135, 15, other_groups_reported
+									  GroupBox 40, 150, 325, 35, "Programs"
+									  GroupBox 40, 190, 325, 45, "Groups"
+									EndDialog
 
                                     Dialog the_dialog          'showing the dialog
                                     If ButtonPressed = 0 Then       'cancelling the confirmation functionality without cancelling the script run
@@ -3870,6 +3908,7 @@ function confirm_tester_information()
                                         Leave_Confirmation = TRUE
                                         Exit Do
                                     End If
+
 
                                     'These properties MUST be filled in and if they are blank, we need to know what they are - mandatory fields
                                     If tester.tester_first_name = "" AND first_name_action <> "Incorrect - Change" Then err_msg = err_msg & vbNewLine & "* Since FIRST NAME is blank, this information must be updated. Select 'Incorrect - Change' for First Name."
@@ -3902,9 +3941,9 @@ function confirm_tester_information()
 
                             the_dialog = ""        'resetting for safetly
                             If update_information = TRUE Then                   'If a change was indicated in dialog 1, we show this  new dialog with the update fields
-                                BeginDialog the_dialog, 0, 0, 265, 215, "Detailed Tester Information"
+                                BeginDialog the_dialog, 0, 0, 371, 260, "Detailed Tester Information"
                                   ButtonGroup ButtonPressed
-                                    OkButton 210, 195, 50, 15
+                                    OkButton 315, 240, 50, 15
                                   Text 60, 15, 40, 10, "First Name:"
                                   Text 60, 35, 40, 10, "Last Name:"
                                   Text 50, 55, 50, 10, "Email Address:"
@@ -3912,9 +3951,8 @@ function confirm_tester_information()
                                   Text 40, 95, 60, 10, "MAXIS X-Number:"
                                   Text 40, 115, 60, 10, "Supervisor Name:"
                                   Text 40, 135, 60, 10, "Population/Team:"
-                                  Text 70, 155, 25, 10, "Region:"
-                                  Text 70, 175, 25, 10, "Groups:"
-                                  Text 10, 195, 130, 15, "Please reach out to the BlueZone Script team with any questions."
+
+                                  Text 10, 240, 130, 15, "Please reach out to the BlueZone Script team with any questions."
                                   If first_name_action = "Incorrect - Change" Then
                                     new_first_name = tester.tester_first_name
                                     EditBox 110, 10, 105, 15, new_first_name
@@ -3957,18 +3995,28 @@ function confirm_tester_information()
                                   Else
                                     Text 110, 135, 60, 10, tester.tester_population
                                   End If
-                                  If region_action = "Incorrect - Change" Then
-                                    new_region = tester.tester_region
-                                    EditBox 110, 150, 60, 15, new_region
-                                  Else
-                                    Text 110, 155, 60, 10, tester.tester_region
-                                  End If
-                                  If groups_action = "Incorrect - Change" Then
-                                    new_groups = join(tester.tester_groups)
-                                    EditBox 110, 170, 150, 15, new_groups
-                                  Else
-                                    Text 110, 175, 150, 10, Join(tester.tester_groups, ",")
-                                  End If
+								  CheckBox 110, 160, 30, 10, "SNAP", snap_checkbox
+								  CheckBox 145, 160, 25, 10, "GA", ga_checkbox
+								  CheckBox 145, 170, 25, 10, "MSA", msa_checkbox
+								  CheckBox 175, 160, 30, 10, "MFIP", mfip_checkbox
+								  CheckBox 175, 170, 30, 10, "DWP", dwp_checkbox
+								  CheckBox 210, 160, 25, 10, "GRH", grh_checkbox
+								  CheckBox 210, 170, 25, 10, "IMD", imd_checkbox
+								  CheckBox 240, 160, 25, 10, "MA", ma_checkbox
+								  CheckBox 265, 160, 40, 10, "MA-EPD", ma_epd_checkbox
+								  CheckBox 265, 170, 25, 10, "LTC", ltc_checkbox
+								  CheckBox 305, 160, 25, 10, "EA", ea_checkbox
+								  CheckBox 305, 170, 25, 10, "EGA", ega_checkbox
+								  CheckBox 335, 160, 25, 10, "LTH", lth_checkbox
+								  CheckBox 110, 200, 25, 10, "PSS", pss_checkbox
+								  CheckBox 145, 200, 25, 10, "QI", qi_checkbox
+								  CheckBox 175, 200, 25, 10, "YET", yet_checkbox
+								  CheckBox 210, 200, 50, 10, "AVS Access", avs_checkbox
+								  CheckBox 265, 200, 45, 10, "Sanctions", sanc_checkbox
+								  Text 110, 220, 115, 10, "List any other processing groups:"
+								  EditBox 225, 215, 135, 15, other_groups_reported
+								  GroupBox 40, 150, 325, 35, "Programs"
+								  GroupBox 40, 190, 325, 45, "Groups"
                                 EndDialog
 
                                 Dialog the_dialog
@@ -3986,6 +4034,7 @@ function confirm_tester_information()
                                 If new_x_number = "" AND x_number_action = "Incorrect - Change" Then err_msg = err_msg & vbNewLine & "* MAXIS ID  (X-NUMBER) is blank, this information is required for testers. Update the detail for X-Number."
                                 If new_supervisor_name = "" AND supervisor_action = "Incorrect - Change" Then err_msg = err_msg & vbNewLine & "* SUPERVISOR is blank, this information is required for testers. Update the detail for Supervisor."
                                 If new_population = "" AND population_action = "Incorrect - Change" Then err_msg = err_msg & vbNewLine & "* POPULATION is blank, this information is required for testers. Update the detail for Population."
+								If snap_checkbox = unchecked AND ga_checkbox = unchecked AND msa_checkbox = unchecked AND mfip_checkbox = unchecked AND dwp_checkbox = unchecked AND grh_checkbox = unchecked AND imd_checkbox = unchecked AND ma_checkbox = unchecked AND ma_epd_checkbox = unchecked AND ltc_checkbox = unchecked AND ea_checkbox = unchecked AND ega_checkbox = unchecked AND lth_checkbox = unchecked Then err_msg = err_msg & vbNewLine & "* You must select at least one program that you work in."
                                 ' If new_region = "" AND region_action = "Incorrect - Change" Then err_msg = err_msg & vbNewLine & "* Since  is blank, this information is required for testers. Update the detail for ."
 
                                 If err_msg <> "" Then MsgBox "Please Resolve to Continue:" & vbNewLine &  err_msg
@@ -4013,6 +4062,48 @@ function confirm_tester_information()
                     Else
                         Message_Information = Message_Information & vbNewLine & "No updates indicated - tester information for " & tester.tester_full_name & " is correct and can be updated as confirmed."
                     End If
+					Message_Information = Message_Information & vbNewLine & vbNewLine & "PROGRAMS:"
+
+					Message_Information = Message_Information & vbNewLine & "SNAP - "
+					If snap_checkbox = checked Then Message_Information = Message_Information & "YES"
+					Message_Information = Message_Information & vbNewLine & "GA - "
+					If ga_checkbox = checked Then Message_Information = Message_Information & "YES"
+					Message_Information = Message_Information & vbNewLine & "MSA - "
+					If msa_checkbox = checked Then Message_Information = Message_Information & "YES"
+					Message_Information = Message_Information & vbNewLine & "MFIP - "
+					If mfip_checkbox = checked Then Message_Information = Message_Information & "YES"
+					Message_Information = Message_Information & vbNewLine & "DWP - "
+					If dwp_checkbox = checked Then Message_Information = Message_Information & "YES"
+					Message_Information = Message_Information & vbNewLine & "GRH - "
+					If grh_checkbox = checked Then Message_Information = Message_Information & "YES"
+					Message_Information = Message_Information & vbNewLine & "IMD - "
+					If imd_checkbox = checked Then Message_Information = Message_Information & "YES"
+					Message_Information = Message_Information & vbNewLine & "MA - "
+					If ma_checkbox = checked Then Message_Information = Message_Information & "YES"
+					Message_Information = Message_Information & vbNewLine & "MA-EPD - "
+					If ma_epd_checkbox = checked Then Message_Information = Message_Information & "YES"
+					Message_Information = Message_Information & vbNewLine & "LTC - "
+					If ltc_checkbox = checked Then Message_Information = Message_Information & "YES"
+					Message_Information = Message_Information & vbNewLine & "EA - "
+					If ea_checkbox = checked Then Message_Information = Message_Information & "YES"
+					Message_Information = Message_Information & vbNewLine & "EGA - "
+					If ega_checkbox = checked Then Message_Information = Message_Information & "YES"
+					Message_Information = Message_Information & vbNewLine & "LTH - "
+					If lth_checkbox = checked Then Message_Information = Message_Information & "YES"
+
+					Message_Information = Message_Information & vbNewLine & vbNewLine & "GROUPS:"
+
+					Message_Information = Message_Information & vbNewLine & "PSS - "
+					If pss_checkbox = checked Then Message_Information = Message_Information & "YES"
+					Message_Information = Message_Information & vbNewLine & "QI - "
+					If qi_checkbox = checked Then Message_Information = Message_Information & "YES"
+					Message_Information = Message_Information & vbNewLine & "YET - "
+					If yet_checkbox = checked Then Message_Information = Message_Information & "YES"
+					Message_Information = Message_Information & vbNewLine & "AVS - "
+					If avs_checkbox = checked Then Message_Information = Message_Information & "YES"
+					Message_Information = Message_Information & vbNewLine & "SANCTION - "
+					If sanc_checkbox = checked Then Message_Information = Message_Information & "YES"
+					If Trim(other_groups_reported) <> "" Then Message_Information = Message_Information & vbNewLine & "Other Groups: " & other_groups_reported
 
                     Message_Information = Message_Information & vbNewLine & vbNewLine & "Thank you for taking the time to confirm your information. We will update your information in the script records and you will no longer be asked to confirm your information. (We have to do this manually so there may be a delay but we will update as soon as we are able.)" & vbNewLine
                     tester.send_tester_email FALSE, Message_Information         ''sending the email
@@ -4436,10 +4527,11 @@ function date_array_generator(initial_month, initial_year, date_array)
 	date_array = split(date_list, "|")
 end function
 
-function determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, unknown_cash_pending)
+function determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status)
 '--- Function used to return booleans on case and program status based on CASE CURR information. There is no input informat but MAXIS_case_number needs to be defined.
 '~~~~~ case_active: Outputs BOOLEAN of if the case is active in any MAXIS program
 '~~~~~ case_pending: Outputs BOOLEAN of if the case is pending for any MAXIS Program
+'~~~~~ case_rein: Outputs BOOLEAN of if the case is in REIN for any MAXIS Program
 '~~~~~ family_cash_case: Outputs BOOLEAN of if the case is active or pending for any family cash program (MFIP or DWP)
 '~~~~~ mfip_case: Outputs BOOLEAN of if the case is active or pending MFIP
 '~~~~~ dwp_case: Outputs BOOLEAN of if the case is active or pending DWP
@@ -4451,6 +4543,15 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
 '~~~~~ ma_case: Outputs BOOLEAN of if the case is active or pending MA
 '~~~~~ msp_case: Outputs BOOLEAN of if the case is active or pending any MSP
 '~~~~~ unknown_cash_pending: BOOLEAN of if the case has a general 'CASH' program pending but it has not been defined
+'~~~~~ unknown_hc_pending: BOOLEAN of if the case has a general 'HC' program pending but it has not been defined
+'~~~~~ ga_status: Outputs the program status for GA - will be one of these four options (ACTIVE, INACTIVE, PENDING, REIN)
+'~~~~~ msa_status: Outputs the program status for MSA - will be one of these four options (ACTIVE, INACTIVE, PENDING, REIN)
+'~~~~~ mfip_status: Outputs the program status for MFIP - will be one of these four options (ACTIVE, INACTIVE, PENDING, REIN)
+'~~~~~ dwp_status: Outputs the program status for DWP - will be one of these four options (ACTIVE, INACTIVE, PENDING, REIN)
+'~~~~~ grh_status: Outputs the program status for GRH - will be one of these four options (ACTIVE, INACTIVE, PENDING, REIN)
+'~~~~~ snap_status: Outputs the program status for SNAP - will be one of these four options (ACTIVE, INACTIVE, PENDING, REIN)
+'~~~~~ ma_status: Outputs the program status for MA - will be one of these four options (ACTIVE, INACTIVE, PENDING, REIN)
+'~~~~~ msp_status: Outputs the program status for MSP - will be one of these four options (ACTIVE, INACTIVE, PENDING, REIN)
 '===== Keywords: MAXIS, case status, output, status
     Call navigate_to_MAXIS_screen("CASE", "CURR")           'First the function will navigate to CASE/CURR so the inofrmation discovered is based on current status
     family_cash_case = FALSE                                'defaulting all of the booleans
@@ -4465,7 +4566,18 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
     msp_case = FALSE
     case_active = FALSE
     case_pending = FALSE
+	case_rein = FALSE
     unknown_cash_pending = FALSE
+	unknown_hc_pending = FALSE
+	ga_status = "INACTIVE"
+	msa_status = "INACTIVE"
+	mfip_status = "INACTIVE"
+	dwp_status = "INACTIVE"
+	grh_status = "INACTIVE"
+	snap_status = "INACTIVE"
+	ma_status = "INACTIVE"
+	msp_status = "INACTIVE"
+
     'The function will use the same functionality for each program and search CASE:CURR to find the program deader for detail about the status.
     'If 'ACTIVE', 'APP CLOSE', 'APP OPEN', or 'PENDING' is listed after the header the function will mark the boolean for that program as 'TRUE'
     'If 'ACTIVE', 'APP CLOSE', or 'APP OPEN' is listed, the function will mark case_active as TRUE
@@ -4479,11 +4591,18 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
         If fs_status = "ACTIVE" or fs_status = "APP CLOSE" or fs_status = "APP OPEN" Then
             snap_case = TRUE
             case_active = TRUE
+			snap_status = "ACTIVE"
         End If
         If fs_status = "PENDING" Then
             snap_case = TRUE
             case_pending = TRUE
-        ENd If
+			snap_status = "PENDING"
+        End If
+		If left(fs_status, 4) = "REIN" Then
+			snap_case = TRUE
+			case_rein = TRUE
+			snap_status = "REIN"
+		End If
     End If
     row = 1                                             'Looking for GRH information
     col = 1
@@ -4494,12 +4613,19 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
         If grh_status = "ACTIVE" or grh_status = "APP CLOSE" or grh_status = "APP OPEN" Then
             grh_case = TRUE
             case_active = TRUE
+			grh_status = "ACTIVE"
         End If
         If grh_status = "PENDING" Then
             grh_case = TRUE
             case_pending = TRUE
+			grh_status = "PENDING"
         ENd If
-    End If
+		If left(grh_status, 4) = "REIN" Then
+			snap_case = TRUE
+			case_rein = TRUE
+			grh_status = "REIN"
+		End If
+	End If
     row = 1                                             'Looking for MSA information
     col = 1
     EMSearch "MSA:", row, col
@@ -4510,13 +4636,20 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
             msa_case = TRUE
             adult_cash_case = TRUE
             case_active = TRUE
+			msa_status = "ACTIVE"
         End If
         If ms_status = "PENDING" Then
             msa_case = TRUE
             adult_cash_case = TRUE
             case_pending = TRUE
+			msa_status = "PENDING"
         ENd If
-    End If
+		If left(fs_status, 4) = "REIN" Then
+			snap_case = TRUE
+			case_rein = TRUE
+			snap_status = "REIN"
+		End If
+	End If
     row = 1                                             'Looking for GA information
     col = 1
     EMSearch "GA:", row, col
@@ -4527,13 +4660,20 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
             ga_case = TRUE
             adult_cash_case = TRUE
             case_active = TRUE
+			ga_status = "ACTIVE"
         End If
         If ga_status = "PENDING" Then
             ga_case = TRUE
             adult_cash_case = TRUE
             case_pending = TRUE
+			ga_status = "PENDING"
         ENd If
-    End If
+		If left(ga_status, 4) = "REIN" Then
+			snap_case = TRUE
+			case_rein = TRUE
+			ga_status = "REIN"
+		End If
+	End If
     row = 1                                             'Looking for DWP information
     col = 1
     EMSearch "DWP:", row, col
@@ -4544,13 +4684,20 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
             dwp_case = TRUE
             family_cash_case = TRUE
             case_active = TRUE
+			dwp_status = "ACTIVE"
         End If
         If dw_status = "PENDING" Then
             dwp_case = TRUE
             family_cash_case = TRUE
             case_pending = TRUE
+			dwp_status = "PENDING"
         ENd If
-    End If
+		If left(dw_status, 4) = "REIN" Then
+			snap_case = TRUE
+			case_rein = TRUE
+			dwp_status = "REIN"
+		End If
+	End If
     row = 1                                             'Looking for MFIP information
     col = 1
     EMSearch "MFIP:", row, col
@@ -4561,13 +4708,20 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
             mfip_case = TRUE
             family_cash_case = TRUE
             case_active = TRUE
+			mfip_status = "ACTIVE"
         End If
         If mf_status = "PENDING" Then
             mfip_case = TRUE
             family_cash_case = TRUE
             case_pending = TRUE
+			mfip_status = "PENDING"
         ENd If
-    End If
+		If left(mf_status, 4) = "REIN" Then
+			snap_case = TRUE
+			case_rein = TRUE
+			mfip_status = "REIN"
+		End If
+	End If
     row = 1                                                 'Looking for a general 'Cash' header which means any kind of cash could be pending
     col = 1
     EMSearch "Cash:", row, col
@@ -4576,6 +4730,17 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
         cash_status = trim(cash_status)
         If cash_status = "PENDING" Then
             unknown_cash_pending = TRUE
+            case_pending = TRUE
+        ENd If
+    End If
+	row = 1                                                 'Looking for a general 'Cash' header which means any kind of cash could be pending
+    col = 1
+    EMSearch "HC:", row, col
+    If row <> 0 Then
+        EMReadScreen hc_status, 9, row, col + 4
+        hc_status = trim(hc_status)
+        If hc_status = "PENDING" Then
+            unknown_hc_pending = TRUE
             case_pending = TRUE
         ENd If
     End If
@@ -4588,12 +4753,19 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
         If ma_status = "ACTIVE" or ma_status = "APP CLOSE" or ma_status = "APP OPEN" Then
             ma_case = TRUE
             case_active = TRUE
+			ma_status = "ACTIVE"
         End If
         If ma_status = "PENDING" Then
             ma_case = TRUE
             case_pending = TRUE
-        ENd If
-    End If
+			ma_status = "PENDING"
+        End If
+		If left(ma_status, 4) = "REIN" Then
+			snap_case = TRUE
+			case_rein = TRUE
+			ma_status = "REIN"
+		End If
+	End If
     'MSA programs have different headers so we need to search for them all seperately'
     row = 1                                             'Looking for QMB information for MSA programs
     col = 1
@@ -4604,11 +4776,18 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
         If qm_status = "ACTIVE" or qm_status = "APP CLOSE" or qm_status = "APP OPEN" Then
             msp_case = TRUE
             case_active = TRUE
+			msp_status = "ACTIVE"
         End If
         If qm_status = "PENDING" Then
             msp_case = TRUE
             case_pending = TRUE
-        ENd If
+			msp_status = "PENDING"
+        End If
+		If left(qm_status, 4) = "REIN" Then
+			snap_case = TRUE
+			case_rein = TRUE
+			msp_status = "REIN"
+		End If
     End If
     row = 1                                             'Looking for SLMB information for MSA programs
     col = 1
@@ -4619,11 +4798,18 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
         If sl_status = "ACTIVE" or sl_status = "APP CLOSE" or sl_status = "APP OPEN" Then
             msp_case = TRUE
             case_active = TRUE
+			msp_status = "ACTIVE"
         End If
         If sl_status = "PENDING" Then
             msp_case = TRUE
             case_pending = TRUE
-        ENd If
+			msp_status = "PENDING"
+        End If
+		If left(sl_status, 4) = "REIN" Then
+			snap_case = TRUE
+			case_rein = TRUE
+			msp_status = "REIN"
+		End If
     End If
     row = 1                                             'Looking for QI information for MSA programs
     col = 1
@@ -4634,11 +4820,18 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
         If qm_status = "ACTIVE" or qm_status = "APP CLOSE" or qm_status = "APP OPEN" Then
             msp_case = TRUE
             case_active = TRUE
+			msp_status = "ACTIVE"
         End If
         If qm_status = "PENDING" Then
             msp_case = TRUE
             case_pending = TRUE
-        ENd If
+			msp_status = "PENDING"
+        End If
+		If left(qm_status, 4) = "REIN" Then
+			snap_case = TRUE
+			case_rein = TRUE
+			msp_status = "REIN"
+		End If
     End If
 End Function
 
@@ -7060,17 +7253,6 @@ function select_testing_file(selection_type, the_selection, file_path, file_bran
 '~~~~~ force_error_reporting: should the in-script error reporting automatically happen
 '===== Keywords: MAXIS, PRISM, production, clear
 
-    script_list_URL = t_drive & "\Eligibility Support\Scripts\Script Files\COMPLETE LIST OF TESTERS.vbs"        'Opening the list of testers - which is saved locally for security
-    Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-    Set fso_command = run_another_script_fso.OpenTextFile(script_list_URL)
-    text_from_the_other_script = fso_command.ReadAll
-    fso_command.Close
-    Execute text_from_the_other_script
-
-    Set objNet = CreateObject("WScript.NetWork")
-    windows_user_ID = objNet.UserName
-    user_ID_for_validation = ucase(windows_user_ID)
-
     run_testing_file = FALSE
     If Instr(the_selection, ",") <> 0 Then
         selection_array = split(the_selection, ",")
@@ -7098,7 +7280,15 @@ function select_testing_file(selection_type, the_selection, file_path, file_bran
                         selection = trim(selection)
                         If UCase(selection) = UCase(tester.tester_region) Then run_testing_file = TRUE
                     Next
-                Case "POPULATION"
+                Case "PROGRAM"
+					For each prog in tester.tester_programs
+						For each selection in selection_array
+							selection = trim(selection)
+							If UCase(selection) = UCase(prog) Then run_testing_file = TRUE
+							selected_prog = prog
+						Next
+					Next
+				Case "POPULATION"
                     For each selection in selection_array
                         selection = trim(selection)
                         If UCase(selection) = UCase(tester.tester_population) Then run_testing_file = TRUE
@@ -7111,7 +7301,7 @@ function select_testing_file(selection_type, the_selection, file_path, file_bran
                     body_text = "The call of the function select_testing_file is using an invalid selection_type."
                     body_text = body_text & vbCr & "On script - " & name_of_script & "."
                     body_text = body_text & vbCr & "The selection type of - " & selection_type & " was entered into the function call"
-                    body_text = body_text & vbCr & "The only valid options are: ALL, SCRIPT, GROUP, POPULATION, or REGION"
+                    body_text = body_text & vbCr & "The only valid options are: ALL, SCRIPT, GROUP, PROGRAM, POPULATION, or REGION"
                     body_text = body_text & vbCr & "Review the script file particularly the call for the function select_testing_file."
                     Call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", "FUNCTION ERROR - select_testing_file for " & name_of_script, body_text, "", TRUE)
             End Select

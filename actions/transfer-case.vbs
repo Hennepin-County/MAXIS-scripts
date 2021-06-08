@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("05/21/2021", "Updated browser to default when opening SIR from Internet Explorer to Edge.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("11/09/2020", "No issues with SPEC/MEMO for out-of-county cases. SIR Announcement from 11/05/20 stated an issue was identified. Hennepin County's script project is seperate from DHS's script project. We are not experiencing the reported issue. Thank you!", "Ilse Ferris, Hennepin County")
 CALL changelog_update("10/20/2020", "Updated link for out-of-county use form.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("10/16/2020", "Added closing message box with information if a case is identified as being transferred to the MNPrairie Bank of counties.", "Ilse Ferris, Hennepin County")
@@ -592,7 +593,7 @@ PF3
 	PF3
 
 	navigate_decision = Msgbox("Do you want to navigate to open a the case transfer useform?" & vbcr & "If you are using Chrome you will be asked to open in Adobe.", vbQuestion + vbYesNo, "Navigate to Useform?")
-	If navigate_decision = vbYes then run "C:\Program Files\Internet Explorer\iexplore.exe http://aem.hennepin.us/rest/services/HennepinCounty/Processes/ServletRenderForm:1.0?formName=HSPH5069_1-0.xdp&interactive=1"
+	If navigate_decision = vbYes then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://aem.hennepin.us/rest/services/HennepinCounty/Processes/ServletRenderForm:1.0?formName=HSPH5069_1-0.xdp&interactive=1"
 	If navigate_decision = vbNo then navigate_to_form = False
 	If servicing_worker = "X120ICT" or servicing_worker = "X181ICT" then 
         script_end_procedure_with_error_report("You've transferred a case to the MNPrairie county bank. The case will be transferred to X174ICT per their process." & vbcr & vbcr & "Please review to ensure case has been transferred, a memo sent, and a case note created.")

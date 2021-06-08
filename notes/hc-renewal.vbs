@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("05/21/2021", "Updated browser to default when opening SIR from Internet Explorer to Edge.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/22/2019", "Updated the MA-EPD wording to match the current process for submitting MA-EPD information to DHS, we no longer email, we submit a useform on SIR.", "Casey Love, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -199,7 +200,7 @@ DO
 			Dialog Dialog1				'Displays the dialog
 			cancel_without_confirmation				'Asks if we are sure we want to cancel if the cancel button is pressed
 			MAXIS_dialog_navigation			'Custom function which contains all of the MAXIS dialog navigation possibilities
-			If ButtonPressed = SIR_mail_button then run "C:\Program Files\Internet Explorer\iexplore.exe https://owa.dhssir.cty.dhs.state.mn.us/csedforms/ccforms/HCBillingMADERequest.aspx"		'Goes to SIR if button is pressed
+			If ButtonPressed = SIR_mail_button then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://owa.dhssir.cty.dhs.state.mn.us/csedforms/ccforms/HCBillingMADERequest.aspx"		'Goes to SIR if button is pressed
 		Loop until ButtonPressed = -1 		'Loops until OK is selected
 		If recert_datestamp = "" or IsDate(recert_datestamp) = False then err_msg = err_msg & vbNewLine & "You need to fill in the datestamp."
 		If recert_status = "(select one...)" then err_msg = err_msg & vbNewLine & "* You need to select a recert status."
