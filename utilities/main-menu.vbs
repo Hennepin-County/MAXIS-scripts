@@ -66,11 +66,11 @@ Function declare_main_menu_dialog(script_category)
 				If listed_subcategory <> "" and InStr(subcategory_list, ucase(listed_subcategory)) = 0 then subcategory_list = subcategory_list & "|" & ucase(listed_subcategory)	'...if the listed subcategory isn't blank and isn't already in the list, then add it to our handy-dandy list.
 			Next
 		End if
-		'Adds a "NEW!!!" notification to the description if the script is from the last two months.
-		If DateDiff("m", script_array(current_script).release_date, DateAdd("m", -2, date)) <= 0 then
-			script_array(current_script).description = "NEW " & script_array(current_script).release_date & "!!! --- " & script_array(current_script).description
-			script_array(current_script).release_date = "12/12/1999" 'backs this out and makes it really old so it doesn't repeat each time the dialog loops. This prevents NEW!!!... from showing multiple times in the description.
-		End if
+		' 'Adds a "NEW!!!" notification to the description if the script is from the last two months.
+		' If DateDiff("m", script_array(current_script).release_date, DateAdd("m", -2, date)) <= 0 then
+		' 	script_array(current_script).description = "NEW " & script_array(current_script).release_date & "!!! --- " & script_array(current_script).description
+		' 	script_array(current_script).release_date = "12/12/1999" 'backs this out and makes it really old so it doesn't repeat each time the dialog loops. This prevents NEW!!!... from showing multiple times in the description.
+		' End if
 
 	Next
 
@@ -122,11 +122,20 @@ Function declare_main_menu_dialog(script_category)
 
 		For i = 0 to ubound(subcategory_array)
 
-			'Displays the button and text description-----------------------------------------------------------------------------------------------------------------------------
-			'FUNCTION		HORIZ. ITEM POSITION	VERT. ITEM POSITION		ITEM WIDTH	ITEM HEIGHT		ITEM TEXT/LABEL				BUTTON VARIABLE
-            PushButton 		subcat_button_position, 20, 					50, 		15, 			subcategory_array(i).subcat_name, 					subcat_button_placeholder
+			If subcategory_selected <> subcategory_array(i).subcat_name Then
+				'Displays the button and text description-----------------------------------------------------------------------------------------------------------------------------
+				'FUNCTION		HORIZ. ITEM POSITION	VERT. ITEM POSITION		ITEM WIDTH	ITEM HEIGHT		ITEM TEXT/LABEL				BUTTON VARIABLE
+	            PushButton 		subcat_button_position, 20, 					50, 		15, 			subcategory_array(i).subcat_name, 					subcat_button_placeholder
 
-			subcategory_array(i).subcat_button = subcat_button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
+				subcategory_array(i).subcat_button = subcat_button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
+			Else
+				If subcategory_array(i).subcat_name = "ALL" Then adjuster = 20
+				If subcategory_array(i).subcat_name = "TOOL" Then adjuster = 13
+				If subcategory_array(i).subcat_name = "POLICY" Then adjuster = 10
+				If subcategory_array(i).subcat_name = "MAXIS" Then adjuster = 13
+				' If subcategory_array(i).subcat_name = "WORD DOCS" Then adjuster = 7
+				Text 			subcat_button_position + adjuster, 23, 			40, 		15, 			subcategory_array(i).subcat_name
+			End If
 			subcat_button_position = subcat_button_position + 50
 			subcat_button_placeholder = subcat_button_placeholder + 1
 		Next

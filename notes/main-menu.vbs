@@ -66,15 +66,23 @@ End class
 
 Function declare_main_menu_dialog(script_category)
 
-	'Runs through each script in the array and generates a list of subcategories based on the category located in the function. Also modifies the script description if it's from the last two months, to include a "NEW!!!" notification.
-	For current_script = 0 to ubound(script_array)
-		'Adds a "NEW!!!" notification to the description if the script is from the last two months.
-		If DateDiff("m", script_array(current_script).release_date, DateAdd("m", -2, date)) <= 0 then
-			script_array(current_script).description = "NEW " & script_array(current_script).release_date & "!!! --- " & script_array(current_script).description
-			script_array(current_script).release_date = "12/12/1999" 'backs this out and makes it really old so it doesn't repeat each time the dialog loops. This prevents NEW!!!... from showing multiple times in the description.
-		End if
+	' 'Runs through each script in the array and generates a list of subcategories based on the category located in the function. Also modifies the script description if it's from the last two months, to include a "NEW!!!" notification.
+	' For current_script = 0 to ubound(script_array)
+	' 	'Adds a "NEW!!!" notification to the description if the script is from the last two months.
+	' 	If DateDiff("m", script_array(current_script).release_date, DateAdd("m", -2, date)) <= 0 then
+	' 		script_array(current_script).description = "NEW " & script_array(current_script).release_date & "!!! --- " & script_array(current_script).description
+	' 		script_array(current_script).release_date = "12/12/1999" 'backs this out and makes it really old so it doesn't repeat each time the dialog loops. This prevents NEW!!!... from showing multiple times in the description.
+	' 	End if
+	'
+	' Next
+	show_ltc_btn = True
+	show_imig_btn = True
+	show_0_c_btn = True
+	show_d_f_btn = True
+	show_g_l_btn = True
+	show_m_q_btn = True
+	show_r_z_btn = True
 
-	Next
 
     dlg_len = 60
     For current_script = 0 to ubound(script_array)
@@ -82,18 +90,22 @@ Function declare_main_menu_dialog(script_category)
         If ucase(script_array(current_script).category) = ucase(script_category) then
             If ButtonPressed = menu_ltc_button Then
                 If left(script_array(current_script).script_name, 3) = "LTC" Then script_array(current_script).show_script = TRUE
+				show_ltc_btn = False
             ElseIf ButtonPressed = menu_imig_button Then
                 If left(script_array(current_script).script_name, 4) = "IMIG" Then script_array(current_script).show_script = TRUE
+				show_imig_btn = False
             ElseIf ButtonPressed = menu_0_to_c_button Then
                 If IsNumeric(left(script_array(current_script).script_name, 1)) = TRUE Then script_array(current_script).show_script = TRUE
                 If left(script_array(current_script).script_name, 1) = "A" Then script_array(current_script).show_script = TRUE
                 If left(script_array(current_script).script_name, 1) = "B" Then script_array(current_script).show_script = TRUE
                 If left(script_array(current_script).script_name, 1) = "C" Then script_array(current_script).show_script = TRUE
+				show_0_c_btn = False
             ElseIf ButtonPressed = menu_D_to_F_button Then
                 If IsNumeric(left(script_array(current_script).script_name, 1)) = TRUE Then script_array(current_script).show_script = TRUE
                 If left(script_array(current_script).script_name, 1) = "D" Then script_array(current_script).show_script = TRUE
                 If left(script_array(current_script).script_name, 1) = "E" Then script_array(current_script).show_script = TRUE
                 If left(script_array(current_script).script_name, 1) = "F" Then script_array(current_script).show_script = TRUE
+				show_d_f_btn = False
             ElseIf ButtonPressed = menu_G_to_L_button Then
                 If IsNumeric(left(script_array(current_script).script_name, 1)) = TRUE Then script_array(current_script).show_script = TRUE
                 If left(script_array(current_script).script_name, 1) = "G" Then script_array(current_script).show_script = TRUE
@@ -104,6 +116,7 @@ Function declare_main_menu_dialog(script_category)
                 If left(script_array(current_script).script_name, 1) = "L" Then script_array(current_script).show_script = TRUE
                 If left(script_array(current_script).script_name, 4) = "IMIG" Then script_array(current_script).show_script = FALSE
                 If left(script_array(current_script).script_name, 3) = "LTC" Then script_array(current_script).show_script = FALSE
+				show_g_l_btn = False
             ElseIf ButtonPressed = menu_M_to_Q_button Then
                 If IsNumeric(left(script_array(current_script).script_name, 1)) = TRUE Then script_array(current_script).show_script = TRUE
                 If left(script_array(current_script).script_name, 1) = "M" Then script_array(current_script).show_script = TRUE
@@ -111,6 +124,7 @@ Function declare_main_menu_dialog(script_category)
                 If left(script_array(current_script).script_name, 1) = "O" Then script_array(current_script).show_script = TRUE
                 If left(script_array(current_script).script_name, 1) = "P" Then script_array(current_script).show_script = TRUE
                 If left(script_array(current_script).script_name, 1) = "Q" Then script_array(current_script).show_script = TRUE
+				show_m_q_btn = False
             ElseIf ButtonPressed = menu_R_to_Z_button Then
                 If IsNumeric(left(script_array(current_script).script_name, 1)) = TRUE Then script_array(current_script).show_script = TRUE
                 If left(script_array(current_script).script_name, 1) = "R" Then script_array(current_script).show_script = TRUE
@@ -122,6 +136,7 @@ Function declare_main_menu_dialog(script_category)
                 If left(script_array(current_script).script_name, 1) = "X" Then script_array(current_script).show_script = TRUE
                 If left(script_array(current_script).script_name, 1) = "Y" Then script_array(current_script).show_script = TRUE
                 If left(script_array(current_script).script_name, 1) = "Z" Then script_array(current_script).show_script = TRUE
+				show_r_z_btn = False
             End If
             If IsDate(script_array(current_script).retirement_date) = TRUE Then
                 If DateDiff("d", date, script_array(current_script).retirement_date) =< 0 Then script_array(current_script).show_script = FALSE
@@ -132,8 +147,9 @@ Function declare_main_menu_dialog(script_category)
             If script_array(current_script).show_script = TRUE Then dlg_len = dlg_len + 15
         End If
     next
+	If ButtonPressed = menu_imig_button Then dlg_len = dlg_len + 10
 
-	BeginDialog dialog1, 0, 0, 600, dlg_len, script_category & " scripts main menu dialog"
+	BeginDialog dialog1, 0, 0, 650, dlg_len, script_category & " scripts main menu dialog"
 	 	Text 5, 5, 435, 10, script_category & " scripts main menu: select the script to run from the choices below."
 	  	ButtonGroup ButtonPressed
 
@@ -141,14 +157,42 @@ Function declare_main_menu_dialog(script_category)
 		'SUBCATEGORY HANDLING--------------------------------------------
 
 		'Displays the button and text description-----------------------------------------------------------------------------------------------------------------------------
-		'FUNCTION		HORIZ. ITEM POSITION	VERT. ITEM POSITION		ITEM WIDTH	ITEM HEIGHT		ITEM TEXT/LABEL				BUTTON VARIABLE
-		PushButton 		5,                      20, 					50, 		15, 			" # - C ", 					menu_0_to_c_button
-        PushButton 		55,                     20, 					50, 		15, 			" D - F ", 					menu_D_to_F_button
-        PushButton 		105,                    20, 					50, 		15, 			" G - L ", 					menu_G_to_L_button
-        PushButton 		155,                    20, 					50, 		15, 			" M - Q ", 					menu_M_to_Q_button
-        PushButton 		205,                    20, 					50, 		15, 			" R - Z ", 					menu_R_to_Z_button
-        PushButton 		255,                    20, 					50, 		15, 			"  LTC  ", 					menu_ltc_button
-        PushButton 		305,                    20, 					50, 		15, 			" IMIG ", 					menu_imig_button
+			'FUNCTION		HORIZ. ITEM POSITION	VERT. ITEM POSITION		ITEM WIDTH	ITEM HEIGHT		ITEM TEXT/LABEL				BUTTON VARIABLE
+		If show_0_c_btn = True  Then
+			PushButton 		5,                      20, 					50, 		15, 			" # - C ", 					menu_0_to_c_button
+		Else
+			Text 			20,                      23, 					40, 		15, 			" # - C "
+		End If
+		If show_d_f_btn = True  Then
+        	PushButton 		55,                     20, 					50, 		15, 			" D - F ", 					menu_D_to_F_button
+		Else
+			Text 			70,                     23, 					40, 		15, 			" D - F "
+		End If
+		If show_g_l_btn = True  Then
+        	PushButton 		105,                    20, 					50, 		15, 			" G - L ", 					menu_G_to_L_button
+		Else
+			Text 			120,                    23, 					40, 		15, 			" G - L "
+		End If
+		If show_m_q_btn = True  Then
+        	PushButton 		155,                    20, 					50, 		15, 			" M - Q ", 					menu_M_to_Q_button
+		Else
+			Text 			170,                    23, 					40, 		15, 			" M - Q "
+		End If
+		If show_r_z_btn = True  Then
+        	PushButton 		205,                    20, 					50, 		15, 			" R - Z ", 					menu_R_to_Z_button
+		Else
+			Text 			220,                    23, 					40, 		15, 			" R - Z "
+		End If
+		If show_ltc_btn = True Then
+        	PushButton 		255,                    20, 					50, 		15, 			"  LTC  ", 					menu_ltc_button
+		Else
+			Text 			270,                    23, 					40, 		15, 			" LTC  "
+		End If
+		If show_imig_btn = True  Then
+        	PushButton 		305,                    20, 					50, 		15, 			" IMIG ", 					menu_imig_button
+		Else
+			Text 			320,                    23, 					40, 		15, 			" IMIG "
+		End If
 
 
 		'SCRIPT LIST HANDLING--------------------------------------------
@@ -179,7 +223,7 @@ Function declare_main_menu_dialog(script_category)
 
 		next
 
-		CancelButton 540, dlg_len - 20, 50, 15
+		CancelButton 590, dlg_len - 20, 50, 15
 	EndDialog
 End function
 
