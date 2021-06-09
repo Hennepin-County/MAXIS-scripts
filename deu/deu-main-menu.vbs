@@ -103,21 +103,21 @@ ReDim Preserve script_array_DEU_main(script_num)
 Set script_array_DEU_main(script_num) = new script
 script_array_DEU_main(script_num).script_name 			= "ADH Info and Hearing"																'Script name
 script_array_DEU_main(script_num).file_name 			= "adh-info-and-hearing.vbs"													'Script URL
-script_array_DEU_main(script_num).description 			= "Case note template the Administrative Disqualification Hearing process."
+script_array_DEU_main(script_num).description 			= "Administrative Disqualification Hearing process."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_DEU_main(script_num)		'Resets the array to add one more element to it
 Set script_array_DEU_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_DEU_main(script_num).script_name 			= "Appeal Summary Completed"																'Script name
+script_array_DEU_main(script_num).script_name 			= "Appeal"																'Script name
 script_array_DEU_main(script_num).file_name 			= "appeal-summary-completed.vbs"												'Script URL
-script_array_DEU_main(script_num).description 			= "Case note template for documenting the appeal summary."
+script_array_DEU_main(script_num).description 			= "Documenting the appeal process."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_DEU_main(script_num)		'Resets the array to add one more element to it
 Set script_array_DEU_main(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_DEU_main(script_num).script_name 			= "ATR Received"																'Script name
 script_array_DEU_main(script_num).file_name 			= "atr-received.vbs"												'Script URL
-script_array_DEU_main(script_num).description 			= "Case note template for documenting the ATR received. Also updates IULB."
+script_array_DEU_main(script_num).description 			= "Documenting the ATR received. Also updates IULB."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_DEU_main(script_num)		'Resets the array to add one more element to it
