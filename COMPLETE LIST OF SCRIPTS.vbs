@@ -1356,6 +1356,7 @@ script_array(script_num).tags                   = array("Reports", "Utility")
 script_array(script_num).dlg_keys               = array("Ex", "Ev")
 script_array(script_num).subcategory            = array("ENHANCED LISTS")
 script_array(script_num).release_date           = #10/01/2000#
+script_array(script_num).retirement_date		= #06/09/2021#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 
@@ -1454,6 +1455,7 @@ script_array(script_num).tags                   = array("BZ")
 script_array(script_num).dlg_keys               = array("Ex", "Ev")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
+script_array(script_num).retirement_date		= #06/09/2021#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 
@@ -1538,6 +1540,7 @@ script_array(script_num).tags                   = array("Reports")
 script_array(script_num).dlg_keys               = array("Ex", "Ev")
 script_array(script_num).subcategory            = array("ENHANCED LISTS")
 script_array(script_num).release_date           = #10/01/2000#
+script_array(script_num).retirement_date		= #06/09/2021#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 
@@ -1724,6 +1727,7 @@ script_array(script_num).tags                   = array("BZ", "Monthly Tasks")
 script_array(script_num).dlg_keys               = array("Ev", "Ex")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
+script_array(script_num).retirement_date		= #06/09/2021#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 
@@ -1990,6 +1994,7 @@ script_array(script_num).tags                   = array("BZ", "Monthly Tasks", "
 script_array(script_num).dlg_keys               = array("Ev", "Ex")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
+script_array(script_num).retirement_date		= #06/09/2021#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 
@@ -2173,7 +2178,7 @@ script_array(script_num).tags                   = array("BZ", "Monthly Tasks")
 script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
-script_array(script_num).retirement_date		= #06/03/2021#
+script_array(script_num).retirement_date		= #06/09/2021#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 
@@ -2301,9 +2306,10 @@ script_array(script_num).tags                   = array("Navigation")
 script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
+script_array(script_num).retirement_date		= #06/09/2021#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
-script_array(script_num).retirement_date		= #6/2/2021#
+
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -2638,6 +2644,7 @@ script_array(script_num).tags                   = array("BZ", "Monthly Tasks")
 script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
+script_array(script_num).retirement_date		= #06/09/2021#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 
