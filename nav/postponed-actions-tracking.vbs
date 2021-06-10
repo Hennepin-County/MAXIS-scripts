@@ -54,14 +54,14 @@ changelog_display
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
 
-BeginDialog Dialog1, 0, 0, 216, 90, "Postponed Actions Required"
-  EditBox 115, 50, 55, 15, MAXIS_case_number
+BeginDialog Dialog1, 0, 0, 206, 90, "Postponed Actions Required"
+  EditBox 65, 50, 55, 15, MAXIS_case_number
   ButtonGroup ButtonPressed
-    OkButton 70, 70, 40, 15
-    CancelButton 115, 70, 40, 15
-  Text 30, 55, 80, 10, "Enter the Case Number:"
-  GroupBox 5, 5, 210, 40, "When to use this script: HC cases only"
-  Text 10, 15, 200, 25, "Use this script if verifications and/or actions are required, but are postponed temporarily due to COVID-19 Emergency Executive Orders."
+    OkButton 115, 70, 40, 15
+    CancelButton 160, 70, 40, 15
+  Text 10, 55, 50, 10, "Case number:"
+  GroupBox 5, 5, 195, 40, "When to use this script: HC cases only"
+  Text 10, 15, 190, 25, "Use this script if verifications and/or actions are required, but are postponed temporarily due to COVID-19 Emergency Executive Orders."
 EndDialog
 
 Do
