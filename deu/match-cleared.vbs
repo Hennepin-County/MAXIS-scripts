@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: CALL changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("06/09/2021", "GitHub issue #373 BUG-NO IEVS MATCHES FOR SSN needs error script end procedure.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("1/11/2021", "Updated BNDX handling to ensure header of case note is written correctly.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("10/20/2020", "Removed custom functions from script file. Functions have all been incorporated into the project's Function Library.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("09/17/2020", "The field for 'OTHER NOTES' is now required when completing the information to clear the match. ##~## ##~##We are aware that this will not always be required in MAXIS and will be adding additional functionality for scenario and match specific requirements of this field, but in order to provide you with a working script right now this field must be mandatory each time.##~## ##~##Thank you for your patience as we provide updates to this script.##~##", "Casey Love, Hennepin County")
@@ -65,119 +66,96 @@ CALL changelog_update("11/22/2017", "Updated Non-coop option to the cleared matc
 CALL changelog_update("11/21/2017", "Updated to clear match, and added handling for sending the difference notice.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("11/14/2017", "Initial version.", "MiKayla Handley, Hennepin County")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+
 changelog_display
-'====================================================================END CHANGELOG BLOCK
+'END CHANGELOG BLOCK =======================================================================================================
 
-'---------------------------------------------------------------------THE SCRIPT
+'THE SCRIPT=================================================================================================================
+'Connecting to MAXIS, and grabbing the case number and footer month'
 EMConnect ""
-CALL MAXIS_case_number_finder (MAXIS_case_number)
+CALL check_for_maxis(FALSE) 'checking for passord out, brings up dialog'
+CALL MAXIS_case_number_finder(MAXIS_case_number)
 
-'---------------------------------------------------------------------DIALOG
-Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 111, 45, "Case Number"
-  EditBox 65, 5, 40, 15, MAXIS_case_number
-  ButtonGroup ButtonPressed
-    OkButton 20, 25, 40, 15
-    CancelButton 65, 25, 40, 15
-  Text 5, 10, 50, 10, "Case Number:"
-EndDialog
-
-DO
-	DO
-		err_msg = ""
-		Dialog Dialog1
-		cancel_confirmation
-  		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Enter a valid case number."
-  		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-	LOOP UNTIL err_msg = ""
-	CALL check_for_password(are_we_passworded_out)
-LOOP UNTIL are_we_passworded_out = false
-
-EMReadScreen PRIV_check, 4, 24, 14					'if case is a priv case THEN it gets identified, and will not be updated in MMIS
-IF PRIV_check = "PRIV" THEN script_end_procedure("PRIV case, cannot access/update. The script will now end.")
-
-'----------------------------------------------------------------------------------------------------Gathering the member information
-CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
-
-client_array = "Select One:" & "|"
-
-DO								'reads the reference number, last name, first name, and THEN puts it into a single string THEN into the array
-EMReadscreen ref_nbr, 3, 4, 33
-EMReadScreen access_denied_check, 13, 24, 2
-'MsgBox access_denied_check
-If access_denied_check = "ACCESS DENIED" Then
-	PF10
-	last_name = "UNABLE TO FIND"
-	first_name = " - Access Denied"
-	mid_initial = ""
-Else
-	EMReadscreen last_name, 25, 6, 30
-	EMReadscreen first_name, 12, 6, 63
-	EMReadscreen mid_initial, 1, 6, 79
-	last_name = trim(replace(last_name, "_", "")) & " "
-	first_name = trim(replace(first_name, "_", "")) & " "
-	mid_initial = replace(mid_initial, "_", "")
+If MAXIS_case_number <> "" Then 		'If a case number is found the script will get the list of
+	Call Generate_Client_List(HH_Memb_DropDown, "Select One:")
 End If
-	EMReadscreen MEMB_number, 2, 4, 33
-	EMReadscreen last_name, 25, 6, 30
-	EMReadscreen first_name, 12, 6, 63
-	EMReadscreen mid_initial, 1, 6, 79
-    EMReadScreen client_DOB, 10, 8, 42
-	EMReadscreen client_SSN, 11, 7, 42
-	client_SSN = replace(client_SSN, " ", "")
-	last_name = trim(replace(last_name, "_", "")) & " "
-	first_name = trim(replace(first_name, "_", "")) & " "
-	mid_initial = replace(mid_initial, "_", "")
-	client_string = MEMB_number & last_name & first_name & client_SSN
-	client_array = client_array & trim(client_string) & "|"
+'Running the dialog for case number and client
+Do
+	err_msg = ""
+    Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 201, 90, "Match Cleared"
+	  EditBox 55, 5, 45, 15, MAXIS_case_number
+	  DropListBox 80, 25, 115, 15, HH_Memb_DropDown, clt_to_update
+	  EditBox 80, 45, 115, 15, worker_signature
+	  ButtonGroup ButtonPressed
+	    OkButton 100, 70, 45, 15
+	    CancelButton 150, 70, 45, 15
+	  Text 5, 10, 45, 10, "Case number:"
+	  Text 5, 30, 70, 10, "Household member:"
+	  Text 5, 50, 60, 10, "Worker signature:"
+	  ButtonGroup ButtonPressed
+	    PushButton 110, 5, 85, 15, "HH MEMB SEARCH", search_button
+	EndDialog
 
-	transmit
-	Emreadscreen edit_check, 7, 24, 2
-LOOP until edit_check = "ENTER A"			'the script will continue to transmit through memb until it reaches the last page and finds the ENTER A edit on the bottom row.
+	Dialog Dialog1
+	IF ButtonPressed = cancel Then StopScript
+	IF ButtonPressed = search_button Then
+		If MAXIS_case_number = "" Then
+			MsgBox "Cannot search without a case number, please try again."
+		Else
+			HH_Memb_DropDown = ""
+			Call Generate_Client_List(HH_Memb_DropDown, "Select One:")
+			err_msg = err_msg & "Start Over"
+		End If
+	End If
+	IF MAXIS_case_number = "" Then err_msg = err_msg & vbNewLine & "Please enter a valid case number."
+	IF clt_to_update = "Select One:" Then err_msg = err_msg & vbNewLine & "Please select a client to update."
+	IF trim(worker_signature) = "" THEN err_msg = err_msg & vbNewLine & "Please enter your worker signature."
+	IF err_msg <> "" AND left(err_msg, 10) <> "Start Over" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
+Loop until err_msg = ""
 
-client_array = TRIM(client_array)
-client_selection = split(client_array, "|")
-CALL convert_array_to_droplist_items(client_selection, hh_member_dropdown)
-'-------------------------------------------------------------------------------------------------DIALOG
-Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 171, 60, "HH Composition"
-DropListBox 5, 20, 160, 15, hh_member_dropdown, ievs_member
-  ButtonGroup ButtonPressed
-    OkButton 70, 40, 45, 15
-    CancelButton 120, 40, 45, 15
-  Text 5, 5, 165, 10, "Please select the HH Member for the IEVS match:"
-EndDialog
+CALL navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", is_this_priv)
+IF is_this_priv = TRUE THEN script_end_procedure("This case is privileged, the script will now end.")
 
-DO
-    DO
-       	err_msg = ""
-       	Dialog Dialog1
-       	cancel_without_confirmation
-        IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-       LOOP UNTIL err_msg = ""
-	CALL check_for_password_without_transmit(are_we_passworded_out)
-LOOP UNTIL are_we_passworded_out = false
+'redefine ref_numb'
+MEMB_number = left(clt_to_update, 2)	'Settin the reference number
+EMWriteScreen MEMB_number, 20, 76
+TRANSMIT
+EMReadScreen client_first_name, 12, 6, 63
+client_first_name = replace(client_first_name, "_", "")
+client_first_name = trim(client_first_name)
+EMReadScreen client_last_name, 25, 6, 30
+client_last_name = replace(client_last_name, "_", "")
+client_last_name = trim(client_last_name)
+EMReadscreen client_mid_initial, 1, 6, 79
+EMReadScreen client_DOB, 10, 8, 42
+EMReadscreen client_SSN, 11, 7, 42
+client_SSN = replace(client_SSN, " ", "")
 
-ievs_member = trim(ievs_member)
-IEVS_ssn = right(ievs_member, 9)
-IEVS_MEMB_number = left(ievs_member, 2)
-'MsgBox IEVS_MEMB_number
+'navigating to INFC
 CALL navigate_to_MAXIS_screen("INFC" , "____")
 CALL write_value_and_transmit("IEVP", 20, 71)
-CALL write_value_and_transmit(IEVS_ssn, 3, 63)
+CALL write_value_and_transmit(client_SSN, 3, 63)
 
-EMReadScreen MISC_error_check,  74, 24, 02
-IF trim(MISC_error_check) = "" THEN
-	case_note_only = FALSE
-else
-	maxis_error_check = MsgBox("*** NOTICE!!!***" & vbNewLine & "Continue to case note only?" & vbNewLine & MISC_error_check & vbNewLine, vbYesNo + vbQuestion, "Message handling")
-	IF maxis_error_check = vbYes THEN
-		case_note_only = TRUE 'this will case note only'
-	END IF
-	IF maxis_error_check= vbNo THEN
-		case_note_only = FALSE 'this will update the panels and case note'
+'checking for NON-DISCLOSURE AGREEMENT REQUIRED FOR ACCESS TO IEVS FUNCTIONS'
+EMReadscreen non_disclosure_access, 9, 2, 24  'Automated IRS and SSA Non-disclosure
+IF non_disclosure_access = "Automated" THEN
+	PF8
+	PF8
+	PF8
+	PF8
+	PF8
+	EMReadscreen final_agreement, 5, 19, 33
+	IF final_agreement = "agree" THEN
+		EMwritescreen "Y", 19, 45
+		TRANSMIT
+	ELSE
+		script_end_procedure_with_error_report("An error occured when trying to update the non disclosure access.")
 	END IF
 END IF
+
+EMReadScreen panel_check, 4, 2, 52
+IF panel_check <> "IEVP" THEN script_end_procedure_with_error_report("*** NOTICE!***" & vbNewLine & "Case must be on INFC/IEVP to read the correct information, please re-run the script. If the social security number is not found the match must be completed manually.")
 
 '------------------------------------------------------------------selecting the correct wage match
 Row = 7
@@ -220,6 +198,7 @@ DO
 		CALL check_for_password_without_transmit(are_we_passworded_out)
 	LOOP UNTIL are_we_passworded_out = false
 LOOP UNTIL ButtonPressed = match_confimation
+
 '---------------------------------------------------------------------Reading potential errors for out-of-county cases
 CALL write_value_and_transmit("U", row, 3)   'navigates to IULA
 EMReadScreen OutOfCounty_error, 12, 24, 2
@@ -418,7 +397,6 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
 		err_msg = ""
 		Dialog Dialog1
 		cancel_without_confirmation
-
 		other_notes = trim(other_notes)
 		IF IsNumeric(resolve_time) = false or len(resolve_time) > 3 THEN err_msg = err_msg & vbNewLine & "Please enter a valid numeric resolved time, ie 005."
 		IF other_checkbox = CHECKED and other_notes = "" THEN err_msg = err_msg & vbNewLine & "Please advise what other verification was used to clear the match."
@@ -741,7 +719,6 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
     	END IF
     ELSE
     	script_run_lowdown = script_run_lowdown & vbCr & vbCR & "DEU Error Type: " & MISC_error_check & panel_name
-
     END IF
 	'------------------------------------------------------------------back on the IEVP menu, making sure that the match cleared
 	'EMReadScreen days_pending, 5, row, 72
@@ -828,10 +805,6 @@ script_run_lowdown = script_run_lowdown & vbCr & "Income Received Date: " & inco
 script_run_lowdown = script_run_lowdown & vbCr & "OP Reason: " & Reason_OP
 script_run_lowdown = script_run_lowdown & vbCr & "Other resp members: " & OT_resp_memb
 If ATR_needed_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "EVF/ATR is still needed"
-
-
-
-
      	'If match_cleared = FALSE and sent_date <> date THEN
         '   	confirm_cleared = MsgBox("The script cannot identify that this match has cleared." & vbNewLine & vbNewLine & "Review IEVP and find the match that 'is being cleared with this run." & vbNewLine & " ** HAS THE MATCH BEEN 'CLEARED? **", vbQuestion + vbYesNo, "Confirm Match Cleared")
         '   	IF confirm_cleared = vbYes Then match_cleared = TRUE
