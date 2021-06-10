@@ -155,7 +155,7 @@ IF non_disclosure_access = "Automated" THEN
 END IF
 
 EMReadScreen panel_check, 4, 2, 52
-IF panel_check <> "IEVP" THEN script_end_procedure_with_error_report("*** NOTICE!***" & vbNewLine & "Case must be on INFC/IEVP to read the correct information, please re-run the script. If the social security number is not found the match must be completed manually.")
+IF panel_check <> "IEVP" THEN script_end_procedure_with_error_report("***NOTICE***" & vbNewLine & "Case must be on INFC/IEVP to read the correct information. If the social security number is not found the match must be completed manually. The only way to find the wage match is go to REPT/IEVC. The issue might be that the client has a duplicate PMI number. Review for a PF11 to be submitted.")
 
 '------------------------------------------------------------------selecting the correct wage match
 Row = 7
