@@ -435,10 +435,14 @@ Do
                 'msgbox "exemption_reason: " & exemption_reason
             End if 
             
-            If (exemption_reason = True and health_depart_reason = True) then 
-                impacted_vendor = "Yes" 
-            Else 
+            If exemption_code = "28" and instr(HDL_string, "10") then 
                 impacted_vendor = "No"
+            Else 
+                If (exemption_reason = True and health_depart_reason = True) then 
+                    impacted_vendor = "Yes" 
+                Else 
+                    impacted_vendor = "No"
+                End if 
             End if 
         End if
     End if 
