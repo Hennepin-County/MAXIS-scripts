@@ -56,6 +56,321 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
+function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_line_two, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, mail_line_one, mail_line_two, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three)
+    access_type = UCase(access_type)
+    If access_type = "READ" Then
+        Call navigate_to_MAXIS_screen("STAT", "ADDR")
+
+        EMReadScreen line_one, 22, 6, 43										'Reading all the information from the panel
+        EMReadScreen line_two, 22, 7, 43
+        EMReadScreen city_line, 15, 8, 43
+        EMReadScreen state_line, 2, 8, 66
+        EMReadScreen zip_line, 7, 9, 43
+        EMReadScreen county_line, 2, 9, 66
+        EMReadScreen verif_line, 2, 9, 74
+        EMReadScreen homeless_line, 1, 10, 43
+        EMReadScreen reservation_line, 1, 10, 74
+        EMReadScreen living_sit_line, 2, 11, 43
+
+        resi_line_one = replace(line_one, "_", "")								'This is all formatting of the information from the panel
+        resi_line_two = replace(line_two, "_", "")
+        resi_city = replace(city_line, "_", "")
+        resi_zip = replace(zip_line, "_", "")
+
+        If county_line = "01" Then addr_county = "01 - Aitkin"
+        If county_line = "02" Then addr_county = "02 - Anoka"
+        If county_line = "03" Then addr_county = "03 - Becker"
+        If county_line = "04" Then addr_county = "04 - Beltrami"
+        If county_line = "05" Then addr_county = "05 - Benton"
+        If county_line = "06" Then addr_county = "06 - Big Stone"
+        If county_line = "07" Then addr_county = "07 - Blue Earth"
+        If county_line = "08" Then addr_county = "08 - Brown"
+        If county_line = "09" Then addr_county = "09 - Carlton"
+        If county_line = "10" Then addr_county = "10 - Carver"
+        If county_line = "11" Then addr_county = "11 - Cass"
+        If county_line = "12" Then addr_county = "12 - Chippewa"
+        If county_line = "13" Then addr_county = "13 - Chisago"
+        If county_line = "14" Then addr_county = "14 - Clay"
+        If county_line = "15" Then addr_county = "15 - Clearwater"
+        If county_line = "16" Then addr_county = "16 - Cook"
+        If county_line = "17" Then addr_county = "17 - Cottonwood"
+        If county_line = "18" Then addr_county = "18 - Crow Wing"
+        If county_line = "19" Then addr_county = "19 - Dakota"
+        If county_line = "20" Then addr_county = "20 - Dodge"
+        If county_line = "21" Then addr_county = "21 - Douglas"
+        If county_line = "22" Then addr_county = "22 - Faribault"
+        If county_line = "23" Then addr_county = "23 - Fillmore"
+        If county_line = "24" Then addr_county = "24 - Freeborn"
+        If county_line = "25" Then addr_county = "25 - Goodhue"
+        If county_line = "26" Then addr_county = "26 - Grant"
+        If county_line = "27" Then addr_county = "27 - Hennepin"
+        If county_line = "28" Then addr_county = "28 - Houston"
+        If county_line = "29" Then addr_county = "29 - Hubbard"
+        If county_line = "30" Then addr_county = "30 - Isanti"
+        If county_line = "31" Then addr_county = "31 - Itasca"
+        If county_line = "32" Then addr_county = "32 - Jackson"
+        If county_line = "33" Then addr_county = "33 - Kanabec"
+        If county_line = "34" Then addr_county = "34 - Kandiyohi"
+        If county_line = "35" Then addr_county = "35 - Kittson"
+        If county_line = "36" Then addr_county = "36 - Koochiching"
+        If county_line = "37" Then addr_county = "37 - Lac Qui Parle"
+        If county_line = "38" Then addr_county = "38 - Lake"
+        If county_line = "39" Then addr_county = "39 - Lake Of Woods"
+        If county_line = "40" Then addr_county = "40 - Le Sueur"
+        If county_line = "41" Then addr_county = "41 - Lincoln"
+        If county_line = "42" Then addr_county = "42 - Lyon"
+        If county_line = "43" Then addr_county = "43 - Mcleod"
+        If county_line = "44" Then addr_county = "44 - Mahnomen"
+        If county_line = "45" Then addr_county = "45 - Marshall"
+        If county_line = "46" Then addr_county = "46 - Martin"
+        If county_line = "47" Then addr_county = "47 - Meeker"
+        If county_line = "48" Then addr_county = "48 - Mille Lacs"
+        If county_line = "49" Then addr_county = "49 - Morrison"
+        If county_line = "50" Then addr_county = "50 - Mower"
+        If county_line = "51" Then addr_county = "51 - Murray"
+        If county_line = "52" Then addr_county = "52 - Nicollet"
+        If county_line = "53" Then addr_county = "53 - Nobles"
+        If county_line = "54" Then addr_county = "54 - Norman"
+        If county_line = "55" Then addr_county = "55 - Olmsted"
+        If county_line = "56" Then addr_county = "56 - Otter Tail"
+        If county_line = "57" Then addr_county = "57 - Pennington"
+        If county_line = "58" Then addr_county = "58 - Pine"
+        If county_line = "59" Then addr_county = "59 - Pipestone"
+        If county_line = "60" Then addr_county = "60 - Polk"
+        If county_line = "61" Then addr_county = "61 - Pope"
+        If county_line = "62" Then addr_county = "62 - Ramsey"
+        If county_line = "63" Then addr_county = "63 - Red Lake"
+        If county_line = "64" Then addr_county = "64 - Redwood"
+        If county_line = "65" Then addr_county = "65 - Renville"
+        If county_line = "66" Then addr_county = "66 - Rice"
+        If county_line = "67" Then addr_county = "67 - Rock"
+        If county_line = "68" Then addr_county = "68 - Roseau"
+        If county_line = "69" Then addr_county = "69 - St. Louis"
+        If county_line = "70" Then addr_county = "70 - Scott"
+        If county_line = "71" Then addr_county = "71 - Sherburne"
+        If county_line = "72" Then addr_county = "72 - Sibley"
+        If county_line = "73" Then addr_county = "73 - Stearns"
+        If county_line = "74" Then addr_county = "74 - Steele"
+        If county_line = "75" Then addr_county = "75 - Stevens"
+        If county_line = "76" Then addr_county = "76 - Swift"
+        If county_line = "77" Then addr_county = "77 - Todd"
+        If county_line = "78" Then addr_county = "78 - Traverse"
+        If county_line = "79" Then addr_county = "79 - Wabasha"
+        If county_line = "80" Then addr_county = "80 - Wadena"
+        If county_line = "81" Then addr_county = "81 - Waseca"
+        If county_line = "82" Then addr_county = "82 - Washington"
+        If county_line = "83" Then addr_county = "83 - Watonwan"
+        If county_line = "84" Then addr_county = "84 - Wilkin"
+        If county_line = "85" Then addr_county = "85 - Winona"
+        If county_line = "86" Then addr_county = "86 - Wright"
+        If county_line = "87" Then addr_county = "87 - Yellow Medicine"
+        If county_line = "89" Then addr_county = "89 - Out-of-State"
+        resi_county = addr_county
+
+		' Call get_state_name_from_state_code(state_line, resi_state, TRUE)		'This function makes the state code to be the state name written out - including the code
+		state_array = split(state_list, chr(9))
+		For each state_item in state_array
+			If state_line = left(state_item, 2) Then
+				resi_state = state_item
+			End If
+		Next
+
+        If homeless_line = "Y" Then addr_homeless = "Yes"
+        If homeless_line = "N" Then addr_homeless = "No"
+        If reservation_line = "Y" Then addr_reservation = "Yes"
+        If reservation_line = "N" Then addr_reservation = "No"
+
+        If verif_line = "SF" Then addr_verif = "SF - Shelter Form"
+        If verif_line = "Co" Then addr_verif = "CO - Coltrl Stmt"
+        If verif_line = "MO" Then addr_verif = "MO - Mortgage Papers"
+        If verif_line = "TX" Then addr_verif = "TX - Prop Tax Stmt"
+        If verif_line = "CD" Then addr_verif = "CD - Contrct for Deed"
+        If verif_line = "UT" Then addr_verif = "UT - Utility Stmt"
+        If verif_line = "DL" Then addr_verif = "DL - Driver Lic/State ID"
+        If verif_line = "OT" Then addr_verif = "OT - Other Document"
+        If verif_line = "NO" Then addr_verif = "NO - No Ver Prvd"
+        If verif_line = "?_" Then addr_verif = "? - Delayed"
+        If verif_line = "__" Then addr_verif = "Blank"
+
+
+        If living_sit_line = "__" Then living_situation = "Blank"
+        If living_sit_line = "01" Then living_situation = "01 - Own home, lease or roomate"
+        If living_sit_line = "02" Then living_situation = "02 - Family/Friends - economic hardship"
+        If living_sit_line = "03" Then living_situation = "03 -  servc prvdr- foster/group home"
+        If living_sit_line = "04" Then living_situation = "04 - Hospital/Treatment/Detox/Nursing Home"
+        If living_sit_line = "05" Then living_situation = "05 - Jail/Prison//Juvenile Det."
+        If living_sit_line = "06" Then living_situation = "06 - Hotel/Motel"
+        If living_sit_line = "07" Then living_situation = "07 - Emergency Shelter"
+        If living_sit_line = "08" Then living_situation = "08 - Place not meant for Housing"
+        If living_sit_line = "09" Then living_situation = "09 - Declined"
+        If living_sit_line = "10" Then living_situation = "10 - Unknown"
+        addr_living_sit = living_situation
+
+        EMReadScreen addr_eff_date, 8, 4, 43									'reading the mail information
+        EMReadScreen addr_future_date, 8, 4, 66
+        EMReadScreen mail_line_one, 22, 13, 43
+        EMReadScreen mail_line_two, 22, 14, 43
+        EMReadScreen mail_city_line, 15, 15, 43
+        EMReadScreen mail_state_line, 2, 16, 43
+        EMReadScreen mail_zip_line, 7, 16, 52
+
+        addr_eff_date = replace(addr_eff_date, " ", "/")						'cormatting the mail information
+        addr_future_date = trim(addr_future_date)
+        addr_future_date = replace(addr_future_date, " ", "/")
+        mail_line_one = replace(mail_line_one, "_", "")
+        mail_line_two = replace(mail_line_two, "_", "")
+        mail_city = replace(mail_city_line, "_", "")
+        mail_state = replace(mail_state_line, "_", "")
+        mail_zip = replace(mail_zip_line, "_", "")
+
+        notes_on_address = "Address effective: " & addr_eff_date & "."
+        ' If mail_line_one <> "" Then
+        '     If mail_line_two = "" Then notes_on_address = notes_on_address & " Mailing address: " & mail_line_one & " " & mail_city_line & ", " & mail_state_line & " " & mail_zip_line
+        '     If mail_line_two <> "" Then notes_on_address = notes_on_address & " Mailing address: " & mail_line_one & " " & mail_line_two & " " & mail_city_line & ", " & mail_state_line & " " & mail_zip_line
+        ' End If
+        If addr_future_date <> "" Then notes_on_address = notes_on_address & "; ** Address will update effective " & addr_future_date & "."
+
+        EMReadScreen phone_one, 14, 17, 45										'reading the phone information
+        EMReadScreen phone_two, 14, 18, 45
+        EMReadScreen phone_three, 14, 19, 45
+
+        EMReadScreen type_one, 1, 17, 67
+        EMReadScreen type_two, 1, 18, 67
+        EMReadScreen type_three, 1, 19, 67
+
+        phone_one = replace(phone_one, " ) ", "-")								'formatting the phone information
+        phone_one = replace(phone_one, " ", "-")
+        If phone_one = "___-___-____" Then phone_one = ""
+
+        phone_two = replace(phone_two, " ) ", "-")
+        phone_two = replace(phone_two, " ", "-")
+        If phone_two = "___-___-____" Then phone_two = ""
+
+        phone_three = replace(phone_three, " ) ", "-")
+        phone_three = replace(phone_three, " ", "-")
+        If phone_three = "___-___-____" Then phone_three = ""
+
+        If type_one = "H" Then type_one = "Home"
+        If type_one = "W" Then type_one = "Work"
+        If type_one = "C" Then type_one = "Cell"
+        If type_one = "M" Then type_one = "Message"
+        If type_one = "T" Then type_one = "TTY/TDD"
+        If type_one = "_" Then type_one = ""
+
+        If type_two = "H" Then type_two = "Home"
+        If type_two = "W" Then type_two = "Work"
+        If type_two = "C" Then type_two = "Cell"
+        If type_two = "M" Then type_two = "Message"
+        If type_two = "T" Then type_two = "TTY/TDD"
+        If type_two = "_" Then type_two = ""
+
+        If type_three = "H" Then type_three = "Home"
+        If type_three = "W" Then type_three = "Work"
+        If type_three = "C" Then type_three = "Cell"
+        If type_three = "M" Then type_three = "Message"
+        If type_three = "T" Then type_three = "TTY/TDD"
+        If type_three = "_" Then type_three = ""
+    End If
+
+end function
+
+function access_AREP_panel(access_type, arep_name, arep_addr_street, arep_addr_city, arep_addr_state, arep_addr_zip, arep_phone_one, arep_ext_one, arep_phone_two, arep_ext_two, forms_to_arep, mmis_mail_to_arep)
+
+	Call navigate_to_MAXIS_screen("STAT", "AREP")
+
+	EMReadScreen arep_name, 37, 4, 32
+	arep_name = replace(arep_name, "_", "")
+	If arep_name <> "" Then
+		EMReadScreen arep_street_one, 22, 5, 32
+		EMReadScreen arep_street_two, 22, 6, 32
+		EMReadScreen arep_addr_city, 15, 7, 32
+		EMReadScreen arep_addr_state, 2, 7, 55
+		EMReadScreen arep_addr_zip, 5, 7, 64
+
+		arep_street_one = replace(arep_street_one, "_", "")
+		arep_street_two = replace(arep_street_two, "_", "")
+		arep_addr_street = arep_street_one & " " & arep_street_two
+		arep_addr_street = trim( arep_addr_street)
+		arep_addr_city = replace(arep_addr_city, "_", "")
+		arep_addr_state = replace(arep_addr_state, "_", "")
+		arep_addr_zip = replace(arep_addr_zip, "_", "")
+
+		state_array = split(state_list, chr(9))
+		For each state_item in state_array
+			If arep_addr_state = left(state_item, 2) Then
+				arep_addr_state = state_item
+			End If
+		Next
+
+		EMReadScreen arep_phone_one, 14, 8, 34
+		EMReadScreen arep_ext_one, 3, 8, 55
+		EMReadScreen arep_phone_two, 14, 9, 34
+		EMReadScreen arep_ext_two, 3, 8, 55
+
+		arep_phone_one = replace(arep_phone_one, ")", "")
+		arep_phone_one = replace(arep_phone_one, "  ", "-")
+		arep_phone_one = replace(arep_phone_one, " ", "-")
+		If arep_phone_one = "___-___-____" Then arep_phone_one = ""
+
+		arep_phone_two = replace(arep_phone_two, ")", "")
+		arep_phone_two = replace(arep_phone_two, "  ", "-")
+		arep_phone_two = replace(arep_phone_two, " ", "-")
+		If arep_phone_two = "___-___-____" Then arep_phone_two = ""
+
+		arep_ext_one = replace(arep_ext_one, "_", "")
+		arep_ext_two = replace(arep_ext_two, "_", "")
+
+		EMReadScreen forms_to_arep, 1, 10, 45
+		EMReadScreen mmis_mail_to_arep, 1, 10, 77
+
+	End If
+
+end function
+
+
+function access_SWKR_panel(access_type, swkr_name, swkr_addr_street, swkr_addr_city, swkr_addr_state, swkr_addr_zip, swkr_phone, swkr_ext, notc_to_swkr)
+
+	Call navigate_to_MAXIS_screen("STAT", "SWKR")
+
+	EMReadScreen swkr_name, 35, 6, 32
+	swkr_name = replace(swkr_name, "_", "")
+	If swkr_name <> "" Then
+		EMReadScreen swkr_street_one, 22, 8, 32
+		EMReadScreen swqkr_street_two, 22, 9, 32
+		EMReadScreen swkr_addr_city, 15, 10, 32
+		EMReadScreen swkr_addr_state, 2, 10, 54
+		EMReadScreen swkr_addr_zip, 5, 10, 63
+
+		swkr_street_one = replace(swkr_street_one, "_", "")
+		swqkr_street_two = replace(swqkr_street_two, "_", "")
+		swkr_addr_street = swkr_street_one & " " & swqkr_street_two
+		swkr_addr_street = trim(swkr_addr_street)
+		swkr_addr_city = replace(swkr_addr_city, "_", "")
+		swkr_addr_state = replace(swkr_addr_state, "_", "")
+		swkr_addr_zip = replace(swkr_addr_zip, "_", "")
+
+		state_array = split(state_list, chr(9))
+		For each state_item in state_array
+			If swkr_addr_state = left(state_item, 2) Then
+				swkr_addr_state = state_item
+			End If
+		Next
+
+		EMReadScreen swkr_phone, 14, 12, 34
+		EMReadScreen swkr_ext, 4, 12, 54
+
+		swkr_phone = replace(swkr_phone, ")", "")
+		swkr_phone = replace(swkr_phone, "  ", "-")
+		swkr_phone = replace(swkr_phone, " ", "-")
+		If swkr_phone = "___-___-____" Then swkr_phone = ""
+
+		swkr_ext = replace(swkr_ext, "_", "")
+
+		EMReadScreen notc_to_swkr, 1, 15, 63
+
+	End If
+
+end function
 
 function check_if_mmis_in_session(mmis_running, maxis_region)
 '--- This function is to be used when navigating to MMIS from another function in BlueZone (MAXIS, PRISM, INFOPAC, etc.)
@@ -168,9 +483,9 @@ function leave_notice_text(ask_first)
 	End If
 end function
 
-function sort_dates(dates_array)
+function sort_dates(SNAP_dates_array)
 '--- Takes an array of dates and reorders them to be chronological.
-'~~~~~ dates_array: an array of dates only
+'~~~~~ SNAP_dates_array: an array of dates only
 '===== Keywords: MAXIS, date, order, list, array
     dim ordered_dates ()
     redim ordered_dates(0)
@@ -180,7 +495,7 @@ function sort_dates(dates_array)
 
         prev_date = ""
         original_array_index = 0
-        for each thing in dates_array
+        for each thing in SNAP_dates_array
             check_this_date = TRUE
             new_array_index = 0
             For each known_date in ordered_dates
@@ -209,7 +524,7 @@ function sort_dates(dates_array)
             days = days + 1
         end if
         counter = 0
-        For each thing in dates_array
+        For each thing in SNAP_dates_array
             If InStr(original_array_items_used, "~" & counter & "~") = 0 Then
                 For each new_date_thing in ordered_dates
                     If thing = new_date_thing Then
@@ -220,10 +535,10 @@ function sort_dates(dates_array)
             End If
             counter = counter + 1
         Next
-        ' MsgBox "Ordered Dates array - " & join(ordered_dates, ", ") & vbCR & "days - " & days & vbCR & "Ubound - " & UBOUND(dates_array) & vbCR & "used list - " & original_array_items_used
-    loop until days > UBOUND(dates_array)
+        ' MsgBox "Ordered Dates array - " & join(ordered_dates, ", ") & vbCR & "days - " & days & vbCR & "Ubound - " & UBOUND(SNAP_dates_array) & vbCR & "used list - " & original_array_items_used
+    loop until days > UBOUND(SNAP_dates_array)
 
-    dates_array = ordered_dates
+    SNAP_dates_array = ordered_dates
 end function
 
 function Select_New_WCOM(notices_array, selected_const, information_const, WCOM_row_const, case_number_known, allow_wcom, allow_memo, notc_month, notc_year, no_notices, specific_prog, allow_multiple_notc, allow_cancel)
@@ -884,7 +1199,7 @@ Const WCOM_search_row = 2
  Do
  	Do
  		err_msg = ""
-		y_pos = 30
+		y_pos = 25
 
  		Dialog1 = ""
 		BeginDialog Dialog1, 0, 0, 551, 385, "Verification of Public Assistance"
@@ -1256,42 +1571,42 @@ Const WCOM_search_row = 2
 
 			If snap_status = "ACTIVE" Then
 				If snap_verification_method = "Select One..." Then err_msg = err_msg & vbNewLine & "* Since SNAP is active, indicate if Verification of SNAP benefits is needed, and if so, which method works best."
-				If snap_verification_method = "Resend WCOM - Eligibility Notice" AND snap_wcom_text = "No WCOM Found" then err_msg = err_msg & vbNewLine & "* Since you are selecting a WCOM to be resent as verification of SNAP, use the 'Select Different WCOM' button to select the correct WCOM since none was found."
+				If snap_verification_method = "Resend WCOM - Eligibility Notice" AND snap_wcom_text = "NO WCOM Found" then err_msg = err_msg & vbNewLine & "* Since you are selecting a WCOM to be resent as verification of SNAP, use the 'Select Different WCOM' button to select the correct WCOM since none was found."
 				If snap_verification_method = "Create New MEMO with range of Months" Then
 				 	If len(snap_start_month) <> 5 OR Mid(snap_start_month, 3, 1) <> "/" OR len(snap_end_month) <> 5 OR Mid(snap_end_month, 3, 1) <> "/" Then err_msg = err_msg & vbNewLine & "* Since you are creating a MEMO of SNAP issuance history to be sent as verification of Active SNAP, enter a start and end month in the 'mm/yy' format."
 				End If
 			End If
 			If ga_status = "ACTIVE" Then
 				If ga_verification_method = "Select One..." Then err_msg = err_msg & vbNewLine & "* Since GA is active, indicate if Verification of GA benefits is needed, and if so, which method works best."
-				If ga_verification_method = "Resend WCOM - Eligibility Notice" AND ga_wcom_text = "No WCOM Found" then err_msg = err_msg & vbNewLine & "* Since you are selecting a WCOM to be resent as verification of GA, use the 'Select Different WCOM' button to select the correct WCOM since none was found."
+				If ga_verification_method = "Resend WCOM - Eligibility Notice" AND ga_wcom_text = "NO WCOM Found" then err_msg = err_msg & vbNewLine & "* Since you are selecting a WCOM to be resent as verification of GA, use the 'Select Different WCOM' button to select the correct WCOM since none was found."
 				If ga_verification_method = "Create New MEMO with range of Months" Then
 				 	If len(ga_start_month) <> 5 OR Mid(ga_start_month, 3, 1) <> "/" OR len(ga_end_month) <> 5 OR Mid(ga_end_month, 3, 1) <> "/" Then err_msg = err_msg & vbNewLine & "* Since you are creating a MEMO of GA issuance history to be sent as verification of Active GA, enter a start and end month in the 'mm/yy' format."
 				End If
 			End If
 			If msa_status = "ACTIVE" Then
 				If msa_verification_method = "Select One..." Then err_msg = err_msg & vbNewLine & "* Since MSA is active, indicate if Verification of MSA benefits is needed, and if so, which method works best."
-				If msa_verification_method = "Resend WCOM - Eligibility Notice" AND msa_wcom_text = "No WCOM Found" then err_msg = err_msg & vbNewLine & "* Since you are selecting a WCOM to be resent as verification of MSA, use the 'Select Different WCOM' button to select the correct WCOM since none was found."
+				If msa_verification_method = "Resend WCOM - Eligibility Notice" AND msa_wcom_text = "NO WCOM Found" then err_msg = err_msg & vbNewLine & "* Since you are selecting a WCOM to be resent as verification of MSA, use the 'Select Different WCOM' button to select the correct WCOM since none was found."
 				If msa_verification_method = "Create New MEMO with range of Months" Then
 				 	If len(msa_start_month) <> 5 OR Mid(msa_start_month, 3, 1) <> "/" OR len(msa_end_month) <> 5 OR Mid(msa_end_month, 3, 1) <> "/" Then err_msg = err_msg & vbNewLine & "* Since you are creating a MEMO of MSA issuance history to be sent as verification of Active MSA, enter a start and end month in the 'mm/yy' format."
 				End If
 			End If
 			If mfip_status = "ACTIVE" Then
 				If mfip_verification_method = "Select One..." Then err_msg = err_msg & vbNewLine & "* Since MFIP is active, indicate if Verification of MFIP benefits is needed, and if so, which method works best."
-				If mfip_verification_method = "Resend WCOM - Eligibility Notice" AND mfip_wcom_text = "No WCOM Found" then err_msg = err_msg & vbNewLine & "* Since you are selecting a WCOM to be resent as verification of MFIP, use the 'Select Different WCOM' button to select the correct WCOM since none was found."
+				If mfip_verification_method = "Resend WCOM - Eligibility Notice" AND mfip_wcom_text = "NO WCOM Found" then err_msg = err_msg & vbNewLine & "* Since you are selecting a WCOM to be resent as verification of MFIP, use the 'Select Different WCOM' button to select the correct WCOM since none was found."
 				If mfip_verification_method = "Create New MEMO with range of Months" Then
 				 	If len(mfip_start_month) <> 5 OR Mid(mfip_start_month, 3, 1) <> "/" OR len(mfip_end_month) <> 5 OR Mid(mfip_end_month, 3, 1) <> "/" Then err_msg = err_msg & vbNewLine & "* Since you are creating a MEMO of MFIP issuance history to be sent as verification of Active MFIP, enter a start and end month in the 'mm/yy' format."
 				End If
 			End If
 			If dwp_status = "ACTIVE" Then
 			 	If dwp_verification_method = "Select One..." Then err_msg = err_msg & vbNewLine & "* Since DWP is active, indicate if Verification of DWP benefits is needed, and if so, which method works best."
-				If dwp_verification_method = "Resend WCOM - Eligibility Notice" AND dwp_wcom_text = "No WCOM Found" then err_msg = err_msg & vbNewLine & "* Since you are selecting a WCOM to be resent as verification of DWP, use the 'Select Different WCOM' button to select the correct WCOM since none was found."
+				If dwp_verification_method = "Resend WCOM - Eligibility Notice" AND dwp_wcom_text = "NO WCOM Found" then err_msg = err_msg & vbNewLine & "* Since you are selecting a WCOM to be resent as verification of DWP, use the 'Select Different WCOM' button to select the correct WCOM since none was found."
 				If dwp_verification_method = "Create New MEMO with range of Months" Then
 				 	If len(dwp_start_month) <> 5 OR Mid(dwp_start_month, 3, 1) <> "/" OR len(dwp_end_month) <> 5 OR Mid(dwp_end_month, 3, 1) <> "/" Then err_msg = err_msg & vbNewLine & "* Since you are creating a MEMO of DWP issuance history to be sent as verification of Active DWP, enter a start and end month in the 'mm/yy' format."
 				End If
 			End If
 			If grh_status = "ACTIVE" Then
 			 	If grh_verification_method = "Select One..." Then err_msg = err_msg & vbNewLine & "* Since GRH is active, indicate if Verification of GRH benefits is needed, and if so, which method works best."
-				If grh_verification_method = "Resend WCOM - Eligibility Notice" AND grh_wcom_text = "No WCOM Found" then err_msg = err_msg & vbNewLine & "* Since you are selecting a WCOM to be resent as verification of GRH, use the 'Select Different WCOM' button to select the correct WCOM since none was found."
+				If grh_verification_method = "Resend WCOM - Eligibility Notice" AND grh_wcom_text = "NO WCOM Found" then err_msg = err_msg & vbNewLine & "* Since you are selecting a WCOM to be resent as verification of GRH, use the 'Select Different WCOM' button to select the correct WCOM since none was found."
 				If grh_verification_method = "Create New MEMO with range of Months" Then
 				 	If len(grh_start_month) <> 5 OR Mid(grh_start_month, 3, 1) <> "/" OR len(grh_end_month) <> 5 OR Mid(grh_end_month, 3, 1) <> "/" Then err_msg = err_msg & vbNewLine & "* Since you are creating a MEMO of GRH issuance history to be sent as verification of Active GRH, enter a start and end month in the 'mm/yy' format."
 				End If
@@ -1327,6 +1642,7 @@ Loop until are_we_passworded_out = False
 'Need to add handling to check ADDRESS
 'Need to add handling for OTHER and AREP and SWKR to see if they should be included.
 
+
 create_memo = False
 If snap_verification_method = "Create New MEMO with range of Months" Then create_memo = True
 If ga_verification_method = "Create New MEMO with range of Months" Then create_memo = True
@@ -1343,6 +1659,139 @@ If mfip_verification_method = "Resend WCOM - Eligibility Notice" Then resend_wco
 If dwp_verification_method = "Resend WCOM - Eligibility Notice" Then resend_wcom = True
 If grh_verification_method = "Resend WCOM - Eligibility Notice" Then resend_wcom = True
 
+previous_active_prog_memo = False
+If snap_not_actv_memo_for_old_beneftis_checkbox = checked then previous_active_prog_memo = True
+If ga_not_actv_memo_for_old_beneftis_checkbox = checked then previous_active_prog_memo = True
+If msa_not_actv_memo_for_old_beneftis_checkbox = checked then previous_active_prog_memo = True
+If mfip_not_actv_memo_for_old_beneftis_checkbox = checked then previous_active_prog_memo = True
+
+If create_memo = False AND resend_wcom = False AND previous_active_prog_memo = False Then
+	end_msg = "No NOTICE SENT"& vbCr & vbCr & "No notices were requested for any program and there is no additional action for the script to take or actions to note." & vbCr & vbCr & "This does not mean there was an error. If you intended to select a MEMO or WCOM for one of the programs, rerun the script and enter the selections for the appropriate notice on the correct program."
+	script_end_procedure_with_error_report(end_msg)
+End If
+
+Call navigate_to_MAXIS_screen("STAT", "SUMM")
+EMReadScreen case_name, 22, 21, 46
+case_name = trim(case_name)
+Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, mail_line_one, mail_line_two, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three)
+Call access_AREP_panel("READ", arep_name, arep_addr_street, arep_addr_city, arep_addr_state, arep_addr_zip, arep_phone_one, arep_ext_one, arep_phone_two, arep_ext_two, forms_to_arep, mmis_mail_to_arep)
+Call access_SWKR_panel("READ", swkr_name, swkr_addr_street, swkr_addr_city, swkr_addr_state, swkr_addr_zip, swkr_phone, swkr_ext, notc_to_swkr)
+
+case_address_checkbox = checked
+If forms_to_arep = "Y" Then arep_address_checkbox = checked
+If notc_to_swkr = "Y" Then swkr_address_checkbox = checked
+
+Do
+	Do
+		err_msg = ""
+		y_pos = 25
+
+		Dialog1 = ""
+		BeginDialog Dialog1, 0, 0, 551, 385, "Verification of Public Assistance"
+		  ButtonGroup ButtonPressed
+
+			Text 20, 25, 400, 10, "Check all Addresses to Include"
+			GroupBox 15, 40, 450, 65, "Case Address for Mail"
+			If mail_line_one <> "" Then
+				Text 325, 50, 135, 10, "This case uses the MAILING address."
+				Text 25, 55, 300, 10, "Adressee:" & case_name
+			    Text 25, 65, 300, 10, "Street: " & mail_line_one & " " & mail_line_two
+			    Text 25, 75, 70, 10, "City: " & mail_city
+			    Text 145, 75, 100, 10, "State: " & mail_state
+			    Text 295, 75, 70, 10, "Zip: " & mail_zip
+			Else
+				Text 325, 50, 135, 10, "This case uses the RESIDENCE address."
+				Text 25, 55, 300, 10, "Adressee: " & case_name
+			    Text 25, 65, 300, 10, "Street: " & resi_line_one & " " & resi_line_two
+			    Text 25, 75, 70, 10, "City: " & resi_city
+			    Text 145, 75, 100, 10, "State: " & resi_state
+			    Text 295, 75, 70, 10, "Zip: " & resi_zip
+			End If
+		    CheckBox 20, 90, 150, 10, "Check here to mail to the Case Address", case_address_checkbox
+
+			If arep_name <> "" Then
+			    GroupBox 15, 110, 450, 65, "AREP Address"
+				Text 25, 125, 300, 10, "Adressee: " & arep_name
+			    Text 25, 135, 300, 10, "Street: " & arep_addr_street
+			    Text 25, 145, 70, 10, "City: " & arep_addr_city
+			    Text 145, 145, 100, 10, "State: " & arep_addr_state
+			    Text 295, 145, 70, 10, "Zip: " & arep_addr_zip
+			    CheckBox 20, 160, 150, 10, "Check here to mail to the AREP Address", arep_address_checkbox
+			Else
+				GroupBox 15, 110, 450, 65, "AREP Address"
+				Text 25, 125, 300, 10, "No AREP Panels exists for this case."
+			End If
+
+			If swkr_name <> "" Then
+			    GroupBox 15, 180, 450, 65, "Social Worker Address"
+				Text 25, 195, 300, 10, "Adressee: " & swkr_name
+			    Text 25, 205, 300, 10, "Street: " & swkr_addr_street
+			    Text 25, 215, 70, 10, "City: " & swkr_addr_city
+			    Text 145, 215, 100, 10, "State: " & swkr_addr_state
+			    Text 295, 215, 70, 10, "Zip: " & swkr_addr_zip
+			    CheckBox 20, 230, 150, 10, "Check here to mail to the SWKR Address", swkr_address_checkbox
+			Else
+				GroupBox 15, 180, 450, 65, "Social Worker Address"
+				Text 25, 195, 300, 10, "No SWKR Panels exists for this case."
+			End If
+			GroupBox 15, 250, 450, 65, "Other Address"
+			Text 25, 265, 40, 10, "Adressee:"
+			EditBox 60, 260, 155, 15, other_address_person
+		    Text 225, 265, 25, 10, "Street:"
+			EditBox 250, 260, 205, 15, other_address_streed
+		    Text 25, 285, 20, 10, "City:"
+			EditBox 45, 280, 95, 15, other_address_city
+		    Text 170, 285, 20, 10, "State:"
+			DropListBox 190, 280, 95, 45, "Select One..."+chr(9)+state_list, other_address_state
+		    Text 305, 285, 15, 10, "Zip: "
+			EditBox 320, 280, 75, 15, other_address_zipp
+		    CheckBox 20, 300, 150, 10, "Check here to mail to this Other Address", other_address_checkbox
+
+			OkButton 445, 365, 50, 15
+			CancelButton 495, 365, 50, 15
+			PushButton 35, 345, 25, 10, "CURR", CASE_CURR_button
+			PushButton 60, 345, 25, 10, "PERS", CASE_PERS_button
+			PushButton 85, 345, 25, 10, "NOTE", CASE_NOTE_button
+			PushButton 160, 345, 25, 10, "XFER", SPEC_XFER_button
+			PushButton 185, 345, 25, 10, "WCOM", SPEC_WCOM_button
+			PushButton 210, 345, 25, 10, "MEMO", SPEC_MEMO_button
+			PushButton 35, 355, 25, 10, "PROG", PROG_button
+			PushButton 60, 355, 25, 10, "MEMB", MEMB_button
+			PushButton 85, 355, 25, 10, "REVW", REVW_button
+			PushButton 160, 355, 25, 10, "INQB", MONY_INQB_button
+			PushButton 185, 355, 25, 10, "INQD", MONY_INQB_button
+			PushButton 210, 355, 25, 10, "INQX", MONY_INQB_button
+			PushButton 35, 365, 25, 10, "SNAP", ELIG_FS_button
+			PushButton 60, 365, 25, 10, "MFIP", ELIG_MFIP_button
+			PushButton 85, 365, 25, 10, "DWP", ELIG_DWP_button
+			PushButton 110, 365, 25, 10, "GA", ELIG_GA_button
+			PushButton 135, 365, 25, 10, "MSA", ELIG_MSA_button
+			PushButton 160, 365, 25, 10, "GRH", ELIG_GRH_button
+			PushButton 185, 365, 25, 10, "HC", ELIG_HC_button
+			PushButton 210, 365, 25, 10, "SUMM", ELIG_SUMM_button
+			PushButton 235, 365, 25, 10, "DENY", ELIG_DENY_button
+			Text 250, 5, 290, 10, "NOTICE Information for Verification of Public Assistance for Case # " & MAXIS_case_number
+			GroupBox 5, 15, 470, 315, "Details"
+			GroupBox 5, 335, 390, 45, "Navigation"
+			Text 10, 345, 25, 10, "CASE/"
+			Text 135, 345, 25, 10, "SPEC/"
+			Text 10, 355, 25, 10, "STAT/"
+			Text 10, 365, 20, 10, "ELIG/"
+			Text 135, 355, 25, 10, "MONY/"
+	 	EndDialog
+
+		dialog Dialog1
+		cancel_confirmation
+		MAXIS_dialog_navigation
+
+	 	If err_msg <> "" Then MsgBox "****** NOTICE ******" & vbCr & vbCr & "Please resolve to continue:" & vbCr & err_msg
+	Loop until err_msg = ""
+	Call check_for_password(are_we_passworded_out)
+Loop until are_we_passworded_out = False
+
+If swkr_address_checkbox = checked Then forms_to_swkr = True
+If arep_address_checkbox = checked Then forms_to_arep = True
+if other_address_checkbox = checked Then forms_to_other = True
 
 snap_resent_wcom = False
 
@@ -1356,16 +1805,35 @@ If resend_wcom = True Then
 		transmit
 		EMWriteScreen "A", snap_wcom_row, 13
 		transmit
+
+		row = 1
+		col = 1
+		EMSearch "SOCWKR", row, col
+		if row <> 0 Then swkr_row = row
+
+		row = 1
+		col = 1
+		EMSearch "AREP", row, col
+		if row <> 0 Then arep_row = row
+
+		row = 1
+		col = 1
+		EMSearch "OTHER", row, col
+		if row <> 0 Then other_row = row
+
+		MsgBox "AREP - " & arep_row & vbCr & "SWKR - " & swkr_row & vbCr & "OTHER - " & other_row
+
 		EMWriteScreen "X", 5, 12 		'This is the CLIENT Row
-		' EMWriteScreen "X", 6, 12		'This is the OTHER Row - need handling
-		' EMWriteScreen "X", ?, 12 		'AREP
-		' EMWriteScreen "X", ?, 12		'SWKR
+		' EMWriteScreen "X", other_row, 12		'This is the OTHER Row - need handling
+		If forms_to_arep = True Then EMWriteScreen "X", arep_row, 12 		'AREP
+		If forms_to_swkr = True Then EMWriteScreen "X", swkr_row, 12		'SWKR
 		transmit
 
 		EMReadScreen check_for_resent, 6, snap_wcom_row, 3
 		EMReadScreen check_for_waiting, 6, snap_wcom_row, 71
 
 		If check_for_resent = "ReSent" and check_for_waiting = "Waiting" Then snap_resent_wcom = True
+		Call back_to_SELF
 	End If
 	If ga_verification_method = "Resend WCOM - Eligibility Notice" Then
 
@@ -1386,28 +1854,62 @@ End If
 
 Call back_to_SELF
 
-const grant_amount_const 	= 0
-const benefit_month_const	= 1
-const note_message_const	= 2
-const benefit_month_as_date_const = 3
-const last_const			= 4
+const cash_grant_amount_const 	= 0
+const snap_grant_amount_const 	= 1
+const benefit_month_const		= 2
+const note_message_const		= 3
+const benefit_month_as_date_const = 4
+const last_const				= 5
 
 Dim SNAP_ISSUANCE_ARRAY()
 ReDim SNAP_ISSUANCE_ARRAY(last_const, 0)
-Dim ga_issuance_array()
-Dim msa_issuance_array()
-Dim mfip_issuance_array()
-Dim dwp_issuance_array()
-Dim grh_issuance_array()
+
+Dim GA_ISSUANCE_ARRAY()
+ReDim GA_ISSUANCE_ARRAY(last_const, 0)
+
+Dim MSA_ISSUANCE_ARRAY()
+ReDim MSA_ISSUANCE_ARRAY(last_const, 0)
+
+Dim MFIP_ISSUANCE_ARRAY()
+ReDim MFIP_ISSUANCE_ARRAY(last_const, 0)
+
+Dim DWP_ISSUANCE_ARRAY()
+ReDim DWP_ISSUANCE_ARRAY(last_const, 0)
+
+Dim GRH_ISSUANCE_ARRAY()
+ReDim GRH_ISSUANCE_ARRAY(last_const, 0)
+
+If snap_not_actv_memo_for_old_beneftis_checkbox = checked Then snap_verification_method = "Create New MEMO with range of Months"
+If ga_not_actv_memo_for_old_beneftis_checkbox = checked Then ga_verification_method = "Create New MEMO with range of Months"
+If msa_not_actv_memo_for_old_beneftis_checkbox = checked Then msa_verification_method = "Create New MEMO with range of Months"
+If mfip_not_actv_memo_for_old_beneftis_checkbox = checked Then mfip_verification_method = "Create New MEMO with range of Months"
+
 
 If create_memo = True Then
-	Call navigate_to_MAXIS_screen("MONY", "INQX")
 
 	If snap_verification_method = "Create New MEMO with range of Months" Then
+		Call navigate_to_MAXIS_screen("MONY", "INQX")
+
+		SNAP_total = 0
+		SNAP_MEMO_rows_needed = 2
+
 		first_date_of_range = replace(snap_start_month, "/", "/01/")
 		first_date_of_range = DateAdd("d", 0, first_date_of_range)
 		last_date_of_range = replace(snap_end_month, "/", "/01/")
 		last_date_of_range = DateAdd("d", 0, last_date_of_range)
+
+		SNAP_expected_dates_array = first_date_of_range
+		each_date = first_date_of_range
+		Do
+			each_date = DateAdd("m", 1, each_date)
+			SNAP_expected_dates_array = SNAP_expected_dates_array & "~" & each_date
+		Loop until each_date = last_date_of_range
+
+		If InStr(SNAP_expected_dates_array, "~") = 0 Then
+			SNAP_expected_dates_array = Array(SNAP_expected_dates_array)
+		Else
+			SNAP_expected_dates_array = split(SNAP_expected_dates_array, "~")
+		End If
 
 		EMWriteScreen "X", 9, 5		'This is the SNAP place
 		EMWriteScreen left(snap_start_month, 2), 6, 38
@@ -1426,12 +1928,13 @@ If create_memo = True Then
 			EMReadScreen tran_amount, 8, inqx_row, 38
 			EMReadScreen from_month, 2, inqx_row, 62
 			EMReadScreen from_year, 2, inqx_row, 68
-			EMReadScreen from_date, 8, inqx_row, 62
+			' EMReadScreen from_date, 8, inqx_row, 62
 
 			issued_date = trim(issued_date)
 			tran_amount = trim(tran_amount)
 
 			If issued_date <> "" Then
+				from_date = from_month & "/1/" & from_year
 				from_date = DateAdd("d", 0, from_date)
 				If DateDiff("d", from_date, first_date_of_range) <= 0 AND DateDiff("d", from_date, last_date_of_range) >= 0 Then
 
@@ -1440,14 +1943,15 @@ If create_memo = True Then
 					ammount_added_in = False
 					For each_known_issuance = 0 to UBound(SNAP_ISSUANCE_ARRAY, 2)
 						If benefit_month = SNAP_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance) Then
-							SNAP_ISSUANCE_ARRAY(grant_amount_const, each_known_issuance) = SNAP_ISSUANCE_ARRAY(grant_amount_const, each_known_issuance) + tran_amount
+							SNAP_ISSUANCE_ARRAY(snap_grant_amount_const, each_known_issuance) = SNAP_ISSUANCE_ARRAY(snap_grant_amount_const, each_known_issuance) + tran_amount
 							ammount_added_in = True
 						End If
 					Next
 					If ammount_added_in = False Then
 						ReDim Preserve SNAP_ISSUANCE_ARRAY(last_const, msg_counter)
 						SNAP_ISSUANCE_ARRAY(benefit_month_const, msg_counter) = benefit_month
-						SNAP_ISSUANCE_ARRAY(grant_amount_const, msg_counter) = tran_amount
+						SNAP_ISSUANCE_ARRAY(snap_grant_amount_const, msg_counter) = tran_amount
+						SNAP_ISSUANCE_ARRAY(benefit_month_as_date_const, msg_counter) = from_date
 						'maybe add the 'from_date' into benefit_month_as_date' so that we don't hvae to do more handling down below
 						msg_counter = msg_counter + 1
 					End If
@@ -1464,68 +1968,481 @@ If create_memo = True Then
 			'NEED TO ADD 'INQX' line limit
 			'Need to look up display limitations'
 		Loop until issued_date = ""
-		dates_array = ""
+		SNAP_dates_array = ""
 		For each_known_issuance = 0 to UBound(SNAP_ISSUANCE_ARRAY, 2)
-			total_amount = left(SNAP_ISSUANCE_ARRAY(grant_amount_const, each_known_issuance) & "        ", 8)
+			total_amount = left(SNAP_ISSUANCE_ARRAY(snap_grant_amount_const, each_known_issuance) & "        ", 8)
 			SNAP_ISSUANCE_ARRAY(note_message_const, each_known_issuance) = "$ " & total_amount & " issued for " & SNAP_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance)
-			SNAP_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance) = replace(SNAP_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance), "/", "/01/")
-			SNAP_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance) = DateAdd("d", 0, SNAP_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance))
-			dates_array = dates_array & "~" & SNAP_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)
+			' SNAP_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance) = replace(SNAP_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance), "/", "/01/")
+			' SNAP_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance) = DateAdd("d", 0, SNAP_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance))
+			SNAP_dates_array = SNAP_dates_array & "~" & SNAP_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)
 		Next
-		If left(dates_array, 1) = "~" Then dates_array = right(dates_array, len(dates_array) - 1)
-		If Instr(dates_array, "~") = 0 Then
-			dates_array = Array(dates_array)
+		For each expected_month in SNAP_expected_dates_array
+			issuance_found = False
+			For each_known_issuance = 0 to UBound(SNAP_ISSUANCE_ARRAY, 2)
+				' MsgBox "Expected Date - " & expected_month & vbNewLine & "Array Date - " & SNAP_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)
+				If DateDiff("d", SNAP_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance), expected_month) = 0 Then issuance_found = True
+			Next
+			If issuance_found = False Then
+				ReDim Preserve SNAP_ISSUANCE_ARRAY(last_const, msg_counter)
+				SNAP_ISSUANCE_ARRAY(benefit_month_const, msg_counter) = right("00" & DatePart("m", expected_month), 2) & "/" & right(DatePart("yyyy", expected_month), 2)
+				SNAP_ISSUANCE_ARRAY(snap_grant_amount_const, msg_counter) = 0
+				SNAP_ISSUANCE_ARRAY(benefit_month_as_date_const, msg_counter) = expected_month
+				SNAP_ISSUANCE_ARRAY(note_message_const, each_known_issuance) = "$ 0        issued for " & SNAP_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance)
+				SNAP_dates_array = SNAP_dates_array & "~" & expected_month
+				'maybe add the 'from_date' into benefit_month_as_date' so that we don't hvae to do more handling down below
+				msg_counter = msg_counter + 1
+			End If
+		Next
+		If left(SNAP_dates_array, 1) = "~" Then SNAP_dates_array = right(SNAP_dates_array, len(SNAP_dates_array) - 1)
+		If Instr(SNAP_dates_array, "~") = 0 Then
+			SNAP_dates_array = Array(SNAP_dates_array)
 		Else
-			dates_array = split(dates_array, "~")
+			SNAP_dates_array = split(SNAP_dates_array, "~")
 		End If
-		Call sort_dates(dates_array)
-		' MsgBox Join(dates_array, " - ")
-		for each ordered_date in dates_array
+		Call sort_dates(SNAP_dates_array)
+		' MsgBox Join(SNAP_dates_array, " - ")
+		for each ordered_date in SNAP_dates_array
 			For each_known_issuance = 0 to UBound(SNAP_ISSUANCE_ARRAY, 2)
 				If DateDiff("d", ordered_date, SNAP_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)) = 0 Then
-					msg_display = msg_display & vbCr & SNAP_ISSUANCE_ARRAY(note_message_const, each_known_issuance)
+					snap_msg_display = snap_msg_display & vbCr & SNAP_ISSUANCE_ARRAY(note_message_const, each_known_issuance)
+					SNAP_total = SNAP_total + SNAP_ISSUANCE_ARRAY(snap_grant_amount_const, each_known_issuance)
+					SNAP_MEMO_rows_needed = SNAP_MEMO_rows_needed + 1
 					' Call write_variable_in_SPEC_MEMO(SNAP_ISSUANCE_ARRAY(note_message_const, each_known_issuance))
 					' Call write_variable_in_CASE_NOTE(SNAP_ISSUANCE_ARRAY(note_message_const, each_known_issuance))
 				End If
 			Next
 		Next
 
-		MsgBox "This is the list" & msg_display
-
+		MsgBox "SNAP - This is the list" & snap_msg_display & vbCr & "TOTAL SNAP: $" & SNAP_total
+		PF3
 	End If
+
+
+
 	If ga_verification_method = "Create New MEMO with range of Months" Then
+		Call navigate_to_MAXIS_screen("MONY", "INQX")
+
+		GA_total = 0
+
+		first_date_of_range = replace(ga_start_month, "/", "/01/")
+		first_date_of_range = DateAdd("d", 0, first_date_of_range)
+		last_date_of_range = replace(ga_end_month, "/", "/01/")
+		last_date_of_range = DateAdd("d", 0, last_date_of_range)
+
+		GA_expected_dates_array = first_date_of_range
+		each_date = first_date_of_range
+		Do
+			each_date = DateAdd("m", 1, each_date)
+			GA_expected_dates_array = GA_expected_dates_array & "~" & each_date
+		Loop until each_date = last_date_of_range
+
+		If InStr(GA_expected_dates_array, "~") = 0 Then
+			GA_expected_dates_array = Array(GA_expected_dates_array)
+		Else
+			GA_expected_dates_array = split(GA_expected_dates_array, "~")
+		End If
+
 		EMWriteScreen "X", 11, 5		'This is the GA place
 		EMWriteScreen left(ga_start_month, 2), 6, 38
 		EMWriteScreen right(ga_start_month, 2), 6, 41
-		EMWriteScreen left(ga_end_month, 2), 6, 53
-		EMWriteScreen right(ga_end_month, 2), 6, 56
+		' EMWriteScreen left(ga_end_month, 2), 6, 53
+		' EMWriteScreen right(ga_end_month, 2), 6, 56
+		EMWriteScreen CM_plus_1_mo, 6, 53
+		EMWriteScreen CM_plus_1_yr, 6, 56
+
 		transmit
 
+		inqx_row = 6
+		msg_counter = 0
+		Do
+			EMReadScreen issued_date, 8, inqx_row, 7
+			EMReadScreen tran_amount, 8, inqx_row, 38
+			EMReadScreen from_month, 2, inqx_row, 62
+			EMReadScreen from_year, 2, inqx_row, 68
+			' EMReadScreen from_date, 8, inqx_row, 62
+
+			issued_date = trim(issued_date)
+			tran_amount = trim(tran_amount)
+
+			If issued_date <> "" Then
+				from_date = from_month & "/1/" & from_year
+				from_date = DateAdd("d", 0, from_date)
+				If DateDiff("d", from_date, first_date_of_range) <= 0 AND DateDiff("d", from_date, last_date_of_range) >= 0 Then
+
+					benefit_month = from_month & "/" & from_year
+					tran_amount = tran_amount * 1
+					ammount_added_in = False
+					For each_known_issuance = 0 to UBound(GA_ISSUANCE_ARRAY, 2)
+						If benefit_month = GA_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance) Then
+							GA_ISSUANCE_ARRAY(cash_grant_amount_const, each_known_issuance) = GA_ISSUANCE_ARRAY(cash_grant_amount_const, each_known_issuance) + tran_amount
+							ammount_added_in = True
+						End If
+					Next
+					If ammount_added_in = False Then
+						ReDim Preserve GA_ISSUANCE_ARRAY(last_const, msg_counter)
+						GA_ISSUANCE_ARRAY(benefit_month_const, msg_counter) = benefit_month
+						GA_ISSUANCE_ARRAY(cash_grant_amount_const, msg_counter) = tran_amount
+						GA_ISSUANCE_ARRAY(benefit_month_as_date_const, msg_counter) = from_date
+						'maybe add the 'from_date' into benefit_month_as_date' so that we don't hvae to do more handling down below
+						msg_counter = msg_counter + 1
+					End If
+				End If
+			End If
+
+			inqx_row = inqx_row + 1
+			If inqx_row = 18 Then
+				PF8
+				inqx_row = 6
+				EMreadScreen end_of_list, 9, 24, 14
+				if end_of_list = "LAST PAGE" Then Exit Do
+			End If
+			'NEED TO ADD 'INQX' line limit
+			'Need to look up display limitations'
+		Loop until issued_date = ""
+		GA_dates_array = ""
+		For each_known_issuance = 0 to UBound(GA_ISSUANCE_ARRAY, 2)
+			total_amount = left(GA_ISSUANCE_ARRAY(cash_grant_amount_const, each_known_issuance) & "        ", 8)
+			GA_ISSUANCE_ARRAY(note_message_const, each_known_issuance) = "$ " & total_amount & " issued for " & GA_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance)
+			GA_dates_array = GA_dates_array & "~" & GA_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)
+		Next
+		For each expected_month in GA_expected_dates_array
+			issuance_found = False
+			For each_known_issuance = 0 to UBound(GA_ISSUANCE_ARRAY, 2)
+				' MsgBox "Expected Date - " & expected_month & vbNewLine & "Array Date - " & GA_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)
+				If DateDiff("d", GA_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance), expected_month) = 0 Then issuance_found = True
+			Next
+			If issuance_found = False Then
+				ReDim Preserve GA_ISSUANCE_ARRAY(last_const, msg_counter)
+				GA_ISSUANCE_ARRAY(benefit_month_const, msg_counter) = right("00" & DatePart("m", expected_month), 2) & "/" & right(DatePart("yyyy", expected_month), 2)
+				GA_ISSUANCE_ARRAY(cash_grant_amount_const, msg_counter) = 0
+				GA_ISSUANCE_ARRAY(benefit_month_as_date_const, msg_counter) = expected_month
+				GA_ISSUANCE_ARRAY(note_message_const, each_known_issuance) = "$ 0        issued for " & GA_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance)
+				GA_dates_array = GA_dates_array & "~" & expected_month
+				'maybe add the 'from_date' into benefit_month_as_date' so that we don't hvae to do more handling down below
+				msg_counter = msg_counter + 1
+			End If
+		Next
+		If left(GA_dates_array, 1) = "~" Then GA_dates_array = right(GA_dates_array, len(GA_dates_array) - 1)
+		If Instr(GA_dates_array, "~") = 0 Then
+			GA_dates_array = Array(GA_dates_array)
+		Else
+			GA_dates_array = split(GA_dates_array, "~")
+		End If
+		Call sort_dates(GA_dates_array)
+		' MsgBox Join(GA_dates_array, " - ")
+		for each ordered_date in GA_dates_array
+			For each_known_issuance = 0 to UBound(GA_ISSUANCE_ARRAY, 2)
+				If DateDiff("d", ordered_date, GA_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)) = 0 Then
+					ga_msg_display = ga_msg_display & vbCr & GA_ISSUANCE_ARRAY(note_message_const, each_known_issuance)
+					GA_total = GA_total + GA_ISSUANCE_ARRAY(cash_grant_amount_const, each_known_issuance)
+
+				End If
+			Next
+		Next
+
+		MsgBox "GA - This is the list" & ga_msg_display & vbCr & "TOTAL GA: $" & GA_total
+		PF3
 	End If
+
+
+
+
+
 	If msa_verification_method = "Create New MEMO with range of Months" Then
+		Call navigate_to_MAXIS_screen("MONY", "INQX")
+
+		MSA_total = 0
+
+		first_date_of_range = replace(msa_start_month, "/", "/01/")
+		first_date_of_range = DateAdd("d", 0, first_date_of_range)
+		last_date_of_range = replace(msa_end_month, "/", "/01/")
+		last_date_of_range = DateAdd("d", 0, last_date_of_range)
+
+		MSA_expected_dates_array = first_date_of_range
+		each_date = first_date_of_range
+		Do
+			each_date = DateAdd("m", 1, each_date)
+			MSA_expected_dates_array = MSA_expected_dates_array & "~" & each_date
+		Loop until each_date = last_date_of_range
+
+		If InStr(MSA_expected_dates_array, "~") = 0 Then
+			MSA_expected_dates_array = Array(MSA_expected_dates_array)
+		Else
+			MSA_expected_dates_array = split(MSA_expected_dates_array, "~")
+		End If
+
 		EMWriteScreen "X", 13, 50		'This is the MSA place
 		EMWriteScreen left(msa_start_month, 2), 6, 38
 		EMWriteScreen right(msa_start_month, 2), 6, 41
-		EMWriteScreen left(msa_end_month, 2), 6, 53
-		EMWriteScreen right(msa_end_month, 2), 6, 56
-		transmit
+		' EMWriteScreen left(msa_end_month, 2), 6, 53
+		' EMWriteScreen right(msa_end_month, 2), 6, 56
+		EMWriteScreen CM_plus_1_mo, 6, 53
+		EMWriteScreen CM_plus_1_yr, 6, 56
 
+		transmit
+		inqx_row = 6
+		msg_counter = 0
+		Do
+			EMReadScreen issued_date, 8, inqx_row, 7
+			EMReadScreen tran_amount, 8, inqx_row, 38
+			EMReadScreen from_month, 2, inqx_row, 62
+			EMReadScreen from_year, 2, inqx_row, 68
+			' EMReadScreen from_date, 8, inqx_row, 62
+
+			issued_date = trim(issued_date)
+			tran_amount = trim(tran_amount)
+
+			If issued_date <> "" Then
+				from_date = from_month & "/1/" & from_year
+				from_date = DateAdd("d", 0, from_date)
+				If DateDiff("d", from_date, first_date_of_range) <= 0 AND DateDiff("d", from_date, last_date_of_range) >= 0 Then
+
+					benefit_month = from_month & "/" & from_year
+					tran_amount = tran_amount * 1
+					ammount_added_in = False
+					For each_known_issuance = 0 to UBound(MSA_ISSUANCE_ARRAY, 2)
+						If benefit_month = MSA_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance) Then
+							MSA_ISSUANCE_ARRAY(cash_grant_amount_const, each_known_issuance) = MSA_ISSUANCE_ARRAY(cash_grant_amount_const, each_known_issuance) + tran_amount
+							ammount_added_in = True
+						End If
+					Next
+					If ammount_added_in = False Then
+						ReDim Preserve MSA_ISSUANCE_ARRAY(last_const, msg_counter)
+						MSA_ISSUANCE_ARRAY(benefit_month_const, msg_counter) = benefit_month
+						MSA_ISSUANCE_ARRAY(cash_grant_amount_const, msg_counter) = tran_amount
+						MSA_ISSUANCE_ARRAY(benefit_month_as_date_const, msg_counter) = from_date
+						'maybe add the 'from_date' into benefit_month_as_date' so that we don't hvae to do more handling down below
+						msg_counter = msg_counter + 1
+					End If
+				End If
+			End If
+
+			inqx_row = inqx_row + 1
+			If inqx_row = 18 Then
+				PF8
+				inqx_row = 6
+				EMreadScreen end_of_list, 9, 24, 14
+				if end_of_list = "LAST PAGE" Then Exit Do
+			End If
+			'NEED TO ADD 'INQX' line limit
+			'Need to look up display limitations'
+		Loop until issued_date = ""
+		MSA_dates_array = ""
+		For each_known_issuance = 0 to UBound(MSA_ISSUANCE_ARRAY, 2)
+			total_amount = left(MSA_ISSUANCE_ARRAY(cash_grant_amount_const, each_known_issuance) & "        ", 8)
+			MSA_ISSUANCE_ARRAY(note_message_const, each_known_issuance) = "$ " & total_amount & " issued for " & MSA_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance)
+			MSA_dates_array = MSA_dates_array & "~" & MSA_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)
+		Next
+		For each expected_month in MSA_expected_dates_array
+			issuance_found = False
+			For each_known_issuance = 0 to UBound(MSA_ISSUANCE_ARRAY, 2)
+				' MsgBox "Expected Date - " & expected_month & vbNewLine & "Array Date - " & MSA_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)
+				If DateDiff("d", MSA_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance), expected_month) = 0 Then issuance_found = True
+			Next
+			If issuance_found = False Then
+				ReDim Preserve MSA_ISSUANCE_ARRAY(last_const, msg_counter)
+				MSA_ISSUANCE_ARRAY(benefit_month_const, msg_counter) = right("00" & DatePart("m", expected_month), 2) & "/" & right(DatePart("yyyy", expected_month), 2)
+				MSA_ISSUANCE_ARRAY(cash_grant_amount_const, msg_counter) = 0
+				MSA_ISSUANCE_ARRAY(benefit_month_as_date_const, msg_counter) = expected_month
+				MSA_ISSUANCE_ARRAY(note_message_const, each_known_issuance) = "$ 0        issued for " & MSA_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance)
+				MSA_dates_array = MSA_dates_array & "~" & expected_month
+				'maybe add the 'from_date' into benefit_month_as_date' so that we don't hvae to do more handling down below
+				msg_counter = msg_counter + 1
+			End If
+		Next
+		If left(MSA_dates_array, 1) = "~" Then MSA_dates_array = right(MSA_dates_array, len(MSA_dates_array) - 1)
+		If Instr(MSA_dates_array, "~") = 0 Then
+			MSA_dates_array = Array(MSA_dates_array)
+		Else
+			MSA_dates_array = split(MSA_dates_array, "~")
+		End If
+		Call sort_dates(MSA_dates_array)
+		' MsgBox Join(MSA_dates_array, " - ")
+		for each ordered_date in MSA_dates_array
+			For each_known_issuance = 0 to UBound(MSA_ISSUANCE_ARRAY, 2)
+				If DateDiff("d", ordered_date, MSA_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)) = 0 Then
+					msa_msg_display = msa_msg_display & vbCr & MSA_ISSUANCE_ARRAY(note_message_const, each_known_issuance)
+					MSA_total = MSA_total + MSA_ISSUANCE_ARRAY(cash_grant_amount_const, each_known_issuance)
+					' Call write_variable_in_SPEC_MEMO(MSA_ISSUANCE_ARRAY(note_message_const, each_known_issuance))
+					' Call write_variable_in_CASE_NOTE(MSA_ISSUANCE_ARRAY(note_message_const, each_known_issuance))
+				End If
+			Next
+		Next
+
+		MsgBox "MSA - This is the list" & msa_msg_display & vbCr & "MSA Total: $" & MSA_total
+		PF3
 	End If
+
+
+
+
+
 	If mfip_verification_method = "Create New MEMO with range of Months" Then
+		Call navigate_to_MAXIS_screen("MONY", "INQX")
+
+		MFIP_Cash_total = 0
+		MFIP_Food_total = 0
+
+		first_date_of_range = replace(mfip_start_month, "/", "/01/")
+		first_date_of_range = DateAdd("d", 0, first_date_of_range)
+		mfip_search_month = DateAdd("m", -1, first_date_of_range)
+		search_month = right("00" & DatePart("m", mfip_search_month), 2)
+		search_year = right(DatePart("yyyy", mfip_search_month), 2)
+		last_date_of_range = replace(mfip_end_month, "/", "/01/")
+		last_date_of_range = DateAdd("d", 0, last_date_of_range)
+
+		MFIP_expected_dates_array = first_date_of_range
+		each_date = first_date_of_range
+		Do
+			each_date = DateAdd("m", 1, each_date)
+			MFIP_expected_dates_array = MFIP_expected_dates_array & "~" & each_date
+		Loop until each_date = last_date_of_range
+
+		If InStr(MFIP_expected_dates_array, "~") = 0 Then
+			MFIP_expected_dates_array = Array(MFIP_expected_dates_array)
+		Else
+			MFIP_expected_dates_array = split(MFIP_expected_dates_array, "~")
+		End If
+
 		EMWriteScreen "X", 10, 5		'This is the MFIP place
-		EMWriteScreen left(mfip_start_month, 2), 6, 38
-		EMWriteScreen right(mfip_start_month, 2), 6, 41
-		EMWriteScreen left(mfip_end_month, 2), 6, 53
-		EMWriteScreen right(mfip_end_month, 2), 6, 56
+		EMWriteScreen search_month, 6, 38
+		EMWriteScreen search_year, 6, 41
+		' EMWriteScreen left(mfip_end_month, 2), 6, 53
+		' EMWriteScreen right(mfip_end_month, 2), 6, 56
+		EMWriteScreen CM_plus_1_mo, 6, 53
+		EMWriteScreen CM_plus_1_yr, 6, 56
+
 		transmit
 
+		inqx_row = 6
+		msg_counter = 0
+		Do
+			EMReadScreen issued_date, 8, inqx_row, 7
+			EMReadScreen tran_amount, 8, inqx_row, 38
+			EMReadScreen ben_type, 2, inqx_row, 19
+			EMReadScreen from_month, 2, inqx_row, 62
+			EMReadScreen from_year, 2, inqx_row, 68
+			' EMReadScreen from_date, 8, inqx_row, 62
+
+			issued_date = trim(issued_date)
+			tran_amount = trim(tran_amount)
+
+			If issued_date <> "" Then
+				from_date = from_month & "/1/" & from_year
+				from_date = DateAdd("d", 0, from_date)
+				' MsgBox "Row - " & inqx_row & vbCr & "iisued Date - " & issued_date & vbCr & "Tran amount - " & tran_amount & vbCr & "ben type - " & ben_type & vbCr & "benefit month - " & from_month & "/" & from_year
+				If DateDiff("d", from_date, first_date_of_range) <= 0 AND DateDiff("d", from_date, last_date_of_range) >= 0 Then
+
+					benefit_month = from_month & "/" & from_year
+					tran_amount = tran_amount * 1
+					ammount_added_in = False
+					For each_known_issuance = 0 to UBound(MFIP_ISSUANCE_ARRAY, 2)
+						If benefit_month = MFIP_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance) Then
+							' MsgBox "FOUND"
+							If ben_type = "FS" Then
+								MFIP_ISSUANCE_ARRAY(snap_grant_amount_const, each_known_issuance) = MFIP_ISSUANCE_ARRAY(snap_grant_amount_const, each_known_issuance) + tran_amount
+								' MsgBox "Array amount - " & MFIP_ISSUANCE_ARRAY(snap_grant_amount_const, each_known_issuance) & vbCr & "tran amount - " & tran_amount
+							End If
+							If ben_type = "MF" OR ben_type = "HG" Then
+								MFIP_ISSUANCE_ARRAY(cash_grant_amount_const, each_known_issuance) = MFIP_ISSUANCE_ARRAY(cash_grant_amount_const, each_known_issuance) + tran_amount
+							End If
+							ammount_added_in = True
+						End If
+					Next
+					If ammount_added_in = False Then
+						' MsgBox "NEW"
+						ReDim Preserve MFIP_ISSUANCE_ARRAY(last_const, msg_counter)
+						MFIP_ISSUANCE_ARRAY(benefit_month_const, msg_counter) = benefit_month
+						MFIP_ISSUANCE_ARRAY(grant_amount_const, msg_counter) = tran_amount
+						If ben_type = "FS" Then
+							MFIP_ISSUANCE_ARRAY(snap_grant_amount_const, msg_counter) = tran_amount
+							MFIP_ISSUANCE_ARRAY(cash_grant_amount_const, msg_counter) = 0
+							' MsgBox "Array amount - " & MFIP_ISSUANCE_ARRAY(snap_grant_amount_const, msg_counter) & vbCr & "tran amount - " & tran_amount
+						End If
+						If ben_type = "MF" OR ben_type = "HG" Then
+							MFIP_ISSUANCE_ARRAY(snap_grant_amount_const, msg_counter) = 0
+							MFIP_ISSUANCE_ARRAY(cash_grant_amount_const, msg_counter) = tran_amount
+						End If
+						MFIP_ISSUANCE_ARRAY(benefit_month_as_date_const, msg_counter) = from_date
+						'maybe add the 'from_date' into benefit_month_as_date' so that we don't hvae to do more handling down below
+						msg_counter = msg_counter + 1
+					End If
+				End If
+			End If
+
+			inqx_row = inqx_row + 1
+			If inqx_row = 18 Then
+				PF8
+				inqx_row = 6
+				EMreadScreen end_of_list, 9, 24, 14
+				if end_of_list = "LAST PAGE" Then Exit Do
+			End If
+			'NEED TO ADD 'INQX' line limit
+			'Need to look up display limitations'
+		Loop until issued_date = ""
+		MFIP_dates_array = ""
+		For each_known_issuance = 0 to UBound(MFIP_ISSUANCE_ARRAY, 2)
+			total_cash_amount = left(MFIP_ISSUANCE_ARRAY(cash_grant_amount_const, each_known_issuance) & "        ", 8)
+			' total_cash_amount = MFIP_ISSUANCE_ARRAY(cash_grant_amount_const, each_known_issuance)
+			total_snap_amount = left(MFIP_ISSUANCE_ARRAY(snap_grant_amount_const, each_known_issuance) & "        ", 8)
+			' total_snap_amount = MFIP_ISSUANCE_ARRAY(snap_grant_amount_const, each_known_issuance)
+			MFIP_ISSUANCE_ARRAY(note_message_const, each_known_issuance) = "$ " & total_cash_amount & " - CASH and $ " & total_snap_amount & " - FOOD issued for " & MFIP_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance)
+			MFIP_dates_array = MFIP_dates_array & "~" & MFIP_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)
+		Next
+		For each expected_month in MFIP_expected_dates_array
+			issuance_found = False
+			For each_known_issuance = 0 to UBound(MFIP_ISSUANCE_ARRAY, 2)
+				' MsgBox "Expected Date - " & expected_month & vbNewLine & "Array Date - " & MFIP_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)
+				If DateDiff("d", MFIP_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance), expected_month) = 0 Then issuance_found = True
+			Next
+			If issuance_found = False Then
+				ReDim Preserve MFIP_ISSUANCE_ARRAY(last_const, msg_counter)
+				MFIP_ISSUANCE_ARRAY(benefit_month_const, msg_counter) = right("00" & DatePart("m", expected_month), 2) & "/" & right(DatePart("yyyy", expected_month), 2)
+				MFIP_ISSUANCE_ARRAY(snap_grant_amount_const, msg_counter) = 0
+				MFIP_ISSUANCE_ARRAY(cash_grant_amount_const, msg_counter) = 0
+				MFIP_ISSUANCE_ARRAY(benefit_month_as_date_const, msg_counter) = expected_month
+				MFIP_ISSUANCE_ARRAY(note_message_const, each_known_issuance) = "$ 0        - CASH and $ 0        - FOOD issued for " & MFIP_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance)
+				MFIP_dates_array = MFIP_dates_array & "~" & expected_month
+				'maybe add the 'from_date' into benefit_month_as_date' so that we don't hvae to do more handling down below
+				msg_counter = msg_counter + 1
+			End If
+		Next
+		If left(MFIP_dates_array, 1) = "~" Then MFIP_dates_array = right(MFIP_dates_array, len(MFIP_dates_array) - 1)
+		If Instr(MFIP_dates_array, "~") = 0 Then
+			MFIP_dates_array = Array(MFIP_dates_array)
+		Else
+			MFIP_dates_array = split(MFIP_dates_array, "~")
+		End If
+		Call sort_dates(MFIP_dates_array)
+		' MsgBox Join(MFIP_dates_array, " - ")
+		for each ordered_date in MFIP_dates_array
+			For each_known_issuance = 0 to UBound(MFIP_ISSUANCE_ARRAY, 2)
+				If DateDiff("d", ordered_date, MFIP_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)) = 0 Then
+					mfip_msg_display = mfip_msg_display & vbCr & MFIP_ISSUANCE_ARRAY(note_message_const, each_known_issuance)
+					MFIP_Cash_total = MFIP_Cash_total + MFIP_ISSUANCE_ARRAY(cash_grant_amount_const, each_known_issuance)
+					MFIP_Food_total = MFIP_Food_total + MFIP_ISSUANCE_ARRAY(snap_grant_amount_const, each_known_issuance)
+					' Call write_variable_in_SPEC_MEMO(MFIP_ISSUANCE_ARRAY(note_message_const, each_known_issuance))
+					' Call write_variable_in_CASE_NOTE(MFIP_ISSUANCE_ARRAY(note_message_const, each_known_issuance))
+				End If
+			Next
+		Next
+
+		MsgBox "MFIP - This is the list" & mfip_msg_display & vbCr & "MFIP Cash Total: $" & MFIP_Cash_total & vbCr & "MFIP Food Total: $" & MFIP_Food_total
+		PF3
 	End If
+
+
+
+
 	If dwp_verification_method = "Create New MEMO with range of Months" Then
 		EMWriteScreen "X", 17, 50		'This is the DWO place
 		EMWriteScreen left(dwp_start_month, 2), 6, 38
 		EMWriteScreen right(dwp_start_month, 2), 6, 41
-		EMWriteScreen left(dwp_end_month, 2), 6, 53
-		EMWriteScreen right(dwp_end_month, 2), 6, 56
+		' EMWriteScreen left(dwp_end_month, 2), 6, 53
+		' EMWriteScreen right(dwp_end_month, 2), 6, 56
+		EMWriteScreen CM_plus_1_mo, 6, 53
+		EMWriteScreen CM_plus_1_yr, 6, 56
+
 		transmit
 
 	End If
@@ -1533,15 +2450,398 @@ If create_memo = True Then
 		EMWriteScreen "X", 16, 50		'This is the GRH place
 		EMWriteScreen left(grh_start_month, 2), 6, 38
 		EMWriteScreen right(grh_start_month, 2), 6, 41
-		EMWriteScreen left(grh_end_month, 2), 6, 53
-		EMWriteScreen right(grh_end_month, 2), 6, 56
+		' EMWriteScreen left(grh_end_month, 2), 6, 53
+		' EMWriteScreen right(grh_end_month, 2), 6, 56
+		EMWriteScreen CM_plus_1_mo, 6, 53
+		EMWriteScreen CM_plus_1_yr, 6, 56
+
 		transmit
 
 	End If
+
+
+
+	If snap_verification_method = "Create New MEMO with range of Months" Then
+		' snap_array_of_memo_lines = "SNAP (Supplemental Nutrition Assistance Program)(Food Support) Benefit:"
+		snap_array_of_memo_lines = "SNAP / Food Support Benefit:"
+
+		for each ordered_date in SNAP_dates_array
+			For each_known_issuance = 0 to UBound(SNAP_ISSUANCE_ARRAY, 2)
+				If DateDiff("d", ordered_date, SNAP_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)) = 0 Then
+					snap_array_of_memo_lines = snap_array_of_memo_lines & "~" & "   " & SNAP_ISSUANCE_ARRAY(note_message_const, each_known_issuance)
+					' Call write_variable_in_CASE_NOTE(SNAP_ISSUANCE_ARRAY(note_message_const, each_known_issuance))
+
+				End If
+			Next
+		Next
+		snap_array_of_memo_lines = snap_array_of_memo_lines & "~" & "SNAP Total for " & snap_start_month & " to " & snap_end_month & ": $" & SNAP_total
+		snap_array_of_memo_lines = split(snap_array_of_memo_lines, "~")
+	End If
+
+	If ga_verification_method = "Create New MEMO with range of Months" Then
+		ga_array_of_memo_lines = "GA (General Assistance) Benefit:"
+		for each ordered_date in GA_dates_array
+			For each_known_issuance = 0 to UBound(GA_ISSUANCE_ARRAY, 2)
+				If DateDiff("d", ordered_date, GA_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)) = 0 Then
+					ga_array_of_memo_lines = ga_array_of_memo_lines & "~" & "   " & GA_ISSUANCE_ARRAY(note_message_const, each_known_issuance)
+					' Call write_variable_in_CASE_NOTE(GA_ISSUANCE_ARRAY(note_message_const, each_known_issuance))
+
+				End If
+			Next
+		Next
+		ga_array_of_memo_lines = ga_array_of_memo_lines & "~" & "GA Cash Total for " & ga_start_month & " to " & ga_end_month & ": $" & GA_total
+		ga_array_of_memo_lines = split(ga_array_of_memo_lines, "~")
+	End If
+	If msa_verification_method = "Create New MEMO with range of Months" Then
+		msa_array_of_memo_lines = "MSA (MN Supplemental Aid) Benefit:"
+		for each ordered_date in MSA_dates_array
+			For each_known_issuance = 0 to UBound(MSA_ISSUANCE_ARRAY, 2)
+				If DateDiff("d", ordered_date, MSA_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)) = 0 Then
+					msa_array_of_memo_lines = msa_array_of_memo_lines & "~" & "   " & MSA_ISSUANCE_ARRAY(note_message_const, each_known_issuance)
+					' Call write_variable_in_CASE_NOTE(MSA_ISSUANCE_ARRAY(note_message_const, each_known_issuance))
+
+				End If
+			Next
+		Next
+		msa_array_of_memo_lines = msa_array_of_memo_lines & "~" & "MSA Cash Total for " & msa_start_month & " to " & msa_end_month & ": $" & MSA_total
+		msa_array_of_memo_lines = split(msa_array_of_memo_lines, "~")
+	End If
+	If mfip_verification_method = "Create New MEMO with range of Months" Then
+		mfip_array_of_memo_lines = "MFIP (MN Family Investment Program) or TANF Benefits:"
+		for each ordered_date in MFIP_dates_array
+			For each_known_issuance = 0 to UBound(MFIP_ISSUANCE_ARRAY, 2)
+				If DateDiff("d", ordered_date, MFIP_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)) = 0 Then
+					mfip_array_of_memo_lines = mfip_array_of_memo_lines & "~" & "   " & MFIP_ISSUANCE_ARRAY(note_message_const, each_known_issuance)
+					' Call write_variable_in_CASE_NOTE(MFIP_ISSUANCE_ARRAY(note_message_const, each_known_issuance))
+				End If
+			Next
+		Next
+		mfip_array_of_memo_lines = mfip_array_of_memo_lines & "~" & "MFIP Cash Total for " & mfip_start_month & " to " & mfip_end_month & ": $" & MFIP_Cash_total
+		mfip_array_of_memo_lines = mfip_array_of_memo_lines & "~" & "MFIP Food Total for " & mfip_start_month & " to " & mfip_end_month & ": $" & MFIP_Food_total
+		' mfip_array_of_memo_lines = mfip_array_of_memo_lines & "~" & "                NOTE: This is the Federal Progam called TANF"
+		mfip_array_of_memo_lines = split(mfip_array_of_memo_lines, "~")
+	End If
+
+	snap_memo_lines = 0
+	ga_memo_lines = 0
+	msa_memo_lines = 0
+	mfip_memo_lines = 0
+	memo_count = 0
+	Dim EACH_MEMO_ARRAY()
+	ReDim EACH_MEMO_ARRAY(0)
+	If IsArray(snap_array_of_memo_lines) = True Then
+		snap_memo_lines = UBound(snap_array_of_memo_lines) + 1
+	End If
+	If IsArray(ga_array_of_memo_lines) = True Then
+		ga_memo_lines = UBound(ga_array_of_memo_lines) + 1
+	End If
+	If IsArray(msa_array_of_memo_lines) = True Then
+		msa_memo_lines = UBound(msa_array_of_memo_lines) + 1
+	End If
+	If IsArray(mfip_array_of_memo_lines) = True Then
+		mfip_memo_lines = UBound(mfip_array_of_memo_lines) + 1
+	End If
+
+	total_memo_lines = snap_memo_lines + ga_memo_lines + msa_memo_lines + mfip_memo_lines + 3
+	memo_list = ""
+	If total_memo_lines < 28 Then
+		memo_list = memo_list & "~MFIP/GA/MSA/SNAP"
+	End If
+
+	If mfip_memo_lines > 27 Then
+		memo_list = memo_list & "~MFIP~MFIP"
+		If mfip_memo_lines > 55 Then memo_list = memo_list & "~MFIP"
+		If mfip_memo_lines > 83 Then memo_list = memo_list & "~MFIP"
+	End If
+	If snap_memo_lines > 27 Then
+		memo_list = memo_list & "~SNAP~SNAP"
+		If snap_memo_lines > 55 Then memo_list = memo_list & "~SNAP"
+		If snap_memo_lines > 83 Then memo_list = memo_list & "~SNAP"
+	End If
+	If ga_memo_lines > 27 Then
+		memo_list = memo_list & "~GA~GA"
+		If ga_memo_lines > 55 Then memo_list = memo_list & "~GA"
+		If ga_memo_lines > 83 Then memo_list = memo_list & "~GA"
+	End If
+	If msa_memo_lines > 27 Then
+		memo_list = memo_list & "~MSA~MSA"
+		If msa_memo_lines > 55 Then memo_list = memo_list & "~MSA"
+		If msa_memo_lines > 83 Then memo_list = memo_list & "~MSA"
+	End If
+
+
+
+	If mfip_memo_lines + ga_memo_lines + msa_memo_lines + 2 < 28 Then
+		memo_list = memo_list & "~MFIP/GA/MSA"
+		If snap_memo_lines <> 0 AND snap_memo_lines < 28 Then memo_list = memo_list & "~SNAP"
+	ElseIf snap_memo_lines + ga_memo_lines + msa_memo_lines + 2 < 28 Then
+		memo_list = memo_list & "~SNAP/GA/MSA"
+		If mfip_memo_lines <> 0 AND mfip_memo_lines < 28 Then memo_list = memo_list & "~MFIP"
+	ElseIf snap_memo_lines + ga_memo_lines + mfip_memo_lines + 2 < 28 Then
+		memo_list = memo_list & "~SNAP/GA/MFIP"
+		If msa_memo_lines <> 0 AND msa_memo_lines < 28 Then memo_list = memo_list & "~MSA"
+	ElseIf snap_memo_lines + mfip_memo_lines + msa_memo_lines + 2 < 28 Then
+		memo_list = memo_list & "~SNAP/MSA/MFIP"
+		If ga_memo_lines <> 0 AND ga_memo_lines < 28 Then memo_list = memo_list & "~GA"
+
+
+
+	ElseIf snap_memo_lines + ga_memo_lines + 1 < 28 Then
+		memo_list = memo_list & "~SNAP/GA"
+		If msa_memo_lines + mfip_memo_lines + 1 < 28 Then
+			memo_list = memo_list & "~MFIP/MSA"
+		Else
+			If msa_memo_lines <> 0 AND msa_memo_lines < 28 Then  memo_list = memo_list & "~MSA"
+			If mfip_memo_lines <> 0 AND mfip_memo_lines < 28 Then memo_list = memo_list & "~MFIP"
+		End If
+	ElseIf snap_memo_lines + msa_memo_lines + 1 < 28 Then
+		memo_list = memo_list & "~SNAP/MSA"
+		If ga_memo_lines + mfip_memo_lines + 1 < 28 Then
+			memo_list = memo_list & "~MFIP/GA"
+		Else
+			If ga_memo_lines <> 0 AND ga_memo_lines < 28 Then  memo_list = memo_list & "~GA"
+			If mfip_memo_lines <> 0 AND mfip_memo_lines < 28 Then memo_list = memo_list & "~MFIP"
+		End If
+	ElseIf snap_memo_lines + mfip_memo_lines + 1 < 28 Then
+		memo_list = memo_list & "~SNAP/MFIP"
+		If msa_memo_lines + ga_memo_lines + 1 < 28 Then
+			memo_list = memo_list & "~GA/MSA"
+		Else
+			If msa_memo_lines <> 0 AND msa_memo_lines < 28 Then  memo_list = memo_list & "~MSA"
+			If ga_memo_lines <> 0 AND ga_memo_lines < 28 Then memo_list = memo_list & "~GA"
+		End If
+	ElseIf ga_memo_lines + msa_memo_lines + 1 < 28 Then
+		memo_list = memo_list & "~GA/MSA"
+		If snap_memo_lines + mfip_memo_lines + 1 < 28 Then
+			memo_list = memo_list & "~MFIP/SNAP"
+		Else
+			If snap_memo_lines <> 0 AND snap_memo_lines < 28 Then  memo_list = memo_list & "~SNAP"
+			If mfip_memo_lines <> 0 AND mfip_memo_lines < 28 Then memo_list = memo_list & "~MFIP"
+		End If
+	ElseIf ga_memo_lines + mfip_memo_lines + 1 < 28 Then
+		memo_list = memo_list & "~GA/MFIP"
+		If msa_memo_lines + snap_memo_lines + 1 < 28 Then
+			memo_list = memo_list & "~SNAP/MSA"
+		Else
+			If msa_memo_lines <> 0 AND msa_memo_lines < 28 Then  memo_list = memo_list & "~MSA"
+			If snap_memo_lines <> 0 AND snap_memo_lines < 28 Then memo_list = memo_list & "~SNAP"
+		End If
+
+	ElseIf msa_memo_lines + mfip_memo_lines + 1 < 28 Then
+		memo_list = memo_list & "~MFIP/MSA"
+		If ga_memo_lines + mfip_memo_lines + 1 < 28 Then
+			memo_list = memo_list & "~MFIP/GA"
+		Else
+			If ga_memo_lines <> 0 AND ga_memo_lines < 28 Then  memo_list = memo_list & "~GA"
+			If mfip_memo_lines <> 0 AND mfip_memo_lines < 28 Then memo_list = memo_list & "~MFIP"
+		End If
+	Else
+		If mfip_memo_lines <> 0 AND mfip_memo_lines < 28 Then memo_list = memo_list & "~MFIP"
+		If ga_memo_lines <> 0 AND ga_memo_lines < 28 Then memo_list = memo_list & "~GA"
+		If msa_memo_lines <> 0 AND msa_memo_lines < 28 Then memo_list = memo_list & "~MSA"
+		If snap_memo_lines <> 0 AND snap_memo_lines < 28 Then memo_list = memo_list & "~SNAP"
+	End If
+
+	If left(memo_list, 1) = "~" Then memo_list = right(memo_list, len(memo_list) - 1)
+	MsgBox "Whole List: " & vbCr & memo_list
+	If InStr(memo_list, "~") = 0 Then
+		the_memos_array = Array(memo_list)
+	Else
+		the_memos_array = split(memo_list, "~")
+	End If
+
+	snap_restart_memo_lines_position = 0
+	ga_restart_memo_lines_position = 0
+	msa_restart_memo_lines_position = 0
+	mfip_restart_memo_lines_position = 0
+	For each memo_to_write in the_memos_array
+		MsgBox memo_to_write
+		memo_line = 1
+		memo_full = False
+		Call start_a_new_spec_memo
+
+		If memo_full = False AND snap_verification_method = "Create New MEMO with range of Months" AND InStr(memo_to_write, "SNAP") <> 0 Then
+			If snap_restart_memo_lines_position <= UBound(snap_array_of_memo_lines) Then
+				If memo_line = 1 AND snap_restart_memo_lines_position = 0 Then
+					Call write_variable_in_SPEC_MEMO("               Benefit Issuances by Month")
+					Call write_variable_in_SPEC_MEMO("                           Information provided by request.")
+					memo_line = memo_line + 2
+				ElseIf memo_line <> 1 AND snap_restart_memo_lines_position = 0 Then
+					Call write_variable_in_SPEC_MEMO("-      - - - - - - - - - - - - - - - - - - - -       -")
+					memo_line = memo_line + 1
+				ElseIf snap_restart_memo_lines_position <> 0 Then
+					Call write_variable_in_SPEC_MEMO("SNAP (Food Support) Benefit Information CONTINUED:")
+					memo_line = memo_line + 1
+				End If
+				For snap_info = snap_restart_memo_lines_position to UBound(snap_array_of_memo_lines)
+					Call write_variable_in_SPEC_MEMO(snap_array_of_memo_lines(snap_info))
+					end_line = snap_info + 1
+					memo_line = memo_line + 1
+					If memo_line = 30 Then
+						memo_full = True
+						Exit For
+					End If
+				Next
+				snap_restart_memo_lines_position = end_line
+			End If
+		End If
+		If memo_full = False AND ga_verification_method = "Create New MEMO with range of Months" AND InStr(memo_to_write, "GA") <> 0 Then
+			If ga_restart_memo_lines_position <= UBound(ga_array_of_memo_lines) Then
+				If memo_line = 1 AND ga_restart_memo_lines_position = 0 Then
+					Call write_variable_in_SPEC_MEMO("               Benefit Issuances by Month")
+					Call write_variable_in_SPEC_MEMO("                           Information provided by request.")
+					memo_line = memo_line + 2
+				ElseIf memo_line <> 1 AND ga_restart_memo_lines_position = 0 Then
+					Call write_variable_in_SPEC_MEMO("-      - - - - - - - - - - - - - - - - - - - -       -")
+					memo_line = memo_line + 1
+				ElseIf ga_restart_memo_lines_position <> 0 Then
+					Call write_variable_in_SPEC_MEMO("GA Benefit Information CONTINUED:")
+					memo_line = memo_line + 1
+				End If
+				For ga_info = ga_restart_memo_lines_position to UBound(ga_array_of_memo_lines)
+					Call write_variable_in_SPEC_MEMO(ga_array_of_memo_lines(ga_info))
+					end_line = ga_info + 1
+					memo_line = memo_line + 1
+					If memo_line = 30 Then
+						memo_full = True
+						Exit For
+					End If
+				Next
+				ga_restart_memo_lines_position = end_line
+			End If
+		End If
+		If memo_full = False AND msa_verification_method = "Create New MEMO with range of Months" AND InStr(memo_to_write, "MSA") <> 0 then
+			If msa_restart_memo_lines_position <= UBound(msa_array_of_memo_lines) Then
+				If memo_line = 1 AND msa_restart_memo_lines_position = 0 Then
+					Call write_variable_in_SPEC_MEMO("               Benefit Issuances by Month")
+					Call write_variable_in_SPEC_MEMO("                           Information provided by request.")
+					memo_line = memo_line + 2
+				ElseIf memo_line <> 1 AND msa_restart_memo_lines_position = 0 Then
+					Call write_variable_in_SPEC_MEMO("-      - - - - - - - - - - - - - - - - - - - -       -")
+					memo_line = memo_line + 1
+				ElseIf msa_restart_memo_lines_position <> 0 Then
+					Call write_variable_in_SPEC_MEMO("MSA Benefit Information CONTINUED:")
+					memo_line = memo_line + 1
+				End If
+				For msa_info = msa_restart_memo_lines_position to UBound(msa_array_of_memo_lines)
+					Call write_variable_in_SPEC_MEMO(msa_array_of_memo_lines(msa_info))
+					end_line = msa_info + 1
+					memo_line = memo_line + 1
+					If memo_line = 30 Then
+						memo_full = True
+						Exit For
+					End If
+				Next
+				msa_restart_memo_lines_position = end_line
+			End If
+		End If
+		If memo_full = False AND mfip_verification_method = "Create New MEMO with range of Months" AND InStr(memo_to_write, "MFIP") <> 0 Then
+			If mfip_restart_memo_lines_position <= UBound(mfip_array_of_memo_lines) Then
+				If memo_line = 1 AND mfip_restart_memo_lines_position = 0 Then
+					Call write_variable_in_SPEC_MEMO("               Benefit Issuances by Month")
+					Call write_variable_in_SPEC_MEMO("                           Information provided by request.")
+					memo_line = memo_line + 2
+				ElseIf memo_line <> 1 AND mfip_restart_memo_lines_position = 0 Then
+					Call write_variable_in_SPEC_MEMO("-      - - - - - - - - - - - - - - - - - - - -       -")
+					memo_line = memo_line + 1
+				ElseIf mfip_restart_memo_lines_position <> 0 Then
+					Call write_variable_in_SPEC_MEMO("MFIP Benefit Information CONTINUED:")
+					memo_line = memo_line + 1
+				End If
+				For mfip_info = mfip_restart_memo_lines_position to UBound(mfip_array_of_memo_lines)
+					Call write_variable_in_SPEC_MEMO(mfip_array_of_memo_lines(mfip_info))
+					end_line = mfip_info + 1
+					memo_line = memo_line + 1
+					If memo_line = 30 Then
+						memo_full = True
+						Exit For
+					End If
+				Next
+				mfip_restart_memo_lines_position = end_line
+			End If
+		End If
+		Do while memo_line < 30
+			Call write_variable_in_SPEC_MEMO("")
+			memo_line = memo_line + 1
+		Loop
+		Call write_variable_in_SPEC_MEMO("This information is accurate and complete as of " & date)
+		' PF4
+
+		MsgBox "MEMO Done " & vbCr & memo_to_write
+		PF3
+		PF3
+		MsgBox "confirm erased"
+	Next
+	Call back_to_SELF
+	' array_of_memo_lines = split(array_of_memo_lines, "~")
+	' If UBound(array_of_memo_lines)
+	'
+	' For memo_to_write = 1 to memos_needed
+	' 	Call start_a_new_spec_memo
+	'
+	' Next
+	' Call write_variable_in_SPEC_MEMO("")
+	' Call write_variable_in_SPEC_MEMO("")
+	' Call write_variable_in_SPEC_MEMO("")
+	' Call write_variable_in_SPEC_MEMO("")
+	' Call write_variable_in_SPEC_MEMO("")
+End If
+
+pa_verif_programs = ""
+
+If snap_resent_wcom = True OR snap_verification_method = "Create New MEMO with range of Months" OR snap_not_actv_memo_for_old_beneftis_checkbox = checked Then pa_verif_programs = pa_verif_programs & "/SNAP"
+If ga_resent_wcom = True OR ga_verification_method = "Create New MEMO with range of Months" OR ga_not_actv_memo_for_old_beneftis_checkbox = checked Then pa_verif_programs = pa_verif_programs & "/GA"
+If msa_resent_wcom = True OR msa_verification_method = "Create New MEMO with range of Months" OR msa_not_actv_memo_for_old_beneftis_checkbox = checked Then pa_verif_programs = pa_verif_programs & "/MSA"
+If mfip_resent_wcom = True OR mfip_verification_method = "Create New MEMO with range of Months" OR mfip_not_actv_memo_for_old_beneftis_checkbox = checked Then pa_verif_programs = pa_verif_programs & "/MFIP"
+
+If left(pa_verif_programs, 1) = "/" Then pa_verif_programs = right(pa_verif_programs, len(pa_verif_programs)-1)
+
+Call start_a_blank_CASE_NOTE
+
+Call write_variable_in_CASE_NOTE("Verification of " & pa_verif_programs & " Assistance sent")
+
+If snap_resent_wcom = True Then
+	Call write_variable_in_CASE_NOTE("SNAP WCOM recent to Client from " & snap_month & "/" & snap_year & ".")
+	Call write_variable_in_CASE_NOTE("   - " & snap_wcom_text)
+End If
+If snap_verification_method = "Create New MEMO with range of Months" Then
+	Call write_variable_in_CASE_NOTE("MEMO with SNAP Benefit amounts for " & snap_start_month & "  to " &  snap_end_month)
+	Call write_variable_in_CASE_NOTE("   - Benefit details from INQX")
+End If
+If ga_resent_wcom = True Then
+	Call write_variable_in_CASE_NOTE("")
+	Call write_variable_in_CASE_NOTE("GA WCOM recent to Client from " & ga_month & "/" & ga_year & ".")
+	Call write_variable_in_CASE_NOTE("   - " & ga_wcom_text)
+End If
+If ga_verification_method = "Create New MEMO with range of Months" Then
+	Call write_variable_in_CASE_NOTE("")
+	Call write_variable_in_CASE_NOTE("MEMO with SNAP Benefit amounts for " & snap_start_month & "  to " &  snap_end_month)
+	Call write_variable_in_CASE_NOTE("   - Benefit details from INQX")
+End If
+If msa_resent_wcom = True Then
+	Call write_variable_in_CASE_NOTE("")
+	Call write_variable_in_CASE_NOTE("MSA WCOM recent to Client from " & msa_month & "/" & msa_year & ".")
+	Call write_variable_in_CASE_NOTE("   - " & msa_wcom_text)
+End If
+If msa_verification_method = "Create New MEMO with range of Months" Then
+	Call write_variable_in_CASE_NOTE("")
+	Call write_variable_in_CASE_NOTE("MEMO with SNAP Benefit amounts for " & snap_start_month & "  to " &  snap_end_month)
+	Call write_variable_in_CASE_NOTE("   - Benefit details from INQX")
+End If
+If mfip_resent_wcom = True Then
+	Call write_variable_in_CASE_NOTE("")
+	Call write_variable_in_CASE_NOTE("MFIP WCOM recent to Client from " & mfip_month & "/" & mfip_year & ".")
+	Call write_variable_in_CASE_NOTE("   - " & mfip_wcom_text)
+End If
+If mfip_verification_method = "Create New MEMO with range of Months" Then
+	Call write_variable_in_CASE_NOTE("")
+	Call write_variable_in_CASE_NOTE("MEMO with MFIP Benefit amounts for " & mfip_prog_history_exists_start_month & "  to " &  mfip_end_month)
+	Call write_variable_in_CASE_NOTE("   - Benefit details from INQX")
 End If
 
 
-
+Call write_variable_in_CASE_NOTE("---")
+Call write_variable_in_CASE_NOTE(worker_signature)
 
 MsgBox "STOP HERE"
 
