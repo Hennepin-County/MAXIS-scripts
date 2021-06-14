@@ -147,8 +147,25 @@ IF non_disclosure_access = "Automated" THEN
 	PF8
 	EMReadscreen final_agreement, 5, 19, 33
 	IF final_agreement = "agree" THEN
-		EMwritescreen "Y", 19, 45
-		TRANSMIT
+	    BeginDialog Dialog1, 0, 0, 191, 120, "NON-DISCLOSURE AGREEMENT"
+         ButtonGroup ButtonPressed
+         OkButton 80, 100, 50, 15
+         CancelButton 135, 100, 50, 15
+         Text 5, 5, 180, 50, "BY ACCESSING AND USING THIS GOVERNMENT COMPUTER SYSTEM, YOU ARE CONSENTING TO SYSTEM MONITORING FOR LAW ENFORCEMENT AND OTHER PURPOSES. UNAUTHORIZED USE OF, OR ACCESS TO, THIS COMPUTER SYSTEM MAY SUBJECT YOU TO CRIMINAL PROSECUTION AND PENALTIES."
+         Text 5, 60, 180, 20, "NON-DISCLOSURE AGREEMENT REQUIRED FOR ACCESS TO IEVS FUNCTIONS"
+         Text 5, 85, 180, 10, "PLEASE COMPLETE AND HIT 'OK TO PROCEED "
+        EndDialog
+	    DO
+	    	DO
+	    		err_msg = ""
+	    		Dialog Dialog1
+	    		cancel_confirmation
+	    		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+	    	   LOOP UNTIL err_msg = ""
+	    	CALL check_for_password_without_transmit(are_we_passworded_out)
+	    LOOP UNTIL are_we_passworded_out = false
+		'EMwritescreen "Y", 19, 45
+		'TRANSMIT
 	ELSE
 		script_end_procedure_with_error_report("An error occured when trying to update the non disclosure access.")
 	END IF
