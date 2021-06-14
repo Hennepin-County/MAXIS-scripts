@@ -50,7 +50,8 @@ changelog_display
 Function declare_IVE_menu_dialog(script_array)
 	BeginDialog IVE_dialog, 0, 0, 516, 120, "IV-E Scripts"
 	 	Text 5, 5, 435, 10, "IV-E scripts main menu: select the script to run from the choices below."
-	  	ButtonGroup ButtonPressed
+	  	EditBox 700, 700, 50, 15, holderbox				'This sits here as the first control element so the fisrt button listed doesn't have the blue box around it.
+		ButtonGroup ButtonPressed
 		 	'PushButton 015, 35, 40, 15, "CA", 				IVE_main_button
 		 	'PushButton 445, 10, 65, 10, "SIR instructions", 	SIR_instructions_button
 
