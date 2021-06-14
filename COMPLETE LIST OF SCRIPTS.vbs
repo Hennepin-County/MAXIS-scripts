@@ -957,7 +957,7 @@ ReDim Preserve script_array(script_num)	    'Resets the array to add one more el
 Set script_array(script_num) = new script_bowie	   'Set this array element to be a new script. Script details below...
 script_array(script_num).script_name		    = "Copy Panels to Word"
 ' script_array(script_num).description		    = "Copies MAXIS panels to Word en masse for a case for easier review."
-script_array(script_num).category               = "ADMIN"
+script_array(script_num).category               = "UTILITIES"
 script_array(script_num).workflows              = ""
 script_array(script_num).tags                   = array("SNAP", "MFIP", "Health Care", "Adult Cash")
 script_array(script_num).dlg_keys               = array("Ex")
