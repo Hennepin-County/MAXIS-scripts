@@ -1971,13 +1971,11 @@ script_array(script_num).description			= "Creates a Word document with PA benefi
 script_array(script_num).category               = "NOTICES"
 script_array(script_num).workflows              = ""
 script_array(script_num).tags                   = array("Adult Cash", "Communication", "DWP", "EMER", "HS/GRH", "MFIP", "LTC", "SNAP")
-script_array(script_num).dlg_keys               = array("Cn", "Wrd", "Sw", "Sm")
+script_array(script_num).dlg_keys               = array("Cn", "Wrd")
 script_array(script_num).subcategory            = array("WORD DOCS")
-script_array(script_num).release_date           = #06/14/2021#
+script_array(script_num).release_date           = #10/01/2000#
+script_array(script_num).retirement_date		= #04/01/2021#
 script_array(script_num).hot_topic_link			= ""
-script_array(script_num).in_testing				= TRUE
-script_array(script_num).testing_category		= "ALL"
-script_array(script_num).testing_criteria		= array("")
 
 script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array(script_num)	'Resets the array to add one more element to it
