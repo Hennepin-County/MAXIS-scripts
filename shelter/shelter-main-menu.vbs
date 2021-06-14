@@ -53,6 +53,7 @@ changelog_display
 Function declare_NOTES_menu_dialog(script_array)
 	BeginDialog NOTES_dialog, 0, 0, 516, 340, "Shelter Team Scripts"
 	 	Text 5, 5, 435, 10, "Shelter scripts main menu: select the script to run from the choices below."
+		EditBox 700, 700, 50, 15, holderbox				'This sits here as the first control element so the fisrt button listed doesn't have the blue box around it.
 	  	ButtonGroup ButtonPressed
 		 	PushButton 015, 35, 30, 15, "# - L", 				a_to_n_button
 		 	PushButton 045, 35, 30, 15, "M - Z", 				p_to_z_button
