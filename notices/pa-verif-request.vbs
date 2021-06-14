@@ -2,7 +2,7 @@
 name_of_script = "NOTICES - PA VERIF REQUEST.vbs"
 start_time = timer
 STATS_counter = 1                     	'sets the stats counter at one
-STATS_manualtime = 294                	'manual run time in seconds
+STATS_manualtime = 100                	'manual run time in seconds
 STATS_denomination = "C"       		'C is for each CASE
 'END OF stats block=========================================================================================================
 
@@ -814,42 +814,16 @@ function start_a_new_spec_memo_with_options(memo_opened, search_for_arep_and_swk
 	End If
 
 end function
-'WHAT DO WE NEED TO START WITH?
-'Gather the Case Number
-'Determine Contact Type
-'Determine which programs are being requested
-	'If HC - determine the individual the request is for
-'If HC - determine if MAXIS or METS
-'Determine if we need Current Benefit or Issuance over a Time period.
 
+'FUNCTIONS TO BUILD
 
-'WHAT SHOULD THE SCRIPT DO?
-'Resend an ELIGIBILITY NOTICE
-'Create Word Doc of the ELIGIBILITY NOTICE
-'Create a SPEC/MEMO with information requested
-'Create Word Doc of the SPEC/MEMO
-'Note the information requested and how provided.
+'Gathering the Details
+'Second Dialog
+'Sending the MEMOs
+'Resending the WCOMS
 
-
-'FIRST DIALOG - CN & Contact type - this will NOT be in a function since if placed in another script - this will already be known
-'Ask if the request is from PHA
-'Ask if the request is for medical payment history'
-
-
-'Script will review case to determine:
-'program status
-'Most recent ELIG NOTICE
-'Current benefit amount
-'Determine in MMIS is running
-
-
-'SECOND DIALOG - display the found information
-'ask the questions about what is needed and how to outpuut
-
-'CREATE NOTICES OR RESEND
-
-'NOTING
-
+script_run_lowdown = ""
+testing_run = true
 EMConnect ""
 
 Call MAXIS_case_number_finder(MAXIS_case_number)
@@ -892,6 +866,8 @@ Do
 	Loop until err_msg = ""
 	Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = False
+
+script_run_lowdown = script_run_lowdown & vbCr & "Contact Type Selected - " & contact_type
 
 If contact_type = "PHA (Public Housing form)" Then
 	run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Verification-of-public-assistance.aspx"
@@ -940,15 +916,20 @@ End If
 Call back_to_SELF
 EMReadScreen MX_region, 12, 22, 48
 MX_region = trim(MX_region)
+script_run_lowdown = script_run_lowdown & vbCr & "MAXIS Region - " & MX_region & vbCr
 If MX_region = "INQUIRY DB" Then
     continue_in_inquiry = MsgBox("It appears you are in INQUIRY. Income information cannot be saved to STAT and a CASE/NOTE cannot be created." & vbNewLine & vbNewLine & "Do you wish to continue?", vbQuestion + vbYesNo, "Continue in Inquiry?")
     If continue_in_inquiry = vbNo Then script_end_procedure("Script ended since it was started in Inquiry.")
 End If
-' Call check_if_mmis_in_session(mmis_running, MX_region)
+' Call check_if_mmis_in_session(mmis_running, MX_region)			'commented out until we are doing HC things
 
 If contact_type = "Resident in Person (or AREP)" Then clt_in_person = True
 
 Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status)
+script_run_lowdown = script_run_lowdown & vbCr & "Case information:"
+script_run_lowdown = script_run_lowdown & vbCr & "case_active - " & case_active  & vbCr & "case_pending - " & case_pending & vbCr & "case_rein - " & case_rein
+script_run_lowdown = script_run_lowdown & vbCr & "family_cash_case - " & family_cash_case & vbCr & "mfip_case - " & mfip_case & vbCr & "dwp_case - " & dwp_case & vbCr & "adult_cash_case - " & adult_cash_case & vbCr & "ga_case - " & ga_case & vbCr & "msa_case - " & msa_case & vbCr & "grh_case - " & grh_case & vbCr & "snap_case - " & snap_case  & vbCr & "ma_case - " & ma_case & vbCr & "msp_case - " & msp_case
+script_run_lowdown = script_run_lowdown & vbCr & "unknown_cash_pending - " & unknown_cash_pending & vbCr & "unknown_hc_pending - " & unknown_hc_pending & vbCr & "ga_status - " & ga_status & vbCr & "msa_status - " & msa_status & vbCr & "mfip_status - " & mfip_status & vbCr & "dwp_status - " & dwp_status  & vbCr & "grh_status - " & grh_status & vbCr & "snap_status - " & snap_status  & vbCr & "ma_status - " & ma_status & vbCr & "msp_status - " & msp_status
 
 If ga_status = "ACTIVE" Then
 
@@ -957,7 +938,7 @@ If ga_status = "ACTIVE" Then
 	Do
 		EMReadScreen inqb_program, 2, inqb_row, 23
 		If inqb_program = "GA" Then
-			EMReadScreen ga_amount, 10, 6, 38
+			EMReadScreen ga_amount, 10, inqb_row, 38
 			ga_amount = trim(ga_amount)
 			Exit Do
 		End If
@@ -1022,7 +1003,7 @@ If msa_status = "ACTIVE" Then
 	Do
 		EMReadScreen inqb_program, 2, inqb_row, 23
 		If inqb_program = "MS" Then
-			EMReadScreen msa_amount, 10, 6, 38
+			EMReadScreen msa_amount, 10, inqb_row, 38
 			msa_amount = trim(msa_amount)
 			Exit Do
 		End If
@@ -1085,9 +1066,9 @@ If mfip_status = "ACTIVE" Then
 	Call navigate_to_MAXIS_screen("MONY", "INQB")
 	inqb_row = 6
 	Do
-		EMReadScreen inqb_program, 2, inqb_row, 23
-		If inqb_program = "MF" Then
-			EMReadScreen mfip_amount, 10, 6, 38
+		EMReadScreen inqb_program, 5, inqb_row, 23
+		If inqb_program = "MF-MF" Then
+			EMReadScreen mfip_amount, 10, inqb_row, 38
 			mfip_amount = trim(mfip_amount)
 			Exit Do
 		End If
@@ -1155,7 +1136,7 @@ If snap_status = "ACTIVE" Then
 	Do
 		EMReadScreen inqb_program, 2, inqb_row, 23
 		If inqb_program = "FS" Then
-			EMReadScreen snap_amount, 10, 6, 38
+			EMReadScreen snap_amount, 10, inqb_row, 38
 			snap_amount = trim(snap_amount)
 			Exit Do
 		End If
@@ -1329,6 +1310,8 @@ If grh_status <> "ACTIVE" Then
 	Loop until prog_hist_status = "      " OR prog_hist_status = "ACTIVE"
 End If
 Call back_to_SELF
+
+script_run_lowdown = script_run_lowdown & vbCr & vbCr & "PROGRAM HISTORY:" & vbCr & "snap_prog_history_exists - " & snap_prog_history_exists & vbCr & "ga_prog_history_exists - " & ga_prog_history_exists & vbCr & "msa_prog_history_exists - " & msa_prog_history_exists & vbCr & "mfip_prog_history_exists - " & mfip_prog_history_exists
 ' MsgBox "GA" & vbCr & "GA Amount - " & ga_amount & vbCr & "GA WCOM row - " & ga_wcom_row & vbCr & "GA WCOM position - "  & ga_wcom_position & vbCr &  "GA WCOM:" & vbCr & ga_wcom_text & vbCr & vbCr &_
 	 ' "SNAP" & vbCr & "FS Amount - " & snap_amount & vbCr & "FS WCOM row - " & snap_wcom_row & vbCr & "FS WCOM position - "  & snap_wcom_position & vbCr &  "FS WCOM:" & vbCr & snap_wcom_text
 
@@ -1363,6 +1346,28 @@ mfip_program_history_button = 54
 dwp_program_history_button 	= 55
 grh_program_history_button 	= 56
 hc_program_history_button 	= 57
+
+CURR_button = 5001
+PERS_button = 5002
+NOTE_button = 5003
+XFER_button = 5004
+WCOM_button = 5005
+MEMO_button = 5006
+PROG_button = 5007
+MEMB_button = 5008
+REVW_button = 5009
+INQB_button = 5010
+INQD_button = 5011
+INQX_button = 5012
+ELIG_FS_button = 5013
+ELIG_MFIP_button = 5014
+ELIG_DWP_button = 5015
+ELIG_GA_button = 5016
+ELIG_MSA_button = 5017
+ELIG_GRH_button = 5018
+ELIG_HC_button = 5019
+ELIG_SUMM_button = 5020
+ELIG_DENY_button = 5021
 
 Dim notices_array()
 ReDim notices_array(3,0)
@@ -1583,18 +1588,18 @@ Const WCOM_search_row = 2
 
 			OkButton 445, 365, 50, 15
 			CancelButton 495, 365, 50, 15
-			PushButton 35, 345, 25, 10, "CURR", CASE_CURR_button
-		    PushButton 60, 345, 25, 10, "PERS", CASE_PERS_button
-		    PushButton 85, 345, 25, 10, "NOTE", CASE_NOTE_button
-		    PushButton 160, 345, 25, 10, "XFER", SPEC_XFER_button
-		    PushButton 185, 345, 25, 10, "WCOM", SPEC_WCOM_button
-		    PushButton 210, 345, 25, 10, "MEMO", SPEC_MEMO_button
+			PushButton 35, 345, 25, 10, "CURR", CURR_button
+		    PushButton 60, 345, 25, 10, "PERS", PERS_button
+		    PushButton 85, 345, 25, 10, "NOTE", NOTE_button
+		    PushButton 160, 345, 25, 10, "XFER", XFER_button
+		    PushButton 185, 345, 25, 10, "WCOM", WCOM_button
+		    PushButton 210, 345, 25, 10, "MEMO", MEMO_button
 		    PushButton 35, 355, 25, 10, "PROG", PROG_button
 		    PushButton 60, 355, 25, 10, "MEMB", MEMB_button
 		    PushButton 85, 355, 25, 10, "REVW", REVW_button
-		    PushButton 160, 355, 25, 10, "INQB", MONY_INQB_button
-		    PushButton 185, 355, 25, 10, "INQD", MONY_INQB_button
-		    PushButton 210, 355, 25, 10, "INQX", MONY_INQB_button
+		    PushButton 160, 355, 25, 10, "INQB", INQB_button
+		    PushButton 185, 355, 25, 10, "INQD", INQD_button
+		    PushButton 210, 355, 25, 10, "INQX", INQX_button
 		    PushButton 35, 365, 25, 10, "SNAP", ELIG_FS_button
 		    PushButton 60, 365, 25, 10, "MFIP", ELIG_MFIP_button
 		    PushButton 85, 365, 25, 10, "DWP", ELIG_DWP_button
@@ -1619,7 +1624,8 @@ Const WCOM_search_row = 2
 		MAXIS_dialog_navigation
 		Call leave_notice_text(False)
 
-		If ButtonPressed > 1000 Then
+		If ButtonPressed > 5000 Then err_msg = "LOOP"
+		If ButtonPressed > 1000 AND ButtonPressed < 5000 Then
 			If ButtonPressed = snap_change_wcom_btn Then
 				selected_prog = "FS"
 				notc_month = snap_month
@@ -1888,6 +1894,12 @@ Const WCOM_search_row = 2
 	Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = False
 
+script_run_lowdown = script_run_lowdown & vbCr & vbCr & "NOTICE Selections:"
+script_run_lowdown = script_run_lowdown & vbCr & "SNAP - " & vbCr & "snap_verification_method - " & snap_verification_method & vbCr & "SNAP months: " & snap_start_month & " to " & snap_end_month & vbCr & "WCOM text - " & snap_wcom_text & vbCr & "Closed Program checkbox - " & snap_not_actv_memo_for_old_beneftis_checkbox
+script_run_lowdown = script_run_lowdown & vbCr & "GA - " & vbCr & "ga_verification_method - " & ga_verification_method & vbCr & "GA months: " & ga_start_month & " to " & ga_end_month & vbCr & "WCOM text - " & ga_wcom_text & vbCr & "Closed Program checkbox - " & ga_not_actv_memo_for_old_beneftis_checkbox
+script_run_lowdown = script_run_lowdown & vbCr & "MSA - " & vbCr & "msa_verification_method - " & msa_verification_method & vbCr & "MSA months: " & msa_start_month & " to " & msa_end_month & vbCr & "WCOM text - " & msa_wcom_text & vbCr & "Closed Program checkbox - " & msa_not_actv_memo_for_old_beneftis_checkbox
+script_run_lowdown = script_run_lowdown & vbCr & "MFIP - " & vbCr & "mfip_verification_method - " & mfip_verification_method & vbCr & "MFIP months: " & mfip_start_month & " to " & mfip_end_month & vbCr & "WCOM text - " & mfip_wcom_text & vbCr & "Closed Program checkbox - " & mfip_not_actv_memo_for_old_beneftis_checkbox
+
 'Go look to see if AREP Needs Mail
 'Go look if SWKR needs Mail
 'Need to add handling to check ADDRESS
@@ -2000,27 +2012,27 @@ Do
 
 			OkButton 445, 365, 50, 15
 			CancelButton 495, 365, 50, 15
-			PushButton 35, 345, 25, 10, "CURR", CASE_CURR_button
-			PushButton 60, 345, 25, 10, "PERS", CASE_PERS_button
-			PushButton 85, 345, 25, 10, "NOTE", CASE_NOTE_button
-			PushButton 160, 345, 25, 10, "XFER", SPEC_XFER_button
-			PushButton 185, 345, 25, 10, "WCOM", SPEC_WCOM_button
-			PushButton 210, 345, 25, 10, "MEMO", SPEC_MEMO_button
-			PushButton 35, 355, 25, 10, "PROG", PROG_button
-			PushButton 60, 355, 25, 10, "MEMB", MEMB_button
-			PushButton 85, 355, 25, 10, "REVW", REVW_button
-			PushButton 160, 355, 25, 10, "INQB", MONY_INQB_button
-			PushButton 185, 355, 25, 10, "INQD", MONY_INQB_button
-			PushButton 210, 355, 25, 10, "INQX", MONY_INQB_button
-			PushButton 35, 365, 25, 10, "SNAP", ELIG_FS_button
-			PushButton 60, 365, 25, 10, "MFIP", ELIG_MFIP_button
-			PushButton 85, 365, 25, 10, "DWP", ELIG_DWP_button
-			PushButton 110, 365, 25, 10, "GA", ELIG_GA_button
-			PushButton 135, 365, 25, 10, "MSA", ELIG_MSA_button
-			PushButton 160, 365, 25, 10, "GRH", ELIG_GRH_button
-			PushButton 185, 365, 25, 10, "HC", ELIG_HC_button
-			PushButton 210, 365, 25, 10, "SUMM", ELIG_SUMM_button
-			PushButton 235, 365, 25, 10, "DENY", ELIG_DENY_button
+			PushButton 35, 345, 25, 10, "CURR", CURR_button
+		    PushButton 60, 345, 25, 10, "PERS", PERS_button
+		    PushButton 85, 345, 25, 10, "NOTE", NOTE_button
+		    PushButton 160, 345, 25, 10, "XFER", XFER_button
+		    PushButton 185, 345, 25, 10, "WCOM", WCOM_button
+		    PushButton 210, 345, 25, 10, "MEMO", MEMO_button
+		    PushButton 35, 355, 25, 10, "PROG", PROG_button
+		    PushButton 60, 355, 25, 10, "MEMB", MEMB_button
+		    PushButton 85, 355, 25, 10, "REVW", REVW_button
+		    PushButton 160, 355, 25, 10, "INQB", INQB_button
+		    PushButton 185, 355, 25, 10, "INQD", INQD_button
+		    PushButton 210, 355, 25, 10, "INQX", INQX_button
+		    PushButton 35, 365, 25, 10, "SNAP", ELIG_FS_button
+		    PushButton 60, 365, 25, 10, "MFIP", ELIG_MFIP_button
+		    PushButton 85, 365, 25, 10, "DWP", ELIG_DWP_button
+		    PushButton 110, 365, 25, 10, "GA", ELIG_GA_button
+		    PushButton 135, 365, 25, 10, "MSA", ELIG_MSA_button
+		    PushButton 160, 365, 25, 10, "GRH", ELIG_GRH_button
+		    PushButton 185, 365, 25, 10, "HC", ELIG_HC_button
+		    PushButton 210, 365, 25, 10, "SUMM", ELIG_SUMM_button
+		    PushButton 235, 365, 25, 10, "DENY", ELIG_DENY_button
 			Text 250, 5, 290, 10, "NOTICE Information for Verification of Public Assistance for Case # " & MAXIS_case_number
 			GroupBox 5, 15, 470, 315, "Details"
 			GroupBox 5, 335, 390, 45, "Navigation"
@@ -2054,6 +2066,15 @@ Do
 	Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = False
 
+script_run_lowdown = script_run_lowdown & vbCr & vbCr & "ADDRESS Selections:"
+If case_address_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "Case Address checkbox was checked"
+If swkr_address_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "Social Worker Address checkbox was checked"
+If arep_address_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "Authorized Rep Address checkbox was checked"
+If other_address_checkbox = checked Then
+	script_run_lowdown = script_run_lowdown & vbCr & "Other Address checkbox was checked"
+	script_run_lowdown = script_run_lowdown & vbCr & "Person - " & other_address_person & vbCr & "Street - " & other_address_street & vbCr & "City - " & other_address_city & vbCr & "State - " & other_address_state & vbCr & "Zip - " & other_address_zip
+End If
+
 If swkr_address_checkbox = checked Then forms_to_swkr = "Y"
 If arep_address_checkbox = checked Then forms_to_arep = "Y"
 If other_address_checkbox = checked Then
@@ -2070,19 +2091,23 @@ If resend_wcom = True Then
 	If snap_verification_method = "Resend WCOM - Eligibility Notice" Then
 		Call resend_existing_wcom(snap_month, snap_year, snap_wcom_row, snap_resent_wcom, False, forms_to_arep, forms_to_swkr, send_to_other, other_address_person, other_address_street, other_address_city, other_address_state, other_address_zip)
 		Call back_to_SELF
+		STATS_manualtime = STATS_manualtime + 15
 		' MsgBox snap_resent_wcom
 	End If
 	If ga_verification_method = "Resend WCOM - Eligibility Notice" Then
 		Call resend_existing_wcom(ga_month, ga_year, ga_wcom_row, ga_resent_wcom, False, forms_to_arep, forms_to_swkr, send_to_other, other_address_person, other_address_street, other_address_city, other_address_state, other_address_zip)
 		Call back_to_SELF
+		STATS_manualtime = STATS_manualtime + 15
 	End If
 	If msa_verification_method = "Resend WCOM - Eligibility Notice" Then
 		Call resend_existing_wcom(msa_month, msa_year, msa_wcom_row, msa_resent_wcom, False, forms_to_arep, forms_to_swkr, send_to_other, other_address_person, other_address_street, other_address_city, other_address_state, other_address_zip)
 		Call back_to_SELF
+		STATS_manualtime = STATS_manualtime + 15
 	End If
 	If mfip_verification_method = "Resend WCOM - Eligibility Notice" Then
 		Call resend_existing_wcom(mfip_month, mfip_year, mfip_wcom_row, mfip_resent_wcom, False, forms_to_arep, forms_to_swkr, send_to_other, other_address_person, other_address_street, other_address_city, other_address_state, other_address_zip)
 		Call back_to_SELF
+		STATS_manualtime = STATS_manualtime + 15
 	End If
 	' If dwp_verification_method = "Resend WCOM - Eligibility Notice" Then
 	' 	Call resend_existing_wcom(dwp_month, dwp_year, dwp_wcom_row, dwp_resent_wcom, False, forms_to_arep, forms_to_swkr, send_to_other, other_address_person, other_address_street, other_address_city, other_address_state, other_address_zip)
@@ -2712,7 +2737,7 @@ If create_memo = True Then
 				If DateDiff("d", ordered_date, SNAP_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)) = 0 Then
 					snap_array_of_memo_lines = snap_array_of_memo_lines & "~" & "   " & SNAP_ISSUANCE_ARRAY(note_message_const, each_known_issuance)
 					' Call write_variable_in_CASE_NOTE(SNAP_ISSUANCE_ARRAY(note_message_const, each_known_issuance))
-
+					STATS_manualtime = STATS_manualtime + 20
 				End If
 			Next
 		Next
@@ -2727,6 +2752,7 @@ If create_memo = True Then
 				If DateDiff("d", ordered_date, GA_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)) = 0 Then
 					ga_array_of_memo_lines = ga_array_of_memo_lines & "~" & "   " & GA_ISSUANCE_ARRAY(note_message_const, each_known_issuance)
 					' Call write_variable_in_CASE_NOTE(GA_ISSUANCE_ARRAY(note_message_const, each_known_issuance))
+					STATS_manualtime = STATS_manualtime + 20
 
 				End If
 			Next
@@ -2741,6 +2767,7 @@ If create_memo = True Then
 				If DateDiff("d", ordered_date, MSA_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)) = 0 Then
 					msa_array_of_memo_lines = msa_array_of_memo_lines & "~" & "   " & MSA_ISSUANCE_ARRAY(note_message_const, each_known_issuance)
 					' Call write_variable_in_CASE_NOTE(MSA_ISSUANCE_ARRAY(note_message_const, each_known_issuance))
+					STATS_manualtime = STATS_manualtime + 20
 
 				End If
 			Next
@@ -2755,6 +2782,7 @@ If create_memo = True Then
 				If DateDiff("d", ordered_date, MFIP_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)) = 0 Then
 					mfip_array_of_memo_lines = mfip_array_of_memo_lines & "~" & "   " & MFIP_ISSUANCE_ARRAY(note_message_const, each_known_issuance)
 					' Call write_variable_in_CASE_NOTE(MFIP_ISSUANCE_ARRAY(note_message_const, each_known_issuance))
+					STATS_manualtime = STATS_manualtime + 20
 				End If
 			Next
 		Next
