@@ -106,6 +106,7 @@ Function declare_elig_main_menu_dialog()
     dialog1 = ""
 	BeginDialog dialog1, 0, 0, 600, dlg_len, "ELIG scripts main menu dialog"
 	 	Text 5, 5, 435, 10, "ELIG scripts main menu: select the script to run from the choices below."
+		EditBox 700, 700, 50, 15, holderbox				'This sits here as the first control element so the fisrt button listed doesn't have the blue box around it.
 	  	ButtonGroup ButtonPressed
 
 		Text 5, 25, 435, 10, "-------------------------------------------- NOTES --------------------------------------------"
