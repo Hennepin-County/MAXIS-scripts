@@ -2237,7 +2237,7 @@ If create_memo = True Then
 		Loop until issued_date = ""
 		SNAP_dates_array = ""
 		For each_known_issuance = 0 to UBound(SNAP_ISSUANCE_ARRAY, 2)
-			total_amount = left(SNAP_ISSUANCE_ARRAY(snap_grant_amount_const, each_known_issuance) & "        ", 8)
+			total_amount = left(SNAP_ISSUANCE_ARRAY(snap_grant_amount_const, each_known_issuance) & ".00        ", 8)
 			SNAP_ISSUANCE_ARRAY(note_message_const, each_known_issuance) = "$ " & total_amount & " issued for " & SNAP_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance)
 			' SNAP_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance) = replace(SNAP_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance), "/", "/01/")
 			' SNAP_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance) = DateAdd("d", 0, SNAP_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance))
@@ -2368,7 +2368,7 @@ If create_memo = True Then
 		Loop until issued_date = ""
 		GA_dates_array = ""
 		For each_known_issuance = 0 to UBound(GA_ISSUANCE_ARRAY, 2)
-			total_amount = left(GA_ISSUANCE_ARRAY(cash_grant_amount_const, each_known_issuance) & "        ", 8)
+			total_amount = left(GA_ISSUANCE_ARRAY(cash_grant_amount_const, each_known_issuance) & ".00        ", 8)
 			GA_ISSUANCE_ARRAY(note_message_const, each_known_issuance) = "$ " & total_amount & " issued for " & GA_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance)
 			GA_dates_array = GA_dates_array & "~" & GA_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)
 		Next
@@ -2496,7 +2496,7 @@ If create_memo = True Then
 		Loop until issued_date = ""
 		MSA_dates_array = ""
 		For each_known_issuance = 0 to UBound(MSA_ISSUANCE_ARRAY, 2)
-			total_amount = left(MSA_ISSUANCE_ARRAY(cash_grant_amount_const, each_known_issuance) & "        ", 8)
+			total_amount = left(MSA_ISSUANCE_ARRAY(cash_grant_amount_const, each_known_issuance) & ".00        ", 8)
 			MSA_ISSUANCE_ARRAY(note_message_const, each_known_issuance) = "$ " & total_amount & " issued for " & MSA_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance)
 			MSA_dates_array = MSA_dates_array & "~" & MSA_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)
 		Next
@@ -2649,11 +2649,12 @@ If create_memo = True Then
 		Loop until issued_date = ""
 		MFIP_dates_array = ""
 		For each_known_issuance = 0 to UBound(MFIP_ISSUANCE_ARRAY, 2)
-			total_cash_amount = left(MFIP_ISSUANCE_ARRAY(cash_grant_amount_const, each_known_issuance) & "        ", 8)
+			total_cash_amount = left(MFIP_ISSUANCE_ARRAY(cash_grant_amount_const, each_known_issuance) & ".00        ", 8)
 			' total_cash_amount = MFIP_ISSUANCE_ARRAY(cash_grant_amount_const, each_known_issuance)
-			total_snap_amount = left(MFIP_ISSUANCE_ARRAY(snap_grant_amount_const, each_known_issuance) & "        ", 8)
+			total_snap_amount = left(MFIP_ISSUANCE_ARRAY(snap_grant_amount_const, each_known_issuance) & ".00        ", 8)
 			' total_snap_amount = MFIP_ISSUANCE_ARRAY(snap_grant_amount_const, each_known_issuance)
-			MFIP_ISSUANCE_ARRAY(note_message_const, each_known_issuance) = "$ " & total_cash_amount & " - CASH and $ " & total_snap_amount & " - FOOD issued for " & MFIP_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance)
+			' MFIP_ISSUANCE_ARRAY(note_message_const, each_known_issuance) = "$ " & total_cash_amount & " - CASH and $ " & total_snap_amount & " - FOOD issued for " & MFIP_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance)
+			MFIP_ISSUANCE_ARRAY(note_message_const, each_known_issuance) = MFIP_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance) & " - CASH: $ " & total_cash_amount & " and FOOD: $ " & total_snap_amount
 			MFIP_dates_array = MFIP_dates_array & "~" & MFIP_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)
 		Next
 		For each expected_month in MFIP_expected_dates_array
