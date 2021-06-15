@@ -925,6 +925,8 @@ End If
 
 If contact_type = "Resident in Person (or AREP)" Then clt_in_person = True
 
+Call generate_client_list(select_a_client, "Select or Type")
+
 Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status)
 script_run_lowdown = script_run_lowdown & vbCr & "Case information:"
 script_run_lowdown = script_run_lowdown & vbCr & "case_active - " & case_active  & vbCr & "case_pending - " & case_pending & vbCr & "case_rein - " & case_rein
@@ -1314,6 +1316,15 @@ Call back_to_SELF
 script_run_lowdown = script_run_lowdown & vbCr & vbCr & "PROGRAM HISTORY:" & vbCr & "snap_prog_history_exists - " & snap_prog_history_exists & vbCr & "ga_prog_history_exists - " & ga_prog_history_exists & vbCr & "msa_prog_history_exists - " & msa_prog_history_exists & vbCr & "mfip_prog_history_exists - " & mfip_prog_history_exists
 ' MsgBox "GA" & vbCr & "GA Amount - " & ga_amount & vbCr & "GA WCOM row - " & ga_wcom_row & vbCr & "GA WCOM position - "  & ga_wcom_position & vbCr &  "GA WCOM:" & vbCr & ga_wcom_text & vbCr & vbCr &_
 	 ' "SNAP" & vbCr & "FS Amount - " & snap_amount & vbCr & "FS WCOM row - " & snap_wcom_row & vbCr & "FS WCOM position - "  & snap_wcom_position & vbCr &  "FS WCOM:" & vbCr & snap_wcom_text
+ Call navigate_to_MAXIS_screen("STAT", "SUMM")
+ EMReadScreen case_name, 22, 21, 46
+ case_name = trim(case_name)
+ Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, mail_line_one, mail_line_two, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three)
+ Call access_AREP_panel("READ", arep_name, arep_addr_street, arep_addr_city, arep_addr_state, arep_addr_zip, arep_phone_one, arep_ext_one, arep_phone_two, arep_ext_two, forms_to_arep, mmis_mail_to_arep)
+ Call access_SWKR_panel("READ", swkr_name, swkr_addr_street, swkr_addr_city, swkr_addr_state, swkr_addr_zip, swkr_phone, swkr_ext, notc_to_swkr)
+
+If arep_name <> "" Then select_a_client = select_a_client+chr(9)+"AREP - " & arep_name
+If swkr_name <> "" Then select_a_client = select_a_client+chr(9)+"SWKR - " & swkr_name
 
 snap_change_wcom_btn = 1010
 ga_change_wcom_btn   = 1020
@@ -1384,6 +1395,8 @@ Const WCOM_search_row = 2
  		Dialog1 = ""
 		BeginDialog Dialog1, 0, 0, 551, 385, "Verification of Public Assistance"
 		  ButtonGroup ButtonPressed
+		    Text 10, 10, 75, 10, "Requested by:"
+			ComboBox 80, 5, 150, 45, select_a_client+chr(9)+verif_request_by, verif_request_by
 			If snap_status = "ACTIVE" Then
 				GroupBox 15, y_pos, 450, 75, "SNAP"
 				y_pos = y_pos + 15
@@ -1609,8 +1622,8 @@ Const WCOM_search_row = 2
 		    PushButton 185, 365, 25, 10, "HC", ELIG_HC_button
 		    PushButton 210, 365, 25, 10, "SUMM", ELIG_SUMM_button
 		    PushButton 235, 365, 25, 10, "DENY", ELIG_DENY_button
-		  Text 250, 5, 290, 10, "NOTICE Information for Verification of Public Assistance for Case # " & MAXIS_case_number
-		  GroupBox 5, 15, 470, 315, "Details"
+		  Text 250, 10, 290, 10, "NOTICE Information for Verification of Public Assistance for Case # " & MAXIS_case_number
+		  ' GroupBox 5, 15, 470, 315, "Details"
 		  GroupBox 5, 335, 390, 45, "Navigation"
 		  Text 10, 345, 25, 10, "CASE/"
 		  Text 135, 345, 25, 10, "SPEC/"
@@ -1825,7 +1838,9 @@ Const WCOM_search_row = 2
 			dwp_end_month = trim(dwp_end_month)
 			grh_start_month = trim(grh_start_month)
 			grh_end_month = trim(grh_end_month)
+			verif_request_by = trim(verif_request_by)
 
+			If verif_request_by = "" or verif_request_by = "Select or Type" Then err_msg = err_msg & vbNewLine & "* Indicate who is requesting the information. You can select someone from the household or write in the name of the person. Please only provide information to individuals who have the right to access the information."
 			If snap_status = "ACTIVE" Then
 				If snap_verification_method = "Select One..." Then err_msg = err_msg & vbNewLine & "* Since SNAP is active, indicate if Verification of SNAP benefits is needed, and if so, which method works best."
 				If snap_verification_method = "Resend WCOM - Eligibility Notice" AND snap_wcom_text = "NO WCOM Found" then err_msg = err_msg & vbNewLine & "* Since you are selecting a WCOM to be resent as verification of SNAP, use the 'Select Different WCOM' button to select the correct WCOM since none was found."
@@ -1932,13 +1947,6 @@ If create_memo = False AND resend_wcom = False AND previous_active_prog_memo = F
 	end_msg = "No NOTICE SENT"& vbCr & vbCr & "No notices were requested for any program and there is no additional action for the script to take or actions to note." & vbCr & vbCr & "This does not mean there was an error. If you intended to select a MEMO or WCOM for one of the programs, rerun the script and enter the selections for the appropriate notice on the correct program."
 	script_end_procedure_with_error_report(end_msg)
 End If
-
-Call navigate_to_MAXIS_screen("STAT", "SUMM")
-EMReadScreen case_name, 22, 21, 46
-case_name = trim(case_name)
-Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, mail_line_one, mail_line_two, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three)
-Call access_AREP_panel("READ", arep_name, arep_addr_street, arep_addr_city, arep_addr_state, arep_addr_zip, arep_phone_one, arep_ext_one, arep_phone_two, arep_ext_two, forms_to_arep, mmis_mail_to_arep)
-Call access_SWKR_panel("READ", swkr_name, swkr_addr_street, swkr_addr_city, swkr_addr_state, swkr_addr_zip, swkr_phone, swkr_ext, notc_to_swkr)
 
 case_address_checkbox = checked
 If forms_to_arep = "Y" Then arep_address_checkbox = checked
@@ -3073,8 +3081,9 @@ If left(pa_verif_programs, 1) = "/" Then pa_verif_programs = right(pa_verif_prog
 
 Call start_a_blank_CASE_NOTE
 
-Call write_variable_in_CASE_NOTE("Verification of " & pa_verif_programs & " Assistance sent")
-
+' Call write_variable_in_CASE_NOTE("Verification of " & pa_verif_programs & " Assistance sent")
+Call write_variable_in_CASE_NOTE("Verification of Public Assistance Requested")
+Call write_variable_in_CASE_NOTE("Requested by: " & verif_request_by)
 If snap_resent_wcom = True Then
 	Call write_variable_in_CASE_NOTE("SNAP WCOM recent to Client from " & snap_month & "/" & snap_year & ".")
 	Call write_variable_in_CASE_NOTE("   - " & snap_wcom_text)
