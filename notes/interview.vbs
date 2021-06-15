@@ -3297,10 +3297,32 @@ function check_for_errors(interview_questions_clear)
 	If err_msg = "" Then interview_questions_clear = TRUE
 
 	If interview_questions_clear = TRUE Then
-		If case_is_expedited = True Then
-			'If APP Date is too far away - explain delays
-			'If APP Date is blank - add app date, deny date, or explain delays
-			'If Deny date exists - explain denial 
+
+		'If APP Date is too far away - explain delays
+		'If APP Date is blank - add app date, deny date, or explain delays
+		'If Deny date exists - explain denial
+		If snap_status = "PENDING" Then
+			If trim(snap_denial_date) <> "" AND IsDate(snap_denial_date) = FALSE Then
+				err_msg = err_msg & "~!~11^* SNAP DENIAL DATE ##~##   - This is a a SNAP case at application. You entered something in the SNAP denial date but it does not appear to be a date. Please list the date that SNAP will be denied if SNAP is being denied."
+			ElseIf IsDate(snap_denial_date) = TRUE Then
+				If DateDiff("d", date, snap_denial_date) > 0 Then err_msg = err_msg & "~!~11^* SNAP DENIAL DATE ##~##   - The denial date is listed as a future date. Review the date entered in the SNAP denial date field."
+				If trim(snap_denial_explain) = "" Then err_msg = err_msg & "~!~11^* EXPLAIN DENIAL ##~##   - Since you have a denial date listed, add some detail to explain the denial reason or other information."
+			ElseIf trim(snap_denial_date) = "" Then
+				If case_is_expedited = True Then
+					If IsDate(exp_snap_approval_date) = TRUE Then
+						If DateDiff("d", date, exp_snap_approval_date) > 0 Then
+							err_msg = err_msg & "~!~11^* EXP APPROVAL DATE ##~##   - The date listed in the expedited approval date is a future date. Please review the date listed and reenter if necessary."
+						ElseIf DateDiff("d", CAF_datestamp, exp_snap_approval_date) > 7 AND trim(exp_snap_delays) = "" Then
+							err_msg = err_msg & "~!~11^* EXPLAIN DELAYS ##~##   - Since Expedited SNAP is not approved within 7 days of the date of application, pease explain the reason for the delay."
+						End If
+					Else
+						If trim(exp_snap_delays) = "" Then err_msg = err_msg & "~!~11^* EXPLAIN DELAYS ##~##   - Since the Expedited SNAP does not have an approval date yet, either explain the reason for the delay or indicate the date of Expedited SNAP Approval."
+					End If
+				End If
+			End If
+		End If
+		If snap_status = "INACTIVE" AND case_is_expedited = True Then
+			If pend_snap_on_case = "?" Then full_err_msg = full_err_msg & "~!~11^* SHOULD SNAP BE PENDED ##~##   - Since SNAP is not active on this case, review for possible program eligibility."
 		End If
 	End If
 
@@ -3361,12 +3383,12 @@ function define_main_dialog()
 		    CheckBox 285, 295, 35, 10, "Phone", intv_exp_pay_phone_checkbox
 		    CheckBox 330, 295, 35, 10, "None", intv_exp_pay_none_checkbox
 		    Text 15, 315, 105, 10, "Do we have an ID verification?"
-		    DropListBox 125, 310, 45, 45, "No"+chr(9)+"Yes", id_verif_on_file
+		    DropListBox 125, 310, 45, 45, "?"+chr(9)+"No"+chr(9)+"Yes", id_verif_on_file
 		    Text 195, 315, 165, 10, "Check ECF, SOL-Q, and check in with the client."
 		    Text 15, 330, 240, 10, "Is the household active SNAP in another state for the application month?"
-		    DropListBox 255, 325, 45, 45, "No"+chr(9)+"Yes", snap_active_in_other_state
+		    DropListBox 255, 325, 45, 45, "?"+chr(9)+"No"+chr(9)+"Yes", snap_active_in_other_state
 		    Text 15, 345, 270, 10, "Was the last SNAP benefit for this case 'Expedited' with postponed verifications?"
-		    DropListBox 285, 340, 45, 45, "No"+chr(9)+"Yes", last_snap_was_exp
+		    DropListBox 285, 340, 45, 45, "?"+chr(9)+"No"+chr(9)+"Yes", last_snap_was_exp
 		ElseIf page_display = show_pg_one_address Then
 			Text 500, 27, 60, 13, "CAF ADDR"
 			If update_addr = FALSE Then
@@ -4299,8 +4321,9 @@ function define_main_dialog()
 				If snap_status = "ACTIVE" Then
 					Text 15, y_pos, 450, 10, "SNAP is active on this case - Expedited Determination not needed."
 					y_pos = y_pos + 15
-				ElseIf case_is_expedited = True Then
-					Text 15, y_pos, 325, 10, "Case appears to meet Expedited Criteria and needs to be processed using Expedited Standards."
+				Else
+					If case_is_expedited = True Then Text 15, y_pos, 325, 10, "Case appears to meet Expedited Criteria and needs to be processed using Expedited Standards."
+					If case_is_expedited = False Then Text 15, y_pos, 325, 10, "Case does not appear to be expedited, if that seems incorrect - review EXP Quesitons."
 					Text 350, y_pos, 120, 10, "CAF Date: " & CAF_datestamp
 					y_pos = y_pos + 10
 
@@ -4326,7 +4349,6 @@ function define_main_dialog()
 						DropListBox 115, y_pos - 5, 75, 45, "?"+chr(9)+"Yes"+chr(9)+"No", pend_snap_on_case
 
 					End If
-				Else
 
 				End If
 				' expedited_info_does_not_match
@@ -5320,6 +5342,12 @@ function save_your_work()
 			objTextStream.WriteLine "SIG - 06 - " & second_signature_date
 			objTextStream.WriteLine "SIG - 07 - " & client_signed_verbally_yn
 			objTextStream.WriteLine "SIG - 08 - " & interview_date
+			objTextStream.WriteLine "ASSESS - 01 - " & exp_snap_approval_date
+			objTextStream.WriteLine "ASSESS - 02 - " & exp_snap_delays
+			objTextStream.WriteLine "ASSESS - 03 - " & snap_denial_date
+			objTextStream.WriteLine "ASSESS - 04 - " & snap_denial_explain
+			objTextStream.WriteLine "ASSESS - 05 - " & pend_snap_on_case
+
 
 			objTextStream.WriteLine "FORM - 01 - " & confirm_resp_read
 			objTextStream.WriteLine "FORM - 02 - " & confirm_rights_read
@@ -5707,6 +5735,12 @@ function restore_your_work(vars_filled)
 					If left(text_line, 8) = "SIG - 06" Then second_signature_date = Mid(text_line, 12)
 					If left(text_line, 8) = "SIG - 07" Then client_signed_verbally_yn = Mid(text_line, 12)
 					If left(text_line, 8) = "SIG - 08" Then interview_date = Mid(text_line, 12)
+
+					If left(text_line, 11) = "ASSESS - 01" Then exp_snap_approval_date = Mid(text_line, 15)
+					If left(text_line, 11) = "ASSESS - 02" Then exp_snap_delays = Mid(text_line, 15)
+					If left(text_line, 11) = "ASSESS - 03" Then snap_denial_date = Mid(text_line, 15)
+					If left(text_line, 11) = "ASSESS - 04" Then snap_denial_explain = Mid(text_line, 15)
+					If left(text_line, 11) = "ASSESS - 05" Then pend_snap_on_case = Mid(text_line, 15)
 
 					If left(text_line, 9) = "FORM - 01" Then confirm_resp_read = Mid(text_line, 13)
 					If left(text_line, 9) = "FORM - 02" Then confirm_rights_read = Mid(text_line, 13)
@@ -6519,6 +6553,7 @@ Dim arep_name, arep_relationship, arep_phone_number, arep_addr_street, arep_addr
 Dim arep_complete_forms_checkbox, arep_get_notices_checkbox, arep_use_SNAP_checkbox
 Dim signature_detail, signature_person, signature_date, second_signature_detail, second_signature_person, second_signature_date
 Dim client_signed_verbally_yn, interview_date, add_to_time
+Dim exp_snap_approval_date, exp_snap_delays, snap_denial_date, snap_denial_explain, pend_snap_on_case
 
 Dim show_pg_one_memb01_and_exp, show_pg_one_address, show_pg_memb_list, show_q_1_6
 Dim show_q_7_11, show_q_14_15, show_q_21_24, show_qual, show_pg_last, discrepancy_questions
