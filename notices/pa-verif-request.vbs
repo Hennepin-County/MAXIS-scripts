@@ -3089,7 +3089,7 @@ If ga_resent_wcom = True Then
 End If
 If ga_verification_method = "Create New MEMO with range of Months" Then
 	' Call write_variable_in_CASE_NOTE("")
-	Call write_variable_in_CASE_NOTE("MEMO with SNAP Benefit amounts for " & snap_start_month & "  to " &  snap_end_month)
+	Call write_variable_in_CASE_NOTE("MEMO with GA Benefit amounts for " & ga_start_month & "  to " &  ga_end_month)
 	Call write_variable_in_CASE_NOTE("   - Benefit details from INQX")
 End If
 If msa_resent_wcom = True Then
@@ -3099,7 +3099,7 @@ If msa_resent_wcom = True Then
 End If
 If msa_verification_method = "Create New MEMO with range of Months" Then
 	' Call write_variable_in_CASE_NOTE("")
-	Call write_variable_in_CASE_NOTE("MEMO with SNAP Benefit amounts for " & snap_start_month & "  to " &  snap_end_month)
+	Call write_variable_in_CASE_NOTE("MEMO with MSA Benefit amounts for " & msa_start_month & "  to " &  msa_end_month)
 	Call write_variable_in_CASE_NOTE("   - Benefit details from INQX")
 End If
 If mfip_resent_wcom = True Then
@@ -3109,7 +3109,7 @@ If mfip_resent_wcom = True Then
 End If
 If mfip_verification_method = "Create New MEMO with range of Months" Then
 	' Call write_variable_in_CASE_NOTE("")
-	Call write_variable_in_CASE_NOTE("MEMO with MFIP Benefit amounts for " & mfip_prog_history_exists_start_month & "  to " &  mfip_end_month)
+	Call write_variable_in_CASE_NOTE("MEMO with MFIP Benefit amounts for " & mfip_start_month & "  to " &  mfip_end_month)
 	Call write_variable_in_CASE_NOTE("   - Benefit details from INQX")
 End If
 
