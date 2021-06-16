@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("06/16/2021", "GitHub Issue #161 Updated the removal of retro request if it equals the footer month.", "MiKayla Handley")
 call changelog_update("03/01/2020", "Updated TIKL functionality and TIKL text in the case note.", "Ilse Ferris")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -79,16 +80,15 @@ call MAXIS_case_number_finder(MAXIS_case_number)
 CALL MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 161, 65, "Case number and footer month"
-  Text 5, 10, 85, 10, "Enter your case number:"
-  EditBox 95, 5, 60, 15, MAXIS_case_number
-  Text 15, 30, 50, 10, "Footer month:"
-  EditBox 65, 25, 25, 15, MAXIS_footer_month
-  Text 95, 30, 20, 10, "Year:"
-  EditBox 120, 25, 25, 15, MAXIS_footer_year
+BeginDialog Dialog1, 0, 0, 106, 70, "HCAPP"
+  EditBox 55, 5, 45, 15, MAXIS_case_number
+  EditBox 55, 25, 20, 15, MAXIS_footer_month
+  EditBox 80, 25, 20, 15, MAXIS_footer_year
   ButtonGroup ButtonPressed
-    OkButton 25, 45, 50, 15
-    CancelButton 85, 45, 50, 15
+    OkButton 5, 50, 45, 15
+    CancelButton 55, 50, 45, 15
+  Text 5, 10, 50, 10, "Case number:"
+  Text 5, 30, 50, 10, "Footer MM/YY:"
 EndDialog
 'Showing the case number
 DO
@@ -103,13 +103,24 @@ DO
 Loop until are_we_passworded_out = false
 
 'Navigating to STAT, grabbing the HH members
-call navigate_to_MAXIS_screen("stat", "hcre")
-EMReadScreen STAT_check, 4, 20, 21
-If STAT_check <> "STAT" then call script_end_procedure("Can't get in to STAT. This case may be in background. Wait a few seconds and try again. If the case is not in background contact a Support Team member.")
+CALL navigate_to_MAXIS_screen_review_PRIV("STAT", "HCRE", is_this_priv)
+IF is_this_priv = TRUE THEN script_end_procedure("This case is privileged, the script will now end.")
+
+EMReadScreen stat_check, 4, 20, 21
+If stat_check <> "STAT" then call script_end_procedure("***NOTICE***" & vbNewLine & "Can't get in to STAT. This case may be in background. Wait a few seconds and try again. If the case is not in background contact a Support Team member.")
+EMReadScreen panel_check, 4, 2, 50
+IF panel_check = "HCRE" THEN
+    EMReadScreen HCRE_doesnt_exist, 5, 24, 16
+    IF HCRE_doesnt_exist = "EXIST" THEN retro_request = "" 'HCRE DOES NOT EXIST FOR THIS CASE'
+ELSE
+    EMReadScreen application_date, 8, 4, 63
+    If application_date = "" THEN retro_request = ""
+    application_date = CAF_datestamp 'setting the application from HCRE to match the varible used in master functions library'
+END IF
 
 'Creating a custom dialog for determining who the HH members are
 call HH_member_custom_dialog(HH_member_array)
-
+retro_request = retro_request & ""
 'Autofilling case info
 call autofill_editbox_from_MAXIS(HH_member_array, "HCRE-retro", retro_request)
 call autofill_editbox_from_MAXIS(HH_member_array, "HCRE", HCAPP_datestamp)
@@ -360,4 +371,4 @@ IF MMIS_updated_check = checked then call write_variable_in_case_note("* MMIS up
 CALL write_variable_in_case_note("---")
 CALL write_variable_in_case_note(worker_signature)
 
-script_end_procedure("")
+script_end_procedure_with_error_report("Success")
