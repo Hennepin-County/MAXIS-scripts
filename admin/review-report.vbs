@@ -3375,6 +3375,18 @@ If renewal_option = "Send NOMIs" Then
 	' 	   "NOMI Date Col - " & notc_date_col & vbCr &_
 	' 	   "APPT Sent Col - " & appt_notc_col & vbCr &_
 	' 	   "APPT Date Col - " & last_apt_notc_col
+	col_to_use = 1
+	Do
+		col_header = trim(ObjExcel.Cells(1, col_to_use).Value)
+		If col_header = "CASH (" & date_header & ")" Then cash_stat_excel_col = col_to_use
+		If col_header = "SNAP (" & date_header & ")" Then snap_stat_excel_col = col_to_use
+		If col_header = "HC (" & date_header & ")" Then hc_stat_excel_col = col_to_use
+		If col_header = "MAGI (" & date_header & ")" Then magi_stat_excel_col = col_to_use
+		If col_header = "CAF Date (" & date_header & ")" Then recvd_date_excel_col = col_to_use
+		If col_header = "Intvw Date (" & date_header & ")" Then intvw_date_excel_col = col_to_use
+
+		col_to_use = col_to_use + 1
+	Loop until col_header = ""
 
 	today_mo = DatePart("m", date)
 	today_mo = right("00" & today_mo, 2)
@@ -3408,18 +3420,30 @@ If renewal_option = "Send NOMIs" Then
 			Call read_boolean_from_excel(ObjExcel.cells(excel_row,  6).value, MFIP_status)
 			Call read_boolean_from_excel(ObjExcel.cells(excel_row, 13).value, SNAP_status)
 
-			notes_info = Trim(ObjExcel.cells(excel_row, 25).value)
-			in_county = True
-			If notes_info <> "PRIV Case." then
-				Call back_to_SELF
-				Call navigate_to_MAXIS_screen("CASE", "CURR")
-				EMReadscreen curr_primary_worker, 4, 21, 14
-				If curr_primary_worker <> "X127" Then in_county = False
-			End If
-
 			appt_notc_sent = trim(ObjExcel.Cells(excel_row, appt_notc_col).Value)
 			interview_date_as_of_today = trim(ObjExcel.Cells(excel_row, intvw_date_excel_col).Value)
 			caf_date_as_of_today = trim(ObjExcel.Cells(excel_row, recvd_date_excel_col).Value)
+			notes_info = Trim(ObjExcel.cells(excel_row, 25).value)
+
+			send_nomi_now = False
+			in_county = True
+
+			' If er_with_intherview = True AND interview_date_as_of_today = "" AND appt_notc_sent = "Y" Then						'USING DIFFERENT CRITERA DUE TO WAIVED INTVW FOR SNAP DURING COVID-19'
+			If er_with_intherview = True AND interview_date_as_of_today = "" AND appt_notc_sent = "Y" AND MFIP_status = True Then send_nomi_now = True
+
+			If send_nomi_now = True Then
+				If notes_info = "PRIV Case." Then send_nomi_now = False
+				If notes_info <> "PRIV Case." then
+					Call back_to_SELF
+					Call navigate_to_MAXIS_screen("CASE", "CURR")
+					EMReadscreen curr_primary_worker, 4, 21, 14
+					If curr_primary_worker <> "X127" Then
+						send_nomi_now = False
+						in_county = False
+					End If
+				End If
+			End If
+
 
 			' If MFIP_status = True and SNAP_status = True Then
 			' 	programs = "MFIP/SNAP"
@@ -3429,8 +3453,7 @@ If renewal_option = "Send NOMIs" Then
 			' 	programs = "SNAP"
 			' End If
 
-			' If er_with_intherview = True AND interview_date_as_of_today = "" AND appt_notc_sent = "Y" Then						'USING DIFFERENT CRITERA DUE TO WAIVED INTVW FOR SNAP DURING COVID-19'
-			If er_with_intherview = True AND interview_date_as_of_today = "" AND appt_notc_sent = "Y" AND MFIP_status = True Then
+			If send_nomi_now = True Then
 				Call start_a_new_spec_memo_and_continue(memo_started)
 
 				IF memo_started = True THEN         'The function will return this as FALSE if PF5 does not move past MEMO DISPLAY
@@ -3540,6 +3563,12 @@ If renewal_option = "Send NOMIs" Then
 	objExcel.Cells(entry_row, 4).Value      = "Total Cases with ER Interview"             'All cases from the spreadsheet
 	objExcel.Cells(entry_row, 4).Font.Bold 	= TRUE
 	objExcel.Cells(entry_row, 5).Value      = "=COUNTIFS(Table1[Interview ER],"&is_true&")"
+	' total_row = entry_row
+	entry_row = entry_row + 1
+
+	objExcel.Cells(entry_row, 4).Value      = "Total MFIP Cases with ER Interview"             'All cases from the spreadsheet
+	objExcel.Cells(entry_row, 4).Font.Bold 	= TRUE
+	objExcel.Cells(entry_row, 5).Value      = "=COUNTIFS(Table1[Interview ER],"&is_true&",Table1[MFIP Status],"&is_true&")"
 	total_row = entry_row
 	entry_row = entry_row + 1
 
