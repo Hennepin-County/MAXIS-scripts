@@ -1504,8 +1504,8 @@ Const WCOM_search_row = 2
 					EditBox 235, y_pos - 5, 30, 15, snap_start_month
 					Text 265, y_pos, 5, 10, "---"
 					EditBox 270, y_pos - 5, 30, 15, snap_end_month
-					Text 305, y_pos, 100, 10, "(use mm/yy format)"
-					PushButton 330, y_pos, 100, 10, "View this INQX", snap_view_inqx_btn
+					Text 305, y_pos, 75, 10, "(use mm/yy format)"
+					PushButton 370, y_pos, 80, 10, "View this INQX", snap_view_inqx_btn
 					y_pos = y_pos + 15
 				Else
 					Text 20, y_pos, 300, 10, "SNAP is NOT currently Active and there is no ACTIVE Program history for this case."
@@ -1521,8 +1521,8 @@ Const WCOM_search_row = 2
 					EditBox 235, y_pos - 5, 30, 15, ga_start_month
 					Text 265, y_pos, 5, 10, "---"
 					EditBox 270, y_pos - 5, 30, 15, ga_end_month
-					Text 305, y_pos, 100, 10, "(use mm/yy format)"
-					PushButton 330, y_pos, 100, 10, "View this INQX", ga_view_inqx_btn
+					Text 305, y_pos, 65, 10, "(use mm/yy format)"
+					PushButton 370, y_pos, 80, 10, "View this INQX", ga_view_inqx_btn
 					y_pos = y_pos + 15
 				Else
 					Text 20, y_pos, 300, 10, "GA is NOT currently Active and there is no ACTIVE Program history for this case."
@@ -1539,7 +1539,7 @@ Const WCOM_search_row = 2
 					Text 265, y_pos, 5, 10, "---"
 					EditBox 270, y_pos - 5, 30, 15, msa_end_month
 					Text 305, y_pos, 100, 10, "(use mm/yy format)"
-					PushButton 330, y_pos, 100, 10, "View this INQX", msa_view_inqx_btn
+					PushButton 370, y_pos, 80, 10, "View this INQX", msa_view_inqx_btn
 					y_pos = y_pos + 15
 				Else
 					Text 20, y_pos, 300, 10, "MSA is NOT currently Active and there is no ACTIVE Program history for this case."
@@ -1556,7 +1556,7 @@ Const WCOM_search_row = 2
 					Text 265, y_pos, 5, 10, "---"
 					EditBox 270, y_pos - 5, 30, 15, mfip_end_month
 					Text 305, y_pos, 100, 10, "(use mm/yy format)"
-					PushButton 330, y_pos, 100, 10, "View this INQX", mfip_view_inqx_btn
+					PushButton 370, y_pos, 80, 10, "View this INQX", mfip_view_inqx_btn
 					y_pos = y_pos + 15
 				Else
 					Text 20, y_pos, 300, 10, "MFIP is NOT currently Active and there is no ACTIVE Program history for this case."
@@ -2245,7 +2245,13 @@ If create_memo = True Then
 		Loop until issued_date = ""
 		SNAP_dates_array = ""
 		For each_known_issuance = 0 to UBound(SNAP_ISSUANCE_ARRAY, 2)
-			total_amount = left(SNAP_ISSUANCE_ARRAY(snap_grant_amount_const, each_known_issuance) & ".00        ", 8)
+			total_amount = SNAP_ISSUANCE_ARRAY(snap_grant_amount_const, each_known_issuance)
+			total_amount = total_amount & ""
+			If InStr(total_amount, ".") = 0 Then
+				total_amount = left(total_amount & ".00        ", 8)
+			Else
+				total_amount = left(total_amount & "        ", 8)
+			End If
 			SNAP_ISSUANCE_ARRAY(note_message_const, each_known_issuance) = "$ " & total_amount & " issued for " & SNAP_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance)
 			' SNAP_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance) = replace(SNAP_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance), "/", "/01/")
 			' SNAP_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance) = DateAdd("d", 0, SNAP_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance))
@@ -2262,7 +2268,7 @@ If create_memo = True Then
 				SNAP_ISSUANCE_ARRAY(benefit_month_const, msg_counter) = right("00" & DatePart("m", expected_month), 2) & "/" & right(DatePart("yyyy", expected_month), 2)
 				SNAP_ISSUANCE_ARRAY(snap_grant_amount_const, msg_counter) = 0
 				SNAP_ISSUANCE_ARRAY(benefit_month_as_date_const, msg_counter) = expected_month
-				SNAP_ISSUANCE_ARRAY(note_message_const, each_known_issuance) = "$ 0        issued for " & SNAP_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance)
+				SNAP_ISSUANCE_ARRAY(note_message_const, each_known_issuance) = "$ 0.00     issued for " & SNAP_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance)
 				SNAP_dates_array = SNAP_dates_array & "~" & expected_month
 				'maybe add the 'from_date' into benefit_month_as_date' so that we don't hvae to do more handling down below
 				msg_counter = msg_counter + 1
@@ -2376,7 +2382,13 @@ If create_memo = True Then
 		Loop until issued_date = ""
 		GA_dates_array = ""
 		For each_known_issuance = 0 to UBound(GA_ISSUANCE_ARRAY, 2)
-			total_amount = left(GA_ISSUANCE_ARRAY(cash_grant_amount_const, each_known_issuance) & ".00        ", 8)
+			total_amount = GA_ISSUANCE_ARRAY(cash_grant_amount_const, each_known_issuance)
+			total_amount = total_amount & ""
+			If InStr(total_amount, ".") = 0 Then
+				total_amount = left(total_amount & ".00        ", 8)
+			Else
+				total_amount = left(total_amount & "        ", 8)
+			End If
 			GA_ISSUANCE_ARRAY(note_message_const, each_known_issuance) = "$ " & total_amount & " issued for " & GA_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance)
 			GA_dates_array = GA_dates_array & "~" & GA_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)
 		Next
@@ -2391,7 +2403,7 @@ If create_memo = True Then
 				GA_ISSUANCE_ARRAY(benefit_month_const, msg_counter) = right("00" & DatePart("m", expected_month), 2) & "/" & right(DatePart("yyyy", expected_month), 2)
 				GA_ISSUANCE_ARRAY(cash_grant_amount_const, msg_counter) = 0
 				GA_ISSUANCE_ARRAY(benefit_month_as_date_const, msg_counter) = expected_month
-				GA_ISSUANCE_ARRAY(note_message_const, each_known_issuance) = "$ 0        issued for " & GA_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance)
+				GA_ISSUANCE_ARRAY(note_message_const, each_known_issuance) = "$ 0.00     issued for " & GA_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance)
 				GA_dates_array = GA_dates_array & "~" & expected_month
 				'maybe add the 'from_date' into benefit_month_as_date' so that we don't hvae to do more handling down below
 				msg_counter = msg_counter + 1
@@ -2504,7 +2516,13 @@ If create_memo = True Then
 		Loop until issued_date = ""
 		MSA_dates_array = ""
 		For each_known_issuance = 0 to UBound(MSA_ISSUANCE_ARRAY, 2)
-			total_amount = left(MSA_ISSUANCE_ARRAY(cash_grant_amount_const, each_known_issuance) & ".00        ", 8)
+			total_amount = MSA_ISSUANCE_ARRAY(cash_grant_amount_const, each_known_issuance)
+			total_amount = total_amount & ""
+			If InStr(total_amount, ".") = 0 Then
+				total_amount = left(total_amount & ".00        ", 8)
+			Else
+				total_amount = left(total_amount & "        ", 8)
+			End If
 			MSA_ISSUANCE_ARRAY(note_message_const, each_known_issuance) = "$ " & total_amount & " issued for " & MSA_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance)
 			MSA_dates_array = MSA_dates_array & "~" & MSA_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)
 		Next
@@ -2519,7 +2537,7 @@ If create_memo = True Then
 				MSA_ISSUANCE_ARRAY(benefit_month_const, msg_counter) = right("00" & DatePart("m", expected_month), 2) & "/" & right(DatePart("yyyy", expected_month), 2)
 				MSA_ISSUANCE_ARRAY(cash_grant_amount_const, msg_counter) = 0
 				MSA_ISSUANCE_ARRAY(benefit_month_as_date_const, msg_counter) = expected_month
-				MSA_ISSUANCE_ARRAY(note_message_const, each_known_issuance) = "$ 0        issued for " & MSA_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance)
+				MSA_ISSUANCE_ARRAY(note_message_const, each_known_issuance) = "$ 0.00     issued for " & MSA_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance)
 				MSA_dates_array = MSA_dates_array & "~" & expected_month
 				'maybe add the 'from_date' into benefit_month_as_date' so that we don't hvae to do more handling down below
 				msg_counter = msg_counter + 1
@@ -2657,10 +2675,22 @@ If create_memo = True Then
 		Loop until issued_date = ""
 		MFIP_dates_array = ""
 		For each_known_issuance = 0 to UBound(MFIP_ISSUANCE_ARRAY, 2)
-			total_cash_amount = left(MFIP_ISSUANCE_ARRAY(cash_grant_amount_const, each_known_issuance) & ".00        ", 8)
-			' total_cash_amount = MFIP_ISSUANCE_ARRAY(cash_grant_amount_const, each_known_issuance)
-			total_snap_amount = left(MFIP_ISSUANCE_ARRAY(snap_grant_amount_const, each_known_issuance) & ".00        ", 8)
-			' total_snap_amount = MFIP_ISSUANCE_ARRAY(snap_grant_amount_const, each_known_issuance)
+			total_cash_amount = MFIP_ISSUANCE_ARRAY(cash_grant_amount_const, each_known_issuance)
+			total_cash_amount = total_cash_amount & ""
+			If InStr(total_cash_amount, ".") = 0 Then
+				total_cash_amount = left(total_cash_amount & ".00        ", 8)
+			Else
+				total_cash_amount = left(total_cash_amount & "        ", 8)
+			End If
+
+			total_snap_amount = MFIP_ISSUANCE_ARRAY(snap_grant_amount_const, each_known_issuance)
+			total_snap_amount = total_snap_amount & ""
+			If InStr(total_snap_amount, ".") = 0 Then
+				total_snap_amount = left(total_snap_amount & ".00        ", 8)
+			Else
+				total_snap_amount = left(total_snap_amount & "        ", 8)
+			End If
+
 			' MFIP_ISSUANCE_ARRAY(note_message_const, each_known_issuance) = "$ " & total_cash_amount & " - CASH and $ " & total_snap_amount & " - FOOD issued for " & MFIP_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance)
 			MFIP_ISSUANCE_ARRAY(note_message_const, each_known_issuance) = MFIP_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance) & " - CASH: $ " & total_cash_amount & " and FOOD: $ " & total_snap_amount
 			MFIP_dates_array = MFIP_dates_array & "~" & MFIP_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)
@@ -2677,7 +2707,7 @@ If create_memo = True Then
 				MFIP_ISSUANCE_ARRAY(snap_grant_amount_const, msg_counter) = 0
 				MFIP_ISSUANCE_ARRAY(cash_grant_amount_const, msg_counter) = 0
 				MFIP_ISSUANCE_ARRAY(benefit_month_as_date_const, msg_counter) = expected_month
-				MFIP_ISSUANCE_ARRAY(note_message_const, each_known_issuance) = "$ 0        - CASH and $ 0        - FOOD issued for " & MFIP_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance)
+				MFIP_ISSUANCE_ARRAY(note_message_const, each_known_issuance) = "$ 0.00     - CASH and $ 0.00     - FOOD issued for " & MFIP_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance)
 				MFIP_dates_array = MFIP_dates_array & "~" & expected_month
 				'maybe add the 'from_date' into benefit_month_as_date' so that we don't hvae to do more handling down below
 				msg_counter = msg_counter + 1
@@ -3085,7 +3115,7 @@ Call start_a_blank_CASE_NOTE
 Call write_variable_in_CASE_NOTE("Verification of Public Assistance Requested")
 Call write_variable_in_CASE_NOTE("Requested by: " & verif_request_by)
 If snap_resent_wcom = True Then
-	Call write_variable_in_CASE_NOTE("SNAP WCOM recent to Client from " & snap_month & "/" & snap_year & ".")
+	Call write_variable_in_CASE_NOTE("SNAP WCOM resent to Client from " & snap_month & "/" & snap_year & ".")
 	Call write_variable_in_CASE_NOTE("   - " & snap_wcom_text)
 End If
 If snap_verification_method = "Create New MEMO with range of Months" Then
@@ -3094,7 +3124,7 @@ If snap_verification_method = "Create New MEMO with range of Months" Then
 End If
 If ga_resent_wcom = True Then
 	' Call write_variable_in_CASE_NOTE("")
-	Call write_variable_in_CASE_NOTE("GA WCOM recent to Client from " & ga_month & "/" & ga_year & ".")
+	Call write_variable_in_CASE_NOTE("GA WCOM resent to Client from " & ga_month & "/" & ga_year & ".")
 	Call write_variable_in_CASE_NOTE("   - " & ga_wcom_text)
 End If
 If ga_verification_method = "Create New MEMO with range of Months" Then
@@ -3104,7 +3134,7 @@ If ga_verification_method = "Create New MEMO with range of Months" Then
 End If
 If msa_resent_wcom = True Then
 	' Call write_variable_in_CASE_NOTE("")
-	Call write_variable_in_CASE_NOTE("MSA WCOM recent to Client from " & msa_month & "/" & msa_year & ".")
+	Call write_variable_in_CASE_NOTE("MSA WCOM resent to Client from " & msa_month & "/" & msa_year & ".")
 	Call write_variable_in_CASE_NOTE("   - " & msa_wcom_text)
 End If
 If msa_verification_method = "Create New MEMO with range of Months" Then
@@ -3114,7 +3144,7 @@ If msa_verification_method = "Create New MEMO with range of Months" Then
 End If
 If mfip_resent_wcom = True Then
 	' Call write_variable_in_CASE_NOTE("")
-	Call write_variable_in_CASE_NOTE("MFIP WCOM recent to Client from " & mfip_month & "/" & mfip_year & ".")
+	Call write_variable_in_CASE_NOTE("MFIP WCOM resent to Client from " & mfip_month & "/" & mfip_year & ".")
 	Call write_variable_in_CASE_NOTE("   - " & mfip_wcom_text)
 End If
 If mfip_verification_method = "Create New MEMO with range of Months" Then
