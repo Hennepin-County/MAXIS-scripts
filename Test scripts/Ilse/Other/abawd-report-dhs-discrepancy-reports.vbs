@@ -1,3 +1,4 @@
+worker_county_code = "x127"
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "ADMIN - ABAWD REPORT.vbs"
 start_time = timer
@@ -44,10 +45,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("05/29/2019", "Updated script to work with new BOBI query.", "Ilse Ferris, Hennepin County")
-call changelog_update("01/31/2019", "Added functionality to change Defer FSET funds field if coded incorrectly on STAT/WREG.", "Ilse Ferris, Hennepin County")
-call changelog_update("05/23/2018", "Added code to write in client name if presenting as a PRIV case on initial spreadsheet.", "Ilse Ferris, Hennepin County")
-call changelog_update("03/30/2018", "Initial version.", "Ilse Ferris, Hennepin County")
+call changelog_update("06/17/2021", "Initial version.", "Ilse Ferris, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
@@ -56,17 +54,15 @@ changelog_display
 '----------------------------------------------------------------------------------------------------The script
 'CONNECTS TO BlueZone
 EMConnect ""
-MAXIS_footer_month = CM_mo
-MAXIS_footer_year = CM_yr
 
-memb_numb_col = 10
-fset_col = 11
-abawd_col = 12
-snap_status = 13
-notes_col = 14
+memb_numb_col   = 10
+fset_col        = 11
+abawd_col       = 12
+snap_status_col = 13
+notes_col       = 14
+case_active_col = 15
 
-'file_selection_path = "C:\Users\ilfe001\OneDrive - Hennepin County\Desktop\ABAWD Report 10-2020 thru 05-2021.xlsx"
-'file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\ABAWD\Active SNAP " & file_date & ".xlsx"
+file_selection_path = "C:\Users\ilfe001\OneDrive - Hennepin County\Desktop\SNAP Work\ABAWD Report 10-2020 thru 06-2021 PT 2.xlsx"
 
 'dialog and dialog DO...Loop
 Dialog1 = ""
@@ -88,71 +84,91 @@ Do
     	cancel_without_confirmation
     	If ButtonPressed = select_a_file_button then call file_selection_system_dialog(file_selection_path, ".xlsx")
     Loop until ButtonPressed = OK and file_selection_path <> ""
-    If objExcel = "" Then call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-FOR i = 1 to 14		'formatting the cells'
+back_to_SELF
+
+Call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
+
+FOR i = 1 to 15		'formatting the cells'
 	objExcel.Cells(1, i).Font.Bold = True		'bold font'
 	ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
 	objExcel.Columns(i).AutoFit()				'sizing the columns'
 NEXT
 
-excel_row = 2
+'For Each objWorkSheet In objWorkbook.Worksheets 'Creating an array of worksheets that are not the intitial report - "Report 1"
+'    If objWorkSheet.Name = "10-20" then sheet_list = sheet_list & objWorkSheet.Name & ","
+'Next
 
-Do
-	PMI_number = trim(ObjExcel.Cells(excel_row, 1).Value)
+For Each objWorkSheet In objWorkbook.Worksheets 'Creating an array of worksheets that are not the intitial report - "Report 1"
+    If instr(objWorkSheet.Name, "Sheet") = 0 and objWorkSheet.Name <> "All cases" and objWorkSheet.Name <> "Data" then sheet_list = sheet_list & objWorkSheet.Name & ","
+Next
 
-    MAXIS_case_number = ObjExcel.Cells(excel_row, 2).Value
-	MAXIS_case_number = trim(MAXIS_case_number)
-    If MAXIS_case_number = "" then exit do
+sheet_list = trim(sheet_list)  'trims excess spaces of sheet_list
+If right(sheet_list, 1) = "," THEN sheet_list = left(sheet_list, len(sheet_list) - 1) 'trimming off last comma
+array_of_sheets = split(sheet_list, ",")   'Creating new array
+    
+For each excel_sheet in array_of_sheets
+    objExcel.worksheets(excel_sheet).Activate 'Activates the applicable worksheet
+    
+    MAXIS_footer_month = left(excel_sheet, 2)
+    MAXIS_footer_year = right(excel_sheet, 2)
+    Call MAXIS_footer_month_confirmation 
+    
+    excel_row = 2
 
-    Call navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", is_this_priv)
-    If is_this_priv = True then
-        ObjExcel.Cells(excel_row, notes_col).Value = "Privliged case"
-    Else
-        EmReadscreen county_code, 4, 21, 21
-        If county_code <> UCASE(worker_county_code) then ObjExcel.Cells(excel_row, notes_col).Value = "Out-of-county Case"
-
-        Do
-            EmReadscreen memb_panel_PMI, 8, 4, 46
-            memb_panel_PMI = right ("00000000" & trim(memb_panel_PMI), 8)
-            If trim(memb_panel_PMI) = PMI_number then
-                EmReadscreen member_number, 2, 4, 33
-                'msgbox member_number
-                Exit do
-            Else
-                transmit
-                EmReadscreen end_of_membs_message, 5, 24, 2
-            End if
-        Loop until end_of_membs_message = "ENTER"
-
-        If trim(member_number) = "" then
-            ObjExcel.Cells(excel_row, notes_col).Value = "Unable to find member on case"
-            'msgbox "Unable to find member on case"
+    Do
+    	PMI_number = trim(ObjExcel.Cells(excel_row, 1).Value)
+    
+        MAXIS_case_number = ObjExcel.Cells(excel_row, 2).Value
+    	MAXIS_case_number = trim(MAXIS_case_number)
+        If MAXIS_case_number = "" then exit do
+    
+        Call navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", is_this_priv)
+        If is_this_priv = True then
+            ObjExcel.Cells(excel_row, notes_col).Value = "Privliged case"
         Else
-	        call navigate_to_MAXIS_screen("STAT", "WREG")
-            Call write_value_and_transmit(member_number, 20, 76)
-
-	        EMReadScreen FSET_code, 2, 8, 50
-	        EMReadScreen ABAWD_code, 2, 13, 50
-
-            ObjExcel.Cells(excel_row, memb_numb_col).Value = member_number                      'writing in the member number with initial 0 trimmed.
-            ObjExcel.Cells(excel_row, fset_col).Value = replace(FSET_code, "_", "")
-	        ObjExcel.Cells(excel_row, abawd_col).Value = replace(ABAWD_code, "_", "")
-            'msgbox member_number & Vbcr & FSET_code & vbcr & ABAWD_code
+            EmReadscreen county_code, 4, 21, 21
+            If county_code <> UCASE(worker_county_code) then ObjExcel.Cells(excel_row, notes_col).Value = "Out-of-county Case"
+    
+            Do
+                EmReadscreen memb_panel_PMI, 8, 4, 46
+                memb_panel_PMI = right ("00000000" & trim(memb_panel_PMI), 8)
+                If trim(memb_panel_PMI) = PMI_number then
+                    EmReadscreen member_number, 2, 4, 33
+                    Exit do
+                Else
+                    transmit
+                    EmReadscreen end_of_membs_message, 5, 24, 2
+                End if
+            Loop until end_of_membs_message = "ENTER"
+    
+            If trim(member_number) = "" then
+                ObjExcel.Cells(excel_row, notes_col).Value = "Unable to find member on case"
+            Else
+    	        call navigate_to_MAXIS_screen("STAT", "WREG")
+                Call write_value_and_transmit(member_number, 20, 76)
+    
+    	        EMReadScreen FSET_code, 2, 8, 50
+    	        EMReadScreen ABAWD_code, 2, 13, 50
+    
+                ObjExcel.Cells(excel_row, memb_numb_col).Value = member_number                      'writing in the member number with initial 0 trimmed.
+                ObjExcel.Cells(excel_row, fset_col).Value = replace(FSET_code, "_", "")
+    	        ObjExcel.Cells(excel_row, abawd_col).Value = replace(ABAWD_code, "_", "")
+            End if
         End if
-    End if
+    
+        Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status)
+        ObjExcel.Cells(excel_row, snap_status_col).Value = snap_case
+        ObjExcel.Cells(excel_row, case_active_col).Value = case_active
+    
+        STATS_counter = STATS_counter + 1
+        excel_row = excel_row + 1
+    Loop until ObjExcel.Cells(excel_row, 2).Value = ""
+Next 
 
-    Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status)
-    ObjExcel.Cells(excel_row, snap_status).Value = snap_case
-    ObjExcel.Cells(excel_row, 15).Value = case_active
-
-    STATS_counter = STATS_counter + 1
-    excel_row = excel_row + 1
-Loop until ObjExcel.Cells(excel_row, 2).Value = ""
-
-FOR i = 1 to 14		'formatting the cells'
+FOR i = 1 to 15		'formatting the cells'
 	objExcel.Columns(i).AutoFit()				'sizing the columns'
 NEXT
 
