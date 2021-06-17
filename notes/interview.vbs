@@ -1661,7 +1661,48 @@ function define_main_dialog()
 
 			End If
 	    ElseIf page_display = discrepancy_questions Then
+			Text 495, 177, 60, 10, "Discrepancies"
 
+			y_pos = 10
+			If disc_no_phone_number = "EXISTS" OR disc_no_phone_number = "RESOLVED" Then
+				Text 10, y_pos, 200, 10, "No phone number is listed for this household."
+				Text 10, y_pos + 15, 200, 10, "Confirm with the resident about phone contact."
+				ComboBox 210, y_pos + 10, 200, 45, "Select or Type"+chr(9)+"Confirmed No good phone contact"+chr(9)+"Added a Message Only Number"+chr(9)+"Added a Phone Number"+chr(9)+"Resident will Contact with a Phone Number once Obtained"+chr(9)+disc_phone_confirmation, disc_phone_confirmation
+				y_pos = y_pos + 35
+			End If
+			If disc_homeless_no_mail_addr = "EXISTS" OR disc_homeless_no_mail_addr = "RESOLVED" Then
+				Text 10, y_pos, 200, 10, "This case is listed as homeless, which can be very challenging without a good mailing address as we communicate primarily through mail."
+				Text 10, y_pos + 15, 400, 10, "Explain that actions on the case are going to come officially through the mail. General Delivery can work as a mail option, but you need to collect your mail very regularly, at least once a week, to ensure you get your informaiton and notifications timely. If you have a trusted address you can use as a mailing address, maybe a friend or family member, that is often easier to navigate. Know that much of our mail must be responded to right away, we may need to receive verification within days of a mailing."
+				Text 10, y_pos + 30, 400, 10, "RESIDENCE ADDR: " & resi_addr_street_full & " " & resi_addr_city & ", " & left(resi_addr_state, 2) & " " & resi_addr_zip
+				y_pos = y_pos + 45
+				If mail_addr_street_full = "" Then
+					Text 10, y_pos, 400, 10, "MAILING ADDR: " & mail_addr_street_full & " " & mail_addr_city & ", " & left(mail_addr_state, 2) & " " & mail_addr_zip
+					y_pos = y_pos + 15
+				End If
+				y_pos = y_pos + 5
+				Text 10, Y_pos, 200, 10, "Confirm you have discussed the difficulties/issues with mail"
+				ComboBox 210, Y_pos - 5, 200, 10, "Select or Type"+chr(9)+"Confirmed Understanding of General Delivery"+chr(9)+"Added a Trusted Mailing Address"+chr(9)+"Resident will look for a new Solution and Communicate"+chr(9)+disc_homeless_confirmation,disc_homeless_confirmation
+				y_pos = y_pos + 20
+			End If
+			If disc_out_of_county = "EXISTS" OR disc_out_of_county = "RESOLVED" Then
+				Text 10, y_pos, 200, 10, "The residence address appears to be Out of County. Explain the next steps for a case that needs to be transferred."
+				Text 10, y_pos + 15, 200, 10, "Confirm Out of County process discussed:"
+				ComboBox 210, y_pos + 10, 200, 45, "Select or Type"+chr(9)+"Discussion Completed"+chr(9)+"County of Residence Updated"+chr(9)+disc_out_of_county_confirmation, disc_out_of_county_confirmation
+				y_pos = y_pos + 35
+
+			End If
+			If disc_rent_amounts = "EXISTS" OR disc_rent_amounts = "RESOLVED" Then
+				Text 10, y_pos, 200, 10, "The CAF answers on Page 1 and Question 14 about hosing expenses do not seem to match."
+				Text 10, y_pos + 15, 200, 10, "CAF Page 1 Housing Expense: " & exp_q_3_rent_this_month
+				Text 210, y_pos + 15, 200, 10, "Question 14 Housing Expense: " & question_14_summary
+
+				Text 10, y_pos + 30, 100, 10, "Confirm which Housing Expense Detail: "
+				ComboBox 110, y_pos + 25, 300, 45, "Select or Type"+chr(9)+"Houshold DOES have Housing Expense"+chr(9)+"Household has NO Housing expense"+chr(9)+"Houshold has an ongoing Housing Expense but NONE in the Application month"+chr(9)+"Houshold has Housing Expense in the application months but NONE ongoing"+chr(9)+disc_out_of_county_confirmation, disc_out_of_county_confirmation
+				y_pos = y_pos + 35
+			End If
+			If disc_utility_amounts = "EXISTS" OR disc_utility_amounts = "RESOLVED" Then
+
+			End If
 
 		' ElseIf page_display =  Then
 
@@ -3185,6 +3226,117 @@ function read_all_the_MEMBs()
 	' Next
 end function
 
+function review_for_discrepancies()
+
+	'PHONE NUMBER
+	phone_one_number = trim(phone_one_number)
+	phone_two_number = trim(phone_two_number)
+	phone_three_number = trim(phone_three_number)
+	disc_phone_confirmation = trim(disc_phone_confirmation)
+
+	If phone_one_number = "" AND phone_two_number = "" AND phone_three_number = "" Then disc_no_phone_number = "EXISTS"
+	If disc_no_phone_number <> "N/A" Then
+		If disc_phone_confirmation <> "" and disc_phone_confirmation <> "Select or Type" Then disc_no_phone_number = "RESOLVED"
+	End If
+
+	'HOMELESS NO MAILING ADDRESS
+	' mail_addr_street_full = trim(mail_addr_street_full)
+	' resi_street_to_look_at = trim(resi_addr_street_full)
+	' resi_street_to_look_at = UBound(resi_street_to_look_at)
+	' resi_street_appears_general_delivery = False
+	' If Instr(resi_street_to_look_at, "GENERAL DELIVERY") Then resi_street_appears_general_delivery = True
+	' If Instr(resi_street_to_look_at, "GENERALDELIVERY") Then resi_street_appears_general_delivery = True
+	' If Instr(resi_street_to_look_at, "GEN DELIVERY") Then resi_street_appears_general_delivery = True
+	' If Instr(resi_street_to_look_at, "GENERAL DEL") Then resi_street_appears_general_delivery = True
+	' If Instr(resi_street_to_look_at, "GEN DEL") Then resi_street_appears_general_delivery = True
+
+	If homeless_yn = "Yes" Then disc_homeless_no_mail_addr = "EXISTS"
+
+	' If mail_addr_street_full = "" and resi_street_appears_general_delivery = True Then disc_homeless_no_mail_addr = "EXISTS"
+	' End If
+	If disc_homeless_no_mail_addr <> "N/A" Then
+		If disc_homeless_confirmation <> "" and disc_homeless_confirmation <> "Select or Type" Then disc_homeless_no_mail_addr = "RESOLVED"
+	End If
+
+	'OUT OF COUNTY
+	If left(resi_addr_county, 2) <> "27" Then disc_out_of_county = "EXISTS"
+
+	If disc_out_of_county <> "N/A" Then
+		If disc_out_of_county_confirmation <> "" and disc_out_of_county_confirmation <> "Select or Type" Then disc_out_of_county = "RESOLVED"
+	End If
+
+	'RENT AMOUNTS
+	exp_q_3_rent_this_month = trim(exp_q_3_rent_this_month)
+	CAF1_rent_indicated = True
+	If exp_q_3_rent_this_month = 0 Then CAF1_rent_indicated = False
+	If exp_q_3_rent_this_month = "0" Then CAF1_rent_indicated = False
+	If exp_q_3_rent_this_month = "" Then CAF1_rent_indicated = False
+
+	intv_app_month_housing_expense = trim(intv_app_month_housing_expense)
+	Verbal_rent_indicated = True
+	If intv_app_month_housing_expense = 0 Then Verbal_rent_indicated = False
+	If intv_app_month_housing_expense = "0" Then Verbal_rent_indicated = False
+	If intv_app_month_housing_expense = "" Then Verbal_rent_indicated = False
+
+	Q14_rent_indicated = False
+	question_14_summary = ""
+	If question_14_rent_yn = "Yes" Then
+		Q14_rent_indicated = True
+		question_14_summary = question_14_summary & "/Rent"
+	If question_14_subsidy_yn = "Yes" Then
+		Q14_rent_indicated = True
+		question_14_summary = question_14_summary & "/Subsidy"
+	End If
+	If question_14_mortgage_yn = "Yes" Then
+		Q14_rent_indicated = True
+		question_14_summary = question_14_summary & "/Mortgage"
+	End If
+	If question_14_association_yn = "Yes" Then
+		Q14_rent_indicated = True
+		question_14_summary = question_14_summary & "/Association Fees"
+	End If
+	If question_14_insurance_yn = "Yes" Then
+		Q14_rent_indicated = True
+		question_14_summary = question_14_summary & "/Home Insurance"
+	End If
+	If question_14_room_yn = "Yes" Then
+		Q14_rent_indicated = True
+		question_14_summary = question_14_summary & "/Room or Board"
+	End If
+	If question_14_taxes_yn = "Yes" Then
+		Q14_rent_indicated = True
+		question_14_summary = question_14_summary & "/Real Estate Taxes"
+	End If
+	If left(question_14_summary, 1) = "/" Then question_14_summary = right(question_14_summary, len(question_14_summary) - 1)
+
+	If CAF1_rent_indicated <> Q14_rent_indicated Then disc_rent_amounts = "EXISTS"
+
+	If disc_rent_amounts <> "N/A" Then
+
+	End If
+
+	'UTILITY AMOUNTS
+	caf_exp_pay_heat_checkbox
+	caf_exp_pay_ac_checkbox
+	caf_exp_pay_electricity_checkbox
+	caf_exp_pay_phone_checkbox
+	caf_exp_pay_none_checkbox
+
+	intv_exp_pay_heat_checkbox
+	intv_exp_pay_ac_checkbox
+	intv_exp_pay_electricity_checkbox
+	intv_exp_pay_phone_checkbox
+	intv_exp_pay_none_checkbox
+
+	question_15_heat_ac_yn
+	question_15_electricity_yn
+	question_15_cooking_fuel_yn
+	question_15_water_and_sewer_yn
+	question_15_garbage_yn
+	question_15_phone_yn
+
+end function
+
 function verif_details_dlg(question_number)
 	Select Case question_number
 		Case 1
@@ -3481,6 +3633,350 @@ function validate_phone_number(err_msg_variable, list_delimiter, phone_variable,
 	phone_variable = original_phone_var
 end function
 
+function write_interview_CASE_NOTE()
+	' 'Now we case note!
+	Call start_a_blank_case_note
+	' Call write_variable_in_CASE_NOTE("CAF Form completed via Phone")
+	' Call write_variable_in_CASE_NOTE("Form information taken verbally per COVID Waiver Allowance.")
+	' Call write_variable_in_CASE_NOTE("Form information taken on " & caf_form_date)
+	' Call write_variable_in_CASE_NOTE("CAF for application date: " & application_date)
+	' Call write_variable_in_CASE_NOTE("CAF information saved and will be added to ECF within a few days. Detail can be viewed in 'Assignments Folder'.")
+	' Call write_variable_in_CASE_NOTE("---")
+	' Call write_variable_in_CASE_NOTE(worker_signature)
+
+	CALL write_variable_in_CASE_NOTE("~ Interview Completed on " & interview_date & " ~")
+	CALL write_variable_in_CASE_NOTE("Completed with " & who_are_we_completing_the_interview_with & " via " & how_are_we_completing_the_interview)
+	CALL write_variable_in_CASE_NOTE("Completed on " & interview_date & " at " & interview_started_time & " (" & interview_time & " min)")
+
+	q_1_input = "Q1. CAF Answer - " & question_1_yn
+	If question_1_yn <> "" OR trim(question_1_notes) <> "" Then q_1_input = q_1_input & " (Confirmed)"
+	If q_1_input <> "Q1. CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_1_input)
+	If trim(question_1_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_1_notes)
+	If question_1_verif_yn <> "" Then
+		If trim(question_1_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_1_verif_yn)
+		If trim(question_1_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_1_verif_yn & ": " & question_1_verif_details)
+	End If
+	If trim(question_1_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_1_interview_notes)
+
+	q_2_input = "Q2. CAF Answer - " & question_2_yn
+	If question_2_yn <> "" OR trim(question_2_notes) <> "" Then q_2_input = q_2_input & " (Confirmed)"
+	If q_2_input <> "Q2. CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_2_input)
+	If trim(question_2_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_2_notes)
+	If question_2_verif_yn <> "" Then
+		If trim(question_2_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_2_verif_yn)
+		If trim(question_2_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_2_verif_yn & ": " & question_2_verif_details)
+	End If
+	If trim(question_2_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_2_interview_notes)
+
+	q_3_input = "Q3. CAF Answer - " & question_3_yn
+	If question_3_yn <> "" OR trim(question_3_notes) <> "" Then q_3_input = q_3_input & " (Confirmed)"
+	If q_3_input <> "Q3. CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_3_input)
+	If trim(question_3_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_3_notes)
+	If question_3_verif_yn <> "" Then
+		If trim(question_3_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_3_verif_yn)
+		If trim(question_3_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_3_verif_yn & ": " & question_3_verif_details)
+	End If
+	If trim(question_3_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_3_interview_notes)
+
+	q_4_input = "Q4. CAF Answer - " & question_4_yn
+	If question_4_yn <> "" OR trim(question_4_notes) <> "" Then q_4_input = q_4_input & " (Confirmed)"
+	If q_4_input <> "Q4. CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_4_input)
+	If trim(question_4_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_4_notes)
+	If question_4_verif_yn <> "" Then
+		If trim(question_4_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_4_verif_yn)
+		If trim(question_4_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_4_verif_yn & ": " & question_4_verif_details)
+	End If
+	If trim(question_4_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_4_interview_notes)
+
+	q_5_input = "Q5. CAF Answer - " & question_5_yn
+	If question_5_yn <> "" OR trim(question_5_notes) <> "" Then q_5_input = q_5_input & " (Confirmed)"
+	If q_5_input <> "Q5. CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_5_input)
+	If trim(question_5_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_5_notes)
+	If question_5_verif_yn <> "" Then
+		If trim(question_5_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_5_verif_yn)
+		If trim(question_5_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_5_verif_yn & ": " & question_5_verif_details)
+	End If
+	If trim(question_5_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_5_interview_notes)
+
+	q_6_input = "Q6. CAF Answer - " & question_6_yn
+	If question_6_yn <> "" OR trim(question_6_notes) <> "" Then q_6_input = q_6_input & " (Confirmed)"
+	If q_6_input <> "Q6. CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_6_input)
+	If trim(question_6_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_6_notes)
+	If question_6_verif_yn <> "" Then
+		If trim(question_6_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_6_verif_yn)
+		If trim(question_6_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_6_verif_yn & ": " & question_6_verif_details)
+	End If
+	If trim(question_6_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_6_interview_notes)
+
+	q_7_input = "Q7. CAF Answer - " & question_7_yn
+	If question_7_yn <> "" OR trim(question_7_notes) <> "" Then q_7_input = q_7_input & " (Confirmed)"
+	If q_7_input <> "Q7. CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_7_input)
+	If trim(question_7_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_7_notes)
+	If question_7_verif_yn <> "" Then
+		If trim(question_7_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_7_verif_yn)
+		If trim(question_7_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_7_verif_yn & ": " & question_7_verif_details)
+	End If
+	If trim(question_7_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_7_interview_notes)
+
+
+	q_8_input = "Q8. CAF Answer - " & question_8_yn
+	q_8_input = q_8_input & " - 8a - " & question_8a_yn
+	If question_8_yn <> "" OR trim(question_8_notes) <> "" Then q_8_input = q_8_input & " (Confirmed)"
+	If q_8_input <> "Q8. CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_8_input)
+	If trim(question_8_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_8_notes)
+	If question_8_verif_yn <> "" Then
+		If trim(question_8_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_8_verif_yn)
+		If trim(question_8_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_8_verif_yn & ": " & question_8_verif_details)
+	End If
+	If trim(question_8_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_8_interview_notes)
+
+
+	q_9_input = "Q9. CAF Answer - " & question_9_yn
+	If question_9_yn <> "" OR trim(question_9_notes) <> "" Then q_9_input = q_9_input & " (Confirmed)"
+	If q_9_input <> "Q9. CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_9_input)
+	for each_job = 0 to UBOUND(JOBS_ARRAY, 2)
+		If JOBS_ARRAY(jobs_employer_name, each_job) <> "" OR JOBS_ARRAY(jobs_employee_name, each_job) <> "" OR JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) <> "" OR JOBS_ARRAY(jobs_hourly_wage, each_job) <> "" Then
+			CALL write_variable_in_CASE_NOTE("    Employer: " & JOBS_ARRAY(jobs_employer_name, each_job) & " for " & JOBS_ARRAY(jobs_employee_name, each_job) & " monthly earnings $" & JOBS_ARRAY(jobs_gross_monthly_earnings, each_job))
+			If JOBS_ARRAY(verif_yn, each_job) <> "" Then
+				If trim(JOBS_ARRAY(verif_details, each_job)) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & JOBS_ARRAY(verif_yn, each_job))
+				If trim(JOBS_ARRAY(verif_details, each_job)) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & JOBS_ARRAY(verif_yn, each_job) & ": " & JOBS_ARRAY(verif_details, each_job))
+			End If
+		End If
+	next
+	' If trim(question_9_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_9_interview_notes)
+
+	q_10_input = "Q10.CAF Answer - " & question_10_yn
+	If trim(question_10_monthly_earnings) <> "" Then q_10_input = q_10_input & " Gross Monthly Earnings: " & question_10_monthly_earnings
+	If question_10_yn <> "" OR trim(question_10_notes) <> "" Then q_10_input = q_10_input & " (Confirmed)"
+	If q_10_input <> "Q10.CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_10_input)
+	If trim(question_10_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_10_notes)
+	If question_10_verif_yn <> "" Then
+		If trim(question_10_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_10_verif_yn)
+		If trim(question_10_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_10_verif_yn & ": " & question_10_verif_details)
+	End If
+	If trim(question_10_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_10_interview_notes)
+
+	q_11_input = "Q11.CAF Answer - " & question_11_yn
+	If question_11_yn <> "" OR trim(question_11_notes) <> "" Then q_11_input = q_11_input & " (Confirmed)"
+	If q_11_input <> "Q11.CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_11_input)
+	If trim(question_11_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_11_notes)
+	If question_11_verif_yn <> "" Then
+		If trim(question_11_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_11_verif_yn)
+		If trim(question_11_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_11_verif_yn & ": " & question_11_verif_details)
+	End If
+	If trim(question_11_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_11_interview_notes)
+
+	If trim(pwe_selection) <> "" AND pwe_selection <> "Select or Type" Then CALL write_variable_in_CASE_NOTE("PWE: " & pwe_selection)
+
+	CALL write_variable_in_CASE_NOTE("Q12.CAF Answer:")
+
+	question_12_rsdi_yn = left(question_12_rsdi_yn & "   ", 5)
+	If trim(question_12_rsdi_amt) <> "" Then question_12_rsdi_amt = left("$" & question_12_rsdi_amt & ".00       ", 8)
+	question_12_ssi_yn = left(question_12_ssi_yn & "   ", 5)
+	If trim(question_12_ssi_amt) <> "" Then question_12_ssi_amt = left("$" & question_12_ssi_amt & ".00       ", 8)
+	question_12_va_yn = left(question_12_va_yn & "   ", 5)
+	If trim(question_12_va_amt) <> "" Then question_12_va_amt = left("$" & question_12_va_amt & ".00       ", 8)
+	question_12_ui_yn = left(question_12_ui_yn & "   ", 5)
+	If trim(question_12_ui_amt) <> "" Then question_12_ui_amt = left("$" & question_12_ui_amt & ".00       ", 8)
+	question_12_wc_yn = left(question_12_wc_yn & "   ", 5)
+	If trim(question_12_wc_amt) <> "" Then question_12_wc_amt = left("$" & question_12_wc_amt & ".00       ", 8)
+	question_12_ret_yn = left(question_12_ret_yn & "   ", 5)
+	If trim(question_12_ret_amt) <> "" Then question_12_ret_amt = left("$" & question_12_ret_amt & ".00       ", 8)
+	question_12_trib_yn = left(question_12_trib_yn & "   ", 5)
+	If trim(question_12_trib_amt) <> "" Then question_12_trib_amt = left("$" & question_12_trib_amt & ".00       ", 8)
+	question_12_cs_yn = left(question_12_cs_yn & "   ", 5)
+	If trim(question_12_cs_amt) <> "" Then question_12_cs_amt = left("$" & question_12_cs_amt & ".00       ", 8)
+	question_12_other_yn = left(question_12_other_yn & "   ", 5)
+	If trim(question_12_other_amt) <> "" Then question_12_other_amt = left("$" & question_12_other_amt & ".00       ", 8)
+
+
+	CALL write_variable_in_CASE_NOTE("    RSDI - " & question_12_rsdi_yn & " " & question_12_rsdi_amt & "   UI - " & question_12_ui_yn & " " & question_12_ui_amt & " Tribal - " & question_12_trib_yn & " " & question_12_trib_amt)
+	CALL write_variable_in_CASE_NOTE("     SSI - " & question_12_ssi_yn & " " & question_12_ssi_amt & "   WC - " & question_12_wc_yn & " " & question_12_wc_amt & "   CSES - " & question_12_cs_yn & " " & question_12_cs_amt)
+	CALL write_variable_in_CASE_NOTE("      VA - " & question_12_va_yn & " " & question_12_va_amt & "  Ret - " & question_12_ret_yn & " " & question_12_ret_amt & "  Other - " & question_12_other_yn & " " & question_12_other_amt)
+	If trim(question_12_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_12_notes)
+	If question_12_verif_yn <> "" Then
+		If trim(question_12_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_12_verif_yn)
+		If trim(question_12_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_12_verif_yn & ": " & question_12_verif_details)
+	End If
+	If trim(question_12_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_12_interview_notes)
+
+	q_13_input = "Q13.CAF Answer - " & question_13_yn
+	If question_13_yn <> "" OR trim(question_13_notes) <> "" Then q_13_input = q_13_input & " (Confirmed)"
+	If q_13_input <> "Q13.CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_13_input)
+	If trim(question_13_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_13_notes)
+	If question_13_verif_yn <> "" Then
+		If trim(question_13_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_13_verif_yn)
+		If trim(question_13_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_13_verif_yn & ": " & question_13_verif_details)
+	End If
+	If trim(question_13_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_13_interview_notes)
+
+	' CALL write_variable_in_CASE_NOTE("Q14. goes here")
+
+	CALL write_variable_in_CASE_NOTE("Q14.CAF Answer:")
+
+	question_14_rent_yn = left(question_14_rent_yn & "   ", 5)
+	question_14_subsidy_yn = left(question_14_subsidy_yn & "   ", 5)
+	question_14_mortgage_yn = left(question_14_mortgage_yn & "   ", 5)
+	question_14_taxes_yn = left(question_14_taxes_yn & "   ", 5)
+	question_14_association_yn = left(question_14_association_yn & "   ", 5)
+	question_14_insurance_yn = left(question_14_insurance_yn & "   ", 5)
+	question_14_room_yn = left(question_14_room_yn & "   ", 5)
+
+	CALL write_variable_in_CASE_NOTE("       Rent - " & question_14_rent_yn        & " Rental Subsidy - " & question_14_subsidy_yn & "  Mortgage - " & question_14_mortgage_yn & " Taxes - " & question_14_taxes_yn)
+	CALL write_variable_in_CASE_NOTE(" Assoc Fees - " & question_14_association_yn & "     Room/Board - " & question_14_room_yn    & " Insurance - " & question_14_insurance_yn)
+	' CALL write_variable_in_CASE_NOTE(" Assoc Fees - " & question_14_association_yn & "      Insurance - " & question_14_insurance_yn & " Room/Board - " & question_14_room_yn)
+	If trim(question_14_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_14_notes)
+	If question_14_verif_yn <> "" Then
+		If trim(question_14_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_14_verif_yn)
+		If trim(question_14_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_14_verif_yn & ": " & question_14_verif_details)
+	End If
+	If trim(question_14_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_14_interview_notes)
+
+	' CALL write_variable_in_CASE_NOTE("Q15. goes here")
+
+	CALL write_variable_in_CASE_NOTE("Q15.CAF Answer:")
+
+	question_15_heat_ac_yn = left(question_15_heat_ac_yn & "   ", 5)
+	question_15_electricity_yn = left(question_15_electricity_yn & "   ", 5)
+	question_15_cooking_fuel_yn = left(question_15_cooking_fuel_yn & "   ", 5)
+	question_15_water_and_sewer_yn = left(question_15_water_and_sewer_yn & "   ", 5)
+	question_15_garbage_yn = left(question_15_garbage_yn & "   ", 5)
+	question_15_phone_yn = left(question_15_phone_yn & "   ", 5)
+	question_15_liheap_yn = left(question_15_liheap_yn & "   ", 5)
+
+	CALL write_variable_in_CASE_NOTE("     Heat/AC - " & question_15_heat_ac_yn & " Electric - " & question_15_electricity_yn & " Cooking Fuel - " & question_15_cooking_fuel_yn)
+	CALL write_variable_in_CASE_NOTE(" Water/Sewer - " & question_15_water_and_sewer_yn & "  Garbage - " & question_15_garbage_yn & "        Phone - " & question_15_phone_yn & " LIHEAP - " & question_15_liheap_yn)
+	If trim(question_15_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_15_notes)
+	If question_15_verif_yn <> "" Then
+		If trim(question_15_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_15_verif_yn)
+		If trim(question_15_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_15_verif_yn & ": " & question_15_verif_details)
+	End If
+	If trim(question_15_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_15_interview_notes)
+
+
+	q_16_input = "Q16.CAF Answer - " & question_16_yn
+	If question_16_yn <> "" OR trim(question_16_notes) <> "" Then q_16_input = q_16_input & " (Confirmed)"
+	If q_16_input <> "Q16.CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_16_input)
+	If trim(question_16_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_16_notes)
+	If question_16_verif_yn <> "" Then
+		If trim(question_16_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_16_verif_yn)
+		If trim(question_16_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_16_verif_yn & ": " & question_16_verif_details)
+	End If
+	If trim(question_16_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_16_interview_notes)
+
+	q_17_input = "Q17.CAF Answer - " & question_17_yn
+	If question_17_yn <> "" OR trim(question_17_notes) <> "" Then q_17_input = q_17_input & " (Confirmed)"
+	If q_17_input <> "Q17.CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_17_input)
+	If trim(question_17_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_17_notes)
+	If question_17_verif_yn <> "" Then
+		If trim(question_17_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_17_verif_yn)
+		If trim(question_17_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_17_verif_yn & ": " & question_17_verif_details)
+	End If
+	If trim(question_17_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_17_interview_notes)
+
+	q_18_input = "Q18.CAF Answer - " & question_18_yn
+	If question_18_yn <> "" OR trim(question_18_notes) <> "" Then q_18_input = q_18_input & " (Confirmed)"
+	If q_18_input <> "Q18.CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_18_input)
+	If trim(question_18_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_18_notes)
+	If question_18_verif_yn <> "" Then
+		If trim(question_18_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_18_verif_yn)
+		If trim(question_18_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_18_verif_yn & ": " & question_18_verif_details)
+	End If
+	If trim(question_18_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_18_interview_notes)
+
+	q_19_input = "Q19.CAF Answer - " & question_19_yn
+	If question_19_yn <> "" OR trim(question_19_notes) <> "" Then q_19_input = q_19_input & " (Confirmed)"
+	If q_19_input <> "Q19.CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_19_input)
+	If trim(question_19_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_19_notes)
+	If question_19_verif_yn <> "" Then
+		If trim(question_19_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_19_verif_yn)
+		If trim(question_19_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_19_verif_yn & ": " & question_19_verif_details)
+	End If
+	If trim(question_19_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_19_interview_notes)
+
+	' CALL write_variable_in_CASE_NOTE("Q20. goes here")
+
+	CALL write_variable_in_CASE_NOTE("Q20.CAF Answer:")
+
+	question_20_cash_yn = left(question_20_cash_yn & "   ", 5)
+	question_20_acct_yn = left(question_20_acct_yn & "   ", 5)
+	question_20_secu_yn = left(question_20_secu_yn & "   ", 5)
+	question_20_cars_yn = left(question_20_cars_yn & "   ", 5)
+
+
+	CALL write_variable_in_CASE_NOTE("   Cash - " & question_20_cash_yn & " Bank Accounts - " & question_20_acct_yn)
+	CALL write_variable_in_CASE_NOTE(" Stocks - " & question_20_secu_yn & "      Vehicles - " & question_20_cars_yn)
+	If trim(question_20_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_20_notes)
+	If question_20_verif_yn <> "" Then
+		If trim(question_20_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_20_verif_yn)
+		If trim(question_20_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_20_verif_yn & ": " & question_20_verif_details)
+	End If
+	If trim(question_20_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_20_interview_notes)
+
+	q_21_input = "Q21.CAF Answer - " & question_21_yn
+	If question_21_yn <> "" OR trim(question_21_notes) <> "" Then q_21_input = q_21_input & " (Confirmed)"
+	If q_21_input <> "Q21.CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_21_input)
+	If trim(question_21_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_21_notes)
+	If question_21_verif_yn <> "" Then
+		If trim(question_21_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_21_verif_yn)
+		If trim(question_21_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_21_verif_yn & ": " & question_21_verif_details)
+	End If
+	If trim(question_21_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_21_interview_notes)
+
+	q_22_input = "Q22.CAF Answer - " & question_22_yn
+	If question_22_yn <> "" OR trim(question_22_notes) <> "" Then q_22_input = q_22_input & " (Confirmed)"
+	If q_22_input <> "Q22.CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_22_input)
+	If trim(question_22_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_22_notes)
+	If question_22_verif_yn <> "" Then
+		If trim(question_22_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_22_verif_yn)
+		If trim(question_22_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_22_verif_yn & ": " & question_22_verif_details)
+	End If
+	If trim(question_22_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_22_interview_notes)
+
+	q_23_input = "Q23.CAF Answer - " & question_23_yn
+	If question_23_yn <> "" OR trim(question_23_notes) <> "" Then q_23_input = q_23_input & " (Confirmed)"
+	If q_23_input <> "Q23.CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_23_input)
+	If trim(question_23_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_23_notes)
+	If question_23_verif_yn <> "" Then
+		If trim(question_23_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_23_verif_yn)
+		If trim(question_23_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_23_verif_yn & ": " & question_23_verif_details)
+	End If
+	If trim(question_23_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_23_interview_notes)
+
+	CALL write_variable_in_CASE_NOTE("Q24. goes here")
+
+	If edrs_match_found = False Then Call write_variable_in_CASE_NOTE("eDRS run for all Household Members: No DISQ Matches Found")
+	If edrs_match_found = True Then
+		Call write_variable_in_CASE_NOTE("eDRS run for all Household Members:")
+		For the_memb = 0 to UBound(HH_MEMB_ARRAY, 2)
+			If trim(HH_MEMB_ARRAY(edrs_notes, the_memb)) = "" Then Call write_variable_in_CASE_NOTE(HH_MEMB_ARRAY(edrs_msg, the_memb))
+			If trim(HH_MEMB_ARRAY(edrs_notes, the_memb)) <> "" Then Call write_variable_in_CASE_NOTE(HH_MEMB_ARRAY(edrs_msg, the_memb) & "Notes: " & HH_MEMB_ARRAY(edrs_notes, the_memb))
+		Next
+	End If
+
+	forms_reviewed = ""
+	If left(confirm_resp_read, 4) = "YES!" AND left(confirm_rights_read, 4) = "YES!" Then forms_reviewed = forms_reviewed & " -DHS 4163"
+	If left(confirm_ebt_read, 4) = "YES!" Then forms_reviewed = forms_reviewed & " -EBT Information "
+	If left(confirm_ebt_how_to_read, 4) = "YES!" Then forms_reviewed = forms_reviewed & " -DHS 3315A"
+	If left(confirm_npp_info_read, 4) = "YES!" AND left(confirm_npp_rights_read, 4) = "YES!" Then forms_reviewed = forms_reviewed & " -DHS 3979"
+	If left(confirm_appeal_rights_read, 4) = "YES!" AND left(confirm_civil_rights_read, 4) = "YES!" Then forms_reviewed = forms_reviewed & " -DHS 3353"
+	If left(confirm_cover_letter_read, 4) = "YES!" Then forms_reviewed = forms_reviewed & " -Hennepin County Information "
+	If left(confirm_program_information_read, 4) = "YES!" Then forms_reviewed = forms_reviewed & " -DHS 2920"
+	If left(confirm_DV_read, 4) = "YES!" Then forms_reviewed = forms_reviewed & " -DHS 3477"
+	If left(confirm_disa_read, 4) = "YES!" Then forms_reviewed = forms_reviewed & " -DHS 4133"
+	If left(confirm_mfip_forms_read, 4) = "YES!" Then forms_reviewed = forms_reviewed & " -DHS 2647 -DHS 2929 -DHS 3323"
+	If left(confirm_mfip_cs_read, 4) = "YES!" Then forms_reviewed = forms_reviewed & " -DHS 3393 -DHS 3163B -DHS 2338 -DHS 5561"
+	If left(confirm_minor_mfip_read, 4) = "YES!" Then forms_reviewed = forms_reviewed & " -DHS 2961 -DHS 2887 -DHS 3238"
+	If left(confirm_snap_forms_read, 4) = "YES!" Then forms_reviewed = forms_reviewed & " -DHS 2625 -DHS 2707 -DHS 7635"
+	If left(forms_reviewed, 2) = " -" Then forms_reviewed = right(forms_reviewed, len(forms_reviewed)-2)
+	Call write_bullet_and_variable_in_CASE_NOTE("Reviewed Forms", forms_reviewed)
+
+
+	Call write_variable_in_CASE_NOTE("---")
+	Call write_variable_in_CASE_NOTE(worker_signature)
+
+end function
+
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 const jobs_employee_name 			= 0
@@ -3630,6 +4126,11 @@ qual_question_two = "?"
 qual_question_three = "?"
 qual_question_four = "?"
 qual_question_five = "?"
+disc_no_phone_number = "N/A"
+disc_homeless_no_mail_addr = "N/A"
+disc_out_of_county = "N/A"
+disc_rent_amounts = "N/A"
+disc_utility_amounts = "N/A"
 
 
 'THE SCRIPT------------------------------------------------------------------------------------------------------------------------------------------------
@@ -4093,8 +4594,8 @@ Do
 			cancel_confirmation
 			' MsgBox  HH_MEMB_ARRAY(0).ans_imig_status
 			save_your_work
+			Call review_for_discrepancies
 			Call check_for_errors(interview_questions_clear)
-
 			' If show_err_msg_during_movement = FALSE AND ButtonPressed <> finish_interview_btn Then err_msg = ""
 			Call display_errors(err_msg, False, show_err_msg_during_movement)
 			' If err_msg <> "" Then MsgBox "*** Please resolve to Continue: ***" & vbNewLine & err_msg
@@ -6858,350 +7359,6 @@ If objFSO.FileExists(pdf_doc_path) = TRUE Then
 
 	    PF3
 	End If
-
-	function write_interview_CASE_NOTE()
-		' 'Now we case note!
-		Call start_a_blank_case_note
-		' Call write_variable_in_CASE_NOTE("CAF Form completed via Phone")
-		' Call write_variable_in_CASE_NOTE("Form information taken verbally per COVID Waiver Allowance.")
-		' Call write_variable_in_CASE_NOTE("Form information taken on " & caf_form_date)
-		' Call write_variable_in_CASE_NOTE("CAF for application date: " & application_date)
-		' Call write_variable_in_CASE_NOTE("CAF information saved and will be added to ECF within a few days. Detail can be viewed in 'Assignments Folder'.")
-		' Call write_variable_in_CASE_NOTE("---")
-		' Call write_variable_in_CASE_NOTE(worker_signature)
-
-		CALL write_variable_in_CASE_NOTE("~ Interview Completed on " & interview_date & " ~")
-		CALL write_variable_in_CASE_NOTE("Completed with " & who_are_we_completing_the_interview_with & " via " & how_are_we_completing_the_interview)
-		CALL write_variable_in_CASE_NOTE("Completed on " & interview_date & " at " & interview_started_time & " (" & interview_time & " min)")
-
-		q_1_input = "Q1. CAF Answer - " & question_1_yn
-		If question_1_yn <> "" OR trim(question_1_notes) <> "" Then q_1_input = q_1_input & " (Confirmed)"
-		If q_1_input <> "Q1. CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_1_input)
-		If trim(question_1_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_1_notes)
-		If question_1_verif_yn <> "" Then
-			If trim(question_1_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_1_verif_yn)
-			If trim(question_1_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_1_verif_yn & ": " & question_1_verif_details)
-		End If
-		If trim(question_1_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_1_interview_notes)
-
-		q_2_input = "Q2. CAF Answer - " & question_2_yn
-		If question_2_yn <> "" OR trim(question_2_notes) <> "" Then q_2_input = q_2_input & " (Confirmed)"
-		If q_2_input <> "Q2. CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_2_input)
-		If trim(question_2_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_2_notes)
-		If question_2_verif_yn <> "" Then
-			If trim(question_2_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_2_verif_yn)
-			If trim(question_2_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_2_verif_yn & ": " & question_2_verif_details)
-		End If
-		If trim(question_2_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_2_interview_notes)
-
-		q_3_input = "Q3. CAF Answer - " & question_3_yn
-		If question_3_yn <> "" OR trim(question_3_notes) <> "" Then q_3_input = q_3_input & " (Confirmed)"
-		If q_3_input <> "Q3. CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_3_input)
-		If trim(question_3_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_3_notes)
-		If question_3_verif_yn <> "" Then
-			If trim(question_3_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_3_verif_yn)
-			If trim(question_3_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_3_verif_yn & ": " & question_3_verif_details)
-		End If
-		If trim(question_3_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_3_interview_notes)
-
-		q_4_input = "Q4. CAF Answer - " & question_4_yn
-		If question_4_yn <> "" OR trim(question_4_notes) <> "" Then q_4_input = q_4_input & " (Confirmed)"
-		If q_4_input <> "Q4. CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_4_input)
-		If trim(question_4_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_4_notes)
-		If question_4_verif_yn <> "" Then
-			If trim(question_4_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_4_verif_yn)
-			If trim(question_4_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_4_verif_yn & ": " & question_4_verif_details)
-		End If
-		If trim(question_4_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_4_interview_notes)
-
-		q_5_input = "Q5. CAF Answer - " & question_5_yn
-		If question_5_yn <> "" OR trim(question_5_notes) <> "" Then q_5_input = q_5_input & " (Confirmed)"
-		If q_5_input <> "Q5. CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_5_input)
-		If trim(question_5_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_5_notes)
-		If question_5_verif_yn <> "" Then
-			If trim(question_5_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_5_verif_yn)
-			If trim(question_5_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_5_verif_yn & ": " & question_5_verif_details)
-		End If
-		If trim(question_5_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_5_interview_notes)
-
-		q_6_input = "Q6. CAF Answer - " & question_6_yn
-		If question_6_yn <> "" OR trim(question_6_notes) <> "" Then q_6_input = q_6_input & " (Confirmed)"
-		If q_6_input <> "Q6. CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_6_input)
-		If trim(question_6_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_6_notes)
-		If question_6_verif_yn <> "" Then
-			If trim(question_6_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_6_verif_yn)
-			If trim(question_6_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_6_verif_yn & ": " & question_6_verif_details)
-		End If
-		If trim(question_6_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_6_interview_notes)
-
-		q_7_input = "Q7. CAF Answer - " & question_7_yn
-		If question_7_yn <> "" OR trim(question_7_notes) <> "" Then q_7_input = q_7_input & " (Confirmed)"
-		If q_7_input <> "Q7. CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_7_input)
-		If trim(question_7_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_7_notes)
-		If question_7_verif_yn <> "" Then
-			If trim(question_7_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_7_verif_yn)
-			If trim(question_7_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_7_verif_yn & ": " & question_7_verif_details)
-		End If
-		If trim(question_7_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_7_interview_notes)
-
-
-		q_8_input = "Q8. CAF Answer - " & question_8_yn
-		q_8_input = q_8_input & " - 8a - " & question_8a_yn
-		If question_8_yn <> "" OR trim(question_8_notes) <> "" Then q_8_input = q_8_input & " (Confirmed)"
-		If q_8_input <> "Q8. CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_8_input)
-		If trim(question_8_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_8_notes)
-		If question_8_verif_yn <> "" Then
-			If trim(question_8_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_8_verif_yn)
-			If trim(question_8_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_8_verif_yn & ": " & question_8_verif_details)
-		End If
-		If trim(question_8_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_8_interview_notes)
-
-
-		q_9_input = "Q9. CAF Answer - " & question_9_yn
-		If question_9_yn <> "" OR trim(question_9_notes) <> "" Then q_9_input = q_9_input & " (Confirmed)"
-		If q_9_input <> "Q9. CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_9_input)
-		for each_job = 0 to UBOUND(JOBS_ARRAY, 2)
-			If JOBS_ARRAY(jobs_employer_name, each_job) <> "" OR JOBS_ARRAY(jobs_employee_name, each_job) <> "" OR JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) <> "" OR JOBS_ARRAY(jobs_hourly_wage, each_job) <> "" Then
-				CALL write_variable_in_CASE_NOTE("    Employer: " & JOBS_ARRAY(jobs_employer_name, each_job) & " for " & JOBS_ARRAY(jobs_employee_name, each_job) & " monthly earnings $" & JOBS_ARRAY(jobs_gross_monthly_earnings, each_job))
-				If JOBS_ARRAY(verif_yn, each_job) <> "" Then
-					If trim(JOBS_ARRAY(verif_details, each_job)) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & JOBS_ARRAY(verif_yn, each_job))
-					If trim(JOBS_ARRAY(verif_details, each_job)) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & JOBS_ARRAY(verif_yn, each_job) & ": " & JOBS_ARRAY(verif_details, each_job))
-				End If
-			End If
-		next
-		' If trim(question_9_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_9_interview_notes)
-
-		q_10_input = "Q10.CAF Answer - " & question_10_yn
-		If trim(question_10_monthly_earnings) <> "" Then q_10_input = q_10_input & " Gross Monthly Earnings: " & question_10_monthly_earnings
-		If question_10_yn <> "" OR trim(question_10_notes) <> "" Then q_10_input = q_10_input & " (Confirmed)"
-		If q_10_input <> "Q10.CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_10_input)
-		If trim(question_10_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_10_notes)
-		If question_10_verif_yn <> "" Then
-			If trim(question_10_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_10_verif_yn)
-			If trim(question_10_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_10_verif_yn & ": " & question_10_verif_details)
-		End If
-		If trim(question_10_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_10_interview_notes)
-
-		q_11_input = "Q11.CAF Answer - " & question_11_yn
-		If question_11_yn <> "" OR trim(question_11_notes) <> "" Then q_11_input = q_11_input & " (Confirmed)"
-		If q_11_input <> "Q11.CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_11_input)
-		If trim(question_11_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_11_notes)
-		If question_11_verif_yn <> "" Then
-			If trim(question_11_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_11_verif_yn)
-			If trim(question_11_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_11_verif_yn & ": " & question_11_verif_details)
-		End If
-		If trim(question_11_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_11_interview_notes)
-
-		If trim(pwe_selection) <> "" AND pwe_selection <> "Select or Type" Then CALL write_variable_in_CASE_NOTE("PWE: " & pwe_selection)
-
-		CALL write_variable_in_CASE_NOTE("Q12.CAF Answer:")
-
-		question_12_rsdi_yn = left(question_12_rsdi_yn & "   ", 5)
-		If trim(question_12_rsdi_amt) <> "" Then question_12_rsdi_amt = left("$" & question_12_rsdi_amt & ".00       ", 8)
-		question_12_ssi_yn = left(question_12_ssi_yn & "   ", 5)
-		If trim(question_12_ssi_amt) <> "" Then question_12_ssi_amt = left("$" & question_12_ssi_amt & ".00       ", 8)
-		question_12_va_yn = left(question_12_va_yn & "   ", 5)
-		If trim(question_12_va_amt) <> "" Then question_12_va_amt = left("$" & question_12_va_amt & ".00       ", 8)
-		question_12_ui_yn = left(question_12_ui_yn & "   ", 5)
-		If trim(question_12_ui_amt) <> "" Then question_12_ui_amt = left("$" & question_12_ui_amt & ".00       ", 8)
-		question_12_wc_yn = left(question_12_wc_yn & "   ", 5)
-		If trim(question_12_wc_amt) <> "" Then question_12_wc_amt = left("$" & question_12_wc_amt & ".00       ", 8)
-		question_12_ret_yn = left(question_12_ret_yn & "   ", 5)
-		If trim(question_12_ret_amt) <> "" Then question_12_ret_amt = left("$" & question_12_ret_amt & ".00       ", 8)
-		question_12_trib_yn = left(question_12_trib_yn & "   ", 5)
-		If trim(question_12_trib_amt) <> "" Then question_12_trib_amt = left("$" & question_12_trib_amt & ".00       ", 8)
-		question_12_cs_yn = left(question_12_cs_yn & "   ", 5)
-		If trim(question_12_cs_amt) <> "" Then question_12_cs_amt = left("$" & question_12_cs_amt & ".00       ", 8)
-		question_12_other_yn = left(question_12_other_yn & "   ", 5)
-		If trim(question_12_other_amt) <> "" Then question_12_other_amt = left("$" & question_12_other_amt & ".00       ", 8)
-
-
-		CALL write_variable_in_CASE_NOTE("    RSDI - " & question_12_rsdi_yn & " " & question_12_rsdi_amt & "   UI - " & question_12_ui_yn & " " & question_12_ui_amt & " Tribal - " & question_12_trib_yn & " " & question_12_trib_amt)
-		CALL write_variable_in_CASE_NOTE("     SSI - " & question_12_ssi_yn & " " & question_12_ssi_amt & "   WC - " & question_12_wc_yn & " " & question_12_wc_amt & "   CSES - " & question_12_cs_yn & " " & question_12_cs_amt)
-		CALL write_variable_in_CASE_NOTE("      VA - " & question_12_va_yn & " " & question_12_va_amt & "  Ret - " & question_12_ret_yn & " " & question_12_ret_amt & "  Other - " & question_12_other_yn & " " & question_12_other_amt)
-		If trim(question_12_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_12_notes)
-		If question_12_verif_yn <> "" Then
-			If trim(question_12_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_12_verif_yn)
-			If trim(question_12_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_12_verif_yn & ": " & question_12_verif_details)
-		End If
-		If trim(question_12_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_12_interview_notes)
-
-		q_13_input = "Q13.CAF Answer - " & question_13_yn
-		If question_13_yn <> "" OR trim(question_13_notes) <> "" Then q_13_input = q_13_input & " (Confirmed)"
-		If q_13_input <> "Q13.CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_13_input)
-		If trim(question_13_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_13_notes)
-		If question_13_verif_yn <> "" Then
-			If trim(question_13_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_13_verif_yn)
-			If trim(question_13_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_13_verif_yn & ": " & question_13_verif_details)
-		End If
-		If trim(question_13_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_13_interview_notes)
-
-		' CALL write_variable_in_CASE_NOTE("Q14. goes here")
-
-		CALL write_variable_in_CASE_NOTE("Q14.CAF Answer:")
-
-		question_14_rent_yn = left(question_14_rent_yn & "   ", 5)
-		question_14_subsidy_yn = left(question_14_subsidy_yn & "   ", 5)
-		question_14_mortgage_yn = left(question_14_mortgage_yn & "   ", 5)
-		question_14_taxes_yn = left(question_14_taxes_yn & "   ", 5)
-		question_14_association_yn = left(question_14_association_yn & "   ", 5)
-		question_14_insurance_yn = left(question_14_insurance_yn & "   ", 5)
-		question_14_room_yn = left(question_14_room_yn & "   ", 5)
-
-		CALL write_variable_in_CASE_NOTE("       Rent - " & question_14_rent_yn        & " Rental Subsidy - " & question_14_subsidy_yn & "  Mortgage - " & question_14_mortgage_yn & " Taxes - " & question_14_taxes_yn)
-		CALL write_variable_in_CASE_NOTE(" Assoc Fees - " & question_14_association_yn & "     Room/Board - " & question_14_room_yn    & " Insurance - " & question_14_insurance_yn)
-		' CALL write_variable_in_CASE_NOTE(" Assoc Fees - " & question_14_association_yn & "      Insurance - " & question_14_insurance_yn & " Room/Board - " & question_14_room_yn)
-		If trim(question_14_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_14_notes)
-		If question_14_verif_yn <> "" Then
-			If trim(question_14_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_14_verif_yn)
-			If trim(question_14_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_14_verif_yn & ": " & question_14_verif_details)
-		End If
-		If trim(question_14_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_14_interview_notes)
-
-		' CALL write_variable_in_CASE_NOTE("Q15. goes here")
-
-		CALL write_variable_in_CASE_NOTE("Q15.CAF Answer:")
-
-		question_15_heat_ac_yn = left(question_15_heat_ac_yn & "   ", 5)
-		question_15_electricity_yn = left(question_15_electricity_yn & "   ", 5)
-		question_15_cooking_fuel_yn = left(question_15_cooking_fuel_yn & "   ", 5)
-		question_15_water_and_sewer_yn = left(question_15_water_and_sewer_yn & "   ", 5)
-		question_15_garbage_yn = left(question_15_garbage_yn & "   ", 5)
-		question_15_phone_yn = left(question_15_phone_yn & "   ", 5)
-		question_15_liheap_yn = left(question_15_liheap_yn & "   ", 5)
-
-		CALL write_variable_in_CASE_NOTE("     Heat/AC - " & question_15_heat_ac_yn & " Electric - " & question_15_electricity_yn & " Cooking Fuel - " & question_15_cooking_fuel_yn)
-		CALL write_variable_in_CASE_NOTE(" Water/Sewer - " & question_15_water_and_sewer_yn & "  Garbage - " & question_15_garbage_yn & "        Phone - " & question_15_phone_yn & " LIHEAP - " & question_15_liheap_yn)
-		If trim(question_15_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_15_notes)
-		If question_15_verif_yn <> "" Then
-			If trim(question_15_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_15_verif_yn)
-			If trim(question_15_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_15_verif_yn & ": " & question_15_verif_details)
-		End If
-		If trim(question_15_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_15_interview_notes)
-
-
-		q_16_input = "Q16.CAF Answer - " & question_16_yn
-		If question_16_yn <> "" OR trim(question_16_notes) <> "" Then q_16_input = q_16_input & " (Confirmed)"
-		If q_16_input <> "Q16.CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_16_input)
-		If trim(question_16_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_16_notes)
-		If question_16_verif_yn <> "" Then
-			If trim(question_16_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_16_verif_yn)
-			If trim(question_16_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_16_verif_yn & ": " & question_16_verif_details)
-		End If
-		If trim(question_16_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_16_interview_notes)
-
-		q_17_input = "Q17.CAF Answer - " & question_17_yn
-		If question_17_yn <> "" OR trim(question_17_notes) <> "" Then q_17_input = q_17_input & " (Confirmed)"
-		If q_17_input <> "Q17.CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_17_input)
-		If trim(question_17_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_17_notes)
-		If question_17_verif_yn <> "" Then
-			If trim(question_17_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_17_verif_yn)
-			If trim(question_17_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_17_verif_yn & ": " & question_17_verif_details)
-		End If
-		If trim(question_17_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_17_interview_notes)
-
-		q_18_input = "Q18.CAF Answer - " & question_18_yn
-		If question_18_yn <> "" OR trim(question_18_notes) <> "" Then q_18_input = q_18_input & " (Confirmed)"
-		If q_18_input <> "Q18.CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_18_input)
-		If trim(question_18_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_18_notes)
-		If question_18_verif_yn <> "" Then
-			If trim(question_18_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_18_verif_yn)
-			If trim(question_18_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_18_verif_yn & ": " & question_18_verif_details)
-		End If
-		If trim(question_18_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_18_interview_notes)
-
-		q_19_input = "Q19.CAF Answer - " & question_19_yn
-		If question_19_yn <> "" OR trim(question_19_notes) <> "" Then q_19_input = q_19_input & " (Confirmed)"
-		If q_19_input <> "Q19.CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_19_input)
-		If trim(question_19_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_19_notes)
-		If question_19_verif_yn <> "" Then
-			If trim(question_19_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_19_verif_yn)
-			If trim(question_19_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_19_verif_yn & ": " & question_19_verif_details)
-		End If
-		If trim(question_19_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_19_interview_notes)
-
-		' CALL write_variable_in_CASE_NOTE("Q20. goes here")
-
-		CALL write_variable_in_CASE_NOTE("Q20.CAF Answer:")
-
-		question_20_cash_yn = left(question_20_cash_yn & "   ", 5)
-		question_20_acct_yn = left(question_20_acct_yn & "   ", 5)
-		question_20_secu_yn = left(question_20_secu_yn & "   ", 5)
-		question_20_cars_yn = left(question_20_cars_yn & "   ", 5)
-
-
-		CALL write_variable_in_CASE_NOTE("   Cash - " & question_20_cash_yn & " Bank Accounts - " & question_20_acct_yn)
-		CALL write_variable_in_CASE_NOTE(" Stocks - " & question_20_secu_yn & "      Vehicles - " & question_20_cars_yn)
-		If trim(question_20_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_20_notes)
-		If question_20_verif_yn <> "" Then
-			If trim(question_20_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_20_verif_yn)
-			If trim(question_20_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_20_verif_yn & ": " & question_20_verif_details)
-		End If
-		If trim(question_20_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_20_interview_notes)
-
-		q_21_input = "Q21.CAF Answer - " & question_21_yn
-		If question_21_yn <> "" OR trim(question_21_notes) <> "" Then q_21_input = q_21_input & " (Confirmed)"
-		If q_21_input <> "Q21.CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_21_input)
-		If trim(question_21_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_21_notes)
-		If question_21_verif_yn <> "" Then
-			If trim(question_21_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_21_verif_yn)
-			If trim(question_21_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_21_verif_yn & ": " & question_21_verif_details)
-		End If
-		If trim(question_21_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_21_interview_notes)
-
-		q_22_input = "Q22.CAF Answer - " & question_22_yn
-		If question_22_yn <> "" OR trim(question_22_notes) <> "" Then q_22_input = q_22_input & " (Confirmed)"
-		If q_22_input <> "Q22.CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_22_input)
-		If trim(question_22_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_22_notes)
-		If question_22_verif_yn <> "" Then
-			If trim(question_22_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_22_verif_yn)
-			If trim(question_22_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_22_verif_yn & ": " & question_22_verif_details)
-		End If
-		If trim(question_22_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_22_interview_notes)
-
-		q_23_input = "Q23.CAF Answer - " & question_23_yn
-		If question_23_yn <> "" OR trim(question_23_notes) <> "" Then q_23_input = q_23_input & " (Confirmed)"
-		If q_23_input <> "Q23.CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_23_input)
-		If trim(question_23_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_23_notes)
-		If question_23_verif_yn <> "" Then
-			If trim(question_23_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_23_verif_yn)
-			If trim(question_23_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_23_verif_yn & ": " & question_23_verif_details)
-		End If
-		If trim(question_23_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_23_interview_notes)
-
-		CALL write_variable_in_CASE_NOTE("Q24. goes here")
-
-		If edrs_match_found = False Then Call write_variable_in_CASE_NOTE("eDRS run for all Household Members: No DISQ Matches Found")
-		If edrs_match_found = True Then
-			Call write_variable_in_CASE_NOTE("eDRS run for all Household Members:")
-			For the_memb = 0 to UBound(HH_MEMB_ARRAY, 2)
-				If trim(HH_MEMB_ARRAY(edrs_notes, the_memb)) = "" Then Call write_variable_in_CASE_NOTE(HH_MEMB_ARRAY(edrs_msg, the_memb))
-				If trim(HH_MEMB_ARRAY(edrs_notes, the_memb)) <> "" Then Call write_variable_in_CASE_NOTE(HH_MEMB_ARRAY(edrs_msg, the_memb) & "Notes: " & HH_MEMB_ARRAY(edrs_notes, the_memb))
-			Next
-		End If
-
-		forms_reviewed = ""
-		If left(confirm_resp_read, 4) = "YES!" AND left(confirm_rights_read, 4) = "YES!" Then forms_reviewed = forms_reviewed & " -DHS 4163"
-		If left(confirm_ebt_read, 4) = "YES!" Then forms_reviewed = forms_reviewed & " -EBT Information "
-		If left(confirm_ebt_how_to_read, 4) = "YES!" Then forms_reviewed = forms_reviewed & " -DHS 3315A"
-		If left(confirm_npp_info_read, 4) = "YES!" AND left(confirm_npp_rights_read, 4) = "YES!" Then forms_reviewed = forms_reviewed & " -DHS 3979"
-		If left(confirm_appeal_rights_read, 4) = "YES!" AND left(confirm_civil_rights_read, 4) = "YES!" Then forms_reviewed = forms_reviewed & " -DHS 3353"
-		If left(confirm_cover_letter_read, 4) = "YES!" Then forms_reviewed = forms_reviewed & " -Hennepin County Information "
-		If left(confirm_program_information_read, 4) = "YES!" Then forms_reviewed = forms_reviewed & " -DHS 2920"
-		If left(confirm_DV_read, 4) = "YES!" Then forms_reviewed = forms_reviewed & " -DHS 3477"
-		If left(confirm_disa_read, 4) = "YES!" Then forms_reviewed = forms_reviewed & " -DHS 4133"
-		If left(confirm_mfip_forms_read, 4) = "YES!" Then forms_reviewed = forms_reviewed & " -DHS 2647 -DHS 2929 -DHS 3323"
-		If left(confirm_mfip_cs_read, 4) = "YES!" Then forms_reviewed = forms_reviewed & " -DHS 3393 -DHS 3163B -DHS 2338 -DHS 5561"
-		If left(confirm_minor_mfip_read, 4) = "YES!" Then forms_reviewed = forms_reviewed & " -DHS 2961 -DHS 2887 -DHS 3238"
-		If left(confirm_snap_forms_read, 4) = "YES!" Then forms_reviewed = forms_reviewed & " -DHS 2625 -DHS 2707 -DHS 7635"
-		If left(forms_reviewed, 2) = " -" Then forms_reviewed = right(forms_reviewed, len(forms_reviewed)-2)
-		Call write_bullet_and_variable_in_CASE_NOTE("Reviewed Forms", forms_reviewed)
-
-
-		Call write_variable_in_CASE_NOTE("---")
-		Call write_variable_in_CASE_NOTE(worker_signature)
-
-	end function
 
 	call write_interview_CASE_NOTE
 
