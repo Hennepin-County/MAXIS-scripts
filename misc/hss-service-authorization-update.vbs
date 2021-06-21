@@ -114,27 +114,18 @@ file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvemen
 test_row = 2   'testing code 
 
 '----------------------------------Set up code 
-'MAXIS_footer_month = CM_mo 
-'MAXIS_footer_year = CM_yr 
-
 'Excel columns
-const recipient_ID_col      = 1
+const recip_PMI_col         = 1
 const HSS_start_col         = 4
 const HSS_end_col           = 5
 const SA_number_col         = 9
 const agreement_start_col   = 10
 const agreement_end_col     = 11
-const NPI_col 
+const NPI_number_col        = 15
 const HS_status_col         = 16
-'const vendor_num_col       = 17
-'const faci_name_col        = 18
-'const faci_in_col          = 19
-'const faci_out_col         = 20
-const impact_vnd_col        = 21
-'const exempt_code_col      = 22
-'const HDL_one_col          = 23
-'const HDL_two_col          = 24
-'const HDL_three_col        = 25
+const faci_in_col           = 19
+const faci_out_col          = 20
+const impact_vendor_col     = 21
 const case_status_col       = 26
 const rate_reduction_col    = 27
 
@@ -164,44 +155,86 @@ Do
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
+Call check_for_MMIS(False)             'Ensuring we're actually in MAXIS 
+
 Call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file
 
 'Setting up the Excel spreadsheet
-
 ObjExcel.Cells(1, rate_reduction_col).Value = "Rate Reduction Status"   'col 27
 
-FOR i = 16 to 27		'formatting the cells'
+FOR i = 1 to 27		'formatting the cells'
 	objExcel.Cells(1, i).Font.Bold = True		'bold font'
 	ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
 	objExcel.Columns(i).AutoFit()				'sizing the columns'
 NEXT
 
-'----------------------------------------------------------------------------------------------------MAXIS DATA GATHER
-Call check_for_MMIS(False)             'Ensuring we're actually in MAXIS 
-Call MAXIS_footer_month_confirmation    'Ensuring we're in the right footer month/year: current footer month/year for this process. 
+Dim adjustment_array()                        'Delcaring array
+ReDim adjustment_array(rr_status_const, 0)     'Resizing the array to size of last const 
 
-Dim faci_array()                        'Delcaring array
-ReDim faci_array(faci_out_const, 0)     'Resizing the array to size of last const 
-
-const vendor_number_const   = 0         'creating array constants
-const faci_name_const       = 1
-const faci_in_const         = 2
-const faci_out_const        = 3
+const recip_PMI_const       = 0         'creating array constants
+const HSS_start_const       = 1
+const HSS_end_const         = 2
+const SA_number_const       = 3
+const agreement_start_const = 4
+const agreement_end_const   = 5
+const npi_number_const      = 6
+const HS_status_const       = 7
+const faci_in_const         = 8
+const faci_out_const        = 9
+const impacted_vendor_const = 10
+const case_status_const     = 11
+const prev_start_const      = 12
+const prev_end_const        = 13
+const new_start_const       = 14
+const new_end_const         = 15 
+const excel_row_const       = 16
+const rr_status_const       = 17
 
 excel_row = test_row 'starting with the 1st non-header row :TESTING CODE 
+entry_record = 0 'incrementor for the array 
+
 Do
-    client_PMI = trim(objExcel.cells(excel_row, 1).Value)
-    If client_PMI = "" then exit do
+    recip_PMI = trim(objExcel.cells(excel_row, recip_PMI_col).Value)
+    If recip_PMI = "" then exit do
     'removing preceeding 0's from the client PMI. This is needed to measure the PMI's on CASE/PERS. 
     Do 
-		if left(client_PMI, 1) = "0" then client_PMI = right(client_PMI, len(client_PMI) -1)   'trimming off left-most 0 from client_PMI
-	Loop until left(client_PMI, 1) <> "0"                                                      'Looping until 0's are all removed
-    client_PMI = trim(client_PMI)
+		if left(recip_PMI, 1) = "0" then recip_PMI = right(recip_PMI, len(recip_PMI) -1)   'trimming off left-most 0 from recip_PMI
+	Loop until left(recip_PMI, 1) <> "0"                                                      'Looping until 0's are all removed
+    recip_PMI = trim(recip_PMI)
     
-	MAXIS_case_number = trim(objExcel.cells(excel_row, 2).Value)
-    case_status = ""            'defaulting case_status to "" to increment later in certain circumsatnces
+	'HSS_start       = trim(objExcel.cells(excel_row, HSS_start_col).Value)
+    'HSS_end         = trim(objExcel.cells(excel_row, HSS_end_col).Value)
     
-    faci_count = 0                          'setting increment for array
+    SA_number       = trim(objExcel.cells(excel_row, SA_number_col).Value)
+    SA_number = right("00000000" & SA_number, 11) 'ensures the variable is 11 digits. Inhibiting erorr 
+    
+    'agreement_start = trim(objExcel.cells(excel_row, agreement_start_col).Value)
+    'agreement_end   = trim(objExcel.cells(excel_row, agreement_end_col).Value)
+    'npi_number      = trim(objExcel.cells(excel_row, NPI_number_col).Value)
+    'HS_status       = trim(objExcel.cells(excel_row, HS_status_col).Value)
+    'impacted_vendor = trim(objExcel.cells(excel_row, impacted_vendor_col).Value)
+    'case_status     = trim(objExcel.cells(excel_row, case_status_col).Value)
+
+    'Adding recipient information to the array
+    ReDim Preserve adjustment_array(rr_status_const, entry_record)	'This resizes the array based on the number of rows in the Excel File'
+    
+    adjustment_array(recip_PMI_const       , entry_record) = recip_PMI
+    adjustment_array(HSS_start_const       , entry_record) = trim(objExcel.cells(excel_row, HSS_start_col).Value)
+    adjustment_array(HSS_end_const         , entry_record) = trim(objExcel.cells(excel_row, HSS_end_col).Value)
+    adjustment_array(SA_number_const       , entry_record) = SA_number
+    adjustment_array(agreement_start_const , entry_record) = trim(objExcel.cells(excel_row, agreement_start_col).Value)
+    adjustment_array(agreement_end_const   , entry_record) = trim(objExcel.cells(excel_row, agreement_end_col).Value) 
+    adjustment_array(npi_number_const      , entry_record) = trim(objExcel.cells(excel_row, NPI_number_col).Value) 
+    adjustment_array(HS_status_const       , entry_record) = trim(objExcel.cells(excel_row, HS_status_col).Value) 
+    adjustment_array(faci_in_const         , entry_record) = trim(objExcel.cells(excel_row, faci_in_const).Value) 
+    adjustment_array(faci_out_const        , entry_record) = trim(objExcel.cells(excel_row, faci_out_const).Value) 
+    adjustment_array(impacted_vendor_const , entry_record) = trim(objExcel.cells(excel_row, impacted_vendor_col).Value) 
+    adjustment_array(case_status_const     , entry_record) = trim(objExcel.cells(excel_row, case_status_col).Value) 
+    adjustment_array(excel_row_const       , entry_record) = excel_row 
+    entry_record = entry_record + 1			'This increments to the next entry in the array'
+    stats_counter = stats_counter + 1
+    excel_row = excel_row + 1    
+Loop     
     
     '----------------------------------------------------------------------------------------------------CASE/PERS & PERS Search 
     Call navigate_to_MAXIS_screen_review_PRIV("CASE", "PERS", is_this_priv) 
@@ -216,8 +249,8 @@ Do
                 EMReadScreen person_PMI, 8, row, 34
                 person_PMI = trim(person_PMI)
                 If person_PMI = "" then exit do 
-                'msgbox person_PMI & vbcr & client_PMI
-                If trim(person_PMI) = client_PMI then 
+                'msgbox person_PMI & vbcr & recip_PMI
+                If trim(person_PMI) = recip_PMI then 
                     EmReadscreen HS_status, 1, row, 66
                     If trim(HS_status) <> "" then
                         EmReadscreen member_number, 2, row, 3 
@@ -243,7 +276,7 @@ Do
                 'try to match the correct case number in PERS search 
                 back_to_self
                 Call navigate_to_MAXIS_screen("PERS", "    ")
-                Call write_value_and_transmit(client_PMI, 15, 36)
+                Call write_value_and_transmit(recip_PMI, 15, 36)
                 EmReadscreen mtch_screen, 4, 2, 51
                 If mtch_screen = "MTCH" then 
                     EmReadscreen dupe_matches, 11, 9, 7
@@ -253,7 +286,7 @@ Do
                         'if only one match exists then 
                         Call write_value_and_transmit("X", 8, 5)
                         EmReadscreen DSPL_PMI, 8, 5, 44
-                        If trim(DSPL_PMI) = Client_PMI then 
+                        If trim(DSPL_PMI) = recip_PMI then 
                             'Read case number after finding HC case 
                             Call write_value_and_transmit("GR", 7, 22)
                             EmReadscreen DSPL_case_number, 8, 10, 6
@@ -351,7 +384,7 @@ Do
                             row = row - 1   'no faci info on this row - this is blank 
                         else 
                             If faci_in <> "" then 
-                                current_faci_found = True   'Condition is met so date evaluation via FACI_array is not needed. 
+                                current_faci_found = True   'Condition is met so date evaluation via adjustment_array is not needed. 
                                 exit do    'open ended faci found 
                             End if 
                         End if 
@@ -359,11 +392,11 @@ Do
                         If faci_in <> "" then 
                             faci_out_dates_string = faci_out_dates_string & faci_out & "|"
                             
-                            Redim Preserve faci_array(faci_out_const, faci_count)
-                            faci_array(vendor_number_const, faci_count) = vendor_number
-                            faci_array(faci_name_const,     faci_count) = faci_name 
-                            faci_array(faci_in_const,       faci_count) = faci_in
-                            faci_array(faci_out_const,      faci_count) = faci_out 
+                            Redim Preserve adjustment_array(faci_out_const, faci_count)
+                            adjustment_array(vendor_number_const, faci_count) = vendor_number
+                            adjustment_array(faci_name_const,     faci_count) = faci_name 
+                            adjustment_array(faci_in_const,       faci_count) = faci_in
+                            adjustment_array(faci_out_const,      faci_count) = faci_out 
                             faci_count = faci_count + 1
                             exit do    'most recent faci span identified 
                         End if 
@@ -383,18 +416,18 @@ Do
                 'MsgBox first_date & vbcr & last_date 
                 
                 'finding the most recent date if none of the dates are open-ended 
-                For item = 0 to Ubound(faci_array, 2)
-                    If faci_array(faci_out_const, item) = last_date then 
-                        vendor_number   = faci_array(vendor_number_const, item)
-                        faci_name       = faci_array(faci_name_const, item)
-                        faci_in         = faci_array(faci_in_const, item)
-                        faci_out        = faci_array(faci_out_const, item)
+                For item = 0 to Ubound(adjustment_array, 2)
+                    If adjustment_array(faci_out_const, item) = last_date then 
+                        vendor_number   = adjustment_array(vendor_number_const, item)
+                        faci_name       = adjustment_array(faci_name_const, item)
+                        faci_in         = adjustment_array(faci_in_const, item)
+                        faci_out        = adjustment_array(faci_out_const, item)
                     End if 
                 Next
                 'msgbox "**Facility Info**" & vbcr & vbcr & vendor_number & vbcr & faci_name & vbcr & faci_in & vbcr & faci_out     
             End if 
-            ReDim faci_array(faci_out_const, 0)     'Resizing the array back to original size
-            Erase faci_array                        'then once resized it gets erased. 
+            ReDim adjustment_array(faci_out_const, 0)     'Resizing the array back to original size
+            Erase adjustment_array                        'then once resized it gets erased. 
 	    End if 
         
         'msgbox "**Facility Info**" & vbcr & vbcr & vendor_number & vbcr & faci_name & vbcr & faci_in & vbcr & faci_out
@@ -473,14 +506,12 @@ Do
     HDL_two = ""
     HDL_three = ""
     case_status = ""
-    excel_row = excel_row + 1 'setting up the script to check the next row.
-    stats_counter = stats_counter + 1
-LOOP UNTIL objExcel.Cells(excel_row, 2).Value = ""	'Loops until there are no more cases in the Excel list
+    
 
 'formatting the cells
-FOR i = 1 to 26
+FOR i = 1 to 27
 	objExcel.Columns(i).AutoFit()				'sizing the columns
 NEXT
 
 STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
-script_end_procedure("Success! Your facility data has been created.")
+script_end_procedure_with_error_report("Success! The service authorizations have been updated. Please review the worksheet for manual updates.")
