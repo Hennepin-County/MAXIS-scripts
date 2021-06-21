@@ -484,4 +484,4 @@ FOR i = 1 to 26
 NEXT
 
 STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
-script_end_procedure("Success! Your facility data has been created.")
+script_end_procedure_with_error_report("Success! Your facility data has been created.")
