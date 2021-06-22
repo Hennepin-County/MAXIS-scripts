@@ -705,6 +705,6 @@ IF claim_actions = "Requested Claim Adjustment" THEN
 	CALL write_variable_in_CCOL_note_test(worker_signature)
 	PF3
 	'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-	CALL create_outlook_email("hsph.faa.unit.ar.spaulding@hennepin.us", "","Requested Claim Adjustment " &  MAXIS_case_number & " Member # " & memb_number & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number, "CASE NOTE" & vbcr & message_array,"", False)
+	CALL create_outlook_email("HSPH.FIN.Unit.AR.Spaulding@hennepin.us", "","Requested Claim Adjustment " &  MAXIS_case_number & " Member # " & memb_number & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number, "CASE NOTE" & vbcr & message_array,"", False)
 END IF
 script_end_procedure_with_error_report("Overpayment case note entered and copied to CCOL please review case note to ensure accuracy.")
