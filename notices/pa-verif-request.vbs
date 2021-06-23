@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("06/23/2021", "PA Verif Request is back!##~## ##~##It is now built with the functionality to either create a SPEC/MEMO of benefit issuances from INQX, or resend a WCOM of an Eligibility Notice.##~## ##~##This new process follows the procedure detailed in the HSR Manual.##~##", "Casey Love, Hennepin County")
 call changelog_update("03/02/2021", "BUG FIX - error for cases with a Significant Change detail in the budget. Added a fix to move past it.", "Casey Love, Hennepin County")
 call changelog_update("11/12/2020", "Updated HSR Manual link for Data Privacy due to SharePoint Online Migration.", "Ilse Ferris, Hennepin County")
 call changelog_update("07/29/2020", "Removed the 'PRINT' default of the document at the end of the script run because we are not currently in the office.", "Casey Love, Hennepin County")
