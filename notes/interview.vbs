@@ -2289,7 +2289,7 @@ function save_your_work()
 'This function records the variables into a txt file so that it can be retrieved by the script if run later.
 
 	'Needs to determine MyDocs directory before proceeding.
-	Set wshshell = CreateObject("WScript.Shell")
+	' Set wshshell = CreateObject("WScript.Shell")
 	user_myDocs_folder = wshShell.SpecialFolders("MyDocuments") & "\"
 
 	'Now determines name of file
@@ -2300,8 +2300,8 @@ function save_your_work()
 	Const ForWriting = 2
 	Const ForAppending = 8
 
-	Dim objFSO
-	Set objFSO = CreateObject("Scripting.FileSystemObject")
+	' Dim objFSO
+	' Set objFSO = CreateObject("Scripting.FileSystemObject")
 
 	With objFSO
 
@@ -2683,7 +2683,7 @@ function restore_your_work(vars_filled)
 'this function looks to see if a txt file exists for the case that is being run to pull already known variables back into the script from a previous run
 '
 	'Needs to determine MyDocs directory before proceeding.
-	Set wshshell = CreateObject("WScript.Shell")
+	' Set wshshell = CreateObject("WScript.Shell")
 	user_myDocs_folder = wshShell.SpecialFolders("MyDocuments") & "\"
 
 	'Now determines name of file
@@ -2693,8 +2693,8 @@ function restore_your_work(vars_filled)
 	Const ForWriting = 2
 	Const ForAppending = 8
 
-	Dim objFSO
-	Set objFSO = CreateObject("Scripting.FileSystemObject")
+	' Dim objFSO
+	' Set objFSO = CreateObject("Scripting.FileSystemObject")
 
 	With objFSO
 
@@ -3424,15 +3424,23 @@ function review_for_discrepancies()
 	'RENT AMOUNTS
 	exp_q_3_rent_this_month = trim(exp_q_3_rent_this_month)
 	CAF1_rent_indicated = True
-	If exp_q_3_rent_this_month = 0 Then CAF1_rent_indicated = False
-	If exp_q_3_rent_this_month = "0" Then CAF1_rent_indicated = False
-	If exp_q_3_rent_this_month = "" Then CAF1_rent_indicated = False
+	If exp_q_3_rent_this_month = "" Then
+		CAF1_rent_indicated = False
+	ElseIf exp_q_3_rent_this_month = "0" Then
+		CAF1_rent_indicated = False
+	ElseIf exp_q_3_rent_this_month = 0 Then
+		CAF1_rent_indicated = False
+	End If
 
 	intv_app_month_housing_expense = trim(intv_app_month_housing_expense)
 	Verbal_rent_indicated = True
-	If intv_app_month_housing_expense = 0 Then Verbal_rent_indicated = False
-	If intv_app_month_housing_expense = "0" Then Verbal_rent_indicated = False
-	If intv_app_month_housing_expense = "" Then Verbal_rent_indicated = False
+	If intv_app_month_housing_expense = "" Then
+		Verbal_rent_indicated = False
+	ElseIf intv_app_month_housing_expense = "0" Then
+		Verbal_rent_indicated = False
+	ElseIf intv_app_month_housing_expense = 0 Then
+		Verbal_rent_indicated = False
+	End If
 
 	Q14_rent_indicated = False
 	question_14_summary = ""
@@ -4297,17 +4305,22 @@ function write_interview_CASE_NOTE()
 	' Call write_variable_in_CASE_NOTE("---")
 	' Call write_variable_in_CASE_NOTE(worker_signature)
 
-	CALL write_variable_in_CASE_NOTE("~ Interview Completed on " & interview_date & " ~")
+	If create_incomplete_note_checkbox = checked then
+		CALL write_variable_in_CASE_NOTE("Partial Interview Information from " & interview_date)
+	Else
+		CALL write_variable_in_CASE_NOTE("~ Interview Completed on " & interview_date & " ~")
+	End If
 	CALL write_variable_in_CASE_NOTE("Completed with " & who_are_we_completing_the_interview_with & " via " & how_are_we_completing_the_interview)
 	CALL write_variable_in_CASE_NOTE("Completed on " & interview_date & " at " & interview_started_time & " (" & interview_time & " min)")
+	CALL write_variable_in_CASE_NOTE("Interview using form: " & CAF_form_name & ", received on " & CAF_datestamp)
 
 	CALL write_variable_in_CASE_NOTE("Household Members:")
 	For the_members = 0 to UBound(HH_MEMB_ARRAY, 2)
 		CALL write_variable_in_CASE_NOTE(HH_MEMB_ARRAY(ref_number, the_members) & "-" & HH_MEMB_ARRAY(full_name_const, the_members))
 		If trim(HH_MEMB_ARRAY(client_notes, the_members)) <> "" Then CALL write_variable_in_CASE_NOTE("    NOTES: " & HH_MEMB_ARRAY(client_notes, the_members))
-		If HH_MEMB_ARRAY(client_verification, the_members) <> "Not Needed" Then CALL write_variable_in_CASE_NOTE("    Verification: of M" & HH_MEMB_ARRAY(ref_number, the_members) & " Information - " & HH_MEMB_ARRAY(client_verification_details, the_members)
+		If HH_MEMB_ARRAY(client_verification, the_members) <> "Not Needed" Then CALL write_variable_in_CASE_NOTE("    Verification: of M" & HH_MEMB_ARRAY(ref_number, the_members) & " Information - " & HH_MEMB_ARRAY(client_verification_details, the_members))
 	Next
-
+	CALL write_variable_in_CASE_NOTE("-----  CAF Information and Notes -----")
 	q_1_input = "Q1. CAF Answer - " & question_1_yn
 	If question_1_yn <> "" OR trim(question_1_notes) <> "" Then q_1_input = q_1_input & " (Confirmed)"
 	If q_1_input <> "Q1. CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_1_input)
@@ -4623,12 +4636,16 @@ function write_interview_CASE_NOTE()
 	IF create_verif_note = True Then Call write_variable_in_CASE_NOTE("** VERIFICATIONS REQUESTED - See previous case note for detail")
 	IF create_verif_note = False Then Call write_variable_in_CASE_NOTE("No Verifications were Indicated at this time.")
 
-	If IsArray(note_detail_array) = True AND note_detail_array(0) <> "" Then
-		call write_variable_in_CASE_NOTE("Additional resource information given to client")
-		For each note_line in note_detail_array
+	first_resource = True
+	For each note_line in note_detail_array
+		IF note_line <> "" Then
+			If first_resource = True Then
+				call write_variable_in_CASE_NOTE("Additional resource information given to client")
+				first_resource = False
+			End If
 			Call write_variable_in_CASE_NOTE(note_line)
-		Next
-	End If
+		End If
+	Next
 
 	If disc_no_phone_number = "RESOLVED" Then call write_variable_in_CASE_NOTE("No Phone Number was Provided - additional interview conversation: " & disc_phone_confirmation)
 	If disc_homeless_no_mail_addr = "RESOLVED" Then call write_variable_in_CASE_NOTE("Household Experiencing Housing Insecurity - MAIL is Primary Communication of Agency Requests and Actions - additional interview conversation: " & disc_homeless_confirmation)
@@ -4639,6 +4656,7 @@ function write_interview_CASE_NOTE()
 	If left(confirm_ebt_read, 4) = "YES!" Then forms_reviewed = forms_reviewed & " -EBT Information "
 	If left(confirm_ebt_how_to_read, 4) = "YES!" Then forms_reviewed = forms_reviewed & " -DHS 3315A"
 	If left(confirm_npp_info_read, 4) = "YES!" AND left(confirm_npp_rights_read, 4) = "YES!" Then forms_reviewed = forms_reviewed & " -DHS 3979"
+	If left(confirm_ievs_info_read, 4) = "YES!" AND left(confirm_npp_rights_read, 4) = "YES!" Then forms_reviewed = forms_reviewed & " -DHS 2759"
 	If left(confirm_appeal_rights_read, 4) = "YES!" AND left(confirm_civil_rights_read, 4) = "YES!" Then forms_reviewed = forms_reviewed & " -DHS 3353"
 	If left(confirm_cover_letter_read, 4) = "YES!" Then forms_reviewed = forms_reviewed & " -Hennepin County Information "
 	If left(confirm_program_information_read, 4) = "YES!" Then forms_reviewed = forms_reviewed & " -DHS 2920"
@@ -4650,6 +4668,10 @@ function write_interview_CASE_NOTE()
 	If left(confirm_snap_forms_read, 4) = "YES!" Then forms_reviewed = forms_reviewed & " -DHS 2625 -DHS 2707 -DHS 7635"
 	If left(forms_reviewed, 2) = " -" Then forms_reviewed = right(forms_reviewed, len(forms_reviewed)-2)
 	Call write_bullet_and_variable_in_CASE_NOTE("Reviewed Forms", forms_reviewed)
+	If left(confirm_snap_forms_read, 4) = "YES!" Then
+		Call write_variable_in_CASE_NOTE("SNAP Reporting discussed. Case appears to be a " & snap_reporting_type & " reporter, with the next review month of " & next_revw_month)
+		Call write_variable_in_CASE_NOTE("     This may change dependant on information received up until SNAP approval.")
+	End If
 
 
 	Call write_variable_in_CASE_NOTE("---")
@@ -4911,7 +4933,7 @@ question_answers = ""+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Blank"
 Dim who_are_we_completing_the_interview_with, caf_person_one, exp_q_1_income_this_month, exp_q_2_assets_this_month, exp_q_3_rent_this_month, caf_exp_pay_heat_checkbox, caf_exp_pay_ac_checkbox, caf_exp_pay_electricity_checkbox, caf_exp_pay_phone_checkbox
 Dim exp_pay_none_checkbox, exp_migrant_seasonal_formworker_yn, exp_received_previous_assistance_yn, exp_previous_assistance_when, exp_previous_assistance_where, exp_previous_assistance_what, exp_pregnant_yn, exp_pregnant_who, resi_addr_street_full
 Dim resi_addr_city, resi_addr_state, resi_addr_zip, reservation_yn, reservation_name, homeless_yn, living_situation, mail_addr_street_full, mail_addr_city, mail_addr_state, mail_addr_zip, phone_one_number, phone_pne_type, phone_two_number
-Dim phone_two_type, phone_three_number, phone_three_type, address_change_date, resi_addr_county, caf_form_date, all_the_clients, err_msg
+Dim phone_two_type, phone_three_number, phone_three_type, address_change_date, resi_addr_county, CAF_datestamp, all_the_clients, err_msg
 Dim intv_app_month_income, intv_app_month_asset, intv_app_month_housing_expense, intv_exp_pay_heat_checkbox, intv_exp_pay_ac_checkbox, intv_exp_pay_electricity_checkbox, intv_exp_pay_phone_checkbox, intv_exp_pay_none_checkbox
 Dim id_verif_on_file, snap_active_in_other_state, last_snap_was_exp, how_are_we_completing_the_interview
 
@@ -4957,7 +4979,9 @@ Dim disc_phone_confirmation, disc_homeless_confirmation, disc_out_of_county_conf
 Dim show_pg_one_memb01_and_exp, show_pg_one_address, show_pg_memb_list, show_q_1_6
 Dim show_q_7_11, show_q_14_15, show_q_21_24, show_qual, show_pg_last, discrepancy_questions
 
-
+Set wshshell = CreateObject("WScript.Shell")
+Dim objFSO
+Set objFSO = CreateObject("Scripting.FileSystemObject")
 
 show_pg_one_memb01_and_exp	= 1
 show_pg_one_address			= 2
@@ -5110,11 +5134,30 @@ If family_cash_case = True Then family_cash_case_yn = "Yes"
 'If we already know the variables because we used 'restore your work' OR if there is no case number, we don't need to read the information from MAXIS
 If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 	'Needs to determine MyDocs directory before proceeding.
-	Set WshShell = CreateObject("WScript.Shell")
+	' Set WshShell = CreateObject("WScript.Shell")
 
 	user_myDocs_folder = WshShell.SpecialFolders("MyDocuments") & "\"
 	intvw_msg_file = user_myDocs_folder & "interview message.txt"
 
+	' Dim objFSO
+	' Set objFSO = CreateObject("Scripting.FileSystemObject")
+
+	If objFSO.FileExists(intvw_msg_file) = False then
+		Set objTextStream = objFSO.OpenTextFile(intvw_msg_file, 2, true)
+
+		'Write the contents of the text file
+		objTextStream.WriteLine "While the script gathers details about the case, tell the client:"
+		objTextStream.WriteLine ""
+		objTextStream.WriteLine "- We are going to complete your required interview now."
+		objTextStream.WriteLine "- I will ask you all of the questions you completed on the application:"
+		objTextStream.WriteLine "  - I know this may seem repetitive but we are required to confirm the information you entered."
+		objTextStream.WriteLine "  - Please answer these questions to the best of your ability."
+		objTextStream.WriteLine ""
+		objTextStream.WriteLine "If we cannot get all of the questions answered we cannot complete the interview."
+		objTextStream.WriteLine "Unless we complete the interview, your application/recertification can not be processed."
+
+		objTextStream.Close
+	End If
 	Set oExec = WshShell.Exec("notepad " & intvw_msg_file)
 
 	Call back_to_SELF
@@ -5583,7 +5626,7 @@ Do
 		err_msg = ""
 
 		Dialog1 = ""
-		BeginDialog Dialog1, 0, 0, 550, 385, "Full Interview Questions"
+		BeginDialog Dialog1, 0, 0, 550, 385, "EDRs Search Review"
 		  ButtonGroup ButtonPressed
 		    PushButton 465, 365, 80, 15, "Continue", continue_btn
 		    Text 10, 10, 320, 10, "EDRs has been completed for all Household Members."
@@ -5639,7 +5682,7 @@ Do
 		err_msg = ""
 
 		Dialog1 = ""
-		BeginDialog Dialog1, 0, 0, 550, 385, "Full Interview Questions"
+		BeginDialog Dialog1, 0, 0, 550, 385, "FORM and INFORMATION Review with Resident"
 		  DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! Responsibilities Discussed"+chr(9)+"No, I could not complete this", confirm_resp_read
 		  ButtonGroup ButtonPressed
 		    PushButton 465, 365, 80, 15, "Continue", continue_btn
@@ -5682,6 +5725,10 @@ Do
 		dialog Dialog1
 		cancel_confirmation
 
+		If confirm_resp_read = "Enter confirmation" Then err_msg = err_msg & vbNewLine & "* Indicate if this required information was reviewed with the resident completing the interview."
+
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+
 		If ButtonPressed = open_r_and_r_btn Then
 			err_msg = "LOOP"
 			run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://edocs.dhs.state.mn.us/lfserver/Public/DHS-4163-ENG"
@@ -5697,7 +5744,7 @@ Do
 		err_msg = ""
 
 		Dialog1 = ""
-		BeginDialog Dialog1, 0, 0, 550, 385, "Full Interview Questions"
+		BeginDialog Dialog1, 0, 0, 550, 385, "FORM and INFORMATION Review with Resident"
 		  DropListBox 160, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! Rights Discussedd"+chr(9)+"No, I could not complete this", confirm_rights_read
 		  ButtonGroup ButtonPressed
 		    PushButton 465, 365, 80, 15, "Continue", continue_btn
@@ -5726,6 +5773,11 @@ Do
 		EndDialog
 
 		dialog Dialog1
+ 		cancel_confirmation
+
+		If confirm_rights_read = "Enter confirmation" Then err_msg = err_msg & vbNewLine & "* Indicate if this required information was reviewed with the resident completing the interview."
+
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 
 		If ButtonPressed = open_r_and_r_btn Then
 			err_msg = "LOOP"
@@ -5760,7 +5812,7 @@ Do
 		err_msg = ""
 
 		Dialog1 = ""
-		BeginDialog Dialog1, 0, 0, 550, 385, "Full Interview Questions"
+		BeginDialog Dialog1, 0, 0, 550, 385, "FORM and INFORMATION Review with Resident"
 		  DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! EBT Basics Discussed"+chr(9)+"No, I could not complete this", confirm_ebt_read
 		  ButtonGroup ButtonPressed
 		    PushButton 465, 365, 80, 15, "Continue", continue_btn
@@ -5793,8 +5845,14 @@ Do
 		EndDialog
 
 		dialog Dialog1
-
 		cancel_confirmation
+
+		If confirm_ebt_read = "Enter confirmation" Then err_msg = err_msg & vbNewLine & "* Indicate if this required information was reviewed with the resident completing the interview."
+		If confirm_ebt_read = "YES! EBT Basics Discussed" Then
+			If case_card_info = "Select or Type" or trim(case_card_info) = "" Then err_msg = err_msg & vbNewLine & "* Since you have discussed EBT Information, indicate if the resident has an EBT Card for this case."
+			If clt_knows_how_to_use_ebt_card = "Select One..." Then err_msg = err_msg & vbNewLine & "* Since you have discussed EBT Information, indicate if the resident knows how to use their EBT Card."
+		End If
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 	Loop until err_msg = ""
 	Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = FALSE
@@ -5807,7 +5865,7 @@ If clt_knows_how_to_use_ebt_card = "No" then
 			err_msg = ""
 
 			Dialog1 = ""
-			BeginDialog Dialog1, 0, 0, 550, 385, "Full Interview Questions"
+			BeginDialog Dialog1, 0, 0, 550, 385, "FORM and INFORMATION Review with Resident"
 			  DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! EBT Detail Discussed"+chr(9)+"No, I could not complete this", confirm_ebt_how_to_read
 			  ButtonGroup ButtonPressed
 			    PushButton 465, 365, 80, 15, "Continue", continue_btn
@@ -5856,13 +5914,17 @@ If clt_knows_how_to_use_ebt_card = "No" then
 			EndDialog
 
 			dialog Dialog1
+			cancel_confirmation
+
+			If confirm_ebt_how_to_read = "Enter confirmation" Then err_msg = err_msg & vbNewLine & "* Indicate if this required information was reviewed with the resident completing the interview."
+
+			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 
 			If ButtonPressed = open_ebt_brochure_btn Then
 				err_msg = "LOOP"
 				run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3315A-ENG"
 			End If
 
-			cancel_confirmation
 		Loop until err_msg = ""
 		Call check_for_password(are_we_passworded_out)
 	Loop until are_we_passworded_out = FALSE
@@ -5876,7 +5938,7 @@ Do
 		err_msg = ""
 
 		Dialog1 = ""
-		BeginDialog Dialog1, 0, 0, 550, 385, "Full Interview Questions"
+		BeginDialog Dialog1, 0, 0, 550, 385, "FORM and INFORMATION Review with Resident"
 		  DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! Notice of Privacy Information Discussed"+chr(9)+"No, I could not complete this", confirm_npp_info_read
 		  ButtonGroup ButtonPressed
 		    PushButton 465, 365, 80, 15, "Continue", continue_btn
@@ -5952,13 +6014,16 @@ Do
 		EndDialog
 
 		dialog Dialog1
+		cancel_confirmation
+
+		If confirm_npp_info_read = "Enter confirmation" Then err_msg = err_msg & vbNewLine & "* Indicate if this required information was reviewed with the resident completing the interview."
+
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 
 		If ButtonPressed = open_npp_doc Then
 			err_msg = "LOOP"
 			run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3979-ENG"
 		End If
-
-		cancel_confirmation
 	Loop until err_msg = ""
 	Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = FALSE
@@ -5969,7 +6034,7 @@ Do
 		err_msg = ""
 
 		Dialog1 = ""
-		BeginDialog Dialog1, 0, 0, 550, 385, "Full Interview Questions"
+		BeginDialog Dialog1, 0, 0, 550, 385, "FORM and INFORMATION Review with Resident"
   		  DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! Notice of Privacy Rights Discussed"+chr(9)+"No, I could not complete this", confirm_npp_rights_read
 		  ButtonGroup ButtonPressed
 		    PushButton 465, 365, 80, 15, "Continue", continue_btn
@@ -6011,13 +6076,16 @@ Do
 		EndDialog
 
 		dialog Dialog1
+		cancel_confirmation
+
+		If confirm_npp_rights_read = "Enter confirmation" Then err_msg = err_msg & vbNewLine & "* Indicate if this required information was reviewed with the resident completing the interview."
+
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 
 		If ButtonPressed = open_npp_doc Then
 			err_msg = "LOOP"
 			run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-3979-ENG"
 		End If
-
-		cancel_confirmation
 	Loop until err_msg = ""
 	Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = FALSE
@@ -6029,8 +6097,8 @@ Do
 		err_msg = ""
 
 		Dialog1 = ""
-		BeginDialog Dialog1, 0, 0, 550, 385, "Full Interview Questions"
-		  DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! IEVS Information Discussed"+chr(9)+"No, I could not complete this", confirm_npp_rights_read
+		BeginDialog Dialog1, 0, 0, 550, 385, "FORM and INFORMATION Review with Resident"
+		  DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! IEVS Information Discussed"+chr(9)+"No, I could not complete this", confirm_ievs_info_read
 		  ButtonGroup ButtonPressed
 		    PushButton 465, 365, 80, 15, "Continue", continue_btn
 		  Text 10, 5, 160, 10, "REVIEW the information listedd here to the client:"
@@ -6087,13 +6155,16 @@ Do
 		EndDialog
 
 		dialog Dialog1
+		cancel_confirmation
+
+		If confirm_ievs_info_read = "Enter confirmation" Then err_msg = err_msg & vbNewLine & "* Indicate if this required information was reviewed with the resident completing the interview."
+
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 
 		If ButtonPressed = open_IEVS_doc Then
 			err_msg = "LOOP"
 			run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-2759-ENG"
 		End If
-
-		cancel_confirmation
 	Loop until err_msg = ""
 	Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = FALSE
@@ -6105,7 +6176,7 @@ Do
 		err_msg = ""
 
 		Dialog1 = ""
-		BeginDialog Dialog1, 0, 0, 550, 385, "Full Interview Questions"
+		BeginDialog Dialog1, 0, 0, 550, 385, "FORM and INFORMATION Review with Resident"
 		  DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! Appeal Rights Discussed"+chr(9)+"No, I could not complete this", confirm_appeal_rights_read
 		  ButtonGroup ButtonPressed
 		    PushButton 465, 365, 80, 15, "Continue", continue_btn
@@ -6134,13 +6205,16 @@ Do
 		EndDialog
 
 		dialog Dialog1
+		cancel_confirmation
+
+		If confirm_appeal_rights_read = "Enter confirmation" Then err_msg = err_msg & vbNewLine & "* Indicate if this required information was reviewed with the resident completing the interview."
+
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 
 		If ButtonPressed = open_appeal_rights_doc Then
 			err_msg = "LOOP"
 			run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-3353-ENG"
 		End If
-
-		cancel_confirmation
 	Loop until err_msg = ""
 	Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = FALSE
@@ -6152,7 +6226,7 @@ Do
 		err_msg = ""
 
 		Dialog1 = ""
-		BeginDialog Dialog1, 0, 0, 550, 385, "Full Interview Questions"
+		BeginDialog Dialog1, 0, 0, 550, 385, "FORM and INFORMATION Review with Resident"
 		  DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! Civil Rights Discussed"+chr(9)+"No, I could not complete this", confirm_civil_rights_read
 		  ButtonGroup ButtonPressed
 		    PushButton 465, 365, 80, 15, "Continue", continue_btn
@@ -6207,13 +6281,16 @@ Do
 		EndDialog
 
 		dialog Dialog1
+		cancel_confirmation
+
+		If confirm_civil_rights_read = "Enter confirmation" Then err_msg = err_msg & vbNewLine & "* Indicate if this required information was reviewed with the resident completing the interview."
+
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 
 		If ButtonPressed = open_civil_rights_rights_doc Then
 			err_msg = "LOOP"
 			run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-3353-ENG"
 		End If
-
-		cancel_confirmation
 	Loop until err_msg = ""
 	Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = FALSE
@@ -6225,7 +6302,7 @@ save_your_work
 ' 		err_msg = ""
 '
 ' 		Dialog1 = ""
-' 		BeginDialog Dialog1, 0, 0, 550, 385, "Full Interview Questions"
+' 		BeginDialog Dialog1, 0, 0, 550, 385, "FORM and INFORMATION Review with Resident"
 ' 		  DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! Cover Letter Discussed"+chr(9)+"No, I could not complete this", confirm_cover_letter_read
 ' 		  ButtonGroup ButtonPressed
 ' 		    PushButton 465, 365, 80, 15, "Continue", continue_btn
@@ -6252,7 +6329,7 @@ Do
 		err_msg = ""
 
 		Dialog1 = ""
-		BeginDialog Dialog1, 0, 0, 550, 385, "Full Interview Questions"
+		BeginDialog Dialog1, 0, 0, 550, 385, "FORM and INFORMATION Review with Resident"
 		  DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! Program Information Discussed"+chr(9)+"No, I could not complete this", confirm_program_information_read
 		  ButtonGroup ButtonPressed
 		    PushButton 465, 365, 80, 15, "Continue", continue_btn
@@ -6309,13 +6386,15 @@ Do
 		EndDialog
 
 		dialog Dialog1
+		cancel_confirmation
 
+		If confirm_program_information_read = "Enter confirmation" Then err_msg = err_msg & vbNewLine & "* Indicate if this required information was reviewed with the resident completing the interview."
+
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 		If ButtonPressed = open_program_info_doc Then
 			err_msg = "LOOP"
 			run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-2920-ENG"
 		End If
-
-		cancel_confirmation
 	Loop until err_msg = ""
 	Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = FALSE
@@ -6327,7 +6406,7 @@ Do
 		err_msg = ""
 
 		Dialog1 = ""
-		BeginDialog Dialog1, 0, 0, 550, 385, "Full Interview Questions"
+		BeginDialog Dialog1, 0, 0, 550, 385, "FORM and INFORMATION Review with Resident"
 		  DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! Domestic Violence Discussed"+chr(9)+"No, I could not complete this", confirm_DV_read
 		  ButtonGroup ButtonPressed
 		    PushButton 465, 365, 80, 15, "Continue", continue_btn
@@ -6377,13 +6456,15 @@ Do
 		EndDialog
 
 		dialog Dialog1
+		cancel_confirmation
 
+		If confirm_DV_read = "Enter confirmation" Then err_msg = err_msg & vbNewLine & "* Indicate if this required information was reviewed with the resident completing the interview."
+
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 		If ButtonPressed = open_DV_doc Then
 			err_msg = "LOOP"
 			run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG"
 		End If
-
-		cancel_confirmation
 	Loop until err_msg = ""
 	Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = FALSE
@@ -6395,7 +6476,7 @@ Do
 		err_msg = ""
 
 		Dialog1 = ""
-		BeginDialog Dialog1, 0, 0, 550, 385, "Full Interview Questions"
+		BeginDialog Dialog1, 0, 0, 550, 385, "FORM and INFORMATION Review with Resident"
 		  DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! Disability Information Discussed"+chr(9)+"No, I could not complete this", confirm_disa_read
 		  ButtonGroup ButtonPressed
 		    PushButton 465, 365, 80, 15, "Continue", continue_btn
@@ -6436,13 +6517,15 @@ Do
 		EndDialog
 
 		dialog Dialog1
+		cancel_confirmation
 
+		If confirm_disa_read = "Enter confirmation" Then err_msg = err_msg & vbNewLine & "* Indicate if this required information was reviewed with the resident completing the interview."
+
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 		If ButtonPressed = open_disa_doc Then
 			err_msg = "LOOP"
 			run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-4133-ENG"
 		End If
-
-		cancel_confirmation
 	Loop until err_msg = ""
 	Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = FALSE
@@ -6460,7 +6543,7 @@ If family_cash_case_yn = "Yes" Then
 			err_msg = ""
 
 			Dialog1 = ""
-			BeginDialog Dialog1, 0, 0, 550, 385, "Full Interview Questions"
+			BeginDialog Dialog1, 0, 0, 550, 385, "FORM and INFORMATION Review with Resident"
 
 			  DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! MFIP Forms Discussed"+chr(9)+"No, I could not complete this", confirm_mfip_forms_read
 			  Text 10, 5, 160, 10, "REVIEW the information listedd here to the client:"
@@ -6487,15 +6570,17 @@ If family_cash_case_yn = "Yes" Then
 			EndDialog
 
 			dialog Dialog1
+			cancel_confirmation
 
+			If confirm_mfip_forms_read = "Enter confirmation" Then err_msg = err_msg & vbNewLine & "* Indicate if this required information was reviewed with the resident completing the interview."
+
+			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 			If ButtonPressed = open_cs_2647_doc OR ButtonPressed = open_cs_2929_doc OR ButtonPressed = open_cs_3323_doc Then
 				err_msg = "LOOP"
 				If ButtonPressed = open_cs_2647_doc Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-2647-ENG"
 				If ButtonPressed = open_cs_2929_doc Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-2929-ENG"
 				If ButtonPressed = open_cs_3323_doc Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-3323-ENG"
 			End If
-
-			cancel_confirmation
 		Loop until err_msg = ""
 		Call check_for_password(are_we_passworded_out)
 	Loop until are_we_passworded_out = FALSE
@@ -6513,7 +6598,7 @@ If family_cash_case_yn = "Yes" Then
 				err_msg = ""
 
 				Dialog1 = ""
-				BeginDialog Dialog1, 0, 0, 550, 385, "Full Interview Questions"
+				BeginDialog Dialog1, 0, 0, 550, 385, "FORM and INFORMATION Review with Resident"
 				  DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! MFIP Child Support Discussed"+chr(9)+"No, I could not complete this", confirm_mfip_cs_read
 				  Text 10, 5, 160, 10, "REVIEW the information listedd here to the client:"
 				  GroupBox 10, 15, 530, 345, "MFIP Case with at least 1 ABPS - Child Support Information"
@@ -6544,7 +6629,11 @@ If family_cash_case_yn = "Yes" Then
 				EndDialog
 
 				dialog Dialog1
+				cancel_confirmation
 
+				If confirm_mfip_cs_read = "Enter confirmation" Then err_msg = err_msg & vbNewLine & "* Indicate if this required information was reviewed with the resident completing the interview."
+
+				IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 				If ButtonPressed = open_cs_3393_doc OR ButtonPressed = open_cs_3163B_doc OR ButtonPressed = open_cs_2338_doc OR ButtonPressed = open_cs_5561_doc Then
 					err_msg = "LOOP"
 					If ButtonPressed = open_cs_3393_doc Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-3393-ENG"
@@ -6553,7 +6642,6 @@ If family_cash_case_yn = "Yes" Then
 					If ButtonPressed = open_cs_5561_doc Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-5561-ENG"
 				End If
 
-				cancel_confirmation
 			Loop until err_msg = ""
 			Call check_for_password(are_we_passworded_out)
 		Loop until are_we_passworded_out = FALSE
@@ -6571,7 +6659,7 @@ If family_cash_case_yn = "Yes" Then
 				err_msg = ""
 
 				Dialog1 = ""
-				BeginDialog Dialog1, 0, 0, 550, 385, "Full Interview Questions"
+				BeginDialog Dialog1, 0, 0, 550, 385, "FORM and INFORMATION Review with Resident"
 				  DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! MFIP Minor Caregiver Discussed"+chr(9)+"No, I could not complete this", confirm_minor_mfip_read
 				  Text 10, 5, 160, 10, "REVIEW the information listedd here to the client:"
 				  GroupBox 10, 15, 530, 345, "MFIP Case Minor Caregiver Cases"
@@ -6602,15 +6690,17 @@ If family_cash_case_yn = "Yes" Then
 				EndDialog
 
 				dialog Dialog1
+				cancel_confirmation
 
+				If confirm_minor_mfip_read = "Enter confirmation" Then err_msg = err_msg & vbNewLine & "* Indicate if this required information was reviewed with the resident completing the interview."
+
+				IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 				If ButtonPressed = open_cs_2961_doc OR ButtonPressed = open_cs_2887_doc OR ButtonPressed = open_cs_3238_doc Then
 					err_msg = "LOOP"
 					If ButtonPressed = open_cs_2961_doc Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://edocs.dhs.state.mn.us/lfserver/Legacy/DHS-2961-ENG"
 					If ButtonPressed = open_cs_2887_doc Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-2887-ENG"
 					If ButtonPressed = open_cs_3238_doc Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-3238-ENG"
 				End If
-
-				cancel_confirmation
 			Loop until err_msg = ""
 			Call check_for_password(are_we_passworded_out)
 		Loop until are_we_passworded_out = FALSE
@@ -6629,15 +6719,19 @@ If snap_case = True OR pend_snap_on_case = "Yes" OR mfip_status <> "INACTIVE" Th
 			err_msg = ""
 
 			Dialog1 = ""
-			BeginDialog Dialog1, 0, 0, 550, 385, "Full Interview Questions"
+			BeginDialog Dialog1, 0, 0, 550, 385, "FORM and INFORMATION Review with Resident"
 			  DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! SNAP Forms Discussed"+chr(9)+"No, I could not complete this", confirm_snap_forms_read
 			  Text 10, 5, 160, 10, "REVIEW the information listedd here to the client:"
 			  GroupBox 10, 15, 530, 345, "SNAP Case"
-
 			  GroupBox 10, 25, 530, 105, "Supplemental Nutrition Assistance Program reporting responsibilities (DHS-2625)"
-			  Text 15, 40, 505, 10, "There are the three reporting types used by SNAP: Six-month reporting, Change reporting, Monthly reporting"
-			  Text 15, 50, 505, 10, "You are _____________ Reporting. This means you must report:"
-			  Text 15, 60, 505, 10, "Complete a renewal every six months. Report changes in income over 130% FPG ($XXXX) by the 10th of the month followwing the month of change."
+			  Text 15, 45, 75, 10, "This case is subject to "
+			  DropListBox 90, 40, 105, 45, "Select One..."+chr(9)+"Six-Month"+chr(9)+"Change"+chr(9)+"Monthly", snap_reporting_type
+			  Text 200, 45, 40, 10, "reporting."
+			  Text 15, 60, 95, 10, "Your next renewal will be for "
+			  EditBox 115, 55, 40, 15, next_revw_month
+			  Text 160, 60, 310, 10, ". Which means you will need to complete the required form and process in the month before."
+			  Text 15, 75, 185, 10, "Explain reporting details based on the reporter type."
+			  Text 15, 100, 395, 10, "Timely reporting of changes means the change is reported by the 10th of the month following the month of the change."
 			  GroupBox 10, 125, 530, 105, "Facts on Voluntarily Quitting Your Job If You Are on SNAP (DHS-2707)"
 			  Text 15, 140, 505, 10, "If you or someone else in your household has a job and quits without a good reason, your household might not get SNAP benefits."
 			  Text 15, 150, 505, 20, "The penalty does not apply if the person who quit a job: "
@@ -6645,17 +6739,28 @@ If snap_case = True OR pend_snap_on_case = "Yes" OR mfip_status <> "INACTIVE" Th
 			  Text 15, 170, 505, 10, "The penalty also does not apply if you can prove the person had 'good reason' to quit the job. The form has some examples of 'good reasons'."
 			  GroupBox 10, 225, 530, 105, "Work Registration Notice (DHS-7635)"
 			  Text 15, 240, 505, 10, "In order to be eligible for benefits you must cooperate in any efforts regarding work registration. "
-			  Text 15, 250, 505, 10, "If you do not follow any of the work requirements listed above your benefit smay end."
+			  Text 15, 250, 505, 10, "If you do not follow any of the work requirements listed above your benefits may end."
 			  ButtonGroup ButtonPressed
 			    PushButton 465, 365, 80, 15, "Continue", continue_btn
-			    PushButton 430, 22, 100, 13, "Open DHS 2625", open_cs_2625_doc
-				PushButton 430, 122, 100, 13, "Open DHS 2707", open_cs_2707_doc
-				PushButton 430, 222, 100, 13, "Open DHS 7635", open_cs_7635_doc
-
+			    PushButton 430, 20, 100, 15, "Open DHS 2625", open_cs_2625_doc
+			    PushButton 430, 120, 100, 15, "Open DHS 2707", open_cs_2707_doc
+			    PushButton 430, 220, 100, 15, "Open DHS 7635", open_cs_7635_doc
+				PushButton 25, 85, 90, 13, "Six Month Reporting", explain_six_month_rept
+				PushButton 115, 85, 90, 13, "Change Reporting", explain_change_rept
+				PushButton 205, 85, 90, 13, "Monthly Reporting", explain_monthly_rept
 			  Text 10, 370, 210, 10, "Confirm you have reviewed SNAP Specific Information:"
 			EndDialog
 
 			dialog Dialog1
+			cancel_confirmation
+
+			If confirm_snap_forms_read = "Enter confirmation" Then err_msg = err_msg & vbNewLine & "* Indicate if this required information was reviewed with the resident completing the interview."
+			If confirm_snap_forms_read = "YES! SNAP Forms Discussed" Then
+				If snap_reporting_type = "Select One..." Then err_msg = err_msg & vbNewLine & "* Since you have reviewed SNAP information, select the correct reporting type for this case to ensure the best information is provided to the household."
+				If Trim(next_revw_month) = "" Then err_msg = err_msg & vbNewLine & "* Since you have reviewed SNAP information, indicate the next review month for this case."
+			End If
+
+			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 
 			If ButtonPressed = open_cs_2625_doc OR ButtonPressed = open_cs_2707_doc OR ButtonPressed = open_cs_7635_doc Then
 				err_msg = "LOOP"
@@ -6664,7 +6769,52 @@ If snap_case = True OR pend_snap_on_case = "Yes" OR mfip_status <> "INACTIVE" Th
 				If ButtonPressed = open_cs_7635_doc Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-7635-ENG"
 			End If
 
-			cancel_confirmation
+			If ButtonPressed = explain_six_month_rept OR ButtonPressed = explain_change_rept OR ButtonPressed = explain_monthly_rept Then
+				err_msg = "LOOP"
+				If ButtonPressed = explain_six_month_rept Then MsgBox "SIX MONTH REPORTING" & vbCr & vbCR &_
+																	  "There are only TWO changes that are required to be reported:" & vbCr &_
+																	  "  - Income received in any month exceeds 130% FPG for the Household "  & vbCr &_
+																	  "    Size." & vbCr &_
+																	  "  - For any ABAWD, a change in work or job activities that cause their "  & vbCr &_
+																	  "    hours to fall below 20 hours per week, averaged 80 hours monhtly." & vbCr & vbCr &_
+																	  "It can be beneficial to report other changes, and we encourage you to do this. Examples include:" & vbCr &_
+																	  "  - Address Changes " & vbCr &_
+																	  "    (We communicate via mail and missing mail can cause your "  & vbCr &_
+																	  "    benefits to close for lack of response.)" & vbCr &_
+																	  "  - Decreases in Income " & vbCr &_
+																	  "    (Income is used to determine your benefit amount and any reduction " & vbCr &_
+																	  "     MAY cause your benefit amount to increase.)" & vbCr &_
+																	  "  - Increases in Housing Expense or New Utility Responsibilities " & vbCr &_
+																	  "    (Expenses are used to offset income and changes here could " & vbCr &_
+																	  "    change your benefit amount.)" & vbCr &_
+																	  "  - Other Expenses " & vbCr &_
+																	  "    ie. Child Care, Child Support, sometimes Medical Expenses " & vbCr &_
+																	  "    (These can also impact your benefit amount.)" & vbCr & vbCr &_
+																	  "As a Six-Month Reporter, you are certified for six months at a time, which means you will have a review within six months."
+				If ButtonPressed = explain_change_rept Then MsgBox "CHANGE REPORTING" & vbCr & vbCR &_
+																   "Changes that are required to be reported:" & vbCr &_
+																   "  - A change in the source of income, including starting or stopping a " & vbCr &_
+																   "    job, if the change in employment is accomanied by a change in " & vbCr &_
+																   "    income." & vbCr &_
+																   "  - A change in more than $100 per month in gross earned income." & vbCr &_
+																   "  - A change of more than $100 in the amount of unearned income, " & vbCr &_
+																   "    EXCEPT changes related to public assistance." & vbCr &_
+																   "  - A change in unit composition." & vbCr &_
+																   "  - A change in residence." & vbCr &_
+																   "  - A change in housing expense due to residency change." & vbCr &_
+																   "  - A change in legal obligation to pay child support." & vbCr &_
+																   "  - For any ABAWD, a change in work or job activities that cause their " & vbCr &_
+																   "    hours to fall below 20 hours per week, averaged 80 hours monhtly." & vbCr & vbCr &_
+																   "As a Change Reporter, you typically have a certification period of a year but it could be two years."
+				If ButtonPressed = explain_monthly_rept Then MsgBox "MONTHLY REPORTING" & vbCr & vbCR &_
+																    "Monthly reporters are required to submit a Household Report Form every month with income and change verifications attached." & vbCr & vbCr &_
+																	"The Household Report Form must be answered in its entirety. Any unanswered question will make the form incomplete and ongoing benefits will not be able to be processed. The form includes all changes that must be reported." & vbCr & vbCr &_
+																    "As a Monthly Reporter, you are certified for twelve months at a time, which means you will have a review within twelve months." & vbCr &_
+																	"However the system will close your benefits if the monthly Household Report Form is not received, processed, and all verifications attached."
+
+			End If
+
+
 		Loop until err_msg = ""
 		Call check_for_password(are_we_passworded_out)
 	Loop until are_we_passworded_out = FALSE
@@ -6740,7 +6890,7 @@ Do
 		err_msg = ""
 
 		Dialog1 = ""
-		BeginDialog Dialog1, 0, 0, 550, 385, "Full Interview Questions"
+		BeginDialog Dialog1, 0, 0, 550, 385, "FORM and INFORMATION Review with Resident"
 		  DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! Recap Discussed"+chr(9)+"No, I could not complete this", confirm_recap_read
 		  Text 10, 10, 500, 10, "The Interview Information has been completed. Review the information and next steps with the client."
 		  GroupBox 10, 20, 530, 340, "CASE INTERVIEW WRAP UP"
@@ -6785,14 +6935,18 @@ Do
 
 		dialog Dialog1
 
+		cancel_confirmation
+
+		If confirm_recap_read = "Enter confirmation" Then err_msg = err_msg & vbNewLine & "* Indicate if this required information was reviewed with the resident completing the interview."
+
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+
 		' If ButtonPressed = open_cs_2625_doc OR ButtonPressed = open_cs_2707_doc OR ButtonPressed = open_cs_7635_doc Then
 		' 	err_msg = "LOOP"
 		' 	If ButtonPressed = open_cs_2625_doc Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-2625-ENG"
 		' 	If ButtonPressed = open_cs_2707_doc Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-2707-ENG"
 		' 	If ButtonPressed = open_cs_7635_doc Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-7635-ENG"
 		' End If
-
-		cancel_confirmation
 	Loop until err_msg = ""
 	Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = FALSE
@@ -8181,8 +8335,8 @@ pdf_doc_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improveme
 objDoc.SaveAs pdf_doc_path, 17
 
 'Now we interact with the system again
-Dim objFSO
-Set objFSO = CreateObject("Scripting.FileSystemObject")
+' Dim objFSO
+' Set objFSO = CreateObject("Scripting.FileSystemObject")
 'This looks to see if the PDF file has been correctly saved. If it has the file will exists in the pdf file path
 If objFSO.FileExists(pdf_doc_path) = TRUE Then
 	'This allows us to close without any changes to the Word Document. Since we have the PDF we do not need the Word Doc
