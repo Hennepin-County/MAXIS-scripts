@@ -40,6 +40,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("06/23/2021", "NOTICES-PA VERIF script has returned! New procedure defined in the HSR Manual under Verification of Public Assistance. This script is considered 'In Testing' at this time and will prompt you to send a response after use.", "Casey Love, Hennepin County")
 call changelog_update("04/01/2021", "Retired NOTICES-PA VERIF script, due to procedural non-compliance.", "MiKayla Handley, Hennepin County")
 call changelog_update("06/01/2020", "Temporary removal of DWP ES REFERRAL script. DWP referrals are currently not being offered.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/26/2019", "Retired 'NOTICES - MNSURE MEMO'. Verbiage has been updated and added to the 'NOTES - METS to MAXIS TRANSITION' script.", "Ilse Ferris, Hennepin County")
