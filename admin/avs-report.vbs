@@ -885,9 +885,13 @@ If AVS_option = "Output Forms Lists" then
     ObjExcel.Cells(1, 2).Value = "Client name"
     ObjExcel.Cells(1, 3).Value = "SMI"
     ObjExcel.Cells(1, 4).Value = "Case Number"
+    ObjExcel.Cells(1, 5).Value = "Case Active"
+    ObjExcel.Cells(1, 6).Value = "Case Pending"
+    ObjExcel.Cells(1, 7).Value = "MA Status"
+    ObjExcel.Cells(1, 8).Value = "MSP Status"
     
     'formatting the cells
-    FOR i = 1 to 4
+    FOR i = 1 to 8
     	objExcel.Cells(1, i).Font.Bold = True		'bold font
     	objExcel.Columns(i).AutoFit()				'sizing the columns
     NEXT
@@ -902,7 +906,21 @@ If AVS_option = "Output Forms Lists" then
         excel_row = excel_row + 1
     Next 
     
-    FOR i = 1 to 4		'formatting the cells
+    excel_row = 2   'Staring row for Excel export 
+
+    For item = 0 to UBound(output_array, 2)
+        MAXIS_case_number = output_array(output_case_number_const,  item)
+        
+        'Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, unknown_cash_pending)
+        Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status)
+        objExcel.Cells(excel_row, 5).Value = case_active
+        objExcel.Cells(excel_row, 6).Value = case_pending
+        objExcel.Cells(excel_row, 7).Value = ma_case
+        objExcel.Cells(excel_row, 8).Value = msp_case 
+        excel_row = excel_row + 1
+    Next 
+    
+    FOR i = 1 to 8		'formatting the cells
     	objExcel.Columns(i).AutoFit()				'sizing the columns'
     NEXT
     'Saves and closes the most recent Excel workbook with the Task based cases to process.
