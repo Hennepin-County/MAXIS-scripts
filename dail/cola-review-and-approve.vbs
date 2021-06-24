@@ -51,7 +51,7 @@ changelog_display
 
 'SCRIPT======================================================================================================================
 'EMConnect ""
-approval_exists = TRUE
+approval_exists = False
 
 'Find the footer month/year
 EMReadScreen cola_footer_month, 2, 6, 11
@@ -80,6 +80,7 @@ If hc_elig_check <> "HHMM" Then approval_exists = FALSE
 
 row = 8                                          'Reads each line of Elig HC to find all the approved programs in a case
 Do
+	save_info = False
     EMReadScreen clt_ref_num, 2, row, 3
     EMReadScreen clt_hc_prog, 4, row, 28
     If clt_ref_num = "  " AND clt_hc_prog <> "    " then        'If a client has more than 1 program - the ref number is only listed at the top one
@@ -116,7 +117,7 @@ Do
                 transmit
 
                 EMReadScreen process_date, 8, 2, 73
-                If DateDiff("d", process_date, date) > 7 Then error_processing_msg =  error_processing_msg & vbNewLine & "HC Eligibility was not created and approved recently."
+                If DateDiff("d", process_date, date) > 7 Then error_processing_msg =  error_processing_msg & vbNewLine & "HC Eligibility was not created and approved recently for " & clt_ref_num & "."
 
                 EMReadScreen bdgt_month, 2, 6, 14
                 EMReadScreen bdgt_year, 2, 6, 17
@@ -125,6 +126,7 @@ Do
 
                 If bdgt_month = MAXIS_footer_month AND bdgt_year = MAXIS_footer_year Then
                     approval_exists = TRUE
+					save_info = True
                 Else
                     Do
                         EMReadScreen elig_mo, 2, 6, elig_col
@@ -156,8 +158,8 @@ Do
                         EMReadScreen elig_type, 2, 13, 76
                         EMReadScreen Majr_prog, 2, 14, 76
                     End If
-                Else
-                    approval_exists = FALSE
+                ' Else
+                '     approval_exists = FALSE
                 End if
                 transmit
             End If
@@ -169,7 +171,7 @@ Do
             EMReadScreen panel_name, 4, 3, 51
         Loop
         'Adds everything to a varriable so an array can be created
-        Elig_Info_array = Elig_Info_array & "~Memb " & clt_ref_num & " is approved as " & trim(elig_result) & " for " & trim(clt_hc_prog) & " : " & Majr_prog & "-" & elig_type
+        If save_info = True Then Elig_Info_array = Elig_Info_array & "~Memb " & clt_ref_num & " is approved as " & trim(elig_result) & " for " & trim(clt_hc_prog) & " : " & Majr_prog & "-" & elig_type
     End If
     If LTC_case = TRUE Then                 'LTC/Waiver cases have their own MA Approval script that will run if worker says yes
         run_LTC_Approval = msgbox ("It appears this case is LTC MA or Waiver MA." & vbNewLine & "Would you like to run the NOTES - LTC MA Approval Script for more detailed case noting?", vbYesNo + vbQuestion, "Run LTC Specific Script?")
@@ -187,8 +189,12 @@ Loop until clt_hc_prog = "    "
 If run_LTC_Approval = vbYes Then call run_from_GitHub( script_repository & "notes/ltc-ma-approval.vbs")
 
 'MsgBox approval_exists
+If approval_exists = TRUE AND error_processing_msg <> "" Then
+	Continue_with_noting = MsgBox("This case does not have approvals completed for all Household Members that appear to have MA Eligibility. The script can still note the approval information for some of the members." & vbCr & vbCr & "Detail about Members that cannot be processed:" & vbCr & error_processing_msg & vbCr & vbCr & "Would you like to continue with processing ONLY the other Members?", vbQuestion + vbYesNo, "Continue for Only Some Household Members")
+	If Continue_with_noting = vbNo Then approval_exists = FALSE
+End If
 PF3             'Back to DAIL
-If error_processing_msg <> "" Then approval_exists = FALSE
+' If error_processing_msg <> "" Then approval_exists = FALSE
 
 If approval_exists = TRUE Then
 
