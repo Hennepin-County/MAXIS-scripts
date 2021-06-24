@@ -228,8 +228,8 @@ ELSE
     IF number_IEVS_type = "A70" THEN match_type = "BEER"
     IF number_IEVS_type = "A80" THEN match_type = "UNVI"
     IF number_IEVS_type = "A60" THEN match_type = "UBEN"
-    IF number_IEVS_type = "A50" or number_IEVS_type = "A51"  THEN match_type = "WAGE"
-
+    IF number_IEVS_type = "A50" THEN match_type = "WAGE"
+			IF number_IEVS_type = "A51" THEN match_type = "WAGE"
 	IEVS_year = ""
 	IF match_type = "WAGE" THEN
 		EMReadScreen select_quarter, 1, 8, 14
@@ -289,7 +289,7 @@ IF right(programs, 1) = "," THEN programs = left(programs, len(programs) - 1)
 IF match_type = "UBEN" THEN income_source = "Unemployment"
 IF match_type = "UNVI" THEN income_source = "NON-WAGE"
 IF match_type = "WAGE" THEN
-	EMReadScreen income_source, 50, 8, 37 'was 37' should be to the right of emplyer and the left of amount
+    EMReadScreen income_source, 50, 8, 37 'was 37' should be to the right of employer and the left of amount
     income_source = trim(income_source)
     length = len(income_source)		'establishing the length of the variable
     'should be to the right of employer and the left of amount '
@@ -302,7 +302,7 @@ IF match_type = "WAGE" THEN
 	END IF
 END IF
 IF match_type = "BEER" THEN
-	EMReadScreen income_source, 50, 8, 28 'was 37' should be to the right of emplyer and the left of amount
+    EMReadScreen income_source, 50, 8, 28 'was 37' should be to the right of employer and the left of amount
 	income_source = trim(income_source)
 	length = len(income_source)		'establishing the length of the variable
 	'should be to the right of employer and the left of amount '
