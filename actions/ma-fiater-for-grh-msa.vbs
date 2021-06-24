@@ -909,7 +909,7 @@ NEXT
 
 EMReadScreen ma_case, 4, hhmm_row, 26					' }
 IF ma_case <> "_ MA" THEN 								' } looking to see that the client has MA
-	script_end_procedure_with_error_report("The script is not reading an MA span available for the person(s) selected on this case. If this is incorrect, send an erron report to the BZ Script Team for review of the code.")
+	script_end_procedure_with_error_report("The script is not reading an MA span available for the person(s) selected on this case. If this is incorrect, send an error report to the BZ Script Team for review of the code.")
 End If
 
 CALL write_value_and_transmit("X", hhmm_row, 26)		' navigating to BSUM for that client's MA
