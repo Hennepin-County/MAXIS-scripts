@@ -2971,7 +2971,6 @@ If create_memo = True Then
 		' MsgBox memo_to_write
 		memo_line = 1
 		memo_full = False
-		Call start_a_new_spec_memo
 		Call start_a_new_spec_memo_with_options(memo_opened, False, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip)
 
 		If memo_full = False AND snap_verification_method = "Create New MEMO with range of Months" AND InStr(memo_to_write, "SNAP") <> 0 Then
