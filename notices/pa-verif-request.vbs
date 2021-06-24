@@ -2708,7 +2708,7 @@ If create_memo = True Then
 				MFIP_ISSUANCE_ARRAY(snap_grant_amount_const, msg_counter) = 0
 				MFIP_ISSUANCE_ARRAY(cash_grant_amount_const, msg_counter) = 0
 				MFIP_ISSUANCE_ARRAY(benefit_month_as_date_const, msg_counter) = expected_month
-				MFIP_ISSUANCE_ARRAY(note_message_const, each_known_issuance) = "$ 0.00     - CASH and $ 0.00     - FOOD issued for " & MFIP_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance)
+				MFIP_ISSUANCE_ARRAY(note_message_const, each_known_issuance) = MFIP_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance) & " - CASH: $ 0.00     and FOOD: $ 0.00    "
 				MFIP_dates_array = MFIP_dates_array & "~" & expected_month
 				'maybe add the 'from_date' into benefit_month_as_date' so that we don't hvae to do more handling down below
 				msg_counter = msg_counter + 1
