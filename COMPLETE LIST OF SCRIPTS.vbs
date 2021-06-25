@@ -618,6 +618,7 @@ script_array(script_num).tags                   = array("Health Care")
 script_array(script_num).dlg_keys               = array("Cn", "Tk")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
+script_array(script_num).retirement_date        = #06/25/2021#					
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 
