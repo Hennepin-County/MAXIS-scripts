@@ -104,7 +104,7 @@ DO
 	notes = trim(notes)
 	worker_name = trim(worker_name)
 
-	email_body = "Please update MAXIS to allow acces to this privileged case." & vbCr & vbCr
+	email_body = "Please update MAXIS to allow access to this privileged case." & vbCr & vbCr
 
 	email_body = email_body & "Case Number: " & MAXIS_case_number & vbCr
 	email_body = email_body & "Worker Number for transfer: " & x_number & vbCr & vbCr
