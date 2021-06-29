@@ -88,7 +88,8 @@ DO
 LOOP UNTIL check_for_password(are_we_passworded_out) = False
 
 IF send_MEMO_checkbox = 1 then
-    Call start_a_new_spec_memo
+    Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True)	'navigates to spec/memo and opens into edit mode
+	
 	Call write_variable_in_SPEC_MEMO("************************************************************")
 	Call write_variable_in_SPEC_MEMO("Call 1 (888) 577-2227 to get more information or enroll. You will be placed on mandatory vendor because you have used shelter or have requested assistance for housing issues.")
 	Call write_variable_in_SPEC_MEMO(" ")
