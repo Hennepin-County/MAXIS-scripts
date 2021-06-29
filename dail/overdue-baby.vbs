@@ -90,7 +90,8 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 If tikl_checkbox = CHECKED then Call create_TIKL("Has information on new baby/end of pregnancy been received? If not, consider case closure/take appropriate action.", 10, date, False, TIKL_note_text)
 
 IF spec_memo_CHECKBOX = CHECKED THEN
-	CALL start_a_new_spec_memo
+	CALL start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True)	'navigates to spec/memo and opens into edit mode
+	
 	CALL write_variable_in_SPEC_MEMO("Our records indicate your due date has passed and you did not report the birth of your child or the pregnancy end date. Please contact us within 10 days of this notice with the following information or your case may close:")
     CALL write_variable_in_SPEC_MEMO("")
     CALL write_variable_in_SPEC_MEMO("* Date of the birth or pregnancy end date.")
