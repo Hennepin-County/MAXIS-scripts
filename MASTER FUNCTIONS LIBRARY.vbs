@@ -7369,48 +7369,99 @@ function start_a_blank_CASE_NOTE()
 	Loop until (mode_check = "A" or mode_check = "E")
 end function
 
-function start_a_new_spec_memo()
+function start_a_new_spec_memo(memo_opened, search_for_arep_and_swkr, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, end_script)
 '--- This function navigates user to SPEC/MEMO and starts a new SPEC/MEMO, selecting client, AREP, and SWKR if appropriate
+'~~~~~ memo_opened: BOOLEAN to indicate if the MEMO started and is ready to write to
+'~~~~~ search_for_arep_and_swkr: BOOLEAN to indicate if you want the function to search for if forms_to_arep and forms_to_swkr should be read from STAT
+'~~~~~ forms_to_arep: Enter as 'Y' for this if the forms should go to the AREP if one is on the case
+'~~~~~ forms_to_swkr: Enter as 'Y' for this if the forms should go to the SWKR if one is on the case
+'~~~~~ send_to_other: Enter a 'Y' for this if we should send a MEMO to an 'Other' address - if this is 'Y' - the next parameters should be checked beforehand.
+'~~~~~ other_name: Aderessee Name for OTHER
+'~~~~~ other_street: Addressee Street Information
+'~~~~~ other_city: Addressee City Information
+'~~~~~ other_state: Addressee State Information - should be the State 2 letter code
+'~~~~~ other_zip: Addressee Zip Information
+'~~~~~ end_script: BOOLEAN to indicate if the function should end the script
 '===== Keywords: MAXIS, notice, navigate, edit
+	memo_opened = False
+	If search_for_arep_and_swkr = True Then						'If the script has asked the function to check for AREP - some scripts already know
+		call navigate_to_MAXIS_screen("STAT", "AREP")           'Navigates to STAT/AREP to check and see if forms go to the AREP
+		EMReadscreen forms_to_arep, 1, 10, 45                   'Reads for the "Forms to AREP?" Y/N response on the panel.
+		call navigate_to_MAXIS_screen("STAT", "SWKR")         	'Navigates to STAT/SWKR to check and see if forms go to the SWKR
+		EMReadscreen forms_to_swkr, 1, 15, 63                	'Reads for the "Forms to SWKR?" Y/N response on the panel.
+	End If
 	call navigate_to_MAXIS_screen("SPEC", "MEMO")				'Navigating to SPEC/MEMO
 
-	PF5															'Creates a new MEMO. If it's unable the script will stop.
-	' Do		'TODO - Maybe add functionality to keep looping if MEMO is locked.'
-	' 	call navigate_to_MAXIS_screen("SPEC", "MEMO")				'Navigating to SPEC/MEMO
-	'
-	' 	PF5															'Creates a new MEMO. If it's unable the script will stop.
-	' 	EMReadScreen case_locked_check, 11, 24, 2
-	' 	If case_locked_check = "CASE LOCKED" Then Call back_to_SELF
-	' Loop until case_locked_check <> "CASE LOCKED"
-	EMReadScreen memo_display_check, 12, 2, 33
-	If memo_display_check = "Memo Display" then script_end_procedure("You are not able to go into update mode. Did you enter in inquiry by mistake? Please try again in production.")
+	start_memo_attempt = 1										'We are counting our attempts - this way it will try a few times - but won't get stuck in a loop
+	Do
+		PF5														'Creates a new MEMO.
+		EMReadScreen case_stuck, 50, 24, 11						'Reading if the case is locked
+		case_stuck = trim(case_stuck)
+		case_stuck = replace(case_stuck, " ", "")
+		start_memo_attempt = start_memo_attempt + 1
+	Loop Until InStr(case_stuck, "LOCKED") = 0 OR start_memo_attempt = 50
 
-	'Checking for an AREP. If there's an AREP it'll navigate to STAT/AREP, check to see if the forms go to the AREP. If they do, it'll write X's in those fields below.
-	row = 4                             'Defining row and col for the search feature.
-	col = 1
-	EMSearch "ALTREP", row, col         'Row and col are variables which change from their above declarations if "ALTREP" string is found.
-	IF row > 4 THEN                     'If it isn't 4, that means it was found.
-	    arep_row = row                                          'Logs the row it found the ALTREP string as arep_row
-	    call navigate_to_MAXIS_screen("STAT", "AREP")           'Navigates to STAT/AREP to check and see if forms go to the AREP
-	    EMReadscreen forms_to_arep, 1, 10, 45                   'Reads for the "Forms to AREP?" Y/N response on the panel.
-	    call navigate_to_MAXIS_screen("SPEC", "MEMO")           'Navigates back to SPEC/MEMO
-	    PF5                                                     'PF5s again to initiate the new memo process
-	END IF
-	'Checking for SWKR
-	row = 4                             'Defining row and col for the search feature.
-	col = 1
-	EMSearch "SOCWKR", row, col         'Row and col are variables which change from their above declarations if "SOCWKR" string is found.
-	IF row > 4 THEN                     'If it isn't 4, that means it was found.
-	    swkr_row = row                                          'Logs the row it found the SOCWKR string as swkr_row
-	    call navigate_to_MAXIS_screen("STAT", "SWKR")         'Navigates to STAT/SWKR to check and see if forms go to the SWKR
-	    EMReadscreen forms_to_swkr, 1, 15, 63                'Reads for the "Forms to SWKR?" Y/N response on the panel.
-	    call navigate_to_MAXIS_screen("SPEC", "MEMO")         'Navigates back to SPEC/MEMO
-	    PF5                                           'PF5s again to initiate the new memo process
-	END IF
-	EMWriteScreen "x", 5, 12                                        'Initiates new memo to client
-	IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 12     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
-	IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 12     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
-	transmit                                                        'Transmits to start the memo writing process
+	EMReadScreen memo_display_check, 12, 2, 33					'Once we think we have started a MEMO - check to see if we are in 'MEMO DISPLAY' - which is the basic SPEC/MEMO start place
+	If memo_display_check = "Memo Display" then					'If we are still at MEMO DISPLAY' we did NOT start a MEMO
+		memo_opened = False										'Setting this output to False so the Script knows we failed '
+	Else
+		row = 4                             					'Defining row and col for the search feature.
+		col = 1
+		EMSearch "ALTREP", row, col         					'Finding the place the AREP indicator is
+		IF row > 4 THEN arep_row = row                      	'If it isn't 4, that means it was found. Logs the row it found the ALTREP string as arep_row
+
+		row = 4                             					'Defining row and col for the search feature.
+		col = 1
+		EMSearch "SOCWKR", row, col         					'Finding the place the SWKR indicator is
+		IF row > 4 THEN swkr_row = row                     		'If it isn't 4, that means it was found. Logs the row it found the SOCWKR string as swkr_row
+
+		row = 4                             					'Defining row and col for the search feature.
+		col = 1
+		EMSearch "OTHER", row, col         						'Finding the place the OTHER Address indicator is
+		IF row > 4 THEN other_row = row                     	'If it isn't 4, that means it was found. Logs the row it found the SOCWKR string as swkr_row
+
+		EMWriteScreen "x", 5, 12                                        					'Initiates new memo to client
+		IF forms_to_arep = "Y" AND arep_row <> "" THEN EMWriteScreen "x", arep_row, 12     	'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
+		IF forms_to_swkr = "Y" AND swkr_row <> "" THEN EMWriteScreen "x", swkr_row, 12     	'If forms_to_swkr was "Y" (see above) it puts an X on the row SOCWKR was found.
+		If send_to_other = "Y" AND other_row <> "" Then EMWriteScreen "x", other_row, 12	'If send_to_other was "Y" (see above) it puts an X on the row OTHER was found.
+
+		transmit                                              	'Transmits to start the memo writing process
+		If send_to_other = "Y" Then								'If we are sending to the 'OTHER' Address, the Address Information needs to be entered.
+			other_street = trim(other_street)					'formatting
+
+			EMWriteScreen other_name, 13, 24					'Entering the NAME
+			If len(other_street) < 25 Then						'If the streeet information fits on one line - enters it here
+				EMWriteScreen other_street, 14, 24
+			Else
+				other_street_array = split(other_street, " ")	'If the street information is too long, we are going to create an array of all the words and enter it word by word.
+				col = 24
+				row = 14
+				for each word in other_street_array
+					If col + len(word) + 1 > 47 Then			'If the word will run over the line, we go to the next line
+						row = row + 1
+						col = 24
+						If row = 16 then Exit for				'If we move to a thrid line - the street information will just cut off
+					End If
+					If col <> 24 Then word = " " & word			'Adding a space before the word if we are not at the first column
+					EMWriteScreen word, row, col				'Entering the word in the correct place on the correct street line in MAXIS
+					col = col + len(word) + 1					'moving to the next space for the next word
+				next
+			End If
+			EMWriteScreen other_city, 16, 24					'writing in the city
+			EMWriteScreen other_state, 17, 24					'writing in the state
+			EMWriteScreen other_zip, 17, 32						'writing in the zip code
+
+			transmit											'saving the OTHER address
+			EMReadScreen post_office_warning, 7, 3, 6			'Reading if MAXIS indicates this is not a 'VALID ADDRESS' -- we just transmit past this
+			If post_office_warning = "Warning" Then transmit
+		End If
+		EMReadScreen memo_input_screen, 17, 2, 37				'Checking to see if we made it to the 'MEMO INPUT SCREEN' as there are sometimes warning messages
+		If memo_input_screen <> "Memo Input Screen" Then transmit 'moving past any warning message
+
+		EMReadScreen memo_input_screen, 17, 2, 37				'Checking avain to ensure the memo was opened'
+		If memo_input_screen = "Memo Input Screen" Then memo_opened = True		'setting the output to be sure the script knows it is ready to write a MEMO
+	End If
+	If memo_opened = False AND end_script = True Then script_end_procedure("You are not able to go into update mode. Did you enter in inquiry by mistake? Please try again in production.")
 end function
 
 function transmit()
