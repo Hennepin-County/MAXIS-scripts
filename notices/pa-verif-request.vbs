@@ -824,7 +824,6 @@ end function
 'Resending the WCOMS
 
 script_run_lowdown = ""
-testing_run = true
 EMConnect ""
 
 Call MAXIS_case_number_finder(MAXIS_case_number)
