@@ -1318,19 +1318,22 @@ If transfer_check = checked then
 				case_note_check = checked 'adding this because sometimes the loop loses this value for some reason
 			End If
 			IF memo_check = checked then
-				Call start_a_new_spec_memo
+				Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, False)
 
-				Call write_variable_in_SPEC_MEMO ("*** This is just an informational notice ***")
-				Call write_variable_in_SPEC_MEMO ("Your case has been transferred.")
-				Call write_variable_in_SPEC_MEMO ("I will be your new case worker.")
-				Call write_variable_in_SPEC_MEMO ("   ")
-				Call write_variable_in_SPEC_MEMO ("This is not a request for any information.")
-				Call write_variable_in_SPEC_MEMO ("If I need anything from you, I will send a separate request")
-				Call write_variable_in_SPEC_MEMO ("   ")
-				Call write_variable_in_SPEC_MEMO ("Thank you")
-				PF4
-				PF3
+				If memo_opened = True Then
+					Call write_variable_in_SPEC_MEMO ("*** This is just an informational notice ***")
+					Call write_variable_in_SPEC_MEMO ("Your case has been transferred.")
+					Call write_variable_in_SPEC_MEMO ("I will be your new case worker.")
+					Call write_variable_in_SPEC_MEMO ("   ")
+					Call write_variable_in_SPEC_MEMO ("This is not a request for any information.")
+					Call write_variable_in_SPEC_MEMO ("If I need anything from you, I will send a separate request")
+					Call write_variable_in_SPEC_MEMO ("   ")
+					Call write_variable_in_SPEC_MEMO ("Thank you")
+					PF4
+					PF3
+				End If
 				memo_check = checked 'adding this because sometimes the loop loses this value for some reason
+
 			End If
 			'If cases_to_xfer_numb = total_cases_transfered Then Exit Do
 		End If
