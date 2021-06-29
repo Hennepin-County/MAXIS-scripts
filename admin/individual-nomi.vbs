@@ -150,7 +150,7 @@ LOOP UNTIL are_we_passworded_out = false
 
 last_contact_day = dateadd("d", 30, application_date)
 If DateDiff("d", appt_date, last_contact_day) < 1 then last_contact_day = appt_date
-CALL start_a_new_spec_memo
+CALL start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True)    
 
 Call write_variable_in_SPEC_MEMO("You recently applied for assistance on " & application_date & ".")
 Call write_variable_in_SPEC_MEMO("Your interview should have been completed by " & appt_date & ".")
