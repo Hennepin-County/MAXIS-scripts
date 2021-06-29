@@ -786,7 +786,7 @@ IF send_appt_ltr = TRUE THEN
 	If DateDiff("d", interview_date, last_contact_day) < 0 Then last_contact_day = interview_date
 
 	'Navigating to SPEC/MEMO
-	Call start_a_new_spec_memo		'Writes the appt letter into the MEMO.
+	Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True)    		'Writes the appt letter into the MEMO.
     Call write_variable_in_SPEC_MEMO("You applied for assistance in Hennepin County on " & application_date & "")
     Call write_variable_in_SPEC_MEMO("and an interview is required to process your application.")
     Call write_variable_in_SPEC_MEMO(" ")
