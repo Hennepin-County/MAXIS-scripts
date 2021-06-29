@@ -206,7 +206,7 @@ IF worker_county_code = "x127" THEN
 		END IF
 
         IF swap_to_memo = vbYes THEN
-        	call start_a_new_spec_memo
+        	call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True)    
 
 			'Worker Comment Input
 	  	  	Call write_variable_in_spec_memo("************************************************************")
