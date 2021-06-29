@@ -150,7 +150,7 @@ Do
 Loop until SELF_check <> "SELF"
 
 'Navigating to SPEC/MEMO
-call start_a_new_spec_memo                                                   'Transmits to start the memo writing process
+call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True)                                                 'Transmits to start the memo writing process
 
 Call write_variable_in_SPEC_MEMO("You applied for assistance in Hennepin County on " & application_date & "")
 Call write_variable_in_SPEC_MEMO("and an interview is required to process your application.")
