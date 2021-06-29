@@ -1288,7 +1288,7 @@ If IsDate(verif_form_date) = TRUE and developer_mode = FALSE Then
     'THIS DOES NOT REPLACE THE VERIFICATION REQUEST FORM
     Call back_to_SELF
     Call MAXIS_background_check
-    CALL start_a_new_spec_memo
+    CALL start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True)
 
     CALL write_variable_in_SPEC_MEMO("---Verification Needed of Job Change for " & employee_name_only & "---")
     CALL write_variable_in_SPEC_MEMO("")
