@@ -409,7 +409,7 @@ For each member_number in member_array
         Call MAXIS_background_check
 
         'The SPEC/LETR----------------------------------------------------------------------------------------------------
-        Call start_a_new_spec_memo
+        Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True)    
         Call write_variable_in_SPEC_MEMO("**************DWP ES Orientation Requirement**************")
         Call write_variable_in_SPEC_MEMO("")
         Call write_variable_in_SPEC_MEMO(client_name & " must attend an orientation as part of the Diversionary Work Program (DWP) Employment Services (ES) requirements. Orientation information:")
