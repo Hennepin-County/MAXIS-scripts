@@ -59,13 +59,13 @@ EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
 
 'Adding case number if using the script from the DAIL scrubber
-If MAXIS_case_number = "" then 
+If MAXIS_case_number = "" then
     EmReadscreen DAIL_panel, 4, 2, 48
-    If DAIL_panel = "DAIL" then 
+    If DAIL_panel = "DAIL" then
         EmReadscreen MAXIS_case_number, 8, 5, 73
         MAXIS_case_number = trim(MAXIS_case_number)
-    End if 
-End if 
+    End if
+End if
 
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 161, 61, "Case number"
@@ -85,7 +85,7 @@ Do
 LOOP UNTIL are_we_passworded_out = false
 
 'THE MEMO----------------------------------------------------------------------------------------------------
-Call start_a_new_spec_memo
+Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True)	'navigates to spec/memo and opens into edit mode
 
 Call write_variable_in_SPEC_MEMO("************************************************************")
 Call write_variable_in_SPEC_MEMO("This notice is to remind you to report changes to your county worker by the 10th of the month following the month of the change. Changes that must be reported are address, people in your household, income, shelter costs and other changes such as legal obligation to pay child support. If you don't know whether to report a change, contact your county worker.")
