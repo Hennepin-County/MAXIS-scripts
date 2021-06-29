@@ -724,96 +724,6 @@ function resend_existing_wcom(wcom_month, wcom_year, wcom_row, wcom_success, sea
 	If check_for_resent = "ReSent" and check_for_waiting = "Waiting" Then wcom_success = True
 end function
 
-function start_a_new_spec_memo_with_options(memo_opened, search_for_arep_and_swkr, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip)
-'--- This function navigates user to SPEC/MEMO and starts a new SPEC/MEMO, selecting client, AREP, and SWKR if appropriate
-'===== Keywords: MAXIS, notice, navigate, edit
-	memo_opened = False
-	If search_for_arep_and_swkr = True Then
-		call navigate_to_MAXIS_screen("STAT", "AREP")           'Navigates to STAT/AREP to check and see if forms go to the AREP
-		EMReadscreen forms_to_arep, 1, 10, 45                   'Reads for the "Forms to AREP?" Y/N response on the panel.
-		call navigate_to_MAXIS_screen("STAT", "SWKR")         'Navigates to STAT/SWKR to check and see if forms go to the SWKR
-		EMReadscreen forms_to_swkr, 1, 15, 63                'Reads for the "Forms to SWKR?" Y/N response on the panel.
-	End If
-	call navigate_to_MAXIS_screen("SPEC", "MEMO")				'Navigating to SPEC/MEMO
-
-	start_memo_attempt = 1
-	Do
-		PF5															'Creates a new MEMO. If it's unable the script will stop.
-		EMReadScreen case_stuck, 50, 24, 11
-		case_stuck = trim(case_stuck)
-		case_stuck = replace(case_stuck, " ", "")
-		start_memo_attempt = start_memo_attempt + 1
-	Loop Until InStr(case_stuck, "LOCKED") = 0 OR start_memo_attempt = 50
-	' Do		'TODO - Maybe add functionality to keep looping if MEMO is locked.'
-	' 	call navigate_to_MAXIS_screen("SPEC", "MEMO")				'Navigating to SPEC/MEMO
-	'
-	' 	PF5															'Creates a new MEMO. If it's unable the script will stop.
-	' 	EMReadScreen case_locked_check, 11, 24, 2
-	' 	If case_locked_check = "CASE LOCKED" Then Call back_to_SELF
-	' Loop until case_locked_check <> "CASE LOCKED"
-	EMReadScreen memo_display_check, 12, 2, 33
-	If memo_display_check = "Memo Display" then
-		memo_opened = False
-	Else
-		'Checking for an AREP. If there's an AREP it'll navigate to STAT/AREP, check to see if the forms go to the AREP. If they do, it'll write X's in those fields below.
-		row = 4                             'Defining row and col for the search feature.
-		col = 1
-		EMSearch "ALTREP", row, col         'Row and col are variables which change from their above declarations if "ALTREP" string is found.
-		IF row > 4 THEN arep_row = row                      'If it isn't 4, that means it was found. Logs the row it found the ALTREP string as arep_row
-
-		'Checking for SWKR
-		row = 4                             'Defining row and col for the search feature.
-		col = 1
-		EMSearch "SOCWKR", row, col         'Row and col are variables which change from their above declarations if "SOCWKR" string is found.
-		IF row > 4 THEN swkr_row = row                     'If it isn't 4, that means it was found. Logs the row it found the SOCWKR string as swkr_row
-
-		'Checking for SWKR
-		row = 4                             'Defining row and col for the search feature.
-		col = 1
-		EMSearch "OTHER", row, col         'Row and col are variables which change from their above declarations if "SOCWKR" string is found.
-		IF row > 4 THEN other_row = row                     'If it isn't 4, that means it was found. Logs the row it found the SOCWKR string as swkr_row
-
-		EMWriteScreen "x", 5, 12                                        'Initiates new memo to client
-		IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 12     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
-		IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 12     'If forms_to_swkr was "Y" (see above) it puts an X on the row SOCWKR was found.
-		If send_to_other = "Y" Then EMWriteScreen "x", swkr_row, 12		'If send_to_other was "Y" (see above) it puts an X on the row OTHER was found.
-
-		transmit                                                        'Transmits to start the memo writing process
-		If send_to_other = "Y" Then
-			other_street = trim(other_street)
-
-			EMWriteScreen other_name, 13, 24
-			If len(other_street) < 25 Then
-				EMWriteScreen other_street, 14, 24
-			Else
-				other_street_array = split(other_street, " ")
-				col = 24
-				row = 14
-				for each word in other_street_array
-					If col + len(word) + 1 > 47 Then
-						row = row + 1
-						If row = 16 then Exit for
-					End If
-					EMWriteScreen " " & word, row, col
-					col = col + len(word) + 1
-				next
-			End If
-			EMWriteScreen other_city, 16, 24
-			EMWriteScreen other_state, 17, 24
-			EMWriteScreen other_zip, 17, 32
-
-			transmit
-			EMReadScreen post_office_warning, 7, 3, 6
-			If post_office_warning = "Warning" Then transmit
-		End If
-		EMReadScreen memo_input_screen, 17, 2, 37
-		If memo_input_screen <> "Memo Input Screen" Then transmit
-
-		EMReadScreen memo_input_screen, 17, 2, 37
-		If memo_input_screen = "Memo Input Screen" Then memo_opened = True
-	End If
-
-end function
 'END FUNCTIONS BLOCK========================================================================================================
 
 'DECLARATIONS BLOCK========================================================================================================
@@ -2927,7 +2837,7 @@ If create_memo = True Then		'If there are any MEMOs needed we need to read INQX 
 		memo_line = 1
 		memo_full = False
 		'New function with all the options for starting a MEMO
-		Call start_a_new_spec_memo_with_options(memo_opened, False, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip)
+		Call start_a_new_spec_memo(memo_opened, False, forms_to_arep, forms_to_swkr, send_to_other, other_address_person, other_address_street, other_address_city, other_address_state, other_address_zip, False)
 
 		If memo_full = False AND snap_verification_method = "Create New MEMO with range of Months" AND InStr(memo_to_write, "SNAP") <> 0 Then
 			If snap_restart_memo_lines_position <= UBound(snap_array_of_memo_lines) Then
