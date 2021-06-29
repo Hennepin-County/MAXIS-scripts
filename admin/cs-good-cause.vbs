@@ -608,7 +608,7 @@ IF mets_info = "" THEN
 	IF FS_CHECKBOX = CHECKED and CASH_CHECKBOX = UNCHECKED and CCA_CHECKBOX = UNCHECKED and DWP_CHECKBOX = UNCHECKED and MFIP_CHECKBOX = UNCHECKED and HC_CHECKBOX = UNCHECKED and METS_CHECKBOX = UNCHECKED THEN memo_started = TRUE
 END IF
 IF memo_started = TRUE THEN
-	Call start_a_new_spec_memo
+	Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True)    
 	EMsendkey("************************************************************")
 	Call write_variable_in_SPEC_MEMO("You recently applied for Food Support assistance and")
 	Call write_variable_in_SPEC_MEMO("requested Good Cause for Child Support.")
