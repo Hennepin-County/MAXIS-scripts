@@ -404,7 +404,7 @@ LOOP UNTIL write_access <> "READ ONLY"
 PF3
 	'----------Sending the Client a SPEC/MEMO notifying them of the details of the transfer----------
 	If SPEC_MEMO_checkbox = CHECKED then
-	    Call start_a_new_spec_memo		'Writes the appt letter into the MEMO.
+	    Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True)    		'Writes the appt letter into the MEMO.
 	    Call write_variable_in_SPEC_MEMO("Your case has been transferred. Your new agency/worker is: " & worker_agency_name & "")
 	    Call write_variable_in_SPEC_MEMO("If you have any questions, or to send in requested proofs,")
 	    Call write_variable_in_SPEC_MEMO("please direct all communications to the agency listed.")
@@ -450,10 +450,10 @@ PF3
 		PF4'save and exit
 	End if
 
-    'MNPrairie Bank Support - MNPrairie Bank cases all go to Steele (county code 74)'s ICT transfer. 
+    'MNPrairie Bank Support - MNPrairie Bank cases all go to Steele (county code 74)'s ICT transfer.
     'Agencies in the MNPrairie Bank are Dodge (county code 20), Steele (county code 74), and Waseca (county code 81)
 	IF servicing_worker = "X120ICT" OR servicing_worker = "X181ICT" THEN servicing_worker = "X174ICT"
-    
+
     'Using move date to determine CRF change date.
 	cfr_date = dateadd("M", 1, move_date)
 	cfr_date = datepart("M", cfr_date) & "/01/" & datepart("YYYY", cfr_date)
@@ -595,9 +595,9 @@ PF3
 	navigate_decision = Msgbox("Do you want to navigate to open a the case transfer useform?" & vbcr & "If you are using Chrome you will be asked to open in Adobe.", vbQuestion + vbYesNo, "Navigate to Useform?")
 	If navigate_decision = vbYes then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://aem.hennepin.us/rest/services/HennepinCounty/Processes/ServletRenderForm:1.0?formName=HSPH5069_1-0.xdp&interactive=1"
 	If navigate_decision = vbNo then navigate_to_form = False
-	If servicing_worker = "X120ICT" or servicing_worker = "X181ICT" then 
+	If servicing_worker = "X120ICT" or servicing_worker = "X181ICT" then
         script_end_procedure_with_error_report("You've transferred a case to the MNPrairie county bank. The case will be transferred to X174ICT per their process." & vbcr & vbcr & "Please review to ensure case has been transferred, a memo sent, and a case note created.")
-    Else 
+    Else
         script_end_procedure_with_error_report("Please review to ensure case has been transferred, a memo sent, and a case note created.")
-    End If 
+    End If
 END IF
