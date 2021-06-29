@@ -285,7 +285,7 @@ For each member_number in member_array
     appointment_info = appointment_date & " at " & appointment_time_prefix_editbox & ":" & appointment_time_post_editbox & " " & AM_PM & "."
     appointment_location = SNAPET_name & ": " & SNAPET_address_01 & ", " & SNAPET_city & " " & SNAPET_ST & " " & SNAPET_zip
 
-    Call start_a_new_spec_memo
+    Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True)    
     Call write_variable_in_SPEC_MEMO("                     SNAP E&T ORIENTATION")
     Call write_variable_in_SPEC_MEMO(Client_name & " has volunteered to work with SNAP Employment & Training (SNAP E & T).")
     Call write_variable_in_SPEC_MEMO("")
