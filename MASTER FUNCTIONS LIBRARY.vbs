@@ -7165,7 +7165,7 @@ function script_end_procedure_with_error_report(closing_message)
                   CheckBox 170, 100, 75, 10, "Problems with Dates", date_checkbox
                   CheckBox 265, 100, 65, 10, "Math is incorrect", math_checkbox
                   CheckBox 20, 115, 65, 10, "TIKL is incorrect", tikl_checkbox
-                  CheckBox 95, 115, 65, 10, "MEMO or WCOM", memo_wcom_checkbox
+                  CheckBox 95, 115, 70, 10, "MEMO or WCOM", memo_wcom_checkbox
                   CheckBox 170, 115, 75, 10, "Created Document", document_checkbox
                   CheckBox 265, 115, 115, 10, "Missing a place for Information", missing_spot_checkbox
                   EditBox 60, 140, 165, 15, worker_signature
