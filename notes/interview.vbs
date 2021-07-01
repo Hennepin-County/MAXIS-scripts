@@ -5206,6 +5206,7 @@ Call MAXIS_case_number_finder(MAXIS_case_number)
 CAF_datestamp = date & ""
 interview_date = date & ""
 show_err_msg_during_movement = ""
+script_run_lowdown = ""
 
 Call back_to_SELF
 EMReadScreen MX_region, 10, 22, 48
