@@ -285,9 +285,13 @@ FOR EACH MAXIS_case_number IN case_number_array
 	forms_to_arep = ""					'clearing variables otherwise script will try to put a X as variable will remain Y between loops
 	forms_to_swkr = ""
 	IF MAXIS_case_number <> "" THEN
-		Call start_a_new_spec_memo
-		CALL write_variable_in_SPEC_MEMO(memo_text)
-		STATS_counter = STATS_counter + 1    'adds one instance to the stats counter
+		Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, False)
+		If memo_opened = True Then
+			CALL write_variable_in_SPEC_MEMO(memo_text)
+			STATS_counter = STATS_counter + 1    'adds one instance to the stats counter
+		Else
+			privileged_array = privileged_array & "~~~" & MAXIS_case_number
+		End If
 		PF4
 	END IF
 NEXT

@@ -206,7 +206,7 @@ If memo_to_send = "RECERT - APPT Notice" Then
     Loop until are_we_passworded_out = false					'loops until user passwords back in
 
     Call navigate_to_MAXIS_screen("SPEC", "MEMO")
-    Call start_a_new_spec_memo
+    Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True)
 
     Select Case written_lang
 
@@ -363,7 +363,7 @@ If memo_to_send = "RECERT - APPT Notice" Then
 
     if notc_confirm = TRUE then         'IF the notice was confirmed a CASENOTE will be entered
 
-        Call start_a_new_spec_memo
+        Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True)
 
         Select Case written_lang       'Sending notice by language if possible
 
@@ -544,7 +544,7 @@ ElseIf memo_to_send = "RECERT - NOMI" Then
     If date_of_app <> "" Then recvd_appl = TRUE
 
     Call navigate_to_MAXIS_screen("SPEC", "MEMO")
-    Call start_a_new_spec_memo
+    Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True)    
 
     Select Case written_lang       'selecting  the language and writing the memo by language
 

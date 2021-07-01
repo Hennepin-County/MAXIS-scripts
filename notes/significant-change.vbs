@@ -118,7 +118,7 @@ If TIKL_future_month_checkbox = checked THEN
 END If
 
 If Sig_change_status_dropdown = "Denied" THEN
-	call start_a_new_spec_memo
+	call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True)
 	call write_variable_in_SPEC_MEMO("************************************************************")
 	call write_variable_in_SPEC_MEMO("Your request for Significant Change for the month of " & Month_requested_dropdown & " " & Month_requested_year & " has been received.")
 	call write_variable_in_SPEC_MEMO("Your household is not eligible to receive a significant change supplement for the month requested.")

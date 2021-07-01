@@ -253,7 +253,7 @@ END IF
 'based on output of fancy message box we either end the script or write the WCOM
 IF swap_to_memo = vbNo THEN script_end_procedure("No waiting HC results were found for the requested month")
 IF swap_to_memo = vbYes THEN
-    CALL start_a_new_spec_memo
+    CALL start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True)    
 Else
     'transmitting and putting wcom into edit mode
     Transmit

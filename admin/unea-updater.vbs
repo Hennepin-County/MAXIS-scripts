@@ -129,7 +129,7 @@ Do                                                            'Loops until there
 	claim_number 	= objExcel.cells(excel_row, 6).value	'(col F) establishes claim number from MAXIS (created by the report)
     actual_claim 	= objExcel.cells(excel_row, 7).value	'(col G) establishes the acutal claim number (if another claim number was found by VA staff)
 	unea_amount	 	= objExcel.cells(excel_row, 8).value	'(col H) establishes grant amount for each case
-	
+
 	'cleaning up the variables
 	income_type	 	= trim(income_type)
 	claim_number 	= trim(claim_number)
@@ -403,8 +403,7 @@ For i = 0 to Ubound(UNEA_array, 2)
         MAXIS_case_number = UNEA_array(case_num, i)
         Call MAXIS_background_check
         '----------------------------------------------------------------------------------------------------THE SPEC/MEMO
-        Call start_a_new_spec_memo
-        call navigate_to_MAXIS_screen("SPEC", "MEMO")		'Navigating to SPEC/MEMO
+        Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True)    
         'Writes the MEMO.
         call write_variable_in_SPEC_MEMO("If you have any questions about veterans benefits, please contact the Hennepin County Veterans Service Office at 612-348-3300. Veterans Services has staff at the Government Center, the South Minneapolis Human Service center, and Maple Grove. You may also make an appointment at a variety of regional locations.")
         Call write_variable_in_SPEC_MEMO("")
