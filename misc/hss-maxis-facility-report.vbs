@@ -59,7 +59,6 @@ function sort_dates(dates_array)
     original_array_items_used = "~"
     days =  0
     do
-
         prev_date = ""
         original_array_index = 0
         for each thing in dates_array
@@ -110,8 +109,6 @@ end function
 
 'CONNECTS TO BlueZone
 EMConnect ""
-file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Projects\DHS Housing Supports\HSS and SSR Reductions Real Time Data 0513_SIMPLE.xlsx" 'testing code
-test_row = 2   'testing code 
 
 '----------------------------------Set up code 
 MAXIS_footer_month = CM_mo 
@@ -189,7 +186,7 @@ const faci_name_const       = 1
 const faci_in_const         = 2
 const faci_out_const        = 3
 
-excel_row = test_row 'starting with the 1st non-header row :TESTING CODE 
+excel_row = 2
 Do
     client_PMI = trim(objExcel.cells(excel_row, 1).Value)
     If client_PMI = "" then exit do
@@ -217,16 +214,12 @@ Do
                 EMReadScreen person_PMI, 8, row, 34
                 person_PMI = trim(person_PMI)
                 If person_PMI = "" then exit do 
-                'msgbox person_PMI & vbcr & client_PMI
                 If trim(person_PMI) = client_PMI then 
                     EmReadscreen HS_status, 1, row, 66
                     If trim(HS_status) <> "" then
                         EmReadscreen member_number, 2, row, 3 
                         member_found = True 
-                        'msgbox member_number & vbcr & HS_status
-                        exit do 
-                    Else 
-                        'msgbox HS_status
+                        exit do
                     End if 
                 Else 
                     row = row + 3			'information is 3 rows apart. Will read for the next member. 
@@ -240,7 +233,6 @@ Do
             If member_found = True then 
                 exit do 
             Else 
-                'msgbox member_found
                 'try to match the correct case number in PERS search 
                 back_to_self
                 Call navigate_to_MAXIS_screen("PERS", "    ")
@@ -264,7 +256,6 @@ Do
                                 MAXIS_case_number = right("00000000" & DSPL_case_number, 8) 'outputs in 8 digits 
                                 objExcel.Cells(excel_row, 2).Value = MAXIS_case_number 
                                 objExcel.Cells(excel_row, 2).Interior.ColorIndex = 3	'Fills the row with red    
-                                'msgbox MAXIS_case_number
                             End if         
                         Else 
                             case_status = "Unable to find resident by PMI in PERS/DSPL."
@@ -283,7 +274,6 @@ Do
        Call write_value_and_transmit("01", 20, 79)  'making sure we're on the 1st instance for member 
        'Based on how many FACI panels exist will determine if/how the information is read. 
 	    EMReadScreen FACI_total_check, 1, 2, 78
-        'msgbox FACI_total_check
 	    If FACI_total_check = "0" then 
 	    	case_status = "No FACI panel on this case for member #" & member_number & "."
 	    Elseif FACI_total_check = "1" then 
@@ -307,7 +297,6 @@ Do
                 Else 
                     faci_in = replace(faci_in, " ", "/")  'reformatting to output with /, like dates do. 
                 End if 
-	    		'msgbox "date out: " & faci_out 
 	    		If faci_out = "" then 
 					If faci_in = "" then  
                         row = row - 1   'no faci info on this row 
@@ -319,8 +308,6 @@ Do
 	    		End if 	
             Loop 
         Else    
-            'msgbox "Multiple facilities found"
-            objExcel.Cells(excel_row, faci_name_col).Interior.ColorIndex = 3	'Fills the row with red: TESTING CODE 
             'Evaluate multiple faci panels 
             faci_out_dates_string = ""                  'setting up blank string to increment
             current_faci_found = False                  'defaulting to false - this boolean will determine if evaluation of the last date is needed. Will become true statement if open-ended faci panel is detected.
@@ -376,12 +363,10 @@ Do
             'If an open-ended faci is NOT found, then futher evaluation is needed to determine the most recent date. 
             If current_faci_found = False then
                 faci_out_dates_string = left(faci_out_dates_string, len(faci_out_dates_string) - 1)
-                'msgbox faci_out_dates_string 
                 faci_out_dates = split(faci_out_dates_string, "|")
                 call sort_dates(faci_out_dates)
                 first_date = faci_out_dates(0)                              'setting the first and last check dates
                 last_date = faci_out_dates(UBOUND(faci_out_dates))
-                'MsgBox first_date & vbcr & last_date 
                 
                 'finding the most recent date if none of the dates are open-ended 
                 For item = 0 to Ubound(faci_array, 2)
@@ -391,14 +376,11 @@ Do
                         faci_in         = faci_array(faci_in_const, item)
                         faci_out        = faci_array(faci_out_const, item)
                     End if 
-                Next
-                'msgbox "**Facility Info**" & vbcr & vbcr & vendor_number & vbcr & faci_name & vbcr & faci_in & vbcr & faci_out     
+                Next  
             End if 
             ReDim faci_array(faci_out_const, 0)     'Resizing the array back to original size
             Erase faci_array                        'then once resized it gets erased. 
 	    End if 
-        
-        'msgbox "**Facility Info**" & vbcr & vbcr & vendor_number & vbcr & faci_name & vbcr & faci_in & vbcr & faci_out
         
         '----------------------------------------------------------------------------------------------------VNDS/VND2
         Call Navigate_to_MAXIS_screen("MONY", "VNDS")
@@ -429,10 +411,8 @@ Do
             
             If exemption_code = "15" or exemption_code = "26" or exemption_code = "28" then 
                 exemption_reason = True 
-                'msgbox "exemption_reason: " & exemption_reason
             Else 
                 exmption_reason = False 
-                'msgbox "exemption_reason: " & exemption_reason
             End if 
             
             If exemption_code = "28" and instr(HDL_string, "10") then 
@@ -446,8 +426,6 @@ Do
             End if 
         End if
     End if 
-    
-    'msgbox "**Vendor Info**" & vbcr & vbcr & "exemption_code: " & exemption_code & vbcr & "HDL Codes: " & HDL_string & vbcr & "exmption_reason: " & exemption_reason & vbcr & "health_depart_reason: " & health_depart_reason & vbcr & "impacted_vendor: " &impacted_vendor
     
     'outputting to Excel 
     ObjExcel.Cells(excel_row, HS_status_col).Value   = HS_status
@@ -482,6 +460,8 @@ LOOP UNTIL objExcel.Cells(excel_row, 2).Value = ""	'Loops until there are no mor
 FOR i = 1 to 26
 	objExcel.Columns(i).AutoFit()				'sizing the columns
 NEXT
+
+MAXIS_case_number = ""  'blanking out for statistical purposes. Cannot collect more than one case number. 
 
 STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
 script_end_procedure_with_error_report("Success! Your facility data has been created.")
