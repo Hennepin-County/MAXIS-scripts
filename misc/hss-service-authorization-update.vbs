@@ -2,7 +2,7 @@
 name_of_script = "MISC - HSS SERVICE AUTHORIZATION UPDATE.vbs"
 start_time = timer
 STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 80                      'manual run time in seconds
+STATS_manualtime = 800                      'manual run time in seconds
 STATS_denomination = "C"       				'C is for each CASE
 'END OF stats block==============================================================================================
 
@@ -59,7 +59,6 @@ function sort_dates(dates_array)
     original_array_items_used = "~"
     days =  0
     do
-
         prev_date = ""
         original_array_index = 0
         for each thing in dates_array
@@ -110,7 +109,8 @@ end function
 
 'CONNECTS TO BlueZone
 EMConnect ""
-file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Projects\DHS Housing Supports\HSS and SSR Reductions Real Time Data 0513_SIMPLE.xlsx" 'testing code
+Check_for_MMIS(false)   'checking for, and allowing user to navigate into MMIS. 
+file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Projects\DHS Housing Supports\HSS and SSR Reductions Real Time Data 0701.xlsx" 'testing code
 test_row = 2   'testing code 
 
 '----------------------------------Set up code 
@@ -171,54 +171,40 @@ NEXT
 Dim adjustment_array()                        'Delcaring array
 ReDim adjustment_array(rr_status_const, 0)     'Resizing the array to size of last const 
 
-const recip_PMI_const       = 0         'creating array constants
-const HSS_start_const       = 1
-const HSS_end_const         = 2
-const SA_number_const       = 3
-const agreement_start_const = 4
-const agreement_end_const   = 5
-const npi_number_const      = 6
-const HS_status_const       = 7
-const faci_in_const         = 8
-const faci_out_const        = 9
-const impacted_vendor_const = 10
-const case_status_const     = 11
-const prev_start_const      = 12
-const prev_end_const        = 13
-const new_start_const       = 14
-const new_end_const         = 15 
-const excel_row_const       = 16
-const rr_status_const       = 17
+const recip_PMI_const               = 0         'creating array constants
+const HSS_start_const               = 1
+const HSS_end_const                 = 2
+const SA_number_const               = 3
+const agreement_start_const         = 4
+const agreement_end_const           = 5
+const npi_number_const              = 6
+const HS_status_const               = 7
+const faci_in_const                 = 8
+const faci_out_const                = 9
+const impacted_vendor_const         = 10
+const case_status_const             = 11
+const prev_start_const              = 12
+const prev_end_const                = 13
+const new_start_const               = 14
+const new_end_const                 = 15 
+const excel_row_const               = 16
+const MAXIS_note_conf_const         = 17
+const MMIS_note_conf_const          = 18
+const reduce_rate_const             = 19
+const adjustment_start_date_const   = 20
+const rr_status_const               = 21
 
 excel_row = test_row 'starting with the 1st non-header row :TESTING CODE 
 entry_record = 0 'incrementor for the array 
 
 Do
-    recip_PMI = trim(objExcel.cells(excel_row, recip_PMI_col).Value)
-    If recip_PMI = "" then exit do
-    'removing preceeding 0's from the client PMI. This is needed to measure the PMI's on CASE/PERS. 
-    Do 
-		if left(recip_PMI, 1) = "0" then recip_PMI = right(recip_PMI, len(recip_PMI) -1)   'trimming off left-most 0 from recip_PMI
-	Loop until left(recip_PMI, 1) <> "0"                                                      'Looping until 0's are all removed
-    recip_PMI = trim(recip_PMI)
-    
-	'HSS_start       = trim(objExcel.cells(excel_row, HSS_start_col).Value)
-    'HSS_end         = trim(objExcel.cells(excel_row, HSS_end_col).Value)
-    
     SA_number       = trim(objExcel.cells(excel_row, SA_number_col).Value)
     SA_number = right("00000000" & SA_number, 11) 'ensures the variable is 11 digits. Inhibiting erorr 
     
-    'agreement_start = trim(objExcel.cells(excel_row, agreement_start_col).Value)
-    'agreement_end   = trim(objExcel.cells(excel_row, agreement_end_col).Value)
-    'npi_number      = trim(objExcel.cells(excel_row, NPI_number_col).Value)
-    'HS_status       = trim(objExcel.cells(excel_row, HS_status_col).Value)
-    'impacted_vendor = trim(objExcel.cells(excel_row, impacted_vendor_col).Value)
-    'case_status     = trim(objExcel.cells(excel_row, case_status_col).Value)
-
     'Adding recipient information to the array
     ReDim Preserve adjustment_array(rr_status_const, entry_record)	'This resizes the array based on the number of rows in the Excel File'
     
-    adjustment_array(recip_PMI_const       , entry_record) = recip_PMI
+    adjustment_array(recip_PMI_const       , entry_record) = trim(objExcel.cells(excel_row, recip_PMI_col).Value)
     adjustment_array(HSS_start_const       , entry_record) = trim(objExcel.cells(excel_row, HSS_start_col).Value)
     adjustment_array(HSS_end_const         , entry_record) = trim(objExcel.cells(excel_row, HSS_end_col).Value)
     adjustment_array(SA_number_const       , entry_record) = SA_number
@@ -231,287 +217,272 @@ Do
     adjustment_array(impacted_vendor_const , entry_record) = trim(objExcel.cells(excel_row, impacted_vendor_col).Value) 
     adjustment_array(case_status_const     , entry_record) = trim(objExcel.cells(excel_row, case_status_col).Value) 
     adjustment_array(excel_row_const       , entry_record) = excel_row 
+    adjustment_array(MAXIS_note_conf_const , entry_record) = False 'defaulting to false
+    adjustment_array(MMIS_note_conf_const  , entry_record) = False 'defaulting to false
+    adjustment_array(reduce_rate_const     , entry_record) = False 'defaulting to false
+    
     entry_record = entry_record + 1			'This increments to the next entry in the array'
     stats_counter = stats_counter + 1
     excel_row = excel_row + 1    
-Loop     
-    
-    '----------------------------------------------------------------------------------------------------CASE/PERS & PERS Search 
-    Call navigate_to_MAXIS_screen_review_PRIV("CASE", "PERS", is_this_priv) 
-    If is_this_priv = True then 
-        case_status = "Privileged Case. Unable to access."
-    Else 
-        member_found = False 
-        Do 
-            Call navigate_to_MAXIS_screen("CASE", "PERS")
-            row = 10    'staring row for 1st member 
-            Do
-                EMReadScreen person_PMI, 8, row, 34
-                person_PMI = trim(person_PMI)
-                If person_PMI = "" then exit do 
-                'msgbox person_PMI & vbcr & recip_PMI
-                If trim(person_PMI) = recip_PMI then 
-                    EmReadscreen HS_status, 1, row, 66
-                    If trim(HS_status) <> "" then
-                        EmReadscreen member_number, 2, row, 3 
-                        member_found = True 
-                        'msgbox member_number & vbcr & HS_status
-                        exit do 
-                    Else 
-                        'msgbox HS_status
-                    End if 
-                Else 
-                    row = row + 3			'information is 3 rows apart. Will read for the next member. 
-                    If row = 19 then
-                        PF8
-                        row = 10					'changes MAXIS row if more than one page exists
-                    END if
-                END if
-            LOOP 
-            
-            If member_found = True then 
-                exit do 
-            Else 
-                'msgbox member_found
-                'try to match the correct case number in PERS search 
-                back_to_self
-                Call navigate_to_MAXIS_screen("PERS", "    ")
-                Call write_value_and_transmit(recip_PMI, 15, 36)
-                EmReadscreen mtch_screen, 4, 2, 51
-                If mtch_screen = "MTCH" then 
-                    EmReadscreen dupe_matches, 11, 9, 7
-                    If trim(dupe_matches) <> "" then 
-                        Case_status = "Duplicate exists. Add manually."
-                    Else 
-                        'if only one match exists then 
-                        Call write_value_and_transmit("X", 8, 5)
-                        EmReadscreen DSPL_PMI, 8, 5, 44
-                        If trim(DSPL_PMI) = recip_PMI then 
-                            'Read case number after finding HC case 
-                            Call write_value_and_transmit("GR", 7, 22)
-                            EmReadscreen DSPL_case_number, 8, 10, 6
-                            If trim(DSPL_case_number) = "" then 
-                                case_status = "Unable to find HS history for this member."
-                            Else 
-                                MAXIS_case_number = right("00000000" & DSPL_case_number, 8) 'outputs in 8 digits 
-                                objExcel.Cells(excel_row, 2).Value = MAXIS_case_number 
-                                objExcel.Cells(excel_row, 2).Interior.ColorIndex = 3	'Fills the row with red    
-                                'msgbox MAXIS_case_number
-                            End if         
-                        Else 
-                            case_status = "Unable to find resident by PMI in PERS/DSPL."
-                        End if 
-                    End if
-                End if 
-            End if 
-        Loop 
-        If trim(member_number) = "" then case_status = "Unable to locate case for member."
-    End if 
-    
-    If trim(case_status) = "" then    
-    '----------------------------------------------------------------------------------------------------FACI panel determination 
-	   call navigate_to_MAXIS_screen("STAT", "FACI")
-       EmWriteScreen member_number, 20, 76
-       Call write_value_and_transmit("01", 20, 79)  'making sure we're on the 1st instance for member 
-       'Based on how many FACI panels exist will determine if/how the information is read. 
-	    EMReadScreen FACI_total_check, 1, 2, 78
-        'msgbox FACI_total_check
-	    If FACI_total_check = "0" then 
-	    	case_status = "No FACI panel on this case for member #" & member_number & "."
-	    Elseif FACI_total_check = "1" then 
-            'just looking through a singular faci panel 
-            EmReadscreen faci_name, 30, 6, 43
-            faci_name = trim(replace(faci_name, "_", ""))   'faci name trimmed and replaced underscores 
-            EmReadscreen vendor_number, 8, 5, 43
-            vendor_number = trim(replace(vendor_number, "_", ""))   'vendor # trimmed and replaced underscores 
-         
-        	row = 18
-	    	Do
-                EMReadScreen faci_out, 10, row, 71      'faci out date
-                If faci_out = "__ __ ____" then 
-                    faci_out = ""                       'blanking out faci out if not a date 
-                Else 
-                    faci_out = replace(faci_out, " ", "/")  'reformatting to output with /, like dates do. 
-                End if 
-                EMReadScreen faci_in, 10, row, 47       'faci in date
-                If faci_in = "__ __ ____" then 
-                    faci_in = ""                        'blanking out faci in if not a date 
-                Else 
-                    faci_in = replace(faci_in, " ", "/")  'reformatting to output with /, like dates do. 
-                End if 
-	    		'msgbox "date out: " & faci_out 
-	    		If faci_out = "" then 
-					If faci_in = "" then  
-                        row = row - 1   'no faci info on this row 
-                    else 
-                        If faci_in <> "" then exit do    'open ended faci found 
-                    End if 
-	    		Elseif faci_out <> "" then
-                    If faci_in <> "" then exit do    'most recent faci span identified 
-	    		End if 	
-            Loop 
-        Else    
-            'msgbox "Multiple facilities found"
-            objExcel.Cells(excel_row, faci_name_col).Interior.ColorIndex = 3	'Fills the row with red: TESTING CODE 
-            'Evaluate multiple faci panels 
-            faci_out_dates_string = ""                  'setting up blank string to increment
-            current_faci_found = False                  'defaulting to false - this boolean will determine if evaluation of the last date is needed. Will become true statement if open-ended faci panel is detected.
-            For item = 1 to FACI_total_check        
-                
-                Call write_value_and_transmit("0" & item, 20, 79)   'Entering the item's faci panel via direct navigation field on FACI panel. 
-                row = 18
-                Do
-                    EMReadScreen faci_out, 10, row, 71      'faci out date
-                    If faci_out = "__ __ ____" then 
-                        faci_out = ""                       'blanking out faci out if not a date 
-                    Else 
-                        faci_out = replace(faci_out, " ", "/")  'reformatting to output with /, like dates do. 
-                    End if 
-                    EMReadScreen faci_in, 10, row, 47       'faci in date
-                    If faci_in = "__ __ ____" then 
-                        faci_in = ""                        'blanking out faci in if not a date 
-                    Else 
-                        faci_in = replace(faci_in, " ", "/")  'reformatting to output with /, like dates do. 
-                    End if 
-                    
-                    EmReadscreen faci_name, 30, 6, 43
-                    faci_name = trim(replace(faci_name, "_", ""))   'faci name trimmed and replaced underscores 
-                    EmReadscreen vendor_number, 8, 5, 43
-                    vendor_number = trim(replace(vendor_number, "_", ""))   'vendor # trimmed and replaced underscores 
-                    'Reading the faci in and out dates 
-                    If faci_out = "" then 
-                        If faci_in = "" then  
-                            row = row - 1   'no faci info on this row - this is blank 
-                        else 
-                            If faci_in <> "" then 
-                                current_faci_found = True   'Condition is met so date evaluation via adjustment_array is not needed. 
-                                exit do    'open ended faci found 
-                            End if 
-                        End if 
-                    Elseif faci_out <> "" then
-                        If faci_in <> "" then 
-                            faci_out_dates_string = faci_out_dates_string & faci_out & "|"
-                            
-                            Redim Preserve adjustment_array(faci_out_const, faci_count)
-                            adjustment_array(vendor_number_const, faci_count) = vendor_number
-                            adjustment_array(faci_name_const,     faci_count) = faci_name 
-                            adjustment_array(faci_in_const,       faci_count) = faci_in
-                            adjustment_array(faci_out_const,      faci_count) = faci_out 
-                            faci_count = faci_count + 1
-                            exit do    'most recent faci span identified 
-                        End if 
-                    End if 	
-                Loop 
-                If current_faci_found = True then exit for  'exiting the for since most current FACI has been found 
-            Next 
-            
-            'If an open-ended faci is NOT found, then futher evaluation is needed to determine the most recent date. 
-            If current_faci_found = False then
-                faci_out_dates_string = left(faci_out_dates_string, len(faci_out_dates_string) - 1)
-                'msgbox faci_out_dates_string 
-                faci_out_dates = split(faci_out_dates_string, "|")
-                call sort_dates(faci_out_dates)
-                first_date = faci_out_dates(0)                              'setting the first and last check dates
-                last_date = faci_out_dates(UBOUND(faci_out_dates))
-                'MsgBox first_date & vbcr & last_date 
-                
-                'finding the most recent date if none of the dates are open-ended 
-                For item = 0 to Ubound(adjustment_array, 2)
-                    If adjustment_array(faci_out_const, item) = last_date then 
-                        vendor_number   = adjustment_array(vendor_number_const, item)
-                        faci_name       = adjustment_array(faci_name_const, item)
-                        faci_in         = adjustment_array(faci_in_const, item)
-                        faci_out        = adjustment_array(faci_out_const, item)
-                    End if 
-                Next
-                'msgbox "**Facility Info**" & vbcr & vbcr & vendor_number & vbcr & faci_name & vbcr & faci_in & vbcr & faci_out     
-            End if 
-            ReDim adjustment_array(faci_out_const, 0)     'Resizing the array back to original size
-            Erase adjustment_array                        'then once resized it gets erased. 
-	    End if 
-        
-        'msgbox "**Facility Info**" & vbcr & vbcr & vendor_number & vbcr & faci_name & vbcr & faci_in & vbcr & faci_out
-        
-        '----------------------------------------------------------------------------------------------------VNDS/VND2
-        Call Navigate_to_MAXIS_screen("MONY", "VNDS")
-        Call write_value_and_transmit(vendor_number, 4, 59)
-        Call write_value_and_transmit("VND2", 20, 70)
-        EMReadScreen VND2_check, 4, 2, 54
-        If VND2_check <> "VND2" then 
-            case_status = "Unable to find MONY/VND2 panel"
-        Else 
-            health_depart_reason = False    'defalthing to false 
-            exemption_reason = False
-            
-            EmReadscreen exemption_code, 2, 9, 69
-            If exemption_code = "__" then exemption_code = ""
-            EmReadscreen HDL_one, 2, 10, 69
-            EmReadscreen HDL_two, 2, 10, 72
-            EmReadscreen HDL_three, 2, 10, 75
-            If HDL_one = "__" then HDL_one = ""
-            If HDL_two = "__" then HDL_two = ""
-            If HDL_three = "__" then HDL_three = ""
-            HDL_string = HDL_one & "|" & HDL_two & "|" & HDL_three
-            
-            HDL_applicable_codes = "08,09,10"
-            
-            If instr(HDL_applicable_codes, HDL_one) then health_depart_reason = True 
-            If instr(HDL_applicable_codes, HDL_two) then health_depart_reason = True 
-            If instr(HDL_applicable_codes, HDL_three) then health_depart_reason = True 
-            
-            If exemption_code = "15" or exemption_code = "26" or exemption_code = "28" then 
-                exemption_reason = True 
-                'msgbox "exemption_reason: " & exemption_reason
-            Else 
-                exmption_reason = False 
-                'msgbox "exemption_reason: " & exemption_reason
-            End if 
-            
-            If exemption_code = "28" and instr(HDL_string, "10") then 
-                impacted_vendor = "No"
-            Else 
-                If (exemption_reason = True and health_depart_reason = True) then 
-                    impacted_vendor = "Yes" 
-                Else 
-                    impacted_vendor = "No"
-                End if 
-            End if 
-        End if
-    End if 
-    
-    'msgbox "**Vendor Info**" & vbcr & vbcr & "exemption_code: " & exemption_code & vbcr & "HDL Codes: " & HDL_string & vbcr & "exmption_reason: " & exemption_reason & vbcr & "health_depart_reason: " & health_depart_reason & vbcr & "impacted_vendor: " &impacted_vendor
-    
-    'outputting to Excel 
-    ObjExcel.Cells(excel_row, HS_status_col).Value   = HS_status
-    ObjExcel.Cells(excel_row, vendor_num_col).Value  = vendor_number
-    ObjExcel.Cells(excel_row, faci_name_col).Value   = faci_name
-    ObjExcel.Cells(excel_row, faci_in_col).Value     = faci_in
-    ObjExcel.Cells(excel_row, faci_out_col).Value    = faci_out
-    ObjExcel.Cells(excel_row, impact_vnd_col).Value  = impacted_vendor
-    ObjExcel.Cells(excel_row, exempt_code_col).Value = exemption_code
-    ObjExcel.Cells(excel_row, HDL_one_col).Value     = HDL_one
-    ObjExcel.Cells(excel_row, HDL_two_col).Value     = HDL_two
-    ObjExcel.Cells(excel_row, HDL_three_col).Value   = HDL_three
-    ObjExcel.Cells(excel_row, case_status_col).Value = case_status
+Loop
 
-    'Blanking out variables at the end of the loop 
-    HS_status = ""
-    vendor_number = ""
-    faci_name = ""
-    faci_in = ""
-    faci_out = ""
-    impacted_vendor = ""
-    exemption_code = ""
-    HDL_one = ""
-    HDL_two = ""
-    HDL_three = ""
-    case_status = ""
+'----------------------------------------------------------------------------------------------------determine which rows of information are going to have a rate reduction or not.
+For item = 0 to Ubound(adjustment_array, 2)
+    'Determining which date to use to end/start the agreements. Initial conversion date is 07/01/21. We cannot use a date earlier than this. If a date is earlier than this, the date is 07/01/21.
+    'This supports both the initial conversion and ongoing cases. 
+    If DateDiff("d", #07/01/21#, adjustment_array(HSS_start_const, item)) <= 0 then 
+        'if this date is a negative or a date before 07/01/21 (past date), then use 07/01/21.
+        new_agreement_start_date = #07/01/21#
+    Else     
+        'using the HSS start date as this is after 07/01/21 (future date from initial coversion date of 07/01/21)
+        agreement_day   = right("0" & DatePart("d",    adjustment_array(HSS_start_const, item)), 2)
+        agreement_month = right("0" & DatePart("m",    adjustment_array(HSS_start_const, item)), 2)
+        agreement_yr    = right(      DatePart("yyyy", adjustment_array(HSS_start_const, item)), 2)
+        
+        new_agreement_start_date = start_month & "/" & start_day & "/" & start_year
+        new_agreement_start_date = dateadd("d", 0, new_agreement_start_date)    'janky way to convert to a date, but hey it works.     
+    End if 
     
+    adjustment_array(adjustment_start_date_const, item) = new_agreement_start_date
+    
+    'Finding facility panels that may have ended before the HSS start date
+    active_facility = False     'default value 
+    If adjustment_array(faci_out_const, item) = "" then 
+        active_facility = True 
+    ElseIf DateDiff("d", adjustment_array(faci_out_const, item), adjustment_array(HSS_start_const, item)) <= 0 then 
+        'Facility end date is NOT before the agreement start date. 
+        active_facility = True    
+    End if
+ 
+    'TODO: If a facility panel closes after the HSS start date, should the end date for HSS be the faci end date???
+    
+    'Setting up initial tests 
+    passed_case_tests = False 'default value 
+    If adjustment_array(case_status_const, item) = "" and _
+        'Rows with Case Status of “Unable to find MONY/VND2 panel”
+        'Rows with Case Status of “Privileged Case. Unable to access.”
+        adjustment_array(HS_status_const, item) = "A" and _
+        'Row’s that have more than one MAXIS case identified, and HS is not active for the recipient on that case.
+        adjustment_array(impacted_vendor_const, item) = "Yes" and _
+        'Row’s that are not identified as an Impacted Vendor (“Yes”)
+        active_facility = True then 
+        'Open-ended facility spans or recipients that have faci panels that close after the HSS start date. 
+        passed_case_tests = True 
+    End if 
+        
+    If passed_case_tests = True then 
+        PMI_count = 0
+        recip_PMI = adjustment_array(recip_PMI_const)
+            For item = 0 to Ubound(adjustment_array, 2)
+        
+    
+    
+
+
+
+    
+Next 
+
+For item = 0 to Ubound(adjustment_array, 2)
+    If adjustment_array(reduce_rate_const = True then
+        'start the rate reductions in MMIS 
+        Call navigate_to_MMIS_region("GRH UPDATE")	'function to navigate into MMIS, select the GRH update realm, and enter the prior authorization area
+        Call MMIS_panel_confirmation("AKEY", 51)				'ensuring we are on the right MMIS screen
+        EmWriteScreen "C", 3, 22
+        Call write_value_and_transmit(adjustment_array(SA_number_const, item), 9, 36) 'Entering Service Authorization Number and transmit to ASA1
+        EmReadscreen current_panel, 4, 1, 51 
+        If current_panel = "AKEY" then 
+            EmReadscreen error_message, 80, 24, 2    
+            adjustment_array(reduce_rate_const, item) = False
+            adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & adjustment_array(rr_status_const, item) & "Authorization Number is not valid."
+            error_message = ""
+        Else 
+            EMReadScreen AGMT_STAT, 1, 3, 17
+            If AGMT_STAT <> "A" then 
+                adjustment_array(reduce_rate_const, item) = False
+                adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & adjustment_array(rr_status_const, item) & "Authorization Status is coded as: " & AGMT_STAT & "."
+            Else 
+                EmWriteScreen "S", 3, 17
+                PF3     'to AKEY screen 
+                EmReadscreen current_panel, 4, 1, 51 
+                If current_panel <> "AKEY" then
+                    adjustment_array(reduce_rate_const, item) = False
+                    adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & adjustment_array(rr_status_const, item) & "Unknown issue occured after changeing AGMT STAT on ASA1."
+                Else 
+                    transmit 'to ASA1 
+                    Call write_value_and_transmit("ASA3", 1, 8)             'Direct navigate to ASA3
+                    Call MMIS_panel_confirmation("ASA3", 51)				'ensuring we are on the right MMIS screen
+                    'Reading and converting start and end dates 
+                    'agreement start date 
+                    EMReadScreen start_month, 2, 8, 60
+                    EMReadScreen start_day, 2, 8, 62
+                    EMReadScreen start_year, 2, 8, 64
+                    agreement_start = start_month & "/" & start_day & "/" & start_year
+                    agreement_start = dateadd("d", 0, agreement_start)    'janky way to convert to a date, but hey it works. 
+                    'agreement end date 
+                    EMReadScreen end_month, 2, 8, 67
+                    EMReadScreen end_day, 2, 8, 69
+                    EMReadScreen end_year, 2, 8, 71
+                    original_agreement_end = end_month & "/" & end_day & "/" & end_year
+                    original_agreement_end = dateadd("d", 0, original_agreement_end)      'janky way to convert to a date, but hey it works. 
+                    write_original_agreement_end = replace(original_agreement_end, "/", "") 
+                    
+                    'Creating a date that is the day before the HSS start date/conversion date - for LINE 1
+                    write_new_agrement_end_date = dateadd("d", -1, adjustment_array(adjustment_start_date_const, item)) 
+                    'removing date formatting for ASA3 input 
+                    write_new_agrement_end_date = replace(new_agreement_end_date, "/", "")
+                    
+                    line_1_total_units = datediff("d", agreement_start, new_agreement_end_date) - 1
+                    'msgbox "total_units: " & total_units & vbcr & "new_agreement_end_date: " & new_agreement_end_date
+                    '----------------------------------------------------------------------------------------------------Updating LINE 1 agreement
+                    EmWriteScreen write_new_agrement_end_date, 8, 67
+                    Call clear_line_of_text(9, 60)
+                    EmWriteScreen line_1_total_units, 9, 60
+                    
+                    Msgbox "Final Check on Line 1"
+                
+                    PF3 '	to save changes
+                    EMReadscreen error_message, 80, 24, 2    'Any number of issues (duplicate PMI, ssrt charged more units than stay, etc.). These cases require manual review if error occurs. 
+                    If trim(error_message) <> "ACTION COMPLETED" then
+                        adjustment_array(reduce_rate_const, item) = False
+                        adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & adjustment_array(rr_status_const, item) & "Failure after updating Line 1. Error msg: " & trim(error_message)
+                    Else 
+                        transmit 'to ASA1 
+                        Call write_value_and_transmit("ASA3", 1, 8)             'Direct navigate to ASA3
+                        Call MMIS_panel_confirmation("ASA3", 51)				'ensuring we are on the right MMIS screen
+                        '----------------------------------------------------------------------------------------------------Entering LINE 2 Information 
+                        EmWriteScreen "H0043", 13, 36
+                        EmWriteScreen "U5", 13, 44
+                        EmWriteScreen write_new_agrement_start_date, 14, 60
+                        EmWriteScreen write_original_agreement_end, 14, 67
+                        
+                        EmReadscreen old_rate, 5, 9, 24
+                        new_rate = cint(old_rate / 2) 'divide total by two, and round to integer
+                        new_rate = Round(new_rate, 2) 'round to two decimal places 
+                        msgbox new_rate 
+                        EmWriteScreen new_rate, 15, 20
+                        
+                        line_2_total_units = datediff("d", adjustment_array(adjustment_start_date_const, item), original_agreement_end) - 1
+                        'msgbox "total_units: " & total_units & vbcr & "start date: " & adjustment_array(adjustment_start_date_const, item) & vbcr & "original_agreement_end: " & original_agreement_end
+                        EmWriteScreen line_2_total_units, 15, 60
+                
+                        EMReadscreen agreement_NPI_number, 10, 10, 20   'Reading line 1 NPI Number 
+                        EmWriteScreen agreement_NPI_number, 16, 20      'Enetering NPI in Line 2 agreement 
+                        
+                        EmWriteScreen new_rate, 17, 20  'TODO: Is this necessary? - ACTIONS - ADD GRH RATE 2 to MMIS doesn't use this. 
+                        
+                        EmWriteScreen "A", 18, 19   'Approving the agreement on ASA3 in STAT CD/DATE field 
+                        EmWriteScreen "A", 3, 20   'Approving the agreement on ASA3 in AGMT/TYPE STAT field 
+                        Msgbox "Final Check on Line 2"
+                        
+                        PF3 ' to save
+                        EMReadScreen PPOP_check, 4, 1, 52
+                        If PPOP_check = "PPOP" then 
+                            msgbox 
+                            script_end_procedure("PPOP Screen - FYCO this.")
+                        End if 
+                        EmReadscreen current_panel, 4, 1, 51 
+                        If current_panel = "AKEY" then 
+                            EmReadscreen error_message, 80, 24, 2   
+                            If trim(error_message) = "ACTION COMPLETED" then  
+                                adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & "Agreement successfully reduced to " & new_rate & "."
+                            Else 
+                                adjustment_array(reduce_rate_const, item) = False
+                                adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & adjustment_array(rr_status_const, item) & trim(error_message)
+                            End if 
+                        Else 
+                            EmReadscreen error_message, 80, 21, 2       'reading error message on any other screen.    
+                            adjustment_array(reduce_rate_const, item) = False
+                            adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & adjustment_array(rr_status_const, item) & trim(error_message)
+                            PF3 ' to save
+                        End if
+                    End if
+                End if
+            End if
+        End if 
+    End if 
+    'TODO: Blank out all the variables before NEXT
+    error_message = ""
+Next 
+
+'----------------------------------------------------------------------------------------------------CASE:NOTE - MMIS
+Call navigate_to_MMIS_region("CTY ELIG STAFF/UPDATE")	'function to navigate into MMIS, select the MMIS HC realm and enter the prior authorization area
+
+For item = 0 to Ubound(adjustment_array, 2)
+    If adjustment_array(reduce_rate_const, item) = True then 
+        'Case Noting - goes into RSUM for the first client to do the case note
+        EMWriteScreen "c", 2, 19
+        Call clear_line_of_text (4, 19)
+        Call write_value_and_transmit(ajustment_array(recip_PMI_const, item), 4, 19)    'transmitting to RSUM
+        EmReadscreen error_message, 80, 24, 2
+        If trim(error_message) <> "" then 
+            adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & adjustment_array(rr_status_const, item) & "Unable to enter MMIS CASE:NOTE - " & trim(error_message)
+        pf4         'tpo FCSN - MMIS CASE NOTES screen 
+        pf11		'Starts a new case note'
+        'Create MMIS Case Note
+        CALL write_variable_in_MMIS_NOTE ("DHS Supplemental Service Rate Adjustment")
+        CALL write_variable_in_MMIS_NOTE ("There is an active Housing Support supplemental service rate (SSR) service authorization in MMIS for this MAXIS case. DHS adjusted the MMIS service authorization(s) for Housing Support SSR through the existing end date of the service authorization.")
+        CALL write_variable_in_MMIS_NOTE ("Revisions are based on a determination of the recipient's concurrent eligibility for Housing Stabilization Services. MMIS issued a revised service authorization with the correct SSR per diem to the Housing Support provider associated with the MMIS service authorization.")
+        CALL write_variable_in_MMIS_NOTE ("Eligibility workers do not need to take any action in MAXIS.")
+        CALL write_variable_in_MMIS_NOTE ("*************************************************************************")
+        
+        'Saving and getting back to RKEY 
+        Do
+            PF3 
+            EmReadscreen RKEY_panel, 1, 52
+        Loop until RKEY_panel = "RKEY"
+    
+        EmReadscreen error_message, 80, 24, 2
+        If trim(error_message) =  "ACTION COMPLETED" then 
+            adjustment_array(MMIS_note_conf_const, item) = True
+        Else 
+            adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & adjustment_array(rr_status_const, item) & "Unable to enter MMIS CASE:NOTE - " & trim(error_message)
+        End if  
+    End if 
+    error_message = ""
+Next 
+
+'----------------------------------------------------------------------------------------------------CASE:NOTE - MAXIS 
+Call navigate_to_MAXIS(maxis_mode) 'navigating to MAXIS Production area 
+
+For item = 0 to Ubound(adjustment_array, 2)
+    If adjustment_array(reduce_rate_const, item) = True then
+        Call navigate_to_MAXIS_screen_review_PRIV(function_to_go_to, command_to_go_to, is_this_priv)    'Checking for PRIV case note status 
+        If is_this_priv = False then
+            'case note 
+            start_a_blank_CASE_NOTE
+            EmReadscreen error_message, 80, 24, 2
+            If trim(error_message) <> ""  then 
+                adjustment_array(MAXIS_note_conf_const, item) = False 
+                adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & adjustment_array(rr_status_const, item) & "Unable to enter MAXIS CASE:NOTE - " & trim(error_message)
+            Else     
+                Call write_variable_in_CASE_NOTE("DHS Supplemental Service Rate Adjustment")
+                Call write_variable_in_CASE_NOTE("---")
+                Call write_variable_in_CASE_NOTE("There is an active Housing Support supplemental service rate (SSR) service authorization in MMIS for this MAXIS case. DHS adjusted the MMIS service authorization(s) for Housing Support SSR through the existing end date of the service authorization.")
+                Call write_variable_in_CASE_NOTE("")
+                Call write_variable_in_CASE_NOTE("Revisions are based on a determination of the recipient's concurrent eligibility for Housing Stabilization Services. MMIS issued a revised service authorization with the correct SSR per diem to the Housing Support provider associated with the MMIS service authorization.")
+                Call write_variable_in_CASE_NOTE("")
+                Call write_variable_in_CASE_NOTE("Eligibility workers do not need to take any action in MAXIS.")
+                PF3 'to save 
+                adjustment_array(MAXIS_note_conf_const, item) = True 
+            End if 
+        Else 
+            adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & adjustment_array(rr_status_const, item) & "Unable to enter MAXIS CASE:NOTE - PRIV Case."
+        End if 
+    End if 
+    error_message = ""
+Next 
+
+'Excel output of rate reduction statuses 
+For item = 0 to Ubound(adjustment_array, 2)
+    objExcel.Cells(adjustment_array(excel_row, item), rate_reduction_col).Value = adjustment_array(rr_status_const, item)
+Next 
 
 'formatting the cells
 FOR i = 1 to 27
 	objExcel.Columns(i).AutoFit()				'sizing the columns
 NEXT
 
+MAXIS_case_number = ""  'blanking out for statistical purposes. Cannot collect more than one case number. 
 STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
-script_end_procedure_with_error_report("Success! The service authorizations have been updated. Please review the worksheet for manual updates.")
+script_end_procedure_with_error_report("Success! The script run is complete. Please review the worksheet for reduction statuses and manual updates.")
