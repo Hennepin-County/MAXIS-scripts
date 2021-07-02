@@ -45,6 +45,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("07/02/2021", "BUG on BULK Case Transfer that was pulling too many pending cases into the list. Fixed now.", "Casey Love, Hennepin County")
 CALL changelog_update("04/16/2020", "Updated BULK Case Transfer to accomodate pending cases better.", "Casey Love, Hennepin County")
 CALL changelog_update("10/04/2019", "Added functionality to read cases from PND2 as well.##~## ##~## As this is new functionality and testing ability is limited, please report any issues are errors to the BlueZone Script Team.##~##", "Casey Love, Hennepin County")
 CALL changelog_update("01/24/2019", "BUG fixed that caused an error if there are no MFIP eligibility results.", "Casey Love, Hennepin County")
