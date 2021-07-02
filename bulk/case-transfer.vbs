@@ -627,6 +627,13 @@ For each worker in worker_array
 
                     Full_case_list_array(11,m) = worker
 
+					cash_add_status = ""		'BLANKING out these variables because they aren't read  on every loop and were carrying over.
+					SNAP_add_status = ""
+					HC_add_status = ""
+					EA_add_status = ""
+					GRH_add_status = ""
+					CCAP_add_status = ""
+
                     'Redim Preserve Full_case_list_array (Ubound(Full_case_list_array,1), Ubound(Full_case_list_array,2)+1) 'Resize the array for the next case
 
                 End If
