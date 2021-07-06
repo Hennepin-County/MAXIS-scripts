@@ -1056,6 +1056,47 @@ end function
 '==========================================================================================================================
 
 'DECLARATIONS ============================================================================================================='
+const shel_ref_number_const 		= 00
+const hud_sub_yn_const 				= 01
+const shared_yn_const 				= 02
+const paid_to_const 				= 03
+const rent_retro_amt_const 			= 04
+const rent_retro_verif_const 		= 05
+const rent_prosp_amt_const 			= 06
+const rent_prosp_verif_const 		= 07
+const lot_rent_retro_amt_const 		= 08
+const lot_rent_retro_verif_const 	= 09
+const lot_rent_prosp_amt_const 		= 10
+const lot_rent_prosp_verif_const	= 11
+const mortgage_retro_amt_const 		= 12
+const mortgage_retro_verif_const 	= 13
+const mortgage_prosp_amt_const 		= 14
+const mortgage_prosp_verif_const 	= 15
+const insurance_retro_amt_const 	= 16
+const insurance_retro_verif_const 	= 17
+const insurance_prosp_amt_const 	= 18
+const insurance_prosp_verif_const 	= 19
+const tax_retro_amt_const 			= 20
+const tax_retro_verif_const 		= 21
+const tax_prosp_amt_const 			= 22
+const tax_prosp_verif_const 		= 23
+const room_retro_amt_const 			= 24
+const room_retro_verif_const 		= 25
+const room_prosp_amt_const 			= 26
+const room_prosp_verif_const 		= 27
+const garage_retro_amt_const 		= 28
+const garage_retro_verif_const 		= 29
+const garage_prosp_amt_const 		= 30
+const garage_prosp_verif_const 		= 31
+const subsidy_retro_amt_const 		= 32
+const subsidy_retro_verif_const 	= 33
+const subsidy_prosp_amt_const 		= 34
+const subsidy_prosp_verif_const 	= 35
+const shel_entered_notes_const		= 36
+
+Dim ALL_SHEL_PANELS_ARRAY()
+ReDim ALL_SHEL_PANELS_ARRAY(shel_entered_notes_const, 0)
+
 ADDR_dlg_page = 1
 SHEL_dlg_page = 2
 HEST_dlg_page = 3
@@ -1077,9 +1118,49 @@ caf_answer_droplist = ""+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Blank"
 
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
+
+'SEARCH THE LIST OF HOUSEHOLD MEMBERS TO SEARCH ALL SHEL PANELS
+CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
+
+DO								'reads the reference number, last name, first name, and then puts it into a single string then into the array
+	EMReadscreen ref_nbr, 3, 4, 33
+	EMReadScreen access_denied_check, 13, 24, 2
+	'MsgBox access_denied_check
+	If access_denied_check = "ACCESS DENIED" Then
+		PF10
+		last_name = "UNABLE TO FIND"
+		first_name = " - Access Denied"
+		mid_initial = ""
+	Else
+		client_array = client_array & ref_nbr & "|"
+	End If
+	transmit
+	Emreadscreen edit_check, 7, 24, 2
+LOOP until edit_check = "ENTER A"			'the script will continue to transmit through memb until it reaches the last page and finds the ENTER A edit on the bottom row.
+
+client_array = TRIM(client_array)
+If right(client_array, 1) = "|" Then client_array = left(client_array, len(client_array) - 1)
+ref_numbers_array = split(client_array, "|")
+
+shel_panels_counter = 0
+For each memb_ref_number in ref_numbers_array
+	Call navigate_to_MAXIS_screen("STAT", "SHEL")
+	EMWriteScreen memb_ref_number, 20, 76
+	transmit
+
+	EMReadScreen shel_version, 1, 2, 73
+	If shel_version = "1" Then
+		ReDim Preserve ALL_SHEL_PANELS_ARRAY(shel_entered_notes_const, shel_panels_counter)
+		ALL_SHEL_PANELS_ARRAY(shel_ref_number_const, shel_panels_counter) = memb_ref_number
+		shel_panels_counter = shel_panels_counter + 1
+	End If
+Next
+
 Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, verif_received)
 Call access_HEST_panel("READ", all_persons_paying, choice_date, actual_initial_exp, retro_heat_ac_yn, retro_heat_ac_units, retro_heat_ac_amt, retro_electric_yn, retro_electric_units, retro_electric_amt, retro_phone_yn, retro_phone_units, retro_phone_amt, prosp_heat_ac_yn, prosp_heat_ac_units, prosp_heat_ac_amt, prosp_electric_yn, prosp_electric_units, prosp_electric_amt, prosp_phone_yn, prosp_phone_units, prosp_phone_amt, total_utility_expense)
-Call access_SHEL_panel("READ", shel_ref_number, hud_sub_yn, shared_yn, paid_to, rent_retro_amt, rent_retro_verif, rent_prosp_amt, rent_prosp_verif, lot_rent_retro_amt, lot_rent_retro_verif, lot_rent_prosp_amt, lot_rent_prosp_verif, mortgage_retro_amt, mortgage_retro_verif, mortgage_prosp_amt, mortgage_prosp_verif, insurance_retro_amt, insurance_retro_verif, insurance_prosp_amt, insurance_prosp_verif, tax_retro_amt, tax_retro_verif, tax_prosp_amt, tax_prosp_verif, room_retro_amt, room_retro_verif, room_prosp_amt, room_prosp_verif, garage_retro_amt, garage_retro_verif, garage_prosp_amt, garage_prosp_verif, subsidy_retro_amt, subsidy_retro_verif, subsidy_prosp_amt, subsidy_prosp_verif)
+For shel_member = 0 to UBound(ALL_SHEL_PANELS_ARRAY, 2)
+	Call access_SHEL_panel("READ", ALL_SHEL_PANELS_ARRAY(shel_ref_number_const, shel_member), ALL_SHEL_PANELS_ARRAY(hud_sub_yn_const, shel_member), ALL_SHEL_PANELS_ARRAY(shared_yn_const, shel_member), ALL_SHEL_PANELS_ARRAY(paid_to_const, shel_member), ALL_SHEL_PANELS_ARRAY(rent_retro_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(rent_retro_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(rent_prosp_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(rent_prosp_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(lot_rent_retro_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(lot_rent_retro_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(lot_rent_prosp_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(lot_rent_prosp_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(mortgage_retro_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(mortgage_retro_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(mortgage_prosp_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(mortgage_prosp_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(insurance_retro_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(insurance_retro_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(insurance_prosp_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(insurance_prosp_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(tax_retro_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(tax_retro_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(tax_prosp_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(tax_prosp_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(room_retro_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(room_retro_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(room_prosp_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(room_prosp_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(garage_retro_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(garage_retro_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(garage_prosp_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(garage_prosp_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(subsidy_retro_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(subsidy_retro_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(subsidy_prosp_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(subsidy_prosp_verif_const, shel_member))
+Next
 
 page_to_display = ADDR_dlg_page
 shel_ref_number = "01"
