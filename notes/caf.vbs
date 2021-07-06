@@ -2441,7 +2441,11 @@ If MX_region = "INQUIRY DB" Then
     If continue_in_inquiry = vbNo Then script_end_procedure("Script ended since it was started in Inquiry.")
 End If
 
-exp_det_case_note_found = FALSE
+exp_det_case_note_found = False
+interview_completed_case_note_found = False
+verifications_requested_case_note_found = False
+caf_qualifying_questions_case_note_found = False
+
 MAXIS_footer_month = right("00" & MAXIS_footer_month, 2)
 MAXIS_footer_year = right("00" & MAXIS_footer_year, 2)
 call check_for_MAXIS(False)	'checking for an active MAXIS session
@@ -2739,47 +2743,100 @@ End If
 
 MAXIS_case_number = trim(MAXIS_case_number)
 
+look_for_expedited_determination_case_note = False
+look_for_expedited_determination_case_note = False
+look_for_expedited_determination_case_note = False
+
 If CAF_type = "Application" Then
-    If SNAP_checkbox = checked Then
-        Call Navigate_to_MAXIS_screen("CASE", "NOTE")
-
-        too_old_date = DateAdd("D", -1, CAF_datestamp)
-
-        note_row = 5
-        Do
-            EMReadScreen note_date, 8, note_row, 6
-
-            EMReadScreen note_title, 55, note_row, 25
-            note_title = trim(note_title)
-
-            If note_title = "Expedited Determination: SNAP appears expedited" Then
-                exp_det_case_note_found = TRUE
-                snap_exp_yn = "Yes"
-            End If
-            If note_title = "Expedited Determination: SNAP does not appear expedited" Then
-                exp_det_case_note_found = TRUE
-                snap_exp_yn = "No"
-            End If
-
-            if note_date = "        " then Exit Do
-            if exp_det_case_note_found = TRUE then Exit Do
-
-            note_row = note_row + 1
-            if note_row = 19 then
-                'MsgBox "Next Page" & vbNewLine & "Note Date:" & note_date
-                note_row = 5
-                PF8
-                EMReadScreen check_for_last_page, 9, 24, 14
-                If check_for_last_page = "LAST PAGE" Then Exit Do
-            End If
-            EMReadScreen next_note_date, 8, note_row, 6
-            if next_note_date = "        " then Exit Do
-        Loop until DateDiff("d", too_old_date, next_note_date) <= 0
-
-    End If
+    If SNAP_checkbox = checked Then look_for_expedited_determination_case_note = True
 End If
+Call Navigate_to_MAXIS_screen("CASE", "NOTE")
+
+too_old_date = DateAdd("D", -1, CAF_datestamp)
+
+note_row = 5
+Do
+    EMReadScreen note_date, 8, note_row, 6
+
+    EMReadScreen note_title, 55, note_row, 25
+    note_title = trim(note_title)
+
+    If look_for_expedited_determination_case_note = True Then
+        If left(note_title, 47) = "Expedited Determination: SNAP appears expedited" Then
+            exp_det_case_note_found = TRUE
+            snap_exp_yn = "Yes"
+        End If
+        If left(note_title, 55) = "Expedited Determination: SNAP does not appear expedited" Then
+            exp_det_case_note_found = TRUE
+            snap_exp_yn = "No"
+        End If
+        If left(note_title, 42) = "Expedited Determination: SNAP to be denied" Then
+            exp_det_case_note_found = TRUE
+
+            EMWriteScreen "X", note_row, 3  'Opens the note to read the denial date'
+            transmit
+
+            read_row = ""
+            EMReadScreen find_denial_date_line, 22, 5, 3
+            If find_denial_date_line = "* SNAP to be denied on" Then
+                read_row = 5
+            Else
+                EMReadScreen find_denial_date_line, 22, 6, 3
+                If find_denial_date_line = "* SNAP to be denied on" Then read_row = 6
+            End If
+            If read_row <> "" Then
+                EMReadScreen note_denial_date, 10, row, 25
+                note_denial_date = replace(note_denial_date, "", ".")
+                note_denial_date = replace(note_denial_date, "", "S")
+                note_denial_date = replace(note_denial_date, "", "i")
+                note_denial_date = replace(note_denial_date, "", "n")
+                note_denial_date = replace(note_denial_date, "", "c")
+                note_denial_date = replace(note_denial_date, "", "e")
+                note_denial_date = trim(note_denial_date)
+                If IsDate(note_denial_date) = True Then snap_denial_date = note_denial_date
+            End If
+
+            PF3                             'closing the note
+        End IF
+    End If
+
+    If left(note_title, 24) = "~ Interview Completed on" Then
+        interview_completed_case_note_found = True
+    End If
+    If left(note_title, 23) = "VERIFICATIONS REQUESTED" Then
+        verifications_requested_case_note_found = True
+        verifs_needed = "PREVIOUS NOTE EXISTS"
+    End If
+    If left(note_title, 43) = "Qualifying Questions had an answer of 'YES'" Then
+        caf_qualifying_questions_case_note_found = True
+    End If
+
+    if note_date = "        " then Exit Do
+    ' if exp_det_case_note_found = TRUE then Exit Do
+
+    note_row = note_row + 1
+    if note_row = 19 then
+        'MsgBox "Next Page" & vbNewLine & "Note Date:" & note_date
+        note_row = 5
+        PF8
+        EMReadScreen check_for_last_page, 9, 24, 14
+        If check_for_last_page = "LAST PAGE" Then Exit Do
+    End If
+    EMReadScreen next_note_date, 8, note_row, 6
+    if next_note_date = "        " then Exit Do
+Loop until DateDiff("d", too_old_date, next_note_date) <= 0
+
+' 'TESTING CODE'
+' MsgBox "Did we find CASE:NOTES?" & vbCr & vbCr &_
+'        "EXP Determination - " & exp_det_case_note_found & vbCr &_
+'        "Interview Completed - " & interview_completed_case_note_found & vbCr &_
+'        "VERIFS Requested - " & verifications_requested_case_note_found & vbCr &_
+'        "CAF Qual Questions - " & caf_qualifying_questions_case_note_found
 
 If exp_det_case_note_found = TRUE Then script_run_lowdown = script_run_lowdown & vbCr & "Found Expedited Case Note"
+If interview_completed_case_note_found = TRUE Then script_run_lowdown = script_run_lowdown & vbCr & "Found Interview Completed Note"
+If verifications_requested_case_note_found = TRUE Then script_run_lowdown = script_run_lowdown & vbCr & "Found Verifs Requested Note"
+If caf_qualifying_questions_case_note_found = TRUE Then script_run_lowdown = script_run_lowdown & vbCr & "Found CAF Qual Questions Note"
 
 ' call autofill_editbox_from_MAXIS(HH_member_array, "SHEL", SHEL_HEST)
 call read_ADDR_panel
@@ -5858,7 +5915,7 @@ If HC_checkbox = checked Then
 
 End If
 
-If the_process_for_snap = "Application" AND exp_det_case_note_found = FALSE Then
+If the_process_for_snap = "Application" AND exp_det_case_note_found = False Then
     Call start_a_blank_CASE_NOTE
 
     If IsDate(snap_denial_date) = TRUE Then
@@ -5930,7 +5987,7 @@ If interview_waived = TRUE Then
     CALL write_variable_in_CASE_NOTE(worker_signature)
 End If
 
-If interview_required = TRUE Then
+If interview_required = TRUE AND interview_completed_case_note_found = False Then
     interview_note = TRUE
     Call start_a_blank_CASE_NOTE
 
@@ -6013,7 +6070,7 @@ End If
 
 'Verification NOTE
 verifs_needed = replace(verifs_needed, "[Information here creates a SEPARATE CASE/NOTE.]", "")
-If trim(verifs_needed) <> "" Then
+If trim(verifs_needed) <> "" AND verifications_requested_case_note_found = False Then
 
     verif_counter = 1
     verifs_needed = trim(verifs_needed)
@@ -6051,7 +6108,7 @@ If trim(verifs_needed) <> "" Then
     PF3
 End If
 
-If qual_questions_yes = TRUE Then
+If qual_questions_yes = TRUE AND caf_qualifying_questions_case_note_found = False Then
     Call start_a_blank_CASE_NOTE
 
     Call write_variable_in_CASE_NOTE("Qualifying Questions had an answer of 'YES' for at least one question")
