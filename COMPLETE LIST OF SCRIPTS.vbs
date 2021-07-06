@@ -1656,22 +1656,22 @@ script_array(script_num).release_date           = #05/15/2020#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 
-' script_num = script_num + 1								'Increment by one
-' ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
-' Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
-' script_array(script_num).script_name			= "Interview"
-' ' script_array(script_num).description 			= "Workflow for Interview process."
-' script_array(script_num).category               = "NOTES"
-' script_array(script_num).workflows              = ""
-' script_array(script_num).tags                   = array("Communication", "Application", "Reviews", "SNAP", "MFIP", "DWP", "Adult Cash", "EMER", "HS/GRH")
-' script_array(script_num).dlg_keys               = array("Cn", "Up", "Sm")
-' script_array(script_num).subcategory            = array("")
-' script_array(script_num).release_date           = #07/01/2021#
-' script_array(script_num).hot_topic_date         = ""
-' script_array(script_num).retirement_date        = ""
-' script_array(script_num).in_testing             = TRUE
-' script_array(script_num).testing_category       = "ALL"
-' script_array(script_num).testing_criteria       = array("")
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name			= "Interview"
+' script_array(script_num).description 			= "Workflow for Interview process."
+script_array(script_num).category               = "NOTES"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("Communication", "Application", "Reviews", "SNAP", "MFIP", "DWP", "Adult Cash", "EMER", "HS/GRH")
+script_array(script_num).dlg_keys               = array("Cn", "Up", "Sm")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #07/01/2021#
+script_array(script_num).hot_topic_date         = ""
+script_array(script_num).retirement_date        = ""
+script_array(script_num).in_testing             = TRUE
+script_array(script_num).testing_category       = "ALL"
+script_array(script_num).testing_criteria       = array("")
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
