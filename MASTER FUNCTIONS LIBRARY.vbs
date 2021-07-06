@@ -6713,8 +6713,7 @@ function provide_resources_information(case_number_known, create_case_note, note
 
 		'Create a question - MEMO or Word Doc'
 		If resource_method = "SPEC/MEMO" Then
-		    Call start_a_new_spec_memo  ' start the memo writing process
-
+			Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, allow_cancel)	' start the memo writing process
 		    need_divider = FALSE
 		    'Writes the MEMO.
 		    call write_variable_in_SPEC_MEMO("  ----Outside Resources - current as of " & date & "----")
