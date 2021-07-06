@@ -5788,7 +5788,7 @@ Do
 			Call display_errors(err_msg, False, show_err_msg_during_movement)
 			' If err_msg <> "" Then MsgBox "*** Please resolve to Continue: ***" & vbNewLine & err_msg
 
-			If snap_status <> "ACTIVE" Then Call evaluate_for_expedited(intv_app_month_income, intv_app_month_asset, intv_app_month_housing_expense, heat_checkbox, air_checkbox, electric_checkbox, phone_checkbox, app_month_utilities_cost, app_month_expenses, case_is_expedited)
+			If snap_status <> "ACTIVE" Then Call evaluate_for_expedited(intv_app_month_income, intv_app_month_asset, intv_app_month_housing_expense, intv_exp_pay_heat_checkbox, intv_exp_pay_ac_checkbox, intv_exp_pay_electricity_checkbox, intv_exp_pay_phone_checkbox, app_month_utilities_cost, app_month_expenses, case_is_expedited)
 
 		Loop until err_msg = ""
 
