@@ -63,10 +63,10 @@ EMConnect ""
 ' 	' cancel_without_confirmation
 ' Loop until ButtonPressed = -1
 
-
+'TODO: FYLO 
 '--------------------------------------------------------------------------------------------'
-tasks_on_hold = True
-currently_on_task = false
+tasks_on_hold = FALSE
+currently_on_task = TRUE
 
 If currently_on_task = FALSE Then
 	If tasks_on_hold = TRUE Then
