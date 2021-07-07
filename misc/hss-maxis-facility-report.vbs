@@ -207,63 +207,27 @@ Do
         case_status = "Privileged Case. Unable to access."
     Else 
         member_found = False 
-        Do 
-            Call navigate_to_MAXIS_screen("CASE", "PERS")
-            row = 10    'staring row for 1st member 
-            Do
-                EMReadScreen person_PMI, 8, row, 34
-                person_PMI = trim(person_PMI)
-                If person_PMI = "" then exit do 
-                If trim(person_PMI) = client_PMI then 
-                    EmReadscreen HS_status, 1, row, 66
-                    If trim(HS_status) <> "" then
-                        EmReadscreen member_number, 2, row, 3 
-                        member_found = True 
-                        exit do
-                    End if 
-                Else 
-                    row = row + 3			'information is 3 rows apart. Will read for the next member. 
-                    If row = 19 then
-                        PF8
-                        row = 10					'changes MAXIS row if more than one page exists
-                    END if
-                END if
-            LOOP 
-            
-            If member_found = True then 
-                exit do 
-            Else 
-                'try to match the correct case number in PERS search 
-                back_to_self
-                Call navigate_to_MAXIS_screen("PERS", "    ")
-                Call write_value_and_transmit(client_PMI, 15, 36)
-                EmReadscreen mtch_screen, 4, 2, 51
-                If mtch_screen = "MTCH" then 
-                    EmReadscreen dupe_matches, 11, 9, 7
-                    If trim(dupe_matches) <> "" then 
-                        Case_status = "Duplicate exists. Add manually."
-                    Else 
-                        'if only one match exists then 
-                        Call write_value_and_transmit("X", 8, 5)
-                        EmReadscreen DSPL_PMI, 8, 5, 44
-                        If trim(DSPL_PMI) = Client_PMI then 
-                            'Read case number after finding HC case 
-                            Call write_value_and_transmit("GR", 7, 22)
-                            EmReadscreen DSPL_case_number, 8, 10, 6
-                            If trim(DSPL_case_number) = "" then 
-                                case_status = "Unable to find HS history for this member."
-                            Else 
-                                MAXIS_case_number = right("00000000" & DSPL_case_number, 8) 'outputs in 8 digits 
-                                objExcel.Cells(excel_row, 2).Value = MAXIS_case_number 
-                                objExcel.Cells(excel_row, 2).Interior.ColorIndex = 3	'Fills the row with red    
-                            End if         
-                        Else 
-                            case_status = "Unable to find resident by PMI in PERS/DSPL."
-                        End if 
-                    End if
+        Call navigate_to_MAXIS_screen("CASE", "PERS")
+        row = 10    'staring row for 1st member 
+        Do
+            EMReadScreen person_PMI, 8, row, 34
+            person_PMI = trim(person_PMI)
+            If person_PMI = "" then exit do 
+            If trim(person_PMI) = client_PMI then 
+                EmReadscreen HS_status, 1, row, 66
+                If trim(HS_status) <> "" then
+                    EmReadscreen member_number, 2, row, 3 
+                    member_found = True 
+                    exit do
                 End if 
-            End if 
-        Loop 
+            Else 
+                row = row + 3			'information is 3 rows apart. Will read for the next member. 
+                If row = 19 then
+                    PF8
+                    row = 10					'changes MAXIS row if more than one page exists
+                END if
+            END if
+        LOOP 
         If trim(member_number) = "" then case_status = "Unable to locate case for member."
     End if 
     
@@ -404,10 +368,17 @@ Do
             HDL_string = HDL_one & "|" & HDL_two & "|" & HDL_three
             
             HDL_applicable_codes = "08,09,10"
+            If HDL_one <> "" then 
+                If instr(HDL_applicable_codes, HDL_one) then health_depart_reason = True 
+            End if
             
-            If instr(HDL_applicable_codes, HDL_one) then health_depart_reason = True 
-            If instr(HDL_applicable_codes, HDL_two) then health_depart_reason = True 
-            If instr(HDL_applicable_codes, HDL_three) then health_depart_reason = True 
+            If HDL_two <> "" then 
+                If instr(HDL_applicable_codes, HDL_two) then health_depart_reason = True 
+            End if
+            
+            If HDL_three <> "" then 
+                If instr(HDL_applicable_codes, HDL_three) then health_depart_reason = True 
+            End if
             
             If exemption_code = "15" or exemption_code = "26" or exemption_code = "28" then 
                 exemption_reason = True 
