@@ -4695,8 +4695,8 @@ function write_interview_CASE_NOTE()
 	question_20_cars_yn = left(question_20_cars_yn & "   ", 5)
 
 
-	CALL write_variable_in_CASE_NOTE("   Cash - " & question_20_cash_yn & " Bank Accounts - " & question_20_acct_yn)
-	CALL write_variable_in_CASE_NOTE(" Stocks - " & question_20_secu_yn & "      Vehicles - " & question_20_cars_yn)
+	CALL write_variable_in_CASE_NOTE("      Cash - " & question_20_cash_yn & " Bank Accounts - " & question_20_acct_yn)
+	CALL write_variable_in_CASE_NOTE("    Stocks - " & question_20_secu_yn & "      Vehicles - " & question_20_cars_yn)
 	If trim(question_20_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_20_notes)
 	If question_20_verif_yn <> "" Then
 		If trim(question_20_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_20_verif_yn)
