@@ -42,8 +42,8 @@ END IF
 '
 
 
-tasks_on_hold = TRUE
-currently_on_task = FALSE
+tasks_on_hold = FALSE
+currently_on_task = TRUE
 phone_shift = FALSE
 running_as_HSS = FALSE
 
