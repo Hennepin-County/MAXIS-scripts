@@ -107,6 +107,9 @@ function sort_dates(dates_array)
     dates_array = ordered_dates
 end function
 
+'TODO: test this function, confirm it's working 
+'TODO: Make new issue for FuncLib
+'TODO: Once new code is updated in Funclib, remove function and test variable 
 function check_for_MMIS_test(end_script)
 '--- This function checks to ensure the user is in a MMIS panel
 '~~~~~ end_script: If end_script = TRUE the script will end. If end_script = FALSE, the user will be given the option to cancel the script, or manually navigate to a MMIS screen.
@@ -149,7 +152,8 @@ const HSS_start_col         = 7     'Col G
 const HSS_end_col           = 8     'Col H     
 const SA_number_col         = 9     'Col I     
 const agreement_start_col   = 10    'Col J     
-const agreement_end_col     = 11    'Col K     
+const agreement_end_col     = 11    'Col K   
+const rate_amt_col          = 13    'Col M  
 const NPI_number_col        = 15    'Col O     
 const HS_status_col         = 16    'Col P     
 const faci_in_col           = 19    'Col Q     
@@ -220,7 +224,8 @@ const adjustment_start_date_const   = 20
 const passed_case_tests_const       = 21
 const duplicate_agreements_const    = 22
 const pmi_count_const               = 23
-const rr_status_const               = 24
+const rate_amt_const                = 24
+const rr_status_const               = 25
 
 excel_row = test_row 'starting with the 1st non-header row :TESTING CODE 
 entry_record = 0 'incrementor for the array 
@@ -232,7 +237,6 @@ Do
     SA_number       = trim(objExcel.cells(excel_row, SA_number_col).Value)
     SA_number = right("00000000" & SA_number, 11) 'ensures the variable is 11 digits. Inhibiting erorr 
 
-    
     'Adding recipient information to the array
     ReDim Preserve adjustment_array(rr_status_const, entry_record)	'This resizes the array based on the number of rows in the Excel File'
     adjustment_array(recip_PMI_const            , entry_record) = recip_PMI
@@ -247,6 +251,7 @@ Do
     adjustment_array(faci_out_const             , entry_record) = trim(objExcel.cells(excel_row, faci_out_col).Value) 
     adjustment_array(impacted_vendor_const      , entry_record) = trim(objExcel.cells(excel_row, impacted_vendor_col).Value) 
     adjustment_array(case_status_const          , entry_record) = trim(objExcel.cells(excel_row, case_status_col).Value) 
+    adjustment_array(rate_amt_const             , entry_record) = trim(objExcel.cells(excel_row, rate_amt_col).Value) 
     adjustment_array(excel_row_const            , entry_record) = excel_row 
     adjustment_array(duplicate_agreements_const , entry_record) = False 
     adjustment_array(passed_case_tests_const    , entry_record) = False 'defaulting to false
@@ -303,11 +308,13 @@ For item = 0 to Ubound(adjustment_array, 2)
     If (adjustment_array(case_status_const, item) = "" and _
         adjustment_array(HS_status_const, item) <> "" and _
         adjustment_array(impacted_vendor_const, item) = "Yes" and _
+        adjustment_array(rate_amt_const, item) = "15.87" and _
         active_facility = True) then 
         adjustment_array(passed_case_tests_const, item) = True
     Else 
     'Failure Reasons 
         If adjustment_array(HS_status_const, item) = "" then rate_reduction_status = rate_reduction_status & "No HS Status in MAXIS Case. "
+        If adjustment_array(impacted_vendor_const, item) = "Yes" and adjustment_array(rate_amt_const, item) <> "15.87" then rate_reduction_status = rate_reduction_status & "Rate is not 15.87, review manually. "
         If adjustment_array(impacted_vendor_const, item) <> "Yes" then rate_reduction_status = rate_reduction_status & "Not an impacted vendor. "
         If active_facility = False then rate_reduction_status = rate_reduction_status & "Not an active facility. "
         If adjustment_array(case_status_const, item) <> "" then rate_reduction_status = rate_reduction_status & adjustment_array(case_status_const, item)
@@ -353,12 +360,14 @@ For item = 0 to Ubound(adjustment_array, 2)
     rate_reduction_status = ""
 Next 
 
-script_end_procedure_with_error_report("stopping here for now.")
+MAXIS_case_number = ""  
+script_end_procedure_with_error_report("Stopping here for now.")
 
+''----------------------------------------------------------------------------------------------------MMIS STEPS 
 'Call Check_for_MMIS_test(False)
-
+'
 'For item = 0 to Ubound(adjustment_array, 2)
-'    If adjustment_array(reduce_rate_const = True then
+'    If adjustment_array(reduce_rate_const, item) = True then
 '        'start the rate reductions in MMIS 
 '        Call navigate_to_MMIS_region("GRH UPDATE")	'function to navigate into MMIS, select the GRH update realm, and enter the prior authorization area
 '        Call MMIS_panel_confirmation("AKEY", 51)				'ensuring we are on the right MMIS screen
@@ -370,11 +379,13 @@ script_end_procedure_with_error_report("stopping here for now.")
 '            adjustment_array(reduce_rate_const, item) = False
 '            adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & adjustment_array(rr_status_const, item) & "Authorization Number is not valid."
 '            error_message = ""
+'            msgbox "Failed! Authorization Number is not valid."
 '        Else 
 '            EMReadScreen AGMT_STAT, 1, 3, 17
 '            If AGMT_STAT <> "A" then 
 '                adjustment_array(reduce_rate_const, item) = False
 '                adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & adjustment_array(rr_status_const, item) & "Authorization Status is coded as: " & AGMT_STAT & "."
+'                msgbox "Failed! Authorization Status is coded as: " & AGMT_STAT & "."
 '            Else 
 '                EmWriteScreen "S", 3, 17
 '                PF3     'to AKEY screen 
@@ -382,6 +393,7 @@ script_end_procedure_with_error_report("stopping here for now.")
 '                If current_panel <> "AKEY" then
 '                    adjustment_array(reduce_rate_const, item) = False
 '                    adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & adjustment_array(rr_status_const, item) & "Unknown issue occured after changeing AGMT STAT on ASA1."
+'                    msgbox "Failed! Unknown issue occured after changeing AGMT STAT on ASA1."
 '                Else 
 '                    transmit 'to ASA1 
 '                    Call write_value_and_transmit("ASA3", 1, 8)             'Direct navigate to ASA3
@@ -431,9 +443,10 @@ script_end_procedure_with_error_report("stopping here for now.")
 '                        EmWriteScreen write_original_agreement_end, 14, 67
 '                        
 '                        EmReadscreen old_rate, 5, 9, 24
-'                        new_rate = cint(old_rate / 2) 'divide total by two, and round to integer
+'                        new_rate = old_rate / 2 'divide total by two, and round to integer
 '                        new_rate = Round(new_rate, 2) 'round to two decimal places 
 '                        msgbox new_rate 
+'
 '                        EmWriteScreen new_rate, 15, 20
 '                        
 '                        line_2_total_units = datediff("d", adjustment_array(adjustment_start_date_const, item), original_agreement_end) - 1
@@ -448,11 +461,12 @@ script_end_procedure_with_error_report("stopping here for now.")
 '                        EmWriteScreen "A", 18, 19   'Approving the agreement on ASA3 in STAT CD/DATE field 
 '                        EmWriteScreen "A", 3, 20   'Approving the agreement on ASA3 in AGMT/TYPE STAT field 
 '                        Msgbox "Final Check on Line 2"
+'                        PF
 '                        
 '                        PF3 ' to save
 '                        EMReadScreen PPOP_check, 4, 1, 52
 '                        If PPOP_check = "PPOP" then 
-'                            msgbox 
+'                            msgbox PPOP_check
 '                            script_end_procedure("PPOP Screen - FYCO this.")
 '                        End if 
 '                        EmReadscreen current_panel, 4, 1, 51 
@@ -478,7 +492,7 @@ script_end_procedure_with_error_report("stopping here for now.")
 '    'TODO: Blank out all the variables before NEXT
 '    error_message = ""
 'Next 
-'
+
 ''----------------------------------------------------------------------------------------------------CASE:NOTE - MMIS
 'Call navigate_to_MMIS_region("CTY ELIG STAFF/UPDATE")	'function to navigate into MMIS, select the MMIS HC realm and enter the prior authorization area
 '
@@ -546,17 +560,17 @@ script_end_procedure_with_error_report("stopping here for now.")
 '    End if 
 '    error_message = ""
 'Next 
-'
-''Excel output of rate reduction statuses 
-'For item = 0 to Ubound(adjustment_array, 2)
-'    objExcel.Cells(adjustment_array(excel_row, item), rate_reduction_col).Value = adjustment_array(rr_status_const, item)
-'Next 
-'
-''formatting the cells
-'FOR i = 1 to 27
-'	objExcel.Columns(i).AutoFit()				'sizing the columns
-'NEXT
-'
-'MAXIS_case_number = ""  'blanking out for statistical purposes. Cannot collect more than one case number. 
-'STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
-'script_end_procedure_with_error_report("Success! The script run is complete. Please review the worksheet for reduction statuses and manual updates.")
+
+'Excel output of rate reduction statuses 
+For item = 0 to Ubound(adjustment_array, 2)
+    objExcel.Cells(adjustment_array(excel_row_const, item), rate_reduction_col).Value = adjustment_array(rr_status_const, item)
+Next 
+
+'formatting the cells
+FOR i = 1 to 27
+	objExcel.Columns(i).AutoFit()				'sizing the columns
+NEXT
+
+MAXIS_case_number = ""  'blanking out for statistical purposes. Cannot collect more than one case number. 
+STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
+script_end_procedure_with_error_report("Success! The script run is complete. Please review the worksheet for reduction statuses and manual updates.")
