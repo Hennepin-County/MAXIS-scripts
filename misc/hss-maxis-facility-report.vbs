@@ -109,6 +109,7 @@ end function
 
 'CONNECTS TO BlueZone
 EMConnect ""
+Call check_for_MAXIS(false)
 
 '----------------------------------Set up code 
 MAXIS_footer_month = CM_mo 
