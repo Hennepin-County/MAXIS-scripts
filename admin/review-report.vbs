@@ -2597,6 +2597,7 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 	end_msg = "Case details have been added to the Review Report" & vbCr & vbCr & "Run time: " & run_time & " seconds."
 
 	If original_renewal_option = "Send NOMIs" Then renewal_option = "Send NOMIs"
+	If original_renewal_option <> "Send NOMIs" Then ObjExcel.Quit
 
 ElseIf renewal_option = "Send Appointment Letters" Then
 	MAXIS_footer_month = CM_mo							'Setting the footer month and year based on the review month.
