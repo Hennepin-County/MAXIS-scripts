@@ -571,76 +571,93 @@ Next
 For item = 0 to Ubound(adjustment_array, 2)
     objExcel.Cells(adjustment_array(excel_row_const, item), rate_reduction_col).Value = adjustment_array(rr_status_const, item) 'testing code: remove and output at the end of the run for release.
 Next 
+note_string  = date & " - DHS SUPPLEMENTAL SERVICE RATE ADJUSTMENT", & _             
+    "THERE IS AN ACTIVE HOUSING SUPPORT SUPPLEMENTAL SERVICE RATE (SSR)", & _ 
+    "SERVICE AUTHORIZATION IN MMIS FOR THIS MAXIS CASE. DHS ADJUSTED THE", & _ 
+    "MMIS SERVICE AUTHORIZATION(S) FOR HOUSING SUPPORT SSR THROUGH THE", & _ 
+    "EXISITING END DATE OF THE SERVICE AUTHORIZATION.", & _ 
+    "REVISIONS ARE BASED ON A DETERMINATION OF THE RECIPIENT'S CONCURRENT", & _ 
+    "ELIGBILITY HOUSING STABILIZATION SERVICES. MMIS ISSUED A REVISED", & _ 
+    "SERVICE AUTORIZATION WITH THE CORRECT SSR PER DIEM TO THE HOUSING", & _ 
+    "SUPPORT PROVIDER ASSOCIATED WITH THE MMIS SERVICE AUTHORIZATION.", & _ 
+    "ELIGIBILITY WORKERS DO NOT NEED TO TAKE ANY ACTION IN MAXIS.", & _ 
+    "**********************************************************************"
 
-script_end_procedure_with_error_report("stopping here for now.")
+note_array = split(note_string, ",")
 
-''----------------------------------------------------------------------------------------------------CASE:NOTE - MMIS
-'Call navigate_to_MMIS_region("CTY ELIG STAFF/UPDATE")	'function to navigate into MMIS, select the MMIS HC realm and enter the prior authorization area
-'
-'For item = 0 to Ubound(adjustment_array, 2)
-'    If adjustment_array(reduce_rate_const, item) = True then 
-'        'Case Noting - goes into RSUM for the first client to do the case note
-'        EMWriteScreen "c", 2, 19
-'        Call clear_line_of_text (4, 19)
-'        Call write_value_and_transmit(ajustment_array(recip_PMI_const, item), 4, 19)    'transmitting to RSUM
-'        EmReadscreen error_message, 80, 24, 2
-'        If trim(error_message) <> "" then 
-'            adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & adjustment_array(rr_status_const, item) & "Unable to enter MMIS CASE:NOTE - " & trim(error_message)
-'        pf4         'tpo FCSN - MMIS CASE NOTES screen 
-'        pf11		'Starts a new case note'
-'        'Create MMIS Case Note
-'        CALL write_variable_in_MMIS_NOTE ("DHS Supplemental Service Rate Adjustment")
-'        CALL write_variable_in_MMIS_NOTE ("There is an active Housing Support supplemental service rate (SSR) service authorization in MMIS for this MAXIS case. DHS adjusted the MMIS service authorization(s) for Housing Support SSR through the existing end date of the service authorization.")
-'        CALL write_variable_in_MMIS_NOTE ("Revisions are based on a determination of the recipient's concurrent eligibility for Housing Stabilization Services. MMIS issued a revised service authorization with the correct SSR per diem to the Housing Support provider associated with the MMIS service authorization.")
-'        CALL write_variable_in_MMIS_NOTE ("Eligibility workers do not need to take any action in MAXIS.")
-'        CALL write_variable_in_MMIS_NOTE ("*************************************************************************")
-'        
-'        'Saving and getting back to RKEY 
-'        Do
-'            PF3 
-'            EmReadscreen RKEY_panel, 1, 52
-'        Loop until RKEY_panel = "RKEY"
-'    
-'        EmReadscreen error_message, 80, 24, 2
-'        If trim(error_message) =  "ACTION COMPLETED" then 
-'            adjustment_array(MMIS_note_conf_const, item) = True
-'        Else 
-'            adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & adjustment_array(rr_status_const, item) & "Unable to enter MMIS CASE:NOTE - " & trim(error_message)
-'        End if  
-'    End if 
-'    error_message = ""
-'Next 
-'
-''----------------------------------------------------------------------------------------------------CASE:NOTE - MAXIS 
-'Call navigate_to_MAXIS(maxis_mode) 'navigating to MAXIS Production area 
-'
-'For item = 0 to Ubound(adjustment_array, 2)
-'    If adjustment_array(reduce_rate_const, item) = True then
-'        Call navigate_to_MAXIS_screen_review_PRIV(function_to_go_to, command_to_go_to, is_this_priv)    'Checking for PRIV case note status 
-'        If is_this_priv = False then
-'            'case note 
-'            start_a_blank_CASE_NOTE
-'            EmReadscreen error_message, 80, 24, 2
-'            If trim(error_message) <> ""  then 
-'                adjustment_array(MAXIS_note_conf_const, item) = False 
-'                adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & adjustment_array(rr_status_const, item) & "Unable to enter MAXIS CASE:NOTE - " & trim(error_message)
-'            Else     
-'                Call write_variable_in_CASE_NOTE("DHS Supplemental Service Rate Adjustment")
-'                Call write_variable_in_CASE_NOTE("---")
-'                Call write_variable_in_CASE_NOTE("There is an active Housing Support supplemental service rate (SSR) service authorization in MMIS for this MAXIS case. DHS adjusted the MMIS service authorization(s) for Housing Support SSR through the existing end date of the service authorization.")
-'                Call write_variable_in_CASE_NOTE("")
-'                Call write_variable_in_CASE_NOTE("Revisions are based on a determination of the recipient's concurrent eligibility for Housing Stabilization Services. MMIS issued a revised service authorization with the correct SSR per diem to the Housing Support provider associated with the MMIS service authorization.")
-'                Call write_variable_in_CASE_NOTE("")
-'                Call write_variable_in_CASE_NOTE("Eligibility workers do not need to take any action in MAXIS.")
-'                PF3 'to save 
-'                adjustment_array(MAXIS_note_conf_const, item) = True 
-'            End if 
-'        Else 
-'            adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & adjustment_array(rr_status_const, item) & "Unable to enter MAXIS CASE:NOTE - PRIV Case."
-'        End if 
-'    End if 
-'    error_message = ""
-'Next 
+'----------------------------------------------------------------------------------------------------DHS NOTES on ADHS screen in GRHU realm 
+For item = 0 to Ubound(adjustment_array, 2)
+    If adjustment_array(reduce_rate_const, item) = True then 
+        'start the rate reductions in MMIS 
+        Call navigate_to_MMIS_region("GRH UPDATE")	'function to navigate into MMIS, select the GRH update realm, and enter the prior authorization area
+        Call MMIS_panel_confirmation("AKEY", 51)				'ensuring we are on the right MMIS screen
+        EmWriteScreen "C", 3, 22
+        Call write_value_and_transmit(adjustment_array(SA_number_const, item), 9, 36) 'Entering Service Authorization Number and transmit to ASA1
+        Call MMIS_panel_confirmation("ASA1", 51)				'ensuring we are on the right MMIS screen
+        Call write_value_and_transmit("ADHS", 1, 8)
+        Call MMIS_panel_confirmation("ADHS", 51)				'ensuring we are on the right MMIS screen    
+        row = 6
+        Do 
+            EmReadscreen blank_row_check, 6, row, 3
+            If trim(blank_row_check) = "" then 
+                exit do 
+            Else 
+                row = row + 1
+            End if 
+        Loop 
+        
+        row = row 
+        For each note in note_array 
+            EmWriteScreen note, row 3
+            row = row + 1
+            If row = 14 then 
+                transmit
+                row = 6
+            End if
+        Next     
+        
+        PF3 
+        error_message = ""
+        EmReadscreen error_message, 40, 24, 2
+        If trim(error_message) =  "ACTION COMPLETED" then 
+            adjustment_array(MMIS_note_conf_const, item) = True
+        Else 
+            adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & adjustment_array(rr_status_const, item) & "Unable to enter note on ADHS - " & trim(error_message)
+        End if  
+    End if 
+    error_message = ""
+Next 
+
+'----------------------------------------------------------------------------------------------------CASE:NOTE - MAXIS 
+Call navigate_to_MAXIS(maxis_mode) 'navigating to MAXIS Production area 
+
+For item = 0 to Ubound(adjustment_array, 2)
+    If adjustment_array(reduce_rate_const, item) = True then
+        Call navigate_to_MAXIS_screen_review_PRIV(function_to_go_to, command_to_go_to, is_this_priv)    'Checking for PRIV case note status 
+        If is_this_priv = False then
+            'case note 
+            start_a_blank_CASE_NOTE
+            EmReadscreen error_message, 80, 24, 2
+            If trim(error_message) <> ""  then 
+                adjustment_array(MAXIS_note_conf_const, item) = False 
+                adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & adjustment_array(rr_status_const, item) & "Unable to enter MAXIS CASE:NOTE - " & trim(error_message)
+            Else     
+                Call write_variable_in_CASE_NOTE("DHS Supplemental Service Rate Adjustment")
+                Call write_variable_in_CASE_NOTE("---")
+                Call write_variable_in_CASE_NOTE("There is an active Housing Support supplemental service rate (SSR) service authorization in MMIS for this MAXIS case. DHS adjusted the MMIS service authorization(s) for Housing Support SSR through the existing end date of the service authorization.")
+                Call write_variable_in_CASE_NOTE("")
+                Call write_variable_in_CASE_NOTE("Revisions are based on a determination of the recipient's concurrent eligibility for Housing Stabilization Services. MMIS issued a revised service authorization with the correct SSR per diem to the Housing Support provider associated with the MMIS service authorization.")
+                Call write_variable_in_CASE_NOTE("")
+                Call write_variable_in_CASE_NOTE("Eligibility workers do not need to take any action in MAXIS.")
+                PF3 'to save 
+                adjustment_array(MAXIS_note_conf_const, item) = True 
+            End if 
+        Else 
+            adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & adjustment_array(rr_status_const, item) & "Unable to enter MAXIS CASE:NOTE - PRIV Case."
+        End if 
+    End if 
+    error_message = ""
+Next 
 
 'Excel output of rate reduction statuses 
 For item = 0 to Ubound(adjustment_array, 2)
