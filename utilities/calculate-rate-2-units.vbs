@@ -68,16 +68,13 @@ BeginDialog Dialog1, 0, 0, 216, 125, "CALCULATE RATE 2 UNITS"
 EndDialog
 
 DO
-	DO
-		err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
-		dialog Dialog1				'main dialog
-		Cancel_without_confirmation
-        If isdate(start_date) = False then err_msg = err_msg & vbNewLine & "* Enter a valid start date."
-        If isdate(end_date) = False then err_msg = err_msg & vbNewLine & "* Enter a valid end_day date."
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
-	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-Loop until are_we_passworded_out = false					'loops until user passwords back in
+	err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
+	dialog Dialog1				'main dialog
+	Cancel_without_confirmation
+    If isdate(start_date) = False then err_msg = err_msg & vbNewLine & "* Enter a valid start date."
+    If isdate(end_date) = False then err_msg = err_msg & vbNewLine & "* Enter a valid end_day date."
+	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 
 total_units = datediff("D", start_date, end_date) + 1
 
