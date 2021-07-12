@@ -162,6 +162,7 @@ test_row = 2   'testing code
 '----------------------------------Set up code 
 'Excel columns
 const recip_PMI_col         = 1     'Col A     
+const case_number_col       = 2
 const HSS_start_col         = 7     'Col G     
 const HSS_end_col           = 8     'Col H     
 const SA_number_col         = 9     'Col I     
@@ -216,31 +217,33 @@ Dim adjustment_array()                        'Delcaring array
 ReDim adjustment_array(rr_status_const, 0)     'Resizing the array to size of last const 
 
 const recip_PMI_const               = 0         'creating array constants
-const HSS_start_const               = 1
-const HSS_end_const                 = 2
-const SA_number_const               = 3
-const agreement_start_const         = 4
-const agreement_end_const           = 5
-const npi_number_const              = 6
-const HS_status_const               = 7
-const faci_in_const                 = 8
-const faci_out_const                = 9
-const impacted_vendor_const         = 10
-const case_status_const             = 11
-const prev_start_const              = 12
-const prev_end_const                = 13
-const new_start_const               = 14
-const new_end_const                 = 15 
-const excel_row_const               = 16
-const MAXIS_note_conf_const         = 17
-const MMIS_note_conf_const          = 18
-const reduce_rate_const             = 19
-const adjustment_start_date_const   = 20
-const passed_case_tests_const       = 21
-const duplicate_agreements_const    = 22
-const pmi_count_const               = 23
-const rate_amt_const                = 24
-const rr_status_const               = 25
+const case_number_const             = 1
+const HSS_start_const               = 2
+const HSS_end_const                 = 3
+const SA_number_const               = 4
+const agreement_start_const         = 5
+const agreement_end_const           = 6
+const npi_number_const              = 7
+const HS_status_const               = 8
+const faci_in_const                 = 9
+const faci_out_const                = 10
+const impacted_vendor_const         = 11
+const case_status_const             = 12
+const prev_start_const              = 13
+const prev_end_const                = 14
+const new_start_const               = 15 
+const new_end_const                 = 16
+const excel_row_const               = 17
+const MAXIS_note_conf_const         = 18
+const MMIS_note_conf_const          = 19
+const reduce_rate_const             = 20
+const adjustment_start_date_const   = 21
+const passed_case_tests_const       = 22
+const duplicate_agreements_const    = 23
+const pmi_count_const               = 24
+const rate_amt_const                = 25
+const rate_reduction_notes_const    = 26
+const rr_status_const               = 27          
 
 excel_row = test_row 'starting with the 1st non-header row :TESTING CODE 
 entry_record = 0 'incrementor for the array 
@@ -255,6 +258,7 @@ Do
     'Adding recipient information to the array
     ReDim Preserve adjustment_array(rr_status_const, entry_record)	'This resizes the array based on the number of rows in the Excel File'
     adjustment_array(recip_PMI_const            , entry_record) = recip_PMI
+    adjustment_array(case_number_const          , entry_record) = trim(objExcel.cells(excel_row, case_number_col).Value)
     adjustment_array(HSS_start_const            , entry_record) = trim(objExcel.cells(excel_row, HSS_start_col).Value)
     adjustment_array(HSS_end_const              , entry_record) = trim(objExcel.cells(excel_row, HSS_end_col).Value)
     adjustment_array(SA_number_const            , entry_record) = SA_number
@@ -273,6 +277,7 @@ Do
     adjustment_array(MAXIS_note_conf_const      , entry_record) = False 'defaulting to false
     adjustment_array(MMIS_note_conf_const       , entry_record) = False 'defaulting to false
     adjustment_array(reduce_rate_const          , entry_record) = False 'defaulting to false
+    adjustment_array(rate_reduction_notes_const , entry_record) = trim(objExcel.cells(excel_row, rate_reduction_col).Value) 
     entry_record = entry_record + 1			'This increments to the next entry in the array'
     stats_counter = stats_counter + 1
     excel_row = excel_row + 1  
@@ -323,8 +328,10 @@ For item = 0 to Ubound(adjustment_array, 2)
     'Row’s that have more than one MAXIS case identified, and HS is not active for the recipient on that case.
     'Row’s that are not identified as an Impacted Vendor (“Yes”)
     'Open-ended facility spans or recipients that have faci panels that close after the HSS start date. 
+    'Rows that may already be done. 
     'Rate costs that are not 15.87
     If (adjustment_array(case_status_const, item) = "" and _
+        adjustment_array(rate_reduction_notes_const, item) = "" and _
         adjustment_array(HS_status_const, item) <> "" and _
         adjustment_array(impacted_vendor_const, item) = "Yes" and _
         adjustment_array(rate_amt_const, item) = "15.87" and _
@@ -337,6 +344,7 @@ For item = 0 to Ubound(adjustment_array, 2)
         If adjustment_array(impacted_vendor_const, item) <> "Yes" then rate_reduction_status = rate_reduction_status & "Not an impacted vendor. "
         If active_facility = False then rate_reduction_status = rate_reduction_status & "Not an active facility. "
         If adjustment_array(case_status_const, item) <> "" then rate_reduction_status = rate_reduction_status & adjustment_array(case_status_const, item)
+        If adjustment_array(rate_reduction_notes_const, item) <> "" then rate_reduction_status = adjustment_array(rate_reduction_notes_const, item) 'not incrementing this failure reason. Just inputting exiting notes.
     End if 
     If rate_reduction_status <> "Failed Case Test(s): " then adjustment_array(rr_status_const, item) = rate_reduction_status
     'msgbox adjustment_array(excel_row_const, item) & vbcr & adjustment_array(passed_case_tests_const, item)
@@ -385,10 +393,10 @@ For item = 0 to Ubound(adjustment_array, 2)
         Call write_value_and_transmit(adjustment_array(SA_number_const, item), 9, 36) 'Entering Service Authorization Number and transmit to ASA1
         EmReadscreen current_panel, 4, 1, 51 
         If current_panel = "AKEY" then 
+            error_message = ""
             EmReadscreen error_message, 80, 24, 2    
             adjustment_array(reduce_rate_const, item) = False
             adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & adjustment_array(rr_status_const, item) & "Authorization Number is not valid."
-            error_message = ""
             msgbox "Failed! Authorization Number is not valid."
         Else 
             EMReadScreen AGMT_STAT, 1, 3, 17
@@ -426,136 +434,168 @@ For item = 0 to Ubound(adjustment_array, 2)
                         EMReadScreen start_day, 2, 8, 62
                         EMReadScreen start_year, 2, 8, 64
                         Line_1_start_date = start_month & "/" & start_day & "/" & start_year
+                        Call ONLY_create_MAXIS_friendly_date_test(Line_1_start_date)
                         
-                        'agreement end date - original end date from line 1
-                        EMReadScreen end_month, 2, 8, 67
-                        EMReadScreen end_day, 2, 8, 69
-                        EMReadScreen end_year, 2, 8, 71
-                        original_end_date = end_month & "/" & end_day & "/" & end_year
-                        Call ONLY_create_MAXIS_friendly_date_test(original_end_date)
-                        write_original_end_date = replace(original_end_date, "/", "")  'for line 2
-                        'msgbox "original_end_date : " & original_end_date & vbcr & "write_original_end_date :" & write_original_end_date
-                        
-                        'Failing cases that the end date is less than the new agreement start date
-                        If DateDiff("d", adjustment_array(adjustment_start_date_const, item), original_end_date) <= 0 then 
-                            'if this date is a positive then its a date before the HSS start date and needs to fail.
-                            'msgbox "DateDiff" & DateDiff("d", original_end_date, adjustment_array(adjustment_start_date_const, item))
+                        'If DateDiff("d", adjustment_array(adjustment_start_date_const, item), Line_1_start_date) <= 0 then 
+                        'For cases that Line 1 agreements are the same day or before the HSS start date. 
+                        If DateDiff("d", Line_1_start_date, adjustment_array(adjustment_start_date_const, item)) <= 0 then 
+                            'if this date is a negative or a date before 07/01/21 (past date), then use 07/01/21.
+                            msgbox DateDiff("d", adjustment_array(adjustment_start_date_const, item), Line_1_start_date)
                             EmWriteScreen "A", 3, 20   'Restoring the original approving the agreement on ASA3 in AGMT/TYPE STAT field
                             PF3
                             adjustment_array(reduce_rate_const, item) = False
-                            adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & adjustment_array(rr_status_const, item) & "Agreement end date (" & original_end_date & ") is < HSS start date (" & adjustment_array(adjustment_start_date_const, item) & ")."
-                            msgbox "Failed! Agreement end date (" & original_end_date & ") is < HSS start date (" & adjustment_array(adjustment_start_date_const, item) & ")."
+                            adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & adjustment_array(rr_status_const, item) & "Agreement start date (" & Line_1_start_date & ") is <= HSS start date (" & adjustment_array(adjustment_start_date_const, item) & ")."
+                            msgbox "Failed! Agreement start date (" & Line_1_start_date & ") is <= HSS start date (" & adjustment_array(adjustment_start_date_const, item) & ")."
                         Else     
-                            'Creating a date that is the day before the HSS start date/conversion date - for LINE 1
-                            new_line_1_end_date = dateadd("d", -1, adjustment_array(adjustment_start_date_const, item)) 
-                            'using the HSS start date as this is after 07/01/21 (future date from initial coversion date of 07/01/21)
-                            Call ONLY_create_MAXIS_friendly_date_test(new_line_1_end_date)
-                            'msgbox new_line_1_end_date
-                            'removing date formatting for ASA3 input 
-                            write_new_line_1_end_date = replace(new_line_1_end_date, "/", "")
+                            'agreement end date - original end date from line 1
+                            EMReadScreen end_month, 2, 8, 67
+                            EMReadScreen end_day, 2, 8, 69
+                            EMReadScreen end_year, 2, 8, 71
+                            original_end_date = end_month & "/" & end_day & "/" & end_year
+                            Call ONLY_create_MAXIS_friendly_date_test(original_end_date)
+                            write_original_end_date = replace(original_end_date, "/", "")  'for line 2
+                            'msgbox "original_end_date : " & original_end_date & vbcr & "write_original_end_date :" & write_original_end_date
                             
-                            line_1_total_units = datediff("d", Line_1_start_date, new_line_1_end_date) + 1
-                            'msgbox "Line_1_start_date: " & Line_1_start_date & vbcr & "new_line_1_end_date: " & new_line_1_end_date & vbcr & "line_1_total_units: " & line_1_total_units
-                            
-                            'Unable to close agreements that have been overbilled by the facility. 
-                            over_billed = True      'Defaulting to True 
-                            EmReadscreen billed_units, 6, 11, 60
-                            billed_units = trim(billed_units)
-                            If trim(billed_units) = "" then 
-                                over_billed = False   'no billing exists - blank                       
-                            ElseIf cint(billed_units) = cint(billed_units) then 
-                                over_billed = False 'facility only billed up to the amount of the date we are closing this agreement date. 
-                            Elseif cint(billed_units) < cint(billed_units) then 
-                                over_billed = False  'facility billed less than the amount of the date we are closing this agreement date. 
-                            End if 
-                        
-                            If over_billed = True then 
-                                msgbox "Faci overbilled. billed_units: " & billed_units & vbcr & "line_1_total_units: " & line_1_total_units
+                            'Failing cases that the end date is less than the new agreement start date
+                            If DateDiff("d", adjustment_array(adjustment_start_date_const, item), original_end_date) <= 0 then 
+                                'if this date is a positive then its a date before the HSS start date and needs to fail.
+                                'msgbox "DateDiff" & DateDiff("d", original_end_date, adjustment_array(adjustment_start_date_const, item))
                                 EmWriteScreen "A", 3, 20   'Restoring the original approving the agreement on ASA3 in AGMT/TYPE STAT field
                                 PF3
-                                'msgbox "too many billed units"
                                 adjustment_array(reduce_rate_const, item) = False
-                                adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & " Unable to reduce Line 1 agreement due to overbilling. Billed units: & " & billed_units & " vs. " & line_1_total_units & "."
-                                msgbox "Failed! Unable to reduce Line 1 agreement due to overbilling. Billed units: & " & billed_units & " vs. " & line_1_total_units & "."
+                                adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & adjustment_array(rr_status_const, item) & "Agreement end date (" & original_end_date & ") is < HSS start date (" & adjustment_array(adjustment_start_date_const, item) & ")."
+                                msgbox "Failed! Agreement end date (" & original_end_date & ") is < HSS start date (" & adjustment_array(adjustment_start_date_const, item) & ")."
                             Else     
-                                '----------------------------------------------------------------------------------------------------Updating LINE 1 agreement
-                                EmWriteScreen write_new_line_1_end_date, 8, 67
-                                Call clear_line_of_text(9, 60)
-                                EmWriteScreen line_1_total_units, 9, 60
+                                'Creating a date that is the day before the HSS start date/conversion date - for LINE 1
+                                new_line_1_end_date = dateadd("d", -1, adjustment_array(adjustment_start_date_const, item)) 
+                                'using the HSS start date as this is after 07/01/21 (future date from initial coversion date of 07/01/21)
+                                Call ONLY_create_MAXIS_friendly_date_test(new_line_1_end_date)
+                                'msgbox new_line_1_end_date
+                                'removing date formatting for ASA3 input 
+                                write_new_line_1_end_date = replace(new_line_1_end_date, "/", "")
                                 
-                                Msgbox "Final Check on Line 1"
+                                line_1_total_units = datediff("d", Line_1_start_date, new_line_1_end_date) + 1
+                                'msgbox "Line_1_start_date: " & Line_1_start_date & vbcr & "new_line_1_end_date: " & new_line_1_end_date & vbcr & "line_1_total_units: " & line_1_total_units
                                 
-                                'PF3 '	to save changes
-                                'EMReadscreen error_message, 20, 24, 2    'Any number of issues (duplicate PMI, ssrt charged more units than stay, etc.). These cases require manual review if error occurs. 
-                                'If trim(error_message) <> "ACTION COMPLETED" then
-                                '    EmWriteScreen "A", 3, 20   'Restoring the original approving the agreement on ASA3 in AGMT/TYPE STAT field
-                                '    PF3
-                                '    adjustment_array(reduce_rate_const, item) = False
-                                '    adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & adjustment_array(rr_status_const, item) & "Failure after updating Line 1. Error msg: " & trim(error_message)
-                                '    msgbox "Failed! Failure after updating Line 1. Error msg: " & trim(error_message)
-                                'Else 
-                                    'msgbox "Line 1 updates saved, moving on to Line 2"
-                                    'transmit 'to ASA1 
-                                    'Call write_value_and_transmit("ASA3", 1, 8)             'Direct navigate to ASA3
-                                    'Call MMIS_panel_confirmation("ASA3", 51)				'ensuring we are on the right MMIS screen
-                                    '----------------------------------------------------------------------------------------------------Entering LINE 2 Information 
-                                    EmWriteScreen "H0043", 13, 36
-                                    EmWriteScreen "U5", 13, 44
-                                    
-                                    write_new_agrement_start_date = replace(adjustment_array(adjustment_start_date_const, item), "/", "")
-                                    
-                                    EmWriteScreen write_new_agrement_start_date, 14, 60
-                                    EmWriteScreen write_original_end_date, 14, 67
-                                    
-                                    msgbox "write_new_agrement_start_date: " & write_new_agrement_start_date & vbcr & "write_original_end_date: " & write_original_end_date
-                                    
-                                    EmReadscreen old_rate, 5, 9, 24
-                                    new_rate = old_rate / 2 'divide total by two, and round to integer
-                                    new_rate = Round(new_rate, 2) 'round to two decimal places 
-                                    EmWriteScreen new_rate, 15, 20
-                                    
-                                    msgbox "new_rate: " & new_rate 
-                                    
-                                    line_2_total_units = datediff("d", adjustment_array(adjustment_start_date_const, item), original_end_date) + 1
-                                    EmWriteScreen line_2_total_units, 15, 60
-                                    msgbox "line_2_total_units: " & line_2_total_units & vbcr & "start date: " & adjustment_array(adjustment_start_date_const, item) & vbcr & "original_end_date: " & original_end_date
+                                'Unable to close agreements that have been overbilled by the facility. 
+                                over_billed = True      'Defaulting to True 
+                                EmReadscreen billed_units, 6, 11, 60
+                                billed_units = trim(billed_units)
+                                If trim(billed_units) = "" then 
+                                    over_billed = False   'no billing exists - blank                       
+                                ElseIf cint(billed_units) = cint(billed_units) then 
+                                    over_billed = False 'facility only billed up to the amount of the date we are closing this agreement date. 
+                                Elseif cint(billed_units) < cint(billed_units) then 
+                                    over_billed = False  'facility billed less than the amount of the date we are closing this agreement date. 
+                                End if 
                             
-                                    EMReadscreen agreement_NPI_number, 10, 10, 20   'Reading line 1 NPI Number 
-                                    EmWriteScreen agreement_NPI_number, 16, 20      'Enetering NPI in Line 2 agreement 
+                                If over_billed = True then 
+                                    msgbox "Faci overbilled. billed_units: " & billed_units & vbcr & "line_1_total_units: " & line_1_total_units
+                                    EmWriteScreen "A", 3, 20   'Restoring the original approving the agreement on ASA3 in AGMT/TYPE STAT field
+                                    PF3
+                                    'msgbox "too many billed units"
+                                    adjustment_array(reduce_rate_const, item) = False
+                                    adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & " Unable to reduce Line 1 agreement due to overbilling. Billed units: & " & billed_units & " vs. " & line_1_total_units & "."
+                                    msgbox "Failed! Unable to reduce Line 1 agreement due to overbilling. Billed units: & " & billed_units & " vs. " & line_1_total_units & "."
+                                Else     
+                                    '----------------------------------------------------------------------------------------------------Updating LINE 1 agreement
+                                    EmWriteScreen write_new_line_1_end_date, 8, 67
+                                    Call clear_line_of_text(9, 60)
+                                    EmWriteScreen line_1_total_units, 9, 60
                                     
-                                    EmWriteScreen new_rate, 17, 20  
-                                    EmWriteScreen "MM", 17, 35      'TODO: This is crossed out in the instructions, but is inhibiting the script without it. 
+                                    'Msgbox "Check on Line 1"
                                     
-                                    msgbox "agreement_NPI_number: " & agreement_NPI_number
-                                    
-                                    EmWriteScreen "A", 18, 19   'Approving the agreement on ASA3 in STAT CD/DATE field         
-                                    EmWriteScreen "A", 3, 20   'Approving the agreement on ASA3 in AGMT/TYPE STAT field 
-                                    transmit 
-                                    Msgbox "Final Check on Line 2"
-                                    
-                                    'PF3 ' to save
-                                    EMReadScreen PPOP_check, 4, 1, 52
-                                    If PPOP_check = "PPOP" then 
-                                        msgbox PPOP_check
-                                        'script_end_procedure("PPOP Screen - FYCO this.")
-                                    End if 
-                                    PF6
-                                    EmReadscreen current_panel, 4, 1, 51 
-                                    If current_panel = "AKEY" then 
-                                        EmReadscreen error_message, 80, 24, 2   
-                                        If trim(error_message) = "ACTION COMPLETED" then  
-                                            adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & "Agreement successfully reduced to " & new_rate & "."
-                                        Else 
-                                            adjustment_array(reduce_rate_const, item) = False
-                                            adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & adjustment_array(rr_status_const, item) & trim(error_message)
+                                    'PF3 '	to save changes
+                                    'EMReadscreen error_message, 20, 24, 2    'Any number of issues (duplicate PMI, ssrt charged more units than stay, etc.). These cases require manual review if error occurs. 
+                                    'If trim(error_message) <> "ACTION COMPLETED" then
+                                    '    EmWriteScreen "A", 3, 20   'Restoring the original approving the agreement on ASA3 in AGMT/TYPE STAT field
+                                    '    PF3
+                                    '    adjustment_array(reduce_rate_const, item) = False
+                                    '    adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & adjustment_array(rr_status_const, item) & "Failure after updating Line 1. Error msg: " & trim(error_message)
+                                    '    msgbox "Failed! Failure after updating Line 1. Error msg: " & trim(error_message)
+                                    'Else 
+                                        'msgbox "Line 1 updates saved, moving on to Line 2"
+                                        'transmit 'to ASA1 
+                                        'Call write_value_and_transmit("ASA3", 1, 8)             'Direct navigate to ASA3
+                                        'Call MMIS_panel_confirmation("ASA3", 51)				'ensuring we are on the right MMIS screen
+                                        '----------------------------------------------------------------------------------------------------Entering LINE 2 Information 
+                                        EmWriteScreen "H0043", 13, 36
+                                        EmWriteScreen "U5", 13, 44
+                                        
+                                        write_new_agrement_start_date = replace(adjustment_array(adjustment_start_date_const, item), "/", "")
+                                        
+                                        EmWriteScreen write_new_agrement_start_date, 14, 60
+                                        EmWriteScreen write_original_end_date, 14, 67
+                                        
+                                        'msgbox "write_new_agrement_start_date: " & write_new_agrement_start_date & vbcr & "write_original_end_date: " & write_original_end_date
+                                        
+                                        EmReadscreen old_rate, 5, 9, 24
+                                        new_rate = old_rate / 2 'divide total by two, and round to integer
+                                        new_rate = Round(new_rate, 2) 'round to two decimal places 
+                                        EmWriteScreen new_rate, 15, 20
+                                        
+                                        'msgbox "new_rate: " & new_rate 
+                                        
+                                        line_2_total_units = datediff("d", adjustment_array(adjustment_start_date_const, item), original_end_date) + 1
+                                        EmWriteScreen line_2_total_units, 15, 60
+                                        'msgbox "line_2_total_units: " & line_2_total_units & vbcr & "start date: " & adjustment_array(adjustment_start_date_const, item) & vbcr & "original_end_date: " & original_end_date
+                                
+                                        EMReadscreen agreement_NPI_number, 10, 10, 20   'Reading line 1 NPI Number 
+                                        EmWriteScreen agreement_NPI_number, 16, 20      'Enetering NPI in Line 2 agreement 
+                                        
+                                        EmWriteScreen new_rate, 17, 20  
+                                        EmWriteScreen "MM", 17, 35      'TODO: This is crossed out in the instructions, but is inhibiting the script without it. 
+                                        
+                                        'msgbox "agreement_NPI_number: " & agreement_NPI_number
+                                        
+                                        EmWriteScreen "A", 18, 19   'Approving the agreement on ASA3 in STAT CD/DATE field         
+                                        EmWriteScreen "A", 3, 20   'Approving the agreement on ASA3 in AGMT/TYPE STAT field 
+                                        'transmit 
+                                        
+                                        'PF3 ' to save
+                                        EMReadScreen PPOP_check, 4, 1, 52
+                                        If PPOP_check = "PPOP" then 
+                                            msgbox PPOP_check
+                                            'script_end_procedure("PPOP Screen - FYCO this.")
                                         End if 
-                                    Else 
-                                        EmReadscreen error_message, 80, 21, 2       'reading error message on any other screen.    
-                                        adjustment_array(reduce_rate_const, item) = False
-                                        adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & adjustment_array(rr_status_const, item) & trim(error_message)
-                                        PF3 ' to save
-                                    End if
-                                'End if
+                                        
+                                        Dialog1 = ""
+                                        BeginDialog Dialog1, 0, 0, 216, 55, "Testing Confirmation"
+                                        ButtonGroup ButtonPressed
+                                        OkButton 80, 35, 40, 15
+                                        CancelButton 125, 35, 40, 15
+                                        Text 10, 5, 170, 25, "ASA3 Updates: Do you wish to save and continue? Press OK to continue. Press CANCEL to PF6/delete the updates."
+                                        EndDialog
+                                        
+                                        Dialog Dialog1
+                                        If buttonPressed = 0 then 
+                                            PF6 'cancel 
+                                            transmit 'to re-enter ASA1
+                                            EmWriteScreen "A", 3, 17   'Restoring the agreement on ASA1 in AGMT/TYPE STAT field 
+                                            PF3
+                                            adjustment_array(reduce_rate_const, item) = False
+                                        Else
+                                            PF3 
+                                            EmReadscreen current_panel, 4, 1, 51 
+                                            If current_panel = "AKEY" then 
+                                                error_message = ""
+                                                EmReadscreen error_message, 80, 24, 2   
+                                                If trim(error_message) = "ACTION COMPLETED" then  
+                                                    adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & "Agreement successfully reduced to " & new_rate & "."
+                                                Else 
+                                                    adjustment_array(reduce_rate_const, item) = False
+                                                    adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & adjustment_array(rr_status_const, item) & trim(error_message)
+                                                End if 
+                                            Else 
+                                                error_message = ""
+                                                EmReadscreen error_message, 80, 21, 2       'reading error message on any other screen.    
+                                                adjustment_array(reduce_rate_const, item) = False
+                                                adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & adjustment_array(rr_status_const, item) & trim(error_message)
+                                                PF3 ' to save
+                                            End if
+                                        End if 
+                                    'End if
+                                End if 
                             End if 
                         End if 
                     End if 
@@ -564,26 +604,12 @@ For item = 0 to Ubound(adjustment_array, 2)
         End if 
     End if 
     'TODO: Blank out all the variables before NEXT
-    error_message = ""
 Next 
 
 'Excel output of rate reduction statuses 
 For item = 0 to Ubound(adjustment_array, 2)
     objExcel.Cells(adjustment_array(excel_row_const, item), rate_reduction_col).Value = adjustment_array(rr_status_const, item) 'testing code: remove and output at the end of the run for release.
 Next 
-note_string  = date & " - DHS SUPPLEMENTAL SERVICE RATE ADJUSTMENT", & _             
-    "THERE IS AN ACTIVE HOUSING SUPPORT SUPPLEMENTAL SERVICE RATE (SSR)", & _ 
-    "SERVICE AUTHORIZATION IN MMIS FOR THIS MAXIS CASE. DHS ADJUSTED THE", & _ 
-    "MMIS SERVICE AUTHORIZATION(S) FOR HOUSING SUPPORT SSR THROUGH THE", & _ 
-    "EXISITING END DATE OF THE SERVICE AUTHORIZATION.", & _ 
-    "REVISIONS ARE BASED ON A DETERMINATION OF THE RECIPIENT'S CONCURRENT", & _ 
-    "ELIGBILITY HOUSING STABILIZATION SERVICES. MMIS ISSUED A REVISED", & _ 
-    "SERVICE AUTORIZATION WITH THE CORRECT SSR PER DIEM TO THE HOUSING", & _ 
-    "SUPPORT PROVIDER ASSOCIATED WITH THE MMIS SERVICE AUTHORIZATION.", & _ 
-    "ELIGIBILITY WORKERS DO NOT NEED TO TAKE ANY ACTION IN MAXIS.", & _ 
-    "**********************************************************************"
-
-note_array = split(note_string, ",")
 
 '----------------------------------------------------------------------------------------------------DHS NOTES on ADHS screen in GRHU realm 
 For item = 0 to Ubound(adjustment_array, 2)
@@ -606,26 +632,56 @@ For item = 0 to Ubound(adjustment_array, 2)
             End if 
         Loop 
         
-        row = row 
-        For each note in note_array 
-            EmWriteScreen note, row 3
-            row = row + 1
-            If row = 14 then 
-                transmit
-                row = 6
-            End if
-        Next     
+        msgbox "are we on ADHS?" & vbcr & row
+        
+        ''Array of notes for the ADHS screen. No functions built to support word wrap at this point. 
+        ''Dim notes_info_array
+        'notes_info_array = array("DHS SUPPLEMENTAL SERVICE RATE ADJUSTMENT","THERE IS AN ACTIVE HOUSING SUPPORT SUPPLEMENTAL SERVICE RATE (SSR)","SERVICE AUTHORIZATION IN MMIS FOR THIS MAXIS CASE. DHS ADJUSTED THE","MMIS SERVICE AUTHORIZATION(S) FOR HOUSING SUPPORT SSR THROUGH THE","EXISITING END DATE OF THE SERVICE AUTHORIZATION.","REVISIONS ARE BASED ON A DETERMINATION OF THE RECIPIENT'S CONCURRENT","ELIGBILITY HOUSING STABILIZATION SERVICES. MMIS ISSUED A REVISED","SERVICE AUTORIZATION WITH 'THE CORRECT SSR PER DIEM TO THE HOUSING","SUPPORT PROVIDER ASSOCIATED WITH THE MMIS SERVICE AUTHORIZATION.","ELIGIBILITY WORKERS DO NOT NEED TO TAKE ANY ACTION IN MAXIS.","**********************************************************************")
+        
+        EmWriteScreen "DHS SUPPLEMENTAL SERVICE RATE ADJUSTMENT", row, 3        
+        row = row + 1   
+        EmWriteScreen "THERE IS AN ACTIVE HOUSING SUPPORT SUPPLEMENTAL SERVICE RATE (SSR)", row, 3 
+        row = row + 1      
+        EmWriteScreen "SERVICE AUTHORIZATION IN MMIS FOR THIS MAXIS CASE. DHS ADJUSTED THE", row, 3  
+        row = row + 1   
+        EmWriteScreen "MMIS SERVICE AUTHORIZATION(S) FOR HOUSING SUPPORT SSR THROUGH THE", row, 3   
+        row = row + 1 
+        EmWriteScreen "EXISITING END DATE OF THE SERVICE AUTHORIZATION.", row, 3   
+        row = row + 1 
+        EmWriteScreen "REVISIONS ARE BASED ON A DETERMINATION OF THE RECIPIENT'S CONCURRENT", row, 3   
+        row = row + 1 
+        EmWriteScreen "ELIGBILITY HOUSING STABILIZATION SERVICES. MMIS ISSUED A REVISED", row, 3    
+        row = row + 1 
+        EmWriteScreen "SERVICE AUTORIZATION WITH THE CORRECT SSR PER DIEM TO THE HOUSING", row, 3   
+        row = row + 1 
+        EmWriteScreen "SUPPORT PROVIDER ASSOCIATED WITH THE MMIS SERVICE AUTHORIZATION.", row, 3   
+        row = row + 1 
+        EmWriteScreen "ELIGIBILITY WORKERS DO NOT NEED TO TAKE ANY ACTION IN MAXIS.", row, 3 
+        row = row + 1 
+        EmWriteScreen "**********************************************************************", row, 3
+        
+        'notes_info_array = split(notes_info_array, ",")
+        'row = row
+        ''Using row identified in previous do loop to start note 
+        'For each note_line in notes_info_array
+        '    msgbox row & vbcr & note_line
+        '    EmWriteScreen note_line, row, 3
+        '    row = row + 1
+        '    If row = 14 then exit for 'cannot case note more than 13 lines
+        'Next     
         
         PF3 
+        
+        
         error_message = ""
         EmReadscreen error_message, 40, 24, 2
         If trim(error_message) =  "ACTION COMPLETED" then 
             adjustment_array(MMIS_note_conf_const, item) = True
         Else 
             adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & adjustment_array(rr_status_const, item) & "Unable to enter note on ADHS - " & trim(error_message)
+            msgbox "Unable to enter note on ADHS - " & trim(error_message)
         End if  
     End if 
-    error_message = ""
 Next 
 
 '----------------------------------------------------------------------------------------------------CASE:NOTE - MAXIS 
@@ -633,14 +689,21 @@ Call navigate_to_MAXIS(maxis_mode) 'navigating to MAXIS Production area
 
 For item = 0 to Ubound(adjustment_array, 2)
     If adjustment_array(reduce_rate_const, item) = True then
+        MAXIS_case_number = adjustment_array(case_number_const, item)
         Call navigate_to_MAXIS_screen_review_PRIV(function_to_go_to, command_to_go_to, is_this_priv)    'Checking for PRIV case note status 
         If is_this_priv = False then
             'case note 
-            start_a_blank_CASE_NOTE
+            Call navigate_to_MAXIS_screen("CASE", "NOTE")
+            PF9 
+            error_message = ""
+            EmReadscreen case_note_edit_errors, 70, 3, 3    
             EmReadscreen error_message, 80, 24, 2
             If trim(error_message) <> ""  then 
                 adjustment_array(MAXIS_note_conf_const, item) = False 
                 adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & adjustment_array(rr_status_const, item) & "Unable to enter MAXIS CASE:NOTE - " & trim(error_message)
+            Elseif trim(case_note_edit_errors) <> "Please enter your note on the lines below:" then 
+                adjustment_array(MAXIS_note_conf_const, item) = False 
+                adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & adjustment_array(rr_status_const, item) & "Unable to edit MAXIS CASE:NOTE - " & trim(error_message)
             Else     
                 Call write_variable_in_CASE_NOTE("DHS Supplemental Service Rate Adjustment")
                 Call write_variable_in_CASE_NOTE("---")
@@ -656,7 +719,6 @@ For item = 0 to Ubound(adjustment_array, 2)
             adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & adjustment_array(rr_status_const, item) & "Unable to enter MAXIS CASE:NOTE - PRIV Case."
         End if 
     End if 
-    error_message = ""
 Next 
 
 'Excel output of rate reduction statuses 
