@@ -1,5 +1,23 @@
+'COUNTY CUSTOM VARIABLES----------------------------------------------------------------------------------------------------
+'The following variables are dynamically added via the installer. They can be modified manually to make changes without re-running the
+'	installer, but doing so should not be undertaken lightly.
+
+'CONFIG FOR HOW SCRIPTS WORK===================
+
+'Default directory: used by the script to determine if we're scriptwriters or not (scriptwriters use a default directory traditionally).
+'	This is modified by the installer, which will determine if this is a scriptwriter or a production user.
+
+default_directory = "S:\D040\CLS\Comm Living Support\GRH\SSR reduction script process\"
+
 'Run locally: if this is set to "True", the scripts will run locally and bypass GitHub entirely. This is great for debugging or developing scripts.
 run_locally = false
+
+'========================================================================================================================================
+
+'COUNTY NAME AND INFO==========================
+
+'This is used by almost every script which calls a specific agency worker number (like the REPT/ACTV nav and list gen scripts).
+worker_county_code = "x191"
 
 '========================================================================================================================================
 
@@ -25,6 +43,13 @@ collect_MAXIS_case_number = true
 'This is a variable which sets the scripts to use the master branch (common with scriptwriters)
 use_master_branch = False
 
+'This is a setting to determine if changes to scripts will be displayed in messageboxes in real time to end users
+changelog_enabled = true
+
+'This is a setting for the script team to identify if they are aware of a git hub outage
+git_hub_issue_known = false
+
+
 '========================================================================================================================================
 'ACTIONS TAKEN BASED ON COUNTY CUSTOM VARIABLES------------------------------------------------------------------------------
 
@@ -42,7 +67,7 @@ ELSE							'Everyone else (who isn't a scriptwriter) typically uses the release 
 END IF
 
 '----------------------------------------------------------------------------------------------------LOADING SCRIPT - REDIRECT FILE 
-script_url = script_repository & "misc/hss-maxis-facility-report.vbs"
+script_url = script_repository & "/nav/nav-mmis-grh.vbs"
 IF run_locally = False THEN
     SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a script_URL
     req.open "GET", script_URL, FALSE									'Attempts to open the script_URL
