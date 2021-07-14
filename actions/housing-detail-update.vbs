@@ -500,6 +500,8 @@ function access_SHEL_panel(access_type, shel_ref_number, hud_sub_yn, shared_yn, 
         If rent_retro_verif = "__" Then rent_retro_verif = ""
         rent_prosp_amt = replace(rent_prosp_amt, "_", "")
         rent_prosp_amt = trim(rent_prosp_amt)
+		If rent_prosp_amt = "" Then rent_prosp_amt = 0
+		rent_prosp_amt = rent_prosp_amt * 1
         If rent_prosp_verif = "SF" Then rent_prosp_verif = "SF - Shelter Form"
         If rent_prosp_verif = "LE" Then rent_prosp_verif = "LE - Lease"
         If rent_prosp_verif = "RE" Then rent_prosp_verif = "RE - Rent Receipt"
@@ -528,6 +530,8 @@ function access_SHEL_panel(access_type, shel_ref_number, hud_sub_yn, shared_yn, 
         If lot_rent_retro_verif = "__" Then lot_rent_retro_verif = ""
         lot_rent_prosp_amt = replace(lot_rent_prosp_amt, "_", "")
         lot_rent_prosp_amt = trim(lot_rent_prosp_amt)
+		If lot_rent_prosp_amt = "" Then lot_rent_prosp_amt = 0
+		lot_rent_prosp_amt = lot_rent_prosp_amt * 1
         If lot_rent_prosp_verif = "LE" Then lot_rent_prosp_verif = "LE - Lease"
         If lot_rent_prosp_verif = "RE" Then lot_rent_prosp_verif = "RE - Rent Receipt"
         If lot_rent_prosp_verif = "BI" Then lot_rent_prosp_verif = "BI - Billing Stmt"
@@ -555,6 +559,8 @@ function access_SHEL_panel(access_type, shel_ref_number, hud_sub_yn, shared_yn, 
         If mortgage_retro_verif = "__" Then mortgage_retro_verif = ""
         mortgage_prosp_amt = replace(mortgage_prosp_amt, "_", "")
         mortgage_prosp_amt = trim(mortgage_prosp_amt)
+		If mortgage_prosp_amt = "" Then mortgage_prosp_amt = 0
+		mortgage_prosp_amt = mortgage_prosp_amt * 1
         If mortgage_prosp_verif = "MO" Then mortgage_prosp_verif = "MO - Mortgage Pmt Book"
         If mortgage_prosp_verif = "CD" Then mortgage_prosp_verif = "CD - Ctrct fro Deed"
         If mortgage_prosp_verif = "OT" Then mortgage_prosp_verif = "OT - Other Doc"
@@ -580,6 +586,8 @@ function access_SHEL_panel(access_type, shel_ref_number, hud_sub_yn, shared_yn, 
         If insurance_retro_verif = "__" Then insurance_retro_verif = ""
         insurance_prosp_amt = replace(insurance_prosp_amt, "_", "")
         insurance_prosp_amt = trim(insurance_prosp_amt)
+		If insurance_prosp_amt = "" Then insurance_prosp_amt = 0
+		insurance_prosp_amt = insurance_prosp_amt * 1
         If insurance_prosp_verif = "BI" Then insurance_prosp_verif = "BI - Billing Stmt"
         If insurance_prosp_verif = "OT" Then insurance_prosp_verif = "OT - Other Doc"
         If insurance_prosp_verif = "NC" Then insurance_prosp_verif = "NC - Chg, Neg Impact"
@@ -604,6 +612,8 @@ function access_SHEL_panel(access_type, shel_ref_number, hud_sub_yn, shared_yn, 
         If tax_retro_verif = "__" Then tax_retro_verif = ""
         tax_prosp_amt = replace(tax_prosp_amt, "_", "")
         tax_prosp_amt = trim(tax_prosp_amt)
+		If tax_prosp_amt = "" Then tax_prosp_amt = 0
+		tax_prosp_amt = tax_prosp_amt * 1
         If tax_prosp_verif = "TX" Then tax_prosp_verif = "TX - Prop Tax Stmt"
         If tax_prosp_verif = "OT" Then tax_prosp_verif = "OT - Other Doc"
         If tax_prosp_verif = "NC" Then tax_prosp_verif = "NC - Chg, Neg Impact"
@@ -630,6 +640,8 @@ function access_SHEL_panel(access_type, shel_ref_number, hud_sub_yn, shared_yn, 
         If room_retro_verif = "__" Then room_retro_verif = ""
         room_prosp_amt = replace(room_prosp_amt, "_", "")
         room_prosp_amt = trim(room_prosp_amt)
+		If room_prosp_amt = "" Then room_prosp_amt = 0
+		room_prosp_amt = room_prosp_amt * 1
         If room_prosp_verif = "SF" Then room_prosp_verif = "SF - Shelter Form"
         If room_prosp_verif = "LE" Then room_prosp_verif = "LE - Lease"
         If room_prosp_verif = "RE" Then room_prosp_verif = "RE - Rent Receipt"
@@ -658,6 +670,8 @@ function access_SHEL_panel(access_type, shel_ref_number, hud_sub_yn, shared_yn, 
         If garage_retro_verif = "__" Then garage_retro_verif = ""
         garage_prosp_amt = replace(garage_prosp_amt, "_", "")
         garage_prosp_amt = trim(garage_prosp_amt)
+		If garage_prosp_amt = "" Then garage_prosp_amt = 0
+		garage_prosp_amt = garage_prosp_amt * 1
         If garage_prosp_verif = "SF" Then garage_prosp_verif = "SF - Shelter Form"
         If garage_prosp_verif = "LE" Then garage_prosp_verif = "LE - Lease"
         If garage_prosp_verif = "RE" Then garage_prosp_verif = "RE - Rent Receipt"
@@ -683,6 +697,8 @@ function access_SHEL_panel(access_type, shel_ref_number, hud_sub_yn, shared_yn, 
         If subsidy_retro_verif = "__" Then subsidy_retro_verif = ""
         subsidy_prosp_amt = replace(subsidy_prosp_amt, "_", "")
         subsidy_prosp_amt = trim(subsidy_prosp_amt)
+		If subsidy_prosp_amt = "" Then subsidy_prosp_amt = 0
+		subsidy_prosp_amt = subsidy_prosp_amt * 1
         If subsidy_prosp_verif = "SF" Then subsidy_prosp_verif = "SF - Shelter Form"
         If subsidy_prosp_verif = "LE" Then subsidy_prosp_verif = "LE - Lease"
         If subsidy_prosp_verif = "OT" Then subsidy_prosp_verif = "OT - Other Doc"
@@ -991,6 +1007,134 @@ function access_HEST_panel(access_type, all_persons_paying, choice_date, actual_
 	End If
 end function
 
+function display_HOUSING_CHANGE_information(housing_questions_step, household_move_yn, household_move_everyone_yn, move_date, shel_change_yn, shel_verif_received_yn, shel_start_date, shel_shared_yn, shel_subsidized_yn, total_current_rent, total_current_taxes, total_current_lot_rent, total_current_room, total_current_mortgage, total_current_garage, total_current_insurance, total_current_subsidy, shel_change_type, hest_heat_ac_yn, hest_electric_yn, hest_ac_on_electric_yn, hest_heat_on_electric_yn, hest_phone_yn, update_addr_button, addr_or_shel_change_notes, view_addr_update_dlg, view_shel_update_dlg, view_shel_details_dlg, housing_change_continue_btn, housing_change_overview_btn, housing_change_addr_update_btn, housing_change_shel_update_btn, housing_change_shel_details_btn, housing_change_review_btn)
+
+	yes_no_list = "?"+chr(9)+"Yes"+chr(9)+"No"
+	x_pos = 345
+	If view_shel_details_dlg = True Then
+		shel_det_x_pos = x_pos
+		x_pos = x_pos - 60
+	End If
+	If view_shel_update_dlg = True Then
+		shel_up_x_pos = x_pos
+		x_pos = x_pos - 60
+	End If
+	If view_addr_update_dlg = True Then
+		addr_up_x_pos = x_pos
+		x_pos = x_pos - 60
+	End If
+	overview_x_pos = x_pos
+
+	GroupBox 10, 10, 460, 355, "Change in HOUSING Information"
+
+	If housing_questions_step = 1 Then
+		Text overview_x_pos + 10, 10, 60, 13, "OVERVIEW"
+
+		GroupBox 15, 25, 450, 75, "Address"
+		Text 75, 45, 95, 10, "Did the household move?"
+		DropListBox 170, 40, 45, 45, yes_no_list, household_move_yn
+		Text 25, 65, 145, 10, "Did everyone in the household move with?"
+		DropListBox 170, 60, 45, 45, yes_no_list, household_move_everyone_yn
+		Text 75, 85, 90, 10, "What date did they move?"
+		EditBox 170, 80, 45, 15, move_date
+		Text 255, 40, 95, 10, "Current Residence Address:"
+		Text 265, 55, 190, 10, resi_street_full
+		Text 265, 70, 190, 10, resi_city & ", " & left(resi_state, 2) & " " & resi_zip
+		' PushButton 390, 85, 70, 10, "UPDATE ADDR", update_addr_button
+
+		GroupBox 15, 105, 450, 115, "Housing Cost"
+		Text 50, 125, 130, 10, "Is there a change to the housing cost?"
+		DropListBox 180, 120, 45, 45, yes_no_list, shel_change_yn
+
+		Text 50, 165, 125, 10, "What date did the new expense start?"
+		EditBox 180, 160, 45, 15, shel_start_date
+
+		Text 265, 115, 95, 10, "Current Housing Costs"
+		Text 280, 130, 65, 10, " Rent: $ " & total_current_rent
+		Text 375, 130, 70, 10, " Taxes: $ " & total_current_taxes
+		Text 270, 140, 75, 10, "Lot Rent: $ " & total_current_lot_rent
+		Text 375, 140, 70, 10, " Room: $ " & total_current_room
+		Text 265, 150, 80, 10, " Mortgage: $ " & total_current_mortgage
+		Text 370, 150, 75, 10, " Garage: $ " & total_current_garage
+		Text 265, 160, 80, 10, "Insurance: $ " & total_current_insurance
+		Text 370, 160, 75, 10, "Subsidy: $ " & total_current_subsidy
+		' Text 270, 185, 95, 10, "New shelter expense is a(n)"
+		' DropListBox 365, 180, 95, 45, ""+chr(9)+"Increate"+chr(9)+"Decrease"+chr(9)+"No Difference", shel_change_type
+		' PushButton 390, 205, 70, 10, "UPDATE SHEL", update_shel_button
+
+		GroupBox 15, 225, 450, 115, "Utilities Expense"
+	    Text 25, 240, 275, 10, "Is the household responsible to paythe Heat Expense or Air Conditioner Expense?"
+	    DropListBox 295, 235, 45, 45, yes_no_list, hest_heat_ac_yn
+	    Text 25, 260, 180, 10, "Is the household responsible to pay electric expense?"
+	    DropListBox 210, 255, 45, 45, yes_no_list, hest_electric_yn
+	    Text 40, 275, 235, 10, "If yes, is there any AC plugged into that is used at any point in the year?"
+	    DropListBox 280, 270, 45, 45, yes_no_list, hest_ac_on_electric_yn
+	    Text 40, 295, 235, 10, "If yes, does this include any heat source during any point in the year?"
+	    DropListBox 280, 290, 45, 45, yes_no_list, hest_heat_on_electric_yn
+	    Text 25, 315, 145, 10, "Is anyone responsible to PAY for a phone?"
+	    DropListBox 170, 310, 45, 45, yes_no_list, hest_phone_yn
+	    Text 30, 325, 230, 10, "(Free phone plans without a payment requirement cannot be counted.)"
+
+	End If
+
+	' view_addr_update_dlg
+	' view_shel_update_dlg
+	' view_shel_details_dlg
+
+	If housing_questions_step = 2 Then
+		Text addr_up_x_pos + 5, 10, 60, 10, "ADDR UPDATE"
+
+		Text 15, 25, 450, 10, "STEP 2 - ADDR UPDATES"
+
+		Call display_ADDR_information(update_addr, notes_on_address, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, reservation_name, addr_living_sit, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, verif_received, address_change_date, update_information_btn, save_information_btn, clear_mail_addr_btn, clear_phone_one_btn, clear_phone_two_btn, clear_phone_three_btn)
+
+		' PushButton x_pos, 8, 60, 13, "OVERVIEW", housing_change_overview_btn
+	End If
+	If housing_questions_step = 3 Then
+		PushButton shel_up_x_pos + 5, 10, 60, 10, "SHEL UPDATE"
+
+		Text 15, 25, 450, 10, "STEP 3 - SHEL UPDATES"
+
+		' Text 20, 145, 160, 10, "Have we received verification of this expense?"
+		' DropListBox 180, 140, 45, 45, yes_no_list, shel_verif_received_yn
+
+		Text 55, 185, 120, 10, "Is the new expense amount shared?"
+		DropListBox 180, 180, 45, 45, yes_no_list, shel_shared_yn
+		Text 40, 205, 135, 10, "Is the new expense amount subsidized?"
+		DropListBox 180, 200, 45, 45, yes_no_list, shel_subsidized_yn
+
+		' PushButton x_pos, 8, 60, 13, "OVERVIEW", housing_change_overview_btn
+		' PushButton x_pos + 60, 8, 60, 13, "ADDR UPDATE", housing_change_addr_update_btn
+	End If
+	If housing_questions_step = 4 Then
+		PushButton shel_det_x_pos + 5, 10, 60, 10, "SHEL DETAILS"
+
+		Text 15, 25, 450, 10, "STEP 4 - SHEL Details"
+
+		' PushButton x_pos, 8, 60, 13, "OVERVIEW", housing_change_overview_btn
+		' PushButton x_pos + 60, 8, 60, 13, "ADDR UPDATE", housing_change_addr_update_btn
+		' PushButton x_pos + 120, 8, 60, 13, "SHEL UPDATE", housing_change_shel_update_btn
+	End If
+	If housing_questions_step = 5 Then
+		PushButton 420, 10, 60, 10, "REVIEW"
+
+		Text 15, 25, 450, 10, "STEP 5 - REVIEW AND CONFIRM"
+
+	End If
+
+	Text 20, 350, 55, 10, "Additional Notes:"
+	EditBox 80, 345, 385, 15, addr_or_shel_change_notes
+
+	If housing_questions_step <> 1 Then PushButton overview_x_pos, 8, 60, 13, "OVERVIEW", housing_change_overview_btn
+	If view_addr_update_dlg = True AND housing_questions_step <> 2 Then PushButton addr_up_x_pos, 8, 60, 13, "ADDR UPDATE", housing_change_addr_update_btn
+	If view_shel_update_dlg = True AND housing_questions_step <> 3 Then PushButton shel_up_x_pos, 8, 60, 13, "SHEL UPDATE", housing_change_shel_update_btn
+	If view_shel_details_dlg = True AND housing_questions_step <> 4 Then PushButton shel_det_x_pos, 8, 60, 13, "SHEL DETAILS", housing_change_shel_details_btn
+	If err_msg = "" AND housing_questions_step <> 5 Then PushButton 405, 8, 60, 13, "REVIEW", housing_change_review_btn
+
+	If housing_questions_step <> 5 Then PushButton 390, 325, 70, 10, "CONTINUE", housing_change_continue_btn
+
+end function
+
 function display_ADDR_information(update_addr, notes_on_address, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, reservation_name, addr_living_sit, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, verif_received, address_change_date, update_information_btn, save_information_btn, clear_mail_addr_btn, clear_phone_one_btn, clear_phone_two_btn, clear_phone_three_btn)
 
 	If update_addr = False Then
@@ -1071,7 +1215,7 @@ function display_ADDR_information(update_addr, notes_on_address, resi_street_ful
 	Text 255, 245, 75, 10, "County of Residence:"
 end function
 
-function display_SHEL_information(update_shel, SHEL_ARRAY, selection, const_shel_member, const_shel_exists, const_hud_sub_yn, const_shared_yn, const_paid_to, const_rent_retro_amt, const_rent_retro_verif, const_rent_prosp_amt, const_rent_prosp_verif, const_lot_rent_retro_amt, const_lot_rent_retro_verif, const_lot_rent_prosp_amt, const_lot_rent_prosp_verif, const_mortgage_retro_amt, const_mortgage_retro_verif, const_mortgage_prosp_amt, const_mortgage_prosp_verif, const_insurance_retro_amt, const_insurance_retro_verif, const_insurance_prosp_amt, const_insurance_prosp_verif, const_tax_retro_amt, const_tax_retro_verif, const_tax_prosp_amt, const_tax_prosp_verif, const_room_retro_amt, const_room_retro_verif, const_room_prosp_amt, const_room_prosp_verif, const_garage_retro_amt, const_garage_retro_verif, const_garage_prosp_amt, const_garage_prosp_verif, const_subsidy_retro_amt, const_subsidy_retro_verif, const_subsidy_prosp_amt, const_subsidy_prosp_verif, update_information_btn, save_information_btn, const_memb_buttons, clear_all_btn)
+function display_SHEL_information(update_shel, show_totals, SHEL_ARRAY, selection, const_shel_member, const_shel_exists, const_hud_sub_yn, const_shared_yn, const_paid_to, const_rent_retro_amt, const_rent_retro_verif, const_rent_prosp_amt, const_rent_prosp_verif, const_lot_rent_retro_amt, const_lot_rent_retro_verif, const_lot_rent_prosp_amt, const_lot_rent_prosp_verif, const_mortgage_retro_amt, const_mortgage_retro_verif, const_mortgage_prosp_amt, const_mortgage_prosp_verif, const_insurance_retro_amt, const_insurance_retro_verif, const_insurance_prosp_amt, const_insurance_prosp_verif, const_tax_retro_amt, const_tax_retro_verif, const_tax_prosp_amt, const_tax_prosp_verif, const_room_retro_amt, const_room_retro_verif, const_room_prosp_amt, const_room_prosp_verif, const_garage_retro_amt, const_garage_retro_verif, const_garage_prosp_amt, const_garage_prosp_verif, const_subsidy_retro_amt, const_subsidy_retro_verif, const_subsidy_prosp_amt, const_subsidy_prosp_verif, update_information_btn, save_information_btn, const_memb_buttons, clear_all_btn, view_total_shel_btn, update_household_percent_button)
 
 	Text 10, 10, 360, 10, "Review the Shelter informaiton known with the client. If it needs updating, press this button to make changes:"
 	y_pos = 25
@@ -1084,105 +1228,155 @@ function display_SHEL_information(update_shel, SHEL_ARRAY, selection, const_shel
 			y_pos = y_pos + 15
 		End If
 	Next
+	' MsgBox "In DISPLAY" & vbCr & vbCr & "Show totals - " & show_totals
+	If show_totals = True Then
+		Text 415, 223, 65, 10, "TOTAL SHEL"
 
-	If update_shel = True Then
-		EditBox 105, 25, 165, 15, SHEL_ARRAY(const_paid_to, selection)
-		DropListBox 165, 45, 40, 45, caf_answer_droplist, SHEL_ARRAY(const_hud_sub_yn, selection)
-		DropListBox 310, 45, 40, 45, caf_answer_droplist, SHEL_ARRAY(const_shared_yn, selection)
-		EditBox 105, 95, 45, 15, SHEL_ARRAY(const_rent_retro_amt, selection)
-		DropListBox 155, 95, 85, 45, ""+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", SHEL_ARRAY(const_rent_retro_verif, selection)
-		EditBox 255, 95, 45, 15, SHEL_ARRAY(const_rent_prosp_amt, selection)
-		DropListBox 305, 95, 85, 45, ""+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", SHEL_ARRAY(const_rent_prosp_verif, selection)
-		EditBox 105, 115, 45, 15, SHEL_ARRAY(const_lot_rent_retro_amt, selection)
-		DropListBox 155, 115, 85, 45, ""+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"BI - Billing Stmt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", SHEL_ARRAY(const_lot_rent_retro_verif, selection)
-		EditBox 255, 115, 45, 15, SHEL_ARRAY(const_lot_rent_prosp_amt, selection)
-		DropListBox 305, 115, 85, 45, ""+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"BI - Billing Stmt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", SHEL_ARRAY(const_lot_rent_prosp_verif, selection)
-		EditBox 105, 135, 45, 15, SHEL_ARRAY(const_mortgage_retro_amt, selection)
-		DropListBox 155, 135, 85, 45, ""+chr(9)+"MO - Mort Pmt Book"+chr(9)+"CD - Ctrct For Deed"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", SHEL_ARRAY(const_mortgage_retro_verif, selection)
-		EditBox 255, 135, 45, 15, SHEL_ARRAY(const_mortgage_prosp_amt, selection)
-		DropListBox 305, 135, 85, 45, ""+chr(9)+"MO - Mort Pmt Book"+chr(9)+"CD - Ctrct For Deed"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", SHEL_ARRAY(const_mortgage_prosp_verif, selection)
-		EditBox 105, 155, 45, 15, SHEL_ARRAY(const_insurance_retro_amt, selection)
-		DropListBox 155, 155, 85, 45, ""+chr(9)+"BI - Billing Stmt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", SHEL_ARRAY(const_insurance_retro_verif, selection)
-		EditBox 255, 155, 45, 15, SHEL_ARRAY(const_insurance_prosp_amt, selection)
-		DropListBox 305, 155, 85, 45, ""+chr(9)+"BI - Billing Stmt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", SHEL_ARRAY(const_insurance_prosp_verif, selection)
-		EditBox 105, 175, 45, 15, SHEL_ARRAY(const_tax_retro_amt, selection)
-		DropListBox 155, 175, 85, 45, ""+chr(9)+"TX - Prop Tax Stmt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", SHEL_ARRAY(const_tax_retro_verif, selection)
-		EditBox 255, 175, 45, 15, SHEL_ARRAY(const_tax_prosp_amt, selection)
-		DropListBox 305, 175, 85, 45, ""+chr(9)+"TX - Prop Tax Stmt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", SHEL_ARRAY(const_tax_prosp_verif, selection)
-		EditBox 105, 195, 45, 15, SHEL_ARRAY(const_room_retro_amt, selection)
-		DropListBox 155, 195, 85, 45, ""+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", SHEL_ARRAY(const_room_retro_verif, selection)
-		EditBox 255, 195, 45, 15, SHEL_ARRAY(const_room_prosp_amt, selection)
-		DropListBox 305, 195, 85, 45, ""+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", SHEL_ARRAY(const_room_prosp_verif, selection)
-		EditBox 105, 215, 45, 15, SHEL_ARRAY(const_garage_retro_amt, selection)
-		DropListBox 155, 215, 85, 45, ""+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", SHEL_ARRAY(const_garage_retro_verif, selection)
-		EditBox 255, 215, 45, 15, SHEL_ARRAY(const_garage_prosp_amt, selection)
-		DropListBox 305, 215, 85, 45, ""+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", SHEL_ARRAY(const_garage_prosp_verif, selection)
-		EditBox 105, 235, 45, 15, SHEL_ARRAY(const_subsidy_retro_amt, selection)
-		DropListBox 155, 235, 85, 45, ""+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"OT - Other Doc"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", SHEL_ARRAY(const_subsidy_retro_verif, selection)
-		EditBox 255, 235, 45, 15, SHEL_ARRAY(const_subsidy_prosp_amt, selection)
-		DropListBox 305, 235, 85, 45, ""+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"OT - Other Doc"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", SHEL_ARRAY(const_subsidy_prosp_verif, selection)
-		PushButton 400, 235, 75, 15, "Save Information", save_information_btn
+		If update_shel = True Then
+			EditBox 105, 25, 165, 15, total_paid_to
+			EditBox 125, 40, 20, 15, total_paid_by_household
+			EditBox 125, 55, 20, 15, total_paid_by_others
+			EditBox 105, 95, 45, 15, total_current_rent
+			EditBox 105, 115, 45, 15, total_current_lot_rent
+			EditBox 105, 135, 45, 15, total_current_mortgage
+			EditBox 105, 155, 45, 15, total_current_insurance
+			EditBox 105, 175, 45, 15, total_current_taxes
+			EditBox 105, 195, 45, 15, total_current_room
+			EditBox 105, 215, 45, 15, total_current_garage
+			EditBox 105, 235, 45, 15, total_current_subsidy
+			PushButton 400, 235, 75, 15, "Save Information", save_information_btn
+		End If
+		If update_shel = False Then
+			Text 105, 30, 165, 10, total_paid_to
+			Text 125, 45, 20, 10, total_paid_by_household
+			Text 125, 60, 20, 10, total_paid_by_others
+			Text 105, 100, 45, 10, total_current_rent
+			Text 105, 120, 45, 10, total_current_lot_rent
+			Text 105, 140, 45, 10, total_current_mortgage
+			Text 105, 160, 45, 10, total_current_insurance
+			Text 105, 180, 45, 10, total_current_taxes
+			Text 105, 200, 45, 10, total_current_room
+			Text 105, 220, 45, 10, total_current_garage
+			Text 105, 240, 45, 10, total_current_subsidy
+			PushButton 400, 235, 75, 15, "Update Information", update_information_btn
+		End If
+		Text 15, 30, 90, 10, "Housing Expense Paid to"
+		Text 15, 45, 100, 10, "Expense Paid by Household"
+		Text 145, 45, 50, 10, "% (percent)"
+		PushButton 210, 41, 125, 13, "MANAGE HOUSEHOLD PERCENT", update_household_percent_button
+		Text 15, 60, 100, 10, "Expense Paid by Someone Else"
+		Text 145, 60, 50, 10, "% (percent)"
+		Text 105, 75, 60, 20, "Current Total Amount"
+		Text 80, 100, 20, 10, "Rent:"
+	    Text 70, 120, 30, 10, "Lot Rent:"
+	    Text 65, 140, 35, 10, "Mortgage:"
+	    Text 65, 160, 40, 10, "Insurance:"
+	    Text 75, 180, 25, 10, "Taxes:"
+	    Text 75, 200, 25, 10, "Room:"
+	    Text 75, 220, 30, 10, "Garage:"
+	    Text 70, 240, 30, 10, "Subsidy:"
+
+	Else
+		PushButton 400, 220, 75, 15, "TOTAL SHEL", view_total_shel_btn
+
+		If update_shel = True Then
+			EditBox 105, 25, 165, 15, SHEL_ARRAY(const_paid_to, selection)
+			DropListBox 165, 45, 40, 45, caf_answer_droplist, SHEL_ARRAY(const_hud_sub_yn, selection)
+			DropListBox 310, 45, 40, 45, caf_answer_droplist, SHEL_ARRAY(const_shared_yn, selection)
+			EditBox 105, 95, 45, 15, SHEL_ARRAY(const_rent_retro_amt, selection)
+			DropListBox 155, 95, 85, 45, ""+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", SHEL_ARRAY(const_rent_retro_verif, selection)
+			EditBox 255, 95, 45, 15, SHEL_ARRAY(const_rent_prosp_amt, selection)
+			DropListBox 305, 95, 85, 45, ""+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", SHEL_ARRAY(const_rent_prosp_verif, selection)
+			EditBox 105, 115, 45, 15, SHEL_ARRAY(const_lot_rent_retro_amt, selection)
+			DropListBox 155, 115, 85, 45, ""+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"BI - Billing Stmt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", SHEL_ARRAY(const_lot_rent_retro_verif, selection)
+			EditBox 255, 115, 45, 15, SHEL_ARRAY(const_lot_rent_prosp_amt, selection)
+			DropListBox 305, 115, 85, 45, ""+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"BI - Billing Stmt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", SHEL_ARRAY(const_lot_rent_prosp_verif, selection)
+			EditBox 105, 135, 45, 15, SHEL_ARRAY(const_mortgage_retro_amt, selection)
+			DropListBox 155, 135, 85, 45, ""+chr(9)+"MO - Mort Pmt Book"+chr(9)+"CD - Ctrct For Deed"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", SHEL_ARRAY(const_mortgage_retro_verif, selection)
+			EditBox 255, 135, 45, 15, SHEL_ARRAY(const_mortgage_prosp_amt, selection)
+			DropListBox 305, 135, 85, 45, ""+chr(9)+"MO - Mort Pmt Book"+chr(9)+"CD - Ctrct For Deed"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", SHEL_ARRAY(const_mortgage_prosp_verif, selection)
+			EditBox 105, 155, 45, 15, SHEL_ARRAY(const_insurance_retro_amt, selection)
+			DropListBox 155, 155, 85, 45, ""+chr(9)+"BI - Billing Stmt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", SHEL_ARRAY(const_insurance_retro_verif, selection)
+			EditBox 255, 155, 45, 15, SHEL_ARRAY(const_insurance_prosp_amt, selection)
+			DropListBox 305, 155, 85, 45, ""+chr(9)+"BI - Billing Stmt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", SHEL_ARRAY(const_insurance_prosp_verif, selection)
+			EditBox 105, 175, 45, 15, SHEL_ARRAY(const_tax_retro_amt, selection)
+			DropListBox 155, 175, 85, 45, ""+chr(9)+"TX - Prop Tax Stmt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", SHEL_ARRAY(const_tax_retro_verif, selection)
+			EditBox 255, 175, 45, 15, SHEL_ARRAY(const_tax_prosp_amt, selection)
+			DropListBox 305, 175, 85, 45, ""+chr(9)+"TX - Prop Tax Stmt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", SHEL_ARRAY(const_tax_prosp_verif, selection)
+			EditBox 105, 195, 45, 15, SHEL_ARRAY(const_room_retro_amt, selection)
+			DropListBox 155, 195, 85, 45, ""+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", SHEL_ARRAY(const_room_retro_verif, selection)
+			EditBox 255, 195, 45, 15, SHEL_ARRAY(const_room_prosp_amt, selection)
+			DropListBox 305, 195, 85, 45, ""+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", SHEL_ARRAY(const_room_prosp_verif, selection)
+			EditBox 105, 215, 45, 15, SHEL_ARRAY(const_garage_retro_amt, selection)
+			DropListBox 155, 215, 85, 45, ""+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", SHEL_ARRAY(const_garage_retro_verif, selection)
+			EditBox 255, 215, 45, 15, SHEL_ARRAY(const_garage_prosp_amt, selection)
+			DropListBox 305, 215, 85, 45, ""+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", SHEL_ARRAY(const_garage_prosp_verif, selection)
+			EditBox 105, 235, 45, 15, SHEL_ARRAY(const_subsidy_retro_amt, selection)
+			DropListBox 155, 235, 85, 45, ""+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"OT - Other Doc"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", SHEL_ARRAY(const_subsidy_retro_verif, selection)
+			EditBox 255, 235, 45, 15, SHEL_ARRAY(const_subsidy_prosp_amt, selection)
+			DropListBox 305, 235, 85, 45, ""+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"OT - Other Doc"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", SHEL_ARRAY(const_subsidy_prosp_verif, selection)
+			PushButton 400, 235, 75, 15, "Save Information", save_information_btn
+		End If
+		If update_shel = False Then
+			Text 105, 30, 165, 10, SHEL_ARRAY(const_paid_to, selection)
+			Text 165, 50, 40, 10, SHEL_ARRAY(const_hud_sub_yn, selection)
+			Text 310, 50, 40, 10, SHEL_ARRAY(const_shared_yn, selection)
+			Text 105, 100, 45, 10, SHEL_ARRAY(const_rent_retro_amt, selection)
+			Text 160, 100, 70, 10, SHEL_ARRAY(const_rent_retro_verif, selection)
+			Text 255, 100, 45, 10, SHEL_ARRAY(const_rent_prosp_amt, selection)
+			Text 310, 100, 70, 10, SHEL_ARRAY(const_rent_prosp_verif, selection)
+			Text 105, 120, 45, 10, SHEL_ARRAY(const_lot_rent_retro_amt, selection)
+			Text 160, 120, 70, 10, SHEL_ARRAY(const_lot_rent_retro_verif, selection)
+			Text 255, 120, 45, 10, SHEL_ARRAY(const_lot_rent_prosp_amt, selection)
+			Text 310, 120, 70, 10, SHEL_ARRAY(const_lot_rent_prosp_verif, selection)
+			Text 105, 140, 45, 10, SHEL_ARRAY(const_mortgage_retro_amt, selection)
+			Text 160, 140, 70, 10, SHEL_ARRAY(const_mortgage_retro_verif, selection)
+			Text 255, 140, 45, 10, SHEL_ARRAY(const_mortgage_prosp_amt, selection)
+			Text 310, 140, 70, 10, SHEL_ARRAY(const_mortgage_prosp_verif, selection)
+			Text 105, 160, 45, 10, SHEL_ARRAY(const_insurance_retro_amt, selection)
+			Text 160, 160, 70, 10, SHEL_ARRAY(const_insurance_retro_verif, selection)
+			Text 255, 160, 45, 10, SHEL_ARRAY(const_insurance_prosp_amt, selection)
+			Text 310, 160, 70, 10, SHEL_ARRAY(const_insurance_prosp_verif, selection)
+			Text 105, 180, 45, 10, SHEL_ARRAY(const_tax_retro_amt, selection)
+			Text 160, 180, 70, 10, SHEL_ARRAY(const_tax_retro_verif, selection)
+			Text 255, 180, 45, 10, SHEL_ARRAY(const_tax_prosp_amt, selection)
+			Text 310, 180, 70, 10, SHEL_ARRAY(const_tax_prosp_verif, selection)
+			Text 105, 200, 45, 10, SHEL_ARRAY(const_room_retro_amt, selection)
+			Text 160, 200, 70, 10, SHEL_ARRAY(const_room_retro_verif, selection)
+			Text 255, 200, 45, 10, SHEL_ARRAY(const_room_prosp_amt, selection)
+			Text 310, 200, 70, 10, SHEL_ARRAY(const_room_prosp_verif, selection)
+			Text 105, 220, 45, 10, SHEL_ARRAY(const_garage_retro_amt, selection)
+			Text 160, 220, 70, 10, SHEL_ARRAY(const_garage_retro_verif, selection)
+			Text 255, 220, 45, 10, SHEL_ARRAY(const_garage_prosp_amt, selection)
+			Text 310, 220, 70, 10, SHEL_ARRAY(const_garage_prosp_verif, selection)
+			Text 105, 240, 45, 10, SHEL_ARRAY(const_subsidy_retro_amt, selection)
+			Text 160, 240, 70, 10, SHEL_ARRAY(const_subsidy_retro_verif, selection)
+			Text 255, 240, 45, 10, SHEL_ARRAY(const_subsidy_prosp_amt, selection)
+			Text 310, 240, 70, 10, SHEL_ARRAY(const_subsidy_prosp_verif, selection)
+			PushButton 400, 235, 75, 15, "Update Information", update_information_btn
+		End If
+
+		PushButton 325, 30, 70, 13, "CLEAR ALL", clear_all_btn
+	    Text 15, 30, 90, 10, "Housing Expense Paid to"
+		Text 105, 50, 60, 10, "HUD Subsidized"
+	    Text 225, 50, 85, 10, "Housing Expense Shared"
+	    GroupBox 15, 65, 380, 190, "Housing Expense Amounts"
+	    Text 105, 75, 65, 10, "Retrospective"
+	    Text 255, 75, 65, 10, "Prospective"
+	    Text 105, 85, 30, 10, "Amount"
+	    Text 255, 85, 25, 10, "Amount"
+	    Text 160, 85, 20, 10, "Verif"
+	    Text 310, 85, 20, 10, "Verif"
+		Text 80, 100, 20, 10, "Rent:"
+	    Text 70, 120, 30, 10, "Lot Rent:"
+	    Text 65, 140, 35, 10, "Mortgage:"
+	    Text 65, 160, 40, 10, "Insurance:"
+	    Text 75, 180, 25, 10, "Taxes:"
+	    Text 75, 200, 25, 10, "Room:"
+	    Text 75, 220, 30, 10, "Garage:"
+	    Text 70, 240, 30, 10, "Subsidy:"
+
 	End If
-	If update_shel = False Then
-		Text 105, 30, 165, 10, SHEL_ARRAY(const_paid_to, selection)
-		Text 165, 50, 40, 10, SHEL_ARRAY(const_hud_sub_yn, selection)
-		Text 310, 50, 40, 10, SHEL_ARRAY(const_shared_yn, selection)
-		Text 105, 100, 45, 10, SHEL_ARRAY(const_rent_retro_amt, selection)
-		Text 160, 100, 70, 10, SHEL_ARRAY(const_rent_retro_verif, selection)
-		Text 255, 100, 45, 10, SHEL_ARRAY(const_rent_prosp_amt, selection)
-		Text 310, 100, 70, 10, SHEL_ARRAY(const_rent_prosp_verif, selection)
-		Text 105, 120, 45, 10, SHEL_ARRAY(const_lot_rent_retro_amt, selection)
-		Text 160, 120, 70, 10, SHEL_ARRAY(const_lot_rent_retro_verif, selection)
-		Text 255, 120, 45, 10, SHEL_ARRAY(const_lot_rent_prosp_amt, selection)
-		Text 310, 120, 70, 10, SHEL_ARRAY(const_lot_rent_prosp_verif, selection)
-		Text 105, 140, 45, 10, SHEL_ARRAY(const_mortgage_retro_amt, selection)
-		Text 160, 140, 70, 10, SHEL_ARRAY(const_mortgage_retro_verif, selection)
-		Text 255, 140, 45, 10, SHEL_ARRAY(const_mortgage_prosp_amt, selection)
-		Text 310, 140, 70, 10, SHEL_ARRAY(const_mortgage_prosp_verif, selection)
-		Text 105, 160, 45, 10, SHEL_ARRAY(const_insurance_retro_amt, selection)
-		Text 160, 160, 70, 10, SHEL_ARRAY(const_insurance_retro_verif, selection)
-		Text 255, 160, 45, 10, SHEL_ARRAY(const_insurance_prosp_amt, selection)
-		Text 310, 160, 70, 10, SHEL_ARRAY(const_insurance_prosp_verif, selection)
-		Text 105, 180, 45, 10, SHEL_ARRAY(const_tax_retro_amt, selection)
-		Text 160, 180, 70, 10, SHEL_ARRAY(const_tax_retro_verif, selection)
-		Text 255, 180, 45, 10, SHEL_ARRAY(const_tax_prosp_amt, selection)
-		Text 310, 180, 70, 10, SHEL_ARRAY(const_tax_prosp_verif, selection)
-		Text 105, 200, 45, 10, SHEL_ARRAY(const_room_retro_amt, selection)
-		Text 160, 200, 70, 10, SHEL_ARRAY(const_room_retro_verif, selection)
-		Text 255, 200, 45, 10, SHEL_ARRAY(const_room_prosp_amt, selection)
-		Text 310, 200, 70, 10, SHEL_ARRAY(const_room_prosp_verif, selection)
-		Text 105, 220, 45, 10, SHEL_ARRAY(const_garage_retro_amt, selection)
-		Text 160, 220, 70, 10, SHEL_ARRAY(const_garage_retro_verif, selection)
-		Text 255, 220, 45, 10, SHEL_ARRAY(const_garage_prosp_amt, selection)
-		Text 310, 220, 70, 10, SHEL_ARRAY(const_garage_prosp_verif, selection)
-		Text 105, 240, 45, 10, SHEL_ARRAY(const_subsidy_retro_amt, selection)
-		Text 160, 240, 70, 10, SHEL_ARRAY(const_subsidy_retro_verif, selection)
-		Text 255, 240, 45, 10, SHEL_ARRAY(const_subsidy_prosp_amt, selection)
-		Text 310, 240, 70, 10, SHEL_ARRAY(const_subsidy_prosp_verif, selection)
-		PushButton 400, 235, 75, 15, "Update Information", update_information_btn
-	End If
-
-	PushButton 325, 30, 70, 13, "CLEAR ALL", clear_all_btn
-    Text 15, 30, 90, 10, "Housing Expense Paid to "
-	Text 105, 50, 60, 10, "HUD Subsidized"
-    Text 225, 50, 85, 10, "Housing Expense Shared"
-    GroupBox 15, 65, 380, 190, "Housing Expense Amounts"
-    Text 80, 100, 20, 10, "Rent:"
-    Text 105, 75, 65, 10, "Retrospective"
-    Text 255, 75, 65, 10, "Prospective"
-    Text 105, 85, 30, 10, "Amount"
-    Text 255, 85, 25, 10, "Amount"
-    Text 160, 85, 20, 10, "Verif"
-    Text 310, 85, 20, 10, "Verif"
-    Text 70, 120, 30, 10, "Lot Rent:"
-    Text 65, 140, 35, 10, "Mortgage:"
-    Text 65, 160, 40, 10, "Insurance:"
-    Text 75, 180, 25, 10, "Taxes:"
-    Text 75, 200, 25, 10, "Room:"
-    Text 75, 220, 30, 10, "Garage:"
-    Text 70, 240, 30, 10, "Subsidy:"
-
-
 
 
 
@@ -1427,105 +1621,139 @@ end function
 
 ' function navigate_SHEL_buttons(update_shel, err_var, update_attempted, update_information_btn, save_information_btn, SHEL_ARRAY, const_memb_buttons, const_shel_exists, const_attempt_update, selection)
 
-function navigate_SHEL_buttons(update_shel, err_var, SHEL_ARRAY, selection, const_shel_member, const_shel_exists, const_hud_sub_yn, const_shared_yn, const_paid_to, const_rent_retro_amt, const_rent_retro_verif, const_rent_prosp_amt, const_rent_prosp_verif, const_lot_rent_retro_amt, const_lot_rent_retro_verif, const_lot_rent_prosp_amt, const_lot_rent_prosp_verif, const_mortgage_retro_amt, const_mortgage_retro_verif, const_mortgage_prosp_amt, const_mortgage_prosp_verif, const_insurance_retro_amt, const_insurance_retro_verif, const_insurance_prosp_amt, const_insurance_prosp_verif, const_tax_retro_amt, const_tax_retro_verif, const_tax_prosp_amt, const_tax_prosp_verif, const_room_retro_amt, const_room_retro_verif, const_room_prosp_amt, const_room_prosp_verif, const_garage_retro_amt, const_garage_retro_verif, const_garage_prosp_amt, const_garage_prosp_verif, const_subsidy_retro_amt, const_subsidy_retro_verif, const_subsidy_prosp_amt, const_subsidy_prosp_verif, update_information_btn, save_information_btn, const_memb_buttons, const_attempt_update, clear_all_btn)
+function navigate_SHEL_buttons(update_shel, show_totals, err_var, SHEL_ARRAY, selection, const_shel_member, const_shel_exists, const_hud_sub_yn, const_shared_yn, const_paid_to, const_rent_retro_amt, const_rent_retro_verif, const_rent_prosp_amt, const_rent_prosp_verif, const_lot_rent_retro_amt, const_lot_rent_retro_verif, const_lot_rent_prosp_amt, const_lot_rent_prosp_verif, const_mortgage_retro_amt, const_mortgage_retro_verif, const_mortgage_prosp_amt, const_mortgage_prosp_verif, const_insurance_retro_amt, const_insurance_retro_verif, const_insurance_prosp_amt, const_insurance_prosp_verif, const_tax_retro_amt, const_tax_retro_verif, const_tax_prosp_amt, const_tax_prosp_verif, const_room_retro_amt, const_room_retro_verif, const_room_prosp_amt, const_room_prosp_verif, const_garage_retro_amt, const_garage_retro_verif, const_garage_prosp_amt, const_garage_prosp_verif, const_subsidy_retro_amt, const_subsidy_retro_verif, const_subsidy_prosp_amt, const_subsidy_prosp_verif, update_information_btn, save_information_btn, const_memb_buttons, const_attempt_update, clear_all_btn, view_total_shel_btn)
 
 	If ButtonPressed = update_information_btn Then
 		update_shel = TRUE
 		update_attempted = True
+		' MsgBox "In UPDATE button" & vbCr & vbCr & "Show totals - " & show_totals
 	ElseIf ButtonPressed = save_information_btn Then
 		update_shel = FALSE
 	Else
 		update_shel = FALSE
 	End If
 
+	If selection <> "" Then
+		'REVIEWING THE INFORMATION IN THE ARRAY TO DETERMINE IF IT IS BLANK
+		all_shel_details_blank = True
 
+		If Trim(SHEL_ARRAY(const_paid_to, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_hud_sub_yn, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_shared_yn, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_rent_retro_amt, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_rent_retro_verif, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_rent_prosp_amt, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_rent_prosp_verif, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_lot_rent_retro_amt, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_lot_rent_retro_verif, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_lot_rent_prosp_amt, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_lot_rent_prosp_verif, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_mortgage_retro_amt, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_mortgage_retro_verif, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_mortgage_prosp_amt, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_mortgage_prosp_verif, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_insurance_retro_amt, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_insurance_retro_verif, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_insurance_prosp_amt, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_insurance_prosp_verif, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_tax_retro_amt, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_tax_retro_verif, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_tax_prosp_amt, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_tax_prosp_verif, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_room_retro_amt, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_room_retro_verif, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_room_prosp_amt, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_room_prosp_verif, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_garage_retro_amt, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_garage_retro_verif, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_garage_prosp_amt, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_garage_prosp_verif, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_subsidy_retro_amt, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_subsidy_retro_verif, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_subsidy_prosp_amt, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_subsidy_prosp_verif, selection)) <> "" Then all_shel_details_blank = False
 
-	'REVIEWING THE INFORMATION IN THE ARRAY TO DETERMINE IF IT IS BLANK
-	all_shel_details_blank = True
+		If all_shel_details_blank = True Then SHEL_ARRAY(const_shel_exists, selection) = False
 
-	If Trim(SHEL_ARRAY(const_paid_to, selection)) <> "" Then all_shel_details_blank = False
-	If Trim(SHEL_ARRAY(const_hud_sub_yn, selection)) <> "" Then all_shel_details_blank = False
-	If Trim(SHEL_ARRAY(const_shared_yn, selection)) <> "" Then all_shel_details_blank = False
-	If Trim(SHEL_ARRAY(const_rent_retro_amt, selection)) <> "" Then all_shel_details_blank = False
-	If Trim(SHEL_ARRAY(const_rent_retro_verif, selection)) <> "" Then all_shel_details_blank = False
-	If Trim(SHEL_ARRAY(const_rent_prosp_amt, selection)) <> "" Then all_shel_details_blank = False
-	If Trim(SHEL_ARRAY(const_rent_prosp_verif, selection)) <> "" Then all_shel_details_blank = False
-	If Trim(SHEL_ARRAY(const_lot_rent_retro_amt, selection)) <> "" Then all_shel_details_blank = False
-	If Trim(SHEL_ARRAY(const_lot_rent_retro_verif, selection)) <> "" Then all_shel_details_blank = False
-	If Trim(SHEL_ARRAY(const_lot_rent_prosp_amt, selection)) <> "" Then all_shel_details_blank = False
-	If Trim(SHEL_ARRAY(const_lot_rent_prosp_verif, selection)) <> "" Then all_shel_details_blank = False
-	If Trim(SHEL_ARRAY(const_mortgage_retro_amt, selection)) <> "" Then all_shel_details_blank = False
-	If Trim(SHEL_ARRAY(const_mortgage_retro_verif, selection)) <> "" Then all_shel_details_blank = False
-	If Trim(SHEL_ARRAY(const_mortgage_prosp_amt, selection)) <> "" Then all_shel_details_blank = False
-	If Trim(SHEL_ARRAY(const_mortgage_prosp_verif, selection)) <> "" Then all_shel_details_blank = False
-	If Trim(SHEL_ARRAY(const_insurance_retro_amt, selection)) <> "" Then all_shel_details_blank = False
-	If Trim(SHEL_ARRAY(const_insurance_retro_verif, selection)) <> "" Then all_shel_details_blank = False
-	If Trim(SHEL_ARRAY(const_insurance_prosp_amt, selection)) <> "" Then all_shel_details_blank = False
-	If Trim(SHEL_ARRAY(const_insurance_prosp_verif, selection)) <> "" Then all_shel_details_blank = False
-	If Trim(SHEL_ARRAY(const_tax_retro_amt, selection)) <> "" Then all_shel_details_blank = False
-	If Trim(SHEL_ARRAY(const_tax_retro_verif, selection)) <> "" Then all_shel_details_blank = False
-	If Trim(SHEL_ARRAY(const_tax_prosp_amt, selection)) <> "" Then all_shel_details_blank = False
-	If Trim(SHEL_ARRAY(const_tax_prosp_verif, selection)) <> "" Then all_shel_details_blank = False
-	If Trim(SHEL_ARRAY(const_room_retro_amt, selection)) <> "" Then all_shel_details_blank = False
-	If Trim(SHEL_ARRAY(const_room_retro_verif, selection)) <> "" Then all_shel_details_blank = False
-	If Trim(SHEL_ARRAY(const_room_prosp_amt, selection)) <> "" Then all_shel_details_blank = False
-	If Trim(SHEL_ARRAY(const_room_prosp_verif, selection)) <> "" Then all_shel_details_blank = False
-	If Trim(SHEL_ARRAY(const_garage_retro_amt, selection)) <> "" Then all_shel_details_blank = False
-	If Trim(SHEL_ARRAY(const_garage_retro_verif, selection)) <> "" Then all_shel_details_blank = False
-	If Trim(SHEL_ARRAY(const_garage_prosp_amt, selection)) <> "" Then all_shel_details_blank = False
-	If Trim(SHEL_ARRAY(const_garage_prosp_verif, selection)) <> "" Then all_shel_details_blank = False
-	If Trim(SHEL_ARRAY(const_subsidy_retro_amt, selection)) <> "" Then all_shel_details_blank = False
-	If Trim(SHEL_ARRAY(const_subsidy_retro_verif, selection)) <> "" Then all_shel_details_blank = False
-	If Trim(SHEL_ARRAY(const_subsidy_prosp_amt, selection)) <> "" Then all_shel_details_blank = False
-	If Trim(SHEL_ARRAY(const_subsidy_prosp_verif, selection)) <> "" Then all_shel_details_blank = False
-
-	If all_shel_details_blank = True Then SHEL_ARRAY(const_shel_exists, selection) = False
-
-	If ButtonPressed = clear_all_btn Then
-		SHEL_ARRAY(const_paid_to, selection) = ""
-		SHEL_ARRAY(const_hud_sub_yn, selection) = ""
-		SHEL_ARRAY(const_shared_yn, selection) = ""
-		SHEL_ARRAY(const_rent_retro_amt, selection) = ""
-		SHEL_ARRAY(const_rent_retro_verif, selection) = ""
-		SHEL_ARRAY(const_rent_prosp_amt, selection) = ""
-		SHEL_ARRAY(const_rent_prosp_verif, selection) = ""
-		SHEL_ARRAY(const_lot_rent_retro_amt, selection) = ""
-		SHEL_ARRAY(const_lot_rent_retro_verif, selection) = ""
-		SHEL_ARRAY(const_lot_rent_prosp_amt, selection) = ""
-		SHEL_ARRAY(const_lot_rent_prosp_verif, selection) = ""
-		SHEL_ARRAY(const_mortgage_retro_amt, selection) = ""
-		SHEL_ARRAY(const_mortgage_retro_verif, selection) = ""
-		SHEL_ARRAY(const_mortgage_prosp_amt, selection) = ""
-		SHEL_ARRAY(const_mortgage_prosp_verif, selection) = ""
-		SHEL_ARRAY(const_insurance_retro_amt, selection) = ""
-		SHEL_ARRAY(const_insurance_retro_verif, selection) = ""
-		SHEL_ARRAY(const_insurance_prosp_amt, selection) = ""
-		SHEL_ARRAY(const_insurance_prosp_verif, selection) = ""
-		SHEL_ARRAY(const_tax_retro_amt, selection) = ""
-		SHEL_ARRAY(const_tax_retro_verif, selection) = ""
-		SHEL_ARRAY(const_tax_prosp_amt, selection) = ""
-		SHEL_ARRAY(const_tax_prosp_verif, selection) = ""
-		SHEL_ARRAY(const_room_retro_amt, selection) = ""
-		SHEL_ARRAY(const_room_retro_verif, selection) = ""
-		SHEL_ARRAY(const_room_prosp_amt, selection) = ""
-		SHEL_ARRAY(const_room_prosp_verif, selection) = ""
-		SHEL_ARRAY(const_garage_retro_amt, selection) = ""
-		SHEL_ARRAY(const_garage_retro_verif, selection) = ""
-		SHEL_ARRAY(const_garage_prosp_amt, selection) = ""
-		SHEL_ARRAY(const_garage_prosp_verif, selection) = ""
-		SHEL_ARRAY(const_subsidy_retro_amt, selection) = ""
-		SHEL_ARRAY(const_subsidy_retro_verif, selection) = ""
-		SHEL_ARRAY(const_subsidy_prosp_amt, selection) = ""
-		SHEL_ARRAY(const_subsidy_prosp_verif, selection) = ""
-		SHEL_ARRAY(const_shel_exists, selection) = False
+		If ButtonPressed = clear_all_btn Then
+			SHEL_ARRAY(const_paid_to, selection) = ""
+			SHEL_ARRAY(const_hud_sub_yn, selection) = ""
+			SHEL_ARRAY(const_shared_yn, selection) = ""
+			SHEL_ARRAY(const_rent_retro_amt, selection) = ""
+			SHEL_ARRAY(const_rent_retro_verif, selection) = ""
+			SHEL_ARRAY(const_rent_prosp_amt, selection) = ""
+			SHEL_ARRAY(const_rent_prosp_verif, selection) = ""
+			SHEL_ARRAY(const_lot_rent_retro_amt, selection) = ""
+			SHEL_ARRAY(const_lot_rent_retro_verif, selection) = ""
+			SHEL_ARRAY(const_lot_rent_prosp_amt, selection) = ""
+			SHEL_ARRAY(const_lot_rent_prosp_verif, selection) = ""
+			SHEL_ARRAY(const_mortgage_retro_amt, selection) = ""
+			SHEL_ARRAY(const_mortgage_retro_verif, selection) = ""
+			SHEL_ARRAY(const_mortgage_prosp_amt, selection) = ""
+			SHEL_ARRAY(const_mortgage_prosp_verif, selection) = ""
+			SHEL_ARRAY(const_insurance_retro_amt, selection) = ""
+			SHEL_ARRAY(const_insurance_retro_verif, selection) = ""
+			SHEL_ARRAY(const_insurance_prosp_amt, selection) = ""
+			SHEL_ARRAY(const_insurance_prosp_verif, selection) = ""
+			SHEL_ARRAY(const_tax_retro_amt, selection) = ""
+			SHEL_ARRAY(const_tax_retro_verif, selection) = ""
+			SHEL_ARRAY(const_tax_prosp_amt, selection) = ""
+			SHEL_ARRAY(const_tax_prosp_verif, selection) = ""
+			SHEL_ARRAY(const_room_retro_amt, selection) = ""
+			SHEL_ARRAY(const_room_retro_verif, selection) = ""
+			SHEL_ARRAY(const_room_prosp_amt, selection) = ""
+			SHEL_ARRAY(const_room_prosp_verif, selection) = ""
+			SHEL_ARRAY(const_garage_retro_amt, selection) = ""
+			SHEL_ARRAY(const_garage_retro_verif, selection) = ""
+			SHEL_ARRAY(const_garage_prosp_amt, selection) = ""
+			SHEL_ARRAY(const_garage_prosp_verif, selection) = ""
+			SHEL_ARRAY(const_subsidy_retro_amt, selection) = ""
+			SHEL_ARRAY(const_subsidy_retro_verif, selection) = ""
+			SHEL_ARRAY(const_subsidy_prosp_amt, selection) = ""
+			SHEL_ARRAY(const_subsidy_prosp_verif, selection) = ""
+			SHEL_ARRAY(const_shel_exists, selection) = False
+		End If
 	End If
 
 	For memb_btn = 0 to UBound(SHEL_ARRAY, 2)
-		If ButtonPressed = SHEL_ARRAY(const_memb_buttons, memb_btn) Then selection = memb_btn
+		If ButtonPressed = SHEL_ARRAY(const_memb_buttons, memb_btn) Then
+			selection = memb_btn
+			show_totals = False
+		End If
 	Next
-	If SHEL_ARRAY(const_shel_exists, selection) = False Then update_shel = True
-	If update_shel = True Then SHEL_ARRAY(const_attempt_update, selection) = True
-	If update_shel = True Then update_attempted = True
+	If selection <> "" Then
+		If SHEL_ARRAY(const_shel_exists, selection) = False Then update_shel = True
+		If update_shel = True Then
+			SHEL_ARRAY(const_attempt_update, selection) = True
+			update_attempted = True
+
+			SHEL_ARRAY(const_rent_prosp_amt, selection) = SHEL_ARRAY(const_rent_prosp_amt, selection) & ""
+			SHEL_ARRAY(const_lot_rent_prosp_amt, selection) = SHEL_ARRAY(const_lot_rent_prosp_amt, selection) & ""
+			SHEL_ARRAY(const_mortgage_prosp_amt, selection) = SHEL_ARRAY(const_mortgage_prosp_amt, selection) & ""
+			SHEL_ARRAY(const_insurance_prosp_amt, selection) = SHEL_ARRAY(const_insurance_prosp_amt, selection) & ""
+			SHEL_ARRAY(const_tax_prosp_amt, selection) = SHEL_ARRAY(const_tax_prosp_amt, selection) & ""
+			SHEL_ARRAY(const_room_prosp_amt, selection) = SHEL_ARRAY(const_room_prosp_amt, selection) & ""
+			SHEL_ARRAY(const_garage_prosp_amt, selection) = SHEL_ARRAY(const_garage_prosp_amt, selection) & ""
+			SHEL_ARRAY(const_subsidy_prosp_amt, selection) = SHEL_ARRAY(const_subsidy_prosp_amt, selection) & ""
+		End If
+	End If
+	If ButtonPressed = view_total_shel_btn Then
+		show_totals = True
+		selection = ""
+	End If
+	If show_totals = True and update_shel = True Then
+		total_paid_by_household = total_paid_by_household & ""
+		total_paid_by_others = total_paid_by_others & ""
+		total_current_rent = total_current_rent & ""
+		total_current_lot_rent = total_current_lot_rent & ""
+		total_current_mortgage = total_current_mortgage & ""
+		total_current_insurance = total_current_insurance & ""
+		total_current_taxes = total_current_taxes & ""
+		total_current_room = total_current_room & ""
+		total_current_garage = total_current_garage & ""
+		total_current_subsidy = total_current_subsidy & ""
+	End If
+	' MsgBox "End NAVIGATE" & vbCr & vbCr & "Show totals - " & show_totals
 end function
 
 function navigate_HEST_buttons(update_hest, err_var, update_attempted, update_information_btn, save_information_btn, retro_heat_ac_yn, retro_heat_ac_units, retro_heat_ac_amt, retro_electric_yn, retro_electric_units, retro_electric_amt, retro_phone_yn, retro_phone_units, retro_phone_amt, prosp_heat_ac_yn, prosp_heat_ac_units, prosp_heat_ac_amt, prosp_electric_yn, prosp_electric_units, prosp_electric_amt, prosp_phone_yn, prosp_phone_units, prosp_phone_amt, total_utility_expense)
@@ -1597,6 +1825,317 @@ function navigate_HEST_buttons(update_hest, err_var, update_attempted, update_in
 	End If
 end function
 
+function navigate_HOUSING_CHANGE_buttons(err_msg, housing_questions_step, household_move_yn, household_move_everyone_yn, move_date, shel_change_yn, shel_verif_received_yn, shel_start_date, shel_shared_yn, shel_subsidized_yn, total_current_rent, total_current_taxes, total_current_lot_rent, total_current_room, total_current_mortgage, total_current_garage, total_current_insurance, total_current_subsidy, shel_change_type, hest_heat_ac_yn, hest_electric_yn, hest_ac_on_electric_yn, hest_heat_on_electric_yn, hest_phone_yn, update_addr_button, addr_or_shel_change_notes, update_shel_button, housing_change_continue_btn, view_addr_update_dlg, view_shel_update_dlg, view_shel_details_dlg, addr_update_needed, shel_update_needed, hest_update_needed)
+
+	' view_addr_update_dlg
+	' view_shel_update_dlg
+	' view_shel_details_dlg
+
+	If household_move_yn = "?" Then
+		view_addr_update_dlg = "Unknown"
+		err_msg = "STOP"
+	End If
+
+	If shel_change_yn = "?" Then
+		view_shel_update_dlg = "Unknown"
+		err_msg = "STOP"
+	End If
+
+	If household_move_yn = "Yes" Then
+		view_addr_update_dlg = True
+		shel_change_yn = "Yes"
+		view_shel_update_dlg = True
+
+	End If
+	If household_move_yn = "No" Then view_addr_update_dlg = False
+
+	view_shel_details_dlg = True
+
+	' household_move_yn,
+	' household_move_everyone_yn,
+	' move_date,
+	' shel_change_yn,
+	' shel_verif_received_yn,
+	' shel_start_date,
+	' shel_shared_yn,
+	' shel_subsidized_yn,
+	' total_current_rent,
+	' total_current_taxes,
+	' total_current_lot_rent,
+	' total_current_room,
+	' total_current_mortgage,
+	' total_current_garage,
+	' total_current_insurance,
+	' total_current_subsidy,
+	' shel_change_type,
+	' hest_heat_ac_yn,
+	' hest_electric_yn,
+	' hest_ac_on_electric_yn,
+	' hest_heat_on_electric_yn,
+	' hest_phone_yn
+	If ButtonPressed = housing_change_continue_btn Then
+		housing_questions_step = housing_questions_step + 1
+
+
+		If housing_questions_step = 1 Then 		'Initial Basic questions
+		ElseIf housing_questions_step = 2 Then 		'update ADDR Information
+
+		ElseIf housing_questions_step = 3 Then 		'update SHEL Information
+
+		ElseIf housing_questions_step = 4 Then 		'update SHEL percentages and SHARING Information
+
+		ElseIf housing_questions_step = 5 Then 		'review information
+
+		End If
+	End If
+	If ButtonPressed = housing_change_overview_btn Then housing_questions_step = 1
+	If ButtonPressed = housing_change_addr_update_btn Then housing_questions_step = 2
+	If ButtonPressed = housing_change_shel_update_btn Then housing_questions_step = 3
+	If ButtonPressed = housing_change_shel_details_btn Then housing_questions_step = 4
+end function
+
+function read_total_SHEL_on_case(ref_numbers_with_panel, paid_to, rent_amt, rent_verif, lot_rent_amt, lot_rent_verif, mortgage_amt, mortgage_verif, insurance_amt, insurance_verif, taxes_amt, taxes_verif, room_amt, room_verif, garage_amt, garage_verif, subsidy_amt, subsidy_verif, original_information)
+
+	'SEARCH THE LIST OF HOUSEHOLD MEMBERS TO SEARCH ALL SHEL PANELS
+	CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
+
+	DO								'reads the reference number, last name, first name, and then puts it into a single string then into the array
+		EMReadscreen ref_nbr, 3, 4, 33
+		EMReadScreen access_denied_check, 13, 24, 2
+		'MsgBox access_denied_check
+		If access_denied_check = "ACCESS DENIED" Then
+			PF10
+			last_name = "UNABLE TO FIND"
+			first_name = " - Access Denied"
+			mid_initial = ""
+		Else
+			client_list = client_list & ref_nbr & "|"
+		End If
+		transmit
+		Emreadscreen edit_check, 7, 24, 2
+	LOOP until edit_check = "ENTER A"			'the script will continue to transmit through memb until it reaches the last page and finds the ENTER A edit on the bottom row.
+
+	client_list = TRIM(client_list)
+	If right(client_list, 1) = "|" Then client_list = left(client_list, len(client_list) - 1)
+	shel_ref_numbers_array = split(client_list, "|")
+
+	rent_amt = 0
+	rent_verif = ""
+	lot_rent_amt = 0
+	lot_rent_verif = ""
+	mortgage_amt = 0
+	mortgage_verif = ""
+	insurance_amt = 0
+	insurance_verif = ""
+	taxes_amt = 0
+	taxes_verif = ""
+	room_amt = 0
+	room_verif = ""
+	garage_amt = 0
+	garage_verif = ""
+	subsidy_amt = 0
+	subsidy_verif = ""
+
+	Call navigate_to_MAXIS_screen("STAT", "SHEL")
+
+	For each memb_ref_number in shel_ref_numbers_array
+		EMWriteScreen memb_ref_number, 20, 76
+		transmit
+
+		EMReadScreen shel_version, 1, 2, 78
+		If shel_version = "1" Then
+			ref_numbers_with_panel = ref_numbers_with_panel & "~" & memb_ref_number
+
+		    EMReadScreen panel_paid_to,               25, 7, 50
+		    panel_paid_to = replace(panel_paid_to, "_", "")
+			If paid_to = "" Then
+				paid_to = panel_paid_to
+			ElseIf paid_to <> panel_paid_to Then
+				paid_to = "Multiple"
+			End If
+
+		    EMReadScreen rent_prosp_amt,        8, 11, 56
+		    EMReadScreen rent_prosp_verif,      2, 11, 67
+
+		    rent_prosp_amt = replace(rent_prosp_amt, "_", "")
+		    rent_prosp_amt = trim(rent_prosp_amt)
+			If rent_prosp_amt = "" Then rent_prosp_amt = 0
+			rent_prosp_amt = rent_prosp_amt * 1
+			rent_amt = rent_amt + rent_prosp_amt
+
+		    If rent_prosp_verif = "SF" Then rent_prosp_verif = "SF - Shelter Form"
+		    If rent_prosp_verif = "LE" Then rent_prosp_verif = "LE - Lease"
+		    If rent_prosp_verif = "RE" Then rent_prosp_verif = "RE - Rent Receipt"
+		    If rent_prosp_verif = "OT" Then rent_prosp_verif = "OT - Other Doc"
+		    If rent_prosp_verif = "NC" Then rent_prosp_verif = "NC - Chg, Neg Impact"
+		    If rent_prosp_verif = "PC" Then rent_prosp_verif = "PC - Chg, Pos Impact"
+		    If rent_prosp_verif = "NO" Then rent_prosp_verif = "NO - No Verif"
+			If rent_prosp_verif = "?_" Then rent_prosp_verif = "? - Delayed Verif"
+		    If rent_prosp_verif = "__" Then rent_prosp_verif = ""
+			If rent_verif = "" Then
+				rent_verif = rent_prosp_verif
+			ElseIf rent_verif <> rent_prosp_verif Then
+				rent_verif = "Multiple"
+			End If
+
+		    EMReadScreen lot_rent_prosp_amt,    8, 12, 56
+		    EMReadScreen lot_rent_prosp_verif,  2, 12, 67
+
+		    lot_rent_prosp_amt = replace(lot_rent_prosp_amt, "_", "")
+		    lot_rent_prosp_amt = trim(lot_rent_prosp_amt)
+			If lot_rent_prosp_amt = "" Then lot_rent_prosp_amt = 0
+			lot_rent_prosp_amt = lot_rent_prosp_amt * 1
+			lot_rent_amt = lot_rent_amt + lot_rent_prosp_amt
+		    If lot_rent_prosp_verif = "LE" Then lot_rent_prosp_verif = "LE - Lease"
+		    If lot_rent_prosp_verif = "RE" Then lot_rent_prosp_verif = "RE - Rent Receipt"
+		    If lot_rent_prosp_verif = "BI" Then lot_rent_prosp_verif = "BI - Billing Stmt"
+		    If lot_rent_prosp_verif = "OT" Then lot_rent_prosp_verif = "OT - Other Doc"
+		    If lot_rent_prosp_verif = "NC" Then lot_rent_prosp_verif = "NC - Chg, Neg Impact"
+		    If lot_rent_prosp_verif = "PC" Then lot_rent_prosp_verif = "PC - Chg, Pos Impact"
+		    If lot_rent_prosp_verif = "NO" Then lot_rent_prosp_verif = "NO - No Verif"
+			If lot_rent_prosp_verif = "?_" Then lot_rent_prosp_verif = "? - Delayed Verif"
+		    If lot_rent_prosp_verif = "__" Then lot_rent_prosp_verif = ""
+			If lot_rent_verif = "" Then
+				lot_rent_verif = lot_rent_prosp_verif
+			ElseIf lot_rent_verif <> lot_rent_prosp_verif Then
+				lot_rent_verif = "Multiple"
+			End If
+
+		    EMReadScreen mortgage_prosp_amt,    8, 13, 56
+		    EMReadScreen mortgage_prosp_verif,  2, 13, 67
+
+		    mortgage_prosp_amt = replace(mortgage_prosp_amt, "_", "")
+		    mortgage_prosp_amt = trim(mortgage_prosp_amt)
+			If mortgage_prosp_amt = "" Then mortgage_prosp_amt = 0
+			mortgage_prosp_amt = mortgage_prosp_amt * 1
+			mortgage_amt = mortgage_amt + mortgage_prosp_amt
+		    If mortgage_prosp_verif = "MO" Then mortgage_prosp_verif = "MO - Mortgage Pmt Book"
+		    If mortgage_prosp_verif = "CD" Then mortgage_prosp_verif = "CD - Ctrct fro Deed"
+		    If mortgage_prosp_verif = "OT" Then mortgage_prosp_verif = "OT - Other Doc"
+		    If mortgage_prosp_verif = "NC" Then mortgage_prosp_verif = "NC - Chg, Neg Impact"
+		    If mortgage_prosp_verif = "PC" Then mortgage_prosp_verif = "PC - Chg, Pos Impact"
+		    If mortgage_prosp_verif = "NO" Then mortgage_prosp_verif = "NO - No Verif"
+			If mortgage_prosp_verif = "?_" Then mortgage_prosp_verif = "? - Delayed Verif"
+		    If mortgage_prosp_verif = "__" Then mortgage_prosp_verif = ""
+			If mortgage_verif = "" Then
+				mortgage_verif = mortgage_prosp_verif
+			ElseIf mortgage_verif <> mortgage_prosp_verif Then
+				mortgage_verif = "Multiple"
+			End If
+
+		    EMReadScreen insurance_prosp_amt,   8, 14, 56
+		    EMReadScreen insurance_prosp_verif, 2, 14, 67
+
+		    insurance_prosp_amt = replace(insurance_prosp_amt, "_", "")
+		    insurance_prosp_amt = trim(insurance_prosp_amt)
+			If insurance_prosp_amt = "" Then insurance_prosp_amt = 0
+			insurance_prosp_amt = insurance_prosp_amt * 1
+			insurance_amt = insurance_amt + insurance_prosp_amt
+		    If insurance_prosp_verif = "BI" Then insurance_prosp_verif = "BI - Billing Stmt"
+		    If insurance_prosp_verif = "OT" Then insurance_prosp_verif = "OT - Other Doc"
+		    If insurance_prosp_verif = "NC" Then insurance_prosp_verif = "NC - Chg, Neg Impact"
+		    If insurance_prosp_verif = "PC" Then insurance_prosp_verif = "PC - Chg, Pos Impact"
+		    If insurance_prosp_verif = "NO" Then insurance_prosp_verif = "NO - No Verif"
+			If insurance_prosp_verif = "?_" Then insurance_prosp_verif = "? - Delayed Verif"
+		    If insurance_prosp_verif = "__" Then insurance_prosp_verif = ""
+			If insurance_verif = "" Then
+				insurance_verif = insurance_prosp_verif
+			ElseIf insurance_verif <> insurance_prosp_verif Then
+				insurance_verif = "Multiple"
+			End If
+
+		    EMReadScreen tax_prosp_amt,         8, 15, 56
+		    EMReadScreen tax_prosp_verif,       2, 15, 67
+
+		    tax_prosp_amt = replace(tax_prosp_amt, "_", "")
+		    tax_prosp_amt = trim(tax_prosp_amt)
+			If tax_prosp_amt = "" Then tax_prosp_amt = 0
+			tax_prosp_amt = tax_prosp_amt * 1
+			taxes_amt = taxes_amt + tax_prosp_amt
+		    If tax_prosp_verif = "TX" Then tax_prosp_verif = "TX - Prop Tax Stmt"
+		    If tax_prosp_verif = "OT" Then tax_prosp_verif = "OT - Other Doc"
+		    If tax_prosp_verif = "NC" Then tax_prosp_verif = "NC - Chg, Neg Impact"
+		    If tax_prosp_verif = "PC" Then tax_prosp_verif = "PC - Chg, Pos Impact"
+		    If tax_prosp_verif = "NO" Then tax_prosp_verif = "NO - No Verif"
+			If tax_prosp_verif = "?_" Then tax_prosp_verif = "? - Delayed Verif"
+		    If tax_prosp_verif = "__" Then tax_prosp_verif = ""
+			If taxes_verif = "" Then
+				taxes_verif = tax_prosp_verif
+			ElseIf taxes_verif <> tax_prosp_verif Then
+				taxes_verif = "Multiple"
+			End If
+
+		    EMReadScreen room_prosp_amt,        8, 16, 56
+		    EMReadScreen room_prosp_verif,      2, 16, 67
+
+		    room_prosp_amt = replace(room_prosp_amt, "_", "")
+		    room_prosp_amt = trim(room_prosp_amt)
+			If room_prosp_amt = "" Then room_prosp_amt = 0
+			room_prosp_amt = room_prosp_amt * 1
+			room_amt = room_amt + room_prosp_amt
+		    If room_prosp_verif = "SF" Then room_prosp_verif = "SF - Shelter Form"
+		    If room_prosp_verif = "LE" Then room_prosp_verif = "LE - Lease"
+		    If room_prosp_verif = "RE" Then room_prosp_verif = "RE - Rent Receipt"
+		    If room_prosp_verif = "OT" Then room_prosp_verif = "OT - Other Doc"
+		    If room_prosp_verif = "NC" Then room_prosp_verif = "NC - Chg, Neg Impact"
+		    If room_prosp_verif = "PC" Then room_prosp_verif = "PC - Chg, Pos Impact"
+		    If room_prosp_verif = "NO" Then room_prosp_verif = "NO - No Verif"
+			If room_prosp_verif = "?_" Then room_prosp_verif = "? - Delayed Verif"
+		    If room_prosp_verif = "__" Then room_prosp_verif = ""
+			If room_verif = "" Then
+				room_verif = room_prosp_verif
+			ElseIf room_verif <> room_prosp_verif Then
+				room_verif = "Multiple"
+			End If
+
+		    EMReadScreen garage_prosp_amt,      8, 17, 56
+		    EMReadScreen garage_prosp_verif,    2, 17, 67
+
+		    garage_prosp_amt = replace(garage_prosp_amt, "_", "")
+		    garage_prosp_amt = trim(garage_prosp_amt)
+			If garage_prosp_amt = "" Then garage_prosp_amt = 0
+			garage_prosp_amt = garage_prosp_amt * 1
+			garage_amt = garage_amt + garage_prosp_amt
+		    If garage_prosp_verif = "SF" Then garage_prosp_verif = "SF - Shelter Form"
+		    If garage_prosp_verif = "LE" Then garage_prosp_verif = "LE - Lease"
+		    If garage_prosp_verif = "RE" Then garage_prosp_verif = "RE - Rent Receipt"
+		    If garage_prosp_verif = "OT" Then garage_prosp_verif = "OT - Other Doc"
+		    If garage_prosp_verif = "NC" Then garage_prosp_verif = "NC - Chg, Neg Impact"
+		    If garage_prosp_verif = "PC" Then garage_prosp_verif = "PC - Chg, Pos Impact"
+		    If garage_prosp_verif = "NO" Then garage_prosp_verif = "NO - No Verif"
+			If garage_prosp_verif = "?_" Then garage_prosp_verif = "? - Delayed Verif"
+		    If garage_prosp_verif = "__" Then garage_prosp_verif = ""
+			If garage_verif = "" Then
+				garage_verif = garage_prosp_verif
+			ElseIf garage_verif <> garage_prosp_verif Then
+				garage_verif = "Multiple"
+			End If
+
+		    EMReadScreen subsidy_prosp_amt,     8, 18, 56
+		    EMReadScreen subsidy_prosp_verif,   2, 18, 67
+
+		    subsidy_prosp_amt = replace(subsidy_prosp_amt, "_", "")
+		    subsidy_prosp_amt = trim(subsidy_prosp_amt)
+			If subsidy_prosp_amt = "" Then subsidy_prosp_amt = 0
+			subsidy_prosp_amt = subsidy_prosp_amt * 1
+			subsidy_amt = subsidy_amt + subsidy_prosp_amt
+		    If subsidy_prosp_verif = "SF" Then subsidy_prosp_verif = "SF - Shelter Form"
+		    If subsidy_prosp_verif = "LE" Then subsidy_prosp_verif = "LE - Lease"
+		    If subsidy_prosp_verif = "OT" Then subsidy_prosp_verif = "OT - Other Doc"
+		    If subsidy_prosp_verif = "NO" Then subsidy_prosp_verif = "NO - No Verif"
+			If subsidy_prosp_verif = "?_" Then subsidy_prosp_verif = "? - Delayed Verif"
+		    If subsidy_prosp_verif = "__" Then subsidy_prosp_verif = ""
+			If subsidy_verif = "" Then
+				subsidy_verif = subsidy_prosp_verif
+			ElseIf subsidy_verif <> subsidy_prosp_verif Then
+				subsidy_verif = "Multiple"
+			End If
+		End If
+	Next
+
+	original_information = rent_amt&"|"&rent_verif&"|"&lot_rent_amt&"|"&lot_rent_verif&"|"&mortgage_amt&"|"&mortgage_verif&"|"&insurance_amt&"|"&insurance_verif&"|"&taxes_amt&"|"&taxes_verif&"|"&room_amt&"|"&room_verif&"|"&garage_amt&"|"&garage_verif&"|"&subsidy_amt&"|"&subsidy_verif
+end function
+
 function split_phone_number_into_parts(phone_variable, phone_left, phone_mid, phone_right)
 'This function is to take the information provided as a phone number and split it up into the 3 parts
     phone_variable = trim(phone_variable)
@@ -1663,10 +2202,12 @@ ReDim ALL_SHEL_PANELS_ARRAY(shel_entered_notes_const, 0)
 ADDR_dlg_page = 1
 SHEL_dlg_page = 2
 HEST_dlg_page = 3
+CHNG_page_btn = 4
 
 ADDR_page_btn = 100
 SHEL_page_btn = 101
 HEST_page_btn = 102
+CHNG_dlg_page = 103
 
 update_information_btn 	= 500
 save_information_btn	= 501
@@ -1675,11 +2216,32 @@ clear_phone_one_btn		= 503
 clear_phone_two_btn		= 504
 clear_phone_three_btn	= 505
 clear_all_btn			= 506
+view_total_shel_btn		= 507
+update_household_percent_button = 508
+housing_change_continue_btn = 509
+housing_change_overview_btn = 510
+housing_change_addr_update_btn = 511
+housing_change_shel_update_btn = 512
+housing_change_shel_details_btn = 513
 
 update_addr = False
 update_shel = False
 update_hest = False
 caf_answer_droplist = ""+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Blank"
+show_totals = True
+
+total_current_rent 		= 0
+total_current_taxes 	= 0
+total_current_lot_rent 	= 0
+total_current_room 		= 0
+total_current_mortgage 	= 0
+total_current_garage 	= 0
+total_current_insurance = 0
+total_current_subsidy 	= 0
+total_paid_to = ""
+total_paid_by_household = 100
+total_paid_by_others = 0
+
 '==========================================================================================================================
 
 EMConnect ""
@@ -1725,7 +2287,8 @@ For each memb_ref_number in ref_numbers_array
 	EMReadScreen shel_version, 1, 2, 73
 	If shel_version = "1" Then
 		ALL_SHEL_PANELS_ARRAY(shel_exists_const, members_counter) = True
-		If member_selection = "" Then member_selection = members_counter
+		If total_paid_to = "" Then total_paid_to =  ALL_SHEL_PANELS_ARRAY(paid_to_const, members_counter)
+		' If member_selection = "" Then member_selection = members_counter
 	Else
 		ALL_SHEL_PANELS_ARRAY(shel_exists_const, members_counter) = False
 		ALL_SHEL_PANELS_ARRAY(original_panel_info_const, shel_member) = "||||||||||||||||||||||||||||||||||"
@@ -1738,14 +2301,24 @@ Call access_HEST_panel("READ", all_persons_paying, choice_date, actual_initial_e
 For shel_member = 0 to UBound(ALL_SHEL_PANELS_ARRAY, 2)
 	If ALL_SHEL_PANELS_ARRAY(shel_exists_const, shel_member) = True Then
 		Call access_SHEL_panel("READ", ALL_SHEL_PANELS_ARRAY(shel_ref_number_const, shel_member), ALL_SHEL_PANELS_ARRAY(hud_sub_yn_const, shel_member), ALL_SHEL_PANELS_ARRAY(shared_yn_const, shel_member), ALL_SHEL_PANELS_ARRAY(paid_to_const, shel_member), ALL_SHEL_PANELS_ARRAY(rent_retro_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(rent_retro_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(rent_prosp_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(rent_prosp_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(lot_rent_retro_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(lot_rent_retro_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(lot_rent_prosp_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(lot_rent_prosp_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(mortgage_retro_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(mortgage_retro_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(mortgage_prosp_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(mortgage_prosp_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(insurance_retro_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(insurance_retro_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(insurance_prosp_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(insurance_prosp_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(tax_retro_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(tax_retro_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(tax_prosp_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(tax_prosp_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(room_retro_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(room_retro_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(room_prosp_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(room_prosp_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(garage_retro_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(garage_retro_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(garage_prosp_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(garage_prosp_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(subsidy_retro_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(subsidy_retro_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(subsidy_prosp_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(subsidy_prosp_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(original_panel_info_const, shel_member))
+
+		' total_current_rent 		= total_current_rent + 		ALL_SHEL_PANELS_ARRAY(rent_prosp_amt_const, 	shel_member)
+		' total_current_taxes 	= total_current_taxes + 	ALL_SHEL_PANELS_ARRAY(tax_prosp_amt_const, 		shel_member)
+		' total_current_lot_rent 	= total_current_lot_rent + 	ALL_SHEL_PANELS_ARRAY(lot_rent_prosp_amt_const, shel_member)
+		' total_current_room 		= total_current_room + 		ALL_SHEL_PANELS_ARRAY(room_prosp_amt_const, 	shel_member)
+		' total_current_mortgage 	= total_current_mortgage + 	ALL_SHEL_PANELS_ARRAY(mortgage_prosp_amt_const, shel_member)
+		' total_current_garage 	= total_current_garage + 	ALL_SHEL_PANELS_ARRAY(garage_prosp_amt_const, 	shel_member)
+		' total_current_insurance = total_current_insurance + ALL_SHEL_PANELS_ARRAY(insurance_prosp_amt_const,shel_member)
+		' total_current_subsidy 	= total_current_subsidy + 	ALL_SHEL_PANELS_ARRAY(subsidy_prosp_amt_const, 	shel_member)
 	End If
 Next
-
+Call read_total_SHEL_on_case(ref_numbers_with_panel, paid_to, total_current_rent, all_rent_verif, total_current_lot_rent, all_lot_rent_verif, total_current_garage, all_mortgage_verif, total_current_insurance, all_insurance_verif, total_current_taxes, all_taxes_verif, total_current_room, all_room_verif, total_current_mortgage, all_garage_verif, total_current_subsidy, all_subsidy_verif, total_shel_original_information)
 page_to_display = ADDR_dlg_page
 
 addr_update_attempted = False
 shel_update_attempted = False
 hest_update_attempted = False
+housing_questions_step = 1
 
 Do
 	err_msg = ""
@@ -1762,7 +2335,7 @@ Do
 		If page_to_display = SHEL_dlg_page Then
 			Text 506, 27, 60, 10, "SHEL"
 
-			Call display_SHEL_information(update_shel, ALL_SHEL_PANELS_ARRAY, member_selection, shel_ref_number_const, shel_exists_const, hud_sub_yn_const, shared_yn_const, paid_to_const, rent_retro_amt_const, rent_retro_verif_const, rent_prosp_amt_const, rent_prosp_verif_const, lot_rent_retro_amt_const, lot_rent_retro_verif_const, lot_rent_prosp_amt_const, lot_rent_prosp_verif_const, mortgage_retro_amt_const, mortgage_retro_verif_const, mortgage_prosp_amt_const, mortgage_prosp_verif_const, insurance_retro_amt_const, insurance_retro_verif_const, insurance_prosp_amt_const, insurance_prosp_verif_const, tax_retro_amt_const, tax_retro_verif_const, tax_prosp_amt_const, tax_prosp_verif_const, room_retro_amt_const, room_retro_verif_const, room_prosp_amt_const, room_prosp_verif_const, garage_retro_amt_const, garage_retro_verif_const, garage_prosp_amt_const, garage_prosp_verif_const, subsidy_retro_amt_const, subsidy_retro_verif_const, subsidy_prosp_amt_const, subsidy_prosp_verif_const, update_information_btn, save_information_btn, memb_btn_const, clear_all_btn)
+			Call display_SHEL_information(update_shel, show_totals, ALL_SHEL_PANELS_ARRAY, member_selection, shel_ref_number_const, shel_exists_const, hud_sub_yn_const, shared_yn_const, paid_to_const, rent_retro_amt_const, rent_retro_verif_const, rent_prosp_amt_const, rent_prosp_verif_const, lot_rent_retro_amt_const, lot_rent_retro_verif_const, lot_rent_prosp_amt_const, lot_rent_prosp_verif_const, mortgage_retro_amt_const, mortgage_retro_verif_const, mortgage_prosp_amt_const, mortgage_prosp_verif_const, insurance_retro_amt_const, insurance_retro_verif_const, insurance_prosp_amt_const, insurance_prosp_verif_const, tax_retro_amt_const, tax_retro_verif_const, tax_prosp_amt_const, tax_prosp_verif_const, room_retro_amt_const, room_retro_verif_const, room_prosp_amt_const, room_prosp_verif_const, garage_retro_amt_const, garage_retro_verif_const, garage_prosp_amt_const, garage_prosp_verif_const, subsidy_retro_amt_const, subsidy_retro_verif_const, subsidy_prosp_amt_const, subsidy_prosp_verif_const, update_information_btn, save_information_btn, memb_btn_const, clear_all_btn, view_total_shel_btn, update_household_percent_button)
 		End If
 
 		If page_to_display = HEST_dlg_page Then
@@ -1771,9 +2344,15 @@ Do
 
 		End If
 
+		If page_to_display = CHNG_dlg_page Then
+			Text 503, 57, 60, 10, "CHANGE"
+			Call display_HOUSING_CHANGE_information(housing_questions_step, household_move_yn, household_move_everyone_yn, move_date, shel_change_yn, shel_verif_received_yn, shel_start_date, shel_shared_yn, shel_subsidized_yn, total_current_rent, total_current_taxes, total_current_lot_rent, total_current_room, total_current_mortgage, total_current_garage, total_current_insurance, total_current_subsidy, shel_change_type, hest_heat_ac_yn, hest_electric_yn, hest_ac_on_electric_yn, hest_heat_on_electric_yn, hest_phone_yn, update_addr_button, addr_or_shel_change_notes, view_addr_update_dlg, view_shel_update_dlg, view_shel_details_dlg, housing_change_continue_btn, housing_change_overview_btn, housing_change_addr_update_btn, housing_change_shel_update_btn, housing_change_shel_details_btn, housing_change_review_btn)
+		End If
+
 		If page_to_display <> ADDR_dlg_page Then PushButton 485, 10, 65, 13, "ADDR", ADDR_page_btn
 		If page_to_display <> SHEL_dlg_page Then PushButton 485, 25, 65, 13, "SHEL", SHEL_page_btn
 		If page_to_display <> HEST_dlg_page Then PushButton 485, 40, 65, 13, "HEST", HEST_page_btn
+		If page_to_display <> CHNG_dlg_page Then PushButton 485, 55, 65, 13, "CHANGE", CHNG_page_btn
 
 		OkButton 450, 365, 50, 15
 		CancelButton 500, 365, 50, 15
@@ -1785,16 +2364,15 @@ Do
 	cancel_without_confirmation
 
 	If page_to_display = ADDR_dlg_page Then Call navigate_ADDR_buttons(update_addr, err_msg, update_information_btn, save_information_btn, clear_mail_addr_btn, clear_phone_one_btn, clear_phone_two_btn, clear_phone_three_btn, mail_street_full, mail_city, mail_state, mail_zip, phone_one, phone_two, phone_three, type_one, type_two, type_three)
-	' If page_to_display = SHEL_dlg_page Then Call navigate_SHEL_buttons(update_shel, err_msg, shel_update_attempted, update_information_btn, save_information_btn, ALL_SHEL_PANELS_ARRAY, memb_btn_const, shel_exists_const, attempted_update_const, member_selection)
-	'
-	' navigate_SHEL_buttons(update_shel, err_var, SHEL_ARRAY, selection, const_shel_member, const_shel_exists, const_hud_sub_yn, const_shared_yn, const_paid_to, const_rent_retro_amt, const_rent_retro_verif, const_rent_prosp_amt, const_rent_prosp_verif, const_lot_rent_retro_amt, const_lot_rent_retro_verif, const_lot_rent_prosp_amt, const_lot_rent_prosp_verif, const_mortgage_retro_amt, const_mortgage_retro_verif, const_mortgage_prosp_amt, const_mortgage_prosp_verif, const_insurance_retro_amt, const_insurance_retro_verif, const_insurance_prosp_amt, const_insurance_prosp_verif, const_tax_retro_amt, const_tax_retro_verif, const_tax_prosp_amt, const_tax_prosp_verif, const_room_retro_amt, const_room_retro_verif, const_room_prosp_amt, const_room_prosp_verif, const_garage_retro_amt, const_garage_retro_verif, const_garage_prosp_amt, const_garage_prosp_verif, const_subsidy_retro_amt, const_subsidy_retro_verif, const_subsidy_prosp_amt, const_subsidy_prosp_verif, update_information_btn, save_information_btn, const_memb_buttons, const_attempt_update)
-	If page_to_display = SHEL_dlg_page Then Call navigate_SHEL_buttons(update_shel, err_var, ALL_SHEL_PANELS_ARRAY, member_selection, shel_ref_number_const, shel_exists_const, hud_sub_yn_const, shared_yn_const, paid_to_const, rent_retro_amt_const, rent_retro_verif_const, rent_prosp_amt_const, rent_prosp_verif_const, lot_rent_retro_amt_const, lot_rent_retro_verif_const, lot_rent_prosp_amt_const, lot_rent_prosp_verif_const, mortgage_retro_amt_const, mortgage_retro_verif_const, mortgage_prosp_amt_const, mortgage_prosp_verif_const, insurance_retro_amt_const, insurance_retro_verif_const, insurance_prosp_amt_const, insurance_prosp_verif_const, tax_retro_amt_const, tax_retro_verif_const, tax_prosp_amt_const, tax_prosp_verif_const, room_retro_amt_const, room_retro_verif_const, room_prosp_amt_const, room_prosp_verif_const, garage_retro_amt_const, garage_retro_verif_const, garage_prosp_amt_const, garage_prosp_verif_const, subsidy_retro_amt_const, subsidy_retro_verif_const, subsidy_prosp_amt_const, subsidy_prosp_verif_const, update_information_btn, save_information_btn, memb_btn_const, attempted_update_const, clear_all_btn)
+	If page_to_display = SHEL_dlg_page Then Call navigate_SHEL_buttons(update_shel, show_totals, err_var, ALL_SHEL_PANELS_ARRAY, member_selection, shel_ref_number_const, shel_exists_const, hud_sub_yn_const, shared_yn_const, paid_to_const, rent_retro_amt_const, rent_retro_verif_const, rent_prosp_amt_const, rent_prosp_verif_const, lot_rent_retro_amt_const, lot_rent_retro_verif_const, lot_rent_prosp_amt_const, lot_rent_prosp_verif_const, mortgage_retro_amt_const, mortgage_retro_verif_const, mortgage_prosp_amt_const, mortgage_prosp_verif_const, insurance_retro_amt_const, insurance_retro_verif_const, insurance_prosp_amt_const, insurance_prosp_verif_const, tax_retro_amt_const, tax_retro_verif_const, tax_prosp_amt_const, tax_prosp_verif_const, room_retro_amt_const, room_retro_verif_const, room_prosp_amt_const, room_prosp_verif_const, garage_retro_amt_const, garage_retro_verif_const, garage_prosp_amt_const, garage_prosp_verif_const, subsidy_retro_amt_const, subsidy_retro_verif_const, subsidy_prosp_amt_const, subsidy_prosp_verif_const, update_information_btn, save_information_btn, memb_btn_const, attempted_update_const, clear_all_btn, view_total_shel_btn)
 
 	If page_to_display = HEST_dlg_page Then Call navigate_HEST_buttons(update_hest, err_msg, hest_update_attempted, update_information_btn, save_information_btn, retro_heat_ac_yn, retro_heat_ac_units, retro_heat_ac_amt, retro_electric_yn, retro_electric_units, retro_electric_amt, retro_phone_yn, retro_phone_units, retro_phone_amt, prosp_heat_ac_yn, prosp_heat_ac_units, prosp_heat_ac_amt, prosp_electric_yn, prosp_electric_units, prosp_electric_amt, prosp_phone_yn, prosp_phone_units, prosp_phone_amt, total_utility_expense)
+	If page_to_display = CHNG_dlg_page Then Call navigate_HOUSING_CHANGE_buttons(err_msg, housing_questions_step, household_move_yn, household_move_everyone_yn, move_date, shel_change_yn, shel_verif_received_yn, shel_start_date, shel_shared_yn, shel_subsidized_yn, total_current_rent, total_current_taxes, total_current_lot_rent, total_current_room, total_current_mortgage, total_current_garage, total_current_insurance, total_current_subsidy, shel_change_type, hest_heat_ac_yn, hest_electric_yn, hest_ac_on_electric_yn, hest_heat_on_electric_yn, hest_phone_yn, update_addr_button, addr_or_shel_change_notes, update_shel_button, housing_change_continue_btn, view_addr_update_dlg, view_shel_update_dlg, view_shel_details_dlg, addr_update_needed, shel_update_needed, hest_update_needed)
 
 	If ButtonPressed = ADDR_page_btn Then page_to_display = ADDR_dlg_page
 	If ButtonPressed = SHEL_page_btn Then page_to_display = SHEL_dlg_page
 	If ButtonPressed = HEST_page_btn Then page_to_display = HEST_dlg_page
+	If ButtonPressed = CHNG_page_btn Then page_to_display = CHNG_dlg_page
 Loop until ButtonPressed = -1
 
 ' If addr_update_attempted = True Then
