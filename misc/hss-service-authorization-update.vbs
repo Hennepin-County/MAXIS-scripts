@@ -281,13 +281,15 @@ For item = 0 to Ubound(adjustment_array, 2)
     If DateDiff("d", #07/01/21#, adjustment_array(HSS_start_const, item)) <= 0 then 
         'if this date is a negative or a date before 07/01/21 (past date), then use 07/01/21.
         new_agreement_start_date = #07/01/21#
+        Call ONLY_create_MAXIS_friendly_date_test(new_agreement_start_date)
     Else   
         Call ONLY_create_MAXIS_friendly_date_test(adjustment_array(HSS_start_const, item))
     End if 
-    
-    Call ONLY_create_MAXIS_friendly_date_test(new_agreement_start_date)
-    
+
     adjustment_array(adjustment_start_date_const, item) = new_agreement_start_date
+    
+    'if this date is a negative then the agreement start date is after the HSS start date. Use the agreement start date instead of HSS start date.  
+    If DateDiff("d", adjustment_array(agreement_start_const), adjustment_array(HSS_start_const, item)) <= 0 then adjustment_array(adjustment_start_date_const, item) = adjustment_array(agreement_start_const, item)
     
     'Finding facility panels that may have ended before the HSS start date
     active_facility = False     'default value 
