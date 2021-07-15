@@ -3740,8 +3740,17 @@ function check_for_MMIS(end_script)
 			If end_script = True then
 				script_end_procedure("You do not appear to be in MMIS. You may be passworded out. Please check your MMIS screen and try again.")
 			Else
-				warning_box = MsgBox("You do not appear to be in MMIS. You may be passworded out. Please check your MMIS screen and try again, or press ""cancel"" to exit the script.", vbOKCancel)
-				If warning_box = vbCancel then stopscript
+                Dialog1 = ""
+                BeginDialog Dialog1, 0, 0, 216, 55, "MMIS Dialog"
+                ButtonGroup ButtonPressed
+                OkButton 125, 35, 40, 15
+                CancelButton 170, 35, 40, 15
+                Text 5, 5, 210, 25, "You do not appear to be in MMIS. You may be passworded out. Please check your MMIS screen and try again, or press CANCEL to exit the script."
+                EndDialog
+                Do
+                    Dialog Dialog1
+                    cancel_without_confirmation
+                Loop until ButtonPressed = -1
 			End if
 		End if
 	Loop until row = 1
