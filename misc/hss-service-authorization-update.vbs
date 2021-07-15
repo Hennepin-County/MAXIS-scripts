@@ -105,56 +105,15 @@ function sort_dates(dates_array)
     dates_array = ordered_dates
 end function
 
-'TODO: Once new code is updated in Funclib, remove function and test variable 
-function check_for_MMIS_test(end_script)
-'--- This function checks to ensure the user is in a MMIS panel
-'~~~~~ end_script: If end_script = TRUE the script will end. If end_script = FALSE, the user will be given the option to cancel the script, or manually navigate to a MMIS screen.
-'===== Keywords: MMIS, production, script_end_procedure
-	Do
-		transmit
-		row = 1
-		col = 1
-		EMSearch "MMIS", row, col
-		IF row <> 1 then
-			If end_script = True then
-				script_end_procedure("You do not appear to be in MMIS. You may be passworded out. Please check your MMIS screen and try again.")
-			Else
-                Dialog1 = ""
-                BeginDialog Dialog1, 0, 0, 216, 55, "MMIS Dialog"
-                ButtonGroup ButtonPressed
-                OkButton 125, 35, 40, 15
-                CancelButton 170, 35, 40, 15
-                Text 5, 5, 210, 25, "You do not appear to be in MMIS. You may be passworded out. Please check your MMIS screen and try again, or press CANCEL to exit the script."
-                EndDialog
-                Do
-                    Dialog Dialog1
-                    cancel_without_confirmation
-                Loop until ButtonPressed = -1
-			End if
-		End if
-	Loop until row = 1
-end function
-
-
-'TODO: Once new code is updated in Funclib, remove function and test variable 
-function ONLY_create_MAXIS_friendly_date_test(date_variable)
-'--- This function creates a MM DD YY date.
-'~~~~~ date_variable: the name of the variable to output
-    date_variable = dateadd("d", 0, date_variable)    'janky way to convert to a date, but hey it works.    
-    var_month     = right("0" & DatePart("m",    date_variable), 2) 
-    var_day       = right("0" & DatePart("d",    date_variable), 2)
-    var_year      = right("0" & DatePart("yyyy", date_variable), 2)
-	date_variable = var_month &"/" & var_day & "/" & var_year
-end function
-
+'----------------------------------------------------------------------------------------------------The Script 
 'CONNECTS TO BlueZone
 EMConnect ""
-Check_for_MMIS_test(false)   'checking for, and allowing user to navigate into MMIS. 
+Check_for_MMIS(false)   'checking for, and allowing user to navigate into MMIS. 
 
 '----------------------------------Set up code 
 'Excel columns
 const recip_PMI_col         = 1     'Col A     
-const case_number_col       = 2
+const case_number_col       = 2     'Col B
 const HSS_start_col         = 7     'Col G     
 const HSS_end_col           = 8     'Col H     
 const SA_number_col         = 9     'Col I     
@@ -281,9 +240,9 @@ For item = 0 to Ubound(adjustment_array, 2)
     If DateDiff("d", #07/01/21#, adjustment_array(HSS_start_const, item)) <= 0 then 
         'if this date is a negative or a date before 07/01/21 (past date), then use 07/01/21.
         new_agreement_start_date = #07/01/21#
-        Call ONLY_create_MAXIS_friendly_date_test(new_agreement_start_date)
+        Call ONLY_create_MAXIS_friendly_date(new_agreement_start_date)
     Else   
-        Call ONLY_create_MAXIS_friendly_date_test(adjustment_array(HSS_start_const, item))
+        Call ONLY_create_MAXIS_friendly_date(adjustment_array(HSS_start_const, item))
     End if 
 
     adjustment_array(adjustment_start_date_const, item) = new_agreement_start_date
@@ -351,12 +310,12 @@ For item = 0 to Ubound(adjustment_array, 2)
         End if 
     End if 
  
-    If adjustment_array(passed_case_tests_const, item) = True then adjustment_array(reduce_rate_const, item) = True 
-    rate_reduction_status = ""
+    If adjustment_array(passed_case_tests_const, item) = True then adjustment_array(reduce_rate_const, item) = True    'cases that have passed the cases tests will be initially set to reduce. 
+    rate_reduction_status = ""  'blanking out variable. 
 Next 
 
 '----------------------------------------------------------------------------------------------------MMIS STEPS 
-Call Check_for_MMIS_test(False)
+Call check_for_MMIS(False)
 
 For item = 0 to Ubound(adjustment_array, 2)
     If adjustment_array(reduce_rate_const, item) = True then
@@ -406,7 +365,7 @@ For item = 0 to Ubound(adjustment_array, 2)
                         EMReadScreen start_day, 2, 8, 62
                         EMReadScreen start_year, 2, 8, 64
                         Line_1_start_date = start_month & "/" & start_day & "/" & start_year
-                        Call ONLY_create_MAXIS_friendly_date_test(Line_1_start_date)
+                        Call ONLY_create_MAXIS_friendly_date(Line_1_start_date)
                         
                         'For cases that Line 1 agreements are the same day or before the HSS start date. 
                         If DateDiff("d", Line_1_start_date, adjustment_array(adjustment_start_date_const, item)) < 0 then 
@@ -423,7 +382,7 @@ For item = 0 to Ubound(adjustment_array, 2)
                             EMReadScreen end_day, 2, 8, 69
                             EMReadScreen end_year, 2, 8, 71
                             original_end_date = end_month & "/" & end_day & "/" & end_year
-                            Call ONLY_create_MAXIS_friendly_date_test(original_end_date)
+                            Call ONLY_create_MAXIS_friendly_date(original_end_date)
                             write_original_end_date = replace(original_end_date, "/", "")  'for line 2
                             
                             'Failing cases that the end date is less than the new agreement start date
@@ -439,7 +398,7 @@ For item = 0 to Ubound(adjustment_array, 2)
                                 'Creating a date that is the day before the HSS start date/conversion date - for LINE 1
                                 new_line_1_end_date = dateadd("d", -1, adjustment_array(adjustment_start_date_const, item)) 
                                 'using the HSS start date as this is after 07/01/21 (future date from initial coversion date of 07/01/21)
-                                Call ONLY_create_MAXIS_friendly_date_test(new_line_1_end_date)
+                                Call ONLY_create_MAXIS_friendly_date(new_line_1_end_date)
                                 
                                 'removing date formatting for ASA3 input 
                                 write_new_line_1_end_date = replace(new_line_1_end_date, "/", "")
