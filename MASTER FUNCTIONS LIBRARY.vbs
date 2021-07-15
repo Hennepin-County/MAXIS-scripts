@@ -6340,12 +6340,10 @@ End Function
 function ONLY_create_MAXIS_friendly_date(date_variable)
 '--- This function creates a MM DD YY date.
 '~~~~~ date_variable: the name of the variable to output
-	var_month = datepart("m", date_variable)
-	If len(var_month) = 1 then var_month = "0" & var_month
-	var_day = datepart("d", date_variable)
-	If len(var_day) = 1 then var_day = "0" & var_day
-	var_year = datepart("yyyy", date_variable)
-	var_year = right(var_year, 2)
+    date_variable = dateadd("d", 0, date_variable)    'janky way to convert to a date, but hey it works.    
+    var_month     = right("0" & DatePart("m",    date_variable), 2) 
+    var_day       = right("0" & DatePart("d",    date_variable), 2)
+    var_year      = right("0" & DatePart("yyyy", date_variable), 2)
 	date_variable = var_month &"/" & var_day & "/" & var_year
 end function
 
