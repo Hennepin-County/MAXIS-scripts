@@ -2802,6 +2802,58 @@ Do
 
     If left(note_title, 24) = "~ Interview Completed on" Then
         interview_completed_case_note_found = True
+
+        EMWriteScreen "X", note_row, 3
+        transmit
+
+        EMReadScreen in_correct_note, 24, 4, 3
+        EMReadScreen note_list_header, 23, 4, 25
+
+        If in_correct_note = "~ Interview Completed on" Then
+            in_note_row = 5
+            interview_date = ""
+            Do
+                EMReadScreen first_part_of_line, 12, in_note_row, 3
+                EMReadScreen whole_note_line, 77, in_note_row, 3
+                whole_note_line = trim(whole_note_line)
+                'TESTING CODE'
+                ' MsgBox "FIRST - " & first_part_of_line & vbCr & "WHOLE - " & whole_note_line
+                If first_part_of_line = "Completed wi" Then
+                    whole_note_line = replace(whole_note_line, "Completed with ", "")
+                    position = Instr(whole_note_line, " via")
+                    with_len = position + 4
+
+                    interview_with = left(whole_note_line, position)
+                    interview_type = right(whole_note_line, len(whole_note_line) - with_len)
+                    interview_with = trim(interview_with)
+                    interview_type = trim(interview_type)
+                End If
+                If first_part_of_line = "Completed on" Then
+                    whole_note_line = replace(whole_note_line, "Completed on ", "")
+                    position = Instr(whole_note_line, " at")
+
+                    interview_date = left(whole_note_line, position)
+                    interview_date = trim(interview_date)
+                End If
+                ' If in_note_row = "Interview us" Then
+                '     whole_note_line = replace(whole_note_line, "Interview using form: ", "")
+                '
+                '
+                ' End If
+                in_note_row = in_note_row + 1
+                ' 'TESTING CODE'
+                ' MsgBox "interview_with - " & interview_with & vbCr &_
+                '        "interview_type - " & interview_type & vbCr &_
+                '        "interview_date - " & interview_date
+                If interview_with <> "" AND interview_type <> "" AND interview_date <> "" Then Exit Do
+            Loop until trim(first_part_of_line) = ""
+            PF3
+
+        Else
+            If note_list_header <> "First line of Case note" Then PF3
+        End If
+
+
     End If
     If left(note_title, 23) = "VERIFICATIONS REQUESTED" Then
         verifications_requested_case_note_found = True
