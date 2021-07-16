@@ -1068,13 +1068,26 @@ If mfip_status = "ACTIVE" Then				'searching for MFIP Information'
 	inqb_row = 6										'start at the top of the list
 	Do
 		EMReadScreen inqb_program, 5, inqb_row, 23		'find the right program
-		If inqb_program = "MF-MF" Then
-			EMReadScreen mfip_amount, 10, inqb_row, 38	'read the benefit amount listed
-			mfip_amount = trim(mfip_amount)
-			Exit Do										'once the first one is found - we're done
+		If inqb_program = "MF-MF" and mf_mf_amount = "" Then
+			EMReadScreen mf_mf_amount, 10, inqb_row, 38	'read the benefit amount listed
+			mf_mf_amount = trim(mf_mf_amount)
 		End If
+		If inqb_program = "MF-FS" and mf_fs_amount = "" Then
+			EMReadScreen mf_fs_amount, 10, inqb_row, 38	'read the benefit amount listed
+			mf_fs_amount = trim(mf_fs_amount)
+		End If
+		If inqb_program = "MF-HG" and mf_hg_amount = "" Then
+			EMReadScreen mf_hg_amount, 10, inqb_row, 38	'read the benefit amount listed
+			mf_hg_amount = trim(mf_hg_amount)
+		End If
+		If mf_mf_amount <> "" AND mf_fs_amount <> "" AND mf_hg_amount <> "" Then Exit Do
 		inqb_row = inqb_row + 1							'go to the next row
 	Loop until inqb_program = "     "						'read until the list is done
+
+	If mf_mf_amount <> "" Then mfip_amount = mfip_amount & "CASH: $ " & mf_mf_amount & ", "
+	If mf_hg_amount <> "" Then mfip_amount = mfip_amount & "Housing Grant: $ " & mf_hg_amount & ", "
+	If mf_fs_amount <> "" Then mfip_amount = mfip_amount & "Food: $ " & mf_fs_amount & ", "
+	If right(mfip_amount, 2) = ", " Then mfip_amount = left(mfip_amount, len(mfip_amount) - 2)
 
 	Call back_to_SELF		'reset
 
@@ -1413,7 +1426,7 @@ If swkr_name <> "" Then select_a_client = select_a_client+chr(9)+"SWKR - " & swk
 				Text 20, y_pos, 120, 10, "MFIP Assistance Verification to be sent via "
 				DropListBox 140, y_pos - 5, 200, 45, "Select One..."+chr(9)+"Resend WCOM - Eligibility Notice"+chr(9)+"Create New MEMO with range of Months"+chr(9)+"No Verification of MFIP Needed", mfip_verification_method
 				y_pos = y_pos + 10
-				Text 25, y_pos, 200, 10, "MFIP current benefit amount appears to be $" & mfip_amount & "."
+				Text 25, y_pos, 350, 10, "MFIP current benefit amount appears to be; " & mfip_amount & "."
 				y_pos = y_pos + 10
 				Text 25, y_pos, 400, 10, "Most recent MFIP Eligibility Notice appears to have been sent for benefit month: " & mfip_month & "/" & mfip_year & ". WCOM Information:"
 				y_pos = y_pos + 10
