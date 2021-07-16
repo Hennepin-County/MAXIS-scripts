@@ -2059,6 +2059,9 @@ If other_address_checkbox = checked Then
 End If
 
 'setting the information for the function to send notices
+If swkr_address_checkbox = unchecked Then forms_to_swkr = "N"
+If arep_address_checkbox = unchecked Then forms_to_arep = "N"
+If other_address_checkbox = unchecked Then send_to_other = "N"
 If swkr_address_checkbox = checked Then forms_to_swkr = "Y"
 If arep_address_checkbox = checked Then forms_to_arep = "Y"
 If other_address_checkbox = checked Then
