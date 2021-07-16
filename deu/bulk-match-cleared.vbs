@@ -61,24 +61,27 @@ Do
 		'The dialog is defined in the loop as it can change as buttons are pressed
 	    '-------------------------------------------------------------------------------------------------DIALOG
 	    Dialog1 = "" 'Blanking out previous dialog detail
-	    BeginDialog Dialog1, 0, 0, 271, 180, "BULK-Match Cleared"
-	      DropListBox 140, 15, 55, 15, "Select One:"+chr(9)+"BEER"+chr(9)+"BNDX"+chr(9)+"SDXS/SDXI"+chr(9)+"UNVI"+chr(9)+"UBEN"+chr(9)+"WAGE", match_type
-	      DropListBox 140, 35, 120, 15, "Not Needed"+chr(9)+"Initial"+chr(9)+"Overpayment Exists"+chr(9)+"OP Non-Collectible (please specify)"+chr(9)+"No Savings/Overpayment", claim_referral_tracking_dropdown
-	      EditBox 65, 55, 195, 15, other_notes
-	      ButtonGroup ButtonPressed
-	        PushButton 10, 115, 50, 15, "Browse:", select_a_file_button
-	      EditBox 65, 115, 195, 15, IEVS_match_path
-	      ButtonGroup ButtonPressed
-	        OkButton 170, 160, 45, 15
-	        CancelButton 220, 160, 45, 15
-	      GroupBox 5, 5, 260, 70, "Complete prior to browsing the script:"
-	      Text 10, 20, 120, 10, "Select the type of match to process:"
-	      Text 10, 40, 130, 10, "Claim Referral Tracking on STAT/MISC:"
-	      Text 10, 60, 45, 10, "Other Notes:"
-	      GroupBox 5, 80, 260, 75, "Using the script:"
-	      Text 10, 90, 250, 15, "Select the Excel file that contains the case information by selecting the 'Browse' button and locating the file."
-	      Text 10, 135, 245, 15, "This script should be used when matches have been researched and ready to be cleared. "
-	    EndDialog
+		BeginDialog Dialog1, 0, 0, 271, 240, "BULK-Match Cleared"
+		  DropListBox 140, 15, 55, 15, "Select One:"+chr(9)+"BEER"+chr(9)+"BNDX"+chr(9)+"SDXS/SDXI"+chr(9)+"UNVI"+chr(9)+"UBEN"+chr(9)+"WAGE", match_type
+		  DropListBox 140, 35, 120, 15, "Not Needed"+chr(9)+"Initial"+chr(9)+"Overpayment Exists"+chr(9)+"OP Non-Collectible (please specify)"+chr(9)+"No Savings/Overpayment", claim_referral_tracking_dropdown
+		  EditBox 65, 55, 195, 15, other_notes
+		  ButtonGroup ButtonPressed
+		    PushButton 10, 115, 50, 15, "Browse:", select_a_file_button
+		  EditBox 65, 115, 195, 15, IEVS_match_path
+		  ButtonGroup ButtonPressed
+		    PushButton 115, 175, 145, 15, "Open IEVS Template Excel File", open_ievs_template_file_button
+		    OkButton 170, 220, 45, 15
+		    CancelButton 220, 220, 45, 15
+		  GroupBox 5, 5, 260, 70, "Complete prior to browsing the script:"
+		  Text 10, 20, 120, 10, "Select the type of match to process:"
+		  Text 10, 40, 130, 10, "Claim Referral Tracking on STAT/MISC:"
+		  Text 10, 60, 45, 10, "Other Notes:"
+		  GroupBox 5, 80, 260, 135, "Using the script:"
+		  Text 10, 90, 250, 15, "Select the Excel file that contains the case information by selecting the 'Browse' button and locating the file."
+		  Text 10, 135, 245, 15, "This script should be used when matches have been researched and ready to be cleared. "
+		  Text 10, 155, 245, 20, "You MUST use the correct Excel layout for this script to work properly. The column positions and layout can be found in the IEVS Template Excel file."
+		  Text 10, 195, 245, 20, "If you use a different layout in the file you select, the script will likely not function correctly."
+		EndDialog
 
 	  	err_msg = ""
 		Dialog Dialog1
@@ -92,7 +95,11 @@ Do
 		END IF
 		If match_type = "Select One:" then err_msg = err_msg & vbNewLine & "* Select type of match you are processing."
 		If IEVS_match_path = "" then err_msg = err_msg & vbNewLine & "* Use the Browse Button to select the file that has your client data"
-		If err_msg <> "" Then MsgBox err_msg
+		If ButtonPressed = open_ievs_template_file_button Then
+			err_msg = "LOOP"
+			run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/BlueZone%20Script%20Resources/IEVS%20TEMPLATE.xlsx"
+		End If
+		If err_msg <> "" and err_msg <> "LOOP" Then MsgBox err_msg
 	LOOP UNTIL err_msg = ""
 		If objExcel = "" Then call excel_open(IEVS_match_path, TRUE, TRUE, ObjExcel, objWorkbook)  'opens the selected excel file'
 		If err_msg <> "" Then MsgBox err_msg
