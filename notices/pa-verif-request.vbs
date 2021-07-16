@@ -1074,7 +1074,7 @@ If mfip_status = "ACTIVE" Then				'searching for MFIP Information'
 			Exit Do										'once the first one is found - we're done
 		End If
 		inqb_row = inqb_row + 1							'go to the next row
-	Loop until inqb_program = "  "						'read until the list is done
+	Loop until inqb_program = "     "						'read until the list is done
 
 	Call back_to_SELF		'reset
 
