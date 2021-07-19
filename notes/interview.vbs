@@ -5159,6 +5159,7 @@ CAF_datestamp = date & ""
 interview_date = date & ""
 show_err_msg_during_movement = ""
 script_run_lowdown = ""
+developer_mode = False
 
 Call back_to_SELF
 EMReadScreen MX_region, 10, 22, 48
@@ -5167,6 +5168,7 @@ If MX_region = "INQUIRY DB" Then
 	continue_in_inquiry = MsgBox("You have started this script run in INQUIRY." & vbNewLine & vbNewLine & "The script cannot complete a CASE:NOTE when run in inquiry. The functionality is limited when run in inquiry. " & vbNewLine & vbNewLine & "Would you like to continue in INQUIRY?", vbQuestion + vbYesNo, "Continue in INQUIRY")
 	If continue_in_inquiry = vbNo Then Call script_end_procedure("~PT Interview Script cancelled as it was run in inquiry.")
 End If
+If MX_region = "TRAINING" Then developer_mode = True
 
 interview_started_time = time
 
@@ -8856,7 +8858,7 @@ file_safe_date = replace(date, "/", "-")		'dates cannot have / for a file name s
 ' pdf_doc_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\TEMP - Interview Notes PDF Folder\CAF - " & MAXIS_case_number & " on " & file_safe_date & ".pdf"
 'THIS IS THE REAL FILE'
 pdf_doc_path = t_drive & "\Eligibility Support\Assignments\Interview Notes for ECF\Interview - " & MAXIS_case_number & " on " & file_safe_date & ".pdf"
-
+If developer_mode = True Then pdf_doc_path = t_drive & "\Eligibility Support\Assignments\Interview Notes for ECF\Archive\TRAINING REGION Interviews - NOT for ECF\Interview - " & MAXIS_case_number & " on " & file_safe_date & ".pdf"
 
 'Now we save the document.
 'MS Word allows us to save directly as a PDF instead of a DOC.
