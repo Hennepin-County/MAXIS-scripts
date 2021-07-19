@@ -100,13 +100,6 @@ script_array_MC_main = array()
 script_num = 0
 ReDim Preserve script_array_MC_main(script_num)
 Set script_array_MC_main(script_num) = new script
-script_array_MC_main(script_num).script_name 			= "Form from DHS"																'Script name
-script_array_MC_main(script_num).file_name 				= "mc-form-from-dhs.vbs"															'Script URL
-script_array_MC_main(script_num).description 			= "Case notes forms that came from DHS that need to be faxed or report no change."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_MC_main(script_num)
-Set script_array_MC_main(script_num) = new script
 script_array_MC_main(script_num).script_name 			= "MC Client Contact"																'Script name
 script_array_MC_main(script_num).file_name 				= "mc-client-contact.vbs"															'Script URL
 script_array_MC_main(script_num).description 			= "Case note template for client contact in MMIS."
