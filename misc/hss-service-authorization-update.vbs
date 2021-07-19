@@ -580,28 +580,14 @@ For item = 0 to Ubound(adjustment_array, 2)
                 row = row + 1
             End if
         Loop
-
-        ''Array of notes for the ADHS screen. No functions built to support word wrap at this point.
-        ''Dim notes_info_array
-        'notes_info_array = array("DHS SUPPLEMENTAL SERVICE RATE ADJUSTMENT","THERE IS AN ACTIVE HOUSING SUPPORT SUPPLEMENTAL SERVICE RATE (SSR)","SERVICE AUTHORIZATION IN MMIS FOR THIS MAXIS CASE. DHS ADJUSTED THE","MMIS SERVICE AUTHORIZATION(S) FOR HOUSING SUPPORT SSR THROUGH THE","EXISITING END DATE OF THE SERVICE AUTHORIZATION.","REVISIONS ARE BASED ON A DETERMINATION OF THE RECIPIENT'S CONCURRENT","ELIGBILITY HOUSING STABILIZATION SERVICES. MMIS ISSUED A REVISED","SERVICE AUTORIZATION WITH 'THE CORRECT SSR PER DIEM TO THE HOUSING","SUPPORT PROVIDER ASSOCIATED WITH THE MMIS SERVICE AUTHORIZATION.","ELIGIBILITY WORKERS DO NOT NEED TO TAKE ANY ACTION IN MAXIS.","**********************************************************************")
-
+        
+        'Writing in the ADHS - DHS Comments Notes 
 		for each comment_line in AN_ARRAY_OF_THE_THING_TO_WRITE
 			EmWriteScreen comment_line, row, 3
 			row = row + 1
 			If row = 14 Then Exit For
 		Next
-
         
-        'notes_info_array = split(notes_info_array, ",")
-        'row = row
-        ''Using row identified in previous do loop to start note
-        'For each note_line in notes_info_array
-        '    msgbox row & vbcr & note_line
-        '    EmWriteScreen note_line, row, 3
-        '    row = row + 1
-        '    If row = 14 then exit for 'cannot case note more than 13 lines
-        'Next
-
         PF3
 
         error_message = ""
