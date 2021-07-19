@@ -682,3 +682,47 @@ End if
 
 STATS_counter = STATS_counter - 1   'removing increment as we start with 1. 
 script_end_procedure_with_error_report(closing_msg)
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation 
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------07/15/2021
+'--Tab orders reviewed/confirmed------------------------------------------------07/15/2021
+'--Mandatory fields all present & Reviewed--------------------------------------07/15/2021
+'--All variables in dialog match mandatory fields (if applicable)---------------07/15/2021
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------07/15/2021
+'--Header doesn't look funky----------------------------------------------------07/15/2021
+'--Leaving CASE:NOTE in edit mode if applicable---------------------------------07/15/2021
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS added-----------------------------------------07/15/2021
+'--MAXIS_background_check added (if applicable)---------------------------------07/15/2021
+'--PRIV Case handling-----------------------------------------------------------07/15/2021
+'--Out-of-County handling-------------------------------------------------------07/15/2021
+'--script_end_procedures (w/ or w/o error messaging)----------------------------07/15/2021
+'--BULK - Should I output statistics and run time on the Excel worksheet?-------07/15/2021 - N/A
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study completed  ------------------------------------------------07/15/2021
+'--Incrementors added (if necessary)--------------------------------------------07/15/2021
+'--Denomination reviewed -------------------------------------------------------07/15/2021
+'--Script name reviewed---------------------------------------------------------07/15/2021
+'--BULK - remove 1 incrementor at end of script---------------------------------07/15/2021 - N/A
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub taks are complete-----------------------------------------07/15/2021
+'--comment Code-----------------------------------------------------------------07/15/2021
+'--Update Changelog for release-------------------------------------------------07/15/2021
+'--Remove extra message boxes---------------------------------------------------07/15/2021
+'--Remove testing code/unnecessary code-----------------------------------------07/15/2021
+'--Update Changelog for release-------------------------------------------------07/15/2021
+'--Instructions added to SharePoint---------------------------------------------07/15/2021
+'--Should this be added to Best Practices using BlueZOne Scripts page?----------07/15/2021
+'--Add or update script information on SharePoint BZ Script List----------------07/15/2021
+'--Other SharePoint updates (HSR Manual, etc.)----------------------------------07/15/2021
+'--COMPLETE LIST OF SCRIPTS updated---------------------------------------------07/15/2021
+'--Finalize all project documentation-------------------------------------------07/15/2021
+'--Final communication to project team (if applicable)--------------------------07/15/2021
