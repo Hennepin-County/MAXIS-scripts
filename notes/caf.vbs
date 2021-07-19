@@ -2441,7 +2441,7 @@ If MX_region = "INQUIRY DB" Then
     If continue_in_inquiry = vbNo Then script_end_procedure("Script ended since it was started in Inquiry.")
 End If
 
-exp_det_case_note_found = False
+exp_det_case_note_found = False                         'defaulting these boolean variables to know if these notes are needed by this script run
 interview_completed_case_note_found = False
 verifications_requested_case_note_found = False
 caf_qualifying_questions_case_note_found = False
@@ -2743,34 +2743,34 @@ End If
 
 MAXIS_case_number = trim(MAXIS_case_number)
 
+'HERE WE SEARCH CASE:NOTES
+'We are looking for notes that multiple scripts complete to keep from making duplicate notes
 look_for_expedited_determination_case_note = False
-look_for_expedited_determination_case_note = False
-look_for_expedited_determination_case_note = False
-
 If CAF_type = "Application" Then
     If SNAP_checkbox = checked Then look_for_expedited_determination_case_note = True
 End If
-Call Navigate_to_MAXIS_screen("CASE", "NOTE")
 
-too_old_date = DateAdd("D", -1, CAF_datestamp)
+Call Navigate_to_MAXIS_screen("CASE", "NOTE")               'Now we navigate to CASE:NOTES
+too_old_date = DateAdd("D", -1, CAF_datestamp)              'We don't need to read notes from before the CAF date
 
 note_row = 5
 Do
-    EMReadScreen note_date, 8, note_row, 6
+    EMReadScreen note_date, 8, note_row, 6                  'reading the note date
 
-    EMReadScreen note_title, 55, note_row, 25
+    EMReadScreen note_title, 55, note_row, 25               'reading the note header
     note_title = trim(note_title)
 
+    'EXPEDITED DETERMINATION notes'
     If look_for_expedited_determination_case_note = True Then
-        If left(note_title, 47) = "Expedited Determination: SNAP appears expedited" Then
+        If left(note_title, 47) = "Expedited Determination: SNAP appears expedited" Then                'reading a EXP CNote
             exp_det_case_note_found = TRUE
             snap_exp_yn = "Yes"
         End If
-        If left(note_title, 55) = "Expedited Determination: SNAP does not appear expedited" Then
+        If left(note_title, 55) = "Expedited Determination: SNAP does not appear expedited" Then        'Reading NOT EXP CNote
             exp_det_case_note_found = TRUE
             snap_exp_yn = "No"
         End If
-        If left(note_title, 42) = "Expedited Determination: SNAP to be denied" Then
+        If left(note_title, 42) = "Expedited Determination: SNAP to be denied" Then                     'Reading DENY SNAP at EXP CNote
             exp_det_case_note_found = TRUE
 
             EMWriteScreen "X", note_row, 3  'Opens the note to read the denial date'
@@ -2800,75 +2800,170 @@ Do
         End IF
     End If
 
+    'INTERVIEW CNOTE
     If left(note_title, 24) = "~ Interview Completed on" Then
         interview_completed_case_note_found = True
 
-        EMWriteScreen "X", note_row, 3
+        EMWriteScreen "X", note_row, 3                          'Opening the Interview Note to read some interview details
         transmit
 
-        EMReadScreen in_correct_note, 24, 4, 3
+        EMReadScreen in_correct_note, 24, 4, 3                  'making sure we are in the right note
         EMReadScreen note_list_header, 23, 4, 25
 
         If in_correct_note = "~ Interview Completed on" Then
             in_note_row = 5
             interview_date = ""
             Do
-                EMReadScreen first_part_of_line, 12, in_note_row, 3
-                EMReadScreen whole_note_line, 77, in_note_row, 3
+                EMReadScreen first_part_of_line, 12, in_note_row, 3                         'Reading the header portion
+                EMReadScreen whole_note_line, 77, in_note_row, 3                            'Reading all the line information
                 whole_note_line = trim(whole_note_line)
-                'TESTING CODE'
-                ' MsgBox "FIRST - " & first_part_of_line & vbCr & "WHOLE - " & whole_note_line
-                If first_part_of_line = "Completed wi" Then
-                    whole_note_line = replace(whole_note_line, "Completed with ", "")
-                    position = Instr(whole_note_line, " via")
+                If first_part_of_line = "Completed wi" Then                                 'COMPLETED WITH header has person and type information
+                    whole_note_line = replace(whole_note_line, "Completed with ", "")       'removes the header
+                    position = Instr(whole_note_line, " via")                               'finds the dividing point in the content which is always the word 'via'
                     with_len = position + 4
 
-                    interview_with = left(whole_note_line, position)
-                    interview_type = right(whole_note_line, len(whole_note_line) - with_len)
+                    interview_with = left(whole_note_line, position)                        'reading the person that did the interview - which is to the left of the dividing point
+                    interview_type = right(whole_note_line, len(whole_note_line) - with_len)'the type is anything that is NOT the with
                     interview_with = trim(interview_with)
                     interview_type = trim(interview_type)
                 End If
-                If first_part_of_line = "Completed on" Then
-                    whole_note_line = replace(whole_note_line, "Completed on ", "")
-                    position = Instr(whole_note_line, " at")
+                If first_part_of_line = "Completed on" Then                                 'COMPLETED ON header has interview date
+                    whole_note_line = replace(whole_note_line, "Completed on ", "")         'removes the header
+                    position = Instr(whole_note_line, " at")                                'finds the dividing point
 
-                    interview_date = left(whole_note_line, position)
+                    interview_date = left(whole_note_line, position)                        'interview date is to the left of the dividing point'
                     interview_date = trim(interview_date)
                 End If
-                ' If in_note_row = "Interview us" Then
-                '     whole_note_line = replace(whole_note_line, "Interview using form: ", "")
-                '
-                '
-                ' End If
                 in_note_row = in_note_row + 1
-                ' 'TESTING CODE'
-                ' MsgBox "interview_with - " & interview_with & vbCr &_
-                '        "interview_type - " & interview_type & vbCr &_
-                '        "interview_date - " & interview_date
-                If interview_with <> "" AND interview_type <> "" AND interview_date <> "" Then Exit Do
+                If interview_with <> "" AND interview_type <> "" AND interview_date <> "" Then Exit Do      'if we found all of it, we can be done
             Loop until trim(first_part_of_line) = ""
-            PF3
+            PF3         'leaving the note.
 
         Else
-            If note_list_header <> "First line of Case note" Then PF3
+            If note_list_header <> "First line of Case note" Then PF3           'this backs us out of the note if we ended up in the wrong note.
         End If
-
-
     End If
+
+    'VERIFICATIONS NOTES
     If left(note_title, 23) = "VERIFICATIONS REQUESTED" Then
         verifications_requested_case_note_found = True
         verifs_needed = "PREVIOUS NOTE EXISTS"
-    End If
-    If left(note_title, 43) = "Qualifying Questions had an answer of 'YES'" Then
-        caf_qualifying_questions_case_note_found = True
+
+        EMWriteScreen "X", note_row, 3                          'Opening the VERIF note to read the verifications
+        transmit
+
+        EMReadScreen in_correct_note, 23, 4, 3                  'making sure we are in the right note
+        EMReadScreen note_list_header, 23, 4, 25
+
+        'Here we find the right row to start reading
+        If in_correct_note = "VERIFICATIONS REQUESTED" Then                     'making sure we're in the right note
+            in_note_row = 5
+            Do
+                EMReadScreen whole_note_line, 77, in_note_row, 3                'reading the whole line of the note'
+                whole_note_line = trim(whole_note_line)
+
+                in_note_row = in_note_row + 1
+                If whole_note_line = "" then Exit Do
+            Loop until whole_note_line = "List of all verifications requested:" 'This is the header within the note - the NEXT line starts the list of verifs
+
+            If whole_note_line = "List of all verifications requested:" Then    'If we actually found the header.
+                verif_note_lines = ""                                           'defaulting a variable to save all the lines of the note
+                Do
+                    EMReadScreen verif_line, 77, in_note_row, 3                 'reading the line of the note
+                    verif_line = trim(verif_line)
+                    If verif_line = "" then Exit Do                             'If they are blank - we stop'
+                    verif_note_lines = verif_note_lines & "~|~" & verif_line    'Adding it to a string of all the lines
+
+                    in_note_row = in_note_row + 1                               'next line'
+
+                    EMReadScreen next_line, 77, in_note_row, 3                  'Looking to see if the next line is the divider line
+                    next_line = trim(next_line)
+                Loop until next_line = "---"                                    'stop at the dividing line
+                'if there were lines saved
+                If verif_note_lines <> "" Then
+                    verif_counter = 1                                           'setting a counter to find verifs that have been numbered
+                    If left(verif_note_lines, 3) = "~|~" Then verif_note_lines = right(verif_note_lines, len(verif_note_lines) - 3)             'making an array of all of the lines
+                    If InStr(verif_note_lines, "~|~") = 0 Then
+                        verif_lines_array = Array(verif_note_lines)
+                    Else
+                        verif_lines_array = split(verif_note_lines, "~|~")
+                    End If
+
+                    verifs_to_add = ""                                          'blanking a string for adding all the lines together
+                    For each line in verif_lines_array
+                        counter_string = verif_counter & ". "                   'using the counter - which is a number to make a string that looks like what is in the note
+                        If left(line, 2) = "- " OR left(line, 3) = counter_string Then                          'If the string starts with a dash or the counter
+                            If left(line, 2) = "- " Then line = "; " & right(line, len(line) - 2)               'Removes the list delimiter and adds the editbox delimiter
+                            If left(line, 3) = counter_string Then line = "; " & right(line, len(line) - 3)
+                            verif_counter = verif_counter + 1                                                   'incrembting the counter
+                        Else
+                            line = " " & line                                                                   'adding a space to the sting so there is a space between words if we are at a 'same line'
+                        End If
+
+                        verifs_to_add = verifs_to_add & line                    'adding the verif information all together
+                    Next
+                    If left(verifs_to_add, 2) = "; " Then verifs_to_add = right(verifs_to_add, len(verifs_to_add) - 2)  'triming the string
+                    If verifs_to_add <> "" Then verifs_needed = verifs_needed & " - Detail from NOTE: " & verifs_to_add 'adding the information to the variable used in this script
+                End If
+            End If
+            PF3         'leaving the note
+        Else
+            If note_list_header <> "First line of Case note" Then PF3           'this backs us out of the note if we ended up in the wrong note.
+        End If
     End If
 
-    if note_date = "        " then Exit Do
-    ' if exp_det_case_note_found = TRUE then Exit Do
+    'CAF QUALIFYING QUESTIONS NOTES
+    If left(note_title, 47) = "CAF Qualifying Questions had an answer of 'YES'" Then
+        caf_qualifying_questions_case_note_found = True
+
+        EMWriteScreen "X", note_row, 3                          'Opening the CAF Qual Questions Note
+        transmit
+
+        EMReadScreen in_correct_note, 47, 4, 3                  'making sure we are in the right note
+        EMReadScreen note_list_header, 23, 4, 25
+
+        If in_correct_note = "CAF Qualifying Questions had an answer of 'YES'" Then
+            in_note_row = 5
+            Do
+                EMReadScreen whole_note_line, 77, in_note_row, 3                'Reading each line of the note
+                whole_note_line = trim(whole_note_line)
+
+                'Looks for the specific header for each of the qualifying questions
+                'If found it will default the droplist to Yes and pull the person information from the rest of the note line and saves it to the variable for the person
+                If left(whole_note_line, 42) = "* Fraud/DISQ for IPV (program violation): " Then
+                    qual_question_one = "Yes"
+                    qual_memb_one = replace(whole_note_line, "* Fraud/DISQ for IPV (program violation): ", "")
+                End If
+                If left(whole_note_line, 31) = "* SNAP in more than One State: " Then
+                    qual_question_two = "Yes"
+                    qual_memb_two = replace(whole_note_line, "* SNAP in more than One State: ", "")
+                End If
+                If left(whole_note_line, 17) = "* Fleeing Felon: " Then
+                    qual_question_three = "Yes"
+                    qual_memb_three = replace(whole_note_line, "* Fleeing Felon: ", "")
+                End If
+                If left(whole_note_line, 15) = "* Drug Felony: " Then
+                    qual_question_four = "Yes"
+                    qual_memb_four = replace(whole_note_line, "* Drug Felony: ", "")
+                End If
+                If left(whole_note_line, 30) = "* Parole/Probation Violation: " Then
+                    qual_question_five = "Yes"
+                    qual_memb_five = replace(whole_note_line, "* Parole/Probation Violation: ", "")
+                End If
+
+                in_note_row = in_note_row + 1
+                If whole_note_line = "" then Exit Do
+            Loop until whole_note_line = "---"
+            PF3
+        Else
+            If note_list_header <> "First line of Case note" Then PF3           'this backs us out of the note if we ended up in the wrong note.
+        End If
+    End If
+
+    if note_date = "        " then Exit Do                                      'if we are at the end of the list of notes - we can't read any more
 
     note_row = note_row + 1
     if note_row = 19 then
-        'MsgBox "Next Page" & vbNewLine & "Note Date:" & note_date
         note_row = 5
         PF8
         EMReadScreen check_for_last_page, 9, 24, 14
@@ -2877,13 +2972,6 @@ Do
     EMReadScreen next_note_date, 8, note_row, 6
     if next_note_date = "        " then Exit Do
 Loop until DateDiff("d", too_old_date, next_note_date) <= 0
-
-' 'TESTING CODE'
-' MsgBox "Did we find CASE:NOTES?" & vbCr & vbCr &_
-'        "EXP Determination - " & exp_det_case_note_found & vbCr &_
-'        "Interview Completed - " & interview_completed_case_note_found & vbCr &_
-'        "VERIFS Requested - " & verifications_requested_case_note_found & vbCr &_
-'        "CAF Qual Questions - " & caf_qualifying_questions_case_note_found
 
 If exp_det_case_note_found = TRUE Then script_run_lowdown = script_run_lowdown & vbCr & "Found Expedited Case Note"
 If interview_completed_case_note_found = TRUE Then script_run_lowdown = script_run_lowdown & vbCr & "Found Interview Completed Note"
@@ -5303,16 +5391,16 @@ Do
         qual_err_msg = ""
 
         BeginDialog Dialog1, 0, 0, 451, 205, "CAF Qualifying Questions"
-          DropListBox 220, 40, 25, 45, "No"+chr(9)+"Yes", qual_question_one
-          ComboBox 340, 40, 105, 45, verification_memb_list, qual_memb_one
-          DropListBox 220, 80, 25, 45, "No"+chr(9)+"Yes", qual_question_two
-          ComboBox 340, 80, 105, 45, verification_memb_list, qual_memb_two
-          DropListBox 220, 110, 25, 45, "No"+chr(9)+"Yes", qual_question_three
-          ComboBox 340, 110, 105, 45, verification_memb_list, qual_memb_there
-          DropListBox 220, 140, 25, 45, "No"+chr(9)+"Yes", qual_question_four
-          ComboBox 340, 140, 105, 45, verification_memb_list, qual_memb_four
-          DropListBox 220, 160, 25, 45, "No"+chr(9)+"Yes", qual_question_five
-          ComboBox 340, 160, 105, 45, verification_memb_list, qual_memb_five
+          DropListBox 220, 40, 35, 45, "No"+chr(9)+"Yes", qual_question_one
+          ComboBox 330, 40, 115, 45, verification_memb_list, qual_memb_one
+          DropListBox 220, 80, 35, 45, "No"+chr(9)+"Yes", qual_question_two
+          ComboBox 330, 80, 115, 45, verification_memb_list, qual_memb_two
+          DropListBox 220, 110, 35, 45, "No"+chr(9)+"Yes", qual_question_three
+          ComboBox 330, 110, 115, 45, verification_memb_list, qual_memb_there
+          DropListBox 220, 140, 35, 45, "No"+chr(9)+"Yes", qual_question_four
+          ComboBox 330, 140, 115, 45, verification_memb_list, qual_memb_four
+          DropListBox 220, 160, 35, 45, "No"+chr(9)+"Yes", qual_question_five
+          ComboBox 330, 160, 115, 45, verification_memb_list, qual_memb_five
           ButtonGroup ButtonPressed
             OkButton 340, 185, 50, 15
             CancelButton 395, 185, 50, 15
@@ -6163,7 +6251,7 @@ End If
 If qual_questions_yes = TRUE AND caf_qualifying_questions_case_note_found = False Then
     Call start_a_blank_CASE_NOTE
 
-    Call write_variable_in_CASE_NOTE("Qualifying Questions had an answer of 'YES' for at least one question")
+    Call write_variable_in_CASE_NOTE("CAF Qualifying Questions had an answer of 'YES' for at least one question")
     If qual_question_one = "Yes" Then Call write_bullet_and_variable_in_CASE_NOTE("Fraud/DISQ for IPV (program violation)", qual_memb_one)
     If qual_question_two = "Yes" Then Call write_bullet_and_variable_in_CASE_NOTE("SNAP in more than One State", qual_memb_two)
     If qual_question_three = "Yes" Then Call write_bullet_and_variable_in_CASE_NOTE("Fleeing Felon", qual_memb_three)
