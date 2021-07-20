@@ -225,16 +225,21 @@ memb_number = "01" 'defaults to 01'
 discovery_date = "" & date
 
 '-------------------------------------------------------------------------------------------------DIALOG
-BeginDialog Dialog1, 0, 0, 161, 85, "Overpayment/Claim"
-  EditBox 55, 5, 45, 15, MAXIS_case_number
-  DropListBox 55, 25, 105, 15, "Select One:"+chr(9)+"Intial Overpayment/Claim"+chr(9)+"Requested Claim Adjustment", claim_actions
-  EditBox 55, 45, 105, 15, worker_signature
+BeginDialog Dialog1, 0, 0, 171, 135, "Overpayment/Claim"
+  EditBox 60, 55, 45, 15, MAXIS_case_number
+  DropListBox 60, 75, 105, 15, "Select One:"+chr(9)+"Intial Overpayment/Claim"+chr(9)+"Requested Claim Adjustment", claim_actions
+  EditBox 60, 95, 105, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 65, 65, 45, 15
-    CancelButton 115, 65, 45, 15
-  Text 5, 30, 50, 10, "Claim Action:"
-  Text 5, 10, 50, 10, "Case Number:"
-  Text 5, 50, 40, 10, "Worker Sig:"
+    OkButton 70, 115, 45, 15
+    CancelButton 120, 115, 45, 15
+    PushButton 110, 55, 55, 15, "CLAIMS", claims_button
+  Text 10, 60, 50, 10, "Case Number:"
+  Text 10, 80, 50, 10, "Claim Action:"
+  Text 10, 100, 40, 10, "Worker Sig:"
+  GroupBox 5, 5, 160, 45, "IMPORTANT:"
+  Text 10, 15, 150, 10, "CASE/NOTE to be run once claim is complete."
+  Text 10, 25, 145, 10, "Does not enter text into CLDL Demand Letter"
+  Text 10, 35, 100, 10, "or update worker to X127720"
 EndDialog
 
 'Runs the first dialog - which confirms the case number
@@ -243,12 +248,13 @@ Do
 		err_msg = ""
 		Dialog Dialog1
 		cancel_without_confirmation
-      	IF IsNumeric(maxis_case_number) = false or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
-        IF claim_actions = "Select One:" then err_msg = err_msg & vbNewLine & "* Please select type of claim action."
-		IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "* Please enter your worker signature, for help see utilities. "
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
-	Loop until err_msg = ""
-CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+		If ButtonPressed = claims_button then CreateObject("WScript.Shell").Run("https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Claims.aspx")
+	Loop until ButtonPressed = -1
+	IF IsNumeric(maxis_case_number) = false or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
+    IF claim_actions = "Select One:" then err_msg = err_msg & vbNewLine & "* Please select type of claim action."
+	IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "* Please enter your worker signature, for help see utilities. "
+	IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
 IF claim_actions = "Intial Overpayment/Claim" THEN
