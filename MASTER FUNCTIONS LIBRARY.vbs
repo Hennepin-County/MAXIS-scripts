@@ -421,6 +421,13 @@ end function
 
 'Preloading worker_signature, as a constant to be used in scripts---------------------------------------------------------------------------------------------------------
 
+Const ForReading = 1
+Const ForWriting = 2
+Const ForAppending = 8
+
+Dim objFSO
+Set objFSO = CreateObject("Scripting.FileSystemObject")
+
 'Needs to determine MyDocs directory before proceeding.
 Set wshshell = CreateObject("WScript.Shell")
 user_myDocs_folder = wshShell.SpecialFolders("MyDocuments") & "\"
@@ -435,6 +442,23 @@ With (CreateObject("Scripting.FileSystemObject"))															'Creating an FSO
 		worker_sig_command.Close																			'Closes the file
 	END IF
 END WITH
+
+Set objFolder = objFSO.GetFolder(user_myDocs_folder)
+Set colFiles = objFolder.Files
+For Each objFile in colFiles
+	delete_this_file = False
+	this_file_name = objFile.Name
+	this_file_type = objFile.Type
+	this_file_created_date = objFile.DateCreated
+	this_file_path = objFile.Path
+
+	If InStr(this_file_name, "caf-answers-") <> 0 Then delete_this_file = True
+	If InStr(this_file_name, "interview-answers-") <> 0 Then delete_this_file = True
+	If this_file_type <> "Text Document" then delete_this_file = False
+	If DateDiff("d", this_file_created_date, date) < 8 Then delete_this_file = False
+
+	If delete_this_file = True Then objFSO.DeleteFile(this_file_path)
+Next
 
 '----------------------------------------------------------------------------------------------------Email addresses for the teams
 IF current_worker_number =	"X127F3P" 	THEN email_address = "HSPH.ES.MA.EPD.Adult@hennepin.us"
@@ -6349,8 +6373,8 @@ End Function
 function ONLY_create_MAXIS_friendly_date(date_variable)
 '--- This function creates a MM DD YY date.
 '~~~~~ date_variable: the name of the variable to output
-    date_variable = dateadd("d", 0, date_variable)    'janky way to convert to a date, but hey it works.    
-    var_month     = right("0" & DatePart("m",    date_variable), 2) 
+    date_variable = dateadd("d", 0, date_variable)    'janky way to convert to a date, but hey it works.
+    var_month     = right("0" & DatePart("m",    date_variable), 2)
     var_day       = right("0" & DatePart("d",    date_variable), 2)
     var_year      = right("0" & DatePart("yyyy", date_variable), 2)
 	date_variable = var_month &"/" & var_day & "/" & var_year
