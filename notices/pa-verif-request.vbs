@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/20/2021", "Adding GRH functionality to PA Verif Request.##~## ##~##You can now resend WCOM for GRH eligibility and a MEMO for issuance amounts for active or previous GRH eligibility.##~##", "Casey Love, Hennepin County")
 call changelog_update("06/23/2021", "PA Verif Request is back!##~## ##~##It is now built with the functionality to either create a SPEC/MEMO of benefit issuances from INQX, or resend a WCOM of an Eligibility Notice.##~## ##~##This new process follows the procedure detailed in the HSR Manual.##~##", "Casey Love, Hennepin County")
 call changelog_update("03/02/2021", "BUG FIX - error for cases with a Significant Change detail in the budget. Added a fix to move past it.", "Casey Love, Hennepin County")
 call changelog_update("11/12/2020", "Updated HSR Manual link for Data Privacy due to SharePoint Online Migration.", "Ilse Ferris, Hennepin County")
@@ -3068,7 +3069,7 @@ If create_memo = True Then		'If there are any MEMOs needed we need to read INQX 
 				If ga_memo_lines > 0 AND ga_memo_lines < 28 Then memo_list = memo_list & "~GA"
 				If grh_memo_lines > 0 AND grh_memo_lines < 28 Then memo_list = memo_list & "~GRH"
 			End If
-		'DO WE NEED TO HANDLE FOR 2 Then maybe 2 and 1 or 1 and 1 and 1 and 1 
+		'DO WE NEED TO HANDLE FOR 2 Then maybe 2 and 1 or 1 and 1 and 1 and 1
 		' ElseIf snap_memo_lines + ga_memo_lines + 1 < 28 Then										'These try to combine two programs into one MEMO
 		' 	memo_list = memo_list & "~SNAP/GA"
 		' 	If msa_memo_lines + mfip_memo_lines + 1 < 28 Then
