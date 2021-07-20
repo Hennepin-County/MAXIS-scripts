@@ -1206,6 +1206,69 @@ If snap_status = "ACTIVE" Then				'searching for SNAP Information'
 	If snap_wcom_text = "" Then snap_wcom_text = "NO WCOM Found"		'if no WCOM found for this program, in this month, with ELIG in the title, cannot default a WCOM - creating output for the dialog.
 End If
 
+If grh_status = "ACTIVE" Then				'searching for GRH Information'
+	Call navigate_to_MAXIS_screen("MONY", "INQB")		'reading the recent benefit amount
+	inqb_row = 6										'start at the top of the list
+	Do
+		EMReadScreen inqb_program, 2, inqb_row, 23		'find the right program
+		If inqb_program = "GR" Then
+			EMReadScreen grh_amount, 10, inqb_row, 38	'read the benefit amount listed
+			grh_amount = trim(grh_amount)
+			Exit Do										'once the first one is found - we're done
+		End If
+		inqb_row = inqb_row + 1							'go to the next row
+	Loop until inqb_program = "  "						'read until the list is done
+
+	Call back_to_SELF		'reset
+
+	Call navigate_to_MAXIS_screen("ELIG", "GRH")			'since we are set to CM + 1, this reads the most recent month
+	EMWriteScreen "99", 20, 79							'opening the version histor of ELIG
+	transmit
+
+	'This brings up the cash versions of eligibilty results to search for approved versions
+	status_row = 7
+	Do
+		EMReadScreen app_status, 8, status_row, 50
+		' If trim(app_status) = "" then script_end_procedure("No approved eligibility results exists in " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". Please review case.")
+		If app_status = "UNAPPROV" Then status_row = status_row + 1
+	Loop until  app_status = "APPROVED" or trim(app_status) = ""		'finding the first approved version
+	EMReadScreen grh_approved_date, 8, status_row, 26					'reading the date of approval
+	grh_approved_date = DateAdd("m", 1, grh_approved_date)			'going to the next month from that date (the plus one from the time of approval
+	grh_month = right("00" & DatePart("m", grh_approved_date), 2)		'making the date a footer month and year for this program
+	grh_year = right(DatePart("yyyy", grh_approved_date), 2)
+
+	Call back_to_SELF		'reset
+
+	Call navigate_to_MAXIS_screen("SPEC", "WCOM")		'now going to look for a notice
+	EMWriteScreen grh_month, 3, 46						'entering the month found from ELIG
+	EMWriteScreen grh_year, 3, 51
+	transmit
+
+	wcom_row = 7										'looking for a WCOM
+	Do
+		EMReadScreen prg_typ, 2, wcom_row, 26			'reading the program and title of the notice
+		EMReadScreen notc_title, 30, wcom_row, 30
+
+		If prg_typ = "GR" AND InStr(notc_title, "ELIG") <> 0 Then		'the program needs to be SNAP and the title should have ELIG in it.
+			grh_wcom_row = wcom_row										'saving the row of the WCOM and which notice in the list it is specific to SNAP
+			grh_wcom_position = wcom_row - 6
+			EMReadScreen notice_date, 8,  wcom_row, 16
+			EMReadScreen notice_prog, 2,  wcom_row, 26
+			EMReadScreen notice_info, 31, wcom_row, 30
+			EMReadScreen notice_stat, 8,  wcom_row, 71
+
+			notice_date = trim(notice_date)
+			notice_prog = trim(notice_prog)
+			notice_info = trim(notice_info)
+			notice_stat = trim(notice_stat)
+
+			grh_wcom_text = notice_info & " - " & notice_prog & " - " & notice_date & " - Status: " & notice_stat	'this is what is output on the dialog'
+		End If
+		wcom_row = wcom_row + 1
+	Loop until prg_typ = "  " OR grh_wcom_text <> ""
+	If grh_wcom_text = "" Then grh_wcom_text = "NO WCOM Found"		'if no WCOM found for this program, in this month, with ELIG in the title, cannot default a WCOM - creating output for the dialog.
+End If
+
 'COMMENTED OUT until we write the HC portion
 ' If ma_status = "ACTIVE" OR msp_status = "ACTIVE" Then
 ' End If
@@ -1310,27 +1373,27 @@ End If
 ' 		End If
 ' 	Loop until prog_hist_status = "      " OR prog_hist_status = "ACTIVE"
 ' End If
-' If grh_status <> "ACTIVE" Then
-' 	EMWriteScreen "GR", 3, 19
-' 	transmit
-'
-' 	hist_row = 8
-' 	Do
-' 		EMReadScreen prog_hist_status, 6, hist_row, 38
-' 		If prog_hist_status = "ACTIVE" Then grh_prog_history_exists = True
-' 		hist_row = hist_row + 1
-' 		If hist_row = 18 Then
-' 			PF8
-' 			hist_row = 8
-' 			EMReadScreen end_of_list, 9, 24, 14
-' 			If end_of_list = "LAST PAGE" then Exit Do
-' 		End If
-' 	Loop until prog_hist_status = "      " OR prog_hist_status = "ACTIVE"
-' End If
+If grh_status <> "ACTIVE" Then
+	EMWriteScreen "GR", 3, 19
+	transmit
+
+	hist_row = 8
+	Do
+		EMReadScreen prog_hist_status, 6, hist_row, 38
+		If prog_hist_status = "ACTIVE" Then grh_prog_history_exists = True
+		hist_row = hist_row + 1
+		If hist_row = 18 Then
+			PF8
+			hist_row = 8
+			EMReadScreen end_of_list, 9, 24, 14
+			If end_of_list = "LAST PAGE" then Exit Do
+		End If
+	Loop until prog_hist_status = "      " OR prog_hist_status = "ACTIVE"
+End If
 Call back_to_SELF		'reset
 
 'saving information for error output email
-script_run_lowdown = script_run_lowdown & vbCr & vbCr & "PROGRAM HISTORY:" & vbCr & "snap_prog_history_exists - " & snap_prog_history_exists & vbCr & "ga_prog_history_exists - " & ga_prog_history_exists & vbCr & "msa_prog_history_exists - " & msa_prog_history_exists & vbCr & "mfip_prog_history_exists - " & mfip_prog_history_exists
+script_run_lowdown = script_run_lowdown & vbCr & vbCr & "PROGRAM HISTORY:" & vbCr & "snap_prog_history_exists - " & snap_prog_history_exists & vbCr & "ga_prog_history_exists - " & ga_prog_history_exists & vbCr & "msa_prog_history_exists - " & msa_prog_history_exists & vbCr & "mfip_prog_history_exists - " & mfip_prog_history_exists & vbCr & "grh_prog_history_exists - " & grh_prog_history_exists
 
 Call navigate_to_MAXIS_screen("STAT", "SUMM")		'Going in to STAT to read address information
 EMReadScreen case_name, 22, 21, 46					'case name for address'
@@ -1444,8 +1507,28 @@ If swkr_name <> "" Then select_a_client = select_a_client+chr(9)+"SWKR - " & swk
 			End If
 			' If dwp_status = "ACTIVE" Then
 			' End If
-			' If grh_status = "ACTIVE" Then
-			' End If
+			If grh_status = "ACTIVE" Then
+				GroupBox 15, y_pos, 450, 75, "GRH"
+				y_pos = y_pos + 15
+				Text 20, y_pos, 120, 10, "GRH Assistance Verification to be sent via "
+				DropListBox 140, y_pos - 5, 200, 45, "Select One..."+chr(9)+"Resend WCOM - Eligibility Notice"+chr(9)+"Create New MEMO with range of Months"+chr(9)+"No Verification of GRH Needed", grh_verification_method
+				y_pos = y_pos + 10
+				Text 25, y_pos, 200, 10, "GRH current benefit amount appears to be $" & grh_amount & "."
+				y_pos = y_pos + 10
+				Text 25, y_pos, 400, 10, "Most recent GRH Eligibility Notice appears to have been sent for benefit month: " & grh_month & "/" & grh_year & ". WCOM Information:"
+				y_pos = y_pos + 10
+				Text 30, y_pos, 200, 10, grh_wcom_text
+				PushButton 225, y_pos, 100, 10, "Go To this WCOM", grh_wcom_btn
+				PushButton 330, y_pos, 100, 10, "Select Different WCOM", grh_change_wcom_btn
+				y_pos = y_pos + 15
+				Text 25, y_pos, 105, 10, "Date range of issuance needed:"
+				EditBox 130, y_pos - 5, 30, 15, grh_start_month
+				Text 160, y_pos, 5, 10, "---"
+				EditBox 165, y_pos - 5, 30, 15, grh_end_month
+				Text 200, y_pos, 100, 10, "(use mm/yy format)"
+				PushButton 330, y_pos, 100, 10, "View this INQX", grh_view_inqx_btn
+				y_pos = y_pos + 15
+			End If
 			' If ma_status = "ACTIVE" OR msp_status = "ACTIVE" Then
 			' End If
 			' Text 20, 300, 200, 10, "Select the method of Notification:"
@@ -1536,22 +1619,22 @@ If swkr_name <> "" Then select_a_client = select_a_client+chr(9)+"SWKR - " & swk
 			' 		y_pos = y_pos + 15
 			' 	End If
 			' End If
-			' If grh_status <> "ACTIVE" Then
-			' 	If grh_prog_history_exists = True Then
-			' 		Text 20, y_pos, 100, 10, "GRH is NOT currently Active"
-			' 		PushButton 120, y_pos-2, 100, 13, "View GRH Program History", grh_program_history_button
-			' 		y_pos = y_pos + 15
-			' 		CheckBox 25, y_pos, 210, 10, "Check here to include amounts of GRH benefits issued from ", grh_not_actv_memo_for_old_beneftis_checkbox
-			' 		EditBox 235, y_pos - 5, 30, 15, grh_start_month
-			' 		Text 265, y_pos, 5, 10, "---"
-			' 		EditBox 270, y_pos - 5, 30, 15, grh_end_month
-			' 		Text 305, y_pos, 100, 10, "(use mm/yy format)"
-			' 		y_pos = y_pos + 15
-			' 	Else
-			' 		Text 20, y_pos, 300, 10, "GRH is NOT currently Active and there is no ACTIVE Program history for this case."
-			' 		y_pos = y_pos + 15
-			' 	End If
-			' End If
+			If grh_status <> "ACTIVE" Then
+				If grh_prog_history_exists = True Then
+					Text 20, y_pos, 100, 10, "GRH is NOT currently Active"
+					PushButton 120, y_pos-2, 100, 13, "View GRH Program History", grh_program_history_button
+					y_pos = y_pos + 15
+					CheckBox 25, y_pos, 210, 10, "Check here to include amounts of GRH benefits issued from ", grh_not_actv_memo_for_old_beneftis_checkbox
+					EditBox 235, y_pos - 5, 30, 15, grh_start_month
+					Text 265, y_pos, 5, 10, "---"
+					EditBox 270, y_pos - 5, 30, 15, grh_end_month
+					Text 305, y_pos, 100, 10, "(use mm/yy format)"
+					y_pos = y_pos + 15
+				Else
+					Text 20, y_pos, 300, 10, "GRH is NOT currently Active and there is no ACTIVE Program history for this case."
+					y_pos = y_pos + 15
+				End If
+			End If
 			If ma_status <> "ACTIVE" AND msp_status <> "ACTIVE" Then
 			End If
 
@@ -1617,6 +1700,11 @@ If swkr_name <> "" Then select_a_client = select_a_client+chr(9)+"SWKR - " & swk
 				notc_month = mfip_month
 				notc_year = mfip_year
 			End If
+			If ButtonPressed = grh_change_wcom_btn Then
+				selected_prog = "GR"
+				notc_month = grh_month
+				notc_year = grh_year
+			End If
 
 			'Here was are using the 'MEMO to WORD functionality to find and display available notices and pick one
 			'    Create_List_Of_Notices(notice_panel, notices_array, selected_const, information_const, WCOM_row_const,  no_notices, specific_prog)
@@ -1655,6 +1743,13 @@ If swkr_name <> "" Then select_a_client = select_a_client+chr(9)+"SWKR - " & swk
 						mfip_wcom_text = notices_array(information, each_notc)
 						mfip_wcom_row = notices_array(WCOM_search_row, each_notc)
 						mfip_wcom_position = mfip_wcom_row - 6
+					End If
+					If selected_prog = "GR" Then
+						grh_month = notc_month
+						grh_year = notc_year
+						grh_wcom_text = notices_array(information, each_notc)
+						grh_wcom_row = notices_array(WCOM_search_row, each_notc)
+						grh_wcom_position = grh_wcom_row - 6
 					End If
 				End If
 			next
@@ -1726,8 +1821,21 @@ If swkr_name <> "" Then select_a_client = select_a_client+chr(9)+"SWKR - " & swk
 			End If
 			' If ButtonPressed = dwp_view_inqx_btn  Then
 			' End If
-			' If ButtonPressed = grh_view_inqx_btn  Then
-			' End If
+			If ButtonPressed = grh_view_inqx_btn  Then
+				If len(grh_start_month) <> 5 OR Mid(grh_start_month, 3, 1) <> "/" OR len(grh_end_month) <> 5 OR Mid(grh_end_month, 3, 1) <> "/" Then
+					MsgBox "The script cannot navigate to INQX for GRH until you enter a start and end month in the 'mm/yy' format for GRH."
+				Else
+					Call navigate_to_MAXIS_screen("MONY", "INQX")
+
+					EMWriteScreen "X", 16, 50		'This is the GRH place
+					EMWriteScreen left(grh_start_month, 2), 6, 38
+					EMWriteScreen right(grh_start_month, 2), 6, 41
+					EMWriteScreen left(grh_end_month, 2), 6, 53
+					EMWriteScreen right(grh_end_month, 2), 6, 56
+
+					transmit
+				End If
+			End If
 			err_msg = "LOOP"			'do not pass go - do not collect 200 dollars
 
 		End If
@@ -1752,6 +1860,11 @@ If swkr_name <> "" Then select_a_client = select_a_client+chr(9)+"SWKR - " & swk
 				wcom_row_to_open = mfip_wcom_row
 				wcom_month = mfip_month
 				wcom_year = mfip_year
+			End If
+			If ButtonPressed = grh_wcom_btn Then
+				wcom_row_to_open = grh_wcom_row
+				wcom_month = grh_month
+				wcom_year = grh_year
 			End If
 
 			'Navigate to the correct WCOM
@@ -1844,13 +1957,13 @@ If swkr_name <> "" Then select_a_client = select_a_client+chr(9)+"SWKR - " & swk
 			' 	 	If len(dwp_start_month) <> 5 OR Mid(dwp_start_month, 3, 1) <> "/" OR len(dwp_end_month) <> 5 OR Mid(dwp_end_month, 3, 1) <> "/" Then err_msg = err_msg & vbNewLine & "* Since you are creating a MEMO of DWP issuance history to be sent as verification of Active DWP, enter a start and end month in the 'mm/yy' format."
 			' 	End If
 			' End If
-			' If grh_status = "ACTIVE" Then
-			'  	If grh_verification_method = "Select One..." Then err_msg = err_msg & vbNewLine & "* Since GRH is active, indicate if Verification of GRH benefits is needed, and if so, which method works best."
-			' 	If grh_verification_method = "Resend WCOM - Eligibility Notice" AND grh_wcom_text = "NO WCOM Found" then err_msg = err_msg & vbNewLine & "* Since you are selecting a WCOM to be resent as verification of GRH, use the 'Select Different WCOM' button to select the correct WCOM since none was found."
-			' 	If grh_verification_method = "Create New MEMO with range of Months" Then
-			' 	 	If len(grh_start_month) <> 5 OR Mid(grh_start_month, 3, 1) <> "/" OR len(grh_end_month) <> 5 OR Mid(grh_end_month, 3, 1) <> "/" Then err_msg = err_msg & vbNewLine & "* Since you are creating a MEMO of GRH issuance history to be sent as verification of Active GRH, enter a start and end month in the 'mm/yy' format."
-			' 	End If
-			' End If
+			If grh_status = "ACTIVE" Then
+			 	If grh_verification_method = "Select One..." Then err_msg = err_msg & vbNewLine & "* Since GRH is active, indicate if Verification of GRH benefits is needed, and if so, which method works best."
+				If grh_verification_method = "Resend WCOM - Eligibility Notice" AND grh_wcom_text = "NO WCOM Found" then err_msg = err_msg & vbNewLine & "* Since you are selecting a WCOM to be resent as verification of GRH, use the 'Select Different WCOM' button to select the correct WCOM since none was found."
+				If grh_verification_method = "Create New MEMO with range of Months" Then
+				 	If len(grh_start_month) <> 5 OR Mid(grh_start_month, 3, 1) <> "/" OR len(grh_end_month) <> 5 OR Mid(grh_end_month, 3, 1) <> "/" Then err_msg = err_msg & vbNewLine & "* Since you are creating a MEMO of GRH issuance history to be sent as verification of Active GRH, enter a start and end month in the 'mm/yy' format."
+				End If
+			End If
 
 			If snap_not_actv_memo_for_old_beneftis_checkbox = checked Then
 				If len(snap_start_month) <> 5 OR Mid(snap_start_month, 3, 1) <> "/" OR len(snap_end_month) <> 5 OR Mid(snap_end_month, 3, 1) <> "/" Then err_msg = err_msg & vbNewLine & "* Since you are creating a MEMO of SNAP issuance history to be sent as verification of Previous SNAP Eligibility, enter a start and end month in the 'mm/yy' format."
@@ -1867,9 +1980,9 @@ If swkr_name <> "" Then select_a_client = select_a_client+chr(9)+"SWKR - " & swk
 			' If dwp_not_actv_memo_for_old_beneftis_checkbox = checked Then
 			' 	If len(dwp_start_month) <> 5 OR Mid(dwp_start_month, 3, 1) <> "/" OR len(dwp_end_month) <> 5 OR Mid(dwp_end_month, 3, 1) <> "/" Then err_msg = err_msg & vbNewLine & "* Since you are creating a MEMO of DWP issuance history to be sent as verification of Previous DWP Eligibility, enter a start and end month in the 'mm/yy' format."
 			' End If
-			' If grh_not_actv_memo_for_old_beneftis_checkbox = checked Then
-			' 	If len(grh_start_month) <> 5 OR Mid(grh_start_month, 3, 1) <> "/" OR len(grh_end_month) <> 5 OR Mid(grh_end_month, 3, 1) <> "/" Then err_msg = err_msg & vbNewLine & "* Since you are creating a MEMO of GRH issuance history to be sent as verification of Previous GRH Eligibility, enter a start and end month in the 'mm/yy' format."
-			' End If
+			If grh_not_actv_memo_for_old_beneftis_checkbox = checked Then
+				If len(grh_start_month) <> 5 OR Mid(grh_start_month, 3, 1) <> "/" OR len(grh_end_month) <> 5 OR Mid(grh_end_month, 3, 1) <> "/" Then err_msg = err_msg & vbNewLine & "* Since you are creating a MEMO of GRH issuance history to be sent as verification of Previous GRH Eligibility, enter a start and end month in the 'mm/yy' format."
+			End If
 
 			'Displaying the Error handling
 			If err_msg <> "" Then MsgBox "****** NOTICE ******" & vbCr & vbCr & "Please resolve to continue:" & vbCr & err_msg
@@ -1884,12 +1997,14 @@ script_run_lowdown = script_run_lowdown & vbCr & "SNAP - " & vbCr & "snap_verifi
 script_run_lowdown = script_run_lowdown & vbCr & "GA - " & vbCr & "ga_verification_method - " & ga_verification_method & vbCr & "GA months: " & ga_start_month & " to " & ga_end_month & vbCr & "WCOM text - " & ga_wcom_text & vbCr & "Closed Program checkbox - " & ga_not_actv_memo_for_old_beneftis_checkbox
 script_run_lowdown = script_run_lowdown & vbCr & "MSA - " & vbCr & "msa_verification_method - " & msa_verification_method & vbCr & "MSA months: " & msa_start_month & " to " & msa_end_month & vbCr & "WCOM text - " & msa_wcom_text & vbCr & "Closed Program checkbox - " & msa_not_actv_memo_for_old_beneftis_checkbox
 script_run_lowdown = script_run_lowdown & vbCr & "MFIP - " & vbCr & "mfip_verification_method - " & mfip_verification_method & vbCr & "MFIP months: " & mfip_start_month & " to " & mfip_end_month & vbCr & "WCOM text - " & mfip_wcom_text & vbCr & "Closed Program checkbox - " & mfip_not_actv_memo_for_old_beneftis_checkbox
+script_run_lowdown = script_run_lowdown & vbCr & "GRH - " & vbCr & "grh_verification_method - " & grh_verification_method & vbCr & "GRH months: " & grh_start_month & " to " & grh_end_month & vbCr & "WCOM text - " & grh_wcom_text & vbCr & "Closed Program checkbox - " & grh_not_actv_memo_for_old_beneftis_checkbox
 
 'Setting what kind of notices are needed
 If snap_not_actv_memo_for_old_beneftis_checkbox = checked Then snap_verification_method = "Create New MEMO with range of Months"
 If ga_not_actv_memo_for_old_beneftis_checkbox = checked Then ga_verification_method = "Create New MEMO with range of Months"
 If msa_not_actv_memo_for_old_beneftis_checkbox = checked Then msa_verification_method = "Create New MEMO with range of Months"
 If mfip_not_actv_memo_for_old_beneftis_checkbox = checked Then mfip_verification_method = "Create New MEMO with range of Months"
+If grh_not_actv_memo_for_old_beneftis_checkbox = checked Then grh_verification_method = "Create New MEMO with range of Months"
 
 create_memo = False
 If snap_verification_method = "Create New MEMO with range of Months" Then create_memo = True
@@ -1912,6 +2027,7 @@ If snap_not_actv_memo_for_old_beneftis_checkbox = checked then previous_active_p
 If ga_not_actv_memo_for_old_beneftis_checkbox = checked then previous_active_prog_memo = True
 If msa_not_actv_memo_for_old_beneftis_checkbox = checked then previous_active_prog_memo = True
 If mfip_not_actv_memo_for_old_beneftis_checkbox = checked then previous_active_prog_memo = True
+If grh_not_actv_memo_for_old_beneftis_checkbox = checked then previous_active_prog_memo = True
 
 'If no kind of nitice has been requested - the script will End.
 If create_memo = False AND resend_wcom = False AND previous_active_prog_memo = False Then
@@ -2073,6 +2189,7 @@ snap_resent_wcom = False		'defaults to see if the wcom is susccessful.
 ga_resent_wcom = False
 msa_resent_wcom = False
 mfip_wcom_row = False
+grh_wcom_row = False
 
 'If any program has a WCOM to resend as the option - we are going to send it
 If resend_wcom = True Then
@@ -2101,10 +2218,10 @@ If resend_wcom = True Then
 	' 	Call resend_existing_wcom(dwp_month, dwp_year, dwp_wcom_row, dwp_resent_wcom, False, forms_to_arep, forms_to_swkr, send_to_other, other_address_person, other_address_street, other_address_city, other_address_state, other_address_zip)
 	' 	Call back_to_SELF
 	' End If
-	' If grh_verification_method = "Resend WCOM - Eligibility Notice" Then
-	' 	Call resend_existing_wcom(grh_month, grh_year, grh_wcom_row, grh_resent_wcom, False, forms_to_arep, forms_to_swkr, send_to_other, other_address_person, other_address_street, other_address_city, other_address_state, other_address_zip)
-	' 	Call back_to_SELF
-	' End If
+	If grh_verification_method = "Resend WCOM - Eligibility Notice" Then
+		Call resend_existing_wcom(grh_month, grh_year, grh_wcom_row, grh_resent_wcom, False, forms_to_arep, forms_to_swkr, send_to_other, other_address_person, other_address_street, other_address_city, other_address_state, other_address_zip)
+		Call back_to_SELF
+	End If
 End If
 
 Call back_to_SELF		'resent
@@ -2645,18 +2762,132 @@ If create_memo = True Then		'If there are any MEMOs needed we need to read INQX 
 	' 	transmit
 	'
 	' End If
-	' If grh_verification_method = "Create New MEMO with range of Months" Then
-	' 	EMWriteScreen "X", 16, 50		'This is the GRH place
-	' 	EMWriteScreen left(grh_start_month, 2), 6, 38
-	' 	EMWriteScreen right(grh_start_month, 2), 6, 41
-	' 	' EMWriteScreen left(grh_end_month, 2), 6, 53
-	' 	' EMWriteScreen right(grh_end_month, 2), 6, 56
-	' 	EMWriteScreen CM_plus_1_mo, 6, 53
-	' 	EMWriteScreen CM_plus_1_yr, 6, 56
-	'
-	' 	transmit
-	'
-	' End If
+
+	If grh_verification_method = "Create New MEMO with range of Months" Then
+		Call navigate_to_MAXIS_screen("MONY", "INQX")							'Go to where the benefit amounts are listed
+
+		GRH_total = 0
+		GRH_MEMO_rows_needed = 2
+
+		first_date_of_range = replace(grh_start_month, "/", "/01/")			'setting the month for start and end dates as actual dates
+		first_date_of_range = DateAdd("d", 0, first_date_of_range)
+		last_date_of_range = replace(grh_end_month, "/", "/01/")
+		last_date_of_range = DateAdd("d", 0, last_date_of_range)
+
+		GRH_expected_dates_array = first_date_of_range							'creating an array of all of the months in the range
+		each_date = first_date_of_range
+		Do
+			each_date = DateAdd("m", 1, each_date)
+			GRH_expected_dates_array = GRH_expected_dates_array & "~" & each_date
+		Loop until each_date = last_date_of_range
+
+		If InStr(GRH_expected_dates_array, "~") = 0 Then
+			GRH_expected_dates_array = Array(GRH_expected_dates_array)
+		Else
+			GRH_expected_dates_array = split(GRH_expected_dates_array, "~")
+		End If
+
+
+		EMWriteScreen "X", 16, 50		'This is the GRH place
+		EMWriteScreen left(grh_start_month, 2), 6, 38
+		EMWriteScreen right(grh_start_month, 2), 6, 41
+		EMWriteScreen CM_plus_1_mo, 6, 53
+		EMWriteScreen CM_plus_1_yr, 6, 56
+
+		transmit
+
+		inqx_row = 6															'Read all of the information on INQX
+		msg_counter = 0
+		Do
+			EMReadScreen issued_date, 8, inqx_row, 7
+			EMReadScreen tran_amount, 8, inqx_row, 38
+			EMReadScreen from_month, 2, inqx_row, 62
+			EMReadScreen from_year, 2, inqx_row, 68
+
+			issued_date = trim(issued_date)
+			tran_amount = trim(tran_amount)
+
+			If issued_date <> "" Then
+				from_date = from_month & "/1/" & from_year						'making the date a date and making it the 1st of the month (this accounts for proration)
+				from_date = DateAdd("d", 0, from_date)
+				'Only accept if the date is equal to or after the first date and equal to or before the last date
+				If DateDiff("d", from_date, first_date_of_range) <= 0 AND DateDiff("d", from_date, last_date_of_range) >= 0 Then
+
+					benefit_month = from_month & "/" & from_year
+					tran_amount = tran_amount * 1								'this must be a NUMBER
+					ammount_added_in = False
+					For each_known_issuance = 0 to UBound(GRH_ISSUANCE_ARRAY, 2)		'reading to see if the benefit month is already in the array so we can combine the benefit amounts
+						If benefit_month = GRH_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance) Then
+							GRH_ISSUANCE_ARRAY(grh_grant_amount_const, each_known_issuance) = GRH_ISSUANCE_ARRAY(grh_grant_amount_const, each_known_issuance) + tran_amount
+							ammount_added_in = True
+						End If
+					Next
+					If ammount_added_in = False Then							'if the benefit month was NOT found - create a new array instance for that benefit month.
+						ReDim Preserve GRH_ISSUANCE_ARRAY(last_const, msg_counter)
+						GRH_ISSUANCE_ARRAY(benefit_month_const, msg_counter) = benefit_month
+						GRH_ISSUANCE_ARRAY(grh_grant_amount_const, msg_counter) = tran_amount
+						GRH_ISSUANCE_ARRAY(benefit_month_as_date_const, msg_counter) = from_date
+						msg_counter = msg_counter + 1
+					End If
+				End If
+			End If
+
+			inqx_row = inqx_row + 1		'go to the next line/page
+			If inqx_row = 18 Then
+				PF8
+				inqx_row = 6
+				EMreadScreen end_of_list, 9, 24, 14
+				if end_of_list = "LAST PAGE" Then Exit Do
+			End If
+		Loop until issued_date = ""		'go until the end of the list
+		GRH_dates_array = ""			'we need an array of the dates ONLY
+		For each_known_issuance = 0 to UBound(GRH_ISSUANCE_ARRAY, 2)			'Now we loop through all of the found benefit months and create the formatting for the MEMO
+			total_amount = GRH_ISSUANCE_ARRAY(grh_grant_amount_const, each_known_issuance)
+			total_amount = total_amount & ""
+			If InStr(total_amount, ".") = 0 Then
+				total_amount = left(total_amount & ".00        ", 8)
+			Else
+				total_amount = left(total_amount & "        ", 8)
+			End If
+			GRH_ISSUANCE_ARRAY(note_message_const, each_known_issuance) = "$ " & total_amount & " issued for " & GRH_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance)
+			GRH_dates_array = GRH_dates_array & "~" & GRH_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)		'adding to the array of all the dates
+		Next
+		For each expected_month in GRH_expected_dates_array					'Now we loop through ALL the months we expected to find in the range - this is so we can add $0 issuance months as 0
+			issuance_found = False
+			For each_known_issuance = 0 to UBound(GRH_ISSUANCE_ARRAY, 2)		'Look at all the found months - if they match - indicate that here
+				If DateDiff("d", GRH_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance), expected_month) = 0 Then issuance_found = True
+			Next
+			If issuance_found = False Then										'If no month was found - add another array instance with a $0 benefit amount listed
+				ReDim Preserve GRH_ISSUANCE_ARRAY(last_const, msg_counter)
+				GRH_ISSUANCE_ARRAY(benefit_month_const, msg_counter) = right("00" & DatePart("m", expected_month), 2) & "/" & right(DatePart("yyyy", expected_month), 2)
+				GRH_ISSUANCE_ARRAY(snap_grant_amount_const, msg_counter) = 0
+				GRH_ISSUANCE_ARRAY(benefit_month_as_date_const, msg_counter) = expected_month
+				GRH_ISSUANCE_ARRAY(note_message_const, each_known_issuance) = "$ 0.00     issued for " & GRH_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance)
+				GRH_dates_array = GRH_dates_array & "~" & expected_month
+				msg_counter = msg_counter + 1
+			End If
+		Next
+		If left(GRH_dates_array, 1) = "~" Then GRH_dates_array = right(GRH_dates_array, len(GRH_dates_array) - 1)		'creating an array of all of the 'from dates'
+		If Instr(GRH_dates_array, "~") = 0 Then
+			GRH_dates_array = Array(GRH_dates_array)
+		Else
+			GRH_dates_array = split(GRH_dates_array, "~")
+		End If
+		Call sort_dates(GRH_dates_array)		'This function takes all the dates in an array and put them in order from oldest to newest
+
+		for each ordered_date in GRH_dates_array		'Now doing some counting and totalling
+			For each_known_issuance = 0 to UBound(GRH_ISSUANCE_ARRAY, 2)
+				If DateDiff("d", ordered_date, GRH_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)) = 0 Then
+					grh_msg_display = grh_msg_display & vbCr & GRH_ISSUANCE_ARRAY(note_message_const, each_known_issuance)
+					GRH_total = GRH_total + GRH_ISSUANCE_ARRAY(grh_grant_amount_const, each_known_issuance)
+					GRH_MEMO_rows_needed = GRH_MEMO_rows_needed + 1
+				End If
+			Next
+		Next
+
+		' MsgBox "GRH - This is the list" & grh_msg_display & vbCr & "TOTAL GRH: $" & GRH_total
+		PF3
+	End If
 
 	'NOW we create a whole array of the lines of each possible MEMO.
 	'We do it this way so we know how long each MEMO is so that we can combine Programs into a single MEMO as it best fits.
@@ -2715,6 +2946,21 @@ If create_memo = True Then		'If there are any MEMOs needed we need to read INQX 
 		mfip_array_of_memo_lines = mfip_array_of_memo_lines & "~" & "MFIP Food Total for " & mfip_start_month & " to " & mfip_end_month & ": $" & MFIP_Food_total
 		mfip_array_of_memo_lines = split(mfip_array_of_memo_lines, "~")
 	End If
+	If grh_verification_method = "Create New MEMO with range of Months" Then
+		grh_array_of_memo_lines = "GRH / Housing Support Benefit:"
+
+		for each ordered_date in GRH_dates_array
+			For each_known_issuance = 0 to UBound(GRH_ISSUANCE_ARRAY, 2)
+				If DateDiff("d", ordered_date, GRH_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)) = 0 Then
+					grh_array_of_memo_lines = grh_array_of_memo_lines & "~" & "   " & GRH_ISSUANCE_ARRAY(note_message_const, each_known_issuance)
+					STATS_manualtime = STATS_manualtime + 20
+				End If
+			Next
+		Next
+		grh_array_of_memo_lines = grh_array_of_memo_lines & "~" & "GRH Food Total for " & grh_start_month & " to " & grh_end_month & ": $" & GRH_total
+		grh_array_of_memo_lines = split(grh_array_of_memo_lines, "~")
+	End If
+
 
 	'Copunting the lines in each program's MEMO
 	snap_memo_lines = 0
@@ -2736,13 +2982,16 @@ If create_memo = True Then		'If there are any MEMOs needed we need to read INQX 
 	If IsArray(mfip_array_of_memo_lines) = True Then
 		mfip_memo_lines = UBound(mfip_array_of_memo_lines) + 1
 	End If
+	If IsArray(grh_array_of_memo_lines) = True Then
+		grh_memo_lines = UBound(grh_array_of_memo_lines) + 1
+	End If
 
 	'Now we have a lot of logic to try to combine the counts to fit into a MEMO to attempt to send as few MEMOs as possible.
 	'MOST of the time we will only have 1 MEMO
-	total_memo_lines = snap_memo_lines + ga_memo_lines + msa_memo_lines + mfip_memo_lines + 3		'Best option - all programs on one MEMO
+	total_memo_lines = snap_memo_lines + ga_memo_lines + msa_memo_lines + mfip_memo_lines + grh_memo_lines + 3		'Best option - all programs on one MEMO
 	memo_list = ""
 	If total_memo_lines < 28 Then
-		memo_list = memo_list & "~MFIP/GA/MSA/SNAP"
+		memo_list = memo_list & "~MFIP/GA/MSA/SNAP/GRH"
 	Else																							'If they aren't all on one, then we need to look for more
 		If mfip_memo_lines > 27 Then																'These are for if any program needs more than one on their own
 			memo_list = memo_list & "~MFIP~MFIP"
@@ -2764,69 +3013,111 @@ If create_memo = True Then		'If there are any MEMOs needed we need to read INQX 
 			If msa_memo_lines > 55 Then memo_list = memo_list & "~MSA"
 			If msa_memo_lines > 83 Then memo_list = memo_list & "~MSA"
 		End If
+		If grh_memo_lines > 27 Then
+			memo_list = memo_list & "~GRH~GRH"
+			If grh_memo_lines > 55 Then memo_list = memo_list & "~GRH"
+			If grh_memo_lines > 83 Then memo_list = memo_list & "~GRH"
+		End If
 
-		If mfip_memo_lines + ga_memo_lines + msa_memo_lines + 2 < 28 Then							'These try to combine three programs into one MEMO
-			memo_list = memo_list & "~MFIP/GA/MSA"
+		If mfip_memo_lines + ga_memo_lines + msa_memo_lines + grh_memo_lines + 2 < 28 Then							'These try to combine four programs into one MEMO
+			memo_list = memo_list & "~MFIP/GA/MSA/GRH"
 			If snap_memo_lines <> 0 AND snap_memo_lines < 28 Then memo_list = memo_list & "~SNAP"
+		ElseIf snap_memo_lines + ga_memo_lines + msa_memo_lines + grh_memo_lines + 2 < 28 Then
+			memo_list = memo_list & "~SNAP/GA/MSA/GRH"
+			If mfip_memo_lines <> 0 AND mfip_memo_lines < 28 Then memo_list = memo_list & "~MFIP"
+		ElseIf snap_memo_lines + ga_memo_lines + mfip_memo_lines + grh_memo_lines + 2 < 28 Then
+			memo_list = memo_list & "~SNAP/GA/MFIP/GRH"
+			If msa_memo_lines <> 0 AND msa_memo_lines < 28 Then memo_list = memo_list & "~MSA"
+		ElseIf snap_memo_lines + mfip_memo_lines + msa_memo_lines + grh_memo_lines + 2 < 28 Then
+			memo_list = memo_list & "~SNAP/MSA/MFIP/GRH"
+			If ga_memo_lines <> 0 AND ga_memo_lines < 28 Then memo_list = memo_list & "~GA"
+		ElseIf mfip_memo_lines + ga_memo_lines + msa_memo_lines + snap_memo_lines + 2 < 28 Then							'These try to combine three programs into one MEMO
+			memo_list = memo_list & "~SNAP/MFIP/GA/MSA"
+			If grh_memo_lines <> 0 AND grh_memo_lines < 28 Then memo_list = memo_list & "~GRH"
+
+
+		ElseIf mfip_memo_lines + ga_memo_lines + msa_memo_lines + 2 < 28 Then							'These try to combine three programs into one MEMO
+			memo_list = memo_list & "~MFIP/GA/MSA"
+			If grh_memo_lines + snap_memo_lines < 28 Then
+				memo_list = memo_list & "~SNAP/GRH"
+			Else
+				If snap_memo_lines > 0 AND snap_memo_lines < 28 Then memo_list = memo_list & "~SNAP"
+				If grh_memo_lines > 0 AND grh_memo_lines < 28 Then memo_list = memo_list & "~GRH"
+			End If
 		ElseIf snap_memo_lines + ga_memo_lines + msa_memo_lines + 2 < 28 Then
 			memo_list = memo_list & "~SNAP/GA/MSA"
-			If mfip_memo_lines <> 0 AND mfip_memo_lines < 28 Then memo_list = memo_list & "~MFIP"
+			If grh_memo_lines + mfip_memo_lines < 28 Then
+				memo_list = memo_list & "~MFIP/GRH"
+			Else
+				If mfip_memo_lines > 0 AND mfip_memo_lines < 28 Then memo_list = memo_list & "~MFIP"
+				If grh_memo_lines > 0 AND grh_memo_lines < 28 Then memo_list = memo_list & "~GRH"
+			End If
 		ElseIf snap_memo_lines + ga_memo_lines + mfip_memo_lines + 2 < 28 Then
 			memo_list = memo_list & "~SNAP/GA/MFIP"
-			If msa_memo_lines <> 0 AND msa_memo_lines < 28 Then memo_list = memo_list & "~MSA"
+			If grh_memo_lines + msa_memo_lines < 28 Then
+				memo_list = memo_list & "~MSA/GRH"
+			Else
+				If msa_memo_lines > 0 AND msa_memo_lines < 28 Then memo_list = memo_list & "~MSA"
+				If grh_memo_lines > 0 AND grh_memo_lines < 28 Then memo_list = memo_list & "~GRH"
+			End If
 		ElseIf snap_memo_lines + mfip_memo_lines + msa_memo_lines + 2 < 28 Then
 			memo_list = memo_list & "~SNAP/MSA/MFIP"
-			If ga_memo_lines <> 0 AND ga_memo_lines < 28 Then memo_list = memo_list & "~GA"
-
-		ElseIf snap_memo_lines + ga_memo_lines + 1 < 28 Then										'These try to combine two programs into one MEMO
-			memo_list = memo_list & "~SNAP/GA"
-			If msa_memo_lines + mfip_memo_lines + 1 < 28 Then
-				memo_list = memo_list & "~MFIP/MSA"
+			If grh_memo_lines + ga_memo_lines < 28 Then
+				memo_list = memo_list & "~GA/GRH"
 			Else
-				If msa_memo_lines <> 0 AND msa_memo_lines < 28 Then  memo_list = memo_list & "~MSA"
-				If mfip_memo_lines <> 0 AND mfip_memo_lines < 28 Then memo_list = memo_list & "~MFIP"
+				If ga_memo_lines > 0 AND ga_memo_lines < 28 Then memo_list = memo_list & "~GA"
+				If grh_memo_lines > 0 AND grh_memo_lines < 28 Then memo_list = memo_list & "~GRH"
 			End If
-		ElseIf snap_memo_lines + msa_memo_lines + 1 < 28 Then
-			memo_list = memo_list & "~SNAP/MSA"
-			If ga_memo_lines + mfip_memo_lines + 1 < 28 Then
-				memo_list = memo_list & "~MFIP/GA"
-			Else
-				If ga_memo_lines <> 0 AND ga_memo_lines < 28 Then  memo_list = memo_list & "~GA"
-				If mfip_memo_lines <> 0 AND mfip_memo_lines < 28 Then memo_list = memo_list & "~MFIP"
-			End If
-		ElseIf snap_memo_lines + mfip_memo_lines + 1 < 28 Then
-			memo_list = memo_list & "~SNAP/MFIP"
-			If msa_memo_lines + ga_memo_lines + 1 < 28 Then
-				memo_list = memo_list & "~GA/MSA"
-			Else
-				If msa_memo_lines <> 0 AND msa_memo_lines < 28 Then  memo_list = memo_list & "~MSA"
-				If ga_memo_lines <> 0 AND ga_memo_lines < 28 Then memo_list = memo_list & "~GA"
-			End If
-		ElseIf ga_memo_lines + msa_memo_lines + 1 < 28 Then
-			memo_list = memo_list & "~GA/MSA"
-			If snap_memo_lines + mfip_memo_lines + 1 < 28 Then
-				memo_list = memo_list & "~MFIP/SNAP"
-			Else
-				If snap_memo_lines <> 0 AND snap_memo_lines < 28 Then  memo_list = memo_list & "~SNAP"
-				If mfip_memo_lines <> 0 AND mfip_memo_lines < 28 Then memo_list = memo_list & "~MFIP"
-			End If
-		ElseIf ga_memo_lines + mfip_memo_lines + 1 < 28 Then
-			memo_list = memo_list & "~GA/MFIP"
-			If msa_memo_lines + snap_memo_lines + 1 < 28 Then
-				memo_list = memo_list & "~SNAP/MSA"
-			Else
-				If msa_memo_lines <> 0 AND msa_memo_lines < 28 Then  memo_list = memo_list & "~MSA"
-				If snap_memo_lines <> 0 AND snap_memo_lines < 28 Then memo_list = memo_list & "~SNAP"
-			End If
-
-		ElseIf msa_memo_lines + mfip_memo_lines + 1 < 28 Then
-			memo_list = memo_list & "~MFIP/MSA"
-			If ga_memo_lines + mfip_memo_lines + 1 < 28 Then
-				memo_list = memo_list & "~MFIP/GA"
-			Else
-				If ga_memo_lines <> 0 AND ga_memo_lines < 28 Then  memo_list = memo_list & "~GA"
-				If mfip_memo_lines <> 0 AND mfip_memo_lines < 28 Then memo_list = memo_list & "~MFIP"
-			End If
+		'DO WE NEED TO HANDLE FOR 2 Then maybe 2 and 1 or 1 and 1 and 1 and 1 
+		' ElseIf snap_memo_lines + ga_memo_lines + 1 < 28 Then										'These try to combine two programs into one MEMO
+		' 	memo_list = memo_list & "~SNAP/GA"
+		' 	If msa_memo_lines + mfip_memo_lines + 1 < 28 Then
+		' 		memo_list = memo_list & "~MFIP/MSA"
+		' 	Else
+		' 		If msa_memo_lines <> 0 AND msa_memo_lines < 28 Then  memo_list = memo_list & "~MSA"
+		' 		If mfip_memo_lines <> 0 AND mfip_memo_lines < 28 Then memo_list = memo_list & "~MFIP"
+		' 	End If
+		' ElseIf snap_memo_lines + msa_memo_lines + 1 < 28 Then
+		' 	memo_list = memo_list & "~SNAP/MSA"
+		' 	If ga_memo_lines + mfip_memo_lines + 1 < 28 Then
+		' 		memo_list = memo_list & "~MFIP/GA"
+		' 	Else
+		' 		If ga_memo_lines <> 0 AND ga_memo_lines < 28 Then  memo_list = memo_list & "~GA"
+		' 		If mfip_memo_lines <> 0 AND mfip_memo_lines < 28 Then memo_list = memo_list & "~MFIP"
+		' 	End If
+		' ElseIf snap_memo_lines + mfip_memo_lines + 1 < 28 Then
+		' 	memo_list = memo_list & "~SNAP/MFIP"
+		' 	If msa_memo_lines + ga_memo_lines + 1 < 28 Then
+		' 		memo_list = memo_list & "~GA/MSA"
+		' 	Else
+		' 		If msa_memo_lines <> 0 AND msa_memo_lines < 28 Then  memo_list = memo_list & "~MSA"
+		' 		If ga_memo_lines <> 0 AND ga_memo_lines < 28 Then memo_list = memo_list & "~GA"
+		' 	End If
+		' ElseIf ga_memo_lines + msa_memo_lines + 1 < 28 Then
+		' 	memo_list = memo_list & "~GA/MSA"
+		' 	If snap_memo_lines + mfip_memo_lines + 1 < 28 Then
+		' 		memo_list = memo_list & "~MFIP/SNAP"
+		' 	Else
+		' 		If snap_memo_lines <> 0 AND snap_memo_lines < 28 Then  memo_list = memo_list & "~SNAP"
+		' 		If mfip_memo_lines <> 0 AND mfip_memo_lines < 28 Then memo_list = memo_list & "~MFIP"
+		' 	End If
+		' ElseIf ga_memo_lines + mfip_memo_lines + 1 < 28 Then
+		' 	memo_list = memo_list & "~GA/MFIP"
+		' 	If msa_memo_lines + snap_memo_lines + 1 < 28 Then
+		' 		memo_list = memo_list & "~SNAP/MSA"
+		' 	Else
+		' 		If msa_memo_lines <> 0 AND msa_memo_lines < 28 Then  memo_list = memo_list & "~MSA"
+		' 		If snap_memo_lines <> 0 AND snap_memo_lines < 28 Then memo_list = memo_list & "~SNAP"
+		' 	End If
+		'
+		' ElseIf msa_memo_lines + mfip_memo_lines + 1 < 28 Then
+		' 	memo_list = memo_list & "~MFIP/MSA"
+		' 	If ga_memo_lines + mfip_memo_lines + 1 < 28 Then
+		' 		memo_list = memo_list & "~MFIP/GA"
+		' 	Else
+		' 		If ga_memo_lines <> 0 AND ga_memo_lines < 28 Then  memo_list = memo_list & "~GA"
+		' 		If mfip_memo_lines <> 0 AND mfip_memo_lines < 28 Then memo_list = memo_list & "~MFIP"
+		' 	End If
 		Else
 			If mfip_memo_lines <> 0 AND mfip_memo_lines < 28 Then memo_list = memo_list & "~MFIP"		'These are just single program MEMOs
 			If ga_memo_lines <> 0 AND ga_memo_lines < 28 Then memo_list = memo_list & "~GA"
@@ -2848,6 +3139,7 @@ If create_memo = True Then		'If there are any MEMOs needed we need to read INQX 
 	ga_restart_memo_lines_position = 0
 	msa_restart_memo_lines_position = 0
 	mfip_restart_memo_lines_position = 0
+	grh_restart_memo_lines_position = 0
 
 	For each memo_to_write in the_memos_array									'Using the Array we just made, we care going to make 1 MEMO for each identified program
 		memo_line = 1
@@ -2955,6 +3247,31 @@ If create_memo = True Then		'If there are any MEMOs needed we need to read INQX 
 				mfip_restart_memo_lines_position = end_line			'Setting where we ended for this program
 			End If
 		End If
+		If memo_full = False AND grh_verification_method = "Create New MEMO with range of Months" AND InStr(memo_to_write, "GRH") <> 0 Then
+			If grh_restart_memo_lines_position <= UBound(grh_array_of_memo_lines) Then
+				If memo_line = 1 AND grh_restart_memo_lines_position = 0 Then											'at the becinnging of the program and the MEMO
+					Call write_variable_in_SPEC_MEMO("               Benefit Issuances by Month")
+					Call write_variable_in_SPEC_MEMO("                           Information provided by request.")
+					memo_line = memo_line + 2
+				ElseIf memo_line <> 1 AND grh_restart_memo_lines_position = 0 Then										'in the middle of a MEMO, but the beginning of a program'
+					Call write_variable_in_SPEC_MEMO("-      - - - - - - - - - - - - - - - - - - - -       -")
+					memo_line = memo_line + 1
+				ElseIf grh_restart_memo_lines_position <> 0 Then														'In the middle of a program and the beginning of a MEMO'
+					Call write_variable_in_SPEC_MEMO("GRH (Housing Support) Benefit Information CONTINUED:")
+					memo_line = memo_line + 1
+				End If
+				For grh_info = grh_restart_memo_lines_position to UBound(grh_array_of_memo_lines)					'Now write the lines we created in the INQX functionality
+					Call write_variable_in_SPEC_MEMO(grh_array_of_memo_lines(grh_info))
+					end_line = grh_info + 1
+					memo_line = memo_line + 1
+					If memo_line = 30 Then		'We stop at 30 because there is a line to add to line 30 for every MEMO'
+						memo_full = True
+						Exit For
+					End If
+				Next
+				grh_restart_memo_lines_position = end_line			'Setting where we ended for this program'
+			End If
+		End If
 		Do while memo_line < 30										'Now we want to get to line 30
 			Call write_variable_in_SPEC_MEMO("")
 			memo_line = memo_line + 1
@@ -2978,6 +3295,7 @@ If snap_resent_wcom = True OR snap_verification_method = "Create New MEMO with r
 If ga_resent_wcom = True OR ga_verification_method = "Create New MEMO with range of Months" OR ga_not_actv_memo_for_old_beneftis_checkbox = checked Then pa_verif_programs = pa_verif_programs & "/GA"
 If msa_resent_wcom = True OR msa_verification_method = "Create New MEMO with range of Months" OR msa_not_actv_memo_for_old_beneftis_checkbox = checked Then pa_verif_programs = pa_verif_programs & "/MSA"
 If mfip_resent_wcom = True OR mfip_verification_method = "Create New MEMO with range of Months" OR mfip_not_actv_memo_for_old_beneftis_checkbox = checked Then pa_verif_programs = pa_verif_programs & "/MFIP"
+If grh_resent_wcom = True OR grh_verification_method = "Create New MEMO with range of Months" OR grh_not_actv_memo_for_old_beneftis_checkbox = checked Then pa_verif_programs = pa_verif_programs & "/GRH"
 
 If left(pa_verif_programs, 1) = "/" Then pa_verif_programs = right(pa_verif_programs, len(pa_verif_programs)-1)
 
@@ -3016,6 +3334,14 @@ If mfip_resent_wcom = True Then
 End If
 If mfip_verification_method = "Create New MEMO with range of Months" Then
 	Call write_variable_in_CASE_NOTE("MEMO with MFIP Benefit amounts for " & mfip_start_month & "  to " &  mfip_end_month)
+	Call write_variable_in_CASE_NOTE("   - Benefit details from INQX")
+End If
+If grh_resent_wcom = True Then
+	Call write_variable_in_CASE_NOTE("GRH WCOM resent to Client from " & grh_month & "/" & grh_year & ".")
+	Call write_variable_in_CASE_NOTE("   - " & grh_wcom_text)
+End If
+If grh_verification_method = "Create New MEMO with range of Months" Then
+	Call write_variable_in_CASE_NOTE("MEMO with GRH Benefit amounts for " & grh_start_month & "  to " &  grh_end_month)
 	Call write_variable_in_CASE_NOTE("   - Benefit details from INQX")
 End If
 
