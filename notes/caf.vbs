@@ -306,6 +306,7 @@ function HH_comp_dialog(HH_member_array)
             'Dialog of the Household Composition
             dlg_len = 115 + (15 * UBound(ALL_MEMBERS_ARRAY, 2))     'setting the size of the dialog based on the number of household members
             if dlg_len < 145 Then dlg_len = 145                     'This is the minimum height of the dialog
+            Dialog1 = ""
             BeginDialog Dialog1, 0, 0, 446, dlg_len, "HH Composition Dialog"
               Text 10, 10, 250, 10, "This dialog will clarify the household relationships and details for the case."
               Text 105, 25, 100, 10, "Included and Counted in Grant"
@@ -1849,6 +1850,7 @@ function verification_dialog()
         Do
             verif_err_msg = ""
 
+            Dialog1 = ""
             BeginDialog Dialog1, 0, 0, 610, 395, "Select Verifications"
               Text 280, 10, 120, 10, "Date Verification Request Form Sent:"
               EditBox 400, 5, 50, 15, verif_req_form_sent_date
@@ -2342,6 +2344,7 @@ Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 Call remove_dash_from_droplist(county_list)
 script_run_lowdown = ""
 
+Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 281, 235, "CAF Script Case number dialog"
   EditBox 65, 50, 60, 15, MAXIS_case_number
   EditBox 210, 50, 15, 15, MAXIS_footer_month
@@ -2542,6 +2545,7 @@ If cash_checkbox = checked OR snap_checkbox = checked OR hc_checkbox = checked T
     If snap_checkbox = checked Then dlg_len = dlg_len + 20
     If HC_checkbox = checked Then dlg_len = dlg_len + 20
 
+    Dialog1 = ""
     BeginDialog Dialog1, 0, 0, 205, dlg_len, "CAF Process"
       Text 10, 10, 35, 10, "Program"
       Text 80, 10, 50, 10, "CAF Process"
@@ -2702,6 +2706,7 @@ Else
     End If
 End if
 If IsDate(CAF_datestamp) = False Then
+    Dialog1 = ""
     BeginDialog Dialog1, 0, 0, 125, 45, "CAF Datestamp"
       EditBox 75, 5, 45, 15, CAF_datestamp
       ButtonGroup ButtonPressed
@@ -3675,6 +3680,7 @@ Do
                                         ' Loop until each_busi = UBound(ALL_BUSI_PANELS_ARRAY, 2)
                                         y_pos = 5
 
+                                        Dialog1 = ""
                                         BeginDialog Dialog1, 0, 0, 546, dlg_len, "CAF Dialog 3 - BUSI"
                                           If ALL_BUSI_PANELS_ARRAY(memb_numb, 0) = "" Then
                                             Text 10, y_pos, 535, 10, "There are no BUSI panels found on this case. The script could not pull BUSI details for a case note."
@@ -4012,6 +4018,7 @@ Do
                                     If show_cses_detail = FALSE Then dlg_four_len = 100
                                     y_pos = 5
                                     ' MsgBox "Number of CS members - " & number_of_cs_members
+                                    Dialog1 = ""
                                     BeginDialog Dialog1, 0, 0, dlg_wide, dlg_four_len, "Dialog 4 - CSES"
                                       If show_cses_detail = FALSE Then
                                           Text 10, y_pos, 445, 10, "There are no UNEA panels for Child Support (08, 36, 39) and the script could not pull child support detail information."
@@ -4187,6 +4194,7 @@ Do
                             If unea_income_found = FALSE Then dlg_five_len = dlg_five_len + 20
 
                             y_pos = 5
+                            Dialog1 = ""
                             BeginDialog Dialog1, 0, 0, 466, dlg_five_len, "Dialog 5 - UNEA"
                               If unea_income_found = FALSE Then
                                   Text 10, y_pos, 445, 10, "There are no UNEA panels found and the script could not pull detail about SSA/WC/VA/UC or other UNEA income."
@@ -4324,6 +4332,7 @@ Do
                     If show_six = true Then
                         If left(total_shelter_amount, 1) <> "$" Then total_shelter_amount = "$" & total_shelter_amount
 
+                        Dialog1 = ""
                         BeginDialog Dialog1, 0, 0, 556, 290, "CAF Dialog 6 - WREG, Expenses, Address"
                           EditBox 45, 50, 500, 15, notes_on_wreg
                           ButtonGroup ButtonPressed
@@ -4417,6 +4426,7 @@ Do
                                   End If
                                 Next
                                 y_pos = 10
+                                Dialog1 = ""
                                 BeginDialog Dialog1, 0, 0, 551, dlg_len, "ABAWD Detail"
                                   For each_member = 0 to UBound(ALL_MEMBERS_ARRAY, 2)
                                     If ALL_MEMBERS_ARRAY(include_snap_checkbox, each_member) = checked AND ALL_MEMBERS_ARRAY(wreg_exists, each_member) = TRUE Then
@@ -4499,6 +4509,7 @@ Do
                                 If manual_amount_used = FALSE Then manual_total_shelter = total_shelter_amount & ""
                                 start_total_shel = manual_total_shelter
 
+                                Dialog1 = ""
                                 BeginDialog Dialog1, 0, 0, 340, dlg_len, "SHEL Detail Dialog"
                                   DropListBox 60, 10, 125, 45, shel_memb_list, clt_SHEL_is_for
                                   Text 5, 15, 55, 10, "SHEL for Memb"
@@ -4651,6 +4662,7 @@ Do
                 If show_seven = true Then
                     app_month_assets = app_month_assets & ""
 
+                    Dialog1 = ""
                     BeginDialog Dialog1, 0, 0, 561, 340, "CAF Dialog 7 - Asset and Miscellaneous Info"
                       EditBox 435, 20, 115, 15, app_month_assets
                       EditBox 45, 40, 395, 15, notes_on_acct
@@ -4757,6 +4769,7 @@ Do
                 app_month_assets = app_month_assets & ""
                 app_month_expenses = app_month_expenses & ""
 
+                Dialog1 = ""
                 BeginDialog Dialog1, 0, 0, 500, 370, "CAF Dialog 8 - Interview Info"
                   EditBox 60, 10, 20, 15, next_er_month
                   EditBox 85, 10, 20, 15, next_er_year
@@ -5063,6 +5076,7 @@ If continue_in_inquiry = "" Then
         MX_region = trim(MX_region)
         If MX_region = "INQUIRY DB" Then
 
+            Dialog1 = ""
             BeginDialog dialog1, 0, 0, 266, 120, "Still in Inquiry"
               ButtonGroup ButtonPressed
                 PushButton 165, 80, 95, 15, "Stop the Script Run (ESC)", stop_script_button
@@ -5153,6 +5167,7 @@ If CAF_type = "Application" Then        'Interview date is not on PROG for recer
             If the_process_for_cash = "Application" Then prog_update_cash_checkbox = checked
 
             'Dialog code
+            Dialog1 = ""
             BeginDialog Dialog1, 0, 0, 231, 130, "Update PROG?"
               OptionGroup RadioGroup1
                 RadioButton 10, 10, 155, 10, "YES! Update PROG with the Interview Date", confirm_update_prog
@@ -5313,6 +5328,7 @@ If the_process_for_cash = "Recertification" OR the_process_for_snap = "Recertifi
             EMReadScreen cash_stat_revw_status, 1, 7, 40
             EMReadScreen snap_stat_revw_status, 1, 7, 60
 
+            Dialog1 = ""
             BeginDialog Dialog1, 0, 0, 241, 165, "Update REVW"
               OptionGroup RadioGroup1
                 RadioButton 10, 10, 185, 10, "YES! Update REVW with the Interview Date/CAF Date", confirm_update_revw
@@ -5390,6 +5406,7 @@ Do
     Do
         qual_err_msg = ""
 
+        Dialog1 = ""
         BeginDialog Dialog1, 0, 0, 451, 205, "CAF Qualifying Questions"
           DropListBox 220, 40, 35, 45, "No"+chr(9)+"Yes", qual_question_one
           ComboBox 330, 40, 115, 45, verification_memb_list, qual_memb_one
@@ -5545,6 +5562,7 @@ If HC_checkbox = checked Then
     hc_medi_info = MEDI
     hc_faci_info = FACI
 
+    Dialog1 = ""
     BeginDialog Dialog1, 0, 0, 481, 295, "HC Detail"
       ComboBox 80, 5, 150, 15, "Select or Type"+chr(9)+"DHS-2128 (LTC Renewal)"+chr(9)+"DHS-3417B (Req. to Apply...)"+chr(9)+"DHS-3418 (HC Renewal)"+chr(9)+"DHS-3531 (LTC Application)"+chr(9)+"DHS-3876 (Certain Pops App)"+chr(9)+"DHS-6696 (MNsure HC App)"+chr(9)+"DHS-3727 (Combined AR for Certain Pops)"+chr(9)+HC_document_received, HC_document_received
       EditBox 80, 20, 50, 15, HC_datestamp
