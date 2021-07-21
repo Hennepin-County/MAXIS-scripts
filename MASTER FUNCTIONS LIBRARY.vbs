@@ -6,6 +6,8 @@
 'been tested in other scripts first. This document is actively used by live scripts, so it needs to be functionally complete at all times.
 '
 '============THAT MEANS THAT IF YOU BREAK THIS SCRIPT, ALL OTHER SCRIPTS ****STATEWIDE**** WILL NOT WORK! MODIFY WITH CARE!!!!!============
+Dim objFSO
+Set objFSO = CreateObject("Scripting.FileSystemObject")
 
 'CHANGELOG BLOCK ===========================================================================================================
 actual_script_name = name_of_script
@@ -424,9 +426,6 @@ end function
 Const ForReading = 1
 Const ForWriting = 2
 Const ForAppending = 8
-
-Dim objFSO
-Set objFSO = CreateObject("Scripting.FileSystemObject")
 
 'Needs to determine MyDocs directory before proceeding.
 Set wshshell = CreateObject("WScript.Shell")
@@ -3575,13 +3574,6 @@ function changelog_display()
 
 		'Now determines name of file
 		local_changelog_path = user_myDocs_folder & "scripts-local-changelog-entries.txt"
-
-		Const ForReading = 1
-		Const ForWriting = 2
-		Const ForAppending = 8
-
-		Dim objFSO
-		Set objFSO = CreateObject("Scripting.FileSystemObject")
 
 		'Before doing comparisons, it needs to see what the most recent item added to the list was.
 		last_item_added_to_changelog = split(changelog(0), " | ")
