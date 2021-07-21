@@ -423,13 +423,12 @@ end function
 
 'Preloading worker_signature, as a constant to be used in scripts---------------------------------------------------------------------------------------------------------
 
-Const ForReading = 1
-Const ForWriting = 2
-Const ForAppending = 8
+Const ForReading = 1			'These Constants are used for enumeration in file manipulation functions.
+Const ForWriting = 2			'See the 'OpenAsTextStream' method
+Const ForAppending = 8			'https://docs.microsoft.com/en-us/office/vba/language/reference/user-interface-help/openastextstream-method
 
-'Needs to determine MyDocs directory before proceeding.
-Set wshshell = CreateObject("WScript.Shell")
-user_myDocs_folder = wshShell.SpecialFolders("MyDocuments") & "\"
+Set wshshell = CreateObject("WScript.Shell")						'creating the wscript method to interact with the system
+user_myDocs_folder = wshShell.SpecialFolders("MyDocuments") & "\"	'defining the my documents folder for use in saving script details/variables between script runs
 
 'Now it determines the signature
 With (CreateObject("Scripting.FileSystemObject"))															'Creating an FSO
@@ -442,21 +441,24 @@ With (CreateObject("Scripting.FileSystemObject"))															'Creating an FSO
 	END IF
 END WITH
 
-Set objFolder = objFSO.GetFolder(user_myDocs_folder)
-Set colFiles = objFolder.Files
-For Each objFile in colFiles
-	delete_this_file = False
-	this_file_name = objFile.Name
-	this_file_type = objFile.Type
-	this_file_created_date = objFile.DateCreated
-	this_file_path = objFile.Path
+'Now we check MyDocs to see if there is script saved work files that need to be removed.
+'This is necessary for correct records managment and data security.
+'This runs every time we open the Func Lib and happens in the background, ensuring no interruption in other script functions
+Set objFolder = objFSO.GetFolder(user_myDocs_folder)										'Creates an oject of the whole my documents folder
+Set colFiles = objFolder.Files																'Creates an array/collection of all the files in the folder
+For Each objFile in colFiles																'looping through each file
+	delete_this_file = False																'Default to NOT delete the file
+	this_file_name = objFile.Name															'Grabing the file name
+	this_file_type = objFile.Type															'Grabing the file type
+	this_file_created_date = objFile.DateCreated											'Reading the date created
+	this_file_path = objFile.Path															'Grabing the path for the file
 
-	If InStr(this_file_name, "caf-answers-") <> 0 Then delete_this_file = True
-	If InStr(this_file_name, "interview-answers-") <> 0 Then delete_this_file = True
-	If this_file_type <> "Text Document" then delete_this_file = False
-	If DateDiff("d", this_file_created_date, date) < 8 Then delete_this_file = False
+	If InStr(this_file_name, "caf-answers-") <> 0 Then delete_this_file = True				'We want to delete files that say 'caf-answers-' as this is how the UTILITIES - Complete Phone CAF script creates the save your work doc
+	If InStr(this_file_name, "interview-answers-") <> 0 Then delete_this_file = True		'We want to delete files that say 'interview-answers-' as this is how the NOTES - Interview script creates the save your work doc
+	If this_file_type <> "Text Document" then delete_this_file = False						'We do NOT want to delete files that are NOT TXT file types
+	If DateDiff("d", this_file_created_date, date) < 8 Then delete_this_file = False		'We do NOT want to delete files that are 7 days old or less - we may need to reference the saved work in these files.
 
-	If delete_this_file = True Then objFSO.DeleteFile(this_file_path)
+	If delete_this_file = True Then objFSO.DeleteFile(this_file_path)						'If we have determined that we need to delete the file - here we delete it
 Next
 
 '----------------------------------------------------------------------------------------------------Email addresses for the teams
