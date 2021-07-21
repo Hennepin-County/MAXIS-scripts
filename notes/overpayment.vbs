@@ -223,17 +223,23 @@ EMConnect ""
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 memb_number = "01" 'defaults to 01'
 discovery_date = "" & date
+
 '-------------------------------------------------------------------------------------------------DIALOG
-BeginDialog Dialog1, 0, 0, 161, 85, "Overpayment/Claim"
-  EditBox 55, 5, 45, 15, MAXIS_case_number
-  DropListBox 55, 25, 105, 15, "Select One:"+chr(9)+"Intial Overpayment/Claim"+chr(9)+"Requested Claim Adjustment", claim_actions
-  EditBox 55, 45, 105, 15, worker_signature
+BeginDialog Dialog1, 0, 0, 171, 135, "Overpayment/Claim"
+  EditBox 60, 55, 45, 15, MAXIS_case_number
+  DropListBox 60, 75, 105, 15, "Select One:"+chr(9)+"Intial Overpayment/Claim"+chr(9)+"Requested Claim Adjustment", claim_actions
+  EditBox 60, 95, 105, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 65, 65, 45, 15
-    CancelButton 115, 65, 45, 15
-  Text 5, 30, 50, 10, "Claim Action:"
-  Text 5, 10, 50, 10, "Case Number:"
-  Text 5, 50, 40, 10, "Worker Sig:"
+    OkButton 70, 115, 45, 15
+    CancelButton 120, 115, 45, 15
+    PushButton 110, 55, 55, 15, "CLAIMS", claims_button
+  Text 10, 60, 50, 10, "Case Number:"
+  Text 10, 80, 50, 10, "Claim Action:"
+  Text 10, 100, 40, 10, "Worker Sig:"
+  GroupBox 5, 5, 160, 45, "IMPORTANT:"
+  Text 10, 15, 150, 10, "CASE/NOTE to be run once claim is complete."
+  Text 10, 25, 145, 10, "Does not enter text into CLDL Demand Letter"
+  Text 10, 35, 100, 10, "or update worker to X127720"
 EndDialog
 
 'Runs the first dialog - which confirms the case number
@@ -242,12 +248,13 @@ Do
 		err_msg = ""
 		Dialog Dialog1
 		cancel_without_confirmation
-      	IF IsNumeric(maxis_case_number) = false or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
-        IF claim_actions = "Select One:" then err_msg = err_msg & vbNewLine & "* Please select what type of appeal action the client is claiming."
-		IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "* Please enter your worker signature, for help see utilities. "
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
-	Loop until err_msg = ""
-CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+		If ButtonPressed = claims_button then CreateObject("WScript.Shell").Run("https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Claims.aspx")
+	Loop until ButtonPressed = -1
+	IF IsNumeric(maxis_case_number) = false or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
+    IF claim_actions = "Select One:" then err_msg = err_msg & vbNewLine & "* Please select type of claim action."
+	IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "* Please enter your worker signature, for help see utilities. "
+	IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
 IF claim_actions = "Intial Overpayment/Claim" THEN
@@ -345,6 +352,7 @@ IF claim_actions = "Intial Overpayment/Claim" THEN
         	err_msg = ""
         	dialog Dialog1
         	cancel_confirmation
+			IF memb_number = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the member number."
         	IF MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* Enter a valid case number."
         	IF fraud_referral = "Select:" THEN err_msg = err_msg & vbnewline & "* You must select a fraud referral entry."
         	IF trim(Reason_OP) = "" or len(Reason_OP) < 5 THEN err_msg = err_msg & vbnewline & "* You must enter a reason for the overpayment please provide as much detail as possible (min 5)."
@@ -377,6 +385,7 @@ IF claim_actions = "Intial Overpayment/Claim" THEN
         CALL check_for_password(are_we_passworded_out)
     Loop until are_we_passworded_out = False
 	'---------------------------------------------------------------------------------------------'client information
+	back_to_self
 	CALL navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", is_this_priv)
 	IF is_this_priv = TRUE THEN script_end_procedure("This case is privileged, the script will now end.")
     EMwritescreen MEMB_number, 20, 76
@@ -440,7 +449,6 @@ IF claim_actions = "Intial Overpayment/Claim" THEN
     	Call write_bullet_and_variable_in_case_note("Action Date", date)
     	Call write_bullet_and_variable_in_case_note("Program(s)", programs)
     	Call write_variable_in_case_note("* Entries for these potential claims must be retained until further notice.")
-    	Call write_variable_in_case_note("-----")
     	Call write_variable_in_case_note(worker_signature)
     	PF3
     END IF
@@ -451,7 +459,6 @@ IF claim_actions = "Intial Overpayment/Claim" THEN
     CALL write_bullet_and_variable_in_CASE_NOTE("Discovery date", discovery_date)
     CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
     CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", income_source)
-    Call write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
     Call write_variable_in_CASE_NOTE(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
     IF OP_program_II <> "Select:" then Call write_variable_in_CASE_NOTE(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
     IF OP_program_III <> "Select:" then	Call write_variable_in_CASE_NOTE(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim # " & Claim_number_III & " Amt $" & Claim_amount_III)
@@ -521,7 +528,6 @@ IF claim_actions = "Intial Overpayment/Claim" THEN
     CALL write_bullet_and_variable_in_CCOL_note_test("Discovery date", discovery_date)
     CALL write_bullet_and_variable_in_CCOL_note_test("Active Programs", programs)
     CALL write_bullet_and_variable_in_CCOL_note_test("Source of income", income_source)
-    Call write_variable_in_CCOL_note_test("----- ----- ----- ----- -----")
     IF OP_program <> "Select:" then Call write_variable_in_CCOL_note_test(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
     IF OP_program_II <> "Select:" then Call write_variable_in_CCOL_note_test(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
     IF OP_program_III <> "Select:" then Call write_variable_in_CCOL_note_test(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim # " & Claim_number_III & " Amt $" & Claim_amount_III)
@@ -578,7 +584,6 @@ IF claim_actions = "Requested Claim Adjustment" THEN
       Text 5, 30, 55, 10, "Original Amount:"
       Text 5, 110, 80, 10, "Requested verifications:"
     EndDialog
-
 
 	Do
 		Do
@@ -640,7 +645,6 @@ IF claim_actions = "Requested Claim Adjustment" THEN
 	Call write_bullet_and_variable_in_CASE_NOTE("Reason for correction", reason_correction)
 	Call write_bullet_and_variable_in_CASE_NOTE("Requested verifications", requested_verif)
 	Call write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
-	CALL write_variable_in_CASE_NOTE("----- ----- -----")
 	Call write_bullet_and_variable_in_CASE_NOTE("TANF Cash", tanf_elig_cash)
 	Call write_bullet_and_variable_in_CASE_NOTE("TANF Housing Grant", tanf_housing_grant)
 	Call write_bullet_and_variable_in_CASE_NOTE("Federal Food", federal_food)
@@ -694,7 +698,6 @@ IF claim_actions = "Requested Claim Adjustment" THEN
 	Call write_bullet_and_variable_in_CCOL_note_test("Reason for correction", reason_correction)
 	Call write_bullet_and_variable_in_CCOL_note_test("Requested verifications", requested_verif)
 	Call write_bullet_and_variable_in_CCOL_note_test("Other notes", other_notes)
-	CALL write_variable_in_CCOL_note_test("----- ----- -----")
 	Call write_bullet_and_variable_in_CCOL_note_test("TANF Cash", tanf_elig_cash)
 	Call write_bullet_and_variable_in_CCOL_note_test("TANF Housing Grant", tanf_housing_grant)
 	Call write_bullet_and_variable_in_CCOL_note_test("Federal Food", federal_food)
@@ -702,6 +705,7 @@ IF claim_actions = "Requested Claim Adjustment" THEN
 	Call write_bullet_and_variable_in_CCOL_note_test("State Housing", state_housing_grant)
 	Call write_bullet_and_variable_in_CCOL_note_test("State Food", state_food)
 	Call write_bullet_and_variable_in_CCOL_note_test("Total", total_amount)
+	CALL write_variable_in_CASE_NOTE("----- ----- -----")
 	CALL write_variable_in_CCOL_note_test(worker_signature)
 	PF3
 	'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)

@@ -2215,20 +2215,10 @@ end function
 function save_your_work()
 'This function records the variables into a txt file so that it can be retrieved by the script if run later.
 
-	'Needs to determine MyDocs directory before proceeding.
-	' Set wshshell = CreateObject("WScript.Shell")
-	user_myDocs_folder = wshShell.SpecialFolders("MyDocuments") & "\"
-
 	'Now determines name of file
 	If MAXIS_case_number <> "" Then
 		local_changelog_path = user_myDocs_folder & "interview-answers-" & MAXIS_case_number & "-info.txt"
 	End If
-	Const ForReading = 1
-	Const ForWriting = 2
-	Const ForAppending = 8
-
-	' Dim objFSO
-	' Set objFSO = CreateObject("Scripting.FileSystemObject")
 
 	With objFSO
 
@@ -2991,20 +2981,9 @@ end function
 
 function restore_your_work(vars_filled)
 'this function looks to see if a txt file exists for the case that is being run to pull already known variables back into the script from a previous run
-'
-	'Needs to determine MyDocs directory before proceeding.
-	' Set wshshell = CreateObject("WScript.Shell")
-	user_myDocs_folder = wshShell.SpecialFolders("MyDocuments") & "\"
 
 	'Now determines name of file
 	local_changelog_path = user_myDocs_folder & "interview-answers-" & MAXIS_case_number & "-info.txt"
-
-	Const ForReading = 1
-	Const ForWriting = 2
-	Const ForAppending = 8
-
-	' Dim objFSO
-	' Set objFSO = CreateObject("Scripting.FileSystemObject")
 
 	With objFSO
 
@@ -3382,6 +3361,7 @@ function restore_your_work(vars_filled)
 							HH_MEMB_ARRAY(other_names, known_membs)					= array_info(6)
 							HH_MEMB_ARRAY(age, known_membs)							= array_info(7)
 							' MsgBox "~" & HH_MEMB_ARRAY(age, known_membs) & "~"
+							If HH_MEMB_ARRAY(age, known_membs) = "" Then HH_MEMB_ARRAY(age, known_membs) = 0
 							HH_MEMB_ARRAY(age, known_membs) = HH_MEMB_ARRAY(age, known_membs) * 1
 							HH_MEMB_ARRAY(date_of_birth, known_membs)				= array_info(8)
 							HH_MEMB_ARRAY(ssn, known_membs)							= array_info(9)
@@ -5108,10 +5088,6 @@ Dim confirm_ievs_info_read, case_card_info, clt_knows_how_to_use_ebt_card, snap_
 Dim show_pg_one_memb01_and_exp, show_pg_one_address, show_pg_memb_list, show_q_1_6
 Dim show_q_7_11, show_q_14_15, show_q_21_24, show_qual, show_pg_last, discrepancy_questions
 
-Set wshshell = CreateObject("WScript.Shell")
-Dim objFSO
-Set objFSO = CreateObject("Scripting.FileSystemObject")
-
 show_pg_one_memb01_and_exp	= 1
 show_pg_one_address			= 2
 show_pg_memb_list			= 3
@@ -5325,13 +5301,7 @@ If family_cash_case = True Then family_cash_case_yn = "Yes"
 'If we already know the variables because we used 'restore your work' OR if there is no case number, we don't need to read the information from MAXIS
 If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 	'Needs to determine MyDocs directory before proceeding.
-	' Set WshShell = CreateObject("WScript.Shell")
-
-	user_myDocs_folder = WshShell.SpecialFolders("MyDocuments") & "\"
 	intvw_msg_file = user_myDocs_folder & "interview message.txt"
-
-	' Dim objFSO
-	' Set objFSO = CreateObject("Scripting.FileSystemObject")
 
 	If objFSO.FileExists(intvw_msg_file) = False then
 		Set objTextStream = objFSO.OpenTextFile(intvw_msg_file, 2, true)
@@ -8845,18 +8815,11 @@ If discrepancies_exist = True Then
 	objSelection.TypeText vbCr
 End If
 
-' objSelection.TypeText "Verbal Signature accepted on " & caf_form_date
-
-' MsgBox "DOC IS CREATED"			'This can be used for testing so we don't add fake documents to the assignment folder.
-
 'Here we are creating the file path and saving the file
 file_safe_date = replace(date, "/", "-")		'dates cannot have / for a file name so we change it to a -
+
 'We set the file path and name based on case number and date. We can add other criteria if important.
 'This MUST have the 'pdf' file extension to work
-
-'THIS IS THE TESTING FILE'
-' pdf_doc_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\TEMP - Interview Notes PDF Folder\CAF - " & MAXIS_case_number & " on " & file_safe_date & ".pdf"
-'THIS IS THE REAL FILE'
 pdf_doc_path = t_drive & "\Eligibility Support\Assignments\Interview Notes for ECF\Interview - " & MAXIS_case_number & " on " & file_safe_date & ".pdf"
 If developer_mode = True Then pdf_doc_path = t_drive & "\Eligibility Support\Assignments\Interview Notes for ECF\Archive\TRAINING REGION Interviews - NOT for ECF\Interview - " & MAXIS_case_number & " on " & file_safe_date & ".pdf"
 
@@ -8866,29 +8829,11 @@ If developer_mode = True Then pdf_doc_path = t_drive & "\Eligibility Support\Ass
 'The number '17' is a Word Ennumeration that defines this should be saved as a PDF.
 objDoc.SaveAs pdf_doc_path, 17
 
-'Now we interact with the system again
-' Dim objFSO
-' Set objFSO = CreateObject("Scripting.FileSystemObject")
 'This looks to see if the PDF file has been correctly saved. If it has the file will exists in the pdf file path
 If objFSO.FileExists(pdf_doc_path) = TRUE Then
 	'This allows us to close without any changes to the Word Document. Since we have the PDF we do not need the Word Doc
 	objDoc.Close wdDoNotSaveChanges
 	objWord.Quit						'close Word Application instance we opened. (any other word instances will remain)
-
-	' 'Needs to determine MyDocs directory before proceeding.
-	' Set wshshell = CreateObject("WScript.Shell")
-	' user_myDocs_folder = wshShell.SpecialFolders("MyDocuments") & "\"
-	' 'this is the file for the 'save your work' functionality.
-	' If MAXIS_case_number <> "" Then
-	' 	local_changelog_path = user_myDocs_folder & "caf-answers-" & MAXIS_case_number & "-info.txt"
-	' Else
-	' 	local_changelog_path = user_myDocs_folder & "caf-answers-new-case-info.txt"
-	' End If
-	'
-	' 'we are checking the save your work text file. If it exists we need to delete it because we don't want to save that information locally.
-	' If objFSO.FileExists(local_changelog_path) = True then
-	' 	objFSO.DeleteFile(local_changelog_path)			'DELETE
-	' End If
 
 	'Now we MEMO'
 	Call start_a_new_spec_memo(memo_opened, False, "N", "N", "N", other_name, other_street, other_city, other_state, other_zip, False)

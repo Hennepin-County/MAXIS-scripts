@@ -6,6 +6,8 @@
 'been tested in other scripts first. This document is actively used by live scripts, so it needs to be functionally complete at all times.
 '
 '============THAT MEANS THAT IF YOU BREAK THIS SCRIPT, ALL OTHER SCRIPTS ****STATEWIDE**** WILL NOT WORK! MODIFY WITH CARE!!!!!============
+Dim objFSO
+Set objFSO = CreateObject("Scripting.FileSystemObject")
 
 'CHANGELOG BLOCK ===========================================================================================================
 actual_script_name = name_of_script
@@ -421,9 +423,12 @@ end function
 
 'Preloading worker_signature, as a constant to be used in scripts---------------------------------------------------------------------------------------------------------
 
-'Needs to determine MyDocs directory before proceeding.
-Set wshshell = CreateObject("WScript.Shell")
-user_myDocs_folder = wshShell.SpecialFolders("MyDocuments") & "\"
+Const ForReading = 1			'These Constants are used for enumeration in file manipulation functions.
+Const ForWriting = 2			'See the 'OpenAsTextStream' method
+Const ForAppending = 8			'https://docs.microsoft.com/en-us/office/vba/language/reference/user-interface-help/openastextstream-method
+
+Set wshshell = CreateObject("WScript.Shell")						'creating the wscript method to interact with the system
+user_myDocs_folder = wshShell.SpecialFolders("MyDocuments") & "\"	'defining the my documents folder for use in saving script details/variables between script runs
 
 'Now it determines the signature
 With (CreateObject("Scripting.FileSystemObject"))															'Creating an FSO
@@ -435,6 +440,26 @@ With (CreateObject("Scripting.FileSystemObject"))															'Creating an FSO
 		worker_sig_command.Close																			'Closes the file
 	END IF
 END WITH
+
+'Now we check MyDocs to see if there is script saved work files that need to be removed.
+'This is necessary for correct records managment and data security.
+'This runs every time we open the Func Lib and happens in the background, ensuring no interruption in other script functions
+Set objFolder = objFSO.GetFolder(user_myDocs_folder)										'Creates an oject of the whole my documents folder
+Set colFiles = objFolder.Files																'Creates an array/collection of all the files in the folder
+For Each objFile in colFiles																'looping through each file
+	delete_this_file = False																'Default to NOT delete the file
+	this_file_name = objFile.Name															'Grabing the file name
+	this_file_type = objFile.Type															'Grabing the file type
+	this_file_created_date = objFile.DateCreated											'Reading the date created
+	this_file_path = objFile.Path															'Grabing the path for the file
+
+	If InStr(this_file_name, "caf-answers-") <> 0 Then delete_this_file = True				'We want to delete files that say 'caf-answers-' as this is how the UTILITIES - Complete Phone CAF script creates the save your work doc
+	If InStr(this_file_name, "interview-answers-") <> 0 Then delete_this_file = True		'We want to delete files that say 'interview-answers-' as this is how the NOTES - Interview script creates the save your work doc
+	If this_file_type <> "Text Document" then delete_this_file = False						'We do NOT want to delete files that are NOT TXT file types
+	If DateDiff("d", this_file_created_date, date) < 8 Then delete_this_file = False		'We do NOT want to delete files that are 7 days old or less - we may need to reference the saved work in these files.
+
+	If delete_this_file = True Then objFSO.DeleteFile(this_file_path)						'If we have determined that we need to delete the file - here we delete it
+Next
 
 '----------------------------------------------------------------------------------------------------Email addresses for the teams
 IF current_worker_number =	"X127F3P" 	THEN email_address = "HSPH.ES.MA.EPD.Adult@hennepin.us"
@@ -3552,13 +3577,6 @@ function changelog_display()
 		'Now determines name of file
 		local_changelog_path = user_myDocs_folder & "scripts-local-changelog-entries.txt"
 
-		Const ForReading = 1
-		Const ForWriting = 2
-		Const ForAppending = 8
-
-		Dim objFSO
-		Set objFSO = CreateObject("Scripting.FileSystemObject")
-
 		'Before doing comparisons, it needs to see what the most recent item added to the list was.
 		last_item_added_to_changelog = split(changelog(0), " | ")
 
@@ -6349,8 +6367,8 @@ End Function
 function ONLY_create_MAXIS_friendly_date(date_variable)
 '--- This function creates a MM DD YY date.
 '~~~~~ date_variable: the name of the variable to output
-    date_variable = dateadd("d", 0, date_variable)    'janky way to convert to a date, but hey it works.    
-    var_month     = right("0" & DatePart("m",    date_variable), 2) 
+    date_variable = dateadd("d", 0, date_variable)    'janky way to convert to a date, but hey it works.
+    var_month     = right("0" & DatePart("m",    date_variable), 2)
     var_day       = right("0" & DatePart("d",    date_variable), 2)
     var_year      = right("0" & DatePart("yyyy", date_variable), 2)
 	date_variable = var_month &"/" & var_day & "/" & var_year
