@@ -1898,20 +1898,8 @@ function save_your_work()
 'For scripts that work during 'live' interaction with clients/others this functionality is important to prevent loss of time and frustration
 'This function is script specific because the variables need to be defined for each script within this dialog and the enumberation codes need to be script specific
 
-	'Needs to determine MyDocs directory before proceeding.
-	Set wshshell = CreateObject("WScript.Shell")
-	user_myDocs_folder = wshShell.SpecialFolders("MyDocuments") & "\"
-
 	'Now creates the name of file
 	local_work_save_path = user_myDocs_folder & "csr-answers-" & MAXIS_case_number & "-info.txt"
-
-	Const ForReading = 1
-	Const ForWriting = 2
-	Const ForAppending = 8
-
-	'Needed for interacting with files in the computer
-	Dim objFSO
-	Set objFSO = CreateObject("Scripting.FileSystemObject")
 
 	With objFSO
 
@@ -2024,20 +2012,8 @@ function restore_your_work(vars_filled)
 'It will redefine the variables from the text file that was saved from a previous run if one exists.
 'This function must be script specific as the variables are hard coded within in.
 
-	'Needs to determine MyDocs directory before proceeding.
-	Set wshshell = CreateObject("WScript.Shell")
-	user_myDocs_folder = wshShell.SpecialFolders("MyDocuments") & "\"
-
 	'Creates the file name based on the convention we have defined
 	local_work_save_path = user_myDocs_folder & "csr-answers-" & MAXIS_case_number & "-info.txt"
-
-	Const ForReading = 1
-	Const ForWriting = 2
-	Const ForAppending = 8
-
-	'Needed for interacting with files in the computer
-	Dim objFSO
-	Set objFSO = CreateObject("Scripting.FileSystemObject")
 
 	With objFSO
 
@@ -3278,18 +3254,12 @@ pdf_doc_path = t_drive & "\Eligibility Support\Assignments\CSR Forms for ECF\CSR
 'The number '17' is a Word Ennumeration that defines this should be saved as a PDF.
 objDoc.SaveAs pdf_doc_path, 17
 
-'Now we interact with the system again
-Dim objFSO
-Set objFSO = CreateObject("Scripting.FileSystemObject")
 'This looks to see if the PDF file has been correctly saved. If it has the file will exists in the pdf file path
 If objFSO.FileExists(pdf_doc_path) = TRUE Then
 	'This allows us to close without any changes to the Word Document. Since we have the PDF we do not need the Word Doc
 	objDoc.Close wdDoNotSaveChanges
 	objWord.Quit						'close Word Application instance we opened. (any other word instances will remain)
 
-	'Needs to determine MyDocs directory before proceeding.
-	Set wshshell = CreateObject("WScript.Shell")
-	user_myDocs_folder = wshShell.SpecialFolders("MyDocuments") & "\"
 	'this is the file for the 'save your work' functionality.
 	local_work_save_path = user_myDocs_folder & "csr-answers-" & MAXIS_case_number & "-info.txt"
 	'we are checking the save your work text file. If it exists we need to delete it because we don't want to save that information locally.

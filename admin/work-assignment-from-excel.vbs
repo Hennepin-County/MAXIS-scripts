@@ -166,11 +166,6 @@ Const assignment_list_col_number = 6
 Dim COLUMN_ARRAY()
 ReDim COLUMN_ARRAY(assignment_list_col_number, 0)
 
-'These constants are used for writing to the txt file
-Const ForReading = 1
-Const ForWriting = 2
-Const ForAppending = 8
-
 'END DECLARATIONS BLOCK ====================================================================================================
 
 'THE SCRIPT ================================================================================================================
@@ -303,10 +298,7 @@ For each_column = 0 to UBound(COLUMN_ARRAY,2)
     End If
 Next
 
-Set wshshell = CreateObject("WScript.Shell")
 assignment_folder = master_list_folder
-Dim objFSO
-Set objFSO = CreateObject("Scripting.FileSystemObject")
 
 Dim objTextStream
 assignment_status_path = assignment_folder & "assignment-status.txt"
