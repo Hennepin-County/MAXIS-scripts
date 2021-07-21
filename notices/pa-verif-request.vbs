@@ -2958,7 +2958,7 @@ If create_memo = True Then		'If there are any MEMOs needed we need to read INQX 
 				End If
 			Next
 		Next
-		grh_array_of_memo_lines = grh_array_of_memo_lines & "~" & "GRH Food Total for " & grh_start_month & " to " & grh_end_month & ": $" & GRH_total
+		grh_array_of_memo_lines = grh_array_of_memo_lines & "~" & "GRH/Housing Support Total for " & grh_start_month & " to " & grh_end_month & ": $" & GRH_total
 		grh_array_of_memo_lines = split(grh_array_of_memo_lines, "~")
 	End If
 
