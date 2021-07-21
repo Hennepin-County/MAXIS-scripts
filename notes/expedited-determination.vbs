@@ -79,7 +79,7 @@ End If
 
 'dialog to gather the Case Number and such
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 291, 90, "Case Information"
+BeginDialog Dialog1, 0, 0, 291, 90, "SNAP EXP Determination - Case Information"
   EditBox 85, 5, 60, 15, MAXIS_case_number
   EditBox 230, 5, 25, 15, MAXIS_footer_month
   EditBox 260, 5, 25, 15, MAXIS_footer_year
@@ -205,11 +205,11 @@ If maxis_updated_yn = "Yes" Then
 	IF elig_screen_check = "FSPR" Then
 		snap_elig_results_read = True
 		transmit
-		EMReadScreen is_elig_xfs, 17, 4, 3
-		IF is_elig_xfs = "EXPEDITED SERVICE" THEN 	'Determines if MAXIS thinks the case is Expedited
-			is_elig_xfs = TRUE
+		EMReadScreen is_elig_XFS, 17, 4, 3
+		IF is_elig_XFS = "EXPEDITED SERVICE" THEN 	'Determines if MAXIS thinks the case is Expedited
+			is_elig_XFS = TRUE
 		ELSE
-			is_elig_xfs = FALSE
+			is_elig_XFS = FALSE
 		END IF
 		is_elig_XFS = is_elig_XFS & ""
 		'MsgBox is_elig_XFS
@@ -376,15 +376,211 @@ EndDialog
 '     CancelButton 500, 365, 50, 15
 '     OkButton 500, 350, 50, 15
 ' EndDialog
+'
+'
+' BeginDialog Dialog1, 0, 0, 555, 385, "Expedited Determination"
+'   GroupBox 5, 5, 470, 130, "Expedited Determination"
+'   Text 15, 20, 120, 10, "Determination Amounts Entered:"
+'   Text 140, 20, 85, 10, "Total App Month Income:"
+'   Text 230, 20, 35, 10, "$ XXXX"
+'   Text 140, 30, 85, 10, "Total App Month Assets:"
+'   Text 230, 30, 35, 10, "$ XXXX"
+'   Text 140, 40, 85, 10, "Total App Month Housing:"
+'   Text 230, 40, 35, 10, "$ XXXX"
+'   Text 140, 50, 85, 10, "Total App Month Utility:"
+'   Text 230, 50, 35, 10, "$ XXXX"
+'   Text 295, 20, 135, 10, "Combined Resources (Income + Assets):"
+'   Text 435, 20, 35, 10, "$ XXXX"
+'   Text 330, 40, 100, 10, "Combined Housing Expense:"
+'   Text 435, 40, 35, 10, "$ XXXX"
+'   Text 185, 65, 250, 10, "Unit has less than $150 monthly Gross Income AND $100 or less in assets:"
+'   Text 440, 65, 35, 10, "TRUE"
+'   Text 235, 80, 195, 10, "Unit's combined resources are less than housing expense:"
+'   Text 440, 80, 35, 10, "TRUE"
+'   Text 15, 90, 315, 10, "This case APPEARS EXPEDITED based on this above critera."
+'   Text 25, 110, 60, 10, "Date of Approval:"
+'   EditBox 85, 105, 60, 15, Edit5
+'   Text 150, 110, 75, 10, "(or planned approval)"
+'   Text 330, 100, 65, 10, "Date of Application:"
+'   EditBox 400, 95, 60, 15, Edit3
+'   Text 335, 120, 60, 10, "Date of Interview:"
+'   EditBox 400, 115, 60, 15, Edit4
+'   GroupBox 5, 140, 470, 130, "Possible Approval Delays"
+'   Text 15, 155, 330, 10, "If it is already determined that SNAP should be denied, enter a denial date and explanation of denial."
+'   Text 20, 170, 65, 10, "SNAP Denial Date:"
+'   EditBox 85, 165, 50, 15, Edit1
+'   Text 145, 170, 45, 10, "Explanation:"
+'   EditBox 190, 165, 280, 15, Edit2
+'   Text 15, 190, 130, 10, "Is there an ID on file for the applicant?"
+'   DropListBox 145, 185, 40, 45, "", List1
+'   Text 195, 190, 200, 10, "Can the Identity of the applicant be cleard through SOLQ/SMI?"
+'   DropListBox 400, 185, 70, 45, "", List2
+'   ButtonGroup ButtonPressed
+'     PushButton 300, 200, 170, 15, "HOT TOPIC - Using SOLQ/SMI for ID", ht_id_in_solq_btn
+'   Text 15, 215, 120, 10, "Document specifc case situations:"
+'   ButtonGroup ButtonPressed
+'     PushButton 15, 225, 160, 15, "SNAP is Active in Another State in MM/YY", snap_active_in_another_state_btn
+'     PushButton 180, 225, 210, 15, "Expedited Approved Previously with Postponed Verifications", Button18
+'   Text 15, 250, 90, 10, "Explain Approval Delays:"
+'   EditBox 105, 245, 365, 15, Edit6
+'   GroupBox 5, 275, 470, 80, "Supports"
+'   Text 15, 290, 260, 10, "If you need support in handling for expedited, please access these resources:"
+'   ButtonGroup ButtonPressed
+'     PushButton 20, 305, 150, 15, "HSR Manual - Expedited SNAP", hsr_manual_expedited_snap_btn
+'     PushButton 20, 320, 150, 15, "HSR Manual - SNAP Applications", hsr_snap_applications_btn
+'     PushButton 20, 335, 150, 15, "SIR - SNAP Expedited Flowchart", sir_exp_flowchart_btn
+'     PushButton 170, 305, 150, 15, "Retrain Your Brain - Expedited - Identity", ryb_exp_identity_btn
+'     PushButton 170, 320, 150, 15, "Retrain Your Brain - Expedited - Timeliness", ryb_exp_timeliness_btn
+'     PushButton 315, 305, 150, 15, "CM 04.04 - SNAP / Expedited Food", cm_04_04_btn
+'     PushButton 315, 320, 150, 15, "CM 04.06 - 1st Mont Processing", cm_04_06_btn
+'     PushButton 445, 365, 50, 15, "Next", next_btn
+'     CancelButton 500, 365, 50, 15
+'     OkButton 500, 350, 50, 15
+'     PushButton 485, 25, 65, 15, "Determination", determination_btn
+'     PushButton 485, 10, 65, 15, "Amounts", amounts_btn
+'     PushButton 485, 40, 65, 15, "Review", review_btn
+' EndDialog
+
+next_btn = 2
+finish_btn = 3
+
+amounts_btn 		= 10
+determination_btn 	= 20
+review_btn 			= 30
+
+income_calc_btn								= 100
+asset_calc_btn								= 110
+housing_calc_btn							= 120
+utility_calc_btn							= 130
+snap_active_in_another_state_btn			= 140
+case_previously_had_postponed_verifs_btn	= 150
+
+hsr_manual_expedited_snap_btn 	= 1000
+hsr_snap_applications_btn		= 1100
+ryb_exp_identity_btn			= 1200
+ryb_exp_timeliness_btn			= 1300
+sir_exp_flowchart_btn			= 1400
+cm_04_04_btn					= 1500
+cm_04_06_btn					= 1600
+ht_id_in_solq_btn				= 1700
+
+
 function app_month_income_detail()
+	Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 451, 350, "Determination of Income in Month of Application"
+	  ButtonGroup ButtonPressed
+		Text 10, 5, 435, 10, "These questions will help you to guide the resident through understanding what income we need to count for the month of application."
+		Text 10, 20, 150, 10, "FIRST - Explain to the resident these things:"
+		Text 25, 30, 410, 10, "- Income in the App Month is used to determine if we can get your some SNAP benefits right away - an EXPEDITED Issuance."
+		Text 25, 40, 410, 10, "- We just need a best estimate of this income - it doesn't have to be exact. There is no penalty for getting this detail incorrect."
+		Text 25, 50, 410, 10, "- I can help you walk through your income sources."
+		Text 25, 60, 350, 10, "-  We need you to answer these questions to complete the interview for your application for SNAP benefits."
+		GroupBox 5, 75, 440, 105, "JOBS Income: For every Job in the Household"
+		Text 15, 90, 200, 10, "How many paychecks have you received in MM/YY so far?"
+		Text 30, 105, 170, 10, "How much were all of the checks for, before taxes?"
+		Text 15, 120, 215, 10, "How many paychecks do you still expect to receive in MM/YY?"
+		Text 30, 135, 225, 10, "How many hours a week did you or will you work for these checks?"
+		Text 30, 150, 120, 10, "What is your rate of pay per hour?"
+		Text 30, 165, 255, 10, "Do you get tips/commission/bonuses? How much do you expect those to be?"
+		GroupBox 5, 185, 440, 90, "BUSI Income: For each self employment in the Household"
+		Text 15, 200, 235, 10, "How much do you typically receive in a month of this self employment?"
+		Text 15, 215, 275, 10, "Is your self employment based on a contract or contracts? And how are they paid?"
+		Text 15, 230, 305, 10, "If this is hard to determine, how much to you make in any other period (year, week, quarter)?"
+		Text 30, 245, 200, 10, "Is this consistent over the period or from period to period?"
+		Text 30, 260, 115, 10, "If it is not, what are the variations?"
+		GroupBox 5, 280, 440, 45, "UNEA Income: For each other source of income in the Household"
+		Text 15, 295, 200, 10, "How often and how much do you receive from each source?"
+		Text 15, 310, 230, 10, "If this is irregular, what have you gotten for the past couple months?"
+		Text 5, 330, 380, 10, "After calculating all of these income questions, repeat the amount and each source and confirm that it seems close."
+		PushButton 395, 330, 50, 15, "Return", return_btn
+	EndDialog
+
+	dialog Dialog1
 end function
 function app_month_asset_detail()
+	Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 451, 350, "Determination of Assets in Month of Application"
+	  ButtonGroup ButtonPressed
+	  	Text 10, 5, 435, 10, "FUNCTIONALITY TO BE FILLED IN HERE"
+	EndDialog
+
+	dialog Dialog1
+
 end function
 function app_month_housing_detail()
+	Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 451, 350, "Determination of Housing Cost in Month of Application"
+	  ButtonGroup ButtonPressed
+	    Text 10, 5, 435, 10, "FUNCTIONALITY TO BE FILLED IN HERE"
+	EndDialog
+
+	dialog Dialog1
+
 end function
 function app_month_utility_detail()
-end function
+	Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 451, 350, "Determination of Utilities in Month of Application"
+	  ButtonGroup ButtonPressed
+	    Text 10, 5, 435, 10, "FUNCTIONALITY TO BE FILLED IN HERE"
+	EndDialog
 
+	dialog Dialog1
+
+end function
+function determine_calculations(determined_income, determined_assets, determined_shel, determined_utilities, calculated_resources, calculated_expenses, calculated_low_income_asset_test, calculated_resources_less_than_expenses_test, is_elig_XFS)
+	determined_income = trim(determined_income)
+	If determined_income = "" Then determined_income = 0
+	determined_income = determined_income * 1
+
+	determined_assets = trim(determined_assets)
+	If determined_assets = "" Then determined_assets = 0
+	determined_assets = determined_assets * 1
+
+	determined_shel = trim(determined_shel)
+	If determined_shel = "" Then determined_shel = 0
+	determined_shel = determined_shel * 1
+
+	determined_utilities = trim(determined_utilities)
+	If determined_utilities = "" Then determined_utilities = 0
+	determined_utilities = determined_utilities * 1
+
+	calculated_resources = determined_income + determined_assets
+	calculated_expenses = determined_shel + determined_utilities
+
+	calculated_low_income_asset_test = False
+	calculated_resources_less_than_expenses_test = False
+	is_elig_XFS = False
+
+	If determined_income < 150 AND determined_assets <= 100 Then calculated_low_income_asset_test = True
+	If calculated_resources < calculated_expenses Then calculated_resources_less_than_expenses_test = True
+
+	If calculated_low_income_asset_test = True OR calculated_resources_less_than_expenses_test = True Then is_elig_XFS = True
+
+	determined_income = determined_income & ""
+	determined_assets = determined_assets & ""
+	determined_shel = determined_shel & ""
+	determined_utilities = determined_utilities & ""
+end function
+function snap_in_another_state_detail()
+	Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 451, 350, "Case Received SNAP in Another State"
+	  ButtonGroup ButtonPressed
+	    Text 10, 5, 435, 10, "FUNCTIONALITY TO BE FILLED IN HERE"
+	EndDialog
+
+	dialog Dialog1
+
+end function
+function previous_postponed_verifs_detail()
+	Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 451, 350, "Case Previously Received EXP SNAP with Postponed Verifications"
+	  ButtonGroup ButtonPressed
+	    Text 10, 5, 435, 10, "FUNCTIONALITY TO BE FILLED IN HERE"
+	EndDialog
+
+	dialog Dialog1
+
+end function
 
 show_pg_amounts = 1
 show_pg_determination = 2
@@ -396,27 +592,29 @@ page_display = show_pg_amounts
 Do
 	Do
 		err_msg = ""
+		If page_display = show_pg_determination Then Call determine_calculations(determined_income, determined_assets, determined_shel, determined_utilities, calculated_resources, calculated_expenses, calculated_low_income_asset_test, calculated_resources_less_than_expenses_test, is_elig_XFS)
 
-		BeginDialog Dialog1, 0, 0, 555, 385, "Expedited Determination"
+		BeginDialog Dialog1, 0, 0, 555, 385, "Full Expedited Determination"
 		  ButtonGroup ButtonPressed
 		  	If page_display = show_pg_amounts then
-				Text 495, 12, 65, 10, "Amounts"
+				Text 504, 12, 65, 10, "Amounts"
 
 				GroupBox 5, 5, 390, 75, "Expedited Screening"
 				If exp_screening_note_found = True Then
 					Text 10, 20, 145, 10, "Information pulled from previous case note."
 					Text 20, 35, 65, 10, "Income from CAF1: "
-					Text 115, 35, 80, 10, "caf_one_income"
+					Text 115, 35, 80, 10, caf_one_income
 					Text 195, 35, 60, 10, "Assets from CAF1:"
-					Text 270, 35, 75, 10, "caf_one_assets"
+					Text 270, 35, 75, 10, caf_one_assets
 					Text 20, 50, 90, 10, "Rent/Mortgage from CAF1:"
-					Text 115, 50, 65, 10, "caf_one_rent"
+					Text 115, 50, 65, 10, caf_one_rent
 					Text 195, 50, 65, 10, "Utilities from CAF1:"
-					Text 270, 50, 75, 10, "caf_one_utilities"
-					Text 15, 65, 160, 10, "xfs_screening"
+					Text 270, 50, 75, 10, caf_one_utilities
+					Text 15, 65, 160, 10, xfs_screening
 				End If
 				If exp_screening_note_found = False Then
-					Text 10, 20, 450, 10, "CASE:NOTE for Expedited Screening could not be found. No information to Display. Review Application for screening answers"
+					Text 10, 20, 350, 10, "CASE:NOTE for Expedited Screening could not be found. No information to Display."
+					Text 10, 30, 350, 10, "Review Application for screening answers"
 				End If
 				Text 10, 90, 370, 15, "Review and update the INCOME, ASSETS, and HOUSING EXPENSES as determined in the Interview."
 				GroupBox 5, 105, 390, 110, "Information from SNAP/ELIG"
@@ -433,27 +631,81 @@ Do
 				EditBox 85, 180, 145, 15, determined_utilities
 			    PushButton 255, 180, 120, 15, "Calculate Utilities", utility_calc_btn
 				If snap_elig_results_read = True Then Text 55, 200, 180, 10, "Autofilled information based on current STAT and ELIG panels"
-				GroupBox 5, 220, 390, 100, "Supports"
-				Text 15, 235, 260, 10, "If you need support in handling for expedited, please access these resources:"
-			    PushButton 25, 250, 150, 13, "HSR Manual - Expedited SNAP", hsr_manual_expedited_snap_btn
-				PushButton 25, 265, 150, 13, "HSR Manual - SNAP Applications", hsr_snap_applications_btn
-				PushButton 25, 280, 150, 13, "Retrain Your Brain - Expedited - Identity", ryb_exp_identity_btn
-				PushButton 25, 295, 150, 13, "Retrain Your Brain - Expedited - Timeliness", ryb_exp_timeliness_btn
-			    PushButton 180, 250, 150, 13, "SIR - SNAP Expedited Flowchart", sir_exp_flowchart_btn
-			    PushButton 180, 265, 150, 13, "CM 04.04 - SNAP / Expedited Food", cm_04_04_btn
-			    PushButton 180, 280, 150, 13, "CM 04.06 - 1st Mont Processing", cm_04_06_btn
+				' GroupBox 5, 220, 390, 100, "Supports"
+				' Text 15, 235, 260, 10, "If you need support in handling for expedited, please access these resources:"
+			    ' PushButton 25, 250, 150, 13, "HSR Manual - Expedited SNAP", hsr_manual_expedited_snap_btn
+				' PushButton 25, 265, 150, 13, "HSR Manual - SNAP Applications", hsr_snap_applications_btn
+				' PushButton 25, 280, 150, 13, "Retrain Your Brain - Expedited - Identity", ryb_exp_identity_btn
+				' PushButton 25, 295, 150, 13, "Retrain Your Brain - Expedited - Timeliness", ryb_exp_timeliness_btn
+			    ' PushButton 180, 250, 150, 13, "SIR - SNAP Expedited Flowchart", sir_exp_flowchart_btn
+			    ' PushButton 180, 265, 150, 13, "CM 04.04 - SNAP / Expedited Food", cm_04_04_btn
+			    ' PushButton 180, 280, 150, 13, "CM 04.06 - 1st Mont Processing", cm_04_06_btn
 			End If
 			If page_display = show_pg_determination then
-				Text 487, 27, 65, 10, "Determination"
+				Text 495, 27, 65, 10, "Determination"
+
+				GroupBox 5, 5, 470, 130, "Expedited Determination"
+				Text 15, 20, 120, 10, "Determination Amounts Entered:"
+				Text 140, 20, 85, 10, "Total App Month Income:"
+				Text 230, 20, 35, 10, "$ " & determined_income
+				Text 140, 30, 85, 10, "Total App Month Assets:"
+				Text 230, 30, 35, 10, "$ " & determined_assets
+				Text 140, 40, 85, 10, "Total App Month Housing:"
+				Text 230, 40, 35, 10, "$ " & determined_shel
+				Text 140, 50, 85, 10, "Total App Month Utility:"
+				Text 230, 50, 35, 10, "$ " & determined_utilities
+				Text 295, 20, 135, 10, "Combined Resources (Income + Assets):"
+				Text 435, 20, 35, 10, "$ " & calculated_resources
+				Text 330, 40, 100, 10, "Combined Housing Expense:"
+				Text 435, 40, 35, 10, "$ " & calculated_expenses
+				Text 185, 65, 250, 10, "Unit has less than $150 monthly Gross Income AND $100 or less in assets:"
+				Text 440, 65, 35, 10, calculated_low_income_asset_test
+				Text 235, 80, 195, 10, "Unit's combined resources are less than housing expense:"
+				Text 440, 80, 35, 10, calculated_resources_less_than_expenses_test
+				If is_elig_XFS = True Then Text 15, 90, 315, 10, "This case APPEARS EXPEDITED based on this above critera."
+				If is_elig_XFS = False Then Text 15, 90, 315, 10, "This case does NOT appear to be expedited based on this above critera."
+				Text 25, 110, 60, 10, "Date of Approval:"
+				EditBox 85, 105, 60, 15, approval_date
+				Text 150, 110, 75, 10, "(or planned approval)"
+				Text 330, 100, 65, 10, "Date of Application:"
+				EditBox 400, 95, 60, 15, date_of_application
+				Text 335, 120, 60, 10, "Date of Interview:"
+				EditBox 400, 115, 60, 15, interview_date
+				GroupBox 5, 140, 470, 130, "Possible Approval Delays"
+				Text 15, 155, 330, 10, "If it is already determined that SNAP should be denied, enter a denial date and explanation of denial."
+				Text 20, 170, 65, 10, "SNAP Denial Date:"
+				EditBox 85, 165, 50, 15, snap_denial_date
+				Text 145, 170, 45, 10, "Explanation:"
+				EditBox 190, 165, 280, 15, snap_denial_explain
+				Text 15, 190, 130, 10, "Is there an ID on file for the applicant?"
+				DropListBox 145, 185, 40, 45, "", applicant_id_on_file_yn
+				Text 195, 190, 200, 10, "Can the Identity of the applicant be cleard through SOLQ/SMI?"
+				DropListBox 400, 185, 70, 45, "", applicant_id_through_SOLQ
+				PushButton 300, 200, 170, 15, "HOT TOPIC - Using SOLQ/SMI for ID", ht_id_in_solq_btn
+				Text 15, 225, 80, 10, "Specifc case situations:"
+			    PushButton 100, 220, 160, 15, "SNAP is Active in Another State in MM/YY", snap_active_in_another_state_btn
+			    PushButton 260, 220, 210, 15, "Expedited Approved Previously with Postponed Verifications", case_previously_had_postponed_verifs_btn
+				Text 15, 250, 90, 10, "Explain Approval Delays:"
+				EditBox 105, 245, 365, 15, delay_explanation
 			End If
 			If page_display = show_pg_review then
-				Text 495, 42, 65, 10, "Review"
+				Text 507, 42, 65, 10, "Review"
 			End If
+			GroupBox 5, 275, 470, 80, "Supports"
+			Text 15, 290, 260, 10, "If you need support in handling for expedited, please access these resources:"
+			PushButton 20, 305, 150, 13, "HSR Manual - Expedited SNAP", hsr_manual_expedited_snap_btn
+			PushButton 20, 320, 150, 13, "HSR Manual - SNAP Applications", hsr_snap_applications_btn
+			PushButton 20, 335, 150, 13, "SIR - SNAP Expedited Flowchart", sir_exp_flowchart_btn
+			PushButton 170, 305, 150, 13, "Retrain Your Brain - Expedited - Identity", ryb_exp_identity_btn
+			PushButton 170, 320, 150, 13, "Retrain Your Brain - Expedited - Timeliness", ryb_exp_timeliness_btn
+			PushButton 315, 305, 150, 13, "CM 04.04 - SNAP / Expedited Food", cm_04_04_btn
+			PushButton 315, 320, 150, 13, "CM 04.06 - 1st Mont Processing", cm_04_06_btn
 
 		    If page_display <> show_pg_amounts then PushButton 485, 10, 65, 13, "Amounts", amounts_btn
 		    If page_display <> show_pg_determination then PushButton 485, 25, 65, 13, "Determination", determination_btn
 		    If page_display <> show_pg_review then PushButton 485, 40, 65, 13, "Review", review_btn
-		    PushButton 445, 365, 50, 15, "Next", next_btn
+		    If page_display <> show_pg_review then PushButton 445, 365, 50, 15, "Next", next_btn
+			If page_display = show_pg_review then PushButton 445, 365, 50, 15, "Finish", finish_btn
 		    CancelButton 500, 365, 50, 15
 		    ' OkButton 500, 350, 50, 15
 		EndDialog
@@ -461,13 +713,25 @@ Do
 		Dialog Dialog1
 		cancel_confirmation
 
-		If ButtonPressed >= 100 Then
-			err_msg = "LOOP"
+		If ButtonPressed = -1 Then
+			If page_display <> show_pg_review then ButtonPressed = next_btn
+			If page_display = show_pg_review then ButtonPressed = finish_btn
+		End If
 
+		If ButtonPressed = next_btn AND err_msg = "" Then page_display = page_display + 1
+		If ButtonPressed = amounts_btn AND err_msg = "" Then page_display = show_pg_amounts
+		If ButtonPressed = determination_btn AND err_msg = "" Then page_display = show_pg_determination
+		If ButtonPressed = review_btn AND err_msg = "" Then page_display = show_pg_review
+
+		If ButtonPressed <> finish_btn Then err_msg = "LOOP"
+
+		If ButtonPressed >= 100 Then
 			If ButtonPressed = income_calc_btn Then Call app_month_income_detail
 			If ButtonPressed = asset_calc_btn Then Call app_month_asset_detail
 			If ButtonPressed = housing_calc_btn Then Call app_month_housing_detail
 			If ButtonPressed = utility_calc_btn Then Call app_month_utility_detail
+			If ButtonPressed = snap_active_in_another_state_btn Then Call snap_in_another_state_detail
+			If ButtonPressed = case_previously_had_postponed_verifs_btn Then Call previous_postponed_verifs_detail
 
 			If ButtonPressed >= 1000 Then
 				If ButtonPressed = hsr_manual_expedited_snap_btn Then resource_URL = "https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Expedited_SNAP.aspx"
@@ -477,6 +741,7 @@ Do
 				If ButtonPressed = sir_exp_flowchart_btn Then resource_URL = "https://www.dhssir.cty.dhs.state.mn.us/MAXIS/Documents/SNAP%20Expedited%20Service%20Flowchart.pdf"
 				If ButtonPressed = cm_04_04_btn Then resource_URL = "https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_000404"
 				If ButtonPressed = cm_04_06_btn Then resource_URL = "https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_000406"
+				If ButtonPressed = ht_id_in_solq_btn Then resource_URL = "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/SitePages/How-to-use-SMI-SOLQ-to-verify-ID-for-SNAP.aspx"
 
 				run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe " & resource_URL
 			End If
@@ -486,38 +751,20 @@ Do
 	Loop until err_msg = ""
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
+MsgBox "STOP HERE"
 
-next_btn = 2
-
-amounts_btn 		= 10
-determination_btn 	= 20
-review_btn 			= 30
-
-income_calc_btn		= 100
-asset_calc_btn		= 110
-housing_calc_btn	= 120
-utility_calc_btn	= 130
-
-hsr_manual_expedited_snap_btn 	= 1000
-hsr_snap_applications_btn		= 1100
-ryb_exp_identity_btn			= 1200
-ryb_exp_timeliness_btn			= 1300
-sir_exp_flowchart_btn			= 1400
-cm_04_04_btn					= 1500
-cm_04_06_btn					= 1600
-
-'Running the Dialog asking for all the detail and explanations
-DO
-	Do
-		Dialog Dialog1
-		cancel_confirmation
-		err_msg = ""
-		IF is_elig_XFS = "FALSE" AND out_of_state_explanation = "" AND previous_xfs_explanation = "" AND other_explanation = "" AND abawd_explanation = "" THEN err_msg = err_msg & vbCr & "You have determined this case to NOT be Expedited but have provided no detail explanation" & vbCr & "Please complete at least one of the explanation boxes."
-		IF id_check = checked AND other_explanation = "" THEN err_msg = err_msg & vbCr & "Please provided detail about no ID, remember that this is ONLY for the applicant and does NOT need to be a photo ID"
-		IF err_msg <> "" Then MsgBox err_msg
-	Loop until err_msg = ""
-	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
-LOOP UNTIL are_we_passworded_out = false
+' 'Running the Dialog asking for all the detail and explanations
+' DO
+' 	Do
+' 		Dialog Dialog1
+' 		cancel_confirmation
+' 		err_msg = ""
+' 		IF is_elig_XFS = "FALSE" AND out_of_state_explanation = "" AND previous_xfs_explanation = "" AND other_explanation = "" AND abawd_explanation = "" THEN err_msg = err_msg & vbCr & "You have determined this case to NOT be Expedited but have provided no detail explanation" & vbCr & "Please complete at least one of the explanation boxes."
+' 		IF id_check = checked AND other_explanation = "" THEN err_msg = err_msg & vbCr & "Please provided detail about no ID, remember that this is ONLY for the applicant and does NOT need to be a photo ID"
+' 		IF err_msg <> "" Then MsgBox err_msg
+' 	Loop until err_msg = ""
+' 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+' LOOP UNTIL are_we_passworded_out = false
 
 'Formating the information from the edit boxes
 If determined_income = "" Then determined_income = 0
@@ -533,9 +780,9 @@ determined_resources = FormatCurrency(determined_resources)
 determined_shel = FormatCurrency(determined_shel)
 determined_utilities = FormatCurrency(determined_utilities)
 
-'Converting String entries to Boolean
-IF is_elig_XFS = "TRUE" Then is_elig_XFS = TRUE
-IF is_elig_XFS = "FALSE" Then is_elig_XFS = FALSE
+' 'Converting String entries to Boolean
+' IF is_elig_XFS = "TRUE" Then is_elig_XFS = TRUE
+' IF is_elig_XFS = "FALSE" Then is_elig_XFS = FALSE
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
