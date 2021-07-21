@@ -620,6 +620,7 @@ Do
             End if
             Call write_bullet_and_variable_in_CASE_NOTE ("AVS Report Submitted to ECF?", avs_members_array(ECF_const, item))
             Call write_bullet_and_variable_in_CASE_NOTE ("Asset Notes", avs_members_array(avs_returned_notes_const, item))
+            If avs_members_array(avs_results_const, item) = "Ineligible" then Call write_variable_in_CASE_NOTE("***AVS Form on file is now void unless eligibilty denial is reinstated.")
             Call write_variable_in_CASE_NOTE("-----")
         End if
     Next
