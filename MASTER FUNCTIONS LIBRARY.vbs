@@ -4410,7 +4410,7 @@ Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_
 	'Setting up the Outlook application
     Set objOutlook = CreateObject("Outlook.Application")
     Set objMail = objOutlook.CreateItem(0)
-    objMail.Display                                 'To display message
+    If send_email = False then objMail.Display      'To display message only if the script is NOT sending the email for the user.
 
     'Adds the information to the email
     objMail.to = email_recip                        'email recipient
