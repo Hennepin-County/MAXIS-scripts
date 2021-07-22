@@ -70,21 +70,15 @@ End If
 Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 291, 95, "SNAP EXP Determination - Case Information"
   EditBox 85, 5, 60, 15, MAXIS_case_number
-  ' EditBox 230, 5, 25, 15, MAXIS_footer_month
-  ' EditBox 260, 5, 25, 15, MAXIS_footer_year
   DropListBox 85, 25, 60, 45, "?"+chr(9)+"Yes"+chr(9)+"No", maxis_updated_yn
   EditBox 85, 55, 200, 15, worker_signature
-
-  ' DropListBox 165, 50, 60, 45, "?"+chr(9)+"Yes"+chr(9)+"No", maxis_updated_yn
   ButtonGroup ButtonPressed
     OkButton 180, 75, 50, 15
     CancelButton 235, 75, 50, 15
   Text 30, 10, 50, 10, "Case Number:"
-  ' Text 150, 10, 80, 10, "Application month/year:"
   Text 20, 30, 65, 10, "MAXIS Updated?"
   Text 85, 40, 200, 10, "(All income, asset, and expense information entered in STAT)"
   Text 10, 60, 70, 10, "Sign your case note:"
-  ' Text 10, 50, 145, 20, "Have you updated MAXIS STAT panels with all income, asset, and expense information?"
 EndDialog
 
 
@@ -358,160 +352,6 @@ End If
 ' determined_utilities = elig_util & ""
 
 '-------------------------------------------------------------------------------------------------DIALOG
-Dialog1 = "" 'Blanking out previous dialog detail
-'THIS DIALOG IS DEFINED HERE BECAUSE OTHERWISE THE SCRIPT DOES NOT AUTOFILL THE TEXT FIELDS THAT ARE VAIRABLES
-BeginDialog Dialog1, 0, 0, 401, 325, "Expedited Determination"
-  EditBox 265, 50, 120, 15, determined_income
-  EditBox 240, 70, 145, 15, determined_assets
-  EditBox 275, 90, 110, 15, determined_shel
-  EditBox 275, 110, 110, 15, determined_utilities
-  DropListBox 300, 130, 85, 20, "TRUE"+chr(9)+"FALSE", is_elig_XFS
-  CheckBox 200, 150, 150, 10, "Check here if APPLICANT has no form of ID", id_check
-  EditBox 15, 180, 370, 15, out_of_state_explanation
-  EditBox 15, 215, 370, 15, previous_xfs_explanation
-  EditBox 15, 250, 370, 15, abawd_explanation
-  EditBox 15, 285, 370, 15, other_explanation
-  ButtonGroup ButtonPressed
-    OkButton 290, 305, 50, 15
-    CancelButton 345, 305, 50, 15
-  Text 205, 55, 50, 10, "Gross Income:"
-  Text 205, 75, 25, 10, "Assets:"
-  Text 205, 95, 60, 10, "Shelter Expense:"
-  Text 205, 115, 60, 10, "Utilities Expense:"
-  Text 200, 135, 85, 10, "Client appears Expedited:"
-  Text 10, 95, 160, 10, xfs_screening
-  GroupBox 195, 5, 195, 140, "Information from SNAP/ELIG"
-  GroupBox 5, 5, 180, 105, "Expedited Screening"
-  Text 10, 20, 145, 10, "Information pulled from previous case note."
-  Text 15, 50, 60, 10, "Assets from CAF1:"
-  Text 15, 65, 90, 10, "Rent/Mortgage from CAF1:"
-  Text 15, 80, 65, 10, "Utilities from CAF1:"
-  Text 110, 35, 80, 10, caf_one_income
-  Text 110, 50, 75, 10, caf_one_assets
-  Text 110, 65, 65, 10, caf_one_rent
-  Text 200, 35, 180, 10, "This information can be altered for the case note."
-  Text 15, 35, 65, 10, "Income from CAF1: "
-  Text 10, 115, 170, 35, "If the Expedited Determination for screening and elig do not match, detail the information that changed the determination from what is on CAF1 to the final determination."
-  Text 10, 270, 95, 10, "Other detail needed to clarify"
-  Text 110, 80, 75, 10, caf_one_utilities
-  Text 10, 165, 255, 10, "If client received SNAP benefits out of state that impact eligibility, explain here"
-  Text 200, 20, 180, 10, "Information based on current STAT and ELIG panels"
-  Text 10, 200, 395, 10, "If the last issuance client received was Expedited and delayed verifications were not provided, explain in detail here:"
-  Text 10, 235, 140, 10, "If client is an ABAWD, provide detail here:"
-EndDialog
-' BeginDialog Dialog1, 0, 0, 555, 385, "Expedited Determination"
-'   GroupBox 5, 5, 390, 75, "Expedited Screening"
-'   Text 10, 20, 145, 10, "Information pulled from previous case note."
-'   Text 20, 35, 65, 10, "Income from CAF1: "
-'   Text 115, 35, 80, 10, "caf_one_income"
-'   Text 195, 35, 60, 10, "Assets from CAF1:"
-'   Text 270, 35, 75, 10, "caf_one_assets"
-'   Text 20, 50, 90, 10, "Rent/Mortgage from CAF1:"
-'   Text 115, 50, 65, 10, "caf_one_rent"
-'   Text 195, 50, 65, 10, "Utilities from CAF1:"
-'   Text 270, 50, 75, 10, "caf_one_utilities"
-'   Text 15, 65, 160, 10, "xfs_screening"
-'   Text 10, 90, 370, 15, "Review and update the INCOME, ASSETS, and HOUSING EXPENSES as determined in the Interview."
-'   GroupBox 5, 105, 390, 110, "Information from SNAP/ELIG"
-'   Text 15, 125, 50, 10, "Gross Income:"
-'   EditBox 75, 120, 155, 15, determined_income
-'   ButtonGroup ButtonPressed
-'     PushButton 255, 120, 120, 15, "Calculate Income", income_calc_btn
-'   Text 15, 145, 25, 10, "Assets:"
-'   EditBox 50, 140, 180, 15, determined_assets
-'   ButtonGroup ButtonPressed
-'     PushButton 255, 140, 120, 15, "Calculate Assets", asset_calc_btn
-'   Text 15, 165, 60, 10, "Shelter Expense:"
-'   EditBox 85, 160, 145, 15, determined_shel
-'   ButtonGroup ButtonPressed
-'     PushButton 255, 160, 120, 15, "Calculate Housing Cost", housing_calc_btn
-'   Text 15, 185, 60, 10, "Utilities Expense:"
-'   EditBox 85, 180, 145, 15, determined_utilities
-'   ButtonGroup ButtonPressed
-'     PushButton 255, 180, 120, 15, "Calculate Utilities", utility_calc_btn
-'   Text 55, 200, 180, 10, "Autofilled information based on current STAT and ELIG panels"
-'   GroupBox 5, 220, 390, 100, "Supports"
-'   Text 15, 235, 260, 10, "If you need support in handling for expedited, please access these resources:"
-'   ButtonGroup ButtonPressed
-'     PushButton 25, 250, 150, 15, "HSR Manual - Expedited SNAP", hsr_manual_expedited_snap_btn
-'     PushButton 180, 250, 150, 15, "SIR - SNAP Expedited Flowchart", sir_exp_flowchart_btn
-'     PushButton 25, 265, 150, 15, "HSR Manual - SNAP Applications", hsr_snap_applications_btn
-'     PushButton 180, 265, 150, 15, "CM 04.04 - SNAP / Expedited Food", cm_04_04_btn
-'     PushButton 25, 280, 150, 15, "Retrain Your Brain - Expedited - Identity", ryb_exp_identity_btn
-'     PushButton 180, 280, 150, 15, "CM 04.06 - 1st Mont Processing", cm_04_06_btn
-'     PushButton 25, 295, 150, 15, "Retrain Your Brain - Expedited - Timeliness", ryb_exp_timeliness_btn
-'     PushButton 485, 10, 65, 15, "Amounts", amounts_btn
-'     PushButton 485, 25, 65, 15, "Determination", determination_btn
-'     PushButton 485, 40, 65, 15, "Review", review_btn
-'     PushButton 445, 365, 50, 15, "Next", next_btn
-'     CancelButton 500, 365, 50, 15
-'     OkButton 500, 350, 50, 15
-' EndDialog
-'
-'
-' BeginDialog Dialog1, 0, 0, 555, 385, "Expedited Determination"
-'   GroupBox 5, 5, 470, 130, "Expedited Determination"
-'   Text 15, 20, 120, 10, "Determination Amounts Entered:"
-'   Text 140, 20, 85, 10, "Total App Month Income:"
-'   Text 230, 20, 35, 10, "$ XXXX"
-'   Text 140, 30, 85, 10, "Total App Month Assets:"
-'   Text 230, 30, 35, 10, "$ XXXX"
-'   Text 140, 40, 85, 10, "Total App Month Housing:"
-'   Text 230, 40, 35, 10, "$ XXXX"
-'   Text 140, 50, 85, 10, "Total App Month Utility:"
-'   Text 230, 50, 35, 10, "$ XXXX"
-'   Text 295, 20, 135, 10, "Combined Resources (Income + Assets):"
-'   Text 435, 20, 35, 10, "$ XXXX"
-'   Text 330, 40, 100, 10, "Combined Housing Expense:"
-'   Text 435, 40, 35, 10, "$ XXXX"
-'   Text 185, 65, 250, 10, "Unit has less than $150 monthly Gross Income AND $100 or less in assets:"
-'   Text 440, 65, 35, 10, "TRUE"
-'   Text 235, 80, 195, 10, "Unit's combined resources are less than housing expense:"
-'   Text 440, 80, 35, 10, "TRUE"
-'   Text 15, 90, 315, 10, "This case APPEARS EXPEDITED based on this above critera."
-'   Text 25, 110, 60, 10, "Date of Approval:"
-'   EditBox 85, 105, 60, 15, Edit5
-'   Text 150, 110, 75, 10, "(or planned approval)"
-'   Text 330, 100, 65, 10, "Date of Application:"
-'   EditBox 400, 95, 60, 15, Edit3
-'   Text 335, 120, 60, 10, "Date of Interview:"
-'   EditBox 400, 115, 60, 15, Edit4
-'   GroupBox 5, 140, 470, 130, "Possible Approval Delays"
-'   Text 15, 155, 330, 10, "If it is already determined that SNAP should be denied, enter a denial date and explanation of denial."
-'   Text 20, 170, 65, 10, "SNAP Denial Date:"
-'   EditBox 85, 165, 50, 15, Edit1
-'   Text 145, 170, 45, 10, "Explanation:"
-'   EditBox 190, 165, 280, 15, Edit2
-'   Text 15, 190, 130, 10, "Is there an ID on file for the applicant?"
-'   DropListBox 145, 185, 40, 45, "", List1
-'   Text 195, 190, 200, 10, "Can the Identity of the applicant be cleard through SOLQ/SMI?"
-'   DropListBox 400, 185, 70, 45, "", List2
-'   ButtonGroup ButtonPressed
-'     PushButton 300, 200, 170, 15, "HOT TOPIC - Using SOLQ/SMI for ID", ht_id_in_solq_btn
-'   Text 15, 215, 120, 10, "Document specifc case situations:"
-'   ButtonGroup ButtonPressed
-'     PushButton 15, 225, 160, 15, "SNAP is Active in Another State in MM/YY", snap_active_in_another_state_btn
-'     PushButton 180, 225, 210, 15, "Expedited Approved Previously with Postponed Verifications", Button18
-'   Text 15, 250, 90, 10, "Explain Approval Delays:"
-'   EditBox 105, 245, 365, 15, Edit6
-'   GroupBox 5, 275, 470, 80, "Supports"
-'   Text 15, 290, 260, 10, "If you need support in handling for expedited, please access these resources:"
-'   ButtonGroup ButtonPressed
-'     PushButton 20, 305, 150, 15, "HSR Manual - Expedited SNAP", hsr_manual_expedited_snap_btn
-'     PushButton 20, 320, 150, 15, "HSR Manual - SNAP Applications", hsr_snap_applications_btn
-'     PushButton 20, 335, 150, 15, "SIR - SNAP Expedited Flowchart", sir_exp_flowchart_btn
-'     PushButton 170, 305, 150, 15, "Retrain Your Brain - Expedited - Identity", ryb_exp_identity_btn
-'     PushButton 170, 320, 150, 15, "Retrain Your Brain - Expedited - Timeliness", ryb_exp_timeliness_btn
-'     PushButton 315, 305, 150, 15, "CM 04.04 - SNAP / Expedited Food", cm_04_04_btn
-'     PushButton 315, 320, 150, 15, "CM 04.06 - 1st Mont Processing", cm_04_06_btn
-'     PushButton 445, 365, 50, 15, "Next", next_btn
-'     CancelButton 500, 365, 50, 15
-'     OkButton 500, 350, 50, 15
-'     PushButton 485, 25, 65, 15, "Determination", determination_btn
-'     PushButton 485, 10, 65, 15, "Amounts", amounts_btn
-'     PushButton 485, 40, 65, 15, "Review", review_btn
-' EndDialog
-
 next_btn = 2
 finish_btn = 3
 
@@ -540,8 +380,16 @@ ht_id_in_solq_btn				= 1700
 cm_04_12_btn					= 1800
 temp_prog_changes_ebt_card_btn 	= 1900
 
+const account_type_const	= 0
+const account_owner_const	= 1
+const bank_name_const		= 2
+const account_amount_const	= 3
+const account_notes_const 	= 4
 
-function app_month_income_detail()
+Dim ACCOUNTS_ARRAY
+ReDim ACCOUNTS_ARRAY(account_notes_const, 0)
+
+function app_month_income_detail(determined_income)
 	Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 451, 350, "Determination of Income in Month of Application"
 	  ButtonGroup ButtonPressed
@@ -572,18 +420,126 @@ function app_month_income_detail()
 	EndDialog
 
 	dialog Dialog1
-end function
-function app_month_asset_detail()
-	Dialog1 = ""
-	BeginDialog Dialog1, 0, 0, 451, 350, "Determination of Assets in Month of Application"
-	  ButtonGroup ButtonPressed
-	  	Text 10, 5, 435, 10, "FUNCTIONALITY TO BE FILLED IN HERE"
-	EndDialog
 
-	dialog Dialog1
-
+	determined_income = determined_income & ""
+	ButtonPressed = income_calc_btn
 end function
-function app_month_housing_detail()
+function app_month_asset_detail(determined_assets, cash_amount_yn, bank_account_yn, ACCOUNTS_ARRAY)
+	return_btn = 5001
+	enter_btn = 5002
+	add_another_btn = 5003
+	remove_one = 5004
+
+	determined_assets = 0
+	Do
+		prvt_err_msg = ""
+
+		Dialog1 = ""
+		BeginDialog Dialog1, 0, 0, 271, 135, "Determination of Assets in Month of Application"
+		  Text 10, 10, 205, 10, "Are there any Liquid Assets available to the household?"
+		  GroupBox 10, 25, 255, 40, "Cash"
+		  Text 25, 45, 155, 10, "Does the household have any Cash Savings?"
+		  DropListBox 180, 40, 45, 45, "?"+chr(9)+"Yes"+chr(9)+"No", cash_amount_yn
+		  GroupBox 10, 70, 255, 40, "Accounts"
+		  Text 20, 90, 190, 10, "Does anyone in the household have any Bank Accounts?"
+		  DropListBox 210, 85, 45, 45, "?"+chr(9)+"Yes"+chr(9)+"No", bank_account_yn
+		  ButtonGroup ButtonPressed
+		    PushButton 215, 115, 50, 15, "Enter", enter_btn
+		EndDialog
+
+		dialog Dialog1
+
+		If cash_amount_yn = "?" Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter if the household has CASH."
+		If bank_account_yn = "?" Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter if the household has A BANK ACCOUNT."
+
+		If prvt_err_msg <> "" Then MsgBox prvt_err_msg
+	Loop until prvt_err_msg = ""
+
+	Do
+		prvt_err_msg = ""
+
+		If cash_amount_yn = "No" Then cash_grp_len = 30
+		If cash_amount_yn = "Yes" Then cash_grp_len = 50
+		If bank_account_yn = "No" Then acct_grp_len = 30
+		If bank_account_yn = "Yes" Then acct_grp_len = 60 + (UBound(ACCOUNTS_ARRAY, 2) + 1) * 20
+		dlg_len = 55 + cash_grp_len + acct_grp_len
+
+		Dialog1 = ""
+		BeginDialog Dialog1, 0, 0, 351, dlg_len, "Determination of Assets in Month of Application"
+		  Text 10, 10, 205, 10, "Are there any Liquid Assets available to the household?"
+		  GroupBox 10, 25, 220, cash_grp_len, "Cash"
+		  If cash_amount_yn = "Yes" Then
+			  Text 20, 40, 155, 10, "This household HAS Cash Savings."
+			  Text 20, 55, 150, 10, "How much in total does the household have?"
+			  EditBox 175, 50, 45, 15, cash_amount
+			  y_pos = 80
+		  Else
+			  Text 20, 40, 155, 10, "This household does NOT have Cash."
+			  y_pos = 60
+		  End If
+		  GroupBox 10, y_pos, 335, acct_grp_len, "Accounts"
+		  y_pos = y_pos + 15
+		  If bank_account_yn = "Yes" Then
+			  Text 20, y_pos, 190, 10, "This household HAS Bank Accounts."
+			  y_pos = y_pos + 15
+			  Text 20, y_pos, 50, 10, "Account Type"
+			  Text 90, y_pos, 70, 10, "Owner of Account"
+			  Text 180, y_pos, 45, 10, "Bank Name"
+			  Text 285, y_pos, 35, 10, "Amount"
+			  y_pos = y_pos + 15
+
+			  For the_acct = 0 to UBound(ACCOUNTS_ARRAY, 2)
+				  ACCOUNTS_ARRAY(account_amount_const, the_acct) = ACCOUNTS_ARRAY(account_amount_const, the_acct) & ""
+				  DropListBox 20, y_pos, 60, 45, "Select One..."+chr(9)+"Checking"+chr(9)+"Savings"+chr(9)+"Other", ACCOUNTS_ARRAY(account_type_const, the_acct)
+				  EditBox 90, y_pos, 85, 15, ACCOUNTS_ARRAY(account_owner_const, the_acct)
+				  EditBox 180, y_pos, 100, 15, ACCOUNTS_ARRAY(bank_name_const, the_acct)
+				  EditBox 285, y_pos, 50, 15, ACCOUNTS_ARRAY(account_amount_const, the_acct)
+				  y_pos = y_pos + 20
+			  Next
+		  Else
+		  	  Text 20, y_pos, 155, 10, "This household does NOT have Bank Accounts."
+		  End If
+		  ButtonGroup ButtonPressed
+		    If bank_account_yn = "Yes" Then PushButton 20, y_pos, 60, 10, "ADD ANOTHER", add_another_btn
+		    If bank_account_yn = "Yes" Then PushButton 275, y_pos, 60, 10, "REMOVE ONE", remove_one
+			PushButton 295, dlg_len - 20, 50, 15, "Return", return_btn
+		EndDialog
+
+		dialog Dialog1
+
+		last_acct_tiem = UBound(ACCOUNTS_ARRAY, 2)
+		If ButtonPressed = add_another_btn Then
+			last_acct_tiem = last_acct_tiem + 1
+			ReDim Preserve ACCOUNTS_ARRAY(account_notes_const, last_acct_tiem)
+		End If
+		If ButtonPressed = remove_one Then
+			last_acct_tiem = last_acct_tiem - 1
+			ReDim Preserve ACCOUNTS_ARRAY(account_notes_const, last_acct_tiem)
+		End If
+
+		cash_amount = trim(cash_amount)
+		If cash_amount <> "" And IsNumeric(cash_amount) = False Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter the Cash Amount as a number."
+
+		For the_acct = 0 to UBound(ACCOUNTS_ARRAY, 2)
+			ACCOUNTS_ARRAY(account_amount_const, the_acct) = trim(ACCOUNTS_ARRAY(account_amount_const, the_acct))
+			If ACCOUNTS_ARRAY(account_amount_const, the_acct) <> "" And IsNumeric(ACCOUNTS_ARRAY(account_amount_const, the_acct)) = False Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter the Bank Account amounts as a member."
+			If ACCOUNTS_ARRAY(account_type_const, the_acct)	= "Select One..." Then prvt_err_msg = prvt_err_msg & vbCr & "* Select the Bank Account type."
+		Next
+	Loop Until ButtonPressed = return_btn
+
+	If cash_amount = "" Then cash_amount = 0
+	cash_amount = cash_amount * 1
+	For the_acct = 0 to UBound(ACCOUNTS_ARRAY, 2)
+		If ACCOUNTS_ARRAY(account_amount_const, the_acct) = "" Then ACCOUNTS_ARRAY(account_amount_const, the_acct) = 0
+		ACCOUNTS_ARRAY(account_amount_const, the_acct) = ACCOUNTS_ARRAY(account_amount_const, the_acct) * 1
+		determined_assets = determined_assets + ACCOUNTS_ARRAY(account_amount_const, the_acct)
+	Next
+	determined_assets = determined_assets + cash_amount
+
+	determined_assets = determined_assets & ""
+	ButtonPressed = asset_calc_btn
+end function
+function app_month_housing_detail(determined_shel)
 	Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 451, 350, "Determination of Housing Cost in Month of Application"
 	  ButtonGroup ButtonPressed
@@ -592,6 +548,9 @@ function app_month_housing_detail()
 
 	dialog Dialog1
 
+
+	determined_shel = determined_shel & ""
+	ButtonPressed = housing_calc_btn
 end function
 function app_month_utility_detail(determined_utilities, heat_expense, ac_expense, electric_expense, phone_expense, none_expense, all_utilities)
 	calculate_btn = 5000
@@ -1174,9 +1133,9 @@ Do
 
 		If ButtonPressed <> finish_btn Then err_msg = "LOOP"
 
-		If ButtonPressed = income_calc_btn Then Call app_month_income_detail
-		If ButtonPressed = asset_calc_btn Then Call app_month_asset_detail
-		If ButtonPressed = housing_calc_btn Then Call app_month_housing_detail
+		If ButtonPressed = income_calc_btn Then Call app_month_income_detail(determined_income)
+		If ButtonPressed = asset_calc_btn Then Call app_month_asset_detail(determined_assets, cash_amount_yn, bank_account_yn, ACCOUNTS_ARRAY)
+		If ButtonPressed = housing_calc_btn Then Call app_month_housing_detail(determined_shel)
 		If ButtonPressed = utility_calc_btn Then Call app_month_utility_detail(determined_utilities, heat_expense, ac_expense, electric_expense, phone_expense, none_expense, all_utilities)
 		If ButtonPressed = snap_active_in_another_state_btn Then
 			If IsDate(date_of_application) = False Then MsgBox "Attention:" & vbCr & vbCr & "The funcationality to determine actions if a household is reporting benefits in another state cannot be run if a valid application date has not been entered."
