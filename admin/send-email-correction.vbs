@@ -529,6 +529,7 @@ Select Case correction_process
 	    objMail.to = email_recipient                        'email recipient
 	    objMail.cc = email_recipient_cc                     'cc recipient
 		objMail.SentOnBehalfOfName = "HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us"
+        objMail.Importance = 2      'Sending with high importance
 		' objMail.SentOnBehalfOfName = "HSPH.EWS.BlueZoneScripts@hennepin.us"
 	    objMail.Subject = email_subject                 'email subject
 	    objMail.HTMLBody = email_body                       'email body
