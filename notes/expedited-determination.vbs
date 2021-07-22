@@ -55,43 +55,36 @@ changelog_display
 'THE SCRIPT-----------------------------------------------------------------------------------------------------------------
 'connecting to MAXIS & searches for the case number
 EMConnect ""
+
+Call check_for_MAXIS(false)
 call MAXIS_case_number_finder(MAXIS_case_number)
+MAXIS_footer_month = CM_mo
+MAXIS_footer_year = CM_yr
 If MAXIS_case_number <> "" Then
-    MAXIS_footer_month = CM_mo
-    MAXIS_footer_year = CM_yr
 
-    Call navigate_to_MAXIS_screen("STAT", "PROG")
 
-    EMReadScreen fs_appl_date, 8, 10, 33
-    fs_appl_date = replace(fs_appl_date, " ", "/")
-
-    If IsDate(fs_appl_date) = TRUE Then
-        MAXIS_footer_month = DatePart("m", fs_appl_date)
-        MAXIS_footer_month = right("0"&MAXIS_footer_month, 2)
-
-        MAXIS_footer_year = right(DatePart("yyyy", fs_appl_date), 2)
-    Else
-        MAXIS_footer_month = ""
-        MAXIS_footer_year = ""
-    End If
 
 End If
 
 'dialog to gather the Case Number and such
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 291, 90, "SNAP EXP Determination - Case Information"
+BeginDialog Dialog1, 0, 0, 291, 95, "SNAP EXP Determination - Case Information"
   EditBox 85, 5, 60, 15, MAXIS_case_number
-  EditBox 230, 5, 25, 15, MAXIS_footer_month
-  EditBox 260, 5, 25, 15, MAXIS_footer_year
-  EditBox 85, 25, 200, 15, worker_signature
-  DropListBox 165, 50, 60, 45, "?"+chr(9)+"Yes"+chr(9)+"No", maxis_updated_yn
+  ' EditBox 230, 5, 25, 15, MAXIS_footer_month
+  ' EditBox 260, 5, 25, 15, MAXIS_footer_year
+  DropListBox 85, 25, 60, 45, "?"+chr(9)+"Yes"+chr(9)+"No", maxis_updated_yn
+  EditBox 85, 55, 200, 15, worker_signature
+
+  ' DropListBox 165, 50, 60, 45, "?"+chr(9)+"Yes"+chr(9)+"No", maxis_updated_yn
   ButtonGroup ButtonPressed
-    OkButton 180, 70, 50, 15
-    CancelButton 235, 70, 50, 15
+    OkButton 180, 75, 50, 15
+    CancelButton 235, 75, 50, 15
   Text 30, 10, 50, 10, "Case Number:"
-  Text 150, 10, 80, 10, "Application month/year:"
-  Text 10, 30, 70, 10, "Sign your case note:"
-  Text 10, 50, 145, 20, "Have you updated MAXIS STAT panels with all income, asset, and expense information?"
+  ' Text 150, 10, 80, 10, "Application month/year:"
+  Text 20, 30, 65, 10, "MAXIS Updated?"
+  Text 85, 40, 200, 10, "(All income, asset, and expense information entered in STAT)"
+  Text 10, 60, 70, 10, "Sign your case note:"
+  ' Text 10, 50, 145, 20, "Have you updated MAXIS STAT panels with all income, asset, and expense information?"
 EndDialog
 
 
@@ -111,6 +104,81 @@ Loop until are_we_passworded_out = false				'loops until user passwords back in
 
 exp_screening_note_found = False
 snap_elig_results_read = False
+do_we_have_applicant_id = False
+developer_mode = False
+
+Call back_to_SELF
+EMReadScreen MX_region, 10, 22, 48
+MX_region = trim(MX_region)
+If MX_region = "INQUIRY DB" Then
+	continue_in_inquiry = MsgBox("You have started this script run in INQUIRY." & vbNewLine & vbNewLine & "The script cannot complete a CASE:NOTE when run in inquiry. The functionality is limited when run in inquiry. " & vbNewLine & vbNewLine & "Would you like to continue in INQUIRY?", vbQuestion + vbYesNo, "Continue in INQUIRY")
+	If continue_in_inquiry = vbNo Then Call script_end_procedure("~PT Interview Script cancelled as it was run in inquiry.")
+End If
+If MX_region = "TRAINING" Then developer_mode = True
+
+Call navigate_to_MAXIS_screen("STAT", "PROG")
+
+EMReadScreen date_of_application, 8, 10, 33
+EMReadScreen interview_date, 8, 10, 33
+
+date_of_application = replace(date_of_application, " ", "/")
+interview_date = replace(interview_date, " ", "/")
+If interview_date = "__/__/__" Then interview_date = ""
+
+
+
+
+
+Do
+	Do
+		Dialog1 = "" 'Blanking out previous dialog detail
+		BeginDialog Dialog1, 0, 0, 156, 70, "SNAP EXP Determination - Application Information"
+		  EditBox 90, 5, 60, 15, date_of_application
+		  EditBox 90, 25, 60, 15, interview_date
+		  Text 20, 10, 65, 10, "Date of Application:"
+		  Text 25, 30, 60, 10, "Date of Interview:"
+		  ButtonGroup ButtonPressed
+		    OkButton 45, 50, 50, 15
+		    CancelButton 100, 50, 50, 15
+		EndDialog
+
+		Dialog Dialog1
+		cancel_without_confirmation
+		err_msg = ""
+		If IsDate(date_of_application) = False Then
+			err_msg = err_msg & vbCr & "* The date of application needs to be entered as a valid date."
+		Else
+			If DateDiff("d", interview_date, date) < 0 Then err_msg = err_msg & vbCr & "* The Application Date cannot be a Future date."
+		End If
+		If IsDate(interview_date) = False Then
+			err_msg = err_msg & vbCr & "* The interview date needs to be entered as a valid date. An Expedited Determination cannot be completed without the interview."
+		Else
+			If DateDiff("d", interview_date, date) < 0 Then err_msg = err_msg & vbCr & "* The Interview Date cannot be a Future date."
+		End If
+		If IsDate(date_of_application) = True AND IsDate(interview_date) = True Then
+			' MsgBox DateDiff("d", interview_date, date_of_application)
+			If DateDiff("d", interview_date, date_of_application) > 0 Then err_msg = err_msg & vbCr & "* The Interview Date Cannot be before the Application Date."
+		End If
+		IF err_msg <> "" THEN MsgBox err_msg & vbCr & vbCr & "Please resolve this to continue"
+	Loop until err_msg = ""
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false
+
+MAXIS_footer_month = DatePart("m", date_of_application)
+MAXIS_footer_month = right("0"&MAXIS_footer_month, 2)
+
+MAXIS_footer_year = right(DatePart("yyyy", date_of_application), 2)
+
+expedited_package = MAXIS_footer_month & "/" & MAXIS_footer_year
+If DatePart("d", date_of_application) > 15 Then
+	second_month_of_exp_package = DateAdd("m", 1, date_of_application)
+	NEXT_footer_month = DatePart("m", date_of_application)
+	NEXT_footer_month = right("0"&NEXT_footer_month, 2)
+
+	NEXT_footer_year = right(DatePart("yyyy", date_of_application), 2)
+	expedited_package = expedited_package & " and " & NEXT_footer_month & "/" & NEXT_footer_year
+End If
+original_expedited_package = expedited_package
 
 'Script is going to find information that was writen in an Expedited Screening case note using scripts
 navigate_to_MAXIS_screen "CASE", "NOTE"
@@ -198,6 +266,9 @@ IF exp_screening_note_found = TRUE THEN
 	PF3
 End IF
 
+determined_utilities = ""
+If maxis_updated_yn = "No" Then Call app_month_utility_detail(determined_utilities, heat_expense, ac_expense, electric_expense, phone_expense, none_expense, all_utilities)
+
 If maxis_updated_yn = "Yes" Then
 	'Script now goes to ELIG to find what the income/expesnse that are being used are to autofill the dialog
 	navigate_to_MAXIS_screen "ELIG", "FS"
@@ -281,10 +352,10 @@ If maxis_updated_yn = "Yes" Then
 End If
 
 'Prepping variables to fill in the edit boxes
-determined_income = elig_gross_income & ""
-determined_assets = asset_amount & ""
-determined_shel = elig_shel & ""
-determined_utilities = elig_util & ""
+' determined_income = elig_gross_income & ""
+' determined_assets = asset_amount & ""
+' determined_shel = elig_shel & ""
+' determined_utilities = elig_util & ""
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
@@ -455,6 +526,9 @@ utility_calc_btn							= 130
 snap_active_in_another_state_btn			= 140
 case_previously_had_postponed_verifs_btn	= 150
 
+knowledge_now_support_btn		= 500
+te_02_10_01_btn					= 510
+
 hsr_manual_expedited_snap_btn 	= 1000
 hsr_snap_applications_btn		= 1100
 ryb_exp_identity_btn			= 1200
@@ -463,6 +537,8 @@ sir_exp_flowchart_btn			= 1400
 cm_04_04_btn					= 1500
 cm_04_06_btn					= 1600
 ht_id_in_solq_btn				= 1700
+cm_04_12_btn					= 1800
+temp_prog_changes_ebt_card_btn 	= 1900
 
 
 function app_month_income_detail()
@@ -517,15 +593,75 @@ function app_month_housing_detail()
 	dialog Dialog1
 
 end function
-function app_month_utility_detail()
-	Dialog1 = ""
-	BeginDialog Dialog1, 0, 0, 451, 350, "Determination of Utilities in Month of Application"
-	  ButtonGroup ButtonPressed
-	    Text 10, 5, 435, 10, "FUNCTIONALITY TO BE FILLED IN HERE"
-	EndDialog
+function app_month_utility_detail(determined_utilities, heat_expense, ac_expense, electric_expense, phone_expense, none_expense, all_utilities)
+	calculate_btn = 5000
+	return_btn = 5001
+	determined_utilities = 0
+	If heat_expense = True then heat_checkbox = checked
+	If ac_expense = True then ac_checkbox = checked
+	If electric_expense = True then electric_checkbox = checked
+	If phone_expense = True then phone_checkbox = checked
+	If none_expense = True then none_checkbox = checked
 
-	dialog Dialog1
+	Do
+		current_utilities = all_utilities
 
+		Dialog1 = ""
+		BeginDialog Dialog1, 0, 0, 246, 175, "Determination of Utilities in Month of Application"
+		  CheckBox 30, 45, 50, 10, "Heat", heat_checkbox
+		  CheckBox 30, 60, 65, 10, "Air Conditioning", ac_checkbox
+		  CheckBox 30, 75, 50, 10, "Electric", electric_checkbox
+		  CheckBox 30, 90, 50, 10, "Phone", phone_checkbox
+		  CheckBox 30, 105, 50, 10, "NONE", none_checkbox
+		  ButtonGroup ButtonPressed
+		    PushButton 170, 105, 65, 15, "Calculate", calculate_btn
+		    PushButton 170, 155, 65, 15, "Return", return_btn
+		  Text 10, 10, 235, 10, "Check the boxes for each utility the household is responsible to pay:"
+		  GroupBox 15, 30, 225, 95, "Utilities"
+		  Text 150, 45, 50, 10, "$ " & determined_utilities
+		  Text 150, 60, 35, 35, all_utilities
+		  Text 15, 135, 225, 20, "Remember, this expense could be shared, they are still considered responsible to pay and we count the WHOLE standard."
+		EndDialog
+
+		dialog Dialog1
+
+		some_vs_none_discrepancy = False
+		If (heat_checkbox = checked OR ac_checkbox = checked OR electric_checkbox = checked OR phone_checkbox = checked) AND none_checkbox = checked Then some_vs_none_discrepancy = True
+		If some_vs_none_discrepancy = True Then MsgBox "Attention:" & vbCr & vbCr & "You have selected NONE and selected at least one other utility expense. If it is NONE, then no other utilities should be checked."
+
+		all_utilities = ""
+		If heat_checkbox = checked Then all_utilities = all_utilities & ", Heat"
+		If ac_checkbox = checked Then all_utilities = all_utilities & ", AC"
+		If electric_checkbox = checked Then all_utilities = all_utilities & ", Electric"
+		If phone_checkbox = checked Then all_utilities = all_utilities & ", Phone"
+		If none_checkbox = checked Then all_utilities = all_utilities & ", None"
+		If left(all_utilities, 2) = ", " Then all_utilities = right(all_utilities, len(all_utilities) - 2)
+
+		If all_utilities = current_utilities AND ButtonPressed = -1 Then ButtonPressed = return_btn
+
+		determined_utilities = 0
+		If heat_checkbox = checked OR ac_checkbox = checked Then
+			determined_utilities = determined_utilities + 496
+		Else
+			If electric_checkbox = checked Then determined_utilities = determined_utilities + 154
+			If phone_checkbox = checked Then determined_utilities = determined_utilities + 56
+		End If
+
+	Loop Until ButtonPressed = return_btn And some_vs_none_discrepancy = False
+
+	heat_expense = False
+	ac_expense = False
+	electric_expense = False
+	phone_expense = False
+	none_expense = False
+
+	If heat_checkbox = checked Then heat_expense = True
+	If ac_checkbox = checked Then ac_expense = True
+	If electric_checkbox = checked Then electric_expense = True
+	If phone_checkbox = checked Then phone_expense = True
+	If none_checkbox = checked Then none_expense = True
+
+	ButtonPressed = utility_calc_btn
 end function
 function determine_calculations(determined_income, determined_assets, determined_shel, determined_utilities, calculated_resources, calculated_expenses, calculated_low_income_asset_test, calculated_resources_less_than_expenses_test, is_elig_XFS)
 	determined_income = trim(determined_income)
@@ -561,16 +697,172 @@ function determine_calculations(determined_income, determined_assets, determined
 	determined_shel = determined_shel & ""
 	determined_utilities = determined_utilities & ""
 end function
-function snap_in_another_state_detail()
-	Dialog1 = ""
-	BeginDialog Dialog1, 0, 0, 451, 350, "Case Received SNAP in Another State"
-	  ButtonGroup ButtonPressed
-	    Text 10, 5, 435, 10, "FUNCTIONALITY TO BE FILLED IN HERE"
-	EndDialog
 
-	dialog Dialog1
+' BeginDialog Dialog1, 0, 0, 381, 295, "Case Received SNAP in Another State"
+'   DropListBox 255, 55, 110, 45, "", other_snap_state
+'   EditBox 255, 75, 60, 15, other_state_reported_benefit_end_date
+'   CheckBox 40, 95, 320, 10, "Check here is resident reports the benefits are NOT ended or it is UKNOWN if they are ended.", other_state_benefits_not_ended_checkbox
+'   DropListBox 255, 110, 60, 45, "", List2
+'   EditBox 255, 130, 60, 15, other_state_verified_benefit_end_date
+'   ButtonGroup ButtonPressed
+'     PushButton 325, 170, 50, 15, "Calculate", calc_other_state_benefit_btn
+'   Text 10, 10, 365, 10, "If a Household has received SNAP in another state, we may still be able to issue Expedited SNAP in Minnesota. "
+'   Text 10, 25, 320, 10, "Complete the following information to get guidance on handling cases with SNAP in another State:"
+'   GroupBox 10, 45, 365, 120, "Other State Benefits"
+'   Text 20, 60, 235, 10, "What State is the Household / Resident receiving SNAP benefits from?"
+'   Text 40, 80, 215, 10, "When is the resident REPORTING benefits ending in this state?"
+'   Text 20, 115, 230, 10, "Have you called the other state to confirm / discover the SNAP status?"
+'   Text 20, 135, 230, 10, "What end date has been confirmed / verified for the other state SNAP?"
+'   GroupBox 10, 190, 365, 80, "Resolution"
+'   Text 20, 205, 205, 20, "SNAP should be denied as the other state end date is AFTER the 30 day processing period of the application in MN."
+'   Text 245, 205, 120, 10, "Date of Application:"
+'   Text 255, 215, 110, 10, "End Of Benefits:"
+'   Text 30, 230, 120, 10, "SNAP Denial Date: "
+'   Text 30, 245, 335, 10, "Denial Reason:"
+'   ButtonGroup ButtonPressed
+'     PushButton 325, 275, 50, 15, "Return", Button3
+' EndDialog
 
+
+function snap_in_another_state_detail(date_of_application, day_30_from_application, other_snap_state, other_state_reported_benefit_end_date, other_state_benefits_openended, other_state_contact_yn, other_state_verified_benefit_end_date, mn_elig_begin_date, snap_denial_date, snap_denial_explain, action_due_to_out_of_state_benefits)
+	original_snap_denial_date = snap_denial_date
+	original_snap_denial_reason = snap_denial_explain
+	calculation_done = False
+	action_due_to_out_of_state_benefits = ""
+	' other_snap_state = "MN - Minnesota"
+	day_30_from_application = DateAdd("d", 30, date_of_application)
+	calc_other_state_benefit_btn = 5000
+	return_from_other_state_benefit_btn = 5001
+
+	Do
+		Do
+			prvt_err_msg = ""
+
+			Dialog1 = ""
+			If calculation_done = False Then BeginDialog Dialog1, 0, 0, 381, 190, "Case Received SNAP in Another State"
+			If calculation_done = True Then BeginDialog Dialog1, 0, 0, 381, 295, "Case Received SNAP in Another State"
+			  DropListBox 255, 55, 110, 45, "Select One..."+chr(9)+state_list, other_snap_state
+			  EditBox 255, 75, 60, 15, other_state_reported_benefit_end_date
+			  CheckBox 40, 95, 320, 10, "Check here is resident reports the benefits are NOT ended or it is UKNOWN if they are ended.", other_state_benefits_not_ended_checkbox
+			  DropListBox 255, 110, 60, 45, "?"+chr(9)+"Yes"+chr(9)+"No", other_state_contact_yn
+			  EditBox 255, 130, 60, 15, other_state_verified_benefit_end_date
+			  ButtonGroup ButtonPressed
+			    PushButton 325, 170, 50, 15, "Calculate", calc_other_state_benefit_btn
+			  Text 10, 10, 365, 10, "If a Household has received SNAP in another state, we may still be able to issue Expedited SNAP in Minnesota. "
+			  Text 10, 25, 320, 10, "Complete the following information to get guidance on handling cases with SNAP in another State:"
+			  GroupBox 10, 45, 365, 120, "Other State Benefits"
+			  Text 20, 60, 235, 10, "What State is the Household / Resident receiving SNAP benefits from?"
+			  Text 40, 80, 215, 10, "When is the resident REPORTING benefits ending in this state?"
+			  Text 20, 115, 230, 10, "Have you called the other state to confirm / discover the SNAP status?"
+			  Text 20, 135, 230, 10, "What end date has been confirmed / verified for the other state SNAP?"
+
+			  If calculation_done = True Then
+				  GroupBox 10, 190, 365, 80, "Resolution"
+				  If action_due_to_out_of_state_benefits = "DENY" Then
+					  Text 20, 205, 205, 20, "SNAP should be denied as the other state end date is AFTER the 30 day processing period of the application in MN."
+					  Text 245, 205, 120, 10, "Date of Application: " & date_of_application
+					  If IsDate(other_state_verified_benefit_end_date) = True Then
+					  	Text 255, 215, 110, 10, "End Of Benefits: " & other_state_verified_benefit_end_date
+					  ElseIf IsDate(other_state_reported_benefit_end_date) = True Then
+					  	Text 255, 215, 110, 10, "End Of Benefits: " & other_state_reported_benefit_end_date
+					  End If
+					  Text 30, 230, 120, 10, "SNAP Denial Date: " & snap_denial_date
+					  Text 30, 240, 335, 30, "Denial Reason: " & snap_denial_explain
+				  ElseIf action_due_to_out_of_state_benefits = "APPROVE" Then
+					  Text 20, 205, 205, 20, "SNAP should be APPROVEED "
+					  Text 245, 205, 120, 10, "Date of Application: " & date_of_application
+					  Text 25, 215, 175, 10, "Eligibility can start in MN as of " & mn_elig_begin_date
+					  If other_state_contact_yn <> "Yes" Then
+					  	Text 20, 230, 340, 10, "Verification of out of state eligibility end can be postponed "
+						Text 20, 240, 340, 10, "We should make reasonable efforts to obtain verification so, "
+						Text 20, 250, 340, 10, "it is best to attempt a call to the other state right away for verification."
+					  End If
+				  ElseIf action_due_to_out_of_state_benefits = "FOLLOW UP" Then
+					  Text 20, 205, 205, 20, "You must connect with the other state to determine when the benefits have ended or IF the benefits will end."
+				  End If
+				  ButtonGroup ButtonPressed
+				    PushButton 325, 275, 50, 15, "Return", return_from_other_state_benefit_btn
+			  End If
+			EndDialog
+
+			dialog Dialog1
+
+			If ButtonPressed = 0 Then Exit Do
+
+			If IsDate(other_state_reported_benefit_end_date) = False AND other_state_benefits_not_ended_checkbox = unchecked Then prvt_err_msg = prvt_err_msg & vbCr & "* We cannot complete the calculation if a reported end date has not been entered."
+			If IsDate(other_state_reported_benefit_end_date) = True AND other_state_benefits_not_ended_checkbox = checked Then prvt_err_msg = prvt_err_msg & vbCr & "* You have entered an end date AND indicated the benefits have not ended by checking the box. Please select only one."
+
+			If IsDate(other_state_reported_benefit_end_date) = True Then
+				If DatePart("d", DateAdd("d", 1, other_state_reported_benefit_end_date)) <> 1 Then prvt_err_msg = prvt_err_msg & vbCr & "* SNAP Eligiblity end dates should be the last day of the month that the household received SNAP benefits for. Update the date to be the LAST day of the last month of eligiblity in the other state for the REPORTED end date."
+			End If
+			If IsDate(other_state_verified_benefit_end_date) = True Then
+				If DatePart("d", DateAdd("d", 1, other_state_verified_benefit_end_date)) <> 1 Then prvt_err_msg = prvt_err_msg & vbCr & "* SNAP Eligiblity end dates should be the last day of the month that the household received SNAP benefits for. Update the date to be the LAST day of the last month of eligiblity in the other state for the VERIFIED end date."
+			End If
+			If prvt_err_msg <> "" Then
+				MsgBox prvt_err_msg
+				calculation_done = False
+			End If
+
+		Loop until prvt_err_msg = ""
+
+		If ButtonPressed = 0 Then
+			calculation_done = False
+			Exit Do
+		End If
+
+		calculation_done = True
+		If other_snap_state = "NB - MN Newborn" OR other_snap_state = "MN - Minnesota" OR other_snap_state = "Select One..." OR other_snap_state = "FC - Foreign Country" OR other_snap_state = "UN - Unknown" Then other_snap_state = ""
+		If IsDate(other_state_verified_benefit_end_date) = True Then
+			If DateDiff("d", day_30_from_application, other_state_verified_benefit_end_date) >= 0 Then
+				action_due_to_out_of_state_benefits = "DENY"
+				snap_denial_date = date
+				If other_snap_state = "" Then snap_denial_explain = snap_denial_explain & "; Active SNAP in another state exists past the end of the 30 day application processing window. There is no eligibility in MN until the benefits have ended in other state. Household can reapply once the eligibility in another state is ending within 30 days."
+				If other_snap_state <> "" Then snap_denial_explain = snap_denial_explain & "; Active SNAP in another state exists past the end of the 30 day application processing window. There is no eligibility in MN until the benefits have ended in " & other_snap_state & ". Household can reapply once the eligibility in another state is ending within 30 days."
+			Else
+				action_due_to_out_of_state_benefits = "APPROVE"
+				mn_elig_begin_date = DateAdd("d", 1, other_state_verified_benefit_end_date)
+				If DateDiff("d", mn_elig_begin_date, date_of_application) > 0 Then
+					mn_elig_begin_date = date_of_application
+					expedited_package = original_expedited_package
+				Else
+					MN_elig_month = DatePart("m", mn_elig_begin_date)
+					MN_elig_month = right("0"&MN_elig_month, 2)
+					MN_elig_year = right(DatePart("yyyy", mn_elig_begin_date), 2)
+					expedited_package = MN_elig_month & "/" & MN_elig_year
+				End If
+			End If
+		ElseIf IsDate(other_state_reported_benefit_end_date) = True Then
+			If DateDiff("d", day_30_from_application, other_state_reported_benefit_end_date) >= 0 Then
+				action_due_to_out_of_state_benefits = "DENY"
+				snap_denial_date = date
+				If other_snap_state = "" Then snap_denial_explain = snap_denial_explain & "; Active SNAP in another state exists past the end of the 30 day application processing window. There is no eligibility in MN until the benefits have ended in other state. Household can reapply once the eligibility in another state is ending within 30 days."
+				If other_snap_state <> "" Then snap_denial_explain = snap_denial_explain & "; Active SNAP in another state exists past the end of the 30 day application processing window. There is no eligibility in MN until the benefits have ended in " & other_snap_state & ". Household can reapply once the eligibility in another state is ending within 30 days."
+			Else
+				action_due_to_out_of_state_benefits = "APPROVE"
+				mn_elig_begin_date = DateAdd("d", 1, other_state_reported_benefit_end_date)
+				If DateDiff("d", mn_elig_begin_date, date_of_application) > 0 Then
+					mn_elig_begin_date = date_of_application
+					expedited_package = original_expedited_package
+				Else
+					MN_elig_month = DatePart("m", mn_elig_begin_date)
+					MN_elig_month = right("0"&MN_elig_month, 2)
+					MN_elig_year = right(DatePart("yyyy", mn_elig_begin_date), 2)
+					expedited_package = MN_elig_month & "/" & MN_elig_year
+				End If
+			End If
+		ElseIf other_state_benefits_not_ended_checkbox = checked Then
+			action_due_to_out_of_state_benefits = "FOLLOW UP"
+
+		End If
+		If action_due_to_out_of_state_benefits <> "DENY" Then
+			snap_denial_date = original_snap_denial_date
+			snap_denial_explain = original_snap_denial_reason
+		End If
+		If action_due_to_out_of_state_benefits <> "APPROVE" Then expedited_package = original_expedited_package
+	Loop until ButtonPressed = return_from_other_state_benefit_btn
+	ButtonPressed = snap_active_in_another_state_btn
 end function
+
 function previous_postponed_verifs_detail()
 	Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 451, 350, "Case Previously Received EXP SNAP with Postponed Verifications"
@@ -580,6 +872,12 @@ function previous_postponed_verifs_detail()
 
 	dialog Dialog1
 
+end function
+
+function send_support_email_to_KN()
+end function
+
+function view_poli_temp(section_one, section_two, section_three)
 end function
 
 show_pg_amounts = 1
@@ -604,11 +902,11 @@ Do
 					Text 10, 20, 145, 10, "Information pulled from previous case note."
 					Text 20, 35, 65, 10, "Income from CAF1: "
 					Text 115, 35, 80, 10, caf_one_income
-					Text 195, 35, 60, 10, "Assets from CAF1:"
+					Text 195, 35, 60, 10, "Assets from CAF1: "
 					Text 270, 35, 75, 10, caf_one_assets
-					Text 20, 50, 90, 10, "Rent/Mortgage from CAF1:"
+					Text 20, 50, 90, 10, "Rent/Mortgage from CAF1: "
 					Text 115, 50, 65, 10, caf_one_rent
-					Text 195, 50, 65, 10, "Utilities from CAF1:"
+					Text 195, 50, 65, 10, "Utilities from CAF1: "
 					Text 270, 50, 75, 10, caf_one_utilities
 					Text 15, 65, 160, 10, xfs_screening
 				End If
@@ -617,20 +915,21 @@ Do
 					Text 10, 30, 350, 10, "Review Application for screening answers"
 				End If
 				Text 10, 90, 370, 15, "Review and update the INCOME, ASSETS, and HOUSING EXPENSES as determined in the Interview."
-				GroupBox 5, 105, 390, 110, "Information from SNAP/ELIG"
-				Text 15, 125, 50, 10, "Gross Income:"
+				GroupBox 5, 105, 390, 125, "Information from SNAP/ELIG"
+				Text 15, 125, 60, 10, "Gross Income:    $"
 				EditBox 75, 120, 155, 15, determined_income
-			    PushButton 255, 120, 120, 15, "Calculate Income", income_calc_btn
-				Text 15, 145, 25, 10, "Assets:"
+				Text 15, 145, 35, 10, "Assets:   $"
 				EditBox 50, 140, 180, 15, determined_assets
-			    PushButton 255, 140, 120, 15, "Calculate Assets", asset_calc_btn
-				Text 15, 165, 60, 10, "Shelter Expense:"
+				Text 15, 165, 70, 10, "Shelter Expense:    $"
 				EditBox 85, 160, 145, 15, determined_shel
-			    PushButton 255, 160, 120, 15, "Calculate Housing Cost", housing_calc_btn
 				Text 15, 185, 60, 10, "Utilities Expense:"
-				EditBox 85, 180, 145, 15, determined_utilities
-			    PushButton 255, 180, 120, 15, "Calculate Utilities", utility_calc_btn
+				Text 77, 185, 145, 15, "$  " & determined_utilities
+				PushButton 255, 120, 120, 13, "Calculate Income", income_calc_btn
+				PushButton 255, 140, 120, 13, "Calculate Assets", asset_calc_btn
+				PushButton 255, 160, 120, 13, "Calculate Housing Cost", housing_calc_btn
+			    PushButton 255, 180, 120, 13, "Calculate Utilities", utility_calc_btn
 				If snap_elig_results_read = True Then Text 55, 200, 180, 10, "Autofilled information based on current STAT and ELIG panels"
+				Text 15, 215, 250, 10, "Blank amounts will be defaulted to ZERO."
 				' GroupBox 5, 220, 390, 100, "Supports"
 				' Text 15, 235, 260, 10, "If you need support in handling for expedited, please access these resources:"
 			    ' PushButton 25, 250, 150, 13, "HSR Manual - Expedited SNAP", hsr_manual_expedited_snap_btn
@@ -659,45 +958,104 @@ Do
 				Text 330, 40, 100, 10, "Combined Housing Expense:"
 				Text 435, 40, 35, 10, "$ " & calculated_expenses
 				Text 185, 65, 250, 10, "Unit has less than $150 monthly Gross Income AND $100 or less in assets:"
-				Text 440, 65, 35, 10, calculated_low_income_asset_test
+				Text 430, 65, 35, 10, calculated_low_income_asset_test
 				Text 235, 80, 195, 10, "Unit's combined resources are less than housing expense:"
-				Text 440, 80, 35, 10, calculated_resources_less_than_expenses_test
-				If is_elig_XFS = True Then Text 15, 90, 315, 10, "This case APPEARS EXPEDITED based on this above critera."
-				If is_elig_XFS = False Then Text 15, 90, 315, 10, "This case does NOT appear to be expedited based on this above critera."
-				Text 25, 110, 60, 10, "Date of Approval:"
-				EditBox 85, 105, 60, 15, approval_date
-				Text 150, 110, 75, 10, "(or planned approval)"
+				Text 430, 80, 35, 10, calculated_resources_less_than_expenses_test
+				If is_elig_XFS = True Then Text 15, 100, 315, 10, "This case APPEARS EXPEDITED based on this above critera."
+				If is_elig_XFS = False Then Text 15, 100, 315, 10, "This case does NOT appear to be expedited based on this above critera."
+				Text 25, 120, 60, 10, "Date of Approval:"
+				EditBox 85, 115, 60, 15, approval_date
+				Text 150, 120, 75, 10, "(or planned approval)"
 				Text 330, 100, 65, 10, "Date of Application:"
-				EditBox 400, 95, 60, 15, date_of_application
+				Text 400, 100, 60, 10, date_of_application
 				Text 335, 120, 60, 10, "Date of Interview:"
-				EditBox 400, 115, 60, 15, interview_date
+				Text 400, 120, 60, 10, interview_date
 				GroupBox 5, 140, 470, 130, "Possible Approval Delays"
 				Text 15, 155, 330, 10, "If it is already determined that SNAP should be denied, enter a denial date and explanation of denial."
 				Text 20, 170, 65, 10, "SNAP Denial Date:"
 				EditBox 85, 165, 50, 15, snap_denial_date
 				Text 145, 170, 45, 10, "Explanation:"
 				EditBox 190, 165, 280, 15, snap_denial_explain
-				Text 15, 190, 130, 10, "Is there an ID on file for the applicant?"
-				DropListBox 145, 185, 40, 45, "", applicant_id_on_file_yn
-				Text 195, 190, 200, 10, "Can the Identity of the applicant be cleard through SOLQ/SMI?"
-				DropListBox 400, 185, 70, 45, "", applicant_id_through_SOLQ
-				PushButton 300, 200, 170, 15, "HOT TOPIC - Using SOLQ/SMI for ID", ht_id_in_solq_btn
+				Text 35, 190, 130, 10, "Is there an ID on file for the applicant?"
+				DropListBox 165, 185, 40, 45, "?"+chr(9)+"Yes"+chr(9)+"No", applicant_id_on_file_yn
+				Text 225, 190, 200, 10, "Can the Identity of the applicant be cleard through SOLQ/SMI?"
+				DropListBox 430, 185, 40, 45, "?"+chr(9)+"Yes"+chr(9)+"No", applicant_id_through_SOLQ
+				PushButton 300, 202, 170, 13, "HOT TOPIC - Using SOLQ/SMI for ID", ht_id_in_solq_btn
 				Text 15, 225, 80, 10, "Specifc case situations:"
-			    PushButton 100, 220, 160, 15, "SNAP is Active in Another State in MM/YY", snap_active_in_another_state_btn
-			    PushButton 260, 220, 210, 15, "Expedited Approved Previously with Postponed Verifications", case_previously_had_postponed_verifs_btn
+			    PushButton 95, 220, 160, 15, "SNAP is Active in Another State in " & MAXIS_footer_month & "/" & MAXIS_footer_year, snap_active_in_another_state_btn
+			    PushButton 255, 220, 215, 15, "Expedited Approved Previously with Postponed Verifications", case_previously_had_postponed_verifs_btn
 				Text 15, 250, 90, 10, "Explain Approval Delays:"
-				EditBox 105, 245, 365, 15, delay_explanation
+				EditBox 95, 245, 375, 15, delay_explanation
 			End If
 			If page_display = show_pg_review then
 				Text 507, 42, 65, 10, "Review"
+
+				GroupBox 5, 5, 470, 100, "Actions to Take"
+				Text 20, 40, 45, 10, "Next Steps:"
+
+				If IsDate(snap_denial_date) = True Then
+					Text 15, 20, 280, 20, "DENIAL has been determined - Case does not meet 'All Other Eligibility Criteria' and Expedited Determination is not needed"
+
+					Text 25, 55, 435, 10, "Update MAXIS STAT panels correctly to general results to Deny the Application"
+					Text 25, 70, 435, 10, "Complete the DENIAL and enter a full, detailed CASE/NOTE of the Denial Action and Reasons."
+					Text 25, 85, 435, 10, "Complete ALL PROCESSING before moving on to your next tast. Contact Knowledge Now if you are unsure of a Denial."
+				ElseIf is_elig_XFS = True Then
+			    	If IsDate(approval_date) = True Then
+						Text 15, 20, 205, 10, "Case appears EXPEDITED and there are NO Delay reasons"
+
+					    Text 25, 55, 435, 10, "Update MAXIS STAT panels to generate EXPEDITED SNAP Eligibility Results"
+					    Text 25, 70, 435, 10, "Expedited Package includes " & expedited_package
+					    Text 25, 85, 435, 10, "Approve SNAP Expedited package before moving on to the next task"
+					Else
+					End If
+				ElseIf is_elig_XFS = False Then
+				End If
+
+				GroupBox 5, 105, 470, 100, "Postponed Verifications"
+				If is_elig_XFS = True AND IsDate(snap_denial_date) = False Then
+					Text 15, 125, 160, 10, "Are there Postponed Verifications for this case?"
+					DropListBox 180, 120, 45, 45, "?"+chr(9)+"Yes"+chr(9)+"No", postponed_verifs_yn
+					Text 20, 145, 80, 10, "Postponed Verifications:"
+					EditBox 105, 140, 360, 15, list_postponed_verifs
+				End If
+				Text 310, 15, 100, 10, "For help with the next steps:"
+			    PushButton 310, 25, 155, 13, "Request Support from Knowledge Now", knowledge_now_support_btn
+				If is_elig_XFS = True AND IsDate(snap_denial_date) = False Then
+				    PushButton 320, 120, 145, 13, "TE 02.10.01 EXP w/ Pending Verifs", te_02_10_01_btn
+				    Text 20, 165, 120, 10, "Can I postpone Verifications for ..."
+				    Text 145, 165, 70, 10, "Immigration - YES."
+				    Text 225, 165, 55, 10, "Sponsor - YES."
+				    Text 300, 165, 125, 10, "anything OTHER than ID - YES. "
+					Text 30, 180, 300, 10, "Appplicant's identity is the ONLY required verification to approve Expedited SNAP."
+				    PushButton 320, 177, 145, 13, "CM 04.12 Verification Requirement for EXP", cm_04_12_btn
+				End If
+				If is_elig_XFS = False Then
+					Text 15, 125, 450, 10, "We cannot postpone any verifications for a case that does not meet Expedited criteria."
+				End If
+				If IsDate(snap_denial_date) = True Then
+					Text 15, 125, 450, 10, "Additional verifications are not needed if a Denial has already been determined."
+				End If
+
+			    GroupBox 5, 205, 470, 70, "EBT Information"
+				If IsDate(snap_denial_date) = True Then
+					Text 15, 220, 415, 10, "Advise resident to keep track of an EBT card they have received, even though the application is being denied."
+					Text 20, 235, 415, 10, "If the case ever reapplies, or is determined eligible, the EBT card remains connected to the case and getting benefits will be easier."
+				Else
+					Text 15, 220, 335, 10, "Do not delay in approving SNAP benefits due to if the household does or does not have an EBT card."
+				    Text 20, 235, 415, 10, "If there has never been a card issued for a case, approving the benefit with an REI will prevent a card from being sent via mail."
+				    Text 20, 245, 305, 10, "If a case needs the first card mailed, do NOT REI benefits as they will not receive their card."
+				End If
+				Text 15, 260, 255, 10, "EBT Card issues can be complicated. Refer to the EBT Card Information here:"
+			    PushButton 270, 257, 195, 13, "Temporary Program Changes - EBT Cards ", temp_prog_changes_ebt_card_btn
+
 			End If
 			GroupBox 5, 275, 470, 80, "Supports"
 			Text 15, 290, 260, 10, "If you need support in handling for expedited, please access these resources:"
-			PushButton 20, 305, 150, 13, "HSR Manual - Expedited SNAP", hsr_manual_expedited_snap_btn
-			PushButton 20, 320, 150, 13, "HSR Manual - SNAP Applications", hsr_snap_applications_btn
-			PushButton 20, 335, 150, 13, "SIR - SNAP Expedited Flowchart", sir_exp_flowchart_btn
-			PushButton 170, 305, 150, 13, "Retrain Your Brain - Expedited - Identity", ryb_exp_identity_btn
-			PushButton 170, 320, 150, 13, "Retrain Your Brain - Expedited - Timeliness", ryb_exp_timeliness_btn
+			PushButton 15, 305, 150, 13, "HSR Manual - Expedited SNAP", hsr_manual_expedited_snap_btn
+			PushButton 15, 320, 150, 13, "HSR Manual - SNAP Applications", hsr_snap_applications_btn
+			PushButton 15, 335, 150, 13, "SIR - SNAP Expedited Flowchart", sir_exp_flowchart_btn
+			PushButton 165, 305, 150, 13, "Retrain Your Brain - Expedited - Identity", ryb_exp_identity_btn
+			PushButton 165, 320, 150, 13, "Retrain Your Brain - Expedited - Timeliness", ryb_exp_timeliness_btn
 			PushButton 315, 305, 150, 13, "CM 04.04 - SNAP / Expedited Food", cm_04_04_btn
 			PushButton 315, 320, 150, 13, "CM 04.06 - 1st Mont Processing", cm_04_06_btn
 
@@ -718,39 +1076,141 @@ Do
 			If page_display = show_pg_review then ButtonPressed = finish_btn
 		End If
 
+		If page_display = show_pg_amounts Then
+
+		End If
+		If page_display = show_pg_determination Then
+			delay_due_to_interview = False
+			do_we_have_applicant_id = "UNKNOWN"
+			If applicant_id_on_file_yn = "Yes" OR applicant_id_through_SOLQ = "Yes" Then do_we_have_applicant_id = True
+			If applicant_id_on_file_yn = "No" AND applicant_id_through_SOLQ = "No" Then do_we_have_applicant_id = False
+
+			' If IsDate(date_of_application) = False Then err_msg = err_msg & vbCr & "* The date of application needs to be entered as a valid date."
+			' If IsDate(interview_date) = False Then err_msg = err_msg & vbCr & "* The interview date needs to be entered as a valid date. An Expedited Determination cannot be completed without the interview."
+			If IsDate(snap_denial_date) = True Then
+				If DateDiff("d", date, snap_denial_date) > 0 Then err_msg = err_msg & vbCr & "* Future Date denials or 'Possible' denials are not what the 'SNAP Denial Date' field is for." & vbCr &_
+																						  "* Only indicate a denial if you already have enough information to determine that the SNAP application should be denied." & vbCr &_
+																						  "* If this is the determination, review the date in the SNAP Denial Field as it appears to be a future date."
+				snap_denial_explain = trim(snap_denial_explain)
+				If len(snap_denial_explain) < 20 then err_msg = err_msg & vbCr & "* Since this SNAP case is to be denied, explain the reason for denial in detail."
+			Else
+				If is_elig_XFS = True Then
+					If IsDate(approval_date) = True Then
+						If DateDiff("d", date, approval_date) > 0 Then err_msg = err_msg & vbCr & "* Approvals should happen the same day an Expedited Determination is completed if the case is Expedited. Since the Income, Assets, and Expenses indicate this case is expedited AND we appear to be ready to approve, this should be completed today."
+						' If DateDiff("d", interview_date, date) < 0 Then
+					End If
+					If applicant_id_on_file_yn = "?" AND applicant_id_through_SOLQ = "?" Then
+						err_msg = err_msg & vbCr & "* Indicate if we have identity of the applicant on file or available through SOLQ"
+					ElseIf applicant_id_on_file_yn = "No" AND applicant_id_through_SOLQ = "?" Then
+						err_msg = err_msg & vbCr & "* Since there is no identity found in the file for the applicant, check SOLQ/SMI to verify identity."
+					ElseIf applicant_id_on_file_yn = "?" AND applicant_id_through_SOLQ = "No" Then
+						err_msg = err_msg & vbCr & "* Since the applicant's identity cannot be cleared through SOLQ/SMI, check the case file and person file for documents that can be used to verify identity. Remember that SNAP does NOT require a Photo ID or Official Government ID."
+					End If
+
+					'Defaulting Delay Explanation
+					If IsDate(approval_date) = True AND IsDate(interview_date) = True AND IsDate(date_of_application) = True Then
+						If DateDiff("d", date_of_application, approval_date) > 7 Then
+							If DateDiff("d", interview_date, approval_date) = 0 Then delay_due_to_interview = True
+						End If
+					End If
+					If delay_due_to_interview = True AND InStr(delay_explanation, "Approval of Expedited delayed until completion of Interview") = 0 Then
+						delay_explanation = delay_explanation & "; Approval of Expedited delayed until completion of Interview."
+					End If
+					If delay_due_to_interview = False then
+						delay_explanation = replace(delay_explanation, "Approval of Expedited delayed until completion of Interview.", "")
+						delay_explanation = replace(delay_explanation, "Approval of Expedited delayed until completion of Interview", "")
+					End If
+					If do_we_have_applicant_id = False AND InStr(delay_explanation, "Approval cannot be completed as we have NO Proof of Identity for the Applicant") = 0 Then
+						delay_explanation = delay_explanation & "; Approval cannot be completed as we have NO Proof of Identity for the Applicant."
+					End If
+					If do_we_have_applicant_id <> False Then
+						delay_explanation = replace(delay_explanation, "Approval cannot be completed as we have NO Proof of Identity for the Applicant.", "")
+						delay_explanation = replace(delay_explanation, "Approval cannot be completed as we have NO Proof of Identity for the Applicant", "")
+					End If
+
+
+					delay_explanation = trim(delay_explanation)
+					Do while Instr(delay_explanation, "; ;") <> 0
+						delay_explanation = replace(delay_explanation, "; ;", "; ")
+					Loop
+					Do while Instr(delay_explanation, ";;") <> 0
+						delay_explanation = replace(delay_explanation, ";;", "; ")
+					Loop
+					Do while Instr(delay_explanation, "  ") <> 0
+						delay_explanation = replace(delay_explanation, "  ", " ")
+					Loop
+					delay_explanation = trim(delay_explanation)
+					If left(delay_explanation, 1) = ";" Then delay_explanation = right(delay_explanation, len(delay_explanation) - 1)
+					If right(delay_explanation, 1) = ";" Then delay_explanation = left(delay_explanation, len(delay_explanation) - 1)
+					delay_explanation = trim(delay_explanation)
+
+					expedited_approval_delayed = False
+					If IsDate(approval_date) = False Then expedited_approval_delayed = True
+					If IsDate(approval_date) = True  AND IsDate(date_of_application) = True Then
+						If DateDiff("d", date_of_application, approval_date) > 7 Then expedited_approval_delayed = True
+					End If
+					If expedited_approval_delayed = True AND len(delay_explanation) < 20 Then err_msg = err_msg & vbCR & "* The approval of the Expedited SNAP is or has been delayed. Provide a detailed explaination of the reason for delay or complete the approval."
+
+				End If
+				If is_elig_XFS = False Then
+
+				End If
+			End If
+
+		End If
+		If page_display = show_pg_review Then
+			If postponed_verifs_yn = "Yes" AND trim(list_postponed_verifs) = "" Then err_msg = err_msg * vbCr & "* Since you have Postponed Verifications indicated, list what they are for the NOTE."
+		End If
+
+
+
 		If ButtonPressed = next_btn AND err_msg = "" Then page_display = page_display + 1
-		If ButtonPressed = amounts_btn AND err_msg = "" Then page_display = show_pg_amounts
+		If ButtonPressed = amounts_btn Then page_display = show_pg_amounts
 		If ButtonPressed = determination_btn AND err_msg = "" Then page_display = show_pg_determination
-		If ButtonPressed = review_btn AND err_msg = "" Then page_display = show_pg_review
+		If ButtonPressed = review_btn AND err_msg = "" AND page_display <> show_pg_amounts Then page_display = show_pg_review
+		If ButtonPressed = review_btn AND err_msg = "" AND page_display = show_pg_amounts Then page_display = show_pg_determination
+
+		If err_msg <> "" And ButtonPressed < 100 AND page_display <> show_pg_amounts Then MsgBox err_msg
 
 		If ButtonPressed <> finish_btn Then err_msg = "LOOP"
 
-		If ButtonPressed >= 100 Then
-			If ButtonPressed = income_calc_btn Then Call app_month_income_detail
-			If ButtonPressed = asset_calc_btn Then Call app_month_asset_detail
-			If ButtonPressed = housing_calc_btn Then Call app_month_housing_detail
-			If ButtonPressed = utility_calc_btn Then Call app_month_utility_detail
-			If ButtonPressed = snap_active_in_another_state_btn Then Call snap_in_another_state_detail
-			If ButtonPressed = case_previously_had_postponed_verifs_btn Then Call previous_postponed_verifs_detail
+		If ButtonPressed = income_calc_btn Then Call app_month_income_detail
+		If ButtonPressed = asset_calc_btn Then Call app_month_asset_detail
+		If ButtonPressed = housing_calc_btn Then Call app_month_housing_detail
+		If ButtonPressed = utility_calc_btn Then Call app_month_utility_detail(determined_utilities, heat_expense, ac_expense, electric_expense, phone_expense, none_expense, all_utilities)
+		If ButtonPressed = snap_active_in_another_state_btn Then
+			If IsDate(date_of_application) = False Then MsgBox "Attention:" & vbCr & vbCr & "The funcationality to determine actions if a household is reporting benefits in another state cannot be run if a valid application date has not been entered."
+			If IsDate(date_of_application) = True Then Call snap_in_another_state_detail(date_of_application, day_30_from_application, other_snap_state, other_state_reported_benefit_end_date, other_state_benefits_openended, other_state_contact_yn, other_state_verified_benefit_end_date, mn_elig_begin_date, snap_denial_date, snap_denial_explain, action_due_to_out_of_state_benefits)
+		End If
+		If ButtonPressed = case_previously_had_postponed_verifs_btn Then Call previous_postponed_verifs_detail
 
-			If ButtonPressed >= 1000 Then
-				If ButtonPressed = hsr_manual_expedited_snap_btn Then resource_URL = "https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Expedited_SNAP.aspx"
-				If ButtonPressed = hsr_snap_applications_btn Then resource_URL = "https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/SNAP_Applications.aspx"
-				If ButtonPressed = ryb_exp_identity_btn Then resource_URL = "https://hennepin.sharepoint.com/teams/hs-es-manual/Retrain_Your_Brain/SNAP%20Expedited%201%20-%20Identity.mp4"
-				If ButtonPressed = ryb_exp_timeliness_btn Then resource_URL = "https://hennepin.sharepoint.com/teams/hs-es-manual/Retrain_Your_Brain/SNAP%20Expedited%202%20-%20Timeliness.mp4"
-				If ButtonPressed = sir_exp_flowchart_btn Then resource_URL = "https://www.dhssir.cty.dhs.state.mn.us/MAXIS/Documents/SNAP%20Expedited%20Service%20Flowchart.pdf"
-				If ButtonPressed = cm_04_04_btn Then resource_URL = "https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_000404"
-				If ButtonPressed = cm_04_06_btn Then resource_URL = "https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_000406"
-				If ButtonPressed = ht_id_in_solq_btn Then resource_URL = "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/SitePages/How-to-use-SMI-SOLQ-to-verify-ID-for-SNAP.aspx"
+		If ButtonPressed = knowledge_now_support_btn Then Call send_support_email_to_KN
+		If ButtonPressed = te_02_10_01_btn Then Call view_poli_temp(section_one, section_two, section_three)
 
-				run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe " & resource_URL
-			End If
+		If ButtonPressed >= 1000 Then
+			If ButtonPressed = hsr_manual_expedited_snap_btn Then resource_URL = "https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Expedited_SNAP.aspx"
+			If ButtonPressed = hsr_snap_applications_btn Then resource_URL = "https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/SNAP_Applications.aspx"
+			If ButtonPressed = ryb_exp_identity_btn Then resource_URL = "https://hennepin.sharepoint.com/teams/hs-es-manual/Retrain_Your_Brain/SNAP%20Expedited%201%20-%20Identity.mp4"
+			If ButtonPressed = ryb_exp_timeliness_btn Then resource_URL = "https://hennepin.sharepoint.com/teams/hs-es-manual/Retrain_Your_Brain/SNAP%20Expedited%202%20-%20Timeliness.mp4"
+			If ButtonPressed = sir_exp_flowchart_btn Then resource_URL = "https://www.dhssir.cty.dhs.state.mn.us/MAXIS/Documents/SNAP%20Expedited%20Service%20Flowchart.pdf"
+			If ButtonPressed = cm_04_04_btn Then resource_URL = "https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_000404"
+			If ButtonPressed = cm_04_06_btn Then resource_URL = "https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_000406"
+			If ButtonPressed = ht_id_in_solq_btn Then resource_URL = "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/SitePages/How-to-use-SMI-SOLQ-to-verify-ID-for-SNAP.aspx"
+			If ButtonPressed = cm_04_12_btn Then resource_URL = "https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_000412"
+			If ButtonPressed = temp_prog_changes_ebt_card_btn Then resource_URL = "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/SitePages/Temporary-Program-Changes--EBT-cards,-checks,-bus-cards.aspx"
+
+			run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe " & resource_URL
 		End If
 
-		If err_msg <> "" AND err_msg <> "LOOP" Then MsgBox err_msg
+
+
 	Loop until err_msg = ""
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
+
+txt_file_name = "expedited_determination_detail_" & MAXIS_case_number & "_" & replace(replace(replace(now, "/", "_"),":", "_")," ", "_")
+MsgBox txt_file_name
+
 MsgBox "STOP HERE"
 
 ' 'Running the Dialog asking for all the detail and explanations
@@ -767,18 +1227,18 @@ MsgBox "STOP HERE"
 ' LOOP UNTIL are_we_passworded_out = false
 
 'Formating the information from the edit boxes
-If determined_income = "" Then determined_income = 0
-If determined_assets = "" Then determined_assets = 0
-If determined_shel = "" Then determined_shel = 0
-If determined_utilities = "" Then determined_utilities = 0
-determined_resources = abs(determined_income) + (determined_assets * 1)
-determined_expenses = abs(determined_shel) + abs(determined_utilities)
-determined_assets = FormatCurrency(determined_assets)
-determined_expenses = FormatCurrency(determined_expenses)
-determined_income = FormatCurrency(determined_income)
-determined_resources = FormatCurrency(determined_resources)
-determined_shel = FormatCurrency(determined_shel)
-determined_utilities = FormatCurrency(determined_utilities)
+' If determined_income = "" Then determined_income = 0
+' If determined_assets = "" Then determined_assets = 0
+' If determined_shel = "" Then determined_shel = 0
+' If determined_utilities = "" Then determined_utilities = 0
+' determined_resources = abs(determined_income) + (determined_assets * 1)
+' determined_expenses = abs(determined_shel) + abs(determined_utilities)
+' determined_assets = FormatCurrency(determined_assets)
+' determined_expenses = FormatCurrency(determined_expenses)
+' determined_income = FormatCurrency(determined_income)
+' determined_resources = FormatCurrency(determined_resources)
+' determined_shel = FormatCurrency(determined_shel)
+' determined_utilities = FormatCurrency(determined_utilities)
 
 ' 'Converting String entries to Boolean
 ' IF is_elig_XFS = "TRUE" Then is_elig_XFS = TRUE
