@@ -620,7 +620,6 @@ Do
             End if
             Call write_bullet_and_variable_in_CASE_NOTE ("AVS Report Submitted to ECF?", avs_members_array(ECF_const, item))
             Call write_bullet_and_variable_in_CASE_NOTE ("Asset Notes", avs_members_array(avs_returned_notes_const, item))
-            If avs_members_array(avs_results_const, item) = "Ineligible" then Call write_variable_in_CASE_NOTE("***AVS Form on file is now void unless eligibilty denial is reinstated.")
             Call write_variable_in_CASE_NOTE("-----")
         End if
     Next
@@ -689,41 +688,40 @@ script_end_procedure_with_error_report(closing_msg)
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
 '--Dialog1 = "" on all dialogs -------------------------------------------------07/15/2021
-'--Tab orders reviewed/confirmed------------------------------------------------07/15/2021
+'--Tab orders reviewed & confirmed----------------------------------------------07/15/2021
 '--Mandatory fields all present & Reviewed--------------------------------------07/15/2021
-'--All variables in dialog match mandatory fields (if applicable)---------------07/15/2021
+'--All variables in dialog match mandatory fields-------------------------------07/15/2021
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
 '--All variables are CASE:NOTEing (if required)---------------------------------07/15/2021
-'--Header doesn't look funky----------------------------------------------------07/15/2021
-'--Leaving CASE:NOTE in edit mode if applicable---------------------------------07/15/2021
+'--CASE:NOTE Header doesn't look funky------------------------------------------07/15/2021
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------07/15/2021
 '
 '-----General Supports-------------------------------------------------------------------------------------------------------------
-'--Check_for_MAXIS/Check_for_MMIS added-----------------------------------------07/15/2021
-'--MAXIS_background_check added (if applicable)---------------------------------07/15/2021
-'--PRIV Case handling-----------------------------------------------------------07/15/2021
-'--Out-of-County handling-------------------------------------------------------07/15/2021
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------07/15/2021
+'--MAXIS_background_check reviewed (if applicable)------------------------------07/15/2021
+'--PRIV Case handling reviewed -------------------------------------------------07/15/2021
+'--Out-of-County handling reviewed----------------------------------------------07/15/2021
 '--script_end_procedures (w/ or w/o error messaging)----------------------------07/15/2021
-'--BULK - Should I output statistics and run time on the Excel worksheet?-------07/15/2021 - N/A
+'--BULK - review output of statistics and run time/count (if applicable)--------07/15/2021 - N/A
 '
 '-----Statistics--------------------------------------------------------------------------------------------------------------------
-'--Manual time study completed  ------------------------------------------------07/15/2021
-'--Incrementors added (if necessary)--------------------------------------------07/15/2021
+'--Manual time study reviewed --------------------------------------------------07/15/2021
+'--Incrementors reviewed (if necessary)-----------------------------------------07/15/2021
 '--Denomination reviewed -------------------------------------------------------07/15/2021
 '--Script name reviewed---------------------------------------------------------07/15/2021
-'--BULK - remove 1 incrementor at end of script---------------------------------07/15/2021 - N/A
+'--BULK - remove 1 incrementor at end of script reviewed------------------------07/15/2021 - N/A
 
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
 '--Confirm all GitHub taks are complete-----------------------------------------07/15/2021
 '--comment Code-----------------------------------------------------------------07/15/2021
-'--Update Changelog for release-------------------------------------------------07/15/2021
-'--Remove extra message boxes---------------------------------------------------07/15/2021
+'--Update Changelog for release/update------------------------------------------07/15/2021
+'--Remove testing message boxes-------------------------------------------------07/15/2021
 '--Remove testing code/unnecessary code-----------------------------------------07/15/2021
-'--Update Changelog for release-------------------------------------------------07/15/2021
-'--Instructions added to SharePoint---------------------------------------------07/15/2021
-'--Should this be added to Best Practices using BlueZOne Scripts page?----------07/15/2021
-'--Add or update script information on SharePoint BZ Script List----------------07/15/2021
-'--Other SharePoint updates (HSR Manual, etc.)----------------------------------07/15/2021
-'--COMPLETE LIST OF SCRIPTS updated---------------------------------------------07/15/2021
-'--Finalize all project documentation-------------------------------------------07/15/2021
-'--Final communication to project team (if applicable)--------------------------07/15/2021
+'--Review/update SharePoint instructions----------------------------------------07/15/2021
+'--Review Best Practices using BZS page ----------------------------------------07/15/2021
+'--Review script information on SharePoint BZ Script List-----------------------07/15/2021
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------07/15/2021
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------07/15/2021
+'--Complete misc. documentation (if applicable)---------------------------------07/15/2021
+'--Update project team/issue contact (if applicable)----------------------------07/15/2021
