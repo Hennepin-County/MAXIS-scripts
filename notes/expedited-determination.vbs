@@ -60,6 +60,8 @@ Call check_for_MAXIS(false)
 call MAXIS_case_number_finder(MAXIS_case_number)
 MAXIS_footer_month = CM_mo
 MAXIS_footer_year = CM_yr
+
+Call find_user_name(worker_name)
 If MAXIS_case_number <> "" Then
 
 
@@ -110,7 +112,11 @@ If MX_region = "INQUIRY DB" Then
 End If
 If MX_region = "TRAINING" Then developer_mode = True
 
-Call navigate_to_MAXIS_screen("STAT", "PROG")
+' Call navigate_to_MAXIS_screen("STAT", "PROG")
+Call navigate_to_MAXIS_screen_review_PRIV("STAT", "PROG", is_this_priv)
+If is_this_priv = True Then Call script_end_procedure("This case is PRIVILEGED and cannot be accessed. Request access to the case first and retry the script once you have access to the case.")
+
+EMReadScreen case_pw, 7, 21, 17
 
 EMReadScreen date_of_application, 8, 10, 33
 EMReadScreen interview_date, 8, 10, 33
@@ -166,10 +172,10 @@ MAXIS_footer_year = right(DatePart("yyyy", date_of_application), 2)
 expedited_package = MAXIS_footer_month & "/" & MAXIS_footer_year
 If DatePart("d", date_of_application) > 15 Then
 	second_month_of_exp_package = DateAdd("m", 1, date_of_application)
-	NEXT_footer_month = DatePart("m", date_of_application)
+	NEXT_footer_month = DatePart("m", second_month_of_exp_package)
 	NEXT_footer_month = right("0"&NEXT_footer_month, 2)
 
-	NEXT_footer_year = right(DatePart("yyyy", date_of_application), 2)
+	NEXT_footer_year = right(DatePart("yyyy", second_month_of_exp_package), 2)
 	expedited_package = expedited_package & " and " & NEXT_footer_month & "/" & NEXT_footer_year
 End If
 original_expedited_package = expedited_package
@@ -365,6 +371,7 @@ housing_calc_btn							= 120
 utility_calc_btn							= 130
 snap_active_in_another_state_btn			= 140
 case_previously_had_postponed_verifs_btn	= 150
+household_in_a_facility_btn					= 160
 
 knowledge_now_support_btn		= 500
 te_02_10_01_btn					= 510
@@ -687,11 +694,12 @@ function snap_in_another_state_detail(date_of_application, day_30_from_applicati
 	original_snap_denial_date = snap_denial_date
 	original_snap_denial_reason = snap_denial_explain
 	calculation_done = False
+	other_state_benefits_openended = False
 	action_due_to_out_of_state_benefits = ""
 	' other_snap_state = "MN - Minnesota"
 	day_30_from_application = DateAdd("d", 30, date_of_application)
-	calc_other_state_benefit_btn = 5000
-	return_from_other_state_benefit_btn = 5001
+	calculate_btn = 5000
+	return_btn = 5001
 
 	Do
 		Do
@@ -706,7 +714,7 @@ function snap_in_another_state_detail(date_of_application, day_30_from_applicati
 			  DropListBox 255, 110, 60, 45, "?"+chr(9)+"Yes"+chr(9)+"No", other_state_contact_yn
 			  EditBox 255, 130, 60, 15, other_state_verified_benefit_end_date
 			  ButtonGroup ButtonPressed
-			    PushButton 325, 170, 50, 15, "Calculate", calc_other_state_benefit_btn
+			    PushButton 325, 170, 50, 15, "Calculate", calculate_btn
 			  Text 10, 10, 365, 10, "If a Household has received SNAP in another state, we may still be able to issue Expedited SNAP in Minnesota. "
 			  Text 10, 25, 320, 10, "Complete the following information to get guidance on handling cases with SNAP in another State:"
 			  GroupBox 10, 45, 365, 120, "Other State Benefits"
@@ -740,7 +748,7 @@ function snap_in_another_state_detail(date_of_application, day_30_from_applicati
 					  Text 20, 205, 205, 20, "You must connect with the other state to determine when the benefits have ended or IF the benefits will end."
 				  End If
 				  ButtonGroup ButtonPressed
-				    PushButton 325, 275, 50, 15, "Return", return_from_other_state_benefit_btn
+				    PushButton 325, 275, 50, 15, "Return", return_btn
 			  End If
 			EndDialog
 
@@ -811,18 +819,175 @@ function snap_in_another_state_detail(date_of_application, day_30_from_applicati
 			End If
 		ElseIf other_state_benefits_not_ended_checkbox = checked Then
 			action_due_to_out_of_state_benefits = "FOLLOW UP"
-
+			other_state_benefits_openended = True
 		End If
 		If action_due_to_out_of_state_benefits <> "DENY" Then
 			snap_denial_date = original_snap_denial_date
 			snap_denial_explain = original_snap_denial_reason
 		End If
 		If action_due_to_out_of_state_benefits <> "APPROVE" Then expedited_package = original_expedited_package
-	Loop until ButtonPressed = return_from_other_state_benefit_btn
+	Loop until ButtonPressed = return_btn
 	ButtonPressed = snap_active_in_another_state_btn
 end function
 
-function previous_postponed_verifs_detail()
+function previous_postponed_verifs_detail(case_has_previously_postponed_verifs_that_prevent_exp_snap, prev_post_verif_assessment_done, delay_explanation, previous_date_of_application, previous_expedited_package, prev_verifs_mandatory_yn, prev_verif_list, curr_verifs_postponed_yn, ongoing_snap_approved_yn, prev_post_verifs_recvd_yn)
+	review_btn = 5005
+	return_btn = 5001
+	prev_post_verif_assessment_done = True
+	case_has_previously_postponed_verifs_that_prevent_exp_snap = False
+
+	Do
+		prvt_err_msg = ""
+
+		Dialog1 = ""
+		BeginDialog Dialog1, 0, 0, 446, 160, "Case Previously Received EXP SNAP with Postponed Verifications"
+		  Text 10, 10, 435, 10, "A case that was approved Expedited SNAP with postponed verifications MAY not be able to have Expedited Approved right away."
+		  Text 10, 30, 125, 10, "This does not apply to cases where:"
+		  Text 15, 40, 165, 10, "- The Postponed Verification were not mandatory."
+		  Text 15, 50, 275, 10, "- The Postponed Verification were provided - even if Eligibility was not approved."
+		  Text 15, 60, 385, 10, "- The case met all criteria for Regular SNAP to be issued and was approved for 'Ongoing' SNAP for at least one month."
+		  Text 15, 85, 175, 15, "What is the DATE OF APPLICATION for the Expedited Approval that had Postponed Verifications?"
+		  EditBox 195, 85, 50, 15, previous_date_of_application
+		  Text 275, 110, 115, 10, "Are these verifications mandatory?"
+		  DropListBox 400, 105, 40, 45, "?"+chr(9)+"Yes"+chr(9)+"No", prev_verifs_mandatory_yn
+		  Text 15, 110, 175, 10, "List the verifications that were previously postponed:"
+		  EditBox 15, 120, 425, 15, prev_verif_list
+		  Text 15, 145, 220, 10, "Does the case have Postponed Verifications for THIS Application?"
+		  DropListBox 235, 140, 40, 45, "?"+chr(9)+"Yes"+chr(9)+"No", curr_verifs_postponed_yn
+		  ButtonGroup ButtonPressed
+		    PushButton 390, 140, 50, 15, "Review", review_btn
+		EndDialog
+
+		dialog Dialog1
+
+		If ButtonPressed = 0 Then
+			prev_post_verif_assessment_done = False
+			Exit Do
+		End If
+
+		prev_verif_list = trim(prev_verif_list)
+		If IsDate(previous_date_of_application) = False Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter the date of application from the last time this case received an Expedited SNAP approval WITH Postponed Verifications."
+		If prev_verifs_mandatory_yn = "?" Then prvt_err_msg = prvt_err_msg & vbCr & "* You must review the verifications that were previously postponed and enter them here."
+		If prev_verif_list = "" Then prvt_err_msg = prvt_err_msg & vbCr & "* Review the verifications that were previously postponed and indicate if any of them were mandatory."
+		If curr_verifs_postponed_yn = "?" Then prvt_err_msg = prvt_err_msg & vbCr & "* Indicate if the CURRENT application has verifications required that would need to be postponed to approve the Expedited SNAP."
+
+		If prvt_err_msg <> "" Then MsgBox prvt_err_msg
+	Loop until prvt_err_msg = ""
+
+	PREVIOUS_footer_month = DatePart("m", previous_date_of_application)
+	PREVIOUS_footer_month = right("0"&PREVIOUS_footer_month, 2)
+
+	PREVIOUS_footer_year = right(DatePart("yyyy", previous_date_of_application), 2)
+
+	If DatePart("d", previous_date_of_application) > 15 Then
+		second_month_of_previous_exp_package = DateAdd("m", 1, previous_date_of_application)
+		PREVIOUS_footer_month = DatePart("m", second_month_of_previous_exp_package)
+		PREVIOUS_footer_month = right("0"&PREVIOUS_footer_month, 2)
+
+		PREVIOUS_footer_year = right(DatePart("yyyy", second_month_of_previous_exp_package), 2)
+	End If
+	previous_expedited_package = PREVIOUS_footer_month & "/" & PREVIOUS_footer_year
+
+	ask_more_questions = False
+	If IsDate(previous_date_of_application) = True AND prev_verifs_mandatory_yn = "Yes" AND curr_verifs_postponed_yn = "Yes" Then ask_more_questions = True
+	If ask_more_questions = True Then
+		Do
+			prvt_err_msg = ""
+
+			Dialog1 = ""
+			BeginDialog Dialog1, 0, 0, 436, 110, "Case Previously Received EXP SNAP with Postponed Verifications"
+			  Text 10, 10, 435, 10, "A case that was approved Expedited SNAP with postponed verifications MAY not be able to have Expedited Approved right away."
+			  Text 10, 30, 125, 10, "This does not apply to cases where:"
+			  Text 15, 40, 165, 10, "- The Postponed Verification were not mandatory."
+			  Text 15, 50, 275, 10, "- The Postponed Verification were provided - even if Eligibility was not approved."
+			  Text 15, 60, 385, 10, "- The case met all criteria for Regular SNAP to be issued and was approved for 'Ongoing' SNAP for at least one month."
+			  Text 10, 80, 180, 10, "Did the case get approved for any SNAP after " & previous_expedited_package & "?"
+			  DropListBox 195, 75, 40, 45, "?"+chr(9)+"Yes"+chr(9)+"No", ongoing_snap_approved_yn
+			  Text 20, 95, 170, 10, "Check ECF, are the postponed verifications on file?"
+			  DropListBox 195, 90, 40, 45, "?"+chr(9)+"Yes"+chr(9)+"No", prev_post_verifs_recvd_yn
+			  ButtonGroup ButtonPressed
+			    PushButton 380, 90, 50, 15, "Review", review_btn
+
+			  Text 10, 270, 280, 20, "If a case cannot be approved due to previously not received Postponed Verifications, the case must meet ONE of the following criteria:"
+			  Text 15, 295, 210, 10, "- Provide all verifications that were postponed and mandatory."
+			  Text 15, 305, 280, 10, "- Meet all criterea to approve SNAP - including receipt of all mandatory verifications."
+			  Text 20, 315, 265, 20, "(This means if a case has no verifications to request, we CAN approve Expedited as the case meets all criteria to approve SNAP.)"
+			EndDialog
+
+			dialog Dialog1
+
+			If ButtonPressed = 0 Then
+				prev_post_verif_assessment_done = False
+				Exit Do
+			End If
+
+			If ongoing_snap_approved_yn = "?" Then prvt_err_msg = prvt_err_msg & vbCr & "* Review MAXIS and determine if SNAP was approved after the last month of the expedited package (" & previous_expedited_package & "). If it was, the case met all requirements to gain SNAP eligibility."
+			If prev_post_verifs_recvd_yn = "?" Then prvt_err_msg = prvt_err_msg & vbCr & "* Review the ECF case file and see if the mandatory postponed verifications were ever received, even if SNAP was not approved."
+
+			If prvt_err_msg <> "" Then MsgBox prvt_err_msg
+		Loop until prvt_err_msg = ""
+	End If
+
+	If ask_more_questions = False OR ongoing_snap_approved_yn = "Yes" OR prev_post_verifs_recvd_yn = "Yes" Then
+		Dialog1 = ""
+		y_pos = 85
+
+		BeginDialog Dialog1, 0, 0, 436, 120, "Case Previously Received EXP SNAP with Postponed Verifications"
+		  GroupBox 10, 10, 415, 55, "EXPEDITED CAN BE APPROVED"
+		  Text 25, 25, 100, 10, "Based on this case situation"
+		  Text 30, 35, 325, 10, "This case CAN be approved for Expedited without a delay due to Previous Postponed Verifications."
+		  Text 35, 45, 285, 10, "(There may be another reason for delay, complete the rest of the review to determine.)"
+		  Text 15, 75, 45, 10, "Explanation:"
+		  If prev_verifs_mandatory_yn = "No" Then
+			  Text 15, y_pos, 350, 10, "The previously postponed verifications were not mandatory, so case met all SNAP eligibility criteria."
+			  y_pos = y_pos + 10
+		  End If
+		  If curr_verifs_postponed_yn = "No" Then
+			  Text 15, y_pos, 350, 10, "There are no verifications that are required and being postponed now, so case meets all SNAP eligibility criteria."
+			  y_pos = y_pos + 10
+		  End If
+		  If ongoing_snap_approved_yn = "Yes" Then
+			  Text 15, y_pos, 350, 10, "Case was approved regular SNAP after the expedited package time, so case met all SNAP eligibility criteria."
+			  y_pos = y_pos + 10
+		  End If
+		  If prev_post_verifs_recvd_yn = "Yes" Then
+			  Text 50, y_pos, 350, 10, "The postponed verifications have been received, which meets the requirement to receive another posponed verification approval package."
+			  y_pos = y_pos + 10
+		  End If
+		  ButtonGroup ButtonPressed
+		    PushButton 380, 100, 50, 15, "Update", update_btn
+		EndDialog
+
+		dialog Dialog1
+
+	End If
+
+	If ask_more_questions = True AND ongoing_snap_approved_yn = "No" AND prev_post_verifs_recvd_yn = "No" Then
+		case_has_previously_postponed_verifs_that_prevent_exp_snap = True
+
+		BeginDialog Dialog1, 0, 0, 291, 145, "Case Previously Received EXP SNAP with Postponed Verifications"
+		  GroupBox 5, 5, 280, 60, "EXPEDITED APPROVAL MUST BE DELAYED"
+		  Text 20, 20, 100, 10, "Based on this case situation"
+		  Text 25, 30, 195, 10, "This case CANNOT be approved for Expedited at this time."
+		  Text 30, 40, 235, 20, "The case would require postponing verifications when we already have allowed for postponed verifications that have not been received."
+		  Text 10, 70, 275, 20, "If a case cannot be approved due to previously not received Postponed Verifications, the case must meet ONE of the following criteria:"
+		  Text 15, 95, 210, 10, "- Provide all verifications that were postponed and mandatory."
+		  Text 15, 105, 280, 10, "- Meet all criterea to approve SNAP - including receipt of all mandatory verifications."
+		  Text 20, 115, 265, 20, "(This means if a case has no verifications to request, we CAN approve Expedited as the case meets all criteria to approve SNAP.)"
+		  ButtonGroup ButtonPressed
+		    PushButton 235, 125, 50, 15, "Update", update_btn
+		EndDialog
+
+		dialog Dialog1
+	End If
+
+	If case_has_previously_postponed_verifs_that_prevent_exp_snap = False Then delay_explanation = replace(delay_explanation, "Approval cannot be completed as case has postponed verifications when postpone verifications were previously allowed and not provided, nor has the case meet 'ongoing SNAP' eligibility", "")
+	If case_has_previously_postponed_verifs_that_prevent_exp_snap = True Then delay_explanation = delay_explanation & "; Approval cannot be completed as case has postponed verifications when postpone verifications were previously allowed and not provided, nor has the case meet 'ongoing SNAP' eligibility."
+
+	ButtonPressed = case_previously_had_postponed_verifs_btn
+end function
+
+function household_in_a_facility_detail()
 	Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 451, 350, "Case Previously Received EXP SNAP with Postponed Verifications"
 	  ButtonGroup ButtonPressed
@@ -831,12 +996,78 @@ function previous_postponed_verifs_detail()
 
 	dialog Dialog1
 
+	ButtonPressed = household_in_a_facility_btn
 end function
 
 function send_support_email_to_KN()
+
+	email_subject = "Assistance with Case at SNAP Application - Possible EXP"
+	If developer_mode = True Then email_subject = "TESTING RUN - " & email_subject & " - can be deleted"
+
+	email_body = "I am completing a SNAP Expedited Determination." & vbCr & vbCr
+	email_body = email_body & "Case Number: " & MAXIS_case_number & vbCr & vbCr
+	email_body = email_body & "Amounts currently entered at the Determination:" & vbCr
+	email_body = email_body & "Income: $ " & determined_income & vbCr
+	email_body = email_body & "Assets: $ " & determined_assets & vbCr
+	email_body = email_body & "Housing: $ " & determined_shel & vbCr
+	email_body = email_body & "Utilities: $ " & determined_utilities & vbCr & vbCr
+	email_body = email_body & "Script Calculations:" & vbCr
+	If is_elig_XFS = True Then email_body = email_body & "Case appears EXPEDITED." & vbCr
+	If is_elig_XFS = False Then email_body = email_body & "Case does NOT appear Expedtied." & vbCr
+	email_body = email_body & "Unit has less than $150 monthly Gross Income AND $100 or less in assets: " & calculated_low_income_asset_test & vbCr
+	email_body = email_body & "Unit's combined resources are less than housing expense: " & calculated_resources_less_than_expenses_test & vbCr & vbCr
+	email_body = email_body & "Case Dates/Timelines:" & vbCr
+	email_body = email_body & "Date of Application: " & date_of_application & vbCr
+	email_body = email_body & "Date of Interview: " & interview_date & vbCr
+	email_body = email_body & "Date of Approval: " & approval_date & " (or planned date of approval)" & vbCr
+	email_body = email_body & "Processing Delay Explanation: " & delay_explanation & vbCr
+	email_body = email_body & "SNAP Denial Date: " & snap_denial_date & vbCr
+	email_body = email_body & "Denial Explanation: " & snap_denial_explain & vbCr & vbCr
+	email_body = email_body & "Other Information:" & vbCr
+	If applicant_id_on_file_yn <> "" AND applicant_id_on_file_yn <> "?" Then email_body = email_body & "Is there an ID on file for the applicant? " & applicant_id_on_file_yn & vbCr
+	If applicant_id_through_SOLQ <> "" AND applicant_id_through_SOLQ <> "?" Then email_body = email_body & "Can the Identity of the applicant be cleard through SOLQ/SMI? " & applicant_id_through_SOLQ & vbCr
+	If postponed_verifs_yn <> "" AND postponed_verifs_yn <> "?" Then email_body = email_body & "Are there Postponed Verifications for this case? " & postponed_verifs_yn & vbCr
+	If trim(list_postponed_verifs) <> "" Then email_body = email_body & "Postponed Verifications: " & list_postponed_verifs & vbCr
+	If action_due_to_out_of_state_benefits <> "" Then
+		email_body = email_body & "Other SNAP State: " & other_snap_state & vbCr
+		email_body = email_body & "Reported End Date: " & other_state_reported_benefit_end_date & vbCr
+		If other_state_benefits_openended = True Then email_body = email_body & "End date of SNAP in other state not determined." & vbCr
+		email_body = email_body & "Has other State End Date been Confirmed/Verified: " & other_state_contact_yn & vbCr
+		email_body = email_body & "Verified End Date: " & other_state_verified_benefit_end_date & vbCr
+		email_body = email_body & "Action recommended by script based on information provided: " & action_due_to_out_of_state_benefits & vbCr
+	End If
+	If case_has_previously_postponed_verifs_that_prevent_exp_snap = True Then email_body = email_body & "It appears this case has postponed verifications from a previous EXP SNAP package that prevent approval of a new Expedited Package." & vbCr & vbCr
+
+	email_body = email_body & "---" & vbCr
+	If worker_name <> "" Then email_body = email_body & "Signed, " & vbCr & worker_name
+
+	email_body = "~~This email is generated from wihtin the 'Expedited Determination' Script.~~" & vbCr & vbCr & email_body
+	call create_outlook_email("HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us", "", email_subject, email_body, "", True)
+	' call create_outlook_email("HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us", "", email_subject, email_body, "", False)
+	' create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
 end function
 
-function view_poli_temp(section_one, section_two, section_three)
+function view_poli_temp(temp_one, temp_two, temp_three, temp_four)
+	call navigate_to_MAXIS_screen("POLI", "____")   'Navigates to POLI (can't direct navigate to TEMP)
+	EMWriteScreen "TEMP", 5, 40     'Writes TEMP
+
+	'Writes the panel_title selection
+	Call write_value_and_transmit("TABLE", 21, 71)
+
+	If temp_one <> "" Then temp_one = right("00" & temp_one, 2)
+	If len(temp_two) = 1 Then temp_two = right("00" & temp_two, 2)
+	If len(temp_three) = 1 Then temp_three = right("00" & temp_three, 2)
+	If len(temp_four) = 1 Then temp_four = right("00" & temp_four, 2)
+
+	total_code = "TE" & temp_one & "." & temp_two
+	If temp_three <> "" Then total_code = total_code & "." & temp_three
+	If temp_four <> "" Then total_code = total_code & "." & temp_four
+
+	EMWriteScreen total_code, 3, 21
+	transmit
+
+	EMWriteScreen "X", 6, 4
+	transmit
 end function
 
 show_pg_amounts = 1
@@ -916,35 +1147,37 @@ Do
 				Text 435, 20, 35, 10, "$ " & calculated_resources
 				Text 330, 40, 100, 10, "Combined Housing Expense:"
 				Text 435, 40, 35, 10, "$ " & calculated_expenses
-				Text 185, 65, 250, 10, "Unit has less than $150 monthly Gross Income AND $100 or less in assets:"
-				Text 430, 65, 35, 10, calculated_low_income_asset_test
-				Text 235, 80, 195, 10, "Unit's combined resources are less than housing expense:"
-				Text 430, 80, 35, 10, calculated_resources_less_than_expenses_test
-				If is_elig_XFS = True Then Text 15, 100, 315, 10, "This case APPEARS EXPEDITED based on this above critera."
-				If is_elig_XFS = False Then Text 15, 100, 315, 10, "This case does NOT appear to be expedited based on this above critera."
-				Text 25, 120, 60, 10, "Date of Approval:"
-				EditBox 85, 115, 60, 15, approval_date
-				Text 150, 120, 75, 10, "(or planned approval)"
-				Text 330, 100, 65, 10, "Date of Application:"
-				Text 400, 100, 60, 10, date_of_application
-				Text 335, 120, 60, 10, "Date of Interview:"
-				Text 400, 120, 60, 10, interview_date
-				GroupBox 5, 140, 470, 130, "Possible Approval Delays"
-				Text 15, 155, 330, 10, "If it is already determined that SNAP should be denied, enter a denial date and explanation of denial."
-				Text 20, 170, 65, 10, "SNAP Denial Date:"
-				EditBox 85, 165, 50, 15, snap_denial_date
-				Text 145, 170, 45, 10, "Explanation:"
-				EditBox 190, 165, 280, 15, snap_denial_explain
-				Text 35, 190, 130, 10, "Is there an ID on file for the applicant?"
-				DropListBox 165, 185, 40, 45, "?"+chr(9)+"Yes"+chr(9)+"No", applicant_id_on_file_yn
-				Text 225, 190, 200, 10, "Can the Identity of the applicant be cleard through SOLQ/SMI?"
-				DropListBox 430, 185, 40, 45, "?"+chr(9)+"Yes"+chr(9)+"No", applicant_id_through_SOLQ
-				PushButton 300, 202, 170, 13, "HOT TOPIC - Using SOLQ/SMI for ID", ht_id_in_solq_btn
-				Text 15, 225, 80, 10, "Specifc case situations:"
-			    PushButton 95, 220, 160, 15, "SNAP is Active in Another State in " & MAXIS_footer_month & "/" & MAXIS_footer_year, snap_active_in_another_state_btn
-			    PushButton 255, 220, 215, 15, "Expedited Approved Previously with Postponed Verifications", case_previously_had_postponed_verifs_btn
-				Text 15, 250, 90, 10, "Explain Approval Delays:"
-				EditBox 95, 245, 375, 15, delay_explanation
+				Text 295, 75, 125, 20, "Unit has less than $150 monthly Gross Income AND $100 or less in assets:"
+				Text 430, 85, 35, 10, calculated_low_income_asset_test
+				Text 295, 100, 125, 20, "Unit's combined resources are less than housing expense:"
+				Text 430, 105, 35, 10, calculated_resources_less_than_expenses_test
+				If is_elig_XFS = True Then Text 15, 75, 200, 10, "This case APPEARS EXPEDITED based on this above critera."
+				If is_elig_XFS = False Then Text 15, 75, 250, 10, "This case does NOT appear to be expedited based on this above critera."
+				Text 30, 95, 60, 10, "Date of Approval:"
+				EditBox 90, 90, 60, 15, approval_date
+				Text 155, 95, 75, 10, "(or planned approval)"
+				Text 23, 110, 65, 10, "Date of Application:"
+				Text 90, 110, 60, 10, date_of_application
+				Text 30, 120, 60, 10, "Date of Interview:"
+				Text 90, 120, 60, 10, interview_date
+
+				GroupBox 5, 135, 470, 155, "Possible Approval Delays"
+			    Text 95, 150, 205, 10, "Is there a document for proof of identity of the applicant on file?"
+			    DropListBox 300, 145, 40, 45, "?"+chr(9)+"Yes"+chr(9)+"No", applicant_id_on_file_yn
+			    Text 95, 165, 200, 10, "Can the Identity of the applicant be cleard through SOLQ/SMI?"
+			    DropListBox 300, 160, 40, 45, "?"+chr(9)+"Yes"+chr(9)+"No", applicant_id_through_SOLQ
+			    PushButton 350, 160, 120, 13, "HOT TOPIC - Using SOLQ for ID", ht_id_in_solq_btn
+			    Text 10, 185, 85, 10, "Explain Approval Delays:"
+			    EditBox 95, 180, 375, 15, delay_explanation
+			    Text 175, 200, 80, 10, "Specifc case situations:"
+			    PushButton 255, 200, 215, 15, "SNAP is Active in Another State in " & MAXIS_footer_month & "/" & MAXIS_footer_year, snap_active_in_another_state_btn
+			    PushButton 255, 215, 215, 15, "Expedited Approved Previously with Postponed Verifications", case_previously_had_postponed_verifs_btn
+			    PushButton 255, 230, 215, 15, "Household is Currently in a Facility", household_in_a_facility_btn
+				Text 15, 255, 330, 10, "If it is already determined that SNAP should be denied, enter a denial date and explanation of denial."
+				Text 355, 255, 65, 10, "SNAP Denial Date:"
+				EditBox 420, 250, 50, 15, snap_denial_date
+				Text 30, 275, 65, 10, "Denial Explanation:"
+				EditBox 95, 270, 375, 15, snap_denial_explain
 			End If
 			If page_display = show_pg_review then
 				Text 507, 42, 65, 10, "Review"
@@ -1008,8 +1241,7 @@ Do
 			    PushButton 270, 257, 195, 13, "Temporary Program Changes - EBT Cards ", temp_prog_changes_ebt_card_btn
 
 			End If
-			GroupBox 5, 275, 470, 80, "Supports"
-			Text 15, 290, 260, 10, "If you need support in handling for expedited, please access these resources:"
+			GroupBox 5, 295, 470, 60, "If you need support in handling for expedited, please access these resources:"
 			PushButton 15, 305, 150, 13, "HSR Manual - Expedited SNAP", hsr_manual_expedited_snap_btn
 			PushButton 15, 320, 150, 13, "HSR Manual - SNAP Applications", hsr_snap_applications_btn
 			PushButton 15, 335, 150, 13, "SIR - SNAP Expedited Flowchart", sir_exp_flowchart_btn
@@ -1034,6 +1266,20 @@ Do
 			If page_display <> show_pg_review then ButtonPressed = next_btn
 			If page_display = show_pg_review then ButtonPressed = finish_btn
 		End If
+
+		If ButtonPressed = income_calc_btn Then Call app_month_income_detail(determined_income)
+		If ButtonPressed = asset_calc_btn Then Call app_month_asset_detail(determined_assets, cash_amount_yn, bank_account_yn, ACCOUNTS_ARRAY)
+		If ButtonPressed = housing_calc_btn Then Call app_month_housing_detail(determined_shel)
+		If ButtonPressed = utility_calc_btn Then Call app_month_utility_detail(determined_utilities, heat_expense, ac_expense, electric_expense, phone_expense, none_expense, all_utilities)
+		If ButtonPressed = snap_active_in_another_state_btn Then
+			If IsDate(date_of_application) = False Then MsgBox "Attention:" & vbCr & vbCr & "The funcationality to determine actions if a household is reporting benefits in another state cannot be run if a valid application date has not been entered."
+			If IsDate(date_of_application) = True Then Call snap_in_another_state_detail(date_of_application, day_30_from_application, other_snap_state, other_state_reported_benefit_end_date, other_state_benefits_openended, other_state_contact_yn, other_state_verified_benefit_end_date, mn_elig_begin_date, snap_denial_date, snap_denial_explain, action_due_to_out_of_state_benefits)
+		End If
+		If ButtonPressed = case_previously_had_postponed_verifs_btn Then Call previous_postponed_verifs_detail(case_has_previously_postponed_verifs_that_prevent_exp_snap, prev_post_verif_assessment_done, delay_explanation, previous_date_of_application, previous_expedited_package, prev_verifs_mandatory_yn, prev_verif_list, curr_verifs_postponed_yn, ongoing_snap_approved_yn, prev_post_verifs_recvd_yn)
+		If ButtonPressed = household_in_a_facility_btn Then Call household_in_a_facility_detail
+
+		If ButtonPressed = knowledge_now_support_btn Then Call send_support_email_to_KN
+		If ButtonPressed = te_02_10_01_btn Then Call view_poli_temp("02", "10", "01", "")
 
 		If page_display = show_pg_amounts Then
 
@@ -1133,19 +1379,6 @@ Do
 
 		If ButtonPressed <> finish_btn Then err_msg = "LOOP"
 
-		If ButtonPressed = income_calc_btn Then Call app_month_income_detail(determined_income)
-		If ButtonPressed = asset_calc_btn Then Call app_month_asset_detail(determined_assets, cash_amount_yn, bank_account_yn, ACCOUNTS_ARRAY)
-		If ButtonPressed = housing_calc_btn Then Call app_month_housing_detail(determined_shel)
-		If ButtonPressed = utility_calc_btn Then Call app_month_utility_detail(determined_utilities, heat_expense, ac_expense, electric_expense, phone_expense, none_expense, all_utilities)
-		If ButtonPressed = snap_active_in_another_state_btn Then
-			If IsDate(date_of_application) = False Then MsgBox "Attention:" & vbCr & vbCr & "The funcationality to determine actions if a household is reporting benefits in another state cannot be run if a valid application date has not been entered."
-			If IsDate(date_of_application) = True Then Call snap_in_another_state_detail(date_of_application, day_30_from_application, other_snap_state, other_state_reported_benefit_end_date, other_state_benefits_openended, other_state_contact_yn, other_state_verified_benefit_end_date, mn_elig_begin_date, snap_denial_date, snap_denial_explain, action_due_to_out_of_state_benefits)
-		End If
-		If ButtonPressed = case_previously_had_postponed_verifs_btn Then Call previous_postponed_verifs_detail
-
-		If ButtonPressed = knowledge_now_support_btn Then Call send_support_email_to_KN
-		If ButtonPressed = te_02_10_01_btn Then Call view_poli_temp(section_one, section_two, section_three)
-
 		If ButtonPressed >= 1000 Then
 			If ButtonPressed = hsr_manual_expedited_snap_btn Then resource_URL = "https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Expedited_SNAP.aspx"
 			If ButtonPressed = hsr_snap_applications_btn Then resource_URL = "https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/SNAP_Applications.aspx"
@@ -1167,77 +1400,117 @@ Do
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
 
-txt_file_name = "expedited_determination_detail_" & MAXIS_case_number & "_" & replace(replace(replace(now, "/", "_"),":", "_")," ", "_")
-MsgBox txt_file_name
+
+'
+' ' 'Running the Dialog asking for all the detail and explanations
+' ' DO
+' ' 	Do
+' ' 		Dialog Dialog1
+' ' 		cancel_confirmation
+' ' 		err_msg = ""
+' ' 		IF is_elig_XFS = "FALSE" AND out_of_state_explanation = "" AND previous_xfs_explanation = "" AND other_explanation = "" AND abawd_explanation = "" THEN err_msg = err_msg & vbCr & "You have determined this case to NOT be Expedited but have provided no detail explanation" & vbCr & "Please complete at least one of the explanation boxes."
+' ' 		IF id_check = checked AND other_explanation = "" THEN err_msg = err_msg & vbCr & "Please provided detail about no ID, remember that this is ONLY for the applicant and does NOT need to be a photo ID"
+' ' 		IF err_msg <> "" Then MsgBox err_msg
+' ' 	Loop until err_msg = ""
+' ' 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+' ' LOOP UNTIL are_we_passworded_out = false
+'
+' 'Formating the information from the edit boxes
+' ' If determined_income = "" Then determined_income = 0
+' ' If determined_assets = "" Then determined_assets = 0
+' ' If determined_shel = "" Then determined_shel = 0
+' ' If determined_utilities = "" Then determined_utilities = 0
+' ' determined_resources = abs(determined_income) + (determined_assets * 1)
+' ' determined_expenses = abs(determined_shel) + abs(determined_utilities)
+' ' determined_assets = FormatCurrency(determined_assets)
+' ' determined_expenses = FormatCurrency(determined_expenses)
+' ' determined_income = FormatCurrency(determined_income)
+' ' determined_resources = FormatCurrency(determined_resources)
+' ' determined_shel = FormatCurrency(determined_shel)
+' ' determined_utilities = FormatCurrency(determined_utilities)
+'
+' ' 'Converting String entries to Boolean
+' ' IF is_elig_XFS = "TRUE" Then is_elig_XFS = TRUE
+' ' IF is_elig_XFS = "FALSE" Then is_elig_XFS = FALSE
+'
+' '-------------------------------------------------------------------------------------------------DIALOG
+' Dialog1 = "" 'Blanking out previous dialog detail
+' BeginDialog Dialog1, 0, 0, 196, 120, "Expedited Timeliness"
+'   EditBox 80, 5, 110, 15, date_of_application
+'   EditBox 80, 25, 110, 15, interview_date
+'   EditBox 80, 45, 110, 15, approval_date
+'   EditBox 10, 80, 180, 15, delay_explanation
+'   ButtonGroup ButtonPressed
+'     OkButton 85, 100, 50, 15
+'     CancelButton 140, 100, 50, 15
+'   Text 10, 50, 60, 10, "Date of Approval"
+'   Text 10, 10, 65, 10, "Date of Application"
+'   Text 10, 65, 85, 10, "Explain any delays here"
+'   Text 10, 30, 50, 10, "Interview Date"
+' EndDialog
+' 'Dialog about timeliness will run if case is determined to be expedited
+' IF is_elig_XFS = TRUE Then
+' 	Do
+' 		Do
+' 			Do
+' 				Dialog Dialog1
+' 				cancel_confirmation
+' 				err_msg = ""
+' 				IF date_of_application = "" OR IsDate(date_of_application) = FALSE Then err_msg = err_msg & vbCr & "Please enter a valid date of application."
+' 				IF interview_date = "" OR IsDate(interview_date) = FALSE Then err_msg = err_msg & vbCr & "Pleaes enter a valid Interview Date."
+' 				IF approval_date = "" OR IsDate(approval_date) = FALSE Then err_msg = err_msg & vbCr & "Please enter a valid Date of Approval."
+' 				IF err_msg <> "" Then MsgBox err_msg
+' 			Loop until err_msg = ""
+' 			days_delayed = DateDiff ("d", date_of_application, approval_date)
+' 			IF days_delayed > 7 AND delay_explanation = "" Then err_msg = err_msg & vbCr & "Your approval is more than 7 days from the date of application." & vbCr & "Please provide an explanation for the delay."
+' 			If err_msg <> "" Then MsgBox err_msg
+' 		Loop until err_msg = ""
+' 		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+' 	Loop until are_we_passworded_out = false					'loops until user passwords back in
+' End If
+
+
+
+txt_file_name = "expedited_determination_detail_" & MAXIS_case_number & "_" & replace(replace(replace(now, "/", "_"),":", "_")," ", "_") & ".txt"
+exp_info_file_path = t_drive &"\Eligibility Support\Assignments\Expedited Information"  & txt_file_name
+MsgBox exp_info_file_path
+
+With objFSO
+	'Creating an object for the stream of text which we'll use frequently
+	Dim objTextStream
+
+	Set objTextStream = .OpenTextFile(exp_info_file_path, ForWriting, true)
+
+	objTextStream.WriteLine ""
+
+	objTextStream.WriteLine "CASE NUMBER ^*^*^" & MAXIS_case_number
+	objTextStream.WriteLine "WORKER NAME ^*^*^" & worker_name
+	objTextStream.WriteLine "CASE X NUMBER  ^*^*^" & case_pw
+	objTextStream.WriteLine "DATE OF APPLICATION ^*^*^" & date_of_application
+	objTextStream.WriteLine "DATE OF INTERVIEW ^*^*^" & interview_date
+	objTextStream.WriteLine "EXPEDITED SCREENING STATUS ^*^*^" & xfs_screening
+	objTextStream.WriteLine "EXPEDITED DETERMINATION STATUS ^*^*^" & is_elig_XFS
+	objTextStream.WriteLine "DATE OF APPROVAL ^*^*^" & approval_date
+	objTextStream.WriteLine "SNAP DENIAL DATE ^*^*^" & snap_denial_date
+	objTextStream.WriteLine "SNAP DENIAL REASON ^*^*^" & snap_denial_explain
+	objTextStream.WriteLine "ID ON FILE ^*^*^" & do_we_have_applicant_id
+	objTextStream.WriteLine "END DATE OF SNAP IN ANOTHER STATE ^*^*^" & other_state_reported_benefit_end_date
+	objTextStream.WriteLine "EXPEDITED APPROVE PREVIOUSLY POSTPONED ^*^*^" & case_has_previously_postponed_verifs_that_prevent_exp_snap				'(Boolean)
+	objTextStream.WriteLine "EXPLAIN APPROVAL DELAYS  ^*^*^" & delay_explanation								'(all of them)
+	objTextStream.WriteLine "POSTPONED VERIFICATIONS ^*^*^" & postponed_verifs_yn
+	objTextStream.WriteLine "WHAT ARE THE POSTPONED VERIFICATIONS ^*^*^" & list_postponed_verifs
+	objTextStream.WriteLine "DATE OF SCRIPT RUN ^*^*^" & date
+
+	'Close the object so it can be opened again shortly
+	objTextStream.Close
+
+End With
+
+
+
 
 MsgBox "STOP HERE"
 
-' 'Running the Dialog asking for all the detail and explanations
-' DO
-' 	Do
-' 		Dialog Dialog1
-' 		cancel_confirmation
-' 		err_msg = ""
-' 		IF is_elig_XFS = "FALSE" AND out_of_state_explanation = "" AND previous_xfs_explanation = "" AND other_explanation = "" AND abawd_explanation = "" THEN err_msg = err_msg & vbCr & "You have determined this case to NOT be Expedited but have provided no detail explanation" & vbCr & "Please complete at least one of the explanation boxes."
-' 		IF id_check = checked AND other_explanation = "" THEN err_msg = err_msg & vbCr & "Please provided detail about no ID, remember that this is ONLY for the applicant and does NOT need to be a photo ID"
-' 		IF err_msg <> "" Then MsgBox err_msg
-' 	Loop until err_msg = ""
-' 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
-' LOOP UNTIL are_we_passworded_out = false
-
-'Formating the information from the edit boxes
-' If determined_income = "" Then determined_income = 0
-' If determined_assets = "" Then determined_assets = 0
-' If determined_shel = "" Then determined_shel = 0
-' If determined_utilities = "" Then determined_utilities = 0
-' determined_resources = abs(determined_income) + (determined_assets * 1)
-' determined_expenses = abs(determined_shel) + abs(determined_utilities)
-' determined_assets = FormatCurrency(determined_assets)
-' determined_expenses = FormatCurrency(determined_expenses)
-' determined_income = FormatCurrency(determined_income)
-' determined_resources = FormatCurrency(determined_resources)
-' determined_shel = FormatCurrency(determined_shel)
-' determined_utilities = FormatCurrency(determined_utilities)
-
-' 'Converting String entries to Boolean
-' IF is_elig_XFS = "TRUE" Then is_elig_XFS = TRUE
-' IF is_elig_XFS = "FALSE" Then is_elig_XFS = FALSE
-
-'-------------------------------------------------------------------------------------------------DIALOG
-Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 196, 120, "Expedited Timeliness"
-  EditBox 80, 5, 110, 15, date_of_application
-  EditBox 80, 25, 110, 15, interview_date
-  EditBox 80, 45, 110, 15, approval_date
-  EditBox 10, 80, 180, 15, delay_explanation
-  ButtonGroup ButtonPressed
-    OkButton 85, 100, 50, 15
-    CancelButton 140, 100, 50, 15
-  Text 10, 50, 60, 10, "Date of Approval"
-  Text 10, 10, 65, 10, "Date of Application"
-  Text 10, 65, 85, 10, "Explain any delays here"
-  Text 10, 30, 50, 10, "Interview Date"
-EndDialog
-'Dialog about timeliness will run if case is determined to be expedited
-IF is_elig_XFS = TRUE Then
-	Do
-		Do
-			Do
-				Dialog Dialog1
-				cancel_confirmation
-				err_msg = ""
-				IF date_of_application = "" OR IsDate(date_of_application) = FALSE Then err_msg = err_msg & vbCr & "Please enter a valid date of application."
-				IF interview_date = "" OR IsDate(interview_date) = FALSE Then err_msg = err_msg & vbCr & "Pleaes enter a valid Interview Date."
-				IF approval_date = "" OR IsDate(approval_date) = FALSE Then err_msg = err_msg & vbCr & "Please enter a valid Date of Approval."
-				IF err_msg <> "" Then MsgBox err_msg
-			Loop until err_msg = ""
-			days_delayed = DateDiff ("d", date_of_application, approval_date)
-			IF days_delayed > 7 AND delay_explanation = "" Then err_msg = err_msg & vbCr & "Your approval is more than 7 days from the date of application." & vbCr & "Please provide an explanation for the delay."
-			If err_msg <> "" Then MsgBox err_msg
-		Loop until err_msg = ""
-		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-	Loop until are_we_passworded_out = false					'loops until user passwords back in
-End If
 
 'creating a custom header: this is read by BULK - EXP SNAP REVIEW script so don't mess this please :)
 IF is_elig_XFS = true then
