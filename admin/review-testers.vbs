@@ -211,7 +211,15 @@ Do
                 If tester_counter < 41 Then show_this_tester = FALSE
                 If tester_counter > 60 Then show_this_tester = FALSE
               End If
-              If page = 4 Then if tester_counter < 61 Then show_this_tester = FALSE
+			  If page = 4 Then
+                If tester_counter < 61 Then show_this_tester = FALSE
+                If tester_counter > 80 Then show_this_tester = FALSE
+              End If
+			  If page = 5 Then
+				  If tester_counter < 81 Then show_this_tester = FALSE
+				  If tester_counter > 100 Then show_this_tester = FALSE
+				End If
+              If page = 6 Then if tester_counter < 101 Then show_this_tester = FALSE
               If show_this_tester = TRUE Then
                   Text 5, y_pos, 95, 10, tester.tester_full_name
                   Text 120, y_pos, 85, 10, tester.tester_supervisor_name
@@ -251,7 +259,7 @@ Do
                 PushButton 20, y_pos, 10, 10, "2", page_two_btn
                 Text 32, y_pos + 2, 10, 10, "3"
             End If
-        ElseIf total_testers > 60 Then
+        ElseIf total_testers > 60 AND total_testers < 81 Then
             If page = 1 Then
                 Text 12, y_pos + 2, 10, 10, "1"
                 PushButton 20, y_pos, 10, 10, "2", page_two_btn
@@ -273,6 +281,84 @@ Do
                 PushButton 30, y_pos, 10, 10, "3", page_three_btn
                 Text 42, y_pos + 2, 10, 10, "4"
             End If
+		ElseIf total_testers > 80 AND total_testers < 101 Then
+            If page = 1 Then
+                Text 12, y_pos + 2, 10, 10, "1"
+                PushButton 20, y_pos, 10, 10, "2", page_two_btn
+                PushButton 30, y_pos, 10, 10, "3", page_three_btn
+				PushButton 40, y_pos, 10, 10, "4", page_four_btn
+                PushButton 50, y_pos, 10, 10, "5", page_five_btn
+            ElseIf page = 2 Then
+                PushButton 10, y_pos, 10, 10, "1", page_one_btn
+                Text 22, y_pos + 2, 10, 10, "2"
+				PushButton 30, y_pos, 10, 10, "3", page_three_btn
+				PushButton 40, y_pos, 10, 10, "4", page_four_btn
+                PushButton 50, y_pos, 10, 10, "5", page_five_btn
+            ElseIf page = 3 Then
+                PushButton 10, y_pos, 10, 10, "1", page_one_btn
+                PushButton 20, y_pos, 10, 10, "2", page_two_btn
+                Text 32, y_pos + 2, 10, 10, "3"
+				PushButton 40, y_pos, 10, 10, "4", page_four_btn
+                PushButton 50, y_pos, 10, 10, "5", page_five_btn
+			ElseIf page = 4 Then
+                PushButton 10, y_pos, 10, 10, "1", page_one_btn
+                PushButton 20, y_pos, 10, 10, "2", page_two_btn
+				PushButton 30, y_pos, 10, 10, "3", page_three_btn
+                Text 42, y_pos + 2, 10, 10, "4"
+                PushButton 50, y_pos, 10, 10, "5", page_five_btn
+
+            Else
+                PushButton 10, y_pos, 10, 10, "1", page_one_btn
+                PushButton 20, y_pos, 10, 10, "2", page_two_btn
+                PushButton 30, y_pos, 10, 10, "3", page_three_btn
+				PushButton 40, y_pos, 10, 10, "4", page_four_btn
+                Text 52, y_pos + 2, 10, 10, "5"
+            End If
+		ElseIf total_testers > 100 Then
+			If page = 1 Then
+				Text 12, y_pos + 2, 10, 10, "1"
+				PushButton 20, y_pos, 10, 10, "2", page_two_btn
+				PushButton 30, y_pos, 10, 10, "3", page_three_btn
+				PushButton 40, y_pos, 10, 10, "4", page_four_btn
+				PushButton 50, y_pos, 10, 10, "5", page_five_btn
+				PushButton 60, y_pos, 10, 10, "6", page_six_btn
+			ElseIf page = 2 Then
+				PushButton 10, y_pos, 10, 10, "1", page_one_btn
+				Text 22, y_pos + 2, 10, 10, "2"
+				PushButton 30, y_pos, 10, 10, "3", page_three_btn
+				PushButton 40, y_pos, 10, 10, "4", page_four_btn
+				PushButton 50, y_pos, 10, 10, "5", page_five_btn
+				PushButton 60, y_pos, 10, 10, "6", page_six_btn
+			ElseIf page = 3 Then
+				PushButton 10, y_pos, 10, 10, "1", page_one_btn
+				PushButton 20, y_pos, 10, 10, "2", page_two_btn
+				Text 32, y_pos + 2, 10, 10, "3"
+				PushButton 40, y_pos, 10, 10, "4", page_four_btn
+				PushButton 50, y_pos, 10, 10, "5", page_five_btn
+				PushButton 60, y_pos, 10, 10, "6", page_six_btn
+			ElseIf page = 4 Then
+				PushButton 10, y_pos, 10, 10, "1", page_one_btn
+				PushButton 20, y_pos, 10, 10, "2", page_two_btn
+				PushButton 30, y_pos, 10, 10, "3", page_three_btn
+				Text 42, y_pos + 2, 10, 10, "4"
+				PushButton 50, y_pos, 10, 10, "5", page_five_btn
+				PushButton 60, y_pos, 10, 10, "6", page_six_btn
+
+			ElseIf page = 5 Then
+				PushButton 10, y_pos, 10, 10, "1", page_one_btn
+				PushButton 20, y_pos, 10, 10, "2", page_two_btn
+				PushButton 30, y_pos, 10, 10, "3", page_three_btn
+				PushButton 40, y_pos, 10, 10, "4", page_four_btn
+				Text 52, y_pos + 2, 10, 10, "5"
+				PushButton 60, y_pos, 10, 10, "6", page_six_btn
+			Else
+				PushButton 10, y_pos, 10, 10, "1", page_one_btn
+				PushButton 20, y_pos, 10, 10, "2", page_two_btn
+				PushButton 30, y_pos, 10, 10, "3", page_three_btn
+				PushButton 40, y_pos, 10, 10, "4", page_four_btn
+				PushButton 50, y_pos, 10, 10, "6", page_five_btn
+				Text 62, y_pos + 2, 10, 10, "6"
+			End If
         End If
         PushButton 585, y_pos, 70, 15, "Export to EXCEL", export_btn
         PushButton 660, y_pos, 50, 15, "Search", search_btn
@@ -284,8 +370,10 @@ Do
     If ButtonPressed = page_one_btn Then page = 1
     If ButtonPressed = page_two_btn Then page = 2
     If ButtonPressed = page_three_btn Then page = 3
-    If ButtonPressed = page_four_btn Then page = 4
 
+    If ButtonPressed = page_four_btn Then page = 4
+	If ButtonPressed = page_five_btn Then page = 5
+	If ButtonPressed = page_six_btn Then page = 6
     If ButtonPressed = 0 Then ButtonPressed = done_btn
     If ButtonPressed = -1 Then ButtonPressed = search_btn
 
