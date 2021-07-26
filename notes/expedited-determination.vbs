@@ -407,109 +407,342 @@ const jobs_notes_const 		= 6
 Dim JOBS_ARRAY
 ReDim JOBS_ARRAY(jobs_notes_const, 0)
 
-function app_month_income_detail(determined_income)
-	Dialog1 = ""
-	BeginDialog Dialog1, 0, 0, 451, 350, "Determination of Income in Month of Application"
-	  ButtonGroup ButtonPressed
-		Text 10, 5, 435, 10, "These questions will help you to guide the resident through understanding what income we need to count for the month of application."
-		Text 10, 20, 150, 10, "FIRST - Explain to the resident these things:"
-		Text 25, 30, 410, 10, "- Income in the App Month is used to determine if we can get your some SNAP benefits right away - an EXPEDITED Issuance."
-		Text 25, 40, 410, 10, "- We just need a best estimate of this income - it doesn't have to be exact. There is no penalty for getting this detail incorrect."
-		Text 25, 50, 410, 10, "- I can help you walk through your income sources."
-		Text 25, 60, 350, 10, "-  We need you to answer these questions to complete the interview for your application for SNAP benefits."
-		GroupBox 5, 75, 440, 105, "JOBS Income: For every Job in the Household"
-		Text 15, 90, 200, 10, "How many paychecks have you received in MM/YY so far?"
-		Text 30, 105, 170, 10, "How much were all of the checks for, before taxes?"
-		Text 15, 120, 215, 10, "How many paychecks do you still expect to receive in MM/YY?"
-		Text 30, 135, 225, 10, "How many hours a week did you or will you work for these checks?"
-		Text 30, 150, 120, 10, "What is your rate of pay per hour?"
-		Text 30, 165, 255, 10, "Do you get tips/commission/bonuses? How much do you expect those to be?"
-		GroupBox 5, 185, 440, 90, "BUSI Income: For each self employment in the Household"
-		Text 15, 200, 235, 10, "How much do you typically receive in a month of this self employment?"
-		Text 15, 215, 275, 10, "Is your self employment based on a contract or contracts? And how are they paid?"
-		Text 15, 230, 305, 10, "If this is hard to determine, how much to you make in any other period (year, week, quarter)?"
-		Text 30, 245, 200, 10, "Is this consistent over the period or from period to period?"
-		Text 30, 260, 115, 10, "If it is not, what are the variations?"
-		GroupBox 5, 280, 440, 45, "UNEA Income: For each other source of income in the Household"
-		Text 15, 295, 200, 10, "How often and how much do you receive from each source?"
-		Text 15, 310, 230, 10, "If this is irregular, what have you gotten for the past couple months?"
-		Text 5, 330, 380, 10, "After calculating all of these income questions, repeat the amount and each source and confirm that it seems close."
-		PushButton 395, 330, 50, 15, "Return", return_btn
-	EndDialog
+const busi_owner_const 				= 0
+const busi_info_const 				= 1
+const busi_monthly_earnings_const	= 2
+const busi_annual_earnings_const	= 3
+const busi_notes_const 				= 4
 
-	Dialog1 = ""
-	BeginDialog Dialog1, 0, 0, 296, 160, "Determination of Assets in Month of Application"
-	  DropListBox 210, 40, 45, 45, "?"+chr(9)+"Yes"+chr(9)+"No", jobs_income_yn
-	  DropListBox 210, 60, 45, 45, "?"+chr(9)+"Yes"+chr(9)+"No", busi_income_yn
-	  DropListBox 235, 110, 45, 45, "?"+chr(9)+"Yes"+chr(9)+"No", unea_income_yn
-	  ButtonGroup ButtonPressed
-	    PushButton 240, 140, 50, 15, "Enter", enter_btn
-	  Text 10, 10, 205, 10, "Does this household have any income?"
-	  GroupBox 10, 25, 255, 65, "Earned Income "
-	  Text 65, 45, 140, 10, "Is anyone in the household working a job?"
-	  Text 25, 65, 180, 10, "Does anyone in the household have self employment?"
-	  GroupBox 10, 95, 280, 40, "Unearned Income"
-	  Text 20, 115, 215, 10, "Does anyone in the household receive any other kind of income?"
-	EndDialog
+Dim BUSI_ARRAY
+ReDim BUSI_ARRAY(busi_notes_const, 0)
 
+const unea_owner_const 				= 0
+const unea_info_const 				= 1
+const unea_monthly_earnings_const	= 2
+const unea_weekly_earnings_const	= 3
+const unea_notes_const 				= 4
 
-	dialog Dialog1
+Dim UNEA_ARRAY
+ReDim UNEA_ARRAY(unea_notes_const, 0)
 
+function app_month_income_detail(determined_income, JOBS_ARRAY)
+	' Dialog1 = ""
+	' BeginDialog Dialog1, 0, 0, 451, 350, "Determination of Income in Month of Application"
+	'   ButtonGroup ButtonPressed
+	' 	Text 10, 5, 435, 10, "These questions will help you to guide the resident through understanding what income we need to count for the month of application."
+	' 	Text 10, 20, 150, 10, "FIRST - Explain to the resident these things:"
+	' 	Text 25, 30, 410, 10, "- Income in the App Month is used to determine if we can get your some SNAP benefits right away - an EXPEDITED Issuance."
+	' 	Text 25, 40, 410, 10, "- We just need a best estimate of this income - it doesn't have to be exact. There is no penalty for getting this detail incorrect."
+	' 	Text 25, 50, 410, 10, "- I can help you walk through your income sources."
+	' 	Text 25, 60, 350, 10, "-  We need you to answer these questions to complete the interview for your application for SNAP benefits."
+	' 	GroupBox 5, 75, 440, 105, "JOBS Income: For every Job in the Household"
+	' 	Text 15, 90, 200, 10, "How many paychecks have you received in MM/YY so far?"
+	' 	Text 30, 105, 170, 10, "How much were all of the checks for, before taxes?"
+	' 	Text 15, 120, 215, 10, "How many paychecks do you still expect to receive in MM/YY?"
+	' 	Text 30, 135, 225, 10, "How many hours a week did you or will you work for these checks?"
+	' 	Text 30, 150, 120, 10, "What is your rate of pay per hour?"
+	' 	Text 30, 165, 255, 10, "Do you get tips/commission/bonuses? How much do you expect those to be?"
+	' 	GroupBox 5, 185, 440, 90, "BUSI Income: For each self employment in the Household"
+	' 	Text 15, 200, 235, 10, "How much do you typically receive in a month of this self employment?"
+	' 	Text 15, 215, 275, 10, "Is your self employment based on a contract or contracts? And how are they paid?"
+	' 	Text 15, 230, 305, 10, "If this is hard to determine, how much to you make in any other period (year, week, quarter)?"
+	' 	Text 30, 245, 200, 10, "Is this consistent over the period or from period to period?"
+	' 	Text 30, 260, 115, 10, "If it is not, what are the variations?"
+	' 	GroupBox 5, 280, 440, 45, "UNEA Income: For each other source of income in the Household"
+	' 	Text 15, 295, 200, 10, "How often and how much do you receive from each source?"
+	' 	Text 15, 310, 230, 10, "If this is irregular, what have you gotten for the past couple months?"
+	' 	Text 5, 330, 380, 10, "After calculating all of these income questions, repeat the amount and each source and confirm that it seems close."
+	' 	PushButton 395, 330, 50, 15, "Return", return_btn
+	' EndDialog
 
-	Dialog1 = ""
-	BeginDialog Dialog1, 0, 0, 351, dlg_len, "Determination of Assets in Month of Application"
-	  Text 10, 10, 205, 10, "Are there any Liquid Assets available to the household?"
-	  GroupBox 10, 25, 220, cash_grp_len, "Cash"
-	  If jobs_income_yn = "Yes" Then
-		  Text 20, 40, 155, 10, "This household HAS Cash Savings."
-		  Text 20, 55, 150, 10, "How much in total does the household have?"
-		  EditBox 175, 50, 45, 15, cash_amount
-		  y_pos = 80
-	  Else
-		  Text 20, 40, 155, 10, "This household does NOT have Cash."
-		  y_pos = 60
-	  End If
-	  GroupBox 10, y_pos, 335, acct_grp_len, "Accounts"
-	  y_pos = y_pos + 15
-	  If jobs_income_yn = "Yes" Then
-		  Text 20, y_pos, 190, 10, "JOBS Income on this case"
-		  y_pos = y_pos + 15
-		  Text 20, y_pos, 50, 10, "Employee"
-		  Text 90, y_pos, 70, 10, "Employer/Job"
-		  Text 180, y_pos, 35, 10, "Hourly Wage"
-		  Text 285, y_pos, 35, 10, "Weekly Hours"
-		  Text 310, y_pos, 35, 10, "Pay Frequency"
-		  y_pos = y_pos + 15
+	return_btn = 5001
+	enter_btn = 5002
+	add_another_jobs_btn = 5005
+	remove_one_jobs_btn = 5006
+	add_another_busi_btn = 5007
+	remove_one_busi_btn = 5008
+	add_another_unea_btn = 5009
+	remove_one_unea_btn = 2010
+	income_review_completed = True
 
-		  For the_acct = 0 to UBound(JOBS_ARRAY, 2)
-			  JOBS_ARRAY(account_amount_const, the_acct) = JOBS_ARRAY(account_amount_const, the_acct) & ""
-			  EditBox 20, y_pos, 60, 15, JOBS_ARRAY(jobs_employee_const, the_acct)
-			  EditBox 90, y_pos, 85, 15, JOBS_ARRAY(jobs_employer_const, the_acct)
-			  EditBox 180, y_pos, 100, 15, JOBS_ARRAY(jobs_wage_const, the_acct)
-			  EditBox 285, y_pos, 50, 15, JOBS_ARRAY(jobs_hours_const, the_acct)
-			  DropListBox 310, y_pos, 50, 15, "Select One..."+chr(9)+"Weekly"+chr(9)+"Biweekly"+chr(9)+"Semi-Monthly"+chr(9)+"Monthly", JOBS_ARRAY(jobs_frequency_const, the_acct)
-			  y_pos = y_pos + 20
-		  Next
-	  Else
-		  Text 20, y_pos, 155, 10, "This household does NOT have Bank Accounts."
-	  End If
-	  ButtonGroup ButtonPressed
-		If bank_account_yn = "Yes" Then PushButton 20, y_pos, 60, 10, "ADD ANOTHER", add_another_btn
-		If bank_account_yn = "Yes" Then PushButton 275, y_pos, 60, 10, "REMOVE ONE", remove_one
-		PushButton 295, dlg_len - 20, 50, 15, "Return", return_btn
-	EndDialog
+	original_income = determined_income
+	determined_income = 0
+	Do
+		prvt_err_msg = ""
 
-	dialog Dialog1
+		Dialog1 = ""
+		BeginDialog Dialog1, 0, 0, 296, 160, "Determination of Assets in Month of Application"
+		  DropListBox 210, 40, 45, 45, "?"+chr(9)+"Yes"+chr(9)+"No", jobs_income_yn
+		  DropListBox 210, 60, 45, 45, "?"+chr(9)+"Yes"+chr(9)+"No", busi_income_yn
+		  DropListBox 235, 110, 45, 45, "?"+chr(9)+"Yes"+chr(9)+"No", unea_income_yn
+		  ButtonGroup ButtonPressed
+		    PushButton 240, 140, 50, 15, "Enter", enter_btn
+		  Text 10, 10, 205, 10, "Does this household have any income?"
+		  GroupBox 10, 25, 255, 65, "Earned Income "
+		  Text 65, 45, 140, 10, "Is anyone in the household working a job?"
+		  Text 25, 65, 180, 10, "Does anyone in the household have self employment?"
+		  GroupBox 10, 95, 280, 40, "Unearned Income"
+		  Text 20, 115, 215, 10, "Does anyone in the household receive any other kind of income?"
+		EndDialog
+
+		dialog Dialog1
+		If ButtonPressed = 0 Then
+			income_review_completed = False
+			Exit Do
+		End If
+
+		If jobs_income_yn = "?" Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter if the household has Income from a Job."
+		If busi_income_yn = "?" Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter if the household has Income from Self Employment."
+		If unea_income_yn = "?" Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter if the household has Income from Another Source."
+
+		If prvt_err_msg <> "" Then MsgBox prvt_err_msg
+	Loop until prvt_err_msg = ""
+
+	If income_review_completed = True Then
+		Do
+			prvt_err_msg = ""
+
+			If jobs_income_yn = "No" Then jobs_grp_len = 30
+			If jobs_income_yn = "Yes" Then jobs_grp_len = 55 + (UBound(JOBS_ARRAY, 2) + 1) * 20
+			If busi_income_yn = "No" Then busi_grp_len = 30
+			If busi_income_yn = "Yes" Then busi_grp_len = 55 + (UBound(BUSI_ARRAY, 2) + 1) * 20
+			If unea_income_yn = "No" Then unea_grp_len = 30
+			If unea_income_yn = "Yes" Then unea_grp_len = 55 + (UBound(UNEA_ARRAY, 2) + 1) * 20
+
+			dlg_len = 45 + jobs_grp_len + busi_grp_len + unea_grp_len
+
+			Dialog1 = ""
+			BeginDialog Dialog1, 0, 0, 400, dlg_len, "Determination of Income in Month of Application"
+			  ' Text 10, 10, 205, 10, "Are there any Liquid Assets available to the household?"
+			  ButtonGroup ButtonPressed
+				  y_pos = 10
+				  GroupBox 10, y_pos, 380, jobs_grp_len, "JOBS"
+				  y_pos = y_pos + 15
+				  If jobs_income_yn = "Yes" Then
+					  Text 20, y_pos, 190, 10, "JOBS Income on this case"
+					  y_pos = y_pos + 15
+					  Text 20, y_pos, 50, 10, "Employee"
+					  Text 90, y_pos, 70, 10, "Employer/Job"
+					  Text 185, y_pos, 50, 10, "Hourly Wage"
+					  Text 245, y_pos, 50, 10, "Weekly Hours"
+					  Text 305, y_pos, 50, 10, "Pay Frequency"
+					  y_pos = y_pos + 10
+
+					  For the_job = 0 to UBound(JOBS_ARRAY, 2)
+						  EditBox 20, y_pos, 60, 15, JOBS_ARRAY(jobs_employee_const, the_job)
+						  EditBox 90, y_pos, 85, 15, JOBS_ARRAY(jobs_employer_const, the_job)
+						  EditBox 185, y_pos, 50, 15, JOBS_ARRAY(jobs_wage_const, the_job)
+						  EditBox 245, y_pos, 50, 15, JOBS_ARRAY(jobs_hours_const, the_job)
+						  DropListBox 305, y_pos, 75, 15, "Select One..."+chr(9)+"Weekly"+chr(9)+"Biweekly"+chr(9)+"Semi-Monthly"+chr(9)+"Monthly", JOBS_ARRAY(jobs_frequency_const, the_job)
+						  y_pos = y_pos + 20
+					  Next
+					  PushButton 20, y_pos, 60, 10, "ADD ANOTHER", add_another_jobs_btn
+					  PushButton 320, y_pos, 60, 10, "REMOVE ONE", remove_one_jobs_btn
+					  y_pos = y_pos + 20
+				  Else
+					  Text 20, y_pos, 355, 10, "This household does NOT have JOBS."
+					  y_pos = y_pos + 20
+				  End If
+
+				  GroupBox 10, y_pos, 380, busi_grp_len, "Self Employment"
+				  y_pos = y_pos + 15
+				  If busi_income_yn = "Yes" Then
+					  Text 20, y_pos, 190, 10, "BUSI Income on this case"
+					  y_pos = y_pos + 15
+					  Text 20, y_pos, 65, 10, "Business Owner"
+					  Text 125, y_pos, 70, 10, "Business"
+					  Text 230, y_pos, 65, 10, "Monthly Earnings"
+					  Text 290, y_pos, 65, 10, "Annual Earnings"
+					  y_pos = y_pos + 10
+					  ' Text 305, y_pos, 50, 10, "Pay Frequency"
+					  For the_busi = 0 to UBound(BUSI_ARRAY, 2)
+						  EditBox 20, y_pos, 95, 15, BUSI_ARRAY(busi_owner_const, the_busi)
+						  EditBox 125, y_pos, 95, 15, BUSI_ARRAY(busi_info_const, the_busi)
+						  EditBox 230, y_pos, 50, 15, BUSI_ARRAY(busi_monthly_earnings_const, the_busi)
+						  EditBox 290, y_pos, 50, 15, BUSI_ARRAY(busi_annual_earnings_const, the_busi)
+						  y_pos = y_pos + 20
+					  Next
+					  PushButton 20, y_pos, 60, 10, "ADD ANOTHER", add_another_busi_btn
+					  PushButton 320, y_pos, 60, 10, "REMOVE ONE", remove_one_busi_btn
+					  y_pos = y_pos + 20
+				  Else
+					  Text 20, y_pos, 355, 10, "This household does NOT have BUSI."
+					  y_pos = y_pos + 20
+				  End If
+
+				  GroupBox 10, y_pos, 380, unea_grp_len, "Unearned"
+				  y_pos = y_pos + 15
+				  If unea_income_yn = "Yes" Then
+					  Text 20, y_pos, 190, 10, "UNEA Income on this case"
+					  y_pos = y_pos + 15
+					  Text 20, y_pos, 65, 10, "Member Receiving"
+					  Text 125, y_pos, 70, 10, "Income Type"
+					  Text 230, y_pos, 65, 10, "Monthly Amount"
+					  Text 290, y_pos, 65, 10, "Weekly Amount"
+					  y_pos = y_pos + 10
+					  ' Text 305, y_pos, 50, 10, "Pay Frequency"
+					  For the_unea = 0 to UBound(UNEA_ARRAY, 2)
+						  EditBox 20, y_pos, 95, 15, UNEA_ARRAY(unea_owner_const, the_unea)
+						  EditBox 125, y_pos, 95, 15, UNEA_ARRAY(unea_info_const, the_unea)
+						  EditBox 230, y_pos, 50, 15, UNEA_ARRAY(unea_monthly_earnings_const, the_unea)
+						  EditBox 290, y_pos, 50, 15, UNEA_ARRAY(unea_weekly_earnings_const, the_unea)
+						  y_pos = y_pos + 20
+					  Next
+					  PushButton 20, y_pos, 60, 10, "ADD ANOTHER", add_another_unea_btn
+					  PushButton 320, y_pos, 60, 10, "REMOVE ONE", remove_one_unea_btn
+					  y_pos = y_pos + 20
+				  Else
+					  Text 20, y_pos, 355, 10, "This household does NOT have UNEA."
+					  y_pos = y_pos + 20
+				  End If
+
+				  PushButton 345, dlg_len - 20, 50, 15, "Return", return_btn
+			EndDialog
+
+			dialog Dialog1
+			If ButtonPressed = 0 Then
+				income_review_completed = False
+				Exit Do
+			End If
+
+			last_jobs_item = UBound(JOBS_ARRAY, 2)
+			If ButtonPressed = add_another_jobs_btn Then
+				last_jobs_item = last_jobs_item + 1
+				ReDim Preserve JOBS_ARRAY(jobs_notes_const, last_jobs_item)
+			End If
+			If ButtonPressed = remove_one_jobs_btn Then
+				last_jobs_item = last_jobs_item - 1
+				ReDim Preserve JOBS_ARRAY(jobs_notes_const, last_jobs_item)
+			End If
+
+			last_busi_item = UBound(BUSI_ARRAY, 2)
+			If ButtonPressed = add_another_busi_btn Then
+				last_busi_item = last_busi_item + 1
+				ReDim Preserve BUSI_ARRAY(busi_notes_const, last_busi_item)
+			End If
+			If ButtonPressed = remove_one_unea_btn Then
+				last_busi_item = last_busi_item - 1
+				ReDim Preserve BUSI_ARRAY(busi_notes_const, last_busi_item)
+			End If
+
+			last_unea_item = UBound(UNEA_ARRAY, 2)
+			If ButtonPressed = add_another_unea_btn Then
+				last_unea_item = last_unea_item + 1
+				ReDim Preserve UNEA_ARRAY(unea_notes_const, last_unea_item)
+			End If
+			If ButtonPressed = remove_one_busi_btn Then
+				last_unea_item = last_unea_item - 1
+				ReDim Preserve UNEA_ARRAY(unea_notes_const, last_unea_item)
+			End If
+
+			For the_job = 0 to UBound(JOBS_ARRAY, 2)
+				JOBS_ARRAY(jobs_employee_const, the_job) = trim(JOBS_ARRAY(jobs_employee_const, the_job))
+				JOBS_ARRAY(jobs_employer_const, the_job) = trim(JOBS_ARRAY(jobs_employer_const, the_job))
+				JOBS_ARRAY(jobs_wage_const, the_job) = trim(JOBS_ARRAY(jobs_wage_const, the_job))
+				JOBS_ARRAY(jobs_hours_const, the_job) = trim(JOBS_ARRAY(jobs_hours_const, the_job))
+				JOBS_ARRAY(jobs_frequency_const, the_job) = trim(JOBS_ARRAY(jobs_frequency_const, the_job))
+
+				If JOBS_ARRAY(jobs_employee_const, the_job) <> "" OR JOBS_ARRAY(jobs_employer_const, the_job) <> "" OR JOBS_ARRAY(jobs_wage_const, the_job) <> "" OR JOBS_ARRAY(jobs_hours_const, the_job) <> "" Then
+					prvt_err_msg = prvt_err_msg & vbCr & "For the JOB that is Number " & the_job + 1 & " on the list."
+					If JOBS_ARRAY(jobs_employee_const, the_job) = "" Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter the name of the employer for this JOB."
+					If JOBS_ARRAY(jobs_employer_const, the_job) = "" Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter the employer for This JOB."
+					If IsNumeric(JOBS_ARRAY(jobs_wage_const, the_job)) = False Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter the amount that " & JOBS_ARRAY(jobs_employee_const, the_job) & " is paid per hour from " & JOBS_ARRAY(jobs_employer_const, the_job) & " as a number."
+					If IsNumeric(JOBS_ARRAY(jobs_hours_const, the_job)) = False Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter the number of hours " & JOBS_ARRAY(jobs_employee_const, the_job) & " works per week in the application month for " & JOBS_ARRAY(jobs_employer_const, the_job) & " as a number."
+					If JOBS_ARRAY(jobs_frequency_const, the_job) = "Select One..." Then prvt_err_msg = prvt_err_msg & vbCr & "* Select the pay frequency that " & JOBS_ARRAY(jobs_employee_const, the_job) & " receives their checks in from " & JOBS_ARRAY(jobs_employer_const, the_job) & "."
+					prvt_err_msg = prvt_err_msg & vbCr
+				End If
+			Next
+
+			For the_busi = 0 to UBound(BUSI_ARRAY, 2)
+				BUSI_ARRAY(busi_owner_const, the_busi) = trim(BUSI_ARRAY(busi_owner_const, the_busi))
+				BUSI_ARRAY(busi_info_const, the_busi) = trim(BUSI_ARRAY(busi_info_const, the_busi))
+				BUSI_ARRAY(busi_monthly_earnings_const, the_busi) = trim(BUSI_ARRAY(busi_monthly_earnings_const, the_busi))
+				BUSI_ARRAY(busi_annual_earnings_const, the_busi) = trim(BUSI_ARRAY(busi_annual_earnings_const, the_busi))
+
+				If BUSI_ARRAY(busi_owner_const, the_busi) <> "" OR BUSI_ARRAY(busi_info_const, the_busi) <> "" OR BUSI_ARRAY(busi_monthly_earnings_const, the_busi) <> "" OR BUSI_ARRAY(busi_annual_earnings_const, the_busi) <> "" Then
+					prvt_err_msg = prvt_err_msg & vbCr & "For the BUSI that is Number " & the_busi + 1 & " on the list."
+					If BUSI_ARRAY(busi_owner_const, the_busi) = "" Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter the name of the employer for this Self Employment."
+					If BUSI_ARRAY(busi_info_const, the_busi) = "" Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter the business information for this Self Employment."
+					If BUSI_ARRAY(busi_monthly_earnings_const, the_busi) <> "" AND IsNumeric(BUSI_ARRAY(busi_monthly_earnings_const, the_busi)) = False Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter the amount that " & BUSI_ARRAY(busi_owner_const, the_busi) & " earns monthly from " & BUSI_ARRAY(busi_info_const, the_busi) & "."
+					If BUSI_ARRAY(busi_annual_earnings_const, the_busi) <> "" AND IsNumeric(BUSI_ARRAY(busi_annual_earnings_const, the_busi)) = False Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter the number of hours " & BUSI_ARRAY(busi_owner_const, the_busi) & " earns yearly from " & BUSI_ARRAY(busi_info_const, the_busi) & "."
+					If IsNumeric(BUSI_ARRAY(busi_monthly_earnings_const, the_busi)) = True AND IsNumeric(BUSI_ARRAY(busi_annual_earnings_const, the_busi)) = True Then
+						annual_from_monthly = 0
+						annual_from_monthly =  BUSI_ARRAY(busi_monthly_earnings_const, the_busi) * 12
+						annual_from_monthly = FormatNumber(annual_from_monthly, 2, -1, 0, -1)
+						If annual_from_monthly <> FormatNumber(BUSI_ARRAY(busi_monthly_earnings_const, the_busi), 2, -1, 0, -1) Then prvt_err_msg = prvt_err_msg & vbCr & "* The annual amount does not match up with the monthly amount entered. The Annual earnings should be 12 times the Monthly earnings. You only need to enter one of these amounts."
+					ElseIf IsNumeric(BUSI_ARRAY(busi_monthly_earnings_const, the_busi)) = True AND BUSI_ARRAY(busi_annual_earnings_const, the_busi) = "" Then
+						BUSI_ARRAY(busi_annual_earnings_const, the_busi) = FormatNumber(BUSI_ARRAY(busi_monthly_earnings_const, the_busi)*12, 2, -1, 0, -1)
+					ElseIf IsNumeric(BUSI_ARRAY(busi_annual_earnings_const, the_busi)) = True AND BUSI_ARRAY(busi_monthly_earnings_const, the_busi) = "" Then
+						BUSI_ARRAY(busi_monthly_earnings_const, the_busi) = FormatNumber(BUSI_ARRAY(busi_annual_earnings_const, the_busi)/12, 2, -1, 0, -1)
+					End If
+					prvt_err_msg = prvt_err_msg & vbCr
+				End If
+			Next
+
+			For the_unea = 0 to UBound(UNEA_ARRAY, 2)
+				UNEA_ARRAY(unea_owner_const, the_unea) = trim(UNEA_ARRAY(unea_owner_const, the_unea))
+				UNEA_ARRAY(unea_info_const, the_unea) = trim(UNEA_ARRAY(unea_info_const, the_unea))
+				UNEA_ARRAY(unea_monthly_earnings_const, the_unea) = trim(UNEA_ARRAY(unea_monthly_earnings_const, the_unea))
+				UNEA_ARRAY(unea_weekly_earnings_const, the_unea) = trim(UNEA_ARRAY(unea_weekly_earnings_const, the_unea))
+				If UNEA_ARRAY(unea_owner_const, the_unea) <> "" OR UNEA_ARRAY(unea_info_const, the_unea) <> "" OR UNEA_ARRAY(unea_monthly_earnings_const, the_unea) <> "" OR UNEA_ARRAY(unea_weekly_earnings_const, the_unea) <> "" Then
+					prvt_err_msg = prvt_err_msg & vbCr & "For the UNEA that is Number " & the_unea + 1 & " on the list."
+					If UNEA_ARRAY(unea_owner_const, the_unea) = "" Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter the name of the the person who received this Unearned Income."
+					If UNEA_ARRAY(unea_info_const, the_unea) = "" Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter the information of what type of Unearned Income this is listed."
+					If IsNumeric(UNEA_ARRAY(unea_monthly_earnings_const, the_unea)) = True AND IsNumeric(UNEA_ARRAY(unea_weekly_earnings_const, the_unea)) = True Then
+						prvt_err_msg = prvt_err_msg & vbCr & "* Enter Only one of the following: Weekly Amount or Monthly Amount"
+					ElseIf IsNumeric(UNEA_ARRAY(unea_monthly_earnings_const, the_unea)) = False AND UNEA_ARRAY(unea_weekly_earnings_const, the_unea) = "" Then
+						prvt_err_msg = prvt_err_msg & vbCr & "* Enter the amount that " & UNEA_ARRAY(unea_owner_const, the_unea) & " receives per month from " & UNEA_ARRAY(unea_info_const, the_unea) & " as a number."
+					ElseIf IsNumeric(UNEA_ARRAY(unea_weekly_earnings_const, the_unea)) = False AND UNEA_ARRAY(unea_monthly_earnings_const, the_unea) = "" Then
+						prvt_err_msg = prvt_err_msg & vbCr & "* Enter the number of hours " & UNEA_ARRAY(unea_owner_const, the_unea) & " receives per week from " & UNEA_ARRAY(unea_info_const, the_unea) & " as a number."
+					End IF
+					prvt_err_msg = prvt_err_msg & vbCr
+				End If
+			Next
+
+			' For the_acct = 0 to UBound(ACCOUNTS_ARRAY, 2)
+			' 	ACCOUNTS_ARRAY(account_amount_const, the_acct) = trim(ACCOUNTS_ARRAY(account_amount_const, the_acct))
+			' 	If ACCOUNTS_ARRAY(account_amount_const, the_acct) <> "" And IsNumeric(ACCOUNTS_ARRAY(account_amount_const, the_acct)) = False Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter the Bank Account amounts as a member."
+			' 	If ACCOUNTS_ARRAY(account_type_const, the_acct)	= "Select One..." Then prvt_err_msg = prvt_err_msg & vbCr & "* Select the Bank Account type."
+			' Next
+			If prvt_err_msg <> "" Then MsgBox prvt_err_msg
+		Loop Until ButtonPressed = return_btn AND prvt_err_msg = ""
+	End If
+
+	For the_job = 0 to UBound(JOBS_ARRAY, 2)
+		If IsNumeric(JOBS_ARRAY(jobs_wage_const, the_job)) = True AND IsNumeric(JOBS_ARRAY(jobs_hours_const, the_job)) = True Then
+			weekly_pay = JOBS_ARRAY(jobs_wage_const, the_job) * JOBS_ARRAY(jobs_hours_const, the_job)
+			JOBS_ARRAY(jobs_monthly_pay_const, the_job) = weekly_pay * 4.3
+			determined_income = determined_income + JOBS_ARRAY(jobs_monthly_pay_const, the_job)
+		End If
+	Next
+
+	For the_busi = 0 to UBound(BUSI_ARRAY, 2)
+		If IsNumeric(BUSI_ARRAY(busi_monthly_earnings_const, the_busi)) = True Then determined_income = determined_income + BUSI_ARRAY(busi_monthly_earnings_const, the_busi)
+	Next
+	For the_unea = 0 to UBound(UNEA_ARRAY, 2)
+		If IsNumeric(UNEA_ARRAY(unea_monthly_earnings_const, the_unea)) = True Then
+			determined_income = determined_income + UNEA_ARRAY(unea_monthly_earnings_const, the_unea)
+		ElseIf IsNumeric(UNEA_ARRAY(unea_weekly_earnings_const, the_unea)) = True Then
+			monthly_pay = UNEA_ARRAY(unea_weekly_earnings_const, the_unea) * 4.3
+			determined_income = determined_income + monthly_pay
+		End If
+	Next
+
+	If income_review_completed = False Then determined_income =  original_income
 
 	determined_income = determined_income & ""
 	ButtonPressed = income_calc_btn
 end function
+
+
 function app_month_asset_detail(determined_assets, cash_amount_yn, bank_account_yn, ACCOUNTS_ARRAY)
 	return_btn = 5001
 	enter_btn = 5002
 	add_another_btn = 5003
-	remove_one = 5004
+	remove_one_btn = 5004
+	assets_review_completed = True
 
+	original_assets = determined_assets
 	determined_assets = 0
 	Do
 		prvt_err_msg = ""
@@ -528,6 +761,10 @@ function app_month_asset_detail(determined_assets, cash_amount_yn, bank_account_
 		EndDialog
 
 		dialog Dialog1
+		If ButtonPressed = 0 Then
+			assets_review_completed = False
+			Exit Do
+		End If
 
 		If cash_amount_yn = "?" Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter if the household has CASH."
 		If bank_account_yn = "?" Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter if the household has A BANK ACCOUNT."
@@ -535,86 +772,94 @@ function app_month_asset_detail(determined_assets, cash_amount_yn, bank_account_
 		If prvt_err_msg <> "" Then MsgBox prvt_err_msg
 	Loop until prvt_err_msg = ""
 
-	Do
-		prvt_err_msg = ""
+	If assets_review_completed = True Then
+		Do
+			prvt_err_msg = ""
 
-		If cash_amount_yn = "No" Then cash_grp_len = 30
-		If cash_amount_yn = "Yes" Then cash_grp_len = 50
-		If bank_account_yn = "No" Then acct_grp_len = 30
-		If bank_account_yn = "Yes" Then acct_grp_len = 60 + (UBound(ACCOUNTS_ARRAY, 2) + 1) * 20
-		dlg_len = 55 + cash_grp_len + acct_grp_len
+			If cash_amount_yn = "No" Then cash_grp_len = 30
+			If cash_amount_yn = "Yes" Then cash_grp_len = 50
+			If bank_account_yn = "No" Then acct_grp_len = 30
+			If bank_account_yn = "Yes" Then acct_grp_len = 60 + (UBound(ACCOUNTS_ARRAY, 2) + 1) * 20
+			dlg_len = 55 + cash_grp_len + acct_grp_len
 
-		Dialog1 = ""
-		BeginDialog Dialog1, 0, 0, 351, dlg_len, "Determination of Assets in Month of Application"
-		  Text 10, 10, 205, 10, "Are there any Liquid Assets available to the household?"
-		  GroupBox 10, 25, 220, cash_grp_len, "Cash"
-		  If cash_amount_yn = "Yes" Then
-			  Text 20, 40, 155, 10, "This household HAS Cash Savings."
-			  Text 20, 55, 150, 10, "How much in total does the household have?"
-			  EditBox 175, 50, 45, 15, cash_amount
-			  y_pos = 80
-		  Else
-			  Text 20, 40, 155, 10, "This household does NOT have Cash."
-			  y_pos = 60
-		  End If
-		  GroupBox 10, y_pos, 335, acct_grp_len, "Accounts"
-		  y_pos = y_pos + 15
-		  If bank_account_yn = "Yes" Then
-			  Text 20, y_pos, 190, 10, "This household HAS Bank Accounts."
+			Dialog1 = ""
+			BeginDialog Dialog1, 0, 0, 351, dlg_len, "Determination of Assets in Month of Application"
+			  Text 10, 10, 205, 10, "Are there any Liquid Assets available to the household?"
+			  GroupBox 10, 25, 220, cash_grp_len, "Cash"
+			  If cash_amount_yn = "Yes" Then
+				  Text 20, 40, 155, 10, "This household HAS Cash Savings."
+				  Text 20, 55, 150, 10, "How much in total does the household have?"
+				  EditBox 175, 50, 45, 15, cash_amount
+				  y_pos = 80
+			  Else
+				  Text 20, 40, 155, 10, "This household does NOT have Cash."
+				  y_pos = 60
+			  End If
+			  GroupBox 10, y_pos, 335, acct_grp_len, "Accounts"
 			  y_pos = y_pos + 15
-			  Text 20, y_pos, 50, 10, "Account Type"
-			  Text 90, y_pos, 70, 10, "Owner of Account"
-			  Text 180, y_pos, 45, 10, "Bank Name"
-			  Text 285, y_pos, 35, 10, "Amount"
-			  y_pos = y_pos + 15
+			  If bank_account_yn = "Yes" Then
+				  Text 20, y_pos, 190, 10, "This household HAS Bank Accounts."
+				  y_pos = y_pos + 15
+				  Text 20, y_pos, 50, 10, "Account Type"
+				  Text 90, y_pos, 70, 10, "Owner of Account"
+				  Text 180, y_pos, 45, 10, "Bank Name"
+				  Text 285, y_pos, 35, 10, "Amount"
+				  y_pos = y_pos + 15
 
-			  For the_acct = 0 to UBound(ACCOUNTS_ARRAY, 2)
-				  ACCOUNTS_ARRAY(account_amount_const, the_acct) = ACCOUNTS_ARRAY(account_amount_const, the_acct) & ""
-				  DropListBox 20, y_pos, 60, 45, "Select One..."+chr(9)+"Checking"+chr(9)+"Savings"+chr(9)+"Other", ACCOUNTS_ARRAY(account_type_const, the_acct)
-				  EditBox 90, y_pos, 85, 15, ACCOUNTS_ARRAY(account_owner_const, the_acct)
-				  EditBox 180, y_pos, 100, 15, ACCOUNTS_ARRAY(bank_name_const, the_acct)
-				  EditBox 285, y_pos, 50, 15, ACCOUNTS_ARRAY(account_amount_const, the_acct)
-				  y_pos = y_pos + 20
-			  Next
-		  Else
-		  	  Text 20, y_pos, 155, 10, "This household does NOT have Bank Accounts."
-		  End If
-		  ButtonGroup ButtonPressed
-		    If bank_account_yn = "Yes" Then PushButton 20, y_pos, 60, 10, "ADD ANOTHER", add_another_btn
-		    If bank_account_yn = "Yes" Then PushButton 275, y_pos, 60, 10, "REMOVE ONE", remove_one
-			PushButton 295, dlg_len - 20, 50, 15, "Return", return_btn
-		EndDialog
+				  For the_acct = 0 to UBound(ACCOUNTS_ARRAY, 2)
+					  ACCOUNTS_ARRAY(account_amount_const, the_acct) = ACCOUNTS_ARRAY(account_amount_const, the_acct) & ""
+					  DropListBox 20, y_pos, 60, 45, "Select One..."+chr(9)+"Checking"+chr(9)+"Savings"+chr(9)+"Other", ACCOUNTS_ARRAY(account_type_const, the_acct)
+					  EditBox 90, y_pos, 85, 15, ACCOUNTS_ARRAY(account_owner_const, the_acct)
+					  EditBox 180, y_pos, 100, 15, ACCOUNTS_ARRAY(bank_name_const, the_acct)
+					  EditBox 285, y_pos, 50, 15, ACCOUNTS_ARRAY(account_amount_const, the_acct)
+					  y_pos = y_pos + 20
+				  Next
+			  Else
+			  	  Text 20, y_pos, 155, 10, "This household does NOT have Bank Accounts."
+			  End If
+			  ButtonGroup ButtonPressed
+			    If bank_account_yn = "Yes" Then PushButton 20, y_pos, 60, 10, "ADD ANOTHER", add_another_btn
+			    If bank_account_yn = "Yes" Then PushButton 275, y_pos, 60, 10, "REMOVE ONE", remove_one_btn
+				PushButton 295, dlg_len - 20, 50, 15, "Return", return_btn
+			EndDialog
 
-		dialog Dialog1
+			dialog Dialog1
+			If ButtonPressed = 0 Then
+				assets_review_completed = False
+				Exit Do
+			End If
 
-		last_acct_tiem = UBound(ACCOUNTS_ARRAY, 2)
-		If ButtonPressed = add_another_btn Then
-			last_acct_tiem = last_acct_tiem + 1
-			ReDim Preserve ACCOUNTS_ARRAY(account_notes_const, last_acct_tiem)
-		End If
-		If ButtonPressed = remove_one Then
-			last_acct_tiem = last_acct_tiem - 1
-			ReDim Preserve ACCOUNTS_ARRAY(account_notes_const, last_acct_tiem)
-		End If
+			last_acct_item = UBound(ACCOUNTS_ARRAY, 2)
+			If ButtonPressed = add_another_btn Then
+				last_acct_item = last_acct_item + 1
+				ReDim Preserve ACCOUNTS_ARRAY(account_notes_const, last_acct_item)
+			End If
+			If ButtonPressed = remove_one_btn Then
+				last_acct_item = last_acct_item - 1
+				ReDim Preserve ACCOUNTS_ARRAY(account_notes_const, last_acct_item)
+			End If
 
-		cash_amount = trim(cash_amount)
-		If cash_amount <> "" And IsNumeric(cash_amount) = False Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter the Cash Amount as a number."
+			cash_amount = trim(cash_amount)
+			If cash_amount <> "" And IsNumeric(cash_amount) = False Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter the Cash Amount as a number."
 
+			For the_acct = 0 to UBound(ACCOUNTS_ARRAY, 2)
+				ACCOUNTS_ARRAY(account_amount_const, the_acct) = trim(ACCOUNTS_ARRAY(account_amount_const, the_acct))
+				If ACCOUNTS_ARRAY(account_amount_const, the_acct) <> "" And IsNumeric(ACCOUNTS_ARRAY(account_amount_const, the_acct)) = False Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter the Bank Account amounts as a member."
+				If ACCOUNTS_ARRAY(account_type_const, the_acct)	= "Select One..." Then prvt_err_msg = prvt_err_msg & vbCr & "* Select the Bank Account type."
+			Next
+			If prvt_err_msg <> "" Then MsgBox prvt_err_msg
+		Loop Until ButtonPressed = return_btn AND prvt_err_msg = ""
+
+		If cash_amount = "" Then cash_amount = 0
+		cash_amount = cash_amount * 1
 		For the_acct = 0 to UBound(ACCOUNTS_ARRAY, 2)
-			ACCOUNTS_ARRAY(account_amount_const, the_acct) = trim(ACCOUNTS_ARRAY(account_amount_const, the_acct))
-			If ACCOUNTS_ARRAY(account_amount_const, the_acct) <> "" And IsNumeric(ACCOUNTS_ARRAY(account_amount_const, the_acct)) = False Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter the Bank Account amounts as a member."
-			If ACCOUNTS_ARRAY(account_type_const, the_acct)	= "Select One..." Then prvt_err_msg = prvt_err_msg & vbCr & "* Select the Bank Account type."
+			If ACCOUNTS_ARRAY(account_amount_const, the_acct) = "" Then ACCOUNTS_ARRAY(account_amount_const, the_acct) = 0
+			ACCOUNTS_ARRAY(account_amount_const, the_acct) = ACCOUNTS_ARRAY(account_amount_const, the_acct) * 1
+			determined_assets = determined_assets + ACCOUNTS_ARRAY(account_amount_const, the_acct)
 		Next
-	Loop Until ButtonPressed = return_btn
-
-	If cash_amount = "" Then cash_amount = 0
-	cash_amount = cash_amount * 1
-	For the_acct = 0 to UBound(ACCOUNTS_ARRAY, 2)
-		If ACCOUNTS_ARRAY(account_amount_const, the_acct) = "" Then ACCOUNTS_ARRAY(account_amount_const, the_acct) = 0
-		ACCOUNTS_ARRAY(account_amount_const, the_acct) = ACCOUNTS_ARRAY(account_amount_const, the_acct) * 1
-		determined_assets = determined_assets + ACCOUNTS_ARRAY(account_amount_const, the_acct)
-	Next
-	determined_assets = determined_assets + cash_amount
+		determined_assets = determined_assets + cash_amount
+	End If
+	If assets_review_completed = False Then determined_assets =  original_assets
 
 	determined_assets = determined_assets & ""
 	ButtonPressed = asset_calc_btn
@@ -1340,7 +1585,7 @@ Do
 			If page_display = show_pg_review then ButtonPressed = finish_btn
 		End If
 
-		If ButtonPressed = income_calc_btn Then Call app_month_income_detail(determined_income)
+		If ButtonPressed = income_calc_btn Then Call app_month_income_detail(determined_income, JOBS_ARRAY)
 		If ButtonPressed = asset_calc_btn Then Call app_month_asset_detail(determined_assets, cash_amount_yn, bank_account_yn, ACCOUNTS_ARRAY)
 		If ButtonPressed = housing_calc_btn Then Call app_month_housing_detail(determined_shel)
 		If ButtonPressed = utility_calc_btn Then Call app_month_utility_detail(determined_utilities, heat_expense, ac_expense, electric_expense, phone_expense, none_expense, all_utilities)
