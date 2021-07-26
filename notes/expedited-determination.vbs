@@ -396,6 +396,17 @@ const account_notes_const 	= 4
 Dim ACCOUNTS_ARRAY
 ReDim ACCOUNTS_ARRAY(account_notes_const, 0)
 
+const jobs_employee_const 	= 0
+const jobs_employer_const	= 1
+const jobs_wage_const		= 2
+const jobs_hours_const		= 3
+const jobs_frequency_const 	= 4
+const jobs_monthly_pay_const= 5
+const jobs_notes_const 		= 6
+
+Dim JOBS_ARRAY
+ReDim JOBS_ARRAY(jobs_notes_const, 0)
+
 function app_month_income_detail(determined_income)
 	Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 451, 350, "Determination of Income in Month of Application"
@@ -424,6 +435,68 @@ function app_month_income_detail(determined_income)
 		Text 15, 310, 230, 10, "If this is irregular, what have you gotten for the past couple months?"
 		Text 5, 330, 380, 10, "After calculating all of these income questions, repeat the amount and each source and confirm that it seems close."
 		PushButton 395, 330, 50, 15, "Return", return_btn
+	EndDialog
+
+	Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 296, 160, "Determination of Assets in Month of Application"
+	  DropListBox 210, 40, 45, 45, "?"+chr(9)+"Yes"+chr(9)+"No", jobs_income_yn
+	  DropListBox 210, 60, 45, 45, "?"+chr(9)+"Yes"+chr(9)+"No", busi_income_yn
+	  DropListBox 235, 110, 45, 45, "?"+chr(9)+"Yes"+chr(9)+"No", unea_income_yn
+	  ButtonGroup ButtonPressed
+	    PushButton 240, 140, 50, 15, "Enter", enter_btn
+	  Text 10, 10, 205, 10, "Does this household have any income?"
+	  GroupBox 10, 25, 255, 65, "Earned Income "
+	  Text 65, 45, 140, 10, "Is anyone in the household working a job?"
+	  Text 25, 65, 180, 10, "Does anyone in the household have self employment?"
+	  GroupBox 10, 95, 280, 40, "Unearned Income"
+	  Text 20, 115, 215, 10, "Does anyone in the household receive any other kind of income?"
+	EndDialog
+
+
+	dialog Dialog1
+
+
+	Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 351, dlg_len, "Determination of Assets in Month of Application"
+	  Text 10, 10, 205, 10, "Are there any Liquid Assets available to the household?"
+	  GroupBox 10, 25, 220, cash_grp_len, "Cash"
+	  If jobs_income_yn = "Yes" Then
+		  Text 20, 40, 155, 10, "This household HAS Cash Savings."
+		  Text 20, 55, 150, 10, "How much in total does the household have?"
+		  EditBox 175, 50, 45, 15, cash_amount
+		  y_pos = 80
+	  Else
+		  Text 20, 40, 155, 10, "This household does NOT have Cash."
+		  y_pos = 60
+	  End If
+	  GroupBox 10, y_pos, 335, acct_grp_len, "Accounts"
+	  y_pos = y_pos + 15
+	  If jobs_income_yn = "Yes" Then
+		  Text 20, y_pos, 190, 10, "JOBS Income on this case"
+		  y_pos = y_pos + 15
+		  Text 20, y_pos, 50, 10, "Employee"
+		  Text 90, y_pos, 70, 10, "Employer/Job"
+		  Text 180, y_pos, 35, 10, "Hourly Wage"
+		  Text 285, y_pos, 35, 10, "Weekly Hours"
+		  Text 310, y_pos, 35, 10, "Pay Frequency"
+		  y_pos = y_pos + 15
+
+		  For the_acct = 0 to UBound(JOBS_ARRAY, 2)
+			  JOBS_ARRAY(account_amount_const, the_acct) = JOBS_ARRAY(account_amount_const, the_acct) & ""
+			  EditBox 20, y_pos, 60, 15, JOBS_ARRAY(jobs_employee_const, the_acct)
+			  EditBox 90, y_pos, 85, 15, JOBS_ARRAY(jobs_employer_const, the_acct)
+			  EditBox 180, y_pos, 100, 15, JOBS_ARRAY(jobs_wage_const, the_acct)
+			  EditBox 285, y_pos, 50, 15, JOBS_ARRAY(jobs_hours_const, the_acct)
+			  DropListBox 310, y_pos, 50, 15, "Select One..."+chr(9)+"Weekly"+chr(9)+"Biweekly"+chr(9)+"Semi-Monthly"+chr(9)+"Monthly", JOBS_ARRAY(jobs_frequency_const, the_acct)
+			  y_pos = y_pos + 20
+		  Next
+	  Else
+		  Text 20, y_pos, 155, 10, "This household does NOT have Bank Accounts."
+	  End If
+	  ButtonGroup ButtonPressed
+		If bank_account_yn = "Yes" Then PushButton 20, y_pos, 60, 10, "ADD ANOTHER", add_another_btn
+		If bank_account_yn = "Yes" Then PushButton 275, y_pos, 60, 10, "REMOVE ONE", remove_one
+		PushButton 295, dlg_len - 20, 50, 15, "Return", return_btn
 	EndDialog
 
 	dialog Dialog1
