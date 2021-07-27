@@ -164,6 +164,8 @@ Do
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false
 
+day_30_from_application = DateAdd("d", 30, date_of_application)
+
 MAXIS_footer_month = DatePart("m", date_of_application)
 MAXIS_footer_month = right("0"&MAXIS_footer_month, 2)
 
@@ -425,7 +427,7 @@ const unea_notes_const 				= 4
 Dim UNEA_ARRAY
 ReDim UNEA_ARRAY(unea_notes_const, 0)
 
-function app_month_income_detail(determined_income, JOBS_ARRAY)
+function app_month_income_detail(determined_income, income_review_completed, jobs_income_yn, busi_income_yn, unea_income_yn, JOBS_ARRAY, BUSI_ARRAY, UNEA_ARRAY)
 	' Dialog1 = ""
 	' BeginDialog Dialog1, 0, 0, 451, 350, "Determination of Income in Month of Application"
 	'   ButtonGroup ButtonPressed
@@ -643,13 +645,13 @@ function app_month_income_detail(determined_income, JOBS_ARRAY)
 				JOBS_ARRAY(jobs_frequency_const, the_job) = trim(JOBS_ARRAY(jobs_frequency_const, the_job))
 
 				If JOBS_ARRAY(jobs_employee_const, the_job) <> "" OR JOBS_ARRAY(jobs_employer_const, the_job) <> "" OR JOBS_ARRAY(jobs_wage_const, the_job) <> "" OR JOBS_ARRAY(jobs_hours_const, the_job) <> "" Then
-					prvt_err_msg = prvt_err_msg & vbCr & "For the JOB that is Number " & the_job + 1 & " on the list."
-					If JOBS_ARRAY(jobs_employee_const, the_job) = "" Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter the name of the employer for this JOB."
-					If JOBS_ARRAY(jobs_employer_const, the_job) = "" Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter the employer for This JOB."
-					If IsNumeric(JOBS_ARRAY(jobs_wage_const, the_job)) = False Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter the amount that " & JOBS_ARRAY(jobs_employee_const, the_job) & " is paid per hour from " & JOBS_ARRAY(jobs_employer_const, the_job) & " as a number."
-					If IsNumeric(JOBS_ARRAY(jobs_hours_const, the_job)) = False Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter the number of hours " & JOBS_ARRAY(jobs_employee_const, the_job) & " works per week in the application month for " & JOBS_ARRAY(jobs_employer_const, the_job) & " as a number."
-					If JOBS_ARRAY(jobs_frequency_const, the_job) = "Select One..." Then prvt_err_msg = prvt_err_msg & vbCr & "* Select the pay frequency that " & JOBS_ARRAY(jobs_employee_const, the_job) & " receives their checks in from " & JOBS_ARRAY(jobs_employer_const, the_job) & "."
-					prvt_err_msg = prvt_err_msg & vbCr
+					jobs_err_msg = ""
+					If JOBS_ARRAY(jobs_employee_const, the_job) = "" Then jobs_err_msg = jobs_err_msg & vbCr & "* Enter the name of the employer for this JOB."
+					If JOBS_ARRAY(jobs_employer_const, the_job) = "" Then jobs_err_msg = jobs_err_msg & vbCr & "* Enter the employer for This JOB."
+					If IsNumeric(JOBS_ARRAY(jobs_wage_const, the_job)) = False Then jobs_err_msg = jobs_err_msg & vbCr & "* Enter the amount that " & JOBS_ARRAY(jobs_employee_const, the_job) & " is paid per hour from " & JOBS_ARRAY(jobs_employer_const, the_job) & " as a number."
+					If IsNumeric(JOBS_ARRAY(jobs_hours_const, the_job)) = False Then jobs_err_msg = jobs_err_msg & vbCr & "* Enter the number of hours " & JOBS_ARRAY(jobs_employee_const, the_job) & " works per week in the application month for " & JOBS_ARRAY(jobs_employer_const, the_job) & " as a number."
+					If JOBS_ARRAY(jobs_frequency_const, the_job) = "Select One..." Then jobs_err_msg = jobs_err_msg & vbCr & "* Select the pay frequency that " & JOBS_ARRAY(jobs_employee_const, the_job) & " receives their checks in from " & JOBS_ARRAY(jobs_employer_const, the_job) & "."
+					If jobs_err_msg <> "" Then prvt_err_msg = prvt_err_msg & vbCr & "For the JOB that is Number " & the_job + 1 & " on the list." & vbCr & jobs_err_msg & vbCr
 				End If
 			Next
 
@@ -660,42 +662,42 @@ function app_month_income_detail(determined_income, JOBS_ARRAY)
 				BUSI_ARRAY(busi_annual_earnings_const, the_busi) = trim(BUSI_ARRAY(busi_annual_earnings_const, the_busi))
 
 				If BUSI_ARRAY(busi_owner_const, the_busi) <> "" OR BUSI_ARRAY(busi_info_const, the_busi) <> "" OR BUSI_ARRAY(busi_monthly_earnings_const, the_busi) <> "" OR BUSI_ARRAY(busi_annual_earnings_const, the_busi) <> "" Then
-					prvt_err_msg = prvt_err_msg & vbCr & "For the BUSI that is Number " & the_busi + 1 & " on the list."
-					If BUSI_ARRAY(busi_owner_const, the_busi) = "" Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter the name of the employer for this Self Employment."
-					If BUSI_ARRAY(busi_info_const, the_busi) = "" Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter the business information for this Self Employment."
-					If BUSI_ARRAY(busi_monthly_earnings_const, the_busi) <> "" AND IsNumeric(BUSI_ARRAY(busi_monthly_earnings_const, the_busi)) = False Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter the amount that " & BUSI_ARRAY(busi_owner_const, the_busi) & " earns monthly from " & BUSI_ARRAY(busi_info_const, the_busi) & "."
-					If BUSI_ARRAY(busi_annual_earnings_const, the_busi) <> "" AND IsNumeric(BUSI_ARRAY(busi_annual_earnings_const, the_busi)) = False Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter the number of hours " & BUSI_ARRAY(busi_owner_const, the_busi) & " earns yearly from " & BUSI_ARRAY(busi_info_const, the_busi) & "."
+					busi_err_msg = ""
+					If BUSI_ARRAY(busi_owner_const, the_busi) = "" Then busi_err_msg = busi_err_msg & vbCr & "* Enter the name of the employer for this Self Employment."
+					If BUSI_ARRAY(busi_info_const, the_busi) = "" Then busi_err_msg = busi_err_msg & vbCr & "* Enter the business information for this Self Employment."
+					If BUSI_ARRAY(busi_monthly_earnings_const, the_busi) <> "" AND IsNumeric(BUSI_ARRAY(busi_monthly_earnings_const, the_busi)) = False Then busi_err_msg = busi_err_msg & vbCr & "* Enter the amount that " & BUSI_ARRAY(busi_owner_const, the_busi) & " earns monthly from " & BUSI_ARRAY(busi_info_const, the_busi) & "."
+					If BUSI_ARRAY(busi_annual_earnings_const, the_busi) <> "" AND IsNumeric(BUSI_ARRAY(busi_annual_earnings_const, the_busi)) = False Then busi_err_msg = busi_err_msg & vbCr & "* Enter the number of hours " & BUSI_ARRAY(busi_owner_const, the_busi) & " earns yearly from " & BUSI_ARRAY(busi_info_const, the_busi) & "."
 					If IsNumeric(BUSI_ARRAY(busi_monthly_earnings_const, the_busi)) = True AND IsNumeric(BUSI_ARRAY(busi_annual_earnings_const, the_busi)) = True Then
 						annual_from_monthly = 0
 						annual_from_monthly =  BUSI_ARRAY(busi_monthly_earnings_const, the_busi) * 12
 						annual_from_monthly = FormatNumber(annual_from_monthly, 2, -1, 0, -1)
-						If annual_from_monthly <> FormatNumber(BUSI_ARRAY(busi_monthly_earnings_const, the_busi), 2, -1, 0, -1) Then prvt_err_msg = prvt_err_msg & vbCr & "* The annual amount does not match up with the monthly amount entered. The Annual earnings should be 12 times the Monthly earnings. You only need to enter one of these amounts."
+						If annual_from_monthly <> FormatNumber(BUSI_ARRAY(busi_monthly_earnings_const, the_busi), 2, -1, 0, -1) Then busi_err_msg = busi_err_msg & vbCr & "* The annual amount does not match up with the monthly amount entered. The Annual earnings should be 12 times the Monthly earnings. You only need to enter one of these amounts."
 					ElseIf IsNumeric(BUSI_ARRAY(busi_monthly_earnings_const, the_busi)) = True AND BUSI_ARRAY(busi_annual_earnings_const, the_busi) = "" Then
 						BUSI_ARRAY(busi_annual_earnings_const, the_busi) = FormatNumber(BUSI_ARRAY(busi_monthly_earnings_const, the_busi)*12, 2, -1, 0, -1)
 					ElseIf IsNumeric(BUSI_ARRAY(busi_annual_earnings_const, the_busi)) = True AND BUSI_ARRAY(busi_monthly_earnings_const, the_busi) = "" Then
 						BUSI_ARRAY(busi_monthly_earnings_const, the_busi) = FormatNumber(BUSI_ARRAY(busi_annual_earnings_const, the_busi)/12, 2, -1, 0, -1)
 					End If
-					prvt_err_msg = prvt_err_msg & vbCr
+					If busi_err_msg <> "" Then prvt_err_msg = prvt_err_msg & vbCr & "For the BUSI that is Number " & the_busi + 1 & " on the list." & vbCr & busi_err_msg & vbCr
 				End If
 			Next
 
 			For the_unea = 0 to UBound(UNEA_ARRAY, 2)
+				unea_err_msg = ""
 				UNEA_ARRAY(unea_owner_const, the_unea) = trim(UNEA_ARRAY(unea_owner_const, the_unea))
 				UNEA_ARRAY(unea_info_const, the_unea) = trim(UNEA_ARRAY(unea_info_const, the_unea))
 				UNEA_ARRAY(unea_monthly_earnings_const, the_unea) = trim(UNEA_ARRAY(unea_monthly_earnings_const, the_unea))
 				UNEA_ARRAY(unea_weekly_earnings_const, the_unea) = trim(UNEA_ARRAY(unea_weekly_earnings_const, the_unea))
 				If UNEA_ARRAY(unea_owner_const, the_unea) <> "" OR UNEA_ARRAY(unea_info_const, the_unea) <> "" OR UNEA_ARRAY(unea_monthly_earnings_const, the_unea) <> "" OR UNEA_ARRAY(unea_weekly_earnings_const, the_unea) <> "" Then
-					prvt_err_msg = prvt_err_msg & vbCr & "For the UNEA that is Number " & the_unea + 1 & " on the list."
-					If UNEA_ARRAY(unea_owner_const, the_unea) = "" Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter the name of the the person who received this Unearned Income."
-					If UNEA_ARRAY(unea_info_const, the_unea) = "" Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter the information of what type of Unearned Income this is listed."
+					If UNEA_ARRAY(unea_owner_const, the_unea) = "" Then unea_err_msg = unea_err_msg & vbCr & "* Enter the name of the the person who received this Unearned Income."
+					If UNEA_ARRAY(unea_info_const, the_unea) = "" Then unea_err_msg = unea_err_msg & vbCr & "* Enter the information of what type of Unearned Income this is listed."
 					If IsNumeric(UNEA_ARRAY(unea_monthly_earnings_const, the_unea)) = True AND IsNumeric(UNEA_ARRAY(unea_weekly_earnings_const, the_unea)) = True Then
-						prvt_err_msg = prvt_err_msg & vbCr & "* Enter Only one of the following: Weekly Amount or Monthly Amount"
+						unea_err_msg = unea_err_msg & vbCr & "* Enter Only one of the following: Weekly Amount or Monthly Amount"
 					ElseIf IsNumeric(UNEA_ARRAY(unea_monthly_earnings_const, the_unea)) = False AND UNEA_ARRAY(unea_weekly_earnings_const, the_unea) = "" Then
-						prvt_err_msg = prvt_err_msg & vbCr & "* Enter the amount that " & UNEA_ARRAY(unea_owner_const, the_unea) & " receives per month from " & UNEA_ARRAY(unea_info_const, the_unea) & " as a number."
+						unea_err_msg = unea_err_msg & vbCr & "* Enter the amount that " & UNEA_ARRAY(unea_owner_const, the_unea) & " receives per month from " & UNEA_ARRAY(unea_info_const, the_unea) & " as a number."
 					ElseIf IsNumeric(UNEA_ARRAY(unea_weekly_earnings_const, the_unea)) = False AND UNEA_ARRAY(unea_monthly_earnings_const, the_unea) = "" Then
-						prvt_err_msg = prvt_err_msg & vbCr & "* Enter the number of hours " & UNEA_ARRAY(unea_owner_const, the_unea) & " receives per week from " & UNEA_ARRAY(unea_info_const, the_unea) & " as a number."
+						unea_err_msg = unea_err_msg & vbCr & "* Enter the number of hours " & UNEA_ARRAY(unea_owner_const, the_unea) & " receives per week from " & UNEA_ARRAY(unea_info_const, the_unea) & " as a number."
 					End IF
-					prvt_err_msg = prvt_err_msg & vbCr
+					If unea_err_msg <> "" Then prvt_err_msg = prvt_err_msg & vbCr & "For the UNEA that is Number " & the_unea + 1 & " on the list." & vbCr & unea_err_msg & vbCr
 				End If
 			Next
 
@@ -704,7 +706,7 @@ function app_month_income_detail(determined_income, JOBS_ARRAY)
 			' 	If ACCOUNTS_ARRAY(account_amount_const, the_acct) <> "" And IsNumeric(ACCOUNTS_ARRAY(account_amount_const, the_acct)) = False Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter the Bank Account amounts as a member."
 			' 	If ACCOUNTS_ARRAY(account_type_const, the_acct)	= "Select One..." Then prvt_err_msg = prvt_err_msg & vbCr & "* Select the Bank Account type."
 			' Next
-			If prvt_err_msg <> "" Then MsgBox prvt_err_msg
+			If prvt_err_msg <> "" AND ButtonPressed = return_btn Then MsgBox prvt_err_msg
 		Loop Until ButtonPressed = return_btn AND prvt_err_msg = ""
 	End If
 
@@ -727,15 +729,16 @@ function app_month_income_detail(determined_income, JOBS_ARRAY)
 			determined_income = determined_income + monthly_pay
 		End If
 	Next
+	determined_income = FormatNumber(determined_income, 2, -1, 0, -1)
 
-	If income_review_completed = False Then determined_income =  original_income
+	If income_review_completed = False Then determined_income = original_income
 
 	determined_income = determined_income & ""
 	ButtonPressed = income_calc_btn
 end function
 
 
-function app_month_asset_detail(determined_assets, cash_amount_yn, bank_account_yn, ACCOUNTS_ARRAY)
+function app_month_asset_detail(determined_assets, assets_review_completed, cash_amount_yn, bank_account_yn, cash_amount, ACCOUNTS_ARRAY)
 	return_btn = 5001
 	enter_btn = 5002
 	add_another_btn = 5003
@@ -847,7 +850,7 @@ function app_month_asset_detail(determined_assets, cash_amount_yn, bank_account_
 				If ACCOUNTS_ARRAY(account_amount_const, the_acct) <> "" And IsNumeric(ACCOUNTS_ARRAY(account_amount_const, the_acct)) = False Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter the Bank Account amounts as a member."
 				If ACCOUNTS_ARRAY(account_type_const, the_acct)	= "Select One..." Then prvt_err_msg = prvt_err_msg & vbCr & "* Select the Bank Account type."
 			Next
-			If prvt_err_msg <> "" Then MsgBox prvt_err_msg
+			If prvt_err_msg <> "" AND ButtonPressed = return_btn Then MsgBox prvt_err_msg
 		Loop Until ButtonPressed = return_btn AND prvt_err_msg = ""
 
 		If cash_amount = "" Then cash_amount = 0
@@ -864,15 +867,67 @@ function app_month_asset_detail(determined_assets, cash_amount_yn, bank_account_
 	determined_assets = determined_assets & ""
 	ButtonPressed = asset_calc_btn
 end function
-function app_month_housing_detail(determined_shel)
-	Dialog1 = ""
-	BeginDialog Dialog1, 0, 0, 451, 350, "Determination of Housing Cost in Month of Application"
-	  ButtonGroup ButtonPressed
-	    Text 10, 5, 435, 10, "FUNCTIONALITY TO BE FILLED IN HERE"
-	EndDialog
+function app_month_housing_detail(determined_shel, shel_review_completed, rent_amount, lot_rent_amount, mortgage_amount, insurance_amount, tax_amount, room_amount, garage_amount, subsidy_amount)
+	return_btn = 5001
 
-	dialog Dialog1
+	shel_review_completed = True
 
+	original_shel = determined_shel
+	determined_shel = 0
+	Do
+		prvt_err_msg = ""
+
+		Dialog1 = ""
+		BeginDialog Dialog1, 0, 0, 196, 140, "Determination of Housing Cost in Month of Application"
+		  EditBox 45, 35, 50, 15, rent_amount
+		  EditBox 45, 55, 50, 15, lot_rent_amount
+		  EditBox 45, 75, 50, 15, mortgage_amount
+		  EditBox 45, 95, 50, 15, insurance_amount
+		  EditBox 140, 35, 50, 15, tax_amount
+		  EditBox 140, 55, 50, 15, room_amount
+		  EditBox 140, 75, 50, 15, garage_amount
+		  EditBox 140, 95, 50, 15, subsidy_amount
+		  ButtonGroup ButtonPressed
+		    PushButton 140, 120, 50, 15, "Return", return_btn
+		  Text 10, 15, 165, 10, "Enter the total Shelter Expense for the Houshold."
+		  Text 25, 40, 20, 10, "Rent:"
+		  Text 10, 60, 35, 10, " Lot Rent:"
+		  Text 10, 80, 35, 10, "Mortgage:"
+		  Text 10, 100, 35, 10, "Insurance:"
+		  Text 115, 40, 25, 10, "Taxes:"
+		  Text 115, 60, 25, 10, "Room:"
+		  Text 110, 80, 30, 10, "Garage:"
+		  Text 105, 100, 35, 10, "  Subsidy:"
+		EndDialog
+
+		dialog Dialog1
+		If ButtonPressed = 0 Then
+			shel_review_completed = False
+			Exit Do
+		End If
+
+		If rent_amount <> "" AND IsNumeric(rent_amount) = False Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter the RENT amount as a number."
+		If lot_rent_amount <> "" AND IsNumeric(lot_rent_amount) = False Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter the LOT RENT amount as a number."
+		If mortgage_amount <> "" AND IsNumeric(mortgage_amount) = False Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter the MORTGAGE amount as a number."
+		If insurance_amount <> "" AND IsNumeric(insurance_amount) = False Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter the INSURANCE amount as a number."
+		If tax_amount <> "" AND IsNumeric(tax_amount) = False Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter the TAXES amount as a number."
+		If room_amount <> "" AND IsNumeric(room_amount) = False Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter the ROOM amount as a number."
+		If garage_amount <> "" AND IsNumeric(garage_amount) = False Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter the GARAGE amount as a number."
+		If subsidy_amount <> "" AND IsNumeric(subsidy_amount) = False Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter the SUBSIDY amount as a number."
+
+		If prvt_err_msg <> "" Then MsgBox prvt_err_msg
+	Loop until prvt_err_msg = ""
+
+	If IsNumeric(rent_amount) = True Then determined_shel = determined_shel + rent_amount
+	If IsNumeric(lot_rent_amount) = True Then determined_shel = determined_shel + lot_rent_amount
+	If IsNumeric(mortgage_amount) = True Then determined_shel = determined_shel + mortgage_amount
+	If IsNumeric(insurance_amount) = True Then determined_shel = determined_shel + insurance_amount
+	If IsNumeric(tax_amount) = True Then determined_shel = determined_shel + tax_amount
+	If IsNumeric(room_amount) = True Then determined_shel = determined_shel + room_amount
+	If IsNumeric(garage_amount) = True Then determined_shel = determined_shel + garage_amount
+	' If IsNumeric(subsidy_amount) = True Then determined_shel = determined_shel + subsidy_amount
+
+	If shel_review_completed = False Then determined_shel = original_shel
 
 	determined_shel = determined_shel & ""
 	ButtonPressed = housing_calc_btn
@@ -1192,127 +1247,176 @@ function previous_postponed_verifs_detail(case_has_previously_postponed_verifs_t
 		If prvt_err_msg <> "" Then MsgBox prvt_err_msg
 	Loop until prvt_err_msg = ""
 
-	PREVIOUS_footer_month = DatePart("m", previous_date_of_application)
-	PREVIOUS_footer_month = right("0"&PREVIOUS_footer_month, 2)
-
-	PREVIOUS_footer_year = right(DatePart("yyyy", previous_date_of_application), 2)
-
-	If DatePart("d", previous_date_of_application) > 15 Then
-		second_month_of_previous_exp_package = DateAdd("m", 1, previous_date_of_application)
-		PREVIOUS_footer_month = DatePart("m", second_month_of_previous_exp_package)
+	If prev_post_verif_assessment_done = True Then
+		PREVIOUS_footer_month = DatePart("m", previous_date_of_application)
 		PREVIOUS_footer_month = right("0"&PREVIOUS_footer_month, 2)
 
-		PREVIOUS_footer_year = right(DatePart("yyyy", second_month_of_previous_exp_package), 2)
+		PREVIOUS_footer_year = right(DatePart("yyyy", previous_date_of_application), 2)
+
+		If DatePart("d", previous_date_of_application) > 15 Then
+			second_month_of_previous_exp_package = DateAdd("m", 1, previous_date_of_application)
+			PREVIOUS_footer_month = DatePart("m", second_month_of_previous_exp_package)
+			PREVIOUS_footer_month = right("0"&PREVIOUS_footer_month, 2)
+
+			PREVIOUS_footer_year = right(DatePart("yyyy", second_month_of_previous_exp_package), 2)
+		End If
+		previous_expedited_package = PREVIOUS_footer_month & "/" & PREVIOUS_footer_year
+
+		ask_more_questions = False
+		If IsDate(previous_date_of_application) = True AND prev_verifs_mandatory_yn = "Yes" AND curr_verifs_postponed_yn = "Yes" Then ask_more_questions = True
+		If ask_more_questions = True Then
+			Do
+				prvt_err_msg = ""
+
+				Dialog1 = ""
+				BeginDialog Dialog1, 0, 0, 436, 110, "Case Previously Received EXP SNAP with Postponed Verifications"
+				  Text 10, 10, 435, 10, "A case that was approved Expedited SNAP with postponed verifications MAY not be able to have Expedited Approved right away."
+				  Text 10, 30, 125, 10, "This does not apply to cases where:"
+				  Text 15, 40, 165, 10, "- The Postponed Verification were not mandatory."
+				  Text 15, 50, 275, 10, "- The Postponed Verification were provided - even if Eligibility was not approved."
+				  Text 15, 60, 385, 10, "- The case met all criteria for Regular SNAP to be issued and was approved for 'Ongoing' SNAP for at least one month."
+				  Text 10, 80, 180, 10, "Did the case get approved for any SNAP after " & previous_expedited_package & "?"
+				  DropListBox 195, 75, 40, 45, "?"+chr(9)+"Yes"+chr(9)+"No", ongoing_snap_approved_yn
+				  Text 20, 95, 170, 10, "Check ECF, are the postponed verifications on file?"
+				  DropListBox 195, 90, 40, 45, "?"+chr(9)+"Yes"+chr(9)+"No", prev_post_verifs_recvd_yn
+				  ButtonGroup ButtonPressed
+				    PushButton 380, 90, 50, 15, "Review", review_btn
+
+				  Text 10, 270, 280, 20, "If a case cannot be approved due to previously not received Postponed Verifications, the case must meet ONE of the following criteria:"
+				  Text 15, 295, 210, 10, "- Provide all verifications that were postponed and mandatory."
+				  Text 15, 305, 280, 10, "- Meet all criterea to approve SNAP - including receipt of all mandatory verifications."
+				  Text 20, 315, 265, 20, "(This means if a case has no verifications to request, we CAN approve Expedited as the case meets all criteria to approve SNAP.)"
+				EndDialog
+
+				dialog Dialog1
+
+				If ButtonPressed = 0 Then
+					prev_post_verif_assessment_done = False
+					Exit Do
+				End If
+
+				If ongoing_snap_approved_yn = "?" Then prvt_err_msg = prvt_err_msg & vbCr & "* Review MAXIS and determine if SNAP was approved after the last month of the expedited package (" & previous_expedited_package & "). If it was, the case met all requirements to gain SNAP eligibility."
+				If prev_post_verifs_recvd_yn = "?" Then prvt_err_msg = prvt_err_msg & vbCr & "* Review the ECF case file and see if the mandatory postponed verifications were ever received, even if SNAP was not approved."
+
+				If prvt_err_msg <> "" Then MsgBox prvt_err_msg
+			Loop until prvt_err_msg = ""
+		End If
 	End If
-	previous_expedited_package = PREVIOUS_footer_month & "/" & PREVIOUS_footer_year
 
-	ask_more_questions = False
-	If IsDate(previous_date_of_application) = True AND prev_verifs_mandatory_yn = "Yes" AND curr_verifs_postponed_yn = "Yes" Then ask_more_questions = True
-	If ask_more_questions = True Then
-		Do
-			prvt_err_msg = ""
-
+	If prev_post_verif_assessment_done = True Then
+		If ask_more_questions = False OR ongoing_snap_approved_yn = "Yes" OR prev_post_verifs_recvd_yn = "Yes" Then
 			Dialog1 = ""
-			BeginDialog Dialog1, 0, 0, 436, 110, "Case Previously Received EXP SNAP with Postponed Verifications"
-			  Text 10, 10, 435, 10, "A case that was approved Expedited SNAP with postponed verifications MAY not be able to have Expedited Approved right away."
-			  Text 10, 30, 125, 10, "This does not apply to cases where:"
-			  Text 15, 40, 165, 10, "- The Postponed Verification were not mandatory."
-			  Text 15, 50, 275, 10, "- The Postponed Verification were provided - even if Eligibility was not approved."
-			  Text 15, 60, 385, 10, "- The case met all criteria for Regular SNAP to be issued and was approved for 'Ongoing' SNAP for at least one month."
-			  Text 10, 80, 180, 10, "Did the case get approved for any SNAP after " & previous_expedited_package & "?"
-			  DropListBox 195, 75, 40, 45, "?"+chr(9)+"Yes"+chr(9)+"No", ongoing_snap_approved_yn
-			  Text 20, 95, 170, 10, "Check ECF, are the postponed verifications on file?"
-			  DropListBox 195, 90, 40, 45, "?"+chr(9)+"Yes"+chr(9)+"No", prev_post_verifs_recvd_yn
-			  ButtonGroup ButtonPressed
-			    PushButton 380, 90, 50, 15, "Review", review_btn
+			y_pos = 85
 
-			  Text 10, 270, 280, 20, "If a case cannot be approved due to previously not received Postponed Verifications, the case must meet ONE of the following criteria:"
-			  Text 15, 295, 210, 10, "- Provide all verifications that were postponed and mandatory."
-			  Text 15, 305, 280, 10, "- Meet all criterea to approve SNAP - including receipt of all mandatory verifications."
-			  Text 20, 315, 265, 20, "(This means if a case has no verifications to request, we CAN approve Expedited as the case meets all criteria to approve SNAP.)"
+			BeginDialog Dialog1, 0, 0, 436, 120, "Case Previously Received EXP SNAP with Postponed Verifications"
+			  GroupBox 10, 10, 415, 55, "EXPEDITED CAN BE APPROVED"
+			  Text 25, 25, 100, 10, "Based on this case situation"
+			  Text 30, 35, 325, 10, "This case CAN be approved for Expedited without a delay due to Previous Postponed Verifications."
+			  Text 35, 45, 285, 10, "(There may be another reason for delay, complete the rest of the review to determine.)"
+			  Text 15, 75, 45, 10, "Explanation:"
+			  If prev_verifs_mandatory_yn = "No" Then
+				  Text 15, y_pos, 350, 10, "The previously postponed verifications were not mandatory, so case met all SNAP eligibility criteria."
+				  y_pos = y_pos + 10
+			  End If
+			  If curr_verifs_postponed_yn = "No" Then
+				  Text 15, y_pos, 350, 10, "There are no verifications that are required and being postponed now, so case meets all SNAP eligibility criteria."
+				  y_pos = y_pos + 10
+			  End If
+			  If ongoing_snap_approved_yn = "Yes" Then
+				  Text 15, y_pos, 350, 10, "Case was approved regular SNAP after the expedited package time, so case met all SNAP eligibility criteria."
+				  y_pos = y_pos + 10
+			  End If
+			  If prev_post_verifs_recvd_yn = "Yes" Then
+				  Text 50, y_pos, 350, 10, "The postponed verifications have been received, which meets the requirement to receive another posponed verification approval package."
+				  y_pos = y_pos + 10
+			  End If
+			  ButtonGroup ButtonPressed
+			    PushButton 380, 100, 50, 15, "Update", update_btn
 			EndDialog
 
 			dialog Dialog1
 
-			If ButtonPressed = 0 Then
-				prev_post_verif_assessment_done = False
-				Exit Do
-			End If
+		End If
 
-			If ongoing_snap_approved_yn = "?" Then prvt_err_msg = prvt_err_msg & vbCr & "* Review MAXIS and determine if SNAP was approved after the last month of the expedited package (" & previous_expedited_package & "). If it was, the case met all requirements to gain SNAP eligibility."
-			If prev_post_verifs_recvd_yn = "?" Then prvt_err_msg = prvt_err_msg & vbCr & "* Review the ECF case file and see if the mandatory postponed verifications were ever received, even if SNAP was not approved."
+		If ask_more_questions = True AND ongoing_snap_approved_yn = "No" AND prev_post_verifs_recvd_yn = "No" Then
+			case_has_previously_postponed_verifs_that_prevent_exp_snap = True
 
-			If prvt_err_msg <> "" Then MsgBox prvt_err_msg
-		Loop until prvt_err_msg = ""
+			BeginDialog Dialog1, 0, 0, 291, 145, "Case Previously Received EXP SNAP with Postponed Verifications"
+			  GroupBox 5, 5, 280, 60, "EXPEDITED APPROVAL MUST BE DELAYED"
+			  Text 20, 20, 100, 10, "Based on this case situation"
+			  Text 25, 30, 195, 10, "This case CANNOT be approved for Expedited at this time."
+			  Text 30, 40, 235, 20, "The case would require postponing verifications when we already have allowed for postponed verifications that have not been received."
+			  Text 10, 70, 275, 20, "If a case cannot be approved due to previously not received Postponed Verifications, the case must meet ONE of the following criteria:"
+			  Text 15, 95, 210, 10, "- Provide all verifications that were postponed and mandatory."
+			  Text 15, 105, 280, 10, "- Meet all criterea to approve SNAP - including receipt of all mandatory verifications."
+			  Text 20, 115, 265, 20, "(This means if a case has no verifications to request, we CAN approve Expedited as the case meets all criteria to approve SNAP.)"
+			  ButtonGroup ButtonPressed
+			    PushButton 235, 125, 50, 15, "Update", update_btn
+			EndDialog
+
+			dialog Dialog1
+		End If
 	End If
-
-	If ask_more_questions = False OR ongoing_snap_approved_yn = "Yes" OR prev_post_verifs_recvd_yn = "Yes" Then
-		Dialog1 = ""
-		y_pos = 85
-
-		BeginDialog Dialog1, 0, 0, 436, 120, "Case Previously Received EXP SNAP with Postponed Verifications"
-		  GroupBox 10, 10, 415, 55, "EXPEDITED CAN BE APPROVED"
-		  Text 25, 25, 100, 10, "Based on this case situation"
-		  Text 30, 35, 325, 10, "This case CAN be approved for Expedited without a delay due to Previous Postponed Verifications."
-		  Text 35, 45, 285, 10, "(There may be another reason for delay, complete the rest of the review to determine.)"
-		  Text 15, 75, 45, 10, "Explanation:"
-		  If prev_verifs_mandatory_yn = "No" Then
-			  Text 15, y_pos, 350, 10, "The previously postponed verifications were not mandatory, so case met all SNAP eligibility criteria."
-			  y_pos = y_pos + 10
-		  End If
-		  If curr_verifs_postponed_yn = "No" Then
-			  Text 15, y_pos, 350, 10, "There are no verifications that are required and being postponed now, so case meets all SNAP eligibility criteria."
-			  y_pos = y_pos + 10
-		  End If
-		  If ongoing_snap_approved_yn = "Yes" Then
-			  Text 15, y_pos, 350, 10, "Case was approved regular SNAP after the expedited package time, so case met all SNAP eligibility criteria."
-			  y_pos = y_pos + 10
-		  End If
-		  If prev_post_verifs_recvd_yn = "Yes" Then
-			  Text 50, y_pos, 350, 10, "The postponed verifications have been received, which meets the requirement to receive another posponed verification approval package."
-			  y_pos = y_pos + 10
-		  End If
-		  ButtonGroup ButtonPressed
-		    PushButton 380, 100, 50, 15, "Update", update_btn
-		EndDialog
-
-		dialog Dialog1
-
+	If prev_post_verif_assessment_done = False Then
+		case_has_previously_postponed_verifs_that_prevent_exp_snap = False
+		Explain_not_completed_msg = Msgbox("All of the details around postponed verifications have not been entered to be able to determine if there should be a delay due to previously postponed verifications." & vbCr & vbCr & "If you have details to record and you wish to complete the assesment, press the button for this functionality again and the script will restart the questions.", vbOK, "Escape Pressed - Details not Completed")
 	End If
-
-	If ask_more_questions = True AND ongoing_snap_approved_yn = "No" AND prev_post_verifs_recvd_yn = "No" Then
-		case_has_previously_postponed_verifs_that_prevent_exp_snap = True
-
-		BeginDialog Dialog1, 0, 0, 291, 145, "Case Previously Received EXP SNAP with Postponed Verifications"
-		  GroupBox 5, 5, 280, 60, "EXPEDITED APPROVAL MUST BE DELAYED"
-		  Text 20, 20, 100, 10, "Based on this case situation"
-		  Text 25, 30, 195, 10, "This case CANNOT be approved for Expedited at this time."
-		  Text 30, 40, 235, 20, "The case would require postponing verifications when we already have allowed for postponed verifications that have not been received."
-		  Text 10, 70, 275, 20, "If a case cannot be approved due to previously not received Postponed Verifications, the case must meet ONE of the following criteria:"
-		  Text 15, 95, 210, 10, "- Provide all verifications that were postponed and mandatory."
-		  Text 15, 105, 280, 10, "- Meet all criterea to approve SNAP - including receipt of all mandatory verifications."
-		  Text 20, 115, 265, 20, "(This means if a case has no verifications to request, we CAN approve Expedited as the case meets all criteria to approve SNAP.)"
-		  ButtonGroup ButtonPressed
-		    PushButton 235, 125, 50, 15, "Update", update_btn
-		EndDialog
-
-		dialog Dialog1
-	End If
-
 	If case_has_previously_postponed_verifs_that_prevent_exp_snap = False Then delay_explanation = replace(delay_explanation, "Approval cannot be completed as case has postponed verifications when postpone verifications were previously allowed and not provided, nor has the case meet 'ongoing SNAP' eligibility", "")
 	If case_has_previously_postponed_verifs_that_prevent_exp_snap = True Then delay_explanation = delay_explanation & "; Approval cannot be completed as case has postponed verifications when postpone verifications were previously allowed and not provided, nor has the case meet 'ongoing SNAP' eligibility."
 
 	ButtonPressed = case_previously_had_postponed_verifs_btn
 end function
 
-function household_in_a_facility_detail()
-	Dialog1 = ""
-	BeginDialog Dialog1, 0, 0, 451, 350, "Case Previously Received EXP SNAP with Postponed Verifications"
-	  ButtonGroup ButtonPressed
-	    Text 10, 5, 435, 10, "FUNCTIONALITY TO BE FILLED IN HERE"
-	EndDialog
+function household_in_a_facility_detail(delay_action_due_to_faci, faci_review_completed, delay_explanation, )
+	return_btn = 5001
+	delay_action_due_to_faci = False
+	faci_review_completed = True
 
-	dialog Dialog1
+	Do
+		prvt_err_msg = ""
+
+		Dialog1 = ""
+		BeginDialog Dialog1, 0, 0, 241, 200, "Case Previously Received EXP SNAP with Postponed Verifications"
+		  EditBox 70, 40, 160, 15, facility_name
+		  DropListBox 135, 60, 40, 45, "?"+chr(9)+"Yes"+chr(9)+"No", snap_inelig_faci_yn
+		  EditBox 125, 100, 50, 15, faci_entry_date
+		  EditBox 125, 120, 50, 15, faci_release_date
+		  CheckBox 30, 140, 150, 10, "Check here if the release date is unknown.", release_date_unknown_checkbox
+		  DropListBox 190, 155, 40, 45, "?"+chr(9)+"Yes"+chr(9)+"No", release_within_30_days_yn
+		  ButtonGroup ButtonPressed
+		    PushButton 190, 180, 45, 15, "Return", return_btn
+		  Text 10, 10, 90, 10, "Resident is in a Facility"
+		  GroupBox 10, 25, 225, 55, "Facility Information"
+		  Text 20, 45, 50, 10, "Facility Name"
+		  Text 20, 65, 115, 10, "Is this a 'SNAP Ineligible' facility?"
+		  GroupBox 10, 85, 225, 90, "Resident Stay Information"
+		  Text 35, 105, 85, 10, "Date of Entry into Facility:"
+		  Text 45, 125, 75, 10, "Date of Exit / Release:"
+		  Text 180, 125, 45, 10, "(or expected)"
+		  Text 20, 160, 170, 10, "Does the resident expect to be released by " & day_30_from_application & "?"
+		EndDialog
+
+		dialog Dialog1
+		If ButtonPressed = 0 Then
+			faci_review_completed = False
+			Exit Do
+		End If
+
+		facility_name = trim(facility_name)
+		If facility_name = "" Then prvt_err_msg = prvt_err_msg & vbCr & "* "
+
+		If IsDate(faci_release_date) = False AND release_date_unknown_checkbox = unchecked Then prvt_err_msg = prvt_err_msg & vbCr & "* Either enter a release date - or expected release date."
+		If IsDate(faci_release_date) = True AND release_date_unknown_checkbox = checked Then prvt_err_msg = prvt_err_msg & vbCr & "* "
+
+
+
+		If jobs_income_yn = "?" Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter if the household has Income from a Job."
+		If busi_income_yn = "?" Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter if the household has Income from Self Employment."
+		If unea_income_yn = "?" Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter if the household has Income from Another Source."
+
+		If prvt_err_msg <> "" Then MsgBox prvt_err_msg
+	Loop until prvt_err_msg = ""
+
 
 	ButtonPressed = household_in_a_facility_btn
 end function
@@ -1585,9 +1689,9 @@ Do
 			If page_display = show_pg_review then ButtonPressed = finish_btn
 		End If
 
-		If ButtonPressed = income_calc_btn Then Call app_month_income_detail(determined_income, JOBS_ARRAY)
-		If ButtonPressed = asset_calc_btn Then Call app_month_asset_detail(determined_assets, cash_amount_yn, bank_account_yn, ACCOUNTS_ARRAY)
-		If ButtonPressed = housing_calc_btn Then Call app_month_housing_detail(determined_shel)
+		If ButtonPressed = income_calc_btn Then Call app_month_income_detail(determined_income, income_review_completed, jobs_income_yn, busi_income_yn, unea_income_yn, JOBS_ARRAY, BUSI_ARRAY, UNEA_ARRAY)
+		If ButtonPressed = asset_calc_btn Then Call app_month_asset_detail(determined_assets, assets_review_completed, cash_amount_yn, bank_account_yn, cash_amount, ACCOUNTS_ARRAY)
+		If ButtonPressed = housing_calc_btn Then Call app_month_housing_detail(determined_shel, shel_review_completed, rent_amount, lot_rent_amount, mortgage_amount, insurance_amount, tax_amount, room_amount, garage_amount, subsidy_amount)
 		If ButtonPressed = utility_calc_btn Then Call app_month_utility_detail(determined_utilities, heat_expense, ac_expense, electric_expense, phone_expense, none_expense, all_utilities)
 		If ButtonPressed = snap_active_in_another_state_btn Then
 			If IsDate(date_of_application) = False Then MsgBox "Attention:" & vbCr & vbCr & "The funcationality to determine actions if a household is reporting benefits in another state cannot be run if a valid application date has not been entered."
