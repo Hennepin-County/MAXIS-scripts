@@ -119,11 +119,12 @@ Do
                 EMReadScreen process_date, 8, 2, 73
                 If DateDiff("d", process_date, date) > 7 Then error_processing_msg =  error_processing_msg & vbNewLine & "HC Eligibility was not created and approved recently for " & clt_ref_num & "."
 
-                EMReadScreen bdgt_month, 2, 6, 14
-                EMReadScreen bdgt_year, 2, 6, 17
+                EMReadScreen bdgt_month, 2, 6, 19
+                EMReadScreen bdgt_year, 2, 6, 22
 
                 elig_col = 19
 
+				' MsgBox "Budg - " & bdgt_month & "/" & bdgt_year & vbCr & "MAXIS - " & MAXIS_footer_month & "/" & MAXIS_footer_year
                 If bdgt_month = MAXIS_footer_month AND bdgt_year = MAXIS_footer_year Then
                     approval_exists = TRUE
 					save_info = True
