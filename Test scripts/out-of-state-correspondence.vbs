@@ -128,11 +128,15 @@ function fill_in_the_states()
     	abbr_state = "CT"
 		agency_name = "Department of Social Service"
 		agency_address = "55 Farmington Ave. Hartford, CT 06105-3725"
-		agency_phone = "860-424-5030"
+		agency_phone = "Default - 860-424-5030"
 		agency_email = "TPI.EU@ct.gov"
     	IF OTHER_STATE_CASH_CHECKBOX = CHECKED THEN
     		other_state_cash = TRUE
-    		agency_phone = "860-424-5540"
+    		If from_paris_match = false Then
+				agency_phone = agency_phone & "~Cash - 860-424-5540 (RECOMMENDED)"
+			Else
+				agency_phone = agency_phone & "~Cash - 860-424-5540"
+			End If
     		agency_fax = "860-424-4886"
     	END IF
     	IF PARIS_CHECKBOX = CHECKED THEN
@@ -494,10 +498,7 @@ function fill_in_the_states()
     		other_state_hc = TRUE
     		agency_phone " 888-549-0820.  Press #1 for English, #1 for caseworker feedback and #2 to speak with a rep."
     	END IF
-    	IF PARIS_CHECKBOX = CHECKED THEN
-    		other_state_paris = TRUE
-    		agency_email = "Keshawn.Jacobs@dss.sc.gov"
-    	END IF
+    	If other_state_paris = TRUE Then agency_email = agency_email & "; Keshawn.Jacobs@dss.sc.gov"
     END IF
     IF	state_droplist = "South Dakota"	THEN
     	abbr_state = "SD"
@@ -547,8 +548,7 @@ function fill_in_the_states()
 		agency_name = "Washington Dept Human Services"
 		agency_phone = "1-855-927-2747"
 		agency_email = "dshsparissupport@dshs.wa.gov"
-    	IF PARIS_CHECKBOX = CHECKED THEN
-    		other_state_paris = TRUE
+    	If other_state_paris = TRUE Then
     		agency_email = "dshsparissupport@dshs.wa.gov"
     		agency_fax = 1-888-212-2319
     	END IF
@@ -579,7 +579,7 @@ function fill_in_the_states()
     		agency_email = "DHSOSBQ@dhs.wisconsin.gov"
     	END IF
     	IF OTHER_STATE_CASH_CHECKBOX = CHECKED THEN
-    		other_state_cash = TRUE
+    		other_state_cash = TRUE 
     		agency_phone = "608-422-7900"
     		agency_fax = "608-327-6125"
     		agency_email = "DCFW2TANFVerify@wisconsin.gov"
@@ -999,6 +999,12 @@ IF out_of_state_request = "Sent/Send" THEN
 	LOOP until err_msg = ""
 	'CALL check_for_password(are_we_passworded_out)                                 'function that checks to ensure
 'Loop until are_we_passworded_out = false
+If OTHER_STATE_CASH_CHECKBOX = Checked THen other_state_cash = TRUE
+' If OTHER_STATE_CCA_CHECKBOX = Checked THen
+If OTHER_STATE_FS_CHECKBOX = Checked THen other_state_fs = TRUE
+If OTHER_STATE_HC_CHECKBOX = Checked THen other_state_hc = TRUE
+' If OTHER_STATE_SSI_CHECKBOX = Checked THen
+If OTHER_STATE_CHECKBOX = Checked THen other_state_paris = TRUE
 
 	other_state_programs = ""        'Creates a variable that lists all the active.
 	IF OTHER_STATE_CASH_CHECKBOX = CHECKED THEN other_state_programs = other_state_programs & "CASH, "
