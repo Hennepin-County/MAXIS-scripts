@@ -150,7 +150,7 @@ LOOP UNTIL are_we_passworded_out = false
 
 last_contact_day = dateadd("d", 30, application_date)
 If DateDiff("d", appt_date, last_contact_day) < 1 then last_contact_day = appt_date
-CALL start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True)    
+CALL start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True)
 
 Call write_variable_in_SPEC_MEMO("You recently applied for assistance on " & application_date & ".")
 Call write_variable_in_SPEC_MEMO("Your interview should have been completed by " & appt_date & ".")
@@ -172,7 +172,12 @@ Call write_variable_in_SPEC_MEMO("* You may be able to have SNAP benefits issued
 Call write_variable_in_SPEC_MEMO(" ")
 Call write_variable_in_SPEC_MEMO("  ** If we do not hear from you by " & last_contact_day & " **")
 Call write_variable_in_SPEC_MEMO("  **    your application will be denied.     **") 'add 30 days
-CALL write_variable_in_SPEC_MEMO("You now have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. To obtain information about your case please contact your worker. EMAIL: hhsews@hennepin.us ")
+' CALL write_variable_in_SPEC_MEMO("You now have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. To obtain information about your case please contact your worker. EMAIL: hhsews@hennepin.us ")
+CALL write_variable_in_SPEC_MEMO("** You can submit documents Online at www.MNBenefits.org **")
+CALL write_variable_in_SPEC_MEMO("Other options for submitting documents to Hennepin County:")
+CALL write_variable_in_SPEC_MEMO(" - Mail, Fax, or Drop Boxes at service centers")
+CALL write_variable_in_SPEC_MEMO(" - Email with document attachment.EMAIL: hhsews@hennepin.us")
+CALL write_variable_in_SPEC_MEMO("   (Only attach PNG, JPG, TIF, DOC, PDF, or HTM file types)")
 ' Call write_variable_in_SPEC_MEMO("If you are applying for a cash program for pregnant women or minor children, you may need a face-to-face interview.")
 Call write_variable_in_SPEC_MEMO(" ")
 Call write_variable_in_SPEC_MEMO("Domestic violence brochures are available at https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG.")
