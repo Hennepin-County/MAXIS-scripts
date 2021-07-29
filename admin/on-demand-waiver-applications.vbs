@@ -1239,8 +1239,8 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
             ' todays_cases = todays_cases + 1
 
             'THIS IS FOR REAL LIFE'
-            need_intv_date = dateadd("d", 10, ALL_PENDING_CASES_ARRAY(application_date, case_entry))       'setting the appointment date - it should be 7 days from the date of application
-            If need_intv_date <= date then need_intv_date = dateadd("d", 10, date)         'if this is today or in the past then we reset this for 7 days from today
+            need_intv_date = dateadd("d", 5, ALL_PENDING_CASES_ARRAY(application_date, case_entry))       'setting the appointment date - it should be 7 days from the date of application
+            If need_intv_date <= date then need_intv_date = dateadd("d", 5, date)         'if this is today or in the past then we reset this for 7 days from today
 
             Call change_date_to_soonest_working_day(need_intv_date)
 
