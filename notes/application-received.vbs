@@ -722,16 +722,8 @@ send_appt_ltr = FALSE
 IF cash_pends = TRUE or cash2_pends = TRUE or SNAP_pends = TRUE or grh_pends or instr(programs_applied_for, "EGA") THEN send_appt_ltr = TRUE
 
 IF send_appt_ltr = TRUE THEN
-	IF expedited_status = "Client Appears Expedited" THEN
-        'creates interview date for 7 calendar days from the CAF date
-    	interview_date = dateadd("d", 7, application_date)
-    	If interview_date <= date then interview_date = dateadd("d", 7, date)
-    ELSE
-        'creates interview date for 7 calendar days from the CAF date
-    	interview_date = dateadd("d", 10, application_date)
-    	If interview_date <= date then interview_date = dateadd("d", 10, date)
-    END IF
-
+    interview_date = dateadd("d", 5, application_date)
+    If interview_date <= date then interview_date = dateadd("d", 5, date)
     Call change_date_to_soonest_working_day(interview_date)
 
     application_date = application_date & ""
