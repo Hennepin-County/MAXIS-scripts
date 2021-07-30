@@ -56,33 +56,33 @@ EMConnect ""
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 296, 170, "Application Received for EMA"
+BBeginDialog Dialog1, 0, 0, 296, 160, "Application Received for EMA"
   EditBox 90, 5, 55, 15, MAXIS_case_number
   DropListBox 90, 25, 55, 15, "Select One:"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Office"+chr(9)+"Online", how_application_rcvd
-  EditBox 90, 45, 55, 15, application_date
+  EditBox 90, 40, 55, 15, application_date
   DropListBox 210, 5, 75, 15, "Select One:"+chr(9)+"Health Jeopardy"+chr(9)+"Serious Impairment"+chr(9)+"Serious Dysfunction", consequence_type
   DropListBox 210, 25, 75, 15, "Select One:"+chr(9)+"Approved"+chr(9)+"Denied"+chr(9)+"Incomplete", action_taken
-  EditBox 90, 65, 55, 15, start_date
-  EditBox 90, 85, 55, 15, end_date
-  EditBox 210, 45, 30, 15, HH_comp
-  EditBox 210, 65, 60, 15, memb_id
-  EditBox 90, 105, 195, 15, notes_income
-  EditBox 90, 125, 195, 15, verification_requested
-  EditBox 90, 150, 100, 15, worker_signature
+  EditBox 90, 60, 55, 15, start_date
+  EditBox 90, 80, 55, 15, end_date
+  EditBox 210, 40, 30, 15, HH_comp
+  EditBox 210, 60, 60, 15, memb_id
+  EditBox 90, 100, 195, 15, notes_income
+  EditBox 90, 120, 195, 15, verification_requested
+  EditBox 90, 140, 100, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 195, 150, 45, 15
-    CancelButton 240, 150, 45, 15
+    OkButton 195, 140, 45, 15
+    CancelButton 240, 140, 45, 15
   Text 5, 10, 50, 10, "Case Number:"
   Text 160, 10, 50, 10, "Consequence:"
   Text 5, 30, 70, 10, "Application Received:"
-  Text 5, 75, 70, 10, "Coverage Start Date:"
-  Text 5, 130, 85, 10, "Verifications Requested:"
-  Text 160, 50, 35, 10, "HH Comp:"
-  Text 40, 95, 35, 10, "End Date:"
-  Text 5, 55, 55, 10, "Application Date:"
-  Text 5, 155, 60, 10, "Worker Signature:"
-  Text 160, 70, 45, 10, "Identification:"
-  Text 5, 110, 60, 10, "Notes on Income:"
+  Text 5, 65, 70, 10, "Coverage Start Date:"
+  Text 5, 125, 85, 10, "Verifications Requested:"
+  Text 160, 45, 35, 10, "HH Comp:"
+  Text 40, 85, 35, 10, "End Date:"
+  Text 5, 50, 55, 10, "Application Date:"
+  Text 5, 145, 60, 10, "Worker Signature:"
+  Text 160, 65, 45, 10, "Identification:"
+  Text 5, 105, 60, 10, "Notes on Income:"
   Text 160, 30, 50, 10, "Action Taken:"
 EndDialog
 
