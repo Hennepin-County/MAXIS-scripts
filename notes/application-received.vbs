@@ -53,6 +53,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County
+call changelog_update("08/01/2021", "Changed the notices sent in 2 ways:##~## ##~## - Updated verbiage on how to submit documents to Hennepin.##~## ##~## - Appointment Notices will now be sent with a date of 5 days from the date of application.##~##", "Casey Love, Hennepin County")
 call changelog_update("03/02/2021", "Update EZ Info Phone hours from 9-4 pm to 8-4:30 pm.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/29/2021", "Updated Request for APPL handling per case assignement request. Issue #322", "MiKayla Handley, Hennepin County")
 call changelog_update("01/07/2021", "Updated worker signature as a mandatory field.", "MiKayla Handley, Hennepin County")
@@ -722,16 +723,8 @@ send_appt_ltr = FALSE
 IF cash_pends = TRUE or cash2_pends = TRUE or SNAP_pends = TRUE or grh_pends or instr(programs_applied_for, "EGA") THEN send_appt_ltr = TRUE
 
 IF send_appt_ltr = TRUE THEN
-	IF expedited_status = "Client Appears Expedited" THEN
-        'creates interview date for 7 calendar days from the CAF date
-    	interview_date = dateadd("d", 7, application_date)
-    	If interview_date <= date then interview_date = dateadd("d", 7, date)
-    ELSE
-        'creates interview date for 7 calendar days from the CAF date
-    	interview_date = dateadd("d", 10, application_date)
-    	If interview_date <= date then interview_date = dateadd("d", 10, date)
-    END IF
-
+    interview_date = dateadd("d", 5, application_date)
+    If interview_date <= date then interview_date = dateadd("d", 5, date)
     Call change_date_to_soonest_working_day(interview_date)
 
     application_date = application_date & ""
@@ -807,7 +800,13 @@ IF send_appt_ltr = TRUE THEN
     Call write_variable_in_SPEC_MEMO(" ")
     Call write_variable_in_SPEC_MEMO("  ** If we do not hear from you by " & last_contact_day & " **")
     Call write_variable_in_SPEC_MEMO("  **    your application will be denied.     **")
-    CALL write_variable_in_SPEC_MEMO("You now have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. To obtain information about your case please contact your worker. EMAIL: hhsews@hennepin.us ")
+    Call write_variable_in_SPEC_MEMO(" ")
+    CALL write_variable_in_SPEC_MEMO("** You can submit documents Online at www.MNBenefits.org **")
+    CALL write_variable_in_SPEC_MEMO("Other options for submitting documents to Hennepin County:")
+    CALL write_variable_in_SPEC_MEMO(" - Mail, Fax, or Drop Boxes at service centers")
+    CALL write_variable_in_SPEC_MEMO(" - Email with document attachment.EMAIL: hhsews@hennepin.us")
+    CALL write_variable_in_SPEC_MEMO("   (Only attach PNG, JPG, TIF, DOC, PDF, or HTM file types)")
+    ' CALL write_variable_in_SPEC_MEMO("You now have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. To obtain information about your case please contact your worker. EMAIL: hhsews@hennepin.us ")
     ' Call write_variable_in_SPEC_MEMO("If you are applying for a cash program for pregnant women or minor children, you may need a face-to-face interview.")
     Call write_variable_in_SPEC_MEMO(" ")
     Call write_variable_in_SPEC_MEMO("Domestic violence brochures are available at https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG.")

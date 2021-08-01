@@ -52,6 +52,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("08/01/2021", "Changed the notices sent in 2 ways:##~## ##~## - Updated verbiage on how to submit documents to Hennepin.##~## ##~## - Appointment Notices will now be sent with a date of 5 days from the date of application.##~##", "Casey Love, Hennepin County")
 call changelog_update("03/02/2021", "Update EZ Info Phone hours from 9-4 pm to 8-4:30 pm.", "Ilse Ferris, Hennepin County")
 call changelog_update("07/24/2020", "Updated the script to hold the comments section each day.", "MiKayla Handley, Hennepin County")
 call changelog_update("05/28/2020", "Update to the notice wording, added virtual drop box information.", "MiKayla Handley, Hennepin County")
@@ -1239,8 +1240,8 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
             ' todays_cases = todays_cases + 1
 
             'THIS IS FOR REAL LIFE'
-            need_intv_date = dateadd("d", 10, ALL_PENDING_CASES_ARRAY(application_date, case_entry))       'setting the appointment date - it should be 7 days from the date of application
-            If need_intv_date <= date then need_intv_date = dateadd("d", 10, date)         'if this is today or in the past then we reset this for 7 days from today
+            need_intv_date = dateadd("d", 5, ALL_PENDING_CASES_ARRAY(application_date, case_entry))       'setting the appointment date - it should be 7 days from the date of application
+            If need_intv_date <= date then need_intv_date = dateadd("d", 5, date)         'if this is today or in the past then we reset this for 7 days from today
 
             Call change_date_to_soonest_working_day(need_intv_date)
 
@@ -1259,6 +1260,12 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                         Call write_variable_in_SPEC_MEMO("** Wareysiga waa in la dhammaystiro ka hor " & need_intv_date & " **")
                         Call write_variable_in_SPEC_MEMO("Si loo dhammaystiro wareysiga telefoonka, wac laynka taleefanka EZ 612-596-1300 inta u dhaxaysa 8:00 aroornimo ilaa 4:30 galabnimo Isniina ilaa Jimcaha.")
                         Call write_variable_in_SPEC_MEMO("* Waxaa dhici karta in lagu siiyo gargaarka SNAP 24 saac gudahood wareysiga kaddib.")
+						CALL write_variable_in_SPEC_MEMO("** You can submit documents Online at www.MNBenefits.org **")
+						Call write_variable_in_SPEC_MEMO(" ")
+						CALL write_variable_in_SPEC_MEMO("Other options for submitting documents to Hennepin County:")
+						CALL write_variable_in_SPEC_MEMO(" - Mail, Fax, or Drop Boxes at service centers")
+						CALL write_variable_in_SPEC_MEMO(" - Email with document attachment.EMAIL: hhsews@hennepin.us")
+						CALL write_variable_in_SPEC_MEMO("   (Only attach PNG, JPG, TIF, DOC, PDF, or HTM file types)")
 						'removal of in person verbiage during the COVID-19 PEACETIME STATE OF EMERGENCY
                         ' Call write_variable_in_SPEC_MEMO("Haddii aad rabto inaad samaysato ballan wareysi, wac 612-596-1300. Waxa kale oo aad iman kartaa mid ka mid ah lixda xafiis ee hoos ku qoran si loo sameeyo wareysi gof ahaaneed inta u dhexeeya 8 ilaa 4:30, Isniinta ilaa jmcaha.")
                         ' Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
@@ -1287,6 +1294,12 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                         Call write_variable_in_SPEC_MEMO("**La entrevista debe ser completada para el " & day_first_intv_date & ".**")
                         Call write_variable_in_SPEC_MEMO("Para completar una entrevista telefonica, llame a la linea de informacion EZ al 612-596-1300 entre las 8:00 a.m. y las 4:30 p.m. de lunes a viernes.")
                         Call write_variable_in_SPEC_MEMO("*Puede recibir los beneficios de SNAP dentro de las 24 horas de realizada la entrevista.")
+						Call write_variable_in_SPEC_MEMO(" ")
+						CALL write_variable_in_SPEC_MEMO("** You can submit documents Online at www.MNBenefits.org **")
+						CALL write_variable_in_SPEC_MEMO("Other options for submitting documents to Hennepin County:")
+						CALL write_variable_in_SPEC_MEMO(" - Mail, Fax, or Drop Boxes at service centers")
+						CALL write_variable_in_SPEC_MEMO(" - Email with document attachment.EMAIL: hhsews@hennepin.us")
+						CALL write_variable_in_SPEC_MEMO("   (Only attach PNG, JPG, TIF, DOC, PDF, or HTM file types)")
 						'removal of in person verbiage during the COVID-19 PEACETIME STATE OF EMERGENCY
                         ' Call write_variable_in_SPEC_MEMO("Si desea programar una entrevista, llame al 612-596-1300. Tambien puede acercarse a cualquiera de las seis oficinas mencionadas debajo para tener una entrevista personal entre las 8 y las 4:30 de lunes a viernes.")
                         ' Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
@@ -1312,6 +1325,12 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                         Call write_variable_in_SPEC_MEMO("** Txoj kev xam phaj mas yuav tsum tshwm sim ua ntej lub " & need_intv_date & ". **")
                         Call write_variable_in_SPEC_MEMO("Yog xam phaj hauv xov tooj, hu rau EZ Info Line ntawm 612-596-1300 thaum 8:00am thib 4:30pm hnub Mon txog Fri.")
                         Call write_variable_in_SPEC_MEMO("* Koj yuav tsim nyob tau cov kev pab SNAP uas siv tau 24 teev tom qab kev xam phaj.")
+						Call write_variable_in_SPEC_MEMO(" ")
+						CALL write_variable_in_SPEC_MEMO("** You can submit documents Online at www.MNBenefits.org **")
+						CALL write_variable_in_SPEC_MEMO("Other options for submitting documents to Hennepin County:")
+						CALL write_variable_in_SPEC_MEMO(" - Mail, Fax, or Drop Boxes at service centers")
+						CALL write_variable_in_SPEC_MEMO(" - Email with document attachment.EMAIL: hhsews@hennepin.us")
+						CALL write_variable_in_SPEC_MEMO("   (Only attach PNG, JPG, TIF, DOC, PDF, or HTM file types)")
 						'removal of in person verbiage during the COVID-19 PEACETIME STATE OF EMERGENCY
                         ' Call write_variable_in_SPEC_MEMO(" Yog hais tias koj xav teem tuaj xam phaj, hu 612-596-1300 Koj kuj tuaj tau rau ib lub ntawm rau lub hoob kas nyob hauv qab no tuaj xam phaj tim ntej muag thaum 8 thiab 4:30, hnub Monday txog Friday.")
                         ' Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
@@ -1368,7 +1387,13 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                         Call write_variable_in_SPEC_MEMO("612-596-1300 between 8:00am and 4:30pm Monday thru Friday.")
                         Call write_variable_in_SPEC_MEMO(" ")
                         Call write_variable_in_SPEC_MEMO("* You may be able to have SNAP benefits issued within 24 hours of the interview.")
-						CALL write_variable_in_SPEC_MEMO("You now have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. To obtain information about your case please contact your worker. EMAIL: hhsews@hennepin.us")
+						Call write_variable_in_SPEC_MEMO(" ")
+						CALL write_variable_in_SPEC_MEMO("** You can submit documents Online at www.MNBenefits.org **")
+						CALL write_variable_in_SPEC_MEMO("Other options for submitting documents to Hennepin County:")
+						CALL write_variable_in_SPEC_MEMO(" - Mail, Fax, or Drop Boxes at service centers")
+						CALL write_variable_in_SPEC_MEMO(" - Email with document attachment.EMAIL: hhsews@hennepin.us")
+						CALL write_variable_in_SPEC_MEMO("   (Only attach PNG, JPG, TIF, DOC, PDF, or HTM file types)")
+						' CALL write_variable_in_SPEC_MEMO("You now have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. To obtain information about your case please contact your worker. EMAIL: hhsews@hennepin.us")
 						' Call write_variable_in_SPEC_MEMO(" ")					'removal of in person verbiage during the COVID-19 PEACETIME STATE OF EMERGENCY
                         ' Call write_variable_in_SPEC_MEMO("If you wish to schedule an interview, call 612-596-1300. You may also come to any of the six offices below for an in-person interview between 8 and 4:30, Monday thru Friday.")
                         ' Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
@@ -1479,7 +1504,13 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                         Call write_variable_in_SPEC_MEMO("Wareysi ayaa loo baahan yahay is loo hirgeliyo codsigaaga.")
                         Call write_variable_in_SPEC_MEMO("Si aad u dhamaystirto wareysiga telefoonka, wac laynka taleefanka EZ 612-596-1300 inta u dhaxaysa 8:00 subaxnimo ilaa 4:30 galabnimo Isniinta ilaa Jimcaha.")
                         Call write_variable_in_SPEC_MEMO("* Waxaa dhici karta in lagu siiyo gargaarka SNAP 24 saac gudahood wareysiga kaddib.")
-						CALL write_variable_in_SPEC_MEMO("You now have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. To obtain information about your case please contact your worker. EMAIL: hhsews@hennepin.us")
+						Call write_variable_in_SPEC_MEMO(" ")
+						CALL write_variable_in_SPEC_MEMO("** You can submit documents Online at www.MNBenefits.org **")
+						CALL write_variable_in_SPEC_MEMO("Other options for submitting documents to Hennepin County:")
+						CALL write_variable_in_SPEC_MEMO(" - Mail, Fax, or Drop Boxes at service centers")
+						CALL write_variable_in_SPEC_MEMO(" - Email with document attachment.EMAIL: hhsews@hennepin.us")
+						CALL write_variable_in_SPEC_MEMO("   (Only attach PNG, JPG, TIF, DOC, PDF, or HTM file types)")
+						' CALL write_variable_in_SPEC_MEMO("You now have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. To obtain information about your case please contact your worker. EMAIL: hhsews@hennepin.us")
 						Call write_variable_in_SPEC_MEMO(" ")
 						'removal of in person verbiage during the COVID-19 PEACETIME STATE OF EMERGENCY
                         ' Call write_variable_in_SPEC_MEMO("Haddii aad rabto inaad samaysato ballan wareysi, wac 612-596-1300. Waxa kale oo aad iman kartaa mid ka mid ah lixda xafiis ee hoos ku qoran si loo sameeyo wareysi gof ahaaneed inta u dhexeeya 8 ilaa 4:30, Isniinta ilaa jmcaha.")
@@ -1512,7 +1543,13 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                         Call write_variable_in_SPEC_MEMO("")
                         Call write_variable_in_SPEC_MEMO("Para completar una entrevista telefonica, llame a la linea de informacion EZ al 612-596-1300 entre las 8:00 a.m. y las 4:30 p.m. de lunes a viernes.")
                         Call write_variable_in_SPEC_MEMO("*Puede recibir los beneficios de SNAP dentro de las 24 horas de realizada la entrevista.")
-						CALL write_variable_in_SPEC_MEMO("You now have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. To obtain information about your case please contact your worker. EMAIL: hhsews@hennepin.us")
+						Call write_variable_in_SPEC_MEMO(" ")
+						CALL write_variable_in_SPEC_MEMO("** You can submit documents Online at www.MNBenefits.org **")
+						CALL write_variable_in_SPEC_MEMO("Other options for submitting documents to Hennepin County:")
+						CALL write_variable_in_SPEC_MEMO(" - Mail, Fax, or Drop Boxes at service centers")
+						CALL write_variable_in_SPEC_MEMO(" - Email with document attachment.EMAIL: hhsews@hennepin.us")
+						CALL write_variable_in_SPEC_MEMO("   (Only attach PNG, JPG, TIF, DOC, PDF, or HTM file types)")
+						' CALL write_variable_in_SPEC_MEMO("You now have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. To obtain information about your case please contact your worker. EMAIL: hhsews@hennepin.us")
 						Call write_variable_in_SPEC_MEMO(" ")
 						'removal of in person verbiage during the COVID-19 PEACETIME STATE OF EMERGENCY
                         ' Call write_variable_in_SPEC_MEMO("Si desea programar una entrevista, llame al 612-596-1300. Tambien puede acercarse a cualquiera de las seis oficinas mencionadas debajo para tener una entrevista personal entre las 8 y las 4:30 de lunes a viernes.")
@@ -1538,7 +1575,13 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                         Call write_variable_in_SPEC_MEMO("Koj nyuam qhuav ua ntawv tuaj thov kev pav thaum lub " & ALL_PENDING_CASES_ARRAY(application_date, case_entry) & ". Kev yuav xam phaj koj mas yuav tsum tiav hlo rau thaum lub " & ALL_PENDING_CASES_ARRAY(appointment_date, case_entry) & ". Yuav tsum muaj kev xam phaj mas thiaj li yuav pib khiav tau koj cov ntaub ntawv.")
                         Call write_variable_in_SPEC_MEMO("  Yog xam phaj hauv xov tooj, hu rau EZ Info Line ntawm 612-596-1300 thaum 8:00am thib 4:30pm hnub Mon txog Fri.")
                         Call write_variable_in_SPEC_MEMO("* Koj yuav tsim nyob tau cov kev pab SNAP uas siv tau 24 teev tom qab kev xam phaj.")
-						CALL write_variable_in_SPEC_MEMO("You now have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. To obtain information about your case please contact your worker. EMAIL: hhsews@hennepin.us")
+						Call write_variable_in_SPEC_MEMO(" ")
+						CALL write_variable_in_SPEC_MEMO("** You can submit documents Online at www.MNBenefits.org **")
+						CALL write_variable_in_SPEC_MEMO("Other options for submitting documents to Hennepin County:")
+						CALL write_variable_in_SPEC_MEMO(" - Mail, Fax, or Drop Boxes at service centers")
+						CALL write_variable_in_SPEC_MEMO(" - Email with document attachment.EMAIL: hhsews@hennepin.us")
+						CALL write_variable_in_SPEC_MEMO("   (Only attach PNG, JPG, TIF, DOC, PDF, or HTM file types)")
+						' CALL write_variable_in_SPEC_MEMO("You now have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. To obtain information about your case please contact your worker. EMAIL: hhsews@hennepin.us")
 						Call write_variable_in_SPEC_MEMO(" ")
 						'removal of in person verbiage during the COVID-19 PEACETIME STATE OF EMERGENCY
                         ' Call write_variable_in_SPEC_MEMO(" Yog hais tias koj xav teem tuaj xam phaj, hu 612-596-1300 Koj kuj tuaj tau rau ib lub ntawm rau lub hoob kas nyob hauv qab no tuaj xam phaj tim ntej muag thaum 8 thiab 4:30, hnub Monday txog Friday.")
@@ -1596,7 +1639,13 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                         Call write_variable_in_SPEC_MEMO("612-596-1300 between 8:00am and 4:30pm Monday thru Friday.")
                         Call write_variable_in_SPEC_MEMO(" ")
                         Call write_variable_in_SPEC_MEMO("* You may be able to have SNAP benefits issued within 24 hours of the interview.")
-						CALL write_variable_in_SPEC_MEMO("You now have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. To obtain information about your case please contact your worker. EMAIL: hhsews@hennepin.us")
+						Call write_variable_in_SPEC_MEMO(" ")
+						CALL write_variable_in_SPEC_MEMO("** You can submit documents Online at www.MNBenefits.org **")
+						CALL write_variable_in_SPEC_MEMO("Other options for submitting documents to Hennepin County:")
+						CALL write_variable_in_SPEC_MEMO(" - Mail, Fax, or Drop Boxes at service centers")
+						CALL write_variable_in_SPEC_MEMO(" - Email with document attachment.EMAIL: hhsews@hennepin.us")
+						CALL write_variable_in_SPEC_MEMO("   (Only attach PNG, JPG, TIF, DOC, PDF, or HTM file types)")
+						' CALL write_variable_in_SPEC_MEMO("You now have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. To obtain information about your case please contact your worker. EMAIL: hhsews@hennepin.us")
                         Call write_variable_in_SPEC_MEMO(" ")
 						'removal of in person verbiage during the COVID-19 PEACETIME STATE OF EMERGENCY
                         ' Call write_variable_in_SPEC_MEMO("If you wish to schedule an interview, call 612-596-1300. You may also come to any of the six offices below for an in-person interview between 8 and 4:30, Monday thru Friday.")
