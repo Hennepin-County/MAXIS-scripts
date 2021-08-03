@@ -50,11 +50,64 @@ call changelog_update("10/15/2020", "Initial version.", "Ilse Ferris, Hennepin C
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
+exp_assignment_folder = t_drive & "\Eligibility Support\Assignments\Expedited Information"
+Set objFolder = objFSO.GetFolder(exp_assignment_folder)										'Creates an oject of the whole my documents folder
+Set colFiles = objFolder.Files																'Creates an array/collection of all the files in the folder
 
 'Open an existing Excel for the year
 report_out_file = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\2021 EXP Determination Report Out.xlsx"
 
 Call excel_open(report_out_file, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
+
+For Each objWorkSheet In objWorkbook.Worksheets
+    If instr(objWorkSheet.Name, "ALL CASES") <> 0 Then
+        objWorkSheet.Activate
+        Exit For
+    End If
+Next
+total_excel_row = 1
+Do
+    total_excel_row = total_excel_row + 1
+    this_case_number = trim(ObjExcel.Cells(total_excel_row, 1).Value)
+Loop Until this_case_number = ""
+
+For Each objFile in colFiles																'looping through each file
+
+    this_file_path = objFile.Path
+    ' MsgBox this_file_path
+    'Setting the object to open the text file for reading the data already in the file
+    Set objTextStream = objFSO.OpenTextFile(this_file_path, ForReading)
+
+    'Reading the entire text file into a string
+    every_line_in_text_file = objTextStream.ReadAll
+
+    exp_det_details = split(every_line_in_text_file, vbNewLine)
+
+    For Each text_line in exp_det_details
+        If Instr(text_line, "^*^*^") <> 0 Then
+            line_info = split(text_line, "^*^*^")
+            line_info(0) = trim(line_info(0))
+            If line_info(0) = "CASE NUMBER" Then ObjExcel.Cells(total_excel_row, 1).Value = line_info(1)
+            If line_info(0) = "WORKER NAME" Then ObjExcel.Cells(total_excel_row, 2).Value = line_info(1)
+            If line_info(0) = "CASE X NUMBER" Then ObjExcel.Cells(total_excel_row, 3).Value = line_info(1)
+            If line_info(0) = "DATE OF APPLICATION" Then ObjExcel.Cells(total_excel_row, 4).Value = line_info(1)
+            If line_info(0) = "DATE OF INTERVIEW" Then ObjExcel.Cells(total_excel_row, 5).Value = line_info(1)
+            If line_info(0) = "EXPEDITED SCREENING STATUS" Then ObjExcel.Cells(total_excel_row, 6).Value = line_info(1)
+            If line_info(0) = "EXPEDITED DETERMINATION STATUS" Then ObjExcel.Cells(total_excel_row, 7).Value = line_info(1)
+            If line_info(0) = "DATE OF APPROVAL" Then ObjExcel.Cells(total_excel_row, 8).Value = line_info(1)
+            If line_info(0) = "SNAP DENIAL DATE" Then ObjExcel.Cells(total_excel_row, 9).Value = line_info(1)
+            If line_info(0) = "SNAP DENIAL REASON" Then ObjExcel.Cells(total_excel_row, 10).Value = line_info(1)
+            If line_info(0) = "ID ON FILE" Then ObjExcel.Cells(total_excel_row, 11).Value = line_info(1)
+            If line_info(0) = "END DATE OF SNAP IN ANOTHER STATE" Then ObjExcel.Cells(total_excel_row, 12).Value = line_info(1)
+            If line_info(0) = "EXPEDITED APPROVE PREVIOUSLY POSTPONED" Then ObjExcel.Cells(total_excel_row, 13).Value = line_info(1)
+            If line_info(0) = "EXPLAIN APPROVAL DELAYS" Then ObjExcel.Cells(total_excel_row, 14).Value = line_info(1)
+            If line_info(0) = "POSTPONED VERIFICATIONS" Then ObjExcel.Cells(total_excel_row, 15).Value = line_info(1)
+            If line_info(0) = "WHAT ARE THE POSTPONED VERIFICATIONS" Then ObjExcel.Cells(total_excel_row, 16).Value = line_info(1)
+            If line_info(0) = "DATE OF SCRIPT RUN" Then ObjExcel.Cells(total_excel_row, 17).Value = line_info(1)
+        End If
+    Next
+    total_excel_row = total_excel_row + 1
+Next
 
 'Add a sheet to the Excel with the report date
 sheet_friendly_date = replace(date, "/", "-")
@@ -83,9 +136,7 @@ ObjExcel.Rows(1).Font.Bold = True
 
 excel_row = 2
 'Create an array of all of the files in the folder
-exp_assignment_folder = t_drive & "\Eligibility Support\Assignments\Expedited Information"
-Set objFolder = objFSO.GetFolder(exp_assignment_folder)										'Creates an oject of the whole my documents folder
-Set colFiles = objFolder.Files																'Creates an array/collection of all the files in the folder
+
 For Each objFile in colFiles																'looping through each file
 
     this_file_path = objFile.Path
@@ -127,6 +178,8 @@ For Each objFile in colFiles																'looping through each file
 
 Next
 
+Const xlSrcRange = 1
+Const xlYes = 1
 xlVAlignTop = -4160
 xlHAlignLeft = -4131
 For col = 1 to 17
@@ -140,10 +193,26 @@ ObjExcel.Columns(10).ColumnWidth = 150
 ObjExcel.Columns(10).WrapText = True
 ObjExcel.Columns(14).ColumnWidth = 150
 ObjExcel.Columns(14).WrapText = True
+
+tableRange = "A1:Q" & excel_row-1
+table_friendly_date = replace(date, "/", "")
+table_friendly_date = trim(table_friendly_date)
+table_name = table_friendly_date & "TABLE"
+ObjExcel.ActiveSheet.ListObjects.Add(xlSrcRange, tableRange, xlYes).Name = table_name
+' ObjExcel.ActiveSheet.ListObjects(table_name).TableStyle = "TableStyleDark2"
+
 'Loop through each one
     'read the files one by one
     'Add detail of the files to the Excel sheet
 'Update statistics in the Excel
+
+For Each objWorkSheet In objWorkbook.Worksheets
+    If instr(objWorkSheet.Name, "Statistics") <> 0 Then
+        objWorkSheet.Activate
+        Exit For
+    End If
+Next
+
 
 
 'SAVE EXCEL'
