@@ -56,7 +56,7 @@ EMConnect ""
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BBeginDialog Dialog1, 0, 0, 296, 160, "Application Received for EMA"
+BeginDialog Dialog1, 0, 0, 296, 160, "Application Received for EMA"
   EditBox 90, 5, 55, 15, MAXIS_case_number
   DropListBox 90, 25, 55, 15, "Select One:"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Office"+chr(9)+"Online", how_application_rcvd
   EditBox 90, 40, 55, 15, application_date
