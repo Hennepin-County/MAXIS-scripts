@@ -169,6 +169,8 @@ function app_month_income_detail(determined_income, income_review_completed, job
 					  y_pos = y_pos + 10
 
 					  For the_job = 0 to UBound(JOBS_ARRAY, 2)
+					  	  JOBS_ARRAY(jobs_wage_const, the_job) = JOBS_ARRAY(jobs_wage_const, the_job) & ""
+						  JOBS_ARRAY(jobs_hours_const, the_job) = JOBS_ARRAY(jobs_hours_const, the_job) & ""
 						  EditBox 20, y_pos, 60, 15, JOBS_ARRAY(jobs_employee_const, the_job)
 						  EditBox 90, y_pos, 85, 15, JOBS_ARRAY(jobs_employer_const, the_job)
 						  EditBox 185, y_pos, 50, 15, JOBS_ARRAY(jobs_wage_const, the_job)
@@ -196,6 +198,9 @@ function app_month_income_detail(determined_income, income_review_completed, job
 					  y_pos = y_pos + 10
 					  ' Text 305, y_pos, 50, 10, "Pay Frequency"
 					  For the_busi = 0 to UBound(BUSI_ARRAY, 2)
+					  	  BUSI_ARRAY(busi_monthly_earnings_const, the_busi) = BUSI_ARRAY(busi_monthly_earnings_const, the_busi) & ""
+						  BUSI_ARRAY(busi_annual_earnings_const, the_busi) = BUSI_ARRAY(busi_annual_earnings_const, the_busi) & ""
+
 						  EditBox 20, y_pos, 95, 15, BUSI_ARRAY(busi_owner_const, the_busi)
 						  EditBox 125, y_pos, 95, 15, BUSI_ARRAY(busi_info_const, the_busi)
 						  EditBox 230, y_pos, 50, 15, BUSI_ARRAY(busi_monthly_earnings_const, the_busi)
@@ -222,6 +227,8 @@ function app_month_income_detail(determined_income, income_review_completed, job
 					  y_pos = y_pos + 10
 					  ' Text 305, y_pos, 50, 10, "Pay Frequency"
 					  For the_unea = 0 to UBound(UNEA_ARRAY, 2)
+						  UNEA_ARRAY(unea_monthly_earnings_const, the_unea) = UNEA_ARRAY(unea_monthly_earnings_const, the_unea) & ""
+						  UNEA_ARRAY(unea_weekly_earnings_const, the_unea) = UNEA_ARRAY(unea_weekly_earnings_const, the_unea) & ""
 						  EditBox 20, y_pos, 95, 15, UNEA_ARRAY(unea_owner_const, the_unea)
 						  EditBox 125, y_pos, 95, 15, UNEA_ARRAY(unea_info_const, the_unea)
 						  EditBox 230, y_pos, 50, 15, UNEA_ARRAY(unea_monthly_earnings_const, the_unea)
@@ -306,10 +313,12 @@ function app_month_income_detail(determined_income, income_review_completed, job
 					If BUSI_ARRAY(busi_monthly_earnings_const, the_busi) <> "" AND IsNumeric(BUSI_ARRAY(busi_monthly_earnings_const, the_busi)) = False Then busi_err_msg = busi_err_msg & vbCr & "* Enter the amount that " & BUSI_ARRAY(busi_owner_const, the_busi) & " earns monthly from " & BUSI_ARRAY(busi_info_const, the_busi) & "."
 					If BUSI_ARRAY(busi_annual_earnings_const, the_busi) <> "" AND IsNumeric(BUSI_ARRAY(busi_annual_earnings_const, the_busi)) = False Then busi_err_msg = busi_err_msg & vbCr & "* Enter the number of hours " & BUSI_ARRAY(busi_owner_const, the_busi) & " earns yearly from " & BUSI_ARRAY(busi_info_const, the_busi) & "."
 					If IsNumeric(BUSI_ARRAY(busi_monthly_earnings_const, the_busi)) = True AND IsNumeric(BUSI_ARRAY(busi_annual_earnings_const, the_busi)) = True Then
+						BUSI_ARRAY(busi_monthly_earnings_const, the_busi) = FormatNumber(BUSI_ARRAY(busi_monthly_earnings_const, the_busi), 2, -1, 0, -1)
+						BUSI_ARRAY(busi_annual_earnings_const, the_busi) = FormatNumber(BUSI_ARRAY(busi_annual_earnings_const, the_busi), 2, -1, 0, -1)
 						annual_from_monthly = 0
 						annual_from_monthly =  BUSI_ARRAY(busi_monthly_earnings_const, the_busi) * 12
 						annual_from_monthly = FormatNumber(annual_from_monthly, 2, -1, 0, -1)
-						If annual_from_monthly <> FormatNumber(BUSI_ARRAY(busi_monthly_earnings_const, the_busi), 2, -1, 0, -1) Then busi_err_msg = busi_err_msg & vbCr & "* The annual amount does not match up with the monthly amount entered. The Annual earnings should be 12 times the Monthly earnings. You only need to enter one of these amounts."
+						If annual_from_monthly <> BUSI_ARRAY(busi_annual_earnings_const, the_busi) Then busi_err_msg = busi_err_msg & vbCr & "* The annual amount does not match up with the monthly amount entered. The Annual earnings should be 12 times the Monthly earnings. You only need to enter one of these amounts."
 					ElseIf IsNumeric(BUSI_ARRAY(busi_monthly_earnings_const, the_busi)) = True AND BUSI_ARRAY(busi_annual_earnings_const, the_busi) = "" Then
 						BUSI_ARRAY(busi_annual_earnings_const, the_busi) = FormatNumber(BUSI_ARRAY(busi_monthly_earnings_const, the_busi)*12, 2, -1, 0, -1)
 					ElseIf IsNumeric(BUSI_ARRAY(busi_annual_earnings_const, the_busi)) = True AND BUSI_ARRAY(busi_monthly_earnings_const, the_busi) = "" Then
@@ -329,7 +338,7 @@ function app_month_income_detail(determined_income, income_review_completed, job
 					If UNEA_ARRAY(unea_owner_const, the_unea) = "" Then unea_err_msg = unea_err_msg & vbCr & "* Enter the name of the the person who received this Unearned Income."
 					If UNEA_ARRAY(unea_info_const, the_unea) = "" Then unea_err_msg = unea_err_msg & vbCr & "* Enter the information of what type of Unearned Income this is listed."
 					If IsNumeric(UNEA_ARRAY(unea_monthly_earnings_const, the_unea)) = True AND IsNumeric(UNEA_ARRAY(unea_weekly_earnings_const, the_unea)) = True Then
-						unea_err_msg = unea_err_msg & vbCr & "* Enter Only one of the following: Weekly Amount or Monthly Amount"
+						If FormatNumber(UNEA_ARRAY(unea_monthly_earnings_const, the_unea), 0) <> FormatNumber(UNEA_ARRAY(unea_weekly_earnings_const, the_unea) * 4.3, 0) Then unea_err_msg = unea_err_msg & vbCr & "* Enter Only one of the following: Weekly Amount or Monthly Amount"
 					ElseIf IsNumeric(UNEA_ARRAY(unea_monthly_earnings_const, the_unea)) = False AND UNEA_ARRAY(unea_weekly_earnings_const, the_unea) = "" Then
 						unea_err_msg = unea_err_msg & vbCr & "* Enter the amount that " & UNEA_ARRAY(unea_owner_const, the_unea) & " receives per month from " & UNEA_ARRAY(unea_info_const, the_unea) & " as a number."
 					ElseIf IsNumeric(UNEA_ARRAY(unea_weekly_earnings_const, the_unea)) = False AND UNEA_ARRAY(unea_monthly_earnings_const, the_unea) = "" Then
@@ -379,37 +388,40 @@ function app_month_asset_detail(determined_assets, assets_review_completed, cash
 
 	original_assets = determined_assets
 	determined_assets = 0
-	Do
-		prvt_err_msg = ""
+	If cash_amount_yn <> "Yes" OR bank_account_yn <> "Yes" Then
+		Do
+			prvt_err_msg = ""
 
-		Dialog1 = ""
-		BeginDialog Dialog1, 0, 0, 271, 135, "Determination of Assets in Month of Application"
-		  Text 10, 10, 205, 10, "Are there any Liquid Assets available to the household?"
-		  GroupBox 10, 25, 255, 40, "Cash"
-		  Text 25, 45, 155, 10, "Does the household have any Cash Savings?"
-		  DropListBox 180, 40, 45, 45, "?"+chr(9)+"Yes"+chr(9)+"No", cash_amount_yn
-		  GroupBox 10, 70, 255, 40, "Accounts"
-		  Text 20, 90, 190, 10, "Does anyone in the household have any Bank Accounts?"
-		  DropListBox 210, 85, 45, 45, "?"+chr(9)+"Yes"+chr(9)+"No", bank_account_yn
-		  ButtonGroup ButtonPressed
-		    PushButton 215, 115, 50, 15, "Enter", enter_btn
-		EndDialog
+			Dialog1 = ""
+			BeginDialog Dialog1, 0, 0, 271, 135, "Determination of Assets in Month of Application"
+			  Text 10, 10, 205, 10, "Are there any Liquid Assets available to the household?"
+			  GroupBox 10, 25, 255, 40, "Cash"
+			  Text 25, 45, 155, 10, "Does the household have any Cash Savings?"
+			  DropListBox 180, 40, 45, 45, "?"+chr(9)+"Yes"+chr(9)+"No", cash_amount_yn
+			  GroupBox 10, 70, 255, 40, "Accounts"
+			  Text 20, 90, 190, 10, "Does anyone in the household have any Bank Accounts?"
+			  DropListBox 210, 85, 45, 45, "?"+chr(9)+"Yes"+chr(9)+"No", bank_account_yn
+			  ButtonGroup ButtonPressed
+			    PushButton 215, 115, 50, 15, "Enter", enter_btn
+			EndDialog
 
-		dialog Dialog1
-		If ButtonPressed = 0 Then
-			assets_review_completed = False
-			Exit Do
-		End If
+			dialog Dialog1
+			If ButtonPressed = 0 Then
+				assets_review_completed = False
+				Exit Do
+			End If
 
-		If cash_amount_yn = "?" Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter if the household has CASH."
-		If bank_account_yn = "?" Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter if the household has A BANK ACCOUNT."
+			If cash_amount_yn = "?" Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter if the household has CASH."
+			If bank_account_yn = "?" Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter if the household has A BANK ACCOUNT."
 
-		If prvt_err_msg <> "" Then MsgBox prvt_err_msg
-	Loop until prvt_err_msg = ""
+			If prvt_err_msg <> "" Then MsgBox prvt_err_msg
+		Loop until prvt_err_msg = ""
+	End If
 
 	If assets_review_completed = True Then
 		Do
 			prvt_err_msg = ""
+			cash_amount = cash_amount & ""
 
 			If cash_amount_yn = "No" Then cash_grp_len = 30
 			If cash_amount_yn = "Yes" Then cash_grp_len = 50
@@ -504,6 +516,14 @@ function app_month_housing_detail(determined_shel, shel_review_completed, rent_a
 	return_btn = 5001
 
 	shel_review_completed = True
+	rent_amount = rent_amount & ""
+	lot_rent_amount = lot_rent_amount & ""
+	mortgage_amount = mortgage_amount & ""
+	insurance_amount = insurance_amount & ""
+	tax_amount = tax_amount & ""
+	room_amount = room_amount & ""
+	garage_amount = garage_amount & ""
+	subsidy_amount = subsidy_amount & ""
 
 	original_shel = determined_shel
 	determined_shel = 0
@@ -646,6 +666,168 @@ function app_month_utility_detail(determined_utilities, heat_expense, ac_expense
 	ButtonPressed = utility_calc_btn
 end function
 
+Function determine_actions(case_assesment_text, next_steps_one, next_steps_two, next_steps_three, next_steps_four, is_elig_XFS, snap_denial_date, approval_date, date_of_application, do_we_have_applicant_id, action_due_to_out_of_state_benefits, mn_elig_begin_date, other_snap_state, case_has_previously_postponed_verifs_that_prevent_exp_snap, delay_action_due_to_faci, deny_snap_due_to_faci)
+
+	case_assesment_text = ""
+	next_steps_one = ""
+	next_steps_two = ""
+	next_steps_three = ""
+	next_steps_four = ""
+	If IsDate(snap_denial_date) = True Then
+		case_assesment_text = "DENIAL has been determined - Case does not meet 'All Other Eligibility Criteria'."
+		next_steps_one = "Complete the DENIAL by updating MAXIS and enter a full, detaild DENIAL CASE/NOTE. Complete the full processing before moving on to your next task."
+
+		If action_due_to_out_of_state_benefits = "DENY" Then
+			add_msg = "Update MEMI with out of state benefit information to generate accurate DENIAL Results. Add a WCOM to the denial advising resident to reapply within 30 days of the benefits ending in the other state."
+			If next_steps_two = "" then
+				next_steps_two = add_msg
+			ElseIf next_steps_three = "" Then
+				next_steps_three = add_msg
+			ElseIf next_steps_four = "" Then
+				next_steps_four = add_msg
+			End If
+		End If
+		If deny_snap_due_to_faci = True Then
+			add_msg = "Ensure FACI is coded correctly for accurate DENIAL. Add a WCOM to the denials advising resident to rapply when release from the facility is within 30 days."
+			If next_steps_two = "" then
+				next_steps_two = add_msg
+			ElseIf next_steps_three = "" Then
+				next_steps_three = add_msg
+			ElseIf next_steps_four = "" Then
+				next_steps_four = add_msg
+			End If
+		End If
+
+		add_msg = "Process this denial quickly as a PENDING SNAP case will continue to be assigned until acted on, once the determination is done and action can be taken, we do not want to reassign this case."
+		If next_steps_two = "" then
+			next_steps_two = add_msg
+		ElseIf next_steps_three = "" Then
+			next_steps_three = add_msg
+		ElseIf next_steps_four = "" Then
+			next_steps_four = add_msg
+		End If
+
+		add_msg = "Denials can be coded in REPT/PND2 if they are for a resident 'Withdraw' of their request. Otherise, since the interview should be done at this point, denials should be processed in STAT."
+		If next_steps_three = "" Then
+			next_steps_three = add_msg
+		ElseIf next_steps_four = "" Then
+			next_steps_four = add_msg
+		End If
+
+		add_msg = "It is best practice to add detail to the Denial WCOM for clarity for the resident."
+		If next_steps_four = "" Then next_steps_four = add_msg
+	ElseIf is_elig_XFS = True Then
+		If IsDate(approval_date) = True Then
+			case_assesment_text = "Case appears EXPEDITED and ready to approve"
+			next_steps_one = "Approve SNAP Expedited package of " & expedited_package & " before moving on to your next task. Update MAXIS STAT panels to generate EXPEDITED SNAP Eligibility Results and APPROVE."
+
+			If action_due_to_out_of_state_benefits = "APPROVE" AND mn_elig_begin_date <> date_of_application Then
+				If DateDiff("d", date, mn_elig_begin_date) > 0 Then
+					add_msg = "After approval, send a BENE request in SIR to have benefits issued on " & mn_elig_begin_date & " instead of the regular issuance day."
+					If next_steps_two = "" then
+						next_steps_two = add_msg
+					ElseIf next_steps_three = "" Then
+						next_steps_three = add_msg
+					ElseIf next_steps_four = "" Then
+						next_steps_four = add_msg
+					End If
+				End If
+			End If
+
+			add_msg = "Remember, EXPEDITED is based on income, assets, and shelter/utility expenses only. Even having a delay reason does not mean the case is not still EXPEDITED."
+			If next_steps_two = "" then
+				next_steps_two = add_msg
+			ElseIf next_steps_three = "" Then
+				next_steps_three = add_msg
+			ElseIf next_steps_four = "" Then
+				next_steps_four = add_msg
+			End If
+
+			add_msg = "We attempt to approve expedited within 24 hours of the date of application, or as close to that time as possible. It is crucial we complete the approval at the time we determine the case to be EXPEDITED."
+			If next_steps_three = "" Then
+				next_steps_three = add_msg
+			ElseIf next_steps_four = "" Then
+				next_steps_four = add_msg
+			End If
+
+			add_msg = "EBT Card information can be found below, but often requires contact with the resident, remember REI issuances can prevent residents from receiving their card."
+			If next_steps_four = "" Then next_steps_four = add_msg
+		Else
+			case_assesment_text = "Case appears EXPEDITED but approval must be delayed."
+			next_steps_one = "We must strive to approve this case for the EXPEDITED package of " & expedited_package & " as soon as possible. Make every effort to complete the requirements of this delay and approve the case"
+
+			If do_we_have_applicant_id = False Then
+				add_msg = "Double check the case file for ANY document that can be used as an identity document.Advise resident to get us ANY form of ID they can, MNBenefits or the virtual dropbox may be quickest way to receive theis document."
+				If next_steps_two = "" then
+					next_steps_two = add_msg
+				ElseIf next_steps_three = "" Then
+					next_steps_three = add_msg
+				ElseIf next_steps_four = "" Then
+					next_steps_four = add_msg
+				End If
+			End If
+			If action_due_to_out_of_state_benefits = "FOLLOW UP" Then
+				If other_snap_state <> "" Then add_msg = "Contact " & other_snap_state & " as soon as possible to determine the end date of of SNAP in " & other_snap_state & "."
+				If other_snap_state = "" Then add_msg = "Contact the other state as soon as possible to determine the end date of of SNAP in that state."
+				If next_steps_two = "" then
+					next_steps_two = add_msg
+				ElseIf next_steps_three = "" Then
+					next_steps_three = add_msg
+				ElseIf next_steps_four = "" Then
+					next_steps_four = add_msg
+				End If
+			End If
+
+			If case_has_previously_postponed_verifs_that_prevent_exp_snap = True Then
+				add_msg = "This case needs regular review to be able to approve SNAP as soon as, the current verifications come in OR the previous verifications come in. Assist the resident in getting any verifications that we can."
+				If next_steps_two = "" then
+					next_steps_two = add_msg
+				ElseIf next_steps_three = "" Then
+					next_steps_three = add_msg
+				ElseIf next_steps_four = "" Then
+					next_steps_four = add_msg
+				End If
+			End If
+
+			If delay_action_due_to_faci = True Then
+				add_msg = "Advise resident and the facility to contact us as soon as possible to be able to approve SNAP once the resident leaves the facility."
+				If next_steps_two = "" then
+					next_steps_two = add_msg
+				ElseIf next_steps_three = "" Then
+					next_steps_three = add_msg
+				ElseIf next_steps_four = "" Then
+					next_steps_four = add_msg
+				End If
+			End If
+
+			add_msg = "Delays in processing Expedited should be few and far between, we must make every reasonable effort to get these cases approved as quickly as possible."
+			If next_steps_two = "" then
+				next_steps_two = add_msg
+			ElseIf next_steps_three = "" Then
+				next_steps_three = add_msg
+			ElseIf next_steps_four = "" Then
+				next_steps_four = add_msg
+			End If
+
+			add_msg = "Check in with Knowledge Now about this case, as delays cause negative impact on our timeliness reports."
+			If next_steps_three = "" Then
+				next_steps_three = add_msg
+			ElseIf next_steps_four = "" Then
+				next_steps_four = add_msg
+			End If
+
+			add_msg = "Remember, EXPEDITED is based on income, assets, and shelter/utility expenses only. Even having a delay reason does not mean the case is not still EXPEDITED."
+			If next_steps_four = "" Then next_steps_four = add_msg
+		End If
+	ElseIf is_elig_XFS = False Then
+		case_assesment_text = "Case does NOT appear EXPEDITED, approval decision should follow standard SNAP Policy."
+		next_steps_one = "If there are mandatory verifications, request them immediately. If all verifications have been received, process the case right away."
+		next_steps_two = ""
+		next_steps_three = ""
+		next_steps_four = ""
+	End If
+end function
+
 function determine_calculations(determined_income, determined_assets, determined_shel, determined_utilities, calculated_resources, calculated_expenses, calculated_low_income_asset_test, calculated_resources_less_than_expenses_test, is_elig_XFS)
 	determined_income = trim(determined_income)
 	If determined_income = "" Then determined_income = 0
@@ -724,8 +906,8 @@ function snap_in_another_state_detail(date_of_application, day_30_from_applicati
 					  ElseIf IsDate(other_state_reported_benefit_end_date) = True Then
 					  	Text 255, 215, 110, 10, "End Of Benefits: " & other_state_reported_benefit_end_date
 					  End If
-					  Text 30, 230, 120, 10, "SNAP Denial Date: " & snap_denial_date
-					  Text 30, 240, 335, 30, "Denial Reason: " & snap_denial_explain
+					  ' Text 30, 230, 120, 10, "SNAP Denial Date: " & snap_denial_date
+					  ' Text 30, 240, 335, 30, "Denial Reason: " & snap_denial_explain
 				  ElseIf action_due_to_out_of_state_benefits = "APPROVE" Then
 					  Text 20, 205, 205, 20, "SNAP should be APPROVEED "
 					  Text 245, 205, 120, 10, "Date of Application: " & date_of_application
@@ -823,7 +1005,7 @@ function snap_in_another_state_detail(date_of_application, day_30_from_applicati
 			expedited_package = MN_elig_month & "/" & MN_elig_year
 		End If
 	End If
-	If action_due_to_out_of_state_benefits <> "DENY" Then
+	If action_due_to_out_of_state_benefits = "DENY" Then
 		snap_denial_date = date
 		If other_snap_state = "" Then deny_msg = "Active SNAP in another state exists past the end of the 30 day application processing window. There is no eligibility in MN until the benefits have ended in other state. Household can reapply once the eligibility in another state is ending within 30 days"
 		If other_snap_state <> "" Then deny_msg = "Active SNAP in another state exists past the end of the 30 day application processing window. There is no eligibility in MN until the benefits have ended in " & other_snap_state & ". Household can reapply once the eligibility in another state is ending within 30 days"
@@ -1307,9 +1489,11 @@ End If
 If MX_region = "TRAINING" Then developer_mode = True
 
 ' Call navigate_to_MAXIS_screen("STAT", "PROG")
-Call navigate_to_MAXIS_screen_review_PRIV("STAT", "PROG", is_this_priv)
-If is_this_priv = True Then Call script_end_procedure("This case is PRIVILEGED and cannot be accessed. Request access to the case first and retry the script once you have access to the case.")
-
+Do
+	Call navigate_to_MAXIS_screen_review_PRIV("STAT", "PROG", is_this_priv)
+	If is_this_priv = True Then Call script_end_procedure("This case is PRIVILEGED and cannot be accessed. Request access to the case first and retry the script once you have access to the case.")
+	EMReadScreen panel_prog_check, 4, 2, 50
+Loop until panel_prog_check = "PROG"
 EMReadScreen case_pw, 7, 21, 21
 
 EMReadScreen date_of_application, 8, 10, 33
@@ -1483,9 +1667,33 @@ If maxis_updated_yn = "Yes" Then
 
 	Call navigate_to_MAXIS_screen("STAT", "PNLP")
 
+
+	rent_amount = 0
+	lot_rent_amount = 0
+	mortgage_amount = 0
+	insurance_amount = 0
+	tax_amount = 0
+	room_amount = 0
+	garage_amount = 0
+	subsidy_amount = 0
+
+	determined_shel = 0
+	cash_amount = 0
+	determined_assets = 0
+	determined_income = 0
+
+	ReDim Preserve PANELS_TO_READ_ARRAY(panel_inst_const, 0)
+	PANELS_TO_READ_ARRAY(panel_type_const, 0) = "MEMI"
+	PANELS_TO_READ_ARRAY(panel_memb_const, 0) = "01"
+
 	all_the_panels_looked_at = False
 	pnl_row = 3
-	array_incrementer = 0
+	array_incrementer = 1
+	acct_incrementor = 0
+	jobs_incrementor = 0
+	unea_incrementor = 0
+	busi_incrementor = 0
+
 	instance_counter = 1
 	Do
 		EMReadScreen the_panel_name, 4, pnl_row, 5
@@ -1499,7 +1707,8 @@ If maxis_updated_yn = "Yes" Then
 			array_incrementer = array_incrementer + 1
 		End If
 
-		If the_panel_name = "SHEL" OR the_panel_name = "CASH" OR the_panel_name = "MEMI" Then
+		' If the_panel_name = "SHEL" OR the_panel_name = "CASH" OR the_panel_name = "MEMI" Then
+		If the_panel_name = "SHEL" OR the_panel_name = "CASH" Then
 			ReDim Preserve PANELS_TO_READ_ARRAY(panel_inst_const, array_incrementer)
 			PANELS_TO_READ_ARRAY(panel_type_const, array_incrementer) = the_panel_name
 			PANELS_TO_READ_ARRAY(panel_memb_const, array_incrementer) = the_memb
@@ -1571,123 +1780,253 @@ If maxis_updated_yn = "Yes" Then
 			' Call app_month_utility_detail(determined_utilities, heat_expense, ac_expense, electric_expense, phone_expense, none_expense, all_utilities)
 		End If
 		If PANELS_TO_READ_ARRAY(panel_type_const, each_panel) = "MEMI" Then
+			EMReadScreen fs_end_other_state, 8, 13, 49
+			EMReadScreen mn_entry_date, 8, 15, 49
+			EMReadScreen former_state, 2, 15, 78
 
+			fs_end_other_state = replace(fs_end_other_state, " ", "/")
+			If fs_end_other_state = "__/__/__" Then fs_end_other_state = ""
+			mn_entry_date = replace(mn_entry_date, " ", "/")
+			If mn_entry_date = "__/__/__" Then mn_entry_date = ""
+
+			other_state_reported_benefit_end_date = fs_end_other_state
+			If former_state <> "__" Then
+				state_array = split(state_list, chr(9))
+				For each state_item in state_array
+					If former_state = left(state_item, 2) Then former_state = state_item
+				Next
+			End If
 		End If
 		If PANELS_TO_READ_ARRAY(panel_type_const, each_panel) = "SHEL" Then
+			EMReadscreen panel_rent_amount, 8, 11, 56
+			EMReadscreen panel_lot_rent_amount, 8, 12, 56
+			EMReadscreen panel_mortgage_amount, 8, 13, 56
+			EMReadscreen panel_insurance_amount, 8, 14, 56
+			EMReadscreen panel_tax_amount, 8, 15, 56
+			EMReadscreen panel_room_amount, 8, 16, 56
+			EMReadscreen panel_garage_amount, 8, 17, 56
+			EMReadscreen panel_subsidy_amount, 8, 18, 56
 
+			panel_rent_amount = replace(panel_rent_amount, "_", "")
+			panel_lot_rent_amount = replace(panel_lot_rent_amount, "_", "")
+			panel_mortgage_amount = replace(panel_mortgage_amount, "_", "")
+			panel_insurance_amount = replace(panel_insurance_amount, "_", "")
+			panel_tax_amount = replace(panel_tax_amount, "_", "")
+			panel_room_amount = replace(panel_room_amount, "_", "")
+			panel_garage_amount = replace(panel_garage_amount, "_", "")
+			panel_subsidy_amount = replace(panel_subsidy_amount, "_", "")
+
+			If panel_rent_amount <> "" Then rent_amount = rent_amount + panel_rent_amount
+			If panel_lot_rent_amount <> "" Then lot_rent_amount = lot_rent_amount + panel_lot_rent_amount
+			If panel_mortgage_amount <> "" Then mortgage_amount = mortgage_amount + panel_mortgage_amount
+			If panel_insurance_amount <> "" Then insurance_amount = insurance_amount + panel_insurance_amount
+			If panel_tax_amount <> "" Then tax_amount = tax_amount + panel_tax_amount
+			If panel_room_amount <> "" Then room_amount = room_amount + panel_room_amount
+			If panel_garage_amount <> "" Then garage_amount = garage_amount + panel_garage_amount
+			If panel_subsidy_amount <> "" Then subsidy_amount = subsidy_amount + panel_subsidy_amount
+
+			determined_shel = rent_amount + lot_rent_amount + mortgage_amount + insurance_amount + tax_amount + room_amount + garage_amount + subsidy_amount
 		End If
 		If PANELS_TO_READ_ARRAY(panel_type_const, each_panel) = "CASH" Then
+			cash_amount_yn = "Yes"
 
+			EMReadscreen panel_cash_amount, 8, 8, 39
+			panel_cash_amount = trim(panel_cash_amount)
+			cash_amount = cash_amount + panel_cash_amount
+			determined_assets = determined_assets + panel_cash_amount
 		End If
 		If PANELS_TO_READ_ARRAY(panel_type_const, each_panel) = "ACCT" Then
+			bank_account_yn = "Yes"
 
+			ReDim Preserve ACCOUNTS_ARRAY(account_notes_const, acct_incrementor)
+
+			EMReadscreen panel_acct_owner, 40, 4, 37
+			EMReadscreen panel_acct_type, 2, 6, 44
+			EMReadscreen panel_acct_bank, 20, 8, 44
+			EMReadscreen panel_acct_amount, 8, 10, 46
+
+			panel_acct_owner = trim(panel_acct_owner)
+			name_array = ""
+			name_array = split(panel_acct_owner, ", ")
+			'TESTING CODE'
+			' for name_test = 0 to UBound(name_array)
+			' 	Msgbox "COUNTER - " & name_test & vbCr & "NAME - " & name_array(name_test)
+			' Next
+			panel_acct_owner = name_array(1) & " " & name_array(0)
+
+			If panel_acct_type = "CK" Then ACCOUNTS_ARRAY(account_type_const, acct_incrementor) = "Checking"
+			If panel_acct_type = "SV" Then ACCOUNTS_ARRAY(account_type_const, acct_incrementor) = "Savings"
+			If panel_acct_type <> "SV" AND panel_acct_type <> "CK" Then ACCOUNTS_ARRAY(account_type_const, acct_incrementor) = "Other"
+			ACCOUNTS_ARRAY(account_owner_const, acct_incrementor) = trim(panel_acct_owner)
+			ACCOUNTS_ARRAY(bank_name_const, acct_incrementor) = replace(panel_acct_bank, "_", "")
+			ACCOUNTS_ARRAY(account_amount_const, acct_incrementor) = trim(panel_acct_amount)
+
+			determined_assets = determined_assets + ACCOUNTS_ARRAY(account_amount_const, acct_incrementor)
+			ACCOUNTS_ARRAY(account_amount_const, acct_incrementor) = ACCOUNTS_ARRAY(account_amount_const, acct_incrementor) & ""
+			acct_incrementor = acct_incrementor + 1
 		End If
 		If PANELS_TO_READ_ARRAY(panel_type_const, each_panel) = "FACI" Then
 
 		End If
 		If PANELS_TO_READ_ARRAY(panel_type_const, each_panel) = "JOBS" Then
+			jobs_income_yn = "Yes"
+			ReDim Preserve JOBS_ARRAY(jobs_notes_const, jobs_incrementor)
 
+			EMReadScreen panel_employee, 40, 4, 36
+			EMReadScreen panel_employer, 30, 7, 42
+			EMReadScreen panel_main_wage, 6, 6, 75
+			panel_main_wage = replace(panel_main_wage, "_", "")
+			panel_main_wage = trim(panel_main_wage)
+
+			EMWriteScreen "X", 19, 38
+			transmit
+			EMReadScreen panel_frequency, 1, 5, 64
+			EMReadScreen panel_wage, 6, 8, 64
+			EMReadScreen panel_hours, 8, 9, 66
+			EMReadScreen panel_monthly_income, 8, 18, 56
+
+			panel_wage = replace(panel_wage, "_", "")
+			panel_hours = replace(panel_hours, "_", "")
+			panel_wage = trim(panel_wage)
+			panel_hours = trim(panel_hours)
+			panel_monthly_income = trim(panel_monthly_income)
+
+			If panel_wage = "" Then
+				If panel_main_wage <> "" Then
+					panel_wage = panel_main_wage
+				Else
+					EMReadScreen panel_ave_wage, 8, 17, 56
+					If panel_frequency = "1" Then panel_wage = panel_ave_wage/4.3
+					If panel_frequency = "2" Then panel_wage = panel_ave_wage/2.15
+					If panel_frequency = "3" Then panel_wage = panel_ave_wage/2
+					If panel_frequency = "4" Then panel_wage = panel_ave_wage
+				End If
+			End If
+			If panel_hours = "" Then
+				EMReadScreen panel_ave_hours, 7, 16, 50
+				panel_ave_hours = trim(panel_ave_hours)
+				If IsNumeric(panel_ave_hours) = True Then
+					If panel_frequency = "1" Then panel_hours = panel_ave_hours/4.3
+					If panel_frequency = "2" Then panel_hours = panel_ave_hours/2.15
+					If panel_frequency = "3" Then panel_hours = panel_ave_hours/2
+					If panel_frequency = "4" Then panel_hours = panel_ave_hours
+
+				End If
+			End If
+			transmit
+
+			panel_employee = trim(panel_employee)
+			name_array = ""
+			name_array = split(panel_employee, ", ")
+			panel_employee = name_array(1) & " " & name_array(0)
+
+			JOBS_ARRAY(jobs_employee_const, jobs_incrementor) = panel_employee
+			JOBS_ARRAY(jobs_employer_const, jobs_incrementor) = replace(panel_employer, "_", "")
+			JOBS_ARRAY(jobs_wage_const, jobs_incrementor) = panel_wage
+			JOBS_ARRAY(jobs_hours_const, jobs_incrementor) = panel_hours
+			If panel_frequency = "1" Then JOBS_ARRAY(jobs_frequency_const, jobs_incrementor) = "Monthly"
+			If panel_frequency = "2" Then JOBS_ARRAY(jobs_frequency_const, jobs_incrementor) = "Semi-Monthly"
+			If panel_frequency = "3" Then JOBS_ARRAY(jobs_frequency_const, jobs_incrementor) = "Biweekly"
+			If panel_frequency = "4" Then JOBS_ARRAY(jobs_frequency_const, jobs_incrementor) = "Weekly"
+			JOBS_ARRAY(jobs_monthly_pay_const, jobs_incrementor) = trim(panel_monthly_income)
+
+			If IsNumeric(JOBS_ARRAY(jobs_monthly_pay_const, jobs_incrementor)) = True Then determined_income = determined_income + JOBS_ARRAY(jobs_monthly_pay_const, jobs_incrementor)
+			jobs_incrementor = jobs_incrementor + 1
 		End If
 		If PANELS_TO_READ_ARRAY(panel_type_const, each_panel) = "BUSI" Then
+			busi_income_yn = "Yes"
+			ReDim Preserve BUSI_ARRAY(busi_notes_const, busi_incrementor)
 
+			EMReadScreen panel_owner, 25, 4, 37
+			EMReadScreen panel_busi_type, 2, 5, 37
+			EMReadScreen panel_monthly_wage, 8, 10, 69
+
+			panel_owner = trim(panel_owner)
+			name_array = ""
+			name_array = split(panel_owner, ", ")
+			panel_owner = name_array(1) & " " & name_array(0)
+
+			BUSI_ARRAY(busi_owner_const, busi_incrementor) = panel_owner
+			If panel_busi_type = "01" Then BUSI_ARRAY(busi_info_const, busi_incrementor) = "Farming"
+			If panel_busi_type = "02" Then BUSI_ARRAY(busi_info_const, busi_incrementor) = "Real Estate"
+			If panel_busi_type = "03" Then BUSI_ARRAY(busi_info_const, busi_incrementor) = "Home Product Sales"
+			If panel_busi_type = "04" Then BUSI_ARRAY(busi_info_const, busi_incrementor) = "Sales"
+			If panel_busi_type = "05" Then BUSI_ARRAY(busi_info_const, busi_incrementor) = "Personal Services"
+			If panel_busi_type = "06" Then BUSI_ARRAY(busi_info_const, busi_incrementor) = "Paper Route"
+			If panel_busi_type = "07" Then BUSI_ARRAY(busi_info_const, busi_incrementor) = "In Home Daycare"
+			If panel_busi_type = "08" Then BUSI_ARRAY(busi_info_const, busi_incrementor) = "Rental Income"
+			If panel_busi_type = "09" Then BUSI_ARRAY(busi_info_const, busi_incrementor) = "Other"
+			BUSI_ARRAY(busi_monthly_earnings_const, busi_incrementor) = trim(panel_monthly_wage)
+
+			If IsNumeric(BUSI_ARRAY(busi_monthly_earnings_const, busi_incrementor)) = True Then
+				determined_income = determined_income + BUSI_ARRAY(busi_monthly_earnings_const, busi_incrementor)
+				BUSI_ARRAY(busi_annual_earnings_const, busi_incrementor) = FormatNumber(BUSI_ARRAY(busi_monthly_earnings_const, busi_incrementor) * 12, 2, -1, 0, -1)
+			End If
+			busi_incrementor = busi_incrementor + 1
 		End If
 		If PANELS_TO_READ_ARRAY(panel_type_const, each_panel) = "UNEA" Then
+			unea_income_yn = "Yes"
+			ReDim Preserve UNEA_ARRAY(unea_notes_const, unea_incrementor)
 
+			EMReadScreen panel_earner, 25, 4, 36
+			EMReadScreen panel_unea_type, 2, 5, 37
+
+			EMWriteScreen "X", 10, 26
+			transmit
+			EMReadScreen panel_unea_frequency, 1, 5, 64
+			EMReadScreen panel_unea_monthly_wage, 8, 18, 56
+			If panel_unea_frequency = "4" Then
+				EMReadScreen panel_unea_weekly_wage, 8, 17, 56
+				UNEA_ARRAY(unea_weekly_earnings_const, unea_incrementor) = trim(panel_unea_weekly_wage)
+			End If
+			transmit
+
+			panel_earner = trim(panel_earner)
+			name_array = ""
+			name_array = split(panel_earner, ", ")
+			panel_earner = name_array(1) & " " & name_array(0)
+
+			If panel_unea_type = "06" Then panel_unea_type = "Public Assistance not in MN"
+			If panel_unea_type = "14" Then panel_unea_type = "Unemployment Insurance"
+			If panel_unea_type = "19" or panel_unea_type = "21" OR panel_unea_type = "20" or panel_unea_type = "22" Then panel_unea_type = "Foster Care"
+			If panel_unea_type = "16" Then panel_unea_type = "Railroad Retirement"
+			If panel_unea_type = "17" Then panel_unea_type = "Retirement"
+			If panel_unea_type = "35" or panel_unea_type = "37" or panel_unea_type = "40" Then panel_unea_type = "Spousal Support"
+			If panel_unea_type = "18" Then panel_unea_type = "Military Entitlement"
+			If panel_unea_type = "23" Then panel_unea_type = "Dividends"
+			If panel_unea_type = "24" Then panel_unea_type = "Interest"
+			If panel_unea_type = "25" Then panel_unea_type = "Prizes and Gifts"
+			If panel_unea_type = "26" Then panel_unea_type = "Strike Benefit"
+			If panel_unea_type = "27" Then panel_unea_type = "Contract for Deed"
+			If panel_unea_type = "28" Then panel_unea_type = "Illegal Income"
+			If panel_unea_type = "29" Then panel_unea_type = "Other Countable"
+			If panel_unea_type = "30" Then panel_unea_type = "Infreq Irreg"
+			If panel_unea_type = "31" Then panel_unea_type = "Other FS Only"
+			If panel_unea_type = "45" Then panel_unea_type = "County 88 Gaming"
+			If panel_unea_type = "47" Then panel_unea_type = "Tribal Income"
+			If panel_unea_type = "48" Then panel_unea_type = "Trust Income"
+			If panel_unea_type = "49" Then panel_unea_type = "Non-Recurring"
+			If IsNumeric(panel_unea_type) = True Then panel_unea_type = ""
+
+			UNEA_ARRAY(unea_owner_const, unea_incrementor) = panel_earner
+			UNEA_ARRAY(unea_info_const, unea_incrementor) = panel_unea_type
+			UNEA_ARRAY(unea_monthly_earnings_const, unea_incrementor) = trim(panel_unea_monthly_wage)
+
+			If IsNumeric(UNEA_ARRAY(unea_monthly_earnings_const, unea_incrementor)) = True Then determined_income = determined_income + UNEA_ARRAY(unea_monthly_earnings_const, unea_incrementor)
+			unea_incrementor = unea_incrementor + 1
 		End If
-		MsgBox "PANEL - " & PANELS_TO_READ_ARRAY(panel_type_const, each_panel) & "-" & PANELS_TO_READ_ARRAY(panel_memb_const, each_panel) & "-" & PANELS_TO_READ_ARRAY(panel_inst_const, each_panel)
+		' MsgBox "PANEL - " & PANELS_TO_READ_ARRAY(panel_type_const, each_panel) & "-" & PANELS_TO_READ_ARRAY(panel_memb_const, each_panel) & "-" & PANELS_TO_READ_ARRAY(panel_inst_const, each_panel)
 	Next
 
 
-	'Script now goes to ELIG to find what the income/expesnse that are being used are to autofill the dialog
-	navigate_to_MAXIS_screen "ELIG", "FS"
-	EMReadScreen elig_screen_check, 4, 3, 48
-	IF elig_screen_check = "FSPR" Then
-		snap_elig_results_read = True
-		transmit
-		EMReadScreen is_elig_XFS, 17, 4, 3
-		IF is_elig_XFS = "EXPEDITED SERVICE" THEN 	'Determines if MAXIS thinks the case is Expedited
-			is_elig_XFS = TRUE
-		ELSE
-			is_elig_XFS = FALSE
-		END IF
-		is_elig_XFS = is_elig_XFS & ""
-		'MsgBox is_elig_XFS
+	determined_income = determined_income & ""
+	determined_assets = determined_assets & ""
+	determined_shel = determined_shel & ""
 
-		transmit		'Finding Income and formating it
-		EMReadScreen elig_gross_income, 9, 7, 72
-		elig_gross_income = trim(elig_gross_income)
-		elig_gross_income = abs(elig_gross_income)
-		transmit
-
-		'Finding the shelter and utility expenses and combining them and formating them
-		EMReadScreen elig_heat, 3, 9, 31
-		IF elig_heat = "   " THEN elig_heat = 0
-		elig_heat = trim(elig_heat)
-		elig_heat = abs(elig_heat)
-
-		EMReadScreen elig_electric, 3, 8, 31
-		IF elig_electric = "   " THEN elig_electric = 0
-		elig_electric = trim(elig_electric)
-		elig_electric = abs(elig_electric)
-
-		EMReadScreen elig_phone, 2, 11, 32
-		IF elig_phone = "  " THEN elig_phone = 0
-		elig_phone = trim(elig_phone)
-		elig_phone = abs(elig_phone)
-
-		EMReadScreen elig_rent, 5, 5, 29
-		IF elig_rent = "     " THEN elig_rent = 0
-		elig_rent = trim(elig_rent)
-		elig_rent = abs(elig_rent)
-
-		EMReadScreen elig_tax, 5, 6, 29
-		IF elig_tax = "     " THEN elig_tax = 0
-		elig_tax = trim(elig_tax)
-		elig_tax = abs(elig_tax)
-
-		EMReadScreen elig_ins, 5, 7, 29
-		IF elig_ins = "     " THEN elig_ins = 0
-		elig_ins = trim(elig_ins)
-		elig_ins = abs(elig_ins)
-
-		EMReadScreen elig_other_exp, 5, 12, 29
-		IF elig_other_exp = "     " THEN elig_other_exp = 0
-		elig_other_exp = trim(elig_other_exp)
-		elig_other_exp = abs(elig_other_exp)
-
-		IF elig_heat <> 0 THEN
-			elig_util = elig_heat
-		ELSE
-			elig_util = elig_electric + elig_phone
-		END IF
-
-		elig_shel = elig_rent + elig_tax + elig_ins + elig_other_exp
-	End If
-
-	'Going to STAT for asset information
-	navigate_to_MAXIS_screen "STAT", "PNLR"
-	For pnlr_row = 3 to 19
-		EMReadScreen asset_panel_type, 4, pnlr_row, 5
-		IF asset_panel_type = "CASH" THEN
-			EMReadScreen asset_listed, 6, pnlr_row, 26
-		ELSEIF asset_panel_type = "ACCT" THEN
-			EMReadScreen asset_listed, 6, pnlr_row, 31
-		Else
-			asset_listed = 0
-		End If
-		asset_amount = asset_amount + abs(trim(asset_listed))
-	Next
+	If determined_income = "0.00" Then determined_income = ""
+	If determined_assets = "0.00" Then determined_assets = ""
+	If determined_shel = "0.00" Then determined_shel = ""
 End If
-
-'Prepping variables to fill in the edit boxes
-' determined_income = elig_gross_income & ""
-' determined_assets = asset_amount & ""
-' determined_shel = elig_shel & ""
-' determined_utilities = elig_util & ""
-
-'-------------------------------------------------------------------------------------------------DIALOG
-
-
 
 show_pg_amounts = 1
 show_pg_determination = 2
@@ -1700,6 +2039,14 @@ Do
 	Do
 		err_msg = ""
 		If page_display = show_pg_determination Then Call determine_calculations(determined_income, determined_assets, determined_shel, determined_utilities, calculated_resources, calculated_expenses, calculated_low_income_asset_test, calculated_resources_less_than_expenses_test, is_elig_XFS)
+		If page_display = show_pg_review Then Call determine_actions(case_assesment_text, next_steps_one, next_steps_two, next_steps_three, next_steps_four, is_elig_XFS, snap_denial_date, approval_date, date_of_application, do_we_have_applicant_id, action_due_to_out_of_state_benefits, mn_elig_begin_date, other_snap_state, case_has_previously_postponed_verifs_that_prevent_exp_snap, delay_action_due_to_faci, deny_snap_due_to_faci)
+
+		determined_income = FormatNumber(determined_income, 2, -1, 0, -1) & ""
+		determined_assets = FormatNumber(determined_assets, 2, -1, 0, -1) & ""
+		determined_shel = FormatNumber(determined_shel, 2, -1, 0, -1) & ""
+		determined_utilities = FormatNumber(determined_utilities, 2, -1, 0, -1)
+		calculated_resources = FormatNumber(calculated_resources, 2, -1, 0, -1)
+		calculated_expenses = FormatNumber(calculated_expenses, 2, -1, 0, -1)
 
 		BeginDialog Dialog1, 0, 0, 555, 385, "Full Expedited Determination"
 		  ButtonGroup ButtonPressed
@@ -1801,50 +2148,56 @@ Do
 			If page_display = show_pg_review then
 				Text 507, 42, 65, 10, "Review"
 
-				GroupBox 5, 5, 470, 100, "Actions to Take"
-				Text 20, 40, 45, 10, "Next Steps:"
+				GroupBox 5, 5, 470, 115, "Actions to Take"
+				Text 20, 30, 45, 10, "Next Steps:"
 
-				If IsDate(snap_denial_date) = True Then
-					Text 15, 20, 280, 20, "DENIAL has been determined - Case does not meet 'All Other Eligibility Criteria' and Expedited Determination is not needed"
+				Text 15, 20, 280, 10, case_assesment_text
 
-					Text 25, 55, 435, 10, "Update MAXIS STAT panels correctly to general results to Deny the Application"
-					Text 25, 70, 435, 10, "Complete the DENIAL and enter a full, detailed CASE/NOTE of the Denial Action and Reasons."
-					Text 25, 85, 435, 10, "Complete ALL PROCESSING before moving on to your next tast. Contact Knowledge Now if you are unsure of a Denial."
-				ElseIf is_elig_XFS = True Then
-			    	If IsDate(approval_date) = True Then
-						Text 15, 20, 205, 10, "Case appears EXPEDITED and there are NO Delay reasons"
+				Text 25, 40, 435, 20, next_steps_one
+				Text 25, 60, 435, 20, next_steps_two
+				Text 25, 80, 435, 20, next_steps_three
+				Text 25, 100, 435, 20, next_steps_four
 
-					    Text 25, 55, 435, 10, "Update MAXIS STAT panels to generate EXPEDITED SNAP Eligibility Results"
-					    Text 25, 70, 435, 10, "Expedited Package includes " & expedited_package
-					    Text 25, 85, 435, 10, "Approve SNAP Expedited package before moving on to the next task"
-					Else
-					End If
-				ElseIf is_elig_XFS = False Then
-				End If
-
-				GroupBox 5, 105, 470, 100, "Postponed Verifications"
-				If is_elig_XFS = True AND IsDate(snap_denial_date) = False Then
-					Text 15, 125, 160, 10, "Are there Postponed Verifications for this case?"
-					DropListBox 180, 120, 45, 45, "?"+chr(9)+"Yes"+chr(9)+"No", postponed_verifs_yn
-					Text 20, 145, 80, 10, "Postponed Verifications:"
-					EditBox 105, 140, 360, 15, list_postponed_verifs
-				End If
+				' If IsDate(snap_denial_date) = True Then
+				' 	Text 15, 20, 280, 20, "DENIAL has been determined - Case does not meet 'All Other Eligibility Criteria' and Expedited Determination is not needed"
+				'
+				' 	Text 25, 55, 435, 10, "Update MAXIS STAT panels correctly to general results to Deny the Application"
+				' 	Text 25, 70, 435, 10, "Complete the DENIAL and enter a full, detailed CASE/NOTE of the Denial Action and Reasons."
+				' 	Text 25, 85, 435, 10, "Complete ALL PROCESSING before moving on to your next tast. Contact Knowledge Now if you are unsure of a Denial."
+				' ElseIf is_elig_XFS = True Then
+			    ' 	If IsDate(approval_date) = True Then
+				' 		Text 15, 20, 205, 10, "Case appears EXPEDITED and there are NO Delay reasons"
+				'
+				' 	    Text 25, 55, 435, 10, "Update MAXIS STAT panels to generate EXPEDITED SNAP Eligibility Results"
+				' 	    Text 25, 70, 435, 10, "Expedited Package includes " & expedited_package
+				' 	    Text 25, 85, 435, 10, "Approve SNAP Expedited package before moving on to the next task"
+				' 	Else
+				' 	End If
+				' ElseIf is_elig_XFS = False Then
+				' End If
+				EditBox 800, 800, 50, 15, fake_box_that_does_nothing
 				Text 310, 15, 100, 10, "For help with the next steps:"
-			    PushButton 310, 25, 155, 13, "Request Support from Knowledge Now", knowledge_now_support_btn
+				PushButton 310, 25, 155, 13, "Request Support from Knowledge Now", knowledge_now_support_btn
+
+				GroupBox 5, 120, 470, 85, "Postponed Verifications"
 				If is_elig_XFS = True AND IsDate(snap_denial_date) = False Then
-				    PushButton 320, 120, 145, 13, "TE 02.10.01 EXP w/ Pending Verifs", te_02_10_01_btn
-				    Text 20, 165, 120, 10, "Can I postpone Verifications for ..."
-				    Text 145, 165, 70, 10, "Immigration - YES."
-				    Text 225, 165, 55, 10, "Sponsor - YES."
-				    Text 300, 165, 125, 10, "anything OTHER than ID - YES. "
-					Text 30, 180, 300, 10, "Appplicant's identity is the ONLY required verification to approve Expedited SNAP."
-				    PushButton 320, 177, 145, 13, "CM 04.12 Verification Requirement for EXP", cm_04_12_btn
+					Text 15, 135, 160, 10, "Are there Postponed Verifications for this case?"
+					DropListBox 180, 130, 45, 45, "?"+chr(9)+"Yes"+chr(9)+"No", postponed_verifs_yn
+					Text 20, 155, 80, 10, "Postponed Verifications:"
+					EditBox 105, 150, 360, 15, list_postponed_verifs
+				    PushButton 320, 130, 145, 13, "TE 02.10.01 EXP w/ Pending Verifs", te_02_10_01_btn
+				    Text 20, 175, 120, 10, "Can I postpone Verifications for ..."
+				    Text 145, 175, 70, 10, "Immigration - YES."
+				    Text 225, 175, 55, 10, "Sponsor - YES."
+				    Text 300, 175, 125, 10, "anything OTHER than ID - YES. "
+					Text 30, 190, 300, 10, "Appplicant's identity is the ONLY required verification to approve Expedited SNAP."
+				    PushButton 320, 187, 145, 13, "CM 04.12 Verification Requirement for EXP", cm_04_12_btn
 				End If
 				If is_elig_XFS = False Then
-					Text 15, 125, 450, 10, "We cannot postpone any verifications for a case that does not meet Expedited criteria."
+					Text 15, 135, 450, 10, "We cannot postpone any verifications for a case that does not meet Expedited criteria."
 				End If
 				If IsDate(snap_denial_date) = True Then
-					Text 15, 125, 450, 10, "Additional verifications are not needed if a Denial has already been determined."
+					Text 15, 135, 450, 10, "Additional verifications are not needed if a Denial has already been determined."
 				End If
 
 			    GroupBox 5, 205, 470, 70, "EBT Information"
@@ -2011,82 +2364,11 @@ Do
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
 
-
-'
-' ' 'Running the Dialog asking for all the detail and explanations
-' ' DO
-' ' 	Do
-' ' 		Dialog Dialog1
-' ' 		cancel_confirmation
-' ' 		err_msg = ""
-' ' 		IF is_elig_XFS = "FALSE" AND out_of_state_explanation = "" AND previous_xfs_explanation = "" AND other_explanation = "" AND abawd_explanation = "" THEN err_msg = err_msg & vbCr & "You have determined this case to NOT be Expedited but have provided no detail explanation" & vbCr & "Please complete at least one of the explanation boxes."
-' ' 		IF id_check = checked AND other_explanation = "" THEN err_msg = err_msg & vbCr & "Please provided detail about no ID, remember that this is ONLY for the applicant and does NOT need to be a photo ID"
-' ' 		IF err_msg <> "" Then MsgBox err_msg
-' ' 	Loop until err_msg = ""
-' ' 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
-' ' LOOP UNTIL are_we_passworded_out = false
-'
-' 'Formating the information from the edit boxes
-' ' If determined_income = "" Then determined_income = 0
-' ' If determined_assets = "" Then determined_assets = 0
-' ' If determined_shel = "" Then determined_shel = 0
-' ' If determined_utilities = "" Then determined_utilities = 0
-' ' determined_resources = abs(determined_income) + (determined_assets * 1)
-' ' determined_expenses = abs(determined_shel) + abs(determined_utilities)
-' ' determined_assets = FormatCurrency(determined_assets)
-' ' determined_expenses = FormatCurrency(determined_expenses)
-' ' determined_income = FormatCurrency(determined_income)
-' ' determined_resources = FormatCurrency(determined_resources)
-' ' determined_shel = FormatCurrency(determined_shel)
-' ' determined_utilities = FormatCurrency(determined_utilities)
-'
-' ' 'Converting String entries to Boolean
-' ' IF is_elig_XFS = "TRUE" Then is_elig_XFS = TRUE
-' ' IF is_elig_XFS = "FALSE" Then is_elig_XFS = FALSE
-'
-' '-------------------------------------------------------------------------------------------------DIALOG
-' Dialog1 = "" 'Blanking out previous dialog detail
-' BeginDialog Dialog1, 0, 0, 196, 120, "Expedited Timeliness"
-'   EditBox 80, 5, 110, 15, date_of_application
-'   EditBox 80, 25, 110, 15, interview_date
-'   EditBox 80, 45, 110, 15, approval_date
-'   EditBox 10, 80, 180, 15, delay_explanation
-'   ButtonGroup ButtonPressed
-'     OkButton 85, 100, 50, 15
-'     CancelButton 140, 100, 50, 15
-'   Text 10, 50, 60, 10, "Date of Approval"
-'   Text 10, 10, 65, 10, "Date of Application"
-'   Text 10, 65, 85, 10, "Explain any delays here"
-'   Text 10, 30, 50, 10, "Interview Date"
-' EndDialog
-' 'Dialog about timeliness will run if case is determined to be expedited
-' IF is_elig_XFS = TRUE Then
-' 	Do
-' 		Do
-' 			Do
-' 				Dialog Dialog1
-' 				cancel_confirmation
-' 				err_msg = ""
-' 				IF date_of_application = "" OR IsDate(date_of_application) = FALSE Then err_msg = err_msg & vbCr & "Please enter a valid date of application."
-' 				IF interview_date = "" OR IsDate(interview_date) = FALSE Then err_msg = err_msg & vbCr & "Pleaes enter a valid Interview Date."
-' 				IF approval_date = "" OR IsDate(approval_date) = FALSE Then err_msg = err_msg & vbCr & "Please enter a valid Date of Approval."
-' 				IF err_msg <> "" Then MsgBox err_msg
-' 			Loop until err_msg = ""
-' 			days_delayed = DateDiff ("d", date_of_application, approval_date)
-' 			IF days_delayed > 7 AND delay_explanation = "" Then err_msg = err_msg & vbCr & "Your approval is more than 7 days from the date of application." & vbCr & "Please provide an explanation for the delay."
-' 			If err_msg <> "" Then MsgBox err_msg
-' 		Loop until err_msg = ""
-' 		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-' 	Loop until are_we_passworded_out = false					'loops until user passwords back in
-' End If
-
-MsgBox "STOP HERE"
-
-' If developer_mode = False Then
+If developer_mode = False Then
 
 	txt_file_name = "expedited_determination_detail_" & MAXIS_case_number & "_" & replace(replace(replace(now, "/", "_"),":", "_")," ", "_") & ".txt"
 	exp_info_file_path = t_drive &"\Eligibility Support\Assignments\Expedited Information\"  & txt_file_name
-	MsgBox exp_info_file_path
+	' MsgBox exp_info_file_path
 
 	With objFSO
 		'Creating an object for the stream of text which we'll use frequently
@@ -2119,11 +2401,27 @@ MsgBox "STOP HERE"
 
 	End With
 
-' End if
+End if
 
-
-
-
+'Commented out while we determine if this action is warranted
+'Need to add functionality to NOT send it if a QI member is running the script.
+' If delay_explanation <> "" AND is_elig_XFS = True AND IsDate(approval_date) = False Then
+' 	email_subject = "Auto Generated Email to review EXPEDITED DELAY"
+' 	email_body = "This email is automatically generated without request from the worker for a case that is determined Expedited and has a delay reason."
+'
+' 	email_body = email_body & vbCr & vbCr & "The case # " & MAXIS_case_number & " was determined to meet Expedited Criteria."
+' 	email_body = email_body & vbCr & "Income: $ " & determined_income
+' 	email_body = email_body & vbCr & "Assets: $ " & determined_assets
+' 	email_body = email_body & vbCr & "Housing: $ " & determined_shel
+' 	email_body = email_body & vbCr & "Utility: $ " & determined_utilities
+' 	If do_we_have_applicant_id = False Then email_body = email_body & vbCr & vbCr & "According to the worker there is NO proof of identity on file."
+' 	If do_we_have_applicant_id = True Then email_body = email_body & vbCr & vbCr & "According to the worker, we do have proof of identity on file."
+' 	email_body = email_body & vbCr & vbCr & "Reasons cited for the delay:"
+' 	email_body = email_body & vbCr & delay_explanation
+'
+' 	email_body = "~~This email is generated from wihtin the 'Expedited Determination' Script.~~" & vbCr & vbCr & email_body
+' 	call create_outlook_email("HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us", "", email_subject, email_body, "", True)
+' End If
 
 
 note_calculation_detail = False
@@ -2415,4 +2713,5 @@ Call write_variable_in_case_note ("---")
 
 Call write_variable_in_case_note(worker_signature)
 
-script_end_procedure ("Success! The script is complete. Case note has been entered detailing your Expedited Determination.")
+end_msg = "You have completed the EXPEDITED DETERMINATION." & vbCr & "Determination: " &  case_assesment_text
+script_end_procedure_with_error_report (end_msg)
