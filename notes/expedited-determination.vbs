@@ -1523,7 +1523,7 @@ Do
 		If IsDate(date_of_application) = False Then
 			err_msg = err_msg & vbCr & "* The date of application needs to be entered as a valid date."
 		Else
-			If DateDiff("d", interview_date, date) < 0 Then err_msg = err_msg & vbCr & "* The Application Date cannot be a Future date."
+			If DateDiff("d", date_of_application, date) < 0 Then err_msg = err_msg & vbCr & "* The Application Date cannot be a Future date."
 		End If
 		If IsDate(interview_date) = False Then
 			err_msg = err_msg & vbCr & "* The interview date needs to be entered as a valid date. An Expedited Determination cannot be completed without the interview."
@@ -2023,9 +2023,6 @@ If maxis_updated_yn = "Yes" Then
 	determined_assets = determined_assets & ""
 	determined_shel = determined_shel & ""
 
-	If determined_income = "0.00" Then determined_income = ""
-	If determined_assets = "0.00" Then determined_assets = ""
-	If determined_shel = "0.00" Then determined_shel = ""
 End If
 
 show_pg_amounts = 1
