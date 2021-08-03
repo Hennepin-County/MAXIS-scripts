@@ -1667,6 +1667,11 @@ If maxis_updated_yn = "Yes" Then
 
 	Call navigate_to_MAXIS_screen("STAT", "PNLP")
 
+	cash_amount_yn = "No"
+	bank_account_yn = "No"
+	jobs_income_yn = "No"
+	busi_income_yn = "No"
+	unea_income_yn = "No"
 
 	rent_amount = 0
 	lot_rent_amount = 0
