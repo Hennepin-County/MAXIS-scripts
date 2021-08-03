@@ -1497,7 +1497,7 @@ Loop until panel_prog_check = "PROG"
 EMReadScreen case_pw, 7, 21, 21
 
 EMReadScreen date_of_application, 8, 10, 33
-EMReadScreen interview_date, 8, 10, 33
+EMReadScreen interview_date, 8, 10, 55
 
 date_of_application = replace(date_of_application, " ", "/")
 interview_date = replace(interview_date, " ", "/")
