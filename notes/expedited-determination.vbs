@@ -1634,12 +1634,12 @@ IF exp_screening_note_found = TRUE THEN
 	caf_one_expenses = caf_one_rent + caf_one_utilities		'Totaling the amounts for a case note
 
 	'The script not adjusts the format so it looks nice
-	caf_one_income = FormatCurrency(caf_one_income)
-	caf_one_assets = FormatCurrency(caf_one_assets)
-	caf_one_rent = FormatCurrency(caf_one_rent)
-	caf_one_utilities = FormatCurrency(caf_one_utilities)
-	caf_one_resources = FormatCurrency(caf_one_resources)
-	caf_one_expenses = FormatCurrency(caf_one_expenses)
+	caf_one_income = FormatNumber(caf_one_income, 2, -1, 0, -1)
+	caf_one_assets = FormatNumber(caf_one_assets, 2, -1, 0, -1)
+	caf_one_rent = FormatNumber(caf_one_rent, 2, -1, 0, -1)
+	caf_one_utilities = FormatNumber(caf_one_utilities, 2, -1, 0, -1)
+	caf_one_resources = FormatNumber(caf_one_resources, 2, -1, 0, -1)
+	caf_one_expenses = FormatNumber(caf_one_expenses, 2, -1, 0, -1)
 	PF3
 End IF
 
@@ -1690,6 +1690,10 @@ If maxis_updated_yn = "Yes" Then
 	ReDim Preserve PANELS_TO_READ_ARRAY(panel_inst_const, 0)
 	PANELS_TO_READ_ARRAY(panel_type_const, 0) = "MEMI"
 	PANELS_TO_READ_ARRAY(panel_memb_const, 0) = "01"
+
+	income_review_completed = True
+	assets_review_completed = True
+	shel_review_completed = True
 
 	all_the_panels_looked_at = False
 	pnl_row = 3
@@ -1886,8 +1890,8 @@ If maxis_updated_yn = "Yes" Then
 			EMWriteScreen "X", 19, 38
 			transmit
 			EMReadScreen panel_frequency, 1, 5, 64
-			EMReadScreen panel_wage, 6, 8, 64
-			EMReadScreen panel_hours, 8, 9, 66
+			EMReadScreen panel_hours, 6, 8, 64
+			EMReadScreen panel_wage, 8, 9, 66
 			EMReadScreen panel_monthly_income, 8, 18, 56
 
 			panel_wage = replace(panel_wage, "_", "")
@@ -2058,13 +2062,13 @@ Do
 				GroupBox 5, 5, 390, 75, "Expedited Screening"
 				If exp_screening_note_found = True Then
 					Text 10, 20, 145, 10, "Information pulled from previous case note."
-					Text 20, 35, 65, 10, "Income from CAF1: "
-					Text 115, 35, 80, 10, caf_one_income
-					Text 195, 35, 60, 10, "Assets from CAF1: "
+					Text 20, 35, 70, 10, "Income from CAF1: $ "
+					Text 100, 35, 80, 10, caf_one_income
+					Text 195, 35, 65, 10, "Assets from CAF1: $ "
 					Text 270, 35, 75, 10, caf_one_assets
-					Text 20, 50, 90, 10, "Rent/Mortgage from CAF1: "
-					Text 115, 50, 65, 10, caf_one_rent
-					Text 195, 50, 65, 10, "Utilities from CAF1: "
+					Text 20, 50, 90, 10, "Housing from CAF1: $ "
+					Text 100, 50, 65, 10, caf_one_rent
+					Text 195, 50, 65, 10, "Utilities from CAF1: $ "
 					Text 270, 50, 75, 10, caf_one_utilities
 					Text 15, 65, 160, 10, xfs_screening
 				End If
@@ -2104,17 +2108,17 @@ Do
 				GroupBox 5, 5, 470, 130, "Expedited Determination"
 				Text 15, 20, 120, 10, "Determination Amounts Entered:"
 				Text 140, 20, 85, 10, "Total App Month Income:"
-				Text 230, 20, 35, 10, "$ " & determined_income
+				Text 230, 20, 40, 10, "$ " & determined_income
 				Text 140, 30, 85, 10, "Total App Month Assets:"
-				Text 230, 30, 35, 10, "$ " & determined_assets
+				Text 230, 30, 40, 10, "$ " & determined_assets
 				Text 140, 40, 85, 10, "Total App Month Housing:"
-				Text 230, 40, 35, 10, "$ " & determined_shel
+				Text 230, 40, 40, 10, "$ " & determined_shel
 				Text 140, 50, 85, 10, "Total App Month Utility:"
-				Text 230, 50, 35, 10, "$ " & determined_utilities
+				Text 230, 50, 40, 10, "$ " & determined_utilities
 				Text 295, 20, 135, 10, "Combined Resources (Income + Assets):"
-				Text 435, 20, 35, 10, "$ " & calculated_resources
+				Text 435, 20, 40, 10, "$ " & calculated_resources
 				Text 330, 40, 100, 10, "Combined Housing Expense:"
-				Text 435, 40, 35, 10, "$ " & calculated_expenses
+				Text 435, 40, 40, 10, "$ " & calculated_expenses
 				Text 295, 75, 125, 20, "Unit has less than $150 monthly Gross Income AND $100 or less in assets:"
 				Text 430, 85, 35, 10, calculated_low_income_asset_test
 				Text 295, 100, 125, 20, "Unit's combined resources are less than housing expense:"
@@ -2447,27 +2451,28 @@ End If
 navigate_to_MAXIS_screen "CASE", "NOTE"
 Call start_a_blank_case_note
 Call write_variable_in_case_note (case_note_header_text)
+If interview_date <> "" Then Call write_variable_in_case_note (" - Interview completed on: " & interview_date & " and full Expedited Determination Done")
 IF exp_screening_note_found = TRUE Then
-	Call write_bullet_and_variable_in_case_note ("Expedited Screening found", xfs_screening)
-	Call write_variable_in_case_note ("*   Based on: Income: " & caf_one_income & ",   Assets: " & caf_one_assets & ",  Totaling: " & caf_one_resources)
-	Call write_variable_in_case_note ("*             Shelter: " & caf_one_rent & ", Utilities: " & caf_one_utilities & ", Totaling: " & caf_one_expenses)
+	Call write_variable_in_case_note ("Expedited Screening found: " & xfs_screening)
+	Call write_variable_in_case_note ("  Based on: Income:  $ " & right("        " & caf_one_income, 8) & ", Assets:    $ " & right("        " & caf_one_assets, 8)    & ", Totaling: $ " & right("        " & caf_one_resources, 8))
+	Call write_variable_in_case_note ("            Shelter: $ " & right("        " & caf_one_rent, 8)   & ", Utilities: $ " & right("        " & caf_one_utilities, 8) & ", Totaling: $ " & right("        " & caf_one_expenses, 8))
+
 	Call write_variable_in_case_note ("---")
 End If
-If interview_date <> "" Then Call write_variable_in_case_note ("* Interview completed on: " & interview_date & " and full Expedited Determination Done")
 If IsDate(snap_denial_date) = TRUE Then
-	Call write_variable_in_CASE_NOTE("* SNAP to be denied on " & snap_denial_date & ". Since case is not SNAP eligible, case cannot receive Expedited issuance.")
-	If snap_exp_yn = "Yes" Then
+	Call write_variable_in_CASE_NOTE("SNAP to be denied on " & snap_denial_date & ". Since case is not SNAP eligible, case cannot receive Expedited issuance.")
+	If is_elig_XFS = TRUE Then
 		Call write_variable_with_indent_in_CASE_NOTE("Case is determined to meet criteria based upon income alone.")
 		Call write_variable_with_indent_in_CASE_NOTE("Expedited approval requires case to be otherwise eligble for SNAP and this does not meet this criteria.")
-	ElseIf snap_exp_yn = "No" Then
+	ElseIf is_elig_XFS = False Then
 		Call write_variable_with_indent_in_CASE_NOTE("Expedited SNAP cannot be approved as case does not meet all criteria")
 	End If
 	Call write_bullet_and_variable_in_CASE_NOTE("Explanation of Denial", snap_denial_explain)
 Else
 	IF is_elig_XFS = TRUE Then
-		Call write_variable_in_case_note ("* Case is determined to meet criteria for Expedited SNAP.")
+		Call write_variable_in_case_note ("Case is determined to meet criteria for Expedited SNAP.")
 		If IsDate(approval_date) = False AND delay_explanation <> "" Then
-			Call write_variable_in_case_note ("  -Approval of Expedited SNAP cannot be completed due to:")
+			Call write_variable_in_case_note (" - Approval of Expedited SNAP cannot be completed due to:")
 			' delay_explanation = THIS NEEDS TO BE AN ARRAY
 			If InStr(delay_explanation, ";") = 0 Then
 				delay_explain_array = Array(delay_explanation)
@@ -2482,15 +2487,22 @@ Else
 			Next
 		End If
 	End If
-	IF is_elig_XFS = FALSE Then Call write_variable_in_case_note ("* Case does not meet Expedited SNAP criteria.")
-	Call write_variable_in_case_note ("*   Based on: Income: " & determined_income & ",   Assets: " & determined_assets & ",   Totaling: " & calculated_resources)
-	Call write_variable_in_case_note ("*             Shelter: " & determined_shel & ", Utilities: " & determined_utilities & ",  Totaling: " & calculated_expenses)
+	IF is_elig_XFS = FALSE Then Call write_variable_in_case_note ("Case does not meet Expedited SNAP criteria.")
+	Call write_variable_in_case_note ("  Based on: Income:  $ " & right("        " & determined_income, 8) & ", Assets:    $ " & right("        " & determined_assets, 8)   & ", Totaling: $ " & right("        " & calculated_resources, 8))
+	Call write_variable_in_case_note ("            Shelter: $ " & right("        " & determined_shel, 8)   & ", Utilities: $ " & right("        " & determined_utilities, 8) & ", Totaling: $ " & right("        " & calculated_expenses, 8))
+	Call write_variable_in_CASE_NOTE("  --- Expedited Criteria Tests ---")
+	If calculated_low_income_asset_test = False Then Call write_variable_in_case_note("  FAILED - Resources Less than or Equal to $100 and Income Less than $150")
+	If calculated_low_income_asset_test = True Then Call write_variable_in_case_note("  PASSED - Resources Less than or Equal to $100 and Income Less than $150")
+	If calculated_resources_less_than_expenses_test = False Then Call write_variable_in_case_note("  FAILED - Resources Plus Income Less than Shelter Costs")
+	If calculated_resources_less_than_expenses_test = True Then Call write_variable_in_case_note("  PASSED - Resources Plus Income Less than Shelter Costs")
+	Call write_variable_in_case_note ("---")
 	IF is_elig_XFS = TRUE Then
+		Call write_variable_in_case_note ("Important Details")
 		Call write_bullet_and_variable_in_case_note ("Date of Application", date_of_application)
 		Call write_bullet_and_variable_in_case_note ("Date of Interview", interview_date)
 		Call write_bullet_and_variable_in_case_note ("Date of Approval", approval_date)
 		' Call write_bullet_and_variable_in_case_note ("Reason for Delay", delay_explanation)
-		Call write_bullet_and_variable_in_CASE_NOTE("Postponed Verifications", list_postponed_verifs)
+		Call write_bullet_and_variable_in_CASE_NOTE("Postponed Verifs", list_postponed_verifs)
 		Call write_variable_in_case_note ("---")
 	End If
 	If note_calculation_detail = True Then
@@ -2501,20 +2513,23 @@ Else
 				' Call write_variable_in_case_note ("    - JOBS")
 				for the_job = 0 to UBound(JOBS_ARRAY, 2)
 					If IsNumeric(JOBS_ARRAY(jobs_wage_const, the_job)) = True AND IsNumeric(JOBS_ARRAY(jobs_hours_const, the_job)) = True Then
-						Call write_variable_in_case_note ("  - JOBS: " & JOBS_ARRAY(jobs_employee_const, the_job) & " at " & JOBS_ARRAY(jobs_employer_const, the_job) & ": $" & JOBS_ARRAY(jobs_wage_const, the_job) & "/hr at " & JOBS_ARRAY(jobs_hours_const, the_job) & " hrs/wk. Monthly Gross: $" & JOBS_ARRAY(jobs_monthly_pay_const, the_job))
+						Call write_variable_in_case_note ("  - JOBS: " & JOBS_ARRAY(jobs_employee_const, the_job) & " at " & JOBS_ARRAY(jobs_employer_const, the_job) & ": $" & JOBS_ARRAY(jobs_wage_const, the_job) & "/hr at " & JOBS_ARRAY(jobs_hours_const, the_job) & " hrs/wk.")
+						Call write_variable_in_case_note ("            - Monthly Gross: $" & JOBS_ARRAY(jobs_monthly_pay_const, the_job))
 					End If
 				Next
 			End If
 			If busi_income_yn = "Yes" Then
 				' Call write_variable_in_case_note ("    - SELF EMPLOYMENT")
 				for the_busi = 0 to UBound(BUSI_ARRAY, 2)
-					Call write_variable_in_case_note ("  - BUSI: " & BUSI_ARRAY(busi_owner_const, the_busi) & " for " & BUSI_ARRAY(busi_info_const, the_busi) & ". Monthly Gross: $" & BUSI_ARRAY(busi_monthly_earnings_const, the_busi))
+					Call write_variable_in_case_note ("  - BUSI: " & BUSI_ARRAY(busi_owner_const, the_busi) & " for " & BUSI_ARRAY(busi_info_const, the_busi) & ".")
+					Call write_variable_in_case_note ("            - Monthly Gross: $" & BUSI_ARRAY(busi_monthly_earnings_const, the_busi))
 				Next
 			End If
 			If unea_income_yn = "Yes" Then
 				' Call write_variable_in_case_note ("    - UNEARNED INCOME")
 				for the_unea = 0 to UBound(UNEA_ARRAY, 2)
-					Call write_variable_in_case_note ("  - UNEA: " & UNEA_ARRAY(unea_owner_const, the_unea) & " from " & UNEA_ARRAY(unea_info_const, the_unea) & ". Monthly Gross: $" & UNEA_ARRAY(unea_monthly_earnings_const, the_unea))
+					Call write_variable_in_case_note ("  - UNEA: " & UNEA_ARRAY(unea_owner_const, the_unea) & " from " & UNEA_ARRAY(unea_info_const, the_unea) & ".")
+					Call write_variable_in_case_note ("            - Monthly Gross: $" & UNEA_ARRAY(unea_monthly_earnings_const, the_unea))
 				Next
 			End If
 			' app_month_income_detail(determined_income, income_review_completed, jobs_income_yn, busi_income_yn, unea_income_yn, JOBS_ARRAY, BUSI_ARRAY, UNEA_ARRAY)
@@ -2540,70 +2555,13 @@ Else
 			' Call write_variable_in_case_note ("*   SHELTER Details:")
 			first_housing_detail = True
 			If rent_amount <> "" OR lot_rent_amount <> "" OR mortgage_amount <> "" OR insurance_amount <> "" OR tax_amount <> "" OR room_amount <> "" OR garage_amount <> "" Then
-				shel_info = "      - " & "Housing Expense Detail: "
-				If rent_amount <> "" Then
-					If first_housing_detail = True Then
-						Call write_variable_in_case_note ("  - SHEL: Rent: $" & rent_amount)
-						first_housing_detail = False
-					ElseIf first_housing_detail = False Then
-						Call write_variable_in_case_note ("          Rent: $" & rent_amount)
-					End If
-				End If
-				If lot_rent_amount <> "" Then
-					If first_housing_detail = True Then
-						Call write_variable_in_case_note ("  - SHEL: Lot Rent: $" & lot_rent_amount)
-						first_housing_detail = False
-					ElseIf first_housing_detail = False Then
-						Call write_variable_in_case_note ("          Lot Rent: $" & lot_rent_amount)
-					End If
-				End If
-				If mortgage_amount <> "" Then
-					If first_housing_detail = True Then
-						Call write_variable_in_case_note ("  - SHEL: Mortgage: $" & mortgage_amount)
-						first_housing_detail = False
-					ElseIf first_housing_detail = False Then
-						Call write_variable_in_case_note ("          Mortgage: $" & mortgage_amount)
-					End If
-				End If
-				If insurance_amount <> "" Then
-					If first_housing_detail = True Then
-						Call write_variable_in_case_note ("  - SHEL: Insurance: $" & insurance_amount)
-						first_housing_detail = False
-					ElseIf first_housing_detail = False Then
-						Call write_variable_in_case_note ("          Insurance: $" & insurance_amount)
-					End If
-				End If
-				If tax_amount <> "" Then
-					If first_housing_detail = True Then
-						Call write_variable_in_case_note ("  - SHEL: Tax: $" & tax_amount)
-						first_housing_detail = False
-					ElseIf first_housing_detail = False Then
-						Call write_variable_in_case_note ("          Tax: $" & tax_amount)
-					End If
-				End If
-				If room_amount <> "" Then
-					If first_housing_detail = True Then
-						Call write_variable_in_case_note ("  - SHEL: Room: $" & room_amount)
-						first_housing_detail = False
-					ElseIf first_housing_detail = False Then
-						Call write_variable_in_case_note ("          Room: $" & room_amount)
-					End If
-				End If
-				If garage_amount <> "" Then
-					If first_housing_detail = True Then
-						Call write_variable_in_case_note ("  - SHEL: Garage: $" & garage_amount)
-						first_housing_detail = False
-					ElseIf first_housing_detail = False Then
-						Call write_variable_in_case_note ("          Garage: $" & garage_amount)
-					End If
-				End If
-				' If right(shel_info, 2) = ", " Then
-				' 	shel_info = left(shel_info, len(shel_info)-2)
-				' Call write_variable_in_case_note (shel_info)
 
-				If subsidy_amount <> "" Then Call write_variable_in_case_note ("      - SUBSIDY: $" & subsidy_amount)
+				Call write_variable_in_case_note ("  - SHEL: Rent:     $ " & right("    " & rent_amount, 4)    &  "   -   Lot Rent:  $" & right("    " & lot_rent_amount, 4))
+				Call write_variable_in_case_note ("          Mortgage: $ " & right("    " & mortgage_amount, 4) & "   -   Insurance: $" & right("    " & insurance_amount, 4))
+				Call write_variable_in_case_note ("          Tax:      $ " & right("    " & tax_amount, 4)      & "   -   Room:      $" & right("    " & room_amount, 4))
+				Call write_variable_in_case_note ("          Garage:   $ " & right("    " & garage_amount, 4))
+				Call write_variable_in_case_note ("          SUBSIDY:  $ " & right("    " & subsidy_amount, 4))
 			End If
-			' app_month_housing_detail(determined_shel, shel_review_completed,
 		End If
 	End If
 	' Call write_variable_in_case_note ("*   UTILITY Details:")
