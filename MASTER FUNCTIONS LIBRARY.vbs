@@ -7357,6 +7357,10 @@ function select_testing_file(selection_type, the_selection, file_path, file_bran
                 If force_error_reporting = TRUE Then testing_run = TRUE
                 If run_locally = true then
                     testing_script_url = "C:\MAXIS-scripts\" & file_path
+					If file_branch <> "master" Then
+						run_locally =  False
+						testing_script_url = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/" & file_branch & "/" & file_path
+					End If
                 Else
                     testing_script_url = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/" & file_branch & "/" & file_path
 
