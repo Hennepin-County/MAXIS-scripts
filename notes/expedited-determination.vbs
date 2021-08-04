@@ -37,7 +37,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
-
+Call select_testing_file("GROUP", "QI", "notes/expedited-determination.vbs", "345-exp-determination-working", False, True)
 'CHANGELOG BLOCK ===========================================================================================================
 'Starts by defining a changelog array
 changelog = array()

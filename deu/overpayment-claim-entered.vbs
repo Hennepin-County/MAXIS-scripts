@@ -64,7 +64,7 @@ CALL MAXIS_case_number_finder(MAXIS_case_number)
 memb_number = "01"
 'discovery_date = date & ""
 
-back_to_self
+
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 361, 280, "Overpayment Claim Entered"
@@ -162,6 +162,7 @@ Do
 	err_msg = ""
 	dialog Dialog1
 	cancel_without_confirmation
+	IF memb_number = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the member number."
 	IF MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* Enter a valid case number."
     IF select_quarter = "Select:" THEN err_msg = err_msg & vbnewline & "* You must select a match period entry."
 	IF fraud_referral = "Select:" THEN err_msg = err_msg & vbnewline & "* You must select a fraud referral entry."
@@ -193,6 +194,7 @@ Do
 LOOP UNTIL err_msg = ""
 CALL check_for_password_without_transmit(are_we_passworded_out)
 
+back_to_self
 '----------------------------------------------------------------------------------------------------STAT
 CALL navigate_to_MAXIS_screen("STAT", "MEMB")
 EMwritescreen memb_number, 20, 76

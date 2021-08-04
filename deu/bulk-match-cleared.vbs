@@ -184,7 +184,7 @@ Do 'purpose is to read each excel row and to add into each excel array '
 			add_to_array = TRUE
 		END IF
 	END IF
-	'MsgBox excel_row & add_to_array
+	'msgbox "1" & excel_row & add_to_array
 
 	IF add_to_array = TRUE THEN   'Adding client information to the array - this is for READING FROM the excel
      	ReDim Preserve match_based_array(other_note_const, entry_record)	'This resizes the array based on the number of cases
@@ -208,9 +208,8 @@ Do 'purpose is to read each excel row and to add into each excel array '
 		match_based_array(match_cleared_const,  	entry_record)    = TRUE
 		match_based_array(IEVS_period_const,  		entry_record)    = trim(objExcel.cells(excel_row, excel_col_period).Value)
 		match_based_array(other_note_const,  		entry_record)    = trim(objExcel.cells(excel_row, excel_col_other_note).Value)
-
 		match_based_array(excel_row_const, entry_record) = excel_row
-		'msgbox  match_based_array(resolution_status_const,  entry_record)
+		'msgbox  "2" & match_based_array(resolution_status_const,  entry_record)
 	    'making space in the array for these variables, but valuing them as "" for now
       	entry_record = entry_record + 1			'This increments to the next entry in the array
       	stats_counter = stats_counter + 1 'Increment for stats counter
@@ -230,7 +229,7 @@ For item = 0 to UBound(match_based_array, 2)
 	CALL write_value_and_transmit("IEVP", 20, 71)
 
 	EMReadScreen MISC_error_check,  74, 24, 02
-	match_based_array(match_cleared_const, item) = trim(MISC_error_check)
+	'match_based_array(match_cleared_const, item) = trim(MISC_error_check)
 	'------------------------------------------------------------------selecting the correct wage match
  	'Setting the match type'
 	IF match_type = "BNDX"   THEN numb_match_type = "A3" 'removed last digit due to wage match having two numbers doing the samething'
@@ -244,25 +243,32 @@ For item = 0 to UBound(match_based_array, 2)
 
 	DO
 		EMReadScreen match_based_array(IEVS_period_const, item), 11, row, 47
-		EMReadScreen days_pending, 5, row, 72
+		'msgbox "4" & match_based_array(IEVS_period_const, item)
+		days_pending = "0"
+		EMReadScreen days_pending, 4, row, 72
+		'msgbox "4" & days_pending
+		days_pending = trim(days_pending)
 		days_pending = replace(days_pending, "(", "")
 		days_pending = replace(days_pending, ")", "")
-		days_pending = trim(days_pending)
 		IF IsNumeric(days_pending) = TRUE THEN
+			'msgbox "4*" & IsNumeric(days_pending)
 			EMReadScreen ievp_match_type, 2, row, 41 'read the match type'
-			IF ievp_match_type <> numb_match_type THEN
+			'msgbox "5" & ievp_match_type & numb_match_type
+			IF ievp_match_type = numb_match_type THEN
+				'msgbox "5*" & ievp_match_type & numb_match_type & match_type
 			   CALL write_value_and_transmit("U", row, 3)   'navigates to IULA
 		    	EMReadScreen panel_name, 4, 02, 52
-	        	IF panel_name <> "IULA" THEN
-	        		EMReadScreen back_panel_name, 4, 2, 52
-	        		IF back_panel_name <> "IEVP" Then
-	        			CALL back_to_SELF
-	        			match_based_array(match_cleared_const, item) = FALSE
-	        		END IF
-	  	    	END IF
+	        	'IF panel_name <> "IULA" THEN
+	        	'	EMReadScreen back_panel_name, 4, 2, 52
+	        	'	IF back_panel_name <> "IEVP" Then
+	        	'		CALL back_to_SELF
+	        	'		'match_based_array(match_cleared_const, item) = FALSE
+	        	'	END IF
+	  	    	'END IF
 
 		        	'----------------------------------------------------------------------------------------------------ACTIVE PROGRAMS
 		        EMReadScreen Active_Programs, 1, 6, 68 'only reading one becasue I trimmed out extra in the beginning
+				'msgbox "6" & Active_Programs & match_type
 		        IF match_type = "WAGE" THEN
 		        	EMReadScreen income_line, 44, 8, 37 'should be to the right of employer and the left of amount
 		        	income_line = trim(income_line)
@@ -285,7 +291,7 @@ For item = 0 to UBound(match_based_array, 2)
 		        	income_amount = replace(income_amount, ",", "")
 		        	income_amount = trim(income_amount)
 		        END IF
-		        'MsgBox match_based_array(amount_const,  item) & vbcr & income_amount & vbcr & match_based_array(match_cleared_const, item)
+		        'msgbox "7" & match_based_array(amount_const,  item) & vbcr & income_amount & vbcr & match_based_array(match_cleared_const, item)
 		        'This is the bigger loop to exit the loop for the excel sheet
 		        'IF income_source <> match_based_array(income_source_const, item) THEN match_based_array(match_cleared_const, item) = FALSE
 		        'IF active_Programs <> match_based_array(program_const,  item) THEN match_based_array(match_cleared_const, item) = FALSE
@@ -302,7 +308,7 @@ For item = 0 to UBound(match_based_array, 2)
 		END IF
 	LOOP UNTIL trim(IEVS_period) = "" 'two ways to leave a loop
 
-	'msgbox match_based_array(match_cleared_const, item)
+	'msgbox "8" & match_based_array(match_cleared_const, item)
     '---------------------------------------------------------------------Reading potential errors for out-of-county cases
     IF match_based_array(match_cleared_const, item) = TRUE THEN
 	    '--------------------------------------------------------------------IULA
@@ -388,10 +394,12 @@ For item = 0 to UBound(match_based_array, 2)
 		'This is the bigger loop to exit the loop for the excel sheet
 		'----------------------------------------------------------------------------------------------------RESOLVING THE MATCH
     	EMReadScreen match_based_array(notice_sent_const,   item), 1, 14, 37
-
-    	EMReadScreen match_based_array(notice_sent_date_const,   item), 8, 14, 68
-    	IF match_based_array(notice_sent_date_const,   item) <> "" THEN match_based_array(notice_sent_date_const,   item) = replace(match_based_array(notice_sent_date_const,   item), " ", "/")
-
+		'MsgBox match_based_array(notice_sent_date_const,   item)
+		IF match_based_array(notice_sent_const,   item) = "Y" THEN
+		EMReadScreen match_based_array(notice_sent_date_const,   item), 8, 14, 68
+		'MsgBox match_based_array(notice_sent_date_const,   item)
+    		match_based_array(notice_sent_date_const,   item) = replace(match_based_array(notice_sent_date_const,   item), " ", "/")
+		END IF
     	EMReadScreen clear_code, 2, 12, 58
 		IF clear_code <> "__" THEN match_based_array(match_cleared_const, item) = FALSE 'default to false unless something happens to make it not'
 
@@ -425,7 +433,7 @@ For item = 0 to UBound(match_based_array, 2)
 		EMReadScreen panel_name, 4, 02, 52
 	    IF panel_name = "IULB" THEN
 	  		EMWriteScreen IULB_notes, 8, 6
-			'MsgBox "we wrote the note"
+			'msgbox "we wrote the note"
 	    	EMReadScreen IULB_enter_msg, 5, 24, 02
 	    	IF IULB_enter_msg = "ENTER" OR IULB_enter_msg = "ACTIO" THEN 'check if we need to input other notes
 				CALL clear_line_of_text(8, 6)
@@ -451,28 +459,23 @@ For item = 0 to UBound(match_based_array, 2)
 			iulb_col = 6
 			notes_array = split(IULB_comment, " ")
 			For each word in notes_array
-				 'MsgBox "Word - " & word & vbCr & "Row - " & iulb_row & "   Col - " & iulb_col & vbCr & "Add - " & iulb_col + len(word)
+				EMWriteScreen word & " ", iulb_row, iulb_col
+			 	'msgbox "Word - " & word & vbCr & "Row - " & iulb_row & "   Col - " & iulb_col & vbCr & "Add - " & iulb_col + len(word)
 				If iulb_col + len(word) > 77 Then
 					iulb_col = 6
 					iulb_row = iulb_row + 1
 					If iulb_row = 10 Then Exit For
 				End If
-				EMWriteScreen word & " ", iulb_row, iulb_col
 				iulb_col = iulb_col + len(word) + 1
-				If iulb_col >  77 Then
-					iulb_col = 6
-					iulb_row = iulb_row + 1
-					If iulb_row = 10 Then Exit For
-				End If
 			Next
-			'msgbox "CLEAR"
+			'msgbox "Bonus round"
 
 	    	TRANSMIT
 			'------------------------------------------------------------------back on the IEVP menu, making sure that the match cleared
 			EMReadScreen days_pending, 5, row, 72
 	    	days_pending = trim(days_pending)
 	    	IF IsNumeric(days_pending) = TRUE THEN match_based_array(match_cleared_const, item) = FALSE
-			'msgbox "where are we"
+			'msgbox "Fini"
    		END IF
 
 		TRANSMIT
@@ -555,11 +558,11 @@ For item = 0 to UBound(match_based_array, 2)
 	    	match_based_array(match_cleared_const, item) = trim(case_invalid_error)
 	    ELSE
 			start_a_blank_case_note
-			IF match_type = "WAGE" THEN CALL write_variable_in_case_note("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH"  & " (" & first_name & ") " & cleared_header & header_note & "-----")
-			IF match_type = "BEER" THEN CALL write_variable_in_case_note("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type_letter & ")" & " (" & first_name & ") " & cleared_header & header_note & "-----")
-			IF match_type = "UNVI" THEN CALL write_variable_in_case_note("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type_letter & ")" & " (" & first_name & ") " & cleared_header & header_note & "-----")
-			IF match_type = "UBEN" THEN CALL write_variable_in_case_note("-----" & IEVS_period & " NON-WAGE MATCH(" & match_type_letter & ")" & " (" & first_name & ") " & cleared_header & header_note & "-----")
-			IF match_type = "BNDX" THEN CALL write_variable_in_case_note("-----" & IEVS_period & " NON-WAGE MATCH(" & match_type & ")" & " (" & first_name & ") " & cleared_header & header_note & "-----")
+			IF match_type = "WAGE" THEN CALL write_variable_in_case_note("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH"  & " (" & first_name & ") CLEARED " & match_based_array(resolution_status_const,  item) & "-----")
+			IF match_type = "BEER" THEN CALL write_variable_in_case_note("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type_letter & ")" & " (" & first_name & ") CLEARED " & match_based_array(resolution_status_const,  item) & "-----")
+			IF match_type = "UNVI" THEN CALL write_variable_in_case_note("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type_letter & ")" & " (" & first_name & ") CLEARED " & match_based_array(resolution_status_const,  item) & "-----")
+			IF match_type = "UBEN" THEN CALL write_variable_in_case_note("-----" & IEVS_period & " NON-WAGE MATCH(" & match_type_letter & ")" & " (" & first_name & ") CLEARED " & match_based_array(resolution_status_const,  item) & "-----")
+			IF match_type = "BNDX" THEN CALL write_variable_in_case_note("-----" & IEVS_period & " NON-WAGE MATCH(" & match_type & ")" & " (" & first_name & ") CLEARED " & match_based_array(resolution_status_const,  item) & "-----")
 			CALL write_bullet_and_variable_in_case_note("Period", IEVS_period)
 			CALL write_bullet_and_variable_in_case_note("Active Programs", programs)
 			CALL write_bullet_and_variable_in_case_note("Source of income", income_source)
@@ -622,10 +625,10 @@ objExcel.Cells(1, 11).Value    = "SOURCE OF INCOME" 'K' Employer
 objExcel.Cells(1, 12).Value    = "NOTICE SENT"		'L' Date Notice Sent
 objExcel.Cells(1, 13).Value    = "RESOLUTION"		'M' How cleared
 objExcel.Cells(1, 14).Value    = "DATE CLEARED"		'N
-objExcel.Cells(1, 15).Value    = "PERIOD"			'O' Date cleared
+objExcel.Cells(1, 15).Value    = "DATE CLAIM ENTERED"' Claim(s) Entered
 objExcel.Cells(1, 16).Value    = "ASSIGNED TO"		'P' Who worker who cleared
 objExcel.Cells(1, 17).Value    = "MATCH CLEARED"	'Q  case note to check match cleared/used to be work# requested
-objExcel.Cells(1, 18).Value    = "DATE CLAIM ENTERED"' Claim(s) Entered
+objExcel.Cells(1, 18).Value    = "PERIOD"			'R' Date cleared
 objExcel.Cells(1, 19).Value    = "DATE ATR SIGNED"	'S  Date signed ATR
 objExcel.Cells(1, 20).Value    = "DATE EVF RCVD"	'T  Date EVF Recieved
 objExcel.Cells(1, 21).Value    = "OTHER NOTES"		'U  OTHER NOTES

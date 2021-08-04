@@ -131,7 +131,6 @@ class script_bowie
 	' public sub create_decription(description)
 	public property get description
 
-		description = "Actions: "
 		For each key in dlg_keys
 			If key = "Cn" Then maxis_actions = maxis_actions & "Creates CASE:NOTE, "
 			If key = "Fi" Then maxis_actions = maxis_actions & "FIATs Eligibility, "
@@ -147,6 +146,7 @@ class script_bowie
 			If key = "Wrd" Then office_actions = office_actions & "Uses Word, "
 		Next
 
+		If maxis_actions <> "" Then description = "Actions: "
 		If right(maxis_actions, 2) = ", " Then maxis_actions = left(maxis_actions, len(maxis_actions)-2)
 		If right(maxis_notice, 2) = ", " Then maxis_notice = left(maxis_notice, len(maxis_notice)-2)
 		If right(office_actions, 2) = ", " Then office_actions = left(office_actions, len(office_actions)-2)
@@ -216,7 +216,8 @@ class script_bowie
 		' 	   "EMER - " & InStr(all_the_tags, "EMER") & vbCr &_
 		' 	   "PROGRAMS HELPED - " & programs_helped
 		If DateDiff("m", release_date, DateAdd("m", -2, date)) <= 0 then
-			description = "NEW " & release_date & "!!! --- " & description
+			description = "NEW " & release_date & "!!! " & description
+			If left(description, 4) <> " ---" Then description = "--- " & description
 		End if
 		If in_testing = TRUE Then description = "IN TESTING - " & description
 		if left(script_name, 4) = "REPT" Then description = description & " --- Reads details from MAXIS REPT Lists"
@@ -224,6 +225,8 @@ class script_bowie
 		If script_name = "EMPS" Then description = description & " --- EMPS Panel Information in a List"
 		If script_name = "DAIL Report" Then description = description & " --- List of DAILs selected by Type"
 		If script_name ="Delete DAIL Tasks" Then description = description & " --- USE WITH CAUTION! Deletes info from SQL Database."
+		If script_name ="Open Interview PDF" Then description = description & " --- Opens a PDF generated from NOTES - Interview if not yet in ECF."
+
 	end property
 
 
@@ -2181,6 +2184,24 @@ script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).retirement_date		= #06/09/2021#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "Open Interview PDF"
+' script_array(script_num).description 			= "Template for case noting information about sending a notice."
+script_array(script_num).category               = "UTILITIES"
+script_array(script_num).workflows              = ""
+' script_array(script_num).tags                   = array("Communication", "Application", "Reviews", "SNAP", "MFIP", "DWP", "Adult Cash", "EMER", "HS/GRH")
+script_array(script_num).tags                   = array("Communication", "Application", "Reviews")
+script_array(script_num).dlg_keys               = array("")
+script_array(script_num).subcategory            = array("TOOL")
+script_array(script_num).release_date           = #07/29/2021#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).in_testing             = TRUE
+script_array(script_num).testing_category       = "ALL"
+script_array(script_num).testing_criteria       = array("")
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it

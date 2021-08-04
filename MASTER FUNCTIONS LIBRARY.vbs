@@ -3835,7 +3835,7 @@ function confirm_tester_information()
         If user_ID_for_validation = tester.tester_id_number Then            'If the person who is running the script is a tester
             If tester.tester_confirmed = FALSE Then                         'If the information is not saved as confirmed.
                 'Script user is asked if they can confirm their information now.
-                confirm_testing_now = MsgBox("Hello " & tester.tester_first_name & "! Thank you for agreeing to test BlueZone Scripts. You are an invaluable part of our process and the development of new tools and scripts." & vbNewLine & vbNewLine & "To be sure the testing functionality works correctly, we need to be sure we have the correct information about you. We need you to confrim a few details, this will take less than 5 minutes." & vbNewLine & vbNewLine & "Do you have time to confirm your information now?", vbQuestion + vbYesNo, "Confirm Tester Deail")
+                confirm_testing_now = MsgBox("Hello " & tester.tester_first_name & "! Thank you for agreeing to test BlueZone Scripts. You are an invaluable part of our process and the development of new tools and scripts." & vbNewLine & vbNewLine & "To be sure the testing functionality works correctly, we need to be sure we have the correct information about you. We need you to confrim a few details, this will take less than 5 minutes." & vbNewLine & vbNewLine & "Do you have time to confirm your information now?", vbQuestion + vbYesNo, "Confirm Tester Detail")
 
                 If confirm_testing_now = vbYes Then     'If they select 'Yes' the script will run the dialogs to confirm information
                     show_initial_dialog = TRUE          'this is set to show the initial dialog because there are 2 dialogs that loop together and once we pass the first, we don't want to see it again
@@ -7357,6 +7357,10 @@ function select_testing_file(selection_type, the_selection, file_path, file_bran
                 If force_error_reporting = TRUE Then testing_run = TRUE
                 If run_locally = true then
                     testing_script_url = "C:\MAXIS-scripts\" & file_path
+					If file_branch <> "master" Then
+						run_locally =  False
+						testing_script_url = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/" & file_branch & "/" & file_path
+					End If
                 Else
                     testing_script_url = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/" & file_branch & "/" & file_path
 

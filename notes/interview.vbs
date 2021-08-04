@@ -44,7 +44,8 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("04/00/2021", "Initial version.", "Casey Love, Hennepin County")
+call changelog_update("07/29/2021", "TESTING UPDATES##~##We made a couple changes.##~## ##~##Added a 'Worker Signature' box to the first dialog as that was missing.##~##Updated the look of the first dialog and added some guidance in pop-up boxes.##~##Changed the 'Error Message' handling in the dialog so if you have to 'BACK' to a question from the last page, it will let you.##~##Removed the 'Update PROG' functionality, since it is broken.##~## ##~##Another addition is a new tool in UTILITIES to open a PDF that was previously created. Go try it out!##~##", "Casey Love, Hennepin County")
+call changelog_update("07/02/2021", "Initial version.", "Casey Love, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
@@ -890,6 +891,22 @@ function define_main_dialog()
 			PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", add_verif_1_btn
 			y_pos = y_pos + 20
 
+			'TESTING CODE
+			'NEW QUESTION LAYOUT OPTION
+			' Text 400, y_pos, 40, 10, "CAF Answer"
+			' DropListBox 440, y_pos - 5, 35, 45, question_answers, question_1_yn
+			' PushButton 400, y_pos + 10, 75, 10, "ADD WRITE-IN", question_1_add_wwrite_in_bnt
+			' y_pos = y_pos + 20
+			' Text 15, y_pos, 60, 10, "Verbal Answer"
+			' DropListBox 75, y_pos - 5, 35, 45, question_answers, question_1_verbal_yn
+			' If question_1_verif_yn <> "" Then Text 360, y_pos, 110, 10, "Q1 - Verification - " & question_1_verif_yn
+			' PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", add_verif_1_btn
+			'
+			' y_pos = y_pos + 20
+			' Text 15, y_pos, 60, 10, "Interview Notes:"
+			' EditBox 75, y_pos - 5, 400, 15, question_1_interview_notes
+			' y_pos = y_pos + 20
+
 			GroupBox 5, y_pos, 475, 55, "2. Is anyone in the household, who is age 60 or over or disabled, unable to buy or fix food due to a disability?"
 			y_pos = y_pos + 20
 			' Text 20, 55, 115, 10, "buy or fix food due to a disability?"
@@ -1624,7 +1641,8 @@ function define_main_dialog()
 						y_pos = y_pos + 20
 
 					End If
-
+					Text 15, y_pos, 400, 10, "(Income, Assets, and Expenses are determined on the 'Applicant and EXP' page of this dialog.)"
+					y_pos = y_pos + 15
 				End If
 
 				IF family_cash_case = True OR adult_cash_case = True OR unknown_cash_pending = True Then
@@ -2011,6 +2029,7 @@ function display_errors(the_err_msg, execute_nav, show_err_msg_during_movement)
         'This is the display of all of the messages.
 		show_msg = False
         If show_err_msg_during_movement = True Then show_msg = True
+		If page_display = show_pg_last AND ButtonPressed <> finish_interview_btn Then show_msg = False
 		If show_err_msg_during_movement = False AND ButtonPressed = finish_interview_btn Then show_msg = True
 		' If ButtonPressed = finish_interview_btn Then show_msg = True
 		' for i = 0 to UBound(HH_MEMB_ARRAY, 2)
@@ -5148,54 +5167,158 @@ If MX_region = "TRAINING" Then developer_mode = True
 
 interview_started_time = time
 
-Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 371, 330, "Interview Script Case number dialog"
-  EditBox 105, 85, 60, 15, MAXIS_case_number
-  EditBox 105, 105, 50, 15, CAF_datestamp
-  DropListBox 105, 125, 140, 15, "Select One:"+chr(9)+"CAF (DHS-5223)"+chr(9)+"HUF (DHS-8107)"+chr(9)+"SNAP App for Srs (DHS-5223F)"+chr(9)+"MNBenefits"+chr(9)+"ApplyMN"+chr(9)+"Combined AR for Certain Pops (DHS-3727)", CAF_form
-  CheckBox 110, 160, 30, 10, "CASH", CASH_on_CAF_checkbox
-  CheckBox 150, 160, 35, 10, "SNAP", SNAP_on_CAF_checkbox
-  CheckBox 190, 160, 35, 10, "EMER", EMER_on_CAF_checkbox
-  DropListBox 25, 290, 295, 45, "Alert at the time you attempt to save each page of the dialog."+chr(9)+"Alert only once completing and leaving the final dialog.", select_err_msg_handling
-  ButtonGroup ButtonPressed
-    OkButton 260, 310, 50, 15
-    CancelButton 315, 310, 50, 15
-    ' PushButton 125, 310, 15, 15, "!", tips_and_tricks_button
-  Text 10, 10, 360, 10, "Start this script at the beginning of the interview and keep it running during the entire course of the interview."
-  Text 10, 20, 60, 10, "This script will:"
-  Text 20, 30, 170, 10, "- Guide you through all of the interview questions."
-  Text 20, 40, 170, 10, "- Capture Resident answers for CASE:NOTE"
-  Text 20, 50, 260, 10, "- Create a document of the interview answers to be saved in the ECF Case File."
-  Text 20, 60, 245, 10, "- Provide verbiage guidance for consistent resident interview experience."
-  Text 20, 70, 260, 10, "- Store the interview date, time, and legth in a database (an FNS requirement)."
-  Text 50, 90, 50, 10, "Case number:"
-  Text 10, 110, 90, 10, "Date Application Received:"
-  Text 40, 130, 60, 10, "Actual CAF Form:"
-  GroupBox 105, 145, 125, 30, "Programs marked on CAF"
-  ' Text 145, 315, 105, 10, "Look for me for Tips and Tricks!"
-  Text 20, 280, 315, 10, "How do you want to be alerted to updates needed to answers/information in following dialogs?"
-  GroupBox 10, 175, 355, 130, "How to interact with this Script"
-  Text 20, 200, 335, 20, "The script will have a place to enter the answer from the CAF; a 'yes/no/blank' field plus an 'open' field to enter exactly what the CAF has listed on it."
-  Text 30, 220, 305, 10, "Entering information in these fields should happen as you discuss this answer with the Resident."
-  Text 30, 230, 315, 10, "The script will consider that question to have 'confirmed response' if these fields are completed."
-  Text 20, 245, 340, 20, "Entering detail in 'Interview Notes' should happen for any information the resident provides verbally upon discussion of that question. "
-  Text 30, 265, 330, 10, "All detail should be entered in this field because it is important we are capturing the full conversation."
-  Text 70, 185, 220, 10, "You should have this script running DURING the entire interview."
-EndDialog
+msg_what_script_does_btn = 101
+msg_save_your_work_btn = 102
+msg_script_interaction_btn = 103
+msg_show_instructions_btn = 104
+
 'Showing the case number dialog
 Do
 	DO
 		err_msg = ""
+
+		Dialog1 = ""
+		BeginDialog Dialog1, 0, 0, 371, 340, "Interview Script Case number dialog"
+		  EditBox 75, 50, 60, 15, MAXIS_case_number
+		  EditBox 245, 50, 50, 15, CAF_datestamp
+		  DropListBox 75, 75, 140, 15, "Select One:"+chr(9)+"CAF (DHS-5223)"+chr(9)+"HUF (DHS-8107)"+chr(9)+"SNAP App for Srs (DHS-5223F)"+chr(9)+"MNBenefits"+chr(9)+"ApplyMN"+chr(9)+"Combined AR for Certain Pops (DHS-3727)", CAF_form
+		  CheckBox 230, 80, 30, 10, "CASH", CASH_on_CAF_checkbox
+		  CheckBox 270, 80, 35, 10, "SNAP", SNAP_on_CAF_checkbox
+		  CheckBox 310, 80, 35, 10, "EMER", EMER_on_CAF_checkbox
+		  EditBox 75, 100, 145, 15, worker_signature
+		  DropListBox 20, 295, 335, 45, "Alert at the time you attempt to save each page of the dialog."+chr(9)+"Alert only once completing and leaving the final dialog.", select_err_msg_handling
+		  ButtonGroup ButtonPressed
+		    OkButton 260, 320, 50, 15
+		    CancelButton 315, 320, 50, 15
+		    PushButton 205, 20, 155, 15, "Press HERE to see what this script will do", msg_what_script_does_btn
+			' PushButton 205, 35, 155, 10, "NOTES - Interview Script Instructions", msg_show_instructions_btn
+		    PushButton 165, 195, 195, 15, "Press HERE to learn more about 'SAVE YOUR WORK'", msg_save_your_work_btn
+		    PushButton 80, 265, 210, 15, "Press HERE for more details on how to work with this script", msg_script_interaction_btn
+		  Text 10, 10, 360, 10, "Start this script at the beginning of the interview and keep it running during the entire course of the interview."
+		  Text 20, 55, 50, 10, "Case number:"
+		  Text 155, 55, 90, 10, "Date Application Received:"
+		  Text 10, 80, 60, 10, "Actual CAF Form:"
+		  GroupBox 225, 70, 125, 25, "Programs marked on CAF"
+		  Text 10, 105, 60, 10, "Worker Signature:"
+		  Text 145, 125, 105, 10, "*!*!*!*  DID YOU KNOW *!*!*!*"
+		  Text 110, 140, 185, 10, "This script SAVES the information you enter as it runs!"
+		  Text 75, 155, 255, 10, "This means that IF the script errors, fails, is canceled, the network goes down."
+		  Text 135, 165, 125, 10, "YOU CAN GET YOUR WORK BACK!!!"
+		  Text 15, 175, 345, 20, "This happens in the background, without you knowing it. In order to get your work back run the script again on the SAME DAY for the SAME CASE and it will ask if you want to restore the information - just press YES!"
+		  GroupBox 10, 210, 355, 105, "How to interact with this Script"
+		  Text 80, 225, 220, 10, "You should have this script running DURING the entire interview."
+		  Text 90, 240, 195, 20, "You  are capturing BOTH the information writen on the form AND the verbal responses in the script fields."
+		  Text 20, 285, 315, 10, "How do you want to be alerted to updates needed to answers/information in following dialogs?"
+		EndDialog
+
+' BeginDialog Dialog1, 0, 0, 371, 330, "Interview Script Case number dialog"
+'   EditBox 105, 85, 60, 15, MAXIS_case_number
+'   EditBox 105, 105, 50, 15, CAF_datestamp
+'   DropListBox 105, 125, 140, 15, "Select One:"+chr(9)+"CAF (DHS-5223)"+chr(9)+"HUF (DHS-8107)"+chr(9)+"SNAP App for Srs (DHS-5223F)"+chr(9)+"MNBenefits"+chr(9)+"ApplyMN"+chr(9)+"Combined AR for Certain Pops (DHS-3727)", CAF_form
+'   CheckBox 110, 160, 30, 10, "CASH", CASH_on_CAF_checkbox
+'   CheckBox 150, 160, 35, 10, "SNAP", SNAP_on_CAF_checkbox
+'   CheckBox 190, 160, 35, 10, "EMER", EMER_on_CAF_checkbox
+'   DropListBox 25, 290, 295, 45, "Alert at the time you attempt to save each page of the dialog."+chr(9)+"Alert only once completing and leaving the final dialog.", select_err_msg_handling
+'   ButtonGroup ButtonPressed
+'     OkButton 260, 310, 50, 15
+'     CancelButton 315, 310, 50, 15
+'     ' PushButton 125, 310, 15, 15, "!", tips_and_tricks_button
+'   Text 10, 10, 360, 10, "Start this script at the beginning of the interview and keep it running during the entire course of the interview."
+'   Text 10, 20, 60, 10, "This script will:"
+'   Text 20, 30, 170, 10, "- Guide you through all of the interview questions."
+'   Text 20, 40, 170, 10, "- Capture Resident answers for CASE:NOTE"
+'   Text 20, 50, 260, 10, "- Create a document of the interview answers to be saved in the ECF Case File."
+'   Text 20, 60, 245, 10, "- Provide verbiage guidance for consistent resident interview experience."
+'   Text 20, 70, 260, 10, "- Store the interview date, time, and legth in a database (an FNS requirement)."
+'   Text 50, 90, 50, 10, "Case number:"
+'   Text 10, 110, 90, 10, "Date Application Received:"
+'   Text 40, 130, 60, 10, "Actual CAF Form:"
+'   GroupBox 105, 145, 125, 30, "Programs marked on CAF"
+'   ' Text 145, 315, 105, 10, "Look for me for Tips and Tricks!"
+'   Text 20, 280, 315, 10, "How do you want to be alerted to updates needed to answers/information in following dialogs?"
+'   GroupBox 10, 175, 355, 130, "How to interact with this Script"
+'   Text 20, 200, 335, 20, "The script will have a place to enter the answer from the CAF; a 'yes/no/blank' field plus an 'open' field to enter exactly what the CAF has listed on it."
+'   Text 30, 220, 305, 10, "Entering information in these fields should happen as you discuss this answer with the Resident."
+'   Text 30, 230, 315, 10, "The script will consider that question to have 'confirmed response' if these fields are completed."
+'   Text 20, 245, 340, 20, "Entering detail in 'Interview Notes' should happen for any information the resident provides verbally upon discussion of that question. "
+'   Text 30, 265, 330, 10, "All detail should be entered in this field because it is important we are capturing the full conversation."
+'   Text 70, 185, 220, 10, "You should have this script running DURING the entire interview."
+' EndDialog
+
 		Dialog Dialog1
 		cancel_without_confirmation
 
-        Call validate_MAXIS_case_number(err_msg, "*")
-		If no_case_number_checkbox = checked Then err_msg = ""
-        ' Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
-		If CAF_form = "Select One:" Then err_msg = err_msg & vbCr & "* Select which form that was received that we are using for the interview."
-		If IsDate(CAF_datestamp) = False Then err_msg = err_msg & vbCr & "* Enter the date of application."
-        IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+		If ButtonPressed > 100 Then
+			err_msg = "LOOP"
+
+			If ButtonPressed = msg_what_script_does_btn Then MsgBox "Want to know what all this script does?" & vbCr & "This is a really great question." & vbCr & vbCr &_
+																	"Here are the main script actions:" & vbCr &_
+																	"- Guide you through the interview questions based on the CAF" & vbCr &_
+																	"- Guide you though the additional forms required at application/renewal for review with the interviewee." & vbCr &_
+																	"- Run EDRS" & vbCr &_
+																	"- Provide access to outside resources for supportive services and assistance to residents." & vbCr &_
+																	"- Create a thorough document that details the complete interview for the ECF file." & vbCr &_
+																	"- Send a MEMO to the resident to confirm interview completion." & vbCr &_
+																	"- Create a complete CASE/NOTE of CAF Answers AND Interview Details/Verbal Responses." & vbCr & vbCr &_
+																	"These actions are to meet our goals of:" & vbCr &_
+																	"- Consistent, Quality Interviews." & vbCr &_
+																	"- Consistent Resident Interview Experiences." & vbCr &_
+																	"- Complete, Detailed documentation of the CAF and Interview Information." & vbCr & vbCr &_
+																	"This script is intended to support all of these obejctives and actions. If you have ideas as to how we could better support these actions within the script run, please contact the BlueZone Script Team - we are excited to hear from you."
+			If ButtonPressed = msg_save_your_work_btn Then MsgBox "SAVE YOUR WORK Functionality" & vbCr & vbCR & "The information you enter into the script is saved as you go through this script."  & vbCr &_
+																  "This functionality is specific to the NOTES- Interview script and is not available in most scripts. We have it here because the interview script operates a different way and loss of information would be VERY problematic." & vbCr & VbCr &_
+																  "FAQ" & vbCr &_
+																  "Do I have to do anything to save the information?" & vbCr&_
+																  "  NO! The script does this automatically every time a dialog closes (disappears). You don't need to press anything or say anything. This happens for every case, every time a dialog closes." & vbCr & vbCr &_
+																  "How do I get it back?" & vbCr &_
+																  "  Run the NOTES - Interview script again. The first dialog will come up as usual, enter the SAME information here (Case Number, Date of application, Programs). If the case number matches, the script will say:" & vbCr &_
+																  "     'It appears there is information saved for this case from a previous run of this script.'" & vbCr &_
+																  "     'Would you like to restore the details from this previous run?'" & vbCr &_
+																  "  Press 'Yes' and all the information will be filled into the dialogs in the next parts of the script." & vbCr & vbCr &_
+																  "What about all the 'Form Review' answers. Will all those form dialogs come up again?" & vbCr &_
+																  "  NO! The script will remember any form that you answered 'Yes' to on the review and won't show those again." & vbCr &_
+																  "  The script will show the eDRS and Resources available again at this time." & vbCr & vbCr &_
+																  "What if I say 'No' when it asks if I want to restore?" & vbCr &_
+																  "  BE CAREFUL! If you say 'No' all those answers will be wiped out and you can't get them back." & vbCr &_
+																  "  We will probably always say 'Yes' to this answer. You can still change the information after it is loaded and the script will save those changes for a future restore." &vbCr &vbCr &_
+																  "What if I need to restore on a different day?" & vbCr &_
+																  "  NOTING and saving Interview documentation should be done right after the completion of an interview, so these restore options should be used same day. " & vbCr &_
+																  "  If something does happen and you need to restore it next day, the information should still be available. This should be a LAST resort." & vbCr &_
+																  "  These restore files are removed by the scripts though - they are not available indefinitely." & vbCr & vbCr &_
+																  "If you want to know more about this 'Save Your Work' functionality - please contact the BlueZone Script Team. We are VERY excited about it."
+
+			If ButtonPressed = msg_script_interaction_btn Then MsgBox "How do I work Within the Script" & vbCr & vbCr & "This script operates differently from other scripts and make take some time to get used to using." & vbCr & vbCr &_
+																	  "THIS SCRIPT IS MEANT TO BE RUN DURING THE WHOLE COURSE OF THE INTERVIEW." & vbCr &_
+																	  "This means, when the interview starts, you should start the script and until this script is over, the resident should remain on the phone and the interview is still happening." & vbCr &_
+																	  "This is going to make for a longer script run than you may be accustomed to." &vbCr &vbCr&_
+																	  "You will be entering the following information/details:" & vbCr &_
+																	  " - The information that is on the CAF. The answers provided in writing need to be entered into the script for review AND for documentation in CASE/NOTE." & vbCr &_
+																	  " - The information that is provided verbally over the course of the interview. We need to document the complete record of relevant information that relayed in the interview as we use that to determine eligibility and case actions." & vbCr &_
+																	  " - Updates to ADDRESS and MEMBER information." & vbCr &_
+																	  " - Verifications that have been received, requested, or if they are particularly not needed." & vbCr &_
+																	  " - You will also be entering confirmation of actions taken during the interview, such review of forms and information that residents should have." & vbCr & vbCr &_
+																	  "Fields in the dialogs that do NOT have information entered or selected will NOT be included in the CASE/NOTE or Interview Notes Document. This may be the correct action, the details that are needed are specific to each case scenario." & vbCr & vbCr &_
+																	  "Getting the 'Error Message' alerts" & vbCr &_
+																	  "When completing information in a dialog, you get messages from the script for any field that is incomplete and mandaotry or requires a different format. These are to help the script process correctly as you move through the script." & vbCr &_
+																	  "Since this script operation has a number of dialogs that you need to move through (sometimes out of order) this script has an option of when/how these messages appear." & vbCr &_
+																	  "At the bottom of this dialog is a question:" & vbCr & vbCr &_
+																	  "  'How do you want to be alerted to updates needed to answers/information in following dialogs?'" & vbCr & vbCr &_
+																	  "These are the options available for this question:" & vbCr &_
+																	  " - 'Alert at the time you attempt to save each page of the dialog.'" & vbCr &_
+																	  "     This option will appear anytime the dialog displayed has a field that needs updating. You cannot move to a new page of the dialog or go back until you clear these." & vbCr &vbCr &_
+																	  " - 'Alert only once completing and leaving the final dialog.'" & vbCr &_
+																	  "     This option will have the message appear ONLY when you press 'Complete Interview' at the end of the main dialog. You can move about between questions easily without getting a message BUT cannot continue until you have cleared all the mandatory fields from the whole dialog." & vbCr & vbCr &_
+																	  "Each person will have their own preference on these options, give them each a try until you determine what you prefer."
+			' If ButtonPressed = msg_show_instructions_btn Then
+		Else
+			Call validate_MAXIS_case_number(err_msg, "*")
+			If no_case_number_checkbox = checked Then err_msg = ""
+			' Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
+			If CAF_form = "Select One:" Then err_msg = err_msg & vbCr & "* Select which form that was received that we are using for the interview."
+			If IsDate(CAF_datestamp) = False Then err_msg = err_msg & vbCr & "* Enter the date of application."
+			IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
+			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+		End If
 	LOOP UNTIL err_msg = ""
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
@@ -7220,6 +7343,27 @@ If cash_revw_due = True OR snap_revw_due = True Then
 End If
 Call back_to_SELF
 
+'TESTING CODE - this is inplace so that the script doesn't error trying to update PROG.
+If update_revw = True OR update_prog = True Then
+
+	Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 246, 115, "Update Interview Date in STAT"
+	  ButtonGroup ButtonPressed
+	    OkButton 200, 95, 40, 15
+	  Text 10, 10, 240, 10, "It appears STAT does not have the Interview Date coded into the panel."
+	  Text 10, 20, 190, 10, "This makes sense, as you JUST completed the interview."
+	  Text 10, 35, 215, 25, "We will be updating the script to do this for you, however, that functionality appears to be broken. So instead of making the script error all the time, we have removed the automatic functionality."
+	  Text 10, 70, 225, 15, "You can update STAT now with the interview date or do it after the script run is complete, but it must be done manually for now."
+	  Text 20, 90, 80, 10, "PROG Needs Update"
+	  Text 20, 100, 80, 10, "REVW Needs Update"
+	EndDialog
+
+	dialog Dialog1
+
+End If
+update_revw = False
+update_prog = False
+
 If update_revw = True OR update_prog = True Then
 	If update_revw = True OR update_prog = True Then dlg_len = 300
 	If update_revw = False OR update_prog = True Then dlg_len = 170
@@ -7462,6 +7606,7 @@ Set objWord = CreateObject("Word.Application")
 If no_case_number_checkbox = checked Then objWord.Caption = "CAF Form Details - NEW CASE"
 If no_case_number_checkbox = unchecked Then objWord.Caption = "CAF Form Details - CASE #" & MAXIS_case_number			'Title of the document
 objWord.Visible = True														'Let the worker see the document
+' objWord.Visible = False														'Let the worker see the document
 
 Set objDoc = objWord.Documents.Add()										'Start a new document
 Set objSelection = objWord.Selection										'This is kind of the 'inside' of the document
