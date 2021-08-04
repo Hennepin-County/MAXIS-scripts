@@ -50,6 +50,17 @@ call changelog_update("10/15/2020", "Initial version.", "Ilse Ferris, Hennepin C
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 246, 70, "Expedited Determination Report"
+  ButtonGroup ButtonPressed
+    OkButton 200, 50, 40, 15
+  Text 10, 10, 225, 20, "This script will read the tracking TXT files from the Assignments foler and add the information into the Expedited Determination Report. "
+  Text 10, 35, 225, 10, "When the script is complete, the Excel will be saved and closed."
+EndDialog
+
+dialog Dialog1
+cancel_confirmation
+
 exp_assignment_folder = t_drive & "\Eligibility Support\Assignments\Expedited Information"
 Set objFolder = objFSO.GetFolder(exp_assignment_folder)										'Creates an oject of the whole my documents folder
 Set colFiles = objFolder.Files																'Creates an array/collection of all the files in the folder
@@ -87,23 +98,23 @@ For Each objFile in colFiles																'looping through each file
         If Instr(text_line, "^*^*^") <> 0 Then
             line_info = split(text_line, "^*^*^")
             line_info(0) = trim(line_info(0))
-            If line_info(0) = "CASE NUMBER" Then ObjExcel.Cells(total_excel_row, 1).Value = line_info(1)
-            If line_info(0) = "WORKER NAME" Then ObjExcel.Cells(total_excel_row, 2).Value = line_info(1)
-            If line_info(0) = "CASE X NUMBER" Then ObjExcel.Cells(total_excel_row, 3).Value = line_info(1)
-            If line_info(0) = "DATE OF APPLICATION" Then ObjExcel.Cells(total_excel_row, 4).Value = line_info(1)
-            If line_info(0) = "DATE OF INTERVIEW" Then ObjExcel.Cells(total_excel_row, 5).Value = line_info(1)
-            If line_info(0) = "EXPEDITED SCREENING STATUS" Then ObjExcel.Cells(total_excel_row, 6).Value = line_info(1)
-            If line_info(0) = "EXPEDITED DETERMINATION STATUS" Then ObjExcel.Cells(total_excel_row, 7).Value = line_info(1)
-            If line_info(0) = "DATE OF APPROVAL" Then ObjExcel.Cells(total_excel_row, 8).Value = line_info(1)
-            If line_info(0) = "SNAP DENIAL DATE" Then ObjExcel.Cells(total_excel_row, 9).Value = line_info(1)
-            If line_info(0) = "SNAP DENIAL REASON" Then ObjExcel.Cells(total_excel_row, 10).Value = line_info(1)
-            If line_info(0) = "ID ON FILE" Then ObjExcel.Cells(total_excel_row, 11).Value = line_info(1)
-            If line_info(0) = "END DATE OF SNAP IN ANOTHER STATE" Then ObjExcel.Cells(total_excel_row, 12).Value = line_info(1)
-            If line_info(0) = "EXPEDITED APPROVE PREVIOUSLY POSTPONED" Then ObjExcel.Cells(total_excel_row, 13).Value = line_info(1)
-            If line_info(0) = "EXPLAIN APPROVAL DELAYS" Then ObjExcel.Cells(total_excel_row, 14).Value = line_info(1)
-            If line_info(0) = "POSTPONED VERIFICATIONS" Then ObjExcel.Cells(total_excel_row, 15).Value = line_info(1)
-            If line_info(0) = "WHAT ARE THE POSTPONED VERIFICATIONS" Then ObjExcel.Cells(total_excel_row, 16).Value = line_info(1)
-            If line_info(0) = "DATE OF SCRIPT RUN" Then ObjExcel.Cells(total_excel_row, 17).Value = line_info(1)
+            If line_info(0) = "CASE NUMBER"                             Then ObjExcel.Cells(total_excel_row, 1).Value  = line_info(1)
+            If line_info(0) = "WORKER NAME"                             Then ObjExcel.Cells(total_excel_row, 2).Value  = line_info(1)
+            If line_info(0) = "CASE X NUMBER"                           Then ObjExcel.Cells(total_excel_row, 3).Value  = line_info(1)
+            If line_info(0) = "DATE OF APPLICATION"                     Then ObjExcel.Cells(total_excel_row, 4).Value  = line_info(1)
+            If line_info(0) = "DATE OF INTERVIEW"                       Then ObjExcel.Cells(total_excel_row, 5).Value  = line_info(1)
+            If line_info(0) = "EXPEDITED SCREENING STATUS"              Then ObjExcel.Cells(total_excel_row, 6).Value  = line_info(1)
+            If line_info(0) = "EXPEDITED DETERMINATION STATUS"          Then ObjExcel.Cells(total_excel_row, 7).Value  = line_info(1)
+            If line_info(0) = "DATE OF APPROVAL"                        Then ObjExcel.Cells(total_excel_row, 8).Value  = line_info(1)
+            If line_info(0) = "SNAP DENIAL DATE"                        Then ObjExcel.Cells(total_excel_row, 9).Value  = line_info(1)
+            If line_info(0) = "SNAP DENIAL REASON"                      Then ObjExcel.Cells(total_excel_row, 10).Value = line_info(1)
+            If line_info(0) = "ID ON FILE"                              Then ObjExcel.Cells(total_excel_row, 11).Value = line_info(1)
+            If line_info(0) = "END DATE OF SNAP IN ANOTHER STATE"       Then ObjExcel.Cells(total_excel_row, 12).Value = line_info(1)
+            If line_info(0) = "EXPEDITED APPROVE PREVIOUSLY POSTPONED"  Then ObjExcel.Cells(total_excel_row, 13).Value = line_info(1)
+            If line_info(0) = "EXPLAIN APPROVAL DELAYS"                 Then ObjExcel.Cells(total_excel_row, 14).Value = line_info(1)
+            If line_info(0) = "POSTPONED VERIFICATIONS"                 Then ObjExcel.Cells(total_excel_row, 15).Value = line_info(1)
+            If line_info(0) = "WHAT ARE THE POSTPONED VERIFICATIONS"    Then ObjExcel.Cells(total_excel_row, 16).Value = line_info(1)
+            If line_info(0) = "DATE OF SCRIPT RUN"                      Then ObjExcel.Cells(total_excel_row, 17).Value = line_info(1)
         End If
     Next
     total_excel_row = total_excel_row + 1
@@ -115,15 +126,15 @@ sheet_name = sheet_friendly_date & " REPT"
 ObjExcel.Worksheets.Add().Name = sheet_name
 
 'ADD HEADERS HERE'
-ObjExcel.Cells(1, 1).Value = "CASE NUMBER"
-ObjExcel.Cells(1, 2).Value = "WORKER NAME"
-ObjExcel.Cells(1, 3).Value = "CASE X NUMBER"
-ObjExcel.Cells(1, 4).Value = "DATE OF APPLICATION"
-ObjExcel.Cells(1, 5).Value = "DATE OF INTERVIEW"
-ObjExcel.Cells(1, 6).Value = "EXPEDITED SCREENING STATUS"
-ObjExcel.Cells(1, 7).Value = "EXPEDITED DETERMINATION STATUS"
-ObjExcel.Cells(1, 8).Value = "DATE OF APPROVAL"
-ObjExcel.Cells(1, 9).Value = "SNAP DENIAL DATE"
+ObjExcel.Cells(1, 1).Value  = "CASE NUMBER"
+ObjExcel.Cells(1, 2).Value  = "WORKER NAME"
+ObjExcel.Cells(1, 3).Value  = "CASE X NUMBER"
+ObjExcel.Cells(1, 4).Value  = "DATE OF APPLICATION"
+ObjExcel.Cells(1, 5).Value  = "DATE OF INTERVIEW"
+ObjExcel.Cells(1, 6).Value  = "EXPEDITED SCREENING STATUS"
+ObjExcel.Cells(1, 7).Value  = "EXPEDITED DETERMINATION STATUS"
+ObjExcel.Cells(1, 8).Value  = "DATE OF APPROVAL"
+ObjExcel.Cells(1, 9).Value  = "SNAP DENIAL DATE"
 ObjExcel.Cells(1, 10).Value = "SNAP DENIAL REASON"
 ObjExcel.Cells(1, 11).Value = "ID ON FILE"
 ObjExcel.Cells(1, 12).Value = "END DATE OF SNAP IN ANOTHER STATE"
@@ -153,23 +164,23 @@ For Each objFile in colFiles																'looping through each file
         If Instr(text_line, "^*^*^") <> 0 Then
             line_info = split(text_line, "^*^*^")
             line_info(0) = trim(line_info(0))
-            If line_info(0) = "CASE NUMBER" Then ObjExcel.Cells(excel_row, 1).Value = line_info(1)
-            If line_info(0) = "WORKER NAME" Then ObjExcel.Cells(excel_row, 2).Value = line_info(1)
-            If line_info(0) = "CASE X NUMBER" Then ObjExcel.Cells(excel_row, 3).Value = line_info(1)
-            If line_info(0) = "DATE OF APPLICATION" Then ObjExcel.Cells(excel_row, 4).Value = line_info(1)
-            If line_info(0) = "DATE OF INTERVIEW" Then ObjExcel.Cells(excel_row, 5).Value = line_info(1)
-            If line_info(0) = "EXPEDITED SCREENING STATUS" Then ObjExcel.Cells(excel_row, 6).Value = line_info(1)
-            If line_info(0) = "EXPEDITED DETERMINATION STATUS" Then ObjExcel.Cells(excel_row, 7).Value = line_info(1)
-            If line_info(0) = "DATE OF APPROVAL" Then ObjExcel.Cells(excel_row, 8).Value = line_info(1)
-            If line_info(0) = "SNAP DENIAL DATE" Then ObjExcel.Cells(excel_row, 9).Value = line_info(1)
-            If line_info(0) = "SNAP DENIAL REASON" Then ObjExcel.Cells(excel_row, 10).Value = line_info(1)
-            If line_info(0) = "ID ON FILE" Then ObjExcel.Cells(excel_row, 11).Value = line_info(1)
-            If line_info(0) = "END DATE OF SNAP IN ANOTHER STATE" Then ObjExcel.Cells(excel_row, 12).Value = line_info(1)
-            If line_info(0) = "EXPEDITED APPROVE PREVIOUSLY POSTPONED" Then ObjExcel.Cells(excel_row, 13).Value = line_info(1)
-            If line_info(0) = "EXPLAIN APPROVAL DELAYS" Then ObjExcel.Cells(excel_row, 14).Value = line_info(1)
-            If line_info(0) = "POSTPONED VERIFICATIONS" Then ObjExcel.Cells(excel_row, 15).Value = line_info(1)
-            If line_info(0) = "WHAT ARE THE POSTPONED VERIFICATIONS" Then ObjExcel.Cells(excel_row, 16).Value = line_info(1)
-            If line_info(0) = "DATE OF SCRIPT RUN" Then ObjExcel.Cells(excel_row, 17).Value = line_info(1)
+            If line_info(0) = "CASE NUMBER"                             Then ObjExcel.Cells(excel_row, 1).Value  = line_info(1)
+            If line_info(0) = "WORKER NAME"                             Then ObjExcel.Cells(excel_row, 2).Value  = line_info(1)
+            If line_info(0) = "CASE X NUMBER"                           Then ObjExcel.Cells(excel_row, 3).Value  = line_info(1)
+            If line_info(0) = "DATE OF APPLICATION"                     Then ObjExcel.Cells(excel_row, 4).Value  = line_info(1)
+            If line_info(0) = "DATE OF INTERVIEW"                       Then ObjExcel.Cells(excel_row, 5).Value  = line_info(1)
+            If line_info(0) = "EXPEDITED SCREENING STATUS"              Then ObjExcel.Cells(excel_row, 6).Value  = line_info(1)
+            If line_info(0) = "EXPEDITED DETERMINATION STATUS"          Then ObjExcel.Cells(excel_row, 7).Value  = line_info(1)
+            If line_info(0) = "DATE OF APPROVAL"                        Then ObjExcel.Cells(excel_row, 8).Value  = line_info(1)
+            If line_info(0) = "SNAP DENIAL DATE"                        Then ObjExcel.Cells(excel_row, 9).Value  = line_info(1)
+            If line_info(0) = "SNAP DENIAL REASON"                      Then ObjExcel.Cells(excel_row, 10).Value = line_info(1)
+            If line_info(0) = "ID ON FILE"                              Then ObjExcel.Cells(excel_row, 11).Value = line_info(1)
+            If line_info(0) = "END DATE OF SNAP IN ANOTHER STATE"       Then ObjExcel.Cells(excel_row, 12).Value = line_info(1)
+            If line_info(0) = "EXPEDITED APPROVE PREVIOUSLY POSTPONED"  Then ObjExcel.Cells(excel_row, 13).Value = line_info(1)
+            If line_info(0) = "EXPLAIN APPROVAL DELAYS"                 Then ObjExcel.Cells(excel_row, 14).Value = line_info(1)
+            If line_info(0) = "POSTPONED VERIFICATIONS"                 Then ObjExcel.Cells(excel_row, 15).Value = line_info(1)
+            If line_info(0) = "WHAT ARE THE POSTPONED VERIFICATIONS"    Then ObjExcel.Cells(excel_row, 16).Value = line_info(1)
+            If line_info(0) = "DATE OF SCRIPT RUN"                      Then ObjExcel.Cells(excel_row, 17).Value = line_info(1)
         End If
     Next
     excel_row = excel_row + 1
@@ -206,15 +217,17 @@ ObjExcel.ActiveSheet.ListObjects.Add(xlSrcRange, tableRange, xlYes).Name = table
     'Add detail of the files to the Excel sheet
 'Update statistics in the Excel
 
-For Each objWorkSheet In objWorkbook.Worksheets
-    If instr(objWorkSheet.Name, "Statistics") <> 0 Then
-        objWorkSheet.Activate
-        Exit For
-    End If
-Next
+' For Each objWorkSheet In objWorkbook.Worksheets
+'     If instr(objWorkSheet.Name, "Statistics") <> 0 Then
+'         objWorkSheet.Activate
+'         Exit For
+'     End If
+' Next
 
-
+objWorkbook.Save()
+objExcel.ActiveWorkbook.Close
+objExcel.Application.Quit
+objExcel.Quit
 
 'SAVE EXCEL'
-
-MsgBox "DONE"
+Call script_end_procedure("Expedited Determination report is updated and the tracking files removed.")
