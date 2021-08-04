@@ -891,6 +891,22 @@ function define_main_dialog()
 			PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", add_verif_1_btn
 			y_pos = y_pos + 20
 
+			'TESTING CODE
+			'NEW QUESTION LAYOUT OPTION
+			' Text 400, y_pos, 40, 10, "CAF Answer"
+			' DropListBox 440, y_pos - 5, 35, 45, question_answers, question_1_yn
+			' PushButton 400, y_pos + 10, 75, 10, "ADD WRITE-IN", question_1_add_wwrite_in_bnt
+			' y_pos = y_pos + 20
+			' Text 15, y_pos, 60, 10, "Verbal Answer"
+			' DropListBox 75, y_pos - 5, 35, 45, question_answers, question_1_verbal_yn
+			' If question_1_verif_yn <> "" Then Text 360, y_pos, 110, 10, "Q1 - Verification - " & question_1_verif_yn
+			' PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", add_verif_1_btn
+			'
+			' y_pos = y_pos + 20
+			' Text 15, y_pos, 60, 10, "Interview Notes:"
+			' EditBox 75, y_pos - 5, 400, 15, question_1_interview_notes
+			' y_pos = y_pos + 20
+
 			GroupBox 5, y_pos, 475, 55, "2. Is anyone in the household, who is age 60 or over or disabled, unable to buy or fix food due to a disability?"
 			y_pos = y_pos + 20
 			' Text 20, 55, 115, 10, "buy or fix food due to a disability?"
