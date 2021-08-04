@@ -702,7 +702,7 @@ If Update_MMIS = True then
     Call write_bullet_and_variable_in_CASE_NOTE("MMIS authorization number", authorization_number)
     Call write_variable_in_CASE_NOTE("* SSR start date: " & start_date & start_date_source)   'Hard coded for now
     Call write_variable_in_CASE_NOTE("* SSR end date: " & end_date & end_date_source)
-    Call write_bullet_and_variable_in_CASE_NOTE("Explaination of custom date", custom_dates_explained)
+    Call write_bullet_and_variable_in_CASE_NOTE("Explanation of custom date", custom_dates_explained)
     Call write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
     Call write_variable_in_CASE_NOTE("---")
     Call write_variable_in_CASE_NOTE(worker_signature)
