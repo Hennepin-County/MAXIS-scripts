@@ -180,6 +180,12 @@ For Each objFile in colFiles																'looping through each file
             If line_info(0) = "EXPLAIN APPROVAL DELAYS"                 Then ObjExcel.Cells(excel_row, 14).Value = line_info(1)
             If line_info(0) = "POSTPONED VERIFICATIONS"                 Then ObjExcel.Cells(excel_row, 15).Value = line_info(1)
             If line_info(0) = "WHAT ARE THE POSTPONED VERIFICATIONS"    Then ObjExcel.Cells(excel_row, 16).Value = line_info(1)
+			'FACILITY NAME
+			'INELIG FS FACI (TRUE/FALSE)
+			'ENTRY DATE
+			'RELEASE DATE (DATE or UNKNOWN)
+			'RELEASE WITHIN 30 DAYS (TRUE/FALSE/UNKNOWN)
+			'FACI CAUSE ACTIONS? (DELAY/DENY/NOTHING)
             If line_info(0) = "DATE OF SCRIPT RUN"                      Then ObjExcel.Cells(excel_row, 17).Value = line_info(1)
         End If
     Next
