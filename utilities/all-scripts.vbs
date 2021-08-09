@@ -721,3 +721,46 @@ Do
 Loop until ButtonPressed = done_btn     'The dialog will keep appearing for a different search until you press 'Done' or 'ESC'
 
 Call script_end_procedure("") 'The End
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------08/09/2021
+'--Tab orders reviewed & confirmed----------------------------------------------08/09/2021
+'--Mandatory fields all present & Reviewed--------------------------------------          ---------------- N/A
+'--All variables in dialog match mandatory fields-------------------------------          ---------------- N/A
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------          ---------------- N/A
+'--CASE:NOTE Header doesn't look funky------------------------------------------          ---------------- N/A
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------          ---------------- N/A
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------          ---------------- N/A
+'--MAXIS_background_check reviewed (if applicable)------------------------------          ---------------- N/A
+'--PRIV Case handling reviewed -------------------------------------------------          ---------------- N/A
+'--Out-of-County handling reviewed----------------------------------------------          ---------------- N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------          ---------------- N/A
+'--BULK - review output of statistics and run time/count (if applicable)--------          ---------------- N/A
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------          ---------------- N/A
+'--Incrementors reviewed (if necessary)-----------------------------------------          ---------------- N/A
+'--Denomination reviewed -------------------------------------------------------          ---------------- N/A
+'--Script name reviewed---------------------------------------------------------          ---------------- N/A
+'--BULK - remove 1 incrementor at end of script reviewed------------------------          ---------------- N/A
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub taks are complete-----------------------------------------08/09/2021
+'--comment Code-----------------------------------------------------------------08/09/2021
+'--Update Changelog for release/update------------------------------------------08/09/2021
+'--Remove testing message boxes-------------------------------------------------08/09/2021
+'--Remove testing code/unnecessary code-----------------------------------------08/09/2021
+'--Review/update SharePoint instructions----------------------------------------08/09/2021
+'--Review Best Practices using BZS page ----------------------------------------08/09/2021
+'--Review script information on SharePoint BZ Script List-----------------------08/09/2021
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------08/09/2021
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------08/09/2021
+'--Complete misc. documentation (if applicable)---------------------------------          ---------------- N/A
+'--Update project team/issue contact (if applicable)----------------------------          ---------------- N/A
