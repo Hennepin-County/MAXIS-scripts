@@ -517,3 +517,46 @@ transmit
 
 STATS_counter = STATS_counter - 1			'Removing one instance of the STATS Counter
 script_end_procedure_with_error_report("Success! Word Document created and opened with PANEL information as selected.")
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------08/09/2021
+'--Tab orders reviewed & confirmed----------------------------------------------08/09/2021
+'--Mandatory fields all present & Reviewed--------------------------------------08/09/2021
+'--All variables in dialog match mandatory fields-------------------------------08/09/2021
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------          ----------------N/A
+'--CASE:NOTE Header doesn't look funky------------------------------------------          ----------------N/A
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------          ----------------N/A
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------08/09/2021
+'--MAXIS_background_check reviewed (if applicable)------------------------------08/09/2021
+'--PRIV Case handling reviewed -------------------------------------------------08/09/2021
+'--Out-of-County handling reviewed----------------------------------------------          ----------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------08/09/2021
+'--BULK - review output of statistics and run time/count (if applicable)--------08/09/2021
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------08/09/2021
+'--Incrementors reviewed (if necessary)-----------------------------------------08/09/2021
+'--Denomination reviewed -------------------------------------------------------08/09/2021
+'--Script name reviewed---------------------------------------------------------08/09/2021
+'--BULK - remove 1 incrementor at end of script reviewed------------------------08/09/2021
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub taks are complete-----------------------------------------08/09/2021
+'--comment Code-----------------------------------------------------------------08/09/2021
+'--Update Changelog for release/update------------------------------------------08/09/2021
+'--Remove testing message boxes-------------------------------------------------08/09/2021
+'--Remove testing code/unnecessary code-----------------------------------------08/09/2021
+'--Review/update SharePoint instructions----------------------------------------07/15/2021
+'--Review Best Practices using BZS page ----------------------------------------08/09/2021
+'--Review script information on SharePoint BZ Script List-----------------------08/09/2021
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------08/09/2021
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------08/09/2021
+'--Complete misc. documentation (if applicable)---------------------------------          ----------------N/A
+'--Update project team/issue contact (if applicable)----------------------------          ----------------N/A
