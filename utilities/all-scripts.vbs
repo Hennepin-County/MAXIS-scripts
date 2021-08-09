@@ -338,15 +338,17 @@ Do
 	                    End If
 	                End If
 	        End Select
-			If script_item.category = "NAV" and user_is_BZ = False Then
-				script_item.show_script = False
-				dlg_len = dlg_len - 20
-				total_scripts = total_scripts - 1
-			End If
-			If script_item.category = "DAIL" AND script_item.script_name <> "DAIL Scrubber" and user_is_BZ = False Then
-				script_item.show_script = False
-				dlg_len = dlg_len - 20
-				total_scripts = total_scripts - 1
+			If script_item.show_script = True Then
+				If script_item.category = "NAV" and user_is_BZ = False Then
+					script_item.show_script = False
+					dlg_len = dlg_len - 20
+					total_scripts = total_scripts - 1
+				End If
+				If script_item.category = "DAIL" AND script_item.script_name <> "DAIL Scrubber" and user_is_BZ = False Then
+					script_item.show_script = False
+					dlg_len = dlg_len - 20
+					total_scripts = total_scripts - 1
+				End If
 			End If
 		End If
     Next
@@ -360,7 +362,7 @@ Do
       ButtonGroup ButtonPressed
 		Text 10, 15, 170, 10, "Select what information you want to review/gather."        'These are the selection parts
 		Text 190, 15, 55, 10, "Script Selection:"
-		If user_is_tester = False Then DropListBox 260, 10, 130, 45, "Select One..."+chr(9)+"All"+chr(9)+"All in Testing"+chr(9)+"Tags"+chr(9)+"Key Codes"+chr(9)+"Category"+chr(9)+"Subcategory"+chr(9)+"Release Before"+chr(9)+"Release After", script_selection
+		If user_is_tester = False Then DropListBox 260, 10, 130, 45, "Select One..."+chr(9)+"All"+chr(9)+"Tags"+chr(9)+"Key Codes"+chr(9)+"Category"+chr(9)+"Subcategory"+chr(9)+"Release Before"+chr(9)+"Release After", script_selection
 		If user_is_tester = True Then DropListBox 260, 10, 130, 45, "Select One..."+chr(9)+"All"+chr(9)+"All in Testing"+chr(9)+"Tags"+chr(9)+"Key Codes"+chr(9)+"Category"+chr(9)+"Subcategory"+chr(9)+"Release Before"+chr(9)+"Release After", script_selection
 		Text 400, 15, 30, 10, "which is:"
 		EditBox 440, 10, 145, 15, detail_edit
@@ -430,6 +432,7 @@ Do
 					  all_the_tags = replace(all_the_tags, ", Adult Cash", "")
 					  all_the_tags = replace(all_the_tags, ", Health Care", "")
 					  all_the_tags = replace(all_the_tags, ", EMER", "")
+					  all_the_tags = replace(all_the_tags, ", LTC", "")
 					  all_the_tags = replace(all_the_tags, "Adult Cash, ", "")
 					  all_the_tags = all_the_tags + ", All Programs"
 				  ElseIf Instr(all_the_tags, "MFIP") <> 0 AND Instr(all_the_tags, "DWP") <> 0 AND Instr(all_the_tags, "Adult Cash") <> 0 Then
@@ -438,6 +441,10 @@ Do
 					  all_the_tags = replace(all_the_tags, ", Adult Cash", "")
 					  all_the_tags = all_the_tags + ", All Cash"
 				  End If
+				  all_the_tags = replace(all_the_tags, "Application", "APPL")
+				  all_the_tags = replace(all_the_tags, "Health Care", "HC")
+				  all_the_tags = replace(all_the_tags, "Reviews", "REVW")
+				  all_the_tags = replace(all_the_tags, "Reviews", "REVW")
 		          Text 390, y_pos, 140, 20, all_the_tags
 
 		          all_the_keys = join(script_item.dlg_keys, ", ")       'Displaying the array as a string
