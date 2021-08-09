@@ -1312,6 +1312,10 @@ function define_main_dialog()
 			Text 15, y_pos, 60, 10, "Interview Notes:"
 			EditBox 75, y_pos - 5, 320, 15, question_15_interview_notes
 			PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", add_verif_15_btn
+			y_pos = y_pos + 20
+
+			Text 15, y_pos, 80, 10, "Does phone have an expense?"
+			ComboBox 95, y_pos - 5, 380, 15, "Select or Type"+chr(9)+"Yes, the bill is the responsibility of a unit member."+chr(9)+"Yes, the household has a partial subsidy but pays a portion of the bill."+chr(9)+"No, this is from a free phone program and does not cost the household anything."+chr(9)+"Yes, optional service add-ons to a free phone program are paid by the household."+chr(9)+"No, this household does not have a phone of their own.", question_15_phone_details
 
 		ElseIf page_display = show_q_16_20 Then
 			Text 505, 122, 60, 10, "Q. 16 - 20"
@@ -2522,6 +2526,7 @@ function save_your_work()
 			objTextStream.WriteLine "15V - " & question_15_verif_yn
 			objTextStream.WriteLine "15D - " & question_15_verif_details
 			objTextStream.WriteLine "15I - " & question_15_interview_notes
+			objTextStream.WriteLine "15PD - " & question_15_phone_details
 
 			objTextStream.WriteLine "16A - " & question_16_yn
 			objTextStream.WriteLine "16N - " & question_16_notes
@@ -2893,7 +2898,8 @@ function save_your_work()
 			script_run_lowdown = script_run_lowdown & vbCr & "15N - " & question_15_notes
 			script_run_lowdown = script_run_lowdown & vbCr & "15V - " & question_15_verif_yn
 			script_run_lowdown = script_run_lowdown & vbCr & "15D - " & question_15_verif_details
-			script_run_lowdown = script_run_lowdown & vbCr & "15I - " & question_15_interview_notes & vbCr & vbCr
+			script_run_lowdown = script_run_lowdown & vbCr & "15I - " & question_15_interview_notes
+			script_run_lowdown = script_run_lowdown & vbCr & "15PD - " & question_15_phone_details & vbCr & vbCr
 
 			script_run_lowdown = script_run_lowdown & vbCr & "16A - " & question_16_yn
 			script_run_lowdown = script_run_lowdown & vbCr & "16N - " & question_16_notes
@@ -3316,6 +3322,7 @@ function restore_your_work(vars_filled)
 					If left(text_line, 3) = "15V" Then question_15_verif_yn = Mid(text_line, 7)
 					If left(text_line, 3) = "15D" Then question_15_verif_details = Mid(text_line, 7)
 					If left(text_line, 3) = "15I" Then question_15_interview_notes = Mid(text_line, 7)
+					If left(text_line, 4) = "15PD" Then question_15_interview_notes = Mid(text_line, 8)
 
 					If left(text_line, 3) = "16A" Then question_16_yn = Mid(text_line, 7)
 					If left(text_line, 3) = "16N" Then question_16_notes = Mid(text_line, 7)
@@ -4752,6 +4759,7 @@ function write_interview_CASE_NOTE()
 		If trim(question_15_verif_details) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_15_verif_yn & ": " & question_15_verif_details)
 	End If
 	If trim(question_15_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_15_interview_notes)
+	If trim(question_15_phone_details) <> "" AND question_15_phone_details <> "Select or Type" Then CALL write_variable_in_CASE_NOTE("    PHONE DETAILS: " & question_15_phone_details)
 	If disc_utility_amounts = "RESOLVED" Then
 		CALL write_variable_in_CASE_NOTE("    ANSWER MAY NOT MATCH CAF PG 1 INFORMATION")
 		CALL write_variable_in_CASE_NOTE("    Resolution: " & disc_utility_amounts_confirmation)
@@ -5190,7 +5198,7 @@ Dim question_12_rsdi_yn, question_12_rsdi_amt, question_12_ssi_yn, question_12_s
 Dim question_13_yn, question_13_notes, question_13_verif_yn, question_13_verif_details, question_13_interview_notes
 Dim question_14_yn, question_14_notes, question_14_verif_yn, question_14_verif_details, question_14_interview_notes
 Dim question_14_rent_yn, question_14_subsidy_yn, question_14_mortgage_yn, question_14_association_yn, question_14_insurance_yn, question_14_room_yn, question_14_taxes_yn
-Dim question_15_yn, question_15_notes, question_15_verif_yn, question_15_verif_details, question_15_interview_notes
+Dim question_15_yn, question_15_notes, question_15_verif_yn, question_15_verif_details, question_15_interview_notes, question_15_phone_details
 Dim question_15_heat_ac_yn, question_15_electricity_yn, question_15_cooking_fuel_yn, question_15_water_and_sewer_yn, question_15_garbage_yn, question_15_phone_yn, question_15_liheap_yn
 Dim question_16_yn, question_16_notes, question_16_verif_yn, question_16_verif_details, question_16_interview_notes
 Dim question_17_yn, question_17_notes, question_17_verif_yn, question_17_verif_details, question_17_interview_notes
@@ -8979,10 +8987,12 @@ If question_15_water_and_sewer_yn <> "" Then q_15_answered = TRUE
 If question_15_garbage_yn <> "" Then q_15_answered = TRUE
 If question_15_phone_yn <> "" Then q_15_answered = TRUE
 If question_15_liheap_yn <> "" Then q_15_answered = TRUE
+' If trim(question_15_phone_details) <> "" AND question_15_phone_details <> "Select or Type" Then q_15_answered = TRUE
 If q_15_answered = TRUE  Then
 	objSelection.TypeText chr(9) & "CAF Confirmed during the Interview" & vbCR
 	If question_15_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_15_interview_notes & vbCR
 End If
+If trim(question_15_phone_details) <> "" AND question_15_phone_details <> "Select or Type" Then objSelection.TypeText chr(9) & "Detail about phone: " & question_15_phone_details
 
 objSelection.TypeText "Q 16. Do you or anyone living with you have costs for care of a child(ren) because you or they are working, looking for work or going to school?" & vbCr
 objSelection.TypeText chr(9) & "CAF Answer: " & question_16_yn & vbCr
