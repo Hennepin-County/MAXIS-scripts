@@ -7,7 +7,7 @@
 'Default directory: used by the script to determine if we're scriptwriters or not (scriptwriters use a default directory traditionally).
 '	This is modified by the installer, which will determine if this is a scriptwriter or a production user.
 
-default_directory = "S:\D040\CLS\Comm Living Support\GRH\SSR reduction script process\"
+'default_directory = "S:\D040\CLS\Comm Living Support\GRH\SSR reduction script process\"
 
 'Run locally: if this is set to "True", the scripts will run locally and bypass GitHub entirely. This is great for debugging or developing scripts.
 run_locally = false
@@ -48,7 +48,6 @@ changelog_enabled = true
 
 'This is a setting for the script team to identify if they are aware of a git hub outage
 git_hub_issue_known = false
-
 
 '========================================================================================================================================
 'ACTIONS TAKEN BASED ON COUNTY CUSTOM VARIABLES------------------------------------------------------------------------------
