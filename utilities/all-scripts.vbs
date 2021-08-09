@@ -37,6 +37,20 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("08/09/2021", "Initial version.", "Casey Love, Hennepin County")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+
+'END CHANGELOG BLOCK =======================================================================================================
+
 function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, dlg_vert)
     '--- This function adds numbered buttons to the bottom of a dinamic dialog if there is a list that is too long to display in one dialog, this can be used to access the pages BUT this is ONLY the buttons to display not the functionality to switch between them.
     '~~~~~ page_variable: the name of the variable used to identify which page is being viewed
@@ -102,7 +116,6 @@ For each tester in tester_array                         'looping through all of 
 		Next
 	End If
 Next
-MsgBox "Tester - " & user_is_tester & vbCr & "QI - " & user_is_QI & vbCr & "BZ - " & user_is_BZ
 
 excel_created = FALSE           'setting this boolean at the beginning - this will later determine if an excel workbook is already open if exporting more than once
 
@@ -133,7 +146,7 @@ Do
     'The details of the search criteria need to be made into an array - even if there is only one thing listed because we have to loop through them
     If Instr(detail_edit, ",") <> 0 Then
         detail_array = split(detail_edit, ",")
-    ' ElseIf Instr(detail_edit, "AND") <> 0 Then        'We may want to choose if wmultiple criteria should be inclusive or exclusive
+    ' ElseIf Instr(detail_edit, "AND") <> 0 Then        'We may want to choose if wmultiple criteria should be inclusive or exclusive FUTURE CODE
     '     detail_array = split(detail_edit, "AND")
     '     detail_operator = "AND"
     ' ElseIf Instr(detail_edit, "OR") <> 0 Then
@@ -193,7 +206,6 @@ Do
 	                    For each script_tag in script_item.tags     'Now we look at each of the tags listed for the script
 	                        script_tag = trim(script_tag)
 	                        script_tag = UCase(script_tag)
-	                        ' MsgBox script_item.script_name & vbNewLine & "Detail Edit - " & detail_edit & vbNewLine & "Tag to see - " & tag_to_see & vbNewLine & "Script tag - " & script_tag
 	                        If script_tag = tag_to_see Then             'If the tag listed in the script array matches the one indicated in the dialog - we want to show this script
 	                            dlg_len = dlg_len + 20                  'Make the dialog larger
 	                            total_scripts = total_scripts + 1       'increase the number of total scripts that meet the requirement
@@ -208,7 +220,6 @@ Do
 	                    For each script_key_code in script_item.dlg_keys     'Now we look at each of the keys listed for the script
 	                        script_key_code = trim(script_key_code)
 	                        script_key_code = UCase(script_key_code)
-	                        ' MsgBox script_item.script_name & vbNewLine & "Detail Edit - " & detail_edit & vbNewLine & "Tag to see - " & tag_to_see & vbNewLine & "Script tag - " & script_tag
 	                        If script_key_code = key_code_to_see Then   'If the key code listed in the script array matches the one indicated in the dialog - we want to show this script
 								If user_is_BZ = True Then
 					                dlg_len = dlg_len + 20                  'Make the dialog larger
@@ -265,7 +276,6 @@ Do
 	                    For each script_subcategory in script_item.subcategory
 	                        script_subcategory = trim(script_subcategory)
 	                        script_subcategory = UCase(script_subcategory)
-	                        ' MsgBox script_item.script_name & vbNewLine & "Detail Edit - " & detail_edit & vbNewLine & "Tag to see - " & tag_to_see & vbNewLine & "Script tag - " & script_tag
 	                        If script_subcategory = subcategory_to_see Then     'If the subcategory listed in the script array matches the one indicated in the dialog - we want to show this script
 								If user_is_BZ = True Then
 					                dlg_len = dlg_len + 20                  'Make the dialog larger
@@ -409,7 +419,6 @@ Do
 		      If skip_this_script = TRUE Then               'If the above inidcates we should skip this one due to which page we are on then the dialog won't list
 		          script_counter = script_counter + 1       'Still need to increment or we ALWAYS be on counter 0
 		      Else
-		          ' MsgBox "BEFORE" & vbNewLine & "Page - " & page & vbNewLine & "Script COunter - " & script_counter
 				  If user_is_BZ = False Then PushButton 5, y_pos-2, 10, 13, "?", script_item.script_btn_one
 		          If script_item.in_testing = TRUE Then     'If the script is in testing, we add that detail to the name so we can tell
 		              Text 17, y_pos, 120, 20, "TESTING - " & script_item.category & " - " & script_item.script_name
@@ -419,7 +428,6 @@ Do
 		              Text 17, y_pos, 120, 20, script_item.category & " - " & script_item.script_name
 		          End If
 				  display_description = replace(script_item.description, "IN TESTING - ", "")
-				  ' If script_item.in_testing = TRUE Then MsgBox display_description & vbCr & "~" & left(display_description, 4) & "~"
 				  If left(display_description, 4) = "--- " Then display_description = right(display_description, len(display_description) - 4)
 				  display_description = trim(display_description)
 		          Text 145, y_pos, 235, 20, display_description
@@ -460,7 +468,6 @@ Do
 		          Text 715, y_pos, 40, 10, script_item.hot_topic_date
 		          Text 760, y_pos, 40, 10, script_item.retirement_date
 
-		          ' all_the_keywords = join(script_item.keywords , ", ")                'This isn't in the complete list yet but when it is - we are ready
 		          Text 815, y_pos, 50, 15, all_the_keywords
 
 		          If script_selection = "All in Testing" Then           'Adding more fields if the testing cases are selected
@@ -471,7 +478,6 @@ Do
 		                all_the_test_criteria = ""
 		              End If
 		              Text 875, y_pos, 100, 10, script_item.testing_category & " - " & all_the_test_criteria
-		              ' Text 850, y_pos, 50, 10, all_the_test_criteria
 
 		          End If
 		          script_counter = script_counter + 1       'increment the counter so we know where we are'
@@ -503,7 +509,6 @@ Do
 		If y_pos = 65 Then y_pos = 75     'If there were no scripts, we need to move the buttons down a little
 
         call add_page_buttons_to_dialog(page, 15, total_scripts, y_pos)     'This is the function to call the page buttons - it's like 1000 lines of code because it has possibilities for each page
-		' add_page_buttons_to_dialog(page_variable, items_per_page, total_items, dlg_vert)
         PushButton button_pos, y_pos, 70, 15, "Export to EXCEL", export_btn
         PushButton button_pos + 75, y_pos, 50, 15, "Search", search_btn
         PushButton button_pos + 130, y_pos, 50, 15, "DONE", done_btn
@@ -541,7 +546,6 @@ Do
 
     If old_detail <> detail_edit Then page = 1
 
-    ' MsgBox "The button pressed was - " & ButtonPressed
     'If we select the ones that use dates, we need to make sure the criteria is a date, or the whole thing breaks
     If script_selection = "Release Before" OR script_selection = "Release After" Then       'these are the only options that have date requirements
         If IsDate(detail_edit) = FALSE Then         'if this is NOT a date the script will reset and alert you to the change
@@ -557,12 +561,6 @@ Do
         detail_operator = ""                    'Maybe we want to be able to select and or or when listing options. Discussion with MiKayla and Ilse'
         If Instr(detail_edit, ",") <> 0 Then
             detail_array = split(detail_edit, ",")
-        ' ElseIf Instr(detail_edit, "AND") <> 0 Then
-        '     detail_array = split(detail_edit, "AND")
-        '     detail_operator = "AND"
-        ' ElseIf Instr(detail_edit, "OR") <> 0 Then
-        '     detail_array = split(detail_edit, "OR")
-        '     detail_operator = "OR"
         Else
             detail_array = ARRAY(detail_edit)
         End If
@@ -587,7 +585,6 @@ Do
                         For each script_tag in script_item.tags
                             script_tag = trim(script_tag)
                             script_tag = UCase(script_tag)
-                            ' MsgBox script_item.script_name & vbNewLine & "Detail Edit - " & detail_edit & vbNewLine & "Tag to see - " & tag_to_see & vbNewLine & "Script tag - " & script_tag
                             If script_tag = tag_to_see Then
                                 dlg_len = dlg_len + 20
                                 total_scripts = total_scripts + 1
@@ -602,7 +599,6 @@ Do
                         For each script_key_code in script_item.dlg_keys
                             script_key_code = trim(script_key_code)
                             script_key_code = UCase(script_key_code)
-                            ' MsgBox script_item.script_name & vbNewLine & "Detail Edit - " & detail_edit & vbNewLine & "Tag to see - " & tag_to_see & vbNewLine & "Script tag - " & script_tag
                             If script_key_code = key_code_to_see Then
                                 dlg_len = dlg_len + 20
                                 total_scripts = total_scripts + 1
@@ -627,7 +623,6 @@ Do
                         For each script_subcategory in script_item.subcategory
                             script_subcategory = trim(script_subcategory)
                             script_subcategory = UCase(script_subcategory)
-                            ' MsgBox script_item.script_name & vbNewLine & "Detail Edit - " & detail_edit & vbNewLine & "Tag to see - " & tag_to_see & vbNewLine & "Script tag - " & script_tag
                             If script_subcategory = subcategory_to_see Then
                                 dlg_len = dlg_len + 20
                                 total_scripts = total_scripts + 1
