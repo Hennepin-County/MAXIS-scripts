@@ -66,6 +66,8 @@ Function copy_screen_to_array(output_array)
 End function
 
 'VARIABLES TO DECLARE----------------------------------------------------------------------------------------------------
+'These are all the panels as they are laid out in STAT/SPAN
+'This layout is to make these easier to review and update as needed.
 all_possible_panels = "MEMB MEMI ADDR AREP ALTP ALIA " &_
                       "TYPE PROG HCRE PARE SIBL EATS " &_
 					  "IMIG SPON FACI FCFC FCPL ADME " &_
@@ -79,6 +81,7 @@ all_possible_panels = "MEMB MEMI ADDR AREP ALTP ALIA " &_
 					  "MISC RESI TIME EMMA BILS HCMI " &_
 					  "BUDG SANC MMSA DFLN MSUR SSRT"
 
+'These are constants for our array of panels.
 const panel_name_const 		= 0
 const panel_exists_const 	= 1
 const panel_checkbox_const 	= 2
@@ -157,25 +160,26 @@ const DFLN_const = 69
 const MSUR_const = 70
 const SSRT_const = 71
 
+'declaration of the array of all the panels.
+'This will tell us which panels exist on the case and which were selected in the dialog.
 Dim ALL_THE_PANELS_ARRAY()
 ReDim ALL_THE_PANELS_ARRAY(panel_last_const, SSRT_const)
-
-
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 
 'Connects to BlueZone
 EMConnect ""
 
-Call check_for_MAXIS(False)
+Call check_for_MAXIS(False)			'ensuring we are logged in to MAXIS.
 
 'Finds MAXIS case number
 call MAXIS_case_number_finder(MAXIS_case_number)
 'Finds MAXIS footer month
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
+'Inital Dialog for capturing case number'
 Dialog1 = ""
-BeginDialog dialog1, 0, 0, 161, 65, "Case number and footer month"
+BeginDialog dialog1, 0, 0, 161, 65, "Copy Panels to Word Inital Dialog"
   Text 5, 10, 85, 10, "Enter your case number:"
   EditBox 95, 5, 60, 15, MAXIS_case_number
   Text 15, 30, 50, 10, "Footer month:"
@@ -189,48 +193,67 @@ EndDialog
 
 'Shows case number dialog
 Do
-	Dialog Dialog1
-	cancel_without_confirmation
-	If isnumeric(MAXIS_case_number) = False then MsgBox "You must type a valid case number."
-Loop until isnumeric(MAXIS_case_number) = True
+	Do
+		err_msg = ""
+		Dialog Dialog1
+		cancel_without_confirmation
+		Call validate_MAXIS_case_number(err_msg, "*")
+		Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
+		If err_msg <> "" Then MsgBox " ************* NOTICE **************" & vbCr & vbCr & "Please Resolve to Continue:" & vbCr & err_msg
+	Loop until err_msg = ""
+	Call check_for_password(are_we_passworded_out)
+Loop until are_we_passworded_out = False
 
-'Shows the MAXIS panel selection dialog
-back_to_SELF
+Call MAXIS_footer_month_confirmation				'Ensuring we are in SPAN at the right footer month
+Call navigate_to_MAXIS_screen_review_PRIV("STAT", "SPAN", is_this_priv)
+If is_this_priv = True Then Call script_end_procedure("PRIV CASE! This case is privileged and the script cannot continue. Ensure you are allowed access to this case and request access. Once you have access, rerun the script.")
 
-Call navigate_to_MAXIS_screen("STAT", "SPAN")
+panel_name_array = split(all_possible_panels, " ")		'Creating an array of all of the panel names
 
-panel_name_array = split(all_possible_panels, " ")
-
-span_row = 7
+'Now we are going to read SPAN to identify which panels exist on this case
+'This functionality relies on the panels being in order in the array just created, so that array MUST match SPAN
+span_row = 7						'We are reading just the number indicator next to the panel name - this is where the first one is.
 span_col = 11
-
-for panel_name = 0 to UBound(panel_name_array)
-	ALL_THE_PANELS_ARRAY(panel_name_const, panel_name) = panel_name_array(panel_name)
-	EMReadScreen panel_counter, 1, span_row, span_col
-	ALL_THE_PANELS_ARRAY(panel_exists_const, panel_name) = False
-	If panel_counter <> " " Then ALL_THE_PANELS_ARRAY(panel_exists_const, panel_name) = True
-	span_col = span_col + 13
+for panel_name = 0 to UBound(panel_name_array)									'look at each panel
+	ALL_THE_PANELS_ARRAY(panel_name_const, panel_name) = panel_name_array(panel_name)				'saving the panel name to the LARGE array
+	EMReadScreen panel_counter, 1, span_row, span_col												'Reading if SPAN indicates that this panel exists
+	ALL_THE_PANELS_ARRAY(panel_exists_const, panel_name) = False									'defaulting the existing to False
+	If panel_counter <> " " Then ALL_THE_PANELS_ARRAY(panel_exists_const, panel_name) = True		'If the counter indicator was not blank, then this panel exists. Saving to the LARGE array
+	span_col = span_col + 13					'Now we go to the next location of the counter
 	If span_col = 89 then
 		span_row = span_row + 1
 		span_col = 11
 	End If
 next
 
-'DIALOG IS TOO LARGE FOR DIALOG EDITOR, CREATED MANUALLY
+'Dialog of the panels to select.
 x_pos = 10
 y_pos = 10
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 371, 190, "All MAXIS panels dialog"
-  ' Text 10, 10, 300, 10, "MEMB                   MEMI                   ADDR                   AREP                   ALTP                   ALIA "
+  Text 10, 11, 300, 10,  "     MEMB               MEMI               ADDR               AREP                ALTP                ALIA "				'These are strings of all of the panel names from SPAN.
+  Text 10, 26, 300, 10,  "     TYPE               PROG                HCRE               PARE               SIBL                  EATS "			'They sit behind the checkboxes. We can't put text in for each one ebcause the dialog breaks
+  Text 10, 41, 300, 10,  "      IMIG                 SPON               FACI                 FCFC                 FCPL                ADME "
+  Text 10, 56, 300, 10,  "      REMO              DISA                 ABPS               PREG               STRK               STWK "
+  Text 10, 71, 300, 10,  "      SCHL               WREG              EMPS               CASH                ACCT              SECU "
+  Text 10, 86, 300, 10,  "      CARS               REST               OTHR               TRAN               STIN                STEC "
+  Text 10, 101, 300, 10, "      PBEN               UNEA               LUMP               RBIC                 BUSI                JOBS "
+  Text 10, 116, 300, 10, "      TRAC               DSTT               DCEX                WKEX               COEX              SHEL "
+  Text 10, 131, 300, 10, "      HEST               ACUT               PDED                PACT                FMED              ACCI "
+  Text 10, 146, 300, 10, "      MEDI                INSA                DIET                 DISQ                 SWKR              REVW "
+  Text 10, 161, 300, 10, "      MISC                RESI                TIME                 EMMA               BILS                 HCMI "
+  Text 10, 176, 300, 10, "      BUDG              SANC               MMSA               DFLN                MSUR              SSRT "
+
+  'Looping through each othe panels and showing a checkbox for any panel that exists on this case
   For panel_counter = 0 to UBound(ALL_THE_PANELS_ARRAY, 2)
   ' If ALL_THE_PANELS_ARRAY(panel_exists_const, panel_counter) = False Then Text x_pos + 10, y_pos, 35, 10, ALL_THE_PANELS_ARRAY(panel_name_const, panel_counter)
 	If ALL_THE_PANELS_ARRAY(panel_exists_const, panel_counter) = True Then
 		Checkbox x_pos, y_pos, 35, 10, ALL_THE_PANELS_ARRAY(panel_name_const, panel_counter), ALL_THE_PANELS_ARRAY(panel_checkbox_const, panel_counter)
-		x_pos = x_pos + 50
-		If x_pos = 310 Then
+	End If
+	x_pos = x_pos + 50			'moving through the spaces the checkboxes go
+	If x_pos = 310 Then
 		x_pos = 10
 		y_pos = y_pos + 15
-		End If
 	End If
   Next
   Checkbox 310, 45, 65, 10, "ALL PANELS", all_panels_check
@@ -241,17 +264,19 @@ BeginDialog Dialog1, 0, 0, 371, 190, "All MAXIS panels dialog"
     CancelButton 310, 25, 50, 15
 EndDialog
 
-Dialog Dialog1
+Do
+	Dialog Dialog1
+	cancel_without_confirmation
 
-Cancel_confirmation
+	Call check_for_password(are_we_passworded_out)
+Loop until are_we_passworded_out = False
+'There is no looping because there is no mandated selections/information
 
-call navigate_to_MAXIS_screen("STAT", "MEMI")
-
+'Now getting the list of the household members.
 call HH_member_custom_dialog(HH_member_array)
 
-'Adding checked objects to the array
+'If the 'all panels' checkboxes are used, updating the LARGE array to indicate that the correct panels are checked
 IF all_panels_check = checked THEN
-	' all_panels_selected_array = all_panels_selected_array & all_possible_panels & " "
 	For panel_counter = 0 to UBound(ALL_THE_PANELS_ARRAY, 2)
 		ALL_THE_PANELS_ARRAY(panel_checkbox_const, panel_counter) = checked
 	Next
@@ -274,8 +299,10 @@ objSelection.PageSetup.BottomMargin = 30
 objSelection.Font.Name = "Courier New"
 objSelection.Font.Size = "10"
 
+'Now we go through the LARGE array and grab the panel information if indicates as checked.
 For panel_counter = 0 to UBound(ALL_THE_PANELS_ARRAY, 2)
 	If ALL_THE_PANELS_ARRAY(panel_checkbox_const, panel_counter) = checked  Then
+		'These panels have person association
 		IF ALL_THE_PANELS_ARRAY(panel_name_const, panel_counter) = "TYPE" OR _
 		ALL_THE_PANELS_ARRAY(panel_name_const, panel_counter) = "HEST" OR _
 		ALL_THE_PANELS_ARRAY(panel_name_const, panel_counter) = "MISC" OR _
@@ -305,7 +332,7 @@ For panel_counter = 0 to UBound(ALL_THE_PANELS_ARRAY, 2)
 					End if
 					STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 
-		ELSE
+		ELSE		'the rest of the panels have person association.
 
 			FOR EACH HH_member IN (HH_member_array)
 
@@ -333,7 +360,7 @@ For panel_counter = 0 to UBound(ALL_THE_PANELS_ARRAY, 2)
 						End if
 						STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 
-				ELSEIF ALL_THE_PANELS_ARRAY(panel_name_const, panel_counter) = "BILS" THEN
+				ELSEIF ALL_THE_PANELS_ARRAY(panel_name_const, panel_counter) = "BILS" THEN			'BILS works a little different
 					call navigate_to_MAXIS_screen("STAT", "BILS")
 						EMReadScreen total_bils_panel, 1, 3, 78
 						IF total_bils_panel = "0" THEN
@@ -390,7 +417,7 @@ For panel_counter = 0 to UBound(ALL_THE_PANELS_ARRAY, 2)
 							LOOP until last_bils_screen = "More:   -"
 						END IF
 
-				ELSEIF ALL_THE_PANELS_ARRAY(panel_name_const, panel_counter) = "FMED" THEN
+				ELSEIF ALL_THE_PANELS_ARRAY(panel_name_const, panel_counter) = "FMED" THEN		'FMED works a little different'
 					call navigate_to_MAXIS_screen("STAT", "FMED")
 						EMReadScreen more_fmed_screens, 7, 15, 68
 						IF more_fmed_screens = "       " THEN
@@ -445,7 +472,7 @@ For panel_counter = 0 to UBound(ALL_THE_PANELS_ARRAY, 2)
 							STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 						END IF
 
-				ELSE
+				ELSE				'All the other panels
 					'Goes to the screen for the first HH memb
 					call navigate_to_MAXIS_screen("STAT", ALL_THE_PANELS_ARRAY(panel_name_const, panel_counter))
 					EMWriteScreen hh_member, 20, 76
@@ -482,11 +509,54 @@ For panel_counter = 0 to UBound(ALL_THE_PANELS_ARRAY, 2)
 			NEXT
 		END IF
 	END IF
-	EMWriteScreen "SPAN", 20, 71
-	EMWriteScreen "  ", 20, 76
-	EMWriteScreen "  ", 20, 79
-	transmit
 NEXT
+EMWriteScreen "SPAN", 20, 71		'ending back at span
+EMWriteScreen "  ", 20, 76
+EMWriteScreen "  ", 20, 79
+transmit
 
 STATS_counter = STATS_counter - 1			'Removing one instance of the STATS Counter
 script_end_procedure_with_error_report("Success! Word Document created and opened with PANEL information as selected.")
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------08/09/2021
+'--Tab orders reviewed & confirmed----------------------------------------------08/09/2021
+'--Mandatory fields all present & Reviewed--------------------------------------08/09/2021
+'--All variables in dialog match mandatory fields-------------------------------08/09/2021
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------          ----------------N/A
+'--CASE:NOTE Header doesn't look funky------------------------------------------          ----------------N/A
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------          ----------------N/A
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------08/09/2021
+'--MAXIS_background_check reviewed (if applicable)------------------------------08/09/2021
+'--PRIV Case handling reviewed -------------------------------------------------08/09/2021
+'--Out-of-County handling reviewed----------------------------------------------          ----------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------08/09/2021
+'--BULK - review output of statistics and run time/count (if applicable)--------08/09/2021
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------08/09/2021
+'--Incrementors reviewed (if necessary)-----------------------------------------08/09/2021
+'--Denomination reviewed -------------------------------------------------------08/09/2021
+'--Script name reviewed---------------------------------------------------------08/09/2021
+'--BULK - remove 1 incrementor at end of script reviewed------------------------08/09/2021
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub taks are complete-----------------------------------------08/09/2021
+'--comment Code-----------------------------------------------------------------08/09/2021
+'--Update Changelog for release/update------------------------------------------08/09/2021
+'--Remove testing message boxes-------------------------------------------------08/09/2021
+'--Remove testing code/unnecessary code-----------------------------------------08/09/2021
+'--Review/update SharePoint instructions----------------------------------------07/15/2021
+'--Review Best Practices using BZS page ----------------------------------------08/09/2021
+'--Review script information on SharePoint BZ Script List-----------------------08/09/2021
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------08/09/2021
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------08/09/2021
+'--Complete misc. documentation (if applicable)---------------------------------          ----------------N/A
+'--Update project team/issue contact (if applicable)----------------------------          ----------------N/A
