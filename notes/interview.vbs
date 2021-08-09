@@ -407,7 +407,7 @@ full_err_msg = full_err_msg & "~!~" & "1^* CAF DATESTAMP ##~##   - Enter a valid
 function check_for_errors(interview_questions_clear)
 	' If  Then err_msg = err_msg & "~!~" & "1^* FIELD##~##   - "
 	' page_display = show_pg_one_memb01_and_exp
-	' If current_listing = "1"  Then tagline = ": Applicant and EXP"        'Adding a specific tagline to the header for the errors
+	' If current_listing = "1"  Then tagline = ": Expedited"        'Adding a specific tagline to the header for the errors
 	who_are_we_completing_the_interview_with = trim(who_are_we_completing_the_interview_with)
 	If who_are_we_completing_the_interview_with = "Select or Type" Or who_are_we_completing_the_interview_with = "" Then err_msg = err_msg & "~!~" & "1 ^* Who are you interviewing with?##~##   - Select or enter the name of the person you are completing the interview with.##~##"
 	If how_are_we_completing_the_interview = "Select or Type" Or how_are_we_completing_the_interview = "" Then err_msg = err_msg & "~!~" & "1 ^* via##~##   - Select or enter the method the interview is being conducted.##~##"
@@ -607,7 +607,7 @@ function define_main_dialog()
 
 	  ButtonGroup ButtonPressed
 	    If page_display = show_pg_one_memb01_and_exp Then
-			Text 487, 12, 60, 13, "Applicant and EXP"
+			Text 505, 17, 60, 10, "Expedited"
 
 			ComboBox 120, 10, 205, 45, all_the_clients+chr(9)+who_are_we_completing_the_interview_with, who_are_we_completing_the_interview_with
 			ComboBox 350, 10, 75, 45, "Select or Type"+chr(9)+"Phone"+chr(9)+"In Office"+chr(9)+how_are_we_completing_the_interview, how_are_we_completing_the_interview
@@ -665,7 +665,7 @@ function define_main_dialog()
 		    Text 15, 345, 270, 10, "Was the last SNAP benefit for this case 'Expedited' with postponed verifications?"
 		    DropListBox 285, 340, 45, 45, "?"+chr(9)+"No"+chr(9)+"Yes", last_snap_was_exp
 		ElseIf page_display = show_pg_one_address Then
-			Text 500, 27, 60, 13, "CAF ADDR"
+			Text 504, 32, 60, 10, "CAF ADDR"
 			If update_addr = FALSE Then
 				Text 70, 55, 305, 15, resi_addr_street_full
 				Text 70, 75, 105, 15, resi_addr_city
@@ -729,7 +729,7 @@ function define_main_dialog()
 			Text 325, 75, 15, 10, "Zip"
 			Text 20, 95, 100, 10, "Do you live on a Reservation?"
 			Text 180, 95, 60, 10, "If yes, which one?"
-			Text 30, 115, 90, 10, "Resident Indicates Homeless:"
+			Text 20, 115, 100, 10, "Resident Indicates Homeless:"
 			Text 185, 115, 60, 10, "Living Situation?"
 			GroupBox 10, 135, 375, 70, "Mailing Address"
 			Text 20, 165, 45, 10, "House/Street"
@@ -742,7 +742,7 @@ function define_main_dialog()
 			Text 255, 225, 60, 10, "Date of Change:"
 			Text 255, 245, 75, 10, "County of Residence:"
 		ElseIf page_display = show_pg_memb_list Then
-			Text 495, 42, 60, 13, "CAF MEMBs"
+			Text 504, 47, 60, 10, "CAF MEMBs"
 			Text 10, 5, 400, 10, "Review information for ALL household members, ensuring the information is accurate."
 			Text 10, 15, 400, 10, "You must click on each Person button below and on the left to view each person."
 
@@ -871,7 +871,7 @@ function define_main_dialog()
 			Text 155, 285, 65, 10, "Verification Details"
 			Text 70, 315, 50, 10, "Notes:"
 		ElseIf page_display = show_q_1_6 Then
-			Text 510, 57, 60, 13, "Q. 1 - 6"
+			Text 510, 62, 60, 10, "Q. 1 - 6"
 			y_pos = 10
 
 			GroupBox 5, y_pos, 475, 55, "1. Does everyone in your household buy, fix or eat food with you?"
@@ -996,7 +996,7 @@ function define_main_dialog()
 			y_pos = y_pos + 20
 
 		ElseIf page_display = show_q_7_11 Then
-			Text 508, 72, 60, 13, "Q. 7 - 11"
+			Text 508, 77, 60, 10, "Q. 7 - 11"
 			y_pos = 10
 
 			GroupBox 5, y_pos, 475, 55, "7. In the last 60 days did anyone in the household: - Stop working or quit a job? - Refuse a job offer? - Ask to work fewer hours? - Go on strike?"
@@ -1112,7 +1112,7 @@ function define_main_dialog()
 
 
 		ElseIf page_display = show_q_12_13 Then
-			Text 505, 87, 60, 13, "Q. 12 - 13"
+			Text 505, 92, 60, 10, "Q. 12 - 13"
 			y_pos = 10
 
 			GroupBox 5, y_pos, 475, 125, "12. Has anyone in the household applied for or does anyone get any of the following type of income each month?"
@@ -1210,7 +1210,7 @@ function define_main_dialog()
 			y_pos = y_pos + 20
 
 		ElseIf page_display = show_q_14_15 Then
-			Text 505, 102, 60, 13, "Q. 14 - 15"
+			Text 505, 107, 60, 10, "Q. 14 - 15"
 			y_pos = 10
 
 			GroupBox 5, 10, 475, 130, "14. Does your household have the following housing expenses?"
@@ -1312,7 +1312,7 @@ function define_main_dialog()
 			PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", add_verif_15_btn
 
 		ElseIf page_display = show_q_16_20 Then
-			Text 505, 117, 60, 13, "Q. 16 - 20"
+			Text 505, 122, 60, 10, "Q. 16 - 20"
 			y_pos = 10
 
 			GroupBox 5, y_pos, 475, 55, "16. Do you or anyone living with you have costs for care of a child(ren) because you or they are working, looking for work or going to school?"
@@ -1425,7 +1425,7 @@ function define_main_dialog()
 			y_pos = y_pos + 25
 
 		ElseIf page_display = show_q_21_24 Then
-			Text 505, 132, 60, 13, "Q. 21 - 24"
+			Text 505, 137, 60, 10, "Q. 21 - 24"
 			y_pos = 10
 
 			GroupBox 5, y_pos, 475, 55, "21. For Cash programs only: Has anyone in the household given away, sold or traded anything of value in the past 12 months? "
@@ -1516,7 +1516,7 @@ function define_main_dialog()
 			PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", add_verif_24_btn
 
 		ElseIf page_display = show_qual Then
-			Text 497, 147, 60, 13, "CAF QUAL Q"
+			Text 500, 152, 60, 10, "CAF QUAL Q"
 
 			DropListBox 220, 40, 30, 45, "?"+chr(9)+"No"+chr(9)+"Yes", qual_question_one
 			ComboBox 340, 40, 105, 45, all_the_clients, qual_memb_one
@@ -1541,7 +1541,7 @@ function define_main_dialog()
 			Text 260, 140, 70, 10, "Household Member:"
 			Text 260, 160, 70, 10, "Household Member:"
 		ElseIf page_display = show_pg_last Then
-			Text 495, 162, 60, 13, "CAF Last Page"
+			Text 498, 167, 60, 10, "CAF Last Page"
 
 			GroupBox 5, 10, 475, 95, "Confirm Authorized Representative"
 
@@ -1656,7 +1656,7 @@ function define_main_dialog()
 						y_pos = y_pos + 20
 
 					End If
-					Text 15, y_pos, 400, 10, "(Income, Assets, and Expenses are determined on the 'Applicant and EXP' page of this dialog.)"
+					Text 15, y_pos, 400, 10, "(Income, Assets, and Expenses are determined on the 'Expedited' page of this dialog.)"
 					y_pos = y_pos + 15
 				End If
 
@@ -1707,7 +1707,7 @@ function define_main_dialog()
 
 			End If
 	    ElseIf page_display = discrepancy_questions Then
-			Text 495, 177, 60, 10, "Clarifications"
+			Text 504, 182, 60, 10, "Clarifications"
 
 			y_pos = 10
 			If disc_no_phone_number = "EXISTS" OR disc_no_phone_number = "RESOLVED" Then
@@ -1763,22 +1763,34 @@ function define_main_dialog()
 
 		End If
 
-
-		If page_display <> show_pg_one_memb01_and_exp 	Then PushButton 485, 10, 65, 13, "Applicant and EXP", caf_page_one_btn
-		If page_display <> show_pg_one_address 			Then PushButton 485, 25, 65, 13, "CAF ADDR", caf_addr_btn
+		Text 485, 5, 75, 10, "---   DIALOGS   ---"
+		Text 485, 17, 10, 10, "1"
+		Text 485, 32, 10, 10, "2"
+		Text 485, 47, 10, 10, "3"
+		Text 485, 62, 10, 10, "4"
+		Text 485, 77, 10, 10, "5"
+		Text 485, 92, 10, 10, "6"
+		Text 485, 107, 10, 10, "7"
+		Text 485, 122, 10, 10, "8"
+		Text 485, 137, 10, 10, "9"
+		Text 485, 152, 10, 10, "10"
+		Text 485, 167, 10, 10, "11"
+		If page_display <> show_pg_one_memb01_and_exp 	Then PushButton 495, 15, 55, 13, "Expedited", caf_page_one_btn
+		If page_display <> show_pg_one_address 			Then PushButton 495, 30, 55, 13, "CAF ADDR", caf_addr_btn
 		' If page_display <> show_pg_memb_list AND page_display <> show_pg_memb_info AND  page_display <> show_pg_imig Then PushButton 485, 25, 60, 13, "CAF MEMBs", caf_membs_btn
-		If page_display <> show_pg_memb_list 			Then PushButton 485, 40, 65, 13, "CAF MEMBs", caf_membs_btn
-		If page_display <> show_q_1_6 					Then PushButton 485, 55, 65, 13, "Q. 1 - 6", caf_q_1_6_btn
-		If page_display <> show_q_7_11 					Then PushButton 485, 70, 65, 13, "Q. 7 - 11", caf_q_7_11_btn
-		If page_display <> show_q_12_13 				Then PushButton 485, 85, 65, 13, "Q. 12 - 13", caf_q_12_13_btn
-		If page_display <> show_q_14_15 				Then PushButton 485, 100, 65, 13, "Q. 14 - 15", caf_q_14_15_btn
-		If page_display <> show_q_16_20 				Then PushButton 485, 115, 65, 13, "Q. 16 - 20", caf_q_16_20_btn
-		If page_display <> show_q_21_24 				Then PushButton 485, 130, 65, 13, "Q. 21 - 24", caf_q_21_24_btn
+		If page_display <> show_pg_memb_list 			Then PushButton 495, 45, 55, 13, "CAF MEMBs", caf_membs_btn
+		If page_display <> show_q_1_6 					Then PushButton 495, 60, 55, 13, "Q. 1 - 6", caf_q_1_6_btn
+		If page_display <> show_q_7_11 					Then PushButton 495, 75, 55, 13, "Q. 7 - 11", caf_q_7_11_btn
+		If page_display <> show_q_12_13 				Then PushButton 495, 90, 55, 13, "Q. 12 - 13", caf_q_12_13_btn
+		If page_display <> show_q_14_15 				Then PushButton 495, 105, 55, 13, "Q. 14 - 15", caf_q_14_15_btn
+		If page_display <> show_q_16_20 				Then PushButton 495, 120, 55, 13, "Q. 16 - 20", caf_q_16_20_btn
+		If page_display <> show_q_21_24 				Then PushButton 495, 135, 55, 13, "Q. 21 - 24", caf_q_21_24_btn
 
-		If page_display <> show_qual 					Then PushButton 485, 145, 65, 13, "CAF QUAL Q", caf_qual_q_btn
-		If page_display <> show_pg_last 				Then PushButton 485, 160, 65, 13, "CAF Last Page", caf_last_page_btn
+		If page_display <> show_qual 					Then PushButton 495, 150, 55, 13, "CAF QUAL Q", caf_qual_q_btn
+		If page_display <> show_pg_last 				Then PushButton 495, 165, 55, 13, "CAF Last Page", caf_last_page_btn
 		If discrepancies_exist = True Then
-			If page_display <> discrepancy_questions 	Then PushButton 485, 175, 65, 13, "Clarifications", discrepancy_questions_btn
+			Text 485, 182, 10, 10, "12"
+			If page_display <> discrepancy_questions 	Then PushButton 495, 180, 55, 13, "Clarifications", discrepancy_questions_btn
 		End If
 		PushButton 10, 365, 130, 15, "Interview Ended - INCOMPLETE", incomplete_interview_btn
 		PushButton 140, 365, 130, 15, "View Verifications", verif_button
@@ -1984,7 +1996,7 @@ function display_errors(the_err_msg, execute_nav, show_err_msg_during_movement)
 	            current_listing = left(message, 2)          'This is the dialog the error came from
 				current_listing = trim(current_listing)
 	            If current_listing <> msg_header Then                   'this is comparing to the dialog from the last message - if they don't match, we need a new header entered
-	                If current_listing = "1"  Then tagline = ": Applicant and EXP"        'Adding a specific tagline to the header for the errors
+	                If current_listing = "1"  Then tagline = ": Expedited"        'Adding a specific tagline to the header for the errors
 	                If current_listing = "2"  Then tagline = ": CAF ADDR"
 	                If current_listing = "3"  Then tagline = ": CAF MEMBs"
 	                If current_listing = "4"  Then tagline = ": Q. 1- 6"
@@ -2021,7 +2033,7 @@ function display_errors(the_err_msg, execute_nav, show_err_msg_during_movement)
 				current_listing =  trim(current_listing)
 				' MsgBox "Page to Review - " & page_to_review & vbCr & "Current Listing - " & current_listing
 				If current_listing = page_to_review Then                   'this is comparing to the dialog from the last message - if they don't match, we need a new header entered
-					If current_listing = "1"  Then tagline = ": Applicant and EXP"        'Adding a specific tagline to the header for the errors
+					If current_listing = "1"  Then tagline = ": Expedited"        'Adding a specific tagline to the header for the errors
 					If current_listing = "2"  Then tagline = ": CAF ADDR"
 					If current_listing = "3"  Then tagline = ": CAF MEMBs"
 					If current_listing = "4"  Then tagline = ": Q. 1- 6"
