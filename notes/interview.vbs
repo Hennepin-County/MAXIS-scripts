@@ -5688,7 +5688,22 @@ If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 
 	show_known_addr = TRUE
 
-	MsgBox "Press 'OK' when you have explained the interview to the resident."
+	Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 361, 130, "Insterview Start Message"
+	  ButtonGroup ButtonPressed
+	    OkButton 305, 110, 50, 15
+	  Text 10, 10, 220, 10, "While the script gathers details about the case, tell the Resident:"
+	  Text 15, 25, 215, 10, "- We are going to complete your required interview now."
+	  Text 15, 40, 250, 10, "- I will ask you all of the questions you completed on the application:"
+	  Text 20, 50, 330, 10, "  - I know this may seem repetitive but we are required to confirm the information you entered."
+	  Text 20, 60, 210, 10, "  - Please answer these questions to the best of your ability."
+	  Text 10, 80, 275, 10, "If we cannot get all of the questions answered we cannot complete the interview."
+	  Text 10, 95, 290, 10, "Unless we complete the interview, your application/recertification can not be processed."
+	  Text 80, 115, 220, 10, "Press 'OK' when you have explained the interview to the resident."
+	EndDialog
+
+	dialog Dialog1
+
 	oExec.Terminate()
 End If
 
@@ -7596,7 +7611,33 @@ End If
 
 interview_time = ((timer - start_time) + add_to_time)/60
 interview_time = Round(interview_time, 2)
-complete_interview_msg = MsgBox("This interview is now completed and has taken " & interview_time & " minutes." & vbCr & vbCr & "The script will now create your interview notes in a PDF and enter CASE:NOTE(s) as needed.", vbInformation, "Interview Completed")
+
+intvw_done_msg_file = user_myDocs_folder & "interview done message.txt"
+If objFSO.FileExists(intvw_done_msg_file) = True then objFSO.DeleteFile(intvw_done_msg_file)
+
+If objFSO.FileExists(intvw_done_msg_file) = False then
+	Set objTextStream = objFSO.OpenTextFile(intvw_done_msg_file, 2, true)
+
+	'Write the contents of the text file
+	objTextStream.WriteLine "This interview has been COMPLETED!"
+	objTextStream.WriteLine ""
+	objTextStream.WriteLine "The interview took " & interview_time & " minutes."
+	objTextStream.WriteLine "The script is currently creating your PDF, SPEC/MEMO, and CASE/NOTEs. DO NOT TRY TO TAKE ANY ACTION ON THE COMPUTER WHILE THIS FINISHES."
+	objTextStream.WriteLine ""
+	objTextStream.WriteLine ""
+	objTextStream.WriteLine "This is a great time to talk to the resident about: "
+	objTextStream.WriteLine "  - The interview is complete."
+	objTextStream.WriteLine "  - Advise of Next Steps."
+	objTextStream.WriteLine "  - Ask if the resident has any final uestions."
+	objTextStream.WriteLine ""
+	objTextStream.WriteLine "(This message will close one the script actions are finished.)"
+
+	objTextStream.Close
+End If
+Set o2Exec = WshShell.Exec("notepad " & intvw_done_msg_file)
+
+
+' complete_interview_msg = MsgBox("This interview is now completed and has taken " & interview_time & " minutes." & vbCr & vbCr & "The script will now create your interview notes in a PDF and enter CASE:NOTE(s) as needed.", vbInformation, "Interview Completed")
 
 ' script_end_procedure("At this point the script will create a PDF with all of the interview notes to save to ECF, enter a comprehensive CASE:NOTE, and update PROG or REVW with the interview date. Future enhancements will add more actions functionality.")
 '****writing the word document
@@ -7605,8 +7646,8 @@ Set objWord = CreateObject("Word.Application")
 'Adding all of the information in the dialogs into a Word Document
 If no_case_number_checkbox = checked Then objWord.Caption = "CAF Form Details - NEW CASE"
 If no_case_number_checkbox = unchecked Then objWord.Caption = "CAF Form Details - CASE #" & MAXIS_case_number			'Title of the document
-objWord.Visible = True														'Let the worker see the document
-' objWord.Visible = False														'Let the worker see the document
+' objWord.Visible = True														'Let the worker see the document
+objWord.Visible = False														'Let the worker see the document
 
 Set objDoc = objWord.Documents.Add()										'Start a new document
 Set objSelection = objWord.Selection										'This is kind of the 'inside' of the document
@@ -9104,7 +9145,7 @@ If objFSO.FileExists(pdf_doc_path) = TRUE Then
 
 	'setting the end message
 	end_msg = "Success! The information you have provided about the interview and all of the notes have been saved in a PDF. This PDF will be uploaded to ECF by SSR staff for Case # " & MAXIS_case_number & " and will remain in the CASE RECORD. CASE:NOTES have also been entered with the full interview detail."
-
+	o2Exec.Terminate()
 	'Now we ask if the worker would like the PDF to be opened by the script before the script closes
 	'This is helpful because they may not be familiar with where these are saved and they could work from the PDF to process the reVw
 	reopen_pdf_doc_msg = MsgBox("The information about the CAF has been saved to a PDF on the LAN to be added to the DHS form and added to ECF." & vbCr & vbCr & "Would you like the PDF Document opened to process/review?", vbQuestion + vbSystemModal + vbYesNo, "Open PDF Doc?")
@@ -9114,9 +9155,11 @@ If objFSO.FileExists(pdf_doc_path) = TRUE Then
 		end_msg = end_msg & vbCr & vbCr & "The PDF has been opened for you to view the information that has been saved."
 	End If
 Else
+	o2Exec.Terminate()
 	end_msg = "Something has gone wrong - the CAF information has NOT been saved correctly to be processed." & vbCr & vbCr & "You can either save the Word Document that has opened as a PDF in the Assignment folder OR Close that document without saving and RERUN the script. Your details have been saved and the script can reopen them and attampt to create the files again. When the script is running, it is best to not interrupt the process."
 End If
 
+objFSO.DeleteFile(intvw_done_msg_file)
 Call script_end_procedure_with_error_report(end_msg)
 
 
