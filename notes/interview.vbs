@@ -1606,12 +1606,27 @@ function define_main_dialog()
 			If interview_questions_clear = False Then
 				Text 15, 200, 450, 10, "ADDITIONAL QUESTIONS BEFORE ASSESMENT CAN BE MADE."
 			Else
-				y_pos = 195
+				y_pos = 200
 				' appears_expedited
 				' expedited_delay_info
+				If cash_request = True Then
+					If the_process_for_cash = "Renewal" Then Text 15, y_pos, 450, 10, "CASH Case at " & the_process_for_cash & " for " & next_cash_revw_mo & "/" & next_cash_revw_yr
+					If the_process_for_cash = "Application" Then Text 15, y_pos, 450, 10, "CASH Case at " & the_process_for_cash
+					y_pos = y_pos + 15
+				End If
+				If snap_request = True Then
+					Text 15, y_pos, 450, 10, "SNAP is active on this case - Expedited Determination not needed."
+					If the_process_for_snap = "Renewal" Then Text 15, y_pos, 450, 10, "SNAP Case at " & the_process_for_snap & " for " & next_snap_revw_mo & "/" & next_snap_revw_yr
+					If the_process_for_snap = "Application" Then Text 15, y_pos, 450, 10, "SNAP Case at " & the_process_for_snap
+					y_pos = y_pos + 15
+				End If
+				If emer_request = True Then
+					Text 15, y_pos, 450, 10, "EMERGENCY Request on Case is " & type_of_emer
+					y_pos = y_pos + 15
+				End If
 				If snap_status = "ACTIVE" Then
 					Text 15, y_pos, 450, 10, "SNAP is active on this case - Expedited Determination not needed."
-					y_pos = y_pos + 20
+					y_pos = y_pos + 15
 				Else
 					If case_is_expedited = True Then Text 15, y_pos, 325, 10, "Case appears to meet Expedited Criteria and needs to be processed using Expedited Standards."
 					If case_is_expedited = False Then Text 15, y_pos, 325, 10, "Case does not appear to be expedited, if that seems incorrect - review EXP Quesitons."
@@ -1649,16 +1664,17 @@ function define_main_dialog()
 					Text 15, y_pos, 100, 10, "Is this a Family Cash case?"
 					DropListBox 115, y_pos - 5, 50, 45, "?"+chr(9)+"Yes"+chr(9)+"No", family_cash_case_yn
 					y_pos = y_pos + 20
+					If family_cash_case_yn = "?" OR family_cash_case_yn = "Yes" Then
+						Text 15, y_pos, 175, 10, "Is there an Absent Parent for any children on this case?"
+						DropListBox 190, y_pos - 5, 50, 45, "?"+chr(9)+"Yes"+chr(9)+"No", absent_parent_yn
+						Text 255, y_pos, 115, 10, "Is this a relative caregiver case?"
+						DropListBox 370, y_pos - 5, 50, 45, "?"+chr(9)+"Yes"+chr(9)+"No", relative_caregiver_yn
+						y_pos = y_pos + 20
 
-					Text 15, y_pos, 175, 10, "Is there an Absent Parent for any children on this case?"
-					DropListBox 190, y_pos - 5, 50, 45, "?"+chr(9)+"Yes"+chr(9)+"No", absent_parent_yn
-					Text 255, y_pos, 115, 10, "Is this a relative caregiver case?"
-					DropListBox 370, y_pos - 5, 50, 45, "?"+chr(9)+"Yes"+chr(9)+"No", relative_caregiver_yn
-					y_pos = y_pos + 20
-
-					Text 15, y_pos, 150, 10, "Are there any minor caregivers on this case?"
-					DropListBox 165, y_pos - 5, 135, 45, "No - all cargivers are over 20"+chr(9)+"Yes - Caregiver is 18 - 20 years old"+chr(9)+"Yes - Caregiver is under 18", minor_caregiver_yn
-					y_pos = y_pos + 20
+						Text 15, y_pos, 150, 10, "Are there any minor caregivers on this case?"
+						DropListBox 165, y_pos - 5, 135, 45, "No - all cargivers are over 20"+chr(9)+"Yes - Caregiver is 18 - 20 years old"+chr(9)+"Yes - Caregiver is under 18", minor_caregiver_yn
+						y_pos = y_pos + 20
+					End If
 
 				End If
 				' expedited_info_does_not_match
@@ -2258,9 +2274,26 @@ function save_your_work()
 			If IsNumeric(add_to_time) = True Then objTextStream.WriteLine "TIME SPENT - "	& timer - start_time + add_to_time
 			If IsNumeric(add_to_time) = False Then objTextStream.WriteLine "TIME SPENT - "	& timer - start_time
 
+			objTextStream.WriteLine "CAF - DATE - " & CAF_datestamp
+
 			objTextStream.WriteLine "PROG - CASH - " & cash_other_req_detail
 			objTextStream.WriteLine "PROG - SNAP - " & snap_other_req_detail
 			objTextStream.WriteLine "PROG - EMER - " & emer_other_req_detail
+			If CASH_on_CAF_checkbox = checked Then objTextStream.WriteLine "CASH PROG CHECKED"
+			If SNAP_on_CAF_checkbox = checked Then objTextStream.WriteLine "SNAP PROG CHECKED"
+			If EMER_on_CAF_checkbox = checked Then objTextStream.WriteLine "EMER PROG CHECKED"
+
+			objTextStream.WriteLine "CASH - TYPE - " & type_of_cash
+			objTextStream.WriteLine "PROC - CASH - " & the_process_for_cash
+			objTextStream.WriteLine "CASH - RVMO - " & next_cash_revw_mo
+			objTextStream.WriteLine "CASH - RVYR - " & next_cash_revw_yr
+
+			objTextStream.WriteLine "PROC - SNAP - " & the_process_for_snap
+			objTextStream.WriteLine "SNAP - RVMO - " & next_snap_revw_mo
+			objTextStream.WriteLine "SNAP - RVYR - " & next_snap_revw_yr
+
+			objTextStream.WriteLine "EMER - TYPE - " & type_of_emer
+			objTextStream.WriteLine "PROC - EMER - " & the_process_for_emer
 
 			objTextStream.WriteLine "PRE - ATC - " & all_the_clients
 			objTextStream.WriteLine "PRE - WHO - " & who_are_we_completing_the_interview_with
@@ -3034,9 +3067,26 @@ function restore_your_work(vars_filled)
 					add_to_time = trim(add_to_time)
 					If IsNumeric(add_to_time) = True Then add_to_time = add_to_time * 1
 
+					If left(text_line, 10) = "CAF - DATE" Then CAF_datestamp = Mid(text_line, 14)
+
 					If left(text_line, 11) = "PROG - CASH" Then cash_other_req_detail = Mid(text_line, 15)
 					If left(text_line, 11) = "PROG - SNAP" Then snap_other_req_detail = Mid(text_line, 15)
 					If left(text_line, 11) = "PROG - EMER" Then emer_other_req_detail = Mid(text_line, 15)
+					If left(text_line, 17) = "CASH PROG CHECKED" Then CASH_on_CAF_checkbox = checked
+					If left(text_line, 17) = "SNAP PROG CHECKED" Then SNAP_on_CAF_checkbox = checked
+					If left(text_line, 17) = "EMER PROG CHECKED" Then EMER_on_CAF_checkbox = checked
+
+					If left(text_line, 11) = "CASH - TYPE" Then type_of_cash = Mid(text_line, 15)
+					If left(text_line, 11) = "PROC - CASH" Then the_process_for_cash = Mid(text_line, 15)
+					If left(text_line, 11) = "CASH - RVMO" Then next_cash_revw_mo = Mid(text_line, 15)
+					If left(text_line, 11) = "CASH - RVYR" Then next_cash_revw_yr = Mid(text_line, 15)
+
+					If left(text_line, 11) = "PROC - SNAP" Then the_process_for_snap = Mid(text_line, 15)
+					If left(text_line, 11) = "SNAP - RVMO" Then next_snap_revw_mo = Mid(text_line, 15)
+					If left(text_line, 11) = "SNAP - RVYR" Then next_snap_revw_yr = Mid(text_line, 15)
+
+					If left(text_line, 11) = "EMER - TYPE" Then type_of_emer = Mid(text_line, 15)
+					If left(text_line, 11) = "PROC - EMER" Then the_process_for_emer = Mid(text_line, 15)
 
 					If left(text_line, 9) = "PRE - WHO" Then who_are_we_completing_the_interview_with = Mid(text_line, 13)
 					If left(text_line, 9) = "PRE - HOW" Then how_are_we_completing_the_interview = Mid(text_line, 13)
@@ -4402,6 +4452,23 @@ function write_interview_CASE_NOTE()
 	CALL write_variable_in_CASE_NOTE("Completed on " & interview_date & " at " & interview_started_time & " (" & interview_time & " min)")
 	CALL write_variable_in_CASE_NOTE("Interview using form: " & CAF_form_name & ", received on " & CAF_datestamp)
 
+	CALL write_variable_in_CASE_NOTE("Interview Programs:")
+
+	If cash_request = True Then
+		If the_process_for_cash = "Application" Then CALL write_variable_in_CASE_NOTE(" - CASH at Application. App Date: " & CAF_datestamp & ". " & type_of_cash & " Cash.")
+		If the_process_for_cash = "Renewal" Then CALL write_variable_in_CASE_NOTE(" - CASH at Renewal. Renewal Month: " & next_cash_revw_mo & "/" & next_cash_revw_yr & ". " & type_of_cash & " Cash.")
+		If cash_other_req_detail <> "" Then CALL write_variable_in_CASE_NOTE("   - Request detail: " & cash_other_req_detail)
+	End If
+	If snap_request = True Then
+		If the_process_for_snap = "Application" Then CALL write_variable_in_CASE_NOTE(" - SNAP at Application. App Date: " & CAF_datestamp & ".")
+		If the_process_for_snap = "Renewal" Then CALL write_variable_in_CASE_NOTE(" - SNAP at Renewal. Renewal Month: " & next_snap_revw_mo & "/" & next_snap_revw_yr & ".")
+		If snap_other_req_detail <> "" Then CALL write_variable_in_CASE_NOTE("   - Request detail: " & snap_other_req_detail)
+	End If
+	If emer_request = True Then
+		CALL write_variable_in_CASE_NOTE(" - EMERGENCY Request at Application. App Date: " & CAF_datestamp & ". EMER is " & type_of_emer)
+		If emer_other_req_detail <> "" Then CALL write_variable_in_CASE_NOTE("   - Request detail: " & emer_other_req_detail)
+	End If
+
 	CALL write_variable_in_CASE_NOTE("Household Members:")
 	For the_members = 0 to UBound(HH_MEMB_ARRAY, 2)
 		CALL write_variable_in_CASE_NOTE("  * " & HH_MEMB_ARRAY(ref_number, the_members) & "-" & HH_MEMB_ARRAY(full_name_const, the_members))
@@ -5106,6 +5173,10 @@ Dim confirm_ievs_info_read, case_card_info, clt_knows_how_to_use_ebt_card, snap_
 
 Dim show_pg_one_memb01_and_exp, show_pg_one_address, show_pg_memb_list, show_q_1_6
 Dim show_q_7_11, show_q_14_15, show_q_21_24, show_qual, show_pg_last, discrepancy_questions
+Dim CASH_on_CAF_checkbox, SNAP_on_CAF_checkbox, EMER_on_CAF_checkbox
+Dim type_of_cash, the_process_for_cash, next_cash_revw_mo, next_cash_revw_yr
+Dim the_process_for_snap, next_snap_revw_mo, next_snap_revw_yr
+Dim type_of_emer, the_process_for_emer
 
 show_pg_one_memb01_and_exp	= 1
 show_pg_one_address			= 2
@@ -5150,7 +5221,7 @@ EMConnect ""
 testing_run = TRUE
 Call check_for_MAXIS(true)
 Call MAXIS_case_number_finder(MAXIS_case_number)
-CAF_datestamp = date & ""
+' CAF_datestamp = date & ""
 interview_date = date & ""
 show_err_msg_during_movement = ""
 script_run_lowdown = ""
@@ -5177,73 +5248,40 @@ Do
 	DO
 		err_msg = ""
 
-		Dialog1 = ""
-		BeginDialog Dialog1, 0, 0, 371, 340, "Interview Script Case number dialog"
-		  EditBox 75, 50, 60, 15, MAXIS_case_number
-		  EditBox 245, 50, 50, 15, CAF_datestamp
-		  DropListBox 75, 75, 140, 15, "Select One:"+chr(9)+"CAF (DHS-5223)"+chr(9)+"HUF (DHS-8107)"+chr(9)+"SNAP App for Srs (DHS-5223F)"+chr(9)+"MNBenefits"+chr(9)+"ApplyMN"+chr(9)+"Combined AR for Certain Pops (DHS-3727)", CAF_form
-		  CheckBox 230, 80, 30, 10, "CASH", CASH_on_CAF_checkbox
-		  CheckBox 270, 80, 35, 10, "SNAP", SNAP_on_CAF_checkbox
-		  CheckBox 310, 80, 35, 10, "EMER", EMER_on_CAF_checkbox
-		  EditBox 75, 100, 145, 15, worker_signature
-		  DropListBox 20, 295, 335, 45, "Alert at the time you attempt to save each page of the dialog."+chr(9)+"Alert only once completing and leaving the final dialog.", select_err_msg_handling
-		  ButtonGroup ButtonPressed
-		    OkButton 260, 320, 50, 15
-		    CancelButton 315, 320, 50, 15
-		    PushButton 205, 20, 155, 15, "Press HERE to see what this script will do", msg_what_script_does_btn
-			' PushButton 205, 35, 155, 10, "NOTES - Interview Script Instructions", msg_show_instructions_btn
-		    PushButton 165, 195, 195, 15, "Press HERE to learn more about 'SAVE YOUR WORK'", msg_save_your_work_btn
-		    PushButton 80, 265, 210, 15, "Press HERE for more details on how to work with this script", msg_script_interaction_btn
-		  Text 10, 10, 360, 10, "Start this script at the beginning of the interview and keep it running during the entire course of the interview."
-		  Text 20, 55, 50, 10, "Case number:"
-		  Text 155, 55, 90, 10, "Date Application Received:"
-		  Text 10, 80, 60, 10, "Actual CAF Form:"
-		  GroupBox 225, 70, 125, 25, "Programs marked on CAF"
-		  Text 10, 105, 60, 10, "Worker Signature:"
-		  Text 145, 125, 105, 10, "*!*!*!*  DID YOU KNOW *!*!*!*"
-		  Text 110, 140, 185, 10, "This script SAVES the information you enter as it runs!"
-		  Text 75, 155, 255, 10, "This means that IF the script errors, fails, is canceled, the network goes down."
-		  Text 135, 165, 125, 10, "YOU CAN GET YOUR WORK BACK!!!"
-		  Text 15, 175, 345, 20, "This happens in the background, without you knowing it. In order to get your work back run the script again on the SAME DAY for the SAME CASE and it will ask if you want to restore the information - just press YES!"
-		  GroupBox 10, 210, 355, 105, "How to interact with this Script"
-		  Text 80, 225, 220, 10, "You should have this script running DURING the entire interview."
-		  Text 90, 240, 195, 20, "You  are capturing BOTH the information writen on the form AND the verbal responses in the script fields."
-		  Text 20, 285, 315, 10, "How do you want to be alerted to updates needed to answers/information in following dialogs?"
-		EndDialog
+		' EditBox 245, 50, 50, 15, CAF_datestamp
+		' CheckBox 230, 80, 30, 10, "CASH", CASH_on_CAF_checkbox
+		' CheckBox 270, 80, 35, 10, "SNAP", SNAP_on_CAF_checkbox
+		' CheckBox 310, 80, 35, 10, "EMER", EMER_on_CAF_checkbox
+		' Text 155, 55, 90, 10, "Date Application Received:"
+		' GroupBox 225, 70, 125, 25, "Programs marked on CAF"
 
-' BeginDialog Dialog1, 0, 0, 371, 330, "Interview Script Case number dialog"
-'   EditBox 105, 85, 60, 15, MAXIS_case_number
-'   EditBox 105, 105, 50, 15, CAF_datestamp
-'   DropListBox 105, 125, 140, 15, "Select One:"+chr(9)+"CAF (DHS-5223)"+chr(9)+"HUF (DHS-8107)"+chr(9)+"SNAP App for Srs (DHS-5223F)"+chr(9)+"MNBenefits"+chr(9)+"ApplyMN"+chr(9)+"Combined AR for Certain Pops (DHS-3727)", CAF_form
-'   CheckBox 110, 160, 30, 10, "CASH", CASH_on_CAF_checkbox
-'   CheckBox 150, 160, 35, 10, "SNAP", SNAP_on_CAF_checkbox
-'   CheckBox 190, 160, 35, 10, "EMER", EMER_on_CAF_checkbox
-'   DropListBox 25, 290, 295, 45, "Alert at the time you attempt to save each page of the dialog."+chr(9)+"Alert only once completing and leaving the final dialog.", select_err_msg_handling
-'   ButtonGroup ButtonPressed
-'     OkButton 260, 310, 50, 15
-'     CancelButton 315, 310, 50, 15
-'     ' PushButton 125, 310, 15, 15, "!", tips_and_tricks_button
-'   Text 10, 10, 360, 10, "Start this script at the beginning of the interview and keep it running during the entire course of the interview."
-'   Text 10, 20, 60, 10, "This script will:"
-'   Text 20, 30, 170, 10, "- Guide you through all of the interview questions."
-'   Text 20, 40, 170, 10, "- Capture Resident answers for CASE:NOTE"
-'   Text 20, 50, 260, 10, "- Create a document of the interview answers to be saved in the ECF Case File."
-'   Text 20, 60, 245, 10, "- Provide verbiage guidance for consistent resident interview experience."
-'   Text 20, 70, 260, 10, "- Store the interview date, time, and legth in a database (an FNS requirement)."
-'   Text 50, 90, 50, 10, "Case number:"
-'   Text 10, 110, 90, 10, "Date Application Received:"
-'   Text 40, 130, 60, 10, "Actual CAF Form:"
-'   GroupBox 105, 145, 125, 30, "Programs marked on CAF"
-'   ' Text 145, 315, 105, 10, "Look for me for Tips and Tricks!"
-'   Text 20, 280, 315, 10, "How do you want to be alerted to updates needed to answers/information in following dialogs?"
-'   GroupBox 10, 175, 355, 130, "How to interact with this Script"
-'   Text 20, 200, 335, 20, "The script will have a place to enter the answer from the CAF; a 'yes/no/blank' field plus an 'open' field to enter exactly what the CAF has listed on it."
-'   Text 30, 220, 305, 10, "Entering information in these fields should happen as you discuss this answer with the Resident."
-'   Text 30, 230, 315, 10, "The script will consider that question to have 'confirmed response' if these fields are completed."
-'   Text 20, 245, 340, 20, "Entering detail in 'Interview Notes' should happen for any information the resident provides verbally upon discussion of that question. "
-'   Text 30, 265, 330, 10, "All detail should be entered in this field because it is important we are capturing the full conversation."
-'   Text 70, 185, 220, 10, "You should have this script running DURING the entire interview."
-' EndDialog
+		' PushButton 205, 35, 155, 10, "NOTES - Interview Script Instructions", msg_show_instructions_btn
+		Dialog1 = ""
+		BeginDialog Dialog1, 0, 0, 371, 320, "Interview Script Case number dialog"
+		  EditBox 75, 45, 60, 15, MAXIS_case_number
+		  DropListBox 75, 65, 140, 15, "Select One:"+chr(9)+"CAF (DHS-5223)"+chr(9)+"HUF (DHS-8107)"+chr(9)+"SNAP App for Srs (DHS-5223F)"+chr(9)+"MNBenefits"+chr(9)+"ApplyMN"+chr(9)+"Combined AR for Certain Pops (DHS-3727)", CAF_form
+		  EditBox 75, 85, 145, 15, worker_signature
+		  DropListBox 20, 275, 335, 45, "Alert at the time you attempt to save each page of the dialog."+chr(9)+"Alert only once completing and leaving the final dialog.", select_err_msg_handling
+		  ButtonGroup ButtonPressed
+		    OkButton 260, 300, 50, 15
+		    CancelButton 315, 300, 50, 15
+		    PushButton 205, 20, 155, 15, "Press HERE to see what this script will do", msg_what_script_does_btn
+		    PushButton 165, 175, 195, 15, "Press HERE to learn more about 'SAVE YOUR WORK'", msg_save_your_work_btn
+		    PushButton 80, 245, 210, 15, "Press HERE for more details on how to work with this script", msg_script_interaction_btn
+		  Text 10, 10, 360, 10, "Start this script at the beginning of the interview and keep it running during the entire course of the interview."
+		  Text 20, 50, 50, 10, "Case number:"
+		  Text 10, 70, 60, 10, "Actual CAF Form:"
+		  Text 10, 90, 60, 10, "Worker Signature:"
+		  Text 145, 105, 105, 10, "*!*!*!*  DID YOU KNOW *!*!*!*"
+		  Text 110, 120, 185, 10, "This script SAVES the information you enter as it runs!"
+		  Text 75, 135, 255, 10, "This means that IF the script errors, fails, is canceled, the network goes down."
+		  Text 135, 145, 125, 10, "YOU CAN GET YOUR WORK BACK!!!"
+		  Text 15, 155, 345, 20, "This happens in the background, without you knowing it. In order to get your work back run the script again on the SAME DAY for the SAME CASE and it will ask if you want to restore the information - just press YES!"
+		  GroupBox 10, 190, 355, 105, "How to interact with this Script"
+		  Text 80, 205, 220, 10, "You should have this script running DURING the entire interview."
+		  Text 90, 220, 195, 20, "You  are capturing BOTH the information writen on the form AND the verbal responses in the script fields."
+		  Text 20, 265, 315, 10, "How do you want to be alerted to updates needed to answers/information in following dialogs?"
+		EndDialog
 
 		Dialog Dialog1
 		cancel_without_confirmation
@@ -5315,7 +5353,7 @@ Do
 			If no_case_number_checkbox = checked Then err_msg = ""
 			' Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
 			If CAF_form = "Select One:" Then err_msg = err_msg & vbCr & "* Select which form that was received that we are using for the interview."
-			If IsDate(CAF_datestamp) = False Then err_msg = err_msg & vbCr & "* Enter the date of application."
+			' If IsDate(CAF_datestamp) = False Then err_msg = err_msg & vbCr & "* Enter the date of application."
 			IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 		End If
@@ -5359,32 +5397,98 @@ vars_filled = FALSE
 Call back_to_SELF
 Call restore_your_work(vars_filled)			'looking for a 'restart' run
 
-BeginDialog Dialog1, 0, 0, 281, 260, "Programs to Interview For"
-  CheckBox 150, 65, 30, 10, "CASH", CASH_on_CAF_checkbox
-  CheckBox 190, 65, 35, 10, "SNAP", SNAP_on_CAF_checkbox
-  CheckBox 230, 65, 35, 10, "EMER", EMER_on_CAF_checkbox
-  EditBox 40, 145, 220, 15, cash_other_req_detail
-  EditBox 40, 165, 220, 15, snap_other_req_detail
-  EditBox 40, 185, 220, 15, emer_other_req_detail
+Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status)
+EmReadScreen emer_status, 7, 19, 42
+emer_status = trim(emer_status)
+If vars_filled = False Then
+	If adult_cash_case = True Then type_of_cash = "Adult"
+	If family_cash_case = True Then type_of_cash = "Family"
+	If case_pending = True Then
+		Call navigate_to_MAXIS_screen("REPT", "PND2")
+		row = 1
+		col = 1
+		EMSearch MAXIS_case_number, row, col
+		If row <> 24 and row <> 0 Then pnd2_row = row
+		EMReadScreen CAF_datestamp, 8, pnd2_row, 38
+		CAF_datestamp = replace(CAF_datestamp, " ", "/")
+
+
+		If unknown_cash_pending = True Then CASH_on_CAF_checkbox = checked
+		If ga_status = "PENDING" Then CASH_on_CAF_checkbox = checked
+		If msa_status = "PENDING" Then CASH_on_CAF_checkbox = checked
+		If mfip_status = "PENDING" Then CASH_on_CAF_checkbox = checked
+		If dwp_status = "PENDING" Then CASH_on_CAF_checkbox = checked
+		If snap_status = "PENDING" Then SNAP_on_CAF_checkbox = checked
+		If emer_status = "PENDING" Then EMER_on_CAF_checkbox = checked
+
+	End If
+	MAXIS_footer_month = CM_mo
+	MAXIS_footer_year = CM_yr
+	Call navigate_to_MAXIS_screen("STAT", "REVW")
+	EMReadScreen next_cash_revw_mo, 2, 9, 37
+	EMReadScreen next_cash_revw_yr, 2, 9, 43
+	EMReadScreen next_snap_revw_mo, 2, 9, 57
+	EMReadScreen next_snap_revw_yr, 2, 9, 63
+
+	cash_revw = False
+	snap_revw = False
+
+	If next_cash_revw_mo = CM_mo AND next_cash_revw_yr = CM_yr Then cash_revw = True
+	If next_cash_revw_mo = CM_plus_1_mo AND next_cash_revw_yr = CM_plus_1_yr Then cash_revw = True
+	If next_cash_revw_mo = CM_plus_2_mo AND next_cash_revw_yr = CM_plus_2_yr Then cash_revw = True
+
+	If next_snap_revw_mo = CM_mo AND next_snap_revw_yr = CM_yr Then snap_revw = True
+	If next_snap_revw_mo = CM_plus_1_mo AND next_snap_revw_yr = CM_plus_1_yr Then snap_revw = True
+	If next_snap_revw_mo = CM_plus_2_mo AND next_snap_revw_yr = CM_plus_2_yr Then snap_revw = True
+
+	If CAF_datestamp = "" Then
+		If cash_revw = True Then
+			MAXIS_footer_month = next_cash_revw_mo
+			MAXIS_footer_year = next_cash_revw_yr
+			call back_to_SELF
+			Call navigate_to_MAXIS_screen("STAT", "REVW")
+			EMReadScreen CAF_datestamp, 8, 13, 37
+			CAF_datestamp = replace(CAF_datestamp, " ", "/")
+		End If
+
+		If snap_revw = True Then
+			MAXIS_footer_month = next_snap_revw_mo
+			MAXIS_footer_year = next_snap_revw_yr
+			call back_to_SELF
+			Call navigate_to_MAXIS_screen("STAT", "REVW")
+			EMReadScreen CAF_datestamp, 8, 13, 37
+			CAF_datestamp = replace(CAF_datestamp, " ", "/")
+		End If
+	End If
+	If cash_revw = True Then CASH_on_CAF_checkbox = checked
+	If snap_revw = True Then SNAP_on_CAF_checkbox = checked
+End If
+
+BeginDialog Dialog1, 0, 0, 311, 245, "Programs to Interview For"
+  EditBox 55, 40, 80, 15, CAF_datestamp
+  CheckBox 185, 40, 30, 10, "CASH", CASH_on_CAF_checkbox
+  CheckBox 225, 40, 35, 10, "SNAP", SNAP_on_CAF_checkbox
+  CheckBox 265, 40, 35, 10, "EMER", EMER_on_CAF_checkbox
+  EditBox 40, 135, 260, 15, cash_other_req_detail
+  EditBox 40, 155, 260, 15, snap_other_req_detail
+  EditBox 40, 175, 260, 15, emer_other_req_detail
   ButtonGroup ButtonPressed
-    OkButton 170, 240, 50, 15
-    CancelButton 225, 240, 50, 15
-    ' PushButton 35, 240, 15, 15, "!", tips_and_tricks_button
+    OkButton 200, 225, 50, 15
+    CancelButton 255, 225, 50, 15
   Text 10, 10, 265, 10, "We are going to start the interview based on the information listed on the form:"
-  Text 90, 20, 185, 10, CAF_form_name
-  Text 90, 30, 95, 10, "received on " & CAF_datestamp
-  Text 10, 40, 160, 20, "As a part of the interview, we need to confirm the programs requested (or being reviewed)."
-  GroupBox 145, 50, 125, 30, "Programs marked on CAF"
-  Text 15, 85, 210, 10, "Confrim with the resident which programs should be assessed:"
-  Text 25, 95, 250, 10, "-Update the checkboxes above to reflect what is marked on the CAF Form"
-  Text 25, 105, 200, 10, "-Add any verbal request information in the boxes below."
-  GroupBox 5, 120, 265, 85, "OTHER Program Requests (not marked on CAF)"
-  Text 40, 135, 130, 10, "Explain how the program was requested."
-  Text 15, 150, 20, 10, "Cash:"
-  Text 15, 170, 20, 10, "SNAP:"
-  Text 15, 190, 25, 10, "EMER:"
-  Text 10, 210, 260, 25, "We need to know what programs we are assessing in the interview. Take time with the resident to ensure they understand the requests and we complete all information necesssary to complete the interview."
-  ' Text 55, 245, 105, 10, "Look for me for Tips and Tricks!"
+  Text 20, 25, 155, 10, CAF_form_name
+  Text 20, 45, 35, 10, "CAF Date:"
+  GroupBox 180, 25, 125, 30, "Programs marked on CAF"
+  Text 15, 60, 295, 10, "As a part of the interview, we need to confirm the programs requested (or being reviewed)."
+  Text 15, 75, 210, 10, "Confrim with the resident which programs should be assessed:"
+  Text 25, 85, 250, 10, "-Update the checkboxes above to reflect what is marked on the CAF Form"
+  Text 25, 95, 200, 10, "-Add any verbal request information in the boxes below."
+  GroupBox 5, 110, 300, 85, "OTHER Program Requests (not marked on CAF)"
+  Text 40, 125, 130, 10, "Explain how the program was requested."
+  Text 15, 140, 20, 10, "Cash:"
+  Text 15, 160, 20, 10, "SNAP:"
+  Text 15, 180, 25, 10, "EMER:"
+  Text 10, 200, 295, 25, "We need to know what programs we are assessing in the interview. Take time with the resident to ensure they understand the requests and we complete all information necesssary to complete the interview."
 EndDialog
 
 Do
@@ -5405,6 +5509,7 @@ Do
 		If snap_other_req_detail <> "" Then program_requested = True
 		If emer_other_req_detail <> "" Then program_requested = True
 
+		If IsDate(CAF_datestamp) = False Then err_msg = err_msg & vbCr & "* Enter the date of application."
 		If program_requested = False Then err_msg = err_msg & vbCr & "* We must indicate a program being requested on the form or verbally. Review the request details with the resident."
 
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
@@ -5413,14 +5518,97 @@ Do
 LOOP UNTIL are_we_passworded_out = false
 save_your_work
 
+
+cash_request = False
+snap_request = False
+emer_request = False
+If CASH_on_CAF_checkbox = checked OR cash_other_req_detail <> "" Then cash_request = True
+If SNAP_on_CAF_checkbox = checked OR snap_other_req_detail <> "" Then snap_request = True
+If EMER_on_CAF_checkbox = checked OR emer_other_req_detail <> "" Then emer_request = True
+
+If vars_filled = False Then
+	If cash_revw = True AND cash_request = True Then the_process_for_cash = "Renewal"
+	If snap_revw = True AND snap_request = True Then the_process_for_snap = "Renewal"
+
+	If unknown_cash_pending = True Then the_process_for_cash ="Application"
+	If ga_status = "PENDING" Then the_process_for_cash = "Application"
+	If msa_status = "PENDING" Then the_process_for_cash = "Application"
+	If mfip_status = "PENDING" Then the_process_for_cash = "Application"
+	If dwp_status = "PENDING" Then the_process_for_cash = "Application"
+	If snap_status = "PENDING" Then the_process_for_snap = "Application"
+	the_process_for_emer = "Application"
+End If
+
+dlg_len = 50
+y_pos = 25
+If cash_request = True Then dlg_len = dlg_len + 20
+If snap_request = True Then dlg_len = dlg_len + 20
+If emer_request = True Then dlg_len = dlg_len + 20
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 205, dlg_len, "CAF Process"
+  Text 10, 10, 35, 10, "Program"
+  Text 80, 10, 50, 10, "CAF Process"
+  Text 155, 10, 50, 10, "Recert MM/YY"
+  If cash_request = True Then
+	  Text 10, y_pos + 5, 20, 10, "Cash"
+	  DropListBox 35, y_pos, 35, 45, "?"+chr(9)+"Family"+chr(9)+"Adult", type_of_cash
+	  DropListBox 80, y_pos, 65, 45, "Select One..."+chr(9)+"Application"+chr(9)+"Renewal", the_process_for_cash
+	  EditBox 155, y_pos, 20, 15, next_cash_revw_mo
+	  EditBox 180, y_pos, 20, 15, next_cash_revw_yr
+	  y_pos = y_pos + 20
+  End If
+  If snap_request = True Then
+	  Text 10, y_pos + 5, 20, 10, "SNAP"
+	  DropListBox 80, y_pos, 65, 45, "Select One..."+chr(9)+"Application"+chr(9)+"Renewal", the_process_for_snap
+	  EditBox 155, y_pos, 20, 15, next_snap_revw_mo
+	  EditBox 180, y_pos, 20, 15, next_snap_revw_yr
+	  y_pos = y_pos + 20
+  End If
+  If emer_request = True Then
+	  Text 10, y_pos + 5, 20, 10, "EMER"
+	  DropListBox 35, y_pos, 35, 45, "?"+chr(9)+"EA"+chr(9)+"EGA", type_of_emer
+	  DropListBox 80, y_pos, 65, 45, "Select One..."+chr(9)+"Application", the_process_for_emer
+	  y_pos = y_pos + 20
+  End If
+  y_pos = y_pos + 5
+  ButtonGroup ButtonPressed
+	OkButton 150, y_pos, 50, 15
+EndDialog
+
+Do
+	DO
+		err_msg = ""
+		Dialog Dialog1
+		cancel_confirmation
+
+		If len(next_cash_revw_yr) = 4 AND left(next_cash_revw_yr, 2) = "20" Then next_cash_revw_yr = right(next_cash_revw_yr, 2)
+		If len(next_snap_revw_yr) = 4 AND left(next_snap_revw_yr, 2) = "20" Then next_snap_revw_yr = right(next_snap_revw_yr, 2)
+		If cash_request = True Then
+			If the_process_for_cash = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select if the CASH program is at application or renewal."
+			If the_process_for_cash = "Renewal" AND (len(next_cash_revw_mo) <> 2 or len(next_cash_revw_yr) <> 2) Then err_msg = err_msg & vbNewLine & "* For CASH at renewal, enter the footer month and year the of the renewal."
+		End If
+		If snap_request = True Then
+			If the_process_for_snap = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select if the SNAP program is at application or renewal."
+			If the_process_for_snap = "Renewal" AND (len(next_snap_revw_mo) <> 2 or len(next_snap_revw_yr) <> 2) Then err_msg = err_msg & vbNewLine & "* For SNAP at renewal, enter the footer month and year the of the renewal."
+		End If
+		If emer_request = True Then
+			If type_of_emer = "?" Then r_msg = err_msg & vbNewLine & "*Indicate if EMER request in EA or EGA"
+		End If
+
+
+		IF err_msg <> "" AND left(err_msg, 4) <> "LOOP" THEN MsgBox "*** Please resolve to continue ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+If type_of_cash = "Adult" Then family_cash_case_yn = "No"
+If type_of_cash = "Family" Then family_cash_case_yn = "Yes"
 If vars_filled = TRUE Then show_known_addr = TRUE		'This is a setting for the address dialog to see the view
 
 Call convert_date_into_MAXIS_footer_month(CAF_datestamp, MAXIS_footer_month, MAXIS_footer_year)
 original_footer_month = MAXIS_footer_month
 original_footer_year = MAXIS_footer_year
 
-Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status)
-If family_cash_case = True Then family_cash_case_yn = "Yes"
 'If we already know the variables because we used 'restore your work' OR if there is no case number, we don't need to read the information from MAXIS
 If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 	'Needs to determine MyDocs directory before proceeding.
