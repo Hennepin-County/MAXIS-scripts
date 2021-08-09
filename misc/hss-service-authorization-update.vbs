@@ -238,18 +238,22 @@ For item = 0 to Ubound(adjustment_array, 2)
     'Determining which date to use to end/start the agreements. Initial conversion date is 07/01/21. We cannot use a date earlier than this. If a date is earlier than this, the date is 07/01/21.
     'This supports both the initial conversion and ongoing cases.
     If DateDiff("d", #07/01/21#, adjustment_array(HSS_start_const, item)) <= 0 then
-        'if this date is a negative or a date before 07/01/21 (past date), then use 07/01/21.
+        'if HSS start date is a negative/a date before 07/01/21 (past date), then use 07/01/21.
         new_agreement_start_date = #07/01/21#
         Call ONLY_create_MAXIS_friendly_date(new_agreement_start_date)
-    Else
-        Call ONLY_create_MAXIS_friendly_date(adjustment_array(HSS_start_const, item))
-    End if
-
-    adjustment_array(adjustment_start_date_const, item) = new_agreement_start_date
+        adjustment_array(adjustment_start_date_const, item) = new_agreement_start_date
+    End if 
 
     'if this date is a negative then the agreement start date is after the HSS start date. Use the agreement start date instead of HSS start date.
-    If DateDiff("d", adjustment_array(agreement_start_const), adjustment_array(HSS_start_const, item)) <= 0 then adjustment_array(adjustment_start_date_const, item) = adjustment_array(agreement_start_const, item)
-
+    If DateDiff("d", adjustment_array(agreement_start_const, item), adjustment_array(HSS_start_const, item)) <= 0 then 
+        Call ONLY_create_MAXIS_friendly_date(adjustment_array(agreement_start_const, item))
+        adjustment_array(adjustment_start_date_const, item) = adjustment_array(agreement_start_const, item)
+    Else 
+        'Using the HSS start date, changing to friendly of MM/DD/YY date 
+        Call ONLY_create_MAXIS_friendly_date(adjustment_array(HSS_start_const, item))
+        adjustment_array(adjustment_start_date_const, item) = adjustment_array(HSS_start_const, item)
+    End if 
+    
     'Finding facility panels that may have ended before the HSS start date
     active_facility = False     'default value
     If (adjustment_array(faci_in_const, item) <> "" and adjustment_array(faci_out_const, item) = "") then
@@ -526,6 +530,7 @@ For item = 0 to Ubound(adjustment_array, 2)
                                     'saving the agreements
                                     PF3
                                     EmReadscreen current_panel, 4, 1, 51
+                                    
                                     If current_panel = "AKEY" then
                                         error_message = ""
                                         EmReadscreen error_message, 50, 24, 2
@@ -533,13 +538,13 @@ For item = 0 to Ubound(adjustment_array, 2)
                                             adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & "Agreement successfully reduced to " & new_rate & "."
                                         Else
                                             adjustment_array(reduce_rate_const, item) = False
-                                            adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & adjustment_array(rr_status_const, item) & "Not reduced. MMIS Error: " & trim(error_message)
+                                            adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & "Not reduced. MMIS Error: " & trim(error_message)
                                         End if
                                     Else
                                         error_message = ""
                                         EmReadscreen error_message, 80, 21, 2       'reading error message on any other screen.
                                         adjustment_array(reduce_rate_const, item) = False
-                                        adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & adjustment_array(rr_status_const, item) & "Not reduced. MMIS Error: " & trim(error_message)
+                                        adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & "Not reduced. MMIS Error: " & trim(error_message)
                                         PF6 'cancel
                                         transmit 'to re-enter ASA1
                                         EmWriteScreen "A", 3, 17   'Restoring the agreement on ASA1 in AGMT/TYPE STAT field
@@ -589,7 +594,6 @@ For item = 0 to Ubound(adjustment_array, 2)
 		Next
         
         PF3
-
         error_message = ""
         EmReadscreen error_message, 40, 24, 2
         If trim(error_message) =  "ACTION COMPLETED" then
@@ -642,6 +646,7 @@ Next
 For item = 0 to Ubound(adjustment_array, 2)
     objExcel.Cells(adjustment_array(excel_row_const, item), rate_reduction_col).Value = adjustment_array(rr_status_const, item)
 Next
+
 
 'formatting the cells
 FOR i = 1 to 27
