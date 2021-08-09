@@ -193,16 +193,20 @@ EndDialog
 
 'Shows case number dialog
 Do
-	err_msg = ""
-	Dialog Dialog1
-	cancel_without_confirmation
-	Call validate_MAXIS_case_number(err_msg, "*")
-	Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
-	If err_msg <> "" Then MsgBox " ************* NOTICE **************" & vbCr & vbCr & "Please Resolve to Continue:" & vbCr & err_msg
-Loop until err_msg = ""
+	Do
+		err_msg = ""
+		Dialog Dialog1
+		cancel_without_confirmation
+		Call validate_MAXIS_case_number(err_msg, "*")
+		Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
+		If err_msg <> "" Then MsgBox " ************* NOTICE **************" & vbCr & vbCr & "Please Resolve to Continue:" & vbCr & err_msg
+	Loop until err_msg = ""
+	Call check_for_password(are_we_passworded_out)
+Loop until are_we_passworded_out = False
 
 Call MAXIS_footer_month_confirmation				'Ensuring we are in SPAN at the right footer month
-Call navigate_to_MAXIS_screen("STAT", "SPAN")
+Call navigate_to_MAXIS_screen_review_PRIV("STAT", "SPAN", is_this_priv)
+If is_this_priv = True Then Call script_end_procedure("PRIV CASE! This case is privileged and the script cannot continue. Ensure you are allowed access to this case and request access. Once you have access, rerun the script.")
 
 panel_name_array = split(all_possible_panels, " ")		'Creating an array of all of the panel names
 
@@ -260,8 +264,12 @@ BeginDialog Dialog1, 0, 0, 371, 190, "All MAXIS panels dialog"
     CancelButton 310, 25, 50, 15
 EndDialog
 
-Dialog Dialog1		'Show this dialog
-Cancel_confirmation
+Do
+	Dialog Dialog1
+	cancel_without_confirmation
+
+	Call check_for_password(are_we_passworded_out)
+Loop until are_we_passworded_out = False
 'There is no looping because there is no mandated selections/information
 
 'Now getting the list of the household members.
