@@ -1117,7 +1117,7 @@ function define_main_dialog()
 
 			GroupBox 5, y_pos, 475, 125, "12. Has anyone in the household applied for or does anyone get any of the following type of income each month?"
 			' y_pos = y_pos + 15
-
+			PushButton 385, y_pos + 5, 90, 13, "ALL Q. 12 Answered 'No'", q_12_all_no_btn
 			y_pos = y_pos + 20
 			col_1_1 = 15
 			col_1_2 = 55
@@ -1214,6 +1214,8 @@ function define_main_dialog()
 			y_pos = 10
 
 			GroupBox 5, 10, 475, 130, "14. Does your household have the following housing expenses?"
+			PushButton 385, 15, 90, 13, "ALL Q. 14 Answered 'No'", q_14_all_no_btn
+
 			y_pos = y_pos + 15
 			col_1_1 = 15
 			col_1_2 = 85
@@ -1980,6 +1982,38 @@ function dialog_movement()
 		If ButtonPressed = page_1_step_2_btn Then call explain_dialog_actions("PAGE 1", "STEP 2")
 
 		ButtonPressed = save_button
+	End If
+
+	If ButtonPressed = q_12_all_no_btn Then
+		question_12_rsdi_yn = "No"
+		question_12_rsdi_amt = ""
+		question_12_ssi_yn = "No"
+		question_12_ssi_amt = ""
+		question_12_va_yn = "No"
+		question_12_va_amt = ""
+		question_12_ui_yn = "No"
+		question_12_ui_amt = ""
+		question_12_wc_yn = "No"
+		question_12_wc_amt = ""
+		question_12_ret_yn = "No"
+		question_12_ret_amt = ""
+		question_12_trib_yn = "No"
+		question_12_trib_amt = ""
+		question_12_cs_yn = "No"
+		question_12_cs_amt = ""
+		question_12_other_yn = "No"
+		question_12_other_amt = ""
+
+	End If
+
+	If ButtonPressed = q_14_all_no_btn Then
+		question_14_rent_yn = "No"
+		question_14_subsidy_yn = "No"
+		question_14_mortgage_yn = "No"
+		question_14_association_yn = "No"
+		question_14_insurance_yn = "No"
+		question_14_room_yn = "No"
+		question_14_taxes_yn = "No"
 	End If
 
 end function
@@ -5963,6 +5997,8 @@ discrepancy_questions_btn	= 2600
 open_hsr_manual_transfer_page_btn = 2610
 incomplete_interview_btn	= 2700
 verif_button				= 2800
+q_12_all_no_btn				= 2900
+q_14_all_no_btn				= 3000
 return_btn 					= 900
 
 btn_placeholder = 4000
