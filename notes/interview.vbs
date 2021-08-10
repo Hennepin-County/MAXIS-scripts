@@ -5552,6 +5552,11 @@ If vars_filled = False Then
 	EMReadScreen next_snap_revw_mo, 2, 9, 57
 	EMReadScreen next_snap_revw_yr, 2, 9, 63
 
+	If next_cash_revw_mo = "__" Then next_cash_revw_mo = ""
+	If next_cash_revw_yr = "__" Then next_cash_revw_yr = ""
+	If next_snap_revw_mo = "__" Then next_snap_revw_mo = ""
+	If next_snap_revw_yr = "__" Then next_snap_revw_yr = ""
+
 	cash_revw = False
 	snap_revw = False
 
