@@ -134,7 +134,7 @@ End if
 
 'EXCEL BLOCK------------------------------
 Set objExcel = CreateObject("Excel.Application")
-objExcel.Visible = false
+objExcel.Visible = false							'setting the Excel visibility to false to start with
 Set objWorkbook = objExcel.Workbooks.Add()
 objExcel.DisplayAlerts = true
 'END EXCEL BLOCK--------------------------
@@ -167,18 +167,18 @@ message_number = 1	'We want to count how many messages we process in here
 
 EMReadScreen message_month_to_revw, 2, 6, 11            'Reading the month and year from the first message.
 EMReadScreen message_year_to_revw, 2, 6, 14
-spousal_support_messages_exist = False
+spousal_support_messages_exist = False					'The script needs to be able to track if there are ANY Spousal Support messages or Child Support messages
 child_support_messages_exist = False
 '===================================================================================================================================READS EACH MESSAGE!
 For MAXIS_row = 6 to 19			'<<<<<CHECK THIS AGAINST A FULL, ACTUAL FACTUAL DAIL
 	EMReadScreen message_type_check, 4, MAXIS_row, 6				'Makes sure it's the right type of message
     EMReadScreen message_month_check, 2, MAXIS_row, 11
     EMReadScreen message_year_check, 2, MAXIS_row, 14
-	EMReadScreen type_36_check, 2, MAXIS_row, 34
+	EMReadScreen type_36_check, 2, MAXIS_row, 34					'Reading the CSES TYPE codes to know what kind of CSES message this is
 	EMReadScreen type_39_check, 2, MAXIS_row, 42
 	EMReadScreen type_37_check, 2, MAXIS_row, 43
 	EMReadScreen type_40_check, 2, MAXIS_row, 51
-	' MsgBox "TYPE - " & message_type_check & vbCr & "MONTH/YEAR - " & message_month_check & "/" & message_year_check
+
 	If message_type_check <> message_type_code then exit for 		'This was determined above based on TIKL vs actual CSES messages. If we aren't on the right message, it will exit
     'If the message month and year do not match, ending the script
     If message_month_check <> message_month_to_revw OR message_year_check <> message_year_to_revw Then
@@ -188,8 +188,8 @@ For MAXIS_row = 6 to 19			'<<<<<CHECK THIS AGAINST A FULL, ACTUAL FACTUAL DAIL
         objExcel.DisplayAlerts = True
         script_end_procedure("This case has Child Support messages from two different months. At this time, these must be processed manually.")
     End If
-	If type_37_check = "37" OR type_40_check = "40" Then spousal_support_messages_exist = True
-	If type_36_check = "36" OR type_39_check = "39" Then
+	If type_37_check = "37" OR type_40_check = "40" Then spousal_support_messages_exist = True		'knowing that we have a spousal support message.
+	If type_36_check = "36" OR type_39_check = "39" Then											'knowing that we have a child support message.
 		child_support_messages_exist = True
 	    EMWriteScreen "x", MAXIS_row, 3									'Puts an 'X' on the DAIL message
 		transmit														'Transmits
@@ -254,17 +254,18 @@ For MAXIS_row = 6 to 19			'<<<<<CHECK THIS AGAINST A FULL, ACTUAL FACTUAL DAIL
 	message_number = message_number + 1
 Next
 
+'If we didn't find ANY Child Support CSES the script will end as it only handles for Type 36 and Type 39 (Child Support)
 If child_support_messages_exist = False Then
-	objExcel.DisplayAlerts = False
+	objExcel.DisplayAlerts = False			'Closing the expty Excel document
 	objExcel.Workbooks.Close
 	objExcel.quit
 	objExcel.DisplayAlerts = True
-	end_msg = "No Child Support Messages found on this case."
+	end_msg = "No Child Support Messages found on this case."		'Creating a clear message
 	If spousal_support_messages_exist = True Then end_msg = end_msg & vbCr & vbCr & "This case has Spousal Support DAIL messages listed. This script does not support Spousal Support DAIL messages at this time. Process these messages manually."
 	end_msg = end_msg & vbCr & vbCr & "The script will now end, no actions have been taken."
-	Call script_end_procedure(end_msg)
+	Call script_end_procedure(end_msg)		'ending the script
 End If
-objExcel.Visible = true
+objExcel.Visible = true						'showing the Excel now that we know we have information we can work on
 '===================================================================================================================================DETERMINING WHAT PROGRAMS ARE OPEN
 'Navigates to CASE/CURR directly (the DAIL doesn't easily go back to the case-in-question when we use the custom function)
 EMWriteScreen "h", 6, 3
@@ -1491,7 +1492,7 @@ If close_excel_checkbox = checked Then
 	objExcel.quit
 	objExcel.DisplayAlerts = True
 End If
-end_msg = "CSES Message Review Complete."
+end_msg = "CSES Message Review Complete."		'adding more in depth End Message information
 If spousal_support_messages_exist = True Then end_msg = end_msg & vbCr & vbCr & "This case has Spousal Support DAIL messages listed. This script does not support Spousal Support DAIL messages at this time. Process these messages manually."
 
 script_end_procedure_with_error_report(end_msg)
