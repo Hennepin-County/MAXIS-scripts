@@ -2412,6 +2412,17 @@ function guide_through_app_month_income()
 
 end function
 
+Function HCRE_panel_bypass()
+	'handling for cases that do not have a completed HCRE panel
+	PF3		'exits PROG to prommpt HCRE if HCRE insn't complete
+	Do
+		EMReadscreen HCRE_panel_check, 4, 2, 50
+		If HCRE_panel_check = "HCRE" then
+			PF10	'exists edit mode in cases where HCRE isn't complete for a member
+			PF3
+		END IF
+	Loop until HCRE_panel_check <> "HCRE"
+End Function
 
 function split_phone_number_into_parts(phone_variable, phone_left, phone_mid, phone_right)
 'This function is to take the information provided as a phone number and split it up into the 3 parts
@@ -5710,6 +5721,11 @@ Do
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
 
+Do
+	Call navigate_to_MAXIS_screen("STAT", "SUMM")
+	EMReadScreen summ_check, 4, 2, 46
+Loop until summ_check = "SUMM"
+
 If CAF_form = "CAF (DHS-5223)" Then CAF_form_name = "Combined Application Form"
 If CAF_form = "HUF (DHS-8107)" Then CAF_form_name = "Household Update Form"
 If CAF_form = "SNAP App for Srs (DHS-5223F)" Then CAF_form_name = "SNAP Application for Seniors"
@@ -7916,26 +7932,26 @@ If cash_revw_due = True OR snap_revw_due = True Then
 End If
 Call back_to_SELF
 
-'TESTING CODE - this is inplace so that the script doesn't error trying to update PROG.
-If update_revw = True OR update_prog = True Then
-
-	Dialog1 = ""
-	BeginDialog Dialog1, 0, 0, 246, 115, "Update Interview Date in STAT"
-	  ButtonGroup ButtonPressed
-	    OkButton 200, 95, 40, 15
-	  Text 10, 10, 240, 10, "It appears STAT does not have the Interview Date coded into the panel."
-	  Text 10, 20, 190, 10, "This makes sense, as you JUST completed the interview."
-	  Text 10, 35, 215, 25, "We will be updating the script to do this for you, however, that functionality appears to be broken. So instead of making the script error all the time, we have removed the automatic functionality."
-	  Text 10, 70, 225, 15, "You can update STAT now with the interview date or do it after the script run is complete, but it must be done manually for now."
-	  Text 20, 90, 80, 10, "PROG Needs Update"
-	  Text 20, 100, 80, 10, "REVW Needs Update"
-	EndDialog
-
-	dialog Dialog1
-
-End If
-update_revw = False
-update_prog = False
+' 'TESTING CODE - this is inplace so that the script doesn't error trying to update PROG.
+' If update_revw = True OR update_prog = True Then
+'
+' 	Dialog1 = ""
+' 	BeginDialog Dialog1, 0, 0, 246, 115, "Update Interview Date in STAT"
+' 	  ButtonGroup ButtonPressed
+' 	    OkButton 200, 95, 40, 15
+' 	  Text 10, 10, 240, 10, "It appears STAT does not have the Interview Date coded into the panel."
+' 	  Text 10, 20, 190, 10, "This makes sense, as you JUST completed the interview."
+' 	  Text 10, 35, 215, 25, "We will be updating the script to do this for you, however, that functionality appears to be broken. So instead of making the script error all the time, we have removed the automatic functionality."
+' 	  Text 10, 70, 225, 15, "You can update STAT now with the interview date or do it after the script run is complete, but it must be done manually for now."
+' 	  Text 20, 90, 80, 10, "PROG Needs Update"
+' 	  Text 20, 100, 80, 10, "REVW Needs Update"
+' 	EndDialog
+'
+' 	dialog Dialog1
+'
+' End If
+' update_revw = False
+' update_prog = False
 
 If update_revw = True OR update_prog = True Then
 	If update_revw = True OR update_prog = True Then dlg_len = 300
@@ -8047,7 +8063,7 @@ If update_revw = True OR update_prog = True Then
 			EMWriteScreen intv_day, 10, 58
 			EMWriteScreen intv_yr, 10, 61
 		End If
-
+		EMWriteScreen left(exp_migrant_seasonal_formworker_yn, 1), 18, 67
 		transmit                                    'Saving the panel
 
 		Call HCRE_panel_bypass
