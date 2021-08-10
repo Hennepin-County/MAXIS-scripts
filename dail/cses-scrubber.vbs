@@ -1496,3 +1496,46 @@ end_msg = "CSES Message Review Complete."		'adding more in depth End Message inf
 If spousal_support_messages_exist = True Then end_msg = end_msg & vbCr & vbCr & "This case has Spousal Support DAIL messages listed. This script does not support Spousal Support DAIL messages at this time. Process these messages manually."
 
 script_end_procedure_with_error_report(end_msg)
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------08/10/2021
+'--Tab orders reviewed & confirmed----------------------------------------------08/10/2021
+'--Mandatory fields all present & Reviewed--------------------------------------08/10/2021
+'--All variables in dialog match mandatory fields-------------------------------08/10/2021
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------08/10/2021
+'--CASE:NOTE Header doesn't look funky------------------------------------------08/10/2021
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------08/10/2021
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------          ----------------N/A - running from the DAIL Scubber
+'--MAXIS_background_check reviewed (if applicable)------------------------------          ----------------N/A - running from the DAIL Scubber
+'--PRIV Case handling reviewed -------------------------------------------------          ----------------N/A - running from the DAIL Scubber
+'--Out-of-County handling reviewed----------------------------------------------          ----------------N/A - running from the DAIL Scubber
+'--script_end_procedures (w/ or w/o error messaging)----------------------------08/10/2021
+'--BULK - review output of statistics and run time/count (if applicable)--------          ----------------N/A
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------
+'--Incrementors reviewed (if necessary)-----------------------------------------08/10/2021
+'--Denomination reviewed -------------------------------------------------------08/10/2021
+'--Script name reviewed---------------------------------------------------------08/10/2021
+'--BULK - remove 1 incrementor at end of script reviewed------------------------08/10/2021----------------This counter starts at 0, so no removal is necessary
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub taks are complete-----------------------------------------08/10/2021
+'--comment Code-----------------------------------------------------------------08/10/2021
+'--Update Changelog for release/update------------------------------------------08/10/2021
+'--Remove testing message boxes-------------------------------------------------08/10/2021
+'--Remove testing code/unnecessary code-----------------------------------------08/10/2021
+'--Review/update SharePoint instructions----------------------------------------08/10/2021
+'--Review Best Practices using BZS page ----------------------------------------          ----------------N/A
+'--Review script information on SharePoint BZ Script List-----------------------          ----------------N/A
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------          ----------------N/A
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------          ----------------N/A
+'--Complete misc. documentation (if applicable)---------------------------------          ----------------N/A
+'--Update project team/issue contact (if applicable)----------------------------          ----------------N/A
