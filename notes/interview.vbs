@@ -1562,10 +1562,8 @@ function define_main_dialog()
 				CheckBox 80, 50, 50, 10, "Get notices", arep_get_notices_checkbox
 				CheckBox 135, 50, 140, 10, "Get and use my SNAP benefit", arep_use_SNAP_checkbox
 				' Text 20, 60, 50, 10, "SNAP benefits"
-
-				PushButton 390, 47, 85, 13, "Update AREP Detail", update_information_btn
-
 			End If
+			PushButton 390, 47, 85, 13, "Update AREP Detail", update_information_btn
 
 			' (less 35)
 		    GroupBox 5, 70, 475, 75, "Signatures"
@@ -1693,22 +1691,115 @@ function define_main_dialog()
 			End If
 	    ElseIf page_display = show_arep_page Then
 			If arep_addr_state = "" Then arep_addr_state = "MN Minnesota"
-			EditBox 85, 50, 170, 15, arep_name
-			ComboBox 260, 50, 120, 45, "Select or Type"+chr(9)+"Parent"+chr(9)+"Grandparent"+chr(9)+"Child"+chr(9)+"Grandchild"+chr(9)+"Aunt/Uncle"+chr(9)+"Neice/Nephew"+chr(9)+"Caretaker"+chr(9)+"Unrelated"+chr(9)+arep_relationship, arep_relationship
-			EditBox 385, 50, 85, 15, arep_phone_number
-			EditBox 85, 80, 170, 15, arep_addr_street
-			EditBox 260, 80, 85, 15, arep_addr_city
-			DropListBox 350, 80, 65, 45, state_list, arep_addr_state
-			EditBox 420, 80, 50, 15, arep_addr_zip
+			If CAF_arep_addr_state = "" Then CAF_arep_addr_state = "MN Minnesota"
+			' GroupBox 5, 5, 475, 300, "Authorized Representative Detail"
 
-			Text 85, 40, 45, 10, "AREP Name"
-			Text 260, 40, 50, 10, "Relationship"
-			Text 385, 40, 50, 10, "Phone Number"
-			Text 85, 70, 35, 10, "Address"
-			Text 260, 70, 25, 10, "City"
-			Text 350, 70, 25, 10, "State"
-			Text 420, 70, 35, 10, "Zip Code"
-			PushButton 385, 20, 85, 15, "Save AREP Detail", save_information_btn
+			If arep_in_MAXIS = True AND MAXIS_arep_updated = False Then
+				GroupBox 5, 5, 475, 140, "AREP from MAXIS"
+				Text 10, 20, 45, 10, "AREP Name"
+				EditBox 10, 30, 170, 15, arep_name
+				Text 185, 20, 50, 10, "Relationship"
+				ComboBox 185, 30, 120, 45, "Select or Type"+chr(9)+"Parent"+chr(9)+"Grandparent"+chr(9)+"Child"+chr(9)+"Grandchild"+chr(9)+"Aunt/Uncle"+chr(9)+"Neice/Nephew"+chr(9)+"Caretaker"+chr(9)+"Unrelated"+chr(9)+arep_relationship, arep_relationship
+				Text 310, 20, 50, 10, "Phone Number"
+				EditBox 310, 30, 85, 15, arep_phone_number
+				Text 10, 50, 35, 10, "Address"
+				EditBox 10, 60, 170, 15, arep_addr_street
+				Text 185, 50, 25, 10, "City"
+				EditBox 185, 60, 85, 15, arep_addr_city
+				Text 275, 50, 25, 10, "State"
+				DropListBox 275, 60, 65, 45, state_list, arep_addr_state
+				Text 345, 50, 35, 10, "Zip Code"
+				EditBox 345, 60, 50, 15, arep_addr_zip
+
+				CheckBox 20, 80, 55, 10, "Fill out forms", arep_complete_forms_checkbox
+				CheckBox 80, 80, 50, 10, "Get notices", arep_get_notices_checkbox
+				CheckBox 135, 80, 140, 10, "Get and use my SNAP benefit", arep_use_SNAP_checkbox
+
+				GroupBox 20, 95, 460, 50, "Actions to Take on this AREP Information"
+				CheckBox 30, 110, 250, 10, "Check Here if this AREP is ALSO Listed as an AREP on the CAF", arep_on_CAF_checkbox
+				Text 30, 130, 165, 10, "Does the Resident want this AREP to Continue?"
+				DropListBox 195, 125, 150, 15, "Select One..."+chr(9)+"Yes - keep this AREP"+chr(9)+"No - remove this AREP from my case", arep_action
+			ElseIf arep_in_MAXIS = True AND MAXIS_arep_updated = True Then
+				GroupBox 5, 5, 475, 140, "AREP Updated or Entered into Script"
+				Text 10, 20, 45, 10, "AREP Name"
+				EditBox 10, 30, 170, 15, arep_name
+				Text 185, 20, 50, 10, "Relationship"
+				ComboBox 185, 30, 120, 45, "Select or Type"+chr(9)+"Parent"+chr(9)+"Grandparent"+chr(9)+"Child"+chr(9)+"Grandchild"+chr(9)+"Aunt/Uncle"+chr(9)+"Neice/Nephew"+chr(9)+"Caretaker"+chr(9)+"Unrelated"+chr(9)+arep_relationship, arep_relationship
+				Text 310, 20, 50, 10, "Phone Number"
+				EditBox 310, 30, 85, 15, arep_phone_number
+				Text 10, 50, 35, 10, "Address"
+				EditBox 10, 60, 170, 15, arep_addr_street
+				Text 185, 50, 25, 10, "City"
+				EditBox 185, 60, 85, 15, arep_addr_city
+				Text 275, 50, 25, 10, "State"
+				DropListBox 275, 60, 65, 45, state_list, arep_addr_state
+				Text 345, 50, 35, 10, "Zip Code"
+				EditBox 345, 60, 50, 15, arep_addr_zip
+
+				CheckBox 20, 80, 55, 10, "Fill out forms", arep_complete_forms_checkbox
+				CheckBox 80, 80, 50, 10, "Get notices", arep_get_notices_checkbox
+				CheckBox 135, 80, 140, 10, "Get and use my SNAP benefit", arep_use_SNAP_checkbox
+
+				GroupBox 20, 95, 460, 50, "Actions to Take on this AREP Information"
+				CheckBox 30, 110, 250, 10, "Check Here if this AREP is ALSO Listed as an AREP on the CAF", arep_on_CAF_checkbox
+				Text 30, 130, 165, 10, "Does the Resident want this AREP to Continue?"
+				DropListBox 195, 125, 150, 15, "Select One..."+chr(9)+"Yes - keep this AREP"+chr(9)+"No - remove this AREP from my case", arep_action
+			ElseIf arep_in_MAXIS = False Then
+				GroupBox 5, 5, 475, 140, "AREP reported Verbally"
+				Text 10, 20, 45, 10, "AREP Name"
+				EditBox 10, 30, 170, 15, arep_name
+				Text 185, 20, 50, 10, "Relationship"
+				ComboBox 185, 30, 120, 45, "Select or Type"+chr(9)+"Parent"+chr(9)+"Grandparent"+chr(9)+"Child"+chr(9)+"Grandchild"+chr(9)+"Aunt/Uncle"+chr(9)+"Neice/Nephew"+chr(9)+"Caretaker"+chr(9)+"Unrelated"+chr(9)+arep_relationship, arep_relationship
+				Text 310, 20, 50, 10, "Phone Number"
+				EditBox 310, 30, 85, 15, arep_phone_number
+				Text 10, 50, 35, 10, "Address"
+				EditBox 10, 60, 170, 15, arep_addr_street
+				Text 185, 50, 25, 10, "City"
+				EditBox 185, 60, 85, 15, arep_addr_city
+				Text 275, 50, 25, 10, "State"
+				DropListBox 275, 60, 65, 45, state_list, arep_addr_state
+				Text 345, 50, 35, 10, "Zip Code"
+				EditBox 345, 60, 50, 15, arep_addr_zip
+
+				CheckBox 20, 80, 55, 10, "Fill out forms", arep_complete_forms_checkbox
+				CheckBox 80, 80, 50, 10, "Get notices", arep_get_notices_checkbox
+				CheckBox 135, 80, 140, 10, "Get and use my SNAP benefit", arep_use_SNAP_checkbox
+
+				GroupBox 20, 95, 460, 50, "Actions to Take on this AREP Information"
+				CheckBox 30, 110, 250, 10, "Check Here if this AREP is ALSO Listed as an AREP on the CAF", arep_on_CAF_checkbox
+				Text 30, 130, 165, 10, "Does the Resident want this AREP to Continue?"
+				DropListBox 195, 125, 150, 15, "Select One..."+chr(9)+"Yes - keep this AREP"+chr(9)+"No - remove this AREP from my case", arep_action
+
+			End If
+
+			GroupBox 5, 160, 475, 125, "AREP on CAF"
+			Text 10, 175, 45, 10, "AREP Name"
+			EditBox 10, 185, 170, 15, CAF_arep_name
+			Text 185, 175, 50, 10, "Relationship"
+			ComboBox 185, 185, 120, 45, "Select or Type"+chr(9)+"Parent"+chr(9)+"Grandparent"+chr(9)+"Child"+chr(9)+"Grandchild"+chr(9)+"Aunt/Uncle"+chr(9)+"Neice/Nephew"+chr(9)+"Caretaker"+chr(9)+"Unrelated"+chr(9)+CAF_arep_relationship, CAF_arep_relationship
+			Text 310, 175, 50, 10, "Phone Number"
+			EditBox 310, 185, 85, 15, CAF_arep_phone_number
+			Text 10, 205, 35, 10, "Address"
+			EditBox 10, 215, 170, 15, CAF_arep_addr_street
+			Text 185, 205, 25, 10, "City"
+			EditBox 185, 215, 85, 15, CAF_arep_addr_city
+			Text 275, 205, 25, 10, "State"
+			DropListBox 275, 215, 65, 45, state_list, CAF_arep_addr_state
+			Text 345, 205, 35, 10, "Zip Code"
+			EditBox 345, 215, 50, 15, CAF_arep_addr_zip
+
+			CheckBox 20, 235, 55, 10, "Fill out forms", CAF_arep_complete_forms_checkbox
+			CheckBox 80, 235, 50, 10, "Get notices", CAF_arep_get_notices_checkbox
+			CheckBox 135, 235, 140, 10, "Get and use my SNAP benefit", CAF_arep_use_SNAP_checkbox
+
+			GroupBox 20, 250, 460, 35, "Actions to Take on this AREP Information"
+			Text 30, 270, 175, 10, "Does the Resident want this AREP added to the Case?"
+			DropListBox 210, 265, 150, 15, "Select One..."+chr(9)+"Yes - add to MAXIS"+chr(9)+"No - do not allow this AREP", CAF_arep_action
+			' CheckBox 30, 285, 200, 10, "Check Here if this AREP is ALSO Listed on the CAF", CAF_arep_on_CAF_checkbox
+
+			Text 10, 295, 85, 10, "Authorization of AREP:"
+			DropListBox 95, 290, 175, 15, "Select One..."+chr(9)+"AREP authorized verball"+chr(9)+"AREP Authorized by entry on the CAF"+chr(9)+"AREP authorized by seperate writen document"+chr(9)+"AREP previously entered - authorization unknown"+chr(9)+"DO NOT AUTHORIZE AN AREP"+chr(9)+arep_authorization, arep_authorization
+			PushButton 395, 292, 85, 13, "Save AREP Detail", save_information_btn
 
 		ElseIf page_display = discrepancy_questions Then
 			Text 504, 182, 60, 10, "Clarifications"
@@ -1820,6 +1911,55 @@ end function
 function dialog_movement()
 	' case_has_imig = FALSE
 	' MsgBox ButtonPressed
+	If page_display = show_arep_page Then
+		arep_exists = True
+		If arep_in_MAXIS = True Then
+			If arep_name <> MAXIS_arep_name Then MAXIS_arep_updated = True
+			' If arep_relationship <> MAXIS_arep_relationship Then MAXIS_arep_updated = True
+			If arep_phone_number <> MAXIS_arep_phone_number Then MAXIS_arep_updated = True
+			If arep_addr_street <> MAXIS_arep_addr_street Then MAXIS_arep_updated = True
+			If arep_addr_city <> MAXIS_arep_addr_city Then MAXIS_arep_updated = True
+			If arep_addr_state <> MAXIS_arep_addr_state Then MAXIS_arep_updated = True
+			If arep_addr_zip <> MAXIS_arep_addr_zip Then MAXIS_arep_updated = True
+
+		End If
+		If arep_on_CAF_checkbox = checked Then
+			CAF_arep_name = arep_name
+			CAF_arep_relationship = arep_relationship
+			CAF_arep_phone_number = arep_phone_number
+			CAF_arep_addr_street = arep_addr_street
+			CAF_arep_addr_city = arep_addr_city
+			CAF_arep_addr_state = arep_addr_state
+			CAF_arep_addr_zip = arep_addr_zip
+
+			CAF_arep_complete_forms_checkbox = arep_complete_forms_checkbox
+			CAF_arep_get_notices_checkbox = arep_get_notices_checkbox
+			CAF_arep_use_SNAP_checkbox = arep_use_SNAP_checkbox
+
+			If arep_action = "Yes - keep this AREP" Then CAF_arep_action = "Yes - add to MAXIS"
+			If arep_action = "No - remove this AREP from my case" Then CAF_arep_action = "No - do not allow this AREP"
+		End If
+
+		If arep_on_CAF_checkbox = checked OR trim(CAF_arep_name) <> "" Then arep_authorization = "AREP Authorized by entry on the CAF"
+		If arep_authorization = "DO NOT AUTHORIZE AN AREP" Then
+			arep_action = "No - remove this AREP from my case"
+			CAF_arep_action = "No - do not allow this AREP"
+			arep_exists = False
+			arep_authorized = False
+		End If
+		If CAF_arep_name = "" AND arep_name = "" Then
+			arep_authorization = ""
+			arep_action = ""
+			CAF_arep_action = ""
+			arep_exists = False
+		End If
+		If arep_authorization <> "" AND arep_authorization <> "Select One..." and arep_exists = True Then arep_authorized = True
+
+	End If
+	arep_and_CAF_arep_match = False
+	If CAF_arep_name = arep_name Then arep_and_CAF_arep_match = True
+
+
 	For i = 0 to Ubound(HH_MEMB_ARRAY, 2)
 		' If HH_MEMB_ARRAY(i).imig_exists = TRUE Then case_has_imig = TRUE
 		' MsgBox HH_MEMB_ARRAY(i).button_one
@@ -2614,6 +2754,11 @@ function save_your_work()
 			objTextStream.WriteLine "QQ5A - " & qual_question_five
 			objTextStream.WriteLine "QQ5M - " & qual_memb_five
 
+			objTextStream.WriteLine "AREP - 001 - " & arep_in_MAXIS
+			objTextStream.WriteLine "AREP - 002 - " & MAXIS_arep_updated
+			objTextStream.WriteLine "AREP - 003 - " & arep_authorization
+			objTextStream.WriteLine "AREP - 004 - " & arep_authorized
+
 			objTextStream.WriteLine "AREP - 01 - " & arep_name
 			objTextStream.WriteLine "AREP - 02 - " & arep_relationship
 			objTextStream.WriteLine "AREP - 03 - " & arep_phone_number
@@ -2624,6 +2769,29 @@ function save_your_work()
 			If arep_complete_forms_checkbox = checked Then objTextStream.WriteLine "AREP - 08"
 			If arep_get_notices_checkbox = checked Then objTextStream.WriteLine "AREP - 09"
 			If arep_use_SNAP_checkbox = checked Then objTextStream.WriteLine "AREP - 10"
+			If arep_on_CAF_checkbox = checked Then objTextStream.WriteLine "AREP - 11"
+			objTextStream.WriteLine "AREP - 12 - " & arep_action
+
+			objTextStream.WriteLine "MX-AREP - 01 - " & MAXIS_arep_name
+			objTextStream.WriteLine "MX-AREP - 02 - " & MAXIS_arep_relationship
+			objTextStream.WriteLine "MX-AREP - 03 - " & MAXIS_arep_phone_number
+			objTextStream.WriteLine "MX-AREP - 04 - " & MAXIS_arep_addr_street
+			objTextStream.WriteLine "MX-AREP - 05 - " & MAXIS_arep_addr_city
+			objTextStream.WriteLine "MX-AREP - 06 - " & MAXIS_arep_addr_state
+			objTextStream.WriteLine "MX-AREP - 07 - " & MAXIS_arep_addr_zip
+
+			objTextStream.WriteLine "CAF-AREP - 01 - " & CAF_arep_name
+			objTextStream.WriteLine "CAF-AREP - 02 - " & CAF_arep_relationship
+			objTextStream.WriteLine "CAF-AREP - 03 - " & CAF_arep_phone_number
+			objTextStream.WriteLine "CAF-AREP - 04 - " & CAF_arep_addr_street
+			objTextStream.WriteLine "CAF-AREP - 05 - " & CAF_arep_addr_city
+			objTextStream.WriteLine "CAF-AREP - 06 - " & CAF_arep_addr_state
+			objTextStream.WriteLine "CAF-AREP - 07 - " & CAF_arep_addr_zip
+			If CAF_arep_complete_forms_checkbox = checked Then objTextStream.WriteLine "CAF-AREP - 08"
+			If CAF_arep_get_notices_checkbox = checked Then objTextStream.WriteLine "CAF-AREP - 09"
+			If CAF_arep_use_SNAP_checkbox = checked Then objTextStream.WriteLine "CAF-AREP - 10"
+			objTextStream.WriteLine "CAF-AREP - 11 - " & CAF_arep_action
+
 			objTextStream.WriteLine "SIG - 01 - " & signature_detail
 			objTextStream.WriteLine "SIG - 02 - " & signature_person
 			objTextStream.WriteLine "SIG - 03 - " & signature_date
@@ -2991,6 +3159,11 @@ function save_your_work()
 			script_run_lowdown = script_run_lowdown & vbCr & "QQ5A - " & qual_question_five
 			script_run_lowdown = script_run_lowdown & vbCr & "QQ5M - " & qual_memb_five & vbCr & vbCr
 
+			script_run_lowdown = script_run_lowdown & vbCr & "AREP - 001 - " & arep_in_MAXIS
+			script_run_lowdown = script_run_lowdown & vbCr & "AREP - 002 - " & MAXIS_arep_updated
+			script_run_lowdown = script_run_lowdown & vbCr & "AREP - 003 - " & arep_authorization
+			script_run_lowdown = script_run_lowdown & vbCr & "AREP - 004 - " & arep_authorized
+
 			script_run_lowdown = script_run_lowdown & vbCr & "AREP - 01 - " & arep_name
 			script_run_lowdown = script_run_lowdown & vbCr & "AREP - 02 - " & arep_relationship
 			script_run_lowdown = script_run_lowdown & vbCr & "AREP - 03 - " & arep_phone_number
@@ -3000,7 +3173,30 @@ function save_your_work()
 			script_run_lowdown = script_run_lowdown & vbCr & "AREP - 07 - " & arep_addr_zip
 			If arep_complete_forms_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "AREP - 08 - CHECKED"
 			If arep_get_notices_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "AREP - 09 - CHECKED"
-			If arep_use_SNAP_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "AREP - 10 - CHECKED" & vbCr & vbCr
+			If arep_use_SNAP_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "AREP - 10 - CHECKED"
+			If arep_on_CAF_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "AREP - 11 - CHECKED"
+			script_run_lowdown = script_run_lowdown & vbCr & "AREP - 12 - " & arep_action & vbCr & vbCr
+
+			script_run_lowdown = script_run_lowdown & vbCr & "MX-AREP - 01 - " & MAXIS_arep_name
+			script_run_lowdown = script_run_lowdown & vbCr & "MX-AREP - 02 - " & MAXIS_arep_relationship
+			script_run_lowdown = script_run_lowdown & vbCr & "MX-AREP - 03 - " & MAXIS_arep_phone_number
+			script_run_lowdown = script_run_lowdown & vbCr & "MX-AREP - 04 - " & MAXIS_arep_addr_street
+			script_run_lowdown = script_run_lowdown & vbCr & "MX-AREP - 05 - " & MAXIS_arep_addr_city
+			script_run_lowdown = script_run_lowdown & vbCr & "MX-AREP - 06 - " & MAXIS_arep_addr_state
+			script_run_lowdown = script_run_lowdown & vbCr & "MX-AREP - 07 - " & MAXIS_arep_addr_zip & vbCr & vbCr
+
+			script_run_lowdown = script_run_lowdown & vbCr & "CAF-AREP - 01 - " & CAF_arep_name
+			script_run_lowdown = script_run_lowdown & vbCr & "CAF-AREP - 02 - " & CAF_arep_relationship
+			script_run_lowdown = script_run_lowdown & vbCr & "CAF-AREP - 03 - " & CAF_arep_phone_number
+			script_run_lowdown = script_run_lowdown & vbCr & "CAF-AREP - 04 - " & CAF_arep_addr_street
+			script_run_lowdown = script_run_lowdown & vbCr & "CAF-AREP - 05 - " & CAF_arep_addr_city
+			script_run_lowdown = script_run_lowdown & vbCr & "CAF-AREP - 06 - " & CAF_arep_addr_state
+			script_run_lowdown = script_run_lowdown & vbCr & "CAF-AREP - 07 - " & CAF_arep_addr_zip
+			If CAF_arep_complete_forms_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "CAF-AREP - 08"
+			If CAF_arep_get_notices_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "CAF-AREP - 09"
+			If CAF_arep_use_SNAP_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "CAF-AREP - 10"
+			script_run_lowdown = script_run_lowdown & vbCr & "CAF-AREP - 11 - " & CAF_arep_action & vbCr & vbCr
+
 			script_run_lowdown = script_run_lowdown & vbCr & "SIG - 01 - " & signature_detail
 			script_run_lowdown = script_run_lowdown & vbCr & "SIG - 02 - " & signature_person
 			script_run_lowdown = script_run_lowdown & vbCr & "SIG - 03 - " & signature_date
@@ -3418,6 +3614,11 @@ function restore_your_work(vars_filled)
 					If left(text_line, 4) = "QQ5A" Then qual_question_five = Mid(text_line, 8)
 					If left(text_line, 4) = "QQ5M" Then qual_memb_five = Mid(text_line, 8)
 
+					If left(text_line, 10) = "AREP - 001" Then arep_in_MAXIS = Mid(text_line, 14)
+					If left(text_line, 10) = "AREP - 002" Then MAXIS_arep_updated = Mid(text_line, 14)
+					If left(text_line, 10) = "AREP - 003" Then arep_authorization = Mid(text_line, 14)
+					If left(text_line, 10) = "AREP - 004" Then arep_authorized = Mid(text_line, 14)
+
 					If left(text_line, 9) = "AREP - 01" Then arep_name = Mid(text_line, 13)
 					If left(text_line, 9) = "AREP - 02" Then arep_relationship = Mid(text_line, 13)
 					If left(text_line, 9) = "AREP - 03" Then arep_phone_number = Mid(text_line, 13)
@@ -3428,6 +3629,28 @@ function restore_your_work(vars_filled)
 					If left(text_line, 9) = "AREP - 08" Then arep_complete_forms_checkbox = checked
 					If left(text_line, 9) = "AREP - 09" Then arep_get_notices_checkbox = checked
 					If left(text_line, 9) = "AREP - 10" Then arep_use_SNAP_checkbox = checked
+					If left(text_line, 9) = "AREP - 11" Then arep_on_CAF_checkbox = checked
+					If left(text_line, 9) = "AREP - 12" Then arep_action = Mid(text_line, 13)
+
+					If left(text_line, 12) = "MX-AREP - 01" Then MAXIS_arep_name = Mid(text_line, 16)
+					If left(text_line, 12) = "MX-AREP - 02" Then MAXIS_arep_relationship = Mid(text_line, 16)
+					If left(text_line, 12) = "MX-AREP - 03" Then MAXIS_arep_phone_number = Mid(text_line, 16)
+					If left(text_line, 12) = "MX-AREP - 04" Then MAXIS_arep_addr_street = Mid(text_line, 16)
+					If left(text_line, 12) = "MX-AREP - 05" Then MAXIS_arep_addr_city = Mid(text_line, 16)
+					If left(text_line, 12) = "MX-AREP - 06" Then MAXIS_arep_addr_state = Mid(text_line, 16)
+					If left(text_line, 12) = "MX-AREP - 07" Then MAXIS_arep_addr_zip = Mid(text_line, 16)
+
+					If left(text_line, 13) = "CAF-AREP - 01" Then CAF_arep_name = Mid(text_line, 17)
+					If left(text_line, 13) = "CAF-AREP - 02" Then CAF_arep_relationship = Mid(text_line, 17)
+					If left(text_line, 13) = "CAF-AREP - 03" Then CAF_arep_phone_number = Mid(text_line, 17)
+					If left(text_line, 13) = "CAF-AREP - 04" Then CAF_arep_addr_street = Mid(text_line, 17)
+					If left(text_line, 13) = "CAF-AREP - 05" Then CAF_arep_addr_city = Mid(text_line, 17)
+					If left(text_line, 13) = "CAF-AREP - 06" Then CAF_arep_addr_state = Mid(text_line, 17)
+					If left(text_line, 13) = "CAF-AREP - 07" Then CAF_arep_addr_zip = Mid(text_line, 17)
+					If left(text_line, 13) = "CAF-AREP - 08" Then CAF_arep_complete_forms_checkbox = checked
+					If left(text_line, 13) = "CAF-AREP - 09" Then CAF_arep_get_notices_checkbox = checked
+					If left(text_line, 13) = "CAF-AREP - 10" Then CAF_arep_use_SNAP_checkbox = checked
+					If left(text_line, 13) = "CAF-AREP - 11" Then CAF_arep_action = Mid(text_line, 17)
 
 					If left(text_line, 8) = "SIG - 01" Then signature_detail = Mid(text_line, 12)
 					If left(text_line, 8) = "SIG - 02" Then signature_person = Mid(text_line, 12)
@@ -5276,7 +5499,11 @@ Dim question_24_yn, question_24_notes, question_24_verif_yn, question_24_verif_d
 Dim question_24_rep_payee_yn, question_24_guardian_fees_yn, question_24_special_diet_yn, question_24_high_housing_yn
 Dim qual_question_one, qual_memb_one, qual_question_two, qual_memb_two, qual_question_three, qual_memb_there, qual_question_four, qual_memb_four, qual_question_five, qual_memb_five
 Dim arep_name, arep_relationship, arep_phone_number, arep_addr_street, arep_addr_city, arep_addr_state, arep_addr_zip
+Dim MAXIS_arep_name, MAXIS_arep_relationship, MAXIS_arep_phone_number, MAXIS_arep_addr_street, MAXIS_arep_addr_city, MAXIS_arep_addr_state, MAXIS_arep_addr_zip
+Dim CAF_arep_name, CAF_arep_relationship, CAF_arep_phone_number, CAF_arep_addr_street, CAF_arep_addr_city, CAF_arep_addr_state, CAF_arep_addr_zip
 Dim arep_complete_forms_checkbox, arep_get_notices_checkbox, arep_use_SNAP_checkbox
+Dim CAF_arep_complete_forms_checkbox, CAF_arep_get_notices_checkbox, CAF_arep_use_SNAP_checkbox
+Dim arep_on_CAF_checkbox, arep_action, CAF_arep_action, arep_and_CAF_arep_match, arep_authorization, arep_exists, arep_authorized
 Dim signature_detail, signature_person, signature_date, second_signature_detail, second_signature_person, second_signature_date
 Dim client_signed_verbally_yn, interview_date, add_to_time, update_arep, verifs_needed, verif_req_form_sent_date, number_verifs_checkbox, verifs_postponed_checkbox
 Dim exp_snap_approval_date, exp_snap_delays, snap_denial_date, snap_denial_explain, pend_snap_on_case
@@ -5294,7 +5521,7 @@ Dim show_q_7_11, show_q_14_15, show_q_21_24, show_qual, show_pg_last, discrepanc
 Dim CASH_on_CAF_checkbox, SNAP_on_CAF_checkbox, EMER_on_CAF_checkbox
 Dim type_of_cash, the_process_for_cash, next_cash_revw_mo, next_cash_revw_yr
 Dim the_process_for_snap, next_snap_revw_mo, next_snap_revw_yr
-Dim type_of_emer, the_process_for_emer, arep_exists
+Dim type_of_emer, the_process_for_emer
 
 show_pg_one_memb01_and_exp	= 1
 show_pg_one_address			= 2
@@ -5996,10 +6223,20 @@ If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 	update_arep = True
 	Call access_AREP_panel(access_type, arep_name, arep_addr_street, arep_addr_city, arep_addr_state, arep_addr_zip, arep_phone_one, arep_ext_one, arep_phone_two, arep_ext_two, forms_to_arep, mmis_mail_to_arep)
 	If arep_name <> "" Then
+		If arep_phone_two <> "" Then arep_phone_number = arep_phone_two
+		If arep_phone_one <> "" Then arep_phone_number = arep_phone_one
+		MAXIS_arep_name = arep_name
+		MAXIS_arep_relationship = arep_relationship
+		MAXIS_arep_phone_number = arep_phone_number
+		MAXIS_arep_addr_street = arep_addr_street
+		MAXIS_arep_addr_city = arep_addr_city
+		MAXIS_arep_addr_state = arep_addr_state
+		MAXIS_arep_addr_zip = arep_addr_zip
 		arep_in_MAXIS = True
+		MAXIS_arep_updated = False
 		arep_exists = True
 		update_arep = False
-		arep_complete_forms_checkbox = checked
+		MAXIS_arep_complete_forms_checkbox = checked
 	End If
 	If forms_to_arep = "Y" Then arep_get_notices_checkbox = checked
 
@@ -6249,7 +6486,7 @@ Do
 		Dialog1 = ""
 		BeginDialog Dialog1, 0, 0, 550, 385, "EDRs Search Review"
 		  ButtonGroup ButtonPressed
-		    PushButton 465, 365, 80, 15, "Continue", continue_btn
+		    PushButton 465, 360, 80, 15, "Continue", continue_btn
 		    Text 10, 10, 320, 10, "EDRs has been completed for all Household Members."
 			y_pos = 25
 		    For the_memb = 0 to UBound(HH_MEMB_ARRAY, 2)
@@ -9279,17 +9516,71 @@ objSelection.Font.Size = "14"
 objSelection.TypeText "AREP (Authorized Representative)" & vbCr
 objSelection.Font.Size = "12"
 
-If trim(arep_name) = "" Then
-	objSelection.TypeText "No AREP Listed" & vbCr
-Else
+If arep_action = "Yes - keep this AREP" Then
+	If arep_in_MAXIS = True AND MAXIS_arep_updated = True Then
+		objSelection.TypeText "AREP information in MAXIS changed/updated to:" & vbCR
+		objSelection.TypeText "Name: " & arep_name & vbCr
+		If trim(arep_relationship) <> "" AND arep_relationship <> "Select or Type" Then objSelection.TypeText "Relationship: " & arep_relationship & vbCr
+		If trim(arep_phone_number) <> "" Then objSelection.TypeText "Phone: " & arep_phone_number & vbCr
+		objSelection.TypeText "Address: " & arep_addr_street & " " & arep_addr_city & ", " & left(arep_addr_state, 2) & " " & arep_addr_zip & vbCr
+		If arep_complete_forms_checkbox = checked Then objSelection.TypeText "Allow AREP to complete forms." & vbCr
+		If arep_get_notices_checkbox = checked Then objSelection.TypeText "Send Notices and Mail to AREP." & vbCr
+		If arep_use_SNAP_checkbox = checked Then objSelection.TypeText "Allow AREP to get and use SNAP Benefits." & vbCr
+
+	ElseIf arep_in_MAXIS = False AND trim(arep_name) <> "" AND arep_on_CAF_checkbox = unchecked Then
+		objSelection.TypeText "AREP information provided Verbally:" & vbCR
+		objSelection.TypeText "Name: " & arep_name & vbCr
+		If trim(arep_relationship) <> "" AND arep_relationship <> "Select or Type" Then objSelection.TypeText "Relationship: " & arep_relationship & vbCr
+		If trim(arep_phone_number) <> "" Then objSelection.TypeText "Phone: " & arep_phone_number & vbCr
+		objSelection.TypeText "Address: " & arep_addr_street & " " & arep_addr_city & ", " & left(arep_addr_state, 2) & " " & arep_addr_zip & vbCr
+		If arep_complete_forms_checkbox = checked Then objSelection.TypeText "Allow AREP to complete forms." & vbCr
+		If arep_get_notices_checkbox = checked Then objSelection.TypeText "Send Notices and Mail to AREP." & vbCr
+		If arep_use_SNAP_checkbox = checked Then objSelection.TypeText "Allow AREP to get and use SNAP Benefits." & vbCr
+	Else
+		objSelection.TypeText "AREP Detail:" & vbCR
+		objSelection.TypeText "Name: " & arep_name & vbCr
+		If trim(arep_relationship) <> "" AND arep_relationship <> "Select or Type" Then objSelection.TypeText "Relationship: " & arep_relationship & vbCr
+		If trim(arep_phone_number) <> "" Then objSelection.TypeText "Phone: " & arep_phone_number & vbCr
+		objSelection.TypeText "Address: " & arep_addr_street & " " & arep_addr_city & ", " & left(arep_addr_state, 2) & " " & arep_addr_zip & vbCr
+		If arep_complete_forms_checkbox = checked Then objSelection.TypeText "Allow AREP to complete forms." & vbCr
+		If arep_get_notices_checkbox = checked Then objSelection.TypeText "Send Notices and Mail to AREP." & vbCr
+		If arep_use_SNAP_checkbox = checked Then objSelection.TypeText "Allow AREP to get and use SNAP Benefits." & vbCr
+
+	End If
+
+	If arep_on_CAF_checkbox = checked Then objSelection.TypeText "This AREP information was entered on the CAF." & vbCR
+ElseIf arep_action = "No - remove this AREP from my case" OR arep_authorization = "DO NOT AUTHORIZE AN AREP" Then
+	objSelection.TypeText "AREP information known/provided but resident does NOT want this AREP to be Authorized:" & vbCR
 	objSelection.TypeText "Name: " & arep_name & vbCr
-	If trim(arep_relationship) <> "" Then objSelection.TypeText "Relationship: " & arep_relationship & vbCr
-	If trim(arep_phone_one) <> "" Then objSelection.TypeText "Phone: " & arep_phone_one & vbCr
+	If trim(arep_relationship) <> "" AND arep_relationship <> "Select or Type" Then objSelection.TypeText "Relationship: " & arep_relationship & vbCr
+	If trim(arep_phone_number) <> "" Then objSelection.TypeText "Phone: " & arep_phone_number & vbCr
 	objSelection.TypeText "Address: " & arep_addr_street & " " & arep_addr_city & ", " & left(arep_addr_state, 2) & " " & arep_addr_zip & vbCr
 	If arep_complete_forms_checkbox = checked Then objSelection.TypeText "Allow AREP to complete forms." & vbCr
 	If arep_get_notices_checkbox = checked Then objSelection.TypeText "Send Notices and Mail to AREP." & vbCr
 	If arep_use_SNAP_checkbox = checked Then objSelection.TypeText "Allow AREP to get and use SNAP Benefits." & vbCr
 End If
+If arep_and_CAF_arep_match = False Then
+	If trim(CAF_arep_name) <> "" AND CAF_arep_action = "Yes - add to MAXIS" Then
+		objSelection.TypeText "AREP information provided on the CAF:" & vbCR
+		objSelection.TypeText "Name: " & CAF_arep_name & vbCr
+		If trim(CAF_arep_relationship) <> "" AND CAF_arep_relationship <> "Select or Type" Then objSelection.TypeText "Relationship: " & CAF_arep_relationship & vbCr
+		If trim(CAF_arep_phone_number) <> "" Then objSelection.TypeText "Phone: " & CAF_arep_phone_number & vbCr
+		objSelection.TypeText "Address: " & CAF_arep_addr_street & " " & CAF_arep_addr_city & ", " & left(CAF_arep_addr_state, 2) & " " & CAF_arep_addr_zip & vbCr
+		If CAF_arep_complete_forms_checkbox = checked Then objSelection.TypeText "Allow AREP to complete forms." & vbCr
+		If CAF_arep_get_notices_checkbox = checked Then objSelection.TypeText "Send Notices and Mail to AREP." & vbCr
+		If CAF_arep_use_SNAP_checkbox = checked Then objSelection.TypeText "Allow AREP to get and use SNAP Benefits." & vbCr
+	ElseIf CAF_arep_action = "No - do not allow this AREP" OR arep_authorization = "DO NOT AUTHORIZE AN AREP" Then
+		objSelection.TypeText "AREP information provided on the CAF but resident does NOT want this AREP to be Authorized:" & vbCR
+		objSelection.TypeText "Name: " & CAF_arep_name & vbCr
+		If trim(CAF_arep_relationship) <> "" AND CAF_arep_relationship <> "Select or Type" Then objSelection.TypeText "Relationship: " & CAF_arep_relationship & vbCr
+		If trim(CAF_arep_phone_number) <> "" Then objSelection.TypeText "Phone: " & CAF_arep_phone_number & vbCr
+		objSelection.TypeText "Address: " & CAF_arep_addr_street & " " & CAF_arep_addr_city & ", " & left(CAF_arep_addr_state, 2) & " " & CAF_arep_addr_zip & vbCr
+		If CAF_arep_complete_forms_checkbox = checked Then objSelection.TypeText "Allow AREP to complete forms." & vbCr
+		If CAF_arep_get_notices_checkbox = checked Then objSelection.TypeText "Send Notices and Mail to AREP." & vbCr
+		If CAF_arep_use_SNAP_checkbox = checked Then objSelection.TypeText "Allow AREP to get and use SNAP Benefits." & vbCr
+	End If
+End If
+If arep_authorization <> "Select One..." AND trim(arep_authorization) <> "" Then objSelection.TypeText "AREP AUTHORIZATION: " & arep_authorization & vbCr
 
 If discrepancies_exist = True Then
 	objSelection.TypeText vbCr
@@ -9401,6 +9692,90 @@ If objFSO.FileExists(pdf_doc_path) = TRUE Then
 
 	PF4
 
+	If arep_authorization <> "DO NOT AUTHORIZE AN AREP" Then
+		If arep_exists = True Then
+			If arep_action = "Yes - keep this AREP" OR CAF_arep_action = "Yes - add to MAXIS" OR (arep_authorization <> "Select One..." AND arep_authorization <> "") Then
+				Call start_a_new_spec_memo(memo_opened, False, "N", "N", "N", other_name, other_street, other_city, other_state, other_zip, False)
+				CALL write_variable_in_SPEC_MEMO("You have indicated that you want to Authorize someone to be a Representative for your Public Assistance Case.")
+				CALL write_variable_in_SPEC_MEMO("")
+				CALL write_variable_in_SPEC_MEMO("An Authorized Representative is NOT a requirement for any Public Assistance, and you may remove this person from access to your case at any time.")
+				CALL write_variable_in_SPEC_MEMO("")
+				CALL write_variable_in_SPEC_MEMO("This is typically a person who can help you with gathering information, submitting documentation, and talking to the county and state on your behalf.")
+				CALL write_variable_in_SPEC_MEMO("")
+				CALL write_variable_in_SPEC_MEMO("You have authorized:")
+				If CAF_arep_action = "Yes - add to MAXIS" Then
+					CALL write_variable_in_SPEC_MEMO(CAF_arep_name)
+				ElseIf arep_action = "Yes - keep this AREP" Then
+					CALL write_variable_in_SPEC_MEMO(arep_name)
+				ElseIf trim(CAF_arep_name) <> "" AND CAF_arep_action <> "No - do not allow this AREP" Then
+					CALL write_variable_in_SPEC_MEMO(CAF_arep_name)
+				ElseIf trim(arep_name) <> "" AND arep_action <> "No - remove this AREP from my case" Then
+					CALL write_variable_in_SPEC_MEMO(arep_name)
+				End If
+				CALL write_variable_in_SPEC_MEMO("")
+				CALL write_variable_in_SPEC_MEMO("If you have any questions, or to remove an AREP, call the county.")
+
+				PF4
+
+				Call start_a_blank_CASE_NOTE
+				Call write_variable_in_CASE_NOTE("AREP REQUESTED ADDED TO CASE")
+				Call write_variable_in_CASE_NOTE("In the Interview, Resident requested AREP added to the case.")
+				If CAF_arep_action = "Yes - add to MAXIS" Then
+					CALL write_bullet_and_variable_in_CASE_NOTE("Name", CAF_arep_name)
+					CALL write_bullet_and_variable_in_CASE_NOTE("Relationship", CAF_arep_relationship)
+					CALL write_bullet_and_variable_in_CASE_NOTE("Phone Number", CAF_arep_phone_number)
+					CALL write_bullet_and_variable_in_CASE_NOTE("Street Address", CAF_arep_addr_street)
+					CALL write_bullet_and_variable_in_CASE_NOTE("City", CAF_arep_addr_city)
+					CALL write_bullet_and_variable_in_CASE_NOTE("State", CAF_arep_addr_state)
+					CALL write_bullet_and_variable_in_CASE_NOTE("Zip", CAF_arep_addr_zip)
+
+					If CAF_arep_complete_forms_checkbox = checked Then Call write_variable_in_CASE_NOTE("* AREP can fill out Forms.")
+					If CAF_arep_get_notices_checkbox = checked Then Call write_variable_in_CASE_NOTE("* AREP should get Notices.")
+					If CAF_arep_use_SNAP_checkbox = checked Then Call write_variable_in_CASE_NOTE("* AREP can get and use SNAP Benefits.")
+				ElseIf arep_action = "Yes - keep this AREP" Then
+					CALL write_bullet_and_variable_in_CASE_NOTE("Name", arep_name)
+					CALL write_bullet_and_variable_in_CASE_NOTE("Relationship", arep_relationship)
+					CALL write_bullet_and_variable_in_CASE_NOTE("Phone Number", arep_phone_number)
+					CALL write_bullet_and_variable_in_CASE_NOTE("Street Address", arep_addr_street)
+					CALL write_bullet_and_variable_in_CASE_NOTE("City", arep_addr_city)
+					CALL write_bullet_and_variable_in_CASE_NOTE("State", arep_addr_state)
+					CALL write_bullet_and_variable_in_CASE_NOTE("Zip", arep_addr_zip)
+
+					If arep_complete_forms_checkbox = checked Then Call write_variable_in_CASE_NOTE("* AREP can fill out Forms.")
+					If arep_get_notices_checkbox = checked Then Call write_variable_in_CASE_NOTE("* AREP should get Notices.")
+					If arep_use_SNAP_checkbox = checked Then Call write_variable_in_CASE_NOTE("* AREP can get and use SNAP Benefits.")
+				ElseIf trim(CAF_arep_name) <> "" AND CAF_arep_action <> "No - do not allow this AREP" Then
+					CALL write_bullet_and_variable_in_CASE_NOTE("Name", CAF_arep_name)
+					CALL write_bullet_and_variable_in_CASE_NOTE("Relationship", CAF_arep_relationship)
+					CALL write_bullet_and_variable_in_CASE_NOTE("Phone Number", CAF_arep_phone_number)
+					CALL write_bullet_and_variable_in_CASE_NOTE("Street Address", CAF_arep_addr_street)
+					CALL write_bullet_and_variable_in_CASE_NOTE("City", CAF_arep_addr_city)
+					CALL write_bullet_and_variable_in_CASE_NOTE("State", CAF_arep_addr_state)
+					CALL write_bullet_and_variable_in_CASE_NOTE("Zip", CAF_arep_addr_zip)
+
+					If CAF_arep_complete_forms_checkbox = checked Then Call write_variable_in_CASE_NOTE("* AREP can fill out Forms.")
+					If CAF_arep_get_notices_checkbox = checked Then Call write_variable_in_CASE_NOTE("* AREP should get Notices.")
+					If CAF_arep_use_SNAP_checkbox = checked Then Call write_variable_in_CASE_NOTE("* AREP can get and use SNAP Benefits.")
+				ElseIf trim(arep_name) <> "" AND arep_action <> "No - remove this AREP from my case" Then
+					CALL write_bullet_and_variable_in_CASE_NOTE("Name", arep_name)
+					CALL write_bullet_and_variable_in_CASE_NOTE("Relationship", arep_relationship)
+					CALL write_bullet_and_variable_in_CASE_NOTE("Phone Number", arep_phone_number)
+					CALL write_bullet_and_variable_in_CASE_NOTE("Street Address", arep_addr_street)
+					CALL write_bullet_and_variable_in_CASE_NOTE("City", arep_addr_city)
+					CALL write_bullet_and_variable_in_CASE_NOTE("State", arep_addr_state)
+					CALL write_bullet_and_variable_in_CASE_NOTE("Zip", arep_addr_zip)
+
+					If arep_complete_forms_checkbox = checked Then Call write_variable_in_CASE_NOTE("* AREP can fill out Forms.")
+					If arep_get_notices_checkbox = checked Then Call write_variable_in_CASE_NOTE("* AREP should get Notices.")
+					If arep_use_SNAP_checkbox = checked Then Call write_variable_in_CASE_NOTE("* AREP can get and use SNAP Benefits.")
+				End If
+				If arep_authorization = "Select One..." Then arep_authorization = ""
+				Call write_bullet_and_variable_in_CASE_NOTE("AREP AUTHORIZATION", arep_authorization)
+				Call write_variable_in_CASE_NOTE("---")
+				Call write_variable_in_CASE_NOTE(worker_signature)
+			End If
+		End If
+	End If
 	If snap_status <> "ACTIVE" Then
 		Call start_a_blank_CASE_NOTE
 
