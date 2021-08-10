@@ -1549,70 +1549,49 @@ function define_main_dialog()
 		ElseIf page_display = show_pg_last Then
 			Text 498, 167, 60, 10, "CAF Last Page"
 
-			GroupBox 5, 10, 475, 95, "Confirm Authorized Representative"
+			GroupBox 5, 5, 475, 60, "Confirm Authorized Representative"
 
-			If arep_in_MAXIS = TRUE Then Text 15, 25, 300, 10, "Current Authorized Representative"
-			If arep_in_MAXIS = FALSE Then Text 15, 25, 300, 10, "There is no Authorized Representative"
+			If arep_exists =  False Then Text 15, 25, 300, 10, "There is no Authorized Representative"
+			If arep_exists = True Then
+				Text 10, 20, 175, 10, "AREP Name: " & arep_name
+				Text 150, 20, 125, 10, "Relationship: " & arep_relationship
+				Text 275, 20, 100, 10, "Phone Number: " & arep_phone_number
+				Text 10, 35, 385, 10, "Address: " & arep_addr_street & " " & arep_addr_city & ", " & left(arep_addr_state, 2) & " " & arep_addr_zip
+				' Text 85, 45, 385, 10, arep_addr_street & " " & arep_addr_city & ", " & left(arep_addr_state, 2) & " " & arep_addr_zip
+				CheckBox 20, 50, 55, 10, "Fill out forms", arep_complete_forms_checkbox
+				CheckBox 80, 50, 50, 10, "Get notices", arep_get_notices_checkbox
+				CheckBox 135, 50, 140, 10, "Get and use my SNAP benefit", arep_use_SNAP_checkbox
+				' Text 20, 60, 50, 10, "SNAP benefits"
 
-			If update_arep = FALSE Then
-				Text 85, 55, 170, 10, arep_name
-				Text 260, 55, 120, 10, arep_relationship
-				Text 385, 55, 85, 10, arep_phone_number
-				Text 85, 85, 170, 10, arep_addr_street
-				Text 260, 85, 85, 10, arep_addr_city
-				Text 350, 85, 65, 10, arep_addr_state
-				Text 420, 85, 50, 10, arep_addr_zip
-				PushButton 385, 20, 85, 15, "Update AREP Detail", update_information_btn
+				PushButton 390, 47, 85, 13, "Update AREP Detail", update_information_btn
+
 			End If
 
-			If update_arep = TRUE Then
-				If arep_addr_state = "" Then arep_addr_state = "MN Minnesota"
-				EditBox 85, 50, 170, 15, arep_name
-				ComboBox 260, 50, 120, 45, "", arep_relationship
-				EditBox 385, 50, 85, 15, arep_phone_one
-				EditBox 85, 80, 170, 15, arep_addr_street
-				EditBox 260, 80, 85, 15, arep_addr_city
-				DropListBox 350, 80, 65, 45, state_list, arep_addr_state
-				EditBox 420, 80, 50, 15, arep_addr_zip
-				PushButton 385, 20, 85, 15, "Save AREP Detail", save_information_btn
-			End If
+			' (less 35)
+		    GroupBox 5, 70, 475, 75, "Signatures"
+		    Text 10, 85, 90, 10, "Signature of Primary Adult"
+		    ComboBox 105, 80, 110, 45, "Select or Type"+chr(9)+"Signature Completed"+chr(9)+"Blank"+chr(9)+"Accepted Verbally"+chr(9)+"Not Required"+chr(9)+signature_detail, signature_detail
+		    Text 220, 85, 25, 10, "person"
+		    ComboBox 250, 80, 115, 45, all_the_clients+chr(9)+signature_person, signature_person
+		    Text 375, 85, 20, 10, "date"
+		    EditBox 400, 80, 50, 15, signature_date
+		    Text 10, 105, 90, 10, "Signature of Other Adult"
+		    ComboBox 105, 100, 110, 45, "Select or Type"+chr(9)+"Signature Completed"+chr(9)+"Blank"+chr(9)+"Accepted Verbally"+chr(9)+"Not Required"+chr(9)+second_signature_detail, second_signature_detail
+		    Text 220, 105, 25, 10, "person"
+		    ComboBox 250, 100, 115, 45, all_the_clients+chr(9)+second_signature_person, second_signature_person
+		    Text 375, 105, 20, 10, "date"
+		    EditBox 400, 100, 50, 15, second_signature_date
 
-		    Text 85, 40, 45, 10, "AREP Name"
-			Text 260, 40, 50, 10, "Relationship"
-			Text 385, 40, 50, 10, "Phone Number"
-			Text 85, 70, 35, 10, "Address"
-			Text 260, 70, 25, 10, "City"
-			Text 350, 70, 25, 10, "State"
-			Text 420, 70, 35, 10, "Zip Code"
-		    CheckBox 10, 40, 55, 10, "Fill out forms", arep_complete_forms_checkbox
-		    CheckBox 10, 55, 50, 10, "Get notices", arep_get_notices_checkbox
-		    CheckBox 10, 70, 65, 10, "Get and use my", arep_use_SNAP_checkbox
-		    Text 20, 80, 50, 10, "SNAP benefits"
+			Text 10, 125, 120, 10, "Cient signature accepted verbally?"
+			DropListBox 130, 120, 60, 45, "Select..."+chr(9)+"Yes"+chr(9)+"No", client_signed_verbally_yn
+			Text 335, 125, 50, 10, "Interview Date:"
+			EditBox 390, 120, 60, 15, interview_date
 
-		    GroupBox 5, 105, 475, 80, "Signatures"
-		    Text 10, 125, 90, 10, "Signature of Primary Adult"
-		    ComboBox 105, 120, 110, 45, "Select or Type"+chr(9)+"Signature Completed"+chr(9)+"Blank"+chr(9)+"Accepted Verbally"+chr(9)+"Not Required"+chr(9)+signature_detail, signature_detail
-		    Text 220, 125, 25, 10, "person"
-		    ComboBox 250, 120, 115, 45, all_the_clients+chr(9)+signature_person, signature_person
-		    Text 375, 125, 20, 10, "date"
-		    EditBox 400, 120, 50, 15, signature_date
-		    Text 10, 145, 90, 10, "Signature of Other Adult"
-		    ComboBox 105, 140, 110, 45, "Select or Type"+chr(9)+"Signature Completed"+chr(9)+"Blank"+chr(9)+"Accepted Verbally"+chr(9)+"Not Required"+chr(9)+second_signature_detail, second_signature_detail
-		    Text 220, 145, 25, 10, "person"
-		    ComboBox 250, 140, 115, 45, all_the_clients+chr(9)+second_signature_person, second_signature_person
-		    Text 375, 145, 20, 10, "date"
-		    EditBox 400, 140, 50, 15, second_signature_date
-
-			Text 10, 170, 120, 10, "Cient signature accepted verbally?"
-			DropListBox 130, 165, 60, 45, "Select..."+chr(9)+"Yes"+chr(9)+"No", client_signed_verbally_yn
-			Text 335, 170, 50, 10, "Interview Date:"
-			EditBox 390, 165, 60, 15, interview_date
-
-			GroupBox 5, 185, 475, 165, "Benefit Detail"
+			GroupBox 5, 150, 475, 200, "Benefit Detail"
 			If interview_questions_clear = False Then
-				Text 15, 200, 450, 10, "ADDITIONAL QUESTIONS BEFORE ASSESMENT CAN BE MADE."
+				Text 15, 165, 450, 10, "ADDITIONAL QUESTIONS BEFORE ASSESMENT CAN BE MADE."
 			Else
-				y_pos = 200
+				y_pos = 165
 				' appears_expedited
 				' expedited_delay_info
 				If cash_request = True Then
@@ -1712,7 +1691,26 @@ function define_main_dialog()
 				' msp_status
 
 			End If
-	    ElseIf page_display = discrepancy_questions Then
+	    ElseIf page_display = show_arep_page Then
+			If arep_addr_state = "" Then arep_addr_state = "MN Minnesota"
+			EditBox 85, 50, 170, 15, arep_name
+			ComboBox 260, 50, 120, 45, "Select or Type"+chr(9)+"Parent"+chr(9)+"Grandparent"+chr(9)+"Child"+chr(9)+"Grandchild"+chr(9)+"Aunt/Uncle"+chr(9)+"Neice/Nephew"+chr(9)+"Caretaker"+chr(9)+"Unrelated"+chr(9)+arep_relationship, arep_relationship
+			EditBox 385, 50, 85, 15, arep_phone_number
+			EditBox 85, 80, 170, 15, arep_addr_street
+			EditBox 260, 80, 85, 15, arep_addr_city
+			DropListBox 350, 80, 65, 45, state_list, arep_addr_state
+			EditBox 420, 80, 50, 15, arep_addr_zip
+
+			Text 85, 40, 45, 10, "AREP Name"
+			Text 260, 40, 50, 10, "Relationship"
+			Text 385, 40, 50, 10, "Phone Number"
+			Text 85, 70, 35, 10, "Address"
+			Text 260, 70, 25, 10, "City"
+			Text 350, 70, 25, 10, "State"
+			Text 420, 70, 35, 10, "Zip Code"
+			PushButton 385, 20, 85, 15, "Save AREP Detail", save_information_btn
+
+		ElseIf page_display = discrepancy_questions Then
 			Text 504, 182, 60, 10, "Clarifications"
 
 			y_pos = 10
@@ -1877,16 +1875,17 @@ function dialog_movement()
 		End If
 	next
 
+	If arep_name <> "" Then arep_exists = True
 	If ButtonPressed = update_information_btn Then
 		If page_display = show_pg_one_address Then update_addr = TRUE
 		If page_display = show_pg_memb_list Then update_pers = TRUE
-		If page_display = show_pg_last Then update_arep = TRUE
+		If page_display = show_pg_last Then page_display = show_arep_page
 		' MsgBox update_arep & " - in dlg move"
 	End If
 	If ButtonPressed = save_information_btn Then
 		If page_display = show_pg_one_address Then update_addr = FALSE
 		If page_display = show_pg_memb_list Then update_pers = FALSE
-		If page_display = show_pg_last Then update_arep = FALSE
+		If page_display = show_arep_page Then page_display = show_pg_last
 
 	End If
 	If ButtonPressed = clear_mail_addr_btn Then
@@ -5291,11 +5290,11 @@ Dim confirm_disa_read, confirm_mfip_forms_read, confirm_mfip_cs_read, confirm_mi
 Dim confirm_ievs_info_read, case_card_info, clt_knows_how_to_use_ebt_card, snap_reporting_type, next_revw_month
 
 Dim show_pg_one_memb01_and_exp, show_pg_one_address, show_pg_memb_list, show_q_1_6
-Dim show_q_7_11, show_q_14_15, show_q_21_24, show_qual, show_pg_last, discrepancy_questions
+Dim show_q_7_11, show_q_14_15, show_q_21_24, show_qual, show_pg_last, discrepancy_questions, show_arep_page
 Dim CASH_on_CAF_checkbox, SNAP_on_CAF_checkbox, EMER_on_CAF_checkbox
 Dim type_of_cash, the_process_for_cash, next_cash_revw_mo, next_cash_revw_yr
 Dim the_process_for_snap, next_snap_revw_mo, next_snap_revw_yr
-Dim type_of_emer, the_process_for_emer
+Dim type_of_emer, the_process_for_emer, arep_exists
 
 show_pg_one_memb01_and_exp	= 1
 show_pg_one_address			= 2
@@ -5308,6 +5307,8 @@ show_q_16_20				= 8
 show_q_21_24				= 9
 show_qual					= 10
 show_pg_last				= 11
+discrepancy_questions		= 12
+show_arep_page				= 13
 
 update_addr = FALSE
 update_pers = FALSE
@@ -5985,20 +5986,22 @@ If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 	mail_addr_street_full = mail_line_one & " " & mail_line_two
 	mail_addr_street_full = trim(mail_addr_street_full)
 
-	arep_in_MAXIS = FALSE
-	update_arep = TRUE
+	arep_in_MAXIS = False
+	arep_exists = False
+	update_arep = True
 	Call access_AREP_panel(access_type, arep_name, arep_addr_street, arep_addr_city, arep_addr_state, arep_addr_zip, arep_phone_one, arep_ext_one, arep_phone_two, arep_ext_two, forms_to_arep, mmis_mail_to_arep)
 	If arep_name <> "" Then
-		arep_in_MAXIS = TRUE
-		update_arep = FALSE
+		arep_in_MAXIS = True
+		arep_exists = True
+		update_arep = False
 		arep_complete_forms_checkbox = checked
 	End If
 	If forms_to_arep = "Y" Then arep_get_notices_checkbox = checked
 
-	show_known_addr = TRUE
+	show_known_addr = True
 
 	Dialog1 = ""
-	BeginDialog Dialog1, 0, 0, 361, 130, "Insterview Start Message"
+	BeginDialog Dialog1, 0, 0, 361, 130, "Interview Start Message"
 	  ButtonGroup ButtonPressed
 	    OkButton 305, 110, 50, 15
 	  Text 10, 10, 220, 10, "While the script gathers details about the case, tell the Resident:"
@@ -6109,9 +6112,9 @@ Do
 			' MsgBox update_arep & " - before display dlg"
 
 			dialog Dialog1
+			save_your_work
 			cancel_confirmation
 			' MsgBox  HH_MEMB_ARRAY(0).ans_imig_status
-			save_your_work
 			Call review_for_discrepancies
 			Call verification_dialog
 			Call check_for_errors(interview_questions_clear)
