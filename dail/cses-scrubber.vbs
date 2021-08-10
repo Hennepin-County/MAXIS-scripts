@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("08/10/2021", "Update to Child Support DAIL Scrubber:##~## ##~##- The script does not support Spousal Support messages (TYPE 37 and TYPE 40).##~##- This has been true since the script was released.##~##- The script now handles to read if these messages are on the DAIL to ignore them and alert you that they have not been processed.##~##- The script will now proccess the Child Support messages on case that have both Spousal and Child Support messages.##~##", "Casey Love, Hennepin County")
 call changelog_update("01/17/2020", "Updates to Child Support DAIL Scrubber:##~## ##~##- Script will not work on a case with more than one month of DAIL messages, these cases will need to be processed manually at this time. ##~##- Removed verbiage from the case note about the change to MFIP benefits.##~##- Removed verbiage from after the worker signature indicating the note was created using a script.##~##", "Casey Love, Hennepin County")
 call changelog_update("07/02/2018", "Instructions for DAIL Scrubber have been updated to explain why cases may need to be processed manually. Please review the instructions on SharePoint.", "BlueZone Script Team, Hennepin County")
 call changelog_update("01/19/2017", "Added ability to update cases without open MFIP or SNAP", "David Courtright, Saint Louis County")
@@ -133,7 +134,7 @@ End if
 
 'EXCEL BLOCK------------------------------
 Set objExcel = CreateObject("Excel.Application")
-objExcel.Visible = true
+objExcel.Visible = false
 Set objWorkbook = objExcel.Workbooks.Add()
 objExcel.DisplayAlerts = true
 'END EXCEL BLOCK--------------------------
@@ -166,11 +167,18 @@ message_number = 1	'We want to count how many messages we process in here
 
 EMReadScreen message_month_to_revw, 2, 6, 11            'Reading the month and year from the first message.
 EMReadScreen message_year_to_revw, 2, 6, 14
+spousal_support_messages_exist = False
+child_support_messages_exist = False
 '===================================================================================================================================READS EACH MESSAGE!
 For MAXIS_row = 6 to 19			'<<<<<CHECK THIS AGAINST A FULL, ACTUAL FACTUAL DAIL
 	EMReadScreen message_type_check, 4, MAXIS_row, 6				'Makes sure it's the right type of message
     EMReadScreen message_month_check, 2, MAXIS_row, 11
     EMReadScreen message_year_check, 2, MAXIS_row, 14
+	EMReadScreen type_36_check, 2, MAXIS_row, 34
+	EMReadScreen type_39_check, 2, MAXIS_row, 42
+	EMReadScreen type_37_check, 2, MAXIS_row, 43
+	EMReadScreen type_40_check, 2, MAXIS_row, 51
+	' MsgBox "TYPE - " & message_type_check & vbCr & "MONTH/YEAR - " & message_month_check & "/" & message_year_check
 	If message_type_check <> message_type_code then exit for 		'This was determined above based on TIKL vs actual CSES messages. If we aren't on the right message, it will exit
     'If the message month and year do not match, ending the script
     If message_month_check <> message_month_to_revw OR message_year_check <> message_year_to_revw Then
@@ -180,69 +188,83 @@ For MAXIS_row = 6 to 19			'<<<<<CHECK THIS AGAINST A FULL, ACTUAL FACTUAL DAIL
         objExcel.DisplayAlerts = True
         script_end_procedure("This case has Child Support messages from two different months. At this time, these must be processed manually.")
     End If
-    EMWriteScreen "x", MAXIS_row, 3									'Puts an 'X' on the DAIL message
-	transmit														'Transmits
-	STATS_counter = STATS_counter + 1								'we increment the stats counter for each DAIL message
-	'READS THE TYPE
-	row = 1
-	col = 1
-	EMSearch "TYPE", row, col
-	EMReadScreen CS_type, 2, row, col + 5
+	If type_37_check = "37" OR type_40_check = "40" Then spousal_support_messages_exist = True
+	If type_36_check = "36" OR type_39_check = "39" Then
+		child_support_messages_exist = True
+	    EMWriteScreen "x", MAXIS_row, 3									'Puts an 'X' on the DAIL message
+		transmit														'Transmits
+		STATS_counter = STATS_counter + 1								'we increment the stats counter for each DAIL message
+		'READS THE TYPE
+		row = 1
+		col = 1
+		EMSearch "TYPE", row, col
+		EMReadScreen CS_type, 2, row, col + 5
 
-	'<<<<SPOUSAL HANDLING SHOULD GO HERE BUT FOR NOW I'M SKIPPING IT
+		'<<<<SPOUSAL HANDLING SHOULD GO HERE BUT FOR NOW I'M SKIPPING IT
 
-	'REDECLARES THESE VARIABLES (TYPE IS IN A DIFFERENT PLACE THAN THE AMOUNT) '<<<CAN'T WE FLIP THIS AROUND MAYBE?
-	row = 1
-	col = 1
+		'REDECLARES THESE VARIABLES (TYPE IS IN A DIFFERENT PLACE THAN THE AMOUNT) '<<<CAN'T WE FLIP THIS AROUND MAYBE?
+		row = 1
+		col = 1
 
-	'READS THE AMOUNT
-	EMSearch "$", row, col
-	EMReadScreen COEX_amt, 6, row, col + 1
-	COEX_amt = Replace(COEX_amt, "F", "")		'I've seen an "F" in here and I'm not totally sure why
+		'READS THE AMOUNT
+		EMSearch "$", row, col
+		EMReadScreen COEX_amt, 6, row, col + 1
+		COEX_amt = Replace(COEX_amt, "F", "")		'I've seen an "F" in here and I'm not totally sure why
 
-	'READS THE TOTAL NUMBER OF KIDS THIS RELATES TO (TO BE USED AS A DENOMINATOR IN OUR CALCULATIONS)
-	EMSearch "CHILD(REN)", row, col
-    EMReadScreen COEX_PMI_total, 1, row, col - 2
+		'READS THE TOTAL NUMBER OF KIDS THIS RELATES TO (TO BE USED AS A DENOMINATOR IN OUR CALCULATIONS)
+		EMSearch "CHILD(REN)", row, col
+	    EMReadScreen COEX_PMI_total, 1, row, col - 2
 
-	'READS THE PMIS AND DATE FROM THE MESSAGE
-	EMSearch " TO PMI(S): ", row, col										'First it finds the PMIs on the screen
-	EMReadScreen issue_date, 				08, row, col - 8				'The date is always before the "TO PMI(S): " string, apparently
-	EMReadScreen raw_PMI_numbers_initial, 	40, row, col + 12				'Reads the contents immediately after the "TO PMI(S): " string, because sometimes a PMI number sneaks in there
-	EMReadScreen raw_PMI_numbers_overflow, 	70, row + 1, 5					'Reads the next line in its entirety (all that would be here are PMIs)
-	raw_PMI_numbers = raw_PMI_numbers_initial & raw_PMI_numbers_overflow	'Concatenates the two strings together
-	PMI_numbers_no_spaces = Replace(raw_PMI_numbers, " ", "")				'Removes spaces from the lines
-	PMI_array = Split(PMI_numbers_no_spaces, ",")							'Splits PMIs into an array
+		'READS THE PMIS AND DATE FROM THE MESSAGE
+		EMSearch " TO PMI(S): ", row, col										'First it finds the PMIs on the screen
+		EMReadScreen issue_date, 				08, row, col - 8				'The date is always before the "TO PMI(S): " string, apparently
+		EMReadScreen raw_PMI_numbers_initial, 	40, row, col + 12				'Reads the contents immediately after the "TO PMI(S): " string, because sometimes a PMI number sneaks in there
+		EMReadScreen raw_PMI_numbers_overflow, 	70, row + 1, 5					'Reads the next line in its entirety (all that would be here are PMIs)
+		raw_PMI_numbers = raw_PMI_numbers_initial & raw_PMI_numbers_overflow	'Concatenates the two strings together
+		PMI_numbers_no_spaces = Replace(raw_PMI_numbers, " ", "")				'Removes spaces from the lines
+		PMI_array = Split(PMI_numbers_no_spaces, ",")							'Splits PMIs into an array
 
-	'ADDS THE INFO TO EXCEL BASED ON PMI
-	For each PMI_number in PMI_array
-    	ObjExcel.Cells(excel_row, col_msg_number).Value 	= message_number					'Each message is numbered in sequence
-    	ObjExcel.Cells(excel_row, col_PMI_number).Value 	= PMI_number						'We want this PMI for obvious reasons
-    	ObjExcel.Cells(excel_row, col_amt_alloted).Value 	= COEX_amt / COEX_PMI_total		'Amount / total recipients gives us the amount per recipient
+		'ADDS THE INFO TO EXCEL BASED ON PMI
+		For each PMI_number in PMI_array
+	    	ObjExcel.Cells(excel_row, col_msg_number).Value 	= message_number					'Each message is numbered in sequence
+	    	ObjExcel.Cells(excel_row, col_PMI_number).Value 	= PMI_number						'We want this PMI for obvious reasons
+	    	ObjExcel.Cells(excel_row, col_amt_alloted).Value 	= COEX_amt / COEX_PMI_total		'Amount / total recipients gives us the amount per recipient
 
-		penny_issue_total_cell_amt_times_100 = (ObjExcel.Cells(excel_row, col_amt_alloted).Value) * 100 											'Grabs the amount to be evaluated multiplies by 100 to get rid of the first two digits of the decimal
-		penny_issue_partial_pennies_from_cell = (penny_issue_total_cell_amt_times_100 - int(penny_issue_total_cell_amt_times_100) ) / 100			'Grabs the actual partial pennies by eliminating the integer from the previous value, then dividing by 100 to return it to the proper place in the decimal
-		penny_issue_partial_pennies_total = penny_issue_partial_pennies_total + penny_issue_partial_pennies_from_cell 								'Adds the partial pennies to a new variable to be tacked on at the end
-		ObjExcel.Cells(excel_row, col_amt_alloted).Value = ObjExcel.Cells(excel_row, col_amt_alloted).Value - penny_issue_partial_pennies_from_cell	'Updates the cell to eliminate the partial pennies
+			penny_issue_total_cell_amt_times_100 = (ObjExcel.Cells(excel_row, col_amt_alloted).Value) * 100 											'Grabs the amount to be evaluated multiplies by 100 to get rid of the first two digits of the decimal
+			penny_issue_partial_pennies_from_cell = (penny_issue_total_cell_amt_times_100 - int(penny_issue_total_cell_amt_times_100) ) / 100			'Grabs the actual partial pennies by eliminating the integer from the previous value, then dividing by 100 to return it to the proper place in the decimal
+			penny_issue_partial_pennies_total = penny_issue_partial_pennies_total + penny_issue_partial_pennies_from_cell 								'Adds the partial pennies to a new variable to be tacked on at the end
+			ObjExcel.Cells(excel_row, col_amt_alloted).Value = ObjExcel.Cells(excel_row, col_amt_alloted).Value - penny_issue_partial_pennies_from_cell	'Updates the cell to eliminate the partial pennies
 
 
-    	ObjExcel.Cells(excel_row, col_CS_type).Value 		= CS_type						'This is the type, and it's helpful to know this when we write to UNEA
-    	ObjExcel.Cells(excel_row, col_issue_date).Value 	= issue_date						'The date it was issued
-    	excel_row = excel_row + 1											'Increments up one in order to start on the next Excel row
-    Next
+	    	ObjExcel.Cells(excel_row, col_CS_type).Value 		= CS_type						'This is the type, and it's helpful to know this when we write to UNEA
+	    	ObjExcel.Cells(excel_row, col_issue_date).Value 	= issue_date						'The date it was issued
+	    	excel_row = excel_row + 1											'Increments up one in order to start on the next Excel row
+	    Next
 
-	'Adding partial pennies to the member 01
-	ObjExcel.Cells(3, col_amt_alloted).Value = ObjExcel.Cells(3, col_amt_alloted).Value + penny_issue_partial_pennies_total
+		'Adding partial pennies to the member 01
+		ObjExcel.Cells(3, col_amt_alloted).Value = ObjExcel.Cells(3, col_amt_alloted).Value + penny_issue_partial_pennies_total
 
-	'Clearing this variable so we can start over again next message (next run through the loop)
-	penny_issue_partial_pennies_total = 0
+		'Clearing this variable so we can start over again next message (next run through the loop)
+		penny_issue_partial_pennies_total = 0
 
-	'GETS OUT OF THE MESSAGE
-	transmit
-
+		'GETS OUT OF THE MESSAGE
+		transmit
+	End If
 	'ADDS ONE TO THE MESSAGE NUMBER SO WE CAN KEEP A GOOD COUNT
 	message_number = message_number + 1
 Next
 
+If child_support_messages_exist = False Then
+	objExcel.DisplayAlerts = False
+	objExcel.Workbooks.Close
+	objExcel.quit
+	objExcel.DisplayAlerts = True
+	end_msg = "No Child Support Messages found on this case."
+	If spousal_support_messages_exist = True Then end_msg = end_msg & vbCr & vbCr & "This case has Spousal Support DAIL messages listed. This script does not support Spousal Support DAIL messages at this time. Process these messages manually."
+	end_msg = end_msg & vbCr & vbCr & "The script will now end, no actions have been taken."
+	Call script_end_procedure(end_msg)
+End If
+objExcel.Visible = true
 '===================================================================================================================================DETERMINING WHAT PROGRAMS ARE OPEN
 'Navigates to CASE/CURR directly (the DAIL doesn't easily go back to the case-in-question when we use the custom function)
 EMWriteScreen "h", 6, 3
@@ -1469,5 +1491,7 @@ If close_excel_checkbox = checked Then
 	objExcel.quit
 	objExcel.DisplayAlerts = True
 End If
+end_msg = "CSES Message Review Complete."
+If spousal_support_messages_exist = True Then end_msg = end_msg & vbCr & vbCr & "This case has Spousal Support DAIL messages listed. This script does not support Spousal Support DAIL messages at this time. Process these messages manually."
 
-script_end_procedure_with_error_report("CSES Message Review Complete.")
+script_end_procedure_with_error_report(end_msg)
