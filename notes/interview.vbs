@@ -1263,7 +1263,7 @@ function define_main_dialog()
 			y_pos = y_pos + 25
 
 
-			GroupBox 5, y_pos, 475, 120, "15. Does your household have the following utility expenses any time during the year? "
+			GroupBox 5, y_pos, 475, 135, "15. Does your household have the following utility expenses any time during the year? "
 			y_pos = y_pos + 15
 
 			col_1_1 = 20
@@ -1314,8 +1314,8 @@ function define_main_dialog()
 			PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", add_verif_15_btn
 			y_pos = y_pos + 20
 
-			Text 15, y_pos, 80, 10, "Does phone have an expense?"
-			ComboBox 95, y_pos - 5, 380, 15, "Select or Type"+chr(9)+"Yes, the bill is the responsibility of a unit member."+chr(9)+"Yes, the household has a partial subsidy but pays a portion of the bill."+chr(9)+"No, this is from a free phone program and does not cost the household anything."+chr(9)+"Yes, optional service add-ons to a free phone program are paid by the household."+chr(9)+"No, this household does not have a phone of their own.", question_15_phone_details
+			Text 15, y_pos, 100, 10, "Does phone have an expense?"
+			ComboBox 115, y_pos - 5, 360, 15, "Select or Type"+chr(9)+"Yes there is a cost, the bill is the responsibility of a unit member."+chr(9)+"Yes there is a cost, the household has a partial subsidy but pays a portion of the bill."+chr(9)+"No Expense, this is from a free phone program and does not cost the household anything."+chr(9)+"Yes there is a cost, optional service add-ons to a free phone program are paid by the household."+chr(9)+"No Expense, this household does not have a phone of their own."+chr(9)+question_15_phone_details, question_15_phone_details
 
 		ElseIf page_display = show_q_16_20 Then
 			Text 505, 122, 60, 10, "Q. 16 - 20"
@@ -1722,6 +1722,18 @@ function define_main_dialog()
 				ComboBox 185, y_pos + 15, 270, 45, "Select or Type"+chr(9)+"Confirmed No good phone contact"+chr(9)+"Added a Message Only Number"+chr(9)+"Added a Phone Number"+chr(9)+"Resident will Contact with a Phone Number once Obtained"+chr(9)+disc_phone_confirmation, disc_phone_confirmation
 				y_pos = y_pos + 40
 			End If
+			If disc_yes_phone_no_expense = "EXISTS" OR disc_yes_phone_no_expense = "RESOLVED" Then
+				GroupBox 10, y_pos, 455, 35, "Phone Number listed, NO Phone Expense"
+				Text 20, y_pos + 20, 100, 10, "Clarify how phone is paid:"
+				ComboBox 120, y_pos + 15, 335, 45, "Select or Type"+chr(9)+"Phone paid by Government Free Phone Program with no expense."+chr(9)+"Phone is paid by someone out of the home, billed directly to them."+chr(9)+"Phone is a community line available for messages only."+chr(9)+"Phone is a community line in the building/residence the resident stays at."+chr(9)+disc_yes_phone_no_expense_confirmation, disc_yes_phone_no_expense_confirmation
+				y_pos = y_pos + 40
+			End If
+			If disc_no_phone_yes_expense = "EXISTS" OR disc_no_phone_yes_expense = "RESOLVED" Then
+				GroupBox 10, y_pos, 455, 35, "No Phone Number Listed, Phone Expense Indicated"
+				Text 20, y_pos + 20, 165, 10, "Clarify a phone number or explain expense:"
+				ComboBox 185, y_pos + 15, 270, 45, "Select or Type"+chr(9)+"Paying phone for somone outside the home."+chr(9)+"Lost phone, number is changing."+chr(9)+"Getting a new number."+chr(9)+disc_no_phone_yes_expense_confirmation, disc_no_phone_yes_expense_confirmation
+				y_pos = y_pos + 40
+			End If
 			If disc_homeless_no_mail_addr = "EXISTS" OR disc_homeless_no_mail_addr = "RESOLVED" Then
 				grp_len = 80
 				If mail_addr_street_full <> "" Then grp_len = 95
@@ -2096,14 +2108,15 @@ function display_errors(the_err_msg, execute_nav, show_err_msg_during_movement)
 		show_msg = False
         If show_err_msg_during_movement = True Then show_msg = True
 		If page_display = show_pg_last AND ButtonPressed <> finish_interview_btn Then show_msg = False
-		If show_err_msg_during_movement = False AND ButtonPressed = finish_interview_btn Then show_msg = True
-		' If ButtonPressed = finish_interview_btn Then show_msg = True
+		' If show_err_msg_during_movement = False AND ButtonPressed = finish_interview_btn Then show_msg = True
+
 		' for i = 0 to UBound(HH_MEMB_ARRAY, 2)
 		' 	If ButtonPressed = HH_MEMB_ARRAY(button_one, i) Then show_msg = False
 		' next
 		' If ButtonPressed = update_information_btn Then show_msg = False
 		' If ButtonPressed = save_information_btn Then show_msg = False
 		' If ButtonPressed = add_person_btn Then show_msg = False
+		If page_display = discrepancy_questions Then show_msg = False
 		If ButtonPressed = exp_income_guidance_btn Then show_msg = False
 		If ButtonPressed = incomplete_interview_btn Then show_msg = False
 		If ButtonPressed = verif_button Then show_msg = False
@@ -2111,6 +2124,7 @@ function display_errors(the_err_msg, execute_nav, show_err_msg_during_movement)
 		If ButtonPressed > 500 AND ButtonPressed < 1200 Then show_msg = False
 		If ButtonPressed >= 4000 Then show_msg = False
 		If error_message = "" Then show_msg = False
+		If ButtonPressed = finish_interview_btn Then show_msg = True
 
 		If show_msg = True Then view_errors = MsgBox("In order to complete the script and CASE/NOTE, additional details need to be added or refined. Please review and update." & vbNewLine & error_message, vbCritical, "Review detail required in Dialogs")
 		If show_msg = False then the_err_msg = ""
@@ -2633,6 +2647,10 @@ function save_your_work()
 			objTextStream.WriteLine "CLAR - TOTAL - " & discrepancies_exist
 			objTextStream.WriteLine "CLAR - PHONE - 01 - " & disc_no_phone_number
 			objTextStream.WriteLine "CLAR - PHONE - 02 - " & disc_phone_confirmation
+			objTextStream.WriteLine "CLAR - PHEXP - 01 - " & disc_yes_phone_no_expense
+			objTextStream.WriteLine "CLAR - PHEXP - 02 - " & disc_yes_phone_no_expense_confirmation
+			objTextStream.WriteLine "CLAR - PHEXP - 03 - " & disc_no_phone_yes_expense
+			objTextStream.WriteLine "CLAR - PHEXP - 04 - " & disc_no_phone_yes_expense_confirmation
 			objTextStream.WriteLine "CLAR - HOMLS - 01 - " & disc_homeless_no_mail_addr
 			objTextStream.WriteLine "CLAR - HOMLS - 02 - " & disc_homeless_confirmation
 			objTextStream.WriteLine "CLAR - OTOCO - 01 - " & disc_out_of_county
@@ -3001,6 +3019,10 @@ function save_your_work()
 			script_run_lowdown = script_run_lowdown & vbCr & "CLAR - TOTAL - " & discrepancies_exist
 			script_run_lowdown = script_run_lowdown & vbCr & "CLAR - PHONE - 01 - " & disc_no_phone_number
 			script_run_lowdown = script_run_lowdown & vbCr & "CLAR - PHONE - 02 - " & disc_phone_confirmation
+			script_run_lowdown = script_run_lowdown & vbCr & "CLAR - PHEXP - 01 - " & disc_yes_phone_no_expense
+			script_run_lowdown = script_run_lowdown & vbCr & "CLAR - PHEXP - 02 - " & disc_yes_phone_no_expense_confirmation
+			script_run_lowdown = script_run_lowdown & vbCr & "CLAR - PHEXP - 03 - " & disc_no_phone_yes_expense
+			script_run_lowdown = script_run_lowdown & vbCr & "CLAR - PHEXP - 04 - " & disc_no_phone_yes_expense_confirmation
 			script_run_lowdown = script_run_lowdown & vbCr & "CLAR - HOMLS - 01 - " & disc_homeless_no_mail_addr
 			script_run_lowdown = script_run_lowdown & vbCr & "CLAR - HOMLS - 02 - " & disc_homeless_confirmation
 			script_run_lowdown = script_run_lowdown & vbCr & "CLAR - OTOCO - 01 - " & disc_out_of_county
@@ -3322,7 +3344,7 @@ function restore_your_work(vars_filled)
 					If left(text_line, 3) = "15V" Then question_15_verif_yn = Mid(text_line, 7)
 					If left(text_line, 3) = "15D" Then question_15_verif_details = Mid(text_line, 7)
 					If left(text_line, 3) = "15I" Then question_15_interview_notes = Mid(text_line, 7)
-					If left(text_line, 4) = "15PD" Then question_15_interview_notes = Mid(text_line, 8)
+					If left(text_line, 4) = "15PD" Then question_15_phone_details = Mid(text_line, 8)
 
 					If left(text_line, 3) = "16A" Then question_16_yn = Mid(text_line, 7)
 					If left(text_line, 3) = "16N" Then question_16_notes = Mid(text_line, 7)
@@ -3432,6 +3454,10 @@ function restore_your_work(vars_filled)
 					If Instr(read_disc, "FALSE") Then discrepancies_exist = False
 					If left(text_line, 17) = "CLAR - PHONE - 01" Then disc_no_phone_number = Mid(text_line, 21)
 					If left(text_line, 17) = "CLAR - PHONE - 02" Then disc_phone_confirmation = Mid(text_line, 21)
+					If left(text_line, 17) = "CLAR - PHEXP - 01" Then disc_yes_phone_no_expense = Mid(text_line, 21)
+					If left(text_line, 17) = "CLAR - PHEXP - 02" Then disc_yes_phone_no_expense_confirmation = Mid(text_line, 21)
+					If left(text_line, 17) = "CLAR - PHEXP - 03" Then disc_no_phone_yes_expense = Mid(text_line, 21)
+					If left(text_line, 17) = "CLAR - PHEXP - 04" Then disc_no_phone_yes_expense_confirmation = Mid(text_line, 21)
 					If left(text_line, 17) = "CLAR - HOMLS - 01" Then disc_homeless_no_mail_addr = Mid(text_line, 21)
 					If left(text_line, 17) = "CLAR - HOMLS - 02" Then disc_homeless_confirmation = Mid(text_line, 21)
 					If left(text_line, 17) = "CLAR - OTOCO - 01" Then disc_out_of_county = Mid(text_line, 21)
@@ -3597,6 +3623,34 @@ function review_for_discrepancies()
 		disc_homeless_confirmation = ""
 	End If
 
+	'PHONE NUMBER BUT NO PHONE EXPENSE
+	disc_yes_phone_no_expense_confirmation = trim(disc_yes_phone_no_expense_confirmation)
+	disc_no_phone_yes_expense_confirmation = trim(disc_no_phone_yes_expense_confirmation)
+	question_15_phone_details = trim(question_15_phone_details)
+	disc_yes_phone_no_expense = "N/A"
+	disc_no_phone_yes_expense = "N/A"
+
+	If phone_one_number <> "" OR phone_two_number <> "" OR phone_three_number <> "" Then
+		If question_15_phone_yn <> "Yes" Then disc_yes_phone_no_expense = "EXISTS"
+		If caf_exp_pay_phone_checkbox = unchecked Then disc_yes_phone_no_expense = "EXISTS"
+	End If
+	If phone_one_number = "" AND phone_two_number = "" AND phone_three_number = "" Then
+		If question_15_phone_yn = "Yes" Then disc_no_phone_yes_expense = "EXISTS"
+		If caf_exp_pay_phone_checkbox = checked Then disc_no_phone_yes_expense = "EXISTS"
+	End If
+
+	If disc_yes_phone_no_expense <> "N/A" Then
+		If question_15_phone_details <> "" AND question_15_phone_details <> "Select or Type" Then disc_yes_phone_no_expense_confirmation = question_15_phone_details
+		If disc_yes_phone_no_expense_confirmation <> "" and disc_yes_phone_no_expense_confirmation <> "Select or Type" Then disc_yes_phone_no_expense = "RESOLVED"
+	Else
+		disc_yes_phone_no_expense_confirmation = ""
+	End If
+	If disc_no_phone_yes_expense <> "N/A" Then
+		If disc_no_phone_yes_expense_confirmation <> "" and disc_no_phone_yes_expense_confirmation <> "Select or Type" Then disc_no_phone_yes_expense = "RESOLVED"
+	Else
+		disc_no_phone_yes_expense_confirmation = ""
+	End If
+
 	'OUT OF COUNTY
 	If left(resi_addr_county, 2) <> "27" Then disc_out_of_county = "EXISTS"
 	If left(resi_addr_county, 2) = "27" Then disc_out_of_county = "N/A"
@@ -3707,8 +3761,10 @@ function review_for_discrepancies()
 	If disc_out_of_county <> "N/A" Then discrepancies_exist = True
 	If disc_rent_amounts <> "N/A" Then discrepancies_exist = True
 	If disc_utility_amounts <> "N/A" Then discrepancies_exist = True
+	If disc_yes_phone_no_expense <> "N/A" Then discrepancies_exist = True
+	If disc_no_phone_yes_expense <> "N/A" Then discrepancies_exist = True
 
-	If disc_no_phone_number = "N/A" and disc_homeless_no_mail_addr = "N/A" and disc_out_of_county = "N/A" and disc_rent_amounts = "N/A" and disc_utility_amounts = "N/A" Then discrepancies_exist = False
+	If disc_no_phone_number = "N/A" and disc_homeless_no_mail_addr = "N/A" and disc_out_of_county = "N/A" and disc_rent_amounts = "N/A" and disc_utility_amounts = "N/A" and disc_yes_phone_no_expense = "N/A" and disc_no_phone_yes_expense = "N/A" Then discrepancies_exist = False
 end function
 
 function verif_details_dlg(question_number)
@@ -4739,6 +4795,14 @@ function write_interview_CASE_NOTE()
 		CALL write_variable_in_CASE_NOTE("    ANSWER MAY NOT MATCH CAF PG 1 INFORMATION")
 		CALL write_variable_in_CASE_NOTE("    Resolution: " & disc_rent_amounts_confirmation)
 	End If
+	If disc_yes_phone_no_expense = "RESOLVED" Then
+		CALL write_variable_in_CASE_NOTE("    PHONE NUMBER LISTED BUT NO PHONE EXPENSE")
+		CALL write_variable_in_CASE_NOTE("    Resolution: " & disc_yes_phone_no_expense_confirmation)
+	End If
+	If disc_no_phone_yes_expense = "RESOLVED" Then
+		CALL write_variable_in_CASE_NOTE("    NO PHONE NUMBER LISTED BUT EXPENSE EXISTS")
+		CALL write_variable_in_CASE_NOTE("    Resolution: " & disc_no_phone_yes_expense_confirmation)
+	End If
 	' CALL write_variable_in_CASE_NOTE("Q15. goes here")
 
 	CALL write_variable_in_CASE_NOTE("Q15.CAF Answer:")
@@ -5218,7 +5282,8 @@ Dim signature_detail, signature_person, signature_date, second_signature_detail,
 Dim client_signed_verbally_yn, interview_date, add_to_time, update_arep, verifs_needed, verif_req_form_sent_date, number_verifs_checkbox, verifs_postponed_checkbox
 Dim exp_snap_approval_date, exp_snap_delays, snap_denial_date, snap_denial_explain, pend_snap_on_case
 Dim family_cash_case_yn, absent_parent_yn, relative_caregiver_yn, minor_caregiver_yn
-Dim disc_phone_confirmation, disc_homeless_confirmation, disc_out_of_county_confirmation, CAF1_rent_indicated, Verbal_rent_indicated, Q14_rent_indicated, question_14_summary, disc_rent_amounts_confirmation, disc_utility_caf_1_summary, disc_utility_q_15_summary, disc_utility_amounts_confirmation
+Dim disc_phone_confirmation, disc_yes_phone_no_expense_confirmation, disc_no_phone_yes_expense_confirmation, disc_homeless_confirmation, disc_out_of_county_confirmation, CAF1_rent_indicated, Verbal_rent_indicated
+Dim Q14_rent_indicated, question_14_summary, disc_rent_amounts_confirmation, disc_utility_caf_1_summary, disc_utility_q_15_summary, disc_utility_amounts_confirmation
 
 Dim confirm_resp_read, confirm_rights_read, confirm_ebt_read, confirm_ebt_how_to_read, confirm_npp_info_read, confirm_npp_rights_read
 Dim confirm_appeal_rights_read, confirm_civil_rights_read, confirm_cover_letter_read, confirm_program_information_read, confirm_DV_read
@@ -5267,6 +5332,8 @@ disc_homeless_no_mail_addr = "N/A"
 disc_out_of_county = "N/A"
 disc_rent_amounts = "N/A"
 disc_utility_amounts = "N/A"
+disc_yes_phone_no_expense = "N/A"
+disc_no_phone_yes_expense = "N/A"
 verif_view = "See All Verifs"
 
 'THE SCRIPT------------------------------------------------------------------------------------------------------------------------------------------------
@@ -6062,6 +6129,8 @@ Do
 	Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = FALSE
 If relative_caregiver_yn = "Yes" Then absent_parent_yn = "Yes"
+exp_pregnant_who = trim(exp_pregnant_who)
+If exp_pregnant_who = "Select or Type" Then exp_pregnant_who = ""
 
 interview_complete = True
 If ButtonPressed = incomplete_interview_btn Then
@@ -8992,7 +9061,7 @@ If q_15_answered = TRUE  Then
 	objSelection.TypeText chr(9) & "CAF Confirmed during the Interview" & vbCR
 	If question_15_interview_notes <> "" Then objSelection.TypeText chr(9) & "Notes from Interview: " & question_15_interview_notes & vbCR
 End If
-If trim(question_15_phone_details) <> "" AND question_15_phone_details <> "Select or Type" Then objSelection.TypeText chr(9) & "Detail about phone: " & question_15_phone_details
+If trim(question_15_phone_details) <> "" AND question_15_phone_details <> "Select or Type" Then objSelection.TypeText chr(9) & "Detail about phone: " & question_15_phone_details & vbCr
 
 objSelection.TypeText "Q 16. Do you or anyone living with you have costs for care of a child(ren) because you or they are working, looking for work or going to school?" & vbCr
 objSelection.TypeText chr(9) & "CAF Answer: " & question_16_yn & vbCr
@@ -9224,6 +9293,14 @@ If discrepancies_exist = True Then
 	If disc_no_phone_number = "RESOLVED" Then
 		objSelection.TypeText "No Phone Number was Provided" & vbCr
 		objSelection.TypeText "  - Resolution: " & disc_phone_confirmation & vbCr
+	End If
+	If disc_yes_phone_no_expense = "RESOLVED" Then
+		objSelection.TypeText "Phone Number Listed but No Phone Expense" & vbCr
+		objSelection.TypeText "  - Resolution: " & disc_yes_phone_no_expense_confirmation & vbCr
+	End If
+	If disc_no_phone_yes_expense = "RESOLVED" Then
+		objSelection.TypeText "NO Phone Number Listed but Expense Exists" & vbCr
+		objSelection.TypeText "  - Resolution: " & disc_no_phone_yes_expense_confirmation & vbCr
 	End If
 	If disc_homeless_no_mail_addr = "RESOLVED" Then
 		objSelection.TypeText "Household Experiencing Housing Insecurity - MAIL is Primary Communication of Agency Requests and Actions" & vbCr
