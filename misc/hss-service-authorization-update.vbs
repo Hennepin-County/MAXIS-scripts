@@ -656,3 +656,45 @@ NEXT
 MAXIS_case_number = ""  'blanking out for statistical purposes. Cannot collect more than one case number.
 STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
 script_end_procedure_with_error_report("Success! The script run is complete. Please review the worksheet for reduction statuses and manual updates.")
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation 
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------08/13/2021
+'--Tab orders reviewed & confirmed----------------------------------------------08/13/2021  
+'--Mandatory fields all present & Reviewed--------------------------------------08/13/2021
+'--All variables in dialog match mandatory fields-------------------------------08/13/2021
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------08/13/2021-----------------No variables, just singular message
+'--CASE:NOTE Header doesn't look funky------------------------------------------08/13/2021
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------08/13/2021----------------N/A: Bulk Process
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------08/13/2021
+'--MAXIS_background_check reviewed (if applicable)------------------------------08/13/2021----------------N/A: Not updating in MAXIS
+'--PRIV Case handling reviewed -------------------------------------------------08/13/2021
+'--Out-of-County handling reviewed----------------------------------------------08/13/2021----------------Can make updates in MMIS, MAXIS CASE:NOTES has OOC handling
+'--script_end_procedures (w/ or w/o error messaging)----------------------------08/13/2021
+'--BULK - review output of statistics and run time/count (if applicable)--------08/13/2021
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------08/13/2021
+'--Incrementors reviewed (if necessary)-----------------------------------------08/13/2021
+'--Denomination reviewed -------------------------------------------------------08/13/2021
+'--Script name reviewed---------------------------------------------------------08/13/2021
+'--BULK - remove 1 incrementor at end of script reviewed------------------------08/13/2021
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub taks are complete-----------------------------------------08/13/2021
+'--comment Code-----------------------------------------------------------------08/13/2021
+'--Update Changelog for release/update------------------------------------------08/13/2021
+'--Remove testing message boxes-------------------------------------------------08/13/2021
+'--Remove testing code/unnecessary code-----------------------------------------08/13/2021
+'--Review/update SharePoint instructions----------------------------------------08/13/2021-------------------N/A: Logic Map provided to DHS
+'--Review Best Practices using BZS page ----------------------------------------08/13/2021-------------------N/A: DHS script 
+'--Review script information on SharePoint BZ Script List-----------------------08/13/2021-------------------N/A: DHS script
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------08/13/2021-------------------N/A: DHS script
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------08/13/2021-------------------N/A: DHS script
+'--Complete misc. documentation (if applicable)---------------------------------08/13/2021
+'--Update project team/issue contact (if applicable)----------------------------08/13/2021
