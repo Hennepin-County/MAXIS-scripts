@@ -215,7 +215,20 @@ DO
 		match_found = False 'no case note'
 		objExcel.cells(excel_row, 10).value = "A IEVS match wasn't found on DAIL/DAIL or SSN did not match."
 	End if
-
+	match_based_array(assigned_to_const, 		entry_record)    = assigned_to
+	match_based_array(worker_number_const, 		entry_record)    = worker_number
+	match_based_array(client_DOB_const,  		entry_record)    = client_DOB
+	match_based_array(relationship_const,  		entry_record)    = relationship
+	match_based_array(case_earner_name_const, 	entry_record)    = case_earner_name
+	match_based_array(client_name_const, 		entry_record)    = client_name
+	match_based_array(client_ssn_const, 		entry_record)    = client_ssn
+	match_based_array(program_const,  			entry_record)    = program
+	match_based_array(amount_const,  			entry_record)    = amount
+	match_based_array(income_source_const, 		entry_record)    = income_source
+	match_based_array(how_cleared_const,  		entry_record)    = how_cleared
+	match_based_array(case_note_const,			entry_record)    = case_note_cleared 'case note to check match cleared
+	match_based_array(DAIL_count_const,			entry_record)    = DAIL_count
+	match_based_array(DAIL_type_const,			entry_record)    = DAIL_type
 
 '----------------------------------------------------------------------------------------------------IEVS
 If match_found = True then
