@@ -33,6 +33,53 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+function add_page_buttons_to_dialog(page_variable, items_per_page, total_items, dlg_vert)
+    '--- This function adds numbered buttons to the bottom of a dinamic dialog if there is a list that is too long to display in one dialog, this can be used to access the pages BUT this is ONLY the buttons to display not the functionality to switch between them.
+    '~~~~~ page_variable: the name of the variable used to identify which page is being viewed
+    '~~~~~ items_per_page: this must be a number and is now many items can be shown on one instance of the dialog
+    '~~~~~ total_items: how many items exist in the list in total
+    '~~~~~ dlg_vert: the variable used to define where elements of the dialog are
+    '===== Keywords: MAXIS, dialog, list, dynamic, information
+
+	If page_variable <> 1 Then PushButton 10, dlg_vert, 10, 10, "1", page_one_btn
+	If page_variable <> 2  AND total_items > items_per_page    Then PushButton 20,  dlg_vert, 12, 10, "2",  page_two_btn
+	If page_variable <> 3  AND total_items > items_per_page*2  Then PushButton 30,  dlg_vert, 12, 10, "3",  page_three_btn
+	If page_variable <> 4  AND total_items > items_per_page*3  Then PushButton 40,  dlg_vert, 12, 10, "4",  page_four_btn
+	If page_variable <> 5  AND total_items > items_per_page*4  Then PushButton 50,  dlg_vert, 12, 10, "5",  page_five_btn
+	If page_variable <> 6  AND total_items > items_per_page*5  Then PushButton 60,  dlg_vert, 12, 10, "6",  page_six_btn
+	If page_variable <> 7  AND total_items > items_per_page*6  Then PushButton 70,  dlg_vert, 12, 10, "7",  page_seven_btn
+	If page_variable <> 8  AND total_items > items_per_page*7  Then PushButton 80,  dlg_vert, 12, 10, "8",  page_eight_btn
+	If page_variable <> 9  AND total_items > items_per_page*8  Then PushButton 90,  dlg_vert, 12, 10, "9",  page_nine_btn
+	If page_variable <> 10 AND total_items > items_per_page*9  Then PushButton 100, dlg_vert, 12, 10, "10", page_ten_btn
+	If page_variable <> 11 AND total_items > items_per_page*10 Then PushButton 112, dlg_vert, 12, 10, "11", page_eleven_btn
+	If page_variable <> 12 AND total_items > items_per_page*11 Then PushButton 124, dlg_vert, 12, 10, "12", page_twelve_btn
+	If page_variable <> 13 AND total_items > items_per_page*12 Then PushButton 136, dlg_vert, 12, 10, "13", page_thirteen_btn
+	If page_variable <> 14 AND total_items > items_per_page*13 Then PushButton 148, dlg_vert, 12, 10, "14", page_fourteen_btn
+	If page_variable <> 15 AND total_items > items_per_page*14 Then PushButton 160, dlg_vert, 12, 10, "15", page_fifteen_btn
+	If page_variable <> 16 AND total_items > items_per_page*15 Then PushButton 172, dlg_vert, 12, 10, "16", page_sixteen_btn
+	If page_variable <> 17 AND total_items > items_per_page*16 Then PushButton 184, dlg_vert, 12, 10, "17", page_seventeen_btn
+	If page_variable <> 18 AND total_items > items_per_page*17 Then PushButton 196, dlg_vert, 12, 10, "18", page_eightteen_btn
+
+	If page_variable = 1  Then Text 13,  dlg_vert + 1, 8,  10, "1"
+	If page_variable = 2  Then Text 23,  dlg_vert + 1, 8,  10, "2"
+	If page_variable = 3  Then Text 33,  dlg_vert + 1, 8,  10, "3"
+	If page_variable = 4  Then Text 43,  dlg_vert + 1, 8,  10, "4"
+	If page_variable = 5  Then Text 53,  dlg_vert + 1, 8,  10, "5"
+	If page_variable = 6  Then Text 63,  dlg_vert + 1, 8,  10, "6"
+	If page_variable = 7  Then Text 73,  dlg_vert + 1, 8,  10, "7"
+	If page_variable = 8  Then Text 83,  dlg_vert + 1, 8,  10, "8"
+	If page_variable = 9  Then Text 93,  dlg_vert + 1, 8,  10, "9"
+	If page_variable = 10 Then Text 101, dlg_vert + 1, 10, 10, "10"
+	If page_variable = 11 Then Text 113, dlg_vert + 1, 10, 10, "11"
+	If page_variable = 12 Then Text 125, dlg_vert + 1, 10, 10, "12"
+	If page_variable = 13 Then Text 137, dlg_vert + 1, 10, 10, "13"
+	If page_variable = 14 Then Text 149, dlg_vert + 1, 10, 10, "14"
+	If page_variable = 15 Then Text 161, dlg_vert + 1, 10, 10, "15"
+	If page_variable = 16 Then Text 173, dlg_vert + 1, 10, 10, "16"
+	If page_variable = 17 Then Text 185, dlg_vert + 1, 10, 10, "17"
+	If page_variable = 18 Then Text 197, dlg_vert + 1, 10, 10, "18"
+
+end function
 
 tester_found = FALSE
 qi_staff = FALSE
@@ -90,7 +137,6 @@ End class
 
 function declare_tabbed_menu(tab_selected)
 
-        Dialog1 = ""
         dlg_len = 80
         scripts_included = 0
 
@@ -253,59 +299,59 @@ function declare_tabbed_menu(tab_selected)
                     End If
                 End If
             Next
-            If dlg_len > 385 Then dlg_len = 385
+            If dlg_len > 355 Then dlg_len = 355
         End If
 
         If show_dail_scrubber = TRUE Then dlg_len = dlg_len + 15
-        If current_page = "" Then current_page = "One"
-        If current_page = "One" AND scripts_included > 20 Then dlg_len = 385
-        If current_page = "Two" Then
-            dlg_len = 80 + 15 * (scripts_included - 20)
-            If scripts_included > 40 Then dlg_len = 385
-        End If
-        If current_page = "Three" Then
-            dlg_len = 80 + 15 * (scripts_included - 40)
-        End If
+        If current_page = "" Then current_page = 1
+		If scripts_included > 20 Then dlg_len = 355
+        ' If current_page = 1 AND scripts_included > 20 Then dlg_len = 355
+        ' If current_page = 2 Then
+        '     dlg_len = 80 + 15 * (scripts_included - 20)p
+        '     If scripts_included > 40 Then dlg_len = 355
+        ' End If
+        ' If current_page = 3 Then
+        '     dlg_len = 80 + 15 * (scripts_included - 40)
+        ' End If
         If show_dail_scrubber = TRUE then dlg_len = dlg_len + 10
         dail_scrubber_functionality = trim(dail_scrubber_functionality)
         If dail_scrubber_functionality <> "" Then dail_scrubber_functionality = right(dail_scrubber_functionality, len(dail_scrubber_functionality)  - 2)
         If dlg_len < 240 Then dlg_len = 240
 
-        Dialog1 = ""
         BeginDialog Dialog1, 0, 0, 750, dlg_len, "Select Script to Run"
           GroupBox 550, 5, 185, 40, "Selected TAGS"
           Text 555, 15, 175, 25, Join(tags_array, ", ")
           ' Text 650, 10, 50, 10, "Keywords:"
           ' EditBox 650, 20, 50, 15, search_keywords
-          GroupBox 630, 50, 105, 125, "Key Codes"
-          Text 635, 60, 20, 10, "Cn  - "
-          Text 655, 60, 70, 10, "Case Notes"
-          Text 635, 70, 20, 10, "Ex  - "
-          Text 655, 70, 70, 10, "Excel"
-          Text 635, 80, 20, 10, "Exp -"
-          Text 655, 80, 70, 10, "Expedited SNAP"
-          Text 635, 90, 20, 10, "Fi  - "
-          Text 655, 90, 70, 10, "FIATs"
-          Text 635, 100, 20, 10, "Oa  -"
-          Text 655, 100, 70, 10, "Outlook Appointment"
-          Text 635, 110, 20, 10, "Oe  -"
-          Text 655, 110, 70, 10, "Outlook Email"
-          Text 635, 120, 20, 10, "Sm  -"
-          Text 655, 120, 70, 20, "SPEC/ MEMO"
-          Text 635, 130, 20, 10, "Sw  -"
-          Text 655, 130, 70, 10, "SPEC/ WCOM"
-          Text 635, 140, 20, 10, "Tk  - "
-          Text 655, 140, 70, 10, "TIKL"
-          Text 635, 150, 20, 10, "Up  - "
-          Text 655, 150, 70, 10, "Updates Panel"
-          Text 635, 160, 20, 10, "Wrd - "
-          Text 655, 160, 70, 10, "Word"
+          ' GroupBox 630, 50, 105, 125, "Key Codes"
+          ' Text 635, 60, 20, 10, "Cn  - "
+          ' Text 655, 60, 70, 10, "Case Notes"
+          ' Text 635, 70, 20, 10, "Ex  - "
+          ' Text 655, 70, 70, 10, "Excel"
+          ' Text 635, 80, 20, 10, "Exp -"
+          ' Text 655, 80, 70, 10, "Expedited SNAP"
+          ' Text 635, 90, 20, 10, "Fi  - "
+          ' Text 655, 90, 70, 10, "FIATs"
+          ' Text 635, 100, 20, 10, "Oa  -"
+          ' Text 655, 100, 70, 10, "Outlook Appointment"
+          ' Text 635, 110, 20, 10, "Oe  -"
+          ' Text 655, 110, 70, 10, "Outlook Email"
+          ' Text 635, 120, 20, 10, "Sm  -"
+          ' Text 655, 120, 70, 20, "SPEC/ MEMO"
+          ' Text 635, 130, 20, 10, "Sw  -"
+          ' Text 655, 130, 70, 10, "SPEC/ WCOM"
+          ' Text 635, 140, 20, 10, "Tk  - "
+          ' Text 655, 140, 70, 10, "TIKL"
+          ' Text 635, 150, 20, 10, "Up  - "
+          ' Text 655, 150, 70, 10, "Updates Panel"
+          ' Text 635, 160, 20, 10, "Wrd - "
+          ' Text 655, 160, 70, 10, "Word"
 
-          GroupBox 630, 175, 105, 40, "Button Functions"
-          ' Text 635, 185, 20, 10, "?"
-          Text 655, 190, 70, 10, "View Instructions"
-          ' Text 635, 195, 20, 10, "+"
-          Text 655, 200, 70, 10, "Add to Favorites"
+          ' GroupBox 630, 175, 105, 40, "Button Functions"
+          ' ' Text 635, 185, 20, 10, "?"
+          ' Text 655, 190, 70, 10, "View Instructions"
+          ' ' Text 635, 195, 20, 10, "+"
+          ' Text 655, 200, 70, 10, "Add to Favorites"
 
           ButtonGroup ButtonPressed
             If qi_staff = FALSE Then
@@ -343,18 +389,37 @@ function declare_tabbed_menu(tab_selected)
             PushButton 425, 25, 60, 15, button_name_bottom_8, button_clik_bottom_8
             PushButton 485, 25, 60, 15, button_name_bottom_9, button_clik_bottom_9
 
-            PushButton 640, 190, 10, 10, "?", explain_questionmark_btn
-            PushButton 640, 200, 10, 10, "+", explain_plus_btn
+            ' PushButton 640, 190, 10, 10, "?", explain_questionmark_btn
+            ' PushButton 640, 200, 10, 10, "+", explain_plus_btn
 
             vert_button_position = 50
             If show_resources = False Then
-                list_counter = 0
+                list_counter = 1
                 For current_script = 0 to ubound(script_array)
                     If script_array(current_script).show_script = TRUE Then
                         show_this_one = FALSE
-                        If current_page = "One" AND list_counter < 20 Then show_this_one = TRUE
-                        If current_page = "Two" AND list_counter >= 20 AND list_counter < 40 Then show_this_one = TRUE
-                        If current_page = "Three" AND list_counter >= 40 Then show_this_one = TRUE
+						' If current_page = 1 and
+						If current_page = 1 and list_counter < 19 Then show_this_one = TRUE      'any script that is counted 0 - 14 should be skipped if we are on page 2
+						If current_page = 2 and list_counter > 18 and list_counter < 37 Then show_this_one = TRUE      'any script that is counted 0 - 29 should be skipped if we are on page 3
+						If current_page = 3 and list_counter > 36 and list_counter < 55 Then show_this_one = TRUE      'any script that is counted 0 - 44 should be skipped if we are on page 4
+						If current_page = 4 and list_counter > 54 and list_counter < 73 Then show_this_one = TRUE      'any script that is counted 0 - 59 should be skipped if we are on page 5
+						If current_page = 5 and list_counter > 72 and list_counter < 91 Then show_this_one = TRUE      'any script that is counted 0 - 74 should be skipped if we are on page 6
+						If current_page = 6 and list_counter > 90 and list_counter < 109 Then show_this_one = TRUE      'any script that is counted 0 - 89 should be skipped if we are on page 7
+						If current_page = 7 and list_counter > 108 and list_counter < 127 Then show_this_one = TRUE     'any script that is counted 0 - 104 should be skipped if we are on page 8
+						If current_page = 8 and list_counter > 126 and list_counter < 145 Then show_this_one = TRUE     'any script that is counted 0 - 119 should be skipped if we are on page 9
+						If current_page = 9 and list_counter > 144 and list_counter < 163 Then show_this_one = TRUE    'any script that is counted 0 - 134 should be skipped if we are on page 10
+						If current_page = 10 and list_counter > 162 and list_counter < 181 Then show_this_one = TRUE    'any script that is counted 0 - 149 should be skipped if we are on page 11
+						If current_page = 11 and list_counter > 180 and list_counter < 199 Then show_this_one = TRUE    'any script that is counted 0 - 164 should be skipped if we are on page 12
+						If current_page = 12 and list_counter > 198 and list_counter < 217 Then show_this_one = TRUE    'any script that is counted 0 - 179 should be skipped if we are on page 13
+						If current_page = 13 and list_counter > 216 and list_counter < 235 Then show_this_one = TRUE    'any script that is counted 0 - 194 should be skipped if we are on page 14
+						If current_page = 14 and list_counter > 234 and list_counter < 253 Then show_this_one = TRUE    'any script that is counted 0 - 194 should be skipped if we are on page 14
+						If current_page = 15 and list_counter > 252 and list_counter < 271 Then show_this_one = TRUE    'any script that is counted 0 - 194 should be skipped if we are on page 14
+						If current_page = 16 and list_counter > 270 and list_counter < 289 Then show_this_one = TRUE    'any script that is counted 0 - 194 should be skipped if we are on page 14
+						If current_page = 17 and list_counter > 288 and list_counter < 307 Then show_this_one = TRUE    'any script that is counted 0 - 194 should be skipped if we are on page 14
+						'
+                        ' If current_page = "One" AND list_counter < 20 Then show_this_one = TRUE
+                        ' If current_page = "Two" AND list_counter >= 20 AND list_counter < 40 Then show_this_one = TRUE
+                        ' If current_page = "Three" AND list_counter >= 40 Then show_this_one = TRUE
                         ' MsgBox "Script - " & script_array(current_script).script_name & vbNewLine & "Current page - " & current_page & vbNewLine & "list_counter - " & list_counter & vbNewLine & "show this one - " & show_this_one
                         If show_this_one = TRUE Then
                         ' If tab_selected <> "" Then
@@ -372,12 +437,12 @@ function declare_tabbed_menu(tab_selected)
                                         PushButton 		5, 						vert_button_position, 	10, 		12, 			"?", 												SIR_button_placeholder
                                         PushButton 		18,						vert_button_position, 	120, 		12, 			script_array(current_script).script_name, 			button_placeholder
                                         PushButton      140,                    vert_button_position,   10,         12,             "+",                                                add_to_favorites_button_placeholder
-                                        Text 			150, 				    vert_button_position+1, 65, 		14, 			"-- " & script_keys_combine & " --"
+                                        ' Text 			150, 				    vert_button_position+1, 65, 		14, 			"-- " & script_keys_combine & " --"
 									If script_array(current_script).hot_topic_link = "" Then
-										Text            210,                    vert_button_position+1, 425,        14,             script_array(current_script).description
+										Text            152,                    vert_button_position+1, 550,        14,             script_array(current_script).description
 									Else
-										PushButton		210,					vert_button_position, 	15, 		12, 			"HT",												ht_button_placeholder
-										Text            225,                    vert_button_position+1, 425,        14,             script_array(current_script).description
+										PushButton		150,					vert_button_position, 	15, 		12, 			"HT",												ht_button_placeholder
+										Text            167,                    vert_button_position+1, 535,        14,             script_array(current_script).description
 									End If                                        '----------
                                         vert_button_position = vert_button_position + 15	'Needs to increment the vert_button_position by 15px (used by both the text and buttons)
                                         '----------
@@ -395,6 +460,7 @@ function declare_tabbed_menu(tab_selected)
                         list_counter = list_counter + 1
                     End If
                 Next
+
                 If show_dail_scrubber = TRUE Then
                     PushButton 5, vert_button_position, 10, 15, "?", dail_scrubber_instructions_btn
                     PushButton 18, vert_button_position, 120, 15, "DAIL Scrubber", dail_scrubber_script_button
@@ -404,20 +470,21 @@ function declare_tabbed_menu(tab_selected)
                 End If
                 vert_button_position = vert_button_position + 5
                 If scripts_included > 20 Then
-                    Text 520, vert_button_position + 5, 20, 10, "Page:"
-                    If current_page = "One" AND scripts_included > 20 Then
-                        Text 545, vert_button_position + 5, 10, 10, "1"
-                        PushButton 550, vert_button_position + 5, 10, 10, "2", page_two_btn
-                        If scripts_included > 40 Then PushButton 560, vert_button_position + 5, 10, 10, "3", page_three_btn
-                    ElseIf current_page = "Two" AND scripts_included > 20 Then
-                        PushButton 540, vert_button_position + 5, 10, 10, "1", page_one_btn
-                        Text 555, vert_button_position + 5, 5, 10, "2"
-                        If scripts_included > 40 Then PushButton 560, vert_button_position + 5, 10, 10, "3", page_three_btn
-                    ElseIf current_page = "Three" AND scripts_included > 40 Then
-                        PushButton 540, vert_button_position + 5, 10, 10, "1", page_one_btn
-                        PushButton 550, vert_button_position + 5, 10, 10, "2", page_two_btn
-                        Text 565, vert_button_position + 5, 5, 10, "3"
-                    End If
+					Call add_page_buttons_to_dialog(current_page, 18, scripts_included, dlg_len - 15)
+                    ' Text 520, dlg_len - 13, 20, 10, "Page:"
+                    ' If current_page = "One" AND scripts_included > 20 Then
+                    '     Text 545, dlg_len - 13, 10, 10, "1"
+                    '     PushButton 550, dlg_len - 15, 10, 10, "2", page_two_btn
+                    '     If scripts_included > 40 Then PushButton 560, dlg_len - 15, 10, 10, "3", page_three_btn
+                    ' ElseIf current_page = "Two" AND scripts_included > 20 Then
+                    '     PushButton 540, dlg_len - 15, 10, 10, "1", page_one_btn
+                    '     Text 555, dlg_len - 13, 5, 10, "2"
+                    '     If scripts_included > 40 Then PushButton 560, dlg_len - 15, 10, 10, "3", page_three_btn
+                    ' ElseIf current_page = "Three" AND scripts_included > 40 Then
+                    '     PushButton 540, dlg_len - 15, 10, 10, "1", page_one_btn
+                    '     PushButton 550, dlg_len - 15, 10, 10, "2", page_two_btn
+                    '     Text 565,dlg_len - 13, 5, 10, "3"
+                    ' End If
                 End If
             ElseIf show_resources = TRUE Then
                 Text 15, vert_button_position, 500, 15, "This is the resources tab. This tab will provide you access to information about scripts, including highlighted scripts and new scripts. You can also find links here to report issues or contact the BlueZone Script Team."
@@ -455,12 +522,12 @@ function declare_tabbed_menu(tab_selected)
 	                            PushButton 		5, 						vert_button_position, 	10, 		12, 			"?", 												SIR_button_placeholder
 	                            PushButton 		18,						vert_button_position, 	120, 		12, 			script_array(current_script).script_name, 			button_placeholder
 	                            PushButton      140,                    vert_button_position,   10,         12,             "+",                                                add_to_favorites_button_placeholder
-	                            Text 			150, 				    vert_button_position+1, 65, 		14, 			"-- " & script_keys_combine & " --"
+	                            ' Text 			150, 				    vert_button_position+1, 65, 		14, 			"-- " & script_keys_combine & " --"
 							If script_array(current_script).hot_topic_link = "" Then
-								Text            210,                    vert_button_position+1, 425,        14,             script_array(current_script).description
+								Text            152,                    vert_button_position+1, 550,        14,             script_array(current_script).description
 							Else
-								PushButton		210,					vert_button_position, 	15, 		12, 			"HT",												ht_button_placeholder
-								Text            225,                    vert_button_position+1, 425,        14,             script_array(current_script).description
+								PushButton		150,					vert_button_position, 	15, 		12, 			"HT",												ht_button_placeholder
+								Text            167,                    vert_button_position+1, 535,        14,             script_array(current_script).description
 							End If	                            '----------
 	                            vert_button_position = vert_button_position + 15	'Needs to increment the vert_button_position by 15px (used by both the text and buttons)
 	                            '----------
@@ -492,12 +559,12 @@ function declare_tabbed_menu(tab_selected)
                                 PushButton 		5, 						vert_button_position, 	10, 		12, 			"?", 												SIR_button_placeholder
                                 PushButton 		18,						vert_button_position, 	120, 		12, 			script_array(current_script).script_name, 			button_placeholder
                                 PushButton      140,                    vert_button_position,   10,         12,             "+",                                                add_to_favorites_button_placeholder
-                                Text 			150, 				    vert_button_position+1, 65, 		14, 			"-- " & script_keys_combine & " --"
+                                ' Text 			150, 				    vert_button_position+1, 65, 		14, 			"-- " & script_keys_combine & " --"
 							If script_array(current_script).hot_topic_link = "" Then
-								Text            210,                    vert_button_position+1, 425,        14,             script_array(current_script).description
+								Text            152,                    vert_button_position+1, 550,        14,             script_array(current_script).description
 							Else
-								PushButton		210,					vert_button_position, 	15, 		12, 			"HT",												ht_button_placeholder
-								Text            225,                    vert_button_position+1, 425,        14,             script_array(current_script).description
+								PushButton		150,					vert_button_position, 	15, 		12, 			"HT",												ht_button_placeholder
+								Text            167,                    vert_button_position+1, 535,        14,             script_array(current_script).description
 							End If
                                 '----------
                                 vert_button_position = vert_button_position + 15	'Needs to increment the vert_button_position by 15px (used by both the text and buttons)
@@ -524,8 +591,8 @@ function declare_tabbed_menu(tab_selected)
           ' Text 130, 60, 30, 10, "- KEYS -"
           ' Text 170, 60, 170, 10, "Description"p
 
-            PushButton 10, dlg_len - 20, 100, 15, "Clear TAG Selection", clear_selection_btn
-			PushButton 110, dlg_len - 20, 100, 15, "Reources", resources_btn
+            PushButton 635, 45, 100, 15, "Clear TAG Selection", clear_selection_btn
+			PushButton 300, dlg_len - 20, 100, 15, "Reources", resources_btn
             If bz_staff = TRUE Then
                 PushButton 595, dlg_len - 20, 55, 15, "Monthly Tasks", monthly_task_btn
                 PushButton 650, dlg_len - 20, 40, 15, "BZST", bz_btn
@@ -722,6 +789,25 @@ button_clik_bottom_8 = 4900
 button_clik_bottom_9 = 5000
 button_clik_bottom_0 = 5100
 
+page_one_btn		= 10001
+page_two_btn		= 10002
+page_three_btn		= 10003
+page_four_btn		= 10004
+page_five_btn		= 10005
+page_six_btn		= 10006
+page_seven_btn		= 10007
+page_eight_btn		= 10008
+page_nine_btn		= 10009
+page_ten_btn		= 10010
+page_eleven_btn		= 10011
+page_twelve_btn		= 10012
+page_thirteen_btn	= 10013
+page_fourteen_btn	= 10014
+page_fifteen_btn	= 10015
+page_sixteen_btn	= 10016
+page_seventeen_btn	= 10017
+page_eightteen_btn	= 10018
+
 button_name_top_1 = "SNAP"
 button_name_top_2 = "MFIP"
 button_name_top_3 = "DWP"
@@ -750,7 +836,7 @@ task_menu = FALSE
 show_resources = FALSE
 Do
     leave_loop = ""
-
+	Dialog1 = ""
     Call declare_tabbed_menu(select_tab)
     dialog Dialog1
 
@@ -804,21 +890,28 @@ Do
     If ButtonPressed = clear_selection_btn Then
         ' leave_loop = FALSE
         select_tab = ""
-        current_page = "One"
+        current_page = 1
     End If
 
-    If ButtonPressed = page_one_btn Then
-        ' leave_loop = FALSE
-        current_page = "One"
-    End If
-    If ButtonPressed = page_two_btn Then
-        ' leave_loop = FALSE
-        current_page = "Two"
-    End If
-    If ButtonPressed = page_three_btn Then
-        ' leave_loop = FALSE
-        current_page = "Three"
-    End If
+    If ButtonPressed = page_one_btn Then current_page = 1
+    If ButtonPressed = page_two_btn Then current_page = 2
+    If ButtonPressed = page_three_btn Then current_page = 3
+	If ButtonPressed = page_four_btn Then current_page = 4
+	If ButtonPressed = page_five_btn Then current_page = 5
+	If ButtonPressed = page_six_btn Then current_page = 6
+	If ButtonPressed = page_seven_btn Then current_page = 7
+	If ButtonPressed = page_eight_btn Then current_page = 8
+	If ButtonPressed = page_nine_btn Then current_page = 9
+	If ButtonPressed = page_ten_btn Then current_page = 10
+	If ButtonPressed = page_eleven_btn Then current_page = 11
+	If ButtonPressed = page_twelve_btn Then current_page = 12
+	If ButtonPressed = page_thirteen_btn Then current_page = 13
+	If ButtonPressed = page_fourteen_btn Then current_page = 14
+	If ButtonPressed = page_fifteen_btn Then current_page = 15
+	If ButtonPressed = page_sixteen_btn Then current_page = 16
+	If ButtonPressed = page_seventeen_btn Then current_page = 17
+	If ButtonPressed = page_eightteen_btn Then current_page = 18
+
     If ButtonPressed = dail_scrubber_instructions_btn Then
         Call open_URL_in_browser("https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/DAIL/ALL%20DAIL%20SCRIPTS.docx")
         ' leave_loop = FALSE
@@ -974,7 +1067,7 @@ Do
         qi_menu = FALSE
         bz_menu = FALSE
         task_menu = FALSE
-        current_page = "One"
+        current_page = 1
         If ButtonPressed = snap_btn             AND InStr(select_tab, "SNAP") = 0           Then select_tab = select_tab & "~" & "SNAP"
         If ButtonPressed = mfip_btn             AND InStr(select_tab, "MFIP") = 0           Then select_tab = select_tab & "~" & "MFIP"
         If ButtonPressed = dwp_btn              AND InStr(select_tab, "DWP") = 0            Then select_tab = select_tab & "~" & "DWP"
