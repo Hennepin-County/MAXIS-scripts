@@ -1928,6 +1928,14 @@ If swkr_name <> "" Then select_a_client = select_a_client+chr(9)+"SWKR - " & swk
 				If snap_verification_method = "Resend WCOM - Eligibility Notice" AND snap_wcom_text = "NO WCOM Found" then err_msg = err_msg & vbNewLine & "* Since you are selecting a WCOM to be resent as verification of SNAP, use the 'Select Different WCOM' button to select the correct WCOM since none was found."
 				If snap_verification_method = "Create New MEMO with range of Months" Then
 				 	If len(snap_start_month) <> 5 OR Mid(snap_start_month, 3, 1) <> "/" OR len(snap_end_month) <> 5 OR Mid(snap_end_month, 3, 1) <> "/" Then err_msg = err_msg & vbNewLine & "* Since you are creating a MEMO of SNAP issuance history to be sent as verification of Active SNAP, enter a start and end month in the 'mm/yy' format."
+					If len(snap_end_month) = 5 AND Mid(snap_end_month, 3, 1) = "/" Then
+						first_day_of_end_month = left(snap_end_month, 2) & "/1/" & right(snap_end_month, 2)
+						first_day_of_end_month = DateAdd("d", 0, first_day_of_end_month)
+						If DateDiff("d", date, first_day_of_end_month) > 0 Then
+							err_msg = err_msg & vbNewLine & "* We should not send information about benefits issued for a future month. The SNAP end month of " & snap_end_month & " has been changed to " & CM_mo & "/" & CM_yr & " as benefits have not been issued for a future month and would not provide good information to the resident."
+							snap_end_month = CM_mo & "/" & CM_yr
+						End If
+					End If
 				End If
 			End If
 			If ga_status = "ACTIVE" Then
@@ -1935,6 +1943,14 @@ If swkr_name <> "" Then select_a_client = select_a_client+chr(9)+"SWKR - " & swk
 				If ga_verification_method = "Resend WCOM - Eligibility Notice" AND ga_wcom_text = "NO WCOM Found" then err_msg = err_msg & vbNewLine & "* Since you are selecting a WCOM to be resent as verification of GA, use the 'Select Different WCOM' button to select the correct WCOM since none was found."
 				If ga_verification_method = "Create New MEMO with range of Months" Then
 				 	If len(ga_start_month) <> 5 OR Mid(ga_start_month, 3, 1) <> "/" OR len(ga_end_month) <> 5 OR Mid(ga_end_month, 3, 1) <> "/" Then err_msg = err_msg & vbNewLine & "* Since you are creating a MEMO of GA issuance history to be sent as verification of Active GA, enter a start and end month in the 'mm/yy' format."
+					If len(ga_end_month) = 5 AND Mid(ga_end_month, 3, 1) = "/" Then
+						first_day_of_end_month = left(ga_end_month, 2) & "/1/" & right(ga_end_month, 2)
+						first_day_of_end_month = DateAdd("d", 0, first_day_of_end_month)
+						If DateDiff("d", date, first_day_of_end_month) > 0 Then
+							err_msg = err_msg & vbNewLine & "* We should not send information about benefits issued for a future month. The GA end month of " & ga_end_month & " has been changed to " & CM_mo & "/" & CM_yr & " as benefits have not been issued for a future month and would not provide good information to the resident."
+							ga_end_month = CM_mo & "/" & CM_yr
+						End If
+					End If
 				End If
 			End If
 			If msa_status = "ACTIVE" Then
@@ -1942,6 +1958,14 @@ If swkr_name <> "" Then select_a_client = select_a_client+chr(9)+"SWKR - " & swk
 				If msa_verification_method = "Resend WCOM - Eligibility Notice" AND msa_wcom_text = "NO WCOM Found" then err_msg = err_msg & vbNewLine & "* Since you are selecting a WCOM to be resent as verification of MSA, use the 'Select Different WCOM' button to select the correct WCOM since none was found."
 				If msa_verification_method = "Create New MEMO with range of Months" Then
 				 	If len(msa_start_month) <> 5 OR Mid(msa_start_month, 3, 1) <> "/" OR len(msa_end_month) <> 5 OR Mid(msa_end_month, 3, 1) <> "/" Then err_msg = err_msg & vbNewLine & "* Since you are creating a MEMO of MSA issuance history to be sent as verification of Active MSA, enter a start and end month in the 'mm/yy' format."
+					If len(msa_end_month) = 5 AND Mid(msa_end_month, 3, 1) = "/" Then
+						first_day_of_end_month = left(msa_end_month, 2) & "/1/" & right(msa_end_month, 2)
+						first_day_of_end_month = DateAdd("d", 0, first_day_of_end_month)
+						If DateDiff("d", date, first_day_of_end_month) > 0 Then
+							err_msg = err_msg & vbNewLine & "* We should not send information about benefits issued for a future month. The MSA end month of " & msa_end_month & " has been changed to " & CM_mo & "/" & CM_yr & " as benefits have not been issued for a future month and would not provide good information to the resident."
+							msa_end_month = CM_mo & "/" & CM_yr
+						End If
+					End If
 				End If
 			End If
 			If mfip_status = "ACTIVE" Then
@@ -1949,6 +1973,14 @@ If swkr_name <> "" Then select_a_client = select_a_client+chr(9)+"SWKR - " & swk
 				If mfip_verification_method = "Resend WCOM - Eligibility Notice" AND mfip_wcom_text = "NO WCOM Found" then err_msg = err_msg & vbNewLine & "* Since you are selecting a WCOM to be resent as verification of MFIP, use the 'Select Different WCOM' button to select the correct WCOM since none was found."
 				If mfip_verification_method = "Create New MEMO with range of Months" Then
 				 	If len(mfip_start_month) <> 5 OR Mid(mfip_start_month, 3, 1) <> "/" OR len(mfip_end_month) <> 5 OR Mid(mfip_end_month, 3, 1) <> "/" Then err_msg = err_msg & vbNewLine & "* Since you are creating a MEMO of MFIP issuance history to be sent as verification of Active MFIP, enter a start and end month in the 'mm/yy' format."
+					If len(mfip_end_month) = 5 AND Mid(mfip_end_month, 3, 1) = "/" Then
+						first_day_of_end_month = left(mfip_end_month, 2) & "/1/" & right(mfip_end_month, 2)
+						first_day_of_end_month = DateAdd("d", 0, first_day_of_end_month)
+						If DateDiff("d", date, first_day_of_end_month) > 0 Then
+							err_msg = err_msg & vbNewLine & "* We should not send information about benefits issued for a future month. The MFIP end month of " & mfip_end_month & " has been changed to " & CM_mo & "/" & CM_yr & " as benefits have not been issued for a future month and would not provide good information to the resident."
+							mfip_end_month = CM_mo & "/" & CM_yr
+						End If
+					End If
 				End If
 			End If
 			' If dwp_status = "ACTIVE" Then
@@ -1963,6 +1995,14 @@ If swkr_name <> "" Then select_a_client = select_a_client+chr(9)+"SWKR - " & swk
 				If grh_verification_method = "Resend WCOM - Eligibility Notice" AND grh_wcom_text = "NO WCOM Found" then err_msg = err_msg & vbNewLine & "* Since you are selecting a WCOM to be resent as verification of GRH, use the 'Select Different WCOM' button to select the correct WCOM since none was found."
 				If grh_verification_method = "Create New MEMO with range of Months" Then
 				 	If len(grh_start_month) <> 5 OR Mid(grh_start_month, 3, 1) <> "/" OR len(grh_end_month) <> 5 OR Mid(grh_end_month, 3, 1) <> "/" Then err_msg = err_msg & vbNewLine & "* Since you are creating a MEMO of GRH issuance history to be sent as verification of Active GRH, enter a start and end month in the 'mm/yy' format."
+					If len(grh_end_month) = 5 AND Mid(grh_end_month, 3, 1) = "/" Then
+						first_day_of_end_month = left(grh_end_month, 2) & "/1/" & right(grh_end_month, 2)
+						first_day_of_end_month = DateAdd("d", 0, first_day_of_end_month)
+						If DateDiff("d", date, first_day_of_end_month) > 0 Then
+							err_msg = err_msg & vbNewLine & "* We should not send information about benefits issued for a future month. The GRH end month of " & grh_end_month & " has been changed to " & CM_mo & "/" & CM_yr & " as benefits have not been issued for a future month and would not provide good information to the resident."
+							grh_end_month = CM_mo & "/" & CM_yr
+						End If
+					End If
 				End If
 			End If
 
