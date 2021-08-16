@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("08/16/2021", "Added to ADMIN - MONTHLY TASKS MENU.", "Ilse Ferris, Hennepin County")
 call changelog_update("06/27/2018", "Added/updated closing message.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -306,4 +307,4 @@ IF privileged_array <> "" THEN
 END IF
 
 STATS_counter = STATS_counter - 1  'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
-script_end_procedure("Success! Your list has been completed.")
+script_end_procedure_with_error_report("Success! Your list has been completed.")
