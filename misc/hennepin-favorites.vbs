@@ -89,7 +89,7 @@ function edit_favorites
     			Set fav_scripts = CreateObject("Scripting.FileSystemObject")
     			Set fav_scripts_command = fav_scripts.OpenTextFile(favorites_text_file_location)
     			fav_scripts_array = fav_scripts_command.ReadAll
-    			IF fav_scripts_array <> "" THEN favorites_text_file_array = fav_scripts_array
+    			IF fav_scripts_array <> "" THEN favorites_text_file_array = split(fav_scripts_array, vbNewLine)
     			fav_scripts_command.Close
             End If
 		END IF
@@ -133,11 +133,12 @@ function edit_favorites
 						End If
 					END IF
 					'>>> If the script in question is already known to the list of scripts already picked by the user, the check box is defaulted to checked.
-					IF InStr(UCASE(replace(favorites_text_file_array, "-", " ")), UCASE(replace(script_array(i).script_name, "-", " "))) <> 0 THEN
-						scripts_edit_favs_array(script_position, add_checkbox) = checked
-					ELSE
-						scripts_edit_favs_array(script_position, add_checkbox) = unchecked
-					END IF
+					scripts_edit_favs_array(script_position, add_checkbox) = unchecked
+					For each file_name in favorites_text_file_array
+						If UCase(File_name) = UCase("ACTIONS/" & script_array(i).script_name) Then scripts_edit_favs_array(script_position, add_checkbox) = checked
+					Next
+					' IF InStr(UCASE(replace(favorites_text_file_array, "-", " ")), UCASE(replace(script_array(i).script_name, "-", " "))) <> 0 THEN scripts_edit_favs_array(script_position, add_checkbox) = checked
+					' IF UCASE(replace(favorites_text_file_array, "-", " ")) = UCASE(replace(script_array(i).script_name, "-", " ")) THEN scripts_edit_favs_array(script_position, add_checkbox) = checked
 
 					'Sets the file name and category
 					scripts_edit_favs_array(script_position, fav_script_name)   = script_array(i).script_name
@@ -187,12 +188,10 @@ function edit_favorites
 						End If
 					END IF
 	                '>>> If the script in question is already known to the list of scripts already picked by the user, the check box is defaulted to checked.
-					IF InStr(UCASE(replace(favorites_text_file_array, "-", " ")), UCASE(replace(script_array(i).script_name, "-", " "))) <> 0 THEN
-						scripts_edit_favs_array(script_position, add_checkbox) = checked
-					ELSE
-						scripts_edit_favs_array(script_position, add_checkbox) = unchecked
-					END IF
-
+					scripts_edit_favs_array(script_position, add_checkbox) = unchecked
+					For each file_name in favorites_text_file_array
+						If UCase(File_name) = UCase("BULK/" & script_array(i).script_name) Then scripts_edit_favs_array(script_position, add_checkbox) = checked
+					Next
 					'Sets the file name and category
 					scripts_edit_favs_array(script_position, fav_script_name)   = script_array(i).script_name
 					' scripts_edit_favs_array(script_position, proper_name)       = script_array(i).file_name
@@ -241,11 +240,10 @@ function edit_favorites
 						End If
 					END IF
 	                '>>> If the script in question is already known to the list of scripts already picked by the user, the check box is defaulted to checked.
-					IF InStr(UCASE(replace(favorites_text_file_array, "-", " ")), UCASE(replace(script_array(i).script_name, "-", " "))) <> 0 THEN
-						scripts_edit_favs_array(script_position, add_checkbox) = checked
-					ELSE
-						scripts_edit_favs_array(script_position, add_checkbox) = unchecked
-					END IF
+					scripts_edit_favs_array(script_position, add_checkbox) = unchecked
+					For each file_name in favorites_text_file_array
+						If UCase(File_name) = UCase("NOTICES/" & script_array(i).script_name) Then scripts_edit_favs_array(script_position, add_checkbox) = checked
+					Next
 
 					'Sets the file name and category
 					scripts_edit_favs_array(script_position, fav_script_name)   = script_array(i).script_name
@@ -295,11 +293,10 @@ function edit_favorites
 						End If
 					END IF
 	                '>>> If the script in question is already known to the list of scripts already picked by the user, the check box is defaulted to checked.
-					IF InStr(UCASE(replace(favorites_text_file_array, "-", " ")), UCASE(replace(script_array(i).script_name, "-", " "))) <> 0 THEN
-						scripts_edit_favs_array(script_position, add_checkbox) = checked
-					ELSE
-						scripts_edit_favs_array(script_position, add_checkbox) = unchecked
-					END IF
+					scripts_edit_favs_array(script_position, add_checkbox) = unchecked
+					For each file_name in favorites_text_file_array
+						If UCase(File_name) = UCase("NOTES/" & script_array(i).script_name) Then scripts_edit_favs_array(script_position, add_checkbox) = checked
+					Next
 
 					'Sets the file name and category
 					scripts_edit_favs_array(script_position, fav_script_name)   = script_array(i).script_name
@@ -349,11 +346,10 @@ function edit_favorites
 						End If
 					END IF
 	                '>>> If the script in question is already known to the list of scripts already picked by the user, the check box is defaulted to checked.
-					IF InStr(UCASE(replace(favorites_text_file_array, "-", " ")), UCASE(replace(script_array(i).script_name, "-", " "))) <> 0 THEN
-						scripts_edit_favs_array(script_position, add_checkbox) = checked
-					ELSE
-						scripts_edit_favs_array(script_position, add_checkbox) = unchecked
-					END IF
+					scripts_edit_favs_array(script_position, add_checkbox) = unchecked
+					For each file_name in favorites_text_file_array
+						If UCase(File_name) = UCase("UTILITIES/" & script_array(i).script_name) Then scripts_edit_favs_array(script_position, add_checkbox) = checked
+					Next
 
 					'Sets the file name and category
 					scripts_edit_favs_array(script_position, fav_script_name)   = script_array(i).script_name
@@ -405,11 +401,10 @@ function edit_favorites
 								End If
 							END IF
 			                '>>> If the script in question is already known to the list of scripts already picked by the user, the check box is defaulted to checked.
-							IF InStr(UCASE(replace(favorites_text_file_array, "-", " ")), UCASE(replace(script_array(i).script_name, "-", " "))) <> 0 THEN
-								scripts_edit_favs_array(script_position, add_checkbox) = checked
-							ELSE
-								scripts_edit_favs_array(script_position, add_checkbox) = unchecked
-							END IF
+							scripts_edit_favs_array(script_position, add_checkbox) = unchecked
+							For each file_name in favorites_text_file_array
+								If UCase(File_name) = UCase("ADMIN/" & script_array(i).script_name) Then scripts_edit_favs_array(script_position, add_checkbox) = checked
+							Next
 
 							'Sets the file name and category
 							scripts_edit_favs_array(script_position, fav_script_name)   = script_array(i).script_name
@@ -464,11 +459,10 @@ function edit_favorites
 									End If
 								END IF
 				                '>>> If the script in question is already known to the list of scripts already picked by the user, the check box is defaulted to checked.
-								IF InStr(UCASE(replace(favorites_text_file_array, "-", " ")), UCASE(replace(script_array(i).script_name, "-", " "))) <> 0 THEN
-									scripts_edit_favs_array(script_position, add_checkbox) = checked
-								ELSE
-									scripts_edit_favs_array(script_position, add_checkbox) = unchecked
-								END IF
+								scripts_edit_favs_array(script_position, add_checkbox) = unchecked
+								For each file_name in favorites_text_file_array
+									If UCase(File_name) = UCase("ADMIN/" & script_array(i).script_name) Then scripts_edit_favs_array(script_position, add_checkbox) = checked
+								Next
 
 								'Sets the file name and category
 								scripts_edit_favs_array(script_position, fav_script_name)   = script_array(i).script_name
@@ -524,11 +518,10 @@ function edit_favorites
 									End If
 								END IF
 								'>>> If the script in question is already known to the list of scripts already picked by the user, the check box is defaulted to checked.
-								IF InStr(UCASE(replace(favorites_text_file_array, "-", " ")), UCASE(replace(script_array(i).script_name, "-", " "))) <> 0 THEN
-									scripts_edit_favs_array(script_position, add_checkbox) = checked
-								ELSE
-									scripts_edit_favs_array(script_position, add_checkbox) = unchecked
-								END IF
+								scripts_edit_favs_array(script_position, add_checkbox) = unchecked
+								For each file_name in favorites_text_file_array
+									If UCase(File_name) = UCase("ADMIN/" & script_array(i).script_name) Then scripts_edit_favs_array(script_position, add_checkbox) = checked
+								Next
 
 								'Sets the file name and category
 								scripts_edit_favs_array(script_position, fav_script_name)   = script_array(i).script_name
@@ -586,9 +579,9 @@ function edit_favorites
 			IF scripts_edit_favs_array(i, add_checkbox) = checked THEN double_check_array = double_check_array & scripts_edit_favs_array(i, fav_script_name) & "~"
 		NEXT
 		double_check_array = split(double_check_array, "~")
-		IF ubound(double_check_array) > 24 THEN MsgBox "Your favorites menu is too large. Please limit the number of favorites to no greater than 25."
+		IF ubound(double_check_array) > 20 THEN MsgBox "Your favorites menu is too large. Please limit the number of favorites to no greater than 20."
 		'>>> Exit condition is the user having fewer than 30 scripts in their favorites menu.
-	LOOP UNTIL ubound(double_check_array) <= 25
+	LOOP UNTIL ubound(double_check_array) <= 20
     ' dialog1 = "1 - " & dialog1
 	'>>> Getting ready to write the user's selection to a text file and save it on a prescribed location on the network.
 	'>>> Building the content of the text file.
@@ -679,11 +672,11 @@ FUNCTION favorite_menu(favorites_text_file_string, script_to_run)
     Dialog1 = ""
 	' BeginDialog Dialog1, 0, 0, 700, dlg_height, dlg_name & ""
 	IF worker_full_name <> "" THEN
-		BeginDialog Dialog1, 0, 0, 700, dlg_height, worker_full_name & "'s Favorite Scripts"
+		BeginDialog Dialog1, 0, 0, 750, dlg_height, worker_full_name & "'s Favorite Scripts"
 	ELSEIF worker_signature <> "" THEN
-		BeginDialog Dialog1, 0, 0, 700, dlg_height, worker_signature & "'s Favorite Scripts"
+		BeginDialog Dialog1, 0, 0, 750, dlg_height, worker_signature & "'s Favorite Scripts"
 	ELSE
-		BeginDialog Dialog1, 0, 0, 700, dlg_height, "My Favorite Scripts"
+		BeginDialog Dialog1, 0, 0, 750, dlg_height, "My Favorite Scripts"
 	END IF
   	  ButtonGroup ButtonPressed
 
@@ -701,7 +694,7 @@ FUNCTION favorite_menu(favorites_text_file_string, script_to_run)
         vert_button_position = 10
 
         If featured_scripts_array(script_name_const, 0) <> "" Then
-            GroupBox 5, vert_button_position, 690, 15 + (12 * num_featured_scripts), "These scripts have been recently featured in HOT TOPICS"
+            GroupBox 5, vert_button_position, 740, 15 + (12 * num_featured_scripts), "These scripts have been recently featured in HOT TOPICS"
             PushButton 205, vert_button_position-2, 50, 13, "HOT TOPICS", hot_topics_button
             vert_button_position = vert_button_position + 12
             for i = 0 to UBound(featured_scripts_array, 2)
@@ -709,13 +702,13 @@ FUNCTION favorite_menu(favorites_text_file_string, script_to_run)
                 ' If featured_scripts_array(i).dlg_keys(0) <> "" Then script_keys_combine = join(featured_scripts_array(i).dlg_keys, ":")
                 PushButton 		10, 					vert_button_position, 	10, 		10, 			"?", 																SIR_button_placeholder
                 PushButton 		23,						vert_button_position, 	120, 		10, 			featured_scripts_array(script_name_const, i), 						button_placeholder
-                Text 			152, 				    vert_button_position+1, 40, 		10, 			"-- " & featured_scripts_array(dlg_keys_const, i) & " --"
+                ' Text 			152, 				    vert_button_position+1, 40, 		10, 			"-- " & featured_scripts_array(dlg_keys_const, i) & " --"
                 ' PushButton      175,                    vert_button_position,   10,         10,             "+",                                                add_to_favorites_button_placeholder
             If featured_scripts_array(hot_topic_url, i) = "" Then
-				Text            190,                    vert_button_position,   450,        10,             "Featured on " & featured_scripts_array(hot_topic_date_const, i) & " --- " & featured_scripts_array(description_const, i)
+				Text            152,                    vert_button_position,   590,        10,             "Featured on " & featured_scripts_array(hot_topic_date_const, i) & " --- " & featured_scripts_array(description_const, i)
 			Else
-				PushButton		190, 					vert_button_position, 	90, 		10, 			"Featured on " & featured_scripts_array(hot_topic_date_const, i), 	ht_button_placeholder
-				Text            280,                    vert_button_position+1, 375,        10,             " --- " & featured_scripts_array(description_const, i)
+				PushButton		152, 					vert_button_position, 	90, 		10, 			"Featured on " & featured_scripts_array(hot_topic_date_const, i), 	ht_button_placeholder
+				Text            145,                    vert_button_position+1, 595,        10,             " --- " & featured_scripts_array(description_const, i)
 			End If
                 featured_scripts_array(button_const, i) = button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
                 featured_scripts_array(SIR_instr_btn_const, i) = SIR_button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
@@ -731,21 +724,22 @@ FUNCTION favorite_menu(favorites_text_file_string, script_to_run)
         End If
 
 		If testing_scripts_array(script_name_const, 0) <> "" Then
-			GroupBox 5, vert_button_position, 690, 15 + (12 * num_test_scripts), "TESTING SCRIPTS - These scripts are in testing for you."
+			GroupBox 5, vert_button_position, 740, 15 + (12 * num_test_scripts), "TESTING SCRIPTS - These scripts are in testing for you."
 			vert_button_position = vert_button_position + 12
 			for i = 0 to UBound(testing_scripts_array, 2)
 				script_keys_combine = ""
 				' If testing_scripts_array(i).dlg_keys(0) <> "" Then script_keys_combine = join(testing_scripts_array(i).dlg_keys, ":")
-				PushButton 		10, 					vert_button_position, 	10, 		10, 			"?", 																SIR_button_placeholder
+				' PushButton 		10, 					vert_button_position, 	10, 		10, 			"?", 																SIR_button_placeholder
 				PushButton 		23,						vert_button_position, 	120, 		10, 			testing_scripts_array(script_name_const, i), 						button_placeholder
-				Text 			152, 				    vert_button_position+1, 40, 		10, 			"-- " & testing_scripts_array(dlg_keys_const, i) & " --"
+				' Text 			152, 				    vert_button_position+1, 40, 		10, 			"-- " & testing_scripts_array(dlg_keys_const, i) & " --"
 				' PushButton      175,                    vert_button_position,   10,         10,             "+",                                                add_to_favorites_button_placeholder
-			If testing_scripts_array(hot_topic_url, i) = "" Then
-				Text            190,                    vert_button_position,   450,        10,             "Featured on " & testing_scripts_array(hot_topic_date_const, i) & " --- " & testing_scripts_array(description_const, i)
-			Else
-				PushButton		190, 					vert_button_position, 	90, 		10, 			"Featured on " & testing_scripts_array(hot_topic_date_const, i), 	ht_button_placeholder
-				Text            280,                    vert_button_position+1, 375,        10,             " --- " & testing_scripts_array(description_const, i)
-			End If
+				Text            152,                    vert_button_position+1, 590,        10,             " --- " & testing_scripts_array(description_const, i)
+			' If testing_scripts_array(hot_topic_url, i) = "" Then
+			' 	Text            190,                    vert_button_position,   450,        10,             "Featured on " & testing_scripts_array(hot_topic_date_const, i) & " --- " & testing_scripts_array(description_const, i)
+			' Else
+			' 	PushButton		190, 					vert_button_position, 	90, 		10, 			"Featured on " & testing_scripts_array(hot_topic_date_const, i), 	ht_button_placeholder
+			' 	Text            280,                    vert_button_position+1, 375,        10,             " --- " & testing_scripts_array(description_const, i)
+			' End If
 				testing_scripts_array(button_const, i) = button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
 				testing_scripts_array(SIR_instr_btn_const, i) = SIR_button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
 				testing_scripts_array(HT_btn_const, i) = ht_button_placeholder
@@ -774,11 +768,11 @@ FUNCTION favorite_menu(favorites_text_file_string, script_to_run)
 	            If favorite_scripts_array(script_name_const, i) <> "" Then
 	                script_keys_combine = ""
 	                ' If favorite_scripts_array(i).dlg_keys(0) <> "" Then script_keys_combine = join(favorite_scripts_array(i).dlg_keys, ":")
-	                PushButton 		5, 						vert_button_position, 	10, 		10, 			"?", 												SIR_button_placeholder
+	                ' PushButton 		5, 						vert_button_position, 	10, 		10, 			"?", 												SIR_button_placeholder
 	                PushButton 		18,						vert_button_position, 	120, 		10, 			favorite_scripts_array(script_name_const, i), 			button_placeholder
-	                Text 			143, 				    vert_button_position, 	40, 		10, 			"-- " & favorite_scripts_array(dlg_keys_const, i) & " --"
+	                ' Text 			143, 				    vert_button_position, 	40, 		10, 			"-- " & favorite_scripts_array(dlg_keys_const, i) & " --"
 	                ' PushButton      175,                    vert_button_position,   10,         10,             "+",                                                add_to_favorites_button_placeholder
-	                Text            185,                    vert_button_position,   450,        10,             favorite_scripts_array(description_const, i)
+	                Text            143,                    vert_button_position,   590,        10,             favorite_scripts_array(description_const, i)
 
 	                favorite_scripts_array(button_const, i) = button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
 	                favorite_scripts_array(SIR_instr_btn_const, i) = SIR_button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
@@ -808,9 +802,9 @@ FUNCTION favorite_menu(favorites_text_file_string, script_to_run)
                 ' If new_scripts_array(i).dlg_keys(0) <> "" Then script_keys_combine = join(new_scripts_array(i).dlg_keys, ":")
                 PushButton 		5, 						vert_button_position, 	10, 		10, 			"?", 												SIR_button_placeholder
                 PushButton 		18,						vert_button_position, 	120, 		10, 			new_scripts_array(script_name_const, i), 			button_placeholder
-                Text 			143, 				    vert_button_position, 	40, 		10, 			"-- " & new_scripts_array(dlg_keys_const, i) & " --"
+                ' Text 			143, 				    vert_button_position, 	40, 		10, 			"-- " & new_scripts_array(dlg_keys_const, i) & " --"
                 ' PushButton      175,                    vert_button_position,   10,         10,             "+",                                                add_to_favorites_button_placeholder
-                Text            185,                    vert_button_position,   450,        10,             new_scripts_array(description_const, i)
+                Text            145,                    vert_button_position,   590,        10,             new_scripts_array(description_const, i)
 
                 new_scripts_array(button_const, i) = button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
                 new_scripts_array(SIR_instr_btn_const, i) = SIR_button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
@@ -825,8 +819,8 @@ FUNCTION favorite_menu(favorites_text_file_string, script_to_run)
 
 
 		' PushButton 210, dlg_height - 25, 60, 15, "Update Hotkeys", update_hotkeys_button						<<<<< SEE ISSUE #765
-		PushButton 630, dlg_height - 37, 65, 15, "Update Favorites", update_favorites_button
-		CancelButton 630, dlg_height - 20, 65, 15
+		PushButton 680, dlg_height - 37, 65, 15, "Update Favorites", update_favorites_button
+		CancelButton 680, dlg_height - 20, 65, 15
 	EndDialog
 
     Do
@@ -889,7 +883,7 @@ function open_favorites_file()
         		Set fav_scripts = CreateObject("Scripting.FileSystemObject")
         		Set fav_scripts_command = fav_scripts.OpenTextFile(favorites_text_file_location)
         		fav_scripts_array = fav_scripts_command.ReadAll
-        		IF fav_scripts_array <> "" THEN favorites_text_file_array = fav_scripts_array
+        		IF fav_scripts_array <> "" THEN favorites_text_file_string = fav_scripts_array
         		fav_scripts_command.Close
             End If
     	ELSE
@@ -898,7 +892,7 @@ function open_favorites_file()
     	END IF
     END WITH
 
-    favorites_text_file_string = trim(favorites_text_file_array)
+    favorites_text_file_string = trim(favorites_text_file_string)
     favorites_text_file_array = split(favorites_text_file_string, vbNewLine)
 
     num_of_user_scripts = ubound(favorites_text_file_array)
@@ -916,8 +910,8 @@ function open_favorites_file()
             End If
         End If
     Next
-    If count_of_favorites > 25 Then
-        MsgBox "Your favorites menu is too large. Please limit the number of favorites to no greater than 25." & vbNewLine & "The script will now run the favorites selection functionality. please choose no more than 25."
+    If count_of_favorites > 20 Then
+        MsgBox "Your favorites menu is too large. Please limit the number of favorites to no greater than 20." & vbNewLine & "The script will now run the favorites selection functionality. please choose no more than 20."
         call edit_favorites
     End If
     ' MsgBox "Review String:" & vbNewLine & review_string & vbNewLine & vbNewLine & "Favorites String:" & vbNewLine & favorites_text_file_string
