@@ -3349,42 +3349,31 @@ If snap_resent_wcom = True Then
 	Call write_variable_in_CASE_NOTE("SNAP WCOM resent to Client from " & snap_month & "/" & snap_year & ".")
 	Call write_variable_in_CASE_NOTE("   - " & snap_wcom_text)
 End If
-If snap_verification_method = "Create New MEMO with range of Months" Then
-	Call write_variable_in_CASE_NOTE("MEMO with SNAP Benefit amounts for " & snap_start_month & "  to " &  snap_end_month)
-	Call write_variable_in_CASE_NOTE("   - Benefit details from INQX")
-End If
+If snap_verification_method = "Create New MEMO with range of Months" Then Call write_variable_in_CASE_NOTE("SPEC/MEMO sent with SNAP benefits summary from " & snap_start_month & " to " &  snap_end_month & ", per INQX.")
+
 If ga_resent_wcom = True Then
 	Call write_variable_in_CASE_NOTE("GA WCOM resent to Client from " & ga_month & "/" & ga_year & ".")
 	Call write_variable_in_CASE_NOTE("   - " & ga_wcom_text)
 End If
-If ga_verification_method = "Create New MEMO with range of Months" Then
-	Call write_variable_in_CASE_NOTE("MEMO with GA Benefit amounts for " & ga_start_month & "  to " &  ga_end_month)
-	Call write_variable_in_CASE_NOTE("   - Benefit details from INQX")
-End If
+If ga_verification_method = "Create New MEMO with range of Months" Then Call write_variable_in_CASE_NOTE("SPEC/MEMO sent with GA benefits summary from " & ga_start_month & " to " &  ga_end_month & ", per INQX.")
+
 If msa_resent_wcom = True Then
 	Call write_variable_in_CASE_NOTE("MSA WCOM resent to Client from " & msa_month & "/" & msa_year & ".")
 	Call write_variable_in_CASE_NOTE("   - " & msa_wcom_text)
 End If
-If msa_verification_method = "Create New MEMO with range of Months" Then
-	Call write_variable_in_CASE_NOTE("MEMO with MSA Benefit amounts for " & msa_start_month & "  to " &  msa_end_month)
-	Call write_variable_in_CASE_NOTE("   - Benefit details from INQX")
-End If
+If msa_verification_method = "Create New MEMO with range of Months" Then Call write_variable_in_CASE_NOTE("SPEC/MEMO sent with MSA benefits summary from " & msa_start_month & " to " &  msa_end_month & ", per INQX.")
+
 If mfip_resent_wcom = True Then
 	Call write_variable_in_CASE_NOTE("MFIP WCOM resent to Client from " & mfip_month & "/" & mfip_year & ".")
 	Call write_variable_in_CASE_NOTE("   - " & mfip_wcom_text)
 End If
-If mfip_verification_method = "Create New MEMO with range of Months" Then
-	Call write_variable_in_CASE_NOTE("MEMO with MFIP Benefit amounts for " & mfip_start_month & "  to " &  mfip_end_month)
-	Call write_variable_in_CASE_NOTE("   - Benefit details from INQX")
-End If
+If mfip_verification_method = "Create New MEMO with range of Months" Then Call write_variable_in_CASE_NOTE("SPEC/MEMO sent with MFIP benefits summary from " & mfip_start_month & " to " &  mfip_end_month & ", per INQX.")
+
 If grh_resent_wcom = True Then
 	Call write_variable_in_CASE_NOTE("GRH WCOM resent to Client from " & grh_month & "/" & grh_year & ".")
 	Call write_variable_in_CASE_NOTE("   - " & grh_wcom_text)
 End If
-If grh_verification_method = "Create New MEMO with range of Months" Then
-	Call write_variable_in_CASE_NOTE("MEMO with GRH Benefit amounts for " & grh_start_month & "  to " &  grh_end_month)
-	Call write_variable_in_CASE_NOTE("   - Benefit details from INQX")
-End If
+If grh_verification_method = "Create New MEMO with range of Months" Then Call write_variable_in_CASE_NOTE("SPEC/MEMO sent with GRH benefits summary from " & grh_start_month & " to " &  grh_end_month & ", per INQX.")
 
 If forms_to_arep = "Y" Then Call write_variable_in_CASE_NOTE("Notices sent to AREP.")
 If forms_to_swkr = "Y" Then Call write_variable_in_CASE_NOTE("Notices sent to SWKR.")
