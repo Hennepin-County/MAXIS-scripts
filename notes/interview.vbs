@@ -5770,6 +5770,8 @@ If vars_filled = False Then
 	If family_cash_case = True Then type_of_cash = "Family"
 	If case_pending = True Then
 		Call navigate_to_MAXIS_screen("REPT", "PND2")
+		EMReadScreen pnd2_disp_limit, 13, 6, 35
+		If pnd2_disp_limit = "Display Limit" Then transmit
 		row = 1
 		col = 1
 		EMSearch MAXIS_case_number, row, col
