@@ -134,149 +134,153 @@ CALL check_for_MAXIS(true)
 EndDialog
    
 DIALOG Dialog1
-	IF ButtonPressed = 0 THEN stopscript
-	'>>>>> the script has different ways of building case_number_array
-	IF run_mode = "Manual Entry" THEN
-		CALL build_manual_entry_dlg(case_number_array, TIKL_text)
+cancel_without_confirmation
+'>>>>> the script has different ways of building case_number_array
+IF run_mode = "Manual Entry" THEN
+	CALL build_manual_entry_dlg(case_number_array, TIKL_text)
 
-	ELSEIF run_mode = "REPT/ACTV" THEN
-		'script_end_procedure("This mode is not yet supported.")
-		CALL find_variable("User: ", worker_number, 7)
-        
-        '>>>>> THE DLG for REPT/ACTV mode<<<<<
-        Dialog1 = ""
-        BeginDialog Dialog1, 0, 0, 231, 110, "Enter worker number and TIKL text..."
-          EditBox 145, 10, 65, 15, worker_number
-          EditBox 10, 50, 215, 15, TIKL_text
-          EditBox 90, 70, 80, 15, TIKL_date
-          ButtonGroup ButtonPressed
-            OkButton 65, 90, 50, 15
-            CancelButton 120, 90, 50, 15
-          Text 10, 15, 130, 10, "Please enter the 7-digit worker number:"
-          Text 10, 35, 95, 10, "Enter your TIKL text..."
-          Text 10, 75, 80, 10, "TIKL Date (MM/DD/YY):"
-        EndDialog
-        
-		DO
-			err_msg = ""
-			DIALOG Dialog1
-				cancel_confirmation
-				worker_number = trim(worker_number)
-				IF worker_number = "" THEN err_msg = err_msg & vbCr & "* You must enter a worker number."
-				IF len(worker_number) <> 7 THEN err_msg = err_msg & vbCr & "* Your worker number must be 7 characters long."
-				IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-		LOOP UNTIL err_msg = ""
+ELSEIF run_mode = "REPT/ACTV" THEN
+	'script_end_procedure("This mode is not yet supported.")
+	CALL find_variable("User: ", worker_number, 7)
+    
+    '>>>>> THE DLG for REPT/ACTV mode<<<<<
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 231, 110, "Enter worker number and TIKL text..."
+      EditBox 145, 10, 65, 15, worker_number
+      EditBox 10, 50, 215, 15, TIKL_text
+      EditBox 90, 70, 80, 15, TIKL_date
+      ButtonGroup ButtonPressed
+        OkButton 65, 90, 50, 15
+        CancelButton 120, 90, 50, 15
+      Text 10, 15, 130, 10, "Please enter the 7-digit worker number:"
+      Text 10, 35, 95, 10, "Enter your TIKL text..."
+      Text 10, 75, 80, 10, "TIKL Date (MM/DD/YY):"
+    EndDialog
+    Do 
+	    Do
+	    	err_msg = ""
+	    	DIALOG Dialog1
+	    	cancel_confirmation
+	    	worker_number = trim(worker_number)
+	    	IF trim(worker_number) = "" or len(worker_number) <> 7 THEN err_msg = err_msg & vbCr & "* You must enter the full 7-digit worker number."
+	    	If trim(TIKL_text) = "" then err_msg = err_msg & vbCr & "* Enter the TIKL text."
+            If trim(TIKL_date) = "" or isDate(TIKL_date) = false then err_msg = err_msg & vbCr & "* You must enter a valid TIKL date."
+	    	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+	    LOOP UNTIL err_msg = ""
+        Call check_for_password(are_we_passworded_out)
+    Loop until check_for_password(are_we_passworded_out) = False		'loops until user is password-ed out
 
-		CALL check_for_MAXIS(false)
+	CALL check_for_MAXIS(false)
 
-		'Checking that case number is blank so as to get a full REPT/ACTV
-		CALL find_variable("Case Nbr: ", MAXIS_case_number, 8)
-		MAXIS_case_number = replace(MAXIS_case_number, "_", " ")
+	'Checking that case number is blank so as to get a full REPT/ACTV
+	CALL find_variable("Case Nbr: ", MAXIS_case_number, 8)
+	MAXIS_case_number = replace(MAXIS_case_number, "_", " ")
+	MAXIS_case_number = trim(MAXIS_case_number)
+	IF MAXIS_case_number <> "" THEN
+		back_to_SELF
+		EMWriteScreen "________", 18, 43
+	END IF
+	'Checking that MAXIS is not already in REPT/ACTV so as to get a full REPT/ACTV
+	EMReadScreen at_REPT_ACTV, 4, 2, 48
+	IF at_REPT_ACTV = "ACTV" THEN back_to_SELF
+
+	CALL navigate_to_MAXIS_screen("REPT", "ACTV")
+	CALL write_value_and_transmit(worker_number, 21, 13)
+	'Making sure we are at the beginning of REPT/ACTV
+	DO
+		PF7
+		EMReadScreen page_one, 2, 3, 78
+		IF isnumeric(page_one) = false then page_one = page_one * 1 'this is future proofing since reading variables keep switching back from numeric and non numeric.
+	LOOP UNTIL page_one = 1
+
+	rept_row = 7
+	DO
+		last_page_check = ""
+		EMReadScreen MAXIS_case_number, 8, rept_row, 12
 		MAXIS_case_number = trim(MAXIS_case_number)
 		IF MAXIS_case_number <> "" THEN
-			back_to_SELF
-			EMWriteScreen "________", 18, 43
+			case_number_array = case_number_array & MAXIS_case_number & "~~~"
+			rept_row = rept_row + 1
+			IF rept_row = 19 THEN
+				rept_row = 7
+				PF8
+				EMReadScreen last_page_check, 4, 24, 14			'this prevents the script from erroring out if the worker only has one completely full page of cases.
+				If last_page_check = "LAST" THEN EXIT DO
+			END IF
+		ELSE
+			EXIT DO
 		END IF
-		'Checking that MAXIS is not already in REPT/ACTV so as to get a full REPT/ACTV
-		EMReadScreen at_REPT_ACTV, 4, 2, 48
-		IF at_REPT_ACTV = "ACTV" THEN back_to_SELF
+	LOOP
 
-		CALL navigate_to_MAXIS_screen("REPT", "ACTV")
-		CALL write_value_and_transmit(worker_number, 21, 13)
-		'Making sure we are at the beginning of REPT/ACTV
-		DO
-			PF7
-			EMReadScreen page_one, 2, 3, 78
-			IF isnumeric(page_one) = false then page_one = page_one * 1 'this is future proofing since reading variables keep switching back from numeric and non numeric.
-		LOOP UNTIL page_one = 1
+ELSEIF run_mode = "Excel File" THEN
+	'Opening the Excel file
+	DO
+		call file_selection_system_dialog(excel_file_path, ".xlsx")	'Selects an excel file, adds it to excel_file_path
 
-		rept_row = 7
-		DO
-			last_page_check = ""
-			EMReadScreen MAXIS_case_number, 8, rept_row, 12
-			MAXIS_case_number = trim(MAXIS_case_number)
-			IF MAXIS_case_number <> "" THEN
-				case_number_array = case_number_array & MAXIS_case_number & "~~~"
-				rept_row = rept_row + 1
-				IF rept_row = 19 THEN
-					rept_row = 7
-					PF8
-					EMReadScreen last_page_check, 4, 24, 14			'this prevents the script from erroring out if the worker only has one completely full page of cases.
-					If last_page_check = "LAST" THEN EXIT DO
-				END IF
-			ELSE
-				EXIT DO
-			END IF
-		LOOP
+		Set objExcel = CreateObject("Excel.Application")
+		Set objWorkbook = objExcel.Workbooks.Open(excel_file_path)
+		objExcel.Visible = True
+		objExcel.DisplayAlerts = True
 
-	ELSEIF run_mode = "Excel File" THEN
-		'Opening the Excel file
-		DO
-			call file_selection_system_dialog(excel_file_path, ".xlsx")	'Selects an excel file, adds it to excel_file_path
+		confirm_file = MsgBox("Is this the correct file? Press YES to continue. Press NO to try again. Press CANCEL to stop the script.", vbYesNoCancel)
+		IF confirm_file = vbCancel THEN
+			objWorkbook.Close
+			objExcel.Quit
+			stopscript
+		ELSEIF confirm_file = vbNo THEN
+			objWorkbook.Close
+			objExcel.Quit
+		END IF
+	LOOP UNTIL confirm_file = vbYes
 
-			Set objExcel = CreateObject("Excel.Application")
-			Set objWorkbook = objExcel.Workbooks.Open(excel_file_path)
-			objExcel.Visible = True
-			objExcel.DisplayAlerts = True
+	'Gathering the information from the user about the fields in Excel to look for.
+    '>>>>>DLG for Excel mode<<<<<
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 256, 135, "TIKL Information"
+      EditBox 220, 10, 25, 15, excel_col
+      EditBox 65, 30, 40, 15, excel_row
+      EditBox 190, 30, 40, 15, end_row
+      EditBox 10, 70, 235, 15, TIKL_text
+      EditBox 95, 90, 80, 15, TIKL_date
+      ButtonGroup ButtonPressed
+        OkButton 130, 115, 55, 15
+        CancelButton 190, 115, 60, 15
+      Text 10, 15, 205, 10, "Please enter the column containing the MAXIS case numbers..."
+      Text 10, 35, 50, 10, "Row to start..."
+      Text 135, 35, 50, 10, "Row to end..."
+      Text 10, 55, 230, 10, "Please enter your TIKL text. Separate new lines with semi-colons..."
+      Text 10, 95, 80, 10, "TIKL Date (MM/DD/YY):"
+    EndDialog
+    
+    Do 
+	    DO
+	    	err_msg = ""
+	    	DIALOG Dialog1
+	    		cancel_confirmation 
+	    		IF isnumeric(excel_col) = FALSE AND len(excel_col) > 2 THEN
+	    			err_msg = err_msg & vbCr & "* Please do not use such a large column. The script cannot handle it."
+	    		ELSE
+	    			IF (isnumeric(right(excel_col, 1)) = TRUE AND isnumeric(left(excel_col, 1)) = FALSE) OR (isnumeric(right(excel_col, 1)) = FALSE AND isnumeric(left(excel_col, 1)) = TRUE) THEN
+	    				err_msg = err_msg & vbCr & "* Please use a valid Column indicator. " & excel_col & " contains BOTH a letter and a number."
+	    			ELSE
+	    				call convert_excel_letter_to_excel_number(excel_col)
+	    				IF isnumeric(excel_row) = false or isnumeric(end_row) = false THEN err_msg = err_msg & vbCr & "* Please enter the Excel rows as numeric characters."
+	    				IF end_row = "" THEN err_msg = err_msg & vbCr & "* Please enter an end to the search. The script needs to know when to stop searching."
+	    			END IF
+	    		END IF
+	    		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+	    LOOP UNTIL err_msg = ""
+        Call check_for_password(are_we_passworded_out)
+    Loop until check_for_password(are_we_passworded_out) = False		'loops until user is password-ed out
 
-			confirm_file = MsgBox("Is this the correct file? Press YES to continue. Press NO to try again. Press CANCEL to stop the script.", vbYesNoCancel)
-			IF confirm_file = vbCancel THEN
-				objWorkbook.Close
-				objExcel.Quit
-				stopscript
-			ELSEIF confirm_file = vbNo THEN
-				objWorkbook.Close
-				objExcel.Quit
-			END IF
-		LOOP UNTIL confirm_file = vbYes
-
-		'Gathering the information from the user about the fields in Excel to look for.
-        '>>>>>DLG for Excel mode<<<<<
-        Dialog1 = ""
-        BeginDialog Dialog1, 0, 0, 256, 135, "TIKL Information"
-          EditBox 220, 10, 25, 15, excel_col
-          EditBox 65, 30, 40, 15, excel_row
-          EditBox 190, 30, 40, 15, end_row
-          EditBox 10, 70, 235, 15, TIKL_text
-          EditBox 95, 90, 80, 15, TIKL_date
-          ButtonGroup ButtonPressed
-            OkButton 130, 115, 55, 15
-            CancelButton 190, 115, 60, 15
-          Text 10, 15, 205, 10, "Please enter the column containing the MAXIS case numbers..."
-          Text 10, 35, 50, 10, "Row to start..."
-          Text 135, 35, 50, 10, "Row to end..."
-          Text 10, 55, 230, 10, "Please enter your TIKL text. Separate new lines with semi-colons..."
-          Text 10, 95, 80, 10, "TIKL Date (MM/DD/YY):"
-        EndDialog
-
-		DO
-			err_msg = ""
-			DIALOG Dialog1
-				IF ButtonPressed = 0 THEN stopscript
-				IF isnumeric(excel_col) = FALSE AND len(excel_col) > 2 THEN
-					err_msg = err_msg & vbCr & "* Please do not use such a large column. The script cannot handle it."
-				ELSE
-					IF (isnumeric(right(excel_col, 1)) = TRUE AND isnumeric(left(excel_col, 1)) = FALSE) OR (isnumeric(right(excel_col, 1)) = FALSE AND isnumeric(left(excel_col, 1)) = TRUE) THEN
-						err_msg = err_msg & vbCr & "* Please use a valid Column indicator. " & excel_col & " contains BOTH a letter and a number."
-					ELSE
-						call convert_excel_letter_to_excel_number(excel_col)
-						IF isnumeric(excel_row) = false or isnumeric(end_row) = false THEN err_msg = err_msg & vbCr & "* Please enter the Excel rows as numeric characters."
-						IF end_row = "" THEN err_msg = err_msg & vbCr & "* Please enter an end to the search. The script needs to know when to stop searching."
-					END IF
-				END IF
-				IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-		LOOP UNTIL err_msg = ""
-
-		CALL check_for_MAXIS(false)
-		'Generating a TIKL for each case.
-		FOR i = excel_row TO end_row
-			IF objExcel.Cells(i, excel_col).Value <> "" THEN
-				case_number_array = case_number_array & objExcel.Cells(i, excel_col).Value & "~~~"
-			END IF
-		NEXT
-	END IF
-
-CALL check_for_MAXIS(false)
+	CALL check_for_MAXIS(false)
+	'Generating a TIKL for each case.
+	FOR i = excel_row TO end_row
+		IF objExcel.Cells(i, excel_col).Value <> "" THEN
+			case_number_array = case_number_array & objExcel.Cells(i, excel_col).Value & "~~~"
+		END IF
+	NEXT
+END IF
 
 'The business of sending TIKLSs
 case_number_array = trim(case_number_array)
