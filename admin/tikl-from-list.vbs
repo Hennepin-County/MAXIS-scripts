@@ -229,7 +229,6 @@ DIALOG main_menu
 
 	ELSEIF run_mode = "Excel File" THEN
 		'Opening the Excel file
-
 		DO
 			call file_selection_system_dialog(excel_file_path, ".xlsx")	'Selects an excel file, adds it to excel_file_path
 
@@ -287,16 +286,13 @@ privileged_array = ""
 
 FOR EACH MAXIS_case_number IN case_number_array
 	IF MAXIS_case_number <> "" THEN
-		CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
-		'Checking for privileged
-		EMReadScreen privileged_case, 40, 24, 2
-		IF InStr(privileged_case, "PRIVILEGED") <> 0 THEN
+        'Checking PRIV status 
+        Call navigate_to_MAXIS_screen_review_PRIV("DAIL", "WRIT", is_this_priv)
+		If is_this_priv = True then 
 			privileged_array = privileged_array & MAXIS_case_number & "~~~"
 		ELSE
-			call create_MAXIS_friendly_date(TIKL_date, 0, 5, 18)
-			call write_variable_in_TIKL(TIKL_text)
+			Call create_TIKL(TIKL_text, 0, TIKL_date, False, TIKL_note_text)
 			STATS_counter = STATS_counter + 1    'adds one instance to the stats counter
-			PF3
 		END IF
 	END IF
 NEXT
