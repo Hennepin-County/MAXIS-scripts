@@ -52,23 +52,13 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'Dialogs
-'>>>>>Main dlg<<<<<
-BeginDialog main_menu, 0, 0, 201, 65, "TIKL from List"
-  DropListBox 5, 40, 80, 10, "Manual Entry"+chr(9)+"REPT/ACTV"+chr(9)+"Excel File", run_mode
-  ButtonGroup ButtonPressed
-    OkButton 90, 40, 50, 15
-    CancelButton 140, 40, 50, 15
-  Text 10, 10, 185, 25, "Please select a run mode for the script. You can either enter the case numbers manually, from REPT/ACTV, or from an Excel file..."
-EndDialog
-
 '>>>>> Function to build dlg for manual entry <<<<<
 FUNCTION build_manual_entry_dlg(case_number_array, TIKL_text)
 	'Array for all case numbers
 	'This was chosen over building a dlg with 50 variables
 	REDim all_cases_array(50, 0)
-
-	BeginDialog man_entry_dlg, 0, 0, 331, 310, "Enter MAXIS case numbers"
+    Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 331, 310, "Enter MAXIS case numbers"
 		Text 10, 15, 140, 10, "Enter MAXIS case numbers below..."
 		dlg_row = 30
 		dlg_col = 10
@@ -93,7 +83,7 @@ FUNCTION build_manual_entry_dlg(case_number_array, TIKL_text)
 	DO
 		'err_msg handling
 		err_msg = ""
-		DIALOG man_entry_dlg
+		DIALOG Dialog1
 			cancel_confirmation
 			FOR i = 1 TO 50
 				all_cases_array(i, 0) = replace(all_cases_array(i, 0), " ", "")
@@ -111,37 +101,6 @@ FUNCTION build_manual_entry_dlg(case_number_array, TIKL_text)
 		IF all_cases_array(i, 0) <> "" THEN case_number_array = case_number_array & all_cases_array(i, 0) & "~~~"
 	NEXT
 END FUNCTION
-
-'>>>>>DLG for Excel mode<<<<<
-BeginDialog TIKL_from_excel_dlg, 0, 0, 256, 135, "TIKL Information"
-  EditBox 220, 10, 25, 15, excel_col
-  EditBox 65, 30, 40, 15, excel_row
-  EditBox 190, 30, 40, 15, end_row
-  EditBox 10, 70, 235, 15, TIKL_text
-  EditBox 95, 90, 80, 15, TIKL_date
-  ButtonGroup ButtonPressed
-    OkButton 130, 115, 55, 15
-    CancelButton 190, 115, 60, 15
-  Text 10, 15, 205, 10, "Please enter the column containing the MAXIS case numbers..."
-  Text 10, 35, 50, 10, "Row to start..."
-  Text 135, 35, 50, 10, "Row to end..."
-  Text 10, 55, 230, 10, "Please enter your TIKL text. Separate new lines with semi-colons..."
-  Text 10, 95, 80, 10, "TIKL Date (MM/DD/YY):"
-EndDialog
-
-
-'>>>>> THE DLG for REPT/ACTV mode<<<<<
-BeginDialog worker_number_dlg, 0, 0, 231, 110, "Enter worker number and TIKL text..."
-  EditBox 145, 10, 65, 15, worker_number
-  EditBox 10, 50, 215, 15, TIKL_text
-  EditBox 90, 70, 80, 15, TIKL_date
-  ButtonGroup ButtonPressed
-    OkButton 65, 90, 50, 15
-    CancelButton 120, 90, 50, 15
-  Text 10, 15, 130, 10, "Please enter the 7-digit worker number:"
-  Text 10, 35, 95, 10, "Enter your TIKL text..."
-  Text 10, 75, 80, 10, "TIKL Date (MM/DD/YY):"
-EndDialog
 
 '----------FUNCTIONS----------
 '-----This function needs to be added to the FUNCTIONS FILE-----
@@ -162,11 +121,19 @@ END FUNCTION
 
 'The script===========================
 EMConnect ""
-
 CALL check_for_MAXIS(true)
 
 '>>>>> loading the main dialog <<<<<
-DIALOG main_menu
+ Dialog1 = ""
+   BeginDialog Dialog1, 0, 0, 201, 65, "TIKL from List"
+   DropListBox 5, 40, 80, 10, "Manual Entry"+chr(9)+"REPT/ACTV"+chr(9)+"Excel File", run_mode
+   ButtonGroup ButtonPressed
+   OkButton 90, 40, 50, 15
+   CancelButton 140, 40, 50, 15
+   Text 10, 10, 185, 25, "Please select a run mode for the script. You can either enter the case numbers manually, from REPT/ACTV, or from an Excel file..."
+EndDialog
+   
+DIALOG Dialog1
 	IF ButtonPressed = 0 THEN stopscript
 	'>>>>> the script has different ways of building case_number_array
 	IF run_mode = "Manual Entry" THEN
@@ -175,9 +142,24 @@ DIALOG main_menu
 	ELSEIF run_mode = "REPT/ACTV" THEN
 		'script_end_procedure("This mode is not yet supported.")
 		CALL find_variable("User: ", worker_number, 7)
+        
+        '>>>>> THE DLG for REPT/ACTV mode<<<<<
+        Dialog1 = ""
+        BeginDialog Dialog1, 0, 0, 231, 110, "Enter worker number and TIKL text..."
+          EditBox 145, 10, 65, 15, worker_number
+          EditBox 10, 50, 215, 15, TIKL_text
+          EditBox 90, 70, 80, 15, TIKL_date
+          ButtonGroup ButtonPressed
+            OkButton 65, 90, 50, 15
+            CancelButton 120, 90, 50, 15
+          Text 10, 15, 130, 10, "Please enter the 7-digit worker number:"
+          Text 10, 35, 95, 10, "Enter your TIKL text..."
+          Text 10, 75, 80, 10, "TIKL Date (MM/DD/YY):"
+        EndDialog
+        
 		DO
 			err_msg = ""
-			DIALOG worker_number_dlg
+			DIALOG Dialog1
 				cancel_confirmation
 				worker_number = trim(worker_number)
 				IF worker_number = "" THEN err_msg = err_msg & vbCr & "* You must enter a worker number."
@@ -249,9 +231,27 @@ DIALOG main_menu
 		LOOP UNTIL confirm_file = vbYes
 
 		'Gathering the information from the user about the fields in Excel to look for.
+        '>>>>>DLG for Excel mode<<<<<
+        Dialog1 = ""
+        BeginDialog Dialog1, 0, 0, 256, 135, "TIKL Information"
+          EditBox 220, 10, 25, 15, excel_col
+          EditBox 65, 30, 40, 15, excel_row
+          EditBox 190, 30, 40, 15, end_row
+          EditBox 10, 70, 235, 15, TIKL_text
+          EditBox 95, 90, 80, 15, TIKL_date
+          ButtonGroup ButtonPressed
+            OkButton 130, 115, 55, 15
+            CancelButton 190, 115, 60, 15
+          Text 10, 15, 205, 10, "Please enter the column containing the MAXIS case numbers..."
+          Text 10, 35, 50, 10, "Row to start..."
+          Text 135, 35, 50, 10, "Row to end..."
+          Text 10, 55, 230, 10, "Please enter your TIKL text. Separate new lines with semi-colons..."
+          Text 10, 95, 80, 10, "TIKL Date (MM/DD/YY):"
+        EndDialog
+
 		DO
 			err_msg = ""
-			DIALOG TIKL_from_excel_dlg
+			DIALOG Dialog1
 				IF ButtonPressed = 0 THEN stopscript
 				IF isnumeric(excel_col) = FALSE AND len(excel_col) > 2 THEN
 					err_msg = err_msg & vbCr & "* Please do not use such a large column. The script cannot handle it."
