@@ -242,16 +242,15 @@ For item = 0 to Ubound(adjustment_array, 2)
         new_agreement_start_date = #07/01/21#
         Call ONLY_create_MAXIS_friendly_date(new_agreement_start_date)
         adjustment_array(adjustment_start_date_const, item) = new_agreement_start_date
-    End if 
-
-    'if this date is a negative then the agreement start date is after the HSS start date. Use the agreement start date instead of HSS start date.
-    If DateDiff("d", adjustment_array(agreement_start_const, item), adjustment_array(HSS_start_const, item)) <= 0 then 
-        Call ONLY_create_MAXIS_friendly_date(adjustment_array(agreement_start_const, item))
-        adjustment_array(adjustment_start_date_const, item) = adjustment_array(agreement_start_const, item)
     Else 
-        'Using the HSS start date, changing to friendly of MM/DD/YY date 
         Call ONLY_create_MAXIS_friendly_date(adjustment_array(HSS_start_const, item))
         adjustment_array(adjustment_start_date_const, item) = adjustment_array(HSS_start_const, item)
+    End if 
+        
+    'if this date is a negative then the agreement start date is after the HSS start date. Use the agreement start date instead of HSS start date.
+    If DateDiff("d", adjustment_array(agreement_start_const, item), adjustment_array(adjustment_start_date_const, item)) <= 0 then 
+        Call ONLY_create_MAXIS_friendly_date(adjustment_array(agreement_start_const, item))
+        adjustment_array(adjustment_start_date_const, item) = adjustment_array(agreement_start_const, item)
     End if 
     
     'Finding facility panels that may have ended before the HSS start date
@@ -340,28 +339,34 @@ For item = 0 to Ubound(adjustment_array, 2)
                 adjustment_array(reduce_rate_const, item) = False
                 adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & adjustment_array(rr_status_const, item) & "Authorization Status is coded as: " & AGMT_STAT & "."
             Else
-                'EmWriteScreen "S", 3, 17
-                'PF3     'to AKEY screen
-                'EmReadscreen current_panel, 4, 1, 51
-                ''msgbox current_panel
-                'If current_panel <> "AKEY" then
-                '    adjustment_array(reduce_rate_const, item) = False
-                '    adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & adjustment_array(rr_status_const, item) & "Unknown issue occured after changeing AGMT STAT on ASA1."
-                '    msgbox "Failed! Unknown issue occured after changeing AGMT STAT on ASA1."
-                'Else
-                    transmit 'to ASA1
-                    Call write_value_and_transmit("ASA3", 1, 8)             'Direct navigate to ASA3
-                    Call MMIS_panel_confirmation("ASA3", 51)				'ensuring we are on the right MMIS screen
-
+                transmit 'to ASA1
+                Call write_value_and_transmit("ASA3", 1, 8)             'Direct navigate to ASA3
+                Call MMIS_panel_confirmation("ASA3", 51)				'ensuring we are on the right MMIS screen
+                
+                EmReadscreen line_1_rate, 5, 9, 24
+                If trim(line_1_rate) = "7.94" then 
+                    adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & adjustment_array(rr_status_const, item) & "Line 1 already reflects reduction of 7.94."
+                    PF6 'cancel
+                    transmit 'to re-enter ASA1
+                    EmWriteScreen "A", 3, 17   'Restoring the agreement on ASA1 in AGMT/TYPE STAT field
+                    PF3
+                    adjustment_array(reduce_rate_const, item) = False
+                Else     
                     'Checking Line 2 to ensure it's blank
                     EmReadscreen line_2_check, 6, 14, 60
                     If trim(line_2_check) <> "" then
+                        EmReadscreen line_2_rate, 4, 15, 25
                         PF6 'cancel
                         transmit 'to re-enter ASA1
                         EmWriteScreen "A", 3, 17   'Restoring the agreement on ASA1 in AGMT/TYPE STAT field
                         PF3
                         adjustment_array(reduce_rate_const, item) = False
-                        adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & adjustment_array(rr_status_const, item) & "Agreement already exists in Line 2. Review Manually."
+                        'creating status message if reduce is already in exisitance. 
+                        If line_2_rate = "7.94" then 
+                            adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & adjustment_array(rr_status_const, item) & "Line 2 already reflects reduction of 7.94."
+                        Else 
+                            adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & adjustment_array(rr_status_const, item) & "Agreement already exists in Line 2. Review Manually."
+                        End if 
                     Else
                         'Reading and converting start and end dates
                         'agreement start date
@@ -555,7 +560,7 @@ For item = 0 to Ubound(adjustment_array, 2)
                         End if
                     End if
                 End if
-            'End if
+            End if
         End if
     End if
 Next
