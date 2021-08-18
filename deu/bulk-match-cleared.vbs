@@ -185,12 +185,8 @@ Do 'purpose is to read each excel row and to add into each excel array '
 	client_SSN = objExcel.cells(excel_row, excel_col_client_ssn).Value
 	'client_SSN = trim(client_SSN)
 	client_SSN = replace(client_SSN, "-", "")
-	'excel_IEVS_period = objExcel.cells(excel_row, excel_col_period).Value
-	IF trim(objExcel.cells(excel_row, excel_col_resolution_status).Value) <> "" THEN
-		'IF trim(objExcel.cells(excel_row, excel_col_date_cleared).Value) = "" THEN
-			add_to_array = TRUE
-		'END IF
-	END IF
+	IF trim(objExcel.cells(excel_row, excel_col_resolution_status).Value) <> "" THEN add_to_array = TRUE
+	
 	'msgbox "1 " & excel_row & add_to_array
 	'IF len(objExcel.cells(excel_row, excel_col_program).Value) > 1 THEN add_to_array = FALSE
 	IF add_to_array = TRUE THEN   'Adding client information to the array - this is for READING FROM the excel
@@ -221,6 +217,8 @@ Do 'purpose is to read each excel row and to add into each excel array '
 	END IF
 	excel_row = excel_row + 1
 Loop
+
+msgbox entry_record
 
 back_to_self 'resetting MAXIS back to self before getting started
 Call MAXIS_footer_month_confirmation	'ensuring we are in the correct footer month/year
@@ -259,7 +257,7 @@ For item = 0 to UBound(match_based_array, 2)
 				IF match_based_array(IEVS_period_const, item) = IEVS_period  THEN
 					'msgbox " ~ " & match_based_array(IEVS_period_const, item) & " ~ " & IEVS_period
 
-					days_pending = "0"
+					days_pending = ""             '?? - can this be blanked out? It's always going to be a numeric otherwise. 
 			    	EMReadScreen days_pending, 4, row, 72
 			    	days_pending = trim(days_pending)
 			    	days_pending = replace(days_pending, "(", "")
@@ -302,12 +300,19 @@ For item = 0 to UBound(match_based_array, 2)
 		                'IF income_source <> match_based_array(income_source_const, item) THEN match_based_array(match_cleared_const, item) = FALSE
 		                'IF active_Programs <> match_based_array(program_const,  item) THEN match_based_array(match_cleared_const, item) = FALSE
 		                IF income_amount = match_based_array(amount_const,  item) THEN match_based_array(match_cleared_const, item) = TRUE
-		                IF match_based_array(match_cleared_const, item) = TRUE THEN EXIT DO
+		                IF match_based_array(match_cleared_const, item) = TRUE THEN 
+                            msgbox "true - exit do"
+                            EXIT DO
+                        End if 
 		        		msgbox "match based array = " & income_amount = match_based_array(amount_const,  item)
 		        	    IF match_based_array(match_cleared_const, item) = FALSE THEN
 							PF3 'just to leave after checking to see if we matched'
+                            msgbox "false - exit do"
 							EXIT DO
 						END IF
+                    Else 
+                        msgbox "my date is false and I'm exiting the do"
+                        exit do
 					END IF
 		        END IF
 			END IF
@@ -318,6 +323,8 @@ For item = 0 to UBound(match_based_array, 2)
 			row = 7
 		END IF
 	LOOP UNTIL trim(IEVS_period) = "" 'two ways to leave a loop
+    
+    msgbox "exited loop"
 
     '---------------------------------------------------------------------Reading potential errors for out-of-county cases
     IF match_based_array(match_cleared_const, item) = TRUE THEN
@@ -557,8 +564,9 @@ For item = 0 to UBound(match_based_array, 2)
 NEXT
 
 MsgBox "Start of case note what screen"
-IF match_based_array(match_cleared_const, item) = TRUE THEN
-    For item = 0 to UBound(match_based_array, 2)
+
+For item = 0 to UBound(match_based_array, 2)
+    IF match_based_array(match_cleared_const, item) = TRUE THEN
         back_to_self
         msgbox MAXIS_case_number
         EMWriteScreen MAXIS_case_number, 20, 38
@@ -625,8 +633,9 @@ IF match_based_array(match_cleared_const, item) = TRUE THEN
         	'LOOP UNTIL cdate(case_note_date) < cdate(date)   'repeats until the case note date is less than the assignment date
         ' END IF
         'Excel headers and formatting the columns
-    NEXT
-END IF
+    End if 
+NEXT
+
 objExcel.Cells(1, 1).Value     = "DATE POSTED" 		'A' Date Posted to Maxis'
 objExcel.Cells(1, 2).Value     = "BASKET" 			'B' Worker #
 objExcel.Cells(1, 3).Value     = "DOB" 				'C' DOB
