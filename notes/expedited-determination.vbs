@@ -718,7 +718,7 @@ Function determine_actions(case_assesment_text, next_steps_one, next_steps_two, 
 		If next_steps_four = "" Then next_steps_four = add_msg
 	ElseIf is_elig_XFS = True Then
 		If IsDate(approval_date) = True Then
-			case_assesment_text = "Case appears EXPEDITED and ready to approve"
+			case_assesment_text = "Case IS EXPEDITED and ready to approve"
 			next_steps_one = "Approve SNAP Expedited package of " & expedited_package & " before moving on to your next task. Update MAXIS STAT panels to generate EXPEDITED SNAP Eligibility Results and APPROVE."
 
 			If action_due_to_out_of_state_benefits = "APPROVE" AND mn_elig_begin_date <> date_of_application Then
@@ -753,7 +753,7 @@ Function determine_actions(case_assesment_text, next_steps_one, next_steps_two, 
 			add_msg = "EBT Card information can be found below, but often requires contact with the resident, remember REI issuances can prevent residents from receiving their card."
 			If next_steps_four = "" Then next_steps_four = add_msg
 		Else
-			case_assesment_text = "Case appears EXPEDITED but approval must be delayed."
+			case_assesment_text = "Case IS EXPEDITED but approval must be delayed."
 			next_steps_one = "We must strive to approve this case for the EXPEDITED package of " & expedited_package & " as soon as possible. Make every effort to complete the requirements of this delay and approve the case"
 
 			If do_we_have_applicant_id = False Then
@@ -820,7 +820,7 @@ Function determine_actions(case_assesment_text, next_steps_one, next_steps_two, 
 			If next_steps_four = "" Then next_steps_four = add_msg
 		End If
 	ElseIf is_elig_XFS = False Then
-		case_assesment_text = "Case does NOT appear EXPEDITED, approval decision should follow standard SNAP Policy."
+		case_assesment_text = "Case is NOT EXPEDITED, approval decision should follow standard SNAP Policy."
 		next_steps_one = "If there are mandatory verifications, request them immediately. If all verifications have been received, process the case right away."
 		next_steps_two = ""
 		next_steps_three = ""
@@ -909,7 +909,7 @@ function snap_in_another_state_detail(date_of_application, day_30_from_applicati
 					  ' Text 30, 230, 120, 10, "SNAP Denial Date: " & snap_denial_date
 					  ' Text 30, 240, 335, 30, "Denial Reason: " & snap_denial_explain
 				  ElseIf action_due_to_out_of_state_benefits = "APPROVE" Then
-					  Text 20, 205, 205, 20, "SNAP should be APPROVEED "
+					  Text 20, 205, 205, 20, "SNAP should be APPROVED "
 					  Text 245, 205, 120, 10, "Date of Application: " & date_of_application
 					  Text 25, 215, 175, 10, "Eligibility can start in MN as of " & mn_elig_begin_date
 					  If other_state_contact_yn <> "Yes" Then
@@ -1303,8 +1303,8 @@ function send_support_email_to_KN()
 	email_body = email_body & "Housing: $ " & determined_shel & vbCr
 	email_body = email_body & "Utilities: $ " & determined_utilities & vbCr & vbCr
 	email_body = email_body & "Script Calculations:" & vbCr
-	If is_elig_XFS = True Then email_body = email_body & "Case appears EXPEDITED." & vbCr
-	If is_elig_XFS = False Then email_body = email_body & "Case does NOT appear Expedtied." & vbCr
+	If is_elig_XFS = True Then email_body = email_body & "Case IS EXPEDITED." & vbCr
+	If is_elig_XFS = False Then email_body = email_body & "Case is NOT Expedtied." & vbCr
 	email_body = email_body & "Unit has less than $150 monthly Gross Income AND $100 or less in assets: " & calculated_low_income_asset_test & vbCr
 	email_body = email_body & "Unit's combined resources are less than housing expense: " & calculated_resources_less_than_expenses_test & vbCr & vbCr
 	email_body = email_body & "Case Dates/Timelines:" & vbCr
@@ -1647,16 +1647,11 @@ determined_utilities = ""
 If maxis_updated_yn = "No" Then Call app_month_utility_detail(determined_utilities, heat_expense, ac_expense, electric_expense, phone_expense, none_expense, all_utilities)
 
 If maxis_updated_yn = "Yes" Then
-	'What to LOOk for:
-	'HEST Information
-	'SHEL Information
-	'FACI Open Ended
-	'SNAP in other State - MEMI
-	'ACCT Information
-	'CASH Information
-	'JOBS Information
-	'BUSI Information
-	'UNEA Information
+
+	Call Navigate_to_MAXIS_screen("STAT", "MEMB")
+	EMReadScreen id_ver_code, 2, 9, 68
+	If id_ver_code <> "__" AND id_ver_code <> "NO" Then applicant_id_on_file_yn = "Yes"
+	If id_ver_code = "__" OR id_ver_code = "NO" Then applicant_id_on_file_yn = "No"
 
 	const panel_type_const	= 0
 	const panel_memb_const 	= 1
@@ -2078,7 +2073,7 @@ Do
 					Text 10, 30, 350, 10, "Review Application for screening answers"
 				End If
 				Text 10, 90, 370, 15, "Review and update the INCOME, ASSETS, and HOUSING EXPENSES as determined in the Interview."
-				GroupBox 5, 105, 390, 125, "Information from SNAP/ELIG"
+				GroupBox 5, 105, 390, 125, "Information about Income, Resources, and Expenses"
 				Text 15, 125, 60, 10, "Gross Income:    $"
 				EditBox 75, 120, 155, 15, determined_income
 				Text 15, 145, 35, 10, "Assets:   $"
@@ -2106,33 +2101,38 @@ Do
 			If page_display = show_pg_determination then
 				Text 495, 27, 65, 10, "Determination"
 
-				GroupBox 5, 5, 470, 130, "Expedited Determination"
-				Text 15, 20, 120, 10, "Determination Amounts Entered:"
-				Text 140, 20, 85, 10, "Total App Month Income:"
-				Text 230, 20, 40, 10, "$ " & determined_income
-				Text 140, 30, 85, 10, "Total App Month Assets:"
-				Text 230, 30, 40, 10, "$ " & determined_assets
-				Text 140, 40, 85, 10, "Total App Month Housing:"
-				Text 230, 40, 40, 10, "$ " & determined_shel
-				Text 140, 50, 85, 10, "Total App Month Utility:"
-				Text 230, 50, 40, 10, "$ " & determined_utilities
-				Text 295, 20, 135, 10, "Combined Resources (Income + Assets):"
-				Text 435, 20, 40, 10, "$ " & calculated_resources
-				Text 330, 40, 100, 10, "Combined Housing Expense:"
-				Text 435, 40, 40, 10, "$ " & calculated_expenses
-				Text 295, 75, 125, 20, "Unit has less than $150 monthly Gross Income AND $100 or less in assets:"
-				Text 430, 85, 35, 10, calculated_low_income_asset_test
-				Text 295, 100, 125, 20, "Unit's combined resources are less than housing expense:"
-				Text 430, 105, 35, 10, calculated_resources_less_than_expenses_test
-				If is_elig_XFS = True Then Text 15, 75, 200, 10, "This case APPEARS EXPEDITED based on this above critera."
-				If is_elig_XFS = False Then Text 15, 75, 250, 10, "This case does NOT appear to be expedited based on this above critera."
-				Text 30, 95, 60, 10, "Date of Approval:"
-				EditBox 90, 90, 60, 15, approval_date
-				Text 155, 95, 75, 10, "(or planned approval)"
-				Text 23, 110, 65, 10, "Date of Application:"
-				Text 90, 110, 60, 10, date_of_application
-				Text 30, 120, 60, 10, "Date of Interview:"
-				Text 90, 120, 60, 10, interview_date
+				If is_elig_XFS = True Then Text 0, 25, 400, 10, "---------------------------------------------- This case IS EXPEDITED based on this critera: "
+				If is_elig_XFS = False Then Text 0, 25, 400, 10, "---------------------------------------------- This case does is NOT expedited based on this critera: "
+
+				GroupBox 5, 5, 470, 135, "Expedited Determination"
+				Text 15, 50, 120, 10, "Determination Amounts Entered:"
+				Text 130, 50, 85, 10, "Total App Month Income:"
+				Text 220, 50, 40, 10, "$ " & determined_income
+				Text 130, 60, 85, 10, "Total App Month Assets:"
+				Text 220, 60, 40, 10, "$ " & determined_assets
+				Text 130, 70, 85, 10, "Total App Month Housing:"
+				Text 220, 70, 40, 10, "$ " & determined_shel
+				Text 130, 80, 85, 10, "Total App Month Utility:"
+				Text 220, 80, 40, 10, "$ " & determined_utilities
+				Text 295, 50, 135, 10, "Combined Resources (Income + Assets):"
+				Text 430, 50, 40, 10, "$ " & calculated_resources
+				Text 330, 70, 100, 10, "Combined Housing Expense:"
+				Text 430, 70, 40, 10, "$ " & calculated_expenses
+
+				GroupBox 5, 15, 470, 25, ""
+
+				Text 295, 95, 125, 20, "Unit has less than $150 monthly Gross Income AND $100 or less in assets:"
+				Text 430, 100, 35, 10, calculated_low_income_asset_test
+				Text 295, 115, 125, 20, "Unit's combined resources are less than housing expense:"
+				Text 430, 120, 35, 10, calculated_resources_less_than_expenses_test
+
+				Text 18, 90, 65, 10, "Date of Application:"
+				Text 85, 90, 50, 10, date_of_application
+				Text 25, 100, 60, 10, "Date of Interview:"
+				Text 85, 100, 50, 10, interview_date
+				Text 25, 115, 60, 10, "Date of Approval:"
+				EditBox 85, 110, 60, 15, approval_date
+				Text 85, 125, 75, 10, "(or planned approval)"
 
 				GroupBox 5, 135, 470, 155, "Possible Approval Delays"
 			    Text 95, 150, 205, 10, "Is there a document for proof of identity of the applicant on file?"
@@ -2142,7 +2142,7 @@ Do
 			    PushButton 350, 160, 120, 13, "HOT TOPIC - Using SOLQ for ID", ht_id_in_solq_btn
 			    Text 10, 185, 85, 10, "Explain Approval Delays:"
 			    EditBox 95, 180, 375, 15, delay_explanation
-			    Text 175, 200, 80, 10, "Specifc case situations:"
+			    Text 175, 205, 80, 10, "Specifc case situations:"
 			    PushButton 255, 200, 215, 15, "SNAP is Active in Another State in " & MAXIS_footer_month & "/" & MAXIS_footer_year, snap_active_in_another_state_btn
 			    PushButton 255, 215, 215, 15, "Expedited Approved Previously with Postponed Verifications", case_previously_had_postponed_verifs_btn
 			    PushButton 255, 230, 215, 15, "Household is Currently in a Facility", household_in_a_facility_btn
@@ -2165,23 +2165,6 @@ Do
 				Text 25, 80, 435, 20, next_steps_three
 				Text 25, 100, 435, 20, next_steps_four
 
-				' If IsDate(snap_denial_date) = True Then
-				' 	Text 15, 20, 280, 20, "DENIAL has been determined - Case does not meet 'All Other Eligibility Criteria' and Expedited Determination is not needed"
-				'
-				' 	Text 25, 55, 435, 10, "Update MAXIS STAT panels correctly to general results to Deny the Application"
-				' 	Text 25, 70, 435, 10, "Complete the DENIAL and enter a full, detailed CASE/NOTE of the Denial Action and Reasons."
-				' 	Text 25, 85, 435, 10, "Complete ALL PROCESSING before moving on to your next tast. Contact Knowledge Now if you are unsure of a Denial."
-				' ElseIf is_elig_XFS = True Then
-			    ' 	If IsDate(approval_date) = True Then
-				' 		Text 15, 20, 205, 10, "Case appears EXPEDITED and there are NO Delay reasons"
-				'
-				' 	    Text 25, 55, 435, 10, "Update MAXIS STAT panels to generate EXPEDITED SNAP Eligibility Results"
-				' 	    Text 25, 70, 435, 10, "Expedited Package includes " & expedited_package
-				' 	    Text 25, 85, 435, 10, "Approve SNAP Expedited package before moving on to the next task"
-				' 	Else
-				' 	End If
-				' ElseIf is_elig_XFS = False Then
-				' End If
 				EditBox 800, 800, 50, 15, fake_box_that_does_nothing
 				Text 310, 15, 100, 10, "For help with the next steps:"
 				PushButton 310, 25, 155, 13, "Request Support from Knowledge Now", knowledge_now_support_btn
@@ -2656,20 +2639,6 @@ If note_case_situation_details = True Then
 	End If
 End If
 
-
-
-
-' IF id_check = checked Then Call write_variable_in_case_note ("* Applicant has not provided proof of ID.")
-' IF out_of_state_explanation <> "" Then
-' 	Call write_variable_in_case_note ("* SNAP benefits have been received in another state")
-' 	Call write_variable_in_case_note ("*    " & out_of_state_explanation)
-' End If
-' If previous_xfs_explanation <> "" Then
-' 	Call write_variable_in_case_note ("* Expedited SNAP was the last approval and delayed verifs were not received")
-' 	Call write_variable_in_case_note ("*    " & previous_xfs_explanation)
-' End If
-' Call write_bullet_and_variable_in_case_note("ABAWD info/explanation", abawd_explanation)
-' Call write_bullet_and_variable_in_case_note ("Other Notes", other_explanation)
 Call write_variable_in_case_note ("---")
 
 Call write_variable_in_case_note(worker_signature)
