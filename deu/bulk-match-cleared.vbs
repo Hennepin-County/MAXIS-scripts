@@ -483,9 +483,7 @@ For item = 0 to UBound(match_based_array, 2)
 	    	IF IsNumeric(days_pending) = TRUE THEN match_based_array(match_cleared_const, item) = FALSE
 			'msgbox "Fini"
    		END IF
-	END IF
-		TRANSMIT
- 	    '------------------------------------------------------------------STAT/MISC for claim referral tracking
+	 	    '------------------------------------------------------------------STAT/MISC for claim referral tracking
    	    IF claim_referral_tracking_dropdown <> "Not Needed" THEN
 	    'Going to the MISC panel to add claim referral tracking information
 	    	CALL navigate_to_MAXIS_screen ("STAT", "MISC")
@@ -517,19 +515,16 @@ For item = 0 to UBound(match_based_array, 2)
         	EMWriteScreen MISC_action_taken, Row, 30
         	EMWriteScreen date, Row, 66
         	TRANSMIT
-	    END IF 'end of MISC panel handling'
-
-        IF claim_referral_tracking_dropdown <> "Not Needed" THEN
-           start_a_blank_case_note
-           IF claim_referral_tracking_dropdown =  "Initial" THEN CALL write_variable_in_case_note("Claim Referral Tracking - Initial")
-           CALL write_bullet_and_variable_in_case_note("Action Date", Date)
-           CALL write_bullet_and_variable_in_case_note("Active Program(s)", programs)
-           CALL write_bullet_and_variable_in_case_note("Other Notes", other_notes)
-           CALL write_variable_in_case_note("* Entries for these potential claims must be retained until further notice.")
-           IF case_note_only = TRUE THEN CALL write_variable_in_case_note("Maxis case is inactive unable to add or update MISC panel")
-           CALL write_variable_in_case_note("-----")
-           CALL write_variable_in_case_note(worker_signature)
-           PF3
+            start_a_blank_case_note
+            IF claim_referral_tracking_dropdown =  "Initial" THEN CALL write_variable_in_case_note("Claim Referral Tracking - Initial")
+            CALL write_bullet_and_variable_in_case_note("Action Date", Date)
+            CALL write_bullet_and_variable_in_case_note("Active Program(s)", programs)
+            CALL write_bullet_and_variable_in_case_note("Other Notes", other_notes)
+            CALL write_variable_in_case_note("* Entries for these potential claims must be retained until further notice.")
+            IF case_note_only = TRUE THEN CALL write_variable_in_case_note("Maxis case is inactive unable to add or update MISC panel")
+            CALL write_variable_in_case_note("-----")
+            CALL write_variable_in_case_note(worker_signature)
+            PF3
         END IF
 
     	'-------------------------------------------------------------------------------------------------for the case note
@@ -550,14 +545,12 @@ For item = 0 to UBound(match_based_array, 2)
         Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days
 
 
-MsgBox "Start of case note what screen"
-
+		MsgBox "Start of case note what screen"
+		'IEVS_quarter = "2ND"
+		'assignment_date = "08/18/21"
+		'worker_number = "X127D5X"
 
         CALL navigate_to_MAXIS_screen_review_PRIV("CASE", "NOTE", is_this_priv)
-        IEVS_quarter = "2ND"
-		assignment_date = "08/18/21"
-		worker_number = "X127D5X"
-
 		EMReadScreen county_code, 4, 21, 14  'Out of county cases from STAT
 		EMReadScreen case_invalid_error, 72, 24, 2 'if a person enters an invalid footer month for the case the script will attempt to  navigate'
 		IF priv_check = TRUE THEN  'PRIV cases
@@ -571,7 +564,7 @@ MsgBox "Start of case note what screen"
 			match_based_array(other_note_const, item) = trim(case_invalid_error)
 			match_based_array(match_cleared_const, item) = FALSE
 		ELSE
-			EMReadScreen MAXIS_case_name, 27, 21, 40
+			EMReadScreen MAXIS_case_name, 27, 21, 40 'not always the same as the match name'
 			MAXIS_row = 6
 			DO
 				EMReadscreen case_note_date, 8, MAXIS_row, 6
@@ -588,8 +581,8 @@ MsgBox "Start of case note what screen"
 						MsgBox worker_number & "~" & case_note_worker_number & VBCR & assignment_date & " ~ " & case_note_date
 
 						IF worker_number = case_note_worker_number THEN
-							IF worker_number = "X127D5X" THEN match_based_array(match_cleared_const, item) = FALSE
-							IF worker_number = "X127823" THEN match_based_array(match_cleared_const, item) = FALSE
+							'IF worker_number = "X127D5X" THEN match_based_array(match_cleared_const, item) = FALSE
+							'IF worker_number = "X127823" THEN match_based_array(match_cleared_const, item) = FALSE
 							match_based_array(other_note_const, item) = "CASE NOTED"
 							EMReadScreen case_note_header, 55, MAXIS_row, 25
 							case_note_header = lcase(trim(case_note_header))
@@ -604,27 +597,6 @@ MsgBox "Start of case note what screen"
 			    	MAXIS_row = 5
 			    END IF
 			LOOP UNTIL case_note_date => cdate(assignment_date)   'repeats until the case note date is less than the assignment date
-
-	    	IF instr(MAXIS_case_name, ",") THEN    						'Most cases have both last name and 1st name. This separates the two names
-	    	length = len(MAXIS_case_name)                           	'establishing the length of the variable
-	    	position = InStr(MAXIS_case_name, ",")                  	'sets the position at the deliminator (in this case the comma)
-	    		last_name = Left(MAXIS_case_name, position-1)           'establishes client last name as being before the deliminator
-	    		first_name = Right(MAXIS_case_name, length-position)    'establishes client first name as after before the deliminator
-	    	ELSEIF instr(first_name, " ") THEN   						'If there is a middle initial in the first name, THEN it removes it
-	    		length = len(first_name)                        	'trimming the 1st name
-	    		position = InStr(first_name, " ")               	'establishing the length of the variable
-	    		first_name = Left(first_name, position-1)       	'trims the middle initial off of the first name
-	    	ELSE                                					'In cases where the last name takes up the entire space, THEN the client name becomes the last name
-	    		first_name = ""
-	    		last_name = MAXIS_case_name
-	    	END IF
-	    	first_name = trim(first_name)
-	    	IF instr(first_name, " ") THEN   						'If there is a middle initial in the first name, THEN it removes it
-	    		length = len(first_name)                        	'trimming the 1st name
-	    		position = InStr(first_name, " ")               	'establishing the length of the variable
-	    		first_name = Left(first_name, position-1)       	'trims the middle initial off of the first name
-	    	END IF
-
 
 		    programs = ""
 		    IF instr(match_based_array(program_const,  			item) , "D") THEN programs = programs & "DWP, "
@@ -669,7 +641,7 @@ MsgBox "Start of case note what screen"
         		match_based_array(match_cleared_const, item) = TRUE
 			END IF
         END IF
-
+ 	END IF
 NEXT
 
 'Excel headers and formatting the columns
