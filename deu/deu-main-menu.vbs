@@ -40,6 +40,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("08/19/2021", "GitHub #569 Retire BULK MATCH script to reduce redundancies in our automation supports for future conversion.", "MiKayla Handley, Hennepin County")
 call changelog_update("04/29/2019", "Added BULK scripts REPT - IEVC and REPT - INTR to DEU menu.", "Ilse Ferris, Hennepin County")
 call changelog_update("07/01/2018", "Updated for naming conventions.", "MiKayla Handley, Hennepin County")
 call changelog_update("12/29/2017", "Added all up-to-date DEU script to speciality power pad/DEU.", "Ilse Ferris, Hennepin County")
@@ -51,7 +52,7 @@ changelog_display
 
 'CUSTOM FUNCTIONS===========================================================================================================
 Function declare_DEU_menu_dialog(script_array)
-	BeginDialog DEU_dialog, 0, 0, 516, 240, "DEU Scripts"
+	BeginDialog DEU_dialog, 0, 0, 481, 195, "DEU Scripts"
 	 	Text 5, 5, 435, 10, "DEU scripts main menu: select the script to run from the choices below."
 	  	EditBox 700, 700, 50, 15, holderbox				'This sits here as the first control element so the fisrt button listed doesn't have the blue box around it.
 		ButtonGroup ButtonPressed
@@ -60,7 +61,6 @@ Function declare_DEU_menu_dialog(script_array)
 
 		'This starts here, but it shouldn't end here :)
 		vert_button_position = 25
-
 		For current_script = 0 to ubound(script_array)
 			'Displays the button and text description-----------------------------------------------------------------------------------------------------------------------------
 			'FUNCTION		HORIZ. ITEM POSITION								VERT. ITEM POSITION		ITEM WIDTH									ITEM HEIGHT		ITEM TEXT/LABEL										BUTTON VARIABLE
@@ -72,8 +72,7 @@ Function declare_DEU_menu_dialog(script_array)
 			script_array(current_script).button = button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
 			button_placeholder = button_placeholder + 1
 		next
-
-		CancelButton 455, 215, 50, 15
+		CancelButton 425, 175, 50, 15
 		'GroupBox 5, 20, 205, 35, "DEU Sub-Menus"
 	EndDialog
 End function
@@ -119,13 +118,6 @@ Set script_array_DEU_main(script_num) = new script		'Set this array element to b
 script_array_DEU_main(script_num).script_name 			= "ATR Received"																'Script name
 script_array_DEU_main(script_num).file_name 			= "atr-received.vbs"												'Script URL
 script_array_DEU_main(script_num).description 			= "Documenting the ATR received. Also updates IULB."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_DEU_main(script_num)		'Resets the array to add one more element to it
-Set script_array_DEU_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_DEU_main(script_num).script_name 			= "BULK Match Cleared"																'Script name
-script_array_DEU_main(script_num).file_name 			= "bulk-match-cleared.vbs"														'Script URL
-script_array_DEU_main(script_num).description 			= "BULK script to clear multiple matches after being reviewed, and ready for INFC updates."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_DEU_main(script_num)		'Resets the array to add one more element to it
