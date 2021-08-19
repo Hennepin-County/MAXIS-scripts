@@ -414,7 +414,7 @@ For item = 0 to UBound(match_based_array, 2)
 		IF clear_code <> "__" THEN match_based_array(match_cleared_const, item) = FALSE 'default to false unless something happens to make it not'
 		EMwriteScreen "10", 12, 46	    'resolved notes depending on the resolution_status
 	   	EMwritescreen match_based_array(resolution_status_const,  item), 12, 58
-		'msgbox "wrote the resolution"
+		' msgbox "wrote the resolution"
 		TRANSMIT 'Going to IULB
 	' 	'----------------------------------------------------------------------------------------writing the note on IULB
 	'
@@ -474,13 +474,14 @@ For item = 0 to UBound(match_based_array, 2)
 				End If
 				iulb_col = iulb_col + len(word) + 1
 			Next
-			'msgbox "Bonus round"
+			' msgbox "NOTE WROTE"
 
 	    	TRANSMIT
 			'------------------------------------------------------------------back on the IEVP menu, making sure that the match cleared
 			EMReadScreen days_pending, 5, row, 72
 	    	days_pending = trim(days_pending)
 	    	IF IsNumeric(days_pending) = TRUE THEN match_based_array(match_cleared_const, item) = FALSE
+			' MsgBox "Cleared? " & match_based_array(match_cleared_const, item)
 			'msgbox "Fini"
    		END IF
 	 	    '------------------------------------------------------------------STAT/MISC for claim referral tracking
@@ -557,12 +558,15 @@ For item = 0 to UBound(match_based_array, 2)
 			EMReadscreen priv_worker, 26, 24, 46
 			match_based_array(other_note_const, item) = trim(priv_worker)
 			match_based_array(match_cleared_const, item) = FALSE
+			' MsgBox "We think it is PRIV"
 		ELSEIf county_code <> "X127" THEN
 		  match_based_array(other_note_const, item) = "OUT OF COUNTY CASE"
 		  match_based_array(match_cleared_const, item) = FALSE
+		  ' MsgBox "We think it is Out of County"
 		ELSEIF instr(case_invalid_error, "IS INVALID") THEN  'CASE xxxxxxxx IS INVALID FOR PERIOD 12/99
 			match_based_array(other_note_const, item) = trim(case_invalid_error)
 			match_based_array(match_cleared_const, item) = FALSE
+			' MsgBox "INVALID?"
 		ELSE
 			EMReadScreen MAXIS_case_name, 27, 21, 40 'not always the same as the match name'
 			MAXIS_row = 6
@@ -572,6 +576,7 @@ For item = 0 to UBound(match_based_array, 2)
 				IF trim(case_note_date) = "" THEN
 					match_based_array(other_note_const, item) = "NO CASE NOTE"
 					match_based_array(match_cleared_const, item) = FALSE
+					' MsgBox "NO NOTE??"
 					EXIT DO
 				ELSE
 					IF case_note_date = assignment_date THEN 'weekends and the day prior has the date assigned confirmed by the SSR '
