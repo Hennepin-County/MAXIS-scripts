@@ -2375,15 +2375,36 @@ If developer_mode = False Then
 		objTextStream.WriteLine "DATE OF INTERVIEW ^*^*^" & interview_date
 		objTextStream.WriteLine "EXPEDITED SCREENING STATUS ^*^*^" & xfs_screening
 		objTextStream.WriteLine "EXPEDITED DETERMINATION STATUS ^*^*^" & is_elig_XFS
+		objTextStream.WriteLine "DET INCOME ^*^*^" & determined_income
+		objTextStream.WriteLine "DET ASSETS ^*^*^" & determined_assets
+		objTextStream.WriteLine "DET SHEL ^*^*^" & determined_shel
+		objTextStream.WriteLine "DET HEST ^*^*^" & determined_utilities
 		objTextStream.WriteLine "DATE OF APPROVAL ^*^*^" & approval_date
 		objTextStream.WriteLine "SNAP DENIAL DATE ^*^*^" & snap_denial_date
 		objTextStream.WriteLine "SNAP DENIAL REASON ^*^*^" & snap_denial_explain
 		objTextStream.WriteLine "ID ON FILE ^*^*^" & do_we_have_applicant_id
-		objTextStream.WriteLine "END DATE OF SNAP IN ANOTHER STATE ^*^*^" & other_state_reported_benefit_end_date
-		objTextStream.WriteLine "EXPEDITED APPROVE PREVIOUSLY POSTPONED ^*^*^" & case_has_previously_postponed_verifs_that_prevent_exp_snap				'(Boolean)
+		objTextStream.WriteLine "OUTSTATE ACTION ^*^*^" & action_due_to_out_of_state_benefits
+		objTextStream.WriteLine "OUTSTATE STATE ^*^*^" & other_snap_state
+		objTextStream.WriteLine "OUTSTATE REPORTED END DATE ^*^*^" & other_state_reported_benefit_end_date
+		objTextStream.WriteLine "OUTSTATE OPENENDED ^*^*^" & other_state_benefits_openended
+		objTextStream.WriteLine "OUTSTATE VERIFIED END DATE ^*^*^" & other_state_verified_benefit_end_date
+		objTextStream.WriteLine "MN ELIG BEGIN DATE ^*^*^" & mn_elig_begin_date
+		objTextStream.WriteLine "PREV POST DELAY APP ^*^*^" & case_has_previously_postponed_verifs_that_prevent_exp_snap				'(Boolean)
+		objTextStream.WriteLine "PREV POST PREV DATE OF APP ^*^*^" & previous_date_of_application
+		objTextStream.WriteLine "PREV POST LIST ^*^*^" & prev_verif_list
+		objTextStream.WriteLine "PREV POST CURR VERIF POST ^*^*^" & curr_verifs_postponed_yn
+		objTextStream.WriteLine "PREV POST ONGOING SNAP APP ^*^*^" & ongoing_snap_approved_yn
+		objTextStream.WriteLine "PREV POST VERIFS RECVD ^*^*^" & prev_post_verifs_recvd_yn
 		objTextStream.WriteLine "EXPLAIN APPROVAL DELAYS  ^*^*^" & delay_explanation								'(all of them)
 		objTextStream.WriteLine "POSTPONED VERIFICATIONS ^*^*^" & postponed_verifs_yn
 		objTextStream.WriteLine "WHAT ARE THE POSTPONED VERIFICATIONS ^*^*^" & list_postponed_verifs
+		objTextStream.WriteLine "FACI DELAY ACTION ^*^*^" & delay_action_due_to_faci
+		objTextStream.WriteLine "FACI DENY ^*^*^" & deny_snap_due_to_faci
+		objTextStream.WriteLine "FACI NAME ^*^*^" & facility_name
+		objTextStream.WriteLine "FACI INELIG SNAP ^*^*^" & snap_inelig_faci_yn
+		objTextStream.WriteLine "FACI ENTRY DATE ^*^*^" & faci_entry_date
+		objTextStream.WriteLine "FACI RELEASE DATE ^*^*^" & faci_release_date
+		objTextStream.WriteLine "FACI RELEASE IN 30 DAYS ^*^*^" & release_within_30_days_yn
 		objTextStream.WriteLine "DATE OF SCRIPT RUN ^*^*^" & date
 
 		'Close the object so it can be opened again shortly
