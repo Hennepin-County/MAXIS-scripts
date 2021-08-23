@@ -1465,6 +1465,11 @@ End Function
 function HH_comp_dialog(HH_member_array)
 	CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
 
+    Call Navigate_to_MAXIS_screen("STAT", "MEMB")
+	EMReadScreen id_ver_code, 2, 9, 68
+	If id_ver_code <> "__" AND id_ver_code <> "NO" Then applicant_id_on_file_yn = "Yes"
+	If id_ver_code = "__" OR id_ver_code = "NO" Then applicant_id_on_file_yn = "No"
+
     member_count = 0            'resetting these counts/variables
     adult_cash_count = 0
     child_cash_count = 0
@@ -3542,33 +3547,38 @@ function run_expedited_determination_script_functionality(xfs_screening, caf_one
     			If page_display = show_pg_determination then
     				Text 495, 27, 65, 10, "Determination"
 
-    				GroupBox 5, 5, 470, 130, "Expedited Determination"
-    				Text 15, 20, 120, 10, "Determination Amounts Entered:"
-    				Text 140, 20, 85, 10, "Total App Month Income:"
-    				Text 230, 20, 40, 10, "$ " & determined_income
-    				Text 140, 30, 85, 10, "Total App Month Assets:"
-    				Text 230, 30, 40, 10, "$ " & determined_assets
-    				Text 140, 40, 85, 10, "Total App Month Housing:"
-    				Text 230, 40, 40, 10, "$ " & determined_shel
-    				Text 140, 50, 85, 10, "Total App Month Utility:"
-    				Text 230, 50, 40, 10, "$ " & determined_utilities
-    				Text 295, 20, 135, 10, "Combined Resources (Income + Assets):"
-    				Text 435, 20, 40, 10, "$ " & calculated_resources
-    				Text 330, 40, 100, 10, "Combined Housing Expense:"
-    				Text 435, 40, 40, 10, "$ " & calculated_expenses
-    				Text 295, 75, 125, 20, "Unit has less than $150 monthly Gross Income AND $100 or less in assets:"
-    				Text 430, 85, 35, 10, calculated_low_income_asset_test
-    				Text 295, 100, 125, 20, "Unit's combined resources are less than housing expense:"
-    				Text 430, 105, 35, 10, calculated_resources_less_than_expenses_test
-    				If is_elig_XFS = True Then Text 15, 75, 200, 10, "This case APPEARS EXPEDITED based on this above critera."
-    				If is_elig_XFS = False Then Text 15, 75, 250, 10, "This case does NOT appear to be expedited based on this above critera."
-    				Text 30, 95, 60, 10, "Date of Approval:"
-    				EditBox 90, 90, 60, 15, approval_date
-    				Text 155, 95, 75, 10, "(or planned approval)"
-    				Text 23, 110, 65, 10, "Date of Application:"
-    				Text 90, 110, 60, 10, date_of_application
-    				Text 30, 120, 60, 10, "Date of Interview:"
-    				Text 90, 120, 60, 10, interview_date
+                    If is_elig_XFS = True Then Text 0, 25, 400, 10, "---------------------------------------------- This case IS EXPEDITED based on this critera: "
+    				If is_elig_XFS = False Then Text 0, 25, 400, 10, "---------------------------------------------- This case does is NOT expedited based on this critera: "
+
+    				GroupBox 5, 5, 470, 135, "Expedited Determination"
+    				Text 15, 50, 120, 10, "Determination Amounts Entered:"
+    				Text 130, 50, 85, 10, "Total App Month Income:"
+    				Text 220, 50, 40, 10, "$ " & determined_income
+    				Text 130, 60, 85, 10, "Total App Month Assets:"
+    				Text 220, 60, 40, 10, "$ " & determined_assets
+    				Text 130, 70, 85, 10, "Total App Month Housing:"
+    				Text 220, 70, 40, 10, "$ " & determined_shel
+    				Text 130, 80, 85, 10, "Total App Month Utility:"
+    				Text 220, 80, 40, 10, "$ " & determined_utilities
+    				Text 295, 50, 135, 10, "Combined Resources (Income + Assets):"
+    				Text 430, 50, 40, 10, "$ " & calculated_resources
+    				Text 330, 70, 100, 10, "Combined Housing Expense:"
+    				Text 430, 70, 40, 10, "$ " & calculated_expenses
+
+    				GroupBox 5, 15, 470, 25, ""
+
+    				Text 295, 95, 125, 20, "Unit has less than $150 monthly Gross Income AND $100 or less in assets:"
+    				Text 430, 100, 35, 10, calculated_low_income_asset_test
+    				Text 295, 115, 125, 20, "Unit's combined resources are less than housing expense:"
+    				Text 430, 120, 35, 10, calculated_resources_less_than_expenses_test
+
+    				Text 18, 90, 65, 10, "Date of Application:"
+    				Text 85, 90, 50, 10, date_of_application
+    				Text 25, 100, 60, 10, "Date of Interview:"
+    				Text 85, 100, 50, 10, interview_date
+    				Text 25, 115, 60, 10, "Date of Approval:"
+    				EditBox 85, 110, 60, 15, approval_date
+    				Text 85, 125, 75, 10, "(or planned approval)"
 
     				GroupBox 5, 135, 470, 155, "Possible Approval Delays"
     			    Text 95, 150, 205, 10, "Is there a document for proof of identity of the applicant on file?"
@@ -4007,7 +4017,7 @@ manual_amount_used = FALSE
 Dim EATS, row, col, total_shelter_amount, full_shelter_details, shelter_details, shelter_details_two, shelter_details_three, hest_information, addr_line_one, relationship_detail
 Dim addr_line_two, city, state, zip, address_confirmation_checkbox, addr_county, homeless_yn, addr_verif, reservation_yn, living_situation, number_verifs_checkbox, verifs_postponed_checkbox
 Dim notes_on_address, notes_on_wreg, full_abawd_info, notes_on_busi, notes_on_abawd, notes_on_abawd_two, notes_on_abawd_three, verifs_needed, verif_req_form_sent_date
-Dim other_uc_income_notes, notes_on_ssa_income, notes_on_VA_income, notes_on_WC_income, notes_on_other_UNEA, notes_on_cses, verification_memb_list, notes_on_time, notes_on_sanction
+Dim other_uc_income_notes, notes_on_ssa_income, notes_on_VA_income, notes_on_WC_income, notes_on_other_UNEA, notes_on_cses, verification_memb_list, notes_on_time, notes_on_sanction, applicant_id_on_file_yn
 
 full_determination_done = False
 first_time_to_exp_det = True
@@ -4142,6 +4152,8 @@ If MX_region = "INQUIRY DB" Then
     If continue_in_inquiry = vbNo Then script_end_procedure("Script ended since it was started in Inquiry.")
 End If
 If MX_region = "TRAINING" Then developer_mode = True
+developer_mode = False
+
 
 exp_det_case_note_found = False                         'defaulting these boolean variables to know if these notes are needed by this script run
 interview_completed_case_note_found = False
@@ -6574,7 +6586,7 @@ Do
                             End If
                             first_time_to_exp_det = False
                         End If
-                        Call run_expedited_determination_script_functionality(xfs_screening, caf_one_income, caf_one_assets, caf_one_rent, caf_one_utilities, determined_income, determined_assets, determined_shel, determined_utilities, calculated_resources, calculated_expenses, calculated_low_income_asset_test, calculated_resources_less_than_expenses_test, is_elig_XFS, approval_date, date_of_application, interview_date, applicant_id_on_file_yn, applicant_id_through_SOLQ, delay_explanation, snap_denial_date, snap_denial_explain, case_assesment_text, next_steps_one, next_steps_two, next_steps_three, next_steps_four, postponed_verifs_yn, list_postponed_verifs, day_30_from_application, other_snap_state, other_state_reported_benefit_end_date, other_state_benefits_openended, other_state_contact_yn, other_state_verified_benefit_end_date, mn_elig_begin_date, action_due_to_out_of_state_benefits, case_has_previously_postponed_verifs_that_prevent_exp_snap, prev_post_verif_assessment_done, previous_date_of_application, previous_expedited_package, prev_verifs_mandatory_yn, prev_verif_list, curr_verifs_postponed_yn, ongoing_snap_approved_yn, prev_post_verifs_recvd_yn, delay_action_due_to_faci, deny_snap_due_to_faci, faci_review_completed, facility_name, snap_inelig_faci_yn, faci_entry_date, faci_release_date, release_date_unknown_checkbox, release_within_30_days_yn)
+                        Call run_expedited_determination_script_functionality(xfs_screening, caf_one_income, caf_one_assets, caf_one_rent, caf_one_utilities, determined_income, determined_assets, determined_shel, determined_utilities, calculated_resources, calculated_expenses, calculated_low_income_asset_test, calculated_resources_less_than_expenses_test, is_elig_XFS, approval_date, CAF_datestamp, interview_date, applicant_id_on_file_yn, applicant_id_through_SOLQ, delay_explanation, snap_denial_date, snap_denial_explain, case_assesment_text, next_steps_one, next_steps_two, next_steps_three, next_steps_four, postponed_verifs_yn, list_postponed_verifs, day_30_from_application, other_snap_state, other_state_reported_benefit_end_date, other_state_benefits_openended, other_state_contact_yn, other_state_verified_benefit_end_date, mn_elig_begin_date, action_due_to_out_of_state_benefits, case_has_previously_postponed_verifs_that_prevent_exp_snap, prev_post_verif_assessment_done, previous_date_of_application, previous_expedited_package, prev_verifs_mandatory_yn, prev_verif_list, curr_verifs_postponed_yn, ongoing_snap_approved_yn, prev_post_verifs_recvd_yn, delay_action_due_to_faci, deny_snap_due_to_faci, faci_review_completed, facility_name, snap_inelig_faci_yn, faci_entry_date, faci_release_date, release_date_unknown_checkbox, release_within_30_days_yn)
                     End If
                 End If
             End If
@@ -6635,8 +6647,8 @@ Do
                   Text 5, 35, 55, 10, "* Actions taken:"
                   ' GroupBox 5, 50, 490, 70, "SNAP Expedited"
                   If the_process_for_snap = "Application" Then
-                    If exp_det_case_note_found = False  Then GroupBox 5, 50, 490, 70, "*** SNAP Expedited"
-                    If exp_det_case_note_found = True Then GroupBox 5, 50, 490, 70, "SNAP Expedited"
+                    If exp_det_case_note_found = False  Then GroupBox 5, 50, 490, 80, "*** SNAP Expedited"
+                    If exp_det_case_note_found = True Then GroupBox 5, 50, 490, 80, "SNAP Expedited"
 
                     If exp_det_case_note_found = TRUE Then
                         Text 15, 60, 400, 10, "EXPEDITED DETERMINATION CASE/NOTE FOUND"
@@ -6645,12 +6657,16 @@ Do
                             Text 15, 60, 400, 10, "EXPEDITED DETERMINATION NEEDED!!! Press the button below."
 
                             ButtonGroup ButtonPressed
-                              PushButton 290, 100, 200, 15, "Complete Expedited Determination", run_determination_btn
+                              PushButton 340, 110, 150, 15, "Complete Expedited Determination", run_determination_btn
                         Else
                             Text 15, 60, 180, 10, case_assesment_text
 
+                            Text 20, 70, 470, 20, next_steps_one
+                            Text 20, 90, 470, 20, next_steps_two
+                            Text 20, 110, 320, 20, next_steps_three
+                            ' Text 25, 100, 265, 20, next_steps_four
                             ButtonGroup ButtonPressed
-                              PushButton 290, 100, 200, 15, "Update Expedited Determination", run_determination_btn
+                              PushButton 340, 110, 150, 15, "Update Expedited Determination", run_determination_btn
                         End If
                     End If
                   End If
@@ -6700,8 +6716,9 @@ Do
                 If ButtonPressed = tips_and_tricks_xfs_button Then ButtonPressed = dlg_eight_button
                 If ButtonPressed = -1 Then ButtonPressed = finish_dlgs_button
                 If ButtonPressed = verif_button then ButtonPressed = dlg_eight_button
-                If ButtonPressed =  Then
-
+                If ButtonPressed = run_determination_btn Then
+                    full_determination_done = True
+                    Call run_expedited_determination_script_functionality(xfs_screening, caf_one_income, caf_one_assets, caf_one_rent, caf_one_utilities, determined_income, determined_assets, determined_shel, determined_utilities, calculated_resources, calculated_expenses, calculated_low_income_asset_test, calculated_resources_less_than_expenses_test, is_elig_XFS, approval_date, CAF_datestamp, interview_date, applicant_id_on_file_yn, applicant_id_through_SOLQ, delay_explanation, snap_denial_date, snap_denial_explain, case_assesment_text, next_steps_one, next_steps_two, next_steps_three, next_steps_four, postponed_verifs_yn, list_postponed_verifs, day_30_from_application, other_snap_state, other_state_reported_benefit_end_date, other_state_benefits_openended, other_state_contact_yn, other_state_verified_benefit_end_date, mn_elig_begin_date, action_due_to_out_of_state_benefits, case_has_previously_postponed_verifs_that_prevent_exp_snap, prev_post_verif_assessment_done, previous_date_of_application, previous_expedited_package, prev_verifs_mandatory_yn, prev_verif_list, curr_verifs_postponed_yn, ongoing_snap_approved_yn, prev_post_verifs_recvd_yn, delay_action_due_to_faci, deny_snap_due_to_faci, faci_review_completed, facility_name, snap_inelig_faci_yn, faci_entry_date, faci_release_date, release_date_unknown_checkbox, release_within_30_days_yn)
                 End If
 
                 Call assess_button_pressed
