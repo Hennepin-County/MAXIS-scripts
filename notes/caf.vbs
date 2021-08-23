@@ -171,7 +171,7 @@ function app_month_income_detail(determined_income, income_review_completed, job
 		If busi_income_yn = "?" Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter if the household has Income from Self Employment."
 		If unea_income_yn = "?" Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter if the household has Income from Another Source."
 
-		If prvt_err_msg <> "" Then MsgBox prvt_err_msg
+		If prvt_err_msg <> "" Then MsgBox "***** Additional Action/Information Needed ******" & vbCr & vbCr & "Please resolve to continue:" & vbCr & prvt_err_msg
 	Loop until prvt_err_msg = ""
 
 	If income_review_completed = True Then
@@ -384,7 +384,7 @@ function app_month_income_detail(determined_income, income_review_completed, job
 				End If
 			Next
 
-			If prvt_err_msg <> "" AND ButtonPressed = return_btn Then MsgBox prvt_err_msg
+			If prvt_err_msg <> "" AND ButtonPressed = return_btn Then MsgBox "***** Additional Action/Information Needed ******" & vbCr & vbCr & "Please resolve to continue:" & vbCr & prvt_err_msg
 		Loop Until ButtonPressed = return_btn AND prvt_err_msg = ""
 	End If
 
@@ -450,7 +450,7 @@ function app_month_asset_detail(determined_assets, assets_review_completed, cash
 			If cash_amount_yn = "?" Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter if the household has CASH."
 			If bank_account_yn = "?" Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter if the household has A BANK ACCOUNT."
 
-			If prvt_err_msg <> "" Then MsgBox prvt_err_msg
+			If prvt_err_msg <> "" Then MsgBox "***** Additional Action/Information Needed ******" & vbCr & vbCr & "Please resolve to continue:" & vbCr & prvt_err_msg
 		Loop until prvt_err_msg = ""
 	End If
 
@@ -530,7 +530,7 @@ function app_month_asset_detail(determined_assets, assets_review_completed, cash
 				If ACCOUNTS_ARRAY(account_amount_const, the_acct) <> "" And IsNumeric(ACCOUNTS_ARRAY(account_amount_const, the_acct)) = False Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter the Bank Account amounts as a member."
 				If ACCOUNTS_ARRAY(account_type_const, the_acct)	= "Select One..." Then prvt_err_msg = prvt_err_msg & vbCr & "* Select the Bank Account type."
 			Next
-			If prvt_err_msg <> "" AND ButtonPressed = return_btn Then MsgBox prvt_err_msg
+			If prvt_err_msg <> "" AND ButtonPressed = return_btn Then MsgBox "***** Additional Action/Information Needed ******" & vbCr & vbCr & "Please resolve to continue:" & vbCr & prvt_err_msg
 		Loop Until ButtonPressed = return_btn AND prvt_err_msg = ""
 
 		If cash_amount = "" Then cash_amount = 0
@@ -613,7 +613,7 @@ function app_month_housing_detail(determined_shel, shel_review_completed, rent_a
 		If garage_amount <> "" AND IsNumeric(garage_amount) = False Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter the GARAGE amount as a number."
 		If subsidy_amount <> "" AND IsNumeric(subsidy_amount) = False Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter the SUBSIDY amount as a number."
 
-		If prvt_err_msg <> "" Then MsgBox prvt_err_msg
+		If prvt_err_msg <> "" Then MsgBox "***** Additional Action/Information Needed ******" & vbCr & vbCr & "Please resolve to continue:" & vbCr & prvt_err_msg
 	Loop until prvt_err_msg = ""
 
 	If IsNumeric(rent_amount) = True Then determined_shel = determined_shel + rent_amount
@@ -975,7 +975,7 @@ function snap_in_another_state_detail(date_of_application, day_30_from_applicati
 				If DatePart("d", DateAdd("d", 1, other_state_verified_benefit_end_date)) <> 1 Then prvt_err_msg = prvt_err_msg & vbCr & "* SNAP Eligiblity end dates should be the last day of the month that the household received SNAP benefits for. Update the date to be the LAST day of the last month of eligiblity in the other state for the VERIFIED end date."
 			End If
 			If prvt_err_msg <> "" Then
-				MsgBox prvt_err_msg
+				MsgBox "***** Additional Action/Information Needed ******" & vbCr & vbCr & "Please resolve to continue:" & vbCr & prvt_err_msg
 				calculation_done = False
 			End If
 
@@ -1097,7 +1097,7 @@ function previous_postponed_verifs_detail(case_has_previously_postponed_verifs_t
 		If prev_verif_list = "" Then prvt_err_msg = prvt_err_msg & vbCr & "* Review the verifications that were previously postponed and indicate if any of them were mandatory."
 		If curr_verifs_postponed_yn = "?" Then prvt_err_msg = prvt_err_msg & vbCr & "* Indicate if the CURRENT application has verifications required that would need to be postponed to approve the Expedited SNAP."
 
-		If prvt_err_msg <> "" Then MsgBox prvt_err_msg
+		If prvt_err_msg <> "" Then MsgBox "***** Additional Action/Information Needed ******" & vbCr & vbCr & "Please resolve to continue:" & vbCr & prvt_err_msg
 	Loop until prvt_err_msg = ""
 
 	If prev_post_verif_assessment_done = True Then
@@ -1151,7 +1151,7 @@ function previous_postponed_verifs_detail(case_has_previously_postponed_verifs_t
 				If ongoing_snap_approved_yn = "?" Then prvt_err_msg = prvt_err_msg & vbCr & "* Review MAXIS and determine if SNAP was approved after the last month of the expedited package (" & previous_expedited_package & "). If it was, the case met all requirements to gain SNAP eligibility."
 				If prev_post_verifs_recvd_yn = "?" Then prvt_err_msg = prvt_err_msg & vbCr & "* Review the ECF case file and see if the mandatory postponed verifications were ever received, even if SNAP was not approved."
 
-				If prvt_err_msg <> "" Then MsgBox prvt_err_msg
+				If prvt_err_msg <> "" Then MsgBox "***** Additional Action/Information Needed ******" & vbCr & vbCr & "Please resolve to continue:" & vbCr & prvt_err_msg
 			Loop until prvt_err_msg = ""
 		End If
 	End If
@@ -1266,7 +1266,7 @@ function household_in_a_facility_detail(delay_action_due_to_faci, deny_snap_due_
 		If IsDate(faci_release_date) = True AND release_date_unknown_checkbox = checked Then prvt_err_msg = prvt_err_msg & vbCr & "* You have entered a release date AND indicated the release date is unknown."
 		If release_date_unknown_checkbox = checked AND release_within_30_days_yn = "?" Then prvt_err_msg = prvt_err_msg & vbCr & "* Since the expected release date is unknown, indicate if this release is expected to be prior to do the end of the 30 day processing period."
 
-		If prvt_err_msg <> "" Then MsgBox prvt_err_msg
+		If prvt_err_msg <> "" Then MsgBox "***** Additional Action/Information Needed ******" & vbCr & vbCr & "Please resolve to continue:" & vbCr & prvt_err_msg
 	Loop until prvt_err_msg = ""
 
 	If faci_review_completed = True Then
@@ -3782,7 +3782,7 @@ function run_expedited_determination_script_functionality(xfs_screening, caf_one
     		If ButtonPressed = review_btn AND err_msg = "" AND page_display <> show_pg_amounts Then page_display = show_pg_review
     		If ButtonPressed = review_btn AND err_msg = "" AND page_display = show_pg_amounts Then page_display = show_pg_determination
 
-    		If err_msg <> "" And ButtonPressed < 100 AND page_display <> show_pg_amounts Then MsgBox err_msg
+    		If err_msg <> "" And ButtonPressed < 100 AND page_display <> show_pg_amounts Then MsgBox "***** Action Needed ******" & vbCr & vbCr & "Please resolve to continue:" & vbCr & err_msg
 
     		If ButtonPressed <> finish_btn Then err_msg = "LOOP"
     		' MsgBox "4 - ButtonPressed is " & ButtonPressed
@@ -4010,6 +4010,7 @@ Dim notes_on_address, notes_on_wreg, full_abawd_info, notes_on_busi, notes_on_ab
 Dim other_uc_income_notes, notes_on_ssa_income, notes_on_VA_income, notes_on_WC_income, notes_on_other_UNEA, notes_on_cses, verification_memb_list, notes_on_time, notes_on_sanction
 
 full_determination_done = False
+first_time_to_exp_det = True
 
 HH_memb_row = 5 'This helps the navigation buttons work!
 application_signed_checkbox = checked 'The script should default to having the application signed.
@@ -4130,6 +4131,7 @@ If CASH_on_CAF_checkbox = checked or trim(cash_other_req_detail) <> "" Then cash
 If SNAP_on_CAF_checkbox = checked or trim(snap_other_req_detail) <> "" Then SNAP_checkbox = checked
 If EMER_on_CAF_checkbox = checked or trim(emer_other_req_detail) <> "" Then EMER_checkbox = checked
 'grh_checkbox = checked
+developer_mode = False
 
 Call back_to_SELF
 continue_in_inquiry = ""
@@ -4139,6 +4141,7 @@ If MX_region = "INQUIRY DB" Then
     continue_in_inquiry = MsgBox("It appears you are in INQUIRY. Income information cannot be saved to STAT and a CASE/NOTE cannot be created." & vbNewLine & vbNewLine & "Do you wish to continue?", vbQuestion + vbYesNo, "Continue in Inquiry?")
     If continue_in_inquiry = vbNo Then script_end_procedure("Script ended since it was started in Inquiry.")
 End If
+If MX_region = "TRAINING" Then developer_mode = True
 
 exp_det_case_note_found = False                         'defaulting these boolean variables to know if these notes are needed by this script run
 interview_completed_case_note_found = False
@@ -4723,6 +4726,18 @@ Do
             If note_list_header <> "First line of Case note" Then PF3           'this backs us out of the note if we ended up in the wrong note.
         End If
     End If
+
+	IF left(note_title, 35) = "~ Appointment letter sent in MEMO ~" then
+		appt_notc_sent_on = note_date
+	ElseIF left(note_title, 42) = "~ Appointment letter sent in MEMO for SNAP" then
+		appt_notc_sent_on = note_date
+	ElseIF left(note_title, 37) = "~ Appointment letter sent in MEMO for" then
+		EMReadScreen appt_date, 10, note_row, 63
+		appt_date = replace(appt_date, "~", "")
+		appt_date = trim(appt_date)
+		appt_notc_sent_on = note_date
+		appt_date_in_note = appt_date
+	END IF
 
     if note_date = "        " then Exit Do                                      'if we are at the end of the list of notes - we can't read any more
 
@@ -6514,49 +6529,51 @@ Do
                 If the_process_for_snap = "Application" AND exp_det_case_note_found = FALSE Then
                     If full_determination_done = False Then
                         full_determination_done = True
-                        determined_income = 0
-                        For each_job = 0 to UBound(ALL_JOBS_PANELS_ARRAY, 2)
-                            If ALL_JOBS_PANELS_ARRAY(pic_prosp_income, each_job) <> "" Then
-                                If IsNumeric(ALL_JOBS_PANELS_ARRAY(pic_prosp_income, each_job)) = True Then determined_income = determined_income + ALL_JOBS_PANELS_ARRAY(pic_prosp_income, each_job)
-                            ElseIf ALL_JOBS_PANELS_ARRAY(pic_pay_date_income, each_job) <> "" Then
-                                If IsNumeric(ALL_JOBS_PANELS_ARRAY(pic_pay_date_income, each_job)) = True Then
-                                    If ALL_JOBS_PANELS_ARRAY(main_pay_freq, each_job) = "Monthly" Then determined_income = determined_income + ALL_JOBS_PANELS_ARRAY(pic_pay_date_income, each_job)
-                                    If ALL_JOBS_PANELS_ARRAY(main_pay_freq, each_job) = "Semi-Monthly" Then determined_income = determined_income + ALL_JOBS_PANELS_ARRAY(pic_pay_date_income, each_job)*2
-                                    If ALL_JOBS_PANELS_ARRAY(main_pay_freq, each_job) = "Biweekly" Then determined_income = determined_income + ALL_JOBS_PANELS_ARRAY(pic_pay_date_income, each_job)*2.15
-                                    If ALL_JOBS_PANELS_ARRAY(main_pay_freq, each_job) = "Weekly" Then determined_income = determined_income + ALL_JOBS_PANELS_ARRAY(pic_pay_date_income, each_job)*4.3
+                        If first_time_to_exp_det = True Then
+                            determined_income = 0
+                            For each_job = 0 to UBound(ALL_JOBS_PANELS_ARRAY, 2)
+                                If ALL_JOBS_PANELS_ARRAY(pic_prosp_income, each_job) <> "" Then
+                                    If IsNumeric(ALL_JOBS_PANELS_ARRAY(pic_prosp_income, each_job)) = True Then determined_income = determined_income + ALL_JOBS_PANELS_ARRAY(pic_prosp_income, each_job)
+                                ElseIf ALL_JOBS_PANELS_ARRAY(pic_pay_date_income, each_job) <> "" Then
+                                    If IsNumeric(ALL_JOBS_PANELS_ARRAY(pic_pay_date_income, each_job)) = True Then
+                                        If ALL_JOBS_PANELS_ARRAY(main_pay_freq, each_job) = "Monthly" Then determined_income = determined_income + ALL_JOBS_PANELS_ARRAY(pic_pay_date_income, each_job)
+                                        If ALL_JOBS_PANELS_ARRAY(main_pay_freq, each_job) = "Semi-Monthly" Then determined_income = determined_income + ALL_JOBS_PANELS_ARRAY(pic_pay_date_income, each_job)*2
+                                        If ALL_JOBS_PANELS_ARRAY(main_pay_freq, each_job) = "Biweekly" Then determined_income = determined_income + ALL_JOBS_PANELS_ARRAY(pic_pay_date_income, each_job)*2.15
+                                        If ALL_JOBS_PANELS_ARRAY(main_pay_freq, each_job) = "Weekly" Then determined_income = determined_income + ALL_JOBS_PANELS_ARRAY(pic_pay_date_income, each_job)*4.3
+                                    End If
                                 End If
+                            Next
+
+                            For each_busi = 0 to UBound(ALL_BUSI_PANELS_ARRAY, 2)
+                                If IsNumeric(ALL_BUSI_PANELS_ARRAY(income_pro_snap, each_busi)) = True Then determined_income = determined_income + ALL_BUSI_PANELS_ARRAY(income_pro_snap, each_busi)
+                            Next
+
+                            For each_unea_memb = 0 to UBound(UNEA_INCOME_ARRAY, 2)
+                                If IsNumeric(UNEA_INCOME_ARRAY(direct_CS_amt, each_unea_memb)) = True Then determined_income = determined_income + UNEA_INCOME_ARRAY(direct_CS_amt, each_unea_memb)
+                                If IsNumeric(UNEA_INCOME_ARRAY(disb_CS_amt, each_unea_memb)) = True Then determined_income = determined_income + UNEA_INCOME_ARRAY(disb_CS_amt, each_unea_memb)
+                                If IsNumeric(UNEA_INCOME_ARRAY(disb_CS_arrears_amt, each_unea_memb)) = True Then determined_income = determined_income + UNEA_INCOME_ARRAY(disb_CS_arrears_amt, each_unea_memb)
+                                If IsNumeric(UNEA_INCOME_ARRAY(UNEA_SNAP_amt, each_unea_memb)) = True Then determined_income = determined_income + UNEA_INCOME_ARRAY(UNEA_SNAP_amt, each_unea_memb)
+                                If IsNumeric(UNEA_INCOME_ARRAY(UNEA_UC_monthly_snap, each_unea_memb)) = True Then determined_income = determined_income + UNEA_INCOME_ARRAY(UNEA_UC_monthly_snap, each_unea_memb)
+                                If IsNumeric(UNEA_INCOME_ARRAY(UNEA_RSDI_amt, each_unea_memb)) = True Then determined_income = determined_income + UNEA_INCOME_ARRAY(UNEA_RSDI_amt, each_unea_memb)
+                                If IsNumeric(UNEA_INCOME_ARRAY(UNEA_SSI_amt, each_unea_memb)) = True Then determined_income = determined_income + UNEA_INCOME_ARRAY(UNEA_SSI_amt, each_unea_memb)
+                            Next
+
+                            determined_assets = app_month_assets
+
+                            total_shelter_amount = replace(total_shelter_amount, "$", "")
+                            total_shelter_amount = total_shelter_amount * 1
+                            determined_shel = total_shelter_amount
+
+                            If hest_information <> "Select ALLOWED HEST" Then
+                                hest_array = split(hest_information, "-")
+                                determined_utilities = hest_array(1)
+                                determined_utilities = replace(determined_utilities, "$", "")
+                                determined_utilities = replace(determined_utilities, "Full", "")
+                                determined_utilities = trim(determined_utilities)
+                                If IsNumeric(determined_utilities) = False then determined_utilities = ""
                             End If
-                        Next
-
-                        For each_busi = 0 to UBound(ALL_BUSI_PANELS_ARRAY, 2)
-                            If IsNumeric(ALL_BUSI_PANELS_ARRAY(income_pro_snap, each_busi)) = True Then determined_income = determined_income + ALL_BUSI_PANELS_ARRAY(income_pro_snap, each_busi)
-                        Next
-
-                        For each_unea_memb = 0 to UBound(UNEA_INCOME_ARRAY, 2)
-                            If IsNumeric(UNEA_INCOME_ARRAY(direct_CS_amt, each_unea_memb)) = True Then determined_income = determined_income + UNEA_INCOME_ARRAY(direct_CS_amt, each_unea_memb)
-                            If IsNumeric(UNEA_INCOME_ARRAY(disb_CS_amt, each_unea_memb)) = True Then determined_income = determined_income + UNEA_INCOME_ARRAY(disb_CS_amt, each_unea_memb)
-                            If IsNumeric(UNEA_INCOME_ARRAY(disb_CS_arrears_amt, each_unea_memb)) = True Then determined_income = determined_income + UNEA_INCOME_ARRAY(disb_CS_arrears_amt, each_unea_memb)
-                            If IsNumeric(UNEA_INCOME_ARRAY(UNEA_SNAP_amt, each_unea_memb)) = True Then determined_income = determined_income + UNEA_INCOME_ARRAY(UNEA_SNAP_amt, each_unea_memb)
-                            If IsNumeric(UNEA_INCOME_ARRAY(UNEA_UC_monthly_snap, each_unea_memb)) = True Then determined_income = determined_income + UNEA_INCOME_ARRAY(UNEA_UC_monthly_snap, each_unea_memb)
-                            If IsNumeric(UNEA_INCOME_ARRAY(UNEA_RSDI_amt, each_unea_memb)) = True Then determined_income = determined_income + UNEA_INCOME_ARRAY(UNEA_RSDI_amt, each_unea_memb)
-                            If IsNumeric(UNEA_INCOME_ARRAY(UNEA_SSI_amt, each_unea_memb)) = True Then determined_income = determined_income + UNEA_INCOME_ARRAY(UNEA_SSI_amt, each_unea_memb)
-                        Next
-
-                        determined_assets = app_month_assets
-
-                        total_shelter_amount = replace(total_shelter_amount, "$", "")
-                        total_shelter_amount = total_shelter_amount * 1
-                        determined_shel = total_shelter_amount
-
-                        If hest_information <> "Select ALLOWED HEST" Then
-                            hest_array = split(hest_information, "-")
-                            determined_utilities = hest_array(1)
-                            determined_utilities = replace(determined_utilities, "$", "")
-                            determined_utilities = replace(determined_utilities, "Full", "")
-                            determined_utilities = trim(determined_utilities)
-                            If IsNumeric(determined_utilities) = False then determined_utilities = ""
+                            first_time_to_exp_det = False
                         End If
-
                         Call run_expedited_determination_script_functionality(xfs_screening, caf_one_income, caf_one_assets, caf_one_rent, caf_one_utilities, determined_income, determined_assets, determined_shel, determined_utilities, calculated_resources, calculated_expenses, calculated_low_income_asset_test, calculated_resources_less_than_expenses_test, is_elig_XFS, approval_date, date_of_application, interview_date, applicant_id_on_file_yn, applicant_id_through_SOLQ, delay_explanation, snap_denial_date, snap_denial_explain, case_assesment_text, next_steps_one, next_steps_two, next_steps_three, next_steps_four, postponed_verifs_yn, list_postponed_verifs, day_30_from_application, other_snap_state, other_state_reported_benefit_end_date, other_state_benefits_openended, other_state_contact_yn, other_state_verified_benefit_end_date, mn_elig_begin_date, action_due_to_out_of_state_benefits, case_has_previously_postponed_verifs_that_prevent_exp_snap, prev_post_verif_assessment_done, previous_date_of_application, previous_expedited_package, prev_verifs_mandatory_yn, prev_verif_list, curr_verifs_postponed_yn, ongoing_snap_approved_yn, prev_post_verifs_recvd_yn, delay_action_due_to_faci, deny_snap_due_to_faci, faci_review_completed, facility_name, snap_inelig_faci_yn, faci_entry_date, faci_release_date, release_date_unknown_checkbox, release_within_30_days_yn)
                     End If
                 End If
@@ -6570,8 +6587,8 @@ Do
                   ComboBox 330, 10, 165, 15, "Select or Type"+chr(9)+"incomplete"+chr(9)+"approved"+chr(9)+CAF_status, CAF_status
                   EditBox 60, 30, 435, 15, actions_taken
                   ' DropListBox 135, 60, 30, 45, "?"+chr(9)+"Yes"+chr(9)+"No", snap_exp_yn
-                  ButtonGroup ButtonPressed
-                    PushButton 165, 60, 15, 15, "!", tips_and_tricks_xfs_button
+                  ' ButtonGroup ButtonPressed
+                    ' PushButton 165, 60, 15, 15, "!", tips_and_tricks_xfs_button
                   ' EditBox 270, 60, 40, 15, app_month_income '210'
                   ' EditBox 350, 60, 40, 15, app_month_assets '290'
                   ' EditBox 445, 60, 40, 15, app_month_expenses '385'
@@ -6622,18 +6639,18 @@ Do
                     If exp_det_case_note_found = True Then GroupBox 5, 50, 490, 70, "SNAP Expedited"
 
                     If exp_det_case_note_found = TRUE Then
-                        Text 260, 50, 180, 10, "EXPEDITED DETERMINATION CASE/NOTE FOUND"
+                        Text 15, 60, 400, 10, "EXPEDITED DETERMINATION CASE/NOTE FOUND"
                     Else
                         If full_determination_done = False Then
-                            Text 260, 50, 180, 10, "EXPEDITED DETERMINATION NEEDED!!! Press the button below."
+                            Text 15, 60, 400, 10, "EXPEDITED DETERMINATION NEEDED!!! Press the button below."
 
                             ButtonGroup ButtonPressed
-                              PushButton 440, 50, 50, 15, "Complete Expedited Determination", run_determination_btn
+                              PushButton 290, 100, 200, 15, "Complete Expedited Determination", run_determination_btn
                         Else
-                            Text 260, 50, 180, 10, case_assesment_text
+                            Text 15, 60, 180, 10, case_assesment_text
 
                             ButtonGroup ButtonPressed
-                              PushButton 440, 50, 50, 15, "Update Expedited Determination", run_determination_btn
+                              PushButton 290, 100, 200, 15, "Update Expedited Determination", run_determination_btn
                         End If
                     End If
                   End If
@@ -6683,6 +6700,9 @@ Do
                 If ButtonPressed = tips_and_tricks_xfs_button Then ButtonPressed = dlg_eight_button
                 If ButtonPressed = -1 Then ButtonPressed = finish_dlgs_button
                 If ButtonPressed = verif_button then ButtonPressed = dlg_eight_button
+                If ButtonPressed =  Then
+
+                End If
 
                 Call assess_button_pressed
 
@@ -6816,49 +6836,50 @@ Do
                     'DIALOG 8
                     If CAF_status = "Select or Type" Then full_err_msg = full_err_msg & "~!~8^* CAF STATUS ##~##   - Indicate the CAF Status."
                     If the_process_for_snap = "Application" AND exp_det_case_note_found = FALSE Then
-                        If trim(snap_denial_date) <> "" AND IsDate(snap_denial_date) = FALSE Then
-                            full_err_msg = full_err_msg & "~!~8^* SNAP DENIAL DATE ##~##   - This is a a SNAP case at application. You entered something in the SNAP denial date but it does not appear to be a date. Please list the date that SNAP will be denied if SNAP is being denied."
-                        ElseIf IsDate(snap_denial_date) = TRUE Then
-                            If DateDiff("d", date, snap_denial_date) > 0 Then full_err_msg = full_err_msg & "~!~8^* SNAP DENIAL DATE ##~##   - The denial date is listed as a future date. Review the date entered in the SNAP denial date field."
-                        ElseIf trim(snap_denial_date) = "" Then
-                            If snap_exp_yn = "?" Then
-                                full_err_msg = full_err_msg & "~!~8^* IS THIS SNAP APPLICATION EXPEDITED ##~##   - This is a a SNAP case at application. Indicate if this case has been determined to be expedited SNAP or not."
-                            Else
-                                If IsNumeric(app_month_income) = FALSE Then full_err_msg = full_err_msg & "~!~8^* APP MONTH - INCOME ##~##   - Enter the income for the application month as a number."
-                                If IsNumeric(app_month_assets) = FALSE Then full_err_msg = full_err_msg & "~!~8^* APP MONTH - ASSETS ##~##   - Enter the liquid assets for the application month as a number."
-                                If IsNumeric(app_month_expenses) = FALSE Then full_err_msg = full_err_msg & "~!~8^* APP MONTH - EXPENSES ##~##   - Enter the expenses (shelter and utilities) for the application month as a number."
-
-                                case_should_be_xfs = FALSE
-                                If IsNumeric(app_month_income) = TRUE AND IsNumeric(app_month_assets) = TRUE AND IsNumeric(app_month_expenses) = TRUE Then
-                                    If app_month_assets <=100 AND app_month_income < 150 Then
-                                        case_should_be_xfs = TRUE
-                                        ' MsgBox "low resources"
-                                    End If
-                                    app_month_assets = app_month_assets * 1
-                                    app_month_income = app_month_income * 1
-                                    app_month_expenses = app_month_expenses * 1
-                                    app_month_resources = app_month_assets + app_month_income
-                                    If app_month_resources < app_month_expenses Then
-                                        case_should_be_xfs = TRUE
-                                        ' MsgBox "insufficient resources" & vbCR & "Resources - " & app_month_resources & vbCR & "Expenses - " & app_month_expenses
-                                    End If
-
-                                    If snap_exp_yn = "Yes" and case_should_be_xfs = FALSE Then full_err_msg = full_err_msg & "~!~8^* SNAP EXPEDITED ##~##   - This is indicated as Expedited, though based on app month details it appears to be NOT Expedited. ##~## App Month: Income - $" & app_month_income & ". Assets - $" & app_month_assets & ". Expenses - $" & app_month_expenses & "."
-                                    If snap_exp_yn = "No" AND case_should_be_xfs = TRUE Then full_err_msg = full_err_msg & "~!~8^* SNAP EXPEDITED ##~##   - This is indicated as NOT Expedited, though based on app month details it appears to be EXPEDITED. ##~## App Month: Income - $" & app_month_income & ". Assets - $" & app_month_assets & ". Expenses - $" & app_month_expenses & "."
-                                End If
-                                If snap_exp_yn = "Yes" Then
-                                    If IsDate(exp_snap_approval_date) = TRUE Then
-                                        If DateDiff("d", date, exp_snap_approval_date) > 0 Then
-                                            full_err_msg = full_err_msg & "~!~8^* EXP APPROVAL DATE ##~##   - The date listed in the expedited approval date is a future date. Please review the date listed and reenter if necessary."
-                                        ElseIf DateDiff("d", CAF_datestamp, exp_snap_approval_date) > 7 AND trim(exp_snap_delays) = "" Then
-                                            full_err_msg = full_err_msg & "~!~8^* EXPLAIN DELAYS ##~##   - Since Expedited SNAP is not approved within 7 days of the date of application, pease explain the reason for the delay."
-                                        End If
-                                    Else
-                                        If trim(exp_snap_delays) = "" Then full_err_msg = full_err_msg & "~!~8^* EXPLAIN DELAYS ##~##   - Since the Expedited SNAP does not have an approval date yet, either explain the reason for the delay or indicate the date of Expedited SNAP Approval."
-                                    End If
-                                End If
-                            End If
-                        End If
+                        If full_determination_done = False Then full_err_msg = full_err_msg & "~!~8^* COMPLETE EXPEDITED DETERMINATION ##~##   - This is a a SNAP case at application. We must complete the expedited determination. Press the button labeled 'COMPLETE EXPEDITED DETERMINATION' and complete all steps of this functionality to create an expedited determination."
+                        ' If trim(snap_denial_date) <> "" AND IsDate(snap_denial_date) = FALSE Then
+                        '     full_err_msg = full_err_msg & "~!~8^* SNAP DENIAL DATE ##~##   - This is a a SNAP case at application. You entered something in the SNAP denial date but it does not appear to be a date. Please list the date that SNAP will be denied if SNAP is being denied."
+                        ' ElseIf IsDate(snap_denial_date) = TRUE Then
+                        '     If DateDiff("d", date, snap_denial_date) > 0 Then full_err_msg = full_err_msg & "~!~8^* SNAP DENIAL DATE ##~##   - The denial date is listed as a future date. Review the date entered in the SNAP denial date field."
+                        ' ElseIf trim(snap_denial_date) = "" Then
+                        '     If snap_exp_yn = "?" Then
+                        '         full_err_msg = full_err_msg & "~!~8^* IS THIS SNAP APPLICATION EXPEDITED ##~##   - This is a a SNAP case at application. Indicate if this case has been determined to be expedited SNAP or not."
+                        '     Else
+                        '         If IsNumeric(app_month_income) = FALSE Then full_err_msg = full_err_msg & "~!~8^* APP MONTH - INCOME ##~##   - Enter the income for the application month as a number."
+                        '         If IsNumeric(app_month_assets) = FALSE Then full_err_msg = full_err_msg & "~!~8^* APP MONTH - ASSETS ##~##   - Enter the liquid assets for the application month as a number."
+                        '         If IsNumeric(app_month_expenses) = FALSE Then full_err_msg = full_err_msg & "~!~8^* APP MONTH - EXPENSES ##~##   - Enter the expenses (shelter and utilities) for the application month as a number."
+                        '
+                        '         case_should_be_xfs = FALSE
+                        '         If IsNumeric(app_month_income) = TRUE AND IsNumeric(app_month_assets) = TRUE AND IsNumeric(app_month_expenses) = TRUE Then
+                        '             If app_month_assets <=100 AND app_month_income < 150 Then
+                        '                 case_should_be_xfs = TRUE
+                        '                 ' MsgBox "low resources"
+                        '             End If
+                        '             app_month_assets = app_month_assets * 1
+                        '             app_month_income = app_month_income * 1
+                        '             app_month_expenses = app_month_expenses * 1
+                        '             app_month_resources = app_month_assets + app_month_income
+                        '             If app_month_resources < app_month_expenses Then
+                        '                 case_should_be_xfs = TRUE
+                        '                 ' MsgBox "insufficient resources" & vbCR & "Resources - " & app_month_resources & vbCR & "Expenses - " & app_month_expenses
+                        '             End If
+                        '
+                        '             If snap_exp_yn = "Yes" and case_should_be_xfs = FALSE Then full_err_msg = full_err_msg & "~!~8^* SNAP EXPEDITED ##~##   - This is indicated as Expedited, though based on app month details it appears to be NOT Expedited. ##~## App Month: Income - $" & app_month_income & ". Assets - $" & app_month_assets & ". Expenses - $" & app_month_expenses & "."
+                        '             If snap_exp_yn = "No" AND case_should_be_xfs = TRUE Then full_err_msg = full_err_msg & "~!~8^* SNAP EXPEDITED ##~##   - This is indicated as NOT Expedited, though based on app month details it appears to be EXPEDITED. ##~## App Month: Income - $" & app_month_income & ". Assets - $" & app_month_assets & ". Expenses - $" & app_month_expenses & "."
+                        '         End If
+                        '         If snap_exp_yn = "Yes" Then
+                        '             If IsDate(exp_snap_approval_date) = TRUE Then
+                        '                 If DateDiff("d", date, exp_snap_approval_date) > 0 Then
+                        '                     full_err_msg = full_err_msg & "~!~8^* EXP APPROVAL DATE ##~##   - The date listed in the expedited approval date is a future date. Please review the date listed and reenter if necessary."
+                        '                 ElseIf DateDiff("d", CAF_datestamp, exp_snap_approval_date) > 7 AND trim(exp_snap_delays) = "" Then
+                        '                     full_err_msg = full_err_msg & "~!~8^* EXPLAIN DELAYS ##~##   - Since Expedited SNAP is not approved within 7 days of the date of application, pease explain the reason for the delay."
+                        '                 End If
+                        '             Else
+                        '                 If trim(exp_snap_delays) = "" Then full_err_msg = full_err_msg & "~!~8^* EXPLAIN DELAYS ##~##   - Since the Expedited SNAP does not have an approval date yet, either explain the reason for the delay or indicate the date of Expedited SNAP Approval."
+                        '             End If
+                        '         End If
+                        '     End If
+                        ' End If
                     End If
                     If trim(actions_taken) = "" Then full_err_msg = full_err_msg & "~!~8^* ACTIONS TAKEN ##~##   - Indicate what actions were taken when processing this CAF."
                     prev_err_msg = full_err_msg
@@ -7878,53 +7899,301 @@ If HC_checkbox = checked Then
 End If
 
 If the_process_for_snap = "Application" AND exp_det_case_note_found = False Then
-    Call start_a_blank_CASE_NOTE
+    If full_determination_done = True Then
+        If developer_mode = False Then
 
-    If IsDate(snap_denial_date) = TRUE Then
-        case_note_header_text = "Expedited Determination: SNAP to be denied"
-    Else
-        IF snap_exp_yn = "Yes" then
-        	case_note_header_text = "Expedited Determination: SNAP appears expedited"
-        ELSEIF snap_exp_yn = "No" then
-        	case_note_header_text = "Expedited Determination: SNAP does not appear expedited"
-        END IF
-    End If
-    Call write_variable_in_CASE_NOTE(case_note_header_text)
-    If interview_date <> "" Then Call write_variable_in_case_note ("* Interview completed on: " & interview_date & " and full Expedited Determination Done")
-    If IsDate(snap_denial_date) = TRUE Then
-        Call write_variable_in_CASE_NOTE("* SNAP to be denied on " & snap_denial_date & ". Since case is not SNAP eligible, case cannot receive Expedited issuance.")
-        If snap_exp_yn = "Yes" Then
-            Call write_variable_with_indent_in_CASE_NOTE("Case is determined to meet criteria based upon income alone.")
-            Call write_variable_with_indent_in_CASE_NOTE("Expedited approval requires case to be otherwise eligble for SNAP and this does not meet this criteria.")
-        ElseIf snap_exp_yn = "No" Then
-            Call write_variable_with_indent_in_CASE_NOTE("Expedited SNAP cannot be approved as case does not meet all criteria")
-        End If
-        Call write_bullet_and_variable_in_CASE_NOTE("Explanation of Denial", snap_denial_explain)
-    Else
-        IF snap_exp_yn = "Yes" Then
-            If trim(exp_snap_approval_date) <> "" Then
-                Call write_variable_in_case_note ("* Case is determined to meet criteria and Expedited SNAP can be approved.")
-            Else
-                Call write_variable_in_case_note ("* Case is determined to meet expedited SNAP criteria, approval not yet completed.")
-            End If
-        End If
-        IF snap_exp_yn = "No" Then Call write_variable_in_case_note ("* Expedited SNAP cannot be approved as case does not meet all criteria")
-        If snap_exp_yn = "Yes" Then
-            If IsDate(exp_snap_approval_date) = TRUE Then Call write_variable_in_CASE_NOTE("* SNAP EXP approved on " & exp_snap_approval_date & " - " & DateDiff("d", CAF_datestamp, exp_snap_approval_date) & " days after the date of application.")
-            Call write_bullet_and_variable_in_CASE_NOTE("Reason for delay", exp_snap_delays)
-        End If
-    End If
-    If trim(app_month_income) <> "" AND trim(app_month_assets) <> "" AND trim(app_month_expenses) <> "" Then
-        Call write_variable_in_CASE_NOTE("* Expedited Determination is based on information from application month:")
-        Call write_variable_with_indent_in_CASE_NOTE("Income: $" & app_month_income)
-        Call write_variable_with_indent_in_CASE_NOTE("Assets: $" & app_month_assets)
-        Call write_variable_with_indent_in_CASE_NOTE("Expenses (Shelter & Utilities): $" & app_month_expenses)
-    End If
+        	txt_file_name = "expedited_determination_detail_" & MAXIS_case_number & "_" & replace(replace(replace(now, "/", "_"),":", "_")," ", "_") & ".txt"
+        	exp_info_file_path = t_drive &"\Eligibility Support\Assignments\Expedited Information\"  & txt_file_name
+        	' MsgBox exp_info_file_path
 
-    Call write_variable_in_CASE_NOTE("---")
-    Call write_variable_in_CASE_NOTE(worker_signature)
+        	With objFSO
+        		'Creating an object for the stream of text which we'll use frequently
+        		Dim objTextStream
 
-    PF3
+        		Set objTextStream = .OpenTextFile(exp_info_file_path, ForWriting, true)
+
+        		objTextStream.WriteLine ""
+
+        		objTextStream.WriteLine "CASE NUMBER ^*^*^" & MAXIS_case_number
+        		objTextStream.WriteLine "WORKER NAME ^*^*^" & worker_name
+        		objTextStream.WriteLine "CASE X NUMBER  ^*^*^" & case_pw
+        		objTextStream.WriteLine "DATE OF APPLICATION ^*^*^" & date_of_application
+        		objTextStream.WriteLine "APPT NOTC SENT DATE ^*^*^" & appt_notc_sent_on
+        		objTextStream.WriteLine "APPT DATE ^*^*^" & appt_date_in_note
+        		objTextStream.WriteLine "DATE OF INTERVIEW ^*^*^" & interview_date
+        		objTextStream.WriteLine "EXPEDITED SCREENING STATUS ^*^*^" & xfs_screening
+        		objTextStream.WriteLine "EXPEDITED DETERMINATION STATUS ^*^*^" & is_elig_XFS
+        		objTextStream.WriteLine "DET INCOME ^*^*^" & determined_income
+        		objTextStream.WriteLine "DET ASSETS ^*^*^" & determined_assets
+        		objTextStream.WriteLine "DET SHEL ^*^*^" & determined_shel
+        		objTextStream.WriteLine "DET HEST ^*^*^" & determined_utilities
+        		objTextStream.WriteLine "DATE OF APPROVAL ^*^*^" & approval_date
+        		objTextStream.WriteLine "SNAP DENIAL DATE ^*^*^" & snap_denial_date
+        		objTextStream.WriteLine "SNAP DENIAL REASON ^*^*^" & snap_denial_explain
+        		objTextStream.WriteLine "ID ON FILE ^*^*^" & do_we_have_applicant_id
+        		objTextStream.WriteLine "OUTSTATE ACTION ^*^*^" & action_due_to_out_of_state_benefits
+        		objTextStream.WriteLine "OUTSTATE STATE ^*^*^" & other_snap_state
+        		objTextStream.WriteLine "OUTSTATE REPORTED END DATE ^*^*^" & other_state_reported_benefit_end_date
+        		objTextStream.WriteLine "OUTSTATE OPENENDED ^*^*^" & other_state_benefits_openended
+        		objTextStream.WriteLine "OUTSTATE VERIFIED END DATE ^*^*^" & other_state_verified_benefit_end_date
+        		objTextStream.WriteLine "MN ELIG BEGIN DATE ^*^*^" & mn_elig_begin_date
+        		objTextStream.WriteLine "PREV POST DELAY APP ^*^*^" & case_has_previously_postponed_verifs_that_prevent_exp_snap				'(Boolean)
+        		objTextStream.WriteLine "PREV POST PREV DATE OF APP ^*^*^" & previous_date_of_application
+        		objTextStream.WriteLine "PREV POST LIST ^*^*^" & prev_verif_list
+        		objTextStream.WriteLine "PREV POST CURR VERIF POST ^*^*^" & curr_verifs_postponed_yn
+        		objTextStream.WriteLine "PREV POST ONGOING SNAP APP ^*^*^" & ongoing_snap_approved_yn
+        		objTextStream.WriteLine "PREV POST VERIFS RECVD ^*^*^" & prev_post_verifs_recvd_yn
+        		objTextStream.WriteLine "EXPLAIN APPROVAL DELAYS  ^*^*^" & delay_explanation								'(all of them)
+        		objTextStream.WriteLine "POSTPONED VERIFICATIONS ^*^*^" & postponed_verifs_yn
+        		objTextStream.WriteLine "WHAT ARE THE POSTPONED VERIFICATIONS ^*^*^" & list_postponed_verifs
+        		objTextStream.WriteLine "FACI DELAY ACTION ^*^*^" & delay_action_due_to_faci
+        		objTextStream.WriteLine "FACI DENY ^*^*^" & deny_snap_due_to_faci
+        		objTextStream.WriteLine "FACI NAME ^*^*^" & facility_name
+        		objTextStream.WriteLine "FACI INELIG SNAP ^*^*^" & snap_inelig_faci_yn
+        		objTextStream.WriteLine "FACI ENTRY DATE ^*^*^" & faci_entry_date
+        		objTextStream.WriteLine "FACI RELEASE DATE ^*^*^" & faci_release_date
+        		objTextStream.WriteLine "FACI RELEASE IN 30 DAYS ^*^*^" & release_within_30_days_yn
+        		objTextStream.WriteLine "DATE OF SCRIPT RUN ^*^*^" & date
+
+        		'Close the object so it can be opened again shortly
+        		objTextStream.Close
+
+        	End With
+
+        End if
+
+        note_calculation_detail = False
+        If income_review_completed = True OR assets_review_completed = True OR shel_review_completed = True Then note_calculation_detail = True
+
+        note_case_situation_details = False
+        If action_due_to_out_of_state_benefits <> "" OR prev_post_verif_assessment_done = True OR faci_review_completed = True Then note_case_situation_details = True
+
+        'creating a custom header: this is read by BULK - EXP SNAP REVIEW script so don't mess this please :)
+        If IsDate(snap_denial_date) = TRUE Then
+        	case_note_header_text = "Expedited Determination: SNAP to be denied"
+        Else
+        	IF is_elig_XFS = True then
+        		case_note_header_text = "Expedited Determination: SNAP appears expedited"
+        	ELSEIF is_elig_XFS = False then
+        		case_note_header_text = "Expedited Determination: SNAP does not appear expedited"
+        	END IF
+        End If
+
+        'THE CASE NOTE-----------------------------------------------------------------------------------------------------------------
+        navigate_to_MAXIS_screen "CASE", "NOTE"
+
+        Call start_a_blank_case_note
+        Call write_variable_in_case_note (case_note_header_text)
+        If interview_date <> "" Then Call write_variable_in_case_note (" - Interview completed on: " & interview_date & " and full Expedited Determination Done")
+        IF exp_screening_note_found = TRUE Then
+        	Call write_variable_in_case_note ("Expedited Screening found: " & xfs_screening)
+        	Call write_variable_in_case_note ("  Based on: Income:  $ " & right("        " & caf_one_income, 8) & ", Assets:    $ " & right("        " & caf_one_assets, 8)    & ", Totaling: $ " & right("        " & caf_one_resources, 8))
+        	Call write_variable_in_case_note ("            Shelter: $ " & right("        " & caf_one_rent, 8)   & ", Utilities: $ " & right("        " & caf_one_utilities, 8) & ", Totaling: $ " & right("        " & caf_one_expenses, 8))
+
+        	Call write_variable_in_case_note ("---")
+        End If
+        If IsDate(snap_denial_date) = TRUE Then
+        	Call write_variable_in_CASE_NOTE("SNAP to be denied on " & snap_denial_date & ". Since case is not SNAP eligible, case cannot receive Expedited issuance.")
+        	If is_elig_XFS = TRUE Then
+        		Call write_variable_with_indent_in_CASE_NOTE("Case is determined to meet criteria based upon income alone.")
+        		Call write_variable_with_indent_in_CASE_NOTE("Expedited approval requires case to be otherwise eligble for SNAP and this does not meet this criteria.")
+        	ElseIf is_elig_XFS = False Then
+        		Call write_variable_with_indent_in_CASE_NOTE("Expedited SNAP cannot be approved as case does not meet all criteria")
+        	End If
+        	Call write_bullet_and_variable_in_CASE_NOTE("Explanation of Denial", snap_denial_explain)
+        Else
+        	IF is_elig_XFS = TRUE Then
+        		Call write_variable_in_case_note ("Case is determined to meet criteria for Expedited SNAP.")
+        		If IsDate(approval_date) = False AND delay_explanation <> "" Then
+        			Call write_variable_in_case_note (" - Approval of Expedited SNAP cannot be completed due to:")
+        			' delay_explanation = THIS NEEDS TO BE AN ARRAY
+        			If InStr(delay_explanation, ";") = 0 Then
+        				delay_explain_array = Array(delay_explanation)
+        			Else
+        				delay_explain_array = Split(delay_explanation, ";")
+        			End If
+        			counter = 1
+        			For each item in delay_explain_array
+        				item = trim(item)
+        				Call write_variable_with_indent_in_CASE_NOTE(counter & ". " & item)
+        				counter = counter + 1
+        			Next
+        		End If
+        	End If
+        	IF is_elig_XFS = FALSE Then Call write_variable_in_case_note ("Case does not meet Expedited SNAP criteria.")
+        	Call write_variable_in_case_note ("  Based on: Income:  $ " & right("        " & determined_income, 8) & ", Assets:    $ " & right("        " & determined_assets, 8)   & ", Totaling: $ " & right("        " & calculated_resources, 8))
+        	Call write_variable_in_case_note ("            Shelter: $ " & right("        " & determined_shel, 8)   & ", Utilities: $ " & right("        " & determined_utilities, 8) & ", Totaling: $ " & right("        " & calculated_expenses, 8))
+        	Call write_variable_in_CASE_NOTE("  --- Expedited Criteria Tests ---")
+        	If calculated_low_income_asset_test = False Then Call write_variable_in_case_note("  FAILED - Resources Less than or Equal to $100 and Income Less than $150")
+        	If calculated_low_income_asset_test = True Then Call write_variable_in_case_note("  PASSED - Resources Less than or Equal to $100 and Income Less than $150")
+        	If calculated_resources_less_than_expenses_test = False Then Call write_variable_in_case_note("  FAILED - Resources Plus Income Less than Shelter Costs")
+        	If calculated_resources_less_than_expenses_test = True Then Call write_variable_in_case_note("  PASSED - Resources Plus Income Less than Shelter Costs")
+        	Call write_variable_in_case_note ("---")
+        	IF is_elig_XFS = TRUE Then
+        		Call write_variable_in_case_note ("Important Details")
+        		Call write_bullet_and_variable_in_case_note ("Date of Application", date_of_application)
+        		Call write_bullet_and_variable_in_case_note ("Date of Interview", interview_date)
+        		Call write_bullet_and_variable_in_case_note ("Date of Approval", approval_date)
+        		' Call write_bullet_and_variable_in_case_note ("Reason for Delay", delay_explanation)
+        		Call write_bullet_and_variable_in_CASE_NOTE("Postponed Verifs", list_postponed_verifs)
+        		Call write_variable_in_case_note ("---")
+        	End If
+        	If note_calculation_detail = True Then
+        		Call write_variable_in_case_note ("* Additional Notes about these amounts:")
+        		If income_review_completed = True Then
+        			' Call write_variable_in_case_note ("*   INCOME Details:")
+        			If jobs_income_yn = "Yes" Then
+        				' Call write_variable_in_case_note ("    - JOBS")
+        				for the_job = 0 to UBound(JOBS_ARRAY, 2)
+        					If IsNumeric(JOBS_ARRAY(jobs_wage_const, the_job)) = True AND IsNumeric(JOBS_ARRAY(jobs_hours_const, the_job)) = True Then
+        						Call write_variable_in_case_note ("  - JOBS: " & JOBS_ARRAY(jobs_employee_const, the_job) & " at " & JOBS_ARRAY(jobs_employer_const, the_job) & ": $" & JOBS_ARRAY(jobs_wage_const, the_job) & "/hr at " & JOBS_ARRAY(jobs_hours_const, the_job) & " hrs/wk.")
+        						Call write_variable_in_case_note ("            - Monthly Gross: $" & JOBS_ARRAY(jobs_monthly_pay_const, the_job))
+        					End If
+        				Next
+        			End If
+        			If busi_income_yn = "Yes" Then
+        				' Call write_variable_in_case_note ("    - SELF EMPLOYMENT")
+        				for the_busi = 0 to UBound(BUSI_ARRAY, 2)
+        					Call write_variable_in_case_note ("  - BUSI: " & BUSI_ARRAY(busi_owner_const, the_busi) & " for " & BUSI_ARRAY(busi_info_const, the_busi) & ".")
+        					Call write_variable_in_case_note ("            - Monthly Gross: $" & BUSI_ARRAY(busi_monthly_earnings_const, the_busi))
+        				Next
+        			End If
+        			If unea_income_yn = "Yes" Then
+        				' Call write_variable_in_case_note ("    - UNEARNED INCOME")
+        				for the_unea = 0 to UBound(UNEA_ARRAY, 2)
+        					Call write_variable_in_case_note ("  - UNEA: " & UNEA_ARRAY(unea_owner_const, the_unea) & " from " & UNEA_ARRAY(unea_info_const, the_unea) & ".")
+        					Call write_variable_in_case_note ("            - Monthly Gross: $" & UNEA_ARRAY(unea_monthly_earnings_const, the_unea))
+        				Next
+        			End If
+        			' app_month_income_detail(determined_income, income_review_completed, jobs_income_yn, busi_income_yn, unea_income_yn, JOBS_ARRAY, BUSI_ARRAY, UNEA_ARRAY)
+        		End If
+        		If assets_review_completed = True Then
+        			' Call write_variable_in_case_note ("*   ASSET Details:")
+        			If cash_amount_yn = "Yes" Then Call write_variable_in_case_note ("  - CASH: Amount: $" & cash_amount)
+        			If bank_account_yn = "Yes" Then
+        				' Call write_variable_in_case_note ("    - BANK ACCOUNTS")
+        				For the_acct = 0 to UBound(ACCOUNTS_ARRAY, 2)
+        					If ACCOUNTS_ARRAY(account_type_const, the_acct) <> "Select One..." Then
+        						acct_info = "  - ACCT: " & ACCOUNTS_ARRAY(account_type_const, the_acct)
+        						If ACCOUNTS_ARRAY(bank_name_const, the_acct) <> "" Then acct_info = acct_info & " at " & ACCOUNTS_ARRAY(bank_name_const, the_acct)
+        						If ACCOUNTS_ARRAY(account_owner_const, the_acct) <> "" Then acct_info = acct_info & " owned by: " & ACCOUNTS_ARRAY(account_owner_const, the_acct)
+        						acct_info = acct_info & ". Balance: $" & ACCOUNTS_ARRAY(account_amount_const, the_acct)
+        						Call write_variable_in_case_note (acct_info)
+        					End If
+        				Next
+        			End If
+        			' app_month_asset_detail(determined_assets, assets_review_completed, cash_amount_yn, bank_account_yn, cash_amount, ACCOUNTS_ARRAY)
+        		End If
+        		If shel_review_completed = True Then
+        			' Call write_variable_in_case_note ("*   SHELTER Details:")
+        			first_housing_detail = True
+        			If rent_amount <> "" OR lot_rent_amount <> "" OR mortgage_amount <> "" OR insurance_amount <> "" OR tax_amount <> "" OR room_amount <> "" OR garage_amount <> "" Then
+
+        				Call write_variable_in_case_note ("  - SHEL: Rent:     $ " & right("    " & rent_amount, 4)    &  "   -   Lot Rent:  $" & right("    " & lot_rent_amount, 4))
+        				Call write_variable_in_case_note ("          Mortgage: $ " & right("    " & mortgage_amount, 4) & "   -   Insurance: $" & right("    " & insurance_amount, 4))
+        				Call write_variable_in_case_note ("          Tax:      $ " & right("    " & tax_amount, 4)      & "   -   Room:      $" & right("    " & room_amount, 4))
+        				Call write_variable_in_case_note ("          Garage:   $ " & right("    " & garage_amount, 4))
+        				Call write_variable_in_case_note ("          SUBSIDY:  $ " & right("    " & subsidy_amount, 4))
+        			End If
+        		End If
+        	End If
+        	' Call write_variable_in_case_note ("*   UTILITY Details:")
+        	If all_utilities <> "" Then Call write_variable_in_case_note ("  - HEST: " & all_utilities)
+        	' app_month_utility_detail(determined_utilities, heat_expense, ac_expense, electric_expense, phone_expense, none_expense, all_utilities)
+
+        End If
+
+        If note_case_situation_details = True Then
+        	Call write_variable_in_case_note ("---")
+        	Call write_variable_in_case_note ("Additional details about this case:")
+
+        	If action_due_to_out_of_state_benefits <> "" Then Call write_variable_in_case_note ("* SNAP in Another State")
+        	If action_due_to_out_of_state_benefits = "DENY" Then
+        		Call write_variable_in_case_note ("*   SNAP to be DENIED as active in another state for the application processing 30 days.")
+        		If other_snap_state <> "" Then Call write_variable_in_case_note ("      - Other State: " & other_snap_state)
+        		Call write_variable_in_case_note ("      - Date of Application: " & date_of_application)
+        		Call write_variable_in_case_note ("      - Day 30: " & day_30_from_application)
+        		If IsDate(other_state_verified_benefit_end_date) = True  Then
+        			Call write_variable_in_case_note ("      - End Date of Benefits in Other State: " & other_state_verified_benefit_end_date & " - this date has been confirmed")
+        		ElseIF IsDate(other_state_reported_benefit_end_date) = True Then
+        			Call write_variable_in_case_note ("      - End Date of Benefits in Other State: " & other_state_reported_benefit_end_date & " - reported")
+        		End If
+        		' Call write_variable_in_case_note ("      - Date of Application: " & date_of_application)
+        	End If
+        	If action_due_to_out_of_state_benefits = "APPROVE" Then
+        		Call write_variable_in_case_note ("*   SNAP can be approved in MN for a later date.")
+        		If other_snap_state <> "" Then Call write_variable_in_case_note ("      - Other State: " & other_snap_state)
+        		Call write_variable_in_case_note ("      - Date of Application: " & date_of_application)
+        		Call write_variable_in_case_note ("      - Begin Date of Eligibility in MN: " & mn_elig_begin_date)
+        		Call write_variable_in_case_note ("      - Day 30: " & day_30_from_application)
+        		If IsDate(other_state_verified_benefit_end_date) = True  Then
+        			Call write_variable_in_case_note ("      - End Date of Benefits in Other State: " & other_state_verified_benefit_end_date & " - this date has been confirmed")
+        		ElseIF IsDate(other_state_reported_benefit_end_date) = True Then
+        			Call write_variable_in_case_note ("      - End Date of Benefits in Other State: " & other_state_reported_benefit_end_date & " - reported")
+        		End If
+        	End If
+        	If action_due_to_out_of_state_benefits = "FOLLOW UP" Then
+        		Call write_variable_in_case_note ("*   Needs response/additional information and is causing a delay in processing")
+        		If other_snap_state <> "" Then Call write_variable_in_case_note ("      - Other State: " & other_snap_state)
+        		Call write_variable_in_case_note ("      - The end date of benefits is open-ended or unknown and needs response from the other state before we can take action on the case in MN.")
+        	End If
+        		' snap_in_another_state_detail(date_of_application, day_30_from_application, other_snap_state, other_state_reported_benefit_end_date, other_state_benefits_openended, other_state_contact_yn, other_state_verified_benefit_end_date, mn_elig_begin_date, snap_denial_date, snap_denial_explain, action_due_to_out_of_state_benefits)
+
+        	If prev_post_verif_assessment_done = True Then
+        		Call write_variable_in_case_note ("* SNAP previously Approved with Postponed Verifciations")
+        		If case_has_previously_postponed_verifs_that_prevent_exp_snap = True Then
+        			eff_close_date = replace(previous_expedited_package, "/", "/1/")
+        			eff_close_date = DateAdd("m", 1, eff_close_date)
+        			eff_close_date = DateAdd("d", -1, eff_close_date)
+        			Call write_variable_in_case_note ("*   Expedited SNAP package cannot be approved due to unreceived postponed Verificactions")
+        			Call write_variable_in_case_note ("      - Previousl application on " & previous_date_of_application & " was approved as EXPEDITED with POSTPONED VERIFICATIONS.")
+        			Call write_variable_in_case_note ("      - This package closed on " & eff_close_date & ".")
+        			Call write_variable_in_case_note ("      - The postponed verifications have still not been received.")
+        			Call write_variable_in_case_note ("      - Previously postponed verifs: " & prev_verif_list)
+        			Call write_variable_in_case_note ("      - In order to approve the new Expedited Package for the current application, we would need to postpone verifications AGAIN.")
+        		End If
+        		If case_has_previously_postponed_verifs_that_prevent_exp_snap = False Then
+        			Call write_variable_in_case_note ("*   Though the case had previously postponed verifications, current Expedited can be approved")
+        			If prev_verifs_mandatory_yn = "No" Then Call write_variable_in_case_note ("      - The previous postponed verifications were not mandatory and case meet requirements for regular SNAP.")
+        			If curr_verifs_postponed_yn = "No" Then Call write_variable_in_case_note ("      - The current application does not require postponed verifications to be approved and case meet requirements for regular SNAP.")
+        			If ongoing_snap_approved_yn = "Yes" Then Call write_variable_in_case_note ("      - The case was approved for regular SNAP.")
+        			If prev_post_verifs_recvd_yn = "Yes" Then Call write_variable_in_case_note ("      - The previously postponed verifications have been received.")
+
+        		End If
+
+        		' previous_postponed_verifs_detail(case_has_previously_postponed_verifs_that_prevent_exp_snap, prev_post_verif_assessment_done, delay_explanation, previous_date_of_application, previous_expedited_package, prev_verifs_mandatory_yn, prev_verif_list, curr_verifs_postponed_yn, ongoing_snap_approved_yn, prev_post_verifs_recvd_yn)
+        	End If
+        	If faci_review_completed = True Then
+        		If delay_action_due_to_faci = True Then
+        			Call write_variable_in_case_note ("* Resident is in a facility ")
+        			Call write_variable_in_case_note ("*  Expedited SNAP cannot be processed at this time.")
+        			If facility_name <> "" Then Call write_variable_in_case_note ("      - Facility Name: " & facility_name & " - an Ineligible SNAP Facility")
+        			If facility_name = "" Then Call write_variable_in_case_note ("      - Resident is in an Ineligible SNAP Facility")
+        			If IsDate(faci_entry_date) = True Then Call write_variable_in_case_note ("      - Facility Entry Date: " & faci_entry_date)
+        			If IsDate(faci_release_date) = True Then Call write_variable_in_case_note ("      - Release Date: " & faci_release_date)
+        			If release_date_unknown_checkbox = checked Then Call write_variable_in_case_note ("      - Release date is not known but is expected to be before " & day_30_from_application & ".")
+        			Call write_variable_in_case_note ("      - ")
+
+        		ElseIf deny_snap_due_to_faci = True Then
+        			Call write_variable_in_case_note ("* Resident is in a facility ")
+        			Call write_variable_in_case_note ("*   SNAP must be denied based on the current information.")
+        			If facility_name <> "" Then Call write_variable_in_case_note ("      - Facility Name: " & facility_name & " - an Ineligible SNAP Facility")
+        			If facility_name = "" Then Call write_variable_in_case_note ("      - Resident is in an Ineligible SNAP Facility")
+        			If IsDate(faci_entry_date) = True Then Call write_variable_in_case_note ("      - Facility Entry Date: " & faci_entry_date)
+        			If IsDate(faci_release_date) = True Then Call write_variable_in_case_note ("      - Release Date: " & faci_release_date)
+        			If release_date_unknown_checkbox = checked Then Call write_variable_in_case_note ("      - Release date is not known but is expected to be after " & day_30_from_application & ".")
+
+        		End If
+        		' household_in_a_facility_detail(delay_action_due_to_faci, deny_snap_due_to_faci, faci_review_completed, delay_explanation, snap_denial_explain, snap_denial_date, facility_name, snap_inelig_faci_yn, faci_entry_date, faci_release_date, release_date_unknown_checkbox, release_within_30_days_yn)
+        	End If
+        End If
+
+        Call write_variable_in_case_note ("---")
+
+        Call write_variable_in_case_note(worker_signature)
+
+        PF3
+    End If
 End If
 interview_note = FALSE
 
