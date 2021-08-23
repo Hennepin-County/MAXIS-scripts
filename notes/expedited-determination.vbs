@@ -135,7 +135,7 @@ function app_month_income_detail(determined_income, income_review_completed, job
 		If busi_income_yn = "?" Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter if the household has Income from Self Employment."
 		If unea_income_yn = "?" Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter if the household has Income from Another Source."
 
-		If prvt_err_msg <> "" Then MsgBox prvt_err_msg
+		If prvt_err_msg <> "" Then MsgBox "***** Additional Action/Information Needed ******" & vbCr & vbCr & "Please resolve to continue:" & vbCr & prvt_err_msg
 	Loop until prvt_err_msg = ""
 
 	If income_review_completed = True Then
@@ -348,7 +348,7 @@ function app_month_income_detail(determined_income, income_review_completed, job
 				End If
 			Next
 
-			If prvt_err_msg <> "" AND ButtonPressed = return_btn Then MsgBox prvt_err_msg
+			If prvt_err_msg <> "" AND ButtonPressed = return_btn Then MsgBox "***** Additional Action/Information Needed ******" & vbCr & vbCr & "Please resolve to continue:" & vbCr & prvt_err_msg
 		Loop Until ButtonPressed = return_btn AND prvt_err_msg = ""
 	End If
 
@@ -414,7 +414,7 @@ function app_month_asset_detail(determined_assets, assets_review_completed, cash
 			If cash_amount_yn = "?" Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter if the household has CASH."
 			If bank_account_yn = "?" Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter if the household has A BANK ACCOUNT."
 
-			If prvt_err_msg <> "" Then MsgBox prvt_err_msg
+			If prvt_err_msg <> "" Then MsgBox "***** Additional Action/Information Needed ******" & vbCr & vbCr & "Please resolve to continue:" & vbCr & prvt_err_msg
 		Loop until prvt_err_msg = ""
 	End If
 
@@ -494,7 +494,7 @@ function app_month_asset_detail(determined_assets, assets_review_completed, cash
 				If ACCOUNTS_ARRAY(account_amount_const, the_acct) <> "" And IsNumeric(ACCOUNTS_ARRAY(account_amount_const, the_acct)) = False Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter the Bank Account amounts as a member."
 				If ACCOUNTS_ARRAY(account_type_const, the_acct)	= "Select One..." Then prvt_err_msg = prvt_err_msg & vbCr & "* Select the Bank Account type."
 			Next
-			If prvt_err_msg <> "" AND ButtonPressed = return_btn Then MsgBox prvt_err_msg
+			If prvt_err_msg <> "" AND ButtonPressed = return_btn Then MsgBox "***** Additional Action/Information Needed ******" & vbCr & vbCr & "Please resolve to continue:" & vbCr & prvt_err_msg
 		Loop Until ButtonPressed = return_btn AND prvt_err_msg = ""
 
 		If cash_amount = "" Then cash_amount = 0
@@ -577,7 +577,7 @@ function app_month_housing_detail(determined_shel, shel_review_completed, rent_a
 		If garage_amount <> "" AND IsNumeric(garage_amount) = False Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter the GARAGE amount as a number."
 		If subsidy_amount <> "" AND IsNumeric(subsidy_amount) = False Then prvt_err_msg = prvt_err_msg & vbCr & "* Enter the SUBSIDY amount as a number."
 
-		If prvt_err_msg <> "" Then MsgBox prvt_err_msg
+		If prvt_err_msg <> "" Then MsgBox "***** Additional Action/Information Needed ******" & vbCr & vbCr & "Please resolve to continue:" & vbCr & prvt_err_msg
 	Loop until prvt_err_msg = ""
 
 	If IsNumeric(rent_amount) = True Then determined_shel = determined_shel + rent_amount
@@ -939,7 +939,7 @@ function snap_in_another_state_detail(date_of_application, day_30_from_applicati
 				If DatePart("d", DateAdd("d", 1, other_state_verified_benefit_end_date)) <> 1 Then prvt_err_msg = prvt_err_msg & vbCr & "* SNAP Eligiblity end dates should be the last day of the month that the household received SNAP benefits for. Update the date to be the LAST day of the last month of eligiblity in the other state for the VERIFIED end date."
 			End If
 			If prvt_err_msg <> "" Then
-				MsgBox prvt_err_msg
+				MsgBox "***** Additional Action/Information Needed ******" & vbCr & vbCr & "Please resolve to continue:" & vbCr & prvt_err_msg
 				calculation_done = False
 			End If
 
@@ -1061,7 +1061,7 @@ function previous_postponed_verifs_detail(case_has_previously_postponed_verifs_t
 		If prev_verif_list = "" Then prvt_err_msg = prvt_err_msg & vbCr & "* Review the verifications that were previously postponed and indicate if any of them were mandatory."
 		If curr_verifs_postponed_yn = "?" Then prvt_err_msg = prvt_err_msg & vbCr & "* Indicate if the CURRENT application has verifications required that would need to be postponed to approve the Expedited SNAP."
 
-		If prvt_err_msg <> "" Then MsgBox prvt_err_msg
+		If prvt_err_msg <> "" Then MsgBox "***** Additional Action/Information Needed ******" & vbCr & vbCr & "Please resolve to continue:" & vbCr & prvt_err_msg
 	Loop until prvt_err_msg = ""
 
 	If prev_post_verif_assessment_done = True Then
@@ -1115,7 +1115,7 @@ function previous_postponed_verifs_detail(case_has_previously_postponed_verifs_t
 				If ongoing_snap_approved_yn = "?" Then prvt_err_msg = prvt_err_msg & vbCr & "* Review MAXIS and determine if SNAP was approved after the last month of the expedited package (" & previous_expedited_package & "). If it was, the case met all requirements to gain SNAP eligibility."
 				If prev_post_verifs_recvd_yn = "?" Then prvt_err_msg = prvt_err_msg & vbCr & "* Review the ECF case file and see if the mandatory postponed verifications were ever received, even if SNAP was not approved."
 
-				If prvt_err_msg <> "" Then MsgBox prvt_err_msg
+				If prvt_err_msg <> "" Then MsgBox "***** Additional Action/Information Needed ******" & vbCr & vbCr & "Please resolve to continue:" & vbCr & prvt_err_msg
 			Loop until prvt_err_msg = ""
 		End If
 	End If
@@ -1230,7 +1230,7 @@ function household_in_a_facility_detail(delay_action_due_to_faci, deny_snap_due_
 		If IsDate(faci_release_date) = True AND release_date_unknown_checkbox = checked Then prvt_err_msg = prvt_err_msg & vbCr & "* You have entered a release date AND indicated the release date is unknown."
 		If release_date_unknown_checkbox = checked AND release_within_30_days_yn = "?" Then prvt_err_msg = prvt_err_msg & vbCr & "* Since the expected release date is unknown, indicate if this release is expected to be prior to do the end of the 30 day processing period."
 
-		If prvt_err_msg <> "" Then MsgBox prvt_err_msg
+		If prvt_err_msg <> "" Then MsgBox "***** Additional Action/Information Needed ******" & vbCr & vbCr & "Please resolve to continue:" & vbCr & prvt_err_msg
 	Loop until prvt_err_msg = ""
 
 	If faci_review_completed = True Then
@@ -1469,7 +1469,7 @@ Do
 		Call validate_MAXIS_case_number(err_msg, "*")
 		Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
 		If maxis_updated_yn = "?" Then err_msg = err_msg & vbCr & "* Indicate if MAXIS has been updated with the known information about income, assets, and expenses"
-		IF err_msg <> "" THEN MsgBox err_msg & vbCr & vbCr & "Please resolve this to continue"
+		IF err_msg <> "" THEN MsgBox "***** Action Needed ******" & vbCr & vbCr & "Please resolve to continue:" & vbCr & err_msg
 	Loop until err_msg = ""
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false				'loops until user passwords back in
@@ -1487,7 +1487,10 @@ If MX_region = "INQUIRY DB" Then
 	If continue_in_inquiry = vbNo Then Call script_end_procedure("~PT Interview Script cancelled as it was run in inquiry.")
 End If
 If MX_region = "TRAINING" Then developer_mode = True
-
+If user_ID_for_validation = "CALO001" OR user_ID_for_validation = "ILFE001" OR user_ID_for_validation = "WFS395"Then
+	stay_in_dev_mode = MsgBox("HELLO BZ Script Writer!" & vbCr & vbCr & "You are running in DEVELOPER MODE! This means your data will not be stored in the report out." &vbCr & vbCr & "Is this what you want?" & vbCr & "Click 'No' to turn developer mode OFF.", vbQuestion + vbYesNo, "Run in DEVELOPER MODE??")
+	if stay_in_dev_mode = vbNo Then developer_mode = False
+End If
 ' Call navigate_to_MAXIS_screen("STAT", "PROG")
 Do
 	Call navigate_to_MAXIS_screen_review_PRIV("STAT", "PROG", is_this_priv)
@@ -1534,7 +1537,7 @@ Do
 			' MsgBox DateDiff("d", interview_date, date_of_application)
 			If DateDiff("d", interview_date, date_of_application) > 0 Then err_msg = err_msg & vbCr & "* The Interview Date Cannot be before the Application Date."
 		End If
-		IF err_msg <> "" THEN MsgBox err_msg & vbCr & vbCr & "Please resolve this to continue"
+		IF err_msg <> "" THEN MsgBox "***** Action Needed ******" & vbCr & vbCr & "Please resolve to continue:" & vbCr & err_msg
 	Loop until err_msg = ""
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false
@@ -1642,6 +1645,41 @@ IF exp_screening_note_found = TRUE THEN
 	caf_one_expenses = FormatNumber(caf_one_expenses, 2, -1, 0, -1)
 	PF3
 End IF
+
+day_before_app = DateAdd("d", -1, date_of_application) 'will set the date one day prior to app date'
+
+note_row = 5            'resetting the variables on the loop
+note_date = ""
+note_title = ""
+appt_date = ""
+Do
+	EMReadScreen note_date, 8, note_row, 6      'reading the note date
+	EMReadScreen note_title, 55, note_row, 25   'reading the note header
+	note_title = trim(note_title)
+
+	IF left(note_title, 35) = "~ Appointment letter sent in MEMO ~" then
+		appt_notc_sent_on = note_date
+	ElseIF left(note_title, 42) = "~ Appointment letter sent in MEMO for SNAP" then
+		appt_notc_sent_on = note_date
+	ElseIF left(note_title, 37) = "~ Appointment letter sent in MEMO for" then
+		EMReadScreen appt_date, 10, note_row, 63
+		appt_date = replace(appt_date, "~", "")
+		appt_date = trim(appt_date)
+		appt_notc_sent_on = note_date
+		appt_date_in_note = appt_date
+	END IF
+	' MsgBox "ROW - " & note_row & vbCr & "APPT SENT ON - " & appt_notc_sent_on & "APPT FOR - " & appt_date_in_note
+
+
+	IF note_date = "        " then Exit Do
+	note_row = note_row + 1
+	IF note_row = 19 THEN
+		PF8
+		note_row = 5
+	END IF
+	EMReadScreen next_note_date, 8, note_row, 6
+	IF next_note_date = "        " then Exit Do
+Loop until datevalue(next_note_date) < day_before_app 'looking ahead at the next case note kicking out the dates before app'
 
 determined_utilities = ""
 If maxis_updated_yn = "No" Then Call app_month_utility_detail(determined_utilities, heat_expense, ac_expense, electric_expense, phone_expense, none_expense, all_utilities)
@@ -2316,7 +2354,7 @@ Do
 
 		End If
 		If page_display = show_pg_review Then
-			If postponed_verifs_yn = "Yes" AND trim(list_postponed_verifs) = "" Then err_msg = err_msg * vbCr & "* Since you have Postponed Verifications indicated, list what they are for the NOTE."
+			If postponed_verifs_yn = "Yes" AND trim(list_postponed_verifs) = "" Then err_msg = err_msg & vbCr & "* Since you have Postponed Verifications indicated, list what they are for the NOTE."
 		End If
 
 		' MsgBox "3 - ButtonPressed is " & ButtonPressed
@@ -2328,7 +2366,7 @@ Do
 		If ButtonPressed = review_btn AND err_msg = "" AND page_display <> show_pg_amounts Then page_display = show_pg_review
 		If ButtonPressed = review_btn AND err_msg = "" AND page_display = show_pg_amounts Then page_display = show_pg_determination
 
-		If err_msg <> "" And ButtonPressed < 100 AND page_display <> show_pg_amounts Then MsgBox err_msg
+		If err_msg <> "" And ButtonPressed < 100 AND page_display <> show_pg_amounts Then MsgBox "***** Action Needed ******" & vbCr & vbCr & "Please resolve to continue:" & vbCr & err_msg
 
 		If ButtonPressed <> finish_btn Then err_msg = "LOOP"
 		' MsgBox "4 - ButtonPressed is " & ButtonPressed
@@ -2372,6 +2410,8 @@ If developer_mode = False Then
 		objTextStream.WriteLine "WORKER NAME ^*^*^" & worker_name
 		objTextStream.WriteLine "CASE X NUMBER  ^*^*^" & case_pw
 		objTextStream.WriteLine "DATE OF APPLICATION ^*^*^" & date_of_application
+		objTextStream.WriteLine "APPT NOTC SENT DATE ^*^*^" & appt_notc_sent_on
+		objTextStream.WriteLine "APPT DATE ^*^*^" & appt_date_in_note
 		objTextStream.WriteLine "DATE OF INTERVIEW ^*^*^" & interview_date
 		objTextStream.WriteLine "EXPEDITED SCREENING STATUS ^*^*^" & xfs_screening
 		objTextStream.WriteLine "EXPEDITED DETERMINATION STATUS ^*^*^" & is_elig_XFS
