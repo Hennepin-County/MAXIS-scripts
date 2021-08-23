@@ -4050,6 +4050,7 @@ get_county_code				'since there is a county specific checkbox, this makes the th
 Call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 Call remove_dash_from_droplist(county_list)
+Call find_user_name(worker_name)
 script_run_lowdown = ""
 
 BeginDialog Dialog1, 0, 0, 281, 235, "CAF Script Case number dialog"
@@ -4152,6 +4153,13 @@ If MX_region = "INQUIRY DB" Then
     If continue_in_inquiry = vbNo Then script_end_procedure("Script ended since it was started in Inquiry.")
 End If
 If MX_region = "TRAINING" Then developer_mode = True
+Do
+	Call navigate_to_MAXIS_screen_review_PRIV("STAT", "PROG", is_this_priv)
+	If is_this_priv = True Then Call script_end_procedure("This case is PRIVILEGED and cannot be accessed. Request access to the case first and retry the script once you have access to the case.")
+	EMReadScreen panel_prog_check, 4, 2, 50
+Loop until panel_prog_check = "PROG"
+EMReadScreen case_pw, 7, 21, 21
+Call back_to_SELF
 
 exp_det_case_note_found = False                         'defaulting these boolean variables to know if these notes are needed by this script run
 interview_completed_case_note_found = False
@@ -7932,7 +7940,7 @@ If the_process_for_snap = "Application" AND exp_det_case_note_found = False Then
         		objTextStream.WriteLine "CASE NUMBER ^*^*^" & MAXIS_case_number
         		objTextStream.WriteLine "WORKER NAME ^*^*^" & worker_name
         		objTextStream.WriteLine "CASE X NUMBER  ^*^*^" & case_pw
-        		objTextStream.WriteLine "DATE OF APPLICATION ^*^*^" & date_of_application
+        		objTextStream.WriteLine "DATE OF APPLICATION ^*^*^" & CAF_datestamp
         		objTextStream.WriteLine "APPT NOTC SENT DATE ^*^*^" & appt_notc_sent_on
         		objTextStream.WriteLine "APPT DATE ^*^*^" & appt_date_in_note
         		objTextStream.WriteLine "DATE OF INTERVIEW ^*^*^" & interview_date
