@@ -44,8 +44,9 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: CALL changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("08/24/2021", "GitHub issue #571 BUG-Remove mandatory handling from other notes variable.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("06/09/2021", "GitHub issue #373 BUG-NO IEVS MATCHES FOR SSN needs error script end procedure.", "MiKayla Handley, Hennepin County")
-CALL changelog_update("1/11/2021", "Updated BNDX handling to ensure header of case note is written correctly.", "MiKayla Handley, Hennepin County")
+CALL changelog_update("01/11/2021", "Updated BNDX handling to ensure header of case note is written correctly.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("10/20/2020", "Removed custom functions from script file. Functions have all been incorporated into the project's Function Library.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("09/17/2020", "The field for 'OTHER NOTES' is now required when completing the information to clear the match. ##~## ##~##We are aware that this will not always be required in MAXIS and will be adding additional functionality for scenario and match specific requirements of this field, but in order to provide you with a working script right now this field must be mandatory each time.##~## ##~##Thank you for your patience as we provide updates to this script.##~##", "Casey Love, Hennepin County")
 CALL changelog_update("09/08/2020", "Updated BUG when clearing match BO-Other worker must indicate other notes for comments on IULA.", "MiKayla Handley, Hennepin County")
@@ -423,7 +424,7 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
 		IF resolution_status = "BE-Child" AND exp_grad_date = "" THEN err_msg = err_msg & vbNewLine & "When clearing using BE - Child graduation date and date rcvd must be completed."
 		If resolution_status = "CC-Overpayment Only" AND programs = "Health Care" or programs = "Medical Assistance" THEN err_msg = err_msg & vbNewLine & "System does not allow HC or MA cases to be cleared with the code 'CC - Claim Entered'."
 		If resolution_status = "BO-Other" AND other_notes = "" THEN err_msg = err_msg & vbNewLine & "When clearing using BO-Other other notes must be completed."
-		If other_notes = "" Then err_msg = err_msg & vbNewLine & "Enter information into the 'Other Notes' field for entry into ILUB. (We will be address scenario specific requirements for this field in the future.)"
+		'If other_notes = "" Then err_msg = err_msg & vbNewLine & "Enter information into the 'Other Notes' field for entry into IULB. (We will be addressing scenario specific requirements for this field in the future.)"
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
 	CALL check_for_password_without_transmit(are_we_passworded_out)
@@ -621,7 +622,7 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
     IF resolution_status = "BO-Other" THEN IULA_res_status = "BO"
     IF resolution_status = "NC-Non Cooperation" THEN IULA_res_status = "NC"
     'checked these all to programS'
-	' enter_claim = TRUE
+
     EMwritescreen IULA_res_status, 12, 58
     IF IULA_res_status = "CC" THEN
         col = 57
@@ -630,11 +631,9 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
         	If action_header <> "    " Then
         		If action_header = "ACTH" Then
         			EMWriteScreen "BE", 12, col+1
-					' If col = 57 Then enter_claim = FALSE
-        		Else
+				Else
         			EMWriteScreen "CC", 12, col+1
-					' enter_claim = TRUE
-        		End If
+				End If
         	End If
         	col = col + 6
         Loop until action_header = "    "
@@ -649,7 +648,7 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
 
     TRANSMIT 'Going to IULB
     '----------------------------------------------------------------------------------------writing the note on IULB
-
+	other_notes = trim(other_notes)
 	EMReadScreen panel_name, 4, 02, 52
     IF panel_name = "IULB" and (difference_notice_action_dropdown = "NO" OR notice_sent = "Y") THEN
     	TRANSMIT
@@ -681,42 +680,35 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
 				EMwritescreen IULB_months, 12, 74
 				TRANSMIT
 			END IF
-			IF resolution_status = "CA-Excess Assets" THEN other_notes = "Excess Assets. " & other_notes
-			IF resolution_status = "CI-Benefit Increase" THEN other_notes = "Benefit Increase. " & other_notes
-			IF resolution_status = "CP-Applicant Only Savings" THEN other_notes = "Applicant Only Savings. " & other_notes
-			IF resolution_status = "BC-Case Closed" THEN other_notes = "Case closed. " & other_notes
-			IF resolution_status = "BE-Child" THEN other_notes = "No change, minor child income excluded. " & other_notes
-			IF resolution_status = "BE-No Change" THEN other_notes = "No change. " & other_notes
-			IF resolution_status = "BE-Overpayment Entered" THEN other_notes = "OP entered other programs. " & other_notes
-			IF resolution_status = "BE-NC-Non-collectible" THEN other_notes = "Non-Coop remains, but claim is non-collectible. " & other_notes
-			IF resolution_status = "BI-Interface Prob" THEN other_notes = "Interface Problem. " & other_notes
-			IF resolution_status = "BN-Already Known-No Savings" THEN other_notes = "Already known - No savings. " & other_notes
-			IF resolution_status = "BP-Wrong Person" THEN other_notes = "Client name and wage earner name are different. " & other_notes
-			IF resolution_status = "BU-Unable To Verify" THEN other_notes = "Unable To Verify. " & other_notes
-			'IF resolution_status = "BO-Other" THEN other_notes = "HC Claim entered. " & other_notes
-			IF resolution_status = "NC-Non Cooperation" THEN other_notes = "Non-coop, requested verf not in ECF, " & other_notes
+			IF resolution_status = "CA-Excess Assets" THEN IULB_notes = "Excess Assets. " & other_notes
+			IF resolution_status = "CI-Benefit Increase" THEN IULB_notes = "Benefit Increase. " & other_notes
+			IF resolution_status = "CP-Applicant Only Savings" THEN IULB_notes = "Applicant Only Savings. " & other_notes
+			IF resolution_status = "BC-Case Closed" THEN IULB_notes = "Case closed. " & other_notes
+			IF resolution_status = "BE-Child" THEN IULB_notes = "No change, minor child income excluded. " & other_notes
+			IF resolution_status = "BE-No Change" THEN IULB_notes = "No change. " & IULB_notes
+			IF resolution_status = "BE-Overpayment Entered" THEN IULB_notes = "OP entered other programs. " & other_notes
+			IF resolution_status = "BE-NC-Non-collectible" THEN IULB_notes = "Non-Coop remains, but claim is non-collectible. " & other_notes
+			IF resolution_status = "BI-Interface Prob" THEN IULB_notes = "Interface Problem. " & other_notes
+			IF resolution_status = "BN-Already Known-No Savings" THEN IULB_notes = "Already known - No savings. " & other_notes
+			IF resolution_status = "BP-Wrong Person" THEN IULB_notes = "Client name and wage earner name are different. " & other_notes
+			IF resolution_status = "BU-Unable To Verify" THEN IULB_notes = "Unable To Verify. " & other_notes
+			'IF resolution_status = "BO-Other" THEN IULB_notes = "HC Claim entered. " & other_notes
+			IF resolution_status = "NC-Non Cooperation" THEN IULB_notes = "Non-coop, requested verf not in ECF, " & other_notes
 
-			other_notes = trim(other_notes)
 			iulb_row = 8
 			iulb_col = 6
-			notes_array = split(other_notes, " ")
+			notes_array = split(IULB_notes, " ")
 			For each word in notes_array
-				' MsgBox "Word - " & word & vbCr & "Row - " & iulb_row & "   Col - " & iulb_col & vbCr & "Add - " & iulb_col + len(word)
+				EMWriteScreen word & " ", iulb_row, iulb_col
+			 	'msgbox "Word - " & word & vbCr & "Row - " & iulb_row & "   Col - " & iulb_col & vbCr & "Add - " & iulb_col + len(word)
 				If iulb_col + len(word) > 77 Then
 					iulb_col = 6
 					iulb_row = iulb_row + 1
 					If iulb_row = 10 Then Exit For
 				End If
-				EMWriteScreen word & " ", iulb_row, iulb_col
 				iulb_col = iulb_col + len(word) + 1
-				If iulb_col >  77 Then
-					iulb_col = 6
-					iulb_row = iulb_row + 1
-					If iulb_row = 10 Then Exit For
-				End If
 			Next
-    	    ' EMWriteScreen other_notes, 8, 6
-			' MsgBox "PAUSE"
+
     	    TRANSMIT
     		EMReadScreen MISC_error_check,  74, 24, 02
     		IF trim(MISC_error_check) <> "" THEN
@@ -785,8 +777,6 @@ script_run_lowdown = script_run_lowdown & vbCr & "Active Programs Codes: " & Act
 script_run_lowdown = script_run_lowdown & vbCr & "IULA Resolution Status: " & IULA_res_status
 script_run_lowdown = script_run_lowdown & vbCr & "IULB Enter Msg: " & IULB_enter_msg
 script_run_lowdown = script_run_lowdown & vbCr & "Other Notes: " & other_notes & vbCr
-
-
 script_run_lowdown = script_run_lowdown & vbCr & "Fraud referral: " & fraud_referral
 script_run_lowdown = script_run_lowdown & vbCr & "Discovery Date: " & discovery_date & vbCR
 script_run_lowdown = script_run_lowdown & vbCr & "CLAIM I" & vbCR & "OP Program: " & OP_program
