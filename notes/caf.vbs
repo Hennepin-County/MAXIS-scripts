@@ -3488,7 +3488,13 @@ function run_expedited_determination_script_functionality(xfs_screening, caf_one
     		If page_display = show_pg_determination Then Call determine_calculations(determined_income, determined_assets, determined_shel, determined_utilities, calculated_resources, calculated_expenses, calculated_low_income_asset_test, calculated_resources_less_than_expenses_test, is_elig_XFS)
     		If page_display = show_pg_review Then Call determine_actions(case_assesment_text, next_steps_one, next_steps_two, next_steps_three, next_steps_four, is_elig_XFS, snap_denial_date, approval_date, date_of_application, do_we_have_applicant_id, action_due_to_out_of_state_benefits, mn_elig_begin_date, other_snap_state, case_has_previously_postponed_verifs_that_prevent_exp_snap, delay_action_due_to_faci, deny_snap_due_to_faci)
 
+            If determined_income = "" Then determined_income = 0
+            If determined_assets = "" Then determined_assets = 0
+            If determined_shel = "" Then determined_shel = 0
     		If determined_utilities = "" Then determined_utilities = 0
+            If calculated_resources = "" Then calculated_resources = 0
+            If calculated_expenses = "" Then calculated_expenses = 0
+
     		determined_income = FormatNumber(determined_income, 2, -1, 0, -1) & ""
     		determined_assets = FormatNumber(determined_assets, 2, -1, 0, -1) & ""
     		determined_shel = FormatNumber(determined_shel, 2, -1, 0, -1) & ""
