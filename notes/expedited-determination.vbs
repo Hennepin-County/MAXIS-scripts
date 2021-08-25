@@ -1567,7 +1567,6 @@ row = 1
 col = 1
 EMSearch "Received", row, col
 IF row <> 0 THEN
-	exp_screening_note_found = TRUE
 	For look_for_right_note = 57 to 72
 		EMReadScreen xfs_screen_note, 18, row, look_for_right_note
         xfs_screen_note = UCase(xfs_screen_note)
