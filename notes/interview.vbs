@@ -1574,7 +1574,7 @@ function define_main_dialog()
 		    Text 375, 85, 20, 10, "date"
 		    EditBox 400, 80, 50, 15, signature_date
 		    Text 10, 105, 90, 10, "Signature of Other Adult"
-		    ComboBox 105, 100, 110, 45, "Select or Type"+chr(9)+"Signature Completed"+chr(9)+"Blank"+chr(9)+"Accepted Verbally"+chr(9)+"Not Required"+chr(9)+second_signature_detail, second_signature_detail
+		    ComboBox 105, 100, 110, 45, "Select or Type"+chr(9)+"Signature Completed"+chr(9)+"Not Required"+chr(9)+"Blank"+chr(9)+"Accepted Verbally"+chr(9)+second_signature_detail, second_signature_detail
 		    Text 220, 105, 25, 10, "person"
 		    ComboBox 250, 100, 115, 45, all_the_clients+chr(9)+second_signature_person, second_signature_person
 		    Text 375, 105, 20, 10, "date"
@@ -5831,6 +5831,7 @@ If vars_filled = False Then
 			EMReadScreen CAF_datestamp, 8, 13, 37
 			CAF_datestamp = replace(CAF_datestamp, " ", "/")
 		End If
+		If CAF_datestamp = "__/__/__" Then CAF_datestamp = ""
 	End If
 	If cash_revw = True Then CASH_on_CAF_checkbox = checked
 	If snap_revw = True Then SNAP_on_CAF_checkbox = checked
