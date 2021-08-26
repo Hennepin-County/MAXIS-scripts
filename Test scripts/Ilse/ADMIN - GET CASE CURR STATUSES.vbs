@@ -129,11 +129,12 @@ Do
     ObjExcel.Cells(excel_row, 20).Value = unknown_hc_pending
     ObjExcel.Cells(excel_row, 21).Value = ga_status
     ObjExcel.Cells(excel_row, 22).Value = msa_status
-    ObjExcel.Cells(excel_row, 23).Value = dwp_status
-    ObjExcel.Cells(excel_row, 24).Value = grh_status
-    ObjExcel.Cells(excel_row, 25).Value = snap_status
-    ObjExcel.Cells(excel_row, 26).Value = ma_status
-    ObjExcel.Cells(excel_row, 27).Value = msp_status
+    ObjExcel.Cells(excel_row, 23).Value = mfip_status
+    ObjExcel.Cells(excel_row, 24).Value = dwp_status
+    ObjExcel.Cells(excel_row, 25).Value = grh_status
+    ObjExcel.Cells(excel_row, 26).Value = snap_status
+    ObjExcel.Cells(excel_row, 27).Value = ma_status
+    ObjExcel.Cells(excel_row, 28).Value = msp_status
 
     STATS_counter = STATS_counter + 1
     excel_row = excel_row + 1
