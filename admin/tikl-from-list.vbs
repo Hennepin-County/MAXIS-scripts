@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("08/26/2021", "Added pass through variable for custom script function.", "Ilse Ferris, Hennepin County")
 call changelog_update("08/16/2021", "Added to ADMIN - MONTHLY TASKS MENU.", "Ilse Ferris, Hennepin County")
 call changelog_update("06/27/2018", "Added/updated closing message.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
@@ -53,7 +54,7 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 '>>>>> Function to build dlg for manual entry <<<<<
-FUNCTION build_manual_entry_dlg(case_number_array, TIKL_text)
+FUNCTION build_manual_entry_dlg(case_number_array, text_of_TIKL, date_of_TIKL)
 	'Array for all case numbers
 	'This was chosen over building a dlg with 50 variables
 	REDim all_cases_array(50, 0)
@@ -71,9 +72,9 @@ FUNCTION build_manual_entry_dlg(case_number_array, TIKL_text)
 			END IF
 		NEXT
 		Text 10, 240, 90, 10, "Enter your TIKL text..."
-		EditBox 10, 255, 310, 15, TIKL_text
+		EditBox 10, 255, 310, 15, text_of_TIKL
 		Text 10, 280, 80, 10, "TIKL Date (MM/DD/YY):"
-		EditBox 95, 275, 80, 15, TIKL_date
+		EditBox 95, 275, 80, 15, date_of_TIKL
 		ButtonGroup ButtonPressed
 			OkButton 220, 290, 50, 15
 			CancelButton 270, 290, 50, 15
@@ -137,7 +138,7 @@ DIALOG Dialog1
 cancel_without_confirmation
 '>>>>> the script has different ways of building case_number_array
 IF run_mode = "Manual Entry" THEN
-	CALL build_manual_entry_dlg(case_number_array, TIKL_text)
+	CALL build_manual_entry_dlg(case_number_array, text_of_TIKL, date_of_TIKL)
 
 ELSEIF run_mode = "REPT/ACTV" THEN
 	'script_end_procedure("This mode is not yet supported.")
@@ -147,8 +148,8 @@ ELSEIF run_mode = "REPT/ACTV" THEN
     Dialog1 = ""
     BeginDialog Dialog1, 0, 0, 231, 110, "Enter worker number and TIKL text..."
       EditBox 145, 10, 65, 15, worker_number
-      EditBox 10, 50, 215, 15, TIKL_text
-      EditBox 90, 70, 80, 15, TIKL_date
+      EditBox 10, 50, 215, 15, text_of_TIKL
+      EditBox 90, 70, 80, 15, date_of_TIKL
       ButtonGroup ButtonPressed
         OkButton 65, 90, 50, 15
         CancelButton 120, 90, 50, 15
@@ -163,8 +164,8 @@ ELSEIF run_mode = "REPT/ACTV" THEN
 	    	cancel_confirmation
 	    	worker_number = trim(worker_number)
 	    	IF trim(worker_number) = "" or len(worker_number) <> 7 THEN err_msg = err_msg & vbCr & "* You must enter the full 7-digit worker number."
-	    	If trim(TIKL_text) = "" then err_msg = err_msg & vbCr & "* Enter the TIKL text."
-            If trim(TIKL_date) = "" or isDate(TIKL_date) = false then err_msg = err_msg & vbCr & "* You must enter a valid TIKL date."
+	    	If trim(text_of_TIKL) = "" then err_msg = err_msg & vbCr & "* Enter the TIKL text."
+            If trim(date_of_TIKL) = "" or isDate(date_of_TIKL) = false then err_msg = err_msg & vbCr & "* You must enter a valid TIKL date."
 	    	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 	    LOOP UNTIL err_msg = ""
         Call check_for_password(are_we_passworded_out)
@@ -240,8 +241,8 @@ ELSEIF run_mode = "Excel File" THEN
       EditBox 220, 10, 25, 15, excel_col
       EditBox 65, 30, 40, 15, excel_row
       EditBox 190, 30, 40, 15, end_row
-      EditBox 10, 70, 235, 15, TIKL_text
-      EditBox 95, 90, 80, 15, TIKL_date
+      EditBox 10, 70, 235, 15, text_of_TIKL
+      EditBox 95, 90, 80, 15, date_of_TIKL
       ButtonGroup ButtonPressed
         OkButton 130, 115, 55, 15
         CancelButton 190, 115, 60, 15
@@ -295,7 +296,8 @@ FOR EACH MAXIS_case_number IN case_number_array
 		If is_this_priv = True then 
 			privileged_array = privileged_array & MAXIS_case_number & "~~~"
 		ELSE
-			Call create_TIKL(TIKL_text, 0, TIKL_date, False, TIKL_note_text)
+            'Call create_TIKL(text_of_TIKL, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
+			Call create_TIKL(text_of_TIKL, 0, date_of_TIKL, False, TIKL_note_text)
 			STATS_counter = STATS_counter + 1    'adds one instance to the stats counter
 		END IF
 	END IF
