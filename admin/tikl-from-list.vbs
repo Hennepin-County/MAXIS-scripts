@@ -122,7 +122,7 @@ END FUNCTION
 
 'The script===========================
 EMConnect ""
-CALL check_for_MAXIS(true)
+CALL check_for_MAXIS(false)
 
 '>>>>> loading the main dialog <<<<<
  Dialog1 = ""
@@ -325,7 +325,7 @@ script_end_procedure_with_error_report("Success! Your list has been completed.")
 '--CASE:NOTE Header doesn't look funky------------------------------------------08/16/2021----------------N/A: Only sets TIKL
 '--Leave CASE:NOTE in edit mode if applicable-----------------------------------08/16/2021----------------N/A: Only sets TIKL
 '-----General Supports-------------------------------------------------------------------------------------------------------------
-'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------08/16/2021
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------08/26/2021
 '--MAXIS_background_check reviewed (if applicable)------------------------------08/16/2021----------------N/A
 '--PRIV Case handling reviewed -------------------------------------------------08/16/2021
 '--Out-of-County handling reviewed----------------------------------------------08/16/2021----------------N/A: TIKL's can be set out-of-coumty
