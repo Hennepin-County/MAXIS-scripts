@@ -827,7 +827,11 @@ function define_main_dialog()
 				Text 140, 135, 120, 15, HH_MEMB_ARRAY(spoken_lang, selected_memb)
 				Text 140, 165, 120, 15, HH_MEMB_ARRAY(written_lang, selected_memb)
 				Text 330, 145, 40, 45, HH_MEMB_ARRAY(ethnicity_yn, selected_memb)
-				Text 70, 185, 110, 10, HH_MEMB_ARRAY(id_verif, selected_memb)
+				If the_memb = 0 AND (HH_MEMB_ARRAY(id_verif, the_memb) = "" OR HH_MEMB_ARRAY(id_verif, the_memb) = "NO - No Veer Prvd") Then
+					DropListBox 70, 185, 110, 45, ""+chr(9)+id_droplist_info, HH_MEMB_ARRAY(id_verif, selected_memb)
+				Else
+					Text 70, 185, 110, 10, HH_MEMB_ARRAY(id_verif, selected_memb)
+				End If
 
 						' CheckBox 330, 165, 30, 10, "Asian", HH_MEMB_ARRAY(selected_memb).race_a_checkbox
 						' CheckBox 330, 175, 30, 10, "Black", HH_MEMB_ARRAY(selected_memb).race_b_checkbox
@@ -4833,6 +4837,21 @@ function restore_your_work(vars_filled)
 			End If
 		End If
 	End With
+end function
+
+function review_information()
+	for the_memb = 0 to UBound(HH_MEMB_ARRAY, 2)
+		If HH_MEMB_ARRAY(id_verif, the_memb) = "Requested" Then
+			If Instr(HH_MEMB_ARRAY(client_verification_details, the_memb), "Identity verification for M" & HH_MEMB_ARRAY(ref_number, the_memb) & " - " & HH_MEMB_ARRAY(full_name_const, the_memb)) = 0 Then
+				HH_MEMB_ARRAY(client_verification, the_memb) = "Requested"
+				If HH_MEMB_ARRAY(client_verification_details, the_memb) <> "" Then
+					HH_MEMB_ARRAY(client_verification_details, the_memb) = HH_MEMB_ARRAY(client_verification_details, the_memb) & ", Identity verification for M" & HH_MEMB_ARRAY(ref_number, the_memb) & " - " & HH_MEMB_ARRAY(full_name_const, the_memb)
+				Else
+					HH_MEMB_ARRAY(client_verification_details, the_memb) = "Identity verification for M" & HH_MEMB_ARRAY(ref_number, the_memb) & " - " & HH_MEMB_ARRAY(full_name_const, the_memb)
+				End If
+			End If
+		End If
+	next
 end function
 
 function review_for_discrepancies()
@@ -8915,6 +8934,7 @@ Do
 				save_your_work
 				cancel_confirmation
 				' MsgBox  HH_MEMB_ARRAY(0).ans_imig_status
+				Call review_information
 				Call assess_caf_1_expedited_questions(expedited_screening)
 				Call review_for_discrepancies
 				Call verification_dialog
