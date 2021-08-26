@@ -2139,7 +2139,7 @@ Do
 				Text 495, 27, 65, 10, "Determination"
 
 				If is_elig_XFS = True Then Text 0, 25, 400, 10, "---------------------------------------------- This case IS EXPEDITED based on this critera: "
-				If is_elig_XFS = False Then Text 0, 25, 400, 10, "---------------------------------------------- This case does is NOT expedited based on this critera: "
+				If is_elig_XFS = False Then Text 0, 25, 400, 10, "---------------------------------------------- This case is NOT expedited based on this critera: "
 
 				GroupBox 5, 5, 470, 135, "Expedited Determination"
 				Text 15, 50, 120, 10, "Determination Amounts Entered:"
