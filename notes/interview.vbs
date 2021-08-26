@@ -425,8 +425,8 @@ function assess_caf_1_expedited_questions(expedited_screening)
 
 	expedited_screening = "CAF 1 Information does NOT appear Expedited"
 
-	If determined_income < 150 AND determined_assets <= 100 Then expedited_screening = "CAF 1 Information APPEARS EXPEDITED"
-	If calculated_resources < calculated_expenses Then expedited_screening = "CAF 1 Information APPEARS EXPEDITED"
+	If exp_q_1_income_this_month < 150 AND exp_q_2_assets_this_month <= 100 Then expedited_screening = "CAF 1 Information APPEARS EXPEDITED"
+	If caf_1_resources < caf_1_expenses Then expedited_screening = "CAF 1 Information APPEARS EXPEDITED"
 
 	exp_q_1_income_this_month = exp_q_1_income_this_month & ""
 	exp_q_2_assets_this_month = exp_q_2_assets_this_month & ""
@@ -443,8 +443,13 @@ function check_for_errors(interview_questions_clear)
 	who_are_we_completing_the_interview_with = trim(who_are_we_completing_the_interview_with)
 	If who_are_we_completing_the_interview_with = "Select or Type" Or who_are_we_completing_the_interview_with = "" Then err_msg = err_msg & "~!~" & "1 ^* Who are you interviewing with?##~##   - Select or enter the name of the person you are completing the interview with.##~##"
 	If how_are_we_completing_the_interview = "Select or Type" Or how_are_we_completing_the_interview = "" Then err_msg = err_msg & "~!~" & "1 ^* Interview via##~##   - Select or enter the method the interview is being conducted.##~##"
-
-
+	If trim(interpreter_information) <> "" AND interpreter_information <> "No Interpreter Used" Then
+		If interpreter_language = "English" Then err_msg = err_msg & "~!~" & "1 ^* Language##~##   - Since there is information about interpreter usage, the lanuage should be something other than English. Indicate the language the resident used in the interivew.##~##"
+		If trim(interpreter_language) = "" Then err_msg = err_msg & "~!~" & "1 ^* Language##~##   - Since there is information about interpreter usage, enter the language the resident used in the interview in the 'Language' field.##~##"
+	End If
+	If InStr(UCASE(who_are_we_completing_the_interview_with), "AREP") <> 0 OR InStr(UCASE(who_are_we_completing_the_interview_with), "AUTHORIZED REP") <> 0 Then
+		If trim(arep_interview_id_information) = "" Then err_msg = err_msg & "~!~" & "1 ^* Detail AREP Identity Document##~##   - It appears the interview was completed with an AREP (in the field 'Who are you interviewing with?' above). Since identity of the AREP is required if the AREP is the one completing the interview, enter the details about identity of the AREP in the field 'Detail AREP Identity Document'.##~##"
+	End If
 	' If snap_status <> "ACTIVE" Then
 	' 	intv_app_month_income = trim(intv_app_month_income)
 	' 	intv_app_month_asset = trim(intv_app_month_asset)
@@ -654,7 +659,7 @@ function define_main_dialog()
 			ComboBox 120, 70, 340, 45, "No Interpreter Used"+chr(9)+"Language Line Interpreter Used"+chr(9)+"Interpreter through Henn Co. OMS (Office of Multi-Cultural Services)"+chr(9)+"Interviewer speaks Resident Language"+chr(9)+interpreter_information, interpreter_information
 			ComboBox 120, 90, 205, 45, "English"+chr(9)+"Somali"+chr(9)+"Spanish"+chr(9)+"Hmong"+chr(9)+"Russian"+chr(9)+"Oromo"+chr(9)+"Vietnamese"+chr(9)+interpreter_language, interpreter_language
 			EditBox 120, 110, 340, 15, arep_interview_id_information
-			EditBox 10, 160, 450, 15, non_applicant_interview_info
+			EditBox 10, 155, 450, 15, non_applicant_interview_info
 
 		    EditBox 325, 205, 50, 15, exp_q_1_income_this_month
 		    EditBox 325, 225, 50, 15, exp_q_2_assets_this_month
@@ -664,12 +669,12 @@ function define_main_dialog()
 		    CheckBox 245, 265, 45, 10, "Electricity", caf_exp_pay_electricity_checkbox
 		    CheckBox 295, 265, 35, 10, "Phone", caf_exp_pay_phone_checkbox
 		    CheckBox 340, 265, 35, 10, "None", caf_exp_pay_none_checkbox
-		    DropListBox 260, 280, 40, 45, "No"+chr(9)+"Yes", exp_migrant_seasonal_formworker_yn
-		    DropListBox 380, 295, 40, 45, "No"+chr(9)+"Yes", exp_received_previous_assistance_yn
+		    DropListBox 260, 280, 40, 45, ""+chr(9)+"No"+chr(9)+"Yes", exp_migrant_seasonal_formworker_yn
+		    DropListBox 380, 295, 40, 45, ""+chr(9)+"No"+chr(9)+"Yes", exp_received_previous_assistance_yn
 		    EditBox 95, 315, 80, 15, exp_previous_assistance_when
 		    EditBox 215, 315, 85, 15, exp_previous_assistance_where
 		    EditBox 335, 315, 85, 15, exp_previous_assistance_what
-		    DropListBox 175, 335, 40, 45, "No"+chr(9)+"Yes", exp_pregnant_yn
+		    DropListBox 175, 335, 40, 45, ""+chr(9)+"No"+chr(9)+"Yes", exp_pregnant_yn
 		    ComboBox 270, 335, 150, 45, all_the_clients, exp_pregnant_who
 
 		    Text 10, 15, 110, 10, "Who are you interviewing with?"
@@ -677,9 +682,9 @@ function define_main_dialog()
 			Text 65, 55, 55, 10, "Interview date"
 			Text 30, 75, 85, 10, "Was an Interpreter Used?"
 			Text 75, 95, 35, 10, "Language"
-			Text 10, 115, 110, 10, "Detail AREP Identity document"
+			Text 10, 115, 110, 10, "Detail AREP Identity Document"
 			Text 120, 130, 300, 10, "(Identity of AREP is required if the interview is being completed with the AREP.)"
-			Text 10, 150, 300, 10, "If interview is NOT with a Household Adult, explain relationship and add any details:"
+			Text 10, 145, 300, 10, "If interview is NOT with a Household Adult, explain relationship and add any details:"
 
 		    GroupBox 25, 185, 400, 170, "CAF 1 Answers - Expedited Section"
 			Text 30, 195, 375, 10, "ENTER THE INFORMATION FROM THE CAF HERE."
@@ -2169,9 +2174,12 @@ function dialog_movement()
 			If page_display = discrepancy_questions 	Then ButtonPressed = finish_interview_btn
 		End If
 		If expedited_determination_needed = True Then
-			If discrepancies_exist = False AND page_display = show_pg_last Then ButtonPressed = expedited_determination_btn
-			If page_display = discrepancy_questions 	Then ButtonPressed = expedited_determination_btn
-			If page_display = expedited_determination 	Then ButtonPressed = finish_interview_btn
+			If expedited_determination_completed = False Then
+				If discrepancies_exist = False AND page_display = show_pg_last Then ButtonPressed = expedited_determination_btn
+				If page_display = discrepancy_questions 	Then ButtonPressed = expedited_determination_btn
+			ElseIf discrepancies_exist = False AND page_display = show_pg_last Then
+				ButtonPressed = finish_interview_btn
+			End If
 		End If
 	End If
 
@@ -2358,6 +2366,23 @@ function display_errors(the_err_msg, execute_nav, show_err_msg_during_movement)
 		If ButtonPressed >= 4000 Then show_msg = False
 		If error_message = "" Then show_msg = False
 		If ButtonPressed = finish_interview_btn Then show_msg = True
+		If discrepancies_exist = True AND expedited_determination_needed = False Then
+			' MsgBox "1"
+			If page_display = discrepancy_questions Then
+				' MsgBox "2"
+				If ButtonPressed = next_btn OR ButtonPressed = -1 Then show_msg = True
+			End If
+		ElseIf expedited_determination_needed = True Then
+			' MsgBox "3" & vbCr & "Page Display - ~" & page_display & "~" & vbCr & "LAST Page - ~" & show_pg_last & "~" & vbCr & "exp complete - ~" & expedited_determination_completed& "~"
+			If expedited_determination_completed = True AND page_display = show_pg_last Then
+				' MsgBox "4"
+				If ButtonPressed = next_btn OR ButtonPressed = -1 Then show_msg = True
+			End If
+		ElseIf page_display = show_pg_last Then
+			' MsgBox "5"
+			If ButtonPressed = next_btn OR ButtonPressed = -1 Then show_msg = True
+		End If
+		' MsgBox "Page Display - " & page_display & vbCr & "disc - " & discrepancies_exist & vbCr & "exp det - " & expedited_determination_needed & vbCr & "exp complete - " & expedited_determination_completed & vbCR & "ButtonPressed - " & ButtonPressed & vbCr & "SHOW MSG - " & show_msg
 
 		If show_msg = True Then view_errors = MsgBox("In order to complete the script and CASE/NOTE, additional details need to be added or refined. Please review and update." & vbNewLine & error_message, vbCritical, "Review detail required in Dialogs")
 		If show_msg = False then the_err_msg = ""
@@ -2564,7 +2589,12 @@ function display_expedited_dialog()
 		If exp_page_display = show_exp_pg_determination Then Call determine_calculations(determined_income, determined_assets, determined_shel, determined_utilities, calculated_resources, calculated_expenses, calculated_low_income_asset_test, calculated_resources_less_than_expenses_test, is_elig_XFS)
 		If exp_page_display = show_exp_pg_review Then Call determine_actions(case_assesment_text, next_steps_one, next_steps_two, next_steps_three, next_steps_four, is_elig_XFS, snap_denial_date, approval_date, CAF_datestamp, do_we_have_applicant_id, action_due_to_out_of_state_benefits, mn_elig_begin_date, other_snap_state, case_has_previously_postponed_verifs_that_prevent_exp_snap, delay_action_due_to_faci, deny_snap_due_to_faci)
 
+		If determined_income = "" Then determined_income = 0
+		If determined_assets = "" Then determined_assets = 0
+		If determined_shel = "" Then determined_shel = 0
 		If determined_utilities = "" Then determined_utilities = 0
+		If calculated_resources = "" Then calculated_resources = 0
+		If calculated_expenses = "" Then calculated_expenses = 0
 		determined_income = FormatNumber(determined_income, 2, -1, 0, -1) & ""
 		determined_assets = FormatNumber(determined_assets, 2, -1, 0, -1) & ""
 		determined_shel = FormatNumber(determined_shel, 2, -1, 0, -1) & ""
@@ -2625,7 +2655,7 @@ function display_expedited_dialog()
 				Text 495, 27, 65, 10, "Determination"
 
 				If is_elig_XFS = True Then Text 0, 25, 400, 10, "---------------------------------------------- This case IS EXPEDITED based on this critera: "
-				If is_elig_XFS = False Then Text 0, 25, 400, 10, "---------------------------------------------- This case does is NOT expedited based on this critera: "
+				If is_elig_XFS = False Then Text 0, 25, 400, 10, "---------------------------------------------- This case is NOT expedited based on this critera: "
 
 				GroupBox 5, 5, 470, 135, "Expedited Determination"
 				Text 15, 50, 120, 10, "Determination Amounts Entered:"
@@ -3459,6 +3489,11 @@ function save_your_work()
 			objTextStream.WriteLine "EXPDET - 19 - " & list_postponed_verifs
 			objTextStream.WriteLine "EXPDET - 20 - " & first_time_in_exp_det
 
+			objTextStream.WriteLine "EXPDET - 21 - " & income_review_completed
+			objTextStream.WriteLine "EXPDET - 22 - " & assets_review_completed
+			objTextStream.WriteLine "EXPDET - 23 - " & shel_review_completed
+			objTextStream.WriteLine "EXPDET - 24 - " & note_calculation_detail
+
 			objTextStream.WriteLine "EXPDET - INCM - 01 - " & determined_income
 			objTextStream.WriteLine "EXPDET - INCM - 02 - " & jobs_income_yn
 			objTextStream.WriteLine "EXPDET - INCM - 03 - " & busi_income_yn
@@ -3526,7 +3561,7 @@ function save_your_work()
 			objTextStream.WriteLine "EXPDET - FACI - 05 - " & snap_inelig_faci_yn
 			objTextStream.WriteLine "EXPDET - FACI - 06 - " & faci_entry_date
 			objTextStream.WriteLine "EXPDET - FACI - 07 - " & faci_release_date
-			objTextStream.WriteLine "EXPDET - FACI - 08 - " & release_date_unknown_checkbox
+			If release_date_unknown_checkbox = checked Then objTextStream.WriteLine "EXPDET - FACI - 08"
 			objTextStream.WriteLine "EXPDET - FACI - 09 - " & release_within_30_days_yn
 
 			objTextStream.WriteLine "VERIFS - " & verifs_needed
@@ -3953,7 +3988,11 @@ function save_your_work()
 			script_run_lowdown = script_run_lowdown & vbCr & "EXPDET - 17 - " & delay_explanation
 			script_run_lowdown = script_run_lowdown & vbCr & "EXPDET - 18 - " & postponed_verifs_yn
 			script_run_lowdown = script_run_lowdown & vbCr & "EXPDET - 19 - " & list_postponed_verifs
-			script_run_lowdown = script_run_lowdown & vbCr & "EXPDET - 20 - " & first_time_in_exp_det & vbCr & vbCr
+			script_run_lowdown = script_run_lowdown & vbCr & "EXPDET - 20 - " & first_time_in_exp_det
+			script_run_lowdown = script_run_lowdown & vbCr & "EXPDET - 21 - " & income_review_completed
+			script_run_lowdown = script_run_lowdown & vbCr & "EXPDET - 22 - " & assets_review_completed
+			script_run_lowdown = script_run_lowdown & vbCr & "EXPDET - 23 - " & shel_review_completed
+			script_run_lowdown = script_run_lowdown & vbCr & "EXPDET - 24 - " & note_calculation_detail & vbCr & vbCr
 
 			script_run_lowdown = script_run_lowdown & vbCr & "EXPDET - INCM - 01 - " & determined_income
 			script_run_lowdown = script_run_lowdown & vbCr & "EXPDET - INCM - 02 - " & jobs_income_yn
@@ -4501,10 +4540,18 @@ function restore_your_work(vars_filled)
 
 
 					If left(text_line, 11) = "EXPDET - 01" Then expedited_determination_completed = Mid(text_line, 15)
+					If UCASE(expedited_determination_completed) = "TRUE" Then expedited_determination_completed = True
+					If UCASE(expedited_determination_completed) = "FALSE" Then expedited_determination_completed = False
 					If left(text_line, 11) = "EXPDET - 02" Then expedited_screening = Mid(text_line, 15)
 					If left(text_line, 11) = "EXPDET - 03" Then calculated_low_income_asset_test = Mid(text_line, 15)
+					If UCASE(calculated_low_income_asset_test) = "TRUE" Then calculated_low_income_asset_test = True
+					If UCASE(calculated_low_income_asset_test) = "FALSE" Then calculated_low_income_asset_test = False
 					If left(text_line, 11) = "EXPDET - 04" Then calculated_resources_less_than_expenses_test = Mid(text_line, 15)
+					If UCASE(calculated_resources_less_than_expenses_test) = "TRUE" Then calculated_resources_less_than_expenses_test = True
+					If UCASE(calculated_resources_less_than_expenses_test) = "FALSE" Then calculated_resources_less_than_expenses_test = False
 					If left(text_line, 11) = "EXPDET - 05" Then is_elig_XFS = Mid(text_line, 15)
+					If UCASE(is_elig_XFS) = "TRUE" Then is_elig_XFS = True
+					If UCASE(is_elig_XFS) = "FALSE" Then is_elig_XFS = False
 					If left(text_line, 11) = "EXPDET - 06" Then case_assesment_text = Mid(text_line, 15)
 					If left(text_line, 11) = "EXPDET - 07" Then next_steps_one = Mid(text_line, 15)
 					If left(text_line, 11) = "EXPDET - 08" Then next_steps_two = Mid(text_line, 15)
@@ -4520,6 +4567,20 @@ function restore_your_work(vars_filled)
 					If left(text_line, 11) = "EXPDET - 18" Then postponed_verifs_yn = Mid(text_line, 15)
 					If left(text_line, 11) = "EXPDET - 19" Then list_postponed_verifs = Mid(text_line, 15)
 					If left(text_line, 11) = "EXPDET - 20" Then first_time_in_exp_det = Mid(text_line, 15)
+					If UCASE(first_time_in_exp_det) = "TRUE" Then first_time_in_exp_det = True
+					If UCASE(first_time_in_exp_det) = "FALSE" Then first_time_in_exp_det = False
+					If left(text_line, 11) = "EXPDET - 21" Then income_review_completed = Mid(text_line, 15)
+					If UCASE(income_review_completed) = "TRUE" Then income_review_completed = True
+					If UCASE(income_review_completed) = "FALSE" Then income_review_completed = False
+					If left(text_line, 11) = "EXPDET - 22" Then assets_review_completed = Mid(text_line, 15)
+					If UCASE(assets_review_completed) = "TRUE" Then assets_review_completed = True
+					If UCASE(assets_review_completed) = "FALSE" Then assets_review_completed = False
+					If left(text_line, 11) = "EXPDET - 23" Then shel_review_completed = Mid(text_line, 15)
+					If UCASE(shel_review_completed) = "TRUE" Then shel_review_completed = True
+					If UCASE(shel_review_completed) = "FALSE" Then shel_review_completed = False
+					If left(text_line, 11) = "EXPDET - 24" Then note_calculation_detail = Mid(text_line, 15)
+					If UCASE(note_calculation_detail) = "TRUE" Then note_calculation_detail = True
+					If UCASE(note_calculation_detail) = "FALSE" Then note_calculation_detail = False
 
 					If left(text_line, 18) = "EXPDET - INCM - 01" Then determined_income = Mid(text_line, 22)
 					If left(text_line, 18) = "EXPDET - INCM - 02" Then jobs_income_yn = Mid(text_line, 22)
@@ -4544,10 +4605,20 @@ function restore_your_work(vars_filled)
 
 					If left(text_line, 18) = "EXPDET - HEST - 01" Then determined_utilities = Mid(text_line, 22)
 					If left(text_line, 18) = "EXPDET - HEST - 02" Then heat_expense = Mid(text_line, 22)
+					If UCASE(heat_expense) = "TRUE" Then heat_expense = True
+					If UCASE(heat_expense) = "FALSE" Then heat_expense = False
 					If left(text_line, 18) = "EXPDET - HEST - 03" Then ac_expense = Mid(text_line, 22)
+					If UCASE(ac_expense) = "TRUE" Then ac_expense = True
+					If UCASE(ac_expense) = "FALSE" Then ac_expense = False
 					If left(text_line, 18) = "EXPDET - HEST - 04" Then electric_expense = Mid(text_line, 22)
+					If UCASE(electric_expense) = "TRUE" Then electric_expense = True
+					If UCASE(electric_expense) = "FALSE" Then electric_expense = False
 					If left(text_line, 18) = "EXPDET - HEST - 05" Then phone_expense = Mid(text_line, 22)
+					If UCASE(phone_expense) = "TRUE" Then phone_expense = True
+					If UCASE(phone_expense) = "FALSE" Then phone_expense = False
 					If left(text_line, 18) = "EXPDET - HEST - 06" Then none_expense = Mid(text_line, 22)
+					If UCASE(none_expense) = "TRUE" Then none_expense = True
+					If UCASE(none_expense) = "FALSE" Then none_expense = False
 					If left(text_line, 18) = "EXPDET - HEST - 07" Then all_utilities = Mid(text_line, 22)
 					If left(text_line, 18) = "EXPDET - RESOURCES" Then calculated_resources = Mid(text_line, 22)
 					If left(text_line, 17) = "EXPDET - EXPENSES" Then calculated_expenses = Mid(text_line, 21)
@@ -4555,13 +4626,19 @@ function restore_your_work(vars_filled)
 					If left(text_line, 22) = "EXPDET - OUTSTATE - 01" Then other_snap_state = Mid(text_line, 26)
 					If left(text_line, 22) = "EXPDET - OUTSTATE - 02" Then other_state_reported_benefit_end_date = Mid(text_line, 26)
 					If left(text_line, 22) = "EXPDET - OUTSTATE - 03" Then other_state_benefits_openended = Mid(text_line, 26)
+					If UCASE(other_state_benefits_openended) = "TRUE" Then other_state_benefits_openended = True
+					If UCASE(other_state_benefits_openended) = "FALSE" Then other_state_benefits_openended = False
 					If left(text_line, 22) = "EXPDET - OUTSTATE - 04" Then other_state_contact_yn = Mid(text_line, 26)
 					If left(text_line, 22) = "EXPDET - OUTSTATE - 05" Then other_state_verified_benefit_end_date = Mid(text_line, 26)
 					If left(text_line, 22) = "EXPDET - OUTSTATE - 06" Then mn_elig_begin_date = Mid(text_line, 26)
 					If left(text_line, 22) = "EXPDET - OUTSTATE - 07" Then action_due_to_out_of_state_benefits = Mid(text_line, 26)
 
 					If left(text_line, 20) = "EXPDET - PSTPND - 01" Then case_has_previously_postponed_verifs_that_prevent_exp_snap = Mid(text_line, 24)
+					If UCASE(case_has_previously_postponed_verifs_that_prevent_exp_snap) = "TRUE" Then case_has_previously_postponed_verifs_that_prevent_exp_snap = True
+					If UCASE(case_has_previously_postponed_verifs_that_prevent_exp_snap) = "FALSE" Then case_has_previously_postponed_verifs_that_prevent_exp_snap = False
 					If left(text_line, 20) = "EXPDET - PSTPND - 02" Then prev_post_verif_assessment_done = Mid(text_line, 24)
+					If UCASE(prev_post_verif_assessment_done) = "TRUE" Then prev_post_verif_assessment_done = True
+					If UCASE(prev_post_verif_assessment_done) = "FALSE" Then prev_post_verif_assessment_done = False
 					If left(text_line, 20) = "EXPDET - PSTPND - 03" Then previous_CAF_datestamp = Mid(text_line, 24)
 					If left(text_line, 20) = "EXPDET - PSTPND - 04" Then previous_expedited_package = Mid(text_line, 24)
 					If left(text_line, 20) = "EXPDET - PSTPND - 05" Then prev_verifs_mandatory_yn = Mid(text_line, 24)
@@ -4571,13 +4648,17 @@ function restore_your_work(vars_filled)
 					If left(text_line, 20) = "EXPDET - PSTPND - 09" Then prev_post_verifs_recvd_yn = Mid(text_line, 24)
 
 					If left(text_line, 18) = "EXPDET - FACI - 01" Then delay_action_due_to_faci = Mid(text_line, 22)
+					If UCASE(delay_action_due_to_faci) = "TRUE" Then delay_action_due_to_faci = True
+					If UCASE(delay_action_due_to_faci) = "FALSE" Then delay_action_due_to_faci = False
 					If left(text_line, 18) = "EXPDET - FACI - 02" Then deny_snap_due_to_faci = Mid(text_line, 22)
+					If UCASE(deny_snap_due_to_faci) = "TRUE" Then deny_snap_due_to_faci = True
+					If UCASE(deny_snap_due_to_faci) = "FALSE" Then deny_snap_due_to_faci = False
 					If left(text_line, 18) = "EXPDET - FACI - 03" Then faci_review_completed = Mid(text_line, 22)
 					If left(text_line, 18) = "EXPDET - FACI - 04" Then facility_name = Mid(text_line, 22)
 					If left(text_line, 18) = "EXPDET - FACI - 05" Then snap_inelig_faci_yn = Mid(text_line, 22)
 					If left(text_line, 18) = "EXPDET - FACI - 06" Then faci_entry_date = Mid(text_line, 22)
 					If left(text_line, 18) = "EXPDET - FACI - 07" Then faci_release_date = Mid(text_line, 22)
-					If left(text_line, 18) = "EXPDET - FACI - 08" Then release_date_unknown_checkbox = Mid(text_line, 22)
+					If left(text_line, 18) = "EXPDET - FACI - 08" Then release_date_unknown_checkbox = checked
 					If left(text_line, 18) = "EXPDET - FACI - 09" Then release_within_30_days_yn = Mid(text_line, 22)
 
 
@@ -5729,7 +5810,8 @@ function write_interview_CASE_NOTE()
 	End If
 	CALL write_variable_in_CASE_NOTE("Completed with " & who_are_we_completing_the_interview_with & " via " & how_are_we_completing_the_interview)
 	If trim(interpreter_information) <> "" AND interpreter_information <> "No Interpreter Used" Then
-		CALL write_variable_in_CASE_NOTE("Interview had interpreter: " & interpreter_information & " in language: " & interpreter_language)
+		CALL write_variable_in_CASE_NOTE("Interview had interpreter: " & interpreter_information)
+		CALL write_variable_in_CASE_NOTE("    Language: " & interpreter_language)
 	End If
 	If trim(arep_interview_id_information) <> "" Then CALL write_variable_in_CASE_NOTE("AREP Identity Verification: " & arep_interview_id_information)
 	If trim(non_applicant_interview_info) <> "" Then CALL write_variable_in_CASE_NOTE("Interviewee Information: " & non_applicant_interview_info)
@@ -6486,6 +6568,7 @@ function app_month_income_detail(determined_income, income_review_completed, job
 	add_another_unea_btn = 5009
 	remove_one_unea_btn = 2010
 	income_review_completed = True
+	amounts_btn 		= 10
 
 	original_income = determined_income
 	determined_income = 0
@@ -6767,6 +6850,8 @@ function app_month_asset_detail(determined_assets, assets_review_completed, cash
 	enter_btn = 5002
 	add_another_btn = 5003
 	remove_one_btn = 5004
+	amounts_btn 		= 10
+
 	assets_review_completed = True
 
 	original_assets = determined_assets
@@ -6898,6 +6983,7 @@ end function
 
 function app_month_housing_detail(determined_shel, shel_review_completed, rent_amount, lot_rent_amount, mortgage_amount, insurance_amount, tax_amount, room_amount, garage_amount, subsidy_amount)
 	return_btn = 5001
+	amounts_btn 		= 10
 
 	shel_review_completed = True
 	rent_amount = rent_amount & ""
@@ -6982,6 +7068,7 @@ end function
 function app_month_utility_detail(determined_utilities, heat_expense, ac_expense, electric_expense, phone_expense, none_expense, all_utilities)
 	calculate_btn = 5000
 	return_btn = 5001
+	amounts_btn 		= 10
 	determined_utilities = 0
 	If heat_expense = True then heat_checkbox = checked
 	If ac_expense = True then ac_checkbox = checked
@@ -7257,6 +7344,7 @@ function snap_in_another_state_detail(CAF_datestamp, day_30_from_application, ot
 	day_30_from_application = DateAdd("d", 30, CAF_datestamp)
 	calculate_btn = 5000
 	return_btn = 5001
+	determination_btn = 20
 
 	Do
 		Do
@@ -7407,6 +7495,7 @@ end function
 function previous_postponed_verifs_detail(case_has_previously_postponed_verifs_that_prevent_exp_snap, prev_post_verif_assessment_done, delay_explanation, previous_CAF_datestamp, previous_expedited_package, prev_verifs_mandatory_yn, prev_verif_list, curr_verifs_postponed_yn, ongoing_snap_approved_yn, prev_post_verifs_recvd_yn)
 	fn_review_btn = 5005
 	return_btn = 5001
+	determination_btn = 20
 	prev_post_verif_assessment_done = True
 	case_has_previously_postponed_verifs_that_prevent_exp_snap = False
 
@@ -7573,6 +7662,7 @@ end function
 
 function household_in_a_facility_detail(delay_action_due_to_faci, deny_snap_due_to_faci, faci_review_completed, delay_explanation, snap_denial_explain, snap_denial_date, facility_name, snap_inelig_faci_yn, faci_entry_date, faci_release_date, release_date_unknown_checkbox, release_within_30_days_yn)
 	return_btn = 5001
+	determination_btn = 20
 	delay_action_due_to_faci = False
 	deny_snap_due_to_faci = False
 	faci_review_completed = True
@@ -7857,7 +7947,7 @@ question_answers = ""+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Blank"
 Dim who_are_we_completing_the_interview_with, caf_person_one, exp_q_1_income_this_month, exp_q_2_assets_this_month, exp_q_3_rent_this_month, exp_q_4_utilities_this_month, caf_exp_pay_heat_checkbox, caf_exp_pay_ac_checkbox, caf_exp_pay_electricity_checkbox, caf_exp_pay_phone_checkbox
 Dim exp_pay_none_checkbox, exp_migrant_seasonal_formworker_yn, exp_received_previous_assistance_yn, exp_previous_assistance_when, exp_previous_assistance_where, exp_previous_assistance_what, exp_pregnant_yn, exp_pregnant_who, resi_addr_street_full
 Dim resi_addr_city, resi_addr_state, resi_addr_zip, reservation_yn, reservation_name, homeless_yn, living_situation, mail_addr_street_full, mail_addr_city, mail_addr_state, mail_addr_zip, phone_one_number, phone_pne_type, phone_two_number
-Dim phone_two_type, phone_three_number, phone_three_type, address_change_date, resi_addr_county, CAF_datestamp, all_the_clients, err_msg
+Dim phone_two_type, phone_three_number, phone_three_type, address_change_date, resi_addr_county, CAF_datestamp, all_the_clients, err_msg, interpreter_information, interpreter_language, arep_interview_id_information, non_applicant_interview_info
 Dim intv_app_month_income, intv_app_month_asset, intv_app_month_housing_expense, intv_exp_pay_heat_checkbox, intv_exp_pay_ac_checkbox, intv_exp_pay_electricity_checkbox, intv_exp_pay_phone_checkbox, intv_exp_pay_none_checkbox
 Dim id_verif_on_file, snap_active_in_other_state, last_snap_was_exp, how_are_we_completing_the_interview
 Dim cash_other_req_detail, snap_other_req_detail, emer_other_req_detail
@@ -7931,6 +8021,7 @@ Dim other_state_verified_benefit_end_date, mn_elig_begin_date, action_due_to_out
 Dim rent_amount, lot_rent_amount, mortgage_amount, insurance_amount, tax_amount, room_amount, garage_amount, cash_amount
 Dim previous_CAF_datestamp, previous_expedited_package, prev_verifs_mandatory_yn, prev_verif_list, curr_verifs_postponed_yn, ongoing_snap_approved_yn, prev_post_verifs_recvd_yn
 Dim delay_action_due_to_faci, deny_snap_due_to_faci, faci_review_completed, facility_name, snap_inelig_faci_yn, faci_entry_date, faci_release_date, release_date_unknown_checkbox, release_within_30_days_yn
+Dim income_review_completed, assets_review_completed, shel_review_completed, note_calculation_detail
 
 
 show_pg_one_memb01_and_exp	= 1
@@ -10707,7 +10798,8 @@ length_of_interview = Round(length_of_interview, 2)
 objSelection.TypeText "Interview length: " & length_of_interview & " minutes" & vbCR
 
 If trim(interpreter_information) <> "" AND interpreter_information <> "No Interpreter Used" Then
-	objSelection.TypeText "Interview had interpreter: " & interpreter_information & " in language: " & interpreter_language & vbCr
+	objSelection.TypeText "Interview had interpreter: " & interpreter_information & vbCr
+	objSelection.TypeText "    Language: " & interpreter_language & vbCr
 End If
 If trim(arep_interview_id_information) <> "" Then objSelection.TypeText "AREP Identity Verification: " & arep_interview_id_information & vbCr
 If trim(non_applicant_interview_info) <> "" Then objSelection.TypeText "Interviewee Information: " & non_applicant_interview_info & vbCr
@@ -12260,7 +12352,6 @@ If objFSO.FileExists(pdf_doc_path) = TRUE Then
 		End If
 	End If
 	If expedited_determination_completed = True Then
-
 		If developer_mode = False Then
 
 			txt_file_name = "expedited_determination_detail_" & MAXIS_case_number & "_" & replace(replace(replace(now, "/", "_"),":", "_")," ", "_") & ".txt"
@@ -12405,25 +12496,25 @@ If objFSO.FileExists(pdf_doc_path) = TRUE Then
 					' Call write_variable_in_case_note ("*   INCOME Details:")
 					If jobs_income_yn = "Yes" Then
 						' Call write_variable_in_case_note ("    - JOBS")
-						for the_job = 0 to UBound(JOBS_ARRAY, 2)
-							If IsNumeric(JOBS_ARRAY(jobs_wage_const, the_job)) = True AND IsNumeric(JOBS_ARRAY(jobs_hours_const, the_job)) = True Then
-								Call write_variable_in_case_note ("  - JOBS: " & JOBS_ARRAY(jobs_employee_const, the_job) & " at " & JOBS_ARRAY(jobs_employer_const, the_job) & ": $" & JOBS_ARRAY(jobs_wage_const, the_job) & "/hr at " & JOBS_ARRAY(jobs_hours_const, the_job) & " hrs/wk.")
-								Call write_variable_in_case_note ("            - Monthly Gross: $" & JOBS_ARRAY(jobs_monthly_pay_const, the_job))
+						for the_job = 0 to UBound(EXP_JOBS_ARRAY, 2)
+							If IsNumeric(EXP_JOBS_ARRAY(jobs_wage_const, the_job)) = True AND IsNumeric(EXP_JOBS_ARRAY(jobs_hours_const, the_job)) = True Then
+								Call write_variable_in_case_note ("  - JOBS: " & EXP_JOBS_ARRAY(jobs_employee_const, the_job) & " at " & EXP_JOBS_ARRAY(jobs_employer_const, the_job) & ": $" & EXP_JOBS_ARRAY(jobs_wage_const, the_job) & "/hr at " & EXP_JOBS_ARRAY(jobs_hours_const, the_job) & " hrs/wk.")
+								Call write_variable_in_case_note ("            - Monthly Gross: $" & EXP_JOBS_ARRAY(jobs_monthly_pay_const, the_job))
 							End If
 						Next
 					End If
 					If busi_income_yn = "Yes" Then
 						' Call write_variable_in_case_note ("    - SELF EMPLOYMENT")
-						for the_busi = 0 to UBound(BUSI_ARRAY, 2)
-							Call write_variable_in_case_note ("  - BUSI: " & BUSI_ARRAY(busi_owner_const, the_busi) & " for " & BUSI_ARRAY(busi_info_const, the_busi) & ".")
-							Call write_variable_in_case_note ("            - Monthly Gross: $" & BUSI_ARRAY(busi_monthly_earnings_const, the_busi))
+						for the_busi = 0 to UBound(EXP_BUSI_ARRAY, 2)
+							Call write_variable_in_case_note ("  - BUSI: " & EXP_BUSI_ARRAY(busi_owner_const, the_busi) & " for " & EXP_BUSI_ARRAY(busi_info_const, the_busi) & ".")
+							Call write_variable_in_case_note ("            - Monthly Gross: $" & EXP_BUSI_ARRAY(busi_monthly_earnings_const, the_busi))
 						Next
 					End If
 					If unea_income_yn = "Yes" Then
 						' Call write_variable_in_case_note ("    - UNEARNED INCOME")
-						for the_unea = 0 to UBound(UNEA_ARRAY, 2)
-							Call write_variable_in_case_note ("  - UNEA: " & UNEA_ARRAY(unea_owner_const, the_unea) & " from " & UNEA_ARRAY(unea_info_const, the_unea) & ".")
-							Call write_variable_in_case_note ("            - Monthly Gross: $" & UNEA_ARRAY(unea_monthly_earnings_const, the_unea))
+						for the_unea = 0 to UBound(EXP_UNEA_ARRAY, 2)
+							Call write_variable_in_case_note ("  - UNEA: " & EXP_UNEA_ARRAY(unea_owner_const, the_unea) & " from " & EXP_UNEA_ARRAY(unea_info_const, the_unea) & ".")
+							Call write_variable_in_case_note ("            - Monthly Gross: $" & EXP_UNEA_ARRAY(unea_monthly_earnings_const, the_unea))
 						Next
 					End If
 					' app_month_income_detail(determined_income, income_review_completed, jobs_income_yn, busi_income_yn, unea_income_yn, JOBS_ARRAY, BUSI_ARRAY, UNEA_ARRAY)
@@ -12433,12 +12524,12 @@ If objFSO.FileExists(pdf_doc_path) = TRUE Then
 					If cash_amount_yn = "Yes" Then Call write_variable_in_case_note ("  - CASH: Amount: $" & cash_amount)
 					If bank_account_yn = "Yes" Then
 						' Call write_variable_in_case_note ("    - BANK ACCOUNTS")
-						For the_acct = 0 to UBound(ACCOUNTS_ARRAY, 2)
-							If ACCOUNTS_ARRAY(account_type_const, the_acct) <> "Select One..." Then
-								acct_info = "  - ACCT: " & ACCOUNTS_ARRAY(account_type_const, the_acct)
-								If ACCOUNTS_ARRAY(bank_name_const, the_acct) <> "" Then acct_info = acct_info & " at " & ACCOUNTS_ARRAY(bank_name_const, the_acct)
-								If ACCOUNTS_ARRAY(account_owner_const, the_acct) <> "" Then acct_info = acct_info & " owned by: " & ACCOUNTS_ARRAY(account_owner_const, the_acct)
-								acct_info = acct_info & ". Balance: $" & ACCOUNTS_ARRAY(account_amount_const, the_acct)
+						For the_acct = 0 to UBound(EXP_ACCT_ARRAY, 2)
+							If EXP_ACCT_ARRAY(account_type_const, the_acct) <> "Select One..." Then
+								acct_info = "  - ACCT: " & EXP_ACCT_ARRAY(account_type_const, the_acct)
+								If EXP_ACCT_ARRAY(bank_name_const, the_acct) <> "" Then acct_info = acct_info & " at " & EXP_ACCT_ARRAY(bank_name_const, the_acct)
+								If EXP_ACCT_ARRAY(account_owner_const, the_acct) <> "" Then acct_info = acct_info & " owned by: " & EXP_ACCT_ARRAY(account_owner_const, the_acct)
+								acct_info = acct_info & ". Balance: $" & EXP_ACCT_ARRAY(account_amount_const, the_acct)
 								Call write_variable_in_case_note (acct_info)
 							End If
 						Next
