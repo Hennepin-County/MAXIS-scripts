@@ -6568,269 +6568,269 @@ function provide_resources_information(case_number_known, create_case_note, note
 '~~~~~ note_detail_array: Enter a variable to pass through an array with all of the case note detail lines. This way the detail can be entered within another note.
 '~~~~~ allow_cancel: BOOLEAN - Indicate if the Cancel button and stopscript should be included in this function.
 '===== Keywords: MAXIS, dialog, communication, Word, MEMO
-	If case_number_known = TRUE Then
-		dlg_len = 240
-		y_pos_add = 0
-	End If
-	If case_number_known = FALSE Then
-		dlg_len = 255
-		y_pos_add = 10
-	End If
-	no_resources_checkbox = unchecked
+	Dim MEMO_LINES_ARRAY()					'declaring an array so we can add MEMOs
+	array_counter = 0						'setting the start of a counter
+	no_resources_checkbox = unchecked		'making sure this is known even if it is not displayed, as it is optional
+	'this variable is used to know if we have resources to send.
 
-	Dialog1 = ""
-	BeginDialog Dialog1, 0, 0, 206, dlg_len, "Resources MEMO"
-	  If case_number_known = FALSE Then EditBox 60, 5, 50, 15, MAXIS_case_number
-	  ButtonGroup ButtonPressed
-	    PushButton 150, 5, 50, 10, "Check All", check_all_button
-	  CheckBox 15, 35 + y_pos_add, 145, 10, "Client Email Submission/Virtual Dropbox", client_virtual_dropox_checkbox
-	  CheckBox 15, 50 + y_pos_add, 140, 10, "Community Action Partnership - CAP", cap_checkbox
-	  CheckBox 15, 65 + y_pos_add, 115, 10, "DHS MMIS Recipient HelpDesk", MMIS_helpdesk_checkbox
-	  CheckBox 15, 80 + y_pos_add, 180, 10, "DHS MNSure Helpdesk   * NOT FOR MA CLIENTS", MNSURE_helpdesk_checkbox
-	  CheckBox 15, 95 + y_pos_add, 145, 10, "Disability Hub (Disability Linkage Line)", disability_hub_checkbox
-	  CheckBox 15, 110 + y_pos_add, 125, 10, "Emergency Mental Health Services", emer_mental_health_checkbox
-	  CheckBox 15, 125 + y_pos_add, 175, 10, "Emergency Food Shelf Network (The Food Group)", emer_food_network_checkbox
-	  CheckBox 15, 140 + y_pos_add, 50, 10, "Front Door", front_door_checkbox
-	  CheckBox 15, 155 + y_pos_add, 75, 10, "Senior Linkage Line", sr_linkage_line_checkbox
-	  CheckBox 15, 170 + y_pos_add, 130, 10, "United Way First Call for Help (211)", united_way_checkbox
-	  CheckBox 15, 185 + y_pos_add, 60, 10, "Xcel Energy", xcel_checkbox
-	  EditBox 80, 200 + y_pos_add, 120, 15, worker_signature
-	  If allow_cancel = TRUE Then
-		  ButtonGroup ButtonPressed
-		    OkButton 95, 225 + y_pos_add, 50, 15
-	        CancelButton 150, 225 + y_pos_add, 50, 15
-	  End If
-	  If allow_cancel = FALSE Then
-	  	  CheckBox 10, 225 + y_pos_add, 140, 10, "Check here if no resources are needed.", no_resources_checkbox
-		  ButtonGroup ButtonPressed
-		    OkButton 150, 225 + y_pos_add, 50, 15
-	  End If
-	  If case_number_known = FALSE Then Text 10, 10, 50, 10, "Case number:"
-	  Text 10, 20 + y_pos_add, 195, 10, "Check any to send detail about the service to a client:"
-	  Text 10, 205 + y_pos_add, 65, 10, "Worker signature:"
-	EndDialog
+	Do
+		DO
+			Do
+				err_msg = ""
+				Dialog1 = ""
+				BeginDialog Dialog1, 0, 0, 211, 330, "Resources MEMO"			'dialog defined within the do loops because there is a nother in the larges loop
+				  ButtonGroup ButtonPressed
+				  	If case_number_known = FALSE Then EditBox 60, 5, 50, 15, MAXIS_case_number
+					If allow_cancel = FALSE Then CheckBox 60, 25, 140, 10, "Check here if no resources are needed.", no_resources_checkbox
+				    PushButton 150, 5, 50, 10, "Check All", check_all_button
+					CheckBox 15, 50, 145, 10, "Online Document Submission Options", client_virtual_dropox_checkbox
+					CheckBox 15, 65, 140, 10, "Community Action Partnership - CAP", cap_checkbox
+					CheckBox 15, 80, 115, 10, "DHS MMIS Recipient HelpDesk", MMIS_helpdesk_checkbox
+					CheckBox 15, 95, 180, 10, "DHS MNSure Helpdesk   * NOT FOR MA CLIENTS", MNSURE_helpdesk_checkbox
+					CheckBox 15, 110, 145, 10, "Disability Hub (Disability Linkage Line)", disability_hub_checkbox
+					CheckBox 15, 125, 175, 10, "Emergency Food Shelf Network (The Food Group)", emer_food_network_checkbox
+					CheckBox 15, 140, 125, 10, "Emergency Mental Health Services", emer_mental_health_checkbox
+					CheckBox 15, 155, 50, 10, "Front Door", front_door_checkbox
+					CheckBox 15, 170, 75, 10, "Senior Linkage Line", sr_linkage_line_checkbox
+					Text 15, 185, 185, 10, "Shelters for residents experiencing housing insecurity:"
+					CheckBox 20, 195, 175, 10, "Family Shelters - Hennepin County Shelter Team", family_shelter_checkbox
+					CheckBox 20, 210, 95, 10, "Single Adults Shelters", single_adults_shelter_checkbox
+					CheckBox 20, 225, 110, 10, "Domestic Violence Shelter", domestic_violence_shelters_checkbox
+					CheckBox 15, 240, 130, 10, "United Way First Call for Help (211)", united_way_checkbox
+					CheckBox 15, 255, 35, 10, "WIC", wic_checkbox
+					CheckBox 15, 270, 60, 10, "Xcel Energy", xcel_checkbox
+					EditBox 80, 290, 125, 15, worker_signature
+					If allow_cancel = TRUE Then
+					    OkButton 100, 310, 50, 15
+					    CancelButton 155, 310, 50, 15
+					End If
+					If allow_cancel = FALSE Then
+						OkButton 155, 310, 50, 15
+					End If
+					Text 10, 10, 50, 10, "Case number:"
+					GroupBox 5, 40, 200, 245, "Check any to send detail about the service to a client"
+					Text 10, 295, 65, 10, "Worker signature:"
+				EndDialog
 
-	'This Do...loop shows the appointment letter dialog, and contains logic to require most fields.
+				Dialog Dialog1			'showing the dialog
 
-	DO
-		Do
-			err_msg = ""
-			Dialog Dialog1
-			If allow_cancel = TRUE Then
-				cancel_without_confirmation
-		        If cap_checkbox = unchecked AND emer_mental_health_checkbox = unchecked AND MMIS_helpdesk_checkbox = unchecked AND MNSURE_helpdesk_checkbox = unchecked AND disability_hub_checkbox = unchecked AND emer_food_network_checkbox = unchecked AND front_door_checkbox = unchecked AND sr_linkage_line_checkbox = unchecked AND united_way_checkbox = unchecked AND xcel_checkbox = unchecked Then err_msg = err_msg & vbNewLine & "You must select at least one resource."
-			End If
-			If allow_cancel = FALSE Then
-				If cap_checkbox = unchecked AND emer_mental_health_checkbox = unchecked AND MMIS_helpdesk_checkbox = unchecked AND MNSURE_helpdesk_checkbox = unchecked AND disability_hub_checkbox = unchecked AND emer_food_network_checkbox = unchecked AND front_door_checkbox = unchecked AND sr_linkage_line_checkbox = unchecked AND united_way_checkbox = unchecked AND xcel_checkbox = unchecked AND no_resources_checkbox = unchecked Then err_msg = err_msg & vbNewLine & "Either select a resource or indicate none were needed by checking the box."
-				If no_resources_checkbox = checked Then
-					If cap_checkbox = checked OR emer_mental_health_checkbox = checked OR MMIS_helpdesk_checkbox = checked OR MNSURE_helpdesk_checkbox = checked OR disability_hub_checkbox = checked OR emer_food_network_checkbox = checked OR front_door_checkbox = checked OR sr_linkage_line_checkbox = checked OR united_way_checkbox = checked OR xcel_checkbox = checked Then err_msg = err_msg & vbNewLine & "You cannot indicate no resources AND indicate some resources. Review the checked boxes."
+				resource_selected = False										'figuring out if any of the resources have been selected or not
+				If client_virtual_dropox_checkbox = checked Then 	resource_selected = True
+				If cap_checkbox = checked Then 						resource_selected = True
+				If MMIS_helpdesk_checkbox = checked Then 			resource_selected = True
+				If MNSURE_helpdesk_checkbox = checked Then 			resource_selected = True
+				If disability_hub_checkbox = checked Then 			resource_selected = True
+				If emer_food_network_checkbox = checked Then 		resource_selected = True
+				If emer_mental_health_checkbox = checked Then 		resource_selected = True
+				If front_door_checkbox = checked Then 				resource_selected = True
+				If sr_linkage_line_checkbox = checked Then 			resource_selected = True
+				If family_shelter_checkbox = checked Then 			resource_selected = True
+				If single_adults_shelter_checkbox = checked Then 	resource_selected = True
+				If domestic_violence_shelters_checkbox = checked Then resource_selected = True
+				If united_way_checkbox = checked Then 				resource_selected = True
+				If wic_checkbox = checked Then 						resource_selected = True
+				If xcel_checkbox = checked Then 					resource_selected = True
+
+				'dialog message handling
+				If allow_cancel = TRUE Then
+					cancel_without_confirmation
+					If resource_selected = False Then err_msg = err_msg & vbNewLine & "You must select at least one resource."
 				End If
-			End If
-			If case_number_known = FALSE Then
-				If isnumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & "You must fill in a valid case number." & vbNewLine
-			End If
-			If worker_signature = "" then err_msg = err_msg & "You must sign your case note." & vbNewLine
-	        If ButtonPressed = check_all_button Then
-	            err_msg = "LOOP" & err_msg
+				If allow_cancel = FALSE Then
+					If resource_selected = False Then err_msg = err_msg & vbNewLine & "Either select a resource or indicate none were needed by checking the box."
+					If no_resources_checkbox = checked AND resource_selected = True Then err_msg = err_msg & vbNewLine & "You cannot indicate no resources AND indicate some resources. Review the checked boxes."
+				End If
+				If case_number_known = FALSE Then
+					If isnumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & "You must fill in a valid case number." & vbNewLine
+				End If
+				If worker_signature = "" then err_msg = err_msg & "You must sign your case note." & vbNewLine
+		        If ButtonPressed = check_all_button Then		'checking all the boxes if the button to check all the boxes is pushed
+		            err_msg = "LOOP" & err_msg
 
-				client_virtual_dropox_checkbox = checked
-	            cap_checkbox = checked
-	            MMIS_helpdesk_checkbox = checked
-	            MNSURE_helpdesk_checkbox = checked
-	            disability_hub_checkbox = checked
-	            emer_food_network_checkbox = checked
-	            emer_mental_health_checkbox = checked
-	            front_door_checkbox = checked
-	            sr_linkage_line_checkbox = checked
-	            united_way_checkbox = checked
-	            xcel_checkbox = checked
-	        End If
-			IF err_msg <> "" AND left(err_msg, 4) <> "LOOP" THEN msgbox err_msg
-		Loop until err_msg = ""
-		call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
-	LOOP UNTIL are_we_passworded_out = false
+					client_virtual_dropox_checkbox = checked
+		            cap_checkbox = checked
+		            MMIS_helpdesk_checkbox = checked
+		            MNSURE_helpdesk_checkbox = checked
+		            disability_hub_checkbox = checked
+		            emer_food_network_checkbox = checked
+		            emer_mental_health_checkbox = checked
+		            front_door_checkbox = checked
+		            sr_linkage_line_checkbox = checked
+					family_shelter_checkbox = checked
+					single_adults_shelter_checkbox = checked
+					domestic_violence_shelters_checkbox = checked
+		            united_way_checkbox = checked
+					wic_checkbox = checked
+		            xcel_checkbox = checked
+		        End If
+				IF err_msg <> "" AND left(err_msg, 4) <> "LOOP" THEN msgbox "Please resolve to continue:" & vbCr & vbCr & err_msg
+			Loop until err_msg = ""
+			call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+		LOOP UNTIL are_we_passworded_out = false
+
+		If no_resources_checkbox = unchecked Then		'If any resources are checked
+			ReDim MEMO_LINES_ARRAY(0)					'resizing the array down to 0
+			array_counter = 0							'resetting the array counter
+
+			'Adding all of the resource information into the array so we know what the MEMO will look like.
+			script_to_say = "Resource detail:" & vbNewLine
+			MEMO_LINES_ARRAY(0) = "  ----Outside Resources - current as of " & date & "----"
+
+			If client_virtual_dropox_checkbox = checked Then
+				array_counter = array_counter + 4
+				ReDim Preserve MEMO_LINES_ARRAY(array_counter)
+				MEMO_LINES_ARRAY(array_counter-3) = "You can submit documents Online at www.MNBenefits.org or"
+				MEMO_LINES_ARRAY(array_counter-2) = "Email with document attachment. EMAIL: hhsews@hennepin.us"
+				MEMO_LINES_ARRAY(array_counter-1) = " (Only attach PNG, JPG, TIF, DOC, PDF, or HTM file types)"
+				MEMO_LINES_ARRAY(array_counter) = "--   --   --   --   --   --   --   --   --   --   --"
+			End If
+			If cap_checkbox = checked Then
+				array_counter = array_counter + 7
+				ReDim Preserve MEMO_LINES_ARRAY(array_counter)
+				MEMO_LINES_ARRAY(array_counter-6) = "CAP - Community Action Partnership (Includes Energy Assist)"
+		        MEMO_LINES_ARRAY(array_counter-5) = "Hours: Mon-Fri 8:00AM - 4:30PM Website: www.caphennepin.org"
+		        MEMO_LINES_ARRAY(array_counter-4) = "Locations: Minneapolis Urban League   Phone: 952-930-3541"
+		        MEMO_LINES_ARRAY(array_counter-3) = "           MN Council of Churches     Phone: 952-933-9639"
+		        MEMO_LINES_ARRAY(array_counter-2) = "           Sabathani Community Center Phone: 952-930-3541"
+		        MEMO_LINES_ARRAY(array_counter-1) = "           St. Louis Park             Phone: 952-933-9639"
+			  	MEMO_LINES_ARRAY(array_counter) = "--   --   --   --   --   --   --   --   --   --   --"
+			End If
+			If MMIS_helpdesk_checkbox = checked Then
+				array_counter = array_counter + 2
+				ReDim Preserve MEMO_LINES_ARRAY(array_counter)
+				MEMO_LINES_ARRAY(array_counter-1) = "MN Health Care Recipient Help Desk - 651-431-2670"
+			    MEMO_LINES_ARRAY(array_counter) = "--   --   --   --   --   --   --   --   --   --   --"
+			End If
+			If MNSURE_helpdesk_checkbox = checked Then
+				array_counter = array_counter + 2
+				ReDim Preserve MEMO_LINES_ARRAY(array_counter)
+				MEMO_LINES_ARRAY(array_counter-1) = "MNSure Helpdesk - 1-855-366-7873 (1-855-3MNSURE)"
+			    MEMO_LINES_ARRAY(array_counter) = "--   --   --   --   --   --   --   --   --   --   --"
+			End If
+			If disability_hub_checkbox = checked Then
+				array_counter = array_counter + 4
+				ReDim Preserve MEMO_LINES_ARRAY(array_counter)
+				MEMO_LINES_ARRAY(array_counter-3) = "Disability Hub (formerly Disability Linkage Line)"
+		        MEMO_LINES_ARRAY(array_counter-2) = "Phone: 1-866-333-2466 -Hrs: Mon - Fri 8:00AM - 5:00PM"
+		        MEMO_LINES_ARRAY(array_counter-1) = "Website: disabilityhubmn.org"
+		        MEMO_LINES_ARRAY(array_counter) = "--   --   --   --   --   --   --   --   --   --   --"
+			End If
+			If emer_food_network_checkbox = checked Then
+				array_counter = array_counter + 3
+				ReDim Preserve MEMO_LINES_ARRAY(array_counter)
+				MEMO_LINES_ARRAY(array_counter-2) = "The Food Group (formerly Emergency Food Network)"
+		        MEMO_LINES_ARRAY(array_counter-1) = "Phone: 763-450-3860  - Website: thefoodgroupmn.org"
+		        MEMO_LINES_ARRAY(array_counter) = "--   --   --   --   --   --   --   --   --   --   --"
+			End If
+			If emer_mental_health_checkbox = checked Then
+				array_counter = array_counter + 4
+				ReDim Preserve MEMO_LINES_ARRAY(array_counter)
+				MEMO_LINES_ARRAY(array_counter-3) = "Emergency Mental Health Services"
+		        MEMO_LINES_ARRAY(array_counter-2) = "Adults 18 and older (COPE): 612-596-1223"
+		        MEMO_LINES_ARRAY(array_counter-1) = "Children (Child Crisis Services): 612-348-2233"
+		        MEMO_LINES_ARRAY(array_counter) = "--   --   --   --   --   --   --   --   --   --   --"
+			End If
+			If front_door_checkbox = checked Then
+				array_counter = array_counter + 2
+				ReDim Preserve MEMO_LINES_ARRAY(array_counter)
+				MEMO_LINES_ARRAY(array_counter-1) = "Hennepin County FRONT DOOR - 612-348-4111"
+			    MEMO_LINES_ARRAY(array_counter) = "--   --   --   --   --   --   --   --   --   --   --"
+			End If
+			If sr_linkage_line_checkbox = checked Then
+				array_counter = array_counter + 4
+				ReDim Preserve MEMO_LINES_ARRAY(array_counter)
+				MEMO_LINES_ARRAY(array_counter-3) = "Senior Linkage Line"
+		        MEMO_LINES_ARRAY(array_counter-2) = "Phone: 1-800-333-2433  - Hours: Mon - Fri 8:00 AM - 4:30 PM"
+				MEMO_LINES_ARRAY(array_counter-1) = "Website: metroaging.org"
+				MEMO_LINES_ARRAY(array_counter) = "--   --   --   --   --   --   --   --   --   --   --"
+			End If
+			If family_shelter_checkbox = checked Then
+				array_counter = array_counter + 4
+				ReDim Preserve MEMO_LINES_ARRAY(array_counter)
+				MEMO_LINES_ARRAY(array_counter-3) = "Family Shelter Team  --  Phone: 612-348-9410"
+				MEMO_LINES_ARRAY(array_counter-2) = "Hours: Mondays - Fridays: 8 AM - 11 PM"
+				MEMO_LINES_ARRAY(array_counter-1) = "       Weekends/Holidays: 1 PM - 11PM"
+				MEMO_LINES_ARRAY(array_counter) = "--   --   --   --   --   --   --   --   --   --   --"
+			End If
+			If single_adults_shelter_checkbox = checked Then
+				array_counter = array_counter + 4
+				ReDim Preserve MEMO_LINES_ARRAY(array_counter)
+				MEMO_LINES_ARRAY(array_counter-3) = "Adult Shelter"
+				MEMO_LINES_ARRAY(array_counter-2) = "Phone: 612-248-2350  --  Mon - Fri 8 AM - 4 PM"
+				MEMO_LINES_ARRAY(array_counter-1) = "Phone: 211 (651-291-0211)  --  All Other Hours"
+				MEMO_LINES_ARRAY(array_counter) = "--   --   --   --   --   --   --   --   --   --   --"
+			End If
+			If domestic_violence_shelters_checkbox = checked Then
+				array_counter = array_counter + 3
+				ReDim Preserve MEMO_LINES_ARRAY(array_counter)
+				MEMO_LINES_ARRAY(array_counter-2) = "Domestic Violence Shelter"
+				MEMO_LINES_ARRAY(array_counter-1) = "Day One Shelter  --  Phone: 866-223-1111"
+				MEMO_LINES_ARRAY(array_counter) = "--   --   --   --   --   --   --   --   --   --   --"
+			End If
+			If united_way_checkbox = checked Then
+				array_counter = array_counter + 4
+				ReDim Preserve MEMO_LINES_ARRAY(array_counter)
+				MEMO_LINES_ARRAY(array_counter-3) = "United Way First Call for Help (211) - DIAL 211"
+		        MEMO_LINES_ARRAY(array_counter-2) = "Phone: 1-800-543-7709 OR 651-291-0211  - Available 24 Hrs"
+		        MEMO_LINES_ARRAY(array_counter-1) = "Website: www.211unitedway.org"
+		        MEMO_LINES_ARRAY(array_counter) = "--   --   --   --   --   --   --   --   --   --   --"
+			End If
+			If wic_checkbox = checked Then
+				array_counter = array_counter + 3
+				ReDim Preserve MEMO_LINES_ARRAY(array_counter)
+				MEMO_LINES_ARRAY(array_counter-2) = "WIC - Women, Infants, and Children"
+				MEMO_LINES_ARRAY(array_counter-1) = "Phone: 612-348-6100"
+				MEMO_LINES_ARRAY(array_counter) = "--   --   --   --   --   --   --   --   --   --   --"
+			End If
+			If xcel_checkbox = checked Then
+				array_counter = array_counter + 2
+				ReDim Preserve MEMO_LINES_ARRAY(array_counter)
+				MEMO_LINES_ARRAY(array_counter-1) = "Xcel Energy - 1-800-331-5262"
+			    MEMO_LINES_ARRAY(array_counter) = "--   --   --   --   --   --   --   --   --   --   --"
+			End If
+
+			For each memo_line in MEMO_LINES_ARRAY
+				script_to_say = script_to_say & vbNewLine & memo_line
+			Next
+			script_to_say = script_to_say & vbNewLine & vbNewLine & "Relay any of the above information to the client verbally now." & vbNewLine &_
+			    "Then press OK and all of this detail will be added to a SPEC/MEMO so the client can have the information in writing."
+
+			MsgBox script_to_say		'This shows the resources in a MSGBOX so the resources can be given verbally to the resident
+
+			'selecting the way the resources should be sent to the resident
+			Dialog1 = ""
+			BeginDialog Dialog1, 0, 0, 196, 70, "Dialog"
+			  DropListBox 55, 30, 135, 45, "SPEC/MEMO"+chr(9)+"Word Document"+chr(9)+"Do Not Send", resource_method
+			  ButtonGroup ButtonPressed
+			    OkButton 140, 50, 50, 15
+			  Text 5, 10, 195, 10, "How do you want to send this information to the resident?"
+			EndDialog
+			Do
+			    dialog Dialog1
+
+			    Call check_for_password(are_we_passworded_out)
+			Loop until are_we_passworded_out = FALSE
+
+			If array_counter > 29 AND resource_method = "SPEC/MEMO" Then
+				MsgBox "MEMOs only allow for 30 lines and you have " & array_counter + 1 & " lines based on the resources you have selected." & vbCr & vbCr &_
+					   "     --   --   --   --   --   --   --   --   --   --   --   --   --   --   --   --   --   --   --     " & vbCr & vbCr &_
+					   "The checkbox dialog will appear and you can reselct the checkboxes to fit within the MEMO.", vbImportant, "MEMO too large"
+			End If
+		End If
+		If resource_method = "Do Not Send" Then no_resources_checkbox = checked		'this sets the variable for the next part of the script to indicate if additional action is needed.
+	Loop until array_counter < 30 OR resource_method <> "SPEC/MEMO"
 
 	If no_resources_checkbox = unchecked Then
-		script_to_say = "Resource detail:" & vbNewLine
-
-		If client_virtual_dropox_checkbox = checked Then
-			script_to_say = script_to_say & vbNewLine & "You have an option to use an email to return documents" & vbNewLine &_
-				"to Hennepin County. Write the case number and full name" & vbNewLine &_
-				"associated with the case in the body of the email." & vbNewLine &_
-				"Only the following types are accepted PNG, JPG, TIFF," & vbNewLine &_
-				"DOC, PDF, and HTML.          EMAIL: hhsews@hennepin.us " & vbNewLine &_
-				"You will not receive confirmation of receipt or failure." & vbNewLine &_
-		        "--   --   --   --   --   --   --   --   --   --   --"
-		End If
-		If cap_checkbox = checked Then
-		    script_to_say = script_to_say & vbNewLine & "CAP - Community Action Partnership (Includes Energy Assist)" & vbNewLine &_
-		        "Hours: Mon-Fri 8:00AM - 4:30PM Website: www.caphennepin.org" & vbNewLine &_
-		        "Locations: Minneapolis Urban League   Phone: 952-930-3541" & vbNewLine &_
-		        "           MN Council of Churches     Phone: 952-933-9639" & vbNewLine &_
-		        "           Sabathani Community Center Phone: 952-930-3541" & vbNewLine &_
-		        "           St. Louis Park             Phone: 952-933-9639" & vbNewLine &_
-		        "--   --   --   --   --   --   --   --   --   --   --"
-		End If
-		If MMIS_helpdesk_checkbox = checked Then
-		    script_to_say = script_to_say & vbNewLine & "MN Health Care Recipient Help Desk - 651-431-2670" & vbNewLine &_
-		    "--   --   --   --   --   --   --   --   --   --   --"
-		End If
-		If MNSURE_helpdesk_checkbox = checked Then
-		    script_to_say = script_to_say & vbNewLine & "MNSure Helpdesk - 1-855-366-7873 (1-855-3MNSURE)" & vbNewLine &_
-		    "--   --   --   --   --   --   --   --   --   --   --"
-		End If
-		If disability_hub_checkbox = checked Then
-		    script_to_say = script_to_say & vbNewLine & "Disability Hub (formerly Disability Linkage Line)" & vbNewLine &_
-		        "Phone: 1-866-333-2466 -Hrs: Mon - Fri 8:00AM - 5:00PM" & vbNewLine &_
-		        "Website: disabilityhubmn.org" & vbNewLine &_
-		        "--   --   --   --   --   --   --   --   --   --   --"
-		End If
-		If emer_food_network_checkbox = checked Then
-		    script_to_say = script_to_say & vbNewLine & "The Food Group (formerly Emergency Food Network)" & vbNewLine &_
-		        "Phone: 763-450-3860  - Website: thefoodgroupmn.org" & vbNewLine &_
-		        "--   --   --   --   --   --   --   --   --   --   --"
-		End If
-		If emer_mental_health_checkbox = checked Then
-		    script_to_say = script_to_say & vbNewLine & "Emergency Mental Health Services" & vbNewLine &_
-		        "Adults 18 and older (COPE): 612-596-1223" & vbNewLine &_
-		        "Children (Child Crisis Services): 612-348-2233" & vbNewLine &_
-		        "--   --   --   --   --   --   --   --   --   --   --"
-		End If
-		If front_door_checkbox = checked Then
-		    script_to_say = script_to_say & vbNewLine & "Hennepin County FRONT DOOR - 612-348-4111" & vbNewLine &_
-		    "--   --   --   --   --   --   --   --   --   --   --"
-		End If
-		If sr_linkage_line_checkbox = checked Then
-		    script_to_say = script_to_say & vbNewLine & "Senior Linkage Line" & vbNewLine &_
-		        "Phone: 1-800-333-2433  - Hours: Mon - Fri 8:00 AM - 4:30 PM      Website: metroaging.org" & vbNewLine &_
-				"--   --   --   --   --   --   --   --   --   --   --"
-		        ' "   Currently has extended hours Mon - Thur 4:30 PM - 6:30 PM" & vbNewLine &_
-		        ' "Website: metroaging.org" & vbNewLine &_
-		End If
-		If united_way_checkbox = checked Then
-		    script_to_say = script_to_say & vbNewLine & "United Way First Call for Help (211)" & vbNewLine &_
-		        "Phone: 1-800-543-7709 OR 651- 291-0211  - Available 24 Hrs" & vbNewLine &_
-		        "Website: www.211unitedway.org" & vbNewLine &_
-		        "--   --   --   --   --   --   --   --   --   --   --"
-		End If
-		If xcel_checkbox = checked Then
-		    script_to_say = script_to_say & vbNewLine & "Xcel Energy - 1-800-331-5262" & vbNewLine &_
-		    "--   --   --   --   --   --   --   --   --   --   --"
-		End If
-
-		script_to_say = script_to_say & vbNewLine & "Relay any of the above information to the client verbally now." & vbNewLine &_
-		    "Then press OK and all of this detail will be added to a SPEC/MEMO so the client can have the information in writing."
-
-		MsgBox script_to_say
-
-		Dialog1 = ""
-		BeginDialog Dialog1, 0, 0, 106, 80, "Dialog"
-		  DropListBox 15, 40, 80, 45, "SPEC/MEMO"+chr(9)+"Word Document", resource_method
-		  ButtonGroup ButtonPressed
-		    OkButton 45, 60, 50, 15
-		  Text 5, 10, 90, 20, "What is the best format for the Resource information?"
-		EndDialog
-		Do
-		    dialog Dialog1
-
-		    Call check_for_password(are_we_passworded_out)
-		Loop until are_we_passworded_out = FALSE
-
-		'Create a question - MEMO or Word Doc'
-		If resource_method = "SPEC/MEMO" Then
+		If resource_method = "SPEC/MEMO" Then		'Creating a MEMO if that is the option selected
 			Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, allow_cancel)	' start the memo writing process
-		    need_divider = FALSE
-		    'Writes the MEMO.
-		    call write_variable_in_SPEC_MEMO("  ----Outside Resources - current as of " & date & "----")
-			If client_virtual_dropox_checkbox = checked Then
-				If need_divider = TRUE Then call write_variable_in_SPEC_MEMO("     --   --   --   --   --   --   --   --   --   --")
-				call write_variable_in_SPEC_MEMO("* You have an option to use an email to return documents")
-				call write_variable_in_SPEC_MEMO("  to Hennepin County. Write the case number and full name")
-				call write_variable_in_SPEC_MEMO("  associated with the case in the body of the email.")
-				call write_variable_in_SPEC_MEMO("  Only the following types are accepted PNG, JPG, TIFF,")
-				call write_variable_in_SPEC_MEMO("  DOC, PDF, and HTML.        EMAIL: hhsews@hennepin.us ")
-				call write_variable_in_SPEC_MEMO("  You will not receive confirmation of receipt or failure.")
-				need_divider = FALSE
-			End If
-		    If cap_checkbox = checked Then
-		        If need_divider = TRUE Then call write_variable_in_SPEC_MEMO("     --   --   --   --   --   --   --   --   --   --")
-		        call write_variable_in_SPEC_MEMO("* CAP - Community Action Partnership (Inc. Energy Assist)")
-		        call write_variable_in_SPEC_MEMO("Hours: Mon-Fri 8:00AM - 4:30PM Website: www.caphennepin.org")
-		        call write_variable_in_SPEC_MEMO("Locations: Minneapolis Urban League   Phone: 952-930-3541")
-		        call write_variable_in_SPEC_MEMO("           MN Council of Churches     Phone: 952-933-9639")
-		        call write_variable_in_SPEC_MEMO("           Sabathani Community Center Phone: 952-930-3541")
-		        call write_variable_in_SPEC_MEMO("           St. Louis Park             Phone: 952-933-9639")
-		        need_divider = FALSE
-		        'call write_variable_in_SPEC_MEMO("--   --   --   --   --   --   --   --   --   --   --")
-		    End If
 
-		    If MMIS_helpdesk_checkbox = checked Then
-		        If need_divider = TRUE Then call write_variable_in_SPEC_MEMO("     --   --   --   --   --   --   --   --   --   --")
-		        call write_variable_in_SPEC_MEMO("* MN Health Care Recipient Help Desk - 651-431-2670")
-		        need_divider = FALSE
-		        'call write_variable_in_SPEC_MEMO("--   --   --   --   --   --   --   --   --   --   --")
-		    End If
-		    If MNSURE_helpdesk_checkbox = checked Then
-		        If need_divider = TRUE Then call write_variable_in_SPEC_MEMO("     --   --   --   --   --   --   --   --   --   --")
-		        call write_variable_in_SPEC_MEMO("* MNSure Helpdesk - 1-855-366-7873 (1-855-3MNSURE)")
-		        need_divider = FALSE
-		        'call write_variable_in_SPEC_MEMO("--   --   --   --   --   --   --   --   --   --   --")
-		    End If
-		    If disability_hub_checkbox = checked Then
-		        If need_divider = TRUE Then call write_variable_in_SPEC_MEMO("     --   --   --   --   --   --   --   --   --   --")
-		        call write_variable_in_SPEC_MEMO("* Disability Hub (formerly Disability Linkage Line)")
-		        call write_variable_in_SPEC_MEMO("    Phone: 1-866-333-2466 -Hrs: Mon - Fri 8:00AM - 5:00PM")
-		        call write_variable_in_SPEC_MEMO("    Website: disabilityhubmn.org")
-		        need_divider = FALSE
-		        'call write_variable_in_SPEC_MEMO("--   --   --   --   --   --   --   --   --   --   --")
-		    End If
-		    If emer_food_network_checkbox = checked Then
-		        If need_divider = TRUE Then call write_variable_in_SPEC_MEMO("     --   --   --   --   --   --   --   --   --   --")
-		        call write_variable_in_SPEC_MEMO("* The Food Group (formerly Emergency Food Network)")
-		        call write_variable_in_SPEC_MEMO("     Phone: 763-450-3860  - Website: thefoodgroupmn.org")
-		        need_divider = FALSE
-		        'call write_variable_in_SPEC_MEMO("--   --   --   --   --   --   --   --   --   --   --")
-		    End If
-		    If emer_mental_health_checkbox = checked Then
-		        If need_divider = TRUE Then call write_variable_in_SPEC_MEMO("     --   --   --   --   --   --   --   --   --   --")
-		        call write_variable_in_SPEC_MEMO("* Emergency Mental Health Services")
-		        call write_variable_in_SPEC_MEMO("       Adults 18 and older (COPE): 612-596-1223")
-		        call write_variable_in_SPEC_MEMO("       Children (Child Crisis Services): 612-348-2233")
-		        need_divider = FALSE
-		    End If
-		    If front_door_checkbox = checked Then
-		        If need_divider = TRUE Then call write_variable_in_SPEC_MEMO("     --   --   --   --   --   --   --   --   --   --")
-		        call write_variable_in_SPEC_MEMO("* Hennepin County FRONT DOOR - 612-348-4111")
-		        need_divider = FALSE
-		        'call write_variable_in_SPEC_MEMO("--   --   --   --   --   --   --   --   --   --   --")
-		    End If
-		    If sr_linkage_line_checkbox = checked Then
-		        If need_divider = TRUE Then call write_variable_in_SPEC_MEMO("     --   --   --   --   --   --   --   --   --   --")
-		        call write_variable_in_SPEC_MEMO("* Senior Linkage Line - Hours: Mon - Fri 8:00AM - 4:30PM")
-		        call write_variable_in_SPEC_MEMO("   Phone: 1-800-333-2433          Website: metroaging.org")
-		        ' call write_variable_in_SPEC_MEMO("   Currently has extended hours Mon - Thur 4:30PM - 6:30PM")
-		        ' call write_variable_in_SPEC_MEMO("   Website: metroaging.org")
-		        need_divider = FALSE
-		        'call write_variable_in_SPEC_MEMO("--   --   --   --   --   --   --   --   --   --   --")
-		    End If
-		    If united_way_checkbox = checked Then
-		        If need_divider = TRUE Then call write_variable_in_SPEC_MEMO("     --   --   --   --   --   --   --   --   --   --")
-		        call write_variable_in_SPEC_MEMO("* United Way First Call for Help (211)")
-		        call write_variable_in_SPEC_MEMO("   Phone: 1-800-543-7709 OR 651- 291-0211 - 24 Hrs")
-		        call write_variable_in_SPEC_MEMO("   Website: www.211unitedway.org")
-		        need_divider = FALSE
-		        'call write_variable_in_SPEC_MEMO("--   --   --   --   --   --   --   --   --   --   --")
-		    End If
-		    If xcel_checkbox = checked Then
-		        If need_divider = TRUE Then call write_variable_in_SPEC_MEMO("     --   --   --   --   --   --   --   --   --   --")
-		        call write_variable_in_SPEC_MEMO("* Xcel Energy - 1-800-331-5262")
-		        'call write_variable_in_SPEC_MEMO("--   --   --   --   --   --   --   --   --   --   --")
-		    End If
-		    'Exits the MEMO
+			For each memo_line in MEMO_LINES_ARRAY		'using the array created above
+				call write_variable_in_SPEC_MEMO(memo_line)
+			Next
 		    PF4
 		End If
 
-		If resource_method = "Word Document" Then
+		If resource_method = "Word Document" Then		''Creating a WORD DOCUMENT if that is the option selected
 		    '****writing the word document
 		    Set objWord = CreateObject("Word.Application")
 		    Const wdDialogFilePrint = 88
@@ -6858,12 +6858,9 @@ function provide_resources_information(case_number_known, create_case_note, note
 		    objSelection.Font.Size = "12"
 		    objSelection.Font.Bold = FALSE
 			If client_virtual_dropox_checkbox = checked Then
-				objSelection.TypeText "* You have an option to use an email to return documents" & vbCr
-				objSelection.TypeText "  to Hennepin County. Write the case number and full name" & vbCr
-				objSelection.TypeText "  associated with the case in the body of the email." & vbCr
-				objSelection.TypeText "  Only the following types are accepted PNG, JPG, TIFF," & vbCr
-				objSelection.TypeText "  DOC, PDF, and HTML.    EMAIL: hhsews@hennepin.us " & vbCr
-				objSelection.TypeText "  You will not receive confirmation of receipt or failure." & vbCr
+				objSelection.TypeText "You can submit documents Online at www.MNBenefits.org or" & vbCr
+				objSelection.TypeText "Email with document attachment. EMAIL: hhsews@hennepin.us" & vbCr
+				objSelection.TypeText " (Only attach PNG, JPG, TIF, DOC, PDF, or HTM file types)" & vbCr
 				objSelection.TypeParagraph()
 			End If
 		    If cap_checkbox = checked Then
@@ -6873,42 +6870,35 @@ function provide_resources_information(case_number_known, create_case_note, note
 		        objSelection.TypeText "                    MN Council of Churches     Phone: 952-933-9639" & vbCr
 		        objSelection.TypeText "                    Sabathani Community Center Phone: 952-930-3541" & vbCr
 		        objSelection.TypeText "                    St. Louis Park             Phone: 952-933-9639" & vbCr
-		        'objSelection.TypeText "_____________________________" & chr(10)
 		        objSelection.TypeParagraph()
 		    End If
 		    If MMIS_helpdesk_checkbox = checked Then
 		        objSelection.TypeText "* MN Health Care Recipient Help Desk - 651-431-2670" & vbCr
-		        'objSelection.TypeText "_____________________________" & vbCr
 		        objSelection.TypeParagraph()
 		    End If
 		    If MNSURE_helpdesk_checkbox = checked Then
 		        objSelection.TypeText "* MNSure Helpdesk - 1-855-366-7873 (1-855-3MNSURE)" & vbCr
-		        'objSelection.TypeText "_____________________________" & vbCr
 		        objSelection.TypeParagraph()
 		    End If
 		    If disability_hub_checkbox = checked Then
 		        objSelection.TypeText "* Disability Hub (formerly Disability Linkage Line)" & vbCr
 		        objSelection.TypeText "    Phone: 1-866-333-2466 -Hrs: Mon - Fri 8:00AM - 5:00PM" & vbCr
 		        objSelection.TypeText "    Website: disabilityhubmn.org" & vbCr
-		        'objSelection.TypeText "_____________________________" & vbCr
 		        objSelection.TypeParagraph()
 		    End If
 		    If emer_food_network_checkbox = checked Then
 		        objSelection.TypeText "* The Food Group (formerly Emergency Food Network)" & vbCr
 		        objSelection.TypeText "     Phone: 763-450-3860  - Website: thefoodgroupmn.org" & vbCr
-		        'objSelection.TypeText "_____________________________" & vbCr
 		        objSelection.TypeParagraph()
 		    End If
 		    If emer_mental_health_checkbox = checked Then
 		        objSelection.TypeText "* Emergency Mental Health Services" & vbCr
 		        objSelection.TypeText "       Adults 18 and older (COPE): 612-596-1223" & vbCr
 		        objSelection.TypeText "       Children (Child Crisis Services): 612-348-2233" & vbCr
-		        'objSelection.TypeText "_____________________________" & vbCr
 		        objSelection.TypeParagraph()
 		    End If
 		    If front_door_checkbox = checked Then
 		        objSelection.TypeText "* Hennepin County FRONT DOOR - 612-348-4111" & vbCr
-		        'objSelection.TypeText "_____________________________" & vbCr
 		        objSelection.TypeParagraph()
 		    End If
 		    If sr_linkage_line_checkbox = checked Then
@@ -6916,23 +6906,45 @@ function provide_resources_information(case_number_known, create_case_note, note
 		        objSelection.TypeText "   Phone: 1-800-333-2433 - Hours: Mon - Fri 8:00AM - 4:30PM" & vbCr
 		        objSelection.TypeText "   Currently has extended hours Mon - Thur 4:30PM - 6:30PM" & vbCr
 		        objSelection.TypeText "   Website: metroaging.org" & vbCr
-		        'objSelection.TypeText "_____________________________" & vbCr
 		        objSelection.TypeParagraph()
 		    End If
+			If family_shelter_checkbox = checked Then
+				objSelection.TypeText "* Family Shelter Team" & vbCr
+				objSelection.TypeText "   Phone: 612-348-9410" & vbCr
+				objSelection.TypeText "   Hours: Mon - Fri 8 AM - 11 PM" & vbCr
+				objSelection.TypeText "   Weekends/Holidays 1 PM - 11PM" & vbCr
+				objSelection.TypeParagraph()
+			End If
+			If single_adults_shelter_checkbox = checked Then
+				objSelection.TypeText "* Adult Shelter" & vbCr
+				objSelection.TypeText "   Phone: 612-248-2350  --  Mon - Fri 8 AM - 4 PM" & vbCr
+				objSelection.TypeText "   Phone: 211 (651-291-0211)  --  All Other Hours" & vbCr
+				objSelection.TypeParagraph()
+			End If
+			If domestic_violence_shelters_checkbox = checked Then
+				objSelection.TypeText "* Domestic Violence Shelter" & vbCr
+				objSelection.TypeText "   Day One Shelter Phone: 866-223-1111" & vbCr
+				objSelection.TypeParagraph()
+			End If
 		    If united_way_checkbox = checked Then
 		        objSelection.TypeText "* United Way First Call for Help (211)" & vbCr
 		        objSelection.TypeText "   Phone: 1-800-543-7709 OR 651- 291-0211 - 24 Hrs" & vbCr
 		        objSelection.TypeText "   Website: www.211unitedway.org" & vbCr
-		        'objSelection.TypeText "_____________________________" & vbCr
 		        objSelection.TypeParagraph()
 		    End If
+			If wic_checkbox = checked Then
+				 objSelection.TypeText "* WIC - Women, Infants, and Children" & vbCr
+				 objSelection.TypeText "   Phone: 612 348-6100" & vbCr
+				 objSelection.TypeText "   Website: www.hennepin.us/residents/health-medical/wic-women-infants-children" & vbCr
+				objSelection.TypeParagraph()
+			End If
 		    If xcel_checkbox = checked Then
 		        objSelection.TypeText "* Xcel Energy - 1-800-331-5262" & vbCr
-		        'objSelection.TypeText "_____________________________" & vbCr
 		        objSelection.TypeParagraph()
 		    End If
 		End If
 
+		'create an array of the actions taken. This needs to be an array so we can send it out of the function if the function does not create a CASE:NOTEs
 		note_detail_array = ""
 		If resource_method = "SPEC/MEMO" Then note_detail_array = note_detail_array & "::* Information added to SPEC/MEMO to send in overnight batch."
 		If resource_method = "Word Document" Then note_detail_array = note_detail_array & "::* Information added to Word Document for printing locally."
@@ -6946,7 +6958,11 @@ function provide_resources_information(case_number_known, create_case_note, note
 		IF emer_mental_health_checkbox = checked Then note_detail_array = note_detail_array & "::* Emergency Mental Health Services"
 		IF front_door_checkbox = checked Then note_detail_array = note_detail_array & "::* Front Door"
 		IF sr_linkage_line_checkbox = checked Then note_detail_array = note_detail_array & "::* Senior Linkage Line"
+		IF family_shelter_checkbox = checked Then note_detail_array = note_detail_array & "::* Family Shelter Team"
+		IF single_adults_shelter_checkbox = checked Then note_detail_array = note_detail_array & "::* Single Adulte Shelter Information"
+		IF domestic_violence_shelters_checkbox = checked Then note_detail_array = note_detail_array & "::* Domestic Violence Shelter"
 		IF united_way_checkbox = checked Then note_detail_array = note_detail_array & "::* United Way - 211"
+		IF wic_checkbox = checked Then note_detail_array = note_detail_array & "::* WIC Information"
 		IF xcel_checkbox = checked Then note_detail_array = note_detail_array & "::* Xcel Energy"
 
 		If left(note_detail_array, 2) = "::" Then note_detail_array = right(note_detail_array, len(note_detail_array)-2)
