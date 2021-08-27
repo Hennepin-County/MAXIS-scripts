@@ -472,27 +472,27 @@ function check_for_errors(interview_questions_clear)
 
 	' If current_listing = "2"  Then tagline = ": CAF ADDR"
 		'If living situation is 'Blank' or 'Unknown' - ask it and update
-		If living_situation = "10 - Unknown" OR living_situation = "Blank" Then err_msg = err_msg & "~!~" & "2 ^* Living Situation?##~##   - Clarify the living situation with the resident for entry."
+	If living_situation = "10 - Unknown" OR living_situation = "Blank" Then err_msg = err_msg & "~!~" & "2 ^* Living Situation?##~##   - Clarify the living situation with the resident for entry."
 
 	' If current_listing = "3"  Then tagline = ": CAF MEMBs"
 		'If IMIG Statis is not blank - require sponsor information
 		'require 'intends to reside in MN
 		'ID for 01? Other caregiver?
-		For the_memb = 0 to UBound(HH_MEMB_ARRAY, 2)
-			HH_MEMB_ARRAY(imig_status, the_memb) = trim(HH_MEMB_ARRAY(imig_status, the_memb))
-			If HH_MEMB_ARRAY(imig_status, the_memb) <> "" AND HH_MEMB_ARRAY(clt_has_sponsor, selected_memb) = "" Then err_msg = err_msg & "~!~" & "3 ^* Sponsor?##~##   - Since there is immigration details listed for " & HH_MEMB_ARRAY(full_name_const, the_memb) & ", you need to ask and record if this resident has a sponsor."
-			If HH_MEMB_ARRAY(intend_to_reside_in_mn, selected_memb) = "" Then err_msg = err_msg & "~!~" & "3 ^* Intends to Reside in MN##~##   - Indicate if this resident (" & HH_MEMB_ARRAY(full_name_const, the_memb) & ") intends to reside in MN."
-			If the_memb = 0 AND (HH_MEMB_ARRAY(id_verif, the_memb) = "" OR HH_MEMB_ARRAY(id_verif, the_memb) = "NO - No Veer Prvd") Then err_msg = err_msg & "~!~" & "3 ^* Identidty Verification##~##   - Identity is required for " & HH_MEMB_ARRAY(full_name_const, the_memb) & ". Enter the ID information on file/received or indicate that it has been requested."
-		Next
+	For the_memb = 0 to UBound(HH_MEMB_ARRAY, 2)
+		HH_MEMB_ARRAY(imig_status, the_memb) = trim(HH_MEMB_ARRAY(imig_status, the_memb))
+		If HH_MEMB_ARRAY(imig_status, the_memb) <> "" AND HH_MEMB_ARRAY(clt_has_sponsor, the_memb) = "" Then err_msg = err_msg & "~!~" & "3 ^* Sponsor?##~##   - Since there is immigration details listed for " & HH_MEMB_ARRAY(full_name_const, the_memb) & ", you need to ask and record if this resident has a sponsor."
+		If HH_MEMB_ARRAY(intend_to_reside_in_mn, the_memb) = "" Then err_msg = err_msg & "~!~" & "3 ^* Intends to Reside in MN##~##   - Indicate if this resident (" & HH_MEMB_ARRAY(full_name_const, the_memb) & ") intends to reside in MN."
+		If the_memb = 0 AND (HH_MEMB_ARRAY(id_verif, the_memb) = "" OR HH_MEMB_ARRAY(id_verif, the_memb) = "NO - No Veer Prvd") Then err_msg = err_msg & "~!~" & "3 ^* Identidty Verification##~##   - Identity is required for " & HH_MEMB_ARRAY(full_name_const, the_memb) & ". Enter the ID information on file/received or indicate that it has been requested."
+	Next
 
 	' If current_listing = "4"  Then tagline = ": Q. 1- 6"
 		'if children in home - school notes need detail
-		question_3_interview_notes = trim(question_3_interview_notes)
-		If school_age_children_in_hh = True AND question_3_interview_notes = "" Then err_msg = err_msg & "~!~" & "4 ^* 3. Is anyone in the household attending school? Interview Notes:##~##   - Additional detail about school is needed since this household has children. Gather information about child(ren)'s grade level, district/school, and status.'##~##"
+	question_3_interview_notes = trim(question_3_interview_notes)
+	If school_age_children_in_hh = True AND question_3_interview_notes = "" Then err_msg = err_msg & "~!~" & "4 ^* 3. Is anyone in the household attending school? Interview Notes:##~##   - Additional detail about school is needed since this household has children. Gather information about child(ren)'s grade level, district/school, and status.'##~##"
 
 	' If current_listing = "5"  Then tagline = ": Q. 7 - 11"
 		'if SNAP - must select PWE'
-		If snap_status <> "INACTIVE" AND pwe_selection = "Select One..." Then err_msg = err_msg & "~!~" & "5 ^* Principal Wage Earner##~##   - Since this we have SNAP to consider, you must indicate who the resident selects as PWE."
+	If snap_status <> "INACTIVE" AND pwe_selection = "Select One..." Then err_msg = err_msg & "~!~" & "5 ^* Principal Wage Earner##~##   - Since this we have SNAP to consider, you must indicate who the resident selects as PWE."
 
 	' If current_listing = "6"  Then tagline = ": Q. 12 - 13"
 
@@ -2366,8 +2366,9 @@ function display_errors(the_err_msg, execute_nav, show_err_msg_during_movement)
 		If ButtonPressed = incomplete_interview_btn Then show_msg = False
 		If ButtonPressed = verif_button Then show_msg = False
 		If ButtonPressed = open_hsr_manual_transfer_page_btn Then show_msg = False
-		If ButtonPressed > 500 AND ButtonPressed < 1200 Then show_msg = False
+		If ButtonPressed >= 500 AND ButtonPressed < 1200 Then show_msg = False
 		If ButtonPressed >= 4000 Then show_msg = False
+		' If show_err_msg_during_movement = True AND (ButtonPressed = next_btn OR ButtonPressed = -1) Then show_msg = True
 		If error_message = "" Then show_msg = False
 		If ButtonPressed = finish_interview_btn Then show_msg = True
 		If discrepancies_exist = True AND expedited_determination_needed = False Then
@@ -2387,7 +2388,7 @@ function display_errors(the_err_msg, execute_nav, show_err_msg_during_movement)
 			If ButtonPressed = next_btn OR ButtonPressed = -1 Then show_msg = True
 		End If
 		' MsgBox "Page Display - " & page_display & vbCr & "disc - " & discrepancies_exist & vbCr & "exp det - " & expedited_determination_needed & vbCr & "exp complete - " & expedited_determination_completed & vbCR & "ButtonPressed - " & ButtonPressed & vbCr & "SHOW MSG - " & show_msg
-
+		' MsgBox "Button - " & ButtonPressed & vbCr & "Show? " & show_msg & vbCr & vbCr & "Errors: " & err_msg
 		If show_msg = True Then view_errors = MsgBox("In order to complete the script and CASE/NOTE, additional details need to be added or refined. Please review and update." & vbNewLine & error_message, vbCritical, "Review detail required in Dialogs")
 		If show_msg = False then the_err_msg = ""
         'The function can be operated without moving to a different dialog or not. The only time this will be activated is at the end of dialog 8.
