@@ -567,7 +567,7 @@ function check_for_errors(interview_questions_clear)
 		signature_person = trim(signature_person)
 		second_signature_person = trim(second_signature_person)
 		If signature_detail = "Select or Type" OR signature_detail = "" Then err_msg = err_msg & "~!~" & "11^* Signature of Primary Adult##~##   - Indicate how the signature information has been received (or not received)."
-		If second_signature_detail = "Select or Type" OR second_signature_detail = "" Then err_msg = err_msg & "~!~" & "11^* Signature of Other Adult##~##   - Indicate how the second signature information has been received (or not received)."
+		If second_signature_detail = "Select or Type" OR second_signature_detail = "" Then err_msg = err_msg & "~!~" & "11^* Signature of Other Adult##~##   - Indicate how the second signature information has been received (or not received). If no second adult is on the case or the signature of the second adult is not required, select 'Not Required'."
 		'If signatires are signed or verbal - then person and date must be completed
 		If signature_detail = "Signature Completed" OR signature_detail  = "Accepted Verbally" Then
 			If signature_person = "" AND signature_person = "Select or Type" Then err_msg = err_msg & "~!~" & "11^* Signature of Primary Adult - person##~##   - Since the signature was completed, indicate whose sigature it is."
@@ -12229,7 +12229,7 @@ If signature_detail <> "Not Required" AND signature_detail <> "Blank" Then
 End If
 objSelection.TypeText vbCr
 
-objSelection.TypeText "Signature of Primary Adult: " & second_signature_detail
+objSelection.TypeText "Signature of Secondary Adult: " & second_signature_detail
 If second_signature_detail <> "Not Required" AND second_signature_detail <> "Blank" Then
 	objSelection.TypeText " by " & second_signature_person & " on " & second_signature_date
 End If
