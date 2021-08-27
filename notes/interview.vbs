@@ -2738,7 +2738,7 @@ function display_expedited_dialog()
 					Text 145, 175, 70, 10, "Immigration - YES."
 					Text 225, 175, 55, 10, "Sponsor - YES."
 					Text 300, 175, 125, 10, "anything OTHER than ID - YES. "
-					Text 30, 190, 300, 10, "Appplicant's identity is the ONLY required verification to approve Expedited SNAP."
+					Text 30, 190, 300, 10, "Applicant's identity is the ONLY required verification to approve Expedited SNAP."
 					PushButton 320, 187, 145, 13, "CM 04.12 Verification Requirement for EXP", cm_04_12_btn
 				End If
 				If is_elig_XFS = False Then
@@ -2821,7 +2821,7 @@ function display_expedited_dialog()
 																						  "* Only indicate a denial if you already have enough information to determine that the SNAP application should be denied." & vbCr &_
 																						  "* If this is the determination, review the date in the SNAP Denial Field as it appears to be a future date."
 				snap_denial_explain = trim(snap_denial_explain)
-				If len(snap_denial_explain) < 20 then err_msg = err_msg & vbCr & "* Since this SNAP case is to be denied, explain the reason for denial in detail."
+				If len(snap_denial_explain) < 10 then err_msg = err_msg & vbCr & "* Since this SNAP case is to be denied, explain the reason for denial in detail."
 			Else
 				If is_elig_XFS = True Then
 					If IsDate(approval_date) = True Then
@@ -10430,7 +10430,7 @@ If snap_case = True OR pend_snap_on_case = "Yes" OR mfip_status <> "INACTIVE" Th
 					If ButtonPressed = explain_change_rept Then MsgBox "CHANGE REPORTING" & vbCr & vbCR &_
 																	   "Changes that are required to be reported:" & vbCr &_
 																	   "  - A change in the source of income, including starting or stopping a " & vbCr &_
-																	   "    job, if the change in employment is accomanied by a change in " & vbCr &_
+																	   "    job, if the change in employment is accompanied by a change in " & vbCr &_
 																	   "    income." & vbCr &_
 																	   "  - A change in more than $100 per month in gross earned income." & vbCr &_
 																	   "  - A change of more than $100 in the amount of unearned income, " & vbCr &_
