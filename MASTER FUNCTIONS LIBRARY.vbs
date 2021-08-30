@@ -6580,7 +6580,10 @@ function provide_resources_information(case_number_known, create_case_note, note
 				Dialog1 = ""
 				BeginDialog Dialog1, 0, 0, 211, 330, "Resources MEMO"			'dialog defined within the do loops because there is a nother in the larges loop
 				  ButtonGroup ButtonPressed
-				  	If case_number_known = FALSE Then EditBox 60, 5, 50, 15, MAXIS_case_number
+				  	If case_number_known = FALSE Then
+						EditBox 60, 5, 50, 15, MAXIS_case_number
+						Text 10, 10, 50, 10, "Case number:"
+					End If
 					If allow_cancel = FALSE Then CheckBox 60, 25, 140, 10, "Check here if no resources are needed.", no_resources_checkbox
 				    PushButton 150, 5, 50, 10, "Check All", check_all_button
 					CheckBox 15, 50, 145, 10, "Online Document Submission Options", client_virtual_dropox_checkbox
@@ -6607,7 +6610,6 @@ function provide_resources_information(case_number_known, create_case_note, note
 					If allow_cancel = FALSE Then
 						OkButton 155, 310, 50, 15
 					End If
-					Text 10, 10, 50, 10, "Case number:"
 					GroupBox 5, 40, 200, 245, "Check any to send detail about the service to a client"
 					Text 10, 295, 65, 10, "Worker signature:"
 				EndDialog
@@ -6637,7 +6639,7 @@ function provide_resources_information(case_number_known, create_case_note, note
 					If resource_selected = False Then err_msg = err_msg & vbNewLine & "You must select at least one resource."
 				End If
 				If allow_cancel = FALSE Then
-					If resource_selected = False Then err_msg = err_msg & vbNewLine & "Either select a resource or indicate none were needed by checking the box."
+					If resource_selected = False AND no_resources_checkbox = unchecked Then err_msg = err_msg & vbNewLine & "Either select a resource or indicate none were needed by checking the box."
 					If no_resources_checkbox = checked AND resource_selected = True Then err_msg = err_msg & vbNewLine & "You cannot indicate no resources AND indicate some resources. Review the checked boxes."
 				End If
 				If case_number_known = FALSE Then
