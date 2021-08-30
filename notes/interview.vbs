@@ -3569,7 +3569,8 @@ function save_your_work()
 			If release_date_unknown_checkbox = checked Then objTextStream.WriteLine "EXPDET - FACI - 08"
 			objTextStream.WriteLine "EXPDET - FACI - 09 - " & release_within_30_days_yn
 
-			objTextStream.WriteLine "VERIFS - " & verifs_needed
+			objTextStream.WriteLine "VERIFS - " & verifs_selected
+			objTextStream.WriteLine "VRFDTE - " & verif_req_form_sent_date
 			If number_verifs_checkbox = checked Then objTextStream.WriteLine "NUMBER VERIFS"
 			If verifs_postponed_checkbox = checked Then objTextStream.WriteLine "POSTPONE VERIFS"
 
@@ -4071,7 +4072,9 @@ function save_your_work()
 			script_run_lowdown = script_run_lowdown & vbCr & "EXPDET - FACI - 08 - " & release_date_unknown_checkbox
 			script_run_lowdown = script_run_lowdown & vbCr & "EXPDET - FACI - 09 - " & release_within_30_days_yn & vbCr & vbCr
 
-			script_run_lowdown = script_run_lowdown & vbCr & "VERIFS - " & verifs_needed
+			script_run_lowdown = script_run_lowdown & vbCr & "VERIFS - " & verifs_selected
+			script_run_lowdown = script_run_lowdown & vbCr & "VRFDTE - " & verif_req_form_sent_date
+
 			If number_verifs_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "NUMBER VERIFS - CHECKED"
 			If verifs_postponed_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "POSTPONE VERIFS - CHECKED" & vbCr & vbCr
 
@@ -4667,7 +4670,9 @@ function restore_your_work(vars_filled)
 					If left(text_line, 18) = "EXPDET - FACI - 09" Then release_within_30_days_yn = Mid(text_line, 22)
 
 
-					If left(text_line, 6) = "VERIFS" Then verifs_needed = Mid(text_line, 10)
+					If left(text_line, 6) = "VERIFS" Then verifs_selected = Mid(text_line, 10)
+					If left(text_line, 6) = "VRFDTE" Then verif_req_form_sent_date = Mid(text_line, 10)
+
 					If text_line = "NUMBER VERIFS" Then number_verifs_checkbox = checked
 					If text_line = "POSTPONE VERIFS" Then verifs_postponed_checkbox = checked
 
@@ -5564,15 +5569,15 @@ function verification_dialog()
 					grp_len = grp_len + 15
 				End If
 
-				verifs_needed = trim(verifs_needed)
-				If right(verifs_needed, 1) = ";" Then
-					verifs_to_view = left(verifs_needed, len(verifs_needed)-1)
+				verifs_selected = trim(verifs_selected)
+				If right(verifs_selected, 1) = ";" Then
+					verifs_to_view = left(verifs_selected, len(verifs_selected)-1)
 				Else
-					verifs_to_view = verifs_needed
+					verifs_to_view = verifs_selected
 				End If
 
 				If verifs_to_view <> "" Then
-					array_of_verifs_needed = ""
+					array_of_verifs_selected = ""
 					If InStr(verifs_to_view, ";") = 0 Then
 						array_of_verifs_needed = array(verifs_to_view)
 					Else
@@ -5731,45 +5736,45 @@ function verification_dialog()
             If verif_err_msg = "" Then
                 If id_verif_checkbox = checked Then
                     If IsNumeric(left(id_verif_memb, 2)) = TRUE Then
-                        verifs_needed = verifs_needed & "Identity for Memb " & id_verif_memb & ".; "
+                        verifs_selected = verifs_selected & "Identity for Memb " & id_verif_memb & ".; "
                     Else
-                        verifs_needed = verifs_needed & "Identity for " & id_verif_memb & ".; "
+                        verifs_selected = verifs_selected & "Identity for " & id_verif_memb & ".; "
                     End If
                     id_verif_checkbox = unchecked
                     id_verif_memb = ""
                 End If
                 If us_cit_status_checkbox = checked Then
                     If IsNumeric(left(us_cit_verif_memb, 2)) = TRUE Then
-                        verifs_needed = verifs_needed & "US Citizenship for Memb " & us_cit_verif_memb & ".; "
+                        verifs_selected = verifs_selected & "US Citizenship for Memb " & us_cit_verif_memb & ".; "
                     Else
-                        verifs_needed = verifs_needed & "US Citizenship for " & us_cit_verif_memb & ".; "
+                        verifs_selected = verifs_selected & "US Citizenship for " & us_cit_verif_memb & ".; "
                     End If
                     us_cit_status_checkbox = unchecked
                     us_cit_verif_memb = ""
                 End If
                 If imig_status_checkbox = checked Then
                     If IsNumeric(left(imig_verif_memb, 2)) = TRUE Then
-                        verifs_needed = verifs_needed & "Immigration documentation for Memb " & imig_verif_memb & ".; "
+                        verifs_selected = verifs_selected & "Immigration documentation for Memb " & imig_verif_memb & ".; "
                     Else
-                        verifs_needed = verifs_needed & "Immigration documentation for " & imig_verif_memb & ".; "
+                        verifs_selected = verifs_selected & "Immigration documentation for " & imig_verif_memb & ".; "
                     End If
                     imig_status_checkbox = unchecked
                     imig_verif_memb = ""
                 End If
                 If ssn_checkbox = checked Then
                     If IsNumeric(left(ssn_verif_memb, 2)) = TRUE Then
-                        verifs_needed = verifs_needed & "Social Security number for Memb " & ssn_verif_memb & ".; "
+                        verifs_selected = verifs_selected & "Social Security number for Memb " & ssn_verif_memb & ".; "
                     Else
-                        verifs_needed = verifs_needed & "Social Security number for " & ssn_verif_memb & ".; "
+                        verifs_selected = verifs_selected & "Social Security number for " & ssn_verif_memb & ".; "
                     End If
                     ssn_checkbox = unchecked
                     ssn_verif_memb = ""
                 End If
                 If relationship_checkbox = checked Then
                     If IsNumeric(left(relationship_one_verif_memb, 2)) = TRUE AND IsNumeric(left(relationship_two_verif_memb, 2)) = TRUE Then
-                        verifs_needed = verifs_needed & "Relationship between Memb " & relationship_one_verif_memb & " and Memb " & relationship_two_verif_memb & ".; "
+                        verifs_selected = verifs_selected & "Relationship between Memb " & relationship_one_verif_memb & " and Memb " & relationship_two_verif_memb & ".; "
                     Else
-                        verifs_needed = verifs_needed & "Relationship between " & relationship_one_verif_memb & " and " & relationship_two_verif_memb & ".; "
+                        verifs_selected = verifs_selected & "Relationship between " & relationship_one_verif_memb & " and " & relationship_two_verif_memb & ".; "
                     End If
                     relationship_checkbox = unchecked
                     relationship_one_verif_memb = ""
@@ -5777,9 +5782,9 @@ function verification_dialog()
                 End If
                 If income_checkbox = checked Then
                     If IsNumeric(left(income_verif_memb, 2)) = TRUE Then
-                        verifs_needed = verifs_needed & "Income for Memb " & income_verif_memb & " at " & income_verif_source & " for " & income_verif_time & ".; "
+                        verifs_selected = verifs_selected & "Income for Memb " & income_verif_memb & " at " & income_verif_source & " for " & income_verif_time & ".; "
                     Else
-                        verifs_needed = verifs_needed & "Income for " & income_verif_memb & " at " & income_verif_source & " for " & income_verif_time & ".; "
+                        verifs_selected = verifs_selected & "Income for " & income_verif_memb & " at " & income_verif_source & " for " & income_verif_time & ".; "
                     End If
                     income_checkbox = unchecked
                     income_verif_source = ""
@@ -5788,9 +5793,9 @@ function verification_dialog()
                 End If
                 If employment_status_checkbox = checked Then
                     If IsNumeric(left(emp_status_verif_memb, 2)) = TRUE Then
-                        verifs_needed = verifs_needed & "Employment Status for Memb " & emp_status_verif_memb & " from " & emp_status_verif_source & ".; "
+                        verifs_selected = verifs_selected & "Employment Status for Memb " & emp_status_verif_memb & " from " & emp_status_verif_source & ".; "
                     Else
-                        verifs_needed = verifs_needed & "Employment Status for " & emp_status_verif_memb & " from " & emp_status_verif_source & ".; "
+                        verifs_selected = verifs_selected & "Employment Status for " & emp_status_verif_memb & " from " & emp_status_verif_source & ".; "
                     End If
                     employment_status_checkbox = unchecked
                     emp_status_verif_memb = ""
@@ -5798,9 +5803,9 @@ function verification_dialog()
                 End If
                 If student_info_checkbox = checked Then
                     If IsNumeric(left(student_verif_memb, 2)) = TRUE Then
-                        verifs_needed = verifs_needed & "Student information for Memb " & student_verif_memb & " at " & student_verif_source & ".; "
+                        verifs_selected = verifs_selected & "Student information for Memb " & student_verif_memb & " at " & student_verif_source & ".; "
                     Else
-                        verifs_needed = verifs_needed & "Student information for " & student_verif_memb & " at " & student_verif_source & ".; "
+                        verifs_selected = verifs_selected & "Student information for " & student_verif_memb & " at " & student_verif_source & ".; "
                     End If
                     student_info_checkbox = unchecked
                     student_verif_memb = ""
@@ -5808,29 +5813,29 @@ function verification_dialog()
                 End If
                 If educational_funds_cost_checkbox = checked Then
                     If IsNumeric(left(stin_verif_memb, 2)) = TRUE Then
-                        verifs_needed = verifs_needed & "Educational funds and costs for Memb " & stin_verif_memb & ".; "
+                        verifs_selected = verifs_selected & "Educational funds and costs for Memb " & stin_verif_memb & ".; "
                     Else
-                        verifs_needed = verifs_needed & "Educational funds and costs for " & stin_verif_memb & ".; "
+                        verifs_selected = verifs_selected & "Educational funds and costs for " & stin_verif_memb & ".; "
                     End If
                     educational_funds_cost_checkbox = unchecked
                     stin_verif_memb = ""
                 End If
                 If shelter_checkbox = checked Then
                     If IsNumeric(left(shelter_verif_memb, 2)) = TRUE Then
-                        verifs_needed = verifs_needed & "Shelter costs for Memb " & shelter_verif_memb & ". "
+                        verifs_selected = verifs_selected & "Shelter costs for Memb " & shelter_verif_memb & ". "
                     Else
-                        verifs_needed = verifs_needed & "Shelter costs for " & shelter_verif_memb & ". "
+                        verifs_selected = verifs_selected & "Shelter costs for " & shelter_verif_memb & ". "
                     End If
-                    If shelter_not_mandatory_checkbox = checked Then verifs_needed = verifs_needed & " THIS VERIFICATION IS NOT MANDATORY."
-                    verifs_needed = verifs_needed & "; "
+                    If shelter_not_mandatory_checkbox = checked Then verifs_selected = verifs_selected & " THIS VERIFICATION IS NOT MANDATORY."
+                    verifs_selected = verifs_selected & "; "
                     shelter_checkbox = unchecked
                     shelter_verif_memb = ""
                 End If
                 If bank_account_checkbox = checked Then
                     If IsNumeric(left(bank_verif_memb, 2)) = TRUE Then
-                        verifs_needed = verifs_needed & bank_verif_type & " account for Memb " & bank_verif_memb & " for " & bank_verif_time & ".; "
+                        verifs_selected = verifs_selected & bank_verif_type & " account for Memb " & bank_verif_memb & " for " & bank_verif_time & ".; "
                     Else
-                        verifs_needed = verifs_needed & bank_verif_type & " account for " & bank_verif_memb & " for " & bank_verif_time & ".; "
+                        verifs_selected = verifs_selected & bank_verif_type & " account for " & bank_verif_memb & " for " & bank_verif_time & ".; "
                     End If
                     bank_account_checkbox = unchecked
                     bank_verif_type = ""
@@ -5839,25 +5844,25 @@ function verification_dialog()
                 End If
                 If preg_checkbox = checked Then
                     If IsNumeric(left(preg_verif_memb, 2)) = TRUE Then
-                        verifs_needed = verifs_needed & "Pregnancy for Memb " & preg_verif_memb & ".; "
+                        verifs_selected = verifs_selected & "Pregnancy for Memb " & preg_verif_memb & ".; "
                     Else
-                        verifs_needed = verifs_needed & "Pregnancy for " & preg_verif_memb & ".; "
+                        verifs_selected = verifs_selected & "Pregnancy for " & preg_verif_memb & ".; "
                     End If
                     preg_checkbox = unchecked
                     preg_verif_memb = ""
                 End If
                 If illness_disability_checkbox = checked Then
                     If IsNumeric(left(disa_verif_memb, 2)) = TRUE Then
-                        verifs_needed = verifs_needed & "Ill/Incap or Disability for Memb " & disa_verif_memb & " of " & disa_verif_type & ",; "
+                        verifs_selected = verifs_selected & "Ill/Incap or Disability for Memb " & disa_verif_memb & " of " & disa_verif_type & ",; "
                     Else
-                        verifs_needed = verifs_needed & "Ill/Incap or Disability for " & disa_verif_memb & " of " & disa_verif_type & ",; "
+                        verifs_selected = verifs_selected & "Ill/Incap or Disability for " & disa_verif_memb & " of " & disa_verif_type & ",; "
                     End If
                     illness_disability_checkbox = unchecked
                     disa_verif_memb = ""
                     disa_verif_type = ""
                 End If
                 other_verifs = trim(other_verifs)
-                If other_verifs <> "" Then verifs_needed = verifs_needed & other_verifs & "; "
+                If other_verifs <> "" Then verifs_selected = verifs_selected & other_verifs & "; "
                 other_verifs = ""
             Else
                 MsgBox "Additional detail about verifications to note is needed:" & vbNewLine & verif_err_msg
@@ -6505,11 +6510,9 @@ function write_interview_CASE_NOTE()
 
 end function
 
+function create_verifs_needed_list(verifs_selected, verifs_needed)
 
-function write_verification_CASE_NOTE(create_verif_note)
-	create_verif_note = False
-
-	verifs_needed = trim(verifs_needed)
+	verifs_needed = verifs_selected
 	If right(verifs_needed, 1) = ";" Then verifs_needed = left(verifs_needed, len(verifs_needed) - 1)
 	If left(verifs_needed, 1) = ";" Then verifs_needed = right(verifs_needed, len(verifs_needed) - 1)
 
@@ -6641,6 +6644,13 @@ function write_verification_CASE_NOTE(create_verif_note)
 	End If
 
 	verifs_needed = trim(verifs_needed)
+
+end function
+
+function write_verification_CASE_NOTE(create_verif_note)
+	create_verif_note = False
+
+	Call create_verifs_needed_list(verifs_selected, verifs_needed)
 
 	If trim(verifs_needed) <> "" Then
 		create_verif_note = True
@@ -8164,7 +8174,7 @@ Dim arep_complete_forms_checkbox, arep_get_notices_checkbox, arep_use_SNAP_check
 Dim CAF_arep_complete_forms_checkbox, CAF_arep_get_notices_checkbox, CAF_arep_use_SNAP_checkbox
 Dim arep_on_CAF_checkbox, arep_action, CAF_arep_action, arep_and_CAF_arep_match, arep_authorization, arep_exists, arep_authorized
 Dim signature_detail, signature_person, signature_date, second_signature_detail, second_signature_person, second_signature_date
-Dim client_signed_verbally_yn, interview_date, add_to_time, update_arep, verifs_needed, verif_req_form_sent_date, number_verifs_checkbox, verifs_postponed_checkbox
+Dim client_signed_verbally_yn, interview_date, add_to_time, update_arep, verifs_needed, verifs_selected, verif_req_form_sent_date, number_verifs_checkbox, verifs_postponed_checkbox
 Dim exp_snap_approval_date, exp_snap_delays, snap_denial_date, snap_denial_explain, pend_snap_on_case, do_we_have_applicant_id
 Dim family_cash_case_yn, absent_parent_yn, relative_caregiver_yn, minor_caregiver_yn
 Dim disc_phone_confirmation, disc_yes_phone_no_expense_confirmation, disc_no_phone_yes_expense_confirmation, disc_homeless_confirmation, disc_out_of_county_confirmation, CAF1_rent_indicated, Verbal_rent_indicated
@@ -10475,14 +10485,47 @@ If left(confirm_recap_read, 4) <> "YES!" Then
 	Do
 		Do
 			err_msg = ""
+			Call create_verifs_needed_list(verifs_selected, verifs_needed)
+			If trim(verifs_needed) <> "" Then
+				verif_counter = 1
+				verifs_needed = trim(verifs_needed)
+				If right(verifs_needed, 1) = ";" Then verifs_needed = left(verifs_needed, len(verifs_needed) - 1)
+				If left(verifs_needed, 1) = ";" Then verifs_needed = right(verifs_needed, len(verifs_needed) - 1)
+				If InStr(verifs_needed, ";") <> 0 Then
+					verifs_array = split(verifs_needed, ";")
+				Else
+					verifs_array = array(verifs_needed)
+				End If
+			End If
 
 			Dialog1 = ""
 			BeginDialog Dialog1, 0, 0, 550, 385, "FORMS and INFORMATION Review with Resident"
 			  DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! Recap Discussed"+chr(9)+"No, I could not complete this", confirm_recap_read
-			  Text 10, 10, 500, 10, "The Interview Information has been completed. Review the information and next steps with the resident."
+			  Text 220, 10, 280, 10, "The Interview Information has been completed. Review the information and next steps with the resident."
 			  GroupBox 10, 20, 530, 340, "CASE INTERVIEW WRAP UP"
 
-			  Text 15, 30, 505, 10, "What would be helpful here?"
+			  ' Text 15, 30, 505, 10, "What would be helpful here?"
+			  y_pos = 45
+			  If trim(verifs_needed) = "" Then
+				  Text 15, 35, 505, 10, "THERE ARE NO REQUESTED VERIFICATIONS ENTERED INTO THE SCRIPT"
+				  Text 15, 50, 505, 10, "Since there are no verifications requested, the program requests should be processed."
+				  y_pos = 65
+			  Else
+				  If verif_req_form_sent_date = "" Then Text 15, 35, 505, 10, "Requested Verifications Entered Into the Script"
+				  If verif_req_form_sent_date <> "" Then Text 15, 35, 505, 10, "Requested Verifications Entered Into the Script. Request sent on " & verif_req_form_sent_date
+			  	  For each verif_item in verifs_array
+					  If number_verifs_checkbox = checked Then verif_item = verif_counter & ". " & verif_item
+					  Text 25, y_pos, 505, 10, verif_item
+
+					  verif_counter = verif_counter + 1
+					  y_pos = y_pos + 10
+				  Next
+			  End If
+
+			  ButtonGroup ButtonPressed
+			  	PushButton 15, y_pos, 100, 15, "Update Verifications", verif_button
+			  y_pos = y_pos + 20
+
 
 			  ' Text 15, 30, 505, 10, "Programs being Requested/Renewed:"
 			  ' Text 20, 40, 505, 10, "SNAP"
@@ -10495,21 +10538,35 @@ If left(confirm_recap_read, 4) <> "YES!" Then
 			  ' Text 25, 115, 505, 10, "APPLICATION - the benefits are typically available the day after appproval. "
 			  ' Text 25, 125, 505, 10, "RECERT - the benefits should be available on your regular day."
 			  ' Text 20, 135, 505, 10, "Watch your mail for approval notices to see the benefit amount."
-			  Text 15, 150, 505, 10, "Your address and phone number are our best way to contact you."
-			  Text 20, 160, 505, 10, "It is vital that you let us know if you address or phone number has changed"
-			  Text 20, 170, 505, 10, "You may miss important requests or notices if we have an old address."
-			  Text 20, 180, 505, 10, "Our mail does not forward to address changes, so we need to know the correct address for you"
-			  Text 15, 195, 505, 10, "Please be sure to follow program rules and requirements"
-			  Text 20, 205, 505, 10, "Failure to report changes and information timely can have negative impacts:"
-			  Text 25, 215, 505, 10, "End of benefits"
-			  Text 25, 225, 505, 10, "Overpayments"
-			  Text 25, 235, 505, 10, "Future ineligibility"
-			  Text 20, 245, 505, 10, "We receive information from other sources about you and may impact your eligibility and benefit level."
-			  Text 20, 255, 505, 10, "If you are unsure of program rules and requirements, the forms we reviewed earlier can always be resent, or you can call us with questions."
-			  Text 15, 270, 505, 10, "Contact to Hennepin County"
-			  Text 20, 280, 505, 10, "By Phone - 612-596-1300. The phone lines are open Monday - Friday 8:00 - 4:30"
-			  Text 20, 290, 505, 10, "In person - Not Available Currently"
-			  Text 20, 300, 505, 10, "Online - MNBenefits or InfoKeep"
+			  Text 15, y_pos, 505, 10, "Your address and phone number are our best way to contact you."
+			  y_pos = y_pos + 10
+			  Text 20, y_pos, 505, 10, "It is vital that you let us know if you address or phone number has changed"
+			  y_pos = y_pos + 10
+			  Text 20, y_pos, 505, 10, "You may miss important requests or notices if we have an old address."
+			  y_pos = y_pos + 10
+			  Text 20, y_pos, 505, 10, "Our mail does not forward to address changes, so we need to know the correct address for you"
+			  y_pos = y_pos + 15
+			  Text 15, y_pos, 505, 10, "Please be sure to follow program rules and requirements"
+			  y_pos = y_pos + 10
+			  Text 20, y_pos, 505, 10, "Failure to report changes and information timely can have negative impacts:"
+			  y_pos = y_pos + 10
+			  Text 25, y_pos, 505, 10, "End of benefits"
+			  y_pos = y_pos + 10
+			  Text 25, y_pos, 505, 10, "Overpayments"
+			  y_pos = y_pos + 10
+			  Text 25, y_pos, 505, 10, "Future ineligibility"
+			  y_pos = y_pos + 10
+			  Text 20, y_pos, 505, 10, "We receive information from other sources about you and may impact your eligibility and benefit level."
+			  y_pos = y_pos + 10
+			  Text 20, y_pos, 505, 10, "If you are unsure of program rules and requirements, the forms we reviewed earlier can always be resent, or you can call us with questions."
+			  y_pos = y_pos + 15
+			  Text 15, y_pos, 505, 10, "Contact to Hennepin County"
+			  y_pos = y_pos + 10
+			  Text 20, y_pos, 505, 10, "By Phone - 612-596-1300. The phone lines are open Monday - Friday 8:00 - 4:30"
+			  y_pos = y_pos + 10
+			  Text 20, y_pos, 505, 10, "In person - Not Available Currently"
+			  y_pos = y_pos + 10
+			  Text 20, y_pos, 505, 10, "Online - MNBenefits or InfoKeep"
 
 			  ButtonGroup ButtonPressed
 			    PushButton 465, 365, 80, 15, "Continue", continue_btn
@@ -10524,6 +10581,11 @@ If left(confirm_recap_read, 4) <> "YES!" Then
 			cancel_confirmation
 
 			If confirm_recap_read = "Enter confirmation" Then err_msg = err_msg & vbNewLine & "* Indicate if this required information was reviewed with the resident completing the interview."
+
+			If ButtonPressed = verif_button Then
+				Call verification_dialog
+				err_msg = "LOOP"
+			End If
 
 			IF err_msg <> "" AND err_msg <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 
@@ -10951,7 +11013,7 @@ If objFSO.FileExists(intvw_done_msg_file) = False then
 	objTextStream.WriteLine "  - Advise of Next Steps."
 	objTextStream.WriteLine "  - Ask if the resident has any final uestions."
 	objTextStream.WriteLine ""
-	objTextStream.WriteLine "(This message will close one the script actions are finished.)"
+	objTextStream.WriteLine "(This message will close once the script actions are finished.)"
 
 	objTextStream.Close
 End If
@@ -12349,6 +12411,37 @@ If discrepancies_exist = True Then
 	End If
 	objSelection.TypeText vbCr
 End If
+objSelection.TypeText vbCr
+objSelection.Font.Size = "14"
+
+objSelection.TypeText "--- VERIFICATIONS ---" & vbCr
+objSelection.Font.Size = "12"
+
+Call create_verifs_needed_list(verifs_selected, verifs_needed)
+If trim(verifs_needed) <> "" Then
+	verif_counter = 1
+	verifs_needed = trim(verifs_needed)
+	If right(verifs_needed, 1) = ";" Then verifs_needed = left(verifs_needed, len(verifs_needed) - 1)
+	If left(verifs_needed, 1) = ";" Then verifs_needed = right(verifs_needed, len(verifs_needed) - 1)
+	If InStr(verifs_needed, ";") <> 0 Then
+		verifs_array = split(verifs_needed, ";")
+	Else
+		verifs_array = array(verifs_needed)
+	End If
+End If
+If trim(verifs_needed) = "" Then
+	objSelection.TypeText "THERE ARE NO REQUESTED VERIFICATIONS INDICATED" & vbCr
+Else
+	objSelection.TypeText "Verifications Requested:" & vbCr
+	If verif_req_form_sent_date <> "" Then objSelection.TypeText "Request sent on " & verif_req_form_sent_date & vbCr
+	verif_counter = 1
+	For each verif_item in verifs_array
+		If number_verifs_checkbox = checked Then verif_item = verif_counter & ". " & verif_item
+		objSelection.TypeText verif_item & vbCr
+		verif_counter = verif_counter + 1
+	Next
+End If
+
 
 'Here we are creating the file path and saving the file
 file_safe_date = replace(date, "/", "-")		'dates cannot have / for a file name so we change it to a -
