@@ -4852,6 +4852,7 @@ function review_information()
 				End If
 			End If
 		End If
+		If HH_MEMB_ARRAY(full_name_const, the_memb) = "" Then HH_MEMB_ARRAY(full_name_const, the_memb) = HH_MEMB_ARRAY(first_name_const, the_memb) & " " & HH_MEMB_ARRAY(last_name_const, the_memb)
 	next
 	q_12_totally_blank = True
 	If question_12_rsdi_yn <> "" Then q_12_totally_blank = False
