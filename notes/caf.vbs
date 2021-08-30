@@ -3732,7 +3732,7 @@ function run_expedited_determination_script_functionality(xfs_screening, caf_one
     																						  "* Only indicate a denial if you already have enough information to determine that the SNAP application should be denied." & vbCr &_
     																						  "* If this is the determination, review the date in the SNAP Denial Field as it appears to be a future date."
     				snap_denial_explain = trim(snap_denial_explain)
-    				If len(snap_denial_explain) < 20 then err_msg = err_msg & vbCr & "* Since this SNAP case is to be denied, explain the reason for denial in detail."
+    				If len(snap_denial_explain) < 10 then err_msg = err_msg & vbCr & "* Since this SNAP case is to be denied, explain the reason for denial in detail."
     			Else
     				If is_elig_XFS = True Then
     					If IsDate(approval_date) = True Then
