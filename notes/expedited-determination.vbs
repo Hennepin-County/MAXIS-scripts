@@ -247,10 +247,12 @@ function app_month_income_detail(determined_income, income_review_completed, job
 			EndDialog
 
 			dialog Dialog1
+
 			If ButtonPressed = 0 Then
 				income_review_completed = False
 				Exit Do
 			End If
+			If ButtonPressed = -1 Then ButtonPressed = return_btn
 
 			last_jobs_item = UBound(JOBS_ARRAY, 2)
 			If ButtonPressed = add_another_jobs_btn Then
@@ -475,6 +477,7 @@ function app_month_asset_detail(determined_assets, assets_review_completed, cash
 				assets_review_completed = False
 				Exit Do
 			End If
+			If ButtonPressed = -1 Then ButtonPressed = return_btn
 
 			last_acct_item = UBound(ACCOUNTS_ARRAY, 2)
 			If ButtonPressed = add_another_btn Then
@@ -1866,7 +1869,7 @@ If maxis_updated_yn = "Yes" Then
 			If panel_garage_amount <> "" Then garage_amount = garage_amount + panel_garage_amount
 			If panel_subsidy_amount <> "" Then subsidy_amount = subsidy_amount + panel_subsidy_amount
 
-			determined_shel = rent_amount + lot_rent_amount + mortgage_amount + insurance_amount + tax_amount + room_amount + garage_amount + subsidy_amount
+			determined_shel = rent_amount + lot_rent_amount + mortgage_amount + insurance_amount + tax_amount + room_amount + garage_amount
 		End If
 		If PANELS_TO_READ_ARRAY(panel_type_const, each_panel) = "CASH" Then
 			cash_amount_yn = "Yes"
@@ -1937,16 +1940,20 @@ If maxis_updated_yn = "Yes" Then
 					panel_wage = panel_main_wage
 				Else
 					EMReadScreen panel_ave_wage, 8, 17, 56
-					If panel_frequency = "1" Then panel_wage = panel_ave_wage/4.3
-					If panel_frequency = "2" Then panel_wage = panel_ave_wage/2.15
-					If panel_frequency = "3" Then panel_wage = panel_ave_wage/2
-					If panel_frequency = "4" Then panel_wage = panel_ave_wage
+					panel_ave_wage = trim(panel_ave_wage)
+					If IsNumeric(panel_ave_wage) = True Then
+						If panel_frequency = "1" Then panel_wage = panel_ave_wage/4.3
+						If panel_frequency = "2" Then panel_wage = panel_ave_wage/2.15
+						If panel_frequency = "3" Then panel_wage = panel_ave_wage/2
+						If panel_frequency = "4" Then panel_wage = panel_ave_wage
+					End If
 				End If
 			End If
 			If panel_hours = "" Then
 				EMReadScreen panel_ave_hours, 7, 16, 50
 				panel_ave_hours = trim(panel_ave_hours)
 				If IsNumeric(panel_ave_hours) = True Then
+					MsgBox panel_ave_hours
 					If panel_frequency = "1" Then panel_hours = panel_ave_hours/4.3
 					If panel_frequency = "2" Then panel_hours = panel_ave_hours/2.15
 					If panel_frequency = "3" Then panel_hours = panel_ave_hours/2
@@ -2299,7 +2306,7 @@ Do
 																						  "* Only indicate a denial if you already have enough information to determine that the SNAP application should be denied." & vbCr &_
 																						  "* If this is the determination, review the date in the SNAP Denial Field as it appears to be a future date."
 				snap_denial_explain = trim(snap_denial_explain)
-				If len(snap_denial_explain) < 20 then err_msg = err_msg & vbCr & "* Since this SNAP case is to be denied, explain the reason for denial in detail."
+				If len(snap_denial_explain) < 10 then err_msg = err_msg & vbCr & "* Since this SNAP case is to be denied, explain the reason for denial in detail."
 			Else
 				If is_elig_XFS = True Then
 					If IsDate(approval_date) = True Then
