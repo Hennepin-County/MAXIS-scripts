@@ -56,6 +56,8 @@ EMConnect ""            'connect to MAXIS
 
 
 Set objINTVWFolder = objFSO.GetFolder("T:\Eligibility Support\Assignments\Interview Notes for ECF")										'Creates an oject of the whole my documents folder
+' Set objINTVWFolder = objFSO.GetFolder("T:\Eligibility Support\Assignments\Interview Notes for ECF\Archive\TRAINING REGION Interviews - NOT for ECF")										'Creates an oject of the whole my documents folder
+
 Set colINTVWFiles = objINTVWFolder.Files																'Creates an array/collection of all the files in the folder
 pdf_found = False
 For Each objFile in colINTVWFiles																'looping through each file
@@ -77,7 +79,7 @@ BeginDialog Dialog1, 0, 0, 241, 120, "Interview PDF Reopen"
   Text 25, 35, 50, 10, "Case Number:"
   Text 10, 55, 65, 10, "Date of Script Run:"
   Text 10, 10, 230, 20, "To reopen a PDF from a previous run of the NOTES - Interview script, we need the case number and date of script run."
-  Text 90, 75, 150, 15, "If the script cannot find the PDF, check ECF - the file may already be added."
+  Text 90, 75, 150, 20, "If the script cannot find the PDF, check ECF - the file may already be added."
 EndDialog
 
 'displaying the dialog to confirm or set the case number and footer month/year
