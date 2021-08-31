@@ -7538,7 +7538,7 @@ function snap_in_another_state_detail(CAF_datestamp, day_30_from_application, ot
 			If calculation_done = True Then BeginDialog Dialog1, 0, 0, 381, 295, "Case Received SNAP in Another State"
 			  DropListBox 255, 55, 110, 45, "Select One..."+chr(9)+state_list, other_snap_state
 			  EditBox 255, 75, 60, 15, other_state_reported_benefit_end_date
-			  CheckBox 40, 95, 320, 10, "Check here is resident reports the benefits are NOT ended or it is UKNOWN if they are ended.", other_state_benefits_not_ended_checkbox
+			  CheckBox 40, 95, 320, 10, "Check here if resident reports the benefits are NOT ended or it is UKNOWN if they are ended.", other_state_benefits_not_ended_checkbox
 			  DropListBox 255, 110, 60, 45, "?"+chr(9)+"Yes"+chr(9)+"No", other_state_contact_yn
 			  EditBox 255, 130, 60, 15, other_state_verified_benefit_end_date
 			  ButtonGroup ButtonPressed
@@ -10423,7 +10423,7 @@ If snap_case = True OR pend_snap_on_case = "Yes" OR mfip_status <> "INACTIVE" Th
 																		  "  - Income received in any month exceeds 130% FPG for the Household "  & vbCr &_
 																		  "    Size." & vbCr &_
 																		  "  - For any ABAWD, a change in work or job activities that cause their "  & vbCr &_
-																		  "    hours to fall below 20 hours per week, averaged 80 hours monhtly." & vbCr & vbCr &_
+																		  "    hours to fall below 20 hours per week, averaged 80 hours monthly." & vbCr & vbCr &_
 																		  "It can be beneficial to report other changes, and we encourage you to do this. Examples include:" & vbCr &_
 																		  "  - Address Changes " & vbCr &_
 																		  "    (We communicate via mail and missing mail can cause your "  & vbCr &_
@@ -10451,7 +10451,7 @@ If snap_case = True OR pend_snap_on_case = "Yes" OR mfip_status <> "INACTIVE" Th
 																	   "  - A change in housing expense due to residency change." & vbCr &_
 																	   "  - A change in legal obligation to pay child support." & vbCr &_
 																	   "  - For any ABAWD, a change in work or job activities that cause their " & vbCr &_
-																	   "    hours to fall below 20 hours per week, averaged 80 hours monhtly." & vbCr & vbCr &_
+																	   "    hours to fall below 20 hours per week, averaged 80 hours monthly." & vbCr & vbCr &_
 																	   "As a Change Reporter, you typically have a certification period of a year but it could be two years."
 					If ButtonPressed = explain_monthly_rept Then MsgBox "MONTHLY REPORTING" & vbCr & vbCR &_
 																	    "Monthly reporters are required to submit a Household Report Form every month with income and change verifications attached." & vbCr & vbCr &_
