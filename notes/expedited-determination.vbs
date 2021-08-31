@@ -886,7 +886,7 @@ function snap_in_another_state_detail(date_of_application, day_30_from_applicati
 			If calculation_done = True Then BeginDialog Dialog1, 0, 0, 381, 295, "Case Received SNAP in Another State"
 			  DropListBox 255, 55, 110, 45, "Select One..."+chr(9)+state_list, other_snap_state
 			  EditBox 255, 75, 60, 15, other_state_reported_benefit_end_date
-			  CheckBox 40, 95, 320, 10, "Check here is resident reports the benefits are NOT ended or it is UKNOWN if they are ended.", other_state_benefits_not_ended_checkbox
+			  CheckBox 40, 95, 320, 10, "Check here if resident reports the benefits are NOT ended or it is UKNOWN if they are ended.", other_state_benefits_not_ended_checkbox
 			  DropListBox 255, 110, 60, 45, "?"+chr(9)+"Yes"+chr(9)+"No", other_state_contact_yn
 			  EditBox 255, 130, 60, 15, other_state_verified_benefit_end_date
 			  ButtonGroup ButtonPressed
