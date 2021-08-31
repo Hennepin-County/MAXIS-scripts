@@ -190,6 +190,34 @@ SCRIPT_DEMO_ARRAY(script_num).future_dates  = FALSE
 SCRIPT_DEMO_ARRAY(script_num).group_len     = 0
 SCRIPT_DEMO_ARRAY(script_num).demo_url 		= ARRAY("www.google.com/one", "www.google.com/two", "www.google.com/three", "www.google.com/four")
 
+script_num = script_num + 1
+ReDim Preserve SCRIPT_DEMO_ARRAY(script_num)
+Set SCRIPT_DEMO_ARRAY(script_num) = new script_demo
+SCRIPT_DEMO_ARRAY(script_num).script_name   = "Interview"
+SCRIPT_DEMO_ARRAY(script_num).category      = "NOTES"
+SCRIPT_DEMO_ARRAY(script_num).tags          = ""
+SCRIPT_DEMO_ARRAY(script_num).instructions  = "https://dept.hennepin.us/hsphd/sa/ews/BlueZone_Script_Instructions/NOTES/NOTES%20-%20APPLICATION%20RECEIVED.docx"
+SCRIPT_DEMO_ARRAY(script_num).demo_dates    = ARRAY(#9/7/2021 9:30 AM#, #9/8/2021 2:00 PM#, #9/13/2021 1:00 PM#, #9/17/2021 10:00 AM#, #9/23/2021 10:00 AM#)
+SCRIPT_DEMO_ARRAY(script_num).demo_length    = 60
+SCRIPT_DEMO_ARRAY(script_num).future_dates  = FALSE
+SCRIPT_DEMO_ARRAY(script_num).group_len     = 0
+SCRIPT_DEMO_ARRAY(script_num).demo_url 		= ARRAY("https://teams.microsoft.com/l/meetup-join/19%3ameeting_NTk5MzNhN2UtNzg2OC00NmE3LTg1OGEtMWRlZTJhZjNkZjQ4%40thread.v2/0?context=%7b%22Tid%22%3a%228aefdf9f-8780-46bf-8fb7-4c924653a8be%22%2c%22Oid%22%3a%22c288d1a8-453e-466b-9577-0b3189afcf42%22%7d", "https://teams.microsoft.com/l/meetup-join/19%3ameeting_NTk5MzNhN2UtNzg2OC00NmE3LTg1OGEtMWRlZTJhZjNkZjQ4%40thread.v2/0?context=%7b%22Tid%22%3a%228aefdf9f-8780-46bf-8fb7-4c924653a8be%22%2c%22Oid%22%3a%22c288d1a8-453e-466b-9577-0b3189afcf42%22%7d", "https://teams.microsoft.com/l/meetup-join/19%3ameeting_NTk5MzNhN2UtNzg2OC00NmE3LTg1OGEtMWRlZTJhZjNkZjQ4%40thread.v2/0?context=%7b%22Tid%22%3a%228aefdf9f-8780-46bf-8fb7-4c924653a8be%22%2c%22Oid%22%3a%22c288d1a8-453e-466b-9577-0b3189afcf42%22%7d", "https://teams.microsoft.com/l/meetup-join/19%3ameeting_NTk5MzNhN2UtNzg2OC00NmE3LTg1OGEtMWRlZTJhZjNkZjQ4%40thread.v2/0?context=%7b%22Tid%22%3a%228aefdf9f-8780-46bf-8fb7-4c924653a8be%22%2c%22Oid%22%3a%22c288d1a8-453e-466b-9577-0b3189afcf42%22%7d", "https://teams.microsoft.com/l/meetup-join/19%3ameeting_NTk5MzNhN2UtNzg2OC00NmE3LTg1OGEtMWRlZTJhZjNkZjQ4%40thread.v2/0?context=%7b%22Tid%22%3a%228aefdf9f-8780-46bf-8fb7-4c924653a8be%22%2c%22Oid%22%3a%22c288d1a8-453e-466b-9577-0b3189afcf42%22%7d")
+
+script_num = script_num + 1
+ReDim Preserve SCRIPT_DEMO_ARRAY(script_num)
+Set SCRIPT_DEMO_ARRAY(script_num) = new script_demo
+SCRIPT_DEMO_ARRAY(script_num).script_name   = "Expedited Determination"
+SCRIPT_DEMO_ARRAY(script_num).category      = "NOTES"
+SCRIPT_DEMO_ARRAY(script_num).tags          = ""
+SCRIPT_DEMO_ARRAY(script_num).instructions  = "https://dept.hennepin.us/hsphd/sa/ews/BlueZone_Script_Instructions/NOTES/NOTES%20-%20APPLICATION%20RECEIVED.docx"
+SCRIPT_DEMO_ARRAY(script_num).demo_dates    = ARRAY(#9/7/2021 1:00 PM#, #9/8/2021 12:00 PM#, #9/13/2021 11:00 AM#, #9/17/2021 1:00 pM#, #9/21/2021 10:00 AM#)
+SCRIPT_DEMO_ARRAY(script_num).demo_length    = 45
+SCRIPT_DEMO_ARRAY(script_num).future_dates  = FALSE
+SCRIPT_DEMO_ARRAY(script_num).group_len     = 0
+SCRIPT_DEMO_ARRAY(script_num).demo_url 		= ARRAY("https://teams.microsoft.com/l/meetup-join/19%3ameeting_MDJjM2Y0N2ItNzU0My00OTc5LWI0MWUtNTZjM2UwZDJkNTFk%40thread.v2/0?context=%7b%22Tid%22%3a%228aefdf9f-8780-46bf-8fb7-4c924653a8be%22%2c%22Oid%22%3a%22c288d1a8-453e-466b-9577-0b3189afcf42%22%7d", "https://teams.microsoft.com/l/meetup-join/19%3ameeting_MDJjM2Y0N2ItNzU0My00OTc5LWI0MWUtNTZjM2UwZDJkNTFk%40thread.v2/0?context=%7b%22Tid%22%3a%228aefdf9f-8780-46bf-8fb7-4c924653a8be%22%2c%22Oid%22%3a%22c288d1a8-453e-466b-9577-0b3189afcf42%22%7d", "https://teams.microsoft.com/l/meetup-join/19%3ameeting_MDJjM2Y0N2ItNzU0My00OTc5LWI0MWUtNTZjM2UwZDJkNTFk%40thread.v2/0?context=%7b%22Tid%22%3a%228aefdf9f-8780-46bf-8fb7-4c924653a8be%22%2c%22Oid%22%3a%22c288d1a8-453e-466b-9577-0b3189afcf42%22%7d", "https://teams.microsoft.com/l/meetup-join/19%3ameeting_MDJjM2Y0N2ItNzU0My00OTc5LWI0MWUtNTZjM2UwZDJkNTFk%40thread.v2/0?context=%7b%22Tid%22%3a%228aefdf9f-8780-46bf-8fb7-4c924653a8be%22%2c%22Oid%22%3a%22c288d1a8-453e-466b-9577-0b3189afcf42%22%7d", "https://teams.microsoft.com/l/meetup-join/19%3ameeting_MDJjM2Y0N2ItNzU0My00OTc5LWI0MWUtNTZjM2UwZDJkNTFk%40thread.v2/0?context=%7b%22Tid%22%3a%228aefdf9f-8780-46bf-8fb7-4c924653a8be%22%2c%22Oid%22%3a%22c288d1a8-453e-466b-9577-0b3189afcf42%22%7d")
+
+
+
 ' 'TEMPLATE FOR ADDING MORE DEMOs
 ' script_num = script_num + 1
 ' ReDim Preserve SCRIPT_DEMO_ARRAY(script_num)
