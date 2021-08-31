@@ -8284,6 +8284,9 @@ msg_what_script_does_btn = 101
 msg_save_your_work_btn = 102
 msg_script_interaction_btn = 103
 msg_show_instructions_btn = 104
+msg_script_messaging_btn = 105
+msg_show_quick_start_guide_btn = 106
+msg_show_faq_btn = 107
 
 'Showing the case number dialog
 Do
@@ -8298,6 +8301,8 @@ Do
 		' GroupBox 225, 70, 125, 25, "Programs marked on CAF"
 
 		' PushButton 205, 35, 155, 10, "NOTES - Interview Script Instructions", msg_show_instructions_btn
+		' PushButton 205, 35, 155, 10, "Interview Quick Start Guide", msg_show_quick_start_guide_btn
+		' PushButton 205, 35, 155, 10, "Interview FAQ", msg_show_faq_btn
 		Dialog1 = ""
 		BeginDialog Dialog1, 0, 0, 371, 320, "Interview Script Case number dialog"
 		  EditBox 75, 45, 60, 15, MAXIS_case_number
@@ -8308,8 +8313,12 @@ Do
 		    OkButton 260, 300, 50, 15
 		    CancelButton 315, 300, 50, 15
 		    PushButton 205, 20, 155, 15, "Press HERE to see what this script will do", msg_what_script_does_btn
+		    PushButton 205, 35, 155, 15, "Press HERE for details on using this script", msg_script_interaction_btn
 		    PushButton 165, 175, 195, 15, "Press HERE to learn more about 'SAVE YOUR WORK'", msg_save_your_work_btn
-		    PushButton 80, 245, 210, 15, "Press HERE for more details on how to work with this script", msg_script_interaction_btn
+		    PushButton 80, 245, 210, 15, "Press HERE for more details on script messaging", msg_script_messaging_btn
+		    PushButton 10, 300, 50, 15, "Instructions", msg_show_instructions_btn
+		    PushButton 60, 300, 70, 15, "Quick Start Guide", msg_show_quick_start_guide_btn
+		    PushButton 130, 300, 30, 15, "FAQ", msg_show_faq_btn
 		  Text 10, 10, 360, 10, "Start this script at the beginning of the interview and keep it running during the entire course of the interview."
 		  Text 20, 50, 50, 10, "Case number:"
 		  Text 10, 70, 60, 10, "Actual CAF Form:"
@@ -8331,65 +8340,14 @@ Do
 		If ButtonPressed > 100 Then
 			err_msg = "LOOP"
 
-			If ButtonPressed = msg_what_script_does_btn Then MsgBox "Want to know what all this script does?" & vbCr & "This is a really great question." & vbCr & vbCr &_
-																	"Here are the main script actions:" & vbCr &_
-																	"- Guide you through the interview questions based on the CAF" & vbCr &_
-																	"- Guide you though the additional forms required at application/renewal for review with the interviewee." & vbCr &_
-																	"- Run EDRS" & vbCr &_
-																	"- Provide access to outside resources for supportive services and assistance to residents." & vbCr &_
-																	"- Create a thorough document that details the complete interview for the ECF file." & vbCr &_
-																	"- Send a MEMO to the resident to confirm interview completion." & vbCr &_
-																	"- Create a complete CASE/NOTE of CAF Answers AND Interview Details/Verbal Responses." & vbCr & vbCr &_
-																	"These actions are to meet our goals of:" & vbCr &_
-																	"- Consistent, Quality Interviews." & vbCr &_
-																	"- Consistent Resident Interview Experiences." & vbCr &_
-																	"- Complete, Detailed documentation of the CAF and Interview Information." & vbCr & vbCr &_
-																	"This script is intended to support all of these obejctives and actions. If you have ideas as to how we could better support these actions within the script run, please contact the BlueZone Script Team - we are excited to hear from you."
-			If ButtonPressed = msg_save_your_work_btn Then MsgBox "SAVE YOUR WORK Functionality" & vbCr & vbCR & "The information you enter into the script is saved as you go through this script."  & vbCr &_
-																  "This functionality is specific to the NOTES- Interview script and is not available in most scripts. We have it here because the interview script operates a different way and loss of information would be VERY problematic." & vbCr & VbCr &_
-																  "FAQ" & vbCr &_
-																  "Do I have to do anything to save the information?" & vbCr&_
-																  "  NO! The script does this automatically every time a dialog closes (disappears). You don't need to press anything or say anything. This happens for every case, every time a dialog closes." & vbCr & vbCr &_
-																  "How do I get it back?" & vbCr &_
-																  "  Run the NOTES - Interview script again. The first dialog will come up as usual, enter the SAME information here (Case Number, Date of application, Programs). If the case number matches, the script will say:" & vbCr &_
-																  "     'It appears there is information saved for this case from a previous run of this script.'" & vbCr &_
-																  "     'Would you like to restore the details from this previous run?'" & vbCr &_
-																  "  Press 'Yes' and all the information will be filled into the dialogs in the next parts of the script." & vbCr & vbCr &_
-																  "What about all the 'Form Review' answers. Will all those form dialogs come up again?" & vbCr &_
-																  "  NO! The script will remember any form that you answered 'Yes' to on the review and won't show those again." & vbCr &_
-																  "  The script will show the eDRS and Resources available again at this time." & vbCr & vbCr &_
-																  "What if I say 'No' when it asks if I want to restore?" & vbCr &_
-																  "  BE CAREFUL! If you say 'No' all those answers will be wiped out and you can't get them back." & vbCr &_
-																  "  We will probably always say 'Yes' to this answer. You can still change the information after it is loaded and the script will save those changes for a future restore." &vbCr &vbCr &_
-																  "What if I need to restore on a different day?" & vbCr &_
-																  "  NOTING and saving Interview documentation should be done right after the completion of an interview, so these restore options should be used same day. " & vbCr &_
-																  "  If something does happen and you need to restore it next day, the information should still be available. This should be a LAST resort." & vbCr &_
-																  "  These restore files are removed by the scripts though - they are not available indefinitely." & vbCr & vbCr &_
-																  "If you want to know more about this 'Save Your Work' functionality - please contact the BlueZone Script Team. We are VERY excited about it."
+			If ButtonPressed = msg_what_script_does_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20INTERVIEW%20-%20OVERVIEW.docx"
+			If ButtonPressed = msg_script_interaction_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20INTERVIEW%20-%20HOW%20TO%20USE.docx"
+			If ButtonPressed = msg_save_your_work_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20INTERVIEW%20-%20SAVE%20YOUR%20WORK.docx"
+			If ButtonPressed = msg_script_messaging_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20INTERVIEW%20-%20SCRIPT%20MESSAGING.docx"
 
-			If ButtonPressed = msg_script_interaction_btn Then MsgBox "How do I work Within the Script" & vbCr & vbCr & "This script operates differently from other scripts and make take some time to get used to using." & vbCr & vbCr &_
-																	  "THIS SCRIPT IS MEANT TO BE RUN DURING THE WHOLE COURSE OF THE INTERVIEW." & vbCr &_
-																	  "This means, when the interview starts, you should start the script and until this script is over, the resident should remain on the phone and the interview is still happening." & vbCr &_
-																	  "This is going to make for a longer script run than you may be accustomed to." &vbCr &vbCr&_
-																	  "You will be entering the following information/details:" & vbCr &_
-																	  " - The information that is on the CAF. The answers provided in writing need to be entered into the script for review AND for documentation in CASE/NOTE." & vbCr &_
-																	  " - The information that is provided verbally over the course of the interview. We need to document the complete record of relevant information that relayed in the interview as we use that to determine eligibility and case actions." & vbCr &_
-																	  " - Updates to ADDRESS and MEMBER information." & vbCr &_
-																	  " - Verifications that have been received, requested, or if they are particularly not needed." & vbCr &_
-																	  " - You will also be entering confirmation of actions taken during the interview, such review of forms and information that residents should have." & vbCr & vbCr &_
-																	  "Fields in the dialogs that do NOT have information entered or selected will NOT be included in the CASE/NOTE or Interview Notes Document. This may be the correct action, the details that are needed are specific to each case scenario." & vbCr & vbCr &_
-																	  "Getting the 'Error Message' alerts" & vbCr &_
-																	  "When completing information in a dialog, you get messages from the script for any field that is incomplete and mandaotry or requires a different format. These are to help the script process correctly as you move through the script." & vbCr &_
-																	  "Since this script operation has a number of dialogs that you need to move through (sometimes out of order) this script has an option of when/how these messages appear." & vbCr &_
-																	  "At the bottom of this dialog is a question:" & vbCr & vbCr &_
-																	  "  'How do you want to be alerted to updates needed to answers/information in following dialogs?'" & vbCr & vbCr &_
-																	  "These are the options available for this question:" & vbCr &_
-																	  " - 'Alert at the time you attempt to save each page of the dialog.'" & vbCr &_
-																	  "     This option will appear anytime the dialog displayed has a field that needs updating. You cannot move to a new page of the dialog or go back until you clear these." & vbCr &vbCr &_
-																	  " - 'Alert only once completing and leaving the final dialog.'" & vbCr &_
-																	  "     This option will have the message appear ONLY when you press 'Complete Interview' at the end of the main dialog. You can move about between questions easily without getting a message BUT cannot continue until you have cleared all the mandatory fields from the whole dialog." & vbCr & vbCr &_
-																	  "Each person will have their own preference on these options, give them each a try until you determine what you prefer."
-			' If ButtonPressed = msg_show_instructions_btn Then
+			If ButtonPressed = msg_show_instructions_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20INTERVIEW.docx"
+			If ButtonPressed = msg_show_quick_start_guide_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20INTERVIEW%20-%20QUICK%20START%20GUIDE.docx"
+			If ButtonPressed = msg_show_faq_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20INTERVIEW%20-%20FAQ.docx"
 		Else
 			Call validate_MAXIS_case_number(err_msg, "*")
 			If no_case_number_checkbox = checked Then err_msg = ""
