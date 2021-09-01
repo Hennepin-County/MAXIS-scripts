@@ -40,6 +40,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/01/2021", "****** NEW SCRIPT ******##~####~##NOTES - Interview is now available.##~####~##This new script works differently from other scripts, please review instructions, quick start guide, or attend a demo in the month of 09/21. ##~####~##This script is meant to run the ENTIRE course of the interview, running the whole time you are in contact with the resident for the interview.##~####~##This is a new way of using scripts and supportive of our work, but may require some adjustment.##~####~##Special thanks to all of our testers, who have spent TWO MONTHS reviewing this script and providing the most valuable feedback.##~##", "Casey Love, Hennepin County")
 call changelog_update("06/25/2021", "New AVS Script available to support AVS forms process and system submission/results.", "Ilse Ferris, Hennepin County")
 call changelog_update("06/01/2020", "Added Disaster Food Replacement script.", "MiKayla Handley, Hennepin County")
 call changelog_update("05/12/2020", "Temporary removal of NOTES - INTERVIEW NO SHOW script. This script supports in-person application/recertification process.", "Ilse Ferris, Hennepin County")
