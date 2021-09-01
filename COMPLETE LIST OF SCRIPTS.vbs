@@ -217,7 +217,7 @@ class script_bowie
 		' 	   "PROGRAMS HELPED - " & programs_helped
 		If DateDiff("m", release_date, DateAdd("m", -2, date)) <= 0 then
 			description = "NEW " & release_date & "!!! " & description
-			If left(description, 4) <> " ---" Then description = "--- " & description
+			If left(description, 3) <> "---" Then description = "--- " & description
 		End if
 		If in_testing = TRUE Then description = "IN TESTING - " & description
 		if left(script_name, 4) = "REPT" Then description = description & " --- Reads details from MAXIS REPT Lists"
@@ -727,7 +727,8 @@ script_array(script_num).tags                   = array("Adult Cash", "Applicati
 script_array(script_num).dlg_keys               = array("Cn", "Exp", "Tk", "Up")
 script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
 script_array(script_num).release_date           = #10/01/2000#
-script_array(script_num).hot_topic_link			= ""
+script_array(script_num).hot_topic_date			= #08/31/2021#
+script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/SitePages/New-scripts-available-September-1-for-interview-and-Expedited-SNAP.aspx"
 script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1					'Increment by one
@@ -1302,7 +1303,23 @@ script_array(script_num).tags                   = array("Application", "Assets",
 script_array(script_num).dlg_keys               = array("Cn", "Exp", "Ev")
 script_array(script_num).subcategory            = array("E-L")
 script_array(script_num).release_date           = #10/01/2000#
-script_array(script_num).hot_topic_link			= ""
+script_array(script_num).hot_topic_date			= #08/31/2021#
+script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/SitePages/New-scripts-available-September-1-for-interview-and-Expedited-SNAP.aspx"
+script_array(script_num).used_for_elig			= False
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "Expedited Determination Report"
+' script_array(script_num).description 			= "Template for noting detail about how expedited was determined for a case."
+script_array(script_num).category               = "ADMIN"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("Application", "BZ", "Monthly Tasks", "SNAP")
+script_array(script_num).dlg_keys               = array("Cn", "Exp", "Ev")
+script_array(script_num).subcategory            = array("E-L")
+script_array(script_num).release_date           = #10/01/2000#
+script_array(script_num).hot_topic_date			= #08/31/2021#
+script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/SitePages/New-scripts-available-September-1-for-interview-and-Expedited-SNAP.aspx"
 script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1							'Increment by one
@@ -1682,14 +1699,13 @@ script_array(script_num).script_name			= "Interview"
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).tags                   = array("Communication", "Application", "Reviews", "SNAP", "MFIP", "DWP", "Adult Cash", "EMER", "HS/GRH")
-script_array(script_num).dlg_keys               = array("Cn", "Up", "Sm")
+script_array(script_num).dlg_keys               = array("Cn", "Sm", "Wrd")
 script_array(script_num).subcategory            = array("")
-script_array(script_num).release_date           = #07/01/2021#
-script_array(script_num).hot_topic_date         = ""
+script_array(script_num).release_date           = #09/01/2021#								'Testing - #07/01/2021#
+script_array(script_num).hot_topic_date         = #08/31/2021#
+script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/SitePages/New-scripts-available-September-1-for-interview-and-Expedited-SNAP.aspx"
 script_array(script_num).retirement_date        = ""
-script_array(script_num).in_testing             = TRUE
-script_array(script_num).testing_category       = "ALL"
-script_array(script_num).testing_criteria       = array("")
+script_array(script_num).used_for_elig			= False
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -2211,12 +2227,10 @@ script_array(script_num).workflows              = ""
 script_array(script_num).tags                   = array("Communication", "Application", "Reviews")
 script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("TOOL")
-script_array(script_num).release_date           = #07/29/2021#
-script_array(script_num).hot_topic_link			= ""
+script_array(script_num).release_date           = #09/01/2021#					'Testing - '#07/29/2021#
+script_array(script_num).hot_topic_date			= #08/31/2021#
+script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/SitePages/New-scripts-available-September-1-for-interview-and-Expedited-SNAP.aspx"
 script_array(script_num).used_for_elig			= False
-script_array(script_num).in_testing             = TRUE
-script_array(script_num).testing_category       = "ALL"
-script_array(script_num).testing_criteria       = array("")
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
