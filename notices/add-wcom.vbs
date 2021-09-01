@@ -395,42 +395,40 @@ Do
 
         'DIALOG to select the WCOM to add
         Dialog1 = ""
-        BeginDialog Dialog1, 0, 0, 241, 395, "Check the WCOM needed"
-          ' CheckBox 10, 35, 220, 10, "HC - July COLA Income Change Explanation", july_cola_wcom          'this is a TEMP WCOM - need to redesign based on notice type and adding HC WCOMs.
+		BeginDialog Dialog1, 0, 0, 241, 395, "Check the WCOM needed"
 		  CheckBox 10, 35, 195, 10, "Information about Client Virtual DropBox", clt_virtual_dropbox_checkbox
-
-          CheckBox 20, 70, 195, 10, "E and T Voluntary *", voluntary_e_t_wcom_checkbox
-          CheckBox 20, 85, 195, 10, "Homeless exemption information", abawd_homeless_wcom_checkbox
-          CheckBox 20, 100, 195, 10, "Postponed WREG verifs for EXP SNAP *", wreg_postponed_verif_wcom_checkbox
-          CheckBox 20, 115, 195, 10, "WREG Exemption coded - Temporarily disabled *", temp_disa_abawd_wcom_checkbox
-          CheckBox 20, 130, 195, 10, "WREG Exemption coded - Care of Child under 18 *", abawd_child_18_coded_wcom_checkbox
-          CheckBox 20, 145, 195, 10, "WREG Exemption coded - Care of Child under 6 *", abawd_child_6_coded_wcom_checkbox
-          CheckBox 20, 160, 195, 10, "Voluntary Quit WCOM - non-PWE", voluntary_quit_wcom_checkbox
-          ' CheckBox 25, 150, 140, 10, "Banked Months - E and T voluntary *", banked_mos_vol_e_t_wcom_checkbox
-          ' CheckBox 25, 165, 175, 10, "Banked Months - Closing for all 9 months used", banked_mos_used_wcom_checkbox
-          ' CheckBox 25, 180, 145, 10, "Banked Months -  Possibly available", banked_mos_avail_wcom_checkbox
-          CheckBox 20, 190, 195, 10, "No Eligible Members and verifs missing or unclear *", additional_verif_wcom_checkbox
-          CheckBox 20, 205, 195, 10, "Closed/denied with PACT *", snap_pact_wcom_checkbox
-          CheckBox 20, 220, 195, 10, "Closed via PACT for new HH Member *", pact_fraud_wcom_checkbox
-          CheckBox 20, 235, 195, 10, "Closing due to Returned Mail *", snap_returned_mail_wcom_checkbox
-          CheckBox 20, 250, 195, 10, "Closing SNAP and MFIP opening *", snap_to_mfip_wcom_checkbox
-          CheckBox 20, 265, 195, 10, "EXP SNAP - Postponed verif of CAF page 9 Signature *", signature_postponed_verif_wcom_checkbox
-          CheckBox 20, 280, 195, 10, "Ineligible Student WCOMs", inelig_student_wcoms_checkbox
-          CheckBox 20, 295, 195, 10, "Future Eligibility Begin Date WCOM", future_elig_wcom_checkbox
-
-          CheckBox 20, 325, 60, 10, "CASH Denied *", cash_denied_checkbox
-          CheckBox 20, 340, 130, 10, "CASH closing due to Returned Mail*", mfip_returned_mail_wcom_checkbox
-          CheckBox 20, 355, 125, 10, "MFIP Closing and SNAP opening *", mfip_to_snap_wcom_checkbox
-          ButtonGroup ButtonPressed
-            OkButton 135, 375, 50, 15
-            CancelButton 185, 375, 50, 15
-          GroupBox 5, 50, 230, 265, "SNAP"
-          GroupBox 15, 60, 215, 115, "ABAWD's"
-          ' GroupBox 20, 135, 195, 60, "Banked Months"
-          GroupBox 15, 180, 215, 130, "Other SNAP"
-          GroupBox 5, 315, 230, 55, "Cash"
-          Text 20, 5, 210, 25, "Select WCOM(s) to add to the notice. Reminder: you can select more than one as required for the case, use multiple categories if necessary. "
-        EndDialog
+		  CheckBox 20, 70, 195, 10, "E and T Voluntary *", voluntary_e_t_wcom_checkbox
+		  CheckBox 20, 85, 195, 10, "Homeless exemption information", abawd_homeless_wcom_checkbox
+		  CheckBox 20, 100, 195, 10, "WREG Exemption coded - Temporarily disabled *", temp_disa_abawd_wcom_checkbox
+		  CheckBox 20, 115, 195, 10, "WREG Exemption coded - Care of Child under 18 *", abawd_child_18_coded_wcom_checkbox
+		  CheckBox 20, 130, 195, 10, "WREG Exemption coded - Care of Child under 6 *", abawd_child_6_coded_wcom_checkbox
+		  CheckBox 20, 145, 195, 10, "Voluntary Quit WCOM - non-PWE", voluntary_quit_wcom_checkbox
+		  CheckBox 20, 175, 195, 10, "No Eligible Members and verifs missing or unclear *", additional_verif_wcom_checkbox
+		  CheckBox 20, 190, 195, 10, "Closed/denied with PACT *", snap_pact_wcom_checkbox
+		  CheckBox 20, 205, 195, 10, "Closed via PACT for new HH Member *", pact_fraud_wcom_checkbox
+		  CheckBox 20, 220, 195, 10, "Closing due to Returned Mail *", snap_returned_mail_wcom_checkbox
+		  CheckBox 20, 235, 195, 10, "Closing SNAP and MFIP opening *", snap_to_mfip_wcom_checkbox
+		  CheckBox 20, 250, 195, 10, "EXP SNAP - Postponed verifs *", postponed_verif_wcom_checkbox
+		  CheckBox 20, 265, 195, 10, "EXP SNAP - Postponed verif of CAF page 9 Signature *", signature_postponed_verif_wcom_checkbox
+		  CheckBox 20, 280, 195, 10, "Ineligible Student WCOMs", inelig_student_wcoms_checkbox
+		  CheckBox 20, 295, 195, 10, "Future Eligibility Begin Date WCOM", future_elig_wcom_checkbox
+		  CheckBox 20, 325, 60, 10, "CASH Denied *", cash_denied_checkbox
+		  CheckBox 20, 340, 130, 10, "CASH closing due to Returned Mail*", mfip_returned_mail_wcom_checkbox
+		  CheckBox 20, 355, 125, 10, "MFIP Closing and SNAP opening *", mfip_to_snap_wcom_checkbox
+		  ButtonGroup ButtonPressed
+		    OkButton 135, 375, 50, 15
+		    CancelButton 185, 375, 50, 15
+		  GroupBox 5, 50, 230, 265, "SNAP"
+		  GroupBox 15, 60, 215, 100, "ABAWD's"
+		  GroupBox 15, 165, 215, 145, "Other SNAP"
+		  GroupBox 5, 315, 230, 55, "Cash"
+		  Text 20, 5, 210, 25, "Select WCOM(s) to add to the notice. Reminder: you can select more than one as required for the case, use multiple categories if necessary. "
+		EndDialog
+		' CheckBox 10, 35, 220, 10, "HC - July COLA Income Change Explanation", july_cola_wcom          'this is a TEMP WCOM - need to redesign based on notice type and adding HC WCOMs.
+		' CheckBox 25, 150, 140, 10, "Banked Months - E and T voluntary *", banked_mos_vol_e_t_wcom_checkbox
+		' CheckBox 25, 165, 175, 10, "Banked Months - Closing for all 9 months used", banked_mos_used_wcom_checkbox
+		' CheckBox 25, 180, 145, 10, "Banked Months -  Possibly available", banked_mos_avail_wcom_checkbox
+		' GroupBox 20, 135, 195, 60, "Banked Months"
 
         Dialog Dialog1       'running the dialog to select which WCOMs are going to be added
         cancel_confirmation
@@ -728,22 +726,27 @@ Do
 
         End If
 
-        If wreg_postponed_verif_wcom_checkbox = checked Then      'XFS Postponed verifs are in WREG
+        If postponed_verif_wcom_checkbox = checked Then      'XFS Postponed verifs are in WREG
             'code for the dialog for postponed verifs from WREG (this dialog has the same name in each IF to prevent the over 7 dialog error)
             Dialog1 = ""
-            BeginDialog Dialog1, 0, 0, 281, 115, "WCOM Details"
-              EditBox 60, 20, 135, 15, abawd_name
-              EditBox 5, 55, 270, 15, wreg_verifs_needed
-              EditBox 60, 75, 55, 15, wreg_verifs_due_date
-              EditBox 60, 95, 55, 15, snap_closure_date
-              ButtonGroup ButtonPressed
-                OkButton 225, 95, 50, 15
-              Text 5, 5, 185, 10, "Postponed Verification of WREG information/exemption"
-              Text 5, 25, 50, 10, "Client Name:"
-              Text 5, 40, 70, 10, "Verifications Needed:"
-              Text 5, 80, 40, 10, "Verifs Due:"
-              Text 5, 100, 50, 10, "SNAP Closure:"
-            EndDialog
+			BeginDialog Dialog1, 0, 0, 281, 170, "WCOM Details"
+			  EditBox 5, 30, 270, 15, postponed_verifs_needed
+			  EditBox 140, 60, 135, 15, abawd_name
+			  EditBox 5, 90, 270, 15, wreg_verifs_needed
+			  EditBox 60, 130, 55, 15, wreg_verifs_due_date
+			  EditBox 60, 150, 55, 15, snap_closure_date
+			  ButtonGroup ButtonPressed
+			    OkButton 225, 150, 50, 15
+			  Text 5, 5, 185, 10, "Postponed Verification details"
+			  Text 5, 20, 70, 10, "Verifications Needed:"
+			  GroupBox 0, 50, 285, 75, "Postponed WREG Verifications"
+			  Text 70, 65, 70, 10, "ABAWD Client Name:"
+			  Text 5, 80, 105, 10, "WREG Verifications Needed:"
+			  Text 100, 110, 175, 10, "(verifications needed to confirm WREG status ONLY)"
+			  Text 5, 135, 40, 10, "Verifs Due:"
+			  Text 5, 155, 50, 10, "SNAP Closure:"
+			EndDialog
+
 
             Do                          'displaying the dialog and ensuring that all required information is entered
                 err_msg = ""
@@ -751,14 +754,22 @@ Do
                 Dialog Dialog1
                 cancel_confirmation
 
-                If abawd_name = "" Then err_msg = err_msg & vbNewLine & "* Enter the name of the client that has used 3 ABAWD months."
-                If wreg_verifs_needed = "" Then err_msg = err_msg & vbNewLine & "* List all WREG verifications needed."
+				postponed_verifs_needed = trim(postponed_verifs_needed)
+				wreg_verifs_needed = trim(wreg_verifs_needed)
+				abawd_name = trim(abawd_name)
+                If abawd_name = "" AND wreg_verifs_needed <> "" Then err_msg = err_msg & vbNewLine & "* Enter the name of the client that has used 3 ABAWD months."
+                If wreg_verifs_needed = "" AND postponed_verifs_needed = "" Then err_msg = err_msg & vbNewLine & "* List all WREG verifications needed."
                 If isdate(wreg_verifs_due_date) = False Then err_msg = err_msg & vbNewLine & "* Enter a valid date for the date the verifications are due."
                 If isdate(snap_closure_date) = False Then err_msg = err_msg & vbNewLine & "* Enter a valid date for the day SNAP will close if verifications are not received."
                 If err_msg <> "" Then MsgBox "Resolve the following to continue:" & vbNewLine & err_msg
             Loop until err_msg = ""
             'Adding the verbiage to the WCOM_TO_WRITE_ARRAY
-            CALL add_words_to_message(abawd_name & " has used their 3 entitled months of SNAP benefits as an Able Bodied Adult Without Dependents. Verification of " & wreg_verifs_needed & " has been postponed. You must turn in verification of " & wreg_verifs_needed & " by " & wreg_verifs_due_date & " to continue to be eligible for SNAP benefits. If you do not turn in the required verifications, your case will close on " & snap_closure_date & ".")
+
+			msg_wording = "You are getting SNAP right away because you meet the criteria for expedited SNAP.  You still need to provide the following postponed verification(s) that is needed to continue your SNAP eligibility.  We will mail out a separate verification request form for the requested verification(s). "
+			If postponed_verifs_needed <> "" Then msg_wording = msg_wording & "Verifications: " & postponed_verifs_needed & ". "
+            If wreg_verifs_needed <> "" Then msg_wording = msg_wording & abawd_name & " has used their 3 entitled months of SNAP benefits as an Able Bodied Adult Without Dependents. Verification of " & wreg_verifs_needed & " has been postponed. "
+			msg_wording = msg_wording & "You must turn in all verifications by " & wreg_verifs_due_date & " to continue to be eligible for SNAP benefits. If you do not turn in the required verifications, your case will close on " & snap_closure_date & "."
+			Call add_words_to_message(msg_wording)
         End If
 
         If abawd_child_18_coded_wcom_checkbox = checked Then         'ABAWD exemption for care of child
@@ -1098,7 +1109,11 @@ If client_death_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("*
 If signature_postponed_verif_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* Postponed signature on CAF page 9.")
 If inelig_student_wcoms_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* Ineligible Student Information about " & inelig_student_name & " - proof needed: " & inelig_student_proof & ".")
 If future_elig_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* SNAP eligibility begin date reqeusted to be changed to: " & future_elig_begin_date & ". Request made on " & future_elig_request_date & ".")
-If wreg_postponed_verif_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* " & abawd_name & " has used their 3 ABAWD months. Postponed WREG verification: " & wreg_verifs_needed & " is due: " & wreg_verifs_due_date & ".")
+If postponed_verif_wcom_checkbox = checked Then
+	CALL write_variable_in_CASE_NOTE("* Postponed verifications requested, due: " & wreg_verifs_due_date)
+	If postponed_verifs_needed <> "" Then CALL write_variable_in_CASE_NOTE("   -Verifications: " & postponed_verifs_needed & ".")
+	If wreg_verifs_needed <> "" Then CALL write_variable_in_CASE_NOTE("   -" & abawd_name & " has used their 3 ABAWD months. Postponed WREG verification: " & wreg_verifs_needed & ".")
+End If
 If abawd_child_18_coded_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* " & abawd_exempt_child_18_name & " is ABAWD and WREG exempt due to a child(ren) under the age of 18 in the SNAP unit.")
 If abawd_child_6_coded_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* " & abawd_exempt_child_6_name & " is ABAWD and WREG exempt due to care of a child under 6.")
 If voluntary_quit_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* " & vol_quit_name & " is sanctioned from SNAP due to: " & vol_quit_sanction_reason & ".")
