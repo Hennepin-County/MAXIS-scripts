@@ -8234,11 +8234,7 @@ If the_process_for_snap = "Application" AND exp_det_case_note_found = False Then
         Call write_variable_in_case_note(worker_signature)
 
         PF3
-    Else
-        testing_run = False     'turning off forced error reporting if NOT using EXP Det functionality
     End If
-Else
-    testing_run = False     'turning off forced error reporting if NOT using EXP Det functionality
 End If
 interview_note = FALSE
 
