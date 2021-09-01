@@ -5480,7 +5480,7 @@ Do
                                         ' Loop until each_busi = UBound(ALL_BUSI_PANELS_ARRAY, 2)
                                         y_pos = 5
 
-                                        ' BeginDialog Dialog1, 0, 0, 555, 385, "CAF Dialog 3 - BUSI"
+                                        Dialog1 = ""
                                         BeginDialog Dialog1, 0, 0, 546, dlg_len, "CAF Dialog 3 - BUSI"
                                           If ALL_BUSI_PANELS_ARRAY(memb_numb, 0) = "" Then
                                             Text 10, y_pos, 535, 10, "There are no BUSI panels found on this case. The script could not pull BUSI details for a case note."
