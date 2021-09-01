@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("09/01/2021", "Expedited Determination Functionality has been completely enhanced.##~####~##The functionality to guide through the assesment of a case meeting expedited criteria has been updated. This new functionality adds a series of 3 new dialogs to support this process.##~####~##This new functionality matches the scripts NOTES - Expedited Determination and the new script NOTES - Interview.##~##", "Casey Love, Hennepin County")
 call changelog_update("03/05/2020", "Added enhanced handling for the month the script will use to look at information. The best informaiton is provided in the month of application.", "Casey Love, Hennepin County")
 call changelog_update("05/28/2019", "Updates to read the Expedited Screening case note.", "Casey Love, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
