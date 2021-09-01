@@ -94,6 +94,7 @@ function edit_favorites
             End If
 		END IF
 	END WITH
+	If IsArray(favorites_text_file_array) = False Then favorites_text_file_array = Array()
 
 	'>>> Determining the width of the dialog from the number of scripts that are available...
 	'the dialog starts with a width of 400
@@ -618,7 +619,6 @@ FUNCTION favorite_menu(favorites_text_file_string, script_to_run)
 	'>>> Splitting the array of all scripts.
     favorites_text_file_array = split(favorites_text_file_string, vbNewLine)
 
-
 	num_of_scripts = num_of_user_scripts + num_of_new_scripts
 
     script_counter = 0
@@ -875,9 +875,6 @@ END FUNCTION
 
 function open_favorites_file()
     'Needs to determine MyDocs directory before proceeding.
-    Set wshshell = CreateObject("WScript.Shell")
-    user_myDocs_folder = wshShell.SpecialFolders("MyDocuments") & "\"
-    favorites_text_file_location = user_myDocs_folder & "\scripts-favorites.txt"
 
     Dim oTxtFile
     With (CreateObject("Scripting.FileSystemObject"))
@@ -1040,10 +1037,6 @@ If tester_found = FALSE Then
     tags_coming_soon = MsgBox("***            Coming soon!            ***" & vbNewLine & vbNewLine & "We are updating how we engage with the script tools. One of these ways is with a new system of tagging." & vbNewLine & "This button will have functionality to preview the new menu using these tags. It is not available just yet as we develop and test the functionality." & vbNewLine & vbNewLine & "Come back later to try this new functionality.", vbOk, "New Tags Menu Coming Soon.")
     stopscript
 End If
-
-'Needs to determine MyDocs directory before proceeding.
-Set wshshell = CreateObject("WScript.Shell")
-user_myDocs_folder = wshShell.SpecialFolders("MyDocuments") & "\"
 
 favorites_text_file_location = user_myDocs_folder & "\scripts-favorites.txt"
 hotkeys_text_file_location = user_myDocs_folder & "\scripts-hotkeys.txt"
