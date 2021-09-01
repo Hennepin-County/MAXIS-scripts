@@ -40,6 +40,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/01/2021", "New script - Open Interview PDF.##~####~##This script is companion to the NOTES - Interview script and provides access to notes/document created by the script if it has not yet been added to ECF.##~##", "Casey Love, Hennepin County")
 call changelog_update("11/13/2020", "The script 'Waived ER Interview Screening' is now retired. A screening or review is no longer necessary to waive the ER Interview. All ER cases are eligible to have the interview waived. Information is available on SIR.", "Casey Love, Hennepin County")
 call changelog_update("05/15/2020", "Added new script called 'Insert MBI from MMIS'. This script will read the MBI number from RMCR n MMIS to update MEDI with the same information. It can be run on multiple household members in the same case.", "Casey Love, Hennepin County")
 call changelog_update("04/29/2019", "Moved the following scripts to speciality menu ADMIN: Copy Case Data for Training, Copy Panels to Word and Training Case Creator.", "Ilse Ferris, Hennepin County")
