@@ -700,7 +700,7 @@ FUNCTION favorite_menu(favorites_text_file_string, script_to_run)
             for i = 0 to UBound(featured_scripts_array, 2)
                 script_keys_combine = ""
                 ' If featured_scripts_array(i).dlg_keys(0) <> "" Then script_keys_combine = join(featured_scripts_array(i).dlg_keys, ":")
-                PushButton 		10, 					vert_button_position, 	10, 		10, 			"?", 																SIR_button_placeholder
+                ' PushButton 		10, 					vert_button_position, 	10, 		10, 			"?", 																SIR_button_placeholder
                 PushButton 		23,						vert_button_position, 	120, 		10, 			featured_scripts_array(script_name_const, i), 						button_placeholder
                 ' Text 			152, 				    vert_button_position+1, 40, 		10, 			"-- " & featured_scripts_array(dlg_keys_const, i) & " --"
                 ' PushButton      175,                    vert_button_position,   10,         10,             "+",                                                add_to_favorites_button_placeholder
@@ -708,11 +708,14 @@ FUNCTION favorite_menu(favorites_text_file_string, script_to_run)
 				Text            152,                    vert_button_position,   590,        10,             "Featured on " & featured_scripts_array(hot_topic_date_const, i) & " --- " & featured_scripts_array(description_const, i)
 			Else
 				PushButton		152, 					vert_button_position, 	90, 		10, 			"Featured on " & featured_scripts_array(hot_topic_date_const, i), 	ht_button_placeholder
-				Text            145,                    vert_button_position+1, 595,        10,             " --- " & featured_scripts_array(description_const, i)
+				Text            242,                    vert_button_position+1, 495,        10,             " --- " & featured_scripts_array(description_const, i)
 			End If
                 featured_scripts_array(button_const, i) = button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
                 featured_scripts_array(SIR_instr_btn_const, i) = SIR_button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
 				featured_scripts_array(HT_btn_const, i) = ht_button_placeholder
+				for x = 0 to UBound(new_scripts_array, 2)
+					If new_scripts_array(script_name_const, x) = featured_scripts_array(script_name_const, i) AND new_scripts_array(category_const, x) = featured_scripts_array(category_const, i) Then new_scripts_array(do_not_show_const, x) = True
+				next
 
                 vert_button_position = vert_button_position + 12
                 button_placeholder = button_placeholder + 1			'This gets passed to ButtonPressed where it can be refigured as the selected item in the array by subtracting 100
@@ -798,21 +801,22 @@ FUNCTION favorite_menu(favorites_text_file_string, script_to_run)
             Text 5, vert_button_position, 500, 10, "------------------------------------------------------------------------------ NEW SCRIPTS --------------------------------------------------------------------------------"
             vert_button_position = vert_button_position + 12
     		for i = 0 to UBound(new_scripts_array, 2)
-                script_keys_combine = ""
-                ' If new_scripts_array(i).dlg_keys(0) <> "" Then script_keys_combine = join(new_scripts_array(i).dlg_keys, ":")
-                PushButton 		5, 						vert_button_position, 	10, 		10, 			"?", 												SIR_button_placeholder
-                PushButton 		18,						vert_button_position, 	120, 		10, 			new_scripts_array(script_name_const, i), 			button_placeholder
-                ' Text 			143, 				    vert_button_position, 	40, 		10, 			"-- " & new_scripts_array(dlg_keys_const, i) & " --"
-                ' PushButton      175,                    vert_button_position,   10,         10,             "+",                                                add_to_favorites_button_placeholder
-                Text            145,                    vert_button_position,   590,        10,             new_scripts_array(description_const, i)
+				If new_scripts_array(do_not_show_const, i) <> True Then
+	                script_keys_combine = ""
+	                ' If new_scripts_array(i).dlg_keys(0) <> "" Then script_keys_combine = join(new_scripts_array(i).dlg_keys, ":")
+	                PushButton 		5, 						vert_button_position, 	10, 		10, 			"?", 												SIR_button_placeholder
+	                PushButton 		18,						vert_button_position, 	120, 		10, 			new_scripts_array(script_name_const, i), 			button_placeholder
+	                ' Text 			143, 				    vert_button_position, 	40, 		10, 			"-- " & new_scripts_array(dlg_keys_const, i) & " --"
+	                ' PushButton      175,                    vert_button_position,   10,         10,             "+",                                                add_to_favorites_button_placeholder
+	                Text            145,                    vert_button_position,   590,        10,             new_scripts_array(description_const, i)
 
-                new_scripts_array(button_const, i) = button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
-                new_scripts_array(SIR_instr_btn_const, i) = SIR_button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
+	                new_scripts_array(button_const, i) = button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
+	                new_scripts_array(SIR_instr_btn_const, i) = SIR_button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
 
-                vert_button_position = vert_button_position + 12
-                button_placeholder = button_placeholder + 1			'This gets passed to ButtonPressed where it can be refigured as the selected item in the array by subtracting 100
-                SIR_button_placeholder = SIR_button_placeholder + 1			'This gets passed to ButtonPressed where it can be refigured as the selected item in the array by subtracting 100
-
+	                vert_button_position = vert_button_position + 12
+	                button_placeholder = button_placeholder + 1			'This gets passed to ButtonPressed where it can be refigured as the selected item in the array by subtracting 100
+	                SIR_button_placeholder = SIR_button_placeholder + 1			'This gets passed to ButtonPressed where it can be refigured as the selected item in the array by subtracting 100
+				End If
     		NEXT
         End If
 		' GroupBox 210, dialog_margin, button_width + (dialog_margin * 2), 5 + (button_height * (UBound(new_scripts_array) + 1)), "NEW SCRIPTS (LAST 60 DAYS)"
@@ -983,6 +987,7 @@ const script_URL_const		= 10
 const retirement_date_const = 11
 const HT_btn_const			= 12
 const hot_topic_url			= 13
+const do_not_show_const 	= 14
 const hot_topic_date_const	= 15
 
 Dim favorite_scripts_array
