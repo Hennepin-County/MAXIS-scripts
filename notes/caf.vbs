@@ -5818,7 +5818,7 @@ Do
                                     If show_cses_detail = FALSE Then dlg_four_len = 100
                                     y_pos = 5
                                     ' MsgBox "Number of CS members - " & number_of_cs_members
-                                    ' BeginDialog Dialog1, 0, 0, 555, 385, "Dialog 4 - CSES"
+                                    Dialog1 = ""
                                     BeginDialog Dialog1, 0, 0, dlg_wide, dlg_four_len, "Dialog 4 - CSES"
                                       If show_cses_detail = FALSE Then
                                           Text 10, y_pos, 445, 10, "There are no UNEA panels for Child Support (08, 36, 39) and the script could not pull child support detail information."
@@ -5994,7 +5994,7 @@ Do
                             If unea_income_found = FALSE Then dlg_five_len = dlg_five_len + 20
 
                             y_pos = 5
-                            ' BeginDialog Dialog1, 0, 0, 555, 385, "Dialog 5 - UNEA"
+                            Dialog1 = ""
                             BeginDialog Dialog1, 0, 0, 466, dlg_five_len, "Dialog 5 - UNEA"
                               If unea_income_found = FALSE Then
                                   Text 10, y_pos, 445, 10, "There are no UNEA panels found and the script could not pull detail about SSA/WC/VA/UC or other UNEA income."
@@ -6132,7 +6132,7 @@ Do
                     If show_six = true Then
                         If left(total_shelter_amount, 1) <> "$" Then total_shelter_amount = "$" & total_shelter_amount
 
-                        ' BeginDialog Dialog1, 0, 0, 555, 385, "CAF Dialog 6 - WREG, Expenses, Address"
+                        Dialog1 = ""
                         BeginDialog Dialog1, 0, 0, 556, 290, "CAF Dialog 6 - WREG, Expenses, Address"
                           EditBox 45, 50, 500, 15, notes_on_wreg
                           ButtonGroup ButtonPressed
@@ -6226,7 +6226,7 @@ Do
                                   End If
                                 Next
                                 y_pos = 10
-                                ' BeginDialog Dialog1, 0, 0, 555, 385, "ABAWD Detail"
+                                Dialog1 = ""
                                 BeginDialog Dialog1, 0, 0, 551, dlg_len, "ABAWD Detail"
                                   For each_member = 0 to UBound(ALL_MEMBERS_ARRAY, 2)
                                     If ALL_MEMBERS_ARRAY(include_snap_checkbox, each_member) = checked AND ALL_MEMBERS_ARRAY(wreg_exists, each_member) = TRUE Then
@@ -6309,7 +6309,7 @@ Do
                                 If manual_amount_used = FALSE Then manual_total_shelter = total_shelter_amount & ""
                                 start_total_shel = manual_total_shelter
 
-                                ' BeginDialog Dialog1, 0, 0, 555, 385, "SHEL Detail Dialog"
+                                Dialog1 = ""
                                 BeginDialog Dialog1, 0, 0, 340, dlg_len, "SHEL Detail Dialog"
                                   DropListBox 60, 10, 125, 45, shel_memb_list, clt_SHEL_is_for
                                   Text 5, 15, 55, 10, "SHEL for Memb"
@@ -6462,7 +6462,7 @@ Do
                 If show_seven = true Then
                     app_month_assets = app_month_assets & ""
 
-                    ' BeginDialog Dialog1, 0, 0, 555, 385, "CAF Dialog 7 - Asset and Miscellaneous Info"
+                    Dialog1 = ""
                     BeginDialog Dialog1, 0, 0, 561, 340, "CAF Dialog 7 - Asset and Miscellaneous Info"
                       EditBox 435, 20, 115, 15, app_month_assets
                       EditBox 45, 40, 395, 15, notes_on_acct
@@ -6604,7 +6604,7 @@ Do
             End If
             If show_eight = true Then
 
-                ' BeginDialog Dialog1, 0, 0, 555, 385, "CAF Dialog 8 - Interview Info"
+                Dialog1 = ""
                 BeginDialog Dialog1, 0, 0, 500, 370, "CAF Dialog 8 - Interview Info"
                   EditBox 60, 10, 20, 15, next_er_month
                   EditBox 85, 10, 20, 15, next_er_year
@@ -6935,6 +6935,7 @@ If continue_in_inquiry = "" Then
         MX_region = trim(MX_region)
         If MX_region = "INQUIRY DB" Then
 
+            Dialog1 = ""
             BeginDialog dialog1, 0, 0, 266, 120, "Still in Inquiry"
               ButtonGroup ButtonPressed
                 PushButton 165, 80, 95, 15, "Stop the Script Run (ESC)", stop_script_button
