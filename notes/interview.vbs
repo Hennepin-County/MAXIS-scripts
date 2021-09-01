@@ -8264,7 +8264,6 @@ verif_view = "See All Verifs"
 'THE SCRIPT------------------------------------------------------------------------------------------------------------------------------------------------
 'Connecting to MAXIS & grabbing the case number
 EMConnect ""
-testing_run = TRUE
 Call check_for_MAXIS(true)
 Call MAXIS_case_number_finder(MAXIS_case_number)
 ' CAF_datestamp = date & ""
