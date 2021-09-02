@@ -1127,3 +1127,46 @@ CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
 
 script_end_procedure("WCOMs added to Notice and case note created.")
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------09/02/2021
+'--Tab orders reviewed & confirmed----------------------------------------------09/02/2021
+'--Mandatory fields all present & Reviewed--------------------------------------09/02/2021
+'--All variables in dialog match mandatory fields-------------------------------09/02/2021
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------09/02/2021
+'--CASE:NOTE Header doesn't look funky------------------------------------------09/02/2021
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------09/02/2021
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------09/02/2021
+'--MAXIS_background_check reviewed (if applicable)------------------------------09/02/2021
+'--PRIV Case handling reviewed -------------------------------------------------N/A
+'--Out-of-County handling reviewed----------------------------------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------09/02/2021
+'--BULK - review output of statistics and run time/count (if applicable)--------N/A
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------N/A
+'--Incrementors reviewed (if necessary)-----------------------------------------N/A
+'--Denomination reviewed -------------------------------------------------------09/02/2021
+'--Script name reviewed---------------------------------------------------------09/02/2021
+'--BULK - remove 1 incrementor at end of script reviewed------------------------N/A
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub taks are complete-----------------------------------------09/02/2021
+'--comment Code-----------------------------------------------------------------09/02/2021
+'--Update Changelog for release/update------------------------------------------09/02/2021
+'--Remove testing message boxes-------------------------------------------------09/02/2021
+'--Remove testing code/unnecessary code-----------------------------------------09/02/2021
+'--Review/update SharePoint instructions----------------------------------------09/02/2021
+'--Review Best Practices using BZS page ----------------------------------------09/02/2021
+'--Review script information on SharePoint BZ Script List-----------------------N/A
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------09/02/2021
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------N/A
+'--Complete misc. documentation (if applicable)---------------------------------N/A
+'--Update project team/issue contact (if applicable)----------------------------09/02/2021
