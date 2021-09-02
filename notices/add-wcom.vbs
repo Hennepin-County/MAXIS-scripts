@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("09/02/2021", "Added functionality to support sending a WCOM about any Expedited SNAP Postponed Verification.", "Casey Love, Hennepin County")
 Call changelog_update("04/09/2020", "Multiple updates to available WCOMs:##~## - ALL Banked Months WCOMs are removed as no Banked Months are currently being issued.##~## - Added client name information to Temporary Disabled ABAWD WCOM##~## - Added WCOM for Care of Child under 6 Exemption.##~## - Added WCOM for close/deny due to no verifications for when the notice reads 'No Eligible Members'.##~## - Added WCOM for Ineligible Student. ##~## - Added WCOM for Voluntary Quit.##~## - Added WCOM for Future Eligibility Begin Date for SNAP.##~##", "Casey Love, Hennepin County")
 Call changelog_update("03/22/2019", "Reformatted the Select WCOM Dialog. The layout is now clearer as to what WCOMs are for ABAWD. Additional DHS mandated WCOMs are indicated with an asterisk (*).", "Casey Love, Hennepin County")
 Call changelog_update("03/07/2019", "Removed WCOMs for duplicate assistance (in MN and Out of State) and client death as notices have been updated to include details of these changes.", "Casey Love, Hennepin County")
@@ -465,10 +466,7 @@ Do
                 If err_msg <> "" Then MsgBox "Resolve the following to continue:" & vbNewLine & err_msg
             Loop until err_msg = ""
             'Adding the verbiage to the WCOM_TO_WRITE_ARRAY
-            'CALL add_words_to_message("EXPLANATION OF CHANGE OF INCOME:")
             CALL add_words_to_message("EXPLANATION OF CHANGE OF INCOME:; The change of income listed in this notice is due to " & HC_Income_with_COLA & " increase that went into effect in January. This income increase is disregarded for 6 months and only counted starting in July. The change is only in how income is counted for Health Care and not in the income you receive from " & HC_Income_with_COLA & ".; If you have additional questions please contact us at 612-596-1300.")
-            'CALL add_words_to_message("If you have additional questions please contact us at 612-596-1300.")
-
         End If
 
         If snap_pact_wcom_checkbox = checked Then             'SNAP closed with PACT
@@ -915,7 +913,6 @@ Do
 
         If abawd_homeless_wcom_checkbox = checked Then
             CALL add_words_to_message("You previously reported that you are homeless, specifically defined for this purpose as lacking both:; *Fixed/regular nighttime residence (inc. temporary housing); *Access to work-related necessities (shower/laundry/etc.); Based on this information, you may qualify for SNAP benefits that are not time-limited. If you believe you meet the homeless and unfit for employment exemption (or any other exemption), please contact your team.")
-            'CALL add_words_to_message("You receive SNAP under time-limited Banked Months, due to being an ABAWD(Able-bodied adult without dependents).  You previously reported to this agency that you are homeless.  Based on this information, you may meet an ABAWD exemption and qualify for SNAP benefits that are not time-limited.; One exemption is for a person who is unfit for employment if he or she is currently homeless.  Homelessness is specifically defined for this purpose as:; * Lacking a fixed and regular nighttime residence, including temporary housing situations, AND; * Lacking access to work-related necessities (i.e. shower/laundry facilities, etc.).; If you believe you may meet this exemption (or any other potential ABAWD exemption), please contact your team.")
         End If
 
         'currently no checkbox for this one - we should never be using it as client's no longer need to request banked months
@@ -1026,11 +1023,6 @@ Do
 
         'This assesses if the message generated is too long for WCOM. If so then the checklist will reappear along with each selected WCOM dialog so it can be changed
         If UBOUND(WCOM_TO_WRITE_ARRAY) > 14 Then big_err_msg = big_err_msg & vbNewLine & "The amount of text/information that is being added to WCOM will exceed the 15 lines available on MAXIS WCOMs. Please reduce the number of WCOMs that have been selected or reduce the amount of text in the selected WCOM."
-        'MsgBox "UBOUND of array is " & UBOUND(WCOM_TO_WRITE_ARRAY)
-
-        ' If end_of_wcom_row > 14 Then big_err_msg = big_err_msg & vbNewLine & "The amount of text/information that is being added to WCOM will exceed the 15 lines available on MAXIS WCOMs. Please reduce the number of WCOMs that have been selected or reduce the amount of text in the selected WCOM."
-        ' MsgBox "End of WCOM ROW is " & end_of_wcom_row
-
 
         If big_err_msg <> "" Then
             MsgBox "*** Please resolved the following to continue ***" & vbNewLine & big_err_msg
@@ -1074,7 +1066,6 @@ For notices_listed = 0 to UBound(NOTICES_ARRAY, 2)
             CALL write_variable_in_SPEC_MEMO(msg_line)
         Next
 
-        'MsgBox "Look"
         PF4     'Save the WCOM
         PF3     'Exit the WCOM
 
@@ -1125,7 +1116,6 @@ If banked_mos_avail_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOT
 If banked_mos_vol_e_t_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* E&T is voluntary with Banked Months.")
 If banked_mos_non_coop_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* " & banked_abawd_name & " was receiving Banked Months and fail cooperation with E & T. Explained requesting Good Cause, and future banked months ineligibility.")
 If banked_mos_used_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* Client has exhausted all available Banked Months. Advised to review other WREG/ABAWD exemptions.")
-' If fset_fail_to_comply_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* SNAP is closing due to FSET requirements not being met. Reasons for not meeting the rules: " & fset_fail_reason & ". Advised of good cause and contact information.")
 If cash_denied_checkbox = checked Then
     CALL write_variable_in_CASE_NOTE("* " & cash_one_program & " denied because " & cash_one_reason & ".")
     If cash_two_program <> "Select one..." Then CALL write_variable_in_CASE_NOTE("* " & cash_two_program & " denied because " & cash_two_reason & ".")
