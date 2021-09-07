@@ -2885,7 +2885,7 @@ ElseIf renewal_option = "Send Appointment Letters" Then
 					ElseIf renewal_guidance_confirmed = True Then
 						start_a_blank_case_note
 						CALL write_variable_in_CASE_NOTE("Notice sent for " & programs & " Renewal Guidance")
-						Call write_variable_in_case_note("* A reneal is due for this case for " & REPT_month & "/" & REPT_year)
+						Call write_variable_in_case_note("* A renewal is due for this case for " & REPT_month & "/" & REPT_year)
 						Call write_variable_in_case_note("* Reminder notice sent with forms due date and verification options.")
 						Call write_variable_in_case_note("  -This is NOT an official verification request.-")
 						Call write_variable_in_case_note("---")
