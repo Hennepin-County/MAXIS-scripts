@@ -1491,10 +1491,10 @@ If MX_region = "INQUIRY DB" Then
 	If continue_in_inquiry = vbNo Then Call script_end_procedure("~PT Interview Script cancelled as it was run in inquiry.")
 End If
 If MX_region = "TRAINING" Then developer_mode = True
-If user_ID_for_validation = "CALO001" OR user_ID_for_validation = "ILFE001" OR user_ID_for_validation = "WFS395"Then
-	stay_in_dev_mode = MsgBox("HELLO BZ Script Writer!" & vbCr & vbCr & "You are running in DEVELOPER MODE! This means your data will not be stored in the report out." &vbCr & vbCr & "Is this what you want?" & vbCr & "Click 'No' to turn developer mode OFF.", vbQuestion + vbYesNo, "Run in DEVELOPER MODE??")
-	if stay_in_dev_mode = vbNo Then developer_mode = False
-End If
+' If user_ID_for_validation = "CALO001" OR user_ID_for_validation = "ILFE001" OR user_ID_for_validation = "WFS395"Then
+' 	stay_in_dev_mode = MsgBox("HELLO BZ Script Writer!" & vbCr & vbCr & "You are running in DEVELOPER MODE! This means your data will not be stored in the report out." &vbCr & vbCr & "Is this what you want?" & vbCr & "Click 'No' to turn developer mode OFF.", vbQuestion + vbYesNo, "Run in DEVELOPER MODE??")
+' 	if stay_in_dev_mode = vbNo Then developer_mode = False
+' End If
 ' Call navigate_to_MAXIS_screen("STAT", "PROG")
 Do
 	Call navigate_to_MAXIS_screen_review_PRIV("STAT", "PROG", is_this_priv)
