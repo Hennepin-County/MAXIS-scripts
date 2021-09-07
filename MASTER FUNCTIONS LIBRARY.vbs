@@ -7390,6 +7390,62 @@ function select_testing_file(selection_type, the_selection, file_path, file_bran
     Next
 end function
 
+function sort_dates(dates_array)
+'--- Takes an array of dates and reorders them to be chronological.
+'~~~~~ dates_array: an array of dates only
+'===== Keywords: MAXIS, date, order, list, array
+    dim ordered_dates ()				'declaring a private array
+    redim ordered_dates(0)				'setting the array with 1 parameter
+    original_array_items_used = "~"		'creating a string
+    days =  0							'starting a count
+	'This is the BIG loop - with each loop through here, we add a new date to the ordered dates array
+    do
+        prev_date = ""					'blanking out the varibale 'prev_date' for each loop
+        original_array_index = 0		'this will tell us WHERE in the original array the date is - which position - so we know to add only new ones.
+        for each thing in dates_array	'looking at each item in the original array
+            check_this_date = TRUE												'default to check the date
+            new_array_index = 0													'startomg amptjer count and setting it to 0
+            For each known_date in ordered_dates								'looking at the ones we already ordered
+                if known_date = thing Then check_this_date = FALSE				'if it is already in the order, we don't need to review it again
+                new_array_index = new_array_index + 1
+            next
+            if check_this_date = TRUE Then										'if this is a new date, review it - we are trying to find the EARLIEST date that has not been added
+                if prev_date = "" Then											'if this is the first date we review
+                    prev_date = thing											'set this as the date to compare
+                    index_used = original_array_index							'setting it's place
+                Else
+                    if DateDiff("d", prev_date, thing) < 0 then					'If this date is before the last date, it is now the earliest date
+                        prev_date = thing										'saving the date
+                        index_used = original_array_index						'saving the position in the array
+                    end if
+                end if
+            end if
+            original_array_index = original_array_index + 1						'counting each position on each loop through the dates_array
+        next
+        if prev_date <> "" Then													'if the function found a NEW 'earliest date' we have to add it to the order
+            redim preserve ordered_dates(days)									'resize the array of ordered dates
+            ordered_dates(days) = prev_date										'putting this new earliest date into that newly added position
+            original_array_items_used = original_array_items_used & index_used & "~"		'saving a string to know which positions in the original array have been used
+            days = days + 1														'incrementing up for the next loop to make the ordered dates array bigger next time around
+        end if
+		'now we have to check for duplicate dates in the original array
+        counter = 0																'setting a new incrementer to determine the position in the original array again
+        For each thing in dates_array											'looking at each item in turn in the original array
+            If InStr(original_array_items_used, "~" & counter & "~") = 0 Then	'If the array position has NOT been added to the string of all the array positions we need to check:
+                For each new_date_thing in ordered_dates						'each item in the ordered dates array to see:
+                    If thing = new_date_thing Then								'if the date of the original array matches the one we JUST added to the ordered dates (but remember is NOT in the position we have already added)'
+                        original_array_items_used = original_array_items_used & counter & "~"	'saving that this date IS in the ordered dates array
+                        days = days + 1											'resizing the number of items in the ordered dates array up
+                    End If
+                Next
+            End If
+            counter = counter + 1												'incrementing the position of the original array for comparing
+        Next
+    loop until days > UBOUND(dates_array)			'Once we have gone higher that the number of things in the original array - we are done
+
+    dates_array = ordered_dates						'replacing the original array with the one with dates ordered
+end function
+
 function start_a_blank_CASE_NOTE()
 '--- This function navigates user to a blank case note, presses PF9, and checks to make sure you're in edit mode (keeping you from writing all of the case note on an inquiry screen).
 '===== Keywords: MAXIS, case note, navigate, edit
