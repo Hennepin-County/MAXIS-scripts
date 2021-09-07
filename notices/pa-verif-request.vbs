@@ -484,64 +484,6 @@ function leave_notice_text(ask_first)
 	End If
 end function
 
-function sort_dates(SNAP_dates_array)
-'--- Takes an array of dates and reorders them to be chronological.
-'~~~~~ SNAP_dates_array: an array of dates only
-'===== Keywords: MAXIS, date, order, list, array
-    dim ordered_dates ()
-    redim ordered_dates(0)
-    original_array_items_used = "~"
-    days =  0
-    do
-
-        prev_date = ""
-        original_array_index = 0
-        for each thing in SNAP_dates_array
-            check_this_date = TRUE
-            new_array_index = 0
-            For each known_date in ordered_dates
-                if known_date = thing Then check_this_date = FALSE
-                new_array_index = new_array_index + 1
-                ' MsgBox "known dates is " & known_date & vbNewLine & "thing is " & thing & vbNewLine & "match - " & check_this_date
-            next
-            ' MsgBox "known dates is " & known_date & vbNewLine & "thing is " & thing & vbNewLine & "check this date - " & check_this_date
-            if check_this_date = TRUE Then
-                if prev_date = "" Then
-                    prev_date = thing
-                    index_used = original_array_index
-                Else
-                    if DateDiff("d", prev_date, thing) < 0 then
-                        prev_date = thing
-                        index_used = original_array_index
-                    end if
-                end if
-            end if
-            original_array_index = original_array_index + 1
-        next
-        if prev_date <> "" Then
-            redim preserve ordered_dates(days)
-            ordered_dates(days) = prev_date
-            original_array_items_used = original_array_items_used & index_used & "~"
-            days = days + 1
-        end if
-        counter = 0
-        For each thing in SNAP_dates_array
-            If InStr(original_array_items_used, "~" & counter & "~") = 0 Then
-                For each new_date_thing in ordered_dates
-                    If thing = new_date_thing Then
-                        original_array_items_used = original_array_items_used & counter & "~"
-                        days = days + 1
-                    End If
-                Next
-            End If
-            counter = counter + 1
-        Next
-        ' MsgBox "Ordered Dates array - " & join(ordered_dates, ", ") & vbCR & "days - " & days & vbCR & "Ubound - " & UBOUND(SNAP_dates_array) & vbCR & "used list - " & original_array_items_used
-    loop until days > UBOUND(SNAP_dates_array)
-
-    SNAP_dates_array = ordered_dates
-end function
-
 function Select_New_WCOM(notices_array, selected_const, information_const, WCOM_row_const, case_number_known, allow_wcom, allow_memo, notc_month, notc_year, no_notices, specific_prog, allow_multiple_notc, allow_cancel)
 	If allow_wcom = True AND allow_memo = True Then
 		notice_panel = "Select One..."
