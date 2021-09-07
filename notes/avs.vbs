@@ -566,7 +566,7 @@ Do
     '----------------------------------------------------------------------------------------------------The case note
     'Information for the case note
     If resize_counter = 0 then 'custom header  for single person cases 
-        If initial_option = "AVS Form" then case_note_header = "--AVS Forms " & avs_members_array(forms_status_const, 0) & " for " & HC_process & "--"
+        If initial_option = "AVS Forms" then case_note_header = "--AVS Forms " & avs_members_array(forms_status_const, 0) & " for " & HC_process & "--"
         If initial_option = "AVS Submission/Results" then case_note_header = "--AVS System Request " & avs_members_array(avs_status_const, 0) & " for " & HC_process & "--"
     Else 
         'generic header if more than one member case noting 
