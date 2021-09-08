@@ -479,67 +479,9 @@ function leave_notice_text(ask_first)
 	EMReadScreen notice_indicator, 6, 2, 72
 
 	If notice_indicator = "FMINFO" Then
-		If ask_first = True Then ask_to_leave_msg = MsgBox("It appears we are in a notice text, in order to contine, we must leave th notice text." & vbCr & vbCr & "Is it alright to leave to notice text now?", vbQuestion + vbYesNo, "Leave Notice Text")
+		If ask_first = True Then ask_to_leave_msg = MsgBox("It appears we are in a notice text, in order to contine, we must leave the notice text." & vbCr & vbCr & "Is it alright to leave to notice text now?", vbQuestion + vbYesNo, "Leave Notice Text")
 		If ask_to_leave_msg = vbYes OR ask_first = False Then  PF3
 	End If
-end function
-
-function sort_dates(SNAP_dates_array)
-'--- Takes an array of dates and reorders them to be chronological.
-'~~~~~ SNAP_dates_array: an array of dates only
-'===== Keywords: MAXIS, date, order, list, array
-    dim ordered_dates ()
-    redim ordered_dates(0)
-    original_array_items_used = "~"
-    days =  0
-    do
-
-        prev_date = ""
-        original_array_index = 0
-        for each thing in SNAP_dates_array
-            check_this_date = TRUE
-            new_array_index = 0
-            For each known_date in ordered_dates
-                if known_date = thing Then check_this_date = FALSE
-                new_array_index = new_array_index + 1
-                ' MsgBox "known dates is " & known_date & vbNewLine & "thing is " & thing & vbNewLine & "match - " & check_this_date
-            next
-            ' MsgBox "known dates is " & known_date & vbNewLine & "thing is " & thing & vbNewLine & "check this date - " & check_this_date
-            if check_this_date = TRUE Then
-                if prev_date = "" Then
-                    prev_date = thing
-                    index_used = original_array_index
-                Else
-                    if DateDiff("d", prev_date, thing) < 0 then
-                        prev_date = thing
-                        index_used = original_array_index
-                    end if
-                end if
-            end if
-            original_array_index = original_array_index + 1
-        next
-        if prev_date <> "" Then
-            redim preserve ordered_dates(days)
-            ordered_dates(days) = prev_date
-            original_array_items_used = original_array_items_used & index_used & "~"
-            days = days + 1
-        end if
-        counter = 0
-        For each thing in SNAP_dates_array
-            If InStr(original_array_items_used, "~" & counter & "~") = 0 Then
-                For each new_date_thing in ordered_dates
-                    If thing = new_date_thing Then
-                        original_array_items_used = original_array_items_used & counter & "~"
-                        days = days + 1
-                    End If
-                Next
-            End If
-            counter = counter + 1
-        Next
-        ' MsgBox "Ordered Dates array - " & join(ordered_dates, ", ") & vbCR & "days - " & days & vbCR & "Ubound - " & UBOUND(SNAP_dates_array) & vbCR & "used list - " & original_array_items_used
-    loop until days > UBOUND(SNAP_dates_array)
-
-    SNAP_dates_array = ordered_dates
 end function
 
 function Select_New_WCOM(notices_array, selected_const, information_const, WCOM_row_const, case_number_known, allow_wcom, allow_memo, notc_month, notc_year, no_notices, specific_prog, allow_multiple_notc, allow_cancel)
@@ -1141,7 +1083,68 @@ If mfip_status = "ACTIVE" Then				'searching for MFIP Information'
 	Loop until prg_typ = "  " OR mfip_wcom_text <> ""
 	If mfip_wcom_text = "" Then mfip_wcom_text = "NO WCOM Found"		'if no WCOM found for this program, in this month, with ELIG in the title, cannot default a WCOM - creating output for the dialog.
 End If
+
 If dwp_status = "ACTIVE" Then
+	Call navigate_to_MAXIS_screen("MONY", "INQB")		'reading the recent benefit amount
+	inqb_row = 6										'start at the top of the list
+	Do
+		EMReadScreen inqb_program, 2, inqb_row, 23		'find the right program
+		If inqb_program = "DW" Then
+			EMReadScreen dwp_amount, 10, inqb_row, 38	'read the benefit amount listed
+			dwp_amount = trim(dwp_amount)
+			Exit Do										'once the first one is found - we're done
+		End If
+		inqb_row = inqb_row + 1							'go to the next row
+	Loop until inqb_program = "  "						'read until the list is done
+
+	Call back_to_SELF		'reset
+
+	Call navigate_to_MAXIS_screen("ELIG", "DWP")			'since we are set to CM + 1, this reads the most recent month
+	EMWriteScreen "99", 19, 78							'opening the version histor of ELIG
+	transmit
+
+	'This brings up the cash versions of eligibilty results to search for approved versions
+	status_row = 7
+	Do
+		EMReadScreen app_status, 8, status_row, 50
+		' If trim(app_status) = "" then script_end_procedure("No approved eligibility results exists in " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". Please review case.")
+		If app_status = "UNAPPROV" Then status_row = status_row + 1
+	Loop until  app_status = "APPROVED" or trim(app_status) = ""		'finding the first approved version
+	EMReadScreen dwp_approved_date, 8, status_row, 26					'reading the date of approval
+	dwp_approved_date = DateAdd("m", 1, dwp_approved_date)			'going to the next month from that date (the plus one from the time of approval
+	dwp_month = right("00" & DatePart("m", dwp_approved_date), 2)		'making the date a footer month and year for this program
+	dwp_year = right(DatePart("yyyy", dwp_approved_date), 2)
+
+	Call back_to_SELF		'reset
+
+	Call navigate_to_MAXIS_screen("SPEC", "WCOM")		'now going to look for a notice
+	EMWriteScreen dwp_month, 3, 46						'entering the month found from ELIG
+	EMWriteScreen dwp_year, 3, 51
+	transmit
+
+	wcom_row = 7										'looking for a WCOM
+	Do
+		EMReadScreen prg_typ, 2, wcom_row, 26			'reading the program and title of the notice
+		EMReadScreen notc_title, 30, wcom_row, 30
+
+		If prg_typ = "FS" AND InStr(notc_title, "ELIG") <> 0 Then		'the program needs to be DWP and the title should have ELIG in it.
+			dwp_wcom_row = wcom_row										'saving the row of the WCOM and which notice in the list it is specific to DWP
+			dwp_wcom_position = wcom_row - 6
+			EMReadScreen notice_date, 8,  wcom_row, 16
+			EMReadScreen notice_prog, 2,  wcom_row, 26
+			EMReadScreen notice_info, 31, wcom_row, 30
+			EMReadScreen notice_stat, 8,  wcom_row, 71
+
+			notice_date = trim(notice_date)
+			notice_prog = trim(notice_prog)
+			notice_info = trim(notice_info)
+			notice_stat = trim(notice_stat)
+
+			dwp_wcom_text = notice_info & " - " & notice_prog & " - " & notice_date & " - Status: " & notice_stat	'this is what is output on the dialog'
+		End If
+		wcom_row = wcom_row + 1
+	Loop until prg_typ = "  " OR dwp_wcom_text <> ""
+	If dwp_wcom_text = "" Then dwp_wcom_text = "NO WCOM Found"		'if no WCOM found for this program, in this month, with ELIG in the title, cannot default a WCOM - creating output for the dialog.
 End If
 
 If snap_status = "ACTIVE" Then				'searching for SNAP Information'
@@ -1356,24 +1359,23 @@ If mfip_status <> "ACTIVE" Then				'Looking for MFIP program history
 		End If
 	Loop until prog_hist_status = "      " OR prog_hist_status = "ACTIVE"		'leave the list once it is at the end OR if we have found an ACTIVE SPAN
 End If
-'COMMENTED OUT until we add this functionality
-' If dwp_status <> "ACTIVE" Then
-' 	EMWriteScreen "DW", 3, 19
-' 	transmit
-'
-' 	hist_row = 8
-' 	Do
-' 		EMReadScreen prog_hist_status, 6, hist_row, 38
-' 		If prog_hist_status = "ACTIVE" Then dwp_prog_history_exists = True
-' 		hist_row = hist_row + 1
-' 		If hist_row = 18 Then
-' 			PF8
-' 			hist_row = 8
-' 			EMReadScreen end_of_list, 9, 24, 14
-' 			If end_of_list = "LAST PAGE" then Exit Do
-' 		End If
-' 	Loop until prog_hist_status = "      " OR prog_hist_status = "ACTIVE"
-' End If
+If dwp_status <> "ACTIVE" Then
+	EMWriteScreen "DW", 3, 19
+	transmit
+
+	hist_row = 8
+	Do
+		EMReadScreen prog_hist_status, 6, hist_row, 38
+		If prog_hist_status = "ACTIVE" Then dwp_prog_history_exists = True
+		hist_row = hist_row + 1
+		If hist_row = 18 Then
+			PF8
+			hist_row = 8
+			EMReadScreen end_of_list, 9, 24, 14
+			If end_of_list = "LAST PAGE" then Exit Do
+		End If
+	Loop until prog_hist_status = "      " OR prog_hist_status = "ACTIVE"
+End If
 If grh_status <> "ACTIVE" Then
 	EMWriteScreen "GR", 3, 19
 	transmit
@@ -1394,7 +1396,7 @@ End If
 Call back_to_SELF		'reset
 
 'saving information for error output email
-script_run_lowdown = script_run_lowdown & vbCr & vbCr & "PROGRAM HISTORY:" & vbCr & "snap_prog_history_exists - " & snap_prog_history_exists & vbCr & "ga_prog_history_exists - " & ga_prog_history_exists & vbCr & "msa_prog_history_exists - " & msa_prog_history_exists & vbCr & "mfip_prog_history_exists - " & mfip_prog_history_exists & vbCr & "grh_prog_history_exists - " & grh_prog_history_exists
+script_run_lowdown = script_run_lowdown & vbCr & vbCr & "PROGRAM HISTORY:" & vbCr & "snap_prog_history_exists - " & snap_prog_history_exists & vbCr & "ga_prog_history_exists - " & ga_prog_history_exists & vbCr & "msa_prog_history_exists - " & msa_prog_history_exists & vbCr & "mfip_prog_history_exists - " & mfip_prog_history_exists & vbCr & "dwp_prog_history_exists - " & dwp_prog_history_exists & vbCr & "grh_prog_history_exists - " & grh_prog_history_exists
 
 Call navigate_to_MAXIS_screen("STAT", "SUMM")		'Going in to STAT to read address information
 EMReadScreen case_name, 22, 21, 46					'case name for address'
@@ -1509,8 +1511,28 @@ Do 		'BIG Loop to see if INQX is over the 9 page limit
 					PushButton 330, y_pos, 100, 10, "View this INQX", mfip_view_inqx_btn
 					y_pos = y_pos + 15
 				End If
-				' If dwp_status = "ACTIVE" Then
-				' End If
+				If dwp_status = "ACTIVE" Then
+					GroupBox 15, y_pos, 450, 75, "DWP"
+					y_pos = y_pos + 15
+					Text 20, y_pos, 120, 10, "DWP Assistance Verification to be sent via "
+					DropListBox 140, y_pos - 5, 200, 45, "Select One..."+chr(9)+"Resend WCOM - Eligibility Notice"+chr(9)+"Create New MEMO with range of Months"+chr(9)+"No Verification of DWP Needed", dwp_verification_method
+					y_pos = y_pos + 10
+					Text 25, y_pos, 200, 10, "DWP current benefit amount appears to be $" & dwp_amount & "."
+					y_pos = y_pos + 10
+					Text 25, y_pos, 400, 10, "Most recent DWP Eligibility Notice appears to have been sent for benefit month: " & dwp_month & "/" & dwp_year & ". WCOM Information:"
+					y_pos = y_pos + 10
+					Text 30, y_pos, 200, 10, dwp_wcom_text
+					PushButton 225, y_pos, 100, 10, "Go To this WCOM", dwp_wcom_btn
+					PushButton 330, y_pos, 100, 10, "Select Different WCOM", dwp_change_wcom_btn
+					y_pos = y_pos + 15
+					Text 25, y_pos, 105, 10, "Date range of issuance needed:"
+					EditBox 130, y_pos - 5, 30, 15, dwp_start_month
+					Text 160, y_pos, 5, 10, "---"
+					EditBox 165, y_pos - 5, 30, 15, dwp_end_month
+					Text 200, y_pos, 100, 10, "(use mm/yy format)"
+					PushButton 330, y_pos, 100, 10, "View this INQX", dwp_view_inqx_btn
+					y_pos = y_pos + 15
+				End If
 				If grh_status = "ACTIVE" Then
 					GroupBox 15, y_pos, 450, 75, "GRH"
 					y_pos = y_pos + 15
@@ -1607,22 +1629,22 @@ Do 		'BIG Loop to see if INQX is over the 9 page limit
 						y_pos = y_pos + 15
 					End If
 				End If
-				' If dwp_status <> "ACTIVE" Then
-				' 	If dwp_prog_history_exists = True Then
-				' 		Text 20, y_pos, 100, 10, "DWP is NOT currently Active"
-				' 		PushButton 120, y_pos-2, 100, 13, "View DWP Program History", dwp_program_history_button
-				' 		y_pos = y_pos + 15
-				' 		CheckBox 25, y_pos, 210, 10, "Check here to include amounts of DWP benefits issued from ", dwp_not_actv_memo_for_old_beneftis_checkbox
-				' 		EditBox 235, y_pos - 5, 30, 15, dwp_start_month
-				' 		Text 265, y_pos, 5, 10, "---"
-				' 		EditBox 270, y_pos - 5, 30, 15, dwp_end_month
-				' 		Text 305, y_pos, 100, 10, "(use mm/yy format)"
-				' 		y_pos = y_pos + 15
-				' 	Else
-				' 		Text 20, y_pos, 300, 10, "DWP is NOT currently Active and there is no ACTIVE Program history for this case."
-				' 		y_pos = y_pos + 15
-				' 	End If
-				' End If
+				If dwp_status <> "ACTIVE" Then
+					If dwp_prog_history_exists = True Then
+						Text 20, y_pos, 100, 10, "DWP is NOT currently Active"
+						PushButton 120, y_pos-2, 100, 13, "View DWP Program History", dwp_program_history_button
+						y_pos = y_pos + 15
+						CheckBox 25, y_pos, 210, 10, "Check here to include amounts of DWP benefits issued from ", dwp_not_actv_memo_for_old_beneftis_checkbox
+						EditBox 235, y_pos - 5, 30, 15, dwp_start_month
+						Text 265, y_pos, 5, 10, "---"
+						EditBox 270, y_pos - 5, 30, 15, dwp_end_month
+						Text 305, y_pos, 100, 10, "(use mm/yy format)"
+						y_pos = y_pos + 15
+					Else
+						Text 20, y_pos, 300, 10, "DWP is NOT currently Active and there is no ACTIVE Program history for this case."
+						y_pos = y_pos + 15
+					End If
+				End If
 				If grh_status <> "ACTIVE" Then
 					If grh_prog_history_exists = True Then
 						Text 20, y_pos, 100, 10, "GRH is NOT currently Active"
@@ -1704,6 +1726,11 @@ Do 		'BIG Loop to see if INQX is over the 9 page limit
 					notc_month = mfip_month
 					notc_year = mfip_year
 				End If
+				If ButtonPressed = dwp_change_wcom_btn Then
+					selected_prog = "DW"
+					notc_month = dwp_month
+					notc_year = dwp_year
+				End If
 				If ButtonPressed = grh_change_wcom_btn Then
 					selected_prog = "GR"
 					notc_month = grh_month
@@ -1747,6 +1774,13 @@ Do 		'BIG Loop to see if INQX is over the 9 page limit
 							mfip_wcom_text = notices_array(information, each_notc)
 							mfip_wcom_row = notices_array(WCOM_search_row, each_notc)
 							mfip_wcom_position = mfip_wcom_row - 6
+						End If
+						If selected_prog = "DW" Then
+							dwp_month = notc_month
+							dwp_year = notc_year
+							dwp_wcom_text = notices_array(information, each_notc)
+							dwp_wcom_row = notices_array(WCOM_search_row, each_notc)
+							dwp_wcom_position = dwp_wcom_row - 6
 						End If
 						If selected_prog = "GR" Then
 							grh_month = notc_month
@@ -1823,8 +1857,21 @@ Do 		'BIG Loop to see if INQX is over the 9 page limit
 						transmit
 					End If
 				End If
-				' If ButtonPressed = dwp_view_inqx_btn  Then
-				' End If
+				If ButtonPressed = dwp_view_inqx_btn Then
+					If len(dwp_start_month) <> 5 OR Mid(dwp_start_month, 3, 1) <> "/" OR len(dwp_end_month) <> 5 OR Mid(dwp_end_month, 3, 1) <> "/" Then
+						MsgBox "The script cannot navigate to INQX for DWP until you enter a start and end month in the 'mm/yy' format for DWP."
+					Else
+						Call navigate_to_MAXIS_screen("MONY", "INQX")
+
+						EMWriteScreen "X", 17, 50		'This is the DWP place
+						EMWriteScreen left(dwp_start_month, 2), 6, 38
+						EMWriteScreen right(dwp_start_month, 2), 6, 41
+						EMWriteScreen left(dwp_end_month, 2), 6, 53
+						EMWriteScreen right(dwp_end_month, 2), 6, 56
+
+						transmit
+					End If
+				End If
 				If ButtonPressed = grh_view_inqx_btn  Then
 					If len(grh_start_month) <> 5 OR Mid(grh_start_month, 3, 1) <> "/" OR len(grh_end_month) <> 5 OR Mid(grh_end_month, 3, 1) <> "/" Then
 						MsgBox "The script cannot navigate to INQX for GRH until you enter a start and end month in the 'mm/yy' format for GRH."
@@ -1864,6 +1911,11 @@ Do 		'BIG Loop to see if INQX is over the 9 page limit
 					wcom_row_to_open = mfip_wcom_row
 					wcom_month = mfip_month
 					wcom_year = mfip_year
+				End If
+				If ButtonPressed = dwp_wcom_btn Then
+					wcom_row_to_open = dwp_wcom_row
+					wcom_month = dwp_month
+					wcom_year = dwp_year
 				End If
 				If ButtonPressed = grh_wcom_btn Then
 					wcom_row_to_open = grh_wcom_row
@@ -1986,13 +2038,21 @@ Do 		'BIG Loop to see if INQX is over the 9 page limit
 						End If
 					End If
 				End If
-				' If dwp_status = "ACTIVE" Then
-				'  	If dwp_verification_method = "Select One..." Then err_msg = err_msg & vbNewLine & "* Since DWP is active, indicate if Verification of DWP benefits is needed, and if so, which method works best."
-				' 	If dwp_verification_method = "Resend WCOM - Eligibility Notice" AND dwp_wcom_text = "NO WCOM Found" then err_msg = err_msg & vbNewLine & "* Since you are selecting a WCOM to be resent as verification of DWP, use the 'Select Different WCOM' button to select the correct WCOM since none was found."
-				' 	If dwp_verification_method = "Create New MEMO with range of Months" Then
-				' 	 	If len(dwp_start_month) <> 5 OR Mid(dwp_start_month, 3, 1) <> "/" OR len(dwp_end_month) <> 5 OR Mid(dwp_end_month, 3, 1) <> "/" Then err_msg = err_msg & vbNewLine & "* Since you are creating a MEMO of DWP issuance history to be sent as verification of Active DWP, enter a start and end month in the 'mm/yy' format."
-				' 	End If
-				' End If
+				If dwp_status = "ACTIVE" Then
+					If dwp_verification_method = "Select One..." Then err_msg = err_msg & vbNewLine & "* Since DWP is active, indicate if Verification of DWP benefits is needed, and if so, which method works best."
+					If dwp_verification_method = "Resend WCOM - Eligibility Notice" AND dwp_wcom_text = "NO WCOM Found" then err_msg = err_msg & vbNewLine & "* Since you are selecting a WCOM to be resent as verification of DWP, use the 'Select Different WCOM' button to select the correct WCOM since none was found."
+					If dwp_verification_method = "Create New MEMO with range of Months" Then
+						If len(dwp_start_month) <> 5 OR Mid(dwp_start_month, 3, 1) <> "/" OR len(dwp_end_month) <> 5 OR Mid(dwp_end_month, 3, 1) <> "/" Then err_msg = err_msg & vbNewLine & "* Since you are creating a MEMO of DWP issuance history to be sent as verification of Active DWP, enter a start and end month in the 'mm/yy' format."
+						If len(dwp_end_month) = 5 AND Mid(dwp_end_month, 3, 1) = "/" Then
+							first_day_of_end_month = left(dwp_end_month, 2) & "/1/" & right(dwp_end_month, 2)
+							first_day_of_end_month = DateAdd("d", 0, first_day_of_end_month)
+							If DateDiff("d", date, first_day_of_end_month) > 0 Then
+								err_msg = err_msg & vbNewLine & "* We should not send information about benefits issued for a future month. The DWP end month of " & dwp_end_month & " has been changed to " & CM_mo & "/" & CM_yr & " as benefits have not been issued for a future month and would not provide good information to the resident."
+								dwp_end_month = CM_mo & "/" & CM_yr
+							End If
+						End If
+					End If
+				End If
 				If grh_status = "ACTIVE" Then
 				 	If grh_verification_method = "Select One..." Then err_msg = err_msg & vbNewLine & "* Since GRH is active, indicate if Verification of GRH benefits is needed, and if so, which method works best."
 					If grh_verification_method = "Resend WCOM - Eligibility Notice" AND grh_wcom_text = "NO WCOM Found" then err_msg = err_msg & vbNewLine & "* Since you are selecting a WCOM to be resent as verification of GRH, use the 'Select Different WCOM' button to select the correct WCOM since none was found."
@@ -2021,9 +2081,9 @@ Do 		'BIG Loop to see if INQX is over the 9 page limit
 				If mfip_not_actv_memo_for_old_beneftis_checkbox = checked Then
 					If len(mfip_start_month) <> 5 OR Mid(mfip_start_month, 3, 1) <> "/" OR len(mfip_end_month) <> 5 OR Mid(mfip_end_month, 3, 1) <> "/" Then err_msg = err_msg & vbNewLine & "* Since you are creating a MEMO of MFIP issuance history to be sent as verification of Previous MFIP Eligibility, enter a start and end month in the 'mm/yy' format."
 				End If
-				' If dwp_not_actv_memo_for_old_beneftis_checkbox = checked Then
-				' 	If len(dwp_start_month) <> 5 OR Mid(dwp_start_month, 3, 1) <> "/" OR len(dwp_end_month) <> 5 OR Mid(dwp_end_month, 3, 1) <> "/" Then err_msg = err_msg & vbNewLine & "* Since you are creating a MEMO of DWP issuance history to be sent as verification of Previous DWP Eligibility, enter a start and end month in the 'mm/yy' format."
-				' End If
+				If dwp_not_actv_memo_for_old_beneftis_checkbox = checked Then
+					If len(dwp_start_month) <> 5 OR Mid(dwp_start_month, 3, 1) <> "/" OR len(dwp_end_month) <> 5 OR Mid(dwp_end_month, 3, 1) <> "/" Then err_msg = err_msg & vbNewLine & "* Since you are creating a MEMO of DWP issuance history to be sent as verification of Previous DWP Eligibility, enter a start and end month in the 'mm/yy' format."
+				End If
 				If grh_not_actv_memo_for_old_beneftis_checkbox = checked Then
 					If len(grh_start_month) <> 5 OR Mid(grh_start_month, 3, 1) <> "/" OR len(grh_end_month) <> 5 OR Mid(grh_end_month, 3, 1) <> "/" Then err_msg = err_msg & vbNewLine & "* Since you are creating a MEMO of GRH issuance history to be sent as verification of Previous GRH Eligibility, enter a start and end month in the 'mm/yy' format."
 				End If
@@ -2048,6 +2108,7 @@ Do 		'BIG Loop to see if INQX is over the 9 page limit
 	If ga_not_actv_memo_for_old_beneftis_checkbox = checked Then ga_verification_method = "Create New MEMO with range of Months"
 	If msa_not_actv_memo_for_old_beneftis_checkbox = checked Then msa_verification_method = "Create New MEMO with range of Months"
 	If mfip_not_actv_memo_for_old_beneftis_checkbox = checked Then mfip_verification_method = "Create New MEMO with range of Months"
+	If dwp_not_actv_memo_for_old_beneftis_checkbox = checked Then dwp_verification_method = "Create New MEMO with range of Months"
 	If grh_not_actv_memo_for_old_beneftis_checkbox = checked Then grh_verification_method = "Create New MEMO with range of Months"
 
 	create_memo = False
@@ -2071,6 +2132,7 @@ Do 		'BIG Loop to see if INQX is over the 9 page limit
 	If ga_not_actv_memo_for_old_beneftis_checkbox = checked then previous_active_prog_memo = True
 	If msa_not_actv_memo_for_old_beneftis_checkbox = checked then previous_active_prog_memo = True
 	If mfip_not_actv_memo_for_old_beneftis_checkbox = checked then previous_active_prog_memo = True
+	If dwp_not_actv_memo_for_old_beneftis_checkbox = checked then previous_active_prog_memo = True
 	If grh_not_actv_memo_for_old_beneftis_checkbox = checked then previous_active_prog_memo = True
 
 	'If no kind of nitice has been requested - the script will End.
@@ -2295,7 +2357,7 @@ Do 		'BIG Loop to see if INQX is over the 9 page limit
 					EMReadScreen more_thanb_9_pages_msg, 38, 24, 2
 					If more_thanb_9_pages_msg = "CAN NOT PAGE THROUGH MORE THAN 9 PAGES" Then too_many_GA_INQX_pages = True
 					If too_many_GA_INQX_pages = True Then
-						ReDim SNAP_ISSUANCE_ARRAY(last_const, 0)
+						ReDim GA_ISSUANCE_ARRAY(last_const, 0)
 						Exit Do
 					End if
 					EMreadScreen end_of_list, 9, 24, 14
@@ -2424,7 +2486,7 @@ Do 		'BIG Loop to see if INQX is over the 9 page limit
 					EMReadScreen more_thanb_9_pages_msg, 38, 24, 2
 					If more_thanb_9_pages_msg = "CAN NOT PAGE THROUGH MORE THAN 9 PAGES" Then too_many_MSA_INQX_pages = True
 					If too_many_MSA_INQX_pages = True Then
-						ReDim SNAP_ISSUANCE_ARRAY(last_const, 0)
+						ReDim MSA_ISSUANCE_ARRAY(last_const, 0)
 						Exit Do
 					End if
 					EMreadScreen end_of_list, 9, 24, 14
@@ -2571,7 +2633,7 @@ Do 		'BIG Loop to see if INQX is over the 9 page limit
 					EMReadScreen more_thanb_9_pages_msg, 38, 24, 2
 					If more_thanb_9_pages_msg = "CAN NOT PAGE THROUGH MORE THAN 9 PAGES" Then too_many_MFIP_INQX_pages = True
 					If too_many_MFIP_INQX_pages = True Then
-						ReDim SNAP_ISSUANCE_ARRAY(last_const, 0)
+						ReDim MFIP_ISSUANCE_ARRAY(last_const, 0)
 						Exit Do
 					End if
 					EMreadScreen end_of_list, 9, 24, 14
@@ -2637,20 +2699,136 @@ Do 		'BIG Loop to see if INQX is over the 9 page limit
 			PF3
 		End If
 
-		'COMMENTED OUT until we add this functionality'
-		' If dwp_verification_method = "Create New MEMO with range of Months" Then
-		' 	EMWriteScreen "X", 17, 50		'This is the DWO place
-		' 	EMWriteScreen left(dwp_start_month, 2), 6, 38
-		' 	EMWriteScreen right(dwp_start_month, 2), 6, 41
-		' 	' EMWriteScreen left(dwp_end_month, 2), 6, 53
-		' 	' EMWriteScreen right(dwp_end_month, 2), 6, 56
-		' 	EMWriteScreen CM_plus_1_mo, 6, 53
-		' 	EMWriteScreen CM_plus_1_yr, 6, 56
-		'
-		' 	transmit
-		'
-			' too_many_DWP_INQX_pages = False
-		' End If
+		If dwp_verification_method = "Create New MEMO with range of Months" Then
+			Call navigate_to_MAXIS_screen("MONY", "INQX")							'Go to where the benefit amounts are listed
+
+			DWP_total = 0
+			DWP_MEMO_rows_needed = 2
+
+			first_date_of_range = replace(dwp_start_month, "/", "/01/")			'setting the month for start and end dates as actual dates
+			first_date_of_range = DateAdd("d", 0, first_date_of_range)
+			last_date_of_range = replace(dwp_end_month, "/", "/01/")
+			last_date_of_range = DateAdd("d", 0, last_date_of_range)
+
+			DWP_expected_dates_array = first_date_of_range							'creating an array of all of the months in the range
+			each_date = first_date_of_range
+			Do
+				each_date = DateAdd("m", 1, each_date)
+				DWP_expected_dates_array = DWP_expected_dates_array & "~" & each_date
+			Loop until each_date = last_date_of_range
+
+			If InStr(DWP_expected_dates_array, "~") = 0 Then
+				DWP_expected_dates_array = Array(DWP_expected_dates_array)
+			Else
+				DWP_expected_dates_array = split(DWP_expected_dates_array, "~")
+			End If
+
+			EMWriteScreen "X", 17, 50		'This is the DWP place						'Opening the right detail in INQX based on the dates and program
+			EMWriteScreen left(dwp_start_month, 2), 6, 38
+			EMWriteScreen right(dwp_start_month, 2), 6, 41
+			EMWriteScreen CM_plus_1_mo, 6, 53
+			EMWriteScreen CM_plus_1_yr, 6, 56
+
+			transmit
+
+			inqx_row = 6															'Read all of the information on INQX
+			msg_counter = 0
+			Do
+				EMReadScreen issued_date, 8, inqx_row, 7
+				EMReadScreen tran_amount, 8, inqx_row, 38
+				EMReadScreen from_month, 2, inqx_row, 62
+				EMReadScreen from_year, 2, inqx_row, 68
+
+				issued_date = trim(issued_date)
+				tran_amount = trim(tran_amount)
+
+				If issued_date <> "" Then
+					from_date = from_month & "/1/" & from_year						'making the date a date and making it the 1st of the month (this accounts for proration)
+					from_date = DateAdd("d", 0, from_date)
+					'Only accept if the date is equal to or after the first date and equal to or before the last date
+					If DateDiff("d", from_date, first_date_of_range) <= 0 AND DateDiff("d", from_date, last_date_of_range) >= 0 Then
+
+						benefit_month = from_month & "/" & from_year
+						tran_amount = tran_amount * 1								'this must be a NUMBER
+						ammount_added_in = False
+						For each_known_issuance = 0 to UBound(DWP_ISSUANCE_ARRAY, 2)		'reading to see if the benefit month is already in the array so we can combine the benefit amounts
+							If benefit_month = DWP_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance) Then
+								DWP_ISSUANCE_ARRAY(dwp_grant_amount_const, each_known_issuance) = DWP_ISSUANCE_ARRAY(dwp_grant_amount_const, each_known_issuance) + tran_amount
+								ammount_added_in = True
+							End If
+						Next
+						If ammount_added_in = False Then							'if the benefit month was NOT found - create a new array instance for that benefit month.
+							ReDim Preserve DWP_ISSUANCE_ARRAY(last_const, msg_counter)
+							DWP_ISSUANCE_ARRAY(benefit_month_const, msg_counter) = benefit_month
+							DWP_ISSUANCE_ARRAY(dwp_grant_amount_const, msg_counter) = tran_amount
+							DWP_ISSUANCE_ARRAY(benefit_month_as_date_const, msg_counter) = from_date
+							msg_counter = msg_counter + 1
+						End If
+					End If
+				End If
+
+				inqx_row = inqx_row + 1		'go to the next line/page
+				If inqx_row = 18 Then
+					PF8
+					inqx_row = 6
+					EMReadScreen more_thanb_9_pages_msg, 38, 24, 2
+					If more_thanb_9_pages_msg = "CAN NOT PAGE THROUGH MORE THAN 9 PAGES" Then too_many_DWP_INQX_pages = True
+					If too_many_DWP_INQX_pages = True Then
+						ReDim DWP_ISSUANCE_ARRAY(last_const, 0)
+						Exit Do
+					End if
+					EMreadScreen end_of_list, 9, 24, 14
+					if end_of_list = "LAST PAGE" Then Exit Do
+				End If
+			Loop until issued_date = ""		'go until the end of the list
+			DWP_dates_array = ""			'we need an array of the dates ONLY
+			For each_known_issuance = 0 to UBound(DWP_ISSUANCE_ARRAY, 2)			'Now we loop through all of the found benefit months and create the formatting for the MEMO
+				total_amount = DWP_ISSUANCE_ARRAY(dwp_grant_amount_const, each_known_issuance)
+				total_amount = total_amount & ""
+				If InStr(total_amount, ".") = 0 Then
+					total_amount = left(total_amount & ".00        ", 8)
+				Else
+					total_amount = left(total_amount & "        ", 8)
+				End If
+				DWP_ISSUANCE_ARRAY(note_message_const, each_known_issuance) = "$ " & total_amount & " issued for " & DWP_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance)
+				DWP_dates_array = DWP_dates_array & "~" & DWP_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)		'adding to the array of all the dates
+			Next
+			For each expected_month in DWP_expected_dates_array					'Now we loop through ALL the months we expected to find in the range - this is so we can add $0 issuance months as 0
+				issuance_found = False
+				For each_known_issuance = 0 to UBound(DWP_ISSUANCE_ARRAY, 2)		'Look at all the found months - if they match - indicate that here
+					If DateDiff("d", DWP_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance), expected_month) = 0 Then issuance_found = True
+				Next
+				If issuance_found = False Then										'If no month was found - add another array instance with a $0 benefit amount listed
+					ReDim Preserve DWP_ISSUANCE_ARRAY(last_const, msg_counter)
+					DWP_ISSUANCE_ARRAY(benefit_month_const, msg_counter) = right("00" & DatePart("m", expected_month), 2) & "/" & right(DatePart("yyyy", expected_month), 2)
+					DWP_ISSUANCE_ARRAY(dwp_grant_amount_const, msg_counter) = 0
+					DWP_ISSUANCE_ARRAY(benefit_month_as_date_const, msg_counter) = expected_month
+					DWP_ISSUANCE_ARRAY(note_message_const, each_known_issuance) = "$ 0.00     issued for " & DWP_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance)
+					DWP_dates_array = DWP_dates_array & "~" & expected_month
+					msg_counter = msg_counter + 1
+				End If
+			Next
+			If left(DWP_dates_array, 1) = "~" Then DWP_dates_array = right(DWP_dates_array, len(DWP_dates_array) - 1)		'creating an array of all of the 'from dates'
+			If Instr(DWP_dates_array, "~") = 0 Then
+				DWP_dates_array = Array(DWP_dates_array)
+			Else
+				DWP_dates_array = split(DWP_dates_array, "~")
+			End If
+			Call sort_dates(DWP_dates_array)		'This function takes all the dates in an array and put them in order from oldest to newest
+
+			for each ordered_date in DWP_dates_array		'Now doing some counting and totalling
+				For each_known_issuance = 0 to UBound(DWP_ISSUANCE_ARRAY, 2)
+					If DateDiff("d", ordered_date, DWP_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)) = 0 Then
+						dwp_msg_display = dwp_msg_display & vbCr & DWP_ISSUANCE_ARRAY(note_message_const, each_known_issuance)
+						DWP_total = DWP_total + DWP_ISSUANCE_ARRAY(dwp_grant_amount_const, each_known_issuance)
+						DWP_MEMO_rows_needed = DWP_MEMO_rows_needed + 1
+					End If
+				Next
+			Next
+
+			' MsgBox "DWP - This is the list" & dwp_msg_display & vbCr & "TOTAL DWP: $" & DWP_total
+			PF3
+		End If
 
 		If grh_verification_method = "Create New MEMO with range of Months" Then
 			Call navigate_to_MAXIS_screen("MONY", "INQX")							'Go to where the benefit amounts are listed
@@ -2729,7 +2907,7 @@ Do 		'BIG Loop to see if INQX is over the 9 page limit
 					EMReadScreen more_thanb_9_pages_msg, 38, 24, 2
 					If more_thanb_9_pages_msg = "CAN NOT PAGE THROUGH MORE THAN 9 PAGES" Then too_many_GRH_INQX_pages = True
 					If too_many_GRH_INQX_pages = True Then
-						ReDim SNAP_ISSUANCE_ARRAY(last_const, 0)
+						ReDim GRH_ISSUANCE_ARRAY(last_const, 0)
 						Exit Do
 					End if
 					EMreadScreen end_of_list, 9, 24, 14
@@ -2987,10 +3165,10 @@ If resend_wcom = True Then
 		Call back_to_SELF
 		STATS_manualtime = STATS_manualtime + 15
 	End If
-	' If dwp_verification_method = "Resend WCOM - Eligibility Notice" Then
-	' 	Call resend_existing_wcom(dwp_month, dwp_year, dwp_wcom_row, dwp_resent_wcom, False, forms_to_arep, forms_to_swkr, send_to_other, other_address_person, other_address_street, other_address_city, other_address_state, other_address_zip)
-	' 	Call back_to_SELF
-	' End If
+	If dwp_verification_method = "Resend WCOM - Eligibility Notice" Then
+		Call resend_existing_wcom(dwp_month, dwp_year, dwp_wcom_row, dwp_resent_wcom, False, forms_to_arep, forms_to_swkr, send_to_other, other_address_person, other_address_street, other_address_city, other_address_state, other_address_zip)
+		Call back_to_SELF
+	End If
 	If grh_verification_method = "Resend WCOM - Eligibility Notice" Then
 		Call resend_existing_wcom(grh_month, grh_year, grh_wcom_row, grh_resent_wcom, False, forms_to_arep, forms_to_swkr, send_to_other, other_address_person, other_address_street, other_address_city, other_address_state, other_address_zip)
 		Call back_to_SELF
@@ -3058,6 +3236,20 @@ If create_memo = True Then		'If there are any MEMOs needed we need to read INQX 
 		mfip_array_of_memo_lines = mfip_array_of_memo_lines & "~" & "MFIP Food Total for " & mfip_start_month & " to " & mfip_end_month & ": $" & MFIP_Food_total
 		mfip_array_of_memo_lines = split(mfip_array_of_memo_lines, "~")
 	End If
+	If dwp_verification_method = "Create New MEMO with range of Months" Then
+		dwp_array_of_memo_lines = "DWP Benefits:"
+
+		for each ordered_date in DWP_dates_array
+			For each_known_issuance = 0 to UBound(DWP_ISSUANCE_ARRAY, 2)
+				If DateDiff("d", ordered_date, DWP_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)) = 0 Then
+					dwp_array_of_memo_lines = dwp_array_of_memo_lines & "~" & "   " & DWP_ISSUANCE_ARRAY(note_message_const, each_known_issuance)
+					STATS_manualtime = STATS_manualtime + 20
+				End If
+			Next
+		Next
+		dwp_array_of_memo_lines = dwp_array_of_memo_lines & "~" & "DWP Cash Total for " & dwp_start_month & " to " & dwp_end_month & ": $" & DWP_total
+		dwp_array_of_memo_lines = split(dwp_array_of_memo_lines, "~")
+	End If
 	If grh_verification_method = "Create New MEMO with range of Months" Then
 		grh_array_of_memo_lines = "GRH / Housing Support Benefit:"
 
@@ -3079,6 +3271,7 @@ If create_memo = True Then		'If there are any MEMOs needed we need to read INQX 
 	ga_memo_lines = 0
 	msa_memo_lines = 0
 	mfip_memo_lines = 0
+	dwp_memo_lines = 0
 	memo_count = 0
 	Dim EACH_MEMO_ARRAY()
 	ReDim EACH_MEMO_ARRAY(0)
@@ -3094,6 +3287,9 @@ If create_memo = True Then		'If there are any MEMOs needed we need to read INQX 
 	If IsArray(mfip_array_of_memo_lines) = True Then
 		mfip_memo_lines = UBound(mfip_array_of_memo_lines) + 1
 	End If
+	If IsArray(dwp_array_of_memo_lines) = True Then
+		dwp_memo_lines = UBound(dwp_array_of_memo_lines) + 1
+	End If 'THIS IS WHERE I STOPPED ADDING DWP _ START HERE'
 	If IsArray(grh_array_of_memo_lines) = True Then
 		grh_memo_lines = UBound(grh_array_of_memo_lines) + 1
 	End If
