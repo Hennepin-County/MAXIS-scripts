@@ -34,7 +34,6 @@
 '--Remove testing code/unnecessary code-----------------------------------------
 '--Review/update SharePoint instructions----------------------------------------
 '--Review Best Practices using BZS page ----------------------------------------
-'--Review script information on SharePoint BZ Script List-----------------------
 '--Other SharePoint sites review (HSR Manual, etc.)-----------------------------
 '--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------
 '--Complete misc. documentation (if applicable)---------------------------------
