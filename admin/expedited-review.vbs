@@ -157,7 +157,7 @@ objExcel.worksheets("Report 1").Activate                                 'Activa
 
 'Establishing array
 DIM expedited_array()           'Declaring the array
-ReDim expedited_array(18, 0)     'Resizing the array 
+ReDim expedited_array(appears_exp_const, 0)     'Resizing the array 
 
 'Creating constants to value the array elements
 const worker_number_const       = 0
@@ -168,17 +168,6 @@ const application_date_const    = 4
 const interview_date_const      = 5
 const case_status_const         = 6
 const appears_exp_const         = 7
-const prev_notes_const          = 8
-const prev_notes1_const         = 9
-const prev_notes2_const         = 10
-const prev_notes3_const         = 11
-const prev_notes4_const         = 12
-const prev_notes5_const         = 13
-const prev_notes6_const         = 14
-const prev_notes7_const         = 15
-const prev_notes8_const         = 16
-const prev_notes9_const         = 17
-const prev_notes10_const        = 18
 
 'Now the script adds all the clients on the excel list into an array
 excel_row = 5                   're-establishing the row to start based on when Report 1 starts 
@@ -206,44 +195,13 @@ Do
         add_to_array = False    
     Else
         'Adding client information to the array
-        ReDim Preserve expedited_array(18, entry_record)	'This resizes the array based on the number of cases
+        ReDim Preserve expedited_array(appears_exp_const, entry_record)	'This resizes the array based on the number of cases
         expedited_array(worker_number_const,    entry_record) = worker_number
         expedited_array(case_number_const,      entry_record) = MAXIS_case_number		
         expedited_array(program_ID_const,       entry_record) = program_ID        
         expedited_array(days_pending_const,     entry_record) = days_pending         
         expedited_array(application_date_const, entry_record) = trim(application_date)      
         expedited_array(interview_date_const,   entry_record) = trim(interview_date)    
-        expedited_array(case_status_const,      entry_record) = ""              'making space in the array for these variables, but valuing them as "" for now
-        expedited_array(appears_exp_const,      entry_record) = ""
-        expedited_array(prev_notes_const,       entry_record) = ""
-        expedited_array(prev_notes1_const,      entry_record) = ""
-        expedited_array(prev_notes2_const,      entry_record) = ""
-        expedited_array(prev_notes3_const,      entry_record) = ""
-        expedited_array(prev_notes4_const,      entry_record) = ""
-        expedited_array(prev_notes5_const,      entry_record) = ""
-        expedited_array(prev_notes6_const,      entry_record) = ""
-        expedited_array(prev_notes7_const,      entry_record) = ""
-        expedited_array(prev_notes8_const,      entry_record) = ""
-        expedited_array(prev_notes9_const,      entry_record) = ""
-        expedited_array(prev_notes10_const,     entry_record) = ""
-            
-        For i = 0 to Ubound(master_notes_array, 2)                                                            'If notes were selected to be added, array is looped thru for matching case number
-            If master_notes_array(master_case_number_const, i) = MAXIS_case_number then 
-                expedited_array(prev_notes_const,   entry_record) = master_notes_array(master_note_const, i)   'If case number is found, prevoius list notes are added to the array 
-                expedited_array(prev_notes1_const,  entry_record) = master_notes_array(PN1_const,  i)
-                expedited_array(prev_notes2_const,  entry_record) = master_notes_array(PN2_const,  i)
-                expedited_array(prev_notes3_const,  entry_record) = master_notes_array(PN3_const,  i)
-                expedited_array(prev_notes4_const,  entry_record) = master_notes_array(PN4_const,  i)
-                expedited_array(prev_notes5_const,  entry_record) = master_notes_array(PN5_const,  i)
-                expedited_array(prev_notes6_const,  entry_record) = master_notes_array(PN6_const,  i)
-                expedited_array(prev_notes7_const,  entry_record) = master_notes_array(PN7_const,  i)
-                expedited_array(prev_notes8_const,  entry_record) = master_notes_array(PN8_const,  i)
-                expedited_array(prev_notes9_const,  entry_record) = master_notes_array(PN9_const,  i)
-                expedited_array(prev_notes10_const, entry_record) = master_notes_array(PN10_const, i)
-                exit for 
-            End if      
-        Next 
-
         entry_record = entry_record + 1			'This increments to the next entry in the array
         stats_counter = stats_counter + 1       'Increment for stats counter 
         all_case_numbers_array = trim(all_case_numbers_array & MAXIS_case_number & "*") 'Adding MAXIS case number to case number string
@@ -675,13 +633,11 @@ stats_report = "Screening Count: " & screening_count & vbcr & _
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
 Call create_outlook_email("Brittany.Lane@hennepin.us; Debrice.Jackson@hennepin.us","Laurie.Hennen@hennepin.us", "EXP SNAP Report for YET without Interviews is Ready. EOM.", "", "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP SNAP X127FA5 " & report_date & ".xlsx", True)
 Call create_outlook_email("Carlotta.Madison@hennepin.us", "Laurie.Hennen@hennepin.us", "EXP SNAP Report for 1800 without Interviews is Ready. EOM.", "", "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP SNAP 1800 " & report_date & ".xlsx", True)
-Call create_outlook_email("HSPH.EWS.Unit.Frey@hennepin.us", "", "Today's EXP SNAP reports are ready.", "Path to folder - T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project", "", True)
 Call create_outlook_email("Mohamed.Ahmed@hennepin.us; Dawn.Welch@hennepin.us", "", "Today's EXP SNAP primary and secondary assignments are ready.", "See attachment.", "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP SNAP DWP " & report_date & ".xlsx", True)
 Call create_outlook_email("Ilse.Ferris@hennepin.us;Laurie.Hennen@hennepin.us","","Expedited SNAP Daily statistics for " & date, stats_report, "", True)
 
 '----------------------------------------------------------------------------------------------------Moves yesterday's files to the archive folder for the specific month
-
-array_of_archive_assigments = array("QI Expedited Review ","Pending Over 30 Days ", "EXP SNAP X127FA5 ", "EXP SNAP 1800 ", "EXP SNAP DWP ", "")
+array_of_archive_assigments = array("Pending Over 30 Days ", "EXP SNAP X127FA5 ", "EXP SNAP 1800 ", "EXP SNAP DWP ", "")
 
 previous_date = dateadd("d", -1, date)
 Call change_date_to_soonest_working_day(previous_date)       'finds the most recent previous working day for the fin
