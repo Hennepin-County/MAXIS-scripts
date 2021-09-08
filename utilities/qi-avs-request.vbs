@@ -43,6 +43,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/08/2021", "Added date completed AVS form rec'd to dialog and reminder that completed AVS needs to be on file prior to submitting AVS request.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/30/2020", "Updated closing message.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/10/2020", "Initial version.", "MiKayla Handley, Hennepin County")
 
@@ -56,29 +57,33 @@ EMConnect ""
 Call check_for_MAXIS(False)
 'TO DO PRIV handling and check on hh size'
 CALL MAXIS_case_number_finder (MAXIS_case_number)
+appl_type = "Application"
 'MEMB_number = "01"
 'checking for an active MAXIS session
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 191, 125, "AVS Request"
-  EditBox 60, 5, 40, 15, MAXIS_case_number
-  EditBox 165, 5, 20, 15, HH_size
-  EditBox 60, 25, 20, 15, MEMB_number
-  CheckBox 90, 30, 95, 10, "Signed AVS form received", signed_avs_checkbox
-  DropListBox 60, 45, 125, 15, "Select One:"+chr(9)+"Applicant"+chr(9)+"Spouse", applicant_type
-  DropListBox 60, 60, 125, 15, "Select One:"+chr(9)+"Application"+chr(9)+"Change of basis", appl_type
-  DropListBox 60, 75, 125, 15, "Select One:"+chr(9)+"BI-Brain Injury Waiver"+chr(9)+"BX-Blind"+chr(9)+"CA-Community Alt. Care"+chr(9)+"DD-Developmental Disa Waiver"+chr(9)+"DP-MA for Employed Pers w/ Disa"+chr(9)+"DX-Disability"+chr(9)+"EH-Emergency Medical Assistance"+chr(9)+"EW-Elderly Waiver"+chr(9)+"EX-65 and Older"+chr(9)+"LC-Long Term Care"+chr(9)+"MP-QMB SLMB Only"+chr(9)+"QI-QI"+chr(9)+"QW-QWD", MA_type
-  DropListBox 60, 90, 125, 15, "Select One:"+chr(9)+"NA-No Spouse"+chr(9)+"YES"+chr(9)+"NO", spouse_deeming
+BeginDialog Dialog1, 0, 0, 216, 175, "AVS Request"
+  EditBox 50, 5, 45, 15, MAXIS_case_number
+  EditBox 130, 5, 20, 15, HH_size
+  EditBox 185, 5, 20, 15, MEMB_number
+  EditBox 155, 30, 50, 15, avs_form_date
+  DropListBox 80, 60, 125, 15, "Select One:"+chr(9)+"Applicant"+chr(9)+"Spouse", applicant_type
+  DropListBox 80, 80, 125, 15, "Select One:"+chr(9)+"Application", appl_type
+  'DropListBox 80, 80, 125, 15, "Select One:"+chr(9)+"Application"+chr(9)+"Renewal", appl_type
+  DropListBox 80, 100, 125, 15, "Select One:"+chr(9)+"BI-Brain Injury Waiver"+chr(9)+"BX-Blind"+chr(9)+"CA-Community Alt. Care"+chr(9)+"DD-Developmental Disa Waiver"+chr(9)+"DP-MA for Employed Pers w/ Disa"+chr(9)+"DX-Disability"+chr(9)+"EH-Emergency Medical Assistance"+chr(9)+"EW-Elderly Waiver"+chr(9)+"EX-65 and Older"+chr(9)+"LC-Long Term Care"+chr(9)+"MP-QMB SLMB Only"+chr(9)+"QI-QI"+chr(9)+"QW-QWD", MA_type
+  DropListBox 80, 120, 125, 15, "Select One:"+chr(9)+"NA-No Spouse"+chr(9)+"YES"+chr(9)+"NO", spouse_deeming
   ButtonGroup ButtonPressed
-    OkButton 90, 105, 45, 15
-    CancelButton 140, 105, 45, 15
-  Text 5, 10, 50, 10, "Case number:"
-  Text 135, 10, 30, 10, "HH size:"
-  Text 5, 30, 55, 10, "MEMB number:"
-  Text 5, 50, 50, 10, "Applicant type:"
-  Text 5, 65, 55, 10, "Application type:"
-  Text 5, 80, 45, 10, "Request type:"
-  Text 5, 95, 45, 10, "Deeming:"
+    OkButton 110, 140, 45, 15
+    CancelButton 160, 140, 45, 15
+  Text 30, 65, 50, 10, "Applicant type:"
+  Text 25, 85, 55, 10, "Application type:"
+  Text 35, 105, 45, 10, "Request type:"
+  Text 45, 125, 35, 10, "Deeming:"
+  Text 100, 10, 30, 10, "HH size:"
+  Text 20, 35, 130, 10, "Received Date of Completed AVS Form*:"
+  Text 5, 10, 45, 10, "Case number:"
+  Text 155, 10, 30, 10, "Memb #:"
+  Text 5, 160, 205, 10, "* AVS form must be complete and valid to submit AVS Request."
 EndDialog
 
 DO
@@ -86,14 +91,14 @@ DO
         err_msg = ""
         Dialog Dialog1
         cancel_without_confirmation
-        If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "Please enter a valid case number."
-		If IsNumeric(MEMB_number) = False or len(MEMB_number) <> 2 then err_msg = err_msg & vbNewLine & "Please enter a valid 2 digit member number."
-		If HH_size = "" or IsNumeric(HH_size) = False then err_msg = err_msg & vbNewLine & "Please enter a valid household composition size."
-		If signed_avs_checkbox = UNCHECKED THEN err_msg = err_msg & vbNewLine & "Please verify that a signed form has been receieved, this request should not be sent until we have received this."
-		IF applicant_type = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please select the applicant type."
-		IF appl_type = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please select the application type."
-		IF MA_type = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please select the MA request type."
-		IF spouse_deeming = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please select if the spouse is deeming."
+        If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
+		If IsNumeric(MEMB_number) = False or len(MEMB_number) <> 2 then err_msg = err_msg & vbNewLine & "* Please enter a valid 2 digit member number."
+		If HH_size = "" or IsNumeric(HH_size) = False then err_msg = err_msg & vbNewLine & "* Please enter a valid household composition size."
+        If trim(avs_form_date) = "" or isdate(avs_form_date) = False then err_msg = err_msg & vbNewLine & "* Enter the date the completed AVS form was received in the agency."
+		IF applicant_type = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Please select the applicant type."
+		IF appl_type = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Please select the application type."
+		IF MA_type = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Please select the MA request type."
+		IF spouse_deeming = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Please select if the spouse is deeming."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
     LOOP UNTIL err_msg = ""
     CALL check_for_password_without_transmit(are_we_passworded_out)
@@ -211,7 +216,7 @@ maxis_addr = resi_addr_line_one & " " & resi_addr_line_two & " " & resi_addr_cit
 'string for mailing address
 mail_MAXIS_addr = mailing_addr_line_one & " " & mailing_addr_line_two & " " & mailing_addr_city & " " & mailing_addr_state & " " & mailing_addr_zip
 
-body_of_email = "A signed AVS form was received for-" & vbcr & "First name: " & client_first_name & vbcr & "Last name: " & client_last_name & vbcr & "Social Security Number: " & client_SSN_number_read & vbcr & "Gender: " & client_gender & vbcr & "Date of birth: " & client_DOB & vbcr & "Application date: " & application_date & vbcr & "Address: " & resi_addr_line_one & resi_addr_line_two & " " & resi_addr_city & " " & resi_addr_state & " " & resi_addr_zip & vbcr
+body_of_email = "A signed AVS form was received for-" & vbcr & "First name: " & client_first_name & vbcr & "Last name: " & client_last_name & vbcr & "AVS Form Received Date: " & avs_form_date & vbcr & "Social Security Number: " & client_SSN_number_read & vbcr & "Gender: " & client_gender & vbcr & "Date of birth: " & client_DOB & vbcr & "Application date: " & application_date & vbcr & "Address: " & resi_addr_line_one & resi_addr_line_two & " " & resi_addr_city & " " & resi_addr_state & " " & resi_addr_zip & vbcr
 
 If trim(mail_MAXIS_addr) <> "" then body_of_email = body_of_email & "Mailing address: " & mailing_addr_line_one & mailing_addr_line_two & " " & mailing_addr_city & " " & mailing_addr_state & " " & mailing_addr_zip & vbcr
 body_of_email = body_of_email & "MA type: " & MA_type & vbcr & "HH size: " & HH_size & vbcr & "Applicant Type: " & applicant_type & vbcr & "Application Type: " & appl_type & vbcr
