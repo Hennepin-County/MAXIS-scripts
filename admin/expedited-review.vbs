@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/08/2021", "Added option for a warning before the Excel/Outlook output. Changed DWP and removed QI assignments. Updated background functionality.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("07/10/2021", "Added Brittany Lane to YET assignment email. Removed Maslah.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("06/03/2021", "Updated T drive file path to more stable LOBROOT path.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("04/09/2021", "Removed FAD Assignments and associated actions for the FAD assignments.", "Ilse Ferris, Hennepin County")
@@ -126,6 +127,7 @@ not_exp_count = 0   'incrementor built into the function for not expedited only
 report_date = replace(date, "/", "-")   'Changing the format of the date to use as file path selection default
 file_selection_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\" & report_date & ".xlsx"
 
+Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 481, 100, "ADMIN - EXPEDITED REVIEW"
   ButtonGroup ButtonPressed
     OkButton 365, 75, 50, 15
@@ -150,6 +152,8 @@ Do
     Loop until err_msg = ""
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+Call check_for_MAXIS(False)
 
 'Opening today's list         
 Call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file
@@ -241,12 +245,14 @@ For item = 0 to UBound(expedited_array, 2)
     If expedited_array(appears_exp_const, item) = "" then
         Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status)
         
+        'ACTIVE SNAP Cases - not expedited, end of evaluation 
         If snap_status = "ACTIVE" then 
             expedited_array(case_status_const, item) = "SNAP ACTIVE"
             expedited_array(appears_exp_const, item) = "Not Expedited"
             check_case_note = False 
         End if 
         
+        'ACTIVE MFIP Cases - not expedited, end of evaluation 
         If mfip_status = "ACTIVE" then
             expedited_array(case_status_const, item) = "MFIP ACTIVE"
             expedited_array(appears_exp_const, item) = "Not Expedited"
@@ -255,8 +261,10 @@ For item = 0 to UBound(expedited_array, 2)
     
         If snap_case = False then  
             If mfip_case = True and mfip_status <> "ACTIVE" then
+                'Need to review case notes to check MFIP non-active cases to see if an evauation of expedited has been completed
                 check_case_note = True 
             Else 
+                'if MFIP case is false then not expedited, end of evaluation 
                 expedited_array(case_status_const, item) = "SNAP Inactive"
                 expedited_array(appears_exp_const, item) = "Not Expedited"
             End if 
@@ -264,8 +272,10 @@ For item = 0 to UBound(expedited_array, 2)
                 
         If mfip_case = False then 
             If snap_case = True and snap_status <> "ACTIVE" then
+                'Need to review case notes to check SNAP non-active cases to see if an evauation of expedited has been completed
                 check_case_note = True 
             Else 
+                'if SMAP case is false then not expedited, end of evaluation 
                 expedited_array(case_status_const, item) = "MFIP Inactive"
                 expedited_array(appears_exp_const, item) = "Not Expedited"
             End if 
@@ -607,3 +617,44 @@ Next
 'logging usage stats
 STATS_counter = STATS_counter - 1  'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
 script_end_procedure("Success, the expedited SNAP run is complete. The workbook has been saved.")
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation 
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------09/08/2021
+'--Tab orders reviewed & confirmed----------------------------------------------09/08/2021
+'--Mandatory fields all present & Reviewed--------------------------------------09/08/2021
+'--All variables in dialog match mandatory fields-------------------------------09/08/2021
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------09/08/2021-----------------N/A - No CASE:NOTE
+'--CASE:NOTE Header doesn't look funky------------------------------------------09/08/2021-----------------N/A - No CASE:NOTE
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------09/08/2021-----------------N/A - No CASE:NOTE
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------09/08/2021
+'--MAXIS_background_check reviewed (if applicable)------------------------------09/08/2021-----------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------09/08/2021
+'--Out-of-County handling reviewed----------------------------------------------09/08/2021
+'--script_end_procedures (w/ or w/o error messaging)----------------------------09/08/2021
+'--BULK - review output of statistics and run time/count (if applicable)--------09/08/2021-----------------N/A
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------09/08/2021
+'--Incrementors reviewed (if necessary)-----------------------------------------09/08/2021
+'--Denomination reviewed -------------------------------------------------------09/08/2021
+'--Script name reviewed---------------------------------------------------------09/08/2021
+'--BULK - remove 1 incrementor at end of script reviewed------------------------09/08/2021
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub taks are complete-----------------------------------------09/08/2021
+'--comment Code-----------------------------------------------------------------
+'--Update Changelog for release/update------------------------------------------09/08/2021
+'--Remove testing message boxes-------------------------------------------------09/08/2021
+'--Remove testing code/unnecessary code-----------------------------------------09/08/2021
+'--Review/update SharePoint instructions----------------------------------------09/08/2021------------------Instructions are held locally on QI's OneNote under REPORTS 
+'--Review Best Practices using BZS page ----------------------------------------09/08/2021-----------------N/A
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------09/08/2021-----------------N/A
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------09/08/2021
+'--Complete misc. documentation (if applicable)---------------------------------09/08/2021
+'--Update project team/issue contact (if applicable)----------------------------09/08/2021
