@@ -224,15 +224,13 @@ For item = 0 to UBound(expedited_array, 2)
         expedited_array(case_status_const, item) = "OUT OF COUNTY CASE"
         expedited_array(appears_exp_const, item) = "Not Expedited"
     Else 
-        Call navigate_to_MAXIS_screen("STAT", "PROG")
-        EMReadScreen priv_check, 4, 24, 14 'If it can't get into the case needs to skip - checking in PROD and INQUIRY 
-        IF priv_check = "PRIV" then                                             'PRIV cases 
-            EmReadscreen priv_worker, 26, 24, 46
+        Call navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv)    
+        If is_this_priv = True then 
             expedited_array(case_status_const, item) = trim(priv_worker)
             expedited_array(appears_exp_const, item) = "Privileged Cases"
             priv_count = priv_count + 1
-        else 
-            EMReadScreen county_code, 4, 21, 21                                 'Out of county cases from STAT 
+        Else 
+            EMReadScreen county_code, 4, 21, 14                                 'Out of county cases from CASE/CURR
             If county_code <> "X127" then
                 expedited_array(case_status_const, item) = "OUT OF COUNTY CASE"
                 expedited_array(appears_exp_const, item) = "Not Expedited"
@@ -240,85 +238,39 @@ For item = 0 to UBound(expedited_array, 2)
         End if 
     End if 
 
-    If expedited_array(appears_exp_const, item) = "" then 
-        MFIP_PENDING = ""		'Setting some variables for the loop
-        SNAP_PENDING = ""
-
-        SNAP_status_check = ""
-        MFIP_prog_1_check = ""
-        MFIP_status_1_check = ""
-        MFIP_prog_2_check = ""
-        MFIP_status_2_check = ""
-
-        'Reading the status and program
-        EMReadScreen SNAP_status_check, 4, 10, 74		'checking the SNAP status
-        EMReadScreen MFIP_prog_1_check, 2, 6, 67		'checking for an active MFIP case
-        EMReadScreen MFIP_status_1_check, 4, 6, 74
-        EMReadScreen MFIP_prog_2_check, 2, 6, 67		'checking for an active MFIP case
-        EMReadScreen MFIP_status_2_check, 4, 6, 74
-
-        IF SNAP_status_check = "ACTV" then 
-            SNAP_PENDING = FALSE
+    If expedited_array(appears_exp_const, item) = "" then
+        Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status)
+        
+        If snap_status = "ACTIVE" then 
             expedited_array(case_status_const, item) = "SNAP ACTIVE"
             expedited_array(appears_exp_const, item) = "Not Expedited"
-        ElseIF SNAP_status_check = "PEND" then 
-            SNAP_PENDING = TRUE 
-        ElseIF program_ID = "FS" and SNAP_status_check = "DENY" then 
-            expedited_array(case_status_const, item) = "SNAP Application Denied"
-            expedited_array(appears_exp_const, item) = "Not Expedited"
-        Else    
-            'MFIP determination of pending or active 
-            SNAP_PENDING = FALSE
-            'Logic to determine if MFIP is active
-            If MFIP_prog_1_check = "MF" Then
-                If MFIP_status_1_check = "ACTV" Then 
-                    MFIP_PENDING = FALSE
-                    MFIP_ACTIVE = TRUE 
-                Elseif MFIP_status_1_check = "PEND" Then 
-                    MFIP_PENDING = TRUE
-                Else 
-                    MFIP_PENDING = FALSE
-                End if 
-            ElseIf MFIP_prog_2_check = "MF" Then
-                If MFIP_status_2_check = "ACTV" Then
-                    MFIP_PENDING = FALSE
-                    MFIP_ACTIVE = TRUE
-                Elseif MFIP_status_2_check = "PEND" Then 
-                    MFIP_PENDING = TRUE
-                Else
-                    MFIP_PENDING = FALSE
-                End if
-            Elseif MFIP_prog_1_check = "  " or MFIP_prog_2_check = "  " then
-                If MFIP_status_1_check = "PEND" or MFIP_status_2_check = "PEND" Then 
-                    MFIP_PENDING = TRUE
-                Else 
-                    MFIP_PENDING = FALSE
-                End if 
-            End if   
-        End if     
-        
-        IF MFIP_ACTIVE = TRUE and SNAP_PENDING = TRUE then 
-            expedited_array(case_status_const, item) = "MFIP ACTIVE"
-            expedited_array(appears_exp_const, item) = "Not Expedited" 
-        End if  
-               
-        'Determining if case notes need to be reviewed or not     
-        If SNAP_PENDING = True or MFIP_PENDING = True then 
-            check_case_note = True
-        Else
             check_case_note = False 
         End if 
         
-        'handling for cases that do not have a completed HCRE panel - otherwise these get stuck and cannot pass STAT/HCRE 
-        PF3		'exits PROG to prommpt HCRE if HCRE insn't complete
-        Do
-        	EMReadscreen HCRE_panel_check, 4, 2, 50
-        	If HCRE_panel_check = "HCRE" then
-        		PF10	'exists edit mode in cases where HCRE isn't complete for a member
-        		PF3
-        	END IF
-        Loop until HCRE_panel_check <> "HCRE"
-        
+        If mfip_status = "ACTIVE" then
+            expedited_array(case_status_const, item) = "MFIP ACTIVE"
+            expedited_array(appears_exp_const, item) = "Not Expedited"
+            check_case_note = False 
+        End if  
+    
+        If snap_case = False then  
+            If mfip_case = True and mfip_status <> "ACTIVE" then
+                check_case_note = True 
+            Else 
+                expedited_array(case_status_const, item) = "SNAP Inactive"
+                expedited_array(appears_exp_const, item) = "Not Expedited"
+            End if 
+        End if 
+                
+        If mfip_case = False then 
+            If snap_case = True and snap_status <> "ACTIVE" then
+                check_case_note = True 
+            Else 
+                expedited_array(case_status_const, item) = "MFIP Inactive"
+                expedited_array(appears_exp_const, item) = "Not Expedited"
+            End if 
+        End if         
+
         If check_case_note = True then 
             Call navigate_to_MAXIS_screen("CASE", "NOTE")
             'starting at the 1st case note, checking the headers for the NOTES - EXPEDITED SCREENING text or the NOTES - EXPEDITED DETERMINATION text
