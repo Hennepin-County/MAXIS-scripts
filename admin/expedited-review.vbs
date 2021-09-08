@@ -114,6 +114,7 @@ END FUNCTION
 EMConnect ""
 MAXIS_footer_month = CM_mo
 MAXIS_footer_year = CM_yr 
+warning_checkbox = 1    'auto-checked 
 
 'Setting up counts for data tracking
 screening_count = 0
@@ -125,15 +126,16 @@ not_exp_count = 0   'incrementor built into the function for not expedited only
 report_date = replace(date, "/", "-")   'Changing the format of the date to use as file path selection default
 file_selection_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\" & report_date & ".xlsx"
 
-BeginDialog Dialog1, 0, 0, 481, 90, "ADMIN - EXPEDITED REVIEW"
+BeginDialog Dialog1, 0, 0, 481, 100, "ADMIN - EXPEDITED REVIEW"
   ButtonGroup ButtonPressed
-    PushButton 420, 40, 50, 15, "Browse...", select_a_file_button
-    OkButton 365, 60, 50, 15
-    CancelButton 420, 60, 50, 15
-  EditBox 15, 40, 400, 15, file_selection_path
+    OkButton 365, 75, 50, 15
+    CancelButton 420, 75, 50, 15
+    PushButton 420, 55, 50, 15, "Browse...", select_a_file_button
+  CheckBox 125, 80, 230, 10, "Check here for warning message before Excel output/email creation.", warning_checkbox
   Text 15, 20, 455, 15, "This script should be used to review a BOBI list of pending SNAP and/or MFIP cases to ensure expedited screening and determinations are being made to ensure expedited timeliness rules are being followed."
-  Text 15, 65, 335, 10, "Select the Excel file that contains your inforamtion by selecting the 'Browse' button, and finding the file."
-  GroupBox 10, 5, 465, 75, "Using this script:"
+  Text 15, 40, 335, 10, "Select the Excel file that contains your inforamtion by selecting the 'Browse' button, and finding the file."
+  GroupBox 10, 5, 465, 90, "Using this script:"
+  EditBox 15, 55, 400, 15, file_selection_path
 EndDialog
 
 'dialog and dialog DO...Loop	
@@ -410,7 +412,7 @@ For item = 0 to UBound(expedited_array, 2)
 Next 
 
 'Excel output of cases and information in their applicable categories - PRIV, Req EXP Processing, Exp Screening Required, Not Expedited
-Msgbox "Output to Excel Starting."      'warning message to whomever is running the script 
+If warning_checkbox = 1 then Msgbox "Output to Excel Starting."      'warning message to whomever is running the script 
 
 Call Add_pages("Not Expedited")         'calling function to output exp snap statuses to Excel
 Call Add_pages("Privileged Cases")
