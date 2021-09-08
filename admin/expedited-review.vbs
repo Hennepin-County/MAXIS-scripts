@@ -489,7 +489,7 @@ Set objWorkbook = objExcel.Workbooks.Add()
 objExcel.DisplayAlerts = True
 
 'Changes name of Excel sheet
-ObjExcel.ActiveSheet.Name = "QI Expedited Review"
+ObjExcel.ActiveSheet.Name = "DWP Expedited SNAP"
 
 'adding information to the Excel list from PND2
 ObjExcel.Cells(1, 1).Value = "Worker #"
@@ -501,18 +501,6 @@ objExcel.Columns(5).NumberFormat = "mm/dd/yy"					'formats the date column as MM
 ObjExcel.Cells(1, 6).Value = "Interview Date"
 objExcel.Columns(6).NumberFormat = "mm/dd/yy"					'formats the date column as MM/DD/YY
 ObjExcel.Cells(1, 7).Value = "Notes"
-ObjExcel.Cells(1, 8).Value = "QI Review Notes"
-
-ObjExcel.Cells(1,  9).Value = "Rewiewed"
-ObjExcel.Cells(1, 10).Value = "Approved"
-ObjExcel.Cells(1, 11).Value = "Appear EXP, no ID - Correct"
-ObjExcel.Cells(1, 12).Value = "Appear EXP, ID was available - Incorrect"
-ObjExcel.Cells(1, 13).Value = "Processed correctly by HSR"
-ObjExcel.Cells(1, 14).Value = "No CAF on file"
-ObjExcel.Cells(1, 15).Value = "Verifications should have been postponed/Case app'd"
-ObjExcel.Cells(1, 16).Value = "MAXIS was updated incorrectly"
-ObjExcel.Cells(1, 17).Value = "Insufficient CASE/NOTES"
-ObjExcel.Cells(1, 18).Value = "Save case number for team review?" 
 
 Excel_row = 2
  
@@ -537,89 +525,18 @@ For item = 0 to UBound(expedited_array, 2)
             objExcel.Cells(excel_row,  5).Value = expedited_array(application_date_const,  item)   'COL E
             objExcel.Cells(excel_row,  6).Value = expedited_array(interview_date_const,    item)   'COL F
             objExcel.Cells(excel_row,  7).Value = expedited_array(case_status_const,       item)   'COL G
-            objExcel.Cells(excel_row,  8).Value = expedited_array(prev_notes_const,        item)   'COL H
-            objExcel.Cells(excel_row,  9).Value = expedited_array(prev_notes1_const,       item)   'COL I
-            objExcel.Cells(excel_row, 10).Value = expedited_array(prev_notes2_const,       item)   'COL J
-            objExcel.Cells(excel_row, 11).Value = expedited_array(prev_notes3_const,       item)   'COL K
-            objExcel.Cells(excel_row, 12).Value = expedited_array(prev_notes4_const,       item)   'COL L
-            objExcel.Cells(excel_row, 13).Value = expedited_array(prev_notes5_const,       item)   'COL M
-            objExcel.Cells(excel_row, 14).Value = expedited_array(prev_notes6_const,       item)   'COL N
-            objExcel.Cells(excel_row, 15).Value = expedited_array(prev_notes7_const,       item)   'COL O
-            objExcel.Cells(excel_row, 16).Value = expedited_array(prev_notes8_const,       item)   'COL P
-            objExcel.Cells(excel_row, 17).Value = expedited_array(prev_notes9_const,       item)   'COL Q
-            objExcel.Cells(excel_row, 18).Value = expedited_array(prev_notes10_const,      item)   'COL R
             excel_row = excel_row + 1
         End if 
     End if 
 Next 
 
-Set objWorkSheet = objExcel.ActiveWorkbook.Worksheets("QI Expedited Review")    'Creating a connection to the active worksheet 
-'Creates droplist with Data Vaildation within the Excel range 
-range_variable = "I2:R" & excel_row - 1 & ""    'range to drop lists. Columns are static. excel_row -1 used to determine last row. 
-
-'----------------------------------------------------------------------------------------------------Validation.add method in Excel
-'Syntax: expression.Add (Type, AlertStyle, Operator, Formula1, Formula2)
-'''' Type: Required: Options are the following:
-           'Name	               Value	Description
-           'xlValidateCustom	     7	    Data is validated using an arbitrary formula.
-           'xlValidateDate	         4	    Date values.
-           'xlValidateDecimal	     2	    Numeric values.
-           'xlValidateInputOnly      0	    Validate only when user changes the value.
-           'xlValidateList	         3	    Value must be present in a specified list.
-           'xlValidateTextLength	 6	    Length of text.
-           'xlValidateTime	         5	    Time values.
-           'xlValidateWholeNumber	 1	    Whole numeric values.
-'''' AlertStyle: Optional. Options are the following:
-            'Name	                Value	Description
-            'xlValidAlertInformation  3	    Information icon.
-            'xlValidAlertStop	      1	    Stop icon.
-            'xlValidAlertWarning	  2	     Warning icon.
-'''' Operator: Optional. Options are the following:
-            'Name	                Value	Description
-            'xlBetween	             1	     Between. Can be used only if two formulas are provided.
-            'xlEqual	             3	     Equal.
-            'xlGreater	             5       Greater than.
-            'xlGreaterEqual	         7	     Greater than or equal to.
-            'xlLess	                 6	     Less than.
-            'xlLessEqual	         8	     Less than or equal to.
-            'xlNotBetween	         2	     Not between. Can be used only if two formulas are provided.
-            'xlNotEqual	             4	     Not equal.
-'''' Formula1: Optional. The first part of the data validation equation. Value must not exceed 255 characters.
-'''' Formula2: Optional. The second part of the data validation equation when Operator is xlBetween or xlNotBetween (otherwise, this argument is ignored).
-
-'REMARKS - The Add method requires different arguments, depending on the validation type, as shown in the following table.
-'Validation type	   Arguments
-'xlValidateCustom	   Formula1 is required, Formula2 is ignored. Formula1 must contain an expression that evaluates to True when data entry is valid and False when data entry is invalid.
-'xlInputOnly	       AlertStyle, Formula1, or Formula2 are used.
-'xlValidateList	       Formula1 is required, Formula2 is ignored. Formula1 must contain either a comma-delimited list of values or a worksheet reference to this list.
-'xlValidateWholeNumber One of either Formula1 or Formula2 must be specified, or both may be specified.
-'xlValidateDate        One of either Formula1 or Formula2 must be specified, or both may be specified.
-'xlValidateDecimal     One of either Formula1 or Formula2 must be specified, or both may be specified.
-'xlValidateTextLength  One of either Formula1 or Formula2 must be specified, or both may be specified.
-'xlValidateTime        One of either Formula1 or Formula2 must be specified, or both may be specified.
-
-'With/End With: Executes a series of statements that repeatedly refer to a single object or structure so that the statements can use a simplified syntax when accessing members of the object or structure. 
-'When using a structure, you can only read the values of members or invoke methods, and you get an error if you try to assign values to members of a structure used in a With...End With statement.
-
-With objWorksheet.Range(range_variable).Validation  'ObjectExpression - Required. An expression that evaluates to an object. The expression may be arbitrarily complex and is evaluated only once. The expression can evaluate to any data type, including elementary types.
-        .Add 3, 1, 1, "Yes,No,X"                    'expression.Add (Type, AlertStyle, Operator, Formula1, Formula2) ---values used vs. names                    
-        .IgnoreBlank = True                         'True if blank values are permitted by the range data validation. Read/write Boolean.      
-        .InCellDropdown = True                      'True if data validation displays a drop-down list that contains acceptable values. Read/write Boolean.  
-        .InputTitle = ""                            'Returns or sets the title of the data-validation input dialog box. Read/write String. Limited to 32 characters.
-        .ErrorTitle = ""                            'Returns or sets the title of the data-validation error dialog box. Read/write String.
-        .InputMessage = ""                          'Returns or sets the data validation input message. Read/write String. 
-        .ErrorMessage = ""                          'Returns or sets the data validation error message. Read/write String.  
-        .ShowInput = True                           'True if the data validation input message will be displayed whenever the user selects a cell in the data validation range. Read/write Boolean.
-        .ShowError = True                           'Draws tracer arrows through the precedents tree to the cell that's the source of the error, and returns the range that contains that cell.
- end With                                           
- 
-FOR i = 1 to 18		'formatting the cells
+FOR i = 1 to 7		'formatting the cells
     objExcel.Cells(1, i).Font.Bold = True		'bold font'
     objExcel.Columns(i).AutoFit()				'sizing the columns'
 NEXT
 
 'Saves and closes the most recent Excel workbook
-objExcel.ActiveWorkbook.SaveAs t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\QI Expedited Review " & report_date & ".xlsx"
+objExcel.ActiveWorkbook.SaveAs t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP SNAP DWP " & report_date & ".xlsx"
 objExcel.ActiveWorkbook.Close
 objExcel.Application.Quit
 objExcel.Quit
@@ -749,8 +666,6 @@ objExcel.ActiveWorkbook.SaveAs t_drive & "\Eligibility Support\Restricted\QI - Q
 objExcel.ActiveWorkbook.Close
 objExcel.Application.Quit
 objExcel.Quit
-
-'objExcel.ActiveWorkbook.SaveAs t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP SNAP DWP " & report_date & ".xlsx"
 
 stats_report = "Screening Count: " & screening_count & vbcr & _
 "Expedited Processing Count: " & expedited_count & vbcr & _
