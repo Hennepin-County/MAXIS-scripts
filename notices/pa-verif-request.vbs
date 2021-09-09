@@ -3289,91 +3289,199 @@ If create_memo = True Then		'If there are any MEMOs needed we need to read INQX 
 	End If
 	If IsArray(dwp_array_of_memo_lines) = True Then
 		dwp_memo_lines = UBound(dwp_array_of_memo_lines) + 1
-	End If 'THIS IS WHERE I STOPPED ADDING DWP _ START HERE'
+	End If
 	If IsArray(grh_array_of_memo_lines) = True Then
 		grh_memo_lines = UBound(grh_array_of_memo_lines) + 1
 	End If
 
 	'Now we have a lot of logic to try to combine the counts to fit into a MEMO to attempt to send as few MEMOs as possible.
 	'MOST of the time we will only have 1 MEMO
-	total_memo_lines = snap_memo_lines + ga_memo_lines + msa_memo_lines + mfip_memo_lines + grh_memo_lines + 3		'Best option - all programs on one MEMO
+	total_memo_lines = snap_memo_lines + ga_memo_lines + msa_memo_lines + mfip_memo_lines + dwp_memo_lines + grh_memo_lines + 3		'Best option - all programs on one MEMO
 	memo_list = ""
+	need_cover_memo = False
 	If total_memo_lines < 28 Then
-		memo_list = memo_list & "~MFIP/GA/MSA/SNAP/GRH"
-	Else																							'If they aren't all on one, then we need to look for more
-		If mfip_memo_lines > 27 Then																'These are for if any program needs more than one on their own
-			memo_list = memo_list & "~MFIP~MFIP"
+		memo_list = memo_list & "~MFIP/GA/MSA/SNAP/DWP/GRH"
+	Else
+		need_cover_memo	= True																		'If they aren't all on one, then we add a memo
+		If mfip_memo_lines > 0 Then																'These are for if any program needs more than one on their own
+			memo_list = memo_list & "~MFIP"
+			If mfip_memo_lines > 27 Then memo_list = memo_list & "~MFIP"																'These are for if any program needs more than one on their own
 			If mfip_memo_lines > 55 Then memo_list = memo_list & "~MFIP"
 			If mfip_memo_lines > 83 Then memo_list = memo_list & "~MFIP"
 		End If
-		If snap_memo_lines > 27 Then
-			memo_list = memo_list & "~SNAP~SNAP"
+		If snap_memo_lines > 0 Then
+			memo_list = memo_list & "~SNAP"
+			If snap_memo_lines > 27 Then memo_list = memo_list & "~SNAP"
 			If snap_memo_lines > 55 Then memo_list = memo_list & "~SNAP"
 			If snap_memo_lines > 83 Then memo_list = memo_list & "~SNAP"
 		End If
-		If ga_memo_lines > 27 Then
-			memo_list = memo_list & "~GA~GA"
+		If dwp_memo_lines > 0 Then
+			memo_list = memo_list & "~DWP"
+			If dwp_memo_lines > 27 Then memo_list = memo_list & "~DWP"
+			If dwp_memo_lines > 55 Then memo_list = memo_list & "~DWP"
+			If dwp_memo_lines > 83 Then memo_list = memo_list & "~DWP"
+		End If
+		If ga_memo_lines > 0 Then
+			memo_list = memo_list & "~GA"
+			If ga_memo_lines > 27 Then memo_list = memo_list & "~GA"
 			If ga_memo_lines > 55 Then memo_list = memo_list & "~GA"
 			If ga_memo_lines > 83 Then memo_list = memo_list & "~GA"
 		End If
-		If msa_memo_lines > 27 Then
-			memo_list = memo_list & "~MSA~MSA"
+		If msa_memo_lines > 0 Then
+			memo_list = memo_list & "~MSA"
+			If msa_memo_lines > 27 Then memo_list = memo_list & "~MSA"
 			If msa_memo_lines > 55 Then memo_list = memo_list & "~MSA"
 			If msa_memo_lines > 83 Then memo_list = memo_list & "~MSA"
 		End If
-		If grh_memo_lines > 27 Then
-			memo_list = memo_list & "~GRH~GRH"
+		If grh_memo_lines > 0 Then
+			memo_list = memo_list & "~GRH"
+			If grh_memo_lines > 27 Then memo_list = memo_list & "~GRH"
 			If grh_memo_lines > 55 Then memo_list = memo_list & "~GRH"
 			If grh_memo_lines > 83 Then memo_list = memo_list & "~GRH"
 		End If
 
-		If mfip_memo_lines + ga_memo_lines + msa_memo_lines + grh_memo_lines + 2 < 28 Then							'These try to combine four programs into one MEMO
-			memo_list = memo_list & "~MFIP/GA/MSA/GRH"
+		If mfip_memo_lines + ga_memo_lines + msa_memo_lines + grh_memo_lines + dwp_memo_lines + 2 < 28 Then							'These try to combine four programs into one MEMO
+			memo_list = memo_list & "~MFIP/GA/MSA/GRH/DWP"
 			If snap_memo_lines <> 0 AND snap_memo_lines < 28 Then memo_list = memo_list & "~SNAP"
-		ElseIf snap_memo_lines + ga_memo_lines + msa_memo_lines + grh_memo_lines + 2 < 28 Then
-			memo_list = memo_list & "~SNAP/GA/MSA/GRH"
+		ElseIf snap_memo_lines + ga_memo_lines + msa_memo_lines + grh_memo_lines + dwp_memo_lines + 2 < 28 Then
+			memo_list = memo_list & "~SNAP/GA/MSA/GRH/DWP"
 			If mfip_memo_lines <> 0 AND mfip_memo_lines < 28 Then memo_list = memo_list & "~MFIP"
-		ElseIf snap_memo_lines + ga_memo_lines + mfip_memo_lines + grh_memo_lines + 2 < 28 Then
-			memo_list = memo_list & "~SNAP/GA/MFIP/GRH"
+		ElseIf snap_memo_lines + ga_memo_lines + mfip_memo_lines + grh_memo_lines + dwp_memo_lines + 2 < 28 Then
+			memo_list = memo_list & "~SNAP/GA/MFIP/GRH/DWP"
 			If msa_memo_lines <> 0 AND msa_memo_lines < 28 Then memo_list = memo_list & "~MSA"
-		ElseIf snap_memo_lines + mfip_memo_lines + msa_memo_lines + grh_memo_lines + 2 < 28 Then
-			memo_list = memo_list & "~SNAP/MSA/MFIP/GRH"
+		ElseIf snap_memo_lines + mfip_memo_lines + msa_memo_lines + grh_memo_lines + dwp_memo_lines + 2 < 28 Then
+			memo_list = memo_list & "~SNAP/MSA/MFIP/GRH/DWP"
 			If ga_memo_lines <> 0 AND ga_memo_lines < 28 Then memo_list = memo_list & "~GA"
-		ElseIf mfip_memo_lines + ga_memo_lines + msa_memo_lines + snap_memo_lines + 2 < 28 Then							'These try to combine three programs into one MEMO
-			memo_list = memo_list & "~SNAP/MFIP/GA/MSA"
+		ElseIf mfip_memo_lines + ga_memo_lines + msa_memo_lines + snap_memo_lines + dwp_memo_lines + 2 < 28 Then							'These try to combine three programs into one MEMO
+			memo_list = memo_list & "~SNAP/MFIP/GA/MSA/DWP"
 			If grh_memo_lines <> 0 AND grh_memo_lines < 28 Then memo_list = memo_list & "~GRH"
+		ElseIf mfip_memo_lines + ga_memo_lines + msa_memo_lines + snap_memo_lines + grh_memo_lines + 2 < 28 Then							'These try to combine three programs into one MEMO
+			memo_list = memo_list & "~SNAP/MFIP/GA/MSA/GRH"
+			If dwp_memo_lines <> 0 AND dwp_memo_lines < 28 Then memo_list = memo_list & "~DWP"
 
-
-		ElseIf mfip_memo_lines + ga_memo_lines + msa_memo_lines + 2 < 28 Then							'These try to combine three programs into one MEMO
-			memo_list = memo_list & "~MFIP/GA/MSA"
+		ElseIf mfip_memo_lines + ga_memo_lines + msa_memo_lines + dwp_memo_lines + 2 < 28 Then							'These try to combine three programs into one MEMO
+			memo_list = memo_list & "~MFIP/GA/MSA/DWP"
 			If grh_memo_lines + snap_memo_lines < 28 Then
 				memo_list = memo_list & "~SNAP/GRH"
 			Else
 				If snap_memo_lines > 0 AND snap_memo_lines < 28 Then memo_list = memo_list & "~SNAP"
 				If grh_memo_lines > 0 AND grh_memo_lines < 28 Then memo_list = memo_list & "~GRH"
 			End If
-		ElseIf snap_memo_lines + ga_memo_lines + msa_memo_lines + 2 < 28 Then
-			memo_list = memo_list & "~SNAP/GA/MSA"
+		ElseIf mfip_memo_lines + ga_memo_lines + msa_memo_lines + dwp_memo_lines + 2 < 28 Then							'These try to combine three programs into one MEMO
+			memo_list = memo_list & "~MFIP/GA/MSA/GRH"
+			If dwp_memo_lines + snap_memo_lines < 28 Then
+				memo_list = memo_list & "~SNAP/DWP"
+			Else
+				If snap_memo_lines > 0 AND snap_memo_lines < 28 Then memo_list = memo_list & "~SNAP"
+				If dwp_memo_lines > 0 AND dwp_memo_lines < 28 Then memo_list = memo_list & "~DWP"
+			End If
+		ElseIf mfip_memo_lines + ga_memo_lines + grh_memo_lines + dwp_memo_lines + 2 < 28 Then							'These try to combine three programs into one MEMO
+			memo_list = memo_list & "~MFIP/GA/GRH/DWP"
+			If msa_memo_lines + snap_memo_lines < 28 Then
+				memo_list = memo_list & "~SNAP/MSA"
+			Else
+				If snap_memo_lines > 0 AND snap_memo_lines < 28 Then memo_list = memo_list & "~SNAP"
+				If msa_memo_lines > 0 AND msa_memo_lines < 28 Then memo_list = memo_list & "~MSA"
+			End If
+		ElseIf mfip_memo_lines + grh_memo_lines + msa_memo_lines + dwp_memo_lines + 2 < 28 Then							'These try to combine three programs into one MEMO
+			memo_list = memo_list & "~MFIP/GRH/MSA/DWP"
+			If ga_memo_lines + snap_memo_lines < 28 Then
+				memo_list = memo_list & "~SNAP/GA"
+			Else
+				If snap_memo_lines > 0 AND snap_memo_lines < 28 Then memo_list = memo_list & "~SNAP"
+				If ga_memo_lines > 0 AND ga_memo_lines < 28 Then memo_list = memo_list & "~GA"
+			End If
+		ElseIf grh_memo_lines + ga_memo_lines + msa_memo_lines + dwp_memo_lines + 2 < 28 Then							'These try to combine three programs into one MEMO
+			memo_list = memo_list & "~GRH/GA/MSA/DWP"
+			If mfip_memo_lines + snap_memo_lines < 28 Then
+				memo_list = memo_list & "~SNAP/MFIP"
+			Else
+				If snap_memo_lines > 0 AND snap_memo_lines < 28 Then memo_list = memo_list & "~SNAP"
+				If mfip_memo_lines > 0 AND mfip_memo_lines < 28 Then memo_list = memo_list & "~MFIP"
+			End If
+
+
+		ElseIf snap_memo_lines + ga_memo_lines + msa_memo_lines + dwp_memo_lines + 2 < 28 Then
+			memo_list = memo_list & "~SNAP/GA/MSA/DWP"
 			If grh_memo_lines + mfip_memo_lines < 28 Then
 				memo_list = memo_list & "~MFIP/GRH"
 			Else
 				If mfip_memo_lines > 0 AND mfip_memo_lines < 28 Then memo_list = memo_list & "~MFIP"
 				If grh_memo_lines > 0 AND grh_memo_lines < 28 Then memo_list = memo_list & "~GRH"
 			End If
-		ElseIf snap_memo_lines + ga_memo_lines + mfip_memo_lines + 2 < 28 Then
-			memo_list = memo_list & "~SNAP/GA/MFIP"
+		ElseIf snap_memo_lines + grh_memo_lines + msa_memo_lines + dwp_memo_lines + 2 < 28 Then
+			memo_list = memo_list & "~SNAP/GRH/MSA/DWP"
+			If ga_memo_lines + mfip_memo_lines < 28 Then
+				memo_list = memo_list & "~MFIP/GA"
+			Else
+				If mfip_memo_lines > 0 AND mfip_memo_lines < 28 Then memo_list = memo_list & "~MFIP"
+				If ga_memo_lines > 0 AND ga_memo_lines < 28 Then memo_list = memo_list & "~GA"
+			End If
+		ElseIf snap_memo_lines + ga_memo_lines + grh_memo_lines + dwp_memo_lines + 2 < 28 Then
+			memo_list = memo_list & "~SNAP/GA/GRH/DWP"
+			If msa_memo_lines + mfip_memo_lines < 28 Then
+				memo_list = memo_list & "~MFIP/MSA"
+			Else
+				If mfip_memo_lines > 0 AND mfip_memo_lines < 28 Then memo_list = memo_list & "~MFIP"
+				If msa_memo_lines > 0 AND msa_memo_lines < 28 Then memo_list = memo_list & "~MSA"
+			End If
+		ElseIf snap_memo_lines + ga_memo_lines + msa_memo_lines + grh_memo_lines + 2 < 28 Then
+			memo_list = memo_list & "~SNAP/GA/MSA/GRH"
+			If dwp_memo_lines + mfip_memo_lines < 28 Then
+				memo_list = memo_list & "~MFIP/DWP"
+			Else
+				If mfip_memo_lines > 0 AND mfip_memo_lines < 28 Then memo_list = memo_list & "~MFIP"
+				If dwp_memo_lines > 0 AND dwp_memo_lines < 28 Then memo_list = memo_list & "~DWP"
+			End If
+
+		ElseIf snap_memo_lines + mfip_memo_lines + msa_memo_lines + dwp_memo_lines + 2 < 28 Then
+			memo_list = memo_list & "~SNAP/MSA/MFIP/DWP"
+			If grh_memo_lines + ga_memo_lines < 28 Then
+				memo_list = memo_list & "~GA/GRH"
+			Else
+				If ga_memo_lines > 0 AND ga_memo_lines < 28 Then memo_list = memo_list & "~GA"
+				If grh_memo_lines > 0 AND grh_memo_lines < 28 Then memo_list = memo_list & "~GRH"
+			End If
+		ElseIf snap_memo_lines + mfip_memo_lines + grh_memo_lines + dwp_memo_lines + 2 < 28 Then
+			memo_list = memo_list & "~SNAP/GRH/MFIP/DWP"
+			If msa_memo_lines + ga_memo_lines < 28 Then
+				memo_list = memo_list & "~GA/GRH"
+			Else
+				If ga_memo_lines > 0 AND ga_memo_lines < 28 Then memo_list = memo_list & "~GA"
+				If msa_memo_lines > 0 AND msa_memo_lines < 28 Then memo_list = memo_list & "~MSA"
+			End If
+		ElseIf snap_memo_lines + mfip_memo_lines + msa_memo_lines + grh_memo_lines + 2 < 28 Then
+			memo_list = memo_list & "~SNAP/MSA/MFIP/GRH"
+			If dwp_memo_lines + ga_memo_lines < 28 Then
+				memo_list = memo_list & "~GA/DWP"
+			Else
+				If ga_memo_lines > 0 AND ga_memo_lines < 28 Then memo_list = memo_list & "~GA"
+				If dwp_memo_lines > 0 AND dwp_memo_lines < 28 Then memo_list = memo_list & "~DWP"
+			End If
+
+		ElseIf snap_memo_lines + ga_memo_lines + mfip_memo_lines + dwp_memo_lines + 2 < 28 Then
+			memo_list = memo_list & "~SNAP/GA/MFIP/DWP"
 			If grh_memo_lines + msa_memo_lines < 28 Then
 				memo_list = memo_list & "~MSA/GRH"
 			Else
 				If msa_memo_lines > 0 AND msa_memo_lines < 28 Then memo_list = memo_list & "~MSA"
 				If grh_memo_lines > 0 AND grh_memo_lines < 28 Then memo_list = memo_list & "~GRH"
 			End If
-		ElseIf snap_memo_lines + mfip_memo_lines + msa_memo_lines + 2 < 28 Then
-			memo_list = memo_list & "~SNAP/MSA/MFIP"
-			If grh_memo_lines + ga_memo_lines < 28 Then
-				memo_list = memo_list & "~GA/GRH"
+		ElseIf snap_memo_lines + ga_memo_lines + mfip_memo_lines + grh_memo_lines + 2 < 28 Then
+			memo_list = memo_list & "~SNAP/GA/MFIP/GRH"
+			If dwp_memo_lines + msa_memo_lines < 28 Then
+				memo_list = memo_list & "~MSA/DWP"
 			Else
-				If ga_memo_lines > 0 AND ga_memo_lines < 28 Then memo_list = memo_list & "~GA"
+				If msa_memo_lines > 0 AND msa_memo_lines < 28 Then memo_list = memo_list & "~MSA"
+				If dwp_memo_lines > 0 AND dwp_memo_lines < 28 Then memo_list = memo_list & "~DWP"
+			End If
+
+		ElseIf snap_memo_lines + mfip_memo_lines + msa_memo_lines + ga_memo_lines + 2 < 28 Then
+			memo_list = memo_list & "~SNAP/MSA/MFIP/GA"
+			If grh_memo_lines + dwp_memo_lines < 28 Then
+				memo_list = memo_list & "~DWP/GRH"
+			Else
+				If dwp_memo_lines > 0 AND dwp_memo_lines < 28 Then memo_list = memo_list & "~DWP"
 				If grh_memo_lines > 0 AND grh_memo_lines < 28 Then memo_list = memo_list & "~GRH"
 			End If
 		'DO WE NEED TO HANDLE FOR 2 Then maybe 2 and 1 or 1 and 1 and 1 and 1
@@ -3431,6 +3539,8 @@ If create_memo = True Then		'If there are any MEMOs needed we need to read INQX 
 			If ga_memo_lines <> 0 AND ga_memo_lines < 28 Then memo_list = memo_list & "~GA"
 			If msa_memo_lines <> 0 AND msa_memo_lines < 28 Then memo_list = memo_list & "~MSA"
 			If snap_memo_lines <> 0 AND snap_memo_lines < 28 Then memo_list = memo_list & "~SNAP"
+			If dwp_memo_lines <> 0 AND dwp_memo_lines < 28 Then memo_list = memo_list & "~DWP"
+			If grh_memo_lines <> 0 AND grh_memo_lines < 28 Then memo_list = memo_list & "~GRH"
 		End If
 
 	End If
@@ -3448,6 +3558,7 @@ If create_memo = True Then		'If there are any MEMOs needed we need to read INQX 
 	msa_restart_memo_lines_position = 0
 	mfip_restart_memo_lines_position = 0
 	grh_restart_memo_lines_position = 0
+	dwp_restart_memo_lines_position = 0
 
 	For each memo_to_write in the_memos_array									'Using the Array we just made, we care going to make 1 MEMO for each identified program
 		memo_line = 1
@@ -3653,3 +3764,4 @@ Call write_variable_in_CASE_NOTE("---")
 Call write_variable_in_CASE_NOTE(worker_signature)
 
 script_end_procedure_with_error_report("Notice sent for PA Verif Request")
+'THIS IS WHERE I STOPPED ADDING DWP _ START HERE'
