@@ -2150,6 +2150,9 @@ Do 		'BIG Loop to see if INQX is over the 9 page limit
 	too_many_DWP_INQX_pages = False
 	too_many_GRH_INQX_pages = False
 
+	benefits_archived_for_prog = ""
+	reset_months_programs = ""
+
 	If create_memo = True Then		'If there are any MEMOs needed we need to read INQX for all the specified programs and dates and create arrays of the benefit months for each program
 		If snap_verification_method = "Create New MEMO with range of Months" Then
 			Call navigate_to_MAXIS_screen("MONY", "INQX")							'Go to where the benefit amounts are listed
@@ -2161,6 +2164,7 @@ Do 		'BIG Loop to see if INQX is over the 9 page limit
 			first_date_of_range = DateAdd("d", 0, first_date_of_range)
 			last_date_of_range = replace(snap_end_month, "/", "/01/")
 			last_date_of_range = DateAdd("d", 0, last_date_of_range)
+			plus_three_month = DateAdd("m", 3, last_date_of_range)				'TODO - use this to set the end date of the search in the future'
 
 			SNAP_expected_dates_array = first_date_of_range							'creating an array of all of the months in the range
 			each_date = first_date_of_range
@@ -2183,103 +2187,140 @@ Do 		'BIG Loop to see if INQX is over the 9 page limit
 
 			transmit
 
-			inqx_row = 6															'Read all of the information on INQX
-			msg_counter = 0
-			Do
-				EMReadScreen issued_date, 8, inqx_row, 7
-				EMReadScreen tran_amount, 8, inqx_row, 38
-				EMReadScreen from_month, 2, inqx_row, 62
-				EMReadScreen from_year, 2, inqx_row, 68
+			EMReadScreen archived_check, 12, 24, 40
+			EMReadScreen no_issuance_check, 20, 24, 2
+			If archived_check = "WAS ARCHIVED" Then
+				benefits_archived_for_prog = benefits_archived_for_prog & "SNAP-"
+			ElseIf no_issuance_check = "NO ISSUANCE ACTIVITY" Then
+				continue_with_no_issuance = MsgBox("The months " & snap_start_month & " through " & snap_end_month & " for SNAP have no issuance activity." & vbCr & vbCr & "Do you want to include 'No Issuance' information on the MEMO?", vbQuestion + vbYesNo, "Add No Issuance to MEMO")
+				If continue_with_no_issuance = vbNo Then reset_months_programs = reset_months_programs & "SNAP-"
+				If continue_with_no_issuance = vbYes Then
+					msg_counter = 0
+					For each expected_month in SNAP_expected_dates_array					'Now we loop through ALL the months we expected to find in the range - this is so we can add $0 issuance months as 0
+						ReDim Preserve SNAP_ISSUANCE_ARRAY(last_const, msg_counter)
+						SNAP_ISSUANCE_ARRAY(benefit_month_const, msg_counter) = right("00" & DatePart("m", expected_month), 2) & "/" & right(DatePart("yyyy", expected_month), 2)
+						SNAP_ISSUANCE_ARRAY(snap_grant_amount_const, msg_counter) = 0
+						SNAP_ISSUANCE_ARRAY(benefit_month_as_date_const, msg_counter) = expected_month
+						SNAP_ISSUANCE_ARRAY(note_message_const, msg_counter) = "$ 0.00     issued for " & SNAP_ISSUANCE_ARRAY(benefit_month_const, msg_counter)
+						SNAP_dates_array = SNAP_dates_array & "~" & expected_month
 
-				issued_date = trim(issued_date)
-				tran_amount = trim(tran_amount)
+						snap_msg_display = snap_msg_display & vbCr & SNAP_ISSUANCE_ARRAY(note_message_const, msg_counter)
+						SNAP_total = SNAP_total + SNAP_ISSUANCE_ARRAY(snap_grant_amount_const, msg_counter)
+						SNAP_MEMO_rows_needed = SNAP_MEMO_rows_needed + 1
 
-				If issued_date <> "" Then
-					from_date = from_month & "/1/" & from_year						'making the date a date and making it the 1st of the month (this accounts for proration)
-					from_date = DateAdd("d", 0, from_date)
-					'Only accept if the date is equal to or after the first date and equal to or before the last date
-					If DateDiff("d", from_date, first_date_of_range) <= 0 AND DateDiff("d", from_date, last_date_of_range) >= 0 Then
+						msg_counter = msg_counter + 1
+					Next
+					If left(SNAP_dates_array, 1) = "~" Then SNAP_dates_array = right(SNAP_dates_array, len(SNAP_dates_array) - 1)		'creating an array of all of the 'from dates'
+					If Instr(SNAP_dates_array, "~") = 0 Then
+						SNAP_dates_array = Array(SNAP_dates_array)
+					Else
+						SNAP_dates_array = split(SNAP_dates_array, "~")
+					End If
+					Call sort_dates(SNAP_dates_array)		'This function takes all the dates in an array and put them in order from oldest to newest
+				End If
+			Else
 
-						benefit_month = from_month & "/" & from_year
-						tran_amount = tran_amount * 1								'this must be a NUMBER
-						ammount_added_in = False
-						For each_known_issuance = 0 to UBound(SNAP_ISSUANCE_ARRAY, 2)		'reading to see if the benefit month is already in the array so we can combine the benefit amounts
-							If benefit_month = SNAP_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance) Then
-								SNAP_ISSUANCE_ARRAY(snap_grant_amount_const, each_known_issuance) = SNAP_ISSUANCE_ARRAY(snap_grant_amount_const, each_known_issuance) + tran_amount
-								ammount_added_in = True
+				inqx_row = 6															'Read all of the information on INQX
+				msg_counter = 0
+				Do
+					EMReadScreen issued_date, 8, inqx_row, 7
+					EMReadScreen tran_amount, 8, inqx_row, 38
+					EMReadScreen from_month, 2, inqx_row, 62
+					EMReadScreen from_year, 2, inqx_row, 68
+
+					issued_date = trim(issued_date)
+					tran_amount = trim(tran_amount)
+
+					If issued_date <> "" Then
+						from_date = from_month & "/1/" & from_year						'making the date a date and making it the 1st of the month (this accounts for proration)
+						from_date = DateAdd("d", 0, from_date)
+						'Only accept if the date is equal to or after the first date and equal to or before the last date
+						If DateDiff("d", from_date, first_date_of_range) <= 0 AND DateDiff("d", from_date, last_date_of_range) >= 0 Then
+
+							benefit_month = from_month & "/" & from_year
+							tran_amount = tran_amount * 1								'this must be a NUMBER
+							ammount_added_in = False
+							For each_known_issuance = 0 to UBound(SNAP_ISSUANCE_ARRAY, 2)		'reading to see if the benefit month is already in the array so we can combine the benefit amounts
+								If benefit_month = SNAP_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance) Then
+									SNAP_ISSUANCE_ARRAY(snap_grant_amount_const, each_known_issuance) = SNAP_ISSUANCE_ARRAY(snap_grant_amount_const, each_known_issuance) + tran_amount
+									ammount_added_in = True
+								End If
+							Next
+							If ammount_added_in = False Then							'if the benefit month was NOT found - create a new array instance for that benefit month.
+								ReDim Preserve SNAP_ISSUANCE_ARRAY(last_const, msg_counter)
+								SNAP_ISSUANCE_ARRAY(benefit_month_const, msg_counter) = benefit_month
+								SNAP_ISSUANCE_ARRAY(snap_grant_amount_const, msg_counter) = tran_amount
+								SNAP_ISSUANCE_ARRAY(benefit_month_as_date_const, msg_counter) = from_date
+								msg_counter = msg_counter + 1
 							End If
-						Next
-						If ammount_added_in = False Then							'if the benefit month was NOT found - create a new array instance for that benefit month.
-							ReDim Preserve SNAP_ISSUANCE_ARRAY(last_const, msg_counter)
-							SNAP_ISSUANCE_ARRAY(benefit_month_const, msg_counter) = benefit_month
-							SNAP_ISSUANCE_ARRAY(snap_grant_amount_const, msg_counter) = tran_amount
-							SNAP_ISSUANCE_ARRAY(benefit_month_as_date_const, msg_counter) = from_date
-							msg_counter = msg_counter + 1
 						End If
 					End If
-				End If
 
-				inqx_row = inqx_row + 1		'go to the next line/page
-				If inqx_row = 18 Then
-					PF8
-					inqx_row = 6
-					EMReadScreen more_thanb_9_pages_msg, 38, 24, 2
-					If more_thanb_9_pages_msg = "CAN NOT PAGE THROUGH MORE THAN 9 PAGES" Then too_many_SNAP_INQX_pages = True
-					If too_many_SNAP_INQX_pages = True Then
-						ReDim SNAP_ISSUANCE_ARRAY(last_const, 0)
-						Exit Do
-					End if
-					EMreadScreen end_of_list, 9, 24, 14
-					if end_of_list = "LAST PAGE" Then Exit Do
-				End If
-			Loop until issued_date = ""		'go until the end of the list
-			SNAP_dates_array = ""			'we need an array of the dates ONLY
-			For each_known_issuance = 0 to UBound(SNAP_ISSUANCE_ARRAY, 2)			'Now we loop through all of the found benefit months and create the formatting for the MEMO
-				total_amount = SNAP_ISSUANCE_ARRAY(snap_grant_amount_const, each_known_issuance)
-				total_amount = total_amount & ""
-				If InStr(total_amount, ".") = 0 Then
-					total_amount = left(total_amount & ".00        ", 8)
-				Else
-					total_amount = left(total_amount & "        ", 8)
-				End If
-				SNAP_ISSUANCE_ARRAY(note_message_const, each_known_issuance) = "$ " & total_amount & " issued for " & SNAP_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance)
-				SNAP_dates_array = SNAP_dates_array & "~" & SNAP_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)		'adding to the array of all the dates
-			Next
-			For each expected_month in SNAP_expected_dates_array					'Now we loop through ALL the months we expected to find in the range - this is so we can add $0 issuance months as 0
-				issuance_found = False
-				For each_known_issuance = 0 to UBound(SNAP_ISSUANCE_ARRAY, 2)		'Look at all the found months - if they match - indicate that here
-					If DateDiff("d", SNAP_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance), expected_month) = 0 Then issuance_found = True
-				Next
-				If issuance_found = False Then										'If no month was found - add another array instance with a $0 benefit amount listed
-					ReDim Preserve SNAP_ISSUANCE_ARRAY(last_const, msg_counter)
-					SNAP_ISSUANCE_ARRAY(benefit_month_const, msg_counter) = right("00" & DatePart("m", expected_month), 2) & "/" & right(DatePart("yyyy", expected_month), 2)
-					SNAP_ISSUANCE_ARRAY(snap_grant_amount_const, msg_counter) = 0
-					SNAP_ISSUANCE_ARRAY(benefit_month_as_date_const, msg_counter) = expected_month
-					SNAP_ISSUANCE_ARRAY(note_message_const, each_known_issuance) = "$ 0.00     issued for " & SNAP_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance)
-					SNAP_dates_array = SNAP_dates_array & "~" & expected_month
-					msg_counter = msg_counter + 1
-				End If
-			Next
-			If left(SNAP_dates_array, 1) = "~" Then SNAP_dates_array = right(SNAP_dates_array, len(SNAP_dates_array) - 1)		'creating an array of all of the 'from dates'
-			If Instr(SNAP_dates_array, "~") = 0 Then
-				SNAP_dates_array = Array(SNAP_dates_array)
-			Else
-				SNAP_dates_array = split(SNAP_dates_array, "~")
-			End If
-			Call sort_dates(SNAP_dates_array)		'This function takes all the dates in an array and put them in order from oldest to newest
-
-			for each ordered_date in SNAP_dates_array		'Now doing some counting and totalling
-				For each_known_issuance = 0 to UBound(SNAP_ISSUANCE_ARRAY, 2)
-					If DateDiff("d", ordered_date, SNAP_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)) = 0 Then
-						snap_msg_display = snap_msg_display & vbCr & SNAP_ISSUANCE_ARRAY(note_message_const, each_known_issuance)
-						SNAP_total = SNAP_total + SNAP_ISSUANCE_ARRAY(snap_grant_amount_const, each_known_issuance)
-						SNAP_MEMO_rows_needed = SNAP_MEMO_rows_needed + 1
+					inqx_row = inqx_row + 1		'go to the next line/page
+					If inqx_row = 18 Then
+						PF8
+						inqx_row = 6
+						EMReadScreen more_thanb_9_pages_msg, 38, 24, 2
+						If more_thanb_9_pages_msg = "CAN NOT PAGE THROUGH MORE THAN 9 PAGES" Then too_many_SNAP_INQX_pages = True
+						If too_many_SNAP_INQX_pages = True Then
+							ReDim SNAP_ISSUANCE_ARRAY(last_const, 0)
+							PF3
+							Exit Do
+						End if
+						EMreadScreen end_of_list, 9, 24, 14
+						if end_of_list = "LAST PAGE" Then Exit Do
 					End If
-				Next
-			Next
+				Loop until issued_date = ""		'go until the end of the list
+				If too_many_SNAP_INQX_pages = False Then
+					SNAP_dates_array = ""			'we need an array of the dates ONLY
+					For each_known_issuance = 0 to UBound(SNAP_ISSUANCE_ARRAY, 2)			'Now we loop through all of the found benefit months and create the formatting for the MEMO
+						total_amount = SNAP_ISSUANCE_ARRAY(snap_grant_amount_const, each_known_issuance)
+						total_amount = total_amount & ""
+						If InStr(total_amount, ".") = 0 Then
+							total_amount = left(total_amount & ".00        ", 8)
+						Else
+							total_amount = left(total_amount & "        ", 8)
+						End If
+						SNAP_ISSUANCE_ARRAY(note_message_const, each_known_issuance) = "$ " & total_amount & " issued for " & SNAP_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance)
+						SNAP_dates_array = SNAP_dates_array & "~" & SNAP_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)		'adding to the array of all the dates
+					Next
+					For each expected_month in SNAP_expected_dates_array					'Now we loop through ALL the months we expected to find in the range - this is so we can add $0 issuance months as 0
+						issuance_found = False
+						For each_known_issuance = 0 to UBound(SNAP_ISSUANCE_ARRAY, 2)		'Look at all the found months - if they match - indicate that here
+							If DateDiff("d", SNAP_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance), expected_month) = 0 Then issuance_found = True
+						Next
+						If issuance_found = False Then										'If no month was found - add another array instance with a $0 benefit amount listed
+							ReDim Preserve SNAP_ISSUANCE_ARRAY(last_const, msg_counter)
+							SNAP_ISSUANCE_ARRAY(benefit_month_const, msg_counter) = right("00" & DatePart("m", expected_month), 2) & "/" & right(DatePart("yyyy", expected_month), 2)
+							SNAP_ISSUANCE_ARRAY(snap_grant_amount_const, msg_counter) = 0
+							SNAP_ISSUANCE_ARRAY(benefit_month_as_date_const, msg_counter) = expected_month
+							SNAP_ISSUANCE_ARRAY(note_message_const, msg_counter) = "$ 0.00     issued for " & SNAP_ISSUANCE_ARRAY(benefit_month_const, msg_counter)
+							SNAP_dates_array = SNAP_dates_array & "~" & expected_month
+							msg_counter = msg_counter + 1
+						End If
+					Next
+					If left(SNAP_dates_array, 1) = "~" Then SNAP_dates_array = right(SNAP_dates_array, len(SNAP_dates_array) - 1)		'creating an array of all of the 'from dates'
+					If Instr(SNAP_dates_array, "~") = 0 Then
+						SNAP_dates_array = Array(SNAP_dates_array)
+					Else
+						SNAP_dates_array = split(SNAP_dates_array, "~")
+					End If
+					Call sort_dates(SNAP_dates_array)		'This function takes all the dates in an array and put them in order from oldest to newest
 
-			' MsgBox "SNAP - This is the list" & snap_msg_display & vbCr & "TOTAL SNAP: $" & SNAP_total
-			PF3
+					for each ordered_date in SNAP_dates_array		'Now doing some counting and totalling
+						For each_known_issuance = 0 to UBound(SNAP_ISSUANCE_ARRAY, 2)
+							If DateDiff("d", ordered_date, SNAP_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)) = 0 Then
+								snap_msg_display = snap_msg_display & vbCr & SNAP_ISSUANCE_ARRAY(note_message_const, each_known_issuance)
+								SNAP_total = SNAP_total + SNAP_ISSUANCE_ARRAY(snap_grant_amount_const, each_known_issuance)
+								SNAP_MEMO_rows_needed = SNAP_MEMO_rows_needed + 1
+							End If
+						Next
+					Next
+
+					' MsgBox "SNAP - This is the list" & snap_msg_display & vbCr & "TOTAL SNAP: $" & SNAP_total
+					PF3
+				End If
+			End If
 		End If
 
 		If ga_verification_method = "Create New MEMO with range of Months" Then
@@ -2291,6 +2332,7 @@ Do 		'BIG Loop to see if INQX is over the 9 page limit
 			first_date_of_range = DateAdd("d", 0, first_date_of_range)
 			last_date_of_range = replace(ga_end_month, "/", "/01/")
 			last_date_of_range = DateAdd("d", 0, last_date_of_range)
+			plus_three_month = DateAdd("m", 3, last_date_of_range)
 
 			GA_expected_dates_array = first_date_of_range							'creating an array of all of the months in the range
 			each_date = first_date_of_range
@@ -2312,104 +2354,140 @@ Do 		'BIG Loop to see if INQX is over the 9 page limit
 			EMWriteScreen CM_plus_1_yr, 6, 56
 
 			transmit
+			EMReadScreen archived_check, 12, 24, 40
+			EMReadScreen no_issuance_check, 20, 24, 2
+			If archived_check = "WAS ARCHIVED" Then
+				benefits_archived_for_prog = benefits_archived_for_prog & "GA-"
+			ElseIf no_issuance_check = "NO ISSUANCE ACTIVITY" Then
+				continue_with_no_issuance = MsgBox("The months " & ga_start_month & " through " & ga_end_month & " for GA have no issuance activity." & vbCr & vbCr & "Do you want to include 'No Issuance' information on the MEMO?", vbQuestion + vbYesNo, "Add No Issuance to MEMO")
+				If continue_with_no_issuance = vbNo Then reset_months_programs = reset_months_programs & "GA-"
+				If continue_with_no_issuance = vbYes Then
+					msg_counter = 0
+					For each expected_month in GA_expected_dates_array					'Now we loop through ALL the months we expected to find in the range - this is so we can add $0 issuance months as 0
+						ReDim Preserve GA_ISSUANCE_ARRAY(last_const, msg_counter)
+						GA_ISSUANCE_ARRAY(benefit_month_const, msg_counter) = right("00" & DatePart("m", expected_month), 2) & "/" & right(DatePart("yyyy", expected_month), 2)
+						GA_ISSUANCE_ARRAY(ga_grant_amount_const, msg_counter) = 0
+						GA_ISSUANCE_ARRAY(benefit_month_as_date_const, msg_counter) = expected_month
+						GA_ISSUANCE_ARRAY(note_message_const, msg_counter) = "$ 0.00     issued for " & GA_ISSUANCE_ARRAY(benefit_month_const, msg_counter)
+						GA_dates_array = GA_dates_array & "~" & expected_month
 
-			inqx_row = 6															'Read all of the information on INQX
-			msg_counter = 0
-			Do
-				EMReadScreen issued_date, 8, inqx_row, 7
-				EMReadScreen tran_amount, 8, inqx_row, 38
-				EMReadScreen from_month, 2, inqx_row, 62
-				EMReadScreen from_year, 2, inqx_row, 68
+						ga_msg_display = ga_msg_display & vbCr & GA_ISSUANCE_ARRAY(note_message_const, msg_counter)
+						GA_total = GA_total + GA_ISSUANCE_ARRAY(ga_grant_amount_const, msg_counter)
+						GA_MEMO_rows_needed = GA_MEMO_rows_needed + 1
 
-				issued_date = trim(issued_date)
-				tran_amount = trim(tran_amount)
+						msg_counter = msg_counter + 1
+					Next
+					If left(GA_dates_array, 1) = "~" Then GA_dates_array = right(GA_dates_array, len(GA_dates_array) - 1)		'creating an array of all of the 'from dates'
+					If Instr(GA_dates_array, "~") = 0 Then
+						GA_dates_array = Array(GA_dates_array)
+					Else
+						GA_dates_array = split(GA_dates_array, "~")
+					End If
+					Call sort_dates(GA_dates_array)		'This function takes all the dates in an array and put them in order from oldest to newest
+				End If
+			Else
 
-				If issued_date <> "" Then
-					from_date = from_month & "/1/" & from_year						'making the date a date and making it the 1st of the month (this accounts for proration)
-					from_date = DateAdd("d", 0, from_date)
-					'Only accept if the date is equal to or after the first date and equal to or before the last date
-					If DateDiff("d", from_date, first_date_of_range) <= 0 AND DateDiff("d", from_date, last_date_of_range) >= 0 Then
+				inqx_row = 6															'Read all of the information on INQX
+				msg_counter = 0
+				Do
+					EMReadScreen issued_date, 8, inqx_row, 7
+					EMReadScreen tran_amount, 8, inqx_row, 38
+					EMReadScreen from_month, 2, inqx_row, 62
+					EMReadScreen from_year, 2, inqx_row, 68
 
-						benefit_month = from_month & "/" & from_year
-						tran_amount = tran_amount * 1								'this must be a NUMBER
-						ammount_added_in = False
-						For each_known_issuance = 0 to UBound(GA_ISSUANCE_ARRAY, 2)		'reading to see if the benefit month is already in the array so we can combine the benefit amounts
-							If benefit_month = GA_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance) Then
-								GA_ISSUANCE_ARRAY(cash_grant_amount_const, each_known_issuance) = GA_ISSUANCE_ARRAY(cash_grant_amount_const, each_known_issuance) + tran_amount
-								ammount_added_in = True
+					issued_date = trim(issued_date)
+					tran_amount = trim(tran_amount)
+
+					If issued_date <> "" Then
+						from_date = from_month & "/1/" & from_year						'making the date a date and making it the 1st of the month (this accounts for proration)
+						from_date = DateAdd("d", 0, from_date)
+						'Only accept if the date is equal to or after the first date and equal to or before the last date
+						If DateDiff("d", from_date, first_date_of_range) <= 0 AND DateDiff("d", from_date, last_date_of_range) >= 0 Then
+
+							benefit_month = from_month & "/" & from_year
+							tran_amount = tran_amount * 1								'this must be a NUMBER
+							ammount_added_in = False
+							For each_known_issuance = 0 to UBound(GA_ISSUANCE_ARRAY, 2)		'reading to see if the benefit month is already in the array so we can combine the benefit amounts
+								If benefit_month = GA_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance) Then
+									GA_ISSUANCE_ARRAY(cash_grant_amount_const, each_known_issuance) = GA_ISSUANCE_ARRAY(cash_grant_amount_const, each_known_issuance) + tran_amount
+									ammount_added_in = True
+								End If
+							Next
+							If ammount_added_in = False Then							'if the benefit month was NOT found - create a new array instance for that benefit month.
+								ReDim Preserve GA_ISSUANCE_ARRAY(last_const, msg_counter)
+								GA_ISSUANCE_ARRAY(benefit_month_const, msg_counter) = benefit_month
+								GA_ISSUANCE_ARRAY(cash_grant_amount_const, msg_counter) = tran_amount
+								GA_ISSUANCE_ARRAY(benefit_month_as_date_const, msg_counter) = from_date
+								msg_counter = msg_counter + 1
 							End If
-						Next
-						If ammount_added_in = False Then							'if the benefit month was NOT found - create a new array instance for that benefit month.
-							ReDim Preserve GA_ISSUANCE_ARRAY(last_const, msg_counter)
-							GA_ISSUANCE_ARRAY(benefit_month_const, msg_counter) = benefit_month
-							GA_ISSUANCE_ARRAY(cash_grant_amount_const, msg_counter) = tran_amount
-							GA_ISSUANCE_ARRAY(benefit_month_as_date_const, msg_counter) = from_date
-							msg_counter = msg_counter + 1
 						End If
 					End If
-				End If
 
-				inqx_row = inqx_row + 1		'go to the next line/page
-				If inqx_row = 18 Then
-					PF8
-					inqx_row = 6
+					inqx_row = inqx_row + 1		'go to the next line/page
+					If inqx_row = 18 Then
+						PF8
+						inqx_row = 6
 
-					EMReadScreen more_thanb_9_pages_msg, 38, 24, 2
-					If more_thanb_9_pages_msg = "CAN NOT PAGE THROUGH MORE THAN 9 PAGES" Then too_many_GA_INQX_pages = True
-					If too_many_GA_INQX_pages = True Then
-						ReDim GA_ISSUANCE_ARRAY(last_const, 0)
-						Exit Do
-					End if
-					EMreadScreen end_of_list, 9, 24, 14
-					if end_of_list = "LAST PAGE" Then Exit Do
-				End If
-			Loop until issued_date = ""		'go until the end of the list
-			GA_dates_array = ""				'we need an array of the dates ONLY
-			For each_known_issuance = 0 to UBound(GA_ISSUANCE_ARRAY, 2)			'Now we loop through all of the found benefit months and create the formatting for the MEMO
-				total_amount = GA_ISSUANCE_ARRAY(cash_grant_amount_const, each_known_issuance)
-				total_amount = total_amount & ""
-				If InStr(total_amount, ".") = 0 Then
-					total_amount = left(total_amount & ".00        ", 8)
-				Else
-					total_amount = left(total_amount & "        ", 8)
-				End If
-				GA_ISSUANCE_ARRAY(note_message_const, each_known_issuance) = "$ " & total_amount & " issued for " & GA_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance)
-				GA_dates_array = GA_dates_array & "~" & GA_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)		'adding to the array of all the dates
-			Next
-			For each expected_month in GA_expected_dates_array						'Now we loop through ALL the months we expected to find in the range - this is so we can add $0 issuance months as 0
-				issuance_found = False
-				For each_known_issuance = 0 to UBound(GA_ISSUANCE_ARRAY, 2)			'Look at all the found months - if they match - indicate that here
-					If DateDiff("d", GA_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance), expected_month) = 0 Then issuance_found = True
-				Next
-				If issuance_found = False Then										'If no month was found - add another array instance with a $0 benefit amount listed
-					ReDim Preserve GA_ISSUANCE_ARRAY(last_const, msg_counter)
-					GA_ISSUANCE_ARRAY(benefit_month_const, msg_counter) = right("00" & DatePart("m", expected_month), 2) & "/" & right(DatePart("yyyy", expected_month), 2)
-					GA_ISSUANCE_ARRAY(cash_grant_amount_const, msg_counter) = 0
-					GA_ISSUANCE_ARRAY(benefit_month_as_date_const, msg_counter) = expected_month
-					GA_ISSUANCE_ARRAY(note_message_const, each_known_issuance) = "$ 0.00     issued for " & GA_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance)
-					GA_dates_array = GA_dates_array & "~" & expected_month
-					msg_counter = msg_counter + 1
-				End If
-			Next
-			If left(GA_dates_array, 1) = "~" Then GA_dates_array = right(GA_dates_array, len(GA_dates_array) - 1)		'creating an array of all of the 'from dates'
-			If Instr(GA_dates_array, "~") = 0 Then
-				GA_dates_array = Array(GA_dates_array)
-			Else
-				GA_dates_array = split(GA_dates_array, "~")
-			End If
-			Call sort_dates(GA_dates_array)		'This function takes all the dates in an array and put them in order from oldest to newest
-
-			for each ordered_date in GA_dates_array		'Now doing some counting and totalling
-				For each_known_issuance = 0 to UBound(GA_ISSUANCE_ARRAY, 2)
-					If DateDiff("d", ordered_date, GA_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)) = 0 Then
-						ga_msg_display = ga_msg_display & vbCr & GA_ISSUANCE_ARRAY(note_message_const, each_known_issuance)
-						GA_total = GA_total + GA_ISSUANCE_ARRAY(cash_grant_amount_const, each_known_issuance)
+						EMReadScreen more_thanb_9_pages_msg, 38, 24, 2
+						If more_thanb_9_pages_msg = "CAN NOT PAGE THROUGH MORE THAN 9 PAGES" Then too_many_GA_INQX_pages = True
+						If too_many_GA_INQX_pages = True Then
+							ReDim GA_ISSUANCE_ARRAY(last_const, 0)
+							PF3
+							Exit Do
+						End if
+						EMreadScreen end_of_list, 9, 24, 14
+						if end_of_list = "LAST PAGE" Then Exit Do
 					End If
-				Next
-			Next
+				Loop until issued_date = ""		'go until the end of the list
+				If too_many_GA_INQX_pages = False Then
+					GA_dates_array = ""				'we need an array of the dates ONLY
+					For each_known_issuance = 0 to UBound(GA_ISSUANCE_ARRAY, 2)			'Now we loop through all of the found benefit months and create the formatting for the MEMO
+						total_amount = GA_ISSUANCE_ARRAY(cash_grant_amount_const, each_known_issuance)
+						total_amount = total_amount & ""
+						If InStr(total_amount, ".") = 0 Then
+							total_amount = left(total_amount & ".00        ", 8)
+						Else
+							total_amount = left(total_amount & "        ", 8)
+						End If
+						GA_ISSUANCE_ARRAY(note_message_const, each_known_issuance) = "$ " & total_amount & " issued for " & GA_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance)
+						GA_dates_array = GA_dates_array & "~" & GA_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)		'adding to the array of all the dates
+					Next
+					For each expected_month in GA_expected_dates_array						'Now we loop through ALL the months we expected to find in the range - this is so we can add $0 issuance months as 0
+						issuance_found = False
+						For each_known_issuance = 0 to UBound(GA_ISSUANCE_ARRAY, 2)			'Look at all the found months - if they match - indicate that here
+							If DateDiff("d", GA_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance), expected_month) = 0 Then issuance_found = True
+						Next
+						If issuance_found = False Then										'If no month was found - add another array instance with a $0 benefit amount listed
+							ReDim Preserve GA_ISSUANCE_ARRAY(last_const, msg_counter)
+							GA_ISSUANCE_ARRAY(benefit_month_const, msg_counter) = right("00" & DatePart("m", expected_month), 2) & "/" & right(DatePart("yyyy", expected_month), 2)
+							GA_ISSUANCE_ARRAY(cash_grant_amount_const, msg_counter) = 0
+							GA_ISSUANCE_ARRAY(benefit_month_as_date_const, msg_counter) = expected_month
+							GA_ISSUANCE_ARRAY(note_message_const, msg_counter) = "$ 0.00     issued for " & GA_ISSUANCE_ARRAY(benefit_month_const, msg_counter)
+							GA_dates_array = GA_dates_array & "~" & expected_month
+							msg_counter = msg_counter + 1
+						End If
+					Next
+					If left(GA_dates_array, 1) = "~" Then GA_dates_array = right(GA_dates_array, len(GA_dates_array) - 1)		'creating an array of all of the 'from dates'
+					If Instr(GA_dates_array, "~") = 0 Then
+						GA_dates_array = Array(GA_dates_array)
+					Else
+						GA_dates_array = split(GA_dates_array, "~")
+					End If
+					Call sort_dates(GA_dates_array)		'This function takes all the dates in an array and put them in order from oldest to newest
 
-			' MsgBox "GA - This is the list" & ga_msg_display & vbCr & "TOTAL GA: $" & GA_total
-			PF3
+					for each ordered_date in GA_dates_array		'Now doing some counting and totalling
+						For each_known_issuance = 0 to UBound(GA_ISSUANCE_ARRAY, 2)
+							If DateDiff("d", ordered_date, GA_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)) = 0 Then
+								ga_msg_display = ga_msg_display & vbCr & GA_ISSUANCE_ARRAY(note_message_const, each_known_issuance)
+								GA_total = GA_total + GA_ISSUANCE_ARRAY(cash_grant_amount_const, each_known_issuance)
+							End If
+						Next
+					Next
+
+					' MsgBox "GA - This is the list" & ga_msg_display & vbCr & "TOTAL GA: $" & GA_total
+					PF3
+				End If
+			End If
 		End If
 
 		If msa_verification_method = "Create New MEMO with range of Months" Then
@@ -2421,6 +2499,7 @@ Do 		'BIG Loop to see if INQX is over the 9 page limit
 			first_date_of_range = DateAdd("d", 0, first_date_of_range)
 			last_date_of_range = replace(msa_end_month, "/", "/01/")
 			last_date_of_range = DateAdd("d", 0, last_date_of_range)
+			plus_three_month = DateAdd("m", 3, last_date_of_range)
 
 			MSA_expected_dates_array = first_date_of_range							'creating an array of all of the months in the range
 			each_date = first_date_of_range
@@ -2442,103 +2521,141 @@ Do 		'BIG Loop to see if INQX is over the 9 page limit
 			EMWriteScreen CM_plus_1_yr, 6, 56
 
 			transmit
-			inqx_row = 6															'Read all of the information on INQX
-			msg_counter = 0
-			Do
-				EMReadScreen issued_date, 8, inqx_row, 7
-				EMReadScreen tran_amount, 8, inqx_row, 38
-				EMReadScreen from_month, 2, inqx_row, 62
-				EMReadScreen from_year, 2, inqx_row, 68
 
-				issued_date = trim(issued_date)
-				tran_amount = trim(tran_amount)
+			EMReadScreen archived_check, 12, 24, 40
+			EMReadScreen no_issuance_check, 20, 24, 2
+			If archived_check = "WAS ARCHIVED" Then
+				benefits_archived_for_prog = benefits_archived_for_prog & "MSA-"
+			ElseIf no_issuance_check = "NO ISSUANCE ACTIVITY" Then
+				continue_with_no_issuance = MsgBox("The months " & msa_start_month & " through " & msa_end_month & " for MSA have no issuance activity." & vbCr & vbCr & "Do you want to include 'No Issuance' information on the MEMO?", vbQuestion + vbYesNo, "Add No Issuance to MEMO")
+				If continue_with_no_issuance = vbNo Then reset_months_programs = reset_months_programs & "MSA-"
+				If continue_with_no_issuance = vbYes Then
+					msg_counter = 0
+					For each expected_month in MSA_expected_dates_array					'Now we loop through ALL the months we expected to find in the range - this is so we can add $0 issuance months as 0
+						ReDim Preserve MSA_ISSUANCE_ARRAY(last_const, msg_counter)
+						MSA_ISSUANCE_ARRAY(benefit_month_const, msg_counter) = right("00" & DatePart("m", expected_month), 2) & "/" & right(DatePart("yyyy", expected_month), 2)
+						MSA_ISSUANCE_ARRAY(msa_grant_amount_const, msg_counter) = 0
+						MSA_ISSUANCE_ARRAY(benefit_month_as_date_const, msg_counter) = expected_month
+						MSA_ISSUANCE_ARRAY(note_message_const, msg_counter) = "$ 0.00     issued for " & MSA_ISSUANCE_ARRAY(benefit_month_const, msg_counter)
+						MSA_dates_array = MSA_dates_array & "~" & expected_month
 
-				If issued_date <> "" Then
-					from_date = from_month & "/1/" & from_year						'making the date a date and making it the 1st of the month (this accounts for proration)
-					from_date = DateAdd("d", 0, from_date)
-					'Only accept if the date is equal to or after the first date and equal to or before the last date
-					If DateDiff("d", from_date, first_date_of_range) <= 0 AND DateDiff("d", from_date, last_date_of_range) >= 0 Then
+						msa_msg_display = msa_msg_display & vbCr & MSA_ISSUANCE_ARRAY(note_message_const, msg_counter)
+						MSA_total = MSA_total + MSA_ISSUANCE_ARRAY(msa_grant_amount_const, msg_counter)
+						MSA_MEMO_rows_needed = MSA_MEMO_rows_needed + 1
 
-						benefit_month = from_month & "/" & from_year
-						tran_amount = tran_amount * 1								'this must be a NUMBER
-						ammount_added_in = False
-						For each_known_issuance = 0 to UBound(MSA_ISSUANCE_ARRAY, 2)		'reading to see if the benefit month is already in the array so we can combine the benefit amounts
-							If benefit_month = MSA_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance) Then
-								MSA_ISSUANCE_ARRAY(cash_grant_amount_const, each_known_issuance) = MSA_ISSUANCE_ARRAY(cash_grant_amount_const, each_known_issuance) + tran_amount
-								ammount_added_in = True
+						msg_counter = msg_counter + 1
+					Next
+					If left(MSA_dates_array, 1) = "~" Then MSA_dates_array = right(MSA_dates_array, len(MSA_dates_array) - 1)		'creating an array of all of the 'from dates'
+					If Instr(MSA_dates_array, "~") = 0 Then
+						MSA_dates_array = Array(MSA_dates_array)
+					Else
+						MSA_dates_array = split(MSA_dates_array, "~")
+					End If
+					Call sort_dates(MSA_dates_array)		'This function takes all the dates in an array and put them in order from oldest to newest
+				End If
+			Else
+
+				inqx_row = 6															'Read all of the information on INQX
+				msg_counter = 0
+				Do
+					EMReadScreen issued_date, 8, inqx_row, 7
+					EMReadScreen tran_amount, 8, inqx_row, 38
+					EMReadScreen from_month, 2, inqx_row, 62
+					EMReadScreen from_year, 2, inqx_row, 68
+
+					issued_date = trim(issued_date)
+					tran_amount = trim(tran_amount)
+
+					If issued_date <> "" Then
+						from_date = from_month & "/1/" & from_year						'making the date a date and making it the 1st of the month (this accounts for proration)
+						from_date = DateAdd("d", 0, from_date)
+						'Only accept if the date is equal to or after the first date and equal to or before the last date
+						If DateDiff("d", from_date, first_date_of_range) <= 0 AND DateDiff("d", from_date, last_date_of_range) >= 0 Then
+
+							benefit_month = from_month & "/" & from_year
+							tran_amount = tran_amount * 1								'this must be a NUMBER
+							ammount_added_in = False
+							For each_known_issuance = 0 to UBound(MSA_ISSUANCE_ARRAY, 2)		'reading to see if the benefit month is already in the array so we can combine the benefit amounts
+								If benefit_month = MSA_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance) Then
+									MSA_ISSUANCE_ARRAY(cash_grant_amount_const, each_known_issuance) = MSA_ISSUANCE_ARRAY(cash_grant_amount_const, each_known_issuance) + tran_amount
+									ammount_added_in = True
+								End If
+							Next
+							If ammount_added_in = False Then							'if the benefit month was NOT found - create a new array instance for that benefit month.
+								ReDim Preserve MSA_ISSUANCE_ARRAY(last_const, msg_counter)
+								MSA_ISSUANCE_ARRAY(benefit_month_const, msg_counter) = benefit_month
+								MSA_ISSUANCE_ARRAY(cash_grant_amount_const, msg_counter) = tran_amount
+								MSA_ISSUANCE_ARRAY(benefit_month_as_date_const, msg_counter) = from_date
+								msg_counter = msg_counter + 1
 							End If
-						Next
-						If ammount_added_in = False Then							'if the benefit month was NOT found - create a new array instance for that benefit month.
-							ReDim Preserve MSA_ISSUANCE_ARRAY(last_const, msg_counter)
-							MSA_ISSUANCE_ARRAY(benefit_month_const, msg_counter) = benefit_month
-							MSA_ISSUANCE_ARRAY(cash_grant_amount_const, msg_counter) = tran_amount
-							MSA_ISSUANCE_ARRAY(benefit_month_as_date_const, msg_counter) = from_date
-							msg_counter = msg_counter + 1
 						End If
 					End If
-				End If
 
-				inqx_row = inqx_row + 1		'go to the next line/page
-				If inqx_row = 18 Then
-					PF8
-					inqx_row = 6
+					inqx_row = inqx_row + 1		'go to the next line/page
+					If inqx_row = 18 Then
+						PF8
+						inqx_row = 6
 
-					EMReadScreen more_thanb_9_pages_msg, 38, 24, 2
-					If more_thanb_9_pages_msg = "CAN NOT PAGE THROUGH MORE THAN 9 PAGES" Then too_many_MSA_INQX_pages = True
-					If too_many_MSA_INQX_pages = True Then
-						ReDim MSA_ISSUANCE_ARRAY(last_const, 0)
-						Exit Do
-					End if
-					EMreadScreen end_of_list, 9, 24, 14
-					if end_of_list = "LAST PAGE" Then Exit Do
-				End If
-			Loop until issued_date = ""		'go until the end of the list
-			MSA_dates_array = ""			'we need an array of the dates ONLY
-			For each_known_issuance = 0 to UBound(MSA_ISSUANCE_ARRAY, 2)			'Now we loop through all of the found benefit months and create the formatting for the MEMO
-				total_amount = MSA_ISSUANCE_ARRAY(cash_grant_amount_const, each_known_issuance)
-				total_amount = total_amount & ""
-				If InStr(total_amount, ".") = 0 Then
-					total_amount = left(total_amount & ".00        ", 8)
-				Else
-					total_amount = left(total_amount & "        ", 8)
-				End If
-				MSA_ISSUANCE_ARRAY(note_message_const, each_known_issuance) = "$ " & total_amount & " issued for " & MSA_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance)
-				MSA_dates_array = MSA_dates_array & "~" & MSA_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)		'adding to the array of all the dates
-			Next
-			For each expected_month in MSA_expected_dates_array					'Now we loop through ALL the months we expected to find in the range - this is so we can add $0 issuance months as 0
-				issuance_found = False
-				For each_known_issuance = 0 to UBound(MSA_ISSUANCE_ARRAY, 2)		'Look at all the found months - if they match - indicate that here
-					If DateDiff("d", MSA_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance), expected_month) = 0 Then issuance_found = True
-				Next
-				If issuance_found = False Then										'If no month was found - add another array instance with a $0 benefit amount listed
-					ReDim Preserve MSA_ISSUANCE_ARRAY(last_const, msg_counter)
-					MSA_ISSUANCE_ARRAY(benefit_month_const, msg_counter) = right("00" & DatePart("m", expected_month), 2) & "/" & right(DatePart("yyyy", expected_month), 2)
-					MSA_ISSUANCE_ARRAY(cash_grant_amount_const, msg_counter) = 0
-					MSA_ISSUANCE_ARRAY(benefit_month_as_date_const, msg_counter) = expected_month
-					MSA_ISSUANCE_ARRAY(note_message_const, each_known_issuance) = "$ 0.00     issued for " & MSA_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance)
-					MSA_dates_array = MSA_dates_array & "~" & expected_month
-					msg_counter = msg_counter + 1
-				End If
-			Next
-			If left(MSA_dates_array, 1) = "~" Then MSA_dates_array = right(MSA_dates_array, len(MSA_dates_array) - 1)		'creating an array of all of the 'from dates'
-			If Instr(MSA_dates_array, "~") = 0 Then
-				MSA_dates_array = Array(MSA_dates_array)
-			Else
-				MSA_dates_array = split(MSA_dates_array, "~")
-			End If
-			Call sort_dates(MSA_dates_array)		'This function takes all the dates in an array and put them in order from oldest to newest
-
-			for each ordered_date in MSA_dates_array		'Now doing some counting and totalling
-				For each_known_issuance = 0 to UBound(MSA_ISSUANCE_ARRAY, 2)
-					If DateDiff("d", ordered_date, MSA_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)) = 0 Then
-						msa_msg_display = msa_msg_display & vbCr & MSA_ISSUANCE_ARRAY(note_message_const, each_known_issuance)
-						MSA_total = MSA_total + MSA_ISSUANCE_ARRAY(cash_grant_amount_const, each_known_issuance)
+						EMReadScreen more_thanb_9_pages_msg, 38, 24, 2
+						If more_thanb_9_pages_msg = "CAN NOT PAGE THROUGH MORE THAN 9 PAGES" Then too_many_MSA_INQX_pages = True
+						If too_many_MSA_INQX_pages = True Then
+							ReDim MSA_ISSUANCE_ARRAY(last_const, 0)
+							PF3
+							Exit Do
+						End if
+						EMreadScreen end_of_list, 9, 24, 14
+						if end_of_list = "LAST PAGE" Then Exit Do
 					End If
-				Next
-			Next
+				Loop until issued_date = ""		'go until the end of the list
+				If too_many_MSA_INQX_pages = False Then
+					MSA_dates_array = ""			'we need an array of the dates ONLY
+					For each_known_issuance = 0 to UBound(MSA_ISSUANCE_ARRAY, 2)			'Now we loop through all of the found benefit months and create the formatting for the MEMO
+						total_amount = MSA_ISSUANCE_ARRAY(cash_grant_amount_const, each_known_issuance)
+						total_amount = total_amount & ""
+						If InStr(total_amount, ".") = 0 Then
+							total_amount = left(total_amount & ".00        ", 8)
+						Else
+							total_amount = left(total_amount & "        ", 8)
+						End If
+						MSA_ISSUANCE_ARRAY(note_message_const, each_known_issuance) = "$ " & total_amount & " issued for " & MSA_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance)
+						MSA_dates_array = MSA_dates_array & "~" & MSA_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)		'adding to the array of all the dates
+					Next
+					For each expected_month in MSA_expected_dates_array					'Now we loop through ALL the months we expected to find in the range - this is so we can add $0 issuance months as 0
+						issuance_found = False
+						For each_known_issuance = 0 to UBound(MSA_ISSUANCE_ARRAY, 2)		'Look at all the found months - if they match - indicate that here
+							If DateDiff("d", MSA_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance), expected_month) = 0 Then issuance_found = True
+						Next
+						If issuance_found = False Then										'If no month was found - add another array instance with a $0 benefit amount listed
+							ReDim Preserve MSA_ISSUANCE_ARRAY(last_const, msg_counter)
+							MSA_ISSUANCE_ARRAY(benefit_month_const, msg_counter) = right("00" & DatePart("m", expected_month), 2) & "/" & right(DatePart("yyyy", expected_month), 2)
+							MSA_ISSUANCE_ARRAY(cash_grant_amount_const, msg_counter) = 0
+							MSA_ISSUANCE_ARRAY(benefit_month_as_date_const, msg_counter) = expected_month
+							MSA_ISSUANCE_ARRAY(note_message_const, msg_counter) = "$ 0.00     issued for " & MSA_ISSUANCE_ARRAY(benefit_month_const, msg_counter)
+							MSA_dates_array = MSA_dates_array & "~" & expected_month
+							msg_counter = msg_counter + 1
+						End If
+					Next
+					If left(MSA_dates_array, 1) = "~" Then MSA_dates_array = right(MSA_dates_array, len(MSA_dates_array) - 1)		'creating an array of all of the 'from dates'
+					If Instr(MSA_dates_array, "~") = 0 Then
+						MSA_dates_array = Array(MSA_dates_array)
+					Else
+						MSA_dates_array = split(MSA_dates_array, "~")
+					End If
+					Call sort_dates(MSA_dates_array)		'This function takes all the dates in an array and put them in order from oldest to newest
 
-			' MsgBox "MSA - This is the list" & msa_msg_display & vbCr & "MSA Total: $" & MSA_total
-			PF3
+					for each ordered_date in MSA_dates_array		'Now doing some counting and totalling
+						For each_known_issuance = 0 to UBound(MSA_ISSUANCE_ARRAY, 2)
+							If DateDiff("d", ordered_date, MSA_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)) = 0 Then
+								msa_msg_display = msa_msg_display & vbCr & MSA_ISSUANCE_ARRAY(note_message_const, each_known_issuance)
+								MSA_total = MSA_total + MSA_ISSUANCE_ARRAY(cash_grant_amount_const, each_known_issuance)
+							End If
+						Next
+					Next
+
+					' MsgBox "MSA - This is the list" & msa_msg_display & vbCr & "MSA Total: $" & MSA_total
+					PF3
+				End If
+			End If
 		End If
 
 		If mfip_verification_method = "Create New MEMO with range of Months" Then
@@ -2554,6 +2671,7 @@ Do 		'BIG Loop to see if INQX is over the 9 page limit
 			search_year = right(DatePart("yyyy", mfip_search_month), 2)
 			last_date_of_range = replace(mfip_end_month, "/", "/01/")
 			last_date_of_range = DateAdd("d", 0, last_date_of_range)
+			plus_three_month = DateAdd("m", 3, last_date_of_range)
 
 			MFIP_expected_dates_array = first_date_of_range							'creating an array of all of the months in the range
 			each_date = first_date_of_range
@@ -2576,127 +2694,163 @@ Do 		'BIG Loop to see if INQX is over the 9 page limit
 
 			transmit
 
-			inqx_row = 6															'Read all of the information on INQX
-			msg_counter = 0
-			Do
-				EMReadScreen issued_date, 8, inqx_row, 7
-				EMReadScreen tran_amount, 8, inqx_row, 38
-				EMReadScreen ben_type, 2, inqx_row, 19
-				EMReadScreen from_month, 2, inqx_row, 62
-				EMReadScreen from_year, 2, inqx_row, 68
+			EMReadScreen archived_check, 12, 24, 40
+			EMReadScreen no_issuance_check, 20, 24, 2
+			If archived_check = "WAS ARCHIVED" Then
+				benefits_archived_for_prog = benefits_archived_for_prog & "MFIP-"
+			ElseIf no_issuance_check = "NO ISSUANCE ACTIVITY" Then
+				continue_with_no_issuance = MsgBox("The months " & mfip_start_month & " through " & mfip_end_month & " for MFIP have no issuance activity." & vbCr & vbCr & "Do you want to include 'No Issuance' information on the MEMO?", vbQuestion + vbYesNo, "Add No Issuance to MEMO")
+				If continue_with_no_issuance = vbNo Then reset_months_programs = reset_months_programs & "MFIP-"
+				If continue_with_no_issuance = vbYes Then
+					msg_counter = 0
+					For each expected_month in MFIP_expected_dates_array					'Now we loop through ALL the months we expected to find in the range - this is so we can add $0 issuance months as 0
+						ReDim Preserve MFIP_ISSUANCE_ARRAY(last_const, msg_counter)
+						MFIP_ISSUANCE_ARRAY(benefit_month_const, msg_counter) = right("00" & DatePart("m", expected_month), 2) & "/" & right(DatePart("yyyy", expected_month), 2)
+						MFIP_ISSUANCE_ARRAY(mfip_grant_amount_const, msg_counter) = 0
+						MFIP_ISSUANCE_ARRAY(benefit_month_as_date_const, msg_counter) = expected_month
+						MFIP_ISSUANCE_ARRAY(note_message_const, msg_counter) = "$ 0.00     issued for " & MFIP_ISSUANCE_ARRAY(benefit_month_const, msg_counter)
+						MFIP_dates_array = MFIP_dates_array & "~" & expected_month
 
-				issued_date = trim(issued_date)
-				tran_amount = trim(tran_amount)
+						mfip_msg_display = mfip_msg_display & vbCr & MFIP_ISSUANCE_ARRAY(note_message_const, msg_counter)
+						MFIP_total = MFIP_total + MFIP_ISSUANCE_ARRAY(mfip_grant_amount_const, msg_counter)
+						MFIP_MEMO_rows_needed = MFIP_MEMO_rows_needed + 1
 
-				If issued_date <> "" Then
-					from_date = from_month & "/1/" & from_year						'making the date a date and making it the 1st of the month (this accounts for proration)
-					from_date = DateAdd("d", 0, from_date)
-					'Only accept if the date is equal to or after the first date and equal to or before the last date
-					If DateDiff("d", from_date, first_date_of_range) <= 0 AND DateDiff("d", from_date, last_date_of_range) >= 0 Then
+						msg_counter = msg_counter + 1
+					Next
+					If left(MFIP_dates_array, 1) = "~" Then MFIP_dates_array = right(MFIP_dates_array, len(MFIP_dates_array) - 1)		'creating an array of all of the 'from dates'
+					If Instr(MFIP_dates_array, "~") = 0 Then
+						MFIP_dates_array = Array(MFIP_dates_array)
+					Else
+						MFIP_dates_array = split(MFIP_dates_array, "~")
+					End If
+					Call sort_dates(MFIP_dates_array)		'This function takes all the dates in an array and put them in order from oldest to newest
+				End If
+			Else
+				inqx_row = 6															'Read all of the information on INQX
+				msg_counter = 0
+				Do
+					EMReadScreen issued_date, 8, inqx_row, 7
+					EMReadScreen tran_amount, 8, inqx_row, 38
+					EMReadScreen ben_type, 2, inqx_row, 19
+					EMReadScreen from_month, 2, inqx_row, 62
+					EMReadScreen from_year, 2, inqx_row, 68
 
-						benefit_month = from_month & "/" & from_year
-						tran_amount = tran_amount * 1								'this must be a NUMBER
-						ammount_added_in = False
-						For each_known_issuance = 0 to UBound(MFIP_ISSUANCE_ARRAY, 2)		'reading to see if the benefit month is already in the array so we can combine the benefit amounts
-							If benefit_month = MFIP_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance) Then
+					issued_date = trim(issued_date)
+					tran_amount = trim(tran_amount)
+
+					If issued_date <> "" Then
+						from_date = from_month & "/1/" & from_year						'making the date a date and making it the 1st of the month (this accounts for proration)
+						from_date = DateAdd("d", 0, from_date)
+						'Only accept if the date is equal to or after the first date and equal to or before the last date
+						If DateDiff("d", from_date, first_date_of_range) <= 0 AND DateDiff("d", from_date, last_date_of_range) >= 0 Then
+
+							benefit_month = from_month & "/" & from_year
+							tran_amount = tran_amount * 1								'this must be a NUMBER
+							ammount_added_in = False
+							For each_known_issuance = 0 to UBound(MFIP_ISSUANCE_ARRAY, 2)		'reading to see if the benefit month is already in the array so we can combine the benefit amounts
+								If benefit_month = MFIP_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance) Then
+									If ben_type = "FS" Then
+										MFIP_ISSUANCE_ARRAY(snap_grant_amount_const, each_known_issuance) = MFIP_ISSUANCE_ARRAY(snap_grant_amount_const, each_known_issuance) + tran_amount
+									End If
+									If ben_type = "MF" OR ben_type = "HG" Then
+										MFIP_ISSUANCE_ARRAY(cash_grant_amount_const, each_known_issuance) = MFIP_ISSUANCE_ARRAY(cash_grant_amount_const, each_known_issuance) + tran_amount
+									End If
+									ammount_added_in = True
+								End If
+							Next
+							If ammount_added_in = False Then							'if the benefit month was NOT found - create a new array instance for that benefit month.
+								ReDim Preserve MFIP_ISSUANCE_ARRAY(last_const, msg_counter)
+								MFIP_ISSUANCE_ARRAY(benefit_month_const, msg_counter) = benefit_month
+								MFIP_ISSUANCE_ARRAY(grant_amount_const, msg_counter) = tran_amount
 								If ben_type = "FS" Then
-									MFIP_ISSUANCE_ARRAY(snap_grant_amount_const, each_known_issuance) = MFIP_ISSUANCE_ARRAY(snap_grant_amount_const, each_known_issuance) + tran_amount
+									MFIP_ISSUANCE_ARRAY(snap_grant_amount_const, msg_counter) = tran_amount
+									MFIP_ISSUANCE_ARRAY(cash_grant_amount_const, msg_counter) = 0
 								End If
 								If ben_type = "MF" OR ben_type = "HG" Then
-									MFIP_ISSUANCE_ARRAY(cash_grant_amount_const, each_known_issuance) = MFIP_ISSUANCE_ARRAY(cash_grant_amount_const, each_known_issuance) + tran_amount
+									MFIP_ISSUANCE_ARRAY(snap_grant_amount_const, msg_counter) = 0
+									MFIP_ISSUANCE_ARRAY(cash_grant_amount_const, msg_counter) = tran_amount
 								End If
-								ammount_added_in = True
+								MFIP_ISSUANCE_ARRAY(benefit_month_as_date_const, msg_counter) = from_date
+								msg_counter = msg_counter + 1
 							End If
-						Next
-						If ammount_added_in = False Then							'if the benefit month was NOT found - create a new array instance for that benefit month.
-							ReDim Preserve MFIP_ISSUANCE_ARRAY(last_const, msg_counter)
-							MFIP_ISSUANCE_ARRAY(benefit_month_const, msg_counter) = benefit_month
-							MFIP_ISSUANCE_ARRAY(grant_amount_const, msg_counter) = tran_amount
-							If ben_type = "FS" Then
-								MFIP_ISSUANCE_ARRAY(snap_grant_amount_const, msg_counter) = tran_amount
-								MFIP_ISSUANCE_ARRAY(cash_grant_amount_const, msg_counter) = 0
-							End If
-							If ben_type = "MF" OR ben_type = "HG" Then
-								MFIP_ISSUANCE_ARRAY(snap_grant_amount_const, msg_counter) = 0
-								MFIP_ISSUANCE_ARRAY(cash_grant_amount_const, msg_counter) = tran_amount
-							End If
-							MFIP_ISSUANCE_ARRAY(benefit_month_as_date_const, msg_counter) = from_date
-							msg_counter = msg_counter + 1
 						End If
 					End If
-				End If
 
-				inqx_row = inqx_row + 1		'go to the next line/page
-				If inqx_row = 18 Then
-					PF8
-					inqx_row = 6
-					EMReadScreen more_thanb_9_pages_msg, 38, 24, 2
-					If more_thanb_9_pages_msg = "CAN NOT PAGE THROUGH MORE THAN 9 PAGES" Then too_many_MFIP_INQX_pages = True
-					If too_many_MFIP_INQX_pages = True Then
-						ReDim MFIP_ISSUANCE_ARRAY(last_const, 0)
-						Exit Do
-					End if
-					EMreadScreen end_of_list, 9, 24, 14
-					if end_of_list = "LAST PAGE" Then Exit Do
-				End If
-			Loop until issued_date = ""		'go until the end of the list
-			MFIP_dates_array = ""			'we need an array of the dates ONLY
-			For each_known_issuance = 0 to UBound(MFIP_ISSUANCE_ARRAY, 2)			'Now we loop through all of the found benefit months and create the formatting for the MEMO
-				total_cash_amount = MFIP_ISSUANCE_ARRAY(cash_grant_amount_const, each_known_issuance)
-				total_cash_amount = total_cash_amount & ""
-				If InStr(total_cash_amount, ".") = 0 Then
-					total_cash_amount = left(total_cash_amount & ".00        ", 8)
-				Else
-					total_cash_amount = left(total_cash_amount & "        ", 8)
-				End If
-
-				total_snap_amount = MFIP_ISSUANCE_ARRAY(snap_grant_amount_const, each_known_issuance)
-				total_snap_amount = total_snap_amount & ""
-				If InStr(total_snap_amount, ".") = 0 Then
-					total_snap_amount = left(total_snap_amount & ".00        ", 8)
-				Else
-					total_snap_amount = left(total_snap_amount & "        ", 8)
-				End If
-
-				MFIP_ISSUANCE_ARRAY(note_message_const, each_known_issuance) = MFIP_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance) & " - CASH: $ " & total_cash_amount & " and FOOD: $ " & total_snap_amount
-				MFIP_dates_array = MFIP_dates_array & "~" & MFIP_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)		'adding to the array of all the dates
-			Next
-			For each expected_month in MFIP_expected_dates_array					'Now we loop through ALL the months we expected to find in the range - this is so we can add $0 issuance months as 0
-				issuance_found = False
-				For each_known_issuance = 0 to UBound(MFIP_ISSUANCE_ARRAY, 2)		'Look at all the found months - if they match - indicate that here
-					If DateDiff("d", MFIP_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance), expected_month) = 0 Then issuance_found = True
-				Next
-				If issuance_found = False Then										'If no month was found - add another array instance with a $0 benefit amount listed
-					ReDim Preserve MFIP_ISSUANCE_ARRAY(last_const, msg_counter)
-					MFIP_ISSUANCE_ARRAY(benefit_month_const, msg_counter) = right("00" & DatePart("m", expected_month), 2) & "/" & right(DatePart("yyyy", expected_month), 2)
-					MFIP_ISSUANCE_ARRAY(snap_grant_amount_const, msg_counter) = 0
-					MFIP_ISSUANCE_ARRAY(cash_grant_amount_const, msg_counter) = 0
-					MFIP_ISSUANCE_ARRAY(benefit_month_as_date_const, msg_counter) = expected_month
-					MFIP_ISSUANCE_ARRAY(note_message_const, each_known_issuance) = MFIP_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance) & " - CASH: $ 0.00     and FOOD: $ 0.00    "
-					MFIP_dates_array = MFIP_dates_array & "~" & expected_month
-					msg_counter = msg_counter + 1
-				End If
-			Next
-			If left(MFIP_dates_array, 1) = "~" Then MFIP_dates_array = right(MFIP_dates_array, len(MFIP_dates_array) - 1)		'creating an array of all of the 'from dates'
-			If Instr(MFIP_dates_array, "~") = 0 Then
-				MFIP_dates_array = Array(MFIP_dates_array)
-			Else
-				MFIP_dates_array = split(MFIP_dates_array, "~")
-			End If
-			Call sort_dates(MFIP_dates_array)		'This function takes all the dates in an array and put them in order from oldest to newest
-
-			for each ordered_date in MFIP_dates_array		'Now doing some counting and totalling
-				For each_known_issuance = 0 to UBound(MFIP_ISSUANCE_ARRAY, 2)
-					If DateDiff("d", ordered_date, MFIP_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)) = 0 Then
-						mfip_msg_display = mfip_msg_display & vbCr & MFIP_ISSUANCE_ARRAY(note_message_const, each_known_issuance)
-						MFIP_Cash_total = MFIP_Cash_total + MFIP_ISSUANCE_ARRAY(cash_grant_amount_const, each_known_issuance)
-						MFIP_Food_total = MFIP_Food_total + MFIP_ISSUANCE_ARRAY(snap_grant_amount_const, each_known_issuance)
+					inqx_row = inqx_row + 1		'go to the next line/page
+					If inqx_row = 18 Then
+						PF8
+						inqx_row = 6
+						EMReadScreen more_thanb_9_pages_msg, 38, 24, 2
+						If more_thanb_9_pages_msg = "CAN NOT PAGE THROUGH MORE THAN 9 PAGES" Then too_many_MFIP_INQX_pages = True
+						If too_many_MFIP_INQX_pages = True Then
+							ReDim MFIP_ISSUANCE_ARRAY(last_const, 0)
+							PF3
+							Exit Do
+						End if
+						EMreadScreen end_of_list, 9, 24, 14
+						if end_of_list = "LAST PAGE" Then Exit Do
 					End If
-				Next
-			Next
+				Loop until issued_date = ""		'go until the end of the list
+				If too_many_MFIP_INQX_pages = False Then
+					MFIP_dates_array = ""			'we need an array of the dates ONLY
+					For each_known_issuance = 0 to UBound(MFIP_ISSUANCE_ARRAY, 2)			'Now we loop through all of the found benefit months and create the formatting for the MEMO
+						total_cash_amount = MFIP_ISSUANCE_ARRAY(cash_grant_amount_const, each_known_issuance)
+						total_cash_amount = total_cash_amount & ""
+						If InStr(total_cash_amount, ".") = 0 Then
+							total_cash_amount = left(total_cash_amount & ".00        ", 8)
+						Else
+							total_cash_amount = left(total_cash_amount & "        ", 8)
+						End If
 
-			' MsgBox "MFIP - This is the list" & mfip_msg_display & vbCr & "MFIP Cash Total: $" & MFIP_Cash_total & vbCr & "MFIP Food Total: $" & MFIP_Food_total
-			PF3
+						total_snap_amount = MFIP_ISSUANCE_ARRAY(snap_grant_amount_const, each_known_issuance)
+						total_snap_amount = total_snap_amount & ""
+						If InStr(total_snap_amount, ".") = 0 Then
+							total_snap_amount = left(total_snap_amount & ".00        ", 8)
+						Else
+							total_snap_amount = left(total_snap_amount & "        ", 8)
+						End If
+
+						MFIP_ISSUANCE_ARRAY(note_message_const, each_known_issuance) = MFIP_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance) & " - CASH: $ " & total_cash_amount & " and FOOD: $ " & total_snap_amount
+						MFIP_dates_array = MFIP_dates_array & "~" & MFIP_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)		'adding to the array of all the dates
+					Next
+					For each expected_month in MFIP_expected_dates_array					'Now we loop through ALL the months we expected to find in the range - this is so we can add $0 issuance months as 0
+						issuance_found = False
+						For each_known_issuance = 0 to UBound(MFIP_ISSUANCE_ARRAY, 2)		'Look at all the found months - if they match - indicate that here
+							If DateDiff("d", MFIP_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance), expected_month) = 0 Then issuance_found = True
+						Next
+						If issuance_found = False Then										'If no month was found - add another array instance with a $0 benefit amount listed
+							ReDim Preserve MFIP_ISSUANCE_ARRAY(last_const, msg_counter)
+							MFIP_ISSUANCE_ARRAY(benefit_month_const, msg_counter) = right("00" & DatePart("m", expected_month), 2) & "/" & right(DatePart("yyyy", expected_month), 2)
+							MFIP_ISSUANCE_ARRAY(snap_grant_amount_const, msg_counter) = 0
+							MFIP_ISSUANCE_ARRAY(cash_grant_amount_const, msg_counter) = 0
+							MFIP_ISSUANCE_ARRAY(benefit_month_as_date_const, msg_counter) = expected_month
+							MFIP_ISSUANCE_ARRAY(note_message_const, msg_counter) = MFIP_ISSUANCE_ARRAY(benefit_month_const, msg_counter) & " - CASH: $ 0.00     and FOOD: $ 0.00    "
+							MFIP_dates_array = MFIP_dates_array & "~" & expected_month
+							msg_counter = msg_counter + 1
+						End If
+					Next
+					If left(MFIP_dates_array, 1) = "~" Then MFIP_dates_array = right(MFIP_dates_array, len(MFIP_dates_array) - 1)		'creating an array of all of the 'from dates'
+					If Instr(MFIP_dates_array, "~") = 0 Then
+						MFIP_dates_array = Array(MFIP_dates_array)
+					Else
+						MFIP_dates_array = split(MFIP_dates_array, "~")
+					End If
+					Call sort_dates(MFIP_dates_array)		'This function takes all the dates in an array and put them in order from oldest to newest
+
+					for each ordered_date in MFIP_dates_array		'Now doing some counting and totalling
+						For each_known_issuance = 0 to UBound(MFIP_ISSUANCE_ARRAY, 2)
+							If DateDiff("d", ordered_date, MFIP_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)) = 0 Then
+								mfip_msg_display = mfip_msg_display & vbCr & MFIP_ISSUANCE_ARRAY(note_message_const, each_known_issuance)
+								MFIP_Cash_total = MFIP_Cash_total + MFIP_ISSUANCE_ARRAY(cash_grant_amount_const, each_known_issuance)
+								MFIP_Food_total = MFIP_Food_total + MFIP_ISSUANCE_ARRAY(snap_grant_amount_const, each_known_issuance)
+							End If
+						Next
+					Next
+
+					' MsgBox "MFIP - This is the list" & mfip_msg_display & vbCr & "MFIP Cash Total: $" & MFIP_Cash_total & vbCr & "MFIP Food Total: $" & MFIP_Food_total
+					PF3
+				End If
+			End If
 		End If
 
 		If dwp_verification_method = "Create New MEMO with range of Months" Then
@@ -2709,6 +2863,7 @@ Do 		'BIG Loop to see if INQX is over the 9 page limit
 			first_date_of_range = DateAdd("d", 0, first_date_of_range)
 			last_date_of_range = replace(dwp_end_month, "/", "/01/")
 			last_date_of_range = DateAdd("d", 0, last_date_of_range)
+			plus_three_month = DateAdd("m", 3, last_date_of_range)
 
 			DWP_expected_dates_array = first_date_of_range							'creating an array of all of the months in the range
 			each_date = first_date_of_range
@@ -2731,103 +2886,139 @@ Do 		'BIG Loop to see if INQX is over the 9 page limit
 
 			transmit
 
-			inqx_row = 6															'Read all of the information on INQX
-			msg_counter = 0
-			Do
-				EMReadScreen issued_date, 8, inqx_row, 7
-				EMReadScreen tran_amount, 8, inqx_row, 38
-				EMReadScreen from_month, 2, inqx_row, 62
-				EMReadScreen from_year, 2, inqx_row, 68
+			EMReadScreen archived_check, 12, 24, 40
+			EMReadScreen no_issuance_check, 20, 24, 2
+			If archived_check = "WAS ARCHIVED" Then
+				benefits_archived_for_prog = benefits_archived_for_prog & "DWP-"
+			ElseIf no_issuance_check = "NO ISSUANCE ACTIVITY" Then
+				continue_with_no_issuance = MsgBox("The months " & dwp_start_month & " through " & dwp_end_month & " for DWP have no issuance activity." & vbCr & vbCr & "Do you want to include 'No Issuance' information on the MEMO?", vbQuestion + vbYesNo, "Add No Issuance to MEMO")
+				If continue_with_no_issuance = vbNo Then reset_months_programs = reset_months_programs & "DWP-"
+				If continue_with_no_issuance = vbYes Then
+					msg_counter = 0
+					For each expected_month in DWP_expected_dates_array					'Now we loop through ALL the months we expected to find in the range - this is so we can add $0 issuance months as 0
+						ReDim Preserve DWP_ISSUANCE_ARRAY(last_const, msg_counter)
+						DWP_ISSUANCE_ARRAY(benefit_month_const, msg_counter) = right("00" & DatePart("m", expected_month), 2) & "/" & right(DatePart("yyyy", expected_month), 2)
+						DWP_ISSUANCE_ARRAY(dwp_grant_amount_const, msg_counter) = 0
+						DWP_ISSUANCE_ARRAY(benefit_month_as_date_const, msg_counter) = expected_month
+						DWP_ISSUANCE_ARRAY(note_message_const, msg_counter) = "$ 0.00     issued for " & DWP_ISSUANCE_ARRAY(benefit_month_const, msg_counter)
+						DWP_dates_array = DWP_dates_array & "~" & expected_month
 
-				issued_date = trim(issued_date)
-				tran_amount = trim(tran_amount)
+						dwp_msg_display = dwp_msg_display & vbCr & DWP_ISSUANCE_ARRAY(note_message_const, msg_counter)
+						DWP_total = DWP_total + DWP_ISSUANCE_ARRAY(dwp_grant_amount_const, msg_counter)
+						DWP_MEMO_rows_needed = DWP_MEMO_rows_needed + 1
 
-				If issued_date <> "" Then
-					from_date = from_month & "/1/" & from_year						'making the date a date and making it the 1st of the month (this accounts for proration)
-					from_date = DateAdd("d", 0, from_date)
-					'Only accept if the date is equal to or after the first date and equal to or before the last date
-					If DateDiff("d", from_date, first_date_of_range) <= 0 AND DateDiff("d", from_date, last_date_of_range) >= 0 Then
+						msg_counter = msg_counter + 1
+					Next
+					If left(DWP_dates_array, 1) = "~" Then DWP_dates_array = right(DWP_dates_array, len(DWP_dates_array) - 1)		'creating an array of all of the 'from dates'
+					If Instr(DWP_dates_array, "~") = 0 Then
+						DWP_dates_array = Array(DWP_dates_array)
+					Else
+						DWP_dates_array = split(DWP_dates_array, "~")
+					End If
+					Call sort_dates(DWP_dates_array)		'This function takes all the dates in an array and put them in order from oldest to newest
+				End If
+			Else
+				inqx_row = 6															'Read all of the information on INQX
+				msg_counter = 0
+				Do
+					EMReadScreen issued_date, 8, inqx_row, 7
+					EMReadScreen tran_amount, 8, inqx_row, 38
+					EMReadScreen from_month, 2, inqx_row, 62
+					EMReadScreen from_year, 2, inqx_row, 68
 
-						benefit_month = from_month & "/" & from_year
-						tran_amount = tran_amount * 1								'this must be a NUMBER
-						ammount_added_in = False
-						For each_known_issuance = 0 to UBound(DWP_ISSUANCE_ARRAY, 2)		'reading to see if the benefit month is already in the array so we can combine the benefit amounts
-							If benefit_month = DWP_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance) Then
-								DWP_ISSUANCE_ARRAY(dwp_grant_amount_const, each_known_issuance) = DWP_ISSUANCE_ARRAY(dwp_grant_amount_const, each_known_issuance) + tran_amount
-								ammount_added_in = True
+					issued_date = trim(issued_date)
+					tran_amount = trim(tran_amount)
+
+					If issued_date <> "" Then
+						from_date = from_month & "/1/" & from_year						'making the date a date and making it the 1st of the month (this accounts for proration)
+						from_date = DateAdd("d", 0, from_date)
+						'Only accept if the date is equal to or after the first date and equal to or before the last date
+						If DateDiff("d", from_date, first_date_of_range) <= 0 AND DateDiff("d", from_date, last_date_of_range) >= 0 Then
+
+							benefit_month = from_month & "/" & from_year
+							tran_amount = tran_amount * 1								'this must be a NUMBER
+							ammount_added_in = False
+							For each_known_issuance = 0 to UBound(DWP_ISSUANCE_ARRAY, 2)		'reading to see if the benefit month is already in the array so we can combine the benefit amounts
+								If benefit_month = DWP_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance) Then
+									DWP_ISSUANCE_ARRAY(dwp_grant_amount_const, each_known_issuance) = DWP_ISSUANCE_ARRAY(dwp_grant_amount_const, each_known_issuance) + tran_amount
+									ammount_added_in = True
+								End If
+							Next
+							If ammount_added_in = False Then							'if the benefit month was NOT found - create a new array instance for that benefit month.
+								ReDim Preserve DWP_ISSUANCE_ARRAY(last_const, msg_counter)
+								DWP_ISSUANCE_ARRAY(benefit_month_const, msg_counter) = benefit_month
+								DWP_ISSUANCE_ARRAY(dwp_grant_amount_const, msg_counter) = tran_amount
+								DWP_ISSUANCE_ARRAY(benefit_month_as_date_const, msg_counter) = from_date
+								msg_counter = msg_counter + 1
 							End If
-						Next
-						If ammount_added_in = False Then							'if the benefit month was NOT found - create a new array instance for that benefit month.
-							ReDim Preserve DWP_ISSUANCE_ARRAY(last_const, msg_counter)
-							DWP_ISSUANCE_ARRAY(benefit_month_const, msg_counter) = benefit_month
-							DWP_ISSUANCE_ARRAY(dwp_grant_amount_const, msg_counter) = tran_amount
-							DWP_ISSUANCE_ARRAY(benefit_month_as_date_const, msg_counter) = from_date
-							msg_counter = msg_counter + 1
 						End If
 					End If
-				End If
 
-				inqx_row = inqx_row + 1		'go to the next line/page
-				If inqx_row = 18 Then
-					PF8
-					inqx_row = 6
-					EMReadScreen more_thanb_9_pages_msg, 38, 24, 2
-					If more_thanb_9_pages_msg = "CAN NOT PAGE THROUGH MORE THAN 9 PAGES" Then too_many_DWP_INQX_pages = True
-					If too_many_DWP_INQX_pages = True Then
-						ReDim DWP_ISSUANCE_ARRAY(last_const, 0)
-						Exit Do
-					End if
-					EMreadScreen end_of_list, 9, 24, 14
-					if end_of_list = "LAST PAGE" Then Exit Do
-				End If
-			Loop until issued_date = ""		'go until the end of the list
-			DWP_dates_array = ""			'we need an array of the dates ONLY
-			For each_known_issuance = 0 to UBound(DWP_ISSUANCE_ARRAY, 2)			'Now we loop through all of the found benefit months and create the formatting for the MEMO
-				total_amount = DWP_ISSUANCE_ARRAY(dwp_grant_amount_const, each_known_issuance)
-				total_amount = total_amount & ""
-				If InStr(total_amount, ".") = 0 Then
-					total_amount = left(total_amount & ".00        ", 8)
-				Else
-					total_amount = left(total_amount & "        ", 8)
-				End If
-				DWP_ISSUANCE_ARRAY(note_message_const, each_known_issuance) = "$ " & total_amount & " issued for " & DWP_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance)
-				DWP_dates_array = DWP_dates_array & "~" & DWP_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)		'adding to the array of all the dates
-			Next
-			For each expected_month in DWP_expected_dates_array					'Now we loop through ALL the months we expected to find in the range - this is so we can add $0 issuance months as 0
-				issuance_found = False
-				For each_known_issuance = 0 to UBound(DWP_ISSUANCE_ARRAY, 2)		'Look at all the found months - if they match - indicate that here
-					If DateDiff("d", DWP_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance), expected_month) = 0 Then issuance_found = True
-				Next
-				If issuance_found = False Then										'If no month was found - add another array instance with a $0 benefit amount listed
-					ReDim Preserve DWP_ISSUANCE_ARRAY(last_const, msg_counter)
-					DWP_ISSUANCE_ARRAY(benefit_month_const, msg_counter) = right("00" & DatePart("m", expected_month), 2) & "/" & right(DatePart("yyyy", expected_month), 2)
-					DWP_ISSUANCE_ARRAY(dwp_grant_amount_const, msg_counter) = 0
-					DWP_ISSUANCE_ARRAY(benefit_month_as_date_const, msg_counter) = expected_month
-					DWP_ISSUANCE_ARRAY(note_message_const, each_known_issuance) = "$ 0.00     issued for " & DWP_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance)
-					DWP_dates_array = DWP_dates_array & "~" & expected_month
-					msg_counter = msg_counter + 1
-				End If
-			Next
-			If left(DWP_dates_array, 1) = "~" Then DWP_dates_array = right(DWP_dates_array, len(DWP_dates_array) - 1)		'creating an array of all of the 'from dates'
-			If Instr(DWP_dates_array, "~") = 0 Then
-				DWP_dates_array = Array(DWP_dates_array)
-			Else
-				DWP_dates_array = split(DWP_dates_array, "~")
-			End If
-			Call sort_dates(DWP_dates_array)		'This function takes all the dates in an array and put them in order from oldest to newest
-
-			for each ordered_date in DWP_dates_array		'Now doing some counting and totalling
-				For each_known_issuance = 0 to UBound(DWP_ISSUANCE_ARRAY, 2)
-					If DateDiff("d", ordered_date, DWP_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)) = 0 Then
-						dwp_msg_display = dwp_msg_display & vbCr & DWP_ISSUANCE_ARRAY(note_message_const, each_known_issuance)
-						DWP_total = DWP_total + DWP_ISSUANCE_ARRAY(dwp_grant_amount_const, each_known_issuance)
-						DWP_MEMO_rows_needed = DWP_MEMO_rows_needed + 1
+					inqx_row = inqx_row + 1		'go to the next line/page
+					If inqx_row = 18 Then
+						PF8
+						inqx_row = 6
+						EMReadScreen more_thanb_9_pages_msg, 38, 24, 2
+						If more_thanb_9_pages_msg = "CAN NOT PAGE THROUGH MORE THAN 9 PAGES" Then too_many_DWP_INQX_pages = True
+						If too_many_DWP_INQX_pages = True Then
+							ReDim DWP_ISSUANCE_ARRAY(last_const, 0)
+							PF3
+							Exit Do
+						End if
+						EMreadScreen end_of_list, 9, 24, 14
+						if end_of_list = "LAST PAGE" Then Exit Do
 					End If
-				Next
-			Next
+				Loop until issued_date = ""		'go until the end of the list
+				If too_many_DWP_INQX_pages = False Then
+					DWP_dates_array = ""			'we need an array of the dates ONLY
+					For each_known_issuance = 0 to UBound(DWP_ISSUANCE_ARRAY, 2)			'Now we loop through all of the found benefit months and create the formatting for the MEMO
+						total_amount = DWP_ISSUANCE_ARRAY(dwp_grant_amount_const, each_known_issuance)
+						total_amount = total_amount & ""
+						If InStr(total_amount, ".") = 0 Then
+							total_amount = left(total_amount & ".00        ", 8)
+						Else
+							total_amount = left(total_amount & "        ", 8)
+						End If
+						DWP_ISSUANCE_ARRAY(note_message_const, each_known_issuance) = "$ " & total_amount & " issued for " & DWP_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance)
+						DWP_dates_array = DWP_dates_array & "~" & DWP_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)		'adding to the array of all the dates
+					Next
+					For each expected_month in DWP_expected_dates_array					'Now we loop through ALL the months we expected to find in the range - this is so we can add $0 issuance months as 0
+						issuance_found = False
+						For each_known_issuance = 0 to UBound(DWP_ISSUANCE_ARRAY, 2)		'Look at all the found months - if they match - indicate that here
+							If DateDiff("d", DWP_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance), expected_month) = 0 Then issuance_found = True
+						Next
+						If issuance_found = False Then										'If no month was found - add another array instance with a $0 benefit amount listed
+							ReDim Preserve DWP_ISSUANCE_ARRAY(last_const, msg_counter)
+							DWP_ISSUANCE_ARRAY(benefit_month_const, msg_counter) = right("00" & DatePart("m", expected_month), 2) & "/" & right(DatePart("yyyy", expected_month), 2)
+							DWP_ISSUANCE_ARRAY(dwp_grant_amount_const, msg_counter) = 0
+							DWP_ISSUANCE_ARRAY(benefit_month_as_date_const, msg_counter) = expected_month
+							DWP_ISSUANCE_ARRAY(note_message_const, msg_counter) = "$ 0.00     issued for " & DWP_ISSUANCE_ARRAY(benefit_month_const, msg_counter)
+							DWP_dates_array = DWP_dates_array & "~" & expected_month
+							msg_counter = msg_counter + 1
+						End If
+					Next
+					If left(DWP_dates_array, 1) = "~" Then DWP_dates_array = right(DWP_dates_array, len(DWP_dates_array) - 1)		'creating an array of all of the 'from dates'
+					If Instr(DWP_dates_array, "~") = 0 Then
+						DWP_dates_array = Array(DWP_dates_array)
+					Else
+						DWP_dates_array = split(DWP_dates_array, "~")
+					End If
+					Call sort_dates(DWP_dates_array)		'This function takes all the dates in an array and put them in order from oldest to newest
 
-			' MsgBox "DWP - This is the list" & dwp_msg_display & vbCr & "TOTAL DWP: $" & DWP_total
-			PF3
+					for each ordered_date in DWP_dates_array		'Now doing some counting and totalling
+						For each_known_issuance = 0 to UBound(DWP_ISSUANCE_ARRAY, 2)
+							If DateDiff("d", ordered_date, DWP_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)) = 0 Then
+								dwp_msg_display = dwp_msg_display & vbCr & DWP_ISSUANCE_ARRAY(note_message_const, each_known_issuance)
+								DWP_total = DWP_total + DWP_ISSUANCE_ARRAY(dwp_grant_amount_const, each_known_issuance)
+								DWP_MEMO_rows_needed = DWP_MEMO_rows_needed + 1
+							End If
+						Next
+					Next
+
+					' MsgBox "DWP - This is the list" & dwp_msg_display & vbCr & "TOTAL DWP: $" & DWP_total
+					PF3
+				End If
+			End If
 		End If
 
 		If grh_verification_method = "Create New MEMO with range of Months" Then
@@ -2840,6 +3031,7 @@ Do 		'BIG Loop to see if INQX is over the 9 page limit
 			first_date_of_range = DateAdd("d", 0, first_date_of_range)
 			last_date_of_range = replace(grh_end_month, "/", "/01/")
 			last_date_of_range = DateAdd("d", 0, last_date_of_range)
+			plus_three_month = DateAdd("m", 3, last_date_of_range)
 
 			GRH_expected_dates_array = first_date_of_range							'creating an array of all of the months in the range
 			each_date = first_date_of_range
@@ -2863,104 +3055,140 @@ Do 		'BIG Loop to see if INQX is over the 9 page limit
 
 			transmit
 
-			inqx_row = 6															'Read all of the information on INQX
-			msg_counter = 0
-			Do
-				EMReadScreen issued_date, 8, inqx_row, 7
-				EMReadScreen tran_amount, 8, inqx_row, 38
-				EMReadScreen from_month, 2, inqx_row, 62
-				EMReadScreen from_year, 2, inqx_row, 68
+			EMReadScreen archived_check, 12, 24, 40
+			EMReadScreen no_issuance_check, 20, 24, 2
+			If archived_check = "WAS ARCHIVED" Then
+				benefits_archived_for_prog = benefits_archived_for_prog & "GRH-"
+			ElseIf no_issuance_check = "NO ISSUANCE ACTIVITY" Then
+				continue_with_no_issuance = MsgBox("The months " & grh_start_month & " through " & grh_end_month & " for GRH have no issuance activity." & vbCr & vbCr & "Do you want to include 'No Issuance' information on the MEMO?", vbQuestion + vbYesNo, "Add No Issuance to MEMO")
+				If continue_with_no_issuance = vbNo Then reset_months_programs = reset_months_programs & "GRH-"
+				If continue_with_no_issuance = vbYes Then
+					msg_counter = 0
+					For each expected_month in GRH_expected_dates_array					'Now we loop through ALL the months we expected to find in the range - this is so we can add $0 issuance months as 0
+						ReDim Preserve GRH_ISSUANCE_ARRAY(last_const, msg_counter)
+						GRH_ISSUANCE_ARRAY(benefit_month_const, msg_counter) = right("00" & DatePart("m", expected_month), 2) & "/" & right(DatePart("yyyy", expected_month), 2)
+						GRH_ISSUANCE_ARRAY(grh_grant_amount_const, msg_counter) = 0
+						GRH_ISSUANCE_ARRAY(benefit_month_as_date_const, msg_counter) = expected_month
+						GRH_ISSUANCE_ARRAY(note_message_const, msg_counter) = "$ 0.00     issued for " & GRH_ISSUANCE_ARRAY(benefit_month_const, msg_counter)
+						GRH_dates_array = GRH_dates_array & "~" & expected_month
 
-				issued_date = trim(issued_date)
-				tran_amount = trim(tran_amount)
+						grh_msg_display = grh_msg_display & vbCr & GRH_ISSUANCE_ARRAY(note_message_const, msg_counter)
+						GRH_total = GRH_total + GRH_ISSUANCE_ARRAY(grh_grant_amount_const, msg_counter)
+						GRH_MEMO_rows_needed = GRH_MEMO_rows_needed + 1
 
-				If issued_date <> "" Then
-					from_date = from_month & "/1/" & from_year						'making the date a date and making it the 1st of the month (this accounts for proration)
-					from_date = DateAdd("d", 0, from_date)
-					'Only accept if the date is equal to or after the first date and equal to or before the last date
-					If DateDiff("d", from_date, first_date_of_range) <= 0 AND DateDiff("d", from_date, last_date_of_range) >= 0 Then
+						msg_counter = msg_counter + 1
+					Next
+					If left(GRH_dates_array, 1) = "~" Then GRH_dates_array = right(GRH_dates_array, len(GRH_dates_array) - 1)		'creating an array of all of the 'from dates'
+					If Instr(GRH_dates_array, "~") = 0 Then
+						GRH_dates_array = Array(GRH_dates_array)
+					Else
+						GRH_dates_array = split(GRH_dates_array, "~")
+					End If
+					Call sort_dates(GRH_dates_array)		'This function takes all the dates in an array and put them in order from oldest to newest
+				End If
+			Else
+				inqx_row = 6															'Read all of the information on INQX
+				msg_counter = 0
+				Do
+					EMReadScreen issued_date, 8, inqx_row, 7
+					EMReadScreen tran_amount, 8, inqx_row, 38
+					EMReadScreen from_month, 2, inqx_row, 62
+					EMReadScreen from_year, 2, inqx_row, 68
 
-						benefit_month = from_month & "/" & from_year
-						tran_amount = tran_amount * 1								'this must be a NUMBER
-						ammount_added_in = False
-						For each_known_issuance = 0 to UBound(GRH_ISSUANCE_ARRAY, 2)		'reading to see if the benefit month is already in the array so we can combine the benefit amounts
-							If benefit_month = GRH_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance) Then
-								GRH_ISSUANCE_ARRAY(grh_grant_amount_const, each_known_issuance) = GRH_ISSUANCE_ARRAY(grh_grant_amount_const, each_known_issuance) + tran_amount
-								ammount_added_in = True
+					issued_date = trim(issued_date)
+					tran_amount = trim(tran_amount)
+
+					If issued_date <> "" Then
+						from_date = from_month & "/1/" & from_year						'making the date a date and making it the 1st of the month (this accounts for proration)
+						from_date = DateAdd("d", 0, from_date)
+						'Only accept if the date is equal to or after the first date and equal to or before the last date
+						If DateDiff("d", from_date, first_date_of_range) <= 0 AND DateDiff("d", from_date, last_date_of_range) >= 0 Then
+
+							benefit_month = from_month & "/" & from_year
+							tran_amount = tran_amount * 1								'this must be a NUMBER
+							ammount_added_in = False
+							For each_known_issuance = 0 to UBound(GRH_ISSUANCE_ARRAY, 2)		'reading to see if the benefit month is already in the array so we can combine the benefit amounts
+								If benefit_month = GRH_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance) Then
+									GRH_ISSUANCE_ARRAY(grh_grant_amount_const, each_known_issuance) = GRH_ISSUANCE_ARRAY(grh_grant_amount_const, each_known_issuance) + tran_amount
+									ammount_added_in = True
+								End If
+							Next
+							If ammount_added_in = False Then							'if the benefit month was NOT found - create a new array instance for that benefit month.
+								ReDim Preserve GRH_ISSUANCE_ARRAY(last_const, msg_counter)
+								GRH_ISSUANCE_ARRAY(benefit_month_const, msg_counter) = benefit_month
+								GRH_ISSUANCE_ARRAY(grh_grant_amount_const, msg_counter) = tran_amount
+								GRH_ISSUANCE_ARRAY(benefit_month_as_date_const, msg_counter) = from_date
+								msg_counter = msg_counter + 1
 							End If
-						Next
-						If ammount_added_in = False Then							'if the benefit month was NOT found - create a new array instance for that benefit month.
-							ReDim Preserve GRH_ISSUANCE_ARRAY(last_const, msg_counter)
-							GRH_ISSUANCE_ARRAY(benefit_month_const, msg_counter) = benefit_month
-							GRH_ISSUANCE_ARRAY(grh_grant_amount_const, msg_counter) = tran_amount
-							GRH_ISSUANCE_ARRAY(benefit_month_as_date_const, msg_counter) = from_date
-							msg_counter = msg_counter + 1
 						End If
 					End If
-				End If
 
-				inqx_row = inqx_row + 1		'go to the next line/page
-				If inqx_row = 18 Then
-					PF8
-					inqx_row = 6
+					inqx_row = inqx_row + 1		'go to the next line/page
+					If inqx_row = 18 Then
+						PF8
+						inqx_row = 6
 
-					EMReadScreen more_thanb_9_pages_msg, 38, 24, 2
-					If more_thanb_9_pages_msg = "CAN NOT PAGE THROUGH MORE THAN 9 PAGES" Then too_many_GRH_INQX_pages = True
-					If too_many_GRH_INQX_pages = True Then
-						ReDim GRH_ISSUANCE_ARRAY(last_const, 0)
-						Exit Do
-					End if
-					EMreadScreen end_of_list, 9, 24, 14
-					if end_of_list = "LAST PAGE" Then Exit Do
-				End If
-			Loop until issued_date = ""		'go until the end of the list
-			GRH_dates_array = ""			'we need an array of the dates ONLY
-			For each_known_issuance = 0 to UBound(GRH_ISSUANCE_ARRAY, 2)			'Now we loop through all of the found benefit months and create the formatting for the MEMO
-				total_amount = GRH_ISSUANCE_ARRAY(grh_grant_amount_const, each_known_issuance)
-				total_amount = total_amount & ""
-				If InStr(total_amount, ".") = 0 Then
-					total_amount = left(total_amount & ".00        ", 8)
-				Else
-					total_amount = left(total_amount & "        ", 8)
-				End If
-				GRH_ISSUANCE_ARRAY(note_message_const, each_known_issuance) = "$ " & total_amount & " issued for " & GRH_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance)
-				GRH_dates_array = GRH_dates_array & "~" & GRH_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)		'adding to the array of all the dates
-			Next
-			For each expected_month in GRH_expected_dates_array					'Now we loop through ALL the months we expected to find in the range - this is so we can add $0 issuance months as 0
-				issuance_found = False
-				For each_known_issuance = 0 to UBound(GRH_ISSUANCE_ARRAY, 2)		'Look at all the found months - if they match - indicate that here
-					If DateDiff("d", GRH_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance), expected_month) = 0 Then issuance_found = True
-				Next
-				If issuance_found = False Then										'If no month was found - add another array instance with a $0 benefit amount listed
-					ReDim Preserve GRH_ISSUANCE_ARRAY(last_const, msg_counter)
-					GRH_ISSUANCE_ARRAY(benefit_month_const, msg_counter) = right("00" & DatePart("m", expected_month), 2) & "/" & right(DatePart("yyyy", expected_month), 2)
-					GRH_ISSUANCE_ARRAY(snap_grant_amount_const, msg_counter) = 0
-					GRH_ISSUANCE_ARRAY(benefit_month_as_date_const, msg_counter) = expected_month
-					GRH_ISSUANCE_ARRAY(note_message_const, each_known_issuance) = "$ 0.00     issued for " & GRH_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance)
-					GRH_dates_array = GRH_dates_array & "~" & expected_month
-					msg_counter = msg_counter + 1
-				End If
-			Next
-			If left(GRH_dates_array, 1) = "~" Then GRH_dates_array = right(GRH_dates_array, len(GRH_dates_array) - 1)		'creating an array of all of the 'from dates'
-			If Instr(GRH_dates_array, "~") = 0 Then
-				GRH_dates_array = Array(GRH_dates_array)
-			Else
-				GRH_dates_array = split(GRH_dates_array, "~")
-			End If
-			Call sort_dates(GRH_dates_array)		'This function takes all the dates in an array and put them in order from oldest to newest
-
-			for each ordered_date in GRH_dates_array		'Now doing some counting and totalling
-				For each_known_issuance = 0 to UBound(GRH_ISSUANCE_ARRAY, 2)
-					If DateDiff("d", ordered_date, GRH_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)) = 0 Then
-						grh_msg_display = grh_msg_display & vbCr & GRH_ISSUANCE_ARRAY(note_message_const, each_known_issuance)
-						GRH_total = GRH_total + GRH_ISSUANCE_ARRAY(grh_grant_amount_const, each_known_issuance)
-						GRH_MEMO_rows_needed = GRH_MEMO_rows_needed + 1
+						EMReadScreen more_thanb_9_pages_msg, 38, 24, 2
+						If more_thanb_9_pages_msg = "CAN NOT PAGE THROUGH MORE THAN 9 PAGES" Then too_many_GRH_INQX_pages = True
+						If too_many_GRH_INQX_pages = True Then
+							ReDim GRH_ISSUANCE_ARRAY(last_const, 0)
+							PF3
+							Exit Do
+						End if
+						EMreadScreen end_of_list, 9, 24, 14
+						if end_of_list = "LAST PAGE" Then Exit Do
 					End If
-				Next
-			Next
+				Loop until issued_date = ""		'go until the end of the list
+				If too_many_GRH_INQX_pages = False Then
+					GRH_dates_array = ""			'we need an array of the dates ONLY
+					For each_known_issuance = 0 to UBound(GRH_ISSUANCE_ARRAY, 2)			'Now we loop through all of the found benefit months and create the formatting for the MEMO
+						total_amount = GRH_ISSUANCE_ARRAY(grh_grant_amount_const, each_known_issuance)
+						total_amount = total_amount & ""
+						If InStr(total_amount, ".") = 0 Then
+							total_amount = left(total_amount & ".00        ", 8)
+						Else
+							total_amount = left(total_amount & "        ", 8)
+						End If
+						GRH_ISSUANCE_ARRAY(note_message_const, each_known_issuance) = "$ " & total_amount & " issued for " & GRH_ISSUANCE_ARRAY(benefit_month_const, each_known_issuance)
+						GRH_dates_array = GRH_dates_array & "~" & GRH_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)		'adding to the array of all the dates
+					Next
+					For each expected_month in GRH_expected_dates_array					'Now we loop through ALL the months we expected to find in the range - this is so we can add $0 issuance months as 0
+						issuance_found = False
+						For each_known_issuance = 0 to UBound(GRH_ISSUANCE_ARRAY, 2)		'Look at all the found months - if they match - indicate that here
+							If DateDiff("d", GRH_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance), expected_month) = 0 Then issuance_found = True
+						Next
+						If issuance_found = False Then										'If no month was found - add another array instance with a $0 benefit amount listed
+							ReDim Preserve GRH_ISSUANCE_ARRAY(last_const, msg_counter)
+							GRH_ISSUANCE_ARRAY(benefit_month_const, msg_counter) = right("00" & DatePart("m", expected_month), 2) & "/" & right(DatePart("yyyy", expected_month), 2)
+							GRH_ISSUANCE_ARRAY(grh_grant_amount_const, msg_counter) = 0
+							GRH_ISSUANCE_ARRAY(benefit_month_as_date_const, msg_counter) = expected_month
+							GRH_ISSUANCE_ARRAY(note_message_const, msg_counter) = "$ 0.00     issued for " & GRH_ISSUANCE_ARRAY(benefit_month_const, msg_counter)
+							GRH_dates_array = GRH_dates_array & "~" & expected_month
+							msg_counter = msg_counter + 1
+						End If
+					Next
+					If left(GRH_dates_array, 1) = "~" Then GRH_dates_array = right(GRH_dates_array, len(GRH_dates_array) - 1)		'creating an array of all of the 'from dates'
+					If Instr(GRH_dates_array, "~") = 0 Then
+						GRH_dates_array = Array(GRH_dates_array)
+					Else
+						GRH_dates_array = split(GRH_dates_array, "~")
+					End If
+					Call sort_dates(GRH_dates_array)		'This function takes all the dates in an array and put them in order from oldest to newest
 
-			' MsgBox "GRH - This is the list" & grh_msg_display & vbCr & "TOTAL GRH: $" & GRH_total
-			PF3
+					for each ordered_date in GRH_dates_array		'Now doing some counting and totalling
+						For each_known_issuance = 0 to UBound(GRH_ISSUANCE_ARRAY, 2)
+							If DateDiff("d", ordered_date, GRH_ISSUANCE_ARRAY(benefit_month_as_date_const, each_known_issuance)) = 0 Then
+								grh_msg_display = grh_msg_display & vbCr & GRH_ISSUANCE_ARRAY(note_message_const, each_known_issuance)
+								GRH_total = GRH_total + GRH_ISSUANCE_ARRAY(grh_grant_amount_const, each_known_issuance)
+								GRH_MEMO_rows_needed = GRH_MEMO_rows_needed + 1
+							End If
+						Next
+					Next
+
+					' MsgBox "GRH - This is the list" & grh_msg_display & vbCr & "TOTAL GRH: $" & GRH_total
+					PF3
+				End If
+			End If
 		End If
 	End If
 	inqx_selections_has_too_many_pages = False
@@ -2983,7 +3211,18 @@ Do 		'BIG Loop to see if INQX is over the 9 page limit
 		too_many_lines_msg = MsgBox(the_msg, vbCritical, "Too Many INQX Pages")
 	End If
 
-Loop until inqx_selections_has_too_many_pages = False
+	If benefits_archived_for_prog <> "" Then
+		If right(benefits_archived_for_prog, 1) = "-" Then benefits_archived_for_prog = left(benefits_archived_for_prog, len(benefits_archived_for_prog)-1)
+
+		benefits_archived_msg = MsgBox("You have selected months of issuance that has been archived. You must change the months of the request to later for: " & benefits_archived_for_prog, vbCritical, "Issuance Information Archived")
+	End If
+	If reset_months_programs <> "" Then
+		If right(reset_months_programs, 1) = "-" Then reset_months_programs = left(reset_months_programs, len(reset_months_programs)-1)
+
+		no_benefits_msg = MsgBox("The months selcted for the program(s): " & reset_months_programs & " have no issuance. You must change the months selected.", vbCritical, "No Benefits Issuance")
+	End If
+
+Loop until inqx_selections_has_too_many_pages = False AND benefits_archived_for_prog = "" AND reset_months_programs = ""
 
 
 'Defaulting the checkboxes for CASE specific addresses
@@ -3272,6 +3511,7 @@ If create_memo = True Then		'If there are any MEMOs needed we need to read INQX 
 	msa_memo_lines = 0
 	mfip_memo_lines = 0
 	dwp_memo_lines = 0
+	grh_memo_lines = 0
 	memo_count = 0
 	Dim EACH_MEMO_ARRAY()
 	ReDim EACH_MEMO_ARRAY(0)
@@ -3339,161 +3579,6 @@ If create_memo = True Then		'If there are any MEMOs needed we need to read INQX 
 			If grh_memo_lines > 55 Then memo_list = memo_list & "~GRH"
 			If grh_memo_lines > 83 Then memo_list = memo_list & "~GRH"
 		End If
-
-		If mfip_memo_lines + ga_memo_lines + msa_memo_lines + grh_memo_lines + dwp_memo_lines + 2 < 28 Then							'These try to combine four programs into one MEMO
-			memo_list = memo_list & "~MFIP/GA/MSA/GRH/DWP"
-			If snap_memo_lines <> 0 AND snap_memo_lines < 28 Then memo_list = memo_list & "~SNAP"
-		ElseIf snap_memo_lines + ga_memo_lines + msa_memo_lines + grh_memo_lines + dwp_memo_lines + 2 < 28 Then
-			memo_list = memo_list & "~SNAP/GA/MSA/GRH/DWP"
-			If mfip_memo_lines <> 0 AND mfip_memo_lines < 28 Then memo_list = memo_list & "~MFIP"
-		ElseIf snap_memo_lines + ga_memo_lines + mfip_memo_lines + grh_memo_lines + dwp_memo_lines + 2 < 28 Then
-			memo_list = memo_list & "~SNAP/GA/MFIP/GRH/DWP"
-			If msa_memo_lines <> 0 AND msa_memo_lines < 28 Then memo_list = memo_list & "~MSA"
-		ElseIf snap_memo_lines + mfip_memo_lines + msa_memo_lines + grh_memo_lines + dwp_memo_lines + 2 < 28 Then
-			memo_list = memo_list & "~SNAP/MSA/MFIP/GRH/DWP"
-			If ga_memo_lines <> 0 AND ga_memo_lines < 28 Then memo_list = memo_list & "~GA"
-		ElseIf mfip_memo_lines + ga_memo_lines + msa_memo_lines + snap_memo_lines + dwp_memo_lines + 2 < 28 Then							'These try to combine three programs into one MEMO
-			memo_list = memo_list & "~SNAP/MFIP/GA/MSA/DWP"
-			If grh_memo_lines <> 0 AND grh_memo_lines < 28 Then memo_list = memo_list & "~GRH"
-		ElseIf mfip_memo_lines + ga_memo_lines + msa_memo_lines + snap_memo_lines + grh_memo_lines + 2 < 28 Then							'These try to combine three programs into one MEMO
-			memo_list = memo_list & "~SNAP/MFIP/GA/MSA/GRH"
-			If dwp_memo_lines <> 0 AND dwp_memo_lines < 28 Then memo_list = memo_list & "~DWP"
-
-		ElseIf mfip_memo_lines + ga_memo_lines + msa_memo_lines + dwp_memo_lines + 2 < 28 Then							'These try to combine three programs into one MEMO
-			memo_list = memo_list & "~MFIP/GA/MSA/DWP"
-			If grh_memo_lines + snap_memo_lines < 28 Then
-				memo_list = memo_list & "~SNAP/GRH"
-			Else
-				If snap_memo_lines > 0 AND snap_memo_lines < 28 Then memo_list = memo_list & "~SNAP"
-				If grh_memo_lines > 0 AND grh_memo_lines < 28 Then memo_list = memo_list & "~GRH"
-			End If
-		ElseIf mfip_memo_lines + ga_memo_lines + msa_memo_lines + dwp_memo_lines + 2 < 28 Then							'These try to combine three programs into one MEMO
-			memo_list = memo_list & "~MFIP/GA/MSA/GRH"
-			If dwp_memo_lines + snap_memo_lines < 28 Then
-				memo_list = memo_list & "~SNAP/DWP"
-			Else
-				If snap_memo_lines > 0 AND snap_memo_lines < 28 Then memo_list = memo_list & "~SNAP"
-				If dwp_memo_lines > 0 AND dwp_memo_lines < 28 Then memo_list = memo_list & "~DWP"
-			End If
-		ElseIf mfip_memo_lines + ga_memo_lines + grh_memo_lines + dwp_memo_lines + 2 < 28 Then							'These try to combine three programs into one MEMO
-			memo_list = memo_list & "~MFIP/GA/GRH/DWP"
-			If msa_memo_lines + snap_memo_lines < 28 Then
-				memo_list = memo_list & "~SNAP/MSA"
-			Else
-				If snap_memo_lines > 0 AND snap_memo_lines < 28 Then memo_list = memo_list & "~SNAP"
-				If msa_memo_lines > 0 AND msa_memo_lines < 28 Then memo_list = memo_list & "~MSA"
-			End If
-		ElseIf mfip_memo_lines + grh_memo_lines + msa_memo_lines + dwp_memo_lines + 2 < 28 Then							'These try to combine three programs into one MEMO
-			memo_list = memo_list & "~MFIP/GRH/MSA/DWP"
-			If ga_memo_lines + snap_memo_lines < 28 Then
-				memo_list = memo_list & "~SNAP/GA"
-			Else
-				If snap_memo_lines > 0 AND snap_memo_lines < 28 Then memo_list = memo_list & "~SNAP"
-				If ga_memo_lines > 0 AND ga_memo_lines < 28 Then memo_list = memo_list & "~GA"
-			End If
-		ElseIf grh_memo_lines + ga_memo_lines + msa_memo_lines + dwp_memo_lines + 2 < 28 Then							'These try to combine three programs into one MEMO
-			memo_list = memo_list & "~GRH/GA/MSA/DWP"
-			If mfip_memo_lines + snap_memo_lines < 28 Then
-				memo_list = memo_list & "~SNAP/MFIP"
-			Else
-				If snap_memo_lines > 0 AND snap_memo_lines < 28 Then memo_list = memo_list & "~SNAP"
-				If mfip_memo_lines > 0 AND mfip_memo_lines < 28 Then memo_list = memo_list & "~MFIP"
-			End If
-
-
-		ElseIf snap_memo_lines + ga_memo_lines + msa_memo_lines + dwp_memo_lines + 2 < 28 Then
-			memo_list = memo_list & "~SNAP/GA/MSA/DWP"
-			If grh_memo_lines + mfip_memo_lines < 28 Then
-				memo_list = memo_list & "~MFIP/GRH"
-			Else
-				If mfip_memo_lines > 0 AND mfip_memo_lines < 28 Then memo_list = memo_list & "~MFIP"
-				If grh_memo_lines > 0 AND grh_memo_lines < 28 Then memo_list = memo_list & "~GRH"
-			End If
-		ElseIf snap_memo_lines + grh_memo_lines + msa_memo_lines + dwp_memo_lines + 2 < 28 Then
-			memo_list = memo_list & "~SNAP/GRH/MSA/DWP"
-			If ga_memo_lines + mfip_memo_lines < 28 Then
-				memo_list = memo_list & "~MFIP/GA"
-			Else
-				If mfip_memo_lines > 0 AND mfip_memo_lines < 28 Then memo_list = memo_list & "~MFIP"
-				If ga_memo_lines > 0 AND ga_memo_lines < 28 Then memo_list = memo_list & "~GA"
-			End If
-		ElseIf snap_memo_lines + ga_memo_lines + grh_memo_lines + dwp_memo_lines + 2 < 28 Then
-			memo_list = memo_list & "~SNAP/GA/GRH/DWP"
-			If msa_memo_lines + mfip_memo_lines < 28 Then
-				memo_list = memo_list & "~MFIP/MSA"
-			Else
-				If mfip_memo_lines > 0 AND mfip_memo_lines < 28 Then memo_list = memo_list & "~MFIP"
-				If msa_memo_lines > 0 AND msa_memo_lines < 28 Then memo_list = memo_list & "~MSA"
-			End If
-		ElseIf snap_memo_lines + ga_memo_lines + msa_memo_lines + grh_memo_lines + 2 < 28 Then
-			memo_list = memo_list & "~SNAP/GA/MSA/GRH"
-			If dwp_memo_lines + mfip_memo_lines < 28 Then
-				memo_list = memo_list & "~MFIP/DWP"
-			Else
-				If mfip_memo_lines > 0 AND mfip_memo_lines < 28 Then memo_list = memo_list & "~MFIP"
-				If dwp_memo_lines > 0 AND dwp_memo_lines < 28 Then memo_list = memo_list & "~DWP"
-			End If
-
-		ElseIf snap_memo_lines + mfip_memo_lines + msa_memo_lines + dwp_memo_lines + 2 < 28 Then
-			memo_list = memo_list & "~SNAP/MSA/MFIP/DWP"
-			If grh_memo_lines + ga_memo_lines < 28 Then
-				memo_list = memo_list & "~GA/GRH"
-			Else
-				If ga_memo_lines > 0 AND ga_memo_lines < 28 Then memo_list = memo_list & "~GA"
-				If grh_memo_lines > 0 AND grh_memo_lines < 28 Then memo_list = memo_list & "~GRH"
-			End If
-		ElseIf snap_memo_lines + mfip_memo_lines + grh_memo_lines + dwp_memo_lines + 2 < 28 Then
-			memo_list = memo_list & "~SNAP/GRH/MFIP/DWP"
-			If msa_memo_lines + ga_memo_lines < 28 Then
-				memo_list = memo_list & "~GA/GRH"
-			Else
-				If ga_memo_lines > 0 AND ga_memo_lines < 28 Then memo_list = memo_list & "~GA"
-				If msa_memo_lines > 0 AND msa_memo_lines < 28 Then memo_list = memo_list & "~MSA"
-			End If
-		ElseIf snap_memo_lines + mfip_memo_lines + msa_memo_lines + grh_memo_lines + 2 < 28 Then
-			memo_list = memo_list & "~SNAP/MSA/MFIP/GRH"
-			If dwp_memo_lines + ga_memo_lines < 28 Then
-				memo_list = memo_list & "~GA/DWP"
-			Else
-				If ga_memo_lines > 0 AND ga_memo_lines < 28 Then memo_list = memo_list & "~GA"
-				If dwp_memo_lines > 0 AND dwp_memo_lines < 28 Then memo_list = memo_list & "~DWP"
-			End If
-
-		ElseIf snap_memo_lines + ga_memo_lines + mfip_memo_lines + dwp_memo_lines + 2 < 28 Then
-			memo_list = memo_list & "~SNAP/GA/MFIP/DWP"
-			If grh_memo_lines + msa_memo_lines < 28 Then
-				memo_list = memo_list & "~MSA/GRH"
-			Else
-				If msa_memo_lines > 0 AND msa_memo_lines < 28 Then memo_list = memo_list & "~MSA"
-				If grh_memo_lines > 0 AND grh_memo_lines < 28 Then memo_list = memo_list & "~GRH"
-			End If
-		ElseIf snap_memo_lines + ga_memo_lines + mfip_memo_lines + grh_memo_lines + 2 < 28 Then
-			memo_list = memo_list & "~SNAP/GA/MFIP/GRH"
-			If dwp_memo_lines + msa_memo_lines < 28 Then
-				memo_list = memo_list & "~MSA/DWP"
-			Else
-				If msa_memo_lines > 0 AND msa_memo_lines < 28 Then memo_list = memo_list & "~MSA"
-				If dwp_memo_lines > 0 AND dwp_memo_lines < 28 Then memo_list = memo_list & "~DWP"
-			End If
-
-		ElseIf snap_memo_lines + mfip_memo_lines + msa_memo_lines + ga_memo_lines + 2 < 28 Then
-			memo_list = memo_list & "~SNAP/MSA/MFIP/GA"
-			If grh_memo_lines + dwp_memo_lines < 28 Then
-				memo_list = memo_list & "~DWP/GRH"
-			Else
-				If dwp_memo_lines > 0 AND dwp_memo_lines < 28 Then memo_list = memo_list & "~DWP"
-				If grh_memo_lines > 0 AND grh_memo_lines < 28 Then memo_list = memo_list & "~GRH"
-			End If
-		
-		Else
-			If mfip_memo_lines <> 0 AND mfip_memo_lines < 28 Then memo_list = memo_list & "~MFIP"		'These are just single program MEMOs
-			If ga_memo_lines <> 0 AND ga_memo_lines < 28 Then memo_list = memo_list & "~GA"
-			If msa_memo_lines <> 0 AND msa_memo_lines < 28 Then memo_list = memo_list & "~MSA"
-			If snap_memo_lines <> 0 AND snap_memo_lines < 28 Then memo_list = memo_list & "~SNAP"
-			If dwp_memo_lines <> 0 AND dwp_memo_lines < 28 Then memo_list = memo_list & "~DWP"
-			If grh_memo_lines <> 0 AND grh_memo_lines < 28 Then memo_list = memo_list & "~GRH"
-		End If
-
 	End If
 
 	If left(memo_list, 1) = "~" Then memo_list = right(memo_list, len(memo_list) - 1)		'Making the list of the MEMOs by program an actual ARRAY'
@@ -3504,6 +3589,48 @@ If create_memo = True Then		'If there are any MEMOs needed we need to read INQX 
 		the_memos_array = split(memo_list, "~")
 	End If
 
+	If need_cover_memo = True Then
+		Call start_a_new_spec_memo(memo_opened, False, forms_to_arep, forms_to_swkr, send_to_other, other_address_person, other_address_street, other_address_city, other_address_state, other_address_zip, False)
+
+		Call write_variable_in_SPEC_MEMO("Public Assistance Verification of Benefit Amounts")
+		Call write_variable_in_SPEC_MEMO("")
+		Call write_variable_in_SPEC_MEMO("You have requested the benefit amount of the following program(s):")
+		Call write_variable_in_SPEC_MEMO("")
+		If snap_memo_lines > 0 Then
+			Call write_variable_in_SPEC_MEMO("SNAP (Food Support), the total benefit for the months " & snap_start_month & " through " & snap_end_month & " totals $ "  & SNAP_total & " of food assistance benefit.")
+			Call write_variable_in_SPEC_MEMO("")
+		End If
+		If ga_memo_lines > 0 Then
+			Call write_variable_in_SPEC_MEMO("GA (General Assistance Cash), the total benefit for the months " & ga_start_month & " through " & ga_end_month & " totals $ " & GA_total & " of cash assistance benefit.")
+			Call write_variable_in_SPEC_MEMO("")
+		End If
+		If msa_memo_lines > 0 Then
+			Call write_variable_in_SPEC_MEMO("MSA (MN Supplemental Aid Cash), the total benefit for the months " & msa_start_month & " through " & msa_end_month & " totals $ " & MSA_total & " of cash assistance benefit.")
+			Call write_variable_in_SPEC_MEMO("")
+		End If
+		If mfip_memo_lines > 0 Then
+			Call write_variable_in_SPEC_MEMO("MFIP (MN Familiy Investment Progam), the benefit for the months " & mfip_start_month & " through " & mfip_end_month & " totals $ " & total_cash_amount & " of cash assistance benefit and $ " & total_snap_amount & " of food assistance benefit. (This benefit is the federal TANF program.)")
+			Call write_variable_in_SPEC_MEMO("")
+		End If
+		If dwp_memo_lines > 0 Then
+			Call write_variable_in_SPEC_MEMO("DWP (Diversionary Work Program Cash), the total benefit for the months " & dwp_start_month & " through " & dwp_end_month & " totals $ " & DWP_total & " of cash assistance benefit.")
+			Call write_variable_in_SPEC_MEMO("")
+		End If
+		If grh_memo_lines > 0 Then
+			Call write_variable_in_SPEC_MEMO("GRH (Housing Support), the total benefit for the months " & grh_start_month & " through " & grh_end_month & " totals $ " & GRH_total & " of cash assistance benefit.")
+			Call write_variable_in_SPEC_MEMO("")
+		End If
+		Call write_variable_in_SPEC_MEMO("")
+		Call write_variable_in_SPEC_MEMO("Additional details and the monthly issuance amounts are listed on the following pages.")
+		Call write_variable_in_SPEC_MEMO("This information is accurate and complete as of " & date)
+		PF4
+
+		'SAVE THIS for TESTING - we can 'uncomment' and comment out the PF4 so that MEMOs are not created - helpful for testing and training
+		' MsgBox "MEMO Done " & vbCr & memo_to_write
+		' PF3
+		' PF3
+		' MsgBox "confirm erased"
+	End If
 	snap_restart_memo_lines_position = 0										'Starting values for where we begin to count
 	ga_restart_memo_lines_position = 0
 	msa_restart_memo_lines_position = 0
