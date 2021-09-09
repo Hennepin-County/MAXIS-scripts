@@ -3484,56 +3484,7 @@ If create_memo = True Then		'If there are any MEMOs needed we need to read INQX 
 				If dwp_memo_lines > 0 AND dwp_memo_lines < 28 Then memo_list = memo_list & "~DWP"
 				If grh_memo_lines > 0 AND grh_memo_lines < 28 Then memo_list = memo_list & "~GRH"
 			End If
-		'DO WE NEED TO HANDLE FOR 2 Then maybe 2 and 1 or 1 and 1 and 1 and 1
-		' ElseIf snap_memo_lines + ga_memo_lines + 1 < 28 Then										'These try to combine two programs into one MEMO
-		' 	memo_list = memo_list & "~SNAP/GA"
-		' 	If msa_memo_lines + mfip_memo_lines + 1 < 28 Then
-		' 		memo_list = memo_list & "~MFIP/MSA"
-		' 	Else
-		' 		If msa_memo_lines <> 0 AND msa_memo_lines < 28 Then  memo_list = memo_list & "~MSA"
-		' 		If mfip_memo_lines <> 0 AND mfip_memo_lines < 28 Then memo_list = memo_list & "~MFIP"
-		' 	End If
-		' ElseIf snap_memo_lines + msa_memo_lines + 1 < 28 Then
-		' 	memo_list = memo_list & "~SNAP/MSA"
-		' 	If ga_memo_lines + mfip_memo_lines + 1 < 28 Then
-		' 		memo_list = memo_list & "~MFIP/GA"
-		' 	Else
-		' 		If ga_memo_lines <> 0 AND ga_memo_lines < 28 Then  memo_list = memo_list & "~GA"
-		' 		If mfip_memo_lines <> 0 AND mfip_memo_lines < 28 Then memo_list = memo_list & "~MFIP"
-		' 	End If
-		' ElseIf snap_memo_lines + mfip_memo_lines + 1 < 28 Then
-		' 	memo_list = memo_list & "~SNAP/MFIP"
-		' 	If msa_memo_lines + ga_memo_lines + 1 < 28 Then
-		' 		memo_list = memo_list & "~GA/MSA"
-		' 	Else
-		' 		If msa_memo_lines <> 0 AND msa_memo_lines < 28 Then  memo_list = memo_list & "~MSA"
-		' 		If ga_memo_lines <> 0 AND ga_memo_lines < 28 Then memo_list = memo_list & "~GA"
-		' 	End If
-		' ElseIf ga_memo_lines + msa_memo_lines + 1 < 28 Then
-		' 	memo_list = memo_list & "~GA/MSA"
-		' 	If snap_memo_lines + mfip_memo_lines + 1 < 28 Then
-		' 		memo_list = memo_list & "~MFIP/SNAP"
-		' 	Else
-		' 		If snap_memo_lines <> 0 AND snap_memo_lines < 28 Then  memo_list = memo_list & "~SNAP"
-		' 		If mfip_memo_lines <> 0 AND mfip_memo_lines < 28 Then memo_list = memo_list & "~MFIP"
-		' 	End If
-		' ElseIf ga_memo_lines + mfip_memo_lines + 1 < 28 Then
-		' 	memo_list = memo_list & "~GA/MFIP"
-		' 	If msa_memo_lines + snap_memo_lines + 1 < 28 Then
-		' 		memo_list = memo_list & "~SNAP/MSA"
-		' 	Else
-		' 		If msa_memo_lines <> 0 AND msa_memo_lines < 28 Then  memo_list = memo_list & "~MSA"
-		' 		If snap_memo_lines <> 0 AND snap_memo_lines < 28 Then memo_list = memo_list & "~SNAP"
-		' 	End If
-		'
-		' ElseIf msa_memo_lines + mfip_memo_lines + 1 < 28 Then
-		' 	memo_list = memo_list & "~MFIP/MSA"
-		' 	If ga_memo_lines + mfip_memo_lines + 1 < 28 Then
-		' 		memo_list = memo_list & "~MFIP/GA"
-		' 	Else
-		' 		If ga_memo_lines <> 0 AND ga_memo_lines < 28 Then  memo_list = memo_list & "~GA"
-		' 		If mfip_memo_lines <> 0 AND mfip_memo_lines < 28 Then memo_list = memo_list & "~MFIP"
-		' 	End If
+		
 		Else
 			If mfip_memo_lines <> 0 AND mfip_memo_lines < 28 Then memo_list = memo_list & "~MFIP"		'These are just single program MEMOs
 			If ga_memo_lines <> 0 AND ga_memo_lines < 28 Then memo_list = memo_list & "~GA"
