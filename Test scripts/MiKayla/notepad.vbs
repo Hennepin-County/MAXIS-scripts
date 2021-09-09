@@ -9,3 +9,4 @@ single demention array
 * you cannot change the constant - CONST just means the number, not a spot holder, not a variable does not mean something else
 (kind_of_info, for_what_peeps)
 incrementor = incrementor + 1 'this is a number not a person'
+FOR uc_membs = 0 to uBound(uc_members_array, 2) ' uc_membs = incrementor '
