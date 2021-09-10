@@ -3547,21 +3547,39 @@ function change_client_name_to_FML(client_name)
 	change_client_name_to_FML = client_name 'To make this a return function, this statement must set the value of the function name
 end function
 
-function change_date_to_soonest_working_day(date_to_change)
+function change_date_to_soonest_working_day(date_to_change, forward_or_back)
 '--- This function will change a date that is on a weekend or Hennepin County holiday to the next working date before the date provided, the date will remain the same if it is not a holiday or weekend.
 '~~~~~ date_to_change: variable in the form of a date - this will change once the function is called
+'~~~~~ forward_or_back: varibale that must be either 'forward' or 'back' as a string to select which way your want to shift the date.
 '===== Keywords: MAXIS, date, change
-    Do
-        If WeekdayName(WeekDay(date_to_change)) = "Saturday" Then date_to_change = DateAdd("d", -1, date_to_change)
-        If WeekdayName(WeekDay(date_to_change)) = "Sunday" Then date_to_change = DateAdd("d", -2, date_to_change)
-        is_holiday = FALSE
-        For each holiday in HOLIDAYS_ARRAY
-            If holiday = date_to_change Then
-                is_holiday = TRUE
-                date_to_change = DateAdd("d", -1, date_to_change)
-            End If
-        Next
-    Loop until is_holiday = FALSE
+	forward_or_back = UCase(forward_or_back)
+	If forward_or_back = "BACK" Then
+	    Do
+	        If WeekdayName(WeekDay(date_to_change)) = "Saturday" Then date_to_change = DateAdd("d", -1, date_to_change)
+	        If WeekdayName(WeekDay(date_to_change)) = "Sunday" Then date_to_change = DateAdd("d", -2, date_to_change)
+	        is_holiday = FALSE
+	        For each holiday in HOLIDAYS_ARRAY
+	            If holiday = date_to_change Then
+	                is_holiday = TRUE
+	                date_to_change = DateAdd("d", -1, date_to_change)
+	            End If
+	        Next
+	    Loop until is_holiday = FALSE
+	End If
+	If forward_or_back = "FORWARD" Then
+	    Do
+	        If WeekdayName(WeekDay(date_to_change)) = "Saturday" Then date_to_change = DateAdd("d", 2, date_to_change)
+	        If WeekdayName(WeekDay(date_to_change)) = "Sunday" Then date_to_change = DateAdd("d", 1, date_to_change)
+	        is_holiday = FALSE
+	        For each holiday in HOLIDAYS_ARRAY
+	            If holiday = date_to_change Then
+	                is_holiday = TRUE
+	                date_to_change = DateAdd("d", 1, date_to_change)
+	            End If
+	        Next
+	    Loop until is_holiday = FALSE
+	End If
+
 end function
 
 function changelog_display()
