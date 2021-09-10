@@ -87,7 +87,7 @@ call autofill_editbox_from_MAXIS(HH_member_array, "PROG", application_date)
 interview_date = dateadd("d", 5, application_date)
 If interview_date <= date then interview_date = dateadd("d", 5, date)
 
-Call change_date_to_soonest_working_day(interview_date)
+Call change_date_to_soonest_working_day(interview_date, "FORWARD")
 
 application_date = application_date & ""
 interview_date = interview_date & ""
