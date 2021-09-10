@@ -400,7 +400,7 @@ IF case_note_only_checkbox <> CHECKED THEN
     	IF status_date = "" THEN Call clear_line_of_text(7, 74)
     	IF status_date = "" THEN Call clear_line_of_text(7, 77)
     	reminder_date = dateadd("d", 10, date)' FOR APPT DATE'
-    	Call change_date_to_soonest_working_day(reminder_date)
+		Call change_date_to_soonest_working_day(reminder_date, "BACK")
 
     	LPR_status = ""
     	If LPR_status_dropdown = "21 Refugee" then LPR_status = "21"
@@ -568,7 +568,7 @@ Call write_variable_in_case_note("---")
 Call write_variable_in_case_note(worker_signature)
 PF3
 IF HP_EMAIL_CHECKBOX = CHECKED THEN
-    message_array = "CASE NOTE" & vbcr 
+    message_array = "CASE NOTE" & vbcr
 	EMWriteScreen "x", 5, 3
 	TRANSMIT
 	note_row = 4			'Beginning of the case notes
@@ -586,8 +586,8 @@ IF HP_EMAIL_CHECKBOX = CHECKED THEN
 			End If
 		End If
 	Loop until next_page = "More:  " OR next_page = "       "	'No more pages
-	
-    email_header = "Please review for accuracy: Case #" & MAXIS_case_number & ", Member #" & memb_number 
+
+    email_header = "Please review for accuracy: Case #" & MAXIS_case_number & ", Member #" & memb_number
     'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
 	CALL create_outlook_email("HP.Immigration@hennepin.us", "", email_header, message_array, "", FALSE)
 END IF
