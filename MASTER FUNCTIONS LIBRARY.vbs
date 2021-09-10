@@ -4680,9 +4680,9 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
 	End If
     row = 1                                             'Looking for GA information
     col = 1
-    EMSearch "GA:", row, col
+    EMSearch " GA:", row, col
     If row <> 0 Then
-        EMReadScreen ga_status, 9, row, col + 4
+        EMReadScreen ga_status, 9, row, col + 5
         ga_status = trim(ga_status)
         If ga_status = "ACTIVE" or ga_status = "APP CLOSE" or ga_status = "APP OPEN" Then
             ga_case = TRUE
