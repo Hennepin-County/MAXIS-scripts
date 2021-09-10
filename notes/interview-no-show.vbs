@@ -5,7 +5,7 @@ STATS_counter = 1               'sets the stats counter at one
 STATS_manualtime = 300          'manual run time in seconds
 STATS_denomination = "C"        'C is for each case
 'END OF stats block=========================================================================================================
-
+run_locally = True
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
@@ -249,18 +249,10 @@ If send_appt_notice_checkbox = checked Then
     'grabs CAF date, turns CAF date into string for variable
     call autofill_editbox_from_MAXIS(HH_member_array, "PROG", application_date)
 
-    IF potential_xfs = checked THEN
-        'creates interview date for 7 calendar days from the CAF date
-        interview_date = dateadd("d", 7, application_date)
-        If interview_date <= date then interview_date = dateadd("d", 7, date)
-    ELSE
-        'creates interview date for 7 calendar days from the CAF date
-        interview_date = dateadd("d", 10, application_date)
-        If interview_date <= date then interview_date = dateadd("d", 10, date)
+    interview_date = dateadd("d", 5, application_date)
+    If interview_date <= date then interview_date = dateadd("d", 5, date)
 
-    END IF
-
-    Call change_date_to_soonest_working_day(interview_date)
+	Call change_date_to_soonest_working_day(interview_date, "FORWARD")
 
     application_date = application_date & ""
     interview_date = interview_date & ""
