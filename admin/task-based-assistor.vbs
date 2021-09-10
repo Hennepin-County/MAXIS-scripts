@@ -55,7 +55,7 @@ MAXIS_footer_month = CM_mo
 MAXIS_footer_year = CM_yr
 ''---------------------------------------------------------------------------------------------------- previous day's assignment
 assignment_date = dateadd("d", -1, date)
-Call change_date_to_soonest_working_day(assignment_date)       'finds the most recent previous working day for the file names
+Call change_date_to_soonest_working_day(assignment_date, "BACK")				'finds the most recent previous working day for the file names
 assignment_date = assignment_date & "" 'have to make it a string for the script to realize that it is a date '
 
 BeginDialog Dialog1, 0, 0, 236, 115, "TASK BASED REVIEW"
