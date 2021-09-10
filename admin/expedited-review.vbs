@@ -100,12 +100,11 @@ Function add_pages(exp_status)
             objExcel.Cells(excel_row, 5).Value = expedited_array(application_date_const, item)
             objExcel.Cells(excel_row, 6).Value = expedited_array(interview_date_const,   item)
             objExcel.Cells(excel_row, 7).Value = expedited_array(case_status_const,      item)
-            objExcel.Cells(excel_row, 8).Value = expedited_array(prev_notes_const,       item)
             excel_row = excel_row + 1
         End if
     Next
 
-    FOR i = 1 to 8		'formatting the cells
+    FOR i = 1 to 7		'formatting the cells
         objExcel.Cells(1, i).Font.Bold = True		'bold font'
         objExcel.Columns(i).AutoFit()				'sizing the columns'
     NEXT
@@ -370,13 +369,12 @@ For item = 0 to UBound(expedited_array, 2)
             objExcel.Cells(excel_row, 5).Value = expedited_array(application_date_const, item)
             objExcel.Cells(excel_row, 6).Value = expedited_array(interview_date_const,   item)
             objExcel.Cells(excel_row, 7).Value = expedited_array(case_status_const,      item)
-            objExcel.Cells(excel_row, 8).Value = expedited_array(prev_notes_const,       item)
             excel_row = excel_row + 1
         End if
     End if
 Next
 
-FOR i = 1 to 8		'formatting the cells
+FOR i = 1 to 7		'formatting the cells
     objExcel.Cells(1, i).Font.Bold = True		'bold font'
     objExcel.Columns(i).AutoFit()				'sizing the columns'
 NEXT
@@ -588,8 +586,7 @@ Call create_outlook_email("Ilse.Ferris@hennepin.us;Laurie.Hennen@hennepin.us",""
 array_of_archive_assigments = array("Pending Over 30 Days ", "EXP SNAP X127FA5 ", "EXP SNAP 1800 ", "EXP SNAP DWP ", "")
 
 previous_date = dateadd("d", -1, date)
-Call change_date_to_soonest_working_day(previous_date)      'Testing Code - pull this out. Uncomment next line.
-'Call change_date_to_soonest_working_day(previous_date, "back")       'finds the most recent previous working day
+Call change_date_to_soonest_working_day(previous_date, "back")       'finds the most recent previous working day
 file_date = replace(previous_date, "/", "-")   'Changing the format of the date to use as file path selection default
 archive_folder = right("0" & DatePart("m", file_date), 2) & "-" & DatePart("yyyy", file_date)
 
