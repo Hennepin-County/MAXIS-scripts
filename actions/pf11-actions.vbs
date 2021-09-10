@@ -498,7 +498,7 @@ IF PF11_actions <> "New Spouse Income Determination" and no_pf11_checkbox = UNCH
 END IF
 
 reminder_date = dateadd("d", 5, date)
-Call change_date_to_soonest_working_day(reminder_date)
+Call change_date_to_soonest_working_day(reminder_date, "BACK")
 
 IF PF11_actions = "PMI Merge Request" or PF11_actions = "Non-Actionable DAIL Removal" or PF11_actions = "MFIP New Spouse Income" or PF11_actions = "New Spouse Income Determination" or PF11_actions = "Other" or PF11_actions = "Unable to update HC REVW dates" THEN
 	CALL start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
