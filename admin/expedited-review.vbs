@@ -86,7 +86,6 @@ Function add_pages(exp_status)
     ObjExcel.Cells(1, 6).Value = "Interview Date"
     objExcel.Columns(6).NumberFormat = "mm/dd/yy"					'formats the date column as MM/DD/YY
     ObjExcel.Cells(1, 7).Value = "Notes"
-    ObjExcel.Cells(1, 8).Value = "QI Review Notes"
 
     Excel_row = 2
 
@@ -347,7 +346,6 @@ objExcel.Columns(5).NumberFormat = "mm/dd/yy"					'formats the date column as MM
 ObjExcel.Cells(1, 6).Value = "Interview Date"
 objExcel.Columns(6).NumberFormat = "mm/dd/yy"					'formats the date column as MM/DD/YY
 ObjExcel.Cells(1, 7).Value = "Notes"
-ObjExcel.Cells(1, 8).Value = "QI Review Notes"
 
 Excel_row = 2
 
