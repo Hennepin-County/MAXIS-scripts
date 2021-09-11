@@ -104,6 +104,7 @@ changelog_display
 'Grabs the case number
 EMConnect ""
 CALL MAXIS_case_number_finder(MAXIS_case_number)
+call Check_for_MAXIS(false)
 back_to_self' added to ensure we have the time to update and send the case in the background
 EMWriteScreen MAXIS_case_number, 18, 43     'writing in the case number so that if cancelled, the worker doesn't lose the case number.
 
@@ -237,22 +238,6 @@ If additional_application_check = "ADDITIONAL APP" THEN
     LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
     application_date = app_date_to_use
 End If
-'
-'
-'
-' multiple_apps = MsgBox("Do you want this application date: " & application_date, VbYesNoCancel)
-' If multiple_apps = vbCancel then script_end_procedure("~PT-CANCELED - Multiple APPS")
-' If multiple_apps = vbYes then application_date = application_date
-' IF multiple_apps = vbNo then
-'     additional_apps = Msgbox("Per CM 0005.09.06 - if a case is pending and a new app is received you should use the original application date." & vbcr & "Do you want this application date: " & additional_application_date, VbYesNoCancel)
-'     application_date = ""
-'     If additional_apps = vbCancel then script_end_procedure("~PT-CANCELED - Multiple APPS")
-'     If additional_apps = vbNo then script_end_procedure_with_error_report("No more application dates exist. Please review the case, and start the script again if applicable.")
-'     If additional_apps = vbYes then
-'         additional_date_found = TRUE
-'         application_date = additional_application_date
-'     END IF
-' End if
 
 IF application_date = "" THEN
     application_date = pnd2_appl_date
@@ -550,6 +535,8 @@ Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 266, dlg_len, "Request to Appl"
   EditBox 95, 15, 30, 15, transfer_to_worker
   CheckBox 20, 35, 185, 10, "Check here if this case does not require a transfer.", no_transfer_checkbox
+  If expedited_status = "Client Appears Expedited" Then Text 130, 20, 130, 10, "This case screened as EXPEDITED."
+  If expedited_status = "Client Does Not Appear Expedited" Then Text 130, 20, 130, 10, "Case screened as NOT EXPEDITED."
   GroupBox 5, 5, 255, 45, "Transfer Information"
   Text 10, 20, 85, 10, "Transfer the case to x127"
   y_pos = 55
@@ -691,6 +678,7 @@ CALL write_bullet_and_variable_in_CASE_NOTE("Request to APPL Form received on ",
 '     IF team_601_email_checkbox = CHECKED  THEN CALL write_variable_in_CASE_NOTE("* Emailed team 601 to let them know the retro request was processed.")
 ' END IF
 CALL write_bullet_and_variable_in_CASE_NOTE ("Confirmation # ", confirmation_number)
+Call write_bullet_and_variable_in_CASE_NOTE ("Case Population", population_of_case)
 IF application_type = "6696" THEN write_variable_in_CASE_NOTE ("* Form Received: METS Application for Health Coverage and Help Paying Costs (DHS-6696) ")
 IF application_type = "HCAPP" THEN write_variable_in_CASE_NOTE ("* Form Received: Health Care Application (HCAPP) (DHS-3417) ")
 IF application_type = "HC-Certain Pop" THEN write_variable_in_CASE_NOTE ("* Form Received: MHC Programs Application for Certain Populations (DHS-3876) ")
@@ -756,9 +744,7 @@ If transfer_to_worker <> "" Then
 	PF9
 	EMreadscreen servicing_worker, 3, 18, 65
 	servicing_worker = trim(servicing_worker)
-	'msgbox servicing_worker
 	IF servicing_worker = transfer_to_worker THEN
-		' MsgBox "This case is already in the requested worker's number."
 		action_completed = False
         transfer_message = "This case is already in the requested worker's number."
 		PF10 'backout
