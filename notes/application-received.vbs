@@ -504,7 +504,7 @@ IF (int(income) + int(assets) >= int(rent) + cint(utilities)) and (int(income) >
 IF send_appt_ltr = TRUE THEN
     interview_date = dateadd("d", 5, application_date)
     If interview_date <= date then interview_date = dateadd("d", 5, date)
-    Call change_date_to_soonest_working_day(interview_date)
+    Call change_date_to_soonest_working_day(interview_date, "FORWARD")
 
     application_date = application_date & ""
     interview_date = interview_date & ""		'turns interview date into string for variable
