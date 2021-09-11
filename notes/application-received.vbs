@@ -53,6 +53,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County
+call changelog_update("09/10/2021", "This is a very large update for the script.##~## ##~##We have reordered the functionality and consolidated the dialogs to have fewer interruptions in the process and to support the natural order of completing a pending update.##~##", "Casey Love, Hennepin County")
 call changelog_update("08/03/2021", "GitHub Issue #547, added Mail as an option for how an application can be received.", "MiKayla Handley, Hennepin County")
 call changelog_update("08/01/2021", "Changed the notices sent in 2 ways:##~## ##~## - Updated verbiage on how to submit documents to Hennepin.##~## ##~## - Appointment Notices will now be sent with a date of 5 days from the date of application.##~##", "Casey Love, Hennepin County")
 call changelog_update("03/02/2021", "Update EZ Info Phone hours from 9-4 pm to 8-4:30 pm.", "Ilse Ferris, Hennepin County")
