@@ -858,3 +858,45 @@ If transfer_case = False Then end_msg = end_msg & vbCr & vbCr & "NO TRANSFER HAS
 IF how_application_rcvd = "Request to APPL Form" Then end_msg = end_msg & vbCr & vbCr & "CASE PENDED from a REQUEST TO APPL FORM"
 
 Call script_end_procedure_with_error_report(end_msg)
+
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------09/10/2021
+'--Tab orders reviewed & confirmed----------------------------------------------09/10/2021
+'--Mandatory fields all present & Reviewed--------------------------------------09/10/2021
+'--All variables in dialog match mandatory fields-------------------------------09/10/2021
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------09/10/2021
+'--CASE:NOTE Header doesn't look funky------------------------------------------09/10/2021
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------N/A
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------09/10/2021
+'--MAXIS_background_check reviewed (if applicable)------------------------------09/10/2021
+'--PRIV Case handling reviewed -------------------------------------------------09/10/2021
+'--Out-of-County handling reviewed----------------------------------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------09/10/2021
+'--BULK - review output of statistics and run time/count (if applicable)--------N/A
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------09/10/2021
+'--Incrementors reviewed (if necessary)-----------------------------------------N/A
+'--Denomination reviewed -------------------------------------------------------09/10/2021
+'--Script name reviewed---------------------------------------------------------09/10/2021
+'--BULK - remove 1 incrementor at end of script reviewed------------------------N/A
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub taks are complete-----------------------------------------09/10/2021
+'--comment Code-----------------------------------------------------------------
+'--Update Changelog for release/update------------------------------------------09/10/2021
+'--Remove testing message boxes-------------------------------------------------09/10/2021
+'--Remove testing code/unnecessary code-----------------------------------------09/10/2021
+'--Review/update SharePoint instructions----------------------------------------
+'--Review Best Practices using BZS page ----------------------------------------
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------09/10/2021
+'--Complete misc. documentation (if applicable)---------------------------------N/A
+'--Update project team/issue contact (if applicable)----------------------------09/10/2021
