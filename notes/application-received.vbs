@@ -494,12 +494,14 @@ IF assets = "" THEN assets = 0
 IF rent   = "" THEN rent   = 0
 
 'Calculates expedited status based on above numbers
-IF (int(income) < 150 and int(assets) <= 100) or ((int(income) + int(assets)) < (int(rent) + cint(utilities))) THEN
-    If population_of_case = "Families" Then transfer_to_worker = "EZ1"
-    If population_of_case = "Adults" Then transfer_to_worker = "EX1"
-    expedited_status = "Client Appears Expedited"
+If snap_status = "PENDING" Then
+    IF (int(income) < 150 and int(assets) <= 100) or ((int(income) + int(assets)) < (int(rent) + cint(utilities))) THEN
+        If population_of_case = "Families" Then transfer_to_worker = "EZ1"
+        If population_of_case = "Adults" Then transfer_to_worker = "EX1"
+        expedited_status = "Client Appears Expedited"
+    End If
+    IF (int(income) + int(assets) >= int(rent) + cint(utilities)) and (int(income) >= 150 or int(assets) > 100) THEN expedited_status = "Client Does Not Appear Expedited"
 End If
-IF (int(income) + int(assets) >= int(rent) + cint(utilities)) and (int(income) >= 150 or int(assets) > 100) THEN expedited_status = "Client Does Not Appear Expedited"
 
 IF send_appt_ltr = TRUE THEN
     interview_date = dateadd("d", 5, application_date)
