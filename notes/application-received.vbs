@@ -328,7 +328,7 @@ dlg_len = 225
 If snap_status = "PENDING" Then dlg_len = 335
 
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 266, dlg_len, "Application Received for: " & programs_applied_for & "on" & application_date
+BeginDialog Dialog1, 0, 0, 266, dlg_len, "Application Received for: " & programs_applied_for & " on " & application_date
   GroupBox 5, 5, 255, 120, "Application Information"
   DropListBox 85, 40, 95, 15, "Select One:"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Mystery Doc Queue"+chr(9)+"Online"+chr(9)+"Phone-Verbal Request"+chr(9)+"Request to APPL Form"+chr(9)+"Virtual Drop Box", how_application_rcvd
   DropListBox 85, 60, 95, 15, "Select One:"+chr(9)+"ApplyMN"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Populations"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer"+chr(9)+"MN Benefits"+chr(9)+"N/A"+chr(9)+"Verbal Request", application_type
@@ -533,7 +533,7 @@ IF send_appt_ltr = TRUE THEN dlg_len = dlg_len + 70
 IF how_application_rcvd = "Request to APPL Form" THEN dlg_len = dlg_len + 80
 
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 266, dlg_len, "Request to Appl"
+BeginDialog Dialog1, 0, 0, 266, dlg_len, "Actions in MAXIS"
   EditBox 95, 15, 30, 15, transfer_to_worker
   CheckBox 20, 35, 185, 10, "Check here if this case does not require a transfer.", no_transfer_checkbox
   If expedited_status = "Client Appears Expedited" Then Text 130, 20, 130, 10, "This case screened as EXPEDITED."
@@ -555,7 +555,7 @@ BeginDialog Dialog1, 0, 0, 266, dlg_len, "Request to Appl"
       y_pos = y_pos + 30
   End If
   IF how_application_rcvd = "Request to APPL Form" THEN
-      GroupBox 5, y_pos, 255, 75, "Request to Appl Information"
+      GroupBox 5, y_pos, 255, 75, "Request to APPL Information"
       y_pos = y_pos + 10
       reset_y = y_pos
       EditBox 85, y_pos, 45, 15, request_date
@@ -851,7 +851,7 @@ IF send_appt_ltr = TRUE AND memo_found = True THEN end_msg = end_msg & vbCr & vb
 IF send_appt_ltr = TRUE AND memo_found = False THEN end_msg = end_msg & vbCr & vbCr & "A SPEC/MEMO Notice about the Interview appears to have failed. Contact QI Knowledge Now to have one sent manually."
 
 If transfer_message = "" Then
-    end_msg = end_msg & vbCr & vbCr & "Case transfer has been completed to x127" & transfer_to_worker
+    If transfer_case = True Then end_msg = end_msg & vbCr & vbCr & "Case transfer has been completed to x127" & transfer_to_worker
 Else
     end_msg = end_msg & vbCr & vbCr & "FAILED CASE TRANSFER:" & vbCr & transfer_message
 End If
