@@ -102,16 +102,14 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 '---------------------------------------------------------------------------------------The script
-'Grabs the case number
-EMConnect ""
-CALL MAXIS_case_number_finder(MAXIS_case_number)
-call Check_for_MAXIS(false)
-back_to_self' added to ensure we have the time to update and send the case in the background
-EMWriteScreen MAXIS_case_number, 18, 43     'writing in the case number so that if cancelled, the worker doesn't lose the case number.
+EMConnect ""                                        'Connecting to BlueZone
+CALL MAXIS_case_number_finder(MAXIS_case_number)    'Grabbing the CASE Number
+call Check_for_MAXIS(false)                         'Ensuring we are not passworded out
+back_to_self                                        'added to ensure we have the time to update and send the case in the background
+EMWriteScreen MAXIS_case_number, 18, 43             'writing in the case number so that if cancelled, the worker doesn't lose the case number.
 
-
-'-------------------------------------------------------------------------------------------------DIALOG
-Dialog1 = "" 'Blanking out previous dialog detail
+'Initial Dialog - Case number
+Dialog1 = ""                                        'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 191, 135, "Application Received"
   EditBox 60, 35, 45, 15, MAXIS_case_number
   ButtonGroup ButtonPressed
@@ -124,7 +122,6 @@ BeginDialog Dialog1, 0, 0, 191, 135, "Application Received"
   Text 5, 65, 185, 30, "If the programs requested on the application are not yet pending in MAXIS, cancel this script run, pend the case to PND2 status and run the script again."
 EndDialog
 
-
 'Runs the first dialog - which confirms the case number
 Do
 	Do
@@ -132,10 +129,10 @@ Do
 		Dialog Dialog1
 		cancel_without_confirmation
       	IF IsNumeric(maxis_case_number) = false or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
-        If ButtonPressed = script_instructions_btn Then
+        If ButtonPressed = script_instructions_btn Then             'Pulling up the instructions if the instruction button was pressed.
             run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20APPLICATION%20RECEIVED.docx"
             err_msg = "LOOP"
-        Else
+        Else                                                        'If the instructions button was NOT pressed, we want to display the error message if it exists.
 		    IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
         End If
 	Loop until err_msg = ""
@@ -143,84 +140,85 @@ Do
 LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
 'Checking for PRIV cases.
-Call navigate_to_MAXIS_screen_review_PRIV("STAT", "'SUMM'", is_this_priv)
+Call navigate_to_MAXIS_screen_review_PRIV("STAT", "SUMM", is_this_priv)
 IF is_this_priv = True THEN script_end_procedure_with_error_report("This case is privileged. Please request access before running the script again. ")
-MAXIS_background_check
+MAXIS_background_check      'Making sure we are out of background.
 
-'---------------------------------------------------------------------------------------------'pending & active programs information
-'information gathering to auto-populate the application date
-
+'Grabbing case and program status information from MAXIS.
+'For tis script to work correctly, these must be correct BEFORE running the script.
 Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status)
-EMReadScreen case_status, 15, 8, 9
-EMReadScreen pnd2_appl_date, 8, 8, 29
+EMReadScreen case_status, 15, 8, 9                  'Now we are reading the CASE STATUS string from the panel - we want to make sure this does NOT read CAF1 PENDING
+EMReadScreen pnd2_appl_date, 8, 8, 29               'Grabbing the PND2 date from CASE CURR in case the information cannot be pulled from REPT/PND2
 
-ive_status = "INACTIVE"
-cca_status = "INACTIVE"
+ive_status = "INACTIVE"                             'There are some programs that are NOT read from the function and are pretty specific to this script/functionality
+cca_status = "INACTIVE"                             'defaulting these statuses to 'INACTIVE' until they are read from the panel
 ega_status = "INACTIVE"
 ea_status = "INACTIVE"
-row = 1                                             'Looking for GRH information
+'\This functionality is how the above function reads for program information - just pulled out for these specific programs
+row = 1                                             'Looking for IV-E information
 col = 1
 EMSearch "IV-E:", row, col
 If row <> 0 Then
     EMReadScreen ive_status, 9, row, col + 6
     ive_status = trim(ive_status)
     If ive_status = "ACTIVE" or ive_status = "APP CLOSE" or ive_status = "APP OPEN" Then ive_status = "ACTIVE"
-    If ive_status = "PENDING" Then case_pending = True
+    If ive_status = "PENDING" Then case_pending = True      'Updating the case_pending variable from the function
 End If
-row = 1                                             'Looking for GRH information
+row = 1                                             'Looking for CCAP information
 col = 1
 EMSearch "CCAP", row, col
 If row <> 0 Then
     EMReadScreen cca_status, 9, row, col + 6
     cca_status = trim(cca_status)
     If cca_status = "ACTIVE" or cca_status = "APP CLOSE" or cca_status = "APP OPEN" Then cca_status = "ACTIVE"
-    If cca_status = "PENDING" Then case_pending = True
+    If cca_status = "PENDING" Then case_pending = True      'Updating the case_pending variable from the function
 End If
-row = 1                                             'Looking for GRH information
+row = 1                                             'Looking for EGA information
 col = 1
 EMSearch "EGA", row, col
 If row <> 0 Then
     EMReadScreen ega_status, 9, row, col + 6
     ega_status = trim(ega_status)
     If ega_status = "ACTIVE" or ega_status = "APP CLOSE" or ega_status = "APP OPEN" Then ega_status = "ACTIVE"
-    If ega_status = "PENDING" Then case_pending = True
+    If ega_status = "PENDING" Then case_pending = True      'Updating the case_pending variable from the function
 End If
-row = 1                                             'Looking for GRH information
+row = 1                                             'Looking for EA information
 col = 1
 EMSearch "EA: ", row, col
 If row <> 0 Then
     EMReadScreen ea_status, 9, row, col + 5
     ea_status = trim(ea_status)
     If ea_status = "ACTIVE" or ea_status = "APP CLOSE" or ea_status = "APP OPEN" Then ea_status = "ACTIVE"
-    If ea_status = "PENDING" Then case_pending = True
+    If ea_status = "PENDING" Then case_pending = True      'Updating the case_pending variable from the function
 End If
 
-case_status = trim(case_status)
-script_run_lowdown = "CASE STATUS - " & case_status & vbCr & "CASE IS PENDING - " & case_pending
-If case_status = "CAF1 PENDING" OR case_pending = False Then
+case_status = trim(case_status)     'cutting off any excess space from the case_status read from CASE/CURR above
+script_run_lowdown = "CASE STATUS - " & case_status & vbCr & "CASE IS PENDING - " & case_pending        'Adding details about CASE/CURR information to a script report out to BZST
+If case_status = "CAF1 PENDING" OR case_pending = False Then                    'The case MUST be pending and NOT in PND1 to continue.
     call script_end_procedure_with_error_report("This case is not in PND2 status. Current case status in MAXIS is " & case_status & ". Update MAXIS to put this case in PND2 status and then run the script again.")
 End If
 
-call back_to_SELF
+call back_to_SELF           'resetting
 
-multiple_app_dates = False
-EMWriteScreen MAXIS_case_number, 18, 43
+multiple_app_dates = False                          'defaulting the boolean about multiple application dates to FALSE
+EMWriteScreen MAXIS_case_number, 18, 43             'now we are going to try to get to REPT/PND2 for the case to read the application date.
 Call navigate_to_MAXIS_screen("REPT", "PND2")
-EMReadScreen pnd2_disp_limit, 13, 6, 35
+EMReadScreen pnd2_disp_limit, 13, 6, 35             'functionality to bypass the display limit warning if it appears.
 If pnd2_disp_limit = "Display Limit" Then transmit
-row = 1
+row = 1                                             'searching for the CASE NUMBER to read from the right row
 col = 1
 EMSearch MAXIS_case_number, row, col
 If row <> 24 and row <> 0 Then pnd2_row = row
-EMReadScreen application_date, 8, pnd2_row, 38
+EMReadScreen application_date, 8, pnd2_row, 38                                  'reading and formatting the application date
 application_date = replace(application_date, " ", "/")
-EMReadScreen additional_application_check, 14, pnd2_row + 1, 17
-If additional_application_check = "ADDITIONAL APP" THEN
-    multiple_app_dates = True
+EMReadScreen additional_application_check, 14, pnd2_row + 1, 17                 'looking to see if this case has a secondary application date entered
+If additional_application_check = "ADDITIONAL APP" THEN                         'If it does this string will be at that location and we need to do some handling around the application date to use.
+    multiple_app_dates = True           'identifying that this case has multiple application dates - this is not used specifically yet but is in place so we can output information for managment of case handling in the future.
 
-    EMReadScreen additional_application_date, 8, pnd2_row + 1, 38
+    EMReadScreen additional_application_date, 8, pnd2_row + 1, 38               'reading the app date from the other application line
     additional_application_date = replace(additional_application_date, " ", "/")
 
+    'There is a specific dialog that will display if there is more than one application date so we can select the right one for this script run
     Dialog1 = ""
     BeginDialog Dialog1, 0, 0, 166, 160, "Application Received"
       DropListBox 15, 70, 100, 45, application_date+chr(9)+additional_application_date, app_date_to_use
@@ -239,19 +237,19 @@ If additional_application_check = "ADDITIONAL APP" THEN
     		Dialog Dialog1
     		cancel_without_confirmation
 
+            'referncing the CM policy about application dates.
             If ButtonPressed = cm_05_09_06_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_00050906"
     	Loop until ButtonPressed = -1
         CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
     LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
-    application_date = app_date_to_use
+    application_date = app_date_to_use                          'setting the application date selected to the application_date variable
 End If
 
-IF application_date = "" THEN
+IF application_date = "" THEN                   'If we could NOT find the application date - then it will use the PND2 application date.
     application_date = pnd2_appl_date
 End if
 
-
-active_programs = ""        'Creates a variable that lists all the active.
+active_programs = ""        'Creates a variable that lists all the active programs on the case.
 If ga_status = "ACTIVE" Then active_programs = active_programs & "GA, "
 If msa_status = "ACTIVE" Then active_programs = active_programs & "MSA, "
 If mfip_status = "ACTIVE" Then active_programs = active_programs & "MFIP, "
@@ -267,7 +265,7 @@ If ma_status = "ACTIVE" OR msp_status = "ACTIVE" Then active_programs = active_p
 active_programs = trim(active_programs)  'trims excess spaces of active_programs
 If right(active_programs, 1) = "," THEN active_programs = left(active_programs, len(active_programs) - 1)
 
-programs_applied_for = ""        'Creates a variable that lists all the active.
+programs_applied_for = ""        'Creates a variable that lists all the pending programs on the case.
 If unknown_cash_pending = True Then programs_applied_for = programs_applied_for & "Cash, "
 If ga_status = "PENDING" Then programs_applied_for = programs_applied_for & "GA, "
 If msa_status = "PENDING" Then programs_applied_for = programs_applied_for & "MSA, "
@@ -285,10 +283,11 @@ programs_applied_for = trim(programs_applied_for)  'trims excess spaces of progr
 If right(programs_applied_for, 1) = "," THEN programs_applied_for = left(programs_applied_for, len(programs_applied_for) - 1)
 
 Call back_to_SELF
-Call navigate_to_MAXIS_screen("STAT", "PROG")
+Call navigate_to_MAXIS_screen("STAT", "PROG")           'going here because this is a good background for the dialog to display against.
 
+'THIS COMMENTED OUT DIALOG IS THE DLG EDITOR FRIENDLY VERSION SINCE THERE IS LOGIC IN THE DIALOG
 '-------------------------------------------------------------------------------------------------DIALOG
-' BeginDialog Dialog1, 0, 0, 266, 335, "Application Received for:   & programs_applied_for &    on    & ap"
+' BeginDialog Dialog1, 0, 0, 266, 335, "Application Received for: & programs_applied_for & on & date"
 '   GroupBox 5, 5, 255, 120, "Application Information"
 '   DropListBox 85, 40, 95, 15, "Select One:"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Mystery Doc Queue"+chr(9)+"Online"+chr(9)+"Phone-Verbal Request"+chr(9)+"Request to APPL Form"+chr(9)+"Virtual Drop Box", how_application_rcvd
 '   DropListBox 85, 60, 95, 15, "Select One:"+chr(9)+"ApplyMN"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Populations"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer"+chr(9)+"MN Benefits"+chr(9)+"N/A"+chr(9)+"Verbal Request", application_type
@@ -330,9 +329,11 @@ Call navigate_to_MAXIS_screen("STAT", "PROG")
 '   EditBox 55, 275, 205, 15, other_notes
 ' EndDialog
 
+'since this dialog has different displays for SNAP cases vs non-snap cases - there are differences in the dialog size
 dlg_len = 225
 If snap_status = "PENDING" Then dlg_len = 335
 
+'This is the dialog with the application information.
 Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 266, dlg_len, "Application Received for: " & programs_applied_for & " on " & application_date
   GroupBox 5, 5, 255, 120, "Application Information"
@@ -428,7 +429,7 @@ BeginDialog Dialog1, 0, 0, 266, dlg_len, "Application Received for: " & programs
     CancelButton 210, y_pos, 50, 15
 EndDialog
 
-'------------------------------------------------------------------------------------DIALOG APPL
+'Displaying the dialog
 Do
 	Do
         err_msg = ""
@@ -451,11 +452,12 @@ Do
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 LOOP UNTIL are_we_passworded_out = FALSE					'loops until user passwords back in
 
-app_date_with_banks = replace(application_date, "/", " ")
+app_date_with_banks = replace(application_date, "/", " ")                       'creating a variable formatted with spaces instead of '/' for reading on HCRE if needed later in the script
 
-Call convert_date_into_MAXIS_footer_month(application_date, MAXIS_footer_month, MAXIS_footer_year)
+Call convert_date_into_MAXIS_footer_month(application_date, MAXIS_footer_month, MAXIS_footer_year)      'We want to be acting in the application month generally
 
-If DateDiff("d", application_date, "10/01/2020") <= 0 then
+'TODO - move this information/functionality to FuncLib
+If DateDiff("d", application_date, "10/01/2020") <= 0 then      'Determining WHICH month we use for utility standards
     'October 2020 amounts
     heat_AC_amt = 496
     electric_amt = 154
@@ -467,7 +469,7 @@ Else
     phone_amt = 49
 End if
 
-send_appt_ltr = FALSE
+send_appt_ltr = FALSE                                           'Now we need to determine if this case needs an appointment letter based on the program(s) pending
 If unknown_cash_pending = True Then send_appt_ltr = TRUE
 If ga_status = "PENDING" Then send_appt_ltr = TRUE
 If msa_status = "PENDING" Then send_appt_ltr = TRUE
@@ -478,10 +480,9 @@ If snap_status = "PENDING" Then send_appt_ltr = TRUE
 If ega_status = "PENDING" Then send_appt_ltr = TRUE
 ' If ea_status = "PENDING" Then send_appt_ltr = TRUE
 
-If ega_status = "PENDING" Then transfer_to_worker = "EP8"
+If ega_status = "PENDING" Then transfer_to_worker = "EP8"           'defaulting the transfer working for EGA cases as these are to be sent to this basket'
 
-'----------------------------------------------------------------------------------------------------LOGIC AND CALCULATIONS
-'Logic for figuring out utils. The highest priority for the if...THEN is heat/AC, followed by electric and phone, followed by phone and electric separately.
+'Now we will use the entries in the Application information to determine if this case is screened as expedited
 IF heat_AC_check = CHECKED THEN
     utilities = heat_AC_amt
 ELSEIF electric_check = CHECKED and phone_check = CHECKED THEN
@@ -499,31 +500,33 @@ IF income = "" THEN income = 0
 IF assets = "" THEN assets = 0
 IF rent   = "" THEN rent   = 0
 
-'Calculates expedited status based on above numbers
+'Calculates expedited status based on above numbers - only for snap pending cases
 If snap_status = "PENDING" Then
     IF (int(income) < 150 and int(assets) <= 100) or ((int(income) + int(assets)) < (int(rent) + cint(utilities))) THEN
-        If population_of_case = "Families" Then transfer_to_worker = "EZ1"
+        If population_of_case = "Families" Then transfer_to_worker = "EZ1"      'cases that screen as expedited are defaulted to expedited specific baskets based on population
         If population_of_case = "Adults" Then transfer_to_worker = "EX1"
-        expedited_status = "Client Appears Expedited"
+        expedited_status = "Client Appears Expedited"                           'setting a variable with expedited information
     End If
     IF (int(income) + int(assets) >= int(rent) + cint(utilities)) and (int(income) >= 150 or int(assets) > 100) THEN expedited_status = "Client Does Not Appear Expedited"
 End If
 
+'if the case is determined to need an appointment letter the script will default the interview date
 IF send_appt_ltr = TRUE THEN
     interview_date = dateadd("d", 5, application_date)
     If interview_date <= date then interview_date = dateadd("d", 5, date)
     Call change_date_to_soonest_working_day(interview_date, "FORWARD")
 
     application_date = application_date & ""
-    interview_date = interview_date & ""		'turns interview date into string for variable
+    interview_date = interview_date & ""                                        'turns interview date into string for variable
 End If
 
-If population_of_case = "Families" Then
+If population_of_case = "Families" Then                                         'families cases that have cash pending need to to to these specific baskets
     If unknown_cash_pending = True Then transfer_to_worker = "EY9"
     If mfip_status = "PENDING" Then transfer_to_worker = "EY9"
     If dwp_status = "PENDING" Then transfer_to_worker = "EY9"
 End if
 
+'The familiy cash basket has a backup if it has hit the display limit.
 If transfer_to_worker = "EY9" Then
     Call navigate_to_MAXIS_screen("REPT", "PND2")
     EMWriteScreen "EY9", 21, 17
@@ -532,14 +535,13 @@ If transfer_to_worker = "EY9" Then
     If pnd2_disp_limit = "Display Limit" Then transfer_to_worker = "EY8"
 End If
 
+'TODO - add more defaults to the transfer_to_worker as we confirm procedure
 
-
-
-
-dlg_len = 75
+dlg_len = 75                'this is another dynamic dialog that needs different sizes based on what it has to display.
 IF send_appt_ltr = TRUE THEN dlg_len = dlg_len + 70
 IF how_application_rcvd = "Request to APPL Form" THEN dlg_len = dlg_len + 80
 
+'defining the actions dialog
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 266, dlg_len, "Actions in MAXIS"
   EditBox 95, 15, 30, 15, transfer_to_worker
@@ -588,7 +590,8 @@ BeginDialog Dialog1, 0, 0, 266, dlg_len, "Actions in MAXIS"
     OkButton 155, y_pos, 50, 15
     CancelButton 210, y_pos, 50, 15
 EndDialog
-
+'THIS COMMENTED OUT DIALOG IS THE DLG EDITOR FRIENDLY VERSION SINCE THERE IS LOGIC IN THE DIALOG
+'-------------------------------------------------------------------------------------------------DIALOG
 ' BeginDialog Dialog1, 0, 0, 266, 220, "Request to Appl"
 '   EditBox 95, 15, 30, 15, transfer_to_worker
 '   CheckBox 20, 35, 185, 10, "Check here if this case does not require a transfer.", no_transfer_checkbox
@@ -617,7 +620,7 @@ EndDialog
 '     CancelButton 210, 200, 50, 15
 ' EndDialog
 
-
+'displaying the dialog
 Do
     Do
         err_msg = ""
@@ -639,36 +642,38 @@ Do
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has     not passworded out of MAXIS, allows user to password back into MAXIS
 LOOP UNTIL are_we_passworded_out = FALSE
 
-transfer_to_worker = trim(transfer_to_worker)
+transfer_to_worker = trim(transfer_to_worker)               'formatting the information entered in the dialog
 transfer_to_worker = Ucase(transfer_to_worker)
 request_worker_number = trim(request_worker_number)
 request_worker_number = Ucase(request_worker_number)
-pended_date = date
+f = date
 
-If how_application_rcvd = "Request to APPL Form" THEN
-    If ma_status = "PENDING" OR msp_status = "PENDING" OR unknown_hc_pending = True Then
-        Call navigate_to_MAXIS_screen("STAT", "HCRE")
+If how_application_rcvd = "Request to APPL Form" THEN                           'specific functionality if the application was pended from a request to APPL form
+    If ma_status = "PENDING" OR msp_status = "PENDING" OR unknown_hc_pending = True Then        'HC cases - we need to add the persons pending HC to the CNOTE
+        Call navigate_to_MAXIS_screen("STAT", "HCRE")                           'we are going to read this information from the HCRE panel.
 
-        hcre_row = 10
-        household_persons = ""
-        Do
-            EMReadScreen hcre_app_date, 8, hcre_row, 51
-            EMReadScreen hcre_ref_nbr, 2, hcre_row, 24
+        hcre_row = 10                   'top row
+        household_persons = ""          'starting with a blank string
+        Do                              'we are going to look at each row
+            EMReadScreen hcre_app_date, 8, hcre_row, 51             'read the app_date
+            EMReadScreen hcre_ref_nbr, 2, hcre_row, 24              'read the reference number
+            'if the app date matches the app date we are processing, we will save the reference number to the list of all that match
             If hcre_app_date = app_date_with_banks Then household_persons = household_persons & hcre_ref_nbr & ", "
 
-            hcre_row = hcre_row + 1
-            If hcre_row = 18 Then
+            hcre_row = hcre_row + 1         'go to the next row.
+            If hcre_row = 18 Then           'go to the next page IF we are at the last row
                 PF20
                 hcre_row = 10
                 EMReadScreen last_page_check, 9, 24, 14
-                If last_page_check = "LAST PAGE" Then Exit Do
+                If last_page_check = "LAST PAGE" Then Exit Do   'leave the loop once we have reached the last page of persons on HCRE
             End If
         Loop
-        household_persons = trim(household_persons)
+        household_persons = trim(household_persons)         'formatting the list of persons requesting HC
         If right(household_persons, 1) = "," THEN household_persons = left(household_persons, len(household_persons) - 1)
     End If
 End If
 
+'specific formatting for certain selections
 If how_application_rcvd = "Phone-Verbal Request" THEN how_application_rcvd = replace(how_application_rcvd, "Phone-Verbal Request", "Phone")
 IF how_application_rcvd = "Request to APPL Form" THEN
     IF application_type = "N/A" AND Auto_Newborn_checkbox = CHECKED THEN application_type = replace(application_type, "N/A", "Auto Newborn")
@@ -677,7 +682,9 @@ IF how_application_rcvd = "Request to APPL Form" THEN
     IF application_type = "N/A" AND METS_retro_checkbox = CHECKED THEN application_type = replace(application_type, "N/A", "METS Retro")
     IF application_type = "N/A" AND MA_transition_request_checkbox = CHECKED THEN application_type = replace(application_type, "N/A", "MA Transition")
 END IF
-'--------------------------------------------------------------------------------initial case note
+
+'NOW WE START CASE NOTING - there are a few
+'Initial application CNOTE - all cases get these ones
 start_a_blank_case_note
 CALL write_variable_in_CASE_NOTE ("~ Application Received (" &  application_type & ") via " & how_application_rcvd & " for " & application_date & " ~")
 CALL write_bullet_and_variable_in_CASE_NOTE("Requesting HC for MEMBER(S) ", household_persons)
@@ -707,6 +714,7 @@ CALL write_variable_in_CASE_NOTE ("---")
 CALL write_variable_in_CASE_NOTE (worker_signature)
 PF3 ' to save Case note
 
+'Functionality to send emails in certain situations
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
 
 'IF send_email = True THEN CALL create_outlook_email("HSPH.EWS.Triagers@hennepin.us", "", "Case #" & maxis_case_number & " Expedited case to be assigned, transferred to team. " & worker_number & "  EOM.", "", "", TRUE)
@@ -723,6 +731,7 @@ IF MA_transition_request_checkbox = CHECKED THEN CALL create_outlook_email("", "
 
 IF MA_transition_request_checkbox = CHECKED and team_601_email_checkbox = CHECKED THEN CALL create_outlook_email("HSPH.EWS.TEAM.601@hennepin.us", "", "MAXIS case #" & maxis_case_number & "/METS IC #" & METS_case_number & " MA Transition Request APPL'd in MAXIS-ACTION REQUIRED.", "", "", FALSE)
 
+'Expedited Screening CNOTE for cases where SNAP is pending
 If snap_status = "PENDING" Then
     start_a_blank_CASE_NOTE
     CALL write_variable_in_CASE_NOTE("~ Received Application for SNAP, " & expedited_status & " ~")
@@ -739,39 +748,38 @@ If snap_status = "PENDING" Then
     PF3
 End If
 
-'-------------------------------------------------------------------------------------Transfers the case to the assigned worker if this was selected in the second dialog box
-'Determining if a case will be transferred or not. All cases will be transferred except addendum app types. THIS IS NOT CORRECT AND NEEDS TO BE DISCUSSED WITH QI
-tansfer_message = ""
+'IF a transfer is needed (by entry of a transfer_to_worker in the Action dialog) the script will transfer it here
+tansfer_message = ""            'some defaults
 transfer_case = False
-action_completed = TRUE     'This is to decide if the case was successfully transferred or not
+action_completed = TRUE
 
-If transfer_to_worker <> "" Then
+If transfer_to_worker <> "" Then        'If a transfer_to_worker was entered - we are attempting the transfer
 	transfer_case = True
-	CALL navigate_to_MAXIS_screen ("SPEC", "XFER")
-	EMWriteScreen "x", 7, 16
+	CALL navigate_to_MAXIS_screen ("SPEC", "XFER")         'go to SPEC/XFER
+	EMWriteScreen "x", 7, 16                               'transfer within county option
 	transmit
-	PF9
-	EMreadscreen servicing_worker, 3, 18, 65
+	PF9                                                    'putting the transfer in edit mode
+	EMreadscreen servicing_worker, 3, 18, 65               'checking to see if the transfer_to_worker is the same as the current_worker (because then it won't transfer)
 	servicing_worker = trim(servicing_worker)
-	IF servicing_worker = transfer_to_worker THEN
+	IF servicing_worker = transfer_to_worker THEN          'If they match, cancel the transfer and save the information about the 'failure'
 		action_completed = False
         transfer_message = "This case is already in the requested worker's number."
 		PF10 'backout
 		PF3 'SPEC menu
 		PF3 'SELF Menu'
-	ELSE
-	    EMWriteScreen "X127" & transfer_to_worker, 18, 61
-	    transmit
-        EMReadScreen panel_check, 4, 2, 55
+	ELSE                                                   'otherwise we are going for the tranfer
+	    EMWriteScreen "X127" & transfer_to_worker, 18, 61  'entering the worker ifnormation
+	    transmit                                           'saving - this should then take us to the transfer menu
+        EMReadScreen panel_check, 4, 2, 55                 'reading to see if we made it to the right place
         If panel_check = "XWKR" Then
-            action_completed = False
+            action_completed = False                       'this is not the right place
             transfer_message = "Transfer of this case to " & transfer_to_worker & " has failed."
             PF10 'backout
             PF3 'SPEC menu
             PF3 'SELF Menu'
-        Else
+        Else                                               'if we are in the right place - read to see if the new worker is the transfer_to_worker
             EMReadScreen new_pw, 3, 21, 20
-            If new_pw <> transfer_to_worker Then
+            If new_pw <> transfer_to_worker Then           'if it is not the transfer_tow_worker - the transfer failed.
                 action_completed = False
                 transfer_message = "Transfer of this case to " & transfer_to_worker & " has failed."
             End If
@@ -779,13 +787,13 @@ If transfer_to_worker <> "" Then
 	END IF
 END IF
 
-'----------------------------------------------------------------------------------------------------NOTICE APPT LETTER Dialog
-
-IF send_appt_ltr = TRUE THEN
+'SENDING a SPEC/MEMO - this happens AFTER the transfer so that the correct team information is on the notice.
+'there should not be an issue with PRIV cases because going directly here we shouldn't lose the 'connection/access'
+IF send_appt_ltr = TRUE THEN        'If we are supposed to be sending an applientment letter - it will do it here - this matches the information in ON DEMAND functionality
 	last_contact_day = DateAdd("d", 30, application_date)
 	If DateDiff("d", interview_date, last_contact_day) < 0 Then last_contact_day = interview_date
 
-	'Navigating to SPEC/MEMO
+	'Navigating to SPEC/MEMO and opening a new MEMO
 	Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True)    		'Writes the appt letter into the MEMO.
     Call write_variable_in_SPEC_MEMO("You applied for assistance in Hennepin County on " & application_date & "")
     Call write_variable_in_SPEC_MEMO("and an interview is required to process your application.")
@@ -820,15 +828,16 @@ IF send_appt_ltr = TRUE THEN
     Call write_variable_in_SPEC_MEMO("You can also request a paper copy.  Auth: 7CFR 273.2(e)(3).")
 	PF4
 
+    'now we are going to read if a MEMO was created.
     spec_row = 7
     memo_found = False
     Do
-        EMReadScreen print_status, 7, spec_row, 67
+        EMReadScreen print_status, 7, spec_row, 67          'we are looking for a WAITING memo - if one is found -d we are going to assume it is the right one.
         If print_status = "Waiting" Then memo_found = True
         spec_row = spec_row + 1
     Loop until print_status = "       "
 
-    If memo_found = True Then
+    If memo_found = True Then                               'CASE NOTING the MEMO sent if it was successful
         start_a_blank_CASE_NOTE
     	Call write_variable_in_CASE_NOTE("~ Appointment letter sent in MEMO for " & interview_date & " ~")
         Call write_variable_in_CASE_NOTE("* A notice has been sent via SPEC/MEMO informing the client of needed interview.")
@@ -840,6 +849,8 @@ IF send_appt_ltr = TRUE THEN
     End If
 END IF
 
+'THIS IS FUNCTIONALITY WE WILL NEED TO ADD BACK IN WHEN WE RETURN TO IN PERSON.
+'removal of in person functionality during the COVID-19 PEACETIME STATE OF EMERGENCY'
 'IF same_day_offered = TRUE and how_application_rcvd = "Office" THEN
 '   	start_a_blank_CASE_NOTE
 '  	Call write_variable_in_CASE_NOTE("~ Same-day interview offered ~")
@@ -851,6 +862,7 @@ END IF
 '	PF3
 'END IF
 
+'Now we create some messaging to explain what happened in the script run.
 end_msg = "Application Received has been noted."
 end_msg = end_msg & vbCr & "Programs requested: " & programs_applied_for & " on " & application_date
 If snap_status = "PENDING" Then end_msg = end_msg & vbCr & vbCr & "Since SNAP is pending, an Expedtied SNAP screening has been completed and noted based on resident reported information from CAF1."
@@ -865,7 +877,7 @@ Else
 End If
 If transfer_case = False Then end_msg = end_msg & vbCr & vbCr & "NO TRANSFER HAS BEEN REQUESTED."
 IF how_application_rcvd = "Request to APPL Form" Then end_msg = end_msg & vbCr & vbCr & "CASE PENDED from a REQUEST TO APPL FORM"
-
+script_run_lowdown = script_run_lowdown & vbCr & "END Message: " & vbCr & end_msg
 Call script_end_procedure_with_error_report(end_msg)
 
 
@@ -899,13 +911,13 @@ Call script_end_procedure_with_error_report(end_msg)
 
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
 '--Confirm all GitHub taks are complete-----------------------------------------09/10/2021
-'--comment Code-----------------------------------------------------------------
+'--comment Code-----------------------------------------------------------------09/13/2021
 '--Update Changelog for release/update------------------------------------------09/10/2021
 '--Remove testing message boxes-------------------------------------------------09/10/2021
 '--Remove testing code/unnecessary code-----------------------------------------09/10/2021
-'--Review/update SharePoint instructions----------------------------------------
-'--Review Best Practices using BZS page ----------------------------------------
-'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------
+'--Review/update SharePoint instructions----------------------------------------09/13/2021
+'--Review Best Practices using BZS page ----------------------------------------N/A
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------N/A
 '--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------09/10/2021
 '--Complete misc. documentation (if applicable)---------------------------------N/A
 '--Update project team/issue contact (if applicable)----------------------------09/10/2021
