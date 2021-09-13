@@ -153,11 +153,7 @@ MAXIS_background_check
 Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status)
 EMReadScreen case_status, 15, 8, 9
 EMReadScreen pnd2_appl_date, 8, 8, 29
-case_status = trim(case_status)
-script_run_lowdown = "CASE STATUS - " & case_status
-If case_status = "CAF1 PENDING" OR case_pending = False Then
-    call script_end_procedure_with_error_report("This case is not in PND2 status. Current case status in MAXIS is " & case_status & ". Update MAXIS to put this case in PND2 status and then run the script again.")
-End If
+
 ive_status = "INACTIVE"
 cca_status = "INACTIVE"
 ega_status = "INACTIVE"
@@ -169,6 +165,7 @@ If row <> 0 Then
     EMReadScreen ive_status, 9, row, col + 6
     ive_status = trim(ive_status)
     If ive_status = "ACTIVE" or ive_status = "APP CLOSE" or ive_status = "APP OPEN" Then ive_status = "ACTIVE"
+    If ive_status = "PENDING" Then case_pending = True
 End If
 row = 1                                             'Looking for GRH information
 col = 1
@@ -177,6 +174,7 @@ If row <> 0 Then
     EMReadScreen cca_status, 9, row, col + 6
     cca_status = trim(cca_status)
     If cca_status = "ACTIVE" or cca_status = "APP CLOSE" or cca_status = "APP OPEN" Then cca_status = "ACTIVE"
+    If cca_status = "PENDING" Then case_pending = True
 End If
 row = 1                                             'Looking for GRH information
 col = 1
@@ -185,6 +183,7 @@ If row <> 0 Then
     EMReadScreen ega_status, 9, row, col + 6
     ega_status = trim(ega_status)
     If ega_status = "ACTIVE" or ega_status = "APP CLOSE" or ega_status = "APP OPEN" Then ega_status = "ACTIVE"
+    If ega_status = "PENDING" Then case_pending = True
 End If
 row = 1                                             'Looking for GRH information
 col = 1
@@ -193,6 +192,13 @@ If row <> 0 Then
     EMReadScreen ea_status, 9, row, col + 5
     ea_status = trim(ea_status)
     If ea_status = "ACTIVE" or ea_status = "APP CLOSE" or ea_status = "APP OPEN" Then ea_status = "ACTIVE"
+    If ea_status = "PENDING" Then case_pending = True
+End If
+
+case_status = trim(case_status)
+script_run_lowdown = "CASE STATUS - " & case_status & vbCr & "CASE IS PENDING - " & case_pending
+If case_status = "CAF1 PENDING" OR case_pending = False Then
+    call script_end_procedure_with_error_report("This case is not in PND2 status. Current case status in MAXIS is " & case_status & ". Update MAXIS to put this case in PND2 status and then run the script again.")
 End If
 
 call back_to_SELF
