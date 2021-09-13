@@ -6950,71 +6950,77 @@ function app_month_income_detail(determined_income, income_review_completed, job
 			End If
 			If ButtonPressed = -1 Then ButtonPressed = return_btn
 
-			For the_job = 0 to UBound(EXP_JOBS_ARRAY, 2)
-				EXP_JOBS_ARRAY(jobs_employee_const, the_job) = trim(EXP_JOBS_ARRAY(jobs_employee_const, the_job))
-				EXP_JOBS_ARRAY(jobs_employer_const, the_job) = trim(EXP_JOBS_ARRAY(jobs_employer_const, the_job))
-				EXP_JOBS_ARRAY(jobs_wage_const, the_job) = trim(EXP_JOBS_ARRAY(jobs_wage_const, the_job))
-				EXP_JOBS_ARRAY(jobs_hours_const, the_job) = trim(EXP_JOBS_ARRAY(jobs_hours_const, the_job))
-				EXP_JOBS_ARRAY(jobs_frequency_const, the_job) = trim(EXP_JOBS_ARRAY(jobs_frequency_const, the_job))
+            If jobs_income_yn = "Yes" Then
+    			For the_job = 0 to UBound(EXP_JOBS_ARRAY, 2)
+    				EXP_JOBS_ARRAY(jobs_employee_const, the_job) = trim(EXP_JOBS_ARRAY(jobs_employee_const, the_job))
+    				EXP_JOBS_ARRAY(jobs_employer_const, the_job) = trim(EXP_JOBS_ARRAY(jobs_employer_const, the_job))
+    				EXP_JOBS_ARRAY(jobs_wage_const, the_job) = trim(EXP_JOBS_ARRAY(jobs_wage_const, the_job))
+    				EXP_JOBS_ARRAY(jobs_hours_const, the_job) = trim(EXP_JOBS_ARRAY(jobs_hours_const, the_job))
+    				EXP_JOBS_ARRAY(jobs_frequency_const, the_job) = trim(EXP_JOBS_ARRAY(jobs_frequency_const, the_job))
 
-				If EXP_JOBS_ARRAY(jobs_employee_const, the_job) <> "" OR EXP_JOBS_ARRAY(jobs_employer_const, the_job) <> "" OR EXP_JOBS_ARRAY(jobs_wage_const, the_job) <> "" OR EXP_JOBS_ARRAY(jobs_hours_const, the_job) <> "" Then
-					jobs_err_msg = ""
-					If EXP_JOBS_ARRAY(jobs_employee_const, the_job) = "" Then jobs_err_msg = jobs_err_msg & vbCr & "* Enter the name of the employer for this JOB."
-					If EXP_JOBS_ARRAY(jobs_employer_const, the_job) = "" Then jobs_err_msg = jobs_err_msg & vbCr & "* Enter the employer for This JOB."
-					If IsNumeric(EXP_JOBS_ARRAY(jobs_wage_const, the_job)) = False Then jobs_err_msg = jobs_err_msg & vbCr & "* Enter the amount that " & EXP_JOBS_ARRAY(jobs_employee_const, the_job) & " is paid per hour from " & EXP_JOBS_ARRAY(jobs_employer_const, the_job) & " as a number."
-					If IsNumeric(EXP_JOBS_ARRAY(jobs_hours_const, the_job)) = False Then jobs_err_msg = jobs_err_msg & vbCr & "* Enter the number of hours " & EXP_JOBS_ARRAY(jobs_employee_const, the_job) & " works per week in the application month for " & EXP_JOBS_ARRAY(jobs_employer_const, the_job) & " as a number."
-					If EXP_JOBS_ARRAY(jobs_frequency_const, the_job) = "Select One..." Then jobs_err_msg = jobs_err_msg & vbCr & "* Select the pay frequency that " & EXP_JOBS_ARRAY(jobs_employee_const, the_job) & " receives their checks in from " & EXP_JOBS_ARRAY(jobs_employer_const, the_job) & "."
-					If jobs_err_msg <> "" Then prvt_err_msg = prvt_err_msg & vbCr & "For the JOB that is Number " & the_job + 1 & " on the list." & vbCr & jobs_err_msg & vbCr
-				End If
-			Next
+    				If EXP_JOBS_ARRAY(jobs_employee_const, the_job) <> "" OR EXP_JOBS_ARRAY(jobs_employer_const, the_job) <> "" OR EXP_JOBS_ARRAY(jobs_wage_const, the_job) <> "" OR EXP_JOBS_ARRAY(jobs_hours_const, the_job) <> "" Then
+    					jobs_err_msg = ""
+    					If EXP_JOBS_ARRAY(jobs_employee_const, the_job) = "" Then jobs_err_msg = jobs_err_msg & vbCr & "* Enter the name of the employer for this JOB."
+    					If EXP_JOBS_ARRAY(jobs_employer_const, the_job) = "" Then jobs_err_msg = jobs_err_msg & vbCr & "* Enter the employer for This JOB."
+    					If IsNumeric(EXP_JOBS_ARRAY(jobs_wage_const, the_job)) = False Then jobs_err_msg = jobs_err_msg & vbCr & "* Enter the amount that " & EXP_JOBS_ARRAY(jobs_employee_const, the_job) & " is paid per hour from " & EXP_JOBS_ARRAY(jobs_employer_const, the_job) & " as a number."
+    					If IsNumeric(EXP_JOBS_ARRAY(jobs_hours_const, the_job)) = False Then jobs_err_msg = jobs_err_msg & vbCr & "* Enter the number of hours " & EXP_JOBS_ARRAY(jobs_employee_const, the_job) & " works per week in the application month for " & EXP_JOBS_ARRAY(jobs_employer_const, the_job) & " as a number."
+    					If EXP_JOBS_ARRAY(jobs_frequency_const, the_job) = "Select One..." Then jobs_err_msg = jobs_err_msg & vbCr & "* Select the pay frequency that " & EXP_JOBS_ARRAY(jobs_employee_const, the_job) & " receives their checks in from " & EXP_JOBS_ARRAY(jobs_employer_const, the_job) & "."
+    					If jobs_err_msg <> "" Then prvt_err_msg = prvt_err_msg & vbCr & "For the JOB that is Number " & the_job + 1 & " on the list." & vbCr & jobs_err_msg & vbCr
+    				End If
+    			Next
+            End If
 
-			For the_busi = 0 to UBound(EXP_BUSI_ARRAY, 2)
-				EXP_BUSI_ARRAY(busi_owner_const, the_busi) = trim(EXP_BUSI_ARRAY(busi_owner_const, the_busi))
-				EXP_BUSI_ARRAY(busi_info_const, the_busi) = trim(EXP_BUSI_ARRAY(busi_info_const, the_busi))
-				EXP_BUSI_ARRAY(busi_monthly_earnings_const, the_busi) = trim(EXP_BUSI_ARRAY(busi_monthly_earnings_const, the_busi))
-				EXP_BUSI_ARRAY(busi_annual_earnings_const, the_busi) = trim(EXP_BUSI_ARRAY(busi_annual_earnings_const, the_busi))
+            If busi_income_yn = "Yes" Then
+    			For the_busi = 0 to UBound(EXP_BUSI_ARRAY, 2)
+    				EXP_BUSI_ARRAY(busi_owner_const, the_busi) = trim(EXP_BUSI_ARRAY(busi_owner_const, the_busi))
+    				EXP_BUSI_ARRAY(busi_info_const, the_busi) = trim(EXP_BUSI_ARRAY(busi_info_const, the_busi))
+    				EXP_BUSI_ARRAY(busi_monthly_earnings_const, the_busi) = trim(EXP_BUSI_ARRAY(busi_monthly_earnings_const, the_busi))
+    				EXP_BUSI_ARRAY(busi_annual_earnings_const, the_busi) = trim(EXP_BUSI_ARRAY(busi_annual_earnings_const, the_busi))
 
-				If EXP_BUSI_ARRAY(busi_owner_const, the_busi) <> "" OR EXP_BUSI_ARRAY(busi_info_const, the_busi) <> "" OR EXP_BUSI_ARRAY(busi_monthly_earnings_const, the_busi) <> "" OR EXP_BUSI_ARRAY(busi_annual_earnings_const, the_busi) <> "" Then
-					busi_err_msg = ""
-					If EXP_BUSI_ARRAY(busi_owner_const, the_busi) = "" Then busi_err_msg = busi_err_msg & vbCr & "* Enter the name of the employer for this Self Employment."
-					If EXP_BUSI_ARRAY(busi_info_const, the_busi) = "" Then busi_err_msg = busi_err_msg & vbCr & "* Enter the business information for this Self Employment."
-					If EXP_BUSI_ARRAY(busi_monthly_earnings_const, the_busi) <> "" AND IsNumeric(EXP_BUSI_ARRAY(busi_monthly_earnings_const, the_busi)) = False Then busi_err_msg = busi_err_msg & vbCr & "* Enter the amount that " & EXP_BUSI_ARRAY(busi_owner_const, the_busi) & " earns monthly from " & EXP_BUSI_ARRAY(busi_info_const, the_busi) & "."
-					If EXP_BUSI_ARRAY(busi_annual_earnings_const, the_busi) <> "" AND IsNumeric(EXP_BUSI_ARRAY(busi_annual_earnings_const, the_busi)) = False Then busi_err_msg = busi_err_msg & vbCr & "* Enter the number of hours " & EXP_BUSI_ARRAY(busi_owner_const, the_busi) & " earns yearly from " & EXP_BUSI_ARRAY(busi_info_const, the_busi) & "."
-					If IsNumeric(EXP_BUSI_ARRAY(busi_monthly_earnings_const, the_busi)) = True AND IsNumeric(EXP_BUSI_ARRAY(busi_annual_earnings_const, the_busi)) = True Then
-						EXP_BUSI_ARRAY(busi_monthly_earnings_const, the_busi) = FormatNumber(EXP_BUSI_ARRAY(busi_monthly_earnings_const, the_busi), 2, -1, 0, -1)
-						EXP_BUSI_ARRAY(busi_annual_earnings_const, the_busi) = FormatNumber(EXP_BUSI_ARRAY(busi_annual_earnings_const, the_busi), 2, -1, 0, -1)
-						annual_from_monthly = 0
-						annual_from_monthly =  EXP_BUSI_ARRAY(busi_monthly_earnings_const, the_busi) * 12
-						annual_from_monthly = FormatNumber(annual_from_monthly, 2, -1, 0, -1)
-						If annual_from_monthly <> EXP_BUSI_ARRAY(busi_annual_earnings_const, the_busi) Then busi_err_msg = busi_err_msg & vbCr & "* The annual amount does not match up with the monthly amount entered. The Annual earnings should be 12 times the Monthly earnings. You only need to enter one of these amounts."
-					ElseIf IsNumeric(EXP_BUSI_ARRAY(busi_monthly_earnings_const, the_busi)) = True AND EXP_BUSI_ARRAY(busi_annual_earnings_const, the_busi) = "" Then
-						EXP_BUSI_ARRAY(busi_annual_earnings_const, the_busi) = FormatNumber(EXP_BUSI_ARRAY(busi_monthly_earnings_const, the_busi)*12, 2, -1, 0, -1)
-					ElseIf IsNumeric(EXP_BUSI_ARRAY(busi_annual_earnings_const, the_busi)) = True AND EXP_BUSI_ARRAY(busi_monthly_earnings_const, the_busi) = "" Then
-						EXP_BUSI_ARRAY(busi_monthly_earnings_const, the_busi) = FormatNumber(EXP_BUSI_ARRAY(busi_annual_earnings_const, the_busi)/12, 2, -1, 0, -1)
-					End If
-					If busi_err_msg <> "" Then prvt_err_msg = prvt_err_msg & vbCr & "For the BUSI that is Number " & the_busi + 1 & " on the list." & vbCr & busi_err_msg & vbCr
-				End If
-			Next
+    				If EXP_BUSI_ARRAY(busi_owner_const, the_busi) <> "" OR EXP_BUSI_ARRAY(busi_info_const, the_busi) <> "" OR EXP_BUSI_ARRAY(busi_monthly_earnings_const, the_busi) <> "" OR EXP_BUSI_ARRAY(busi_annual_earnings_const, the_busi) <> "" Then
+    					busi_err_msg = ""
+    					If EXP_BUSI_ARRAY(busi_owner_const, the_busi) = "" Then busi_err_msg = busi_err_msg & vbCr & "* Enter the name of the employer for this Self Employment."
+    					If EXP_BUSI_ARRAY(busi_info_const, the_busi) = "" Then busi_err_msg = busi_err_msg & vbCr & "* Enter the business information for this Self Employment."
+    					If EXP_BUSI_ARRAY(busi_monthly_earnings_const, the_busi) <> "" AND IsNumeric(EXP_BUSI_ARRAY(busi_monthly_earnings_const, the_busi)) = False Then busi_err_msg = busi_err_msg & vbCr & "* Enter the amount that " & EXP_BUSI_ARRAY(busi_owner_const, the_busi) & " earns monthly from " & EXP_BUSI_ARRAY(busi_info_const, the_busi) & "."
+    					If EXP_BUSI_ARRAY(busi_annual_earnings_const, the_busi) <> "" AND IsNumeric(EXP_BUSI_ARRAY(busi_annual_earnings_const, the_busi)) = False Then busi_err_msg = busi_err_msg & vbCr & "* Enter the number of hours " & EXP_BUSI_ARRAY(busi_owner_const, the_busi) & " earns yearly from " & EXP_BUSI_ARRAY(busi_info_const, the_busi) & "."
+    					If IsNumeric(EXP_BUSI_ARRAY(busi_monthly_earnings_const, the_busi)) = True AND IsNumeric(EXP_BUSI_ARRAY(busi_annual_earnings_const, the_busi)) = True Then
+    						EXP_BUSI_ARRAY(busi_monthly_earnings_const, the_busi) = FormatNumber(EXP_BUSI_ARRAY(busi_monthly_earnings_const, the_busi), 2, -1, 0, -1)
+    						EXP_BUSI_ARRAY(busi_annual_earnings_const, the_busi) = FormatNumber(EXP_BUSI_ARRAY(busi_annual_earnings_const, the_busi), 2, -1, 0, -1)
+    						annual_from_monthly = 0
+    						annual_from_monthly =  EXP_BUSI_ARRAY(busi_monthly_earnings_const, the_busi) * 12
+    						annual_from_monthly = FormatNumber(annual_from_monthly, 2, -1, 0, -1)
+    						If annual_from_monthly <> EXP_BUSI_ARRAY(busi_annual_earnings_const, the_busi) Then busi_err_msg = busi_err_msg & vbCr & "* The annual amount does not match up with the monthly amount entered. The Annual earnings should be 12 times the Monthly earnings. You only need to enter one of these amounts."
+    					ElseIf IsNumeric(EXP_BUSI_ARRAY(busi_monthly_earnings_const, the_busi)) = True AND EXP_BUSI_ARRAY(busi_annual_earnings_const, the_busi) = "" Then
+    						EXP_BUSI_ARRAY(busi_annual_earnings_const, the_busi) = FormatNumber(EXP_BUSI_ARRAY(busi_monthly_earnings_const, the_busi)*12, 2, -1, 0, -1)
+    					ElseIf IsNumeric(EXP_BUSI_ARRAY(busi_annual_earnings_const, the_busi)) = True AND EXP_BUSI_ARRAY(busi_monthly_earnings_const, the_busi) = "" Then
+    						EXP_BUSI_ARRAY(busi_monthly_earnings_const, the_busi) = FormatNumber(EXP_BUSI_ARRAY(busi_annual_earnings_const, the_busi)/12, 2, -1, 0, -1)
+    					End If
+    					If busi_err_msg <> "" Then prvt_err_msg = prvt_err_msg & vbCr & "For the BUSI that is Number " & the_busi + 1 & " on the list." & vbCr & busi_err_msg & vbCr
+    				End If
+    			Next
+            End If
 
-			For the_unea = 0 to UBound(EXP_UNEA_ARRAY, 2)
-				unea_err_msg = ""
-				EXP_UNEA_ARRAY(unea_owner_const, the_unea) = trim(EXP_UNEA_ARRAY(unea_owner_const, the_unea))
-				EXP_UNEA_ARRAY(unea_info_const, the_unea) = trim(EXP_UNEA_ARRAY(unea_info_const, the_unea))
-				EXP_UNEA_ARRAY(unea_monthly_earnings_const, the_unea) = trim(EXP_UNEA_ARRAY(unea_monthly_earnings_const, the_unea))
-				EXP_UNEA_ARRAY(unea_weekly_earnings_const, the_unea) = trim(EXP_UNEA_ARRAY(unea_weekly_earnings_const, the_unea))
-				If EXP_UNEA_ARRAY(unea_owner_const, the_unea) <> "" OR EXP_UNEA_ARRAY(unea_info_const, the_unea) <> "" OR EXP_UNEA_ARRAY(unea_monthly_earnings_const, the_unea) <> "" OR EXP_UNEA_ARRAY(unea_weekly_earnings_const, the_unea) <> "" Then
-					If EXP_UNEA_ARRAY(unea_owner_const, the_unea) = "" Then unea_err_msg = unea_err_msg & vbCr & "* Enter the name of the the person who received this Unearned Income."
-					If EXP_UNEA_ARRAY(unea_info_const, the_unea) = "" Then unea_err_msg = unea_err_msg & vbCr & "* Enter the information of what type of Unearned Income this is listed."
-					If IsNumeric(EXP_UNEA_ARRAY(unea_monthly_earnings_const, the_unea)) = True AND IsNumeric(EXP_UNEA_ARRAY(unea_weekly_earnings_const, the_unea)) = True Then
-						If FormatNumber(EXP_UNEA_ARRAY(unea_monthly_earnings_const, the_unea), 0) <> FormatNumber(EXP_UNEA_ARRAY(unea_weekly_earnings_const, the_unea) * 4.3, 0) Then unea_err_msg = unea_err_msg & vbCr & "* Enter Only one of the following: Weekly Amount or Monthly Amount"
-					ElseIf IsNumeric(EXP_UNEA_ARRAY(unea_monthly_earnings_const, the_unea)) = False AND EXP_UNEA_ARRAY(unea_weekly_earnings_const, the_unea) = "" Then
-						unea_err_msg = unea_err_msg & vbCr & "* Enter the amount that " & EXP_UNEA_ARRAY(unea_owner_const, the_unea) & " receives per month from " & EXP_UNEA_ARRAY(unea_info_const, the_unea) & " as a number."
-					ElseIf IsNumeric(EXP_UNEA_ARRAY(unea_weekly_earnings_const, the_unea)) = False AND EXP_UNEA_ARRAY(unea_monthly_earnings_const, the_unea) = "" Then
-						unea_err_msg = unea_err_msg & vbCr & "* Enter the number of hours " & EXP_UNEA_ARRAY(unea_owner_const, the_unea) & " receives per week from " & EXP_UNEA_ARRAY(unea_info_const, the_unea) & " as a number."
-					End IF
-					If unea_err_msg <> "" Then prvt_err_msg = prvt_err_msg & vbCr & "For the UNEA that is Number " & the_unea + 1 & " on the list." & vbCr & unea_err_msg & vbCr
-				End If
-			Next
+            If unea_income_yn = "Yes" Then
+    			For the_unea = 0 to UBound(EXP_UNEA_ARRAY, 2)
+    				unea_err_msg = ""
+    				EXP_UNEA_ARRAY(unea_owner_const, the_unea) = trim(EXP_UNEA_ARRAY(unea_owner_const, the_unea))
+    				EXP_UNEA_ARRAY(unea_info_const, the_unea) = trim(EXP_UNEA_ARRAY(unea_info_const, the_unea))
+    				EXP_UNEA_ARRAY(unea_monthly_earnings_const, the_unea) = trim(EXP_UNEA_ARRAY(unea_monthly_earnings_const, the_unea))
+    				EXP_UNEA_ARRAY(unea_weekly_earnings_const, the_unea) = trim(EXP_UNEA_ARRAY(unea_weekly_earnings_const, the_unea))
+    				If EXP_UNEA_ARRAY(unea_owner_const, the_unea) <> "" OR EXP_UNEA_ARRAY(unea_info_const, the_unea) <> "" OR EXP_UNEA_ARRAY(unea_monthly_earnings_const, the_unea) <> "" OR EXP_UNEA_ARRAY(unea_weekly_earnings_const, the_unea) <> "" Then
+    					If EXP_UNEA_ARRAY(unea_owner_const, the_unea) = "" Then unea_err_msg = unea_err_msg & vbCr & "* Enter the name of the the person who received this Unearned Income."
+    					If EXP_UNEA_ARRAY(unea_info_const, the_unea) = "" Then unea_err_msg = unea_err_msg & vbCr & "* Enter the information of what type of Unearned Income this is listed."
+    					If IsNumeric(EXP_UNEA_ARRAY(unea_monthly_earnings_const, the_unea)) = True AND IsNumeric(EXP_UNEA_ARRAY(unea_weekly_earnings_const, the_unea)) = True Then
+    						If FormatNumber(EXP_UNEA_ARRAY(unea_monthly_earnings_const, the_unea), 0) <> FormatNumber(EXP_UNEA_ARRAY(unea_weekly_earnings_const, the_unea) * 4.3, 0) Then unea_err_msg = unea_err_msg & vbCr & "* Enter Only one of the following: Weekly Amount or Monthly Amount"
+    					ElseIf IsNumeric(EXP_UNEA_ARRAY(unea_monthly_earnings_const, the_unea)) = False AND EXP_UNEA_ARRAY(unea_weekly_earnings_const, the_unea) = "" Then
+    						unea_err_msg = unea_err_msg & vbCr & "* Enter the amount that " & EXP_UNEA_ARRAY(unea_owner_const, the_unea) & " receives per month from " & EXP_UNEA_ARRAY(unea_info_const, the_unea) & " as a number."
+    					ElseIf IsNumeric(EXP_UNEA_ARRAY(unea_weekly_earnings_const, the_unea)) = False AND EXP_UNEA_ARRAY(unea_monthly_earnings_const, the_unea) = "" Then
+    						unea_err_msg = unea_err_msg & vbCr & "* Enter the number of hours " & EXP_UNEA_ARRAY(unea_owner_const, the_unea) & " receives per week from " & EXP_UNEA_ARRAY(unea_info_const, the_unea) & " as a number."
+    					End IF
+    					If unea_err_msg <> "" Then prvt_err_msg = prvt_err_msg & vbCr & "For the UNEA that is Number " & the_unea + 1 & " on the list." & vbCr & unea_err_msg & vbCr
+    				End If
+    			Next
+            End If
 
 			If prvt_err_msg <> "" AND ButtonPressed = return_btn Then MsgBox "***** Additional Action/Information Needed ******" & vbCr & vbCr & "Please resolve to continue:" & vbCr & prvt_err_msg
 		Loop Until ButtonPressed = return_btn AND prvt_err_msg = ""
