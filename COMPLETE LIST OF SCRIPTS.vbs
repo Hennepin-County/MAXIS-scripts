@@ -3018,6 +3018,7 @@ script_array(script_num).tags                   = array("QI", "SNAP")
 script_array(script_num).dlg_keys               = array("Ex", "Oe")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #06/05/2020#
+script_array(script_num).retirement_date		= #09/13/2021#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 
