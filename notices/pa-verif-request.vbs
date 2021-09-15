@@ -3744,6 +3744,31 @@ If create_memo = True Then		'If there are any MEMOs needed we need to read INQX 
 				mfip_restart_memo_lines_position = end_line			'Setting where we ended for this program
 			End If
 		End If
+		If memo_full = False AND dwp_verification_method = "Create New MEMO with range of Months" AND InStr(memo_to_write, "DWP") <> 0 Then
+			If dwp_restart_memo_lines_position <= UBound(dwp_array_of_memo_lines) Then
+				If memo_line = 1 AND dwp_restart_memo_lines_position = 0 Then											'at the becinnging of the program and the MEMO
+					Call write_variable_in_SPEC_MEMO("               Benefit Issuances by Month")
+					Call write_variable_in_SPEC_MEMO("                           Information provided by request.")
+					memo_line = memo_line + 2
+				ElseIf memo_line <> 1 AND dwp_restart_memo_lines_position = 0 Then										'in the middle of a MEMO, but the beginning of a program'
+					Call write_variable_in_SPEC_MEMO("-      - - - - - - - - - - - - - - - - - - - -       -")
+					memo_line = memo_line + 1
+				ElseIf dwp_restart_memo_lines_position <> 0 Then														'In the middle of a program and the beginning of a MEMO'
+					Call write_variable_in_SPEC_MEMO("DWP Benefit Information CONTINUED:")
+					memo_line = memo_line + 1
+				End If
+				For dwp_info = dwp_restart_memo_lines_position to UBound(dwp_array_of_memo_lines)					'Now write the lines we created in the INQX functionality
+					Call write_variable_in_SPEC_MEMO(dwp_array_of_memo_lines(dwp_info))
+					end_line = dwp_info + 1
+					memo_line = memo_line + 1
+					If memo_line = 30 Then		'We stop at 30 because there is a line to add to line 30 for every MEMO'
+						memo_full = True
+						Exit For
+					End If
+				Next
+				dwp_restart_memo_lines_position = end_line			'Setting where we ended for this program
+			End If
+		End If
 		If memo_full = False AND grh_verification_method = "Create New MEMO with range of Months" AND InStr(memo_to_write, "GRH") <> 0 Then
 			If grh_restart_memo_lines_position <= UBound(grh_array_of_memo_lines) Then
 				If memo_line = 1 AND grh_restart_memo_lines_position = 0 Then											'at the becinnging of the program and the MEMO
@@ -3792,6 +3817,7 @@ If snap_resent_wcom = True OR snap_verification_method = "Create New MEMO with r
 If ga_resent_wcom = True OR ga_verification_method = "Create New MEMO with range of Months" OR ga_not_actv_memo_for_old_beneftis_checkbox = checked Then pa_verif_programs = pa_verif_programs & "/GA"
 If msa_resent_wcom = True OR msa_verification_method = "Create New MEMO with range of Months" OR msa_not_actv_memo_for_old_beneftis_checkbox = checked Then pa_verif_programs = pa_verif_programs & "/MSA"
 If mfip_resent_wcom = True OR mfip_verification_method = "Create New MEMO with range of Months" OR mfip_not_actv_memo_for_old_beneftis_checkbox = checked Then pa_verif_programs = pa_verif_programs & "/MFIP"
+If dwp_resent_wcom = True OR dwp_verification_method = "Create New MEMO with range of Months" OR dwp_not_actv_memo_for_old_beneftis_checkbox = checked Then pa_verif_programs = pa_verif_programs & "/DWP"
 If grh_resent_wcom = True OR grh_verification_method = "Create New MEMO with range of Months" OR grh_not_actv_memo_for_old_beneftis_checkbox = checked Then pa_verif_programs = pa_verif_programs & "/GRH"
 
 If left(pa_verif_programs, 1) = "/" Then pa_verif_programs = right(pa_verif_programs, len(pa_verif_programs)-1)
@@ -3824,6 +3850,12 @@ If mfip_resent_wcom = True Then
 	Call write_variable_in_CASE_NOTE("   - " & mfip_wcom_text)
 End If
 If mfip_verification_method = "Create New MEMO with range of Months" Then Call write_variable_in_CASE_NOTE("SPEC/MEMO sent with MFIP benefits summary from " & mfip_start_month & " to " &  mfip_end_month & ", per INQX.")
+
+If dwp_resent_wcom = True Then
+	Call write_variable_in_CASE_NOTE("DWP WCOM resent to Client from " & dwp_month & "/" & dwp_year & ".")
+	Call write_variable_in_CASE_NOTE("   - " & dwp_wcom_text)
+End If
+If dwp_verification_method = "Create New MEMO with range of Months" Then Call write_variable_in_CASE_NOTE("SPEC/MEMO sent with DWP benefits summary from " & dwp_start_month & " to " &  dwp_end_month & ", per INQX.")
 
 If grh_resent_wcom = True Then
 	Call write_variable_in_CASE_NOTE("GRH WCOM resent to Client from " & grh_month & "/" & grh_year & ".")
