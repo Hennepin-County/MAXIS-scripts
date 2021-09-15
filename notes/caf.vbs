@@ -901,6 +901,574 @@ function determine_calculations(determined_income, determined_assets, determined
 	determined_utilities = determined_utilities & ""
 end function
 
+function save_your_work()
+'This function records the variables into a txt file so that it can be retrieved by the script if run later.
+
+	'Now determines name of file
+	If MAXIS_case_number <> "" Then
+		local_changelog_path = user_myDocs_folder & "caf-variables-" & MAXIS_case_number & "-info.txt"
+	End If
+
+	With objFSO
+
+		'Creating an object for the stream of text which we'll use frequently
+		Dim objTextStream
+
+		If .FileExists(local_changelog_path) = True then
+			.DeleteFile(local_changelog_path)
+		End If
+
+		'If the file doesn't exist, it needs to create it here and initialize it here! After this, it can just exit as the file will now be initialized
+
+		If .FileExists(local_changelog_path) = False then
+			'Setting the object to open the text file for appending the new data
+			Set objTextStream = .OpenTextFile(local_changelog_path, ForWriting, true)
+
+			'Write the contents of the text file
+            objTextStream.WriteLine "MAXIS_footer_month" & "^~^~^~^~^~^~^" & MAXIS_footer_month
+            objTextStream.WriteLine "MAXIS_footer_year" & "^~^~^~^~^~^~^" & MAXIS_footer_year
+            If CASH_on_CAF_checkbox = checked Then objTextStream.WriteLine "CASH_on_CAF_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+            If SNAP_on_CAF_checkbox = checked Then objTextStream.WriteLine "SNAP_on_CAF_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+            If EMER_on_CAF_checkbox = checked Then objTextStream.WriteLine "EMER_on_CAF_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+            If cash_checkbox = checked Then objTextStream.WriteLine "cash_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+            If SNAP_checkbox = checked Then objTextStream.WriteLine "SNAP_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+            If EMER_checkbox = checked Then objTextStream.WriteLine "EMER_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+            If HC_checkbox = checked Then objTextStream.WriteLine "HC_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+            objTextStream.WriteLine "CAF_form" & "^~^~^~^~^~^~^" & CAF_form
+            objTextStream.WriteLine "cash_other_req_detail" & "^~^~^~^~^~^~^" & cash_other_req_detail
+            objTextStream.WriteLine "snap_other_req_detail" & "^~^~^~^~^~^~^" & snap_other_req_detail
+            objTextStream.WriteLine "emer_other_req_detail" & "^~^~^~^~^~^~^" & emer_other_req_detail
+
+            objTextStream.WriteLine "adult_cash" & "^~^~^~^~^~^~^" & adult_cash
+            objTextStream.WriteLine "family_cash" & "^~^~^~^~^~^~^" & family_cash
+            objTextStream.WriteLine "the_process_for_cash" & "^~^~^~^~^~^~^" & the_process_for_cash
+            objTextStream.WriteLine "type_of_cash" & "^~^~^~^~^~^~^" & type_of_cash
+            objTextStream.WriteLine "cash_recert_mo" & "^~^~^~^~^~^~^" & cash_recert_mo
+            objTextStream.WriteLine "cash_recert_yr" & "^~^~^~^~^~^~^" & cash_recert_yr
+            objTextStream.WriteLine "the_process_for_snap" & "^~^~^~^~^~^~^" & the_process_for_snap
+            objTextStream.WriteLine "snap_recert_mo" & "^~^~^~^~^~^~^" & snap_recert_mo
+            objTextStream.WriteLine "snap_recert_yr" & "^~^~^~^~^~^~^" & snap_recert_yr
+            objTextStream.WriteLine "the_process_for_hc" & "^~^~^~^~^~^~^" & the_process_for_hc
+            objTextStream.WriteLine "hc_recert_mo" & "^~^~^~^~^~^~^" & hc_recert_mo
+            objTextStream.WriteLine "hc_recert_yr" & "^~^~^~^~^~^~^" & hc_recert_yr
+            objTextStream.WriteLine "CAF_type" & "^~^~^~^~^~^~^" & CAF_type
+            objTextStream.WriteLine "CAF_datestamp" & "^~^~^~^~^~^~^" & CAF_datestamp
+            objTextStream.WriteLine "interview_date" & "^~^~^~^~^~^~^" & interview_date
+            objTextStream.WriteLine "SNAP_recert_is_likely_24_months" & "^~^~^~^~^~^~^" & SNAP_recert_is_likely_24_months
+            objTextStream.WriteLine "check_for_waived_interview" & "^~^~^~^~^~^~^" & check_for_waived_interview
+            objTextStream.WriteLine "exp_screening_note_found" & "^~^~^~^~^~^~^" & exp_screening_note_found
+            objTextStream.WriteLine "interview_required" & "^~^~^~^~^~^~^" & interview_required
+            objTextStream.WriteLine "interview_waived" & "^~^~^~^~^~^~^" & interview_waived
+            objTextStream.WriteLine "xfs_screening" & "^~^~^~^~^~^~^" & xfs_screening
+            objTextStream.WriteLine "xfs_screening_display" & "^~^~^~^~^~^~^" & xfs_screening_display
+            objTextStream.WriteLine "caf_one_income" & "^~^~^~^~^~^~^" & caf_one_income
+            objTextStream.WriteLine "caf_one_assets" & "^~^~^~^~^~^~^" & caf_one_assets
+            objTextStream.WriteLine "caf_one_resources" & "^~^~^~^~^~^~^" & caf_one_resources
+            objTextStream.WriteLine "caf_one_rent" & "^~^~^~^~^~^~^" & caf_one_rent
+            objTextStream.WriteLine "caf_one_utilities" & "^~^~^~^~^~^~^" & caf_one_utilities
+            objTextStream.WriteLine "caf_one_expenses" & "^~^~^~^~^~^~^" & caf_one_expenses
+            objTextStream.WriteLine "exp_det_case_note_found" & "^~^~^~^~^~^~^" & exp_det_case_note_found
+            objTextStream.WriteLine "snap_exp_yn" & "^~^~^~^~^~^~^" & snap_exp_yn
+            objTextStream.WriteLine "snap_denial_date" & "^~^~^~^~^~^~^" & snap_denial_date
+            objTextStream.WriteLine "interview_completed_case_note_found" & "^~^~^~^~^~^~^" & interview_completed_case_note_found
+            objTextStream.WriteLine "interview_with" & "^~^~^~^~^~^~^" & interview_with
+            objTextStream.WriteLine "interview_type" & "^~^~^~^~^~^~^" & interview_type
+            objTextStream.WriteLine "verifications_requested_case_note_found" & "^~^~^~^~^~^~^" & verifications_requested_case_note_found
+            objTextStream.WriteLine "verifs_needed" & "^~^~^~^~^~^~^" & verifs_needed
+            objTextStream.WriteLine "caf_qualifying_questions_case_note_found" & "^~^~^~^~^~^~^" & caf_qualifying_questions_case_note_found
+            objTextStream.WriteLine "qual_question_one" & "^~^~^~^~^~^~^" & qual_question_one
+            objTextStream.WriteLine "qual_memb_one" & "^~^~^~^~^~^~^" & qual_memb_one
+            objTextStream.WriteLine "qual_question_two" & "^~^~^~^~^~^~^" & qual_question_two
+            objTextStream.WriteLine "qual_memb_two" & "^~^~^~^~^~^~^" & qual_memb_two
+            objTextStream.WriteLine "qual_question_three" & "^~^~^~^~^~^~^" & qual_question_three
+            objTextStream.WriteLine "qual_memb_three" & "^~^~^~^~^~^~^" & qual_memb_three
+            objTextStream.WriteLine "qual_question_four" & "^~^~^~^~^~^~^" & qual_question_four
+            objTextStream.WriteLine "qual_memb_four" & "^~^~^~^~^~^~^" & qual_memb_four
+            objTextStream.WriteLine "qual_question_five" & "^~^~^~^~^~^~^" & qual_question_five
+            objTextStream.WriteLine "qual_memb_five" & "^~^~^~^~^~^~^" & qual_memb_five
+            objTextStream.WriteLine "appt_notc_sent_on" & "^~^~^~^~^~^~^" & appt_notc_sent_on
+            objTextStream.WriteLine "appt_date_in_note" & "^~^~^~^~^~^~^" & appt_date_in_note
+            For each HH_MEMB in HH_member_array
+                objTextStream.WriteLine "ARRAY - HH_member_array" & "^~^~^~^~^~^~^" & HH_MEMB
+            Next
+            objTextStream.WriteLine "addr_line_one" & "^~^~^~^~^~^~^" & addr_line_one
+            objTextStream.WriteLine "addr_line_two" & "^~^~^~^~^~^~^" & addr_line_two
+            objTextStream.WriteLine "city" & "^~^~^~^~^~^~^" & city
+            objTextStream.WriteLine "state" & "^~^~^~^~^~^~^" & state
+            objTextStream.WriteLine "zip" & "^~^~^~^~^~^~^" & zip
+            objTextStream.WriteLine "addr_county" & "^~^~^~^~^~^~^" & addr_county
+            objTextStream.WriteLine "homeless_yn" & "^~^~^~^~^~^~^" & homeless_yn
+            objTextStream.WriteLine "reservation_yn" & "^~^~^~^~^~^~^" & reservation_yn
+            objTextStream.WriteLine "addr_verif" & "^~^~^~^~^~^~^" & addr_verif
+            objTextStream.WriteLine "living_situation" & "^~^~^~^~^~^~^" & living_situation
+            objTextStream.WriteLine "addr_eff_date" & "^~^~^~^~^~^~^" & addr_eff_date
+            objTextStream.WriteLine "addr_future_date" & "^~^~^~^~^~^~^" & addr_future_date
+            objTextStream.WriteLine "mail_line_one" & "^~^~^~^~^~^~^" & mail_line_one
+            objTextStream.WriteLine "mail_line_two" & "^~^~^~^~^~^~^" & mail_line_two
+            objTextStream.WriteLine "mail_city_line" & "^~^~^~^~^~^~^" & mail_city_line
+            objTextStream.WriteLine "mail_state_line" & "^~^~^~^~^~^~^" & mail_state_line
+            objTextStream.WriteLine "mail_zip_line" & "^~^~^~^~^~^~^" & mail_zip_line
+            objTextStream.WriteLine "notes_on_address" & "^~^~^~^~^~^~^" & notes_on_address
+            For the_members = 0 to UBound(ALL_MEMBERS_ARRAY, 2)
+                objTextStream.WriteLine "" & "^~^~^~^~^~^~^" &
+
+                const clt_name                  = 1
+                const clt_age                   = 2
+                const full_clt                  = 3
+                const clt_id_verif              = 4
+                const include_cash_checkbox     = 5
+                const include_snap_checkbox     = 6
+                const include_emer_checkbox     = 7
+                const count_cash_checkbox       = 8
+                const count_snap_checkbox       = 9
+                const count_emer_checkbox       = 10
+                const clt_wreg_status           = 11
+                const clt_abawd_status          = 12
+                const pwe_checkbox              = 13
+                const numb_abawd_used           = 14
+                const list_abawd_mo             = 15
+                const first_second_set          = 16
+                const list_second_set           = 17
+                const explain_no_second         = 18
+                const numb_banked_mo            = 19
+                const clt_abawd_notes           = 20
+                const shel_exists               = 21
+                const shel_subsudized           = 22
+                const shel_shared               = 23
+                const shel_retro_rent_amt       = 24
+                const shel_retro_rent_verif     = 25
+                const shel_prosp_rent_amt       = 26
+                const shel_prosp_rent_verif     = 27
+                const shel_retro_lot_amt        = 28
+                const shel_retro_lot_verif      = 29
+                const shel_prosp_lot_amt        = 30
+                const shel_prosp_lot_verif      = 31
+                const shel_retro_mortgage_amt   = 32
+                const shel_retro_mortgage_verif = 33
+                const shel_prosp_mortgage_amt   = 34
+                const shel_prosp_mortgage_verif = 35
+                const shel_retro_ins_amt        = 36
+                const shel_retro_ins_verif      = 37
+                const shel_prosp_ins_amt        = 38
+                const shel_prosp_ins_verif      = 39
+                const shel_retro_tax_amt        = 40
+                const shel_retro_tax_verif      = 41
+                const shel_prosp_tax_amt        = 42
+                const shel_prosp_tax_verif      = 43
+                const shel_retro_room_amt       = 44
+                const shel_retro_room_verif     = 45
+                const shel_prosp_room_amt       = 46
+                const shel_prosp_room_verif     = 47
+                const shel_retro_garage_amt     = 48
+                const shel_retro_garage_verif   = 49
+                const shel_prosp_garage_amt     = 50
+                const shel_prosp_garage_verif   = 51
+                const shel_retro_subsidy_amt    = 52
+                const shel_retro_subsidy_verif  = 53
+                const shel_prosp_subsidy_amt    = 54
+                const shel_prosp_subsidy_verif  = 55
+                const wreg_exists               = 56
+                const shel_verif_checkbox       = 57
+                const shel_verif_added          = 58
+                const gather_detail             = 59
+                const id_detail                 = 60
+                const id_required               = 61
+                const clt_notes                 = 62
+            Next
+            objTextStream.WriteLine "total_shelter_amount" & "^~^~^~^~^~^~^" & total_shelter_amount
+            objTextStream.WriteLine "full_shelter_details" & "^~^~^~^~^~^~^" & full_shelter_details
+            objTextStream.WriteLine "shelter_details" & "^~^~^~^~^~^~^" & shelter_details
+            objTextStream.WriteLine "shelter_details_two" & "^~^~^~^~^~^~^" & shelter_details_two
+            objTextStream.WriteLine "shelter_details_three" & "^~^~^~^~^~^~^" & shelter_details_three
+            objTextStream.WriteLine "prosp_heat_air" & "^~^~^~^~^~^~^" & prosp_heat_air
+            objTextStream.WriteLine "prosp_electric" & "^~^~^~^~^~^~^" & prosp_electric
+            objTextStream.WriteLine "prosp_phone" & "^~^~^~^~^~^~^" & prosp_phone
+            objTextStream.WriteLine "hest_information" & "^~^~^~^~^~^~^" & hest_information
+            objTextStream.WriteLine "ABPS" & "^~^~^~^~^~^~^" & ABPS
+            objTextStream.WriteLine "ACCI" & "^~^~^~^~^~^~^" & ACCI
+            objTextStream.WriteLine "notes_on_acct" & "^~^~^~^~^~^~^" & notes_on_acct
+            objTextStream.WriteLine "notes_on_acut" & "^~^~^~^~^~^~^" & notes_on_acut
+            objTextStream.WriteLine "AREP" & "^~^~^~^~^~^~^" & AREP
+            objTextStream.WriteLine "BILS" & "^~^~^~^~^~^~^" & BILS
+            objTextStream.WriteLine "notes_on_cash" & "^~^~^~^~^~^~^" & notes_on_cash
+            objTextStream.WriteLine "notes_on_cars" & "^~^~^~^~^~^~^" & notes_on_cars
+            objTextStream.WriteLine "notes_on_coex" & "^~^~^~^~^~^~^" & notes_on_coex
+            objTextStream.WriteLine "notes_on_dcex" & "^~^~^~^~^~^~^" & notes_on_dcex
+            objTextStream.WriteLine "DIET" & "^~^~^~^~^~^~^" & DIET
+            objTextStream.WriteLine "DISA" & "^~^~^~^~^~^~^" & DISA
+            objTextStream.WriteLine "EMPS" & "^~^~^~^~^~^~^" & EMPS
+            objTextStream.WriteLine "FACI" & "^~^~^~^~^~^~^" & FACI
+            objTextStream.WriteLine "FMED" & "^~^~^~^~^~^~^" & FMED
+            objTextStream.WriteLine "IMIG" & "^~^~^~^~^~^~^" & IMIG
+            objTextStream.WriteLine "INSA" & "^~^~^~^~^~^~^" & INSA
+            For the_jobs = 0 to UBound(ALL_JOBS_PANELS_ARRAY, 2)
+                objTextStream.WriteLine "" & "^~^~^~^~^~^~^" &
+
+                const memb_numb             = 0
+                const panel_instance        = 1
+                const employer_name         = 2
+                const busi_type             = 2         'for BUSI Array
+                Const estimate_only         = 3
+                const verif_explain         = 4
+                const verif_code            = 5
+                const calc_method           = 5         'for BUSI Array
+                const info_month            = 6
+                const hrly_wage             = 7
+                const mthd_date             = 7          'for BUSI Array'
+                const main_pay_freq         = 8
+                const rept_retro_hrs        = 8          'for BUSI Array'
+                const job_retro_income      = 9
+                const rept_prosp_hrs        = 9          'for BUSI Array'
+                const job_prosp_income      = 10
+                const min_wg_retro_hrs      = 10         'for BUSI Array'
+                const retro_hours           = 11
+                const min_wg_prosp_hrs      = 11         'for BUSI Array'
+                const prosp_hours           = 12
+                const income_ret_cash       = 12         'for BUSI Array'
+                const pic_pay_date_income   = 13
+                const income_pro_cash       = 13         'for BUSI Array'
+                const pic_pay_freq          = 14
+                const cash_income_verif     = 14         'for BUSI Array'
+                const pic_prosp_income      = 15
+                const expense_ret_cash      = 15         'for BUSI Array'
+                const pic_calc_date         = 16
+                const expense_pro_cash      = 16         'for BUSI Array'
+                const EI_case_note          = 17
+                const cash_expense_verif    = 17         'for BUSI Array'
+                const grh_calc_date         = 18
+                const income_ret_snap       = 18         'for BUSI Array'
+                const grh_pay_freq          = 19
+                const income_pro_snap       = 19         'for BUSI Array'
+                const grh_pay_day_income    = 20
+                const snap_income_verif     = 20         'for BUSI Array'
+                const grh_prosp_income      = 21
+                const expense_ret_snap      = 21         'for BUSI Array'
+                const expense_pro_snap      = 22         'for BUSI Array'
+                const snap_expense_verif    = 23         'for BUSI Array'
+                const method_convo_checkbox = 24         'for BUSI Array'
+                const start_date            = 25
+                const end_date              = 26
+                const busi_desc             = 27         'for BUSI Array'
+                const busi_structure        = 28         'for BUSI Array'
+                const share_num             = 29         'for BUSI Array'
+                const share_denom           = 30         'for BUSI Array'
+                const partners_in_HH        = 31         'for BUSI Array'
+                const exp_not_allwd         = 32         'for BUSI Array'
+                const verif_checkbox        = 33
+                const verif_added           = 34
+                const budget_explain        = 35
+            Next
+            For the_busi = 0 to UBound(ALL_BUSI_PANELS_ARRAY, 2)
+                objTextStream.WriteLine "" & "^~^~^~^~^~^~^" &
+
+                const memb_numb             = 0
+                const panel_instance        = 1
+                const employer_name         = 2
+                const busi_type             = 2         'for BUSI Array
+                Const estimate_only         = 3
+                const verif_explain         = 4
+                const verif_code            = 5
+                const calc_method           = 5         'for BUSI Array
+                const info_month            = 6
+                const hrly_wage             = 7
+                const mthd_date             = 7          'for BUSI Array'
+                const main_pay_freq         = 8
+                const rept_retro_hrs        = 8          'for BUSI Array'
+                const job_retro_income      = 9
+                const rept_prosp_hrs        = 9          'for BUSI Array'
+                const job_prosp_income      = 10
+                const min_wg_retro_hrs      = 10         'for BUSI Array'
+                const retro_hours           = 11
+                const min_wg_prosp_hrs      = 11         'for BUSI Array'
+                const prosp_hours           = 12
+                const income_ret_cash       = 12         'for BUSI Array'
+                const pic_pay_date_income   = 13
+                const income_pro_cash       = 13         'for BUSI Array'
+                const pic_pay_freq          = 14
+                const cash_income_verif     = 14         'for BUSI Array'
+                const pic_prosp_income      = 15
+                const expense_ret_cash      = 15         'for BUSI Array'
+                const pic_calc_date         = 16
+                const expense_pro_cash      = 16         'for BUSI Array'
+                const EI_case_note          = 17
+                const cash_expense_verif    = 17         'for BUSI Array'
+                const grh_calc_date         = 18
+                const income_ret_snap       = 18         'for BUSI Array'
+                const grh_pay_freq          = 19
+                const income_pro_snap       = 19         'for BUSI Array'
+                const grh_pay_day_income    = 20
+                const snap_income_verif     = 20         'for BUSI Array'
+                const grh_prosp_income      = 21
+                const expense_ret_snap      = 21         'for BUSI Array'
+                const expense_pro_snap      = 22         'for BUSI Array'
+                const snap_expense_verif    = 23         'for BUSI Array'
+                const method_convo_checkbox = 24         'for BUSI Array'
+                const start_date            = 25
+                const end_date              = 26
+                const busi_desc             = 27         'for BUSI Array'
+                const busi_structure        = 28         'for BUSI Array'
+                const share_num             = 29         'for BUSI Array'
+                const share_denom           = 30         'for BUSI Array'
+                const partners_in_HH        = 31         'for BUSI Array'
+                const exp_not_allwd         = 32         'for BUSI Array'
+                const verif_checkbox        = 33
+                const verif_added           = 34
+                const budget_explain        = 35
+            Next
+            objTextStream.WriteLine "cit_id" & "^~^~^~^~^~^~^" & cit_id
+            objTextStream.WriteLine "other_assets" & "^~^~^~^~^~^~^" & other_assets
+            objTextStream.WriteLine "case_changes" & "^~^~^~^~^~^~^" & case_changes
+            objTextStream.WriteLine "PREG" & "^~^~^~^~^~^~^" & PREG
+            objTextStream.WriteLine "earned_income" & "^~^~^~^~^~^~^" & earned_income
+            objTextStream.WriteLine "notes_on_rest" & "^~^~^~^~^~^~^" & notes_on_rest
+            objTextStream.WriteLine "SCHL" & "^~^~^~^~^~^~^" & SCHL
+            objTextStream.WriteLine "notes_on_jobs" & "^~^~^~^~^~^~^" & notes_on_jobs
+            objTextStream.WriteLine "notes_on_time" & "^~^~^~^~^~^~^" & notes_on_time
+            objTextStream.WriteLine "notes_on_sanction" & "^~^~^~^~^~^~^" & notes_on_sanction
+            For the_unea = 0 to UBound(UNEA_INCOME_ARRAY, 2)
+                objTextStream.WriteLine "" & "^~^~^~^~^~^~^" &
+                
+                const memb_numb             = 0
+                const panel_instance        = 1
+                const UNEA_type                 = 2
+                const UNEA_month                = 3
+                const UNEA_verif                = 4
+                const UNEA_prosp_amt            = 5
+                const UNEA_retro_amt            = 6
+                const UNEA_SNAP_amt             = 7
+                const UNEA_pay_freq             = 8
+                const UNEA_pic_date_calc        = 9
+
+                const UNEA_UC_start_date        = 10
+                const UNEA_UC_weekly_gross      = 11
+                const UNEA_UC_counted_ded       = 12
+                const UNEA_UC_exclude_ded       = 13
+                const UNEA_UC_weekly_net        = 14
+                const UNEA_UC_monthly_snap      = 15
+                const UNEA_UC_retro_amt         = 16
+                const UNEA_UC_prosp_amt         = 17
+                const UNEA_UC_notes             = 18
+                const UNEA_UC_tikl_date         = 19
+                const UNEA_UC_account_balance   = 20
+
+                const direct_CS_amt             = 21
+                const disb_CS_amt               = 22
+                const disb_CS_arrears_amt       = 23
+                const direct_CS_notes           = 24
+                const disb_CS_notes             = 25
+                const disb_CS_arrears_notes     = 26
+                const disb_CS_months            = 27
+                const disb_CS_prosp_budg        = 28
+                const disb_CS_arrears_months    = 29
+                const disb_CS_arrears_budg      = 30
+
+                const UNEA_RSDI_amt             = 31
+                const UNEA_RSDI_notes           = 32
+                const UNEA_SSI_amt              = 33
+                const UNEA_SSI_notes            = 34
+
+                const UC_exists                 = 35
+                const CS_exists                 = 36
+                const SSA_exists                = 37
+                const calc_button               = 38
+
+                const budget_notes              = 39
+            Next
+            objTextStream.WriteLine "notes_on_wreg" & "^~^~^~^~^~^~^" & notes_on_wreg
+            objTextStream.WriteLine "full_abawd_info" & "^~^~^~^~^~^~^" & full_abawd_info
+            objTextStream.WriteLine "notes_on_abawd" & "^~^~^~^~^~^~^" & notes_on_abawd
+            objTextStream.WriteLine "notes_on_abawd_two" & "^~^~^~^~^~^~^" & notes_on_abawd_two
+            objTextStream.WriteLine "notes_on_abawd_three" & "^~^~^~^~^~^~^" & notes_on_abawd_three
+            objTextStream.WriteLine "programs_applied_for" & "^~^~^~^~^~^~^" & programs_applied_for
+            If TIKL_checkbox = checked Then objTextStream.WriteLine "TIKL_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+            objTextStream.WriteLine "interview_memb_list" & "^~^~^~^~^~^~^" & interview_memb_list
+            objTextStream.WriteLine "shel_memb_list" & "^~^~^~^~^~^~^" & shel_memb_list
+            objTextStream.WriteLine "verification_memb_list" & "^~^~^~^~^~^~^" & verification_memb_list
+            objTextStream.WriteLine "notes_on_busi" & "^~^~^~^~^~^~^" & notes_on_busi
+            'DLG 1
+            If Used_Interpreter_checkbox = checked Then objTextStream.WriteLine "Used_Interpreter_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+            objTextStream.WriteLine "how_app_rcvd" & "^~^~^~^~^~^~^" & how_app_rcvd
+            objTextStream.WriteLine "arep_id_info" & "^~^~^~^~^~^~^" & arep_id_info
+            objTextStream.WriteLine "CS_forms_sent_date" & "^~^~^~^~^~^~^" & CS_forms_sent_date
+            objTextStream.WriteLine "case_changes" & "^~^~^~^~^~^~^" & case_changes
+            'DLG 5'
+            objTextStream.WriteLine "notes_on_ssa_income" & "^~^~^~^~^~^~^" & notes_on_ssa_income
+            objTextStream.WriteLine "notes_on_VA_income" & "^~^~^~^~^~^~^" & notes_on_VA_income
+            objTextStream.WriteLine "notes_on_WC_income" & "^~^~^~^~^~^~^" & notes_on_WC_income
+            objTextStream.WriteLine "other_uc_income_notes" & "^~^~^~^~^~^~^" & other_uc_income_notes
+            objTextStream.WriteLine "notes_on_other_UNEA" & "^~^~^~^~^~^~^" & notes_on_other_UNEA
+
+            objTextStream.WriteLine "hest_information" & "^~^~^~^~^~^~^" & hest_information
+            objTextStream.WriteLine "notes_on_acut" & "^~^~^~^~^~^~^" & notes_on_acut
+            objTextStream.WriteLine "notes_on_coex" & "^~^~^~^~^~^~^" & notes_on_coex
+            objTextStream.WriteLine "notes_on_dcex" & "^~^~^~^~^~^~^" & notes_on_dcex
+            objTextStream.WriteLine "notes_on_other_deduction" & "^~^~^~^~^~^~^" & notes_on_other_deduction
+            objTextStream.WriteLine "expense_notes" & "^~^~^~^~^~^~^" & expense_notes
+            If address_confirmation_checkbox = checked Then objTextStream.WriteLine "address_confirmation_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+            objTextStream.WriteLine "manual_total_shelter" & "^~^~^~^~^~^~^" & manual_total_shelter
+            objTextStream.WriteLine "manual_amount_used" & "^~^~^~^~^~^~^" & manual_amount_used
+            objTextStream.WriteLine "app_month_assets" & "^~^~^~^~^~^~^" & app_month_assets
+            If confirm_no_account_panel_checkbox = checked Then objTextStream.WriteLine "confirm_no_account_panel_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+            objTextStream.WriteLine "notes_on_other_assets" & "^~^~^~^~^~^~^" & notes_on_other_assets
+            objTextStream.WriteLine "MEDI" & "^~^~^~^~^~^~^" & MEDI
+            objTextStream.WriteLine "DISQ" & "^~^~^~^~^~^~^" & DISQ
+            If MFIP_DVD_checkbox = checked Then objTextStream.WriteLine "MFIP_DVD_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+            'EXP DET'
+            objTextStream.WriteLine "full_determination_done" & "^~^~^~^~^~^~^" & full_determination_done
+            ' Call run_expedited_determination_script_functionality(
+            objTextStream.WriteLine "xfs_screening" & "^~^~^~^~^~^~^" & xfs_screening
+            objTextStream.WriteLine "caf_one_income" & "^~^~^~^~^~^~^" & caf_one_income
+            objTextStream.WriteLine "caf_one_assets" & "^~^~^~^~^~^~^" & caf_one_assets
+            objTextStream.WriteLine "caf_one_rent" & "^~^~^~^~^~^~^" & caf_one_rent
+            objTextStream.WriteLine "caf_one_utilities" & "^~^~^~^~^~^~^" & caf_one_utilities
+            objTextStream.WriteLine "determined_income" & "^~^~^~^~^~^~^" & determined_income
+            objTextStream.WriteLine "determined_assets" & "^~^~^~^~^~^~^" & determined_assets
+            objTextStream.WriteLine "determined_shel" & "^~^~^~^~^~^~^" & determined_shel
+            objTextStream.WriteLine "determined_utilities" & "^~^~^~^~^~^~^" & determined_utilities
+            objTextStream.WriteLine "calculated_resources" & "^~^~^~^~^~^~^" & calculated_resources
+            objTextStream.WriteLine "calculated_expenses" & "^~^~^~^~^~^~^" & calculated_expenses
+            objTextStream.WriteLine "calculated_low_income_asset_test" & "^~^~^~^~^~^~^" & calculated_low_income_asset_test
+            objTextStream.WriteLine "calculated_resources_less_than_expenses_test" & "^~^~^~^~^~^~^" & calculated_resources_less_than_expenses_test
+            objTextStream.WriteLine "is_elig_XFS" & "^~^~^~^~^~^~^" & is_elig_XFS
+            objTextStream.WriteLine "approval_date" & "^~^~^~^~^~^~^" & approval_date
+            objTextStream.WriteLine "applicant_id_on_file_yn" & "^~^~^~^~^~^~^" & applicant_id_on_file_yn
+            objTextStream.WriteLine "applicant_id_through_SOLQ" & "^~^~^~^~^~^~^" & applicant_id_through_SOLQ
+            objTextStream.WriteLine "delay_explanation" & "^~^~^~^~^~^~^" & delay_explanation
+            objTextStream.WriteLine "snap_denial_date" & "^~^~^~^~^~^~^" & snap_denial_date
+            objTextStream.WriteLine "snap_denial_explain" & "^~^~^~^~^~^~^" & snap_denial_explain
+            objTextStream.WriteLine "case_assesment_text" & "^~^~^~^~^~^~^" & case_assesment_text
+            objTextStream.WriteLine "next_steps_one" & "^~^~^~^~^~^~^" & next_steps_one
+            objTextStream.WriteLine "next_steps_two" & "^~^~^~^~^~^~^" & next_steps_two
+            objTextStream.WriteLine "next_steps_three" & "^~^~^~^~^~^~^" & next_steps_three
+            objTextStream.WriteLine "next_steps_four" & "^~^~^~^~^~^~^" & next_steps_four
+            objTextStream.WriteLine "postponed_verifs_yn" & "^~^~^~^~^~^~^" & postponed_verifs_yn
+            objTextStream.WriteLine "list_postponed_verifs" & "^~^~^~^~^~^~^" & list_postponed_verifs
+            objTextStream.WriteLine "day_30_from_application" & "^~^~^~^~^~^~^" & day_30_from_application
+            objTextStream.WriteLine "other_snap_state" & "^~^~^~^~^~^~^" & other_snap_state
+            objTextStream.WriteLine "other_state_reported_benefit_end_date" & "^~^~^~^~^~^~^" & other_state_reported_benefit_end_date
+            objTextStream.WriteLine "other_state_benefits_openended" & "^~^~^~^~^~^~^" & other_state_benefits_openended
+            objTextStream.WriteLine "other_state_contact_yn" & "^~^~^~^~^~^~^" & other_state_contact_yn
+            objTextStream.WriteLine "other_state_verified_benefit_end_date" & "^~^~^~^~^~^~^" & other_state_verified_benefit_end_date
+            objTextStream.WriteLine "mn_elig_begin_date" & "^~^~^~^~^~^~^" & mn_elig_begin_date
+            objTextStream.WriteLine "action_due_to_out_of_state_benefits" & "^~^~^~^~^~^~^" & action_due_to_out_of_state_benefits
+            objTextStream.WriteLine "case_has_previously_postponed_verifs_that_prevent_exp_snap" & "^~^~^~^~^~^~^" & case_has_previously_postponed_verifs_that_prevent_exp_snap
+            objTextStream.WriteLine "prev_post_verif_assessment_done" & "^~^~^~^~^~^~^" & prev_post_verif_assessment_done
+            objTextStream.WriteLine "previous_date_of_application" & "^~^~^~^~^~^~^" & previous_date_of_application
+            objTextStream.WriteLine "previous_expedited_package" & "^~^~^~^~^~^~^" & previous_expedited_package
+            objTextStream.WriteLine "prev_verifs_mandatory_yn" & "^~^~^~^~^~^~^" & prev_verifs_mandatory_yn
+            objTextStream.WriteLine "prev_verif_list" & "^~^~^~^~^~^~^" & prev_verif_list
+            objTextStream.WriteLine "curr_verifs_postponed_yn" & "^~^~^~^~^~^~^" & curr_verifs_postponed_yn
+            objTextStream.WriteLine "ongoing_snap_approved_yn" & "^~^~^~^~^~^~^" & ongoing_snap_approved_yn
+            objTextStream.WriteLine "prev_post_verifs_recvd_yn" & "^~^~^~^~^~^~^" & prev_post_verifs_recvd_yn
+            objTextStream.WriteLine "delay_action_due_to_faci" & "^~^~^~^~^~^~^" & delay_action_due_to_faci
+            objTextStream.WriteLine "deny_snap_due_to_faci" & "^~^~^~^~^~^~^" & deny_snap_due_to_faci
+            objTextStream.WriteLine "faci_review_completed" & "^~^~^~^~^~^~^" & faci_review_completed
+            objTextStream.WriteLine "facility_name" & "^~^~^~^~^~^~^" & facility_name
+            objTextStream.WriteLine "snap_inelig_faci_yn" & "^~^~^~^~^~^~^" & snap_inelig_faci_yn
+            objTextStream.WriteLine "faci_entry_date" & "^~^~^~^~^~^~^" & faci_entry_date
+            objTextStream.WriteLine "faci_release_date" & "^~^~^~^~^~^~^" & faci_release_date
+            objTextStream.WriteLine "release_date_unknown_checkbox" & "^~^~^~^~^~^~^" & release_date_unknown_checkbox
+            objTextStream.WriteLine "release_within_30_days_yn" & "^~^~^~^~^~^~^" & release_within_30_days_yn
+
+            objTextStream.WriteLine "next_er_month" & "^~^~^~^~^~^~^" & next_er_month
+            objTextStream.WriteLine "next_er_year" & "^~^~^~^~^~^~^" & next_er_year
+            objTextStream.WriteLine "CAF_status" & "^~^~^~^~^~^~^" & CAF_status
+            objTextStream.WriteLine "actions_taken" & "^~^~^~^~^~^~^" & actions_taken
+            If application_signed_checkbox = checked Then objTextStream.WriteLine "application_signed_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+            If eDRS_sent_checkbox = checked Then objTextStream.WriteLine "eDRS_sent_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+            If updated_MMIS_checkbox = checked Then objTextStream.WriteLine "updated_MMIS_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+            If WF1_checkbox = checked Then objTextStream.WriteLine "WF1_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+            If Sent_arep_checkbox = checked Then objTextStream.WriteLine "Sent_arep_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+            If intake_packet_checkbox = checked Then objTextStream.WriteLine "intake_packet_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+            If IAA_checkbox = checked Then objTextStream.WriteLine "IAA_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+            If recert_period_checkbox = checked Then objTextStream.WriteLine "recert_period_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+            If R_R_checkbox = checked Then objTextStream.WriteLine "R_R_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+            If E_and_T_checkbox = checked Then objTextStream.WriteLine "E_and_T_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+            If elig_req_explained_checkbox = checked Then objTextStream.WriteLine "elig_req_explained_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+            If benefit_payment_explained_checkbox = checked Then objTextStream.WriteLine "benefit_payment_explained_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+            objTextStream.WriteLine "other_notes" & "^~^~^~^~^~^~^" & other_notes
+            If client_delay_checkbox = checked Then objTextStream.WriteLine "client_delay_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+            If TIKL_checkbox = checked Then objTextStream.WriteLine "TIKL_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+            If client_delay_TIKL_checkbox = checked Then objTextStream.WriteLine "client_delay_TIKL_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+            objTextStream.WriteLine "verif_req_form_sent_date" & "^~^~^~^~^~^~^" & verif_req_form_sent_date
+            objTextStream.WriteLine "worker_signature" & "^~^~^~^~^~^~^" & worker_signature
+            ' objTextStream.WriteLine "" & "^~^~^~^~^~^~^" &
+
+			If IsNumeric(add_to_time) = True Then objTextStream.WriteLine "TIME SPENT - "	& timer - start_time + add_to_time
+			If IsNumeric(add_to_time) = False Then objTextStream.WriteLine "TIME SPENT - "	& timer - start_time
+
+			objTextStream.WriteLine "CAF - DATE - " & CAF_datestamp
+
+
+
+            'Close the object so it can be opened again shortly
+			objTextStream.Close
+
+
+            script_run_lowdown = ""
+
+            If exp_det_case_note_found = TRUE Then script_run_lowdown = script_run_lowdown & vbCr & "Found Expedited Case Note"
+            If interview_completed_case_note_found = TRUE Then script_run_lowdown = script_run_lowdown & vbCr & "Found Interview Completed Note"
+            If verifications_requested_case_note_found = TRUE Then script_run_lowdown = script_run_lowdown & vbCr & "Found Verifs Requested Note"
+            If caf_qualifying_questions_case_note_found = TRUE Then script_run_lowdown = script_run_lowdown & vbCr & "Found CAF Qual Questions Note"
+
+
+
+            script_run_lowdown = script_run_lowdown & vbCr & "TIME SPENT - "	& timer - start_time & vbCr & vbCr
+
+            script_run_lowdown = script_run_lowdown & vbCr & "PROG - CASH - " & cash_other_req_detail
+            script_run_lowdown = script_run_lowdown & vbCr & "PROG - SNAP - " & snap_other_req_detail
+            script_run_lowdown = script_run_lowdown & vbCr & "PROG - EMER - " & emer_other_req_detail & vbCr & vbCr
+        End If
+    End With
+end function
+
+function restore_your_work(vars_filled)
+'this function looks to see if a txt file exists for the case that is being run to pull already known variables back into the script from a previous run
+
+	'Now determines name of file
+	local_changelog_path = user_myDocs_folder & "caf-variables-" & MAXIS_case_number & "-info.txt"
+
+	With objFSO
+
+		'Creating an object for the stream of text which we'll use frequently
+		Dim objTextStream
+
+		If .FileExists(local_changelog_path) = True then
+
+			pull_variables = MsgBox("It appears there is information saved for this case from a previous run of this script." & vbCr & vbCr & "Would you like to restore the details from this previous run?", vbQuestion + vbYesNo, "Restore Detail from Previous Run")
+
+			If pull_variables = vbYes Then
+				'Setting the object to open the text file for reading the data already in the file
+				Set objTextStream = .OpenTextFile(local_changelog_path, ForReading)
+
+				'Reading the entire text file into a string
+				every_line_in_text_file = objTextStream.ReadAll
+
+				'Splitting the text file contents into an array which will be sorted
+				saved_caf_details = split(every_line_in_text_file, vbNewLine)
+
+
+                For Each text_line in saved_caf_details										'read each line in the file
+                    If Instr(text_line, "^~^~^~^~^~^~^") <> 0 Then
+                        line_info = split(text_line, "^~^~^~^~^~^~^")								'creating a small array for each line. 0 has the header and 1 has the information
+                        line_info(0) = trim(line_info(0))
+            			'here we add the information from TXT to Excel
+                        If line_info(0) = "" Then variable = line_info(1)
+                        If line_info(0) = "" Then variable = line_info(1)
+
+
+
+
+
+
+                    End If
+                Next
+            End If
+        End If
+    End With
+end function
+
 function snap_in_another_state_detail(date_of_application, day_30_from_application, other_snap_state, other_state_reported_benefit_end_date, other_state_benefits_openended, other_state_contact_yn, other_state_verified_benefit_end_date, mn_elig_begin_date, snap_denial_date, snap_denial_explain, action_due_to_out_of_state_benefits)
 	original_snap_denial_date = snap_denial_date
 	original_snap_denial_reason = snap_denial_explain
@@ -4183,7 +4751,7 @@ call check_for_MAXIS(False)	'checking for an active MAXIS session
 MAXIS_footer_month_confirmation	'function will check the MAXIS panel footer month/year vs. the footer month/year in the dialog, and will navigate to the dialog month/year if they do not match.
 
 script_run_lowdown = script_run_lowdown & vbCr & "CAF Type: " & CAF_type
-script_run_lowdown = script_run_lowdown & vbCr & "Footer month:; " & MAXIS_footer_month & "/" & MAXIS_footer_year
+script_run_lowdown = script_run_lowdown & vbCr & "Footer month: " & MAXIS_footer_month & "/" & MAXIS_footer_year
 
 If CASH_on_CAF_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "CASH Checked"
 If trim(cash_other_req_detail) <> "" Then script_run_lowdown = script_run_lowdown & vbCr & "CASH: " & cash_other_req_detail
@@ -4782,11 +5350,6 @@ Do
     EMReadScreen next_note_date, 8, note_row, 6
     if next_note_date = "        " then Exit Do
 Loop until DateDiff("d", too_old_date, next_note_date) <= 0
-
-If exp_det_case_note_found = TRUE Then script_run_lowdown = script_run_lowdown & vbCr & "Found Expedited Case Note"
-If interview_completed_case_note_found = TRUE Then script_run_lowdown = script_run_lowdown & vbCr & "Found Interview Completed Note"
-If verifications_requested_case_note_found = TRUE Then script_run_lowdown = script_run_lowdown & vbCr & "Found Verifs Requested Note"
-If caf_qualifying_questions_case_note_found = TRUE Then script_run_lowdown = script_run_lowdown & vbCr & "Found CAF Qual Questions Note"
 
 ' call autofill_editbox_from_MAXIS(HH_member_array, "SHEL", SHEL_HEST)
 call read_ADDR_panel
