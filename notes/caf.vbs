@@ -989,7 +989,7 @@ function save_your_work()
             objTextStream.WriteLine "appt_notc_sent_on" & "^~^~^~^~^~^~^" & appt_notc_sent_on
             objTextStream.WriteLine "appt_date_in_note" & "^~^~^~^~^~^~^" & appt_date_in_note
             For each HH_MEMB in HH_member_array
-                objTextStream.WriteLine "ARRAY - HH_member_array" & "^~^~^~^~^~^~^" & HH_MEMB
+                objTextStream.WriteLine "HH_member_array" & "^~^~^~^~^~^~^" & HH_MEMB
             Next
             objTextStream.WriteLine "addr_line_one" & "^~^~^~^~^~^~^" & addr_line_one
             objTextStream.WriteLine "addr_line_two" & "^~^~^~^~^~^~^" & addr_line_two
@@ -1027,7 +1027,7 @@ function save_your_work()
                 If ALL_MEMBERS_ARRAY(pwe_checkbox, the_members) = checked Then box_seven_info = "CHECKED"
                 If ALL_MEMBERS_ARRAY(shel_verif_checkbox, the_members) = checked Then box_eight_info = "CHECKED"
 
-                objTextStream.WriteLine "ARRAY-ALL_MEMBERS_ARRAY" & "^~^~^~^~^~^~^" &ALL_MEMBERS_ARRAY(clt_name, the_members)&"~~"&ALL_MEMBERS_ARRAY(clt_age, the_members)&"~~"&ALL_MEMBERS_ARRAY(full_clt, the_members)&"~~"&ALL_MEMBERS_ARRAY(clt_id_verif, the_members)&"~~"&box_one_info&"~~"&box_two_info&"~~"&box_three_info&"~~"&box_four_info&"~~"&box_five_info&"~~"&box_six_info&"~~"&ALL_MEMBERS_ARRAY(clt_wreg_status, the_members)&"~~"&ALL_MEMBERS_ARRAY(clt_abawd_status, the_members)&"~~"&box_seven_info&"~~"&ALL_MEMBERS_ARRAY(numb_abawd_used, the_members)&"~~"&ALL_MEMBERS_ARRAY(list_abawd_mo, the_members)&"~~"&ALL_MEMBERS_ARRAY(first_second_set, the_members)&"~~"&ALL_MEMBERS_ARRAY(list_second_set, the_members)&"~~"&ALL_MEMBERS_ARRAY(explain_no_second, the_members)&"~~"&ALL_MEMBERS_ARRAY(numb_banked_mo, the_members)&"~~"&ALL_MEMBERS_ARRAY(clt_abawd_notes, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_exists, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_subsudized, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_shared, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_rent_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_rent_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_rent_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_rent_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_lot_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_lot_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_lot_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_lot_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_mortgage_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_mortgage_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_mortgage_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_mortgage_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_ins_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_ins_verif,the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_ins_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_ins_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_tax_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_tax_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_tax_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_tax_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_room_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_room_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_room_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_room_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_garage_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_garage_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_garage_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_garage_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_subsidy_amt,the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_subsidy_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_subsidy_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_subsidy_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(wreg_exists, the_members)&"~~"&box_eight_info&"~~"&ALL_MEMBERS_ARRAY(shel_verif_added, the_members)&"~~"&ALL_MEMBERS_ARRAY(gather_detail, the_members)&"~~"&ALL_MEMBERS_ARRAY(id_detail, the_members)&"~~"&ALL_MEMBERS_ARRAY(id_required, the_members)&"~~"&ALL_MEMBERS_ARRAY(clt_notes, the_members)
+                objTextStream.WriteLine "ALL_MEMBERS_ARRAY" & "^~^~^~^~^~^~^" &ALL_MEMBERS_ARRAY(clt_name, the_members)&"~~"&ALL_MEMBERS_ARRAY(clt_age, the_members)&"~~"&ALL_MEMBERS_ARRAY(full_clt, the_members)&"~~"&ALL_MEMBERS_ARRAY(clt_id_verif, the_members)&"~~"&box_one_info&"~~"&box_two_info&"~~"&box_three_info&"~~"&box_four_info&"~~"&box_five_info&"~~"&box_six_info&"~~"&ALL_MEMBERS_ARRAY(clt_wreg_status, the_members)&"~~"&ALL_MEMBERS_ARRAY(clt_abawd_status, the_members)&"~~"&box_seven_info&"~~"&ALL_MEMBERS_ARRAY(numb_abawd_used, the_members)&"~~"&ALL_MEMBERS_ARRAY(list_abawd_mo, the_members)&"~~"&ALL_MEMBERS_ARRAY(first_second_set, the_members)&"~~"&ALL_MEMBERS_ARRAY(list_second_set, the_members)&"~~"&ALL_MEMBERS_ARRAY(explain_no_second, the_members)&"~~"&ALL_MEMBERS_ARRAY(numb_banked_mo, the_members)&"~~"&ALL_MEMBERS_ARRAY(clt_abawd_notes, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_exists, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_subsudized, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_shared, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_rent_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_rent_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_rent_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_rent_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_lot_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_lot_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_lot_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_lot_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_mortgage_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_mortgage_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_mortgage_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_mortgage_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_ins_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_ins_verif,the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_ins_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_ins_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_tax_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_tax_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_tax_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_tax_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_room_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_room_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_room_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_room_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_garage_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_garage_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_garage_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_garage_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_subsidy_amt,the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_subsidy_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_subsidy_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_subsidy_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(wreg_exists, the_members)&"~~"&box_eight_info&"~~"&ALL_MEMBERS_ARRAY(shel_verif_added, the_members)&"~~"&ALL_MEMBERS_ARRAY(gather_detail, the_members)&"~~"&ALL_MEMBERS_ARRAY(id_detail, the_members)&"~~"&ALL_MEMBERS_ARRAY(id_required, the_members)&"~~"&ALL_MEMBERS_ARRAY(clt_notes, the_members)
                 ' ALL_MEMBERS_ARRAY(include_cash_checkbox, the_members)&"~~"&
                 ' ALL_MEMBERS_ARRAY(include_snap_checkbox, the_members)&"~~"&
                 ' ALL_MEMBERS_ARRAY(include_emer_checkbox, the_members)&"~~"&
@@ -1064,101 +1064,21 @@ function save_your_work()
             objTextStream.WriteLine "IMIG" & "^~^~^~^~^~^~^" & IMIG
             objTextStream.WriteLine "INSA" & "^~^~^~^~^~^~^" & INSA
             For the_jobs = 0 to UBound(ALL_JOBS_PANELS_ARRAY, 2)
-                objTextStream.WriteLine "ARRAY-ALL_JOBS_PANELS_ARRAY" & "^~^~^~^~^~^~^" &
-
-ALL_JOBS_PANELS_ARRAY(memb_numb, the_jobs)&"~~"&
-ALL_JOBS_PANELS_ARRAY(panel_instance, the_jobs)&"~~"&
-ALL_JOBS_PANELS_ARRAY(employer_name, the_jobs)&"~~"&
-ALL_JOBS_PANELS_ARRAY(estimate_only, the_jobs)&"~~"&
-ALL_JOBS_PANELS_ARRAY(verif_explain, the_jobs)&"~~"&
-ALL_JOBS_PANELS_ARRAY(verif_code, the_jobs)&"~~"&
-ALL_JOBS_PANELS_ARRAY(info_month, the_jobs)&"~~"&
-ALL_JOBS_PANELS_ARRAY(hrly_wage, the_jobs)&"~~"&
-ALL_JOBS_PANELS_ARRAY(main_pay_freq, the_jobs)&"~~"&
-ALL_JOBS_PANELS_ARRAY(job_retro_income, the_jobs)&"~~"&
-ALL_JOBS_PANELS_ARRAY(job_prosp_income, the_jobs)&"~~"&
-ALL_JOBS_PANELS_ARRAY(retro_hours, the_jobs)&"~~"&
-ALL_JOBS_PANELS_ARRAY(prosp_hours, the_jobs)&"~~"&
-ALL_JOBS_PANELS_ARRAY(pic_pay_date_income, the_jobs)&"~~"&
-ALL_JOBS_PANELS_ARRAY(pic_pay_freq, the_jobs)&"~~"&
-ALL_JOBS_PANELS_ARRAY(pic_prosp_income, the_jobs)&"~~"&
-                ALL_JOBS_PANELS_ARRAY(pic_calc_date, the_jobs)&"~~"&
-                ALL_JOBS_PANELS_ARRAY(EI_case_note, the_jobs)&"~~"&
-                ALL_JOBS_PANELS_ARRAY(grh_calc_date, the_jobs)&"~~"&
-                ALL_JOBS_PANELS_ARRAY(grh_pay_freq, the_jobs)&"~~"&
-                ALL_JOBS_PANELS_ARRAY(grh_pay_day_income, the_jobs)&"~~"&
-                ALL_JOBS_PANELS_ARRAY(grh_prosp_income, the_jobs)&"~~"&
-                ""&"~~"&
-                ""&"~~"&
-                ""&"~~"&
-                ALL_JOBS_PANELS_ARRAY(start_date, the_jobs)&"~~"&
-                ALL_JOBS_PANELS_ARRAY(end_date, the_jobs)&"~~"&
-                ""&"~~"&
-                ""&"~~"&
-                ""&"~~"&
-                ""&"~~"&
-                ""&"~~"&
-                ""&"~~"&
-                ALL_JOBS_PANELS_ARRAY(verif_checkbox, the_jobs)&"~~"&
-                ALL_JOBS_PANELS_ARRAY(verif_added, the_jobs)&"~~"&
-                ALL_JOBS_PANELS_ARRAY(budget_explain, the_jobs)
+                box_one_info = ""
+                box_two_info = ""
+                If ALL_JOBS_PANELS_ARRAY(estimate_only, the_jobs) = checked Then box_one_info = "CHECKED"
+                If ALL_JOBS_PANELS_ARRAY(verif_checkbox, the_jobs) = checked Then box_two_info = "CHECKED"
+                objTextStream.WriteLine "ALL_JOBS_PANELS_ARRAY" & "^~^~^~^~^~^~^" &ALL_JOBS_PANELS_ARRAY(memb_numb, the_jobs)&"~~"&ALL_JOBS_PANELS_ARRAY(panel_instance, the_jobs)&"~~"&ALL_JOBS_PANELS_ARRAY(employer_name, the_jobs)&"~~"&box_one_info&"~~"&ALL_JOBS_PANELS_ARRAY(verif_explain, the_jobs)&"~~"&ALL_JOBS_PANELS_ARRAY(verif_code, the_jobs)&"~~"&ALL_JOBS_PANELS_ARRAY(info_month, the_jobs)&"~~"&ALL_JOBS_PANELS_ARRAY(hrly_wage, the_jobs)&"~~"&ALL_JOBS_PANELS_ARRAY(main_pay_freq, the_jobs)&"~~"&ALL_JOBS_PANELS_ARRAY(job_retro_income, the_jobs)&"~~"&ALL_JOBS_PANELS_ARRAY(job_prosp_income, the_jobs)&"~~"&ALL_JOBS_PANELS_ARRAY(retro_hours, the_jobs)&"~~"&ALL_JOBS_PANELS_ARRAY(prosp_hours, the_jobs)&"~~"&ALL_JOBS_PANELS_ARRAY(pic_pay_date_income, the_jobs)&"~~"&ALL_JOBS_PANELS_ARRAY(pic_pay_freq, the_jobs)&"~~"&ALL_JOBS_PANELS_ARRAY(pic_prosp_income, the_jobs)&"~~"&ALL_JOBS_PANELS_ARRAY(pic_calc_date, the_jobs)&"~~"&ALL_JOBS_PANELS_ARRAY(EI_case_note, the_jobs)&"~~"&ALL_JOBS_PANELS_ARRAY(grh_calc_date, the_jobs)&"~~"&ALL_JOBS_PANELS_ARRAY(grh_pay_freq, the_jobs)&"~~"&ALL_JOBS_PANELS_ARRAY(grh_pay_day_income, the_jobs)&"~~"&ALL_JOBS_PANELS_ARRAY(grh_prosp_income, the_jobs)&"~~"&""&"~~"&""&"~~"&""&"~~"&ALL_JOBS_PANELS_ARRAY(start_date, the_jobs)&"~~"&ALL_JOBS_PANELS_ARRAY(end_date, the_jobs)&"~~"&""&"~~"&""&"~~"&""&"~~"&""&"~~"&""&"~~"&""&"~~"&box_two_info&"~~"&ALL_JOBS_PANELS_ARRAY(verif_added, the_jobs)&"~~"&ALL_JOBS_PANELS_ARRAY(budget_explain, the_jobs)
             Next
             For the_busi = 0 to UBound(ALL_BUSI_PANELS_ARRAY, 2)
-                objTextStream.WriteLine "" & "^~^~^~^~^~^~^" &
+                box_one_info = ""
+                box_two_info = ""
+                box_three_info = ""
+                If ALL_BUSI_PANELS_ARRAY(estimate_only, the_busi) = checked Then box_one_info = "CHECKED"
+                If ALL_BUSI_PANELS_ARRAY(method_convo_checkbox, the_busi) = checked Then box_two_info = "CHECKED"
+                If ALL_BUSI_PANELS_ARRAY(verif_checkbox, the_busi) = checked Then box_three_info = "CHECKED"
 
-                const memb_numb             = 0
-                const panel_instance        = 1
-                const employer_name         = 2
-                const busi_type             = 2         'for BUSI Array
-                Const estimate_only         = 3
-                const verif_explain         = 4
-                const verif_code            = 5
-                const calc_method           = 5         'for BUSI Array
-                const info_month            = 6
-                const hrly_wage             = 7
-                const mthd_date             = 7          'for BUSI Array'
-                const main_pay_freq         = 8
-                const rept_retro_hrs        = 8          'for BUSI Array'
-                const job_retro_income      = 9
-                const rept_prosp_hrs        = 9          'for BUSI Array'
-                const job_prosp_income      = 10
-                const min_wg_retro_hrs      = 10         'for BUSI Array'
-                const retro_hours           = 11
-                const min_wg_prosp_hrs      = 11         'for BUSI Array'
-                const prosp_hours           = 12
-                const income_ret_cash       = 12         'for BUSI Array'
-                const pic_pay_date_income   = 13
-                const income_pro_cash       = 13         'for BUSI Array'
-                const pic_pay_freq          = 14
-                const cash_income_verif     = 14         'for BUSI Array'
-                const pic_prosp_income      = 15
-                const expense_ret_cash      = 15         'for BUSI Array'
-                const pic_calc_date         = 16
-                const expense_pro_cash      = 16         'for BUSI Array'
-                const EI_case_note          = 17
-                const cash_expense_verif    = 17         'for BUSI Array'
-                const grh_calc_date         = 18
-                const income_ret_snap       = 18         'for BUSI Array'
-                const grh_pay_freq          = 19
-                const income_pro_snap       = 19         'for BUSI Array'
-                const grh_pay_day_income    = 20
-                const snap_income_verif     = 20         'for BUSI Array'
-                const grh_prosp_income      = 21
-                const expense_ret_snap      = 21         'for BUSI Array'
-                const expense_pro_snap      = 22         'for BUSI Array'
-                const snap_expense_verif    = 23         'for BUSI Array'
-                const method_convo_checkbox = 24         'for BUSI Array'
-                const start_date            = 25
-                const end_date              = 26
-                const busi_desc             = 27         'for BUSI Array'
-                const busi_structure        = 28         'for BUSI Array'
-                const share_num             = 29         'for BUSI Array'
-                const share_denom           = 30         'for BUSI Array'
-                const partners_in_HH        = 31         'for BUSI Array'
-                const exp_not_allwd         = 32         'for BUSI Array'
-                const verif_checkbox        = 33
-                const verif_added           = 34
-                const budget_explain        = 35
+                objTextStream.WriteLine "ALL_BUSI_PANELS_ARRAY" & "^~^~^~^~^~^~^" &ALL_BUSI_PANELS_ARRAY(memb_numb, the_busi)&"~~"&ALL_BUSI_PANELS_ARRAY(panel_instance, the_busi)&"~~"&ALL_BUSI_PANELS_ARRAY(busi_type, the_busi)&"~~"&box_one_info&"~~"&ALL_BUSI_PANELS_ARRAY(verif_explain, the_busi)&"~~"&ALL_BUSI_PANELS_ARRAY(calc_method, the_busi)&"~~"&ALL_BUSI_PANELS_ARRAY(info_month, the_busi)&"~~"&ALL_BUSI_PANELS_ARRAY(mthd_date, the_busi)&"~~"&ALL_BUSI_PANELS_ARRAY(rept_retro_hrs, the_busi)&"~~"&ALL_BUSI_PANELS_ARRAY(rept_prosp_hrs, the_busi)&"~~"&ALL_BUSI_PANELS_ARRAY(min_wg_retro_hrs, the_busi)&"~~"&ALL_BUSI_PANELS_ARRAY(min_wg_prosp_hrs, the_busi)&"~~"&ALL_BUSI_PANELS_ARRAY(income_ret_cash, the_busi)&"~~"&ALL_BUSI_PANELS_ARRAY(income_pro_cash, the_busi)&"~~"&ALL_BUSI_PANELS_ARRAY(cash_income_verif, the_busi)&"~~"&ALL_BUSI_PANELS_ARRAY(expense_ret_cash, the_busi)&"~~"&ALL_BUSI_PANELS_ARRAY(expense_pro_cash, the_busi)&"~~"&ALL_BUSI_PANELS_ARRAY(cash_expense_verif, the_busi)&"~~"&ALL_BUSI_PANELS_ARRAY(income_ret_snap, the_busi)&"~~"&ALL_BUSI_PANELS_ARRAY(income_pro_snap, the_busi)&"~~"&ALL_BUSI_PANELS_ARRAY(snap_income_verif, the_busi)&"~~"&ALL_BUSI_PANELS_ARRAY(expense_ret_snap, the_busi)&"~~"&ALL_BUSI_PANELS_ARRAY(expense_pro_snap, the_busi)&"~~"&ALL_BUSI_PANELS_ARRAY(snap_expense_verif, the_busi)&"~~"&box_two_info&"~~"&ALL_BUSI_PANELS_ARRAY(start_date, the_busi)&"~~"&ALL_BUSI_PANELS_ARRAY(end_date, the_busi)&"~~"&ALL_BUSI_PANELS_ARRAY(busi_desc, the_busi)&"~~"&ALL_BUSI_PANELS_ARRAY(busi_structure, the_busi)&"~~"&ALL_BUSI_PANELS_ARRAY(share_num, the_busi)&"~~"&ALL_BUSI_PANELS_ARRAY(share_denom, the_busi)&"~~"&ALL_BUSI_PANELS_ARRAY(partners_in_HH, the_busi)&"~~"&ALL_BUSI_PANELS_ARRAY(exp_not_allwd, the_busi)&"~~"&box_three_info&"~~"&ALL_BUSI_PANELS_ARRAY(verif_added, the_busi)&"~~"&ALL_BUSI_PANELS_ARRAY(budget_explain, the_busi)
             Next
             objTextStream.WriteLine "cit_id" & "^~^~^~^~^~^~^" & cit_id
             objTextStream.WriteLine "other_assets" & "^~^~^~^~^~^~^" & other_assets
@@ -1171,53 +1091,7 @@ ALL_JOBS_PANELS_ARRAY(pic_prosp_income, the_jobs)&"~~"&
             objTextStream.WriteLine "notes_on_time" & "^~^~^~^~^~^~^" & notes_on_time
             objTextStream.WriteLine "notes_on_sanction" & "^~^~^~^~^~^~^" & notes_on_sanction
             For the_unea = 0 to UBound(UNEA_INCOME_ARRAY, 2)
-                objTextStream.WriteLine "" & "^~^~^~^~^~^~^" &
-
-                const memb_numb             = 0
-                const panel_instance        = 1
-                const UNEA_type                 = 2
-                const UNEA_month                = 3
-                const UNEA_verif                = 4
-                const UNEA_prosp_amt            = 5
-                const UNEA_retro_amt            = 6
-                const UNEA_SNAP_amt             = 7
-                const UNEA_pay_freq             = 8
-                const UNEA_pic_date_calc        = 9
-
-                const UNEA_UC_start_date        = 10
-                const UNEA_UC_weekly_gross      = 11
-                const UNEA_UC_counted_ded       = 12
-                const UNEA_UC_exclude_ded       = 13
-                const UNEA_UC_weekly_net        = 14
-                const UNEA_UC_monthly_snap      = 15
-                const UNEA_UC_retro_amt         = 16
-                const UNEA_UC_prosp_amt         = 17
-                const UNEA_UC_notes             = 18
-                const UNEA_UC_tikl_date         = 19
-                const UNEA_UC_account_balance   = 20
-
-                const direct_CS_amt             = 21
-                const disb_CS_amt               = 22
-                const disb_CS_arrears_amt       = 23
-                const direct_CS_notes           = 24
-                const disb_CS_notes             = 25
-                const disb_CS_arrears_notes     = 26
-                const disb_CS_months            = 27
-                const disb_CS_prosp_budg        = 28
-                const disb_CS_arrears_months    = 29
-                const disb_CS_arrears_budg      = 30
-
-                const UNEA_RSDI_amt             = 31
-                const UNEA_RSDI_notes           = 32
-                const UNEA_SSI_amt              = 33
-                const UNEA_SSI_notes            = 34
-
-                const UC_exists                 = 35
-                const CS_exists                 = 36
-                const SSA_exists                = 37
-                const calc_button               = 38
-
-                const budget_notes              = 39
+                objTextStream.WriteLine "UNEA_INCOME_ARRAY" & "^~^~^~^~^~^~^" &UNEA_INCOME_ARRAY(memb_numb, the_unea)&"~~"&UNEA_INCOME_ARRAY(panel_instance, the_unea)&"~~"&UNEA_INCOME_ARRAY(UNEA_type, the_unea)&"~~"&UNEA_INCOME_ARRAY(UNEA_month, the_unea)&"~~"&UNEA_INCOME_ARRAY(UNEA_verif, the_unea)&"~~"&UNEA_INCOME_ARRAY(UNEA_prosp_amt, the_unea)&"~~"&UNEA_INCOME_ARRAY(UNEA_retro_amt, the_unea)&"~~"&UNEA_INCOME_ARRAY(UNEA_SNAP_amt, the_unea)&"~~"&UNEA_INCOME_ARRAY(UNEA_pay_freq, the_unea)&"~~"&UNEA_INCOME_ARRAY(UNEA_pic_date_calc, the_unea)&"~~"&UNEA_INCOME_ARRAY(UNEA_UC_start_date, the_unea)&"~~"&UNEA_INCOME_ARRAY(UNEA_UC_weekly_gross, the_unea)&"~~"&UNEA_INCOME_ARRAY(UNEA_UC_counted_ded, the_unea)&"~~"&UNEA_INCOME_ARRAY(UNEA_UC_exclude_ded, the_unea)&"~~"&UNEA_INCOME_ARRAY(UNEA_UC_weekly_net, the_unea)&"~~"&UNEA_INCOME_ARRAY(UNEA_UC_monthly_snap, the_unea)&"~~"&UNEA_INCOME_ARRAY(UNEA_UC_retro_amt, the_unea)&"~~"&UNEA_INCOME_ARRAY(UNEA_UC_prosp_amt, the_unea)&"~~"&UNEA_INCOME_ARRAY(UNEA_UC_notes, the_unea)&"~~"&UNEA_INCOME_ARRAY(UNEA_UC_tikl_date, the_unea)&"~~"&UNEA_INCOME_ARRAY(UNEA_UC_account_balance, the_unea)&"~~"&UNEA_INCOME_ARRAY(direct_CS_amt, the_unea)&"~~"&UNEA_INCOME_ARRAY(disb_CS_amt, the_unea)&"~~"&UNEA_INCOME_ARRAY(disb_CS_arrears_amt, the_unea)&"~~"&UNEA_INCOME_ARRAY(direct_CS_notes, the_unea)&"~~"&UNEA_INCOME_ARRAY(disb_CS_notes, the_unea)&"~~"&UNEA_INCOME_ARRAY(disb_CS_arrears_notes, the_unea)&"~~"&UNEA_INCOME_ARRAY(disb_CS_months, the_unea)&"~~"&UNEA_INCOME_ARRAY(disb_CS_prosp_budg, the_unea)&"~~"&UNEA_INCOME_ARRAY(disb_CS_arrears_months, the_unea)&"~~"&UNEA_INCOME_ARRAY(disb_CS_arrears_budg, the_unea)&"~~"&UNEA_INCOME_ARRAY(UNEA_RSDI_amt, the_unea)&"~~"&UNEA_INCOME_ARRAY(UNEA_RSDI_notes, the_unea)&"~~"&UNEA_INCOME_ARRAY(UNEA_SSI_amt, the_unea)&"~~"&UNEA_INCOME_ARRAY(UNEA_SSI_notes, the_unea)&"~~"&UNEA_INCOME_ARRAY(UC_exists, the_unea)&"~~"&UNEA_INCOME_ARRAY(CS_exists, the_unea)&"~~"&UNEA_INCOME_ARRAY(SSA_exists, the_unea)&"~~"&UNEA_INCOME_ARRAY(calc_button, the_unea)&"~~"&UNEA_INCOME_ARRAY(budget_notes, the_unea)
             Next
             objTextStream.WriteLine "notes_on_wreg" & "^~^~^~^~^~^~^" & notes_on_wreg
             objTextStream.WriteLine "full_abawd_info" & "^~^~^~^~^~^~^" & full_abawd_info
@@ -1339,10 +1213,10 @@ ALL_JOBS_PANELS_ARRAY(pic_prosp_income, the_jobs)&"~~"&
             objTextStream.WriteLine "worker_signature" & "^~^~^~^~^~^~^" & worker_signature
             ' objTextStream.WriteLine "" & "^~^~^~^~^~^~^" &
 
-			If IsNumeric(add_to_time) = True Then objTextStream.WriteLine "TIME SPENT - "	& timer - start_time + add_to_time
-			If IsNumeric(add_to_time) = False Then objTextStream.WriteLine "TIME SPENT - "	& timer - start_time
-
-			objTextStream.WriteLine "CAF - DATE - " & CAF_datestamp
+			' If IsNumeric(add_to_time) = True Then objTextStream.WriteLine "TIME SPENT - "	& timer - start_time + add_to_time
+			' If IsNumeric(add_to_time) = False Then objTextStream.WriteLine "TIME SPENT - "	& timer - start_time
+            '
+			' objTextStream.WriteLine "CAF - DATE - " & CAF_datestamp
 
 
 
@@ -1404,6 +1278,293 @@ function restore_your_work(vars_filled)
 
 
 
+
+                        If line_info(0) = "MAXIS_footer_month" Then MAXIS_footer_month = line_info(1)
+                        If line_info(0) = "MAXIS_footer_year" Then MAXIS_footer_year = line_info(1)
+                        If CASH_on_CAF_checkbox = checked Then objTextStream.WriteLine "CASH_on_CAF_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+                        If SNAP_on_CAF_checkbox = checked Then objTextStream.WriteLine "SNAP_on_CAF_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+                        If EMER_on_CAF_checkbox = checked Then objTextStream.WriteLine "EMER_on_CAF_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+                        If cash_checkbox = checked Then objTextStream.WriteLine "cash_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+                        If SNAP_checkbox = checked Then objTextStream.WriteLine "SNAP_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+                        If EMER_checkbox = checked Then objTextStream.WriteLine "EMER_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+                        If HC_checkbox = checked Then objTextStream.WriteLine "HC_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+                        If line_info(0) = "CAF_form" Then CAF_form = line_info(1)
+                        If line_info(0) = "cash_other_req_detail" Then cash_other_req_detail = line_info(1)
+                        If line_info(0) = "snap_other_req_detail" Then snap_other_req_detail = line_info(1)
+                        If line_info(0) = "emer_other_req_detail" Then emer_other_req_detail = line_info(1)
+
+                        If line_info(0) = "adult_cash" Then adult_cash = line_info(1)
+                        If line_info(0) = "family_cash" Then family_cash = line_info(1)
+                        If line_info(0) = "the_process_for_cash" Then the_process_for_cash = line_info(1)
+                        If line_info(0) = "type_of_cash" Then type_of_cash = line_info(1)
+                        If line_info(0) = "cash_recert_mo" Then cash_recert_mo = line_info(1)
+                        If line_info(0) = "cash_recert_yr" Then cash_recert_yr = line_info(1)
+                        If line_info(0) = "the_process_for_snap" Then the_process_for_snap = line_info(1)
+                        If line_info(0) = "snap_recert_mo" Then snap_recert_mo = line_info(1)
+                        If line_info(0) = "snap_recert_yr" Then snap_recert_yr = line_info(1)
+                        If line_info(0) = "the_process_for_hc" Then the_process_for_hc = line_info(1)
+                        If line_info(0) = "hc_recert_mo" Then hc_recert_mo = line_info(1)
+                        If line_info(0) = "hc_recert_yr" Then hc_recert_yr = line_info(1)
+                        If line_info(0) = "CAF_type" Then CAF_type = line_info(1)
+                        If line_info(0) = "CAF_datestamp" Then CAF_datestamp = line_info(1)
+                        If line_info(0) = "interview_date" Then interview_date = line_info(1)
+                        If line_info(0) = "SNAP_recert_is_likely_24_months" Then SNAP_recert_is_likely_24_months = line_info(1)
+                        If line_info(0) = "check_for_waived_interview" Then check_for_waived_interview = line_info(1)
+                        If line_info(0) = "exp_screening_note_found" Then exp_screening_note_found = line_info(1)
+                        If line_info(0) = "interview_required" Then interview_required = line_info(1)
+                        If line_info(0) = "interview_waived" Then interview_waived = line_info(1)
+                        If line_info(0) = "xfs_screening" Then xfs_screening = line_info(1)
+                        If line_info(0) = "xfs_screening_display" Then xfs_screening_display = line_info(1)
+                        If line_info(0) = "caf_one_income" Then caf_one_income = line_info(1)
+                        If line_info(0) = "caf_one_assets" Then caf_one_assets = line_info(1)
+                        If line_info(0) = "caf_one_resources" Then caf_one_resources = line_info(1)
+                        If line_info(0) = "caf_one_rent" Then caf_one_rent = line_info(1)
+                        If line_info(0) = "caf_one_utilities" Then caf_one_utilities = line_info(1)
+                        If line_info(0) = "caf_one_expenses" Then caf_one_expenses = line_info(1)
+                        If line_info(0) = "exp_det_case_note_found" Then exp_det_case_note_found = line_info(1)
+                        If line_info(0) = "snap_exp_yn" Then snap_exp_yn = line_info(1)
+                        If line_info(0) = "snap_denial_date" Then snap_denial_date = line_info(1)
+                        If line_info(0) = "interview_completed_case_note_found" Then interview_completed_case_note_found = line_info(1)
+                        If line_info(0) = "interview_with" Then interview_with = line_info(1)
+                        If line_info(0) = "interview_type" Then interview_type = line_info(1)
+                        If line_info(0) = "verifications_requested_case_note_found" Then verifications_requested_case_note_found = line_info(1)
+                        If line_info(0) = "verifs_needed" Then verifs_needed = line_info(1)
+                        If line_info(0) = "caf_qualifying_questions_case_note_found" Then caf_qualifying_questions_case_note_found = line_info(1)
+                        If line_info(0) = "qual_question_one" Then qual_question_one = line_info(1)
+                        If line_info(0) = "qual_memb_one" Then qual_memb_one = line_info(1)
+                        If line_info(0) = "qual_question_two" Then qual_question_two = line_info(1)
+                        If line_info(0) = "qual_memb_two" Then qual_memb_two = line_info(1)
+                        If line_info(0) = "qual_question_three" Then qual_question_three = line_info(1)
+                        If line_info(0) = "qual_memb_three" Then qual_memb_three = line_info(1)
+                        If line_info(0) = "qual_question_four" Then qual_question_four = line_info(1)
+                        If line_info(0) = "qual_memb_four" Then qual_memb_four = line_info(1)
+                        If line_info(0) = "qual_question_five" Then qual_question_five = line_info(1)
+                        If line_info(0) = "qual_memb_five" Then qual_memb_five = line_info(1)
+                        If line_info(0) = "appt_notc_sent_on" Then appt_notc_sent_on = line_info(1)
+                        If line_info(0) = "appt_date_in_note" Then appt_date_in_note = line_info(1)
+                        For each HH_MEMB in HH_member_array
+                            objTextStream.WriteLine "HH_member_array" & "^~^~^~^~^~^~^" & HH_MEMB
+                        Next
+                        If line_info(0) = "addr_line_one" Then addr_line_one = line_info(1)
+                        If line_info(0) = "addr_line_two" Then addr_line_two = line_info(1)
+                        If line_info(0) = "city" Then city = line_info(1)
+                        If line_info(0) = "state" Then state = line_info(1)
+                        If line_info(0) = "zip" Then zip = line_info(1)
+                        If line_info(0) = "addr_county" Then addr_county = line_info(1)
+                        If line_info(0) = "homeless_yn" Then homeless_yn = line_info(1)
+                        If line_info(0) = "reservation_yn" Then reservation_yn = line_info(1)
+                        If line_info(0) = "addr_verif" Then addr_verif = line_info(1)
+                        If line_info(0) = "living_situation" Then living_situation = line_info(1)
+                        If line_info(0) = "addr_eff_date" Then addr_eff_date = line_info(1)
+                        If line_info(0) = "addr_future_date" Then addr_future_date = line_info(1)
+                        If line_info(0) = "mail_line_one" Then mail_line_one = line_info(1)
+                        If line_info(0) = "mail_line_two" Then mail_line_two = line_info(1)
+                        If line_info(0) = "mail_city_line" Then mail_city_line = line_info(1)
+                        If line_info(0) = "mail_state_line" Then mail_state_line = line_info(1)
+                        If line_info(0) = "mail_zip_line" Then mail_zip_line = line_info(1)
+                        If line_info(0) = "notes_on_address" Then notes_on_address = line_info(1)
+                        For the_members = 0 to UBound(ALL_MEMBERS_ARRAY, 2)
+                            box_one_info = ""
+                            box_two_info = ""
+                            box_three_info = ""
+                            box_four_info = ""
+                            box_five_info = ""
+                            box_six_info = ""
+                            box_seven_info = ""
+                            box_eight_info = ""
+                            If ALL_MEMBERS_ARRAY(include_cash_checkbox, the_members) = checked Then box_one_info = "CHECKED"
+                            If ALL_MEMBERS_ARRAY(include_snap_checkbox, the_members) = checked Then box_two_info = "CHECKED"
+                            If ALL_MEMBERS_ARRAY(include_emer_checkbox, the_members) = checked Then box_three_info = "CHECKED"
+                            If ALL_MEMBERS_ARRAY(count_cash_checkbox, the_members) = checked Then box_four_info = "CHECKED"
+                            If ALL_MEMBERS_ARRAY(count_snap_checkbox, the_members) = checked Then box_five_info = "CHECKED"
+                            If ALL_MEMBERS_ARRAY(count_emer_checkbox, the_members) = checked Then box_six_info = "CHECKED"
+                            If ALL_MEMBERS_ARRAY(pwe_checkbox, the_members) = checked Then box_seven_info = "CHECKED"
+                            If ALL_MEMBERS_ARRAY(shel_verif_checkbox, the_members) = checked Then box_eight_info = "CHECKED"
+
+                            objTextStream.WriteLine "ALL_MEMBERS_ARRAY" & "^~^~^~^~^~^~^" &ALL_MEMBERS_ARRAY(clt_name, the_members)&"~~"&ALL_MEMBERS_ARRAY(clt_age, the_members)&"~~"&ALL_MEMBERS_ARRAY(full_clt, the_members)&"~~"&ALL_MEMBERS_ARRAY(clt_id_verif, the_members)&"~~"&box_one_info&"~~"&box_two_info&"~~"&box_three_info&"~~"&box_four_info&"~~"&box_five_info&"~~"&box_six_info&"~~"&ALL_MEMBERS_ARRAY(clt_wreg_status, the_members)&"~~"&ALL_MEMBERS_ARRAY(clt_abawd_status, the_members)&"~~"&box_seven_info&"~~"&ALL_MEMBERS_ARRAY(numb_abawd_used, the_members)&"~~"&ALL_MEMBERS_ARRAY(list_abawd_mo, the_members)&"~~"&ALL_MEMBERS_ARRAY(first_second_set, the_members)&"~~"&ALL_MEMBERS_ARRAY(list_second_set, the_members)&"~~"&ALL_MEMBERS_ARRAY(explain_no_second, the_members)&"~~"&ALL_MEMBERS_ARRAY(numb_banked_mo, the_members)&"~~"&ALL_MEMBERS_ARRAY(clt_abawd_notes, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_exists, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_subsudized, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_shared, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_rent_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_rent_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_rent_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_rent_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_lot_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_lot_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_lot_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_lot_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_mortgage_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_mortgage_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_mortgage_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_mortgage_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_ins_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_ins_verif,the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_ins_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_ins_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_tax_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_tax_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_tax_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_tax_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_room_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_room_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_room_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_room_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_garage_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_garage_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_garage_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_garage_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_subsidy_amt,the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_subsidy_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_subsidy_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_subsidy_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(wreg_exists, the_members)&"~~"&box_eight_info&"~~"&ALL_MEMBERS_ARRAY(shel_verif_added, the_members)&"~~"&ALL_MEMBERS_ARRAY(gather_detail, the_members)&"~~"&ALL_MEMBERS_ARRAY(id_detail, the_members)&"~~"&ALL_MEMBERS_ARRAY(id_required, the_members)&"~~"&ALL_MEMBERS_ARRAY(clt_notes, the_members)
+                            ' ALL_MEMBERS_ARRAY(include_cash_checkbox, the_members)&"~~"&
+                            ' ALL_MEMBERS_ARRAY(include_snap_checkbox, the_members)&"~~"&
+                            ' ALL_MEMBERS_ARRAY(include_emer_checkbox, the_members)&"~~"&
+                            ' ALL_MEMBERS_ARRAY(count_cash_checkbox, the_members)&"~~"&
+                            ' ALL_MEMBERS_ARRAY(count_snap_checkbox, the_members)&"~~"&
+                            ' ALL_MEMBERS_ARRAY(count_emer_checkbox, the_members)&"~~"&
+                            ' ALL_MEMBERS_ARRAY(pwe_checkbox, the_members)&"~~"&
+                            ' ALL_MEMBERS_ARRAY(shel_verif_checkbox, the_members)&"~~"&
+                        Next
+                        If line_info(0) = "total_shelter_amount" Then total_shelter_amount = line_info(1)
+                        If line_info(0) = "full_shelter_details" Then full_shelter_details = line_info(1)
+                        If line_info(0) = "shelter_details" Then shelter_details = line_info(1)
+                        If line_info(0) = "shelter_details_two" Then shelter_details_two = line_info(1)
+                        If line_info(0) = "shelter_details_three" Then shelter_details_three = line_info(1)
+                        If line_info(0) = "prosp_heat_air" Then prosp_heat_air = line_info(1)
+                        If line_info(0) = "prosp_electric" Then prosp_electric = line_info(1)
+                        If line_info(0) = "prosp_phone" Then prosp_phone = line_info(1)
+                        If line_info(0) = "hest_information" Then hest_information = line_info(1)
+                        If line_info(0) = "ABPS" Then ABPS = line_info(1)
+                        If line_info(0) = "ACCI" Then ACCI = line_info(1)
+                        If line_info(0) = "notes_on_acct" Then notes_on_acct = line_info(1)
+                        If line_info(0) = "notes_on_acut" Then notes_on_acut = line_info(1)
+                        If line_info(0) = "AREP" Then AREP = line_info(1)
+                        If line_info(0) = "BILS" Then BILS = line_info(1)
+                        If line_info(0) = "notes_on_cash" Then notes_on_cash = line_info(1)
+                        If line_info(0) = "notes_on_cars" Then notes_on_cars = line_info(1)
+                        If line_info(0) = "notes_on_coex" Then notes_on_coex = line_info(1)
+                        If line_info(0) = "notes_on_dcex" Then notes_on_dcex = line_info(1)
+                        If line_info(0) = "DIET" Then DIET = line_info(1)
+                        If line_info(0) = "DISA" Then DISA = line_info(1)
+                        If line_info(0) = "EMPS" Then EMPS = line_info(1)
+                        If line_info(0) = "FACI" Then FACI = line_info(1)
+                        If line_info(0) = "FMED" Then FMED = line_info(1)
+                        If line_info(0) = "IMIG" Then IMIG = line_info(1)
+                        If line_info(0) = "INSA" Then INSA = line_info(1)
+                        For the_jobs = 0 to UBound(ALL_JOBS_PANELS_ARRAY, 2)
+                            box_one_info = ""
+                            box_two_info = ""
+                            If ALL_JOBS_PANELS_ARRAY(estimate_only, the_jobs) = checked Then box_one_info = "CHECKED"
+                            If ALL_JOBS_PANELS_ARRAY(verif_checkbox, the_jobs) = checked Then box_two_info = "CHECKED"
+                            objTextStream.WriteLine "ALL_JOBS_PANELS_ARRAY" & "^~^~^~^~^~^~^" &ALL_JOBS_PANELS_ARRAY(memb_numb, the_jobs)&"~~"&ALL_JOBS_PANELS_ARRAY(panel_instance, the_jobs)&"~~"&ALL_JOBS_PANELS_ARRAY(employer_name, the_jobs)&"~~"&box_one_info&"~~"&ALL_JOBS_PANELS_ARRAY(verif_explain, the_jobs)&"~~"&ALL_JOBS_PANELS_ARRAY(verif_code, the_jobs)&"~~"&ALL_JOBS_PANELS_ARRAY(info_month, the_jobs)&"~~"&ALL_JOBS_PANELS_ARRAY(hrly_wage, the_jobs)&"~~"&ALL_JOBS_PANELS_ARRAY(main_pay_freq, the_jobs)&"~~"&ALL_JOBS_PANELS_ARRAY(job_retro_income, the_jobs)&"~~"&ALL_JOBS_PANELS_ARRAY(job_prosp_income, the_jobs)&"~~"&ALL_JOBS_PANELS_ARRAY(retro_hours, the_jobs)&"~~"&ALL_JOBS_PANELS_ARRAY(prosp_hours, the_jobs)&"~~"&ALL_JOBS_PANELS_ARRAY(pic_pay_date_income, the_jobs)&"~~"&ALL_JOBS_PANELS_ARRAY(pic_pay_freq, the_jobs)&"~~"&ALL_JOBS_PANELS_ARRAY(pic_prosp_income, the_jobs)&"~~"&ALL_JOBS_PANELS_ARRAY(pic_calc_date, the_jobs)&"~~"&ALL_JOBS_PANELS_ARRAY(EI_case_note, the_jobs)&"~~"&ALL_JOBS_PANELS_ARRAY(grh_calc_date, the_jobs)&"~~"&ALL_JOBS_PANELS_ARRAY(grh_pay_freq, the_jobs)&"~~"&ALL_JOBS_PANELS_ARRAY(grh_pay_day_income, the_jobs)&"~~"&ALL_JOBS_PANELS_ARRAY(grh_prosp_income, the_jobs)&"~~"&""&"~~"&""&"~~"&""&"~~"&ALL_JOBS_PANELS_ARRAY(start_date, the_jobs)&"~~"&ALL_JOBS_PANELS_ARRAY(end_date, the_jobs)&"~~"&""&"~~"&""&"~~"&""&"~~"&""&"~~"&""&"~~"&""&"~~"&box_two_info&"~~"&ALL_JOBS_PANELS_ARRAY(verif_added, the_jobs)&"~~"&ALL_JOBS_PANELS_ARRAY(budget_explain, the_jobs)
+                        Next
+                        For the_busi = 0 to UBound(ALL_BUSI_PANELS_ARRAY, 2)
+                            box_one_info = ""
+                            box_two_info = ""
+                            box_three_info = ""
+                            If ALL_BUSI_PANELS_ARRAY(estimate_only, the_busi) = checked Then box_one_info = "CHECKED"
+                            If ALL_BUSI_PANELS_ARRAY(method_convo_checkbox, the_busi) = checked Then box_two_info = "CHECKED"
+                            If ALL_BUSI_PANELS_ARRAY(verif_checkbox, the_busi) = checked Then box_three_info = "CHECKED"
+
+                            objTextStream.WriteLine "ALL_BUSI_PANELS_ARRAY" & "^~^~^~^~^~^~^" &ALL_BUSI_PANELS_ARRAY(memb_numb, the_busi)&"~~"&ALL_BUSI_PANELS_ARRAY(panel_instance, the_busi)&"~~"&ALL_BUSI_PANELS_ARRAY(busi_type, the_busi)&"~~"&box_one_info&"~~"&ALL_BUSI_PANELS_ARRAY(verif_explain, the_busi)&"~~"&ALL_BUSI_PANELS_ARRAY(calc_method, the_busi)&"~~"&ALL_BUSI_PANELS_ARRAY(info_month, the_busi)&"~~"&ALL_BUSI_PANELS_ARRAY(mthd_date, the_busi)&"~~"&ALL_BUSI_PANELS_ARRAY(rept_retro_hrs, the_busi)&"~~"&ALL_BUSI_PANELS_ARRAY(rept_prosp_hrs, the_busi)&"~~"&ALL_BUSI_PANELS_ARRAY(min_wg_retro_hrs, the_busi)&"~~"&ALL_BUSI_PANELS_ARRAY(min_wg_prosp_hrs, the_busi)&"~~"&ALL_BUSI_PANELS_ARRAY(income_ret_cash, the_busi)&"~~"&ALL_BUSI_PANELS_ARRAY(income_pro_cash, the_busi)&"~~"&ALL_BUSI_PANELS_ARRAY(cash_income_verif, the_busi)&"~~"&ALL_BUSI_PANELS_ARRAY(expense_ret_cash, the_busi)&"~~"&ALL_BUSI_PANELS_ARRAY(expense_pro_cash, the_busi)&"~~"&ALL_BUSI_PANELS_ARRAY(cash_expense_verif, the_busi)&"~~"&ALL_BUSI_PANELS_ARRAY(income_ret_snap, the_busi)&"~~"&ALL_BUSI_PANELS_ARRAY(income_pro_snap, the_busi)&"~~"&ALL_BUSI_PANELS_ARRAY(snap_income_verif, the_busi)&"~~"&ALL_BUSI_PANELS_ARRAY(expense_ret_snap, the_busi)&"~~"&ALL_BUSI_PANELS_ARRAY(expense_pro_snap, the_busi)&"~~"&ALL_BUSI_PANELS_ARRAY(snap_expense_verif, the_busi)&"~~"&box_two_info&"~~"&ALL_BUSI_PANELS_ARRAY(start_date, the_busi)&"~~"&ALL_BUSI_PANELS_ARRAY(end_date, the_busi)&"~~"&ALL_BUSI_PANELS_ARRAY(busi_desc, the_busi)&"~~"&ALL_BUSI_PANELS_ARRAY(busi_structure, the_busi)&"~~"&ALL_BUSI_PANELS_ARRAY(share_num, the_busi)&"~~"&ALL_BUSI_PANELS_ARRAY(share_denom, the_busi)&"~~"&ALL_BUSI_PANELS_ARRAY(partners_in_HH, the_busi)&"~~"&ALL_BUSI_PANELS_ARRAY(exp_not_allwd, the_busi)&"~~"&box_three_info&"~~"&ALL_BUSI_PANELS_ARRAY(verif_added, the_busi)&"~~"&ALL_BUSI_PANELS_ARRAY(budget_explain, the_busi)
+                        Next
+                        If line_info(0) = "cit_id" Then cit_id = line_info(1)
+                        If line_info(0) = "other_assets" Then other_assets = line_info(1)
+                        If line_info(0) = "case_changes" Then case_changes = line_info(1)
+                        If line_info(0) = "PREG" Then PREG = line_info(1)
+                        If line_info(0) = "earned_income" Then earned_income = line_info(1)
+                        If line_info(0) = "notes_on_rest" Then notes_on_rest = line_info(1)
+                        If line_info(0) = "SCHL" Then SCHL = line_info(1)
+                        If line_info(0) = "notes_on_jobs" Then notes_on_jobs = line_info(1)
+                        If line_info(0) = "notes_on_time" Then notes_on_time = line_info(1)
+                        If line_info(0) = "notes_on_sanction" Then notes_on_sanction = line_info(1)
+                        For the_unea = 0 to UBound(UNEA_INCOME_ARRAY, 2)
+                            objTextStream.WriteLine "UNEA_INCOME_ARRAY" & "^~^~^~^~^~^~^" &UNEA_INCOME_ARRAY(memb_numb, the_unea)&"~~"&UNEA_INCOME_ARRAY(panel_instance, the_unea)&"~~"&UNEA_INCOME_ARRAY(UNEA_type, the_unea)&"~~"&UNEA_INCOME_ARRAY(UNEA_month, the_unea)&"~~"&UNEA_INCOME_ARRAY(UNEA_verif, the_unea)&"~~"&UNEA_INCOME_ARRAY(UNEA_prosp_amt, the_unea)&"~~"&UNEA_INCOME_ARRAY(UNEA_retro_amt, the_unea)&"~~"&UNEA_INCOME_ARRAY(UNEA_SNAP_amt, the_unea)&"~~"&UNEA_INCOME_ARRAY(UNEA_pay_freq, the_unea)&"~~"&UNEA_INCOME_ARRAY(UNEA_pic_date_calc, the_unea)&"~~"&UNEA_INCOME_ARRAY(UNEA_UC_start_date, the_unea)&"~~"&UNEA_INCOME_ARRAY(UNEA_UC_weekly_gross, the_unea)&"~~"&UNEA_INCOME_ARRAY(UNEA_UC_counted_ded, the_unea)&"~~"&UNEA_INCOME_ARRAY(UNEA_UC_exclude_ded, the_unea)&"~~"&UNEA_INCOME_ARRAY(UNEA_UC_weekly_net, the_unea)&"~~"&UNEA_INCOME_ARRAY(UNEA_UC_monthly_snap, the_unea)&"~~"&UNEA_INCOME_ARRAY(UNEA_UC_retro_amt, the_unea)&"~~"&UNEA_INCOME_ARRAY(UNEA_UC_prosp_amt, the_unea)&"~~"&UNEA_INCOME_ARRAY(UNEA_UC_notes, the_unea)&"~~"&UNEA_INCOME_ARRAY(UNEA_UC_tikl_date, the_unea)&"~~"&UNEA_INCOME_ARRAY(UNEA_UC_account_balance, the_unea)&"~~"&UNEA_INCOME_ARRAY(direct_CS_amt, the_unea)&"~~"&UNEA_INCOME_ARRAY(disb_CS_amt, the_unea)&"~~"&UNEA_INCOME_ARRAY(disb_CS_arrears_amt, the_unea)&"~~"&UNEA_INCOME_ARRAY(direct_CS_notes, the_unea)&"~~"&UNEA_INCOME_ARRAY(disb_CS_notes, the_unea)&"~~"&UNEA_INCOME_ARRAY(disb_CS_arrears_notes, the_unea)&"~~"&UNEA_INCOME_ARRAY(disb_CS_months, the_unea)&"~~"&UNEA_INCOME_ARRAY(disb_CS_prosp_budg, the_unea)&"~~"&UNEA_INCOME_ARRAY(disb_CS_arrears_months, the_unea)&"~~"&UNEA_INCOME_ARRAY(disb_CS_arrears_budg, the_unea)&"~~"&UNEA_INCOME_ARRAY(UNEA_RSDI_amt, the_unea)&"~~"&UNEA_INCOME_ARRAY(UNEA_RSDI_notes, the_unea)&"~~"&UNEA_INCOME_ARRAY(UNEA_SSI_amt, the_unea)&"~~"&UNEA_INCOME_ARRAY(UNEA_SSI_notes, the_unea)&"~~"&UNEA_INCOME_ARRAY(UC_exists, the_unea)&"~~"&UNEA_INCOME_ARRAY(CS_exists, the_unea)&"~~"&UNEA_INCOME_ARRAY(SSA_exists, the_unea)&"~~"&UNEA_INCOME_ARRAY(calc_button, the_unea)&"~~"&UNEA_INCOME_ARRAY(budget_notes, the_unea)
+                        Next
+                        If line_info(0) = "notes_on_wreg" Then notes_on_wreg = line_info(1)
+                        If line_info(0) = "full_abawd_info" Then full_abawd_info = line_info(1)
+                        If line_info(0) = "notes_on_abawd" Then notes_on_abawd = line_info(1)
+                        If line_info(0) = "notes_on_abawd_two" Then notes_on_abawd_two = line_info(1)
+                        If line_info(0) = "notes_on_abawd_three" Then notes_on_abawd_three = line_info(1)
+                        If line_info(0) = "programs_applied_for" Then programs_applied_for = line_info(1)
+                        If TIKL_checkbox = checked Then objTextStream.WriteLine "TIKL_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+                        If line_info(0) = "interview_memb_list" Then interview_memb_list = line_info(1)
+                        If line_info(0) = "shel_memb_list" Then shel_memb_list = line_info(1)
+                        If line_info(0) = "verification_memb_list" Then verification_memb_list = line_info(1)
+                        If line_info(0) = "notes_on_busi" Then notes_on_busi = line_info(1)
+                        'DLG 1
+                        If Used_Interpreter_checkbox = checked Then objTextStream.WriteLine "Used_Interpreter_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+                        If line_info(0) = "how_app_rcvd" Then how_app_rcvd = line_info(1)
+                        If line_info(0) = "arep_id_info" Then arep_id_info = line_info(1)
+                        If line_info(0) = "CS_forms_sent_date" Then CS_forms_sent_date = line_info(1)
+                        If line_info(0) = "case_changes" Then case_changes = line_info(1)
+                        'DLG 5'
+                        If line_info(0) = "notes_on_ssa_income" Then notes_on_ssa_income = line_info(1)
+                        If line_info(0) = "notes_on_VA_income" Then notes_on_VA_income = line_info(1)
+                        If line_info(0) = "notes_on_WC_income" Then notes_on_WC_income = line_info(1)
+                        If line_info(0) = "other_uc_income_notes" Then other_uc_income_notes = line_info(1)
+                        If line_info(0) = "notes_on_other_UNEA" Then notes_on_other_UNEA = line_info(1)
+
+                        If line_info(0) = "hest_information" Then hest_information = line_info(1)
+                        If line_info(0) = "notes_on_acut" Then notes_on_acut = line_info(1)
+                        If line_info(0) = "notes_on_coex" Then notes_on_coex = line_info(1)
+                        If line_info(0) = "notes_on_dcex" Then notes_on_dcex = line_info(1)
+                        If line_info(0) = "notes_on_other_deduction" Then notes_on_other_deduction = line_info(1)
+                        If line_info(0) = "expense_notes" Then expense_notes = line_info(1)
+                        If address_confirmation_checkbox = checked Then objTextStream.WriteLine "address_confirmation_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+                        If line_info(0) = "manual_total_shelter" Then manual_total_shelter = line_info(1)
+                        If line_info(0) = "manual_amount_used" Then manual_amount_used = line_info(1)
+                        If line_info(0) = "app_month_assets" Then app_month_assets = line_info(1)
+                        If confirm_no_account_panel_checkbox = checked Then objTextStream.WriteLine "confirm_no_account_panel_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+                        If line_info(0) = "notes_on_other_assets" Then notes_on_other_assets = line_info(1)
+                        If line_info(0) = "MEDI" Then MEDI = line_info(1)
+                        If line_info(0) = "DISQ" Then DISQ = line_info(1)
+                        If MFIP_DVD_checkbox = checked Then objTextStream.WriteLine "MFIP_DVD_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+                        'EXP DET'
+                        If line_info(0) = "full_determination_done" Then full_determination_done = line_info(1)
+                        ' Call run_expedited_determination_script_functionality(
+                        If line_info(0) = "xfs_screening" Then xfs_screening = line_info(1)
+                        If line_info(0) = "caf_one_income" Then caf_one_income = line_info(1)
+                        If line_info(0) = "caf_one_assets" Then caf_one_assets = line_info(1)
+                        If line_info(0) = "caf_one_rent" Then caf_one_rent = line_info(1)
+                        If line_info(0) = "caf_one_utilities" Then caf_one_utilities = line_info(1)
+                        If line_info(0) = "determined_income" Then determined_income = line_info(1)
+                        If line_info(0) = "determined_assets" Then determined_assets = line_info(1)
+                        If line_info(0) = "determined_shel" Then determined_shel = line_info(1)
+                        If line_info(0) = "determined_utilities" Then determined_utilities = line_info(1)
+                        If line_info(0) = "calculated_resources" Then calculated_resources = line_info(1)
+                        If line_info(0) = "calculated_expenses" Then calculated_expenses = line_info(1)
+                        If line_info(0) = "calculated_low_income_asset_test" Then calculated_low_income_asset_test = line_info(1)
+                        If line_info(0) = "calculated_resources_less_than_expenses_test" Then calculated_resources_less_than_expenses_test = line_info(1)
+                        If line_info(0) = "is_elig_XFS" Then is_elig_XFS = line_info(1)
+                        If line_info(0) = "approval_date" Then approval_date = line_info(1)
+                        If line_info(0) = "applicant_id_on_file_yn" Then applicant_id_on_file_yn = line_info(1)
+                        If line_info(0) = "applicant_id_through_SOLQ" Then applicant_id_through_SOLQ = line_info(1)
+                        If line_info(0) = "delay_explanation" Then delay_explanation = line_info(1)
+                        If line_info(0) = "snap_denial_date" Then snap_denial_date = line_info(1)
+                        If line_info(0) = "snap_denial_explain" Then snap_denial_explain = line_info(1)
+                        If line_info(0) = "case_assesment_text" Then case_assesment_text = line_info(1)
+                        If line_info(0) = "next_steps_one" Then next_steps_one = line_info(1)
+                        If line_info(0) = "next_steps_two" Then next_steps_two = line_info(1)
+                        If line_info(0) = "next_steps_three" Then next_steps_three = line_info(1)
+                        If line_info(0) = "next_steps_four" Then next_steps_four = line_info(1)
+                        If line_info(0) = "postponed_verifs_yn" Then postponed_verifs_yn = line_info(1)
+                        If line_info(0) = "list_postponed_verifs" Then list_postponed_verifs = line_info(1)
+                        If line_info(0) = "day_30_from_application" Then day_30_from_application = line_info(1)
+                        If line_info(0) = "other_snap_state" Then other_snap_state = line_info(1)
+                        If line_info(0) = "other_state_reported_benefit_end_date" Then other_state_reported_benefit_end_date = line_info(1)
+                        If line_info(0) = "other_state_benefits_openended" Then other_state_benefits_openended = line_info(1)
+                        If line_info(0) = "other_state_contact_yn" Then other_state_contact_yn = line_info(1)
+                        If line_info(0) = "other_state_verified_benefit_end_date" Then other_state_verified_benefit_end_date = line_info(1)
+                        If line_info(0) = "mn_elig_begin_date" Then mn_elig_begin_date = line_info(1)
+                        If line_info(0) = "action_due_to_out_of_state_benefits" Then action_due_to_out_of_state_benefits = line_info(1)
+                        If line_info(0) = "case_has_previously_postponed_verifs_that_prevent_exp_snap" Then case_has_previously_postponed_verifs_that_prevent_exp_snap = line_info(1)
+                        If line_info(0) = "prev_post_verif_assessment_done" Then prev_post_verif_assessment_done = line_info(1)
+                        If line_info(0) = "previous_date_of_application" Then previous_date_of_application = line_info(1)
+                        If line_info(0) = "previous_expedited_package" Then previous_expedited_package = line_info(1)
+                        If line_info(0) = "prev_verifs_mandatory_yn" Then prev_verifs_mandatory_yn = line_info(1)
+                        If line_info(0) = "prev_verif_list" Then prev_verif_list = line_info(1)
+                        If line_info(0) = "curr_verifs_postponed_yn" Then curr_verifs_postponed_yn = line_info(1)
+                        If line_info(0) = "ongoing_snap_approved_yn" Then ongoing_snap_approved_yn = line_info(1)
+                        If line_info(0) = "prev_post_verifs_recvd_yn" Then prev_post_verifs_recvd_yn = line_info(1)
+                        If line_info(0) = "delay_action_due_to_faci" Then delay_action_due_to_faci = line_info(1)
+                        If line_info(0) = "deny_snap_due_to_faci" Then deny_snap_due_to_faci = line_info(1)
+                        If line_info(0) = "faci_review_completed" Then faci_review_completed = line_info(1)
+                        If line_info(0) = "facility_name" Then facility_name = line_info(1)
+                        If line_info(0) = "snap_inelig_faci_yn" Then snap_inelig_faci_yn = line_info(1)
+                        If line_info(0) = "faci_entry_date" Then faci_entry_date = line_info(1)
+                        If line_info(0) = "faci_release_date" Then faci_release_date = line_info(1)
+                        If line_info(0) = "release_date_unknown_checkbox" Then release_date_unknown_checkbox = line_info(1)
+                        If line_info(0) = "release_within_30_days_yn" Then release_within_30_days_yn = line_info(1)
+
+                        If line_info(0) = "next_er_month" Then next_er_month = line_info(1)
+                        If line_info(0) = "next_er_year" Then next_er_year = line_info(1)
+                        If line_info(0) = "CAF_status" Then CAF_status = line_info(1)
+                        If line_info(0) = "actions_taken" Then actions_taken = line_info(1)
+                        If application_signed_checkbox = checked Then objTextStream.WriteLine "application_signed_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+                        If eDRS_sent_checkbox = checked Then objTextStream.WriteLine "eDRS_sent_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+                        If updated_MMIS_checkbox = checked Then objTextStream.WriteLine "updated_MMIS_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+                        If WF1_checkbox = checked Then objTextStream.WriteLine "WF1_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+                        If Sent_arep_checkbox = checked Then objTextStream.WriteLine "Sent_arep_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+                        If intake_packet_checkbox = checked Then objTextStream.WriteLine "intake_packet_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+                        If IAA_checkbox = checked Then objTextStream.WriteLine "IAA_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+                        If recert_period_checkbox = checked Then objTextStream.WriteLine "recert_period_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+                        If R_R_checkbox = checked Then objTextStream.WriteLine "R_R_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+                        If E_and_T_checkbox = checked Then objTextStream.WriteLine "E_and_T_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+                        If elig_req_explained_checkbox = checked Then objTextStream.WriteLine "elig_req_explained_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+                        If benefit_payment_explained_checkbox = checked Then objTextStream.WriteLine "benefit_payment_explained_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+                        If line_info(0) = "other_notes" Then other_notes = line_info(1)
+                        If client_delay_checkbox = checked Then objTextStream.WriteLine "client_delay_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+                        If TIKL_checkbox = checked Then objTextStream.WriteLine "TIKL_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+                        If client_delay_TIKL_checkbox = checked Then objTextStream.WriteLine "client_delay_TIKL_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+                        If line_info(0) = "verif_req_form_sent_date" Then verif_req_form_sent_date = line_info(1)
+                        If line_info(0) = "worker_signature" Then worker_signature = line_info(1)
 
 
 
