@@ -1010,70 +1010,32 @@ function save_your_work()
             objTextStream.WriteLine "mail_zip_line" & "^~^~^~^~^~^~^" & mail_zip_line
             objTextStream.WriteLine "notes_on_address" & "^~^~^~^~^~^~^" & notes_on_address
             For the_members = 0 to UBound(ALL_MEMBERS_ARRAY, 2)
-                objTextStream.WriteLine "" & "^~^~^~^~^~^~^" &
+                box_one_info = ""
+                box_two_info = ""
+                box_three_info = ""
+                box_four_info = ""
+                box_five_info = ""
+                box_six_info = ""
+                box_seven_info = ""
+                box_eight_info = ""
+                If ALL_MEMBERS_ARRAY(include_cash_checkbox, the_members) = checked Then box_one_info = "CHECKED"
+                If ALL_MEMBERS_ARRAY(include_snap_checkbox, the_members) = checked Then box_two_info = "CHECKED"
+                If ALL_MEMBERS_ARRAY(include_emer_checkbox, the_members) = checked Then box_three_info = "CHECKED"
+                If ALL_MEMBERS_ARRAY(count_cash_checkbox, the_members) = checked Then box_four_info = "CHECKED"
+                If ALL_MEMBERS_ARRAY(count_snap_checkbox, the_members) = checked Then box_five_info = "CHECKED"
+                If ALL_MEMBERS_ARRAY(count_emer_checkbox, the_members) = checked Then box_six_info = "CHECKED"
+                If ALL_MEMBERS_ARRAY(pwe_checkbox, the_members) = checked Then box_seven_info = "CHECKED"
+                If ALL_MEMBERS_ARRAY(shel_verif_checkbox, the_members) = checked Then box_eight_info = "CHECKED"
 
-                const clt_name                  = 1
-                const clt_age                   = 2
-                const full_clt                  = 3
-                const clt_id_verif              = 4
-                const include_cash_checkbox     = 5
-                const include_snap_checkbox     = 6
-                const include_emer_checkbox     = 7
-                const count_cash_checkbox       = 8
-                const count_snap_checkbox       = 9
-                const count_emer_checkbox       = 10
-                const clt_wreg_status           = 11
-                const clt_abawd_status          = 12
-                const pwe_checkbox              = 13
-                const numb_abawd_used           = 14
-                const list_abawd_mo             = 15
-                const first_second_set          = 16
-                const list_second_set           = 17
-                const explain_no_second         = 18
-                const numb_banked_mo            = 19
-                const clt_abawd_notes           = 20
-                const shel_exists               = 21
-                const shel_subsudized           = 22
-                const shel_shared               = 23
-                const shel_retro_rent_amt       = 24
-                const shel_retro_rent_verif     = 25
-                const shel_prosp_rent_amt       = 26
-                const shel_prosp_rent_verif     = 27
-                const shel_retro_lot_amt        = 28
-                const shel_retro_lot_verif      = 29
-                const shel_prosp_lot_amt        = 30
-                const shel_prosp_lot_verif      = 31
-                const shel_retro_mortgage_amt   = 32
-                const shel_retro_mortgage_verif = 33
-                const shel_prosp_mortgage_amt   = 34
-                const shel_prosp_mortgage_verif = 35
-                const shel_retro_ins_amt        = 36
-                const shel_retro_ins_verif      = 37
-                const shel_prosp_ins_amt        = 38
-                const shel_prosp_ins_verif      = 39
-                const shel_retro_tax_amt        = 40
-                const shel_retro_tax_verif      = 41
-                const shel_prosp_tax_amt        = 42
-                const shel_prosp_tax_verif      = 43
-                const shel_retro_room_amt       = 44
-                const shel_retro_room_verif     = 45
-                const shel_prosp_room_amt       = 46
-                const shel_prosp_room_verif     = 47
-                const shel_retro_garage_amt     = 48
-                const shel_retro_garage_verif   = 49
-                const shel_prosp_garage_amt     = 50
-                const shel_prosp_garage_verif   = 51
-                const shel_retro_subsidy_amt    = 52
-                const shel_retro_subsidy_verif  = 53
-                const shel_prosp_subsidy_amt    = 54
-                const shel_prosp_subsidy_verif  = 55
-                const wreg_exists               = 56
-                const shel_verif_checkbox       = 57
-                const shel_verif_added          = 58
-                const gather_detail             = 59
-                const id_detail                 = 60
-                const id_required               = 61
-                const clt_notes                 = 62
+                objTextStream.WriteLine "ARRAY-ALL_MEMBERS_ARRAY" & "^~^~^~^~^~^~^" &ALL_MEMBERS_ARRAY(clt_name, the_members)&"~~"&ALL_MEMBERS_ARRAY(clt_age, the_members)&"~~"&ALL_MEMBERS_ARRAY(full_clt, the_members)&"~~"&ALL_MEMBERS_ARRAY(clt_id_verif, the_members)&"~~"&box_one_info&"~~"&box_two_info&"~~"&box_three_info&"~~"&box_four_info&"~~"&box_five_info&"~~"&box_six_info&"~~"&ALL_MEMBERS_ARRAY(clt_wreg_status, the_members)&"~~"&ALL_MEMBERS_ARRAY(clt_abawd_status, the_members)&"~~"&box_seven_info&"~~"&ALL_MEMBERS_ARRAY(numb_abawd_used, the_members)&"~~"&ALL_MEMBERS_ARRAY(list_abawd_mo, the_members)&"~~"&ALL_MEMBERS_ARRAY(first_second_set, the_members)&"~~"&ALL_MEMBERS_ARRAY(list_second_set, the_members)&"~~"&ALL_MEMBERS_ARRAY(explain_no_second, the_members)&"~~"&ALL_MEMBERS_ARRAY(numb_banked_mo, the_members)&"~~"&ALL_MEMBERS_ARRAY(clt_abawd_notes, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_exists, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_subsudized, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_shared, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_rent_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_rent_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_rent_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_rent_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_lot_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_lot_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_lot_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_lot_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_mortgage_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_mortgage_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_mortgage_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_mortgage_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_ins_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_ins_verif,the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_ins_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_ins_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_tax_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_tax_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_tax_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_tax_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_room_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_room_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_room_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_room_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_garage_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_garage_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_garage_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_garage_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_subsidy_amt,the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_retro_subsidy_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_subsidy_amt, the_members)&"~~"&ALL_MEMBERS_ARRAY(shel_prosp_subsidy_verif, the_members)&"~~"&ALL_MEMBERS_ARRAY(wreg_exists, the_members)&"~~"&box_eight_info&"~~"&ALL_MEMBERS_ARRAY(shel_verif_added, the_members)&"~~"&ALL_MEMBERS_ARRAY(gather_detail, the_members)&"~~"&ALL_MEMBERS_ARRAY(id_detail, the_members)&"~~"&ALL_MEMBERS_ARRAY(id_required, the_members)&"~~"&ALL_MEMBERS_ARRAY(clt_notes, the_members)
+                ' ALL_MEMBERS_ARRAY(include_cash_checkbox, the_members)&"~~"&
+                ' ALL_MEMBERS_ARRAY(include_snap_checkbox, the_members)&"~~"&
+                ' ALL_MEMBERS_ARRAY(include_emer_checkbox, the_members)&"~~"&
+                ' ALL_MEMBERS_ARRAY(count_cash_checkbox, the_members)&"~~"&
+                ' ALL_MEMBERS_ARRAY(count_snap_checkbox, the_members)&"~~"&
+                ' ALL_MEMBERS_ARRAY(count_emer_checkbox, the_members)&"~~"&
+                ' ALL_MEMBERS_ARRAY(pwe_checkbox, the_members)&"~~"&
+                ' ALL_MEMBERS_ARRAY(shel_verif_checkbox, the_members)&"~~"&
             Next
             objTextStream.WriteLine "total_shelter_amount" & "^~^~^~^~^~^~^" & total_shelter_amount
             objTextStream.WriteLine "full_shelter_details" & "^~^~^~^~^~^~^" & full_shelter_details
@@ -1102,61 +1064,44 @@ function save_your_work()
             objTextStream.WriteLine "IMIG" & "^~^~^~^~^~^~^" & IMIG
             objTextStream.WriteLine "INSA" & "^~^~^~^~^~^~^" & INSA
             For the_jobs = 0 to UBound(ALL_JOBS_PANELS_ARRAY, 2)
-                objTextStream.WriteLine "" & "^~^~^~^~^~^~^" &
+                objTextStream.WriteLine "ARRAY-ALL_JOBS_PANELS_ARRAY" & "^~^~^~^~^~^~^" &
 
-                const memb_numb             = 0
-                const panel_instance        = 1
-                const employer_name         = 2
-                const busi_type             = 2         'for BUSI Array
-                Const estimate_only         = 3
-                const verif_explain         = 4
-                const verif_code            = 5
-                const calc_method           = 5         'for BUSI Array
-                const info_month            = 6
-                const hrly_wage             = 7
-                const mthd_date             = 7          'for BUSI Array'
-                const main_pay_freq         = 8
-                const rept_retro_hrs        = 8          'for BUSI Array'
-                const job_retro_income      = 9
-                const rept_prosp_hrs        = 9          'for BUSI Array'
-                const job_prosp_income      = 10
-                const min_wg_retro_hrs      = 10         'for BUSI Array'
-                const retro_hours           = 11
-                const min_wg_prosp_hrs      = 11         'for BUSI Array'
-                const prosp_hours           = 12
-                const income_ret_cash       = 12         'for BUSI Array'
-                const pic_pay_date_income   = 13
-                const income_pro_cash       = 13         'for BUSI Array'
-                const pic_pay_freq          = 14
-                const cash_income_verif     = 14         'for BUSI Array'
-                const pic_prosp_income      = 15
-                const expense_ret_cash      = 15         'for BUSI Array'
-                const pic_calc_date         = 16
-                const expense_pro_cash      = 16         'for BUSI Array'
-                const EI_case_note          = 17
-                const cash_expense_verif    = 17         'for BUSI Array'
-                const grh_calc_date         = 18
-                const income_ret_snap       = 18         'for BUSI Array'
-                const grh_pay_freq          = 19
-                const income_pro_snap       = 19         'for BUSI Array'
-                const grh_pay_day_income    = 20
-                const snap_income_verif     = 20         'for BUSI Array'
-                const grh_prosp_income      = 21
-                const expense_ret_snap      = 21         'for BUSI Array'
-                const expense_pro_snap      = 22         'for BUSI Array'
-                const snap_expense_verif    = 23         'for BUSI Array'
-                const method_convo_checkbox = 24         'for BUSI Array'
-                const start_date            = 25
-                const end_date              = 26
-                const busi_desc             = 27         'for BUSI Array'
-                const busi_structure        = 28         'for BUSI Array'
-                const share_num             = 29         'for BUSI Array'
-                const share_denom           = 30         'for BUSI Array'
-                const partners_in_HH        = 31         'for BUSI Array'
-                const exp_not_allwd         = 32         'for BUSI Array'
-                const verif_checkbox        = 33
-                const verif_added           = 34
-                const budget_explain        = 35
+ALL_JOBS_PANELS_ARRAY(memb_numb, the_jobs)&"~~"&
+ALL_JOBS_PANELS_ARRAY(panel_instance, the_jobs)&"~~"&
+ALL_JOBS_PANELS_ARRAY(employer_name, the_jobs)&"~~"&
+ALL_JOBS_PANELS_ARRAY(estimate_only, the_jobs)&"~~"&
+ALL_JOBS_PANELS_ARRAY(verif_explain, the_jobs)&"~~"&
+ALL_JOBS_PANELS_ARRAY(verif_code, the_jobs)&"~~"&
+ALL_JOBS_PANELS_ARRAY(info_month, the_jobs)&"~~"&
+ALL_JOBS_PANELS_ARRAY(hrly_wage, the_jobs)&"~~"&
+ALL_JOBS_PANELS_ARRAY(main_pay_freq, the_jobs)&"~~"&
+ALL_JOBS_PANELS_ARRAY(job_retro_income, the_jobs)&"~~"&
+ALL_JOBS_PANELS_ARRAY(job_prosp_income, the_jobs)&"~~"&
+ALL_JOBS_PANELS_ARRAY(retro_hours, the_jobs)&"~~"&
+ALL_JOBS_PANELS_ARRAY(prosp_hours, the_jobs)&"~~"&
+ALL_JOBS_PANELS_ARRAY(pic_pay_date_income, the_jobs)&"~~"&
+ALL_JOBS_PANELS_ARRAY(pic_pay_freq, the_jobs)&"~~"&
+ALL_JOBS_PANELS_ARRAY(pic_prosp_income, the_jobs)&"~~"&
+                ALL_JOBS_PANELS_ARRAY(pic_calc_date, the_jobs)&"~~"&
+                ALL_JOBS_PANELS_ARRAY(EI_case_note, the_jobs)&"~~"&
+                ALL_JOBS_PANELS_ARRAY(grh_calc_date, the_jobs)&"~~"&
+                ALL_JOBS_PANELS_ARRAY(grh_pay_freq, the_jobs)&"~~"&
+                ALL_JOBS_PANELS_ARRAY(grh_pay_day_income, the_jobs)&"~~"&
+                ALL_JOBS_PANELS_ARRAY(grh_prosp_income, the_jobs)&"~~"&
+                ""&"~~"&
+                ""&"~~"&
+                ""&"~~"&
+                ALL_JOBS_PANELS_ARRAY(start_date, the_jobs)&"~~"&
+                ALL_JOBS_PANELS_ARRAY(end_date, the_jobs)&"~~"&
+                ""&"~~"&
+                ""&"~~"&
+                ""&"~~"&
+                ""&"~~"&
+                ""&"~~"&
+                ""&"~~"&
+                ALL_JOBS_PANELS_ARRAY(verif_checkbox, the_jobs)&"~~"&
+                ALL_JOBS_PANELS_ARRAY(verif_added, the_jobs)&"~~"&
+                ALL_JOBS_PANELS_ARRAY(budget_explain, the_jobs)
             Next
             For the_busi = 0 to UBound(ALL_BUSI_PANELS_ARRAY, 2)
                 objTextStream.WriteLine "" & "^~^~^~^~^~^~^" &
@@ -1227,7 +1172,7 @@ function save_your_work()
             objTextStream.WriteLine "notes_on_sanction" & "^~^~^~^~^~^~^" & notes_on_sanction
             For the_unea = 0 to UBound(UNEA_INCOME_ARRAY, 2)
                 objTextStream.WriteLine "" & "^~^~^~^~^~^~^" &
-                
+
                 const memb_numb             = 0
                 const panel_instance        = 1
                 const UNEA_type                 = 2
