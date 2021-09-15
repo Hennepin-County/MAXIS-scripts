@@ -409,6 +409,45 @@ function check_if_mmis_in_session(mmis_running, maxis_region)
 	transmit
 end function
 
+function create_a_word_doc_of_a_NOTICE()
+	notice_length = 0
+    page_nbr = 2
+	Do
+		For notice_row = 2 to 21
+			EMReadScreen notice_line, 73, notice_row, 8
+            If notice_row = 3 Then first_line = notice_line
+            'MsgBox notice_line
+			if right(trim(notice_line),9) = "FMINFO___" Then notice_line = ""
+            If right(trim(notice_line),4) = "Page" Then
+                notice_line = trim(notice_line) & " " & page_nbr
+                page_nbr = page_nbr + 1
+            End If
+			client_notice = client_notice & notice_line & vbcr
+			If left(trim(notice_line), 7) = "WORKER:" Then Exit For
+			notice_line = ""
+		Next
+        PF8
+        EMReadScreen notice_end, 9, 24,14
+		If notice_end = "LAST PAGE" Then
+            EMReadScreen top_of_page, 73, 3, 8
+            If top_of_page = first_line Then Exit Do
+        End If
+        notice_length = notice_length + 1
+	Loop until notice_length = 20
+
+	Set objDoc = objWord.Documents.Add()
+	objWord.Caption = notices_array(information, notice_to_print)
+	Set objSelection = objWord.Selection
+	objSelection.PageSetup.LeftMargin = 50
+	objSelection.PageSetup.RightMargin = 50
+	objSelection.PageSetup.TopMargin = 30
+	objSelection.PageSetup.BottomMargin = 25
+	objSelection.Font.Name = "Courier New"
+	objSelection.Font.Size = "10"
+	objSelection.ParagraphFormat.SpaceAfter = 0
+
+	objSelection.TypeText client_notice
+end function
 
 Function Create_List_Of_Notices(notice_panel, notices_array, selected_const, information_const, WCOM_row_const, no_notices, specific_prog)
 	Erase notices_array
@@ -781,9 +820,7 @@ Do
 		Dialog1 = ""
 		BeginDialog Dialog1, 0, 0, 301, 130, "Verification of Public Assistance"
 		  EditBox 85, 50, 60, 15, MAXIS_case_number
-		  'COMMENTED OUT because we don't have 'in person' functionality readyir heavily needed
-		  ' DropListBox 85, 70, 210, 45, "Resident on the Phone (or AREP)"+chr(9)+"Resident in Person (or AREP)"+chr(9)+"Resend TAX Notice of Cash Benefit"+chr(9)+"PHA (Public Housing form)"+chr(9)+"Request of Medical Payment History (from Resident or AREP)"+chr(9)+"Documents from ECF", contact_type
-		  DropListBox 85, 70, 210, 45, "Resident on the Phone (or AREP)"+chr(9)+"PHA (Public Housing form)"+chr(9)+"Request of Medical Payment History (from Resident or AREP)"+chr(9)+"Documents from ECF", contact_type
+		  DropListBox 85, 70, 210, 45, "Resident on the Phone (or AREP)"+chr(9)+"Resident in Person (or AREP)"+chr(9)+"Resend TAX Notice of Cash Benefit"+chr(9)+"PHA (Public Housing form)"+chr(9)+"Request of Medical Payment History (from Resident or AREP)"+chr(9)+"Documents from ECF", contact_type
 		  EditBox 85, 90, 210, 15, worker_signature
 		  ButtonGroup ButtonPressed
 		    OkButton 195, 110, 50, 15
@@ -2320,7 +2357,6 @@ Do 		'BIG Loop to see if INQX is over the 9 page limit
 							End If
 						Next
 					Next
-
 					' MsgBox "SNAP - This is the list" & snap_msg_display & vbCr & "TOTAL SNAP: $" & SNAP_total
 					PF3
 				End If
@@ -2487,7 +2523,6 @@ Do 		'BIG Loop to see if INQX is over the 9 page limit
 							End If
 						Next
 					Next
-
 					' MsgBox "GA - This is the list" & ga_msg_display & vbCr & "TOTAL GA: $" & GA_total
 					PF3
 				End If
@@ -2655,7 +2690,6 @@ Do 		'BIG Loop to see if INQX is over the 9 page limit
 							End If
 						Next
 					Next
-
 					' MsgBox "MSA - This is the list" & msa_msg_display & vbCr & "MSA Total: $" & MSA_total
 					PF3
 				End If
@@ -2850,7 +2884,6 @@ Do 		'BIG Loop to see if INQX is over the 9 page limit
 							End If
 						Next
 					Next
-
 					' MsgBox "MFIP - This is the list" & mfip_msg_display & vbCr & "MFIP Cash Total: $" & MFIP_Cash_total & vbCr & "MFIP Food Total: $" & MFIP_Food_total
 					PF3
 				End If
@@ -3018,7 +3051,6 @@ Do 		'BIG Loop to see if INQX is over the 9 page limit
 							End If
 						Next
 					Next
-
 					' MsgBox "DWP - This is the list" & dwp_msg_display & vbCr & "TOTAL DWP: $" & DWP_total
 					PF3
 				End If
@@ -3188,7 +3220,6 @@ Do 		'BIG Loop to see if INQX is over the 9 page limit
 							End If
 						Next
 					Next
-
 					' MsgBox "GRH - This is the list" & grh_msg_display & vbCr & "TOTAL GRH: $" & GRH_total
 					PF3
 				End If
@@ -3245,6 +3276,7 @@ Do
 		  ButtonGroup ButtonPressed
 
 			Text 20, 25, 400, 10, "Check all Addresses to Include"
+			CheckBox 275, 25, 185, 10, "Check here if Resident is requesting information by FAX", clt_requestes_fax_checkbox
 			GroupBox 15, 40, 450, 65, "Case Address for Mail"
 			If mail_line_one <> "" Then
 				Text 325, 50, 135, 10, "This case uses the MAILING address."
@@ -3411,10 +3443,12 @@ If resend_wcom = True Then
 	If dwp_verification_method = "Resend WCOM - Eligibility Notice" Then
 		Call resend_existing_wcom(dwp_month, dwp_year, dwp_wcom_row, dwp_resent_wcom, False, forms_to_arep, forms_to_swkr, send_to_other, other_address_person, other_address_street, other_address_city, other_address_state, other_address_zip)
 		Call back_to_SELF
+		STATS_manualtime = STATS_manualtime + 15
 	End If
 	If grh_verification_method = "Resend WCOM - Eligibility Notice" Then
 		Call resend_existing_wcom(grh_month, grh_year, grh_wcom_row, grh_resent_wcom, False, forms_to_arep, forms_to_swkr, send_to_other, other_address_person, other_address_street, other_address_city, other_address_state, other_address_zip)
 		Call back_to_SELF
+		STATS_manualtime = STATS_manualtime + 15
 	End If
 End If
 
@@ -3815,6 +3849,123 @@ If create_memo = True Then		'If there are any MEMOs needed we need to read INQX 
 	Call back_to_SELF		'reset'
 End If
 
+' DropListBox 85, 70, 210, 45, "Resident on the Phone (or AREP)"+chr(9)+"Resident in Person (or AREP)"+chr(9)+"Resend TAX Notice of Cash Benefit"+chr(9)+"PHA (Public Housing form)"+chr(9)+"Request of Medical Payment History (from Resident or AREP)"+chr(9)+"Documents from ECF", contact_type
+If contact_type = "Resident in Person (or AREP)" OR clt_requestes_fax_checkbox = checked Then
+	Set objWord = CreateObject("Word.Application")
+	objWord.Visible = True
+
+	If create_memo = True Then
+		call create_a_word_doc_of_a_NOTICE
+		Call navigate_to_MAXIS_screen("SPEC", "MEMO")
+		EMWriteScreen CM_mo, 3, 46
+		EMWriteScreen CM_yr, 3, 51
+		transmit
+
+		memo_row = 7
+		Do
+			EMReadScreen notice_stat, 8, memo_row, 67
+			notice_stat = trim(notice_stat)
+
+			If notice_stat = "Waiting" Then
+				EMWriteScreen, "X", memo_row, 16
+				transmit
+
+				call create_a_word_doc_of_a_NOTICE
+
+				PF3
+			End If
+			memo_row = memo_row + 1
+		Loop until notice_stat = ""
+	End If
+
+	If resend_wcom = True Then
+		If snap_verification_method = "Resend WCOM - Eligibility Notice" Then
+			' Call resend_existing_wcom(snap_month, snap_year, snap_wcom_row, snap_resent_wcom, False, forms_to_arep, forms_to_swkr, send_to_other, other_address_person, other_address_street, other_address_city, other_address_state, other_address_zip)
+			Call navigate_to_MAXIS_screen("SPEC", "WCOM")
+
+			EMWriteScreen snap_month, 3, 46
+			EMWriteScreen snap_year, 3, 51
+			transmit
+			EMWriteScreen "X", snap_wcom_row, 13
+			transmit
+
+			call create_a_word_doc_of_a_NOTICE
+
+			PF3
+		End If
+		If ga_verification_method = "Resend WCOM - Eligibility Notice" Then
+			' Call resend_existing_wcom(ga_month, ga_year, ga_wcom_row, ga_resent_wcom, False, forms_to_arep, forms_to_swkr, send_to_other, other_address_person, other_address_street, other_address_city, other_address_state, other_address_zip)
+			Call navigate_to_MAXIS_screen("SPEC", "WCOM")
+
+			EMWriteScreen ga_month, 3, 46
+			EMWriteScreen ga_year, 3, 51
+			transmit
+			EMWriteScreen "X", ga_wcom_row, 13
+			transmit
+
+			call create_a_word_doc_of_a_NOTICE
+
+			PF3
+		End If
+		If msa_verification_method = "Resend WCOM - Eligibility Notice" Then
+			' Call resend_existing_wcom(msa_month, msa_year, msa_wcom_row, msa_resent_wcom, False, forms_to_arep, forms_to_swkr, send_to_other, other_address_person, other_address_street, other_address_city, other_address_state, other_address_zip)
+			Call navigate_to_MAXIS_screen("SPEC", "WCOM")
+
+			EMWriteScreen msa_month, 3, 46
+			EMWriteScreen msa_year, 3, 51
+			transmit
+			EMWriteScreen "X", msa_wcom_row, 13
+			transmit
+
+			call create_a_word_doc_of_a_NOTICE
+
+			PF3
+		End If
+		If mfip_verification_method = "Resend WCOM - Eligibility Notice" Then
+			' Call resend_existing_wcom(mfip_month, mfip_year, mfip_wcom_row, mfip_resent_wcom, False, forms_to_arep, forms_to_swkr, send_to_other, other_address_person, other_address_street, other_address_city, other_address_state, other_address_zip)
+			Call navigate_to_MAXIS_screen("SPEC", "WCOM")
+
+			EMWriteScreen mfip_month, 3, 46
+			EMWriteScreen mfip_year, 3, 51
+			transmit
+			EMWriteScreen "X", mfip_wcom_row, 13
+			transmit
+
+			call create_a_word_doc_of_a_NOTICE
+
+			PF3
+		End If
+		If dwp_verification_method = "Resend WCOM - Eligibility Notice" Then
+			' Call resend_existing_wcom(dwp_month, dwp_year, dwp_wcom_row, dwp_resent_wcom, False, forms_to_arep, forms_to_swkr, send_to_other, other_address_person, other_address_street, other_address_city, other_address_state, other_address_zip)
+			Call navigate_to_MAXIS_screen("SPEC", "WCOM")
+
+			EMWriteScreen dwp_month, 3, 46
+			EMWriteScreen dwp_year, 3, 51
+			transmit
+			EMWriteScreen "X", dwp_wcom_row, 13
+			transmit
+
+			call create_a_word_doc_of_a_NOTICE
+
+			PF3
+		End If
+		If grh_verification_method = "Resend WCOM - Eligibility Notice" Then
+			' Call resend_existing_wcom(grh_month, grh_year, grh_wcom_row, grh_resent_wcom, False, forms_to_arep, forms_to_swkr, send_to_other, other_address_person, other_address_street, other_address_city, other_address_state, other_address_zip)
+			Call navigate_to_MAXIS_screen("SPEC", "WCOM")
+
+			EMWriteScreen grh_month, 3, 46
+			EMWriteScreen grh_year, 3, 51
+			transmit
+			EMWriteScreen "X", grh_wcom_row, 13
+			transmit
+
+			call create_a_word_doc_of_a_NOTICE
+
+			PF3
+		End If
+	End If
+End If
+
 pa_verif_programs = ""		'Lets make a string of all the programs addressed
 
 If snap_resent_wcom = True OR snap_verification_method = "Create New MEMO with range of Months" OR snap_not_actv_memo_for_old_beneftis_checkbox = checked Then pa_verif_programs = pa_verif_programs & "/SNAP"
@@ -3874,8 +4025,11 @@ If send_to_other = "Y" Then
 	Call write_variable_in_CASE_NOTE("   " & other_address_street)
 	Call write_variable_in_CASE_NOTE("   " & other_address_city & ", " & other_address_state & " " & other_address_zip)
 End If
+If contact_type = "Resident in Person (or AREP)" Then Call write_variable_in_CASE_NOTE("* Word Doc created to be printed locally for the resident in the office.")
+If clt_requestes_fax_checkbox = checked Then Call write_variable_in_CASE_NOTE("* Word Doc created to be faxed per resident request.")
 Call write_variable_in_CASE_NOTE("---")
 Call write_variable_in_CASE_NOTE(worker_signature)
 
-script_end_procedure_with_error_report("Notice sent for PA Verif Request")
-'THIS IS WHERE I STOPPED ADDING DWP _ START HERE'
+end_msg = "Notice sent for PA Verif Request"
+If contact_type = "Resident in Person (or AREP)" OR clt_requestes_fax_checkbox = checked Then end_msg = end_msg & vbCr & vbCr & "WORD DOCUMENT(S) created of the notices that were generated/resent."
+script_end_procedure_with_error_report(end_msg)
