@@ -433,11 +433,13 @@ Function Create_List_Of_Notices(notice_panel, notices_array, selected_const, inf
 				notice_info = trim(notice_info)
 				notice_stat = trim(notice_stat)
 
-				notices_array(selected_const,    array_counter) = unchecked
-				notices_array(information_const, array_counter) = notice_info & " - " & notice_prog & " - " & notice_date & " - Status: " & notice_stat
-				notices_array(WCOM_row_const,    array_counter) = wcom_row
+				If notice_stat <> "Canceled" Then
+					notices_array(selected_const,    array_counter) = unchecked
+					notices_array(information_const, array_counter) = notice_info & " - " & notice_prog & " - " & notice_date & " - Status: " & notice_stat
+					notices_array(WCOM_row_const,    array_counter) = wcom_row
 
-				array_counter = array_counter + 1
+					array_counter = array_counter + 1
+				End If
 			End If
 			wcom_row = wcom_row + 1
 
@@ -460,11 +462,13 @@ Function Create_List_Of_Notices(notice_panel, notices_array, selected_const, inf
 			notice_info = trim(notice_info)
 			notice_stat = trim(notice_stat)
 
-			notices_array(selected_const,    array_counter) = unchecked
-			notices_array(information_const, array_counter) = notice_info & " - " & notice_date & " - Status: " & notice_stat
-			notices_array(WCOM_row_const,    array_counter) = memo_row
+			If notice_stat <> "Canceled" Then
+				notices_array(selected_const,    array_counter) = unchecked
+				notices_array(information_const, array_counter) = notice_info & " - " & notice_date & " - Status: " & notice_stat
+				notices_array(WCOM_row_const,    array_counter) = memo_row
 
-			array_counter = array_counter + 1
+				array_counter = array_counter + 1
+			end If
 			memo_row = memo_row + 1
 
 			EMReadScreen next_notice, 4, memo_row, 30
@@ -529,8 +533,8 @@ function Select_New_WCOM(notices_array, selected_const, information_const, WCOM_
 	    	  End If
 	    	  dlg_y_pos = dlg_y_pos + 5
 	    	  If case_number_known = False Then EditBox 75, dlg_y_pos, 125, 15, worker_signature
-			  If case_number_known = True Then Text 80, dlg_y_pos, 125, 15, worker_signature
 	    	  dlg_y_pos = dlg_y_pos + 5
+			  If case_number_known = True Then Text 80, dlg_y_pos, 125, 15, worker_signature
 	    	  Text 5, dlg_y_pos, 60, 10, "Worker Signature:"
 	    	  dlg_y_pos = dlg_y_pos + 15
 	    	  If allow_cancel = True Then
@@ -934,7 +938,7 @@ If ga_status = "ACTIVE" Then				'searching for GA Information'
 			notice_info = trim(notice_info)
 			notice_stat = trim(notice_stat)
 
-			ga_wcom_text = notice_info & " - " & notice_prog & " - " & notice_date & " - Status: " & notice_stat	'this is what is output on the dialog'
+			If notice_stat <> "Canceled" Then ga_wcom_text = notice_info & " - " & notice_prog & " - " & notice_date & " - Status: " & notice_stat	'this is what is output on the dialog'
 		End If
 		wcom_row = wcom_row + 1
 	Loop until prg_typ = "  " OR ga_wcom_text <> ""
@@ -999,7 +1003,7 @@ If msa_status = "ACTIVE" Then				'searching for MSA Information'
 			notice_info = trim(notice_info)
 			notice_stat = trim(notice_stat)
 
-			msa_wcom_text = notice_info & " - " & notice_prog & " - " & notice_date & " - Status: " & notice_stat	'this is what is output on the dialog'
+			If notice_stat <> "Canceled" Then msa_wcom_text = notice_info & " - " & notice_prog & " - " & notice_date & " - Status: " & notice_stat	'this is what is output on the dialog'
 		End If
 		wcom_row = wcom_row + 1
 	Loop until prg_typ = "  " OR msa_wcom_text <> ""
@@ -1077,7 +1081,7 @@ If mfip_status = "ACTIVE" Then				'searching for MFIP Information'
 			notice_info = trim(notice_info)
 			notice_stat = trim(notice_stat)
 
-			mfip_wcom_text = notice_info & " - " & notice_prog & " - " & notice_date & " - Status: " & notice_stat	'this is what is output on the dialog'
+			If notice_stat <> "Canceled" Then mfip_wcom_text = notice_info & " - " & notice_prog & " - " & notice_date & " - Status: " & notice_stat	'this is what is output on the dialog'
 		End If
 		wcom_row = wcom_row + 1
 	Loop until prg_typ = "  " OR mfip_wcom_text <> ""
@@ -1140,7 +1144,7 @@ If dwp_status = "ACTIVE" Then
 			notice_info = trim(notice_info)
 			notice_stat = trim(notice_stat)
 
-			dwp_wcom_text = notice_info & " - " & notice_prog & " - " & notice_date & " - Status: " & notice_stat	'this is what is output on the dialog'
+			If notice_stat <> "Canceled" Then dwp_wcom_text = notice_info & " - " & notice_prog & " - " & notice_date & " - Status: " & notice_stat	'this is what is output on the dialog'
 		End If
 		wcom_row = wcom_row + 1
 	Loop until prg_typ = "  " OR dwp_wcom_text <> ""
@@ -1203,7 +1207,7 @@ If snap_status = "ACTIVE" Then				'searching for SNAP Information'
 			notice_info = trim(notice_info)
 			notice_stat = trim(notice_stat)
 
-			snap_wcom_text = notice_info & " - " & notice_prog & " - " & notice_date & " - Status: " & notice_stat	'this is what is output on the dialog'
+			If notice_stat <> "Canceled" Then snap_wcom_text = notice_info & " - " & notice_prog & " - " & notice_date & " - Status: " & notice_stat	'this is what is output on the dialog'
 		End If
 		wcom_row = wcom_row + 1
 	Loop until prg_typ = "  " OR snap_wcom_text <> ""
@@ -1266,7 +1270,7 @@ If grh_status = "ACTIVE" Then				'searching for GRH Information'
 			notice_info = trim(notice_info)
 			notice_stat = trim(notice_stat)
 
-			grh_wcom_text = notice_info & " - " & notice_prog & " - " & notice_date & " - Status: " & notice_stat	'this is what is output on the dialog'
+			If notice_stat <> "Canceled" Then grh_wcom_text = notice_info & " - " & notice_prog & " - " & notice_date & " - Status: " & notice_stat	'this is what is output on the dialog'
 		End If
 		wcom_row = wcom_row + 1
 	Loop until prg_typ = "  " OR grh_wcom_text <> ""
