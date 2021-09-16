@@ -2,8 +2,8 @@
 name_of_script = "UTILITIES - UC VERIFICATION REQUEST.vbs"
 start_time = timer
 STATS_counter = 1
-STATS_manualtime = 180
-STATS_denominatinon = "C"
+STATS_manualtime = 300
+STATS_denominatinon = "M"
 'END OF STATS BLOCK===========================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
@@ -94,10 +94,9 @@ DO
             End if
             IF buttonpressed = HSR_manual_button then CreateObject("WScript.Shell").Run("https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Unemployment_Insurance.aspx") 'HSR manual policy page
         LOOP until ButtonPressed = -1
-        If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Enter a valid case number."
         IF team_email_dropdown = "Select One:" THEN err_msg = err_msg & vbCr & "* Specify what team/region you want to send your email to."
-        IF other_checkbox = CHECKED and trim(other_check_editbox) = "" THEN err_msg = err_msg & vbCr & "* Specify what your department you are in."
-        IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & "Resolve for the following for the script to continue." & vbcr & err_msg
+      IF other_checkbox = CHECKED and trim(other_check_editbox) = "" THEN err_msg = err_msg & vbCr & "* Specify what your department you are in."
+      IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & "Resolve for the following for the script to continue." & vbcr & err_msg
         LOOP UNTIL err_msg = ""
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not pass worded out of MAXIS, allows user to  assword back into MAXIS
 LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
@@ -106,18 +105,17 @@ CALL check_for_MAXIS(False)
 
 Call navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", is_this_priv) 'navigating to stat memb to gather the ref number and name.
 If is_this_priv = TRUE then script_end_procedure("PRIV case, cannot access/update. The script will now end.")
-
 DO
     CALL HH_member_custom_dialog(HH_member_array)
     IF uBound(HH_member_array) = -1 THEN MsgBox ("You must select at least one person.")
 LOOP UNTIL uBound(HH_member_array) <> -1
 
 back_to_SELF
+EMReadScreen county_code, 4, 21, 14  'Out of county cases from STAT
+If county_code <> "X127" then script_end_procedure("Out of County case, cannot access/update. The script will now end.")
 
-EMReadScreen county_code, 4, 21, 14  'Out of county cases from STAT ?? - What's the plam for out of county support?
-'If county_code <> "X127" then script_end_procedure("Out of County case, cannot access/update. The script will now end.")
+'--------------------------------------------------------------------------------Gathering the MEMB/ALIA information
 
-'----------------------------------------------------------------------------------------------------Gathering the MEMB/ALIA/ information
 'Establishing array
 uc_membs = 0       'incrementor for array
 DIM uc_members_array()  'Declaring the array this is what this list is
@@ -147,17 +145,13 @@ FOR EACH person IN HH_member_array
     EMReadscreen mid_initial, 1, 6, 79
     EMReadScreen client_DOB, 10, 8, 42
     EMReadscreen client_SSN, 11, 7, 42
-    If client_ssn = "___ __ ____" then client_ssn = ""
-    'Else
-        'client_ssn = replace(client_ssn, " ", "") ' workers stated it was easier to read waiting for Ilse feedback'
-    'End if
+    If client_ssn = "___ __ ____" THEN client_ssn = ""
     last_name = trim(replace(last_name, "_", "")) & " "
     first_name = trim(replace(first_name, "_", "")) & " "
     mid_initial = replace(mid_initial, "_", "")
     EMReadScreen client_age, 2, 8, 76
     IF client_age = "  " THEN client_age = 0
     client_age = client_age * 1
-    'If trim(client_age) < 18 then closing_message = TRUE  'under 18 and in school
     ReDim Preserve uc_members_array(client_alia_ssn_const, uc_membs)  'redimmed to the size of the last constant
     uc_members_array(member_number_const,     uc_membs) = ref_nbr
     uc_members_array(client_first_name_const, uc_membs) = first_name
@@ -167,6 +161,7 @@ FOR EACH person IN HH_member_array
     uc_members_array(client_ssn_const,        uc_membs) = client_SSN
     uc_members_array(client_age_const,        uc_membs) = client_age
     uc_membs = uc_membs + 1
+    STATS_counter = STATS_counter + 1
 NEXT
 '--------------------------------------------------------------------------------ALIA
 CALL navigate_to_MAXIS_screen("STAT", "ALIA")
@@ -207,10 +202,8 @@ CALL navigate_to_MAXIS_screen("STAT", "ALIA")
         Loop until row = 18
         IF left(uc_members_array(client_alia_name_const, uc_membs), 1) = "," THEN uc_members_array(client_alia_name_const, uc_membs) = right(uc_members_array(client_alia_name_const, uc_membs), len(uc_members_array(client_alia_name_const, uc_membs)) - 1)
         uc_members_array(client_alia_name_const, uc_membs) = trim(uc_members_array(client_alia_name_const, uc_membs)) 'once I have added everything to the array THEN i can format'
-
         IF left(uc_members_array(client_alia_ssn_const, uc_membs), 1) = "," THEN uc_members_array(client_alia_ssn_const, uc_membs) = right(uc_members_array(client_alia_ssn_const, uc_membs), len(uc_members_array(client_alia_ssn_const, uc_membs)) - 1)
         uc_members_array(client_alia_ssn_const, uc_membs) = trim(uc_members_array(client_alia_ssn_const, uc_membs))
-
         alia_first_name = ""
         alia_last_name = ""
         alia_client_SSN = ""
@@ -240,13 +233,9 @@ IF other_checkbox = CHECKED and other_check_editbox <> "" THEN member_info = "Ot
 
 CALL find_user_name(the_person_running_the_script)' this is for the signature in the email'
 
-'?? - maybe add 'submitted by' before the email signature
-
-'?? - Set email to true before release 
-
 'Creating the email
 'Call create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachmentsend_email)
-Call create_outlook_email(team_email, "", "UC Request for Case #" & MAXIS_case_number, member_info & vbNewLine & vbNewLine & the_person_running_the_script, "", FALSE)   'will create email, will not send.
+Call create_outlook_email(team_email, "", "UC Request for Case #" & MAXIS_case_number, member_info & vbNewLine & vbNewLine & "Submitted By: " & vbNewLine & the_person_running_the_script, "", TRUE)   'will create email, will send.
 
 script_end_procedure_with_error_report(closing_message)
 
