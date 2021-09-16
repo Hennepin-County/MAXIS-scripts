@@ -68,22 +68,20 @@ Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 311, 85, "Request for Unemployment Insurance"
   EditBox 55, 5, 40, 15, MAXIS_case_number
   ButtonGroup ButtonPressed
-    PushButton 175, 5, 15, 15, "?", initial_help_button
+    PushButton 175, 5, 15, 15, "!", initial_help_button
     PushButton 200, 5, 105, 15, "Unemployment Insurance", HSR_manual_button
-  DropListBox 250, 30, 55, 15, "Select One:"+chr(9)+"1800 Chicago"+chr(9)+"Central/NE"+chr(9)+"HC in METs"+chr(9)+"QI"+chr(9)+"Northwest"+chr(9)+"South", team_email_dropdown
+  DropListBox 245, 30, 60, 15, "Select One:"+chr(9)+"1800 Chicago"+chr(9)+"Central/NE"+chr(9)+"HC in METs"+chr(9)+"QI"+chr(9)+"Northwest"+chr(9)+"South", team_email_dropdown
   CheckBox 10, 35, 25, 10, "CCA", cca_checkbox
   CheckBox 10, 50, 80, 10, "Other (please specify)", other_checkbox
   EditBox 95, 45, 45, 15, other_check_editbox
   ButtonGroup ButtonPressed
     OkButton 195, 50, 55, 15
-  ButtonGroup ButtonPressed
     CancelButton 250, 50, 55, 15
   Text 5, 10, 50, 10, "Case Number:"
   GroupBox 5, 25, 140, 40, "Department (if outside ES)"
   Text 5, 70, 305, 10, "Overpaypayment, tax, child/spousal support deductions will be reviewed for this individual."
   Text 170, 35, 70, 10, "Select a team/region:"
 EndDialog
-
 
 DO
     DO
@@ -96,29 +94,30 @@ DO
             End if
             IF buttonpressed = HSR_manual_button then CreateObject("WScript.Shell").Run("https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Unemployment_Insurance.aspx") 'HSR manual policy page
         LOOP until ButtonPressed = -1
-        IF team_email_dropdown = "Select One:" THEN err_msg = err_msg & vbCr & "Please specify what team/region you want to send your email to."
-
         If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Enter a valid case number."
-        IF other_checkbox = CHECKED and other_check_editbox = "" THEN err_msg = err_msg & vbCr & "Please specify what your department you are in."
-        IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+        IF team_email_dropdown = "Select One:" THEN err_msg = err_msg & vbCr & "* Specify what team/region you want to send your email to."
+        IF other_checkbox = CHECKED and trim(other_check_editbox) = "" THEN err_msg = err_msg & vbCr & "* Specify what your department you are in."
+        IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & "Resolve for the following for the script to continue." & vbcr & err_msg
         LOOP UNTIL err_msg = ""
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not pass worded out of MAXIS, allows user to  assword back into MAXIS
 LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
+CALL check_for_MAXIS(False)
+
 Call navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", is_this_priv) 'navigating to stat memb to gather the ref number and name.
 If is_this_priv = TRUE then script_end_procedure("PRIV case, cannot access/update. The script will now end.")
+
 DO
     CALL HH_member_custom_dialog(HH_member_array)
     IF uBound(HH_member_array) = -1 THEN MsgBox ("You must select at least one person.")
 LOOP UNTIL uBound(HH_member_array) <> -1
 
-EMReadScreen county_code, 4, 21, 14  'Out of county cases from STAT
+back_to_SELF
+
+EMReadScreen county_code, 4, 21, 14  'Out of county cases from STAT ?? - What's the plam for out of county support?
 'If county_code <> "X127" then script_end_procedure("Out of County case, cannot access/update. The script will now end.")
 
-CALL check_for_MAXIS(False)
-
 '----------------------------------------------------------------------------------------------------Gathering the MEMB/ALIA/ information
-
 'Establishing array
 uc_membs = 0       'incrementor for array
 DIM uc_members_array()  'Declaring the array this is what this list is
@@ -183,7 +182,7 @@ CALL navigate_to_MAXIS_screen("STAT", "ALIA")
             alia_first_name = replace(alia_first_name, "_", "")
             alia_first_name = trim(alia_first_name)
             EMReadScreen mid_initial, 1, row, 75
-            IF alia_last_name = "" THEN   EXIT DO
+            IF alia_last_name = "" THEN EXIT DO
             row = row + 1
             uc_members_array(client_alia_name_const, uc_membs) = uc_members_array(client_alia_name_const, uc_membs) & ", " & alia_first_name & " " & alia_last_name
         Loop until row = 13
@@ -219,10 +218,10 @@ CALL navigate_to_MAXIS_screen("STAT", "ALIA")
     NEXT
 
 FOR uc_membs = 0 to Ubound(uc_members_array, 2) 'start at the zero person and go to each of the selected people '
-    member_info = member_info & vbNewLine & "-------------"  & vbNewLine  & "Name of Resident: " & uc_members_array(client_first_name_const, uc_membs) & " " & uc_members_array(client_mid_name_const, uc_membs) & " " & uc_members_array(client_last_name_const, uc_membs)  &  vbCr & "DOB: " & uc_members_array(client_DOB_const,  uc_membs) &  vbcr & "SSN of Resident: " & uc_members_array(client_ssn_const,  uc_membs)
+    member_info = member_info & "-------------"  & vbNewLine  & "Name of Resident: " & uc_members_array(client_first_name_const, uc_membs) & " " & uc_members_array(client_mid_name_const, uc_membs) & " " & uc_members_array(client_last_name_const, uc_membs)  &  vbCr & "DOB: " & uc_members_array(client_DOB_const,  uc_membs) &  vbcr & "SSN of Resident: " & uc_members_array(client_ssn_const,  uc_membs)
     IF trim(uc_members_array(client_alia_name_const, uc_membs)) <> "" THEN member_info = member_info & vbNewLine &  "ALIA Name: " & uc_members_array(client_alia_name_const, uc_membs)
     If trim(uc_members_array(client_alia_ssn_const,  uc_membs)) <> "" THEN member_info = member_info & vbNewLine & "ALIA SSN: " & uc_members_array(client_alia_ssn_const,  uc_membs)
-    member_info = member_info & vbNewLine & "Please review deductions and withholdings for this individual. "
+    member_info = member_info & vbNewLine & "Please review deductions and withholdings for this individual. " & vbNewLine
 NEXT
 
 IF team_email_dropdown = "Central/NE" THEN team_email_dropdown = "HSPH.ES.DEED"
@@ -240,6 +239,10 @@ IF cca_checkbox = CHECKED THEN member_info = "CCA Request" & vbNewLine & member_
 IF other_checkbox = CHECKED and other_check_editbox <> "" THEN member_info = "Other Request: " & other_check_editbox & vbNewLine & member_info
 
 CALL find_user_name(the_person_running_the_script)' this is for the signature in the email'
+
+'?? - maybe add 'submitted by' before the email signature
+
+'?? - Set email to true before release 
 
 'Creating the email
 'Call create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachmentsend_email)
