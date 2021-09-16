@@ -110,10 +110,10 @@ DO
     IF uBound(HH_member_array) = -1 THEN MsgBox ("You must select at least one person.")
 LOOP UNTIL uBound(HH_member_array) <> -1
 
-back_to_SELF
-EMReadScreen county_code, 4, 21, 14  'Out of county cases from STAT
+EMReadScreen county_code, 4, 21, 21  'Out of county cases from STAT/MEMB will not work on back to self
 If county_code <> "X127" then script_end_procedure("Out of County case, cannot access/update. The script will now end.")
 
+back_to_SELF
 '--------------------------------------------------------------------------------Gathering the MEMB/ALIA information
 
 'Establishing array
