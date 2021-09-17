@@ -53,6 +53,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County
+call changelog_update("09/17/2021", "Removed the field for 'Requested by X#' in the 'Request to APPL' option as this information will no longer be in the CASE/NOTE as this information is not pertinent to case actions/decisions.##~##", "Casey Love, Hennepin County")
 call changelog_update("09/10/2021", "This is a very large update for the script.##~## ##~##We have reordered the functionality and consolidated the dialogs to have fewer interruptions in the process and to support the natural order of completing a pending update.##~##", "Casey Love, Hennepin County")
 call changelog_update("08/03/2021", "GitHub Issue #547, added Mail as an option for how an application can be received.", "MiKayla Handley, Hennepin County")
 call changelog_update("08/01/2021", "Changed the notices sent in 2 ways:##~## ##~## - Updated verbiage on how to submit documents to Hennepin.##~## ##~## - Appointment Notices will now be sent with a date of 5 days from the date of application.##~##", "Casey Love, Hennepin County")
@@ -571,9 +572,9 @@ BeginDialog Dialog1, 0, 0, 266, dlg_len, "Actions in MAXIS"
       EditBox 85, y_pos, 45, 15, request_date
       Text 15, y_pos + 5, 60, 10, "Submission Date:"
       y_pos = y_pos + 20
-      EditBox 85, y_pos, 45, 15, request_worker_number
-      Text 15, y_pos + 5, 60, 10, "Requested By X#:"
-      y_pos = y_pos + 20
+      ' EditBox 85, y_pos, 45, 15, request_worker_number
+      ' Text 15, y_pos + 5, 60, 10, "Requested By X#:"
+      ' y_pos = y_pos + 20
       EditBox 85, y_pos, 45, 15, METS_case_number
       Text 15, y_pos + 5, 55, 10, "METS Case #:"
       y_pos = reset_y
