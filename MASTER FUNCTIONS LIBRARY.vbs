@@ -455,6 +455,7 @@ For Each objFile in colFiles																'looping through each file
 	this_file_path = objFile.Path															'Grabing the path for the file
 
 	If InStr(this_file_name, "caf-answers-") <> 0 Then delete_this_file = True				'We want to delete files that say 'caf-answers-' as this is how the UTILITIES - Complete Phone CAF script creates the save your work doc
+	If InStr(this_file_name, "caf-variables-") <> 0 Then delete_this_file = True				'We want to delete files that say 'caf-answers-' as this is how the UTILITIES - Complete Phone CAF script creates the save your work doc
 	If InStr(this_file_name, "interview-answers-") <> 0 Then delete_this_file = True		'We want to delete files that say 'interview-answers-' as this is how the NOTES - Interview script creates the save your work doc
 	If this_file_type <> "Text Document" then delete_this_file = False						'We do NOT want to delete files that are NOT TXT file types
 	If DateDiff("d", this_file_created_date, date) < 8 Then delete_this_file = False		'We do NOT want to delete files that are 7 days old or less - we may need to reference the saved work in these files.
