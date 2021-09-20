@@ -1141,7 +1141,7 @@ If dwp_status = "ACTIVE" Then
 	Call back_to_SELF		'reset
 
 	Call navigate_to_MAXIS_screen("ELIG", "DWP")			'since we are set to CM + 1, this reads the most recent month
-	EMWriteScreen "99", 19, 78							'opening the version histor of ELIG
+	EMWriteScreen "99", 20, 79							'opening the version histor of ELIG
 	transmit
 
 	'This brings up the cash versions of eligibilty results to search for approved versions
@@ -1168,7 +1168,7 @@ If dwp_status = "ACTIVE" Then
 		EMReadScreen prg_typ, 2, wcom_row, 26			'reading the program and title of the notice
 		EMReadScreen notc_title, 30, wcom_row, 30
 
-		If prg_typ = "FS" AND InStr(notc_title, "ELIG") <> 0 Then		'the program needs to be DWP and the title should have ELIG in it.
+		If prg_typ = "DW" AND InStr(notc_title, "ELIG") <> 0 Then		'the program needs to be DWP and the title should have ELIG in it.
 			dwp_wcom_row = wcom_row										'saving the row of the WCOM and which notice in the list it is specific to DWP
 			dwp_wcom_position = wcom_row - 6
 			EMReadScreen notice_date, 8,  wcom_row, 16
