@@ -150,7 +150,6 @@ MAXIS_background_check      'Making sure we are out of background.
 Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status)
 EMReadScreen case_status, 15, 8, 9                  'Now we are reading the CASE STATUS string from the panel - we want to make sure this does NOT read CAF1 PENDING
 EMReadScreen pnd2_appl_date, 8, 8, 29               'Grabbing the PND2 date from CASE CURR in case the information cannot be pulled from REPT/PND2
-
 ive_status = "INACTIVE"                             'There are some programs that are NOT read from the function and are pretty specific to this script/functionality
 cca_status = "INACTIVE"                             'defaulting these statuses to 'INACTIVE' until they are read from the panel
 ega_status = "INACTIVE"
@@ -246,7 +245,7 @@ If additional_application_check = "ADDITIONAL APP" THEN                         
     application_date = app_date_to_use                          'setting the application date selected to the application_date variable
 End If
 
-IF application_date = "" THEN                   'If we could NOT find the application date - then it will use the PND2 application date.
+IF IsDate(application_date) = False THEN                   'If we could NOT find the application date - then it will use the PND2 application date.
     application_date = pnd2_appl_date
 End if
 
@@ -285,6 +284,15 @@ If right(programs_applied_for, 1) = "," THEN programs_applied_for = left(program
 
 Call back_to_SELF
 Call navigate_to_MAXIS_screen("STAT", "PROG")           'going here because this is a good background for the dialog to display against.
+
+IF IsDate(application_date) = False THEN
+    stop_early_msg = "This script cannot continue as the application date could not be found from MAXIS."
+    stop_early_msg = stop_early_msg & vbCr & vbCr & "CASE: " & MAXIS_case_number
+    stop_early_msg = stop_early_msg & vbCr & "Application Date: " & application_date
+    stop_early_msg = stop_early_msg & vbCr & "Programs applied for: " & programs_applied_for
+    stop_early_msg = stop_early_msg & vbCr & vbCr & "If you are unsure why this happened, screenshot this and send it to HSPH.EWS.BlueZoneScripts@hennepin.us"
+    Call script_end_procedure_with_error_report(stop_early_msg)
+End If
 
 'THIS COMMENTED OUT DIALOG IS THE DLG EDITOR FRIENDLY VERSION SINCE THERE IS LOGIC IN THE DIALOG
 '-------------------------------------------------------------------------------------------------DIALOG
