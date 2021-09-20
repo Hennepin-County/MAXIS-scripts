@@ -3364,12 +3364,14 @@ function read_JOBS_panel()
     '  Reads the information on the retro side of JOBS
     EMReadScreen retro_JOBS_amt, 8, 17, 38
     EMReadScreen retro_JOBS_hrs, 3, 18, 43
+    retro_JOBS_hrs = replace(retro_JOBS_hrs, "_", "")
     ALL_JOBS_PANELS_ARRAY(job_retro_income, job_count) = trim(retro_JOBS_amt)
     ALL_JOBS_PANELS_ARRAY(retro_hours, job_count) = trim(retro_JOBS_hrs)
 
     '  Reads the information on the prospective side of JOBS
     EMReadScreen prospective_JOBS_amt, 8, 17, 67
     EMReadScreen prosp_JOBS_hrs, 3, 18, 72
+    prosp_JOBS_hrs = replace(prosp_JOBS_hrs, "_", "")
     ALL_JOBS_PANELS_ARRAY(job_prosp_income, job_count) = trim(prospective_JOBS_amt)
     ALL_JOBS_PANELS_ARRAY(prosp_hours, job_count) = trim(prosp_JOBS_hrs)
 
@@ -3395,7 +3397,11 @@ function read_JOBS_panel()
     End If
     EMReadScreen JOBS_income_end_date, 8, 9, 49
     'This now cleans up the variables converting codes read from the panel into words for the final variable to be used in the output.
-    If JOBS_income_end_date <> "__ __ __" then JOBS_income_end_date = replace(JOBS_income_end_date, " ", "/")
+    If JOBS_income_end_date <> "__ __ __" then
+        JOBS_income_end_date = replace(JOBS_income_end_date, " ", "/")
+        ALL_JOBS_PANELS_ARRAY(job_prosp_income, job_count) = "0.00"
+        ALL_JOBS_PANELS_ARRAY(prosp_hours, job_count) = "0"
+    End If
     If IsDate(JOBS_income_end_date) = True then ALL_JOBS_PANELS_ARRAY(budget_explain, job_count) = "Income ended " & JOBS_income_end_date & ".; "
 
     If ALL_JOBS_PANELS_ARRAY(main_pay_freq, job_count) = "4" Then ALL_JOBS_PANELS_ARRAY(main_pay_freq, job_count) = "Weekly"
