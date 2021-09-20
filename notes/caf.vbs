@@ -1221,7 +1221,7 @@ function save_your_work()
             objTextStream.WriteLine "notes_on_busi" & "^~^~^~^~^~^~^" & notes_on_busi
             'DLG 1
             If Used_Interpreter_checkbox = checked Then objTextStream.WriteLine "Used_Interpreter_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
-            objTextStream.WriteLine "how_app_rcvd" & "^~^~^~^~^~^~^" & how_app_rcvd
+            ' objTextStream.WriteLine "how_app_rcvd" & "^~^~^~^~^~^~^" & how_app_rcvd
             objTextStream.WriteLine "arep_id_info" & "^~^~^~^~^~^~^" & arep_id_info
             objTextStream.WriteLine "CS_forms_sent_date" & "^~^~^~^~^~^~^" & CS_forms_sent_date
             objTextStream.WriteLine "case_changes" & "^~^~^~^~^~^~^" & case_changes
@@ -1900,7 +1900,7 @@ function restore_your_work(vars_filled)
                         'DLG 1
                         ' If Used_Interpreter_checkbox = checked Then objTextStream.WriteLine
                         If line_info(0) = "Used_Interpreter_checkbox" and line_info(1) = "CHECKED" Then Used_Interpreter_checkbox = checked
-                        If line_info(0) = "how_app_rcvd" Then how_app_rcvd = line_info(1)
+                        ' If line_info(0) = "how_app_rcvd" Then how_app_rcvd = line_info(1)
                         If line_info(0) = "arep_id_info" Then arep_id_info = line_info(1)
                         If line_info(0) = "CS_forms_sent_date" Then CS_forms_sent_date = line_info(1)
                         ' If line_info(0) = "case_changes" Then case_changes = line_info(1)
@@ -5212,7 +5212,7 @@ Dim appt_date_in_note, addr_line_one, addr_line_two, city, state, zip, addr_coun
 Dim mail_line_two, mail_city_line, mail_state_line, mail_zip_line, notes_on_address, total_shelter_amount, full_shelter_details, shelter_details, shelter_details_two, shelter_details_three
 Dim prosp_heat_air, prosp_electric, prosp_phone, ABPS, ACCI, notes_on_acct, notes_on_acut, AREP, BILS, notes_on_cash, notes_on_cars, notes_on_coex, notes_on_dcex, DIET, DISA, EMPS
 Dim FACI, FMED, IMIG, INSA, cit_id, other_assets, case_changes, PREG, earned_income, notes_on_rest, SCHL, notes_on_jobs, notes_on_time, notes_on_sanction, notes_on_wreg, full_abawd_info, notes_on_abawd
-Dim notes_on_abawd_two, notes_on_abawd_three, programs_applied_for, TIKL_checkbox, interview_memb_list, shel_memb_list, verification_memb_list, notes_on_busi, Used_Interpreter_checkbox, how_app_rcvd
+Dim notes_on_abawd_two, notes_on_abawd_three, programs_applied_for, TIKL_checkbox, interview_memb_list, shel_memb_list, verification_memb_list, notes_on_busi, Used_Interpreter_checkbox
 Dim arep_id_info, CS_forms_sent_date, notes_on_ssa_income, notes_on_VA_income, notes_on_WC_income, other_uc_income_notes, notes_on_other_UNEA, hest_information, notes_on_other_deduction, expense_notes
 Dim address_confirmation_checkbox, manual_total_shelter, app_month_assets, confirm_no_account_panel_checkbox, notes_on_other_assets, MEDI, DISQ, MFIP_DVD_checkbox, full_determination_done
 Dim determined_income, determined_assets, determined_shel, determined_utilities, calculated_resources, calculated_expenses, calculated_low_income_asset_test, calculated_resources_less_than_expenses_test
@@ -6184,8 +6184,8 @@ Do
                                             BeginDialog Dialog1, 0, 0, 465, dlg_len, "CAF Dialog 1 - Personal Information"
                                               If interview_required = TRUE Then Text 5, 10, 300, 10,  "* CAF datestamp:                             * Interview type:"
                                               If interview_required = FALSE Then Text 5, 10, 300, 10, "* CAF datestamp:                             Interview type:"
-                                              If interview_required = TRUE Then Text 5, 30, 300, 10,  "* Interview date:                               * How was application received?:"
-                                              If interview_required = FALSE Then Text 5, 30, 300, 10, "  Interview date:                               * How was application received?:"
+                                              If interview_required = TRUE Then Text 5, 30, 300, 10,  "* Interview date:"
+                                              If interview_required = FALSE Then Text 5, 30, 300, 10, "  Interview date:"
                                               If interview_required = TRUE Then Text 5, 50, 400, 10, "* Interview completed with:                                                                                     If AREP Intvw, ID Info:"
                                               If interview_required = FALSE Then Text 5, 50, 85, 10, "Interview completed with: "
 
@@ -6193,7 +6193,6 @@ Do
                                               ComboBox 175, 5, 70, 15, "Select or Type"+chr(9)+"phone"+chr(9)+"office"+chr(9)+interview_type, interview_type
                                               CheckBox 255, 10, 65, 10, "Used Interpreter", Used_Interpreter_checkbox
                                               EditBox 60, 25, 50, 15, interview_date
-                                              ComboBox 230, 25, 95, 15, "Select or Type"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Office"+chr(9)+"Online"+chr(9)+how_app_rcvd, how_app_rcvd
                                               ComboBox 90, 45, 150, 45, interview_memb_list+chr(9)+interview_with, interview_with
                                               ButtonGroup ButtonPressed
                                                 PushButton 240, 45, 15, 15, "!", tips_and_tricks_interview_button
