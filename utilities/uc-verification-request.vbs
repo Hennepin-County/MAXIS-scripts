@@ -1,7 +1,7 @@
 'GATHERING STATS===========================================================================================
 name_of_script = "UTILITIES - UC VERIFICATION REQUEST.vbs"
 start_time = timer
-STATS_counter = 1
+STATS_counter = 0
 STATS_manualtime = 300
 STATS_denominatinon = "M"
 'END OF STATS BLOCK===========================================================================================
@@ -54,7 +54,6 @@ call changelog_update("07/30/2021", "Inital Version.", "MiKayla Handley")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-
 
 'Grabs the case number
 EMConnect ""
