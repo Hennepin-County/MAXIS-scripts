@@ -8598,6 +8598,7 @@ If TIKL_checkbox = checked and CAF_type <> "Recertification" then
         TIKL_msg_one = TIKL_msg_one & " has been pending for 30 days. Evaluate for possible denial."
 		'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
         Call create_TIKL(TIKL_msg_one, 30, CAF_datestamp, False, TIKL_note_text)
+        Call back_to_SELF
 	End If
 ElseIf TIKL_checkbox = checked and CAF_type = "Recertification" then
     TIKL_checkbox = unchecked
@@ -8605,6 +8606,7 @@ End if
 If client_delay_TIKL_checkbox = checked then
     'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
     Call create_TIKL(">>>UPDATE PND2 FOR CLIENT DELAY IF APPROPRIATE<<<", 10, date, False, TIKL_note_text)
+    Call back_to_SELF
 End if
 
 For each_unea_memb = 0 to UBound(UNEA_INCOME_ARRAY, 2)
@@ -8613,6 +8615,7 @@ For each_unea_memb = 0 to UBound(UNEA_INCOME_ARRAY, 2)
             'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
             tikl_msg = "Review UC Income for Member " & UNEA_INCOME_ARRAY(memb_numb, each_unea_memb) & " as it may have ended or be near ending."
             Call create_TIKL(TIKL_msg, 10, UNEA_INCOME_ARRAY(UNEA_UC_tikl_date, each_unea_memb), False, TIKL_note_text)
+            Call back_to_SELF
         End If
     End If
 Next
@@ -8699,6 +8702,7 @@ If HC_checkbox = checked Then
         Else
             'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
             Call create_TIKL("HC pending 45 days. Evaluate for possible denial. If any members are elderly/disabled, allow an additional 15 days and reTIKL out.", 45, HC_datestamp, False, TIKL_note_text)
+            Call back_to_SELF
         End If
     End If
 End If
@@ -9995,6 +9999,7 @@ IF SNAP_recert_is_likely_24_months = TRUE THEN					'if we determined on stat/rev
 	IF TIKL_for_24_month = vbYes THEN 												'if the select YES then we TIKL using our custom functions.
 		'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
         Call create_TIKL("If SNAP is open, review to see if 12 month contact letter is needed. DAIL scrubber can send 12 Month Contact Letter if used on this TIKL.", 0, dateadd("m", "-1", SNAP_recert_compare_date), False, TIKL_note_text)
+        Call back_to_SELF
 	END IF
 END IF
 
