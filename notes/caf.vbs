@@ -6155,9 +6155,7 @@ If vars_filled = False Then
     End If
 End If
 
-' call verification_dialog
 prev_err_msg = ""
-
 Do
     Do
         Do
